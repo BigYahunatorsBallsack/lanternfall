@@ -88,7 +88,7 @@ Sind alle gleichzeitig down, endet der Run sofort – Embers gibt es trotzdem f�
 Spieler steuern nur Bewegung und einen Dash; Angreifen, Zielen und Aufsammeln passiert automatisch.
 
 - **Mobile:** virtueller Stick links, Dash-Button rechts. **PC:** WASD + Leertaste. **Konsole:** linker Stick + A.
-- **Kamera:** feste Top-down-Kamera (etwa 60° schräg, fester Zoom).
+- **Kamera:** feste Top-down-Kamera (etwa 60° schräg, fester Zoom). Bewusst nicht wie Megabonk (Third-Person hinter der Figur, drehbar): Waffen zielen automatisch, man soll die Traube rundherum sehen, und am Handy reicht ein Daumen (Entscheidung des Owners, Paket 4). Die Kamera steht südlich der Figur und schaut nach Norden, W/Stick nach oben läuft also immer bildschirm-aufwärts.
 - **Zielen:** jede Waffe hat eine feste Zielregel (nächster Gegner, zufälliger Gegner, um den Spieler herum).
 - **Charakter:** Roblox-R15-Avatar mit Klassen-Kostüm darüber (Abschnitt 14).
 
@@ -102,6 +102,8 @@ Spieler steuern nur Bewegung und einen Dash; Angreifen, Zielen und Aufsammeln pa
 | Regeneration | 0 HP/s | nur über spätere Passive |
 | Schutz nach Treffer | 0,5 s | verhindert Sofort-Tod im Pulk |
 | Krit-Chance | 5 % | Krit = doppelter Schaden |
+
+Seit Paket 4 umgesetzt (Werte in `Config/Player.luau` und `Config/Camera.luau`): Kamera 60° Neigung, 70 Studs Abstand, Sichtfeld 40°, folgt weich. Springen ist aus; Leertaste, Gamepad-A und ein runder Dash-Knopf unten rechts lösen den Dash aus (am Handy größer). Der Dash schiebt die Figur in 0,15 s 12 Studs in Laufrichtung (im Stand in Blickrichtung); Wände und Ruinen stoppen ihn. Der Knopf zeigt den Cooldown als dunkle Füllung. Wer „down" ist, kann nicht laufen und nicht dashen. Klassenbonus auf HP wird beim Run-Start eingerechnet (Blade Warden 120 HP). Im HUD unten Mitte die eigene HP-Leiste (rot unter 30 %), kurzer roter Bildschirm-Blitz bei Treffern, HP der Mitspieler in der Team-Liste.
 
 Alle Werte stehen in Config-Modulen, nicht im Code.
 
@@ -326,7 +328,7 @@ VFX & Audio                                                 PlayerDataService (P
 ```text
 src/shared/          → ReplicatedStorage.Shared
   Config/            Player, Weapons, Passives, Evolutions, Enemies, Classes, Run, Talents,
-                     Economy, Difficulty, Simulation
+                     Economy, Difficulty, Simulation, Map, Admin, Camera
   Net/               Definition aller RemoteEvents und Snapshot-Format
   Util/              SpatialHash, Signal, Loader, Format
 src/server/          → ServerScriptService.Server
@@ -334,7 +336,7 @@ src/server/          → ServerScriptService.Server
                      LootService, ReviveService, PlayerDataService, MonetizationService, AnalyticsService,
                      MapService (Platzhalter-Karte), AdminService (Test-Befehle)
 src/client/          → StarterPlayer.StarterPlayerScripts.Client
-  Controllers/       InputController, CameraController, EnemyRenderer (+ SnapshotBuffer, Models), HUDController, VFXController,
+  Controllers/       InputController, CameraController, PlayerStateController, EnemyRenderer (+ SnapshotBuffer, Models), HUDController, VFXController,
                      RunStateController, LobbyController, ResultsController, NotifyController, DebugController
   UI/                Theme, Widgets (UI im Code gebaut)
 tests/               Unit-Tests für reine Module (Runner in tools/luau-test-runner)
@@ -356,6 +358,7 @@ tests/               Unit-Tests für reine Module (Runner in tools/luau-test-run
   3. Überlappungen in 3 Durchgängen auflösen, nach Masse verteilt.
   4. Gegner aus Hindernissen und Spielern schieben und in der Arena halten.
   5. Kontakte melden: pro Spieler und Schritt höchstens ein Signal mit dem höchsten Kontaktschaden.
+     Geprüft wird dort, wo der Spieler auf seinem Bildschirm schon ist: Position + Geschwindigkeit × (0,15 s + Ping), höchstens 5 Studs voraus. Sonst treffen Gegner, die man noch gar nicht berührt sieht, weil der Client Gegner leicht verzögert zeigt und der Server den Spieler leicht verzögert sieht (Feedback des Owners, Paket 4). Spieler-Kreis 1,2 Studs, Kontakt-Zugabe 0,3 Studs.
 - Spatial Hash (Rastergröße 8 Studs, `Util/SpatialHash.luau`) für Nachbarn und Treffer – keine Roblox-Physik, keine Raycasts pro Gegner.
 - Hindernisse sind Kreise (`Config/Map.luau` → `arena.obstacles`); MapService baut dazu runde Säulen, an denen auch Spieler hängen bleiben.
 - Gemessen im Test-Runner: 140 Gegner mit 4 Spielern ≈ 1–1,6 ms pro Schritt (Budget 4 ms).
@@ -371,7 +374,15 @@ tests/               Unit-Tests für reine Module (Runner in tools/luau-test-run
 - `EnemySim.spawn(enemyId, x, z, hpMultiplier, damageMultiplier)` – SpawnDirector, Boss (Paket 10).
 - `EnemySim.damage(id, amount, player)`, `queryRadius(position, radius, out)`, `nearest(position, maxRange)`, `getPosition(id)`, `killAll()` – Waffen (Paket 5), Debug.
 - Signal `EnemySim.EnemyKilled(info)` mit Typ, Position, XP und Killer – XP-Orbs (Paket 6), Truhen (Paket 9), Statistik.
-- Signal `EnemySim.Contact(player, damage)` – Spieler-HP mit 0,5 s Schutz nach Treffer (Paket 4). Bis dahin tun Gegner niemandem weh.
+- Signal `EnemySim.Contact(player, damage)` – Spieler-HP mit 0,5 s Schutz nach Treffer (seit Paket 4 über CombatService).
+
+**Spieler** (seit Paket 4)
+
+- **CombatService** (Server) hält HP, Rüstung, Schutzfenster und Dash-Cooldown pro Spieler; die Regeln stehen als reines Modul in `CombatService/Vitals.luau` (mit Unit-Tests). Kontaktschaden kommt von `EnemySim.Contact`; bei 0 HP setzt der Service den Spieler über `RunDirector.setParticipantState` auf Down. Wieder Alive (Debug-Knopf, später Paket 11) → 40 % HP. Bei Countdown und Lobby volle HP.
+- Schnittstellen für spätere Pakete: `CombatService.damagePlayer(player, damage)` (Projektile, Boss), `healPlayer(player, amount)` (Heilung, Passive), `protect(player, seconds)` (Level-up-Wahl, Paket 6), `getHp(player)`.
+- Dash: Der Client bewegt die eigene Figur sofort (LinearVelocity entlang des Bodens) und schickt `RequestDash`; der Server prüft den Cooldown (0,25 s Kulanz für Ping) und gibt 0,3 s Unverwundbarkeit. Die Bewegung selbst ist wie bei jeder Roblox-Figur Sache des Clients; der Plausibilitätscheck für Bewegung folgt im Sicherheits-Paket 23.
+- `PlayerState` geht bei jeder Änderung an alle Clients (`Net/Types.PlayerVitals`: HP, Max-HP, Dash bereit ab, unverwundbar bis). Ein neuer Client bekommt alle Stände mit `RequestSync` (Signal `RunDirector.SyncRequested`).
+- Client: `InputController` (Dash, Springen aus, Roblox-Lebensanzeige aus), `CameraController`, `PlayerStateController` (Stände + vorhergesagter Cooldown).
 
 **Performance-Budgets**
 
@@ -409,7 +420,7 @@ tests/               Unit-Tests für reine Module (Runner in tools/luau-test-run
 - Game Passes beim Join prüfen und cachen, Käufe in der Sitzung sofort freischalten.
 - Entwicklung in einer separaten Test-Experience.
 
-**Sicherheit:** Client schickt nur Absichten (Bewegung, Dash, Level-up-Wahl, Kaufwunsch). Server berechnet Schaden, Kills, XP, Drops, Embers, Truhen, Ranglistenwerte. Jede Remote mit Rate-Limit und Validierung (nur angebotene Karten-IDs, Dash nur nach Cooldown). Bewegungs-Plausibilitätscheck. Admin-Befehle nur für die UserId des Owners, serverseitig geprüft: Admin ist, wer in Studio testet, der Besitzer einer Experience im eigenen Account (`game.CreatorId`) und wer in `Config/Admin.luau` steht. Test-Befehle seit Paket 2: Timer +1 Minute, zu 11:50 springen, sich selbst umhauen/aufstehen, Run gewinnen. Seit Paket 3: 40 Gegner um sich spawnen (Obergrenze gilt), Gegner in 20 Studs Umkreis treffen (5 Schaden), alle Gegner töten, Spawnen pausieren/fortsetzen; dazu eine Messanzeige unten links (Gegnerzahl, Spawnrate, Serverzeit pro Schritt, Gegnerdaten in KB/s, FPS; rot, wenn ein Budget überschritten ist).
+**Sicherheit:** Client schickt nur Absichten (Bewegung, Dash, Level-up-Wahl, Kaufwunsch). Server berechnet Schaden, Kills, XP, Drops, Embers, Truhen, Ranglistenwerte. Jede Remote mit Rate-Limit und Validierung (nur angebotene Karten-IDs, Dash nur nach Cooldown). Bewegungs-Plausibilitätscheck. Admin-Befehle nur für die UserId des Owners, serverseitig geprüft: Admin ist, wer in Studio testet, der Besitzer einer Experience im eigenen Account (`game.CreatorId`) und wer in `Config/Admin.luau` steht. Test-Befehle seit Paket 2: Timer +1 Minute, zu 11:50 springen, sich selbst umhauen/aufstehen, Run gewinnen. Seit Paket 3: 40 Gegner um sich spawnen (Obergrenze gilt), Gegner in 20 Studs Umkreis treffen (5 Schaden), alle Gegner töten, Spawnen pausieren/fortsetzen. Seit Paket 4: sich selbst 25 Schaden geben (Rüstung und Schutz gelten), sich voll heilen; dazu eine Messanzeige unten links (Gegnerzahl, Spawnrate, Serverzeit pro Schritt, Gegnerdaten in KB/s, FPS; rot, wenn ein Budget überschritten ist).
 
 ## 17. Compliance & Plattform-Regeln
 

@@ -272,6 +272,12 @@ function RunFlow.getParticipantState(self: RunFlow, userId: number): Participant
 	return if participant then participant.state else nil
 end
 
+-- Class locked in at run start, nil for non-participants.
+function RunFlow.getParticipantClassId(self: RunFlow, userId: number): string?
+	local participant = self.participants[userId]
+	return if participant then participant.classId else nil
+end
+
 -- Seconds since the run started (frozen once it ended), 0 outside a run.
 function RunFlow.getElapsed(self: RunFlow, now: number): number
 	local startedAt = self.runStartedAt

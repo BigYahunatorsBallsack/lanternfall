@@ -75,11 +75,19 @@ local targetPlayers: { Player } = {}
 local targetXs: { number } = {}
 local targetZs: { number } = {}
 local targetCount = 0
+-- Where contacts are checked: the target moved ahead along its velocity (see Config.Simulation).
+local contactXs: { number } = {}
+local contactZs: { number } = {}
 
 local columns = Snapshot.newColumns()
 
 local stats: Stats = { stepMilliseconds = 0, stepMaxMilliseconds = 0, stepsPerSecond = 0, sentKilobytesPerSecond = 0 }
 local window = { startedAt = os.clock(), steps = 0, seconds = 0, maxSeconds = 0, bytes = 0 }
+
+local function pingOf(player: Player): number
+	local ok, ping = pcall(player.GetNetworkPing, player)
+	return if ok and typeof(ping) == "number" then math.clamp(ping, 0, Sim.contactLeadMaxPing) else 0
+end
 
 local function collectTargets()
 	targetCount = 0
@@ -91,6 +99,13 @@ local function collectTargets()
 				targetPlayers[targetCount] = player
 				targetXs[targetCount] = position.X
 				targetZs[targetCount] = position.Z
+				local lead = MapService.getRootVelocity(player) * (Sim.contactLeadSeconds + pingOf(player))
+				lead = Vector3.new(lead.X, 0, lead.Z)
+				if lead.Magnitude > Sim.contactLeadMaxStuds then
+					lead = lead.Unit * Sim.contactLeadMaxStuds
+				end
+				contactXs[targetCount] = position.X + lead.X
+				contactZs[targetCount] = position.Z + lead.Z
 			end
 		end
 	end
@@ -102,7 +117,7 @@ end
 local function stepOnce()
 	local startedAt = os.clock()
 	collectTargets()
-	local contacts = world:step(STEP_SECONDS, targetXs, targetZs, targetCount)
+	local contacts = world:step(STEP_SECONDS, targetXs, targetZs, targetCount, contactXs, contactZs)
 	currentTick += 1
 	local seconds = os.clock() - startedAt
 	window.steps += 1

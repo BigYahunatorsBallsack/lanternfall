@@ -167,6 +167,9 @@ local Vector3Lib = { new = v3, zero = v3(0, 0, 0), one = v3(1, 1, 1) }
 
 local Vector2Meta = { __type = "Vector2" }
 Vector2Meta.__index = Vector2Meta
+Vector2Meta.__mul = function(a, b)
+	return setmetatable({ X = a.X * b, Y = a.Y * b }, Vector2Meta)
+end
 local Vector2Lib = {
 	new = function(x, y)
 		return setmetatable({ X = x or 0, Y = y or 0 }, Vector2Meta)
@@ -174,7 +177,12 @@ local Vector2Lib = {
 }
 
 local CFrameMeta = { __type = "CFrame" }
-CFrameMeta.__index = CFrameMeta
+CFrameMeta.__index = function(_, key)
+	if key == "LookVector" then
+		return v3(0, 0, -1) -- rotation is not simulated
+	end
+	return CFrameMeta[key]
+end
 local function cf(position)
 	return setmetatable({ Position = position }, CFrameMeta)
 end
@@ -255,7 +263,8 @@ local EnumLib = setmetatable({}, {
 		if not items then
 			items = setmetatable({}, {
 				__index = function(itemsTable, itemName)
-					local item = setmetatable({ Name = itemName, EnumType = typeName }, plainType("EnumItem"))
+					local item =
+						setmetatable({ Name = itemName, EnumType = typeName, Value = 0 }, plainType("EnumItem"))
 					rawset(itemsTable, itemName, item)
 					return item
 				end,
@@ -517,6 +526,15 @@ function methods.PivotTo(self, cframe)
 	end
 end
 function methods.RequestStreamAroundAsync() end
+function methods.SetStateEnabled() end
+function methods.SetCoreGuiEnabled() end
+function methods.BindToRenderStep(self, name, _, callback)
+	world.renderSteps[name] = callback
+end
+-- ContextActionService: actions are stored so tests can press their keys with world.pressAction.
+function methods.BindActionAtPriority(_, name, callback)
+	world.actions[name] = callback
+end
 function methods.BulkMoveTo(self, parts, cframes)
 	if self ~= world.workspace then
 		error("BulkMoveTo is only on Workspace", 2)
@@ -564,6 +582,12 @@ local Players = newInstance("Players", { Name = "Players" })
 local RunService = newInstance("RunService", { Name = "RunService" })
 local Workspace = newInstance("Workspace", { Name = "Workspace" })
 local TweenService = newInstance("TweenService", { Name = "TweenService" })
+local ContextActionService = newInstance("ContextActionService", { Name = "ContextActionService" })
+local StarterGui = newInstance("StarterGui", { Name = "StarterGui" })
+local UserInputService =
+	newInstance("UserInputService", { Name = "UserInputService", TouchEnabled = false, KeyboardEnabled = true })
+world.renderSteps = {}
+world.actions = {}
 Workspace.CurrentCamera = newInstance("Camera", { ViewportSize = Vector2Lib.new(1280, 720) })
 world.workspace = Workspace
 
@@ -598,6 +622,9 @@ __services.Players = Players
 __services.RunService = RunService
 __services.Workspace = Workspace
 __services.TweenService = TweenService
+__services.ContextActionService = ContextActionService
+__services.StarterGui = StarterGui
+__services.UserInputService = UserInputService
 game.CreatorType = EnumLib.CreatorType.User
 game.CreatorId = 0
 
@@ -638,6 +665,9 @@ function world.step(dt)
 	runDue()
 	RunService.Heartbeat:Fire(dt)
 	RunService.RenderStepped:Fire(dt)
+	for _, callback in world.renderSteps do
+		callback(dt)
+	end
 	runDue()
 end
 
@@ -651,12 +681,20 @@ end
 
 local function spawnCharacter(player)
 	local character = newInstance("Model", { Name = player.Name })
-	newInstance("Humanoid", { Name = "Humanoid", HipHeight = 2, Parent = character })
+	newInstance("Humanoid", {
+		Name = "Humanoid",
+		HipHeight = 2,
+		Health = 100,
+		WalkSpeed = 16,
+		MoveDirection = v3(0, 0, 0),
+		Parent = character,
+	})
 	local spawnAt = if player.RespawnLocation then player.RespawnLocation.CFrame.Position else v3(0, 0, 0)
 	newInstance("Part", {
 		Name = "HumanoidRootPart",
 		Size = v3(2, 2, 1),
 		Position = spawnAt + v3(0, 4, 0),
+		AssemblyLinearVelocity = v3(0, 0, 0),
 		Parent = character,
 	})
 	character.Parent = Workspace
@@ -710,6 +748,13 @@ function world.gui(screenName, objectName)
 		return screen
 	end
 	return screen:FindFirstChild(objectName, true)
+end
+
+-- Presses the key of a ContextActionService action (e.g. Space for the dash).
+function world.pressAction(name)
+	local callback = world.actions[name]
+	assert(callback, `no action {name}`)
+	return callback(name, EnumLib.UserInputState.Begin)
 end
 
 function world.click(button)

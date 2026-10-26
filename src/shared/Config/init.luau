@@ -15,4 +15,5 @@ return {
 	Simulation = require(script.Simulation),
 	Map = require(script.Map),
 	Admin = require(script.Admin),
+	Camera = require(script.Camera),
 }

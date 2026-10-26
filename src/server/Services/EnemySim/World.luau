@@ -325,12 +325,16 @@ end
 
 -- Advances every enemy by dt seconds towards the targets (x/z of living players, targetCount of them).
 -- Returns contacts[t] = the highest contact damage touching target t, 0 if none (reused table).
+-- Contacts are checked against contactXs/contactZs if given (e.g. positions corrected for network lag),
+-- otherwise against the targets.
 function World.step(
 	self: World,
 	dt: number,
 	targetXs: { number },
 	targetZs: { number },
-	targetCount: number
+	targetCount: number,
+	contactXs: { number }?,
+	contactZs: { number }?
 ): { number }
 	if compact(self) then
 		rebuildHash(self)
@@ -472,13 +476,14 @@ function World.step(
 	end
 	local margin = p.contactMargin
 	local damage = self.contactDamage
+	local hitXs, hitZs = contactXs or targetXs, contactZs or targetZs
 	for i = 1, count do
 		local hit = damage[i]
 		if hit > 0 then
 			local reach = kinds[i].radius + playerRadius + margin
 			local reachSquared = reach * reach
 			for t = 1, targetCount do
-				local dx, dz = targetXs[t] - xs[i], targetZs[t] - zs[i]
+				local dx, dz = hitXs[t] - xs[i], hitZs[t] - zs[i]
 				if dx * dx + dz * dz <= reachSquared and hit > contacts[t] then
 					contacts[t] = hit
 				end

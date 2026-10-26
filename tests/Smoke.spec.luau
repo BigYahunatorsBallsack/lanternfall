@@ -9,6 +9,7 @@ runScript(ServerScriptService.Server, "init.server.luau")
 local RunDirector = require(ServerScriptService.Server.Services.RunDirector)
 local MapService = require(ServerScriptService.Server.Services.MapService)
 local EnemySim = require(ServerScriptService.Server.Services.EnemySim)
+local CombatService = require(ServerScriptService.Server.Services.CombatService)
 local Config = require(game:GetService("ReplicatedStorage").Shared.Config)
 
 local me = world.addPlayer("Owner", 1, true)
@@ -106,7 +107,8 @@ describe("smoke", function()
 	it("counts the run timer up", function()
 		world.advance(5)
 		expect(firstText("HUD", "Timer")).toBe("00:05")
-		expect(teamText()).toBe("Owner · alive")
+		expect(string.match(teamText(), "^Owner · alive · %d+ HP$") ~= nil).toBe(true)
+		expect(string.match(world.gui("HUD", "HpText").Text, "^%d+ / 100$") ~= nil).toBe(true) -- Spark Mage: no bonus
 	end)
 
 	it("spawns enemies on a ring around the player and draws them", function()
@@ -134,6 +136,7 @@ describe("smoke", function()
 
 	it("chases the player until it touches them", function()
 		local contacts = 0
+		local hpBefore = CombatService.getHp(me)
 		local connection = EnemySim.Contact:Connect(function(player, damage)
 			expect(player).toBe(me)
 			expect(damage).toBe(Config.Enemies.types.Shadeling.contactDamage)
@@ -142,6 +145,12 @@ describe("smoke", function()
 		world.advance(5)
 		connection:Disconnect()
 		expect(contacts > 0).toBe(true)
+		-- every touch hurts, at most once per hit protection window
+		local lost = hpBefore - CombatService.getHp(me)
+		local hitsAllowed = math.ceil(5 / Config.Player.hitInvulnerability) + 1
+		expect(lost > 0).toBe(true)
+		expect(lost <= hitsAllowed * Config.Enemies.types.Shadeling.contactDamage).toBe(true)
+		CombatService.protect(me, 1e6) -- keep the rest of the smoke test alive
 		local root = me.Character.HumanoidRootPart.Position
 		local id, distance = EnemySim.nearest(root)
 		expect(id ~= nil).toBe(true)
@@ -226,6 +235,53 @@ describe("smoke", function()
 		expect(RunDirector.getElapsed() < 1).toBe(true)
 	end)
 
+	it("follows the character with the fixed top-down camera", function()
+		local camera = workspace.CurrentCamera
+		local root = me.Character.HumanoidRootPart.Position
+		expect(camera.CameraType).toBe(Enum.CameraType.Scriptable)
+		expect(camera.FieldOfView).toBe(Config.Camera.fieldOfView)
+		local offset = camera.CFrame.Position - root
+		expect(offset.Magnitude).toBeNear(Config.Camera.distance, 0.5)
+		expect(math.deg(math.asin(offset.Y / offset.Magnitude))).toBeNear(Config.Camera.pitchDegrees, 0.5)
+		expect(offset.Z > 0).toBe(true) -- south of the character, looking north
+	end)
+
+	it("dashes with Space, starts the cooldown and turns jumping off", function()
+		local humanoid = me.Character.Humanoid
+		expect(humanoid.JumpPower).toBe(0)
+		expect(humanoid.WalkSpeed).toBe(Config.Player.moveSpeed)
+		humanoid.MoveDirection = Vector3.new(1, 0, 0)
+		local result = world.pressAction("LanternfallDash")
+		expect(result).toBe(Enum.ContextActionResult.Sink)
+		local velocity = me.Character.HumanoidRootPart:FindFirstChild("LanternfallDash")
+		expect(velocity ~= nil).toBe(true)
+		expect(velocity.PlaneVelocity.X).toBeNear(Config.Player.dash.distance / Config.Player.dash.duration, 0.01)
+		world.advance(0.3)
+		expect(me.Character.HumanoidRootPart:FindFirstChild("LanternfallDash")).toBe(nil)
+		local vitals = CombatService.getHp(me)
+		expect(vitals).toBe(100)
+		local PlayerStateController = require(folderProxy("src/client", "Client").Controllers.PlayerStateController)
+		local readyAt = PlayerStateController.getLocal().dashReadyAt
+		expect(readyAt - workspace:GetServerTimeNow()).toBeNear(Config.Player.dash.cooldown - 0.3, 0.2)
+		-- a second press during the cooldown does nothing
+		world.pressAction("LanternfallDash")
+		expect(me.Character.HumanoidRootPart:FindFirstChild("LanternfallDash")).toBe(nil)
+		expect(world.gui("Dash", "Cooldown").Size.Y.Scale > 0.8).toBe(true)
+		humanoid.MoveDirection = Vector3.new(0, 0, 0)
+	end)
+
+	it("takes debug damage with hit protection and heals", function()
+		world.click(world.gui("Debug", "HurtSelf"))
+		world.advance(0.1)
+		world.click(world.gui("Debug", "HurtSelf")) -- still protected
+		world.advance(0.1)
+		expect(CombatService.getHp(me)).toBe(100 - Config.Admin.hurtSelfDamage)
+		expect(world.gui("HUD", "HpText").Text).toBe(`{100 - Config.Admin.hurtSelfDamage} / 100`)
+		world.click(world.gui("Debug", "HealSelf"))
+		world.advance(0.6)
+		expect(CombatService.getHp(me)).toBe(100)
+	end)
+
 	it("ends in defeat when the only player is knocked down", function()
 		world.click(world.gui("Debug", "DownSelf"))
 		world.advance(0.2)
@@ -265,17 +321,21 @@ describe("smoke", function()
 	end)
 
 	it("keeps running while one of two is down, and enemies go for the one still standing", function()
+		CombatService.protect(friend, 1e6)
 		world.click(world.gui("Debug", "DownSelf"))
 		world.advance(0.2)
 		expect(phase()).toBe("Running")
-		expect(teamText()).toBe("Owner · DOWN | Friend · alive")
+		expect(teamText()).toBe("Owner · DOWN | Friend · alive · 100 HP")
+		expect(me.Character.Humanoid.WalkSpeed).toBe(0)
 		world.advance(8)
 		local friendRoot = friend.Character.HumanoidRootPart.Position
 		local _, distance = EnemySim.nearest(friendRoot)
 		expect(distance < 5).toBe(true)
 		world.click(world.gui("Debug", "ReviveSelf"))
 		world.advance(0.2)
-		expect(teamText()).toBe("Owner · alive | Friend · alive")
+		local reviveHp = math.ceil(100 * Config.Run.coop.reviveHpFraction)
+		expect(teamText()).toBe(`Owner · alive · {reviveHp} HP | Friend · alive · 100 HP`)
+		expect(me.Character.Humanoid.WalkSpeed).toBe(Config.Player.moveSpeed)
 	end)
 
 	it("ends when the last alive player leaves", function()

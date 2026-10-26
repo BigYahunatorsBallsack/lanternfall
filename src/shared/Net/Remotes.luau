@@ -55,7 +55,7 @@ local Remotes: { [string]: Definition } = {
 
 	-- Server -> client state
 	RunState = { direction = "toClient" }, -- full Net/Types.RunState, sent on every change
-	PlayerState = { direction = "toClient" }, -- hp, items, dash cooldown
+	PlayerState = { direction = "toClient" }, -- Net/Types.PlayerVitals of one player, to everyone
 	LevelUpOffer = { direction = "toClient" }, -- offered cards
 	Notify = { direction = "toClient" }, -- short on-screen messages
 	EnemySnapshot = { direction = "toClient", unreliable = true }, -- buffer, see Net/Snapshot

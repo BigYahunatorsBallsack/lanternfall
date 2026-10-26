@@ -1,8 +1,8 @@
 --!strict
--- Debug commands for testing (skip time, knock yourself down, win, spawn/hit/kill enemies, pause spawning)
+-- Debug commands for testing (skip time, knock yourself down, hurt/heal yourself, win, spawn/hit/kill enemies, pause spawning)
 -- and the stats panel feed (DebugStats once per second). Admins only: everyone in Studio, the owner of a
 -- user-owned experience and Config.Admin.userIds. Handles the DebugCommand remote and uses RunDirector,
--- EnemySim, SpawnDirector and MapService. Sets the player attribute "LanternfallAdmin" so the client shows
+-- CombatService, EnemySim, SpawnDirector and MapService. Sets the player attribute "LanternfallAdmin" so the client shows
 -- the debug panel.
 
 local Players = game:GetService("Players")
@@ -15,6 +15,7 @@ local DebugCommands = require(Shared.Net.DebugCommands)
 local Net = require(Shared.Net)
 local Types = require(Shared.Net.Types)
 
+local CombatService = require(script.Parent.CombatService)
 local EnemySim = require(script.Parent.EnemySim)
 local MapService = require(script.Parent.MapService)
 local RunDirector = require(script.Parent.RunDirector)
@@ -56,6 +57,21 @@ local handlers: { [string]: (player: Player) -> (boolean, string?) } = {
 	end,
 	ReviveSelf = function(player)
 		return RunDirector.setParticipantState(player, "Alive")
+	end,
+	HurtSelf = function(player)
+		if RunDirector.getParticipantState(player) ~= "Alive" or not RunDirector.isActive() then
+			return false, "NotRunning"
+		end
+		local taken = CombatService.damagePlayer(player, Config.Admin.hurtSelfDamage)
+		if taken == 0 then
+			return true, "No damage: you are protected right now"
+		end
+		return true, `Took {taken} damage`
+	end,
+	HealSelf = function(player)
+		local hp, maxHp = CombatService.getHp(player)
+		CombatService.healPlayer(player, maxHp - hp)
+		return true, "HP full"
 	end,
 	WinRun = function()
 		return RunDirector.endRun("Victory")
