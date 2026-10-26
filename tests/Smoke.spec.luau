@@ -304,37 +304,69 @@ describe("smoke", function()
 	end)
 
 	it("adds, levels and swaps weapons with the debug buttons and draws them", function()
-		world.click(world.gui("Debug", "AddWeapon"))
-		world.advance(0.2)
-		expect(weaponRows()).toBe("Spark Bolt · LV 1 | Orbit Blades · LV 1")
-		expect(weaponParts("OrbitBlade")).toBe(Config.Weapons.OrbitBlades.base.count)
+		-- getImplemented is sorted: BoomerangAxe, ChainLightning, OrbitBlades, Shockwave, SparkBolt, ThornTrail
+		local function most(name, seconds)
+			local best = 0
+			for _ = 1, seconds / 0.1 do
+				world.advance(0.1)
+				best = math.max(best, weaponParts(name))
+			end
+			return best
+		end
 		world.click(world.gui("Debug", "AddWeapon"))
 		world.click(world.gui("Debug", "SpawnWave"))
-		local mostWaves = 0
-		for _ = 1, 40 do
-			world.advance(0.1)
-			mostWaves = math.max(mostWaves, weaponParts("Shockwave"))
-		end
-		expect(mostWaves > 0).toBe(true)
+		expect(most("BoomerangAxe", 3) > 0).toBe(true)
+		expect(weaponRows()).toBe("Spark Bolt · LV 1 | Boomerang Axe · LV 1")
+		world.click(world.gui("Debug", "AddWeapon"))
+		world.click(world.gui("Debug", "SpawnWave"))
+		expect(most("ChainLightning", 3) > 0).toBe(true)
+		world.click(world.gui("Debug", "AddWeapon"))
+		world.advance(0.2)
+		expect(weaponParts("OrbitBlade")).toBe(Config.Weapons.OrbitBlades.base.count)
 		world.click(world.gui("Debug", "LevelUpWeapons"))
 		world.advance(0.2)
-		expect(weaponRows()).toBe("Spark Bolt · LV 2 | Orbit Blades · LV 2 | Shockwave · LV 2")
-		expect(string.find(toastTexts(), "Spark Bolt LV 2, Orbit Blades LV 2, Shockwave LV 2", 1, true) ~= nil).toBe(
-			true
+		expect(weaponRows()).toBe(
+			"Spark Bolt · LV 2 | Boomerang Axe · LV 2 | Chain Lightning · LV 2 | Orbit Blades · LV 2"
 		)
 		world.click(world.gui("Debug", "AddWeapon"))
 		world.advance(0.2)
-		expect(string.find(toastTexts(), "every weapon in the game so far", 1, true) ~= nil).toBe(true)
+		expect(string.find(toastTexts(), "All weapon slots are full", 1, true) ~= nil).toBe(true)
+
 		world.click(world.gui("Debug", "NextWeapon"))
 		world.advance(0.2)
-		expect(weaponRows()).toBe("Orbit Blades · LV 1")
-		expect(weaponParts("OrbitBlade")).toBe(Config.Weapons.OrbitBlades.base.count)
+		expect(weaponRows()).toBe("Thorn Trail · LV 1")
+		expect(weaponParts("ThornPatch") > 0).toBe(true)
+		for _ = 1, 4 do -- Boomerang Axe, Chain Lightning, Orbit Blades, Shockwave
+			world.click(world.gui("Debug", "NextWeapon"))
+		end
+		world.click(world.gui("Debug", "SpawnWave"))
+		expect(most("Shockwave", 4) > 0).toBe(true)
+		expect(weaponRows()).toBe("Shockwave · LV 1")
+
+		world.click(world.gui("Debug", "NextWeapon")) -- Spark Bolt
+		world.click(world.gui("Debug", "AddWeapon")) -- Boomerang Axe
+		world.click(world.gui("Debug", "AddWeapon")) -- Chain Lightning
+		world.click(world.gui("Debug", "AddWeapon")) -- Orbit Blades
+		world.advance(1.1) -- debug buttons allow 5 clicks per second
 		for _ = 1, Config.Player.maxItemLevel do
 			world.click(world.gui("Debug", "LevelUpWeapons"))
 		end
 		world.advance(0.2)
-		expect(weaponRows()).toBe("Orbit Blades · MAX")
 		expect(weaponParts("OrbitBlade")).toBe(Config.Weapons.OrbitBlades.base.count + 2)
+		world.advance(1)
+		world.click(world.gui("Debug", "EvolveWeapons"))
+		world.advance(0.2)
+		expect(weaponRows()).toBe(
+			"Starfire · MAX | Boomerang Axe · MAX | Chain Lightning · MAX | Blade Storm · MAX"
+		)
+		expect(string.find(toastTexts(), "Starfire, Blade Storm", 1, true) ~= nil).toBe(true)
+		expect(weaponParts("OrbitBlade")).toBe(Config.Evolutions.BladeStorm.stats.count)
+		local passives = passiveRows()
+		expect(string.find(passives, "Focus", 1, true) ~= nil and string.find(passives, "Armor", 1, true) ~= nil).toBe(
+			true
+		)
+		world.click(world.gui("Debug", "SpawnWave"))
+		expect(most("Starfire", 3) > 0).toBe(true)
 	end)
 
 	it("drops XP orbs that the player picks up for the whole team", function()

@@ -1,6 +1,6 @@
 -- Unit tests for the weapon framework (WeaponService/Arsenal) and the prototype weapons (WeaponService/Behaviors)
--- against a real enemy World: slots and levels, targeting, hits, pierce, cooldowns, knockback, crits, down owners
--- and the step budget with four fully armed players among 140 enemies.
+-- against a real enemy World: slots and levels, targeting, hits, pierce, cooldowns, knockback, crits, down owners,
+-- all six weapons and both evolutions, and the step budget with four fully armed players among 140 enemies.
 
 local Shared = game:GetService("ReplicatedStorage").Shared
 local Config = require(Shared.Config)
@@ -66,7 +66,7 @@ local function setup(options)
 				world:push(id, dx, dz)
 			end,
 		},
-		behaviors = behaviors,
+		behaviors = options.behaviors or behaviors,
 		maxWeapons = options.maxWeapons or Config.Player.maxWeapons,
 		maxLevel = Config.Player.maxItemLevel,
 		critChance = options.critChance or 0,
@@ -134,11 +134,13 @@ end
 
 describe("Arsenal", function()
 	it("gives each weapon once, up to the slot limit", function()
-		local scene = setup({ maxWeapons = 2 })
+		local some =
+			{ OrbitBlades = behaviors.OrbitBlades, SparkBolt = behaviors.SparkBolt, Shockwave = behaviors.Shockwave }
+		local scene = setup({ maxWeapons = 2, behaviors = some })
 		local arsenal = scene.arsenal
 		expect(arsenal:addWeapon(OWNER, "OrbitBlades", 0)).toBe(true)
 		expect(select(2, arsenal:addWeapon(OWNER, "OrbitBlades", 0))).toBe("AlreadyOwned")
-		expect(select(2, arsenal:addWeapon(OWNER, "ChainLightning", 0))).toBe("NotImplemented") -- data only (WP8)
+		expect(select(2, arsenal:addWeapon(OWNER, "ChainLightning", 0))).toBe("NotImplemented") -- no behavior here
 		expect(select(2, arsenal:addWeapon(OWNER, "Nope", 0))).toBe("UnknownWeapon")
 		expect(arsenal:addWeapon(OWNER, "SparkBolt", 0)).toBe(true)
 		expect(select(2, arsenal:addWeapon(OWNER, "Shockwave", 0))).toBe("SlotsFull")
@@ -150,7 +152,9 @@ describe("Arsenal", function()
 
 	it("lists the weapons that have a behavior", function()
 		local implemented = setup().arsenal:getImplemented()
-		expect(table.concat(implemented, ",")).toBe("OrbitBlades,Shockwave,SparkBolt")
+		expect(table.concat(implemented, ",")).toBe(
+			"BoomerangAxe,ChainLightning,OrbitBlades,Shockwave,SparkBolt,ThornTrail"
+		)
 	end)
 
 	it("levels up to the max and recomputes the stats", function()
@@ -367,16 +371,204 @@ describe("Shockwave", function()
 	end)
 end)
 
+describe("Chain Lightning", function()
+	local base = W.ChainLightning.base
+
+	it("strikes the nearest enemy in range and jumps on to the nearest ones not hit yet", function()
+		local scene = setup()
+		give(scene, "ChainLightning")
+		local first = spawn(scene, "Brute", 10, 0, TOUGH)
+		local second = spawn(scene, "Brute", 18, 0, TOUGH)
+		local third = spawn(scene, "Brute", 18, 9, TOUGH)
+		local fourth = spawn(scene, "Brute", 10, 9, TOUGH) -- in reach, but three hits are used up
+		local far = spawn(scene, "Brute", 18 + base.jumpRange + 5, 30, TOUGH)
+		run(scene, STEP)
+		expect(lost(scene, first, TOUGH)).toBeNear(base.damage)
+		expect(lost(scene, second, TOUGH)).toBeNear(base.damage)
+		expect(lost(scene, third, TOUGH)).toBeNear(base.damage)
+		expect(lost(scene, fourth, TOUGH)).toBe(0)
+		expect(lost(scene, far, TOUGH)).toBe(0)
+		local chains = effectsOf(scene, "Chain")
+		expect(#chains).toBe(1)
+		expect(#chains[1].points).toBe(2 * (1 + base.jumps)) -- the owner plus every hit enemy
+		expect(chains[1].points[3]).toBeNear(10)
+	end)
+
+	it("stops early without a next enemy in jump range and gains a jump per level", function()
+		local scene = setup()
+		give(scene, "ChainLightning", 2)
+		local near = spawn(scene, "Brute", 10, 0, TOUGH)
+		local alone = spawn(scene, "Brute", 10 + base.jumpRange + 5, 0, TOUGH)
+		run(scene, STEP)
+		expect(lost(scene, near, TOUGH) > 0).toBe(true)
+		expect(lost(scene, alone, TOUGH)).toBe(0)
+		expect(scene.arsenal:getWeapons(OWNER)[1].stats.jumps).toBe(base.jumps + 1)
+	end)
+
+	it("waits for an enemy in range and then keeps its cooldown", function()
+		local scene = setup()
+		give(scene, "ChainLightning")
+		spawn(scene, "Brute", base.range + 5, 0, TOUGH)
+		run(scene, 1)
+		expect(#scene.effects).toBe(0)
+		spawn(scene, "Brute", 0, 8, TOUGH)
+		run(scene, base.cooldown + 0.05)
+		expect(#effectsOf(scene, "Chain")).toBe(2)
+	end)
+end)
+
+describe("Thorn Trail", function()
+	local base = W.ThornTrail.base
+
+	it("drops patches behind a moving owner that hurt every tick until they are gone", function()
+		local scene = setup()
+		give(scene, "ThornTrail")
+		local behind = spawn(scene, "Brute", 0, 0, TOUGH)
+		for step = 1, 10 do
+			scene.x = step * 1 -- 15 studs/s, like a running player
+			run(scene, STEP)
+		end
+		local drops = effectsOf(scene, "Drop")
+		expect(#drops >= 4 and #drops <= 6).toBe(true) -- one every dropSpacing studs
+		expect(drops[1].radius).toBe(base.radius)
+		expect(drops[1].duration).toBe(base.duration)
+		scene.x = 60 -- far away, so only the old patches can hit
+		run(scene, base.duration + 0.5)
+		local ticks = lost(scene, behind, TOUGH) / base.damage
+		expect(math.abs(ticks - math.round(ticks)) < 1e-6).toBe(true)
+		expect(ticks >= base.duration / base.tickInterval - 1).toBe(true)
+		expect(ticks <= base.duration / base.tickInterval + 1).toBe(true)
+		local before = lost(scene, behind, TOUGH)
+		run(scene, 1)
+		expect(lost(scene, behind, TOUGH)).toBe(before) -- patches near it are gone
+	end)
+
+	it("hits an enemy on several patches once per tick and keeps a patch under a standing owner", function()
+		local scene = setup()
+		give(scene, "ThornTrail")
+		local target = spawn(scene, "Brute", 1, 0, TOUGH)
+		run(scene, 2 * base.duration - 0.05)
+		expect(lost(scene, target, TOUGH)).toBeNear(
+			base.damage * math.floor((2 * base.duration - 0.05) / base.tickInterval)
+		)
+		expect(#effectsOf(scene, "Drop")).toBe(2) -- a new patch when the old one is gone
+	end)
+
+	it("drops nothing while the owner is down", function()
+		local scene = setup()
+		give(scene, "ThornTrail")
+		run(scene, 3 * base.duration, true)
+		expect(#scene.effects).toBe(0)
+	end)
+end)
+
+describe("Boomerang Axe", function()
+	local base = W.BoomerangAxe.base
+
+	it("flies out through everything, turns at its range and hits again on the way back", function()
+		local scene = setup()
+		give(scene, "BoomerangAxe")
+		local a = spawn(scene, "Brute", 6, 0, TOUGH)
+		local b = spawn(scene, "Brute", 12, 0, TOUGH)
+		local c = spawn(scene, "Brute", 17, 0, TOUGH)
+		local beyond = spawn(scene, "Brute", base.range + 6, 0, TOUGH)
+		run(scene, 2 * base.range / base.projectileSpeed + 0.3)
+		for _, id in { a, b, c } do
+			expect(lost(scene, id, TOUGH)).toBeNear(2 * base.damage)
+		end
+		expect(lost(scene, beyond, TOUGH)).toBe(0)
+		local ended = effectsOf(scene, "End")
+		expect(#effectsOf(scene, "Fire")).toBe(1)
+		expect(#ended).toBe(1)
+		expect(math.abs(ended[1].x) <= base.catchRadius + 0.1).toBe(true) -- caught at the owner
+	end)
+
+	it("comes back to where the owner moved and throws one axe per target from level 3", function()
+		local scene = setup()
+		give(scene, "BoomerangAxe", 3)
+		spawn(scene, "Brute", 10, 0, TOUGH)
+		spawn(scene, "Brute", 0, -10, TOUGH)
+		run(scene, STEP)
+		expect(#effectsOf(scene, "Fire")).toBe(2)
+		scene.x, scene.z = -10, 10
+		run(scene, 1.6)
+		local ended = effectsOf(scene, "End")
+		expect(#ended).toBe(2)
+		for _, effect in ended do
+			expect(math.sqrt((effect.x + 10) ^ 2 + (effect.z - 10) ^ 2) <= base.catchRadius + 0.1).toBe(true)
+		end
+	end)
+
+	it("vanishes after maxFlightSeconds if it cannot catch up", function()
+		local scene = setup()
+		give(scene, "BoomerangAxe")
+		spawn(scene, "Brute", 10, 0, TOUGH)
+		run(scene, STEP)
+		local fired = scene.now
+		local ended = nil
+		for _ = 1, math.ceil((base.maxFlightSeconds + 1) / STEP) do
+			scene.x -= base.projectileSpeed * STEP * 1.5 -- runs away faster than the axe
+			run(scene, STEP)
+			ended = ended or effectsOf(scene, "End")[1]
+		end
+		expect(ended ~= nil).toBe(true)
+		expect(ended.at - fired).toBeNear(base.maxFlightSeconds, STEP * 1.5)
+	end)
+end)
+
+describe("evolutions", function()
+	it("Blade Storm spins 8 longer blades with double damage", function()
+		local scene = setup()
+		give(scene, "OrbitBlades", Config.Player.maxItemLevel)
+		local weapon = scene.arsenal:getWeapons(OWNER)[1]
+		local before = weapon.stats.damage
+		expect(scene.arsenal:evolve(OWNER, "OrbitBlades", "BladeStorm")).toBe(true)
+		expect(weapon.stats.count).toBe(8)
+		expect(weapon.stats.radius).toBe(10)
+		expect(weapon.stats.damage).toBeNear(2 * before)
+		local far = spawnAt(scene, "Shadeling", 9, 30, TOUGH) -- beyond the normal 7 studs
+		run(scene, 0.4)
+		expect(lost(scene, far, TOUGH) > 0).toBe(true)
+	end)
+
+	it("Starfire bolts explode and hurt the enemies around every hit", function()
+		local evolution = Config.Evolutions.Starfire.stats
+		local scene = setup()
+		give(scene, "SparkBolt", Config.Player.maxItemLevel)
+		scene.arsenal:evolve(OWNER, "SparkBolt", "Starfire")
+		local weapon = scene.arsenal:getWeapons(OWNER)[1]
+		weapon.stats.count = 1 -- one bolt, so only the blast can reach the other enemies
+		local target = spawn(scene, "Brute", 15, 0, TOUGH)
+		local beside = spawn(scene, "Brute", 15, 4, TOUGH) -- off the bolt's path, inside the blast
+		local outside = spawn(scene, "Brute", 15, -(evolution.explosionRadius + 3), TOUGH)
+		run(scene, STEP)
+		run(scene, 0.3)
+		expect(lost(scene, target, TOUGH) >= weapon.stats.damage - 1e-6).toBe(true)
+		expect(lost(scene, beside, TOUGH) >= weapon.stats.damage * evolution.explosionDamage - 1e-6).toBe(true)
+		expect(lost(scene, outside, TOUGH)).toBe(0)
+		local blasts = effectsOf(scene, "Blast")
+		expect(#blasts >= 1).toBe(true)
+		expect(blasts[1].radius).toBe(evolution.explosionRadius)
+	end)
+end)
+
 describe("weapon budget", function()
-	it("steps 4 players with three max-level weapons each among 140 enemies within the 4 ms step budget", function()
+	it("steps 4 players with four max-level weapons each among 140 enemies within the 4 ms step budget", function()
 		local scene = setup()
 		local owners = { { -10, 0 }, { 10, 0 }, { 0, 15 }, { 30, -20 } }
+		local implemented = scene.arsenal:getImplemented()
 		for id = 1, #owners do
 			scene.arsenal:addOwner(id)
-			for _, weaponId in scene.arsenal:getImplemented() do
+			for k = 0, Config.Player.maxWeapons - 1 do -- each player a different set, together all six
+				local weaponId = implemented[(id + k) % #implemented + 1]
 				scene.arsenal:addWeapon(id, weaponId, scene.now)
 				for _ = 2, Config.Player.maxItemLevel do
 					scene.arsenal:levelUp(id, weaponId)
+				end
+				for evolutionId, evolution in Config.Evolutions do
+					if evolution.weapon == weaponId then
+						scene.arsenal:evolve(id, weaponId, evolutionId) -- evolved weapons do the most work
+					end
 				end
 			end
 		end
@@ -423,7 +615,7 @@ describe("weapon budget", function()
 		local total = (os.clock() - started) * 1000 / steps
 		local weapons = weaponSeconds * 1000 / steps
 		print(
-			`  enemies + 12 max-level weapons: {string.format("%.3f", total)} ms, weapons alone {string.format(
+			`  enemies + 16 max-level weapons: {string.format("%.3f", total)} ms, weapons alone {string.format(
 				"%.3f",
 				weapons
 			)} ms`

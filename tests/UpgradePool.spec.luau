@@ -189,3 +189,18 @@ describe("UpgradeText", function()
 		expect(detail).toBe("+25 Embers")
 	end)
 end)
+
+describe("evolutions", function()
+	local max = Config.Player.maxItemLevel
+
+	it("needs the weapon at max level, not evolved yet, plus the passive at any level", function()
+		local evolutionsFor = UpgradePool.evolutionsFor
+		local blades = { OrbitBlades = { level = max } }
+		expect(#evolutionsFor(blades, {}, max)).toBe(0)
+		expect(#evolutionsFor({ OrbitBlades = { level = max - 1 } }, { Armor = 5 }, max)).toBe(0)
+		expect(table.concat(evolutionsFor(blades, { Armor = 1 }, max), ",")).toBe("BladeStorm")
+		expect(#evolutionsFor({ OrbitBlades = { level = max, evolution = "BladeStorm" } }, { Armor = 1 }, max)).toBe(0)
+		local both = { OrbitBlades = { level = max }, SparkBolt = { level = max } }
+		expect(table.concat(evolutionsFor(both, { Armor = 1, Focus = 2 }, max), ",")).toBe("BladeStorm,Starfire")
+	end)
+end)
