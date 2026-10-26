@@ -1,5 +1,5 @@
 --!strict
--- Base player stats at run start (DESIGN.md section 4). Read by CombatService, InputController and HUD.
+-- Base player stats at run start (DESIGN.md section 4). Read by CombatService, WeaponService, InputController and HUD.
 
 return table.freeze({
 	maxHp = 100,
@@ -16,8 +16,9 @@ return table.freeze({
 	minDamagePerHit = 1,
 	regenPerSecond = 0,
 	hitInvulnerability = 0.5, -- seconds of protection after taking a hit
-	critChance = 0.05,
+	critChance = 0.05, -- per weapon hit
 	critMultiplier = 2,
+	minWeaponCooldown = 0.2, -- seconds; cooldown bonuses never make a weapon faster than this
 	maxWeapons = 4,
 	maxPassives = 4,
 	maxItemLevel = 5,

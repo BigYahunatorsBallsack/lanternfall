@@ -50,6 +50,40 @@ export type PlayerVitals = {
 	invulnerableUntil: number, -- server time
 }
 
+-- One weapon of a player's loadout (WeaponService -> LoadoutController).
+export type WeaponInfo = {
+	id: string, -- key in Config.Weapons
+	level: number,
+	evolution: string?, -- key in Config.Evolutions once evolved (WP8)
+	addedAt: number, -- server time; spinning weapons count their angle from here (Util/Orbit)
+	stats: { [string]: number }, -- effective stats: level, evolution and the owner's bonuses applied
+}
+
+-- The weapons of one player, sent to everyone on change. Empty outside a run.
+export type Loadout = {
+	userId: number,
+	weapons: { WeaponInfo },
+	paused: boolean, -- weapons switched off with the debug button
+}
+
+-- One weapon event for the visuals (WeaponService -> WeaponRenderer), batched per simulation step and sent to
+-- the run's participants. Which optional fields are set depends on the weapon's behavior.
+export type WeaponEffect = {
+	weapon: string, -- behavior name; picks the visual in WeaponRenderer/Visuals
+	userId: number, -- owner
+	kind: string, -- e.g. "Fire", "End", "Pulse"
+	at: number, -- server time of the simulation step
+	id: number?, -- projectile id, unique within the run
+	x: number?, -- world position on the floor
+	z: number?,
+	dx: number?, -- unit direction
+	dz: number?,
+	speed: number?, -- studs/s
+	range: number?, -- studs
+	radius: number?, -- studs
+	distance: number?, -- studs a projectile flew before it ended
+}
+
 -- Server measurements for the admin stats panel (AdminService -> DebugController).
 export type DebugStats = {
 	enemies: number, -- alive right now

@@ -34,7 +34,14 @@ local BUTTON_TEXT: { [string]: string } = {
 	HitNearby = "Hit enemies near me",
 	KillEnemies = "Kill all enemies",
 	ToggleSpawning = "Pause/resume spawning",
+	AddWeapon = "Add a weapon",
+	NextWeapon = "Only the next weapon",
+	LevelUpWeapons = "Weapons +1 level",
+	ToggleWeapons = "Weapons on/off",
 }
+
+local BUTTON_SIZE = Vector2.new(150, 30)
+local BUTTON_GAP = 4
 
 local DebugController = {}
 
@@ -44,16 +51,33 @@ local fps = 0
 
 local function build(): ScreenGui
 	local screen = Widgets.screen("Debug", 10)
+	-- Two columns of buttons, so the panel stays clear of the team list above it.
+	local gridWidth = 2 * BUTTON_SIZE.X + BUTTON_GAP
 	local panel = Widgets.panel({
 		Name = "Debug",
 		AnchorPoint = Vector2.new(1, 0.5),
 		Position = UDim2.new(1, -12, 0.5, 0),
-		Size = UDim2.fromOffset(200, 0),
+		Size = UDim2.fromOffset(gridWidth + 28, 0),
 		Parent = screen,
 	})
-	Widgets.list(4).Parent = panel
+	Widgets.list(BUTTON_GAP).Parent = panel
 
-	local buttons: { TextButton } = {}
+	local grid = Widgets.create("Frame", {
+		Name = "Buttons",
+		BackgroundTransparency = 1,
+		AutomaticSize = Enum.AutomaticSize.Y,
+		Size = UDim2.fromOffset(gridWidth, 0),
+		LayoutOrder = 1,
+		Parent = panel,
+	})
+	Widgets.create("UIGridLayout", {
+		CellSize = UDim2.fromOffset(BUTTON_SIZE.X, BUTTON_SIZE.Y),
+		CellPadding = UDim2.fromOffset(BUTTON_GAP, BUTTON_GAP),
+		FillDirectionMaxCells = 2,
+		SortOrder = Enum.SortOrder.LayoutOrder,
+		Parent = grid,
+	})
+
 	local open = true
 	local header: TextButton
 	header = Widgets.button({
@@ -61,29 +85,25 @@ local function build(): ScreenGui
 		Text = "DEBUG (hide)",
 		TextSize = 16,
 		TextColor3 = Theme.accent,
-		Size = UDim2.fromOffset(172, 32),
+		Size = UDim2.fromOffset(gridWidth, BUTTON_SIZE.Y),
 		LayoutOrder = 0,
 		Parent = panel,
 	}, function()
 		open = not open
 		header.Text = if open then "DEBUG (hide)" else "DEBUG"
-		for _, button in buttons do
-			button.Visible = open
-		end
+		grid.Visible = open
 	end)
 
 	for index, command in DebugCommands do
-		local button = Widgets.button({
+		Widgets.button({
 			Name = command,
 			Text = BUTTON_TEXT[command] or command,
-			TextSize = 15,
-			Size = UDim2.fromOffset(172, 32),
+			TextSize = 14,
 			LayoutOrder = index,
-			Parent = panel,
+			Parent = grid,
 		}, function()
 			Net.fireServer("DebugCommand", command)
 		end)
-		table.insert(buttons, button)
 	end
 
 	local statsPanel = Widgets.panel({

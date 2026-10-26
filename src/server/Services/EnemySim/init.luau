@@ -1,8 +1,8 @@
 --!strict
 -- Runs the enemy World (EnemySim/World) at Config.Simulation.tickRate while a run is active and sends a
--- snapshot of every tick to the run's participants (Net/Snapshot). SpawnDirector spawns, weapons (WP5) and
--- AdminService query and damage. Signals: EnemyKilled for XP and loot (WP6, WP9), Contact for player
--- damage (WP4). Enemies are cleared when a run starts and ends.
+-- snapshot of every tick to the run's participants (Net/Snapshot). SpawnDirector spawns, WeaponService and
+-- AdminService query, damage and push. Signals: EnemyKilled for XP and loot (WP6, WP9), Contact for player
+-- damage (WP4), Stepped for the weapons (WP5). Enemies are cleared when a run starts and ends.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
@@ -44,6 +44,9 @@ EnemySim.EnemyKilled = Signal.new()
 -- (player: Player, damage: number): an enemy touches the player; at most once per step and player,
 -- with the highest contact damage among the enemies touching them. Hit protection is up to the listener.
 EnemySim.Contact = Signal.new()
+-- (dt: number, now: number): right after every step and still inside its measured time. WeaponService steps the
+-- weapons here, so hits see this step's positions and the snapshot that follows already shows them.
+EnemySim.Stepped = Signal.new()
 
 local function newWorld(): World.World
 	local bounds = MapService.getArenaBounds()
@@ -72,6 +75,7 @@ local accumulator = 0
 
 -- Living participants with a character, refreshed every step (reused arrays).
 local targetPlayers: { Player } = {}
+local targetIndexOf: { [Player]: number } = {}
 local targetXs: { number } = {}
 local targetZs: { number } = {}
 local targetCount = 0
@@ -91,12 +95,14 @@ end
 
 local function collectTargets()
 	targetCount = 0
+	table.clear(targetIndexOf)
 	for _, player in RunDirector.getParticipants() do
 		if RunDirector.getParticipantState(player) == "Alive" then
 			local position = MapService.getRootPosition(player)
 			if position then
 				targetCount += 1
 				targetPlayers[targetCount] = player
+				targetIndexOf[player] = targetCount
 				targetXs[targetCount] = position.X
 				targetZs[targetCount] = position.Z
 				local lead = MapService.getRootVelocity(player) * (Sim.contactLeadSeconds + pingOf(player))
@@ -119,6 +125,7 @@ local function stepOnce()
 	collectTargets()
 	local contacts = world:step(STEP_SECONDS, targetXs, targetZs, targetCount, contactXs, contactZs)
 	currentTick += 1
+	EnemySim.Stepped:Fire(STEP_SECONDS, workspace:GetServerTimeNow())
 	local seconds = os.clock() - startedAt
 	window.steps += 1
 	window.seconds += seconds
@@ -223,10 +230,11 @@ function EnemySim.spawn(enemyId: string, x: number, z: number, hpMultiplier: num
 	return world:spawn(kind, x, z, kind.hp * hpMultiplier, kind.contactDamage * damageMultiplier)
 end
 
--- Deals damage to one enemy. Returns true if this hit killed it (and fires EnemyKilled).
-function EnemySim.damage(id: number, amount: number, source: Player?): boolean
-	if not world:damage(id, amount) then
-		return false
+-- Deals damage to one enemy. Returns true if this hit killed it (and fires EnemyKilled), and the HP it took.
+function EnemySim.damage(id: number, amount: number, source: Player?): (boolean, number)
+	local killed, dealt = world:damage(id, amount)
+	if not killed then
+		return false, dealt
 	end
 	local kind = world:getKind(id)
 	local x, z = world:getPosition(id)
@@ -240,7 +248,12 @@ function EnemySim.damage(id: number, amount: number, source: Player?): boolean
 			killer = source,
 		} :: KillInfo)
 	end
-	return true
+	return true, dealt
+end
+
+-- Pushes a living enemy along the floor by `offset` (x/z), less the heavier it is (knockback).
+function EnemySim.push(id: number, offset: Vector3)
+	world:push(id, offset.X, offset.Z)
 end
 
 -- Kills every enemy (fires EnemyKilled for each). Returns how many died.
@@ -258,9 +271,15 @@ end
 -- Queries ---------------------------------------------------------------------------
 
 -- Ids of living enemies whose body overlaps the circle around `center` (x/z only), written to
--- out[1 .. n]; returns n. For area weapons (WP5).
+-- out[1 .. n]; returns n. For area weapons.
 function EnemySim.queryRadius(center: Vector3, radius: number, out: { number }): number
 	return world:queryRadius(center.X, center.Z, radius, out)
+end
+
+-- Ids of living enemies whose body comes within `radius` of the line from `from` to `to` (x/z only), written
+-- to out[1 .. n]; returns n. For projectiles and blades.
+function EnemySim.querySegment(from: Vector3, to: Vector3, radius: number, out: { number }): number
+	return world:querySegment(from.X, from.Z, to.X, to.Z, radius, out)
 end
 
 -- Id of the living enemy closest to `position` within maxRange studs, and its distance.
@@ -275,6 +294,16 @@ function EnemySim.getPosition(id: number): Vector3?
 		return nil
 	end
 	return Vector3.new(x, floorY, z)
+end
+
+-- Where the last step saw a living participant: moved ahead along their velocity like for contacts (see
+-- Config.Simulation), so about where they see themselves. nil for players who are not a living participant.
+function EnemySim.getPlayerPosition(player: Player): Vector3?
+	local index = targetIndexOf[player]
+	if not index then
+		return nil
+	end
+	return Vector3.new(contactXs[index], floorY, contactZs[index])
 end
 
 function EnemySim.isAlive(id: number): boolean

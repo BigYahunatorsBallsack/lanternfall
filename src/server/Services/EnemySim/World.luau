@@ -1,7 +1,7 @@
 --!strict
 -- Enemies as plain data (DESIGN.md section 15): column arrays, a spatial hash and one step function.
 -- No Roblox instances, so tests/EnemyWorld.spec.luau can run it. Owned by EnemySim, which feeds it the
--- player positions and turns the result into snapshots and signals.
+-- player positions and turns the result into snapshots and signals; weapons query, damage and push it.
 --
 -- One step:
 --   1. remove enemies that died since the last step
@@ -169,20 +169,22 @@ end
 
 -- Damage ------------------------------------------------------------------------------
 
--- Returns true when this hit killed the enemy. Hits on unknown or dead enemies do nothing.
-function World.damage(self: World, id: number, amount: number): boolean
+-- Returns true when this hit killed the enemy, and the HP it actually took (at most what was left).
+-- Hits on unknown or dead enemies do nothing.
+function World.damage(self: World, id: number, amount: number): (boolean, number)
 	local i = self.indexOf[id]
 	if not i or self.hp[i] <= 0 or not (amount > 0) then
-		return false
+		return false, 0
 	end
-	local left = self.hp[i] - amount
+	local hp = self.hp[i]
+	local left = hp - amount
 	if left > 0 then
 		self.hp[i] = left
-		return false
+		return false, amount
 	end
 	self.hp[i] = 0
 	self.alive -= 1
-	return true
+	return true, hp
 end
 
 -- Queries (dead enemies are skipped; data of an enemy killed since the last step stays readable) --------------
@@ -229,6 +231,40 @@ function World.queryRadius(self: World, x: number, z: number, radius: number, ou
 		if hp[i] > 0 then
 			local reach = radius + kinds[i].radius
 			local dx, dz = xs[i] - x, zs[i] - z
+			if dx * dx + dz * dz <= reach * reach then
+				count += 1
+				out[count] = ids[i]
+			end
+		end
+	end
+	return count
+end
+
+-- Ids of living enemies whose circle comes within `radius` of the segment (x0, z0)-(x1, z1), written to
+-- out[1 .. n]; returns n. For projectiles and blades that sweep over the floor between two steps.
+function World.querySegment(
+	self: World,
+	x0: number,
+	z0: number,
+	x1: number,
+	z1: number,
+	radius: number,
+	out: { number }
+): number
+	local sx, sz = x1 - x0, z1 - z0
+	local lengthSquared = sx * sx + sz * sz
+	local scratch = self.queryScratch
+	local found =
+		self.hash:query((x0 + x1) / 2, (z0 + z1) / 2, math.sqrt(lengthSquared) / 2 + radius + self.maxRadius, scratch)
+	local hp, kinds, xs, zs, ids = self.hp, self.kinds, self.xs, self.zs, self.ids
+	local count = 0
+	for s = 1, found do
+		local i = scratch[s]
+		if hp[i] > 0 then
+			local px, pz = xs[i] - x0, zs[i] - z0
+			local t = if lengthSquared > EPSILON then math.clamp((px * sx + pz * sz) / lengthSquared, 0, 1) else 0
+			local dx, dz = px - sx * t, pz - sz * t
+			local reach = radius + kinds[i].radius
 			if dx * dx + dz * dz <= reach * reach then
 				count += 1
 				out[count] = ids[i]
@@ -313,6 +349,25 @@ local function pushOut(
 	end
 	local angle = seed * GOLDEN_ANGLE
 	return cx + math.cos(angle) * minDistance, cz + math.sin(angle) * minDistance
+end
+
+-- Moves a living enemy by (dx, dz), divided by its mass above 1 so heavy enemies barely budge, keeping it out of
+-- obstacles and inside the arena. For knockback. The hash follows on the next step.
+function World.push(self: World, id: number, dx: number, dz: number)
+	local i = self.indexOf[id]
+	if not i or self.hp[i] <= 0 then
+		return
+	end
+	local p = self.params
+	local kind = self.kinds[i]
+	local scale = 1 / math.max(1, kind.mass)
+	local radius = kind.radius
+	local x, z = self.xs[i] + dx * scale, self.zs[i] + dz * scale
+	for _, obstacle in p.obstacles do
+		x, z = pushOut(x, z, obstacle.x, obstacle.z, obstacle.radius + radius, id)
+	end
+	self.xs[i] = math.clamp(x, p.minX + radius, p.maxX - radius)
+	self.zs[i] = math.clamp(z, p.minZ + radius, p.maxZ - radius)
 end
 
 local function rebuildHash(self: World)

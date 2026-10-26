@@ -1,9 +1,9 @@
 --!strict
--- Debug commands for testing (skip time, knock yourself down, hurt/heal yourself, win, spawn/hit/kill enemies, pause spawning)
--- and the stats panel feed (DebugStats once per second). Admins only: everyone in Studio, the owner of a
--- user-owned experience and Config.Admin.userIds. Handles the DebugCommand remote and uses RunDirector,
--- CombatService, EnemySim, SpawnDirector and MapService. Sets the player attribute "LanternfallAdmin" so the client shows
--- the debug panel.
+-- Debug commands for testing (skip time, knock yourself down, hurt/heal yourself, win, spawn/hit/kill enemies, pause
+-- spawning, add/swap/level weapons, weapons off) and the stats panel feed (DebugStats once per second). Admins only:
+-- everyone in Studio, the owner of a user-owned experience and Config.Admin.userIds. Handles the DebugCommand remote
+-- and uses RunDirector, CombatService, EnemySim, SpawnDirector, WeaponService and MapService. Sets the player
+-- attribute "LanternfallAdmin" so the client shows the debug panel.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -20,6 +20,7 @@ local EnemySim = require(script.Parent.EnemySim)
 local MapService = require(script.Parent.MapService)
 local RunDirector = require(script.Parent.RunDirector)
 local SpawnDirector = require(script.Parent.SpawnDirector)
+local WeaponService = require(script.Parent.WeaponService)
 
 local ADMIN_ATTRIBUTE = "LanternfallAdmin"
 
@@ -41,6 +42,30 @@ local function runPosition(player: Player): (Vector3?, string?)
 		return nil, "NoCharacter"
 	end
 	return position, nil
+end
+
+local function weaponName(weaponId: string): string
+	local weapon = Config.Weapons[weaponId]
+	return if weapon then weapon.displayName else weaponId
+end
+
+-- A participant of the running run who can carry weapons, or false plus a RunDirector rejection reason.
+local function armed(player: Player): (boolean, string?)
+	if not RunDirector.isActive() then
+		return false, "NotRunning"
+	end
+	if not WeaponService.isArmed(player) then
+		return false, "NotParticipant"
+	end
+	return true, nil
+end
+
+local function ownedIds(player: Player): { string }
+	local ids = {}
+	for _, weapon in WeaponService.getWeapons(player) do
+		table.insert(ids, weapon.id)
+	end
+	return ids
 end
 
 -- Each handler returns ok plus, on failure, a RunDirector rejection reason or, on success, an optional
@@ -108,6 +133,66 @@ local handlers: { [string]: (player: Player) -> (boolean, string?) } = {
 		local paused = not SpawnDirector.isPaused()
 		SpawnDirector.setPaused(paused)
 		return true, if paused then "Enemy spawning paused" else "Enemy spawning resumed"
+	end,
+	AddWeapon = function(player)
+		local ok, reason = armed(player)
+		if not ok then
+			return false, reason
+		end
+		local owned = ownedIds(player)
+		if #owned >= Config.Player.maxWeapons then
+			return true, "All weapon slots are full"
+		end
+		for _, weaponId in WeaponService.getImplemented() do
+			if not table.find(owned, weaponId) then
+				WeaponService.addWeapon(player, weaponId)
+				return true, `Added {weaponName(weaponId)}`
+			end
+		end
+		return true, "You already have every weapon in the game so far"
+	end,
+	NextWeapon = function(player)
+		local ok, reason = armed(player)
+		if not ok then
+			return false, reason
+		end
+		local implemented = WeaponService.getImplemented()
+		if #implemented == 0 then
+			return true, "There are no weapons in the game yet"
+		end
+		local owned = ownedIds(player)
+		local index = if owned[1] then table.find(implemented, owned[1]) or 0 else 0
+		local nextId = implemented[index % #implemented + 1]
+		for _, weaponId in owned do
+			WeaponService.removeWeapon(player, weaponId)
+		end
+		WeaponService.addWeapon(player, nextId)
+		return true, `Now only {weaponName(nextId)}`
+	end,
+	LevelUpWeapons = function(player)
+		local ok, reason = armed(player)
+		if not ok then
+			return false, reason
+		end
+		local raised = 0
+		for _, weaponId in ownedIds(player) do
+			if WeaponService.levelUp(player, weaponId) then
+				raised += 1
+			end
+		end
+		if raised == 0 then
+			return true, "Every weapon is at max level"
+		end
+		local parts = {}
+		for _, weapon in WeaponService.getWeapons(player) do
+			table.insert(parts, `{weaponName(weapon.id)} LV {weapon.level}`)
+		end
+		return true, table.concat(parts, ", ")
+	end,
+	ToggleWeapons = function()
+		local paused = not WeaponService.isPaused()
+		WeaponService.setPaused(paused)
+		return true, if paused then "Weapons off" else "Weapons on"
 	end,
 }
 
