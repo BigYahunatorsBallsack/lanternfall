@@ -258,3 +258,17 @@ describe("EnemyWorld", function()
 		expect(milliseconds < Sim.budget.stepMilliseconds).toBe(true)
 	end)
 end)
+
+describe("lag-corrected contacts", function()
+	it("checks contacts at the given contact positions instead of the targets", function()
+		local world = newWorld()
+		local touchAt = Types.Shadeling.radius + Sim.playerRadius
+		spawn(world, "Shadeling", touchAt, 0)
+		-- player standing still: contact
+		local contacts = world:step(STEP, { 0 }, { 0 }, 1, { 0 }, { 0 })
+		expect(contacts[1]).toBe(Types.Shadeling.contactDamage)
+		-- player running away from the enemy: on their screen they are already out of reach
+		contacts = world:step(STEP, { 0 }, { 0 }, 1, { -3 }, { 0 })
+		expect(contacts[1]).toBe(0)
+	end)
+end)

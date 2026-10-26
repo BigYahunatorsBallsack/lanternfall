@@ -8,8 +8,14 @@ return table.freeze({
 	spatialHashCellSize = 8, -- studs
 	interpolationDelay = 0.1, -- seconds the client renders behind the newest snapshot
 
-	playerRadius = 1.5, -- studs; enemies stop at their own radius + this (assumption)
-	contactMargin = 0.5, -- studs; enemies this close to a player's circle touch them (assumption)
+	playerRadius = 1.2, -- studs; enemies stop at their own radius + this (about an R15 torso)
+	contactMargin = 0.3, -- studs; enemies this close to a player's circle touch them
+	-- Players see enemies a little in the past (interpolationDelay + travel time) while the server sees the
+	-- player a little in the past too. Contacts are therefore checked where the player is moving to:
+	-- position + velocity * (contactLeadSeconds + ping), at most contactLeadMaxStuds ahead.
+	contactLeadSeconds = 0.15,
+	contactLeadMaxPing = 0.3, -- seconds; higher pings count as this
+	contactLeadMaxStuds = 5,
 	separationStiffness = 0.8, -- share of the overlap of two enemies removed per pass, 0-1 (assumption)
 	separationPasses = 3, -- more passes = fewer overlaps in dense crowds, but more server time per step
 	obstacleSteerMargin = 2, -- studs; enemies start sliding around an obstacle this far from it (assumption)

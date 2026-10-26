@@ -231,6 +231,16 @@ function MapService.getRootPosition(player: Player): Vector3?
 	return nil
 end
 
+-- Velocity of the player's HumanoidRootPart, zero while the character is missing.
+function MapService.getRootVelocity(player: Player): Vector3
+	local character = player.Character
+	local root = character and character:FindFirstChild("HumanoidRootPart")
+	if root and root:IsA("BasePart") then
+		return root.AssemblyLinearVelocity
+	end
+	return Vector3.zero
+end
+
 function MapService.isInZone(position: Vector3, zone: Zone): boolean
 	local layout = layoutFor(zone)
 	local offset = position - layout.center

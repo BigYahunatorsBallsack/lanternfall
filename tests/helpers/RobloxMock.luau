@@ -694,6 +694,7 @@ local function spawnCharacter(player)
 		Name = "HumanoidRootPart",
 		Size = v3(2, 2, 1),
 		Position = spawnAt + v3(0, 4, 0),
+		AssemblyLinearVelocity = v3(0, 0, 0),
 		Parent = character,
 	})
 	character.Parent = Workspace
