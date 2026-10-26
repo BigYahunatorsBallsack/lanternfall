@@ -26,6 +26,8 @@ local REJECTION_TEXT: { [string]: string } = {
 	AlreadyPast = "The timer is already past that point",
 	UnknownPlayer = "Please wait a moment and try again",
 	Locked = "This class is not unlocked yet",
+	NoCharacter = "Your character has not loaded yet",
+	EnemyCap = "The enemy limit is reached",
 }
 
 local RunDirector = {}

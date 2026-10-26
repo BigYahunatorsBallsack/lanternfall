@@ -59,6 +59,7 @@ local Remotes: { [string]: Definition } = {
 	LevelUpOffer = { direction = "toClient" }, -- offered cards
 	Notify = { direction = "toClient" }, -- short on-screen messages
 	EnemySnapshot = { direction = "toClient", unreliable = true }, -- buffer, see Net/Snapshot
+	DebugStats = { direction = "toClient" }, -- Net/Types.DebugStats, admins only, once per second
 }
 
 return table.freeze(Remotes)

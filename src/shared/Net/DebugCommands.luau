@@ -8,4 +8,8 @@ return table.freeze({
 	"DownSelf", -- knock yourself down
 	"ReviveSelf", -- stand up again
 	"WinRun", -- end the run as a victory
+	"SpawnWave", -- spawn a group of enemies around yourself
+	"HitNearby", -- damage every enemy close to you
+	"KillEnemies", -- kill every enemy
+	"ToggleSpawning", -- pause or resume enemy spawning
 })
