@@ -2,8 +2,9 @@
 -- Spark Bolt (DESIGN.md section 6): every cooldown it shoots `count` bolts at the nearest enemies in range, one
 -- target each; bolts without a target of their own fan out around the nearest by spreadDegrees. A bolt flies
 -- straight, hits up to pierce + 1 enemies (closest along its path first, never the same one twice) and vanishes
--- after `range` studs. Effects: "Fire" when a bolt starts, "End" when an enemy stops it before its range.
--- Behavior for WeaponService/Arsenal; drawn by WeaponRenderer/Visuals/SparkBolt.
+-- after `range` studs. Evolved into Starfire (stats.explosionRadius), every hit also blasts the other enemies within
+-- explosionRadius of the hit one for explosionDamage times the bolt's damage. Effects: "Fire" when a bolt starts,
+-- "End" when an enemy stops it before its range, "Blast" with center and radius for each explosion. Behavior for WeaponService/Arsenal; drawn by WeaponRenderer/Visuals/SparkBolt.
 
 local Arsenal = require(script.Parent.Parent.Arsenal)
 
@@ -27,6 +28,9 @@ local targets: { number } = {}
 local found: { number } = {}
 local order: { number } = {} -- new hits of one step, sorted by distance along the path
 local along: { [number]: number } = {}
+local hitX: { [number]: number } = {}
+local hitZ: { [number]: number } = {}
+local blasted: { number } = {}
 
 local SparkBolt = {}
 
@@ -95,6 +99,26 @@ function SparkBolt.fire(weapon: Arsenal.Weapon, ctx: Arsenal.Context): boolean
 	return true
 end
 
+-- Starfire: damages every enemy around (x, z) except the one the bolt hit.
+local function explode(
+	weapon: Arsenal.Weapon,
+	ctx: Arsenal.Context,
+	hitId: number,
+	x: number,
+	z: number,
+	radius: number
+)
+	ctx:emit(weapon, { kind = "Blast", x = x, z = z, radius = radius })
+	local multiplier = weapon.stats.explosionDamage or 1
+	local count = ctx:queryCircle(x, z, radius, blasted)
+	for i = 1, count do
+		local id = blasted[i]
+		if id ~= hitId then
+			ctx:hit(weapon, id, multiplier)
+		end
+	end
+end
+
 -- Hits the enemies on the bolt's path of this step in order. Returns how far along the path it stopped, or nil
 -- if it flies on.
 local function hitAlong(weapon: Arsenal.Weapon, ctx: Arsenal.Context, bolt: Bolt, move: number, hits: number): number?
@@ -107,6 +131,7 @@ local function hitAlong(weapon: Arsenal.Weapon, ctx: Arsenal.Context, bolt: Bolt
 				n += 1
 				order[n] = id
 				along[id] = (ex - bolt.x) * bolt.dx + (ez - bolt.z) * bolt.dz
+				hitX[id], hitZ[id] = ex, ez
 			end
 		end
 	end
@@ -125,6 +150,10 @@ local function hitAlong(weapon: Arsenal.Weapon, ctx: Arsenal.Context, bolt: Bolt
 		local id = order[i]
 		bolt.hit[id] = true
 		ctx:hit(weapon, id)
+		local blastRadius = weapon.stats.explosionRadius
+		if blastRadius then
+			explode(weapon, ctx, id, hitX[id], hitZ[id], blastRadius)
+		end
 		bolt.hitsLeft -= 1
 		if bolt.hitsLeft <= 0 then
 			stopAt = math.clamp(along[id], 0, move)
@@ -132,6 +161,8 @@ local function hitAlong(weapon: Arsenal.Weapon, ctx: Arsenal.Context, bolt: Bolt
 		end
 	end
 	table.clear(along)
+	table.clear(hitX)
+	table.clear(hitZ)
 	return stopAt
 end
 

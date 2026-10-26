@@ -1,8 +1,9 @@
 --!strict
 -- Debug commands for testing (skip time, knock yourself down, hurt/heal yourself, win, spawn/hit/kill enemies, pause
--- spawning, add/swap/level weapons, weapons off, team level-up) and the stats panel feed (DebugStats once per second). Admins only:
+-- spawning, add/swap/level/evolve weapons, weapons off, team level-up) and the stats panel feed (DebugStats once per second). Admins only:
 -- everyone in Studio, the owner of a user-owned experience and Config.Admin.userIds. Handles the DebugCommand remote
--- and uses RunDirector, CombatService, EnemySim, ExperienceService, SpawnDirector, WeaponService and MapService. Sets the player
+-- and uses RunDirector, CombatService, EnemySim, ExperienceService, SpawnDirector, UpgradeService, WeaponService and
+-- MapService. Sets the player
 -- attribute "LanternfallAdmin" so the client shows the debug panel.
 
 local Players = game:GetService("Players")
@@ -21,6 +22,7 @@ local ExperienceService = require(script.Parent.ExperienceService)
 local MapService = require(script.Parent.MapService)
 local RunDirector = require(script.Parent.RunDirector)
 local SpawnDirector = require(script.Parent.SpawnDirector)
+local UpgradeService = require(script.Parent.UpgradeService)
 local WeaponService = require(script.Parent.WeaponService)
 
 local ADMIN_ATTRIBUTE = "LanternfallAdmin"
@@ -187,6 +189,41 @@ local handlers: { [string]: (player: Player) -> (boolean, string?) } = {
 		local parts = {}
 		for _, weapon in WeaponService.getWeapons(player) do
 			table.insert(parts, `{weaponName(weapon.id)} LV {weapon.level}`)
+		end
+		return true, table.concat(parts, ", ")
+	end,
+	EvolveWeapons = function(player)
+		local ok, reason = armed(player)
+		if not ok then
+			return false, reason
+		end
+		local parts = {}
+		for _, weapon in WeaponService.getWeapons(player) do
+			for evolutionId, evolution in Config.Evolutions do
+				if evolution.weapon ~= weapon.id then
+					continue
+				end
+				if weapon.evolution then
+					table.insert(parts, `{evolution.displayName} already`)
+					continue
+				end
+				for _ = weapon.level + 1, Config.Player.maxItemLevel do
+					WeaponService.levelUp(player, weapon.id)
+				end
+				if not table.find(UpgradeService.getEvolutions(player), evolutionId) then
+					UpgradeService.addPassive(player, evolution.passive) -- fails if the passive slots are full
+				end
+				if UpgradeService.evolve(player, evolutionId) then
+					table.insert(parts, evolution.displayName)
+				else
+					local passive = Config.Passives[evolution.passive]
+					local passiveName = if passive then passive.displayName else evolution.passive
+					table.insert(parts, `no {evolution.displayName} (needs {passiveName}, passive slots full)`)
+				end
+			end
+		end
+		if #parts == 0 then
+			return true, "None of your weapons has an evolution"
 		end
 		return true, table.concat(parts, ", ")
 	end,

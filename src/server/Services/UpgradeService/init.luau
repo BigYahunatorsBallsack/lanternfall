@@ -5,6 +5,7 @@
 -- queue up. Handles ChooseUpgrade and RequestReroll, picks the first card after Config.Run.levelUp.autoPickSeconds
 -- and applies the pick: weapons via WeaponService, passives as bonuses pushed to WeaponService, CombatService and
 -- ExperienceService, rewards as healing or Embers. Sends LevelUpOffer to the chooser and Passives to everyone.
+-- Chests (WP9) and AdminService use getEvolutions, evolve and addPassive.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -269,7 +270,54 @@ function UpgradeService.init()
 	RunService.Heartbeat:Connect(autoPick)
 end
 
+-- Commands --------------------------------------------------------------------------
+
+-- Gives the player a passive at level 1, or one level more if they have it (chests, debug buttons). False if they
+-- are not in the run, their passive slots are full or it is at max level.
+function UpgradeService.addPassive(player: Player, passiveId: string): boolean
+	local state = states[player]
+	if not (state and Config.Passives[passiveId] and WeaponService.isArmed(player)) then
+		return false
+	end
+	local level = state.passives[passiveId]
+	if level and level >= Config.Player.maxItemLevel then
+		return false
+	end
+	if not level and #state.passiveOrder >= Config.Player.maxPassives then
+		return false
+	end
+	apply(player, state, {
+		id = UpgradePool.cardId("Passive", passiveId),
+		kind = "Passive",
+		itemId = passiveId,
+		level = (level or 0) + 1,
+		isNew = level == nil,
+	})
+	return true
+end
+
+-- Turns the weapon into the evolution if the player may take it right now (getEvolutions).
+function UpgradeService.evolve(player: Player, evolutionId: string): (boolean, string?)
+	if not table.find(UpgradeService.getEvolutions(player), evolutionId) then
+		return false, "NotEligible"
+	end
+	return WeaponService.evolve(player, Config.Evolutions[evolutionId].weapon, evolutionId)
+end
+
 -- Queries ---------------------------------------------------------------------------
+
+-- Evolution ids the player may take now: weapon at max level plus the passive (DESIGN.md section 6), sorted.
+function UpgradeService.getEvolutions(player: Player): { string }
+	local state = states[player]
+	if not state then
+		return {}
+	end
+	local owned: { [string]: { level: number, evolution: string? } } = {}
+	for _, weapon in WeaponService.getWeapons(player) do
+		owned[weapon.id] = { level = weapon.level, evolution = weapon.evolution }
+	end
+	return UpgradePool.evolutionsFor(owned, state.passives, Config.Player.maxItemLevel)
+end
 
 -- The player's passives in the current (or last) run.
 function UpgradeService.getPassives(player: Player): { Types.PassiveInfo }
