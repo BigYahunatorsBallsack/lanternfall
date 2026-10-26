@@ -2,6 +2,8 @@
 -- Definition of every remote in the game. Read by Net; adding a remote anywhere else is not allowed.
 -- toServer remotes carry intents only and must declare a rate limit and argument validators.
 
+local Config = require(script.Parent.Parent.Config)
+local DebugCommands = require(script.Parent.DebugCommands)
 local Validate = require(script.Parent.Validate)
 
 export type Definition = {
@@ -15,10 +17,20 @@ local ID_LENGTH = 32
 
 local Remotes: { [string]: Definition } = {
 	-- Client -> server intents
-	RequestStartRun = {
+	RequestSync = {
 		direction = "toServer",
-		rateLimit = { count = 1, perSeconds = 2 },
-		args = { Validate.string(ID_LENGTH), Validate.optional(Validate.string(ID_LENGTH)) }, -- classId, difficulty
+		rateLimit = { count = 3, perSeconds = 10 },
+		args = {}, -- asks for a full RunState, sent once when the client starts
+	},
+	SelectClass = {
+		direction = "toServer",
+		rateLimit = { count = 4, perSeconds = 1 },
+		args = { Validate.keyOf(Config.Classes) }, -- classId; availability and ownership are checked by RunDirector
+	},
+	SetReady = {
+		direction = "toServer",
+		rateLimit = { count = 4, perSeconds = 1 },
+		args = { Validate.boolean() }, -- join the next run (also "Play again" on the results screen)
 	},
 	RequestDash = {
 		direction = "toServer",
@@ -35,9 +47,14 @@ local Remotes: { [string]: Definition } = {
 		rateLimit = { count = 2, perSeconds = 1 },
 		args = {},
 	},
+	DebugCommand = {
+		direction = "toServer",
+		rateLimit = { count = 5, perSeconds = 1 },
+		args = { Validate.oneOf(DebugCommands) }, -- admin only, checked by AdminService
+	},
 
 	-- Server -> client state
-	RunState = { direction = "toClient" }, -- phase, timer, team level/xp
+	RunState = { direction = "toClient" }, -- full Net/Types.RunState, sent on every change
 	PlayerState = { direction = "toClient" }, -- hp, items, dash cooldown
 	LevelUpOffer = { direction = "toClient" }, -- offered cards
 	Notify = { direction = "toClient" }, -- short on-screen messages

@@ -1,6 +1,7 @@
 --!strict
 -- Network layer: creates remotes from Net/Remotes and wraps them with rate limits and validation.
--- Server bootstrap calls Net.initServer(); services and controllers use the on/fire functions.
+-- Server bootstrap calls Net.initServer(), client bootstrap Net.waitForRemotes(); services and
+-- controllers use the on/fire functions.
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -8,7 +9,7 @@ local RunService = game:GetService("RunService")
 local Definitions = require(script.Remotes)
 local RateLimiter = require(script.RateLimiter)
 
-local FOLDER_NAME = "Remotes"
+local FOLDER_NAME = "RemoteInstances" -- not "Remotes": that name is taken by the Remotes ModuleScript
 local CLIENT_WAIT_SECONDS = 30
 
 local Net = {}
@@ -99,6 +100,15 @@ function Net.fireAllClients(name: string, ...: any)
 end
 
 -- Client ------------------------------------------------------------------
+
+-- Waits until every remote has replicated. The client bootstrap calls this once before the controllers
+-- start, so their init() can connect handlers without yielding.
+function Net.waitForRemotes()
+	assert(RunService:IsClient(), "Net.waitForRemotes() is client only")
+	for name in Definitions do
+		getRemote(name)
+	end
+end
 
 function Net.fireServer(name: string, ...: any)
 	getDefinition(name, "toServer")

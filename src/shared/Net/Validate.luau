@@ -27,6 +27,12 @@ function Validate.string(maxLength: number): Validator
 	end
 end
 
+function Validate.boolean(): Validator
+	return function(value)
+		return typeof(value) == "boolean"
+	end
+end
+
 function Validate.oneOf(allowed: { string }): Validator
 	local set = {}
 	for _, entry in allowed do
@@ -34,6 +40,13 @@ function Validate.oneOf(allowed: { string }): Validator
 	end
 	return function(value)
 		return typeof(value) == "string" and set[value] == true
+	end
+end
+
+-- String that is a key of `map`, e.g. a class id from Config.Classes.
+function Validate.keyOf(map: { [string]: any }): Validator
+	return function(value)
+		return typeof(value) == "string" and map[value] ~= nil
 	end
 end
 

@@ -24,6 +24,7 @@ Koop-Survivors für Roblox. Design: [DESIGN.md](DESIGN.md), Arbeitsregeln: [CLAU
 
 ## Für Entwickler
 
-- Formatieren: `stylua src` · Prüfen: `selene src` (beim ersten Mal lädt Selene die Roblox-API herunter).
+- Formatieren: `stylua src tests` · Prüfen: `selene src` (beim ersten Mal lädt Selene die Roblox-API herunter).
+- Unit-Tests (braucht Rust): `cargo run --release --manifest-path tools/luau-test-runner/Cargo.toml -- . tests/*.spec.luau`
 - Neue Remote nur in `src/shared/Net/Remotes.luau`, mit Rate-Limit und Validatoren.
 - Spielwerte nur in `src/shared/Config`.

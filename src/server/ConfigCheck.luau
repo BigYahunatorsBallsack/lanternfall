@@ -4,6 +4,7 @@
 
 local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
 local Config = require(Shared.Config)
+local Snapshot = require(Shared.Net.Snapshot)
 
 local ConfigCheck = {}
 
@@ -71,6 +72,35 @@ function ConfigCheck.run(): { string }
 		if tier.unlockedBy and not Config.Difficulty.tiers[tier.unlockedBy] then
 			problem(`Difficulty {id} unlocked by unknown tier {tier.unlockedBy}`)
 		end
+	end
+
+	local flow = Config.Run.flow
+	local defaultClass = Config.Classes[flow.defaultClassId]
+	if not (defaultClass and defaultClass.available and defaultClass.free) then
+		problem(`Run.flow.defaultClassId {flow.defaultClassId} must be an available free class`)
+	end
+	if not Config.Difficulty.tiers[flow.defaultDifficulty] then
+		problem(`Run.flow.defaultDifficulty {flow.defaultDifficulty} is not a difficulty tier`)
+	end
+	if flow.allReadyCountdownSeconds <= 0 or flow.allReadyCountdownSeconds > flow.countdownSeconds then
+		problem("Run.flow.allReadyCountdownSeconds must be above 0 and at most countdownSeconds")
+	end
+	if flow.resultsSeconds <= 0 then
+		problem("Run.flow.resultsSeconds must be above 0")
+	end
+	if Config.Admin.skipToBossLeadSeconds >= Config.Run.durationSeconds then
+		problem("Admin.skipToBossLeadSeconds must be shorter than the run")
+	end
+
+	for name, area in { arena = Config.Map.arena, lobby = Config.Map.lobby } do
+		if area.spawnRadius * 2 >= area.size then
+			problem(`Map.{name}.spawnRadius does not fit into its size`)
+		end
+	end
+	local arena = Config.Map.arena
+	local reach = math.max(math.abs(arena.center.X), math.abs(arena.center.Z)) + arena.size / 2
+	if reach > Snapshot.MAX_COORDINATE then
+		problem(`Map.arena reaches beyond +-{Snapshot.MAX_COORDINATE} studs, which enemy snapshots cannot encode`)
 	end
 
 	return problems

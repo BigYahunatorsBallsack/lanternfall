@@ -18,3 +18,7 @@ sourcemap.json
 # Never commit secrets
 .env
 *.cookie
+
+# Test runner build output
+tools/**/target/
+tools/**/Cargo.lock

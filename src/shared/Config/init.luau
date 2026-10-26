@@ -13,4 +13,6 @@ return {
 	Economy = require(script.Economy),
 	Difficulty = require(script.Difficulty),
 	Simulation = require(script.Simulation),
+	Map = require(script.Map),
+	Admin = require(script.Admin),
 }
