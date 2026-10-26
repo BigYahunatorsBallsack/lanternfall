@@ -1,0 +1,9 @@
+[package]
+name = "luau-test-runner"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+# Runs Lanternfall's pure Luau modules and tests outside Studio (see prelude.luau).
+[dependencies]
+mlua = { version = "0.10", features = ["luau", "vendored"] }
