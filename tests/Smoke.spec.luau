@@ -14,6 +14,8 @@ local WeaponService = require(ServerScriptService.Server.Services.WeaponService)
 local ExperienceService = require(ServerScriptService.Server.Services.ExperienceService)
 local UpgradeService = require(ServerScriptService.Server.Services.UpgradeService)
 local RunStatsService = require(ServerScriptService.Server.Services.RunStatsService)
+local LootService = require(ServerScriptService.Server.Services.LootService)
+local SpawnDirector = require(ServerScriptService.Server.Services.SpawnDirector)
 local UpgradePool = require(ServerScriptService.Server.Services.UpgradeService.UpgradePool)
 local Config = require(game:GetService("ReplicatedStorage").Shared.Config)
 
@@ -277,7 +279,7 @@ describe("smoke", function()
 		local stats = world.gui("Debug", "Stats")
 		expect(stats ~= nil).toBe(true)
 		expect(stats.Enemies.Text).toBe(
-			`Enemies {Config.Run.spawn.cap.base} / {Config.Run.spawn.cap.base} · drawn {Config.Run.spawn.cap.base}`
+			`Enemies {Config.Run.spawn.cap.base} / {Config.Run.spawn.cap.base} · drawn {Config.Run.spawn.cap.base} · shots 0`
 		)
 		expect(string.find(stats.Server.Text, "Server step", 1, true) ~= nil).toBe(true)
 		expect(string.find(stats.Network.Text, "KB/s", 1, true) ~= nil).toBe(true)
@@ -477,6 +479,171 @@ describe("smoke", function()
 		ExperienceService.setPaused(true) -- no cards in the way for the rest of the smoke test
 		world.click(world.gui("Debug", "ToggleSpawning"))
 		world.advance(0.2)
+	end)
+
+	local function controller(name)
+		return require(folderProxy("src/client", "Client").Controllers[name])
+	end
+
+	local function standAt(x, z)
+		local root = me.Character.HumanoidRootPart
+		root.Position = Vector3.new(x, root.Position.Y, z)
+		root.AssemblyLinearVelocity = Vector3.zero
+	end
+
+	local spawningWasPaused
+	it("spawns a glowing elite with an HP bar that drops a chest", function()
+		spawningWasPaused = SpawnDirector.isPaused()
+		SpawnDirector.setPaused(true)
+		world.click(world.gui("Debug", "KillEnemies"))
+		world.advance(0.3)
+		world.click(world.gui("Debug", "ToggleWeapons")) -- weapons off: the elite stays alive until we kill it
+		world.advance(0.3)
+		world.click(world.gui("Debug", "SpawnElite"))
+		world.advance(0.5)
+		expect(EnemySim.getCount()).toBe(1)
+		expect(string.find(toastTexts(), "Spawned a Gloom", 1, true) ~= nil).toBe(true)
+		local models = drawnModels()
+		expect(#models).toBe(1)
+		local model = models[1]
+		expect(model ~= nil and string.sub(model.Name, 1, 5) == "Elite").toBe(true)
+		expect(model ~= nil and model:FindFirstChild("HpBar", true) ~= nil).toBe(true)
+
+		world.click(world.gui("Debug", "HitNearby")) -- out of reach: the elite spawned on the ring
+		world.advance(0.3)
+		world.click(world.gui("Debug", "KillEnemies"))
+		world.advance(0.3)
+		local chests = LootService.getChests()
+		expect(#chests).toBe(1)
+		expect(controller("ChestController").getCount()).toBe(1)
+		local folder = workspace:FindFirstChild("LanternfallChests")
+		expect(folder ~= nil and #folder:GetChildren() == 1).toBe(true)
+		-- walk far away from it: the arrow at the screen edge points at it
+		local chest = chests[1]
+		standAt(if chest.x > Config.Map.arena.center.X then chest.x - 90 else chest.x + 90, chest.z)
+		world.advance(0.2)
+		local arrow = world.gui("Chests", "ChestArrow")
+		expect(arrow ~= nil and arrow.Visible).toBe(true)
+	end)
+
+	it("opens the chest when walked over and shows the reward", function()
+		local weaponsBefore, passivesBefore = 0, 0
+		for _, weapon in WeaponService.getWeapons(me) do
+			weaponsBefore += weapon.level
+		end
+		for _, passive in UpgradeService.getPassives(me) do
+			passivesBefore += passive.level
+		end
+		local chest = LootService.getChests()[1]
+		standAt(chest.x + 10, chest.z)
+		world.advance(0.3)
+		expect(#LootService.getChests()).toBe(1) -- not close enough yet
+		standAt(chest.x + 1, chest.z)
+		world.advance(0.3)
+		expect(#LootService.getChests()).toBe(0)
+		expect(controller("ChestController").getCount()).toBe(0)
+		local banner = world.gui("Chests", "ChestBanner")
+		expect(banner ~= nil).toBe(true)
+		local weaponsAfter, passivesAfter = 0, 0
+		for _, weapon in WeaponService.getWeapons(me) do
+			weaponsAfter += weapon.level
+		end
+		for _, passive in UpgradeService.getPassives(me) do
+			passivesAfter += passive.level
+		end
+		-- one more level somewhere (or healing once everything is maxed)
+		expect(weaponsAfter + passivesAfter - weaponsBefore - passivesBefore <= 1).toBe(true)
+	end)
+
+	it("gives the evolution from a chest once the build is ready", function()
+		-- a fresh Spark Bolt (an earlier test evolved the first one with the debug button)
+		local weapons = WeaponService.getWeapons(me)
+		WeaponService.removeWeapon(me, "SparkBolt")
+		if #WeaponService.getWeapons(me) == #weapons then
+			WeaponService.removeWeapon(me, weapons[1].id)
+		end
+		WeaponService.addWeapon(me, "SparkBolt")
+		for _ = 1, Config.Player.maxItemLevel do
+			WeaponService.levelUp(me, "SparkBolt")
+		end
+		UpgradeService.addPassive(me, "Focus")
+		expect(table.find(UpgradeService.getEvolutions(me), "Starfire") ~= nil).toBe(true)
+		local root = me.Character.HumanoidRootPart.Position
+		LootService.drop(Vector3.new(root.X + 1, root.Y, root.Z))
+		world.advance(0.3)
+		expect(#LootService.getChests()).toBe(0)
+		local evolved = false
+		for _, weapon in WeaponService.getWeapons(me) do
+			if weapon.id == "SparkBolt" then
+				evolved = weapon.evolution == "Starfire"
+			end
+		end
+		expect(evolved).toBe(true)
+		local banner = world.gui("Chests", "ChestBanner")
+		local texts = {}
+		for _, object in banner:GetDescendants() do
+			if object.ClassName == "TextLabel" then
+				table.insert(texts, object.Text)
+			end
+		end
+		expect(table.concat(texts, " | ")).toBe("CHEST | Starfire | Spark Bolt evolved!")
+	end)
+
+	it("lets Spitters shoot visible projectiles that hit the player", function()
+		local center = Config.Map.arena.center
+		standAt(center.X, center.Z) -- a clear line of fire: ruins stop shots
+		world.advance(0.6)
+		EnemySim.spawn("Spitter", center.X + 28, center.Z, 1, 1)
+		-- the owner is protected for the rest of this run (see above), so count the hits instead of HP
+		local hits = {}
+		local connection = EnemySim.ShotHit:Connect(function(player, damage)
+			table.insert(hits, { player = player, damage = damage })
+		end)
+		local seenShots = 0
+		for _ = 1, 40 do
+			world.advance(0.1)
+			seenShots = math.max(seenShots, controller("EnemyShotRenderer").getCount())
+		end
+		expect(seenShots > 0).toBe(true)
+		local shotParts = workspace:FindFirstChild("LanternfallEnemyShots")
+		expect(shotParts ~= nil).toBe(true)
+		connection:Disconnect()
+		expect(#hits >= 1).toBe(true)
+		expect(hits[1].player).toBe(me)
+		expect(hits[1].damage).toBe(Config.Enemies.types.Spitter.ranged.projectileDamage)
+		world.click(world.gui("Debug", "KillEnemies"))
+		world.advance(0.3)
+	end)
+
+	it("starts Swarm Rush at 5:00 with a ring of Shadelings and announces elites", function()
+		SpawnDirector.setPaused(false)
+		-- an enemy left far behind comes back on the spawn ring
+		local center = Config.Map.arena.center
+		standAt(center.X - 60, center.Z)
+		local straggler = EnemySim.spawn("Brute", center.X + 60, center.Z, 1, 1)
+		world.advance(Config.Run.spawn.recycle.intervalSeconds + 0.3)
+		local position = EnemySim.getPosition(straggler)
+		local root = me.Character.HumanoidRootPart.Position
+		expect(position ~= nil and (position - root).Magnitude <= Config.Run.spawn.ringMax + 2).toBe(true)
+		RunDirector.skipTo(Config.Run.spawn.swarmRush.atMinutes[1] * 60 - 0.5)
+		world.advance(1)
+		expect(SpawnDirector.isSwarmRush()).toBe(true)
+		expect(string.find(toastTexts(), "appeared! Kill it for a chest.", 1, true) ~= nil).toBe(true)
+		expect(string.find(toastTexts(), "Swarm Rush", 1, true) ~= nil).toBe(true)
+		expect(EnemySim.getCount() >= Config.Run.spawn.swarmRush.ringCount / 2).toBe(true)
+		SpawnDirector.setPaused(spawningWasPaused)
+		world.click(world.gui("Debug", "KillEnemies"))
+		world.advance(0.3)
+		world.click(world.gui("Debug", "ToggleWeapons")) -- weapons back on
+		world.advance(0.3)
+		for _ = 1, 5 do -- picks up the chests of elites that came with the skipped minutes
+			local chest = LootService.getChests()[1]
+			if chest then
+				standAt(chest.x, chest.z)
+				world.advance(0.3)
+			end
+		end
+		expect(#LootService.getChests()).toBe(0)
 	end)
 
 	it("puts a respawned participant back into the arena", function()
