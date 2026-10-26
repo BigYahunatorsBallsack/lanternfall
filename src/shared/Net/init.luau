@@ -9,7 +9,7 @@ local RunService = game:GetService("RunService")
 local Definitions = require(script.Remotes)
 local RateLimiter = require(script.RateLimiter)
 
-local FOLDER_NAME = "Remotes"
+local FOLDER_NAME = "RemoteInstances" -- not "Remotes": that name is taken by the Remotes ModuleScript
 local CLIENT_WAIT_SECONDS = 30
 
 local Net = {}
