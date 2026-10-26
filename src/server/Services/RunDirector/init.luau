@@ -92,11 +92,12 @@ local function returnToLobby()
 end
 
 local function startBoss()
-	notifyParticipants(`{Format.time(Config.Run.durationSeconds)} - {Config.Enemies.boss.displayName} awakens!`)
 	if bossEncounter then
+		notifyParticipants(`{Config.Enemies.boss.displayName} awakens!`)
 		task.spawn(bossEncounter)
 	else
 		print("[Lanternfall] No boss yet (WP10): reaching the boss phase counts as a victory")
+		notifyParticipants("The boss is not in the game yet - victory!")
 		flow:endRun("Victory", now())
 	end
 end
