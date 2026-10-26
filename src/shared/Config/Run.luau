@@ -46,12 +46,19 @@ local Run = {
 	-- XP for level L -> L+1 = round((base + coefficient * L^exponent) * fPlayers)
 	xpCurve = table.freeze({ base = 5, coefficient = 2.4, exponent = 1.3 }),
 
+	-- XP orbs dropped by killed enemies; every orb counts for the whole team (DESIGN.md section 8)
+	xpOrbs = table.freeze({
+		maxOrbs = 300, -- orbs on the floor at once; past this a new orb's XP joins the nearest one (assumption)
+	}),
+
 	levelUp = table.freeze({
 		cardCount = 3,
 		ownedItemWeight = 2, -- owned items are this many times as likely
 		autoPickSeconds = 10, -- first card is picked automatically after this
 		freeRerollsPerRun = 1,
 		maxedOutRewards = table.freeze({ embers = 25, healFraction = 0.3 }),
+		protectionAfterPick = 0.5, -- seconds still invulnerable after the last pick, to step out of the crowd (assumption)
+		inputDelaySeconds = 0.4, -- cards ignore taps this long after they appear, against accidental picks (assumption)
 	}),
 
 	coop = table.freeze({
