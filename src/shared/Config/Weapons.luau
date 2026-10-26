@@ -43,13 +43,13 @@ local Weapons: { [string]: Weapon } = {
 		behavior = "OrbitBlades",
 		targeting = "Orbit",
 		base = {
-			damage = 12,
+			damage = 15, -- WP7: was 12; kills a Shadeling with one hit until minute 2 (balance sim)
 			count = 2,
 			radius = 7, -- studs from your center to the blade tips
 			bladeInnerRadius = 2, -- studs; blades reach from here to `radius`, so enemies touching you get hit (assumption)
 			bladeWidth = 1, -- studs, hit width of a blade (assumption)
 			hitCooldownPerEnemy = 0.5, -- seconds before the same enemy can be hit again
-			rotationSpeed = 180, -- degrees/s (assumption)
+			rotationSpeed = 240, -- degrees/s (assumption; WP7: was 180, blades come around more often)
 		},
 		levels = {
 			{},
