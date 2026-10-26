@@ -25,7 +25,7 @@ Hinweis: Nach jeder Code-Änderung musst du in Studio erneut veröffentlichen, s
 6. Nach jedem Run: **F9** drücken (Developer Console) → oben **Server** wählen → den Block zwischen
    `===== Run summary` und `=====` markieren und in eine Textdatei kopieren. Er enthält Dauer, Team-Level pro Minute, Kills, Schaden, Waffen und Passive jedes Spielers.
 
-Gut zu wissen für den Prototyp: Es gibt noch keinen Boss (12:00 zählt als Sieg), keine Elites, keinen Swarm Rush, Spitter schießen noch nicht, Wiederbeleben fehlt (wer down ist, bleibt down bis zum Run-Ende) und nichts wird gespeichert.
+Gut zu wissen für den Prototyp: Es gibt noch keinen Boss (12:00 zählt als Sieg; Elites, Truhen, Swarm Rush und Spitter-Schüsse gibt es seit Paket 9), Wiederbeleben fehlt (wer down ist, bleibt down bis zum Run-Ende) und nichts wird gespeichert.
 
 ## 3. Fragebogen (direkt nach dem Spielen, 2 Minuten)
 
