@@ -151,7 +151,7 @@ v1 hat 6 Waffen, 6 Passive und 2 Evolutionen; jeder Spieler trägt bis zu 4 Waff
 | Blade Storm | Orbit Blades L5 + Armor (beliebiges Level) | 8 Klingen, Radius 10, doppelter Schaden |
 | Starfire | Spark Bolt L5 + Focus (beliebiges Level) | Projektile explodieren mit Radius 6 Studs |
 
-Werte, die hier noch fehlen (Projektil-Tempo und Reichweite von Spark Bolt und Boomerang Axe, Sprungweite von Chain Lightning, Drehtempo der Orbit Blades, Kollisionsradien der Gegner), stehen als Annahme in `Config` und werden in Arbeitspaket 3 und 5 eingestellt.
+Werte, die hier noch fehlen (Projektil-Tempo und Reichweite von Spark Bolt und Boomerang Axe, Sprungweite von Chain Lightning, Drehtempo der Orbit Blades), stehen als Annahme in `Config` und werden in Arbeitspaket 5 eingestellt. Kollisionsradius und Masse der Gegner stehen seit Paket 3 als Annahme in `Config/Enemies.luau`.
 
 Jede Waffe = ein Datensatz im Config-Modul + ein kleines Verhaltens-Modul. Neue Waffe = neuer Datensatz + Verhalten, Framework bleibt unangetastet.
 
@@ -186,6 +186,8 @@ Gegner-HP-Faktor     = 1 + 0.15 · t                      (Minute 10: 2.5×)
 - Spawn-Ort: Ring 45–60 Studs um einen zufälligen Spieler, außerhalb der Sicht, nie in Hindernissen.
 - Mischung: Minute 0–2 nur Shadelings; 2–4 zusätzlich 20 % Brutes; ab Minute 4 60 % Shadeling, 20 % Brute, 20 % Spitter.
 - „Swarm Rush" bei Minute 5 und 9: 30 s doppelte Spawnrate, nur Shadelings.
+
+**Stand im Code (seit Paket 3):** Der SpawnDirector kann Rate, Spielerfaktor, Obergrenze, Spawn-Ring, Mischung nach Minute und HP-Faktor (mal Schwierigkeit). Er spawnt nur in der Phase „Running", um einen zufälligen lebenden Teilnehmer, und rechnet n aus den Teilnehmern, die noch im Server sind. Swarm Rush, Elites und die Schüsse der Spitter folgen in Paket 9; Spitter halten aber schon ihren Abstand von 30 Studs.
 
 ## 8. Koop-Regeln
 
@@ -326,13 +328,13 @@ src/shared/          → ReplicatedStorage.Shared
   Config/            Player, Weapons, Passives, Evolutions, Enemies, Classes, Run, Talents,
                      Economy, Difficulty, Simulation
   Net/               Definition aller RemoteEvents und Snapshot-Format
-  Util/              SpatialHash, Math, Signal
+  Util/              SpatialHash, Signal, Loader, Format
 src/server/          → ServerScriptService.Server
-  Services/          RunDirector, SpawnDirector, EnemySim, CombatService, UpgradeService,
+  Services/          RunDirector, SpawnDirector (+ SpawnRules), EnemySim (+ World), CombatService, UpgradeService,
                      LootService, ReviveService, PlayerDataService, MonetizationService, AnalyticsService,
                      MapService (Platzhalter-Karte), AdminService (Test-Befehle)
 src/client/          → StarterPlayer.StarterPlayerScripts.Client
-  Controllers/       InputController, CameraController, EnemyRenderer, HUDController, VFXController,
+  Controllers/       InputController, CameraController, EnemyRenderer (+ SnapshotBuffer, Models), HUDController, VFXController,
                      RunStateController, LobbyController, ResultsController, NotifyController, DebugController
   UI/                Theme, Widgets (UI im Code gebaut)
 tests/               Unit-Tests für reine Module (Runner in tools/luau-test-runner)
@@ -344,17 +346,32 @@ tests/               Unit-Tests für reine Module (Runner in tools/luau-test-run
 - **RunDirector** besitzt den Run-Ablauf (Regeln als reine Zustandsmaschine in `RunDirector/RunFlow.luau`, mit Unit-Tests). Signals für spätere Pakete: `RunStarted(players)`, `RunEnded(results)`, `PhaseChanged(phase, previous)`, `ParticipantStateChanged(player, state)`. Befehle: `setParticipantState` (ReviveService), `endRun("Victory")` und `setBossEncounter` (Boss), `getElapsed()` (SpawnDirector).
 - **RunState:** Der Server schickt bei jeder Änderung den vollständigen, kleinen Zustand (`Net/Types.luau`) an alle; Timer laufen auf dem Client über `workspace:GetServerTimeNow()`, also kein Senden pro Sekunde. Ein neuer Client holt sich den Stand mit `RequestSync`.
 - **Phasen:** Lobby → Countdown → Running → Boss → Ended → Lobby. Teilnehmer-Zustände: Alive, Down, Out.
-- **Platzhalter-Karte:** MapService baut Lobby (80 × 80) und Arena (300 × 300, violette Nebelwand) beim Serverstart aus `Config/Map.luau`, auf Höhe 100 und abseits vom Standard-Baseplate. Die echte Karte folgt in Paket 21.
+- **Platzhalter-Karte:** MapService baut Lobby (80 × 80) und Arena (300 × 300, violette Nebelwand, 5 runde Platzhalter-Ruinen) beim Serverstart aus `Config/Map.luau`, auf Höhe 100 und abseits vom Standard-Baseplate. Die echte Karte folgt in Paket 21.
 
-**Gegner-Engine**
+**Gegner-Engine** (seit Paket 3; Werte in `Config/Simulation.luau`)
 
-- Server hält Gegner als Daten-Arrays (Position, HP, Typ), Schritt mit 15 Hz: auf nächsten Spieler zusteuern, Abstand zu Nachbarn, Hindernisse als Kreise.
-- Spatial Hash (Rastergröße 8 Studs) für Nachbarn und Treffer – keine Roblox-Physik, keine Raycasts pro Gegner.
+- Server hält Gegner als Daten-Arrays (Position, HP, Typ), Schritt mit 15 Hz (`EnemySim/World.luau`, ohne Roblox-Objekte, mit Unit-Tests). Pro Schritt:
+  1. Gegner, die seit dem letzten Schritt gestorben sind, entfernen.
+  2. Auf den nächsten lebenden Spieler zusteuern (Spitter halten Abstand). Vor Hindernissen seitlich ausweichen; vor Nachbarn, die mindestens gleich schwer sind, höchstens bis zur Berührung vorrücken. So bildet sich eine ruhige Traube statt eines Knäuels; Brutes (Masse 6) schieben Shadelings (Masse 1) beiseite.
+  3. Überlappungen in 3 Durchgängen auflösen, nach Masse verteilt.
+  4. Gegner aus Hindernissen und Spielern schieben und in der Arena halten.
+  5. Kontakte melden: pro Spieler und Schritt höchstens ein Signal mit dem höchsten Kontaktschaden.
+- Spatial Hash (Rastergröße 8 Studs, `Util/SpatialHash.luau`) für Nachbarn und Treffer – keine Roblox-Physik, keine Raycasts pro Gegner.
+- Hindernisse sind Kreise (`Config/Map.luau` → `arena.obstacles`); MapService baut dazu runde Säulen, an denen auch Spieler hängen bleiben.
+- Gemessen im Test-Runner: 140 Gegner mit 4 Spielern ≈ 1–1,6 ms pro Schritt (Budget 4 ms).
 - Waffentreffer und Projektile serverseitig als Daten gegen dasselbe Raster.
-- Snapshots gebündelt per UnreliableRemoteEvent: ~8 Byte pro Gegner (ID, Position, Typ, HP-Anteil) in einem `buffer`; bei 140 Gegnern und 15 Hz ≈ 17 KB/s.
-- Ein UnreliableRemoteEvent-Paket darf höchstens ~900 Byte haben: pro Tick daher Pakete mit max. 100 Gegnern (6 Byte Kopf + 8 Byte pro Gegner), Format in `src/shared/Net/Snapshot.luau`.
-- Clients: Modell-Pool, Interpolation zwischen zwei Snapshots (~100 ms Verzögerung), Positionen gesammelt per `workspace:BulkMoveTo`.
+- Snapshots gebündelt per UnreliableRemoteEvent: 8 Byte pro Gegner (ID, Position, Typ, HP-Anteil) in einem `buffer`; bei 140 Gegnern und 15 Hz ≈ 17 KB/s pro Spieler. Gesendet wird nur an die Teilnehmer des Runs.
+- Ein UnreliableRemoteEvent-Paket darf höchstens ~900 Byte haben: ein Tick wird gleichmäßig auf Pakete mit max. 90 Gegnern verteilt (8 Byte Kopf mit Tick, Teil, Teilanzahl und Gegnerzahl + 8 Byte pro Gegner, also höchstens 728 Byte). Der Client nutzt einen Tick erst, wenn alle Teile da sind; geht ein Paket verloren, fällt nur dieser Tick aus. Format in `src/shared/Net/Snapshot.luau`.
+- Gegner-IDs (1–65535) werden reihum vergeben, eine frei gewordene ID kommt also erst nach Zehntausenden Spawns wieder.
+- Clients (`EnemyRenderer`): Modell-Pool pro Gegnertyp, Interpolation zwischen zwei Ticks (~100 ms hinter dem neuesten; die Uhr gleicht unregelmäßige Ankunft weich aus), Positionen gesammelt per `workspace:BulkMoveTo`, kurzes weißes Aufblitzen bei Treffern. Platzhalter-Modelle aus 3–4 Teilen in der Größe des Kollisionskreises (`EnemyRenderer/Models.luau`), echte Modelle in Paket 21.
 - Gegner-Teile verankert, ohne Kollision, ohne Schatten.
+
+**Schnittstellen der Gegner-Engine für spätere Pakete**
+
+- `EnemySim.spawn(enemyId, x, z, hpMultiplier, damageMultiplier)` – SpawnDirector, Boss (Paket 10).
+- `EnemySim.damage(id, amount, player)`, `queryRadius(position, radius, out)`, `nearest(position, maxRange)`, `getPosition(id)`, `killAll()` – Waffen (Paket 5), Debug.
+- Signal `EnemySim.EnemyKilled(info)` mit Typ, Position, XP und Killer – XP-Orbs (Paket 6), Truhen (Paket 9), Statistik.
+- Signal `EnemySim.Contact(player, damage)` – Spieler-HP mit 0,5 s Schutz nach Treffer (Paket 4). Bis dahin tun Gegner niemandem weh.
 
 **Performance-Budgets**
 
@@ -392,7 +409,7 @@ tests/               Unit-Tests für reine Module (Runner in tools/luau-test-run
 - Game Passes beim Join prüfen und cachen, Käufe in der Sitzung sofort freischalten.
 - Entwicklung in einer separaten Test-Experience.
 
-**Sicherheit:** Client schickt nur Absichten (Bewegung, Dash, Level-up-Wahl, Kaufwunsch). Server berechnet Schaden, Kills, XP, Drops, Embers, Truhen, Ranglistenwerte. Jede Remote mit Rate-Limit und Validierung (nur angebotene Karten-IDs, Dash nur nach Cooldown). Bewegungs-Plausibilitätscheck. Admin-Befehle nur für die UserId des Owners, serverseitig geprüft: Admin ist, wer in Studio testet, der Besitzer einer Experience im eigenen Account (`game.CreatorId`) und wer in `Config/Admin.luau` steht. Test-Befehle seit Paket 2: Timer +1 Minute, zu 11:50 springen, sich selbst umhauen/aufstehen, Run gewinnen.
+**Sicherheit:** Client schickt nur Absichten (Bewegung, Dash, Level-up-Wahl, Kaufwunsch). Server berechnet Schaden, Kills, XP, Drops, Embers, Truhen, Ranglistenwerte. Jede Remote mit Rate-Limit und Validierung (nur angebotene Karten-IDs, Dash nur nach Cooldown). Bewegungs-Plausibilitätscheck. Admin-Befehle nur für die UserId des Owners, serverseitig geprüft: Admin ist, wer in Studio testet, der Besitzer einer Experience im eigenen Account (`game.CreatorId`) und wer in `Config/Admin.luau` steht. Test-Befehle seit Paket 2: Timer +1 Minute, zu 11:50 springen, sich selbst umhauen/aufstehen, Run gewinnen. Seit Paket 3: 40 Gegner um sich spawnen (Obergrenze gilt), Gegner in 20 Studs Umkreis treffen (5 Schaden), alle Gegner töten, Spawnen pausieren/fortsetzen; dazu eine Messanzeige unten links (Gegnerzahl, Spawnrate, Serverzeit pro Schritt, Gegnerdaten in KB/s, FPS; rot, wenn ein Budget überschritten ist).
 
 ## 17. Compliance & Plattform-Regeln
 
