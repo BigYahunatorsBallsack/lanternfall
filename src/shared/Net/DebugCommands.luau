@@ -14,4 +14,8 @@ return table.freeze({
 	"HitNearby", -- damage every enemy close to you
 	"KillEnemies", -- kill every enemy
 	"ToggleSpawning", -- pause or resume enemy spawning
+	"AddWeapon", -- add the next weapon you do not have yet
+	"NextWeapon", -- swap your weapons for only the next one, to try each weapon on its own
+	"LevelUpWeapons", -- every weapon +1 level
+	"ToggleWeapons", -- switch every player's weapons off or on
 })

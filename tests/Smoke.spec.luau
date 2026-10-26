@@ -10,6 +10,7 @@ local RunDirector = require(ServerScriptService.Server.Services.RunDirector)
 local MapService = require(ServerScriptService.Server.Services.MapService)
 local EnemySim = require(ServerScriptService.Server.Services.EnemySim)
 local CombatService = require(ServerScriptService.Server.Services.CombatService)
+local WeaponService = require(ServerScriptService.Server.Services.WeaponService)
 local Config = require(game:GetService("ReplicatedStorage").Shared.Config)
 
 local me = world.addPlayer("Owner", 1, true)
@@ -50,6 +51,28 @@ local function toastTexts()
 		end
 	end
 	return table.concat(texts, " | ")
+end
+
+-- Weapon parts the client currently shows, by name (OrbitBlade, SparkBolt, Shockwave).
+local function weaponParts(name)
+	local folder = workspace:FindFirstChild("LanternfallWeapons")
+	local count = 0
+	for _, part in if folder then folder:GetChildren() else {} do
+		if part.Name == name then
+			count += 1
+		end
+	end
+	return count
+end
+
+local function weaponRows()
+	local lines = {}
+	for _, row in world.gui("HUD", "WeaponRows"):GetChildren() do
+		if row.ClassName == "TextLabel" then
+			table.insert(lines, row.Text)
+		end
+	end
+	return table.concat(lines, " | ")
 end
 
 local function teamText()
@@ -102,6 +125,17 @@ describe("smoke", function()
 		expect(world.gui("HUD").Enabled).toBe(true)
 		expect(world.gui("Lobby").Enabled).toBe(false)
 		expect(inZone(me, "Arena")).toBe(true)
+	end)
+
+	it("arms the player with the class weapon and switches weapons off for the enemy tests", function()
+		expect(weaponRows()).toBe("Spark Bolt · LV 1")
+		expect(world.gui("HUD", "WeaponsTitle").Text).toBe("WEAPONS")
+		local weapon = WeaponService.getWeapons(me)[1]
+		expect(weapon.stats.cooldown).toBeNear(Config.Weapons.SparkBolt.base.cooldown * 0.9) -- Spark Mage bonus
+		world.click(world.gui("Debug", "ToggleWeapons"))
+		world.advance(0.2)
+		expect(WeaponService.isPaused()).toBe(true)
+		expect(world.gui("HUD", "WeaponsTitle").Text).toBe("WEAPONS (OFF)")
 	end)
 
 	it("counts the run timer up", function()
@@ -204,6 +238,60 @@ describe("smoke", function()
 		expect(string.find(stats.Network.Text, "KB/s", 1, true) ~= nil).toBe(true)
 	end)
 
+	it("shoots Spark Bolts that kill enemies once weapons are on", function()
+		local kills = 0
+		local connection = EnemySim.EnemyKilled:Connect(function(info)
+			if info.killer == me then
+				kills += 1
+			end
+		end)
+		world.click(world.gui("Debug", "ToggleWeapons"))
+		local mostBolts = 0
+		for _ = 1, 30 do
+			world.advance(0.1)
+			mostBolts = math.max(mostBolts, weaponParts("SparkBolt"))
+		end
+		connection:Disconnect()
+		expect(WeaponService.isPaused()).toBe(false)
+		expect(kills > 0).toBe(true)
+		expect(mostBolts > 0).toBe(true)
+		expect(WeaponService.getDamageStats(me).SparkBolt.kills).toBe(kills)
+	end)
+
+	it("adds, levels and swaps weapons with the debug buttons and draws them", function()
+		world.click(world.gui("Debug", "AddWeapon"))
+		world.advance(0.2)
+		expect(weaponRows()).toBe("Spark Bolt · LV 1 | Orbit Blades · LV 1")
+		expect(weaponParts("OrbitBlade")).toBe(Config.Weapons.OrbitBlades.base.count)
+		world.click(world.gui("Debug", "AddWeapon"))
+		world.click(world.gui("Debug", "SpawnWave"))
+		local mostWaves = 0
+		for _ = 1, 40 do
+			world.advance(0.1)
+			mostWaves = math.max(mostWaves, weaponParts("Shockwave"))
+		end
+		expect(mostWaves > 0).toBe(true)
+		world.click(world.gui("Debug", "LevelUpWeapons"))
+		world.advance(0.2)
+		expect(weaponRows()).toBe("Spark Bolt · LV 2 | Orbit Blades · LV 2 | Shockwave · LV 2")
+		expect(string.find(toastTexts(), "Spark Bolt LV 2, Orbit Blades LV 2, Shockwave LV 2", 1, true) ~= nil).toBe(
+			true
+		)
+		world.click(world.gui("Debug", "AddWeapon"))
+		world.advance(0.2)
+		expect(string.find(toastTexts(), "every weapon in the game so far", 1, true) ~= nil).toBe(true)
+		world.click(world.gui("Debug", "NextWeapon"))
+		world.advance(0.2)
+		expect(weaponRows()).toBe("Orbit Blades · LV 1")
+		expect(weaponParts("OrbitBlade")).toBe(Config.Weapons.OrbitBlades.base.count)
+		for _ = 1, Config.Player.maxItemLevel do
+			world.click(world.gui("Debug", "LevelUpWeapons"))
+		end
+		world.advance(0.2)
+		expect(weaponRows()).toBe("Orbit Blades · MAX")
+		expect(weaponParts("OrbitBlade")).toBe(Config.Weapons.OrbitBlades.base.count + 2)
+	end)
+
 	it("puts a respawned participant back into the arena", function()
 		world.spawnCharacter(me)
 		world.advance(0.5)
@@ -223,6 +311,7 @@ describe("smoke", function()
 		world.advance(0.2)
 		expect(EnemySim.getCount()).toBe(0)
 		expect(#drawnModels()).toBe(0)
+		expect(weaponParts("OrbitBlade") + weaponParts("SparkBolt") + weaponParts("Shockwave")).toBe(0)
 	end)
 
 	it("starts the next run with Play again", function()
@@ -233,6 +322,8 @@ describe("smoke", function()
 		world.advance(3.2)
 		expect(phase()).toBe("Running")
 		expect(RunDirector.getElapsed() < 1).toBe(true)
+		expect(weaponRows()).toBe("Spark Bolt · LV 1") -- every run starts with only the class weapon
+		expect(WeaponService.isPaused()).toBe(false)
 	end)
 
 	it("follows the character with the fixed top-down camera", function()
@@ -321,6 +412,8 @@ describe("smoke", function()
 	end)
 
 	it("keeps running while one of two is down, and enemies go for the one still standing", function()
+		expect(WeaponService.getWeapons(friend)[1].id).toBe("SparkBolt") -- the friend's class weapon
+		world.click(world.gui("Debug", "ToggleWeapons")) -- or the friend's bolts keep the enemies away
 		CombatService.protect(friend, 1e6)
 		world.click(world.gui("Debug", "DownSelf"))
 		world.advance(0.2)
@@ -331,6 +424,7 @@ describe("smoke", function()
 		local friendRoot = friend.Character.HumanoidRootPart.Position
 		local _, distance = EnemySim.nearest(friendRoot)
 		expect(distance < 5).toBe(true)
+		CombatService.protect(me, 1) -- the crowd around the friend can reach the owner right after standing up
 		world.click(world.gui("Debug", "ReviveSelf"))
 		world.advance(0.2)
 		local reviveHp = math.ceil(100 * Config.Run.coop.reviveHpFraction)
