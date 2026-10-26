@@ -165,6 +165,8 @@ Jede Waffe = ein Datensatz im Config-Modul + ein kleines Verhaltens-Modul. Neue 
 | Spark Bolt | 60 Studs/s, Reichweite 40 Studs (etwa der sichtbare Bereich), Trefferradius 0,5. Schießt nur, wenn ein Gegner in Reichweite ist. Mehrere Bolts gehen an verschiedene nächste Gegner; gibt es zu wenige, fächern die übrigen um 12° um den nächsten auf. Durchbohrt 1 heißt: fliegt durch den ersten Gegner und stoppt am zweiten. Hindernisse halten Bolts nicht auf. |
 | Shockwave | Löst erst aus, wenn ein Gegner im Radius steht. Schubst überlebende Gegner 3 Studs vom Spieler weg, geteilt durch ihre Masse über 1 (Brute 0,5 Studs). Der Schubs ist neu gegenüber dem ursprünglichen Design. |
 
+**Passive (seit Paket 6):** Alle sechs Passive kommen über die Level-up-Karten, höchstens 4 pro Spieler, jedes bis Level 5. Sie addieren sich zu den Klassen-Boni (Blade Warden mit Vitality 2: +20 % + 2 × 15 % = 150 HP). Vitality hebt die maximalen HP und heilt dabei um den Unterschied; Haste erhöht das Lauftempo (nicht den Dash); Focus und Might wirken auf alle Waffen; Magnet vergrößert den Aufsammelradius für XP-Orbs; Armor zieht pro Treffer flach ab.
+
 Allgemein: Krit-Chance 5 % pro Treffer, Krit = doppelter Schaden (`Config/Player.luau`). Schaden pro Level addiert sich auf den Grundwert (Level 5 mit zweimal +15 % = 130 %). Boni des Spielers (Klasse jetzt, später Passive und Talente) wirken darauf: Schaden, Cooldown (nie unter 0,2 s) und Fläche (`area`, vergrößert `radius`). Spark Mage feuert also alle 0,81 s.
 
 ## 7. Gegner, Elites & Boss
@@ -221,6 +223,15 @@ XP für Level L → L+1 = round((5 + 2.4 · L^1.3) · fSpieler)
 Solo: L1→2 = 7 XP, L10→11 = 53 XP, L30→31 = 205 XP; bis Level 35 zusammen rund 3.800 XP. Ein Solo-Run spawnt bis Minute 12 rund 3.400 Gegner (Ø 1,4–1,6 XP); bei ~85 % eingesammelten Orbs reicht das für Level 34–36.
 
 **Level-up-Karten:** 3 Karten aus allen Waffen/Passiven; vorhandene Items doppelt so wahrscheinlich; volle Slots → nur Upgrades; alles auf L5 → „+25 Embers" oder „30 % heilen"; 1 kostenloser Neuwurf pro Run.
+
+**Stand im Code (seit Paket 6; Werte in `Config/Run.luau` → `xpCurve`, `xpOrbs`, `levelUp`):**
+
+- Jeder getötete Gegner lässt ein XP-Orb mit seinem XP-Wert fallen. Lebende Teilnehmer sammeln alle Orbs im Aufsammelradius (8 Studs, Magnet mehr) sofort ein; das Orb fliegt sichtbar zum Sammler. Die XP gehen an ein gemeinsames Team-Level, der Bedarf rechnet mit den Teilnehmern, die gerade im Server sind. Spieler, die down sind, sammeln nichts.
+- Annahme: höchstens 300 Orbs gleichzeitig am Boden; darüber geht die XP eines neuen Orbs in das nächstgelegene (es wird größer und färbt sich: blau ab 1, grün ab 4, rot ab 20 XP). Orbs bleiben liegen, bis jemand sie holt, und verschwinden am Run-Ende.
+- Pro Team-Level bekommt jeder Teilnehmer, der nicht „Out" ist, eigene Karten. Mehrere Level-ups stauen sich, die nächste Wahl kommt direkt nach der vorigen („2 more waiting"). Während der Wahl steht der Spieler still, kann nicht dashen und ist unverwundbar; nach der letzten Wahl noch 0,5 s geschützt (Annahme), damit man aus der Traube kommt. Nach 10 s wird die erste Karte gewählt; ein Neuwurf gibt neue Karten, möglichst andere, und startet die 10 s neu.
+- Karten reagieren erst 0,4 s nach dem Erscheinen (Annahme), damit ein Daumen auf dem Stick nicht versehentlich wählt. Am PC auch Tasten 1/2/3.
+- Sind weniger Items übrig als Karten, füllen „Heal" und „Embers" auf. Die Embers werden pro Run gezählt (`UpgradeService.getBonusEmbers`) und mit Paket 13 ausgezahlt.
+- Evolutionen sind nie Karten, nur Truhen (Paket 9).
 
 | Balancing-Ziel | Wert |
 | --- | --- |
@@ -298,8 +309,8 @@ Bewusst nicht: harte Countdown-Angebote oder Serien, die bei einem verpassten Ta
 ## 13. UX/UI & Onboarding
 
 - **Hub-Lobby:** Spawn, Run-Portale (Solo, Party, Quick Join), Talent-Altar, Klassen-Statuen, Shop-Stand, Ranglisten-Tafel.
-- **HUD:** oben Team-XP-Leiste mit Level, Timer Mitte, Kills rechts; unten links HP, unten rechts Dash; Waffen/Passive oben links; Teammates außer Sicht als Randpfeile. Seit Paket 5 steht oben links die Waffenliste mit Level („LV 2", ab Level 5 „MAX").
-- **Level-up:** 3 große Karten (Icon, Name, eine Zeile Effekt, „NEW"/„LV 3"), daumentauglich.
+- **HUD:** oben Team-XP-Leiste mit Level, Timer Mitte, Kills rechts; unten links HP, unten rechts Dash; Waffen/Passive oben links; Teammates außer Sicht als Randpfeile. Seit Paket 5 steht oben links die Waffenliste mit Level („LV 2", ab Level 5 „MAX"), seit Paket 6 darunter die Passive und oben Mitte die Team-XP-Leiste mit „LV n" über dem Timer; in der Team-Liste steht „picking", solange jemand Karten wählt.
+- **Level-up:** 3 große Karten (Icon, Name, eine Zeile Effekt, „NEW"/„LV 3"), daumentauglich. Seit Paket 6: Fenster in der Bildmitte mit „LEVEL n", „Pick one", drei Karten (Icon = Kreis mit Anfangsbuchstaben, gelb Waffe, grün Passiv, violett Belohnung), einem Balken, der bis zur automatischen Wahl abläuft, und „Reroll (1 left)".
 - **Run-Ende:** Zeit, Kills, Schaden pro Waffe, Embers inkl. Boni, großer „Nochmal"-Knopf.
 - **Shop, Talente, Pass:** je ein Fenster, max. 2 Taps bis Kauf.
 
@@ -340,15 +351,17 @@ src/shared/          → ReplicatedStorage.Shared
   Config/            Player, Weapons, Passives, Evolutions, Enemies, Classes, Run, Talents,
                      Economy, Difficulty, Simulation, Map, Admin, Camera
   Net/               Definition aller RemoteEvents und Snapshot-Format
-  Util/              SpatialHash, Signal, Loader, Format, Orbit
+  Util/              SpatialHash, Signal, Loader, Format, Orbit, UpgradeText
 src/server/          → ServerScriptService.Server
   Services/          RunDirector, SpawnDirector (+ SpawnRules), EnemySim (+ World), CombatService,
-                     WeaponService (+ Arsenal, WeaponStats, Behaviors/ je Waffe), UpgradeService,
+                     WeaponService (+ Arsenal, WeaponStats, Behaviors/ je Waffe), ExperienceService (+ OrbField,
+                     Progression), UpgradeService (+ UpgradePool),
                      LootService, ReviveService, PlayerDataService, MonetizationService, AnalyticsService,
                      MapService (Platzhalter-Karte), AdminService (Test-Befehle)
 src/client/          → StarterPlayer.StarterPlayerScripts.Client
   Controllers/       InputController, CameraController, PlayerStateController, EnemyRenderer (+ SnapshotBuffer, Models),
-                     LoadoutController, WeaponRenderer (+ VisualKit, Visuals/ je Waffe), HUDController, VFXController,
+                     LoadoutController, WeaponRenderer (+ VisualKit, Visuals/ je Waffe), ProgressController,
+                     LevelUpController, XpOrbRenderer, HUDController, VFXController,
                      RunStateController, LobbyController, ResultsController, NotifyController, DebugController
   UI/                Theme, Widgets (UI im Code gebaut)
 tests/               Unit-Tests für reine Module (Runner in tools/luau-test-runner)
@@ -406,8 +419,18 @@ tests/               Unit-Tests für reine Module (Runner in tools/luau-test-run
 - Treffer sind Daten gegen das Gegner-Raster, keine Roblox-Physik: Klingen und Projektile werden als Strecke zwischen zwei Schritten geprüft, damit nichts durchrutscht (Klingen in Stücken von höchstens 1,5 Studs an der Spitze).
 - **Netzwerk:** `Loadout` (Waffen, Level und fertige Werte eines Spielers) geht bei jeder Änderung an alle; `WeaponEffects` bündelt pro Schritt die Effekte (Bolt abgefeuert, Bolt gestoppt, Druckwelle) und geht nur an die Teilnehmer. Orbit-Klingen brauchen keine Effekte: Server und Clients rechnen den Winkel aus der Serverzeit (`Util/Orbit.luau`). Der Client schickt für Waffen nichts.
 - **Client:** `LoadoutController` merkt sich die Loadouts, `WeaponRenderer` zeichnet mit gepoolten Neon-Teilen und einem `workspace:BulkMoveTo` pro Frame. Klingen drehen sich um die Figur, wie dieser Client sie sieht; Bolts fliegen in Serverzeit von dort, wo der Server sie abgefeuert hat; die Druckwelle wächst um die Figur des Werfers und verblasst in 0,35 s.
-- Schnittstellen für spätere Pakete: `WeaponService.addWeapon(player, id)`, `levelUp(player, id)`, `removeWeapon`, `evolve(player, id, evolutionId)` (die Passiv-Voraussetzung prüft der Aufrufer), `getWeapons`, `getImplemented()` (Karten-Pool, Paket 6), `getDamageStats(player)` (Schaden und Kills pro Waffe für den Run-Ende-Screen, Paket 14). Boni aus Passiven und Talenten kommen in `bonusesFor` dazu (Paket 6/8/13).
+- Schnittstellen für spätere Pakete: `WeaponService.addWeapon(player, id)`, `levelUp(player, id)`, `removeWeapon`, `evolve(player, id, evolutionId)` (die Passiv-Voraussetzung prüft der Aufrufer), `getWeapons`, `getImplemented()` (Karten-Pool, Paket 6), `getDamageStats(player)` (Schaden und Kills pro Waffe für den Run-Ende-Screen, Paket 14), `setBonuses(player, bonuses)` (Passive seit Paket 6, Talente in Paket 13 kommen in `bonusesFor` dazu).
 - Gemessen im Test-Runner: 4 Spieler mit je 3 Waffen auf Level 5 zwischen 140 Gegnern ≈ 0,1 ms für die Waffen, zusammen mit den Gegnern ≈ 1,1 ms pro Schritt (Budget 4 ms). Die Messanzeige zeigt seit Paket 5 die Zeit für Gegner und Waffen zusammen.
+
+**XP und Level-ups** (seit Paket 6; Werte in `Config/Run.luau`)
+
+- **ExperienceService** (Server) hört auf `EnemySim.EnemyKilled` und legt Orbs als Daten an (`ExperienceService/OrbField.luau`); nach jedem Gegner-Schritt (`EnemySim.Stepped`) sammeln die lebenden Teilnehmer ein, gemessen an `EnemySim.getPlayerPosition` (wie bei Kontakten). Team-Level und XP-Kurve stehen rein in `ExperienceService/Progression.luau`. Beides mit Unit-Tests.
+- **UpgradeService** (Server) macht aus jedem Level-up Karten pro Spieler (`UpgradeService/UpgradePool.luau`, rein, mit Unit-Tests), hält die Passive und schiebt deren Boni an WeaponService (Schaden, Cooldown), CombatService (max. HP, Lauftempo, Rüstung) und ExperienceService (Aufsammelradius). Alle drei löschen die Boni beim nächsten Run-Start selbst.
+- **CombatService.setChoosing(player, an/aus):** schützt ohne Zeitlimit, setzt das Lauftempo auf 0 und lehnt Dashes ab; `PlayerVitals.choosing` geht an alle Clients.
+- **Netzwerk:** `TeamProgress` (Level, XP, Bedarf) an alle; `XpOrbs` pro Schritt gebündelt an die Teilnehmer, als flache Zahlenlisten (neue oder gewachsene Orbs: ID, x, z, Wert; eingesammelt: ID, Spieler); `LevelUpOffer` nur an den Wählenden; `Passives` pro Spieler an alle. Der Client schickt `ChooseUpgrade(cardId)` (nur vom Server angebotene IDs zählen) und `RequestReroll`.
+- **Client:** `ProgressController` merkt sich Team-XP und Passive, `XpOrbRenderer` zeichnet gepoolte Orbs (liegende werden einmal gesetzt, nur fliegende bewegt, per `workspace:BulkMoveTo`), `LevelUpController` zeigt die Karten; Kartentexte baut `Util/UpgradeText` aus der Config.
+- Debug-Knopf „Team +1 level" löst sofort ein Level-up aus.
+- Schnittstellen für spätere Pakete: `ExperienceService.LevelGained(level)`, `grantLevel()`, `getLevel()`; `UpgradeService.getPassives(player)` (Evolutions-Voraussetzung, Paket 9), `getBonusEmbers(player)` (Paket 13).
 
 **Performance-Budgets**
 
@@ -506,7 +529,7 @@ Bis zum Soft Launch rund 40–50 Sessions und 50–60 Stunden Zeit des Owners (6
 | 5 | Waffen-Framework + 3 Waffen | Prototyp | Extra high (Framework), Medium (Waffen) | 2 | 1,5 h | Waffengefühl beurteilen |
 | 6 | XP, Level-up-Karten, Upgrade-Pool | Prototyp | Medium | 1 | 1 h | Karten am Handy prüfen |
 | 7 | Prototyp-Playtest + Balancing | Prototyp | Medium | 1 | 3 h | Spaß-Check mit 3–5 Freunden |
-| 8 | Restliche Waffen, Passive, Evolutionen, Spark Mage | Vertical Slice | Medium | 2 | 1,5 h | Balancing-Feedback |
+| 8 | Restliche Waffen, Evolutionen, Spark Mage (Passive seit Paket 6) | Vertical Slice | Medium | 2 | 1,5 h | Balancing-Feedback |
 | 9 | Gegnertypen, Elites, Spawn-Director | Vertical Slice | Medium | 1–2 | 1 h | Schwierigkeit beurteilen |
 | 10 | Boss mit Vorwarnungen und 2 Phasen | Vertical Slice | High | 2 | 1,5 h | Boss 3× spielen |
 | 11 | Down & Wiederbeleben | Vertical Slice | High | 1 | 1 h | mit 2 Clients testen |

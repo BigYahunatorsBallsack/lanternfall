@@ -48,6 +48,7 @@ export type PlayerVitals = {
 	maxHp: number,
 	dashReadyAt: number, -- server time when the next dash is allowed
 	invulnerableUntil: number, -- server time
+	choosing: boolean, -- picking a level-up card: invulnerable and cannot move (DESIGN.md section 8)
 }
 
 -- One weapon of a player's loadout (WeaponService -> LoadoutController).
@@ -82,6 +83,50 @@ export type WeaponEffect = {
 	range: number?, -- studs
 	radius: number?, -- studs
 	distance: number?, -- studs a projectile flew before it ended
+}
+
+-- Team level and XP towards the next level (ExperienceService -> ProgressController), to everyone on change.
+export type TeamProgress = {
+	level: number,
+	xp: number,
+	needed: number, -- XP for the next level with the current player count
+}
+
+-- XP orb changes (ExperienceService -> XpOrbRenderer), batched per simulation step and sent to the participants.
+export type XpOrbEvents = {
+	reset: boolean?, -- drop every orb first (run start and end, full sync)
+	orbs: { number }, -- flat: id, x, z, value for every orb that appeared or grew
+	collected: { number }, -- flat: id, userId for every orb a player picked up
+}
+
+-- One level-up card (UpgradeService -> LevelUpController). Texts come from Util/UpgradeText on the client.
+export type UpgradeCard = {
+	id: string, -- what the client sends back with ChooseUpgrade, e.g. "Weapon:SparkBolt"
+	kind: "Weapon" | "Passive" | "Reward",
+	itemId: string, -- key in Config.Weapons or Config.Passives; "Heal" or "Embers" for rewards
+	level: number, -- item level after picking the card (1 = new)
+	isNew: boolean,
+}
+
+-- The local player's level-up choice, sent when it opens, changes (reroll) or closes.
+export type LevelUpOffer = {
+	open: boolean,
+	level: number, -- team level this choice belongs to
+	cards: { UpgradeCard },
+	expiresAt: number, -- server time; the first card is picked automatically then
+	rerolls: number, -- free rerolls left in this run
+	pending: number, -- further choices waiting after this one
+}
+
+export type PassiveInfo = {
+	id: string, -- key in Config.Passives
+	level: number,
+}
+
+-- The passives of one player (UpgradeService -> ProgressController), to everyone on change. Empty outside a run.
+export type PassiveLoadout = {
+	userId: number,
+	passives: { PassiveInfo },
 }
 
 -- Server measurements for the admin stats panel (AdminService -> DebugController).

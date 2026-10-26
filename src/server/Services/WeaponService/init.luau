@@ -2,8 +2,9 @@
 -- Weapon framework on the server (DESIGN.md section 6): every participant starts a run with their class weapon,
 -- the Arsenal (rules in WeaponService/Arsenal, stats in WeaponStats) steps right after every enemy simulation step
 -- (EnemySim.Stepped), and loadouts (Loadout, to everyone) and weapon effects (WeaponEffects, batched per step, to
--- the participants) go to the clients. One behavior module per weapon in WeaponService/Behaviors. Upgrades (WP6),
--- chests (WP9) and AdminService call addWeapon, levelUp and evolve; the results screen (WP14) getDamageStats.
+-- the participants) go to the clients. One behavior module per weapon in WeaponService/Behaviors. Level-up cards
+-- (UpgradeService), chests (WP9) and AdminService call addWeapon, levelUp and evolve, UpgradeService also setBonuses
+-- for passives; the results screen (WP14) getDamageStats.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -33,6 +34,7 @@ end
 local floorY = Config.Map.arena.center.Y
 local rng = Random.new()
 local paused = false
+local extraBonuses: { [Player]: Arsenal.Bonuses } = {} -- from passives (UpgradeService), cleared at run start
 
 local function playerOf(ownerId: number): Player?
 	return Players:GetPlayerByUserId(ownerId)
@@ -107,9 +109,9 @@ local function sendAll()
 	end
 end
 
--- Class bonuses as weapon bonuses (DESIGN.md section 5); passives (WP6/WP8) and talents (WP13) add to these.
+-- Class bonuses (DESIGN.md section 5) plus passives as weapon bonuses; talents (WP13) will add to these.
 local function bonusesFor(player: Player): Arsenal.Bonuses
-	local bonuses: Arsenal.Bonuses = {}
+	local bonuses: Arsenal.Bonuses = table.clone(extraBonuses[player] or {})
 	local classId = RunDirector.getParticipantClassId(player)
 	local class = classId and Config.Classes[classId]
 	if class then
@@ -120,6 +122,7 @@ end
 
 local function onRunStarted(participants: { Player })
 	arsenal:clear()
+	table.clear(extraBonuses)
 	paused = false
 	for _, player in participants do
 		arsenal:addOwner(player.UserId, bonusesFor(player))
@@ -167,6 +170,7 @@ function WeaponService.init()
 		end
 	end)
 	Players.PlayerRemoving:Connect(function(player)
+		extraBonuses[player] = nil
 		arsenal:removeOwner(player.UserId)
 		Net.fireAllClients("Loadout", { userId = player.UserId, weapons = {}, paused = paused } :: Types.Loadout)
 	end)
@@ -207,6 +211,16 @@ function WeaponService.evolve(player: Player, weaponId: string, evolutionId: str
 		send(player)
 	end
 	return ok, reason
+end
+
+-- Bonuses from passives by stat name (UpgradeService); weapons use damage, cooldown and area (WeaponStats).
+-- Recomputes the player's weapons and sends the new loadout. Cleared when the next run starts.
+function WeaponService.setBonuses(player: Player, bonuses: Arsenal.Bonuses)
+	extraBonuses[player] = bonuses
+	if arsenal:hasOwner(player.UserId) then
+		arsenal:setBonuses(player.UserId, bonusesFor(player))
+		send(player)
+	end
 end
 
 -- Debug: switches every player's weapons off (no hits, no visuals) or back on. Resets at run start.

@@ -2,7 +2,8 @@
 -- Player HP, armor, hit protection and dash (rules in CombatService/Vitals). Takes enemy contact damage
 -- from EnemySim, handles the RequestDash remote, knocks players down at 0 HP via RunDirector and sends
 -- PlayerState to every client on change. Sets walk speed and turns jumping off on each character.
--- Weapons (WP5), level-ups (WP6) and revives (WP11) use damagePlayer, healPlayer and protect.
+-- UpgradeService sets passive bonuses (max HP, move speed, armor) and the level-up choice (setChoosing: shielded and
+-- standing still); weapons, rewards and revives (WP11) use damagePlayer, healPlayer and protect.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -32,20 +33,27 @@ local CombatService = {}
 
 local vitals: { [Player]: Vitals.Vitals } = {}
 local sentHp: { [Player]: number } = {} -- whole HP last sent, so regeneration does not send every frame
+local bonuses: { [Player]: { [string]: number } } = {} -- from passives (UpgradeService), cleared by resetAll
+local choosing: { [Player]: boolean } = {} -- picking a level-up card
 
 local function now(): number
 	return workspace:GetServerTimeNow()
 end
 
--- Base max HP plus the class bonus of the player's run class (DESIGN.md section 5).
-local function maxHpFor(player: Player): number
-	local maxHp = PlayerConfig.maxHp
+-- Bonus fraction (or flat value) for `stat` from the player's run class (DESIGN.md section 5) and passives.
+local function bonusFor(player: Player, stat: string): number
+	local total = 0
 	local classId = RunDirector.getParticipantClassId(player)
 	local class = classId and Config.Classes[classId]
-	if class and class.bonus.stat == "maxHp" then
-		maxHp *= 1 + class.bonus.value
+	if class and class.bonus.stat == stat then
+		total += class.bonus.value
 	end
-	return math.round(maxHp)
+	local extra = bonuses[player]
+	return total + (if extra then extra[stat] or 0 else 0)
+end
+
+local function maxHpFor(player: Player): number
+	return math.round(PlayerConfig.maxHp * math.max(0, 1 + bonusFor(player, "maxHp")))
 end
 
 local function payload(player: Player, state: Vitals.Vitals): Types.PlayerVitals
@@ -55,6 +63,7 @@ local function payload(player: Player, state: Vitals.Vitals): Types.PlayerVitals
 		maxHp = state.maxHp,
 		dashReadyAt = state.dashReadyAt,
 		invulnerableUntil = state.invulnerableUntil,
+		choosing = choosing[player] == true,
 	}
 end
 
@@ -87,7 +96,8 @@ local function applyWalkSpeed(player: Player)
 	end
 	local participantState = RunDirector.getParticipantState(player)
 	local standing = participantState == nil or participantState == "Alive" or not RunDirector.isActive()
-	humanoid.WalkSpeed = if standing then PlayerConfig.moveSpeed else 0
+	local speed = PlayerConfig.moveSpeed * math.max(0, 1 + bonusFor(player, "moveSpeed"))
+	humanoid.WalkSpeed = if standing and not choosing[player] then speed else 0
 end
 
 local function onCharacterAdded(player: Player, character: Model)
@@ -114,6 +124,8 @@ local function onPlayerAdded(player: Player)
 end
 
 local function resetAll()
+	table.clear(bonuses)
+	table.clear(choosing)
 	for player, state in vitals do
 		state:reset(maxHpFor(player))
 		applyWalkSpeed(player)
@@ -153,6 +165,33 @@ function CombatService.protect(player: Player, seconds: number)
 	send(player)
 end
 
+-- Passive bonuses by stat name (UpgradeService): maxHp and moveSpeed as fractions, armor as a flat value. Raising
+-- max HP heals by the difference. Cleared when a run starts and back in the lobby.
+function CombatService.setBonuses(player: Player, playerBonuses: { [string]: number })
+	bonuses[player] = playerBonuses
+	local state = getVitals(player)
+	state:setMaxHp(maxHpFor(player))
+	state:setArmorBonus(playerBonuses.armor or 0)
+	applyWalkSpeed(player)
+	send(player)
+end
+
+-- While choosing a level-up card the player is invulnerable and stands still (DESIGN.md section 8); weapons keep
+-- firing. Ending the choice leaves Config.Run.levelUp.protectionAfterPick seconds of protection.
+function CombatService.setChoosing(player: Player, value: boolean)
+	if (choosing[player] == true) == value then
+		return
+	end
+	choosing[player] = if value then true else nil
+	getVitals(player):setShielded(value, now(), Config.Run.levelUp.protectionAfterPick)
+	applyWalkSpeed(player)
+	send(player)
+end
+
+function CombatService.isChoosing(player: Player): boolean
+	return choosing[player] == true
+end
+
 function CombatService.getHp(player: Player): (number, number)
 	local state = getVitals(player)
 	return state.hp, state.maxHp
@@ -163,6 +202,8 @@ function CombatService.init()
 	Players.PlayerRemoving:Connect(function(player)
 		vitals[player] = nil
 		sentHp[player] = nil
+		bonuses[player] = nil
+		choosing[player] = nil
 	end)
 	for _, player in Players:GetPlayers() do
 		task.spawn(onPlayerAdded, player)
@@ -174,7 +215,8 @@ function CombatService.init()
 	-- short invulnerability. Rejected dashes send the real cooldown back so the client corrects itself.
 	Net.onServer("RequestDash", function(player)
 		local participantState = RunDirector.getParticipantState(player)
-		if RunDirector.isActive() and participantState ~= nil and participantState ~= "Alive" then
+		local standingStill = RunDirector.isActive() and participantState ~= nil and participantState ~= "Alive"
+		if standingStill or choosing[player] then
 			send(player)
 			return
 		end

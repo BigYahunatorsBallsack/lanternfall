@@ -19,7 +19,9 @@ export type Vitals = typeof(setmetatable(
 		settings: Settings,
 		hp: number,
 		maxHp: number,
-		invulnerableUntil: number, -- dash, hit protection, later level-up choice
+		armor: number, -- settings.armor plus bonuses (Armor passive)
+		invulnerableUntil: number, -- dash and hit protection
+		shielded: boolean, -- invulnerable until switched off (level-up choice)
 		dashReadyAt: number,
 	},
 	Vitals
@@ -30,17 +32,35 @@ function Vitals.new(maxHp: number, settings: Settings): Vitals
 		settings = settings,
 		hp = maxHp,
 		maxHp = maxHp,
+		armor = settings.armor,
 		invulnerableUntil = 0,
+		shielded = false,
 		dashReadyAt = 0,
 	}, Vitals)
 end
 
--- Full HP with a new maximum, no protection, dash ready (run start, back in the lobby).
+-- Full HP with a new maximum, base armor, no protection, dash ready (run start, back in the lobby).
 function Vitals.reset(self: Vitals, maxHp: number)
 	self.maxHp = maxHp
 	self.hp = maxHp
+	self.armor = self.settings.armor
 	self.invulnerableUntil = 0
+	self.shielded = false
 	self.dashReadyAt = 0
+end
+
+-- A new maximum during the run (Vitality passive): a higher maximum adds the difference to the current HP,
+-- a lower one only caps it. A player who is down stays at 0.
+function Vitals.setMaxHp(self: Vitals, maxHp: number)
+	if not self:isDown() then
+		self.hp = math.clamp(self.hp + math.max(0, maxHp - self.maxHp), 1, maxHp)
+	end
+	self.maxHp = maxHp
+end
+
+-- Flat damage reduction per hit: the base from the settings plus `bonus` (Armor passive).
+function Vitals.setArmorBonus(self: Vitals, bonus: number)
+	self.armor = self.settings.armor + bonus
 end
 
 function Vitals.isDown(self: Vitals): boolean
@@ -48,11 +68,19 @@ function Vitals.isDown(self: Vitals): boolean
 end
 
 function Vitals.isInvulnerable(self: Vitals, now: number): boolean
-	return now < self.invulnerableUntil
+	return self.shielded or now < self.invulnerableUntil
 end
 
 function Vitals.protect(self: Vitals, now: number, seconds: number)
 	self.invulnerableUntil = math.max(self.invulnerableUntil, now + seconds)
+end
+
+-- Switches the open-ended protection on or off; switching it off leaves `afterSeconds` of protection.
+function Vitals.setShielded(self: Vitals, shielded: boolean, now: number, afterSeconds: number)
+	if self.shielded and not shielded then
+		self:protect(now, afterSeconds)
+	end
+	self.shielded = shielded
 end
 
 -- Applies one hit. Returns the HP actually lost (0 while protected or already down).
@@ -61,7 +89,7 @@ function Vitals.hit(self: Vitals, damage: number, now: number): number
 		return 0
 	end
 	local settings = self.settings
-	local taken = math.max(settings.minDamagePerHit, damage - settings.armor)
+	local taken = math.max(settings.minDamagePerHit, damage - self.armor)
 	taken = math.min(taken, self.hp)
 	self.hp -= taken
 	self:protect(now, settings.hitInvulnerability)

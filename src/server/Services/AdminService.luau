@@ -1,8 +1,8 @@
 --!strict
 -- Debug commands for testing (skip time, knock yourself down, hurt/heal yourself, win, spawn/hit/kill enemies, pause
--- spawning, add/swap/level weapons, weapons off) and the stats panel feed (DebugStats once per second). Admins only:
+-- spawning, add/swap/level weapons, weapons off, team level-up) and the stats panel feed (DebugStats once per second). Admins only:
 -- everyone in Studio, the owner of a user-owned experience and Config.Admin.userIds. Handles the DebugCommand remote
--- and uses RunDirector, CombatService, EnemySim, SpawnDirector, WeaponService and MapService. Sets the player
+-- and uses RunDirector, CombatService, EnemySim, ExperienceService, SpawnDirector, WeaponService and MapService. Sets the player
 -- attribute "LanternfallAdmin" so the client shows the debug panel.
 
 local Players = game:GetService("Players")
@@ -17,6 +17,7 @@ local Types = require(Shared.Net.Types)
 
 local CombatService = require(script.Parent.CombatService)
 local EnemySim = require(script.Parent.EnemySim)
+local ExperienceService = require(script.Parent.ExperienceService)
 local MapService = require(script.Parent.MapService)
 local RunDirector = require(script.Parent.RunDirector)
 local SpawnDirector = require(script.Parent.SpawnDirector)
@@ -193,6 +194,12 @@ local handlers: { [string]: (player: Player) -> (boolean, string?) } = {
 		local paused = not WeaponService.isPaused()
 		WeaponService.setPaused(paused)
 		return true, if paused then "Weapons off" else "Weapons on"
+	end,
+	GainLevel = function()
+		if not ExperienceService.grantLevel() then
+			return false, "NotRunning"
+		end
+		return true, `Team level {ExperienceService.getLevel()}`
 	end,
 }
 

@@ -27,6 +27,7 @@ export type Weapon = {
 	id: string,
 	displayName: string,
 	description: string,
+	countName: string?, -- what `count` counts, for level-up cards ("+1 blade"); weapons without `count` leave it out
 	behavior: string,
 	targeting: "Orbit" | "Nearest" | "Self" | "Chain" | "Trail" | "Random",
 	base: { [string]: number },
@@ -38,6 +39,7 @@ local Weapons: { [string]: Weapon } = {
 		id = "OrbitBlades",
 		displayName = "Orbit Blades",
 		description = "Blades circle around you.",
+		countName = "blade",
 		behavior = "OrbitBlades",
 		targeting = "Orbit",
 		base = {
@@ -61,6 +63,7 @@ local Weapons: { [string]: Weapon } = {
 		id = "SparkBolt",
 		displayName = "Spark Bolt",
 		description = "Fires at the nearest enemy, pierces 1.",
+		countName = "bolt",
 		behavior = "SparkBolt",
 		targeting = "Nearest",
 		base = {
@@ -144,6 +147,7 @@ local Weapons: { [string]: Weapon } = {
 		id = "BoomerangAxe",
 		displayName = "Boomerang Axe",
 		description = "Flies out and back, pierces everything.",
+		countName = "axe",
 		behavior = "BoomerangAxe",
 		targeting = "Nearest",
 		base = {

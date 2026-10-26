@@ -18,4 +18,5 @@ return table.freeze({
 	"NextWeapon", -- swap your weapons for only the next one, to try each weapon on its own
 	"LevelUpWeapons", -- every weapon +1 level
 	"ToggleWeapons", -- switch every player's weapons off or on
+	"GainLevel", -- the team reaches the next level right away (level-up cards)
 })

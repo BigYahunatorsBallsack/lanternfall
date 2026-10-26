@@ -45,7 +45,7 @@ local Remotes: { [string]: Definition } = {
 	RequestReroll = {
 		direction = "toServer",
 		rateLimit = { count = 2, perSeconds = 1 },
-		args = {},
+		args = {}, -- one free reroll per run, checked by UpgradeService
 	},
 	DebugCommand = {
 		direction = "toServer",
@@ -58,7 +58,10 @@ local Remotes: { [string]: Definition } = {
 	PlayerState = { direction = "toClient" }, -- Net/Types.PlayerVitals of one player, to everyone
 	Loadout = { direction = "toClient" }, -- Net/Types.Loadout of one player, to everyone on change
 	WeaponEffects = { direction = "toClient" }, -- { Net/Types.WeaponEffect } of one simulation step, to participants
-	LevelUpOffer = { direction = "toClient" }, -- offered cards
+	LevelUpOffer = { direction = "toClient" }, -- Net/Types.LevelUpOffer, to the choosing player
+	TeamProgress = { direction = "toClient" }, -- Net/Types.TeamProgress, to everyone on change
+	XpOrbs = { direction = "toClient" }, -- Net/Types.XpOrbEvents of one simulation step, to participants
+	Passives = { direction = "toClient" }, -- Net/Types.PassiveLoadout of one player, to everyone on change
 	Notify = { direction = "toClient" }, -- short on-screen messages
 	EnemySnapshot = { direction = "toClient", unreliable = true }, -- buffer, see Net/Snapshot
 	DebugStats = { direction = "toClient" }, -- Net/Types.DebugStats, admins only, once per second
