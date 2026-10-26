@@ -1,6 +1,7 @@
 --!strict
 -- Results screen after a run: outcome, survived time, team, "Play again" (= SetReady) and the countdown
--- back to the lobby. Shown to the participants in the Ended phase. WP14 adds kills, damage and embers.
+-- back to the lobby, plus team level, kills and damage per player from RunSummary (RunStatsService). Shown to the
+-- participants in the Ended phase. WP14 adds embers and the final layout.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
@@ -29,14 +30,34 @@ local screen: ScreenGui
 local titleLabel: TextLabel
 local subtitleLabel: TextLabel
 local timeLabel: TextLabel
+local statsLabel: TextLabel
 local teamRows: Frame
 local againButton: TextButton
 local footerLabel: TextLabel
 local lastPress = 0
+local summary: Types.RunSummary? = nil
 
 local function className(classId: string): string
 	local class = Config.Classes[classId]
 	return if class then class.displayName else classId
+end
+
+local function compact(value: number): string
+	if value >= 10000 then
+		return `{math.round(value / 1000)}k`
+	elseif value >= 1000 then
+		return string.format("%.1fk", value / 1000)
+	end
+	return tostring(value)
+end
+
+local function summaryOf(userId: number): Types.RunSummaryPlayer?
+	for _, entry in if summary then summary.players else {} do
+		if entry.userId == userId then
+			return entry
+		end
+	end
+	return nil
 end
 
 local function footerText(): string
@@ -59,12 +80,19 @@ local function render()
 	titleLabel.TextColor3 = if results.outcome == "Victory" then Theme.accent else Theme.gloom
 	subtitleLabel.Text = text.subtitle
 	timeLabel.Text = `Time {Format.time(results.survivedSeconds)} · {results.difficulty}`
+	statsLabel.Text = if summary then `Team level {summary.teamLevel} · {summary.kills} kills` else ""
+	statsLabel.Visible = summary ~= nil
 
 	Widgets.clearRows(teamRows)
 	for index, entry in results.players do
+		local stats = summaryOf(entry.userId)
+		local statsText = if stats
+			then ` · {stats.kills} kills · {compact(stats.damageDealt)} damage · took {compact(stats.damageTaken)}`
+			else ""
 		Widgets.label({
-			Text = `{entry.name} · {className(entry.classId)}`,
+			Text = `{entry.name} · {className(entry.classId)}{statsText}`,
 			TextColor3 = Theme.textDim,
+			AutomaticSize = Enum.AutomaticSize.Y, -- long stat lines wrap on narrow screens
 			LayoutOrder = index,
 			Parent = teamRows,
 		})
@@ -99,13 +127,14 @@ local function build()
 	})
 	subtitleLabel = Widgets.label({ TextColor3 = Theme.textDim, LayoutOrder = 2, Parent = card })
 	timeLabel = Widgets.label({ Font = Theme.fontBold, TextSize = 26, LayoutOrder = 3, Parent = card })
+	statsLabel = Widgets.label({ Name = "Stats", TextColor3 = Theme.text, LayoutOrder = 4, Parent = card })
 
 	teamRows = Widgets.create("Frame", {
 		Name = "Team",
 		BackgroundTransparency = 1,
 		AutomaticSize = Enum.AutomaticSize.Y,
 		Size = UDim2.new(1, 0, 0, 0),
-		LayoutOrder = 4,
+		LayoutOrder = 5,
 		Parent = card,
 	})
 	Widgets.list(4).Parent = teamRows
@@ -115,7 +144,7 @@ local function build()
 		Text = "PLAY AGAIN",
 		TextSize = 26,
 		Size = UDim2.fromOffset(360, 64),
-		LayoutOrder = 5,
+		LayoutOrder = 6,
 		Parent = card,
 	}, function()
 		local me = RunStateController.getLocalPlayer()
@@ -126,12 +155,16 @@ local function build()
 		end
 	end)
 
-	footerLabel = Widgets.label({ TextSize = 16, TextColor3 = Theme.textDim, LayoutOrder = 6, Parent = card })
+	footerLabel = Widgets.label({ TextSize = 16, TextColor3 = Theme.textDim, LayoutOrder = 7, Parent = card })
 end
 
 function ResultsController.start()
 	build()
 	RunStateController.Changed:Connect(render)
+	Net.onClient("RunSummary", function(received: Types.RunSummary)
+		summary = received
+		render()
+	end)
 	render()
 
 	RunService.Heartbeat:Connect(function()

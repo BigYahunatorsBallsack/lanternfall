@@ -128,7 +128,7 @@ v1 hat 6 Waffen, 6 Passive und 2 Evolutionen; jeder Spieler trägt bis zu 4 Waff
 
 | Waffe | Verhalten | Schaden | Cooldown | Pro Level bis L5 |
 | --- | --- | --- | --- | --- |
-| Orbit Blades | 2 Klingen kreisen um dich, Radius 7 Studs | 12 pro Treffer | dauerhaft, 0,5 s pro Gegner | +1 Klinge auf L3 und L5, sonst +15 % Schaden |
+| Orbit Blades | 2 Klingen kreisen um dich, Radius 7 Studs | 15 pro Treffer (Paket 7, vorher 12) | dauerhaft, 0,5 s pro Gegner | +1 Klinge auf L3 und L5, sonst +15 % Schaden |
 | Spark Bolt | Projektil auf nächsten Gegner, durchbohrt 1 | 15 | 0,9 s | +1 Projektil auf L2 und L4, sonst +20 % Schaden |
 | Shockwave | Druckwelle um dich, Radius 10 Studs | 20 | 3,0 s | +2 Studs Radius und −0,3 s |
 | Chain Lightning | Blitz springt über 3 Gegner | 18 | 2,0 s | +1 Sprung und +15 % Schaden |
@@ -161,7 +161,7 @@ Jede Waffe = ein Datensatz im Config-Modul + ein kleines Verhaltens-Modul. Neue 
 
 | Waffe | Annahme |
 | --- | --- |
-| Orbit Blades | Die Klingen sind lange Schwerter, die von 2 Studs bis zum Radius (7) reichen, 1 Stud breit, 180°/s. So treffen sie auch Gegner, die direkt am Spieler stehen (Blade Warden = „mitten rein"). Jeder Gegner höchstens alle 0,5 s; mit 2 Klingen wird jeder Punkt etwa einmal pro Sekunde überstrichen. Ruhen, solange der Spieler down ist. |
+| Orbit Blades | Die Klingen sind lange Schwerter, die von 2 Studs bis zum Radius (7) reichen, 1 Stud breit, 240°/s (Paket 7, vorher 180°/s). So treffen sie auch Gegner, die direkt am Spieler stehen (Blade Warden = „mitten rein"). Jeder Gegner höchstens alle 0,5 s; mit 2 Klingen wird jeder Punkt etwa 1,3-mal pro Sekunde überstrichen. Ruhen, solange der Spieler down ist. |
 | Spark Bolt | 60 Studs/s, Reichweite 40 Studs (etwa der sichtbare Bereich), Trefferradius 0,5. Schießt nur, wenn ein Gegner in Reichweite ist. Mehrere Bolts gehen an verschiedene nächste Gegner; gibt es zu wenige, fächern die übrigen um 12° um den nächsten auf. Durchbohrt 1 heißt: fliegt durch den ersten Gegner und stoppt am zweiten. Hindernisse halten Bolts nicht auf. |
 | Shockwave | Löst erst aus, wenn ein Gegner im Radius steht. Schubst überlebende Gegner 3 Studs vom Spieler weg, geteilt durch ihre Masse über 1 (Brute 0,5 Studs). Der Schubs ist neu gegenüber dem ursprünglichen Design. |
 
@@ -232,6 +232,19 @@ Solo: L1→2 = 7 XP, L10→11 = 53 XP, L30→31 = 205 XP; bis Level 35 zusammen 
 - Karten reagieren erst 0,4 s nach dem Erscheinen (Annahme), damit ein Daumen auf dem Stick nicht versehentlich wählt. Am PC auch Tasten 1/2/3.
 - Sind weniger Items übrig als Karten, füllen „Heal" und „Embers" auf. Die Embers werden pro Run gezählt (`UpgradeService.getBonusEmbers`) und mit Paket 13 ausgezahlt.
 - Evolutionen sind nie Karten, nur Truhen (Paket 9).
+
+**Stand Paket 7 (Balance-Simulation, `tests/balance/BalanceSim.luau`):** Ganze Solo-Runs mit dem echten Server-Code und Computer-Spielern, je 3 Durchläufe. Noch ohne Elites, Swarm Rush und Spitter-Schüsse (Paket 9), daher eher zu leicht.
+
+| Spielweise | Blade Warden | Spark Mage |
+| --- | --- | --- |
+| steht still | tot nach 2:20–2:30, Level 6–9 | tot nach 2:07–2:13, Level 3–4 |
+| weicht bis 3:00 aus, dann still | danach noch 15–46 s | danach noch 11–17 s |
+| hält Gegner auf Waffenabstand, sammelt Orbs | tot nach 2:40–5:20, Level 12–21 | meist 12:00 überlebt, Level 34–40 |
+| weicht perfekt aus, sammelt Orbs | 12:00 überlebt (tötet aber kaum) | 12:00 überlebt, Level 37–39 |
+
+Folgerungen: Das Ziel „ohne Ausweichen ab Minute 3 in unter 20 s tot" passt im Schnitt. Wer nur wegläuft, überlebt, weil Spieler (16) schneller sind als Shadelings (14); das fängt Paket 9 mit Swarm Rush, Elites und Spitter-Schüssen ab. Ein guter Fernkampf-Spieler erreicht Level 35–40, also etwas über dem Ziel 34–36 (die Bots sammeln fast jedes Orb). Der Blade Warden war deutlich schwächer als der Spark Mage, deshalb machen die Orbit Blades jetzt 15 statt 12 Schaden (ein Treffer tötet einen Shadeling bis Minute 2) und drehen mit 240 statt 180°/s. Er bleibt die riskantere Klasse; Brutes im Nahkampf sind tödlich. Nächster Schritt: Urteil aus dem Freunde-Test (Anleitung in `docs/PLAYTEST.md`).
+
+**Run-Statistik (seit Paket 7):** Der Ergebnis-Bildschirm zeigt Team-Level, Kills des Teams und pro Spieler Kills, Schaden und erlittenen Schaden (`RunStatsService`). Der Server schreibt am Run-Ende eine Zusammenfassung ins Output (im Live-Spiel: F9 → Server): Dauer, Team-Level pro Minute, Kills nach Gegnertyp, Waffen mit Level/Schaden/Kills und Passive jedes Spielers.
 
 | Balancing-Ziel | Wert |
 | --- | --- |

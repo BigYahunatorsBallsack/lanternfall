@@ -1,7 +1,7 @@
 --!strict
 -- Player HP, armor, hit protection and dash (rules in CombatService/Vitals). Takes enemy contact damage
 -- from EnemySim, handles the RequestDash remote, knocks players down at 0 HP via RunDirector and sends
--- PlayerState to every client on change. Sets walk speed and turns jumping off on each character.
+-- PlayerState to every client on change. Fires PlayerDamaged for RunStatsService. Sets walk speed and turns jumping off on each character.
 -- UpgradeService sets passive bonuses (max HP, move speed, armor) and the level-up choice (setChoosing: shielded and
 -- standing still); weapons, rewards and revives (WP11) use damagePlayer, healPlayer and protect.
 
@@ -12,6 +12,7 @@ local RunService = game:GetService("RunService")
 local Shared = ReplicatedStorage.Shared
 local Config = require(Shared.Config)
 local Net = require(Shared.Net)
+local Signal = require(Shared.Util.Signal)
 local Types = require(Shared.Net.Types)
 
 local EnemySim = require(script.Parent.EnemySim)
@@ -30,6 +31,9 @@ local SETTINGS: Vitals.Settings = {
 }
 
 local CombatService = {}
+
+-- (player: Player, taken: number): a participant lost HP (RunStatsService counts it)
+CombatService.PlayerDamaged = Signal.new()
 
 local vitals: { [Player]: Vitals.Vitals } = {}
 local sentHp: { [Player]: number } = {} -- whole HP last sent, so regeneration does not send every frame
@@ -142,6 +146,7 @@ function CombatService.damagePlayer(player: Player, damage: number): number
 	local taken = state:hit(damage, now())
 	if taken > 0 then
 		send(player)
+		CombatService.PlayerDamaged:Fire(player, taken)
 		if state:isDown() then
 			RunDirector.setParticipantState(player, "Down")
 		end

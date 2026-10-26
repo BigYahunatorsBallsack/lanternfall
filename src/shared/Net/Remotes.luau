@@ -62,6 +62,7 @@ local Remotes: { [string]: Definition } = {
 	TeamProgress = { direction = "toClient" }, -- Net/Types.TeamProgress, to everyone on change
 	XpOrbs = { direction = "toClient" }, -- Net/Types.XpOrbEvents of one simulation step, to participants
 	Passives = { direction = "toClient" }, -- Net/Types.PassiveLoadout of one player, to everyone on change
+	RunSummary = { direction = "toClient" }, -- Net/Types.RunSummary, to the participants when a run ends
 	Notify = { direction = "toClient" }, -- short on-screen messages
 	EnemySnapshot = { direction = "toClient", unreliable = true }, -- buffer, see Net/Snapshot
 	DebugStats = { direction = "toClient" }, -- Net/Types.DebugStats, admins only, once per second

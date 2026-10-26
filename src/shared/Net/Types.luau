@@ -129,6 +129,22 @@ export type PassiveLoadout = {
 	passives: { PassiveInfo },
 }
 
+-- One player's line on the results screen (RunStatsService -> ResultsController).
+export type RunSummaryPlayer = {
+	userId: number,
+	kills: number, -- by the player's weapons
+	damageDealt: number, -- by the player's weapons
+	damageTaken: number,
+	downs: number,
+}
+
+-- Run statistics, sent to the participants right after the run ended.
+export type RunSummary = {
+	teamLevel: number,
+	kills: number, -- every enemy the team killed
+	players: { RunSummaryPlayer },
+}
+
 -- Server measurements for the admin stats panel (AdminService -> DebugController).
 export type DebugStats = {
 	enemies: number, -- alive right now

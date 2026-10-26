@@ -13,6 +13,7 @@ local CombatService = require(ServerScriptService.Server.Services.CombatService)
 local WeaponService = require(ServerScriptService.Server.Services.WeaponService)
 local ExperienceService = require(ServerScriptService.Server.Services.ExperienceService)
 local UpgradeService = require(ServerScriptService.Server.Services.UpgradeService)
+local RunStatsService = require(ServerScriptService.Server.Services.RunStatsService)
 local UpgradePool = require(ServerScriptService.Server.Services.UpgradeService.UpgradePool)
 local Config = require(game:GetService("ReplicatedStorage").Shared.Config)
 
@@ -462,6 +463,13 @@ describe("smoke", function()
 		expect(world.gui("Results").Enabled).toBe(true)
 		expect(world.gui("HUD").Enabled).toBe(false)
 		expect(firstText("Results", "Results")).toBe("VICTORY")
+		local tally = RunStatsService.getTally()
+		expect(world.gui("Results", "Stats").Text).toBe(`Team level {tally:getLevel()} · {tally.kills} kills`)
+		expect(tally.kills > 0).toBe(true)
+		local row = world.gui("Results", "Team"):FindFirstChildOfClass("TextLabel").Text
+		expect(string.match(row, "^Owner · Spark Mage · %d+ kills · [%d%.k]+ damage · took [%d%.k]+$") ~= nil).toBe(
+			true
+		)
 		world.advance(0.2)
 		expect(EnemySim.getCount()).toBe(0)
 		expect(#drawnModels()).toBe(0)
