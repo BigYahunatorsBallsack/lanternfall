@@ -41,6 +41,15 @@ export type RunState = {
 	results: Results?, -- Ended
 }
 
+-- HP and dash state of one player (CombatService -> PlayerStateController), sent to everyone on change.
+export type PlayerVitals = {
+	userId: number,
+	hp: number,
+	maxHp: number,
+	dashReadyAt: number, -- server time when the next dash is allowed
+	invulnerableUntil: number, -- server time
+}
+
 -- Server measurements for the admin stats panel (AdminService -> DebugController).
 export type DebugStats = {
 	enemies: number, -- alive right now

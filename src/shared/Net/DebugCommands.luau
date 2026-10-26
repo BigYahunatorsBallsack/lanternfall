@@ -7,6 +7,8 @@ return table.freeze({
 	"SkipToBoss", -- run timer to a few seconds before the boss
 	"DownSelf", -- knock yourself down
 	"ReviveSelf", -- stand up again
+	"HurtSelf", -- take a hit as if an enemy touched you
+	"HealSelf", -- back to full HP
 	"WinRun", -- end the run as a victory
 	"SpawnWave", -- spawn a group of enemies around yourself
 	"HitNearby", -- damage every enemy close to you

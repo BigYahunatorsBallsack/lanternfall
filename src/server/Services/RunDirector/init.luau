@@ -40,6 +40,8 @@ RunDirector.RunEnded = Signal.new()
 RunDirector.PhaseChanged = Signal.new()
 -- (player: Player, state: Types.ParticipantState)
 RunDirector.ParticipantStateChanged = Signal.new()
+-- (player: Player): a client asked for a full sync; other services send their state too
+RunDirector.SyncRequested = Signal.new()
 
 local flow = RunFlow.new({
 	countdownSeconds = Config.Run.flow.countdownSeconds,
@@ -187,6 +189,7 @@ end
 function RunDirector.init()
 	Net.onServer("RequestSync", function(player)
 		Net.fireClient("RunState", player, flow:snapshot())
+		RunDirector.SyncRequested:Fire(player)
 	end)
 
 	Net.onServer("SelectClass", function(player, classId: string)
@@ -249,6 +252,11 @@ end
 
 function RunDirector.getParticipantState(player: Player): Types.ParticipantState?
 	return flow:getParticipantState(player.UserId)
+end
+
+-- Class the player plays in the current run, nil outside of it.
+function RunDirector.getParticipantClassId(player: Player): string?
+	return flow:getParticipantClassId(player.UserId)
 end
 
 -- Commands --------------------------------------------------------------------------

@@ -10,5 +10,6 @@ return table.freeze({
 	spawnWaveCount = 40, -- "SpawnWave": enemies spawned around the admin (the alive cap still applies)
 	hitNearbyRadius = 20, -- "HitNearby": studs around the admin
 	hitNearbyDamage = 5, -- "HitNearby": damage per enemy, so a Shadeling at minute 0 takes two hits
+	hurtSelfDamage = 25, -- "HurtSelf": damage of the test hit (armor and hit protection apply)
 	statsInterval = 1, -- seconds between stats updates for the admin stats panel
 })
