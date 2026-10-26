@@ -7,4 +7,8 @@ return table.freeze({
 	allowInStudio = true,
 	skipMinuteSeconds = 60, -- "SkipMinute"
 	skipToBossLeadSeconds = 10, -- "SkipToBoss" leaves this many seconds until the boss
+	spawnWaveCount = 40, -- "SpawnWave": enemies spawned around the admin (the alive cap still applies)
+	hitNearbyRadius = 20, -- "HitNearby": studs around the admin
+	hitNearbyDamage = 5, -- "HitNearby": damage per enemy, so a Shadeling at minute 0 takes two hits
+	statsInterval = 1, -- seconds between stats updates for the admin stats panel
 })

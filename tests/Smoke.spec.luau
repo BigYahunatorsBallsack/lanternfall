@@ -8,6 +8,8 @@ runScript(ServerScriptService.Server, "init.server.luau")
 
 local RunDirector = require(ServerScriptService.Server.Services.RunDirector)
 local MapService = require(ServerScriptService.Server.Services.MapService)
+local EnemySim = require(ServerScriptService.Server.Services.EnemySim)
+local Config = require(game:GetService("ReplicatedStorage").Shared.Config)
 
 local me = world.addPlayer("Owner", 1, true)
 world.step()
@@ -27,6 +29,26 @@ local function firstText(screenName, objectName)
 	local object = world.gui(screenName, objectName)
 	assert(object, `{screenName}/{objectName} not found`)
 	return object:FindFirstChildOfClass("TextLabel").Text
+end
+
+local function enemyRenderer()
+	return require(folderProxy("src/client", "Client").Controllers.EnemyRenderer)
+end
+
+-- Enemy models the client currently shows (released models are unparented).
+local function drawnModels()
+	local folder = workspace:FindFirstChild("LanternfallEnemies")
+	return if folder then folder:GetChildren() else {}
+end
+
+local function toastTexts()
+	local texts = {}
+	for _, object in world.gui("Notify"):GetDescendants() do
+		if object.ClassName == "TextLabel" then
+			table.insert(texts, object.Text)
+		end
+	end
+	return table.concat(texts, " | ")
 end
 
 local function teamText()
@@ -87,6 +109,92 @@ describe("smoke", function()
 		expect(teamText()).toBe("Owner · alive")
 	end)
 
+	it("spawns enemies on a ring around the player and draws them", function()
+		expect(EnemySim.getCount() >= 5).toBe(true)
+		local root = me.Character.HumanoidRootPart.Position
+		for _, enemyId in { 1, 2, 3 } do
+			local position = EnemySim.getPosition(enemyId)
+			local distance = (position - root).Magnitude
+			-- spawned 45-60 studs away and walked towards the player since
+			expect(position.Y).toBe(Config.Map.arena.center.Y)
+			expect(distance < Config.Run.spawn.ringMax + 1).toBe(true)
+		end
+		world.advance(0.5)
+		local models = drawnModels()
+		expect(#models).toBe(enemyRenderer().getStats().drawn)
+		expect(#models >= EnemySim.getCount() - 2 and #models <= EnemySim.getCount()).toBe(true)
+		for _, model in models do
+			expect(model.Name).toBe("Shadeling") -- only Shadelings before minute 2
+			expect(
+				math.abs(model.Body.Position.Y - Config.Map.arena.center.Y - Config.Enemies.types.Shadeling.radius) < 1
+			).toBe(true)
+		end
+		expect(world.bulkMoves > 0).toBe(true)
+	end)
+
+	it("chases the player until it touches them", function()
+		local contacts = 0
+		local connection = EnemySim.Contact:Connect(function(player, damage)
+			expect(player).toBe(me)
+			expect(damage).toBe(Config.Enemies.types.Shadeling.contactDamage)
+			contacts += 1
+		end)
+		world.advance(5)
+		connection:Disconnect()
+		expect(contacts > 0).toBe(true)
+		local root = me.Character.HumanoidRootPart.Position
+		local id, distance = EnemySim.nearest(root)
+		expect(id ~= nil).toBe(true)
+		expect(distance).toBeNear(Config.Enemies.types.Shadeling.radius + Config.Simulation.playerRadius, 0.6)
+	end)
+
+	it("hits and kills enemies with the debug buttons", function()
+		local kills = 0
+		local connection = EnemySim.EnemyKilled:Connect(function(info)
+			expect(info.killer).toBe(me)
+			expect(info.xp).toBe(Config.Enemies.types.Shadeling.xp)
+			kills += 1
+		end)
+		local before = EnemySim.getCount()
+		world.click(world.gui("Debug", "HitNearby"))
+		world.advance(0.2)
+		expect(string.find(toastTexts(), "Hit ", 1, true) ~= nil).toBe(true)
+		expect(kills).toBe(0) -- a Shadeling survives one hit
+		world.click(world.gui("Debug", "KillEnemies"))
+		world.advance(0.5)
+		connection:Disconnect()
+		expect(kills >= before).toBe(true)
+		expect(EnemySim.getCount() <= 1).toBe(true) -- one may have spawned since
+		expect(#drawnModels() <= 1).toBe(true)
+	end)
+
+	it("pauses spawning and spawns a test wave up to the cap", function()
+		world.click(world.gui("Debug", "ToggleSpawning"))
+		world.click(world.gui("Debug", "KillEnemies"))
+		world.advance(3)
+		expect(EnemySim.getCount()).toBe(0)
+		world.click(world.gui("Debug", "SpawnWave"))
+		world.click(world.gui("Debug", "SpawnWave"))
+		world.click(world.gui("Debug", "SpawnWave"))
+		world.advance(0.5)
+		expect(EnemySim.getCount()).toBe(Config.Run.spawn.cap.base)
+		expect(#drawnModels()).toBe(Config.Run.spawn.cap.base)
+		expect(string.find(toastTexts(), "The enemy limit is reached", 1, true) ~= nil).toBe(true)
+		world.click(world.gui("Debug", "ToggleSpawning"))
+		world.advance(0.2)
+	end)
+
+	it("shows enemy and performance numbers to admins", function()
+		world.advance(1.2)
+		local stats = world.gui("Debug", "Stats")
+		expect(stats ~= nil).toBe(true)
+		expect(stats.Enemies.Text).toBe(
+			`Enemies {Config.Run.spawn.cap.base} / {Config.Run.spawn.cap.base} · drawn {Config.Run.spawn.cap.base}`
+		)
+		expect(string.find(stats.Server.Text, "Server step", 1, true) ~= nil).toBe(true)
+		expect(string.find(stats.Network.Text, "KB/s", 1, true) ~= nil).toBe(true)
+	end)
+
 	it("puts a respawned participant back into the arena", function()
 		world.spawnCharacter(me)
 		world.advance(0.5)
@@ -103,6 +211,9 @@ describe("smoke", function()
 		expect(world.gui("Results").Enabled).toBe(true)
 		expect(world.gui("HUD").Enabled).toBe(false)
 		expect(firstText("Results", "Results")).toBe("VICTORY")
+		world.advance(0.2)
+		expect(EnemySim.getCount()).toBe(0)
+		expect(#drawnModels()).toBe(0)
 	end)
 
 	it("starts the next run with Play again", function()
@@ -153,11 +264,15 @@ describe("smoke", function()
 		expect(RunDirector.getParticipantState(late)).toBe(nil)
 	end)
 
-	it("keeps running while one of two is down", function()
+	it("keeps running while one of two is down, and enemies go for the one still standing", function()
 		world.click(world.gui("Debug", "DownSelf"))
 		world.advance(0.2)
 		expect(phase()).toBe("Running")
 		expect(teamText()).toBe("Owner · DOWN | Friend · alive")
+		world.advance(8)
+		local friendRoot = friend.Character.HumanoidRootPart.Position
+		local _, distance = EnemySim.nearest(friendRoot)
+		expect(distance < 5).toBe(true)
 		world.click(world.gui("Debug", "ReviveSelf"))
 		world.advance(0.2)
 		expect(teamText()).toBe("Owner · alive | Friend · alive")

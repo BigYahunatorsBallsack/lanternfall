@@ -41,4 +41,17 @@ export type RunState = {
 	results: Results?, -- Ended
 }
 
+-- Server measurements for the admin stats panel (AdminService -> DebugController).
+export type DebugStats = {
+	enemies: number, -- alive right now
+	cap: number, -- alive cap for the current player count
+	spawnRate: number, -- enemies per second at the current minute
+	spawning: boolean, -- false outside a run, in the boss phase or when paused by the debug button
+	paused: boolean,
+	stepMilliseconds: number, -- average server time per simulation step over the last second
+	stepMaxMilliseconds: number, -- slowest step in the last second
+	stepsPerSecond: number,
+	sentKilobytesPerSecond: number, -- enemy snapshots sent to each player
+}
+
 return {}

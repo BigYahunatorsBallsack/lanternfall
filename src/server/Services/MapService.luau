@@ -1,6 +1,7 @@
 --!strict
 -- Builds the placeholder lobby and arena from Config.Map (the real map follows in WP21) and moves
--- characters between them. Called by RunDirector; EnemySim (WP3) reads getArenaBounds().
+-- characters between them. Called by RunDirector; EnemySim and SpawnDirector read the arena bounds,
+-- obstacles and player positions.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -14,6 +15,9 @@ export type Bounds = {
 	halfSize: number,
 }
 
+-- An obstacle as enemies see it: a circle on the floor, in world x/z.
+export type Circle = { x: number, z: number, radius: number }
+
 local MAP_NAME = "LanternfallMap"
 local CHARACTER_WAIT_SECONDS = 10
 local DEFAULT_ROOT_HEIGHT = 3 -- studs from the floor to the HumanoidRootPart if no Humanoid is found
@@ -26,6 +30,7 @@ local ARENA_FLOOR_COLOR = Color3.fromRGB(58, 54, 66)
 local ARENA_WALL_COLOR = Color3.fromRGB(90, 50, 140)
 local ARENA_WALL_TRANSPARENCY = 0.4
 local ARENA_MARKER_COLOR = Color3.fromRGB(255, 196, 87)
+local RUIN_COLOR = Color3.fromRGB(96, 90, 104)
 
 local MapService = {}
 
@@ -143,6 +148,21 @@ local function buildMap(): Folder
 	marker.CanCollide = false
 	marker.CastShadow = false
 
+	-- Round pillars: the same circles EnemySim steers around. A cylinder's axis is X, so stand it up.
+	local height = arena.obstacleHeight
+	for index, obstacle in arena.obstacles do
+		local pillar = makePart(
+			arenaModel,
+			`Ruin{index}`,
+			Vector3.new(height, obstacle.radius * 2, obstacle.radius * 2),
+			CFrame.new(arena.center + Vector3.new(obstacle.x, height / 2, obstacle.z))
+				* CFrame.Angles(0, 0, math.pi / 2),
+			RUIN_COLOR
+		)
+		pillar.Shape = Enum.PartType.Cylinder
+		pillar.Material = Enum.Material.Cobblestone
+	end
+
 	folder.Parent = workspace
 	return folder
 end
@@ -185,6 +205,30 @@ end
 function MapService.getArenaBounds(): Bounds
 	local arena = Config.Map.arena
 	return { center = arena.center, halfSize = arena.size / 2 }
+end
+
+-- Arena obstacles as circles in world x/z (EnemySim steers around them, SpawnDirector avoids them).
+function MapService.getObstacles(): { Circle }
+	local arena = Config.Map.arena
+	local circles = {}
+	for _, obstacle in arena.obstacles do
+		table.insert(circles, {
+			x = arena.center.X + obstacle.x,
+			z = arena.center.Z + obstacle.z,
+			radius = obstacle.radius,
+		})
+	end
+	return circles
+end
+
+-- Position of the player's HumanoidRootPart, or nil while the character is missing.
+function MapService.getRootPosition(player: Player): Vector3?
+	local character = player.Character
+	local root = character and character:FindFirstChild("HumanoidRootPart")
+	if root and root:IsA("BasePart") then
+		return root.Position
+	end
+	return nil
 end
 
 function MapService.isInZone(position: Vector3, zone: Zone): boolean

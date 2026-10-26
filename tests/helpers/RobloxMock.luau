@@ -194,6 +194,9 @@ local CFrameLib = {
 	lookAt = function(position)
 		return cf(position)
 	end,
+	Angles = function()
+		return cf(v3(0, 0, 0)) -- rotation is not simulated
+	end,
 }
 
 local function plainType(typeName)
@@ -514,6 +517,22 @@ function methods.PivotTo(self, cframe)
 	end
 end
 function methods.RequestStreamAroundAsync() end
+function methods.BulkMoveTo(self, parts, cframes)
+	if self ~= world.workspace then
+		error("BulkMoveTo is only on Workspace", 2)
+	end
+	if #parts ~= #cframes then
+		error(`BulkMoveTo got {#parts} parts but {#cframes} CFrames`, 2)
+	end
+	for i, part in parts do
+		if not part:IsA("BasePart") then
+			error(`BulkMoveTo item {i} is not a BasePart`, 2)
+		end
+		part.CFrame = cframes[i]
+		part.Position = cframes[i].Position
+	end
+	world.bulkMoves = (world.bulkMoves or 0) + 1
+end
 function methods.FireServer(self, ...)
 	self.OnServerEvent:Fire(world.localPlayer, copyArgs(...))
 end
@@ -546,6 +565,7 @@ local RunService = newInstance("RunService", { Name = "RunService" })
 local Workspace = newInstance("Workspace", { Name = "Workspace" })
 local TweenService = newInstance("TweenService", { Name = "TweenService" })
 Workspace.CurrentCamera = newInstance("Camera", { ViewportSize = Vector2Lib.new(1280, 720) })
+world.workspace = Workspace
 
 function methods.GetPlayers(self)
 	if self ~= Players then
