@@ -1,5 +1,5 @@
 -- Unit tests for the enemy simulation (EnemySim/World): chasing, crowding, obstacles, contacts, damage,
--- queries and the 4 ms step budget with the maximum of 140 enemies.
+-- queries, knockback and the 4 ms step budget with the maximum of 140 enemies.
 
 local Shared = game:GetService("ReplicatedStorage").Shared
 local Config = require(Shared.Config)
@@ -229,6 +229,64 @@ describe("EnemyWorld", function()
 			end
 			expect(found).toBe(expected)
 		end
+	end)
+
+	it("finds the same enemies along a segment as a brute-force search", function()
+		local world = newWorld()
+		for _ = 1, 120 do
+			spawn(
+				world,
+				if random() < 0.3 then "Brute" else "Shadeling",
+				(random() - 0.5) * 200,
+				(random() - 0.5) * 200
+			)
+		end
+		world:step(STEP, {}, {}, 0)
+		local out = {}
+		for _ = 1, 50 do
+			local x0, z0 = (random() - 0.5) * 200, (random() - 0.5) * 200
+			local x1, z1 = x0 + (random() - 0.5) * 40, z0 + (random() - 0.5) * 40
+			local radius = random() * 2
+			local found = world:querySegment(x0, z0, x1, z1, radius, out)
+			local expected = 0
+			local sx, sz = x1 - x0, z1 - z0
+			for i = 1, world.count do
+				local t = math.clamp(((world.xs[i] - x0) * sx + (world.zs[i] - z0) * sz) / (sx * sx + sz * sz), 0, 1)
+				local reach = radius + world.kinds[i].radius
+				if (world.xs[i] - x0 - sx * t) ^ 2 + (world.zs[i] - z0 - sz * t) ^ 2 <= reach * reach then
+					expected += 1
+				end
+			end
+			expect(found).toBe(expected)
+		end
+		expect(world:querySegment(1000, 1000, 1000, 1000, 1, out)).toBe(0) -- a point works too
+	end)
+
+	it("pushes enemies less the heavier they are, never into obstacles or out of the arena", function()
+		local world = newWorld({ { x = 20, z = 0, radius = 4 } })
+		local light = spawn(world, "Shadeling", 0, 0)
+		local heavy = spawn(world, "Brute", 0, 30)
+		local blocked = spawn(world, "Shadeling", 14, 0)
+		local wall = spawn(world, "Shadeling", HALF - 3, 0)
+		world:push(light, 3, 0)
+		world:push(heavy, 0, 3)
+		world:push(blocked, 3, 0)
+		world:push(wall, 10, 0)
+		expect(world:getPosition(light)).toBeNear(3)
+		expect(select(2, world:getPosition(heavy))).toBeNear(30 + 3 / Types.Brute.mass)
+		expect(20 - world:getPosition(blocked) >= 4 + Types.Shadeling.radius - 1e-6).toBe(true)
+		expect(world:getPosition(wall)).toBeNear(HALF - Types.Shadeling.radius)
+		world:damage(light, 100)
+		world:push(light, 5, 0)
+		expect(world:getPosition(light)).toBeNear(3) -- the dead stay put
+	end)
+
+	it("reports the HP a hit actually took", function()
+		local world = newWorld()
+		local id = spawn(world, "Shadeling", 0, 0)
+		expect(select(2, world:damage(id, 4))).toBe(4)
+		expect(select(2, world:damage(id, 100))).toBe(Types.Shadeling.hp - 4)
+		expect(select(2, world:damage(id, 100))).toBe(0)
 	end)
 
 	it("clears without leftovers", function()
