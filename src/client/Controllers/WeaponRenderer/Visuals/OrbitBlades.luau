@@ -1,6 +1,7 @@
 --!strict
 -- Orbit Blades look: glowing blades spinning around their owner from bladeInnerRadius out to `radius`, placed with
--- the same angle math as the server's hits (Util/Orbit), so the server sends no effects for them. Visual for
+-- the same angle math as the server's hits (Util/Orbit), so the server sends no effects for them. Blade Storm
+-- (evolution) blades glow red. Visual for
 -- WeaponRenderer (behavior WeaponService/Behaviors/OrbitBlades).
 
 local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
@@ -10,6 +11,7 @@ local Types = require(Shared:WaitForChild("Net"):WaitForChild("Types"))
 local VisualKit = require(script.Parent.Parent.VisualKit)
 
 local BLADE_COLOR = Color3.fromRGB(255, 226, 150) -- warm lantern light
+local STORM_COLOR = Color3.fromRGB(255, 110, 90) -- Blade Storm
 local BLADE_THICKNESS = 0.25 -- studs
 local DRAWN_WIDTH = 0.6 -- share of the hit width that is drawn, so blades look like blades
 local HEIGHT = 1.5 -- studs above the floor
@@ -17,6 +19,7 @@ local HEIGHT = 1.5 -- studs above the floor
 type BladeSet = {
 	parts: { BasePart },
 	size: Vector3,
+	color: Color3,
 	seenFrame: number,
 }
 
@@ -40,7 +43,7 @@ function OrbitBlades.renderWeapon(owner: VisualKit.Owner, weapon: Types.WeaponIn
 	local key = `{owner.userId}:{weapon.id}`
 	local set = sets[key]
 	if not set then
-		set = { parts = {}, size = Vector3.zero, seenFrame = 0 }
+		set = { parts = {}, size = Vector3.zero, color = BLADE_COLOR, seenFrame = 0 }
 		sets[key] = set
 	end
 	local current = set :: BladeSet
@@ -59,6 +62,9 @@ function OrbitBlades.renderWeapon(owner: VisualKit.Owner, weapon: Types.WeaponIn
 	local size = Vector3.new(stats.bladeWidth * DRAWN_WIDTH, BLADE_THICKNESS, math.max(0.1, outer - inner))
 	local resized = size ~= current.size
 	current.size = size
+	local color = if weapon.evolution then STORM_COLOR else BLADE_COLOR
+	local recolored = color ~= current.color
+	current.color = color
 
 	local middle = (inner + outer) / 2
 	local center = owner.position
@@ -66,6 +72,9 @@ function OrbitBlades.renderWeapon(owner: VisualKit.Owner, weapon: Types.WeaponIn
 	for index, part in parts do
 		if resized or part.Size ~= size then
 			part.Size = size
+		end
+		if recolored or part.Color ~= color then
+			part.Color = color
 		end
 		local angle = Orbit.bladeAngle(stats.rotationSpeed, weapon.addedAt, frame.now, index, count)
 		local cx, cz = math.cos(angle), math.sin(angle)

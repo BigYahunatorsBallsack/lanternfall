@@ -2,10 +2,12 @@
 -- Rolls level-up cards (DESIGN.md section 9): up to `cardCount` different cards from every weapon and passive the
 -- player can still take or raise, owned items `ownedWeight` times as likely; with full slots only upgrades are left.
 -- When fewer items are left than cards, rewards ("Heal", "Embers") fill the gaps, so a maxed-out player picks a
--- reward. Also sums up what owned passives add to the player's stats. Pure and unit tested
+-- reward. Also sums up what owned passives add to the player's stats and lists the evolutions a player may take
+-- (chests, WP9). Pure and unit tested
 -- (tests/UpgradePool.spec.luau); used by UpgradeService.
 
 local Shared = game:GetService("ReplicatedStorage").Shared
+local Evolutions = require(Shared.Config.Evolutions)
 local Passives = require(Shared.Config.Passives)
 local Types = require(Shared.Net.Types)
 
@@ -129,6 +131,24 @@ function UpgradePool.passiveBonuses(ownedPassives: { [string]: number }): { [str
 		end
 	end
 	return bonuses
+end
+
+-- Evolution ids the player may take now (DESIGN.md section 6), sorted: the weapon at `maxLevel` and not evolved yet,
+-- plus the passive at any level. `ownedWeapons` maps weapon id -> { level, evolution }.
+function UpgradePool.evolutionsFor(
+	ownedWeapons: { [string]: { level: number, evolution: string? } },
+	ownedPassives: { [string]: number },
+	maxLevel: number
+): { string }
+	local ids = {}
+	for id, evolution in Evolutions do
+		local weapon = ownedWeapons[evolution.weapon]
+		if weapon and weapon.level >= maxLevel and not weapon.evolution and ownedPassives[evolution.passive] then
+			table.insert(ids, id)
+		end
+	end
+	table.sort(ids)
+	return ids
 end
 
 return UpgradePool

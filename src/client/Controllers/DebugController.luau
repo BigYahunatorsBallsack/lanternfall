@@ -37,6 +37,7 @@ local BUTTON_TEXT: { [string]: string } = {
 	AddWeapon = "Add a weapon",
 	NextWeapon = "Only the next weapon",
 	LevelUpWeapons = "Weapons +1 level",
+	EvolveWeapons = "Evolve weapons",
 	ToggleWeapons = "Weapons on/off",
 	GainLevel = "Team +1 level",
 }

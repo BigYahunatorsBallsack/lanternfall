@@ -1,5 +1,6 @@
 --!strict
--- Weapon evolutions (DESIGN.md section 6). Only offered from elite or boss chests. Read by LootService.
+-- Weapon evolutions (DESIGN.md section 6). Only offered from elite or boss chests (WP9). Read by WeaponService
+-- (stats via WeaponStats), UpgradeService (who may evolve what) and the client (HUD name, weapon look).
 
 export type Evolution = {
 	id: string,
@@ -30,7 +31,8 @@ local Evolutions: { [string]: Evolution } = {
 		passive = "Focus",
 		behavior = "SparkBolt",
 		stats = {
-			explosionRadius = 6,
+			explosionRadius = 6, -- studs around every enemy a bolt hits
+			explosionDamage = 1, -- share of the bolt's damage the other enemies in the blast take (assumption)
 		},
 	},
 }
