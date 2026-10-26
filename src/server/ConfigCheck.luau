@@ -46,6 +46,9 @@ function ConfigCheck.run(): { string }
 
 	local typeIds = { [Config.Enemies.boss.typeId] = Config.Enemies.boss.id }
 	for id, enemy in Config.Enemies.types do
+		if enemy.id ~= id then
+			problem(`Enemy key {id} does not match id {enemy.id}`)
+		end
 		if typeIds[enemy.typeId] then
 			problem(`Enemy {id} reuses typeId {enemy.typeId} of {typeIds[enemy.typeId]}`)
 		end
@@ -53,6 +56,27 @@ function ConfigCheck.run(): { string }
 		if enemy.typeId < 1 or enemy.typeId > 255 then
 			problem(`Enemy {id} typeId must be 1-255`)
 		end
+		if not (enemy.hp > 0 and enemy.radius > 0 and enemy.mass > 0 and enemy.speed >= 0) then
+			problem(`Enemy {id} needs hp, radius and mass above 0 and a speed of at least 0`)
+		end
+	end
+
+	local sim = Config.Simulation
+	if not (sim.tickRate > 0 and sim.spatialHashCellSize > 0 and sim.maxCatchUpSteps >= 1) then
+		problem("Simulation.tickRate, spatialHashCellSize and maxCatchUpSteps must be positive")
+	end
+	if not (sim.separationStiffness > 0 and sim.separationStiffness <= 1 and sim.separationPasses >= 1) then
+		problem("Simulation.separationStiffness must be in (0, 1] and separationPasses at least 1")
+	end
+	local cap = Config.Run.spawn.cap
+	if cap.max > Snapshot.MAX_PER_PACKET * Snapshot.MAX_PARTS or cap.max >= Snapshot.MAX_ID then
+		problem("Run.spawn.cap.max is more than enemy snapshots can carry")
+	end
+	if cap.base > cap.max then
+		problem("Run.spawn.cap.base must not exceed cap.max")
+	end
+	if not (Config.Run.spawn.ringMin > 0 and Config.Run.spawn.ringMin <= Config.Run.spawn.ringMax) then
+		problem("Run.spawn.ringMin must be above 0 and at most ringMax")
 	end
 
 	for _, step in Config.Run.spawn.mix do
@@ -101,6 +125,16 @@ function ConfigCheck.run(): { string }
 	local reach = math.max(math.abs(arena.center.X), math.abs(arena.center.Z)) + arena.size / 2
 	if reach > Snapshot.MAX_COORDINATE then
 		problem(`Map.arena reaches beyond +-{Snapshot.MAX_COORDINATE} studs, which enemy snapshots cannot encode`)
+	end
+	for index, obstacle in arena.obstacles do
+		local half = arena.size / 2
+		if math.abs(obstacle.x) + obstacle.radius > half or math.abs(obstacle.z) + obstacle.radius > half then
+			problem(`Map.arena.obstacles[{index}] does not fit into the arena`)
+		end
+		local fromCenter = math.sqrt(obstacle.x ^ 2 + obstacle.z ^ 2)
+		if fromCenter < obstacle.radius + arena.spawnRadius + sim.playerRadius then
+			problem(`Map.arena.obstacles[{index}] blocks the start positions`)
+		end
 	end
 
 	return problems
