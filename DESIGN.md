@@ -74,6 +74,15 @@ Sind alle gleichzeitig down, endet der Run sofort – Embers gibt es trotzdem f�
 | 12:00 | Boss The Lantern Eater erscheint, normales Spawnen stoppt |
 | ≈ 14:00 | Run-Ende: Statistik, Embers, „Nochmal" |
 
+**Run-Ablauf im Prototyp** (Lobby und Arena im selben Server, Werte in `Config/Run.luau` → `flow`):
+
+1. **Lobby:** Klasse wählen, „Ready" drücken. Wer bereit ist, kommt in den nächsten Run (max. 4).
+2. **Countdown:** startet mit dem ersten bereiten Spieler, 10 s; sind alle im Server bereit, sofort auf 3 s verkürzt. Bricht ab, wenn niemand mehr bereit ist.
+3. **Run:** alle Bereiten werden in die Arena gesetzt, Timer zählt ab 0:00 hoch. Wer später kommt oder nicht bereit war, wartet in der Lobby und kann sich schon für den nächsten Run bereit melden.
+4. **12:00 = Boss-Phase.** Bis der Boss da ist (Paket 10), zählt das Erreichen von 12:00 als Sieg.
+5. **Ende:** Sieg (Boss besiegt), Niederlage (niemand mehr „Alive", also alle down) oder abgebrochen (alle haben den Server verlassen, dann direkt zurück in die Lobby).
+6. **Ergebnis:** 15 s Ergebnis-Bildschirm mit „Play again"; drücken alle Teilnehmer „Play again", geht es sofort weiter. Danach zurück in die Lobby, wer „Play again" gedrückt hat, startet direkt den nächsten Countdown.
+
 ## 4. Steuerung & Spieler-Grundwerte
 
 Spieler steuern nur Bewegung und einen Dash; Angreifen, Zielen und Aufsammeln passiert automatisch.
@@ -320,10 +329,22 @@ src/shared/          → ReplicatedStorage.Shared
   Util/              SpatialHash, Math, Signal
 src/server/          → ServerScriptService.Server
   Services/          RunDirector, SpawnDirector, EnemySim, CombatService, UpgradeService,
-                     LootService, ReviveService, PlayerDataService, MonetizationService, AnalyticsService
+                     LootService, ReviveService, PlayerDataService, MonetizationService, AnalyticsService,
+                     MapService (Platzhalter-Karte), AdminService (Test-Befehle)
 src/client/          → StarterPlayer.StarterPlayerScripts.Client
-  Controllers/       InputController, CameraController, EnemyRenderer, HUDController, VFXController
+  Controllers/       InputController, CameraController, EnemyRenderer, HUDController, VFXController,
+                     RunStateController, LobbyController, ResultsController, NotifyController, DebugController
+  UI/                Theme, Widgets (UI im Code gebaut)
+tests/               Unit-Tests für reine Module (Runner in tools/luau-test-runner)
 ```
+
+**Gerüst (seit Arbeitspaket 2)**
+
+- **Lebenszyklus:** Server- und Client-Bootstrap laden jedes Modul in `Services` bzw. `Controllers` über `Util/Loader`, alphabetisch. Oberste Ebene legt nur Zustand und Signals an, `init()` verbindet Remotes und Events (ohne zu warten), danach läuft `start()` je Modul in eigenem Thread. Module requiren sich direkt; RunDirector hängt nur von MapService und PlayerDataService ab, alle anderen hängen sich an RunDirector.
+- **RunDirector** besitzt den Run-Ablauf (Regeln als reine Zustandsmaschine in `RunDirector/RunFlow.luau`, mit Unit-Tests). Signals für spätere Pakete: `RunStarted(players)`, `RunEnded(results)`, `PhaseChanged(phase, previous)`, `ParticipantStateChanged(player, state)`. Befehle: `setParticipantState` (ReviveService), `endRun("Victory")` und `setBossEncounter` (Boss), `getElapsed()` (SpawnDirector).
+- **RunState:** Der Server schickt bei jeder Änderung den vollständigen, kleinen Zustand (`Net/Types.luau`) an alle; Timer laufen auf dem Client über `workspace:GetServerTimeNow()`, also kein Senden pro Sekunde. Ein neuer Client holt sich den Stand mit `RequestSync`.
+- **Phasen:** Lobby → Countdown → Running → Boss → Ended → Lobby. Teilnehmer-Zustände: Alive, Down, Out.
+- **Platzhalter-Karte:** MapService baut Lobby (80 × 80) und Arena (300 × 300, violette Nebelwand) beim Serverstart aus `Config/Map.luau`, auf Höhe 100 und abseits vom Standard-Baseplate. Die echte Karte folgt in Paket 21.
 
 **Gegner-Engine**
 
@@ -371,7 +392,7 @@ src/client/          → StarterPlayer.StarterPlayerScripts.Client
 - Game Passes beim Join prüfen und cachen, Käufe in der Sitzung sofort freischalten.
 - Entwicklung in einer separaten Test-Experience.
 
-**Sicherheit:** Client schickt nur Absichten (Bewegung, Dash, Level-up-Wahl, Kaufwunsch). Server berechnet Schaden, Kills, XP, Drops, Embers, Truhen, Ranglistenwerte. Jede Remote mit Rate-Limit und Validierung (nur angebotene Karten-IDs, Dash nur nach Cooldown). Bewegungs-Plausibilitätscheck. Admin-Befehle nur für die UserId des Owners, serverseitig geprüft.
+**Sicherheit:** Client schickt nur Absichten (Bewegung, Dash, Level-up-Wahl, Kaufwunsch). Server berechnet Schaden, Kills, XP, Drops, Embers, Truhen, Ranglistenwerte. Jede Remote mit Rate-Limit und Validierung (nur angebotene Karten-IDs, Dash nur nach Cooldown). Bewegungs-Plausibilitätscheck. Admin-Befehle nur für die UserId des Owners, serverseitig geprüft: Admin ist, wer in Studio testet, der Besitzer einer Experience im eigenen Account (`game.CreatorId`) und wer in `Config/Admin.luau` steht. Test-Befehle seit Paket 2: Timer +1 Minute, zu 11:50 springen, sich selbst umhauen/aufstehen, Run gewinnen.
 
 ## 17. Compliance & Plattform-Regeln
 
