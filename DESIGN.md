@@ -157,13 +157,20 @@ Werte, die hier noch fehlen (Projektil-Tempo und Reichweite von Spark Bolt und B
 
 Jede Waffe = ein Datensatz im Config-Modul + ein kleines Verhaltens-Modul. Neue Waffe = neuer Datensatz + Verhalten, Framework bleibt unangetastet.
 
-**Stand im Code (seit Paket 5):** Orbit Blades, Spark Bolt und Shockwave sind spielbar; Chain Lightning, Thorn Trail und Boomerang Axe stehen nur als Daten in der Config und folgen in Paket 8. Jeder Spieler startet den Run mit der Waffe seiner Klasse auf Level 1. Annahmen fürs Spielgefühl (Werte in `Config/Weapons.luau`, Urteil des Owners steht noch aus):
+**Stand im Code (seit Paket 8):** Alle sechs Waffen sind spielbar (Orbit Blades, Spark Bolt und Shockwave seit Paket 5, Chain Lightning, Thorn Trail und Boomerang Axe seit Paket 8) und kommen über die Level-up-Karten. Jeder Spieler startet den Run mit der Waffe seiner Klasse auf Level 1. Annahmen fürs Spielgefühl (Werte in `Config/Weapons.luau`, Urteil des Owners steht noch aus):
 
 | Waffe | Annahme |
 | --- | --- |
 | Orbit Blades | Die Klingen sind lange Schwerter, die von 2 Studs bis zum Radius (7) reichen, 1 Stud breit, 240°/s (Paket 7, vorher 180°/s). So treffen sie auch Gegner, die direkt am Spieler stehen (Blade Warden = „mitten rein"). Jeder Gegner höchstens alle 0,5 s; mit 2 Klingen wird jeder Punkt etwa 1,3-mal pro Sekunde überstrichen. Ruhen, solange der Spieler down ist. |
 | Spark Bolt | 60 Studs/s, Reichweite 40 Studs (etwa der sichtbare Bereich), Trefferradius 0,5. Schießt nur, wenn ein Gegner in Reichweite ist. Mehrere Bolts gehen an verschiedene nächste Gegner; gibt es zu wenige, fächern die übrigen um 12° um den nächsten auf. Durchbohrt 1 heißt: fliegt durch den ersten Gegner und stoppt am zweiten. Hindernisse halten Bolts nicht auf. |
 | Shockwave | Löst erst aus, wenn ein Gegner im Radius steht. Schubst überlebende Gegner 3 Studs vom Spieler weg, geteilt durch ihre Masse über 1 (Brute 0,5 Studs). Der Schubs ist neu gegenüber dem ursprünglichen Design. |
+| Chain Lightning (Paket 8) | „Springt über 3 Gegner" heißt: trifft 3 Gegner insgesamt (jedes Level einer mehr). Der erste muss höchstens 25 Studs entfernt sein, jeder weitere höchstens 12 Studs vom vorigen; nie zweimal derselbe. Alle Treffer sofort. Wartet auf einen Gegner in Reichweite. |
+| Thorn Trail (Paket 8) | Alle 2 Studs Weg legt der Spieler ein Dornenfeld mit 2,5 Studs Radius ab (Fläche-Bonus vergrößert es); steht er still, liegt immer eins unter ihm. Alle 0,5 s trifft die Spur jeden Gegner darauf einmal, auch wenn er auf mehreren Feldern steht. Höchstens 40 Felder pro Spieler. Liegende Felder wirken weiter, wenn der Spieler down ist. |
+| Boomerang Axe (Paket 8) | Fliegt mit 40 Studs/s 20 Studs weit zum nächsten Gegner, dreht um und fliegt zurück zu dem Ort, an dem der Spieler jetzt ist. Trifft jeden Gegner einmal auf dem Hinweg und einmal auf dem Rückweg, Trefferbreite 1,2 Studs. Gefangen bei 2 Studs Abstand, spätestens nach 3 s weg. Mehrere Äxte gehen an verschiedene Gegner, sonst 20° gefächert. |
+
+**Evolutionen (seit Paket 8):** Blade Storm (8 Klingen, Radius 10, doppelter Schaden, rot leuchtend) und Starfire (jeder Treffer eines Bolts explodiert mit 6 Studs Radius; die anderen Gegner in der Explosion bekommen den vollen Bolt-Schaden, Annahme) funktionieren. Der Server prüft die Voraussetzung (Waffe auf Level 5, noch nicht entwickelt, das Passiv auf beliebigem Level). Bis die Truhen mit Paket 9 kommen, gibt es sie nur über den Test-Knopf „Evolve weapons": Er hebt Waffen mit Evolution auf Level 5, gibt das fehlende Passiv auf Level 1 (wenn ein Passiv-Platz frei ist) und entwickelt sie.
+
+**Spark Mage:** seit Paket 5 wählbar (Spark Bolt, −10 % Cooldown). Das eigene Kostüm kommt mit dem Look in Paket 21.
 
 **Passive (seit Paket 6):** Alle sechs Passive kommen über die Level-up-Karten, höchstens 4 pro Spieler, jedes bis Level 5. Sie addieren sich zu den Klassen-Boni (Blade Warden mit Vitality 2: +20 % + 2 × 15 % = 150 HP). Vitality hebt die maximalen HP und heilt dabei um den Unterschied; Haste erhöht das Lauftempo (nicht den Dash); Focus und Might wirken auf alle Waffen; Magnet vergrößert den Aufsammelradius für XP-Orbs; Armor zieht pro Treffer flach ab.
 
@@ -243,6 +250,8 @@ Solo: L1→2 = 7 XP, L10→11 = 53 XP, L30→31 = 205 XP; bis Level 35 zusammen 
 | weicht perfekt aus, sammelt Orbs | 12:00 überlebt (tötet aber kaum) | 12:00 überlebt, Level 37–39 |
 
 Folgerungen: Das Ziel „ohne Ausweichen ab Minute 3 in unter 20 s tot" passt im Schnitt. Wer nur wegläuft, überlebt, weil Spieler (16) schneller sind als Shadelings (14); das fängt Paket 9 mit Swarm Rush, Elites und Spitter-Schüssen ab. Ein guter Fernkampf-Spieler erreicht Level 35–40, also etwas über dem Ziel 34–36 (die Bots sammeln fast jedes Orb). Der Blade Warden war deutlich schwächer als der Spark Mage, deshalb machen die Orbit Blades jetzt 15 statt 12 Schaden (ein Treffer tötet einen Shadeling bis Minute 2) und drehen mit 240 statt 180°/s. Er bleibt die riskantere Klasse; Brutes im Nahkampf sind tödlich. Nächster Schritt: Urteil aus dem Freunde-Test (Anleitung in `docs/PLAYTEST.md`).
+
+**Stand Paket 8:** Mit allen sechs Waffen im Kartenpool wird es noch leichter: Spark Mage überlebt ausweichend oder auf Abstand kämpfend immer bis 12:00 und tötet praktisch alles (Level 41, etwa 3.400 Kills, über dem Ziel 34–36); der Blade Warden auf Abstand stirbt weiter nach 3:09–4:59. Stillstehen bleibt tödlich (Blade Warden 1:18–2:21, Spark Mage 0:32–2:17), ab Minute 3 still: nach 9–46 s tot. Keine Waffe dominiert: Bei vollen Runs teilen sich Spark Bolt bzw. Orbit Blades den Schaden mit Boomerang Axe, Chain Lightning, Shockwave und Thorn Trail; Axe und Chain Lightning liegen etwas vorn. Den Druck bringt Paket 9; danach neu messen.
 
 **Run-Statistik (seit Paket 7):** Der Ergebnis-Bildschirm zeigt Team-Level, Kills des Teams und pro Spieler Kills, Schaden und erlittenen Schaden (`RunStatsService`). Der Server schreibt am Run-Ende eine Zusammenfassung ins Output (im Live-Spiel: F9 → Server): Dauer, Team-Level pro Minute, Kills nach Gegnertyp, Waffen mit Level/Schaden/Kills und Passive jedes Spielers.
 
