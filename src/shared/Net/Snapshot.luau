@@ -18,6 +18,7 @@ local INT16_MIN, INT16_MAX = -32768, 32767
 
 Snapshot.MAX_PER_PACKET = 100
 Snapshot.POSITION_SCALE = POSITION_SCALE
+Snapshot.MAX_COORDINATE = INT16_MAX / POSITION_SCALE -- largest |x| or |z| that survives encoding
 
 export type EnemyState = {
 	id: number, -- 0-65535

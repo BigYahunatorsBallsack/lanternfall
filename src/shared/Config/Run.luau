@@ -1,10 +1,19 @@
 --!strict
 -- Run flow, spawn director, XP curve, level-up and co-op rules (DESIGN.md sections 3, 7, 8, 9).
--- Read by RunDirector, SpawnDirector, UpgradeService and ReviveService.
+-- Read by RunDirector, SpawnDirector, UpgradeService and ReviveService; `flow` also by the lobby UI.
 
 local Run = {
 	durationSeconds = 720, -- boss spawns at 12:00, normal spawning stops
 	maxPlayers = 4,
+
+	-- Lobby -> countdown -> run -> results -> lobby (prototype: lobby and arena in one server)
+	flow = table.freeze({
+		countdownSeconds = 10, -- starts when the first player is ready
+		allReadyCountdownSeconds = 3, -- countdown is cut to this once every player in the server is ready
+		resultsSeconds = 15, -- results screen, then everyone returns to the lobby
+		defaultClassId = "BladeWarden",
+		defaultDifficulty = "Normal", -- until difficulty selection arrives in WP13
+	}),
 
 	-- fPlayers = 1 + perExtraPlayer * (n - 1)
 	playerFactor = table.freeze({ perExtraPlayer = 0.6 }),
