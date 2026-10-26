@@ -1,5 +1,5 @@
 --!strict
--- Debug commands for testing (skip time, knock yourself down, hurt/heal yourself, win, spawn/hit/kill enemies, pause
+-- Debug commands for testing (skip time, knock yourself down, hurt/heal yourself, win, spawn/hit/kill enemies and elites, pause
 -- spawning, add/swap/level/evolve weapons, weapons off, team level-up) and the stats panel feed (DebugStats once per second). Admins only:
 -- everyone in Studio, the owner of a user-owned experience and Config.Admin.userIds. Handles the DebugCommand remote
 -- and uses RunDirector, CombatService, EnemySim, ExperienceService, SpawnDirector, UpgradeService, WeaponService and
@@ -129,6 +129,17 @@ local handlers: { [string]: (player: Player) -> (boolean, string?) } = {
 		end
 		return true, `Hit {enemies(found)}, {killed} died`
 	end,
+	SpawnElite = function(player)
+		local position, reason = runPosition(player)
+		if not position then
+			return false, reason
+		end
+		local name = SpawnDirector.spawnElite(position)
+		if not name then
+			return true, "No room for an elite here"
+		end
+		return true, `Spawned a {name}`
+	end,
 	KillEnemies = function(player)
 		return true, `Killed {enemies(EnemySim.killAll(player))}`
 	end,
@@ -253,6 +264,7 @@ local function collectStats(): Types.DebugStats
 		stepMaxMilliseconds = sim.stepMaxMilliseconds,
 		stepsPerSecond = sim.stepsPerSecond,
 		sentKilobytesPerSecond = sim.sentKilobytesPerSecond,
+		shots = EnemySim.getShotCount(),
 	}
 end
 

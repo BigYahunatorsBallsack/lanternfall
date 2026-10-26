@@ -1,7 +1,7 @@
 --!strict
 -- Texts of a level-up card (DESIGN.md section 13): name, one line of effect and the badge ("NEW", "LV 3"), built from
--- Config.Weapons and Config.Passives so the server only sends ids. Used by LevelUpController; tested in
--- tests/UpgradePool.spec.luau.
+-- Config.Weapons and Config.Passives so the server only sends ids, and the texts of a chest reward. Used by
+-- LevelUpController and ChestController; tested in tests/UpgradePool.spec.luau.
 
 local Config = require(script.Parent.Parent.Config)
 local Weapons = require(script.Parent.Parent.Config.Weapons)
@@ -78,6 +78,26 @@ function UpgradeText.describe(card: Types.UpgradeCard): (string, string, string)
 		return "Embers", `+{rewards.embers} Embers`, ""
 	end
 	return card.itemId, "", ""
+end
+
+-- Title and effect line of an elite chest reward (Net/Types.ChestReward).
+function UpgradeText.chestReward(reward: Types.ChestReward): (string, string)
+	if reward.kind == "Evolution" then
+		local evolution = Config.Evolutions[reward.itemId]
+		if not evolution then
+			return reward.itemId, "Evolution"
+		end
+		local weapon = Config.Weapons[evolution.weapon]
+		return evolution.displayName, `{if weapon then weapon.displayName else evolution.weapon} evolved!`
+	end
+	local title, detail, badge = UpgradeText.describe({
+		id = `{reward.kind}:{reward.itemId}`,
+		kind = reward.kind :: any,
+		itemId = reward.itemId,
+		level = reward.level,
+		isNew = false,
+	})
+	return if badge ~= "" then `{title} {badge}` else title, detail
 end
 
 return UpgradeText

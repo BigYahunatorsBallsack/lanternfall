@@ -2,8 +2,8 @@
 -- Rolls level-up cards (DESIGN.md section 9): up to `cardCount` different cards from every weapon and passive the
 -- player can still take or raise, owned items `ownedWeight` times as likely; with full slots only upgrades are left.
 -- When fewer items are left than cards, rewards ("Heal", "Embers") fill the gaps, so a maxed-out player picks a
--- reward. Also sums up what owned passives add to the player's stats and lists the evolutions a player may take
--- (chests, WP9). Pure and unit tested
+-- reward. Also sums up what owned passives add to the player's stats, lists the evolutions a player may take and
+-- picks the upgrade of an elite chest (WP9). Pure and unit tested
 -- (tests/UpgradePool.spec.luau); used by UpgradeService.
 
 local Shared = game:GetService("ReplicatedStorage").Shared
@@ -131,6 +131,41 @@ function UpgradePool.passiveBonuses(ownedPassives: { [string]: number }): { [str
 		end
 	end
 	return bonuses
+end
+
+-- One more level of a random owned weapon or passive below `maxLevel` (elite chests, DESIGN.md section 8), all
+-- equally likely, as the card it would be; nil when everything owned is maxed. Ids are walked sorted, so the same
+-- roll gives the same item.
+function UpgradePool.chestUpgrade(
+	ownedWeapons: { [string]: number },
+	ownedPassives: { [string]: number },
+	maxLevel: number,
+	random: () -> number
+): Types.UpgradeCard?
+	local cards: { Types.UpgradeCard } = {}
+	for _, entry in { { kind = "Weapon", owned = ownedWeapons }, { kind = "Passive", owned = ownedPassives } } do
+		local ids = {}
+		for id, level in entry.owned do
+			if level < maxLevel then
+				table.insert(ids, id)
+			end
+		end
+		table.sort(ids)
+		for _, id in ids do
+			local kind = entry.kind :: "Weapon" | "Passive"
+			table.insert(cards, {
+				id = UpgradePool.cardId(kind, id),
+				kind = kind,
+				itemId = id,
+				level = entry.owned[id] + 1,
+				isNew = false,
+			})
+		end
+	end
+	if #cards == 0 then
+		return nil
+	end
+	return cards[math.min(#cards, math.floor(random() * #cards) + 1)]
 end
 
 -- Evolution ids the player may take now (DESIGN.md section 6), sorted: the weapon at `maxLevel` and not evolved yet,

@@ -79,6 +79,9 @@ local function acquire(id: number, typeId: number, hp: number): Drawn
 		visual = Models.build(typeId)
 	end
 	visual.model.Parent = getFolder()
+	if visual.hpBar then
+		visual.hpBar.Size = UDim2.fromScale(hp, 1)
+	end
 	local entry: Drawn = {
 		visual = visual,
 		typeId = typeId,
@@ -188,6 +191,9 @@ local function render(dt: number)
 			if hp < current.lastHp then
 				current.flashUntil = now + FLASH_SECONDS
 				visual.body.Color = FLASH_COLOR
+				if visual.hpBar then
+					visual.hpBar.Size = UDim2.fromScale(hp, 1)
+				end
 			elseif current.flashUntil > 0 and now >= current.flashUntil then
 				current.flashUntil = 0
 				visual.body.Color = visual.bodyColor

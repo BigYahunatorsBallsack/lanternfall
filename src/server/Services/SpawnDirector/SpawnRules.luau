@@ -1,6 +1,6 @@
 --!strict
 -- Spawn formulas from DESIGN.md section 7, as pure functions of Config.Run: rate, alive cap, HP factor,
--- enemy mix by minute and the spawn ring around a player. Used by SpawnDirector; tested in
+-- enemy mix by minute, Swarm Rush, elite times and the spawn ring around a player (optionally in front of them). Used by SpawnDirector; tested in
 -- tests/SpawnRules.spec.luau. `minutes` is the run time in minutes (fractions allowed).
 
 local Config = require(game:GetService("ReplicatedStorage").Shared.Config)
@@ -11,6 +11,8 @@ export type Circle = { x: number, z: number, radius: number }
 local Spawn = Config.Run.spawn
 
 local SpawnRules = {}
+
+local RUSH_WEIGHTS = table.freeze({ [Spawn.swarmRush.enemy] = 1 })
 
 -- fPlayers = 1 + perExtraPlayer * (n - 1)
 function SpawnRules.playerFactor(playerCount: number): number
@@ -42,6 +44,73 @@ function SpawnRules.mixAt(minutes: number): { [string]: number }
 		end
 	end
 	return weights
+end
+
+-- Swarm Rush running at this minute: only `swarmRush.enemy`, rate times `rateMultiplier`.
+function SpawnRules.isSwarmRush(minutes: number): boolean
+	local rush = Spawn.swarmRush
+	for _, start in rush.atMinutes do
+		if minutes >= start and minutes < start + rush.durationSeconds / 60 then
+			return true
+		end
+	end
+	return false
+end
+
+-- Enemies per second including Swarm Rush.
+function SpawnRules.currentRate(minutes: number, playerCount: number): number
+	local rate = SpawnRules.rate(minutes, playerCount)
+	return if SpawnRules.isSwarmRush(minutes) then rate * Spawn.swarmRush.rateMultiplier else rate
+end
+
+-- Mix weights including Swarm Rush.
+function SpawnRules.currentMix(minutes: number): { [string]: number }
+	if SpawnRules.isSwarmRush(minutes) then
+		return RUSH_WEIGHTS
+	end
+	-- Heading (radians, for findSpawnPoint) to spawn in front of a player walking with floor velocity (vx, vz), or nil
+	-- for a spawn anywhere on the ring: a walking player gets `ahead.share` of their spawns in front of them.
+	function SpawnRules.aheadHeading(vx: number, vz: number, roll: number): number?
+		local ahead = Spawn.ahead
+		if roll >= ahead.share or vx * vx + vz * vz < ahead.minSpeed * ahead.minSpeed then
+			return nil
+		end
+		return math.atan2(vz, vx)
+	end
+
+	-- Point `index` of `count` evenly spread on a circle of `distance` around (centerX, centerZ) (Swarm Rush ring).
+	function SpawnRules.ringPoint(
+		index: number,
+		count: number,
+		centerX: number,
+		centerZ: number,
+		distance: number
+	): (number, number)
+		local angle = (index - 1) / count * 2 * math.pi
+		return centerX + math.cos(angle) * distance, centerZ + math.sin(angle) * distance
+	end
+
+	return SpawnRules.mixAt(minutes)
+end
+
+-- True if the run time passed a Swarm Rush start in (from, to].
+function SpawnRules.swarmRushStarted(from: number, to: number): boolean
+	for _, start in Spawn.swarmRush.atMinutes do
+		if from < start and start <= to then
+			return true
+		end
+	end
+	return false
+end
+
+-- True if the run time passed an elite time (firstAtMinute, then every everyMinutes) in (from, to].
+function SpawnRules.eliteDue(from: number, to: number): boolean
+	local elite = Spawn.elite
+	if to < elite.firstAtMinute then
+		return false
+	end
+	local last = elite.firstAtMinute + math.floor((to - elite.firstAtMinute) / elite.everyMinutes) * elite.everyMinutes
+	return from < last
 end
 
 local sortedKeys: { [any]: { string } } = {}
@@ -88,7 +157,8 @@ function SpawnRules.isFree(x: number, z: number, radius: number, bounds: Rect, o
 end
 
 -- A free spot on the ring ringMin..ringMax around (centerX, centerZ), trying up to `tries` random points.
--- `random` returns numbers in [0, 1). Returns nil when every try hit a wall or an obstacle.
+-- `random` returns numbers in [0, 1). With `heading` (radians, the walking direction) the points lie within
+-- ahead.halfAngleDegrees of it. Returns nil when every try hit a wall or an obstacle.
 function SpawnRules.findSpawnPoint(
 	random: () -> number,
 	centerX: number,
@@ -96,10 +166,12 @@ function SpawnRules.findSpawnPoint(
 	radius: number,
 	bounds: Rect,
 	obstacles: { Circle },
-	tries: number
+	tries: number,
+	heading: number?
 ): (number?, number?)
+	local halfAngle = math.rad(Spawn.ahead.halfAngleDegrees)
 	for _ = 1, tries do
-		local angle = random() * 2 * math.pi
+		local angle = if heading then heading + (random() * 2 - 1) * halfAngle else random() * 2 * math.pi
 		local distance = Spawn.ringMin + random() * (Spawn.ringMax - Spawn.ringMin)
 		local x, z = centerX + math.cos(angle) * distance, centerZ + math.sin(angle) * distance
 		if SpawnRules.isFree(x, z, radius, bounds, obstacles) then
@@ -107,6 +179,28 @@ function SpawnRules.findSpawnPoint(
 		end
 	end
 	return nil, nil
+end
+
+-- Heading (radians, for findSpawnPoint) to spawn in front of a player walking with floor velocity (vx, vz), or nil
+-- for a spawn anywhere on the ring: a walking player gets `ahead.share` of their spawns in front of them.
+function SpawnRules.aheadHeading(vx: number, vz: number, roll: number): number?
+	local ahead = Spawn.ahead
+	if roll >= ahead.share or vx * vx + vz * vz < ahead.minSpeed * ahead.minSpeed then
+		return nil
+	end
+	return math.atan2(vz, vx)
+end
+
+-- Point `index` of `count` evenly spread on a circle of `distance` around (centerX, centerZ) (Swarm Rush ring).
+function SpawnRules.ringPoint(
+	index: number,
+	count: number,
+	centerX: number,
+	centerZ: number,
+	distance: number
+): (number, number)
+	local angle = (index - 1) / count * 2 * math.pi
+	return centerX + math.cos(angle) * distance, centerZ + math.sin(angle) * distance
 end
 
 return SpawnRules

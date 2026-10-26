@@ -81,12 +81,17 @@ function ConfigCheck.run(): { string }
 			problem(`Enemy {id} reuses typeId {enemy.typeId} of {typeIds[enemy.typeId]}`)
 		end
 		typeIds[enemy.typeId] = id
-		if enemy.typeId < 1 or enemy.typeId > 255 then
-			problem(`Enemy {id} typeId must be 1-255`)
+		local eliteOffset = Config.Enemies.elite.typeIdOffset
+		if enemy.typeId < 1 or enemy.typeId >= eliteOffset or enemy.typeId + eliteOffset > 255 then
+			problem(`Enemy {id} typeId must be 1-{eliteOffset - 1} (its elite variant adds {eliteOffset})`)
 		end
 		if not (enemy.hp > 0 and enemy.radius > 0 and enemy.mass > 0 and enemy.speed >= 0) then
 			problem(`Enemy {id} needs hp, radius and mass above 0 and a speed of at least 0`)
 		end
+	end
+
+	if Config.Enemies.boss.typeId >= Config.Enemies.elite.typeIdOffset then
+		problem("Enemies.boss.typeId must stay below elite.typeIdOffset")
 	end
 
 	local sim = Config.Simulation

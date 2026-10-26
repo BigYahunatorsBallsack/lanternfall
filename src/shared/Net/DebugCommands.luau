@@ -11,6 +11,7 @@ return table.freeze({
 	"HealSelf", -- back to full HP
 	"WinRun", -- end the run as a victory
 	"SpawnWave", -- spawn a group of enemies around yourself
+	"SpawnElite", -- spawn a Gloom Elite (drops a chest) near yourself
 	"HitNearby", -- damage every enemy close to you
 	"KillEnemies", -- kill every enemy
 	"ToggleSpawning", -- pause or resume enemy spawning

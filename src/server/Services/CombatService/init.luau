@@ -215,6 +215,7 @@ function CombatService.init()
 	end
 
 	EnemySim.Contact:Connect(CombatService.damagePlayer)
+	EnemySim.ShotHit:Connect(CombatService.damagePlayer)
 
 	-- The client moves its own character right away; the server checks the cooldown and grants the
 	-- short invulnerability. Rejected dashes send the real cooldown back so the client corrects itself.
