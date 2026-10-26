@@ -9,6 +9,7 @@ local RunService = game:GetService("RunService")
 
 local Shared = ReplicatedStorage.Shared
 local Config = require(Shared.Config)
+local Format = require(Shared.Util.Format)
 local Net = require(Shared.Net)
 local Signal = require(Shared.Util.Signal)
 local Types = require(Shared.Net.Types)
@@ -57,11 +58,6 @@ local function now(): number
 	return workspace:GetServerTimeNow()
 end
 
-local function formatTime(seconds: number): string
-	local total = math.max(0, math.floor(seconds))
-	return string.format("%02d:%02d", total // 60, total % 60)
-end
-
 local function toPlayers(userIds: { number }): { Player }
 	local list = {}
 	for _, userId in userIds do
@@ -96,11 +92,11 @@ local function returnToLobby()
 end
 
 local function startBoss()
-	notifyParticipants("12:00 - The Lantern Eater awakens!")
+	notifyParticipants(`{Format.time(Config.Run.durationSeconds)} - {Config.Enemies.boss.displayName} awakens!`)
 	if bossEncounter then
 		task.spawn(bossEncounter)
 	else
-		print("[Lanternfall] No boss yet (WP10): reaching 12:00 counts as a victory")
+		print("[Lanternfall] No boss yet (WP10): reaching the boss phase counts as a victory")
 		flow:endRun("Victory", now())
 	end
 end
@@ -114,7 +110,7 @@ local function handle(event: RunFlow.Event)
 		RunDirector.RunStarted:Fire(players)
 	elseif event.kind == "RunEnded" then
 		local results = event.results
-		print(`[Lanternfall] Run ended: {results.outcome} after {formatTime(results.survivedSeconds)}`)
+		print(`[Lanternfall] Run ended: {results.outcome} after {Format.time(results.survivedSeconds)}`)
 		RunDirector.RunEnded:Fire(results)
 	elseif event.kind == "PhaseChanged" then
 		RunDirector.PhaseChanged:Fire(event.phase, event.previous)
