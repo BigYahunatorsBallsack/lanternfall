@@ -13,7 +13,10 @@ end
 
 local proxyMeta = {}
 local function makeProxy(name, dir, file, parent, children)
-	return setmetatable({ __name = name, __dir = dir, __file = file, __parent = parent, __children = children }, proxyMeta)
+	return setmetatable(
+		{ __name = name, __dir = dir, __file = file, __parent = parent, __children = children },
+		proxyMeta
+	)
 end
 
 local function findChild(proxy, name)
@@ -61,6 +64,42 @@ proxyMeta.__index = function(proxy, key)
 		return function(self, className)
 			return className == "ModuleScript" and rawget(self, "__file") ~= nil
 		end
+	elseif key == "ClassName" then
+		return if rawget(proxy, "__file") then "ModuleScript" else "Folder"
+	elseif key == "GetChildren" then
+		return function(self)
+			local children = {}
+			local fixed = rawget(self, "__children")
+			if fixed then
+				for _, child in fixed do
+					table.insert(children, child)
+				end
+				return children
+			end
+			local dir = rawget(self, "__dir")
+			if not dir then
+				return children
+			end
+			for _, entry in __listDir(dir) do
+				local name = string.match(entry, "^(.-)%.luau$") or string.match(entry, "^(.-)%.lua$")
+				if name and string.find(name, "%.") then
+					name = nil -- Script files like init.server.luau are not ModuleScripts
+				end
+				if name == "init" then
+					name = nil
+				end
+				if not name and __isDir(join(dir, entry)) then
+					name = entry
+				end
+				if name then
+					local child = findChild(self, name)
+					if child then
+						table.insert(children, child)
+					end
+				end
+			end
+			return children
+		end
 	end
 	local child = findChild(proxy, key)
 	if child == nil then
@@ -83,6 +122,7 @@ services.ServerScriptService = makeProxy("ServerScriptService", nil, nil, nil, {
 })
 
 local game = {}
+_G.__services = services
 function game:GetService(name)
 	local service = services[name]
 	if not service then
@@ -197,21 +237,78 @@ local function fakeTime(start)
 	return clock
 end
 
+-- Loads a Script file (e.g. src/server/init.server.luau) as if it ran with `script` = scriptProxy.
+local function runScript(scriptProxy, fileName)
+	local file = join(rawget(scriptProxy, "__dir"), fileName)
+	local chunk = __loadChunk(__readFile(file), "@" .. file, moduleEnv(scriptProxy))
+	return chunk()
+end
+
+-- Proxy for a Rojo folder that is not under a fake service, e.g. src/client as StarterPlayerScripts.Client.
+local function folderProxy(relativeDir, name)
+	return makeProxy(name, join(root, relativeDir), nil, nil, nil)
+end
+
+local function snapshotGlobals()
+	local copy = {}
+	for key, value in _G do
+		copy[key] = value
+	end
+	return copy
+end
+
+local function restoreGlobals(copy)
+	for key in _G do
+		if copy[key] == nil then
+			_G[key] = nil
+		end
+	end
+	for key, value in copy do
+		_G[key] = value
+	end
+end
+
+local baseServices = {}
+for name, service in services do
+	baseServices[name] = service
+end
+
 return function(specs)
+	local globals = snapshotGlobals()
 	for _, spec in specs do
+		-- every spec file starts with a fresh module cache, globals and services
+		table.clear(cache)
+		restoreGlobals(globals)
+		table.clear(services)
+		for name, service in baseServices do
+			services[name] = service
+		end
+		for key in game do
+			if key ~= "GetService" then
+				game[key] = nil
+			end
+		end
 		local source = __readFile(spec)
 		if not source then
 			print(`FAIL cannot read {spec}`)
 			results.failed += 1
 			continue
 		end
-		local env = setmetatable({
+		local env
+		env = setmetatable({
 			game = game,
 			require = fakeRequire,
 			describe = describe,
 			it = it,
 			expect = expect,
 			fakeTime = fakeTime,
+			runScript = runScript,
+			folderProxy = folderProxy,
+			-- runs a helper file from the repo with the spec's environment and returns its result
+			loadHelper = function(relativePath)
+				local file = join(root, relativePath)
+				return __loadChunk(__readFile(file), "@" .. file, env)()
+			end,
 		}, { __index = _G })
 		local ok, err = pcall(function()
 			__loadChunk(source, "@" .. spec, env)()

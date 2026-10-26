@@ -39,6 +39,20 @@ fn run(root: &str, specs: &[String]) -> mlua::Result<bool> {
         lua.create_function(|_, path: String| Ok(Path::new(&path).is_dir()))?,
     )?;
     globals.set(
+        "__listDir",
+        lua.create_function(|_, path: String| {
+            let mut names: Vec<String> = match std::fs::read_dir(&path) {
+                Ok(entries) => entries
+                    .filter_map(|entry| entry.ok())
+                    .map(|entry| entry.file_name().to_string_lossy().into_owned())
+                    .collect(),
+                Err(_) => Vec::new(),
+            };
+            names.sort();
+            Ok(names)
+        })?,
+    )?;
+    globals.set(
         "__loadChunk",
         lua.create_function(|lua, (source, name, env): (String, String, Table)| {
             lua.load(source).set_name(name).set_environment(env).into_function()
@@ -46,8 +60,10 @@ fn run(root: &str, specs: &[String]) -> mlua::Result<bool> {
     )?;
     globals.set("__root", root)?;
 
-    let prelude = include_str!("../prelude.luau");
-    let run_specs: mlua::Function = lua.load(prelude).set_name("=prelude").eval()?;
+    // Read at run time so prelude changes need no rebuild.
+    let prelude_path = concat!(env!("CARGO_MANIFEST_DIR"), "/prelude.luau");
+    let prelude = std::fs::read_to_string(prelude_path).map_err(mlua::Error::external)?;
+    let run_specs: mlua::Function = lua.load(prelude).set_name("@prelude.luau").eval()?;
     let spec_list = lua.create_sequence_from(specs.iter().cloned())?;
     let passed: Value = run_specs.call(spec_list)?;
     Ok(matches!(passed, Value::Boolean(true)))
