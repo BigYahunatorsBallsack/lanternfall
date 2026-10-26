@@ -1,7 +1,8 @@
 --!strict
--- In-run HUD for the prototype: run timer, phase hint, the local HP bar with a red flash on hits, the team with
--- HP and Alive/Down states and your weapons with their levels. Shown while the local player is in a running run;
--- reads RunStateController, PlayerStateController and LoadoutController. WP14 builds the full HUD.
+-- In-run HUD for the prototype: team XP bar with the level, run timer, phase hint, the local HP bar with a red flash
+-- on hits, the team with HP and Alive/Down states (and who is picking a card), and your weapons and passives with
+-- their levels. Shown while the local player is in a running run; reads RunStateController, PlayerStateController,
+-- LoadoutController and ProgressController. WP14 builds the full HUD.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -15,6 +16,7 @@ local Types = require(Shared:WaitForChild("Net"):WaitForChild("Types"))
 
 local LoadoutController = require(script.Parent.LoadoutController)
 local PlayerStateController = require(script.Parent.PlayerStateController)
+local ProgressController = require(script.Parent.ProgressController)
 local RunStateController = require(script.Parent.RunStateController)
 local Theme = require(script.Parent.Parent.UI.Theme)
 local Widgets = require(script.Parent.Parent.UI.Widgets)
@@ -24,6 +26,8 @@ local HP_BAR_WIDTH = 360
 local HIT_FLASH_SECONDS = 0.35
 local HIT_FLASH_TRANSPARENCY = 0.75 -- red screen tint right after a hit
 local LOW_HP_FRACTION = 0.3
+local XP_BAR_WIDTH = 420
+local XP_COLOR = Color3.fromRGB(96, 170, 255) -- the color of small XP orbs
 
 local HUDController = {}
 
@@ -36,6 +40,10 @@ local hpLabel: TextLabel
 local hitFlash: Frame
 local weaponsTitle: TextLabel
 local weaponRows: Frame
+local passivesTitle: TextLabel
+local passiveRows: Frame
+local xpFill: Frame
+local xpLabel: TextLabel
 
 local function hintText(state: Types.RunState): (string, Color3)
 	if state.phase == "Boss" then
@@ -53,8 +61,9 @@ local function renderTeam(state: Types.RunState)
 			local stateName = info.state or "Alive"
 			local vitals = PlayerStateController.get(info.userId)
 			local hpText = if vitals and stateName == "Alive" then ` · {vitals.hp} HP` else ""
+			local pickText = if vitals and vitals.choosing then " · picking" else ""
 			Widgets.label({
-				Text = `{info.name} · {STATE_TEXT[stateName] or stateName}{hpText}`,
+				Text = `{info.name} · {STATE_TEXT[stateName] or stateName}{hpText}{pickText}`,
 				TextColor3 = if stateName == "Alive" then Theme.text else Theme.danger,
 				TextXAlignment = Enum.TextXAlignment.Right,
 				LayoutOrder = order,
@@ -84,6 +93,32 @@ local function weaponName(weapon: Types.WeaponInfo): string
 	return if config then config.displayName else weapon.id
 end
 
+local function levelText(level: number): string
+	return if level >= Config.Player.maxItemLevel then "MAX" else `LV {level}`
+end
+
+local function renderPassives()
+	Widgets.clearRows(passiveRows)
+	local passives = ProgressController.getLocalPassives()
+	passivesTitle.Visible = #passives > 0
+	for index, info in passives do
+		local passive = Config.Passives[info.id]
+		Widgets.label({
+			Text = `{if passive then passive.displayName else info.id} · {levelText(info.level)}`,
+			TextXAlignment = Enum.TextXAlignment.Left,
+			LayoutOrder = index,
+			Parent = passiveRows,
+		})
+	end
+end
+
+local function renderXp()
+	local team = ProgressController.getTeam()
+	local fraction = if team and team.needed > 0 then math.clamp(team.xp / team.needed, 0, 1) else 0
+	xpFill.Size = UDim2.fromScale(fraction, 1)
+	xpLabel.Text = `LV {if team then team.level else 1}`
+end
+
 local function renderWeapons()
 	Widgets.clearRows(weaponRows)
 	local loadout = LoadoutController.getLocal()
@@ -94,9 +129,8 @@ local function renderWeapons()
 		return
 	end
 	for index, weapon in loadout.weapons do
-		local level = if weapon.level >= Config.Player.maxItemLevel then "MAX" else `LV {weapon.level}`
 		Widgets.label({
-			Text = `{weaponName(weapon)} · {level}`,
+			Text = `{weaponName(weapon)} · {levelText(weapon.level)}`,
 			TextXAlignment = Enum.TextXAlignment.Left,
 			LayoutOrder = index,
 			Parent = weaponRows,
@@ -137,6 +171,8 @@ local function render()
 	renderTeam(state)
 	renderHp()
 	renderWeapons()
+	renderPassives()
+	renderXp()
 end
 
 local function build()
@@ -146,10 +182,33 @@ local function build()
 		Name = "Timer",
 		AnchorPoint = Vector2.new(0.5, 0),
 		Position = UDim2.new(0.5, 0, 0, 8),
-		Size = UDim2.fromOffset(260, 0),
+		Size = UDim2.fromOffset(XP_BAR_WIDTH, 0),
 		Parent = screen,
 	})
 	Widgets.list(2).Parent = top
+	-- Team XP bar with the level (DESIGN.md section 13); a Frame, so the timer stays the panel's first TextLabel.
+	local xpTrack = Widgets.create("Frame", {
+		Name = "XpTrack",
+		BackgroundColor3 = Theme.button,
+		Size = UDim2.new(1, 0, 0, 20),
+		LayoutOrder = 0,
+		Parent = top,
+	}, { Widgets.corner(UDim.new(0, 6)) })
+	xpFill = Widgets.create("Frame", {
+		Name = "XpFill",
+		BackgroundColor3 = XP_COLOR,
+		Size = UDim2.fromScale(0, 1),
+		Parent = xpTrack,
+	}, { Widgets.corner(UDim.new(0, 6)) })
+	xpLabel = Widgets.label({
+		Name = "XpText",
+		Text = "LV 1",
+		Font = Theme.fontBold,
+		TextSize = 16,
+		Size = UDim2.fromScale(1, 1),
+		ZIndex = 2,
+		Parent = xpTrack,
+	})
 	timerLabel = Widgets.label({
 		Text = "00:00",
 		Font = Theme.fontBold,
@@ -213,6 +272,25 @@ local function build()
 		Parent = weapons,
 	})
 	Widgets.list(4).Parent = weaponRows
+	passivesTitle = Widgets.label({
+		Name = "PassivesTitle",
+		Text = "PASSIVES",
+		Font = Theme.fontBold,
+		TextColor3 = Theme.textDim,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		Visible = false,
+		LayoutOrder = 2,
+		Parent = weapons,
+	})
+	passiveRows = Widgets.create("Frame", {
+		Name = "PassiveRows",
+		BackgroundTransparency = 1,
+		AutomaticSize = Enum.AutomaticSize.Y,
+		Size = UDim2.new(1, 0, 0, 0),
+		LayoutOrder = 3,
+		Parent = weapons,
+	})
+	Widgets.list(4).Parent = passiveRows
 
 	local hp = Widgets.panel({
 		Name = "Health",
@@ -262,6 +340,16 @@ function HUDController.start()
 	LoadoutController.Changed:Connect(function(userId: number)
 		if screen.Enabled and userId == Players.LocalPlayer.UserId then
 			renderWeapons()
+		end
+	end)
+	ProgressController.PassivesChanged:Connect(function(userId: number)
+		if screen.Enabled and userId == Players.LocalPlayer.UserId then
+			renderPassives()
+		end
+	end)
+	ProgressController.TeamChanged:Connect(function()
+		if screen.Enabled then
+			renderXp()
 		end
 	end)
 	render()

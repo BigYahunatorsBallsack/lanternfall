@@ -11,6 +11,9 @@ local MapService = require(ServerScriptService.Server.Services.MapService)
 local EnemySim = require(ServerScriptService.Server.Services.EnemySim)
 local CombatService = require(ServerScriptService.Server.Services.CombatService)
 local WeaponService = require(ServerScriptService.Server.Services.WeaponService)
+local ExperienceService = require(ServerScriptService.Server.Services.ExperienceService)
+local UpgradeService = require(ServerScriptService.Server.Services.UpgradeService)
+local UpgradePool = require(ServerScriptService.Server.Services.UpgradeService.UpgradePool)
 local Config = require(game:GetService("ReplicatedStorage").Shared.Config)
 
 local me = world.addPlayer("Owner", 1, true)
@@ -75,6 +78,46 @@ local function weaponRows()
 	return table.concat(lines, " | ")
 end
 
+local function passiveRows()
+	local lines = {}
+	for _, row in world.gui("HUD", "PassiveRows"):GetChildren() do
+		if row.ClassName == "TextLabel" then
+			table.insert(lines, row.Text)
+		end
+	end
+	return table.concat(lines, " | ")
+end
+
+local function clientController(name)
+	return require(folderProxy("src/client", "Client").Controllers[name])
+end
+
+-- Orb parts the client currently shows.
+local function orbParts()
+	local folder = workspace:FindFirstChild("LanternfallXpOrbs")
+	return if folder then #folder:GetChildren() else 0
+end
+
+local function card(index)
+	return world.gui("LevelUp", `Card{index}`)
+end
+
+-- Clicks the first card of every open choice until none is left; returns the cards picked.
+local function pickAll()
+	local picked = {}
+	for _ = 1, 50 do
+		local offer = UpgradeService.getOffer(me)
+		if not offer then
+			break
+		end
+		world.advance(Config.Run.levelUp.inputDelaySeconds + 0.1)
+		table.insert(picked, offer[1])
+		world.click(card(1))
+		world.advance(0.1)
+	end
+	return picked
+end
+
 local function teamText()
 	local rows = world.gui("HUD", "Rows")
 	local lines = {}
@@ -132,6 +175,7 @@ describe("smoke", function()
 		expect(world.gui("HUD", "WeaponsTitle").Text).toBe("WEAPONS")
 		local weapon = WeaponService.getWeapons(me)[1]
 		expect(weapon.stats.cooldown).toBeNear(Config.Weapons.SparkBolt.base.cooldown * 0.9) -- Spark Mage bonus
+		ExperienceService.setPaused(true) -- no level-up cards in the way until the level-up tests below
 		world.click(world.gui("Debug", "ToggleWeapons"))
 		world.advance(0.2)
 		expect(WeaponService.isPaused()).toBe(true)
@@ -292,6 +336,116 @@ describe("smoke", function()
 		expect(weaponParts("OrbitBlade")).toBe(Config.Weapons.OrbitBlades.base.count + 2)
 	end)
 
+	it("drops XP orbs that the player picks up for the whole team", function()
+		ExperienceService.setPaused(false)
+		world.click(world.gui("Debug", "ToggleSpawning"))
+		world.click(world.gui("Debug", "KillEnemies"))
+		world.advance(0.5)
+		pickAll()
+		local orbsBefore = ExperienceService.getOrbCount()
+		local before = ExperienceService.getProgress()
+		local root = me.Character.HumanoidRootPart.Position
+		local near = EnemySim.spawn("Shadeling", root.X + 3, root.Z, 1, 1)
+		local far = EnemySim.spawn("Shadeling", root.X + 35, root.Z, 1, 1)
+		EnemySim.damage(near, 1000, me)
+		EnemySim.damage(far, 1000, me)
+		world.advance(0.2)
+		local after = ExperienceService.getProgress()
+		expect(ExperienceService.getOrbCount()).toBe(orbsBefore + 1) -- the far orb still lies there
+		expect(after.level > before.level or after.xp == before.xp + Config.Enemies.types.Shadeling.xp).toBe(true)
+		local lying = clientController("XpOrbRenderer").getCounts()
+		expect(lying).toBe(ExperienceService.getOrbCount())
+		expect(orbParts() >= lying).toBe(true)
+		expect(world.gui("HUD", "XpText").Text).toBe(`LV {after.level}`)
+		world.advance(0.5)
+		pickAll()
+	end)
+
+	it("opens level-up cards, freezes the chooser and applies the pick", function()
+		world.click(world.gui("Debug", "GainLevel"))
+		world.advance(0.1)
+		local offer = UpgradeService.getOffer(me)
+		expect(offer ~= nil).toBe(true)
+		expect(#offer).toBe(Config.Run.levelUp.cardCount)
+		expect(world.gui("LevelUp").Enabled).toBe(true)
+		expect(world.gui("LevelUp", "Title").Text).toBe(`LEVEL {ExperienceService.getLevel()}`)
+		expect(card(1):FindFirstChild("CardName").Text ~= "").toBe(true)
+		expect(CombatService.isChoosing(me)).toBe(true)
+		expect(me.Character.Humanoid.WalkSpeed).toBe(0)
+		expect(string.find(teamText(), "picking", 1, true) ~= nil).toBe(true)
+		world.click(card(1)) -- too soon after the cards appeared: ignored
+		world.advance(0.1)
+		expect(UpgradeService.getOffer(me)).toBe(offer)
+		world.advance(Config.Run.levelUp.inputDelaySeconds)
+		local chosen = offer[1]
+		world.click(card(1))
+		world.advance(0.2)
+		expect(UpgradeService.getOffer(me)).toBe(nil)
+		expect(world.gui("LevelUp").Enabled).toBe(false)
+		expect(CombatService.isChoosing(me)).toBe(false)
+		if chosen.kind == "Weapon" then
+			expect(string.find(weaponRows(), Config.Weapons[chosen.itemId].displayName, 1, true) ~= nil).toBe(true)
+		elseif chosen.kind == "Passive" then
+			local name = Config.Passives[chosen.itemId].displayName
+			expect(string.find(passiveRows(), name, 1, true) ~= nil).toBe(true)
+			expect(world.gui("HUD", "PassivesTitle").Visible).toBe(true)
+		end
+		local haste = 0
+		for _, info in UpgradeService.getPassives(me) do
+			if info.id == "Haste" then
+				haste = info.level
+			end
+		end
+		local speed = Config.Player.moveSpeed * (1 + Config.Passives.Haste.perLevel * haste)
+		expect(me.Character.Humanoid.WalkSpeed).toBeNear(speed)
+	end)
+
+	it("rerolls once and picks the first card when the time runs out", function()
+		world.click(world.gui("Debug", "GainLevel"))
+		world.advance(Config.Run.levelUp.inputDelaySeconds + 0.1)
+		local first = UpgradeService.getOffer(me)
+		expect(world.gui("LevelUp", "Reroll").Text).toBe("Reroll (1 left)")
+		world.click(world.gui("LevelUp", "Reroll"))
+		world.advance(Config.Run.levelUp.inputDelaySeconds + 0.1)
+		local second = UpgradeService.getOffer(me)
+		expect(second ~= first).toBe(true)
+		for _, newCard in second do
+			for _, oldCard in first do
+				expect(newCard.id ~= oldCard.id).toBe(true)
+			end
+		end
+		expect(world.gui("LevelUp", "Reroll").Text).toBe("No rerolls left")
+		world.click(world.gui("LevelUp", "Reroll"))
+		world.advance(0.2)
+		expect(UpgradeService.getOffer(me)).toBe(second)
+		world.advance(Config.Run.levelUp.autoPickSeconds)
+		expect(UpgradeService.getOffer(me)).toBe(nil)
+		expect(CombatService.isChoosing(me)).toBe(false)
+	end)
+
+	it("lets passives change HP, speed, weapons and pickup radius", function()
+		local bonuses = UpgradePool.passiveBonuses({ Vitality = 1, Haste = 1, Might = 1 })
+		local damageBefore = WeaponService.getWeapons(me)[1].stats.damage
+		local mightBefore = 0
+		for _, info in UpgradeService.getPassives(me) do
+			if info.id == "Might" then
+				mightBefore = info.level * Config.Passives.Might.perLevel
+			end
+		end
+		CombatService.setBonuses(me, bonuses)
+		WeaponService.setBonuses(me, bonuses)
+		ExperienceService.setBonuses(me, bonuses)
+		world.advance(0.2)
+		local _, maxHp = CombatService.getHp(me)
+		expect(maxHp).toBe(math.round(Config.Player.maxHp * (1 + Config.Passives.Vitality.perLevel)))
+		expect(me.Character.Humanoid.WalkSpeed).toBeNear(Config.Player.moveSpeed * (1 + Config.Passives.Haste.perLevel))
+		local damage = WeaponService.getWeapons(me)[1].stats.damage
+		expect(damage / damageBefore).toBeNear((1 + Config.Passives.Might.perLevel) / (1 + mightBefore))
+		ExperienceService.setPaused(true) -- no cards in the way for the rest of the smoke test
+		world.click(world.gui("Debug", "ToggleSpawning"))
+		world.advance(0.2)
+	end)
+
 	it("puts a respawned participant back into the arena", function()
 		world.spawnCharacter(me)
 		world.advance(0.5)
@@ -323,6 +477,10 @@ describe("smoke", function()
 		expect(phase()).toBe("Running")
 		expect(RunDirector.getElapsed() < 1).toBe(true)
 		expect(weaponRows()).toBe("Spark Bolt · LV 1") -- every run starts with only the class weapon
+		expect(passiveRows()).toBe("") -- and without passives
+		expect(world.gui("HUD", "PassivesTitle").Visible).toBe(false)
+		expect(world.gui("HUD", "XpText").Text).toBe("LV 1")
+		expect(ExperienceService.getOrbCount()).toBe(0)
 		expect(WeaponService.isPaused()).toBe(false)
 	end)
 
@@ -374,9 +532,14 @@ describe("smoke", function()
 	end)
 
 	it("ends in defeat when the only player is knocked down", function()
+		world.click(world.gui("Debug", "GainLevel"))
+		world.advance(0.2)
+		expect(world.gui("LevelUp").Enabled).toBe(true)
 		world.click(world.gui("Debug", "DownSelf"))
 		world.advance(0.2)
 		expect(phase()).toBe("Ended")
+		expect(world.gui("LevelUp").Enabled).toBe(false) -- the run end closes open cards
+		expect(CombatService.isChoosing(me)).toBe(false)
 		expect(firstText("Results", "Results")).toBe("DEFEAT")
 	end)
 

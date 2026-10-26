@@ -42,6 +42,10 @@ local function canDash(): boolean
 	if RunStateController.getView() == "Run" and info and info.state ~= nil and info.state ~= "Alive" then
 		return false
 	end
+	local vitals = PlayerStateController.getLocal()
+	if vitals and vitals.choosing then
+		return false -- standing still while picking a level-up card
+	end
 	return not dashing and now() >= PlayerStateController.getDashReadyAt()
 end
 
