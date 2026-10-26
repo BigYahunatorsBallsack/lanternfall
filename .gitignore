@@ -1,0 +1,20 @@
+# Rojo / Studio build output
+*.rbxl
+*.rbxlx
+*.rbxm
+*.rbxmx
+*.lock
+
+# Wally packages (installed, not committed)
+Packages/
+ServerPackages/
+DevPackages/
+
+# Editor / OS
+.vscode/
+.DS_Store
+sourcemap.json
+
+# Never commit secrets
+.env
+*.cookie
