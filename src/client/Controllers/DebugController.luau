@@ -172,18 +172,16 @@ function DebugController.start()
 	player:GetAttributeChangedSignal(ADMIN_ATTRIBUTE):Connect(update)
 	update()
 
-	local frames, elapsed, sinceRefresh = 0, 0, 0
+	local frames, elapsed = 0, 0
 	RunService.RenderStepped:Connect(function(dt: number)
 		frames += 1
 		elapsed += dt
-		sinceRefresh += dt
-		if elapsed >= 1 then
+		if elapsed >= STATS_REFRESH_SECONDS then
 			fps = math.round(frames / elapsed)
 			frames, elapsed = 0, 0
-		end
-		if sinceRefresh >= STATS_REFRESH_SECONDS and screen and screen.Enabled then
-			sinceRefresh = 0
-			refreshStats()
+			if screen and screen.Enabled then
+				refreshStats()
+			end
 		end
 	end)
 end
