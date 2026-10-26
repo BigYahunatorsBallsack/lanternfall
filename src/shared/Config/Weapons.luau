@@ -1,15 +1,18 @@
 --!strict
--- Weapon records (DESIGN.md section 6). Read by the weapon framework and UpgradeService.
+-- Weapon records (DESIGN.md section 6). Read by the weapon framework (WeaponService, WeaponRenderer) and
+-- UpgradeService.
 --
 -- `base` holds level 1 stats. `levels[n]` lists what changes when reaching level n:
---   damage    = multiplier added to damage (0.15 = +15 %)
+--   damage    = fraction added to the damage multiplier (0.15 = +15 % of the level 1 damage)
 --   count     = extra blades / projectiles / axes
 --   radius    = studs added to radius
 --   cooldown  = seconds added to cooldown (negative = faster)
 --   duration  = seconds added to duration
 --   jumps     = extra chain jumps
--- `behavior` names the behavior module (one module per weapon, added in WP5).
--- Values marked "assumption" are not specified in DESIGN.md yet and get tuned in WP5.
+-- Owner bonuses (class, later passives and talents) scale damage, cooldown and radius on top (WeaponStats).
+-- `behavior` names the behavior module in WeaponService/Behaviors and the visual in WeaponRenderer/Visuals.
+-- A weapon without a behavior module exists only as data and cannot be given to players yet (WP8).
+-- Values marked "assumption" are not specified in DESIGN.md; tuned by feel in WP5, balanced in WP7.
 
 export type LevelDelta = {
 	damage: number?,
@@ -40,9 +43,11 @@ local Weapons: { [string]: Weapon } = {
 		base = {
 			damage = 12,
 			count = 2,
-			radius = 7,
-			hitCooldownPerEnemy = 0.5,
-			rotationSpeed = 180, -- degrees/s, assumption
+			radius = 7, -- studs from your center to the blade tips
+			bladeInnerRadius = 2, -- studs; blades reach from here to `radius`, so enemies touching you get hit (assumption)
+			bladeWidth = 1, -- studs, hit width of a blade (assumption)
+			hitCooldownPerEnemy = 0.5, -- seconds before the same enemy can be hit again
+			rotationSpeed = 180, -- degrees/s (assumption)
 		},
 		levels = {
 			{},
@@ -61,10 +66,12 @@ local Weapons: { [string]: Weapon } = {
 		base = {
 			damage = 15,
 			cooldown = 0.9,
-			count = 1,
-			pierce = 1,
-			projectileSpeed = 60, -- studs/s, assumption
-			range = 40, -- studs, assumption
+			count = 1, -- bolts per shot, each at a different enemy if there are enough in range
+			pierce = 1, -- enemies a bolt flies through; it stops at the next one
+			projectileSpeed = 60, -- studs/s (assumption)
+			projectileRadius = 0.5, -- studs, hit size of a bolt (assumption)
+			range = 40, -- studs; enemies further away are not targeted, bolts vanish after this (assumption)
+			spreadDegrees = 12, -- extra bolts without an own target fan out around the nearest by this (assumption)
 		},
 		levels = {
 			{},
@@ -82,8 +89,9 @@ local Weapons: { [string]: Weapon } = {
 		targeting = "Self",
 		base = {
 			damage = 20,
-			cooldown = 3.0,
+			cooldown = 3.0, -- waits for an enemy in the radius once ready
 			radius = 10,
+			knockback = 3, -- studs enemies are pushed away, divided by their mass above 1 (assumption)
 		},
 		levels = {
 			{},

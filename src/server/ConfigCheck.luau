@@ -14,12 +14,33 @@ function ConfigCheck.run(): { string }
 		table.insert(problems, message)
 	end
 
+	-- Weapon behaviors: one module per behavior name in Services/WeaponService/Behaviors.
+	local services = script.Parent:FindFirstChild("Services")
+	local weaponService = services and services:FindFirstChild("WeaponService")
+	local behaviorFolder = weaponService and weaponService:FindFirstChild("Behaviors")
+	local function hasBehavior(name: string): boolean
+		return behaviorFolder ~= nil and behaviorFolder:FindFirstChild(name) ~= nil
+	end
+
 	for id, weapon in Config.Weapons do
 		if weapon.id ~= id then
 			problem(`Weapon key {id} does not match id {weapon.id}`)
 		end
 		if #weapon.levels ~= Config.Player.maxItemLevel then
 			problem(`Weapon {id} has {#weapon.levels} levels, expected {Config.Player.maxItemLevel}`)
+		end
+		if not (weapon.base.damage and weapon.base.damage > 0) then
+			problem(`Weapon {id} needs a base damage above 0`)
+		end
+		if weapon.base.cooldown and weapon.base.cooldown <= 0 then
+			problem(`Weapon {id} needs a cooldown above 0`)
+		end
+		for level, delta in weapon.levels do
+			for key in delta :: { [string]: number } do
+				if key ~= "damage" and weapon.base[key] == nil then
+					problem(`Weapon {id} level {level} changes {key}, which its base stats do not have`)
+				end
+			end
 		end
 	end
 
@@ -36,11 +57,18 @@ function ConfigCheck.run(): { string }
 		if not Config.Passives[evolution.passive] then
 			problem(`Evolution {id} needs unknown passive {evolution.passive}`)
 		end
+		local weapon = Config.Weapons[evolution.weapon]
+		if weapon and hasBehavior(weapon.behavior) and not hasBehavior(evolution.behavior) then
+			problem(`Evolution {id} has no behavior module {evolution.behavior}`)
+		end
 	end
 
 	for id, class in Config.Classes do
-		if class.available and not Config.Weapons[class.startWeapon] then
+		local weapon = Config.Weapons[class.startWeapon]
+		if class.available and not weapon then
 			problem(`Class {id} starts with unknown weapon {class.startWeapon}`)
+		elseif class.available and weapon and not hasBehavior(weapon.behavior) then
+			problem(`Class {id} starts with {class.startWeapon}, which has no behavior module {weapon.behavior}`)
 		end
 	end
 

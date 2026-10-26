@@ -1,6 +1,6 @@
 --!strict
 -- Enemy engine settings and performance budgets (DESIGN.md section 15). Read by EnemySim, SpawnDirector,
--- EnemyRenderer and the debug stats panel. Values marked "assumption" get tuned in playtests (WP7, WP9).
+-- WeaponService, EnemyRenderer and the debug stats panel. Values marked "assumption" get tuned in playtests (WP7, WP9).
 
 return table.freeze({
 	tickRate = 15, -- server simulation steps per second
@@ -20,6 +20,9 @@ return table.freeze({
 	separationPasses = 3, -- more passes = fewer overlaps in dense crowds, but more server time per step
 	obstacleSteerMargin = 2, -- studs; enemies start sliding around an obstacle this far from it (assumption)
 	keepDistanceTolerance = 2, -- studs; ranged enemies stand still within +- this of their keepDistance
+	-- Weapons step right after the enemies (WeaponService). A spinning blade is checked in pieces so its tip
+	-- moves at most this far per check; smaller is more exact but costs more server time.
+	weaponSweepStep = 1.5, -- studs
 
 	-- Shown in the admin stats panel; red when a value breaks its budget.
 	budget = table.freeze({
