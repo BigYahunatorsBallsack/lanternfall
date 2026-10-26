@@ -1,7 +1,7 @@
 --!strict
--- In-run HUD for the prototype: run timer, phase hint, the local HP bar with a red flash on hits and
--- the team with HP and Alive/Down states. Shown while the local player is in a running run; reads
--- RunStateController and PlayerStateController. WP14 builds the full HUD.
+-- In-run HUD for the prototype: run timer, phase hint, the local HP bar with a red flash on hits, the team with
+-- HP and Alive/Down states and your weapons with their levels. Shown while the local player is in a running run;
+-- reads RunStateController, PlayerStateController and LoadoutController. WP14 builds the full HUD.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -13,6 +13,7 @@ local Config = require(Shared:WaitForChild("Config"))
 local Format = require(Shared:WaitForChild("Util"):WaitForChild("Format"))
 local Types = require(Shared:WaitForChild("Net"):WaitForChild("Types"))
 
+local LoadoutController = require(script.Parent.LoadoutController)
 local PlayerStateController = require(script.Parent.PlayerStateController)
 local RunStateController = require(script.Parent.RunStateController)
 local Theme = require(script.Parent.Parent.UI.Theme)
@@ -33,6 +34,8 @@ local teamRows: Frame
 local hpFill: Frame
 local hpLabel: TextLabel
 local hitFlash: Frame
+local weaponsTitle: TextLabel
+local weaponRows: Frame
 
 local function hintText(state: Types.RunState): (string, Color3)
 	if state.phase == "Boss" then
@@ -72,6 +75,35 @@ local function renderHp()
 	hpLabel.Text = `{vitals.hp} / {vitals.maxHp}`
 end
 
+local function weaponName(weapon: Types.WeaponInfo): string
+	local evolution = weapon.evolution and Config.Evolutions[weapon.evolution]
+	if evolution then
+		return evolution.displayName
+	end
+	local config = Config.Weapons[weapon.id]
+	return if config then config.displayName else weapon.id
+end
+
+local function renderWeapons()
+	Widgets.clearRows(weaponRows)
+	local loadout = LoadoutController.getLocal()
+	local paused = loadout ~= nil and loadout.paused
+	weaponsTitle.Text = if paused then "WEAPONS (OFF)" else "WEAPONS"
+	weaponsTitle.TextColor3 = if paused then Theme.danger else Theme.textDim
+	if not loadout then
+		return
+	end
+	for index, weapon in loadout.weapons do
+		local level = if weapon.level >= Config.Player.maxItemLevel then "MAX" else `LV {weapon.level}`
+		Widgets.label({
+			Text = `{weaponName(weapon)} · {level}`,
+			TextXAlignment = Enum.TextXAlignment.Left,
+			LayoutOrder = index,
+			Parent = weaponRows,
+		})
+	end
+end
+
 local function flashHit()
 	hitFlash.BackgroundTransparency = HIT_FLASH_TRANSPARENCY
 	TweenService:Create(hitFlash, TweenInfo.new(HIT_FLASH_SECONDS), { BackgroundTransparency = 1 }):Play()
@@ -104,6 +136,7 @@ local function render()
 	hintLabel.TextColor3 = color
 	renderTeam(state)
 	renderHp()
+	renderWeapons()
 end
 
 local function build()
@@ -154,6 +187,33 @@ local function build()
 	})
 	Widgets.list(4).Parent = teamRows
 
+	local weapons = Widgets.panel({
+		Name = "Weapons",
+		AnchorPoint = Vector2.new(0, 0),
+		Position = UDim2.new(0, 12, 0, 8),
+		Size = UDim2.fromOffset(240, 0),
+		Parent = screen,
+	})
+	Widgets.list(4).Parent = weapons
+	weaponsTitle = Widgets.label({
+		Name = "WeaponsTitle",
+		Text = "WEAPONS",
+		Font = Theme.fontBold,
+		TextColor3 = Theme.textDim,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		LayoutOrder = 0,
+		Parent = weapons,
+	})
+	weaponRows = Widgets.create("Frame", {
+		Name = "WeaponRows",
+		BackgroundTransparency = 1,
+		AutomaticSize = Enum.AutomaticSize.Y,
+		Size = UDim2.new(1, 0, 0, 0),
+		LayoutOrder = 1,
+		Parent = weapons,
+	})
+	Widgets.list(4).Parent = weaponRows
+
 	local hp = Widgets.panel({
 		Name = "Health",
 		AnchorPoint = Vector2.new(0.5, 1),
@@ -199,6 +259,11 @@ function HUDController.start()
 	build()
 	RunStateController.Changed:Connect(render)
 	PlayerStateController.Changed:Connect(onVitalsChanged)
+	LoadoutController.Changed:Connect(function(userId: number)
+		if screen.Enabled and userId == Players.LocalPlayer.UserId then
+			renderWeapons()
+		end
+	end)
 	render()
 
 	RunService.Heartbeat:Connect(function()
