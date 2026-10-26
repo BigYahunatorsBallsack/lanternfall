@@ -72,7 +72,7 @@ export type Loadout = {
 export type WeaponEffect = {
 	weapon: string, -- behavior name; picks the visual in WeaponRenderer/Visuals
 	userId: number, -- owner
-	kind: string, -- e.g. "Fire", "End", "Pulse"
+	kind: string, -- e.g. "Fire", "End", "Pulse", "Chain", "Drop", "Blast"
 	at: number, -- server time of the simulation step
 	id: number?, -- projectile id, unique within the run
 	x: number?, -- world position on the floor
@@ -83,6 +83,8 @@ export type WeaponEffect = {
 	range: number?, -- studs
 	radius: number?, -- studs
 	distance: number?, -- studs a projectile flew before it ended
+	duration: number?, -- seconds something stays on the floor
+	points: { number }?, -- floor positions as x1, z1, x2, z2, ... (e.g. the enemies a chain jumped over)
 }
 
 -- Team level and XP towards the next level (ExperienceService -> ProgressController), to everyone on change.

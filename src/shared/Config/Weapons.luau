@@ -11,8 +11,8 @@
 --   jumps     = extra chain jumps
 -- Owner bonuses (class, later passives and talents) scale damage, cooldown and radius on top (WeaponStats).
 -- `behavior` names the behavior module in WeaponService/Behaviors and the visual in WeaponRenderer/Visuals.
--- A weapon without a behavior module exists only as data and cannot be given to players yet (WP8).
--- Values marked "assumption" are not specified in DESIGN.md; tuned by feel in WP5, balanced in WP7.
+-- A weapon without a behavior module exists only as data and cannot be given to players.
+-- Values marked "assumption" are not specified in DESIGN.md; tuned by feel in WP5 and WP8, balanced in WP7.
 
 export type LevelDelta = {
 	damage: number?,
@@ -112,9 +112,10 @@ local Weapons: { [string]: Weapon } = {
 		targeting = "Chain",
 		base = {
 			damage = 18,
-			cooldown = 2.0,
-			jumps = 3,
-			jumpRange = 12, -- studs, assumption
+			cooldown = 2.0, -- waits for an enemy in range once ready
+			jumps = 3, -- enemies the lightning hits in total, the first one included
+			range = 25, -- studs; the first enemy must be this close (assumption)
+			jumpRange = 12, -- studs from one hit enemy to the next (assumption)
 		},
 		levels = {
 			{},
@@ -131,9 +132,12 @@ local Weapons: { [string]: Weapon } = {
 		behavior = "ThornTrail",
 		targeting = "Trail",
 		base = {
-			damage = 8,
-			tickInterval = 0.5,
-			duration = 2,
+			damage = 8, -- per tick to every enemy on the trail
+			tickInterval = 0.5, -- seconds; an enemy standing on several patches is still hit once per tick
+			duration = 2, -- seconds a patch lies
+			radius = 2.5, -- studs, size of one thorn patch (assumption)
+			dropSpacing = 2, -- studs you move before the next patch is dropped (assumption)
+			maxPatches = 40, -- the oldest patch goes first beyond this (assumption, ~4 s of running at L5)
 		},
 		levels = {
 			{},
@@ -152,11 +156,15 @@ local Weapons: { [string]: Weapon } = {
 		targeting = "Nearest",
 		base = {
 			damage = 25,
-			cooldown = 1.6,
-			count = 1,
-			pierce = -1, -- -1 = unlimited
-			range = 20, -- studs, assumption
-			projectileSpeed = 40, -- studs/s, assumption
+			cooldown = 1.6, -- starts with the throw; waits for an enemy in range once ready
+			count = 1, -- axes per throw, each at a different enemy if there are enough in range
+			pierce = -1, -- -1 = unlimited; an axe hits each enemy once on the way out and once on the way back
+			range = 20, -- studs it flies out before turning; enemies further away are not targeted (assumption)
+			projectileSpeed = 40, -- studs/s, out and back (assumption)
+			projectileRadius = 1.2, -- studs, hit size of an axe (assumption)
+			catchRadius = 2, -- studs; the axe is gone once it is this close to you again (assumption)
+			maxFlightSeconds = 3, -- an axe that cannot catch up with you vanishes after this (assumption)
+			spreadDegrees = 20, -- extra axes without an own target fan out around the nearest by this (assumption)
 		},
 		levels = {
 			{},
