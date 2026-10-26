@@ -2,91 +2,129 @@
 -- Binary enemy snapshot format. Encoded by EnemySim on the server, decoded by EnemyRenderer on the client.
 --
 -- Packet layout (little endian):
---   header  u32 tick, u16 count                         6 bytes
---   enemy   u16 id, i16 x, i16 z, u8 typeId, u8 hp      8 bytes each
+--   header  u32 tick, u8 part, u8 partCount, u16 count       8 bytes
+--   enemy   u16 id, i16 x, i16 z, u8 typeId, u8 hp            8 bytes each
 -- x/z are world positions multiplied by POSITION_SCALE (1/32 stud precision, range +-1024 studs).
--- hp is the remaining HP fraction mapped to 0-255.
--- UnreliableRemoteEvent payloads must stay below ~900 bytes, so one tick is split into packets of
--- at most MAX_PER_PACKET enemies that share the same tick.
+-- hp is the remaining HP fraction mapped to 1-255 for living enemies.
+-- UnreliableRemoteEvent payloads must stay below ~900 bytes, so one tick is split evenly into `partCount`
+-- packets of at most MAX_PER_PACKET enemies (`part` counts from 0). The client uses a tick only once all
+-- of its parts have arrived, so a lost packet skips that tick instead of making enemies vanish.
+-- Enemies travel as column arrays (Columns), so neither side creates a table per enemy and tick.
 
 local Snapshot = {}
 
-local HEADER_SIZE = 6
+local HEADER_SIZE = 8
 local ENEMY_SIZE = 8
 local POSITION_SCALE = 32
 local INT16_MIN, INT16_MAX = -32768, 32767
+local MAX_PER_PACKET = 90
 
-Snapshot.MAX_PER_PACKET = 100
+Snapshot.HEADER_SIZE = HEADER_SIZE
+Snapshot.ENEMY_SIZE = ENEMY_SIZE
+Snapshot.MAX_PER_PACKET = MAX_PER_PACKET
+Snapshot.MAX_PACKET_BYTES = HEADER_SIZE + MAX_PER_PACKET * ENEMY_SIZE
+Snapshot.MAX_PARTS = 255
+Snapshot.MAX_ID = 65535
 Snapshot.POSITION_SCALE = POSITION_SCALE
 Snapshot.MAX_COORDINATE = INT16_MAX / POSITION_SCALE -- largest |x| or |z| that survives encoding
 
-export type EnemyState = {
-	id: number, -- 0-65535
-	x: number,
-	z: number,
-	typeId: number, -- 0-255, see Config.Enemies
-	hpFraction: number, -- 0-1
+-- One entry per enemy at the same index in every array.
+export type Columns = {
+	ids: { number }, -- 0-65535
+	xs: { number },
+	zs: { number },
+	typeIds: { number }, -- 0-255, see Config.Enemies
+	hpFractions: { number }, -- 0-1
 }
+
+function Snapshot.newColumns(): Columns
+	return { ids = {}, xs = {}, zs = {}, typeIds = {}, hpFractions = {} }
+end
 
 local function packPosition(value: number): number
 	return math.clamp(math.round(value * POSITION_SCALE), INT16_MIN, INT16_MAX)
 end
 
--- Encodes enemies[first .. first + count - 1] into one packet.
-function Snapshot.encodePacket(tick: number, enemies: { EnemyState }, first: number, count: number): buffer
+local function packHp(fraction: number): number
+	if fraction <= 0 then
+		return 0
+	end
+	return math.clamp(math.ceil(fraction * 255), 1, 255) -- a living enemy never reads as 0
+end
+
+local function encodePart(
+	tick: number,
+	part: number,
+	partCount: number,
+	columns: Columns,
+	first: number,
+	count: number
+): buffer
 	local b = buffer.create(HEADER_SIZE + count * ENEMY_SIZE)
 	buffer.writeu32(b, 0, tick)
-	buffer.writeu16(b, 4, count)
+	buffer.writeu8(b, 4, part)
+	buffer.writeu8(b, 5, partCount)
+	buffer.writeu16(b, 6, count)
+	local ids, xs, zs, typeIds, hps = columns.ids, columns.xs, columns.zs, columns.typeIds, columns.hpFractions
 	local offset = HEADER_SIZE
 	for i = first, first + count - 1 do
-		local e = enemies[i]
-		buffer.writeu16(b, offset, e.id)
-		buffer.writei16(b, offset + 2, packPosition(e.x))
-		buffer.writei16(b, offset + 4, packPosition(e.z))
-		buffer.writeu8(b, offset + 6, e.typeId)
-		buffer.writeu8(b, offset + 7, math.clamp(math.round(e.hpFraction * 255), 0, 255))
+		buffer.writeu16(b, offset, ids[i])
+		buffer.writei16(b, offset + 2, packPosition(xs[i]))
+		buffer.writei16(b, offset + 4, packPosition(zs[i]))
+		buffer.writeu8(b, offset + 6, typeIds[i])
+		buffer.writeu8(b, offset + 7, packHp(hps[i]))
 		offset += ENEMY_SIZE
 	end
 	return b
 end
 
--- Encodes all enemies of one tick into as many packets as needed (at least one, so clients see empty ticks).
-function Snapshot.encode(tick: number, enemies: { EnemyState }): { buffer }
-	local packets = {}
-	local total = #enemies
+-- Encodes columns[1 .. count] of one tick into as few packets as possible, split evenly.
+-- Always returns at least one packet, so clients also see ticks without enemies.
+function Snapshot.encode(tick: number, columns: Columns, count: number): { buffer }
+	local partCount = math.max(1, math.ceil(count / MAX_PER_PACKET))
+	assert(partCount <= Snapshot.MAX_PARTS, "too many enemies for one snapshot")
+	local packets = table.create(partCount)
 	local first = 1
-	repeat
-		local count = math.min(Snapshot.MAX_PER_PACKET, total - first + 1)
-		table.insert(packets, Snapshot.encodePacket(tick, enemies, first, count))
-		first += count
-	until first > total
+	for part = 0, partCount - 1 do
+		-- the remaining enemies shared by the remaining parts, rounded up
+		local size = math.ceil((count - first + 1) / (partCount - part))
+		packets[part + 1] = encodePart(tick, part, partCount, columns, first, size)
+		first += size
+	end
 	return packets
 end
 
--- Decodes one packet. Returns nil for malformed data.
-function Snapshot.decode(b: buffer): (number?, { EnemyState }?)
+-- Reads and checks the header. Returns nothing for malformed packets.
+function Snapshot.readHeader(b: buffer): (number?, number, number, number)
 	local length = buffer.len(b)
 	if length < HEADER_SIZE then
-		return nil, nil
+		return nil, 0, 0, 0
 	end
 	local tick = buffer.readu32(b, 0)
-	local count = buffer.readu16(b, 4)
-	if length ~= HEADER_SIZE + count * ENEMY_SIZE then
-		return nil, nil
+	local part = buffer.readu8(b, 4)
+	local partCount = buffer.readu8(b, 5)
+	local count = buffer.readu16(b, 6)
+	if partCount == 0 or part >= partCount or length ~= HEADER_SIZE + count * ENEMY_SIZE then
+		return nil, 0, 0, 0
 	end
-	local enemies = table.create(count)
+	return tick, part, partCount, count
+end
+
+-- Appends the enemies of a packet with a valid header (see readHeader) to `columns`, starting at index
+-- `start`. Returns how many were added.
+function Snapshot.decodeInto(b: buffer, columns: Columns, start: number): number
+	local count = buffer.readu16(b, 6)
+	local ids, xs, zs, typeIds, hps = columns.ids, columns.xs, columns.zs, columns.typeIds, columns.hpFractions
 	local offset = HEADER_SIZE
-	for i = 1, count do
-		enemies[i] = {
-			id = buffer.readu16(b, offset),
-			x = buffer.readi16(b, offset + 2) / POSITION_SCALE,
-			z = buffer.readi16(b, offset + 4) / POSITION_SCALE,
-			typeId = buffer.readu8(b, offset + 6),
-			hpFraction = buffer.readu8(b, offset + 7) / 255,
-		}
+	for i = start, start + count - 1 do
+		ids[i] = buffer.readu16(b, offset)
+		xs[i] = buffer.readi16(b, offset + 2) / POSITION_SCALE
+		zs[i] = buffer.readi16(b, offset + 4) / POSITION_SCALE
+		typeIds[i] = buffer.readu8(b, offset + 6)
+		hps[i] = buffer.readu8(b, offset + 7) / 255
 		offset += ENEMY_SIZE
 	end
-	return tick, enemies
+	return count
 end
 
 return Snapshot

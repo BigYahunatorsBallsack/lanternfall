@@ -10,7 +10,8 @@ export type Enemy = {
 	speed: number, -- studs/s
 	contactDamage: number,
 	xp: number,
-	radius: number, -- collision circle, studs (assumption, tuned in WP3)
+	radius: number, -- collision circle, studs (assumption)
+	mass: number, -- crowd weight: heavier enemies push lighter ones aside (assumption)
 	ranged: { keepDistance: number, fireInterval: number, projectileDamage: number }?,
 }
 
@@ -24,6 +25,7 @@ local Enemies: { [string]: Enemy } = {
 		contactDamage = 5,
 		xp = 1,
 		radius = 1.5,
+		mass = 1,
 	},
 	Brute = {
 		id = "Brute",
@@ -34,6 +36,7 @@ local Enemies: { [string]: Enemy } = {
 		contactDamage = 12,
 		xp = 4,
 		radius = 2.5,
+		mass = 6,
 	},
 	Spitter = {
 		id = "Spitter",
@@ -44,9 +47,10 @@ local Enemies: { [string]: Enemy } = {
 		contactDamage = 0,
 		xp = 2,
 		radius = 1.5,
+		mass = 1,
 		ranged = {
-			keepDistance = 30,
-			fireInterval = 2.5,
+			keepDistance = 30, -- studs; EnemySim keeps it there
+			fireInterval = 2.5, -- shooting follows in WP9
 			projectileDamage = 8,
 		},
 	},
