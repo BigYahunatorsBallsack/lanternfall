@@ -17,7 +17,9 @@ local RunStatsService = require(ServerScriptService.Server.Services.RunStatsServ
 local LootService = require(ServerScriptService.Server.Services.LootService)
 local SpawnDirector = require(ServerScriptService.Server.Services.SpawnDirector)
 local ShopService = require(ServerScriptService.Server.Services.ShopService)
-local UpgradePool = require(ServerScriptService.Server.Services.UpgradeService.UpgradePool)
+local ShopRules = require(ServerScriptService.Server.Services.ShopService.ShopRules)
+local StatService = require(ServerScriptService.Server.Services.StatService)
+local StatMath = require(game:GetService("ReplicatedStorage").Shared.Util.StatMath)
 local Config = require(game:GetService("ReplicatedStorage").Shared.Config)
 local Format = require(game:GetService("ReplicatedStorage").Shared.Util.Format)
 local RunSchedule = require(game:GetService("ReplicatedStorage").Shared.Util.RunSchedule)
@@ -84,9 +86,9 @@ local function weaponRows()
 	return table.concat(lines, " | ")
 end
 
-local function passiveRows()
+local function itemRows()
 	local lines = {}
-	for _, row in world.gui("HUD", "PassiveRows"):GetChildren() do
+	for _, row in world.gui("HUD", "ItemRows"):GetChildren() do
 		if row.ClassName == "TextLabel" then
 			table.insert(lines, row.Text)
 		end
@@ -180,7 +182,7 @@ describe("smoke", function()
 		expect(weaponRows()).toBe("Spark Bolt · LV 1")
 		expect(world.gui("HUD", "WeaponsTitle").Text).toBe("WEAPONS")
 		local weapon = WeaponService.getWeapons(me)[1]
-		expect(weapon.stats.cooldown).toBeNear(Config.Weapons.SparkBolt.base.cooldown * 0.9) -- Spark Mage bonus
+		expect(weapon.stats.cooldown).toBeNear(Config.Weapons.SparkBolt.base.cooldown / 1.1) -- Spark Mage: +10 % Attack Speed
 		ExperienceService.setPaused(true) -- no level-up cards in the way until the level-up tests below
 		world.click(world.gui("Debug", "ToggleWeapons"))
 		world.advance(0.2)
@@ -348,9 +350,15 @@ describe("smoke", function()
 		expect(weaponRows()).toBe(
 			"Spark Bolt · LV 2 | Boomerang Axe · LV 2 | Chain Lightning · LV 2 | Orbit Blades · LV 2"
 		)
+		world.click(world.gui("Debug", "AddWeapon")) -- Shockwave
+		world.advance(0.2)
+		world.click(world.gui("Debug", "AddWeapon")) -- Thorn Trail: six weapons like Brotato
+		world.advance(0.2)
+		expect(#WeaponService.getWeapons(me)).toBe(Config.Player.maxWeapons)
 		world.click(world.gui("Debug", "AddWeapon"))
 		world.advance(0.2)
 		expect(string.find(toastTexts(), "All weapon slots are full", 1, true) ~= nil).toBe(true)
+		world.advance(1)
 
 		world.click(world.gui("Debug", "NextWeapon"))
 		world.advance(0.2)
@@ -382,10 +390,11 @@ describe("smoke", function()
 		)
 		expect(string.find(toastTexts(), "Starfire, Blade Storm", 1, true) ~= nil).toBe(true)
 		expect(weaponParts("OrbitBlade")).toBe(Config.Evolutions.BladeStorm.stats.count)
-		local passives = passiveRows()
-		expect(string.find(passives, "Focus", 1, true) ~= nil and string.find(passives, "Armor", 1, true) ~= nil).toBe(
+		local items = itemRows()
+		expect(string.find(items, "Focus", 1, true) ~= nil and string.find(items, "Armor Plate", 1, true) ~= nil).toBe(
 			true
 		)
+		expect(world.gui("HUD", "ItemsTitle").Text).toBe("ITEMS (2)")
 		world.click(world.gui("Debug", "SpawnWave"))
 		expect(most("Starfire", 3) > 0).toBe(true)
 	end)
@@ -460,46 +469,47 @@ describe("smoke", function()
 		expect(UpgradeService.getOffer(me)).toBe(offer)
 		world.advance(Config.Run.levelUp.inputDelaySeconds)
 		local chosen = offer[1]
+		expect(Config.Stats.byId[chosen.stat].primary).toBe(true) -- level-ups are stat cards (Brotato)
+		expect(card(1):FindFirstChild("Detail").Text).toBe(StatMath.format(chosen.stat, chosen.amount))
+		expect(world.gui("Stats").Enabled).toBe(true) -- the stat panel sits next to the cards
+		local before = StatService.getStat(me, chosen.stat)
 		world.click(card(1))
 		world.advance(0.2)
 		expect(UpgradeService.getOffer(me) ~= offer).toBe(true)
+		expect(StatService.getStat(me, chosen.stat)).toBe(before + chosen.amount)
+		expect(clientController("StatsController").get()[chosen.stat]).toBe(before + chosen.amount)
 		pickAll() -- the leftover orbs of the wave may have brought another level
 		expect(UpgradeService.getOffer(me)).toBe(nil)
 		expect(world.gui("LevelUp").Enabled).toBe(false)
 		expect(CombatService.isChoosing(me)).toBe(false)
-		if chosen.kind == "Weapon" then
-			expect(string.find(weaponRows(), Config.Weapons[chosen.itemId].displayName, 1, true) ~= nil).toBe(true)
-		elseif chosen.kind == "Passive" then
-			local name = Config.Passives[chosen.itemId].displayName
-			expect(string.find(passiveRows(), name, 1, true) ~= nil).toBe(true)
-			expect(world.gui("HUD", "PassivesTitle").Visible).toBe(true)
-		end
 	end)
 
-	it("rerolls once and picks the first card when the time runs out", function()
+	it("rerolls the cards for Shards and picks the first card when the time runs out", function()
+		world.click(world.gui("Debug", "AddShards"))
 		world.click(world.gui("Debug", "GainLevel"))
 		world.advance(Config.Run.levelUp.inputDelaySeconds + 0.1)
 		local first = UpgradeService.getOffer(me)
-		expect(world.gui("LevelUp", "Reroll").Text).toBe("Reroll (1 left)")
+		local price = ShopRules.rerollPrice(RunDirector.getWave(), 0)
+		local shards = ShopService.getShards(me)
+		expect(world.gui("LevelUp", "Reroll").Text).toBe(`Reroll ({price} Shards)`)
 		world.click(world.gui("LevelUp", "Reroll"))
 		world.advance(Config.Run.levelUp.inputDelaySeconds + 0.1)
 		local second = UpgradeService.getOffer(me)
 		expect(second ~= first).toBe(true)
 		for _, newCard in second do
 			for _, oldCard in first do
-				expect(newCard.id ~= oldCard.id).toBe(true)
+				expect(newCard.stat ~= oldCard.stat).toBe(true)
 			end
 		end
-		expect(world.gui("LevelUp", "Reroll").Text).toBe("No rerolls left")
-		world.click(world.gui("LevelUp", "Reroll"))
-		world.advance(0.2)
-		expect(UpgradeService.getOffer(me)).toBe(second)
+		expect(ShopService.getShards(me)).toBe(shards - price)
+		local nextPrice = ShopRules.rerollPrice(RunDirector.getWave(), 1)
+		expect(world.gui("LevelUp", "Reroll").Text).toBe(`Reroll ({nextPrice} Shards)`)
 		world.advance(Config.Run.levelUp.autoPickSeconds)
 		expect(UpgradeService.getOffer(me)).toBe(nil)
 		expect(CombatService.isChoosing(me)).toBe(false)
 	end)
 
-	it("sells weapons and passives for Shards in the shop, rerolls and starts the next wave on READY", function()
+	it("sells weapons and items for Shards in the shop, rerolls and starts the next wave on READY", function()
 		local shop = clientController("ShopController")
 		expect(shop.isShopping()).toBe(true)
 		expect(world.gui("Backdrop", "Hint").Text).toBe("Spend your Shards")
@@ -537,13 +547,8 @@ describe("smoke", function()
 			end
 			expect(found).toBe(true)
 		else
-			local found = false
-			for _, info in UpgradeService.getPassives(me) do
-				if info.id == first.itemId and info.level >= first.level then
-					found = true
-				end
-			end
-			expect(found).toBe(true)
+			expect(StatService.getItemCounts(me)[first.itemId] >= first.level).toBe(true)
+			expect(string.find(itemRows(), Config.Items.byId[first.itemId].displayName, 1, true) ~= nil).toBe(true)
 		end
 		world.click(world.gui("Shop", "Offer1")) -- sold: nothing more happens
 		world.advance(0.2)
@@ -564,37 +569,40 @@ describe("smoke", function()
 		expect(phase()).toBe("Running")
 		expect(RunDirector.getWave()).toBe(wave + 1)
 		expect(world.gui("Backdrop").Enabled).toBe(false)
-		local haste = 0
-		for _, info in UpgradeService.getPassives(me) do
-			if info.id == "Haste" then
-				haste = info.level
-			end
-		end
-		local speed = Config.Player.moveSpeed * (1 + Config.Passives.Haste.perLevel * haste)
-		expect(me.Character.Humanoid.WalkSpeed).toBeNear(speed) -- walking again, with the Haste bought or picked
+		local speed = Config.Player.moveSpeed * StatMath.speedFactor(StatService.getStat(me, "speed"))
+		expect(me.Character.Humanoid.WalkSpeed).toBeNear(speed) -- walking again, with the Speed bought or picked
+		expect(world.gui("Stats").Enabled).toBe(false)
 		expect(world.gui("Shop", "Shop").Visible).toBe(false)
 		expect(world.gui("HUD", "WaveTitle").Text).toBe(`WAVE {wave + 1}`)
 		expect(ShopService.getOffers(me)[1]).toBe(nil)
 	end)
 
-	it("lets passives change HP, speed, weapons and pickup radius", function()
-		local bonuses = UpgradePool.passiveBonuses({ Vitality = 1, Haste = 1, Might = 1 })
-		local damageBefore = WeaponService.getWeapons(me)[1].stats.damage
-		local mightBefore = 0
-		for _, info in UpgradeService.getPassives(me) do
-			if info.id == "Might" then
-				mightBefore = info.level * Config.Passives.Might.perLevel
-			end
+	it("lets items change HP, speed and weapon damage, stacking without limit", function()
+		local weaponBefore = WeaponService.getWeapons(me)[1]
+		local before = StatService.getSheet(me)
+		local _, maxHpBefore = CombatService.getHp(me)
+		for _ = 1, 3 do
+			expect(StatService.addItem(me, "Might")).toBe(true) -- +5 % Damage, -10 Max HP each
 		end
-		CombatService.setBonuses(me, bonuses)
-		WeaponService.setBonuses(me, bonuses)
-		ExperienceService.setBonuses(me, bonuses)
+		expect(StatService.addItem(me, "Vitality")).toBe(true) -- +30 Max HP, -1 % Damage
+		expect(StatService.addItem(me, "EelFin")).toBe(true) -- +10 % Speed, +3 % Life Steal, -8 Luck
+		expect(StatService.addItem(me, "IronShackle")).toBe(true) -- limited to 1
+		expect(select(2, StatService.addItem(me, "IronShackle"))).toBe("Limit")
 		world.advance(0.2)
+		local after = StatService.getSheet(me)
+		expect(after.damage).toBe(before.damage + 15 - 1 + 15)
+		expect(after.maxHp).toBe(before.maxHp - 30 + 30)
+		expect(after.speed).toBe(before.speed + 10 - 3)
 		local _, maxHp = CombatService.getHp(me)
-		expect(maxHp).toBe(math.round(Config.Player.maxHp * (1 + Config.Passives.Vitality.perLevel)))
-		expect(me.Character.Humanoid.WalkSpeed).toBeNear(Config.Player.moveSpeed * (1 + Config.Passives.Haste.perLevel))
-		local damage = WeaponService.getWeapons(me)[1].stats.damage
-		expect(damage / damageBefore).toBeNear((1 + Config.Passives.Might.perLevel) / (1 + mightBefore))
+		expect(maxHp).toBe(maxHpBefore + after.maxHp - before.maxHp)
+		expect(me.Character.Humanoid.WalkSpeed).toBeNear(Config.Player.moveSpeed * StatMath.speedFactor(after.speed))
+		local weapon = WeaponService.getWeapons(me)[1]
+		expect(weapon.id).toBe(weaponBefore.id)
+		expect(weapon.stats.damage / weaponBefore.stats.damage).toBeNear(
+			(1 + after.damage / 100) / (1 + before.damage / 100)
+		)
+		expect(weapon.stats.lifeSteal).toBeNear(after.lifeSteal / 100)
+		expect(string.find(itemRows(), "Might x", 1, true) ~= nil).toBe(true)
 		ExperienceService.setPaused(true) -- no cards in the way for the rest of the smoke test
 		world.click(world.gui("Debug", "ToggleSpawning"))
 		world.advance(0.2)
@@ -646,12 +654,9 @@ describe("smoke", function()
 	end)
 
 	it("opens the chest when walked over and shows the reward", function()
-		local weaponsBefore, passivesBefore = 0, 0
-		for _, weapon in WeaponService.getWeapons(me) do
-			weaponsBefore += weapon.level
-		end
-		for _, passive in UpgradeService.getPassives(me) do
-			passivesBefore += passive.level
+		local itemsBefore = 0
+		for _, count in StatService.getItemCounts(me) do
+			itemsBefore += count
 		end
 		local chest = LootService.getChests()[1]
 		standAt(chest.x + 10, chest.z)
@@ -663,15 +668,19 @@ describe("smoke", function()
 		expect(controller("ChestController").getCount()).toBe(0)
 		local banner = world.gui("Chests", "ChestBanner")
 		expect(banner ~= nil).toBe(true)
-		local weaponsAfter, passivesAfter = 0, 0
-		for _, weapon in WeaponService.getWeapons(me) do
-			weaponsAfter += weapon.level
+		local itemsAfter = 0
+		for _, count in StatService.getItemCounts(me) do
+			itemsAfter += count
 		end
-		for _, passive in UpgradeService.getPassives(me) do
-			passivesAfter += passive.level
+		-- an item of at least Uncommon rarity, unless the chest held an evolution
+		local texts = {}
+		for _, object in banner:GetDescendants() do
+			if object.ClassName == "TextLabel" then
+				table.insert(texts, object.Text)
+			end
 		end
-		-- one more level somewhere (or healing once everything is maxed)
-		expect(weaponsAfter + passivesAfter - weaponsBefore - passivesBefore <= 1).toBe(true)
+		expect(itemsAfter - itemsBefore <= 1).toBe(true)
+		expect(string.find(table.concat(texts, " | "), "CHEST", 1, true) ~= nil).toBe(true)
 	end)
 
 	it("gives the evolution from a chest once the build is ready", function()
@@ -685,7 +694,7 @@ describe("smoke", function()
 		for _ = 1, Config.Player.maxItemLevel do
 			WeaponService.levelUp(me, "SparkBolt")
 		end
-		UpgradeService.addPassive(me, "Focus")
+		StatService.addItem(me, "Focus")
 		expect(table.find(UpgradeService.getEvolutions(me), "Starfire") ~= nil).toBe(true)
 		local root = me.Character.HumanoidRootPart.Position
 		LootService.drop(Vector3.new(root.X + 1, root.Y, root.Z))
@@ -861,8 +870,8 @@ describe("smoke", function()
 		expect(phase()).toBe("Running")
 		expect(RunDirector.getElapsed() < 1).toBe(true)
 		expect(weaponRows()).toBe("Spark Bolt · LV 1") -- every run starts with only the class weapon
-		expect(passiveRows()).toBe("") -- and without passives
-		expect(world.gui("HUD", "PassivesTitle").Visible).toBe(false)
+		expect(itemRows()).toBe("") -- and without items
+		expect(world.gui("HUD", "ItemsTitle").Visible).toBe(false)
 		expect(world.gui("HUD", "XpText").Text).toBe("LV 1")
 		expect(ExperienceService.getOrbCount()).toBe(0)
 		expect(WeaponService.isPaused()).toBe(false)
