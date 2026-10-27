@@ -193,6 +193,8 @@ describe("smoke", function()
 	end)
 
 	it("spawns enemies on a ring around the player and draws them", function()
+		CombatService.protect(me, 8) -- weapons are off; the touch test below needs the player alive
+		world.advance(8) -- the first wave starts calm
 		expect(EnemySim.getCount() >= 5).toBe(true)
 		local root = me.Character.HumanoidRootPart.Position
 		for _, enemyId in { 1, 2, 3 } do
@@ -220,7 +222,8 @@ describe("smoke", function()
 		local hpBefore = CombatService.getHp(me)
 		local connection = EnemySim.Contact:Connect(function(player, damage)
 			expect(player).toBe(me)
-			expect(damage).toBe(Config.Enemies.types.Shadeling.contactDamage)
+			-- grows a little along Run.spawn.damageCurve
+			expect(damage).toBeNear(Config.Enemies.types.Shadeling.contactDamage, 0.1)
 			contacts += 1
 		end)
 		world.advance(5)
@@ -230,7 +233,7 @@ describe("smoke", function()
 		local lost = hpBefore - CombatService.getHp(me)
 		local hitsAllowed = math.ceil(5 / Config.Player.hitInvulnerability) + 1
 		expect(lost > 0).toBe(true)
-		expect(lost <= hitsAllowed * Config.Enemies.types.Shadeling.contactDamage).toBe(true)
+		expect(lost <= hitsAllowed * Config.Enemies.types.Shadeling.contactDamage * 1.1).toBe(true)
 		CombatService.protect(me, 1e6) -- keep the rest of the smoke test alive
 		local root = me.Character.HumanoidRootPart.Position
 		local id, distance = EnemySim.nearest(root)
@@ -293,15 +296,20 @@ describe("smoke", function()
 			end
 		end)
 		world.click(world.gui("Debug", "ToggleWeapons"))
-		local mostBolts = 0
+		local numbers = require(folderProxy("src/client", "Client").Controllers.DamageNumberController)
+		local particlesBefore = world.particlesEmitted or 0
+		local mostBolts, mostNumbers = 0, 0
 		for _ = 1, 30 do
 			world.advance(0.1)
 			mostBolts = math.max(mostBolts, weaponParts("SparkBolt"))
+			mostNumbers = math.max(mostNumbers, numbers.getCount())
 		end
 		connection:Disconnect()
 		expect(WeaponService.isPaused()).toBe(false)
 		expect(kills > 0).toBe(true)
 		expect(mostBolts > 0).toBe(true)
+		expect(mostNumbers > 0).toBe(true) -- damage numbers over the hit enemies
+		expect((world.particlesEmitted or 0) > particlesBefore).toBe(true) -- death bursts
 		expect(WeaponService.getDamageStats(me).SparkBolt.kills).toBe(kills)
 	end)
 
@@ -629,7 +637,9 @@ describe("smoke", function()
 		world.advance(1)
 		expect(SpawnDirector.isSwarmRush()).toBe(true)
 		expect(string.find(toastTexts(), "appeared! Kill it for a chest.", 1, true) ~= nil).toBe(true)
-		expect(string.find(toastTexts(), "Swarm Rush", 1, true) ~= nil).toBe(true)
+		-- the HUD's wave banner announces it
+		expect(world.gui("HUD", "WaveTitle").Text).toBe("WAVE 6")
+		expect(string.find(world.gui("HUD", "WaveEvents").Text, "Swarm Rush", 1, true) ~= nil).toBe(true)
 		expect(EnemySim.getCount() >= Config.Run.spawn.swarmRush.ringCount / 2).toBe(true)
 		SpawnDirector.setPaused(spawningWasPaused)
 		world.click(world.gui("Debug", "KillEnemies"))
@@ -644,6 +654,58 @@ describe("smoke", function()
 			end
 		end
 		expect(#LootService.getChests()).toBe(0)
+	end)
+
+	it("shows a Charger's wind-up, splits Splitters and names elite affixes", function()
+		SpawnDirector.setPaused(true)
+		WeaponService.setPaused(true)
+		world.click(world.gui("Debug", "KillEnemies"))
+		world.advance(0.3)
+		local center = Config.Map.arena.center
+		standAt(center.X, center.Z)
+		local function modelNamed(name)
+			for _, model in drawnModels() do
+				if model.Name == name then
+					return model
+				end
+			end
+			return nil
+		end
+		-- a Charger near the player stops and lights up the path of its rush
+		local charger = EnemySim.spawn("Charger", center.X + 15, center.Z, 1, 1) :: number
+		local waited = 0
+		while EnemySim.getMode(charger) ~= 1 and waited < 4 do
+			world.advance(0.1)
+			waited += 0.1
+		end
+		expect(EnemySim.getMode(charger)).toBe(1)
+		world.advance(0.2) -- the client draws about 0.1 s behind
+		local chargerModel = modelNamed("Charger")
+		expect(chargerModel ~= nil and chargerModel.RushPath.Transparency < 1).toBe(true)
+		-- a killed Splitter falls apart into Splitlings
+		local split = Config.Enemies.types.Splitter.split :: any
+		local splitter = EnemySim.spawn("Splitter", center.X - 20, center.Z, 1, 1) :: number
+		local before = EnemySim.getCount()
+		EnemySim.damage(splitter, 1e6, me)
+		expect(EnemySim.getCount()).toBe(before - 1 + split.count)
+		-- an elite with an affix carries its name above the HP bar
+		EnemySim.spawn("Brute", center.X, center.Z + 25, 1, 1, true, 1)
+		world.advance(0.3)
+		local elite = modelNamed("EliteBrute")
+		local label = elite and elite:FindFirstChild("Affix", true)
+		expect(label ~= nil and label.Visible).toBe(true)
+		expect(label and label.Text).toBe(string.upper(Config.Enemies.elite.affixes[1].displayName))
+		world.click(world.gui("Debug", "KillEnemies"))
+		world.advance(0.3)
+		for _ = 1, 3 do -- picks up the elite's chest
+			local chest = LootService.getChests()[1]
+			if chest then
+				standAt(chest.x, chest.z)
+				world.advance(0.3)
+			end
+		end
+		WeaponService.setPaused(false)
+		SpawnDirector.setPaused(spawningWasPaused)
 	end)
 
 	it("puts a respawned participant back into the arena", function()
