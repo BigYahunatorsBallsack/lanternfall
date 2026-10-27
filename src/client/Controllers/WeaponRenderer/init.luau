@@ -58,6 +58,15 @@ local function rootPosition(userId: number): Vector3?
 	return nil
 end
 
+local function behaviorOf(weapon: Types.WeaponInfo): string?
+	local evolution = weapon.evolution and Config.Evolutions[weapon.evolution]
+	if evolution then
+		return evolution.behavior
+	end
+	local config = Config.Weapons[weapon.id]
+	return config and config.behavior
+end
+
 local frame: VisualKit.Frame = {
 	number = 0,
 	now = 0,
@@ -70,16 +79,19 @@ local frame: VisualKit.Frame = {
 		cframeList[listLength] = cframe
 	end,
 	ownerPosition = rootPosition,
+	evolved = function(userId: number, behavior: string): boolean
+		local loadout = LoadoutController.getAll()[userId]
+		if not loadout then
+			return false
+		end
+		for _, weapon in loadout.weapons do
+			if weapon.evolution and behaviorOf(weapon) == behavior then
+				return true
+			end
+		end
+		return false
+	end,
 }
-
-local function behaviorOf(weapon: Types.WeaponInfo): string?
-	local evolution = weapon.evolution and Config.Evolutions[weapon.evolution]
-	if evolution then
-		return evolution.behavior
-	end
-	local config = Config.Weapons[weapon.id]
-	return config and config.behavior
-end
 
 local function isAlive(userId: number): boolean
 	local info = RunStateController.getPlayer(userId)

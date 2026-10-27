@@ -230,8 +230,8 @@ Bis Paket 9 stiegen Rate und HP gerade an (`(1.5 + 0.55 · t)` und `1 + 0.15 · 
 
 | Was | Umsetzung |
 | --- | --- |
-| Spitter-Schüsse | Ein Spitter schießt alle 2,5 s auf den nächsten Spieler, aber nur, wenn der höchstens 34 Studs entfernt ist (er hält 30). Rosa leuchtende Kugel, 18 Studs/s, fliegt 50 Studs weit, Trefferkreis 0,6 Studs, 8 Schaden (Rüstung und 0,5 s Schutz gelten). Sie zielt 30 % vor: Wer stur geradeaus läuft, wird eher getroffen; Haken schlagen oder Dash hilft. Ruinen halten Schüsse auf (Deckung). Der erste Schuss jedes Spitters kommt versetzt, damit nicht alle gleichzeitig feuern. |
-| Gloom Elite | Ab 2:00 alle 2 Minuten eine Elite, auch über der Gegner-Obergrenze; der Typ kommt aus der aktuellen Mischung. Werte wie in der Tabelle oben (8× HP, 0,9× Tempo, 1,5× Schaden auch bei Schüssen, 1,5× so groß, 25 XP), dazu 2,25× Masse (schiebt normale Gegner beiseite). Aussehen: dunkleres Violett, goldene Augen, violettes Leuchten, rote Lebensleiste über dem Kopf. Alle bekommen die Meldung „A Gloom … appeared! Kill it for a chest." |
+| Spitter-Schüsse | Ein Spitter schießt alle 2,5 s auf den nächsten Spieler, aber nur, wenn der höchstens 34 Studs entfernt ist (er hält 30). Rosa Glutkugel mit Schweif (seit Paket 9d), 18 Studs/s, fliegt 50 Studs weit, Trefferkreis 0,6 Studs, 8 Schaden (Rüstung und 0,5 s Schutz gelten). Sie zielt 30 % vor: Wer stur geradeaus läuft, wird eher getroffen; Haken schlagen oder Dash hilft. Ruinen halten Schüsse auf (Deckung). Der erste Schuss jedes Spitters kommt versetzt, damit nicht alle gleichzeitig feuern. |
+| Gloom Elite | Ab 2:00 alle 2 Minuten eine Elite, auch über der Gegner-Obergrenze; der Typ kommt aus der aktuellen Mischung. Werte wie in der Tabelle oben (8× HP, 0,9× Tempo, 1,5× Schaden auch bei Schüssen, 1,5× so groß, 25 XP), dazu 2,25× Masse (schiebt normale Gegner beiseite). Aussehen: königsviolett und gold mit Sonnenstrahlen-Krone (seit Paket 9d, siehe Abschnitt 14), goldene Augen, Leuchten, rote Lebensleiste über dem Kopf. Alle bekommen die Meldung „A Gloom … appeared! Kill it for a chest." |
 | Swarm Rush | 5:00 und 9:00 für 30 s: doppelte Spawnrate, nur Shadelings. Neu: beim Start zusätzlich ein geschlossener Ring aus 24 Shadelings in 45 Studs um jeden Spieler (bis zur Obergrenze). Meldung „Swarm Rush!". |
 | Gegen Weglaufen | 35 % der Spawns eines laufenden Spielers landen in einem 120°-Kegel vor ihm. Gegner, die weiter als 80 Studs von allen Spielern weg sind, tauchen jede Sekunde neu auf dem Spawn-Ring auf (wie frisch gespawnt). Ist die Obergrenze voll, wandern zusätzlich die 5 entferntesten Gegner über 40 Studs nach vorn, sonst konnte man mit einer vollen Schlange hinter sich im Kreis laufen und es kam nichts Neues. |
 
@@ -407,12 +407,35 @@ Bewusst nicht: harte Countdown-Angebote oder Serien, die bei einem verpassten Ta
 
 ## 14. Art-Direction & Audio
 
-- Low-Poly, flache Materialien, wenige Texturen; Spieler/Laternen warm-gelb, Gegner violett-schwarz.
-- Eigene Silhouette pro Gegnertyp; Gefahrzonen rot mit Streifenmuster.
+- **Stil (seit Paket 9d, Wunsch des Owners: „im Style von Deadlock"): okkultes Art déco.** Gealtertes Messing und Gold, Porzellanmasken, Gasmasken und Kutten, rußschwarze Kreaturen, dazu leuchtende Augen, Linsen und Risse in kräftigen Neonfarben, Sonnenstrahlen- und Zackenformen. Übernommen ist nur die Stimmung: keine Figuren, Namen, Logos oder Designs aus Deadlock.
+- Low-Poly aus einfachen Formen, flache Materialien (SmoothPlastic, Metal für Messing, Neon für alles, was leuchtet), wenige Texturen. Spieler/Laternen warm-gelb, die Gloom (Gegner) dunkel mit leuchtenden Akzenten; jede Gegnerart hat eine eigene Silhouette und eine eigene Augenfarbe, damit man sie in der Traube erkennt.
+- Gefahrzonen rot (z. B. der Sturm-Streifen des Chargers).
 - Avatare R15; Klassen = Kostüme über dem Avatar.
-- Gegner ohne Humanoids: Meshes aus 2–4 Teilen, Bewegung per Code.
+- Gegner ohne Humanoids: im Code aus 5–20 einfachen Teilen gebaut (Block, Kugel, Ei, Zylinder, Keil; keine hochgeladenen Meshes, `EnemyRenderer/Models.luau`), Bewegung per Code über ein einfaches Rig: Der Körper wippt, schwankt und neigt sich beim Laufen, Beine und Arme schwingen mit der gelaufenen Strecke, das Rauchfass pendelt, Kronen und Irrlichter drehen sich. Gesichter sind leicht nach oben gekippt, damit man sie aus der Schräg-Kamera sieht.
+
+| Gegner | Look (seit Paket 9d) |
+| --- | --- |
+| Shadeling | gebückter Kapuzen-Schatten mit schräger Porzellanmaske, violette Schlitzaugen, Messing-Amulett, Klauen |
+| Brute | Gasmasken-Soldat: Messing-Brustpanzer, Schulterplatten, Helm mit Kamm und bernsteinfarbenen Linsen, Filter, Tank auf dem Rücken, schwingende Fäuste |
+| Spitter | Kultist in Robe mit Messingsaum, Maske mit glühendem Mund, Sonnenstrahl-Scheibe hinter dem Kopf, schwingendes Rauchfass; schießt rosa Glut |
+| Charger | vierbeiniger Widder: Knochenschädel mit gedrehten Hörnern, Panzersattel, Ofen mit Schornstein auf dem Rücken. Beim Ausholen duckt und zittert er, Körper rot, Ofen und Augen weißglühend, roter Streifen am Boden zeigt die Sturmbahn |
+| Splitter | gesprungene Urne mit Messingband, türkis leuchtenden Rissen und drei schwebenden Irrlichtern, auf zwei Füßchen |
+| Splitling | kleines türkises Irrlicht mit Flammenspitze und Maskenscherbe, hüpft |
+| Abyss-Varianten | blutschwarz, geschwärzte Bronze, Obsidian-Maske, rote Augen, Hörner und Stacheln |
+| Gloom Elite | königsviolett und gold, goldene Augen, drehende Sonnenstrahlen-Krone, Leuchten, Lebensleiste mit dem Namen der Eigenschaft. Swift: cyan Schweif; Armored: Stahl statt Messing; Summoning: zwei grüne Irrlichter kreisen |
+
+- **Waffen und Fähigkeiten (seit Paket 9d):** Alles, was leuchtet, hat einen weißen Kern in einem farbigen, durchscheinenden Schein; was fliegt, zieht einen Schweif. Feste Teile sind Messing.
+  - Spark Bolt: weißblauer Bolzen mit Schein und Schweif, Funken beim Treffer. Starfire: golden, Explosion als weißer Blitz, Feuerring und Glut.
+  - Orbit Blades: Messingklingen mit leuchtender Schneide vorn in Drehrichtung, jede zieht einen Lichtbogen. Blade Storm: dunkles Eisen, rote Schneide.
+  - Shockwave: weißer Blitz an der Figur, ein Ring aus 12 leuchtenden Art-déco-Segmenten läuft über eine goldene Scheibe nach außen, Staub vom Boden.
+  - Chain Lightning: weißer Kern, darum violette Bögen, die 25-mal pro Sekunde neu zucken, Funken an jedem Getroffenen.
+  - Thorn Trail: dunkle Dornenranke am Boden, aus der drei giftgrüne Dornen schießen und am Ende wieder versinken.
+  - Boomerang Axe: dunkler Griff, zwei Messingköpfe mit glühenden Schneiden, zieht beim Drehen einen Feuerring.
+  - Dash: goldener Lichtstreifen hinter der Figur, Funken und eine Rauchwolke am Start (bei allen Spielern sichtbar).
+  - Spitter-Schüsse: heller Kern in rosa Schein mit Schweif, Funken beim Einschlag.
+  - Tod: Funken und aufsteigende Seelen-Irrlichter in der Augenfarbe, Elites zusätzlich Glut.
 - Assets: Roblox-KI-Generierung und Creator Store, nur mit erlaubter Nutzung; keine fremden Marken/Figuren/Memes.
-- VFX sparsam und gepoolt; Audio aus der Roblox-Bibliothek, eigener Boss-Track.
+- VFX sparsam und gepoolt (`src/client/Vfx/Bursts.luau`: Funken, Glut, Seelen, Rauch, Staub; ein Emitter pro Stil und Farbe, Partikel per `Emit`); Audio aus der Roblox-Bibliothek, eigener Boss-Track.
 - **Map 1 „The Ruined City":** 300 × 300 Studs, flacher Boden, wenige große Ruinen, Nebelwand als Rand.
 
 ## 15. Technische Architektur
@@ -478,7 +501,7 @@ tests/               Unit-Tests für reine Module (Runner in tools/luau-test-run
 - Snapshots gebündelt per UnreliableRemoteEvent: 9 Byte pro Gegner (ID, Position, Typ, HP-Anteil, Flags) in einem `buffer`; bei 140 Gegnern und 15 Hz ≈ 19 KB/s pro Spieler. Gesendet wird nur an die Teilnehmer des Runs. Das Flag-Byte (seit dem Spaß-Paket nach Paket 9) trägt in 2 Bit den Zustand eines Chargers (läuft, holt aus, stürmt, erholt sich) und in 2 Bit die Eigenschaft einer Elite.
 - Ein UnreliableRemoteEvent-Paket darf höchstens ~900 Byte haben: ein Tick wird gleichmäßig auf Pakete mit max. 90 Gegnern verteilt (8 Byte Kopf mit Tick, Teil, Teilanzahl und Gegnerzahl + 9 Byte pro Gegner, also höchstens 818 Byte). Der Client nutzt einen Tick erst, wenn alle Teile da sind; geht ein Paket verloren, fällt nur dieser Tick aus. Format in `src/shared/Net/Snapshot.luau`.
 - Gegner-IDs (1–65535) werden reihum vergeben, eine frei gewordene ID kommt also erst nach Zehntausenden Spawns wieder.
-- Clients (`EnemyRenderer`): Modell-Pool pro Gegnertyp, Interpolation zwischen zwei Ticks (~100 ms hinter dem neuesten; die Uhr gleicht unregelmäßige Ankunft weich aus), Positionen gesammelt per `workspace:BulkMoveTo`, kurzes weißes Aufblitzen bei Treffern (0,1 s). Platzhalter-Modelle aus 2–5 Teilen in der Größe des Kollisionskreises (`EnemyRenderer/Models.luau`), echte Modelle in Paket 21. Verschwindet ein Gegner aus den Snapshots, ist er tot: kurzer leuchtender Partikel-Puff (`EnemyRenderer/DeathBursts.luau`, ein Emitter pro Farbe, wiederverwendet).
+- Clients (`EnemyRenderer`): Modell-Pool pro Gegnertyp, Interpolation zwischen zwei Ticks (~100 ms hinter dem neuesten; die Uhr gleicht unregelmäßige Ankunft weich aus), Positionen gesammelt per `workspace:BulkMoveTo`, kurzes weißes Aufblitzen bei Treffern (0,1 s). Modelle aus 5–20 Teilen in der Größe des Kollisionskreises (`EnemyRenderer/Models.luau`, Look in Abschnitt 14, seit Paket 9d; vorher Platzhalter aus 2–5 Teilen). `Models.pose` rechnet pro Bild jedes sichtbare Teil aus Boden-Punkt, Körper und Gelenk (vorberechnete Drehpunkte) und hängt es an die BulkMoveTo-Liste; unsichtbare Teile (Elite-Eigenschaft nicht aktiv, Sturm-Streifen aus) werden nicht bewegt. Bei 140 Gegnern sind das ≈ 1700 Teile pro Bild. Ab 80 Gegnern (am Handy ab 40, zurück unter 85 % davon) lassen normale Gegner kleine Verzierungen weg (Klauen, Filter, Saum, Bänder, `LocalTransparencyModifier`), das spart gut ein Viertel (≈ 1260 Teile); Elites behalten alles (`Config/Feedback.luau` → `enemyDetail`). Verschwindet ein Gegner aus den Snapshots, ist er tot: Funken und Seelen-Irrlichter in seiner Augenfarbe (`EnemyRenderer/DeathBursts.luau` über `Vfx/Bursts`).
 - **Schadenszahlen** (seit dem Spaß-Paket nach Paket 9): WeaponService sammelt pro Schritt die eigenen Treffer jedes Spielers (pro Gegner zusammengezählt, mit Krit- und Kill-Flag) und schickt sie als `buffer` über das UnreliableRemoteEvent `DamageNumbers` nur an diesen Spieler: 1 Byte Kopf + 7 Byte pro Treffer, höchstens 100 Treffer (701 Byte) pro Schritt; Format in `src/shared/Net/HitNumbers.luau`. Üblich sind 1–5 KB/s, im schlimmsten Fall ≈ 10 KB/s. `DamageNumberController` zeigt höchstens 40 Zahlen gleichzeitig (am Handy 20) als gepoolte BillboardGuis an einem Anker-Teil.
 - Gegner-Teile verankert, ohne Kollision, ohne Schatten.
 
@@ -533,7 +556,8 @@ tests/               Unit-Tests für reine Module (Runner in tools/luau-test-run
 | Server-Simulation | 15 Hz, unter 4 ms pro Schritt |
 | Client-FPS Mittelklasse-Handy | ≥ 30 |
 | Netzwerk pro Client | < 50 KB/s |
-| Partikel-Emitter | so wenige wie möglich, gepoolt (Tod-Puffs: einer pro Farbe, ≈ 10) |
+| Partikel-Emitter | so wenige wie möglich, gepoolt (`Vfx/Bursts`: einer pro Stil und Farbe, ≈ 30) |
+| Teile pro Gegner | höchstens 20, Elite 25 (Test `EnemyModels.spec`); in großen Trauben wenig Details |
 
 ## 16. Datenspeicherung & Sicherheit
 
@@ -626,6 +650,7 @@ Bis zum Soft Launch rund 40–50 Sessions und 50–60 Stunden Zeit des Owners (6
 | 9 | Gegnertypen, Elites, Spawn-Director | Vertical Slice | Medium | 1–2 | 1 h | Schwierigkeit beurteilen |
 | 9b | Spaß-Paket Teil 1: Wellen, Charger, Splitter, Abyss-Gegner, Elite-Eigenschaften, Treffer-Gefühl | Vertical Slice | Extra high | 1 | 1 h | Spielgefühl beurteilen |
 | 9c | Spaß-Paket Teil 2: Level-Sprünge, seltene Karten, Krits, Glück, Pickups, Feinschliff | Vertical Slice | Medium | 1 | 1 h | Spielgefühl beurteilen |
+| 9d | Look-Paket: Gegner im Deadlock-Stil (okkultes Art déco), neue Waffen-, Dash- und Todes-Effekte | Vertical Slice | Extra high | 1 | 30 min | Look beurteilen, am Handy auf Ruckler achten |
 | 10 | Boss mit Vorwarnungen und 2 Phasen | Vertical Slice | High | 2 | 1,5 h | Boss 3× spielen |
 | 11 | Down & Wiederbeleben | Vertical Slice | High | 1 | 1 h | mit 2 Clients testen |
 | 12 | Datenspeicherung: ProfileStore, Schema, Migration | Vertical Slice | Extra high | 1–2 | 1 h | Test-Experience anlegen, Join/Leave testen |
@@ -706,7 +731,7 @@ Marketing: beschreibender Titel, klares Icon (Laterne gegen Horde); 15–30-s-Cl
 ## 24. Offene Entscheidungen
 
 - [ ] Finaler Name: „Lanternfall" behalten oder Alternativen testen?
-- [ ] Look: Low-Poly-Fantasy oder anderer Stil?
+- [x] Look: okkultes Art déco im Stil von Deadlock (Owner, Paket 9d) – umgesetzt für Gegner und Effekte; Karte, Kostüme und Laternen folgen in Paket 21.
 - [ ] Eigentümer: Veröffentlichung unter einer Roblox-Gruppe?
 - [ ] Beitritt in laufende Runs (v1: nein)?
 - [ ] Endlos-Modus nach dem Boss (Vorschlag: erste Live-Ops-Phase)?

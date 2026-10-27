@@ -333,6 +333,7 @@ describe("smoke", function()
 		world.click(world.gui("Debug", "AddWeapon"))
 		world.advance(0.2)
 		expect(weaponParts("OrbitBlade")).toBe(Config.Weapons.OrbitBlades.base.count)
+		expect(weaponParts("OrbitBladeBody")).toBe(Config.Weapons.OrbitBlades.base.count) -- brass under each edge
 		world.click(world.gui("Debug", "LevelUpWeapons"))
 		world.advance(0.2)
 		expect(weaponRows()).toBe(
@@ -346,6 +347,7 @@ describe("smoke", function()
 		world.advance(0.2)
 		expect(weaponRows()).toBe("Thorn Trail · LV 1")
 		expect(weaponParts("ThornPatch") > 0).toBe(true)
+		expect(weaponParts("Thorn") > 0).toBe(true)
 		for _ = 1, 4 do -- Boomerang Axe, Chain Lightning, Orbit Blades, Shockwave
 			world.click(world.gui("Debug", "NextWeapon"))
 		end
@@ -735,6 +737,7 @@ describe("smoke", function()
 		expect(EnemySim.getCount()).toBe(0)
 		expect(#drawnModels()).toBe(0)
 		expect(weaponParts("OrbitBlade") + weaponParts("SparkBolt") + weaponParts("Shockwave")).toBe(0)
+		expect(#workspace.LanternfallWeapons:GetChildren()).toBe(0) -- halos, bodies and rings went with them
 	end)
 
 	it("starts the next run with Play again", function()
@@ -774,8 +777,11 @@ describe("smoke", function()
 		local velocity = me.Character.HumanoidRootPart:FindFirstChild("LanternfallDash")
 		expect(velocity ~= nil).toBe(true)
 		expect(velocity.PlaneVelocity.X).toBeNear(Config.Player.dash.distance / Config.Player.dash.duration, 0.01)
+		local streak = me.Character.HumanoidRootPart:FindFirstChild("LanternfallDashTrail")
+		expect(streak ~= nil and streak.Enabled).toBe(true) -- the streak of light behind the dash
 		world.advance(0.3)
 		expect(me.Character.HumanoidRootPart:FindFirstChild("LanternfallDash")).toBe(nil)
+		expect(streak.Enabled).toBe(false)
 		local vitals = CombatService.getHp(me)
 		expect(vitals).toBe(100)
 		local PlayerStateController = require(folderProxy("src/client", "Client").Controllers.PlayerStateController)

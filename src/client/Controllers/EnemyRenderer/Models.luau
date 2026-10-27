@@ -1,82 +1,201 @@
 --!strict
--- Placeholder enemy looks from 2-5 parts each (DESIGN.md section 14: violet-black bodies, glowing eyes,
--- one silhouette per type). Built in code for EnemyRenderer's pool until real models arrive in WP21.
--- Sizes follow each enemy's collision radius from Config.Enemies, so what you see is what touches you. Enemies with
--- a `look` reuse that silhouette in their own colors (Abyss variants: near-black with red eyes). Chargers carry a
--- floor strip that lights up during their wind-up and shows where they will rush (setMode). Gloom Elites
--- (Util/EnemyKinds, WP9) use the same silhouette, bigger, with golden eyes, a violet glow, an HP bar and the name of
--- their affix (setAffix).
+-- Enemy looks (DESIGN.md section 14, art direction "occult art deco"): the Gloom as masked cultists and soot-black
+-- creatures with aged brass, porcelain masks and glowing eyes, lenses and cracks, one silhouette per type. Built in
+-- code from parts for EnemyRenderer's pool (no uploaded meshes); sizes follow each enemy's collision radius from
+-- Config.Enemies, so what you see is what touches you.
+-- Every part belongs to a simple rig: it stands on the floor, rides on the body (which bobs, sways and leans while
+-- walking) or swings around a pivot (legs, arms, a censer, spinning crowns). Models.pose places all visible parts
+-- of one enemy for a frame; EnemyRenderer moves them with workspace:BulkMoveTo. In big crowds EnemyRenderer turns
+-- on low detail (setDetail): small trims (claws, filters, hems, bands) vanish and are not moved, a third fewer
+-- parts to move.
+-- Enemies with a `look` reuse that silhouette in their own palette (Abyss variants: blood-black with crimson eyes
+-- and extra spikes). Chargers carry a floor strip that lights up during their wind-up and shows where they will
+-- rush; their furnace and eyes turn white-hot (setMode). Gloom Elites (Util/EnemyKinds) are gilded, bigger, wear a
+-- spinning sunburst crown, glow and show an HP bar with the name of their affix (setAffix), which also changes
+-- their look: Swift leaves a trail, Armored turns its metal to steel, Summoning is circled by two wisps.
 
 local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
 local Config = require(Shared:WaitForChild("Config"))
 local EnemyKinds = require(Shared:WaitForChild("Util"):WaitForChild("EnemyKinds"))
 
+-- How a part moves (see Models.pose).
+local GROUND = 1 -- with the floor point: shadows, the rush path
+local BODY = 2 -- with the body
+local LEG_LEFT = 3 -- swings around its pivot on the floor frame, legs in turn
+local LEG_RIGHT = 4
+local ARM_LEFT = 5 -- swings around its pivot on the body, against the legs
+local ARM_RIGHT = 6
+local SWING = 7 -- pendulum around its pivot on the body (the Spitter's censer)
+local SPIN = 8 -- turns around the vertical axis through its pivot on the body (crowns, wisps)
+local FLOAT = 9 -- bobs on its own on the body (the Splitter's wisps)
+
+-- How a silhouette walks. `stride` is studs per full step cycle; amplitudes scale with how fast it moves.
+type Gait = {
+	stride: number,
+	bob: number, -- studs (times radius) up and down per step
+	roll: number, -- radians of side-to-side sway
+	lean: number, -- radians leaning into the walk
+	legSwing: number, -- radians
+	armSwing: number, -- radians
+}
+
 export type Visual = {
 	model: Model,
 	parts: { BasePart },
-	offsets: { CFrame }, -- per part, relative to the enemy's floor point, facing -Z
-	body: BasePart, -- flashes on hits, turns red while a charger winds up and rushes
+	anims: { number }, -- per part, how it moves
+	pivots: { CFrame }, -- per part: the pivot (identity for parts without one)
+	offsets: { CFrame }, -- per part: relative to its pivot (or to the floor point / body), facing -Z
+	hidden: { boolean }, -- per part: invisible right now (an inactive affix, the rush path off), so not posed
+	details: { boolean }, -- per part: a small trim that low detail leaves out
+	lowDetail: boolean,
+	gait: Gait,
+	radius: number,
+	speed: number, -- studs/s at which the walk animation runs at full swing
+	body: BasePart, -- the main part (flashes on hits, turns red while a charger winds up and rushes)
 	bodyColor: Color3,
-	glowColor: Color3, -- its eyes; death bursts use it
+	glowColor: Color3, -- eyes and lenses; death bursts use it
+	flashParts: { BasePart }, -- turn white on hits
+	flashColors: { Color3 },
+	heatParts: { BasePart }, -- chargers: furnace and eyes, white-hot during wind-up and rush
+	heatColors: { Color3 },
+	metalParts: { BasePart }, -- brass and gold, steel while Armored
+	metalColors: { Color3 },
+	affixParts: { [number]: { BasePart } }, -- elites: shown only with that affix
+	trail: Trail?, -- elites: Swift
 	hpBar: Frame?, -- elites only: width = remaining HP fraction
 	affixLabel: TextLabel?, -- elites only
 	glow: PointLight?, -- elites only
 	telegraph: BasePart?, -- chargers only: the rush path on the floor
 	mode: number, -- what setMode last showed
 	affix: number, -- what setAffix last showed
+	flashing: boolean,
 }
 
-type Palette = { body: Color3, head: Color3, eye: Color3, accent: Color3 }
-
-local DEFAULT_PALETTE: Palette = {
-	body = Color3.fromRGB(44, 26, 68),
-	head = Color3.fromRGB(32, 18, 50),
-	eye = Color3.fromRGB(205, 130, 255),
-	accent = Color3.fromRGB(255, 92, 200), -- the Spitter's mouth
+type Palette = {
+	cloth: Color3, -- robes, cloaks, coats, hides
+	clothDark: Color3,
+	soot: Color3, -- limbs, helmets, feet
+	metal: Color3, -- brass trims and plates
+	metalDark: Color3,
+	mask: Color3, -- porcelain masks and bone
+	eye: Color3, -- glowing eyes and lenses
+	accent: Color3, -- the Spitter's censer and mouth, the Charger's furnace
+	spikes: boolean, -- Abyss variants grow horns and spikes
 }
+
+-- Colors -----------------------------------------------------------------------------------------------------------
+
+local BRASS = Color3.fromRGB(176, 136, 72)
+local BRASS_DARK = Color3.fromRGB(118, 88, 50)
+local PORCELAIN = Color3.fromRGB(226, 218, 202)
+local SOOT = Color3.fromRGB(26, 22, 30)
+local SHADOW_COLOR = Color3.fromRGB(0, 0, 0)
+
 local PALETTES: { [string]: Palette } = {
-	AbyssShadeling = {
-		body = Color3.fromRGB(18, 10, 28),
-		head = Color3.fromRGB(12, 6, 20),
-		eye = Color3.fromRGB(255, 70, 90),
-		accent = Color3.fromRGB(255, 70, 90),
+	Shadeling = {
+		cloth = Color3.fromRGB(48, 34, 66),
+		clothDark = Color3.fromRGB(34, 24, 48),
+		soot = SOOT,
+		metal = BRASS,
+		metalDark = BRASS_DARK,
+		mask = PORCELAIN,
+		eye = Color3.fromRGB(200, 125, 255),
+		accent = Color3.fromRGB(200, 125, 255),
+		spikes = false,
 	},
-	AbyssBrute = {
-		body = Color3.fromRGB(22, 12, 30),
-		head = Color3.fromRGB(14, 8, 22),
-		eye = Color3.fromRGB(255, 70, 90),
-		accent = Color3.fromRGB(255, 70, 90),
+	Brute = {
+		cloth = Color3.fromRGB(56, 50, 66), -- dusty trooper coat
+		clothDark = Color3.fromRGB(40, 36, 48),
+		soot = SOOT,
+		metal = BRASS,
+		metalDark = BRASS_DARK,
+		mask = PORCELAIN,
+		eye = Color3.fromRGB(255, 176, 70), -- amber gas-mask lenses
+		accent = Color3.fromRGB(255, 176, 70),
+		spikes = false,
+	},
+	Spitter = {
+		cloth = Color3.fromRGB(70, 30, 62), -- acolyte robe
+		clothDark = Color3.fromRGB(46, 20, 42),
+		soot = SOOT,
+		metal = BRASS,
+		metalDark = BRASS_DARK,
+		mask = PORCELAIN,
+		eye = Color3.fromRGB(255, 92, 200), -- the same pink as its shots
+		accent = Color3.fromRGB(255, 92, 200),
+		spikes = false,
 	},
 	Charger = {
-		body = Color3.fromRGB(70, 28, 44),
-		head = Color3.fromRGB(48, 18, 30),
-		eye = Color3.fromRGB(255, 150, 70),
-		accent = Color3.fromRGB(255, 150, 70),
+		cloth = Color3.fromRGB(62, 28, 32), -- scorched hide
+		clothDark = Color3.fromRGB(42, 20, 24),
+		soot = SOOT,
+		metal = BRASS,
+		metalDark = BRASS_DARK,
+		mask = Color3.fromRGB(214, 202, 180), -- bone
+		eye = Color3.fromRGB(255, 132, 50),
+		accent = Color3.fromRGB(255, 120, 40), -- the furnace on its back
+		spikes = false,
 	},
 	Splitter = {
-		body = Color3.fromRGB(30, 46, 70),
-		head = Color3.fromRGB(22, 32, 52),
-		eye = Color3.fromRGB(110, 230, 255),
-		accent = Color3.fromRGB(110, 230, 255),
+		cloth = Color3.fromRGB(30, 50, 62), -- dark glaze
+		clothDark = Color3.fromRGB(20, 34, 44),
+		soot = SOOT,
+		metal = BRASS,
+		metalDark = BRASS_DARK,
+		mask = PORCELAIN,
+		eye = Color3.fromRGB(90, 236, 228),
+		accent = Color3.fromRGB(90, 236, 228),
+		spikes = false,
 	},
 	Splitling = {
-		body = Color3.fromRGB(36, 56, 84),
-		head = Color3.fromRGB(22, 32, 52),
-		eye = Color3.fromRGB(110, 230, 255),
-		accent = Color3.fromRGB(110, 230, 255),
+		cloth = Color3.fromRGB(32, 72, 82),
+		clothDark = Color3.fromRGB(22, 48, 56),
+		soot = SOOT,
+		metal = BRASS,
+		metalDark = BRASS_DARK,
+		mask = PORCELAIN,
+		eye = Color3.fromRGB(90, 236, 228),
+		accent = Color3.fromRGB(90, 236, 228),
+		spikes = false,
 	},
 }
-local UNKNOWN_COLOR = Color3.fromRGB(255, 0, 255)
-local RUSH_COLOR = Color3.fromRGB(255, 60, 60) -- body while a charger winds up and rushes
-local TELEGRAPH_TRANSPARENCY = 0.55 -- the rush path during the wind-up
-local ELITE_BODY_COLOR = Color3.fromRGB(86, 40, 132)
-local ELITE_EYE_COLOR = Color3.fromRGB(255, 196, 87) -- lantern gold
+-- Abyss variants: blood-black cloth, blackened bronze, obsidian masks, crimson eyes, horns
+local ABYSS: Palette = {
+	cloth = Color3.fromRGB(34, 14, 22),
+	clothDark = Color3.fromRGB(22, 8, 14),
+	soot = Color3.fromRGB(14, 8, 12),
+	metal = Color3.fromRGB(96, 62, 48),
+	metalDark = Color3.fromRGB(64, 40, 32),
+	mask = Color3.fromRGB(44, 34, 40),
+	eye = Color3.fromRGB(255, 56, 76),
+	accent = Color3.fromRGB(255, 56, 76),
+	spikes = true,
+}
+PALETTES.AbyssShadeling = ABYSS
+PALETTES.AbyssBrute = ABYSS
+-- Gloom Elites: royal violet and gold, golden eyes (affixes tint the glow, see AFFIX_COLORS)
+local ELITE_CLOTH = Color3.fromRGB(74, 38, 118)
+local ELITE_CLOTH_DARK = Color3.fromRGB(52, 26, 86)
+local ELITE_GOLD = Color3.fromRGB(236, 188, 88)
+local ELITE_GOLD_DARK = Color3.fromRGB(184, 136, 58)
+local ELITE_EYE_COLOR = Color3.fromRGB(255, 206, 92)
 local ELITE_GLOW_COLOR = Color3.fromRGB(170, 100, 255)
 local AFFIX_COLORS: { [string]: Color3 } = {
 	Swift = Color3.fromRGB(90, 220, 255),
-	Armored = Color3.fromRGB(210, 220, 240),
+	Armored = Color3.fromRGB(214, 224, 240),
 	Summoner = Color3.fromRGB(120, 255, 140),
 }
+local STEEL = Color3.fromRGB(168, 178, 194) -- metal of Armored elites
+
+local UNKNOWN_COLOR = Color3.fromRGB(255, 0, 255)
+local FLASH_COLOR = Color3.fromRGB(255, 255, 255)
+local RUSH_COLOR = Color3.fromRGB(200, 44, 36) -- charger body during wind-up and rush
+local HOT_COLOR = Color3.fromRGB(255, 240, 176) -- charger furnace and eyes during wind-up and rush
+local TELEGRAPH_COLOR = Color3.fromRGB(255, 60, 60)
+local TELEGRAPH_TRANSPARENCY = 0.55 -- the rush path during the wind-up
+
+local SHADOW_TRANSPARENCY = 0.6
+local SHADOW_THICKNESS = 0.05 -- studs
 local ELITE_GLOW_BRIGHTNESS = 3
 local ELITE_GLOW_RANGE = 14 -- studs
 local HP_BAR_COLOR = Color3.fromRGB(236, 96, 96)
@@ -85,26 +204,74 @@ local HP_BAR_WIDTH = 70 -- pixels
 local HP_BAR_HEIGHT_PIXELS = 8
 local AFFIX_TEXT_SIZE = 16
 local HP_BAR_HEIGHT = 1.4 -- studs above the top of the model
+local TRAIL_SECONDS = 0.3
+
+-- Motion -----------------------------------------------------------------------------------------------------------
+
+local WINDUP_CROUCH = 0.12 -- share of the radius a charger sinks while winding up
+local WINDUP_TREMBLE = 0.05 -- share of the radius it shakes sideways
+local WINDUP_TREMBLE_SPEED = 70 -- radians/s
+local WINDUP_REAR = 0.12 -- radians it leans back
+local RUSH_LEAN = 0.3 -- radians it leans into the rush
+local RECOVER_SLUMP = 0.12 -- radians it hangs its head after the rush
+local SWING_SPEED = 2.6 -- radians/s of the censer pendulum
+local SWING_ANGLE = 0.35 -- radians
+local SPIN_SPEED = 1.6 -- radians/s
+local FLOAT_SPEED = 3.2 -- radians/s
+local FLOAT_HEIGHT = 0.08 -- share of the radius
+
+local UPRIGHT = CFrame.Angles(0, 0, math.pi / 2) -- a cylinder's axis is X: stand it up (round side up)
+local FACING = CFrame.Angles(0, math.pi / 2, 0) -- a cylinder's axis is X: turn its round face to the front (-Z)
+local TILTED = CFrame.Angles(0.45, 0, 0) -- faces turned up a little, so they read from the camera above
+local IDENTITY = CFrame.new()
 
 local Models = {}
 
 Models.MODE_WINDUP = 1
 Models.MODE_RUSH = 2
+Models.MODE_RECOVER = 3
 
-local function newPart(
+-- Building ---------------------------------------------------------------------------------------------------------
+
+type Rig = {
 	model: Model,
-	name: string,
-	shape: Enum.PartType,
-	size: Vector3,
-	color: Color3,
-	glow: boolean
-): Part
-	local part = Instance.new("Part")
+	r: number,
+	palette: Palette,
+	parts: { BasePart },
+	anims: { number },
+	pivots: { CFrame },
+	offsets: { CFrame },
+	details: { boolean },
+	flash: { BasePart },
+	heat: { BasePart },
+	metal: { BasePart },
+	top: number, -- highest point of the model (studs above the floor)
+	crown: Vector3?, -- where an elite's crown sits
+}
+
+local function newRig(model: Model, r: number, palette: Palette): Rig
+	return {
+		model = model,
+		r = r,
+		palette = palette,
+		parts = {},
+		anims = {},
+		pivots = {},
+		offsets = {},
+		details = {},
+		flash = {},
+		heat = {},
+		metal = {},
+		top = 0,
+		crown = nil,
+	}
+end
+
+local function setup(part: BasePart, name: string, size: Vector3, color: Color3, material: Enum.Material)
 	part.Name = name
-	part.Shape = shape
 	part.Size = size
 	part.Color = color
-	part.Material = if glow then Enum.Material.Neon else Enum.Material.SmoothPlastic
+	part.Material = material
 	part.TopSurface = Enum.SurfaceType.Smooth
 	part.BottomSurface = Enum.SurfaceType.Smooth
 	part.Anchored = true
@@ -112,137 +279,705 @@ local function newPart(
 	part.CanQuery = false
 	part.CanTouch = false
 	part.CastShadow = false
-	part.Parent = model
+end
+
+-- Shapes: "block", "ball", "egg" (an ellipsoid of the part's size), "cylinder" (axis X), "wedge" (sloping down
+-- towards -Z).
+local function newPiece(
+	rig: Rig,
+	name: string,
+	shape: string,
+	size: Vector3,
+	color: Color3,
+	material: Enum.Material
+): BasePart
+	local part: BasePart
+	if shape == "wedge" then
+		part = Instance.new("WedgePart")
+	else
+		local plain = Instance.new("Part")
+		plain.Shape = if shape == "ball"
+			then Enum.PartType.Ball
+			elseif shape == "cylinder" then Enum.PartType.Cylinder
+			else Enum.PartType.Block
+		part = plain
+		if shape == "egg" then
+			local mesh = Instance.new("SpecialMesh")
+			mesh.MeshType = Enum.MeshType.Sphere
+			mesh.Parent = plain
+		end
+	end
+	setup(part, name, size, color, material)
+	part.Parent = rig.model
 	return part
 end
 
-type Builder = (model: Model, radius: number, palette: Palette) -> ({ BasePart }, { CFrame })
+-- Adds a part to the rig at `cframe` (relative to the floor point or the body), swinging around `pivot` if given.
+local function attach(rig: Rig, part: BasePart, anim: number, cframe: CFrame, pivot: Vector3?)
+	table.insert(rig.parts, part)
+	table.insert(rig.anims, anim)
+	table.insert(rig.details, false)
+	if pivot then
+		table.insert(rig.pivots, CFrame.new(pivot))
+		table.insert(rig.offsets, CFrame.new(-pivot) * cframe)
+	else
+		table.insert(rig.pivots, IDENTITY)
+		table.insert(rig.offsets, cframe)
+	end
+	rig.top = math.max(rig.top, cframe.Position.Y + part.Size.Y / 2)
+end
 
--- Each builder returns the parts (body first) and their offsets for an enemy of `radius`.
-local BUILDERS: { [string]: Builder } = {
-	-- round blob with two eyes
-	Shadeling = function(model, r, palette)
-		local body = newPart(model, "Body", Enum.PartType.Ball, Vector3.one * 2 * r, palette.body, false)
-		local eyeSize = Vector3.one * 0.32 * r
-		local left = newPart(model, "EyeLeft", Enum.PartType.Ball, eyeSize, palette.eye, true)
-		local right = newPart(model, "EyeRight", Enum.PartType.Ball, eyeSize, palette.eye, true)
-		return { body, left, right }, {
-			CFrame.new(0, r, 0),
-			CFrame.new(-0.35 * r, 1.25 * r, -0.82 * r),
-			CFrame.new(0.35 * r, 1.25 * r, -0.82 * r),
-		}
+type PieceOptions = {
+	anim: number?, -- default BODY
+	pivot: Vector3?,
+	glow: boolean?, -- Neon
+	material: Enum.Material?,
+	flash: boolean?,
+	heat: boolean?,
+	metal: boolean?,
+	transparency: number?,
+	detail: boolean?, -- a small trim, left out in low detail
+}
+
+-- Creates and attaches one part. Positions and sizes are in units of the radius.
+local function piece(
+	rig: Rig,
+	name: string,
+	shape: string,
+	size: Vector3,
+	position: Vector3,
+	color: Color3,
+	options: PieceOptions?,
+	rotation: CFrame?
+): BasePart
+	local o: PieceOptions = options or {}
+	local r = rig.r
+	local material = if o.glow
+		then Enum.Material.Neon
+		elseif o.material then o.material
+		elseif o.metal then Enum.Material.Metal
+		else Enum.Material.SmoothPlastic
+	local part = newPiece(rig, name, shape, size * r, color, material)
+	if o.transparency then
+		part.Transparency = o.transparency
+	end
+	local pivot = if o.pivot then o.pivot * r else nil
+	attach(rig, part, o.anim or BODY, CFrame.new(position * r) * (rotation or IDENTITY), pivot)
+	if o.detail then
+		rig.details[#rig.details] = true
+	end
+	if o.flash then
+		table.insert(rig.flash, part)
+	end
+	if o.heat then
+		table.insert(rig.heat, part)
+	end
+	if o.metal then
+		table.insert(rig.metal, part)
+	end
+	return part
+end
+
+-- A soft dark disc under the enemy, so it reads as standing on the floor.
+local function shadow(rig: Rig, diameter: number)
+	local r = rig.r
+	local part = newPiece(
+		rig,
+		"Shadow",
+		"cylinder",
+		Vector3.new(SHADOW_THICKNESS, diameter * r, diameter * r),
+		SHADOW_COLOR,
+		Enum.Material.SmoothPlastic
+	)
+	part.Transparency = SHADOW_TRANSPARENCY
+	attach(rig, part, GROUND, CFrame.new(0, SHADOW_THICKNESS, 0) * UPRIGHT)
+end
+
+local function v(x: number, y: number, z: number): Vector3
+	return Vector3.new(x, y, z)
+end
+
+local ALONG_X = CFrame.Angles(0, math.pi / 2, 0) -- turns a cylinder's axis (X) onto -Z
+
+-- A cylinder from `from` to `to` (units of the radius), e.g. horns and spikes.
+local function rod(
+	rig: Rig,
+	name: string,
+	from: Vector3,
+	to: Vector3,
+	diameter: number,
+	color: Color3,
+	options: PieceOptions?
+): BasePart
+	local length = (to - from).Magnitude
+	local middle = (from + to) / 2
+	local turn = CFrame.lookAt(Vector3.zero, to - from) * ALONG_X
+	return piece(rig, name, "cylinder", v(length, diameter, diameter), middle, color, options, turn)
+end
+
+local function eye(rig: Rig, name: string, size: Vector3, position: Vector3, tilt: number)
+	piece(rig, name, "block", size, position, rig.palette.eye, { glow = true }, CFrame.Angles(0, 0, tilt))
+end
+
+type Build = (rig: Rig) -> Gait
+
+local BUILDERS: { [string]: Build } = {
+	-- a hunched, hooded wisp with a porcelain mask and angry slit eyes, scuttling with its claws out
+	Shadeling = function(rig)
+		local p = rig.palette
+		shadow(rig, 1.9)
+		piece(
+			rig,
+			"Body",
+			"egg",
+			v(1.8, 1.7, 1.7),
+			v(0, 0.95, 0.05),
+			p.cloth,
+			{ material = Enum.Material.Fabric, flash = true }
+		)
+		piece(rig, "Hood", "egg", v(1.25, 1.15, 1.3), v(0, 1.75, -0.05), p.clothDark, { flash = true })
+		piece(
+			rig,
+			"HoodTip",
+			"wedge",
+			v(0.35, 0.75, 0.6),
+			v(0, 2.3, 0.32),
+			p.clothDark,
+			{ detail = true },
+			CFrame.Angles(-0.3, 0, 0)
+		)
+		piece(rig, "Mask", "cylinder", v(0.1, 0.9, 0.9), v(0, 1.72, -0.72), p.mask, nil, TILTED * FACING)
+		piece(
+			rig,
+			"EyeLeft",
+			"block",
+			v(0.26, 0.08, 0.06),
+			v(-0.2, 1.8, -0.78),
+			p.eye,
+			{ glow = true },
+			TILTED * CFrame.Angles(0, 0, -0.35)
+		)
+		piece(
+			rig,
+			"EyeRight",
+			"block",
+			v(0.26, 0.08, 0.06),
+			v(0.2, 1.8, -0.78),
+			p.eye,
+			{ glow = true },
+			TILTED * CFrame.Angles(0, 0, 0.35)
+		)
+		piece(
+			rig,
+			"Amulet",
+			"cylinder",
+			v(0.08, 0.32, 0.32),
+			v(0, 1.12, -0.86),
+			p.metal,
+			{ metal = true, detail = true },
+			FACING
+		)
+		piece(
+			rig,
+			"ClawLeft",
+			"wedge",
+			v(0.18, 0.28, 0.55),
+			v(-0.62, 0.78, -0.55),
+			p.soot,
+			{ anim = ARM_LEFT, pivot = v(-0.62, 1.1, -0.2), detail = true }
+		)
+		piece(
+			rig,
+			"ClawRight",
+			"wedge",
+			v(0.18, 0.28, 0.55),
+			v(0.62, 0.78, -0.55),
+			p.soot,
+			{ anim = ARM_RIGHT, pivot = v(0.62, 1.1, -0.2), detail = true }
+		)
+		if p.spikes then
+			piece(
+				rig,
+				"HornLeft",
+				"wedge",
+				v(0.15, 0.6, 0.35),
+				v(-0.4, 2.2, -0.05),
+				p.metal,
+				{ metal = true },
+				CFrame.Angles(0, 0, 0.45)
+			)
+			piece(
+				rig,
+				"HornRight",
+				"wedge",
+				v(0.15, 0.6, 0.35),
+				v(0.4, 2.2, -0.05),
+				p.metal,
+				{ metal = true },
+				CFrame.Angles(0, 0, -0.45)
+			)
+		end
+		rig.crown = v(0, 2.75, 0.1) * rig.r
+		return { stride = 5, bob = 0.12, roll = 0.12, lean = 0.25, legSwing = 0, armSwing = 0.6 }
 	end,
-	-- wide block with a head and two eyes
-	Brute = function(model, r, palette)
-		local body =
-			newPart(model, "Body", Enum.PartType.Block, Vector3.new(2 * r, 1.6 * r, 1.6 * r), palette.body, false)
-		local head =
-			newPart(model, "Head", Enum.PartType.Block, Vector3.new(0.9 * r, 0.7 * r, 0.9 * r), palette.head, false)
-		local eyeSize = Vector3.one * 0.2 * r
-		local left = newPart(model, "EyeLeft", Enum.PartType.Ball, eyeSize, palette.eye, true)
-		local right = newPart(model, "EyeRight", Enum.PartType.Ball, eyeSize, palette.eye, true)
-		return { body, head, left, right }, {
-			CFrame.new(0, 0.8 * r, 0),
-			CFrame.new(0, 1.95 * r, -0.3 * r),
-			CFrame.new(-0.2 * r, 2 * r, -0.76 * r),
-			CFrame.new(0.2 * r, 2 * r, -0.76 * r),
-		}
+
+	-- a hulking gas-masked trooper: brass chest plate and pauldrons, amber lenses, brass-knuckled fists
+	Brute = function(rig)
+		local p = rig.palette
+		shadow(rig, 2.2)
+		piece(
+			rig,
+			"Body",
+			"egg",
+			v(1.9, 1.35, 1.35),
+			v(0, 1.4, 0.05),
+			p.cloth,
+			{ material = Enum.Material.Fabric, flash = true }
+		)
+		piece(rig, "Hips", "block", v(1.35, 0.45, 1), v(0, 0.8, 0.05), p.soot, { detail = true })
+		piece(
+			rig,
+			"ChestPlate",
+			"block",
+			v(1.1, 0.75, 0.12),
+			v(0, 1.5, -0.62),
+			p.metal,
+			{ metal = true },
+			CFrame.Angles(-0.15, 0, 0)
+		)
+		piece(
+			rig,
+			"PauldronLeft",
+			"egg",
+			v(0.85, 0.55, 0.95),
+			v(-1, 1.95, 0.05),
+			p.metalDark,
+			{ metal = true },
+			CFrame.Angles(0, 0, 0.25)
+		)
+		piece(
+			rig,
+			"PauldronRight",
+			"egg",
+			v(0.85, 0.55, 0.95),
+			v(1, 1.95, 0.05),
+			p.metalDark,
+			{ metal = true },
+			CFrame.Angles(0, 0, -0.25)
+		)
+		piece(rig, "Helmet", "egg", v(0.8, 0.75, 0.8), v(0, 2.15, -0.3), p.soot, { metal = true, flash = true })
+		piece(
+			rig,
+			"LensLeft",
+			"cylinder",
+			v(0.06, 0.27, 0.27),
+			v(-0.17, 2.22, -0.66),
+			p.eye,
+			{ glow = true },
+			TILTED * FACING
+		)
+		piece(
+			rig,
+			"LensRight",
+			"cylinder",
+			v(0.06, 0.27, 0.27),
+			v(0.17, 2.22, -0.66),
+			p.eye,
+			{ glow = true },
+			TILTED * FACING
+		)
+		piece(
+			rig,
+			"Filter",
+			"cylinder",
+			v(0.3, 0.28, 0.28),
+			v(0, 1.98, -0.72),
+			p.metal,
+			{ metal = true, detail = true },
+			FACING
+		)
+		piece(
+			rig,
+			"HelmetCrest",
+			"wedge",
+			v(0.14, 0.32, 0.75),
+			v(0, 2.55, -0.2),
+			p.metal,
+			{ metal = true, detail = true }
+		)
+		piece(
+			rig,
+			"Tank",
+			"cylinder",
+			v(0.9, 0.55, 0.55),
+			v(0, 1.55, 0.78),
+			p.metalDark,
+			{ metal = true, detail = true },
+			UPRIGHT
+		)
+		for _, side in { -1, 1 } do
+			local arm = if side < 0 then ARM_LEFT else ARM_RIGHT
+			local leg = if side < 0 then LEG_LEFT else LEG_RIGHT
+			local name = if side < 0 then "Left" else "Right"
+			local shoulder = v(1.15 * side, 1.75, 0)
+			piece(
+				rig,
+				`Arm{name}`,
+				"block",
+				v(0.45, 1, 0.5),
+				v(1.15 * side, 1.2, -0.05),
+				p.cloth,
+				{ anim = arm, pivot = shoulder }
+			)
+			piece(
+				rig,
+				`Fist{name}`,
+				"block",
+				v(0.6, 0.5, 0.6),
+				v(1.18 * side, 0.55, -0.12),
+				p.metalDark,
+				{ anim = arm, pivot = shoulder, metal = true }
+			)
+			piece(
+				rig,
+				`Leg{name}`,
+				"block",
+				v(0.5, 0.7, 0.55),
+				v(0.42 * side, 0.35, 0.05),
+				p.soot,
+				{ anim = leg, pivot = v(0.42 * side, 0.7, 0.05) }
+			)
+			if p.spikes then
+				piece(
+					rig,
+					`Spike{name}`,
+					"wedge",
+					v(0.15, 0.6, 0.4),
+					v(1 * side, 2.35, 0.05),
+					p.metal,
+					{ metal = true },
+					CFrame.Angles(0, 0, -0.3 * side)
+				)
+			end
+		end
+		rig.crown = v(0, 2.75, -0.2) * rig.r
+		return { stride = 7, bob = 0.06, roll = 0.08, lean = 0.12, legSwing = 0.5, armSwing = 0.45 }
 	end,
-	-- thin stalk with a round head and a glowing mouth
-	Spitter = function(model, r, palette)
-		local stalk =
-			newPart(model, "Body", Enum.PartType.Cylinder, Vector3.new(2 * r, 1.2 * r, 1.2 * r), palette.body, false)
-		local head = newPart(model, "Head", Enum.PartType.Ball, Vector3.one * 1.5 * r, palette.head, false)
-		local mouth = newPart(model, "Mouth", Enum.PartType.Ball, Vector3.one * 0.55 * r, palette.accent, true)
-		return { stalk, head, mouth }, {
-			CFrame.new(0, r, 0) * CFrame.Angles(0, 0, math.pi / 2), -- a cylinder's axis is X: stand it up
-			CFrame.new(0, 2.4 * r, 0),
-			CFrame.new(0, 2.4 * r, -0.62 * r),
-		}
+
+	-- a tall robed acolyte with an art-deco sunburst behind its masked head, swinging a glowing censer
+	Spitter = function(rig)
+		local p = rig.palette
+		shadow(rig, 1.7)
+		piece(
+			rig,
+			"Body",
+			"cylinder",
+			v(1.5, 1.5, 1.5),
+			v(0, 0.75, 0),
+			p.cloth,
+			{ material = Enum.Material.Fabric, flash = true },
+			UPRIGHT
+		)
+		piece(rig, "RobeFlare", "egg", v(1.8, 0.55, 1.8), v(0, 0.27, 0), p.clothDark)
+		piece(
+			rig,
+			"Hem",
+			"cylinder",
+			v(0.1, 1.84, 1.84),
+			v(0, 0.27, 0),
+			p.metal,
+			{ metal = true, detail = true },
+			UPRIGHT
+		)
+		piece(rig, "Torso", "egg", v(1.05, 1.15, 0.9), v(0, 1.85, 0), p.cloth, { flash = true })
+		piece(rig, "Collar", "egg", v(1.1, 0.3, 0.95), v(0, 2.35, 0), p.metal, { metal = true, detail = true })
+		piece(rig, "Head", "egg", v(0.7, 0.85, 0.7), v(0, 2.85, 0), p.soot)
+		piece(rig, "Mask", "egg", v(0.6, 0.75, 0.2), v(0, 2.85, -0.33), p.mask)
+		piece(rig, "Mouth", "block", v(0.09, 0.32, 0.06), v(0, 2.68, -0.44), p.accent, { glow = true, detail = true })
+		eye(rig, "EyeLeft", v(0.16, 0.06, 0.05), v(-0.15, 2.98, -0.44), -0.25)
+		eye(rig, "EyeRight", v(0.16, 0.06, 0.05), v(0.15, 2.98, -0.44), 0.25)
+		piece(rig, "Sunburst", "cylinder", v(0.06, 1.35, 1.35), v(0, 3.05, 0.4), p.metal, { metal = true }, FACING)
+		piece(
+			rig,
+			"SunburstGlow",
+			"cylinder",
+			v(0.06, 0.9, 0.9),
+			v(0, 3.05, 0.36),
+			p.accent,
+			{ glow = true, transparency = 0.4, detail = true },
+			FACING
+		)
+		piece(rig, "Arm", "block", v(0.25, 0.8, 0.25), v(0.62, 2.1, -0.4), p.cloth, nil, CFrame.Angles(1.08, 0, 0))
+		local hand = v(0.62, 1.9, -0.75)
+		piece(
+			rig,
+			"Chain",
+			"block",
+			v(0.05, 0.75, 0.05),
+			v(0.62, 1.5, -0.78),
+			p.metal,
+			{ anim = SWING, pivot = hand, metal = true, detail = true }
+		)
+		piece(
+			rig,
+			"Censer",
+			"egg",
+			v(0.42, 0.5, 0.42),
+			v(0.62, 1.05, -0.78),
+			p.accent,
+			{ anim = SWING, pivot = hand, glow = true }
+		)
+		rig.crown = v(0, 3.95, 0.1) * rig.r
+		return { stride = 6, bob = 0.04, roll = 0.06, lean = 0.08, legSwing = 0, armSwing = 0 }
 	end,
-	-- low, long block with two glowing horns in front
-	Charger = function(model, r, palette)
-		local body =
-			newPart(model, "Body", Enum.PartType.Block, Vector3.new(1.7 * r, 1.1 * r, 2 * r), palette.body, false)
-		local hornSize = Vector3.new(0.25 * r, 0.25 * r, 0.9 * r)
-		local left = newPart(model, "HornLeft", Enum.PartType.Block, hornSize, palette.accent, true)
-		local right = newPart(model, "HornRight", Enum.PartType.Block, hornSize, palette.accent, true)
-		local eyeSize = Vector3.one * 0.22 * r
-		local eyeLeft = newPart(model, "EyeLeft", Enum.PartType.Ball, eyeSize, palette.eye, true)
-		local eyeRight = newPart(model, "EyeRight", Enum.PartType.Ball, eyeSize, palette.eye, true)
-		return { body, left, right, eyeLeft, eyeRight }, {
-			CFrame.new(0, 0.55 * r, 0),
-			CFrame.new(-0.6 * r, 1 * r, -1.25 * r),
-			CFrame.new(0.6 * r, 1 * r, -1.25 * r),
-			CFrame.new(-0.3 * r, 0.75 * r, -1.02 * r),
-			CFrame.new(0.3 * r, 0.75 * r, -1.02 * r),
+
+	-- a low, four-legged ram with a bone mask, brass horns and a furnace on its back that flares before it rushes
+	Charger = function(rig)
+		local p = rig.palette
+		shadow(rig, 2.2)
+		piece(
+			rig,
+			"Body",
+			"egg",
+			v(1.45, 1, 2),
+			v(0, 0.95, 0.15),
+			p.cloth,
+			{ material = Enum.Material.Fabric, flash = true }
+		)
+		piece(
+			rig,
+			"Armor",
+			"block",
+			v(0.9, 0.15, 1.2),
+			v(0, 1.36, 0.25),
+			p.metalDark,
+			{ metal = true },
+			CFrame.Angles(0.08, 0, 0)
+		)
+		piece(
+			rig,
+			"Furnace",
+			"block",
+			v(0.6, 0.1, 0.85),
+			v(0, 1.43, 0.25),
+			p.accent,
+			{ glow = true, heat = true },
+			CFrame.Angles(0.08, 0, 0)
+		)
+		piece(
+			rig,
+			"Chimney",
+			"cylinder",
+			v(0.35, 0.2, 0.2),
+			v(0, 1.55, 0.75),
+			p.metal,
+			{ metal = true, detail = true },
+			UPRIGHT
+		)
+		piece(rig, "Skull", "egg", v(0.8, 0.7, 0.85), v(0, 1, -1.05), p.mask, { flash = true })
+		-- ram horns: out and up from the skull, then curling forward
+		for _, side in { -1, 1 } do
+			local name = if side < 0 then "Left" else "Right"
+			local root, bend, tip = v(0.28 * side, 1.25, -0.95), v(0.72 * side, 1.55, -0.85), v(0.82 * side, 1.3, -1.35)
+			rod(rig, `Horn{name}`, root, bend, 0.24, p.metal, { metal = true })
+			rod(rig, `HornTip{name}`, bend, tip, 0.16, p.metal, { metal = true })
+		end
+		piece(rig, "EyeLeft", "ball", v(0.17, 0.17, 0.17), v(-0.22, 1.1, -1.47), p.eye, { glow = true, heat = true })
+		piece(rig, "EyeRight", "ball", v(0.17, 0.17, 0.17), v(0.22, 1.1, -1.47), p.eye, { glow = true, heat = true })
+		-- legs in diagonal pairs, like a trot
+		local legs = {
+			{ "LegFrontLeft", -0.48, -0.55, LEG_LEFT },
+			{ "LegFrontRight", 0.48, -0.55, LEG_RIGHT },
+			{ "LegBackLeft", -0.48, 0.75, LEG_RIGHT },
+			{ "LegBackRight", 0.48, 0.75, LEG_LEFT },
 		}
+		for _, leg in legs do
+			local x, z = leg[2] :: number, leg[3] :: number
+			piece(
+				rig,
+				leg[1] :: string,
+				"block",
+				v(0.32, 0.6, 0.32),
+				v(x, 0.3, z),
+				p.soot,
+				{ anim = leg[4] :: number, pivot = v(x, 0.6, z) }
+			)
+		end
+		if p.spikes then
+			piece(rig, "SpineSpike", "wedge", v(0.15, 0.5, 0.6), v(0, 1.75, 0.6), p.metal, { metal = true })
+		end
+		rig.crown = v(0, 2.1, -0.6) * rig.r
+		return { stride = 5, bob = 0.05, roll = 0.05, lean = 0.05, legSwing = 0.6, armSwing = 0 }
 	end,
-	-- lumpy blob made of three lobes and one big eye: it falls apart into Splitlings
-	Splitter = function(model, r, palette)
-		local body = newPart(model, "Body", Enum.PartType.Ball, Vector3.one * 1.7 * r, palette.body, false)
-		local lobeSize = Vector3.one * 0.9 * r
-		local top = newPart(model, "LobeTop", Enum.PartType.Ball, lobeSize, palette.head, false)
-		local left = newPart(model, "LobeLeft", Enum.PartType.Ball, lobeSize, palette.head, false)
-		local right = newPart(model, "LobeRight", Enum.PartType.Ball, lobeSize, palette.head, false)
-		local eye = newPart(model, "Eye", Enum.PartType.Ball, Vector3.one * 0.45 * r, palette.eye, true)
-		return { body, top, left, right, eye }, {
-			CFrame.new(0, 0.85 * r, 0),
-			CFrame.new(0, 1.65 * r, 0.1 * r),
-			CFrame.new(-0.7 * r, 1.25 * r, 0.25 * r),
-			CFrame.new(0.7 * r, 1.25 * r, 0.25 * r),
-			CFrame.new(0, 1 * r, -0.78 * r),
-		}
+
+	-- a cracked, waddling brood urn with brass bands, glowing cracks and three wisps peeking out of its neck
+	Splitter = function(rig)
+		local p = rig.palette
+		shadow(rig, 1.8)
+		piece(rig, "Body", "egg", v(1.55, 1.45, 1.55), v(0, 0.95, 0), p.cloth, { flash = true })
+		piece(
+			rig,
+			"Band",
+			"cylinder",
+			v(0.14, 1.5, 1.5),
+			v(0, 1.15, 0),
+			p.metal,
+			{ metal = true, detail = true },
+			UPRIGHT
+		)
+		piece(rig, "Neck", "cylinder", v(0.4, 0.85, 0.85), v(0, 1.75, 0), p.clothDark, nil, UPRIGHT)
+		piece(rig, "Lip", "cylinder", v(0.1, 1, 1), v(0, 1.95, 0), p.metal, { metal = true, detail = true }, UPRIGHT)
+		eye(rig, "CrackLeft", v(0.07, 0.65, 0.05), v(-0.28, 0.95, -0.74), 0.5)
+		eye(rig, "CrackRight", v(0.07, 0.65, 0.05), v(0.22, 1.05, -0.74), -0.4)
+		local wisps = { v(0, 2.15, 0), v(-0.28, 2.05, 0.12), v(0.28, 2.05, 0.12) }
+		for index, position in wisps do
+			local options: PieceOptions = { anim = FLOAT, glow = true, detail = index > 1 }
+			piece(rig, `Wisp{index}`, "ball", v(0.32, 0.32, 0.32), position, p.eye, options)
+		end
+		for _, side in { -1, 1 } do
+			local name = if side < 0 then "FootLeft" else "FootRight"
+			local leg = if side < 0 then LEG_LEFT else LEG_RIGHT
+			piece(
+				rig,
+				name,
+				"egg",
+				v(0.45, 0.28, 0.6),
+				v(0.42 * side, 0.14, -0.12),
+				p.soot,
+				{ anim = leg, pivot = v(0.42 * side, 0.3, 0) }
+			)
+		end
+		if p.spikes then
+			piece(rig, "Spike", "wedge", v(0.15, 0.5, 0.4), v(0, 2.4, 0), p.metal, { metal = true })
+		end
+		rig.crown = v(0, 2.6, 0) * rig.r
+		return { stride = 4, bob = 0.05, roll = 0.18, lean = 0.05, legSwing = 0.5, armSwing = 0 }
 	end,
-	-- small ball with one eye
-	Splitling = function(model, r, palette)
-		local body = newPart(model, "Body", Enum.PartType.Ball, Vector3.one * 2 * r, palette.body, false)
-		local eye = newPart(model, "Eye", Enum.PartType.Ball, Vector3.one * 0.5 * r, palette.eye, true)
-		return { body, eye }, {
-			CFrame.new(0, r, 0),
-			CFrame.new(0, 1.2 * r, -0.8 * r),
-		}
+
+	-- a little hopping teal wisp with a flame tip and a shard of porcelain mask
+	Splitling = function(rig)
+		local p = rig.palette
+		shadow(rig, 1.6)
+		piece(rig, "Body", "egg", v(1.6, 1.45, 1.6), v(0, 0.85, 0), p.cloth, { flash = true })
+		piece(
+			rig,
+			"Flame",
+			"wedge",
+			v(0.4, 0.75, 0.6),
+			v(0, 1.75, 0.25),
+			p.eye,
+			{ glow = true, transparency = 0.25 },
+			CFrame.Angles(-0.3, 0, 0)
+		)
+		piece(rig, "MaskShard", "cylinder", v(0.08, 0.7, 0.7), v(0, 0.95, -0.74), p.mask, { detail = true }, FACING)
+		eye(rig, "Eye", v(0.3, 0.08, 0.05), v(0, 1, -0.8), 0)
+		rig.crown = v(0, 2.3, 0) * rig.r
+		return { stride = 3, bob = 0.15, roll = 0.1, lean = 0.3, legSwing = 0, armSwing = 0 }
 	end,
 }
 
 -- Magenta cube for a typeId the client does not know (should never happen; shows up clearly in tests).
-local function buildUnknown(model: Model, r: number): ({ BasePart }, { CFrame })
-	local body = newPart(model, "Body", Enum.PartType.Block, Vector3.one * 2 * r, UNKNOWN_COLOR, false)
-	return { body }, { CFrame.new(0, r, 0) }
+local function buildUnknown(rig: Rig): Gait
+	piece(rig, "Body", "block", v(2, 2, 2), v(0, 1, 0), UNKNOWN_COLOR, { flash = true })
+	return { stride = 5, bob = 0, roll = 0, lean = 0, legSwing = 0, armSwing = 0 }
 end
 
 -- Red strip on the floor in front of a charger, as long as its rush (hidden until it winds up).
-local function addTelegraph(model: Model, parts: { BasePart }, offsets: { CFrame }, r: number, length: number): BasePart
-	local strip = newPart(model, "RushPath", Enum.PartType.Block, Vector3.new(1.6 * r, 0.12, length), RUSH_COLOR, true)
+local function addTelegraph(rig: Rig, length: number): BasePart
+	local r = rig.r
+	local strip =
+		newPiece(rig, "RushPath", "block", Vector3.new(1.6 * r, 0.12, length), TELEGRAPH_COLOR, Enum.Material.Neon)
 	strip.Transparency = 1
-	table.insert(parts, strip)
-	table.insert(offsets, CFrame.new(0, 0.08, -(r + length / 2)))
+	attach(rig, strip, GROUND, CFrame.new(0, 0.08, -(r + length / 2)))
 	return strip
 end
 
-type EliteParts = { hpBar: Frame, affixLabel: TextLabel, glow: PointLight }
-
--- Glow, golden eyes, an affix name and an HP bar on top of a normal model.
-local function makeElite(parts: { BasePart }, offsets: { CFrame }): EliteParts
-	local body = parts[1]
-	body.Color = ELITE_BODY_COLOR
-	local top = 0
-	for k, part in parts do
-		if part.Material == Enum.Material.Neon and part.Name ~= "RushPath" then
-			part.Color = ELITE_EYE_COLOR
-		end
-		top = math.max(top, offsets[k].Position.Y + part.Size.Y / 2)
+local function paletteFor(enemy: any): Palette
+	local base = PALETTES[enemy.id] or PALETTES[EnemyKinds.lookOf(enemy)] or PALETTES.Shadeling
+	if not enemy.elite then
+		return base
 	end
+	local elite = table.clone(base)
+	elite.cloth = ELITE_CLOTH
+	elite.clothDark = ELITE_CLOTH_DARK
+	elite.metal = ELITE_GOLD
+	elite.metalDark = ELITE_GOLD_DARK
+	elite.eye = ELITE_EYE_COLOR
+	return elite
+end
+
+type EliteParts = {
+	hpBar: Frame,
+	affixLabel: TextLabel,
+	glow: PointLight,
+	trail: Trail,
+	affixParts: { [number]: { BasePart } },
+}
+
+-- A spinning sunburst crown, glow, an affix name, an HP bar and the affix looks on top of a gilded model.
+local function makeElite(rig: Rig): EliteParts
+	local r = rig.r
+	local crown = (rig.crown or Vector3.new(0, rig.top + 0.2 * r, 0)) / r
+	for index = 0, 2 do
+		piece(
+			rig,
+			`CrownRay{index}`,
+			"block",
+			v(1.3, 0.06, 0.12),
+			crown,
+			ELITE_GOLD,
+			{ anim = SPIN, pivot = crown, glow = true, transparency = 0.15 },
+			CFrame.Angles(0, index * math.pi / 3, 0)
+		)
+	end
+	-- Summoning: two wisps circling the body
+	local summonColor = AFFIX_COLORS.Summoner
+	local summoners = {}
+	for index = 0, 1 do
+		local angle = index * math.pi
+		local wisp = piece(
+			rig,
+			`SummonWisp{index}`,
+			"ball",
+			v(0.35, 0.35, 0.35),
+			v(math.cos(angle) * 1.3, crown.Y * 0.55, math.sin(angle) * 1.3),
+			summonColor,
+			{ anim = SPIN, pivot = v(0, crown.Y * 0.55, 0), glow = true, transparency = 1 }
+		)
+		table.insert(summoners, wisp)
+	end
+
+	local body = rig.flash[1] or rig.parts[1]
 	local light = Instance.new("PointLight")
 	light.Color = ELITE_GLOW_COLOR
 	light.Brightness = ELITE_GLOW_BRIGHTNESS
 	light.Range = ELITE_GLOW_RANGE
 	light.Parent = body
 
+	-- Swift: a trail behind the body
+	local top = Instance.new("Attachment")
+	top.Name = "TrailTop"
+	top.Position = Vector3.new(0, body.Size.Y * 0.4, 0)
+	top.Parent = body
+	local bottom = Instance.new("Attachment")
+	bottom.Name = "TrailBottom"
+	bottom.Position = Vector3.new(0, -body.Size.Y * 0.4, 0)
+	bottom.Parent = body
+	local trail = Instance.new("Trail")
+	trail.Attachment0 = top
+	trail.Attachment1 = bottom
+	trail.Color = ColorSequence.new(AFFIX_COLORS.Swift)
+	trail.LightEmission = 1
+	trail.Lifetime = TRAIL_SECONDS
+	trail.Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.3), NumberSequenceKeypoint.new(1, 1) })
+	trail.Enabled = false
+	trail.Parent = body
+
 	local gui = Instance.new("BillboardGui")
 	gui.Name = "HpBar"
 	gui.Size = UDim2.fromOffset(HP_BAR_WIDTH * 2, AFFIX_TEXT_SIZE + HP_BAR_HEIGHT_PIXELS + 2)
-	gui.StudsOffsetWorldSpace = Vector3.new(0, top - offsets[1].Position.Y + HP_BAR_HEIGHT, 0)
+	gui.StudsOffsetWorldSpace =
+		Vector3.new(0, rig.top - rig.offsets[table.find(rig.parts, body) or 1].Position.Y + HP_BAR_HEIGHT, 0)
 	gui.AlwaysOnTop = true
 	gui.Parent = body
 	local label = Instance.new("TextLabel")
@@ -268,62 +1003,129 @@ local function makeElite(parts: { BasePart }, offsets: { CFrame }): EliteParts
 	fill.BackgroundColor3 = HP_BAR_COLOR
 	fill.BorderSizePixel = 0
 	fill.Parent = back
-	return { hpBar = fill, affixLabel = label, glow = light }
+
+	local affixParts: { [number]: { BasePart } } = {}
+	for index, info in Config.Enemies.elite.affixes do
+		if info.id == "Summoner" then
+			affixParts[index] = summoners
+		end
+	end
+	return { hpBar = fill, affixLabel = label, glow = light, trail = trail, affixParts = affixParts }
+end
+
+local function colorsOf(parts: { BasePart }): { Color3 }
+	local colors = {}
+	for index, part in parts do
+		colors[index] = part.Color
+	end
+	return colors
 end
 
 function Models.build(typeId: number): Visual
 	local enemy = EnemyKinds.byTypeId(typeId)
 	local model = Instance.new("Model")
 	model.Name = if enemy then (if enemy.elite then `Elite{enemy.id}` else enemy.id) else `Unknown{typeId}`
+	local r = if enemy then enemy.radius else 1.5
+	local palette = if enemy then paletteFor(enemy) else PALETTES.Shadeling
+	local rig = newRig(model, r, palette)
 	local look = enemy and EnemyKinds.lookOf(enemy)
 	local builder = look and BUILDERS[look]
-	local palette = enemy and PALETTES[enemy.id] or DEFAULT_PALETTE
-	local parts, offsets
-	if enemy and builder then
-		parts, offsets = builder(model, enemy.radius, palette)
-	else
-		parts, offsets = buildUnknown(model, if enemy then enemy.radius else 1.5)
+	local gait = if builder then builder(rig) else buildUnknown(rig)
+	local telegraph = if enemy and enemy.charge then addTelegraph(rig, enemy.charge.maxDistance) else nil
+	local elite = if enemy and enemy.elite then makeElite(rig) else nil
+	local body = rig.flash[1] or rig.parts[1]
+	local hidden = {}
+	for index, part in rig.parts do
+		hidden[index] = part.Transparency >= 1
 	end
-	local telegraph = if enemy and enemy.charge
-		then addTelegraph(model, parts, offsets, enemy.radius, enemy.charge.maxDistance)
-		else nil
-	local elite = if enemy and enemy.elite then makeElite(parts, offsets) else nil
 	return {
 		model = model,
-		parts = parts,
-		offsets = offsets,
-		body = parts[1],
-		bodyColor = parts[1].Color,
-		glowColor = if elite then ELITE_EYE_COLOR else palette.eye,
+		parts = rig.parts,
+		anims = rig.anims,
+		pivots = rig.pivots,
+		offsets = rig.offsets,
+		hidden = hidden,
+		details = rig.details,
+		lowDetail = false,
+		gait = gait,
+		radius = r,
+		speed = if enemy then enemy.speed else 10,
+		body = body,
+		bodyColor = body.Color,
+		glowColor = palette.eye,
+		flashParts = rig.flash,
+		flashColors = colorsOf(rig.flash),
+		heatParts = rig.heat,
+		heatColors = colorsOf(rig.heat),
+		metalParts = rig.metal,
+		metalColors = colorsOf(rig.metal),
+		affixParts = if elite then elite.affixParts else {},
+		trail = elite and elite.trail,
 		hpBar = elite and elite.hpBar,
 		affixLabel = elite and elite.affixLabel,
 		glow = elite and elite.glow,
 		telegraph = telegraph,
 		mode = 0,
 		affix = 0,
+		flashing = false,
 	}
 end
 
--- The body color for a mode: red while winding up or rushing, its own otherwise.
-function Models.colorFor(visual: Visual, mode: number): Color3
-	return if mode == Models.MODE_WINDUP or mode == Models.MODE_RUSH then RUSH_COLOR else visual.bodyColor
+-- Looks ------------------------------------------------------------------------------------------------------------
+
+local function isCharging(mode: number): boolean
+	return mode == Models.MODE_WINDUP or mode == Models.MODE_RUSH
 end
 
--- Shows a charger's mode (0 walk, 1 wind-up, 2 rush, 3 recover): red body from the wind-up through the rush, the
--- rush path on the floor only during the wind-up.
+-- Marks a part of `visual` as invisible (not posed) or visible again; it is placed again on the next pose.
+local function setHidden(visual: Visual, part: BasePart, hidden: boolean)
+	local index = table.find(visual.parts, part)
+	if index then
+		visual.hidden[index] = hidden
+	end
+end
+
+-- Colors of the parts that react to hits and to a charger's mode.
+local function paint(visual: Visual)
+	local charging = isCharging(visual.mode)
+	for index, part in visual.flashParts do
+		part.Color = if visual.flashing
+			then FLASH_COLOR
+			elseif charging and part == visual.body then RUSH_COLOR
+			else visual.flashColors[index]
+	end
+	for index, part in visual.heatParts do
+		part.Color = if charging then HOT_COLOR else visual.heatColors[index]
+	end
+end
+
+-- White flash on hits (on = true) or back to its own colors.
+function Models.setFlash(visual: Visual, on: boolean)
+	if visual.flashing == on then
+		return
+	end
+	visual.flashing = on
+	paint(visual)
+end
+
+-- Shows a charger's mode (0 walk, 1 wind-up, 2 rush, 3 recover): red body and white-hot furnace and eyes from the
+-- wind-up through the rush, the rush path on the floor only during the wind-up.
 function Models.setMode(visual: Visual, mode: number)
 	if visual.mode == mode then
 		return
 	end
 	visual.mode = mode
-	visual.body.Color = Models.colorFor(visual, mode)
+	paint(visual)
 	local telegraph = visual.telegraph
 	if telegraph then
-		telegraph.Transparency = if mode == Models.MODE_WINDUP then TELEGRAPH_TRANSPARENCY else 1
+		local shown = mode == Models.MODE_WINDUP
+		telegraph.Transparency = if shown then TELEGRAPH_TRANSPARENCY else 1
+		setHidden(visual, telegraph, not shown)
 	end
 end
 
--- Shows an elite's affix (0 = none, else index into Config.Enemies.elite.affixes) as a colored name and glow.
+-- Shows an elite's affix (0 = none, else index into Config.Enemies.elite.affixes): a colored name and glow, and its
+-- look (Swift trail, Armored steel, Summoning wisps).
 function Models.setAffix(visual: Visual, affix: number)
 	local label, glow = visual.affixLabel, visual.glow
 	if visual.affix == affix or not (label and glow) then
@@ -331,11 +1133,125 @@ function Models.setAffix(visual: Visual, affix: number)
 	end
 	visual.affix = affix
 	local info = Config.Enemies.elite.affixes[affix]
-	local color = if info then AFFIX_COLORS[info.id] or ELITE_GLOW_COLOR else ELITE_GLOW_COLOR
+	local id = if info then info.id else nil
+	local color = if id then AFFIX_COLORS[id] or ELITE_GLOW_COLOR else ELITE_GLOW_COLOR
 	label.Visible = info ~= nil
 	label.Text = if info then string.upper(info.displayName) else ""
 	label.TextColor3 = color
 	glow.Color = color
+	local trail = visual.trail
+	if trail then
+		trail.Enabled = id == "Swift"
+		trail:Clear()
+	end
+	for index, part in visual.metalParts do
+		part.Color = if id == "Armored" then STEEL else visual.metalColors[index]
+	end
+	for index, parts in visual.affixParts do
+		for _, part in parts do
+			part.Transparency = if index == affix then 0 else 1
+			setHidden(visual, part, index ~= affix)
+		end
+	end
+end
+
+-- Low detail (on = true) hides the small trims and stops moving them; off brings them back.
+function Models.setDetail(visual: Visual, on: boolean)
+	if visual.lowDetail == on then
+		return
+	end
+	visual.lowDetail = on
+	for index, part in visual.parts do
+		if visual.details[index] then
+			part.LocalTransparencyModifier = if on then 1 else 0
+		end
+	end
+end
+
+-- Puts a pooled model back to its plain look.
+function Models.reset(visual: Visual)
+	visual.flashing = false
+	Models.setMode(visual, 0)
+	paint(visual)
+	local trail = visual.trail
+	if trail then
+		trail:Clear()
+	end
+end
+
+-- Pose -------------------------------------------------------------------------------------------------------------
+
+-- Queues every visible part of `visual` for this frame, standing at `base` (floor point, facing its walking direction).
+-- `phase` counts step cycles in radians (it advances with the distance walked), `move` is 0 (standing) to 1 (full
+-- speed), `seed` spreads idle motions between enemies. Returns the new list length.
+function Models.pose(
+	visual: Visual,
+	base: CFrame,
+	phase: number,
+	move: number,
+	now: number,
+	seed: number,
+	parts: { BasePart },
+	cframes: { CFrame },
+	count: number
+): number
+	local gait, r, mode = visual.gait, visual.radius, visual.mode
+	local s = math.sin(phase)
+	local bob = gait.bob * r * move * math.abs(s)
+	local roll = gait.roll * move * s
+	local lean = gait.lean * move
+	local shift = 0
+	if mode == Models.MODE_WINDUP then
+		bob -= WINDUP_CROUCH * r
+		shift = WINDUP_TREMBLE * r * math.sin(now * WINDUP_TREMBLE_SPEED)
+		lean = -WINDUP_REAR
+	elseif mode == Models.MODE_RUSH then
+		lean = RUSH_LEAN
+	elseif mode == Models.MODE_RECOVER then
+		lean = RECOVER_SLUMP
+		roll = 0
+	end
+	local body = base * CFrame.new(shift, bob, 0) * CFrame.Angles(-lean, 0, roll)
+	local legAngle = gait.legSwing * move * s
+	local armAngle = gait.armSwing * move * s
+	local legLeft, legRight = CFrame.Angles(legAngle, 0, 0), CFrame.Angles(-legAngle, 0, 0)
+	local armLeft, armRight = CFrame.Angles(-armAngle, 0, 0), CFrame.Angles(armAngle, 0, 0)
+
+	local anims, pivots, offsets = visual.anims, visual.pivots, visual.offsets
+	local hidden, details, low = visual.hidden, visual.details, visual.lowDetail
+	for k, part in visual.parts do
+		if hidden[k] or (low and details[k]) then
+			continue
+		end
+		local anim = anims[k]
+		local cframe
+		if anim == BODY then
+			cframe = body * offsets[k]
+		elseif anim == GROUND then
+			cframe = base * offsets[k]
+		elseif anim == LEG_LEFT then
+			cframe = base * pivots[k] * legLeft * offsets[k]
+		elseif anim == LEG_RIGHT then
+			cframe = base * pivots[k] * legRight * offsets[k]
+		elseif anim == ARM_LEFT then
+			cframe = body * pivots[k] * armLeft * offsets[k]
+		elseif anim == ARM_RIGHT then
+			cframe = body * pivots[k] * armRight * offsets[k]
+		elseif anim == SWING then
+			cframe = body
+				* pivots[k]
+				* CFrame.Angles(SWING_ANGLE * math.sin(now * SWING_SPEED + seed), 0, 0)
+				* offsets[k]
+		elseif anim == SPIN then
+			cframe = body * pivots[k] * CFrame.Angles(0, now * SPIN_SPEED + seed, 0) * offsets[k]
+		else -- FLOAT
+			cframe = body * CFrame.new(0, FLOAT_HEIGHT * r * math.sin(now * FLOAT_SPEED + seed + k), 0) * offsets[k]
+		end
+		count += 1
+		parts[count] = part
+		cframes[count] = cframe
+	end
+	return count
 end
 
 return Models

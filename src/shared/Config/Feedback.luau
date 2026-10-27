@@ -1,7 +1,8 @@
 --!strict
 -- Hit feedback (DESIGN.md section 14, since the fun package after WP9): damage numbers, death bursts and camera
--- shake. Read by WeaponService (which hits to send), DamageNumberController, EnemyRenderer, CameraController and
--- FeedbackController. The switches become player settings with the full HUD (WP14).
+-- shake, plus when big crowds drop small enemy trims (since the Deadlock look package). Read by WeaponService
+-- (which hits to send), DamageNumberController, EnemyRenderer, CameraController and FeedbackController. The switches
+-- become player settings with the full HUD (WP14).
 
 return table.freeze({
 	damageNumbers = table.freeze({
@@ -16,6 +17,13 @@ return table.freeze({
 		particles = 6, -- per killed enemy
 		particlesTouch = 3,
 		eliteParticles = 30,
+	}),
+	-- above this many enemies on screen, plain enemies leave out small trims (claws, filters, hems) to move a third
+	-- fewer parts; elites keep them (assumption, to be checked on phones in WP22)
+	enemyDetail = table.freeze({
+		lowAbove = 80,
+		lowAboveTouch = 40,
+		backBelowShare = 0.85, -- full detail again below this share of the limit
 	}),
 	-- strength 0-1 of a camera shake; several shakes add up to at most 1
 	shake = table.freeze({

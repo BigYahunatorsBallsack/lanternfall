@@ -1,6 +1,7 @@
 --!strict
--- Boomerang Axe look: a spinning glowing axe per "Fire" effect that flies out at the server's speed and range, then
--- back to its owner's character as this client sees it, until the server's "End" effect says it is gone. Visual for
+-- Boomerang Axe look: a spinning double-headed axe per "Fire" effect (dark handle, brass heads with glowing
+-- edges) that sweeps a ring of light behind it as it flies out at the server's speed and range, then back to its
+-- owner's character as this client sees it, until the server's "End" effect says it is gone. Visual for
 -- WeaponRenderer (behavior WeaponService/Behaviors/BoomerangAxe).
 
 local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
@@ -8,14 +9,39 @@ local Types = require(Shared:WaitForChild("Net"):WaitForChild("Types"))
 
 local VisualKit = require(script.Parent.Parent.VisualKit)
 
-local AXE_COLOR = Color3.fromRGB(255, 150, 90) -- hot orange
-local AXE_SIZE = Vector3.new(2.4, 0.3, 0.7) -- studs
+local EDGE_COLOR = Color3.fromRGB(255, 150, 90) -- hot orange
+local HEAD_COLOR = Color3.fromRGB(196, 150, 72) -- brass
+local HANDLE_COLOR = Color3.fromRGB(64, 46, 40)
+local HANDLE_SIZE = Vector3.new(2.2, 0.22, 0.22) -- studs, along X
+local HEAD_SIZE = Vector3.new(0.55, 0.28, 1.1)
+local EDGE_SIZE = Vector3.new(0.2, 0.2, 1.35)
+local HEAD_AT = 0.85 -- studs from the middle
+local EDGE_AT = 1.2
+local TRAIL_WIDTH = 2.6 -- studs, the ring the spinning edges sweep
+local TRAIL_SECONDS = 0.1
 local HEIGHT = 2 -- studs above the floor
 local SPIN = math.rad(900) -- radians/s
 local MAX_SECONDS = 5 -- drops an axe whose "End" effect never arrived
 
+-- where each part sits on the spinning axe
+local OFFSETS = {
+	headA = CFrame.new(HEAD_AT, 0, 0),
+	headB = CFrame.new(-HEAD_AT, 0, 0),
+	edgeA = CFrame.new(EDGE_AT, 0, 0),
+	edgeB = CFrame.new(-EDGE_AT, 0, 0),
+}
+
+type AxeParts = {
+	handle: BasePart,
+	headA: BasePart,
+	headB: BasePart,
+	edgeA: BasePart,
+	edgeB: BasePart,
+	trail: Trail,
+}
+
 type Axe = {
-	part: BasePart?,
+	parts: AxeParts?,
 	userId: number,
 	x: number, -- start
 	z: number,
@@ -28,15 +54,31 @@ type Axe = {
 	backZ: number?,
 }
 
-local pool = VisualKit.pool(function()
-	return VisualKit.part("BoomerangAxe", Enum.PartType.Block, AXE_SIZE, AXE_COLOR)
+local pool = VisualKit.objectPool(function(): AxeParts
+	local handle = VisualKit.solid("BoomerangAxe", Enum.PartType.Block, HANDLE_SIZE, HANDLE_COLOR, Enum.Material.Wood)
+	local function head()
+		return VisualKit.solid("BoomerangAxeHead", Enum.PartType.Block, HEAD_SIZE, HEAD_COLOR, Enum.Material.Metal)
+	end
+	local function edge()
+		return VisualKit.part("BoomerangAxeEdge", Enum.PartType.Block, EDGE_SIZE, EDGE_COLOR)
+	end
+	return {
+		handle = handle,
+		headA = head(),
+		headB = head(),
+		edgeA = edge(),
+		edgeB = edge(),
+		trail = VisualKit.trail(handle, EDGE_COLOR, TRAIL_WIDTH, TRAIL_SECONDS, "X"),
+	}
+end, function(parts: AxeParts): { BasePart }
+	return { parts.handle, parts.headA, parts.headB, parts.edgeA, parts.edgeB }
 end)
 
 local axes: { [number]: Axe } = {} -- by projectile id
 
 local function remove(id: number, axe: Axe)
-	if axe.part then
-		pool:release(axe.part)
+	if axe.parts then
+		pool:release(axe.parts)
 	end
 	axes[id] = nil
 end
@@ -50,7 +92,7 @@ function BoomerangAxe.effect(effect: Types.WeaponEffect)
 	end
 	if effect.kind == "Fire" then
 		axes[id] = {
-			part = nil,
+			parts = nil,
 			userId = effect.userId,
 			x = effect.x or 0,
 			z = effect.z or 0,
@@ -93,12 +135,20 @@ function BoomerangAxe.render(frame: VisualKit.Frame)
 			end
 			axe.backX, axe.backZ = x, z
 		end
-		local part = axe.part
-		if not part then
-			part = pool:acquire(frame.folder)
-			axe.part = part
+		local parts = axe.parts
+		if not parts then
+			local created = pool:acquire(frame.folder)
+			created.trail:Clear()
+			axe.parts = created
+			parts = created
 		end
-		frame.move(part :: BasePart, CFrame.new(x, frame.floorY + HEIGHT, z) * CFrame.Angles(0, age * SPIN, 0))
+		local current = parts :: AxeParts
+		local cframe = CFrame.new(x, frame.floorY + HEIGHT, z) * CFrame.Angles(0, age * SPIN, 0)
+		frame.move(current.handle, cframe)
+		frame.move(current.headA, cframe * OFFSETS.headA)
+		frame.move(current.headB, cframe * OFFSETS.headB)
+		frame.move(current.edgeA, cframe * OFFSETS.edgeA)
+		frame.move(current.edgeB, cframe * OFFSETS.edgeB)
 	end
 end
 
