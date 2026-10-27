@@ -1,184 +1,87 @@
 --!strict
--- Rolls level-up cards (DESIGN.md section 9): up to `cardCount` different cards from every weapon and passive the
--- player can still take or raise, owned items `ownedWeight` times as likely; with full slots only upgrades are left.
--- When fewer items are left than cards, rewards ("Heal", "Embers") fill the gaps, so a maxed-out player picks a
--- reward. Also sums up what owned passives add to the player's stats, lists the evolutions a player may take and
--- picks the upgrade of an elite chest (WP9). Pure and unit tested
--- (tests/UpgradePool.spec.luau); used by UpgradeService.
+-- Rolls level-up cards (DESIGN.md section 9, Brotato direction since B2): `cardCount` different primary stats
+-- (Config.Stats), each with its own rarity tier: rolled like shop items with the level in place of the wave and Luck
+-- raising it (Util/StatMath.rollTier), or fixed on some levels (Config.Run.levelUp.guaranteedTiers and
+-- legendaryEvery). Also lists the evolutions a player may take (weapon at max level plus its item). Pure and unit
+-- tested (tests/UpgradePool.spec.luau); used by UpgradeService.
 
 local Shared = game:GetService("ReplicatedStorage").Shared
 local Evolutions = require(Shared.Config.Evolutions)
-local Passives = require(Shared.Config.Passives)
+local Items = require(Shared.Config.Items)
+local Run = require(Shared.Config.Run)
+local Stats = require(Shared.Config.Stats)
 local Types = require(Shared.Net.Types)
+local StatMath = require(Shared.Util.StatMath)
 
 export type Params = {
-	weapons: { string }, -- weapon ids that can be given out (WeaponService.getImplemented), sorted
-	passives: { string }, -- passive ids, sorted
-	ownedWeapons: { [string]: number }, -- id -> level
-	ownedPassives: { [string]: number },
-	maxWeapons: number,
-	maxPassives: number,
-	maxLevel: number,
+	level: number, -- the team level this choice belongs to
+	luck: number, -- the player's Luck stat
 	cardCount: number,
-	ownedWeight: number,
-	rewards: { string }, -- reward ids, in the order they fill up missing cards
-	avoid: { [string]: boolean }?, -- card ids to leave out while enough others are left (reroll)
+	avoid: { [string]: boolean }?, -- stat ids to leave out while enough others are left (reroll)
 	random: () -> number, -- 0 <= x < 1
 }
 
-type Candidate = { card: Types.UpgradeCard, weight: number }
-
 local UpgradePool = {}
 
-function UpgradePool.cardId(kind: string, itemId: string): string
-	return `{kind}:{itemId}`
-end
-
-local function addCandidates(
-	out: { Candidate },
-	kind: "Weapon" | "Passive",
-	ids: { string },
-	owned: { [string]: number },
-	maxSlots: number,
-	params: Params
-)
-	local ownedCount = 0
-	for _ in owned do
-		ownedCount += 1
-	end
-	for _, itemId in ids do
-		local level = owned[itemId]
-		if level then
-			if level < params.maxLevel then
-				table.insert(out, {
-					card = {
-						id = UpgradePool.cardId(kind, itemId),
-						kind = kind,
-						itemId = itemId,
-						level = level + 1,
-						isNew = false,
-					},
-					weight = params.ownedWeight,
-				})
-			end
-		elseif ownedCount < maxSlots then
-			table.insert(out, {
-				card = { id = UpgradePool.cardId(kind, itemId), kind = kind, itemId = itemId, level = 1, isNew = true },
-				weight = 1,
-			})
-		end
+-- Stats that have level-up upgrades, in the order of Config.Stats.
+local upgradeStats: { string } = {}
+for _, stat in Stats.order do
+	if stat.upgrade then
+		table.insert(upgradeStats, stat.id)
 	end
 end
 
--- Removes and returns one candidate, picked by weight.
-local function takeWeighted(candidates: { Candidate }, random: () -> number): Candidate
-	local total = 0
-	for _, candidate in candidates do
-		total += candidate.weight
+function UpgradePool.cardId(statId: string, tier: number): string
+	return `Stat:{statId}:{tier}`
+end
+
+-- The tier every card of this level has, or nil when each card rolls its own.
+function UpgradePool.guaranteedTier(level: number): number?
+	local rule = Run.levelUp
+	local every = rule.legendaryEvery
+	if level >= every.fromLevel and (level - every.fromLevel) % every.every == 0 then
+		return #Items.tiers -- the rarest
 	end
-	local roll = random() * total
-	for index, candidate in candidates do
-		roll -= candidate.weight
-		if roll < 0 then
-			return table.remove(candidates, index) :: Candidate
-		end
-	end
-	return table.remove(candidates) :: Candidate
+	return rule.guaranteedTiers[level]
+end
+
+-- One card for `statId` at `tier`.
+function UpgradePool.card(statId: string, tier: number): Types.UpgradeCard
+	local values = Stats.byId[statId].upgrade :: { number }
+	local clamped = math.clamp(tier, 1, #values)
+	return { id = UpgradePool.cardId(statId, clamped), stat = statId, tier = clamped, amount = values[clamped] }
 end
 
 function UpgradePool.roll(params: Params): { Types.UpgradeCard }
-	local candidates: { Candidate } = {}
-	addCandidates(candidates, "Weapon", params.weapons, params.ownedWeapons, params.maxWeapons, params)
-	addCandidates(candidates, "Passive", params.passives, params.ownedPassives, params.maxPassives, params)
-
-	-- Fresh cards first; avoided ones (the cards before a reroll) only when nothing else is left.
-	local fresh: { Candidate } = {}
-	local avoided: { Candidate } = {}
-	for _, candidate in candidates do
-		local list = if params.avoid and params.avoid[candidate.card.id] then avoided else fresh
-		table.insert(list, candidate)
+	local fresh: { string } = {}
+	local avoided: { string } = {}
+	for _, statId in upgradeStats do
+		table.insert(if params.avoid and params.avoid[statId] then avoided else fresh, statId)
 	end
-
+	local fixedTier = UpgradePool.guaranteedTier(params.level)
 	local cards: { Types.UpgradeCard } = {}
 	for _, pool in { fresh, avoided } do
 		while #cards < params.cardCount and #pool > 0 do
-			table.insert(cards, takeWeighted(pool, params.random).card)
+			local index = math.min(#pool, math.floor(params.random() * #pool) + 1)
+			local statId = table.remove(pool, index) :: string
+			local tier = fixedTier or StatMath.rollTier(params.level, params.luck, params.random())
+			table.insert(cards, UpgradePool.card(statId, tier))
 		end
-	end
-	for _, rewardId in params.rewards do
-		if #cards >= params.cardCount then
-			break
-		end
-		table.insert(cards, {
-			id = UpgradePool.cardId("Reward", rewardId),
-			kind = "Reward",
-			itemId = rewardId,
-			level = 1,
-			isNew = false,
-		})
 	end
 	return cards
 end
 
--- Stat bonuses of the owned passives by stat name (Config.Passives): "percent" passives as fractions
--- (Might 2 = { damage = 0.2 }), "flat" ones as absolute values (Armor 2 = { armor = 2 }).
-function UpgradePool.passiveBonuses(ownedPassives: { [string]: number }): { [string]: number }
-	local bonuses: { [string]: number } = {}
-	for passiveId, level in ownedPassives do
-		local passive = Passives[passiveId]
-		if passive then
-			bonuses[passive.stat] = (bonuses[passive.stat] or 0) + passive.perLevel * level
-		end
-	end
-	return bonuses
-end
-
--- One more level of a random owned weapon or passive below `maxLevel` (elite chests, DESIGN.md section 8), all
--- equally likely, as the card it would be; nil when everything owned is maxed. Ids are walked sorted, so the same
--- roll gives the same item.
-function UpgradePool.chestUpgrade(
-	ownedWeapons: { [string]: number },
-	ownedPassives: { [string]: number },
-	maxLevel: number,
-	random: () -> number
-): Types.UpgradeCard?
-	local cards: { Types.UpgradeCard } = {}
-	for _, entry in { { kind = "Weapon", owned = ownedWeapons }, { kind = "Passive", owned = ownedPassives } } do
-		local ids = {}
-		for id, level in entry.owned do
-			if level < maxLevel then
-				table.insert(ids, id)
-			end
-		end
-		table.sort(ids)
-		for _, id in ids do
-			local kind = entry.kind :: "Weapon" | "Passive"
-			table.insert(cards, {
-				id = UpgradePool.cardId(kind, id),
-				kind = kind,
-				itemId = id,
-				level = entry.owned[id] + 1,
-				isNew = false,
-			})
-		end
-	end
-	if #cards == 0 then
-		return nil
-	end
-	return cards[math.min(#cards, math.floor(random() * #cards) + 1)]
-end
-
 -- Evolution ids the player may take now (DESIGN.md section 6), sorted: the weapon at `maxLevel` and not evolved yet,
--- plus the passive at any level. `ownedWeapons` maps weapon id -> { level, evolution }.
+-- plus at least one of the item. `ownedWeapons` maps weapon id -> { level, evolution }, `ownedItems` item id -> count.
 function UpgradePool.evolutionsFor(
 	ownedWeapons: { [string]: { level: number, evolution: string? } },
-	ownedPassives: { [string]: number },
+	ownedItems: { [string]: number },
 	maxLevel: number
 ): { string }
 	local ids = {}
 	for id, evolution in Evolutions do
 		local weapon = ownedWeapons[evolution.weapon]
-		if weapon and weapon.level >= maxLevel and not weapon.evolution and ownedPassives[evolution.passive] then
+		if weapon and weapon.level >= maxLevel and not weapon.evolution and (ownedItems[evolution.item] or 0) > 0 then
 			table.insert(ids, id)
 		end
 	end
