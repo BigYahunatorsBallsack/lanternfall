@@ -1,13 +1,17 @@
 --!strict
 -- Draws the server's enemies (DESIGN.md section 15): EnemySnapshot packets go into a SnapshotBuffer, models
 -- are pooled per enemy type (EnemyRenderer/Models), positions are interpolated about 100 ms behind the
--- newest tick and every part moves with one workspace:BulkMoveTo per frame. Hits flash the body white; the snapshot
--- flags show a charger's wind-up and rush and an elite's affix (Models.setMode, setAffix). An enemy that drops out
--- of the snapshots died: it leaves a glowing puff (DeathBursts), an elite also shakes the camera. Active only while
--- the local player is in a running run (RunStateController). DebugController reads getStats().
+-- newest tick and every part moves with one workspace:BulkMoveTo per frame. Models.pose animates the walk: the step
+-- cycle advances with the distance an enemy covers, so legs and bobbing match its speed. Hits flash the model
+-- white; the snapshot flags show a charger's wind-up and rush and an elite's affix (Models.setMode, setAffix). An
+-- enemy that drops out of the snapshots died: it leaves a glowing puff (DeathBursts), an elite also shakes the
+-- camera. Big crowds switch the plain enemies to low detail (Models.setDetail, limits in
+-- Config.Feedback.enemyDetail). Active only while the local player is in a running run (RunStateController).
+-- DebugController reads getStats().
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared:WaitForChild("Config"))
@@ -32,20 +36,21 @@ type Drawn = {
 	yaw: number,
 	lastHp: number,
 	flashUntil: number, -- 0 when not flashing
-	seenFrame: number,
-	bobPhase: number,
-	x: number, -- where it was drawn last, for its death burst
+	seenFrame: number, -- 0 until it was drawn once
+	seed: number, -- spreads idle motions of neighbouring ids
+	phase: number, -- step cycle in radians
+	move: number, -- 0 standing to 1 walking at its own speed, smoothed
+	x: number, -- where it was drawn last, for its walk and death burst
 	z: number,
 }
 
 local FOLDER_NAME = "LanternfallEnemies"
-local FLASH_COLOR = Color3.fromRGB(255, 255, 255)
 local FLASH_SECONDS = 0.1
 local TURN_PER_SECOND = 12 -- how quickly models turn towards where they walk
 local MIN_TURN_MOVE = 0.05 -- studs between two ticks; slower enemies keep their facing
-local BOB_HEIGHT = 0.15 -- studs
-local BOB_SPEED = 7 -- radians per second
-local GOLDEN_RATIO = 0.618034 -- spreads the bob phase of neighbouring ids
+local MOVE_SMOOTHING = 8 -- per second; how quickly the walk animation follows speed changes
+local MAX_STEP_STUDS = 4 -- per frame; longer jumps (an enemy moved to a new spawn point) do not count as walking
+local GOLDEN_RATIO = 0.618034 -- spreads the seeds of neighbouring ids
 local STATS_WINDOW_SECONDS = 1
 
 local EnemyRenderer = {}
@@ -55,6 +60,8 @@ local drawn: { [number]: Drawn } = {} -- by enemy id
 local pools: { [number]: { Models.Visual } } = {} -- by typeId
 local folder: Folder? = nil
 local enabled = false
+local lowDetail = false
+local touch = UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled
 local frameNumber = 0
 local floorY = Config.Map.arena.center.Y
 
@@ -97,7 +104,9 @@ local function acquire(id: number, typeId: number, hp: number): Drawn
 		lastHp = hp,
 		flashUntil = 0,
 		seenFrame = 0,
-		bobPhase = (id * GOLDEN_RATIO) % 1 * 2 * math.pi,
+		seed = (id * GOLDEN_RATIO) % 1 * 2 * math.pi,
+		phase = (id * GOLDEN_RATIO) % 1 * 2 * math.pi,
+		move = 0,
 		x = 0,
 		z = 0,
 	}
@@ -108,10 +117,7 @@ end
 local function release(id: number, entry: Drawn)
 	drawn[id] = nil
 	local visual = entry.visual
-	Models.setMode(visual, 0)
-	if entry.flashUntil > 0 then
-		visual.body.Color = visual.bodyColor
-	end
+	Models.reset(visual)
 	visual.model.Parent = nil
 	local pool = pools[entry.typeId]
 	if not pool then
@@ -159,6 +165,13 @@ local function updateStats()
 	end
 end
 
+-- Low detail above the crowd limit, back to full detail only well below it, so it does not flicker at the limit.
+local function updateDetail(enemies: number)
+	local settings = Config.Feedback.enemyDetail
+	local limit = if touch then settings.lowAboveTouch else settings.lowAbove
+	lowDetail = enemies > (if lowDetail then limit * settings.backBelowShare else limit)
+end
+
 local function render(dt: number)
 	updateStats()
 	if not enabled then
@@ -172,6 +185,7 @@ local function render(dt: number)
 	if before and after then
 		local turn = math.min(1, TURN_PER_SECOND * dt)
 		local interpolate = before ~= after
+		updateDetail(after.count)
 		for i = 1, after.count do
 			local id = after.ids[i]
 			local typeId = after.typeIds[i]
@@ -201,34 +215,39 @@ local function render(dt: number)
 			local visual = current.visual
 			local mode, affix = Snapshot.unpackFlags(after.flags[i])
 			Models.setAffix(visual, affix)
-			if mode ~= visual.mode then
-				Models.setMode(visual, mode)
-				if current.flashUntil > 0 then
-					visual.body.Color = FLASH_COLOR
-				end
-			end
+			Models.setMode(visual, mode)
+			Models.setDetail(visual, lowDetail and visual.hpBar == nil) -- elites keep every detail
 			if hp < current.lastHp then
 				current.flashUntil = now + FLASH_SECONDS
-				visual.body.Color = FLASH_COLOR
+				Models.setFlash(visual, true)
 				if visual.hpBar then
 					visual.hpBar.Size = UDim2.fromScale(hp, 1)
 				end
 			elseif current.flashUntil > 0 and now >= current.flashUntil then
 				current.flashUntil = 0
-				visual.body.Color = Models.colorFor(visual, mode)
+				Models.setFlash(visual, false)
 			end
 			current.lastHp = hp
+
+			-- the walk: the step cycle follows the distance covered since the last frame
+			local walked = 0
+			if current.seenFrame > 0 then
+				local wx, wz = x - current.x, z - current.z
+				walked = math.sqrt(wx * wx + wz * wz)
+				if walked > MAX_STEP_STUDS then
+					walked = 0
+				end
+			end
+			local speed = if dt > 0 then walked / dt else 0
+			local target = math.min(1, speed / math.max(visual.speed, 1))
+			current.move += (target - current.move) * math.min(1, MOVE_SMOOTHING * dt)
+			current.phase = (current.phase + walked / visual.gait.stride * 2 * math.pi) % (2 * math.pi)
 			current.seenFrame = frameNumber
 			current.x, current.z = x, z
 
-			local y = floorY + BOB_HEIGHT * (1 + math.sin(now * BOB_SPEED + current.bobPhase))
-			local base = CFrame.new(x, y, z) * CFrame.Angles(0, current.yaw, 0)
-			local offsets = visual.offsets
-			for k, part in visual.parts do
-				count += 1
-				partList[count] = part
-				cframeList[count] = base * offsets[k]
-			end
+			local base = CFrame.new(x, floorY, z) * CFrame.Angles(0, current.yaw, 0)
+			count =
+				Models.pose(visual, base, current.phase, current.move, now, current.seed, partList, cframeList, count)
 		end
 	end
 	for id, entry in drawn do
