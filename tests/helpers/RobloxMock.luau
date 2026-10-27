@@ -163,7 +163,14 @@ end
 Vector3.__tostring = function(v)
 	return `{v.X}, {v.Y}, {v.Z}`
 end
-local Vector3Lib = { new = v3, zero = v3(0, 0, 0), one = v3(1, 1, 1) }
+local Vector3Lib = {
+	new = v3,
+	zero = v3(0, 0, 0),
+	one = v3(1, 1, 1),
+	xAxis = v3(1, 0, 0),
+	yAxis = v3(0, 1, 0),
+	zAxis = v3(0, 0, 1),
+}
 
 local Vector2Meta = { __type = "Vector2" }
 Vector2Meta.__index = Vector2Meta
@@ -291,6 +298,7 @@ local EnumLib = setmetatable({}, {
 
 local SUPERCLASS = {
 	Part = "BasePart",
+	WedgePart = "BasePart",
 	SpawnLocation = "Part",
 	BasePart = "PVInstance",
 	Model = "PVInstance",
@@ -381,9 +389,18 @@ end
 local InstanceMeta = { __type = "Instance" }
 local methods = {}
 
+-- Properties every new part starts with, as in Roblox.
+local PART_DEFAULTS = { Transparency = 0, LocalTransparencyModifier = 0 }
+
 local function newInstance(className, props)
 	local instance = setmetatable({}, InstanceMeta)
-	rawset(instance, "__props", { ClassName = className, Name = className })
+	local initial = { ClassName = className, Name = className }
+	if isA(className, "BasePart") then
+		for key, value in PART_DEFAULTS do
+			initial[key] = value
+		end
+	end
+	rawset(instance, "__props", initial)
 	rawset(instance, "__children", {})
 	rawset(instance, "__events", {})
 	rawset(instance, "__attributes", {})
@@ -555,6 +572,8 @@ function methods.WorldToViewportPoint(self, position)
 	local y = size.Y / 2 + (position.Z - center.Z) * 10
 	return v3(x, y, 10), x >= 0 and x <= size.X and y >= 0 and y <= size.Y
 end
+-- Trail and Beam segments are not simulated.
+function methods.Clear() end
 -- ParticleEmitter: counts emitted particles in world.particlesEmitted.
 function methods.Emit(_, count)
 	world.particlesEmitted = (world.particlesEmitted or 0) + (count or 1)
