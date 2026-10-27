@@ -1,7 +1,7 @@
 --!strict
 -- Elite chests (DESIGN.md sections 7 and 8): a killed Gloom Elite (EnemySim.EnemyKilled) leaves a chest on the floor.
 -- When a living participant gets within Config.Run.coop.chestOpenRadius, it opens and every living participant within
--- chestRadius gets their own reward from UpgradeService.grantChest (evolution, else an upgrade, else healing) and heals
+-- chestRadius gets their own reward from UpgradeService.grantChest (evolution, else an item, else healing) and heals
 -- Config.Run.coop.chestHealFraction of their max HP (CombatService).
 -- Chests still on the floor when a wave ends open for every participant who is not out (like Brotato's crates).
 -- Sends Chests (what lies on the floor) and ChestOpened to the participants; chests vanish when a run starts or ends.

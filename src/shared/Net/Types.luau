@@ -118,12 +118,12 @@ export type ChestInfo = {
 	z: number,
 }
 
--- What a chest gave one player (DESIGN.md section 8): an evolution if they may take one, else one more level of an
--- owned weapon or passive, else a reward ("Heal").
+-- What a chest gave one player (DESIGN.md section 8): an evolution if they may take one, else an item (since B2),
+-- else a reward ("Heal").
 export type ChestReward = {
-	kind: "Evolution" | "Weapon" | "Passive" | "Reward",
-	itemId: string, -- key in Config.Evolutions, Config.Weapons or Config.Passives, or the reward id
-	level: number, -- item level after the chest (0 for evolutions and rewards)
+	kind: "Evolution" | "Item" | "Reward",
+	itemId: string, -- key in Config.Evolutions or Config.Items, or the reward id
+	level: number, -- items: how many the player owns now; 0 for evolutions and rewards
 }
 
 -- A chest was opened, sent to the participants.
@@ -148,13 +148,13 @@ export type XpOrbEvents = {
 	collected: { number }, -- flat: id, userId for every orb a player picked up
 }
 
--- One level-up card (UpgradeService -> LevelUpController). Texts come from Util/UpgradeText on the client.
+-- One level-up card (UpgradeService -> LevelUpController): a stat upgrade of one rarity tier (Brotato direction
+-- since B2). Texts come from Util/UpgradeText on the client.
 export type UpgradeCard = {
-	id: string, -- what the client sends back with ChooseUpgrade, e.g. "Weapon:SparkBolt"
-	kind: "Weapon" | "Passive" | "Reward",
-	itemId: string, -- key in Config.Weapons or Config.Passives; "Heal" or "Embers" for rewards
-	level: number, -- item level after picking the card (1 = new)
-	isNew: boolean,
+	id: string, -- what the client sends back with ChooseUpgrade, e.g. "Stat:damage:2"
+	stat: string, -- key in Config.Stats
+	tier: number, -- 1..4 (Config.Items.tiers)
+	amount: number, -- added to the stat
 }
 
 -- The local player's level-up choice, sent when it opens, changes (reroll) or closes.
@@ -163,16 +163,17 @@ export type LevelUpOffer = {
 	level: number, -- team level this choice belongs to
 	cards: { UpgradeCard },
 	expiresAt: number, -- server time; the first card is picked automatically then
-	rerolls: number, -- free rerolls left in this run
+	rerollPrice: number, -- Shards for new cards
 	pending: number, -- further choices waiting after this one (closed: choices waiting for the end of the wave)
 }
 
--- One thing for sale in the shop: a new weapon or passive, or one more level of an owned one.
+-- One thing for sale in the shop: a new weapon or one more level of an owned one, or an item.
 export type ShopOffer = {
-	id: string, -- what the client sends back with BuyShopOffer, e.g. "1:Weapon:SparkBolt"
-	kind: "Weapon" | "Passive",
-	itemId: string, -- key in Config.Weapons or Config.Passives
-	level: number, -- item level after buying (1 = new)
+	id: string, -- what the client sends back with BuyShopOffer, e.g. "1:Item:Focus"
+	kind: "Weapon" | "Item",
+	itemId: string, -- key in Config.Weapons or Config.Items
+	tier: number, -- rarity 1..4 (items: Config.Items; weapons 1 until B3)
+	level: number, -- weapons: level after buying (1 = new); items: how many the player owns after buying
 	isNew: boolean,
 	price: number, -- Shards
 	sold: boolean, -- bought in this shop; the slot stays empty
@@ -187,16 +188,19 @@ export type ShopState = {
 	rerollPrice: number,
 }
 
-export type PassiveInfo = {
-	id: string, -- key in Config.Passives
-	level: number,
+export type ItemInfo = {
+	id: string, -- key in Config.Items
+	count: number,
 }
 
--- The passives of one player (UpgradeService -> ProgressController), to everyone on change. Empty outside a run.
-export type PassiveLoadout = {
+-- The items of one player (StatService -> ProgressController), to everyone on change. Empty outside a run.
+export type ItemLoadout = {
 	userId: number,
-	passives: { PassiveInfo },
+	items: { ItemInfo },
 }
+
+-- The local player's stats (StatService -> StatsController), stat id -> value in Config.Stats units.
+export type StatSheet = { [string]: number }
 
 -- One player's line on the results screen (RunStatsService -> ResultsController).
 export type RunSummaryPlayer = {

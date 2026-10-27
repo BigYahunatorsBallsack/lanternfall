@@ -2,9 +2,8 @@
 -- Debug commands for testing (end the wave, stop the wave timer, Shards, knock yourself down, hurt/heal yourself, win, spawn/hit/kill enemies and elites, pause
 -- spawning, add/swap/level/evolve weapons, weapons off, team level-up) and the stats panel feed (DebugStats once per second). Admins only:
 -- everyone in Studio, the owner of a user-owned experience and Config.Admin.userIds. Handles the DebugCommand remote
--- and uses RunDirector, CombatService, EnemySim, ExperienceService, ShopService, SpawnDirector, UpgradeService,
--- WeaponService and
--- MapService. Sets the player
+-- and uses RunDirector, CombatService, EnemySim, ExperienceService, ShopService, SpawnDirector, StatService,
+-- UpgradeService, WeaponService and MapService. Sets the player
 -- attribute "LanternfallAdmin" so the client shows the debug panel.
 
 local Players = game:GetService("Players")
@@ -25,6 +24,7 @@ local MapService = require(script.Parent.MapService)
 local RunDirector = require(script.Parent.RunDirector)
 local ShopService = require(script.Parent.ShopService)
 local SpawnDirector = require(script.Parent.SpawnDirector)
+local StatService = require(script.Parent.StatService)
 local UpgradeService = require(script.Parent.UpgradeService)
 local WeaponService = require(script.Parent.WeaponService)
 
@@ -236,14 +236,16 @@ local handlers: { [string]: (player: Player) -> (boolean, string?) } = {
 					WeaponService.levelUp(player, weapon.id)
 				end
 				if not table.find(UpgradeService.getEvolutions(player), evolutionId) then
-					UpgradeService.addPassive(player, evolution.passive) -- fails if the passive slots are full
+					StatService.addItem(player, evolution.item) -- fails only for an unknown item
 				end
 				if UpgradeService.evolve(player, evolutionId) then
 					table.insert(parts, evolution.displayName)
 				else
-					local passive = Config.Passives[evolution.passive]
-					local passiveName = if passive then passive.displayName else evolution.passive
-					table.insert(parts, `no {evolution.displayName} (needs {passiveName}, passive slots full)`)
+					local item = Config.Items.byId[evolution.item]
+					table.insert(
+						parts,
+						`no {evolution.displayName} (needs {if item then item.displayName else evolution.item})`
+					)
 				end
 			end
 		end

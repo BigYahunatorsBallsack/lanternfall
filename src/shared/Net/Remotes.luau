@@ -45,7 +45,7 @@ local Remotes: { [string]: Definition } = {
 	RequestReroll = {
 		direction = "toServer",
 		rateLimit = { count = 2, perSeconds = 1 },
-		args = {}, -- one free reroll per run, checked by UpgradeService
+		args = {}, -- new level-up cards for Shards; price and Shards are checked by UpgradeService
 	},
 	SetShopReady = {
 		direction = "toServer",
@@ -76,7 +76,8 @@ local Remotes: { [string]: Definition } = {
 	LevelUpOffer = { direction = "toClient" }, -- Net/Types.LevelUpOffer, to the choosing player
 	TeamProgress = { direction = "toClient" }, -- Net/Types.TeamProgress, to everyone on change
 	XpOrbs = { direction = "toClient" }, -- Net/Types.XpOrbEvents of one simulation step, to participants
-	Passives = { direction = "toClient" }, -- Net/Types.PassiveLoadout of one player, to everyone on change
+	Items = { direction = "toClient" }, -- Net/Types.ItemLoadout of one player, to everyone on change
+	Stats = { direction = "toClient" }, -- Net/Types.StatSheet, to its player on change
 	RunSummary = { direction = "toClient" }, -- Net/Types.RunSummary, to the participants when a run ends
 	Notify = { direction = "toClient" }, -- short on-screen messages
 	EnemySnapshot = { direction = "toClient", unreliable = true }, -- buffer, see Net/Snapshot

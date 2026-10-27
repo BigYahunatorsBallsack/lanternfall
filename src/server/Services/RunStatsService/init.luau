@@ -3,7 +3,7 @@
 -- over time, damage taken and downs while a run is active. When the run ends it sends RunSummary to the participants
 -- and prints a summary block to the server Output (Developer Console F9 -> Server in a live game).
 -- Listens to RunDirector, EnemySim, ExperienceService and CombatService; reads loadouts from WeaponService and
--- UpgradeService.
+-- StatService (items).
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -16,7 +16,7 @@ local CombatService = require(script.Parent.CombatService)
 local EnemySim = require(script.Parent.EnemySim)
 local ExperienceService = require(script.Parent.ExperienceService)
 local RunDirector = require(script.Parent.RunDirector)
-local UpgradeService = require(script.Parent.UpgradeService)
+local StatService = require(script.Parent.StatService)
 local WeaponService = require(script.Parent.WeaponService)
 local Tally = require(script.Tally)
 
@@ -41,7 +41,7 @@ local function loadoutsOf(participants: { Player }): { [number]: Tally.Loadout }
 				kills = if stats then stats.kills else 0,
 			})
 		end
-		loadouts[player.UserId] = { weapons = weapons, passives = UpgradeService.getPassives(player) }
+		loadouts[player.UserId] = { weapons = weapons, items = StatService.getItems(player) }
 	end
 	return loadouts
 end

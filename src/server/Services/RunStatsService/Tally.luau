@@ -18,10 +18,10 @@ export type PlayerTally = {
 	firstDownAt: number?, -- run seconds
 }
 
--- What the run's players carried at the end (from WeaponService and UpgradeService).
+-- What the run's players carried at the end (from WeaponService and StatService).
 export type Loadout = {
 	weapons: { { id: string, level: number, damage: number, kills: number } },
-	passives: { Types.PassiveInfo },
+	items: { Types.ItemInfo },
 }
 
 local Tally = {}
@@ -166,12 +166,12 @@ function Tally.logLines(self: Tally, results: Types.Results, loadouts: { [number
 					`{displayName(Config.Weapons, weapon.id)} LV{weapon.level} {math.round(weapon.damage)} dmg/{weapon.kills} kills`
 				)
 			end
-			local passives = {}
-			for _, passive in loadout.passives do
-				table.insert(passives, `{displayName(Config.Passives, passive.id)} LV{passive.level}`)
+			local items = {}
+			for _, item in loadout.items do
+				table.insert(items, `{displayName(Config.Items.byId, item.id)} x{item.count}`)
 			end
 			table.insert(lines, `  Weapons: {if #weapons > 0 then table.concat(weapons, " · ") else "none"}`)
-			table.insert(lines, `  Passives: {if #passives > 0 then table.concat(passives, " · ") else "none"}`)
+			table.insert(lines, `  Items: {if #items > 0 then table.concat(items, " · ") else "none"}`)
 		end
 	end
 	return lines

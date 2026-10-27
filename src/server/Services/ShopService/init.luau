@@ -1,10 +1,10 @@
 --!strict
 -- Shards and the shop between waves (DESIGN.md section 3, Brotato direction since B1). Players earn Shards for the XP
 -- orbs they pick up (ExperienceService.OrbsCollected, Config.Shop.shardsPerXp). When a wave ends (RunDirector phase
--- Shop) every participant who is not out gets their own offers (rolled by ShopService/ShopRules); BuyShopOffer and
--- RerollShop are checked here, the item itself comes from UpgradeService.grantItem. Ready is handled by RunDirector.
--- Offers follow what the player owns (level-up cards picked in the same shop, other purchases). Sends ShopState to its
--- player on every change.
+-- Shop) Harvesting pays out (Shards and team XP, then it grows) and every participant who is not out gets their own
+-- offers (rolled by ShopService/ShopRules with their Luck); BuyShopOffer and RerollShop are checked here, weapons come
+-- from WeaponService, items from StatService. Ready is handled by RunDirector. Offers follow what the player owns.
+-- Sends ShopState to its player on every change. UpgradeService pays level-up rerolls with spendShards.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -16,7 +16,7 @@ local Types = require(Shared.Net.Types)
 
 local ExperienceService = require(script.Parent.ExperienceService)
 local RunDirector = require(script.Parent.RunDirector)
-local UpgradeService = require(script.Parent.UpgradeService)
+local StatService = require(script.Parent.StatService)
 local WeaponService = require(script.Parent.WeaponService)
 local ShopRules = require(script.ShopRules)
 
@@ -31,11 +31,6 @@ type State = {
 local ShopService = {}
 
 local states: { [Player]: State } = {}
-local passiveIds: { string } = {}
-for id in Config.Passives do
-	table.insert(passiveIds, id)
-end
-table.sort(passiveIds)
 local rng = Random.new()
 local offerCounter = 0
 
@@ -61,31 +56,29 @@ local function ownedWeapons(player: Player): { [string]: number }
 	return owned
 end
 
--- Brings unsold offers up to date with what the player owns now (level-up cards, other purchases): the level after
--- buying, "new" or not, and drops offers that can no longer be bought (max level, slots full).
+-- Brings unsold offers up to date with what the player owns now (other purchases, chests): the level or count after
+-- buying, "new" or not, and drops offers that can no longer be bought (max level, weapon slots full, item limit).
 local function refresh(player: Player, state: State)
-	local owned = {
-		Weapon = ownedWeapons(player),
-		Passive = UpgradeService.getPassiveLevels(player),
-	}
-	local limits = { Weapon = Config.Player.maxWeapons, Passive = Config.Player.maxPassives }
+	local weapons = ownedWeapons(player)
+	local weaponCount = 0
+	for _ in weapons do
+		weaponCount += 1
+	end
+	local items = StatService.getItemCounts(player)
 	for index = #state.offers, 1, -1 do
 		local offer = state.offers[index]
 		if not offer.sold then
-			local levels = owned[offer.kind]
-			local level = levels[offer.itemId]
-			local count = 0
-			for _ in levels do
-				count += 1
-			end
-			if level then
-				offer.level = level + 1
-				offer.isNew = false
+			local owned = if offer.kind == "Weapon" then weapons[offer.itemId] else items[offer.itemId]
+			offer.level = (owned or 0) + 1
+			offer.isNew = owned == nil
+			local blocked
+			if offer.kind == "Weapon" then
+				blocked = if owned then owned >= Config.Player.maxItemLevel else weaponCount >= Config.Player.maxWeapons
 			else
-				offer.level = 1
-				offer.isNew = true
+				local item = Config.Items.byId[offer.itemId]
+				blocked = item == nil or (item.limit ~= nil and (owned or 0) >= item.limit)
 			end
-			if (level and level >= Config.Player.maxItemLevel) or (not level and count >= limits[offer.kind]) then
+			if blocked then
 				table.remove(state.offers, index)
 			end
 		end
@@ -102,13 +95,12 @@ end
 local function roll(player: Player, state: State)
 	state.offers = ShopRules.roll({
 		wave = state.wave,
+		luck = StatService.getStat(player, "luck"),
 		weapons = WeaponService.getImplemented(),
-		passives = passiveIds,
 		ownedWeapons = ownedWeapons(player),
-		ownedPassives = UpgradeService.getPassiveLevels(player),
 		maxWeapons = Config.Player.maxWeapons,
-		maxPassives = Config.Player.maxPassives,
 		maxLevel = Config.Player.maxItemLevel,
+		ownedItems = StatService.getItemCounts(player),
 		nextId = function(): string
 			offerCounter += 1
 			return tostring(offerCounter)
@@ -119,11 +111,24 @@ local function roll(player: Player, state: State)
 	})
 end
 
+-- End of a wave: Harvesting gives its value in Shards (negative Harvesting takes them, down to 0) and team XP, then
+-- grows (StatService.growHarvesting).
+local function harvest(player: Player, state: State)
+	local harvesting = StatService.getStat(player, "harvesting")
+	if harvesting == 0 then
+		return
+	end
+	state.shards = math.max(0, state.shards + harvesting)
+	ExperienceService.addXp(harvesting)
+	StatService.growHarvesting(player)
+end
+
 local function openShop()
 	local wave = RunDirector.getWave()
 	for _, player in RunDirector.getParticipants() do
 		local state = states[player]
 		if state and RunDirector.getParticipantState(player) ~= "Out" then
+			harvest(player, state)
 			state.open = true
 			state.wave = wave
 			state.rerolls = 0
@@ -143,6 +148,17 @@ local function closeShop()
 	end
 end
 
+-- Gives the player what the offer sells: a new weapon or its next level, or one more of an item.
+local function grant(player: Player, offer: Types.ShopOffer): boolean
+	if offer.kind == "Item" then
+		return (StatService.addItem(player, offer.itemId))
+	end
+	if ownedWeapons(player)[offer.itemId] then
+		return (WeaponService.levelUp(player, offer.itemId))
+	end
+	return (WeaponService.addWeapon(player, offer.itemId))
+end
+
 local function buy(player: Player, offerId: string)
 	local state = states[player]
 	if not (state and state.open and RunDirector.getPhase() == "Shop") then
@@ -154,7 +170,7 @@ local function buy(player: Player, offerId: string)
 				Net.fireClient("Notify", player, "Not enough Shards")
 				return
 			end
-			if not UpgradeService.grantItem(player, offer.kind, offer.itemId) then
+			if not grant(player, offer) then
 				Net.fireClient("Notify", player, "You can't take that right now")
 				send(player, state) -- drops the offer if it can no longer be bought
 				return
@@ -203,13 +219,6 @@ function ShopService.init()
 			send(player, states[player])
 		end
 	end)
-	-- the level-up cards come before the shop and may change what an offer gives
-	UpgradeService.Picked:Connect(function(player: Player)
-		local state = states[player]
-		if state and state.open then
-			send(player, state)
-		end
-	end)
 	RunDirector.PhaseChanged:Connect(function(phase)
 		if phase == "Shop" then
 			openShop()
@@ -237,6 +246,17 @@ end
 function ShopService.getShards(player: Player): number
 	local state = states[player]
 	return if state then math.floor(state.shards) else 0
+end
+
+-- Takes `amount` Shards if the player has them (level-up rerolls). False otherwise.
+function ShopService.spendShards(player: Player, amount: number): boolean
+	local state = states[player]
+	if not state or state.shards < amount then
+		return false
+	end
+	state.shards -= amount
+	send(player, state)
+	return true
 end
 
 -- Adds Shards (admin debug command, tests).
