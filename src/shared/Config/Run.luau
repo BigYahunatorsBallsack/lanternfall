@@ -66,7 +66,10 @@ local Run = {
 		autoPickSeconds = 10, -- first card is picked automatically after this
 		freeRerollsPerRun = 1,
 		maxedOutRewards = table.freeze({ embers = 25, healFraction = 0.3 }),
-		protectionAfterPick = 0.5, -- seconds still invulnerable after the last pick, to step out of the crowd (assumption)
+		-- While picking: true = the player stands still and is invulnerable (original design); false = they keep walking,
+		-- dashing and taking hits (owner feedback after WP9)
+		freezeWhileChoosing = false,
+		protectionAfterPick = 0.5, -- with freezeWhileChoosing: seconds still invulnerable after the last pick (assumption)
 		inputDelaySeconds = 0.4, -- cards ignore taps this long after they appear, against accidental picks (assumption)
 	}),
 

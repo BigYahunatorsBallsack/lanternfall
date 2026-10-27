@@ -101,7 +101,8 @@ local function applyWalkSpeed(player: Player)
 	local participantState = RunDirector.getParticipantState(player)
 	local standing = participantState == nil or participantState == "Alive" or not RunDirector.isActive()
 	local speed = PlayerConfig.moveSpeed * math.max(0, 1 + bonusFor(player, "moveSpeed"))
-	humanoid.WalkSpeed = if standing and not choosing[player] then speed else 0
+	local frozen = choosing[player] and Config.Run.levelUp.freezeWhileChoosing
+	humanoid.WalkSpeed = if standing and not frozen then speed else 0
 end
 
 local function onCharacterAdded(player: Player, character: Model)
@@ -181,14 +182,17 @@ function CombatService.setBonuses(player: Player, playerBonuses: { [string]: num
 	send(player)
 end
 
--- While choosing a level-up card the player is invulnerable and stands still (DESIGN.md section 8); weapons keep
--- firing. Ending the choice leaves Config.Run.levelUp.protectionAfterPick seconds of protection.
+-- Marks the player as choosing a level-up card (DESIGN.md section 8); weapons keep firing. Only with
+-- Config.Run.levelUp.freezeWhileChoosing they stand still and are invulnerable, and ending the choice leaves
+-- protectionAfterPick seconds of protection; otherwise they keep walking, dashing and taking hits.
 function CombatService.setChoosing(player: Player, value: boolean)
 	if (choosing[player] == true) == value then
 		return
 	end
 	choosing[player] = if value then true else nil
-	getVitals(player):setShielded(value, now(), Config.Run.levelUp.protectionAfterPick)
+	if Config.Run.levelUp.freezeWhileChoosing then
+		getVitals(player):setShielded(value, now(), Config.Run.levelUp.protectionAfterPick)
+	end
 	applyWalkSpeed(player)
 	send(player)
 end
@@ -222,7 +226,7 @@ function CombatService.init()
 	Net.onServer("RequestDash", function(player)
 		local participantState = RunDirector.getParticipantState(player)
 		local standingStill = RunDirector.isActive() and participantState ~= nil and participantState ~= "Alive"
-		if standingStill or choosing[player] then
+		if standingStill or (choosing[player] and Config.Run.levelUp.freezeWhileChoosing) then
 			send(player)
 			return
 		end
