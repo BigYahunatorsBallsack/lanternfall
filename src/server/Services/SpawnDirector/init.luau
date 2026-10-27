@@ -15,6 +15,7 @@ local RunService = game:GetService("RunService")
 local Config = require(ReplicatedStorage.Shared.Config)
 local EnemyKinds = require(ReplicatedStorage.Shared.Util.EnemyKinds)
 local Net = require(ReplicatedStorage.Shared.Net)
+local RunSchedule = require(ReplicatedStorage.Shared.Util.RunSchedule)
 
 local EnemySim = require(script.Parent.EnemySim)
 local MapService = require(script.Parent.MapService)
@@ -47,7 +48,7 @@ local function roll(): number
 end
 
 local function minutes(): number
-	return RunDirector.getElapsed() / 60
+	return RunSchedule.minutesAt(RunDirector.getElapsed())
 end
 
 local function playerCount(): number

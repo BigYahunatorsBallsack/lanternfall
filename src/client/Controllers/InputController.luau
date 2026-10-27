@@ -42,6 +42,10 @@ local function canDash(): boolean
 	if RunStateController.getView() == "Run" and info and info.state ~= nil and info.state ~= "Alive" then
 		return false
 	end
+	local state = RunStateController.get()
+	if state and state.phase == "Shop" and info and info.participant then
+		return false -- the shop between waves is a screen of its own
+	end
 	local vitals = PlayerStateController.getLocal()
 	if vitals and vitals.choosing and Config.Run.levelUp.freezeWhileChoosing then
 		return false -- standing still while picking a level-up card

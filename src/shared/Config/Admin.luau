@@ -5,7 +5,7 @@
 return table.freeze({
 	userIds = table.freeze({}) :: { number },
 	allowInStudio = true,
-	skipMinuteSeconds = 60, -- "SkipMinute"
+	addShards = 100, -- "AddShards"
 	skipToBossLeadSeconds = 10, -- "SkipToBoss" leaves this many seconds until the boss
 	spawnWaveCount = 40, -- "SpawnWave": enemies spawned around the admin (the alive cap still applies)
 	hitNearbyRadius = 20, -- "HitNearby": studs around the admin

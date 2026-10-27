@@ -1,8 +1,8 @@
 --!strict
--- In-run HUD for the prototype: team XP bar with the level, run timer, the wave (number, breather countdown, final
--- wave; Util/RunSchedule) with a big banner when a new wave starts that names what it brings, the local HP bar with a
--- red flash on hits, the team with HP and Alive/Down states (and who is picking a card), and your weapons and
--- passives with their levels. Shown while the local player is in a running run; reads RunStateController,
+-- In-run HUD for the prototype: team XP bar with the level (and level-ups waiting for the end of the wave), the time
+-- left in the wave or the shop, the wave (number, final wave, shop; Util/RunSchedule) with a big banner when a new wave
+-- starts that names what it brings, the local HP bar with a red flash on hits, the team with HP and Alive/Down states
+-- (who is picking a card, who is done shopping), and your weapons and passives with their levels. Shown while the local player is in a running run; reads RunStateController,
 -- PlayerStateController, LoadoutController and ProgressController. WP14 builds the full HUD.
 
 local Players = game:GetService("Players")
@@ -16,6 +16,7 @@ local Format = require(Shared:WaitForChild("Util"):WaitForChild("Format"))
 local RunSchedule = require(Shared:WaitForChild("Util"):WaitForChild("RunSchedule"))
 local Types = require(Shared:WaitForChild("Net"):WaitForChild("Types"))
 
+local LevelUpController = require(script.Parent.LevelUpController)
 local LoadoutController = require(script.Parent.LoadoutController)
 local PlayerStateController = require(script.Parent.PlayerStateController)
 local ProgressController = require(script.Parent.ProgressController)
@@ -55,12 +56,11 @@ local function hintText(state: Types.RunState): (string, Color3)
 	if state.phase == "Boss" then
 		return string.upper(Config.Enemies.boss.displayName), Theme.danger
 	end
-	local elapsed = RunStateController.getElapsed()
-	local wave = RunSchedule.waveAt(elapsed)
-	if wave.final then
-		return `Final wave · survive until {Format.time(Config.Run.durationSeconds)}`, Theme.danger
-	elseif wave.breather then
-		return `Breather · wave {wave.number + 1} in {math.ceil(wave.endsAt - elapsed)}`, Theme.success
+	local wave = RunSchedule.wave(state.wave)
+	if state.phase == "Shop" then
+		return `Shop · wave {wave.number + 1} / {wave.count} next`, Theme.success
+	elseif wave.final then
+		return `Final wave {wave.number} / {wave.count}`, Theme.danger
 	end
 	return `Wave {wave.number} / {wave.count}`, Theme.textDim
 end
@@ -123,10 +123,36 @@ local function showWaveBanner(number: number)
 	end)
 end
 
--- Every frame: the wave hint, and the banner once a new wave starts.
+local function xpText(): string
+	local team = ProgressController.getTeam()
+	local waiting = LevelUpController.getWaiting()
+	local level = `LV {if team then team.level else 1}`
+	return if waiting > 0 then `{level} · +{waiting} at wave end` else level
+end
+
+-- Big timer: seconds left in the wave (Running), in the shop (Shop), fighting time in the boss phase.
+local function timerText(state: Types.RunState?): string
+	if state and state.phase == "Running" then
+		local left = RunSchedule.wave(state.wave).endsAt - RunStateController.getElapsed()
+		return Format.time(math.max(0, math.ceil(left)))
+	elseif state and state.phase == "Shop" then
+		return Format.time(math.ceil(RunStateController.getPhaseRemaining()))
+	end
+	return Format.time(RunStateController.getElapsed())
+end
+
+-- Every frame: the timer, the wave hint, and the banner once a new wave starts.
 local function updateWave()
 	local state = RunStateController.get()
-	if not (state and state.phase == "Running") then
+	local text = timerText(state)
+	if timerLabel.Text ~= text then
+		timerLabel.Text = text
+	end
+	local xp = xpText()
+	if xpLabel.Text ~= xp then
+		xpLabel.Text = xp
+	end
+	if not (state and (state.phase == "Running" or state.phase == "Shop")) then
 		bannerWave = 0
 		return
 	end
@@ -135,10 +161,9 @@ local function updateWave()
 		hintLabel.Text = hint
 		hintLabel.TextColor3 = color
 	end
-	local wave = RunSchedule.waveAt(RunStateController.getElapsed())
-	if wave.number ~= bannerWave then
-		bannerWave = wave.number
-		showWaveBanner(wave.number)
+	if state.phase == "Running" and state.wave ~= bannerWave then
+		bannerWave = state.wave
+		showWaveBanner(state.wave)
 	end
 end
 
@@ -152,6 +177,9 @@ local function renderTeam(state: Types.RunState)
 			local vitals = PlayerStateController.get(info.userId)
 			local hpText = if vitals and stateName == "Alive" then ` · {vitals.hp} HP` else ""
 			local pickText = if vitals and vitals.choosing then " · picking" else ""
+			if state.phase == "Shop" and stateName ~= "Out" and not (vitals and vitals.choosing) then
+				pickText = if info.shopReady then " · ready" else " · shopping"
+			end
 			Widgets.label({
 				Text = `{info.name} · {STATE_TEXT[stateName] or stateName}{hpText}{pickText}`,
 				TextColor3 = if stateName == "Alive" then Theme.text else Theme.danger,
@@ -206,7 +234,7 @@ local function renderXp()
 	local team = ProgressController.getTeam()
 	local fraction = if team and team.needed > 0 then math.clamp(team.xp / team.needed, 0, 1) else 0
 	xpFill.Size = UDim2.fromScale(fraction, 1)
-	xpLabel.Text = `LV {if team then team.level else 1}`
+	xpLabel.Text = xpText()
 end
 
 local function renderWeapons()
@@ -446,10 +474,6 @@ function HUDController.start()
 
 	RunService.Heartbeat:Connect(function()
 		if screen.Enabled then
-			local text = Format.time(RunStateController.getElapsed())
-			if timerLabel.Text ~= text then
-				timerLabel.Text = text
-			end
 			updateWave()
 		end
 	end)

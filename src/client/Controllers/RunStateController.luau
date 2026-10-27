@@ -61,7 +61,7 @@ function RunStateController.getView(): View
 	end
 	if state.phase == "Ended" then
 		return "Results"
-	elseif state.phase == "Running" or state.phase == "Boss" then
+	elseif state.phase == "Running" or state.phase == "Shop" or state.phase == "Boss" then
 		return "Run"
 	end
 	return "Lobby"
@@ -71,15 +71,16 @@ function RunStateController.now(): number
 	return workspace:GetServerTimeNow()
 end
 
--- Seconds since the run started (frozen after it ended), 0 outside a run.
+-- Fighting seconds since the run started (stopped in the shop and after the run ended), 0 outside a run.
 function RunStateController.getElapsed(): number
 	if not (state and state.runStartedAt) then
 		return 0
 	end
-	return (state.runEndedAt or RunStateController.now()) - state.runStartedAt
+	local stop = state.pausedAt or state.runEndedAt or RunStateController.now()
+	return stop - state.runStartedAt - state.pausedSeconds
 end
 
--- Seconds left in the countdown or on the results screen.
+-- Seconds left in the countdown, the shop or on the results screen.
 function RunStateController.getPhaseRemaining(): number
 	if not (state and state.phaseEndsAt) then
 		return 0

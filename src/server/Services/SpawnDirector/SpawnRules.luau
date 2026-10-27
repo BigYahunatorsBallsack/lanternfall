@@ -2,7 +2,8 @@
 -- Spawn formulas from DESIGN.md section 7, as pure functions of Config.Run: rate (curve, waves, Swarm Rush), alive
 -- cap, HP and damage factors, enemy mix by minute, elite times and the spawn ring around a player (optionally in
 -- front of them). Curves and waves come from the shared Util/RunSchedule, which the HUD uses too. Used by
--- SpawnDirector; tested in tests/SpawnRules.spec.luau. `minutes` is the run time in minutes (fractions allowed).
+-- SpawnDirector; tested in tests/SpawnRules.spec.luau. `minutes` is schedule time (RunSchedule.minutesAt): one
+-- minute per wave, fractions allowed.
 
 local Shared = game:GetService("ReplicatedStorage").Shared
 local Config = require(Shared.Config)
@@ -58,16 +59,16 @@ end
 function SpawnRules.isSwarmRush(minutes: number): boolean
 	local rush = Spawn.swarmRush
 	for _, start in rush.atMinutes do
-		if minutes >= start and minutes < start + rush.durationSeconds / 60 then
+		if minutes >= start and minutes < start + rush.durationShare then
 			return true
 		end
 	end
 	return false
 end
 
--- Enemies per second including the wave intensity (ramp, breather, final wave) and Swarm Rush.
+-- Enemies per second including the wave intensity (ramp, final wave) and Swarm Rush.
 function SpawnRules.currentRate(minutes: number, playerCount: number): number
-	local rate = SpawnRules.rate(minutes, playerCount) * RunSchedule.intensity(minutes * 60)
+	local rate = SpawnRules.rate(minutes, playerCount) * RunSchedule.intensity(minutes)
 	return if SpawnRules.isSwarmRush(minutes) then rate * Spawn.swarmRush.rateMultiplier else rate
 end
 

@@ -1,8 +1,9 @@
 --!strict
--- Debug commands for testing (skip time, knock yourself down, hurt/heal yourself, win, spawn/hit/kill enemies and elites, pause
+-- Debug commands for testing (end the wave, stop the wave timer, Shards, knock yourself down, hurt/heal yourself, win, spawn/hit/kill enemies and elites, pause
 -- spawning, add/swap/level/evolve weapons, weapons off, team level-up) and the stats panel feed (DebugStats once per second). Admins only:
 -- everyone in Studio, the owner of a user-owned experience and Config.Admin.userIds. Handles the DebugCommand remote
--- and uses RunDirector, CombatService, EnemySim, ExperienceService, SpawnDirector, UpgradeService, WeaponService and
+-- and uses RunDirector, CombatService, EnemySim, ExperienceService, ShopService, SpawnDirector, UpgradeService,
+-- WeaponService and
 -- MapService. Sets the player
 -- attribute "LanternfallAdmin" so the client shows the debug panel.
 
@@ -14,6 +15,7 @@ local Shared = ReplicatedStorage.Shared
 local Config = require(Shared.Config)
 local DebugCommands = require(Shared.Net.DebugCommands)
 local Net = require(Shared.Net)
+local RunSchedule = require(Shared.Util.RunSchedule)
 local Types = require(Shared.Net.Types)
 
 local CombatService = require(script.Parent.CombatService)
@@ -21,6 +23,7 @@ local EnemySim = require(script.Parent.EnemySim)
 local ExperienceService = require(script.Parent.ExperienceService)
 local MapService = require(script.Parent.MapService)
 local RunDirector = require(script.Parent.RunDirector)
+local ShopService = require(script.Parent.ShopService)
 local SpawnDirector = require(script.Parent.SpawnDirector)
 local UpgradeService = require(script.Parent.UpgradeService)
 local WeaponService = require(script.Parent.WeaponService)
@@ -74,8 +77,19 @@ end
 -- Each handler returns ok plus, on failure, a RunDirector rejection reason or, on success, an optional
 -- message for the admin.
 local handlers: { [string]: (player: Player) -> (boolean, string?) } = {
-	SkipMinute = function()
-		return RunDirector.skipTo(RunDirector.getElapsed() + Config.Admin.skipMinuteSeconds)
+	SkipWave = function()
+		return RunDirector.skipTo(RunSchedule.wave(RunDirector.getWave()).endsAt)
+	end,
+	HoldWaves = function()
+		local hold = not RunDirector.isHoldingWaves()
+		RunDirector.setHoldWaves(hold)
+		return true, if hold then "Wave timer stopped" else "Wave timer running"
+	end,
+	AddShards = function(player)
+		if not ShopService.addShards(player, Config.Admin.addShards) then
+			return false, "NotParticipant"
+		end
+		return true, `+{Config.Admin.addShards} Shards`
 	end,
 	SkipToBoss = function()
 		return RunDirector.skipTo(Config.Run.durationSeconds - Config.Admin.skipToBossLeadSeconds)

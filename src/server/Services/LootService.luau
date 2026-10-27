@@ -3,6 +3,7 @@
 -- When a living participant gets within Config.Run.coop.chestOpenRadius, it opens and every living participant within
 -- chestRadius gets their own reward from UpgradeService.grantChest (evolution, else an upgrade, else healing) and heals
 -- Config.Run.coop.chestHealFraction of their max HP (CombatService).
+-- Chests still on the floor when a wave ends open for every participant who is not out (like Brotato's crates).
 -- Sends Chests (what lies on the floor) and ChestOpened to the participants; chests vanish when a run starts or ends.
 -- The boss chest (WP10) can reuse drop().
 
@@ -46,13 +47,17 @@ local function distance(position: Vector3, chest: Types.ChestInfo): number
 	return math.sqrt(dx * dx + dz * dz)
 end
 
--- Opens the chest at `index`: every living participant close enough gets a reward.
-local function open(index: number)
+-- Opens the chest at `index`: every living participant close enough gets a reward, with `everyone` every participant
+-- who is not out.
+local function open(index: number, everyone: boolean?)
 	local chest = table.remove(chests, index) :: Types.ChestInfo
 	local rewards: { { userId: number, reward: Types.ChestReward } } = {}
 	for _, player in RunDirector.getParticipants() do
 		local position = EnemySim.getPlayerPosition(player) -- nil unless alive
-		if position and distance(position, chest) <= Coop.chestRadius then
+		local reached = if everyone
+			then RunDirector.getParticipantState(player) ~= "Out"
+			else position ~= nil and distance(position, chest) <= Coop.chestRadius
+		if reached then
 			local reward = UpgradeService.grantChest(player)
 			local _, maxHp = CombatService.getHp(player)
 			CombatService.healPlayer(player, maxHp * Coop.chestHealFraction)
@@ -95,6 +100,13 @@ function LootService.init()
 	EnemySim.Stepped:Connect(onStepped)
 	RunDirector.RunStarted:Connect(clear)
 	RunDirector.RunEnded:Connect(clear)
+	RunDirector.PhaseChanged:Connect(function(phase)
+		if phase == "Shop" then
+			for index = #chests, 1, -1 do
+				open(index, true)
+			end
+		end
+	end)
 	RunDirector.SyncRequested:Connect(function(requester)
 		Net.fireClient("Chests", requester, list())
 	end)

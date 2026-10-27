@@ -1,6 +1,6 @@
 --!strict
--- The run's timeline from Config.Run.spawn as pure functions (DESIGN.md section 7): keyframe curves, waves with
--- their breathers and the events each wave starts with. Shared, so the server spawns by it (SpawnDirector/SpawnRules)
+-- The run's timeline from Config.Run.spawn as pure functions (DESIGN.md section 7): keyframe curves, waves of
+-- different lengths, schedule minutes and the events each wave starts with. Shared, so the server spawns by it (SpawnDirector/SpawnRules)
 -- and the HUD shows the same waves without a remote. Tested in tests/SpawnRules.spec.luau.
 
 local Run = require(script.Parent.Parent.Config.Run)
@@ -11,17 +11,25 @@ local Waves = Spawn.waves
 export type Curve = { { number } } -- keyframes { minute, value }, sorted by minute
 
 export type Wave = {
-	number: number, -- 1 for the first minute
+	number: number, -- 1 for the first wave
 	count: number, -- waves in a run
-	startsAt: number, -- run seconds
-	endsAt: number, -- run seconds, when the next wave starts
-	breather: boolean, -- in the calm part at the end of the wave
+	startsAt: number, -- fighting seconds (the clock stops in the shop between waves)
+	endsAt: number, -- fighting seconds, when the shop opens (or the boss comes after the final wave)
 	final: boolean, -- the last wave before the boss
 }
 
 local RunSchedule = {}
 
-local WAVE_COUNT = math.max(1, math.ceil(Run.durationSeconds / Waves.lengthSeconds))
+local LENGTHS = Waves.lengthsSeconds
+local WAVE_COUNT = #LENGTHS
+local STARTS: { number } = {}
+do
+	local at = 0
+	for index, length in LENGTHS do
+		STARTS[index] = at
+		at += length
+	end
+end
 
 -- Value of a keyframe curve at `minutes`: linear between keyframes, flat before the first and after the last.
 function RunSchedule.curve(curve: Curve, minutes: number): number
@@ -41,33 +49,48 @@ function RunSchedule.curve(curve: Curve, minutes: number): number
 	return curve[#curve][2]
 end
 
--- The wave at run time `seconds`.
-function RunSchedule.waveAt(seconds: number): Wave
-	local length = Waves.lengthSeconds
-	local number = math.clamp(math.floor(math.max(seconds, 0) / length) + 1, 1, WAVE_COUNT)
-	local startsAt = (number - 1) * length
-	local final = number == WAVE_COUNT
+-- Number of waves in a run.
+function RunSchedule.waveCount(): number
+	return WAVE_COUNT
+end
+
+-- The wave with this number (clamped to the run's waves).
+function RunSchedule.wave(number: number): Wave
+	local n = math.clamp(number, 1, WAVE_COUNT)
 	return {
-		number = number,
+		number = n,
 		count = WAVE_COUNT,
-		startsAt = startsAt,
-		endsAt = startsAt + length,
-		breather = not final and seconds >= startsAt + length - Waves.breatherSeconds,
-		final = final,
+		startsAt = STARTS[n],
+		endsAt = STARTS[n] + LENGTHS[n],
+		final = n == WAVE_COUNT,
 	}
 end
 
--- Multiplier on the spawn rate at run time `seconds`: ramps through the wave, low in its breather, higher in the
--- final wave.
-function RunSchedule.intensity(seconds: number): number
-	local wave = RunSchedule.waveAt(seconds)
-	if wave.breather then
-		return Waves.breatherRate
+-- The wave at `seconds` of fighting time; a wave's end belongs to the next wave.
+function RunSchedule.waveAt(seconds: number): Wave
+	local number = 1
+	for index = WAVE_COUNT, 1, -1 do
+		if seconds >= STARTS[index] then
+			number = index
+			break
+		end
 	end
-	local rampSeconds = Waves.lengthSeconds - (if wave.final then 0 else Waves.breatherSeconds)
-	local t = math.clamp((seconds - wave.startsAt) / rampSeconds, 0, 1)
+	return RunSchedule.wave(number)
+end
+
+-- Fighting seconds turned into schedule minutes (one per wave, see Config.Run.spawn): wave n runs from n - 1 to n.
+function RunSchedule.minutesAt(seconds: number): number
+	local wave = RunSchedule.waveAt(seconds)
+	local length = wave.endsAt - wave.startsAt
+	return wave.number - 1 + math.clamp((seconds - wave.startsAt) / length, 0, 1)
+end
+
+-- Multiplier on the spawn rate at schedule minute `minutes`: ramps through the wave, higher in the final wave.
+function RunSchedule.intensity(minutes: number): number
+	local number = math.clamp(math.floor(minutes) + 1, 1, WAVE_COUNT)
+	local t = math.clamp(minutes - (number - 1), 0, 1)
 	local ramp = Waves.rampFrom + (Waves.rampTo - Waves.rampFrom) * t
-	return if wave.final then ramp * Waves.finalRate else ramp
+	return if number == WAVE_COUNT then ramp * Waves.finalRate else ramp
 end
 
 -- Elites called at run time in (fromMinutes, toMinutes].
@@ -83,7 +106,7 @@ end
 
 -- What the wave with this number brings, for its banner: new enemies, Swarm Rush, elites. Empty for none.
 function RunSchedule.eventsOf(number: number): { string }
-	local minute = (number - 1) * Waves.lengthSeconds / 60
+	local minute = number - 1
 	local events = {}
 	for _, entry in Spawn.mix do
 		local announce = (entry :: any).announce :: string?

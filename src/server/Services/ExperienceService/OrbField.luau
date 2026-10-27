@@ -102,6 +102,15 @@ function OrbField.collect(self: OrbField, x: number, z: number, radius: number, 
 	return total
 end
 
+-- XP of every orb on the floor together.
+function OrbField.total(self: OrbField): number
+	local total = 0
+	for _, value in self.values do
+		total += value
+	end
+	return total
+end
+
 -- Position and value of an orb, nil for unknown ids.
 function OrbField.get(self: OrbField, id: number): (number?, number?, number?)
 	local index = self.indexOf[id]

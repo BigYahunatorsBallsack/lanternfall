@@ -1,11 +1,12 @@
 --!strict
 -- Level-up cards and passives (DESIGN.md sections 6, 8 and 9). Every time the team levels up (ExperienceService
--- .LevelGained), each participant who is not out gets their own cards (rolled by UpgradeService/UpgradePool) and
--- stands still, invulnerable, while choosing (CombatService.setChoosing); weapons keep firing. Several level-ups
--- queue up. Handles ChooseUpgrade and RequestReroll, picks the first card after Config.Run.levelUp.autoPickSeconds
+-- .LevelGained), each participant who is not out gets one more choice of their own cards (rolled by
+-- UpgradeService/UpgradePool). Since B1 (Brotato direction) the choices wait until the wave ends and open one after
+-- another in the shop phase; whatever is still open when the next wave starts is picked automatically. Handles ChooseUpgrade and RequestReroll, picks the first card after Config.Run.levelUp.autoPickSeconds
 -- and applies the pick: weapons via WeaponService, passives as bonuses pushed to WeaponService, CombatService and
 -- ExperienceService, rewards as healing or Embers. Sends LevelUpOffer to the chooser and Passives to everyone.
--- Elite chests (LootService, WP9) call grantChest; AdminService uses getEvolutions, evolve and addPassive.
+-- Elite chests (LootService, WP9) call grantChest, the shop (ShopService, B1) grantItem; AdminService uses
+-- getEvolutions, evolve and addPassive.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -14,6 +15,7 @@ local RunService = game:GetService("RunService")
 local Shared = ReplicatedStorage.Shared
 local Config = require(Shared.Config)
 local Net = require(Shared.Net)
+local Signal = require(Shared.Util.Signal)
 local Types = require(Shared.Net.Types)
 
 local CombatService = require(script.Parent.CombatService)
@@ -37,6 +39,9 @@ type State = {
 }
 
 local UpgradeService = {}
+
+-- (player: Player): a level-up card was applied (ShopService refreshes its offers)
+UpgradeService.Picked = Signal.new()
 
 local states: { [Player]: State } = {}
 local passiveIds: { string } = {}
@@ -84,7 +89,7 @@ local function sendOffer(player: Player, state: State)
 		cards = if offer then offer.cards else {},
 		expiresAt = if offer then offer.expiresAt else 0,
 		rerolls = state.rerolls,
-		pending = math.max(0, #state.levels - 1),
+		pending = if offer then math.max(0, #state.levels - 1) else #state.levels,
 	}
 	Net.fireClient("LevelUpOffer", player, payload)
 end
@@ -177,18 +182,31 @@ local function choose(player: Player, cardId: string): boolean
 			state.offer = nil
 			apply(player, state, card)
 			openNext(player, state)
+			UpgradeService.Picked:Fire(player)
 			return true
 		end
 	end
 	return false
 end
 
+-- Picks the first card of every open and waiting choice (the shop closed before the player chose).
+local function pickAll(player: Player, state: State)
+	local guard = #state.levels + 1
+	while state.offer and state.offer.cards[1] and guard > 0 do
+		guard -= 1
+		choose(player, state.offer.cards[1].id)
+	end
+	table.clear(state.levels)
+	sendOffer(player, state)
+end
+
 local function onLevelGained(level: number)
+	local shopOpen = RunDirector.getPhase() == "Shop"
 	for _, player in RunDirector.getParticipants() do
 		local state = states[player]
 		if state and RunDirector.getParticipantState(player) ~= "Out" then
 			table.insert(state.levels, level)
-			if not state.offer then
+			if shopOpen and not state.offer then
 				openNext(player, state)
 			else
 				sendOffer(player, state) -- shows the new number of choices waiting
@@ -222,10 +240,20 @@ end
 function UpgradeService.init()
 	ExperienceService.LevelGained:Connect(onLevelGained)
 	RunDirector.RunStarted:Connect(onRunStarted)
-	RunDirector.PhaseChanged:Connect(function(phase)
+	RunDirector.PhaseChanged:Connect(function(phase, previous)
 		if phase == "Ended" or phase == "Lobby" then
 			for player, state in states do
 				closeAll(state, player)
+			end
+		elseif phase == "Shop" then
+			for player, state in states do
+				if not state.offer and #state.levels > 0 then
+					openNext(player, state)
+				end
+			end
+		elseif previous == "Shop" then
+			for player, state in states do
+				pickAll(player, state)
 			end
 		end
 	end)
@@ -296,6 +324,23 @@ function UpgradeService.addPassive(player: Player, passiveId: string): boolean
 	return true
 end
 
+-- Gives the player a weapon or passive (ShopService): new at level 1 or one level more if they own it. False if they
+-- are not in the run, their slots are full or it is at max level.
+function UpgradeService.grantItem(player: Player, kind: "Weapon" | "Passive", itemId: string): boolean
+	if kind == "Passive" then
+		return UpgradeService.addPassive(player, itemId)
+	end
+	if not (states[player] and WeaponService.isArmed(player)) then
+		return false
+	end
+	for _, weapon in WeaponService.getWeapons(player) do
+		if weapon.id == itemId then
+			return (WeaponService.levelUp(player, itemId))
+		end
+	end
+	return (WeaponService.addWeapon(player, itemId))
+end
+
 -- Turns the weapon into the evolution if the player may take it right now (getEvolutions).
 function UpgradeService.evolve(player: Player, evolutionId: string): (boolean, string?)
 	if not table.find(UpgradeService.getEvolutions(player), evolutionId) then
@@ -350,6 +395,12 @@ function UpgradeService.getEvolutions(player: Player): { string }
 		owned[weapon.id] = { level = weapon.level, evolution = weapon.evolution }
 	end
 	return UpgradePool.evolutionsFor(owned, state.passives, Config.Player.maxItemLevel)
+end
+
+-- Passive levels by id in the current (or last) run.
+function UpgradeService.getPassiveLevels(player: Player): { [string]: number }
+	local state = states[player]
+	return if state then table.clone(state.passives) else {}
 end
 
 -- The player's passives in the current (or last) run.

@@ -2,8 +2,18 @@
 -- Run flow, spawn director, XP curve, level-up and co-op rules (DESIGN.md sections 3, 7, 8, 9).
 -- Read by RunDirector, SpawnDirector, UpgradeService and ReviveService; `flow` also by the lobby UI.
 
+local WAVE_LENGTHS = { 20, 25, 30, 35, 40, 45, 50, 55, 60, 60, 60, 60 }
+
+local function sum(list: { number }): number
+	local total = 0
+	for _, value in list do
+		total += value
+	end
+	return total
+end
+
 local Run = {
-	durationSeconds = 720, -- boss spawns at 12:00, normal spawning stops
+	durationSeconds = sum(WAVE_LENGTHS), -- fighting time of all waves; then the boss spawns and normal spawning stops
 	maxPlayers = 4,
 
 	-- Lobby -> countdown -> run -> results -> lobby (prototype: lobby and arena in one server)
@@ -20,6 +30,8 @@ local Run = {
 
 	spawn = table.freeze({
 		-- Curves are keyframes { minute, value }, linear in between and flat after the last one (Util/RunSchedule).
+		-- A "minute" here is one wave of the schedule: wave n runs from minute n - 1 to minute n, whatever its length
+		-- in seconds, so minute 2 = the start of wave 3.
 		-- enemies/s = rate curve * wave intensity * fPlayers (* Swarm Rush)
 		rateCurve = table.freeze({
 			table.freeze({ 0, 1 }), -- calm start: a few Shadelings for the first level-ups
@@ -45,14 +57,13 @@ local Run = {
 			table.freeze({ 6, 1.1 }),
 			table.freeze({ 12, 1.25 }),
 		}),
-		-- Every minute is a wave (shown in the HUD): the rate ramps from rampFrom to rampTo, then a breather with
-		-- breatherRate for the last breatherSeconds; the final wave has no breather and runs at finalRate times.
+		-- Waves (Brotato direction since B1): wave n lasts lengthsSeconds[n], then the shop opens (Config.Shop) and the
+		-- clock stops until the next wave. The rate ramps from rampFrom to rampTo through each wave; the final wave runs
+		-- at finalRate times that. Wave 1 = 20 s, +5 s per wave, at most 60 s, like Brotato.
 		waves = table.freeze({
-			lengthSeconds = 60,
+			lengthsSeconds = table.freeze(WAVE_LENGTHS),
 			rampFrom = 0.7,
 			rampTo = 1.2,
-			breatherSeconds = 12,
-			breatherRate = 0.2,
 			finalRate = 1.4,
 		}),
 		-- alive cap = base + perExtraPlayer * (n - 1), at most max
@@ -134,7 +145,7 @@ local Run = {
 		}),
 		swarmRush = table.freeze({
 			atMinutes = table.freeze({ 5, 9 }),
-			durationSeconds = 30,
+			durationShare = 0.6, -- of its wave
 			rateMultiplier = 2,
 			enemy = "Shadeling",
 			ringCount = 24, -- extra Shadelings in a closed ring at ringMin around every player when it starts (assumption)

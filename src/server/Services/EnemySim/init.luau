@@ -5,7 +5,7 @@
 -- EnemyShots. Splitters fall apart into smaller enemies when killed and Summoning elites call enemies around
 -- themselves (both keep the parent's minute and difficulty multipliers). Signals: EnemyKilled for XP and loot (WP6,
 -- WP9), Contact and ShotHit for player damage (WP4, WP9), Stepped for the weapons (WP5). Enemies and shots are
--- cleared when a run starts and ends.
+-- cleared when a run starts and ends and when a wave ends (Shop phase).
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
@@ -369,13 +369,19 @@ function EnemySim.init()
 		firedShots, endedShots = {}, {}
 		sendShots(true)
 	end)
-	RunDirector.RunEnded:Connect(function()
+	local function clearAll()
 		world:clear()
 		volleys:clear()
 		currentTick += 1
 		sendSnapshot() -- one empty tick so clients drop their enemies right away
 		firedShots, endedShots = {}, {}
 		sendShots(true)
+	end
+	RunDirector.RunEnded:Connect(clearAll)
+	RunDirector.PhaseChanged:Connect(function(phase)
+		if phase == "Shop" then
+			clearAll() -- a wave ends: the enemies left fade away (Brotato direction, B1)
+		end
 	end)
 	RunService.Heartbeat:Connect(onHeartbeat)
 end
