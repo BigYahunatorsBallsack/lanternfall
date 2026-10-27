@@ -48,7 +48,7 @@ export type PlayerVitals = {
 	maxHp: number,
 	dashReadyAt: number, -- server time when the next dash is allowed
 	invulnerableUntil: number, -- server time
-	choosing: boolean, -- picking a level-up card: invulnerable and cannot move (DESIGN.md section 8)
+	choosing: boolean, -- picking a level-up card (frozen and invulnerable only with Run.levelUp.freezeWhileChoosing)
 }
 
 -- One weapon of a player's loadout (WeaponService -> LoadoutController).
