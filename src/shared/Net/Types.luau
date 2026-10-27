@@ -2,7 +2,7 @@
 -- Shared payload types for server-to-client state. Produced by RunDirector (RunFlow snapshot),
 -- read by the client controllers. Times are server times from workspace:GetServerTimeNow().
 
-export type Phase = "Lobby" | "Countdown" | "Running" | "Boss" | "Ended"
+export type Phase = "Lobby" | "Countdown" | "Running" | "Shop" | "Boss" | "Ended"
 export type ParticipantState = "Alive" | "Down" | "Out"
 export type Outcome = "Victory" | "Defeat" | "Abandoned"
 
@@ -14,6 +14,7 @@ export type PlayerInfo = {
 	ready: boolean, -- wants to join the next run
 	participant: boolean, -- part of the current run
 	state: ParticipantState?, -- only for participants
+	shopReady: boolean?, -- only for participants: pressed Ready in the current shop
 }
 
 export type ResultEntry = {
@@ -34,9 +35,12 @@ export type RunState = {
 	version: number,
 	phase: Phase,
 	difficulty: string,
-	phaseEndsAt: number?, -- Countdown and Ended
-	runStartedAt: number?, -- Running, Boss and Ended
+	phaseEndsAt: number?, -- Countdown, Shop and Ended
+	runStartedAt: number?, -- Running, Shop, Boss and Ended
 	runEndedAt: number?, -- Ended
+	wave: number, -- current wave (the one that just ended while in the Shop), 0 outside a run
+	pausedSeconds: number, -- shop time so far; fighting time = (pausedAt or runEndedAt or now) - runStartedAt - this
+	pausedAt: number?, -- Shop: when the clock stopped
 	players: { PlayerInfo },
 	results: Results?, -- Ended
 }
@@ -160,7 +164,27 @@ export type LevelUpOffer = {
 	cards: { UpgradeCard },
 	expiresAt: number, -- server time; the first card is picked automatically then
 	rerolls: number, -- free rerolls left in this run
-	pending: number, -- further choices waiting after this one
+	pending: number, -- further choices waiting after this one (closed: choices waiting for the end of the wave)
+}
+
+-- One thing for sale in the shop: a new weapon or passive, or one more level of an owned one.
+export type ShopOffer = {
+	id: string, -- what the client sends back with BuyShopOffer, e.g. "1:Weapon:SparkBolt"
+	kind: "Weapon" | "Passive",
+	itemId: string, -- key in Config.Weapons or Config.Passives
+	level: number, -- item level after buying (1 = new)
+	isNew: boolean,
+	price: number, -- Shards
+	sold: boolean, -- bought in this shop; the slot stays empty
+}
+
+-- The local player's Shards and shop (ShopService -> ShopController, HUD), sent on every change.
+export type ShopState = {
+	shards: number,
+	open: boolean, -- shop phase between two waves
+	wave: number, -- the wave that just ended (prices are based on it)
+	offers: { ShopOffer },
+	rerollPrice: number,
 }
 
 export type PassiveInfo = {

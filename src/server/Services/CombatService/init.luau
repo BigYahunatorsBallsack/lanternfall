@@ -3,7 +3,8 @@
 -- from EnemySim, handles the RequestDash remote, knocks players down at 0 HP via RunDirector and sends
 -- PlayerState to every client on change. Fires PlayerDamaged for RunStatsService. Sets walk speed and turns jumping off on each character.
 -- UpgradeService sets passive bonuses (max HP, move speed, armor) and the level-up choice (setChoosing: shielded and
--- standing still); weapons, rewards and revives (WP11) use damagePlayer, healPlayer and protect.
+-- standing still); weapons, rewards and revives (WP11) use damagePlayer, healPlayer and protect. When a wave ends
+-- (Shop phase) players who are down stand up and everyone heals (Config.Shop.waveEnd).
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -238,12 +239,28 @@ function CombatService.init()
 	RunDirector.PhaseChanged:Connect(function(phase)
 		if phase == "Lobby" or phase == "Countdown" then
 			resetAll() -- "Play again" goes from the results straight to the countdown
+		elseif phase == "Shop" then
+			-- end of a wave (Brotato direction, B1): players who are down stand up, everyone heals
+			local waveEnd = Config.Shop.waveEnd
+			for _, player in RunDirector.getParticipants() do
+				if waveEnd.reviveDown and RunDirector.getParticipantState(player) == "Down" then
+					RunDirector.setParticipantState(player, "Alive")
+				end
+				local state = getVitals(player)
+				if not state:isDown() and state.hp < state.maxHp * waveEnd.healFraction then
+					state:setFraction(waveEnd.healFraction)
+				end
+				applyWalkSpeed(player)
+				send(player)
+			end
 		end
 	end)
 	RunDirector.ParticipantStateChanged:Connect(function(player, participantState)
 		local state = getVitals(player)
 		if participantState == "Alive" and state:isDown() then
-			state:setFraction(Config.Run.coop.reviveHpFraction)
+			-- standing up at the end of a wave comes with the wave-end heal
+			local shop = RunDirector.getPhase() == "Shop"
+			state:setFraction(if shop then Config.Shop.waveEnd.healFraction else Config.Run.coop.reviveHpFraction)
 		elseif participantState ~= "Alive" then
 			state:knockDown()
 		end

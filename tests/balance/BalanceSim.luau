@@ -8,6 +8,8 @@
 -- Since WP9 every moving bot also sidesteps Spitter shots that come close (late, like a decent player) and walks to
 -- elite chests when nothing is close; "evade" and "fight" also go after Spitters, as good players do. Since the fun
 -- package after WP9 they also step out of the rush path of a Charger that winds up (its path glows for players).
+-- Since B1 (Brotato direction) the bot also shops after every wave: it picks its level-up cards, buys what it can
+-- afford (owned items first, then the cheapest) and presses Ready.
 -- Change SCENARIOS / SEEDS below to test other setups (all of them with 6 seeds take about 75 s). Results feed the
 -- balancing notes in DESIGN.md.
 
@@ -22,8 +24,10 @@ local EnemySim = require(Services.EnemySim)
 local CombatService = require(Services.CombatService)
 local UpgradeService = require(Services.UpgradeService)
 local RunStatsService = require(Services.RunStatsService)
+local ShopService = require(Services.ShopService)
 local Config = require(game:GetService("ReplicatedStorage").Shared.Config)
 local EnemyKinds = require(game:GetService("ReplicatedStorage").Shared.Util.EnemyKinds)
+local RunSchedule = require(game:GetService("ReplicatedStorage").Shared.Util.RunSchedule)
 
 local DT = 1 / 15 -- one enemy simulation step per frame
 local PICK_DELAY = 1.5 -- seconds a bot needs to pick a card (a human: 1-3 s)
@@ -341,7 +345,37 @@ local function playRun(scenario, seed)
 	shotsFired = 0
 	local minuteRows = {}
 	local nextMinute = 60
-	while RunDirector.isActive() and RunDirector.getElapsed() < MAX_SECONDS do
+	local bought = 0
+	while RunDirector.isOngoing() and RunDirector.getElapsed() < MAX_SECONDS do
+		if RunDirector.getPhase() == "Shop" then
+			local offer = UpgradeService.getOffer(bot)
+			if offer then
+				world.fireServerAs(bot, "ChooseUpgrade", pickCard(offer).id)
+			else
+				local best = nil
+				for _, item in ShopService.getOffers(bot) do
+					if not item.sold and item.price <= ShopService.getShards(bot) then
+						local better = best == nil
+							or (not item.isNew and best.isNew)
+							or (item.isNew == best.isNew and item.price < best.price)
+						if better then
+							best = item
+						end
+					end
+				end
+				if best then
+					local before = ShopService.getShards(bot)
+					world.fireServerAs(bot, "BuyShopOffer", best.id)
+					if ShopService.getShards(bot) < before then
+						bought += 1
+					end
+				else
+					world.fireServerAs(bot, "SetShopReady", true)
+				end
+			end
+			world.step(0.25) -- rate limits: a few clicks per second
+			continue
+		end
 		local elapsed = RunDirector.getElapsed()
 		local root = bot.Character.HumanoidRootPart
 		local humanoid = bot.Character.Humanoid
@@ -419,6 +453,8 @@ local function playRun(scenario, seed)
 		evolutions = evolutions,
 		damageTaken = damageTaken,
 		shotsFired = shotsFired,
+		wave = RunSchedule.waveAt(survived).number,
+		bought = bought,
 	}
 end
 
@@ -434,7 +470,7 @@ describe("balance sim", function()
 			for _, seed in SEEDS do
 				local result = playRun(scenario, seed)
 				print(
-					`  seed {seed}: {format(result.survived)}, level {result.level}, {result.kills} kills, evolutions: {if #result.evolutions
+					`  seed {seed}: {format(result.survived)} (wave {result.wave}), level {result.level}, {result.kills} kills, {result.bought} bought, evolutions: {if #result.evolutions
 							> 0
 						then table.concat(result.evolutions, "+")
 						else "none"}, {result.damageTaken.hits}/{result.shotsFired} shots hit ({result.damageTaken.shot} dmg), by touch {result.damageTaken.contact}`
@@ -444,7 +480,7 @@ describe("balance sim", function()
 				local shown = if scenario.bot == "stop3" and result.survived >= STOP_AT
 					then `{format(result.survived)} (+{math.floor(result.survived - STOP_AT)}s)`
 					else format(result.survived)
-				table.insert(times, shown)
+				table.insert(times, `{shown} w{result.wave}`)
 				table.insert(levels, `L{result.level}`)
 			end
 			table.insert(

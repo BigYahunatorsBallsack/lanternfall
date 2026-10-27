@@ -16,8 +16,11 @@ local UpgradeService = require(ServerScriptService.Server.Services.UpgradeServic
 local RunStatsService = require(ServerScriptService.Server.Services.RunStatsService)
 local LootService = require(ServerScriptService.Server.Services.LootService)
 local SpawnDirector = require(ServerScriptService.Server.Services.SpawnDirector)
+local ShopService = require(ServerScriptService.Server.Services.ShopService)
 local UpgradePool = require(ServerScriptService.Server.Services.UpgradeService.UpgradePool)
 local Config = require(game:GetService("ReplicatedStorage").Shared.Config)
+local Format = require(game:GetService("ReplicatedStorage").Shared.Util.Format)
+local RunSchedule = require(game:GetService("ReplicatedStorage").Shared.Util.RunSchedule)
 
 local me = world.addPlayer("Owner", 1, true)
 world.step()
@@ -185,9 +188,15 @@ describe("smoke", function()
 		expect(world.gui("HUD", "WeaponsTitle").Text).toBe("WEAPONS (OFF)")
 	end)
 
-	it("counts the run timer up", function()
+	it("counts the wave down and stops the wave timer with the debug button", function()
 		world.advance(5)
-		expect(firstText("HUD", "Timer")).toBe("00:05")
+		expect(firstText("HUD", "Timer")).toBe("00:15") -- wave 1 lasts 20 s
+		world.click(world.gui("Debug", "HoldWaves"))
+		CombatService.protect(me, 4) -- weapons are off
+		world.advance(3)
+		expect(RunDirector.isHoldingWaves()).toBe(true)
+		expect(firstText("HUD", "Timer")).toBe("00:15")
+		expect(phase()).toBe("Running")
 		expect(string.match(teamText(), "^Owner · alive · %d+ HP$") ~= nil).toBe(true)
 		expect(string.match(world.gui("HUD", "HpText").Text, "^%d+ / 100$") ~= nil).toBe(true) -- Spark Mage: no bonus
 	end)
@@ -406,14 +415,39 @@ describe("smoke", function()
 		pickAll()
 	end)
 
-	it("opens level-up cards, lets the chooser keep walking and applies the pick", function()
+	it("keeps level-ups for the end of the wave", function()
+		local level = ExperienceService.getLevel()
 		world.click(world.gui("Debug", "GainLevel"))
 		world.advance(0.1)
+		expect(ExperienceService.getLevel()).toBe(level + 1)
+		expect(UpgradeService.getOffer(me)).toBe(nil)
+		expect(world.gui("LevelUp").Enabled).toBe(false)
+		expect(world.gui("HUD", "XpText").Text).toBe(`LV {level + 1} · +1 at wave end`)
+	end)
+
+	it("ends the wave: enemies fade, the shop opens and the level-up cards come first", function()
+		world.click(world.gui("Debug", "SpawnWave"))
+		world.advance(0.2)
+		expect(EnemySim.getCount() > 0).toBe(true)
+		world.click(world.gui("Debug", "SkipWave"))
+		world.advance(0.2)
+		expect(phase()).toBe("Shop")
+		expect(EnemySim.getCount()).toBe(0)
+		expect(#drawnModels()).toBe(0)
+		expect(firstText("HUD", "Timer")).toBe(Format.time(Config.Shop.phaseSeconds))
+		expect(string.find(teamText(), "picking", 1, true) ~= nil).toBe(true)
+		local hp, maxHp = CombatService.getHp(me)
+		expect(hp).toBe(maxHp) -- everyone heals when a wave ends
+		expect(world.gui("Shop").Enabled).toBe(true)
+		expect(world.gui("Shop", "Shop").Visible).toBe(false) -- the cards come first
+	end)
+
+	it("opens level-up cards, lets the chooser keep walking and applies the pick", function()
 		local offer = UpgradeService.getOffer(me)
 		expect(offer ~= nil).toBe(true)
 		expect(#offer).toBe(Config.Run.levelUp.cardCount)
 		expect(world.gui("LevelUp").Enabled).toBe(true)
-		expect(world.gui("LevelUp", "Title").Text).toBe(`LEVEL {ExperienceService.getLevel()}`)
+		expect(string.match(world.gui("LevelUp", "Title").Text, "^LEVEL %d+$") ~= nil).toBe(true)
 		expect(card(1):FindFirstChild("CardName").Text ~= "").toBe(true)
 		expect(CombatService.isChoosing(me)).toBe(true)
 		expect(me.Character.Humanoid.WalkSpeed > 0).toBe(not Config.Run.levelUp.freezeWhileChoosing)
@@ -425,6 +459,8 @@ describe("smoke", function()
 		local chosen = offer[1]
 		world.click(card(1))
 		world.advance(0.2)
+		expect(UpgradeService.getOffer(me) ~= offer).toBe(true)
+		pickAll() -- the leftover orbs of the wave may have brought another level
 		expect(UpgradeService.getOffer(me)).toBe(nil)
 		expect(world.gui("LevelUp").Enabled).toBe(false)
 		expect(CombatService.isChoosing(me)).toBe(false)
@@ -466,6 +502,72 @@ describe("smoke", function()
 		world.advance(Config.Run.levelUp.autoPickSeconds)
 		expect(UpgradeService.getOffer(me)).toBe(nil)
 		expect(CombatService.isChoosing(me)).toBe(false)
+	end)
+
+	it("sells weapons and passives for Shards in the shop, rerolls and starts the next wave on READY", function()
+		local shop = clientController("ShopController")
+		expect(shop.isShopping()).toBe(true)
+		expect(world.gui("Shop", "Shop").Visible).toBe(true)
+		local offers = ShopService.getOffers(me)
+		expect(#offers).toBe(Config.Shop.slots)
+		expect(string.find(world.gui("Shop", "Offer1"):FindFirstChild("Price").Text, "Shards", 1, true) ~= nil).toBe(
+			true
+		)
+
+		local shards = ShopService.getShards(me)
+		local first = offers[1]
+		if shards < first.price then
+			world.click(world.gui("Shop", "Offer1")) -- too poor: nothing happens
+			world.advance(0.2)
+			expect(first.sold).toBe(false)
+		end
+		world.click(world.gui("Debug", "AddShards"))
+		world.advance(0.2)
+		shards = ShopService.getShards(me)
+		expect(world.gui("Shop", "ShardsText").Text).toBe(`{shards} Shards`)
+		world.click(world.gui("Shop", "Offer1"))
+		world.advance(0.2)
+		expect(first.sold).toBe(true)
+		expect(ShopService.getShards(me)).toBe(shards - first.price)
+		expect(world.gui("Shop", "Offer1"):FindFirstChild("Badge").Text).toBe("SOLD")
+		if first.kind == "Weapon" then
+			local found = false
+			for _, weapon in WeaponService.getWeapons(me) do
+				if weapon.id == first.itemId and weapon.level >= first.level then
+					found = true
+				end
+			end
+			expect(found).toBe(true)
+		else
+			local found = false
+			for _, info in UpgradeService.getPassives(me) do
+				if info.id == first.itemId and info.level >= first.level then
+					found = true
+				end
+			end
+			expect(found).toBe(true)
+		end
+		world.click(world.gui("Shop", "Offer1")) -- sold: nothing more happens
+		world.advance(0.2)
+		expect(ShopService.getShards(me)).toBe(shards - first.price)
+
+		shards = ShopService.getShards(me)
+		local price = shop.get().rerollPrice
+		world.click(world.gui("Shop", "Reroll"))
+		world.advance(0.2)
+		expect(ShopService.getShards(me)).toBe(shards - price)
+		expect(ShopService.getOffers(me) ~= offers).toBe(true)
+		expect(shop.get().rerollPrice > price).toBe(true)
+
+		local wave = RunDirector.getWave()
+		expect(string.find(teamText(), "shopping", 1, true) ~= nil).toBe(true)
+		world.click(world.gui("Shop", "Ready"))
+		world.advance(0.2)
+		expect(phase()).toBe("Running")
+		expect(RunDirector.getWave()).toBe(wave + 1)
+		expect(world.gui("Shop", "Shop").Visible).toBe(false)
+		expect(world.gui("HUD", "WaveTitle").Text).toBe(`WAVE {wave + 1}`)
+		expect(ShopService.getOffers(me)[1]).toBe(nil)
 	end)
 
 	it("lets passives change HP, speed, weapons and pickup radius", function()
@@ -635,7 +737,7 @@ describe("smoke", function()
 		local position = EnemySim.getPosition(straggler)
 		local root = me.Character.HumanoidRootPart.Position
 		expect(position ~= nil and (position - root).Magnitude <= Config.Run.spawn.ringMax + 2).toBe(true)
-		RunDirector.skipTo(Config.Run.spawn.swarmRush.atMinutes[1] * 60 - 0.5)
+		RunDirector.skipTo(RunSchedule.wave(Config.Run.spawn.swarmRush.atMinutes[1] + 1).startsAt + 0.1)
 		world.advance(1)
 		expect(SpawnDirector.isSwarmRush()).toBe(true)
 		expect(string.find(toastTexts(), "appeared! Kill it for a chest.", 1, true) ~= nil).toBe(true)
@@ -717,9 +819,12 @@ describe("smoke", function()
 	end)
 
 	it("skips to the boss phase, which counts as a victory for now", function()
+		world.click(world.gui("Debug", "HoldWaves")) -- the wave timer runs again
+		world.advance(0.1)
+		expect(RunDirector.isHoldingWaves()).toBe(false)
 		world.click(world.gui("Debug", "SkipToBoss"))
 		world.advance(0.2)
-		expect(RunDirector.getElapsed() >= 710).toBe(true)
+		expect(RunDirector.getElapsed() >= Config.Run.durationSeconds - 10).toBe(true)
 		expect(phase()).toBe("Running")
 		world.advance(10.5)
 		expect(phase()).toBe("Ended")
@@ -809,11 +914,12 @@ describe("smoke", function()
 	it("ends in defeat when the only player is knocked down", function()
 		world.click(world.gui("Debug", "GainLevel"))
 		world.advance(0.2)
-		expect(world.gui("LevelUp").Enabled).toBe(true)
+		expect(world.gui("LevelUp").Enabled).toBe(false) -- the choice waits for the end of the wave
 		world.click(world.gui("Debug", "DownSelf"))
 		world.advance(0.2)
 		expect(phase()).toBe("Ended")
-		expect(world.gui("LevelUp").Enabled).toBe(false) -- the run end closes open cards
+		expect(world.gui("LevelUp").Enabled).toBe(false)
+		expect(UpgradeService.getOffer(me)).toBe(nil)
 		expect(CombatService.isChoosing(me)).toBe(false)
 		expect(firstText("Results", "Results")).toBe("DEFEAT")
 	end)
@@ -868,6 +974,20 @@ describe("smoke", function()
 		local reviveHp = math.ceil(100 * Config.Run.coop.reviveHpFraction)
 		expect(teamText()).toBe(`Owner · alive · {reviveHp} HP | Friend · alive · 100 HP`)
 		expect(me.Character.Humanoid.WalkSpeed).toBe(Config.Player.moveSpeed)
+	end)
+
+	it("stands a downed player up with full HP when the wave ends", function()
+		world.click(world.gui("Debug", "DownSelf"))
+		world.advance(0.2)
+		expect(RunDirector.getParticipantState(me)).toBe("Down")
+		world.click(world.gui("Debug", "SkipWave"))
+		world.advance(0.2)
+		expect(phase()).toBe("Shop")
+		expect(teamText()).toBe("Owner · alive · 100 HP · shopping | Friend · alive · 100 HP · shopping")
+		world.fireServerAs(friend, "SetShopReady", true)
+		world.advance(0.2)
+		expect(teamText()).toBe("Owner · alive · 100 HP · shopping | Friend · alive · 100 HP · ready")
+		expect(phase()).toBe("Shop")
 	end)
 
 	it("ends when the last alive player leaves", function()

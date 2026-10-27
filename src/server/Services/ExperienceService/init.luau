@@ -2,7 +2,9 @@
 -- Team XP (DESIGN.md sections 8 and 9): killed enemies drop XP orbs (OrbField), living participants pick up every
 -- orb within their pickup radius right after each enemy step, and the XP goes to one team level (Progression).
 -- Sends TeamProgress to everyone and XpOrbs to the participants, and fires LevelGained, which UpgradeService turns
--- into level-up cards. UpgradeService sets the Magnet bonus with setBonuses; AdminService calls grantLevel.
+-- into level-up cards, and OrbsCollected, which ShopService turns into Shards. Orbs still on the floor when a wave
+-- ends are collected for the team (XP) and split evenly between the participants who are not out (Shards).
+-- UpgradeService sets the Magnet bonus with setBonuses; AdminService calls grantLevel.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -23,6 +25,8 @@ local ExperienceService = {}
 
 -- (level: number): the team reached this level; fired once per level, in order
 ExperienceService.LevelGained = Signal.new()
+-- (player: Player, xp: number): XP of the orbs this player picked up (or their share of the leftovers at wave end)
+ExperienceService.OrbsCollected = Signal.new()
 
 local field = OrbField.new(Config.Run.xpOrbs.maxOrbs)
 local progress = Progression.new(Config.Run.xpCurve)
@@ -103,7 +107,11 @@ local function onStepped()
 			if position then
 				local radius = Config.Player.pickupRadius * (1 + (pickupBonus[player] or 0))
 				table.clear(collectedIds)
-				total += field:collect(position.X, position.Z, radius, collectedIds)
+				local collected = field:collect(position.X, position.Z, radius, collectedIds)
+				total += collected
+				if collected > 0 then
+					ExperienceService.OrbsCollected:Fire(player, collected)
+				end
 				for _, id in collectedIds do
 					table.insert(collectedOrbs, id)
 					table.insert(collectedOrbs, player.UserId)
@@ -115,6 +123,25 @@ local function onStepped()
 		end
 	end
 	flush()
+end
+
+-- End of a wave: every orb left goes to the team, its Shards are split between the participants who are not out.
+local function collectLeftovers()
+	local total = field:total()
+	clearOrbs()
+	if total <= 0 or paused then
+		return
+	end
+	local sharers = {}
+	for _, player in RunDirector.getParticipants() do
+		if RunDirector.getParticipantState(player) ~= "Out" then
+			table.insert(sharers, player)
+		end
+	end
+	for _, player in sharers do
+		ExperienceService.OrbsCollected:Fire(player, total / #sharers)
+	end
+	gain(total)
 end
 
 -- Lifecycle -------------------------------------------------------------------------
@@ -131,6 +158,8 @@ function ExperienceService.init()
 	RunDirector.PhaseChanged:Connect(function(phase)
 		if phase == "Ended" or phase == "Lobby" then
 			clearOrbs()
+		elseif phase == "Shop" then
+			collectLeftovers()
 		end
 	end)
 	RunDirector.ParticipantStateChanged:Connect(sendProgress) -- a player who is out no longer counts
@@ -157,7 +186,7 @@ end
 
 -- Gives the team exactly the XP missing for the next level (admin debug command).
 function ExperienceService.grantLevel(): boolean
-	if not RunDirector.isActive() then
+	if not RunDirector.isOngoing() then
 		return false
 	end
 	gain(progress:needed(playerFactor()) - progress.xp)

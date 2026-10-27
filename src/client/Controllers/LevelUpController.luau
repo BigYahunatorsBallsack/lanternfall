@@ -1,5 +1,5 @@
 --!strict
--- Level-up choice (DESIGN.md sections 8 and 13): three big cards (icon, name, one line of effect, "NEW"/"LV 3") from
+-- Level-up choice (DESIGN.md sections 8 and 13), opened in the shop phase after a wave: three big cards (icon, name, one line of effect, "NEW"/"LV 3") from
 -- the server's LevelUpOffer (UpgradeService), a bar running down to the automatic pick and the free reroll. Tap or
 -- click a card, or press 1/2/3. Cards ignore input for a moment after they appear, so a thumb on the move stick
 -- does not pick one by accident. Sends ChooseUpgrade and RequestReroll; texts from Util/UpgradeText.
@@ -308,6 +308,16 @@ function LevelUpController.start()
 	RunStateController.Changed:Connect(render)
 	render()
 	RunService.Heartbeat:Connect(updateTimer)
+end
+
+-- Level-ups waiting for the end of the wave (choices open in the shop phase since B1), 0 while the cards are open.
+function LevelUpController.getWaiting(): number
+	return if offer and not offer.open then offer.pending else 0
+end
+
+-- True while the cards are on screen (the shop panel waits until the choice is done).
+function LevelUpController.isOpen(): boolean
+	return isOpen()
 end
 
 -- The open choice, or nil (smoke test and later tutorials, WP19).

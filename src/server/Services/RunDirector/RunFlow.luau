@@ -1,5 +1,5 @@
 --!strict
--- Rules of the run flow as a pure state machine: lobby, countdown, run, boss phase, results.
+-- Rules of the run flow as a pure state machine: lobby, countdown, waves with a shop after each, boss phase, results.
 -- Owned by RunDirector, which feeds it player events and the clock (`now` in seconds). No Roblox APIs
 -- here, so the rules are unit-tested outside Studio (tests/RunFlow.spec.luau).
 --
@@ -15,7 +15,8 @@ export type Settings = {
 	countdownSeconds: number,
 	allReadyCountdownSeconds: number,
 	resultsSeconds: number,
-	durationSeconds: number,
+	waveEnds: { number }, -- fighting seconds at which each wave ends, rising; after the last one comes the boss
+	shopSeconds: number, -- shop timer between two waves
 	maxPlayers: number,
 	defaultClassId: string,
 	difficulty: string,
@@ -41,6 +42,7 @@ type Participant = {
 	name: string,
 	classId: string, -- locked at run start
 	state: ParticipantState,
+	shopReady: boolean, -- pressed Ready in the current shop
 }
 
 local RunFlow = {}
@@ -53,6 +55,11 @@ export type RunFlow = typeof(setmetatable(
 		phaseEndsAt: number?,
 		runStartedAt: number?,
 		runEndedAt: number?,
+		wave: number, -- current wave, or the one that just ended while the shop is open
+		pausedSeconds: number, -- shop time so far, not counted as fighting time
+		pausedAt: number?, -- while the shop is open: the time the clock stopped
+		holdWaves: boolean, -- admin/test switch: the fighting clock stands still while Running (stays across runs)
+		heldAt: number?, -- while held: the time the clock stopped
 		difficulty: string,
 		players: { [number]: Entry },
 		participants: { [number]: Participant },
@@ -71,6 +78,11 @@ function RunFlow.new(settings: Settings): RunFlow
 		phaseEndsAt = nil,
 		runStartedAt = nil,
 		runEndedAt = nil,
+		wave = 0,
+		pausedSeconds = 0,
+		pausedAt = nil,
+		holdWaves = false,
+		heldAt = nil,
 		difficulty = settings.difficulty,
 		players = {},
 		participants = {},
@@ -132,12 +144,44 @@ local function shortenIfAllReady(self: RunFlow, now: number)
 	end
 end
 
+-- Every participant who is still in the game pressed Ready in the shop.
+local function allShopReady(self: RunFlow): boolean
+	for _, participant in self.participants do
+		if participant.state ~= "Out" and not participant.shopReady then
+			return false
+		end
+	end
+	return true
+end
+
+-- Stops the clock exactly at the end of the current wave and opens the shop.
+local function openShop(self: RunFlow, now: number)
+	self.pausedAt = (self.runStartedAt :: number) + self.pausedSeconds + self.settings.waveEnds[self.wave]
+	for _, participant in self.participants do
+		participant.shopReady = false
+	end
+	setPhase(self, "Shop", now + self.settings.shopSeconds)
+end
+
+-- Starts the clock again with the next wave.
+local function closeShop(self: RunFlow, now: number)
+	self.pausedSeconds += now - (self.pausedAt :: number)
+	self.pausedAt = nil
+	self.heldAt = if self.holdWaves then now else nil
+	self.wave += 1
+	setPhase(self, "Running", nil)
+end
+
 local evaluate: (self: RunFlow, now: number) -> ()
 
 local function toLobby(self: RunFlow, now: number)
 	table.clear(self.participants)
 	self.runStartedAt = nil
 	self.runEndedAt = nil
+	self.wave = 0
+	self.pausedSeconds = 0
+	self.pausedAt = nil
+	self.heldAt = nil
 	self.results = nil
 	setPhase(self, "Lobby", nil)
 	-- players who pressed "Play again" start the next countdown right away
@@ -169,11 +213,16 @@ local function startRun(self: RunFlow, now: number)
 			name = entry.name,
 			classId = entry.classId,
 			state = "Alive",
+			shopReady = false,
 		}
 		table.insert(userIds, entry.userId)
 	end
 	self.runStartedAt = now
 	self.runEndedAt = nil
+	self.wave = 1
+	self.pausedSeconds = 0
+	self.pausedAt = nil
+	self.heldAt = if self.holdWaves then now else nil
 	self.results = nil
 	push(self, { kind = "RunStarted", userIds = userIds })
 	setPhase(self, "Running", nil)
@@ -195,7 +244,7 @@ local function finishRun(self: RunFlow, outcome: Outcome, now: number)
 
 	local results: Types.Results = {
 		outcome = outcome,
-		survivedSeconds = now - (self.runStartedAt :: number),
+		survivedSeconds = self:getElapsed(now), -- fighting time, without the shops
 		difficulty = self.difficulty,
 		players = entries,
 	}
@@ -224,11 +273,13 @@ function evaluate(self: RunFlow, now: number)
 		else
 			shortenIfAllReady(self, now)
 		end
-	elseif phase == "Running" or phase == "Boss" then
+	elseif phase == "Running" or phase == "Boss" or phase == "Shop" then
 		if next(self.participants) == nil then
 			finishRun(self, "Abandoned", now)
 		elseif not anyAlive(self) then
 			finishRun(self, "Defeat", now)
+		elseif phase == "Shop" and allShopReady(self) then
+			closeShop(self, now)
 		end
 	elseif phase == "Ended" then
 		-- everyone who played pressed "Play again" (or left): skip the rest of the results
@@ -244,14 +295,19 @@ end
 
 -- Queries -----------------------------------------------------------------------
 
--- Running or Boss.
+-- Running or Boss: enemies, weapons and damage are on.
 function RunFlow.isActive(self: RunFlow): boolean
 	return self.phase == "Running" or self.phase == "Boss"
 end
 
+-- Running, Shop or Boss: a run is going (the shop is the pause between two waves).
+function RunFlow.isOngoing(self: RunFlow): boolean
+	return self:isActive() or self.phase == "Shop"
+end
+
 -- Part of a run that is still going.
 function RunFlow.isInRun(self: RunFlow, userId: number): boolean
-	return self:isActive() and self.participants[userId] ~= nil
+	return self:isOngoing() and self.participants[userId] ~= nil
 end
 
 function RunFlow.isParticipant(self: RunFlow, userId: number): boolean
@@ -278,13 +334,13 @@ function RunFlow.getParticipantClassId(self: RunFlow, userId: number): string?
 	return if participant then participant.classId else nil
 end
 
--- Seconds since the run started (frozen once it ended), 0 outside a run.
+-- Fighting seconds since the run started: stops while the shop is open and once the run ended, 0 outside a run.
 function RunFlow.getElapsed(self: RunFlow, now: number): number
 	local startedAt = self.runStartedAt
 	if not startedAt then
 		return 0
 	end
-	return (self.runEndedAt or now) - startedAt
+	return (self.pausedAt or self.heldAt or self.runEndedAt or now) - startedAt - self.pausedSeconds
 end
 
 -- Player events -------------------------------------------------------------------
@@ -358,7 +414,7 @@ function RunFlow.setParticipantState(
 	state: ParticipantState,
 	now: number
 ): (boolean, string?)
-	if not self:isActive() then
+	if not self:isOngoing() then
 		return false, "NotRunning"
 	end
 	local participant = self.participants[userId]
@@ -374,24 +430,69 @@ function RunFlow.setParticipantState(
 	return true, nil
 end
 
--- Moves the run timer forward to `elapsed` seconds (never backwards, never past the boss). Admin only.
+-- Moves the run timer forward to `elapsed` fighting seconds (never backwards, never past the boss), into the wave
+-- that contains it; a wave's exact end opens its shop. Admin only.
 function RunFlow.skipTo(self: RunFlow, elapsed: number, now: number): (boolean, string?)
 	if self.phase ~= "Running" then
 		return false, "NotRunning"
 	end
-	local target = math.min(elapsed, self.settings.durationSeconds)
+	local ends = self.settings.waveEnds
+	local target = math.min(elapsed, ends[#ends])
 	if target <= self:getElapsed(now) then
 		return false, "AlreadyPast"
 	end
-	self.runStartedAt = now - target
+	local wave = #ends
+	for index, endsAt in ends do
+		if target <= endsAt then
+			wave = index
+			break
+		end
+	end
+	self.wave = wave
+	self.runStartedAt = (self.heldAt or now) - target - self.pausedSeconds
 	changed(self)
 	self:update(now)
 	return true, nil
 end
 
 -- Ends a running run, e.g. "Victory" when the boss dies.
+-- Admin/test switch: while on, the fighting clock stands still during waves (no wave ends unless skipped to).
+-- Stays until changed, also across runs.
+function RunFlow.setHoldWaves(self: RunFlow, hold: boolean, now: number)
+	if self.holdWaves == hold then
+		return
+	end
+	self.holdWaves = hold
+	if self.phase == "Running" then
+		if hold then
+			self.heldAt = now
+		elseif self.heldAt then
+			self.pausedSeconds += now - self.heldAt
+			self.heldAt = nil
+		end
+	end
+	changed(self)
+end
+
+-- Ready in the shop: once every participant still in the game is ready, the next wave starts.
+function RunFlow.setShopReady(self: RunFlow, userId: number, ready: boolean, now: number): (boolean, string?)
+	if self.phase ~= "Shop" then
+		return false, "NotShopping"
+	end
+	local participant = self.participants[userId]
+	if not participant then
+		return false, "NotParticipant"
+	end
+	if participant.shopReady ~= ready then
+		participant.shopReady = ready
+		changed(self)
+		evaluate(self, now)
+	end
+	return true, nil
+end
+
 function RunFlow.endRun(self: RunFlow, outcome: Outcome, now: number): (boolean, string?)
-	if not self:isActive() then
+	if not self:isOngoing() then
 		return false, "NotRunning"
 	end
 	finishRun(self, outcome, now)
@@ -408,8 +509,21 @@ function RunFlow.update(self: RunFlow, now: number)
 			startRun(self, now)
 		end
 	elseif phase == "Running" then
-		if self:getElapsed(now) >= self.settings.durationSeconds then
-			setPhase(self, "Boss", nil)
+		local ends = self.settings.waveEnds
+		if self:getElapsed(now) >= ends[self.wave] then
+			if self.wave >= #ends then
+				if self.heldAt then -- the boss fight always runs on the clock
+					self.pausedSeconds += now - self.heldAt
+					self.heldAt = nil
+				end
+				setPhase(self, "Boss", nil)
+			else
+				openShop(self, now)
+			end
+		end
+	elseif phase == "Shop" then
+		if now >= (self.phaseEndsAt :: number) then
+			closeShop(self, now)
 		end
 	elseif phase == "Ended" then
 		if now >= (self.phaseEndsAt :: number) then
@@ -450,6 +564,7 @@ function RunFlow.snapshot(self: RunFlow): Types.RunState
 			ready = entry.ready,
 			participant = participant ~= nil,
 			state = if participant then participant.state else nil,
+			shopReady = if participant then participant.shopReady else nil,
 		})
 	end
 
@@ -460,6 +575,9 @@ function RunFlow.snapshot(self: RunFlow): Types.RunState
 		phaseEndsAt = self.phaseEndsAt,
 		runStartedAt = self.runStartedAt,
 		runEndedAt = self.runEndedAt,
+		wave = self.wave,
+		pausedSeconds = self.pausedSeconds,
+		pausedAt = self.pausedAt or self.heldAt,
 		players = players,
 		results = self.results,
 	}

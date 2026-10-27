@@ -47,6 +47,21 @@ local Remotes: { [string]: Definition } = {
 		rateLimit = { count = 2, perSeconds = 1 },
 		args = {}, -- one free reroll per run, checked by UpgradeService
 	},
+	SetShopReady = {
+		direction = "toServer",
+		rateLimit = { count = 4, perSeconds = 1 },
+		args = { Validate.boolean() }, -- done shopping; checked by RunDirector (only while the shop is open)
+	},
+	BuyShopOffer = {
+		direction = "toServer",
+		rateLimit = { count = 6, perSeconds = 1 },
+		args = { Validate.string(ID_LENGTH) }, -- offer id, must be one the server offered to this player
+	},
+	RerollShop = {
+		direction = "toServer",
+		rateLimit = { count = 4, perSeconds = 1 },
+		args = {}, -- price and Shards are checked by ShopService
+	},
 	DebugCommand = {
 		direction = "toServer",
 		rateLimit = { count = 5, perSeconds = 1 },
@@ -69,6 +84,7 @@ local Remotes: { [string]: Definition } = {
 	DamageNumbers = { direction = "toClient", unreliable = true }, -- buffer, see Net/HitNumbers; own hits, per step
 	Chests = { direction = "toClient" }, -- { Net/Types.ChestInfo } on the floor, to participants on change
 	ChestOpened = { direction = "toClient" }, -- Net/Types.ChestOpened, to participants
+	ShopState = { direction = "toClient" }, -- Net/Types.ShopState, to its player on change (Shards also during waves)
 	DebugStats = { direction = "toClient" }, -- Net/Types.DebugStats, admins only, once per second
 }
 

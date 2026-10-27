@@ -1,5 +1,5 @@
 --!strict
--- Owns the run flow: lobby, countdown, run timer, boss phase and results (rules in RunFlow).
+-- Owns the run flow: lobby, countdown, waves with a shop between them, boss phase and results (rules in RunFlow).
 -- Moves characters via MapService, checks classes via PlayerDataService and syncs clients via RunState.
 -- Other services listen to its signals and call setParticipantState / endRun / setBossEncounter.
 
@@ -11,6 +11,7 @@ local Shared = ReplicatedStorage.Shared
 local Config = require(Shared.Config)
 local Format = require(Shared.Util.Format)
 local Net = require(Shared.Net)
+local RunSchedule = require(Shared.Util.RunSchedule)
 local Signal = require(Shared.Util.Signal)
 local Types = require(Shared.Net.Types)
 
@@ -24,6 +25,7 @@ local REJECTION_TEXT: { [string]: string } = {
 	NotRunning = "Only possible while a run is going",
 	NotParticipant = "You are not part of this run",
 	AlreadyPast = "The timer is already past that point",
+	NotShopping = "The shop is closed",
 	UnknownPlayer = "Please wait a moment and try again",
 	Locked = "This class is not unlocked yet",
 	NoCharacter = "Your character has not loaded yet",
@@ -47,7 +49,14 @@ local flow = RunFlow.new({
 	countdownSeconds = Config.Run.flow.countdownSeconds,
 	allReadyCountdownSeconds = Config.Run.flow.allReadyCountdownSeconds,
 	resultsSeconds = Config.Run.flow.resultsSeconds,
-	durationSeconds = Config.Run.durationSeconds,
+	waveEnds = (function()
+		local ends = {}
+		for number = 1, RunSchedule.waveCount() do
+			table.insert(ends, RunSchedule.wave(number).endsAt)
+		end
+		return ends
+	end)(),
+	shopSeconds = Config.Shop.phaseSeconds,
 	maxPlayers = Config.Run.maxPlayers,
 	defaultClassId = Config.Run.flow.defaultClassId,
 	difficulty = Config.Run.flow.defaultDifficulty,
@@ -205,6 +214,14 @@ function RunDirector.init()
 		process()
 	end)
 
+	Net.onServer("SetShopReady", function(player, ready: boolean)
+		local ok, reason = flow:setShopReady(player.UserId, ready, now())
+		if not ok then
+			reject(player, reason)
+		end
+		process()
+	end)
+
 	Net.onServer("SetReady", function(player, ready: boolean)
 		local ok, reason = flow:setReady(player.UserId, ready, now())
 		if not ok then
@@ -236,7 +253,17 @@ function RunDirector.isActive(): boolean
 	return flow:isActive()
 end
 
--- Seconds since the run started (frozen after it ended), 0 outside a run.
+-- Running, Shop or Boss.
+function RunDirector.isOngoing(): boolean
+	return flow:isOngoing()
+end
+
+-- Current wave (while the Shop is open: the wave that just ended), 0 outside a run.
+function RunDirector.getWave(): number
+	return flow.wave
+end
+
+-- Fighting seconds since the run started (stopped in the shop and after the run ended), 0 outside a run.
 function RunDirector.getElapsed(): number
 	return flow:getElapsed(now())
 end
@@ -282,7 +309,17 @@ function RunDirector.skipTo(elapsedSeconds: number): (boolean, string?)
 	return ok, reason
 end
 
--- Called at 12:00 instead of the placeholder victory. The boss service (WP10) registers this and calls
+-- Admin/test switch: the fighting clock stands still during waves while on (stays across runs).
+function RunDirector.setHoldWaves(hold: boolean)
+	flow:setHoldWaves(hold, now())
+	process()
+end
+
+function RunDirector.isHoldingWaves(): boolean
+	return flow.holdWaves
+end
+
+-- Called after the final wave instead of the placeholder victory. The boss service (WP10) registers this and calls
 -- RunDirector.endRun("Victory") when the boss dies.
 function RunDirector.setBossEncounter(start: () -> ())
 	bossEncounter = start

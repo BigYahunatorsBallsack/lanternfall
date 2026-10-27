@@ -50,6 +50,20 @@ function ConfigCheck.run(): { string }
 		end
 	end
 
+	for id in Config.Weapons do
+		if not (Config.Shop.basePrices[id] and Config.Shop.basePrices[id] > 0) then
+			problem(`Shop.basePrices needs a price above 0 for weapon {id}`)
+		end
+	end
+	for id in Config.Passives do
+		if not (Config.Shop.basePrices[id] and Config.Shop.basePrices[id] > 0) then
+			problem(`Shop.basePrices needs a price above 0 for passive {id}`)
+		end
+	end
+	if Config.Shop.slots < 1 or Config.Shop.phaseSeconds <= 0 then
+		problem("Shop needs at least one slot and a phase above 0 seconds")
+	end
+
 	for id, evolution in Config.Evolutions do
 		if not Config.Weapons[evolution.weapon] then
 			problem(`Evolution {id} needs unknown weapon {evolution.weapon}`)
@@ -170,10 +184,18 @@ function ConfigCheck.run(): { string }
 		end
 	end
 	local waves = spawn.waves
-	if not (waves.lengthSeconds > 0 and waves.breatherSeconds >= 0 and waves.breatherSeconds < waves.lengthSeconds) then
-		problem("Run.spawn.waves needs a length above 0 and a breather shorter than it")
+	if #waves.lengthsSeconds == 0 then
+		problem("Run.spawn.waves needs at least one wave")
 	end
-	if not (waves.rampFrom >= 0 and waves.rampTo >= 0 and waves.breatherRate >= 0 and waves.finalRate > 0) then
+	for index, length in waves.lengthsSeconds do
+		if not (length > 0) then
+			problem(`Run.spawn.waves wave {index} needs a length above 0`)
+		end
+	end
+	if not (spawn.swarmRush.durationShare > 0 and spawn.swarmRush.durationShare <= 1) then
+		problem("Run.spawn.swarmRush.durationShare must be above 0 and at most 1")
+	end
+	if not (waves.rampFrom >= 0 and waves.rampTo >= 0 and waves.finalRate > 0) then
 		problem("Run.spawn.waves rates must not be negative")
 	end
 	for _, entry in spawn.elites.waves do

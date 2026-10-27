@@ -23,7 +23,9 @@ local ADMIN_ATTRIBUTE = "LanternfallAdmin"
 local STATS_REFRESH_SECONDS = 0.5
 
 local BUTTON_TEXT: { [string]: string } = {
-	SkipMinute = "+1 minute",
+	SkipWave = "End this wave",
+	HoldWaves = "Stop/run wave timer",
+	AddShards = `+{Config.Admin.addShards} Shards`,
 	SkipToBoss = `Skip to {Format.time(Config.Run.durationSeconds - Config.Admin.skipToBossLeadSeconds)}`,
 	DownSelf = "Knock me down",
 	ReviveSelf = "Stand up again",

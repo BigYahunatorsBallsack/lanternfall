@@ -17,4 +17,5 @@ return {
 	Admin = require(script.Admin),
 	Camera = require(script.Camera),
 	Feedback = require(script.Feedback),
+	Shop = require(script.Shop),
 }
