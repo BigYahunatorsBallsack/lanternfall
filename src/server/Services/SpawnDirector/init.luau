@@ -1,11 +1,13 @@
 --!strict
--- Spawns enemies while a run is in its Running phase (DESIGN.md section 7, base version from WP3): the rate
--- grows per minute and player, spawning pauses at the alive cap, enemies appear on a ring around a random
--- living player, the mix follows the minute and HP grows per minute and difficulty (rules in SpawnRules).
--- Since WP9: part of the spawns of a walking player land in front of them, a Gloom Elite appears every 2 minutes from
--- 2:00 (above the cap), and Swarm Rush (5:00 and 9:00) doubles the rate with Shadelings only and starts with a ring
--- around every player. Enemies left far behind every player come back on the spawn ring, so running in circles with
--- a trailing crowd does not stop the pressure. Uses EnemySim; AdminService pauses it and spawns test waves and elites.
+-- Spawns enemies while a run is in its Running phase (DESIGN.md section 7, base version from WP3): the rate follows
+-- its curve, the minute's wave (ramp, breather, final wave) and the player count, spawning pauses at the alive cap,
+-- enemies appear on a ring around a random living player, the mix follows the minute and HP and damage grow along
+-- their curves and with the difficulty (rules in SpawnRules and Util/RunSchedule).
+-- Since WP9: part of the spawns of a walking player land in front of them, Gloom Elites appear at the minutes in
+-- Run.spawn.elites (above the cap; later ones with a random affix), and Swarm Rush (5:00 and 9:00) doubles the rate
+-- with Shadelings only and starts with a ring around every player. Enemies left far behind every player come back
+-- on the spawn ring, so running in circles with a trailing crowd does not stop the pressure. Uses EnemySim;
+-- AdminService pauses it and spawns test waves and elites.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
@@ -73,17 +75,25 @@ local function notifyParticipants(text: string)
 	end
 end
 
-local function spawnAt(enemyId: string, x: number, z: number, atMinutes: number, elite: boolean?): boolean
+local function spawnAt(
+	enemyId: string,
+	x: number,
+	z: number,
+	atMinutes: number,
+	elite: boolean?,
+	affix: number?
+): boolean
 	local tiers = Config.Difficulty.tiers
 	local tier = tiers[RunDirector.getDifficulty()] or tiers[Config.Difficulty.default]
 	local hpMultiplier = SpawnRules.hpFactor(atMinutes) * tier.enemyHp
-	return EnemySim.spawn(enemyId, x, z, hpMultiplier, tier.enemyDamage, elite) ~= nil
+	local damageMultiplier = SpawnRules.damageFactor(atMinutes) * tier.enemyDamage
+	return EnemySim.spawn(enemyId, x, z, hpMultiplier, damageMultiplier, elite, affix) ~= nil
 end
 
 -- Spawns one enemy of `enemyId` on the ring around `anchor`, in front of a walking player for part of the spawns
 -- (SpawnRules.aheadHeading). Returns false if no free spot was found or the hard cap is reached.
-local function spawnOne(anchor: Anchor, enemyId: string, atMinutes: number, elite: boolean?): boolean
-	local kind = EnemyKinds.get(enemyId, elite)
+local function spawnOne(anchor: Anchor, enemyId: string, atMinutes: number, elite: boolean?, affix: number?): boolean
+	local kind = EnemyKinds.get(enemyId, elite, affix)
 	if not kind then
 		return false
 	end
@@ -97,16 +107,18 @@ local function spawnOne(anchor: Anchor, enemyId: string, atMinutes: number, elit
 	if not (x and z) then
 		return false
 	end
-	return spawnAt(enemyId, x, z, atMinutes, elite)
+	return spawnAt(enemyId, x, z, atMinutes, elite, affix)
 end
 
--- One Gloom Elite of the current mix around a random living player. Returns its name, or nil without a spot.
+-- One Gloom Elite of the current mix around a random living player, from Run.spawn.elites.affixFromMinute with a
+-- random affix. Returns its name, or nil without a spot.
 local function spawnElite(anchor: Anchor, atMinutes: number): string?
 	local enemyId = SpawnRules.pickEnemy(SpawnRules.mixAt(atMinutes), roll())
-	if not spawnOne(anchor, enemyId, atMinutes, true) then
+	local affix = if SpawnRules.affixesAt(atMinutes) then rng:NextInteger(1, #Config.Enemies.elite.affixes) else nil
+	if not spawnOne(anchor, enemyId, atMinutes, true, affix) then
 		return nil
 	end
-	local kind = EnemyKinds.get(enemyId, true)
+	local kind = EnemyKinds.get(enemyId, true, affix)
 	return if kind then kind.displayName else enemyId
 end
 
@@ -138,15 +150,14 @@ local function updateEvents(atMinutes: number, anchors: { Anchor }, cap: number)
 	if #anchors == 0 then
 		return
 	end
-	if SpawnRules.eliteDue(from, atMinutes) then
+	for _ = 1, SpawnRules.elitesDue(from, atMinutes) do
 		local name = spawnElite(anchors[rng:NextInteger(1, #anchors)], atMinutes)
 		if name then
 			notifyParticipants(`A {name} appeared! Kill it for a chest.`)
 		end
 	end
 	if SpawnRules.swarmRushStarted(from, atMinutes) then
-		notifyParticipants("Swarm Rush! They are everywhere...")
-		spawnRushRing(anchors, atMinutes, cap)
+		spawnRushRing(anchors, atMinutes, cap) -- the HUD's wave banner announces it
 	end
 end
 
@@ -163,7 +174,7 @@ end
 -- Puts an enemy on a new spawn point around a random living player (in front of them for part of the moves).
 local function respawn(id: number, anchors: { Anchor })
 	local enemyId, elite = EnemySim.getKind(id)
-	local kind = enemyId and EnemyKinds.get(enemyId, elite)
+	local kind = enemyId and EnemyKinds.get(enemyId, elite) -- the affix does not change the radius
 	if not kind then
 		return
 	end

@@ -1,8 +1,8 @@
 --!strict
 -- Elite chests on the client (DESIGN.md section 8): draws every chest from the Chests remote as a glowing box with a
 -- light beam, points at chests off screen with arrows at the screen edge and shows the local player's reward when a
--- chest opens (ChestOpened). Active only while the local player is in a running run (RunStateController). The server
--- (LootService) decides who opens a chest and what is inside.
+-- chest opens (ChestOpened), with a camera shake. Active only while the local player is in a running run
+-- (RunStateController). The server (LootService) decides who opens a chest and what is inside.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -15,6 +15,7 @@ local Net = require(Shared:WaitForChild("Net"))
 local Types = require(Shared:WaitForChild("Net"):WaitForChild("Types"))
 local UpgradeText = require(Shared:WaitForChild("Util"):WaitForChild("UpgradeText"))
 
+local CameraController = require(script.Parent.CameraController)
 local RunStateController = require(script.Parent.RunStateController)
 local Theme = require(script.Parent.Parent.UI.Theme)
 local Widgets = require(script.Parent.Parent.UI.Widgets)
@@ -214,6 +215,7 @@ local function onOpened(opened: Types.ChestOpened)
 	end
 	for _, entry in opened.rewards do
 		if entry.userId == Players.LocalPlayer.UserId then
+			CameraController.shake(Config.Feedback.shake.chestOpen)
 			showBanner(UpgradeText.chestReward(entry.reward))
 			return
 		end

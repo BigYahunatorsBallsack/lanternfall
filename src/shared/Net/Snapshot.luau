@@ -3,9 +3,11 @@
 --
 -- Packet layout (little endian):
 --   header  u32 tick, u8 part, u8 partCount, u16 count       8 bytes
---   enemy   u16 id, i16 x, i16 z, u8 typeId, u8 hp            8 bytes each
+--   enemy   u16 id, i16 x, i16 z, u8 typeId, u8 hp, u8 flags   9 bytes each
 -- x/z are world positions multiplied by POSITION_SCALE (1/32 stud precision, range +-1024 studs).
 -- hp is the remaining HP fraction mapped to 1-255 for living enemies.
+-- flags: bits 0-1 the mode of a charger (EnemySim/World.MODE_*: walk, wind-up, rush, recover), bits 2-3 the
+-- elite affix (0 = none, else index into Config.Enemies.elite.affixes), see packFlags.
 -- UnreliableRemoteEvent payloads must stay below ~900 bytes, so one tick is split evenly into `partCount`
 -- packets of at most MAX_PER_PACKET enemies (`part` counts from 0). The client uses a tick only once all
 -- of its parts have arrived, so a lost packet skips that tick instead of making enemies vanish.
@@ -14,7 +16,7 @@
 local Snapshot = {}
 
 local HEADER_SIZE = 8
-local ENEMY_SIZE = 8
+local ENEMY_SIZE = 9
 local POSITION_SCALE = 32
 local INT16_MIN, INT16_MAX = -32768, 32767
 local MAX_PER_PACKET = 90
@@ -35,10 +37,21 @@ export type Columns = {
 	zs: { number },
 	typeIds: { number }, -- 0-255, see Config.Enemies
 	hpFractions: { number }, -- 0-1
+	flags: { number }, -- 0-255, see packFlags
 }
 
 function Snapshot.newColumns(): Columns
-	return { ids = {}, xs = {}, zs = {}, typeIds = {}, hpFractions = {} }
+	return { ids = {}, xs = {}, zs = {}, typeIds = {}, hpFractions = {}, flags = {} }
+end
+
+-- One flags byte from a mode (0-3) and an affix index (0-3).
+function Snapshot.packFlags(mode: number, affix: number): number
+	return mode % 4 + (affix % 4) * 4
+end
+
+-- Mode (0-3) and affix index (0-3) from a flags byte.
+function Snapshot.unpackFlags(flags: number): (number, number)
+	return flags % 4, (flags // 4) % 4
 end
 
 local function packPosition(value: number): number
@@ -66,6 +79,7 @@ local function encodePart(
 	buffer.writeu8(b, 5, partCount)
 	buffer.writeu16(b, 6, count)
 	local ids, xs, zs, typeIds, hps = columns.ids, columns.xs, columns.zs, columns.typeIds, columns.hpFractions
+	local flags = columns.flags
 	local offset = HEADER_SIZE
 	for i = first, first + count - 1 do
 		buffer.writeu16(b, offset, ids[i])
@@ -73,6 +87,7 @@ local function encodePart(
 		buffer.writei16(b, offset + 4, packPosition(zs[i]))
 		buffer.writeu8(b, offset + 6, typeIds[i])
 		buffer.writeu8(b, offset + 7, packHp(hps[i]))
+		buffer.writeu8(b, offset + 8, flags[i] or 0)
 		offset += ENEMY_SIZE
 	end
 	return b
@@ -115,6 +130,7 @@ end
 function Snapshot.decodeInto(b: buffer, columns: Columns, start: number): number
 	local count = buffer.readu16(b, 6)
 	local ids, xs, zs, typeIds, hps = columns.ids, columns.xs, columns.zs, columns.typeIds, columns.hpFractions
+	local flags = columns.flags
 	local offset = HEADER_SIZE
 	for i = start, start + count - 1 do
 		ids[i] = buffer.readu16(b, offset)
@@ -122,6 +138,7 @@ function Snapshot.decodeInto(b: buffer, columns: Columns, start: number): number
 		zs[i] = buffer.readi16(b, offset + 4) / POSITION_SCALE
 		typeIds[i] = buffer.readu8(b, offset + 6)
 		hps[i] = buffer.readu8(b, offset + 7) / 255
+		flags[i] = buffer.readu8(b, offset + 8)
 		offset += ENEMY_SIZE
 	end
 	return count

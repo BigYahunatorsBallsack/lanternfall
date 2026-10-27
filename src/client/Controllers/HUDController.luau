@@ -1,8 +1,9 @@
 --!strict
--- In-run HUD for the prototype: team XP bar with the level, run timer, phase hint, the local HP bar with a red flash
--- on hits, the team with HP and Alive/Down states (and who is picking a card), and your weapons and passives with
--- their levels. Shown while the local player is in a running run; reads RunStateController, PlayerStateController,
--- LoadoutController and ProgressController. WP14 builds the full HUD.
+-- In-run HUD for the prototype: team XP bar with the level, run timer, the wave (number, breather countdown, final
+-- wave; Util/RunSchedule) with a big banner when a new wave starts that names what it brings, the local HP bar with a
+-- red flash on hits, the team with HP and Alive/Down states (and who is picking a card), and your weapons and
+-- passives with their levels. Shown while the local player is in a running run; reads RunStateController,
+-- PlayerStateController, LoadoutController and ProgressController. WP14 builds the full HUD.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -12,6 +13,7 @@ local TweenService = game:GetService("TweenService")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared:WaitForChild("Config"))
 local Format = require(Shared:WaitForChild("Util"):WaitForChild("Format"))
+local RunSchedule = require(Shared:WaitForChild("Util"):WaitForChild("RunSchedule"))
 local Types = require(Shared:WaitForChild("Net"):WaitForChild("Types"))
 
 local LoadoutController = require(script.Parent.LoadoutController)
@@ -28,6 +30,9 @@ local HIT_FLASH_TRANSPARENCY = 0.75 -- red screen tint right after a hit
 local LOW_HP_FRACTION = 0.3
 local XP_BAR_WIDTH = 420
 local XP_COLOR = Color3.fromRGB(96, 170, 255) -- the color of small XP orbs
+local BANNER_SECONDS = 2.6
+local BANNER_FADE_SECONDS = 0.4
+local BANNER_TITLE_SIZE = 56
 
 local HUDController = {}
 
@@ -44,12 +49,97 @@ local passivesTitle: TextLabel
 local passiveRows: Frame
 local xpFill: Frame
 local xpLabel: TextLabel
+local bannerWave = 0 -- the wave whose banner was shown; 0 before the first
 
 local function hintText(state: Types.RunState): (string, Color3)
 	if state.phase == "Boss" then
 		return string.upper(Config.Enemies.boss.displayName), Theme.danger
 	end
-	return `Survive until {Format.time(Config.Run.durationSeconds)}`, Theme.textDim
+	local elapsed = RunStateController.getElapsed()
+	local wave = RunSchedule.waveAt(elapsed)
+	if wave.final then
+		return `Final wave · survive until {Format.time(Config.Run.durationSeconds)}`, Theme.danger
+	elseif wave.breather then
+		return `Breather · wave {wave.number + 1} in {math.ceil(wave.endsAt - elapsed)}`, Theme.success
+	end
+	return `Wave {wave.number} / {wave.count}`, Theme.textDim
+end
+
+-- Big "WAVE n" banner with what the wave brings (new enemies, Swarm Rush, elites).
+local function showWaveBanner(number: number)
+	local old = screen:FindFirstChild("WaveBanner")
+	if old then
+		old:Destroy()
+	end
+	local events = RunSchedule.eventsOf(number)
+	local banner = Widgets.create("Frame", {
+		Name = "WaveBanner",
+		BackgroundTransparency = 1,
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.fromScale(0.5, 0.24),
+		Size = UDim2.fromOffset(520, 0),
+		AutomaticSize = Enum.AutomaticSize.Y,
+		Parent = screen,
+	})
+	Widgets.list(2).Parent = banner
+	local labels = {
+		Widgets.label({
+			Name = "WaveTitle",
+			Text = `WAVE {number}`,
+			Font = Theme.fontBold,
+			TextSize = BANNER_TITLE_SIZE,
+			Size = UDim2.new(1, 0, 0, BANNER_TITLE_SIZE + 4),
+			TextColor3 = if #events > 0 then Theme.danger else Theme.accent,
+			TextStrokeTransparency = 0.3,
+			LayoutOrder = 1,
+			Parent = banner,
+		}),
+	}
+	if #events > 0 then
+		table.insert(
+			labels,
+			Widgets.label({
+				Name = "WaveEvents",
+				Text = table.concat(events, "  ·  "),
+				Font = Theme.fontBold,
+				TextSize = 22,
+				TextColor3 = Theme.text,
+				TextStrokeTransparency = 0.3,
+				LayoutOrder = 2,
+				Parent = banner,
+			})
+		)
+	end
+	task.delay(BANNER_SECONDS, function()
+		if not banner.Parent then
+			return
+		end
+		local info = TweenInfo.new(BANNER_FADE_SECONDS)
+		for _, label in labels do
+			TweenService:Create(label, info, { TextTransparency = 1, TextStrokeTransparency = 1 }):Play()
+		end
+		task.wait(BANNER_FADE_SECONDS)
+		banner:Destroy()
+	end)
+end
+
+-- Every frame: the wave hint, and the banner once a new wave starts.
+local function updateWave()
+	local state = RunStateController.get()
+	if not (state and state.phase == "Running") then
+		bannerWave = 0
+		return
+	end
+	local hint, color = hintText(state)
+	if hintLabel.Text ~= hint then
+		hintLabel.Text = hint
+		hintLabel.TextColor3 = color
+	end
+	local wave = RunSchedule.waveAt(RunStateController.getElapsed())
+	if wave.number ~= bannerWave then
+		bannerWave = wave.number
+		showWaveBanner(wave.number)
+	end
 end
 
 local function renderTeam(state: Types.RunState)
@@ -360,6 +450,7 @@ function HUDController.start()
 			if timerLabel.Text ~= text then
 				timerLabel.Text = text
 			end
+			updateWave()
 		end
 	end)
 end

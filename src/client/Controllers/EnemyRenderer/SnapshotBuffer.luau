@@ -18,6 +18,7 @@ export type Frame = {
 	zs: { number },
 	typeIds: { number },
 	hpFractions: { number },
+	flags: { number },
 	indexOf: { [number]: number },
 }
 
@@ -69,7 +70,17 @@ local function takeFrame(self: SnapshotBuffer, tick: number): Frame
 		table.clear(frame.indexOf)
 		return frame
 	end
-	return { tick = tick, count = 0, ids = {}, xs = {}, zs = {}, typeIds = {}, hpFractions = {}, indexOf = {} }
+	return {
+		tick = tick,
+		count = 0,
+		ids = {},
+		xs = {},
+		zs = {},
+		typeIds = {},
+		hpFractions = {},
+		flags = {},
+		indexOf = {},
+	}
 end
 
 local function recycle(self: SnapshotBuffer, frame: Frame)

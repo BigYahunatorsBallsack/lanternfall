@@ -10,6 +10,7 @@ local function columnsOf(count)
 		columns.zs[i] = -(i % 50) * 2.11
 		columns.typeIds[i] = 1 + i % 3
 		columns.hpFractions[i] = (i % 10) / 10
+		columns.flags[i] = Snapshot.packFlags(i % 4, i % 3)
 	end
 	return columns
 end
@@ -43,6 +44,10 @@ describe("Snapshot", function()
 			expect(decoded.zs[i]).toBeNear(source.zs[i], 1 / 64)
 			expect(decoded.typeIds[i]).toBe(source.typeIds[i])
 			expect(decoded.hpFractions[i]).toBeNear(source.hpFractions[i], 1 / 255)
+			expect(decoded.flags[i]).toBe(source.flags[i])
+			local mode, affix = Snapshot.unpackFlags(decoded.flags[i])
+			expect(mode).toBe(i % 4)
+			expect(affix).toBe(i % 3)
 		end
 	end)
 

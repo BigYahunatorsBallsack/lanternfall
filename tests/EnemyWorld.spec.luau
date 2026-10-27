@@ -1,6 +1,6 @@
 -- Unit tests for the enemy simulation (EnemySim/World): chasing, crowding, obstacles, contacts, damage,
--- queries, knockback, Spitter shots, elite kinds and the 4 ms step budget with the maximum of 140 enemies; plus the
--- enemy projectiles (EnemySim/Volleys).
+-- queries, knockback, Spitter shots, Charger rushes, elite kinds and affixes (Armored, Summoning) and the 4 ms step
+-- budget with the maximum of 140 enemies; plus the enemy projectiles (EnemySim/Volleys).
 
 local Shared = game:GetService("ReplicatedStorage").Shared
 local Config = require(Shared.Config)
@@ -385,6 +385,144 @@ describe("lag-corrected contacts", function()
 			end
 		end
 		expect(EnemyKinds.get("Shadeling")).toBe(Types.Shadeling)
+	end)
+
+	it("builds one elite per affix with the same typeId and the affix applied", function()
+		local affixes = Config.Enemies.elite.affixes
+		local plain = EnemyKinds.get("Brute", true)
+		for index, affix in affixes do
+			local kind = EnemyKinds.get("Brute", true, index)
+			expect(kind ~= nil and plain ~= nil).toBe(true)
+			if kind and plain then
+				expect(kind.affix).toBe(index)
+				expect(kind.typeId).toBe(plain.typeId)
+				expect(kind.displayName).toBe(`{affix.displayName} Gloom Brute`)
+				expect(kind.speed).toBeNear(plain.speed * (affix.speedMultiplier or 1))
+				expect(kind.damageTaken).toBe(affix.damageTaken)
+				expect(kind.summon).toBe(affix.summon)
+			end
+		end
+		expect(EnemyKinds.get("Brute", true, #affixes + 1)).toBe(nil)
+		expect(EnemyKinds.lookOf(Types.AbyssShadeling)).toBe("Shadeling")
+		expect(EnemyKinds.lookOf(Types.Brute)).toBe("Brute")
+	end)
+
+	it("lets Armored elites take less damage", function()
+		local world = newWorld()
+		local index = 2 -- Armored
+		expect(Config.Enemies.elite.affixes[index].id).toBe("Armored")
+		local kind = EnemyKinds.get("Brute", true, index) :: any
+		local id = world:spawn(kind, 10, 0, 100, kind.contactDamage) :: number
+		local killed, dealt, applied = world:damage(id, 40)
+		expect(killed).toBe(false)
+		expect(applied).toBeNear(40 * kind.damageTaken)
+		expect(dealt).toBeNear(applied)
+		expect(world:getHealth(id)).toBeNear(100 - applied)
+	end)
+
+	it("lets a Charger wind up, rush in a straight line and recover", function()
+		local charge = Types.Charger.charge :: any
+		local world = newWorld()
+		local id = spawn(world, "Charger", charge.triggerRange - 4, 0) :: number
+		-- walks until its first cooldown is over, then winds up facing the player
+		local windupAt = nil
+		for step = 1, math.ceil((charge.cooldownSeconds + 1) / STEP) do
+			world:step(STEP, { 0 }, { 0 }, 1)
+			if world:getMode(id) == World.MODE_WINDUP then
+				windupAt = step
+				break
+			end
+		end
+		expect(windupAt ~= nil).toBe(true)
+		local mode, dx, dz = world:getMode(id)
+		expect(mode).toBe(World.MODE_WINDUP)
+		expect(dx).toBeNear(-1, 1e-3)
+		expect(dz).toBeNear(0, 1e-3)
+		-- stands still during the wind-up, even when the player steps aside
+		local x0, z0 = world:getPosition(id)
+		for _ = 1, math.floor(charge.windupSeconds / STEP) - 1 do
+			world:step(STEP, { 0 }, { 20 }, 1)
+		end
+		local x1, z1 = world:getPosition(id)
+		expect(x1).toBeNear(x0 :: number, 1e-6)
+		expect(z1).toBeNear(z0 :: number, 1e-6)
+		-- then rushes along the fixed direction, much faster than it walks, and misses the player who stepped aside
+		local rushSteps = 0
+		repeat
+			world:step(STEP, { 0 }, { 20 }, 1)
+			rushSteps += 1
+		until world:getMode(id) ~= World.MODE_WINDUP and world:getMode(id) ~= World.MODE_RUSH or rushSteps > 60
+		local x2, z2 = world:getPosition(id)
+		expect(z2).toBeNear(z0 :: number, 0.5)
+		expect((x0 :: number) - (x2 :: number)).toBeNear(charge.maxDistance, 1.5)
+		expect(world:getMode(id)).toBe(World.MODE_RECOVER)
+		-- recovers in place, then walks again
+		run(world, charge.recoverSeconds + STEP, { 0 }, { 20 })
+		expect(world:getMode(id)).toBe(World.MODE_WALK)
+	end)
+
+	it("ends a rush at the player it reaches and hurts them", function()
+		local charge = Types.Charger.charge :: any
+		local world = newWorld()
+		local id = spawn(world, "Charger", 12, 0) :: number
+		world.modeTimers[world.indexOf[id]] = 0
+		local hit = 0
+		for _ = 1, math.ceil((charge.cooldownSeconds + charge.windupSeconds + 1) / STEP) do
+			local contacts = world:step(STEP, { 0 }, { 0 }, 1)
+			hit = math.max(hit, contacts[1])
+		end
+		expect(hit).toBe(Types.Charger.contactDamage)
+		expect(distance(world, id, 0, 0) >= Types.Charger.radius + Sim.playerRadius - 1e-3).toBe(true)
+	end)
+
+	it("ends a rush at an obstacle", function()
+		local charge = Types.Charger.charge :: any
+		local world = newWorld({ { x = 8, z = 0, radius = 2 } })
+		local id = spawn(world, "Charger", 16, 0) :: number
+		world.modeTimers[world.indexOf[id]] = 0 -- may wind up right away, before it walks around the obstacle
+		for _ = 1, math.ceil((charge.windupSeconds + 1) / STEP) do
+			world:step(STEP, { 0 }, { 0 }, 1)
+			if world:getMode(id) == World.MODE_RECOVER then
+				break
+			end
+		end
+		expect(world:getMode(id)).toBe(World.MODE_RECOVER)
+		local x = world:getPosition(id) :: number
+		expect(x >= 8 + 2 + Types.Charger.radius - 1e-3).toBe(true)
+	end)
+
+	it("reports Summoning elites every intervalSeconds while a player is around", function()
+		local index = 3 -- Summoning
+		local affix = Config.Enemies.elite.affixes[index]
+		expect(affix.id).toBe("Summoner")
+		local kind = EnemyKinds.get("Brute", true, index) :: any
+		local world = newWorld()
+		local id = world:spawn(kind, 40, 0, kind.hp, kind.contactDamage) :: number
+		local calls = 0
+		for _ = 1, math.ceil(affix.summon.intervalSeconds * 2.2 / STEP) do
+			world:step(STEP, { 0 }, { 0 }, 1)
+			for k = 1, world.summonCount do
+				expect(world.summons[k]).toBe(id)
+				calls += 1
+			end
+		end
+		expect(calls).toBe(2)
+		local quiet = newWorld()
+		quiet:spawn(kind, 40, 0, kind.hp, kind.contactDamage)
+		run(quiet, affix.summon.intervalSeconds * 2, {}, {})
+		expect(quiet.summonCount).toBe(0)
+	end)
+
+	it("remembers the multipliers an enemy spawned with", function()
+		local world = newWorld()
+		local id = world:spawn(Types.Splitter, 10, 0, Types.Splitter.hp * 2.5, Types.Splitter.contactDamage * 1.2)
+		local hpMultiplier, damageMultiplier = world:getMultipliers(id :: number)
+		expect(hpMultiplier).toBeNear(2.5)
+		expect(damageMultiplier).toBeNear(1.2)
+		local spitter =
+			world:spawn(Types.Spitter, 20, 0, Types.Spitter.hp, 0, Types.Spitter.ranged.projectileDamage * 1.5)
+		local _, shotMultiplier = world:getMultipliers(spitter :: number)
+		expect(shotMultiplier).toBeNear(1.5)
 	end)
 end)
 

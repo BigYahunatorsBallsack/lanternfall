@@ -19,11 +19,42 @@ local Run = {
 	playerFactor = table.freeze({ perExtraPlayer = 0.6 }),
 
 	spawn = table.freeze({
-		-- enemies/s = (base + perMinute * t) * fPlayers
-		baseRate = 1.5,
-		ratePerMinute = 0.55,
-		-- enemy HP factor = 1 + hpPerMinute * t
-		hpPerMinute = 0.15,
+		-- Curves are keyframes { minute, value }, linear in between and flat after the last one (Util/RunSchedule).
+		-- enemies/s = rate curve * wave intensity * fPlayers (* Swarm Rush)
+		rateCurve = table.freeze({
+			table.freeze({ 0, 1 }), -- calm start: a few Shadelings for the first level-ups
+			table.freeze({ 1, 2.2 }),
+			table.freeze({ 3, 3.6 }),
+			table.freeze({ 6, 5 }),
+			table.freeze({ 9, 6.8 }),
+			table.freeze({ 12, 8.6 }),
+		}),
+		-- multiplier on enemy HP at spawn time (times difficulty); grows faster and faster
+		hpCurve = table.freeze({
+			table.freeze({ 0, 1 }),
+			table.freeze({ 2, 1.15 }),
+			table.freeze({ 4, 1.4 }),
+			table.freeze({ 6, 1.75 }),
+			table.freeze({ 8, 2.3 }),
+			table.freeze({ 10, 3 }),
+			table.freeze({ 12, 3.8 }),
+		}),
+		-- multiplier on contact and projectile damage at spawn time (times difficulty)
+		damageCurve = table.freeze({
+			table.freeze({ 0, 1 }),
+			table.freeze({ 6, 1.1 }),
+			table.freeze({ 12, 1.25 }),
+		}),
+		-- Every minute is a wave (shown in the HUD): the rate ramps from rampFrom to rampTo, then a breather with
+		-- breatherRate for the last breatherSeconds; the final wave has no breather and runs at finalRate times.
+		waves = table.freeze({
+			lengthSeconds = 60,
+			rampFrom = 0.7,
+			rampTo = 1.2,
+			breatherSeconds = 12,
+			breatherRate = 0.2,
+			finalRate = 1.4,
+		}),
 		-- alive cap = base + perExtraPlayer * (n - 1), at most max
 		cap = table.freeze({ base = 80, perExtraPlayer = 20, max = 140 }),
 		ringMin = 45, -- studs around a random player
@@ -35,11 +66,71 @@ local Run = {
 		-- farthest ones beyond `atCapDistance`, so running in circles with a full trailing crowd does not stop new
 		-- enemies from coming (assumption)
 		recycle = table.freeze({ distance = 80, intervalSeconds = 1, atCapDistance = 40, atCapCount = 5 }),
-		-- enemy mix by minute; the last entry with fromMinute <= t applies
+		-- enemy mix by minute; the last entry with fromMinute <= t applies. `announce` shows on the wave banner of the
+		-- wave that starts at fromMinute (HUD).
 		mix = table.freeze({
 			table.freeze({ fromMinute = 0, weights = table.freeze({ Shadeling = 1 }) }),
-			table.freeze({ fromMinute = 2, weights = table.freeze({ Shadeling = 0.8, Brute = 0.2 }) }),
-			table.freeze({ fromMinute = 4, weights = table.freeze({ Shadeling = 0.7, Brute = 0.2, Spitter = 0.1 }) }),
+			table.freeze({
+				fromMinute = 2,
+				announce = "Brutes",
+				weights = table.freeze({ Shadeling = 0.8, Brute = 0.2 }),
+			}),
+			table.freeze({
+				fromMinute = 3,
+				announce = "Chargers",
+				weights = table.freeze({ Shadeling = 0.7, Brute = 0.18, Charger = 0.12 }),
+			}),
+			table.freeze({
+				fromMinute = 4,
+				announce = "Spitters",
+				weights = table.freeze({ Shadeling = 0.62, Brute = 0.16, Charger = 0.12, Spitter = 0.1 }),
+			}),
+			table.freeze({
+				fromMinute = 6,
+				announce = "Abyss Shadelings",
+				weights = table.freeze({
+					Shadeling = 0.45,
+					AbyssShadeling = 0.2,
+					Brute = 0.13,
+					Charger = 0.12,
+					Spitter = 0.1,
+				}),
+			}),
+			table.freeze({
+				fromMinute = 7,
+				announce = "Splitters",
+				weights = table.freeze({
+					Shadeling = 0.25,
+					AbyssShadeling = 0.3,
+					Brute = 0.1,
+					Charger = 0.12,
+					Spitter = 0.1,
+					Splitter = 0.13,
+				}),
+			}),
+			table.freeze({
+				fromMinute = 8,
+				announce = "Abyss Brutes",
+				weights = table.freeze({
+					Shadeling = 0.1,
+					AbyssShadeling = 0.42,
+					Brute = 0.05,
+					AbyssBrute = 0.1,
+					Charger = 0.12,
+					Spitter = 0.1,
+					Splitter = 0.11,
+				}),
+			}),
+			table.freeze({
+				fromMinute = 10,
+				weights = table.freeze({
+					AbyssShadeling = 0.5,
+					AbyssBrute = 0.14,
+					Charger = 0.14,
+					Spitter = 0.1,
+					Splitter = 0.12,
+				}),
+			}),
 		}),
 		swarmRush = table.freeze({
 			atMinutes = table.freeze({ 5, 9 }),
@@ -48,8 +139,18 @@ local Run = {
 			enemy = "Shadeling",
 			ringCount = 24, -- extra Shadelings in a closed ring at ringMin around every player when it starts (assumption)
 		}),
-		-- one Gloom Elite of the current mix (Config.Enemies.elite) at these times, also above the alive cap
-		elite = table.freeze({ firstAtMinute = 2, everyMinutes = 2 }),
+		-- Gloom Elites of the current mix (Config.Enemies.elite) at these minutes, also above the alive cap; from
+		-- affixFromMinute each gets a random affix (Swift, Armored, Summoning)
+		elites = table.freeze({
+			waves = table.freeze({
+				table.freeze({ atMinute = 2, count = 1 }),
+				table.freeze({ atMinute = 4, count = 1 }),
+				table.freeze({ atMinute = 6, count = 2 }),
+				table.freeze({ atMinute = 8, count = 1 }),
+				table.freeze({ atMinute = 10, count = 2 }),
+			}),
+			affixFromMinute = 6,
+		}),
 	}),
 
 	-- XP for level L -> L+1 = round((base + coefficient * L^exponent) * fPlayers)

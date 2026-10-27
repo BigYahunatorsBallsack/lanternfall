@@ -64,13 +64,18 @@ Sind alle gleichzeitig down, endet der Run sofort – Embers gibt es trotzdem f�
 
 | Minute | Was passiert |
 | --- | --- |
-| 0:00 | Start mit der Klassen-Waffe, nur Shadelings, Level-ups alle paar Sekunden |
-| 2:00 | Brutes kommen dazu, erste Elite mit Truhe (danach alle 2 Min) |
-| 4:00 | Spitter kommen dazu, volle Gegnermischung |
+| 0:00 | Welle 1: ruhiger Start mit der Klassen-Waffe, wenige Shadelings, Level-ups alle paar Sekunden |
+| jede Minute | neue Welle mit Banner „WAVE n": die Spawnrate steigt in der Welle an, die letzten 12 s sind Atempause |
+| 2:00 | Brutes kommen dazu, erste Gloom Elite mit Truhe |
+| 3:00 | Charger (laden auf und stürmen geradeaus) |
+| 4:00 | Spitter, zweite Elite |
 | 5:00 | Swarm Rush: 30 s doppelte Spawnrate |
-| 6:00–8:00 | Builds stehen, erste Evolutionen aus Elite-Truhen möglich |
+| 6:00 | Abyss Shadelings, 2 Elites, ab jetzt mit Eigenschaft (Swift, Armored, Summoning) |
+| 7:00 | Splitter (zerfallen in 3 Splitlings) |
+| 8:00 | Abyss Brutes, Elite; Builds stehen, erste Evolutionen aus Elite-Truhen möglich |
 | 9:00 | zweiter Swarm Rush |
-| 10:00 | Gegner mit 2,5-facher HP, Level-ups etwa alle 15–20 s |
+| 10:00 | nur noch die starken Gegnerarten, 2 Elites, Gegner mit 3-facher HP |
+| 11:00 | letzte Welle ohne Atempause, 1,4-fache Spawnrate |
 | 12:00 | Boss The Lantern Eater erscheint, normales Spawnen stoppt |
 | ≈ 14:00 | Run-Ende: Statistik, Embers, „Nochmal" |
 
@@ -182,8 +187,13 @@ Allgemein: Krit-Chance 5 % pro Treffer, Krit = doppelter Schaden (`Config/Player
 | --- | --- | --- | --- | --- | --- | --- |
 | Shadeling | Schwarm, läuft direkt auf dich zu | 10 | 14 | 5 pro Kontakt | 1 | 0 |
 | Brute | Tank, langsam, schiebt den Pulk | 60 | 8 | 12 pro Kontakt | 4 | 2 |
+| Charger | lädt 0,9 s auf (glüht orange, roter Streifen zeigt die Bahn), stürmt dann geradeaus | 40 | 9, im Ansturm 38 | 8 pro Kontakt | 4 | 3 |
 | Spitter | hält 30 Studs Abstand, schießt alle 2,5 s | 20 | 10 | 8 pro Projektil | 2 | 4 |
-| Gloom Elite | beliebiger Typ, leuchtet, 1,5× so groß | 8× | 0,9× | 1,5× | 25 + Truhe | alle 2 Min |
+| Abyss Shadeling | stärkerer Shadeling, rote Augen | 18 | 15 | 8 pro Kontakt | 2 | 6 |
+| Splitter | zerfällt beim Tod in 3 Splitlings | 32 | 11 | 7 pro Kontakt | 2 | 7 |
+| Splitling | klein und schnell, nur aus Splittern | 6 | 15 | 3 pro Kontakt | 1 | 7 |
+| Abyss Brute | stärkerer Brute, rote Augen | 140 | 8,5 | 18 pro Kontakt | 8 | 8 |
+| Gloom Elite | beliebiger Typ, leuchtet, 1,5× so groß, ab 6:00 mit Eigenschaft | 8× | 0,9× | 1,5× | 25 + Truhe | 2, 4, 6 (2×), 8, 10 (2×) |
 | The Lantern Eater | Boss | 4.000 × Spielerfaktor | 9 | siehe unten | – | 12:00 |
 
 **Boss: The Lantern Eater**
@@ -198,14 +208,20 @@ Sieg = Boss-Truhe (3 Upgrades für jeden Spieler) + 150 Embers, danach Run-Ende-
 **Spawn-Director**
 
 ```text
-Spawnrate (Gegner/s) = (1.5 + 0.55 · t) · fSpieler      t = Spielminute
-fSpieler             = 1 + 0.6 · (n − 1)                 n = Spieler im Run → 1 / 1.6 / 2.2 / 2.8
-Gegner-HP-Faktor     = 1 + 0.15 · t                      (Minute 10: 2.5×)
+Spawnrate (Gegner/s)  = Ratenkurve(t) · Wellenstärke · fSpieler (· 2 im Swarm Rush)   t = Spielminute
+Ratenkurve            = 1 → 2,2 (Min. 1) → 3,6 (3) → 5 (6) → 6,8 (9) → 8,6 (12), linear dazwischen
+Wellenstärke          = je Minute von 0,7 auf 1,2 steigend, die letzten 12 s 0,2 (Atempause);
+                        Welle 12 durchgehend 1,4 ohne Pause
+Gegner-HP-Faktor      = 1 → 1,15 (2) → 1,4 (4) → 1,75 (6) → 2,3 (8) → 3 (10) → 3,8 (12)
+Gegner-Schadensfaktor = 1 → 1,1 (6) → 1,25 (12)
+fSpieler              = 1 + 0.6 · (n − 1)               n = Spieler im Run → 1 / 1.6 / 2.2 / 2.8
 ```
+
+Bis Paket 9 stiegen Rate und HP gerade an (`(1.5 + 0.55 · t)` und `1 + 0.15 · t`): Der Run begann gleich voll und fühlte sich danach immer gleich an (Owner-Feedback). Die Kurven starten ruhiger und steigen spät steiler; HP und Schaden gelten ab dem Spawn, beides mal Schwierigkeit.
 
 - Gleichzeitig maximal 80 Gegner + 20 pro weiterem Spieler (höchstens 140); beim Limit pausiert das Spawnen.
 - Spawn-Ort: Ring 45–60 Studs um einen zufälligen Spieler, außerhalb der Sicht, nie in Hindernissen.
-- Mischung: Minute 0–2 nur Shadelings; 2–4 zusätzlich 20 % Brutes; ab Minute 4 70 % Shadeling, 20 % Brute, 10 % Spitter (Paket 9, vorher 60/20/20: mit 20 % Spittern starben auch gute Spieler um Minute 5 am Dauerbeschuss).
+- Mischung (seit dem Spaß-Paket): fast jede Minute kommt etwas Neues, siehe Tabelle in Abschnitt 3. Ab Minute 4 rund 10 % Spitter (Paket 9, vorher 20 %: damit starben auch gute Spieler um Minute 5 am Dauerbeschuss), ab Minute 10 keine einfachen Shadelings und Brutes mehr. Genaue Anteile in `Config/Run.luau` → `spawn.mix`.
 - „Swarm Rush" bei Minute 5 und 9: 30 s doppelte Spawnrate, nur Shadelings.
 
 **Stand im Code (seit Paket 3):** Der SpawnDirector kann Rate, Spielerfaktor, Obergrenze, Spawn-Ring, Mischung nach Minute und HP-Faktor (mal Schwierigkeit). Er spawnt nur in der Phase „Running", um einen zufälligen lebenden Teilnehmer, und rechnet n aus den Teilnehmern, die noch im Server sind. Swarm Rush, Elites und die Schüsse der Spitter kamen mit Paket 9.
@@ -219,7 +235,18 @@ Gegner-HP-Faktor     = 1 + 0.15 · t                      (Minute 10: 2.5×)
 | Swarm Rush | 5:00 und 9:00 für 30 s: doppelte Spawnrate, nur Shadelings. Neu: beim Start zusätzlich ein geschlossener Ring aus 24 Shadelings in 45 Studs um jeden Spieler (bis zur Obergrenze). Meldung „Swarm Rush!". |
 | Gegen Weglaufen | 35 % der Spawns eines laufenden Spielers landen in einem 120°-Kegel vor ihm. Gegner, die weiter als 80 Studs von allen Spielern weg sind, tauchen jede Sekunde neu auf dem Spawn-Ring auf (wie frisch gespawnt). Ist die Obergrenze voll, wandern zusätzlich die 5 entferntesten Gegner über 40 Studs nach vorn, sonst konnte man mit einer vollen Schlange hinter sich im Kreis laufen und es kam nichts Neues. |
 
-Ein Gegner-Typ ist im Snapshot ein Byte; Elites senden Typ + 128, so kennt der Client sie ohne Zusatzdaten.
+**Stand im Code (Spaß-Paket nach Paket 9, Teil 1):** Werte in `Config/Enemies.luau` (`charge`, `split`, `elite.affixes`) und `Config/Run.luau` (`spawn.rateCurve`, `hpCurve`, `damageCurve`, `waves`, `mix`, `elites`). Annahmen fürs Spielgefühl:
+
+| Was | Umsetzung |
+| --- | --- |
+| Wellen | 12 Wellen à 1 Minute (`Util/RunSchedule.luau`, Server und HUD rechnen gleich). In jeder Welle steigt die Rate von 0,7× auf 1,2×, die letzten 12 s sind Atempause mit 0,2×; die letzte Welle läuft ohne Pause mit 1,4×. Elites und neue Gegnerarten kommen zu Wellenbeginn. |
+| Charger | Ist ein Spieler höchstens 24 Studs entfernt, bleibt er stehen und lädt 0,9 s auf (glüht orange, roter Streifen auf dem Boden zeigt die Bahn). Dann stürmt er mit 38 Studs/s in die anfangs gezielte Richtung, bis 30 Studs, eine Ruine, der Rand oder ein Spieler ihn stoppt; danach 1,2 s Pause und 3 s normales Laufen. Ausweichen: zur Seite gehen oder dashen. |
+| Splitter | Zerfällt beim Tod in 3 Splitlings (behalten HP- und Schadensfaktor des Splitters, dürfen über die Obergrenze bis zum Maximum 140). |
+| Abyss-Gegner | Stärkere Versionen von Shadeling und Brute mit dem gleichen Modell, aber roten Augen. |
+| Elite-Eigenschaften | Ab 6:00 bekommt jede Elite zufällig eine: **Swift** (1,45× Tempo), **Armored** (nimmt nur 60 % Schaden), **Summoning** (ruft alle 6 s 4 Shadelings um sich, solange ein Spieler nahe ist). Sie steht über der Lebensleiste („Armored") und im Namen („Armored Gloom Brute"). |
+| Rückstoß | Spark Bolt schiebt getroffene Gegner 0,8 Studs zurück, Boomerang Axe 1,5 Studs (nur Treffer, die nicht töten). |
+
+Ein Gegner-Typ ist im Snapshot ein Byte; Elites senden Typ + 128, so kennt der Client sie ohne Zusatzdaten. Seit dem Spaß-Paket kommt ein zweites Byte dazu (Modus des Chargers und Elite-Eigenschaft, Abschnitt 15).
 
 ## 8. Koop-Regeln
 
@@ -276,6 +303,18 @@ Folgerungen: Das Ziel „ohne Ausweichen ab Minute 3 in unter 20 s tot" passt im
 | hält Gegner auf Abstand | tot nach 2:12–3:49 | 1 von 6 bis 12:00 (Level 40), sonst tot nach 5:02–7:57 |
 
 Folgerungen: Nur Weglaufen reicht nicht mehr, gute Spieler kommen nicht mehr sicher durch, und wer 12:00 erreicht, hat meist eine Evolution aus einer Truhe. Der Hauptschaden der guten Bots kommt von Spitter-Schüssen. Die Spitze ist eher etwas zu hart; das Urteil kommt aus dem Studio-Test. Stellschrauben, falls es zu schwer ist: Spitter-Anteil, Vorhalten (`aimLead`) oder Feuerreichweite der Spitter, Heilung der Truhe. Stillstehen ab Minute 3 überlebt länger als das Ziel (unter 20 s), weil die Truhe bei 2:00 heilt.
+
+**Stand Spaß-Paket Teil 1:** Mit Wellen, ruhigem Start, steileren Kurven, Chargern, Splittern, Abyss-Gegnern und Elite-Eigenschaften. Die Bots laufen seitdem nicht mehr durch die Außenwände (vorher standen sie manchmal außerhalb der Arena und wurden nie erreicht) und weichen Chargern aus, ohne dabei die anderen Gegner zu vergessen. Vergleich ist der Stand davor mit denselben Bots (Paket 9 plus Laufen beim Kartenwählen, also ohne Schutz in der Wahl); 6 Durchläufe je Spielweise:
+
+| Spielweise | Blade Warden | Spark Mage | vorher: Blade Warden | vorher: Spark Mage |
+| --- | --- | --- | --- | --- |
+| steht still | tot nach 1:33–2:46 | tot nach 0:49–3:20 | 1:10–2:21 | 2:04–2:23 |
+| ab Minute 3 still | danach noch 0–25 s | danach noch 10–85 s | 0–44 s | 7–71 s |
+| läuft nur im Kreis | tot nach 2:45–4:23 | tot nach 3:44–8:20 | 2:47–4:17 | 4:08–4:48, 1× 12:00 |
+| weicht aus, sammelt, jagt Spitter | tot nach 4:42–9:45 | tot nach 6:47–11:22 (meist ≈ 7:30), Level 26–43 | 4:45–7:40 | 7:13–7:43, 2× 12:00 |
+| hält Gegner auf Abstand | tot nach 2:49–5:51 | tot nach 4:52–9:39 | 3:06–4:18 | 5:03–6:58, 2× 12:00 |
+
+Folgerungen: Bis Minute 7 etwa so schwer wie vorher, danach deutlich härter; gerade kommt kein Bot bis 12:00. Das ist für Teil 1 gewollt: Teil 2 macht den Spieler mit Level-Sprüngen, seltenen Karten, Krits und Glück stärker, danach wird neu gemessen. Der meiste Schaden kommt jetzt von Brutes und Chargern im Kontakt, später von Abyss Brutes und Elites; Spitter-Schüsse treffen seltener. Die erste Fassung war viel zu hart (alle Bots tot bis 6:30, viele genau beim Swarm Rush um 5:46); danach: sanftere Kurven, Charger 8 statt 14 Schaden, Elite-Eigenschaften erst ab 6:00 statt 4:00, Armored nimmt 60 % statt 50 %, Abyss Shadeling 18 statt 22 HP, Wellen steigen bis 1,2× statt 1,3×, Schaden bei 12:00 1,25× statt 1,6×. Die Streuung zwischen den Durchläufen ist groß; kleine Unterschiede zwischen Varianten zeigen 6 Durchläufe nicht.
 
 **Run-Statistik (seit Paket 7):** Der Ergebnis-Bildschirm zeigt Team-Level, Kills des Teams und pro Spieler Kills, Schaden und erlittenen Schaden (`RunStatsService`). Der Server schreibt am Run-Ende eine Zusammenfassung ins Output (im Live-Spiel: F9 → Server): Dauer, Team-Level pro Minute, Kills nach Gegnertyp, Waffen mit Level/Schaden/Kills und Passive jedes Spielers.
 
@@ -356,13 +395,15 @@ Bewusst nicht: harte Countdown-Angebote oder Serien, die bei einem verpassten Ta
 
 - **Hub-Lobby:** Spawn, Run-Portale (Solo, Party, Quick Join), Talent-Altar, Klassen-Statuen, Shop-Stand, Ranglisten-Tafel.
 - **HUD:** oben Team-XP-Leiste mit Level, Timer Mitte, Kills rechts; unten links HP, unten rechts Dash; Waffen/Passive oben links; Teammates außer Sicht als Randpfeile. Seit Paket 5 steht oben links die Waffenliste mit Level („LV 2", ab Level 5 „MAX"), seit Paket 6 darunter die Passive und oben Mitte die Team-XP-Leiste mit „LV n" über dem Timer; in der Team-Liste steht „picking", solange jemand Karten wählt.
+- **Wellen (seit dem Spaß-Paket nach Paket 9):** unter dem Timer „Wave 3 / 12", in der Pause grün „Breather · wave 4 in 9", in der letzten Minute rot „Final wave · survive until 12:00". Zu Beginn jeder Welle ein großes „WAVE n" oben in der Mitte (2,6 s), darunter, was sie bringt: „New: Chargers", „Swarm Rush!", „2 Gloom Elites!", „Final wave". Rot, wenn etwas Neues kommt. Der Client rechnet das selbst aus der Konfiguration (`Util/RunSchedule.luau`), ohne eigene Remote.
+- **Treffer-Gefühl (seit dem Spaß-Paket nach Paket 9):** eigene Schadenszahlen über den Gegnern (weiß, kritische Treffer groß, golden, mit „!"), Partikel-Puff beim Tod, Kamera-Wackeln, wenn man selbst getroffen wird, bei Elite-Tod und Truhe, goldener Lichtring um die Figur beim Level-up.
 - **Level-up:** 3 große Karten (Icon, Name, eine Zeile Effekt, „NEW"/„LV 3"), daumentauglich. Seit Paket 6: Fenster in der Bildmitte mit „LEVEL n", „Pick one", drei Karten (Icon = Kreis mit Anfangsbuchstaben, gelb Waffe, grün Passiv, violett Belohnung), einem Balken, der bis zur automatischen Wahl abläuft, und „Reroll (1 left)".
 - **Run-Ende:** Zeit, Kills, Schaden pro Waffe, Embers inkl. Boni, großer „Nochmal"-Knopf.
 - **Shop, Talente, Pass:** je ein Fenster, max. 2 Taps bis Kauf.
 
 **Erster Start (FTUE):** Erst-Join landet direkt in „First Night" (3-Min-Solo-Run, leichter) → Pfeil „Move" → erstes Level-up nach ~5 s mit „Pick one" → Minute 2 Mini-Elite mit Truhe → Minute 3 Run-Ende, dann Lobby mit Hinweis auf den Talent-Altar.
 
-**Barrierefreiheit:** Bildschirmwackeln und Schadenszahlen abschaltbar; Gefahrzonen mit Farbe und Muster; Musik/Effekte getrennt regelbar.
+**Barrierefreiheit:** Bildschirmwackeln und Schadenszahlen abschaltbar (bis zum Einstellungsmenü in Paket 14 als Schalter in `Config/Feedback.luau`); Gefahrzonen mit Farbe und Muster; Musik/Effekte getrennt regelbar.
 
 ## 14. Art-Direction & Audio
 
@@ -434,17 +475,19 @@ tests/               Unit-Tests für reine Module (Runner in tools/luau-test-run
 - Hindernisse sind Kreise (`Config/Map.luau` → `arena.obstacles`); MapService baut dazu runde Säulen, an denen auch Spieler hängen bleiben.
 - Gemessen im Test-Runner: 140 Gegner mit 4 Spielern ≈ 1–1,6 ms pro Schritt (Budget 4 ms).
 - Waffentreffer und Projektile serverseitig als Daten gegen dasselbe Raster.
-- Snapshots gebündelt per UnreliableRemoteEvent: 8 Byte pro Gegner (ID, Position, Typ, HP-Anteil) in einem `buffer`; bei 140 Gegnern und 15 Hz ≈ 17 KB/s pro Spieler. Gesendet wird nur an die Teilnehmer des Runs.
-- Ein UnreliableRemoteEvent-Paket darf höchstens ~900 Byte haben: ein Tick wird gleichmäßig auf Pakete mit max. 90 Gegnern verteilt (8 Byte Kopf mit Tick, Teil, Teilanzahl und Gegnerzahl + 8 Byte pro Gegner, also höchstens 728 Byte). Der Client nutzt einen Tick erst, wenn alle Teile da sind; geht ein Paket verloren, fällt nur dieser Tick aus. Format in `src/shared/Net/Snapshot.luau`.
+- Snapshots gebündelt per UnreliableRemoteEvent: 9 Byte pro Gegner (ID, Position, Typ, HP-Anteil, Flags) in einem `buffer`; bei 140 Gegnern und 15 Hz ≈ 19 KB/s pro Spieler. Gesendet wird nur an die Teilnehmer des Runs. Das Flag-Byte (seit dem Spaß-Paket nach Paket 9) trägt in 2 Bit den Zustand eines Chargers (läuft, holt aus, stürmt, erholt sich) und in 2 Bit die Eigenschaft einer Elite.
+- Ein UnreliableRemoteEvent-Paket darf höchstens ~900 Byte haben: ein Tick wird gleichmäßig auf Pakete mit max. 90 Gegnern verteilt (8 Byte Kopf mit Tick, Teil, Teilanzahl und Gegnerzahl + 9 Byte pro Gegner, also höchstens 818 Byte). Der Client nutzt einen Tick erst, wenn alle Teile da sind; geht ein Paket verloren, fällt nur dieser Tick aus. Format in `src/shared/Net/Snapshot.luau`.
 - Gegner-IDs (1–65535) werden reihum vergeben, eine frei gewordene ID kommt also erst nach Zehntausenden Spawns wieder.
-- Clients (`EnemyRenderer`): Modell-Pool pro Gegnertyp, Interpolation zwischen zwei Ticks (~100 ms hinter dem neuesten; die Uhr gleicht unregelmäßige Ankunft weich aus), Positionen gesammelt per `workspace:BulkMoveTo`, kurzes weißes Aufblitzen bei Treffern. Platzhalter-Modelle aus 3–4 Teilen in der Größe des Kollisionskreises (`EnemyRenderer/Models.luau`), echte Modelle in Paket 21.
+- Clients (`EnemyRenderer`): Modell-Pool pro Gegnertyp, Interpolation zwischen zwei Ticks (~100 ms hinter dem neuesten; die Uhr gleicht unregelmäßige Ankunft weich aus), Positionen gesammelt per `workspace:BulkMoveTo`, kurzes weißes Aufblitzen bei Treffern (0,1 s). Platzhalter-Modelle aus 2–5 Teilen in der Größe des Kollisionskreises (`EnemyRenderer/Models.luau`), echte Modelle in Paket 21. Verschwindet ein Gegner aus den Snapshots, ist er tot: kurzer leuchtender Partikel-Puff (`EnemyRenderer/DeathBursts.luau`, ein Emitter pro Farbe, wiederverwendet).
+- **Schadenszahlen** (seit dem Spaß-Paket nach Paket 9): WeaponService sammelt pro Schritt die eigenen Treffer jedes Spielers (pro Gegner zusammengezählt, mit Krit- und Kill-Flag) und schickt sie als `buffer` über das UnreliableRemoteEvent `DamageNumbers` nur an diesen Spieler: 1 Byte Kopf + 7 Byte pro Treffer, höchstens 100 Treffer (701 Byte) pro Schritt; Format in `src/shared/Net/HitNumbers.luau`. Üblich sind 1–5 KB/s, im schlimmsten Fall ≈ 10 KB/s. `DamageNumberController` zeigt höchstens 40 Zahlen gleichzeitig (am Handy 20) als gepoolte BillboardGuis an einem Anker-Teil.
 - Gegner-Teile verankert, ohne Kollision, ohne Schatten.
 
 **Schnittstellen der Gegner-Engine für spätere Pakete**
 
-- `EnemySim.spawn(enemyId, x, z, hpMultiplier, damageMultiplier, elite?)` – SpawnDirector, Boss (Paket 10). Elite-Varianten jedes Typs baut `Util/EnemyKinds` aus `Config/Enemies.luau` (seit Paket 9).
+- `EnemySim.spawn(enemyId, x, z, hpMultiplier, damageMultiplier, elite?, affix?)` – SpawnDirector, Boss (Paket 10). Elite-Varianten jedes Typs (schlicht und je Eigenschaft, alle mit derselben typeId) baut `Util/EnemyKinds` aus `Config/Enemies.luau` (seit Paket 9).
+- `EnemySim.getMode(id)` – Zustand und Sturmrichtung eines Chargers (World-Spalten, seit dem Spaß-Paket); Splitter zerfallen in `EnemySim.damage`, Beschwörer melden sich in `World.summons` und EnemySim spawnt ihre Gegner (beides mit den HP- und Schadensfaktoren des Auslösers, auch über der Obergrenze bis 140).
 - `EnemySim.teleport(id, position)`, `collectIds(out)`, `getKind(id)` (Typ und ob Elite), `getShotCount()` – seit Paket 9 für SpawnDirector, Debug und die Balance-Simulation.
-- `EnemySim.damage(id, amount, player)` (gibt zurück, ob der Gegner starb, und wie viel HP der Treffer wirklich nahm), `queryRadius(position, radius, out)`, `querySegment(from, to, radius, out)`, `nearest(position, maxRange)`, `getPosition(id)`, `push(id, offset)` (Rückstoß, geteilt durch die Masse über 1), `killAll()` – Waffen, Debug.
+- `EnemySim.damage(id, amount, player)` (gibt zurück, ob der Gegner starb, wie viel HP der Treffer wirklich nahm und den Schaden nach dem Faktor der Elite-Eigenschaft „Armored"), `queryRadius(position, radius, out)`, `querySegment(from, to, radius, out)`, `nearest(position, maxRange)`, `getPosition(id)`, `push(id, offset)` (Rückstoß, geteilt durch die Masse über 1), `killAll()` – Waffen, Debug.
 - `EnemySim.getPlayerPosition(player)` – wo der letzte Schritt einen lebenden Teilnehmer gesehen hat, mit demselben Vorlauf wie bei Kontakten; Waffen zielen von dort.
 - Signal `EnemySim.Stepped(dt, now)` – direkt nach jedem Schritt, noch innerhalb der gemessenen Schrittzeit; hier laufen die Waffen (seit Paket 5).
 - Signal `EnemySim.EnemyKilled(info)` mit Typ, Position, XP und Killer – XP-Orbs (Paket 6), Truhen (Paket 9), Statistik.
@@ -490,7 +533,7 @@ tests/               Unit-Tests für reine Module (Runner in tools/luau-test-run
 | Server-Simulation | 15 Hz, unter 4 ms pro Schritt |
 | Client-FPS Mittelklasse-Handy | ≥ 30 |
 | Netzwerk pro Client | < 50 KB/s |
-| Partikel-Emitter | so wenige wie möglich, gepoolt |
+| Partikel-Emitter | so wenige wie möglich, gepoolt (Tod-Puffs: einer pro Farbe, ≈ 10) |
 
 ## 16. Datenspeicherung & Sicherheit
 
@@ -581,6 +624,8 @@ Bis zum Soft Launch rund 40–50 Sessions und 50–60 Stunden Zeit des Owners (6
 | 7 | Prototyp-Playtest + Balancing | Prototyp | Medium | 1 | 3 h | Spaß-Check mit 3–5 Freunden |
 | 8 | Restliche Waffen, Evolutionen, Spark Mage (Passive seit Paket 6) | Vertical Slice | Medium | 2 | 1,5 h | Balancing-Feedback |
 | 9 | Gegnertypen, Elites, Spawn-Director | Vertical Slice | Medium | 1–2 | 1 h | Schwierigkeit beurteilen |
+| 9b | Spaß-Paket Teil 1: Wellen, Charger, Splitter, Abyss-Gegner, Elite-Eigenschaften, Treffer-Gefühl | Vertical Slice | Extra high | 1 | 1 h | Spielgefühl beurteilen |
+| 9c | Spaß-Paket Teil 2: Level-Sprünge, seltene Karten, Krits, Glück, Pickups, Feinschliff | Vertical Slice | Medium | 1 | 1 h | Spielgefühl beurteilen |
 | 10 | Boss mit Vorwarnungen und 2 Phasen | Vertical Slice | High | 2 | 1,5 h | Boss 3× spielen |
 | 11 | Down & Wiederbeleben | Vertical Slice | High | 1 | 1 h | mit 2 Clients testen |
 | 12 | Datenspeicherung: ProfileStore, Schema, Migration | Vertical Slice | Extra high | 1–2 | 1 h | Test-Experience anlegen, Join/Leave testen |

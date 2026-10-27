@@ -238,6 +238,18 @@ local UDim2Lib = {
 		return udim2(x, 0, y, 0)
 	end,
 }
+-- Particle value types only carry their arguments.
+local function argsType(typeName)
+	return {
+		new = function(...)
+			return setmetatable({ args = { ... } }, plainType(typeName))
+		end,
+	}
+end
+local NumberSequenceLib = argsType("NumberSequence")
+local NumberSequenceKeypointLib = argsType("NumberSequenceKeypoint")
+local NumberRangeLib = argsType("NumberRange")
+local ColorSequenceLib = argsType("ColorSequence")
 local TweenInfoLib = {
 	new = function(...)
 		return setmetatable({ args = { ... } }, plainType("TweenInfo"))
@@ -543,6 +555,10 @@ function methods.WorldToViewportPoint(self, position)
 	local y = size.Y / 2 + (position.Z - center.Z) * 10
 	return v3(x, y, 10), x >= 0 and x <= size.X and y >= 0 and y <= size.Y
 end
+-- ParticleEmitter: counts emitted particles in world.particlesEmitted.
+function methods.Emit(_, count)
+	world.particlesEmitted = (world.particlesEmitted or 0) + (count or 1)
+end
 function methods.BulkMoveTo(self, parts, cframes)
 	if self ~= world.workspace then
 		error("BulkMoveTo is only on Workspace", 2)
@@ -647,6 +663,10 @@ _G.Color3 = Color3Lib
 _G.UDim = UDimLib
 _G.UDim2 = UDim2Lib
 _G.TweenInfo = TweenInfoLib
+_G.NumberSequence = NumberSequenceLib
+_G.NumberSequenceKeypoint = NumberSequenceKeypointLib
+_G.NumberRange = NumberRangeLib
+_G.ColorSequence = ColorSequenceLib
 _G.Random = RandomLib
 _G.Enum = EnumLib
 _G.workspace = Workspace

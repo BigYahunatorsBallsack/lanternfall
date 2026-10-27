@@ -2,7 +2,8 @@
 -- Boomerang Axe (DESIGN.md section 6): every cooldown it throws `count` axes at the nearest enemies in range, one
 -- target each; axes without a target of their own fan out around the nearest by spreadDegrees. An axe flies straight
 -- out for `range` studs, then turns and flies back to wherever the owner is now, at the same speed. It pierces
--- everything (pierce -1) and hits each enemy once on the way out and once on the way back. It is gone once it is within
+-- everything (pierce -1), hits each enemy once on the way out and once on the way back and pushes survivors
+-- `knockback` studs along its flight. It is gone once it is within
 -- catchRadius of the owner or after maxFlightSeconds. Effects: "Fire" when an axe is thrown, "End" when it is gone.
 -- Behavior for WeaponService/Arsenal; drawn by WeaponRenderer/Visuals/BoomerangAxe.
 
@@ -103,11 +104,21 @@ local function hitSegment(weapon: Arsenal.Weapon, ctx: Arsenal.Context, axe: Axe
 		return
 	end
 	local hits = ctx:querySegment(axe.x, axe.z, x1, z1, axe.radius, found)
+	local knockback = weapon.stats.knockback or 0
+	local dx, dz = x1 - axe.x, z1 - axe.z
+	local length = math.sqrt(dx * dx + dz * dz)
+	if length > 1e-6 then
+		dx, dz = dx / length * knockback, dz / length * knockback
+	else
+		dx, dz = 0, 0
+	end
 	for i = 1, hits do
 		local id = found[i]
 		if not axe.hit[id] then
 			axe.hit[id] = true
-			ctx:hit(weapon, id)
+			if not ctx:hit(weapon, id) and knockback > 0 then
+				ctx:push(id, dx, dz)
+			end
 			axe.hitsLeft -= 1
 			if axe.hitsLeft <= 0 then
 				return

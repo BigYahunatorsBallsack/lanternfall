@@ -5,14 +5,17 @@
 --
 -- One step:
 --   1. remove enemies that died since the last step
---   2. move each enemy towards its nearest target; ranged enemies hold their distance instead.
---      Enemies slide around obstacles and give way to enemies in front that are at least as heavy,
---      so crowds queue up instead of squeezing into each other (Brutes push through lighter ones).
+--   2. move each enemy towards its nearest target; ranged enemies hold their distance instead, chargers wind up
+--      near a target and then rush in a straight line (modes below). Enemies slide around obstacles and give way
+--      to enemies in front that are at least as heavy, so crowds queue up instead of squeezing into each other
+--      (Brutes push through lighter ones; a rushing charger gives way to nobody).
 --   3. push still-overlapping enemies apart; mass decides who moves more
 --   4. keep enemies out of obstacles and players and inside the arena
 --   5. report the strongest contact damage touching each target, rebuild the hash for queries
 --   6. ranged enemies with a target in fire range count down and report shots (World.shots); EnemySim aims and
 --      flies them (EnemySim/Volleys)
+--   7. summoners count down while there is a target and report themselves in World.summons; EnemySim spawns the
+--      enemies they call
 -- Enemies that die between steps stay in the arrays with hp 0 until the next step; every query skips them,
 -- so array indices (and the hash) stay valid until then.
 
@@ -21,7 +24,6 @@ local Enemies = require(Shared.Config.Enemies)
 local SpatialHash = require(Shared.Util.SpatialHash)
 
 export type Kind = Enemies.Enemy
-
 export type Circle = { x: number, z: number, radius: number }
 
 export type Params = {
@@ -49,6 +51,13 @@ local GOLDEN_RATIO = 0.618034 -- spreads the first shot of ranged enemies so the
 local World = {}
 World.__index = World
 
+-- What an enemy with a `charge` is doing (World.modes; clients see it in the snapshot flags, Net/Snapshot).
+World.MODE_WALK = 0 -- also every enemy without a charge
+World.MODE_WINDUP = 1 -- standing still and glowing, the rush direction is fixed
+World.MODE_RUSH = 2
+World.MODE_RECOVER = 3 -- standing still after the rush
+local MODE_WALK, MODE_WINDUP, MODE_RUSH, MODE_RECOVER = 0, 1, 2, 3
+
 export type World = typeof(setmetatable(
 	{} :: {
 		params: Params,
@@ -64,6 +73,13 @@ export type World = typeof(setmetatable(
 		contactDamage: { number }, -- damage per touch
 		shotDamage: { number }, -- damage per projectile, 0 for enemies that do not shoot
 		shotCooldown: { number }, -- seconds in fire range until the next shot
+		modes: { number }, -- MODE_*
+		modeTimers: { number }, -- seconds left in the wind-up or recovery; while walking: until a wind-up may start
+		rushXs: { number }, -- unit rush direction, fixed when the wind-up starts
+		rushZs: { number },
+		rushLeft: { number }, -- studs the rush may still go
+		summonTimers: { number }, -- seconds until a summoner calls again
+		columns: { { any } }, -- every per-enemy array above, for compacting and clearing
 		indexOf: { [number]: number }, -- id -> array index
 		nextId: number,
 		maxRadius: number, -- largest enemy radius seen, widens neighbour queries
@@ -75,13 +91,16 @@ export type World = typeof(setmetatable(
 		-- shots of the last step, flat: enemy id, x, z, target index, damage per shot
 		shots: { number },
 		shotCount: number,
+		-- ids of the summoners that call enemies after the last step
+		summons: { number },
+		summonCount: number,
 	},
 	World
 ))
 
 function World.new(params: Params): World
 	assert(params.maxEnemies < MAX_ID, "maxEnemies must leave room for free ids")
-	return setmetatable({
+	local self = {
 		params = params,
 		count = 0,
 		alive = 0,
@@ -95,6 +114,13 @@ function World.new(params: Params): World
 		contactDamage = {},
 		shotDamage = {},
 		shotCooldown = {},
+		modes = {},
+		modeTimers = {},
+		rushXs = {},
+		rushZs = {},
+		rushLeft = {},
+		summonTimers = {},
+		columns = {},
 		indexOf = {},
 		nextId = 0,
 		maxRadius = 0,
@@ -105,7 +131,28 @@ function World.new(params: Params): World
 		contacts = {},
 		shots = {},
 		shotCount = 0,
-	}, World)
+		summons = {},
+		summonCount = 0,
+	}
+	self.columns = {
+		self.ids,
+		self.kinds,
+		self.typeIds,
+		self.xs,
+		self.zs,
+		self.hp,
+		self.maxHp,
+		self.contactDamage,
+		self.shotDamage,
+		self.shotCooldown,
+		self.modes,
+		self.modeTimers,
+		self.rushXs,
+		self.rushZs,
+		self.rushLeft,
+		self.summonTimers,
+	} :: { { any } }
+	return setmetatable(self, World)
 end
 
 -- Spawning and removing -------------------------------------------------------------
@@ -144,8 +191,13 @@ function World.spawn(
 	self.maxHp[i] = hp
 	self.contactDamage[i] = contactDamage
 	local ranged = kind.ranged
+	local spread = (id * GOLDEN_RATIO) % 1 -- so a group spawned together does not act in sync
 	self.shotDamage[i] = if ranged then shotDamage or ranged.projectileDamage else 0
-	self.shotCooldown[i] = if ranged then ranged.fireInterval * ((id * GOLDEN_RATIO) % 1) else 0
+	self.shotCooldown[i] = if ranged then ranged.fireInterval * spread else 0
+	self.modes[i] = MODE_WALK
+	self.modeTimers[i] = if kind.charge then kind.charge.cooldownSeconds * spread else 0
+	self.rushXs[i], self.rushZs[i], self.rushLeft[i] = 0, 0, 0
+	self.summonTimers[i] = if kind.summon then kind.summon.intervalSeconds * (0.5 + 0.5 * spread) else 0
 	self.indexOf[id] = i
 	self.maxRadius = math.max(self.maxRadius, kind.radius)
 	self.maxSpeed = math.max(self.maxSpeed, kind.speed)
@@ -158,9 +210,7 @@ local function compact(self: World): boolean
 	if self.alive == self.count then
 		return false
 	end
-	local ids, kinds, typeIds, xs, zs = self.ids, self.kinds, self.typeIds, self.xs, self.zs
-	local hp, maxHp, damage, indexOf = self.hp, self.maxHp, self.contactDamage, self.indexOf
-	local shotDamage, shotCooldown = self.shotDamage, self.shotCooldown
+	local ids, hp, indexOf, columns = self.ids, self.hp, self.indexOf, self.columns
 	local i = 1
 	while i <= self.count do
 		if hp[i] > 0 then
@@ -170,14 +220,14 @@ local function compact(self: World): boolean
 		local last = self.count
 		indexOf[ids[i]] = nil
 		if i ~= last then
-			ids[i], kinds[i], typeIds[i] = ids[last], kinds[last], typeIds[last]
-			xs[i], zs[i], hp[i], maxHp[i], damage[i] = xs[last], zs[last], hp[last], maxHp[last], damage[last]
-			shotDamage[i], shotCooldown[i] = shotDamage[last], shotCooldown[last]
+			for _, column in columns do
+				column[i] = column[last]
+			end
 			indexOf[ids[i]] = i
 		end
-		ids[last], kinds[last], typeIds[last] = nil, nil, nil
-		xs[last], zs[last], hp[last], maxHp[last], damage[last] = nil, nil, nil, nil, nil
-		shotDamage[last], shotCooldown[last] = nil, nil
+		for _, column in columns do
+			column[last] = nil
+		end
 		self.count = last - 1
 	end
 	return true
@@ -185,25 +235,14 @@ end
 
 -- Removes every enemy without reporting kills (run start and end).
 function World.clear(self: World)
-	for _, column in
-		{
-			self.ids,
-			self.kinds,
-			self.typeIds,
-			self.xs,
-			self.zs,
-			self.hp,
-			self.maxHp,
-			self.contactDamage,
-			self.shotDamage,
-			self.shotCooldown,
-		}
-	do
-		table.clear(column :: { any })
+	for _, column in self.columns do
+		table.clear(column)
 	end
 	table.clear(self.indexOf)
 	table.clear(self.shots)
+	table.clear(self.summons)
 	self.shotCount = 0
+	self.summonCount = 0
 	self.count = 0
 	self.alive = 0
 	self.hash:clear()
@@ -211,22 +250,23 @@ end
 
 -- Damage ------------------------------------------------------------------------------
 
--- Returns true when this hit killed the enemy, and the HP it actually took (at most what was left).
--- Hits on unknown or dead enemies do nothing.
-function World.damage(self: World, id: number, amount: number): (boolean, number)
+-- Returns true when this hit killed the enemy, the HP it actually took (at most what was left) and the damage after
+-- the enemy's damageTaken multiplier (Armored elites take less). Hits on unknown or dead enemies do nothing.
+function World.damage(self: World, id: number, amount: number): (boolean, number, number)
 	local i = self.indexOf[id]
 	if not i or self.hp[i] <= 0 or not (amount > 0) then
-		return false, 0
+		return false, 0, 0
 	end
+	local applied = amount * (self.kinds[i].damageTaken or 1)
 	local hp = self.hp[i]
-	local left = hp - amount
+	local left = hp - applied
 	if left > 0 then
 		self.hp[i] = left
-		return false, amount
+		return false, applied, applied
 	end
 	self.hp[i] = 0
 	self.alive -= 1
-	return true, hp
+	return true, hp, applied
 end
 
 -- Queries (dead enemies are skipped; data of an enemy killed since the last step stays readable) --------------
@@ -260,6 +300,33 @@ function World.getHealth(self: World, id: number): (number, number)
 		return 0, 0
 	end
 	return self.hp[i], self.maxHp[i]
+end
+
+-- The HP and damage multipliers the enemy was spawned with (minute and difficulty, on top of its kind's values),
+-- so enemies it splits into or calls can get the same. 1, 1 for unknown ids.
+function World.getMultipliers(self: World, id: number): (number, number)
+	local i = self.indexOf[id]
+	if not i then
+		return 1, 1
+	end
+	local kind = self.kinds[i]
+	local hpMultiplier = self.maxHp[i] / kind.hp
+	local damageMultiplier = 1
+	if kind.contactDamage > 0 then
+		damageMultiplier = self.contactDamage[i] / kind.contactDamage
+	elseif kind.ranged and kind.ranged.projectileDamage > 0 then
+		damageMultiplier = self.shotDamage[i] / kind.ranged.projectileDamage
+	end
+	return hpMultiplier, damageMultiplier
+end
+
+-- The enemy's mode (World.MODE_*) and its rush direction (only meaningful from the wind-up on).
+function World.getMode(self: World, id: number): (number, number, number)
+	local i = self.indexOf[id]
+	if not i then
+		return MODE_WALK, 0, 0
+	end
+	return self.modes[i], self.rushXs[i], self.rushZs[i]
 end
 
 -- Ids of living enemies whose circle overlaps the circle (x, z, radius), written to out[1 .. n]; returns n.
@@ -422,6 +489,89 @@ function World.teleport(self: World, id: number, x: number, z: number)
 	self.xs[i], self.zs[i] = x, z
 end
 
+-- One step of a rush along the fixed direction. It ends after maxDistance, in an obstacle, at the arena edge or
+-- touching a target; step 4 then puts the charger back outside of what it ran into.
+local function rushStep(
+	self: World,
+	i: number,
+	charge: Enemies.Charge,
+	dt: number,
+	targetXs: { number },
+	targetZs: { number },
+	targetCount: number
+)
+	local p = self.params
+	local radius = self.kinds[i].radius
+	local move = math.min(charge.speed * dt, self.rushLeft[i])
+	local x, z = self.xs[i] + self.rushXs[i] * move, self.zs[i] + self.rushZs[i] * move
+	local left = self.rushLeft[i] - move
+	local stop = left <= EPSILON
+	for _, obstacle in p.obstacles do
+		local reach = obstacle.radius + radius
+		if (x - obstacle.x) ^ 2 + (z - obstacle.z) ^ 2 < reach * reach then
+			stop = true
+		end
+	end
+	if x < p.minX + radius or x > p.maxX - radius or z < p.minZ + radius or z > p.maxZ - radius then
+		stop = true
+	end
+	local touch = radius + p.playerRadius + p.contactMargin
+	for t = 1, targetCount do
+		if (targetXs[t] - x) ^ 2 + (targetZs[t] - z) ^ 2 <= touch * touch then
+			stop = true
+		end
+	end
+	self.xs[i], self.zs[i] = x, z
+	self.rushLeft[i] = left
+	if stop then
+		self.modes[i] = MODE_RECOVER
+		self.modeTimers[i] = charge.recoverSeconds
+	end
+end
+
+-- Handles a charger's modes in the steering step. Returns true if it is done for this step (winding up, rushing or
+-- recovering); false lets it walk normally.
+local function chargeStep(
+	self: World,
+	i: number,
+	charge: Enemies.Charge,
+	dt: number,
+	dx: number,
+	dz: number,
+	distance: number,
+	targetXs: { number },
+	targetZs: { number },
+	targetCount: number
+): boolean
+	local modes, timers = self.modes, self.modeTimers
+	local mode = modes[i]
+	if mode == MODE_RUSH then
+		rushStep(self, i, charge, dt, targetXs, targetZs, targetCount)
+		return true
+	end
+	local timer = timers[i] - dt
+	if mode == MODE_WINDUP or mode == MODE_RECOVER then
+		if timer > 0 then
+			timers[i] = timer
+		elseif mode == MODE_WINDUP then
+			modes[i] = MODE_RUSH
+			self.rushLeft[i] = charge.maxDistance
+		else
+			modes[i] = MODE_WALK
+			timers[i] = charge.cooldownSeconds
+		end
+		return true
+	end
+	timers[i] = math.max(timer, 0)
+	if timer <= 0 and distance <= charge.triggerRange and distance > EPSILON then
+		modes[i] = MODE_WINDUP
+		timers[i] = charge.windupSeconds
+		self.rushXs[i], self.rushZs[i] = dx / distance, dz / distance
+		return true
+	end
+	return false
+end
+
 local function rebuildHash(self: World)
 	local hash, xs, zs = self.hash, self.xs, self.zs
 	hash:clear()
@@ -472,6 +622,13 @@ function World.step(
 				end
 			end
 			local distance = math.sqrt(bestSquared)
+			local charge = kind.charge
+			if
+				charge
+				and chargeStep(self, i, charge, dt, bestDx, bestDz, distance, targetXs, targetZs, targetCount)
+			then
+				continue
+			end
 			if distance <= EPSILON then
 				continue
 			end
@@ -631,6 +788,28 @@ function World.step(
 		shots[k] = nil
 	end
 	self.shotCount = shotCount
+
+	-- 7. summoners count down while there is a target and report themselves when they call
+	local summons, summonCount = self.summons, 0
+	if targetCount > 0 then
+		local summonTimers = self.summonTimers
+		for i = 1, count do
+			local summon = kinds[i].summon
+			if summon then
+				local timer = summonTimers[i] - dt
+				if timer <= 0 then
+					timer += summon.intervalSeconds
+					summonCount += 1
+					summons[summonCount] = ids[i]
+				end
+				summonTimers[i] = timer
+			end
+		end
+	end
+	for k = summonCount + 1, self.summonCount do
+		summons[k] = nil
+	end
+	self.summonCount = summonCount
 	return contacts
 end
 
