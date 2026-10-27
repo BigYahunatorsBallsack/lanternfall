@@ -4,14 +4,14 @@ Stand: 26.10.2026 · Quelle: claude.ai-Doc „Lanternfall – Game Design Docume
 
 ## 1. Überblick & Vision
 
-Lanternfall ist ein Koop-Survivors für 1–4 Spieler: 12-Minuten-Runs gegen Schattenhorden, Waffen feuern automatisch, bei jedem Level-up wählst du 1 aus 3 Upgrades, am Ende wartet ein Boss.
+Lanternfall ist ein Koop-Survivors für 1–4 Spieler: Runs aus 12 kurzen Wellen gegen Schattenhorden, Waffen feuern automatisch, nach jeder Welle wählst du deine Level-ups und kaufst im Shop ein, am Ende wartet ein Boss.
 
 | Punkt | Festlegung |
 | --- | --- |
 | Arbeitstitel | Lanternfall; Roblox-Titel beschreibend, z. B. „Lanternfall: Horde Survivors" |
-| Genre | Koop-Survivors/Roguelite nach dem Prinzip von Vampire Survivors und Megabonk |
+| Genre | Koop-Survivors/Roguelite; seit Paket B1 nach dem Prinzip von Brotato (Wellen mit Shop dazwischen, feste Arena), vorher Vampire Survivors/Megabonk |
 | Spieler | 1–4 pro Run, Hub-Lobby mit bis zu 24 |
-| Session | Run 12 Min + Boss (≈ 14 Min), Ziel ≥ 20 Min pro Session |
+| Session | Run 12 Wellen (9 Min Kampf + Shop-Pausen) + Boss (≈ 14–16 Min), Ziel ≥ 20 Min pro Session |
 | Zielgruppe | zuerst 16+ (so startet jedes neue Spiel), danach alle ab 9 |
 | Plattform | Mobile first; PC und Konsole laufen mit |
 | Content-Rating | Ziel „Mild": Fantasy-Gewalt ohne Blut |
@@ -49,42 +49,73 @@ Das Genre ist außerhalb von Roblox bewiesen, auf Roblox kaum besetzt – und Ro
 
 ## 3. Core Loop & Run-Ablauf
 
-Zwei Schleifen tragen das Spiel: im Run wird man jede Minute durch Level-ups stärker, zwischen den Runs dauerhaft durch Embers.
+Zwei Schleifen tragen das Spiel: im Run wird man nach jeder Welle durch Level-ups und den Shop stärker, zwischen den Runs dauerhaft durch Embers.
+
+**Richtung Brotato (Entscheidung des Owners am 27.10.2026, umgesetzt ab Paket B1):** Das Spiel fühlte sich nach dem Spaß-Paket schon wie Brotato an (feste Arena, feste Kamera, Wellen). Deshalb gehen wir gezielt dorthin: kurze Wellen, danach eine Shop-Phase. Mechaniken, Formeln und Zahlen orientieren sich eng an Brotato; Namen, Texte, Items, Charaktere und Look sind unsere eigenen (keine Kopie von geschütztem Inhalt). Plan: B1 Wellen mit Shop, B2 Werte-System und Items mit Vor- und Nachteilen, B3 Shop-Feinschliff (Sperren, Verkaufen, Verschmelzen), B4 Charaktere mit Trade-offs (Abschnitt 20).
 
 ```text
-Hub-Lobby → Run startet → Überleben & XP ⇄ Level-up: 1 aus 3
-                              │ Minute 12          │ alle down (Scheitern)
+Welle (20–60 s kämpfen, XP-Orbs = Shards sammeln)
+   │ Timer abgelaufen
+   ▼
+Wellenende: Gegner verschwinden, liegende Orbs gehen ans Team, Truhen öffnen sich,
+            alle voll geheilt, wer down ist, steht auf
+   ▼
+Level-up-Karten (eine Wahl pro Level dieser Welle) → Shop (max. 40 s, „Ready")
+   │ alle bereit oder Zeit um                      │ nach Welle 12
+   ▼                                               ▼
+nächste Welle                               Boss → Run-Ende (Embers, „Nochmal")
+```
+
+```text
+Hub-Lobby → Run startet → Welle ⇄ Level-ups & Shop
+                              │ nach Welle 12      │ alle down (Scheitern)
                               ▼                    ▼
-                        Boss bei 12:00 ──Sieg──→ Run-Ende (Embers, „Nochmal")
+                        Boss nach Welle 12 ──Sieg──→ Run-Ende (Embers, „Nochmal")
                                                    │
 Hub-Lobby ←──── nächster Run ──── Talente & Klassen ←┘
 ```
 
 Sind alle gleichzeitig down, endet der Run sofort – Embers gibt es trotzdem für die überlebte Zeit.
 
-| Minute | Was passiert |
+Wellenlängen wie in Brotato: Welle 1 dauert 20 s, jede weitere 5 s mehr, ab Welle 9 je 60 s (20, 25, 30 … 60, 60, 60, 60 = 540 s Kampf). Die Konfiguration rechnet in „Plan-Minuten": Welle n läuft von Minute n − 1 bis n, egal wie lang sie in Sekunden ist. So gelten alle Kurven und die Mischung weiter pro Welle.
+
+| Welle | Was passiert |
 | --- | --- |
-| 0:00 | Welle 1: ruhiger Start mit der Klassen-Waffe, wenige Shadelings, Level-ups alle paar Sekunden |
-| jede Minute | neue Welle mit Banner „WAVE n": die Spawnrate steigt in der Welle an, die letzten 12 s sind Atempause |
-| 2:00 | Brutes kommen dazu, erste Gloom Elite mit Truhe |
-| 3:00 | Charger (laden auf und stürmen geradeaus) |
-| 4:00 | Spitter, zweite Elite |
-| 5:00 | Swarm Rush: 30 s doppelte Spawnrate |
-| 6:00 | Abyss Shadelings, 2 Elites, ab jetzt mit Eigenschaft (Swift, Armored, Summoning) |
-| 7:00 | Splitter (zerfallen in 3 Splitlings) |
-| 8:00 | Abyss Brutes, Elite; Builds stehen, erste Evolutionen aus Elite-Truhen möglich |
-| 9:00 | zweiter Swarm Rush |
-| 10:00 | nur noch die starken Gegnerarten, 2 Elites, Gegner mit 3-facher HP |
-| 11:00 | letzte Welle ohne Atempause, 1,4-fache Spawnrate |
-| 12:00 | Boss The Lantern Eater erscheint, normales Spawnen stoppt |
-| ≈ 14:00 | Run-Ende: Statistik, Embers, „Nochmal" |
+| 1 | ruhiger Start mit der Klassen-Waffe, wenige Shadelings |
+| jede | Banner „WAVE n"; die Spawnrate steigt in der Welle von 0,7× auf 1,2×; danach Shop |
+| 3 | Brutes kommen dazu, erste Gloom Elite mit Truhe |
+| 4 | Charger (laden auf und stürmen geradeaus) |
+| 5 | Spitter, zweite Elite |
+| 6 | Swarm Rush: 60 % der Welle doppelte Spawnrate |
+| 7 | Abyss Shadelings, 2 Elites, ab jetzt mit Eigenschaft (Swift, Armored, Summoning) |
+| 8 | Splitter (zerfallen in 3 Splitlings) |
+| 9 | Abyss Brutes, Elite; Builds stehen, erste Evolutionen aus Elite-Truhen möglich |
+| 10 | zweiter Swarm Rush |
+| 11 | nur noch die starken Gegnerarten, 2 Elites, Gegner mit 3-facher HP |
+| 12 | letzte Welle, 1,4-fache Spawnrate |
+| danach | Boss The Lantern Eater erscheint, normales Spawnen stoppt |
+| ≈ 14–16 Min | Run-Ende: Statistik, Embers, „Nochmal" |
+
+**Wellenende und Shop (seit Paket B1, Werte in `Config/Shop.luau`):**
+
+| Was | Umsetzung |
+| --- | --- |
+| Uhr | Die Kampfzeit stoppt genau am Wellenende und läuft erst mit der nächsten Welle weiter. Timer oben zeigt die Restzeit der Welle bzw. des Shops. |
+| Wellenende | Restliche Gegner und Geschosse verschwinden. Liegende XP-Orbs gehen ans Team, ihre Shards werden gleichmäßig auf alle verteilt, die nicht „Out" sind (Brotato legt sie in einen „Beutel" für später; das kann B3 nachholen). Liegende Elite-Truhen öffnen sich für alle. Alle werden voll geheilt, wer down ist, steht mit voller HP auf. |
+| Level-ups | XP sammelt sich in der Welle; die Kartenwahl (1 aus 3) kommt erst am Wellenende, eine pro gewonnenem Level. Im HUD steht so lange „LV 5 · +2 at wave end". Was beim Start der nächsten Welle noch offen ist, wird automatisch gewählt. |
+| Shards | Geld im Run (Brotatos „Materialien"): jeder XP-Punkt eines Orbs, den man selbst aufsammelt, gibt 1 Shard. Getrennt von den Embers (Meta-Währung). |
+| Angebote | Pro Spieler 4 eigene Angebote: neue Waffe/Passiv oder +1 Level von etwas, das man hat (bis Level 5, maximal 4 Waffen und 4 Passive). Nach Welle 1–2 mindestens 2 Waffen, nach Welle 3–5 mindestens 1, sonst je Platz 35 % Waffe, 65 % Passiv; Eigenes doppelt so wahrscheinlich. |
+| Preise | wie Brotato: Preis = ⌊Grundpreis + Welle + 10 % · Grundpreis · Welle⌋, mindestens 1 (Welle = die gerade beendete). Grundpreise 12–25 Shards je nach Item. |
+| Neu würfeln | erster Wurf ⌊0,75 · Welle⌋ + Aufschlag, jeder weitere + Aufschlag, Aufschlag = max(1, ⌊0,4 · Welle⌋) (nach Welle 5: 5, 7, 9 …). |
+| Ready | Der Shop schließt nach 40 s oder sobald alle, die nicht „Out" sind, „Ready" gedrückt haben. In der Team-Liste steht „shopping" bzw. „ready". Im Shop gibt es keine Gegner; man kann herumlaufen. |
+| Noch nicht (B3) | Sperren, Verkaufen, Verschmelzen gleicher Waffen, Shop-Rabatte, Seltenheitsstufen. |
 
 **Run-Ablauf im Prototyp** (Lobby und Arena im selben Server, Werte in `Config/Run.luau` → `flow`):
 
 1. **Lobby:** Klasse wählen, „Ready" drücken. Wer bereit ist, kommt in den nächsten Run (max. 4).
 2. **Countdown:** startet mit dem ersten bereiten Spieler, 10 s; sind alle im Server bereit, sofort auf 3 s verkürzt. Bricht ab, wenn niemand mehr bereit ist.
-3. **Run:** alle Bereiten werden in die Arena gesetzt, Timer zählt ab 0:00 hoch. Wer später kommt oder nicht bereit war, wartet in der Lobby und kann sich schon für den nächsten Run bereit melden.
-4. **12:00 = Boss-Phase.** Bis der Boss da ist (Paket 10), zählt das Erreichen von 12:00 als Sieg.
+3. **Run:** alle Bereiten werden in die Arena gesetzt, Welle 1 beginnt; nach jeder Welle kommt die Shop-Phase (Phase „Shop"). Wer später kommt oder nicht bereit war, wartet in der Lobby und kann sich schon für den nächsten Run bereit melden.
+4. **Nach Welle 12 = Boss-Phase.** Bis der Boss da ist (Paket 10), zählt das Erreichen der Boss-Phase als Sieg.
 5. **Ende:** Sieg (Boss besiegt), Niederlage (niemand mehr „Alive", also alle down) oder abgebrochen (alle haben den Server verlassen, dann direkt zurück in die Lobby).
 6. **Ergebnis:** 15 s Ergebnis-Bildschirm mit „Play again"; drücken alle Teilnehmer „Play again", geht es sofort weiter. Danach zurück in die Lobby, wer „Play again" gedrückt hat, startet direkt den nächsten Countdown.
 
@@ -194,7 +225,7 @@ Allgemein: Krit-Chance 5 % pro Treffer, Krit = doppelter Schaden (`Config/Player
 | Splitling | klein und schnell, nur aus Splittern | 6 | 15 | 3 pro Kontakt | 1 | 7 |
 | Abyss Brute | stärkerer Brute, rote Augen | 140 | 8,5 | 18 pro Kontakt | 8 | 8 |
 | Gloom Elite | beliebiger Typ, leuchtet, 1,5× so groß, ab 6:00 mit Eigenschaft | 8× | 0,9× | 1,5× | 25 + Truhe | 2, 4, 6 (2×), 8, 10 (2×) |
-| The Lantern Eater | Boss | 4.000 × Spielerfaktor | 9 | siehe unten | – | 12:00 |
+| The Lantern Eater | Boss | 4.000 × Spielerfaktor | 9 | siehe unten | – | nach Welle 12 |
 
 **Boss: The Lantern Eater**
 
@@ -208,10 +239,10 @@ Sieg = Boss-Truhe (3 Upgrades für jeden Spieler) + 150 Embers, danach Run-Ende-
 **Spawn-Director**
 
 ```text
-Spawnrate (Gegner/s)  = Ratenkurve(t) · Wellenstärke · fSpieler (· 2 im Swarm Rush)   t = Spielminute
+Spawnrate (Gegner/s)  = Ratenkurve(t) · Wellenstärke · fSpieler (· 2 im Swarm Rush)   t = Plan-Minute (1 pro Welle)
 Ratenkurve            = 1 → 2,2 (Min. 1) → 3,6 (3) → 5 (6) → 6,8 (9) → 8,6 (12), linear dazwischen
-Wellenstärke          = je Minute von 0,7 auf 1,2 steigend, die letzten 12 s 0,2 (Atempause);
-                        Welle 12 durchgehend 1,4 ohne Pause
+Wellenstärke          = in jeder Welle von 0,7 auf 1,2 steigend (seit B1 ohne Atempause, dafür Shop);
+                        Welle 12 zusätzlich · 1,4
 Gegner-HP-Faktor      = 1 → 1,15 (2) → 1,4 (4) → 1,75 (6) → 2,3 (8) → 3 (10) → 3,8 (12)
 Gegner-Schadensfaktor = 1 → 1,1 (6) → 1,25 (12)
 fSpieler              = 1 + 0.6 · (n − 1)               n = Spieler im Run → 1 / 1.6 / 2.2 / 2.8
@@ -222,7 +253,7 @@ Bis Paket 9 stiegen Rate und HP gerade an (`(1.5 + 0.55 · t)` und `1 + 0.15 · 
 - Gleichzeitig maximal 80 Gegner + 20 pro weiterem Spieler (höchstens 140); beim Limit pausiert das Spawnen.
 - Spawn-Ort: Ring 45–60 Studs um einen zufälligen Spieler, außerhalb der Sicht, nie in Hindernissen.
 - Mischung (seit dem Spaß-Paket): fast jede Minute kommt etwas Neues, siehe Tabelle in Abschnitt 3. Ab Minute 4 rund 10 % Spitter (Paket 9, vorher 20 %: damit starben auch gute Spieler um Minute 5 am Dauerbeschuss), ab Minute 10 keine einfachen Shadelings und Brutes mehr. Genaue Anteile in `Config/Run.luau` → `spawn.mix`.
-- „Swarm Rush" bei Minute 5 und 9: 30 s doppelte Spawnrate, nur Shadelings.
+- „Swarm Rush" in Welle 6 und 10 (Plan-Minute 5 und 9): 60 % der Welle doppelte Spawnrate, nur Shadelings.
 
 **Stand im Code (seit Paket 3):** Der SpawnDirector kann Rate, Spielerfaktor, Obergrenze, Spawn-Ring, Mischung nach Minute und HP-Faktor (mal Schwierigkeit). Er spawnt nur in der Phase „Running", um einen zufälligen lebenden Teilnehmer, und rechnet n aus den Teilnehmern, die noch im Server sind. Swarm Rush, Elites und die Schüsse der Spitter kamen mit Paket 9.
 
@@ -239,7 +270,7 @@ Bis Paket 9 stiegen Rate und HP gerade an (`(1.5 + 0.55 · t)` und `1 + 0.15 · 
 
 | Was | Umsetzung |
 | --- | --- |
-| Wellen | 12 Wellen à 1 Minute (`Util/RunSchedule.luau`, Server und HUD rechnen gleich). In jeder Welle steigt die Rate von 0,7× auf 1,2×, die letzten 12 s sind Atempause mit 0,2×; die letzte Welle läuft ohne Pause mit 1,4×. Elites und neue Gegnerarten kommen zu Wellenbeginn. |
+| Wellen | 12 Wellen (`Util/RunSchedule.luau`, Server und HUD rechnen gleich), seit B1 20–60 s lang mit Shop dazwischen, vorher je 1 Minute mit 12 s Atempause. In jeder Welle steigt die Rate von 0,7× auf 1,2×; die letzte läuft mit 1,4×. Elites und neue Gegnerarten kommen zu Wellenbeginn. |
 | Charger | Ist ein Spieler höchstens 24 Studs entfernt, bleibt er stehen und lädt 0,9 s auf (glüht orange, roter Streifen auf dem Boden zeigt die Bahn). Dann stürmt er mit 38 Studs/s in die anfangs gezielte Richtung, bis 30 Studs, eine Ruine, der Rand oder ein Spieler ihn stoppt; danach 1,2 s Pause und 3 s normales Laufen. Ausweichen: zur Seite gehen oder dashen. |
 | Splitter | Zerfällt beim Tod in 3 Splitlings (behalten HP- und Schadensfaktor des Splitters, dürfen über die Obergrenze bis zum Maximum 140). |
 | Abyss-Gegner | Stärkere Versionen von Shadeling und Brute mit dem gleichen Modell, aber roten Augen. |
@@ -326,6 +357,18 @@ Folgerungen: Bis Minute 7 etwa so schwer wie vorher, danach deutlich härter; ge
 | Ohne Ausweichen tot ab Minute 3 | in unter 20 s |
 | Run-Dauer inkl. Boss | ≈ 14 Min |
 
+**Stand Paket B1 (Brotato-Richtung, Wellen mit Shop):** Die Bots kaufen nach jeder Welle, was sie sich leisten können (erst Eigenes, dann das Billigste; 2–19 Käufe pro Run), und drücken dann Ready. Die Zeiten sind Kampfzeit (ohne Shop), insgesamt gibt es 9:00; „w9" = in Welle 9 gestorben. 6 Durchläufe je Spielweise:
+
+| Spielweise | Blade Warden | Spark Mage |
+| --- | --- | --- |
+| steht still | Welle 3–5 (1:08–2:21) | Welle 3–5 (1:12–2:23) |
+| ab Welle 7 still | Welle 4–7 | Welle 7–8 |
+| läuft im Kreis | Welle 4–9 | Welle 8–11 |
+| weicht aus, sammelt | Welle 5–9, meist 9 | Welle 9, einmal 11 |
+| hält Abstand | Welle 3–9, meist 9 | Welle 9, einmal 11 |
+
+Folgerungen: Die volle Heilung nach jeder Welle trägt durch die ersten Wellen; die Wand ist Welle 9 (erste 60-s-Welle mit Abyss Brutes). Kein Bot schafft Welle 12, wie nach Teil 1 des Spaß-Pakets. Das ist bis B2 gewollt: Werte, Items und Seltenheit machen den Spieler stärker, danach wird neu gemessen. Stellschrauben, falls es vorher zu hart ist: Grundpreise in `Config/Shop.luau`, Shards pro XP, HP-Kurve ab Plan-Minute 8.
+
 ## 10. Meta-Progression & Schwierigkeitsgrade
 
 **Embers verdienen** (ein Run bringt je nach Dauer etwa 100–350)
@@ -395,7 +438,8 @@ Bewusst nicht: harte Countdown-Angebote oder Serien, die bei einem verpassten Ta
 
 - **Hub-Lobby:** Spawn, Run-Portale (Solo, Party, Quick Join), Talent-Altar, Klassen-Statuen, Shop-Stand, Ranglisten-Tafel.
 - **HUD:** oben Team-XP-Leiste mit Level, Timer Mitte, Kills rechts; unten links HP, unten rechts Dash; Waffen/Passive oben links; Teammates außer Sicht als Randpfeile. Seit Paket 5 steht oben links die Waffenliste mit Level („LV 2", ab Level 5 „MAX"), seit Paket 6 darunter die Passive und oben Mitte die Team-XP-Leiste mit „LV n" über dem Timer; in der Team-Liste steht „picking", solange jemand Karten wählt.
-- **Wellen (seit dem Spaß-Paket nach Paket 9):** unter dem Timer „Wave 3 / 12", in der Pause grün „Breather · wave 4 in 9", in der letzten Minute rot „Final wave · survive until 12:00". Zu Beginn jeder Welle ein großes „WAVE n" oben in der Mitte (2,6 s), darunter, was sie bringt: „New: Chargers", „Swarm Rush!", „2 Gloom Elites!", „Final wave". Rot, wenn etwas Neues kommt. Der Client rechnet das selbst aus der Konfiguration (`Util/RunSchedule.luau`), ohne eigene Remote.
+- **Wellen (seit dem Spaß-Paket nach Paket 9, seit B1 mit Shop):** der große Timer zeigt die Restzeit der Welle bzw. des Shops; darunter „Wave 3 / 12", im Shop grün „Shop · wave 4 / 12 next", in der letzten Welle rot „Final wave 12 / 12". Zu Beginn jeder Welle ein großes „WAVE n" oben in der Mitte (2,6 s), darunter, was sie bringt: „New: Chargers", „Swarm Rush!", „2 Gloom Elites!", „Final wave". Rot, wenn etwas Neues kommt. Der Client rechnet das selbst aus der Konfiguration (`Util/RunSchedule.luau`), ohne eigene Remote.
+- **Shop (seit B1):** neben dem Timer immer die eigenen Shards (türkis). Nach den Level-up-Karten ein Fenster „SHOP" mit „Wave 3 cleared · next wave in 34", 4 Karten (Badge „NEW"/„LV 3", Name, Effekt, Preis in Shards, rot wenn zu teuer, „SOLD" nach dem Kauf), „Reroll (5 Shards)" und „READY" (danach „WAITING…", nochmal tippen = weiter einkaufen).
 - **Treffer-Gefühl (seit dem Spaß-Paket nach Paket 9):** eigene Schadenszahlen über den Gegnern (weiß, kritische Treffer groß, golden, mit „!"), Partikel-Puff beim Tod, Kamera-Wackeln, wenn man selbst getroffen wird, bei Elite-Tod und Truhe, goldener Lichtring um die Figur beim Level-up.
 - **Level-up:** 3 große Karten (Icon, Name, eine Zeile Effekt, „NEW"/„LV 3"), daumentauglich. Seit Paket 6: Fenster in der Bildmitte mit „LEVEL n", „Pick one", drei Karten (Icon = Kreis mit Anfangsbuchstaben, gelb Waffe, grün Passiv, violett Belohnung), einem Balken, der bis zur automatischen Wahl abläuft, und „Reroll (1 left)".
 - **Run-Ende:** Zeit, Kills, Schaden pro Waffe, Embers inkl. Boni, großer „Nochmal"-Knopf.
@@ -459,19 +503,19 @@ VFX & Audio                                                 PlayerDataService (P
 ```text
 src/shared/          → ReplicatedStorage.Shared
   Config/            Player, Weapons, Passives, Evolutions, Enemies, Classes, Run, Talents,
-                     Economy, Difficulty, Simulation, Map, Admin, Camera
+                     Economy, Difficulty, Simulation, Map, Admin, Camera, Feedback, Shop
   Net/               Definition aller RemoteEvents und Snapshot-Format
-  Util/              SpatialHash, Signal, Loader, Format, Orbit, UpgradeText, EnemyKinds
+  Util/              SpatialHash, Signal, Loader, Format, Orbit, UpgradeText, EnemyKinds, RunSchedule
 src/server/          → ServerScriptService.Server
   Services/          RunDirector, SpawnDirector (+ SpawnRules), EnemySim (+ World, Volleys), CombatService,
                      WeaponService (+ Arsenal, WeaponStats, Behaviors/ je Waffe), ExperienceService (+ OrbField,
-                     Progression), UpgradeService (+ UpgradePool),
+                     Progression), UpgradeService (+ UpgradePool), ShopService (+ ShopRules, seit B1),
                      LootService, ReviveService, PlayerDataService, MonetizationService, AnalyticsService,
                      MapService (Platzhalter-Karte), AdminService (Test-Befehle)
 src/client/          → StarterPlayer.StarterPlayerScripts.Client
   Controllers/       InputController, CameraController, PlayerStateController, EnemyRenderer (+ SnapshotBuffer, Models),
                      LoadoutController, WeaponRenderer (+ VisualKit, Visuals/ je Waffe), ProgressController,
-                     LevelUpController, XpOrbRenderer, EnemyShotRenderer, ChestController, HUDController, VFXController,
+                     LevelUpController, ShopController, XpOrbRenderer, EnemyShotRenderer, ChestController, HUDController, VFXController,
                      RunStateController, LobbyController, ResultsController, NotifyController, DebugController
   UI/                Theme, Widgets (UI im Code gebaut)
 tests/               Unit-Tests für reine Module (Runner in tools/luau-test-runner)
@@ -482,7 +526,7 @@ tests/               Unit-Tests für reine Module (Runner in tools/luau-test-run
 - **Lebenszyklus:** Server- und Client-Bootstrap laden jedes Modul in `Services` bzw. `Controllers` über `Util/Loader`, alphabetisch. Oberste Ebene legt nur Zustand und Signals an, `init()` verbindet Remotes und Events (ohne zu warten), danach läuft `start()` je Modul in eigenem Thread. Module requiren sich direkt; RunDirector hängt nur von MapService und PlayerDataService ab, alle anderen hängen sich an RunDirector.
 - **RunDirector** besitzt den Run-Ablauf (Regeln als reine Zustandsmaschine in `RunDirector/RunFlow.luau`, mit Unit-Tests). Signals für spätere Pakete: `RunStarted(players)`, `RunEnded(results)`, `PhaseChanged(phase, previous)`, `ParticipantStateChanged(player, state)`. Befehle: `setParticipantState` (ReviveService), `endRun("Victory")` und `setBossEncounter` (Boss), `getElapsed()` (SpawnDirector).
 - **RunState:** Der Server schickt bei jeder Änderung den vollständigen, kleinen Zustand (`Net/Types.luau`) an alle; Timer laufen auf dem Client über `workspace:GetServerTimeNow()`, also kein Senden pro Sekunde. Ein neuer Client holt sich den Stand mit `RequestSync`.
-- **Phasen:** Lobby → Countdown → Running → Boss → Ended → Lobby. Teilnehmer-Zustände: Alive, Down, Out.
+- **Phasen:** Lobby → Countdown → Running ⇄ Shop (seit B1, nach jeder Welle außer der letzten) → Boss → Ended → Lobby. Gegner, Waffen und Schaden laufen nur in Running und Boss (`isActive`); der Run läuft in Running, Shop und Boss (`isOngoing`). Die Kampfzeit (`getElapsed`) steht im Shop still; RunState schickt dafür `wave`, `pausedSeconds` und `pausedAt`. Teilnehmer-Zustände: Alive, Down, Out.
 - **Platzhalter-Karte:** MapService baut Lobby (80 × 80) und Arena (300 × 300, violette Nebelwand, 5 runde Platzhalter-Ruinen) beim Serverstart aus `Config/Map.luau`, auf Höhe 100 und abseits vom Standard-Baseplate. Die echte Karte folgt in Paket 21.
 
 **Gegner-Engine** (seit Paket 3; Werte in `Config/Simulation.luau`)
@@ -521,7 +565,7 @@ tests/               Unit-Tests für reine Module (Runner in tools/luau-test-run
 
 **Spieler** (seit Paket 4)
 
-- **CombatService** (Server) hält HP, Rüstung, Schutzfenster und Dash-Cooldown pro Spieler; die Regeln stehen als reines Modul in `CombatService/Vitals.luau` (mit Unit-Tests). Kontaktschaden kommt von `EnemySim.Contact`; bei 0 HP setzt der Service den Spieler über `RunDirector.setParticipantState` auf Down. Wieder Alive (Debug-Knopf, später Paket 11) → 40 % HP. Bei Countdown und Lobby volle HP.
+- **CombatService** (Server) hält HP, Rüstung, Schutzfenster und Dash-Cooldown pro Spieler; die Regeln stehen als reines Modul in `CombatService/Vitals.luau` (mit Unit-Tests). Kontaktschaden kommt von `EnemySim.Contact`; bei 0 HP setzt der Service den Spieler über `RunDirector.setParticipantState` auf Down. Wieder Alive (Debug-Knopf, später Paket 11) → 40 % HP; am Wellenende (seit B1) volle HP für alle. Bei Countdown und Lobby volle HP.
 - Schnittstellen für spätere Pakete: `CombatService.damagePlayer(player, damage)` (Projektile, Boss), `healPlayer(player, amount)` (Heilung, Passive), `protect(player, seconds)` (Level-up-Wahl, Paket 6), `getHp(player)`.
 - Dash: Der Client bewegt die eigene Figur sofort (LinearVelocity entlang des Bodens) und schickt `RequestDash`; der Server prüft den Cooldown (0,25 s Kulanz für Ping) und gibt 0,3 s Unverwundbarkeit. Die Bewegung selbst ist wie bei jeder Roblox-Figur Sache des Clients; der Plausibilitätscheck für Bewegung folgt im Sicherheits-Paket 23.
 - `PlayerState` geht bei jeder Änderung an alle Clients (`Net/Types.PlayerVitals`: HP, Max-HP, Dash bereit ab, unverwundbar bis). Ein neuer Client bekommt alle Stände mit `RequestSync` (Signal `RunDirector.SyncRequested`).
@@ -545,7 +589,7 @@ tests/               Unit-Tests für reine Module (Runner in tools/luau-test-run
 - **CombatService.setChoosing(player, an/aus):** schützt ohne Zeitlimit, setzt das Lauftempo auf 0 und lehnt Dashes ab; `PlayerVitals.choosing` geht an alle Clients.
 - **Netzwerk:** `TeamProgress` (Level, XP, Bedarf) an alle; `XpOrbs` pro Schritt gebündelt an die Teilnehmer, als flache Zahlenlisten (neue oder gewachsene Orbs: ID, x, z, Wert; eingesammelt: ID, Spieler); `LevelUpOffer` nur an den Wählenden; `Passives` pro Spieler an alle. Der Client schickt `ChooseUpgrade(cardId)` (nur vom Server angebotene IDs zählen) und `RequestReroll`.
 - **Client:** `ProgressController` merkt sich Team-XP und Passive, `XpOrbRenderer` zeichnet gepoolte Orbs (liegende werden einmal gesetzt, nur fliegende bewegt, per `workspace:BulkMoveTo`), `LevelUpController` zeigt die Karten; Kartentexte baut `Util/UpgradeText` aus der Config.
-- Debug-Knopf „Team +1 level" löst sofort ein Level-up aus.
+- Debug-Knopf „Team +1 level" löst sofort ein Level-up aus (seit B1 kommen die Karten erst am Wellenende; im Shop sofort).
 - Schnittstellen für spätere Pakete: `ExperienceService.LevelGained(level)`, `grantLevel()`, `getLevel()`; `UpgradeService.getPassives(player)` (Evolutions-Voraussetzung, Paket 9), `getBonusEmbers(player)` (Paket 13).
 
 **Performance-Budgets**
@@ -585,7 +629,7 @@ tests/               Unit-Tests für reine Module (Runner in tools/luau-test-run
 - Game Passes beim Join prüfen und cachen, Käufe in der Sitzung sofort freischalten.
 - Entwicklung in einer separaten Test-Experience.
 
-**Sicherheit:** Client schickt nur Absichten (Bewegung, Dash, Level-up-Wahl, Kaufwunsch). Server berechnet Schaden, Kills, XP, Drops, Embers, Truhen, Ranglistenwerte. Jede Remote mit Rate-Limit und Validierung (nur angebotene Karten-IDs, Dash nur nach Cooldown). Bewegungs-Plausibilitätscheck. Admin-Befehle nur für die UserId des Owners, serverseitig geprüft: Admin ist, wer in Studio testet, der Besitzer einer Experience im eigenen Account (`game.CreatorId`) und wer in `Config/Admin.luau` steht. Test-Befehle seit Paket 2: Timer +1 Minute, zu 11:50 springen, sich selbst umhauen/aufstehen, Run gewinnen. Seit Paket 3: 40 Gegner um sich spawnen (Obergrenze gilt), Gegner in 20 Studs Umkreis treffen (5 Schaden), alle Gegner töten, Spawnen pausieren/fortsetzen. Seit Paket 4: sich selbst 25 Schaden geben (Rüstung und Schutz gelten), sich voll heilen; dazu eine Messanzeige unten links (Gegnerzahl, Spawnrate, Serverzeit pro Schritt, Gegnerdaten in KB/s, FPS; rot, wenn ein Budget überschritten ist). Seit Paket 5: nächste fehlende Waffe hinzufügen, nur die nächste Waffe behalten (zum Ausprobieren einzeln), alle Waffen +1 Level, alle Waffen aus/an (gilt bis zum nächsten Run); das Debug-Menü hat dafür zwei Spalten. Seit Paket 8: Waffen entwickeln („Evolve weapons"). Seit Paket 9: eine Elite in der Nähe spawnen („Spawn an elite", ihre Truhe lässt sich so testen); die Messanzeige zeigt auch die Gegner-Geschosse in der Luft.
+**Sicherheit:** Client schickt nur Absichten (Bewegung, Dash, Level-up-Wahl, Kaufwunsch). Server berechnet Schaden, Kills, XP, Drops, Embers, Truhen, Ranglistenwerte. Jede Remote mit Rate-Limit und Validierung (nur angebotene Karten-IDs, Dash nur nach Cooldown). Bewegungs-Plausibilitätscheck. Admin-Befehle nur für die UserId des Owners, serverseitig geprüft: Admin ist, wer in Studio testet, der Besitzer einer Experience im eigenen Account (`game.CreatorId`) und wer in `Config/Admin.luau` steht. Test-Befehle seit Paket 2: Timer +1 Minute, zu 11:50 springen, sich selbst umhauen/aufstehen, Run gewinnen. Seit Paket 3: 40 Gegner um sich spawnen (Obergrenze gilt), Gegner in 20 Studs Umkreis treffen (5 Schaden), alle Gegner töten, Spawnen pausieren/fortsetzen. Seit Paket 4: sich selbst 25 Schaden geben (Rüstung und Schutz gelten), sich voll heilen; dazu eine Messanzeige unten links (Gegnerzahl, Spawnrate, Serverzeit pro Schritt, Gegnerdaten in KB/s, FPS; rot, wenn ein Budget überschritten ist). Seit Paket 5: nächste fehlende Waffe hinzufügen, nur die nächste Waffe behalten (zum Ausprobieren einzeln), alle Waffen +1 Level, alle Waffen aus/an (gilt bis zum nächsten Run); das Debug-Menü hat dafür zwei Spalten. Seit Paket 8: Waffen entwickeln („Evolve weapons"). Seit Paket 9: eine Elite in der Nähe spawnen („Spawn an elite", ihre Truhe lässt sich so testen); die Messanzeige zeigt auch die Gegner-Geschosse in der Luft. Seit B1: „End this wave" (statt „+1 minute", springt ans Wellenende und öffnet den Shop), „Stop/run wave timer" (die Welle endet nicht, bis man wieder drückt; gilt auch für die nächsten Runs), „+100 Shards". Shop-Remotes: `BuyShopOffer` (nur vom Server angebotene IDs, Preis und Plätze prüft der Server), `RerollShop`, `SetShopReady` (nur in der Shop-Phase).
 
 ## 17. Compliance & Plattform-Regeln
 
@@ -649,10 +693,14 @@ Bis zum Soft Launch rund 40–50 Sessions und 50–60 Stunden Zeit des Owners (6
 | 8 | Restliche Waffen, Evolutionen, Spark Mage (Passive seit Paket 6) | Vertical Slice | Medium | 2 | 1,5 h | Balancing-Feedback |
 | 9 | Gegnertypen, Elites, Spawn-Director | Vertical Slice | Medium | 1–2 | 1 h | Schwierigkeit beurteilen |
 | 9b | Spaß-Paket Teil 1: Wellen, Charger, Splitter, Abyss-Gegner, Elite-Eigenschaften, Treffer-Gefühl | Vertical Slice | Extra high | 1 | 1 h | Spielgefühl beurteilen |
-| 9c | Spaß-Paket Teil 2: Level-Sprünge, seltene Karten, Krits, Glück, Pickups, Feinschliff | Vertical Slice | Medium | 1 | 1 h | Spielgefühl beurteilen |
+| ~~9c~~ | ~~Spaß-Paket Teil 2~~ – entfällt seit der Brotato-Richtung: Krits, Glück und seltene Karten gehen in B2, Level-Sprünge ersetzt der Shop | – | – | – | – | – |
 | 9d | Look-Paket: Gegner im Deadlock-Stil (okkultes Art déco), neue Waffen-, Dash- und Todes-Effekte | Vertical Slice | Extra high | 1 | 30 min | Look beurteilen, am Handy auf Ruckler achten |
-| 10 | Boss mit Vorwarnungen und 2 Phasen | Vertical Slice | High | 2 | 1,5 h | Boss 3× spielen |
-| 11 | Down & Wiederbeleben | Vertical Slice | High | 1 | 1 h | mit 2 Clients testen |
+| B1 | Brotato-Richtung 1: Wellen 20–60 s mit Shop-Phase, Shards, Level-ups am Wellenende, Aufstehen und Heilen am Wellenende | Vertical Slice | Extra high | 1 | 1 h | Run solo und zu zweit spielen |
+| B2 | Brotato-Richtung 2: Werte-System (Schaden, Angriffstempo, Krit, Glück, Rüstung, Ausweichen, Regeneration, Lebensraub, Reichweite, Tempo, Ernte), ~25 Items mit Seltenheit und Trade-offs, Level-ups als Werte-Wahl | Vertical Slice | Extra high | 1–2 | 1 h | Items ausprobieren |
+| B3 | Brotato-Richtung 3: Shop-Feinschliff (Sperren, Verkaufen, Verschmelzen, Handy-Layout) | Vertical Slice | High | 1 | 1 h | Shop am Handy bedienen |
+| B4 | Brotato-Richtung 4: 4–6 Charaktere mit Plus und Minus, Balance-Simulation mit Shop-Bots | Vertical Slice | Medium | 1 | 1 h | Schwierigkeit beurteilen |
+| 10 | Boss mit Vorwarnungen und 2 Phasen (nach Welle 12) | Vertical Slice | High | 2 | 1,5 h | Boss 3× spielen |
+| 11 | Down & Wiederbeleben während der Welle (Aufstehen am Wellenende gibt es seit B1) | Vertical Slice | Medium | 1 | 1 h | mit 2 Clients testen |
 | 12 | Datenspeicherung: ProfileStore, Schema, Migration | Vertical Slice | Extra high | 1–2 | 1 h | Test-Experience anlegen, Join/Leave testen |
 | 13 | Embers, Talente, Schwierigkeitsgrade | Vertical Slice | Medium | 1–2 | 1 h | Werte abnicken |
 | 14 | HUD, Run-Ende, mobiles Layout | Vertical Slice | Medium | 2–3 | 2 h | Handy-Screenshots |
