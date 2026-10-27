@@ -168,7 +168,7 @@ Jede Waffe = ein Datensatz im Config-Modul + ein kleines Verhaltens-Modul. Neue 
 | Thorn Trail (Paket 8) | Alle 2 Studs Weg legt der Spieler ein Dornenfeld mit 2,5 Studs Radius ab (Fläche-Bonus vergrößert es); steht er still, liegt immer eins unter ihm. Alle 0,5 s trifft die Spur jeden Gegner darauf einmal, auch wenn er auf mehreren Feldern steht. Höchstens 40 Felder pro Spieler. Liegende Felder wirken weiter, wenn der Spieler down ist. |
 | Boomerang Axe (Paket 8) | Fliegt mit 40 Studs/s 20 Studs weit zum nächsten Gegner, dreht um und fliegt zurück zu dem Ort, an dem der Spieler jetzt ist. Trifft jeden Gegner einmal auf dem Hinweg und einmal auf dem Rückweg, Trefferbreite 1,2 Studs. Gefangen bei 2 Studs Abstand, spätestens nach 3 s weg. Mehrere Äxte gehen an verschiedene Gegner, sonst 20° gefächert. |
 
-**Evolutionen (seit Paket 8):** Blade Storm (8 Klingen, Radius 10, doppelter Schaden, rot leuchtend) und Starfire (jeder Treffer eines Bolts explodiert mit 6 Studs Radius; die anderen Gegner in der Explosion bekommen den vollen Bolt-Schaden, Annahme) funktionieren. Der Server prüft die Voraussetzung (Waffe auf Level 5, noch nicht entwickelt, das Passiv auf beliebigem Level). Bis die Truhen mit Paket 9 kommen, gibt es sie nur über den Test-Knopf „Evolve weapons": Er hebt Waffen mit Evolution auf Level 5, gibt das fehlende Passiv auf Level 1 (wenn ein Passiv-Platz frei ist) und entwickelt sie.
+**Evolutionen (seit Paket 8):** Blade Storm (8 Klingen, Radius 10, doppelter Schaden, rot leuchtend) und Starfire (jeder Treffer eines Bolts explodiert mit 6 Studs Radius; die anderen Gegner in der Explosion bekommen den vollen Bolt-Schaden, Annahme) funktionieren. Der Server prüft die Voraussetzung (Waffe auf Level 5, noch nicht entwickelt, das Passiv auf beliebigem Level). Seit Paket 9 kommen sie aus Elite-Truhen (Abschnitt 8). Zum Testen bleibt der Knopf „Evolve weapons": Er hebt Waffen mit Evolution auf Level 5, gibt das fehlende Passiv auf Level 1 (wenn ein Passiv-Platz frei ist) und entwickelt sie.
 
 **Spark Mage:** seit Paket 5 wählbar (Spark Bolt, −10 % Cooldown). Das eigene Kostüm kommt mit dem Look in Paket 21.
 
@@ -205,16 +205,28 @@ Gegner-HP-Faktor     = 1 + 0.15 · t                      (Minute 10: 2.5×)
 
 - Gleichzeitig maximal 80 Gegner + 20 pro weiterem Spieler (höchstens 140); beim Limit pausiert das Spawnen.
 - Spawn-Ort: Ring 45–60 Studs um einen zufälligen Spieler, außerhalb der Sicht, nie in Hindernissen.
-- Mischung: Minute 0–2 nur Shadelings; 2–4 zusätzlich 20 % Brutes; ab Minute 4 60 % Shadeling, 20 % Brute, 20 % Spitter.
+- Mischung: Minute 0–2 nur Shadelings; 2–4 zusätzlich 20 % Brutes; ab Minute 4 70 % Shadeling, 20 % Brute, 10 % Spitter (Paket 9, vorher 60/20/20: mit 20 % Spittern starben auch gute Spieler um Minute 5 am Dauerbeschuss).
 - „Swarm Rush" bei Minute 5 und 9: 30 s doppelte Spawnrate, nur Shadelings.
 
-**Stand im Code (seit Paket 3):** Der SpawnDirector kann Rate, Spielerfaktor, Obergrenze, Spawn-Ring, Mischung nach Minute und HP-Faktor (mal Schwierigkeit). Er spawnt nur in der Phase „Running", um einen zufälligen lebenden Teilnehmer, und rechnet n aus den Teilnehmern, die noch im Server sind. Swarm Rush, Elites und die Schüsse der Spitter folgen in Paket 9; Spitter halten aber schon ihren Abstand von 30 Studs.
+**Stand im Code (seit Paket 3):** Der SpawnDirector kann Rate, Spielerfaktor, Obergrenze, Spawn-Ring, Mischung nach Minute und HP-Faktor (mal Schwierigkeit). Er spawnt nur in der Phase „Running", um einen zufälligen lebenden Teilnehmer, und rechnet n aus den Teilnehmern, die noch im Server sind. Swarm Rush, Elites und die Schüsse der Spitter kamen mit Paket 9.
+
+**Stand im Code (seit Paket 9):** Werte in `Config/Enemies.luau` (Spitter `ranged`, `elite`) und `Config/Run.luau` (`spawn`, `coop`). Annahmen fürs Spielgefühl, Urteil des Owners steht aus:
+
+| Was | Umsetzung |
+| --- | --- |
+| Spitter-Schüsse | Ein Spitter schießt alle 2,5 s auf den nächsten Spieler, aber nur, wenn der höchstens 34 Studs entfernt ist (er hält 30). Rosa leuchtende Kugel, 18 Studs/s, fliegt 50 Studs weit, Trefferkreis 0,6 Studs, 8 Schaden (Rüstung und 0,5 s Schutz gelten). Sie zielt 30 % vor: Wer stur geradeaus läuft, wird eher getroffen; Haken schlagen oder Dash hilft. Ruinen halten Schüsse auf (Deckung). Der erste Schuss jedes Spitters kommt versetzt, damit nicht alle gleichzeitig feuern. |
+| Gloom Elite | Ab 2:00 alle 2 Minuten eine Elite, auch über der Gegner-Obergrenze; der Typ kommt aus der aktuellen Mischung. Werte wie in der Tabelle oben (8× HP, 0,9× Tempo, 1,5× Schaden auch bei Schüssen, 1,5× so groß, 25 XP), dazu 2,25× Masse (schiebt normale Gegner beiseite). Aussehen: dunkleres Violett, goldene Augen, violettes Leuchten, rote Lebensleiste über dem Kopf. Alle bekommen die Meldung „A Gloom … appeared! Kill it for a chest." |
+| Swarm Rush | 5:00 und 9:00 für 30 s: doppelte Spawnrate, nur Shadelings. Neu: beim Start zusätzlich ein geschlossener Ring aus 24 Shadelings in 45 Studs um jeden Spieler (bis zur Obergrenze). Meldung „Swarm Rush!". |
+| Gegen Weglaufen | 35 % der Spawns eines laufenden Spielers landen in einem 120°-Kegel vor ihm. Gegner, die weiter als 80 Studs von allen Spielern weg sind, tauchen jede Sekunde neu auf dem Spawn-Ring auf (wie frisch gespawnt). Ist die Obergrenze voll, wandern zusätzlich die 5 entferntesten Gegner über 40 Studs nach vorn, sonst konnte man mit einer vollen Schlange hinter sich im Kreis laufen und es kam nichts Neues. |
+
+Ein Gegner-Typ ist im Snapshot ein Byte; Elites senden Typ + 128, so kennt der Client sie ohne Zusatzdaten.
 
 ## 8. Koop-Regeln
 
 - **XP:** Jedes Orb zählt fürs ganze Team. XP-Bedarf pro Level × Spielerfaktor.
 - **Level-up ohne Pause:** jeder Spieler eigene 3 Karten; während der Wahl unverwundbar und bewegungslos, Waffen feuern weiter; nach 10 s wird die erste Karte automatisch gewählt.
 - **Truhen:** Elite-Truhe gibt jedem Spieler im Umkreis von 20 Studs eine eigene Belohnung.
+  Seit Paket 9: Die Truhe liegt, wo die Elite starb (goldene Kiste mit Lichtsäule, Pfeil am Bildschirmrand, wenn sie außer Sicht ist), und öffnet sich, sobald ein lebender Spieler auf 3,5 Studs heran ist. Jeder lebende Spieler im Umkreis bekommt: eine Evolution, wenn er eine nehmen darf; sonst +1 Level einer zufälligen eigenen Waffe oder eines Passivs, das noch nicht auf 5 ist; sonst 30 % Heilung. Dazu heilt die Truhe jeden Belohnten um 50 % seiner max. HP (neu, Annahme: ohne Heilung bringt jeder Spitter-Treffer bleibenden Schaden). Die eigene Belohnung erscheint groß in der Bildschirmmitte („CHEST – Starfire – Spark Bolt evolved!"). Truhen verschwinden am Run-Ende.
 - **Down & Wiederbeleben:** bei 0 HP „down" (30-s-Timer); Teammate steht 3 s daneben → Wiederbelebung mit 40 % HP. Timer abgelaufen → Zuschauer bis Run-Ende, Embers anteilig.
 - **Run-Ende:** alle gleichzeitig down = Run vorbei.
 - **Revive-Token (Kauf):** höchstens 1 pro Spieler und Run.
@@ -252,6 +264,18 @@ Solo: L1→2 = 7 XP, L10→11 = 53 XP, L30→31 = 205 XP; bis Level 35 zusammen 
 Folgerungen: Das Ziel „ohne Ausweichen ab Minute 3 in unter 20 s tot" passt im Schnitt. Wer nur wegläuft, überlebt, weil Spieler (16) schneller sind als Shadelings (14); das fängt Paket 9 mit Swarm Rush, Elites und Spitter-Schüssen ab. Ein guter Fernkampf-Spieler erreicht Level 35–40, also etwas über dem Ziel 34–36 (die Bots sammeln fast jedes Orb). Der Blade Warden war deutlich schwächer als der Spark Mage, deshalb machen die Orbit Blades jetzt 15 statt 12 Schaden (ein Treffer tötet einen Shadeling bis Minute 2) und drehen mit 240 statt 180°/s. Er bleibt die riskantere Klasse; Brutes im Nahkampf sind tödlich. Nächster Schritt: Urteil aus dem Freunde-Test (Anleitung in `docs/PLAYTEST.md`).
 
 **Stand Paket 8:** Mit allen sechs Waffen im Kartenpool wird es noch leichter: Spark Mage überlebt ausweichend oder auf Abstand kämpfend immer bis 12:00 und tötet praktisch alles (Level 41, etwa 3.400 Kills, über dem Ziel 34–36); der Blade Warden auf Abstand stirbt weiter nach 3:09–4:59. Stillstehen bleibt tödlich (Blade Warden 1:18–2:21, Spark Mage 0:32–2:17), ab Minute 3 still: nach 9–46 s tot. Keine Waffe dominiert: Bei vollen Runs teilen sich Spark Bolt bzw. Orbit Blades den Schaden mit Boomerang Axe, Chain Lightning, Shockwave und Thorn Trail; Axe und Chain Lightning liegen etwas vorn. Den Druck bringt Paket 9; danach neu messen.
+
+**Stand Paket 9:** Mit Spitter-Schüssen, Elites, Swarm Rush, Spawns in Laufrichtung und zurückkehrenden Gegnern wird es deutlich härter. Die Bots weichen jetzt Schüssen aus (spät, wie ein ordentlicher Spieler), gehen auf Spitter los und holen Truhen; 6 Durchläufe je Spielweise:
+
+| Spielweise | Blade Warden | Spark Mage |
+| --- | --- | --- |
+| steht still | tot nach 1:17–2:21 | tot nach 2:09–2:46 |
+| ab Minute 3 still | danach noch 2–67 s | danach noch 3–75 s |
+| läuft nur im Kreis | tot nach 3:09–7:00 | tot nach 3:02–6:46 |
+| weicht aus, sammelt, jagt Spitter | tot nach 4:50–11:43 | 3 von 6 bis 12:00 (Level 40–41), sonst tot nach 5:02–7:39 |
+| hält Gegner auf Abstand | tot nach 2:12–3:49 | 1 von 6 bis 12:00 (Level 40), sonst tot nach 5:02–7:57 |
+
+Folgerungen: Nur Weglaufen reicht nicht mehr, gute Spieler kommen nicht mehr sicher durch, und wer 12:00 erreicht, hat meist eine Evolution aus einer Truhe. Der Hauptschaden der guten Bots kommt von Spitter-Schüssen. Die Spitze ist eher etwas zu hart; das Urteil kommt aus dem Studio-Test. Stellschrauben, falls es zu schwer ist: Spitter-Anteil, Vorhalten (`aimLead`) oder Feuerreichweite der Spitter, Heilung der Truhe. Stillstehen ab Minute 3 überlebt länger als das Ziel (unter 20 s), weil die Truhe bei 2:00 heilt.
 
 **Run-Statistik (seit Paket 7):** Der Ergebnis-Bildschirm zeigt Team-Level, Kills des Teams und pro Spieler Kills, Schaden und erlittenen Schaden (`RunStatsService`). Der Server schreibt am Run-Ende eine Zusammenfassung ins Output (im Live-Spiel: F9 → Server): Dauer, Team-Level pro Minute, Kills nach Gegnertyp, Waffen mit Level/Schaden/Kills und Passive jedes Spielers.
 
@@ -373,9 +397,9 @@ src/shared/          → ReplicatedStorage.Shared
   Config/            Player, Weapons, Passives, Evolutions, Enemies, Classes, Run, Talents,
                      Economy, Difficulty, Simulation, Map, Admin, Camera
   Net/               Definition aller RemoteEvents und Snapshot-Format
-  Util/              SpatialHash, Signal, Loader, Format, Orbit, UpgradeText
+  Util/              SpatialHash, Signal, Loader, Format, Orbit, UpgradeText, EnemyKinds
 src/server/          → ServerScriptService.Server
-  Services/          RunDirector, SpawnDirector (+ SpawnRules), EnemySim (+ World), CombatService,
+  Services/          RunDirector, SpawnDirector (+ SpawnRules), EnemySim (+ World, Volleys), CombatService,
                      WeaponService (+ Arsenal, WeaponStats, Behaviors/ je Waffe), ExperienceService (+ OrbField,
                      Progression), UpgradeService (+ UpgradePool),
                      LootService, ReviveService, PlayerDataService, MonetizationService, AnalyticsService,
@@ -383,7 +407,7 @@ src/server/          → ServerScriptService.Server
 src/client/          → StarterPlayer.StarterPlayerScripts.Client
   Controllers/       InputController, CameraController, PlayerStateController, EnemyRenderer (+ SnapshotBuffer, Models),
                      LoadoutController, WeaponRenderer (+ VisualKit, Visuals/ je Waffe), ProgressController,
-                     LevelUpController, XpOrbRenderer, HUDController, VFXController,
+                     LevelUpController, XpOrbRenderer, EnemyShotRenderer, ChestController, HUDController, VFXController,
                      RunStateController, LobbyController, ResultsController, NotifyController, DebugController
   UI/                Theme, Widgets (UI im Code gebaut)
 tests/               Unit-Tests für reine Module (Runner in tools/luau-test-runner)
@@ -418,12 +442,16 @@ tests/               Unit-Tests für reine Module (Runner in tools/luau-test-run
 
 **Schnittstellen der Gegner-Engine für spätere Pakete**
 
-- `EnemySim.spawn(enemyId, x, z, hpMultiplier, damageMultiplier)` – SpawnDirector, Boss (Paket 10).
+- `EnemySim.spawn(enemyId, x, z, hpMultiplier, damageMultiplier, elite?)` – SpawnDirector, Boss (Paket 10). Elite-Varianten jedes Typs baut `Util/EnemyKinds` aus `Config/Enemies.luau` (seit Paket 9).
+- `EnemySim.teleport(id, position)`, `collectIds(out)`, `getKind(id)` (Typ und ob Elite), `getShotCount()` – seit Paket 9 für SpawnDirector, Debug und die Balance-Simulation.
 - `EnemySim.damage(id, amount, player)` (gibt zurück, ob der Gegner starb, und wie viel HP der Treffer wirklich nahm), `queryRadius(position, radius, out)`, `querySegment(from, to, radius, out)`, `nearest(position, maxRange)`, `getPosition(id)`, `push(id, offset)` (Rückstoß, geteilt durch die Masse über 1), `killAll()` – Waffen, Debug.
 - `EnemySim.getPlayerPosition(player)` – wo der letzte Schritt einen lebenden Teilnehmer gesehen hat, mit demselben Vorlauf wie bei Kontakten; Waffen zielen von dort.
 - Signal `EnemySim.Stepped(dt, now)` – direkt nach jedem Schritt, noch innerhalb der gemessenen Schrittzeit; hier laufen die Waffen (seit Paket 5).
 - Signal `EnemySim.EnemyKilled(info)` mit Typ, Position, XP und Killer – XP-Orbs (Paket 6), Truhen (Paket 9), Statistik.
 - Signal `EnemySim.Contact(player, damage)` – Spieler-HP mit 0,5 s Schutz nach Treffer (seit Paket 4 über CombatService).
+- Signal `EnemySim.ShotHit(player, damage)` – ein Gegner-Geschoss traf (seit Paket 9, auch über CombatService).
+- **Gegner-Geschosse** (seit Paket 9): `World` meldet pro Schritt, welcher Spitter schießt (Abklingzeit als eigene Spalte); `EnemySim/Volleys.luau` (rein, mit Unit-Tests) fliegt die Kugeln gegen die Spielerpositionen mit Vorlauf, Ruinen und Arenarand. `EnemyShots` geht nach jedem Snapshot mit Änderungen an die Teilnehmer (abgefeuert: Ort, Richtung, Tempo, Reichweite, Serverzeit; beendet: ID und Strecke); `EnemyShotRenderer` zeichnet gepoolte Kugeln in Serverzeit.
+- **Truhen** (seit Paket 9): `LootService` legt bei `EnemyKilled` einer Elite eine Truhe ab, öffnet sie nach jedem Schritt, wenn ein lebender Spieler nah genug ist, und vergibt über `UpgradeService.grantChest(player)` (Evolution, sonst Upgrade, sonst Heilung; Auswahl rein in `UpgradePool.chestUpgrade`). `Chests` (Liste am Boden) und `ChestOpened` (wer was bekam) gehen an die Teilnehmer; `LootService.drop(position)` kann die Boss-Truhe (Paket 10) nutzen. `ChestController` zeichnet Truhen, Pfeile und das Belohnungs-Banner.
 
 **Spieler** (seit Paket 4)
 
@@ -490,7 +518,7 @@ tests/               Unit-Tests für reine Module (Runner in tools/luau-test-run
 - Game Passes beim Join prüfen und cachen, Käufe in der Sitzung sofort freischalten.
 - Entwicklung in einer separaten Test-Experience.
 
-**Sicherheit:** Client schickt nur Absichten (Bewegung, Dash, Level-up-Wahl, Kaufwunsch). Server berechnet Schaden, Kills, XP, Drops, Embers, Truhen, Ranglistenwerte. Jede Remote mit Rate-Limit und Validierung (nur angebotene Karten-IDs, Dash nur nach Cooldown). Bewegungs-Plausibilitätscheck. Admin-Befehle nur für die UserId des Owners, serverseitig geprüft: Admin ist, wer in Studio testet, der Besitzer einer Experience im eigenen Account (`game.CreatorId`) und wer in `Config/Admin.luau` steht. Test-Befehle seit Paket 2: Timer +1 Minute, zu 11:50 springen, sich selbst umhauen/aufstehen, Run gewinnen. Seit Paket 3: 40 Gegner um sich spawnen (Obergrenze gilt), Gegner in 20 Studs Umkreis treffen (5 Schaden), alle Gegner töten, Spawnen pausieren/fortsetzen. Seit Paket 4: sich selbst 25 Schaden geben (Rüstung und Schutz gelten), sich voll heilen; dazu eine Messanzeige unten links (Gegnerzahl, Spawnrate, Serverzeit pro Schritt, Gegnerdaten in KB/s, FPS; rot, wenn ein Budget überschritten ist). Seit Paket 5: nächste fehlende Waffe hinzufügen, nur die nächste Waffe behalten (zum Ausprobieren einzeln), alle Waffen +1 Level, alle Waffen aus/an (gilt bis zum nächsten Run); das Debug-Menü hat dafür zwei Spalten.
+**Sicherheit:** Client schickt nur Absichten (Bewegung, Dash, Level-up-Wahl, Kaufwunsch). Server berechnet Schaden, Kills, XP, Drops, Embers, Truhen, Ranglistenwerte. Jede Remote mit Rate-Limit und Validierung (nur angebotene Karten-IDs, Dash nur nach Cooldown). Bewegungs-Plausibilitätscheck. Admin-Befehle nur für die UserId des Owners, serverseitig geprüft: Admin ist, wer in Studio testet, der Besitzer einer Experience im eigenen Account (`game.CreatorId`) und wer in `Config/Admin.luau` steht. Test-Befehle seit Paket 2: Timer +1 Minute, zu 11:50 springen, sich selbst umhauen/aufstehen, Run gewinnen. Seit Paket 3: 40 Gegner um sich spawnen (Obergrenze gilt), Gegner in 20 Studs Umkreis treffen (5 Schaden), alle Gegner töten, Spawnen pausieren/fortsetzen. Seit Paket 4: sich selbst 25 Schaden geben (Rüstung und Schutz gelten), sich voll heilen; dazu eine Messanzeige unten links (Gegnerzahl, Spawnrate, Serverzeit pro Schritt, Gegnerdaten in KB/s, FPS; rot, wenn ein Budget überschritten ist). Seit Paket 5: nächste fehlende Waffe hinzufügen, nur die nächste Waffe behalten (zum Ausprobieren einzeln), alle Waffen +1 Level, alle Waffen aus/an (gilt bis zum nächsten Run); das Debug-Menü hat dafür zwei Spalten. Seit Paket 8: Waffen entwickeln („Evolve weapons"). Seit Paket 9: eine Elite in der Nähe spawnen („Spawn an elite", ihre Truhe lässt sich so testen); die Messanzeige zeigt auch die Gegner-Geschosse in der Luft.
 
 ## 17. Compliance & Plattform-Regeln
 

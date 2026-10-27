@@ -11,6 +11,8 @@
 --   3. push still-overlapping enemies apart; mass decides who moves more
 --   4. keep enemies out of obstacles and players and inside the arena
 --   5. report the strongest contact damage touching each target, rebuild the hash for queries
+--   6. ranged enemies with a target in fire range count down and report shots (World.shots); EnemySim aims and
+--      flies them (EnemySim/Volleys)
 -- Enemies that die between steps stay in the arrays with hp 0 until the next step; every query skips them,
 -- so array indices (and the hash) stay valid until then.
 
@@ -42,6 +44,7 @@ local MAX_ID = 65535 -- ids are u16 in snapshots
 local EPSILON = 1e-6
 local HEAD_ON = 0.05 -- below this share of sideways movement an enemy counts as running straight at an obstacle
 local GOLDEN_ANGLE = 2.399963 -- spreads the push direction of enemies standing exactly on top of each other
+local GOLDEN_RATIO = 0.618034 -- spreads the first shot of ranged enemies so they do not fire in sync
 
 local World = {}
 World.__index = World
@@ -59,6 +62,8 @@ export type World = typeof(setmetatable(
 		hp: { number },
 		maxHp: { number },
 		contactDamage: { number }, -- damage per touch
+		shotDamage: { number }, -- damage per projectile, 0 for enemies that do not shoot
+		shotCooldown: { number }, -- seconds in fire range until the next shot
 		indexOf: { [number]: number }, -- id -> array index
 		nextId: number,
 		maxRadius: number, -- largest enemy radius seen, widens neighbour queries
@@ -67,6 +72,9 @@ export type World = typeof(setmetatable(
 		scratch: { number }, -- query results inside step()
 		queryScratch: { number }, -- query results for callers between steps
 		contacts: { number },
+		-- shots of the last step, flat: enemy id, x, z, target index, damage per shot
+		shots: { number },
+		shotCount: number,
 	},
 	World
 ))
@@ -85,6 +93,8 @@ function World.new(params: Params): World
 		hp = {},
 		maxHp = {},
 		contactDamage = {},
+		shotDamage = {},
+		shotCooldown = {},
 		indexOf = {},
 		nextId = 0,
 		maxRadius = 0,
@@ -93,6 +103,8 @@ function World.new(params: Params): World
 		scratch = {},
 		queryScratch = {},
 		contacts = {},
+		shots = {},
+		shotCount = 0,
 	}, World)
 end
 
@@ -105,8 +117,17 @@ local function allocateId(self: World): number
 	return self.nextId
 end
 
--- Adds an enemy and returns its id, or nil when maxEnemies are alive.
-function World.spawn(self: World, kind: Kind, x: number, z: number, hp: number, contactDamage: number): number?
+-- Adds an enemy and returns its id, or nil when maxEnemies are alive. `shotDamage` is the damage of each projectile
+-- of a ranged kind (default: its config value).
+function World.spawn(
+	self: World,
+	kind: Kind,
+	x: number,
+	z: number,
+	hp: number,
+	contactDamage: number,
+	shotDamage: number?
+): number?
 	if self.alive >= self.params.maxEnemies then
 		return nil
 	end
@@ -122,6 +143,9 @@ function World.spawn(self: World, kind: Kind, x: number, z: number, hp: number, 
 	self.hp[i] = hp
 	self.maxHp[i] = hp
 	self.contactDamage[i] = contactDamage
+	local ranged = kind.ranged
+	self.shotDamage[i] = if ranged then shotDamage or ranged.projectileDamage else 0
+	self.shotCooldown[i] = if ranged then ranged.fireInterval * ((id * GOLDEN_RATIO) % 1) else 0
 	self.indexOf[id] = i
 	self.maxRadius = math.max(self.maxRadius, kind.radius)
 	self.maxSpeed = math.max(self.maxSpeed, kind.speed)
@@ -136,6 +160,7 @@ local function compact(self: World): boolean
 	end
 	local ids, kinds, typeIds, xs, zs = self.ids, self.kinds, self.typeIds, self.xs, self.zs
 	local hp, maxHp, damage, indexOf = self.hp, self.maxHp, self.contactDamage, self.indexOf
+	local shotDamage, shotCooldown = self.shotDamage, self.shotCooldown
 	local i = 1
 	while i <= self.count do
 		if hp[i] > 0 then
@@ -147,10 +172,12 @@ local function compact(self: World): boolean
 		if i ~= last then
 			ids[i], kinds[i], typeIds[i] = ids[last], kinds[last], typeIds[last]
 			xs[i], zs[i], hp[i], maxHp[i], damage[i] = xs[last], zs[last], hp[last], maxHp[last], damage[last]
+			shotDamage[i], shotCooldown[i] = shotDamage[last], shotCooldown[last]
 			indexOf[ids[i]] = i
 		end
 		ids[last], kinds[last], typeIds[last] = nil, nil, nil
 		xs[last], zs[last], hp[last], maxHp[last], damage[last] = nil, nil, nil, nil, nil
+		shotDamage[last], shotCooldown[last] = nil, nil
 		self.count = last - 1
 	end
 	return true
@@ -158,10 +185,25 @@ end
 
 -- Removes every enemy without reporting kills (run start and end).
 function World.clear(self: World)
-	for _, column in { self.ids, self.kinds, self.typeIds, self.xs, self.zs, self.hp, self.maxHp, self.contactDamage } do
+	for _, column in
+		{
+			self.ids,
+			self.kinds,
+			self.typeIds,
+			self.xs,
+			self.zs,
+			self.hp,
+			self.maxHp,
+			self.contactDamage,
+			self.shotDamage,
+			self.shotCooldown,
+		}
+	do
 		table.clear(column :: { any })
 	end
 	table.clear(self.indexOf)
+	table.clear(self.shots)
+	self.shotCount = 0
 	self.count = 0
 	self.alive = 0
 	self.hash:clear()
@@ -370,6 +412,16 @@ function World.push(self: World, id: number, dx: number, dz: number)
 	self.zs[i] = math.clamp(z, p.minZ + radius, p.maxZ - radius)
 end
 
+-- Puts a living enemy at (x, z) right away (SpawnDirector moves enemies left far behind). The hash follows on the
+-- next step.
+function World.teleport(self: World, id: number, x: number, z: number)
+	local i = self.indexOf[id]
+	if not i or self.hp[i] <= 0 then
+		return
+	end
+	self.xs[i], self.zs[i] = x, z
+end
+
 local function rebuildHash(self: World)
 	local hash, xs, zs = self.hash, self.xs, self.zs
 	hash:clear()
@@ -381,7 +433,7 @@ end
 -- Advances every enemy by dt seconds towards the targets (x/z of living players, targetCount of them).
 -- Returns contacts[t] = the highest contact damage touching target t, 0 if none (reused table).
 -- Contacts are checked against contactXs/contactZs if given (e.g. positions corrected for network lag),
--- otherwise against the targets.
+-- otherwise against the targets. Shots fired in this step are in self.shots[1 .. 5 * self.shotCount].
 function World.step(
 	self: World,
 	dt: number,
@@ -546,6 +598,39 @@ function World.step(
 		end
 	end
 	rebuildHash(self)
+
+	-- 6. ranged enemies count down while a target is in fire range and report a shot at the nearest one
+	local shots, shotCount = self.shots, 0
+	local shotDamage, shotCooldown = self.shotDamage, self.shotCooldown
+	for i = 1, count do
+		local ranged = kinds[i].ranged
+		if ranged and shotDamage[i] > 0 and targetCount > 0 then
+			local x, z = xs[i], zs[i]
+			local best, bestSquared = 0, ranged.fireRange * ranged.fireRange
+			for t = 1, targetCount do
+				local dx, dz = hitXs[t] - x, hitZs[t] - z
+				local squared = dx * dx + dz * dz
+				if squared <= bestSquared then
+					best, bestSquared = t, squared
+				end
+			end
+			if best > 0 then
+				local cooldown = shotCooldown[i] - dt
+				if cooldown <= 0 then
+					cooldown += ranged.fireInterval
+					local k = shotCount * 5
+					shots[k + 1], shots[k + 2], shots[k + 3] = ids[i], x, z
+					shots[k + 4], shots[k + 5] = best, shotDamage[i]
+					shotCount += 1
+				end
+				shotCooldown[i] = cooldown
+			end
+		end
+	end
+	for k = shotCount * 5 + 1, self.shotCount * 5 do
+		shots[k] = nil
+	end
+	self.shotCount = shotCount
 	return contacts
 end
 

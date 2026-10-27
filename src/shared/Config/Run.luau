@@ -28,18 +28,27 @@ local Run = {
 		cap = table.freeze({ base = 80, perExtraPlayer = 20, max = 140 }),
 		ringMin = 45, -- studs around a random player
 		ringMax = 60,
+		-- against running away (WP9): this share of spawns lands in a cone in front of a walking player (assumption)
+		ahead = table.freeze({ share = 0.35, halfAngleDegrees = 60, minSpeed = 4 }),
+		-- enemies farther than `distance` from every living player move to a new spawn point (like a fresh spawn),
+		-- so a crowd trailing behind a runner comes back in front of them; at the alive cap also the `atCapCount`
+		-- farthest ones beyond `atCapDistance`, so running in circles with a full trailing crowd does not stop new
+		-- enemies from coming (assumption)
+		recycle = table.freeze({ distance = 80, intervalSeconds = 1, atCapDistance = 40, atCapCount = 5 }),
 		-- enemy mix by minute; the last entry with fromMinute <= t applies
 		mix = table.freeze({
 			table.freeze({ fromMinute = 0, weights = table.freeze({ Shadeling = 1 }) }),
 			table.freeze({ fromMinute = 2, weights = table.freeze({ Shadeling = 0.8, Brute = 0.2 }) }),
-			table.freeze({ fromMinute = 4, weights = table.freeze({ Shadeling = 0.6, Brute = 0.2, Spitter = 0.2 }) }),
+			table.freeze({ fromMinute = 4, weights = table.freeze({ Shadeling = 0.7, Brute = 0.2, Spitter = 0.1 }) }),
 		}),
 		swarmRush = table.freeze({
 			atMinutes = table.freeze({ 5, 9 }),
 			durationSeconds = 30,
 			rateMultiplier = 2,
 			enemy = "Shadeling",
+			ringCount = 24, -- extra Shadelings in a closed ring at ringMin around every player when it starts (assumption)
 		}),
+		-- one Gloom Elite of the current mix (Config.Enemies.elite) at these times, also above the alive cap
 		elite = table.freeze({ firstAtMinute = 2, everyMinutes = 2 }),
 	}),
 
@@ -63,6 +72,8 @@ local Run = {
 
 	coop = table.freeze({
 		chestRadius = 20, -- studs, every player inside gets an elite chest reward
+		chestOpenRadius = 3.5, -- studs; a living player this close opens the chest (assumption)
+		chestHealFraction = 0.5, -- every rewarded player also heals this share of max HP (WP9, against chip damage)
 		downTimerSeconds = 30,
 		reviveSeconds = 3,
 		reviveHpFraction = 0.4,

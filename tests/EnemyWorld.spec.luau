@@ -1,8 +1,11 @@
 -- Unit tests for the enemy simulation (EnemySim/World): chasing, crowding, obstacles, contacts, damage,
--- queries, knockback and the 4 ms step budget with the maximum of 140 enemies.
+-- queries, knockback, Spitter shots, elite kinds and the 4 ms step budget with the maximum of 140 enemies; plus the
+-- enemy projectiles (EnemySim/Volleys).
 
 local Shared = game:GetService("ReplicatedStorage").Shared
 local Config = require(Shared.Config)
+local EnemyKinds = require(Shared.Util.EnemyKinds)
+local Volleys = require(game:GetService("ServerScriptService").Server.Services.EnemySim.Volleys)
 local World = require(game:GetService("ServerScriptService").Server.Services.EnemySim.World)
 
 local Sim = Config.Simulation
@@ -328,5 +331,121 @@ describe("lag-corrected contacts", function()
 		-- player running away from the enemy: on their screen they are already out of reach
 		contacts = world:step(STEP, { 0 }, { 0 }, 1, { -3 }, { 0 })
 		expect(contacts[1]).toBe(0)
+	end)
+
+	it("lets Spitters shoot at the nearest target in fire range every fireInterval", function()
+		local world = newWorld()
+		local ranged = Types.Spitter.ranged
+		local id = spawn(world, "Spitter", 30, 0)
+		local shots = 0
+		local steps = math.ceil(ranged.fireInterval * 3 / STEP)
+		for _ = 1, steps do
+			world:step(STEP, { 0 }, { 0 }, 1)
+			for k = 0, world.shotCount - 1 do
+				expect(world.shots[k * 5 + 1]).toBe(id)
+				expect(world.shots[k * 5 + 4]).toBe(1)
+				expect(world.shots[k * 5 + 5]).toBe(ranged.projectileDamage)
+				shots += 1
+			end
+		end
+		expect(shots >= 2 and shots <= 3).toBe(true)
+
+		-- out of fire range: no shots
+		local far = newWorld()
+		spawn(far, "Spitter", ranged.fireRange + 30, 0)
+		far:step(STEP, { 0 }, { 0 }, 1) -- moves at most a few studs per step
+		local farShots = far.shotCount
+		expect(farShots).toBe(0)
+
+		-- enemies without `ranged` never shoot
+		local melee = newWorld()
+		spawn(melee, "Brute", 10, 0)
+		run(melee, 5, { 0 }, { 0 })
+		expect(melee.shotCount).toBe(0)
+	end)
+
+	it("builds bigger, slower and tougher elite kinds with their own typeId", function()
+		local elite = Config.Enemies.elite
+		for id, base in Types do
+			local kind = EnemyKinds.get(id, true)
+			expect(kind ~= nil).toBe(true)
+			if kind then
+				expect(kind.elite).toBe(true)
+				expect(kind.typeId).toBe(base.typeId + elite.typeIdOffset)
+				expect(kind.hp).toBeNear(base.hp * elite.hpMultiplier)
+				expect(kind.speed).toBeNear(base.speed * elite.speedMultiplier)
+				expect(kind.radius).toBeNear(base.radius * elite.sizeMultiplier)
+				expect(kind.contactDamage).toBeNear(base.contactDamage * elite.damageMultiplier)
+				expect(kind.xp).toBe(elite.xp)
+				expect(EnemyKinds.byTypeId(kind.typeId)).toBe(kind)
+				expect(EnemyKinds.byTypeId(base.typeId)).toBe(base)
+				if base.ranged and kind.ranged then
+					expect(kind.ranged.projectileDamage).toBeNear(base.ranged.projectileDamage * elite.damageMultiplier)
+				end
+			end
+		end
+		expect(EnemyKinds.get("Shadeling")).toBe(Types.Shadeling)
+	end)
+end)
+
+describe("Volleys", function()
+	local function newVolleys(obstacles)
+		return Volleys.new({
+			playerRadius = Sim.playerRadius,
+			minX = -HALF,
+			maxX = HALF,
+			minZ = -HALF,
+			maxZ = HALF,
+			obstacles = obstacles or {},
+		})
+	end
+
+	local function flyAll(volleys, seconds, xs, zs)
+		local hits, ended = {}, {}
+		for _ = 1, math.ceil(seconds / STEP) do
+			volleys:step(STEP, xs, zs, #xs)
+			for k = 1, volleys.hitCount * 2 do
+				table.insert(hits, volleys.hits[k])
+			end
+			for k = 1, volleys.endedCount * 2 do
+				table.insert(ended, volleys.ended[k])
+			end
+		end
+		return hits, ended
+	end
+
+	it("hits the first target in its path once and ends there", function()
+		local volleys = newVolleys()
+		local id = volleys:fire(0, 0, 1, 0, 30, 50, 0.6, 8)
+		local hits, ended = flyAll(volleys, 2, { 20, 30 }, { 0, 0 })
+		expect(#hits).toBe(2)
+		expect(hits[1]).toBe(1) -- the closer target
+		expect(hits[2]).toBe(8)
+		expect(ended[1]).toBe(id)
+		expect(ended[2]).toBeNear(20 - Sim.playerRadius - 0.6, 0.01)
+		expect(volleys:getCount()).toBe(0)
+	end)
+
+	it("misses a target beside its path and fades at its range", function()
+		local volleys = newVolleys()
+		volleys:fire(0, 0, 1, 0, 30, 25, 0.6, 8)
+		local hits, ended = flyAll(volleys, 2, { 15 }, { 3 })
+		expect(#hits).toBe(0)
+		expect(#ended).toBe(0) -- reaching the range is not an "ended" event
+		expect(volleys:getCount()).toBe(0)
+	end)
+
+	it("stops at obstacles and the arena edge", function()
+		local volleys = newVolleys({ { x = 10, z = 0, radius = 2 } })
+		volleys:fire(0, 0, 1, 0, 30, 50, 0.6, 8)
+		local hits, ended = flyAll(volleys, 2, { 20 }, { 0 })
+		expect(#hits).toBe(0)
+		expect(ended[2]).toBeNear(8, 0.01)
+
+		local edge = newVolleys()
+		edge:fire(HALF - 5, 0, 1, 0, 30, 50, 0.6, 8)
+		local _, edgeEnded = flyAll(edge, 2, {}, {})
+		expect(#edgeEnded).toBe(2)
+		expect(edge:getCount()).toBe(0)
 	end)
 end)

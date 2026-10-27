@@ -87,6 +87,49 @@ export type WeaponEffect = {
 	points: { number }?, -- floor positions as x1, z1, x2, z2, ... (e.g. the enemies a chain jumped over)
 }
 
+-- One enemy projectile (EnemySim -> EnemyShotRenderer). It flies straight from x/z at `speed` from server time `at`
+-- and fades at `range`, unless an "ended" entry stops it earlier.
+export type EnemyShot = {
+	id: number, -- unique within the run
+	x: number,
+	z: number,
+	dx: number, -- unit direction
+	dz: number,
+	speed: number, -- studs/s
+	range: number, -- studs
+	at: number, -- server time it was fired
+}
+
+-- Enemy projectile changes since the last snapshot, sent to the participants.
+export type EnemyShotEvents = {
+	reset: boolean?, -- drop every shot first (run start and end)
+	fired: { EnemyShot },
+	ended: { number }, -- flat: id, distance flown, for shots that hit a player or an obstacle
+}
+
+-- An elite chest on the floor (LootService -> ChestController).
+export type ChestInfo = {
+	id: number,
+	x: number,
+	z: number,
+}
+
+-- What a chest gave one player (DESIGN.md section 8): an evolution if they may take one, else one more level of an
+-- owned weapon or passive, else a reward ("Heal").
+export type ChestReward = {
+	kind: "Evolution" | "Weapon" | "Passive" | "Reward",
+	itemId: string, -- key in Config.Evolutions, Config.Weapons or Config.Passives, or the reward id
+	level: number, -- item level after the chest (0 for evolutions and rewards)
+}
+
+-- A chest was opened, sent to the participants.
+export type ChestOpened = {
+	id: number,
+	x: number,
+	z: number,
+	rewards: { { userId: number, reward: ChestReward } }, -- every living participant close enough
+}
+
 -- Team level and XP towards the next level (ExperienceService -> ProgressController), to everyone on change.
 export type TeamProgress = {
 	level: number,
@@ -158,6 +201,7 @@ export type DebugStats = {
 	stepMaxMilliseconds: number, -- slowest step in the last second
 	stepsPerSecond: number,
 	sentKilobytesPerSecond: number, -- enemy snapshots sent to each player
+	shots: number, -- enemy projectiles in flight
 }
 
 return {}

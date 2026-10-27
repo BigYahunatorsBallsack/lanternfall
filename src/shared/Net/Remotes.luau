@@ -65,6 +65,9 @@ local Remotes: { [string]: Definition } = {
 	RunSummary = { direction = "toClient" }, -- Net/Types.RunSummary, to the participants when a run ends
 	Notify = { direction = "toClient" }, -- short on-screen messages
 	EnemySnapshot = { direction = "toClient", unreliable = true }, -- buffer, see Net/Snapshot
+	EnemyShots = { direction = "toClient" }, -- Net/Types.EnemyShotEvents after each snapshot with changes, to participants
+	Chests = { direction = "toClient" }, -- { Net/Types.ChestInfo } on the floor, to participants on change
+	ChestOpened = { direction = "toClient" }, -- Net/Types.ChestOpened, to participants
 	DebugStats = { direction = "toClient" }, -- Net/Types.DebugStats, admins only, once per second
 }
 

@@ -32,8 +32,8 @@ describe("SpawnRules", function()
 		expect(SpawnRules.mixAt(1.9).Brute).toBe(nil)
 		expect(SpawnRules.mixAt(2).Brute).toBeNear(0.2)
 		expect(SpawnRules.mixAt(3.99).Spitter).toBe(nil)
-		expect(SpawnRules.mixAt(4).Spitter).toBeNear(0.2)
-		expect(SpawnRules.mixAt(11).Shadeling).toBeNear(0.6)
+		expect(SpawnRules.mixAt(4).Spitter).toBeNear(0.1) -- 0.2 in the original design, halved in WP9
+		expect(SpawnRules.mixAt(11).Shadeling).toBeNear(0.7)
 	end)
 
 	it("picks enemies by weight", function()
@@ -43,9 +43,9 @@ describe("SpawnRules", function()
 			local id = SpawnRules.pickEnemy(weights, i / 1000)
 			counts[id] += 1
 		end
-		expect(counts.Shadeling).toBe(600)
-		expect(counts.Brute).toBe(200)
-		expect(counts.Spitter).toBe(200)
+		expect(counts.Shadeling).toBeNear(700, 1)
+		expect(counts.Brute).toBeNear(200, 1)
+		expect(counts.Spitter).toBeNear(100, 1)
 		expect(SpawnRules.pickEnemy(weights, 0.999999)).toBe("Spitter")
 	end)
 
@@ -81,5 +81,60 @@ describe("SpawnRules", function()
 		expect(found >= 85).toBe(true)
 		local tiny = { minX = -10, maxX = 10, minZ = -10, maxZ = 10 }
 		expect(SpawnRules.findSpawnPoint(random, 0, 0, 1.5, tiny, {}, 12)).toBe(nil)
+	end)
+
+	it("runs Swarm Rush at minute 5 and 9 for 30 s with double rate and Shadelings only", function()
+		expect(SpawnRules.isSwarmRush(4.99)).toBe(false)
+		expect(SpawnRules.isSwarmRush(5)).toBe(true)
+		expect(SpawnRules.isSwarmRush(5.49)).toBe(true)
+		expect(SpawnRules.isSwarmRush(5.5)).toBe(false)
+		expect(SpawnRules.isSwarmRush(9.2)).toBe(true)
+		expect(SpawnRules.currentRate(5.2, 1)).toBeNear(SpawnRules.rate(5.2, 1) * 2)
+		expect(SpawnRules.currentRate(6, 1)).toBeNear(SpawnRules.rate(6, 1))
+		expect(SpawnRules.currentMix(5.2).Shadeling).toBe(1)
+		expect(SpawnRules.currentMix(5.2).Brute).toBe(nil)
+		expect(SpawnRules.currentMix(6).Spitter).toBeNear(0.1)
+		expect(SpawnRules.swarmRushStarted(4.9, 5)).toBe(true)
+		expect(SpawnRules.swarmRushStarted(5, 5.1)).toBe(false)
+		expect(SpawnRules.swarmRushStarted(0, 11.8)).toBe(true)
+	end)
+
+	it("calls an elite at 2:00 and every 2 minutes after", function()
+		expect(SpawnRules.eliteDue(0, 1.99)).toBe(false)
+		expect(SpawnRules.eliteDue(1.99, 2)).toBe(true)
+		expect(SpawnRules.eliteDue(2, 2.1)).toBe(false)
+		expect(SpawnRules.eliteDue(3.9, 4.05)).toBe(true)
+		expect(SpawnRules.eliteDue(4.05, 5.9)).toBe(false)
+		expect(SpawnRules.eliteDue(1.5, 2.5)).toBe(true) -- a skipped minute still brings it
+	end)
+
+	it("spawns part of the enemies in front of a walking player", function()
+		local share = Config.Run.spawn.ahead.share
+		expect(SpawnRules.aheadHeading(16, 0, share / 2)).toBeNear(0)
+		expect(SpawnRules.aheadHeading(0, 16, share / 2)).toBeNear(math.pi / 2)
+		expect(SpawnRules.aheadHeading(16, 0, (share + 1) / 2)).toBe(nil)
+		expect(SpawnRules.aheadHeading(0.5, 0, 0)).toBe(nil) -- standing still
+		local halfAngle = math.rad(Config.Run.spawn.ahead.halfAngleDegrees)
+		local state = 7
+		local function random()
+			state = (state * 1103515245 + 12345) % 2147483648
+			return state / 2147483648
+		end
+		for _ = 1, 50 do
+			local x, z = SpawnRules.findSpawnPoint(random, 0, 0, 1.5, bounds, {}, 12, 0)
+			expect(x ~= nil).toBe(true)
+			if x and z then
+				expect(math.abs(math.atan2(z, x)) <= halfAngle + 1e-6).toBe(true)
+			end
+		end
+	end)
+
+	it("spreads the Swarm Rush ring evenly", function()
+		local x1, z1 = SpawnRules.ringPoint(1, 4, 10, 10, 45)
+		local x2, z2 = SpawnRules.ringPoint(2, 4, 10, 10, 45)
+		expect(x1).toBeNear(55)
+		expect(z1).toBeNear(10)
+		expect(x2).toBeNear(10)
+		expect(z2).toBeNear(55)
 	end)
 end)

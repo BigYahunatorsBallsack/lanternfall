@@ -535,6 +535,14 @@ end
 function methods.BindActionAtPriority(_, name, callback)
 	world.actions[name] = callback
 end
+-- Rough top-down projection for Camera: 10 pixels per stud around the camera's x/z (0, 0 without a CFrame).
+function methods.WorldToViewportPoint(self, position)
+	local center = if self.CFrame then self.CFrame.Position else v3(0, 0, 0)
+	local size = self.ViewportSize
+	local x = size.X / 2 + (position.X - center.X) * 10
+	local y = size.Y / 2 + (position.Z - center.Z) * 10
+	return v3(x, y, 10), x >= 0 and x <= size.X and y >= 0 and y <= size.Y
+end
 function methods.BulkMoveTo(self, parts, cframes)
 	if self ~= world.workspace then
 		error("BulkMoveTo is only on Workspace", 2)

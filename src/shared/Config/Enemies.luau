@@ -12,7 +12,21 @@ export type Enemy = {
 	xp: number,
 	radius: number, -- collision circle, studs (assumption)
 	mass: number, -- crowd weight: heavier enemies push lighter ones aside (assumption)
-	ranged: { keepDistance: number, fireInterval: number, projectileDamage: number }?,
+	ranged: Ranged?,
+	elite: boolean?, -- set only on the elite variants built by Util/EnemyKinds
+}
+
+-- Enemies that hold their distance and shoot (Spitter). Projectiles fly straight, are stopped by obstacles and
+-- hurt the first player they touch (EnemySim/Volleys).
+export type Ranged = {
+	keepDistance: number, -- studs; EnemySim keeps it there
+	fireInterval: number, -- seconds between shots
+	fireRange: number, -- studs; shoots only at a player this close (assumption)
+	projectileDamage: number,
+	projectileSpeed: number, -- studs/s (assumption)
+	projectileRange: number, -- studs a shot flies before it fades (assumption)
+	projectileRadius: number, -- studs, hit circle of a shot (assumption)
+	aimLead: number, -- 0 = aims where the player is, 1 = where a player walking straight on will be (assumption)
 }
 
 local Enemies: { [string]: Enemy } = {
@@ -49,20 +63,28 @@ local Enemies: { [string]: Enemy } = {
 		radius = 1.5,
 		mass = 1,
 		ranged = {
-			keepDistance = 30, -- studs; EnemySim keeps it there
-			fireInterval = 2.5, -- shooting follows in WP9
+			keepDistance = 30,
+			fireInterval = 2.5,
+			fireRange = 34,
 			projectileDamage = 8,
+			projectileSpeed = 18,
+			projectileRange = 50,
+			projectileRadius = 0.6,
+			aimLead = 0.3,
 		},
 	},
 }
 
+-- Gloom Elite: any enemy type, bigger and tougher (Util/EnemyKinds builds one elite variant per type).
 local Elite = table.freeze({
 	hpMultiplier = 8,
 	speedMultiplier = 0.9,
-	damageMultiplier = 1.5,
-	sizeMultiplier = 1.5,
+	damageMultiplier = 1.5, -- contact and projectile damage
+	sizeMultiplier = 1.5, -- collision radius and model
+	massMultiplier = 2.25, -- pushes normal enemies of its type aside (assumption)
 	xp = 25,
 	dropsChest = true,
+	typeIdOffset = 128, -- snapshot typeId of the elite variant = typeId + this (base typeIds stay below it)
 })
 
 local Boss = table.freeze({

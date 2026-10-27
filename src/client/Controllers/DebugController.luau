@@ -31,6 +31,7 @@ local BUTTON_TEXT: { [string]: string } = {
 	HealSelf = "Heal me",
 	WinRun = "Win the run",
 	SpawnWave = `Spawn {Config.Admin.spawnWaveCount} enemies`,
+	SpawnElite = "Spawn an elite",
 	HitNearby = "Hit enemies near me",
 	KillEnemies = "Kill all enemies",
 	ToggleSpawning = "Pause/resume spawning",
@@ -143,7 +144,11 @@ local function refreshStats()
 	local client = EnemyRenderer.getStats()
 	local server = serverStats
 	if server then
-		setLine("Enemies", `Enemies {server.enemies} / {server.cap} · drawn {client.drawn}`, false)
+		setLine(
+			"Enemies",
+			`Enemies {server.enemies} / {server.cap} · drawn {client.drawn} · shots {server.shots}`,
+			false
+		)
 		setLine(
 			"Spawning",
 			if server.paused

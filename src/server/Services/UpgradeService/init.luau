@@ -5,7 +5,7 @@
 -- queue up. Handles ChooseUpgrade and RequestReroll, picks the first card after Config.Run.levelUp.autoPickSeconds
 -- and applies the pick: weapons via WeaponService, passives as bonuses pushed to WeaponService, CombatService and
 -- ExperienceService, rewards as healing or Embers. Sends LevelUpOffer to the chooser and Passives to everyone.
--- Chests (WP9) and AdminService use getEvolutions, evolve and addPassive.
+-- Elite chests (LootService, WP9) call grantChest; AdminService uses getEvolutions, evolve and addPassive.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -302,6 +302,39 @@ function UpgradeService.evolve(player: Player, evolutionId: string): (boolean, s
 		return false, "NotEligible"
 	end
 	return WeaponService.evolve(player, Config.Evolutions[evolutionId].weapon, evolutionId)
+end
+
+-- Gives the player what an elite chest holds (DESIGN.md sections 6 and 8): an evolution they may take now, else one
+-- more level of a random owned weapon or passive, else healing. nil if they are not armed in the run.
+function UpgradeService.grantChest(player: Player): Types.ChestReward?
+	local state = states[player]
+	if not (state and WeaponService.isArmed(player)) then
+		return nil
+	end
+	for _, evolutionId in UpgradeService.getEvolutions(player) do
+		if UpgradeService.evolve(player, evolutionId) then
+			return { kind = "Evolution", itemId = evolutionId, level = 0 }
+		end
+	end
+	local ownedWeapons: { [string]: number } = {}
+	for _, weapon in WeaponService.getWeapons(player) do
+		ownedWeapons[weapon.id] = weapon.level
+	end
+	local card = UpgradePool.chestUpgrade(ownedWeapons, state.passives, Config.Player.maxItemLevel, function(): number
+		return rng:NextNumber()
+	end)
+	if card then
+		apply(player, state, card)
+		return { kind = card.kind, itemId = card.itemId, level = card.level }
+	end
+	apply(player, state, {
+		id = UpgradePool.cardId("Reward", "Heal"),
+		kind = "Reward",
+		itemId = "Heal",
+		level = 1,
+		isNew = false,
+	})
+	return { kind = "Reward", itemId = "Heal", level = 0 }
 end
 
 -- Queries ---------------------------------------------------------------------------

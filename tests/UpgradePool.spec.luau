@@ -204,3 +204,40 @@ describe("evolutions", function()
 		expect(table.concat(evolutionsFor(both, { Armor = 1, Focus = 2 }, max), ",")).toBe("BladeStorm,Starfire")
 	end)
 end)
+
+describe("chests", function()
+	local max = Config.Player.maxItemLevel
+
+	it("raises a random owned weapon or passive below max level by one", function()
+		local owned = { SparkBolt = 2, OrbitBlades = max }
+		local passives = { Armor = 1 }
+		local seen = {}
+		for _, roll in { 0, 0.49, 0.5, 0.99 } do
+			local card = UpgradePool.chestUpgrade(owned, passives, max, function()
+				return roll
+			end)
+			expect(card ~= nil).toBe(true)
+			if card then
+				seen[card.id] = card.level
+				expect(card.isNew).toBe(false)
+			end
+		end
+		expect(seen["Weapon:SparkBolt"]).toBe(3)
+		expect(seen["Passive:Armor"]).toBe(2)
+		expect(seen["Weapon:OrbitBlades"]).toBe(nil)
+		expect(UpgradePool.chestUpgrade({ SparkBolt = max }, { Armor = max }, max, function()
+			return 0.5
+		end)).toBe(nil)
+	end)
+
+	it("describes chest rewards", function()
+		local title, detail = UpgradeText.chestReward({ kind = "Evolution", itemId = "Starfire", level = 0 })
+		expect(title).toBe("Starfire")
+		expect(detail).toBe("Spark Bolt evolved!")
+		title, detail = UpgradeText.chestReward({ kind = "Weapon", itemId = "SparkBolt", level = 2 })
+		expect(title).toBe("Spark Bolt LV 2")
+		expect(detail).toBe("+1 bolt")
+		title = UpgradeText.chestReward({ kind = "Reward", itemId = "Heal", level = 0 })
+		expect(title).toBe("Heal")
+	end)
+end)
