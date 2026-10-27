@@ -43,7 +43,7 @@ local function canDash(): boolean
 		return false
 	end
 	local vitals = PlayerStateController.getLocal()
-	if vitals and vitals.choosing then
+	if vitals and vitals.choosing and Config.Run.levelUp.freezeWhileChoosing then
 		return false -- standing still while picking a level-up card
 	end
 	return not dashing and now() >= PlayerStateController.getDashReadyAt()

@@ -88,7 +88,7 @@ Sind alle gleichzeitig down, endet der Run sofort – Embers gibt es trotzdem f�
 Spieler steuern nur Bewegung und einen Dash; Angreifen, Zielen und Aufsammeln passiert automatisch.
 
 - **Mobile:** virtueller Stick links, Dash-Button rechts. **PC:** WASD + Leertaste. **Konsole:** linker Stick + A.
-- **Kamera:** feste Top-down-Kamera (etwa 60° schräg, fester Zoom). Bewusst nicht wie Megabonk (Third-Person hinter der Figur, drehbar): Waffen zielen automatisch, man soll die Traube rundherum sehen, und am Handy reicht ein Daumen (Entscheidung des Owners, Paket 4). Die Kamera steht südlich der Figur und schaut nach Norden, W/Stick nach oben läuft also immer bildschirm-aufwärts.
+- **Kamera:** feste Schräg-Kamera (etwa 50° Neigung, fester Zoom; seit dem Feedback nach Paket 9 flacher, vorher 60°). Bewusst nicht wie Megabonk (Third-Person hinter der Figur, drehbar): Waffen zielen automatisch, man soll die Traube rundherum sehen, und am Handy reicht ein Daumen (Entscheidung des Owners, Paket 4). Die Kamera steht südlich der Figur und schaut nach Norden, W/Stick nach oben läuft also immer bildschirm-aufwärts.
 - **Zielen:** jede Waffe hat eine feste Zielregel (nächster Gegner, zufälliger Gegner, um den Spieler herum).
 - **Charakter:** Roblox-R15-Avatar mit Klassen-Kostüm darüber (Abschnitt 14).
 
@@ -103,7 +103,7 @@ Spieler steuern nur Bewegung und einen Dash; Angreifen, Zielen und Aufsammeln pa
 | Schutz nach Treffer | 0,5 s | verhindert Sofort-Tod im Pulk |
 | Krit-Chance | 5 % | Krit = doppelter Schaden |
 
-Seit Paket 4 umgesetzt (Werte in `Config/Player.luau` und `Config/Camera.luau`): Kamera 60° Neigung, 70 Studs Abstand, Sichtfeld 40°, folgt weich. Springen ist aus; Leertaste, Gamepad-A und ein runder Dash-Knopf unten rechts lösen den Dash aus (am Handy größer). Der Dash schiebt die Figur in 0,15 s 12 Studs in Laufrichtung (im Stand in Blickrichtung); Wände und Ruinen stoppen ihn. Der Knopf zeigt den Cooldown als dunkle Füllung. Wer „down" ist, kann nicht laufen und nicht dashen. Klassenbonus auf HP wird beim Run-Start eingerechnet (Blade Warden 120 HP). Im HUD unten Mitte die eigene HP-Leiste (rot unter 30 %), kurzer roter Bildschirm-Blitz bei Treffern, HP der Mitspieler in der Team-Liste.
+Seit Paket 4 umgesetzt (Werte in `Config/Player.luau` und `Config/Camera.luau`): Kamera 50° Neigung (seit Feedback zu Paket 9, vorher 60°), 70 Studs Abstand, Sichtfeld 40°, folgt weich. Springen ist aus; Leertaste, Gamepad-A und ein runder Dash-Knopf unten rechts lösen den Dash aus (am Handy größer). Der Dash schiebt die Figur in 0,15 s 12 Studs in Laufrichtung (im Stand in Blickrichtung); Wände und Ruinen stoppen ihn. Der Knopf zeigt den Cooldown als dunkle Füllung. Wer „down" ist, kann nicht laufen und nicht dashen. Klassenbonus auf HP wird beim Run-Start eingerechnet (Blade Warden 120 HP). Im HUD unten Mitte die eigene HP-Leiste (rot unter 30 %), kurzer roter Bildschirm-Blitz bei Treffern, HP der Mitspieler in der Team-Liste.
 
 Alle Werte stehen in Config-Modulen, nicht im Code.
 
@@ -224,7 +224,7 @@ Ein Gegner-Typ ist im Snapshot ein Byte; Elites senden Typ + 128, so kennt der C
 ## 8. Koop-Regeln
 
 - **XP:** Jedes Orb zählt fürs ganze Team. XP-Bedarf pro Level × Spielerfaktor.
-- **Level-up ohne Pause:** jeder Spieler eigene 3 Karten; während der Wahl unverwundbar und bewegungslos, Waffen feuern weiter; nach 10 s wird die erste Karte automatisch gewählt.
+- **Level-up ohne Pause:** jeder Spieler eigene 3 Karten; während der Wahl kann man weiterlaufen und dashen und bleibt verwundbar (Owner-Wunsch nach Paket 9; Schalter `levelUp.freezeWhileChoosing`), Waffen feuern weiter; nach 10 s wird die erste Karte automatisch gewählt.
 - **Truhen:** Elite-Truhe gibt jedem Spieler im Umkreis von 20 Studs eine eigene Belohnung.
   Seit Paket 9: Die Truhe liegt, wo die Elite starb (goldene Kiste mit Lichtsäule, Pfeil am Bildschirmrand, wenn sie außer Sicht ist), und öffnet sich, sobald ein lebender Spieler auf 3,5 Studs heran ist. Jeder lebende Spieler im Umkreis bekommt: eine Evolution, wenn er eine nehmen darf; sonst +1 Level einer zufälligen eigenen Waffe oder eines Passivs, das noch nicht auf 5 ist; sonst 30 % Heilung. Dazu heilt die Truhe jeden Belohnten um 50 % seiner max. HP (neu, Annahme: ohne Heilung bringt jeder Spitter-Treffer bleibenden Schaden). Die eigene Belohnung erscheint groß in der Bildschirmmitte („CHEST – Starfire – Spark Bolt evolved!"). Truhen verschwinden am Run-Ende.
 - **Down & Wiederbeleben:** bei 0 HP „down" (30-s-Timer); Teammate steht 3 s daneben → Wiederbelebung mit 40 % HP. Timer abgelaufen → Zuschauer bis Run-Ende, Embers anteilig.
@@ -247,7 +247,7 @@ Solo: L1→2 = 7 XP, L10→11 = 53 XP, L30→31 = 205 XP; bis Level 35 zusammen 
 
 - Jeder getötete Gegner lässt ein XP-Orb mit seinem XP-Wert fallen. Lebende Teilnehmer sammeln alle Orbs im Aufsammelradius (8 Studs, Magnet mehr) sofort ein; das Orb fliegt sichtbar zum Sammler. Die XP gehen an ein gemeinsames Team-Level, der Bedarf rechnet mit den Teilnehmern, die gerade im Server sind. Spieler, die down sind, sammeln nichts.
 - Annahme: höchstens 300 Orbs gleichzeitig am Boden; darüber geht die XP eines neuen Orbs in das nächstgelegene (es wird größer und färbt sich: blau ab 1, grün ab 4, rot ab 20 XP). Orbs bleiben liegen, bis jemand sie holt, und verschwinden am Run-Ende.
-- Pro Team-Level bekommt jeder Teilnehmer, der nicht „Out" ist, eigene Karten. Mehrere Level-ups stauen sich, die nächste Wahl kommt direkt nach der vorigen („2 more waiting"). Während der Wahl steht der Spieler still, kann nicht dashen und ist unverwundbar; nach der letzten Wahl noch 0,5 s geschützt (Annahme), damit man aus der Traube kommt. Nach 10 s wird die erste Karte gewählt; ein Neuwurf gibt neue Karten, möglichst andere, und startet die 10 s neu.
+- Pro Team-Level bekommt jeder Teilnehmer, der nicht „Out" ist, eigene Karten. Mehrere Level-ups stauen sich, die nächste Wahl kommt direkt nach der vorigen („2 more waiting"). Seit dem Feedback nach Paket 9 läuft und dasht man während der Wahl weiter und kann getroffen werden (`levelUp.freezeWhileChoosing = false`); nur wenn der Schalter an ist, steht man still, ist unverwundbar und danach 0,5 s geschützt. Nach 10 s wird die erste Karte gewählt; ein Neuwurf gibt neue Karten, möglichst andere, und startet die 10 s neu.
 - Karten reagieren erst 0,4 s nach dem Erscheinen (Annahme), damit ein Daumen auf dem Stick nicht versehentlich wählt. Am PC auch Tasten 1/2/3.
 - Sind weniger Items übrig als Karten, füllen „Heal" und „Embers" auf. Die Embers werden pro Run gezählt (`UpgradeService.getBonusEmbers`) und mit Paket 13 ausgezahlt.
 - Evolutionen sind nie Karten, nur Truhen (Paket 9).
