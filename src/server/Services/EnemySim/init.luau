@@ -289,7 +289,7 @@ end
 local function sendSnapshot()
 	local count = 0
 	local ids, xs, zs, typeIds, hp, maxHp = world.ids, world.xs, world.zs, world.typeIds, world.hp, world.maxHp
-	local kinds, modes = world.kinds, world.modes
+	local kinds, modes, rushXs, rushZs = world.kinds, world.modes, world.rushXs, world.rushZs
 	for i = 1, world.count do
 		if hp[i] > 0 then
 			count += 1
@@ -298,7 +298,13 @@ local function sendSnapshot()
 			columns.zs[count] = zs[i]
 			columns.typeIds[count] = typeIds[i]
 			columns.hpFractions[count] = hp[i] / maxHp[i]
-			columns.flags[count] = Snapshot.packFlags(modes[i], kinds[i].affix or 0)
+			local charging = modes[i] ~= 0 -- the rush direction is fixed from the wind-up on
+			columns.flags[count] = Snapshot.packFlags(
+				modes[i],
+				kinds[i].affix or 0,
+				if charging then rushXs[i] else nil,
+				if charging then rushZs[i] else nil
+			)
 		end
 	end
 	local packets = Snapshot.encode(currentTick, columns, count)

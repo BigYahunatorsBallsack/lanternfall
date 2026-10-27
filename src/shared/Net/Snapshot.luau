@@ -7,7 +7,8 @@
 -- x/z are world positions multiplied by POSITION_SCALE (1/32 stud precision, range +-1024 studs).
 -- hp is the remaining HP fraction mapped to 1-255 for living enemies.
 -- flags: bits 0-1 the mode of a charger (EnemySim/World.MODE_*: walk, wind-up, rush, recover), bits 2-3 the
--- elite affix (0 = none, else index into Config.Enemies.elite.affixes), see packFlags.
+-- elite affix (0 = none, else index into Config.Enemies.elite.affixes), bits 4-7 the rush direction of a charger
+-- in 16 steps (0 = +X, growing towards +Z), see packFlags.
 -- UnreliableRemoteEvent payloads must stay below ~900 bytes, so one tick is split evenly into `partCount`
 -- packets of at most MAX_PER_PACKET enemies (`part` counts from 0). The client uses a tick only once all
 -- of its parts have arrived, so a lost packet skips that tick instead of making enemies vanish.
@@ -44,14 +45,20 @@ function Snapshot.newColumns(): Columns
 	return { ids = {}, xs = {}, zs = {}, typeIds = {}, hpFractions = {}, flags = {} }
 end
 
--- One flags byte from a mode (0-3) and an affix index (0-3).
-function Snapshot.packFlags(mode: number, affix: number): number
-	return mode % 4 + (affix % 4) * 4
+Snapshot.HEADINGS = 16 -- steps of the rush direction in the flags byte
+
+-- One flags byte from a mode (0-3), an affix index (0-3) and a rush direction (dx, dz; zero when not charging).
+function Snapshot.packFlags(mode: number, affix: number, dx: number?, dz: number?): number
+	local heading = 0
+	if dx and dz and (dx ~= 0 or dz ~= 0) then
+		heading = math.round(math.atan2(dz, dx) / (2 * math.pi) * Snapshot.HEADINGS) % Snapshot.HEADINGS
+	end
+	return mode % 4 + (affix % 4) * 4 + heading * 16
 end
 
--- Mode (0-3) and affix index (0-3) from a flags byte.
-function Snapshot.unpackFlags(flags: number): (number, number)
-	return flags % 4, (flags // 4) % 4
+-- Mode (0-3), affix index (0-3) and rush direction (radians from +X towards +Z) from a flags byte.
+function Snapshot.unpackFlags(flags: number): (number, number, number)
+	return flags % 4, (flags // 4) % 4, (flags // 16) * 2 * math.pi / Snapshot.HEADINGS
 end
 
 local function packPosition(value: number): number

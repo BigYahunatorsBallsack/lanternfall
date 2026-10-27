@@ -3,9 +3,9 @@
 -- are pooled per enemy type (EnemyRenderer/Models), positions are interpolated about 100 ms behind the
 -- newest tick and every part moves with one workspace:BulkMoveTo per frame. Models.pose animates the walk: the step
 -- cycle advances with the distance an enemy covers, so legs and bobbing match its speed. Hits flash the model
--- white; the snapshot flags show a charger's wind-up and rush and an elite's affix (Models.setMode, setAffix). An
--- enemy that drops out of the snapshots died: it leaves a glowing puff (DeathBursts), an elite also shakes the
--- camera. Big crowds switch the plain enemies to low detail (Models.setDetail, limits in
+-- white; the snapshot flags show a charger's wind-up and rush (it then faces its rush direction from the flags) and
+-- an elite's affix (Models.setMode, setAffix). An enemy that drops out of the snapshots died: it leaves a glowing
+-- puff (DeathBursts), an elite also shakes the camera. Big crowds switch the plain enemies to low detail (Models.setDetail, limits in
 -- Config.Feedback.enemyDetail). Active only while the local player is in a running run (RunStateController).
 -- DebugController reads getStats().
 
@@ -47,6 +47,7 @@ type Drawn = {
 local FOLDER_NAME = "LanternfallEnemies"
 local FLASH_SECONDS = 0.1
 local TURN_PER_SECOND = 12 -- how quickly models turn towards where they walk
+local CHARGE_TURN_PER_SECOND = 30 -- how quickly a winding-up charger turns towards its rush
 local MIN_TURN_MOVE = 0.05 -- studs between two ticks; slower enemies keep their facing
 local MOVE_SMOOTHING = 8 -- per second; how quickly the walk animation follows speed changes
 local MAX_STEP_STUDS = 4 -- per frame; longer jumps (an enemy moved to a new spawn point) do not count as walking
@@ -184,6 +185,7 @@ local function render(dt: number)
 	local count = 0
 	if before and after then
 		local turn = math.min(1, TURN_PER_SECOND * dt)
+		local chargeTurn = math.min(1, CHARGE_TURN_PER_SECOND * dt)
 		local interpolate = before ~= after
 		updateDetail(after.count)
 		for i = 1, after.count do
@@ -200,12 +202,17 @@ local function render(dt: number)
 			end
 			local current = entry :: Drawn
 
+			local mode, affix, heading = Snapshot.unpackFlags(after.flags[i])
+			if mode ~= 0 then
+				-- a charger from the wind-up on faces where it rushes, not where neighbours push it
+				current.yaw = turnTowards(current.yaw, math.atan2(-math.cos(heading), -math.sin(heading)), chargeTurn)
+			end
 			local x, z = after.xs[i], after.zs[i]
 			local previous = if interpolate then before.indexOf[id] else nil
 			if previous then
 				local fromX, fromZ = before.xs[previous], before.zs[previous]
 				local dx, dz = x - fromX, z - fromZ
-				if dx * dx + dz * dz > MIN_TURN_MOVE * MIN_TURN_MOVE then
+				if mode == 0 and dx * dx + dz * dz > MIN_TURN_MOVE * MIN_TURN_MOVE then
 					-- a CFrame looks along -Z, so yaw = atan2(-dx, -dz) faces the walking direction
 					current.yaw = turnTowards(current.yaw, math.atan2(-dx, -dz), turn)
 				end
@@ -213,7 +220,6 @@ local function render(dt: number)
 			end
 
 			local visual = current.visual
-			local mode, affix = Snapshot.unpackFlags(after.flags[i])
 			Models.setAffix(visual, affix)
 			Models.setMode(visual, mode)
 			Models.setDetail(visual, lowDetail and visual.hpBar == nil) -- elites keep every detail

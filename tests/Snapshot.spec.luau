@@ -90,6 +90,20 @@ describe("Snapshot", function()
 		expect(decoded.xs[1]).toBeNear(Snapshot.MAX_COORDINATE, 1 / 32)
 	end)
 
+	it("packs a charger's mode, an elite's affix and the rush direction into one byte", function()
+		for _, angle in { 0, 0.4, 2, -1.2, 3.1 } do
+			local flags = Snapshot.packFlags(2, 3, math.cos(angle), math.sin(angle))
+			expect(flags >= 0 and flags <= 255).toBe(true)
+			local mode, affix, heading = Snapshot.unpackFlags(flags)
+			expect(mode).toBe(2)
+			expect(affix).toBe(3)
+			local error = math.abs(math.atan2(math.sin(heading - angle), math.cos(heading - angle)))
+			expect(error <= math.pi / Snapshot.HEADINGS + 1e-6).toBe(true) -- half a step at most
+		end
+		local _, _, none = Snapshot.unpackFlags(Snapshot.packFlags(0, 1))
+		expect(none).toBe(0)
+	end)
+
 	it("rejects malformed packets", function()
 		expect(Snapshot.readHeader(buffer.create(3))).toBe(nil)
 		local packet = Snapshot.encode(1, columnsOf(3), 3)[1]
