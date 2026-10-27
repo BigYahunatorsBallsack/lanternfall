@@ -88,6 +88,38 @@ function ConfigCheck.run(): { string }
 		if not (enemy.hp > 0 and enemy.radius > 0 and enemy.mass > 0 and enemy.speed >= 0) then
 			problem(`Enemy {id} needs hp, radius and mass above 0 and a speed of at least 0`)
 		end
+		if enemy.look and not Config.Enemies.types[enemy.look] then
+			problem(`Enemy {id} looks like unknown enemy {enemy.look}`)
+		end
+		local split = enemy.split
+		if split and not (Config.Enemies.types[split.enemy] and split.enemy ~= id and split.count >= 1) then
+			problem(`Enemy {id} must split into at least 1 of another known enemy`)
+		end
+		local charge = enemy.charge
+		if
+			charge
+			and not (
+				charge.triggerRange > 0
+				and charge.windupSeconds > 0
+				and charge.speed > 0
+				and charge.maxDistance > 0
+				and charge.recoverSeconds >= 0
+				and charge.cooldownSeconds >= 0
+			)
+		then
+			problem(`Enemy {id} needs positive charge values`)
+		end
+	end
+
+	local affixes = Config.Enemies.elite.affixes
+	if #affixes > 3 then
+		problem("Enemies.elite.affixes can have at most 3 entries (2 bits in the snapshot flags)")
+	end
+	for index, affix in affixes do
+		local summon = affix.summon
+		if summon and not (Config.Enemies.types[summon.enemy] and summon.count >= 1 and summon.intervalSeconds > 0) then
+			problem(`Enemies.elite.affixes[{index}] summons an unknown enemy or with bad numbers`)
+		end
 	end
 
 	if Config.Enemies.boss.typeId >= Config.Enemies.elite.typeIdOffset then
@@ -122,6 +154,31 @@ function ConfigCheck.run(): { string }
 		end
 		if math.abs(sum - 1) > 1e-6 then
 			problem(`Spawn mix at minute {step.fromMinute} sums to {sum}, expected 1`)
+		end
+	end
+
+	local spawn = Config.Run.spawn
+	for name, curve in { rateCurve = spawn.rateCurve, hpCurve = spawn.hpCurve, damageCurve = spawn.damageCurve } do
+		if #curve == 0 or curve[1][1] ~= 0 then
+			problem(`Run.spawn.{name} must start at minute 0`)
+		end
+		for k, point in curve do
+			if not (point[2] > 0) or (k > 1 and point[1] <= curve[k - 1][1]) then
+				problem(`Run.spawn.{name} needs values above 0 at rising minutes`)
+				break
+			end
+		end
+	end
+	local waves = spawn.waves
+	if not (waves.lengthSeconds > 0 and waves.breatherSeconds >= 0 and waves.breatherSeconds < waves.lengthSeconds) then
+		problem("Run.spawn.waves needs a length above 0 and a breather shorter than it")
+	end
+	if not (waves.rampFrom >= 0 and waves.rampTo >= 0 and waves.breatherRate >= 0 and waves.finalRate > 0) then
+		problem("Run.spawn.waves rates must not be negative")
+	end
+	for _, entry in spawn.elites.waves do
+		if entry.count < 1 then
+			problem(`Run.spawn.elites at minute {entry.atMinute} needs a count of at least 1`)
 		end
 	end
 

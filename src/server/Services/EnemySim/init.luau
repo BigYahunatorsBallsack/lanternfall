@@ -2,8 +2,10 @@
 -- Runs the enemy World (EnemySim/World) at Config.Simulation.tickRate while a run is active and sends a
 -- snapshot of every tick to the run's participants (Net/Snapshot). SpawnDirector spawns, WeaponService and
 -- AdminService query, damage and push. Spitter shots (WP9) fly in EnemySim/Volleys and go to the participants as
--- EnemyShots. Signals: EnemyKilled for XP and loot (WP6, WP9), Contact and ShotHit for player damage (WP4, WP9),
--- Stepped for the weapons (WP5). Enemies and shots are cleared when a run starts and ends.
+-- EnemyShots. Splitters fall apart into smaller enemies when killed and Summoning elites call enemies around
+-- themselves (both keep the parent's minute and difficulty multipliers). Signals: EnemyKilled for XP and loot (WP6,
+-- WP9), Contact and ShotHit for player damage (WP4, WP9), Stepped for the weapons (WP5). Enemies and shots are
+-- cleared when a run starts and ends.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
@@ -41,6 +43,7 @@ export type Stats = {
 local Sim = Config.Simulation
 local STEP_SECONDS = 1 / Sim.tickRate
 local STATS_WINDOW_SECONDS = 1
+local KILL_ALL_PASSES = 4 -- killAll repeats for what killed enemies fall apart into
 
 local EnemySim = {}
 
@@ -89,6 +92,7 @@ local volleys = (function()
 	})
 end)()
 local floorY = Config.Map.arena.center.Y
+local rng = Random.new()
 local currentTick = 0
 local accumulator = 0
 
@@ -195,6 +199,45 @@ local function fireShots(stepNow: number)
 	end
 end
 
+-- Spawns `count` enemies of `enemyId` evenly around (x, z) at `spread` studs with the given multipliers (World step
+-- 4 pushes them out of obstacles). They may go above the alive cap, up to the hard cap.
+local function spawnAround(
+	enemyId: string,
+	x: number,
+	z: number,
+	count: number,
+	spread: number,
+	hpMultiplier: number,
+	damageMultiplier: number
+)
+	local turn = rng:NextNumber() * 2 * math.pi
+	for k = 1, count do
+		local angle = turn + (k - 1) / count * 2 * math.pi
+		EnemySim.spawn(
+			enemyId,
+			x + math.cos(angle) * spread,
+			z + math.sin(angle) * spread,
+			hpMultiplier,
+			damageMultiplier
+		)
+	end
+end
+
+-- Summoners the last step reported call their enemies around themselves.
+local function callSummons()
+	local summons = world.summons
+	for s = 1, world.summonCount do
+		local id = summons[s]
+		local kind = world:getKind(id)
+		local summon = kind and kind.summon
+		local x, z = world:getPosition(id)
+		if kind and summon and x and z then
+			local hpMultiplier, damageMultiplier = world:getMultipliers(id)
+			spawnAround(summon.enemy, x, z, summon.count, kind.radius + 2, hpMultiplier, damageMultiplier)
+		end
+	end
+end
+
 local function stepOnce()
 	local startedAt = os.clock()
 	collectTargets()
@@ -207,6 +250,7 @@ local function stepOnce()
 		table.insert(endedShots, ended[k])
 	end
 	fireShots(stepNow)
+	callSummons()
 	EnemySim.Stepped:Fire(STEP_SECONDS, stepNow)
 	local seconds = os.clock() - startedAt
 	window.steps += 1
@@ -245,6 +289,7 @@ end
 local function sendSnapshot()
 	local count = 0
 	local ids, xs, zs, typeIds, hp, maxHp = world.ids, world.xs, world.zs, world.typeIds, world.hp, world.maxHp
+	local kinds, modes = world.kinds, world.modes
 	for i = 1, world.count do
 		if hp[i] > 0 then
 			count += 1
@@ -253,6 +298,7 @@ local function sendSnapshot()
 			columns.zs[count] = zs[i]
 			columns.typeIds[count] = typeIds[i]
 			columns.hpFractions[count] = hp[i] / maxHp[i]
+			columns.flags[count] = Snapshot.packFlags(modes[i], kinds[i].affix or 0)
 		end
 	end
 	local packets = Snapshot.encode(currentTick, columns, count)
@@ -330,32 +376,40 @@ end
 
 -- Commands --------------------------------------------------------------------------
 
--- Spawns an enemy of Config.Enemies.types[enemyId] (its Gloom Elite variant if `elite`, Util/EnemyKinds) at world
--- x/z. HP, contact and projectile damage are the kind's values times the multipliers (minute and difficulty, see
--- SpawnDirector). Returns the new id, or nil when the hard cap (Config.Run.spawn.cap.max) is reached.
+-- Spawns an enemy of Config.Enemies.types[enemyId] (its Gloom Elite variant if `elite`, with `affix` an index into
+-- Config.Enemies.elite.affixes; Util/EnemyKinds) at world x/z. HP, contact and projectile damage are the kind's
+-- values times the multipliers (minute and difficulty, see SpawnDirector). Returns the new id, or nil when the hard
+-- cap (Config.Run.spawn.cap.max) is reached.
 function EnemySim.spawn(
 	enemyId: string,
 	x: number,
 	z: number,
 	hpMultiplier: number,
 	damageMultiplier: number,
-	elite: boolean?
+	elite: boolean?,
+	affix: number?
 ): number?
-	local kind = EnemyKinds.get(enemyId, elite)
+	local kind = EnemyKinds.get(enemyId, elite, affix)
 	assert(kind, `Unknown enemy {enemyId}`)
 	local shotDamage = if kind.ranged then kind.ranged.projectileDamage * damageMultiplier else nil
 	return world:spawn(kind, x, z, kind.hp * hpMultiplier, kind.contactDamage * damageMultiplier, shotDamage)
 end
 
--- Deals damage to one enemy. Returns true if this hit killed it (and fires EnemyKilled), and the HP it took.
-function EnemySim.damage(id: number, amount: number, source: Player?): (boolean, number)
-	local killed, dealt = world:damage(id, amount)
+-- Deals damage to one enemy. Returns true if this hit killed it (and fires EnemyKilled), the HP it took and the
+-- damage after the enemy's own damageTaken multiplier (for damage numbers). A killed Splitter falls apart.
+function EnemySim.damage(id: number, amount: number, source: Player?): (boolean, number, number)
+	local killed, dealt, applied = world:damage(id, amount)
 	if not killed then
-		return false, dealt
+		return false, dealt, applied
 	end
 	local kind = world:getKind(id)
 	local x, z = world:getPosition(id)
 	if kind and x and z then
+		local split = kind.split
+		if split then
+			local hpMultiplier, damageMultiplier = world:getMultipliers(id)
+			spawnAround(split.enemy, x, z, split.count, split.spread, hpMultiplier, damageMultiplier)
+		end
 		EnemySim.EnemyKilled:Fire({
 			id = id,
 			enemyId = kind.id,
@@ -366,7 +420,7 @@ function EnemySim.damage(id: number, amount: number, source: Player?): (boolean,
 			killer = source,
 		} :: KillInfo)
 	end
-	return true, dealt
+	return true, dealt, applied
 end
 
 -- Pushes a living enemy along the floor by `offset` (x/z), less the heavier it is (knockback).
@@ -379,13 +433,19 @@ function EnemySim.teleport(id: number, position: Vector3)
 	world:teleport(id, position.X, position.Z)
 end
 
--- Kills every enemy (fires EnemyKilled for each). Returns how many died.
+-- Kills every enemy (fires EnemyKilled for each), also what Splitters fall apart into. Returns how many died.
 function EnemySim.killAll(source: Player?): number
-	local ids = table.clone(world.ids)
 	local killed = 0
-	for _, id in ids do
-		if EnemySim.damage(id, math.huge, source) then
-			killed += 1
+	local ids: { number } = {}
+	for _ = 1, KILL_ALL_PASSES do
+		local count = EnemySim.collectIds(ids)
+		if count == 0 then
+			break
+		end
+		for i = 1, count do
+			if EnemySim.damage(ids[i], math.huge, source) then
+				killed += 1
+			end
 		end
 	end
 	return killed
@@ -436,6 +496,11 @@ function EnemySim.getKind(id: number): (string?, boolean)
 		return nil, false
 	end
 	return kind.id, kind.elite == true
+end
+
+-- Mode of a living enemy (EnemySim/World.MODE_*: walk, wind-up, rush, recover) and its rush direction x/z.
+function EnemySim.getMode(id: number): (number, number, number)
+	return world:getMode(id)
 end
 
 function EnemySim.isAlive(id: number): boolean
