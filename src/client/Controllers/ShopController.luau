@@ -2,8 +2,9 @@
 -- Shards and the shop between waves (DESIGN.md sections 3 and 13, Brotato direction since B1). A small Shards counter
 -- next to the timer during the whole run. Between waves an opaque backdrop hides the arena (below the HUD, so the
 -- timer, build and team stay visible) with "WAVE n CLEARED"; once the level-up cards are done (LevelUpController), the
--- shop panel: up to four offers (name, effect, "NEW"/"LV 3", price), a reroll with its price and READY. Everything comes
--- from the server's ShopState (ShopService); sends BuyShopOffer, RerollShop and SetShopReady.
+-- shop panel: up to four offers (weapons: name, effect, "NEW"/"LV 3"; items: name, stat lines in green and red,
+-- rarity in its color; price), a reroll with its price and READY. Everything comes from the server's ShopState
+-- (ShopService); sends BuyShopOffer, RerollShop and SetShopReady. The stats sit next to it (StatsController).
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
@@ -19,14 +20,11 @@ local RunStateController = require(script.Parent.RunStateController)
 local Theme = require(script.Parent.Parent.UI.Theme)
 local Widgets = require(script.Parent.Parent.UI.Widgets)
 
-local CARD_SIZE = Vector2.new(180, 200)
+local CARD_SIZE = Vector2.new(180, 236)
 local CARD_GAP = 12
 local SHARDS_COLOR = Color3.fromRGB(120, 230, 210) -- teal: Shards, not XP and not Embers
 local BACKDROP_COLOR = Color3.fromRGB(12, 9, 20) -- the screen between waves, darker than the panels
-local KIND_COLOR: { [string]: Color3 } = {
-	Weapon = Theme.accent,
-	Passive = Theme.success,
-}
+local STAT_COLORS = { plus = Theme.success, minus = Theme.danger }
 
 local ShopController = {}
 
@@ -120,9 +118,11 @@ local function buildCard(index: number): CardView
 	})
 	local detail = Widgets.label({
 		Name = "Detail",
-		TextSize = 16,
+		TextSize = 15,
 		TextColor3 = Theme.textDim,
-		Size = UDim2.new(1, 0, 0, 52),
+		RichText = true,
+		TextYAlignment = Enum.TextYAlignment.Top,
+		Size = UDim2.new(1, 0, 0, 92),
 		LayoutOrder = 3,
 		Parent = button,
 	})
@@ -142,16 +142,11 @@ local function renderCards(current: Types.ShopState)
 		local offer = current.offers[index]
 		view.button.Visible = offer ~= nil
 		if offer then
-			local title, detail, badge = UpgradeText.describe({
-				id = offer.id,
-				kind = offer.kind,
-				itemId = offer.itemId,
-				level = offer.level,
-				isNew = offer.isNew,
-			})
-			local color = KIND_COLOR[offer.kind] or Theme.accent
+			local title, detail, badge = UpgradeText.offer(offer, STAT_COLORS)
+			local color = if offer.kind == "Weapon" then Theme.accent else Theme.tiers[offer.tier] or Theme.accent
 			local affordable = current.shards >= offer.price
-			view.badge.Text = if offer.sold then "SOLD" else badge
+			view.badge.Text = if offer.sold then "SOLD" else string.upper(badge)
+			view.badge.TextColor3 = color
 			view.name.Text = title
 			view.detail.Text = detail
 			view.price.Text = if offer.sold then "" else `{offer.price} Shards`

@@ -1,24 +1,33 @@
 --!strict
--- Effective weapon stats (DESIGN.md section 6): the level 1 values from Config.Weapons, the level deltas up to the
--- current level, an evolution's overrides and the owner's bonuses (class now, passives and talents later). Pure and
--- unit tested; used by WeaponService/Arsenal whenever a weapon is added, levelled or evolved, or bonuses change.
+-- Effective weapon stats (DESIGN.md sections 4 and 6): the level 1 values from Config.Weapons, the level deltas up to
+-- the current level, an evolution's overrides and the owner's stats (Config.Stats since B2, Brotato's rules):
+--   damage   = max(1, (levelled damage + sum of scaling * damage stat) * (1 + Damage / 100))
+--   timing   = cooldowns and hit intervals times StatMath.cooldownFactor(Attack Speed), never below minCooldown;
+--              spinning weapons turn faster by the same factor
+--   reach    = rangeKeys + Range * studsPerPoint (melee weapons meleeFactor of it), never below minStuds
+--   critChance and lifeSteal as chances per hit (Arsenal rolls them)
+-- Pure and unit tested; used by WeaponService/Arsenal whenever a weapon is added, levelled or evolved, or stats change.
 
 local Shared = game:GetService("ReplicatedStorage").Shared
 local Evolutions = require(Shared.Config.Evolutions)
+local Player = require(Shared.Config.Player)
+local Stats = require(Shared.Config.Stats)
 local Weapons = require(Shared.Config.Weapons)
+local StatMath = require(Shared.Util.StatMath)
 
--- Summed bonus fractions by stat name, the same names as Config.Passives and class bonuses
--- (e.g. { cooldown = -0.1, damage = 0.2, area = 0.15 }). Stats a weapon does not use are ignored.
+-- The owner's stats by id (Util/StatMath.Sheet); missing stats count as 0.
 export type Bonuses = { [string]: number }
 
 export type Stats = { [string]: number }
 
 local WeaponStats = {}
 
--- Weapon stats that grow with the owner's "area" bonus.
-local AREA_STATS = { "radius", "explosionRadius" }
+-- Seconds between attacks or hits: shorter with Attack Speed.
+local TIME_STATS = { "cooldown", "tickInterval", "hitCooldownPerEnemy" }
+-- Turning speeds: faster with Attack Speed.
+local RATE_STATS = { "rotationSpeed" }
 
--- `minCooldown` keeps cooldown bonuses from making a weapon fire absurdly fast (Config.Player.minWeaponCooldown).
+-- `minCooldown` keeps Attack Speed from making a weapon fire absurdly fast (Config.Player.minWeaponCooldown).
 function WeaponStats.compute(
 	weapon: Weapons.Weapon,
 	level: number,
@@ -49,16 +58,33 @@ function WeaponStats.compute(
 		end
 	end
 
-	stats.damage = damage * math.max(0, 1 + (bonuses.damage or 0))
-	if stats.cooldown then
-		stats.cooldown = math.max(minCooldown, stats.cooldown * math.max(0, 1 + (bonuses.cooldown or 0)))
+	for statId, share in weapon.scaling do
+		damage += share * (bonuses[statId] or 0)
 	end
-	local area = math.max(0, 1 + (bonuses.area or 0))
-	for _, key in AREA_STATS do
+	stats.damage = math.max(1, damage * math.max(0, 1 + (bonuses.damage or 0) / 100))
+
+	local timing = StatMath.cooldownFactor(bonuses.attackSpeed or 0)
+	for _, key in TIME_STATS do
 		if stats[key] then
-			stats[key] *= area
+			stats[key] = math.max(minCooldown, stats[key] * timing)
 		end
 	end
+	for _, key in RATE_STATS do
+		if stats[key] then
+			stats[key] /= timing
+		end
+	end
+
+	local rule = Stats.range
+	local reach = (bonuses.range or 0) * rule.studsPerPoint * (if weapon.class == "Melee" then rule.meleeFactor else 1)
+	for _, key in weapon.rangeKeys do
+		if stats[key] then
+			stats[key] = math.max(rule.minStuds, stats[key] + reach)
+		end
+	end
+
+	stats.critChance = StatMath.critChance(Player.critChance, bonuses.critChance or 0)
+	stats.lifeSteal = math.clamp((bonuses.lifeSteal or 0) / 100, 0, 1)
 	return stats
 end
 

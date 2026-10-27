@@ -1,12 +1,12 @@
 --!strict
--- Level-up cards and passives (DESIGN.md sections 6, 8 and 9). Every time the team levels up (ExperienceService
--- .LevelGained), each participant who is not out gets one more choice of their own cards (rolled by
--- UpgradeService/UpgradePool). Since B1 (Brotato direction) the choices wait until the wave ends and open one after
--- another in the shop phase; whatever is still open when the next wave starts is picked automatically. Handles ChooseUpgrade and RequestReroll, picks the first card after Config.Run.levelUp.autoPickSeconds
--- and applies the pick: weapons via WeaponService, passives as bonuses pushed to WeaponService, CombatService and
--- ExperienceService, rewards as healing or Embers. Sends LevelUpOffer to the chooser and Passives to everyone.
--- Elite chests (LootService, WP9) call grantChest, the shop (ShopService, B1) grantItem; AdminService uses
--- getEvolutions, evolve and addPassive.
+-- Level-up cards (DESIGN.md sections 8 and 9, Brotato direction since B2). Every time the team levels up
+-- (ExperienceService.LevelGained), each participant who is not out gets one more choice of their own stat cards
+-- (rolled by UpgradeService/UpgradePool with their Luck). The choices wait until the wave ends and open one after
+-- another in the shop phase; whatever is still open when the next wave starts is picked automatically. Handles
+-- ChooseUpgrade and RequestReroll (new cards for Shards at the shop's reroll prices, paid through ShopService), picks
+-- the first card after Config.Run.levelUp.autoPickSeconds and adds the picked stat through StatService. Sends
+-- LevelUpOffer to the chooser. Elite chests (LootService) call grantChest: an evolution or an item; AdminService uses
+-- getEvolutions and evolve.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -15,70 +15,41 @@ local RunService = game:GetService("RunService")
 local Shared = ReplicatedStorage.Shared
 local Config = require(Shared.Config)
 local Net = require(Shared.Net)
-local Signal = require(Shared.Util.Signal)
 local Types = require(Shared.Net.Types)
 
 local CombatService = require(script.Parent.CombatService)
 local ExperienceService = require(script.Parent.ExperienceService)
 local RunDirector = require(script.Parent.RunDirector)
+local ShopService = require(script.Parent.ShopService)
+local StatService = require(script.Parent.StatService)
 local WeaponService = require(script.Parent.WeaponService)
+local ShopRules = require(script.Parent.ShopService.ShopRules)
 local UpgradePool = require(script.UpgradePool)
 
 local LevelUp = Config.Run.levelUp
-local REWARDS = { "Heal", "Embers" }
 
-type Offer = { cards: { Types.UpgradeCard }, expiresAt: number }
+type Offer = { cards: { Types.UpgradeCard }, expiresAt: number, rerolls: number }
 
 type State = {
-	passives: { [string]: number }, -- id -> level
-	passiveOrder: { string }, -- in the order they were taken, for the HUD
 	levels: { number }, -- team levels still to choose for; the first one is open while `offer` is set
 	offer: Offer?,
-	rerolls: number,
-	bonusEmbers: number, -- from maxed-out rewards in this run; paid out with WP13
 }
 
 local UpgradeService = {}
 
--- (player: Player): a level-up card was applied (ShopService refreshes its offers)
-UpgradeService.Picked = Signal.new()
-
 local states: { [Player]: State } = {}
-local passiveIds: { string } = {}
-for id in Config.Passives do
-	table.insert(passiveIds, id)
-end
-table.sort(passiveIds)
 local rng = Random.new()
 
 local function now(): number
 	return workspace:GetServerTimeNow()
 end
 
-local function newState(): State
-	return {
-		passives = {},
-		passiveOrder = {},
-		levels = {},
-		offer = nil,
-		rerolls = LevelUp.freeRerollsPerRun,
-		bonusEmbers = 0,
-	}
+local function random(): number
+	return rng:NextNumber()
 end
 
-local function passiveLoadout(player: Player): Types.PassiveLoadout
-	local list: { Types.PassiveInfo } = {}
-	local state = states[player]
-	if state then
-		for _, id in state.passiveOrder do
-			table.insert(list, { id = id, level = state.passives[id] })
-		end
-	end
-	return { userId = player.UserId, passives = list }
-end
-
-local function sendPassives(player: Player)
-	Net.fireAllClients("Passives", passiveLoadout(player))
+local function rerollPrice(offer: Offer?): number
+	return ShopRules.rerollPrice(RunDirector.getWave(), if offer then offer.rerolls else 0)
 end
 
 local function sendOffer(player: Player, state: State)
@@ -88,32 +59,19 @@ local function sendOffer(player: Player, state: State)
 		level = state.levels[1] or 0,
 		cards = if offer then offer.cards else {},
 		expiresAt = if offer then offer.expiresAt else 0,
-		rerolls = state.rerolls,
+		rerollPrice = rerollPrice(offer),
 		pending = if offer then math.max(0, #state.levels - 1) else #state.levels,
 	}
 	Net.fireClient("LevelUpOffer", player, payload)
 end
 
 local function roll(player: Player, state: State, avoid: { [string]: boolean }?): { Types.UpgradeCard }
-	local ownedWeapons: { [string]: number } = {}
-	for _, weapon in WeaponService.getWeapons(player) do
-		ownedWeapons[weapon.id] = weapon.level
-	end
 	return UpgradePool.roll({
-		weapons = WeaponService.getImplemented(),
-		passives = passiveIds,
-		ownedWeapons = ownedWeapons,
-		ownedPassives = state.passives,
-		maxWeapons = Config.Player.maxWeapons,
-		maxPassives = Config.Player.maxPassives,
-		maxLevel = Config.Player.maxItemLevel,
+		level = state.levels[1] or 1,
+		luck = StatService.getStat(player, "luck"),
 		cardCount = LevelUp.cardCount,
-		ownedWeight = LevelUp.ownedItemWeight,
-		rewards = REWARDS,
 		avoid = avoid,
-		random = function(): number
-			return rng:NextNumber()
-		end,
+		random = random,
 	})
 end
 
@@ -122,7 +80,7 @@ local function openNext(player: Player, state: State)
 		state.offer = nil
 		CombatService.setChoosing(player, false)
 	else
-		state.offer = { cards = roll(player, state, nil), expiresAt = now() + LevelUp.autoPickSeconds }
+		state.offer = { cards = roll(player, state, nil), expiresAt = now() + LevelUp.autoPickSeconds, rerolls = 0 }
 		CombatService.setChoosing(player, true)
 	end
 	sendOffer(player, state)
@@ -132,41 +90,6 @@ local function closeAll(state: State, player: Player)
 	table.clear(state.levels)
 	if state.offer then
 		openNext(player, state)
-	end
-end
-
-local function pushBonuses(player: Player, state: State)
-	local bonuses = UpgradePool.passiveBonuses(state.passives)
-	WeaponService.setBonuses(player, bonuses)
-	CombatService.setBonuses(player, bonuses)
-	ExperienceService.setBonuses(player, bonuses)
-end
-
-local function apply(player: Player, state: State, card: Types.UpgradeCard)
-	if card.kind == "Weapon" then
-		local ok, reason
-		if card.isNew then
-			ok, reason = WeaponService.addWeapon(player, card.itemId)
-		else
-			ok, reason = WeaponService.levelUp(player, card.itemId)
-		end
-		if not ok then -- e.g. a debug button changed the weapons while the cards were open
-			warn(`[Lanternfall] Card {card.id} for {player.Name} did nothing: {reason}`)
-		end
-	elseif card.kind == "Passive" then
-		local level = state.passives[card.itemId]
-		if not level then
-			table.insert(state.passiveOrder, card.itemId)
-		end
-		state.passives[card.itemId] = math.min((level or 0) + 1, Config.Player.maxItemLevel)
-		pushBonuses(player, state)
-		sendPassives(player)
-	elseif card.itemId == "Heal" then
-		local _, maxHp = CombatService.getHp(player)
-		CombatService.healPlayer(player, maxHp * LevelUp.maxedOutRewards.healFraction)
-	elseif card.itemId == "Embers" then
-		state.bonusEmbers += LevelUp.maxedOutRewards.embers
-		Net.fireClient("Notify", player, `+{LevelUp.maxedOutRewards.embers} Embers`)
 	end
 end
 
@@ -180,9 +103,8 @@ local function choose(player: Player, cardId: string): boolean
 		if card.id == cardId then
 			table.remove(state.levels, 1)
 			state.offer = nil
-			apply(player, state, card)
+			StatService.addUpgrade(player, card.stat, card.amount)
 			openNext(player, state)
-			UpgradeService.Picked:Fire(player)
 			return true
 		end
 	end
@@ -197,6 +119,29 @@ local function pickAll(player: Player, state: State)
 		choose(player, state.offer.cards[1].id)
 	end
 	table.clear(state.levels)
+	sendOffer(player, state)
+end
+
+local function reroll(player: Player)
+	local state = states[player]
+	local offer = state and state.offer
+	if not (state and offer) then
+		return
+	end
+	if not ShopService.spendShards(player, rerollPrice(offer)) then
+		Net.fireClient("Notify", player, "Not enough Shards")
+		sendOffer(player, state) -- the client waits for an answer
+		return
+	end
+	local avoid: { [string]: boolean } = {}
+	for _, card in offer.cards do
+		avoid[card.stat] = true
+	end
+	state.offer = {
+		cards = roll(player, state, avoid),
+		expiresAt = now() + LevelUp.autoPickSeconds,
+		rerolls = offer.rerolls + 1,
+	}
 	sendOffer(player, state)
 end
 
@@ -217,11 +162,8 @@ end
 
 local function onRunStarted(participants: { Player })
 	table.clear(states)
-	for _, player in Players:GetPlayers() do
-		if table.find(participants, player) then
-			states[player] = newState()
-		end
-		sendPassives(player) -- empties the passives of players who sat this run out
+	for _, player in participants do
+		states[player] = { levels = {}, offer = nil }
 	end
 end
 
@@ -233,6 +175,14 @@ local function autoPick()
 			choose(player, offer.cards[1].id)
 		end
 	end
+end
+
+local function ownedWeapons(player: Player): { [string]: { level: number, evolution: string? } }
+	local owned: { [string]: { level: number, evolution: string? } } = {}
+	for _, weapon in WeaponService.getWeapons(player) do
+		owned[weapon.id] = { level = weapon.level, evolution = weapon.evolution }
+	end
+	return owned
 end
 
 -- Lifecycle -------------------------------------------------------------------------
@@ -265,12 +215,8 @@ function UpgradeService.init()
 	end)
 	Players.PlayerRemoving:Connect(function(player)
 		states[player] = nil
-		Net.fireAllClients("Passives", { userId = player.UserId, passives = {} } :: Types.PassiveLoadout)
 	end)
 	RunDirector.SyncRequested:Connect(function(requester)
-		for _, player in Players:GetPlayers() do
-			Net.fireClient("Passives", requester, passiveLoadout(player))
-		end
 		local state = states[requester]
 		if state and state.offer then
 			sendOffer(requester, state)
@@ -280,66 +226,12 @@ function UpgradeService.init()
 	Net.onServer("ChooseUpgrade", function(player, cardId: string)
 		choose(player, cardId) -- ids the server did not offer are ignored
 	end)
-	Net.onServer("RequestReroll", function(player)
-		local state = states[player]
-		local offer = state and state.offer
-		if not (state and offer) or state.rerolls <= 0 then
-			return
-		end
-		local avoid: { [string]: boolean } = {}
-		for _, card in offer.cards do
-			avoid[card.id] = true
-		end
-		state.rerolls -= 1
-		state.offer = { cards = roll(player, state, avoid), expiresAt = now() + LevelUp.autoPickSeconds }
-		sendOffer(player, state)
-	end)
+	Net.onServer("RequestReroll", reroll)
 
 	RunService.Heartbeat:Connect(autoPick)
 end
 
 -- Commands --------------------------------------------------------------------------
-
--- Gives the player a passive at level 1, or one level more if they have it (chests, debug buttons). False if they
--- are not in the run, their passive slots are full or it is at max level.
-function UpgradeService.addPassive(player: Player, passiveId: string): boolean
-	local state = states[player]
-	if not (state and Config.Passives[passiveId] and WeaponService.isArmed(player)) then
-		return false
-	end
-	local level = state.passives[passiveId]
-	if level and level >= Config.Player.maxItemLevel then
-		return false
-	end
-	if not level and #state.passiveOrder >= Config.Player.maxPassives then
-		return false
-	end
-	apply(player, state, {
-		id = UpgradePool.cardId("Passive", passiveId),
-		kind = "Passive",
-		itemId = passiveId,
-		level = (level or 0) + 1,
-		isNew = level == nil,
-	})
-	return true
-end
-
--- Gives the player a weapon or passive (ShopService): new at level 1 or one level more if they own it. False if they
--- are not in the run, their slots are full or it is at max level.
-function UpgradeService.grantItem(player: Player, kind: "Weapon" | "Passive", itemId: string): boolean
-	if kind == "Passive" then
-		return UpgradeService.addPassive(player, itemId)
-	end
-	if not (states[player] and WeaponService.isArmed(player)) then
-		return false
-	end
-	for _, weapon in WeaponService.getWeapons(player) do
-		if weapon.id == itemId then
-			return (WeaponService.levelUp(player, itemId))
-		end
-	end
-	return (WeaponService.addWeapon(player, itemId))
-end
 
 -- Turns the weapon into the evolution if the player may take it right now (getEvolutions).
 function UpgradeService.evolve(player: Player, evolutionId: string): (boolean, string?)
@@ -349,11 +241,11 @@ function UpgradeService.evolve(player: Player, evolutionId: string): (boolean, s
 	return WeaponService.evolve(player, Config.Evolutions[evolutionId].weapon, evolutionId)
 end
 
--- Gives the player what an elite chest holds (DESIGN.md sections 6 and 8): an evolution they may take now, else one
--- more level of a random owned weapon or passive, else healing. nil if they are not armed in the run.
+-- Gives the player what an elite chest holds (DESIGN.md sections 6 and 8): an evolution they may take now, else an
+-- item (rarity by wave and Luck, at least Config.Items.chestMinTier), else healing. nil if they are not armed in the
+-- run.
 function UpgradeService.grantChest(player: Player): Types.ChestReward?
-	local state = states[player]
-	if not (state and WeaponService.isArmed(player)) then
+	if not (states[player] and WeaponService.isArmed(player)) then
 		return nil
 	end
 	for _, evolutionId in UpgradeService.getEvolutions(player) do
@@ -361,57 +253,32 @@ function UpgradeService.grantChest(player: Player): Types.ChestReward?
 			return { kind = "Evolution", itemId = evolutionId, level = 0 }
 		end
 	end
-	local ownedWeapons: { [string]: number } = {}
-	for _, weapon in WeaponService.getWeapons(player) do
-		ownedWeapons[weapon.id] = weapon.level
+	local itemId = ShopRules.chestItem(
+		RunDirector.getWave(),
+		StatService.getStat(player, "luck"),
+		StatService.getItemCounts(player),
+		random
+	)
+	if itemId and StatService.addItem(player, itemId) then
+		return { kind = "Item", itemId = itemId, level = StatService.getItemCounts(player)[itemId] or 1 }
 	end
-	local card = UpgradePool.chestUpgrade(ownedWeapons, state.passives, Config.Player.maxItemLevel, function(): number
-		return rng:NextNumber()
-	end)
-	if card then
-		apply(player, state, card)
-		return { kind = card.kind, itemId = card.itemId, level = card.level }
-	end
-	apply(player, state, {
-		id = UpgradePool.cardId("Reward", "Heal"),
-		kind = "Reward",
-		itemId = "Heal",
-		level = 1,
-		isNew = false,
-	})
+	local _, maxHp = CombatService.getHp(player)
+	CombatService.healPlayer(player, maxHp)
 	return { kind = "Reward", itemId = "Heal", level = 0 }
 end
 
 -- Queries ---------------------------------------------------------------------------
 
--- Evolution ids the player may take now: weapon at max level plus the passive (DESIGN.md section 6), sorted.
+-- Evolution ids the player may take now: weapon at max level plus the item (DESIGN.md section 6), sorted.
 function UpgradeService.getEvolutions(player: Player): { string }
-	local state = states[player]
-	if not state then
+	if not states[player] then
 		return {}
 	end
-	local owned: { [string]: { level: number, evolution: string? } } = {}
-	for _, weapon in WeaponService.getWeapons(player) do
-		owned[weapon.id] = { level = weapon.level, evolution = weapon.evolution }
-	end
-	return UpgradePool.evolutionsFor(owned, state.passives, Config.Player.maxItemLevel)
-end
-
--- Passive levels by id in the current (or last) run.
-function UpgradeService.getPassiveLevels(player: Player): { [string]: number }
-	local state = states[player]
-	return if state then table.clone(state.passives) else {}
-end
-
--- The player's passives in the current (or last) run.
-function UpgradeService.getPassives(player: Player): { Types.PassiveInfo }
-	return passiveLoadout(player).passives
-end
-
--- Embers from maxed-out rewards in the current (or last) run, for the payout in WP13.
-function UpgradeService.getBonusEmbers(player: Player): number
-	local state = states[player]
-	return if state then state.bonusEmbers else 0
+	return UpgradePool.evolutionsFor(
+		ownedWeapons(player),
+		StatService.getItemCounts(player),
+		Config.Player.maxItemLevel
+	)
 end
 
 -- The cards the player can pick right now, or nil.

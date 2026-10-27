@@ -1,5 +1,5 @@
 -- Balance simulation: plays whole runs headlessly with the real server code (tests/helpers/RobloxMock) and a bot
--- instead of a human, then prints when the bot died, the team level per minute and its build.
+-- instead of a human, then prints when the bot died, its lowest HP and the team level per wave and its build.
 -- Not part of the normal test run (slow). Run it with:
 --   cargo run --release --manifest-path tools/luau-test-runner/Cargo.toml -- . tests/balance/BalanceSim.luau
 -- Bots: "idle" never moves, "evade" walks away from nearby enemies and collects XP orbs when it is safe, "kite" runs
@@ -9,7 +9,8 @@
 -- elite chests when nothing is close; "evade" and "fight" also go after Spitters, as good players do. Since the fun
 -- package after WP9 they also step out of the rush path of a Charger that winds up (its path glows for players).
 -- Since B1 (Brotato direction) the bot also shops after every wave: it picks its level-up cards, buys what it can
--- afford (owned items first, then the cheapest) and presses Ready.
+-- afford and presses Ready. Since B2 it rates stat cards and items by a simple stat taste (STAT_TASTE: its class's
+-- damage type, then Max HP, Damage, Attack Speed and Armor) and buys weapons it owns before new ones.
 -- Change SCENARIOS / SEEDS below to test other setups (all of them with 6 seeds take about 75 s). Results feed the
 -- balancing notes in DESIGN.md.
 
@@ -25,6 +26,8 @@ local CombatService = require(Services.CombatService)
 local UpgradeService = require(Services.UpgradeService)
 local RunStatsService = require(Services.RunStatsService)
 local ShopService = require(Services.ShopService)
+local StatService = require(Services.StatService)
+local WeaponService = require(Services.WeaponService)
 local Config = require(game:GetService("ReplicatedStorage").Shared.Config)
 local EnemyKinds = require(game:GetService("ReplicatedStorage").Shared.Util.EnemyKinds)
 local RunSchedule = require(game:GetService("ReplicatedStorage").Shared.Util.RunSchedule)
@@ -42,6 +45,27 @@ local RUSH_MARGIN = 1.5 -- studs on top of the charger's and the bot's radius
 local RUSH_WEIGHT = 6 -- how much stepping out of a rush path counts against the other pulls
 local TOUCH_MAX_RADIUS = 5 -- studs; the biggest enemy radius (elites), for finding who touched the bot
 local MAX_SECONDS = Config.Run.durationSeconds + 5
+-- How much the bot wants one level-up step (tier I value) of a stat; the class's damage type gets CLASS_DAMAGE.
+local STAT_TASTE = {
+	maxHp = 3,
+	hpRegen = 2,
+	lifeSteal = 1.5,
+	damage = 3,
+	attackSpeed = 3,
+	critChance = 1.5,
+	range = 1,
+	armor = 3,
+	dodge = 2,
+	speed = 1.5,
+	luck = 1,
+	harvesting = 2,
+	xpGain = 1,
+	pickupRange = 0.5,
+}
+local CLASS_DAMAGE = { BladeWarden = "meleeDamage", SparkMage = "rangedDamage" }
+local CLASS_DAMAGE_TASTE = 4
+local SECONDARY_STEP = { xpGain = 5, pickupRange = 20 } -- "one step" of stats without level-up values
+local WEAPON_TASTE = { owned = 6, new = 5 } -- a weapon level up and a new weapon, in the same units
 
 local SEEDS = { 11, 22, 33, 44, 55, 66 }
 local SCENARIOS = {
@@ -100,14 +124,46 @@ end)
 local nearbyIds: { number } = {}
 local rushIds: { number } = {}
 
--- Simple card taste: upgrade owned weapons, then new weapons, then passives; rewards last.
-local function pickCard(cards)
-	local best, bestScore = cards[1], -1
+-- What the bot thinks stats are worth: taste x value / one level-up step, summed (negatives count against).
+local function statScore(classId, stats)
+	local score = 0
+	for statId, value in stats do
+		local stat = Config.Stats.byId[statId]
+		local step = if stat and stat.upgrade then stat.upgrade[1] else SECONDARY_STEP[statId] or 1
+		local taste = if CLASS_DAMAGE[classId] == statId then CLASS_DAMAGE_TASTE else STAT_TASTE[statId] or 0.5
+		score += taste * value / step
+	end
+	return score
+end
+
+-- The stat card the bot likes best.
+local function pickCard(classId, cards)
+	local best, bestScore = cards[1], -math.huge
 	for _, card in cards do
-		local score = (if card.kind == "Weapon" then 3 elseif card.kind == "Passive" then 2 else 0)
-			+ (if card.isNew then 0 else 1)
+		local score = statScore(classId, { [card.stat] = card.amount })
 		if score > bestScore then
 			best, bestScore = card, score
+		end
+	end
+	return best
+end
+
+-- The shop offer with the best score per Shard the bot can afford and likes, or nil.
+local function pickOffer(classId, offers, shards)
+	local best, bestValue = nil, 0
+	for _, offer in offers do
+		if offer.sold or offer.price > shards then
+			continue
+		end
+		local score
+		if offer.kind == "Weapon" then
+			score = if offer.isNew then WEAPON_TASTE.new else WEAPON_TASTE.owned
+		else
+			score = statScore(classId, Config.Items.byId[offer.itemId].stats)
+		end
+		local value = score / offer.price
+		if score > 0 and value > bestValue then
+			best, bestValue = offer, value
 		end
 	end
 	return best
@@ -343,26 +399,23 @@ local function playRun(scenario, seed)
 	damageTaken = { contact = 0, shot = 0, hits = 0 }
 	table.clear(touchByKind)
 	shotsFired = 0
-	local minuteRows = {}
-	local nextMinute = 60
+	-- one row per wave: team level at its end, the lowest HP in it and the most enemies at once
+	local waveRows = {}
+	local wave = { number = 1, lowHp = math.huge, maxHp = 0, enemies = 0 }
+	local function closeWave()
+		table.insert(
+			waveRows,
+			`w{wave.number} L{RunStatsService.getTally():getLevel()} low {math.round(wave.lowHp)}/{wave.maxHp} {wave.enemies}e`
+		)
+	end
 	local bought = 0
 	while RunDirector.isOngoing() and RunDirector.getElapsed() < MAX_SECONDS do
 		if RunDirector.getPhase() == "Shop" then
 			local offer = UpgradeService.getOffer(bot)
 			if offer then
-				world.fireServerAs(bot, "ChooseUpgrade", pickCard(offer).id)
+				world.fireServerAs(bot, "ChooseUpgrade", pickCard(scenario.class, offer).id)
 			else
-				local best = nil
-				for _, item in ShopService.getOffers(bot) do
-					if not item.sold and item.price <= ShopService.getShards(bot) then
-						local better = best == nil
-							or (not item.isNew and best.isNew)
-							or (item.isNew == best.isNew and item.price < best.price)
-						if better then
-							best = item
-						end
-					end
-				end
+				local best = pickOffer(scenario.class, ShopService.getOffers(bot), ShopService.getShards(bot))
 				if best then
 					local before = ShopService.getShards(bot)
 					world.fireServerAs(bot, "BuyShopOffer", best.id)
@@ -400,45 +453,50 @@ local function playRun(scenario, seed)
 		if offer then
 			offerSeenAt = offerSeenAt or elapsed
 			if elapsed - offerSeenAt >= PICK_DELAY then
-				world.fireServerAs(bot, "ChooseUpgrade", pickCard(offer).id)
+				world.fireServerAs(bot, "ChooseUpgrade", pickCard(scenario.class, offer).id)
 				offerSeenAt = nil
 			end
 		else
 			offerSeenAt = nil
 		end
 
-		if elapsed >= nextMinute then
-			local hp, maxHp = CombatService.getHp(bot)
-			local spitters = 0
-			local all = {}
-			for i = 1, EnemySim.queryRadius(center, 1000, all) do
-				if EnemySim.getKind(all[i]) == "Spitter" then
-					spitters += 1
-				end
-			end
-			table.insert(
-				minuteRows,
-				`{nextMinute // 60}m L{RunStatsService.getTally():getLevel()} {math.round(hp)}/{maxHp}hp {EnemySim.getCount()}e {spitters}s dmg {math.round(
-					damageTaken.contact
-				)}t+{damageTaken.shot}s @{math.round(position.X)},{math.round(position.Z)} {RunDirector.getParticipantState(
-					bot
-				)}`
-			)
-			nextMinute += 60
+		local number = RunSchedule.waveAt(elapsed).number
+		if number ~= wave.number then
+			closeWave()
+			wave = { number = number, lowHp = math.huge, maxHp = 0, enemies = 0 }
 		end
+		local hp, maxHp = CombatService.getHp(bot)
+		if RunDirector.getParticipantState(bot) == "Alive" and hp < wave.lowHp then
+			wave.lowHp, wave.maxHp = hp, maxHp
+		end
+		wave.enemies = math.max(wave.enemies, EnemySim.getCount())
 		world.step(DT)
 	end
 
+	closeWave()
 	local survived = RunDirector.getElapsed()
 	local tally = RunStatsService.getTally()
-	waitForPhase("Ended", 2)
-	waitForPhase("Lobby", Config.Run.flow.resultsSeconds + 2)
-	local evolutions = {}
-	for _, weapon in require(Services.WeaponService).getWeapons(bot) do
+	-- the build at the end of the run (StatService and WeaponService reset in the lobby)
+	local evolutions, build = {}, {}
+	for _, weapon in WeaponService.getWeapons(bot) do
+		table.insert(build, `{weapon.id} {weapon.level}`)
 		if weapon.evolution then
 			table.insert(evolutions, weapon.evolution)
 		end
 	end
+	for _, item in StatService.getItems(bot) do
+		table.insert(build, `{item.id} x{item.count}`)
+	end
+	local sheet = StatService.getSheet(bot)
+	local sheetText = {}
+	for _, stat in Config.Stats.order do
+		local value = sheet[stat.id] or 0
+		if value ~= 0 then
+			table.insert(sheetText, `{stat.id} {math.round(value)}`)
+		end
+	end
+	waitForPhase("Ended", 2)
+	waitForPhase("Lobby", Config.Run.flow.resultsSeconds + 2)
 	local touches = {}
 	for name, amount in touchByKind do
 		table.insert(touches, `{name} {math.round(amount)}`)
@@ -449,12 +507,14 @@ local function playRun(scenario, seed)
 		survived = survived,
 		level = tally:getLevel(),
 		kills = tally.kills,
-		minutes = minuteRows,
+		waves = waveRows,
 		evolutions = evolutions,
 		damageTaken = damageTaken,
 		shotsFired = shotsFired,
 		wave = RunSchedule.waveAt(survived).number,
 		bought = bought,
+		build = table.concat(build, ", "),
+		stats = table.concat(sheetText, ", "),
 	}
 end
 
@@ -475,8 +535,10 @@ describe("balance sim", function()
 						then table.concat(result.evolutions, "+")
 						else "none"}, {result.damageTaken.hits}/{result.shotsFired} shots hit ({result.damageTaken.shot} dmg), by touch {result.damageTaken.contact}`
 				)
-				print(`    {table.concat(result.minutes, " | ")}`)
+				print(`    {table.concat(result.waves, " | ")}`)
 				print(`    touch damage by kind: {result.touches}`)
+				print(`    build: {result.build}`)
+				print(`    stats: {result.stats}`)
 				local shown = if scenario.bot == "stop3" and result.survived >= STOP_AT
 					then `{format(result.survived)} (+{math.floor(result.survived - STOP_AT)}s)`
 					else format(result.survived)

@@ -1,9 +1,9 @@
 --!strict
--- Pure HP, armor, hit protection and dash cooldown rules for one player (DESIGN.md section 4).
--- No Roblox objects, so it is unit tested. Used by CombatService, which passes server times as `now`.
+-- Pure HP, armor, dodge, hit protection and dash cooldown rules for one player (DESIGN.md section 4).
+-- No Roblox objects, so it is unit tested. Used by CombatService, which passes server times as `now`, the defense
+-- from the player's stats (Util/StatMath: armor factor and dodge chance) and a random roll per hit.
 
 export type Settings = {
-	armor: number, -- flat reduction per hit
 	minDamagePerHit: number,
 	hitInvulnerability: number, -- seconds of protection after a hit
 	dashCooldown: number,
@@ -19,7 +19,8 @@ export type Vitals = typeof(setmetatable(
 		settings: Settings,
 		hp: number,
 		maxHp: number,
-		armor: number, -- settings.armor plus bonuses (Armor passive)
+		damageFactor: number, -- share of a hit's damage taken (Armor stat)
+		dodgeChance: number, -- 0..1 (Dodge stat)
 		invulnerableUntil: number, -- dash and hit protection
 		shielded: boolean, -- invulnerable until switched off (level-up choice)
 		dashReadyAt: number,
@@ -32,24 +33,24 @@ function Vitals.new(maxHp: number, settings: Settings): Vitals
 		settings = settings,
 		hp = maxHp,
 		maxHp = maxHp,
-		armor = settings.armor,
+		damageFactor = 1,
+		dodgeChance = 0,
 		invulnerableUntil = 0,
 		shielded = false,
 		dashReadyAt = 0,
 	}, Vitals)
 end
 
--- Full HP with a new maximum, base armor, no protection, dash ready (run start, back in the lobby).
+-- Full HP with a new maximum, no protection, dash ready (run start, back in the lobby). Defense stays as set.
 function Vitals.reset(self: Vitals, maxHp: number)
 	self.maxHp = maxHp
 	self.hp = maxHp
-	self.armor = self.settings.armor
 	self.invulnerableUntil = 0
 	self.shielded = false
 	self.dashReadyAt = 0
 end
 
--- A new maximum during the run (Vitality passive): a higher maximum adds the difference to the current HP,
+-- A new maximum during the run (Max HP stat): a higher maximum adds the difference to the current HP,
 -- a lower one only caps it. A player who is down stays at 0.
 function Vitals.setMaxHp(self: Vitals, maxHp: number)
 	if not self:isDown() then
@@ -58,9 +59,10 @@ function Vitals.setMaxHp(self: Vitals, maxHp: number)
 	self.maxHp = maxHp
 end
 
--- Flat damage reduction per hit: the base from the settings plus `bonus` (Armor passive).
-function Vitals.setArmorBonus(self: Vitals, bonus: number)
-	self.armor = self.settings.armor + bonus
+-- Defense from the stats: the share of damage taken (StatMath.armorFactor) and the dodge chance (0..1).
+function Vitals.setDefense(self: Vitals, damageFactor: number, dodgeChance: number)
+	self.damageFactor = damageFactor
+	self.dodgeChance = dodgeChance
 end
 
 function Vitals.isDown(self: Vitals): boolean
@@ -83,17 +85,21 @@ function Vitals.setShielded(self: Vitals, shielded: boolean, now: number, afterS
 	self.shielded = shielded
 end
 
--- Applies one hit. Returns the HP actually lost (0 while protected or already down).
-function Vitals.hit(self: Vitals, damage: number, now: number): number
+-- Applies one hit; `roll` (0 <= roll < 1) below the dodge chance dodges it (no damage, no protection afterwards).
+-- Returns the HP actually lost (0 while protected, already down or dodged) and whether it was dodged.
+function Vitals.hit(self: Vitals, damage: number, now: number, roll: number?): (number, boolean)
 	if damage <= 0 or self:isDown() or self:isInvulnerable(now) then
-		return 0
+		return 0, false
+	end
+	if (roll or 1) < self.dodgeChance then
+		return 0, true
 	end
 	local settings = self.settings
-	local taken = math.max(settings.minDamagePerHit, damage - self.armor)
+	local taken = math.max(settings.minDamagePerHit, math.round(damage * self.damageFactor)) -- whole HP like Brotato
 	taken = math.min(taken, self.hp)
 	self.hp -= taken
 	self:protect(now, settings.hitInvulnerability)
-	return taken
+	return taken, false
 end
 
 -- Heals up to the maximum. Returns the HP actually gained (0 while down: only a revive helps then).

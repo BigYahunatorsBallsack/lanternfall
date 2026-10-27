@@ -1,5 +1,6 @@
 --!strict
--- Base player stats at run start (DESIGN.md section 4). Read by CombatService, WeaponService, InputController and HUD.
+-- Base player values at run start (DESIGN.md section 4). Read by CombatService, WeaponService, InputController and HUD.
+-- The stats that grow during a run (Config.Stats) start from maxHp, moveSpeed, pickupRadius and critChance here.
 
 return table.freeze({
 	maxHp = 100,
@@ -12,14 +13,11 @@ return table.freeze({
 		cooldownTolerance = 0.25, -- seconds the server forgives, so ping does not eat a dash
 	}),
 	pickupRadius = 8, -- studs (XP orbs, healing, embers)
-	armor = 0, -- flat reduction per hit
 	minDamagePerHit = 1,
-	regenPerSecond = 0,
 	hitInvulnerability = 0.5, -- seconds of protection after taking a hit
-	critChance = 0.05, -- per weapon hit
+	critChance = 0.05, -- per weapon hit, before the Crit Chance stat
 	critMultiplier = 2,
 	minWeaponCooldown = 0.2, -- seconds; cooldown bonuses never make a weapon faster than this
-	maxWeapons = 4,
-	maxPassives = 4,
-	maxItemLevel = 5,
+	maxWeapons = 6, -- Brotato's six weapon slots (since B2, before 4)
+	maxItemLevel = 5, -- weapon levels (B3 brings Brotato's tiers)
 })

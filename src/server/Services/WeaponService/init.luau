@@ -3,9 +3,9 @@
 -- the Arsenal (rules in WeaponService/Arsenal, stats in WeaponStats) steps right after every enemy simulation step
 -- (EnemySim.Stepped), and loadouts (Loadout, to everyone) and weapon effects (WeaponEffects, batched per step, to
 -- the participants) go to the clients, and every player gets the damage numbers of their own hits per step
--- (DamageNumbers, Net/HitNumbers). One behavior module per weapon in WeaponService/Behaviors. Level-up cards
--- (UpgradeService), chests (WP9) and AdminService call addWeapon, levelUp and evolve, UpgradeService also setBonuses
--- for passives; the results screen (WP14) getDamageStats.
+-- (DamageNumbers, Net/HitNumbers). One behavior module per weapon in WeaponService/Behaviors. The shop
+-- (ShopService), chests (UpgradeService) and AdminService call addWeapon, levelUp and evolve; StatService sets the
+-- owner's stats (setStats) and life steal heals through CombatService; the results screen (WP14) getDamageStats.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -16,6 +16,7 @@ local Net = require(Shared.Net)
 local Types = require(Shared.Net.Types)
 local HitNumbers = require(Shared.Net.HitNumbers)
 
+local CombatService = require(script.Parent.CombatService)
 local EnemySim = require(script.Parent.EnemySim)
 local MapService = require(script.Parent.MapService)
 local RunDirector = require(script.Parent.RunDirector)
@@ -36,7 +37,7 @@ end
 local floorY = Config.Map.arena.center.Y
 local rng = Random.new()
 local paused = false
-local extraBonuses: { [Player]: Arsenal.Bonuses } = {} -- from passives (UpgradeService), cleared at run start
+local ownerStats: { [Player]: Arsenal.Bonuses } = {} -- the latest stats from StatService, kept across runs
 
 local function playerOf(ownerId: number): Player?
 	return Players:GetPlayerByUserId(ownerId)
@@ -135,6 +136,12 @@ local arsenal = Arsenal.new({
 	critChance = Config.Player.critChance,
 	critMultiplier = Config.Player.critMultiplier,
 	minCooldown = Config.Player.minWeaponCooldown,
+	onLifeSteal = function(ownerId: number)
+		local player = playerOf(ownerId)
+		if player then
+			CombatService.lifeSteal(player)
+		end
+	end,
 	sweepStep = Config.Simulation.weaponSweepStep,
 	random = function(): number
 		return rng:NextNumber()
@@ -169,23 +176,12 @@ local function sendAll()
 	end
 end
 
--- Class bonuses (DESIGN.md section 5) plus passives as weapon bonuses; talents (WP13) will add to these.
-local function bonusesFor(player: Player): Arsenal.Bonuses
-	local bonuses: Arsenal.Bonuses = table.clone(extraBonuses[player] or {})
-	local classId = RunDirector.getParticipantClassId(player)
-	local class = classId and Config.Classes[classId]
-	if class then
-		bonuses[class.bonus.stat] = (bonuses[class.bonus.stat] or 0) + class.bonus.value
-	end
-	return bonuses
-end
-
 local function onRunStarted(participants: { Player })
 	arsenal:clear()
-	table.clear(extraBonuses)
 	paused = false
 	for _, player in participants do
-		arsenal:addOwner(player.UserId, bonusesFor(player))
+		-- StatService sends fresh stats when the run starts; before or after this, the owner gets them
+		arsenal:addOwner(player.UserId, ownerStats[player] or {})
 		local classId = RunDirector.getParticipantClassId(player)
 		local class = classId and Config.Classes[classId]
 		if class then
@@ -231,7 +227,7 @@ function WeaponService.init()
 		end
 	end)
 	Players.PlayerRemoving:Connect(function(player)
-		extraBonuses[player] = nil
+		ownerStats[player] = nil
 		hitFeeds[player.UserId] = nil
 		arsenal:removeOwner(player.UserId)
 		Net.fireAllClients("Loadout", { userId = player.UserId, weapons = {}, paused = paused } :: Types.Loadout)
@@ -266,7 +262,7 @@ function WeaponService.levelUp(player: Player, weaponId: string): (boolean, stri
 	return ok, reason
 end
 
--- The passive an evolution needs is checked by the caller (chests, WP9).
+-- The item an evolution needs is checked by the caller (chests, WP9).
 function WeaponService.evolve(player: Player, weaponId: string, evolutionId: string): (boolean, string?)
 	local ok, reason = arsenal:evolve(player.UserId, weaponId, evolutionId)
 	if ok then
@@ -275,12 +271,12 @@ function WeaponService.evolve(player: Player, weaponId: string, evolutionId: str
 	return ok, reason
 end
 
--- Bonuses from passives by stat name (UpgradeService); weapons use damage, cooldown and area (WeaponStats).
--- Recomputes the player's weapons and sends the new loadout. Cleared when the next run starts.
-function WeaponService.setBonuses(player: Player, bonuses: Arsenal.Bonuses)
-	extraBonuses[player] = bonuses
+-- The player's stats by id (StatService; WeaponStats uses the damage stats, Attack Speed, Crit Chance, Range and
+-- Life Steal). Recomputes the player's weapons and sends the new loadout.
+function WeaponService.setStats(player: Player, stats: Arsenal.Bonuses)
+	ownerStats[player] = stats
 	if arsenal:hasOwner(player.UserId) then
-		arsenal:setBonuses(player.UserId, bonusesFor(player))
+		arsenal:setBonuses(player.UserId, stats)
 		send(player)
 	end
 end

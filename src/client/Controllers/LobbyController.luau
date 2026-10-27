@@ -9,6 +9,7 @@ local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared:WaitForChild("Config"))
 local Format = require(Shared:WaitForChild("Util"):WaitForChild("Format"))
 local Net = require(Shared:WaitForChild("Net"))
+local StatMath = require(Shared:WaitForChild("Util"):WaitForChild("StatMath"))
 local Types = require(Shared:WaitForChild("Net"):WaitForChild("Types"))
 
 local RunStateController = require(script.Parent.RunStateController)
@@ -18,13 +19,6 @@ local Widgets = require(script.Parent.Parent.UI.Widgets)
 local BUTTON_COOLDOWN = 0.3 -- seconds; keeps taps below the server rate limit
 
 -- Short names for class bonus stats, e.g. "+20% max HP".
-local STAT_TEXT: { [string]: string } = {
-	maxHp = "max HP",
-	cooldown = "weapon cooldown",
-	reviveSpeed = "revive speed",
-	area = "area",
-}
-
 local LobbyController = {}
 
 local screen: ScreenGui
@@ -49,9 +43,14 @@ local function className(classId: string): string
 end
 
 local function bonusText(class: any): string
-	local percent = math.round(class.bonus.value * 100)
-	local sign = if percent >= 0 then "+" else ""
-	return `{sign}{percent}% {STAT_TEXT[class.bonus.stat] or class.bonus.stat}`
+	local parts = {}
+	for _, stat in Config.Stats.order do
+		local value = class.stats[stat.id]
+		if value and value ~= 0 then
+			table.insert(parts, StatMath.format(stat.id, value))
+		end
+	end
+	return table.concat(parts, ", ")
 end
 
 local function statusText(state: Types.RunState, me: Types.PlayerInfo?): string

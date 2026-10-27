@@ -1,9 +1,10 @@
 --!strict
--- Team level and XP (DESIGN.md section 9): XP for level L -> L+1 = round((base + coefficient * L^exponent) * fPlayers).
+-- Team level and XP (DESIGN.md section 9): XP for level L -> L+1 = round((L + offset)^exponent * fPlayers), Brotato's
+-- (L + 3)^2 since B2.
 -- Pure and unit tested (tests/Experience.spec.luau); owned by ExperienceService, which passes the current player
 -- factor on every call, so the next level gets cheaper as soon as a player leaves.
 
-export type Curve = { base: number, coefficient: number, exponent: number }
+export type Curve = { offset: number, exponent: number }
 
 local Progression = {}
 Progression.__index = Progression
@@ -12,7 +13,7 @@ export type Progression = typeof(setmetatable({} :: { curve: Curve, level: numbe
 
 -- XP needed to go from `level` to `level + 1`, at least 1.
 function Progression.xpForLevel(curve: Curve, level: number, playerFactor: number): number
-	return math.max(1, math.round((curve.base + curve.coefficient * level ^ curve.exponent) * playerFactor))
+	return math.max(1, math.round((level + curve.offset) ^ curve.exponent * playerFactor))
 end
 
 function Progression.new(curve: Curve): Progression

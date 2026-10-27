@@ -6,7 +6,7 @@ export type Evolution = {
 	id: string,
 	displayName: string,
 	weapon: string, -- must be at max level
-	passive: string, -- any level
+	item: string, -- key in Config.Items, owned at least once
 	behavior: string,
 	stats: { [string]: number }, -- overrides on top of the max-level weapon
 }
@@ -16,7 +16,7 @@ local Evolutions: { [string]: Evolution } = {
 		id = "BladeStorm",
 		displayName = "Blade Storm",
 		weapon = "OrbitBlades",
-		passive = "Armor",
+		item = "Armor",
 		behavior = "OrbitBlades",
 		stats = {
 			count = 8,
@@ -28,7 +28,7 @@ local Evolutions: { [string]: Evolution } = {
 		id = "Starfire",
 		displayName = "Starfire",
 		weapon = "SparkBolt",
-		passive = "Focus",
+		item = "Focus",
 		behavior = "SparkBolt",
 		stats = {
 			explosionRadius = 6, -- studs around every enemy a bolt hits

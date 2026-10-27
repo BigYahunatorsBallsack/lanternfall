@@ -72,6 +72,7 @@ local function setup(options)
 		critChance = options.critChance or 0,
 		critMultiplier = Config.Player.critMultiplier,
 		minCooldown = Config.Player.minWeaponCooldown,
+		onLifeSteal = options.onLifeSteal,
 		sweepStep = Sim.weaponSweepStep,
 		random = function()
 			return 0.5
@@ -172,13 +173,12 @@ describe("Arsenal", function()
 		expect(select(2, scene.arsenal:levelUp(OWNER, "Shockwave"))).toBe("NotOwned")
 	end)
 
-	it("applies owner bonuses to every weapon", function()
-		local bonus = Config.Classes.SparkMage.bonus -- -10 % cooldown
-		local scene = setup({ bonuses = { [bonus.stat] = bonus.value } })
+	it("applies the owner's stats to every weapon", function()
+		local scene = setup({ bonuses = Config.Classes.SparkMage.stats }) -- +10 % Attack Speed
 		give(scene, "SparkBolt")
 		local weapon = scene.arsenal:getWeapons(OWNER)[1]
-		expect(weapon.stats.cooldown).toBeNear(W.SparkBolt.base.cooldown * (1 + bonus.value))
-		scene.arsenal:setBonuses(OWNER, { damage = 0.5 })
+		expect(weapon.stats.cooldown).toBeNear(W.SparkBolt.base.cooldown / 1.1)
+		scene.arsenal:setBonuses(OWNER, { damage = 50 })
 		expect(weapon.stats.cooldown).toBeNear(W.SparkBolt.base.cooldown)
 		expect(weapon.stats.damage).toBeNear(W.SparkBolt.base.damage * 1.5)
 	end)
@@ -198,8 +198,23 @@ describe("Arsenal", function()
 		expect(select(2, scene.arsenal:evolve(OWNER, "OrbitBlades", "BladeStorm"))).toBe("AlreadyEvolved")
 	end)
 
+	it("heals the owner through life steal on hits", function()
+		local steals = 0
+		local scene = setup({
+			bonuses = { lifeSteal = 100 },
+			onLifeSteal = function(ownerId)
+				expect(ownerId).toBe(OWNER)
+				steals += 1
+			end,
+		})
+		give(scene, "SparkBolt")
+		spawn(scene, "Brute", 10, 0)
+		run(scene, 0.5)
+		expect(steals).toBe(1)
+	end)
+
 	it("rolls crits on hits", function()
-		local scene = setup({ critChance = 1 })
+		local scene = setup({ bonuses = { critChance = 100 } })
 		give(scene, "SparkBolt")
 		local brute = spawn(scene, "Brute", 10, 0)
 		run(scene, 0.5)

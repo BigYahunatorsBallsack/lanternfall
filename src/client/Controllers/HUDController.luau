@@ -2,7 +2,8 @@
 -- In-run HUD for the prototype: team XP bar with the level (and level-ups waiting for the end of the wave), the time
 -- left in the wave or the shop, the wave (number, final wave, shop; Util/RunSchedule) with a big banner when a new wave
 -- starts that names what it brings, the local HP bar with a red flash on hits, the team with HP and Alive/Down states
--- (who is picking a card, who is done shopping), and your weapons and passives with their levels. Shown while the local player is in a running run; reads RunStateController,
+-- (who is picking a card, who is done shopping), your weapons with their levels and your items with their counts in
+-- their rarity color (the first few). Shown while the local player is in a running run; reads RunStateController,
 -- PlayerStateController, LoadoutController and ProgressController. WP14 builds the full HUD.
 
 local Players = game:GetService("Players")
@@ -34,6 +35,7 @@ local XP_COLOR = Color3.fromRGB(96, 170, 255) -- the color of small XP orbs
 local BANNER_SECONDS = 2.6
 local BANNER_FADE_SECONDS = 0.4
 local BANNER_TITLE_SIZE = 56
+local MAX_ITEM_ROWS = 8 -- different items listed; the rest as "+3 more"
 
 local HUDController = {}
 
@@ -46,8 +48,8 @@ local hpLabel: TextLabel
 local hitFlash: Frame
 local weaponsTitle: TextLabel
 local weaponRows: Frame
-local passivesTitle: TextLabel
-local passiveRows: Frame
+local itemsTitle: TextLabel
+local itemRows: Frame
 local xpFill: Frame
 local xpLabel: TextLabel
 local bannerWave = 0 -- the wave whose banner was shown; 0 before the first
@@ -215,17 +217,33 @@ local function levelText(level: number): string
 	return if level >= Config.Player.maxItemLevel then "MAX" else `LV {level}`
 end
 
-local function renderPassives()
-	Widgets.clearRows(passiveRows)
-	local passives = ProgressController.getLocalPassives()
-	passivesTitle.Visible = #passives > 0
-	for index, info in passives do
-		local passive = Config.Passives[info.id]
+local function renderItems()
+	Widgets.clearRows(itemRows)
+	local items = ProgressController.getLocalItems()
+	local total = 0
+	for _, info in items do
+		total += info.count
+	end
+	itemsTitle.Visible = #items > 0
+	itemsTitle.Text = `ITEMS ({total})`
+	for index, info in items do
+		if index > MAX_ITEM_ROWS then
+			Widgets.label({
+				Text = `+{#items - MAX_ITEM_ROWS} more`,
+				TextColor3 = Theme.textDim,
+				TextXAlignment = Enum.TextXAlignment.Left,
+				LayoutOrder = index,
+				Parent = itemRows,
+			})
+			break
+		end
+		local item = Config.Items.byId[info.id]
 		Widgets.label({
-			Text = `{if passive then passive.displayName else info.id} · {levelText(info.level)}`,
+			Text = `{if item then item.displayName else info.id}{if info.count > 1 then ` x{info.count}` else ""}`,
+			TextColor3 = if item then Theme.tiers[item.tier] or Theme.text else Theme.text,
 			TextXAlignment = Enum.TextXAlignment.Left,
 			LayoutOrder = index,
-			Parent = passiveRows,
+			Parent = itemRows,
 		})
 	end
 end
@@ -289,7 +307,7 @@ local function render()
 	renderTeam(state)
 	renderHp()
 	renderWeapons()
-	renderPassives()
+	renderItems()
 	renderXp()
 end
 
@@ -390,9 +408,9 @@ local function build()
 		Parent = weapons,
 	})
 	Widgets.list(4).Parent = weaponRows
-	passivesTitle = Widgets.label({
-		Name = "PassivesTitle",
-		Text = "PASSIVES",
+	itemsTitle = Widgets.label({
+		Name = "ItemsTitle",
+		Text = "ITEMS",
 		Font = Theme.fontBold,
 		TextColor3 = Theme.textDim,
 		TextXAlignment = Enum.TextXAlignment.Left,
@@ -400,15 +418,15 @@ local function build()
 		LayoutOrder = 2,
 		Parent = weapons,
 	})
-	passiveRows = Widgets.create("Frame", {
-		Name = "PassiveRows",
+	itemRows = Widgets.create("Frame", {
+		Name = "ItemRows",
 		BackgroundTransparency = 1,
 		AutomaticSize = Enum.AutomaticSize.Y,
 		Size = UDim2.new(1, 0, 0, 0),
 		LayoutOrder = 3,
 		Parent = weapons,
 	})
-	Widgets.list(4).Parent = passiveRows
+	Widgets.list(4).Parent = itemRows
 
 	local hp = Widgets.panel({
 		Name = "Health",
@@ -460,9 +478,9 @@ function HUDController.start()
 			renderWeapons()
 		end
 	end)
-	ProgressController.PassivesChanged:Connect(function(userId: number)
+	ProgressController.ItemsChanged:Connect(function(userId: number)
 		if screen.Enabled and userId == Players.LocalPlayer.UserId then
-			renderPassives()
+			renderItems()
 		end
 	end)
 	ProgressController.TeamChanged:Connect(function()

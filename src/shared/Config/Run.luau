@@ -41,21 +41,25 @@ local Run = {
 			table.freeze({ 9, 6.8 }),
 			table.freeze({ 12, 8.6 }),
 		}),
-		-- multiplier on enemy HP at spawn time (times difficulty); grows faster and faster
+		-- multiplier on enemy HP at spawn time (times difficulty); grows faster and faster. Since B2 steeper, because
+		-- player stats grow without limit (Brotato's enemies gain HP and damage every wave too).
 		hpCurve = table.freeze({
 			table.freeze({ 0, 1 }),
 			table.freeze({ 2, 1.15 }),
-			table.freeze({ 4, 1.4 }),
-			table.freeze({ 6, 1.75 }),
-			table.freeze({ 8, 2.3 }),
-			table.freeze({ 10, 3 }),
-			table.freeze({ 12, 3.8 }),
+			table.freeze({ 4, 1.5 }),
+			table.freeze({ 6, 2 }),
+			table.freeze({ 8, 2.8 }),
+			table.freeze({ 10, 3.8 }),
+			table.freeze({ 12, 5 }),
 		}),
-		-- multiplier on contact and projectile damage at spawn time (times difficulty)
+		-- multiplier on contact and projectile damage at spawn time (times difficulty); since B2 up to 3.4 instead of
+		-- 1.25 at the end, against stacked Max HP, Armor and Regeneration
 		damageCurve = table.freeze({
 			table.freeze({ 0, 1 }),
-			table.freeze({ 6, 1.1 }),
-			table.freeze({ 12, 1.25 }),
+			table.freeze({ 3, 1.1 }),
+			table.freeze({ 6, 1.6 }),
+			table.freeze({ 9, 2.4 }),
+			table.freeze({ 12, 3.4 }),
 		}),
 		-- Waves (Brotato direction since B1): wave n lasts lengthsSeconds[n], then the shop opens (Config.Shop) and the
 		-- clock stops until the next wave. The rate ramps from rampFrom to rampTo through each wave; the final wave runs
@@ -164,20 +168,23 @@ local Run = {
 		}),
 	}),
 
-	-- XP for level L -> L+1 = round((base + coefficient * L^exponent) * fPlayers)
-	xpCurve = table.freeze({ base = 5, coefficient = 2.4, exponent = 1.3 }),
+	-- XP for level L -> L+1 = round((L + offset)^exponent * fPlayers); Brotato's (L + 3)^2 since B2
+	xpCurve = table.freeze({ offset = 3, exponent = 2 }),
 
 	-- XP orbs dropped by killed enemies; every orb counts for the whole team (DESIGN.md section 8)
 	xpOrbs = table.freeze({
 		maxOrbs = 300, -- orbs on the floor at once; past this a new orb's XP joins the nearest one (assumption)
 	}),
 
+	-- Level-up cards (Brotato direction since B2): stat upgrades (Config.Stats), each card its own stat and rarity tier.
+	-- The tier is rolled like shop items with the level in place of the wave (Config.Items.tiers, Luck raises it);
+	-- some levels always give one tier: guaranteedTiers[level], and every legendaryEvery.every levels from
+	-- legendaryEvery.fromLevel a Legendary (Brotato: 5 -> II, 10/15/20 -> III, 25, 30, ... -> IV).
 	levelUp = table.freeze({
-		cardCount = 3,
-		ownedItemWeight = 2, -- owned items are this many times as likely
+		cardCount = 4,
+		guaranteedTiers = table.freeze({ [5] = 2, [10] = 3, [15] = 3, [20] = 3 }),
+		legendaryEvery = table.freeze({ fromLevel = 25, every = 5 }),
 		autoPickSeconds = 10, -- first card is picked automatically after this
-		freeRerollsPerRun = 1,
-		maxedOutRewards = table.freeze({ embers = 25, healFraction = 0.3 }),
 		-- While picking: true = the player stands still and is invulnerable (original design); false = they keep walking,
 		-- dashing and taking hits (owner feedback after WP9)
 		freezeWhileChoosing = false,

@@ -8,7 +8,7 @@
 --   2. once the weapon's cooldown is over and its owner is placed (alive), behavior.fire starts the next attack;
 --      a fire without a target returns false and is tried again on the next step
 -- Behaviors (WeaponService/Behaviors, one module per weapon, picked by Config.Weapons[id].behavior) reach the
--- world only through the Context: enemy queries, hit (damage with crits, counted per weapon), push (knockback)
+-- world only through the Context: enemy queries, hit (damage with crits and life steal, counted per weapon), push (knockback)
 -- and emit (an effect for the clients' visuals).
 
 local Shared = game:GetService("ReplicatedStorage").Shared
@@ -70,7 +70,7 @@ export type Context = {
 	-- up to maxCount enemies overlapping the circle (x, z, range), closest first
 	nearestEnemies: (self: Context, x: number, z: number, range: number, maxCount: number, out: { number }) -> number,
 	enemyPosition: (self: Context, id: number) -> (number?, number?),
-	-- damages one enemy with the weapon's damage times `multiplier`, rolls crits; returns true if it died
+	-- damages one enemy with the weapon's damage times `multiplier`, rolls crits and life steal; true if it died
 	hit: (self: Context, weapon: Weapon, id: number, multiplier: number?) -> boolean,
 	push: (self: Context, id: number, dx: number, dz: number) -> (),
 	emit: (self: Context, weapon: Weapon, effect: Effect) -> (),
@@ -91,9 +91,10 @@ export type Params = {
 	behaviors: { [string]: Behavior }, -- by behavior name
 	maxWeapons: number,
 	maxLevel: number,
-	critChance: number,
+	critChance: number, -- for weapons whose stats carry no critChance (WeaponStats sets it)
 	critMultiplier: number,
 	minCooldown: number,
+	onLifeSteal: ((ownerId: number) -> ())?, -- a hit rolled the weapon's life steal (CombatService heals)
 	sweepStep: number,
 	random: () -> number,
 }
@@ -192,12 +193,17 @@ local function makeContext(self: Arsenal): Context
 	end
 
 	function ctx.hit(_, weapon: Weapon, id: number, multiplier: number?): boolean
-		local amount = weapon.stats.damage * (multiplier or 1)
-		local crit = params.random() < params.critChance
+		local stats = weapon.stats
+		local amount = stats.damage * (multiplier or 1)
+		local crit = params.random() < (stats.critChance or params.critChance)
 		if crit then
 			amount *= params.critMultiplier
 		end
 		local killed, dealt = enemies.damage(id, amount, weapon.ownerId, crit)
+		local lifeSteal = stats.lifeSteal or 0
+		if dealt > 0 and lifeSteal > 0 and params.onLifeSteal and params.random() < lifeSteal then
+			params.onLifeSteal(weapon.ownerId)
+		end
 		weapon.damageDealt += dealt
 		if killed then
 			weapon.kills += 1
@@ -277,7 +283,7 @@ local function recompute(self: Arsenal, weapon: Weapon, owner: Owner)
 	weapon.stats = WeaponStats.compute(weapon.config, weapon.level, owner.bonuses, evolution, self.params.minCooldown)
 end
 
--- Replaces the owner's bonuses (class, later passives and talents) and recomputes every weapon.
+-- Replaces the owner's stats (StatService) and recomputes every weapon.
 function Arsenal.setBonuses(self: Arsenal, ownerId: number, bonuses: Bonuses)
 	local owner = self.owners[ownerId]
 	if not owner then
@@ -399,8 +405,8 @@ function Arsenal.levelUp(self: Arsenal, ownerId: number, weaponId: string): (boo
 	return true, nil
 end
 
--- Turns a max-level weapon into its evolution (Config.Evolutions). The passive it needs is checked by the caller,
--- which knows the passives (chests, WP9). Reasons for false: "NotParticipant", "NotOwned", "WrongEvolution",
+-- Turns a max-level weapon into its evolution (Config.Evolutions). The item it needs is checked by the caller,
+-- which knows the items (chests, WP9). Reasons for false: "NotParticipant", "NotOwned", "WrongEvolution",
 -- "NotMaxLevel", "AlreadyEvolved", "NotImplemented".
 function Arsenal.evolve(self: Arsenal, ownerId: number, weaponId: string, evolutionId: string): (boolean, string?)
 	local owner = self.owners[ownerId]

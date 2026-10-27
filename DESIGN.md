@@ -22,7 +22,7 @@ Lanternfall ist ein Koop-Survivors für 1–4 Spieler: Runs aus 12 kurzen Wellen
 **Was es anders macht**
 
 - Koop statt Solo: Survivors-Gefühl mit Freunden, gegenseitiges Wiederbeleben, gemeinsame Bosse.
-- Jeder Run ist anders: Waffen und Passive kombinieren sich zu Evolutionen.
+- Jeder Run ist anders: Waffen und Items (seit B2, vorher Passive) kombinieren sich zu Builds und Evolutionen.
 - Mobile-tauglich: nur Bewegen und Dash, alles andere passiert automatisch.
 
 **Designprinzipien**
@@ -58,9 +58,9 @@ Welle (20–60 s kämpfen, XP-Orbs = Shards sammeln)
    │ Timer abgelaufen
    ▼
 Wellenende: Gegner verschwinden, liegende Orbs gehen ans Team, Truhen öffnen sich,
-            alle voll geheilt, wer down ist, steht auf
+            Harvesting zahlt aus, alle voll geheilt, wer down ist, steht auf
    ▼
-Level-up-Karten (eine Wahl pro Level dieser Welle) → Shop (max. 40 s, „Ready")
+Werte-Karten (eine Wahl pro Level dieser Welle) → Shop (max. 40 s, „Ready")
    │ alle bereit oder Zeit um                      │ nach Welle 12
    ▼                                               ▼
 nächste Welle                               Boss → Run-Ende (Embers, „Nochmal")
@@ -96,20 +96,22 @@ Wellenlängen wie in Brotato: Welle 1 dauert 20 s, jede weitere 5 s mehr, ab Wel
 | danach | Boss The Lantern Eater erscheint, normales Spawnen stoppt |
 | ≈ 14–16 Min | Run-Ende: Statistik, Embers, „Nochmal" |
 
-**Wellenende und Shop (seit Paket B1, Werte in `Config/Shop.luau`):**
+**Wellenende und Shop (seit Paket B1, seit B2 mit Items und Werten; Werte in `Config/Shop.luau` und `Config/Items.luau`):**
 
 | Was | Umsetzung |
 | --- | --- |
 | Uhr | Die Kampfzeit stoppt genau am Wellenende und läuft erst mit der nächsten Welle weiter. Timer oben zeigt die Restzeit der Welle bzw. des Shops. |
-| Wellenende | Restliche Gegner und Geschosse verschwinden. Liegende XP-Orbs gehen ans Team, ihre Shards werden gleichmäßig auf alle verteilt, die nicht „Out" sind (Brotato legt sie in einen „Beutel" für später; das kann B3 nachholen). Liegende Elite-Truhen öffnen sich für alle. Alle werden voll geheilt, wer down ist, steht mit voller HP auf. |
-| Level-ups | XP sammelt sich in der Welle; die Kartenwahl (1 aus 3) kommt erst am Wellenende, eine pro gewonnenem Level. Im HUD steht so lange „LV 5 · +2 at wave end". Was beim Start der nächsten Welle noch offen ist, wird automatisch gewählt. |
+| Wellenende | Restliche Gegner und Geschosse verschwinden. Liegende XP-Orbs gehen ans Team, ihre Shards werden gleichmäßig auf alle verteilt, die nicht „Out" sind (Brotato legt sie in einen „Beutel" für später; das kann B3 nachholen). Liegende Elite-Truhen öffnen sich für alle. Alle werden voll geheilt, wer down ist, steht mit voller HP auf. Seit B2 zahlt danach Harvesting aus (Abschnitt 4). |
+| Level-ups | XP sammelt sich in der Welle; die Kartenwahl (seit B2 1 aus 4 Werte-Karten, Abschnitt 9) kommt erst am Wellenende, eine pro gewonnenem Level. Im HUD steht so lange „LV 5 · +2 at wave end". Was beim Start der nächsten Welle noch offen ist, wird automatisch gewählt. |
 | Shards | Geld im Run (Brotatos „Materialien"): jeder XP-Punkt eines Orbs, den man selbst aufsammelt, gibt 1 Shard. Getrennt von den Embers (Meta-Währung). |
-| Angebote | Pro Spieler 4 eigene Angebote: neue Waffe/Passiv oder +1 Level von etwas, das man hat (bis Level 5, maximal 4 Waffen und 4 Passive). Nach Welle 1–2 mindestens 2 Waffen, nach Welle 3–5 mindestens 1, sonst je Platz 35 % Waffe, 65 % Passiv; Eigenes doppelt so wahrscheinlich. |
-| Preise | wie Brotato: Preis = ⌊Grundpreis + Welle + 10 % · Grundpreis · Welle⌋, mindestens 1 (Welle = die gerade beendete). Grundpreise 12–25 Shards je nach Item. |
-| Neu würfeln | erster Wurf ⌊0,75 · Welle⌋ + Aufschlag, jeder weitere + Aufschlag, Aufschlag = max(1, ⌊0,4 · Welle⌋) (nach Welle 5: 5, 7, 9 …). |
+| Angebote | Pro Spieler 4 eigene Angebote, nie zweimal dasselbe: eine Waffe (neu oder +1 Level einer eigenen, bis Level 5, höchstens 6 Waffen; eigene doppelt so wahrscheinlich) oder ein Item (Abschnitt 6). Nach Welle 1–2 mindestens 2 Waffen, nach Welle 3–5 mindestens 1, sonst je Platz 35 % Waffe, 65 % Item. Items kann man unbegrenzt oft kaufen und stapeln (einzelne mit Obergrenze, z. B. Iron Shackle 1×); die Karte zeigt „x3" = so viele hat man nach dem Kauf. |
+| Seltenheit (seit B2) | Jedes Item hat eine Stufe: Common (grau), Uncommon (blau), Rare (violett), Legendary (rot). Pro Item-Platz wird die Stufe gewürfelt wie in Brotato: Chance = (pro Welle · (Welle − Startwelle + 1) + Grundwert) · (1 + Luck/100), höchstens Obergrenze; seltenste zuerst. Uncommon ab Welle 2 (6 %/Welle, max. 60 %), Rare ab Welle 4 (2 %/Welle, max. 25 %), Legendary ab Welle 8 (0,23 %/Welle, max. 8 %). Ist eine Stufe leer (alles an der Obergrenze), kommt eine niedrigere, sonst eine höhere. |
+| Preise | wie Brotato: Preis = ⌊Grundpreis + Welle + 10 % · Grundpreis · Welle⌋, mindestens 1 (Welle = die gerade beendete). Grundpreise: Waffen 18–25, Items 15–30 (Common), 35–65 (Uncommon), 55–80 (Rare), 90–120 (Legendary). |
+| Neu würfeln | erster Wurf ⌊0,75 · Welle⌋ + Aufschlag, jeder weitere + Aufschlag, Aufschlag = max(1, ⌊0,4 · Welle⌋) (nach Welle 5: 5, 7, 9 …). Seit B2 kostet auch das Neu-Würfeln der Werte-Karten so viele Shards (eigener Zähler pro Kartenwahl). |
+| Werte-Anzeige (seit B2) | Während Kartenwahl und Shop steht rechts eine Liste aller Werte (grün = besser als am Start, rot = schlechter); Ausweichen zeigt „(max 60%)". |
 | Ready | Der Shop schließt nach 40 s oder sobald alle, die nicht „Out" sind, „Ready" gedrückt haben. In der Team-Liste steht „shopping" bzw. „ready". Im Shop gibt es keine Gegner. |
 | Eigener Bildschirm | Level-up-Karten und Shop liegen auf einem eigenen, dunklen Bildschirm mit „WAVE n CLEARED" (darunter „Pick your level-ups" bzw. „Spend your Shards"); die Arena ist nicht zu sehen. Timer, XP-Leiste, Build und Team-Liste bleiben sichtbar. Wie in Brotato steht die Figur still: kein Laufen, kein Dash, bis die nächste Welle startet (Owner-Wunsch nach B1). |
-| Noch nicht (B3) | Sperren, Verkaufen, Verschmelzen gleicher Waffen, Shop-Rabatte, Seltenheitsstufen. |
+| Noch nicht (B3) | Sperren, Verkaufen, Verschmelzen gleicher Waffen, Waffen-Stufen, Shop-Rabatte. |
 
 **Run-Ablauf im Prototyp** (Lobby und Arena im selben Server, Werte in `Config/Run.luau` → `flow`):
 
@@ -131,16 +133,38 @@ Spieler steuern nur Bewegung und einen Dash; Angreifen, Zielen und Aufsammeln pa
 
 | Wert | Startwert | Anmerkung |
 | --- | --- | --- |
-| Leben (HP) | 100 | Klassen und Passive erhöhen es |
-| Lauftempo | 16 Studs/s | Roblox-Standard |
+| Leben (HP) | 100 | Brotatos 10 HP mal 10; Klassen, Items, Werte-Karten und jedes Team-Level erhöhen es |
+| Lauftempo | 16 Studs/s | Roblox-Standard; der Wert „Speed" ändert es in Prozent |
 | Dash | 12 Studs, 6 s Cooldown | 0,3 s unverwundbar |
-| Aufsammelradius | 8 Studs | XP-Orbs, Heilung, Embers |
-| Rüstung | 0 | zieht pro Treffer flach ab, mindestens 1 Schaden |
-| Regeneration | 0 HP/s | nur über spätere Passive |
+| Aufsammelradius | 8 Studs | XP-Orbs, Heilung, Embers; „Pickup Range" in Prozent |
+| Rüstung | 0 | seit B2 prozentual wie Brotato (Tabelle unten) |
+| Regeneration | 0 | seit B2 der Wert „HP Regeneration" |
 | Schutz nach Treffer | 0,5 s | verhindert Sofort-Tod im Pulk |
-| Krit-Chance | 5 % | Krit = doppelter Schaden |
+| Krit-Chance | 5 % | Krit = doppelter Schaden; „Crit Chance" kommt dazu |
 
-Seit Paket 4 umgesetzt (Werte in `Config/Player.luau` und `Config/Camera.luau`): Kamera 50° Neigung (seit Feedback zu Paket 9, vorher 60°), 70 Studs Abstand, Sichtfeld 40°, folgt weich. Springen ist aus; Leertaste, Gamepad-A und ein runder Dash-Knopf unten rechts lösen den Dash aus (am Handy größer). Der Dash schiebt die Figur in 0,15 s 12 Studs in Laufrichtung (im Stand in Blickrichtung); Wände und Ruinen stoppen ihn. Der Knopf zeigt den Cooldown als dunkle Füllung. Wer „down" ist, kann nicht laufen und nicht dashen. Klassenbonus auf HP wird beim Run-Start eingerechnet (Blade Warden 120 HP). Im HUD unten Mitte die eigene HP-Leiste (rot unter 30 %), kurzer roter Bildschirm-Blitz bei Treffern, HP der Mitspieler in der Team-Liste.
+**Werte wie in Brotato (seit Paket B2, Zahlen in `Config/Stats.luau`, Formeln in `Util/StatMath.luau`):** Jeder Spieler hat im Run 17 Werte. Sie starten bei 0 (außer Max HP) und kommen aus Klasse, Items, Werte-Karten und Team-Level zusammen. Es gibt keine Obergrenze außer bei Ausweichen (60 %) und Krit-Chance (100 %); Items stapeln unbegrenzt (Owner-Entscheidung „Unbegrenzt wie Brotato"). Negative Werte sind möglich und schaden.
+
+| Wert | Wirkung |
+| --- | --- |
+| Max HP | Leben; +10 pro Team-Level (Brotato +1) |
+| HP Regeneration | heilt 10 HP alle 5 s / (1 + (Wert − 1) / 2,25): Wert 1 = alle 5 s, Wert 10 = jede Sekunde (umgesetzt als gleichmäßige HP pro Sekunde) |
+| Life Steal (%) | Chance pro Waffentreffer, 10 HP zu heilen, höchstens 10-mal pro Sekunde |
+| Damage (%) | Schaden aller Waffen × (1 + Wert/100), mindestens 1 |
+| Melee / Ranged / Elemental Damage | flacher Zusatzschaden für Waffen dieser Art, mal deren Skalierung (seit B2 1,0; Abschnitt 6), vor Damage % |
+| Attack Speed (%) | Cooldowns und Trefferpausen / (1 + Wert/100); negativ: × (1 + 0,5 · Betrag/100) (Annahme, Brotato nennt keine Formel); nie unter 0,2 s |
+| Crit Chance (%) | kommt zu den 5 % Grund-Krit dazu |
+| Range | Brotato-Punkte, 0,1 Studs pro Punkt (Nahkampf die Hälfte): verlängert Reichweite bzw. Radius jeder Waffe, nie unter 2,5 Studs |
+| Armor | erlittener Schaden × 1 / (1 + Rüstung/15) (5 Rüstung = −25 %, 15 = −50 %); negativ: × (15 − 2·Rüstung)/(15 − Rüstung); auf ganze HP gerundet, mindestens 1 |
+| Dodge (%) | Chance, einem Treffer ganz auszuweichen, höchstens 60 %; ein ausgewichener Treffer gibt keinen Schutz danach |
+| Speed (%) | Lauftempo × (1 + Wert/100) |
+| Luck | erhöht die Chancen auf seltene Items und Karten (× (1 + Luck/100)) |
+| Harvesting | am Wellenende so viele Shards und Team-XP, danach wächst es um 5 % (aufgerundet); negativ nimmt es Shards |
+| XP Gain (%) | eingesammelte XP × (1 + Wert/100) (nur aus Items) |
+| Pickup Range (%) | Aufsammelradius × (1 + Wert/100) (nur aus Items) |
+
+Engineering und Knockback aus Brotato fehlen bewusst (keine Bauten, kein Rückstoß-Wert).
+
+Seit Paket 4 umgesetzt (Werte in `Config/Player.luau` und `Config/Camera.luau`): Kamera 50° Neigung (seit Feedback zu Paket 9, vorher 60°), 70 Studs Abstand, Sichtfeld 40°, folgt weich. Springen ist aus; Leertaste, Gamepad-A und ein runder Dash-Knopf unten rechts lösen den Dash aus (am Handy größer). Der Dash schiebt die Figur in 0,15 s 12 Studs in Laufrichtung (im Stand in Blickrichtung); Wände und Ruinen stoppen ihn. Der Knopf zeigt den Cooldown als dunkle Füllung. Wer „down" ist, kann nicht laufen und nicht dashen. Klassenbonus auf HP wird beim Run-Start eingerechnet (Blade Warden 120 HP; seit B2 als +20 Max HP). Im HUD unten Mitte die eigene HP-Leiste (rot unter 30 %), kurzer roter Bildschirm-Blitz bei Treffern, HP der Mitspieler in der Team-Liste.
 
 Alle Werte stehen in Config-Modulen, nicht im Code.
 
@@ -150,16 +174,16 @@ v1 startet mit zwei kostenlosen Klassen; ab Live-Ops kommt alle 3–4 Wochen ein
 
 | Klasse | Startwaffe | Klassen-Bonus | Spielgefühl | Verfügbar |
 | --- | --- | --- | --- | --- |
-| Blade Warden | Orbit Blades | +20 % max. HP | Nahkampf, mitten rein | v1, gratis |
-| Spark Mage | Spark Bolt | −10 % Waffen-Cooldown | Fernkampf, ausweichen | v1, gratis |
+| Blade Warden | Orbit Blades | +20 Max HP (seit B2; vorher +20 %) | Nahkampf, mitten rein | v1, gratis |
+| Spark Mage | Spark Bolt | +10 % Attack Speed (seit B2; vorher −10 % Cooldown) | Fernkampf, ausweichen | v1, gratis |
 | Lantern Keeper | Lantern Pulse (heilt Team im Radius) | +25 % Wiederbelebungstempo | Support im Koop | Live-Ops, 2.500 Embers oder Pass |
-| Trapper | Thorn Trail | +15 % Wirkungsfläche | Zonen kontrollieren | Live-Ops, 2.500 Embers oder Pass |
+| Trapper | Thorn Trail | +15 Range (seit B2; vorher +15 % Fläche) | Zonen kontrollieren | Live-Ops, 2.500 Embers oder Pass |
 
-Jede Klasse: eine Startwaffe, ein passiver Bonus, ein eigenes Kostüm. Keine eigenen Skill-Bäume in v1.
+Jede Klasse: eine Startwaffe, ein passiver Bonus, ein eigenes Kostüm. Keine eigenen Skill-Bäume in v1. Seit B2 sind die Klassen-Boni normale Werte (`Config/Classes.luau` → `stats`, Abschnitt 4); Charaktere mit Plus und Minus wie in Brotato folgen in B4.
 
-## 6. Waffen, Passive & Evolutionen
+## 6. Waffen, Items & Evolutionen
 
-v1 hat 6 Waffen, 6 Passive und 2 Evolutionen; jeder Spieler trägt bis zu 4 Waffen und 4 Passive, jedes Item steigt bis Level 5.
+v1 hat 6 Waffen, 46 Items und 2 Evolutionen. Seit B2 trägt jeder Spieler bis zu 6 Waffen (vorher 4), jede steigt bis Level 5 (Waffen-Stufen und Verschmelzen kommen in B3). Items ersetzen seit B2 die 6 Passive: Man kann sie beliebig oft kaufen, sie stapeln ohne Grenze.
 
 **Waffen (Startwerte Level 1)**
 
@@ -172,29 +196,71 @@ v1 hat 6 Waffen, 6 Passive und 2 Evolutionen; jeder Spieler trägt bis zu 4 Waff
 | Thorn Trail | Dornenspur hinter dir, liegt 2 s | 8 pro 0,5 s | dauerhaft | +0,5 s Dauer und +20 % Schaden |
 | Boomerang Axe | fliegt raus und zurück, durchbohrt alles | 25 | 1,6 s | +1 Axt auf L3 und L5, sonst +15 % Schaden |
 
-**Passive**
+**Items (seit B2, Werte in `Config/Items.luau`)**
 
-| Passiv | Effekt pro Level |
-| --- | --- |
-| Vitality | +15 % max. HP |
-| Haste | +8 % Lauftempo |
-| Focus | −8 % Cooldown aller Waffen |
-| Magnet | +30 % Aufsammelradius |
-| Might | +10 % Schaden |
-| Armor | +1 Rüstung |
+Jedes Item ändert Werte (Abschnitt 4), die meisten mit einem Nachteil, wie in Brotato. Die Werte-Pakete orientieren sich an Brotatos Items (HP mal 10), Namen und Ideen sind unsere eigenen. Vitality, Haste, Focus, Magnet, Might und Armor Plate behalten die IDs der alten Passive, damit die Evolutionen sie finden. Preis = Grundpreis, im Shop steigt er pro Welle (Abschnitt 3). „max. 1" = höchstens einmal kaufbar.
+
+| Item | Stufe | Grundpreis | Werte |
+| --- | --- | --- | --- |
+| Vitality | Common | 15 | +30 Max HP, -1% Damage |
+| Haste | Common | 20 | -6 Range, +4% Speed |
+| Focus | Common | 20 | -2% Damage, +10% Attack Speed |
+| Magnet | Common | 20 | +30% Pickup Range |
+| Might | Common | 18 | -10 Max HP, +5% Damage |
+| Armor Plate | Common | 18 | -10 Max HP, +1 Armor |
+| Wax Heart | Common | 18 | +20 Max HP, +2 HP Regeneration, -1% Speed |
+| Cracked Lens | Common | 20 | +20 Range |
+| Bone Knuckles | Common | 15 | +1 Melee Damage |
+| Tallow Candle | Common | 20 | +2 Melee Damage, +1 Elemental Damage, -2 Harvesting |
+| Moth Wing | Common | 30 | +2% Life Steal, -1 Elemental Damage |
+| Grave Spade | Common | 15 | -1 Melee Damage, +8 Harvesting |
+| Cat Claw | Common | 20 | -10 Max HP, +1 Melee Damage, +3% Crit Chance |
+| Rusted Coin | Common | 15 | -1% Damage, +8 Luck |
+| Flint Shard | Common | 15 | -1 Melee Damage, +1 Ranged Damage |
+| Ward Rune | Common | 20 | -10 Max HP, +3% Dodge |
+| Leech Jar | Uncommon | 45 | +2 HP Regeneration, +2% Life Steal, -3 Harvesting |
+| Ash Blindfold | Uncommon | 45 | +5% Crit Chance, -15 Range, +5% Dodge |
+| Signal Banner | Uncommon | 55 | +10% Attack Speed, +20 Range |
+| Brazier | Uncommon | 40 | +2 HP Regeneration, +2 Elemental Damage, -2% Speed |
+| Oil Flask | Uncommon | 45 | -1 Melee Damage, -1 Ranged Damage, +4 Elemental Damage |
+| Loaded Dice | Uncommon | 50 | -1 Armor, +8% Dodge |
+| Narrow Scope | Uncommon | 45 | +12% Damage, -12 Range |
+| Whetstone | Uncommon | 35 | +3 Melee Damage, -3% Attack Speed |
+| Acid Vial | Uncommon | 65 | +80 Max HP, -2% Dodge |
+| Static Bracelet | Uncommon | 55 | -2 Ranged Damage, +2 Elemental Damage, +4% Crit Chance |
+| Powder Pouch | Uncommon | 45 | +2 Ranged Damage, +5% Attack Speed, -1 Armor |
+| Lantern Oil | Uncommon | 45 | -2% Damage, +2% Speed, +15 Luck |
+| Glass Lantern | Rare | 75 | +25% Damage, -3 Armor |
+| Four-Leaf Charm | Rare | 65 | -2% Life Steal, +6% Dodge, +20 Luck |
+| Eel Fin | Rare | 65 | +3% Life Steal, +10% Speed, -8 Luck |
+| Blood Offering | Rare | 55 | -20 Max HP, +40 Harvesting |
+| Iron Shackle | Rare | 75 | +15% Damage, +3 Armor, -3% Speed (max. 1) |
+| Clockwork Gears | Rare | 70 | +10% Attack Speed, +5% Crit Chance, -10 Range |
+| Tome of Echoes | Rare | 70 | -2% Life Steal, +50% XP Gain |
+| Smoke Mantle | Rare | 80 | -3 Armor, +10% Dodge, -5% Speed |
+| Silver Rounds | Rare | 70 | +3 Ranged Damage, +5% Crit Chance, -3% Speed |
+| Thorn Crown | Rare | 70 | +4 Melee Damage, +4 Elemental Damage, -5% Attack Speed |
+| Titan Arms | Legendary | 105 | +12 Melee Damage, +6 Ranged Damage, -3% Attack Speed, -3% Speed |
+| Shadow Cloak | Legendary | 110 | +5% Life Steal, -2 Melee Damage, -2 Ranged Damage, -2 Elemental Damage, +20% Dodge |
+| Heavy Rounds | Legendary | 100 | +10% Damage, +5 Ranged Damage, -5% Attack Speed, -5% Crit Chance, +10 Range |
+| Colossus Heart | Legendary | 110 | +150 Max HP, +5 HP Regeneration, -10% Speed |
+| Brass Harness | Legendary | 90 | -2 HP Regeneration, -2% Life Steal, +5% Crit Chance, +3 Armor, +5% Speed |
+| Witch's Mortar | Legendary | 100 | +10 Melee Damage, +10 Elemental Damage, -20 Range, -20% Pickup Range |
+| Lantern Codex | Legendary | 90 | -30 Max HP, +10 Luck, +50% XP Gain |
+| Eternal Flame | Legendary | 120 | +20% Damage, +20% Attack Speed, -2 Armor |
 
 **Evolutionen** – nur aus Elite- oder Boss-Truhen, wenn die Voraussetzung erfüllt ist:
 
 | Evolution | Voraussetzung | Effekt |
 | --- | --- | --- |
-| Blade Storm | Orbit Blades L5 + Armor (beliebiges Level) | 8 Klingen, Radius 10, doppelter Schaden |
-| Starfire | Spark Bolt L5 + Focus (beliebiges Level) | Projektile explodieren mit Radius 6 Studs |
+| Blade Storm | Orbit Blades L5 + mindestens 1 Armor Plate | 8 Klingen, Radius 10, doppelter Schaden |
+| Starfire | Spark Bolt L5 + mindestens 1 Focus | Projektile explodieren mit Radius 6 Studs |
 
 Werte, die hier noch fehlen (Projektil-Tempo und Reichweite von Spark Bolt und Boomerang Axe, Sprungweite von Chain Lightning, Drehtempo der Orbit Blades), stehen als Annahme in `Config/Weapons.luau`. Kollisionsradius und Masse der Gegner stehen seit Paket 3 als Annahme in `Config/Enemies.luau`.
 
 Jede Waffe = ein Datensatz im Config-Modul + ein kleines Verhaltens-Modul. Neue Waffe = neuer Datensatz + Verhalten, Framework bleibt unangetastet.
 
-**Stand im Code (seit Paket 8):** Alle sechs Waffen sind spielbar (Orbit Blades, Spark Bolt und Shockwave seit Paket 5, Chain Lightning, Thorn Trail und Boomerang Axe seit Paket 8) und kommen über die Level-up-Karten. Jeder Spieler startet den Run mit der Waffe seiner Klasse auf Level 1. Annahmen fürs Spielgefühl (Werte in `Config/Weapons.luau`, Urteil des Owners steht noch aus):
+**Stand im Code (seit Paket 8):** Alle sechs Waffen sind spielbar (Orbit Blades, Spark Bolt und Shockwave seit Paket 5, Chain Lightning, Thorn Trail und Boomerang Axe seit Paket 8) und kommen seit B1 aus dem Shop (vorher Level-up-Karten). Jeder Spieler startet den Run mit der Waffe seiner Klasse auf Level 1. Annahmen fürs Spielgefühl (Werte in `Config/Weapons.luau`, Urteil des Owners steht noch aus):
 
 | Waffe | Annahme |
 | --- | --- |
@@ -205,13 +271,24 @@ Jede Waffe = ein Datensatz im Config-Modul + ein kleines Verhaltens-Modul. Neue 
 | Thorn Trail (Paket 8) | Alle 2 Studs Weg legt der Spieler ein Dornenfeld mit 2,5 Studs Radius ab (Fläche-Bonus vergrößert es); steht er still, liegt immer eins unter ihm. Alle 0,5 s trifft die Spur jeden Gegner darauf einmal, auch wenn er auf mehreren Feldern steht. Höchstens 40 Felder pro Spieler. Liegende Felder wirken weiter, wenn der Spieler down ist. |
 | Boomerang Axe (Paket 8) | Fliegt mit 40 Studs/s 20 Studs weit zum nächsten Gegner, dreht um und fliegt zurück zu dem Ort, an dem der Spieler jetzt ist. Trifft jeden Gegner einmal auf dem Hinweg und einmal auf dem Rückweg, Trefferbreite 1,2 Studs. Gefangen bei 2 Studs Abstand, spätestens nach 3 s weg. Mehrere Äxte gehen an verschiedene Gegner, sonst 20° gefächert. |
 
-**Evolutionen (seit Paket 8):** Blade Storm (8 Klingen, Radius 10, doppelter Schaden, rot leuchtend) und Starfire (jeder Treffer eines Bolts explodiert mit 6 Studs Radius; die anderen Gegner in der Explosion bekommen den vollen Bolt-Schaden, Annahme) funktionieren. Der Server prüft die Voraussetzung (Waffe auf Level 5, noch nicht entwickelt, das Passiv auf beliebigem Level). Seit Paket 9 kommen sie aus Elite-Truhen (Abschnitt 8). Zum Testen bleibt der Knopf „Evolve weapons": Er hebt Waffen mit Evolution auf Level 5, gibt das fehlende Passiv auf Level 1 (wenn ein Passiv-Platz frei ist) und entwickelt sie.
+**Evolutionen (seit Paket 8):** Blade Storm (8 Klingen, Radius 10, doppelter Schaden, rot leuchtend) und Starfire (jeder Treffer eines Bolts explodiert mit 6 Studs Radius; die anderen Gegner in der Explosion bekommen den vollen Bolt-Schaden, Annahme) funktionieren. Der Server prüft die Voraussetzung (Waffe auf Level 5, noch nicht entwickelt, mindestens 1 des Items). Seit Paket 9 kommen sie aus Elite-Truhen (Abschnitt 8). Zum Testen bleibt der Knopf „Evolve weapons": Er hebt Waffen mit Evolution auf Level 5, gibt das fehlende Item einmal und entwickelt sie.
 
-**Spark Mage:** seit Paket 5 wählbar (Spark Bolt, −10 % Cooldown). Das eigene Kostüm kommt mit dem Look in Paket 21.
+**Spark Mage:** seit Paket 5 wählbar (Spark Bolt, seit B2 +10 % Attack Speed). Das eigene Kostüm kommt mit dem Look in Paket 21.
 
-**Passive (seit Paket 6):** Alle sechs Passive kommen über die Level-up-Karten, höchstens 4 pro Spieler, jedes bis Level 5. Sie addieren sich zu den Klassen-Boni (Blade Warden mit Vitality 2: +20 % + 2 × 15 % = 150 HP). Vitality hebt die maximalen HP und heilt dabei um den Unterschied; Haste erhöht das Lauftempo (nicht den Dash); Focus und Might wirken auf alle Waffen; Magnet vergrößert den Aufsammelradius für XP-Orbs; Armor zieht pro Treffer flach ab.
+**Items im Spiel (seit B2):** Items kommen aus dem Shop und aus Elite-Truhen (mindestens Uncommon, Abschnitt 8). Ihre Werte addieren sich mit Klasse, Werte-Karten und Team-Level (Blade Warden mit 2 × Vitality: 100 + 20 + 2 × 30 = 180 HP, Damage −2 %). Mehr Max HP heilt um den Unterschied, weniger kappt nur. Speed ändert das Lauftempo (nicht den Dash). Oben links im HUD stehen die Items mit Anzahl („Might x3") in der Farbe ihrer Stufe. Die Passive (Paket 6 bis B1) gibt es nicht mehr.
 
-Allgemein: Krit-Chance 5 % pro Treffer, Krit = doppelter Schaden (`Config/Player.luau`). Schaden pro Level addiert sich auf den Grundwert (Level 5 mit zweimal +15 % = 130 %). Boni des Spielers (Klasse jetzt, später Passive und Talente) wirken darauf: Schaden, Cooldown (nie unter 0,2 s) und Fläche (`area`, vergrößert `radius`). Spark Mage feuert also alle 0,81 s.
+**Waffen und Werte (seit B2, `Config/Weapons.luau` → `class`, `scaling`, `rangeKeys`):** Jede Waffe hat eine Art, die bestimmt, welcher flache Schaden zählt, und Werte, die mit Range wachsen:
+
+| Waffe | Art | Skalierung | wächst mit Range |
+| --- | --- | --- | --- |
+| Orbit Blades | Melee | 100 % Melee Damage | Radius (Hälfte) |
+| Spark Bolt | Ranged | 100 % Ranged Damage | Reichweite |
+| Shockwave | Melee | 100 % Melee Damage | Radius (Hälfte) |
+| Chain Lightning | Elemental | 100 % Elemental Damage | Reichweite und Sprungweite |
+| Thorn Trail | Elemental | 100 % Elemental Damage | – |
+| Boomerang Axe | Ranged | 100 % Ranged Damage | Reichweite |
+
+Allgemein: Krit-Chance 5 % pro Treffer plus Crit Chance, Krit = doppelter Schaden (`Config/Player.luau`). Schaden pro Level addiert sich auf den Grundwert (Level 5 mit zweimal +15 % = 130 %). Dann: Schaden = (Level-Schaden + Skalierung · flacher Schaden) · (1 + Damage/100), mindestens 1. Attack Speed teilt Cooldowns, Trefferpausen und Tick-Abstände (nie unter 0,2 s) und beschleunigt das Drehen der Klingen. Spark Mage feuert also alle 0,9 / 1,1 ≈ 0,82 s. Jeder Treffer mit Schaden würfelt Life Steal (Abschnitt 4).
 
 ## 7. Gegner, Elites & Boss
 
@@ -244,12 +321,12 @@ Spawnrate (Gegner/s)  = Ratenkurve(t) · Wellenstärke · fSpieler (· 2 im Swar
 Ratenkurve            = 1 → 2,2 (Min. 1) → 3,6 (3) → 5 (6) → 6,8 (9) → 8,6 (12), linear dazwischen
 Wellenstärke          = in jeder Welle von 0,7 auf 1,2 steigend (seit B1 ohne Atempause, dafür Shop);
                         Welle 12 zusätzlich · 1,4
-Gegner-HP-Faktor      = 1 → 1,15 (2) → 1,4 (4) → 1,75 (6) → 2,3 (8) → 3 (10) → 3,8 (12)
-Gegner-Schadensfaktor = 1 → 1,1 (6) → 1,25 (12)
+Gegner-HP-Faktor      = 1 → 1,15 (2) → 1,5 (4) → 2 (6) → 2,8 (8) → 3,8 (10) → 5 (12)        (seit B2)
+Gegner-Schadensfaktor = 1 → 1,1 (3) → 1,6 (6) → 2,4 (9) → 3,4 (12)                      (seit B2)
 fSpieler              = 1 + 0.6 · (n − 1)               n = Spieler im Run → 1 / 1.6 / 2.2 / 2.8
 ```
 
-Bis Paket 9 stiegen Rate und HP gerade an (`(1.5 + 0.55 · t)` und `1 + 0.15 · t`): Der Run begann gleich voll und fühlte sich danach immer gleich an (Owner-Feedback). Die Kurven starten ruhiger und steigen spät steiler; HP und Schaden gelten ab dem Spawn, beides mal Schwierigkeit.
+Bis Paket 9 stiegen Rate und HP gerade an (`(1.5 + 0.55 · t)` und `1 + 0.15 · t`): Der Run begann gleich voll und fühlte sich danach immer gleich an (Owner-Feedback). Die Kurven starten ruhiger und steigen spät steiler; HP und Schaden gelten ab dem Spawn, beides mal Schwierigkeit. Seit B2 steigen HP (bis 5 statt 3,8) und Schaden (bis 3,4 statt 1,25) deutlich steiler: Die Werte der Spieler wachsen jetzt ohne Grenze, ohne steilere Gegner überlebten gute Bots alle 12 Wellen, ohne in den letzten Wellen in Gefahr zu kommen (Abschnitt 9). Brotato macht es genauso: Dort gewinnen Gegner jede Welle HP und Schaden dazu.
 
 - Gleichzeitig maximal 80 Gegner + 20 pro weiterem Spieler (höchstens 140); beim Limit pausiert das Spawnen.
 - Spawn-Ort: Ring 45–60 Studs um einen zufälligen Spieler, außerhalb der Sicht, nie in Hindernissen.
@@ -283,9 +360,9 @@ Ein Gegner-Typ ist im Snapshot ein Byte; Elites senden Typ + 128, so kennt der C
 ## 8. Koop-Regeln
 
 - **XP:** Jedes Orb zählt fürs ganze Team. XP-Bedarf pro Level × Spielerfaktor.
-- **Level-up ohne Pause:** jeder Spieler eigene 3 Karten; während der Wahl kann man weiterlaufen und dashen und bleibt verwundbar (Owner-Wunsch nach Paket 9; Schalter `levelUp.freezeWhileChoosing`), Waffen feuern weiter; nach 10 s wird die erste Karte automatisch gewählt.
+- **Level-up ohne Pause:** jeder Spieler eigene Karten (seit B2 4 Werte-Karten, seit B1 erst am Wellenende); während der Wahl kann man weiterlaufen und dashen und bleibt verwundbar (Owner-Wunsch nach Paket 9; Schalter `levelUp.freezeWhileChoosing`), Waffen feuern weiter; nach 10 s wird die erste Karte automatisch gewählt.
 - **Truhen:** Elite-Truhe gibt jedem Spieler im Umkreis von 20 Studs eine eigene Belohnung.
-  Seit Paket 9: Die Truhe liegt, wo die Elite starb (goldene Kiste mit Lichtsäule, Pfeil am Bildschirmrand, wenn sie außer Sicht ist), und öffnet sich, sobald ein lebender Spieler auf 3,5 Studs heran ist. Jeder lebende Spieler im Umkreis bekommt: eine Evolution, wenn er eine nehmen darf; sonst +1 Level einer zufälligen eigenen Waffe oder eines Passivs, das noch nicht auf 5 ist; sonst 30 % Heilung. Dazu heilt die Truhe jeden Belohnten um 50 % seiner max. HP (neu, Annahme: ohne Heilung bringt jeder Spitter-Treffer bleibenden Schaden). Die eigene Belohnung erscheint groß in der Bildschirmmitte („CHEST – Starfire – Spark Bolt evolved!"). Truhen verschwinden am Run-Ende.
+  Seit Paket 9: Die Truhe liegt, wo die Elite starb (goldene Kiste mit Lichtsäule, Pfeil am Bildschirmrand, wenn sie außer Sicht ist), und öffnet sich, sobald ein lebender Spieler auf 3,5 Studs heran ist. Jeder lebende Spieler im Umkreis bekommt: eine Evolution, wenn er eine nehmen darf; sonst (seit B2) ein Item, mindestens Uncommon, Stufe nach Welle und Luck gewürfelt wie im Shop (Banner „CHEST – Might x2 – -10 Max HP, +5% Damage"); gibt es keins mehr, volle Heilung. Bis B1: +1 Level einer Waffe oder eines Passivs. Dazu heilt die Truhe jeden Belohnten um 50 % seiner max. HP (neu, Annahme: ohne Heilung bringt jeder Spitter-Treffer bleibenden Schaden). Die eigene Belohnung erscheint groß in der Bildschirmmitte („CHEST – Starfire – Spark Bolt evolved!"). Truhen verschwinden am Run-Ende.
 - **Down & Wiederbeleben:** bei 0 HP „down" (30-s-Timer); Teammate steht 3 s daneben → Wiederbelebung mit 40 % HP. Timer abgelaufen → Zuschauer bis Run-Ende, Embers anteilig.
 - **Run-Ende:** alle gleichzeitig down = Run vorbei.
 - **Revive-Token (Kauf):** höchstens 1 pro Spieler und Run.
@@ -295,20 +372,40 @@ Ein Gegner-Typ ist im Snapshot ein Byte; Elites senden Typ + 128, so kennt der C
 ## 9. XP-Kurve, Level-ups & Balancing-Startwerte
 
 ```text
-XP für Level L → L+1 = round((5 + 2.4 · L^1.3) · fSpieler)
+XP für Level L → L+1 = round((L + 3)² · fSpieler)        (seit B2, Brotatos Kurve)
 ```
 
-Solo: L1→2 = 7 XP, L10→11 = 53 XP, L30→31 = 205 XP; bis Level 35 zusammen rund 3.800 XP. Ein Solo-Run spawnt bis Minute 12 rund 3.400 Gegner (Ø 1,4–1,6 XP); bei ~85 % eingesammelten Orbs reicht das für Level 34–36.
+Solo: L1→2 = 16 XP, L10→11 = 169 XP, L20→21 = 529 XP; bis Level 20 zusammen rund 3.800 XP, bis Level 25 rund 6.900 XP. Gute Spieler (Bots, die fast jedes Orb holen) enden nach 12 Wellen bei Level 20–27 (Balance-Simulation unten). Bis B1 galt round((5 + 2,4 · L^1,3) · fSpieler) mit Ziel Level 34–36; mit den Werte-Karten ist ein Level viel mehr wert, deshalb die steilere Kurve.
 
-**Level-up-Karten:** 3 Karten aus allen Waffen/Passiven; vorhandene Items doppelt so wahrscheinlich; volle Slots → nur Upgrades; alles auf L5 → „+25 Embers" oder „30 % heilen"; 1 kostenloser Neuwurf pro Run.
+**Werte-Karten (seit B2, `Config/Run.luau` → `levelUp`, `Config/Stats.luau` → `upgrade`):** Jedes Level gibt +10 Max HP (automatisch) und eine Wahl aus 4 Karten mit verschiedenen Werten. Jede Karte hat eine Stufe I–IV (Farbe wie bei Items); die Stufe wird wie im Shop gewürfelt, nur mit dem Level statt der Welle und mit Luck. Feste Stufen wie in Brotato: Level 5 Uncommon, Level 10, 15 und 20 Rare, ab Level 25 jedes 5. Level Legendary. Neu würfeln kostet Shards zum Shop-Preis (Abschnitt 3); es gibt keinen kostenlosen Neuwurf mehr.
+
+| Wert | I | II | III | IV |
+| --- | --- | --- | --- | --- |
+| Max HP | +30 | +60 | +90 | +120 |
+| HP Regeneration | +2 | +3 | +4 | +5 |
+| Life Steal | +1 % | +2 % | +3 % | +4 % |
+| Damage | +5 % | +8 % | +12 % | +16 % |
+| Melee Damage | +2 | +4 | +6 | +8 |
+| Ranged Damage | +1 | +2 | +3 | +4 |
+| Elemental Damage | +1 | +2 | +3 | +4 |
+| Attack Speed | +5 % | +10 % | +15 % | +20 % |
+| Crit Chance | +3 % | +5 % | +7 % | +9 % |
+| Range | +15 | +30 | +45 | +60 |
+| Armor | +1 | +2 | +3 | +4 |
+| Dodge | +3 % | +6 % | +9 % | +12 % |
+| Speed | +3 % | +6 % | +9 % | +12 % |
+| Luck | +5 | +10 | +15 | +20 |
+| Harvesting | +5 | +8 | +10 | +12 |
+
+Waffen und Items gibt es nicht mehr auf Karten, nur im Shop und in Truhen. Bis B1: 3 Karten aus Waffen und Passiven, 1 kostenloser Neuwurf pro Run.
 
 **Stand im Code (seit Paket 6; Werte in `Config/Run.luau` → `xpCurve`, `xpOrbs`, `levelUp`):**
 
 - Jeder getötete Gegner lässt ein XP-Orb mit seinem XP-Wert fallen. Lebende Teilnehmer sammeln alle Orbs im Aufsammelradius (8 Studs, Magnet mehr) sofort ein; das Orb fliegt sichtbar zum Sammler. Die XP gehen an ein gemeinsames Team-Level, der Bedarf rechnet mit den Teilnehmern, die gerade im Server sind. Spieler, die down sind, sammeln nichts.
 - Annahme: höchstens 300 Orbs gleichzeitig am Boden; darüber geht die XP eines neuen Orbs in das nächstgelegene (es wird größer und färbt sich: blau ab 1, grün ab 4, rot ab 20 XP). Orbs bleiben liegen, bis jemand sie holt, und verschwinden am Run-Ende.
-- Pro Team-Level bekommt jeder Teilnehmer, der nicht „Out" ist, eigene Karten. Mehrere Level-ups stauen sich, die nächste Wahl kommt direkt nach der vorigen („2 more waiting"). Seit dem Feedback nach Paket 9 läuft und dasht man während der Wahl weiter und kann getroffen werden (`levelUp.freezeWhileChoosing = false`); nur wenn der Schalter an ist, steht man still, ist unverwundbar und danach 0,5 s geschützt. Nach 10 s wird die erste Karte gewählt; ein Neuwurf gibt neue Karten, möglichst andere, und startet die 10 s neu.
-- Karten reagieren erst 0,4 s nach dem Erscheinen (Annahme), damit ein Daumen auf dem Stick nicht versehentlich wählt. Am PC auch Tasten 1/2/3.
-- Sind weniger Items übrig als Karten, füllen „Heal" und „Embers" auf. Die Embers werden pro Run gezählt (`UpgradeService.getBonusEmbers`) und mit Paket 13 ausgezahlt.
+- Pro Team-Level bekommt jeder Teilnehmer, der nicht „Out" ist, eigene Karten. Mehrere Level-ups stauen sich, die nächste Wahl kommt direkt nach der vorigen („2 more waiting"; seit B1 alle am Wellenende). Seit dem Feedback nach Paket 9 läuft und dasht man während der Wahl weiter und kann getroffen werden (`levelUp.freezeWhileChoosing = false`); nur wenn der Schalter an ist, steht man still, ist unverwundbar und danach 0,5 s geschützt. Nach 10 s wird die erste Karte gewählt; ein Neuwurf gibt neue Karten, möglichst andere Werte, und startet die 10 s neu.
+- Karten reagieren erst 0,4 s nach dem Erscheinen (Annahme), damit ein Daumen auf dem Stick nicht versehentlich wählt. Am PC auch Tasten 1–4.
+- Bis B1 füllten „Heal" und „Embers" auf, wenn weniger Items übrig waren als Karten; mit Werte-Karten (seit B2) gibt es immer genug, die Embers-Karte entfällt.
 - Evolutionen sind nie Karten, nur Truhen (Paket 9).
 
 **Stand Paket 7 (Balance-Simulation, `tests/balance/BalanceSim.luau`):** Ganze Solo-Runs mit dem echten Server-Code und Computer-Spielern, je 3 Durchläufe. Noch ohne Elites, Swarm Rush und Spitter-Schüsse (Paket 9), daher eher zu leicht.
@@ -348,7 +445,7 @@ Folgerungen: Nur Weglaufen reicht nicht mehr, gute Spieler kommen nicht mehr sic
 
 Folgerungen: Bis Minute 7 etwa so schwer wie vorher, danach deutlich härter; gerade kommt kein Bot bis 12:00. Das ist für Teil 1 gewollt: Teil 2 macht den Spieler mit Level-Sprüngen, seltenen Karten, Krits und Glück stärker, danach wird neu gemessen. Der meiste Schaden kommt jetzt von Brutes und Chargern im Kontakt, später von Abyss Brutes und Elites; Spitter-Schüsse treffen seltener. Die erste Fassung war viel zu hart (alle Bots tot bis 6:30, viele genau beim Swarm Rush um 5:46); danach: sanftere Kurven, Charger 8 statt 14 Schaden, Elite-Eigenschaften erst ab 6:00 statt 4:00, Armored nimmt 60 % statt 50 %, Abyss Shadeling 18 statt 22 HP, Wellen steigen bis 1,2× statt 1,3×, Schaden bei 12:00 1,25× statt 1,6×. Die Streuung zwischen den Durchläufen ist groß; kleine Unterschiede zwischen Varianten zeigen 6 Durchläufe nicht.
 
-**Run-Statistik (seit Paket 7):** Der Ergebnis-Bildschirm zeigt Team-Level, Kills des Teams und pro Spieler Kills, Schaden und erlittenen Schaden (`RunStatsService`). Der Server schreibt am Run-Ende eine Zusammenfassung ins Output (im Live-Spiel: F9 → Server): Dauer, Team-Level pro Minute, Kills nach Gegnertyp, Waffen mit Level/Schaden/Kills und Passive jedes Spielers.
+**Run-Statistik (seit Paket 7):** Der Ergebnis-Bildschirm zeigt Team-Level, Kills des Teams und pro Spieler Kills, Schaden und erlittenen Schaden (`RunStatsService`). Der Server schreibt am Run-Ende eine Zusammenfassung ins Output (im Live-Spiel: F9 → Server): Dauer, Team-Level pro Minute, Kills nach Gegnertyp, Waffen mit Level/Schaden/Kills und Items jedes Spielers (seit B2, „Items: Might x2 · Focus x1").
 
 | Balancing-Ziel | Wert |
 | --- | --- |
@@ -369,6 +466,18 @@ Folgerungen: Bis Minute 7 etwa so schwer wie vorher, danach deutlich härter; ge
 | hält Abstand | Welle 3–9, meist 9 | Welle 9, einmal 11 |
 
 Folgerungen: Die volle Heilung nach jeder Welle trägt durch die ersten Wellen; die Wand ist Welle 9 (erste 60-s-Welle mit Abyss Brutes). Kein Bot schafft Welle 12, wie nach Teil 1 des Spaß-Pakets. Das ist bis B2 gewollt: Werte, Items und Seltenheit machen den Spieler stärker, danach wird neu gemessen. Stellschrauben, falls es vorher zu hart ist: Grundpreise in `Config/Shop.luau`, Shards pro XP, HP-Kurve ab Plan-Minute 8.
+
+**Stand Paket B2 (Werte, Items, Werte-Karten):** Die Bots wählen jetzt Werte-Karten und kaufen nach einem einfachen Geschmack (Schadensart der Klasse, dann Max HP, Damage, Attack Speed, Armor; Wert pro Shard), eigene Waffen vor neuen. Am Run-Ende druckt die Simulation Build und Werte, pro Welle das niedrigste HP. Erste Messung mit den alten Gegnerkurven: Ausweichende und auf Abstand kämpfende Bots überlebten 23 von 24 Runs bis zum Ende von Welle 12 und hatten in den Wellen 10–12 meist noch über 80 % HP. Mit unbegrenzt wachsenden Werten war das Ende also viel zu leicht. Drei Varianten mit steileren Gegnerkurven getestet; übernommen: HP-Faktor bis 5 und Schaden bis 3,4 (Abschnitt 7). Ergebnis (Kampfzeit, „w9" = in Welle 9 gestorben; Ausweichen und Abstand mit 12 Durchläufen, der Rest mit 6):
+
+| Spielweise | Blade Warden | Spark Mage |
+| --- | --- | --- |
+| steht still | Welle 3 (0:54–1:13) | Welle 3–4 (1:04–1:46) |
+| ab 3:00 still | danach noch 13–46 s | danach noch 31–45 s, einmal 150 s |
+| läuft im Kreis | 1 von 6 bis zum Ende, sonst Welle 4–9 | 1 von 6 bis zum Ende, sonst Welle 7–12 |
+| weicht aus, sammelt | 6 von 12 bis zum Ende, sonst Welle 5–11 | 9 von 12 bis zum Ende, sonst Welle 11–12 |
+| hält Abstand | 7 von 12 bis zum Ende, sonst Welle 5–9 | 4 von 12 bis zum Ende, sonst Welle 5–12 |
+
+Folgerungen: Gute Bots erreichen in gut der Hälfte der Runs (26 von 48) das Ende von Welle 12 und kommen in den letzten Wellen oft in echte Gefahr; Stillstehen ist früh tödlich, und ab 3:00 stillstehen hält jetzt meist unter 50 s (Ziel unter 20 s, vorher 45–170 s). Die Wand bleibt Welle 9 (erste 60-s-Welle, Abyss Brutes), einzelne Bots sterben schon am Ende von Welle 5. Der Boss (Paket 10) macht es noch schwerer; das Ziel „Bosssieg in den ersten 3 Runs 25–35 %" ist damit erreichbar. Die Bots bauen einfach; Menschen mit klugen Builds sind vermutlich stärker, das Urteil kommt aus dem Studio-Test. Stellschrauben: `hpCurve`, `damageCurve` in `Config/Run.luau`, Item-Preise in `Config/Items.luau`, Kartenwerte in `Config/Stats.luau`.
 
 ## 10. Meta-Progression & Schwierigkeitsgrade
 
@@ -438,11 +547,11 @@ Bewusst nicht: harte Countdown-Angebote oder Serien, die bei einem verpassten Ta
 ## 13. UX/UI & Onboarding
 
 - **Hub-Lobby:** Spawn, Run-Portale (Solo, Party, Quick Join), Talent-Altar, Klassen-Statuen, Shop-Stand, Ranglisten-Tafel.
-- **HUD:** oben Team-XP-Leiste mit Level, Timer Mitte, Kills rechts; unten links HP, unten rechts Dash; Waffen/Passive oben links; Teammates außer Sicht als Randpfeile. Seit Paket 5 steht oben links die Waffenliste mit Level („LV 2", ab Level 5 „MAX"), seit Paket 6 darunter die Passive und oben Mitte die Team-XP-Leiste mit „LV n" über dem Timer; in der Team-Liste steht „picking", solange jemand Karten wählt.
+- **HUD:** oben Team-XP-Leiste mit Level, Timer Mitte, Kills rechts; unten links HP, unten rechts Dash; Waffen/Passive oben links; Teammates außer Sicht als Randpfeile. Seit Paket 5 steht oben links die Waffenliste mit Level („LV 2", ab Level 5 „MAX"), seit Paket 6 darunter die Passive und oben Mitte die Team-XP-Leiste mit „LV n" über dem Timer; in der Team-Liste steht „picking", solange jemand Karten wählt. Seit B2 stehen statt der Passive die Items da („ITEMS (5)", je Zeile „Might x3" in der Farbe der Stufe, höchstens 8 Zeilen, dann „+n more").
 - **Wellen (seit dem Spaß-Paket nach Paket 9, seit B1 mit Shop):** der große Timer zeigt die Restzeit der Welle bzw. des Shops; darunter „Wave 3 / 12", im Shop grün „Shop · wave 4 / 12 next", in der letzten Welle rot „Final wave 12 / 12". Zu Beginn jeder Welle ein großes „WAVE n" oben in der Mitte (2,6 s), darunter, was sie bringt: „New: Chargers", „Swarm Rush!", „2 Gloom Elites!", „Final wave". Rot, wenn etwas Neues kommt. Der Client rechnet das selbst aus der Konfiguration (`Util/RunSchedule.luau`), ohne eigene Remote.
-- **Shop (seit B1):** neben dem Timer immer die eigenen Shards (türkis). Zwischen den Wellen verdeckt ein dunkler Hintergrund die Arena (unter dem HUD, Titel „WAVE n CLEARED"). Nach den Level-up-Karten ein Fenster „SHOP" mit „Wave 3 cleared · next wave in 34", 4 Karten (Badge „NEW"/„LV 3", Name, Effekt, Preis in Shards, rot wenn zu teuer, „SOLD" nach dem Kauf), „Reroll (5 Shards)" und „READY" (danach „WAITING…", nochmal tippen = weiter einkaufen).
+- **Shop (seit B1, seit B2 mit Items):** neben dem Timer immer die eigenen Shards (türkis). Zwischen den Wellen verdeckt ein dunkler Hintergrund die Arena (unter dem HUD, Titel „WAVE n CLEARED"). Nach den Level-up-Karten ein Fenster „SHOP" mit „Wave 3 cleared · next wave in 34", 4 Karten (Badge „NEW"/„LV 3", bei Items Stufe und Anzahl wie „RARE · X2", Name, Effekt, Preis in Shards, rot wenn zu teuer, „SOLD" nach dem Kauf), „Reroll (5 Shards)" und „READY" (danach „WAITING…", nochmal tippen = weiter einkaufen). Seit B2 haben Item-Karten Rahmen und Badge in der Farbe ihrer Stufe (grau, blau, violett, rot) und zeigen ihre Werte zeilenweise, Vorteile grün, Nachteile rot. Rechts daneben während Kartenwahl und Shop die Werte-Liste „STATS" (`StatsController`).
 - **Treffer-Gefühl (seit dem Spaß-Paket nach Paket 9):** eigene Schadenszahlen über den Gegnern (weiß, kritische Treffer groß, golden, mit „!"), Partikel-Puff beim Tod, Kamera-Wackeln, wenn man selbst getroffen wird, bei Elite-Tod und Truhe, goldener Lichtring um die Figur beim Level-up.
-- **Level-up:** 3 große Karten (Icon, Name, eine Zeile Effekt, „NEW"/„LV 3"), daumentauglich. Seit Paket 6: Fenster in der Bildmitte mit „LEVEL n", „Pick one", drei Karten (Icon = Kreis mit Anfangsbuchstaben, gelb Waffe, grün Passiv, violett Belohnung), einem Balken, der bis zur automatischen Wahl abläuft, und „Reroll (1 left)".
+- **Level-up:** 3 große Karten (Icon, Name, eine Zeile Effekt, „NEW"/„LV 3"), daumentauglich. Seit Paket 6: Fenster in der Bildmitte mit „LEVEL n", „Pick one", drei Karten (Icon = Kreis mit Anfangsbuchstaben, gelb Waffe, grün Passiv, violett Belohnung), einem Balken, der bis zur automatischen Wahl abläuft, und „Reroll (1 left)". Seit B2 vier Werte-Karten (Tasten 1–4) mit Wert-Name, Effekt („+8% Damage") und Stufe als Badge und Rahmenfarbe; der Knopf heißt „Reroll (n Shards)" und ist grau, wenn die Shards fehlen.
 - **Run-Ende:** Zeit, Kills, Schaden pro Waffe, Embers inkl. Boni, großer „Nochmal"-Knopf.
 - **Shop, Talente, Pass:** je ein Fenster, max. 2 Taps bis Kauf.
 
@@ -503,20 +612,20 @@ VFX & Audio                                                 PlayerDataService (P
 
 ```text
 src/shared/          → ReplicatedStorage.Shared
-  Config/            Player, Weapons, Passives, Evolutions, Enemies, Classes, Run, Talents,
+  Config/            Player, Weapons, Items, Stats, Evolutions, Enemies, Classes, Run, Talents,
                      Economy, Difficulty, Simulation, Map, Admin, Camera, Feedback, Shop
   Net/               Definition aller RemoteEvents und Snapshot-Format
-  Util/              SpatialHash, Signal, Loader, Format, Orbit, UpgradeText, EnemyKinds, RunSchedule
+  Util/              SpatialHash, Signal, Loader, Format, Orbit, UpgradeText, EnemyKinds, RunSchedule, StatMath
 src/server/          → ServerScriptService.Server
   Services/          RunDirector, SpawnDirector (+ SpawnRules), EnemySim (+ World, Volleys), CombatService,
                      WeaponService (+ Arsenal, WeaponStats, Behaviors/ je Waffe), ExperienceService (+ OrbField,
-                     Progression), UpgradeService (+ UpgradePool), ShopService (+ ShopRules, seit B1),
+                     Progression), UpgradeService (+ UpgradePool), ShopService (+ ShopRules, seit B1), StatService (seit B2),
                      LootService, ReviveService, PlayerDataService, MonetizationService, AnalyticsService,
                      MapService (Platzhalter-Karte), AdminService (Test-Befehle)
 src/client/          → StarterPlayer.StarterPlayerScripts.Client
   Controllers/       InputController, CameraController, PlayerStateController, EnemyRenderer (+ SnapshotBuffer, Models),
                      LoadoutController, WeaponRenderer (+ VisualKit, Visuals/ je Waffe), ProgressController,
-                     LevelUpController, ShopController, XpOrbRenderer, EnemyShotRenderer, ChestController, HUDController, VFXController,
+                     LevelUpController, ShopController, StatsController, XpOrbRenderer, EnemyShotRenderer, ChestController, HUDController, VFXController,
                      RunStateController, LobbyController, ResultsController, NotifyController, DebugController
   UI/                Theme, Widgets (UI im Code gebaut)
 tests/               Unit-Tests für reine Module (Runner in tools/luau-test-runner)
@@ -566,8 +675,8 @@ tests/               Unit-Tests für reine Module (Runner in tools/luau-test-run
 
 **Spieler** (seit Paket 4)
 
-- **CombatService** (Server) hält HP, Rüstung, Schutzfenster und Dash-Cooldown pro Spieler; die Regeln stehen als reines Modul in `CombatService/Vitals.luau` (mit Unit-Tests). Kontaktschaden kommt von `EnemySim.Contact`; bei 0 HP setzt der Service den Spieler über `RunDirector.setParticipantState` auf Down. Wieder Alive (Debug-Knopf, später Paket 11) → 40 % HP; am Wellenende (seit B1) volle HP für alle. Bei Countdown und Lobby volle HP. In der Shop-Phase ist das Lauftempo 0 und Dashes werden abgelehnt.
-- Schnittstellen für spätere Pakete: `CombatService.damagePlayer(player, damage)` (Projektile, Boss), `healPlayer(player, amount)` (Heilung, Passive), `protect(player, seconds)` (Level-up-Wahl, Paket 6), `getHp(player)`.
+- **CombatService** (Server) hält HP, Verteidigung (seit B2 Rüstungs-Faktor und Ausweich-Chance aus den Werten), Regeneration, Schutzfenster und Dash-Cooldown pro Spieler; die Regeln stehen als reines Modul in `CombatService/Vitals.luau` (mit Unit-Tests). Kontaktschaden kommt von `EnemySim.Contact`; bei 0 HP setzt der Service den Spieler über `RunDirector.setParticipantState` auf Down. Wieder Alive (Debug-Knopf, später Paket 11) → 40 % HP; am Wellenende (seit B1) volle HP für alle. Bei Countdown und Lobby volle HP. In der Shop-Phase ist das Lauftempo 0 und Dashes werden abgelehnt.
+- Schnittstellen für spätere Pakete: `CombatService.damagePlayer(player, damage)` (Projektile, Boss), `healPlayer(player, amount)` (Heilung, Truhen), `setStats(player, sheet)` und `lifeSteal(player)` (seit B2, StatService bzw. WeaponService), `protect(player, seconds)` (Level-up-Wahl, Paket 6), `getHp(player)`.
 - Dash: Der Client bewegt die eigene Figur sofort (LinearVelocity entlang des Bodens) und schickt `RequestDash`; der Server prüft den Cooldown (0,25 s Kulanz für Ping) und gibt 0,3 s Unverwundbarkeit. Die Bewegung selbst ist wie bei jeder Roblox-Figur Sache des Clients; der Plausibilitätscheck für Bewegung folgt im Sicherheits-Paket 23.
 - `PlayerState` geht bei jeder Änderung an alle Clients (`Net/Types.PlayerVitals`: HP, Max-HP, Dash bereit ab, unverwundbar bis). Ein neuer Client bekommt alle Stände mit `RequestSync` (Signal `RunDirector.SyncRequested`).
 - Client: `InputController` (Dash, Springen aus, Roblox-Lebensanzeige aus), `CameraController`, `PlayerStateController` (Stände + vorhergesagter Cooldown).
@@ -575,23 +684,25 @@ tests/               Unit-Tests für reine Module (Runner in tools/luau-test-run
 **Waffen-Framework** (seit Paket 5; Werte in `Config/Weapons.luau`, `Config/Player.luau`, `Config/Simulation.luau`)
 
 - **WeaponService** (Server) gibt jedem Teilnehmer beim Run-Start die Klassen-Waffe und führt nach jedem Gegner-Schritt (15 Hz, Signal `EnemySim.Stepped`) alle Waffen aus. Die Regeln stehen als reines Modul in `WeaponService/Arsenal.luau` (mit Unit-Tests gegen eine echte Gegner-Welt), die Werte rechnet `WeaponStats.luau` aus: Grundwert + Level-Schritte + Evolution + Boni des Spielers.
-- Pro Spieler bis zu 4 Waffen, jede bis Level 5. Pro Schritt und Waffe: erst `step` des Verhaltens (Klingen drehen, Projektile fliegen), dann, wenn der Cooldown um ist und der Spieler lebt, `fire` (neuer Angriff). Findet `fire` kein Ziel, versucht es die Waffe im nächsten Schritt wieder; Schüsse werden nicht angespart. Was schon fliegt, fliegt weiter, auch wenn der Spieler down geht.
+- Pro Spieler bis zu 6 Waffen (seit B2, vorher 4), jede bis Level 5. Pro Schritt und Waffe: erst `step` des Verhaltens (Klingen drehen, Projektile fliegen), dann, wenn der Cooldown um ist und der Spieler lebt, `fire` (neuer Angriff). Findet `fire` kein Ziel, versucht es die Waffe im nächsten Schritt wieder; Schüsse werden nicht angespart. Was schon fliegt, fliegt weiter, auch wenn der Spieler down geht.
 - **Neue Waffe** = Datensatz in `Config/Weapons.luau` + Verhalten in `WeaponService/Behaviors/<behavior>.luau` (Server, entscheidet die Treffer) + Aussehen in `WeaponRenderer/Visuals/<behavior>.luau` (Client, nur Anzeige). Das Verhalten erreicht die Welt nur über den Kontext: Gegner abfragen (Kreis, Strecke, nächste Gegner), `hit` (Schaden mit Krit, pro Waffe gezählt), `push` (Rückstoß), `emit` (Effekt für die Clients). Eine Waffe ohne Verhaltens-Modul kann niemand bekommen; `ConfigCheck` meldet, wenn einer Klassen-Waffe das Modul fehlt.
 - Treffer sind Daten gegen das Gegner-Raster, keine Roblox-Physik: Klingen und Projektile werden als Strecke zwischen zwei Schritten geprüft, damit nichts durchrutscht (Klingen in Stücken von höchstens 1,5 Studs an der Spitze).
 - **Netzwerk:** `Loadout` (Waffen, Level und fertige Werte eines Spielers) geht bei jeder Änderung an alle; `WeaponEffects` bündelt pro Schritt die Effekte (Bolt abgefeuert, Bolt gestoppt, Druckwelle) und geht nur an die Teilnehmer. Orbit-Klingen brauchen keine Effekte: Server und Clients rechnen den Winkel aus der Serverzeit (`Util/Orbit.luau`). Der Client schickt für Waffen nichts.
 - **Client:** `LoadoutController` merkt sich die Loadouts, `WeaponRenderer` zeichnet mit gepoolten Neon-Teilen und einem `workspace:BulkMoveTo` pro Frame. Klingen drehen sich um die Figur, wie dieser Client sie sieht; Bolts fliegen in Serverzeit von dort, wo der Server sie abgefeuert hat; die Druckwelle wächst um die Figur des Werfers und verblasst in 0,35 s.
-- Schnittstellen für spätere Pakete: `WeaponService.addWeapon(player, id)`, `levelUp(player, id)`, `removeWeapon`, `evolve(player, id, evolutionId)` (die Passiv-Voraussetzung prüft der Aufrufer), `getWeapons`, `getImplemented()` (Karten-Pool, Paket 6), `getDamageStats(player)` (Schaden und Kills pro Waffe für den Run-Ende-Screen, Paket 14), `setBonuses(player, bonuses)` (Passive seit Paket 6, Talente in Paket 13 kommen in `bonusesFor` dazu).
+- Schnittstellen für spätere Pakete: `WeaponService.addWeapon(player, id)`, `levelUp(player, id)`, `removeWeapon`, `evolve(player, id, evolutionId)` (die Item-Voraussetzung prüft der Aufrufer), `getWeapons`, `getImplemented()` (Karten-Pool, Paket 6), `getDamageStats(player)` (Schaden und Kills pro Waffe für den Run-Ende-Screen, Paket 14), `setStats(player, sheet)` (seit B2 die Werte aus StatService; vorher `setBonuses` mit Passiven und Klassen-Bonus; Talente kommen in Paket 13 über StatService dazu).
 - Gemessen im Test-Runner: 4 Spieler mit je 3 Waffen auf Level 5 zwischen 140 Gegnern ≈ 0,1 ms für die Waffen, zusammen mit den Gegnern ≈ 1,1 ms pro Schritt (Budget 4 ms). Die Messanzeige zeigt seit Paket 5 die Zeit für Gegner und Waffen zusammen.
 
 **XP und Level-ups** (seit Paket 6; Werte in `Config/Run.luau`)
 
 - **ExperienceService** (Server) hört auf `EnemySim.EnemyKilled` und legt Orbs als Daten an (`ExperienceService/OrbField.luau`); nach jedem Gegner-Schritt (`EnemySim.Stepped`) sammeln die lebenden Teilnehmer ein, gemessen an `EnemySim.getPlayerPosition` (wie bei Kontakten). Team-Level und XP-Kurve stehen rein in `ExperienceService/Progression.luau`. Beides mit Unit-Tests.
-- **UpgradeService** (Server) macht aus jedem Level-up Karten pro Spieler (`UpgradeService/UpgradePool.luau`, rein, mit Unit-Tests), hält die Passive und schiebt deren Boni an WeaponService (Schaden, Cooldown), CombatService (max. HP, Lauftempo, Rüstung) und ExperienceService (Aufsammelradius). Alle drei löschen die Boni beim nächsten Run-Start selbst.
+- **UpgradeService** (Server) macht aus jedem Level-up Werte-Karten pro Spieler (`UpgradeService/UpgradePool.luau`, rein, mit Unit-Tests), gibt den gewählten Wert an StatService, kassiert Neuwürfe über `ShopService.spendShards` und vergibt Truhen-Belohnungen (`grantChest`).
+- **StatService** (Server, seit B2) hält pro Teilnehmer Items (mit Anzahl), Werte aus Karten und Harvesting-Wachstum und die Zahl der Team-Level. Bei jeder Änderung rechnet es die Werte neu zusammen (Grundwerte + Klasse + Items × Anzahl + Karten + 10 Max HP pro Level, `Util/StatMath`) und schickt sie an WeaponService (Schaden, Attack Speed, Range, Krit, Life Steal), CombatService (Max HP, Rüstung, Ausweichen, Regeneration, Tempo) und ExperienceService (Aufsammelradius, XP Gain). Außerhalb eines Runs gelten die Grundwerte. Schnittstellen: `addItem` (Shop, Truhen, Debug; prüft Obergrenzen), `addUpgrade`, `growHarvesting`, `getStat`, `getSheet`, `getItemCounts`, `getItems`.
+- **ShopService** zahlt am Wellenende Harvesting aus (Shards + Team-XP über `ExperienceService.addXp`), würfelt Waffen und Items (`ShopRules`, rein, mit Unit-Tests) und gibt gekaufte Items an StatService.
 - **CombatService.setChoosing(player, an/aus):** schützt ohne Zeitlimit, setzt das Lauftempo auf 0 und lehnt Dashes ab; `PlayerVitals.choosing` geht an alle Clients.
-- **Netzwerk:** `TeamProgress` (Level, XP, Bedarf) an alle; `XpOrbs` pro Schritt gebündelt an die Teilnehmer, als flache Zahlenlisten (neue oder gewachsene Orbs: ID, x, z, Wert; eingesammelt: ID, Spieler); `LevelUpOffer` nur an den Wählenden; `Passives` pro Spieler an alle. Der Client schickt `ChooseUpgrade(cardId)` (nur vom Server angebotene IDs zählen) und `RequestReroll`.
-- **Client:** `ProgressController` merkt sich Team-XP und Passive, `XpOrbRenderer` zeichnet gepoolte Orbs (liegende werden einmal gesetzt, nur fliegende bewegt, per `workspace:BulkMoveTo`), `LevelUpController` zeigt die Karten; Kartentexte baut `Util/UpgradeText` aus der Config.
+- **Netzwerk:** `TeamProgress` (Level, XP, Bedarf) an alle; `XpOrbs` pro Schritt gebündelt an die Teilnehmer, als flache Zahlenlisten (neue oder gewachsene Orbs: ID, x, z, Wert; eingesammelt: ID, Spieler); `LevelUpOffer` nur an den Wählenden (seit B2 mit `rerollPrice`); `Items` pro Spieler an alle (seit B2, vorher `Passives`); `Stats` (alle Werte) nur an den Spieler selbst. Der Client schickt `ChooseUpgrade(cardId)` (nur vom Server angebotene IDs zählen) und `RequestReroll`.
+- **Client:** `ProgressController` merkt sich Team-XP und Items, `StatsController` die eigenen Werte (Liste im Shop), `XpOrbRenderer` zeichnet gepoolte Orbs (liegende werden einmal gesetzt, nur fliegende bewegt, per `workspace:BulkMoveTo`), `LevelUpController` zeigt die Karten; Kartentexte baut `Util/UpgradeText` aus der Config.
 - Debug-Knopf „Team +1 level" löst sofort ein Level-up aus (seit B1 kommen die Karten erst am Wellenende; im Shop sofort).
-- Schnittstellen für spätere Pakete: `ExperienceService.LevelGained(level)`, `grantLevel()`, `getLevel()`; `UpgradeService.getPassives(player)` (Evolutions-Voraussetzung, Paket 9), `getBonusEmbers(player)` (Paket 13).
+- Schnittstellen für spätere Pakete: `ExperienceService.LevelGained(level)`, `grantLevel()`, `getLevel()`; `UpgradeService.getEvolutions(player)` (Evolutions-Voraussetzung, Paket 9); seit B2 `ExperienceService.addXp(amount)` (Harvesting). `getPassives` und `getBonusEmbers` gibt es nicht mehr.
 
 **Performance-Budgets**
 
@@ -673,7 +784,7 @@ Gate nicht geschafft → erst nachbauen; Spaß-Check durchgefallen → Kern-Loop
 | Phase | Inhalt | Ergebnis |
 | --- | --- | --- |
 | Prototyp | eine Place, Blade Warden, 3 Waffen, 1–2 Gegnertypen, Level-up-Karten, kein Speichern | spielbarer 5-Min-Run |
-| Vertical Slice | Spark Mage, alle 6 Waffen, 6 Passive, 2 Evolutionen, 3 Gegnertypen + Elites, Boss, Wiederbeleben, Speichern, Embers + Talente, HUD | kompletter Run auf Normal |
+| Vertical Slice | Spark Mage, alle 6 Waffen, 46 Items (seit B2, vorher 6 Passive), 2 Evolutionen, 3 Gegnertypen + Elites, Boss, Wiederbeleben, Speichern, Embers + Talente, HUD | kompletter Run auf Normal |
 | MVP | Hub + Teleport, Hard/Nightmare, Shop und Käufe, Quests, Ranglisten, Badges, FTUE, Analytics, Look und Sound, Performance | launchfähiges Spiel |
 | Soft Launch | Launch-Paket, Closed Test, öffentlich 16+, Ads-Test | erste echte KPIs |
 | Live-Ops | wöchentliche Updates, neue Klassen/Maps, Lantern Pass, Weekly Challenge, Endlos-Modus | Wachstum nach Daten |
@@ -697,7 +808,7 @@ Bis zum Soft Launch rund 40–50 Sessions und 50–60 Stunden Zeit des Owners (6
 | ~~9c~~ | ~~Spaß-Paket Teil 2~~ – entfällt seit der Brotato-Richtung: Krits, Glück und seltene Karten gehen in B2, Level-Sprünge ersetzt der Shop | – | – | – | – | – |
 | 9d | Look-Paket: Gegner im Deadlock-Stil (okkultes Art déco), neue Waffen-, Dash- und Todes-Effekte | Vertical Slice | Extra high | 1 | 30 min | Look beurteilen, am Handy auf Ruckler achten |
 | B1 | Brotato-Richtung 1: Wellen 20–60 s mit Shop-Phase, Shards, Level-ups am Wellenende, Aufstehen und Heilen am Wellenende | Vertical Slice | Extra high | 1 | 1 h | Run solo und zu zweit spielen |
-| B2 | Brotato-Richtung 2: Werte-System (Schaden, Angriffstempo, Krit, Glück, Rüstung, Ausweichen, Regeneration, Lebensraub, Reichweite, Tempo, Ernte), ~25 Items mit Seltenheit und Trade-offs, Level-ups als Werte-Wahl | Vertical Slice | Extra high | 1–2 | 1 h | Items ausprobieren |
+| B2 | Brotato-Richtung 2: Werte-System (Schaden, Angriffstempo, Krit, Glück, Rüstung, Ausweichen, Regeneration, Lebensraub, Reichweite, Tempo, Ernte), 46 Items in 4 Seltenheiten mit Trade-offs, unbegrenzt stapelbar, 6 Waffen-Plätze, Level-ups als Werte-Wahl, Werte-Liste im Shop | Vertical Slice | Extra high | 1–2 | 1 h | Items ausprobieren |
 | B3 | Brotato-Richtung 3: Shop-Feinschliff (Sperren, Verkaufen, Verschmelzen, Handy-Layout) | Vertical Slice | High | 1 | 1 h | Shop am Handy bedienen |
 | B4 | Brotato-Richtung 4: 4–6 Charaktere mit Plus und Minus, Balance-Simulation mit Shop-Bots | Vertical Slice | Medium | 1 | 1 h | Schwierigkeit beurteilen |
 | 10 | Boss mit Vorwarnungen und 2 Phasen (nach Welle 12) | Vertical Slice | High | 2 | 1,5 h | Boss 3× spielen |

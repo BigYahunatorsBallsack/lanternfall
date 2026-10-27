@@ -1,13 +1,10 @@
--- Unit tests for level-up cards (UpgradeService/UpgradePool: DESIGN.md section 9), passive bonuses and the card
--- texts (Util/UpgradeText).
+-- Unit tests for level-up stat cards (UpgradeService/UpgradePool: DESIGN.md section 9, Brotato direction since B2),
+-- evolutions and the card, offer and chest texts (Util/UpgradeText).
 
 local Shared = game:GetService("ReplicatedStorage").Shared
 local Config = require(Shared.Config)
 local UpgradeText = require(Shared.Util.UpgradeText)
 local UpgradePool = require(game:GetService("ServerScriptService").Server.Services.UpgradeService.UpgradePool)
-
-local WEAPONS = { "OrbitBlades", "Shockwave", "SparkBolt" }
-local PASSIVES = { "Armor", "Focus", "Haste", "Magnet", "Might", "Vitality" }
 
 local function sequence(values)
 	local index = 0
@@ -19,16 +16,9 @@ end
 
 local function params(overrides)
 	local p = {
-		weapons = WEAPONS,
-		passives = PASSIVES,
-		ownedWeapons = { SparkBolt = 1 },
-		ownedPassives = {},
-		maxWeapons = 4,
-		maxPassives = 4,
-		maxLevel = 5,
-		cardCount = 3,
-		ownedWeight = 2,
-		rewards = { "Heal", "Embers" },
+		level = 2,
+		luck = 0,
+		cardCount = Config.Run.levelUp.cardCount,
 		random = sequence({ 0.1, 0.5, 0.9, 0.3, 0.7 }),
 	}
 	for key, value in overrides or {} do
@@ -37,163 +27,141 @@ local function params(overrides)
 	return p
 end
 
-local function ids(cards)
-	local list = {}
-	for _, card in cards do
-		table.insert(list, card.id)
-	end
-	return table.concat(list, ",")
-end
-
 describe("UpgradePool", function()
-	it("deals three different cards", function()
-		for seed = 1, 20 do
-			math.randomseed(seed)
-			local cards = UpgradePool.roll(params({ random = math.random }))
-			expect(#cards).toBe(3)
-			local seen = {}
+	it("deals four cards of different primary stats with their tier values", function()
+		local cards = UpgradePool.roll(params())
+		expect(#cards).toBe(4)
+		local seen = {}
+		for _, card in cards do
+			expect(seen[card.stat]).toBe(nil)
+			seen[card.stat] = true
+			local stat = Config.Stats.byId[card.stat]
+			expect(stat.primary).toBe(true)
+			expect(card.amount).toBe(stat.upgrade[card.tier])
+			expect(card.id).toBe(`Stat:{card.stat}:{card.tier}`)
+			expect(#card.id <= 32).toBe(true)
+		end
+	end)
+
+	it("only deals Common cards on the first levels", function()
+		for seed = 1, 10 do
+			local cards = UpgradePool.roll(params({ level = 1, random = sequence({ seed / 11, 0.01, 0.99 }) }))
 			for _, card in cards do
-				expect(seen[card.id]).toBe(nil)
-				seen[card.id] = true
-				expect(card.kind ~= "Reward").toBe(true)
+				expect(card.tier).toBe(1)
 			end
 		end
 	end)
 
-	it("offers owned items as upgrades to the next level and new ones at level 1", function()
-		local cards = UpgradePool.roll(params({
-			weapons = { "SparkBolt" },
-			passives = { "Might" },
-			ownedWeapons = { SparkBolt = 2 },
-			cardCount = 2,
-		}))
-		local byId = {}
-		for _, card in cards do
-			byId[card.id] = card
+	it("fixes the tier on Brotato's levels: 5 Uncommon, 10/15/20 Rare, from 25 every 5th Legendary", function()
+		expect(UpgradePool.guaranteedTier(5)).toBe(2)
+		expect(UpgradePool.guaranteedTier(10)).toBe(3)
+		expect(UpgradePool.guaranteedTier(20)).toBe(3)
+		expect(UpgradePool.guaranteedTier(25)).toBe(4)
+		expect(UpgradePool.guaranteedTier(35)).toBe(4)
+		expect(UpgradePool.guaranteedTier(26)).toBe(nil)
+		expect(UpgradePool.guaranteedTier(7)).toBe(nil)
+		for _, card in UpgradePool.roll(params({ level = 10 })) do
+			expect(card.tier).toBe(3)
 		end
-		expect(byId["Weapon:SparkBolt"].level).toBe(3)
-		expect(byId["Weapon:SparkBolt"].isNew).toBe(false)
-		expect(byId["Passive:Might"].level).toBe(1)
-		expect(byId["Passive:Might"].isNew).toBe(true)
 	end)
 
-	it("makes owned items about twice as likely", function()
-		-- one owned weapon (weight 2) against one new passive (weight 1), one card per roll
-		math.randomseed(7)
-		local owned = 0
-		local rolls = 3000
-		for _ = 1, rolls do
-			local cards = UpgradePool.roll(params({
-				weapons = { "SparkBolt" },
-				passives = { "Might" },
-				cardCount = 1,
-				random = math.random,
-			}))
-			if cards[1].id == "Weapon:SparkBolt" then
-				owned += 1
+	it("rolls rarer cards with a higher level and more Luck", function()
+		local function rareShare(level, luck)
+			local rare, total = 0, 0
+			for step = 0, 199 do
+				local cards = UpgradePool.roll(params({
+					level = level,
+					luck = luck,
+					random = sequence({ (step % 20) / 20, ((step * 7) % 20) / 20 + 0.01 }),
+				}))
+				for _, card in cards do
+					total += 1
+					if card.tier >= 2 then
+						rare += 1
+					end
+				end
 			end
+			return rare / total
 		end
-		expect(owned / rolls).toBeNear(2 / 3, 0.04)
+		expect(rareShare(3, 0) < rareShare(9, 0)).toBe(true)
+		expect(rareShare(3, 0) < rareShare(3, 100)).toBe(true)
 	end)
 
-	it("only offers upgrades once the slots are full", function()
-		local cards = UpgradePool.roll(params({
-			ownedWeapons = { SparkBolt = 1, OrbitBlades = 1 },
-			ownedPassives = { Might = 1, Armor = 1 },
-			maxWeapons = 2,
-			maxPassives = 2,
-		}))
-		expect(#cards).toBe(3)
-		for _, card in cards do
-			expect(card.isNew).toBe(false)
-		end
-	end)
-
-	it("fills up with rewards when almost everything is maxed", function()
-		local cards = UpgradePool.roll(params({
-			ownedWeapons = { SparkBolt = 5, OrbitBlades = 4 },
-			ownedPassives = { Might = 5 },
-			maxWeapons = 2,
-			maxPassives = 1,
-		}))
-		expect(ids(cards)).toBe("Weapon:OrbitBlades,Reward:Heal,Reward:Embers")
-		local maxed = UpgradePool.roll(params({
-			ownedWeapons = { SparkBolt = 5 },
-			maxWeapons = 1,
-			maxPassives = 0,
-		}))
-		expect(ids(maxed)).toBe("Reward:Heal,Reward:Embers")
-	end)
-
-	it("deals other cards on a reroll while there are enough", function()
+	it("deals other stats on a reroll while there are enough", function()
 		local first = UpgradePool.roll(params())
 		local avoid = {}
 		for _, card in first do
-			avoid[card.id] = true
+			avoid[card.stat] = true
 		end
-		local second = UpgradePool.roll(params({ avoid = avoid }))
-		expect(#second).toBe(3)
-		for _, card in second do
-			expect(avoid[card.id]).toBe(nil)
+		for _, card in UpgradePool.roll(params({ avoid = avoid })) do
+			expect(avoid[card.stat]).toBe(nil)
 		end
-		-- with only three items left, the reroll deals the same three
-		local few = params({ weapons = { "SparkBolt" }, passives = { "Might", "Armor" } })
-		local again = UpgradePool.roll(few)
-		local avoidAll = {}
-		for _, card in again do
-			avoidAll[card.id] = true
-		end
-		few.avoid = avoidAll
-		expect(#UpgradePool.roll(few)).toBe(3)
-	end)
-
-	it("sums passive bonuses by stat", function()
-		local bonuses = UpgradePool.passiveBonuses({ Might = 2, Armor = 3, Focus = 1, Vitality = 1 })
-		expect(bonuses.damage).toBeNear(0.2)
-		expect(bonuses.armor).toBe(3)
-		expect(bonuses.cooldown).toBeNear(-0.08)
-		expect(bonuses.maxHp).toBeNear(0.15)
-		expect(bonuses.moveSpeed).toBe(nil)
 	end)
 end)
 
 describe("UpgradeText", function()
-	local function card(kind, itemId, level, isNew)
-		return { id = `{kind}:{itemId}`, kind = kind, itemId = itemId, level = level, isNew = isNew }
-	end
-
-	it("describes new and upgraded weapons", function()
-		local title, detail, badge = UpgradeText.describe(card("Weapon", "SparkBolt", 1, true))
-		expect(title).toBe("Spark Bolt")
-		expect(detail).toBe(Config.Weapons.SparkBolt.description)
-		expect(badge).toBe("NEW")
-		_, detail, badge = UpgradeText.describe(card("Weapon", "SparkBolt", 2, false))
-		expect(detail).toBe("+1 bolt")
-		expect(badge).toBe("LV 2")
-		_, detail = UpgradeText.describe(card("Weapon", "OrbitBlades", 4, false))
-		expect(detail).toBe("+15% damage")
-		_, detail = UpgradeText.describe(card("Weapon", "Shockwave", 3, false))
-		expect(detail).toBe("+2 radius, -0.3s cooldown")
+	it("describes stat cards", function()
+		local title, detail, badge = UpgradeText.card(UpgradePool.card("damage", 2))
+		expect(title).toBe("Damage")
+		expect(detail).toBe("+8% Damage")
+		expect(badge).toBe("Uncommon")
+		_, detail = UpgradeText.card(UpgradePool.card("maxHp", 1))
+		expect(detail).toBe("+30 Max HP")
 	end)
 
-	it("describes passives and rewards", function()
-		local title, detail, badge = UpgradeText.describe(card("Passive", "Magnet", 2, false))
-		expect(title).toBe("Magnet")
-		expect(detail).toBe("+30% pickup radius")
+	it("describes weapon and item offers", function()
+		local title, detail, badge = UpgradeText.offer({
+			id = "1:Weapon:SparkBolt",
+			kind = "Weapon",
+			itemId = "SparkBolt",
+			tier = 1,
+			level = 2,
+			isNew = false,
+			price = 10,
+			sold = false,
+		})
+		expect(title).toBe("Spark Bolt")
+		expect(detail).toBe("+1 bolt")
 		expect(badge).toBe("LV 2")
-		title, detail, badge = UpgradeText.describe(card("Reward", "Heal", 1, false))
+		title, detail, badge = UpgradeText.offer({
+			id = "2:Item:GlassLantern",
+			kind = "Item",
+			itemId = "GlassLantern",
+			tier = 3,
+			level = 3,
+			isNew = false,
+			price = 80,
+			sold = false,
+		})
+		expect(title).toBe("Glass Lantern")
+		expect(detail).toBe("+25% Damage\n-3 Armor")
+		expect(badge).toBe("Rare · x2")
+	end)
+
+	it("colors stat lines as rich text", function()
+		local text = UpgradeText.statLines({ armor = -1, damage = 5 }, {
+			plus = { R = 0, G = 1, B = 0 } :: any, -- Color3 fields; the unit tests run without Roblox types
+			minus = { R = 1, G = 0, B = 0 } :: any,
+		})
+		expect(text).toBe('<font color="#00FF00">+5% Damage</font>\n<font color="#FF0000">-1 Armor</font>')
+	end)
+
+	it("describes chest rewards", function()
+		local title, detail = UpgradeText.chestReward({ kind = "Evolution", itemId = "Starfire", level = 0 })
+		expect(title).toBe("Starfire")
+		expect(detail).toBe("Spark Bolt evolved!")
+		title, detail = UpgradeText.chestReward({ kind = "Item", itemId = "Might", level = 2 })
+		expect(title).toBe("Might x2")
+		expect(detail).toBe("-10 Max HP, +5% Damage") -- in the order of the stat panel
+		title = UpgradeText.chestReward({ kind = "Reward", itemId = "Heal", level = 0 })
 		expect(title).toBe("Heal")
-		expect(detail).toBe("Heal 30% of your HP")
-		expect(badge).toBe("")
-		_, detail = UpgradeText.describe(card("Reward", "Embers", 1, false))
-		expect(detail).toBe("+25 Embers")
 	end)
 end)
 
 describe("evolutions", function()
 	local max = Config.Player.maxItemLevel
 
-	it("needs the weapon at max level, not evolved yet, plus the passive at any level", function()
+	it("needs the weapon at max level, not evolved yet, plus at least one of the item", function()
 		local evolutionsFor = UpgradePool.evolutionsFor
 		local blades = { OrbitBlades = { level = max } }
 		expect(#evolutionsFor(blades, {}, max)).toBe(0)
@@ -202,42 +170,5 @@ describe("evolutions", function()
 		expect(#evolutionsFor({ OrbitBlades = { level = max, evolution = "BladeStorm" } }, { Armor = 1 }, max)).toBe(0)
 		local both = { OrbitBlades = { level = max }, SparkBolt = { level = max } }
 		expect(table.concat(evolutionsFor(both, { Armor = 1, Focus = 2 }, max), ",")).toBe("BladeStorm,Starfire")
-	end)
-end)
-
-describe("chests", function()
-	local max = Config.Player.maxItemLevel
-
-	it("raises a random owned weapon or passive below max level by one", function()
-		local owned = { SparkBolt = 2, OrbitBlades = max }
-		local passives = { Armor = 1 }
-		local seen = {}
-		for _, roll in { 0, 0.49, 0.5, 0.99 } do
-			local card = UpgradePool.chestUpgrade(owned, passives, max, function()
-				return roll
-			end)
-			expect(card ~= nil).toBe(true)
-			if card then
-				seen[card.id] = card.level
-				expect(card.isNew).toBe(false)
-			end
-		end
-		expect(seen["Weapon:SparkBolt"]).toBe(3)
-		expect(seen["Passive:Armor"]).toBe(2)
-		expect(seen["Weapon:OrbitBlades"]).toBe(nil)
-		expect(UpgradePool.chestUpgrade({ SparkBolt = max }, { Armor = max }, max, function()
-			return 0.5
-		end)).toBe(nil)
-	end)
-
-	it("describes chest rewards", function()
-		local title, detail = UpgradeText.chestReward({ kind = "Evolution", itemId = "Starfire", level = 0 })
-		expect(title).toBe("Starfire")
-		expect(detail).toBe("Spark Bolt evolved!")
-		title, detail = UpgradeText.chestReward({ kind = "Weapon", itemId = "SparkBolt", level = 2 })
-		expect(title).toBe("Spark Bolt LV 2")
-		expect(detail).toBe("+1 bolt")
-		title = UpgradeText.chestReward({ kind = "Reward", itemId = "Heal", level = 0 })
-		expect(title).toBe("Heal")
 	end)
 end)

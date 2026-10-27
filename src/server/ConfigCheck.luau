@@ -44,20 +44,71 @@ function ConfigCheck.run(): { string }
 		end
 	end
 
-	for id, passive in Config.Passives do
-		if passive.id ~= id then
-			problem(`Passive key {id} does not match id {passive.id}`)
+	local function checkStats(owner: string, stats: { [string]: number })
+		for statId, value in stats do
+			if not Config.Stats.byId[statId] then
+				problem(`{owner} changes unknown stat {statId}`)
+			elseif value ~= value then
+				problem(`{owner} has no number for {statId}`)
+			end
 		end
 	end
 
-	for id in Config.Weapons do
-		if not (Config.Shop.basePrices[id] and Config.Shop.basePrices[id] > 0) then
-			problem(`Shop.basePrices needs a price above 0 for weapon {id}`)
+	for _, stat in Config.Stats.order do
+		local upgrade = stat.upgrade
+		if upgrade and #upgrade ~= #Config.Items.tiers then
+			problem(`Stat {stat.id} needs one upgrade value per rarity tier ({#Config.Items.tiers})`)
 		end
 	end
-	for id in Config.Passives do
-		if not (Config.Shop.basePrices[id] and Config.Shop.basePrices[id] > 0) then
-			problem(`Shop.basePrices needs a price above 0 for passive {id}`)
+	for index, tier in Config.Items.tiers do
+		if not (tier.minWave >= 1 and tier.max >= 0 and tier.max <= 1 and tier.perWave >= 0) then
+			problem(`Items.tiers[{index}] needs minWave >= 1 and chances between 0 and 1`)
+		end
+	end
+	local seenItems = {}
+	for _, item in Config.Items.list do
+		if seenItems[item.id] then
+			problem(`Item {item.id} is listed twice`)
+		end
+		seenItems[item.id] = true
+		if not Config.Items.tiers[item.tier] then
+			problem(`Item {item.id} has unknown tier {item.tier}`)
+		end
+		if not (item.price > 0) then
+			problem(`Item {item.id} needs a price above 0`)
+		end
+		if item.limit and item.limit < 1 then
+			problem(`Item {item.id} needs a limit of at least 1`)
+		end
+		checkStats(`Item {item.id}`, item.stats)
+	end
+	for tier = 1, #Config.Items.tiers do
+		local found = false
+		for _, item in Config.Items.list do
+			found = found or item.tier == tier
+		end
+		if not found then
+			problem(`Items has no item of tier {tier}`)
+		end
+	end
+	if not Config.Items.tiers[Config.Items.chestMinTier] then
+		problem("Items.chestMinTier must be a rarity tier")
+	end
+	for level, tier in Config.Run.levelUp.guaranteedTiers do
+		if not Config.Items.tiers[tier] or level < 2 then
+			problem(`Run.levelUp.guaranteedTiers[{level}] needs a level of at least 2 and a known tier`)
+		end
+	end
+
+	for id, weapon in Config.Weapons do
+		if not (Config.Shop.weaponPrices[id] and Config.Shop.weaponPrices[id] > 0) then
+			problem(`Shop.weaponPrices needs a price above 0 for weapon {id}`)
+		end
+		checkStats(`Weapon {id} scaling`, weapon.scaling)
+		for _, key in weapon.rangeKeys do
+			if weapon.base[key] == nil then
+				problem(`Weapon {id} grows {key} with Range, which its base stats do not have`)
+			end
 		end
 	end
 	if Config.Shop.slots < 1 or Config.Shop.phaseSeconds <= 0 then
@@ -68,8 +119,8 @@ function ConfigCheck.run(): { string }
 		if not Config.Weapons[evolution.weapon] then
 			problem(`Evolution {id} needs unknown weapon {evolution.weapon}`)
 		end
-		if not Config.Passives[evolution.passive] then
-			problem(`Evolution {id} needs unknown passive {evolution.passive}`)
+		if not Config.Items.byId[evolution.item] then
+			problem(`Evolution {id} needs unknown item {evolution.item}`)
 		end
 		local weapon = Config.Weapons[evolution.weapon]
 		if weapon and hasBehavior(weapon.behavior) and not hasBehavior(evolution.behavior) then
@@ -78,6 +129,7 @@ function ConfigCheck.run(): { string }
 	end
 
 	for id, class in Config.Classes do
+		checkStats(`Class {id}`, class.stats)
 		local weapon = Config.Weapons[class.startWeapon]
 		if class.available and not weapon then
 			problem(`Class {id} starts with unknown weapon {class.startWeapon}`)
