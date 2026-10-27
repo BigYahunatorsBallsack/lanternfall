@@ -10,27 +10,27 @@ local OrbField = require(Services.ExperienceService.OrbField)
 local CURVE = Config.Run.xpCurve
 
 describe("Progression", function()
-	it("matches the solo numbers in DESIGN.md", function()
-		expect(Progression.xpForLevel(CURVE, 1, 1)).toBe(7)
-		expect(Progression.xpForLevel(CURVE, 10, 1)).toBe(53)
-		expect(Progression.xpForLevel(CURVE, 30, 1)).toBe(205)
+	it("uses Brotato's curve (L + 3)^2 solo", function()
+		expect(Progression.xpForLevel(CURVE, 1, 1)).toBe(16)
+		expect(Progression.xpForLevel(CURVE, 2, 1)).toBe(25)
+		expect(Progression.xpForLevel(CURVE, 10, 1)).toBe(169)
 		local total = 0
-		for level = 1, 34 do
+		for level = 1, 18 do
 			total += Progression.xpForLevel(CURVE, level, 1)
 		end
-		expect(total > 3500 and total < 4100).toBe(true) -- "bis Level 35 zusammen rund 3.800 XP"
+		expect(total).toBe(3297) -- 4^2 + ... + 21^2: level 19 after about 3.300 XP
 	end)
 
 	it("scales the XP needed with the player factor", function()
-		expect(Progression.xpForLevel(CURVE, 1, 1.6)).toBe(12) -- 7.4 * 1.6 = 11.84
-		expect(Progression.xpForLevel(CURVE, 1, 2.8)).toBe(21)
+		expect(Progression.xpForLevel(CURVE, 1, 1.6)).toBe(26) -- 16 * 1.6 = 25.6
+		expect(Progression.xpForLevel(CURVE, 1, 2.8)).toBe(45) -- 44.8
 	end)
 
 	it("levels up once enough XP is in and keeps the rest", function()
 		local p = Progression.new(CURVE)
-		expect(p:add(6, 1)).toBe(0)
+		expect(p:add(15, 1)).toBe(0)
 		expect(p.level).toBe(1)
-		expect(p:add(2, 1)).toBe(1) -- 8 of 7
+		expect(p:add(2, 1)).toBe(1) -- 17 of 16
 		expect(p.level).toBe(2)
 		expect(p.xp).toBe(1)
 	end)

@@ -1,23 +1,16 @@
--- Unit tests for player HP, armor, hit protection and dash rules (src/server/Services/CombatService/Vitals.luau).
+-- Unit tests for player HP, armor, dodge, hit protection and dash rules (src/server/Services/CombatService/Vitals.luau).
 -- Run: see README "Für Entwickler".
 
 local ServerScriptService = game:GetService("ServerScriptService")
 local Vitals = require(ServerScriptService.Server.Services.CombatService.Vitals)
 
 local SETTINGS = {
-	armor = 0,
 	minDamagePerHit = 1,
 	hitInvulnerability = 0.5,
 	dashCooldown = 6,
 	dashInvulnerability = 0.3,
 	dashCooldownTolerance = 0.25,
 }
-
-local function withArmor(armor)
-	local settings = table.clone(SETTINGS)
-	settings.armor = armor
-	return settings
-end
 
 describe("Vitals", function()
 	it("starts at full HP", function()
@@ -35,11 +28,24 @@ describe("Vitals", function()
 		expect(v.hp).toBe(90)
 	end)
 
-	it("subtracts armor but always deals at least 1", function()
-		local v = Vitals.new(100, withArmor(3))
-		expect(v:hit(5, 0)).toBe(2)
-		expect(v:hit(2, 1)).toBe(1)
-		expect(v.hp).toBe(97)
+	it("takes the armor share of the damage but always at least 1", function()
+		local v = Vitals.new(100, SETTINGS)
+		v:setDefense(0.5, 0)
+		expect(v:hit(10, 0)).toBe(5)
+		expect(v:hit(1, 1)).toBe(1)
+		expect(v.hp).toBe(94)
+	end)
+
+	it("dodges a hit when the roll is below the dodge chance, without protection afterwards", function()
+		local v = Vitals.new(100, SETTINGS)
+		v:setDefense(1, 0.3)
+		local taken, dodged = v:hit(10, 0, 0.29)
+		expect(taken).toBe(0)
+		expect(dodged).toBe(true)
+		taken, dodged = v:hit(10, 0.1, 0.3) -- no protection window after a dodge
+		expect(taken).toBe(10)
+		expect(dodged).toBe(false)
+		expect(v:hit(10, 10)).toBe(10) -- no roll: never dodged
 	end)
 
 	it("goes down at 0 HP and ignores further hits and heals", function()
@@ -132,11 +138,11 @@ describe("Vitals", function()
 		expect(v.hp).toBe(0)
 	end)
 
-	it("takes armor bonuses on top of the base armor, back to base on reset", function()
-		local v = Vitals.new(100, withArmor(1))
-		v:setArmorBonus(2)
-		expect(v:hit(10, 0)).toBe(7)
-		v:reset(100)
-		expect(v:hit(10, 10)).toBe(9)
+	it("keeps its defense when reset for a new run", function()
+		local v = Vitals.new(100, SETTINGS)
+		v:setDefense(0.75, 0)
+		v:reset(120)
+		expect(v.hp).toBe(120)
+		expect(v:hit(20, 0)).toBe(15)
 	end)
 end)

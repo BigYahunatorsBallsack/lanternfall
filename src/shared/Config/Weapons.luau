@@ -9,7 +9,9 @@
 --   cooldown  = seconds added to cooldown (negative = faster)
 --   duration  = seconds added to duration
 --   jumps     = extra chain jumps
--- Owner bonuses (class, later passives and talents) scale damage, cooldown and radius on top (WeaponStats).
+-- The owner's stats (Config.Stats, since B2) come on top (WeaponStats): `scaling` adds that share of a damage stat to
+-- the damage (Brotato: a pistol deals its base + 100 % of Ranged Damage), Damage %, Attack Speed and Crit Chance
+-- work on every weapon, Range lengthens the stats in `rangeKeys` (melee weapons get only part of it).
 -- `behavior` names the behavior module in WeaponService/Behaviors and the visual in WeaponRenderer/Visuals.
 -- A weapon without a behavior module exists only as data and cannot be given to players.
 -- Values marked "assumption" are not specified in DESIGN.md; tuned by feel in WP5 and WP8, balanced in WP7.
@@ -23,10 +25,15 @@ export type LevelDelta = {
 	jumps: number?,
 }
 
+export type WeaponClass = "Melee" | "Ranged" | "Elemental"
+
 export type Weapon = {
 	id: string,
 	displayName: string,
 	description: string,
+	class: WeaponClass,
+	scaling: { [string]: number }, -- stat id -> share added to the damage (1 = 100 %)
+	rangeKeys: { string }, -- stats that grow with the Range stat (studs)
 	countName: string?, -- what `count` counts, for level-up cards ("+1 blade"); weapons without `count` leave it out
 	behavior: string,
 	targeting: "Orbit" | "Nearest" | "Self" | "Chain" | "Trail" | "Random",
@@ -40,6 +47,9 @@ local Weapons: { [string]: Weapon } = {
 		displayName = "Orbit Blades",
 		description = "Blades circle around you.",
 		countName = "blade",
+		class = "Melee",
+		scaling = { meleeDamage = 1 },
+		rangeKeys = { "radius" },
 		behavior = "OrbitBlades",
 		targeting = "Orbit",
 		base = {
@@ -64,6 +74,9 @@ local Weapons: { [string]: Weapon } = {
 		displayName = "Spark Bolt",
 		description = "Fires at the nearest enemy, pierces 1.",
 		countName = "bolt",
+		class = "Ranged",
+		scaling = { rangedDamage = 1 },
+		rangeKeys = { "range" },
 		behavior = "SparkBolt",
 		targeting = "Nearest",
 		base = {
@@ -89,6 +102,9 @@ local Weapons: { [string]: Weapon } = {
 		id = "Shockwave",
 		displayName = "Shockwave",
 		description = "A blast around you.",
+		class = "Melee",
+		scaling = { meleeDamage = 1 },
+		rangeKeys = { "radius" },
 		behavior = "Shockwave",
 		targeting = "Self",
 		base = {
@@ -109,6 +125,9 @@ local Weapons: { [string]: Weapon } = {
 		id = "ChainLightning",
 		displayName = "Chain Lightning",
 		description = "Lightning jumps between enemies.",
+		class = "Elemental",
+		scaling = { elementalDamage = 1 },
+		rangeKeys = { "range", "jumpRange" },
 		behavior = "ChainLightning",
 		targeting = "Chain",
 		base = {
@@ -130,6 +149,9 @@ local Weapons: { [string]: Weapon } = {
 		id = "ThornTrail",
 		displayName = "Thorn Trail",
 		description = "Leaves thorns behind you.",
+		class = "Elemental",
+		scaling = { elementalDamage = 1 },
+		rangeKeys = {},
 		behavior = "ThornTrail",
 		targeting = "Trail",
 		base = {
@@ -153,6 +175,9 @@ local Weapons: { [string]: Weapon } = {
 		displayName = "Boomerang Axe",
 		description = "Flies out and back, pierces everything.",
 		countName = "axe",
+		class = "Ranged",
+		scaling = { rangedDamage = 1 },
+		rangeKeys = { "range" },
 		behavior = "BoomerangAxe",
 		targeting = "Nearest",
 		base = {

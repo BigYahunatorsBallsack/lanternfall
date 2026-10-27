@@ -1,9 +1,10 @@
 --!strict
--- Player HP, armor, hit protection and dash (rules in CombatService/Vitals). Takes enemy contact damage
+-- Player HP, armor, dodge, hit protection and dash (rules in CombatService/Vitals). Takes enemy contact damage
 -- from EnemySim, handles the RequestDash remote, knocks players down at 0 HP via RunDirector and sends
 -- PlayerState to every client on change. Fires PlayerDamaged for RunStatsService. Sets walk speed and turns jumping off on each character.
--- UpgradeService sets passive bonuses (max HP, move speed, armor) and the level-up choice (setChoosing: shielded and
--- standing still); weapons, rewards and revives (WP11) use damagePlayer, healPlayer and protect. When a wave ends
+-- StatService sets the player's stats (setStats: Max HP, HP Regeneration, Armor, Dodge, Speed; Util/StatMath),
+-- WeaponService calls lifeSteal, UpgradeService the level-up choice (setChoosing: shielded and standing still);
+-- rewards and revives (WP11) use damagePlayer, healPlayer and protect. When a wave ends
 -- (Shop phase) players who are down stand up and everyone heals (Config.Shop.waveEnd); nobody walks or dashes in the
 -- shop.
 
@@ -16,6 +17,7 @@ local Config = require(Shared.Config)
 local Net = require(Shared.Net)
 local Signal = require(Shared.Util.Signal)
 local Types = require(Shared.Net.Types)
+local StatMath = require(Shared.Util.StatMath)
 
 local EnemySim = require(script.Parent.EnemySim)
 local RunDirector = require(script.Parent.RunDirector)
@@ -24,7 +26,6 @@ local Vitals = require(script.Vitals)
 local PlayerConfig = Config.Player
 
 local SETTINGS: Vitals.Settings = {
-	armor = PlayerConfig.armor,
 	minDamagePerHit = PlayerConfig.minDamagePerHit,
 	hitInvulnerability = PlayerConfig.hitInvulnerability,
 	dashCooldown = PlayerConfig.dash.cooldown,
@@ -39,27 +40,19 @@ CombatService.PlayerDamaged = Signal.new()
 
 local vitals: { [Player]: Vitals.Vitals } = {}
 local sentHp: { [Player]: number } = {} -- whole HP last sent, so regeneration does not send every frame
-local bonuses: { [Player]: { [string]: number } } = {} -- from passives (UpgradeService), cleared by resetAll
+local stats: { [Player]: StatMath.Sheet } = {} -- the latest from StatService, kept until the player leaves
+local regen: { [Player]: number } = {} -- HP per second
+local lastLifeSteal: { [Player]: number } = {} -- server time of the last life steal heal
 local choosing: { [Player]: boolean } = {} -- picking a level-up card
+local rng = Random.new()
 
 local function now(): number
 	return workspace:GetServerTimeNow()
 end
 
--- Bonus fraction (or flat value) for `stat` from the player's run class (DESIGN.md section 5) and passives.
-local function bonusFor(player: Player, stat: string): number
-	local total = 0
-	local classId = RunDirector.getParticipantClassId(player)
-	local class = classId and Config.Classes[classId]
-	if class and class.bonus.stat == stat then
-		total += class.bonus.value
-	end
-	local extra = bonuses[player]
-	return total + (if extra then extra[stat] or 0 else 0)
-end
-
 local function maxHpFor(player: Player): number
-	return math.round(PlayerConfig.maxHp * math.max(0, 1 + bonusFor(player, "maxHp")))
+	local sheet = stats[player]
+	return if sheet then StatMath.maxHp(sheet) else PlayerConfig.maxHp
 end
 
 local function payload(player: Player, state: Vitals.Vitals): Types.PlayerVitals
@@ -102,7 +95,8 @@ local function applyWalkSpeed(player: Player)
 	end
 	local participantState = RunDirector.getParticipantState(player)
 	local standing = participantState == nil or participantState == "Alive" or not RunDirector.isActive()
-	local speed = PlayerConfig.moveSpeed * math.max(0, 1 + bonusFor(player, "moveSpeed"))
+	local sheet = stats[player]
+	local speed = PlayerConfig.moveSpeed * StatMath.speedFactor(if sheet then sheet.speed or 0 else 0)
 	local frozen = choosing[player] and Config.Run.levelUp.freezeWhileChoosing
 	local shopping = RunDirector.getPhase() == "Shop" -- the shop is a screen of its own, the arena is hidden
 	humanoid.WalkSpeed = if standing and not frozen and not shopping then speed else 0
@@ -132,8 +126,8 @@ local function onPlayerAdded(player: Player)
 end
 
 local function resetAll()
-	table.clear(bonuses)
 	table.clear(choosing)
+	table.clear(lastLifeSteal)
 	for player, state in vitals do
 		state:reset(maxHpFor(player))
 		applyWalkSpeed(player)
@@ -147,7 +141,7 @@ function CombatService.damagePlayer(player: Player, damage: number): number
 		return 0
 	end
 	local state = getVitals(player)
-	local taken = state:hit(damage, now())
+	local taken = state:hit(damage, now(), rng:NextNumber())
 	if taken > 0 then
 		send(player)
 		CombatService.PlayerDamaged:Fire(player, taken)
@@ -174,15 +168,30 @@ function CombatService.protect(player: Player, seconds: number)
 	send(player)
 end
 
--- Passive bonuses by stat name (UpgradeService): maxHp and moveSpeed as fractions, armor as a flat value. Raising
--- max HP heals by the difference. Cleared when a run starts and back in the lobby.
-function CombatService.setBonuses(player: Player, playerBonuses: { [string]: number })
-	bonuses[player] = playerBonuses
+-- The player's stats by id (StatService): Max HP (raising it heals by the difference), HP Regeneration, Armor,
+-- Dodge and Speed, with Brotato's formulas (Util/StatMath).
+function CombatService.setStats(player: Player, sheet: StatMath.Sheet)
+	stats[player] = sheet
+	regen[player] = StatMath.regenPerSecond(sheet.hpRegen or 0)
 	local state = getVitals(player)
 	state:setMaxHp(maxHpFor(player))
-	state:setArmorBonus(playerBonuses.armor or 0)
+	state:setDefense(StatMath.armorFactor(sheet.armor or 0), StatMath.dodgeChance(sheet.dodge or 0))
 	applyWalkSpeed(player)
 	send(player)
+end
+
+-- A weapon hit rolled the player's life steal: heals Config.Stats.hpScale HP, at most once per
+-- Config.Stats.lifeSteal.minSecondsBetween. Only for living participants while the run fights.
+function CombatService.lifeSteal(player: Player)
+	local time = now()
+	if
+		not canBeHurt(player)
+		or time - (lastLifeSteal[player] or -math.huge) < Config.Stats.lifeSteal.minSecondsBetween
+	then
+		return
+	end
+	lastLifeSteal[player] = time
+	CombatService.healPlayer(player, Config.Stats.hpScale)
 end
 
 -- Marks the player as choosing a level-up card (DESIGN.md section 8); weapons keep firing. Only with
@@ -214,7 +223,9 @@ function CombatService.init()
 	Players.PlayerRemoving:Connect(function(player)
 		vitals[player] = nil
 		sentHp[player] = nil
-		bonuses[player] = nil
+		stats[player] = nil
+		regen[player] = nil
+		lastLifeSteal[player] = nil
 		choosing[player] = nil
 	end)
 	for _, player in Players:GetPlayers() do
@@ -280,18 +291,17 @@ function CombatService.init()
 		end
 	end)
 
-	if PlayerConfig.regenPerSecond > 0 then
-		RunService.Heartbeat:Connect(function(dt)
-			for player, state in vitals do
-				if canBeHurt(player) then
-					state:heal(PlayerConfig.regenPerSecond * dt)
-					if math.ceil(state.hp) ~= sentHp[player] then
-						send(player)
-					end
+	RunService.Heartbeat:Connect(function(dt)
+		for player, perSecond in regen do
+			local state = vitals[player]
+			if state and perSecond > 0 and canBeHurt(player) then
+				state:heal(perSecond * dt)
+				if math.ceil(state.hp) ~= sentHp[player] then
+					send(player)
 				end
 			end
-		end)
-	end
+		end
+	end)
 end
 
 return CombatService

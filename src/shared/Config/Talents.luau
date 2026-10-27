@@ -1,6 +1,6 @@
 --!strict
 -- Permanent talents bought with embers (DESIGN.md section 10). Keys match the profile schema `talents` table.
--- `value` is applied per rank; costs[n] is the price of rank n.
+-- `value` is applied per rank (stat ids and units of Config.Stats where it is one); costs[n] is the price of rank n.
 
 export type Talent = {
 	id: string,
@@ -15,21 +15,21 @@ local Talents: { [string]: Talent } = {
 		id = "toughness",
 		displayName = "Toughness",
 		stat = "maxHp",
-		value = 0.03,
+		value = 3,
 		costs = { 100, 200, 400, 700, 1000 },
 	},
 	power = {
 		id = "power",
 		displayName = "Power",
 		stat = "damage",
-		value = 0.02,
+		value = 2,
 		costs = { 100, 200, 400, 700, 1000 },
 	},
 	reach = {
 		id = "reach",
 		displayName = "Reach",
-		stat = "pickupRadius",
-		value = 0.05,
+		stat = "pickupRange",
+		value = 5,
 		costs = { 100, 200, 400, 700, 1000 },
 	},
 	greed = {

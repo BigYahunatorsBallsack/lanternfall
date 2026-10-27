@@ -4,7 +4,8 @@
 -- Sends TeamProgress to everyone and XpOrbs to the participants, and fires LevelGained, which UpgradeService turns
 -- into level-up cards, and OrbsCollected, which ShopService turns into Shards. Orbs still on the floor when a wave
 -- ends are collected for the team (XP) and split evenly between the participants who are not out (Shards).
--- UpgradeService sets the Magnet bonus with setBonuses; AdminService calls grantLevel.
+-- StatService sets each player's Pickup Range and XP Gain (setStats); ShopService adds Harvesting XP with addXp;
+-- AdminService calls grantLevel.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -30,7 +31,8 @@ ExperienceService.OrbsCollected = Signal.new()
 
 local field = OrbField.new(Config.Run.xpOrbs.maxOrbs)
 local progress = Progression.new(Config.Run.xpCurve)
-local pickupBonus: { [Player]: number } = {}
+local pickupBonus: { [Player]: number } = {} -- Pickup Range as a fraction
+local xpBonus: { [Player]: number } = {} -- XP Gain as a fraction
 local paused = false
 
 -- Changes since the last flush, in the flat Net/Types.XpOrbEvents layout.
@@ -105,10 +107,10 @@ local function onStepped()
 		for _, player in RunDirector.getParticipants() do
 			local position = EnemySim.getPlayerPosition(player) -- nil while down
 			if position then
-				local radius = Config.Player.pickupRadius * (1 + (pickupBonus[player] or 0))
+				local radius = Config.Player.pickupRadius * math.max(0, 1 + (pickupBonus[player] or 0))
 				table.clear(collectedIds)
 				local collected = field:collect(position.X, position.Z, radius, collectedIds)
-				total += collected
+				total += collected * math.max(0, 1 + (xpBonus[player] or 0))
 				if collected > 0 then
 					ExperienceService.OrbsCollected:Fire(player, collected)
 				end
@@ -150,7 +152,6 @@ function ExperienceService.init()
 	EnemySim.EnemyKilled:Connect(onEnemyKilled)
 	EnemySim.Stepped:Connect(onStepped)
 	RunDirector.RunStarted:Connect(function()
-		table.clear(pickupBonus)
 		progress:reset()
 		clearOrbs()
 		sendProgress()
@@ -165,6 +166,7 @@ function ExperienceService.init()
 	RunDirector.ParticipantStateChanged:Connect(sendProgress) -- a player who is out no longer counts
 	Players.PlayerRemoving:Connect(function(player)
 		pickupBonus[player] = nil
+		xpBonus[player] = nil
 		task.defer(sendProgress) -- after RunDirector dropped the player from the participants
 	end)
 	RunDirector.SyncRequested:Connect(function(requester)
@@ -179,9 +181,20 @@ end
 
 -- Commands --------------------------------------------------------------------------
 
--- Bonuses from passives (UpgradeService); only pickupRadius (fraction, Magnet) matters here. Cleared at run start.
-function ExperienceService.setBonuses(player: Player, bonuses: { [string]: number })
-	pickupBonus[player] = bonuses.pickupRadius or 0
+-- The player's stats (StatService): Pickup Range widens their pickup radius, XP Gain adds to the XP of the orbs they
+-- pick up (not to their Shards).
+function ExperienceService.setStats(player: Player, stats: { [string]: number })
+	pickupBonus[player] = (stats.pickupRange or 0) / 100
+	xpBonus[player] = (stats.xpGain or 0) / 100
+end
+
+-- Adds XP to the team while a run is going on (Harvesting at the end of a wave). False otherwise.
+function ExperienceService.addXp(amount: number): boolean
+	if not RunDirector.isOngoing() or amount <= 0 then
+		return false
+	end
+	gain(amount)
+	return true
 end
 
 -- Gives the team exactly the XP missing for the next level (admin debug command).
