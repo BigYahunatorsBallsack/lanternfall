@@ -104,6 +104,25 @@ describe("SnapshotBuffer", function()
 		expect(snapshots.renderTick).toBeNear(50 - DELAY * TICK_RATE)
 	end)
 
+	it("never goes back to an older tick while packets have stopped", function()
+		local snapshots = SnapshotBuffer.new(TICK_RATE, DELAY)
+		pushTick(snapshots, 1, 3)
+		pushTick(snapshots, 2, 0) -- the empty tick the server sends when a wave ends
+		snapshots:advance(0)
+		local reachedEmpty = false
+		for _ = 1, 600 do -- 10 s without packets, e.g. in the shop
+			snapshots:advance(1 / 60)
+			local before = snapshots:sample()
+			if before.tick == 2 then
+				reachedEmpty = true
+			end
+			if reachedEmpty then
+				expect(before.tick).toBe(2)
+			end
+		end
+		expect(reachedEmpty).toBe(true)
+	end)
+
 	it("forgets everything on reset", function()
 		local snapshots = SnapshotBuffer.new(TICK_RATE, DELAY)
 		pushTick(snapshots, 7, 3)

@@ -4,7 +4,7 @@
 --
 -- Render clock: it trails the newest complete tick by `delaySeconds` and runs at real time, gently pulled
 -- towards that target, so uneven packet arrival does not make enemies stutter. After a long gap (lag
--- spike, first packet) it jumps straight to the target.
+-- spike, first packet) it jumps straight to the target; it never runs past the newest tick.
 
 local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
 local Snapshot = require(Shared:WaitForChild("Net"):WaitForChild("Snapshot"))
@@ -165,7 +165,9 @@ function SnapshotBuffer.advance(self: SnapshotBuffer, dt: number)
 	end
 	renderTick += dt * self.tickRate
 	renderTick += (target - renderTick) * math.min(1, CORRECTION_PER_SECOND * dt)
-	self.renderTick = renderTick
+	-- Never run past the newest tick: when packets stop (shop between waves, run end) the clock would drift ahead,
+	-- snap back to the target and draw the older ticks again, so enemies kept vanishing and coming back.
+	self.renderTick = math.min(renderTick, latest)
 end
 
 -- The complete ticks just before and after the render clock and how far the clock is between them (0-1).
