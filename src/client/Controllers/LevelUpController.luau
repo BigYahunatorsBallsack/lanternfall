@@ -1,8 +1,9 @@
 --!strict
--- Level-up choice (DESIGN.md sections 8 and 13), opened in the shop phase after a wave: three big cards (icon, name, one line of effect, "NEW"/"LV 3") from
--- the server's LevelUpOffer (UpgradeService), a bar running down to the automatic pick and the free reroll. Tap or
--- click a card, or press 1/2/3. Cards ignore input for a moment after they appear, so a thumb on the move stick
--- does not pick one by accident. Sends ChooseUpgrade and RequestReroll; texts from Util/UpgradeText.
+-- Level-up choice (DESIGN.md sections 8 and 13), opened in the shop phase after a wave: four stat cards (icon, stat,
+-- "+8% Damage", rarity in its color; Brotato direction since B2) from the server's LevelUpOffer (UpgradeService), a
+-- bar running down to the automatic pick and a reroll for Shards. Tap or click a card, or press 1-4. Cards ignore
+-- input for a moment after they appear, so a thumb on the move stick does not pick one by accident. Sends
+-- ChooseUpgrade and RequestReroll; texts from Util/UpgradeText, Shards from the ShopState remote (ShopService).
 
 local ContextActionService = game:GetService("ContextActionService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -20,15 +21,10 @@ local Theme = require(script.Parent.Parent.UI.Theme)
 local Widgets = require(script.Parent.Parent.UI.Widgets)
 
 local LevelUp = Config.Run.levelUp
-local CARD_SIZE = Vector2.new(210, 220)
-local CARD_GAP = 16
-local ICON_SIZE = 56
-local KEYS = { Enum.KeyCode.One, Enum.KeyCode.Two, Enum.KeyCode.Three }
-local KIND_COLOR: { [string]: Color3 } = {
-	Weapon = Theme.accent,
-	Passive = Theme.success,
-	Reward = Theme.gloom,
-}
+local CARD_SIZE = Vector2.new(180, 200)
+local CARD_GAP = 12
+local ICON_SIZE = 52
+local KEYS = { Enum.KeyCode.One, Enum.KeyCode.Two, Enum.KeyCode.Three, Enum.KeyCode.Four }
 
 local LevelUpController = {}
 
@@ -53,6 +49,7 @@ local cards: { CardView } = {}
 local offer: Types.LevelUpOffer? = nil
 local shownAt = 0 -- os.clock() when the current cards appeared
 local waiting = false -- a pick or reroll was sent, the server has not answered yet
+local shardCount = 0 -- from ShopState, for the reroll button
 
 local function isOpen(): boolean
 	return offer ~= nil and offer.open and RunStateController.getView() == "Run"
@@ -74,7 +71,7 @@ end
 
 local function reroll()
 	local current = offer
-	if not (current and current.rerolls > 0 and accepting()) then
+	if not (current and accepting() and shardCount >= current.rerollPrice) then
 		return
 	end
 	waiting = true
@@ -164,9 +161,10 @@ local function renderCards(current: Types.LevelUpOffer)
 		local card = current.cards[index]
 		view.button.Visible = card ~= nil
 		if card then
-			local title, detail, badge = UpgradeText.describe(card)
-			local color = KIND_COLOR[card.kind] or Theme.accent
-			view.badge.Text = badge
+			local title, detail, badge = UpgradeText.card(card)
+			local color = Theme.tiers[card.tier] or Theme.accent
+			view.badge.Text = string.upper(badge)
+			view.badge.TextColor3 = color
 			view.name.Text = title
 			view.detail.Text = detail
 			view.icon.BackgroundColor3 = color
@@ -188,8 +186,8 @@ local function render()
 	titleLabel.Text = `LEVEL {current.level}`
 	subtitleLabel.Text = if current.pending > 0 then `Pick one · {current.pending} more waiting` else "Pick one"
 	renderCards(current)
-	local canReroll = current.rerolls > 0
-	rerollButton.Text = if canReroll then `Reroll ({current.rerolls} left)` else "No rerolls left"
+	local canReroll = shardCount >= current.rerollPrice
+	rerollButton.Text = `Reroll ({current.rerollPrice} Shards)`
 	rerollButton.TextColor3 = if canReroll then Theme.text else Theme.textDim
 	rerollButton.AutoButtonColor = canReroll
 end
@@ -201,7 +199,7 @@ local function onOffer(newOffer: Types.LevelUpOffer)
 	local changed = previous == nil
 		or not previous.open
 		or previous.level ~= newOffer.level
-		or previous.rerolls ~= newOffer.rerolls
+		or previous.rerollPrice ~= newOffer.rerollPrice
 	if newOffer.open and changed then
 		shownAt = os.clock()
 	end
@@ -300,6 +298,10 @@ end
 
 function LevelUpController.init()
 	Net.onClient("LevelUpOffer", onOffer)
+	Net.onClient("ShopState", function(shop: Types.ShopState)
+		shardCount = shop.shards
+		render()
+	end)
 end
 
 function LevelUpController.start()

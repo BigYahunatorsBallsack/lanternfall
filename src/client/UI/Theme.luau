@@ -14,6 +14,13 @@ return table.freeze({
 	gloom = Color3.fromRGB(152, 102, 218), -- violet: enemies and defeat
 	success = Color3.fromRGB(126, 214, 136),
 	danger = Color3.fromRGB(236, 96, 96),
+	-- rarity tiers 1..4 (Config.Items.tiers): Common, Uncommon, Rare, Legendary
+	tiers = table.freeze({
+		Color3.fromRGB(214, 206, 196),
+		Color3.fromRGB(96, 168, 255),
+		Color3.fromRGB(184, 110, 255),
+		Color3.fromRGB(255, 98, 82),
+	}),
 	font = Enum.Font.GothamMedium,
 	fontBold = Enum.Font.GothamBold,
 	corner = UDim.new(0, 12),

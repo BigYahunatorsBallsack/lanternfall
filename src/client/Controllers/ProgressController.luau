@@ -1,6 +1,6 @@
 --!strict
--- Keeps the team level and XP (TeamProgress remote from ExperienceService) and every player's passives (Passives
--- remote from UpgradeService). Read by HUDController (XP bar, passive list).
+-- Keeps the team level and XP (TeamProgress remote from ExperienceService) and every player's items (Items remote
+-- from StatService). Read by HUDController (XP bar, item list).
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -14,11 +14,11 @@ local ProgressController = {}
 
 -- (progress: Types.TeamProgress, previous: Types.TeamProgress?)
 ProgressController.TeamChanged = Signal.new()
--- (userId: number, passives: { Types.PassiveInfo })
-ProgressController.PassivesChanged = Signal.new()
+-- (userId: number, items: { Types.ItemInfo })
+ProgressController.ItemsChanged = Signal.new()
 
 local team: Types.TeamProgress? = nil
-local passives: { [number]: { Types.PassiveInfo } } = {}
+local items: { [number]: { Types.ItemInfo } } = {}
 
 function ProgressController.init()
 	Net.onClient("TeamProgress", function(progress: Types.TeamProgress)
@@ -26,12 +26,12 @@ function ProgressController.init()
 		team = progress
 		ProgressController.TeamChanged:Fire(progress, previous)
 	end)
-	Net.onClient("Passives", function(loadout: Types.PassiveLoadout)
-		passives[loadout.userId] = loadout.passives
-		ProgressController.PassivesChanged:Fire(loadout.userId, loadout.passives)
+	Net.onClient("Items", function(loadout: Types.ItemLoadout)
+		items[loadout.userId] = loadout.items
+		ProgressController.ItemsChanged:Fire(loadout.userId, loadout.items)
 	end)
 	Players.PlayerRemoving:Connect(function(player)
-		passives[player.UserId] = nil
+		items[player.UserId] = nil
 	end)
 end
 
@@ -39,12 +39,12 @@ function ProgressController.getTeam(): Types.TeamProgress?
 	return team
 end
 
-function ProgressController.getPassives(userId: number): { Types.PassiveInfo }
-	return passives[userId] or {}
+function ProgressController.getItems(userId: number): { Types.ItemInfo }
+	return items[userId] or {}
 end
 
-function ProgressController.getLocalPassives(): { Types.PassiveInfo }
-	return ProgressController.getPassives(Players.LocalPlayer.UserId)
+function ProgressController.getLocalItems(): { Types.ItemInfo }
+	return ProgressController.getItems(Players.LocalPlayer.UserId)
 end
 
 return ProgressController
