@@ -442,7 +442,7 @@ describe("smoke", function()
 		expect(world.gui("Shop", "Shop").Visible).toBe(false) -- the cards come first
 	end)
 
-	it("opens level-up cards, lets the chooser keep walking and applies the pick", function()
+	it("opens level-up cards on the screen between waves and applies the pick", function()
 		local offer = UpgradeService.getOffer(me)
 		expect(offer ~= nil).toBe(true)
 		expect(#offer).toBe(Config.Run.levelUp.cardCount)
@@ -450,7 +450,10 @@ describe("smoke", function()
 		expect(string.match(world.gui("LevelUp", "Title").Text, "^LEVEL %d+$") ~= nil).toBe(true)
 		expect(card(1):FindFirstChild("CardName").Text ~= "").toBe(true)
 		expect(CombatService.isChoosing(me)).toBe(true)
-		expect(me.Character.Humanoid.WalkSpeed > 0).toBe(not Config.Run.levelUp.freezeWhileChoosing)
+		expect(me.Character.Humanoid.WalkSpeed).toBe(0) -- nobody walks between waves
+		expect(world.gui("Backdrop").Enabled).toBe(true) -- the arena is hidden
+		expect(world.gui("Backdrop", "Title").Text).toBe(`WAVE {RunDirector.getWave()} CLEARED`)
+		expect(world.gui("Backdrop", "Hint").Text).toBe("Pick your level-ups")
 		expect(string.find(teamText(), "picking", 1, true) ~= nil).toBe(true)
 		world.click(card(1)) -- too soon after the cards appeared: ignored
 		world.advance(0.1)
@@ -471,14 +474,6 @@ describe("smoke", function()
 			expect(string.find(passiveRows(), name, 1, true) ~= nil).toBe(true)
 			expect(world.gui("HUD", "PassivesTitle").Visible).toBe(true)
 		end
-		local haste = 0
-		for _, info in UpgradeService.getPassives(me) do
-			if info.id == "Haste" then
-				haste = info.level
-			end
-		end
-		local speed = Config.Player.moveSpeed * (1 + Config.Passives.Haste.perLevel * haste)
-		expect(me.Character.Humanoid.WalkSpeed).toBeNear(speed)
 	end)
 
 	it("rerolls once and picks the first card when the time runs out", function()
@@ -507,6 +502,9 @@ describe("smoke", function()
 	it("sells weapons and passives for Shards in the shop, rerolls and starts the next wave on READY", function()
 		local shop = clientController("ShopController")
 		expect(shop.isShopping()).toBe(true)
+		expect(world.gui("Backdrop", "Hint").Text).toBe("Spend your Shards")
+		expect(world.pressAction("LanternfallDash")).toBe(Enum.ContextActionResult.Sink)
+		expect(me.Character.HumanoidRootPart:FindFirstChild("LanternfallDash")).toBe(nil) -- no dash in the shop
 		expect(world.gui("Shop", "Shop").Visible).toBe(true)
 		local offers = ShopService.getOffers(me)
 		expect(#offers).toBe(Config.Shop.slots)
@@ -565,6 +563,15 @@ describe("smoke", function()
 		world.advance(0.2)
 		expect(phase()).toBe("Running")
 		expect(RunDirector.getWave()).toBe(wave + 1)
+		expect(world.gui("Backdrop").Enabled).toBe(false)
+		local haste = 0
+		for _, info in UpgradeService.getPassives(me) do
+			if info.id == "Haste" then
+				haste = info.level
+			end
+		end
+		local speed = Config.Player.moveSpeed * (1 + Config.Passives.Haste.perLevel * haste)
+		expect(me.Character.Humanoid.WalkSpeed).toBeNear(speed) -- walking again, with the Haste bought or picked
 		expect(world.gui("Shop", "Shop").Visible).toBe(false)
 		expect(world.gui("HUD", "WaveTitle").Text).toBe(`WAVE {wave + 1}`)
 		expect(ShopService.getOffers(me)[1]).toBe(nil)

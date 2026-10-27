@@ -1,6 +1,7 @@
 --!strict
 -- Shards and the shop between waves (DESIGN.md sections 3 and 13, Brotato direction since B1). A small Shards counter
--- next to the timer during the whole run; after each wave, once the level-up cards are done (LevelUpController), the
+-- next to the timer during the whole run. Between waves an opaque backdrop hides the arena (below the HUD, so the
+-- timer, build and team stay visible) with "WAVE n CLEARED"; once the level-up cards are done (LevelUpController), the
 -- shop panel: up to four offers (name, effect, "NEW"/"LV 3", price), a reroll with its price and READY. Everything comes
 -- from the server's ShopState (ShopService); sends BuyShopOffer, RerollShop and SetShopReady.
 
@@ -21,6 +22,7 @@ local Widgets = require(script.Parent.Parent.UI.Widgets)
 local CARD_SIZE = Vector2.new(180, 200)
 local CARD_GAP = 12
 local SHARDS_COLOR = Color3.fromRGB(120, 230, 210) -- teal: Shards, not XP and not Embers
+local BACKDROP_COLOR = Color3.fromRGB(12, 9, 20) -- the screen between waves, darker than the panels
 local KIND_COLOR: { [string]: Color3 } = {
 	Weapon = Theme.accent,
 	Passive = Theme.success,
@@ -29,6 +31,9 @@ local KIND_COLOR: { [string]: Color3 } = {
 local ShopController = {}
 
 local screen: ScreenGui
+local backdrop: ScreenGui
+local backdropTitle: TextLabel
+local backdropHint: TextLabel
 local shardsLabel: TextLabel
 local panel: Frame
 local subtitleLabel: TextLabel
@@ -163,8 +168,14 @@ local function render()
 		return
 	end
 	local current = shop
+	local state = RunStateController.get()
 	local inRun = RunStateController.getView() == "Run" and current ~= nil
 	screen.Enabled = inRun
+	backdrop.Enabled = RunStateController.getView() == "Run" and state ~= nil and state.phase == "Shop"
+	if backdrop.Enabled and state then
+		backdropTitle.Text = `WAVE {state.wave} CLEARED`
+		backdropHint.Text = if LevelUpController.isOpen() then "Pick your level-ups" else "Spend your Shards"
+	end
 	shardsLabel.Text = `{if current then current.shards else 0} Shards`
 	local shopping = isShopping()
 	panel.Visible = shopping
@@ -196,6 +207,41 @@ local function updateSubtitle()
 end
 
 local function build()
+	-- Between the 3D arena and the HUD (DisplayOrder 0): the shop and the level-up cards are a screen of their own.
+	backdrop = Widgets.screen("Backdrop", -1)
+	backdrop.IgnoreGuiInset = true
+	local cover = Widgets.create("Frame", {
+		Name = "Cover",
+		BackgroundColor3 = BACKDROP_COLOR,
+		BorderSizePixel = 0,
+		Size = UDim2.fromScale(1, 1),
+		Parent = backdrop,
+	})
+	Widgets.create("UIGradient", {
+		Rotation = 90,
+		Color = ColorSequence.new(BACKDROP_COLOR, Theme.panel),
+		Parent = cover,
+	})
+	local header = Widgets.panel({
+		Name = "Header",
+		BackgroundTransparency = 1,
+		AnchorPoint = Vector2.new(0.5, 0),
+		Position = UDim2.fromScale(0.5, 0.17),
+		Size = UDim2.fromOffset(600, 0),
+		Parent = cover,
+	})
+	Widgets.list(2).Parent = header
+	backdropTitle = Widgets.label({
+		Name = "Title",
+		Font = Theme.fontBold,
+		TextSize = 40,
+		TextColor3 = Theme.accent,
+		Size = UDim2.new(1, 0, 0, 44),
+		LayoutOrder = 1,
+		Parent = header,
+	})
+	backdropHint = Widgets.label({ Name = "Hint", TextColor3 = Theme.textDim, LayoutOrder = 2, Parent = header })
+
 	screen = Widgets.screen("Shop", 4)
 	local shards = Widgets.panel({
 		Name = "Shards",

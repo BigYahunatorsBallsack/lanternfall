@@ -4,7 +4,8 @@
 -- PlayerState to every client on change. Fires PlayerDamaged for RunStatsService. Sets walk speed and turns jumping off on each character.
 -- UpgradeService sets passive bonuses (max HP, move speed, armor) and the level-up choice (setChoosing: shielded and
 -- standing still); weapons, rewards and revives (WP11) use damagePlayer, healPlayer and protect. When a wave ends
--- (Shop phase) players who are down stand up and everyone heals (Config.Shop.waveEnd).
+-- (Shop phase) players who are down stand up and everyone heals (Config.Shop.waveEnd); nobody walks or dashes in the
+-- shop.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -103,7 +104,8 @@ local function applyWalkSpeed(player: Player)
 	local standing = participantState == nil or participantState == "Alive" or not RunDirector.isActive()
 	local speed = PlayerConfig.moveSpeed * math.max(0, 1 + bonusFor(player, "moveSpeed"))
 	local frozen = choosing[player] and Config.Run.levelUp.freezeWhileChoosing
-	humanoid.WalkSpeed = if standing and not frozen then speed else 0
+	local shopping = RunDirector.getPhase() == "Shop" -- the shop is a screen of its own, the arena is hidden
+	humanoid.WalkSpeed = if standing and not frozen and not shopping then speed else 0
 end
 
 local function onCharacterAdded(player: Player, character: Model)
@@ -227,7 +229,8 @@ function CombatService.init()
 	Net.onServer("RequestDash", function(player)
 		local participantState = RunDirector.getParticipantState(player)
 		local standingStill = RunDirector.isActive() and participantState ~= nil and participantState ~= "Alive"
-		if standingStill or (choosing[player] and Config.Run.levelUp.freezeWhileChoosing) then
+		local shopping = RunDirector.getPhase() == "Shop"
+		if standingStill or shopping or (choosing[player] and Config.Run.levelUp.freezeWhileChoosing) then
 			send(player)
 			return
 		end
@@ -236,9 +239,13 @@ function CombatService.init()
 	end)
 
 	RunDirector.RunStarted:Connect(resetAll)
-	RunDirector.PhaseChanged:Connect(function(phase)
+	RunDirector.PhaseChanged:Connect(function(phase, previous)
 		if phase == "Lobby" or phase == "Countdown" then
 			resetAll() -- "Play again" goes from the results straight to the countdown
+		elseif previous == "Shop" then
+			for _, player in RunDirector.getParticipants() do
+				applyWalkSpeed(player) -- walking again in the next wave
+			end
 		elseif phase == "Shop" then
 			-- end of a wave (Brotato direction, B1): players who are down stand up, everyone heals
 			local waveEnd = Config.Shop.waveEnd
