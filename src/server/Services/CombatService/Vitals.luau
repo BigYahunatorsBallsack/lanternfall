@@ -95,7 +95,7 @@ function Vitals.hit(self: Vitals, damage: number, now: number, roll: number?): (
 		return 0, true
 	end
 	local settings = self.settings
-	local taken = math.max(settings.minDamagePerHit, damage * self.damageFactor)
+	local taken = math.max(settings.minDamagePerHit, math.round(damage * self.damageFactor)) -- whole HP like Brotato
 	taken = math.min(taken, self.hp)
 	self.hp -= taken
 	self:protect(now, settings.hitInvulnerability)

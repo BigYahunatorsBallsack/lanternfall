@@ -135,13 +135,14 @@ local function resetAll()
 	end
 end
 
--- Damage to a living participant, e.g. from enemy contact or projectiles. Returns the HP lost.
-function CombatService.damagePlayer(player: Player, damage: number): number
+-- Damage to a living participant, e.g. from enemy contact or projectiles. Returns the HP lost and whether the hit
+-- was dodged.
+function CombatService.damagePlayer(player: Player, damage: number): (number, boolean)
 	if not canBeHurt(player) then
-		return 0
+		return 0, false
 	end
 	local state = getVitals(player)
-	local taken = state:hit(damage, now(), rng:NextNumber())
+	local taken, dodged = state:hit(damage, now(), rng:NextNumber())
 	if taken > 0 then
 		send(player)
 		CombatService.PlayerDamaged:Fire(player, taken)
@@ -149,7 +150,7 @@ function CombatService.damagePlayer(player: Player, damage: number): number
 			RunDirector.setParticipantState(player, "Down")
 		end
 	end
-	return taken
+	return taken, dodged
 end
 
 -- Heals a living player. Returns the HP gained.
