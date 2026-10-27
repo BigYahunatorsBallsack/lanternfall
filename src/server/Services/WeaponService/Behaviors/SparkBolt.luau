@@ -2,7 +2,7 @@
 -- Spark Bolt (DESIGN.md section 6): every cooldown it shoots `count` bolts at the nearest enemies in range, one
 -- target each; bolts without a target of their own fan out around the nearest by spreadDegrees. A bolt flies
 -- straight, hits up to pierce + 1 enemies (closest along its path first, never the same one twice) and vanishes
--- after `range` studs. Evolved into Starfire (stats.explosionRadius), every hit also blasts the other enemies within
+-- after `range` studs; survivors are pushed `knockback` studs along it. Evolved into Starfire (stats.explosionRadius), every hit also blasts the other enemies within
 -- explosionRadius of the hit one for explosionDamage times the bolt's damage. Effects: "Fire" when a bolt starts,
 -- "End" when an enemy stops it before its range, "Blast" with center and radius for each explosion. Behavior for WeaponService/Arsenal; drawn by WeaponRenderer/Visuals/SparkBolt.
 
@@ -149,7 +149,11 @@ local function hitAlong(weapon: Arsenal.Weapon, ctx: Arsenal.Context, bolt: Bolt
 	for i = 1, n do
 		local id = order[i]
 		bolt.hit[id] = true
-		ctx:hit(weapon, id)
+		local killed = ctx:hit(weapon, id)
+		local knockback = weapon.stats.knockback or 0
+		if not killed and knockback > 0 then
+			ctx:push(id, bolt.dx * knockback, bolt.dz * knockback)
+		end
 		local blastRadius = weapon.stats.explosionRadius
 		if blastRadius then
 			explode(weapon, ctx, id, hitX[id], hitZ[id], blastRadius)

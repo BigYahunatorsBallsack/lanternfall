@@ -16,4 +16,5 @@ return {
 	Map = require(script.Map),
 	Admin = require(script.Admin),
 	Camera = require(script.Camera),
+	Feedback = require(script.Feedback),
 }

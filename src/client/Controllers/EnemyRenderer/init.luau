@@ -1,8 +1,10 @@
 --!strict
 -- Draws the server's enemies (DESIGN.md section 15): EnemySnapshot packets go into a SnapshotBuffer, models
 -- are pooled per enemy type (EnemyRenderer/Models), positions are interpolated about 100 ms behind the
--- newest tick and every part moves with one workspace:BulkMoveTo per frame. Active only while the local
--- player is in a running run (RunStateController). DebugController reads getStats().
+-- newest tick and every part moves with one workspace:BulkMoveTo per frame. Hits flash the body white; the snapshot
+-- flags show a charger's wind-up and rush and an elite's affix (Models.setMode, setAffix). An enemy that drops out
+-- of the snapshots died: it leaves a glowing puff (DeathBursts), an elite also shakes the camera. Active only while
+-- the local player is in a running run (RunStateController). DebugController reads getStats().
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
@@ -11,6 +13,10 @@ local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared:WaitForChild("Config"))
 local Net = require(Shared:WaitForChild("Net"))
 
+local Snapshot = require(Shared:WaitForChild("Net"):WaitForChild("Snapshot"))
+
+local CameraController = require(script.Parent.CameraController)
+local DeathBursts = require(script.DeathBursts)
 local Models = require(script.Models)
 local RunStateController = require(script.Parent.RunStateController)
 local SnapshotBuffer = require(script.SnapshotBuffer)
@@ -28,11 +34,13 @@ type Drawn = {
 	flashUntil: number, -- 0 when not flashing
 	seenFrame: number,
 	bobPhase: number,
+	x: number, -- where it was drawn last, for its death burst
+	z: number,
 }
 
 local FOLDER_NAME = "LanternfallEnemies"
 local FLASH_COLOR = Color3.fromRGB(255, 255, 255)
-local FLASH_SECONDS = 0.08
+local FLASH_SECONDS = 0.1
 local TURN_PER_SECOND = 12 -- how quickly models turn towards where they walk
 local MIN_TURN_MOVE = 0.05 -- studs between two ticks; slower enemies keep their facing
 local BOB_HEIGHT = 0.15 -- studs
@@ -90,6 +98,8 @@ local function acquire(id: number, typeId: number, hp: number): Drawn
 		flashUntil = 0,
 		seenFrame = 0,
 		bobPhase = (id * GOLDEN_RATIO) % 1 * 2 * math.pi,
+		x = 0,
+		z = 0,
 	}
 	drawn[id] = entry
 	return entry
@@ -98,6 +108,7 @@ end
 local function release(id: number, entry: Drawn)
 	drawn[id] = nil
 	local visual = entry.visual
+	Models.setMode(visual, 0)
 	if entry.flashUntil > 0 then
 		visual.body.Color = visual.bodyColor
 	end
@@ -188,6 +199,14 @@ local function render(dt: number)
 			end
 
 			local visual = current.visual
+			local mode, affix = Snapshot.unpackFlags(after.flags[i])
+			Models.setAffix(visual, affix)
+			if mode ~= visual.mode then
+				Models.setMode(visual, mode)
+				if current.flashUntil > 0 then
+					visual.body.Color = FLASH_COLOR
+				end
+			end
 			if hp < current.lastHp then
 				current.flashUntil = now + FLASH_SECONDS
 				visual.body.Color = FLASH_COLOR
@@ -196,10 +215,11 @@ local function render(dt: number)
 				end
 			elseif current.flashUntil > 0 and now >= current.flashUntil then
 				current.flashUntil = 0
-				visual.body.Color = visual.bodyColor
+				visual.body.Color = Models.colorFor(visual, mode)
 			end
 			current.lastHp = hp
 			current.seenFrame = frameNumber
+			current.x, current.z = x, z
 
 			local y = floorY + BOB_HEIGHT * (1 + math.sin(now * BOB_SPEED + current.bobPhase))
 			local base = CFrame.new(x, y, z) * CFrame.Angles(0, current.yaw, 0)
@@ -213,7 +233,13 @@ local function render(dt: number)
 	end
 	for id, entry in drawn do
 		if entry.seenFrame ~= frameNumber then
-			release(id, entry) -- died or despawned
+			-- died (enemies only leave the snapshots when killed, or all at once when the run ends)
+			local elite = entry.visual.hpBar ~= nil
+			DeathBursts.burst(entry.x, floorY, entry.z, entry.visual.glowColor, elite)
+			if elite then
+				CameraController.shake(Config.Feedback.shake.eliteKill)
+			end
+			release(id, entry)
 		end
 	end
 	clearLists(count + 1)

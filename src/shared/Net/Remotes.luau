@@ -66,6 +66,7 @@ local Remotes: { [string]: Definition } = {
 	Notify = { direction = "toClient" }, -- short on-screen messages
 	EnemySnapshot = { direction = "toClient", unreliable = true }, -- buffer, see Net/Snapshot
 	EnemyShots = { direction = "toClient" }, -- Net/Types.EnemyShotEvents after each snapshot with changes, to participants
+	DamageNumbers = { direction = "toClient", unreliable = true }, -- buffer, see Net/HitNumbers; own hits, per step
 	Chests = { direction = "toClient" }, -- { Net/Types.ChestInfo } on the floor, to participants on change
 	ChestOpened = { direction = "toClient" }, -- Net/Types.ChestOpened, to participants
 	DebugStats = { direction = "toClient" }, -- Net/Types.DebugStats, admins only, once per second

@@ -2,7 +2,8 @@
 -- Weapon framework on the server (DESIGN.md section 6): every participant starts a run with their class weapon,
 -- the Arsenal (rules in WeaponService/Arsenal, stats in WeaponStats) steps right after every enemy simulation step
 -- (EnemySim.Stepped), and loadouts (Loadout, to everyone) and weapon effects (WeaponEffects, batched per step, to
--- the participants) go to the clients. One behavior module per weapon in WeaponService/Behaviors. Level-up cards
+-- the participants) go to the clients, and every player gets the damage numbers of their own hits per step
+-- (DamageNumbers, Net/HitNumbers). One behavior module per weapon in WeaponService/Behaviors. Level-up cards
 -- (UpgradeService), chests (WP9) and AdminService call addWeapon, levelUp and evolve, UpgradeService also setBonuses
 -- for passives; the results screen (WP14) getDamageStats.
 
@@ -13,6 +14,7 @@ local Shared = ReplicatedStorage.Shared
 local Config = require(Shared.Config)
 local Net = require(Shared.Net)
 local Types = require(Shared.Net.Types)
+local HitNumbers = require(Shared.Net.HitNumbers)
 
 local EnemySim = require(script.Parent.EnemySim)
 local MapService = require(script.Parent.MapService)
@@ -40,6 +42,62 @@ local function playerOf(ownerId: number): Player?
 	return Players:GetPlayerByUserId(ownerId)
 end
 
+-- One owner's hits of the current step for damage numbers, one entry per enemy (hits on the same enemy add up).
+type HitFeed = {
+	indexOf: { [number]: number }, -- enemy id -> entry
+	xs: { number },
+	zs: { number },
+	amounts: { number },
+	flags: { number }, -- HitNumbers.FLAG_*
+	count: number,
+}
+
+local hitFeeds: { [number]: HitFeed } = {} -- by owner userId
+
+local function recordHit(ownerId: number, id: number, applied: number, crit: boolean, killed: boolean)
+	if not Config.Feedback.damageNumbers.enabled or applied <= 0 then
+		return
+	end
+	local feed = hitFeeds[ownerId]
+	if not feed then
+		feed = { indexOf = {}, xs = {}, zs = {}, amounts = {}, flags = {}, count = 0 }
+		hitFeeds[ownerId] = feed
+	end
+	local flags = (if crit then HitNumbers.FLAG_CRIT else 0) + (if killed then HitNumbers.FLAG_KILL else 0)
+	local index = feed.indexOf[id]
+	if index then
+		feed.amounts[index] += applied
+		feed.flags[index] = bit32.bor(feed.flags[index], flags)
+		return
+	end
+	local position = EnemySim.getPosition(id)
+	if not position or feed.count >= HitNumbers.MAX_HITS then
+		return
+	end
+	local count = feed.count + 1
+	feed.count = count
+	feed.indexOf[id] = count
+	feed.xs[count], feed.zs[count] = position.X, position.Z
+	feed.amounts[count], feed.flags[count] = applied, flags
+end
+
+local function sendHitFeeds()
+	for ownerId, feed in hitFeeds do
+		if feed.count > 0 then
+			local player = playerOf(ownerId)
+			if player then
+				Net.fireClient(
+					"DamageNumbers",
+					player,
+					HitNumbers.encode(feed.xs, feed.zs, feed.amounts, feed.flags, feed.count)
+				)
+			end
+			feed.count = 0
+			table.clear(feed.indexOf)
+		end
+	end
+end
+
 local arsenal = Arsenal.new({
 	enemies = {
 		queryCircle = function(x: number, z: number, radius: number, out: { number }): number
@@ -62,8 +120,10 @@ local arsenal = Arsenal.new({
 			end
 			return nil, nil
 		end,
-		damage = function(id: number, amount: number, ownerId: number): (boolean, number)
-			return EnemySim.damage(id, amount, playerOf(ownerId))
+		damage = function(id: number, amount: number, ownerId: number, crit: boolean): (boolean, number)
+			local killed, dealt, applied = EnemySim.damage(id, amount, playerOf(ownerId))
+			recordHit(ownerId, id, applied, crit, killed)
+			return killed, dealt
 		end,
 		push = function(id: number, dx: number, dz: number)
 			EnemySim.push(id, Vector3.new(dx, 0, dz))
@@ -151,6 +211,7 @@ local function onStepped(dt: number, stepNow: number)
 		end
 	end
 	arsenal:step(dt, stepNow)
+	sendHitFeeds()
 	local effects = arsenal:drainEffects()
 	if #effects > 0 then
 		for _, player in participants do
@@ -171,6 +232,7 @@ function WeaponService.init()
 	end)
 	Players.PlayerRemoving:Connect(function(player)
 		extraBonuses[player] = nil
+		hitFeeds[player.UserId] = nil
 		arsenal:removeOwner(player.UserId)
 		Net.fireAllClients("Loadout", { userId = player.UserId, weapons = {}, paused = paused } :: Types.Loadout)
 	end)

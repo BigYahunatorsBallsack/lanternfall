@@ -75,6 +75,7 @@ local Weapons: { [string]: Weapon } = {
 			projectileRadius = 0.5, -- studs, hit size of a bolt (assumption)
 			range = 40, -- studs; enemies further away are not targeted, bolts vanish after this (assumption)
 			spreadDegrees = 12, -- extra bolts without an own target fan out around the nearest by this (assumption)
+			knockback = 0.8, -- studs a hit enemy is pushed along the bolt, divided by its mass above 1 (assumption)
 		},
 		levels = {
 			{},
@@ -165,6 +166,7 @@ local Weapons: { [string]: Weapon } = {
 			catchRadius = 2, -- studs; the axe is gone once it is this close to you again (assumption)
 			maxFlightSeconds = 3, -- an axe that cannot catch up with you vanishes after this (assumption)
 			spreadDegrees = 20, -- extra axes without an own target fan out around the nearest by this (assumption)
+			knockback = 1.5, -- studs a hit enemy is pushed along the axe's flight, divided by its mass above 1 (assumption)
 		},
 		levels = {
 			{},

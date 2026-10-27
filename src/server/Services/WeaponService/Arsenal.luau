@@ -24,8 +24,8 @@ export type Enemies = {
 	queryCircle: (x: number, z: number, radius: number, out: { number }) -> number,
 	querySegment: (x0: number, z0: number, x1: number, z1: number, radius: number, out: { number }) -> number,
 	getPosition: (id: number) -> (number?, number?),
-	-- returns whether the hit killed the enemy, and the HP it took
-	damage: (id: number, amount: number, ownerId: number) -> (boolean, number),
+	-- returns whether the hit killed the enemy, and the HP it took; `crit` only tells (damage numbers)
+	damage: (id: number, amount: number, ownerId: number, crit: boolean) -> (boolean, number),
 	push: (id: number, dx: number, dz: number) -> (),
 }
 
@@ -193,10 +193,11 @@ local function makeContext(self: Arsenal): Context
 
 	function ctx.hit(_, weapon: Weapon, id: number, multiplier: number?): boolean
 		local amount = weapon.stats.damage * (multiplier or 1)
-		if params.random() < params.critChance then
+		local crit = params.random() < params.critChance
+		if crit then
 			amount *= params.critMultiplier
 		end
-		local killed, dealt = enemies.damage(id, amount, weapon.ownerId)
+		local killed, dealt = enemies.damage(id, amount, weapon.ownerId, crit)
 		weapon.damageDealt += dealt
 		if killed then
 			weapon.kills += 1
