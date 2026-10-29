@@ -4,8 +4,9 @@ Kurzer Projektstand für neue Sessions. **Zuerst lesen**, dann aus `DESIGN.md` n
 
 ## Stand (29.10.2026)
 
-- **Gemerged:** WP1–WP9, 9b, 9d, B1 (Wellen + Shop), B2 (Werte, 46 Items, Werte-Karten), Plan B3–B12 (PR #16).
-- **In Arbeit:** B3 – Shop komplett + 20 Wellen (Branch `wp-b3-shop-complete`, wartet auf Owner-Test).
+- **Gemerged:** WP1–WP9, 9b, 9d, B1 (Wellen + Shop), B2 (Werte, 46 Items, Werte-Karten), Plan B3–B12 (PR #16), B3 (Shop komplett: Sperren, Verkaufen, Waffen-Stufen I–IV + Verschmelzen, Gratis-Neuwurf, Handy-Layout, 20 Wellen; PR #17, vom Owner in Studio getestet).
+- **Balance-Stand nach B3:** gute Bots gewinnen ca. 40 % der 20-Wellen-Runs, Wand bei Welle 13; Blade Warden schwächer als Spark Mage (Thema für B5/B10).
+- **Bekannt und harmlos:** Output-Zeile „DataStoreService: StudioAccessToApisNotAllowed … HttpRequestsCache“ kommt von einem Studio-Plugin, nicht aus unserem Code.
 - **Als Nächstes:** B4 Effekt-Maschine (**Extra high**). Danach B5 Kampf-Tiefe (XH), B6 Beute (High), B7 Waffen (Medium), B8 Items (Medium), B9 Gegner (XH), B10 Charaktere (High), WP10 Boss (High), B11 Gefahrenstufen (High), B12 Bauten (High). Tabelle: `DESIGN.md` Abschnitt 20.
 
 ## Feste Entscheidungen des Owners
