@@ -1,6 +1,6 @@
 # Lanternfall – Game Design Document
 
-Stand: 26.10.2026 · Quelle: claude.ai-Doc „Lanternfall – Game Design Document" (Original mit Diagrammen). Diese Datei ist die Arbeitskopie im Repo; Änderungen am Design hier pflegen.
+Stand: 29.10.2026 · Quelle: claude.ai-Doc „Lanternfall – Game Design Document" (Original mit Diagrammen). Diese Datei ist die Arbeitskopie im Repo; Änderungen am Design hier pflegen.
 
 ## 1. Überblick & Vision
 
@@ -11,7 +11,7 @@ Lanternfall ist ein Koop-Survivors für 1–4 Spieler: Runs aus 12 kurzen Wellen
 | Arbeitstitel | Lanternfall; Roblox-Titel beschreibend, z. B. „Lanternfall: Horde Survivors" |
 | Genre | Koop-Survivors/Roguelite; seit Paket B1 nach dem Prinzip von Brotato (Wellen mit Shop dazwischen, feste Arena), vorher Vampire Survivors/Megabonk |
 | Spieler | 1–4 pro Run, Hub-Lobby mit bis zu 24 |
-| Session | Run 12 Wellen (9 Min Kampf + Shop-Pausen) + Boss (≈ 14–16 Min), Ziel ≥ 20 Min pro Session |
+| Session | heute Run 12 Wellen (9 Min Kampf + Shop-Pausen) + Boss (≈ 14–16 Min); ab Paket B3 20 Wellen wie Brotato mit Boss in Welle 20 (≈ 17,5 Min Kampf, mit Shops ≈ 25–30 Min, Owner-Entscheidung 29.10.2026). Ziel ≥ 20 Min pro Session |
 | Zielgruppe | zuerst 16+ (so startet jedes neue Spiel), danach alle ab 9 |
 | Plattform | Mobile first; PC und Konsole laufen mit |
 | Content-Rating | Ziel „Mild": Fantasy-Gewalt ohne Blut |
@@ -52,6 +52,8 @@ Das Genre ist außerhalb von Roblox bewiesen, auf Roblox kaum besetzt – und Ro
 Zwei Schleifen tragen das Spiel: im Run wird man nach jeder Welle durch Level-ups und den Shop stärker, zwischen den Runs dauerhaft durch Embers.
 
 **Richtung Brotato (Entscheidung des Owners am 27.10.2026, umgesetzt ab Paket B1):** Das Spiel fühlte sich nach dem Spaß-Paket schon wie Brotato an (feste Arena, feste Kamera, Wellen). Deshalb gehen wir gezielt dorthin: kurze Wellen, danach eine Shop-Phase. Mechaniken, Formeln und Zahlen orientieren sich eng an Brotato; Namen, Texte, Items, Charaktere und Look sind unsere eigenen (keine Kopie von geschütztem Inhalt). Plan: B1 Wellen mit Shop, B2 Werte-System und Items mit Vor- und Nachteilen, B3 Shop-Feinschliff (Sperren, Verkaufen, Verschmelzen), B4 Charaktere mit Trade-offs (Abschnitt 20).
+
+**Plan nach der Brotato-Referenz (29.10.2026):** Der Owner hat eine Referenz aller Brotato-Mechaniken (Basisspiel ohne DLC, Zahlen aus dem Community-Wiki) geliefert; alles daraus soll so gut wie möglich ins Spiel. Der Abgleich mit dem Stand nach B2 und die neuen Pakete B3–B12 stehen in Abschnitt 20. Entscheidung des Owners: Ein Run bekommt **20 Wellen wie Brotato** (20, 25, 30 … 55 s, Wellen 9–19 je 60 s, Welle 20 = Boss-Welle mit 90 s, endet sofort, wenn der Boss stirbt); umgestellt wird in B3. Bis dahin beschreibt dieser Abschnitt den Stand mit 12 Wellen.
 
 ```text
 Welle (20–60 s kämpfen, XP-Orbs = Shards sammeln)
@@ -490,6 +492,8 @@ Folgerungen: Gute Bots erreichen in gut der Hälfte der Runs (26 von 48) das End
 | Boss besiegt | 150 |
 | tägliche Quest | 50–100 |
 
+**Geplant (Paket 13, Brotato-Referenz):** Brotato hat keine dauerhaften Stärke-Boni, nur Freischaltungen. Die Stärke-Talente unten fallen deshalb weg (Vorschlag vom 29.10.2026, Owner hat den Plan abgenickt). Charaktere, Waffen und Items werden über Erfolge freigeschaltet („Gewinne einen Run mit X", „Töte 2.000 Gegner"); Embers kaufen Freischaltungen und Kosmetik früher frei. Statt Normal/Hard/Nightmare kommen Gefahrenstufen 0–5 pro Charakter (Paket B11). Die Tabellen unten sind der alte Plan.
+
 **Talente** (alle zusammen ≈ 12.650 Embers, also 50–70 Runs)
 
 | Talent | Effekt pro Rang | Ränge | Kosten pro Rang (Embers) |
@@ -791,7 +795,32 @@ Gate nicht geschafft → erst nachbauen; Spaß-Check durchgefallen → Kern-Loop
 
 ## 20. Effort-Plan (Opus 5.5) & Zeitaufwand
 
-Bis zum Soft Launch rund 40–50 Sessions und 50–60 Stunden Zeit des Owners (6–8 h/Woche über 8 Wochen). In Claude Code per `/effort` einstellen.
+Bis zum Soft Launch rund 40–50 Sessions und 50–60 Stunden Zeit des Owners (6–8 h/Woche über 8 Wochen); seit dem Plan nach der Brotato-Referenz (29.10.2026) etwa 18–22 Sessions mehr. In Claude Code per `/effort` einstellen.
+
+**Abgleich mit der Brotato-Referenz (29.10.2026, Stand nach B2):** Schon wie Brotato sind Wellen mit Shop, volle Heilung am Wellenende, 4 Angebote mit Preis-, Neuwurf- und Seltenheitsformel, die 17 Werte mit ihren Formeln, Items mit Vor- und Nachteil, XP-Kurve und Werte-Karten. Es fehlt noch:
+
+| Bereich | Fehlt | Paket |
+| --- | --- | --- |
+| Run | 20 Wellen mit Brotatos Dauern, Boss-Welle 20 (90 s) | B3, 10 |
+| Shop | Sperren (kostenlos, Preis bleibt), Verkaufen (25 % des Preises), Waffen-Stufen I–IV statt Level 1–5, Verschmelzen zweier gleicher Waffen gleicher Stufe (per Knopf oder automatisch bei vollen Plätzen), Gratis-Neuwurf nach 4 Käufen, Waffen-Pool 20 % eigene / 15 % gleiche Klasse / 65 % alle, keine Wiederholung des vorigen Wurfs | B3 |
+| Effekte | Ereignisse (Welle startet/endet, Treffer, Krit, Kill, Ausweichen, getroffen, Aufsammeln, Level-up, Shop betreten, Timer), Effekte als Daten {Auslöser, Bedingung, Aktion, Werte}, Werte im Stillstand/in Bewegung, „pro X", „nächste Welle", Wachstum am Wellenende, Multiplikatoren auf Wert-Gewinne (für Charaktere), getrennte Zufalls-Ströme (Shop, Drops, Spawns, Kampf) | B4 |
+| Neben-Werte | Item-Preise, Gratis-Neuwürfe, Doppel-Beute, Schaden gegen Bosse/Elites, Frucht-Heilung, Heilung beim Aufsammeln, Gegner-Anzahl/-HP/-Schaden/-Tempo, Explosionsschaden und -größe, Durchschlag, Abprall, Brenn-Tempo und -Ausbreitung, Rückstoß | B4, B5 |
+| Kampf | Krit-Chance und Krit-Faktor pro Waffe (×1,5 bis ×4), Lebensraub pro Waffe, Rückstoß mit Widerstand der Gegner, Brennen (stapelt nicht, Ausbreitung), Verlangsamen, Explosionen, Durchschlag mit Schadensabzug, Abprall, höchstens 12 Angriffe/s, Skalierung pro Waffe (z. B. 80 % Melee, mehrere Werte), Schutz nach Treffer 0,2–0,4 s | B5 |
+| Waffenklassen | 1–2 Klassen pro Waffe, gestaffelte Boni bei 2–6 Waffen einer Klasse (Brotatos 15 Staffeln, eigene Klassennamen) | B5 |
+| Waffen | 20–24 eigene Waffen statt 6, alle Klassen und Effekt-Arten (Stoß/Schwung, Schrot, Raketen, Feuer, Eis, Stapel pro Kill, Wert solange getragen, Heil-Geschoss, Magazin) | B7 |
+| Items | ~100 statt 46, viele mit Effekten (Kill, Ausweichen, Wellenende, Gegner-Änderung, Zufallswerte), Item-Limits | B8 |
+| Beute | Drop-Chance 100 % bis Welle 4, dann −1,5 % pro Welle (mind. 50 %), Beutel (Liegengebliebenes zieht in der nächsten Welle je Drop 1 dazu), höchstens 50 liegende Beute-Objekte (darüber zusammenlegen), Heil-Früchte, Kisten von normalen Gegnern (Item nehmen oder verkaufen, Chance sinkt mit jeder Kiste der Welle), Plünderer-Gegner, Bäume, Legendäre Kiste von Elites/Boss | B6 |
+| Gegner | Spawn-Marker vor dem Erscheinen, Wellen als Spawn-Gruppen (Typ, Anzahl, Start, Abstand), Werte pro Typ = Grund + Zuwachs pro Welle, neue Verhalten: Beschleuniger, flüchtender Schütze, Konter-Schütze, Buffer, Heiler, Ei (schlüpft nach 5 s), Hieb-Gegner, Beute-Fresser | B9 |
+| Elites und Boss | Phasen-Automat (Angriffe, Wechsel bei HP-Schwelle oder Zeit), Vorwarnen–Ausführen–Erholen, 2 Bosse, Elites mit Phasen | 10 |
+| Charaktere | Regelpakete statt Klassen: Startwerte, Startwaffe zur Wahl, Waffen-Plätze 1–12, Multiplikatoren auf Gewinne, Shop-Regeln, Wunsch-Tags (5 % Shop-Gewicht), Sonderregeln | B10 |
+| Schwierigkeit | Gefahrenstufen 0–5 (neue Gegner ab 1, Elite-/Horden-Wellen ab 2, +12/+26/+40 % Gegner-HP und -Schaden ab 3/4/5, 2 Bosse auf 5), Endlos nach Welle 20 mit Brotatos Formel, Regler für Gegner-HP/-Schaden/-Tempo, Welle wiederholen | B11 |
+| Bauten | Engineering-Wert, Geschütztürme (5 Stufen), Minen, Garten, wandernder Bot, Begleiter (Pets), höchstens 100 Bauten | B12 |
+| Fortschritt | Erfolge mit Zählern schalten Charaktere, Waffen, Items frei; Gefahrenstufe pro Charakter | 13 |
+| Anzeige | Tooltips mit Skalierung („20 (+80 % Melee)"), Set-Bonus-Fortschritt, Item-Limits, Werte Haupt/Neben umschaltbar, Vorschau kommender Elite-/Horden-Wellen | 14 |
+
+**Bewusst anders als Brotato (bleibt):** Online-Koop für 1–4 mit Wiederbeleben, Dash, gemeinsames Team-Level, HP mal 10, 3D-Schräg-Kamera, unsere Evolutionen (ab B3 an Waffen-Stufe IV statt Level 5), Gegner-Obergrenze 80 + 20 pro Spieler (Performance-Budget).
+
+**Reihenfolge:** Der Shop (B3) ist das Herz und kommt zuerst. Effekt-Maschine (B4) und Kampf-Tiefe (B5) sind das Gerüst für alle neuen Waffen, Items und Charaktere; Inhalte davor zu bauen hieße, sie später umzubauen. Jedes Paket aktualisiert die Balance-Simulation.
 
 | # | Arbeitspaket | Phase | Effort | Sessions | Zeit Owner | Owner tut |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -809,16 +838,24 @@ Bis zum Soft Launch rund 40–50 Sessions und 50–60 Stunden Zeit des Owners (6
 | 9d | Look-Paket: Gegner im Deadlock-Stil (okkultes Art déco), neue Waffen-, Dash- und Todes-Effekte | Vertical Slice | Extra high | 1 | 30 min | Look beurteilen, am Handy auf Ruckler achten |
 | B1 | Brotato-Richtung 1: Wellen 20–60 s mit Shop-Phase, Shards, Level-ups am Wellenende, Aufstehen und Heilen am Wellenende | Vertical Slice | Extra high | 1 | 1 h | Run solo und zu zweit spielen |
 | B2 | Brotato-Richtung 2: Werte-System (Schaden, Angriffstempo, Krit, Glück, Rüstung, Ausweichen, Regeneration, Lebensraub, Reichweite, Tempo, Ernte), 46 Items in 4 Seltenheiten mit Trade-offs, unbegrenzt stapelbar, 6 Waffen-Plätze, Level-ups als Werte-Wahl, Werte-Liste im Shop | Vertical Slice | Extra high | 1–2 | 1 h | Items ausprobieren |
-| B3 | Brotato-Richtung 3: Shop-Feinschliff (Sperren, Verkaufen, Verschmelzen, Handy-Layout) | Vertical Slice | High | 1 | 1 h | Shop am Handy bedienen |
-| B4 | Brotato-Richtung 4: 4–6 Charaktere mit Plus und Minus, Balance-Simulation mit Shop-Bots | Vertical Slice | Medium | 1 | 1 h | Schwierigkeit beurteilen |
-| 10 | Boss mit Vorwarnungen und 2 Phasen (nach Welle 12) | Vertical Slice | High | 2 | 1,5 h | Boss 3× spielen |
+| B3 | Brotato 3: Shop komplett und 20 Wellen – Run auf 20 Wellen mit Brotatos Dauern, Sperren, Verkaufen, Waffen-Stufen I–IV statt Level, Verschmelzen, Gratis-Neuwurf nach 4 Käufen, Waffen-Pool-Regeln, Evolutionen ab Stufe IV, Handy-Layout | Vertical Slice | High | 1–2 | 1 h | Shop am PC und Handy bedienen |
+| B4 | Brotato 4: Effekt-Maschine – Ereignisse, Effekte als Daten, bedingte und „pro X"-Werte, nächste Welle, Wellenende-Wachstum, Neben-Werte, getrennte Zufalls-Ströme, ~20 neue Items mit Effekten | Vertical Slice | Extra high | 2 | 1 h | neue Items ausprobieren |
+| B5 | Brotato 5: Kampf-Tiefe – Krit und Lebensraub pro Waffe, Rückstoß, Brennen, Verlangsamen, Explosionen, Durchschlag/Abprall, 12 Angriffe/s, Skalierung pro Waffe, Waffenklassen mit Set-Boni | Vertical Slice | Extra high | 2 | 1 h | Waffengefühl beurteilen |
+| B6 | Brotato 6: Beute – sinkende Drop-Chance, Beutel, Heil-Früchte, Kisten von normalen Gegnern, Plünderer, Bäume, Beute-Obergrenze | Vertical Slice | High | 1–2 | 1 h | Wirtschaft beurteilen |
+| B7 | Brotato 7: Waffen-Paket – auf 20–24 Waffen, alle Klassen und Effekt-Arten | Vertical Slice | Medium | 2 | 1 h | Waffen ausprobieren |
+| B8 | Brotato 8: Item-Paket – auf ~100 Items, viele mit Effekten | Vertical Slice | Medium | 2 | 1 h | Items ausprobieren |
+| B9 | Brotato 9: Gegner-Paket – Spawn-Marker, Wellen als Spawn-Gruppen, Werte pro Typ und Welle, 8 neue Verhalten | Vertical Slice | Extra high | 2 | 1 h | Schwierigkeit und Lesbarkeit beurteilen |
+| B10 | Brotato 10: Charaktere – 10–12 Charaktere als Regelpakete (ersetzt die Klassen), Charakter- und Waffenwahl in der Lobby | Vertical Slice | High | 2 | 1,5 h | jeden Charakter einmal spielen |
+| 10 | Boss und Elites mit Phasen: Boss-Welle 20 (90 s), 2 Bosse mit Phasen-Wechseln, Vorwarnungen, Elites mit Phasen | Vertical Slice | High | 2 | 1,5 h | Boss 3× spielen |
+| B11 | Brotato 11: Gefahrenstufen 0–5, Elite- und Horden-Wellen, Endlos-Modus, Regler für Gegner-Werte, Welle wiederholen | Vertical Slice | High | 1–2 | 1 h | Stufen durchprobieren |
+| B12 | Brotato 12: Bauten und Begleiter – Engineering, Türme, Minen, Garten, Bot, Pets | Vertical Slice | High | 2 | 1 h | Bau-Builds testen |
 | 11 | Down & Wiederbeleben während der Welle (Aufstehen am Wellenende gibt es seit B1) | Vertical Slice | Medium | 1 | 1 h | mit 2 Clients testen |
 | 12 | Datenspeicherung: ProfileStore, Schema, Migration | Vertical Slice | Extra high | 1–2 | 1 h | Test-Experience anlegen, Join/Leave testen |
-| 13 | Embers, Talente, Schwierigkeitsgrade | Vertical Slice | Medium | 1–2 | 1 h | Werte abnicken |
-| 14 | HUD, Run-Ende, mobiles Layout | Vertical Slice | Medium | 2–3 | 2 h | Handy-Screenshots |
+| 13 | Fortschritt: Embers, Erfolge schalten Charaktere, Waffen und Items frei, Gefahrenstufe pro Charakter (statt Talente und Normal/Hard/Nightmare) | Vertical Slice | Medium | 1–2 | 1 h | Freischaltungen abnicken |
+| 14 | HUD, Run-Ende, mobiles Layout, Tooltips (Skalierung, Set-Bonus, Elite-Vorschau) | Vertical Slice | Medium | 2–3 | 2 h | Handy-Screenshots |
 | 15 | Hub-Lobby, Teleport, Party, Quick Join | MVP | Extra high | 2–3 | 2 h | Party-Teleport testen |
 | 16 | Käufe: Passes, Products, ProcessReceipt | MVP | Extra high | 1–2 | 1 h | Produkte im Creator Hub anlegen, IDs liefern, Testkäufe |
-| 17 | Shop-, Talent- und Pass-UI | MVP | Medium | 2 | 1 h | Look abnicken |
+| 17 | Ember-Shop-, Freischaltungs- und Pass-UI | MVP | Medium | 2 | 1 h | Look abnicken |
 | 18 | Quests, Login-Serie, Ranglisten, Badges | MVP | Medium | 2 | 1 h | Badges im Creator Hub anlegen |
 | 19 | Erster Start (FTUE) | MVP | Medium | 1 | 1 h | neue Tester beobachten |
 | 20 | Analytics-Events | MVP | Medium | 1 | 0,5 h | Dashboard ansehen |
@@ -894,7 +931,10 @@ Marketing: beschreibender Titel, klares Icon (Laterne gegen Horde); 15–30-s-Cl
 - [x] Look: okkultes Art déco im Stil von Deadlock (Owner, Paket 9d) – umgesetzt für Gegner und Effekte; Karte, Kostüme und Laternen folgen in Paket 21.
 - [ ] Eigentümer: Veröffentlichung unter einer Roblox-Gruppe?
 - [ ] Beitritt in laufende Runs (v1: nein)?
-- [ ] Endlos-Modus nach dem Boss (Vorschlag: erste Live-Ops-Phase)?
+- [x] Endlos-Modus nach dem Boss: ja, wie Brotato mit dessen Formel (Paket B11).
+- [x] Run-Länge: 20 Wellen wie Brotato (Owner, 29.10.2026; Umstellung in B3).
+- [x] Talente: Stärke-Talente fallen weg, dafür Freischaltungen wie Brotato (Paket 13).
+- [ ] Pets und Bauten (B12) vor oder nach dem Soft Launch?
 - [ ] Kosmetische Kisten ja/nein (frühestens Live-Ops)?
 - [ ] Ad-Budget für den Soft Launch.
 
