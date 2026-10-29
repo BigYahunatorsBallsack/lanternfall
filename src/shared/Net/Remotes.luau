@@ -94,6 +94,8 @@ local Remotes: { [string]: Definition } = {
 	XpOrbs = { direction = "toClient" }, -- Net/Types.XpOrbEvents of one simulation step, to participants
 	Items = { direction = "toClient" }, -- Net/Types.ItemLoadout of one player, to everyone on change
 	Stats = { direction = "toClient" }, -- Net/Types.StatSheet, to its player on change
+	EffectProcs = { direction = "toClient" }, -- { Net/Types.EffectProc } of one step (or the shop), to its player
+	ActiveBonuses = { direction = "toClient" }, -- { Net/Types.ActiveBonus }, to its player on change
 	RunSummary = { direction = "toClient" }, -- Net/Types.RunSummary, to the participants when a run ends
 	Notify = { direction = "toClient" }, -- short on-screen messages
 	EnemySnapshot = { direction = "toClient", unreliable = true }, -- buffer, see Net/Snapshot

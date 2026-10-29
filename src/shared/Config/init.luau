@@ -5,6 +5,7 @@ return {
 	Player = require(script.Player),
 	Weapons = require(script.Weapons),
 	Items = require(script.Items),
+	Effects = require(script.Effects),
 	Stats = require(script.Stats),
 	Evolutions = require(script.Evolutions),
 	Enemies = require(script.Enemies),

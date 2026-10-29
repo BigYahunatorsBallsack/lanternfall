@@ -3,8 +3,9 @@
 -- complete since B3): prices by wave (weapons also by tier), sell prices, reroll prices and the offers of one shop
 -- (locked offers stay; weapons of a rolled tier from Brotato's pool: owned ones, same class, any; items of a rarity
 -- rolled by wave and Luck, any number of each up to its limit; nothing from the previous roll again if anything else
--- is left), and whether a weapon offer merges or is blocked. Also rolls the item of an elite chest. Used by
--- ShopService and UpgradeService; tested in tests/ShopRules.spec.luau.
+-- is left), and whether a weapon offer merges or is blocked. Also rolls the item of an elite chest. Since B4 prices
+-- take the Item Prices factor (Util/StatMath.priceFactor) and sell prices the Sell Value stat. Used by ShopService and
+-- UpgradeService; tested in tests/ShopRules.spec.luau.
 
 local Shared = game:GetService("ReplicatedStorage").Shared
 local Items = require(Shared.Config.Items)
@@ -24,6 +25,7 @@ export type Params = {
 	maxWeapons: number,
 	maxTier: number,
 	ownedItems: { [string]: number }, -- id -> count
+	priceFactor: number?, -- from the Item Prices stat (StatMath.priceFactor); 1 if nil
 	keep: { Types.ShopOffer }?, -- locked offers; they stay first and their weapons and items are not rolled again
 	previous: { [string]: boolean }?, -- weapon and item ids of the roll before (reroll); avoided while others are left
 	nextId: () -> string, -- unique prefix for each new offer id
@@ -45,21 +47,34 @@ for _, ids in itemsByTier do
 end
 
 -- Price of something with base price `base` after wave `wave`: floor((base + wave * waveAdd + base * waveFactor *
--- wave) * multiplier), at least 1.
-function ShopRules.price(base: number, wave: number): number
+-- wave) * multiplier * factor), at least 1; `factor` from the Item Prices stat (Brotato's items_price_mult).
+function ShopRules.price(base: number, wave: number, factor: number?): number
 	local rule = Shop.price
-	return math.max(1, math.floor((base + wave * rule.waveAdd + base * rule.waveFactor * wave) * rule.multiplier))
+	local raw = (base + wave * rule.waveAdd + base * rule.waveFactor * wave) * rule.multiplier * (factor or 1)
+	return math.max(1, math.floor(raw + 1e-9))
 end
 
 -- Price of a weapon of `tier` after wave `wave`: its tier I base price times Config.Shop.tierPriceFactors[tier].
-function ShopRules.weaponPrice(weaponId: string, tier: number, wave: number): number
+function ShopRules.weaponPrice(weaponId: string, tier: number, wave: number, factor: number?): number
 	local base = Shop.weaponPrices[weaponId] or 0
-	return ShopRules.price(base * (Shop.tierPriceFactors[tier] or 1), wave)
+	return ShopRules.price(base * (Shop.tierPriceFactors[tier] or 1), wave, factor)
 end
 
--- Shards for selling a weapon of `tier` after wave `wave`: Config.Shop.sellShare of its price, rounded down.
-function ShopRules.sellPrice(weaponId: string, tier: number, wave: number): number
-	return math.floor(ShopRules.weaponPrice(weaponId, tier, wave) * Shop.sellShare)
+-- Price of an offer with the Item Prices factor: weapons by tier, items by their base price, both from the wave the
+-- offer's price is based on (a locked offer keeps its wave).
+function ShopRules.offerPrice(offer: Types.ShopOffer, factor: number?): number
+	if offer.kind == "Weapon" then
+		return ShopRules.weaponPrice(offer.itemId, offer.tier, offer.priceWave, factor)
+	end
+	local item = Items.byId[offer.itemId]
+	return ShopRules.price(if item then item.price else 0, offer.priceWave, factor)
+end
+
+-- Shards for selling a weapon of `tier` after wave `wave`: Config.Shop.sellShare plus `sellValue` percent (the Sell
+-- Value stat) of its price without discounts, rounded down.
+function ShopRules.sellPrice(weaponId: string, tier: number, wave: number, sellValue: number?): number
+	local share = math.max(0, Shop.sellShare + (sellValue or 0) / 100)
+	return math.floor(ShopRules.weaponPrice(weaponId, tier, wave) * share + 1e-9)
 end
 
 -- Price of the next reroll after `rerolls` rerolls in this shop (or level-up choice).
@@ -216,7 +231,8 @@ local function weaponOffer(weaponId: string, params: Params): Types.ShopOffer
 		tier = tier,
 		count = copies,
 		isNew = copies == 0,
-		price = ShopRules.weaponPrice(weaponId, tier, params.wave),
+		price = ShopRules.weaponPrice(weaponId, tier, params.wave, params.priceFactor),
+		priceWave = params.wave,
 		sold = false,
 		locked = false,
 		merges = merges,
@@ -234,7 +250,8 @@ local function itemOffer(itemId: string, params: Params): Types.ShopOffer
 		tier = item.tier,
 		count = owned + 1,
 		isNew = owned == 0,
-		price = ShopRules.price(item.price, params.wave),
+		price = ShopRules.price(item.price, params.wave, params.priceFactor),
+		priceWave = params.wave,
 		sold = false,
 		locked = false,
 		merges = false,

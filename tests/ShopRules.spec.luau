@@ -205,6 +205,23 @@ describe("ShopRules", function()
 		expect(rareShare(4, 0) < rareShare(4, 100)).toBe(true)
 	end)
 
+	it("lowers prices by Item Prices, keeps a locked offer's wave and adds Sell Value to sales", function()
+		expect(ShopRules.price(20, 1, 0.75)).toBe(math.floor((20 + 1 + 2) * 0.75))
+		expect(ShopRules.price(1, 0, 0)).toBe(1)
+		local offers = ShopRules.roll(params({ wave = 3, priceFactor = 0.9 }))
+		for _, offer in offers do
+			expect(offer.priceWave).toBe(3)
+			expect(offer.price).toBe(ShopRules.offerPrice(offer, 0.9))
+			expect(offer.price <= ShopRules.offerPrice(offer, 1)).toBe(true)
+		end
+		local locked = table.clone(offers[1])
+		locked.priceWave = 1 -- rolled after wave 1, still in the shop after wave 6
+		expect(ShopRules.offerPrice(locked, 1) < ShopRules.offerPrice(offers[1], 1)).toBe(true)
+		local price = ShopRules.weaponPrice("SparkBolt", 1, 5)
+		expect(ShopRules.sellPrice("SparkBolt", 1, 5)).toBe(math.floor(price * Config.Shop.sellShare))
+		expect(ShopRules.sellPrice("SparkBolt", 1, 5, 35)).toBe(math.floor(price * (Config.Shop.sellShare + 0.35)))
+	end)
+
 	it("gives elite chests at least an Uncommon item", function()
 		for seed = 1, 20 do
 			local itemId = ShopRules.chestItem(1, 0, {}, lcg(seed))

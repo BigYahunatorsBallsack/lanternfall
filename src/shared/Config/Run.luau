@@ -16,6 +16,9 @@ end
 local Run = {
 	durationSeconds = sum(WAVE_LENGTHS), -- fighting time of all waves; surviving the last one wins (boss in WP10)
 	maxPlayers = 4,
+	-- Random seed of a run (RandomService, since B4): 0 = a new one every run (printed to the output), any other
+	-- number replays the same shop offers, cards, drops, spawns and combat rolls as far as the players act the same.
+	seed = 0,
 
 	-- Lobby -> countdown -> run -> results -> lobby (prototype: lobby and arena in one server)
 	flow = table.freeze({

@@ -11,7 +11,8 @@
 --      a fire without a target returns false and is tried again on the next step
 -- Behaviors (WeaponService/Behaviors, one module per weapon, picked by Config.Weapons[id].behavior) reach the
 -- world only through the Context: enemy queries, hit (damage with crits and life steal, counted per weapon), push (knockback)
--- and emit (an effect for the clients' visuals).
+-- and emit (an effect for the clients' visuals). Since B4 hits on elites take the owner's Damage vs Elites, and every
+-- hit is reported to `onHit` (item effects: Hit, Crit, Kill).
 
 local Shared = game:GetService("ReplicatedStorage").Shared
 local Evolutions = require(Shared.Config.Evolutions)
@@ -29,6 +30,7 @@ export type Enemies = {
 	-- returns whether the hit killed the enemy, and the HP it took; `crit` only tells (damage numbers)
 	damage: (id: number, amount: number, ownerId: number, crit: boolean) -> (boolean, number),
 	push: (id: number, dx: number, dz: number) -> (),
+	isElite: ((id: number) -> boolean)?, -- Damage vs Elites; without it no enemy counts as elite
 }
 
 -- Becomes a Net/Types.WeaponEffect: the behavior sets kind and its fields, emit adds weapon, userId and at.
@@ -98,6 +100,8 @@ export type Params = {
 	critMultiplier: number,
 	minCooldown: number,
 	onLifeSteal: ((ownerId: number) -> ())?, -- a hit rolled the weapon's life steal (CombatService heals)
+	-- every hit that took HP (item effects): the weapon, the enemy, the HP it took, crit, killed
+	onHit: ((weapon: Weapon, id: number, dealt: number, crit: boolean, killed: boolean) -> ())?,
 	sweepStep: number,
 	random: () -> number,
 }
@@ -199,6 +203,10 @@ local function makeContext(self: Arsenal): Context
 	function ctx.hit(_, weapon: Weapon, id: number, multiplier: number?): boolean
 		local stats = weapon.stats
 		local amount = stats.damage * (multiplier or 1)
+		local eliteDamage = stats.eliteDamage or 0
+		if eliteDamage ~= 0 and enemies.isElite and enemies.isElite(id) then
+			amount *= math.max(0, 1 + eliteDamage)
+		end
 		local crit = params.random() < (stats.critChance or params.critChance)
 		if crit then
 			amount *= params.critMultiplier
@@ -211,6 +219,9 @@ local function makeContext(self: Arsenal): Context
 		weapon.damageDealt += dealt
 		if killed then
 			weapon.kills += 1
+		end
+		if params.onHit and dealt > 0 then
+			params.onHit(weapon, id, dealt, crit, killed)
 		end
 		return killed
 	end

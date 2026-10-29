@@ -8,7 +8,9 @@
 -- every few purchases earn a free reroll. BuyShopOffer, RerollShop, LockShopOffer, SellWeapon and MergeWeapons are
 -- checked here; weapons come from WeaponService, items from StatService. Ready is handled by RunDirector. Offers
 -- follow what the player owns. Sends ShopState to its player on every change. UpgradeService pays level-up rerolls
--- with spendShards.
+-- with spendShards. Since B4 the shop stats work (Item Prices, Free Rerolls, Sell Value), offers roll on
+-- RandomService's Shop stream, and signals tell EffectService about the wave end (before Harvesting pays), the
+-- opened shop, rerolls, purchases, sales and the Shards held; item effects pay Shards through addShards.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -16,9 +18,12 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Shared = ReplicatedStorage.Shared
 local Config = require(Shared.Config)
 local Net = require(Shared.Net)
+local Signal = require(Shared.Util.Signal)
+local StatMath = require(Shared.Util.StatMath)
 local Types = require(Shared.Net.Types)
 
 local ExperienceService = require(script.Parent.ExperienceService)
+local RandomService = require(script.Parent.RandomService)
 local RunDirector = require(script.Parent.RunDirector)
 local StatService = require(script.Parent.StatService)
 local WeaponService = require(script.Parent.WeaponService)
@@ -32,17 +37,48 @@ type State = {
 	carried: { Types.ShopOffer }, -- locked offers kept for the next shop while no shop is open
 	rerolls: number, -- paid rerolls in the current shop
 	buys: number, -- purchases in the current shop
-	freeRerolls: number, -- free rerolls earned in the current shop and not used yet
+	freeRerolls: number, -- free rerolls of the current shop (Free Rerolls stat and purchases) not used yet
+	reportedShards: number, -- whole Shards last told to ShardsChanged
 }
 
 local ShopService = {}
 
+-- (player: Player): a wave ended for this participant; fired before Harvesting pays and the offers roll
+ShopService.WaveEnding = Signal.new()
+-- (player: Player): the shop opened with fresh offers (sent to the player right after the listeners ran)
+ShopService.Opened = Signal.new()
+-- (player: Player): the player rerolled the offers
+ShopService.Rerolled = Signal.new()
+-- (player: Player, kind: "Weapon" | "Item", itemId: string): the player bought an offer
+ShopService.Bought = Signal.new()
+-- (player: Player, weaponId: string): the player sold a weapon
+ShopService.Sold = Signal.new()
+-- (player: Player, shards: number): the whole Shards the player holds changed
+ShopService.ShardsChanged = Signal.new()
+
 local states: { [Player]: State } = {}
-local rng = Random.new()
 local offerCounter = 0
 
 local function newState(): State
-	return { shards = 0, open = false, wave = 0, offers = {}, carried = {}, rerolls = 0, buys = 0, freeRerolls = 0 }
+	return {
+		shards = 0,
+		open = false,
+		wave = 0,
+		offers = {},
+		carried = {},
+		rerolls = 0,
+		buys = 0,
+		freeRerolls = 0,
+		reportedShards = 0,
+	}
+end
+
+local function priceFactor(player: Player): number
+	return StatMath.priceFactor(StatService.getStat(player, "itemPrice"))
+end
+
+local function sellPrice(player: Player, weaponId: string, tier: number, wave: number): number
+	return ShopRules.sellPrice(weaponId, tier, wave, StatService.getStat(player, "sellValue"))
 end
 
 local function ownedWeapons(player: Player): { ShopRules.OwnedWeapon }
@@ -61,7 +97,7 @@ local function payload(player: Player, state: State): Types.ShopState
 			id = weapon.id,
 			tier = weapon.tier,
 			evolution = weapon.evolution,
-			sellPrice = ShopRules.sellPrice(weapon.id, weapon.tier, state.wave),
+			sellPrice = sellPrice(player, weapon.id, weapon.tier, state.wave),
 			canMerge = WeaponService.findMergePartner(player, weapon.uid) ~= nil,
 		})
 	end
@@ -78,13 +114,16 @@ local function payload(player: Player, state: State): Types.ShopState
 end
 
 -- Brings unsold offers up to date with what the player owns now (other purchases, sales, merges, chests): the count,
--- "new" or not, whether a weapon merges or is blocked, and drops items at their limit.
+-- "new" or not, whether a weapon merges or is blocked, the price with the current Item Prices, and drops items at
+-- their limit.
 local function refresh(player: Player, state: State)
 	local weapons = ownedWeapons(player)
 	local items = StatService.getItemCounts(player)
+	local factor = priceFactor(player)
 	for index = #state.offers, 1, -1 do
 		local offer = state.offers[index]
 		if not offer.sold then
+			offer.price = ShopRules.offerPrice(offer, factor)
 			if offer.kind == "Weapon" then
 				local copies = 0
 				for _, weapon in weapons do
@@ -119,6 +158,11 @@ local function send(player: Player, state: State)
 		refresh(player, state)
 	end
 	Net.fireClient("ShopState", player, payload(player, state))
+	local whole = math.floor(state.shards)
+	if whole ~= state.reportedShards then
+		state.reportedShards = whole
+		ShopService.ShardsChanged:Fire(player, whole)
+	end
 end
 
 -- New offers; locked unsold ones (`keep`) stay. `previous`: ids of the roll before, not offered again if possible.
@@ -126,6 +170,7 @@ local function roll(player: Player, state: State, keep: { Types.ShopOffer }, pre
 	state.offers = ShopRules.roll({
 		wave = state.wave,
 		luck = StatService.getStat(player, "luck"),
+		priceFactor = priceFactor(player),
 		weapons = WeaponService.getImplemented(),
 		ownedWeapons = ownedWeapons(player),
 		maxWeapons = Config.Player.maxWeapons,
@@ -138,7 +183,7 @@ local function roll(player: Player, state: State, keep: { Types.ShopOffer }, pre
 			return tostring(offerCounter)
 		end,
 		random = function(): number
-			return rng:NextNumber()
+			return RandomService.number("Shop", player)
 		end,
 	})
 end
@@ -170,14 +215,16 @@ local function openShop()
 	for _, player in RunDirector.getParticipants() do
 		local state = states[player]
 		if state and RunDirector.getParticipantState(player) ~= "Out" then
+			ShopService.WaveEnding:Fire(player) -- wave-end item effects come before Harvesting (Brotato)
 			harvest(player, state)
 			state.open = true
 			state.wave = wave
 			state.rerolls = 0
 			state.buys = 0
-			state.freeRerolls = 0
+			state.freeRerolls = math.max(0, math.floor(StatService.getStat(player, "freeRerolls")))
 			roll(player, state, state.carried, nil)
 			state.carried = {}
+			ShopService.Opened:Fire(player)
 			send(player, state)
 		end
 	end
@@ -257,6 +304,7 @@ local function buy(player: Player, offerId: string)
 	if state.buys % Config.Shop.freeRerollAfterBuys == 0 then
 		state.freeRerolls += 1
 	end
+	ShopService.Bought:Fire(player, offer.kind, offer.itemId)
 	send(player, state)
 end
 
@@ -283,6 +331,7 @@ local function reroll(player: Player)
 		end
 	end
 	roll(player, state, lockedOffers(state.offers), previous)
+	ShopService.Rerolled:Fire(player)
 	send(player, state)
 end
 
@@ -308,7 +357,8 @@ local function sell(player: Player, uid: number)
 				return
 			end
 			if WeaponService.removeWeapon(player, uid) then
-				state.shards += ShopRules.sellPrice(weapon.id, weapon.tier, state.wave)
+				state.shards += sellPrice(player, weapon.id, weapon.tier, state.wave)
+				ShopService.Sold:Fire(player, weapon.id)
 				send(player, state)
 			end
 			return
@@ -391,7 +441,7 @@ function ShopService.spendShards(player: Player, amount: number): boolean
 	return true
 end
 
--- Adds Shards (admin debug command, tests).
+-- Adds Shards (item effects, admin debug command, tests).
 function ShopService.addShards(player: Player, amount: number): boolean
 	local state = states[player]
 	if not state then

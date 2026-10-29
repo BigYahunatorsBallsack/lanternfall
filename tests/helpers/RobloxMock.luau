@@ -262,8 +262,34 @@ local TweenInfoLib = {
 		return setmetatable({ args = { ... } }, plainType("TweenInfo"))
 	end,
 }
+-- Random.new(seed) is deterministic like Roblox's (xorshift32 here, other numbers than Roblox); without a seed it
+-- follows math.random, so math.randomseed still controls it.
+local function seededRandom(seed)
+	local state = bit32.bxor(math.floor(seed) % 4294967296, 0x9E3779B9)
+	if state == 0 then
+		state = 1
+	end
+	local function nextUnit()
+		state = bit32.bxor(state, bit32.lshift(state, 13))
+		state = bit32.bxor(state, bit32.rshift(state, 17))
+		state = bit32.bxor(state, bit32.lshift(state, 5))
+		return state / 4294967296
+	end
+	return {
+		NextNumber = function(_, a, b)
+			return (a or 0) + nextUnit() * ((b or 1) - (a or 0))
+		end,
+		NextInteger = function(_, a, b)
+			return a + math.min(b - a, math.floor(nextUnit() * (b - a + 1)))
+		end,
+	}
+end
+
 local RandomLib = {
-	new = function()
+	new = function(seed)
+		if seed ~= nil then
+			return seededRandom(seed)
+		end
 		return {
 			NextNumber = function(_, a, b)
 				return (a or 0) + math.random() * ((b or 1) - (a or 0))

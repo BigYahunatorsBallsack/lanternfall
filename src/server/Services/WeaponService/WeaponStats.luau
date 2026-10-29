@@ -5,7 +5,7 @@
 --   timing   = cooldowns and hit intervals times StatMath.cooldownFactor(Attack Speed), never below minCooldown;
 --              spinning weapons turn faster by the same factor
 --   reach    = rangeKeys + Range * studsPerPoint (melee weapons meleeFactor of it), never below minStuds
---   critChance and lifeSteal as chances per hit (Arsenal rolls them)
+--   critChance and lifeSteal as chances per hit (Arsenal rolls them), eliteDamage as a fraction (Damage vs Elites)
 -- Pure and unit tested; used by WeaponService/Arsenal whenever a weapon is added, merged or evolved, or stats change.
 
 local Shared = game:GetService("ReplicatedStorage").Shared
@@ -85,6 +85,7 @@ function WeaponStats.compute(
 
 	stats.critChance = StatMath.critChance(Player.critChance, bonuses.critChance or 0)
 	stats.lifeSteal = math.clamp((bonuses.lifeSteal or 0) / 100, 0, 1)
+	stats.eliteDamage = (bonuses.eliteDamage or 0) / 100
 	return stats
 end
 

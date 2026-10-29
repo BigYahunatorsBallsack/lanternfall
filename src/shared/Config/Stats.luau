@@ -1,6 +1,7 @@
 --!strict
 -- Player stats (DESIGN.md section 4, Brotato direction since B2): the list of stats, their level-up upgrade values
--- and the numbers of the formulas in Util/StatMath. Values are kept in the units the player sees: "percent" stats in
+-- and the numbers of the formulas in Util/StatMath. Since B4 also Brotato's secondary stats for the shop, Shards and
+-- the enemies (only from items; hidden in the stat panel while 0). Values are kept in the units the player sees: "percent" stats in
 -- percent points (5 = +5 %), the others as plain numbers. Read by StatService (sums), WeaponStats, CombatService,
 -- ExperienceService, ShopService, UpgradeService and the client (stat panel, card texts).
 --
@@ -25,6 +26,15 @@ export type StatId =
 	| "harvesting"
 	| "xpGain"
 	| "pickupRange"
+	| "itemPrice"
+	| "freeRerolls"
+	| "sellValue"
+	| "doubleShards"
+	| "shardHealing"
+	| "eliteDamage"
+	| "enemyCount"
+	| "enemyHp"
+	| "enemyDamage"
 
 export type Stat = {
 	id: string,
@@ -32,6 +42,8 @@ export type Stat = {
 	percent: boolean, -- shown and stored as percent points
 	primary: boolean, -- primary stats get level-up upgrades; secondary ones only come from items
 	upgrade: { number }?, -- level-up values for tier 1..4 (primary stats)
+	inverted: boolean, -- lower is better (shown green below the start value)
+	hideWhenZero: boolean, -- the stat panel leaves it out while it is 0
 }
 
 local function stat(id: string, displayName: string, percent: boolean, upgrade: { number }?): Stat
@@ -41,6 +53,21 @@ local function stat(id: string, displayName: string, percent: boolean, upgrade: 
 		percent = percent,
 		primary = upgrade ~= nil,
 		upgrade = if upgrade then table.freeze(upgrade) else nil,
+		inverted = false,
+		hideWhenZero = false,
+	})
+end
+
+-- A secondary stat since B4: only from items, hidden in the panel while 0.
+local function extra(id: string, displayName: string, percent: boolean, inverted: boolean?): Stat
+	return table.freeze({
+		id = id,
+		displayName = displayName,
+		percent = percent,
+		primary = false,
+		upgrade = nil,
+		inverted = inverted == true,
+		hideWhenZero = true,
 	})
 end
 
@@ -64,6 +91,16 @@ local ORDER: { Stat } = {
 	stat("harvesting", "Harvesting", false, { 5, 8, 10, 12 }),
 	stat("xpGain", "XP Gain", true, nil),
 	stat("pickupRange", "Pickup Range", true, nil),
+	-- Brotato's secondary stats (since B4)
+	extra("itemPrice", "Item Prices", true, true), -- shop prices x (1 + value / 100)
+	extra("freeRerolls", "Free Rerolls", false), -- free rerolls in every shop
+	extra("sellValue", "Sell Value", true), -- added to the 25 % a sold weapon gives
+	extra("doubleShards", "Double Orbs", true), -- chance an orb picked up gives double Shards and XP
+	extra("shardHealing", "Orb Healing", true), -- chance an orb picked up heals hpScale HP
+	extra("eliteDamage", "Damage vs Elites", true), -- weapon damage against elites (and bosses, WP10)
+	extra("enemyCount", "Enemies", true, true), -- spawn rate; the whole team's values add up
+	extra("enemyHp", "Enemy HP", true, true), -- HP of enemies that spawn; team total
+	extra("enemyDamage", "Enemy Damage", true, true), -- damage of enemies that spawn; team total
 }
 
 local byId: { [string]: Stat } = {}
@@ -97,4 +134,8 @@ return table.freeze({
 	harvesting = table.freeze({ growth = 0.05 }),
 	-- Speed: move speed x (1 + speed / 100), never below this share of the base speed.
 	minSpeedFactor = 0,
+	-- Enemy stats of the team (enemyCount, enemyHp, enemyDamage): factor 1 + total / 100, never below this.
+	minEnemyFactor = 0.1,
+	-- Item Prices: shop prices x (1 + value / 100), never below this factor.
+	minPriceFactor = 0,
 })

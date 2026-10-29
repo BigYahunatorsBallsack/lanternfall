@@ -1,13 +1,16 @@
 --!strict
 -- Playable classes (DESIGN.md section 5). Read by RunDirector (start weapon, bonus) and the class UI.
 -- `stats` are added to the player's stats at run start (Config.Stats ids and units, e.g. maxHp = 20 = +20 HP).
--- B4 turns the classes into characters with Brotato-style trade-offs.
+-- `gainMultipliers` (since B4, for B10's characters) scale every gain of a stat: items, cards, growth and item
+-- effects, e.g. { damage = 0.5 } = "Damage modifications are reduced by 50 %". B10 turns the classes into
+-- characters with Brotato-style trade-offs.
 
 export type Class = {
 	id: string,
 	displayName: string,
 	startWeapon: string,
 	stats: { [string]: number },
+	gainMultipliers: { [string]: number }?,
 	free: boolean,
 	available: boolean, -- false = planned for Live-Ops, not selectable yet
 	emberPrice: number?,
