@@ -1,4 +1,4 @@
--- Unit tests for effective weapon stats (WeaponService/WeaponStats): level deltas, the owner's stats with Brotato's
+-- Unit tests for effective weapon stats (WeaponService/WeaponStats): tier deltas, the owner's stats with Brotato's
 -- rules (damage scaling, Damage %, Attack Speed, Range, crit and life steal), the cooldown floor and evolutions.
 
 local Shared = game:GetService("ReplicatedStorage").Shared
@@ -8,13 +8,13 @@ local WeaponStats = require(game:GetService("ServerScriptService").Server.Servic
 local W = Config.Weapons
 local MIN_COOLDOWN = Config.Player.minWeaponCooldown
 
-local function compute(weaponId, level, bonuses, evolutionId)
+local function compute(weaponId, tier, bonuses, evolutionId)
 	local evolution = if evolutionId then Config.Evolutions[evolutionId] else nil
-	return WeaponStats.compute(W[weaponId], level, bonuses or {}, evolution, MIN_COOLDOWN)
+	return WeaponStats.compute(W[weaponId], tier, bonuses or {}, evolution, MIN_COOLDOWN)
 end
 
 describe("WeaponStats", function()
-	it("uses the base values at level 1", function()
+	it("uses the base values at tier I", function()
 		local stats = compute("OrbitBlades", 1)
 		for key, value in W.OrbitBlades.base do
 			expect(stats[key]).toBe(value)
@@ -23,16 +23,16 @@ describe("WeaponStats", function()
 		expect(stats.lifeSteal).toBe(0)
 	end)
 
-	it("adds the level deltas up to the level", function()
-		local blades = compute("OrbitBlades", 5)
-		expect(blades.count).toBe(W.OrbitBlades.base.count + 2) -- +1 blade on level 3 and 5
-		expect(blades.damage).toBeNear(W.OrbitBlades.base.damage * 1.3) -- +15 % on level 2 and 4
-		local bolt = compute("SparkBolt", 4)
-		expect(bolt.count).toBe(W.SparkBolt.base.count + 2)
-		expect(bolt.damage).toBeNear(W.SparkBolt.base.damage * 1.2)
-		local wave = compute("Shockwave", 5)
-		expect(wave.radius).toBeNear(W.Shockwave.base.radius + 8)
-		expect(wave.cooldown).toBeNear(W.Shockwave.base.cooldown - 1.2)
+	it("adds the tier deltas up to the tier", function()
+		local blades = compute("OrbitBlades", 4)
+		expect(blades.count).toBe(W.OrbitBlades.base.count + 2) -- +1 blade on tier II and III
+		expect(blades.damage).toBeNear(W.OrbitBlades.base.damage * 2.1) -- +20 %, +30 %, +60 %
+		local bolt = compute("SparkBolt", 3)
+		expect(bolt.count).toBe(W.SparkBolt.base.count + 1)
+		expect(bolt.damage).toBeNear(W.SparkBolt.base.damage * 1.4)
+		local wave = compute("Shockwave", 4)
+		expect(wave.radius).toBeNear(W.Shockwave.base.radius + 7)
+		expect(wave.cooldown).toBeNear(W.Shockwave.base.cooldown - 1.0)
 	end)
 
 	it("adds the scaling damage stat, then multiplies with Damage %", function()
@@ -80,14 +80,14 @@ describe("WeaponStats", function()
 		expect(compute("SparkBolt", 1, { critChance = 500 }).critChance).toBe(1)
 	end)
 
-	it("applies an evolution on top of the max level", function()
-		local storm = compute("OrbitBlades", 5, {}, "BladeStorm")
+	it("applies an evolution on top of the max tier", function()
+		local storm = compute("OrbitBlades", 4, {}, "BladeStorm")
 		local evolution = Config.Evolutions.BladeStorm.stats
 		expect(storm.count).toBe(evolution.count)
 		expect(storm.radius).toBe(evolution.radius)
-		expect(storm.damage).toBeNear(W.OrbitBlades.base.damage * 1.3 * evolution.damageMultiplier)
+		expect(storm.damage).toBeNear(W.OrbitBlades.base.damage * 2.1 * evolution.damageMultiplier)
 		expect(storm.damageMultiplier).toBe(nil)
-		local bigger = compute("OrbitBlades", 5, { range = 20 }, "BladeStorm")
+		local bigger = compute("OrbitBlades", 4, { range = 20 }, "BladeStorm")
 		local rule = Config.Stats.range
 		expect(bigger.radius).toBeNear(evolution.radius + 20 * rule.studsPerPoint * rule.meleeFactor) -- stats still count
 	end)

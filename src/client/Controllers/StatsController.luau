@@ -1,8 +1,8 @@
 --!strict
 -- The local player's stats (DESIGN.md section 13, Brotato direction since B2): keeps the Stats remote from
 -- StatService and shows them as a panel at the right edge between waves (shop phase, next to the level-up cards and
--- the shop): every stat with its value, green above its start value, red below, Dodge with its cap. Read by the smoke
--- test (get).
+-- the shop): every stat with its value, green above its start value, red below, Dodge with its cap. On small screens
+-- the shop hides it behind a STATS button (setSuppressed, since B3). Read by the smoke test (get).
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -21,7 +21,11 @@ local ROW_HEIGHT = 18
 
 local StatsController = {}
 
+local MARGIN = 12
+
 local screen: ScreenGui
+local panel: Frame
+local suppressed = false
 local values: { [string]: TextLabel } = {}
 local sheet: Types.StatSheet = StatMath.baseSheet()
 local baseSheet = StatMath.baseSheet()
@@ -44,7 +48,7 @@ local function render()
 		return
 	end
 	local state = RunStateController.get()
-	screen.Enabled = RunStateController.getView() == "Run" and state ~= nil and state.phase == "Shop"
+	screen.Enabled = not suppressed and RunStateController.getView() == "Run" and state ~= nil and state.phase == "Shop"
 	for statId, label in values do
 		local value = sheet[statId] or 0
 		local base = baseSheet[statId] or 0
@@ -55,10 +59,10 @@ end
 
 local function build()
 	screen = Widgets.screen("Stats", 1)
-	local panel = Widgets.panel({
+	panel = Widgets.panel({
 		Name = "Stats",
 		AnchorPoint = Vector2.new(1, 0.5),
-		Position = UDim2.new(1, -12, 0.56, 0),
+		Position = UDim2.new(1, -MARGIN, 0.56, 0),
 		Size = UDim2.fromOffset(PANEL_WIDTH, 0),
 		Parent = screen,
 	})
@@ -117,7 +121,24 @@ function StatsController.start()
 	render()
 end
 
+-- Commands --------------------------------------------------------------------------
+
+-- Hides the panel even between waves (the shop on a small screen) or lets it show again.
+function StatsController.setSuppressed(value: boolean)
+	if suppressed ~= value then
+		suppressed = value
+		render()
+	end
+end
+
 -- Queries ---------------------------------------------------------------------------
+
+-- Screen pixels the panel takes at the right edge, margins included (the shop keeps clear of them).
+function StatsController.reservedWidth(): number
+	local uiScale = panel and panel:FindFirstChildOfClass("UIScale")
+	local scale = if uiScale then uiScale.Scale else 1
+	return PANEL_WIDTH * scale + 2 * MARGIN
+end
 
 -- The local player's stats as the server sent them last (smoke test).
 function StatsController.get(): Types.StatSheet

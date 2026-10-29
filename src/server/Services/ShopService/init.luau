@@ -2,9 +2,13 @@
 -- Shards and the shop between waves (DESIGN.md section 3, Brotato direction since B1). Players earn Shards for the XP
 -- orbs they pick up (ExperienceService.OrbsCollected, Config.Shop.shardsPerXp). When a wave ends (RunDirector phase
 -- Shop) Harvesting pays out (Shards and team XP, then it grows) and every participant who is not out gets their own
--- offers (rolled by ShopService/ShopRules with their Luck); BuyShopOffer and RerollShop are checked here, weapons come
--- from WeaponService, items from StatService. Ready is handled by RunDirector. Offers follow what the player owns.
--- Sends ShopState to its player on every change. UpgradeService pays level-up rerolls with spendShards.
+-- offers (rolled by ShopService/ShopRules with their Luck). Since B3 the shop is complete: offers can be locked (they
+-- stay through rerolls and into the next shop at their price), weapons come in tiers I-IV and can be sold (SellWeapon)
+-- or merged with a copy of the same tier (MergeWeapons; buying one with every slot full merges it right away), and
+-- every few purchases earn a free reroll. BuyShopOffer, RerollShop, LockShopOffer, SellWeapon and MergeWeapons are
+-- checked here; weapons come from WeaponService, items from StatService. Ready is handled by RunDirector. Offers
+-- follow what the player owns. Sends ShopState to its player on every change. UpgradeService pays level-up rerolls
+-- with spendShards.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -25,7 +29,10 @@ type State = {
 	open: boolean,
 	wave: number,
 	offers: { Types.ShopOffer },
-	rerolls: number, -- rerolls in the current shop
+	carried: { Types.ShopOffer }, -- locked offers kept for the next shop while no shop is open
+	rerolls: number, -- paid rerolls in the current shop
+	buys: number, -- purchases in the current shop
+	freeRerolls: number, -- free rerolls earned in the current shop and not used yet
 }
 
 local ShopService = {}
@@ -35,51 +42,73 @@ local rng = Random.new()
 local offerCounter = 0
 
 local function newState(): State
-	return { shards = 0, open = false, wave = 0, offers = {}, rerolls = 0 }
+	return { shards = 0, open = false, wave = 0, offers = {}, carried = {}, rerolls = 0, buys = 0, freeRerolls = 0 }
 end
 
-local function payload(state: State): Types.ShopState
+local function ownedWeapons(player: Player): { ShopRules.OwnedWeapon }
+	local owned: { ShopRules.OwnedWeapon } = {}
+	for _, weapon in WeaponService.getWeapons(player) do
+		table.insert(owned, { id = weapon.id, tier = weapon.tier, evolution = weapon.evolution })
+	end
+	return owned
+end
+
+local function payload(player: Player, state: State): Types.ShopState
+	local weapons: { Types.ShopWeapon } = {}
+	for _, weapon in WeaponService.getWeapons(player) do
+		table.insert(weapons, {
+			uid = weapon.uid,
+			id = weapon.id,
+			tier = weapon.tier,
+			evolution = weapon.evolution,
+			sellPrice = ShopRules.sellPrice(weapon.id, weapon.tier, state.wave),
+			canMerge = WeaponService.findMergePartner(player, weapon.uid) ~= nil,
+		})
+	end
 	return {
 		shards = math.floor(state.shards),
 		open = state.open,
 		wave = state.wave,
 		offers = state.offers,
-		rerollPrice = ShopRules.rerollPrice(state.wave, state.rerolls),
+		rerollPrice = if state.freeRerolls > 0 then 0 else ShopRules.rerollPrice(state.wave, state.rerolls),
+		freeRerolls = state.freeRerolls,
+		weapons = weapons,
+		maxWeapons = Config.Player.maxWeapons,
 	}
 end
 
-local function ownedWeapons(player: Player): { [string]: number }
-	local owned: { [string]: number } = {}
-	for _, weapon in WeaponService.getWeapons(player) do
-		owned[weapon.id] = weapon.level
-	end
-	return owned
-end
-
--- Brings unsold offers up to date with what the player owns now (other purchases, chests): the level or count after
--- buying, "new" or not, and drops offers that can no longer be bought (max level, weapon slots full, item limit).
+-- Brings unsold offers up to date with what the player owns now (other purchases, sales, merges, chests): the count,
+-- "new" or not, whether a weapon merges or is blocked, and drops items at their limit.
 local function refresh(player: Player, state: State)
 	local weapons = ownedWeapons(player)
-	local weaponCount = 0
-	for _ in weapons do
-		weaponCount += 1
-	end
 	local items = StatService.getItemCounts(player)
 	for index = #state.offers, 1, -1 do
 		local offer = state.offers[index]
 		if not offer.sold then
-			local owned = if offer.kind == "Weapon" then weapons[offer.itemId] else items[offer.itemId]
-			offer.level = (owned or 0) + 1
-			offer.isNew = owned == nil
-			local blocked
 			if offer.kind == "Weapon" then
-				blocked = if owned then owned >= Config.Player.maxItemLevel else weaponCount >= Config.Player.maxWeapons
+				local copies = 0
+				for _, weapon in weapons do
+					if weapon.id == offer.itemId then
+						copies += 1
+					end
+				end
+				offer.count = copies
+				offer.isNew = copies == 0
+				offer.merges, offer.blocked = ShopRules.weaponStatus(
+					offer.itemId,
+					offer.tier,
+					weapons,
+					Config.Player.maxWeapons,
+					Config.Player.maxWeaponTier
+				)
 			else
+				local owned = items[offer.itemId] or 0
+				offer.count = owned + 1
+				offer.isNew = owned == 0
 				local item = Config.Items.byId[offer.itemId]
-				blocked = item == nil or (item.limit ~= nil and (owned or 0) >= item.limit)
-			end
-			if blocked then
-				table.remove(state.offers, index)
+				if item == nil or (item.limit ~= nil and owned >= item.limit) then
+					table.remove(state.offers, index)
+				end
 			end
 		end
 	end
@@ -89,18 +118,21 @@ local function send(player: Player, state: State)
 	if state.open then
 		refresh(player, state)
 	end
-	Net.fireClient("ShopState", player, payload(state))
+	Net.fireClient("ShopState", player, payload(player, state))
 end
 
-local function roll(player: Player, state: State)
+-- New offers; locked unsold ones (`keep`) stay. `previous`: ids of the roll before, not offered again if possible.
+local function roll(player: Player, state: State, keep: { Types.ShopOffer }, previous: { [string]: boolean }?)
 	state.offers = ShopRules.roll({
 		wave = state.wave,
 		luck = StatService.getStat(player, "luck"),
 		weapons = WeaponService.getImplemented(),
 		ownedWeapons = ownedWeapons(player),
 		maxWeapons = Config.Player.maxWeapons,
-		maxLevel = Config.Player.maxItemLevel,
+		maxTier = Config.Player.maxWeaponTier,
 		ownedItems = StatService.getItemCounts(player),
+		keep = keep,
+		previous = previous,
 		nextId = function(): string
 			offerCounter += 1
 			return tostring(offerCounter)
@@ -109,6 +141,16 @@ local function roll(player: Player, state: State)
 			return rng:NextNumber()
 		end,
 	})
+end
+
+local function lockedOffers(offers: { Types.ShopOffer }): { Types.ShopOffer }
+	local locked = {}
+	for _, offer in offers do
+		if offer.locked and not offer.sold then
+			table.insert(locked, offer)
+		end
+	end
+	return locked
 end
 
 -- End of a wave: Harvesting gives its value in Shards (negative Harvesting takes them, down to 0) and team XP, then
@@ -132,7 +174,10 @@ local function openShop()
 			state.open = true
 			state.wave = wave
 			state.rerolls = 0
-			roll(player, state)
+			state.buys = 0
+			state.freeRerolls = 0
+			roll(player, state, state.carried, nil)
+			state.carried = {}
 			send(player, state)
 		end
 	end
@@ -142,61 +187,145 @@ local function closeShop()
 	for player, state in states do
 		if state.open then
 			state.open = false
-			table.clear(state.offers)
+			state.carried = lockedOffers(state.offers)
+			state.offers = {}
 			send(player, state)
 		end
 	end
 end
 
--- Gives the player what the offer sells: a new weapon or its next level, or one more of an item.
+-- Gives the player what the offer sells: one more of an item, or a weapon of the offer's tier. With every weapon slot
+-- full, the owned copy of the same tier goes one tier up instead (Brotato merges on purchase).
 local function grant(player: Player, offer: Types.ShopOffer): boolean
 	if offer.kind == "Item" then
 		return (StatService.addItem(player, offer.itemId))
 	end
-	if ownedWeapons(player)[offer.itemId] then
-		return (WeaponService.levelUp(player, offer.itemId))
+	local weapons = WeaponService.getWeapons(player)
+	if #weapons >= Config.Player.maxWeapons then
+		for _, weapon in weapons do
+			if weapon.id == offer.itemId and weapon.tier == offer.tier and not weapon.evolution then
+				return (WeaponService.raiseTier(player, weapon.uid))
+			end
+		end
+		return false
 	end
-	return (WeaponService.addWeapon(player, offer.itemId))
+	return (WeaponService.addWeapon(player, offer.itemId, offer.tier))
+end
+
+local function openState(player: Player): State?
+	local state = states[player]
+	if state and state.open and RunDirector.getPhase() == "Shop" then
+		return state
+	end
+	return nil
+end
+
+local function findOffer(state: State, offerId: string): Types.ShopOffer?
+	for _, offer in state.offers do
+		if offer.id == offerId then
+			return offer
+		end
+	end
+	return nil
 end
 
 local function buy(player: Player, offerId: string)
-	local state = states[player]
-	if not (state and state.open and RunDirector.getPhase() == "Shop") then
+	local state = openState(player)
+	local offer = state and findOffer(state, offerId)
+	if not (state and offer) or offer.sold then
 		return
 	end
+	if state.shards < offer.price then
+		Net.fireClient("Notify", player, "Not enough Shards")
+		return
+	end
+	if offer.blocked or not grant(player, offer) then
+		Net.fireClient(
+			"Notify",
+			player,
+			if offer.kind == "Weapon"
+				then "Weapon slots full: sell or merge one first"
+				else "You can't take that right now"
+		)
+		send(player, state)
+		return
+	end
+	state.shards -= offer.price
+	offer.sold = true
+	offer.locked = false
+	state.buys += 1
+	if state.buys % Config.Shop.freeRerollAfterBuys == 0 then
+		state.freeRerolls += 1
+	end
+	send(player, state)
+end
+
+local function reroll(player: Player)
+	local state = openState(player)
+	if not state then
+		return
+	end
+	if state.freeRerolls > 0 then
+		state.freeRerolls -= 1
+	else
+		local price = ShopRules.rerollPrice(state.wave, state.rerolls)
+		if state.shards < price then
+			Net.fireClient("Notify", player, "Not enough Shards")
+			return
+		end
+		state.shards -= price
+		state.rerolls += 1
+	end
+	local previous: { [string]: boolean } = {}
 	for _, offer in state.offers do
-		if offer.id == offerId and not offer.sold then
-			if state.shards < offer.price then
-				Net.fireClient("Notify", player, "Not enough Shards")
+		if not offer.locked then
+			previous[offer.itemId] = true
+		end
+	end
+	roll(player, state, lockedOffers(state.offers), previous)
+	send(player, state)
+end
+
+local function lock(player: Player, offerId: string, locked: boolean)
+	local state = openState(player)
+	local offer = state and findOffer(state, offerId)
+	if state and offer and not offer.sold and offer.locked ~= locked then
+		offer.locked = locked
+		send(player, state)
+	end
+end
+
+local function sell(player: Player, uid: number)
+	local state = openState(player)
+	if not state then
+		return
+	end
+	local weapons = WeaponService.getWeapons(player)
+	for _, weapon in weapons do
+		if weapon.uid == uid then
+			if #weapons <= 1 then
+				Net.fireClient("Notify", player, "You can't sell your last weapon")
 				return
 			end
-			if not grant(player, offer) then
-				Net.fireClient("Notify", player, "You can't take that right now")
-				send(player, state) -- drops the offer if it can no longer be bought
-				return
+			if WeaponService.removeWeapon(player, uid) then
+				state.shards += ShopRules.sellPrice(weapon.id, weapon.tier, state.wave)
+				send(player, state)
 			end
-			state.shards -= offer.price
-			offer.sold = true
-			send(player, state)
 			return
 		end
 	end
 end
 
-local function reroll(player: Player)
-	local state = states[player]
-	if not (state and state.open and RunDirector.getPhase() == "Shop") then
+local function merge(player: Player, uid: number)
+	local state = openState(player)
+	if not state then
 		return
 	end
-	local price = ShopRules.rerollPrice(state.wave, state.rerolls)
-	if state.shards < price then
-		Net.fireClient("Notify", player, "Not enough Shards")
-		return
+	if WeaponService.merge(player, uid) then
+		send(player, state)
+	else
+		Net.fireClient("Notify", player, "Needs a second copy of the same tier")
 	end
-	state.shards -= price
-	state.rerolls += 1
-	roll(player, state)
-	send(player, state)
 end
 
 -- Lifecycle -------------------------------------------------------------------------
@@ -238,6 +367,9 @@ function ShopService.init()
 
 	Net.onServer("BuyShopOffer", buy) -- ids the server did not offer are ignored
 	Net.onServer("RerollShop", reroll)
+	Net.onServer("LockShopOffer", lock)
+	Net.onServer("SellWeapon", sell) -- uids the player does not carry are ignored
+	Net.onServer("MergeWeapons", merge)
 end
 
 -- Queries and commands ------------------------------------------------------------------

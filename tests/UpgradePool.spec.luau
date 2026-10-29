@@ -110,28 +110,40 @@ describe("UpgradeText", function()
 	end)
 
 	it("describes weapon and item offers", function()
-		local title, detail, badge = UpgradeText.offer({
+		local weapon = {
 			id = "1:Weapon:SparkBolt",
 			kind = "Weapon",
 			itemId = "SparkBolt",
-			tier = 1,
-			level = 2,
+			tier = 3,
+			count = 1,
 			isNew = false,
 			price = 10,
 			sold = false,
-		})
-		expect(title).toBe("Spark Bolt")
-		expect(detail).toBe("+1 bolt")
-		expect(badge).toBe("LV 2")
+			locked = false,
+			merges = true,
+			blocked = false,
+		}
+		local title, detail, badge = UpgradeText.offer(weapon :: any)
+		expect(title).toBe("Spark Bolt III")
+		expect(detail).toBe("Fires at the nearest enemy, pierces 1.\n+1 bolt, +40% damage\nMerges into IV")
+		expect(badge).toBe("Rare · own 1")
+		weapon.tier, weapon.isNew, weapon.merges, weapon.blocked = 1, true, false, true
+		title, detail, badge = UpgradeText.offer(weapon :: any)
+		expect(title).toBe("Spark Bolt I")
+		expect(detail).toBe("Fires at the nearest enemy, pierces 1.\nWeapon slots full")
+		expect(badge).toBe("Common · NEW")
 		title, detail, badge = UpgradeText.offer({
 			id = "2:Item:GlassLantern",
 			kind = "Item",
 			itemId = "GlassLantern",
 			tier = 3,
-			level = 3,
+			count = 3,
 			isNew = false,
 			price = 80,
 			sold = false,
+			locked = true,
+			merges = false,
+			blocked = false,
 		})
 		expect(title).toBe("Glass Lantern")
 		expect(detail).toBe("+25% Damage\n-3 Armor")
@@ -159,16 +171,19 @@ describe("UpgradeText", function()
 end)
 
 describe("evolutions", function()
-	local max = Config.Player.maxItemLevel
+	local max = Config.Player.maxWeaponTier
 
-	it("needs the weapon at max level, not evolved yet, plus at least one of the item", function()
+	it("needs a copy of the weapon at max tier, not evolved yet, plus at least one of the item", function()
 		local evolutionsFor = UpgradePool.evolutionsFor
-		local blades = { OrbitBlades = { level = max } }
+		local blades = { { id = "OrbitBlades", tier = max } }
 		expect(#evolutionsFor(blades, {}, max)).toBe(0)
-		expect(#evolutionsFor({ OrbitBlades = { level = max - 1 } }, { Armor = 5 }, max)).toBe(0)
+		expect(#evolutionsFor({ { id = "OrbitBlades", tier = max - 1 } }, { Armor = 5 }, max)).toBe(0)
 		expect(table.concat(evolutionsFor(blades, { Armor = 1 }, max), ",")).toBe("BladeStorm")
-		expect(#evolutionsFor({ OrbitBlades = { level = max, evolution = "BladeStorm" } }, { Armor = 1 }, max)).toBe(0)
-		local both = { OrbitBlades = { level = max }, SparkBolt = { level = max } }
+		local evolved = { { id = "OrbitBlades", tier = max, evolution = "BladeStorm" } }
+		expect(#evolutionsFor(evolved, { Armor = 1 }, max)).toBe(0)
+		table.insert(evolved, { id = "OrbitBlades", tier = max }) -- a second copy can evolve too
+		expect(#evolutionsFor(evolved, { Armor = 1 }, max)).toBe(1)
+		local both = { { id = "OrbitBlades", tier = max }, { id = "SparkBolt", tier = max } }
 		expect(table.concat(evolutionsFor(both, { Armor = 1, Focus = 2 }, max), ",")).toBe("BladeStorm,Starfire")
 	end)
 end)

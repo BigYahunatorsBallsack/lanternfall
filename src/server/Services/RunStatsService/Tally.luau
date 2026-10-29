@@ -20,7 +20,7 @@ export type PlayerTally = {
 
 -- What the run's players carried at the end (from WeaponService and StatService).
 export type Loadout = {
-	weapons: { { id: string, level: number, damage: number, kills: number } },
+	weapons: { { id: string, tier: number, damage: number, kills: number } },
 	items: { Types.ItemInfo },
 }
 
@@ -163,7 +163,7 @@ function Tally.logLines(self: Tally, results: Types.Results, loadouts: { [number
 			for _, weapon in loadout.weapons do
 				table.insert(
 					weapons,
-					`{displayName(Config.Weapons, weapon.id)} LV{weapon.level} {math.round(weapon.damage)} dmg/{weapon.kills} kills`
+					`{displayName(Config.Weapons, weapon.id)} {Format.tier(weapon.tier)} {math.round(weapon.damage)} dmg/{weapon.kills} kills`
 				)
 			end
 			local items = {}

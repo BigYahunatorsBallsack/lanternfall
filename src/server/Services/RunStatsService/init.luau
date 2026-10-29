@@ -32,14 +32,22 @@ local function loadoutsOf(participants: { Player }): { [number]: Tally.Loadout }
 	for _, player in participants do
 		local damageStats = WeaponService.getDamageStats(player)
 		local weapons = {}
+		local byId = {}
 		for _, weapon in WeaponService.getWeapons(player) do
+			local entry = byId[weapon.id]
+			if entry then -- copies of one weapon share a line (damage stats add them up), at the highest tier
+				entry.tier = math.max(entry.tier, weapon.tier)
+				continue
+			end
 			local stats = damageStats[weapon.id]
-			table.insert(weapons, {
+			entry = {
 				id = weapon.id,
-				level = weapon.level,
+				tier = weapon.tier,
 				damage = if stats then stats.damage else 0,
 				kills = if stats then stats.kills else 0,
-			})
+			}
+			byId[weapon.id] = entry
+			table.insert(weapons, entry)
 		end
 		loadouts[player.UserId] = { weapons = weapons, items = StatService.getItems(player) }
 	end

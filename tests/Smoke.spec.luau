@@ -179,7 +179,7 @@ describe("smoke", function()
 	end)
 
 	it("arms the player with the class weapon and switches weapons off for the enemy tests", function()
-		expect(weaponRows()).toBe("Spark Bolt · LV 1")
+		expect(weaponRows()).toBe("Spark Bolt I")
 		expect(world.gui("HUD", "WeaponsTitle").Text).toBe("WEAPONS")
 		local weapon = WeaponService.getWeapons(me)[1]
 		expect(weapon.stats.cooldown).toBeNear(Config.Weapons.SparkBolt.base.cooldown / 1.1) -- Spark Mage: +10 % Attack Speed
@@ -337,7 +337,7 @@ describe("smoke", function()
 		world.click(world.gui("Debug", "AddWeapon"))
 		world.click(world.gui("Debug", "SpawnWave"))
 		expect(most("BoomerangAxe", 3) > 0).toBe(true)
-		expect(weaponRows()).toBe("Spark Bolt · LV 1 | Boomerang Axe · LV 1")
+		expect(weaponRows()).toBe("Spark Bolt I | Boomerang Axe I")
 		world.click(world.gui("Debug", "AddWeapon"))
 		world.click(world.gui("Debug", "SpawnWave"))
 		expect(most("ChainLightning", 3) > 0).toBe(true)
@@ -345,11 +345,9 @@ describe("smoke", function()
 		world.advance(0.2)
 		expect(weaponParts("OrbitBlade")).toBe(Config.Weapons.OrbitBlades.base.count)
 		expect(weaponParts("OrbitBladeBody")).toBe(Config.Weapons.OrbitBlades.base.count) -- brass under each edge
-		world.click(world.gui("Debug", "LevelUpWeapons"))
+		world.click(world.gui("Debug", "TierUpWeapons"))
 		world.advance(0.2)
-		expect(weaponRows()).toBe(
-			"Spark Bolt · LV 2 | Boomerang Axe · LV 2 | Chain Lightning · LV 2 | Orbit Blades · LV 2"
-		)
+		expect(weaponRows()).toBe("Spark Bolt II | Boomerang Axe II | Chain Lightning II | Orbit Blades II")
 		world.click(world.gui("Debug", "AddWeapon")) -- Shockwave
 		world.advance(0.2)
 		world.click(world.gui("Debug", "AddWeapon")) -- Thorn Trail: six weapons like Brotato
@@ -362,7 +360,7 @@ describe("smoke", function()
 
 		world.click(world.gui("Debug", "NextWeapon"))
 		world.advance(0.2)
-		expect(weaponRows()).toBe("Thorn Trail · LV 1")
+		expect(weaponRows()).toBe("Thorn Trail I")
 		expect(weaponParts("ThornPatch") > 0).toBe(true)
 		expect(weaponParts("Thorn") > 0).toBe(true)
 		for _ = 1, 4 do -- Boomerang Axe, Chain Lightning, Orbit Blades, Shockwave
@@ -370,24 +368,22 @@ describe("smoke", function()
 		end
 		world.click(world.gui("Debug", "SpawnWave"))
 		expect(most("Shockwave", 4) > 0).toBe(true)
-		expect(weaponRows()).toBe("Shockwave · LV 1")
+		expect(weaponRows()).toBe("Shockwave I")
 
 		world.click(world.gui("Debug", "NextWeapon")) -- Spark Bolt
 		world.click(world.gui("Debug", "AddWeapon")) -- Boomerang Axe
 		world.click(world.gui("Debug", "AddWeapon")) -- Chain Lightning
 		world.click(world.gui("Debug", "AddWeapon")) -- Orbit Blades
 		world.advance(1.1) -- debug buttons allow 5 clicks per second
-		for _ = 1, Config.Player.maxItemLevel do
-			world.click(world.gui("Debug", "LevelUpWeapons"))
+		for _ = 1, Config.Player.maxWeaponTier do
+			world.click(world.gui("Debug", "TierUpWeapons"))
 		end
 		world.advance(0.2)
 		expect(weaponParts("OrbitBlade")).toBe(Config.Weapons.OrbitBlades.base.count + 2)
 		world.advance(1)
 		world.click(world.gui("Debug", "EvolveWeapons"))
 		world.advance(0.2)
-		expect(weaponRows()).toBe(
-			"Starfire · MAX | Boomerang Axe · MAX | Chain Lightning · MAX | Blade Storm · MAX"
-		)
+		expect(weaponRows()).toBe("Starfire | Boomerang Axe IV | Chain Lightning IV | Blade Storm")
 		expect(string.find(toastTexts(), "Starfire, Blade Storm", 1, true) ~= nil).toBe(true)
 		expect(weaponParts("OrbitBlade")).toBe(Config.Evolutions.BladeStorm.stats.count)
 		local items = itemRows()
@@ -541,26 +537,126 @@ describe("smoke", function()
 		if first.kind == "Weapon" then
 			local found = false
 			for _, weapon in WeaponService.getWeapons(me) do
-				if weapon.id == first.itemId and weapon.level >= first.level then
+				if weapon.id == first.itemId and weapon.tier == first.tier then
 					found = true
 				end
 			end
 			expect(found).toBe(true)
 		else
-			expect(StatService.getItemCounts(me)[first.itemId] >= first.level).toBe(true)
+			expect(StatService.getItemCounts(me)[first.itemId] >= first.count).toBe(true)
 			expect(string.find(itemRows(), Config.Items.byId[first.itemId].displayName, 1, true) ~= nil).toBe(true)
 		end
 		world.click(world.gui("Shop", "Offer1")) -- sold: nothing more happens
 		world.advance(0.2)
 		expect(ShopService.getShards(me)).toBe(shards - first.price)
 
+		local kept = ShopService.getOffers(me)[2]
+		world.click(world.gui("Shop", "Lock2"))
+		world.advance(0.2)
+		expect(kept.locked).toBe(true)
+		expect(world.gui("Shop", "Lock2").Text).toBe("LOCKED")
 		shards = ShopService.getShards(me)
 		local price = shop.get().rerollPrice
 		world.click(world.gui("Shop", "Reroll"))
 		world.advance(0.2)
 		expect(ShopService.getShards(me)).toBe(shards - price)
 		expect(ShopService.getOffers(me) ~= offers).toBe(true)
+		expect(ShopService.getOffers(me)[1]).toBe(kept) -- locked offers stay through a reroll
 		expect(shop.get().rerollPrice > price).toBe(true)
+		world.advance(1)
+
+		-- selling and merging weapons: tap a weapon, then Sell or Merge
+		for index = #WeaponService.getWeapons(me), 2, -1 do
+			WeaponService.removeWeapon(me, WeaponService.getWeapons(me)[index].uid)
+		end
+		WeaponService.addWeapon(me, "Shockwave")
+		WeaponService.addWeapon(me, "Shockwave")
+		ShopService.addShards(me, 0) -- sends the shop with the new weapons
+		world.advance(0.2)
+		expect(shop.get().weapons[2].canMerge).toBe(true)
+		world.click(world.gui("Shop", "Weapon2"))
+		world.advance(0.1)
+		expect(world.gui("Shop", "Merge").Visible).toBe(true)
+		world.click(world.gui("Shop", "Merge"))
+		world.advance(0.2)
+		local weapons = WeaponService.getWeapons(me)
+		expect(#weapons).toBe(2)
+		expect(weapons[2].id).toBe("Shockwave")
+		expect(weapons[2].tier).toBe(2)
+		expect(weaponRows()).toBe(`{weaponRows():match("^[^|]+")}| Shockwave II`)
+		shards = ShopService.getShards(me)
+		local sellPrice = shop.get().weapons[2].sellPrice
+		expect(sellPrice > 0).toBe(true)
+		expect(world.gui("Shop", "Sell").Text).toBe(`Sell (+{sellPrice})`) -- the merged weapon stays selected
+		world.click(world.gui("Shop", "Sell"))
+		world.advance(0.2)
+		expect(#WeaponService.getWeapons(me)).toBe(1)
+		expect(ShopService.getShards(me)).toBe(shards + sellPrice)
+		world.click(world.gui("Shop", "Weapon1"))
+		world.advance(0.1)
+		world.click(world.gui("Shop", "Sell")) -- never the last weapon
+		world.advance(0.2)
+		expect(#WeaponService.getWeapons(me)).toBe(1)
+		expect(string.find(toastTexts(), "last weapon", 1, true) ~= nil).toBe(true)
+		world.advance(1)
+
+		-- every Config.Shop.freeRerollAfterBuys purchases earn a free reroll
+		ShopService.addShards(me, 5000)
+		world.advance(0.2)
+		local bought = 0
+		for _ = 1, 3 do
+			for index, offer in ShopService.getOffers(me) do
+				if not offer.sold and not offer.blocked and bought < Config.Shop.freeRerollAfterBuys then
+					world.click(world.gui("Shop", `Offer{index}`))
+					world.advance(0.3)
+					if offer.sold then
+						bought += 1
+					end
+				end
+			end
+			if bought < Config.Shop.freeRerollAfterBuys then
+				world.click(world.gui("Shop", "Reroll"))
+				world.advance(0.3)
+			end
+		end
+		expect(bought).toBe(Config.Shop.freeRerollAfterBuys)
+		expect(shop.get().freeRerolls).toBe(1)
+		expect(shop.get().rerollPrice).toBe(0)
+		expect(world.gui("Shop", "Reroll").Text).toBe("Reroll (free)")
+		shards = ShopService.getShards(me)
+		world.click(world.gui("Shop", "Reroll"))
+		world.advance(0.3)
+		expect(ShopService.getShards(me)).toBe(shards)
+		expect(shop.get().freeRerolls).toBe(0)
+		world.advance(1)
+
+		-- phone screens: compact layout, the stats behind a button
+		expect(shop.isCompact()).toBe(false)
+		local camera = workspace.CurrentCamera
+		local fullSize = camera.ViewportSize
+		camera.ViewportSize = Vector2.new(844, 390)
+		ShopService.addShards(me, 0)
+		world.advance(0.2)
+		expect(shop.isCompact()).toBe(true)
+		expect(world.gui("Stats").Enabled).toBe(false)
+		world.click(world.gui("Shop", "StatsToggle"))
+		world.advance(0.1)
+		expect(world.gui("Stats").Enabled).toBe(true)
+		expect(world.gui("Shop", "Shop").Visible).toBe(false)
+		world.click(world.gui("Shop", "BackToShop"))
+		world.advance(0.1)
+		expect(world.gui("Shop", "Shop").Visible).toBe(true)
+		camera.ViewportSize = fullSize
+		ShopService.addShards(me, 0)
+		world.advance(0.2)
+		expect(shop.isCompact()).toBe(false)
+		expect(world.gui("Stats").Enabled).toBe(true)
+
+		-- a locked offer waits in the next shop at its old price
+		kept = ShopService.getOffers(me)[3]
+		local keptPrice = kept.price
+		world.click(world.gui("Shop", "Lock3"))
+		world.advance(0.2)
 
 		local wave = RunDirector.getWave()
 		expect(string.find(teamText(), "shopping", 1, true) ~= nil).toBe(true)
@@ -575,6 +671,18 @@ describe("smoke", function()
 		expect(world.gui("Shop", "Shop").Visible).toBe(false)
 		expect(world.gui("HUD", "WaveTitle").Text).toBe(`WAVE {wave + 1}`)
 		expect(ShopService.getOffers(me)[1]).toBe(nil)
+
+		world.click(world.gui("Debug", "SkipWave"))
+		world.advance(0.2)
+		expect(phase()).toBe("Shop")
+		local next = ShopService.getOffers(me)[1]
+		expect(next.id).toBe(kept.id)
+		expect(next.price).toBe(keptPrice)
+		expect(next.locked).toBe(true)
+		world.fireServerAs(me, "SetShopReady", true)
+		world.advance(0.2)
+		expect(phase()).toBe("Running")
+		WeaponService.addWeapon(me, "SparkBolt") -- the tests below expect a Spark Bolt next to the first weapon
 	end)
 
 	it("lets items change HP, speed and weapon damage, stacking without limit", function()
@@ -684,16 +792,13 @@ describe("smoke", function()
 	end)
 
 	it("gives the evolution from a chest once the build is ready", function()
-		-- a fresh Spark Bolt (an earlier test evolved the first one with the debug button)
-		local weapons = WeaponService.getWeapons(me)
-		WeaponService.removeWeapon(me, "SparkBolt")
-		if #WeaponService.getWeapons(me) == #weapons then
-			WeaponService.removeWeapon(me, weapons[1].id)
+		-- a fresh Spark Bolt at the max tier (an earlier test evolved the first one with the debug button)
+		for _, weapon in WeaponService.getWeapons(me) do
+			if weapon.id == "SparkBolt" then
+				WeaponService.removeWeapon(me, weapon.uid)
+			end
 		end
-		WeaponService.addWeapon(me, "SparkBolt")
-		for _ = 1, Config.Player.maxItemLevel do
-			WeaponService.levelUp(me, "SparkBolt")
-		end
+		WeaponService.addWeapon(me, "SparkBolt", Config.Player.maxWeaponTier)
 		StatService.addItem(me, "Focus")
 		expect(table.find(UpgradeService.getEvolutions(me), "Starfire") ~= nil).toBe(true)
 		local root = me.Character.HumanoidRootPart.Position
@@ -743,7 +848,7 @@ describe("smoke", function()
 		world.advance(0.3)
 	end)
 
-	it("starts Swarm Rush at 5:00 with a ring of Shadelings and announces elites", function()
+	it("starts Swarm Rush with a ring of Shadelings and announces elites", function()
 		SpawnDirector.setPaused(false)
 		-- an enemy left far behind comes back on the spawn ring
 		local center = Config.Map.arena.center
@@ -758,7 +863,7 @@ describe("smoke", function()
 		expect(SpawnDirector.isSwarmRush()).toBe(true)
 		expect(string.find(toastTexts(), "appeared! Kill it for a chest.", 1, true) ~= nil).toBe(true)
 		-- the HUD's wave banner announces it
-		expect(world.gui("HUD", "WaveTitle").Text).toBe("WAVE 6")
+		expect(world.gui("HUD", "WaveTitle").Text).toBe(`WAVE {Config.Run.spawn.swarmRush.atMinutes[1] + 1}`)
 		expect(string.find(world.gui("HUD", "WaveEvents").Text, "Swarm Rush", 1, true) ~= nil).toBe(true)
 		expect(EnemySim.getCount() >= Config.Run.spawn.swarmRush.ringCount / 2).toBe(true)
 		SpawnDirector.setPaused(spawningWasPaused)
@@ -869,7 +974,7 @@ describe("smoke", function()
 		world.advance(3.2)
 		expect(phase()).toBe("Running")
 		expect(RunDirector.getElapsed() < 1).toBe(true)
-		expect(weaponRows()).toBe("Spark Bolt · LV 1") -- every run starts with only the class weapon
+		expect(weaponRows()).toBe("Spark Bolt I") -- every run starts with only the class weapon
 		expect(itemRows()).toBe("") -- and without items
 		expect(world.gui("HUD", "ItemsTitle").Visible).toBe(false)
 		expect(world.gui("HUD", "XpText").Text).toBe("LV 1")

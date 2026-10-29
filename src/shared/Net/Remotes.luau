@@ -14,6 +14,7 @@ export type Definition = {
 }
 
 local ID_LENGTH = 32
+local MAX_UID = 2 ^ 31 -- weapon uids (WeaponService/Arsenal) stay far below this
 
 local Remotes: { [string]: Definition } = {
 	-- Client -> server intents
@@ -61,6 +62,21 @@ local Remotes: { [string]: Definition } = {
 		direction = "toServer",
 		rateLimit = { count = 4, perSeconds = 1 },
 		args = {}, -- price and Shards are checked by ShopService
+	},
+	LockShopOffer = {
+		direction = "toServer",
+		rateLimit = { count = 8, perSeconds = 1 },
+		args = { Validate.string(ID_LENGTH), Validate.boolean() }, -- offer id (one the server offered), locked or not
+	},
+	SellWeapon = {
+		direction = "toServer",
+		rateLimit = { count = 4, perSeconds = 1 },
+		args = { Validate.integer(1, MAX_UID) }, -- weapon uid; ShopService checks the player carries it
+	},
+	MergeWeapons = {
+		direction = "toServer",
+		rateLimit = { count = 4, perSeconds = 1 },
+		args = { Validate.integer(1, MAX_UID) }, -- weapon uid; WeaponService checks for a copy of the same tier
 	},
 	DebugCommand = {
 		direction = "toServer",

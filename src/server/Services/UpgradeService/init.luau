@@ -177,14 +177,6 @@ local function autoPick()
 	end
 end
 
-local function ownedWeapons(player: Player): { [string]: { level: number, evolution: string? } }
-	local owned: { [string]: { level: number, evolution: string? } } = {}
-	for _, weapon in WeaponService.getWeapons(player) do
-		owned[weapon.id] = { level = weapon.level, evolution = weapon.evolution }
-	end
-	return owned
-end
-
 -- Lifecycle -------------------------------------------------------------------------
 
 function UpgradeService.init()
@@ -238,7 +230,13 @@ function UpgradeService.evolve(player: Player, evolutionId: string): (boolean, s
 	if not table.find(UpgradeService.getEvolutions(player), evolutionId) then
 		return false, "NotEligible"
 	end
-	return WeaponService.evolve(player, Config.Evolutions[evolutionId].weapon, evolutionId)
+	local evolution = Config.Evolutions[evolutionId]
+	for _, weapon in WeaponService.getWeapons(player) do
+		if weapon.id == evolution.weapon and weapon.tier >= Config.Player.maxWeaponTier and not weapon.evolution then
+			return WeaponService.evolve(player, weapon.uid, evolutionId)
+		end
+	end
+	return false, "NotEligible"
 end
 
 -- Gives the player what an elite chest holds (DESIGN.md sections 6 and 8): an evolution they may take now, else an
@@ -269,15 +267,15 @@ end
 
 -- Queries ---------------------------------------------------------------------------
 
--- Evolution ids the player may take now: weapon at max level plus the item (DESIGN.md section 6), sorted.
+-- Evolution ids the player may take now: weapon at max tier plus the item (DESIGN.md section 6), sorted.
 function UpgradeService.getEvolutions(player: Player): { string }
 	if not states[player] then
 		return {}
 	end
 	return UpgradePool.evolutionsFor(
-		ownedWeapons(player),
+		WeaponService.getWeapons(player),
 		StatService.getItemCounts(player),
-		Config.Player.maxItemLevel
+		Config.Player.maxWeaponTier
 	)
 end
 

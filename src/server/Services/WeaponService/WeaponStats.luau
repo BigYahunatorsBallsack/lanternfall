@@ -1,12 +1,12 @@
 --!strict
--- Effective weapon stats (DESIGN.md sections 4 and 6): the level 1 values from Config.Weapons, the level deltas up to
--- the current level, an evolution's overrides and the owner's stats (Config.Stats since B2, Brotato's rules):
---   damage   = max(1, (levelled damage + sum of scaling * damage stat) * (1 + Damage / 100))
+-- Effective weapon stats (DESIGN.md sections 4 and 6): the tier I values from Config.Weapons, the tier deltas up to
+-- the current tier (Brotato's tiers I-IV since B3), an evolution's overrides and the owner's stats (Config.Stats since B2, Brotato's rules):
+--   damage   = max(1, (tiered damage + sum of scaling * damage stat) * (1 + Damage / 100))
 --   timing   = cooldowns and hit intervals times StatMath.cooldownFactor(Attack Speed), never below minCooldown;
 --              spinning weapons turn faster by the same factor
 --   reach    = rangeKeys + Range * studsPerPoint (melee weapons meleeFactor of it), never below minStuds
 --   critChance and lifeSteal as chances per hit (Arsenal rolls them)
--- Pure and unit tested; used by WeaponService/Arsenal whenever a weapon is added, levelled or evolved, or stats change.
+-- Pure and unit tested; used by WeaponService/Arsenal whenever a weapon is added, merged or evolved, or stats change.
 
 local Shared = game:GetService("ReplicatedStorage").Shared
 local Evolutions = require(Shared.Config.Evolutions)
@@ -30,15 +30,15 @@ local RATE_STATS = { "rotationSpeed" }
 -- `minCooldown` keeps Attack Speed from making a weapon fire absurdly fast (Config.Player.minWeaponCooldown).
 function WeaponStats.compute(
 	weapon: Weapons.Weapon,
-	level: number,
+	tier: number,
 	bonuses: Bonuses,
 	evolution: Evolutions.Evolution?,
 	minCooldown: number
 ): Stats
 	local stats: Stats = table.clone(weapon.base)
 	local damageBonus = 0
-	for n = 1, math.min(level, #weapon.levels) do
-		for key, delta in weapon.levels[n] :: { [string]: number } do
+	for n = 1, math.min(tier, #weapon.tiers) do
+		for key, delta in weapon.tiers[n] :: { [string]: number } do
 			if key == "damage" then
 				damageBonus += delta
 			else

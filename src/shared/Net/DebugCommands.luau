@@ -19,8 +19,8 @@ return table.freeze({
 	"ToggleSpawning", -- pause or resume enemy spawning
 	"AddWeapon", -- add the next weapon you do not have yet
 	"NextWeapon", -- swap your weapons for only the next one, to try each weapon on its own
-	"LevelUpWeapons", -- every weapon +1 level
-	"EvolveWeapons", -- evolve every weapon that has an evolution: max level and the needed item first
+	"TierUpWeapons", -- every weapon +1 tier
+	"EvolveWeapons", -- evolve every weapon that has an evolution: max tier and the needed item first
 	"ToggleWeapons", -- switch every player's weapons off or on
 	"GainLevel", -- the team reaches the next level right away (level-up cards)
 })

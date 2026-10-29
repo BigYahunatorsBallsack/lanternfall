@@ -1,30 +1,34 @@
 --!strict
--- Shop formulas from Config.Shop and Config.Items as pure functions (DESIGN.md section 3, Brotato direction since B1):
--- prices by wave, reroll prices and the offers of one shop (weapons the player can still take or raise, owned ones
--- more likely, a minimum number of weapons in the first shops; items of a rarity rolled by wave and Luck, any number
--- of each up to its limit). Also rolls the item of an elite chest. Used by ShopService and UpgradeService; tested in
--- tests/ShopRules.spec.luau.
+-- Shop formulas from Config.Shop and Config.Items as pure functions (DESIGN.md section 3, Brotato direction since B1,
+-- complete since B3): prices by wave (weapons also by tier), sell prices, reroll prices and the offers of one shop
+-- (locked offers stay; weapons of a rolled tier from Brotato's pool: owned ones, same class, any; items of a rarity
+-- rolled by wave and Luck, any number of each up to its limit; nothing from the previous roll again if anything else
+-- is left), and whether a weapon offer merges or is blocked. Also rolls the item of an elite chest. Used by
+-- ShopService and UpgradeService; tested in tests/ShopRules.spec.luau.
 
 local Shared = game:GetService("ReplicatedStorage").Shared
 local Items = require(Shared.Config.Items)
 local Shop = require(Shared.Config.Shop)
+local Weapons = require(Shared.Config.Weapons)
 local Types = require(Shared.Net.Types)
 local StatMath = require(Shared.Util.StatMath)
+
+-- One weapon the player carries.
+export type OwnedWeapon = { id: string, tier: number, evolution: string? }
 
 export type Params = {
 	wave: number, -- the wave that just ended
 	luck: number, -- the player's Luck stat
 	weapons: { string }, -- weapon ids that can be sold (WeaponService.getImplemented), sorted
-	ownedWeapons: { [string]: number }, -- id -> level
+	ownedWeapons: { OwnedWeapon },
 	maxWeapons: number,
-	maxLevel: number,
+	maxTier: number,
 	ownedItems: { [string]: number }, -- id -> count
-	keep: { Types.ShopOffer }?, -- offers that stay (not used before B3's lock); their items are not rolled again
+	keep: { Types.ShopOffer }?, -- locked offers; they stay first and their weapons and items are not rolled again
+	previous: { [string]: boolean }?, -- weapon and item ids of the roll before (reroll); avoided while others are left
 	nextId: () -> string, -- unique prefix for each new offer id
 	random: () -> number, -- 0 <= x < 1
 }
-
-type Candidate = { offer: Types.ShopOffer, weight: number }
 
 local ShopRules = {}
 
@@ -45,6 +49,17 @@ end
 function ShopRules.price(base: number, wave: number): number
 	local rule = Shop.price
 	return math.max(1, math.floor((base + wave * rule.waveAdd + base * rule.waveFactor * wave) * rule.multiplier))
+end
+
+-- Price of a weapon of `tier` after wave `wave`: its tier I base price times Config.Shop.tierPriceFactors[tier].
+function ShopRules.weaponPrice(weaponId: string, tier: number, wave: number): number
+	local base = Shop.weaponPrices[weaponId] or 0
+	return ShopRules.price(base * (Shop.tierPriceFactors[tier] or 1), wave)
+end
+
+-- Shards for selling a weapon of `tier` after wave `wave`: Config.Shop.sellShare of its price, rounded down.
+function ShopRules.sellPrice(weaponId: string, tier: number, wave: number): number
+	return math.floor(ShopRules.weaponPrice(weaponId, tier, wave) * Shop.sellShare)
 end
 
 -- Price of the next reroll after `rerolls` rerolls in this shop (or level-up choice).
@@ -109,51 +124,104 @@ function ShopRules.chestItem(
 	return ShopRules.pickItem(tier, ownedItems, {}, random)
 end
 
-local function weaponCandidates(params: Params, taken: { [string]: boolean }): { Candidate }
-	local list: { Candidate } = {}
-	local ownedCount = 0
-	for _ in params.ownedWeapons do
-		ownedCount += 1
+-- Whether buying a weapon of `tier` merges into an owned copy (every slot full, a copy of the same tier below the max
+-- that is not evolved) and whether it cannot be bought at all (slots full, nothing to merge with).
+function ShopRules.weaponStatus(
+	weaponId: string,
+	tier: number,
+	ownedWeapons: { OwnedWeapon },
+	maxWeapons: number,
+	maxTier: number
+): (boolean, boolean)
+	if #ownedWeapons < maxWeapons then
+		return false, false
 	end
-	for _, weaponId in params.weapons do
-		local level = params.ownedWeapons[weaponId]
-		local base = Shop.weaponPrices[weaponId]
-		if not taken[weaponId] and base then
-			local isNew = level == nil
-			if (isNew and ownedCount < params.maxWeapons) or (level and level < params.maxLevel) then
-				table.insert(list, {
-					offer = {
-						id = "",
-						kind = "Weapon",
-						itemId = weaponId,
-						tier = 1,
-						level = (level or 0) + 1,
-						isNew = isNew,
-						price = ShopRules.price(base, params.wave),
-						sold = false,
-					},
-					weight = if isNew then 1 else Shop.ownedWeaponWeight,
-				})
+	for _, owned in ownedWeapons do
+		if owned.id == weaponId and owned.tier == tier and tier < maxTier and not owned.evolution then
+			return true, false
+		end
+	end
+	return false, true
+end
+
+local function copiesOf(weaponId: string, ownedWeapons: { OwnedWeapon }): number
+	local count = 0
+	for _, owned in ownedWeapons do
+		if owned.id == weaponId then
+			count += 1
+		end
+	end
+	return count
+end
+
+-- Picks the weapon of one weapon slot from Brotato's pool: owned ones, else ones sharing a class with an owned one,
+-- else any; a pool with nothing left falls through to the next. `avoid` holds ids already in this shop or (while
+-- others are left) in the previous roll. nil if every weapon is avoided.
+local function pickWeapon(params: Params, avoid: { [string]: boolean }, strict: { [string]: boolean }): string?
+	local ownedIds: { [string]: boolean } = {}
+	local ownedClasses: { [string]: boolean } = {}
+	for _, owned in params.ownedWeapons do
+		ownedIds[owned.id] = true
+		local config = Weapons[owned.id]
+		if config then
+			ownedClasses[config.class] = true
+		end
+	end
+	local function pool(filter: (string) -> boolean, skip: { [string]: boolean }): { string }
+		local ids = {}
+		for _, weaponId in params.weapons do
+			if not skip[weaponId] and Shop.weaponPrices[weaponId] and filter(weaponId) then
+				table.insert(ids, weaponId)
+			end
+		end
+		return ids
+	end
+	local roll = params.random()
+	local rule = Shop.weaponPool
+	local filters: { (string) -> boolean } = {}
+	if roll < rule.owned then
+		table.insert(filters, function(weaponId)
+			return ownedIds[weaponId] == true
+		end)
+	end
+	if roll < rule.owned + rule.sameClass then
+		table.insert(filters, function(weaponId)
+			local config = Weapons[weaponId]
+			return config ~= nil and ownedClasses[config.class] == true
+		end)
+	end
+	table.insert(filters, function()
+		return true
+	end)
+	for _, skip in { avoid, strict } do
+		for _, filter in filters do
+			local ids = pool(filter, skip)
+			if #ids > 0 then
+				return ids[math.min(#ids, math.floor(params.random() * #ids) + 1)]
 			end
 		end
 	end
-	return list
+	return nil
 end
 
--- Removes and returns one candidate, picked by weight.
-local function takeWeighted(list: { Candidate }, random: () -> number): Candidate
-	local total = 0
-	for _, candidate in list do
-		total += candidate.weight
-	end
-	local roll = random() * total
-	for index, candidate in list do
-		roll -= candidate.weight
-		if roll < 0 then
-			return table.remove(list, index) :: Candidate
-		end
-	end
-	return table.remove(list) :: Candidate
+local function weaponOffer(weaponId: string, params: Params): Types.ShopOffer
+	local tier = math.clamp(StatMath.rollTier(params.wave, params.luck, params.random()), 1, params.maxTier)
+	local merges, blocked =
+		ShopRules.weaponStatus(weaponId, tier, params.ownedWeapons, params.maxWeapons, params.maxTier)
+	local copies = copiesOf(weaponId, params.ownedWeapons)
+	return {
+		id = "",
+		kind = "Weapon",
+		itemId = weaponId,
+		tier = tier,
+		count = copies,
+		isNew = copies == 0,
+		price = ShopRules.weaponPrice(weaponId, tier, params.wave),
+		sold = false,
+		locked = false,
+		merges = merges,
+		blocked = blocked,
+	}
 end
 
 local function itemOffer(itemId: string, params: Params): Types.ShopOffer
@@ -164,42 +232,58 @@ local function itemOffer(itemId: string, params: Params): Types.ShopOffer
 		kind = "Item",
 		itemId = itemId,
 		tier = item.tier,
-		level = owned + 1,
+		count = owned + 1,
 		isNew = owned == 0,
 		price = ShopRules.price(item.price, params.wave),
 		sold = false,
+		locked = false,
+		merges = false,
+		blocked = false,
 	}
 end
 
 -- The offers of one shop: `keep` first, then new ones up to Config.Shop.slots. Fewer when nothing else is left.
 function ShopRules.roll(params: Params): { Types.ShopOffer }
 	local offers: { Types.ShopOffer } = {}
-	local taken: { [string]: boolean } = {}
+	local taken: { [string]: boolean } = {} -- in this shop
+	local avoid: { [string]: boolean } = {} -- in this shop or the previous roll
+	for itemId in params.previous or {} do
+		avoid[itemId] = true
+	end
+	local weaponsLeft = ShopRules.guaranteedWeapons(params.wave)
 	for _, offer in params.keep or {} do
 		table.insert(offers, offer)
 		taken[offer.itemId] = true
+		avoid[offer.itemId] = true
+		if offer.kind == "Weapon" then
+			weaponsLeft -= 1 -- a locked weapon counts towards the guaranteed ones
+		end
 	end
-	local weapons = weaponCandidates(params, taken)
-	local weaponsLeft = ShopRules.guaranteedWeapons(params.wave)
 	while #offers < Shop.slots do
 		local wantWeapon = weaponsLeft > 0 or params.random() < Shop.weaponChance
 		local offer: Types.ShopOffer? = nil
-		if wantWeapon and #weapons > 0 then
-			offer = takeWeighted(weapons, params.random).offer
+		local weaponId = if wantWeapon then pickWeapon(params, avoid, taken) else nil
+		if weaponId then
+			offer = weaponOffer(weaponId, params)
 			weaponsLeft -= 1
 		else
 			local tier = StatMath.rollTier(params.wave, params.luck, params.random())
-			local itemId = ShopRules.pickItem(tier, params.ownedItems, taken, params.random)
+			local itemId = ShopRules.pickItem(tier, params.ownedItems, avoid, params.random)
+				or ShopRules.pickItem(tier, params.ownedItems, taken, params.random)
 			if itemId then
 				offer = itemOffer(itemId, params)
-			elseif #weapons > 0 then
-				offer = takeWeighted(weapons, params.random).offer
+			else
+				weaponId = pickWeapon(params, avoid, taken)
+				if weaponId then
+					offer = weaponOffer(weaponId, params)
+				end
 			end
 		end
 		if not offer then
 			break
 		end
 		taken[offer.itemId] = true
+		avoid[offer.itemId] = true
 		offer.id = `{params.nextId()}:{offer.kind}:{offer.itemId}`
 		table.insert(offers, offer)
 	end

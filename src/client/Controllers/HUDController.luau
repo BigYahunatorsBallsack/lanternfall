@@ -16,6 +16,7 @@ local Config = require(Shared:WaitForChild("Config"))
 local Format = require(Shared:WaitForChild("Util"):WaitForChild("Format"))
 local RunSchedule = require(Shared:WaitForChild("Util"):WaitForChild("RunSchedule"))
 local Types = require(Shared:WaitForChild("Net"):WaitForChild("Types"))
+local UpgradeText = require(Shared:WaitForChild("Util"):WaitForChild("UpgradeText"))
 
 local LevelUpController = require(script.Parent.LevelUpController)
 local LoadoutController = require(script.Parent.LoadoutController)
@@ -204,19 +205,6 @@ local function renderHp()
 	hpLabel.Text = `{vitals.hp} / {vitals.maxHp}`
 end
 
-local function weaponName(weapon: Types.WeaponInfo): string
-	local evolution = weapon.evolution and Config.Evolutions[weapon.evolution]
-	if evolution then
-		return evolution.displayName
-	end
-	local config = Config.Weapons[weapon.id]
-	return if config then config.displayName else weapon.id
-end
-
-local function levelText(level: number): string
-	return if level >= Config.Player.maxItemLevel then "MAX" else `LV {level}`
-end
-
 local function renderItems()
 	Widgets.clearRows(itemRows)
 	local items = ProgressController.getLocalItems()
@@ -266,7 +254,7 @@ local function renderWeapons()
 	end
 	for index, weapon in loadout.weapons do
 		Widgets.label({
-			Text = `{weaponName(weapon)} · {levelText(weapon.level)}`,
+			Text = UpgradeText.weaponName(weapon.id, weapon.tier, weapon.evolution),
 			TextXAlignment = Enum.TextXAlignment.Left,
 			LayoutOrder = index,
 			Parent = weaponRows,

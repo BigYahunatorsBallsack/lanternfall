@@ -71,7 +71,7 @@ local OrbitBlades = {}
 
 function OrbitBlades.renderWeapon(owner: VisualKit.Owner, weapon: Types.WeaponInfo, frame: VisualKit.Frame)
 	local stats = weapon.stats
-	local key = `{owner.userId}:{weapon.id}`
+	local key = `{owner.userId}:{weapon.uid}`
 	local set = sets[key]
 	if not set then
 		set = { blades = {}, size = Vector3.zero, storm = nil, seenFrame = 0 }

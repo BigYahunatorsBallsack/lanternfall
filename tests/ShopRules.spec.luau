@@ -21,7 +21,7 @@ local function params(overrides)
 		weapons = WEAPONS,
 		ownedWeapons = {},
 		maxWeapons = 6,
-		maxLevel = 5,
+		maxTier = 4,
 		ownedItems = {},
 		nextId = function()
 			counter += 1
@@ -77,7 +77,7 @@ describe("ShopRules", function()
 				expect(offer.tier).toBe(item.tier)
 				expect(offer.price).toBe(ShopRules.price(item.price, 7))
 			else
-				expect(offer.price).toBe(ShopRules.price(Config.Shop.weaponPrices[offer.itemId], 7))
+				expect(offer.price).toBe(ShopRules.weaponPrice(offer.itemId, offer.tier, 7))
 			end
 		end
 	end)
@@ -90,22 +90,83 @@ describe("ShopRules", function()
 		expect(ShopRules.guaranteedWeapons(6)).toBe(0)
 	end)
 
-	it("offers owned weapons one level higher and no new ones once the slots are full", function()
-		local owned = {
-			OrbitBlades = 2,
-			SparkBolt = 5,
-			Shockwave = 1,
-			ThornTrail = 1,
-			ChainLightning = 1,
-			BoomerangAxe = 1,
-		}
-		for seed = 1, 10 do
-			for _, offer in ShopRules.roll(params({ ownedWeapons = owned, wave = 1, random = lcg(seed) })) do
+	it("prices weapon tiers from the tier I price and sells for a quarter", function()
+		local base = Config.Shop.weaponPrices.SparkBolt
+		expect(ShopRules.weaponPrice("SparkBolt", 1, 3)).toBe(ShopRules.price(base, 3))
+		expect(ShopRules.weaponPrice("SparkBolt", 3, 3)).toBe(
+			ShopRules.price(base * Config.Shop.tierPriceFactors[3], 3)
+		)
+		expect(ShopRules.weaponPrice("SparkBolt", 2, 3) > ShopRules.weaponPrice("SparkBolt", 1, 3)).toBe(true)
+		expect(ShopRules.sellPrice("SparkBolt", 2, 3)).toBe(math.floor(ShopRules.weaponPrice("SparkBolt", 2, 3) * 0.25))
+	end)
+
+	it("rolls weapon tiers like item rarities: only tier I after wave 1", function()
+		for seed = 1, 20 do
+			for _, offer in ShopRules.roll(params({ wave = 1, random = lcg(seed) })) do
 				if offer.kind == "Weapon" then
-					expect(offer.itemId ~= "SparkBolt").toBe(true) -- max level
-					expect(offer.level).toBe(owned[offer.itemId] + 1)
-					expect(offer.isNew).toBe(false)
+					expect(offer.tier).toBe(1)
 				end
+			end
+		end
+		local higher = false
+		for seed = 1, 60 do
+			for _, offer in ShopRules.roll(params({ wave = 15, luck = 50, random = lcg(seed) })) do
+				higher = higher or (offer.kind == "Weapon" and offer.tier > 1)
+			end
+		end
+		expect(higher).toBe(true)
+	end)
+
+	it("picks weapons from the pool: owned ones, then the same class, then any", function()
+		local owned = { { id = "OrbitBlades", tier = 1 } }
+		local function first(roll)
+			local offers = ShopRules.roll(params({
+				ownedWeapons = owned,
+				random = function()
+					return roll
+				end,
+			}))
+			return offers[1]
+		end
+		expect(first(0.1).itemId).toBe("OrbitBlades") -- below 20 %: an owned weapon
+		expect(first(0.1).isNew).toBe(false)
+		expect(first(0.1).count).toBe(1)
+		local sameClass = first(0.3).itemId -- 20-35 %: a melee weapon like the owned one
+		expect(Config.Weapons[sameClass].class).toBe("Melee")
+		expect(first(0.9).isNew).toBe(true) -- otherwise any weapon; 0.9 picks one near the end of the list
+	end)
+
+	it("merges a weapon bought with full slots into a copy of the same tier, else blocks it", function()
+		local full = {}
+		for index = 1, 6 do
+			full[index] = { id = WEAPONS[index], tier = if index == 1 then 2 else 1 }
+		end
+		expect(select(1, ShopRules.weaponStatus("BoomerangAxe", 2, full, 6, 4))).toBe(true)
+		expect(select(2, ShopRules.weaponStatus("BoomerangAxe", 1, full, 6, 4))).toBe(true)
+		expect(select(2, ShopRules.weaponStatus("SparkBolt", 1, { full[1] }, 6, 4))).toBe(false) -- free slot
+		full[1] = { id = "BoomerangAxe", tier = 4 }
+		expect(select(2, ShopRules.weaponStatus("BoomerangAxe", 4, full, 6, 4))).toBe(true) -- IV does not merge
+		full[1] = { id = "BoomerangAxe", tier = 2, evolution = "X" }
+		expect(select(2, ShopRules.weaponStatus("BoomerangAxe", 2, full, 6, 4))).toBe(true) -- evolved ones neither
+	end)
+
+	it("keeps locked offers first at their price and does not repeat the previous roll", function()
+		local before = ShopRules.roll(params({ wave = 8, random = lcg(3) }))
+		local locked = before[2]
+		locked.locked = true
+		locked.price = 1
+		local previous = {}
+		for _, offer in before do
+			previous[offer.itemId] = true
+		end
+		for seed = 1, 20 do
+			local after =
+				ShopRules.roll(params({ wave = 8, keep = { locked }, previous = previous, random = lcg(seed) }))
+			expect(after[1]).toBe(locked)
+			expect(after[1].price).toBe(1)
+			expect(#after).toBe(Config.Shop.slots)
+			for index = 2, #after do
+				expect(previous[after[index].itemId]).toBe(nil)
 			end
 		end
 	end)
@@ -121,7 +182,7 @@ describe("ShopRules", function()
 			local item = Config.Items.byId[offer.itemId]
 			expect(offer.kind).toBe("Item")
 			expect(item.limit == nil).toBe(true) -- limited items are at their limit
-			expect(offer.level).toBe(4)
+			expect(offer.count).toBe(4)
 			expect(offer.isNew).toBe(false)
 		end
 	end)

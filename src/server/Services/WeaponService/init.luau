@@ -4,7 +4,8 @@
 -- (EnemySim.Stepped), and loadouts (Loadout, to everyone) and weapon effects (WeaponEffects, batched per step, to
 -- the participants) go to the clients, and every player gets the damage numbers of their own hits per step
 -- (DamageNumbers, Net/HitNumbers). One behavior module per weapon in WeaponService/Behaviors. The shop
--- (ShopService), chests (UpgradeService) and AdminService call addWeapon, levelUp and evolve; StatService sets the
+-- (ShopService), chests (UpgradeService) and AdminService call addWeapon, removeWeapon, merge, raiseTier and evolve
+-- (weapons are named by their uid, since B3 a player may carry the same weapon several times); StatService sets the
 -- owner's stats (setStats) and life steal heals through CombatService; the results screen (WP14) getDamageStats.
 
 local Players = game:GetService("Players")
@@ -132,7 +133,7 @@ local arsenal = Arsenal.new({
 	},
 	behaviors = loadBehaviors(),
 	maxWeapons = Config.Player.maxWeapons,
-	maxLevel = Config.Player.maxItemLevel,
+	maxTier = Config.Player.maxWeaponTier,
 	critChance = Config.Player.critChance,
 	critMultiplier = Config.Player.critMultiplier,
 	minCooldown = Config.Player.minWeaponCooldown,
@@ -156,8 +157,9 @@ local function loadoutOf(player: Player): Types.Loadout
 	local weapons: { Types.WeaponInfo } = {}
 	for _, weapon in arsenal:getWeapons(player.UserId) do
 		table.insert(weapons, {
+			uid = weapon.uid,
 			id = weapon.id,
-			level = weapon.level,
+			tier = weapon.tier,
 			evolution = weapon.evolution,
 			addedAt = weapon.addedAt,
 			stats = table.clone(weapon.stats),
@@ -238,24 +240,35 @@ end
 -- Each returns false plus a reason from Arsenal ("NotParticipant", "NotImplemented", "SlotsFull", ...) if the
 -- change is not possible, and sends the new loadout to everyone otherwise.
 
-function WeaponService.addWeapon(player: Player, weaponId: string): (boolean, string?)
-	local ok, reason = arsenal:addWeapon(player.UserId, weaponId, now())
+-- Adds a weapon of `tier` (default I); returns its uid.
+function WeaponService.addWeapon(player: Player, weaponId: string, tier: number?): (boolean, string?, number?)
+	local ok, reason, uid = arsenal:addWeapon(player.UserId, weaponId, now(), tier)
 	if ok then
 		send(player)
 	end
-	return ok, reason
+	return ok, reason, uid
 end
 
-function WeaponService.removeWeapon(player: Player, weaponId: string): boolean
-	local ok = arsenal:removeWeapon(player.UserId, weaponId)
+function WeaponService.removeWeapon(player: Player, uid: number): boolean
+	local ok = arsenal:removeWeapon(player.UserId, uid)
 	if ok then
 		send(player)
 	end
 	return ok
 end
 
-function WeaponService.levelUp(player: Player, weaponId: string): (boolean, string?)
-	local ok, reason = arsenal:levelUp(player.UserId, weaponId)
+-- One tier up without a partner (admin).
+function WeaponService.raiseTier(player: Player, uid: number): (boolean, string?)
+	local ok, reason = arsenal:raiseTier(player.UserId, uid)
+	if ok then
+		send(player)
+	end
+	return ok, reason
+end
+
+-- Merges the weapon with another copy of the same tier into the next tier (Arsenal.merge).
+function WeaponService.merge(player: Player, uid: number): (boolean, string?)
+	local ok, reason = arsenal:merge(player.UserId, uid)
 	if ok then
 		send(player)
 	end
@@ -263,8 +276,8 @@ function WeaponService.levelUp(player: Player, weaponId: string): (boolean, stri
 end
 
 -- The item an evolution needs is checked by the caller (chests, WP9).
-function WeaponService.evolve(player: Player, weaponId: string, evolutionId: string): (boolean, string?)
-	local ok, reason = arsenal:evolve(player.UserId, weaponId, evolutionId)
+function WeaponService.evolve(player: Player, uid: number, evolutionId: string): (boolean, string?)
+	local ok, reason = arsenal:evolve(player.UserId, uid, evolutionId)
 	if ok then
 		send(player)
 	end
@@ -296,6 +309,12 @@ end
 -- The player's weapons as sent to clients (copies).
 function WeaponService.getWeapons(player: Player): { Types.WeaponInfo }
 	return loadoutOf(player).weapons
+end
+
+-- The uid of another copy the weapon `uid` can merge with (same weapon and tier, below the max tier), or nil.
+function WeaponService.findMergePartner(player: Player, uid: number): number?
+	local partner = arsenal:findMergePartner(player.UserId, uid)
+	return if partner then partner.uid else nil
 end
 
 -- True if the player takes part in the current run and can carry weapons.

@@ -2,8 +2,9 @@
 -- Weapon records (DESIGN.md section 6). Read by the weapon framework (WeaponService, WeaponRenderer) and
 -- UpgradeService.
 --
--- `base` holds level 1 stats. `levels[n]` lists what changes when reaching level n:
---   damage    = fraction added to the damage multiplier (0.15 = +15 % of the level 1 damage)
+-- `base` holds tier I stats. `tiers[n]` lists what changes when reaching tier n (Brotato's tiers I-IV since B3, before
+-- levels 1-5; two equal weapons of the same tier merge into the next one, DESIGN.md section 6):
+--   damage    = fraction added to the damage multiplier (0.15 = +15 % of the tier I damage)
 --   count     = extra blades / projectiles / axes
 --   radius    = studs added to radius
 --   cooldown  = seconds added to cooldown (negative = faster)
@@ -16,7 +17,7 @@
 -- A weapon without a behavior module exists only as data and cannot be given to players.
 -- Values marked "assumption" are not specified in DESIGN.md; tuned by feel in WP5 and WP8, balanced in WP7.
 
-export type LevelDelta = {
+export type TierDelta = {
 	damage: number?,
 	count: number?,
 	radius: number?,
@@ -34,11 +35,11 @@ export type Weapon = {
 	class: WeaponClass,
 	scaling: { [string]: number }, -- stat id -> share added to the damage (1 = 100 %)
 	rangeKeys: { string }, -- stats that grow with the Range stat (studs)
-	countName: string?, -- what `count` counts, for level-up cards ("+1 blade"); weapons without `count` leave it out
+	countName: string?, -- what `count` counts, for shop offers ("+1 blade"); weapons without `count` leave it out
 	behavior: string,
 	targeting: "Orbit" | "Nearest" | "Self" | "Chain" | "Trail" | "Random",
 	base: { [string]: number },
-	levels: { LevelDelta },
+	tiers: { TierDelta }, -- one entry per tier (Config.Player.maxWeaponTier), the first one empty
 }
 
 local Weapons: { [string]: Weapon } = {
@@ -61,12 +62,11 @@ local Weapons: { [string]: Weapon } = {
 			hitCooldownPerEnemy = 0.5, -- seconds before the same enemy can be hit again
 			rotationSpeed = 240, -- degrees/s (assumption; WP7: was 180, blades come around more often)
 		},
-		levels = {
+		tiers = {
 			{},
-			{ damage = 0.15 },
-			{ count = 1 },
-			{ damage = 0.15 },
-			{ count = 1 },
+			{ damage = 0.2, count = 1 },
+			{ damage = 0.3, count = 1 },
+			{ damage = 0.6 },
 		},
 	},
 	SparkBolt = {
@@ -90,12 +90,11 @@ local Weapons: { [string]: Weapon } = {
 			spreadDegrees = 12, -- extra bolts without an own target fan out around the nearest by this (assumption)
 			knockback = 0.8, -- studs a hit enemy is pushed along the bolt, divided by its mass above 1 (assumption)
 		},
-		levels = {
+		tiers = {
 			{},
 			{ count = 1 },
-			{ damage = 0.2 },
-			{ count = 1 },
-			{ damage = 0.2 },
+			{ damage = 0.4 },
+			{ damage = 0.5, cooldown = -0.15 },
 		},
 	},
 	Shockwave = {
@@ -113,12 +112,11 @@ local Weapons: { [string]: Weapon } = {
 			radius = 10,
 			knockback = 3, -- studs enemies are pushed away, divided by their mass above 1 (assumption)
 		},
-		levels = {
+		tiers = {
 			{},
-			{ radius = 2, cooldown = -0.3 },
-			{ radius = 2, cooldown = -0.3 },
-			{ radius = 2, cooldown = -0.3 },
-			{ radius = 2, cooldown = -0.3 },
+			{ damage = 0.3, radius = 2, cooldown = -0.3 },
+			{ damage = 0.4, radius = 2, cooldown = -0.3 },
+			{ damage = 0.6, radius = 3, cooldown = -0.4 },
 		},
 	},
 	ChainLightning = {
@@ -137,12 +135,11 @@ local Weapons: { [string]: Weapon } = {
 			range = 25, -- studs; the first enemy must be this close (assumption)
 			jumpRange = 12, -- studs from one hit enemy to the next (assumption)
 		},
-		levels = {
+		tiers = {
 			{},
-			{ jumps = 1, damage = 0.15 },
-			{ jumps = 1, damage = 0.15 },
-			{ jumps = 1, damage = 0.15 },
-			{ jumps = 1, damage = 0.15 },
+			{ jumps = 1, damage = 0.3 },
+			{ jumps = 1, damage = 0.3 },
+			{ jumps = 1, damage = 0.6 },
 		},
 	},
 	ThornTrail = {
@@ -162,12 +159,11 @@ local Weapons: { [string]: Weapon } = {
 			dropSpacing = 2, -- studs you move before the next patch is dropped (assumption)
 			maxPatches = 40, -- the oldest patch goes first beyond this (assumption, ~4 s of running at L5)
 		},
-		levels = {
+		tiers = {
 			{},
-			{ duration = 0.5, damage = 0.2 },
-			{ duration = 0.5, damage = 0.2 },
-			{ duration = 0.5, damage = 0.2 },
-			{ duration = 0.5, damage = 0.2 },
+			{ duration = 0.5, damage = 0.4 },
+			{ duration = 0.5, damage = 0.5 },
+			{ duration = 1, damage = 0.8 },
 		},
 	},
 	BoomerangAxe = {
@@ -193,12 +189,11 @@ local Weapons: { [string]: Weapon } = {
 			spreadDegrees = 20, -- extra axes without an own target fan out around the nearest by this (assumption)
 			knockback = 1.5, -- studs a hit enemy is pushed along the axe's flight, divided by its mass above 1 (assumption)
 		},
-		levels = {
+		tiers = {
 			{},
-			{ damage = 0.15 },
+			{ damage = 0.3, cooldown = -0.2 },
 			{ count = 1 },
-			{ damage = 0.15 },
-			{ count = 1 },
+			{ damage = 0.4, cooldown = -0.2 },
 		},
 	},
 }

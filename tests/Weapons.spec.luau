@@ -1,5 +1,5 @@
 -- Unit tests for the weapon framework (WeaponService/Arsenal) and the prototype weapons (WeaponService/Behaviors)
--- against a real enemy World: slots and levels, targeting, hits, pierce, cooldowns, knockback, crits, down owners,
+-- against a real enemy World: slots, tiers and merging, targeting, hits, pierce, cooldowns, knockback, crits, down owners,
 -- all six weapons and both evolutions, and the step budget with four fully armed players among 140 enemies.
 
 local Shared = game:GetService("ReplicatedStorage").Shared
@@ -68,7 +68,7 @@ local function setup(options)
 		},
 		behaviors = options.behaviors or behaviors,
 		maxWeapons = options.maxWeapons or Config.Player.maxWeapons,
-		maxLevel = Config.Player.maxItemLevel,
+		maxTier = Config.Player.maxWeaponTier,
 		critChance = options.critChance or 0,
 		critMultiplier = Config.Player.critMultiplier,
 		minCooldown = Config.Player.minWeaponCooldown,
@@ -104,12 +104,11 @@ local function run(scene, seconds, down)
 	end
 end
 
-local function give(scene, weaponId, level)
-	local ok, reason = scene.arsenal:addWeapon(OWNER, weaponId, scene.now)
+-- Gives the owner a weapon of `tier` (default I); returns its uid.
+local function give(scene, weaponId, tier)
+	local ok, reason, uid = scene.arsenal:addWeapon(OWNER, weaponId, scene.now, tier)
 	assert(ok, reason)
-	for _ = 2, level or 1 do
-		assert(scene.arsenal:levelUp(OWNER, weaponId))
-	end
+	return uid
 end
 
 local function lost(scene, id, startHp)
@@ -134,21 +133,25 @@ local function spawnAt(scene, kindId, distance, degrees, hp)
 end
 
 describe("Arsenal", function()
-	it("gives each weapon once, up to the slot limit", function()
+	it("gives weapons, copies of one too, up to the slot limit, each with its own uid", function()
 		local some =
 			{ OrbitBlades = behaviors.OrbitBlades, SparkBolt = behaviors.SparkBolt, Shockwave = behaviors.Shockwave }
-		local scene = setup({ maxWeapons = 2, behaviors = some })
+		local scene = setup({ maxWeapons = 3, behaviors = some })
 		local arsenal = scene.arsenal
-		expect(arsenal:addWeapon(OWNER, "OrbitBlades", 0)).toBe(true)
-		expect(select(2, arsenal:addWeapon(OWNER, "OrbitBlades", 0))).toBe("AlreadyOwned")
+		local ok, _, first = arsenal:addWeapon(OWNER, "OrbitBlades", 0)
+		expect(ok).toBe(true)
+		local _, _, second = arsenal:addWeapon(OWNER, "OrbitBlades", 0, 2)
+		expect(second ~= first).toBe(true)
+		expect(arsenal:getWeapon(OWNER, second).tier).toBe(2)
 		expect(select(2, arsenal:addWeapon(OWNER, "ChainLightning", 0))).toBe("NotImplemented") -- no behavior here
 		expect(select(2, arsenal:addWeapon(OWNER, "Nope", 0))).toBe("UnknownWeapon")
+		expect(select(2, arsenal:addWeapon(OWNER, "SparkBolt", 0, 5))).toBe("BadTier")
 		expect(arsenal:addWeapon(OWNER, "SparkBolt", 0)).toBe(true)
 		expect(select(2, arsenal:addWeapon(OWNER, "Shockwave", 0))).toBe("SlotsFull")
 		expect(select(2, arsenal:addWeapon(2, "Shockwave", 0))).toBe("NotParticipant")
-		expect(#arsenal:getWeapons(OWNER)).toBe(2)
-		expect(arsenal:removeWeapon(OWNER, "OrbitBlades")).toBe(true)
-		expect(arsenal:getWeapons(OWNER)[1].id).toBe("SparkBolt")
+		expect(#arsenal:getWeapons(OWNER)).toBe(3)
+		expect(arsenal:removeWeapon(OWNER, first)).toBe(true)
+		expect(arsenal:getWeapons(OWNER)[1].uid).toBe(second)
 	end)
 
 	it("lists the weapons that have a behavior", function()
@@ -158,19 +161,46 @@ describe("Arsenal", function()
 		)
 	end)
 
-	it("levels up to the max and recomputes the stats", function()
+	it("raises tiers up to the max and recomputes the stats", function()
 		local scene = setup()
-		give(scene, "SparkBolt")
+		local uid = give(scene, "SparkBolt")
 		local weapon = scene.arsenal:getWeapons(OWNER)[1]
 		expect(weapon.stats.count).toBe(1)
-		expect(scene.arsenal:levelUp(OWNER, "SparkBolt")).toBe(true)
+		expect(scene.arsenal:raiseTier(OWNER, uid)).toBe(true)
 		expect(weapon.stats.count).toBe(2)
-		for _ = 3, Config.Player.maxItemLevel do
-			scene.arsenal:levelUp(OWNER, "SparkBolt")
+		for _ = 3, Config.Player.maxWeaponTier do
+			scene.arsenal:raiseTier(OWNER, uid)
 		end
-		expect(weapon.level).toBe(Config.Player.maxItemLevel)
-		expect(select(2, scene.arsenal:levelUp(OWNER, "SparkBolt"))).toBe("MaxLevel")
-		expect(select(2, scene.arsenal:levelUp(OWNER, "Shockwave"))).toBe("NotOwned")
+		expect(weapon.tier).toBe(Config.Player.maxWeaponTier)
+		expect(select(2, scene.arsenal:raiseTier(OWNER, uid))).toBe("MaxTier")
+		expect(select(2, scene.arsenal:raiseTier(OWNER, uid + 99))).toBe("NotOwned")
+	end)
+
+	it("merges two copies of the same tier into one of the next tier", function()
+		local scene = setup()
+		local a = give(scene, "SparkBolt")
+		local other = give(scene, "OrbitBlades")
+		expect(select(2, scene.arsenal:merge(OWNER, a))).toBe("NoPartner")
+		local higher = give(scene, "SparkBolt", 2)
+		expect(scene.arsenal:findMergePartner(OWNER, a)).toBe(nil) -- different tier
+		local b = give(scene, "SparkBolt")
+		expect(scene.arsenal:findMergePartner(OWNER, a).uid).toBe(b)
+		scene.arsenal:getWeapon(OWNER, b).kills = 3
+		expect(scene.arsenal:merge(OWNER, a)).toBe(true)
+		expect(scene.arsenal:getWeapon(OWNER, b)).toBe(nil)
+		local merged = scene.arsenal:getWeapon(OWNER, a)
+		expect(merged.tier).toBe(2)
+		expect(merged.kills).toBe(3)
+		expect(merged.stats.count).toBe(2)
+		expect(scene.arsenal:merge(OWNER, higher)).toBe(true) -- now a has a partner of tier II
+		expect(scene.arsenal:getWeapon(OWNER, higher).tier).toBe(3)
+		expect(#scene.arsenal:getWeapons(OWNER)).toBe(2)
+		expect(scene.arsenal:getWeapon(OWNER, other).tier).toBe(1)
+
+		local top = setup()
+		local x = give(top, "OrbitBlades", Config.Player.maxWeaponTier)
+		give(top, "OrbitBlades", Config.Player.maxWeaponTier)
+		expect(select(2, top.arsenal:merge(OWNER, x))).toBe("NoPartner") -- tier IV is the end
 	end)
 
 	it("applies the owner's stats to every weapon", function()
@@ -183,19 +213,19 @@ describe("Arsenal", function()
 		expect(weapon.stats.damage).toBeNear(W.SparkBolt.base.damage * 1.5)
 	end)
 
-	it("evolves only a max-level weapon into its own evolution", function()
+	it("evolves only a max-tier weapon into its own evolution", function()
 		local scene = setup()
-		give(scene, "OrbitBlades")
-		expect(select(2, scene.arsenal:evolve(OWNER, "OrbitBlades", "BladeStorm"))).toBe("NotMaxLevel")
-		for _ = 2, Config.Player.maxItemLevel do
-			scene.arsenal:levelUp(OWNER, "OrbitBlades")
+		local uid = give(scene, "OrbitBlades")
+		expect(select(2, scene.arsenal:evolve(OWNER, uid, "BladeStorm"))).toBe("NotMaxTier")
+		for _ = 2, Config.Player.maxWeaponTier do
+			scene.arsenal:raiseTier(OWNER, uid)
 		end
-		expect(select(2, scene.arsenal:evolve(OWNER, "OrbitBlades", "Starfire"))).toBe("WrongEvolution")
-		expect(scene.arsenal:evolve(OWNER, "OrbitBlades", "BladeStorm")).toBe(true)
+		expect(select(2, scene.arsenal:evolve(OWNER, uid, "Starfire"))).toBe("WrongEvolution")
+		expect(scene.arsenal:evolve(OWNER, uid, "BladeStorm")).toBe(true)
 		local weapon = scene.arsenal:getWeapons(OWNER)[1]
 		expect(weapon.evolution).toBe("BladeStorm")
 		expect(weapon.stats.count).toBe(Config.Evolutions.BladeStorm.stats.count)
-		expect(select(2, scene.arsenal:evolve(OWNER, "OrbitBlades", "BladeStorm"))).toBe("AlreadyEvolved")
+		expect(select(2, scene.arsenal:evolve(OWNER, uid, "BladeStorm"))).toBe("AlreadyEvolved")
 	end)
 
 	it("heals the owner through life steal on hits", function()
@@ -322,7 +352,7 @@ describe("Spark Bolt", function()
 		expect(#effectsOf(scene, "Fire")).toBe(3) -- right away, after one and after two cooldowns
 	end)
 
-	it("shoots one bolt per target from level 2 and fans out without enough targets", function()
+	it("shoots one bolt per target from tier II and fans out without enough targets", function()
 		local scene = setup()
 		give(scene, "SparkBolt", 2)
 		local a = spawn(scene, "Shadeling", 20, 0)
@@ -409,7 +439,7 @@ describe("Chain Lightning", function()
 		expect(chains[1].points[3]).toBeNear(10)
 	end)
 
-	it("stops early without a next enemy in jump range and gains a jump per level", function()
+	it("stops early without a next enemy in jump range and gains a jump per tier", function()
 		local scene = setup()
 		give(scene, "ChainLightning", 2)
 		local near = spawn(scene, "Brute", 10, 0, TOUGH)
@@ -498,7 +528,7 @@ describe("Boomerang Axe", function()
 		expect(math.abs(ended[1].x) <= base.catchRadius + 0.1).toBe(true) -- caught at the owner
 	end)
 
-	it("comes back to where the owner moved and throws one axe per target from level 3", function()
+	it("comes back to where the owner moved and throws one axe per target from tier III", function()
 		local scene = setup()
 		give(scene, "BoomerangAxe", 3)
 		spawn(scene, "Brute", 10, 0, TOUGH)
@@ -534,10 +564,10 @@ end)
 describe("evolutions", function()
 	it("Blade Storm spins 8 longer blades with double damage", function()
 		local scene = setup()
-		give(scene, "OrbitBlades", Config.Player.maxItemLevel)
+		local uid = give(scene, "OrbitBlades", Config.Player.maxWeaponTier)
 		local weapon = scene.arsenal:getWeapons(OWNER)[1]
 		local before = weapon.stats.damage
-		expect(scene.arsenal:evolve(OWNER, "OrbitBlades", "BladeStorm")).toBe(true)
+		expect(scene.arsenal:evolve(OWNER, uid, "BladeStorm")).toBe(true)
 		expect(weapon.stats.count).toBe(8)
 		expect(weapon.stats.radius).toBe(10)
 		expect(weapon.stats.damage).toBeNear(2 * before)
@@ -549,8 +579,8 @@ describe("evolutions", function()
 	it("Starfire bolts explode and hurt the enemies around every hit", function()
 		local evolution = Config.Evolutions.Starfire.stats
 		local scene = setup()
-		give(scene, "SparkBolt", Config.Player.maxItemLevel)
-		scene.arsenal:evolve(OWNER, "SparkBolt", "Starfire")
+		local uid = give(scene, "SparkBolt", Config.Player.maxWeaponTier)
+		scene.arsenal:evolve(OWNER, uid, "Starfire")
 		local weapon = scene.arsenal:getWeapons(OWNER)[1]
 		weapon.stats.count = 1 -- one bolt, so only the blast can reach the other enemies
 		local target = spawn(scene, "Brute", 15, 0, TOUGH)
@@ -568,7 +598,7 @@ describe("evolutions", function()
 end)
 
 describe("weapon budget", function()
-	it("steps 4 players with four max-level weapons each among 140 enemies within the 4 ms step budget", function()
+	it("steps 4 players with six max-tier weapons each among 140 enemies within the 4 ms step budget", function()
 		local scene = setup()
 		local owners = { { -10, 0 }, { 10, 0 }, { 0, 15 }, { 30, -20 } }
 		local implemented = scene.arsenal:getImplemented()
@@ -576,13 +606,10 @@ describe("weapon budget", function()
 			scene.arsenal:addOwner(id)
 			for k = 0, Config.Player.maxWeapons - 1 do -- each player a different set, together all six
 				local weaponId = implemented[(id + k) % #implemented + 1]
-				scene.arsenal:addWeapon(id, weaponId, scene.now)
-				for _ = 2, Config.Player.maxItemLevel do
-					scene.arsenal:levelUp(id, weaponId)
-				end
+				local _, _, uid = scene.arsenal:addWeapon(id, weaponId, scene.now, Config.Player.maxWeaponTier)
 				for evolutionId, evolution in Config.Evolutions do
 					if evolution.weapon == weaponId then
-						scene.arsenal:evolve(id, weaponId, evolutionId) -- evolved weapons do the most work
+						scene.arsenal:evolve(id, uid, evolutionId) -- evolved weapons do the most work
 					end
 				end
 			end
@@ -630,7 +657,7 @@ describe("weapon budget", function()
 		local total = (os.clock() - started) * 1000 / steps
 		local weapons = weaponSeconds * 1000 / steps
 		print(
-			`  enemies + 16 max-level weapons: {string.format("%.3f", total)} ms, weapons alone {string.format(
+			`  enemies + 24 max-tier weapons: {string.format("%.3f", total)} ms, weapons alone {string.format(
 				"%.3f",
 				weapons
 			)} ms`
