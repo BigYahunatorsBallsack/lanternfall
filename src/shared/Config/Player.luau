@@ -19,5 +19,5 @@ return table.freeze({
 	critMultiplier = 2,
 	minWeaponCooldown = 0.2, -- seconds; cooldown bonuses never make a weapon faster than this
 	maxWeapons = 6, -- Brotato's six weapon slots (since B2, before 4)
-	maxItemLevel = 5, -- weapon levels (B3 brings Brotato's tiers)
+	maxWeaponTier = 4, -- Brotato's weapon tiers I-IV (since B3, before levels 1-5); two equal weapons merge into the next
 })

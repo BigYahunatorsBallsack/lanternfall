@@ -57,11 +57,12 @@ export type PlayerVitals = {
 
 -- One weapon of a player's loadout (WeaponService -> LoadoutController).
 export type WeaponInfo = {
+	uid: number, -- names this copy (a player may carry the same weapon several times since B3)
 	id: string, -- key in Config.Weapons
-	level: number,
+	tier: number, -- 1..Config.Player.maxWeaponTier (Brotato's tiers I-IV since B3)
 	evolution: string?, -- key in Config.Evolutions once evolved (WP8)
 	addedAt: number, -- server time; spinning weapons count their angle from here (Util/Orbit)
-	stats: { [string]: number }, -- effective stats: level, evolution and the owner's bonuses applied
+	stats: { [string]: number }, -- effective stats: tier, evolution and the owner's bonuses applied
 }
 
 -- The weapons of one player, sent to everyone on change. Empty outside a run.
@@ -167,16 +168,29 @@ export type LevelUpOffer = {
 	pending: number, -- further choices waiting after this one (closed: choices waiting for the end of the wave)
 }
 
--- One thing for sale in the shop: a new weapon or one more level of an owned one, or an item.
+-- One thing for sale in the shop: a weapon of a tier or an item (DESIGN.md section 3).
 export type ShopOffer = {
-	id: string, -- what the client sends back with BuyShopOffer, e.g. "1:Item:Focus"
+	id: string, -- what the client sends back with BuyShopOffer and LockShopOffer, e.g. "1:Item:Focus"
 	kind: "Weapon" | "Item",
 	itemId: string, -- key in Config.Weapons or Config.Items
-	tier: number, -- rarity 1..4 (items: Config.Items; weapons 1 until B3)
-	level: number, -- weapons: level after buying (1 = new); items: how many the player owns after buying
-	isNew: boolean,
-	price: number, -- Shards
+	tier: number, -- rarity 1..4 (Config.Items.tiers); weapons: their tier I-IV
+	count: number, -- items: how many the player owns after buying; weapons: copies of it the player carries now
+	isNew: boolean, -- the player has none of it
+	price: number, -- Shards; a locked offer keeps the price it had when it was rolled
 	sold: boolean, -- bought in this shop; the slot stays empty
+	locked: boolean, -- stays through rerolls and into the next shop
+	merges: boolean, -- weapons: every slot is full, buying merges it into an owned copy of the same tier
+	blocked: boolean, -- cannot be bought right now (weapon slots full without a copy to merge with)
+}
+
+-- One weapon of the local player as the shop shows it (sell and merge buttons).
+export type ShopWeapon = {
+	uid: number,
+	id: string, -- key in Config.Weapons
+	tier: number,
+	evolution: string?,
+	sellPrice: number, -- Shards for selling it now
+	canMerge: boolean, -- another copy of the same tier is there to merge with
 }
 
 -- The local player's Shards and shop (ShopService -> ShopController, HUD), sent on every change.
@@ -185,7 +199,10 @@ export type ShopState = {
 	open: boolean, -- shop phase between two waves
 	wave: number, -- the wave that just ended (prices are based on it)
 	offers: { ShopOffer },
-	rerollPrice: number,
+	rerollPrice: number, -- 0 while a free reroll is waiting
+	freeRerolls: number, -- free rerolls earned by purchases (Config.Shop.freeRerollAfterBuys)
+	weapons: { ShopWeapon }, -- in slot order
+	maxWeapons: number,
 }
 
 export type ItemInfo = {

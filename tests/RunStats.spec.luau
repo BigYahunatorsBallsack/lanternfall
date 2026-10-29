@@ -54,8 +54,8 @@ describe("Tally", function()
 		local summary = tally:summary({
 			[1] = {
 				weapons = {
-					{ id = "OrbitBlades", level = 3, damage = 100.4, kills = 7 },
-					{ id = "SparkBolt", level = 1, damage = 20, kills = 1 },
+					{ id = "OrbitBlades", tier = 3, damage = 100.4, kills = 7 },
+					{ id = "SparkBolt", tier = 1, damage = 20, kills = 1 },
 				},
 				items = {},
 			},
@@ -77,14 +77,14 @@ describe("Tally", function()
 		tally:recordDown(1, 130)
 		local lines = tally:logLines(results("Defeat", 130), {
 			[1] = {
-				weapons = { { id = "OrbitBlades", level = 2, damage = 64, kills = 1 } },
+				weapons = { { id = "OrbitBlades", tier = 2, damage = 64, kills = 1 } },
 				items = { { id = "Might", count = 2 } },
 			},
 		})
 		expect(lines[1]).toBe("Defeat after 02:10 · Normal · 1 player(s) · team level 3 · 1 kills (Brute 1)")
 		expect(lines[2]).toBe("Level per minute: 1:00 L2 · 2:00 L3")
 		expect(lines[3]).toBe("Ana (Blade Warden): 1 kills, 64 damage, took 0, down 1x, first down at 02:10")
-		expect(lines[4]).toBe("  Weapons: Orbit Blades LV2 64 dmg/1 kills")
+		expect(lines[4]).toBe("  Weapons: Orbit Blades II 64 dmg/1 kills")
 		expect(lines[5]).toBe("  Items: Might x2")
 	end)
 end)

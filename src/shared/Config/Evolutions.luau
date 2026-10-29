@@ -5,10 +5,10 @@
 export type Evolution = {
 	id: string,
 	displayName: string,
-	weapon: string, -- must be at max level
+	weapon: string, -- must be at the max tier (IV, since B3; before level 5)
 	item: string, -- key in Config.Items, owned at least once
 	behavior: string,
-	stats: { [string]: number }, -- overrides on top of the max-level weapon
+	stats: { [string]: number }, -- overrides on top of the max-tier weapon
 }
 
 local Evolutions: { [string]: Evolution } = {

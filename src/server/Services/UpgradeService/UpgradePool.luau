@@ -71,18 +71,22 @@ function UpgradePool.roll(params: Params): { Types.UpgradeCard }
 	return cards
 end
 
--- Evolution ids the player may take now (DESIGN.md section 6), sorted: the weapon at `maxLevel` and not evolved yet,
--- plus at least one of the item. `ownedWeapons` maps weapon id -> { level, evolution }, `ownedItems` item id -> count.
+-- Evolution ids the player may take now (DESIGN.md section 6), sorted: a copy of the weapon at `maxTier` and not
+-- evolved yet, plus at least one of the item. `ownedWeapons` lists the carried weapons, `ownedItems` item id -> count.
 function UpgradePool.evolutionsFor(
-	ownedWeapons: { [string]: { level: number, evolution: string? } },
+	ownedWeapons: { { id: string, tier: number, evolution: string? } },
 	ownedItems: { [string]: number },
-	maxLevel: number
+	maxTier: number
 ): { string }
 	local ids = {}
 	for id, evolution in Evolutions do
-		local weapon = ownedWeapons[evolution.weapon]
-		if weapon and weapon.level >= maxLevel and not weapon.evolution and (ownedItems[evolution.item] or 0) > 0 then
-			table.insert(ids, id)
+		if (ownedItems[evolution.item] or 0) > 0 then
+			for _, weapon in ownedWeapons do
+				if weapon.id == evolution.weapon and weapon.tier >= maxTier and not weapon.evolution then
+					table.insert(ids, id)
+					break
+				end
+			end
 		end
 	end
 	table.sort(ids)

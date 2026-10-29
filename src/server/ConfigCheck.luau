@@ -26,8 +26,8 @@ function ConfigCheck.run(): { string }
 		if weapon.id ~= id then
 			problem(`Weapon key {id} does not match id {weapon.id}`)
 		end
-		if #weapon.levels ~= Config.Player.maxItemLevel then
-			problem(`Weapon {id} has {#weapon.levels} levels, expected {Config.Player.maxItemLevel}`)
+		if #weapon.tiers ~= Config.Player.maxWeaponTier then
+			problem(`Weapon {id} has {#weapon.tiers} tiers, expected {Config.Player.maxWeaponTier}`)
 		end
 		if not (weapon.base.damage and weapon.base.damage > 0) then
 			problem(`Weapon {id} needs a base damage above 0`)
@@ -35,10 +35,10 @@ function ConfigCheck.run(): { string }
 		if weapon.base.cooldown and weapon.base.cooldown <= 0 then
 			problem(`Weapon {id} needs a cooldown above 0`)
 		end
-		for level, delta in weapon.levels do
+		for tier, delta in weapon.tiers do
 			for key in delta :: { [string]: number } do
 				if key ~= "damage" and weapon.base[key] == nil then
-					problem(`Weapon {id} level {level} changes {key}, which its base stats do not have`)
+					problem(`Weapon {id} tier {tier} changes {key}, which its base stats do not have`)
 				end
 			end
 		end
@@ -113,6 +113,26 @@ function ConfigCheck.run(): { string }
 	end
 	if Config.Shop.slots < 1 or Config.Shop.phaseSeconds <= 0 then
 		problem("Shop needs at least one slot and a phase above 0 seconds")
+	end
+	if
+		#Config.Shop.tierPriceFactors ~= Config.Player.maxWeaponTier
+		or #Config.Items.tiers < Config.Player.maxWeaponTier
+	then
+		problem("Shop.tierPriceFactors needs one factor per weapon tier, and Items.tiers a rarity for each")
+	end
+	local pool = Config.Shop.weaponPool
+	if
+		not (
+			Config.Shop.sellShare >= 0
+			and pool.owned >= 0
+			and pool.sameClass >= 0
+			and pool.owned + pool.sameClass <= 1
+		)
+	then
+		problem("Shop.sellShare and weaponPool chances must not be negative, weaponPool at most 1 together")
+	end
+	if Config.Shop.freeRerollAfterBuys < 1 then
+		problem("Shop.freeRerollAfterBuys must be at least 1")
 	end
 
 	for id, evolution in Config.Evolutions do

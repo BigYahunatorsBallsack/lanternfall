@@ -1,5 +1,6 @@
 --!strict
--- Shop between waves (DESIGN.md section 3, Brotato direction since B1): Shards, offers, prices and rerolls.
+-- Shop between waves (DESIGN.md section 3, Brotato direction since B1, complete since B3): Shards, offers, prices,
+-- rerolls, locking, selling and the weapon pool.
 -- Read by ShopService (server), ShopController and the HUD (client). Formulas follow Brotato's shop (assumption
 -- where noted); item and weapon names are our own. Item prices and rarity chances live in Config.Items.
 
@@ -12,13 +13,16 @@ local Shop = {
 		table.freeze({ untilWave = 2, count = 2 }),
 		table.freeze({ untilWave = 5, count = 1 }),
 	}),
-	ownedWeaponWeight = 2, -- owned weapons are this many times as likely to be offered as new ones
+	-- Which weapon a weapon slot offers (Brotato): with `owned` chance one the player already has, else with
+	-- `sameClass` chance one that shares a class with one of theirs, else any weapon (all of them only if nothing fits)
+	weaponPool = table.freeze({ owned = 0.2, sameClass = 0.15 }),
 
 	-- price = floor((base + wave * waveAdd + base * waveFactor * wave) * multiplier), at least 1; wave = the wave
 	-- that just ended
 	price = table.freeze({ waveAdd = 1, waveFactor = 0.1, multiplier = 1 }),
-	-- base prices of the weapons (Config.Weapons; items have theirs in Config.Items). Buying a weapon the player
-	-- already owns raises it one level at the same price (stands in for Brotato's weapon merging until B3).
+	-- tier I base prices of the weapons (Config.Weapons; items have theirs in Config.Items). Since B3 a weapon's tier
+	-- (I-IV) is rolled like an item's rarity; its base price is the tier I price times tierPriceFactors[tier]
+	-- (Brotato's weapon tables roughly double the price per tier).
 	weaponPrices = table.freeze({
 		OrbitBlades = 18,
 		SparkBolt = 18,
@@ -27,6 +31,11 @@ local Shop = {
 		ThornTrail = 20,
 		BoomerangAxe = 24,
 	}),
+	tierPriceFactors = table.freeze({ 1, 1.9, 3.7, 7.4 }),
+	-- Selling a weapon (Brotato's recycling) gives this share of its current shop price (wave and tier), rounded down
+	sellShare = 0.25,
+	-- Every this many purchases in one shop earn one free reroll (it does not raise the reroll price)
+	freeRerollAfterBuys = 4,
 	-- reroll: increase = max(1, floor(increaseFactor * wave)); first = floor(firstFactor * wave) + increase;
 	-- every further reroll in the same shop adds the increase again. Level-up cards reroll at the same prices.
 	reroll = table.freeze({ increaseFactor = 0.4, firstFactor = 0.75 }),

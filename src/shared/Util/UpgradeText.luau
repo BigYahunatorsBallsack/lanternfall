@@ -1,12 +1,14 @@
 --!strict
 -- Texts of level-up cards, shop offers and chest rewards (DESIGN.md section 13), built from Config.Stats,
 -- Config.Items, Config.Weapons and Config.Evolutions so the server only sends ids: names, effect lines ("+5% Damage",
--- "-1 Armor", optionally colored as rich text) and badges ("NEW", "LV 3", rarity names). Used by LevelUpController,
+-- "-1 Armor", optionally colored as rich text), weapon names with tiers ("Spark Bolt II") and badges (rarity names,
+-- "NEW"). Used by LevelUpController,
 -- ShopController, ChestController and StatsController; tested in tests/UpgradePool.spec.luau.
 
 local Config = require(script.Parent.Parent.Config)
 local Weapons = require(script.Parent.Parent.Config.Weapons)
 local Types = require(script.Parent.Parent.Net.Types)
+local Format = require(script.Parent.Format)
 local StatMath = require(script.Parent.StatMath)
 
 export type Colors = { plus: Color3, minus: Color3 }
@@ -59,33 +61,45 @@ function UpgradeText.statLines(stats: { [string]: number }, colors: Colors?): st
 	return table.concat(lines, "\n")
 end
 
--- One line for what a weapon level adds, e.g. "+1 blade" or "+2 radius, -0.3s cooldown".
-function UpgradeText.weaponLevel(weapon: Weapons.Weapon, level: number): string
-	local delta = weapon.levels[level]
-	if not delta then
-		return weapon.description
+-- What a weapon's tier adds over tier I, e.g. "+30% damage, +1 blade" (tiers II-IV since B3); "" for tier I.
+function UpgradeText.weaponTier(weapon: Weapons.Weapon, tier: number): string
+	local total: { [string]: number } = {}
+	for n = 2, math.min(tier, #weapon.tiers) do
+		for key, value in weapon.tiers[n] :: { [string]: number } do
+			total[key] = (total[key] or 0) + value
+		end
 	end
 	local parts = {}
-	if delta.count then
+	if total.count then
 		local noun = weapon.countName or "projectile"
-		table.insert(parts, `{signed(delta.count)} {plural(delta.count, noun)}`)
+		table.insert(parts, `{signed(total.count)} {plural(total.count, noun)}`)
 	end
-	if delta.jumps then
-		table.insert(parts, `{signed(delta.jumps)} {plural(delta.jumps, "jump")}`)
+	if total.jumps then
+		table.insert(parts, `{signed(total.jumps)} {plural(total.jumps, "jump")}`)
 	end
-	if delta.damage then
-		table.insert(parts, `{signed(math.round(delta.damage * 100))}% damage`)
+	if total.damage then
+		table.insert(parts, `{signed(math.round(total.damage * 100))}% damage`)
 	end
-	if delta.radius then
-		table.insert(parts, `{signed(delta.radius)} radius`)
+	if total.radius then
+		table.insert(parts, `{signed(total.radius)} radius`)
 	end
-	if delta.cooldown then
-		table.insert(parts, `{signed(delta.cooldown)}s cooldown`)
+	if total.cooldown then
+		table.insert(parts, `{signed(total.cooldown)}s cooldown`)
 	end
-	if delta.duration then
-		table.insert(parts, `{signed(delta.duration)}s duration`)
+	if total.duration then
+		table.insert(parts, `{signed(total.duration)}s duration`)
 	end
-	return if #parts > 0 then table.concat(parts, ", ") else weapon.description
+	return table.concat(parts, ", ")
+end
+
+-- Weapon name with its tier, e.g. "Spark Bolt II"; an evolved weapon shows its evolution's name.
+function UpgradeText.weaponName(weaponId: string, tier: number, evolutionId: string?): string
+	local evolution = evolutionId and Config.Evolutions[evolutionId]
+	if evolution then
+		return evolution.displayName
+	end
+	local weapon = Config.Weapons[weaponId]
+	return `{if weapon then weapon.displayName else weaponId} {Format.tier(tier)}`
 end
 
 -- Title, effect line and badge of a level-up card ("Damage", "+8% Damage", "Uncommon").
@@ -95,21 +109,30 @@ function UpgradeText.card(card: Types.UpgradeCard): (string, string, string)
 	return title, StatMath.format(card.stat, card.amount), UpgradeText.tierName(card.tier)
 end
 
--- Title, effect text and badge of a shop offer. Weapons: their description or what the next level adds, "NEW" or
--- "LV 3". Items: their stat lines (rich text with `colors`), the rarity and how many the player owns ("Rare · x2").
+-- Title, effect text and badge of a shop offer. Weapons: name with tier ("Spark Bolt II"), description, what the tier
+-- adds and whether buying merges it; badge "Uncommon · NEW" or "Uncommon · own 2". Items: their stat lines (rich text
+-- with `colors`), the rarity and how many the player owns ("Rare · x2").
 function UpgradeText.offer(offer: Types.ShopOffer, colors: Colors?): (string, string, string)
 	if offer.kind == "Weapon" then
 		local weapon = Config.Weapons[offer.itemId]
-		local badge = if offer.isNew then "NEW" else `LV {offer.level}`
+		local badge = UpgradeText.tierName(offer.tier) .. (if offer.isNew then " · NEW" else ` · own {offer.count}`)
 		if not weapon then
 			return offer.itemId, "", badge
 		end
-		return weapon.displayName,
-			if offer.isNew then weapon.description else UpgradeText.weaponLevel(weapon, offer.level),
-			badge
+		local lines = { weapon.description }
+		local bonus = UpgradeText.weaponTier(weapon, offer.tier)
+		if bonus ~= "" then
+			table.insert(lines, bonus)
+		end
+		if offer.merges then
+			table.insert(lines, `Merges into {Format.tier(offer.tier + 1)}`)
+		elseif offer.blocked then
+			table.insert(lines, "Weapon slots full")
+		end
+		return UpgradeText.weaponName(offer.itemId, offer.tier, nil), table.concat(lines, "\n"), badge
 	end
 	local item = Config.Items.byId[offer.itemId]
-	local owned = offer.level - 1
+	local owned = offer.count - 1
 	local badge = UpgradeText.tierName(offer.tier) .. (if owned > 0 then ` · x{owned}` else "")
 	if not item then
 		return offer.itemId, "", badge

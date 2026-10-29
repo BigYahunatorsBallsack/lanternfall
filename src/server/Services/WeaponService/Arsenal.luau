@@ -3,7 +3,9 @@
 -- can run it against a real enemy World. Owned by WeaponService, which places the owners before every step, sends
 -- their loadouts and passes the effects on to the clients.
 --
--- Owners (players, by userId) carry up to `maxWeapons` weapons, each up to `maxLevel`. Each step, per weapon:
+-- Owners (players, by userId) carry up to `maxWeapons` weapons, each of tier I to `maxTier` (Brotato's tiers since B3);
+-- the same weapon may be carried several times, every copy has its own `uid`, and two copies of the same tier merge
+-- into one of the next tier. Each step, per weapon:
 --   1. behavior.step moves what the weapon already has going (blades, projectiles in flight)
 --   2. once the weapon's cooldown is over and its owner is placed (alive), behavior.fire starts the next attack;
 --      a fire without a target returns false and is tried again on the next step
@@ -33,12 +35,13 @@ export type Enemies = {
 export type Effect = { [string]: any }
 
 export type Weapon = {
+	uid: number, -- unique within the arsenal; the shop and the client name a weapon by it
 	id: string, -- key in Config.Weapons
 	config: Weapons.Weapon,
 	behaviorName: string,
 	behavior: Behavior,
 	ownerId: number,
-	level: number,
+	tier: number, -- 1..maxTier
 	evolution: string?,
 	stats: WeaponStats.Stats,
 	addedAt: number, -- server time
@@ -90,7 +93,7 @@ export type Params = {
 	enemies: Enemies,
 	behaviors: { [string]: Behavior }, -- by behavior name
 	maxWeapons: number,
-	maxLevel: number,
+	maxTier: number,
 	critChance: number, -- for weapons whose stats carry no critChance (WeaponStats sets it)
 	critMultiplier: number,
 	minCooldown: number,
@@ -123,6 +126,7 @@ export type Arsenal = typeof(setmetatable(
 		order: { number }, -- owner ids in the order they joined, so stepping order is stable
 		effects: { Effect },
 		nextProjectileId: number,
+		nextUid: number,
 		context: Context,
 	},
 	Arsenal
@@ -241,6 +245,7 @@ function Arsenal.new(params: Params): Arsenal
 		order = {},
 		effects = {},
 		nextProjectileId = 0,
+		nextUid = 0,
 		context = nil :: any,
 	}, Arsenal)
 	self.context = makeContext(self)
@@ -280,7 +285,7 @@ end
 
 local function recompute(self: Arsenal, weapon: Weapon, owner: Owner)
 	local evolution = if weapon.evolution then Evolutions[weapon.evolution] else nil
-	weapon.stats = WeaponStats.compute(weapon.config, weapon.level, owner.bonuses, evolution, self.params.minCooldown)
+	weapon.stats = WeaponStats.compute(weapon.config, weapon.tier, owner.bonuses, evolution, self.params.minCooldown)
 end
 
 -- Replaces the owner's stats (StatService) and recomputes every weapon.
@@ -324,43 +329,52 @@ function Arsenal.getImplemented(self: Arsenal): { string }
 	return ids
 end
 
-local function findWeapon(owner: Owner, weaponId: string): (Weapon?, number?)
+local function findWeapon(owner: Owner, uid: number): (Weapon?, number?)
 	for index, weapon in owner.weapons do
-		if weapon.id == weaponId then
+		if weapon.uid == uid then
 			return weapon, index
 		end
 	end
 	return nil, nil
 end
 
--- Gives the owner a weapon at level 1; it fires as soon as it has a target. Reasons for false: "NotParticipant",
--- "UnknownWeapon", "NotImplemented", "AlreadyOwned", "SlotsFull".
-function Arsenal.addWeapon(self: Arsenal, ownerId: number, weaponId: string, now: number): (boolean, string?)
+-- Gives the owner a weapon of `tier` (default I); it fires as soon as it has a target. Returns its uid. Reasons for
+-- false: "NotParticipant", "UnknownWeapon", "NotImplemented", "BadTier", "SlotsFull".
+function Arsenal.addWeapon(
+	self: Arsenal,
+	ownerId: number,
+	weaponId: string,
+	now: number,
+	tier: number?
+): (boolean, string?, number?)
 	local owner = self.owners[ownerId]
 	if not owner then
-		return false, "NotParticipant"
+		return false, "NotParticipant", nil
 	end
 	local config = Weapons[weaponId]
 	if not config then
-		return false, "UnknownWeapon"
+		return false, "UnknownWeapon", nil
 	end
 	local behavior = self.params.behaviors[config.behavior]
 	if not behavior then
-		return false, "NotImplemented"
+		return false, "NotImplemented", nil
 	end
-	if findWeapon(owner, weaponId) then
-		return false, "AlreadyOwned"
+	local startTier = tier or 1
+	if startTier < 1 or startTier > self.params.maxTier or startTier % 1 ~= 0 then
+		return false, "BadTier", nil
 	end
 	if #owner.weapons >= self.params.maxWeapons then
-		return false, "SlotsFull"
+		return false, "SlotsFull", nil
 	end
+	self.nextUid += 1
 	local weapon: Weapon = {
+		uid = self.nextUid,
 		id = weaponId,
 		config = config,
 		behaviorName = config.behavior,
 		behavior = behavior,
 		ownerId = ownerId,
-		level = 1,
+		tier = startTier,
 		evolution = nil,
 		stats = {},
 		addedAt = now,
@@ -371,15 +385,15 @@ function Arsenal.addWeapon(self: Arsenal, ownerId: number, weaponId: string, now
 	}
 	recompute(self, weapon, owner)
 	table.insert(owner.weapons, weapon)
-	return true, nil
+	return true, nil, weapon.uid
 end
 
-function Arsenal.removeWeapon(self: Arsenal, ownerId: number, weaponId: string): boolean
+function Arsenal.removeWeapon(self: Arsenal, ownerId: number, uid: number): boolean
 	local owner = self.owners[ownerId]
 	if not owner then
 		return false
 	end
-	local _, index = findWeapon(owner, weaponId)
+	local _, index = findWeapon(owner, uid)
 	if not index then
 		return false
 	end
@@ -387,42 +401,87 @@ function Arsenal.removeWeapon(self: Arsenal, ownerId: number, weaponId: string):
 	return true
 end
 
--- One level up. Reasons for false: "NotParticipant", "NotOwned", "MaxLevel".
-function Arsenal.levelUp(self: Arsenal, ownerId: number, weaponId: string): (boolean, string?)
+-- The weapon with this uid, if the owner carries it (live; do not change it).
+function Arsenal.getWeapon(self: Arsenal, ownerId: number, uid: number): Weapon?
+	local owner = self.owners[ownerId]
+	return if owner then (findWeapon(owner, uid)) else nil
+end
+
+-- One tier up (admin). Reasons for false: "NotParticipant", "NotOwned", "MaxTier".
+function Arsenal.raiseTier(self: Arsenal, ownerId: number, uid: number): (boolean, string?)
 	local owner = self.owners[ownerId]
 	if not owner then
 		return false, "NotParticipant"
 	end
-	local weapon = findWeapon(owner, weaponId)
+	local weapon = findWeapon(owner, uid)
 	if not weapon then
 		return false, "NotOwned"
 	end
-	if weapon.level >= self.params.maxLevel then
-		return false, "MaxLevel"
+	if weapon.tier >= self.params.maxTier then
+		return false, "MaxTier"
 	end
-	weapon.level += 1
+	weapon.tier += 1
 	recompute(self, weapon, owner)
 	return true, nil
 end
 
--- Turns a max-level weapon into its evolution (Config.Evolutions). The item it needs is checked by the caller,
--- which knows the items (chests, WP9). Reasons for false: "NotParticipant", "NotOwned", "WrongEvolution",
--- "NotMaxLevel", "AlreadyEvolved", "NotImplemented".
-function Arsenal.evolve(self: Arsenal, ownerId: number, weaponId: string, evolutionId: string): (boolean, string?)
+-- Another copy of the weapon `uid` the two can merge with: same weapon, same tier below the max, neither evolved.
+-- The first one in slot order, or nil.
+function Arsenal.findMergePartner(self: Arsenal, ownerId: number, uid: number): Weapon?
+	local owner = self.owners[ownerId]
+	local weapon = owner and findWeapon(owner, uid)
+	if not (owner and weapon) or weapon.evolution or weapon.tier >= self.params.maxTier then
+		return nil
+	end
+	for _, other in owner.weapons do
+		if other ~= weapon and other.id == weapon.id and other.tier == weapon.tier and not other.evolution then
+			return other
+		end
+	end
+	return nil
+end
+
+-- Merges the weapon `uid` with its partner (findMergePartner): it goes one tier up, the partner is gone and its damage
+-- and kills count for it. Reasons for false: "NotParticipant", "NotOwned", "NoPartner".
+function Arsenal.merge(self: Arsenal, ownerId: number, uid: number): (boolean, string?)
 	local owner = self.owners[ownerId]
 	if not owner then
 		return false, "NotParticipant"
 	end
-	local weapon = findWeapon(owner, weaponId)
+	local weapon = findWeapon(owner, uid)
+	if not weapon then
+		return false, "NotOwned"
+	end
+	local partner = self:findMergePartner(ownerId, uid)
+	if not partner then
+		return false, "NoPartner"
+	end
+	self:removeWeapon(ownerId, partner.uid)
+	weapon.damageDealt += partner.damageDealt
+	weapon.kills += partner.kills
+	weapon.tier += 1
+	recompute(self, weapon, owner)
+	return true, nil
+end
+
+-- Turns a max-tier weapon into its evolution (Config.Evolutions). The item it needs is checked by the caller,
+-- which knows the items (chests, WP9). Reasons for false: "NotParticipant", "NotOwned", "WrongEvolution",
+-- "NotMaxTier", "AlreadyEvolved", "NotImplemented".
+function Arsenal.evolve(self: Arsenal, ownerId: number, uid: number, evolutionId: string): (boolean, string?)
+	local owner = self.owners[ownerId]
+	if not owner then
+		return false, "NotParticipant"
+	end
+	local weapon = findWeapon(owner, uid)
 	if not weapon then
 		return false, "NotOwned"
 	end
 	local evolution = Evolutions[evolutionId]
-	if not (evolution and evolution.weapon == weaponId) then
+	if not (evolution and evolution.weapon == weapon.id) then
 		return false, "WrongEvolution"
 	end
-	if weapon.level < self.params.maxLevel then
-		return false, "NotMaxLevel"
+	if weapon.tier < self.params.maxTier then
+		return false, "NotMaxTier"
 	end
 	if weapon.evolution then
 		return false, "AlreadyEvolved"
@@ -447,11 +506,17 @@ function Arsenal.getWeapons(self: Arsenal, ownerId: number): { Weapon }
 	return if owner then owner.weapons else {}
 end
 
--- Damage dealt and kills per weapon the owner still has (for the results screen, WP14).
+-- Damage dealt and kills per weapon id the owner still has, copies added up (for the results screen, WP14).
 function Arsenal.getDamageStats(self: Arsenal, ownerId: number): DamageStats
 	local result: DamageStats = {}
 	for _, weapon in self:getWeapons(ownerId) do
-		result[weapon.id] = { damage = weapon.damageDealt, kills = weapon.kills }
+		local entry = result[weapon.id]
+		if entry then
+			entry.damage += weapon.damageDealt
+			entry.kills += weapon.kills
+		else
+			result[weapon.id] = { damage = weapon.damageDealt, kills = weapon.kills }
+		end
 	end
 	return result
 end

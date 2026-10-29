@@ -11,7 +11,7 @@ Lanternfall ist ein Koop-Survivors für 1–4 Spieler: Runs aus 12 kurzen Wellen
 | Arbeitstitel | Lanternfall; Roblox-Titel beschreibend, z. B. „Lanternfall: Horde Survivors" |
 | Genre | Koop-Survivors/Roguelite; seit Paket B1 nach dem Prinzip von Brotato (Wellen mit Shop dazwischen, feste Arena), vorher Vampire Survivors/Megabonk |
 | Spieler | 1–4 pro Run, Hub-Lobby mit bis zu 24 |
-| Session | heute Run 12 Wellen (9 Min Kampf + Shop-Pausen) + Boss (≈ 14–16 Min); ab Paket B3 20 Wellen wie Brotato mit Boss in Welle 20 (≈ 17,5 Min Kampf, mit Shops ≈ 25–30 Min, Owner-Entscheidung 29.10.2026). Ziel ≥ 20 Min pro Session |
+| Session | seit Paket B3 20 Wellen wie Brotato (≈ 17,5 Min Kampf, mit Shops ≈ 25–30 Min, Owner-Entscheidung 29.10.2026), Boss in Welle 20 ab Paket 10; vorher 12 Wellen. Ziel ≥ 20 Min pro Session |
 | Zielgruppe | zuerst 16+ (so startet jedes neue Spiel), danach alle ab 9 |
 | Plattform | Mobile first; PC und Konsole laufen mit |
 | Content-Rating | Ziel „Mild": Fantasy-Gewalt ohne Blut |
@@ -53,7 +53,7 @@ Zwei Schleifen tragen das Spiel: im Run wird man nach jeder Welle durch Level-up
 
 **Richtung Brotato (Entscheidung des Owners am 27.10.2026, umgesetzt ab Paket B1):** Das Spiel fühlte sich nach dem Spaß-Paket schon wie Brotato an (feste Arena, feste Kamera, Wellen). Deshalb gehen wir gezielt dorthin: kurze Wellen, danach eine Shop-Phase. Mechaniken, Formeln und Zahlen orientieren sich eng an Brotato; Namen, Texte, Items, Charaktere und Look sind unsere eigenen (keine Kopie von geschütztem Inhalt). Plan: B1 Wellen mit Shop, B2 Werte-System und Items mit Vor- und Nachteilen, B3 Shop-Feinschliff (Sperren, Verkaufen, Verschmelzen), B4 Charaktere mit Trade-offs (Abschnitt 20).
 
-**Plan nach der Brotato-Referenz (29.10.2026):** Der Owner hat eine Referenz aller Brotato-Mechaniken (Basisspiel ohne DLC, Zahlen aus dem Community-Wiki) geliefert; alles daraus soll so gut wie möglich ins Spiel. Der Abgleich mit dem Stand nach B2 und die neuen Pakete B3–B12 stehen in Abschnitt 20. Entscheidung des Owners: Ein Run bekommt **20 Wellen wie Brotato** (20, 25, 30 … 55 s, Wellen 9–19 je 60 s, Welle 20 = Boss-Welle mit 90 s, endet sofort, wenn der Boss stirbt); umgestellt wird in B3. Bis dahin beschreibt dieser Abschnitt den Stand mit 12 Wellen.
+**Plan nach der Brotato-Referenz (29.10.2026):** Der Owner hat eine Referenz aller Brotato-Mechaniken (Basisspiel ohne DLC, Zahlen aus dem Community-Wiki) geliefert; alles daraus soll so gut wie möglich ins Spiel. Der Abgleich mit dem Stand nach B2 und die neuen Pakete B3–B12 stehen in Abschnitt 20. Entscheidung des Owners: Ein Run bekommt **20 Wellen wie Brotato** (20, 25, 30 … 55 s, Wellen 9–19 je 60 s, Welle 20 = Boss-Welle mit 90 s, endet sofort, wenn der Boss stirbt). **Seit B3 umgesetzt;** bis der Boss kommt (Paket 10), ist Welle 20 eine normale, harte 90-s-Welle, und wer sie übersteht, gewinnt.
 
 ```text
 Welle (20–60 s kämpfen, XP-Orbs = Shards sammeln)
@@ -63,42 +63,44 @@ Wellenende: Gegner verschwinden, liegende Orbs gehen ans Team, Truhen öffnen si
             Harvesting zahlt aus, alle voll geheilt, wer down ist, steht auf
    ▼
 Werte-Karten (eine Wahl pro Level dieser Welle) → Shop (max. 40 s, „Ready")
-   │ alle bereit oder Zeit um                      │ nach Welle 12
+   │ alle bereit oder Zeit um                      │ nach Welle 20
    ▼                                               ▼
 nächste Welle                               Boss → Run-Ende (Embers, „Nochmal")
 ```
 
 ```text
 Hub-Lobby → Run startet → Welle ⇄ Level-ups & Shop
-                              │ nach Welle 12      │ alle down (Scheitern)
+                              │ nach Welle 20      │ alle down (Scheitern)
                               ▼                    ▼
-                        Boss nach Welle 12 ──Sieg──→ Run-Ende (Embers, „Nochmal")
+                  Welle 20 (Boss ab Paket 10) ──Sieg──→ Run-Ende (Embers, „Nochmal")
                                                    │
 Hub-Lobby ←──── nächster Run ──── Talente & Klassen ←┘
 ```
 
 Sind alle gleichzeitig down, endet der Run sofort – Embers gibt es trotzdem für die überlebte Zeit.
 
-Wellenlängen wie in Brotato: Welle 1 dauert 20 s, jede weitere 5 s mehr, ab Welle 9 je 60 s (20, 25, 30 … 60, 60, 60, 60 = 540 s Kampf). Die Konfiguration rechnet in „Plan-Minuten": Welle n läuft von Minute n − 1 bis n, egal wie lang sie in Sekunden ist. So gelten alle Kurven und die Mischung weiter pro Welle.
+Wellenlängen wie in Brotato: Welle 1 dauert 20 s, jede weitere 5 s mehr, Wellen 9–19 je 60 s, Welle 20 90 s (20, 25, 30 … 55, 11 × 60, 90 = 1.050 s Kampf, seit B3; vorher 12 Wellen mit 540 s). Die Konfiguration rechnet in „Plan-Minuten": Welle n läuft von Minute n − 1 bis n, egal wie lang sie in Sekunden ist. So gelten alle Kurven und die Mischung weiter pro Welle.
 
 | Welle | Was passiert |
 | --- | --- |
 | 1 | ruhiger Start mit der Klassen-Waffe, wenige Shadelings |
 | jede | Banner „WAVE n"; die Spawnrate steigt in der Welle von 0,7× auf 1,2×; danach Shop |
 | 3 | Brutes kommen dazu, erste Gloom Elite mit Truhe |
-| 4 | Charger (laden auf und stürmen geradeaus) |
-| 5 | Spitter, zweite Elite |
-| 6 | Swarm Rush: 60 % der Welle doppelte Spawnrate |
-| 7 | Abyss Shadelings, 2 Elites, ab jetzt mit Eigenschaft (Swift, Armored, Summoning) |
-| 8 | Splitter (zerfallen in 3 Splitlings) |
-| 9 | Abyss Brutes, Elite; Builds stehen, erste Evolutionen aus Elite-Truhen möglich |
-| 10 | zweiter Swarm Rush |
-| 11 | nur noch die starken Gegnerarten, 2 Elites, Gegner mit 3-facher HP |
-| 12 | letzte Welle, 1,4-fache Spawnrate |
-| danach | Boss The Lantern Eater erscheint, normales Spawnen stoppt |
-| ≈ 14–16 Min | Run-Ende: Statistik, Embers, „Nochmal" |
+| 5 | Charger (laden auf und stürmen geradeaus) |
+| 6 | Spitter, zweite Elite |
+| 7 | Swarm Rush: 60 % der Welle doppelte Spawnrate |
+| 9 | Abyss Shadelings, Elite, ab jetzt mit Eigenschaft (Swift, Armored, Summoning) |
+| 11 | Splitter (zerfallen in 3 Splitlings), 2 Elites |
+| 12 | zweiter Swarm Rush |
+| 13 | Abyss Brutes, Elite |
+| 15 | 2 Elites; ab hier erste Evolutionen aus Elite-Truhen realistisch (Waffe auf Stufe IV) |
+| 16 | nur noch die starken Gegnerarten |
+| 17 | dritter Swarm Rush, 2 Elites |
+| 19 | 2 Elites |
+| 20 | letzte Welle (90 s), 1,4-fache Spawnrate; ab Paket 10 mit Boss |
+| ≈ 25–30 Min | Run-Ende: Statistik, Embers, „Nochmal" |
 
-**Wellenende und Shop (seit Paket B1, seit B2 mit Items und Werten; Werte in `Config/Shop.luau` und `Config/Items.luau`):**
+**Wellenende und Shop (seit Paket B1, seit B2 mit Items und Werten, seit B3 komplett; Werte in `Config/Shop.luau` und `Config/Items.luau`):**
 
 | Was | Umsetzung |
 | --- | --- |
@@ -106,21 +108,26 @@ Wellenlängen wie in Brotato: Welle 1 dauert 20 s, jede weitere 5 s mehr, ab Wel
 | Wellenende | Restliche Gegner und Geschosse verschwinden. Liegende XP-Orbs gehen ans Team, ihre Shards werden gleichmäßig auf alle verteilt, die nicht „Out" sind (Brotato legt sie in einen „Beutel" für später; das kann B3 nachholen). Liegende Elite-Truhen öffnen sich für alle. Alle werden voll geheilt, wer down ist, steht mit voller HP auf. Seit B2 zahlt danach Harvesting aus (Abschnitt 4). |
 | Level-ups | XP sammelt sich in der Welle; die Kartenwahl (seit B2 1 aus 4 Werte-Karten, Abschnitt 9) kommt erst am Wellenende, eine pro gewonnenem Level. Im HUD steht so lange „LV 5 · +2 at wave end". Was beim Start der nächsten Welle noch offen ist, wird automatisch gewählt. |
 | Shards | Geld im Run (Brotatos „Materialien"): jeder XP-Punkt eines Orbs, den man selbst aufsammelt, gibt 1 Shard. Getrennt von den Embers (Meta-Währung). |
-| Angebote | Pro Spieler 4 eigene Angebote, nie zweimal dasselbe: eine Waffe (neu oder +1 Level einer eigenen, bis Level 5, höchstens 6 Waffen; eigene doppelt so wahrscheinlich) oder ein Item (Abschnitt 6). Nach Welle 1–2 mindestens 2 Waffen, nach Welle 3–5 mindestens 1, sonst je Platz 35 % Waffe, 65 % Item. Items kann man unbegrenzt oft kaufen und stapeln (einzelne mit Obergrenze, z. B. Iron Shackle 1×); die Karte zeigt „x3" = so viele hat man nach dem Kauf. |
+| Angebote | Pro Spieler 4 eigene Angebote, nie zweimal dasselbe: eine Waffe einer Stufe I–IV oder ein Item (Abschnitt 6). Nach Welle 1–2 mindestens 2 Waffen, nach Welle 3–5 mindestens 1, sonst je Platz 35 % Waffe, 65 % Item. Items kann man unbegrenzt oft kaufen und stapeln (einzelne mit Obergrenze, z. B. Iron Shackle 1×); die Karte zeigt „x3" = so viele hat man nach dem Kauf. Nach einem Neuwurf kommt nichts aus dem vorigen Wurf wieder, solange es anderes gibt (seit B3). |
+| Waffen-Pool (seit B3) | Wie Brotato: Pro Waffen-Platz mit 20 % eine Waffe, die man schon hat, sonst mit 15 % eine der gleichen Klasse (Melee, Ranged, Elemental) wie eine eigene, sonst irgendeine. Die Stufe wird gewürfelt wie die Seltenheit der Items (Welle und Luck), Farbe wie bei Items. Die Karte zeigt „Spark Bolt II", die Stufe mit „NEW" oder „own 2" und was die Stufe bringt. |
+| Waffen-Stufen und Verschmelzen (seit B3) | Statt Level 1–5 hat jede Waffe eine Stufe I–IV (Abschnitt 6). Man kann dieselbe Waffe mehrmals tragen. Zwei gleiche Waffen gleicher Stufe (I–III, nicht entwickelt) verschmelzen zu einer der nächsten Stufe: im Shop die Waffe antippen und „Merge → III" drücken. Sind alle 6 Plätze voll, verschmilzt eine gekaufte Waffe sofort mit der gleichen eigenen (Karte: „Merges into III"); ohne passende eigene ist sie gesperrt („Weapon slots full"). |
+| Sperren (seit B3) | „Lock" unter jeder Karte, kostenlos: Die Karte bleibt beim Neuwürfeln und kommt in den nächsten Shop mit, zum alten Preis (blauer Rahmen, „LOCKED"). Nochmal tippen hebt die Sperre auf. |
+| Verkaufen (seit B3) | Waffe antippen, „Sell (+7)": gibt 25 % ihres aktuellen Shop-Preises (Welle und Stufe), abgerundet (Brotatos Recycling). Die letzte Waffe kann man nicht verkaufen (Annahme, sonst ist man wehrlos). Items kann man nicht verkaufen, wie in Brotato. |
 | Seltenheit (seit B2) | Jedes Item hat eine Stufe: Common (grau), Uncommon (blau), Rare (violett), Legendary (rot). Pro Item-Platz wird die Stufe gewürfelt wie in Brotato: Chance = (pro Welle · (Welle − Startwelle + 1) + Grundwert) · (1 + Luck/100), höchstens Obergrenze; seltenste zuerst. Uncommon ab Welle 2 (6 %/Welle, max. 60 %), Rare ab Welle 4 (2 %/Welle, max. 25 %), Legendary ab Welle 8 (0,23 %/Welle, max. 8 %). Ist eine Stufe leer (alles an der Obergrenze), kommt eine niedrigere, sonst eine höhere. |
-| Preise | wie Brotato: Preis = ⌊Grundpreis + Welle + 10 % · Grundpreis · Welle⌋, mindestens 1 (Welle = die gerade beendete). Grundpreise: Waffen 18–25, Items 15–30 (Common), 35–65 (Uncommon), 55–80 (Rare), 90–120 (Legendary). |
-| Neu würfeln | erster Wurf ⌊0,75 · Welle⌋ + Aufschlag, jeder weitere + Aufschlag, Aufschlag = max(1, ⌊0,4 · Welle⌋) (nach Welle 5: 5, 7, 9 …). Seit B2 kostet auch das Neu-Würfeln der Werte-Karten so viele Shards (eigener Zähler pro Kartenwahl). |
+| Preise | wie Brotato: Preis = ⌊Grundpreis + Welle + 10 % · Grundpreis · Welle⌋, mindestens 1 (Welle = die gerade beendete). Grundpreise: Waffen 18–25 auf Stufe I, mal 1,9 / 3,7 / 7,4 für Stufe II / III / IV (Brotatos Tabellen verdoppeln den Preis etwa je Stufe, seit B3), Items 15–30 (Common), 35–65 (Uncommon), 55–80 (Rare), 90–120 (Legendary). |
+| Neu würfeln | erster Wurf ⌊0,75 · Welle⌋ + Aufschlag, jeder weitere + Aufschlag, Aufschlag = max(1, ⌊0,4 · Welle⌋) (nach Welle 5: 5, 7, 9 …). Seit B2 kostet auch das Neu-Würfeln der Werte-Karten so viele Shards (eigener Zähler pro Kartenwahl). Seit B3: Je 4 Käufe in einem Shop gibt es einen Gratis-Neuwurf („Reroll (free)"), der den Preis nicht erhöht. |
 | Werte-Anzeige (seit B2) | Während Kartenwahl und Shop steht rechts eine Liste aller Werte (grün = besser als am Start, rot = schlechter); Ausweichen zeigt „(max 60%)". |
 | Ready | Der Shop schließt nach 40 s oder sobald alle, die nicht „Out" sind, „Ready" gedrückt haben. In der Team-Liste steht „shopping" bzw. „ready". Im Shop gibt es keine Gegner. |
 | Eigener Bildschirm | Level-up-Karten und Shop liegen auf einem eigenen, dunklen Bildschirm mit „WAVE n CLEARED" (darunter „Pick your level-ups" bzw. „Spend your Shards"); die Arena ist nicht zu sehen. Timer, XP-Leiste, Build und Team-Liste bleiben sichtbar. Wie in Brotato steht die Figur still: kein Laufen, kein Dash, bis die nächste Welle startet (Owner-Wunsch nach B1). |
-| Noch nicht (B3) | Sperren, Verkaufen, Verschmelzen gleicher Waffen, Waffen-Stufen, Shop-Rabatte. |
+| Handy (seit B3) | Der Shop passt sich der Bildschirmgröße an. Auf kleinen Bildschirmen (Handy quer) kommt ein kompaktes Layout ohne Kopfzeile, und die Werte-Liste liegt hinter dem Knopf „STATS" („← SHOP" geht zurück). |
+| Noch nicht | Shop-Rabatte und Item-Preis-Werte (B4), Beutel für liegengebliebene Orbs (B6). |
 
 **Run-Ablauf im Prototyp** (Lobby und Arena im selben Server, Werte in `Config/Run.luau` → `flow`):
 
 1. **Lobby:** Klasse wählen, „Ready" drücken. Wer bereit ist, kommt in den nächsten Run (max. 4).
 2. **Countdown:** startet mit dem ersten bereiten Spieler, 10 s; sind alle im Server bereit, sofort auf 3 s verkürzt. Bricht ab, wenn niemand mehr bereit ist.
 3. **Run:** alle Bereiten werden in die Arena gesetzt, Welle 1 beginnt; nach jeder Welle kommt die Shop-Phase (Phase „Shop"). Wer später kommt oder nicht bereit war, wartet in der Lobby und kann sich schon für den nächsten Run bereit melden.
-4. **Nach Welle 12 = Boss-Phase.** Bis der Boss da ist (Paket 10), zählt das Erreichen der Boss-Phase als Sieg.
+4. **Nach Welle 20 = Boss-Phase** (seit B3, vorher nach Welle 12). Bis der Boss da ist (Paket 10), zählt das Erreichen der Boss-Phase als Sieg.
 5. **Ende:** Sieg (Boss besiegt), Niederlage (niemand mehr „Alive", also alle down) oder abgebrochen (alle haben den Server verlassen, dann direkt zurück in die Lobby).
 6. **Ergebnis:** 15 s Ergebnis-Bildschirm mit „Play again"; drücken alle Teilnehmer „Play again", geht es sofort weiter. Danach zurück in die Lobby, wer „Play again" gedrückt hat, startet direkt den nächsten Countdown.
 
@@ -185,18 +192,20 @@ Jede Klasse: eine Startwaffe, ein passiver Bonus, ein eigenes Kostüm. Keine eig
 
 ## 6. Waffen, Items & Evolutionen
 
-v1 hat 6 Waffen, 46 Items und 2 Evolutionen. Seit B2 trägt jeder Spieler bis zu 6 Waffen (vorher 4), jede steigt bis Level 5 (Waffen-Stufen und Verschmelzen kommen in B3). Items ersetzen seit B2 die 6 Passive: Man kann sie beliebig oft kaufen, sie stapeln ohne Grenze.
+v1 hat 6 Waffen, 46 Items und 2 Evolutionen. Seit B2 trägt jeder Spieler bis zu 6 Waffen (vorher 4). Seit B3 hat jede Waffe wie in Brotato eine Stufe I–IV statt Level 1–5; dieselbe Waffe darf man mehrmals tragen, zwei gleiche gleicher Stufe verschmelzen zur nächsten (Abschnitt 3). Items ersetzen seit B2 die 6 Passive: Man kann sie beliebig oft kaufen, sie stapeln ohne Grenze.
 
-**Waffen (Startwerte Level 1)**
+**Waffen (Startwerte Stufe I; seit B3 Stufen statt Level)**
 
-| Waffe | Verhalten | Schaden | Cooldown | Pro Level bis L5 |
-| --- | --- | --- | --- | --- |
-| Orbit Blades | 2 Klingen kreisen um dich, Radius 7 Studs | 15 pro Treffer (Paket 7, vorher 12) | dauerhaft, 0,5 s pro Gegner | +1 Klinge auf L3 und L5, sonst +15 % Schaden |
-| Spark Bolt | Projektil auf nächsten Gegner, durchbohrt 1 | 15 | 0,9 s | +1 Projektil auf L2 und L4, sonst +20 % Schaden |
-| Shockwave | Druckwelle um dich, Radius 10 Studs | 20 | 3,0 s | +2 Studs Radius und −0,3 s |
-| Chain Lightning | Blitz springt über 3 Gegner | 18 | 2,0 s | +1 Sprung und +15 % Schaden |
-| Thorn Trail | Dornenspur hinter dir, liegt 2 s | 8 pro 0,5 s | dauerhaft | +0,5 s Dauer und +20 % Schaden |
-| Boomerang Axe | fliegt raus und zurück, durchbohrt alles | 25 | 1,6 s | +1 Axt auf L3 und L5, sonst +15 % Schaden |
+| Waffe | Verhalten | Schaden | Cooldown | Stufe II | Stufe III | Stufe IV |
+| --- | --- | --- | --- | --- | --- | --- |
+| Orbit Blades | 2 Klingen kreisen um dich, Radius 7 Studs | 15 pro Treffer (Paket 7, vorher 12) | dauerhaft, 0,5 s pro Gegner | +1 Klinge, +20 % | +1 Klinge, +30 % | +60 % |
+| Spark Bolt | Projektil auf nächsten Gegner, durchbohrt 1 | 15 | 0,9 s | +1 Projektil | +40 % | +50 %, −0,15 s |
+| Shockwave | Druckwelle um dich, Radius 10 Studs | 20 | 3,0 s | +30 %, +2 Radius, −0,3 s | +40 %, +2 Radius, −0,3 s | +60 %, +3 Radius, −0,4 s |
+| Chain Lightning | Blitz springt über 3 Gegner | 18 | 2,0 s | +1 Sprung, +30 % | +1 Sprung, +30 % | +1 Sprung, +60 % |
+| Thorn Trail | Dornenspur hinter dir, liegt 2 s | 8 pro 0,5 s | dauerhaft | +0,5 s, +40 % | +0,5 s, +50 % | +1 s, +80 % |
+| Boomerang Axe | fliegt raus und zurück, durchbohrt alles | 25 | 1,6 s | +30 %, −0,2 s | +1 Axt | +40 %, −0,2 s |
+
+Die Prozente sind Schaden auf den Grundwert und addieren sich (Orbit Blades IV: 15 · (1 + 0,2 + 0,3 + 0,6) = 31,5 bei 4 Klingen). Ziel wie in Brotato: Stufe II ≈ 1,7×, III ≈ 2,5–3×, IV ≈ 4–4,5× die Kraft von Stufe I (Annahme, eigene Zahlen; Brotatos Waffen steigen je Stufe ähnlich). Bis B2 gab es Level 1–5 mit kleineren Schritten.
 
 **Items (seit B2, Werte in `Config/Items.luau`)**
 
@@ -255,8 +264,8 @@ Jedes Item ändert Werte (Abschnitt 4), die meisten mit einem Nachteil, wie in B
 
 | Evolution | Voraussetzung | Effekt |
 | --- | --- | --- |
-| Blade Storm | Orbit Blades L5 + mindestens 1 Armor Plate | 8 Klingen, Radius 10, doppelter Schaden |
-| Starfire | Spark Bolt L5 + mindestens 1 Focus | Projektile explodieren mit Radius 6 Studs |
+| Blade Storm | Orbit Blades Stufe IV + mindestens 1 Armor Plate | 8 Klingen, Radius 10, doppelter Schaden |
+| Starfire | Spark Bolt Stufe IV + mindestens 1 Focus | Projektile explodieren mit Radius 6 Studs |
 
 Werte, die hier noch fehlen (Projektil-Tempo und Reichweite von Spark Bolt und Boomerang Axe, Sprungweite von Chain Lightning, Drehtempo der Orbit Blades), stehen als Annahme in `Config/Weapons.luau`. Kollisionsradius und Masse der Gegner stehen seit Paket 3 als Annahme in `Config/Enemies.luau`.
 
@@ -273,7 +282,7 @@ Jede Waffe = ein Datensatz im Config-Modul + ein kleines Verhaltens-Modul. Neue 
 | Thorn Trail (Paket 8) | Alle 2 Studs Weg legt der Spieler ein Dornenfeld mit 2,5 Studs Radius ab (Fläche-Bonus vergrößert es); steht er still, liegt immer eins unter ihm. Alle 0,5 s trifft die Spur jeden Gegner darauf einmal, auch wenn er auf mehreren Feldern steht. Höchstens 40 Felder pro Spieler. Liegende Felder wirken weiter, wenn der Spieler down ist. |
 | Boomerang Axe (Paket 8) | Fliegt mit 40 Studs/s 20 Studs weit zum nächsten Gegner, dreht um und fliegt zurück zu dem Ort, an dem der Spieler jetzt ist. Trifft jeden Gegner einmal auf dem Hinweg und einmal auf dem Rückweg, Trefferbreite 1,2 Studs. Gefangen bei 2 Studs Abstand, spätestens nach 3 s weg. Mehrere Äxte gehen an verschiedene Gegner, sonst 20° gefächert. |
 
-**Evolutionen (seit Paket 8):** Blade Storm (8 Klingen, Radius 10, doppelter Schaden, rot leuchtend) und Starfire (jeder Treffer eines Bolts explodiert mit 6 Studs Radius; die anderen Gegner in der Explosion bekommen den vollen Bolt-Schaden, Annahme) funktionieren. Der Server prüft die Voraussetzung (Waffe auf Level 5, noch nicht entwickelt, mindestens 1 des Items). Seit Paket 9 kommen sie aus Elite-Truhen (Abschnitt 8). Zum Testen bleibt der Knopf „Evolve weapons": Er hebt Waffen mit Evolution auf Level 5, gibt das fehlende Item einmal und entwickelt sie.
+**Evolutionen (seit Paket 8):** Blade Storm (8 Klingen, Radius 10, doppelter Schaden, rot leuchtend) und Starfire (jeder Treffer eines Bolts explodiert mit 6 Studs Radius; die anderen Gegner in der Explosion bekommen den vollen Bolt-Schaden, Annahme) funktionieren. Der Server prüft die Voraussetzung (eine Kopie der Waffe auf Stufe IV, seit B3, vorher Level 5; noch nicht entwickelt, mindestens 1 des Items). Seit Paket 9 kommen sie aus Elite-Truhen (Abschnitt 8). Zum Testen bleibt der Knopf „Evolve weapons": Er hebt Waffen mit Evolution auf Stufe IV, gibt das fehlende Item einmal und entwickelt sie. „Weapons +1 tier" hebt jede Waffe eine Stufe.
 
 **Spark Mage:** seit Paket 5 wählbar (Spark Bolt, seit B2 +10 % Attack Speed). Das eigene Kostüm kommt mit dem Look in Paket 21.
 
@@ -290,7 +299,7 @@ Jede Waffe = ein Datensatz im Config-Modul + ein kleines Verhaltens-Modul. Neue 
 | Thorn Trail | Elemental | 100 % Elemental Damage | – |
 | Boomerang Axe | Ranged | 100 % Ranged Damage | Reichweite |
 
-Allgemein: Krit-Chance 5 % pro Treffer plus Crit Chance, Krit = doppelter Schaden (`Config/Player.luau`). Schaden pro Level addiert sich auf den Grundwert (Level 5 mit zweimal +15 % = 130 %). Dann: Schaden = (Level-Schaden + Skalierung · flacher Schaden) · (1 + Damage/100), mindestens 1. Attack Speed teilt Cooldowns, Trefferpausen und Tick-Abstände (nie unter 0,2 s) und beschleunigt das Drehen der Klingen. Spark Mage feuert also alle 0,9 / 1,1 ≈ 0,82 s. Jeder Treffer mit Schaden würfelt Life Steal (Abschnitt 4).
+Allgemein: Krit-Chance 5 % pro Treffer plus Crit Chance, Krit = doppelter Schaden (`Config/Player.luau`). Schaden pro Stufe addiert sich auf den Grundwert (seit B3; Orbit Blades IV = 210 %). Dann: Schaden = (Stufen-Schaden + Skalierung · flacher Schaden) · (1 + Damage/100), mindestens 1. Attack Speed teilt Cooldowns, Trefferpausen und Tick-Abstände (nie unter 0,2 s) und beschleunigt das Drehen der Klingen. Spark Mage feuert also alle 0,9 / 1,1 ≈ 0,82 s. Jeder Treffer mit Schaden würfelt Life Steal (Abschnitt 4).
 
 ## 7. Gegner, Elites & Boss
 
@@ -305,7 +314,7 @@ Allgemein: Krit-Chance 5 % pro Treffer plus Crit Chance, Krit = doppelter Schade
 | Splitling | klein und schnell, nur aus Splittern | 6 | 15 | 3 pro Kontakt | 1 | 7 |
 | Abyss Brute | stärkerer Brute, rote Augen | 140 | 8,5 | 18 pro Kontakt | 8 | 8 |
 | Gloom Elite | beliebiger Typ, leuchtet, 1,5× so groß, ab 6:00 mit Eigenschaft | 8× | 0,9× | 1,5× | 25 + Truhe | 2, 4, 6 (2×), 8, 10 (2×) |
-| The Lantern Eater | Boss | 4.000 × Spielerfaktor | 9 | siehe unten | – | nach Welle 12 |
+| The Lantern Eater | Boss | 4.000 × Spielerfaktor | 9 | siehe unten | – | Welle 20 (ab Paket 10; bis B3 nach Welle 12) |
 
 **Boss: The Lantern Eater**
 
@@ -320,15 +329,16 @@ Sieg = Boss-Truhe (3 Upgrades für jeden Spieler) + 150 Embers, danach Run-Ende-
 
 ```text
 Spawnrate (Gegner/s)  = Ratenkurve(t) · Wellenstärke · fSpieler (· 2 im Swarm Rush)   t = Plan-Minute (1 pro Welle)
-Ratenkurve            = 1 → 2,2 (Min. 1) → 3,6 (3) → 5 (6) → 6,8 (9) → 8,6 (12), linear dazwischen
+Ratenkurve            = 1 → 2,2 (Min. 1) → 3,6 (3) → 5 (6) → 6,8 (10) → 8,6 (15) → 10 (20), linear dazwischen
 Wellenstärke          = in jeder Welle von 0,7 auf 1,2 steigend (seit B1 ohne Atempause, dafür Shop);
-                        Welle 12 zusätzlich · 1,4
-Gegner-HP-Faktor      = 1 → 1,15 (2) → 1,5 (4) → 2 (6) → 2,8 (8) → 3,8 (10) → 5 (12)        (seit B2)
-Gegner-Schadensfaktor = 1 → 1,1 (3) → 1,6 (6) → 2,4 (9) → 3,4 (12)                      (seit B2)
+                        letzte Welle (20) zusätzlich · 1,4
+Gegner-HP-Faktor      = 1 → 1,15 (2) → 1,5 (4) → 2 (6) → 2,7 (8) → 3,6 (10) → 4,6 (12) → 6,2 (14)
+                        → 8,4 (16) → 11 (18) → 14 (20)                                  (seit B3)
+Gegner-Schadensfaktor = 1 → 1,1 (3) → 1,6 (6) → 2,3 (9) → 3,1 (12) → 4,5 (15) → 6,2 (18) → 7,5 (20)  (seit B3)
 fSpieler              = 1 + 0.6 · (n − 1)               n = Spieler im Run → 1 / 1.6 / 2.2 / 2.8
 ```
 
-Bis Paket 9 stiegen Rate und HP gerade an (`(1.5 + 0.55 · t)` und `1 + 0.15 · t`): Der Run begann gleich voll und fühlte sich danach immer gleich an (Owner-Feedback). Die Kurven starten ruhiger und steigen spät steiler; HP und Schaden gelten ab dem Spawn, beides mal Schwierigkeit. Seit B2 steigen HP (bis 5 statt 3,8) und Schaden (bis 3,4 statt 1,25) deutlich steiler: Die Werte der Spieler wachsen jetzt ohne Grenze, ohne steilere Gegner überlebten gute Bots alle 12 Wellen, ohne in den letzten Wellen in Gefahr zu kommen (Abschnitt 9). Brotato macht es genauso: Dort gewinnen Gegner jede Welle HP und Schaden dazu.
+Bis Paket 9 stiegen Rate und HP gerade an (`(1.5 + 0.55 · t)` und `1 + 0.15 · t`): Der Run begann gleich voll und fühlte sich danach immer gleich an (Owner-Feedback). Die Kurven starten ruhiger und steigen spät steiler; HP und Schaden gelten ab dem Spawn, beides mal Schwierigkeit. Seit B2 steigen HP (bis 5 statt 3,8) und Schaden (bis 3,4 statt 1,25) deutlich steiler: Die Werte der Spieler wachsen jetzt ohne Grenze, ohne steilere Gegner überlebten gute Bots alle 12 Wellen, ohne in den letzten Wellen in Gefahr zu kommen (Abschnitt 9). Brotato macht es genauso: Dort gewinnen Gegner jede Welle HP und Schaden dazu. Seit B3 laufen die Kurven über 20 Wellen: bis Welle 12 fast wie in B2, danach bis 14-fache HP und 7,5-fachen Schaden in Welle 20 (Messung in Abschnitt 9). Neue Gegnerarten kommen seltener (Charger Welle 5, Spitter 6, Abyss Shadelings 9, Splitter 11, Abyss Brutes 13, ab Welle 16 nur noch die starken).
 
 - Gleichzeitig maximal 80 Gegner + 20 pro weiterem Spieler (höchstens 140); beim Limit pausiert das Spawnen.
 - Spawn-Ort: Ring 45–60 Studs um einen zufälligen Spieler, außerhalb der Sicht, nie in Hindernissen.
@@ -342,15 +352,15 @@ Bis Paket 9 stiegen Rate und HP gerade an (`(1.5 + 0.55 · t)` und `1 + 0.15 · 
 | Was | Umsetzung |
 | --- | --- |
 | Spitter-Schüsse | Ein Spitter schießt alle 2,5 s auf den nächsten Spieler, aber nur, wenn der höchstens 34 Studs entfernt ist (er hält 30). Rosa Glutkugel mit Schweif (seit Paket 9d), 18 Studs/s, fliegt 50 Studs weit, Trefferkreis 0,6 Studs, 8 Schaden (Rüstung und 0,5 s Schutz gelten). Sie zielt 30 % vor: Wer stur geradeaus läuft, wird eher getroffen; Haken schlagen oder Dash hilft. Ruinen halten Schüsse auf (Deckung). Der erste Schuss jedes Spitters kommt versetzt, damit nicht alle gleichzeitig feuern. |
-| Gloom Elite | Ab 2:00 alle 2 Minuten eine Elite, auch über der Gegner-Obergrenze; der Typ kommt aus der aktuellen Mischung. Werte wie in der Tabelle oben (8× HP, 0,9× Tempo, 1,5× Schaden auch bei Schüssen, 1,5× so groß, 25 XP), dazu 2,25× Masse (schiebt normale Gegner beiseite). Aussehen: königsviolett und gold mit Sonnenstrahlen-Krone (seit Paket 9d, siehe Abschnitt 14), goldene Augen, Leuchten, rote Lebensleiste über dem Kopf. Alle bekommen die Meldung „A Gloom … appeared! Kill it for a chest." |
-| Swarm Rush | 5:00 und 9:00 für 30 s: doppelte Spawnrate, nur Shadelings. Neu: beim Start zusätzlich ein geschlossener Ring aus 24 Shadelings in 45 Studs um jeden Spieler (bis zur Obergrenze). Meldung „Swarm Rush!". |
+| Gloom Elite | Seit B3 zu Beginn der Wellen 3, 6, 9 und 13 je eine, in den Wellen 11, 15, 17 und 19 je zwei (vorher ab 2:00 alle 2 Minuten), auch über der Gegner-Obergrenze; Eigenschaften ab Welle 9; der Typ kommt aus der aktuellen Mischung. Werte wie in der Tabelle oben (8× HP, 0,9× Tempo, 1,5× Schaden auch bei Schüssen, 1,5× so groß, 25 XP), dazu 2,25× Masse (schiebt normale Gegner beiseite). Aussehen: königsviolett und gold mit Sonnenstrahlen-Krone (seit Paket 9d, siehe Abschnitt 14), goldene Augen, Leuchten, rote Lebensleiste über dem Kopf. Alle bekommen die Meldung „A Gloom … appeared! Kill it for a chest." |
+| Swarm Rush | Seit B3 in den Wellen 7, 12 und 17 (vorher 6 und 10) für 60 % der Welle: doppelte Spawnrate, nur Shadelings. Neu: beim Start zusätzlich ein geschlossener Ring aus 24 Shadelings in 45 Studs um jeden Spieler (bis zur Obergrenze). Meldung „Swarm Rush!". |
 | Gegen Weglaufen | 35 % der Spawns eines laufenden Spielers landen in einem 120°-Kegel vor ihm. Gegner, die weiter als 80 Studs von allen Spielern weg sind, tauchen jede Sekunde neu auf dem Spawn-Ring auf (wie frisch gespawnt). Ist die Obergrenze voll, wandern zusätzlich die 5 entferntesten Gegner über 40 Studs nach vorn, sonst konnte man mit einer vollen Schlange hinter sich im Kreis laufen und es kam nichts Neues. |
 
 **Stand im Code (Spaß-Paket nach Paket 9, Teil 1):** Werte in `Config/Enemies.luau` (`charge`, `split`, `elite.affixes`) und `Config/Run.luau` (`spawn.rateCurve`, `hpCurve`, `damageCurve`, `waves`, `mix`, `elites`). Annahmen fürs Spielgefühl:
 
 | Was | Umsetzung |
 | --- | --- |
-| Wellen | 12 Wellen (`Util/RunSchedule.luau`, Server und HUD rechnen gleich), seit B1 20–60 s lang mit Shop dazwischen, vorher je 1 Minute mit 12 s Atempause. In jeder Welle steigt die Rate von 0,7× auf 1,2×; die letzte läuft mit 1,4×. Elites und neue Gegnerarten kommen zu Wellenbeginn. |
+| Wellen | 20 Wellen seit B3, vorher 12 (`Util/RunSchedule.luau`, Server und HUD rechnen gleich), seit B1 20–60 s lang (Welle 20: 90 s) mit Shop dazwischen, vorher je 1 Minute mit 12 s Atempause. In jeder Welle steigt die Rate von 0,7× auf 1,2×; die letzte läuft mit 1,4×. Elites und neue Gegnerarten kommen zu Wellenbeginn. |
 | Charger | Ist ein Spieler höchstens 24 Studs entfernt, bleibt er stehen und lädt 0,9 s auf (glüht orange, roter Streifen auf dem Boden zeigt die Bahn). Dann stürmt er mit 38 Studs/s in die anfangs gezielte Richtung, bis 30 Studs, eine Ruine, der Rand oder ein Spieler ihn stoppt; danach 1,2 s Pause und 3 s normales Laufen. Ausweichen: zur Seite gehen oder dashen. |
 | Splitter | Zerfällt beim Tod in 3 Splitlings (behalten HP- und Schadensfaktor des Splitters, dürfen über die Obergrenze bis zum Maximum 140). |
 | Abyss-Gegner | Stärkere Versionen von Shadeling und Brute mit dem gleichen Modell, aber roten Augen. |
@@ -481,6 +491,18 @@ Folgerungen: Die volle Heilung nach jeder Welle trägt durch die ersten Wellen; 
 
 Folgerungen: Gute Bots erreichen in gut der Hälfte der Runs (26 von 48) das Ende von Welle 12 und kommen in den letzten Wellen oft in echte Gefahr; Stillstehen ist früh tödlich, und ab 3:00 stillstehen hält jetzt meist unter 50 s (Ziel unter 20 s, vorher 45–170 s). Die Wand bleibt Welle 9 (erste 60-s-Welle, Abyss Brutes), einzelne Bots sterben schon am Ende von Welle 5. Der Boss (Paket 10) macht es noch schwerer; das Ziel „Bosssieg in den ersten 3 Runs 25–35 %" ist damit erreichbar. Die Bots bauen einfach; Menschen mit klugen Builds sind vermutlich stärker, das Urteil kommt aus dem Studio-Test. Stellschrauben: `hpCurve`, `damageCurve` in `Config/Run.luau`, Item-Preise in `Config/Items.luau`, Kartenwerte in `Config/Stats.luau`.
 
+**Stand Paket B3 (20 Wellen, Waffen-Stufen, Verschmelzen):** Die Bots kaufen Waffen nach Stufe (eine Stufe ist so viel wert wie ihr Preisfaktor), überspringen Waffen, die sie bei vollen Plätzen nicht nehmen können, und verschmelzen jedes Paar sofort. Erste Messung mit den einfach verlängerten B2-Kurven (HP 10,5-fach, Schaden 5,6-fach in Welle 20): Spark Mage mit guten Bots überlebte 17 von 18 Runs, meist mit fast voller HP in den letzten Wellen, Level 36–49. Zwei steilere Varianten ab Welle 13 getestet (je 6 Durchläufe, gute Bots): „14-fach / 7,5-fach“ 10 von 24 Siegen, „18-fach / 8,5-fach“ 7 von 24 (viele Tode schon in Welle 13). Übernommen: 14-fach / 7,5-fach (Abschnitt 7).
+
+| Spielweise | Blade Warden | Spark Mage |
+| --- | --- | --- |
+| steht still | – | Welle 2–8 |
+| ab 3:00 still | danach noch 3–8 s | – |
+| läuft im Kreis | Welle 5–13 (Kurven bis Welle 12 gleich) | 2 von 6 bis zum Ende, sonst Welle 6–20 |
+| weicht aus, sammelt | Welle 6–16 (Kurven bis Welle 12 gleich) | 4 von 6 bis zum Ende, sonst Welle 9 und 18 |
+| hält Abstand | 2 von 6 bis zum Ende, sonst Welle 13–20 | 2 von 6 bis zum Ende, sonst Welle 14–18 |
+
+Folgerungen: Gute Bots gewinnen gut 40 % der Runs über 20 Wellen und erreichen dabei Level 31–40. Die neue Wand ist Welle 13 (Abyss Brutes und der Sprung der Kurven), die alte bei Welle 6–9 bleibt für schwache Spielweisen. Blade Warden ist mit Weglaufen deutlich schwächer als Spark Mage (wie in B2); das kommt mit den Charakteren (B10) und der Kampf-Tiefe (B5) dran. Evolutionen kommen selten zustande, weil eine Waffe erst Stufe IV erreichen und danach noch eine Elite-Truhe fallen muss. Stellschrauben: `hpCurve`, `damageCurve` ab Minute 12, `Shop.tierPriceFactors`, Stufen-Werte in `Config/Weapons.luau`.
+
 ## 10. Meta-Progression & Schwierigkeitsgrade
 
 **Embers verdienen** (ein Run bringt je nach Dauer etwa 100–350)
@@ -551,9 +573,9 @@ Bewusst nicht: harte Countdown-Angebote oder Serien, die bei einem verpassten Ta
 ## 13. UX/UI & Onboarding
 
 - **Hub-Lobby:** Spawn, Run-Portale (Solo, Party, Quick Join), Talent-Altar, Klassen-Statuen, Shop-Stand, Ranglisten-Tafel.
-- **HUD:** oben Team-XP-Leiste mit Level, Timer Mitte, Kills rechts; unten links HP, unten rechts Dash; Waffen/Passive oben links; Teammates außer Sicht als Randpfeile. Seit Paket 5 steht oben links die Waffenliste mit Level („LV 2", ab Level 5 „MAX"), seit Paket 6 darunter die Passive und oben Mitte die Team-XP-Leiste mit „LV n" über dem Timer; in der Team-Liste steht „picking", solange jemand Karten wählt. Seit B2 stehen statt der Passive die Items da („ITEMS (5)", je Zeile „Might x3" in der Farbe der Stufe, höchstens 8 Zeilen, dann „+n more").
+- **HUD:** oben Team-XP-Leiste mit Level, Timer Mitte, Kills rechts; unten links HP, unten rechts Dash; Waffen/Passive oben links; Teammates außer Sicht als Randpfeile. Seit Paket 5 steht oben links die Waffenliste mit Level („LV 2", ab Level 5 „MAX"; seit B3 Stufen wie „Spark Bolt II"), seit Paket 6 darunter die Passive und oben Mitte die Team-XP-Leiste mit „LV n" über dem Timer; in der Team-Liste steht „picking", solange jemand Karten wählt. Seit B2 stehen statt der Passive die Items da („ITEMS (5)", je Zeile „Might x3" in der Farbe der Stufe, höchstens 8 Zeilen, dann „+n more").
 - **Wellen (seit dem Spaß-Paket nach Paket 9, seit B1 mit Shop):** der große Timer zeigt die Restzeit der Welle bzw. des Shops; darunter „Wave 3 / 12", im Shop grün „Shop · wave 4 / 12 next", in der letzten Welle rot „Final wave 12 / 12". Zu Beginn jeder Welle ein großes „WAVE n" oben in der Mitte (2,6 s), darunter, was sie bringt: „New: Chargers", „Swarm Rush!", „2 Gloom Elites!", „Final wave". Rot, wenn etwas Neues kommt. Der Client rechnet das selbst aus der Konfiguration (`Util/RunSchedule.luau`), ohne eigene Remote.
-- **Shop (seit B1, seit B2 mit Items):** neben dem Timer immer die eigenen Shards (türkis). Zwischen den Wellen verdeckt ein dunkler Hintergrund die Arena (unter dem HUD, Titel „WAVE n CLEARED"). Nach den Level-up-Karten ein Fenster „SHOP" mit „Wave 3 cleared · next wave in 34", 4 Karten (Badge „NEW"/„LV 3", bei Items Stufe und Anzahl wie „RARE · X2", Name, Effekt, Preis in Shards, rot wenn zu teuer, „SOLD" nach dem Kauf), „Reroll (5 Shards)" und „READY" (danach „WAITING…", nochmal tippen = weiter einkaufen). Seit B2 haben Item-Karten Rahmen und Badge in der Farbe ihrer Stufe (grau, blau, violett, rot) und zeigen ihre Werte zeilenweise, Vorteile grün, Nachteile rot. Rechts daneben während Kartenwahl und Shop die Werte-Liste „STATS" (`StatsController`).
+- **Shop (seit B1, seit B2 mit Items):** neben dem Timer immer die eigenen Shards (türkis). Zwischen den Wellen verdeckt ein dunkler Hintergrund die Arena (unter dem HUD, Titel „WAVE n CLEARED"). Nach den Level-up-Karten ein Fenster „SHOP" mit „Wave 3 cleared · next wave in 34", 4 Karten (Badge „NEW"/„LV 3", bei Items Stufe und Anzahl wie „RARE · X2", Name, Effekt, Preis in Shards, rot wenn zu teuer, „SOLD" nach dem Kauf), „Reroll (5 Shards)" und „READY" (danach „WAITING…", nochmal tippen = weiter einkaufen). Seit B2 haben Item-Karten Rahmen und Badge in der Farbe ihrer Stufe (grau, blau, violett, rot) und zeigen ihre Werte zeilenweise, Vorteile grün, Nachteile rot. Rechts daneben während Kartenwahl und Shop die Werte-Liste „STATS" (`StatsController`). Seit B3: Kopfzeile „SHOP · Wave 3/20 cleared · next wave in 34"; Waffen-Karten heißen „Spark Bolt II", Badge „UNCOMMON · NEW"/„· OWN 2", Rahmen in der Farbe der Stufe, darunter was die Stufe bringt und ggf. „Merges into III" oder „Weapon slots full"; unter jeder Karte „Lock" (gesperrt: „LOCKED", blauer Rahmen). Darunter „WEAPONS 4/6" mit je einem Feld pro Waffe („Spark Bolt II", „can merge"); Antippen wählt sie aus, daneben „Merge → III" und „Sell (+7)". „Reroll (free)" bei Gratis-Neuwurf. Das Fenster skaliert sich auf den freien Platz unter der HUD-Leiste; ist es dafür zu klein (Handy), kompaktes Layout ohne Kopfzeile, Werte-Liste hinter „STATS", zurück mit „← SHOP". Die Waffenliste oben links im HUD zeigt Stufen („Spark Bolt II", entwickelt nur den Namen der Evolution).
 - **Treffer-Gefühl (seit dem Spaß-Paket nach Paket 9):** eigene Schadenszahlen über den Gegnern (weiß, kritische Treffer groß, golden, mit „!"), Partikel-Puff beim Tod, Kamera-Wackeln, wenn man selbst getroffen wird, bei Elite-Tod und Truhe, goldener Lichtring um die Figur beim Level-up.
 - **Level-up:** 3 große Karten (Icon, Name, eine Zeile Effekt, „NEW"/„LV 3"), daumentauglich. Seit Paket 6: Fenster in der Bildmitte mit „LEVEL n", „Pick one", drei Karten (Icon = Kreis mit Anfangsbuchstaben, gelb Waffe, grün Passiv, violett Belohnung), einem Balken, der bis zur automatischen Wahl abläuft, und „Reroll (1 left)". Seit B2 vier Werte-Karten (Tasten 1–4) mit Wert-Name, Effekt („+8% Damage") und Stufe als Badge und Rahmenfarbe; der Knopf heißt „Reroll (n Shards)" und ist grau, wenn die Shards fehlen.
 - **Run-Ende:** Zeit, Kills, Schaden pro Waffe, Embers inkl. Boni, großer „Nochmal"-Knopf.
@@ -687,8 +709,8 @@ tests/               Unit-Tests für reine Module (Runner in tools/luau-test-run
 
 **Waffen-Framework** (seit Paket 5; Werte in `Config/Weapons.luau`, `Config/Player.luau`, `Config/Simulation.luau`)
 
-- **WeaponService** (Server) gibt jedem Teilnehmer beim Run-Start die Klassen-Waffe und führt nach jedem Gegner-Schritt (15 Hz, Signal `EnemySim.Stepped`) alle Waffen aus. Die Regeln stehen als reines Modul in `WeaponService/Arsenal.luau` (mit Unit-Tests gegen eine echte Gegner-Welt), die Werte rechnet `WeaponStats.luau` aus: Grundwert + Level-Schritte + Evolution + Boni des Spielers.
-- Pro Spieler bis zu 6 Waffen (seit B2, vorher 4), jede bis Level 5. Pro Schritt und Waffe: erst `step` des Verhaltens (Klingen drehen, Projektile fliegen), dann, wenn der Cooldown um ist und der Spieler lebt, `fire` (neuer Angriff). Findet `fire` kein Ziel, versucht es die Waffe im nächsten Schritt wieder; Schüsse werden nicht angespart. Was schon fliegt, fliegt weiter, auch wenn der Spieler down geht.
+- **WeaponService** (Server) gibt jedem Teilnehmer beim Run-Start die Klassen-Waffe und führt nach jedem Gegner-Schritt (15 Hz, Signal `EnemySim.Stepped`) alle Waffen aus. Die Regeln stehen als reines Modul in `WeaponService/Arsenal.luau` (mit Unit-Tests gegen eine echte Gegner-Welt), die Werte rechnet `WeaponStats.luau` aus: Grundwert + Stufen-Schritte + Evolution + Boni des Spielers. Seit B3 hat jede getragene Waffe eine `uid` (Kopien derselben Waffe sind möglich); Shop, Client und Debug-Knöpfe nennen Waffen über sie (`addWeapon(player, id, tier)`, `removeWeapon`, `merge`, `raiseTier`, `evolve(player, uid, evolutionId)`, `findMergePartner`).
+- Pro Spieler bis zu 6 Waffen (seit B2, vorher 4), jede Stufe I–IV (seit B3, vorher Level 1–5). Pro Schritt und Waffe: erst `step` des Verhaltens (Klingen drehen, Projektile fliegen), dann, wenn der Cooldown um ist und der Spieler lebt, `fire` (neuer Angriff). Findet `fire` kein Ziel, versucht es die Waffe im nächsten Schritt wieder; Schüsse werden nicht angespart. Was schon fliegt, fliegt weiter, auch wenn der Spieler down geht.
 - **Neue Waffe** = Datensatz in `Config/Weapons.luau` + Verhalten in `WeaponService/Behaviors/<behavior>.luau` (Server, entscheidet die Treffer) + Aussehen in `WeaponRenderer/Visuals/<behavior>.luau` (Client, nur Anzeige). Das Verhalten erreicht die Welt nur über den Kontext: Gegner abfragen (Kreis, Strecke, nächste Gegner), `hit` (Schaden mit Krit, pro Waffe gezählt), `push` (Rückstoß), `emit` (Effekt für die Clients). Eine Waffe ohne Verhaltens-Modul kann niemand bekommen; `ConfigCheck` meldet, wenn einer Klassen-Waffe das Modul fehlt.
 - Treffer sind Daten gegen das Gegner-Raster, keine Roblox-Physik: Klingen und Projektile werden als Strecke zwischen zwei Schritten geprüft, damit nichts durchrutscht (Klingen in Stücken von höchstens 1,5 Studs an der Spitze).
 - **Netzwerk:** `Loadout` (Waffen, Level und fertige Werte eines Spielers) geht bei jeder Änderung an alle; `WeaponEffects` bündelt pro Schritt die Effekte (Bolt abgefeuert, Bolt gestoppt, Druckwelle) und geht nur an die Teilnehmer. Orbit-Klingen brauchen keine Effekte: Server und Clients rechnen den Winkel aus der Serverzeit (`Util/Orbit.luau`). Der Client schickt für Waffen nichts.
@@ -745,7 +767,7 @@ tests/               Unit-Tests für reine Module (Runner in tools/luau-test-run
 - Game Passes beim Join prüfen und cachen, Käufe in der Sitzung sofort freischalten.
 - Entwicklung in einer separaten Test-Experience.
 
-**Sicherheit:** Client schickt nur Absichten (Bewegung, Dash, Level-up-Wahl, Kaufwunsch). Server berechnet Schaden, Kills, XP, Drops, Embers, Truhen, Ranglistenwerte. Jede Remote mit Rate-Limit und Validierung (nur angebotene Karten-IDs, Dash nur nach Cooldown). Bewegungs-Plausibilitätscheck. Admin-Befehle nur für die UserId des Owners, serverseitig geprüft: Admin ist, wer in Studio testet, der Besitzer einer Experience im eigenen Account (`game.CreatorId`) und wer in `Config/Admin.luau` steht. Test-Befehle seit Paket 2: Timer +1 Minute, zu 11:50 springen, sich selbst umhauen/aufstehen, Run gewinnen. Seit Paket 3: 40 Gegner um sich spawnen (Obergrenze gilt), Gegner in 20 Studs Umkreis treffen (5 Schaden), alle Gegner töten, Spawnen pausieren/fortsetzen. Seit Paket 4: sich selbst 25 Schaden geben (Rüstung und Schutz gelten), sich voll heilen; dazu eine Messanzeige unten links (Gegnerzahl, Spawnrate, Serverzeit pro Schritt, Gegnerdaten in KB/s, FPS; rot, wenn ein Budget überschritten ist). Seit Paket 5: nächste fehlende Waffe hinzufügen, nur die nächste Waffe behalten (zum Ausprobieren einzeln), alle Waffen +1 Level, alle Waffen aus/an (gilt bis zum nächsten Run); das Debug-Menü hat dafür zwei Spalten. Seit Paket 8: Waffen entwickeln („Evolve weapons"). Seit Paket 9: eine Elite in der Nähe spawnen („Spawn an elite", ihre Truhe lässt sich so testen); die Messanzeige zeigt auch die Gegner-Geschosse in der Luft. Seit B1: „End this wave" (statt „+1 minute", springt ans Wellenende und öffnet den Shop), „Stop/run wave timer" (die Welle endet nicht, bis man wieder drückt; gilt auch für die nächsten Runs), „+100 Shards". Shop-Remotes: `BuyShopOffer` (nur vom Server angebotene IDs, Preis und Plätze prüft der Server), `RerollShop`, `SetShopReady` (nur in der Shop-Phase).
+**Sicherheit:** Client schickt nur Absichten (Bewegung, Dash, Level-up-Wahl, Kaufwunsch). Server berechnet Schaden, Kills, XP, Drops, Embers, Truhen, Ranglistenwerte. Jede Remote mit Rate-Limit und Validierung (nur angebotene Karten-IDs, Dash nur nach Cooldown). Bewegungs-Plausibilitätscheck. Admin-Befehle nur für die UserId des Owners, serverseitig geprüft: Admin ist, wer in Studio testet, der Besitzer einer Experience im eigenen Account (`game.CreatorId`) und wer in `Config/Admin.luau` steht. Test-Befehle seit Paket 2: Timer +1 Minute, zu 11:50 springen, sich selbst umhauen/aufstehen, Run gewinnen. Seit Paket 3: 40 Gegner um sich spawnen (Obergrenze gilt), Gegner in 20 Studs Umkreis treffen (5 Schaden), alle Gegner töten, Spawnen pausieren/fortsetzen. Seit Paket 4: sich selbst 25 Schaden geben (Rüstung und Schutz gelten), sich voll heilen; dazu eine Messanzeige unten links (Gegnerzahl, Spawnrate, Serverzeit pro Schritt, Gegnerdaten in KB/s, FPS; rot, wenn ein Budget überschritten ist). Seit Paket 5: nächste fehlende Waffe hinzufügen, nur die nächste Waffe behalten (zum Ausprobieren einzeln), alle Waffen +1 Level, alle Waffen aus/an (gilt bis zum nächsten Run); das Debug-Menü hat dafür zwei Spalten. Seit Paket 8: Waffen entwickeln („Evolve weapons"). Seit Paket 9: eine Elite in der Nähe spawnen („Spawn an elite", ihre Truhe lässt sich so testen); die Messanzeige zeigt auch die Gegner-Geschosse in der Luft. Seit B1: „End this wave" (statt „+1 minute", springt ans Wellenende und öffnet den Shop), „Stop/run wave timer" (die Welle endet nicht, bis man wieder drückt; gilt auch für die nächsten Runs), „+100 Shards". Shop-Remotes: `BuyShopOffer` (nur vom Server angebotene IDs, Preis und Plätze prüft der Server), `RerollShop`, `SetShopReady` (nur in der Shop-Phase). Seit B3: `LockShopOffer` (Angebots-ID, an/aus), `SellWeapon` und `MergeWeapons` (Waffen-`uid` als Ganzzahl; der Server prüft, dass der Spieler sie trägt, eine Partnerin gleicher Stufe da ist und es nicht die letzte Waffe ist), alle nur in der Shop-Phase; Debug-Knopf „Weapons +1 tier" statt „+1 Level".
 
 ## 17. Compliance & Plattform-Regeln
 
@@ -838,7 +860,7 @@ Bis zum Soft Launch rund 40–50 Sessions und 50–60 Stunden Zeit des Owners (6
 | 9d | Look-Paket: Gegner im Deadlock-Stil (okkultes Art déco), neue Waffen-, Dash- und Todes-Effekte | Vertical Slice | Extra high | 1 | 30 min | Look beurteilen, am Handy auf Ruckler achten |
 | B1 | Brotato-Richtung 1: Wellen 20–60 s mit Shop-Phase, Shards, Level-ups am Wellenende, Aufstehen und Heilen am Wellenende | Vertical Slice | Extra high | 1 | 1 h | Run solo und zu zweit spielen |
 | B2 | Brotato-Richtung 2: Werte-System (Schaden, Angriffstempo, Krit, Glück, Rüstung, Ausweichen, Regeneration, Lebensraub, Reichweite, Tempo, Ernte), 46 Items in 4 Seltenheiten mit Trade-offs, unbegrenzt stapelbar, 6 Waffen-Plätze, Level-ups als Werte-Wahl, Werte-Liste im Shop | Vertical Slice | Extra high | 1–2 | 1 h | Items ausprobieren |
-| B3 | Brotato 3: Shop komplett und 20 Wellen – Run auf 20 Wellen mit Brotatos Dauern, Sperren, Verkaufen, Waffen-Stufen I–IV statt Level, Verschmelzen, Gratis-Neuwurf nach 4 Käufen, Waffen-Pool-Regeln, Evolutionen ab Stufe IV, Handy-Layout | Vertical Slice | High | 1–2 | 1 h | Shop am PC und Handy bedienen |
+| B3 | Brotato 3: Shop komplett und 20 Wellen – Run auf 20 Wellen mit Brotatos Dauern, Sperren, Verkaufen, Waffen-Stufen I–IV statt Level, Verschmelzen, Gratis-Neuwurf nach 4 Käufen, Waffen-Pool-Regeln, Evolutionen ab Stufe IV, Handy-Layout (umgesetzt 29.10.2026, Branch `wp-b3-shop-complete`) | Vertical Slice | High | 1–2 | 1 h | Shop am PC und Handy bedienen |
 | B4 | Brotato 4: Effekt-Maschine – Ereignisse, Effekte als Daten, bedingte und „pro X"-Werte, nächste Welle, Wellenende-Wachstum, Neben-Werte, getrennte Zufalls-Ströme, ~20 neue Items mit Effekten | Vertical Slice | Extra high | 2 | 1 h | neue Items ausprobieren |
 | B5 | Brotato 5: Kampf-Tiefe – Krit und Lebensraub pro Waffe, Rückstoß, Brennen, Verlangsamen, Explosionen, Durchschlag/Abprall, 12 Angriffe/s, Skalierung pro Waffe, Waffenklassen mit Set-Boni | Vertical Slice | Extra high | 2 | 1 h | Waffengefühl beurteilen |
 | B6 | Brotato 6: Beute – sinkende Drop-Chance, Beutel, Heil-Früchte, Kisten von normalen Gegnern, Plünderer, Bäume, Beute-Obergrenze | Vertical Slice | High | 1–2 | 1 h | Wirtschaft beurteilen |

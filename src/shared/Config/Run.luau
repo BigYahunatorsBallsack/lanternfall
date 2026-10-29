@@ -2,7 +2,8 @@
 -- Run flow, spawn director, XP curve, level-up and co-op rules (DESIGN.md sections 3, 7, 8, 9).
 -- Read by RunDirector, SpawnDirector, UpgradeService and ReviveService; `flow` also by the lobby UI.
 
-local WAVE_LENGTHS = { 20, 25, 30, 35, 40, 45, 50, 55, 60, 60, 60, 60 }
+-- Brotato's 20 waves (since B3, before 12): 20 s, +5 s per wave up to 60 s from wave 9, the final wave 90 s
+local WAVE_LENGTHS = { 20, 25, 30, 35, 40, 45, 50, 55, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 90 }
 
 local function sum(list: { number }): number
 	local total = 0
@@ -13,7 +14,7 @@ local function sum(list: { number }): number
 end
 
 local Run = {
-	durationSeconds = sum(WAVE_LENGTHS), -- fighting time of all waves; then the boss spawns and normal spawning stops
+	durationSeconds = sum(WAVE_LENGTHS), -- fighting time of all waves; surviving the last one wins (boss in WP10)
 	maxPlayers = 4,
 
 	-- Lobby -> countdown -> run -> results -> lobby (prototype: lobby and arena in one server)
@@ -38,19 +39,25 @@ local Run = {
 			table.freeze({ 1, 2.2 }),
 			table.freeze({ 3, 3.6 }),
 			table.freeze({ 6, 5 }),
-			table.freeze({ 9, 6.8 }),
-			table.freeze({ 12, 8.6 }),
+			table.freeze({ 10, 6.8 }),
+			table.freeze({ 15, 8.6 }),
+			table.freeze({ 20, 10 }),
 		}),
 		-- multiplier on enemy HP at spawn time (times difficulty); grows faster and faster. Since B2 steeper, because
-		-- player stats grow without limit (Brotato's enemies gain HP and damage every wave too).
+		-- player stats grow without limit (Brotato's enemies gain HP and damage every wave too). Since B3 up to wave 20
+		-- (14 at the end; with the B2 curve simply continued good bots won 17 of 18 runs).
 		hpCurve = table.freeze({
 			table.freeze({ 0, 1 }),
 			table.freeze({ 2, 1.15 }),
 			table.freeze({ 4, 1.5 }),
 			table.freeze({ 6, 2 }),
-			table.freeze({ 8, 2.8 }),
-			table.freeze({ 10, 3.8 }),
-			table.freeze({ 12, 5 }),
+			table.freeze({ 8, 2.7 }),
+			table.freeze({ 10, 3.6 }),
+			table.freeze({ 12, 4.6 }),
+			table.freeze({ 14, 6.2 }),
+			table.freeze({ 16, 8.4 }),
+			table.freeze({ 18, 11 }),
+			table.freeze({ 20, 14 }),
 		}),
 		-- multiplier on contact and projectile damage at spawn time (times difficulty); since B2 up to 3.4 instead of
 		-- 1.25 at the end, against stacked Max HP, Armor and Regeneration
@@ -58,12 +65,15 @@ local Run = {
 			table.freeze({ 0, 1 }),
 			table.freeze({ 3, 1.1 }),
 			table.freeze({ 6, 1.6 }),
-			table.freeze({ 9, 2.4 }),
-			table.freeze({ 12, 3.4 }),
+			table.freeze({ 9, 2.3 }),
+			table.freeze({ 12, 3.1 }),
+			table.freeze({ 15, 4.5 }),
+			table.freeze({ 18, 6.2 }),
+			table.freeze({ 20, 7.5 }),
 		}),
 		-- Waves (Brotato direction since B1): wave n lasts lengthsSeconds[n], then the shop opens (Config.Shop) and the
 		-- clock stops until the next wave. The rate ramps from rampFrom to rampTo through each wave; the final wave runs
-		-- at finalRate times that. Wave 1 = 20 s, +5 s per wave, at most 60 s, like Brotato.
+		-- at finalRate times that. Wave 1 = 20 s, +5 s per wave, at most 60 s, the final one 90 s, like Brotato.
 		waves = table.freeze({
 			lengthsSeconds = table.freeze(WAVE_LENGTHS),
 			rampFrom = 0.7,
@@ -91,17 +101,17 @@ local Run = {
 				weights = table.freeze({ Shadeling = 0.8, Brute = 0.2 }),
 			}),
 			table.freeze({
-				fromMinute = 3,
+				fromMinute = 4,
 				announce = "Chargers",
 				weights = table.freeze({ Shadeling = 0.7, Brute = 0.18, Charger = 0.12 }),
 			}),
 			table.freeze({
-				fromMinute = 4,
+				fromMinute = 5,
 				announce = "Spitters",
 				weights = table.freeze({ Shadeling = 0.62, Brute = 0.16, Charger = 0.12, Spitter = 0.1 }),
 			}),
 			table.freeze({
-				fromMinute = 6,
+				fromMinute = 8,
 				announce = "Abyss Shadelings",
 				weights = table.freeze({
 					Shadeling = 0.45,
@@ -112,7 +122,7 @@ local Run = {
 				}),
 			}),
 			table.freeze({
-				fromMinute = 7,
+				fromMinute = 10,
 				announce = "Splitters",
 				weights = table.freeze({
 					Shadeling = 0.25,
@@ -124,7 +134,7 @@ local Run = {
 				}),
 			}),
 			table.freeze({
-				fromMinute = 8,
+				fromMinute = 12,
 				announce = "Abyss Brutes",
 				weights = table.freeze({
 					Shadeling = 0.1,
@@ -137,7 +147,7 @@ local Run = {
 				}),
 			}),
 			table.freeze({
-				fromMinute = 10,
+				fromMinute = 15,
 				weights = table.freeze({
 					AbyssShadeling = 0.5,
 					AbyssBrute = 0.14,
@@ -148,7 +158,7 @@ local Run = {
 			}),
 		}),
 		swarmRush = table.freeze({
-			atMinutes = table.freeze({ 5, 9 }),
+			atMinutes = table.freeze({ 6, 11, 16 }),
 			durationShare = 0.6, -- of its wave
 			rateMultiplier = 2,
 			enemy = "Shadeling",
@@ -159,12 +169,15 @@ local Run = {
 		elites = table.freeze({
 			waves = table.freeze({
 				table.freeze({ atMinute = 2, count = 1 }),
-				table.freeze({ atMinute = 4, count = 1 }),
-				table.freeze({ atMinute = 6, count = 2 }),
+				table.freeze({ atMinute = 5, count = 1 }),
 				table.freeze({ atMinute = 8, count = 1 }),
 				table.freeze({ atMinute = 10, count = 2 }),
+				table.freeze({ atMinute = 12, count = 1 }),
+				table.freeze({ atMinute = 14, count = 2 }),
+				table.freeze({ atMinute = 16, count = 2 }),
+				table.freeze({ atMinute = 18, count = 2 }),
 			}),
-			affixFromMinute = 6,
+			affixFromMinute = 8,
 		}),
 	}),
 

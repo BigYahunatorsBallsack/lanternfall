@@ -13,6 +13,7 @@ local RunService = game:GetService("RunService")
 local Shared = ReplicatedStorage.Shared
 local Config = require(Shared.Config)
 local DebugCommands = require(Shared.Net.DebugCommands)
+local Format = require(Shared.Util.Format)
 local Net = require(Shared.Net)
 local RunSchedule = require(Shared.Util.RunSchedule)
 local Types = require(Shared.Net.Types)
@@ -193,29 +194,29 @@ local handlers: { [string]: (player: Player) -> (boolean, string?) } = {
 		local owned = ownedIds(player)
 		local index = if owned[1] then table.find(implemented, owned[1]) or 0 else 0
 		local nextId = implemented[index % #implemented + 1]
-		for _, weaponId in owned do
-			WeaponService.removeWeapon(player, weaponId)
+		for _, weapon in WeaponService.getWeapons(player) do
+			WeaponService.removeWeapon(player, weapon.uid)
 		end
 		WeaponService.addWeapon(player, nextId)
 		return true, `Now only {weaponName(nextId)}`
 	end,
-	LevelUpWeapons = function(player)
+	TierUpWeapons = function(player)
 		local ok, reason = armed(player)
 		if not ok then
 			return false, reason
 		end
 		local raised = 0
-		for _, weaponId in ownedIds(player) do
-			if WeaponService.levelUp(player, weaponId) then
+		for _, weapon in WeaponService.getWeapons(player) do
+			if WeaponService.raiseTier(player, weapon.uid) then
 				raised += 1
 			end
 		end
 		if raised == 0 then
-			return true, "Every weapon is at max level"
+			return true, "Every weapon is at max tier"
 		end
 		local parts = {}
 		for _, weapon in WeaponService.getWeapons(player) do
-			table.insert(parts, `{weaponName(weapon.id)} LV {weapon.level}`)
+			table.insert(parts, `{weaponName(weapon.id)} {Format.tier(weapon.tier)}`)
 		end
 		return true, table.concat(parts, ", ")
 	end,
@@ -234,8 +235,8 @@ local handlers: { [string]: (player: Player) -> (boolean, string?) } = {
 					table.insert(parts, `{evolution.displayName} already`)
 					continue
 				end
-				for _ = weapon.level + 1, Config.Player.maxItemLevel do
-					WeaponService.levelUp(player, weapon.id)
+				for _ = weapon.tier + 1, Config.Player.maxWeaponTier do
+					WeaponService.raiseTier(player, weapon.uid)
 				end
 				if not table.find(UpgradeService.getEvolutions(player), evolutionId) then
 					StatService.addItem(player, evolution.item) -- fails only for an unknown item
