@@ -1,8 +1,9 @@
 --!strict
 -- The local player's stats (DESIGN.md section 13, Brotato direction since B2): keeps the Stats remote from
 -- StatService and shows them as a panel at the right edge between waves (shop phase, next to the level-up cards and
--- the shop): every stat with its value, green above its start value, red below, Dodge with its cap. On small screens
--- the shop hides it behind a STATS button (setSuppressed, since B3). Read by the smoke test (get).
+-- the shop): every stat with its value, green above its start value, red below (the other way round for stats where
+-- less is better), Dodge with its cap; since B4 the secondary stats of the shop and the enemies only while they are not
+-- 0. On small screens the shop hides it behind a STATS button (setSuppressed, since B3). Read by the smoke test (get).
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -27,6 +28,7 @@ local screen: ScreenGui
 local panel: Frame
 local suppressed = false
 local values: { [string]: TextLabel } = {}
+local rows: { [string]: Frame } = {}
 local sheet: Types.StatSheet = StatMath.baseSheet()
 local baseSheet = StatMath.baseSheet()
 
@@ -52,8 +54,12 @@ local function render()
 	for statId, label in values do
 		local value = sheet[statId] or 0
 		local base = baseSheet[statId] or 0
+		local stat = Config.Stats.byId[statId]
+		local better = if stat and stat.inverted then value < base else value > base
+		local worse = if stat and stat.inverted then value > base else value < base
 		label.Text = valueText(statId, value)
-		label.TextColor3 = if value > base then Theme.success elseif value < base then Theme.danger else Theme.text
+		label.TextColor3 = if better then Theme.success elseif worse then Theme.danger else Theme.text
+		rows[statId].Visible = not (stat and stat.hideWhenZero and math.abs(value) < 1e-9)
 	end
 end
 
@@ -82,8 +88,10 @@ local function build()
 			BackgroundTransparency = 1,
 			Size = UDim2.new(1, 0, 0, ROW_HEIGHT),
 			LayoutOrder = index,
+			Visible = not stat.hideWhenZero,
 			Parent = panel,
 		})
+		rows[stat.id] = row
 		Widgets.label({
 			Name = "Label",
 			Text = stat.displayName,

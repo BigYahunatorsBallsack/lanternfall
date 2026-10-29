@@ -23,4 +23,5 @@ return table.freeze({
 	"EvolveWeapons", -- evolve every weapon that has an evolution: max tier and the needed item first
 	"ToggleWeapons", -- switch every player's weapons off or on
 	"GainLevel", -- the team reaches the next level right away (level-up cards)
+	"AddEffectItem", -- the next item with an effect or a secondary stat (since B4), one after another
 })

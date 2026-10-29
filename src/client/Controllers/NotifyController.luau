@@ -1,6 +1,7 @@
 --!strict
 -- Short on-screen messages from the server (Notify remote), stacked near the top and faded out.
--- Server services send them through Net.fireClient("Notify", player, text).
+-- Server services send them through Net.fireClient("Notify", player, text); other controllers through push (since B4:
+-- item effects that pay out in the shop, ProcTextController).
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
@@ -28,7 +29,14 @@ local function show(parent: Frame, text: string)
 		LayoutOrder = order,
 		Parent = parent,
 	})
-	local label = Widgets.label({ Text = text, Font = Theme.fontBold, TextColor3 = Theme.accent, Parent = toast })
+	local label = Widgets.label({
+		Text = text,
+		Font = Theme.fontBold,
+		TextColor3 = Theme.accent,
+		AutomaticSize = Enum.AutomaticSize.Y, -- long texts and several lines grow the toast
+		Size = UDim2.new(1, 0, 0, Theme.textSize + 6),
+		Parent = toast,
+	})
 
 	local toasts = {}
 	for _, child in parent:GetChildren() do
@@ -65,6 +73,13 @@ function NotifyController.init()
 			show(stack, text)
 		end
 	end)
+end
+
+-- Shows a message like one from the server (no-op before start).
+function NotifyController.push(text: string)
+	if stack then
+		show(stack, text)
+	end
 end
 
 function NotifyController.start()

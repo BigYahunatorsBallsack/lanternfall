@@ -77,6 +77,7 @@ type CardView = {
 	badge: TextLabel,
 	name: TextLabel,
 	detail: TextLabel,
+	detailSize: UITextSizeConstraint,
 	price: TextLabel,
 	edge: UIStroke,
 	lock: TextButton,
@@ -253,6 +254,7 @@ local function applyLayout()
 		view.button.Size = UDim2.fromOffset(CARD_WIDTH, buttonHeight)
 		view.detail.Size = UDim2.new(1, 0, 0, if compact then DETAIL_HEIGHT.compact else DETAIL_HEIGHT.normal)
 		view.detail.TextSize = if compact then 14 else 15
+		view.detailSize.MaxTextSize = view.detail.TextSize
 	end
 	statsButton.Visible = compact
 	header.Visible = not compact
@@ -418,15 +420,18 @@ local function buildCard(index: number): CardView
 		LayoutOrder = 2,
 		Parent = button,
 	})
+	-- Items with effects (B4) have long texts: they shrink to fit instead of running out of the card.
 	local detail = Widgets.label({
 		Name = "Detail",
 		TextSize = 15,
+		TextScaled = true,
 		TextColor3 = Theme.textDim,
 		RichText = true,
 		TextYAlignment = Enum.TextYAlignment.Top,
 		LayoutOrder = 3,
 		Parent = button,
 	})
+	local detailSize = Widgets.create("UITextSizeConstraint", { MinTextSize = 9, MaxTextSize = 15, Parent = detail })
 	local price = Widgets.label({
 		Name = "Price",
 		Font = Theme.fontBold,
@@ -452,6 +457,7 @@ local function buildCard(index: number): CardView
 		badge = badge,
 		name = name,
 		detail = detail,
+		detailSize = detailSize,
 		price = price,
 		edge = edge,
 		lock = lock,

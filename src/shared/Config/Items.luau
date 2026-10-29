@@ -4,8 +4,13 @@
 -- with a downside, and stacks without limit unless `limit` says otherwise. The stat packages follow Brotato's items
 -- (HP times Config.Stats.hpScale); names and looks are our own. Vitality, Haste, Focus, Magnet, Might and Armor keep
 -- the ids of the old passives, so the evolutions (Config.Evolutions) still find them.
+-- Since B4 items can also have effects (Config.Effects: standing still, "per X", growth at the end of a wave, next wave,
+-- on kill, on dodge ...; EffectService runs them). The items after the 46 of B2 each take one Brotato item's
+-- mechanics and numbers (named in the comment, HP times hpScale); what needs a later package is left out and noted.
 -- Also the rarity tiers: their chances by wave (shop) or level (level-up cards), raised by Luck (Util/StatMath).
--- Read by StatService, ShopService/ShopRules, UpgradeService and the client (texts, colors).
+-- Read by StatService, EffectService, ShopService/ShopRules, UpgradeService and the client (texts, colors).
+
+local Effects = require(script.Parent.Effects)
 
 export type Item = {
 	id: string,
@@ -14,6 +19,7 @@ export type Item = {
 	price: number, -- base price in Shards (Config.Shop.price adds to it per wave)
 	stats: { [string]: number },
 	limit: number?, -- most you can own; nil = no limit
+	effects: { Effects.Effect }?, -- since B4 (Config.Effects)
 }
 
 -- Chance of a tier at wave (or level) w, Brotato's shop table: (perWave * (w - minWave + 1) + base) * (1 + luck / 100),
@@ -32,8 +38,17 @@ local function item(
 	tier: number,
 	price: number,
 	stats: { [string]: number },
-	limit: number?
+	limit: number?,
+	effects: { Effects.Effect }?
 ): Item
+	if effects then
+		for index, effect in effects do
+			if effect.stats then
+				table.freeze(effect.stats)
+			end
+			effects[index] = table.freeze(effect)
+		end
+	end
 	return table.freeze({
 		id = id,
 		displayName = displayName,
@@ -41,6 +56,7 @@ local function item(
 		price = price,
 		stats = table.freeze(stats),
 		limit = limit,
+		effects = if effects then table.freeze(effects) else nil,
 	})
 end
 
@@ -62,6 +78,15 @@ local LIST: { Item } = {
 	item("RustedCoin", "Rusted Coin", 1, 15, { luck = 8, damage = -1 }),
 	item("FlintShard", "Flint Shard", 1, 15, { rangedDamage = 1, meleeDamage = -1 }),
 	item("WardRune", "Ward Rune", 1, 20, { dodge = 3, maxHp = -10 }),
+	-- Common with Brotato's secondary stats and effects (since B4)
+	item("PawnTicket", "Pawn Ticket", 1, 15, { itemPrice = -5 }, 5), -- Coupon
+	item("ChitteringFamiliar", "Chittering Familiar", 1, 25, { shardHealing = 8, rangedDamage = -1 }, 13), -- Cute Monkey
+	item("BoneCharm", "Bone Charm", 1, 15, {}, nil, { -- Jelly
+		{ trigger = "Always", action = "PerX", source = "distinctWeapons", per = 1, stats = { maxHp = 10 } },
+	}),
+	item("Satchel", "Satchel", 1, 15, { speed = -1 }, 3, { -- Bag (Brotato's crates are our chests)
+		{ trigger = "Chest", action = "Shards", amount = 15 },
+	}),
 	-- Uncommon
 	item("LeechJar", "Leech Jar", 2, 45, { lifeSteal = 2, hpRegen = 2, harvesting = -3 }),
 	item("AshBlindfold", "Ash Blindfold", 2, 45, { critChance = 5, dodge = 5, range = -15 }),
@@ -75,6 +100,24 @@ local LIST: { Item } = {
 	item("StaticBracelet", "Static Bracelet", 2, 55, { critChance = 4, elementalDamage = 2, rangedDamage = -2 }),
 	item("PowderPouch", "Powder Pouch", 2, 45, { rangedDamage = 2, attackSpeed = 5, armor = -1 }),
 	item("LanternOil", "Lantern Oil", 2, 45, { luck = 15, speed = 2, damage = -2 }),
+	-- Uncommon with effects (since B4)
+	item("BitterTonic", "Bitter Tonic", 2, 35, {}, nil, { -- Celery Tea
+		{ trigger = "WaveEnd", action = "Grow", stats = { xpGain = 5 } },
+		{ trigger = "Acquire", action = "NextWaveStats", stats = { xpGain = 50, enemyHp = 100 } },
+	}),
+	item("JesterBell", "Jester's Bell", 2, 30, { freeRerolls = 1 }, 3), -- Dangerous Bunny
+	-- Metal Detector without its +2 Engineering (B12)
+	item("DowsingRod", "Dowsing Rod", 2, 40, { doubleShards = 5, luck = 6, damage = -5 }, 20),
+	item("QuiltedCoat", "Quilted Coat", 2, 45, { maxHp = 30 }, 1, { -- Padding
+		{ trigger = "Always", action = "PerX", source = "shards", per = 80, stats = { maxHp = 10 } },
+	}),
+	item("TitheBox", "Tithe Box", 2, 40, {}, 1, { -- Piggy Bank: stops working at wave 20
+		{ trigger = "WaveStart", action = "ShardShare", amount = 20, untilWave = 19 },
+	}),
+	item("RottingHeart", "Rotting Heart", 2, 30, {}, nil, { -- Decomposing Flesh
+		{ trigger = "LevelUp", action = "Grow", stats = { lifeSteal = 1, maxHp = -10 } },
+	}),
+	item("ScrapAltar", "Scrap Altar", 2, 35, { sellValue = 35 }, 1), -- Recycling Machine
 	-- Rare
 	item("GlassLantern", "Glass Lantern", 3, 75, { damage = 25, armor = -3 }),
 	item("FourLeafCharm", "Four-Leaf Charm", 3, 65, { luck = 20, dodge = 6, lifeSteal = -2 }),
@@ -86,6 +129,44 @@ local LIST: { Item } = {
 	item("SmokeMantle", "Smoke Mantle", 3, 80, { dodge = 10, speed = -5, armor = -3 }),
 	item("SilverRounds", "Silver Rounds", 3, 70, { rangedDamage = 3, critChance = 5, speed = -3 }),
 	item("ThornCrown", "Thorn Crown", 3, 70, { meleeDamage = 4, elementalDamage = 4, attackSpeed = -5 }),
+	-- Rare with effects (since B4)
+	item("IronVigil", "Iron Vigil", 3, 75, { speed = -5 }, 1, { -- Barricade without its +3 Knockback (B5)
+		{ trigger = "Always", action = "Stats", state = "Still", stats = { armor = 8 } },
+	}),
+	item("StillVeil", "Still Veil", 3, 70, { dodge = 3, damage = -4 }, nil, { -- Chameleon
+		{ trigger = "Always", action = "Stats", state = "Still", stats = { dodge = 20 } },
+	}),
+	item("StoneIdol", "Stone Idol", 3, 60, { speed = -10 }, nil, { -- Statue
+		{ trigger = "Always", action = "Stats", state = "Still", stats = { attackSpeed = 40 } },
+	}),
+	item("GildedPlume", "Gilded Plume", 3, 50, { xpGain = 25 }, nil, { -- Peacock
+		{ trigger = "Acquire", action = "NextWaveStats", stats = { xpGain = 100, enemyDamage = 50 } },
+	}),
+	item("OathRing", "Oath Ring", 3, 92, {}, nil, { -- Vigilante Ring
+		{ trigger = "WaveEnd", action = "Grow", stats = { damage = 3 } },
+	}),
+	item("PulseDraught", "Pulse Draught", 3, 60, { dodge = 5 }, 1, { -- Adrenaline
+		{ trigger = "Dodge", action = "Heal", amount = 50, chance = 0.5 },
+	}),
+	item("HuntersTally", "Hunter's Tally", 3, 55, {}, 3, { -- Hunting Trophy
+		{ trigger = "Kill", action = "Shards", amount = 1, chance = 0.33, crit = true },
+	}),
+	item("GalvanicCoil", "Galvanic Coil", 3, 65, { damage = -5 }, 1, { -- Power Generator
+		{ trigger = "Always", action = "PerX", source = "speed", per = 1, stats = { damage = 1 } },
+	}),
+	item("MourningVeil", "Mourning Veil", 3, 50, { hpRegen = 8 }, 1, { -- Sad Tomato
+		{ trigger = "WaveStart", action = "HpFraction", amount = 0.5 },
+	}),
+	item("MossWard", "Moss Ward", 3, 50, {}, nil, { -- Tardigrade
+		{ trigger = "WaveStart", action = "Shields", amount = 1 },
+	}),
+	item("PlagueRat", "Plague Rat", 3, 55, { lifeSteal = 5, enemyCount = 10, harvesting = -5 }, 5), -- Mouse
+	-- Candle (its fog rule for Nightmare does not apply here)
+	item("HushCandle", "Hush Candle", 3, 65, { elementalDamage = 4, hpRegen = 1, enemyCount = -10, damage = -5 }, 1),
+	item("Changeling", "Changeling", 3, 80, { maxHp = 150, enemyHp = 10 }), -- Alien Baby
+	item("SweetReliquary", "Sweet Reliquary", 3, 70, {}, 1, { -- Candy Bag without the extra elites (B11)
+		{ trigger = "WaveEnd", action = "RandomStats", amount = 8 },
+	}),
 	-- Legendary
 	item("TitanArms", "Titan Arms", 4, 105, { meleeDamage = 12, rangedDamage = 6, attackSpeed = -3, speed = -3 }),
 	item(
@@ -119,6 +200,28 @@ local LIST: { Item } = {
 	),
 	item("LanternCodex", "Lantern Codex", 4, 90, { xpGain = 50, luck = 10, maxHp = -30 }),
 	item("EternalFlame", "Eternal Flame", 4, 120, { damage = 20, attackSpeed = 20, armor = -2 }),
+	-- Legendary with effects (since B4)
+	item("ClockworkArm", "Clockwork Arm", 4, 100, {}, nil, { -- Robot Arm without its +3 Engineering (B12)
+		{ trigger = "WaveEnd", action = "Grow", stats = { meleeDamage = 3, maxHp = -10 } },
+	}),
+	item("EvergreenSprig", "Evergreen Sprig", 4, 110, {}, nil, { -- Grind's Magical Leaf
+		{ trigger = "WaveEnd", action = "Grow", stats = { maxHp = 30, hpRegen = 1, lifeSteal = 1 } },
+	}),
+	item("FortuneCoin", "Fortune Coin", 4, 105, { armor = -2 }, 1, { -- Lucky Coin
+		{ trigger = "Always", action = "PerX", source = "critChance", per = 1, stats = { luck = 2 } },
+	}),
+	item("EightEyedIdol", "Eight-Eyed Idol", 4, 110, { damage = 12, dodge = -3, harvesting = -5 }, nil, { -- Spider
+		{ trigger = "Always", action = "PerX", source = "distinctWeapons", per = 1, stats = { attackSpeed = 6 } },
+	}),
+	item("LoneFlame", "Lone Flame", 4, 110, { damage = 30 }, nil, { -- Focus
+		{ trigger = "Always", action = "PerX", source = "distinctWeapons", per = 1, stats = { attackSpeed = -3 } },
+	}),
+	item("FieldCenser", "Field Censer", 4, 95, { hpRegen = 10, luck = -10 }, nil, { -- Medikit
+		{ trigger = "Timer", action = "WaveStats", interval = 5, stats = { hpRegen = 2 } },
+	}),
+	item("EmberAnvil", "Ember Anvil", 4, 120, {}, 1, { -- Anvil
+		{ trigger = "ShopEnter", action = "UpgradeWeapon", stats = { armor = 2 } },
+	}),
 }
 
 local byId: { [string]: Item } = {}

@@ -1,6 +1,7 @@
 --!strict
 -- Debug commands for testing (end the wave, stop the wave timer, Shards, knock yourself down, hurt/heal yourself, win, spawn/hit/kill enemies and elites, pause
--- spawning, add/swap/level/evolve weapons, weapons off, team level-up) and the stats panel feed (DebugStats once per second). Admins only:
+-- spawning, add/swap/level/evolve weapons, weapons off, team level-up, the B4 effect items one by one) and the stats
+-- panel feed (DebugStats once per second). Admins only:
 -- everyone in Studio, the owner of a user-owned experience and Config.Admin.userIds. Handles the DebugCommand remote
 -- and uses RunDirector, CombatService, EnemySim, ExperienceService, ShopService, SpawnDirector, StatService,
 -- UpgradeService, WeaponService and MapService. Sets the player
@@ -17,6 +18,7 @@ local Format = require(Shared.Util.Format)
 local Net = require(Shared.Net)
 local RunSchedule = require(Shared.Util.RunSchedule)
 local Types = require(Shared.Net.Types)
+local UpgradeText = require(Shared.Util.UpgradeText)
 
 local CombatService = require(script.Parent.CombatService)
 local EnemySim = require(script.Parent.EnemySim)
@@ -34,6 +36,20 @@ local ADMIN_ATTRIBUTE = "LanternfallAdmin"
 local AdminService = {}
 
 local hitList: { number } = {}
+local effectItemIndex: { [Player]: number } = {} -- the last item "AddEffectItem" gave
+
+-- Items with effects or a secondary stat (since B4), in the order of Config.Items.
+local effectItems: { string } = {}
+for _, item in Config.Items.list do
+	local secondary = false
+	for statId in item.stats do
+		local stat = Config.Stats.byId[statId]
+		secondary = secondary or (stat ~= nil and stat.hideWhenZero)
+	end
+	if item.effects or secondary then
+		table.insert(effectItems, item.id)
+	end
+end
 
 local function enemies(count: number): string
 	return if count == 1 then "1 enemy" else `{count} enemies`
@@ -268,6 +284,25 @@ local handlers: { [string]: (player: Player) -> (boolean, string?) } = {
 		end
 		return true, `Team level {ExperienceService.getLevel()}`
 	end,
+	AddEffectItem = function(player)
+		if not RunDirector.isOngoing() then
+			return false, "NotRunning"
+		end
+		local start = effectItemIndex[player] or 0
+		for step = 1, #effectItems do
+			local index = (start + step - 1) % #effectItems + 1
+			local itemId = effectItems[index]
+			local ok, reason = StatService.addItem(player, itemId)
+			if ok then
+				effectItemIndex[player] = index
+				local item = Config.Items.byId[itemId]
+				return true, `{item.displayName}: {UpgradeText.itemLines(itemId, nil, " · ")}`
+			elseif reason == "NotParticipant" then
+				return false, reason
+			end
+		end
+		return true, "Every effect item is at its limit"
+	end,
 }
 
 local function collectStats(): Types.DebugStats
@@ -309,6 +344,10 @@ function AdminService.init()
 	for _, player in Players:GetPlayers() do
 		onPlayerAdded(player)
 	end
+
+	Players.PlayerRemoving:Connect(function(player)
+		effectItemIndex[player] = nil
+	end)
 
 	Net.onServer("DebugCommand", function(player, command: string)
 		if not AdminService.isAdmin(player) then
