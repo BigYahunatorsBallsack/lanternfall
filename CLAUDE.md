@@ -12,6 +12,8 @@ Koop-Survivors für Roblox (1–4 Spieler, 12-Min-Runs, Boss bei 12:00). Das vol
 
 ## Arbeitsweise
 
+- **Einstieg in ein neues Paket:** zuerst `STATUS.md` lesen (Stand, Entscheidungen, Werkzeuge, Code-Landkarte), dann aus `DESIGN.md` nur die Abschnitte, die das Paket berührt. Nicht das ganze Design-Dokument und keine alten Thread-Verläufe lesen.
+- **Jedes Paket aktualisiert `STATUS.md` im eigenen PR** (Stand, nächstes Paket mit Effort, neue Entscheidungen oder Werkzeug-Tricks).
 - **Ein Arbeitspaket pro Session** (Tabelle in `DESIGN.md`, Abschnitt 20). Kein Paket anfangen, das nicht genannt wurde.
 - Pro Paket ein Branch `wp-<nr>-<kurzname>`, kleine Commits, Commit-Text auf Englisch im Imperativ. Nie auf `main` force-pushen; Merge erst nach OK des Owners.
 - Vor größeren Umbauten kurz den Plan nennen (3–5 Punkte), dann umsetzen.

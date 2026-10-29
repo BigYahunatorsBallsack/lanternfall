@@ -211,7 +211,12 @@ local function panelSize(): Vector2
 	return Vector2.new(width, height)
 end
 
-local function viewport(): Vector2
+-- The shop screen's area (the viewport without Roblox's top bar), or the viewport before the screen has a size.
+local function screenArea(): Vector2
+	local size = screen and screen.AbsoluteSize
+	if typeof(size) == "Vector2" and size.X > 0 and size.Y > 0 then
+		return size
+	end
 	local camera = workspace.CurrentCamera
 	return if camera then camera.ViewportSize else Vector2.new(1280, 720)
 end
@@ -219,7 +224,7 @@ end
 -- Scale of the panel so it fits below the HUD's top bar and, if `besideStats`, between the stat panel and the left
 -- edge's mirror image.
 local function fitScale(size: Vector2, besideStats: boolean): number
-	local area = viewport()
+	local area = screenArea()
 	local top = area.Y * TOP_RESERVE
 	local reserved = if besideStats then StatsController.reservedWidth() else MARGIN
 	local width = (area.X - 2 * reserved) / size.X
@@ -237,7 +242,7 @@ local function applyLayout()
 	panelScale.Scale = scale
 	local size = panelSize()
 	panel.Size = UDim2.fromOffset(size.X, size.Y)
-	local area = viewport()
+	local area = screenArea()
 	local top = area.Y * TOP_RESERVE
 	panel.Position = UDim2.fromOffset(area.X / 2, top + (area.Y - top) / 2)
 
@@ -693,6 +698,7 @@ function ShopController.start()
 	if camera then
 		camera:GetPropertyChangedSignal("ViewportSize"):Connect(render)
 	end
+	screen:GetPropertyChangedSignal("AbsoluteSize"):Connect(render)
 	local levelUpWasOpen = false
 	RunService.Heartbeat:Connect(function()
 		local levelUpOpen = LevelUpController.isOpen()

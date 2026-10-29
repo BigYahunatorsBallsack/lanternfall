@@ -44,7 +44,8 @@ local Run = {
 			table.freeze({ 20, 10 }),
 		}),
 		-- multiplier on enemy HP at spawn time (times difficulty); grows faster and faster. Since B2 steeper, because
-		-- player stats grow without limit (Brotato's enemies gain HP and damage every wave too).
+		-- player stats grow without limit (Brotato's enemies gain HP and damage every wave too). Since B3 up to wave 20
+		-- (14 at the end; with the B2 curve simply continued good bots won 17 of 18 runs).
 		hpCurve = table.freeze({
 			table.freeze({ 0, 1 }),
 			table.freeze({ 2, 1.15 }),
@@ -53,10 +54,10 @@ local Run = {
 			table.freeze({ 8, 2.7 }),
 			table.freeze({ 10, 3.6 }),
 			table.freeze({ 12, 4.6 }),
-			table.freeze({ 14, 5.8 }),
-			table.freeze({ 16, 7.2 }),
-			table.freeze({ 18, 8.8 }),
-			table.freeze({ 20, 10.5 }),
+			table.freeze({ 14, 6.2 }),
+			table.freeze({ 16, 8.4 }),
+			table.freeze({ 18, 11 }),
+			table.freeze({ 20, 14 }),
 		}),
 		-- multiplier on contact and projectile damage at spawn time (times difficulty); since B2 up to 3.4 instead of
 		-- 1.25 at the end, against stacked Max HP, Armor and Regeneration
@@ -66,9 +67,9 @@ local Run = {
 			table.freeze({ 6, 1.6 }),
 			table.freeze({ 9, 2.3 }),
 			table.freeze({ 12, 3.1 }),
-			table.freeze({ 15, 4 }),
-			table.freeze({ 18, 5 }),
-			table.freeze({ 20, 5.6 }),
+			table.freeze({ 15, 4.5 }),
+			table.freeze({ 18, 6.2 }),
+			table.freeze({ 20, 7.5 }),
 		}),
 		-- Waves (Brotato direction since B1): wave n lasts lengthsSeconds[n], then the shop opens (Config.Shop) and the
 		-- clock stops until the next wave. The rate ramps from rampFrom to rampTo through each wave; the final wave runs

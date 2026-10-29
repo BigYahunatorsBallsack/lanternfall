@@ -10,8 +10,11 @@
 -- package after WP9 they also step out of the rush path of a Charger that winds up (its path glows for players).
 -- Since B1 (Brotato direction) the bot also shops after every wave: it picks its level-up cards, buys what it can
 -- afford and presses Ready. Since B2 it rates stat cards and items by a simple stat taste (STAT_TASTE: its class's
--- damage type, then Max HP, Damage, Attack Speed and Armor) and buys weapons it owns before new ones.
--- Change SCENARIOS / SEEDS below to test other setups (all of them with 6 seeds take about 75 s). Results feed the
+-- damage type, then Max HP, Damage, Attack Speed and Armor) and buys weapons it owns before new ones. Since B3 weapons
+-- come in tiers (worth their price factor), the bot skips offers it cannot take (slots full) and merges every pair of
+-- equal weapons it can.
+-- Change SCENARIOS / SEEDS below to test other setups (since B3's 20 waves one good bot with 6 seeds takes about 10 min;
+-- run scenarios in parallel from copies of the repo). Results feed the
 -- balancing notes in DESIGN.md.
 
 local world = loadHelper("tests/helpers/RobloxMock.luau")
@@ -65,7 +68,7 @@ local STAT_TASTE = {
 local CLASS_DAMAGE = { BladeWarden = "meleeDamage", SparkMage = "rangedDamage" }
 local CLASS_DAMAGE_TASTE = 4
 local SECONDARY_STEP = { xpGain = 5, pickupRange = 20 } -- "one step" of stats without level-up values
-local WEAPON_TASTE = { owned = 6, new = 5 } -- a weapon level up and a new weapon, in the same units
+local WEAPON_TASTE = { owned = 6, new = 5 } -- a tier I copy of an owned weapon and a new weapon, in the same units
 
 local SEEDS = { 11, 22, 33, 44, 55, 66 }
 local SCENARIOS = {
@@ -152,12 +155,13 @@ end
 local function pickOffer(classId, offers, shards)
 	local best, bestValue = nil, 0
 	for _, offer in offers do
-		if offer.sold or offer.price > shards then
+		if offer.sold or offer.blocked or offer.price > shards then
 			continue
 		end
 		local score
 		if offer.kind == "Weapon" then
-			score = if offer.isNew then WEAPON_TASTE.new else WEAPON_TASTE.owned
+			local taste = if offer.isNew then WEAPON_TASTE.new else WEAPON_TASTE.owned
+			score = taste * Config.Shop.tierPriceFactors[offer.tier]
 		else
 			score = statScore(classId, Config.Items.byId[offer.itemId].stats)
 		end
@@ -412,8 +416,16 @@ local function playRun(scenario, seed)
 	while RunDirector.isOngoing() and RunDirector.getElapsed() < MAX_SECONDS do
 		if RunDirector.getPhase() == "Shop" then
 			local offer = UpgradeService.getOffer(bot)
+			local mergeable = nil
+			for _, weapon in WeaponService.getWeapons(bot) do
+				if not mergeable and WeaponService.findMergePartner(bot, weapon.uid) then
+					mergeable = weapon.uid
+				end
+			end
 			if offer then
 				world.fireServerAs(bot, "ChooseUpgrade", pickCard(scenario.class, offer).id)
+			elseif mergeable then
+				world.fireServerAs(bot, "MergeWeapons", mergeable)
 			else
 				local best = pickOffer(scenario.class, ShopService.getOffers(bot), ShopService.getShards(bot))
 				if best then
@@ -479,7 +491,7 @@ local function playRun(scenario, seed)
 	-- the build at the end of the run (StatService and WeaponService reset in the lobby)
 	local evolutions, build = {}, {}
 	for _, weapon in WeaponService.getWeapons(bot) do
-		table.insert(build, `{weapon.id} {weapon.level}`)
+		table.insert(build, `{weapon.id} {weapon.tier}`)
 		if weapon.evolution then
 			table.insert(evolutions, weapon.evolution)
 		end
