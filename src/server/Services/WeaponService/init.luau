@@ -372,6 +372,18 @@ function WeaponService.explodeAt(
 	arsenal:queueExplosion(player.UserId, position.X, position.Z, damage, scaling, size)
 end
 
+-- Item effects (B8, EffectService): hits enemy `enemyId` for the player at the end of this step, (damage + sum of
+-- scaling * stat) times Damage % plus `flat` (not scaled), without crit, life steal or knockback.
+function WeaponService.strikeEnemy(
+	player: Player,
+	enemyId: number,
+	damage: number,
+	scaling: { [string]: number }?,
+	flat: number
+)
+	arsenal:queueStrike(player.UserId, enemyId, damage, scaling, flat)
+end
+
 -- Debug: switches every player's weapons off (no hits, no visuals) or back on. Resets at run start.
 function WeaponService.setPaused(value: boolean)
 	paused = value

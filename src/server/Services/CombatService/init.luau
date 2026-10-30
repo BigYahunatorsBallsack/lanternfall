@@ -6,7 +6,7 @@
 -- StatService sets the player's stats (setStats: Max HP, HP Regeneration, Armor, Dodge, Speed; Util/StatMath),
 -- WeaponService calls lifeSteal, UpgradeService the level-up choice (setChoosing: shielded and standing still);
 -- rewards and revives (WP11) use damagePlayer, healPlayer and protect; item effects (EffectService) healPlayer,
--- setHitShields and setHpFraction. When a wave ends
+-- setHitShields, setHpFraction and (since B8) drainPlayer. When a wave ends
 -- (Shop phase) players who are down stand up and everyone heals (Config.Shop.waveEnd); nobody walks or dashes in the
 -- shop.
 
@@ -172,6 +172,19 @@ function CombatService.healPlayer(player: Player, amount: number): number
 		send(player)
 	end
 	return gained
+end
+
+-- Item effects (B8): a living participant loses up to `amount` HP, never below 1, without armor, dodge or hit
+-- protection (Vitals.drain); no PlayerDamaged. Returns the HP lost.
+function CombatService.drainPlayer(player: Player, amount: number): number
+	if not canBeHurt(player) then
+		return 0
+	end
+	local lost = getVitals(player):drain(amount)
+	if lost > 0 then
+		send(player)
+	end
+	return lost
 end
 
 -- Hits the player shrugs off completely from now on (item effects); replaces the previous count.
