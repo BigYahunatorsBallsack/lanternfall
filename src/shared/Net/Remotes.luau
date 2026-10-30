@@ -115,4 +115,11 @@ local Remotes: { [string]: Definition } = {
 	CrateOffer = { direction = "toClient" }, -- B6: Net/Types.CrateOffer, to the choosing player
 }
 
+-- B10: class + starting weapon are intents, checked against the current lobby choice.
+Remotes.SelectStartWeapon = {
+	direction = "toServer",
+	rateLimit = { count = 4, perSeconds = 1 },
+	args = { Validate.keyOf(Config.Classes), Validate.keyOf(Config.Weapons) },
+}
+Remotes.StartWeaponChoice = { direction = "toClient" }
 return table.freeze(Remotes)

@@ -28,6 +28,8 @@ local MapService = require(script.Parent.MapService)
 local RandomService = require(script.Parent.RandomService)
 local RunDirector = require(script.Parent.RunDirector)
 local Arsenal = require(script.Arsenal)
+local CharacterRules = require(Shared.Util.CharacterRules)
+local selections: { [Player]: { [string]: string } } = {}
 
 local WeaponService = {}
 
@@ -164,7 +166,13 @@ local arsenal = Arsenal.new({
 		setBurning = EnemySim.setBurning,
 	},
 	behaviors = loadBehaviors(),
-	maxWeapons = Config.Player.maxWeapons,
+	maxWeapons = (function()
+		local maximum = Config.Player.maxWeapons
+		for id in Config.Classes do
+			maximum = math.max(maximum, CharacterRules.maxWeapons(id))
+		end
+		return maximum
+	end)(),
 	maxTier = Config.Player.maxWeaponTier,
 	critChance = Config.Player.critChance,
 	critMultiplier = Config.Player.critMultiplier,
@@ -245,7 +253,12 @@ local function onRunStarted(participants: { Player })
 		local classId = RunDirector.getParticipantClassId(player)
 		local class = classId and Config.Classes[classId]
 		if class then
-			local ok, reason = arsenal:addWeapon(player.UserId, class.startWeapon, now())
+			local choices = selections[player]
+			local chosen = (choices and choices[classId]) or class.startWeapon
+			local ok, reason = arsenal:addWeapon(player.UserId, chosen, now())
+			for _, extra in class.extraWeapons or {} do
+				arsenal:addWeapon(player.UserId, extra, now())
+			end
 			if not ok then
 				warn(`[Lanternfall] {player.Name} gets no start weapon {class.startWeapon}: {reason}`)
 			end
@@ -287,6 +300,27 @@ end
 -- Lifecycle -------------------------------------------------------------------------
 
 function WeaponService.init()
+	Net.onServer("SelectStartWeapon", function(player, classId: string, weaponId: string)
+		local class = Config.Classes[classId]
+		if RunDirector.isOngoing() and RunDirector.getParticipantState(player) ~= nil then
+			return
+		end
+		if RunDirector.getSelectedClassId(player) ~= classId or not class or not class.available then
+			return
+		end
+		if not table.find(class.startWeapons, weaponId) then
+			return
+		end
+		local choices = selections[player] or {}
+		selections[player] = choices
+		choices[classId] = weaponId
+		Net.fireClient("StartWeaponChoice", player, classId, weaponId)
+	end)
+	RunDirector.SyncRequested:Connect(function(player)
+		for classId, weaponId in selections[player] or {} do
+			Net.fireClient("StartWeaponChoice", player, classId, weaponId)
+		end
+	end)
 	require(script.B7Projectile).setSlowAura(function(x, z, radius, factor, seconds)
 		local ids = {}
 		local count = EnemySim.queryRadius(Vector3.new(x, floorY, z), radius, ids)
@@ -317,6 +351,7 @@ function WeaponService.init()
 		end
 	end)
 	Players.PlayerRemoving:Connect(function(player)
+		selections[player] = nil
 		ownerStats[player] = nil
 		hitFeeds[player.UserId] = nil
 		arsenal:removeOwner(player.UserId)
@@ -330,6 +365,18 @@ end
 
 -- Adds a weapon of `tier` (default I); returns its uid.
 function WeaponService.addWeapon(player: Player, weaponId: string, tier: number?): (boolean, string?, number?)
+	if not CharacterRules.weaponAllowed(RunDirector.getParticipantClassId(player), weaponId) then
+		return false, "CharacterRestriction", nil
+	end
+	if
+		not CharacterRules.hasSlot(
+			RunDirector.getParticipantClassId(player),
+			weaponId,
+			WeaponService.getWeapons(player)
+		)
+	then
+		return false, "SlotsFull", nil
+	end
 	local config = Config.Weapons[weaponId]
 	local requestedTier = tier or (config and config.minTier) or 1
 	if config and requestedTier < (config.minTier or 1) then
@@ -469,6 +516,10 @@ end
 -- Damage dealt and kills per weapon in the current (or last) run.
 function WeaponService.getDamageStats(player: Player): Arsenal.DamageStats
 	return arsenal:getDamageStats(player.UserId)
+end
+
+function WeaponService.getMaxWeapons(player: Player): number
+	return CharacterRules.maxWeapons(RunDirector.getParticipantClassId(player))
 end
 
 return WeaponService

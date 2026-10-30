@@ -22,6 +22,7 @@ export type Item = {
 	stats: { [string]: number },
 	limit: number?, -- most you can own; nil = no limit
 	effects: { Effects.Effect }?, -- since B4 (Config.Effects)
+	tags: { string }, -- B10: positive stat/effect affinities used by character shops
 }
 
 -- Chance of a tier at wave (or level) w, Brotato's shop table: (perWave * (w - minWave + 1) + base) * (1 + luck / 100),
@@ -54,7 +55,38 @@ local function item(
 			effects[index] = table.freeze(effect)
 		end
 	end
+	local tags = {}
+	local found = {}
+	local function tag(name: string)
+		if not found[name] then
+			found[name] = true
+			table.insert(tags, name)
+		end
+	end
+	for name, value in stats do
+		if value > 0 then
+			tag(name)
+		end
+	end
+	for _, effect in effects or {} do
+		for name, value in effect.stats or {} do
+			if value > 0 then
+				tag(name)
+			end
+		end
+		if effect.trigger == "Consumable" then
+			tag("consumable")
+		end
+		if effect.action == "Burn" then
+			tag("elementalDamage")
+		end
+	end
+	if (stats.fruitHeal or 0) > 0 then
+		tag("consumable")
+	end
+	table.sort(tags)
 	return table.freeze({
+		tags = table.freeze(tags),
 		id = id,
 		displayName = displayName,
 		tier = tier,
