@@ -108,19 +108,24 @@ describe("SpawnRules", function()
 		expect(SpawnRules.cap(0)).toBe(80)
 	end)
 
-	it("grows HP and damage of every kind by its own amount per wave, like Brotato", function()
+	it("grows HP and damage of every kind by its own amount per growth step", function()
 		local shadeling = Config.Enemies.types.Shadeling
 		local hp, damage = SpawnRules.growth("Shadeling", 1)
 		expect(hp).toBeNear(1)
 		expect(damage).toBeNear(1)
+		local steps = Config.Run.spawn.growth
 		hp, damage = SpawnRules.growth("Shadeling", 20)
-		expect(hp * shadeling.hp).toBeNear(shadeling.hp + 19 * shadeling.hpPerWave)
-		expect(damage * shadeling.contactDamage).toBeNear(shadeling.contactDamage + 19 * shadeling.damagePerWave)
+		expect(hp * shadeling.hp).toBeNear(shadeling.hp + steps.hpSteps[20] * shadeling.hpPerWave)
+		expect(damage * shadeling.contactDamage).toBeNear(
+			shadeling.contactDamage + steps.damageSteps[20] * shadeling.damagePerWave
+		)
+		expect(hp > 12).toBe(true) -- at least about the 14x of the curve before B9
+		expect(SpawnRules.growth("Shadeling", 5) < 2).toBe(true) -- few steps early, many late
 		-- a Spitter's growth counts on its shots
 		local spitter = Config.Enemies.types.Spitter
 		local _, shots = SpawnRules.growth("Spitter", 11)
 		expect(shots * spitter.ranged.projectileDamage).toBeNear(
-			spitter.ranged.projectileDamage + 10 * spitter.damagePerWave
+			spitter.ranged.projectileDamage + steps.damageSteps[11] * spitter.damagePerWave
 		)
 		local _, tree = SpawnRules.growth("Tree", 20)
 		expect(tree).toBe(1) -- no damage to grow

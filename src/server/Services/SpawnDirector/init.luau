@@ -419,8 +419,9 @@ local function spawnQueued(atMinutes: number)
 	end
 end
 
--- Counts down the running spawn groups and fires those that are due, up to the alive cap (enemies whose markers show
--- count too). A group that fires while nobody is alive or the cap is full brings nothing.
+-- Counts down the running spawn groups; a group that fires adds its enemies to what it owes, and owed enemies are
+-- placed as soon as the alive cap leaves room (enemies whose markers show count too), so a full cap delays a group
+-- instead of dropping it (at most a few firings are saved up). Nobody alive: nothing is owed.
 local function updateGroups(dt: number, atMinutes: number, anchors: { Anchor }, cap: number)
 	local groups = SpawnRules.groupsAt(atMinutes)
 	if groups ~= activeGroups then
@@ -435,18 +436,19 @@ local function updateGroups(dt: number, atMinutes: number, anchors: { Anchor }, 
 	local count = playerCount()
 	local factor = StatMath.enemyFactor(StatService.getTeamStat("enemyCount"))
 	for index, entry in groups do
+		local size = SpawnRules.groupSize(entry, atMinutes, count) * factor
 		groupTimers[index] -= dt
-		if groupTimers[index] > 0 then
+		if groupTimers[index] <= 0 then
+			groupTimers[index] += entry.every
+			groupOwed[index] = math.min(groupOwed[index] + size, size * Config.Run.spawn.maxOwedFirings)
+		end
+		if #anchors == 0 then
+			groupOwed[index] = 0
 			continue
 		end
-		groupTimers[index] += entry.every
-		local owed = groupOwed[index] + SpawnRules.groupSize(entry, atMinutes, count) * factor
-		local size = math.floor(owed)
-		groupOwed[index] = owed - size
-		local room = cap - EnemySim.getCount() - #queued
-		size = math.min(size, room)
-		if size > 0 and #anchors > 0 then
-			queueGroup(anchors[pickIndex(#anchors)], entry.enemy, size)
+		local place = math.min(math.floor(groupOwed[index]), cap - EnemySim.getCount() - #queued)
+		if place > 0 then
+			groupOwed[index] -= queueGroup(anchors[pickIndex(#anchors)], entry.enemy, place)
 		end
 	end
 end

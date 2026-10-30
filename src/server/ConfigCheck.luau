@@ -352,8 +352,14 @@ function ConfigCheck.run(): { string }
 			end
 		end
 	end
+	if not (spawn.maxOwedFirings >= 1) then
+		problem("Run.spawn.maxOwedFirings must be at least 1")
+	end
 	if not (spawn.firstShare >= 0 and spawn.groupSpread >= 0 and spawn.markerSeconds >= 0) then
 		problem("Run.spawn.firstShare, groupSpread and markerSeconds must not be negative")
+	end
+	if #spawn.growth.hpSteps < #spawn.groups or #spawn.growth.damageSteps < #spawn.groups then
+		problem("Run.spawn.growth needs hpSteps and damageSteps for every wave")
 	end
 	if not (spawn.swarmRush.every > 0) then
 		problem("Run.spawn.swarmRush.every must be above 0")

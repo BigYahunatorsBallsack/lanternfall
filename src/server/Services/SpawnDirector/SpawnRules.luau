@@ -33,19 +33,20 @@ function SpawnRules.waveAt(minutes: number): number
 end
 
 -- Multipliers on an enemy's HP and damage when it spawns in `wave` (before difficulty): its kind's values plus
--- hpPerWave and damagePerWave for every wave after the first, like Brotato (B9).
+-- hpPerWave and damagePerWave per growth step of the wave (Run.spawn.growth), like Brotato (B9).
 function SpawnRules.growth(enemyId: string, wave: number): (number, number)
 	local kind = Config.Enemies.types[enemyId]
 	if not kind then
 		return 1, 1
 	end
-	local waves = math.max(0, wave - 1)
-	local hp = if kind.hp > 0 then 1 + kind.hpPerWave * waves / kind.hp else 1
+	local growth = Spawn.growth
+	local index = math.clamp(wave, 1, #growth.hpSteps)
+	local hp = if kind.hp > 0 then 1 + kind.hpPerWave * growth.hpSteps[index] / kind.hp else 1
 	local damage = kind.contactDamage
 	if damage <= 0 and kind.ranged then
 		damage = kind.ranged.projectileDamage
 	end
-	return hp, if damage > 0 then 1 + kind.damagePerWave * waves / damage else 1
+	return hp, if damage > 0 then 1 + kind.damagePerWave * growth.damageSteps[index] / damage else 1
 end
 
 -- Swarm Rush running at this minute: the wave's groups pause, Shadeling groups come at rateMultiplier their rate.

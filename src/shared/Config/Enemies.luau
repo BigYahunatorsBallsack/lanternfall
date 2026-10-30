@@ -9,8 +9,9 @@ export type Enemy = {
 	hp: number,
 	speed: number, -- studs/s
 	contactDamage: number,
-	-- B9, Brotato: HP and damage grow by these every wave after the first (damage: contact damage, or the shot
-	-- damage of an enemy without contact damage); wave w: hp + hpPerWave * (w - 1)
+	-- B9, Brotato: HP and damage grow by these per growth step (damage: contact damage, or the shot damage of an
+	-- enemy without contact damage); wave n: hp + hpPerWave * Run.spawn.growth.hpSteps[n] (about n - 1 by wave 20).
+	-- All kinds use about 0.68 x hp and 0.34 x damage, which gives the 14x HP and 7.5x damage of wave 20 from before.
 	hpPerWave: number,
 	damagePerWave: number,
 	xp: number,

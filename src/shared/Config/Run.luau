@@ -77,15 +77,12 @@ local Run = {
 			wave({ group("Shadeling", 6, 2.3), group("Brute", 3, 4.6) }, "Brutes"), -- wave 3: 3.26 enemies/s
 			wave({ group("Shadeling", 8, 2.6), group("Brute", 4, 5.2) }), -- wave 4: 3.85 enemies/s
 			wave({ group("Shadeling", 8, 2.7), group("Brute", 4, 5.2), group("Charger", 3, 5.8) }, "Chargers"), -- wave 5: 4.25 enemies/s
-			wave(
-				{
-					group("Shadeling", 7, 2.4),
-					group("Brute", 4, 5.2),
-					group("Charger", 3, 5.2),
-					group("Spitter", 3, 6.3),
-				},
-				"Spitters"
-			), -- wave 6: 4.74 enemies/s
+			wave({
+				group("Shadeling", 7, 2.4),
+				group("Brute", 4, 5.2),
+				group("Charger", 3, 5.2),
+				group("Spitter", 3, 6.3),
+			}, "Spitters"), -- wave 6: 4.74 enemies/s
 			wave({
 				group("Shadeling", 8, 2.5),
 				group("Brute", 4, 4.8),
@@ -98,16 +95,13 @@ local Run = {
 				group("Charger", 4, 5.9),
 				group("Spitter", 4, 7.0),
 			}), -- wave 8: 5.62 enemies/s
-			wave(
-				{
-					group("Shadeling", 7, 2.5),
-					group("AbyssShadeling", 4, 3.3),
-					group("Brute", 4, 5.0),
-					group("Charger", 4, 5.4),
-					group("Spitter", 4, 6.5),
-				},
-				"Abyss Shadelings"
-			), -- wave 9: 6.17 enemies/s
+			wave({
+				group("Shadeling", 7, 2.5),
+				group("AbyssShadeling", 4, 3.3),
+				group("Brute", 4, 5.0),
+				group("Charger", 4, 5.4),
+				group("Spitter", 4, 6.5),
+			}, "Abyss Shadelings"), -- wave 9: 6.17 enemies/s
 			wave({
 				group("Shadeling", 7, 2.4),
 				group("AbyssShadeling", 4, 3.0),
@@ -115,17 +109,14 @@ local Run = {
 				group("Charger", 5, 6.3),
 				group("Spitter", 5, 7.6),
 			}), -- wave 10: 6.55 enemies/s
-			wave(
-				{
-					group("Shadeling", 4, 2.3),
-					group("AbyssShadeling", 6, 2.9),
-					group("Brute", 3, 4.3),
-					group("Charger", 5, 6.0),
-					group("Spitter", 5, 7.2),
-					group("Splitter", 5, 5.5),
-				},
-				"Splitters"
-			), -- wave 11: 6.94 enemies/s
+			wave({
+				group("Shadeling", 4, 2.3),
+				group("AbyssShadeling", 6, 2.9),
+				group("Brute", 3, 4.3),
+				group("Charger", 5, 6.0),
+				group("Spitter", 5, 7.2),
+				group("Splitter", 5, 5.5),
+			}, "Splitters"), -- wave 11: 6.94 enemies/s
 			wave({
 				group("Shadeling", 5, 2.7),
 				group("AbyssShadeling", 7, 3.2),
@@ -134,18 +125,15 @@ local Run = {
 				group("Spitter", 5, 6.8),
 				group("Splitter", 6, 6.3),
 			}), -- wave 12: 7.34 enemies/s
-			wave(
-				{
-					group("Shadeling", 2, 2.6),
-					group("AbyssShadeling", 10, 3.1),
-					group("Brute", 2, 5.2),
-					group("AbyssBrute", 5, 6.5),
-					group("Charger", 6, 6.5),
-					group("Spitter", 5, 6.5),
-					group("Splitter", 5, 5.9),
-				},
-				"Abyss Brutes"
-			), -- wave 13: 7.69 enemies/s
+			wave({
+				group("Shadeling", 2, 2.6),
+				group("AbyssShadeling", 10, 3.1),
+				group("Brute", 2, 5.2),
+				group("AbyssBrute", 5, 6.5),
+				group("Charger", 6, 6.5),
+				group("Spitter", 5, 6.5),
+				group("Splitter", 5, 5.9),
+			}, "Abyss Brutes"), -- wave 13: 7.69 enemies/s
 			wave({
 				group("Shadeling", 2, 2.5),
 				group("AbyssShadeling", 10, 3.0),
@@ -200,7 +188,60 @@ local Run = {
 				group("Splitter", 7, 5.9),
 			}), -- wave 20: 9.94 enemies/s
 		}),
+		-- How many growth steps an enemy spawned in wave n has (B9): HP = hp + hpPerWave * hpSteps[n], damage alike
+		-- (Config.Enemies). Brotato counts n - 1; with that the balance simulation lost 12 of 12 runs by wave 3-10
+		-- (2.3 times the HP in wave 5). So the steps follow the tested curves from before B9 (few early, many late),
+		-- HP 30 % and damage 15 % above them: with spawn groups good bots won 20 of 24 runs on the old curves
+		-- instead of 8 of 24 before B9.
+		growth = table.freeze({
+			hpSteps = table.freeze({
+				0, -- wave 1: the kind's own values, like Brotato
+				0.22,
+				0.45,
+				0.79,
+				1.2,
+				1.68,
+				2.25,
+				2.91,
+				3.68,
+				4.54,
+				5.45,
+				6.41,
+				7.64,
+				9.18,
+				11,
+				13.09,
+				15.39,
+				17.88,
+				20.55,
+				23.41,
+			}),
+			damageSteps = table.freeze({
+				0,
+				0.17,
+				0.29,
+				0.62,
+				1.18,
+				1.75,
+				2.43,
+				3.21,
+				4,
+				4.85,
+				5.75,
+				6.65,
+				7.89,
+				9.48,
+				11.05,
+				12.8,
+				14.71,
+				16.63,
+				18.69,
+				20.88,
+			}),
+		}),
 		firstShare = 0.3, -- a group fires the first time after this share of its interval (assumption)
+		-- at the alive cap a group waits for room instead of being dropped; it saves up at most this many firings
+		maxOwedFirings = 2,
 		groupSpread = 1.6, -- studs * sqrt(enemies in the group) (assumption)
 		-- red crosses on the floor show where enemies will appear, this long before they do (Brotato; assumption)
 		markerSeconds = 1,
