@@ -1,7 +1,7 @@
 --!strict
 -- Stat formulas from Brotato as pure functions (DESIGN.md section 4, since B2), numbers in Config.Stats and
 -- Config.Items.tiers: summing a stat sheet (since B4 with gain multipliers), armor, dodge, HP regeneration, attack
--- speed, move speed, shop price and enemy factors and the rarity tier roll. Used by StatService, CombatService, WeaponStats, ShopRules and UpgradePool on the server and by the stat
+-- speed, move speed, shop price and enemy factors, burn ticks (B5) and the rarity tier roll. Used by StatService, CombatService, WeaponStats, ShopRules and UpgradePool on the server and by the stat
 -- panel on the client; tested in tests/StatMath.spec.luau.
 
 local Config = require(script.Parent.Parent.Config)
@@ -98,6 +98,13 @@ end
 -- Chance (0..1) that a weapon hit crits: the base crit plus Crit Chance, capped.
 function StatMath.critChance(baseChance: number, critStat: number): number
 	return math.clamp(baseChance + critStat / 100, 0, Stats.critChanceMax / 100)
+end
+
+-- Seconds between two burn ticks with Burning Speed (+20 = 20 % faster, -100 = twice as slow; Brotato, since B5),
+-- never below Config.Combat.burn.minTickSeconds.
+function StatMath.burnInterval(burnSpeed: number): number
+	local rule = Config.Combat.burn
+	return math.max(rule.minTickSeconds, rule.tickSeconds * (1 - burnSpeed / 100))
 end
 
 -- Chance of rarity tier `tier` (Config.Items.tiers) at wave or level `wave` with `luck`, before the rarer tiers

@@ -1,10 +1,13 @@
 --!strict
 -- Spark Bolt (DESIGN.md section 6): every cooldown it shoots `count` bolts at the nearest enemies in range, one
 -- target each; bolts without a target of their own fan out around the nearest by spreadDegrees. A bolt flies
--- straight, hits up to pierce + 1 enemies (closest along its path first, never the same one twice) and vanishes
--- after `range` studs; survivors are pushed `knockback` studs along it. Evolved into Starfire (stats.explosionRadius), every hit also blasts the other enemies within
--- explosionRadius of the hit one for explosionDamage times the bolt's damage. Effects: "Fire" when a bolt starts,
--- "End" when an enemy stops it before its range, "Blast" with center and radius for each explosion. Behavior for WeaponService/Arsenal; drawn by WeaponRenderer/Visuals/SparkBolt.
+-- straight, hits up to pierce + 1 enemies (closest along its path first, never the same one twice; since B5 each
+-- further one takes pierceDamage of the one before, Brotato's 50 % falloff) and vanishes after `range` studs. Hits knock
+-- enemies away from the owner (Arsenal). Since B5 a bolt with `bounce` left flies on from an enemy it hits to a random
+-- other one nearby (ctx:bounceTarget) before it pierces anything, each bounce dealing bounceDamage of the one before
+-- and without knockback. Evolved into Starfire (stats.explosionRadius), every hit also blasts the other enemies around
+-- the hit one (ctx:explode). Effects: "Fire" when a bolt starts (also a bounced one, from the enemy), "End" when an
+-- enemy stops it before its range. Behavior for WeaponService/Arsenal; drawn by WeaponRenderer/Visuals/SparkBolt.
 
 local Arsenal = require(script.Parent.Parent.Arsenal)
 
@@ -19,7 +22,10 @@ type Bolt = {
 	speed: number,
 	radius: number,
 	hitsLeft: number,
-	hit: { [number]: boolean }, -- enemy ids this bolt already hit
+	bouncesLeft: number,
+	share: number, -- of the weapon's damage the next hit deals (pierce and bounce falloff)
+	bounced: boolean, -- no knockback after a bounce
+	hit: { [number]: boolean }, -- enemy ids this bolt already hit, kept across bounces
 }
 
 local EPSILON = 1e-6
@@ -30,7 +36,6 @@ local order: { number } = {} -- new hits of one step, sorted by distance along t
 local along: { [number]: number } = {}
 local hitX: { [number]: number } = {}
 local hitZ: { [number]: number } = {}
-local blasted: { number } = {}
 
 local SparkBolt = {}
 
@@ -48,6 +53,51 @@ local function rotate(dx: number, dz: number, angle: number): (number, number)
 	return dx * c - dz * s, dx * s + dz * c
 end
 
+-- Starts a bolt at (x, z) flying along (dx, dz) and tells the clients.
+local function launch(
+	weapon: Arsenal.Weapon,
+	ctx: Arsenal.Context,
+	x: number,
+	z: number,
+	dx: number,
+	dz: number,
+	hitsLeft: number,
+	bouncesLeft: number,
+	share: number,
+	bounced: boolean,
+	hit: { [number]: boolean }
+): Bolt
+	local stats = weapon.stats
+	local bolt: Bolt = {
+		id = ctx:nextId(),
+		x = x,
+		z = z,
+		dx = dx,
+		dz = dz,
+		flown = 0,
+		range = stats.range,
+		speed = stats.projectileSpeed,
+		radius = stats.projectileRadius,
+		hitsLeft = hitsLeft,
+		bouncesLeft = bouncesLeft,
+		share = share,
+		bounced = bounced,
+		hit = hit,
+	}
+	table.insert(boltsOf(weapon), bolt)
+	ctx:emit(weapon, {
+		kind = "Fire",
+		id = bolt.id,
+		x = x,
+		z = z,
+		dx = dx,
+		dz = dz,
+		speed = bolt.speed,
+		range = bolt.range,
+	})
+	return bolt
+end
+
 function SparkBolt.fire(weapon: Arsenal.Weapon, ctx: Arsenal.Context): boolean
 	local stats = weapon.stats
 	local count = math.max(1, math.floor(stats.count))
@@ -55,7 +105,6 @@ function SparkBolt.fire(weapon: Arsenal.Weapon, ctx: Arsenal.Context): boolean
 	if targetCount == 0 then
 		return false
 	end
-	local bolts = boltsOf(weapon)
 	local hitsPerBolt = if stats.pierce < 0 then math.huge else stats.pierce + 1
 	for k = 1, count do
 		local tx, tz = ctx:enemyPosition(targets[math.min(k, targetCount)])
@@ -71,57 +120,20 @@ function SparkBolt.fire(weapon: Arsenal.Weapon, ctx: Arsenal.Context): boolean
 			local side = if extra % 2 == 1 then 1 else -1
 			dx, dz = rotate(dx, dz, math.rad(stats.spreadDegrees) * side * math.ceil(extra / 2))
 		end
-		local bolt: Bolt = {
-			id = ctx:nextId(),
-			x = ctx.x,
-			z = ctx.z,
-			dx = dx,
-			dz = dz,
-			flown = 0,
-			range = stats.range,
-			speed = stats.projectileSpeed,
-			radius = stats.projectileRadius,
-			hitsLeft = hitsPerBolt,
-			hit = {},
-		}
-		table.insert(bolts, bolt)
-		ctx:emit(weapon, {
-			kind = "Fire",
-			id = bolt.id,
-			x = bolt.x,
-			z = bolt.z,
-			dx = dx,
-			dz = dz,
-			speed = bolt.speed,
-			range = bolt.range,
-		})
+		launch(weapon, ctx, ctx.x, ctx.z, dx, dz, hitsPerBolt, stats.bounce or 0, 1, false, {})
 	end
 	return true
 end
 
--- Starfire: damages every enemy around (x, z) except the one the bolt hit.
-local function explode(
+-- Hits the enemies on the bolt's path of this step in order. Returns how far along the path it stopped (nil if it
+-- flies on) and, for a bounce, the enemy it bounces off and the next target.
+local function hitAlong(
 	weapon: Arsenal.Weapon,
 	ctx: Arsenal.Context,
-	hitId: number,
-	x: number,
-	z: number,
-	radius: number
-)
-	ctx:emit(weapon, { kind = "Blast", x = x, z = z, radius = radius })
-	local multiplier = weapon.stats.explosionDamage or 1
-	local count = ctx:queryCircle(x, z, radius, blasted)
-	for i = 1, count do
-		local id = blasted[i]
-		if id ~= hitId then
-			ctx:hit(weapon, id, multiplier)
-		end
-	end
-end
-
--- Hits the enemies on the bolt's path of this step in order. Returns how far along the path it stopped, or nil
--- if it flies on.
-local function hitAlong(weapon: Arsenal.Weapon, ctx: Arsenal.Context, bolt: Bolt, move: number, hits: number): number?
+	bolt: Bolt,
+	move: number,
+	hits: number
+): (number?, number?, number?)
 	local n = 0
 	for i = 1, hits do
 		local id = found[i]
@@ -145,29 +157,33 @@ local function hitAlong(weapon: Arsenal.Weapon, ctx: Arsenal.Context, bolt: Bolt
 		end
 		order[j + 1] = id
 	end
-	local stopAt: number? = nil
+	local stats = weapon.stats
+	local stopAt: number?, bounceFrom: number?, bounceTo: number? = nil, nil, nil
 	for i = 1, n do
 		local id = order[i]
 		bolt.hit[id] = true
-		local killed = ctx:hit(weapon, id)
-		local knockback = weapon.stats.knockback or 0
-		if not killed and knockback > 0 then
-			ctx:push(id, bolt.dx * knockback, bolt.dz * knockback)
+		ctx:hit(weapon, id, bolt.share, if bolt.bounced then "Bounce" else nil)
+		if stats.explosionRadius then
+			ctx:explode(weapon, hitX[id], hitZ[id], id, bolt.share)
 		end
-		local blastRadius = weapon.stats.explosionRadius
-		if blastRadius then
-			explode(weapon, ctx, id, hitX[id], hitZ[id], blastRadius)
+		if bolt.bouncesLeft > 0 then
+			local target = ctx:bounceTarget(hitX[id], hitZ[id], bolt.hit)
+			if target then
+				stopAt, bounceFrom, bounceTo = math.clamp(along[id], 0, move), id, target
+				break
+			end
 		end
 		bolt.hitsLeft -= 1
 		if bolt.hitsLeft <= 0 then
 			stopAt = math.clamp(along[id], 0, move)
 			break
 		end
+		bolt.share *= stats.pierceDamage or 1
 	end
 	table.clear(along)
 	table.clear(hitX)
 	table.clear(hitZ)
-	return stopAt
+	return stopAt, bounceFrom, bounceTo
 end
 
 function SparkBolt.step(weapon: Arsenal.Weapon, ctx: Arsenal.Context, dt: number)
@@ -180,17 +196,37 @@ function SparkBolt.step(weapon: Arsenal.Weapon, ctx: Arsenal.Context, dt: number
 		local move = math.min(bolt.speed * dt, bolt.range - bolt.flown)
 		local x1, z1 = bolt.x + bolt.dx * move, bolt.z + bolt.dz * move
 		local hits = ctx:querySegment(bolt.x, bolt.z, x1, z1, bolt.radius, found)
-		local stopAt = if hits > 0 then hitAlong(weapon, ctx, bolt, move, hits) else nil
+		local stopAt, bounceFrom, bounceTo
+		if hits > 0 then
+			stopAt, bounceFrom, bounceTo = hitAlong(weapon, ctx, bolt, move, hits)
+		end
 		if stopAt then
 			bolt.flown += stopAt
-			ctx:emit(weapon, {
-				kind = "End",
-				id = bolt.id,
-				x = bolt.x + bolt.dx * stopAt,
-				z = bolt.z + bolt.dz * stopAt,
-				distance = bolt.flown,
-			})
+			local endX, endZ = bolt.x + bolt.dx * stopAt, bolt.z + bolt.dz * stopAt
+			ctx:emit(weapon, { kind = "End", id = bolt.id, x = endX, z = endZ, distance = bolt.flown })
 			table.remove(bolts, index)
+			local fromX, fromZ = ctx:enemyPosition(bounceFrom or 0)
+			local toX, toZ = ctx:enemyPosition(bounceTo or 0)
+			if fromX and fromZ and toX and toZ then
+				local dx, dz = toX - fromX, toZ - fromZ
+				local length = math.sqrt(dx * dx + dz * dz)
+				if length < EPSILON then
+					dx, dz, length = bolt.dx, bolt.dz, 1
+				end
+				launch(
+					weapon,
+					ctx,
+					fromX,
+					fromZ,
+					dx / length,
+					dz / length,
+					bolt.hitsLeft,
+					bolt.bouncesLeft - 1,
+					bolt.share * (weapon.stats.bounceDamage or 1),
+					true,
+					bolt.hit
+				)
+			end
 		else
 			bolt.x, bolt.z = x1, z1
 			bolt.flown += move

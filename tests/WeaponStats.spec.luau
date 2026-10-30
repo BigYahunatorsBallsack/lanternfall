@@ -1,5 +1,6 @@
 -- Unit tests for effective weapon stats (WeaponService/WeaponStats): tier deltas, the owner's stats with Brotato's
--- rules (damage scaling, Damage %, Attack Speed, Range, crit and life steal), the cooldown floor and evolutions.
+-- rules (damage scaling, Damage %, Attack Speed, Range, crit and life steal), the cooldown floor and evolutions, and
+-- since B5 the combat stats (per weapon crits and life steal, knockback, piercing, bouncing, explosions, burning).
 
 local Shared = game:GetService("ReplicatedStorage").Shared
 local Config = require(Shared.Config)
@@ -17,9 +18,13 @@ describe("WeaponStats", function()
 	it("uses the base values at tier I", function()
 		local stats = compute("OrbitBlades", 1)
 		for key, value in W.OrbitBlades.base do
-			expect(stats[key]).toBe(value)
+			if key ~= "knockback" then
+				expect(stats[key]).toBe(value)
+			end
 		end
-		expect(stats.critChance).toBeNear(Config.Player.critChance)
+		expect(stats.knockback).toBeNear(W.OrbitBlades.base.knockback * Config.Combat.knockback.studsPerPoint)
+		expect(stats.critChance).toBeNear(W.OrbitBlades.base.critChance)
+		expect(stats.critDamage).toBe(W.OrbitBlades.base.critDamage)
 		expect(stats.lifeSteal).toBe(0)
 	end)
 
@@ -75,9 +80,76 @@ describe("WeaponStats", function()
 
 	it("carries crit chance and life steal from the stats", function()
 		local stats = compute("SparkBolt", 1, { critChance = 20, lifeSteal = 5 })
-		expect(stats.critChance).toBeNear(Config.Player.critChance + 0.2)
+		expect(stats.critChance).toBeNear(W.SparkBolt.base.critChance + 0.2)
 		expect(stats.lifeSteal).toBeNear(0.05)
 		expect(compute("SparkBolt", 1, { critChance = 500 }).critChance).toBe(1)
+		expect(compute("ThornTrail", 1, { critChance = -50 }).critChance).toBe(0)
+	end)
+
+	it("adds a weapon's own life steal from its tiers to the stat", function()
+		expect(compute("OrbitBlades", 2, { lifeSteal = 5 }).lifeSteal).toBeNear(0.05)
+		expect(compute("OrbitBlades", 3, { lifeSteal = 5 }).lifeSteal).toBeNear(0.08)
+		expect(compute("OrbitBlades", 4).lifeSteal).toBeNear(0.06)
+	end)
+
+	it("scales a weapon with several stats", function()
+		local wave = compute("Shockwave", 1, { meleeDamage = 4, armor = 6 })
+		expect(wave.damage).toBeNear(W.Shockwave.base.damage + 4 + 6 * W.Shockwave.scaling.armor)
+		local axe = compute("BoomerangAxe", 1, { rangedDamage = 10, meleeDamage = 10 })
+		expect(axe.damage).toBeNear(W.BoomerangAxe.base.damage + 10 * 0.8 + 10 * 0.5)
+	end)
+
+	it("turns knockback points into studs and adds the Knockback stat", function()
+		local studs = Config.Combat.knockback.studsPerPoint
+		expect(compute("Shockwave", 1).knockback).toBeNear(W.Shockwave.base.knockback * studs)
+		expect(compute("ChainLightning", 1, { knockback = 5 }).knockback).toBeNear(5 * studs)
+		expect(compute("ChainLightning", 1, { knockback = -5 }).knockback).toBe(0)
+	end)
+
+	it("adds Piercing and Bouncing to projectiles and lets Piercing Damage give back the falloff", function()
+		local bolt = compute("SparkBolt", 1, { piercing = 2, bounce = 1 })
+		expect(bolt.pierce).toBe(W.SparkBolt.base.pierce + 2)
+		expect(bolt.pierceDamage).toBeNear(1 - Config.Combat.piercing.falloff)
+		expect(bolt.bounce).toBe(1)
+		expect(bolt.bounceDamage).toBeNear(1 - Config.Combat.bounce.falloff)
+		expect(compute("SparkBolt", 1, { piercingDamage = 15 }).pierceDamage).toBeNear(0.65)
+		expect(compute("SparkBolt", 1, { piercingDamage = 500 }).pierceDamage).toBe(1) -- never above full damage
+		local axe = compute("BoomerangAxe", 1, { piercing = 3 })
+		expect(axe.pierce).toBe(-1) -- already flies through everything
+		expect(axe.pierceDamage).toBe(1) -- and loses nothing
+		expect(compute("ChainLightning", 1, { bounce = 2 }).jumps).toBe(W.ChainLightning.base.jumps + 2)
+	end)
+
+	it("grows explosions with Explosion Size and Damage", function()
+		local starfire = compute("SparkBolt", 4, { explosionSize = 50, explosionDamage = 20 }, "Starfire")
+		local evolution = Config.Evolutions.Starfire.stats
+		expect(starfire.explosionRadius).toBeNear(evolution.explosionRadius * 1.5)
+		expect(starfire.explosionDamage).toBeNear(evolution.explosionDamage * 1.2)
+	end)
+
+	it("scales a weapon's burn with Elemental Damage, Damage %, Burning Speed and Spread", function()
+		local torch = {
+			id = "Torch",
+			kind = "Melee",
+			classes = { "Primal" },
+			scaling = {},
+			rangeKeys = {},
+			base = { damage = 1, cooldown = 1, burnDamage = 3, burnTicks = 3 },
+			tiers = { {}, {}, {}, {} },
+		}
+		local stats = WeaponStats.compute(
+			torch :: any,
+			1,
+			{ elementalDamage = 2, damage = 50, burnSpeed = 20, burnSpread = 1 },
+			nil,
+			MIN_COOLDOWN
+		)
+		expect(stats.burnDamage).toBeNear((3 + 2) * 1.5)
+		expect(stats.burnInterval).toBeNear(Config.Combat.burn.tickSeconds * 0.8)
+		expect(stats.burnSpread).toBe(1)
+		expect(stats.burnChance).toBe(1)
+		expect(WeaponStats.ownerDamage(1, { elementalDamage = 1 }, { elementalDamage = 4, damage = -50 })).toBeNear(2.5)
+		expect(WeaponStats.ownerDamage(1, nil, { damage = -100 })).toBe(1)
 	end)
 
 	it("applies an evolution on top of the max tier", function()

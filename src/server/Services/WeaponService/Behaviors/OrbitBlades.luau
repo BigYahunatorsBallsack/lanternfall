@@ -1,6 +1,7 @@
 --!strict
 -- Orbit Blades (DESIGN.md section 6): `count` blades spin around the owner, each reaching from bladeInnerRadius out
--- to `radius`, and hit every enemy they sweep over; the same enemy at most once per hitCooldownPerEnemy. Angles
+-- to `radius`, and hit every enemy they sweep over (since B5 with a little knockback, Arsenal); the same enemy at most
+-- once per hitCooldownPerEnemy. Angles
 -- come from Util/Orbit and server time, so WeaponRenderer/Visuals/OrbitBlades draws the blades in the same place
 -- without any effects. Blades rest while the owner is down. Behavior for WeaponService/Arsenal.
 

@@ -1,7 +1,7 @@
 --!strict
 -- Chain Lightning (DESIGN.md section 6): once the cooldown is over and an enemy is within `range`, lightning strikes
 -- the nearest one and jumps on to the nearest enemy not hit yet within jumpRange of the last, until it has hit
--- `jumps` enemies or finds no one left. Hits land at once. Effect: "Chain" with the owner and every hit enemy as
+-- `jumps` enemies (since B5 plus the Bounce stat, WeaponStats) or finds no one left. Hits land at once. Effect: "Chain" with the owner and every hit enemy as
 -- points. Behavior for WeaponService/Arsenal; drawn by WeaponRenderer/Visuals/ChainLightning.
 
 local Arsenal = require(script.Parent.Parent.Arsenal)

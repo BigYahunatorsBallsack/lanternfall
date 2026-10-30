@@ -6,7 +6,7 @@
 --   header  u8 count                                       1 byte
 --   hit     i16 x, i16 z, u16 amount, u8 flags            7 bytes each
 -- x/z are the enemy's floor position in Snapshot.POSITION_SCALE units; amount is the damage rounded, at least 1,
--- at most 65535; flags bit 0 = critical hit, bit 1 = the hit killed. At most MAX_HITS per packet (well below the
+-- at most 65535; flags bit 0 = critical hit, bit 1 = the hit killed, bit 2 = a burn tick (B5). At most MAX_HITS per packet (well below the
 -- ~900 bytes an unreliable remote carries); the sender drops the rest.
 
 local Snapshot = require(script.Parent.Snapshot)
@@ -21,8 +21,9 @@ local HitNumbers = {}
 HitNumbers.MAX_HITS = 100
 HitNumbers.FLAG_CRIT = 1
 HitNumbers.FLAG_KILL = 2
+HitNumbers.FLAG_BURN = 4
 
-export type Hit = { x: number, z: number, amount: number, crit: boolean, killed: boolean }
+export type Hit = { x: number, z: number, amount: number, crit: boolean, killed: boolean, burn: boolean }
 
 local function packPosition(value: number): number
 	return math.clamp(math.round(value * SCALE), INT16_MIN, INT16_MAX)
@@ -70,6 +71,7 @@ function HitNumbers.decode(b: buffer): { Hit }
 			amount = buffer.readu16(b, offset + 4),
 			crit = flags % 2 == 1,
 			killed = (flags // 2) % 2 == 1,
+			burn = (flags // 4) % 2 == 1,
 		}
 		offset += HIT_SIZE
 	end

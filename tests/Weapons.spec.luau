@@ -1,12 +1,15 @@
 -- Unit tests for the weapon framework (WeaponService/Arsenal) and the prototype weapons (WeaponService/Behaviors)
 -- against a real enemy World: slots, tiers and merging, targeting, hits, pierce, cooldowns, knockback, crits, down owners,
--- all six weapons and both evolutions, and the step budget with four fully armed players among 140 enemies.
+-- all six weapons and both evolutions, and the step budget with four fully armed players among 140 enemies. Since B5
+-- also Brotato's combat: per weapon crits, knockback away from the owner, pierce falloff, bounces, slows, burns
+-- (WeaponService/Afflictions), item burns and explosions and the 12 attacks per second cap.
 
 local Shared = game:GetService("ReplicatedStorage").Shared
 local Config = require(Shared.Config)
 local Services = game:GetService("ServerScriptService").Server.Services
 local World = require(Services.EnemySim.World)
 local Arsenal = require(Services.WeaponService.Arsenal)
+local EnemyKinds = require(Shared.Util.EnemyKinds)
 
 local Sim = Config.Simulation
 local STEP = 1 / Sim.tickRate
@@ -65,8 +68,17 @@ local function setup(options)
 			push = function(id, dx, dz)
 				world:push(id, dx, dz)
 			end,
+			isAlive = function(id)
+				return world:isAlive(id)
+			end,
 			isElite = function(id)
 				return scene.elites[id] == true
+			end,
+			slow = function(id, factor, seconds)
+				world:slow(id, factor, seconds)
+			end,
+			setBurning = function(id, on)
+				world:setBurning(id, on)
 			end,
 		},
 		behaviors = options.behaviors or behaviors,
@@ -78,7 +90,7 @@ local function setup(options)
 		onLifeSteal = options.onLifeSteal,
 		onHit = options.onHit,
 		sweepStep = Sim.weaponSweepStep,
-		random = function()
+		random = options.random or function()
 			return 0.5
 		end,
 	})
@@ -251,8 +263,10 @@ describe("Arsenal", function()
 		local hits = {}
 		local scene = setup({
 			bonuses = { eliteDamage = 50 },
-			onHit = function(weapon, id, dealt, crit, killed)
+			onHit = function(ownerId, weapon, id, dealt, crit, killed, source)
+				expect(ownerId).toBe(OWNER)
 				table.insert(hits, { id = id, dealt = dealt, crit = crit, killed = killed, weapon = weapon.id })
+				expect(source).toBe("Weapon")
 			end,
 		})
 		give(scene, "SparkBolt")
@@ -274,10 +288,40 @@ describe("Arsenal", function()
 		give(scene, "SparkBolt")
 		local brute = spawn(scene, "Brute", 10, 0)
 		run(scene, 0.5)
-		expect(lost(scene, brute, Types.Brute.hp)).toBeNear(W.SparkBolt.base.damage * Config.Player.critMultiplier)
+		local crit = W.SparkBolt.base.damage * W.SparkBolt.base.critDamage -- each weapon its own multiplier (B5)
+		expect(lost(scene, brute, Types.Brute.hp)).toBeNear(crit)
 		local stats = scene.arsenal:getDamageStats(OWNER).SparkBolt
-		expect(stats.damage).toBeNear(W.SparkBolt.base.damage * Config.Player.critMultiplier)
+		expect(stats.damage).toBeNear(crit)
 		expect(stats.kills).toBe(0)
+	end)
+
+	it("knocks enemies straight away from the owner, resistant ones less and elites not at all", function()
+		local scene = setup({ bonuses = { knockback = 20 } })
+		give(scene, "ChainLightning") -- no knockback of its own: only the stat's 20 points
+		local studs = 20 * Config.Combat.knockback.studsPerPoint
+		local light = spawnAt(scene, "Shadeling", 10, 90, TOUGH)
+		run(scene, STEP)
+		local x, z = scene.world:getPosition(light)
+		expect(x).toBeNear(0)
+		expect(z).toBeNear(10 + studs)
+		local brute = spawn(scene, "Brute", 0, -10, TOUGH)
+		local elite = EnemyKinds.get("Shadeling", true) :: any
+		local gloom = scene.world:spawn(elite, -10, 0, TOUGH, elite.contactDamage)
+		scene.world:step(STEP, {}, {}, 0)
+		local bruteBefore = select(2, scene.world:getPosition(brute))
+		local gloomBefore = scene.world:getPosition(gloom)
+		run(scene, W.ChainLightning.base.cooldown)
+		expect(select(2, scene.world:getPosition(brute))).toBeNear(bruteBefore - studs * 0.1) -- resistance 0.9
+		expect(scene.world:getPosition(gloom)).toBeNear(gloomBefore)
+	end)
+
+	it("never attacks more than 12 times per second", function()
+		local scene = setup({ bonuses = { attackSpeed = 100000 } })
+		give(scene, "SparkBolt")
+		spawn(scene, "Brute", 10, 0, TOUGH)
+		run(scene, 1)
+		local fired = #effectsOf(scene, "Fire")
+		expect(fired >= 11 and fired <= 13).toBe(true)
 	end)
 end)
 
@@ -358,7 +402,7 @@ describe("Spark Bolt", function()
 		local third = spawn(scene, "Brute", 22, 0, TOUGH)
 		run(scene, 0.8) -- one shot (cooldown 0.9 s)
 		expect(lost(scene, first, TOUGH)).toBeNear(base.damage)
-		expect(lost(scene, second, TOUGH)).toBeNear(base.damage)
+		expect(lost(scene, second, TOUGH)).toBeNear(base.damage * (1 - Config.Combat.piercing.falloff)) -- B5
 		expect(lost(scene, third, TOUGH)).toBe(0)
 		local ended = effectsOf(scene, "End")
 		expect(#ended).toBe(1)
@@ -409,6 +453,24 @@ describe("Spark Bolt", function()
 	end)
 end)
 
+describe("bouncing", function()
+	it("bounces a bolt to another enemy before it pierces, each bounce dealing less", function()
+		local scene = setup({ bonuses = { bounce = 1 } })
+		give(scene, "SparkBolt")
+		local first = spawn(scene, "Brute", 10, 0, TOUGH)
+		local second = spawn(scene, "Brute", 10, 12, TOUGH) -- off the bolt's path
+		run(scene, 0.8)
+		local share = 1 - Config.Combat.bounce.falloff
+		expect(lost(scene, first, TOUGH)).toBeNear(W.SparkBolt.base.damage)
+		expect(lost(scene, second, TOUGH)).toBeNear(W.SparkBolt.base.damage * share)
+		local fired = effectsOf(scene, "Fire")
+		expect(#fired).toBe(2) -- the shot and its bounce, starting at the first Brute
+		expect(fired[2].x).toBeNear(10, 0.2) -- from the first Brute (knocked back a little)
+		expect(fired[2].dz).toBeNear(1, 0.01)
+		expect(effectsOf(scene, "End")[1].id).toBe(fired[1].id)
+	end)
+end)
+
 describe("Shockwave", function()
 	local base = W.Shockwave.base
 
@@ -422,8 +484,9 @@ describe("Shockwave", function()
 		expect(lost(scene, light, TOUGH)).toBeNear(base.damage)
 		expect(lost(scene, heavy, TOUGH)).toBeNear(base.damage)
 		expect(lost(scene, outside, TOUGH)).toBe(0)
-		expect(scene.world:getPosition(light)).toBeNear(6 + base.knockback)
-		expect(scene.world:getPosition(heavy)).toBeNear(-9 - base.knockback / Types.Brute.mass)
+		local studs = base.knockback * Config.Combat.knockback.studsPerPoint
+		expect(scene.world:getPosition(light)).toBeNear(6 + studs)
+		expect(scene.world:getPosition(heavy)).toBeNear(-9 - studs * (1 - Types.Brute.knockbackResistance))
 		local pulses = effectsOf(scene, "Pulse")
 		expect(#pulses).toBe(1)
 		expect(pulses[1].radius).toBe(base.radius)
@@ -530,6 +593,88 @@ describe("Thorn Trail", function()
 		give(scene, "ThornTrail")
 		run(scene, 3 * base.duration, true)
 		expect(#scene.effects).toBe(0)
+	end)
+end)
+
+describe("slows and burns", function()
+	it("Thorn Trail slows the enemies on it", function()
+		local scene = setup()
+		give(scene, "ThornTrail")
+		local enemy = spawn(scene, "Shadeling", 0, 0, TOUGH)
+		run(scene, W.ThornTrail.base.tickInterval + STEP)
+		expect((scene.world:getStatus(enemy))).toBe(true)
+		expect(scene.world.slowFactors[scene.world.indexOf[enemy]]).toBeNear(1 - W.ThornTrail.base.slow)
+	end)
+
+	it("burns an enemy from an item effect for its ticks, without stacking", function()
+		local hits = {}
+		local scene = setup({
+			bonuses = { elementalDamage = 2 },
+			onHit = function(_, weapon, id, dealt, crit, killed, source)
+				table.insert(hits, { weapon = weapon, id = id, dealt = dealt, crit = crit, source = source })
+			end,
+		})
+		local enemy = spawn(scene, "Brute", 30, 0, TOUGH)
+		scene.arsenal:queueBurn(OWNER, enemy, 1, { elementalDamage = 1 }, 3)
+		run(scene, STEP)
+		expect(scene.arsenal:isBurning(enemy)).toBe(true)
+		expect(select(2, scene.world:getStatus(enemy))).toBe(true)
+		scene.arsenal:queueBurn(OWNER, enemy, 1, { elementalDamage = 1 }, 2) -- weaker: no change
+		run(scene, 5)
+		expect(lost(scene, enemy, TOUGH)).toBeNear(3 * 3) -- 3 ticks of 1 + 2 Elemental
+		expect(#hits).toBe(3)
+		expect(hits[1].source).toBe("Burn")
+		expect(hits[1].crit).toBe(false)
+		expect(hits[1].weapon).toBe(nil)
+		expect(scene.arsenal:isBurning(enemy)).toBe(false)
+		expect(select(2, scene.world:getStatus(enemy))).toBe(false)
+	end)
+
+	it("ticks faster with Burning Speed and spreads to the nearest enemy with Burning Spread", function()
+		local scene = setup({ bonuses = { burnSpeed = 50, burnSpread = 1 } })
+		local enemy = spawn(scene, "Brute", 30, 0, TOUGH)
+		local near = spawn(scene, "Brute", 30, 6, TOUGH)
+		local far = spawn(scene, "Brute", 30, 30, TOUGH)
+		scene.arsenal:queueBurn(OWNER, enemy, 4, nil, 2)
+		run(scene, STEP)
+		run(scene, 0.5)
+		expect(lost(scene, enemy, TOUGH)).toBeNear(4) -- first tick after 0.5 s instead of 1 s
+		expect(scene.arsenal:isBurning(near)).toBe(true)
+		expect(scene.arsenal:isBurning(far)).toBe(false)
+		run(scene, 2)
+		expect(lost(scene, near, TOUGH)).toBeNear(8)
+	end)
+
+	it("blows up around a point from an item effect, with Explosion Size and Damage", function()
+		local hits = {}
+		local scene = setup({
+			bonuses = { explosionSize = 100, explosionDamage = 50, meleeDamage = 4 },
+			onHit = function(_, _, id, dealt, _, _, source)
+				table.insert(hits, { id = id, dealt = dealt, source = source })
+			end,
+		})
+		local radius = Config.Combat.explosion.baseRadius * 0.5 * 2
+		local inside = spawn(scene, "Brute", 30 + radius - 1, 0, TOUGH)
+		local outside = spawn(scene, "Brute", 30 + radius + Types.Brute.radius + 1, 0, TOUGH)
+		scene.arsenal:queueExplosion(OWNER, 30, 0, 10, { meleeDamage = 0.5 }, 0.5)
+		run(scene, STEP)
+		expect(lost(scene, inside, TOUGH)).toBeNear((10 + 2) * 1.5)
+		expect(lost(scene, outside, TOUGH)).toBe(0)
+		expect(hits[1].source).toBe("Explosion")
+		local blasts = effectsOf(scene, "Blast")
+		expect(#blasts).toBe(1)
+		expect(blasts[1].weapon).toBe("Explosion")
+		expect(blasts[1].radius).toBeNear(radius)
+	end)
+
+	it("puts out every burn when the combat is cleared", function()
+		local scene = setup()
+		local enemy = spawn(scene, "Brute", 30, 0, TOUGH)
+		scene.arsenal:queueBurn(OWNER, enemy, 5, nil, 5)
+		run(scene, STEP)
+		scene.arsenal:clearCombat()
+		run(scene, 3)
+		expect(lost(scene, enemy, TOUGH)).toBe(0)
 	end)
 end)
 
