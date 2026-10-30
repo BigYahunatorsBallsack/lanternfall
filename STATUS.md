@@ -17,7 +17,7 @@ Kurzer Projektstand für neue Sessions. **Zuerst lesen**, dann aus `DESIGN.md` n
 - **Paket 10 Teil 2 Champions (Strang A, 30.10.2026):** PR `[Claude] Paket 10 Teil 2 Champions` von Branch `wp-10b-elites`, wartet auf Test und OK (`/mnt/project-files/lanternfall-wp10b/TESTANLEITUNG.md`). Acht Champions nach Brotatos Elites (Brass Ram, Flayer, Abbot, Mire Jaw, Monolith, Sickle Wraith, Brood Matron, Stone Seraph) mit 2–4 Phasen auf dem Boss-Automaten; neue Angriffsarten Cleave, Volley, Scatter, Summon, Dash mit Seiten-Geschossen, Phase „flee". Eine Elite-Welle pro Run (11 oder 12, wie Gefahrenstufe 2–3), Champion mit 75 % HP, wächst mit der Welle, legendäre Kiste. Gloom Elites mit Truhe bleiben bis B11. Danach für Strang A: B11 Gefahrenstufen. Nach dem ersten Test (Owner: Angriffe zu ähnlich) hat jeder Champion eine eigene Spezial-Mechanik: Abprall-Ansturm, Bumerang-Hackbeile, lenkende Rolle mit Schlammpfützen, Bebenlinie, X-Schnitt, Säurepfützen, Spirale und Sturzflug.
 
 - **B11 Gefahrenstufen + Endlos (Strang A, 30.10.2026):** PR #29 von Branch `wp-b11-danger`, nach Test des Owners gemerged (`/mnt/project-files/lanternfall-b11/TESTANLEITUNG.md`). Lobby-Feld „Danger" rechts: Stufe 0–5, Endlos an/aus, Regler Gegner-HP/-Schaden/-Tempo, gilt für die ganze Lobby. Stufen wie Brotato (neue Gegner ab 1, Elite-/Horden-Wellen ab 2, +12/26/40 %, zwei Bosse auf 5), Endlos mit Brotatos Endlos-Faktor, Boss-Wellen alle 10 Wellen. Gloom Elites kommen nicht mehr von selbst. Standard ist Stufe 0 (wie Brotato): Champions erst ab Stufe 2.
-- **Paket 11 Wiederbeleben (Strang A, 30.10.2026):** PR `[Claude] Paket 11 Wiederbeleben` von Branch `wp-11-revive`, wartet auf Test und OK (`/mnt/project-files/lanternfall-wp11/TESTANLEITUNG.md`). Gestürzte zeigen Kreis, „DOWN 23 s" und Balken; Teammate 3 s im Kreis → steht mit 40 % HP auf, 2 s Schutz. Nach 30 s „out" bis Wellenende, Kamera folgt einem Teammate.
+- **Paket 11 Wiederbeleben (Strang A, 30.10.2026):** PR #30 von Branch `wp-11-revive`, gemerged (`/mnt/project-files/lanternfall-wp11/TESTANLEITUNG.md`). Gestürzte zeigen Kreis, „DOWN 23 s" und Balken; Teammate 3 s im Kreis → steht mit 40 % HP auf, 2 s Schutz. Nach 30 s „out" bis Wellenende, Kamera folgt einem Teammate.
 
 ## Stränge
 
@@ -25,7 +25,7 @@ Jeder Strang ändert nur **seine** Zeile (Regeln: `docs/PARALLEL.md`).
 
 | Strang | KI | Aktuelles Paket | Branch / PR | Stand | Danach |
 | --- | --- | --- | --- | --- | --- |
-| A – Engine und Ablauf | Claude | Paket 11 Wiederbeleben (Medium) | `wp-11-revive` | fertig, wartet auf Test und Merge | B11 Teil 2 „Welle wiederholen" (Medium), eigener PR |
+| A – Engine und Ablauf | Claude | Paket 11 Fix: Level-ups für „out" | `wp-11b-out-levels` | Paket 11 gemerged (#30), Fix wartet auf Merge | B11 Teil 2 „Welle wiederholen" exakt wie Brotato, **erst nach B12** (Owner 30.10.2026; Anfang auf Branch `wp-b11b-retry-wave`) |
 | B – Inhalte und Spieler-Regeln | ChatGPT | B10 Charaktere (High) | `wp-b10-characters` | zehn Charaktere umgesetzt, automatisierte Abnahme; Studio-Test offen | B12 Bauten + Begleiter (High) |
 
 ## Feste Entscheidungen des Owners
@@ -52,6 +52,7 @@ Jeder Strang ändert nur **seine** Zeile (Regeln: `docs/PARALLEL.md`).
 - B11 Owner-Test (30.10.2026): auf Stufe 0 zu viele große Gegner, die nicht sterben (keine Tode, die kleinen passen) → Brute/Abyss Brute 65 % HP und 65 % Gruppengröße, neuer Regler „Enemy count“. Das Brotato-PDF des Owners hat nur die Formel, keine Werte pro Gegner/Welle.
 - B11 (30.10.2026, Brotato-Wiki „Danger Levels", „Endless Mode"): Gefahrenstufe gilt für die ganze Lobby, jeder darf sie in der Lobby ändern; ein laufender Run behält seine Wahl. Annahmen, im Test prüfen: Horde = doppelt so viele Gegner pro Spawn-Gruppe, Endlos-Wellen 60 s, Endlos-Boss-Wellen 90 s, Gloom Elites aus. „Welle wiederholen" fehlt (Wiki beschreibt es nicht). Endlos-Faktor auf Shop-Preise/Unverwundbarkeit fehlt (Strang-B-Dateien). Shop-Kopfzeile zeigt in Endlos noch „Wave 23/20" (ShopController, Strang B).
 - Paket 11 (30.10.2026, Annahmen, im Test prüfen): Wer nach 30 s nicht wiederbelebt ist, ist nur bis zum Wellenende raus und steht dann wieder auf (wie Brotatos Koop; Design sagte vorher „Zuschauer bis Run-Ende", das wäre bei 20 Wellen zu hart). Kreis 6 Studs, Timer steht während der Wiederbelebung, Balken läuft in 3 s leer, 2 s Schutz danach. Alles in `Config.Run.coop`.
+- Owner (30.10.2026): „Welle wiederholen" soll den Stand am Wellenstart exakt wiederherstellen (XP, Level, Shards, Werte). Das braucht eine Wiederherstellen-Funktion in `StatService` (Strang B), darum erst nach B12. Paket-11-Fix: Wer „out" ist, behält die Level-ups der Welle (Karten im Shop); die +10 Max HP pro Level zählt `StatService` für „out" noch nicht (Wunsch an Strang B).
 
 ## Owner und Ablauf
 
