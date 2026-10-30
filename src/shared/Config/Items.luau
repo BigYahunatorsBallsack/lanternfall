@@ -7,7 +7,8 @@
 -- Since B4 items can also have effects (Config.Effects: standing still, "per X", growth at the end of a wave, next wave,
 -- on kill, on dodge ...; EffectService runs them). The items after the 46 of B2 each take one Brotato item's
 -- mechanics and numbers (named in the comment, HP times hpScale); what needs a later package is left out and noted.
--- Since B5 12 more for the combat stats and effects (burning, explosions, piercing, bouncing, knockback).
+-- Since B5 12 more for the combat stats and effects (burning, explosions, piercing, bouncing, knockback), since B8
+-- 24 more (kills, pickups, rerolls, level-ups, fruits and crates, living enemies, HP drain, strikes on enemies).
 -- Also the rarity tiers: their chances by wave (shop) or level (level-up cards), raised by Luck (Util/StatMath).
 -- Read by StatService, EffectService, ShopService/ShopRules, UpgradeService and the client (texts, colors).
 
@@ -259,6 +260,93 @@ local LIST: { Item } = {
 	item("IronGauntlet", "Iron Gauntlet", 1, 20, { knockback = 3 }), -- Boxing Glove (price assumption)
 	item("RecoilSpring", "Recoil Spring", 3, 60, { knockback = 5 }, 3, { -- Coil (price assumption)
 		{ trigger = "Always", action = "PerX", source = "knockback", per = 1, stats = { damage = 1 } },
+	}),
+	-- Item package (since B8): Brotato item in the comment, its numbers (HP times hpScale); Engineering, curses and
+	-- structures are left out until their packages.
+	-- Common
+	item("GrubTincture", "Grub Tincture", 1, 15, { maxHp = 30, hpRegen = 2, fruitHeal = -10 }), -- Alien Worm
+	item("BeckoningBell", "Beckoning Bell", 1, 30, { maxHp = 20, damage = 5, enemyCount = 5 }, 10), -- Gentle Alien
+	item("TaintedElixir", "Tainted Elixir", 1, 20, { maxHp = 20, meleeDamage = 2, attackSpeed = -3 }), -- Defective Steroids
+	item("HookedTongue", "Hooked Tongue", 1, 25, { pickupRange = 30, knockback = 1 }), -- Alien Tongue
+	item("CrackedSkull", "Cracked Skull", 1, 25, { damage = 6, range = -8 }), -- Head Injury
+	item("WispJar", "Wisp Jar", 1, 22, {}, nil, { -- Baby Elephant
+		{
+			trigger = "Pickup",
+			action = "Strike",
+			target = "random",
+			chance = 0.25,
+			amount = 1,
+			scaling = { luck = 0.25 },
+		},
+	}),
+	-- Uncommon
+	item("OrderSash", "Sash of the Order", 2, 50, { xpGain = 25, meleeDamage = 3, knockback = 3, luck = -8 }), -- Black Belt
+	item("RollingEye", "Rolling Eye", 2, 30, {}, nil, { -- Cyberball
+		{
+			trigger = "Kill",
+			action = "Strike",
+			target = "random",
+			chance = 0.25,
+			amount = 1,
+			scaling = { luck = 0.25 },
+		},
+	}),
+	item("InkPolyp", "Ink Polyp", 2, 55, { attackSpeed = -3 }, nil, { -- Baby Squid
+		{ trigger = "LevelUp", action = "Grow", stats = { hpRegen = 1 } },
+	}),
+	item("Knucklebones", "Knucklebones", 2, 30, {}, 2, { -- Bone Dice
+		{ trigger = "Reroll", action = "Grow", chance = 0.5, stats = { damage = 1 } },
+		{ trigger = "Reroll", action = "Grow", chance = 0.1, stats = { maxHp = -10 } },
+	}),
+	item("WitchKettle", "Witch's Kettle", 2, 35, { pickupRange = 50, hpRegen = -2 }, 1, { -- Cauldron
+		{ trigger = "Consumable", action = "TimedStats", seconds = 2, stats = { damage = 20 } },
+	}),
+	item("SaltCoral", "Salt Coral", 2, 40, { range = -10 }, nil, { -- Coral
+		{ trigger = "Always", action = "Stats", state = "Still", stats = { hpRegen = 10 } },
+	}),
+	-- Rare
+	item("AstralPhilter", "Astral Philter", 3, 85, { maxHp = 80, hpRegen = 3, luck = -8 }), -- Alien Magic
+	item( -- Honey
+		"AmberResin",
+		"Amber Resin",
+		3,
+		70,
+		{ rangedDamage = 3, explosionDamage = 10, explosionSize = 5, speed = -3, dodge = -3 }
+	),
+	item("RabbleBanner", "Rabble Banner", 3, 75, { armor = -2 }, 1, { -- Community Support
+		{ trigger = "Always", action = "PerX", source = "enemies", per = 1, stats = { attackSpeed = 1 } },
+	}),
+	item("HearthSprite", "Hearth Sprite", 3, 85, {}, 1, { -- Fairy
+		{ trigger = "Always", action = "PerX", source = "distinctItemsTier1", per = 1, stats = { hpRegen = 1 } },
+		{ trigger = "Always", action = "PerX", source = "distinctItemsTier4", per = 1, stats = { hpRegen = -3 } },
+	}),
+	item("BloodChalice", "Blood Chalice", 3, 70, { hpRegen = -3 }, 3, { -- Goblet
+		{ trigger = "Kill", action = "Heal", chance = 0.15, amount = 10 },
+	}),
+	-- Legendary
+	item("CrimsonHand", "Crimson Hand", 4, 110, { lifeSteal = 10 }, 1, { -- Bloody Hand
+		{ trigger = "Always", action = "PerX", source = "lifeSteal", per = 1, stats = { damage = 2 } },
+		{ trigger = "Timer", action = "Drain", interval = 1, amount = 10 },
+	}),
+	item("VelvetDivan", "Velvet Divan", 4, 100, { maxHp = 50, speed = -20 }, 1, { -- Esty's Couch
+		{ trigger = "Always", action = "PerX", source = "speed", per = -1, min = 0, stats = { hpRegen = 2 } },
+	}),
+	item( -- Exoskeleton without its +5 Engineering (B12)
+		"BrassCarapace",
+		"Brass Carapace",
+		4,
+		90,
+		{ armor = 3, critChance = 5, speed = 5, hpRegen = -2, lifeSteal = -2 }
+	),
+	item("ThunderShells", "Thunder Shells", 4, 100, { explosionDamage = 60, explosionSize = 15, damage = -15 }), -- Explosive Shells
+	item("SecondStomach", "Second Stomach", 4, 100, {}, 1, { -- Extra Stomach
+		{ trigger = "Consumable", action = "Grow", fullHp = true, maxPerWave = 8, stats = { maxHp = 10 } },
+	}),
+	item("TitanGirdle", "Titan's Girdle", 4, 110, {}, 1, { -- Giant Belt
+		{ trigger = "Crit", action = "Strike", hpShare = 0.1, eliteHpShare = 0.01 },
+	}),
+	item("PyreAshes", "Pyre Ashes", 4, 100, { damage = 20, attackSpeed = 20, range = 100 }, nil, { -- Ashes
+		{ trigger = "WaveEnd", action = "Grow", stats = { armor = -1 } },
 	}),
 }
 

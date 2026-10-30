@@ -93,6 +93,7 @@ function ConfigCheck.run(): { string }
 		Shields = true,
 		Burn = true,
 		Explode = true,
+		Drain = true,
 	}
 	local function checkEffect(owner: string, effect: EffectsConfig.Effect)
 		if not Effects.triggers[effect.trigger] then
@@ -121,8 +122,8 @@ function ConfigCheck.run(): { string }
 			if not (Effects.perXSources[source] or Config.Stats.byId[source]) then
 				problem(`{owner} counts unknown source {source}`)
 			end
-			if not (effect.per and effect.per > 0) then
-				problem(`{owner}: PerX needs per above 0`)
+			if not (effect.per and effect.per ~= 0) then
+				problem(`{owner}: PerX needs a per other than 0`)
 			end
 		end
 		if effect.trigger == "Timer" and not (effect.interval and effect.interval > 0) then
@@ -141,6 +142,22 @@ function ConfigCheck.run(): { string }
 			if effect.scaling then
 				checkStats(owner, effect.scaling)
 			end
+		end
+		if effect.action == "Strike" then
+			if effect.target and not Effects.strikeTargets[effect.target] then
+				problem(`{owner} has unknown Strike target {effect.target}`)
+			elseif not effect.target and not Effects.enemyTriggers[effect.trigger] then
+				problem(`{owner}: Strike without a target needs an enemy trigger (Hit, Crit or Kill)`)
+			end
+			if not ((effect.amount or 0) > 0 or (effect.hpShare or 0) > 0 or effect.scaling) then
+				problem(`{owner}: Strike needs an amount, scaling or hpShare`)
+			end
+			if effect.scaling then
+				checkStats(owner, effect.scaling)
+			end
+		end
+		if effect.fullHp and effect.trigger ~= "Consumable" then
+			problem(`{owner}: fullHp only works with trigger Consumable`)
 		end
 		if effect.action == "Burn" and not (effect.ticks and effect.ticks >= 1) then
 			problem(`{owner}: Burn needs at least 1 tick`)

@@ -26,6 +26,8 @@ export type Context = {
 	permanent: Sheet, -- the stats without effect bonuses (StatService.getPermanentSheet)
 	shards: number, -- held
 	distinctWeapons: number, -- different weapons carried
+	enemies: number?, -- living enemies right now (B8)
+	distinctItemTiers: { number }?, -- different items owned per rarity tier (B8)
 }
 
 -- One event that may fire triggered effects.
@@ -35,6 +37,7 @@ export type Event = {
 	crit: boolean?, -- Hit, Crit, Kill
 	elite: boolean?, -- Hit, Crit, Kill
 	enemyId: number?, -- Hit, Crit, Kill (B5: Burn and Explode act on it)
+	fullHp: boolean?, -- Consumable: at max HP before its healing (B8)
 }
 
 -- Temporary bonuses of one player.
@@ -115,17 +118,27 @@ local function sourceValue(source: string, context: Context): number
 		return context.shards
 	elseif source == "distinctWeapons" then
 		return context.distinctWeapons
+	elseif source == "enemies" then
+		return context.enemies or 0
+	end
+	local tier = string.match(source, "^distinctItemsTier(%d)$")
+	if tier then
+		local tiers = context.distinctItemTiers
+		return if tiers then tiers[tonumber(tier) :: number] or 0 else 0
 	end
 	return context.permanent[source] or 0
 end
 
--- How many steps a PerX effect gives: the source divided by `per`, rounded toward zero, at most `max`.
+-- How many steps a PerX effect gives: the source divided by `per`, rounded toward zero, at most `max`, at least `min`.
 function EffectRules.perXSteps(effect: Effects.Effect, context: Context): number
 	local per = effect.per or 1
 	local value = sourceValue(effect.source or "", context) / per
 	local steps = if value >= 0 then math.floor(value + 1e-9) else -math.floor(-value + 1e-9)
 	if effect.max then
 		steps = math.min(steps, effect.max)
+	end
+	if effect.min then
+		steps = math.max(steps, effect.min)
 	end
 	return steps
 end
@@ -174,8 +187,8 @@ end
 
 -- Triggered effects -------------------------------------------------------------------------
 
--- Whether the entry's conditions allow it to fire for `event` (before its chance): the trigger, crit and elite, the
--- wave window and the limit per wave.
+-- Whether the entry's conditions allow it to fire for `event` (before its chance): the trigger, crit and elite, full HP
+-- (B8), the wave window and the limit per wave.
 function EffectRules.matches(entry: Entry, event: Event, buffs: Buffs): boolean
 	local effect = entry.effect
 	if effect.trigger ~= event.trigger then
@@ -185,6 +198,9 @@ function EffectRules.matches(entry: Entry, event: Event, buffs: Buffs): boolean
 		return false
 	end
 	if effect.elite and not event.elite then
+		return false
+	end
+	if effect.fullHp and not event.fullHp then
 		return false
 	end
 	if (effect.fromWave and event.wave < effect.fromWave) or (effect.untilWave and event.wave > effect.untilWave) then
@@ -241,6 +257,21 @@ function EffectRules.randomStats(points: number, random: () -> number): Sheet
 		sheet[statId] = (sheet[statId] or 0) + (Effects.randomPoint[statId] or 1)
 	end
 	return sheet
+end
+
+-- Different items owned per rarity tier (PerX sources distinctItemsTier1..4, B8).
+function EffectRules.distinctItemTiers(itemCounts: { [string]: number }): { number }
+	local tiers = {}
+	for index in Items.tiers do
+		tiers[index] = 0
+	end
+	for itemId, count in itemCounts do
+		local item = Items.byId[itemId]
+		if item and count > 0 then
+			tiers[item.tier] = (tiers[item.tier] or 0) + 1
+		end
+	end
+	return tiers
 end
 
 -- Temporary bonuses -------------------------------------------------------------------------

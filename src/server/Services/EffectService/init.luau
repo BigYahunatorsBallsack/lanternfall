@@ -4,7 +4,7 @@
 -- start and end, shop, level-ups, weapon hits, crits and kills, dodges, hits taken, orbs, chests, a timer), fires the
 -- matching effects of each participant's items and carries out their actions (stats for the rest of the run, this
 -- wave, a few seconds or the next wave, healing, Shards, HP, random stats, hit shields, weapon tiers; since B5 burning
--- and blowing up the enemy of a Hit, Crit or Kill through WeaponService). Burn ticks only count as Kill events. Passive effects
+-- and blowing up the enemy of a Hit, Crit or Kill through WeaponService; since B8 striking an enemy and losing HP). Burn ticks only count as Kill events. Passive effects
 -- (standing still or moving, "per X") and the temporary bonuses go to StatService as one bonus sheet (setDynamic),
 -- only when it changes. Also does what a secondary stat does on its own: Orb Healing heals on pickups. Sends
 -- EffectProcs (feedback texts over the character) during a wave, one Notify toast for what paid out at the wave end or
@@ -20,6 +20,7 @@ local Config = require(Shared.Config)
 local Net = require(Shared.Net)
 local Types = require(Shared.Net.Types)
 local EffectText = require(Shared.Util.EffectText)
+local Effects = require(Shared.Config.Effects)
 
 local CombatService = require(script.Parent.CombatService)
 local EnemySim = require(script.Parent.EnemySim)
@@ -42,6 +43,7 @@ type State = {
 	watchesMovement: boolean,
 	countsShards: boolean,
 	countsWeapons: boolean,
+	countsEnemies: boolean, -- a PerX counts living enemies (B8)
 	hitTriggers: boolean, -- has Hit, Crit or Kill effects
 	eliteMatters: boolean, -- one of them asks for elites
 	moveState: string?, -- "Still" or "Moving" while fighting and alive, settled (Config.Effects.standStill)
@@ -49,6 +51,8 @@ type State = {
 	pendingSince: number,
 	shards: number,
 	distinctWeapons: number,
+	enemies: number, -- living enemies last counted (B8)
+	itemTiers: { number }, -- different items per rarity tier (B8)
 	shields: number, -- hit shields given this wave
 	buffs: EffectRules.Buffs,
 	timers: { [string]: number }, -- seconds counted per Timer entry
@@ -139,6 +143,8 @@ local function context(state: State): EffectRules.Context
 		permanent = StatService.getPermanentSheet(state.player),
 		shards = state.shards,
 		distinctWeapons = state.distinctWeapons,
+		enemies = state.enemies,
+		distinctItemTiers = state.itemTiers,
 	}
 end
 
@@ -162,12 +168,16 @@ local function refresh(state: State)
 end
 
 local function rebuild(state: State)
-	local entries = EffectRules.entries(StatService.getItemCounts(state.player))
+	local itemCounts = StatService.getItemCounts(state.player)
+	local entries = EffectRules.entries(itemCounts)
 	state.entries = entries
+	state.itemTiers = EffectRules.distinctItemTiers(itemCounts)
 	state.byTrigger = EffectRules.byTrigger(entries)
 	state.watchesMovement = EffectRules.watchesMovement(entries)
 	state.countsShards = EffectRules.counts(entries, "shards")
 	state.countsWeapons = EffectRules.counts(entries, "distinctWeapons")
+	state.countsEnemies = EffectRules.counts(entries, "enemies")
+	state.enemies = if state.countsEnemies then EnemySim.getCount() else 0
 	state.hitTriggers = state.byTrigger.Hit ~= nil or state.byTrigger.Crit ~= nil or state.byTrigger.Kill ~= nil
 	state.eliteMatters = false
 	for _, trigger in { "Hit", "Crit", "Kill" } do
@@ -202,6 +212,33 @@ local function upgradeWeapon(state: State, entry: EffectRules.Entry)
 	local pick = candidates[RandomService.stream("Effects", player):NextInteger(1, #candidates)]
 	if WeaponService.raiseTier(player, pick.uid) then
 		addProc(state, { itemId = entry.itemId, kind = "Weapon", weaponId = pick.id, tier = pick.tier + 1 })
+	end
+end
+
+local strikeIds: { number } = {}
+
+-- Strike (B8): hits a random living enemy once per strength, or the event's enemy with strength times the damage.
+local function strike(state: State, effect: Effects.Effect, strength: number, event: EffectRules.Event)
+	local player = state.player
+	local function hitOne(enemyId: number, times: number)
+		local flat = 0
+		local share = effect.hpShare
+		if share then
+			local _, elite = EnemySim.getKind(enemyId)
+			if elite and effect.eliteHpShare then
+				share = effect.eliteHpShare
+			end
+			flat = EnemySim.getHealth(enemyId) * share * times
+		end
+		WeaponService.strikeEnemy(player, enemyId, (effect.amount or 0) * times, scaled(effect.scaling, times), flat)
+	end
+	if effect.target == "random" then
+		local count = EnemySim.collectIds(strikeIds)
+		for _ = 1, if count > 0 then strength else 0 do
+			hitOne(strikeIds[math.min(count, math.floor(state.roll() * count) + 1)], 1)
+		end
+	elseif event.enemyId and EnemySim.isAlive(event.enemyId) then
+		hitOne(event.enemyId, strength)
 	end
 end
 
@@ -264,6 +301,10 @@ local function apply(state: State, entry: EffectRules.Entry, strength: number, e
 	elseif action == "Shields" then
 		state.shields += math.floor((effect.amount or 0) * strength)
 		CombatService.setHitShields(player, state.shields)
+	elseif action == "Strike" then
+		strike(state, effect, strength, event)
+	elseif action == "Drain" then
+		CombatService.drainPlayer(player, (effect.amount or 0) * strength)
 	elseif action == "UpgradeWeapon" then
 		for _ = 1, strength do
 			upgradeWeapon(state, entry)
@@ -293,7 +334,7 @@ local function fire(state: State, event: EffectRules.Event, entries: { EffectRul
 	end
 end
 
-local function fireFor(player: Player, trigger: string, extra: { crit: boolean?, elite: boolean? }?)
+local function fireFor(player: Player, trigger: string, extra: { crit: boolean?, elite: boolean?, fullHp: boolean? }?)
 	local state = states[player]
 	if state and state.byTrigger[trigger] then
 		fire(state, {
@@ -301,6 +342,7 @@ local function fireFor(player: Player, trigger: string, extra: { crit: boolean?,
 			wave = RunDirector.getWave(),
 			crit = extra and extra.crit,
 			elite = extra and extra.elite,
+			fullHp = extra and extra.fullHp,
 		})
 	end
 end
@@ -318,7 +360,7 @@ local function onHit(ownerId: number, enemyId: number, _dealt: number, crit: boo
 		elite = isElite
 	end
 	local wave = RunDirector.getWave()
-	if source ~= "Burn" then -- burn ticks are no hits (Brotato), but their kills count
+	if source ~= "Burn" and source ~= "Strike" then -- burn ticks and strikes are no hits, but their kills count
 		fire(state, { trigger = "Hit", wave = wave, crit = crit, elite = elite, enemyId = enemyId })
 		if crit then
 			fire(state, { trigger = "Crit", wave = wave, crit = true, elite = elite, enemyId = enemyId })
@@ -437,9 +479,19 @@ local function updateMovement(state: State, time: number)
 end
 
 local function onStepped(dt: number, stepNow: number)
+	local enemyCount = -1
 	for player, state in states do
 		if state.watchesMovement then
 			updateMovement(state, stepNow)
+		end
+		if state.countsEnemies then
+			if enemyCount < 0 then
+				enemyCount = EnemySim.getCount()
+			end
+			if enemyCount ~= state.enemies then
+				state.enemies = enemyCount
+				refresh(state)
+			end
 		end
 		local timers = state.byTrigger.Timer
 		if timers and fighting(player) then
@@ -468,6 +520,7 @@ local function newState(player: Player): State
 		watchesMovement = false,
 		countsShards = false,
 		countsWeapons = false,
+		countsEnemies = false,
 		hitTriggers = false,
 		eliteMatters = false,
 		moveState = nil,
@@ -475,6 +528,8 @@ local function newState(player: Player): State
 		pendingSince = 0,
 		shards = 0,
 		distinctWeapons = countDistinctWeapons(player),
+		enemies = 0,
+		itemTiers = {},
 		shields = 0,
 		buffs = EffectRules.newBuffs(),
 		timers = {},
@@ -604,8 +659,8 @@ function EffectService.init()
 	LootService.ChestCollected:Connect(function(player)
 		fireFor(player, "Chest")
 	end)
-	LootService.ConsumableCollected:Connect(function(player)
-		fireFor(player, "Consumable") -- B6: fruits and crates
+	LootService.ConsumableCollected:Connect(function(player, _kind: string, wasFull: boolean?)
+		fireFor(player, "Consumable", { fullHp = wasFull == true }) -- B6: fruits and crates; B8: at full HP
 	end)
 	EnemySim.Stepped:Connect(onStepped)
 
