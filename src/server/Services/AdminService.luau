@@ -41,6 +41,7 @@ local hitList: { number } = {}
 local effectItemIndex: { [Player]: number } = {} -- the last item "AddEffectItem" gave
 local combatItemIndex: { [Player]: number } = {} -- the last item "AddCombatItem" gave
 local newItemIndex: { [Player]: number } = {} -- the last item "AddNewItem" gave (B8)
+local newEnemyIndex: { [Player]: number } = {} -- the last enemy "SpawnNewEnemy" spawned (B9)
 
 -- Stats and effect actions of the combat items (B5).
 local COMBAT_STATS = {
@@ -363,6 +364,20 @@ local handlers: { [string]: (player: Player) -> (boolean, string?) } = {
 	AddNewItem = function(player)
 		return nextItem(player, Config.Admin.newItems, newItemIndex)
 	end,
+	SpawnNewEnemy = function(player)
+		local position, reason = runPosition(player)
+		if not position then
+			return false, reason
+		end
+		local list = Config.Admin.newEnemies
+		local index = (newEnemyIndex[player] or 0) % #list + 1
+		newEnemyIndex[player] = index
+		local enemy = Config.Enemies.types[list[index]]
+		return true,
+			if SpawnDirector.spawnEnemy(enemy.id, position)
+				then `A {enemy.displayName} appeared`
+				else `No room for a {enemy.displayName} here`
+	end,
 }
 
 local function collectStats(): Types.DebugStats
@@ -409,6 +424,7 @@ function AdminService.init()
 		effectItemIndex[player] = nil
 		combatItemIndex[player] = nil
 		newItemIndex[player] = nil
+		newEnemyIndex[player] = nil
 	end)
 
 	Net.onServer("DebugCommand", function(player, command: string)

@@ -32,6 +32,68 @@ export type Enemy = {
 	loot: Loot?,
 	flee: Flee?,
 	anchored: boolean?, -- never moves, nothing pushes it (Trees); players walk through it
+	-- since B9 part 2 (Brotato's enemy behaviours, DESIGN.md section 7)
+	accelerate: Accelerate?,
+	retaliate: Retaliate?,
+	pulse: Pulse?,
+	hatch: Hatch?,
+	slash: Slash?,
+	eat: Eat?,
+}
+
+-- Enemies that get faster the longer they live (Stalker, B9).
+export type Accelerate = {
+	perSecond: number, -- share of its base speed it gains every second
+	max: number, -- at most this many times its base speed
+}
+
+-- Enemies that shoot a ring of projectiles when hit (Thornback, B9). Shots fly like the Spitter's (EnemySim/Volleys).
+export type Retaliate = {
+	count: number, -- shots in the ring
+	cooldownSeconds: number, -- at most one ring this often
+	projectileDamage: number, -- grows with the enemy's damage like its contact damage
+	projectileSpeed: number,
+	projectileRange: number,
+	projectileRadius: number,
+}
+
+-- Enemies that help the others around them every few seconds while a player is near (Herald buffs, Mender heals; B9).
+-- Clients see a ring around it for a moment when it does (Net/Snapshot mode bits).
+export type Pulse = {
+	radius: number, -- studs around it
+	intervalSeconds: number,
+	-- Herald: up to `buffCount` enemies that are not buffed yet get stronger for good
+	buffCount: number?,
+	buffDamage: number?, -- multiplier on contact and shot damage
+	buffSpeed: number?, -- multiplier on speed
+	buffHp: number?, -- share of max HP added (to HP and max HP)
+	-- Mender: every other enemy in the radius heals this share of its max HP
+	heal: number?,
+}
+
+-- Enemies that stand still and hatch into others after a while unless killed first (Brood Egg, B9).
+export type Hatch = {
+	seconds: number,
+	enemy: string, -- key in types
+	count: number,
+	spread: number, -- studs around the egg
+}
+
+-- Enemies that stop near a player, wind up (a red disc on the floor shows the area) and then hit everyone in the
+-- circle (Reaper, B9). Walking out during the wind-up dodges it.
+export type Slash = {
+	triggerRange: number, -- studs from its centre to the player's
+	windupSeconds: number,
+	radius: number, -- studs around its centre
+	damage: number, -- grows with the enemy's damage like its contact damage
+	recoverSeconds: number,
+	cooldownSeconds: number, -- walking before the next wind-up
+}
+
+-- Enemies that go for the orbs on the floor and eat them; killed they drop what they ate (Gobbler, B9).
+export type Eat = {
+	seekRange: number, -- studs; it walks to the nearest orb within this, else to the nearest player
+	reach: number, -- studs from its edge at which it swallows an orb
 }
 
 -- What a killed enemy drops besides its orb (B6, Config.Loot); missing values use the defaults there.
@@ -46,6 +108,7 @@ export type Loot = {
 -- (without a kill) after Config.Loot.looter.lifetimeSeconds.
 export type Flee = {
 	edgeMargin: number, -- studs; closer to the arena edge it also runs along the wall, so it is not stuck in a corner
+	range: number?, -- B9: flees only from a player closer than this, otherwise acts normally (nil: always)
 }
 
 -- Enemies that hold their distance and shoot (Spitter). Projectiles fly straight, are stopped by obstacles and
@@ -272,6 +335,177 @@ local Enemies: { [string]: Enemy } = {
 		knockbackResistance = 1,
 		loot = { alwaysOrbs = true, consumableChance = 1, crateShare = 0.2 }, -- Brotato: 20 % crates
 		anchored = true,
+	},
+	-- B9 part 2: Brotato's other enemy behaviours, each with its own silhouette or palette (EnemyRenderer/Models).
+	-- Values are assumptions in the spirit of the Brotato enemies they follow; check them in the test.
+	-- Accelerator (like Brotato's ones that speed up): starts slow, keeps getting faster.
+	Stalker = {
+		id = "Stalker",
+		typeId = 12,
+		displayName = "Stalker",
+		hp = 14,
+		speed = 8,
+		contactDamage = 6,
+		hpPerWave = 9.5,
+		damagePerWave = 2,
+		xp = 2,
+		radius = 1.5,
+		mass = 1,
+		knockbackResistance = 0,
+		look = "Shadeling",
+		accelerate = { perSecond = 0.12, max = 2.4 },
+	},
+	-- Fleeing shooter: keeps far away, runs off when a player comes close and shoots from a distance.
+	Skulker = {
+		id = "Skulker",
+		typeId = 13,
+		displayName = "Skulker",
+		hp = 18,
+		speed = 13,
+		contactDamage = 0,
+		hpPerWave = 12.2,
+		damagePerWave = 2.4,
+		xp = 3,
+		radius = 1.5,
+		mass = 1,
+		knockbackResistance = 0.5,
+		look = "Spitter",
+		ranged = {
+			keepDistance = 36,
+			fireInterval = 3,
+			fireRange = 40,
+			projectileDamage = 7,
+			projectileSpeed = 20,
+			projectileRange = 55,
+			projectileRadius = 0.6,
+			aimLead = 0.5,
+		},
+		flee = { edgeMargin = 12, range = 22 },
+	},
+	-- Counter-shooter: slow and tough; every hit makes it spray a ring of thorns.
+	Thornback = {
+		id = "Thornback",
+		typeId = 14,
+		displayName = "Thornback",
+		hp = 70,
+		speed = 7,
+		contactDamage = 10,
+		hpPerWave = 48,
+		damagePerWave = 3.4,
+		xp = 5,
+		radius = 2.3,
+		mass = 5,
+		knockbackResistance = 0.9,
+		look = "Brute",
+		loot = { consumableChance = 0.03 },
+		retaliate = {
+			count = 8,
+			cooldownSeconds = 1.5,
+			projectileDamage = 6,
+			projectileSpeed = 15,
+			projectileRange = 26,
+			projectileRadius = 0.6,
+		},
+	},
+	-- Buffer: walks with the crowd and makes the enemies around it stronger for good.
+	Herald = {
+		id = "Herald",
+		typeId = 15,
+		displayName = "Herald",
+		hp = 30,
+		speed = 9,
+		contactDamage = 4,
+		hpPerWave = 20.4,
+		damagePerWave = 1.4,
+		xp = 4,
+		radius = 1.6,
+		mass = 1.5,
+		knockbackResistance = 0.5,
+		look = "Spitter",
+		pulse = {
+			radius = 14,
+			intervalSeconds = 4,
+			buffCount = 5,
+			buffDamage = 1.5,
+			buffSpeed = 1.25,
+			buffHp = 0.5,
+		},
+	},
+	-- Healer: heals the enemies around it every few seconds; kill it first.
+	Mender = {
+		id = "Mender",
+		typeId = 16,
+		displayName = "Mender",
+		hp = 30,
+		speed = 9,
+		contactDamage = 4,
+		hpPerWave = 20.4,
+		damagePerWave = 1.4,
+		xp = 4,
+		radius = 1.6,
+		mass = 1.5,
+		knockbackResistance = 0.5,
+		look = "Spitter",
+		pulse = { radius = 14, intervalSeconds = 3, heal = 0.3 },
+	},
+	-- Egg: lies still and hatches into Shadelings unless it is broken in time.
+	BroodEgg = {
+		id = "BroodEgg",
+		typeId = 17,
+		displayName = "Brood Egg",
+		hp = 20,
+		speed = 0,
+		contactDamage = 0,
+		hpPerWave = 13.6,
+		damagePerWave = 0,
+		xp = 1,
+		radius = 1.4,
+		mass = 1000,
+		knockbackResistance = 1,
+		anchored = true,
+		hatch = { seconds = 5, enemy = "Shadeling", count = 4, spread = 2 },
+	},
+	-- Slasher: stops next to a player, winds up and cuts everything around it.
+	Reaper = {
+		id = "Reaper",
+		typeId = 18,
+		displayName = "Reaper",
+		hp = 45,
+		speed = 11,
+		contactDamage = 0,
+		hpPerWave = 30.6,
+		damagePerWave = 4.8,
+		xp = 4,
+		radius = 1.8,
+		mass = 3,
+		knockbackResistance = 0.8,
+		look = "Charger",
+		slash = {
+			triggerRange = 7,
+			windupSeconds = 0.7,
+			radius = 7.5,
+			damage = 14,
+			recoverSeconds = 0.6,
+			cooldownSeconds = 1.6,
+		},
+	},
+	-- Loot eater: goes for the orbs on the floor and swallows them; killed it drops all it ate.
+	Gobbler = {
+		id = "Gobbler",
+		typeId = 19,
+		displayName = "Gobbler",
+		hp = 40,
+		speed = 12,
+		contactDamage = 5,
+		hpPerWave = 27,
+		damagePerWave = 1.7,
+		xp = 3,
+		radius = 1.6,
+		mass = 1.5,
+		knockbackResistance = 0.3,
+		look = "Looter",
+		loot = { alwaysOrbs = true },
+		eat = { seekRange = 45, reach = 0.8 },
 	},
 }
 

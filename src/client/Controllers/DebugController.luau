@@ -49,6 +49,7 @@ local BUTTON_TEXT: { [string]: string } = {
 	SpawnTree = "Spawn a tree",
 	DropCrate = "Drop a crate",
 	AddNewItem = "Next new item",
+	SpawnNewEnemy = "Spawn next new enemy",
 }
 
 local BUTTON_SIZE = Vector2.new(150, 30)

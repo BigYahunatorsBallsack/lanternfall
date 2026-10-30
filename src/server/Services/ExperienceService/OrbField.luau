@@ -113,6 +113,22 @@ function OrbField.collect(
 	return total
 end
 
+-- Position of the orb nearest to x/z within `range`, nil if there is none (the Gobbler's goal, B9).
+function OrbField.nearest(self: OrbField, x: number, z: number, range: number): (number?, number?)
+	local best, bestSquared = nil, range * range
+	for i = 1, #self.ids do
+		local dx, dz = self.xs[i] - x, self.zs[i] - z
+		local squared = dx * dx + dz * dz
+		if squared <= bestSquared then
+			best, bestSquared = i, squared
+		end
+	end
+	if not best then
+		return nil, nil
+	end
+	return self.xs[best], self.zs[best]
+end
+
 -- XP of every orb on the floor together.
 function OrbField.total(self: OrbField): number
 	local total = 0

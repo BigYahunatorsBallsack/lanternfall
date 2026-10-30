@@ -14,6 +14,10 @@
 -- spinning sunburst crown, glow and show an HP bar with the name of their affix (setAffix), which also changes
 -- their look: Swift leaves a trail, Armored turns its metal to steel, Summoning is circled by two wisps.
 -- Since B5 burning enemies glow ember-red and slowed ones turn frost-blue (setStatus).
+-- Since B9 the new kinds mostly reuse a silhouette in their own palette (Stalker, Skulker, Thornback, Herald, Mender,
+-- Reaper, Gobbler); the Brood Egg has its own. A Reaper shows a red disc of its cut during the wind-up, Heralds and
+-- Menders a golden or green ring when they pulse, an egg glows and shakes before it hatches, and enemies a Herald
+-- buffed turn gold (setStatus).
 
 local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
 local Config = require(Shared:WaitForChild("Config"))
@@ -66,12 +70,14 @@ export type Visual = {
 	hpBar: Frame?, -- elites only: width = remaining HP fraction
 	affixLabel: TextLabel?, -- elites only
 	glow: PointLight?, -- elites only
-	telegraph: BasePart?, -- chargers only: the rush path on the floor
+	telegraph: BasePart?, -- chargers: the rush path on the floor; since B9 a Reaper's cut, a Herald's or Mender's ring
+	windupTint: boolean, -- the body turns red during the wind-up (chargers, Reapers, eggs; not pulsing kinds)
 	mode: number, -- what setMode last showed
 	affix: number, -- what setAffix last showed
 	flashing: boolean,
 	burning: boolean, -- what setStatus last showed
 	slowed: boolean,
+	buffed: boolean, -- B9: a Herald made it stronger
 }
 
 type Palette = {
@@ -173,6 +179,95 @@ local PALETTES: { [string]: Palette } = {
 		accent = Color3.fromRGB(255, 196, 87),
 		spikes = false,
 	},
+	-- B9 part 2
+	Stalker = { -- a sickly green Shadeling that keeps getting faster
+		cloth = Color3.fromRGB(44, 70, 40),
+		clothDark = Color3.fromRGB(30, 48, 28),
+		soot = SOOT,
+		metal = BRASS,
+		metalDark = BRASS_DARK,
+		mask = PORCELAIN,
+		eye = Color3.fromRGB(170, 255, 90),
+		accent = Color3.fromRGB(170, 255, 90),
+		spikes = false,
+	},
+	Skulker = { -- a teal acolyte that keeps away
+		cloth = Color3.fromRGB(26, 64, 70),
+		clothDark = Color3.fromRGB(18, 44, 50),
+		soot = SOOT,
+		metal = BRASS,
+		metalDark = BRASS_DARK,
+		mask = PORCELAIN,
+		eye = Color3.fromRGB(80, 230, 255),
+		accent = Color3.fromRGB(80, 230, 255),
+		spikes = false,
+	},
+	Thornback = { -- a rust-red trooper covered in thorns
+		cloth = Color3.fromRGB(86, 40, 28),
+		clothDark = Color3.fromRGB(60, 28, 20),
+		soot = SOOT,
+		metal = Color3.fromRGB(150, 96, 60),
+		metalDark = Color3.fromRGB(100, 64, 40),
+		mask = Color3.fromRGB(214, 202, 180),
+		eye = Color3.fromRGB(255, 92, 200), -- the same pink as enemy shots
+		accent = Color3.fromRGB(255, 92, 200),
+		spikes = true,
+	},
+	Herald = { -- white robe and gold, the one that makes the others stronger
+		cloth = Color3.fromRGB(196, 186, 170),
+		clothDark = Color3.fromRGB(150, 140, 126),
+		soot = SOOT,
+		metal = Color3.fromRGB(236, 188, 88),
+		metalDark = Color3.fromRGB(184, 136, 58),
+		mask = PORCELAIN,
+		eye = Color3.fromRGB(255, 206, 92),
+		accent = Color3.fromRGB(255, 206, 92),
+		spikes = false,
+	},
+	Mender = { -- green robe, the healer
+		cloth = Color3.fromRGB(40, 92, 56),
+		clothDark = Color3.fromRGB(28, 64, 40),
+		soot = SOOT,
+		metal = BRASS,
+		metalDark = BRASS_DARK,
+		mask = PORCELAIN,
+		eye = Color3.fromRGB(120, 255, 150),
+		accent = Color3.fromRGB(120, 255, 150),
+		spikes = false,
+	},
+	BroodEgg = { -- a pale, veined egg with a violet glow inside
+		cloth = Color3.fromRGB(196, 184, 200),
+		clothDark = Color3.fromRGB(150, 134, 160),
+		soot = SOOT,
+		metal = BRASS,
+		metalDark = BRASS_DARK,
+		mask = PORCELAIN,
+		eye = Color3.fromRGB(200, 125, 255), -- the Shadelings inside
+		accent = Color3.fromRGB(200, 125, 255),
+		spikes = false,
+	},
+	Reaper = { -- black hide and bone, a red cut
+		cloth = Color3.fromRGB(30, 26, 34),
+		clothDark = Color3.fromRGB(20, 16, 24),
+		soot = SOOT,
+		metal = Color3.fromRGB(190, 190, 200), -- the blade
+		metalDark = Color3.fromRGB(120, 120, 130),
+		mask = Color3.fromRGB(226, 218, 202),
+		eye = Color3.fromRGB(255, 60, 60),
+		accent = Color3.fromRGB(255, 60, 60),
+		spikes = false,
+	},
+	Gobbler = { -- a bloated violet thief with a hungry glow
+		cloth = Color3.fromRGB(70, 40, 96),
+		clothDark = Color3.fromRGB(48, 26, 68),
+		soot = SOOT,
+		metal = BRASS,
+		metalDark = Color3.fromRGB(90, 60, 120), -- the belly sack
+		mask = PORCELAIN,
+		eye = Color3.fromRGB(170, 255, 120), -- the XP orbs it ate
+		accent = Color3.fromRGB(170, 255, 120),
+		spikes = false,
+	},
 	Tree = {
 		cloth = Color3.fromRGB(58, 44, 40), -- dark bark
 		clothDark = Color3.fromRGB(40, 30, 28),
@@ -222,6 +317,10 @@ local FROST_COLOR = Color3.fromRGB(140, 200, 255) -- slowed enemies (B5)
 local STATUS_TINT = 0.55 -- share of the status color mixed into the body
 local TELEGRAPH_COLOR = Color3.fromRGB(255, 60, 60)
 local TELEGRAPH_TRANSPARENCY = 0.55 -- the rush path during the wind-up
+local BUFF_COLOR = Color3.fromRGB(255, 206, 92) -- enemies a Herald buffed (B9)
+local HEAL_RING_COLOR = Color3.fromRGB(120, 255, 150) -- a Mender's pulse (B9)
+local BUFF_RING_COLOR = Color3.fromRGB(255, 206, 92) -- a Herald's pulse (B9)
+local RING_THICKNESS = 0.1 -- studs
 
 local SHADOW_TRANSPARENCY = 0.6
 local SHADOW_THICKNESS = 0.05 -- studs
@@ -950,6 +1049,28 @@ local BUILDERS: { [string]: Build } = {
 		return { stride = 3.5, bob = 0.1, roll = 0.08, lean = 0.3, legSwing = 0.8, armSwing = 0 }
 	end,
 
+	-- B9: a pale veined egg half sunk in the floor, violet light shining through cracks
+	BroodEgg = function(rig)
+		local p = rig.palette
+		shadow(rig, 1.9)
+		piece(rig, "Shell", "egg", v(1.5, 1.9, 1.5), v(0, 0.85, 0), p.cloth, { flash = true })
+		piece(rig, "Base", "cylinder", v(0.3, 1.6, 1.6), v(0, 0.12, 0), p.clothDark, { flash = true }, UPRIGHT)
+		piece(
+			rig,
+			"Crack",
+			"block",
+			v(0.08, 0.9, 0.06),
+			v(0.2, 1, -0.74),
+			p.eye,
+			{ glow = true },
+			CFrame.Angles(0, 0, 0.4)
+		)
+		piece(rig, "CrackSide", "block", v(0.06, 0.7, 0.06), v(-0.7, 1.1, 0.1), p.eye, { glow = true, detail = true })
+		piece(rig, "Spot", "ball", v(0.3, 0.3, 0.3), v(-0.3, 1.45, -0.55), p.clothDark, { detail = true })
+		rig.crown = v(0, 2, 0) * rig.r
+		return { stride = 5, bob = 0, roll = 0, lean = 0, legSwing = 0, armSwing = 0 }
+	end,
+
 	-- B6: a gnarled dead-dark tree with a dusky crown and three lantern fruits; it never moves
 	Tree = function(rig)
 		local p = rig.palette
@@ -988,6 +1109,16 @@ local BUILDERS: { [string]: Build } = {
 local function buildUnknown(rig: Rig): Gait
 	piece(rig, "Body", "block", v(2, 2, 2), v(0, 1, 0), UNKNOWN_COLOR, { flash = true })
 	return { stride = 5, bob = 0, roll = 0, lean = 0, legSwing = 0, armSwing = 0 }
+end
+
+-- A flat ring or disc on the floor around the enemy, hidden until it winds up or pulses (B9: a Reaper's cut, a
+-- Herald's or Mender's ring). `radius` in studs, not scaled with the model.
+local function addDisc(rig: Rig, name: string, radius: number, color: Color3): BasePart
+	local disc =
+		newPiece(rig, name, "cylinder", Vector3.new(RING_THICKNESS, 2 * radius, 2 * radius), color, Enum.Material.Neon)
+	disc.Transparency = 1
+	attach(rig, disc, GROUND, CFrame.new(0, 0.06, 0) * UPRIGHT)
+	return disc
 end
 
 -- Red strip on the floor in front of a charger, as long as its rush (hidden until it winds up).
@@ -1139,7 +1270,15 @@ function Models.build(typeId: number): Visual
 	local look = enemy and EnemyKinds.lookOf(enemy)
 	local builder = look and BUILDERS[look]
 	local gait = if builder then builder(rig) else buildUnknown(rig)
-	local telegraph = if enemy and enemy.charge then addTelegraph(rig, enemy.charge.maxDistance) else nil
+	local telegraph: BasePart? = nil
+	if enemy and enemy.charge then
+		telegraph = addTelegraph(rig, enemy.charge.maxDistance)
+	elseif enemy and enemy.slash then
+		telegraph = addDisc(rig, "CutArea", enemy.slash.radius + Config.Simulation.playerRadius, TELEGRAPH_COLOR)
+	elseif enemy and enemy.pulse then
+		local color = if enemy.pulse.heal then HEAL_RING_COLOR else BUFF_RING_COLOR
+		telegraph = addDisc(rig, "PulseRing", enemy.pulse.radius, color)
+	end
 	local elite = if enemy and enemy.elite then makeElite(rig) else nil
 	local body = rig.flash[1] or rig.parts[1]
 	local hidden = {}
@@ -1173,11 +1312,13 @@ function Models.build(typeId: number): Visual
 		affixLabel = elite and elite.affixLabel,
 		glow = elite and elite.glow,
 		telegraph = telegraph,
+		windupTint = enemy ~= nil and enemy.pulse == nil,
 		mode = 0,
 		affix = 0,
 		flashing = false,
 		burning = false,
 		slowed = false,
+		buffed = false,
 	}
 end
 
@@ -1197,8 +1338,12 @@ end
 
 -- Colors of the parts that react to hits and to a charger's mode.
 local function paint(visual: Visual)
-	local charging = isCharging(visual.mode)
-	local tint = if visual.burning then BURN_COLOR elseif visual.slowed then FROST_COLOR else nil
+	local charging = visual.windupTint and isCharging(visual.mode)
+	local tint = if visual.burning
+		then BURN_COLOR
+		elseif visual.slowed then FROST_COLOR
+		elseif visual.buffed then BUFF_COLOR
+		else nil
 	for index, part in visual.flashParts do
 		local own = visual.flashColors[index]
 		part.Color = if visual.flashing
@@ -1221,12 +1366,13 @@ function Models.setFlash(visual: Visual, on: boolean)
 	paint(visual)
 end
 
--- Burning (ember-red) and slowed (frost-blue) looks; burning wins when both apply (B5).
-function Models.setStatus(visual: Visual, burning: boolean, slowed: boolean)
-	if visual.burning == burning and visual.slowed == slowed then
+-- Burning (ember-red), slowed (frost-blue) and since B9 buffed (gold) looks; burning wins, then slowed (B5).
+function Models.setStatus(visual: Visual, burning: boolean, slowed: boolean, buffed: boolean?)
+	local isBuffed = buffed == true
+	if visual.burning == burning and visual.slowed == slowed and visual.buffed == isBuffed then
 		return
 	end
-	visual.burning, visual.slowed = burning, slowed
+	visual.burning, visual.slowed, visual.buffed = burning, slowed, isBuffed
 	paint(visual)
 end
 
@@ -1293,7 +1439,7 @@ end
 -- Puts a pooled model back to its plain look.
 function Models.reset(visual: Visual)
 	visual.flashing = false
-	visual.burning, visual.slowed = false, false
+	visual.burning, visual.slowed, visual.buffed = false, false, false
 	Models.setMode(visual, 0)
 	paint(visual)
 	local trail = visual.trail

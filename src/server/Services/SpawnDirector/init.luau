@@ -349,7 +349,10 @@ local function recycle(anchors: { Anchor }, cap: number)
 	local candidates: { { id: number, squared: number } } = {}
 	for i = 1, count do
 		local id = recycleIds[i]
-		local position = if looters[id] or trees[id] then nil else EnemySim.getPosition(id)
+		local enemyId = EnemySim.getKind(id)
+		local kind = enemyId and EnemyKinds.get(enemyId)
+		local fixed = looters[id] or trees[id] or (kind and kind.anchored) -- B9: eggs stay where they were laid
+		local position = if fixed then nil else EnemySim.getPosition(id)
 		if position then
 			local squared = closestSquared(anchors, position.X, position.Z)
 			if squared > farSquared then
@@ -536,6 +539,12 @@ end
 -- Spawns a Looter near `around` (AdminService "SpawnLooter", B6). Returns true if one appeared.
 function SpawnDirector.spawnLooter(around: Vector3): boolean
 	return spawnLooter({ position = around, velocity = Vector3.zero }, minutes()) ~= nil
+end
+
+-- Spawns one `enemyId` with this wave's growth on the spawn ring around `around` (AdminService "SpawnNewEnemy",
+-- B9). Returns true if it appeared.
+function SpawnDirector.spawnEnemy(enemyId: string, around: Vector3): boolean
+	return spawnOne({ position = around, velocity = Vector3.zero }, enemyId, minutes())
 end
 
 -- Spawns a Tree close to `around` (AdminService "SpawnTree", B6). Returns true if one appeared.
