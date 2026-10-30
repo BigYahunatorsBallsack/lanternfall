@@ -11,7 +11,8 @@
 -- (take or sell). Fruits left at the wave end vanish (everyone heals then anyway), crates left go to the nearest
 -- participant who is not out. Sends Pickups to the participants.
 -- Everything vanishes when a run starts or ends. Fires ChestCollected per player for chests and crates and
--- ConsumableCollected for fruits and crates (item effects, EffectService). The boss chest (WP10) can reuse drop().
+-- ConsumableCollected for fruits and crates (item effects, EffectService). Since WP10 a killed boss drops a legendary
+-- crate (Config.Loot.legendaryCrate): it heals fully and its item is at least Legendary; it opens like a crate.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -30,10 +31,12 @@ local RunDirector = require(script.Parent.RunDirector)
 local StatService = require(script.Parent.StatService)
 local UpgradeService = require(script.Parent.UpgradeService)
 
+local KIND_NAMES = { "Fruit", "Crate", "Legendary" }
+
 local Coop = Config.Run.coop
 local Loot = Config.Loot
 
-local FRUIT, CRATE = 1, 2 -- kinds in Net/Types.PickupEvents
+local FRUIT, CRATE, LEGENDARY = 1, 2, 3 -- kinds in Net/Types.PickupEvents
 
 local LootService = {}
 
@@ -185,11 +188,17 @@ end
 local function consume(player: Player, kind: number)
 	local hp, maxHp = CombatService.getHp(player)
 	local wasFull = hp >= maxHp -- before the healing (B8: effects for picking one up at full HP)
-	local base = if kind == CRATE then Loot.crate.heal else Loot.fruit.heal
-	CombatService.healPlayer(player, math.max(0, base + StatService.getStat(player, "fruitHeal")))
-	if kind == CRATE then
-		if UpgradeService.addCrate(player) and RunDirector.getPhase() == "Running" then
-			Net.fireClient("Notify", player, "Crate! It opens after the wave.")
+	if kind == LEGENDARY then
+		CombatService.healPlayer(player, maxHp * Loot.legendaryCrate.healShare)
+	else
+		local base = if kind == CRATE then Loot.crate.heal else Loot.fruit.heal
+		CombatService.healPlayer(player, math.max(0, base + StatService.getStat(player, "fruitHeal")))
+	end
+	if kind == CRATE or kind == LEGENDARY then
+		local legendary = kind == LEGENDARY
+		if UpgradeService.addCrate(player, legendary) and RunDirector.getPhase() == "Running" then
+			local text = if legendary then "Legendary crate!" else "Crate!"
+			Net.fireClient("Notify", player, `{text} It opens after the wave.`)
 		end
 		LootService.ChestCollected:Fire(player)
 		LootService.ConsumableCollected:Fire(player, "Crate", wasFull)
@@ -200,6 +209,12 @@ end
 
 local function onEnemyKilled(info: EnemySim.KillInfo)
 	if not RunDirector.isActive() then
+		return
+	end
+	if info.boss then
+		if Config.Enemies.bossWave.legendaryCrate then
+			dropPickup(info.position.X, info.position.Z, LEGENDARY)
+		end
 		return
 	end
 	if info.elite and Config.Enemies.elite.dropsChest then
@@ -283,7 +298,7 @@ local function onWaveEnd()
 	end
 	for index = #pickups, 1, -1 do
 		local pickup = pickups[index]
-		local taker = if pickup.kind == CRATE then nearestSharer(pickup.x, pickup.z) else nil
+		local taker = if pickup.kind ~= FRUIT then nearestSharer(pickup.x, pickup.z) else nil
 		removePickup(index, if taker then taker.UserId else 0)
 		if taker then
 			consume(taker, pickup.kind)
@@ -326,10 +341,11 @@ function LootService.drop(position: Vector3): number
 	return nextId
 end
 
--- Puts a fruit ("Fruit") or crate ("Crate") on the floor at `position` (x/z; tests and debug). Returns its id, or nil
--- when too many fruits lie around.
+-- Puts a fruit ("Fruit"), crate ("Crate") or legendary crate ("Legendary", WP10) on the floor at `position` (x/z;
+-- tests and debug). Returns its id, or nil when too many fruits lie around.
 function LootService.dropPickup(position: Vector3, kind: string): number?
-	local id = dropPickup(position.X, position.Z, if kind == "Crate" then CRATE else FRUIT)
+	local code = if kind == "Crate" then CRATE elseif kind == "Legendary" then LEGENDARY else FRUIT
+	local id = dropPickup(position.X, position.Z, code)
 	flushPickups()
 	return id
 end
@@ -347,14 +363,11 @@ function LootService.getChests(): { Types.ChestInfo }
 	return list()
 end
 
--- Fruits and crates on the floor right now: { id, x, z, kind ("Fruit" or "Crate") }.
+-- Fruits and crates on the floor right now: { id, x, z, kind ("Fruit", "Crate" or "Legendary") }.
 function LootService.getPickups(): { { id: number, x: number, z: number, kind: string } }
 	local result = {}
 	for _, pickup in pickups do
-		table.insert(
-			result,
-			{ id = pickup.id, x = pickup.x, z = pickup.z, kind = if pickup.kind == CRATE then "Crate" else "Fruit" }
-		)
+		table.insert(result, { id = pickup.id, x = pickup.x, z = pickup.z, kind = KIND_NAMES[pickup.kind] })
 	end
 	return result
 end

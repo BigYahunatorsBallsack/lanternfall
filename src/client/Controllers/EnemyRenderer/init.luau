@@ -327,6 +327,15 @@ function EnemyRenderer.getStatus(id: number): (boolean, boolean, boolean)
 	return entry.visual.burning, entry.visual.slowed, entry.visual.buffed
 end
 
+-- Where a drawn enemy stands right now (interpolated, on the floor), nil for enemies not drawn (BossController, WP10).
+function EnemyRenderer.getPosition(id: number): Vector3?
+	local entry = drawn[id]
+	if not entry or entry.seenFrame == 0 then
+		return nil
+	end
+	return Vector3.new(entry.x, floorY, entry.z)
+end
+
 function EnemyRenderer.getStats(): Stats
 	local count = 0
 	for _ in drawn do

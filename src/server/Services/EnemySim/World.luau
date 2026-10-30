@@ -26,6 +26,9 @@
 -- when they hatch (World.hatches, kind.hatch), slashers wind up near a player and hit everyone in their circle
 -- (kind.slash, like a charger's modes; the hit counts as contact damage) and enemies with a goal (World.setGoal: the
 -- Gobbler's orb) walk to it instead of the nearest target.
+-- Since WP10 bosses (kind.boss) walk like any enemy; BossService holds them still, sends them roaming (setGoal),
+-- moves them during a dash (teleport) and changes their speed per phase (setSpeedFactor). Heralds and Menders skip
+-- them (Brotato: bosses cannot be buffed).
 -- Enemies that die between steps stay in the arrays with hp 0 until the next step; every query skips them,
 -- so array indices (and the hash) stay valid until then.
 
@@ -660,6 +663,17 @@ function World.setGoal(self: World, id: number, x: number?, z: number?)
 	end
 end
 
+-- Sets the multiplier on a living enemy's speed (spawned with the team's Enemy Speed; a boss phase changes it, WP10).
+function World.setSpeedFactor(self: World, id: number, factor: number)
+	local i = self.indexOf[id]
+	if not i or self.hp[i] <= 0 then
+		return
+	end
+	local speed = math.max(0, factor)
+	self.speedFactors[i] = speed
+	self.maxSpeed = math.max(self.maxSpeed, self.kinds[i].speed * speed * self.boosts[i])
+end
+
 -- Puts a living enemy at (x, z) right away (SpawnDirector moves enemies left far behind). The hash follows on the
 -- next step.
 function World.teleport(self: World, id: number, x: number, z: number)
@@ -800,10 +814,10 @@ local function pulseAt(self: World, i: number, pulse: Enemies.Pulse)
 			local reach = pulse.radius + kinds[j].radius
 			local dx, dz = xs[j] - xs[i], zs[j] - zs[i]
 			if dx * dx + dz * dz <= reach * reach then
-				if pulse.heal then
+				if pulse.heal and not kinds[j].boss then
 					hp[j] = math.min(maxHp[j], hp[j] + maxHp[j] * pulse.heal)
 				end
-				if buffsLeft > 0 and not self.buffed[j] and not kinds[j].pulse then
+				if buffsLeft > 0 and not self.buffed[j] and not kinds[j].pulse and not kinds[j].boss then
 					buffsLeft -= 1
 					self.buffed[j] = true
 					self.contactDamage[j] *= pulse.buffDamage or 1

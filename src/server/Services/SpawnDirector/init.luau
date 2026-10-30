@@ -351,7 +351,8 @@ local function recycle(anchors: { Anchor }, cap: number)
 		local id = recycleIds[i]
 		local enemyId = EnemySim.getKind(id)
 		local kind = enemyId and EnemyKinds.get(enemyId)
-		local fixed = looters[id] or trees[id] or (kind and kind.anchored) -- B9: eggs stay where they were laid
+		-- B9: eggs stay where they were laid; WP10: bosses keep their own way
+		local fixed = looters[id] or trees[id] or (kind and (kind.anchored or kind.boss))
 		local position = if fixed then nil else EnemySim.getPosition(id)
 		if position then
 			local squared = closestSquared(anchors, position.X, position.Z)

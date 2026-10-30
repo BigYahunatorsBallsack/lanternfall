@@ -542,6 +542,84 @@ function ConfigCheck.run(): { string }
 		end
 	end
 
+	-- WP10: bosses and the boss wave
+	local bossTypeIds: { [number]: string } = {}
+	for id, enemy in Config.Enemies.types do
+		bossTypeIds[enemy.typeId] = id
+	end
+	local attackKinds = { Dash = true, Slam = true, Ring = true, Rain = true, Circle = true }
+	for id, boss in Config.Enemies.bosses do
+		if boss.id ~= id then
+			problem(`Boss key {id} does not match id {boss.id}`)
+		end
+		if bossTypeIds[boss.typeId] then
+			problem(`Boss {id} reuses typeId {boss.typeId} of {bossTypeIds[boss.typeId]}`)
+		end
+		bossTypeIds[boss.typeId] = id
+		if boss.typeId < 1 or boss.typeId >= Config.Enemies.elite.typeIdOffset then
+			problem(`Boss {id} typeId must be 1-{Config.Enemies.elite.typeIdOffset - 1}`)
+		end
+		if not (boss.hp > 0 and boss.radius > 0 and boss.mass > 0 and boss.speed >= 0) then
+			problem(`Boss {id} needs hp, radius and mass above 0 and a speed of at least 0`)
+		end
+		local plan = boss.boss
+		if not (plan and #plan.phases >= 1) then
+			problem(`Boss {id} needs a boss plan with at least one phase`)
+			continue
+		end
+		for index, phase in plan.phases do
+			if index > 1 and not (phase.fromHp or phase.afterSeconds) then
+				problem(`Boss {id} phase {index} needs fromHp or afterSeconds`)
+			end
+			if #phase.attacks == 0 or phase.pauseSeconds < 0 then
+				problem(`Boss {id} phase {index} needs attacks and a pause of at least 0`)
+			end
+			for _, attackId in phase.attacks do
+				if not plan.attacks[attackId] then
+					problem(`Boss {id} phase {index} uses unknown attack {attackId}`)
+				end
+			end
+			local orbit = phase.orbit
+			if orbit and not (orbit.count >= 1 and orbit.radius > 0 and orbit.hitRadius > 0) then
+				problem(`Boss {id} phase {index} needs a positive orbit`)
+			end
+		end
+		for attackId, attack in plan.attacks do
+			if not attackKinds[attack.kind] then
+				problem(`Boss {id} attack {attackId} has unknown kind {attack.kind}`)
+			end
+			if not (attack.windupSeconds > 0 and attack.recoverSeconds >= 0 and attack.damage >= 0) then
+				problem(`Boss {id} attack {attackId} needs a wind-up above 0`)
+			end
+			local needs = {
+				Dash = { attack.speed, attack.distance },
+				Slam = { attack.radius },
+				Ring = { attack.count, attack.projectileSpeed, attack.projectileRange, attack.projectileRadius },
+				Rain = { attack.count, attack.spread, attack.radius },
+				Circle = { attack.count, attack.spread, attack.projectileSpeed, attack.projectileRadius },
+			}
+			for _, value in needs[attack.kind] or {} do
+				if not (value and value > 0) then
+					problem(`Boss {id} attack {attackId} misses a value its kind {attack.kind} needs`)
+					break
+				end
+			end
+		end
+	end
+	local bossWave = Config.Enemies.bossWave
+	for _, bossId in bossWave.order do
+		if not Config.Enemies.bosses[bossId] then
+			problem(`Enemies.bossWave.order names unknown boss {bossId}`)
+		end
+	end
+	if not (bossWave.count >= 1 and #bossWave.order >= 1 and bossWave.stateInterval > 0) then
+		problem("Enemies.bossWave needs count, order and stateInterval")
+	end
+	local lengths = Config.Run.spawn.waves.lengthsSeconds
+	if Config.Admin.skipToBossLeadSeconds ~= lengths[#lengths] then
+		problem("Admin.skipToBossLeadSeconds should equal the boss wave's length (lands at the end of the wave before)")
+	end
+
 	return problems
 end
 

@@ -272,7 +272,7 @@ export type DebugStats = {
 -- Fruits and crates on the floor (LootService -> PickupRenderer, B6), batched per simulation step, to participants.
 export type PickupEvents = {
 	reset: boolean?, -- drop every pickup first (run start and end, full sync)
-	dropped: { number }, -- flat: id, x, z, kind (1 = fruit, 2 = crate) for every new pickup
+	dropped: { number }, -- flat: id, x, z, kind (1 = fruit, 2 = crate, 3 = legendary crate since WP10) per new pickup
 	collected: { number }, -- flat: id, userId for every pickup a player took (userId 0: it vanished)
 }
 
@@ -293,6 +293,36 @@ export type CrateOffer = {
 export type SpawnMarkers = {
 	points: { number }, -- flat: x, z of every enemy of the group
 	spawnsAt: number, -- server time
+}
+
+-- The bosses alive right now (BossService -> BossController, WP10), to participants every few tenths of a second
+-- while one is alive and once more when the last one is gone (empty list).
+export type BossInfo = {
+	id: number, -- enemy id in the snapshots
+	bossId: string, -- key in Config.Enemies.bosses
+	hpFraction: number,
+	phase: number,
+	phaseCount: number,
+	orbitStartedAt: number?, -- server time; set while the phase has projectiles circling it (Config orbit)
+}
+
+export type BossState = {
+	bosses: { BossInfo },
+}
+
+-- A boss attack's warning on the floor (BossService -> BossController, WP10): it shows from startsAt and strikes at
+-- hitsAt (server times). "Circle": x/z centre and radius. "Line": from x/z along the unit dx/dz for `length` studs,
+-- `radius` half its width.
+export type BossTelegraph = {
+	shape: string,
+	x: number,
+	z: number,
+	radius: number,
+	dx: number?,
+	dz: number?,
+	length: number?,
+	startsAt: number,
+	hitsAt: number,
 }
 
 return {}

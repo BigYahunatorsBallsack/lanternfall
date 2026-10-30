@@ -7,7 +7,8 @@
 -- WP9), Contact and ShotHit for player damage (WP4, WP9), Stepped for the weapons (WP5). Enemies and shots are
 -- cleared when a run starts and ends and when a wave ends (Shop phase). Since B5 weapons also slow enemies and mark
 -- them as burning (slow, setBurning); both travel in the snapshot's status byte. Since B6 SpawnDirector removes
--- escaping Looters without a kill (remove).
+-- escaping Looters without a kill (remove). Since WP10 BossService steers bosses (setGoal, teleport, setSpeedFactor)
+-- and fires their projectiles (fireShot); kills report whether a boss died.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
@@ -33,6 +34,7 @@ export type KillInfo = {
 	position: Vector3, -- on the arena floor
 	xp: number,
 	elite: boolean, -- a Gloom Elite: drops a chest (LootService)
+	boss: boolean, -- a boss (WP10, BossService)
 	killer: Player?,
 }
 
@@ -519,6 +521,7 @@ function EnemySim.damage(id: number, amount: number, source: Player?): (boolean,
 			position = Vector3.new(x, floorY, z),
 			xp = kind.xp,
 			elite = kind.elite == true,
+			boss = kind.boss ~= nil,
 			killer = source,
 		} :: KillInfo)
 	end
@@ -543,6 +546,36 @@ end
 -- Removes a living enemy without a kill: no EnemyKilled, no loot (a Looter escaping, B6). Returns true if it was alive.
 function EnemySim.remove(id: number): boolean
 	return world:remove(id)
+end
+
+-- Multiplier on a living enemy's speed (a boss phase, WP10).
+function EnemySim.setSpeedFactor(id: number, factor: number)
+	world:setSpeedFactor(id, factor)
+end
+
+-- Fires one enemy projectile from x/z along the unit direction dx/dz (boss attacks, WP10). It flies like a
+-- Spitter's (Volleys) and goes to the participants with the next EnemyShots.
+function EnemySim.fireShot(
+	x: number,
+	z: number,
+	dx: number,
+	dz: number,
+	speed: number,
+	range: number,
+	radius: number,
+	damage: number
+)
+	local id = volleys:fire(x, z, dx, dz, speed, range, radius, damage)
+	table.insert(firedShots, {
+		id = id,
+		x = x,
+		z = z,
+		dx = dx,
+		dz = dz,
+		speed = speed,
+		range = range,
+		at = workspace:GetServerTimeNow(),
+	})
 end
 
 -- Moves a living enemy to `position` (x/z) at once, without crossing the space in between.
@@ -606,13 +639,14 @@ function EnemySim.getPlayerPosition(player: Player): Vector3?
 	return Vector3.new(contactXs[index], floorY, contactZs[index])
 end
 
--- Enemy id (key in Config.Enemies.types) and whether it is an elite, nil for unknown ids.
+-- Enemy id (key in Config.Enemies.types or .bosses) and whether it is an elite, nil for unknown ids. Bosses count as
+-- elites (Damage vs Elites, item effects on elites; WP10).
 function EnemySim.getKind(id: number): (string?, boolean)
 	local kind = world:getKind(id)
 	if not kind then
 		return nil, false
 	end
-	return kind.id, kind.elite == true
+	return kind.id, kind.elite == true or kind.boss ~= nil
 end
 
 -- Mode of a living enemy (EnemySim/World.MODE_*: walk, wind-up, rush, recover) and its rush direction x/z.
@@ -667,6 +701,23 @@ end
 -- Current HP of an enemy, 0 for dead or unknown ids (item effects since B8: damage by a share of the enemy's HP).
 function EnemySim.getHealth(id: number): number
 	return (world:getHealth(id))
+end
+
+-- Current HP of an enemy as a share of its max HP, 0 for dead or unknown ids (BossService, WP10).
+function EnemySim.getHealthShare(id: number): number
+	local hp, maxHp = world:getHealth(id)
+	return if maxHp > 0 then math.max(0, hp) / maxHp else 0
+end
+
+-- Max HP of an enemy, 0 for unknown ids.
+function EnemySim.getMaxHealth(id: number): number
+	local _, maxHp = world:getHealth(id)
+	return maxHp
+end
+
+-- The HP, damage and speed multipliers the enemy was spawned with (1, 1, 1 for unknown ids).
+function EnemySim.getMultipliers(id: number): (number, number, number)
+	return world:getMultipliers(id)
 end
 
 -- Number of living enemies.

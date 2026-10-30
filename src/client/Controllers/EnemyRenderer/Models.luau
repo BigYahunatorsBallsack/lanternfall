@@ -18,6 +18,9 @@
 -- Reaper, Gobbler); the Brood Egg has its own. A Reaper shows a red disc of its cut during the wind-up, Heralds and
 -- Menders a golden or green ring when they pulse, an egg glows and shakes before it hatches, and enemies a Herald
 -- buffed turn gold (setStatus).
+-- Since WP10 the bosses: the Lantern Eater, a hulking soot-iron furnace with a porcelain jaw, a glowing grate for a
+-- belly and lanterns caged on its back; the Hollow Seer, a towering veiled oracle with one great eye and a spinning
+-- brass halo, hovering above the floor. Both carry a red glow. Their attacks are drawn by BossController.
 
 local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
 local Config = require(Shared:WaitForChild("Config"))
@@ -268,6 +271,29 @@ local PALETTES: { [string]: Palette } = {
 		accent = Color3.fromRGB(170, 255, 120),
 		spikes = false,
 	},
+	-- WP10 bosses
+	LanternEater = { -- soot iron and brass, a furnace glow
+		cloth = Color3.fromRGB(40, 32, 36),
+		clothDark = Color3.fromRGB(26, 20, 24),
+		soot = SOOT,
+		metal = BRASS,
+		metalDark = BRASS_DARK,
+		mask = PORCELAIN,
+		eye = Color3.fromRGB(255, 150, 60),
+		accent = Color3.fromRGB(255, 120, 40), -- the grate and the lanterns
+		spikes = true,
+	},
+	HollowSeer = { -- deep teal veils, gold, one pale-blue eye
+		cloth = Color3.fromRGB(22, 46, 58),
+		clothDark = Color3.fromRGB(14, 30, 40),
+		soot = SOOT,
+		metal = Color3.fromRGB(236, 188, 88),
+		metalDark = Color3.fromRGB(184, 136, 58),
+		mask = PORCELAIN,
+		eye = Color3.fromRGB(150, 230, 255),
+		accent = Color3.fromRGB(255, 70, 90), -- its red circles
+		spikes = false,
+	},
 	Tree = {
 		cloth = Color3.fromRGB(58, 44, 40), -- dark bark
 		clothDark = Color3.fromRGB(40, 30, 28),
@@ -326,6 +352,9 @@ local SHADOW_TRANSPARENCY = 0.6
 local SHADOW_THICKNESS = 0.05 -- studs
 local ELITE_GLOW_BRIGHTNESS = 3
 local ELITE_GLOW_RANGE = 14 -- studs
+local BOSS_GLOW_COLOR = Color3.fromRGB(255, 70, 60) -- WP10
+local BOSS_GLOW_BRIGHTNESS = 4
+local BOSS_GLOW_RANGE = 26 -- studs
 local HP_BAR_COLOR = Color3.fromRGB(236, 96, 96)
 local HP_BAR_BACK_COLOR = Color3.fromRGB(24, 20, 34)
 local HP_BAR_WIDTH = 70 -- pixels
@@ -1103,6 +1132,174 @@ local BUILDERS: { [string]: Build } = {
 		rig.crown = v(0, 3.6, 0) * rig.r
 		return { stride = 5, bob = 0, roll = 0, lean = 0, legSwing = 0, armSwing = 0 }
 	end,
+	-- WP10: a hulking furnace beast on two short legs, walking on its knuckles
+	LanternEater = function(rig)
+		local p = rig.palette
+		shadow(rig, 2.3)
+		piece(
+			rig,
+			"Body",
+			"egg",
+			v(2, 1.6, 1.7),
+			v(0, 1.45, 0.1),
+			p.cloth,
+			{ material = Enum.Material.Metal, flash = true }
+		)
+		piece(rig, "Grate", "cylinder", v(0.1, 1.05, 1.05), v(0, 1.35, -0.78), p.metal, { metal = true }, FACING)
+		piece(
+			rig,
+			"Fire",
+			"cylinder",
+			v(0.1, 0.8, 0.8),
+			v(0, 1.35, -0.8),
+			p.accent,
+			{ glow = true, heat = true },
+			FACING
+		)
+		for index = -1, 1 do
+			piece(
+				rig,
+				`GrateBar{index + 2}`,
+				"block",
+				v(0.07, 0.9, 0.06),
+				v(index * 0.25, 1.35, -0.86),
+				p.metalDark,
+				{ metal = true, detail = true }
+			)
+		end
+		piece(rig, "Head", "egg", v(1.1, 0.8, 1), v(0, 2.25, -0.45), p.soot, { flash = true })
+		piece(rig, "Jaw", "egg", v(1.15, 0.45, 0.6), v(0, 1.95, -0.85), p.mask)
+		piece(rig, "Maw", "block", v(0.8, 0.08, 0.1), v(0, 1.97, -1.13), p.accent, { glow = true })
+		eye(rig, "EyeLeft", v(0.24, 0.09, 0.06), v(-0.25, 2.38, -0.92), -0.3)
+		eye(rig, "EyeRight", v(0.24, 0.09, 0.06), v(0.25, 2.38, -0.92), 0.3)
+		for _, side in { -1, 1 } do
+			local name = if side < 0 then "Left" else "Right"
+			rod(
+				rig,
+				`Horn{name}`,
+				v(0.4 * side, 2.55, -0.4),
+				v(0.85 * side, 3.05, -0.2),
+				0.16,
+				p.metal,
+				{ metal = true }
+			)
+			local arm = if side < 0 then ARM_LEFT else ARM_RIGHT
+			local leg = if side < 0 then LEG_LEFT else LEG_RIGHT
+			local shoulder = v(1.2 * side, 1.95, -0.1)
+			piece(
+				rig,
+				`Arm{name}`,
+				"block",
+				v(0.5, 1.4, 0.55),
+				v(1.3 * side, 1.25, -0.25),
+				p.cloth,
+				{ anim = arm, pivot = shoulder, metal = true }
+			)
+			piece(
+				rig,
+				`Fist{name}`,
+				"block",
+				v(0.7, 0.55, 0.7),
+				v(1.35 * side, 0.35, -0.35),
+				p.metalDark,
+				{ anim = arm, pivot = shoulder, metal = true }
+			)
+			piece(
+				rig,
+				`Leg{name}`,
+				"block",
+				v(0.6, 0.65, 0.6),
+				v(0.5 * side, 0.33, 0.25),
+				p.soot,
+				{ anim = leg, pivot = v(0.5 * side, 0.65, 0.25) }
+			)
+		end
+		-- lanterns caged on its back
+		for index, x in { -0.55, 0, 0.55 } do
+			local y = if index == 2 then 2.45 else 2.2
+			piece(rig, `Cage{index}`, "block", v(0.42, 0.55, 0.42), v(x, y, 0.75), p.metalDark, { metal = true })
+			piece(
+				rig,
+				`Lantern{index}`,
+				"ball",
+				v(0.3, 0.3, 0.3),
+				v(x, y, 0.75),
+				p.accent,
+				{ glow = true, heat = true, detail = index ~= 2 }
+			)
+		end
+		rig.crown = v(0, 3.2, -0.2) * rig.r
+		return { stride = 9, bob = 0.05, roll = 0.07, lean = 0.12, legSwing = 0.45, armSwing = 0.5 }
+	end,
+	-- WP10: a tall veiled oracle hovering over the floor, one great eye, a spinning brass halo with candle flames
+	HollowSeer = function(rig)
+		local p = rig.palette
+		shadow(rig, 1.8)
+		piece(
+			rig,
+			"Body",
+			"cylinder",
+			v(2.2, 1.3, 1.3),
+			v(0, 1.5, 0),
+			p.cloth,
+			{ material = Enum.Material.Fabric, flash = true },
+			UPRIGHT
+		)
+		piece(rig, "Veil", "egg", v(1.7, 0.7, 1.7), v(0, 0.55, 0), p.clothDark, nil)
+		piece(
+			rig,
+			"Hem",
+			"cylinder",
+			v(0.1, 1.72, 1.72),
+			v(0, 0.55, 0),
+			p.metal,
+			{ metal = true, detail = true },
+			UPRIGHT
+		)
+		piece(rig, "Hood", "egg", v(1.1, 1.2, 1.1), v(0, 2.85, 0), p.clothDark, { flash = true })
+		piece(rig, "Mask", "egg", v(0.8, 0.95, 0.25), v(0, 2.8, -0.45), p.mask, nil)
+		piece(rig, "Eye", "cylinder", v(0.08, 0.45, 0.45), v(0, 2.88, -0.6), p.eye, { glow = true }, TILTED * FACING)
+		piece(rig, "Tear", "block", v(0.06, 0.4, 0.04), v(0, 2.45, -0.58), p.accent, { glow = true, detail = true })
+		local halo = v(0, 3.25, 0.35)
+		piece(
+			rig,
+			"Halo",
+			"cylinder",
+			v(0.08, 2.1, 2.1),
+			halo,
+			p.metal,
+			{ metal = true, anim = SPIN, pivot = halo, transparency = 0.1 },
+			UPRIGHT
+		)
+		for index = 0, 3 do
+			local angle = index * math.pi / 2
+			piece(
+				rig,
+				`Flame{index}`,
+				"ball",
+				v(0.22, 0.32, 0.22),
+				halo + v(math.cos(angle) * 1.05, 0.15, math.sin(angle) * 1.05),
+				p.accent,
+				{ glow = true, anim = SPIN, pivot = halo, detail = index % 2 == 1 }
+			)
+		end
+		for _, side in { -1, 1 } do
+			local name = if side < 0 then "Left" else "Right"
+			piece(
+				rig,
+				`Sleeve{name}`,
+				"block",
+				v(0.35, 1.1, 0.4),
+				v(0.8 * side, 1.85, -0.3),
+				p.cloth,
+				nil,
+				CFrame.Angles(0.5, 0, -0.35 * side)
+			)
+			piece(rig, `Hand{name}`, "ball", v(0.3, 0.3, 0.3), v(0.95 * side, 1.35, -0.6), p.mask, { anim = FLOAT })
+		end
+		rig.crown = v(0, 3.9, 0) * rig.r
+		return { stride = 8, bob = 0.03, roll = 0.03, lean = 0.05, legSwing = 0, armSwing = 0 }
+	end,
 }
 
 -- Magenta cube for a typeId the client does not know (should never happen; shows up clearly in tests).
@@ -1281,6 +1478,13 @@ function Models.build(typeId: number): Visual
 	end
 	local elite = if enemy and enemy.elite then makeElite(rig) else nil
 	local body = rig.flash[1] or rig.parts[1]
+	if enemy and enemy.boss then
+		local light = Instance.new("PointLight")
+		light.Color = BOSS_GLOW_COLOR
+		light.Brightness = BOSS_GLOW_BRIGHTNESS
+		light.Range = BOSS_GLOW_RANGE
+		light.Parent = body
+	end
 	local hidden = {}
 	for index, part in rig.parts do
 		hidden[index] = part.Transparency >= 1
