@@ -1,6 +1,7 @@
 -- Unit tests for the enemy simulation (EnemySim/World): chasing, crowding, obstacles, contacts, damage,
 -- queries, knockback, Spitter shots, Charger rushes, elite kinds and affixes (Armored, Summoning) and the 4 ms step
--- budget with the maximum of 140 enemies; plus the enemy projectiles (EnemySim/Volleys).
+-- budget with the maximum of 140 enemies; the B9 behaviours (accelerate, flee range, counter rings, buffs, heals,
+-- hatching, slashes, goals); plus the enemy projectiles (EnemySim/Volleys).
 
 local Shared = game:GetService("ReplicatedStorage").Shared
 local Config = require(Shared.Config)
@@ -612,6 +613,202 @@ describe("lag-corrected contacts", function()
 			world:spawn(Types.Spitter, 20, 0, Types.Spitter.hp, 0, Types.Spitter.ranged.projectileDamage * 1.5)
 		local _, shotMultiplier = world:getMultipliers(spitter :: number)
 		expect(shotMultiplier).toBeNear(1.5)
+	end)
+end)
+
+describe("B9 behaviours", function()
+	it("lets a Stalker get faster while it lives, up to its max", function()
+		local accelerate = Types.Stalker.accelerate :: any
+		local world = newWorld()
+		local id = spawn(world, "Stalker", 40, 0) :: number
+		run(world, 2, { 0 }, { 0 })
+		expect(world.boosts[world.indexOf[id]]).toBeNear(1 + accelerate.perSecond * 2, 0.02)
+		run(world, (accelerate.max - 1) / accelerate.perSecond, { 0 }, { 0 })
+		expect(world.boosts[world.indexOf[id]]).toBeNear(accelerate.max, 1e-6)
+		-- a fresh one walks at its base speed
+		local fresh = newWorld()
+		local slow = spawn(fresh, "Stalker", 100, 0) :: number
+		fresh:step(STEP, { 0 }, { 0 }, 1)
+		expect(100 - (fresh:getPosition(slow) :: number)).toBeNear(
+			Types.Stalker.speed * STEP * (1 + accelerate.perSecond * STEP),
+			1e-3
+		)
+	end)
+
+	it("lets a Skulker run from a close player but walk up to its shooting distance from a far one", function()
+		local skulker = Types.Skulker
+		local flee = skulker.flee :: any
+		local world = newWorld()
+		local near = spawn(world, "Skulker", flee.range - 6, 0) :: number
+		local far = spawn(world, "Skulker", 0, 80) :: number
+		run(world, 0.5, { 0 }, { 0 })
+		expect(distance(world, near, 0, 0) > flee.range - 6 + 2).toBe(true)
+		expect(distance(world, far, 0, 0) < 80 - 2).toBe(true)
+		run(world, 6, { 0 }, { 0 })
+		expect(distance(world, far, 0, 0)).toBeNear(
+			(skulker.ranged :: any).keepDistance,
+			Sim.keepDistanceTolerance + 0.5
+		)
+	end)
+
+	it("lets a Thornback fire a counter ring when hit, at most once per cooldown", function()
+		local retaliate = Types.Thornback.retaliate :: any
+		local world = newWorld()
+		local id = spawn(world, "Thornback", 40, 0) :: number
+		local _, _, _, fires = world:damage(id, 1)
+		expect(fires).toBe(true)
+		_, _, _, fires = world:damage(id, 1)
+		expect(fires).toBe(false)
+		run(world, retaliate.cooldownSeconds + STEP, { 0 }, { 0 })
+		_, _, _, fires = world:damage(id, 1)
+		expect(fires).toBe(true)
+		-- the killing hit fires nothing
+		run(world, retaliate.cooldownSeconds + STEP, { 0 }, { 0 })
+		local killed
+		killed, _, _, fires = world:damage(id, 10000)
+		expect(killed).toBe(true)
+		expect(fires).toBe(false)
+	end)
+
+	it("lets a Herald buff at most buffCount enemies around it once each", function()
+		local pulse = Types.Herald.pulse :: any
+		local world = newWorld()
+		local herald = spawn(world, "Herald", 100, 0) :: number
+		local brutes = {}
+		for k = 1, pulse.buffCount + 2 do
+			local angle = k / (pulse.buffCount + 2) * 2 * math.pi
+			table.insert(brutes, spawn(world, "Brute", 100 + math.cos(angle) * 6, math.sin(angle) * 6))
+		end
+		local far = spawn(world, "Brute", 100, 60) :: number
+		local function anyBuffed()
+			for _, id in brutes do
+				local _, _, isBuffed = world:getStatus(id)
+				if isBuffed then
+					return true
+				end
+			end
+			return false
+		end
+		for _ = 1, math.ceil(pulse.intervalSeconds / STEP) + 1 do
+			world:step(STEP, { 140 }, { 0 }, 1)
+			if anyBuffed() then
+				break
+			end
+		end
+		expect(world:getMode(herald)).toBe(World.MODE_WINDUP) -- clients see the ring
+		local buffed = 0
+		for _, id in brutes do
+			local _, _, isBuffed = world:getStatus(id)
+			if isBuffed then
+				buffed += 1
+				local i = world.indexOf[id]
+				expect(world.contactDamage[i]).toBeNear(Types.Brute.contactDamage * pulse.buffDamage)
+				expect(world.speedFactors[i]).toBeNear(pulse.buffSpeed)
+				local hp, maxHp = world:getHealth(id)
+				expect(maxHp).toBeNear(Types.Brute.hp * (1 + pulse.buffHp))
+				expect(hp).toBeNear(maxHp)
+			end
+		end
+		expect(buffed).toBe(pulse.buffCount)
+		local _, _, farBuffed = world:getStatus(far)
+		expect(farBuffed).toBe(false)
+		local _, _, selfBuffed = world:getStatus(herald)
+		expect(selfBuffed).toBe(false)
+		-- the next pulse buffs the rest, and nobody twice
+		run(world, pulse.intervalSeconds, { 140 }, { 0 })
+		for _, id in brutes do
+			local _, _, isBuffed = world:getStatus(id)
+			expect(isBuffed).toBe(true)
+			expect(world.contactDamage[world.indexOf[id]]).toBeNear(Types.Brute.contactDamage * pulse.buffDamage)
+		end
+		-- no pulses without players
+		local quiet = newWorld()
+		local lonely = spawn(quiet, "Brute", 6, 0) :: number
+		spawn(quiet, "Herald", 0, 0)
+		run(quiet, pulse.intervalSeconds * 2, {}, {})
+		local _, _, quietBuffed = quiet:getStatus(lonely)
+		expect(quietBuffed).toBe(false)
+	end)
+
+	it("lets a Mender heal the others around it, not itself", function()
+		local pulse = Types.Mender.pulse :: any
+		local world = newWorld()
+		local mender = spawn(world, "Mender", 100, 0) :: number
+		local brute = spawn(world, "Brute", 105, 0) :: number
+		world:damage(brute, Types.Brute.hp * 0.8)
+		world:damage(mender, 1)
+		run(world, pulse.intervalSeconds + STEP, { 140 }, { 0 })
+		local hp, maxHp = world:getHealth(brute)
+		expect(hp).toBeNear(maxHp * (0.2 + pulse.heal))
+		expect(world:getHealth(mender)).toBeNear(Types.Mender.hp - 1)
+	end)
+
+	it("lets a Brood Egg stand still, shake before it hatches and report the hatch once", function()
+		local hatch = Types.BroodEgg.hatch :: any
+		local world = newWorld()
+		local id = spawn(world, "BroodEgg", 10, 0) :: number
+		run(world, hatch.seconds - 2, { 0 }, { 0 })
+		expect(world:getMode(id)).toBe(World.MODE_WALK)
+		expect(world:getPosition(id)).toBeNear(10, 1e-6)
+		run(world, 1, { 0 }, { 0 })
+		expect(world:getMode(id)).toBe(World.MODE_WINDUP)
+		local reported = 0
+		for _ = 1, math.ceil(2 / STEP) do
+			world:step(STEP, { 0 }, { 0 }, 1)
+			for k = 1, world.hatchCount do
+				expect(world.hatches[k]).toBe(id)
+				reported += 1
+			end
+		end
+		expect(reported).toBe(1)
+	end)
+
+	it("lets a Reaper wind up, then hit a player who stays in its circle and miss one who walks out", function()
+		local slash = Types.Reaper.slash :: any
+		local function windUp(world, id)
+			for _ = 1, math.ceil((slash.cooldownSeconds + 1) / STEP) do
+				world:step(STEP, { 0 }, { 0 }, 1)
+				if world:getMode(id) == World.MODE_WINDUP then
+					return true
+				end
+			end
+			return false
+		end
+		local stays = newWorld()
+		local reaper = spawn(stays, "Reaper", slash.triggerRange + 3, 0) :: number
+		expect(windUp(stays, reaper)).toBe(true)
+		expect(distance(stays, reaper, 0, 0) <= slash.triggerRange).toBe(true)
+		local hit = 0
+		for _ = 1, math.ceil((slash.windupSeconds + STEP) / STEP) do
+			local contacts = stays:step(STEP, { 0 }, { 0 }, 1)
+			hit = math.max(hit, contacts[1])
+		end
+		expect(hit).toBe(slash.damage)
+		expect(stays:getMode(reaper)).toBe(World.MODE_RECOVER)
+
+		local dodges = newWorld()
+		local other = spawn(dodges, "Reaper", slash.triggerRange + 3, 0) :: number
+		expect(windUp(dodges, other)).toBe(true)
+		local missed = 0
+		local away = -(slash.radius + Sim.playerRadius + 3)
+		for _ = 1, math.ceil((slash.windupSeconds + STEP) / STEP) do
+			local contacts = dodges:step(STEP, { away }, { 0 }, 1)
+			missed = math.max(missed, contacts[1])
+		end
+		expect(missed).toBe(0)
+	end)
+
+	it("walks to a goal instead of the player while one is set", function()
+		local world = newWorld()
+		local id = spawn(world, "Gobbler", 0, 0) :: number
+		world:setGoal(id, 0, 30)
+		run(world, 1, { 40 }, { 0 })
+		local x, z = world:getPosition(id)
+		expect(x).toBeNear(0, 1e-3)
+		expect((z :: number) > 5).toBe(true)
+		world:setGoal(id, nil)
+		run(world, 1, { 40 }, { 0 })
+		expect((world:getPosition(id) :: number) > 5).toBe(true)
 	end)
 end)
 
