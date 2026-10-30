@@ -10,7 +10,8 @@ Kurzer Projektstand für neue Sessions. **Zuerst lesen**, dann aus `DESIGN.md` n
 - **Bekannt und harmlos:** Output-Zeile „DataStoreService: StudioAccessToApisNotAllowed … HttpRequestsCache“ kommt von einem Studio-Plugin, nicht aus unserem Code.
 - **Als Nächstes:** Ab B6 arbeiten Claude und ChatGPT parallel in zwei Strängen (Regeln, Dateibesitz, Runden: `docs/PARALLEL.md`; ChatGPT liest `AGENTS.md`). Runde 1: B6 Beute (Claude, **High**) und B7 Waffen (ChatGPT, Medium), jeweils wenn der Owner es sagt. Tabelle: `DESIGN.md` Abschnitt 20.
 - **B6 Beute (Strang A, 30.10.2026):** PR #21 nach Test des Owners gemerged (`/mnt/project-files/lanternfall-b6/TESTANLEITUNG.md`). Drop-Chance ab Welle 5, Beutel, höchstens 50 Orbs, Früchte und Kisten (Item nehmen oder verkaufen vor den Level-up-Karten), Plünderer, Bäume. Legendäre Kiste kommt mit Paket 10/B11. Danach für Strang A: B9 Gegner (**Extra high**).
-- **B9 Teil 1 Spawn-Gruppen (Strang A, 30.10.2026):** PR `[Claude] B9 Teil 1 Spawn-Gruppen` von Branch `wp-b9a-spawn-groups`, wartet auf Test und OK (`/mnt/project-files/lanternfall-b9a/TESTANLEITUNG.md`). Wellen als feste Spawn-Gruppen, rote Spawn-Marker 1 s vorher, Spawn-Ring 32–52 Studs, HP/Schaden pro Typ und Wachstumsschritt, Neben-Wert Enemy Speed. Danach: **B9 Teil 2** (8 neue Gegner-Verhalten, Extra high), dann **B8 Items** (Owner 30.10.2026: macht jetzt Claude).
+- **B8 Items (30.10.2026, von Claude statt ChatGPT):** PR #22 von Branch `wp-b8-items`, gemerged (`/mnt/project-files/lanternfall-b8/TESTANLEITUNG.md`). 24 neue Items (jetzt 114) nach Brotato-Vorbildern, dazu Effekt-Aktionen „Strike" (Schaden an zufälligem/getroffenem Gegner, auch % seiner HP) und „Drain" (HP verlieren, nie unter 1), Bedingung „volle HP" bei Frucht/Kiste, „pro X" mit negativem Schritt und Untergrenze, Quellen „lebende Gegner" und „verschiedene Items einer Stufe". Angefasst außerhalb der Item-Dateien (nur angehängt): `Arsenal.queueStrike`, `WeaponService.strikeEnemy`, `CombatService.drainPlayer`, `EnemySim.getHealth`, `LootService.ConsumableCollected` (drittes Argument `wasFull`). Wiki-Liste kam nur bis „I" an (Seite zu lang); weitere Items mit I–Z-Vorbildern später.
+- **B9 Teil 1 Spawn-Gruppen (Strang A, 30.10.2026):** PR `[Claude] B9 Teil 1 Spawn-Gruppen` von Branch `wp-b9a-spawn-groups`, wartet auf Test und OK (`/mnt/project-files/lanternfall-b9a/TESTANLEITUNG.md`). Wellen als feste Spawn-Gruppen, rote Spawn-Marker 1 s vorher, Spawn-Ring 32–52 Studs, HP/Schaden pro Typ und Wachstumsschritt, Neben-Wert Enemy Speed. Danach: **B9 Teil 2** (8 neue Gegner-Verhalten, Extra high).
 
 ## Stränge
 
@@ -18,8 +19,8 @@ Jeder Strang ändert nur **seine** Zeile (Regeln: `docs/PARALLEL.md`).
 
 | Strang | KI | Aktuelles Paket | Branch / PR | Stand | Danach |
 | --- | --- | --- | --- | --- | --- |
-| A – Engine und Ablauf | Claude | B9 Teil 1 Spawn-Gruppen (XH) | `wp-b9a-spawn-groups` / PR `[Claude] B9 Teil 1 Spawn-Gruppen` | fertig, wartet auf Test und Merge | B9 Teil 2 (8 Gegner, XH), dann B8 Items (Medium) |
-| B – Inhalte und Spieler-Regeln | ChatGPT | B7 Waffen (Medium) | – | in Arbeit oder wartet | B10 Charaktere (B8 macht seit 30.10.2026 Strang A) |
+| A – Engine und Ablauf | Claude | B9 Teil 1 Spawn-Gruppen (XH) | `wp-b9a-spawn-groups` / PR `[Claude] B9 Teil 1 Spawn-Gruppen` | fertig, wartet auf Test und Merge | B9 Teil 2 (8 Gegner, XH) |
+| B – Inhalte und Spieler-Regeln | ChatGPT | B7 Waffen (Medium) | `wp-b7-weapons` | gemerged | B10 Charaktere (B8 hat Claude gemacht, PR #22) |
 
 ## Feste Entscheidungen des Owners
 
@@ -37,7 +38,7 @@ Jeder Strang ändert nur **seine** Zeile (Regeln: `docs/PARALLEL.md`).
 - B6 (30.10.2026, Annahmen im Test prüfen): Kisten sind 25 % der Früchte/Kisten-Drops (Brotato nennt keinen Grundwert), Brute/Abyss Brute 3 %, Charger 2 % statt 1 %; Plünderer verschwindet nach 12 s; 1 Baum pro Welle mit 30 HP; Kisten öffnen sich vor den Level-up-Karten, nach 10 s wird genommen; liegengebliebene Kisten gehen an den nächsten Spieler. Elite-Truhen bleiben bis Paket 10/B11 wie sie sind (sonst 13 legendäre Items pro Run).
 
 - B9 (30.10.2026): Gegner-Werte wachsen pro Typ wie Brotato (Grundwert + Zuwachs pro Schritt), aber die Schritte pro Welle folgen der alten, getesteten Kurve (Brotatos „Welle − 1" war in der Simulation viel zu schwer: 0 von 12 Siegen). Spawn-Ring näher (32–52 Studs), damit die Marker sichtbar sind; Annahmen im Test prüfen.
-- Owner (30.10.2026): Kamera bleibt bei 50° (nicht wie Brotato von oben). B8 Items übernimmt Claude (Strang A), weil ChatGPT wenig Limit hat.
+- Owner (30.10.2026): Kamera bleibt bei 50° (nicht wie Brotato von oben). B8 Items übernimmt Claude statt ChatGPT, weil ChatGPT wenig Limit hat.
 
 ## Owner und Ablauf
 
@@ -57,6 +58,7 @@ Jeder Strang ändert nur **seine** Zeile (Regeln: `docs/PARALLEL.md`).
 - Effekte testen: Debug-Knopf „Next effect item" gibt der Reihe nach jedes Item mit Effekt oder Neben-Wert, „Next combat item" jedes Kampf-Item (Brennen, Explodieren, Durchbohren, Abprallen, Rückstoß). Ende-zu-Ende-Tests für Effekte und Kampf in `tests/Smoke.spec.luau` (Helfer `give`, `bonusText`); `EnemyRenderer.getStatus(id)` liefert brennt/verlangsamt auf dem Client.
 - Kampf-Falle: Item-Brände und -Explosionen (EffectService → `WeaponService.burnEnemy/explodeAt`) laufen über eine Warteschlange am Ende von `Arsenal.step`, sonst würden Explosion → Kill → Explosion rekursiv laufen und die Scratch-Arrays überschreiben. StatService rechnet Klassen-Boni nur neu, wenn sie sich ändern (sonst Schleife mit `WeaponService.Changed`).
 - Beute testen (B6): Debug-Knöpfe „Spawn a looter", „Spawn a tree", „Drop a crate". Ende-zu-Ende-Tests in `tests/Loot.spec.luau`, Formeln in `tests/LootRules.spec.luau`. `tests/Smoke.spec.luau` schaltet zufällige Früchte/Kisten mit `LootService.setDropsPaused(true)` ab, sonst öffnen sich Kisten vor den Level-up-Karten und die Smoke-Tests werden zufällig rot.
+- Items testen (B8): Ende-zu-Ende-Tests und Regeln in `tests/ItemsB8.spec.luau`; Debug-Knopf „Next new item" gibt die Items des neuesten Item-Pakets der Reihe nach (`Config/Admin.luau` → `newItems`). Brotatos Item-Wiki (`brotato.wiki.spellsandguns.com/Items`) ist zu lang für einen Abruf: der Text bricht bei „Incendiary Turret" ab, Items ab „I" einzeln abrufen.
 
 - Spawn-Gruppen testen (B9): Ende-zu-Ende in `tests/SpawnGroups.spec.luau` (Marker, Gruppe auf einem Fleck, Pause verwirft); Formeln in `tests/SpawnRules.spec.luau`. Die Balance-Sim läuft inzwischen schneller: fight-Bot, 6 Seeds, eine Klasse ≈ 5–8 min.
 
@@ -71,3 +73,12 @@ Jeder Strang ändert nur **seine** Zeile (Regeln: `docs/PARALLEL.md`).
 - Reine Regeln (Formeln) liegen in Untermodulen (`ShopRules`, `RunFlow`, `SpawnRules`, `WeaponStats`, `Afflictions`, `Util/WeaponClasses`, `UpgradePool`, `EffectRules`, `Streams`, `Util/StatMath`, `Util/RunSchedule`) und haben Unit-Tests in `tests/`.
 - Beute (B6): `Config/Loot.luau` (alle Zahlen), `Util/LootRules` (Formeln), `ExperienceService` (Drop-Chance der Orbs, Beutel, Remote `OrbBag`), `LootService` (Elite-Truhen, Früchte und Kisten am Boden, Remote `Pickups`), `UpgradeService` (Kisten-Wahl vor den Karten, Remotes `CrateOffer`/`ChooseCrate`), `SpawnDirector` (Plünderer, Bäume), `EnemySim/World` (`flee`, `anchored`, `remove`). Client: `PickupRenderer` (Früchte, Kisten, Beutel-Anzeige), `LevelUpController` (Kisten-Panel).
 - Gegner (B9 Teil 1): `Config/Run.luau` → `spawn.groups` (Gruppen pro Welle), `spawn.growth` (Wachstumsschritte), `markerSeconds`; `Config/Enemies.luau` → `hpPerWave`, `damagePerWave`. `SpawnDirector` (Gruppen-Timer, Warteschlange mit Markern, Remote `SpawnMarkers`), `SpawnRules` (`groupsAt`, `growth`, `groupOffset`). `EnemySim/World` hat eine Spalte `speedFactors` (Enemy Speed). Client: `SpawnMarkerRenderer`.
+
+## B7 – Übergabe (30.10.2026)
+
+- 18 neue Waffen nach konkreten Brotato-Basisspiel-Vorbildern, insgesamt 24; Zuordnung, Quellen und Testanleitung: `docs/B7-WAFFEN.md`.
+- Neue optionale Config-Felder: `minTier`, `tierScaling`, `heldStats`, `killGainStat`; exakte Stufenpreise in `Shop.weaponTierPrices`. Bestehende Waffen behalten ihre Werte. `Arsenal` unverändert.
+- `WeaponService.KillGrowth(player, gains)` wird nach dem Simulationsschritt ausgezahlt; `StatService` verarbeitet permanente Kill-Gewinne. Teilzähler und neue Waffen-Projektile werden beim Shop-Eintritt gelöscht.
+- `Net/Types.WeaponEffect.angle` ergänzt für gerichtete Nahkampf-Visuals. Kein Remote hinzugefügt oder verändert.
+- `engineering` ist als ausgeblendeter Neben-Wert reserviert, damit Cathedral Engine wie Chain Gun mit Ranged Damage + Engineering skaliert; Erwerb, primäre Karten und Bauten bleiben B12. Neue Waffenklasse Dread = Legendary mit HP-Malus ×10. Choir bleibt bestehend, bekommt kein DLC-Vorbild in B7.
+- Tests: 25 Spec-Dateien / 320 Tests bestanden (inklusive gemergtem B6) (lokaler Lune-Adapter für den bestehenden Test-Prelude, da Rust hier fehlt). StyLua sauber; Selene src: 0 Fehler, 8 bestehende UI-Warnungen. Kein echter Studio-, Geräte- oder Netzwerktest.

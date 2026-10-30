@@ -56,6 +56,10 @@ end
 
 -- Price of a weapon of `tier` after wave `wave`: its tier I base price times Config.Shop.tierPriceFactors[tier].
 function ShopRules.weaponPrice(weaponId: string, tier: number, wave: number, factor: number?): number
+	local exact = Shop.weaponTierPrices[weaponId]
+	if exact then
+		return ShopRules.price(exact[tier], wave, factor)
+	end
 	local base = Shop.weaponPrices[weaponId] or 0
 	return ShopRules.price(base * (Shop.tierPriceFactors[tier] or 1), wave, factor)
 end
@@ -173,7 +177,12 @@ end
 -- (Config.WeaponClasses, since B5; before Melee/Ranged/Elemental) with an owned one,
 -- else any; a pool with nothing left falls through to the next. `avoid` holds ids already in this shop or (while
 -- others are left) in the previous roll. nil if every weapon is avoided.
-local function pickWeapon(params: Params, avoid: { [string]: boolean }, strict: { [string]: boolean }): string?
+local function pickWeapon(
+	params: Params,
+	avoid: { [string]: boolean },
+	strict: { [string]: boolean },
+	tier: number
+): string?
 	local ownedIds: { [string]: boolean } = {}
 	local ownedClasses: { [string]: boolean } = {}
 	for _, owned in params.ownedWeapons do
@@ -188,7 +197,12 @@ local function pickWeapon(params: Params, avoid: { [string]: boolean }, strict: 
 	local function pool(filter: (string) -> boolean, skip: { [string]: boolean }): { string }
 		local ids = {}
 		for _, weaponId in params.weapons do
-			if not skip[weaponId] and Shop.weaponPrices[weaponId] and filter(weaponId) then
+			if
+				not skip[weaponId]
+				and Shop.weaponPrices[weaponId]
+				and (Weapons[weaponId].minTier or 1) <= tier
+				and filter(weaponId)
+			then
 				table.insert(ids, weaponId)
 			end
 		end
@@ -229,8 +243,7 @@ local function pickWeapon(params: Params, avoid: { [string]: boolean }, strict: 
 	return nil
 end
 
-local function weaponOffer(weaponId: string, params: Params): Types.ShopOffer
-	local tier = math.clamp(StatMath.rollTier(params.wave, params.luck, params.random()), 1, params.maxTier)
+local function weaponOffer(weaponId: string, params: Params, tier: number): Types.ShopOffer
 	local merges, blocked =
 		ShopRules.weaponStatus(weaponId, tier, params.ownedWeapons, params.maxWeapons, params.maxTier)
 	local copies = copiesOf(weaponId, params.ownedWeapons)
@@ -289,9 +302,10 @@ function ShopRules.roll(params: Params): { Types.ShopOffer }
 	while #offers < Shop.slots do
 		local wantWeapon = weaponsLeft > 0 or params.random() < Shop.weaponChance
 		local offer: Types.ShopOffer? = nil
-		local weaponId = if wantWeapon then pickWeapon(params, avoid, taken) else nil
+		local weaponTier = math.clamp(StatMath.rollTier(params.wave, params.luck, params.random()), 1, params.maxTier)
+		local weaponId = if wantWeapon then pickWeapon(params, avoid, taken, weaponTier) else nil
 		if weaponId then
-			offer = weaponOffer(weaponId, params)
+			offer = weaponOffer(weaponId, params, weaponTier)
 			weaponsLeft -= 1
 		else
 			local tier = StatMath.rollTier(params.wave, params.luck, params.random())
@@ -300,9 +314,9 @@ function ShopRules.roll(params: Params): { Types.ShopOffer }
 			if itemId then
 				offer = itemOffer(itemId, params)
 			else
-				weaponId = pickWeapon(params, avoid, taken)
+				weaponId = pickWeapon(params, avoid, taken, weaponTier)
 				if weaponId then
-					offer = weaponOffer(weaponId, params)
+					offer = weaponOffer(weaponId, params, weaponTier)
 				end
 			end
 		end

@@ -33,6 +33,9 @@ local WeaponService = {}
 
 -- (player: Player): the player's weapons changed (added, removed, merged, tier, evolution)
 WeaponService.Changed = Signal.new()
+-- B7: permanent weapon-kill gains, delivered after the simulation step.
+WeaponService.KillGrowth = Signal.new()
+local growth: { [number]: { [string]: number } } = {}
 
 -- Hit listener: (ownerId, enemyId, dealt, crit, killed, source), set by EffectService. A plain callback, not a
 -- Signal: it runs for every hit. `source` says what dealt it (Arsenal.HitSource: "Weapon", "Explosion", "Burn").
@@ -181,6 +184,17 @@ local arsenal = Arsenal.new({
 		killed: boolean,
 		source: Arsenal.HitSource
 	)
+		if killed and _weapon and _weapon.config.killGainStat then
+			local state = _weapon.state
+			state.waveKills = (state.waveKills or 0) + 1
+			if state.waveKills >= _weapon.stats.killsPerGain then
+				state.waveKills -= _weapon.stats.killsPerGain
+				local stat = _weapon.config.killGainStat
+				local gains = growth[ownerId] or {}
+				growth[ownerId] = gains
+				gains[stat] = (gains[stat] or 0) + 1
+			end
+		end
 		local listener = hitListener
 		if listener then
 			listener(ownerId, id, dealt, crit, killed, source)
@@ -253,6 +267,14 @@ local function onStepped(dt: number, stepNow: number)
 		end
 	end
 	arsenal:step(dt, stepNow)
+	local earned = growth
+	growth = {}
+	for ownerId, gains in earned do
+		local player = playerOf(ownerId)
+		if player then
+			WeaponService.KillGrowth:Fire(player, gains)
+		end
+	end
 	sendHitFeeds()
 	local effects = arsenal:drainEffects()
 	if #effects > 0 then
@@ -265,10 +287,27 @@ end
 -- Lifecycle -------------------------------------------------------------------------
 
 function WeaponService.init()
+	require(script.B7Projectile).setSlowAura(function(x, z, radius, factor, seconds)
+		local ids = {}
+		local count = EnemySim.queryRadius(Vector3.new(x, floorY, z), radius, ids)
+		for i = 1, count do
+			EnemySim.slow(ids[i], factor, seconds)
+		end
+	end)
 	RunDirector.RunStarted:Connect(onRunStarted)
 	EnemySim.Stepped:Connect(onStepped)
 	RunDirector.PhaseChanged:Connect(function(phase)
 		if phase == "Shop" then
+			for _, player in Players:GetPlayers() do
+				for _, weapon in arsenal:getWeapons(player.UserId) do
+					if weapon.config.minTier then
+						table.clear(weapon.state)
+					end
+					weapon.state.waveKills = 0
+					weapon.state.shots = 0
+					weapon.state.reloadLeft = 0
+				end
+			end
 			arsenal:clearCombat() -- the enemies left fade away (EnemySim), so do their burns
 		end
 	end)
@@ -291,7 +330,12 @@ end
 
 -- Adds a weapon of `tier` (default I); returns its uid.
 function WeaponService.addWeapon(player: Player, weaponId: string, tier: number?): (boolean, string?, number?)
-	local ok, reason, uid = arsenal:addWeapon(player.UserId, weaponId, now(), tier)
+	local config = Config.Weapons[weaponId]
+	local requestedTier = tier or (config and config.minTier) or 1
+	if config and requestedTier < (config.minTier or 1) then
+		return false, "BadTier", nil
+	end
+	local ok, reason, uid = arsenal:addWeapon(player.UserId, weaponId, now(), requestedTier)
 	if ok then
 		send(player)
 	end
@@ -370,6 +414,18 @@ function WeaponService.explodeAt(
 	size: number
 )
 	arsenal:queueExplosion(player.UserId, position.X, position.Z, damage, scaling, size)
+end
+
+-- Item effects (B8, EffectService): hits enemy `enemyId` for the player at the end of this step, (damage + sum of
+-- scaling * stat) times Damage % plus `flat` (not scaled), without crit, life steal or knockback.
+function WeaponService.strikeEnemy(
+	player: Player,
+	enemyId: number,
+	damage: number,
+	scaling: { [string]: number }?,
+	flat: number
+)
+	arsenal:queueStrike(player.UserId, enemyId, damage, scaling, flat)
 end
 
 -- Debug: switches every player's weapons off (no hits, no visuals) or back on. Resets at run start.

@@ -12,4 +12,31 @@ return table.freeze({
 	hitNearbyDamage = 5, -- "HitNearby": damage per enemy, so a Shadeling at minute 0 takes two hits
 	hurtSelfDamage = 25, -- "HurtSelf": damage of the test hit (armor and hit protection apply)
 	statsInterval = 1, -- seconds between stats updates for the admin stats panel
+	-- "AddNewItem" (since B8): the items of the latest item package, one after another
+	newItems = table.freeze({
+		"GrubTincture",
+		"BeckoningBell",
+		"TaintedElixir",
+		"HookedTongue",
+		"CrackedSkull",
+		"WispJar",
+		"OrderSash",
+		"RollingEye",
+		"InkPolyp",
+		"Knucklebones",
+		"WitchKettle",
+		"SaltCoral",
+		"AstralPhilter",
+		"AmberResin",
+		"RabbleBanner",
+		"HearthSprite",
+		"BloodChalice",
+		"CrimsonHand",
+		"VelvetDivan",
+		"BrassCarapace",
+		"ThunderShells",
+		"SecondStomach",
+		"TitanGirdle",
+		"PyreAshes",
+	}) :: { string },
 })

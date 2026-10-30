@@ -1,7 +1,8 @@
 --!strict
 -- Texts of item effects (DESIGN.md sections 6 and 13, since B4), built from Config.Effects records, Config.Stats and
 -- Config.Weapons: one line per effect for shop cards and chest rewards ("Wave end: +3% Damage", "+8 Armor while
--- standing still", "Kill (crit): +1 Shard (33%)", since B5 "Hit: burn 3x1 (+100% Elemental Damage) (25%)"), the feedback text when an effect pays out ("+50 HP") and the
+-- standing still", "Kill (crit): +1 Shard (33%)", since B5 "Hit: burn 3x1 (+100% Elemental Damage) (25%)", since B8
+-- "Kill: 1 (+25% Luck) damage to a random enemy (25%)"), the feedback text when an effect pays out ("+50 HP") and the
 -- HUD's active bonus lines ("+8 Armor (standing still)"). Used by UpgradeText, ProcTextController and the HUD;
 -- tested in tests/EffectRules.spec.luau.
 
@@ -29,6 +30,7 @@ local TRIGGER_TEXT: { [string]: string } = {
 	Hurt = "Hit taken",
 	Pickup = "Orb",
 	Chest = "Chest",
+	Consumable = "Fruit or crate",
 }
 
 local KIND_TEXT: { [string]: string } = {
@@ -86,6 +88,14 @@ local function sourceText(source: string, per: number): string
 		return plural(per, "Shard")
 	elseif source == "distinctWeapons" then
 		return if per == 1 then "different weapon" else `{number(per)} different weapons`
+	elseif source == "enemies" then
+		return if per == 1 then "living enemy" else `{number(per)} living enemies`
+	end
+	local tier = string.match(source, "^distinctItemsTier(%d)$")
+	if tier then
+		local info = Config.Items.tiers[tonumber(tier) :: number]
+		local name = if info then info.name else `tier {tier}`
+		return if per == 1 then `different {name} item` else `{number(per)} different {name} items`
 	end
 	local stat = Config.Stats.byId[source]
 	if not stat then
@@ -126,6 +136,18 @@ local function body(effect: Effects.Effect): string
 		return `burn {number(effect.ticks or 0)}x{damageText(effect.amount or 0, effect.scaling)}`
 	elseif action == "Explode" then
 		return `explode for {damageText(effect.amount or 0, effect.scaling)}`
+	elseif action == "Strike" then
+		local target = if effect.target == "random" then "a random enemy" else "the enemy"
+		if effect.hpShare then
+			local text = `{number(effect.hpShare * 100)}% of {target}'s current HP as damage`
+			if effect.eliteHpShare then
+				text ..= ` ({number(effect.eliteHpShare * 100)}% vs elites)`
+			end
+			return text
+		end
+		return `{damageText(effect.amount or 0, effect.scaling)} damage to {target}`
+	elseif action == "Drain" then
+		return `lose {number(effect.amount or 0)} HP`
 	end
 	return action
 end
@@ -149,6 +171,9 @@ function EffectText.line(effect: Effects.Effect): string
 		trigger = `Every {number(effect.interval or 0)}s`
 	elseif effect.trigger == "Acquire" and effect.action == "NextWaveStats" then
 		return `Next wave: {EffectText.stats(effect.stats)}`
+	end
+	if effect.fullHp then
+		trigger ..= " at full HP"
 	end
 	if effect.crit and effect.elite then
 		trigger ..= " (elite, crit)"

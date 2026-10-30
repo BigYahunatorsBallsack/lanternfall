@@ -238,7 +238,7 @@ Jede Klasse: eine Startwaffe, ein passiver Bonus, ein eigenes Kostüm. Keine eig
 
 ## 6. Waffen, Items & Evolutionen
 
-v1 hat 6 Waffen, 90 Items (seit B5, vorher 78 bzw. 46) und 2 Evolutionen. Seit B2 trägt jeder Spieler bis zu 6 Waffen (vorher 4). Seit B3 hat jede Waffe wie in Brotato eine Stufe I–IV statt Level 1–5; dieselbe Waffe darf man mehrmals tragen, zwei gleiche gleicher Stufe verschmelzen zur nächsten (Abschnitt 3). Items ersetzen seit B2 die 6 Passive: Man kann sie beliebig oft kaufen, sie stapeln ohne Grenze.
+Seit B7 hat v1 24 Waffen, 90 Items (seit B5, vorher 78 bzw. 46) und 2 Evolutionen. Seit B2 trägt jeder Spieler bis zu 6 Waffen (vorher 4). Seit B3 hat jede Waffe wie in Brotato eine Stufe I–IV statt Level 1–5; dieselbe Waffe darf man mehrmals tragen, zwei gleiche gleicher Stufe verschmelzen zur nächsten (Abschnitt 3). Items ersetzen seit B2 die 6 Passive: Man kann sie beliebig oft kaufen, sie stapeln ohne Grenze.
 
 **Waffen (Startwerte Stufe I; seit B3 Stufen statt Level)**
 
@@ -451,6 +451,43 @@ Anzeige: Shop-Karten von Waffen zeigen ihre Klassen und eine Schadenszeile („2
 | Recoil Spring | Rare | 60 (Annahme) | +5 Knockback; +1% Damage per 1 Knockback (max. 3) | Coil |
 
 Effekt-Aktionen dazu (`Config/Effects.luau`): „Burn" (Gegner in Brand setzen) und „Explode" (Explosion am Gegner), nur bei Treffer, Krit oder Kill. Mehrere Kopien mit Chance würfeln einzeln; zünden mehrere Explosions-Kopien zugleich, addiert sich ihr Schaden. Item-Brände und -Explosionen passieren am Ende des Simulationsschritts, eine Kettenreaktion (Explosion tötet, Kill lässt explodieren) läuft also Schritt für Schritt.
+
+**Item-Paket (seit B8, 30.10.2026):** 24 neue Items, damit sind es 114. Jedes übernimmt Mechanik und Zahlen eines Brotato-Items (Wiki-Liste, Stand Version 1.1.15.4; HP mal 10, auch Heilung, Frucht-Heilung und Selbstschaden), Name eigener. Engineering, Flüche und Bauten fehlen bis zu ihren Paketen. Sechs stammen aus Brotatos Erweiterung (Baby Squid, Bone Dice, Cauldron, Coral, Goblet, Ashes).
+
+| Item | Stufe | Grundpreis | Werte und Effekte | Vorbild (Brotato) |
+| --- | --- | --- | --- | --- |
+| Grub Tincture | Common | 15 | +30 Max HP, +2 HP Regeneration, -10 Fruit Healing | Alien Worm |
+| Beckoning Bell | Common | 30 | +20 Max HP, +5% Damage, +5% Enemies (max. 10) | Gentle Alien |
+| Tainted Elixir | Common | 20 | +20 Max HP, +2 Melee Damage, -3% Attack Speed | Defective Steroids |
+| Hooked Tongue | Common | 25 | +30% Pickup Range, +1 Knockback | Alien Tongue |
+| Cracked Skull | Common | 25 | +6% Damage, -8 Range | Head Injury |
+| Wisp Jar | Common | 22 | Orb: 1 (+25% Luck) Schaden an einem zufälligen Gegner (25%) | Baby Elephant |
+| Sash of the Order | Uncommon | 50 | +25% XP Gain, +3 Melee Damage, +3 Knockback, -8 Luck | Black Belt |
+| Rolling Eye | Uncommon | 30 | Kill: 1 (+25% Luck) Schaden an einem zufälligen Gegner (25%) | Cyberball |
+| Ink Polyp | Uncommon | 55 | -3% Attack Speed; Level-up: +1 HP Regeneration | Baby Squid |
+| Knucklebones | Uncommon | 30 | Neuwurf: +1% Damage (50%), -10 Max HP (10%) (max. 2) | Bone Dice |
+| Witch's Kettle | Uncommon | 35 | +50% Pickup Range, -2 HP Regeneration; Frucht oder Kiste: +20% Damage für 2 s (max. 1) | Cauldron |
+| Salt Coral | Uncommon | 40 | -10 Range; +10 HP Regeneration im Stillstand | Coral |
+| Astral Philter | Rare | 85 | +80 Max HP, +3 HP Regeneration, -8 Luck | Alien Magic |
+| Amber Resin | Rare | 70 | +3 Ranged Damage, +10% Explosion Damage, +5% Explosion Size, -3% Speed, -3% Dodge | Honey |
+| Rabble Banner | Rare | 75 | -2 Armor; +1% Attack Speed pro lebendem Gegner (max. 1) | Community Support |
+| Hearth Sprite | Rare | 85 | +1 HP Regeneration pro verschiedenem Common-Item, -3 pro verschiedenem Legendary-Item (max. 1) | Fairy |
+| Blood Chalice | Rare | 70 | -3 HP Regeneration; Kill: 10 HP heilen (15%) (max. 3) | Goblet |
+| Crimson Hand | Legendary | 110 | +10% Life Steal; +2% Damage pro 1% Life Steal; jede Sekunde der Welle 10 HP verlieren (max. 1) | Bloody Hand |
+| Velvet Divan | Legendary | 100 | +50 Max HP, -20% Speed; +2 HP Regeneration pro -1% Speed (dauerhafte Werte) (max. 1) | Esty's Couch |
+| Brass Carapace | Legendary | 90 | +3 Armor, +5% Crit Chance, +5% Speed, -2 HP Regeneration, -2% Life Steal | Exoskeleton (ohne Engineering) |
+| Thunder Shells | Legendary | 100 | +60% Explosion Damage, +15% Explosion Size, -15% Damage | Explosive Shells |
+| Second Stomach | Legendary | 100 | Frucht oder Kiste bei vollen HP: +10 Max HP (höchstens 8 pro Welle) (max. 1) | Extra Stomach |
+| Titan's Girdle | Legendary | 110 | Krit: 10% der aktuellen HP des Gegners als Schaden (1% bei Elites) (max. 1) | Giant Belt |
+| Pyre Ashes | Legendary | 100 | +20% Damage, +20% Attack Speed, +100 Range; Wellenende: -1 Armor | Ashes |
+
+Neu in der Effekt-Maschine (B8): Aktion „Strike" (Treffer an einem zufälligen oder dem getroffenen Gegner: Grundschaden + Skalierung mal Damage %, dazu wahlweise ein Anteil seiner aktuellen HP; Damage vs Elites zählt, kein Krit, kein Life Steal, kein Rückstoß; seine Kills zählen als Kill, seine Treffer nicht als Treffer), Aktion „Drain" (HP verlieren ohne Rüstung, Ausweichen und Schutzzeit), Bedingung „volle HP" beim Aufheben einer Frucht oder Kiste (vor ihrer Heilung), „pro X" auch mit negativem Schritt und Untergrenze, neue Quellen „lebende Gegner" und „verschiedene Items einer Stufe".
+
+Annahmen, wo Brotato keine Zahl nennt: Drain tötet nicht, die HP bleiben bei mindestens 1 (Brotato: „you take 1 damage per second"), und er löst „getroffen"-Effekte nicht aus. Strike kann nicht kritten. Titan's Girdle rechnet mit den HP nach dem Krit-Treffer.
+
+### B7: Waffen-Paket
+
+18 neue Waffen nach konkreten Brotato-Basisspiel-Vorbildern, insgesamt 24. Quellen, Zuordnung und Testanleitung: `docs/B7-WAFFEN.md`. Exakte Stufenpreise, Mindeststufen, stufenabhängige Skalierung, Werte beim Tragen und permanente Kill-Gewinne. Bisherige Waffen behalten ihre Daten. Medical Gun wird als Lebensraub-Waffe umgesetzt, Icicle als durchschlagende Elementarwaffe. Engineering bleibt bis B12 ohne neue Erwerbsquellen. Dread ergänzt Legendary; keine neuen DLC-Waffen.
 
 ## 7. Gegner, Elites & Boss
 
@@ -1059,8 +1096,8 @@ Bis zum Soft Launch rund 40–50 Sessions und 50–60 Stunden Zeit des Owners (6
 | B4 | Brotato 4: Effekt-Maschine – Ereignisse, Effekte als Daten, bedingte und „pro X"-Werte, nächste Welle, Wellenende-Wachstum, Neben-Werte, getrennte Zufalls-Ströme, ~20 neue Items mit Effekten (umgesetzt 29.10.2026 mit 32 Items, Branch `wp-b4-effect-engine`) | Vertical Slice | Extra high | 2 | 1 h | neue Items ausprobieren |
 | B5 | Brotato 5: Kampf-Tiefe – Krit und Lebensraub pro Waffe, Rückstoß, Brennen, Verlangsamen, Explosionen, Durchschlag/Abprall, 12 Angriffe/s, Skalierung pro Waffe, Waffenklassen mit Set-Boni (umgesetzt 30.10.2026 mit 12 Kampf-Items, Branch `wp-b5-combat`) | Vertical Slice | Extra high | 2 | 1 h | Waffengefühl beurteilen |
 | B6 | Brotato 6: Beute – sinkende Drop-Chance, Beutel, Heil-Früchte, Kisten von normalen Gegnern, Plünderer, Bäume, Beute-Obergrenze (umgesetzt 30.10.2026, Branch `wp-b6-loot`) | Vertical Slice | High | 1–2 | 1 h | Wirtschaft beurteilen |
-| B7 | Brotato 7: Waffen-Paket – auf 20–24 Waffen, alle Klassen und Effekt-Arten | Vertical Slice | Medium | 2 | 1 h | Waffen ausprobieren |
-| B8 | Brotato 8: Item-Paket – auf ~100 Items, viele mit Effekten (seit 30.10.2026 Strang A/Claude) | Vertical Slice | Medium | 2 | 1 h | Items ausprobieren |
+| B7 | Brotato 7: Waffen-Paket – 24 Waffen, 18 neue Basisspiel-Vorbilder (umgesetzt auf `wp-b7-weapons`, Studio-Abnahme offen) | Vertical Slice | Medium | 2 | 1 h | Waffen ausprobieren |
+| B8 | Brotato 8: Item-Paket – auf ~100 Items, viele mit Effekten (umgesetzt 30.10.2026 mit 114 Items, Branch `wp-b8-items`, von Claude statt ChatGPT) | Vertical Slice | Medium | 2 | 1 h | Items ausprobieren |
 | B9 | Brotato 9: Gegner-Paket – Spawn-Marker, Wellen als Spawn-Gruppen, Werte pro Typ und Welle, 8 neue Verhalten (Teil 1 Spawn-Gruppen, Marker, Werte pro Welle, Gegner-Tempo umgesetzt 30.10.2026, Branch `wp-b9a-spawn-groups`; Teil 2 die 8 Verhalten) | Vertical Slice | Extra high | 2 | 1 h | Schwierigkeit und Lesbarkeit beurteilen |
 | B10 | Brotato 10: Charaktere – 10–12 Charaktere als Regelpakete (ersetzt die Klassen), Charakter- und Waffenwahl in der Lobby | Vertical Slice | High | 2 | 1,5 h | jeden Charakter einmal spielen |
 | 10 | Boss und Elites mit Phasen: Boss-Welle 20 (90 s), 2 Bosse mit Phasen-Wechseln, Vorwarnungen, Elites mit Phasen | Vertical Slice | High | 2 | 1,5 h | Boss 3× spielen |

@@ -580,6 +580,11 @@ function EnemySim.getShotCount(): number
 	return volleys:getCount()
 end
 
+-- Current HP of an enemy, 0 for dead or unknown ids (item effects since B8: damage by a share of the enemy's HP).
+function EnemySim.getHealth(id: number): number
+	return (world:getHealth(id))
+end
+
 -- Number of living enemies.
 function EnemySim.getCount(): number
 	return world:getAliveCount()
