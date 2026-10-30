@@ -236,7 +236,7 @@ describe("smoke", function()
 		local hpBefore = CombatService.getHp(me)
 		local connection = EnemySim.Contact:Connect(function(player, damage)
 			expect(player).toBe(me)
-			-- grows a little along Run.spawn.damageCurve
+			-- grows a little with the growth steps (Run.spawn.growth)
 			expect(damage).toBeNear(Config.Enemies.types.Shadeling.contactDamage, 0.1)
 			contacts += 1
 		end)

@@ -191,8 +191,10 @@ local Run = {
 		-- How many growth steps an enemy spawned in wave n has (B9): HP = hp + hpPerWave * hpSteps[n], damage alike
 		-- (Config.Enemies). Brotato counts n - 1; with that the balance simulation lost 12 of 12 runs by wave 3-10
 		-- (2.3 times the HP in wave 5). So the steps follow the tested curves from before B9 (few early, many late),
-		-- HP 30 % and damage 15 % above them: with spawn groups good bots won 20 of 24 runs on the old curves
-		-- instead of 8 of 24 before B9.
+		-- HP 30 % and damage 15 % above them. Balance simulation (fight bot, 2 classes x 12 seeds): 8 of 24 won
+		-- before B9, 18 of 24 with spawn groups on the old curves and 18 of 24 with these steps, so groups make
+		-- the run easier in a way HP and damage barely change (assumption: enemies come in clumps from fewer
+		-- directions). The owner judges it in the test.
 		growth = table.freeze({
 			hpSteps = table.freeze({
 				0, -- wave 1: the kind's own values, like Brotato
