@@ -2,6 +2,8 @@
 -- Run flow, spawn director, XP curve, level-up and co-op rules (DESIGN.md sections 3, 7, 8, 9).
 -- Read by RunDirector, SpawnDirector, UpgradeService and ReviveService; `flow` also by the lobby UI.
 
+local Enemies = require(script.Parent.Enemies)
+
 -- Brotato's 20 waves (since B3, before 12): 20 s, +5 s per wave up to 60 s from wave 9, the final wave 90 s
 local WAVE_LENGTHS = { 20, 25, 30, 35, 40, 45, 50, 55, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 90 }
 
@@ -19,9 +21,15 @@ local function group(enemy: string, size: number, every: number)
 	return table.freeze({ enemy = enemy, size = size, every = every })
 end
 
--- A wave's spawn groups; `announce` names what is new on the wave banner (HUD).
-local function wave(groups: { any }, announce: string?)
-	return table.freeze({ groups = table.freeze(groups), announce = announce })
+-- A wave's spawn groups; `announce` lists the kinds that are new, for the wave banner (HUD; since B11 the danger
+-- level leaves out kinds that do not come).
+local function wave(groups: { any }, announce: { string }?)
+	local list = {}
+	for _, enemyId in announce or {} do
+		local kind = Enemies.types[enemyId]
+		table.insert(list, table.freeze({ enemy = enemyId, name = `{if kind then kind.displayName else enemyId}s` }))
+	end
+	return table.freeze({ groups = table.freeze(groups), announce = if announce then table.freeze(list) else nil })
 end
 
 local Run = {
@@ -37,7 +45,6 @@ local Run = {
 		allReadyCountdownSeconds = 3, -- countdown is cut to this once every player in the server is ready
 		resultsSeconds = 15, -- results screen, then everyone returns to the lobby
 		defaultClassId = "BladeWarden",
-		defaultDifficulty = "Normal", -- until difficulty selection arrives in WP13
 	}),
 
 	-- fPlayers = 1 + perExtraPlayer * (n - 1)
@@ -76,11 +83,11 @@ local Run = {
 		groups = table.freeze({
 			wave({ group("Shadeling", 4, 2.5) }), -- wave 1: 1.60 enemies/s
 			wave({ group("Shadeling", 6, 2.4) }), -- wave 2: 2.50 enemies/s
-			wave({ group("Shadeling", 6, 2.3), group("Brute", 3, 4.6) }, "Brutes"), -- wave 3: 3.26 enemies/s
-			wave({ group("Shadeling", 7, 2.6), group("Brute", 4, 5.2), group("Stalker", 2, 6) }, "Stalkers"), -- wave 4: 3.79 enemies/s
+			wave({ group("Shadeling", 6, 2.3), group("Brute", 3, 4.6) }, { "Brute" }), -- wave 3: 3.26 enemies/s
+			wave({ group("Shadeling", 7, 2.6), group("Brute", 4, 5.2), group("Stalker", 2, 6) }, { "Stalker" }), -- wave 4: 3.79 enemies/s
 			wave(
 				{ group("Shadeling", 7, 2.7), group("Brute", 4, 5.2), group("Charger", 3, 5.8), group("Stalker", 2, 6) },
-				"Chargers"
+				{ "Charger" }
 			), -- wave 5: 4.21 enemies/s
 			wave({
 				group("Shadeling", 6, 2.4),
@@ -88,7 +95,7 @@ local Run = {
 				group("Charger", 3, 5.2),
 				group("Spitter", 3, 6.3),
 				group("Stalker", 3, 7),
-			}, "Spitters"), -- wave 6: 4.75 enemies/s
+			}, { "Spitter" }), -- wave 6: 4.75 enemies/s
 			wave({
 				group("Shadeling", 7, 2.5),
 				group("Brute", 4, 4.8),
@@ -104,7 +111,7 @@ local Run = {
 				group("Stalker", 3, 7),
 				group("BroodEgg", 2, 9),
 				group("Gobbler", 1, 10),
-			}, "Brood Eggs, Gobblers"), -- wave 8: 5.60 enemies/s
+			}, { "BroodEgg", "Gobbler" }), -- wave 8: 5.60 enemies/s
 			wave({
 				group("Shadeling", 5, 2.5),
 				group("AbyssShadeling", 4, 3.3),
@@ -115,7 +122,7 @@ local Run = {
 				group("BroodEgg", 2, 9),
 				group("Gobbler", 1, 10),
 				group("Herald", 1, 12),
-			}, "Abyss Shadelings, Heralds"), -- wave 9: 6.20 enemies/s
+			}, { "AbyssShadeling", "Herald" }), -- wave 9: 6.20 enemies/s
 			wave({
 				group("Shadeling", 5, 2.4),
 				group("AbyssShadeling", 3, 3),
@@ -128,7 +135,7 @@ local Run = {
 				group("Herald", 1, 12),
 				group("Skulker", 2, 10),
 				group("Mender", 1, 12),
-			}, "Skulkers, Menders"), -- wave 10: 6.50 enemies/s
+			}, { "Skulker", "Mender" }), -- wave 10: 6.50 enemies/s
 			wave({
 				group("Shadeling", 2, 2.3),
 				group("AbyssShadeling", 5, 2.9),
@@ -143,7 +150,7 @@ local Run = {
 				group("Skulker", 2, 10),
 				group("Mender", 1, 12),
 				group("Reaper", 2, 8),
-			}, "Splitters, Reapers"), -- wave 11: 6.93 enemies/s
+			}, { "Splitter", "Reaper" }), -- wave 11: 6.93 enemies/s
 			wave({
 				group("Shadeling", 3, 2.7),
 				group("AbyssShadeling", 6, 3.2),
@@ -159,7 +166,7 @@ local Run = {
 				group("Mender", 1, 12),
 				group("Reaper", 2, 8),
 				group("Thornback", 2, 9),
-			}, "Thornbacks"), -- wave 12: 7.52 enemies/s
+			}, { "Thornback" }), -- wave 12: 7.52 enemies/s
 			wave({
 				group("Shadeling", 2, 2.6),
 				group("AbyssShadeling", 6, 3.1),
@@ -176,7 +183,7 @@ local Run = {
 				group("Skulker", 2, 10),
 				group("Reaper", 2, 8),
 				group("Thornback", 2, 9),
-			}, "Abyss Brutes"), -- wave 13: 7.83 enemies/s
+			}, { "AbyssBrute" }), -- wave 13: 7.83 enemies/s
 			wave({
 				group("Shadeling", 2, 2.5),
 				group("AbyssShadeling", 6, 3),

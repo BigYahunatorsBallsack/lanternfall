@@ -3,6 +3,8 @@
 -- is the boss wave (BossService, WP10): surviving it wins, and BossService calls endRun("Victory") when its bosses die.
 -- Moves characters via MapService, checks classes via PlayerDataService and syncs clients via RunState.
 -- Other services listen to its signals and call setParticipantState / endRun.
+-- Since B11 the lobby picks the run options (danger level, endless mode, enemy sliders; remote SetRunOptions), and in
+-- endless mode the run goes on after wave 20 (Util/RunSchedule has the endless waves).
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -10,6 +12,7 @@ local RunService = game:GetService("RunService")
 
 local Shared = ReplicatedStorage.Shared
 local Config = require(Shared.Config)
+local DangerRules = require(Shared.Util.DangerRules)
 local Format = require(Shared.Util.Format)
 local Net = require(Shared.Net)
 local RunSchedule = require(Shared.Util.RunSchedule)
@@ -60,7 +63,9 @@ local flow = RunFlow.new({
 	shopSeconds = Config.Shop.phaseSeconds,
 	maxPlayers = Config.Run.maxPlayers,
 	defaultClassId = Config.Run.flow.defaultClassId,
-	difficulty = Config.Run.flow.defaultDifficulty,
+	waveEndAt = function(number: number): number
+		return RunSchedule.wave(number).endsAt
+	end,
 })
 
 local sentVersion = -1
@@ -107,7 +112,7 @@ end
 local function handle(event: RunFlow.Event)
 	if event.kind == "RunStarted" then
 		local players = toPlayers(event.userIds)
-		print(`[Lanternfall] Run started with {#players} player(s), difficulty {flow.difficulty}`)
+		print(`[Lanternfall] Run started with {#players} player(s), {DangerRules.label(flow:getRunOptions())}`)
 		sendToArena(players)
 		notifyParticipants("Survive until dawn!")
 		RunDirector.RunStarted:Fire(players)
@@ -201,6 +206,24 @@ function RunDirector.init()
 		process()
 	end)
 
+	Net.onServer(
+		"SetRunOptions",
+		function(player, danger: number, endless: boolean, enemyHp: number, enemyDamage: number, enemySpeed: number)
+			if not flow.players[player.UserId] then
+				reject(player, "UnknownPlayer")
+				return
+			end
+			flow:setOptions(DangerRules.clean({
+				danger = danger,
+				endless = endless,
+				enemyHp = enemyHp,
+				enemyDamage = enemyDamage,
+				enemySpeed = enemySpeed,
+			}))
+			process()
+		end
+	)
+
 	Net.onServer("SetShopReady", function(player, ready: boolean)
 		local ok, reason = flow:setShopReady(player.UserId, ready, now())
 		if not ok then
@@ -255,8 +278,20 @@ function RunDirector.getElapsed(): number
 	return flow:getElapsed(now())
 end
 
+-- Label of the current run's options, e.g. "Danger 3 · Endless" (B11).
 function RunDirector.getDifficulty(): string
-	return flow.difficulty
+	return DangerRules.label(flow:getRunOptions())
+end
+
+-- B11: the options (danger level, endless, enemy sliders) the current run started with.
+function RunDirector.getRunOptions(): Types.RunOptions
+	return table.clone(flow:getRunOptions())
+end
+
+-- B11: sets the lobby's options for the next run (tests and admin; players use the remote SetRunOptions).
+function RunDirector.setOptions(options: Types.RunOptions)
+	flow:setOptions(DangerRules.clean(options))
+	process()
 end
 
 -- Participants of the current run who are still in the server.

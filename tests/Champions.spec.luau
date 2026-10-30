@@ -25,6 +25,10 @@ runScript(folderProxy("src/client", "Client"), "init.client.luau")
 world.advance(0.5)
 
 local EliteWaves = Config.Enemies.eliteWaves
+local DangerRules = require(game:GetService("ReplicatedStorage").Shared.Util.DangerRules)
+local DangerService = require(Services.DangerService)
+-- B11: danger 4 has three elite or horde waves; the third one is always an elite wave
+local OPTIONS = { danger = 4, endless = false, enemyHp = 100, enemyDamage = 100, enemySpeed = 100 }
 
 local function controller(name)
 	return require(folderProxy("src/client", "Client").Controllers[name])
@@ -92,19 +96,30 @@ local function pickLevels()
 end
 
 describe("champions", function()
-	it("plans one elite wave in wave 11 or 12 with one champion", function()
+	it("plans three elite or horde waves on danger 4, the last always an elite wave", function()
+		RunDirector.setOptions(OPTIONS)
 		world.click(world.gui("Lobby", "Ready"))
 		world.advance(3.5)
 		expect(RunDirector.getPhase()).toBe("Running")
-		local plan = BossService.getEliteWaves()
 		local waves = 0
-		for wave, ids in plan do
+		for wave, challenge in DangerService.getPlan() do
 			waves += 1
-			expect(table.find(EliteWaves.slots[1], wave) ~= nil).toBe(true)
-			expect(#ids).toBe(EliteWaves.count)
-			expect(Config.Enemies.champions[ids[1]] ~= nil).toBe(true)
+			local slot = 0
+			for index, waves in EliteWaves.slots do
+				if table.find(waves, wave) then
+					slot = index
+				end
+			end
+			expect(slot > 0).toBe(true)
+			if slot == 3 then
+				expect(challenge.kind).toBe("Elite")
+			end
+			if challenge.kind == "Elite" then
+				expect(#challenge.champions).toBe(EliteWaves.count)
+				expect(Config.Enemies.champions[challenge.champions[1]] ~= nil).toBe(true)
+			end
 		end
-		expect(waves).toBe(EliteWaves.activeSlots)
+		expect(waves).toBe(3)
 		LootService.setDropsPaused(true)
 		click("ToggleWeapons")
 		click("ToggleSpawning")
@@ -196,7 +211,10 @@ describe("champions", function()
 		click("SkipWave")
 		expect(RunDirector.getPhase()).toBe("Shop")
 		pickLevels()
-		local eliteWave = next(BossService.getEliteWaves()) :: number
+		local eliteWave = math.huge
+		for wave in BossService.getEliteWaves() do
+			eliteWave = math.min(eliteWave, wave)
+		end
 		local championId = BossService.getEliteWaves()[eliteWave][1]
 		world.fireServerAs(me, "SetShopReady", true)
 		world.advance(0.3)
@@ -217,7 +235,8 @@ describe("champions", function()
 		expect(champions[1].wave).toBe(true)
 		local kind = Config.Enemies.champions[championId]
 		local steps = Config.Run.spawn.growth.hpSteps[eliteWave]
-		local expected = (kind.hp + kind.hpPerWave * steps) * EliteWaves.reducedHpShare
+		local dangerHp = DangerRules.multipliers(OPTIONS, eliteWave)
+		local expected = (kind.hp + kind.hpPerWave * steps) * DangerRules.championShare(eliteWave) * dangerHp
 		local maxHp = EnemySim.getMaxHealth(champions[1].id)
 		expect(math.abs(maxHp / expected - 1) < 0.01).toBe(true)
 		local before = pickupsOf("Legendary")

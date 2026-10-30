@@ -27,8 +27,20 @@ export type ResultEntry = {
 export type Results = {
 	outcome: Outcome,
 	survivedSeconds: number,
-	difficulty: string,
+	difficulty: string, -- e.g. "Danger 3 · Endless" (B11)
 	players: { ResultEntry },
+	wave: number?, -- B11: the wave the run ended in
+	endless: boolean?, -- B11
+}
+
+-- B11: what the lobby chose for a run (Config.Difficulty): danger level 0-5, endless mode and the enemy sliders in
+-- percent.
+export type RunOptions = {
+	danger: number,
+	endless: boolean,
+	enemyHp: number,
+	enemyDamage: number,
+	enemySpeed: number,
 }
 
 export type RunState = {
@@ -43,6 +55,8 @@ export type RunState = {
 	pausedAt: number?, -- Shop: when the clock stopped
 	players: { PlayerInfo },
 	results: Results?, -- Ended
+	options: RunOptions, -- B11: the lobby's choice for the next run
+	runOptions: RunOptions?, -- B11: the choice the current run started with
 }
 
 -- HP and dash state of one player (CombatService -> PlayerStateController), sent to everyone on change.

@@ -1,13 +1,17 @@
 --!strict
 -- Rules of the run flow as a pure state machine: lobby, countdown, waves with a shop after each, results. The last
 -- wave is the boss wave (BossService); surviving it wins, and so does killing its bosses (endRun, WP10). The old
--- Boss phase is no longer entered.
+-- Boss phase is no longer entered. Since B11 the lobby picks run options (danger level, endless mode, enemy sliders;
+-- Util/DangerRules); in endless mode the run goes on after the last wave until nobody is alive, and reaching the end
+-- of the last wave counts as a win.
 -- Owned by RunDirector, which feeds it player events and the clock (`now` in seconds). No Roblox APIs
 -- here, so the rules are unit-tested outside Studio (tests/RunFlow.spec.luau).
 --
 -- Every change bumps `version`; transitions are queued as events and collected with drainEvents().
 
-local Types = require(game:GetService("ReplicatedStorage").Shared.Net.Types)
+local Shared = game:GetService("ReplicatedStorage").Shared
+local DangerRules = require(Shared.Util.DangerRules)
+local Types = require(Shared.Net.Types)
 
 type Phase = Types.Phase
 type ParticipantState = Types.ParticipantState
@@ -21,7 +25,10 @@ export type Settings = {
 	shopSeconds: number, -- shop timer between two waves
 	maxPlayers: number,
 	defaultClassId: string,
-	difficulty: string,
+	-- B11: fighting seconds at which wave n ends for any n (endless waves after the last); default: the last end
+	-- plus endlessWaveSeconds per wave
+	waveEndAt: ((number) -> number)?,
+	endlessWaveSeconds: number?,
 }
 
 export type Event =
@@ -62,7 +69,8 @@ export type RunFlow = typeof(setmetatable(
 		pausedAt: number?, -- while the shop is open: the time the clock stopped
 		holdWaves: boolean, -- admin/test switch: the fighting clock stands still while Running (stays across runs)
 		heldAt: number?, -- while held: the time the clock stopped
-		difficulty: string,
+		options: Types.RunOptions, -- B11: the lobby's choice for the next run
+		runOptions: Types.RunOptions, -- B11: locked at run start
 		players: { [number]: Entry },
 		participants: { [number]: Participant },
 		results: Types.Results?,
@@ -85,7 +93,8 @@ function RunFlow.new(settings: Settings): RunFlow
 		pausedAt = nil,
 		holdWaves = false,
 		heldAt = nil,
-		difficulty = settings.difficulty,
+		options = DangerRules.defaultOptions(),
+		runOptions = DangerRules.defaultOptions(),
 		players = {},
 		participants = {},
 		results = nil,
@@ -111,6 +120,25 @@ local function setPhase(self: RunFlow, phase: Phase, endsAt: number?)
 	self.phaseEndsAt = endsAt
 	changed(self)
 	push(self, { kind = "PhaseChanged", phase = phase, previous = previous })
+end
+
+-- Fighting seconds at which wave n ends; past the last wave the endless ones (B11).
+local function waveEnd(self: RunFlow, n: number): number
+	local ends = self.settings.waveEnds
+	if n <= #ends then
+		return ends[n]
+	end
+	local custom = self.settings.waveEndAt
+	if custom then
+		return custom(n)
+	end
+	return ends[#ends] + (n - #ends) * (self.settings.endlessWaveSeconds or 60)
+end
+
+-- In endless mode the end of the last wave was reached (counts as a win, Brotato).
+local function pastLastWave(self: RunFlow): boolean
+	local count = #self.settings.waveEnds
+	return self.wave > count or (self.wave == count and self.phase == "Shop")
 end
 
 local function countReady(self: RunFlow): number
@@ -158,7 +186,7 @@ end
 
 -- Stops the clock exactly at the end of the current wave and opens the shop.
 local function openShop(self: RunFlow, now: number)
-	self.pausedAt = (self.runStartedAt :: number) + self.pausedSeconds + self.settings.waveEnds[self.wave]
+	self.pausedAt = (self.runStartedAt :: number) + self.pausedSeconds + waveEnd(self, self.wave)
 	for _, participant in self.participants do
 		participant.shopReady = false
 	end
@@ -219,6 +247,7 @@ local function startRun(self: RunFlow, now: number)
 		}
 		table.insert(userIds, entry.userId)
 	end
+	self.runOptions = table.clone(self.options)
 	self.runStartedAt = now
 	self.runEndedAt = nil
 	self.wave = 1
@@ -244,11 +273,16 @@ local function finishRun(self: RunFlow, outcome: Outcome, now: number)
 		return a.name < b.name
 	end)
 
+	if outcome == "Defeat" and self.runOptions.endless and pastLastWave(self) then
+		outcome = "Victory" -- endless mode: reaching the end of the last wave wins (Brotato)
+	end
 	local results: Types.Results = {
 		outcome = outcome,
 		survivedSeconds = self:getElapsed(now), -- fighting time, without the shops
-		difficulty = self.difficulty,
+		difficulty = DangerRules.label(self.runOptions),
 		players = entries,
+		wave = self.wave,
+		endless = self.runOptions.endless,
 	}
 	self.runEndedAt = now
 	self.results = results
@@ -439,16 +473,13 @@ function RunFlow.skipTo(self: RunFlow, elapsed: number, now: number): (boolean, 
 		return false, "NotRunning"
 	end
 	local ends = self.settings.waveEnds
-	local target = math.min(elapsed, ends[#ends])
+	local target = if self.runOptions.endless then elapsed else math.min(elapsed, ends[#ends])
 	if target <= self:getElapsed(now) then
 		return false, "AlreadyPast"
 	end
-	local wave = #ends
-	for index, endsAt in ends do
-		if target <= endsAt then
-			wave = index
-			break
-		end
+	local wave = 1
+	while target > waveEnd(self, wave) do
+		wave += 1
 	end
 	self.wave = wave
 	self.runStartedAt = (self.heldAt or now) - target - self.pausedSeconds
@@ -512,8 +543,8 @@ function RunFlow.update(self: RunFlow, now: number)
 		end
 	elseif phase == "Running" then
 		local ends = self.settings.waveEnds
-		if self:getElapsed(now) >= ends[self.wave] then
-			if self.wave >= #ends then
+		if self:getElapsed(now) >= waveEnd(self, self.wave) then
+			if self.wave >= #ends and not self.runOptions.endless then
 				finishRun(self, "Victory", now) -- surviving the boss wave wins, like Brotato (WP10)
 			else
 				openShop(self, now)
@@ -569,7 +600,9 @@ function RunFlow.snapshot(self: RunFlow): Types.RunState
 	return {
 		version = self.version,
 		phase = self.phase,
-		difficulty = self.difficulty,
+		difficulty = DangerRules.label(
+			if self:isOngoing() or self.phase == "Ended" then self.runOptions else self.options
+		),
 		phaseEndsAt = self.phaseEndsAt,
 		runStartedAt = self.runStartedAt,
 		runEndedAt = self.runEndedAt,
@@ -578,7 +611,31 @@ function RunFlow.snapshot(self: RunFlow): Types.RunState
 		pausedAt = self.pausedAt or self.heldAt,
 		players = players,
 		results = self.results,
+		options = table.clone(self.options),
+		runOptions = if self.runStartedAt then table.clone(self.runOptions) else nil,
 	}
+end
+
+-- B11: the lobby's choice for the next run (`options` already cleaned by DangerRules.clean). Any player in the
+-- server may change it; a running run keeps the options it started with.
+function RunFlow.setOptions(self: RunFlow, options: Types.RunOptions)
+	local old = self.options
+	if
+		old.danger == options.danger
+		and old.endless == options.endless
+		and old.enemyHp == options.enemyHp
+		and old.enemyDamage == options.enemyDamage
+		and old.enemySpeed == options.enemySpeed
+	then
+		return
+	end
+	self.options = table.clone(options)
+	changed(self)
+end
+
+-- B11: the options the current (or last) run started with.
+function RunFlow.getRunOptions(self: RunFlow): Types.RunOptions
+	return self.runOptions
 end
 
 return RunFlow
