@@ -11,8 +11,9 @@
 -- (take or sell). Fruits left at the wave end vanish (everyone heals then anyway), crates left go to the nearest
 -- participant who is not out. Sends Pickups to the participants.
 -- Everything vanishes when a run starts or ends. Fires ChestCollected per player for chests and crates and
--- ConsumableCollected for fruits and crates (item effects, EffectService). Since WP10 a killed boss drops a legendary
--- crate (Config.Loot.legendaryCrate): it heals fully and its item is at least Legendary; it opens like a crate.
+-- ConsumableCollected for fruits and crates (item effects, EffectService). Since WP10 a killed boss (since part 2
+-- also a champion) drops a legendary crate (Config.Loot.legendaryCrate): it heals fully and its item is at least
+-- Legendary; it opens like a crate.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -211,8 +212,9 @@ local function onEnemyKilled(info: EnemySim.KillInfo)
 	if not RunDirector.isActive() then
 		return
 	end
-	if info.boss then
-		if Config.Enemies.bossWave.legendaryCrate then
+	if info.boss then -- a boss or, since WP10 part 2, a champion
+		local champion = Config.Enemies.champions[info.enemyId] ~= nil
+		if if champion then Config.Enemies.eliteWaves.legendaryCrate else Config.Enemies.bossWave.legendaryCrate then
 			dropPickup(info.position.X, info.position.Z, LEGENDARY)
 		end
 		return
