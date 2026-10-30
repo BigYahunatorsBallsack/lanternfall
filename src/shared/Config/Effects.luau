@@ -1,0 +1,103 @@
+--!strict
+-- Item effects beyond plain stats (DESIGN.md sections 4 and 6, Brotato direction since B4): what an effect record
+-- may say and the numbers of the effect rules. Effects are data, {trigger, condition, action, values}, like in
+-- Brotato's effect engine; Config.Items lists them per item. Read by the server's EffectService (EffectRules),
+-- StatService and ConfigCheck, and by the client for texts (Util/EffectText) and the bonus line in the HUD.
+--
+-- Trigger + action:
+--   Always    + Stats        stats while the condition holds (`state` "Still" or "Moving", else always), times count
+--   Always    + PerX         stats times floor(source / per) (at most `max` steps), times count; `source` is
+--                            "shards" (held), "distinctWeapons" (different weapons carried) or a stat id (its
+--                            permanent value: items, cards and growth, before any effect bonus)
+--   any event + Grow         stats added for the rest of the run (Brotato's "at the end of a wave" growth)
+--   any event + WaveStats    stats until the wave ends (at most `maxStacks` applications)
+--   any event + TimedStats   stats for `seconds`, a new trigger refreshes them (at most `maxStacks` stacks)
+--   any event + NextWaveStats stats during the next wave only (Brotato's "during the next wave")
+--   any event + Heal         `amount` HP
+--   any event + Shards       `amount` Shards
+--   any event + ShardShare   `amount` percent of the Shards held, at most `max`
+--   any event + HpFraction   HP set to `amount` of max HP (Brotato's "start waves with -50 % HP")
+--   any event + RandomStats  `amount` points split at random between the primary stats (randomPoint below)
+--   any event + Shields      `amount` hits nullified until the wave ends
+--   any event + UpgradeWeapon a random weapon below the max tier one tier up; without one, `stats` instead
+-- Events (triggers): Acquire (this copy is taken), WaveStart, WaveEnd (before Harvesting pays), ShopEnter (offers
+-- rolled), Reroll, Buy, Sell, LevelUp, Hit, Crit, Kill (weapon hits of the owner), Dodge, Hurt (HP lost), Pickup
+-- (per orb picked up), Chest, Timer (every `interval` seconds of a wave).
+-- Conditions: `chance` (0..1, rolled per copy), `crit` / `elite` (Hit, Crit, Kill), `fromWave` / `untilWave`,
+-- `maxPerWave` (firings per wave).
+-- Copies: an effect without `chance` works count times as strong; with `chance` every copy rolls on its own.
+
+export type Effect = {
+	trigger: string,
+	action: string,
+	stats: { [string]: number }?,
+	amount: number?,
+	chance: number?,
+	state: string?,
+	source: string?,
+	per: number?,
+	max: number?,
+	interval: number?,
+	seconds: number?,
+	maxStacks: number?,
+	crit: boolean?,
+	elite: boolean?,
+	fromWave: number?,
+	untilWave: number?,
+	maxPerWave: number?,
+}
+
+local function set(list: { string }): { [string]: boolean }
+	local result = {}
+	for _, name in list do
+		result[name] = true
+	end
+	return table.freeze(result)
+end
+
+return table.freeze({
+	triggers = set({
+		"Always",
+		"Acquire",
+		"WaveStart",
+		"WaveEnd",
+		"ShopEnter",
+		"Reroll",
+		"Buy",
+		"Sell",
+		"LevelUp",
+		"Hit",
+		"Crit",
+		"Kill",
+		"Dodge",
+		"Hurt",
+		"Pickup",
+		"Chest",
+		"Timer",
+	}),
+	passiveActions = set({ "Stats", "PerX" }), -- only with trigger "Always"
+	eventActions = set({
+		"Grow",
+		"WaveStats",
+		"TimedStats",
+		"NextWaveStats",
+		"Heal",
+		"Shards",
+		"ShardShare",
+		"HpFraction",
+		"RandomStats",
+		"Shields",
+		"UpgradeWeapon",
+	}),
+	states = set({ "Still", "Moving" }),
+	perXSources = set({ "shards", "distinctWeapons" }), -- and every stat id
+
+	-- Standing still (Brotato's "while standing still"): moving slower than maxSpeed studs/s for at least
+	-- settleSeconds; moving again counts after the same time, so a stutter step does not flicker the bonus.
+	-- Only during a wave and while alive (assumption: Brotato gives no numbers).
+	standStill = table.freeze({ maxSpeed = 1, settleSeconds = 0.2 }),
+	-- RandomStats: one point of each primary stat in Config.Stats units (Brotato's points, Max HP times hpScale).
+	randomPoint = table.freeze({ maxHp = 10 }), -- every other stat: 1
+	-- Feedback texts over the own character when an effect pays out (EffectProcs remote), per player and step.
+	procs = table.freeze({ maxPerStep = 6 }),
+})

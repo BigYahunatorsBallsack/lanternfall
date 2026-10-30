@@ -105,7 +105,7 @@ Wellenlängen wie in Brotato: Welle 1 dauert 20 s, jede weitere 5 s mehr, Wellen
 | Was | Umsetzung |
 | --- | --- |
 | Uhr | Die Kampfzeit stoppt genau am Wellenende und läuft erst mit der nächsten Welle weiter. Timer oben zeigt die Restzeit der Welle bzw. des Shops. |
-| Wellenende | Restliche Gegner und Geschosse verschwinden. Liegende XP-Orbs gehen ans Team, ihre Shards werden gleichmäßig auf alle verteilt, die nicht „Out" sind (Brotato legt sie in einen „Beutel" für später; das kann B3 nachholen). Liegende Elite-Truhen öffnen sich für alle. Alle werden voll geheilt, wer down ist, steht mit voller HP auf. Seit B2 zahlt danach Harvesting aus (Abschnitt 4). |
+| Wellenende | Restliche Gegner und Geschosse verschwinden. Liegende XP-Orbs gehen ans Team, ihre Shards werden gleichmäßig auf alle verteilt, die nicht „Out" sind (Brotato legt sie in einen „Beutel" für später; das kann B3 nachholen). Liegende Elite-Truhen öffnen sich für alle. Alle werden voll geheilt, wer down ist, steht mit voller HP auf. Seit B4 laufen dann die Wellenende-Effekte der Items (Wachstum, Zufallswerte; Abschnitt 6), danach zahlt Harvesting aus (seit B2, Abschnitt 4). |
 | Level-ups | XP sammelt sich in der Welle; die Kartenwahl (seit B2 1 aus 4 Werte-Karten, Abschnitt 9) kommt erst am Wellenende, eine pro gewonnenem Level. Im HUD steht so lange „LV 5 · +2 at wave end". Was beim Start der nächsten Welle noch offen ist, wird automatisch gewählt. |
 | Shards | Geld im Run (Brotatos „Materialien"): jeder XP-Punkt eines Orbs, den man selbst aufsammelt, gibt 1 Shard. Getrennt von den Embers (Meta-Währung). |
 | Angebote | Pro Spieler 4 eigene Angebote, nie zweimal dasselbe: eine Waffe einer Stufe I–IV oder ein Item (Abschnitt 6). Nach Welle 1–2 mindestens 2 Waffen, nach Welle 3–5 mindestens 1, sonst je Platz 35 % Waffe, 65 % Item. Items kann man unbegrenzt oft kaufen und stapeln (einzelne mit Obergrenze, z. B. Iron Shackle 1×); die Karte zeigt „x3" = so viele hat man nach dem Kauf. Nach einem Neuwurf kommt nichts aus dem vorigen Wurf wieder, solange es anderes gibt (seit B3). |
@@ -114,13 +114,14 @@ Wellenlängen wie in Brotato: Welle 1 dauert 20 s, jede weitere 5 s mehr, Wellen
 | Sperren (seit B3) | „Lock" unter jeder Karte, kostenlos: Die Karte bleibt beim Neuwürfeln und kommt in den nächsten Shop mit, zum alten Preis (blauer Rahmen, „LOCKED"). Nochmal tippen hebt die Sperre auf. |
 | Verkaufen (seit B3) | Waffe antippen, „Sell (+7)": gibt 25 % ihres aktuellen Shop-Preises (Welle und Stufe), abgerundet (Brotatos Recycling). Die letzte Waffe kann man nicht verkaufen (Annahme, sonst ist man wehrlos). Items kann man nicht verkaufen, wie in Brotato. |
 | Seltenheit (seit B2) | Jedes Item hat eine Stufe: Common (grau), Uncommon (blau), Rare (violett), Legendary (rot). Pro Item-Platz wird die Stufe gewürfelt wie in Brotato: Chance = (pro Welle · (Welle − Startwelle + 1) + Grundwert) · (1 + Luck/100), höchstens Obergrenze; seltenste zuerst. Uncommon ab Welle 2 (6 %/Welle, max. 60 %), Rare ab Welle 4 (2 %/Welle, max. 25 %), Legendary ab Welle 8 (0,23 %/Welle, max. 8 %). Ist eine Stufe leer (alles an der Obergrenze), kommt eine niedrigere, sonst eine höhere. |
-| Preise | wie Brotato: Preis = ⌊Grundpreis + Welle + 10 % · Grundpreis · Welle⌋, mindestens 1 (Welle = die gerade beendete). Grundpreise: Waffen 18–25 auf Stufe I, mal 1,9 / 3,7 / 7,4 für Stufe II / III / IV (Brotatos Tabellen verdoppeln den Preis etwa je Stufe, seit B3), Items 15–30 (Common), 35–65 (Uncommon), 55–80 (Rare), 90–120 (Legendary). |
+| Preise | wie Brotato: Preis = ⌊Grundpreis + Welle + 10 % · Grundpreis · Welle⌋, mindestens 1 (Welle = die gerade beendete); seit B4 mal (1 + Item Prices/100), siehe unten. Grundpreise: Waffen 18–25 auf Stufe I, mal 1,9 / 3,7 / 7,4 für Stufe II / III / IV (Brotatos Tabellen verdoppeln den Preis etwa je Stufe, seit B3), Items 15–30 (Common), 35–65 (Uncommon), 55–80 (Rare), 90–120 (Legendary). |
 | Neu würfeln | erster Wurf ⌊0,75 · Welle⌋ + Aufschlag, jeder weitere + Aufschlag, Aufschlag = max(1, ⌊0,4 · Welle⌋) (nach Welle 5: 5, 7, 9 …). Seit B2 kostet auch das Neu-Würfeln der Werte-Karten so viele Shards (eigener Zähler pro Kartenwahl). Seit B3: Je 4 Käufe in einem Shop gibt es einen Gratis-Neuwurf („Reroll (free)"), der den Preis nicht erhöht. |
-| Werte-Anzeige (seit B2) | Während Kartenwahl und Shop steht rechts eine Liste aller Werte (grün = besser als am Start, rot = schlechter); Ausweichen zeigt „(max 60%)". |
+| Werte-Anzeige (seit B2) | Während Kartenwahl und Shop steht rechts eine Liste aller Werte (grün = besser als am Start, rot = schlechter); Ausweichen zeigt „(max 60%)". Seit B4 stehen Neben-Werte (Abschnitt 4) nur darin, solange sie nicht 0 sind; bei Werten, wo weniger besser ist (Item Prices, Enemies, Enemy HP, Enemy Damage), sind die Farben umgekehrt. |
+| Neben-Werte im Shop (seit B4) | Wie Brotato: „Item Prices" ändert alle Item- und Waffenpreise in Prozent (Pawn Ticket −5 %); offene Angebote bekommen den neuen Preis sofort, gesperrte behalten den Preis ihrer alten Welle, mit dem aktuellen Rabatt. Neuwürfe kosten weiter gleich. „Free Rerolls" gibt pro Shop so viele kostenlose Neuwürfe. „Sell Value" kommt beim Verkaufen zu den 25 % dazu (Scrap Altar: 60 %), gerechnet vom Preis ohne Rabatt. |
 | Ready | Der Shop schließt nach 40 s oder sobald alle, die nicht „Out" sind, „Ready" gedrückt haben. In der Team-Liste steht „shopping" bzw. „ready". Im Shop gibt es keine Gegner. |
 | Eigener Bildschirm | Level-up-Karten und Shop liegen auf einem eigenen, dunklen Bildschirm mit „WAVE n CLEARED" (darunter „Pick your level-ups" bzw. „Spend your Shards"); die Arena ist nicht zu sehen. Timer, XP-Leiste, Build und Team-Liste bleiben sichtbar. Wie in Brotato steht die Figur still: kein Laufen, kein Dash, bis die nächste Welle startet (Owner-Wunsch nach B1). |
 | Handy (seit B3) | Der Shop passt sich der Bildschirmgröße an. Auf kleinen Bildschirmen (Handy quer) kommt ein kompaktes Layout ohne Kopfzeile, und die Werte-Liste liegt hinter dem Knopf „STATS" („← SHOP" geht zurück). |
-| Noch nicht | Shop-Rabatte und Item-Preis-Werte (B4), Beutel für liegengebliebene Orbs (B6). |
+| Noch nicht | Beutel für liegengebliebene Orbs (B6). |
 
 **Run-Ablauf im Prototyp** (Lobby und Arena im selben Server, Werte in `Config/Run.luau` → `flow`):
 
@@ -173,6 +174,29 @@ Spieler steuern nur Bewegung und einen Dash; Angreifen, Zielen und Aufsammeln pa
 
 Engineering und Knockback aus Brotato fehlen bewusst (keine Bauten, kein Rückstoß-Wert).
 
+**Neben-Werte (seit B4, wie Brotatos „Secondary Stats"; Zahlen in `Config/Stats.luau`):** Sie kommen nur aus Items und stehen in der Werte-Liste nur, solange sie nicht 0 sind. Gegner-Werte zählen für das ganze Team zusammen (alle, die nicht „Out" sind) und gelten für Gegner, die danach erscheinen.
+
+| Wert | Wirkung |
+| --- | --- |
+| Item Prices (%) | Shop-Preise von Items und Waffen × (1 + Wert/100), nie unter 0 (Abschnitt 3) |
+| Free Rerolls | so viele kostenlose Neuwürfe in jedem Shop |
+| Sell Value (%) | kommt beim Verkaufen zu den 25 % dazu |
+| Double Orbs (%) | Chance pro aufgesammeltem Orb, doppelte Shards und XP zu geben (Brotatos doppelte Materialien) |
+| Orb Healing (%) | Chance pro aufgesammeltem Orb, 10 HP zu heilen (Brotato 1 HP mal 10) |
+| Damage vs Elites (%) | Waffenschaden gegen Elites (ab Paket 10 auch Bosse) × (1 + Wert/100) |
+| Enemies (%) | Spawnrate × (1 + Teamsumme/100), nie unter 10 % |
+| Enemy HP (%) / Enemy Damage (%) | HP bzw. Schaden neuer Gegner × (1 + Teamsumme/100), nie unter 10 % |
+
+Gegner-Tempo, Explosionen, Brennen, Durchschlag, Abprall und Rückstoß folgen mit Kampf-Tiefe (B5) und Gegner-Paket (B9).
+
+**Wie Werte zusammenkommen (seit B4, `StatService`, `Util/StatMath`):**
+
+1. **Dauerhaft:** Grundwerte + (Klasse + Items × Anzahl + Werte-Karten + Wachstum aus Effekten + 10 Max HP pro Team-Level), jeder Gewinn mal dem Multiplikator der Klasse für diesen Wert (`gainMultipliers`, z. B. Damage × 0,5 = „Damage-Änderungen halbiert"; noch ohne Werte, für die Charaktere in B10). Harvesting-Wachstum gehört dazu.
+2. **Bedingt und zeitweise** (aus Effekten, Abschnitt 6): Stillstand, „pro X", „diese Welle", „nächste Welle", Timer. Sie kommen obendrauf, auch mal dem Multiplikator, und verschwinden, wenn die Bedingung endet. „Pro X" mit einem Wert als Quelle zählt nur den dauerhaften Wert, damit sich Effekte nicht gegenseitig hochschaukeln.
+3. **Obergrenzen** (Ausweichen 60 %, Krit 100 %) gelten erst dort, wo der Wert wirkt.
+
+**Stillstand (seit B4):** Wer in einer Welle mindestens 0,2 s langsamer als 1 Stud/s ist, steht still; wieder losgehen zählt ebenso erst nach 0,2 s, damit kurzes Zucken den Bonus nicht flackern lässt (Annahme, Brotato nennt keine Zahlen; `Config/Effects.luau` → `standStill`). Im Shop, down oder außerhalb des Runs gibt es keinen Stillstands-Bonus.
+
 Seit Paket 4 umgesetzt (Werte in `Config/Player.luau` und `Config/Camera.luau`): Kamera 50° Neigung (seit Feedback zu Paket 9, vorher 60°), 70 Studs Abstand, Sichtfeld 40°, folgt weich. Springen ist aus; Leertaste, Gamepad-A und ein runder Dash-Knopf unten rechts lösen den Dash aus (am Handy größer). Der Dash schiebt die Figur in 0,15 s 12 Studs in Laufrichtung (im Stand in Blickrichtung); Wände und Ruinen stoppen ihn. Der Knopf zeigt den Cooldown als dunkle Füllung. Wer „down" ist, kann nicht laufen und nicht dashen. Klassenbonus auf HP wird beim Run-Start eingerechnet (Blade Warden 120 HP; seit B2 als +20 Max HP). Im HUD unten Mitte die eigene HP-Leiste (rot unter 30 %), kurzer roter Bildschirm-Blitz bei Treffern, HP der Mitspieler in der Team-Liste.
 
 Alle Werte stehen in Config-Modulen, nicht im Code.
@@ -188,11 +212,11 @@ v1 startet mit zwei kostenlosen Klassen; ab Live-Ops kommt alle 3–4 Wochen ein
 | Lantern Keeper | Lantern Pulse (heilt Team im Radius) | +25 % Wiederbelebungstempo | Support im Koop | Live-Ops, 2.500 Embers oder Pass |
 | Trapper | Thorn Trail | +15 Range (seit B2; vorher +15 % Fläche) | Zonen kontrollieren | Live-Ops, 2.500 Embers oder Pass |
 
-Jede Klasse: eine Startwaffe, ein passiver Bonus, ein eigenes Kostüm. Keine eigenen Skill-Bäume in v1. Seit B2 sind die Klassen-Boni normale Werte (`Config/Classes.luau` → `stats`, Abschnitt 4); Charaktere mit Plus und Minus wie in Brotato folgen in B4.
+Jede Klasse: eine Startwaffe, ein passiver Bonus, ein eigenes Kostüm. Keine eigenen Skill-Bäume in v1. Seit B2 sind die Klassen-Boni normale Werte (`Config/Classes.luau` → `stats`, Abschnitt 4); Charaktere mit Plus und Minus wie in Brotato folgen in B10. Seit B4 kann eine Klasse jeden Gewinn eines Werts vervielfachen (`gainMultipliers`, Abschnitt 4); die beiden Klassen nutzen das noch nicht.
 
 ## 6. Waffen, Items & Evolutionen
 
-v1 hat 6 Waffen, 46 Items und 2 Evolutionen. Seit B2 trägt jeder Spieler bis zu 6 Waffen (vorher 4). Seit B3 hat jede Waffe wie in Brotato eine Stufe I–IV statt Level 1–5; dieselbe Waffe darf man mehrmals tragen, zwei gleiche gleicher Stufe verschmelzen zur nächsten (Abschnitt 3). Items ersetzen seit B2 die 6 Passive: Man kann sie beliebig oft kaufen, sie stapeln ohne Grenze.
+v1 hat 6 Waffen, 78 Items (seit B4, vorher 46) und 2 Evolutionen. Seit B2 trägt jeder Spieler bis zu 6 Waffen (vorher 4). Seit B3 hat jede Waffe wie in Brotato eine Stufe I–IV statt Level 1–5; dieselbe Waffe darf man mehrmals tragen, zwei gleiche gleicher Stufe verschmelzen zur nächsten (Abschnitt 3). Items ersetzen seit B2 die 6 Passive: Man kann sie beliebig oft kaufen, sie stapeln ohne Grenze.
 
 **Waffen (Startwerte Stufe I; seit B3 Stufen statt Level)**
 
@@ -259,6 +283,56 @@ Jedes Item ändert Werte (Abschnitt 4), die meisten mit einem Nachteil, wie in B
 | Witch's Mortar | Legendary | 100 | +10 Melee Damage, +10 Elemental Damage, -20 Range, -20% Pickup Range |
 | Lantern Codex | Legendary | 90 | -30 Max HP, +10 Luck, +50% XP Gain |
 | Eternal Flame | Legendary | 120 | +20% Damage, +20% Attack Speed, -2 Armor |
+
+**Effekte (seit B4, `Config/Effects.luau`, Server: `EffectService`):** Ein Effekt ist ein Datensatz {Auslöser, Bedingung, Aktion, Werte} wie in Brotatos Effekt-Maschine; ein Item kann mehrere haben, neue Items brauchen keinen neuen Code.
+
+| Teil | Möglichkeiten |
+| --- | --- |
+| Auslöser | immer (solange man das Item hat), beim Nehmen, Wellenstart, Wellenende (vor Harvesting), Shop öffnet, Neuwurf, Kauf, Verkauf, Level-up, eigener Waffentreffer, Krit, Kill, Ausweichen, getroffen (HP verloren), Orb aufgesammelt, Truhe geöffnet, Timer (alle n Sekunden einer Welle) |
+| Bedingung | Stillstand oder Bewegung (Abschnitt 4), Chance, nur Krits, nur Elites, ab bzw. bis Welle n, höchstens n-mal pro Welle |
+| Aktion | Werte (bedingt), Werte „pro X" (gehaltene Shards, verschiedene Waffen oder ein Wert; abgerundet, wahlweise mit Obergrenze), dauerhaft wachsen, Werte bis Wellenende (stapelbar), Werte für n Sekunden, Werte in der nächsten Welle, heilen, Shards, Anteil der gehaltenen Shards, HP auf einen Anteil setzen, Zufallswerte, Schild (Treffer ohne Schaden bis Wellenende), eine Waffe +1 Stufe |
+| Kopien | Wie Brotato: Ohne Chance wirkt ein Effekt so oft, wie man das Item hat; mit Chance würfelt jede Kopie einzeln. |
+
+Anzeige: Shop-Karten und Truhen zeigen die Effekte als Zeile unter den Werten („Wave end: +3% Damage"). Über der eigenen HP-Leiste stehen die gerade aktiven Boni („+8 Armor (standing still)", höchstens 4 Zeilen und „+N more"). Zahlt ein Effekt im Kampf aus, schwebt ein kurzer Text über der eigenen Figur („+50 HP", „+1 Shard", „Blocked!"); am Wellenende und im Shop kommt stattdessen eine Einblendung mit dem Item-Namen („Oath Ring: +3% Damage").
+
+**Items mit Effekten und Neben-Werten (seit B4):** 32 neue Items. Jedes übernimmt Mechanik und Zahlen eines Brotato-Items (HP mal 10); Name, Text und Idee sind unsere eigenen. Was ein späteres Paket braucht, fehlt vorerst (Engineering B12, Knockback B5, zusätzliche Elites B11).
+
+| Item | Stufe | Grundpreis | Werte und Effekte | Vorbild (Brotato) |
+| --- | --- | --- | --- | --- |
+| Pawn Ticket | Common | 15 | -5% Item Prices (max. 5) | Coupon |
+| Chittering Familiar | Common | 25 | -1 Ranged Damage, +8% Orb Healing (max. 13) | Cute Monkey |
+| Bone Charm | Common | 15 | +10 Max HP per different weapon | Jelly |
+| Satchel | Common | 15 | -1% Speed; Chest: +15 Shards (max. 3) | Bag |
+| Bitter Tonic | Uncommon | 35 | Wave end: +5% XP Gain; Next wave: +50% XP Gain, +100% Enemy HP | Celery Tea |
+| Jester's Bell | Uncommon | 30 | +1 Free Rerolls (max. 3) | Dangerous Bunny |
+| Dowsing Rod | Uncommon | 40 | -5% Damage, +6 Luck, +5% Double Orbs (max. 20) | Metal Detector (ohne Engineering) |
+| Quilted Coat | Uncommon | 45 | +30 Max HP; +10 Max HP per 80 Shards (max. 1) | Padding |
+| Tithe Box | Uncommon | 40 | Wave start: +20% of your Shards (until wave 19) (max. 1) | Piggy Bank |
+| Rotting Heart | Uncommon | 30 | Level-up: -10 Max HP, +1% Life Steal | Decomposing Flesh |
+| Scrap Altar | Uncommon | 35 | +35% Sell Value (max. 1) | Recycling Machine |
+| Iron Vigil | Rare | 75 | -5% Speed; +8 Armor while standing still (max. 1) | Barricade (ohne Knockback) |
+| Still Veil | Rare | 70 | -4% Damage, +3% Dodge; +20% Dodge while standing still | Chameleon |
+| Stone Idol | Rare | 60 | -10% Speed; +40% Attack Speed while standing still | Statue |
+| Gilded Plume | Rare | 50 | +25% XP Gain; Next wave: +100% XP Gain, +50% Enemy Damage | Peacock |
+| Oath Ring | Rare | 92 | Wave end: +3% Damage | Vigilante Ring |
+| Pulse Draught | Rare | 60 | +5% Dodge; Dodge: heal 50 HP (50%) (max. 1) | Adrenaline |
+| Hunter's Tally | Rare | 55 | Kill (crit): +1 Shard (33%) (max. 3) | Hunting Trophy |
+| Galvanic Coil | Rare | 65 | -5% Damage; +1% Damage per 1% Speed (max. 1) | Power Generator |
+| Mourning Veil | Rare | 50 | +8 HP Regeneration; Wave start: HP set to 50% (max. 1) | Sad Tomato |
+| Moss Ward | Rare | 50 | Wave start: the first hit taken deals no damage | Tardigrade |
+| Plague Rat | Rare | 55 | +5% Life Steal, -5 Harvesting, +10% Enemies (max. 5) | Mouse |
+| Hush Candle | Rare | 65 | +1 HP Regeneration, -5% Damage, +4 Elemental Damage, -10% Enemies (max. 1) | Candle |
+| Changeling | Rare | 80 | +150 Max HP, +10% Enemy HP | Alien Baby |
+| Sweet Reliquary | Rare | 70 | Wave end: 8 random stat points (max. 1) | Candy Bag (ohne zusätzliche Elites) |
+| Clockwork Arm | Legendary | 100 | Wave end: -10 Max HP, +3 Melee Damage | Robot Arm (ohne Engineering) |
+| Evergreen Sprig | Legendary | 110 | Wave end: +30 Max HP, +1 HP Regeneration, +1% Life Steal | Grind's Magical Leaf |
+| Fortune Coin | Legendary | 105 | -2 Armor; +2 Luck per 1% Crit Chance (max. 1) | Lucky Coin |
+| Eight-Eyed Idol | Legendary | 110 | +12% Damage, -3% Dodge, -5 Harvesting; +6% Attack Speed per different weapon | Spider |
+| Lone Flame | Legendary | 110 | +30% Damage; -3% Attack Speed per different weapon | Focus |
+| Field Censer | Legendary | 95 | +10 HP Regeneration, -10 Luck; Every 5s: +2 HP Regeneration this wave | Medikit |
+| Ember Anvil | Legendary | 120 | Shop: a random weapon +1 tier (none: +2 Armor) (max. 1) | Anvil |
+
+Annahmen, wo Brotato keine Zahl nennt oder wir anders sind: Stillstand ab 0,2 s (Abschnitt 4). „Orb" ersetzt Brotatos Materialien (Orbs geben bei uns XP und Shards zusammen). Satchel zahlt beim Öffnen einer Elite-Truhe (Brotatos Kisten kommen mit B6). Ember Anvil hebt beim Öffnen des Shops eine zufällige Waffe unter Stufe IV (nicht entwickelt) eine Stufe; hat man keine, gibt es +2 Armor. Moss Ward schützt vor dem ersten Treffer jeder Welle pro Kopie; ein ausgewichener Treffer verbraucht den Schild nicht. Mourning Veil setzt die HP beim Wellenstart auf die Hälfte (Heilung bleibt möglich).
 
 **Evolutionen** – nur aus Elite- oder Boss-Truhen, wenn die Voraussetzung erfüllt ist:
 
@@ -503,6 +577,15 @@ Folgerungen: Gute Bots erreichen in gut der Hälfte der Runs (26 von 48) das End
 
 Folgerungen: Gute Bots gewinnen gut 40 % der Runs über 20 Wellen und erreichen dabei Level 31–40. Die neue Wand ist Welle 13 (Abyss Brutes und der Sprung der Kurven), die alte bei Welle 6–9 bleibt für schwache Spielweisen. Blade Warden ist mit Weglaufen deutlich schwächer als Spark Mage (wie in B2); das kommt mit den Charakteren (B10) und der Kampf-Tiefe (B5) dran. Evolutionen kommen selten zustande, weil eine Waffe erst Stufe IV erreichen und danach noch eine Elite-Truhe fallen muss. Stellschrauben: `hpCurve`, `damageCurve` ab Minute 12, `Shop.tierPriceFactors`, Stufen-Werte in `Config/Weapons.luau`.
 
+**Stand Paket B4 (Effekt-Maschine, 32 neue Items):** Jeder Durchlauf hat jetzt einen eigenen Seed (`RandomService`), gleiche Seeds geben gleiche Shop-Angebote. Die Bots bewerten Effekte grob in Werten (`effectScore` in `tests/balance/BalanceSim.luau`: Stillstand zählt wenig, Wachstum für die restlichen Wellen, „pro X" mit dem, was sie gerade haben); Gratis-Neuwürfe und Verkaufswert sind ihnen nichts wert, weil sie nie neu würfeln oder verkaufen. Eine Messung mit 6 Seeds pro Spielweise (gute Bots, Gegnerkurven unverändert):
+
+| Spielweise | Blade Warden | Spark Mage |
+| --- | --- | --- |
+| weicht aus, sammelt | 2 von 6 bis zum Ende, sonst Welle 6–8 | 5 von 6 bis zum Ende, sonst Welle 9 |
+| hält Abstand | 4 von 6 bis zum Ende, sonst Welle 10 und 16 | 4 von 6 bis zum Ende, sonst Welle 9 und 20 |
+
+Folgerungen: 15 von 24 Siegen statt gut 10 von 24 in B3; die größere Auswahl im Shop (vor allem Changeling, Rotting Heart, Bone Charm, Oath Ring) macht die Bots stärker. Bei dieser Streuung ist das noch kein sicherer Unterschied; weitere Durchläufe hat der Owner für B4 weggelassen. Nicht nachgestellt: Die Gegnerkurven bleiben, bis der Studio-Test zeigt, ob es sich zu leicht anfühlt; B5 (Kampf-Tiefe) misst neu. Stellschrauben wie in B3, dazu die Item-Preise in `Config/Items.luau`.
+
 ## 10. Meta-Progression & Schwierigkeitsgrade
 
 **Embers verdienen** (ein Run bringt je nach Dauer etwa 100–350)
@@ -638,20 +721,22 @@ VFX & Audio                                                 PlayerDataService (P
 
 ```text
 src/shared/          → ReplicatedStorage.Shared
-  Config/            Player, Weapons, Items, Stats, Evolutions, Enemies, Classes, Run, Talents,
+  Config/            Player, Weapons, Items, Stats, Effects, Evolutions, Enemies, Classes, Run, Talents,
                      Economy, Difficulty, Simulation, Map, Admin, Camera, Feedback, Shop
   Net/               Definition aller RemoteEvents und Snapshot-Format
-  Util/              SpatialHash, Signal, Loader, Format, Orbit, UpgradeText, EnemyKinds, RunSchedule, StatMath
+  Util/              SpatialHash, Signal, Loader, Format, Orbit, UpgradeText, EffectText, EnemyKinds, RunSchedule, StatMath
 src/server/          → ServerScriptService.Server
   Services/          RunDirector, SpawnDirector (+ SpawnRules), EnemySim (+ World, Volleys), CombatService,
                      WeaponService (+ Arsenal, WeaponStats, Behaviors/ je Waffe), ExperienceService (+ OrbField,
                      Progression), UpgradeService (+ UpgradePool), ShopService (+ ShopRules, seit B1), StatService (seit B2),
+                     EffectService (+ EffectRules, seit B4), RandomService (+ Streams, seit B4),
                      LootService, ReviveService, PlayerDataService, MonetizationService, AnalyticsService,
                      MapService (Platzhalter-Karte), AdminService (Test-Befehle)
 src/client/          → StarterPlayer.StarterPlayerScripts.Client
   Controllers/       InputController, CameraController, PlayerStateController, EnemyRenderer (+ SnapshotBuffer, Models),
                      LoadoutController, WeaponRenderer (+ VisualKit, Visuals/ je Waffe), ProgressController,
-                     LevelUpController, ShopController, StatsController, XpOrbRenderer, EnemyShotRenderer, ChestController, HUDController, VFXController,
+                     LevelUpController, ShopController, StatsController, ProcTextController, XpOrbRenderer, EnemyShotRenderer,
+                     ChestController, HUDController, VFXController,
                      RunStateController, LobbyController, ResultsController, NotifyController, DebugController
   UI/                Theme, Widgets (UI im Code gebaut)
 tests/               Unit-Tests für reine Module (Runner in tools/luau-test-runner)
@@ -729,6 +814,20 @@ tests/               Unit-Tests für reine Module (Runner in tools/luau-test-run
 - **Client:** `ProgressController` merkt sich Team-XP und Items, `StatsController` die eigenen Werte (Liste im Shop), `XpOrbRenderer` zeichnet gepoolte Orbs (liegende werden einmal gesetzt, nur fliegende bewegt, per `workspace:BulkMoveTo`), `LevelUpController` zeigt die Karten; Kartentexte baut `Util/UpgradeText` aus der Config.
 - Debug-Knopf „Team +1 level" löst sofort ein Level-up aus (seit B1 kommen die Karten erst am Wellenende; im Shop sofort).
 - Schnittstellen für spätere Pakete: `ExperienceService.LevelGained(level)`, `grantLevel()`, `getLevel()`; `UpgradeService.getEvolutions(player)` (Evolutions-Voraussetzung, Paket 9); seit B2 `ExperienceService.addXp(amount)` (Harvesting). `getPassives` und `getBonusEmbers` gibt es nicht mehr.
+
+**Effekt-Maschine** (seit B4; Werte in `Config/Effects.luau`, Items in `Config/Items.luau`)
+
+- **EffectService** (Server) baut bei jeder Item-Änderung pro Spieler eine Liste der Effekt-Einträge (eine pro Item-Effekt mit Anzahl, nach Auslöser sortiert) und führt sie aus, wenn ein Ereignis passt. Die Regeln (Bedingungen prüfen, Stärke aus Kopien und Chance, „pro X"-Schritte, Boni dieser Welle, zeitweise und der nächsten Welle, Ablauf) stehen rein in `EffectService/EffectRules.luau` (mit Unit-Tests).
+- **Ereignisse** kommen als Signals der anderen Services, keine Abfrage pro Bild: `RunDirector.PhaseChanged` (Wellenstart, Wellenende), `ShopService.WaveEnding` (vor Harvesting), `Opened`, `Rerolled`, `Bought`, `Sold`, `ShardsChanged`; `StatService.ItemAdded` (Nehmen), `PermanentChanged`; `WeaponService.Changed` (verschiedene Waffen) und `setHitListener` (Treffer, Krit, Kill; ein einfacher Rückruf, weil er pro Treffer läuft, und er tut nur etwas für Spieler mit solchen Effekten); `ExperienceService.LevelGained`, `OrbsPickedUp`; `CombatService.Dodged`, `PlayerDamaged`, `Blocked`; `LootService.ChestCollected`; `EnemySim.Stepped` (Stillstand, Timer, Ablauf zeitweiser Boni; nur für Spieler, die solche Effekte haben).
+- **Werte:** Dauerhaftes Wachstum geht als `StatService.addStats` in die dauerhaften Werte. Bedingte und zeitweise Boni rechnet EffectService pro Spieler zu einem Blatt zusammen und gibt es nur bei einer Änderung an `StatService.setDynamic` (Abschnitt 4: dauerhaft, dann bedingt, Obergrenzen zuletzt). Weitere Aktionen gehen an `CombatService.healPlayer`, `setHpFraction`, `setHitShields`, `ShopService.addShards` und `WeaponService.raiseTier`.
+- **Netzwerk:** `EffectProcs` (nur an den Spieler, pro Schritt gebündelt, höchstens 6 Texte: Heilung, Shards, Werte, Blocked, Waffe) für die schwebenden Texte (`ProcTextController`); außerhalb des Kampfs schickt der Server sie als eine `Notify`-Einblendung. `ActiveBonuses` (nur an den Spieler, nur bei Änderung) für die Bonus-Zeilen über der HP-Leiste (`HUDController`). Texte baut `Util/EffectText` aus der Config, auch für Shop-Karten und Truhen (`UpgradeText.itemLines`).
+- **Neue Effekt-Items** brauchen nur einen Datensatz; `ConfigCheck` prüft beim Start Auslöser, Aktion, Werte-IDs, Quelle von „pro X", Timer-Abstand und Chancen.
+- Schnittstellen für spätere Pakete: `EffectService.getBonuses(player)`, `getMoveState(player)`; `StatService.addStats`, `setDynamic`, `getPermanentSheet`, `getTeamStat(statId)` (Gegner-Werte, SpawnDirector); Klassen-`gainMultipliers` für B10.
+
+**Zufall** (seit B4, `RandomService`)
+
+- Jeder Run hat einen Seed; daraus entstehen getrennte Zufalls-Ströme pro System und, wo es passt, pro Spieler: Shop, Upgrades (Karten), Loot (Truhen-Items, doppelte Orbs), Spawns, Combat (Krit, Ausweichen, Life Steal), Effects (Chancen, Zufallswerte, welche Waffe). Die Shop-Würfe eines Spielers hängen damit nicht davon ab, wie oft im Kampf gewürfelt wurde (`RandomService/Streams.luau`, rein, mit Unit-Tests).
+- Der Seed steht beim Run-Start im Output („Run seed …"). `Config/Run.luau` → `seed` (0 = jedes Mal neu) spielt einen Run mit denselben Zufallszahlen nach; die Balance-Simulation setzt ihn pro Durchlauf.
 
 **Performance-Budgets**
 
@@ -825,8 +924,8 @@ Bis zum Soft Launch rund 40–50 Sessions und 50–60 Stunden Zeit des Owners (6
 | --- | --- | --- |
 | Run | 20 Wellen mit Brotatos Dauern, Boss-Welle 20 (90 s) | B3, 10 |
 | Shop | Sperren (kostenlos, Preis bleibt), Verkaufen (25 % des Preises), Waffen-Stufen I–IV statt Level 1–5, Verschmelzen zweier gleicher Waffen gleicher Stufe (per Knopf oder automatisch bei vollen Plätzen), Gratis-Neuwurf nach 4 Käufen, Waffen-Pool 20 % eigene / 15 % gleiche Klasse / 65 % alle, keine Wiederholung des vorigen Wurfs | B3 |
-| Effekte | Ereignisse (Welle startet/endet, Treffer, Krit, Kill, Ausweichen, getroffen, Aufsammeln, Level-up, Shop betreten, Timer), Effekte als Daten {Auslöser, Bedingung, Aktion, Werte}, Werte im Stillstand/in Bewegung, „pro X", „nächste Welle", Wachstum am Wellenende, Multiplikatoren auf Wert-Gewinne (für Charaktere), getrennte Zufalls-Ströme (Shop, Drops, Spawns, Kampf) | B4 |
-| Neben-Werte | Item-Preise, Gratis-Neuwürfe, Doppel-Beute, Schaden gegen Bosse/Elites, Frucht-Heilung, Heilung beim Aufsammeln, Gegner-Anzahl/-HP/-Schaden/-Tempo, Explosionsschaden und -größe, Durchschlag, Abprall, Brenn-Tempo und -Ausbreitung, Rückstoß | B4, B5 |
+| Effekte | Ereignisse (Welle startet/endet, Treffer, Krit, Kill, Ausweichen, getroffen, Aufsammeln, Level-up, Shop betreten, Timer), Effekte als Daten {Auslöser, Bedingung, Aktion, Werte}, Werte im Stillstand/in Bewegung, „pro X", „nächste Welle", Wachstum am Wellenende, Multiplikatoren auf Wert-Gewinne (für Charaktere), getrennte Zufalls-Ströme (Shop, Drops, Spawns, Kampf) | B4 (umgesetzt) |
+| Neben-Werte | Item-Preise, Gratis-Neuwürfe, Doppel-Beute, Schaden gegen Bosse/Elites, Frucht-Heilung, Heilung beim Aufsammeln, Gegner-Anzahl/-HP/-Schaden/-Tempo, Explosionsschaden und -größe, Durchschlag, Abprall, Brenn-Tempo und -Ausbreitung, Rückstoß | B4 (umgesetzt bis auf Frucht-Heilung → B6, Gegner-Tempo → B9), B5 |
 | Kampf | Krit-Chance und Krit-Faktor pro Waffe (×1,5 bis ×4), Lebensraub pro Waffe, Rückstoß mit Widerstand der Gegner, Brennen (stapelt nicht, Ausbreitung), Verlangsamen, Explosionen, Durchschlag mit Schadensabzug, Abprall, höchstens 12 Angriffe/s, Skalierung pro Waffe (z. B. 80 % Melee, mehrere Werte), Schutz nach Treffer 0,2–0,4 s | B5 |
 | Waffenklassen | 1–2 Klassen pro Waffe, gestaffelte Boni bei 2–6 Waffen einer Klasse (Brotatos 15 Staffeln, eigene Klassennamen) | B5 |
 | Waffen | 20–24 eigene Waffen statt 6, alle Klassen und Effekt-Arten (Stoß/Schwung, Schrot, Raketen, Feuer, Eis, Stapel pro Kill, Wert solange getragen, Heil-Geschoss, Magazin) | B7 |
@@ -861,7 +960,7 @@ Bis zum Soft Launch rund 40–50 Sessions und 50–60 Stunden Zeit des Owners (6
 | B1 | Brotato-Richtung 1: Wellen 20–60 s mit Shop-Phase, Shards, Level-ups am Wellenende, Aufstehen und Heilen am Wellenende | Vertical Slice | Extra high | 1 | 1 h | Run solo und zu zweit spielen |
 | B2 | Brotato-Richtung 2: Werte-System (Schaden, Angriffstempo, Krit, Glück, Rüstung, Ausweichen, Regeneration, Lebensraub, Reichweite, Tempo, Ernte), 46 Items in 4 Seltenheiten mit Trade-offs, unbegrenzt stapelbar, 6 Waffen-Plätze, Level-ups als Werte-Wahl, Werte-Liste im Shop | Vertical Slice | Extra high | 1–2 | 1 h | Items ausprobieren |
 | B3 | Brotato 3: Shop komplett und 20 Wellen – Run auf 20 Wellen mit Brotatos Dauern, Sperren, Verkaufen, Waffen-Stufen I–IV statt Level, Verschmelzen, Gratis-Neuwurf nach 4 Käufen, Waffen-Pool-Regeln, Evolutionen ab Stufe IV, Handy-Layout (umgesetzt 29.10.2026, Branch `wp-b3-shop-complete`) | Vertical Slice | High | 1–2 | 1 h | Shop am PC und Handy bedienen |
-| B4 | Brotato 4: Effekt-Maschine – Ereignisse, Effekte als Daten, bedingte und „pro X"-Werte, nächste Welle, Wellenende-Wachstum, Neben-Werte, getrennte Zufalls-Ströme, ~20 neue Items mit Effekten | Vertical Slice | Extra high | 2 | 1 h | neue Items ausprobieren |
+| B4 | Brotato 4: Effekt-Maschine – Ereignisse, Effekte als Daten, bedingte und „pro X"-Werte, nächste Welle, Wellenende-Wachstum, Neben-Werte, getrennte Zufalls-Ströme, ~20 neue Items mit Effekten (umgesetzt 29.10.2026 mit 32 Items, Branch `wp-b4-effect-engine`) | Vertical Slice | Extra high | 2 | 1 h | neue Items ausprobieren |
 | B5 | Brotato 5: Kampf-Tiefe – Krit und Lebensraub pro Waffe, Rückstoß, Brennen, Verlangsamen, Explosionen, Durchschlag/Abprall, 12 Angriffe/s, Skalierung pro Waffe, Waffenklassen mit Set-Boni | Vertical Slice | Extra high | 2 | 1 h | Waffengefühl beurteilen |
 | B6 | Brotato 6: Beute – sinkende Drop-Chance, Beutel, Heil-Früchte, Kisten von normalen Gegnern, Plünderer, Bäume, Beute-Obergrenze | Vertical Slice | High | 1–2 | 1 h | Wirtschaft beurteilen |
 | B7 | Brotato 7: Waffen-Paket – auf 20–24 Waffen, alle Klassen und Effekt-Arten | Vertical Slice | Medium | 2 | 1 h | Waffen ausprobieren |

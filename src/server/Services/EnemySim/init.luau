@@ -19,6 +19,7 @@ local Snapshot = require(Shared.Net.Snapshot)
 local Types = require(Shared.Net.Types)
 
 local MapService = require(script.Parent.MapService)
+local RandomService = require(script.Parent.RandomService)
 local RunDirector = require(script.Parent.RunDirector)
 local Volleys = require(script.Volleys)
 local World = require(script.World)
@@ -92,7 +93,6 @@ local volleys = (function()
 	})
 end)()
 local floorY = Config.Map.arena.center.Y
-local rng = Random.new()
 local currentTick = 0
 local accumulator = 0
 
@@ -210,7 +210,7 @@ local function spawnAround(
 	hpMultiplier: number,
 	damageMultiplier: number
 )
-	local turn = rng:NextNumber() * 2 * math.pi
+	local turn = RandomService.number("Spawns") * 2 * math.pi
 	for k = 1, count do
 		local angle = turn + (k - 1) / count * 2 * math.pi
 		EnemySim.spawn(

@@ -87,14 +87,25 @@ local function removeAt(self: OrbField, index: number)
 	self.values[last] = nil
 end
 
--- Removes every orb within `radius` of x/z, appends their ids to `out` and returns the XP they held.
-function OrbField.collect(self: OrbField, x: number, z: number, radius: number, out: { number }): number
+-- Removes every orb within `radius` of x/z, appends their ids to `out` (and their XP to `values`) and returns the XP
+-- they held.
+function OrbField.collect(
+	self: OrbField,
+	x: number,
+	z: number,
+	radius: number,
+	out: { number },
+	values: { number }?
+): number
 	local total = 0
 	local radiusSquared = radius * radius
 	for i = #self.ids, 1, -1 do
 		local dx, dz = self.xs[i] - x, self.zs[i] - z
 		if dx * dx + dz * dz <= radiusSquared then
 			table.insert(out, self.ids[i])
+			if values then
+				table.insert(values, self.values[i])
+			end
 			total += self.values[i]
 			removeAt(self, i)
 		end

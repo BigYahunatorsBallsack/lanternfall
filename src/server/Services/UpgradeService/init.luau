@@ -19,6 +19,7 @@ local Types = require(Shared.Net.Types)
 
 local CombatService = require(script.Parent.CombatService)
 local ExperienceService = require(script.Parent.ExperienceService)
+local RandomService = require(script.Parent.RandomService)
 local RunDirector = require(script.Parent.RunDirector)
 local ShopService = require(script.Parent.ShopService)
 local StatService = require(script.Parent.StatService)
@@ -38,14 +39,9 @@ type State = {
 local UpgradeService = {}
 
 local states: { [Player]: State } = {}
-local rng = Random.new()
 
 local function now(): number
 	return workspace:GetServerTimeNow()
-end
-
-local function random(): number
-	return rng:NextNumber()
 end
 
 local function rerollPrice(offer: Offer?): number
@@ -71,7 +67,9 @@ local function roll(player: Player, state: State, avoid: { [string]: boolean }?)
 		luck = StatService.getStat(player, "luck"),
 		cardCount = LevelUp.cardCount,
 		avoid = avoid,
-		random = random,
+		random = function(): number
+			return RandomService.number("Upgrades", player)
+		end,
 	})
 end
 
@@ -255,7 +253,9 @@ function UpgradeService.grantChest(player: Player): Types.ChestReward?
 		RunDirector.getWave(),
 		StatService.getStat(player, "luck"),
 		StatService.getItemCounts(player),
-		random
+		function(): number
+			return RandomService.number("Loot", player)
+		end
 	)
 	if itemId and StatService.addItem(player, itemId) then
 		return { kind = "Item", itemId = itemId, level = StatService.getItemCounts(player)[itemId] or 1 }

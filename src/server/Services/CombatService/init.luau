@@ -1,10 +1,12 @@
 --!strict
 -- Player HP, armor, dodge, hit protection and dash (rules in CombatService/Vitals). Takes enemy contact damage
 -- from EnemySim, handles the RequestDash remote, knocks players down at 0 HP via RunDirector and sends
--- PlayerState to every client on change. Fires PlayerDamaged for RunStatsService. Sets walk speed and turns jumping off on each character.
+-- PlayerState to every client on change. Fires PlayerDamaged (RunStatsService, EffectService), Dodged and Blocked
+-- (EffectService). Sets walk speed and turns jumping off on each character. Dodge rolls come from RandomService.
 -- StatService sets the player's stats (setStats: Max HP, HP Regeneration, Armor, Dodge, Speed; Util/StatMath),
 -- WeaponService calls lifeSteal, UpgradeService the level-up choice (setChoosing: shielded and standing still);
--- rewards and revives (WP11) use damagePlayer, healPlayer and protect. When a wave ends
+-- rewards and revives (WP11) use damagePlayer, healPlayer and protect; item effects (EffectService) healPlayer,
+-- setHitShields and setHpFraction. When a wave ends
 -- (Shop phase) players who are down stand up and everyone heals (Config.Shop.waveEnd); nobody walks or dashes in the
 -- shop.
 
@@ -20,6 +22,7 @@ local Types = require(Shared.Net.Types)
 local StatMath = require(Shared.Util.StatMath)
 
 local EnemySim = require(script.Parent.EnemySim)
+local RandomService = require(script.Parent.RandomService)
 local RunDirector = require(script.Parent.RunDirector)
 local Vitals = require(script.Vitals)
 
@@ -37,6 +40,10 @@ local CombatService = {}
 
 -- (player: Player, taken: number): a participant lost HP (RunStatsService counts it)
 CombatService.PlayerDamaged = Signal.new()
+-- (player: Player): a participant dodged a hit (Dodge stat)
+CombatService.Dodged = Signal.new()
+-- (player: Player): a hit shield nullified a hit (item effects)
+CombatService.Blocked = Signal.new()
 
 local vitals: { [Player]: Vitals.Vitals } = {}
 local sentHp: { [Player]: number } = {} -- whole HP last sent, so regeneration does not send every frame
@@ -44,7 +51,6 @@ local stats: { [Player]: StatMath.Sheet } = {} -- the latest from StatService, k
 local regen: { [Player]: number } = {} -- HP per second
 local lastLifeSteal: { [Player]: number } = {} -- server time of the last life steal heal
 local choosing: { [Player]: boolean } = {} -- picking a level-up card
-local rng = Random.new()
 
 local function now(): number
 	return workspace:GetServerTimeNow()
@@ -135,14 +141,19 @@ local function resetAll()
 	end
 end
 
--- Damage to a living participant, e.g. from enemy contact or projectiles. Returns the HP lost and whether the hit
--- was dodged.
-function CombatService.damagePlayer(player: Player, damage: number): (number, boolean)
+-- Damage to a living participant, e.g. from enemy contact or projectiles. Returns the HP lost, whether the hit
+-- was dodged and whether a hit shield (item effect, since B4) took it.
+function CombatService.damagePlayer(player: Player, damage: number): (number, boolean, boolean)
 	if not canBeHurt(player) then
-		return 0, false
+		return 0, false, false
 	end
 	local state = getVitals(player)
-	local taken, dodged = state:hit(damage, now(), rng:NextNumber())
+	local taken, dodged, blocked = state:hit(damage, now(), RandomService.number("Combat", player))
+	if dodged then
+		CombatService.Dodged:Fire(player)
+	elseif blocked then
+		CombatService.Blocked:Fire(player)
+	end
 	if taken > 0 then
 		send(player)
 		CombatService.PlayerDamaged:Fire(player, taken)
@@ -150,7 +161,7 @@ function CombatService.damagePlayer(player: Player, damage: number): (number, bo
 			RunDirector.setParticipantState(player, "Down")
 		end
 	end
-	return taken, dodged
+	return taken, dodged, blocked
 end
 
 -- Heals a living player. Returns the HP gained.
@@ -161,6 +172,20 @@ function CombatService.healPlayer(player: Player, amount: number): number
 		send(player)
 	end
 	return gained
+end
+
+-- Hits the player shrugs off completely from now on (item effects); replaces the previous count.
+function CombatService.setHitShields(player: Player, count: number)
+	getVitals(player):setHitShields(count)
+end
+
+-- Sets a living participant's HP to `fraction` of their max HP (item effects: "start waves with -50 % HP").
+function CombatService.setHpFraction(player: Player, fraction: number)
+	local state = getVitals(player)
+	if canBeHurt(player) and not state:isDown() then
+		state:setFraction(fraction)
+		send(player)
+	end
 end
 
 -- Makes the player invulnerable for `seconds` (e.g. while choosing a level-up card, WP6).

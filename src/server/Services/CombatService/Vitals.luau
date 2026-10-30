@@ -23,6 +23,7 @@ export type Vitals = typeof(setmetatable(
 		dodgeChance: number, -- 0..1 (Dodge stat)
 		invulnerableUntil: number, -- dash and hit protection
 		shielded: boolean, -- invulnerable until switched off (level-up choice)
+		hitShields: number, -- hits nullified completely (item effects, since B4)
 		dashReadyAt: number,
 	},
 	Vitals
@@ -37,6 +38,7 @@ function Vitals.new(maxHp: number, settings: Settings): Vitals
 		dodgeChance = 0,
 		invulnerableUntil = 0,
 		shielded = false,
+		hitShields = 0,
 		dashReadyAt = 0,
 	}, Vitals)
 end
@@ -47,6 +49,7 @@ function Vitals.reset(self: Vitals, maxHp: number)
 	self.hp = maxHp
 	self.invulnerableUntil = 0
 	self.shielded = false
+	self.hitShields = 0
 	self.dashReadyAt = 0
 end
 
@@ -85,21 +88,31 @@ function Vitals.setShielded(self: Vitals, shielded: boolean, now: number, afterS
 	self.shielded = shielded
 end
 
--- Applies one hit; `roll` (0 <= roll < 1) below the dodge chance dodges it (no damage, no protection afterwards).
--- Returns the HP actually lost (0 while protected, already down or dodged) and whether it was dodged.
-function Vitals.hit(self: Vitals, damage: number, now: number, roll: number?): (number, boolean)
+-- Sets how many hits are nullified from now on (Brotato's Tardigrade: one per wave and copy).
+function Vitals.setHitShields(self: Vitals, count: number)
+	self.hitShields = math.max(0, count)
+end
+
+-- Applies one hit; `roll` (0 <= roll < 1) below the dodge chance dodges it (no damage, no protection afterwards),
+-- else a hit shield takes it (no damage, no protection afterwards). Returns the HP actually lost (0 while protected,
+-- already down, dodged or blocked), whether it was dodged and whether a hit shield blocked it.
+function Vitals.hit(self: Vitals, damage: number, now: number, roll: number?): (number, boolean, boolean)
 	if damage <= 0 or self:isDown() or self:isInvulnerable(now) then
-		return 0, false
+		return 0, false, false
 	end
 	if (roll or 1) < self.dodgeChance then
-		return 0, true
+		return 0, true, false
+	end
+	if self.hitShields > 0 then
+		self.hitShields -= 1
+		return 0, false, true
 	end
 	local settings = self.settings
 	local taken = math.max(settings.minDamagePerHit, math.round(damage * self.damageFactor)) -- whole HP like Brotato
 	taken = math.min(taken, self.hp)
 	self.hp -= taken
 	self:protect(now, settings.hitInvulnerability)
-	return taken, false
+	return taken, false, false
 end
 
 -- Heals up to the maximum. Returns the HP actually gained (0 while down: only a revive helps then).

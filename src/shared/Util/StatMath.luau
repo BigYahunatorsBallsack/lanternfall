@@ -1,7 +1,7 @@
 --!strict
 -- Stat formulas from Brotato as pure functions (DESIGN.md section 4, since B2), numbers in Config.Stats and
--- Config.Items.tiers: summing a stat sheet, armor, dodge, HP regeneration, attack speed, move speed and the rarity
--- tier roll. Used by StatService, CombatService, WeaponStats, ShopRules and UpgradePool on the server and by the stat
+-- Config.Items.tiers: summing a stat sheet (since B4 with gain multipliers), armor, dodge, HP regeneration, attack
+-- speed, move speed, shop price and enemy factors and the rarity tier roll. Used by StatService, CombatService, WeaponStats, ShopRules and UpgradePool on the server and by the stat
 -- panel on the client; tested in tests/StatMath.spec.luau.
 
 local Config = require(script.Parent.Parent.Config)
@@ -30,6 +30,27 @@ function StatMath.add(sheet: Sheet, stats: { [string]: number }, count: number?)
 		sheet[id] = (sheet[id] or 0) + value * times
 	end
 	return sheet
+end
+
+-- Adds gains to `sheet` (in place) and returns it: each stat's gains times its multiplier (Brotato's characters
+-- scale every gain of a stat, e.g. "Damage modifications are reduced by 50 %" = 0.5; since B4). Missing = 1.
+function StatMath.addGains(sheet: Sheet, gains: { [string]: number }, multipliers: { [string]: number }?): Sheet
+	for id, value in gains do
+		local factor = if multipliers then multipliers[id] or 1 else 1
+		sheet[id] = (sheet[id] or 0) + value * factor
+	end
+	return sheet
+end
+
+-- Factor for shop prices from Item Prices (-5 = 5 % cheaper), never below Config.Stats.minPriceFactor.
+function StatMath.priceFactor(itemPrice: number): number
+	return math.max(Stats.minPriceFactor, 1 + itemPrice / 100)
+end
+
+-- Factor for an enemy value (count, HP, damage) from the team's total of its stat (+10 = 10 % more), never below
+-- Config.Stats.minEnemyFactor.
+function StatMath.enemyFactor(total: number): number
+	return math.max(Stats.minEnemyFactor, 1 + total / 100)
 end
 
 -- Max HP the player actually has: never below 1.

@@ -2,12 +2,13 @@
 -- Texts of level-up cards, shop offers and chest rewards (DESIGN.md section 13), built from Config.Stats,
 -- Config.Items, Config.Weapons and Config.Evolutions so the server only sends ids: names, effect lines ("+5% Damage",
 -- "-1 Armor", optionally colored as rich text), weapon names with tiers ("Spark Bolt II") and badges (rarity names,
--- "NEW"). Used by LevelUpController,
+-- "NEW"), since B4 with the effect lines of items (Util/EffectText). Used by LevelUpController,
 -- ShopController, ChestController and StatsController; tested in tests/UpgradePool.spec.luau.
 
 local Config = require(script.Parent.Parent.Config)
 local Weapons = require(script.Parent.Parent.Config.Weapons)
 local Types = require(script.Parent.Parent.Net.Types)
+local EffectText = require(script.Parent.EffectText)
 local Format = require(script.Parent.Format)
 local StatMath = require(script.Parent.StatMath)
 
@@ -109,9 +110,28 @@ function UpgradeText.card(card: Types.UpgradeCard): (string, string, string)
 	return title, StatMath.format(card.stat, card.amount), UpgradeText.tierName(card.tier)
 end
 
+-- An item's stat lines (rich text with `colors`) followed by its effect lines, joined by `separator` (a new line).
+function UpgradeText.itemLines(itemId: string, colors: Colors?, separator: string?): string
+	local item = Config.Items.byId[itemId]
+	if not item then
+		return ""
+	end
+	local lines = {}
+	local stats = UpgradeText.statLines(item.stats, colors)
+	if stats ~= "" then
+		table.insert(lines, stats)
+	end
+	local effects = EffectText.lines(item.effects)
+	if effects ~= "" then
+		table.insert(lines, effects)
+	end
+	local text = table.concat(lines, "\n")
+	return if separator then (string.gsub(text, "\n", separator)) else text
+end
+
 -- Title, effect text and badge of a shop offer. Weapons: name with tier ("Spark Bolt II"), description, what the tier
 -- adds and whether buying merges it; badge "Uncommon · NEW" or "Uncommon · own 2". Items: their stat lines (rich text
--- with `colors`), the rarity and how many the player owns ("Rare · x2").
+-- with `colors`) and effect lines, the rarity and how many the player owns ("Rare · x2").
 function UpgradeText.offer(offer: Types.ShopOffer, colors: Colors?): (string, string, string)
 	if offer.kind == "Weapon" then
 		local weapon = Config.Weapons[offer.itemId]
@@ -137,7 +157,7 @@ function UpgradeText.offer(offer: Types.ShopOffer, colors: Colors?): (string, st
 	if not item then
 		return offer.itemId, "", badge
 	end
-	return item.displayName, UpgradeText.statLines(item.stats, colors), badge
+	return item.displayName, UpgradeText.itemLines(offer.itemId, colors), badge
 end
 
 -- Title and effect line of an elite chest reward (Net/Types.ChestReward).
@@ -155,7 +175,7 @@ function UpgradeText.chestReward(reward: Types.ChestReward): (string, string)
 			return reward.itemId, ""
 		end
 		local title = if reward.level > 1 then `{item.displayName} x{reward.level}` else item.displayName
-		return title, (string.gsub(UpgradeText.statLines(item.stats), "\n", ", "))
+		return title, UpgradeText.itemLines(reward.itemId, nil, ", ")
 	end
 	if reward.itemId == "Heal" then
 		return "Heal", "Full HP"

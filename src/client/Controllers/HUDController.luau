@@ -3,8 +3,9 @@
 -- left in the wave or the shop, the wave (number, final wave, shop; Util/RunSchedule) with a big banner when a new wave
 -- starts that names what it brings, the local HP bar with a red flash on hits, the team with HP and Alive/Down states
 -- (who is picking a card, who is done shopping), your weapons with their levels and your items with their counts in
--- their rarity color (the first few). Shown while the local player is in a running run; reads RunStateController,
--- PlayerStateController, LoadoutController and ProgressController. WP14 builds the full HUD.
+-- their rarity color (the first few). Since B4 the item effect bonuses active right now sit above the HP bar
+-- (ActiveBonuses remote: "+8 Armor (standing still)"). Shown while the local player is in a running run; reads
+-- RunStateController, PlayerStateController, LoadoutController and ProgressController. WP14 builds the full HUD.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -13,6 +14,8 @@ local TweenService = game:GetService("TweenService")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared:WaitForChild("Config"))
+local EffectText = require(Shared:WaitForChild("Util"):WaitForChild("EffectText"))
+local Net = require(Shared:WaitForChild("Net"))
 local Format = require(Shared:WaitForChild("Util"):WaitForChild("Format"))
 local RunSchedule = require(Shared:WaitForChild("Util"):WaitForChild("RunSchedule"))
 local Types = require(Shared:WaitForChild("Net"):WaitForChild("Types"))
@@ -37,6 +40,7 @@ local BANNER_SECONDS = 2.6
 local BANNER_FADE_SECONDS = 0.4
 local BANNER_TITLE_SIZE = 56
 local MAX_ITEM_ROWS = 8 -- different items listed; the rest as "+3 more"
+local MAX_BONUS_LINES = 4 -- active effect bonuses over the HP bar; the rest as "+2 more"
 
 local HUDController = {}
 
@@ -46,6 +50,8 @@ local hintLabel: TextLabel
 local teamRows: Frame
 local hpFill: Frame
 local hpLabel: TextLabel
+local bonusLabel: TextLabel
+local bonuses: { Types.ActiveBonus } = {}
 local hitFlash: Frame
 local weaponsTitle: TextLabel
 local weaponRows: Frame
@@ -262,6 +268,19 @@ local function renderWeapons()
 	end
 end
 
+local function renderBonuses()
+	local lines = {}
+	for index, bonus in bonuses do
+		if index > MAX_BONUS_LINES then
+			table.insert(lines, `+{#bonuses - MAX_BONUS_LINES} more`)
+			break
+		end
+		table.insert(lines, EffectText.bonus(bonus))
+	end
+	bonusLabel.Text = table.concat(lines, "\n")
+	bonusLabel.Visible = #lines > 0
+end
+
 local function flashHit()
 	hitFlash.BackgroundTransparency = HIT_FLASH_TRANSPARENCY
 	TweenService:Create(hitFlash, TweenInfo.new(HIT_FLASH_SECONDS), { BackgroundTransparency = 1 }):Play()
@@ -297,6 +316,7 @@ local function render()
 	renderWeapons()
 	renderItems()
 	renderXp()
+	renderBonuses()
 end
 
 local function build()
@@ -423,10 +443,23 @@ local function build()
 		Size = UDim2.fromOffset(HP_BAR_WIDTH, 0),
 		Parent = screen,
 	})
+	Widgets.list(6).Parent = hp
+	bonusLabel = Widgets.label({
+		Name = "Bonuses",
+		Text = "",
+		TextSize = 15,
+		TextColor3 = Theme.tiers[2],
+		AutomaticSize = Enum.AutomaticSize.Y,
+		Size = UDim2.new(1, 0, 0, 0),
+		Visible = false,
+		LayoutOrder = 0,
+		Parent = hp,
+	})
 	local track = Widgets.create("Frame", {
 		Name = "Track",
 		BackgroundColor3 = Theme.button,
 		Size = UDim2.new(1, 0, 0, 26),
+		LayoutOrder = 1,
 		Parent = hp,
 	}, { Widgets.corner(UDim.new(0, 8)) })
 	hpFill = Widgets.create("Frame", {
@@ -455,6 +488,15 @@ local function build()
 		ZIndex = 0,
 		Parent = screen,
 	})
+end
+
+function HUDController.init()
+	Net.onClient("ActiveBonuses", function(list: { Types.ActiveBonus })
+		bonuses = list
+		if screen then
+			renderBonuses()
+		end
+	end)
 end
 
 function HUDController.start()

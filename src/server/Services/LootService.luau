@@ -5,13 +5,14 @@
 -- Config.Run.coop.chestHealFraction of their max HP (CombatService).
 -- Chests still on the floor when a wave ends open for every participant who is not out (like Brotato's crates).
 -- Sends Chests (what lies on the floor) and ChestOpened to the participants; chests vanish when a run starts or ends.
--- The boss chest (WP10) can reuse drop().
+-- Fires ChestCollected per player for item effects (EffectService). The boss chest (WP10) can reuse drop().
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Shared = ReplicatedStorage.Shared
 local Config = require(Shared.Config)
 local Net = require(Shared.Net)
+local Signal = require(Shared.Util.Signal)
 local Types = require(Shared.Net.Types)
 
 local CombatService = require(script.Parent.CombatService)
@@ -22,6 +23,9 @@ local UpgradeService = require(script.Parent.UpgradeService)
 local Coop = Config.Run.coop
 
 local LootService = {}
+
+-- (player: Player): the player got the reward of a chest (Brotato's crate pickup)
+LootService.ChestCollected = Signal.new()
 
 local chests: { Types.ChestInfo } = {}
 local nextId = 0
@@ -64,6 +68,7 @@ local function open(index: number, everyone: boolean?)
 			if reward then
 				table.insert(rewards, { userId = player.UserId, reward = reward })
 			end
+			LootService.ChestCollected:Fire(player)
 		end
 	end
 	local opened: Types.ChestOpened = { id = chest.id, x = chest.x, z = chest.z, rewards = rewards }

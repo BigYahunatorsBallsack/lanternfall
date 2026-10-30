@@ -726,6 +726,176 @@ describe("smoke", function()
 		root.AssemblyLinearVelocity = Vector3.zero
 	end
 
+	local function bonusText()
+		local label = world.gui("HUD", "Bonuses")
+		return if label and label.Visible then label.Text else ""
+	end
+
+	local function tierSum()
+		local total = 0
+		for _, weapon in WeaponService.getWeapons(me) do
+			total += weapon.tier
+		end
+		return total
+	end
+
+	-- One more of an item unless the player owns its limit already (the shop test above buys random offers).
+	-- Returns how many the player owns now.
+	local function give(itemId)
+		StatService.addItem(me, itemId)
+		return StatService.getItemCounts(me)[itemId] or 0
+	end
+
+	it("runs item effects: standing still, per X, timers, crit kills, dodges and chests", function()
+		local EffectService = require(ServerScriptService.Server.Services.EffectService)
+		local wasPaused = SpawnDirector.isPaused()
+		SpawnDirector.setPaused(true)
+		world.click(world.gui("Debug", "KillEnemies"))
+		world.advance(0.3)
+		local center = Config.Map.arena.center
+		standAt(center.X, center.Z)
+		local root = me.Character.HumanoidRootPart
+
+		-- Iron Vigil: +8 Armor while standing still (limit 1), shown over the HP bar
+		root.AssemblyLinearVelocity = Vector3.new(16, 0, 0)
+		world.advance(0.5)
+		local armor = StatService.getStat(me, "armor")
+		expect(give("IronVigil")).toBe(1)
+		root.AssemblyLinearVelocity = Vector3.zero
+		world.advance(0.5)
+		expect(EffectService.getMoveState(me)).toBe("Still")
+		expect(StatService.getStat(me, "armor")).toBe(armor + 8)
+		expect(string.find(bonusText(), "+8 Armor (standing still)", 1, true) ~= nil).toBe(true)
+		root.AssemblyLinearVelocity = Vector3.new(16, 0, 0)
+		world.advance(0.5)
+		expect(EffectService.getMoveState(me)).toBe("Moving")
+		expect(StatService.getStat(me, "armor")).toBe(armor)
+		expect(string.find(bonusText(), "standing still", 1, true)).toBe(nil)
+		root.AssemblyLinearVelocity = Vector3.zero
+
+		-- Bone Charm: +10 Max HP per different weapon
+		local kinds, seen = 0, {}
+		for _, weapon in WeaponService.getWeapons(me) do
+			if not seen[weapon.id] then
+				seen[weapon.id] = true
+				kinds += 1
+			end
+		end
+		local maxHp = StatService.getStat(me, "maxHp")
+		give("BoneCharm")
+		world.advance(0.1)
+		expect(StatService.getStat(me, "maxHp")).toBe(maxHp + 10 * kinds)
+
+		-- Field Censer: +2 HP Regeneration every 5 s of the wave
+		give("FieldCenser")
+		local regen = StatService.getStat(me, "hpRegen")
+		world.advance(5.3)
+		expect(StatService.getStat(me, "hpRegen") >= regen + 2).toBe(true)
+
+		-- Hunter's Tally x3: crit kills give Shards (orbs are paused, so only the item pays)
+		StatService.addStats(me, { critChance = 100 })
+		for _ = 1, 3 do
+			give("HuntersTally")
+		end
+		expect(select(2, StatService.addItem(me, "HuntersTally"))).toBe("Limit")
+		local shards = ShopService.getShards(me)
+		for k = 1, 16 do
+			local angle = k / 16 * 2 * math.pi
+			EnemySim.spawn("Shadeling", center.X + math.cos(angle) * 4, center.Z + math.sin(angle) * 4, 0.2, 1)
+		end
+		world.advance(3)
+		expect(EnemySim.getCount()).toBe(0)
+		expect(ShopService.getShards(me) > shards).toBe(true)
+		StatService.addStats(me, { critChance = -100 })
+
+		-- Pulse Draught: dodging heals 50 HP half the time, with a text over the character
+		expect(give("PulseDraught")).toBe(1)
+		CombatService.setHpFraction(me, 0.5)
+		local hp = CombatService.getHp(me)
+		for _ = 1, 20 do
+			CombatService.Dodged:Fire(me)
+		end
+		world.advance(0.1)
+		expect(CombatService.getHp(me) > hp).toBe(true)
+		local shown = table.concat(controller("ProcTextController").getShown(), " | ")
+		expect(string.find(shown, "+50 HP", 1, true) ~= nil).toBe(true)
+
+		-- Satchel: +15 Shards per copy for a chest
+		local satchels = give("Satchel")
+		shards = ShopService.getShards(me)
+		LootService.drop(Vector3.new(root.Position.X + 1, root.Position.Y, root.Position.Z))
+		world.advance(0.3)
+		expect(#LootService.getChests()).toBe(0)
+		expect(ShopService.getShards(me) >= shards + 15 * satchels).toBe(true)
+
+		-- the debug button gives the effect items one after another
+		world.click(world.gui("Debug", "AddEffectItem"))
+		world.advance(0.2)
+		expect(string.find(toastTexts(), ": ", 1, true) ~= nil).toBe(true)
+		SpawnDirector.setPaused(wasPaused)
+	end)
+
+	it("runs wave end, shop and next-wave effects and the shop stats", function()
+		local rings = give("OathRing")
+		give("GildedPlume")
+		expect(give("TitheBox")).toBe(1)
+		expect(give("MourningVeil")).toBe(1)
+		expect(give("EmberAnvil")).toBe(1)
+		local bells = give("JesterBell")
+		for _ = 1, 5 do
+			give("PawnTicket")
+		end
+		expect(StatService.getStat(me, "itemPrice")).toBe(-25) -- 5 at most
+		local damage = StatService.getStat(me, "damage")
+		local xpGain = StatService.getStat(me, "xpGain")
+		local tiers = tierSum()
+		local canUpgrade = false
+		for _, weapon in WeaponService.getWeapons(me) do
+			canUpgrade = canUpgrade or (weapon.tier < Config.Player.maxWeaponTier and not weapon.evolution)
+		end
+
+		world.click(world.gui("Debug", "SkipWave"))
+		world.advance(0.3)
+		expect(phase()).toBe("Shop")
+		pickAll()
+		-- Oath Ring grew at the wave end (Sweet Reliquary bought above may add more), told in a toast
+		expect(StatService.getStat(me, "damage") >= damage + 3 * rings).toBe(true)
+		expect(string.find(toastTexts(), "Oath Ring: +", 1, true) ~= nil).toBe(true)
+		-- the Ember Anvil raised a weapon when the shop opened
+		expect(tierSum()).toBe(if canUpgrade then tiers + 1 else tiers)
+		-- the shop: 25 % off, free rerolls from Jester's Bell
+		for _, offer in ShopService.getOffers(me) do
+			expect(offer.price).toBe(ShopRules.offerPrice(offer, 0.75))
+		end
+		local reroll = world.gui("Shop", "Reroll").Text
+		expect(reroll).toBe(if bells > 1 then `Reroll (free x{bells})` else "Reroll (free)")
+		-- Gilded Plume's next wave has not started yet
+		local xpInShop = StatService.getStat(me, "xpGain")
+		expect(xpInShop >= xpGain).toBe(true) -- Bitter Tonic bought above grows it
+		expect(StatService.getTeamStat("enemyDamage")).toBe(0)
+
+		local shards = ShopService.getShards(me)
+		world.fireServerAs(me, "SetShopReady", true)
+		world.advance(0.2)
+		expect(phase()).toBe("Running")
+		expect(StatService.getStat(me, "xpGain") >= xpInShop + 100).toBe(true)
+		expect(StatService.getTeamStat("enemyDamage") >= 50).toBe(true)
+		expect(string.find(bonusText(), "+50% Enemy Damage (this wave)", 1, true) ~= nil).toBe(true)
+		expect(ShopService.getShards(me)).toBe(shards + math.floor(shards * 0.2)) -- Tithe Box
+		local current, maxHpNow = CombatService.getHp(me)
+		local half = math.ceil(maxHpNow * 0.5) -- Mourning Veil, plus a little regeneration since
+		expect(current >= half and current <= half + maxHpNow * 0.1).toBe(true)
+
+		world.click(world.gui("Debug", "SkipWave"))
+		world.advance(0.3)
+		pickAll()
+		local tonics = StatService.getItemCounts(me).BitterTonic or 0
+		world.fireServerAs(me, "SetShopReady", true)
+		world.advance(0.2)
+		expect(StatService.getStat(me, "xpGain")).toBe(xpInShop + 5 * tonics) -- the next-wave bonus is gone
+		expect(StatService.getTeamStat("enemyDamage")).toBe(0)
+	end)
+
 	local spawningWasPaused
 	it("spawns a glowing elite with an HP bar that drops a chest", function()
 		spawningWasPaused = SpawnDirector.isPaused()

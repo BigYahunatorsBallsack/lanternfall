@@ -6,8 +6,10 @@
 -- Since WP9: part of the spawns of a walking player land in front of them, Gloom Elites appear at the minutes in
 -- Run.spawn.elites (above the cap; later ones with a random affix), and Swarm Rush (5:00 and 9:00) doubles the rate
 -- with Shadelings only and starts with a ring around every player. Enemies left far behind every player come back
--- on the spawn ring, so running in circles with a trailing crowd does not stop the pressure. Uses EnemySim;
--- AdminService pauses it and spawns test waves and elites.
+-- on the spawn ring, so running in circles with a trailing crowd does not stop the pressure. Since B4 the team's enemy
+-- stats from items (Enemies, Enemy HP, Enemy Damage; StatService.getTeamStat) scale the spawn rate and the HP and
+-- damage of new enemies, and every roll comes from RandomService's Spawns stream. Uses EnemySim; AdminService pauses
+-- it and spawns test waves and elites.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
@@ -16,10 +18,13 @@ local Config = require(ReplicatedStorage.Shared.Config)
 local EnemyKinds = require(ReplicatedStorage.Shared.Util.EnemyKinds)
 local Net = require(ReplicatedStorage.Shared.Net)
 local RunSchedule = require(ReplicatedStorage.Shared.Util.RunSchedule)
+local StatMath = require(ReplicatedStorage.Shared.Util.StatMath)
 
 local EnemySim = require(script.Parent.EnemySim)
 local MapService = require(script.Parent.MapService)
+local RandomService = require(script.Parent.RandomService)
 local RunDirector = require(script.Parent.RunDirector)
+local StatService = require(script.Parent.StatService)
 local SpawnRules = require(script.SpawnRules)
 
 local SPAWN_TRIES = 12 -- random ring points tried per enemy before giving up until the next one
@@ -31,7 +36,6 @@ local pending = 0 -- fractional enemies owed by the spawn rate
 local lastMinutes = 0 -- run time of the last update, to notice elite and Swarm Rush times passing
 local recycleTimer = 0
 local recycleIds: { number } = {}
-local rng = Random.new()
 local obstacles: { SpawnRules.Circle } = MapService.getObstacles()
 local bounds: SpawnRules.Rect = (function()
 	local arena = MapService.getArenaBounds()
@@ -44,7 +48,11 @@ local bounds: SpawnRules.Rect = (function()
 end)()
 
 local function roll(): number
-	return rng:NextNumber()
+	return RandomService.number("Spawns")
+end
+
+local function pickIndex(count: number): number
+	return RandomService.stream("Spawns"):NextInteger(1, count)
 end
 
 local function minutes(): number
@@ -86,8 +94,12 @@ local function spawnAt(
 ): boolean
 	local tiers = Config.Difficulty.tiers
 	local tier = tiers[RunDirector.getDifficulty()] or tiers[Config.Difficulty.default]
-	local hpMultiplier = SpawnRules.hpFactor(atMinutes) * tier.enemyHp
-	local damageMultiplier = SpawnRules.damageFactor(atMinutes) * tier.enemyDamage
+	local hpMultiplier = SpawnRules.hpFactor(atMinutes)
+		* tier.enemyHp
+		* StatMath.enemyFactor(StatService.getTeamStat("enemyHp"))
+	local damageMultiplier = SpawnRules.damageFactor(atMinutes)
+		* tier.enemyDamage
+		* StatMath.enemyFactor(StatService.getTeamStat("enemyDamage"))
 	return EnemySim.spawn(enemyId, x, z, hpMultiplier, damageMultiplier, elite, affix) ~= nil
 end
 
@@ -115,7 +127,7 @@ end
 -- random affix. Returns its name, or nil without a spot.
 local function spawnElite(anchor: Anchor, atMinutes: number): string?
 	local enemyId = SpawnRules.pickEnemy(SpawnRules.mixAt(atMinutes), roll())
-	local affix = if SpawnRules.affixesAt(atMinutes) then rng:NextInteger(1, #Config.Enemies.elite.affixes) else nil
+	local affix = if SpawnRules.affixesAt(atMinutes) then pickIndex(#Config.Enemies.elite.affixes) else nil
 	if not spawnOne(anchor, enemyId, atMinutes, true, affix) then
 		return nil
 	end
@@ -152,7 +164,7 @@ local function updateEvents(atMinutes: number, anchors: { Anchor }, cap: number)
 		return
 	end
 	for _ = 1, SpawnRules.elitesDue(from, atMinutes) do
-		local name = spawnElite(anchors[rng:NextInteger(1, #anchors)], atMinutes)
+		local name = spawnElite(anchors[pickIndex(#anchors)], atMinutes)
 		if name then
 			notifyParticipants(`A {name} appeared! Kill it for a chest.`)
 		end
@@ -179,7 +191,7 @@ local function respawn(id: number, anchors: { Anchor })
 	if not kind then
 		return
 	end
-	local anchor = anchors[rng:NextInteger(1, #anchors)]
+	local anchor = anchors[pickIndex(#anchors)]
 	local around, velocity = anchor.position, anchor.velocity
 	local heading = SpawnRules.aheadHeading(velocity.X, velocity.Z, roll())
 	local x, z =
@@ -230,7 +242,7 @@ local function update(dt: number)
 		recycleTimer = 0
 		recycle(anchors, cap)
 	end
-	pending += SpawnRules.currentRate(atMinutes, count) * dt
+	pending += SpawnRules.currentRate(atMinutes, count) * StatMath.enemyFactor(StatService.getTeamStat("enemyCount")) * dt
 	if pending < 1 then
 		return
 	end
@@ -245,7 +257,7 @@ local function update(dt: number)
 			return
 		end
 		pending -= 1
-		spawnOne(anchors[rng:NextInteger(1, #anchors)], SpawnRules.pickEnemy(mix, roll()), atMinutes)
+		spawnOne(anchors[pickIndex(#anchors)], SpawnRules.pickEnemy(mix, roll()), atMinutes)
 	end
 end
 
@@ -316,6 +328,7 @@ function SpawnDirector.getRate(): number
 		return 0
 	end
 	return SpawnRules.currentRate(minutes(), playerCount())
+		* StatMath.enemyFactor(StatService.getTeamStat("enemyCount"))
 end
 
 -- True while a Swarm Rush is running.

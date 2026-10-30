@@ -176,7 +176,8 @@ export type ShopOffer = {
 	tier: number, -- rarity 1..4 (Config.Items.tiers); weapons: their tier I-IV
 	count: number, -- items: how many the player owns after buying; weapons: copies of it the player carries now
 	isNew: boolean, -- the player has none of it
-	price: number, -- Shards; a locked offer keeps the price it had when it was rolled
+	price: number, -- Shards, with the player's Item Prices factor (since B4)
+	priceWave: number, -- the wave the price is based on; a locked offer keeps the wave it was rolled in
 	sold: boolean, -- bought in this shop; the slot stays empty
 	locked: boolean, -- stays through rerolls and into the next shop
 	merges: boolean, -- weapons: every slot is full, buying merges it into an owned copy of the same tier
@@ -218,6 +219,24 @@ export type ItemLoadout = {
 
 -- The local player's stats (StatService -> StatsController), stat id -> value in Config.Stats units.
 export type StatSheet = { [string]: number }
+
+-- An item effect paid out (EffectService -> ProcTextController, since B4), to its player: floating text over the
+-- character during a wave, a toast in the shop. Texts come from Util/EffectText.
+export type EffectProc = {
+	itemId: string?, -- the item; nil for what a stat does on its own (Orb Healing)
+	kind: "Heal" | "Shards" | "Stats" | "Blocked" | "Weapon",
+	amount: number?, -- Heal: HP, Shards: Shards
+	stats: { [string]: number }?, -- Stats: what was gained
+	weaponId: string?, -- Weapon: the weapon that went one tier up
+	tier: number?, -- Weapon: its new tier
+}
+
+-- A bonus from an item effect that is active right now (EffectService -> HUD, since B4), to its player.
+export type ActiveBonus = {
+	itemId: string,
+	kind: string, -- "Still", "Moving", "Wave" (until the wave ends), "Timed", "NextWave" (bought for this wave)
+	stats: { [string]: number },
+}
 
 -- One player's line on the results screen (RunStatsService -> ResultsController).
 export type RunSummaryPlayer = {

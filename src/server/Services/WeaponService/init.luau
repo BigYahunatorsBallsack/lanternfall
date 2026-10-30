@@ -7,6 +7,8 @@
 -- (ShopService), chests (UpgradeService) and AdminService call addWeapon, removeWeapon, merge, raiseTier and evolve
 -- (weapons are named by their uid, since B3 a player may carry the same weapon several times); StatService sets the
 -- owner's stats (setStats) and life steal heals through CombatService; the results screen (WP14) getDamageStats.
+-- Since B4 crits and life steal roll on RandomService's Combat stream, every hit goes to the hit listener
+-- (EffectService: Hit, Crit and Kill effects) and Changed fires whenever a player's weapons change.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -14,16 +16,26 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Shared = ReplicatedStorage.Shared
 local Config = require(Shared.Config)
 local Net = require(Shared.Net)
+local Signal = require(Shared.Util.Signal)
 local Types = require(Shared.Net.Types)
 local HitNumbers = require(Shared.Net.HitNumbers)
 
 local CombatService = require(script.Parent.CombatService)
 local EnemySim = require(script.Parent.EnemySim)
 local MapService = require(script.Parent.MapService)
+local RandomService = require(script.Parent.RandomService)
 local RunDirector = require(script.Parent.RunDirector)
 local Arsenal = require(script.Arsenal)
 
 local WeaponService = {}
+
+-- (player: Player): the player's weapons changed (added, removed, merged, tier, evolution)
+WeaponService.Changed = Signal.new()
+
+-- Hit listener: (ownerId, enemyId, dealt, crit, killed), set by EffectService. A plain callback, not a Signal:
+-- it runs for every hit.
+type HitListener = (ownerId: number, enemyId: number, dealt: number, crit: boolean, killed: boolean) -> ()
+local hitListener: HitListener? = nil
 
 local function loadBehaviors(): { [string]: Arsenal.Behavior }
 	local behaviors = {}
@@ -36,7 +48,6 @@ local function loadBehaviors(): { [string]: Arsenal.Behavior }
 end
 
 local floorY = Config.Map.arena.center.Y
-local rng = Random.new()
 local paused = false
 local ownerStats: { [Player]: Arsenal.Bonuses } = {} -- the latest stats from StatService, kept across runs
 
@@ -130,6 +141,10 @@ local arsenal = Arsenal.new({
 		push = function(id: number, dx: number, dz: number)
 			EnemySim.push(id, Vector3.new(dx, 0, dz))
 		end,
+		isElite = function(id: number): boolean
+			local _, elite = EnemySim.getKind(id)
+			return elite
+		end,
 	},
 	behaviors = loadBehaviors(),
 	maxWeapons = Config.Player.maxWeapons,
@@ -143,9 +158,15 @@ local arsenal = Arsenal.new({
 			CombatService.lifeSteal(player)
 		end
 	end,
+	onHit = function(weapon: Arsenal.Weapon, id: number, dealt: number, crit: boolean, killed: boolean)
+		local listener = hitListener
+		if listener then
+			listener(weapon.ownerId, id, dealt, crit, killed)
+		end
+	end,
 	sweepStep = Config.Simulation.weaponSweepStep,
 	random = function(): number
-		return rng:NextNumber()
+		return RandomService.number("Combat")
 	end,
 })
 
@@ -170,6 +191,7 @@ end
 
 local function send(player: Player)
 	Net.fireAllClients("Loadout", loadoutOf(player))
+	WeaponService.Changed:Fire(player)
 end
 
 local function sendAll()
@@ -292,6 +314,11 @@ function WeaponService.setStats(player: Player, stats: Arsenal.Bonuses)
 		arsenal:setBonuses(player.UserId, stats)
 		send(player)
 	end
+end
+
+-- Sets the function every weapon hit that took HP is reported to (EffectService), or nil.
+function WeaponService.setHitListener(listener: HitListener?)
+	hitListener = listener
 end
 
 -- Debug: switches every player's weapons off (no hits, no visuals) or back on. Resets at run start.

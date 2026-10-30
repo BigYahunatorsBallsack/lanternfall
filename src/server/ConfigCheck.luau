@@ -4,6 +4,7 @@
 
 local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
 local Config = require(Shared.Config)
+local EffectsConfig = require(Shared.Config.Effects)
 local Snapshot = require(Shared.Net.Snapshot)
 
 local ConfigCheck = {}
@@ -54,6 +55,54 @@ function ConfigCheck.run(): { string }
 		end
 	end
 
+	-- Item effects (Config.Effects, since B4): known trigger, action and stats, and the values each action needs.
+	local Effects = Config.Effects
+	local NEEDS_STATS =
+		{ Stats = true, PerX = true, Grow = true, WaveStats = true, TimedStats = true, NextWaveStats = true }
+	local NEEDS_AMOUNT =
+		{ Heal = true, Shards = true, ShardShare = true, HpFraction = true, RandomStats = true, Shields = true }
+	local function checkEffect(owner: string, effect: EffectsConfig.Effect)
+		if not Effects.triggers[effect.trigger] then
+			problem(`{owner} has unknown trigger {effect.trigger}`)
+		end
+		local passive = Effects.passiveActions[effect.action] == true
+		if not (passive or Effects.eventActions[effect.action]) then
+			problem(`{owner} has unknown action {effect.action}`)
+		elseif passive ~= (effect.trigger == "Always") then
+			problem(`{owner}: {effect.action} needs trigger {if passive then "Always" else "an event, not Always"}`)
+		end
+		if NEEDS_STATS[effect.action] and not effect.stats then
+			problem(`{owner}: {effect.action} needs stats`)
+		end
+		if effect.stats then
+			checkStats(owner, effect.stats)
+		end
+		if NEEDS_AMOUNT[effect.action] and not (effect.amount and effect.amount > 0) then
+			problem(`{owner}: {effect.action} needs an amount above 0`)
+		end
+		if effect.state and not Effects.states[effect.state] then
+			problem(`{owner} has unknown state {effect.state}`)
+		end
+		if effect.action == "PerX" then
+			local source = effect.source or ""
+			if not (Effects.perXSources[source] or Config.Stats.byId[source]) then
+				problem(`{owner} counts unknown source {source}`)
+			end
+			if not (effect.per and effect.per > 0) then
+				problem(`{owner}: PerX needs per above 0`)
+			end
+		end
+		if effect.trigger == "Timer" and not (effect.interval and effect.interval > 0) then
+			problem(`{owner}: Timer needs an interval above 0`)
+		end
+		if effect.action == "TimedStats" and not (effect.seconds and effect.seconds > 0) then
+			problem(`{owner}: TimedStats needs seconds above 0`)
+		end
+		if effect.chance and not (effect.chance > 0 and effect.chance <= 1) then
+			problem(`{owner} needs a chance between 0 and 1`)
+		end
+	end
+
 	for _, stat in Config.Stats.order do
 		local upgrade = stat.upgrade
 		if upgrade and #upgrade ~= #Config.Items.tiers then
@@ -81,6 +130,9 @@ function ConfigCheck.run(): { string }
 			problem(`Item {item.id} needs a limit of at least 1`)
 		end
 		checkStats(`Item {item.id}`, item.stats)
+		for index, effect in item.effects or {} do
+			checkEffect(`Item {item.id} effect {index}`, effect)
+		end
 	end
 	for tier = 1, #Config.Items.tiers do
 		local found = false

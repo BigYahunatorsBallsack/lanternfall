@@ -43,7 +43,7 @@ end
 local function setup(options)
 	options = options or {}
 	local world = newWorld()
-	local scene = { world = world, kills = {}, now = 1000, x = 0, z = 0 }
+	local scene = { world = world, kills = {}, now = 1000, x = 0, z = 0, elites = {} }
 	scene.arsenal = Arsenal.new({
 		enemies = {
 			queryCircle = function(x, z, radius, out)
@@ -65,6 +65,9 @@ local function setup(options)
 			push = function(id, dx, dz)
 				world:push(id, dx, dz)
 			end,
+			isElite = function(id)
+				return scene.elites[id] == true
+			end,
 		},
 		behaviors = options.behaviors or behaviors,
 		maxWeapons = options.maxWeapons or Config.Player.maxWeapons,
@@ -73,6 +76,7 @@ local function setup(options)
 		critMultiplier = Config.Player.critMultiplier,
 		minCooldown = Config.Player.minWeaponCooldown,
 		onLifeSteal = options.onLifeSteal,
+		onHit = options.onHit,
 		sweepStep = Sim.weaponSweepStep,
 		random = function()
 			return 0.5
@@ -241,6 +245,28 @@ describe("Arsenal", function()
 		spawn(scene, "Brute", 10, 0)
 		run(scene, 0.5)
 		expect(steals).toBe(1)
+	end)
+
+	it("deals more damage to elites with Damage vs Elites and reports every hit", function()
+		local hits = {}
+		local scene = setup({
+			bonuses = { eliteDamage = 50 },
+			onHit = function(weapon, id, dealt, crit, killed)
+				table.insert(hits, { id = id, dealt = dealt, crit = crit, killed = killed, weapon = weapon.id })
+			end,
+		})
+		give(scene, "SparkBolt")
+		local elite = spawn(scene, "Brute", 10, 0)
+		scene.elites[elite] = true
+		run(scene, 0.5)
+		local damage = W.SparkBolt.base.damage
+		expect(lost(scene, elite, Types.Brute.hp)).toBeNear(damage * 1.5)
+		expect(#hits).toBe(1)
+		expect(hits[1].id).toBe(elite)
+		expect(hits[1].dealt).toBeNear(damage * 1.5)
+		expect(hits[1].crit).toBe(false)
+		expect(hits[1].killed).toBe(false)
+		expect(hits[1].weapon).toBe("SparkBolt")
 	end)
 
 	it("rolls crits on hits", function()
