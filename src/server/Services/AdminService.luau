@@ -389,7 +389,7 @@ local handlers: { [string]: (player: Player) -> (boolean, string?) } = {
 	end,
 	HurtBoss = function(player)
 		local count = BossService.hurtAll(Config.Admin.hurtBossShare, player)
-		return true, if count > 0 then `Hurt {count} boss(es)` else "No boss alive"
+		return true, if count > 0 then `Hurt {count} boss(es) or champion(s)` else "No boss or champion alive"
 	end,
 	DropLegendaryCrate = function(player)
 		local position, reason = runPosition(player)
@@ -398,6 +398,14 @@ local handlers: { [string]: (player: Player) -> (boolean, string?) } = {
 		end
 		LootService.dropPickup(position, "Legendary")
 		return true, "Dropped a legendary crate"
+	end,
+	SpawnChampion = function(player)
+		local position, reason = runPosition(player)
+		if not position then
+			return false, reason
+		end
+		local name = BossService.spawnNextChampion(position)
+		return true, if name then `{name} appeared` else "No room for a champion"
 	end,
 }
 

@@ -53,6 +53,7 @@ local BUTTON_TEXT: { [string]: string } = {
 	SpawnBoss = "Spawn next boss",
 	HurtBoss = `Boss -{math.round(Config.Admin.hurtBossShare * 100)}% HP`,
 	DropLegendaryCrate = "Legendary crate",
+	SpawnChampion = "Spawn next champion",
 }
 
 local BUTTON_SIZE = Vector2.new(150, 30)
