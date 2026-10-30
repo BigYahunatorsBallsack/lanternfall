@@ -149,8 +149,8 @@ Spieler steuern nur Bewegung und einen Dash; Angreifen, Zielen und Aufsammeln pa
 | Aufsammelradius | 8 Studs | XP-Orbs, Heilung, Embers; „Pickup Range" in Prozent |
 | Rüstung | 0 | seit B2 prozentual wie Brotato (Tabelle unten) |
 | Regeneration | 0 | seit B2 der Wert „HP Regeneration" |
-| Schutz nach Treffer | 0,5 s | verhindert Sofort-Tod im Pulk |
-| Krit-Chance | 5 % | Krit = doppelter Schaden; „Crit Chance" kommt dazu |
+| Schutz nach Treffer | 0,4 s | verhindert Sofort-Tod im Pulk (seit B5, Brotato-Spanne 0,2–0,4 s; vorher 0,5 s) |
+| Krit-Chance | pro Waffe (meist 3 %) | seit B5 hat jede Waffe eigene Krit-Chance und eigenen Krit-Faktor (×1,5 bis ×2,5, Abschnitt 6); „Crit Chance" kommt dazu. Vorher 5 % und ×2 für alle |
 
 **Werte wie in Brotato (seit Paket B2, Zahlen in `Config/Stats.luau`, Formeln in `Util/StatMath.luau`):** Jeder Spieler hat im Run 17 Werte. Sie starten bei 0 (außer Max HP) und kommen aus Klasse, Items, Werte-Karten und Team-Level zusammen. Es gibt keine Obergrenze außer bei Ausweichen (60 %) und Krit-Chance (100 %); Items stapeln unbegrenzt (Owner-Entscheidung „Unbegrenzt wie Brotato"). Negative Werte sind möglich und schaden.
 
@@ -172,7 +172,7 @@ Spieler steuern nur Bewegung und einen Dash; Angreifen, Zielen und Aufsammeln pa
 | XP Gain (%) | eingesammelte XP × (1 + Wert/100) (nur aus Items) |
 | Pickup Range (%) | Aufsammelradius × (1 + Wert/100) (nur aus Items) |
 
-Engineering und Knockback aus Brotato fehlen bewusst (keine Bauten, kein Rückstoß-Wert).
+Engineering aus Brotato fehlt bewusst bis zu den Bauten (B12). Knockback gibt es seit B5 als Neben-Wert (unten).
 
 **Neben-Werte (seit B4, wie Brotatos „Secondary Stats"; Zahlen in `Config/Stats.luau`):** Sie kommen nur aus Items und stehen in der Werte-Liste nur, solange sie nicht 0 sind. Gegner-Werte zählen für das ganze Team zusammen (alle, die nicht „Out" sind) und gelten für Gegner, die danach erscheinen.
 
@@ -186,8 +186,15 @@ Engineering und Knockback aus Brotato fehlen bewusst (keine Bauten, kein Rückst
 | Damage vs Elites (%) | Waffenschaden gegen Elites (ab Paket 10 auch Bosse) × (1 + Wert/100) |
 | Enemies (%) | Spawnrate × (1 + Teamsumme/100), nie unter 10 % |
 | Enemy HP (%) / Enemy Damage (%) | HP bzw. Schaden neuer Gegner × (1 + Teamsumme/100), nie unter 10 % |
+| Knockback (seit B5) | Brotato-Punkte, die zum Rückstoß jeder Waffe dazukommen (0,1 Studs pro Punkt, Abschnitt 6) |
+| Explosion Damage / Explosion Size (%) (seit B5) | Schaden bzw. Radius jeder Explosion × (1 + Wert/100) |
+| Piercing (seit B5) | so viele Gegner mehr durchschlägt jedes Geschoss (Spark Bolt) |
+| Piercing Damage (%) (seit B5) | gibt vom Schadensabzug pro Durchschlag zurück (Brotato: −50 % pro Gegner), nie über vollen Schaden |
+| Bounce (seit B5) | so oft springt jedes Geschoss weiter (Spark Bolt); Chain Lightning bekommt so viele Sprünge mehr |
+| Burning Speed (%) (seit B5) | Brennen tickt so viel schneller (+20 % = alle 0,8 s statt 1 s; −100 % = alle 2 s) |
+| Burning Spread (seit B5) | jedes Brennen springt bei jedem Tick auf so viele Gegner in der Nähe über, die noch nicht brennen |
 
-Gegner-Tempo, Explosionen, Brennen, Durchschlag, Abprall und Rückstoß folgen mit Kampf-Tiefe (B5) und Gegner-Paket (B9).
+Explosionen, Brennen, Durchschlag, Abprall und Rückstoß kamen mit der Kampf-Tiefe (B5, Abschnitt 6); Gegner-Tempo folgt mit dem Gegner-Paket (B9).
 
 **Wie Werte zusammenkommen (seit B4, `StatService`, `Util/StatMath`):**
 
@@ -216,7 +223,7 @@ Jede Klasse: eine Startwaffe, ein passiver Bonus, ein eigenes Kostüm. Keine eig
 
 ## 6. Waffen, Items & Evolutionen
 
-v1 hat 6 Waffen, 78 Items (seit B4, vorher 46) und 2 Evolutionen. Seit B2 trägt jeder Spieler bis zu 6 Waffen (vorher 4). Seit B3 hat jede Waffe wie in Brotato eine Stufe I–IV statt Level 1–5; dieselbe Waffe darf man mehrmals tragen, zwei gleiche gleicher Stufe verschmelzen zur nächsten (Abschnitt 3). Items ersetzen seit B2 die 6 Passive: Man kann sie beliebig oft kaufen, sie stapeln ohne Grenze.
+v1 hat 6 Waffen, 90 Items (seit B5, vorher 78 bzw. 46) und 2 Evolutionen. Seit B2 trägt jeder Spieler bis zu 6 Waffen (vorher 4). Seit B3 hat jede Waffe wie in Brotato eine Stufe I–IV statt Level 1–5; dieselbe Waffe darf man mehrmals tragen, zwei gleiche gleicher Stufe verschmelzen zur nächsten (Abschnitt 3). Items ersetzen seit B2 die 6 Passive: Man kann sie beliebig oft kaufen, sie stapeln ohne Grenze.
 
 **Waffen (Startwerte Stufe I; seit B3 Stufen statt Level)**
 
@@ -290,7 +297,7 @@ Jedes Item ändert Werte (Abschnitt 4), die meisten mit einem Nachteil, wie in B
 | --- | --- |
 | Auslöser | immer (solange man das Item hat), beim Nehmen, Wellenstart, Wellenende (vor Harvesting), Shop öffnet, Neuwurf, Kauf, Verkauf, Level-up, eigener Waffentreffer, Krit, Kill, Ausweichen, getroffen (HP verloren), Orb aufgesammelt, Truhe geöffnet, Timer (alle n Sekunden einer Welle) |
 | Bedingung | Stillstand oder Bewegung (Abschnitt 4), Chance, nur Krits, nur Elites, ab bzw. bis Welle n, höchstens n-mal pro Welle |
-| Aktion | Werte (bedingt), Werte „pro X" (gehaltene Shards, verschiedene Waffen oder ein Wert; abgerundet, wahlweise mit Obergrenze), dauerhaft wachsen, Werte bis Wellenende (stapelbar), Werte für n Sekunden, Werte in der nächsten Welle, heilen, Shards, Anteil der gehaltenen Shards, HP auf einen Anteil setzen, Zufallswerte, Schild (Treffer ohne Schaden bis Wellenende), eine Waffe +1 Stufe |
+| Aktion | Werte (bedingt), Werte „pro X" (gehaltene Shards, verschiedene Waffen oder ein Wert; abgerundet, wahlweise mit Obergrenze), dauerhaft wachsen, Werte bis Wellenende (stapelbar), Werte für n Sekunden, Werte in der nächsten Welle, heilen, Shards, Anteil der gehaltenen Shards, HP auf einen Anteil setzen, Zufallswerte, Schild (Treffer ohne Schaden bis Wellenende), eine Waffe +1 Stufe; seit B5 bei Treffer, Krit oder Kill: den Gegner in Brand setzen, am Gegner explodieren (Abschnitt „Kampf-Tiefe“) |
 | Kopien | Wie Brotato: Ohne Chance wirkt ein Effekt so oft, wie man das Item hat; mit Chance würfelt jede Kopie einzeln. |
 
 Anzeige: Shop-Karten und Truhen zeigen die Effekte als Zeile unter den Werten („Wave end: +3% Damage"). Über der eigenen HP-Leiste stehen die gerade aktiven Boni („+8 Armor (standing still)", höchstens 4 Zeilen und „+N more"). Zahlt ein Effekt im Kampf aus, schwebt ein kurzer Text über der eigenen Figur („+50 HP", „+1 Shard", „Blocked!"); am Wellenende und im Shop kommt stattdessen eine Einblendung mit dem Item-Namen („Oath Ring: +3% Damage").
@@ -350,10 +357,10 @@ Jede Waffe = ein Datensatz im Config-Modul + ein kleines Verhaltens-Modul. Neue 
 | Waffe | Annahme |
 | --- | --- |
 | Orbit Blades | Die Klingen sind lange Schwerter, die von 2 Studs bis zum Radius (7) reichen, 1 Stud breit, 240°/s (Paket 7, vorher 180°/s). So treffen sie auch Gegner, die direkt am Spieler stehen (Blade Warden = „mitten rein"). Jeder Gegner höchstens alle 0,5 s; mit 2 Klingen wird jeder Punkt etwa 1,3-mal pro Sekunde überstrichen. Ruhen, solange der Spieler down ist. |
-| Spark Bolt | 60 Studs/s, Reichweite 40 Studs (etwa der sichtbare Bereich), Trefferradius 0,5. Schießt nur, wenn ein Gegner in Reichweite ist. Mehrere Bolts gehen an verschiedene nächste Gegner; gibt es zu wenige, fächern die übrigen um 12° um den nächsten auf. Durchbohrt 1 heißt: fliegt durch den ersten Gegner und stoppt am zweiten. Hindernisse halten Bolts nicht auf. |
-| Shockwave | Löst erst aus, wenn ein Gegner im Radius steht. Schubst überlebende Gegner 3 Studs vom Spieler weg, geteilt durch ihre Masse über 1 (Brute 0,5 Studs). Der Schubs ist neu gegenüber dem ursprünglichen Design. |
+| Spark Bolt | 60 Studs/s, Reichweite 40 Studs (etwa der sichtbare Bereich), Trefferradius 0,5. Schießt nur, wenn ein Gegner in Reichweite ist. Mehrere Bolts gehen an verschiedene nächste Gegner; gibt es zu wenige, fächern die übrigen um 12° um den nächsten auf. Durchbohrt 1 heißt: fliegt durch den ersten Gegner und stoppt am zweiten (seit B5 bekommt der zweite nur noch 50 %, Brotatos Abzug). Hindernisse halten Bolts nicht auf. |
+| Shockwave | Löst erst aus, wenn ein Gegner im Radius steht. Schubst überlebende Gegner 3 Studs vom Spieler weg (seit B5 Rückstoß 30 Punkte, weniger bei Gegnern mit Rückstoß-Widerstand: Brute 0,3 Studs). Der Schubs ist neu gegenüber dem ursprünglichen Design. |
 | Chain Lightning (Paket 8) | „Springt über 3 Gegner" heißt: trifft 3 Gegner insgesamt (jedes Level einer mehr). Der erste muss höchstens 25 Studs entfernt sein, jeder weitere höchstens 12 Studs vom vorigen; nie zweimal derselbe. Alle Treffer sofort. Wartet auf einen Gegner in Reichweite. |
-| Thorn Trail (Paket 8) | Alle 2 Studs Weg legt der Spieler ein Dornenfeld mit 2,5 Studs Radius ab (Fläche-Bonus vergrößert es); steht er still, liegt immer eins unter ihm. Alle 0,5 s trifft die Spur jeden Gegner darauf einmal, auch wenn er auf mehreren Feldern steht. Höchstens 40 Felder pro Spieler. Liegende Felder wirken weiter, wenn der Spieler down ist. |
+| Thorn Trail (Paket 8) | Alle 2 Studs Weg legt der Spieler ein Dornenfeld mit 2,5 Studs Radius ab (Fläche-Bonus vergrößert es); steht er still, liegt immer eins unter ihm. Alle 0,5 s trifft die Spur jeden Gegner darauf einmal, auch wenn er auf mehreren Feldern steht. Höchstens 40 Felder pro Spieler. Liegende Felder wirken weiter, wenn der Spieler down ist. Seit B5 verlangsamt jeder Tick die getroffenen Gegner 0,6 s lang um 30 % (Annahme), solange sie auf den Dornen stehen also dauerhaft. |
 | Boomerang Axe (Paket 8) | Fliegt mit 40 Studs/s 20 Studs weit zum nächsten Gegner, dreht um und fliegt zurück zu dem Ort, an dem der Spieler jetzt ist. Trifft jeden Gegner einmal auf dem Hinweg und einmal auf dem Rückweg, Trefferbreite 1,2 Studs. Gefangen bei 2 Studs Abstand, spätestens nach 3 s weg. Mehrere Äxte gehen an verschiedene Gegner, sonst 20° gefächert. |
 
 **Evolutionen (seit Paket 8):** Blade Storm (8 Klingen, Radius 10, doppelter Schaden, rot leuchtend) und Starfire (jeder Treffer eines Bolts explodiert mit 6 Studs Radius; die anderen Gegner in der Explosion bekommen den vollen Bolt-Schaden, Annahme) funktionieren. Der Server prüft die Voraussetzung (eine Kopie der Waffe auf Stufe IV, seit B3, vorher Level 5; noch nicht entwickelt, mindestens 1 des Items). Seit Paket 9 kommen sie aus Elite-Truhen (Abschnitt 8). Zum Testen bleibt der Knopf „Evolve weapons": Er hebt Waffen mit Evolution auf Stufe IV, gibt das fehlende Item einmal und entwickelt sie. „Weapons +1 tier" hebt jede Waffe eine Stufe.
@@ -362,18 +369,73 @@ Jede Waffe = ein Datensatz im Config-Modul + ein kleines Verhaltens-Modul. Neue 
 
 **Items im Spiel (seit B2):** Items kommen aus dem Shop und aus Elite-Truhen (mindestens Uncommon, Abschnitt 8). Ihre Werte addieren sich mit Klasse, Werte-Karten und Team-Level (Blade Warden mit 2 × Vitality: 100 + 20 + 2 × 30 = 180 HP, Damage −2 %). Mehr Max HP heilt um den Unterschied, weniger kappt nur. Speed ändert das Lauftempo (nicht den Dash). Oben links im HUD stehen die Items mit Anzahl („Might x3") in der Farbe ihrer Stufe. Die Passive (Paket 6 bis B1) gibt es nicht mehr.
 
-**Waffen und Werte (seit B2, `Config/Weapons.luau` → `class`, `scaling`, `rangeKeys`):** Jede Waffe hat eine Art, die bestimmt, welcher flache Schaden zählt, und Werte, die mit Range wachsen:
+**Waffen und Werte (seit B2, seit B5 mit Brotatos Kampfwerten; `Config/Weapons.luau` → `kind`, `classes`, `scaling`, `rangeKeys`, `base`):** Jede Waffe ist Melee oder Ranged (Range wirkt bei Melee nur zur Hälfte), gehört zu 1–2 Waffenklassen (unten) und skaliert mit einem oder mehreren Werten (Brotatos Schreibweise „15 (+100 % Melee)"). Seit B5 hat jede Waffe eigene Krit-Werte und einen Rückstoß in Brotato-Punkten. Bis B5 hieß das Feld `class` (Melee/Ranged/Elemental); Elemental ist jetzt eine Waffenklasse.
 
-| Waffe | Art | Skalierung | wächst mit Range |
-| --- | --- | --- | --- |
-| Orbit Blades | Melee | 100 % Melee Damage | Radius (Hälfte) |
-| Spark Bolt | Ranged | 100 % Ranged Damage | Reichweite |
-| Shockwave | Melee | 100 % Melee Damage | Radius (Hälfte) |
-| Chain Lightning | Elemental | 100 % Elemental Damage | Reichweite und Sprungweite |
-| Thorn Trail | Elemental | 100 % Elemental Damage | – |
-| Boomerang Axe | Ranged | 100 % Ranged Damage | Reichweite |
+| Waffe | Art | Klassen | Skalierung | Krit | Rückstoß | Besonderes | wächst mit Range |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Orbit Blades | Melee | Edge, Spectral | 100 % Melee | ×2 (8 %) | 2 | eigener Life Steal +3 % ab Stufe III, +6 % auf IV | Radius (Hälfte) |
+| Spark Bolt | Ranged | Arcane, Keen | 100 % Ranged | ×1,5 (20 %) | 8 | durchschlägt 1 (−50 % pro Gegner), springt mit Bounce | Reichweite |
+| Shockwave | Melee | Bludgeon, Colossal | 100 % Melee + 50 % Armor | ×1,75 (3 %) | 30 | – | Radius (Hälfte) |
+| Chain Lightning | Ranged | Arcane, Keen | 100 % Elemental | ×2 (3 %) | 0 | Bounce gibt Sprünge | Reichweite und Sprungweite |
+| Thorn Trail | Melee | Primal, Arcane | 80 % Elemental + 50 % Melee | ×1,5 (0 %) | 0 | verlangsamt 30 % | – |
+| Boomerang Axe | Ranged | Edge, Primal | 80 % Ranged + 50 % Melee | ×2,5 (5 %) | 15 | durchschlägt alles ohne Abzug | Reichweite |
 
-Allgemein: Krit-Chance 5 % pro Treffer plus Crit Chance, Krit = doppelter Schaden (`Config/Player.luau`). Schaden pro Stufe addiert sich auf den Grundwert (seit B3; Orbit Blades IV = 210 %). Dann: Schaden = (Stufen-Schaden + Skalierung · flacher Schaden) · (1 + Damage/100), mindestens 1. Attack Speed teilt Cooldowns, Trefferpausen und Tick-Abstände (nie unter 0,2 s) und beschleunigt das Drehen der Klingen. Spark Mage feuert also alle 0,9 / 1,1 ≈ 0,82 s. Jeder Treffer mit Schaden würfelt Life Steal (Abschnitt 4).
+Die Zuordnung zu Klassen, Krit-Werte und Skalierung sind unsere Annahmen nach ähnlichen Brotato-Waffen (Knife/Chopper für die Klingen, Crossbow für den Bolt, Hammer für die Shockwave, Lightning Shiv für die Kette, Torch für die Dornen); Urteil des Owners steht aus.
+
+Allgemein: Krit-Chance pro Treffer = Krit der Waffe + Crit Chance (bis 100 %), Krit = Schaden × Krit-Faktor der Waffe (seit B5; vorher 5 % und ×2 für alle; Waffen ohne eigene Werte und Item-Explosionen 3 % und ×2, `Config/Player.luau`). Schaden pro Stufe addiert sich auf den Grundwert (seit B3; Orbit Blades IV = 210 %). Dann: Schaden = (Stufen-Schaden + Σ Skalierung · Wert) · (1 + Damage/100), mindestens 1. Attack Speed teilt Cooldowns, Trefferpausen und Tick-Abstände (nie unter 1/12 s, also höchstens 12 Angriffe pro Sekunde wie Brotato; vor B5 0,2 s) und beschleunigt das Drehen der Klingen. Spark Mage feuert also alle 0,9 / 1,1 ≈ 0,82 s. Jeder Treffer mit Schaden würfelt Life Steal (Abschnitt 4; seit B5 Life Steal der Waffe + Wert).
+
+**Kampf-Tiefe (seit B5, Regeln in `Config/Combat.luau`, Server: `WeaponService/Arsenal`, `WeaponStats`, `Afflictions`):** Mechaniken und Zahlen wie in Brotato (brotato.wiki.spellsandguns.com), wo Brotato keine Zahl nennt, steht „Annahme".
+
+| Mechanik | Regel |
+| --- | --- |
+| Rückstoß | Waffen-Rückstoß + Knockback-Wert in Brotato-Punkten, 0,1 Studs pro Punkt (Hammer 30 = 3 Studs). Immer gerade vom Spieler weg, nur überlebende Gegner, nicht bei Explosionen und nach einem Abprall. Gegner behalten 1 − Rückstoß-Widerstand davon (Abschnitt 7), Elites ignorieren Rückstoß ganz. |
+| Brennen | „3×1 (+100 % Elemental)": so viele Ticks mit diesem Schaden, einer pro Sekunde, der Schaden wächst mit 100 % Elemental Damage und Damage %. Brennen stapelt nicht: Ein neues Brennen auf einem brennenden Gegner behält den höheren Schaden und die längere Dauer. Kein Krit, kein Life Steal; ein Brenn-Tick zählt nicht als Treffer (keine Hit-Effekte), ein Kill durch Brennen aber als Kill. Burning Speed verkürzt den Abstand (+20 % = 0,8 s, nie unter 0,2 s). Burning Spread: Bei jedem Tick springt ein Brennen auf so viele der nächsten Gegner im Umkreis von 8 Studs über, die noch nicht brennen (Annahme), und die Kopien springen weiter. Brennende Gegner glühen glutrot und sprühen Funken, Brenn-Schaden erscheint als orange Zahl. |
+| Verlangsamen | Eine Waffe mit `slow` nimmt getroffenen Gegnern für `slowSeconds` diesen Anteil ihres Tempos (Laufen und Sturm). Stapelt nicht: Der stärkere Slow gewinnt, ein gleich starker verlängert. Verlangsamte Gegner sind frostblau. Brotato nennt keine Zahlen (Annahme). |
+| Explosionen | Waffen-Explosionen (Starfire) treffen alle Gegner im Radius außer dem getroffenen mit dem Schaden des Treffers × `explosionDamage`; Item-Explosionen mit eigenem Schaden und `size` × 6 Studs (100 % Größe, Annahme). Explosion Size vergrößert jeden Radius, Explosion Damage jeden Explosionsschaden. Explosionen können kritten, haben keinen Life Steal und keinen Rückstoß. Eigene Anzeige (Blitz, Feuerring, Funken) für alle Explosionen. |
+| Durchschlag | Jeder weitere durchschlagene Gegner bekommt 50 % weniger als der vorige (Brotato), außer die Waffe hat einen eigenen Abzug (Boomerang Axe 0 %). Piercing gibt mehr Durchschläge, Piercing Damage gibt vom Abzug zurück (nie über vollen Schaden). |
+| Abprall | Ein Geschoss mit Bounce fliegt vom getroffenen Gegner zu einem zufälligen anderen in 25 Studs (Brotato: unbegrenzt; Annahme), jeder Abprall 50 % weniger, ohne Rückstoß. Abprallen kommt vor Durchschlagen. Chain Lightning ist ein Abpraller ohne Abzug: Bounce gibt ihr Sprünge. |
+| Angriffstempo | höchstens 12 Angriffe pro Sekunde (kürzester Cooldown 1/12 s). |
+| Schutz nach Treffer | 0,4 s (Abschnitt 4). |
+
+**Waffenklassen (seit B5, Brotatos „Sets", `Config/WeaponClasses.luau`, `Util/WeaponClasses.luau`):** Jede Waffe gehört zu 1–2 Klassen. Wer 2–6 Waffen einer Klasse trägt (Kopien zählen mit), bekommt den Bonus dieser Anzahl (die Stufen ersetzen sich, sie addieren sich nicht); mehr als 6 zählen wie 6. Die Boni kommen zu den dauerhaften Werten (Abschnitt 4) und ändern sich sofort, wenn man eine Waffe kauft, verkauft oder verschmilzt. Zahlen von Brotato (Max HP mal 10), Namen eigene. Brotatos Tool-Klasse (Engineering) kommt mit den Bauten (B12), seine Legendary-Klasse hat bei uns noch keine Waffen. Der Shop bevorzugt mit 15 % Waffen, die eine Klasse mit einer getragenen Waffe teilen (seit B3, jetzt nach Waffenklassen statt Melee/Ranged/Elemental).
+
+| Klasse | Vorbild | 2 Waffen | 3 | 4 | 5 | 6 |
+| --- | --- | --- | --- | --- | --- | --- |
+| Edge | Blade | +1 Melee Damage, +1 % Life Steal | +2, +2 % | +3, +3 % | +4, +4 % | +5, +5 % |
+| Bludgeon | Blunt | +1 Armor, −2 % Speed | +1 Armor, +30 Max HP, −4 % | +2, +30, −6 % | +2, +60, −8 % | +3, +60, −10 % |
+| Arcane | Elemental | +1 Elemental Damage | +2 | +3 | +4 | +5 |
+| Spectral | Ethereal | +6 % Dodge, −1 Armor | +12 %, −2 | +18 %, −3 | +24 %, −4 | +30 %, −5 |
+| Volatile | Explosive | +5 % Explosion Size | +10 % | +15 % | +20 % | +25 % |
+| Longshot | Gun | +10 Range | +20 | +30 | +40 | +50 |
+| Colossal | Heavy | +5 % Damage | +10 % | +15 % | +20 % | +25 % |
+| Remedy | Medical | +1 HP Regeneration | +2 | +3 | +4 | +5 |
+| Knightly | Medieval | +1 Armor | +1 Armor, +3 % Dodge | +2, +3 % | +2, +6 % | +3, +6 % |
+| Choir | Musical | +5 Luck | +10 | +15 | +20 | +25 |
+| Keen | Precise | +3 % Crit Chance | +6 % | +9 % | +12 % | +15 % |
+| Primal | Primitive | +30 Max HP | +60 | +90 | +120 | +150 |
+| Steward | Support | +5 Harvesting | +10 | +15 | +20 | +25 |
+| Brawl | Unarmed | +3 % Dodge | +6 % | +9 % | +12 % | +15 % |
+
+Anzeige: Shop-Karten von Waffen zeigen ihre Klassen und eine Schadenszeile („21 (+100 % Ranged Damage) · crit x1.5 (20 %)"); die Werte-Liste im Shop hat unten den Teil WEAPON CLASSES mit jeder getragenen Klasse, ihrer Anzahl und dem aktuellen Bonus. Tooltips mit Fortschritt folgen in Paket 14.
+
+**Items für die Kampf-Werte (seit B5):** 12 neue Items, jedes mit Mechanik und Zahlen eines Brotato-Items, Name eigener. Brotato-Preise, die wir nicht kennen, sind Annahmen. Zum Testen gibt der Debug-Knopf „Next combat item" sie der Reihe nach.
+
+| Item | Stufe | Grundpreis | Werte und Effekte | Vorbild (Brotato) |
+| --- | --- | --- | --- | --- |
+| Smoldering Wick | Common | 25 | Hit: burn 3x1 (+100% Elemental Damage) (25%) (max. 4) | Scared Sausage |
+| Ash Serpent | Common | 25 | +1 Burning Spread, -10 Max HP | Snake |
+| Bellows | Uncommon | 40 (Annahme) | +20% Burning Speed (max. 2) | Eyes Surgery |
+| Black Powder | Common | 20 (Annahme) | +15% Explosion Damage | Dynamite |
+| Fulminate Jar | Rare | 60 (Annahme) | +25% Explosion Size | Plastic Explosive |
+| Bursting Sigil | Rare | 65 (Annahme) | Kill: explode for 10 (+50% Melee Damage) (20%), Größe 65 % | Rip and Tear |
+| Needle Charm | Rare | 75 | +1 Piercing, -10% Damage | Bandana |
+| Hollow Nail | Common | 25 | +1 Piercing, -20% Piercing Damage, -5% Damage, -3 Knockback (max. 1) | Sharp Bullet |
+| Gourd Lantern | Uncommon | 40 | +15% Piercing Damage, -2% Damage | Pumpkin |
+| Mirror Shard | Legendary | 110 | +1 Bounce, -25% Damage | Ricochet |
+| Iron Gauntlet | Common | 20 (Annahme) | +3 Knockback | Boxing Glove |
+| Recoil Spring | Rare | 60 (Annahme) | +5 Knockback; +1% Damage per 1 Knockback (max. 3) | Coil |
+
+Effekt-Aktionen dazu (`Config/Effects.luau`): „Burn" (Gegner in Brand setzen) und „Explode" (Explosion am Gegner), nur bei Treffer, Krit oder Kill. Mehrere Kopien mit Chance würfeln einzeln; zünden mehrere Explosions-Kopien zugleich, addiert sich ihr Schaden. Item-Brände und -Explosionen passieren am Ende des Simulationsschritts, eine Kettenreaktion (Explosion tötet, Kill lässt explodieren) läuft also Schritt für Schritt.
 
 ## 7. Gegner, Elites & Boss
 
@@ -389,6 +451,8 @@ Allgemein: Krit-Chance 5 % pro Treffer plus Crit Chance, Krit = doppelter Schade
 | Abyss Brute | stärkerer Brute, rote Augen | 140 | 8,5 | 18 pro Kontakt | 8 | 8 |
 | Gloom Elite | beliebiger Typ, leuchtet, 1,5× so groß, ab 6:00 mit Eigenschaft | 8× | 0,9× | 1,5× | 25 + Truhe | 2, 4, 6 (2×), 8, 10 (2×) |
 | The Lantern Eater | Boss | 4.000 × Spielerfaktor | 9 | siehe unten | – | Welle 20 (ab Paket 10; bis B3 nach Welle 12) |
+
+**Rückstoß-Widerstand (seit B5, `Config/Enemies.luau` → `knockbackResistance`):** Anteil eines Rückstoßes, den ein Gegner ignoriert, nach ähnlichen Brotato-Gegnern: Shadeling, Splitling und Abyss Shadeling 0, Splitter 0,5, Charger 0,8, Brute und Abyss Brute 0,9, Spitter 0,95; Gloom Elites (und später Bosse) 1, also gar kein Rückstoß. Vorher wurde der Schubs durch die Masse über 1 geteilt (Brute 1/6); ohne eigenen Wert gilt das weiter.
 
 **Boss: The Lantern Eater**
 
@@ -763,11 +827,11 @@ tests/               Unit-Tests für reine Module (Runner in tools/luau-test-run
 - Hindernisse sind Kreise (`Config/Map.luau` → `arena.obstacles`); MapService baut dazu runde Säulen, an denen auch Spieler hängen bleiben.
 - Gemessen im Test-Runner: 140 Gegner mit 4 Spielern ≈ 1–1,6 ms pro Schritt (Budget 4 ms).
 - Waffentreffer und Projektile serverseitig als Daten gegen dasselbe Raster.
-- Snapshots gebündelt per UnreliableRemoteEvent: 9 Byte pro Gegner (ID, Position, Typ, HP-Anteil, Flags) in einem `buffer`; bei 140 Gegnern und 15 Hz ≈ 19 KB/s pro Spieler. Gesendet wird nur an die Teilnehmer des Runs. Das Flag-Byte (seit dem Spaß-Paket nach Paket 9) trägt in 2 Bit den Zustand eines Chargers (läuft, holt aus, stürmt, erholt sich) und in 2 Bit die Eigenschaft einer Elite, seit dem Fix nach Paket 9d in den übrigen 4 Bit die Sturmrichtung eines Chargers (16 Stufen, also höchstens gut 11° daneben). So schaut ein Charger beim Ausholen und Stürmen in seine Sturmrichtung, und der rote Streifen zeigt dorthin; vorher drehte er sich nach der Laufrichtung, und Nachbarn, die ihn beim Ausholen anschoben, drehten ihn weg (Owner-Feedback).
-- Ein UnreliableRemoteEvent-Paket darf höchstens ~900 Byte haben: ein Tick wird gleichmäßig auf Pakete mit max. 90 Gegnern verteilt (8 Byte Kopf mit Tick, Teil, Teilanzahl und Gegnerzahl + 9 Byte pro Gegner, also höchstens 818 Byte). Der Client nutzt einen Tick erst, wenn alle Teile da sind; geht ein Paket verloren, fällt nur dieser Tick aus. Format in `src/shared/Net/Snapshot.luau`.
+- Snapshots gebündelt per UnreliableRemoteEvent: 10 Byte pro Gegner (ID, Position, Typ, HP-Anteil, Flags, seit B5 ein Status-Byte: Bit 0 brennt, Bit 1 verlangsamt; vorher 9 Byte) in einem `buffer`; bei 140 Gegnern und 15 Hz ≈ 21 KB/s pro Spieler (vorher 19). Gesendet wird nur an die Teilnehmer des Runs. Das Flag-Byte (seit dem Spaß-Paket nach Paket 9) trägt in 2 Bit den Zustand eines Chargers (läuft, holt aus, stürmt, erholt sich) und in 2 Bit die Eigenschaft einer Elite, seit dem Fix nach Paket 9d in den übrigen 4 Bit die Sturmrichtung eines Chargers (16 Stufen, also höchstens gut 11° daneben). So schaut ein Charger beim Ausholen und Stürmen in seine Sturmrichtung, und der rote Streifen zeigt dorthin; vorher drehte er sich nach der Laufrichtung, und Nachbarn, die ihn beim Ausholen anschoben, drehten ihn weg (Owner-Feedback).
+- Ein UnreliableRemoteEvent-Paket darf höchstens ~900 Byte haben: ein Tick wird gleichmäßig auf Pakete mit max. 89 Gegnern verteilt (8 Byte Kopf mit Tick, Teil, Teilanzahl und Gegnerzahl + 10 Byte pro Gegner, also höchstens 898 Byte; bis B5 90 × 9 Byte). Der Client nutzt einen Tick erst, wenn alle Teile da sind; geht ein Paket verloren, fällt nur dieser Tick aus. Format in `src/shared/Net/Snapshot.luau`.
 - Gegner-IDs (1–65535) werden reihum vergeben, eine frei gewordene ID kommt also erst nach Zehntausenden Spawns wieder.
 - Clients (`EnemyRenderer`): Modell-Pool pro Gegnertyp, Interpolation zwischen zwei Ticks (~100 ms hinter dem neuesten; die Uhr gleicht unregelmäßige Ankunft weich aus und läuft nie über den neuesten Tick hinaus, sonst sprangen Gegner nach einer Pause wie dem Shop immer wieder auf alte Stände zurück und flackerten), Positionen gesammelt per `workspace:BulkMoveTo`, kurzes weißes Aufblitzen bei Treffern (0,1 s). Modelle aus 5–20 Teilen in der Größe des Kollisionskreises (`EnemyRenderer/Models.luau`, Look in Abschnitt 14, seit Paket 9d; vorher Platzhalter aus 2–5 Teilen). `Models.pose` rechnet pro Bild jedes sichtbare Teil aus Boden-Punkt, Körper und Gelenk (vorberechnete Drehpunkte) und hängt es an die BulkMoveTo-Liste; unsichtbare Teile (Elite-Eigenschaft nicht aktiv, Sturm-Streifen aus) werden nicht bewegt. Bei 140 Gegnern sind das ≈ 1700 Teile pro Bild. Ab 80 Gegnern (am Handy ab 40, zurück unter 85 % davon) lassen normale Gegner kleine Verzierungen weg (Klauen, Filter, Saum, Bänder, `LocalTransparencyModifier`), das spart gut ein Viertel (≈ 1260 Teile); Elites behalten alles (`Config/Feedback.luau` → `enemyDetail`). Verschwindet ein Gegner aus den Snapshots, ist er tot: Funken und Seelen-Irrlichter in seiner Augenfarbe (`EnemyRenderer/DeathBursts.luau` über `Vfx/Bursts`).
-- **Schadenszahlen** (seit dem Spaß-Paket nach Paket 9): WeaponService sammelt pro Schritt die eigenen Treffer jedes Spielers (pro Gegner zusammengezählt, mit Krit- und Kill-Flag) und schickt sie als `buffer` über das UnreliableRemoteEvent `DamageNumbers` nur an diesen Spieler: 1 Byte Kopf + 7 Byte pro Treffer, höchstens 100 Treffer (701 Byte) pro Schritt; Format in `src/shared/Net/HitNumbers.luau`. Üblich sind 1–5 KB/s, im schlimmsten Fall ≈ 10 KB/s. `DamageNumberController` zeigt höchstens 40 Zahlen gleichzeitig (am Handy 20) als gepoolte BillboardGuis an einem Anker-Teil.
+- **Schadenszahlen** (seit dem Spaß-Paket nach Paket 9): WeaponService sammelt pro Schritt die eigenen Treffer jedes Spielers (pro Gegner zusammengezählt, mit Krit-, Kill- und seit B5 Brenn-Flag für orange Zahlen) und schickt sie als `buffer` über das UnreliableRemoteEvent `DamageNumbers` nur an diesen Spieler: 1 Byte Kopf + 7 Byte pro Treffer, höchstens 100 Treffer (701 Byte) pro Schritt; Format in `src/shared/Net/HitNumbers.luau`. Üblich sind 1–5 KB/s, im schlimmsten Fall ≈ 10 KB/s. `DamageNumberController` zeigt höchstens 40 Zahlen gleichzeitig (am Handy 20) als gepoolte BillboardGuis an einem Anker-Teil.
 - Gegner-Teile verankert, ohne Kollision, ohne Schatten.
 
 **Schnittstellen der Gegner-Engine für spätere Pakete**
@@ -796,7 +860,8 @@ tests/               Unit-Tests für reine Module (Runner in tools/luau-test-run
 
 - **WeaponService** (Server) gibt jedem Teilnehmer beim Run-Start die Klassen-Waffe und führt nach jedem Gegner-Schritt (15 Hz, Signal `EnemySim.Stepped`) alle Waffen aus. Die Regeln stehen als reines Modul in `WeaponService/Arsenal.luau` (mit Unit-Tests gegen eine echte Gegner-Welt), die Werte rechnet `WeaponStats.luau` aus: Grundwert + Stufen-Schritte + Evolution + Boni des Spielers. Seit B3 hat jede getragene Waffe eine `uid` (Kopien derselben Waffe sind möglich); Shop, Client und Debug-Knöpfe nennen Waffen über sie (`addWeapon(player, id, tier)`, `removeWeapon`, `merge`, `raiseTier`, `evolve(player, uid, evolutionId)`, `findMergePartner`).
 - Pro Spieler bis zu 6 Waffen (seit B2, vorher 4), jede Stufe I–IV (seit B3, vorher Level 1–5). Pro Schritt und Waffe: erst `step` des Verhaltens (Klingen drehen, Projektile fliegen), dann, wenn der Cooldown um ist und der Spieler lebt, `fire` (neuer Angriff). Findet `fire` kein Ziel, versucht es die Waffe im nächsten Schritt wieder; Schüsse werden nicht angespart. Was schon fliegt, fliegt weiter, auch wenn der Spieler down geht.
-- **Neue Waffe** = Datensatz in `Config/Weapons.luau` + Verhalten in `WeaponService/Behaviors/<behavior>.luau` (Server, entscheidet die Treffer) + Aussehen in `WeaponRenderer/Visuals/<behavior>.luau` (Client, nur Anzeige). Das Verhalten erreicht die Welt nur über den Kontext: Gegner abfragen (Kreis, Strecke, nächste Gegner), `hit` (Schaden mit Krit, pro Waffe gezählt), `push` (Rückstoß), `emit` (Effekt für die Clients). Eine Waffe ohne Verhaltens-Modul kann niemand bekommen; `ConfigCheck` meldet, wenn einer Klassen-Waffe das Modul fehlt.
+- **Neue Waffe** = Datensatz in `Config/Weapons.luau` + Verhalten in `WeaponService/Behaviors/<behavior>.luau` (Server, entscheidet die Treffer) + Aussehen in `WeaponRenderer/Visuals/<behavior>.luau` (Client, nur Anzeige). Das Verhalten erreicht die Welt nur über den Kontext: Gegner abfragen (Kreis, Strecke, nächste Gegner), `hit` (Schaden mit Krit, pro Waffe gezählt; seit B5 auch Rückstoß vom Spieler weg, Verlangsamen und Brennen aus den Werten der Waffe), `push` (Rückstoß), `explode` (seit B5: Explosion mit den Explosions-Werten der Waffe), `bounceTarget` (seit B5: nächstes Ziel eines abprallenden Geschosses), `emit` (Effekt für die Clients). Eine Waffe ohne Verhaltens-Modul kann niemand bekommen; `ConfigCheck` meldet, wenn einer Klassen-Waffe das Modul fehlt.
+- **Kampf-Tiefe (seit B5):** `WeaponService/Afflictions.luau` führt das Brennen als Daten (pro Gegner höchstens ein Brand, Ticks am Ende jedes Waffenschritts, Ausbreitung); Verlangsamen und die Brenn-Markierung stehen als Spalten in der Gegner-Welt (`World.slow`, `setBurning`) und gehen im Status-Byte an die Clients. Item-Effekte (EffectService, Aktionen „Burn" und „Explode") reihen Brände und Explosionen über `WeaponService.burnEnemy`/`explodeAt` ein; das Arsenal führt sie am Ende des Schritts aus, damit sich Treffer-Schleifen nicht gegenseitig stören. Der Treffer-Rückruf meldet jetzt auch die Quelle („Weapon", „Explosion", „Burn"). Explosionen zeichnet ein eigenes Visual (`WeaponRenderer/Visuals/Explosion.luau`). Wellenende löscht alle Brände. Gemessen im Test-Runner: 4 Spieler mit je 6 Waffen auf Stufe IV zwischen 140 Gegnern ≈ 0,45 ms für die Waffen (Budget 4 ms).
 - Treffer sind Daten gegen das Gegner-Raster, keine Roblox-Physik: Klingen und Projektile werden als Strecke zwischen zwei Schritten geprüft, damit nichts durchrutscht (Klingen in Stücken von höchstens 1,5 Studs an der Spitze).
 - **Netzwerk:** `Loadout` (Waffen, Level und fertige Werte eines Spielers) geht bei jeder Änderung an alle; `WeaponEffects` bündelt pro Schritt die Effekte (Bolt abgefeuert, Bolt gestoppt, Druckwelle) und geht nur an die Teilnehmer. Orbit-Klingen brauchen keine Effekte: Server und Clients rechnen den Winkel aus der Serverzeit (`Util/Orbit.luau`). Der Client schickt für Waffen nichts.
 - **Client:** `LoadoutController` merkt sich die Loadouts, `WeaponRenderer` zeichnet mit gepoolten Neon-Teilen und einem `workspace:BulkMoveTo` pro Frame. Klingen drehen sich um die Figur, wie dieser Client sie sieht; Bolts fliegen in Serverzeit von dort, wo der Server sie abgefeuert hat; die Druckwelle wächst um die Figur des Werfers und verblasst in 0,35 s.
@@ -925,9 +990,9 @@ Bis zum Soft Launch rund 40–50 Sessions und 50–60 Stunden Zeit des Owners (6
 | Run | 20 Wellen mit Brotatos Dauern, Boss-Welle 20 (90 s) | B3, 10 |
 | Shop | Sperren (kostenlos, Preis bleibt), Verkaufen (25 % des Preises), Waffen-Stufen I–IV statt Level 1–5, Verschmelzen zweier gleicher Waffen gleicher Stufe (per Knopf oder automatisch bei vollen Plätzen), Gratis-Neuwurf nach 4 Käufen, Waffen-Pool 20 % eigene / 15 % gleiche Klasse / 65 % alle, keine Wiederholung des vorigen Wurfs | B3 |
 | Effekte | Ereignisse (Welle startet/endet, Treffer, Krit, Kill, Ausweichen, getroffen, Aufsammeln, Level-up, Shop betreten, Timer), Effekte als Daten {Auslöser, Bedingung, Aktion, Werte}, Werte im Stillstand/in Bewegung, „pro X", „nächste Welle", Wachstum am Wellenende, Multiplikatoren auf Wert-Gewinne (für Charaktere), getrennte Zufalls-Ströme (Shop, Drops, Spawns, Kampf) | B4 (umgesetzt) |
-| Neben-Werte | Item-Preise, Gratis-Neuwürfe, Doppel-Beute, Schaden gegen Bosse/Elites, Frucht-Heilung, Heilung beim Aufsammeln, Gegner-Anzahl/-HP/-Schaden/-Tempo, Explosionsschaden und -größe, Durchschlag, Abprall, Brenn-Tempo und -Ausbreitung, Rückstoß | B4 (umgesetzt bis auf Frucht-Heilung → B6, Gegner-Tempo → B9), B5 |
-| Kampf | Krit-Chance und Krit-Faktor pro Waffe (×1,5 bis ×4), Lebensraub pro Waffe, Rückstoß mit Widerstand der Gegner, Brennen (stapelt nicht, Ausbreitung), Verlangsamen, Explosionen, Durchschlag mit Schadensabzug, Abprall, höchstens 12 Angriffe/s, Skalierung pro Waffe (z. B. 80 % Melee, mehrere Werte), Schutz nach Treffer 0,2–0,4 s | B5 |
-| Waffenklassen | 1–2 Klassen pro Waffe, gestaffelte Boni bei 2–6 Waffen einer Klasse (Brotatos 15 Staffeln, eigene Klassennamen) | B5 |
+| Neben-Werte | Item-Preise, Gratis-Neuwürfe, Doppel-Beute, Schaden gegen Bosse/Elites, Frucht-Heilung, Heilung beim Aufsammeln, Gegner-Anzahl/-HP/-Schaden/-Tempo, Explosionsschaden und -größe, Durchschlag, Abprall, Brenn-Tempo und -Ausbreitung, Rückstoß | B4 (umgesetzt bis auf Frucht-Heilung → B6, Gegner-Tempo → B9), B5 (umgesetzt) |
+| Kampf | Krit-Chance und Krit-Faktor pro Waffe (×1,5 bis ×4), Lebensraub pro Waffe, Rückstoß mit Widerstand der Gegner, Brennen (stapelt nicht, Ausbreitung), Verlangsamen, Explosionen, Durchschlag mit Schadensabzug, Abprall, höchstens 12 Angriffe/s, Skalierung pro Waffe (z. B. 80 % Melee, mehrere Werte), Schutz nach Treffer 0,2–0,4 s | B5 (umgesetzt) |
+| Waffenklassen | 1–2 Klassen pro Waffe, gestaffelte Boni bei 2–6 Waffen einer Klasse (Brotatos 15 Staffeln, eigene Klassennamen) | B5 (umgesetzt mit 14 Klassen; Tool → B12) |
 | Waffen | 20–24 eigene Waffen statt 6, alle Klassen und Effekt-Arten (Stoß/Schwung, Schrot, Raketen, Feuer, Eis, Stapel pro Kill, Wert solange getragen, Heil-Geschoss, Magazin) | B7 |
 | Items | ~100 statt 46, viele mit Effekten (Kill, Ausweichen, Wellenende, Gegner-Änderung, Zufallswerte), Item-Limits | B8 |
 | Beute | Drop-Chance 100 % bis Welle 4, dann −1,5 % pro Welle (mind. 50 %), Beutel (Liegengebliebenes zieht in der nächsten Welle je Drop 1 dazu), höchstens 50 liegende Beute-Objekte (darüber zusammenlegen), Heil-Früchte, Kisten von normalen Gegnern (Item nehmen oder verkaufen, Chance sinkt mit jeder Kiste der Welle), Plünderer-Gegner, Bäume, Legendäre Kiste von Elites/Boss | B6 |
@@ -961,7 +1026,7 @@ Bis zum Soft Launch rund 40–50 Sessions und 50–60 Stunden Zeit des Owners (6
 | B2 | Brotato-Richtung 2: Werte-System (Schaden, Angriffstempo, Krit, Glück, Rüstung, Ausweichen, Regeneration, Lebensraub, Reichweite, Tempo, Ernte), 46 Items in 4 Seltenheiten mit Trade-offs, unbegrenzt stapelbar, 6 Waffen-Plätze, Level-ups als Werte-Wahl, Werte-Liste im Shop | Vertical Slice | Extra high | 1–2 | 1 h | Items ausprobieren |
 | B3 | Brotato 3: Shop komplett und 20 Wellen – Run auf 20 Wellen mit Brotatos Dauern, Sperren, Verkaufen, Waffen-Stufen I–IV statt Level, Verschmelzen, Gratis-Neuwurf nach 4 Käufen, Waffen-Pool-Regeln, Evolutionen ab Stufe IV, Handy-Layout (umgesetzt 29.10.2026, Branch `wp-b3-shop-complete`) | Vertical Slice | High | 1–2 | 1 h | Shop am PC und Handy bedienen |
 | B4 | Brotato 4: Effekt-Maschine – Ereignisse, Effekte als Daten, bedingte und „pro X"-Werte, nächste Welle, Wellenende-Wachstum, Neben-Werte, getrennte Zufalls-Ströme, ~20 neue Items mit Effekten (umgesetzt 29.10.2026 mit 32 Items, Branch `wp-b4-effect-engine`) | Vertical Slice | Extra high | 2 | 1 h | neue Items ausprobieren |
-| B5 | Brotato 5: Kampf-Tiefe – Krit und Lebensraub pro Waffe, Rückstoß, Brennen, Verlangsamen, Explosionen, Durchschlag/Abprall, 12 Angriffe/s, Skalierung pro Waffe, Waffenklassen mit Set-Boni | Vertical Slice | Extra high | 2 | 1 h | Waffengefühl beurteilen |
+| B5 | Brotato 5: Kampf-Tiefe – Krit und Lebensraub pro Waffe, Rückstoß, Brennen, Verlangsamen, Explosionen, Durchschlag/Abprall, 12 Angriffe/s, Skalierung pro Waffe, Waffenklassen mit Set-Boni (umgesetzt 30.10.2026 mit 12 Kampf-Items, Branch `wp-b5-combat`) | Vertical Slice | Extra high | 2 | 1 h | Waffengefühl beurteilen |
 | B6 | Brotato 6: Beute – sinkende Drop-Chance, Beutel, Heil-Früchte, Kisten von normalen Gegnern, Plünderer, Bäume, Beute-Obergrenze | Vertical Slice | High | 1–2 | 1 h | Wirtschaft beurteilen |
 | B7 | Brotato 7: Waffen-Paket – auf 20–24 Waffen, alle Klassen und Effekt-Arten | Vertical Slice | Medium | 2 | 1 h | Waffen ausprobieren |
 | B8 | Brotato 8: Item-Paket – auf ~100 Items, viele mit Effekten | Vertical Slice | Medium | 2 | 1 h | Items ausprobieren |
