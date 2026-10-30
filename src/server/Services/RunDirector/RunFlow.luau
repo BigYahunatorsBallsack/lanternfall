@@ -1,5 +1,7 @@
 --!strict
--- Rules of the run flow as a pure state machine: lobby, countdown, waves with a shop after each, boss phase, results.
+-- Rules of the run flow as a pure state machine: lobby, countdown, waves with a shop after each, results. The last
+-- wave is the boss wave (BossService); surviving it wins, and so does killing its bosses (endRun, WP10). The old
+-- Boss phase is no longer entered.
 -- Owned by RunDirector, which feeds it player events and the clock (`now` in seconds). No Roblox APIs
 -- here, so the rules are unit-tested outside Studio (tests/RunFlow.spec.luau).
 --
@@ -15,7 +17,7 @@ export type Settings = {
 	countdownSeconds: number,
 	allReadyCountdownSeconds: number,
 	resultsSeconds: number,
-	waveEnds: { number }, -- fighting seconds at which each wave ends, rising; after the last one comes the boss
+	waveEnds: { number }, -- fighting seconds at which each wave ends, rising; the end of the last one wins
 	shopSeconds: number, -- shop timer between two waves
 	maxPlayers: number,
 	defaultClassId: string,
@@ -430,7 +432,7 @@ function RunFlow.setParticipantState(
 	return true, nil
 end
 
--- Moves the run timer forward to `elapsed` fighting seconds (never backwards, never past the boss), into the wave
+-- Moves the run timer forward to `elapsed` fighting seconds (never backwards, never past the end), into the wave
 -- that contains it; a wave's exact end opens its shop. Admin only.
 function RunFlow.skipTo(self: RunFlow, elapsed: number, now: number): (boolean, string?)
 	if self.phase ~= "Running" then
@@ -512,11 +514,7 @@ function RunFlow.update(self: RunFlow, now: number)
 		local ends = self.settings.waveEnds
 		if self:getElapsed(now) >= ends[self.wave] then
 			if self.wave >= #ends then
-				if self.heldAt then -- the boss fight always runs on the clock
-					self.pausedSeconds += now - self.heldAt
-					self.heldAt = nil
-				end
-				setPhase(self, "Boss", nil)
+				finishRun(self, "Victory", now) -- surviving the boss wave wins, like Brotato (WP10)
 			else
 				openShop(self, now)
 			end
