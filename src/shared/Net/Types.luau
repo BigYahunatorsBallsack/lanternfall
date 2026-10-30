@@ -341,4 +341,20 @@ export type BossTelegraph = {
 	endsAt: number?, -- WP10 part 2: a pool stays on the floor (and hurts) until then
 }
 
+-- WP11: a participant who is down or out during a wave (ReviveService -> ReviveController). `timeLeft` seconds until
+-- a downed player is out and `progress` (0-1) of the revive, both as of server time `sentAt`; `reviverUserId` is the
+-- teammate standing next to them right now (the progress grows), nil while it drains back.
+export type ReviveInfo = {
+	userId: number,
+	state: ParticipantState, -- "Down" or "Out"
+	timeLeft: number,
+	progress: number,
+	reviverUserId: number?,
+	sentAt: number,
+}
+
+export type ReviveState = {
+	players: { ReviveInfo },
+}
+
 return {}
