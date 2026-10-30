@@ -19,7 +19,7 @@ Jeder Strang ändert nur **seine** Zeile (Regeln: `docs/PARALLEL.md`).
 | Strang | KI | Aktuelles Paket | Branch / PR | Stand | Danach |
 | --- | --- | --- | --- | --- | --- |
 | A – Engine und Ablauf | Claude | B6 Beute (High) | `wp-b6-loot` / PR `[Claude] B6 Beute` | fertig, wartet auf Test und Merge | B9 Gegner (XH) |
-| B – Inhalte und Spieler-Regeln | ChatGPT | B7 Waffen (Medium) | `wp-b7-weapons` | umgesetzt, automatisiert getestet; Studio-Abnahme offen | B8 Items (Medium, erst nach Merge von B6) |
+| B – Inhalte und Spieler-Regeln | ChatGPT | B10 Charaktere (High) | `wp-b10-characters` | zehn Charaktere umgesetzt, automatisierte Abnahme; Studio-Test offen | B12 Bauten + Begleiter (High) |
 
 ## Feste Entscheidungen des Owners
 
@@ -75,3 +75,11 @@ Jeder Strang ändert nur **seine** Zeile (Regeln: `docs/PARALLEL.md`).
 - `Net/Types.WeaponEffect.angle` ergänzt für gerichtete Nahkampf-Visuals. Kein Remote hinzugefügt oder verändert.
 - `engineering` ist als ausgeblendeter Neben-Wert reserviert, damit Cathedral Engine wie Chain Gun mit Ranged Damage + Engineering skaliert; Erwerb, primäre Karten und Bauten bleiben B12. Neue Waffenklasse Dread = Legendary mit HP-Malus ×10. Choir bleibt bestehend, bekommt kein DLC-Vorbild in B7.
 - Tests: 25 Spec-Dateien / 320 Tests bestanden (inklusive gemergtem B6) (lokaler Lune-Adapter für den bestehenden Test-Prelude, da Rust hier fehlt). StyLua sauber; Selene src: 0 Fehler, 8 bestehende UI-Warnungen. Kein echter Studio-, Geräte- oder Netzwerktest.
+
+## Ergänzung B10 (30.10.2026)
+
+- Ausgangspunkt `main` nach B7/B8 (`44f309c`). Zehn Charakterpakete mit Auswahl der Startwaffe, 1–12 Plätzen, Startitems, Gewinn-Multiplikatoren, Shop-Beschränkungen, 5-%-Wunsch-Tags und datengetriebenen Sonderregeln. Zuordnung und Testanleitung: `docs/B10-CHARAKTERE.md`.
+- Neue Schnittstellen: `Util/CharacterRules`, `WeaponService.getMaxWeapons(player)`, `RunDirector.getSelectedClassId(player)`, Remotes `SelectStartWeapon(classId, weaponId)` und `StartWeaponChoice(classId, weaponId)`. B11 kann die Lobby weiter um die Gefahrenwahl ergänzen; `CharacterChoice` ergänzt die vorhandene Lobby ohne deren Ablauf zu ersetzen.
+- `Classes` behält alte IDs; alle zehn spielbaren Charaktere sind bis Paket 13 kostenlos. Kein Profil-Schemawechsel. `PlayerDataService` und `RunStatsService` funktionieren mit dem bestehenden Katalog-Zugriff unverändert.
+- Neue echte Katalog-/Zwei-Spieler-Tests in `CharactersB10.spec.luau`. Der alte breite Smoke-Test verwendet ausdrücklich die frühere Spark-Mage-Testfigur, damit er seine allgemeinen Kampf-/Item-Szenarien unabhängig von den B10-Handicaps prüft. Keine lange Balance-Simulation (Owner-Entscheidung); `tests/balance` bleibt bei Strang A.
+- Studio-Verbindung geprüft: offene Experience enthält noch keinen B10-Quellstand. Deshalb keine Behauptung eines Studio-Playtests; ZIP/Branch zuerst synchronisieren.

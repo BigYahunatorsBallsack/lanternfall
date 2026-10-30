@@ -220,7 +220,7 @@ describe("Arsenal", function()
 	end)
 
 	it("applies the owner's stats to every weapon", function()
-		local scene = setup({ bonuses = Config.Classes.SparkMage.stats }) -- +10 % Attack Speed
+		local scene = setup({ bonuses = { attackSpeed = 10 } }) -- +10 % Attack Speed
 		give(scene, "SparkBolt")
 		local weapon = scene.arsenal:getWeapons(OWNER)[1]
 		expect(weapon.stats.cooldown).toBeNear(W.SparkBolt.base.cooldown / 1.1)
