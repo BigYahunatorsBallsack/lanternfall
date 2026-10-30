@@ -22,6 +22,12 @@ local function class(id: string, displayName: string, bonuses: { { [string]: num
 end
 
 local ORDER: { WeaponClass } = {
+	-- Legendary: HP penalty scaled by ten.
+	class(
+		"Dread",
+		"Dread",
+		{ { maxHp = -200 }, { maxHp = -400 }, { maxHp = -600 }, { maxHp = -800 }, { maxHp = -1000 } }
+	),
 	-- Blade
 	class("Edge", "Edge", {
 		{ meleeDamage = 1, lifeSteal = 1 },

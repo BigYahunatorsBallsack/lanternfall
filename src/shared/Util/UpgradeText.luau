@@ -119,7 +119,7 @@ function UpgradeText.weaponDamage(weapon: Weapons.Weapon, tier: number): string
 	end
 	local damage = math.round((weapon.base.damage or 0) * (1 + damageBonus) * 10) / 10
 	local text = number(damage)
-	local scaling = EffectText.scaling(weapon.scaling)
+	local scaling = EffectText.scaling(if weapon.tierScaling then weapon.tierScaling[tier] else weapon.scaling)
 	if scaling ~= "" then
 		text ..= ` ({scaling})`
 	end
