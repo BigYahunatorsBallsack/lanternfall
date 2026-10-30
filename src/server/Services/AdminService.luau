@@ -1,7 +1,7 @@
 --!strict
 -- Debug commands for testing (end the wave, stop the wave timer, Shards, knock yourself down, hurt/heal yourself, win, spawn/hit/kill enemies and elites, pause
 -- spawning, add/swap/level/evolve weapons, weapons off, team level-up, the B4 effect items one by one, since B6 Looters,
--- Trees and crates) and the stats
+-- Trees and crates, since WP10 bosses and legendary crates) and the stats
 -- panel feed (DebugStats once per second). Admins only:
 -- everyone in Studio, the owner of a user-owned experience and Config.Admin.userIds. Handles the DebugCommand remote
 -- and uses RunDirector, CombatService, EnemySim, ExperienceService, ShopService, SpawnDirector, StatService,
@@ -21,6 +21,7 @@ local RunSchedule = require(Shared.Util.RunSchedule)
 local Types = require(Shared.Net.Types)
 local UpgradeText = require(Shared.Util.UpgradeText)
 
+local BossService = require(script.Parent.BossService)
 local CombatService = require(script.Parent.CombatService)
 local EnemySim = require(script.Parent.EnemySim)
 local ExperienceService = require(script.Parent.ExperienceService)
@@ -377,6 +378,26 @@ local handlers: { [string]: (player: Player) -> (boolean, string?) } = {
 			if SpawnDirector.spawnEnemy(enemy.id, position)
 				then `A {enemy.displayName} appeared`
 				else `No room for a {enemy.displayName} here`
+	end,
+	SpawnBoss = function(player)
+		local position, reason = runPosition(player)
+		if not position then
+			return false, reason
+		end
+		local name = BossService.spawnNext(position)
+		return true, if name then `{name} appeared (a test boss: the run goes on)` else "No room for a boss"
+	end,
+	HurtBoss = function(player)
+		local count = BossService.hurtAll(Config.Admin.hurtBossShare, player)
+		return true, if count > 0 then `Hurt {count} boss(es)` else "No boss alive"
+	end,
+	DropLegendaryCrate = function(player)
+		local position, reason = runPosition(player)
+		if not position then
+			return false, reason
+		end
+		LootService.dropPickup(position, "Legendary")
+		return true, "Dropped a legendary crate"
 	end,
 }
 
