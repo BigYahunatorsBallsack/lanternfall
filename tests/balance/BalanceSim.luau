@@ -12,7 +12,9 @@
 -- afford and presses Ready. Since B2 it rates stat cards and items by a simple stat taste (STAT_TASTE: its class's
 -- damage type, then Max HP, Damage, Attack Speed and Armor) and buys weapons it owns before new ones. Since B3 weapons
 -- come in tiers (worth their price factor), the bot skips offers it cannot take (slots full) and merges every pair of
--- equal weapons it can.
+-- equal weapons it can. Since B4 every run has its own seed for the random streams (RandomService), and the bot
+-- values item effects by rough stat equivalents (effectScore) and the new secondary stats (it never rerolls or sells,
+-- so Free Rerolls and Sell Value are worth nothing to it).
 -- Change SCENARIOS / SEEDS below to test other setups (since B3's 20 waves one good bot with 6 seeds takes about 10 min;
 -- run scenarios in parallel from copies of the repo). Results feed the
 -- balancing notes in DESIGN.md.
@@ -28,6 +30,7 @@ local EnemySim = require(Services.EnemySim)
 local CombatService = require(Services.CombatService)
 local UpgradeService = require(Services.UpgradeService)
 local RunStatsService = require(Services.RunStatsService)
+local RandomService = require(Services.RandomService)
 local ShopService = require(Services.ShopService)
 local StatService = require(Services.StatService)
 local WeaponService = require(Services.WeaponService)
@@ -64,11 +67,57 @@ local STAT_TASTE = {
 	harvesting = 2,
 	xpGain = 1,
 	pickupRange = 0.5,
+	itemPrice = -1.5,
+	freeRerolls = 0,
+	sellValue = 0,
+	doubleShards = 1.5,
+	shardHealing = 1,
+	eliteDamage = 0.3,
+	enemyCount = -0.3, -- more enemies: more Shards and XP, but more danger
+	enemyHp = -1,
+	enemyDamage = -1.5,
 }
 local CLASS_DAMAGE = { BladeWarden = "meleeDamage", SparkMage = "rangedDamage" }
 local CLASS_DAMAGE_TASTE = 4
-local SECONDARY_STEP = { xpGain = 5, pickupRange = 20 } -- "one step" of stats without level-up values
+-- "one step" of stats without level-up values
+local SECONDARY_STEP = {
+	xpGain = 5,
+	pickupRange = 20,
+	itemPrice = 5,
+	doubleShards = 5,
+	shardHealing = 8,
+	eliteDamage = 10,
+	enemyCount = 10,
+	enemyHp = 10,
+	enemyDamage = 10,
+}
 local WEAPON_TASTE = { owned = 6, new = 5 } -- a tier I copy of an owned weapon and a new weapon, in the same units
+-- Item effects (since B4): bots move most of the time, so "standing still" counts little; a bonus for one wave counts
+-- TEMPORARY_SHARE of the same bonus for good. Rough counts per wave of each trigger for a good bot in mid-run.
+local STATE_SHARE = { Still = 0.15, Moving = 0.85 }
+local TEMPORARY_SHARE = 0.3
+local TRIGGERS_PER_WAVE = {
+	WaveStart = 1,
+	WaveEnd = 1,
+	ShopEnter = 1,
+	Reroll = 0,
+	Buy = 3,
+	Sell = 0,
+	LevelUp = 2,
+	Hit = 300,
+	Crit = 40,
+	Kill = 120,
+	Dodge = 6,
+	Hurt = 10,
+	Pickup = 120,
+	Chest = 0.3,
+}
+local CRIT_SHARE = 0.15 -- share of hits and kills that are crits
+local ELITE_SHARE = 0.02 -- share of hits and kills on elites
+local WAVE_SECONDS = 50 -- for Timer effects
+local HEAL_PER_REGEN = 100 -- HP one point of HP Regeneration heals in a wave
+local HELD_SHARDS = 40 -- Shards the bot holds when a wave starts
+local TIER_STEP = 6 -- one weapon tier more, in WEAPON_TASTE units
 
 local SEEDS = { 11, 22, 33, 44, 55, 66 }
 local SCENARIOS = {
@@ -139,6 +188,87 @@ local function statScore(classId, stats)
 	return score
 end
 
+-- How many of `source` the bot has now (for per-X effects): Shards, different weapons or a stat.
+local function sourceAmount(source)
+	if source == "shards" then
+		return ShopService.getShards(bot)
+	elseif source == "distinctWeapons" then
+		local ids = {}
+		for _, weapon in WeaponService.getWeapons(bot) do
+			ids[weapon.id] = true
+		end
+		local count = 0
+		for _ in ids do
+			count += 1
+		end
+		return count + 1 -- usually the next purchase adds one
+	end
+	return StatService.getSheet(bot)[source] or 0
+end
+
+-- What the item effects are roughly worth from now on, in statScore units: growth and repeated payouts count for
+-- the waves left (on average half of what they add up to), per-X bonuses with what the bot has now, payouts without
+-- stats as a stat they roughly equal.
+local function effectScore(classId, effects, wave)
+	local score = 0
+	local wavesLeft = math.max(RunSchedule.waveCount() - wave, 0)
+	for _, effect in effects or {} do
+		if (effect.untilWave and wave >= effect.untilWave) or effect.chance == 0 then
+			continue
+		end
+		local waves = if effect.untilWave then math.min(wavesLeft, effect.untilWave - wave) else wavesLeft
+		local stats = if effect.stats then statScore(classId, effect.stats) else 0
+		local perWave = if effect.trigger == "Timer"
+			then WAVE_SECONDS / (effect.interval or WAVE_SECONDS)
+			else TRIGGERS_PER_WAVE[effect.trigger] or 1
+		perWave *= (effect.chance or 1) * (if effect.crit then CRIT_SHARE else 1) * (if effect.elite
+			then ELITE_SHARE
+			else 1)
+		if effect.maxPerWave then
+			perWave = math.min(perWave, effect.maxPerWave)
+		end
+		local action = effect.action
+		if action == "Stats" then
+			score += stats * (if effect.state then STATE_SHARE[effect.state] else 1)
+		elseif action == "PerX" then
+			local count = math.max(0, math.floor(sourceAmount(effect.source) / (effect.per or 1)))
+			score += stats * math.min(count, effect.max or math.huge)
+		elseif action == "Grow" then
+			score += if effect.trigger == "Acquire" then stats else stats * perWave * waves / 2
+		elseif action == "WaveStats" then
+			score += stats * math.min(perWave, effect.maxStacks or math.huge) / 2
+		elseif action == "TimedStats" then
+			score += stats * math.min(1, perWave * (effect.seconds or 0) / WAVE_SECONDS)
+		elseif action == "NextWaveStats" then
+			score += stats * TEMPORARY_SHARE
+		elseif action == "Heal" then
+			score += statScore(classId, { hpRegen = (effect.amount or 0) * perWave / HEAL_PER_REGEN })
+		elseif action == "Shards" then
+			score += statScore(classId, { harvesting = (effect.amount or 0) * perWave })
+		elseif action == "ShardShare" then
+			score += statScore(classId, { harvesting = HELD_SHARDS * (effect.amount or 0) / 100 * perWave })
+		elseif action == "Shields" then
+			score += statScore(classId, { armor = (effect.amount or 0) * perWave })
+		elseif action == "RandomStats" then
+			local point, primaries = 0, 0
+			for _, stat in Config.Stats.order do
+				if stat.primary then
+					point += statScore(classId, { [stat.id] = Config.Effects.randomPoint[stat.id] or 1 })
+					primaries += 1
+				end
+			end
+			score += point / math.max(primaries, 1) * (effect.amount or 0) * perWave * waves / 2
+		elseif action == "UpgradeWeapon" then
+			local headroom = 0
+			for _, weapon in WeaponService.getWeapons(bot) do
+				headroom += #Config.Shop.tierPriceFactors - weapon.tier
+			end
+			score += TIER_STEP * math.min(waves * perWave, headroom) / 2
+		end
+	end
+	return score
+end
+
 -- The stat card the bot likes best.
 local function pickCard(classId, cards)
 	local best, bestScore = cards[1], -math.huge
@@ -152,7 +282,7 @@ local function pickCard(classId, cards)
 end
 
 -- The shop offer with the best score per Shard the bot can afford and likes, or nil.
-local function pickOffer(classId, offers, shards)
+local function pickOffer(classId, offers, shards, wave)
 	local best, bestValue = nil, 0
 	for _, offer in offers do
 		if offer.sold or offer.blocked or offer.price > shards then
@@ -163,7 +293,8 @@ local function pickOffer(classId, offers, shards)
 			local taste = if offer.isNew then WEAPON_TASTE.new else WEAPON_TASTE.owned
 			score = taste * Config.Shop.tierPriceFactors[offer.tier]
 		else
-			score = statScore(classId, Config.Items.byId[offer.itemId].stats)
+			local item = Config.Items.byId[offer.itemId]
+			score = statScore(classId, item.stats) + effectScore(classId, item.effects, wave)
 		end
 		local value = score / offer.price
 		if score > 0 and value > bestValue then
@@ -394,6 +525,7 @@ end
 
 local function playRun(scenario, seed)
 	math.randomseed(seed)
+	RandomService.setNextSeed(seed)
 	world.fireServerAs(bot, "SelectClass", scenario.class)
 	world.fireServerAs(bot, "SetReady", true)
 	waitForPhase("Running", 15)
@@ -427,7 +559,12 @@ local function playRun(scenario, seed)
 			elseif mergeable then
 				world.fireServerAs(bot, "MergeWeapons", mergeable)
 			else
-				local best = pickOffer(scenario.class, ShopService.getOffers(bot), ShopService.getShards(bot))
+				local best = pickOffer(
+					scenario.class,
+					ShopService.getOffers(bot),
+					ShopService.getShards(bot),
+					RunDirector.getWave()
+				)
 				if best then
 					local before = ShopService.getShards(bot)
 					world.fireServerAs(bot, "BuyShopOffer", best.id)
@@ -517,6 +654,7 @@ local function playRun(scenario, seed)
 	return {
 		touches = table.concat(touches, ", "),
 		survived = survived,
+		won = survived >= Config.Run.durationSeconds - 0.5,
 		level = tally:getLevel(),
 		kills = tally.kills,
 		waves = waveRows,
@@ -538,7 +676,7 @@ describe("balance sim", function()
 	local summary = {}
 	for _, scenario in SCENARIOS do
 		it(`{scenario.class} / {scenario.bot}`, function()
-			local times, levels = {}, {}
+			local times, levels, wins = {}, {}, 0
 			for _, seed in SEEDS do
 				local result = playRun(scenario, seed)
 				print(
@@ -555,11 +693,17 @@ describe("balance sim", function()
 					then `{format(result.survived)} (+{math.floor(result.survived - STOP_AT)}s)`
 					else format(result.survived)
 				table.insert(times, `{shown} w{result.wave}`)
+				if result.won then
+					wins += 1
+				end
 				table.insert(levels, `L{result.level}`)
 			end
 			table.insert(
 				summary,
-				`{scenario.class} / {scenario.bot}: {table.concat(times, ", ")} · {table.concat(levels, ", ")}`
+				`{scenario.class} / {scenario.bot}: {wins}/{#SEEDS} won · {table.concat(times, ", ")} · {table.concat(
+					levels,
+					", "
+				)}`
 			)
 			expect(#world.errors).toBe(0)
 		end)
