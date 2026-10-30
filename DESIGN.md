@@ -1008,6 +1008,8 @@ Bis zum Soft Launch rund 40–50 Sessions und 50–60 Stunden Zeit des Owners (6
 
 **Reihenfolge:** Der Shop (B3) ist das Herz und kommt zuerst. Effekt-Maschine (B4) und Kampf-Tiefe (B5) sind das Gerüst für alle neuen Waffen, Items und Charaktere; Inhalte davor zu bauen hieße, sie später umzubauen. Jedes Paket aktualisiert die Balance-Simulation.
 
+**Parallel-Arbeit (30.10.2026):** Ab B6 bauen Claude (Strang A: B6, B9, 10, B11) und ChatGPT (Strang B: B7, B8, B10, B12) gleichzeitig, in vier Runden mit festem Dateibesitz. Regeln, Abhängigkeiten und Übergabe-Vorlage: `docs/PARALLEL.md`.
+
 | # | Arbeitspaket | Phase | Effort | Sessions | Zeit Owner | Owner tut |
 | --- | --- | --- | --- | --- | --- | --- |
 | 1 | Projekt-Setup: Rojo, Git, Ordner, Config, Net | Prototyp | Medium | 1 | 0,5 h | Installationen abnicken, Studio + Rojo-Plugin verbinden |
@@ -1056,7 +1058,7 @@ Bis zum Soft Launch rund 40–50 Sessions und 50–60 Stunden Zeit des Owners (6
 
 ## 21. Workflow mit Claude Code & Rolle des Owners
 
-Der Owner ist Produzent und Tester; Claude Code schreibt den Code im Repo, Rojo synchronisiert ihn nach Studio.
+Der Owner ist Produzent und Tester; Claude Code (und ab B6 parallel ChatGPT, siehe `docs/PARALLEL.md`) schreibt den Code im Repo, Rojo synchronisiert ihn nach Studio.
 
 **Ablauf jeder Session**
 

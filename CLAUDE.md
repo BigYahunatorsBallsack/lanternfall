@@ -18,6 +18,7 @@ Koop-Survivors für Roblox (1–4 Spieler, 12-Min-Runs, Boss bei 12:00). Das vol
 - Pro Paket ein Branch `wp-<nr>-<kurzname>`, kleine Commits, Commit-Text auf Englisch im Imperativ. Nie auf `main` force-pushen; Merge erst nach OK des Owners.
 - Vor größeren Umbauten kurz den Plan nennen (3–5 Punkte), dann umsetzen.
 - Ändert sich das Design, `DESIGN.md` im selben Branch aktualisieren.
+- **Parallel-Arbeit mit ChatGPT:** Claude ist **Strang A** (Gegner, Beute, Ablauf). Dateibesitz, geteilte Dateien (nur anhängen), Runden, Merge-Regeln und Übergabe-Vorlage stehen in `docs/PARALLEL.md`; ChatGPT liest dieselben Regeln über `AGENTS.md`. PR-Titel beginnt mit `[Claude]`, PR-Text nach `.github/pull_request_template.md`.
 - Ein Bug, der nach zwei Versuchen nicht gelöst ist: stoppen, Ursache und Optionen beschreiben, nicht weiter raten.
 
 ## Toolchain
