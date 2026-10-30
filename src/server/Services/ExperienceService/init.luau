@@ -43,6 +43,9 @@ local xpBonus: { [Player]: number } = {} -- XP Gain as a fraction
 local doubleChance: { [Player]: number } = {} -- Double Orbs as a chance 0..1
 local paused = false
 local bag = 0 -- XP of the orbs left at the end of earlier waves (B6)
+local eaten: { [number]: number } = {} -- enemy id -> XP of the orbs a Gobbler swallowed (B9)
+local eaterIds: { number } = {}
+local eatenIds: { number } = {}
 
 -- Changes since the last flush, in the flat Net/Types.XpOrbEvents layout.
 local changedOrbs: { number } = {}
@@ -100,14 +103,20 @@ local function gain(amount: number)
 end
 
 local function onEnemyKilled(info: EnemySim.KillInfo)
-	if paused or not RunDirector.isActive() or info.xp <= 0 then
+	local swallowed = eaten[info.id] or 0 -- a Gobbler drops all it ate (B9)
+	eaten[info.id] = nil
+	if paused or not RunDirector.isActive() or info.xp + swallowed <= 0 then
 		return
 	end
 	local kind = EnemyKinds.get(info.enemyId, info.elite)
-	if kind and not LootRules.dropsOrb(kind, RunDirector.getWave(), RandomService.number("Loot")) then
+	if
+		swallowed <= 0
+		and kind
+		and not LootRules.dropsOrb(kind, RunDirector.getWave(), RandomService.number("Loot"))
+	then
 		return
 	end
-	local value = info.xp
+	local value = info.xp + swallowed
 	local pulled = LootRules.bagPull(bag, value)
 	if pulled > 0 then
 		bag -= pulled
@@ -123,9 +132,36 @@ local function onEnemyKilled(info: EnemySim.KillInfo)
 	table.insert(changedOrbs, orbValue or value)
 end
 
+-- Gobblers (kind.eat, B9) swallow the orbs they touch and walk to the nearest orb within their seek range.
+local function feedEaters()
+	for e = 1, EnemySim.collectEaters(eaterIds) do
+		local id = eaterIds[e]
+		local enemyId, elite = EnemySim.getKind(id)
+		local kind = enemyId and EnemyKinds.get(enemyId, elite)
+		local eat = kind and kind.eat
+		local position = EnemySim.getPosition(id)
+		if kind and eat and position then
+			table.clear(eatenIds)
+			local swallowed = field:collect(position.X, position.Z, kind.radius + eat.reach, eatenIds)
+			if swallowed > 0 then
+				eaten[id] = (eaten[id] or 0) + swallowed
+				for _, orbId in eatenIds do
+					table.insert(collectedOrbs, orbId)
+					table.insert(collectedOrbs, 0) -- no player: the orb just vanishes
+				end
+			end
+			local x, z = field:nearest(position.X, position.Z, eat.seekRange)
+			EnemySim.setGoal(id, if x and z then Vector3.new(x, position.Y, z) else nil)
+		end
+	end
+end
+
 local function onStepped()
 	if not RunDirector.isActive() then
 		return
+	end
+	if not paused then
+		feedEaters()
 	end
 	if not paused and field:count() > 0 then
 		local total = 0
@@ -181,6 +217,7 @@ function ExperienceService.init()
 	RunDirector.RunStarted:Connect(function()
 		progress:reset()
 		clearOrbs()
+		table.clear(eaten)
 		bag = 0
 		sendBag()
 		sendProgress()
@@ -190,6 +227,7 @@ function ExperienceService.init()
 			clearOrbs()
 		elseif phase == "Shop" then
 			bagLeftovers()
+			table.clear(eaten) -- Gobblers alive at the wave end take what they ate with them
 		end
 	end)
 	RunDirector.ParticipantStateChanged:Connect(sendProgress) -- a player who is out no longer counts

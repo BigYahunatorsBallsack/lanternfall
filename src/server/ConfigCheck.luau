@@ -324,6 +324,70 @@ function ConfigCheck.run(): { string }
 		then
 			problem(`Enemy {id} needs positive charge values`)
 		end
+		-- B9 behaviours
+		local accelerate = enemy.accelerate
+		if accelerate and not (accelerate.perSecond > 0 and accelerate.max >= 1) then
+			problem(`Enemy {id} needs accelerate.perSecond above 0 and max of at least 1`)
+		end
+		local retaliate = enemy.retaliate
+		if
+			retaliate
+			and not (
+				retaliate.count >= 1
+				and retaliate.cooldownSeconds >= 0
+				and retaliate.projectileDamage > 0
+				and retaliate.projectileSpeed > 0
+				and retaliate.projectileRange > 0
+				and retaliate.projectileRadius > 0
+			)
+		then
+			problem(`Enemy {id} needs positive retaliate values`)
+		end
+		local pulse = enemy.pulse
+		if pulse then
+			if not (pulse.radius > 0 and pulse.intervalSeconds > 0) then
+				problem(`Enemy {id} needs a pulse radius and interval above 0`)
+			end
+			if not (pulse.heal or pulse.buffCount) then
+				problem(`Enemy {id} pulses without a buff or heal`)
+			end
+		end
+		local hatch = enemy.hatch
+		if
+			hatch
+			and not (
+				Config.Enemies.types[hatch.enemy]
+				and hatch.enemy ~= id
+				and hatch.count >= 1
+				and hatch.seconds > 0
+				and hatch.spread >= 0
+			)
+		then
+			problem(`Enemy {id} must hatch at least 1 of another known enemy after some seconds`)
+		end
+		local slash = enemy.slash
+		if
+			slash
+			and not (
+				slash.triggerRange > 0
+				and slash.windupSeconds > 0
+				and slash.radius > 0
+				and slash.damage > 0
+				and slash.recoverSeconds >= 0
+				and slash.cooldownSeconds >= 0
+			)
+		then
+			problem(`Enemy {id} needs positive slash values`)
+		end
+		local eat = enemy.eat
+		if eat and not (eat.seekRange > 0 and eat.reach >= 0) then
+			problem(`Enemy {id} needs eat.seekRange above 0 and a reach of at least 0`)
+		end
+	end
+	for _, enemyId in Config.Admin.newEnemies do
+		if not Config.Enemies.types[enemyId] then
+			problem(`Admin.newEnemies names unknown enemy {enemyId}`)
+		end
 	end
 
 	local affixes = Config.Enemies.elite.affixes
@@ -473,8 +537,8 @@ function ConfigCheck.run(): { string }
 		end
 	end
 	for id, enemy in Config.Enemies.types do
-		if enemy.ranged and enemy.flee then
-			problem(`Enemy {id} cannot both shoot and flee`)
+		if enemy.ranged and enemy.flee and not enemy.flee.range then
+			problem(`Enemy {id} cannot both shoot and always flee (B9: give flee a range)`)
 		end
 	end
 

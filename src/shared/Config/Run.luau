@@ -70,123 +70,222 @@ local Run = {
 		-- fires every `every` seconds from the wave start (the first time after firstShare of that) and brings
 		-- size * wave intensity * fPlayers * the team's Enemies stat enemies of one kind, spread around one spot on
 		-- the spawn ring (groupSpread * sqrt(count) studs). The numbers keep the enemies per second and the mix of
-		-- the old rate curve and mix (before the wave intensity, which averages 0.95).
+		-- the old rate curve and mix (before the wave intensity, which averages 0.95). Since B9 part 2 the new kinds
+		-- (Config.Enemies: Stalker from wave 4, Brood Egg and Gobbler 8, Herald 9, Skulker and Mender 10, Reaper 11,
+		-- Thornback 12) take a share of the Shadelings' rate.
 		groups = table.freeze({
 			wave({ group("Shadeling", 4, 2.5) }), -- wave 1: 1.60 enemies/s
 			wave({ group("Shadeling", 6, 2.4) }), -- wave 2: 2.50 enemies/s
 			wave({ group("Shadeling", 6, 2.3), group("Brute", 3, 4.6) }, "Brutes"), -- wave 3: 3.26 enemies/s
-			wave({ group("Shadeling", 8, 2.6), group("Brute", 4, 5.2) }), -- wave 4: 3.85 enemies/s
-			wave({ group("Shadeling", 8, 2.7), group("Brute", 4, 5.2), group("Charger", 3, 5.8) }, "Chargers"), -- wave 5: 4.25 enemies/s
+			wave({ group("Shadeling", 7, 2.6), group("Brute", 4, 5.2), group("Stalker", 2, 6) }, "Stalkers"), -- wave 4: 3.79 enemies/s
+			wave(
+				{ group("Shadeling", 7, 2.7), group("Brute", 4, 5.2), group("Charger", 3, 5.8), group("Stalker", 2, 6) },
+				"Chargers"
+			), -- wave 5: 4.21 enemies/s
 			wave({
-				group("Shadeling", 7, 2.4),
+				group("Shadeling", 6, 2.4),
 				group("Brute", 4, 5.2),
 				group("Charger", 3, 5.2),
 				group("Spitter", 3, 6.3),
-			}, "Spitters"), -- wave 6: 4.74 enemies/s
+				group("Stalker", 3, 7),
+			}, "Spitters"), -- wave 6: 4.75 enemies/s
 			wave({
-				group("Shadeling", 8, 2.5),
+				group("Shadeling", 7, 2.5),
 				group("Brute", 4, 4.8),
 				group("Charger", 4, 6.4),
 				group("Spitter", 4, 7.7),
-			}), -- wave 7: 5.18 enemies/s
+				group("Stalker", 3, 7),
+			}), -- wave 7: 5.21 enemies/s
 			wave({
-				group("Shadeling", 9, 2.6),
+				group("Shadeling", 7, 2.6),
 				group("Brute", 5, 5.5),
 				group("Charger", 4, 5.9),
-				group("Spitter", 4, 7.0),
-			}), -- wave 8: 5.62 enemies/s
+				group("Spitter", 4, 7),
+				group("Stalker", 3, 7),
+				group("BroodEgg", 2, 9),
+				group("Gobbler", 1, 10),
+			}, "Brood Eggs, Gobblers"), -- wave 8: 5.60 enemies/s
 			wave({
-				group("Shadeling", 7, 2.5),
+				group("Shadeling", 5, 2.5),
 				group("AbyssShadeling", 4, 3.3),
-				group("Brute", 4, 5.0),
+				group("Brute", 4, 5),
 				group("Charger", 4, 5.4),
 				group("Spitter", 4, 6.5),
-			}, "Abyss Shadelings"), -- wave 9: 6.17 enemies/s
+				group("Stalker", 3, 7),
+				group("BroodEgg", 2, 9),
+				group("Gobbler", 1, 10),
+				group("Herald", 1, 12),
+			}, "Abyss Shadelings, Heralds"), -- wave 9: 6.20 enemies/s
 			wave({
-				group("Shadeling", 7, 2.4),
-				group("AbyssShadeling", 4, 3.0),
+				group("Shadeling", 5, 2.4),
+				group("AbyssShadeling", 3, 3),
 				group("Brute", 4, 4.7),
 				group("Charger", 5, 6.3),
 				group("Spitter", 5, 7.6),
-			}), -- wave 10: 6.55 enemies/s
+				group("Stalker", 3, 7),
+				group("BroodEgg", 2, 9),
+				group("Gobbler", 1, 10),
+				group("Herald", 1, 12),
+				group("Skulker", 2, 10),
+				group("Mender", 1, 12),
+			}, "Skulkers, Menders"), -- wave 10: 6.50 enemies/s
 			wave({
-				group("Shadeling", 4, 2.3),
-				group("AbyssShadeling", 6, 2.9),
+				group("Shadeling", 2, 2.3),
+				group("AbyssShadeling", 5, 2.9),
 				group("Brute", 3, 4.3),
-				group("Charger", 5, 6.0),
+				group("Charger", 4, 6),
 				group("Spitter", 5, 7.2),
 				group("Splitter", 5, 5.5),
-			}, "Splitters"), -- wave 11: 6.94 enemies/s
+				group("Stalker", 3, 7),
+				group("BroodEgg", 2, 9),
+				group("Gobbler", 1, 10),
+				group("Herald", 1, 12),
+				group("Skulker", 2, 10),
+				group("Mender", 1, 12),
+				group("Reaper", 2, 8),
+			}, "Splitters, Reapers"), -- wave 11: 6.93 enemies/s
 			wave({
-				group("Shadeling", 5, 2.7),
-				group("AbyssShadeling", 7, 3.2),
-				group("Brute", 4, 5.4),
-				group("Charger", 5, 5.7),
+				group("Shadeling", 3, 2.7),
+				group("AbyssShadeling", 6, 3.2),
+				group("Brute", 3, 5.4),
+				group("Charger", 4, 5.7),
 				group("Spitter", 5, 6.8),
 				group("Splitter", 6, 6.3),
-			}), -- wave 12: 7.34 enemies/s
+				group("Stalker", 3, 7),
+				group("BroodEgg", 2, 9),
+				group("Gobbler", 1, 10),
+				group("Herald", 1, 12),
+				group("Skulker", 2, 10),
+				group("Mender", 1, 12),
+				group("Reaper", 2, 8),
+				group("Thornback", 2, 9),
+			}, "Thornbacks"), -- wave 12: 7.52 enemies/s
 			wave({
 				group("Shadeling", 2, 2.6),
-				group("AbyssShadeling", 10, 3.1),
+				group("AbyssShadeling", 6, 3.1),
 				group("Brute", 2, 5.2),
 				group("AbyssBrute", 5, 6.5),
 				group("Charger", 6, 6.5),
-				group("Spitter", 5, 6.5),
+				group("Spitter", 4, 6.5),
 				group("Splitter", 5, 5.9),
-			}, "Abyss Brutes"), -- wave 13: 7.69 enemies/s
+				group("Stalker", 3, 7),
+				group("BroodEgg", 2, 9),
+				group("Gobbler", 1, 10),
+				group("Herald", 1, 12),
+				group("Mender", 1, 12),
+				group("Skulker", 2, 10),
+				group("Reaper", 2, 8),
+				group("Thornback", 2, 9),
+			}, "Abyss Brutes"), -- wave 13: 7.83 enemies/s
 			wave({
 				group("Shadeling", 2, 2.5),
-				group("AbyssShadeling", 10, 3.0),
-				group("Brute", 2, 5.0),
+				group("AbyssShadeling", 6, 3),
+				group("Brute", 2, 5),
 				group("AbyssBrute", 6, 7.4),
 				group("Charger", 6, 6.2),
-				group("Spitter", 6, 7.4),
+				group("Spitter", 5, 7.4),
 				group("Splitter", 5, 5.6),
-			}), -- wave 14: 8.02 enemies/s
+				group("Stalker", 3, 7),
+				group("BroodEgg", 2, 9),
+				group("Gobbler", 1, 10),
+				group("Herald", 1, 12),
+				group("Mender", 1, 12),
+				group("Skulker", 2, 10),
+				group("Reaper", 2, 8),
+				group("Thornback", 2, 9),
+			}), -- wave 14: 8.14 enemies/s
 			wave({
 				group("Shadeling", 2, 2.4),
-				group("AbyssShadeling", 11, 3.1),
+				group("AbyssShadeling", 7, 3.1),
 				group("Brute", 2, 4.8),
 				group("AbyssBrute", 6, 7.1),
 				group("Charger", 6, 5.9),
-				group("Spitter", 6, 7.1),
+				group("Spitter", 5, 7.1),
 				group("Splitter", 6, 6.5),
-			}), -- wave 15: 8.43 enemies/s
+				group("Stalker", 3, 7),
+				group("BroodEgg", 2, 9),
+				group("Gobbler", 1, 10),
+				group("Herald", 1, 12),
+				group("Mender", 1, 12),
+				group("Skulker", 2, 10),
+				group("Reaper", 2, 8),
+				group("Thornback", 2, 9),
+			}), -- wave 15: 8.59 enemies/s
 			wave({
-				group("AbyssShadeling", 13, 3.0),
+				group("AbyssShadeling", 9, 3),
 				group("AbyssBrute", 9, 7.4),
 				group("Charger", 7, 5.7),
-				group("Spitter", 6, 6.9),
+				group("Spitter", 5, 6.9),
 				group("Splitter", 6, 5.7),
-			}), -- wave 16: 8.70 enemies/s
+				group("Stalker", 3, 7),
+				group("BroodEgg", 2, 9),
+				group("Gobbler", 1, 10),
+				group("Herald", 1, 12),
+				group("Mender", 1, 12),
+				group("Skulker", 2, 10),
+				group("Reaper", 2, 8),
+				group("Thornback", 2, 9),
+			}), -- wave 16: 8.81 enemies/s
 			wave({
-				group("AbyssShadeling", 14, 3.1),
+				group("AbyssShadeling", 10, 3.1),
 				group("AbyssBrute", 9, 7.1),
 				group("Charger", 8, 6.3),
-				group("Spitter", 6, 6.7),
+				group("Spitter", 5, 6.7),
 				group("Splitter", 6, 5.5),
-			}), -- wave 17: 9.04 enemies/s
+				group("Stalker", 3, 7),
+				group("BroodEgg", 2, 9),
+				group("Gobbler", 1, 10),
+				group("Herald", 1, 12),
+				group("Mender", 1, 12),
+				group("Skulker", 2, 10),
+				group("Reaper", 2, 8),
+				group("Thornback", 2, 9),
+			}), -- wave 17: 9.19 enemies/s
 			wave({
-				group("AbyssShadeling", 14, 3.0),
+				group("AbyssShadeling", 10, 3),
 				group("AbyssBrute", 9, 6.9),
 				group("Charger", 8, 6.1),
-				group("Spitter", 7, 7.5),
+				group("Spitter", 6, 7.5),
 				group("Splitter", 7, 6.3),
-			}), -- wave 18: 9.33 enemies/s
+				group("Stalker", 3, 7),
+				group("BroodEgg", 2, 9),
+				group("Gobbler", 1, 10),
+				group("Herald", 1, 12),
+				group("Mender", 1, 12),
+				group("Skulker", 2, 10),
+				group("Reaper", 2, 8),
+				group("Thornback", 2, 9),
+			}), -- wave 18: 9.45 enemies/s
 			wave({
-				group("AbyssShadeling", 14, 2.9),
+				group("AbyssShadeling", 10, 2.9),
 				group("AbyssBrute", 9, 6.7),
-				group("Charger", 8, 6.0),
-				group("Spitter", 7, 7.3),
+				group("Charger", 8, 6),
+				group("Spitter", 6, 7.3),
 				group("Splitter", 7, 6.1),
-			}), -- wave 19: 9.61 enemies/s
+				group("Stalker", 3, 7),
+				group("BroodEgg", 2, 9),
+				group("Gobbler", 1, 10),
+				group("Herald", 1, 12),
+				group("Mender", 1, 12),
+				group("Skulker", 2, 10),
+				group("Reaper", 2, 8),
+				group("Thornback", 2, 9),
+			}), -- wave 19: 9.68 enemies/s
 			wave({
-				group("AbyssShadeling", 15, 3.0),
+				group("AbyssShadeling", 11, 3),
 				group("AbyssBrute", 10, 7.2),
 				group("Charger", 8, 5.8),
-				group("Spitter", 7, 7.1),
+				group("Spitter", 6, 7.1),
 				group("Splitter", 7, 5.9),
-			}), -- wave 20: 9.94 enemies/s
+				group("Stalker", 3, 7),
+				group("BroodEgg", 2, 9),
+				group("Gobbler", 1, 10),
+				group("Herald", 1, 12),
+				group("Mender", 1, 12),
+				group("Skulker", 2, 10),
+				group("Reaper", 2, 8),
+				group("Thornback", 2, 9),
+			}), -- wave 20: 10.06 enemies/s
 		}),
 		-- How many growth steps an enemy spawned in wave n has (B9): HP = hp + hpPerWave * hpSteps[n], damage alike
 		-- (Config.Enemies). Brotato counts n - 1; with that the balance simulation lost 12 of 12 runs by wave 3-10

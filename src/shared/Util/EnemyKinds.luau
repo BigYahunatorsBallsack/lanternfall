@@ -44,6 +44,16 @@ for id, base in Enemies.types do
 		eliteRanged.projectileDamage = ranged.projectileDamage * Elite.damageMultiplier
 		elite.ranged = table.freeze(eliteRanged)
 	end
+	if base.slash then -- B9: a Reaper's cut and a Thornback's ring hit like its other damage
+		local eliteSlash = table.clone(base.slash)
+		eliteSlash.damage = base.slash.damage * Elite.damageMultiplier
+		elite.slash = table.freeze(eliteSlash)
+	end
+	if base.retaliate then
+		local eliteRetaliate = table.clone(base.retaliate)
+		eliteRetaliate.projectileDamage = base.retaliate.projectileDamage * Elite.damageMultiplier
+		elite.retaliate = table.freeze(eliteRetaliate)
+	end
 	table.freeze(elite)
 	local variants = { [0] = elite }
 	for index in Elite.affixes do
