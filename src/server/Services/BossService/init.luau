@@ -9,7 +9,10 @@
 -- Since WP10 part 2 also the champions of the elite waves (Config.Enemies.champions, eliteWaves, after Brotato's
 -- elites): one comes in wave 11 or 12 the same way, grows with the wave like other enemies, adds slashes, aimed and
 -- scattered shots, summons and running away, and drops a legendary crate (LootService) without ending the run.
--- Uses EnemySim, RunDirector, CombatService, MapService, RandomService, SpawnDirector (summons) and StatService;
+-- Since B11 the danger level decides (DangerService, Util/DangerRules): elite waves come from its plan (none below
+-- danger 2), wave 20 brings two bosses on danger 5, and in endless mode killing the bosses does not end the run;
+-- every 10th wave after 20 is a boss wave with every boss and extra champions.
+-- Uses EnemySim, RunDirector, DangerService, CombatService, MapService, RandomService, SpawnDirector (summons) and StatService;
 -- AdminService spawns and hurts bosses and champions for tests.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -17,6 +20,7 @@ local RunService = game:GetService("RunService")
 
 local Shared = ReplicatedStorage.Shared
 local Config = require(Shared.Config)
+local DangerRules = require(Shared.Util.DangerRules)
 local Enemies = require(Shared.Config.Enemies)
 local EnemyKinds = require(Shared.Util.EnemyKinds)
 local Net = require(Shared.Net)
@@ -25,6 +29,7 @@ local StatMath = require(Shared.Util.StatMath)
 local Types = require(Shared.Net.Types)
 
 local CombatService = require(script.Parent.CombatService)
+local DangerService = require(script.Parent.DangerService)
 local EnemySim = require(script.Parent.EnemySim)
 local MapService = require(script.Parent.MapService)
 local RandomService = require(script.Parent.RandomService)
@@ -79,10 +84,8 @@ local bosses: { Boss } = {}
 type Pending = { bossId: string, role: Role, x: number, z: number, at: number, share: number, wave: number }
 
 local pendingSpawns: { Pending } = {}
-local bossWaveStarted = false
-local eliteWavePlan: { [number]: { string } } = {} -- wave -> champions coming in it (picked at the run start)
-local eliteWavesStarted: { [number]: boolean } = {}
-local eliteWavesPlanned = false -- planned in the first running moment, after RandomService seeded the run
+local bossWavesStarted: { [number]: boolean } = {}
+local eliteWavesStarted: { [number]: boolean } = {} -- B11: the plan comes from DangerService
 local nextDebugChampion = 0
 local victoryQueued = false
 local nextDebugBoss = 0
@@ -301,8 +304,7 @@ local function spawnUnit(
 	if not (kind and plan) then
 		return nil
 	end
-	local tiers = Config.Difficulty.tiers
-	local tier = tiers[RunDirector.getDifficulty()] or tiers[Config.Difficulty.default]
+	local dangerHp, dangerDamage, dangerSpeed = DangerService.multipliers(forWave)
 	local players = #RunDirector.getParticipants()
 	local hpGrowth, damageGrowth = 1, 1
 	if role == "Champion" then
@@ -310,13 +312,11 @@ local function spawnUnit(
 	end
 	local hpMultiplier = share
 		* hpGrowth
-		* tier.enemyHp
+		* dangerHp
 		* StatMath.enemyFactor(StatService.getTeamStat("enemyHp"))
 		* SpawnRules.playerFactor(players)
-	local damageMultiplier = damageGrowth
-		* tier.enemyDamage
-		* StatMath.enemyFactor(StatService.getTeamStat("enemyDamage"))
-	local speedFactor = StatMath.enemyFactor(StatService.getTeamStat("enemySpeed"))
+	local damageMultiplier = damageGrowth * dangerDamage * StatMath.enemyFactor(StatService.getTeamStat("enemyDamage"))
+	local speedFactor = dangerSpeed * StatMath.enemyFactor(StatService.getTeamStat("enemySpeed"))
 	local id = EnemySim.spawn(bossId, x, z, hpMultiplier, damageMultiplier, nil, nil, speedFactor)
 	if not id then
 		return nil
@@ -377,46 +377,27 @@ local function announceArrival(ids: { string }, role: Role, share: number, intro
 	notifyParticipants(message)
 end
 
--- The boss wave started: pick its bosses and show where they come.
-local function startBossWave()
-	bossWaveStarted = true
+-- A boss wave started: pick its bosses (B11: two on danger 5, every boss in endless boss waves) and show where they
+-- come.
+local function startBossWave(wave: number)
+	bossWavesStarted[wave] = true
 	local order = BossWave.order
 	local first = RandomService.stream("Spawns"):NextInteger(1, #order)
+	local count = DangerRules.bossCount(DangerService.getDanger(), wave)
 	local ids = {}
-	for k = 1, BossWave.count do
+	for k = 1, count do
 		table.insert(ids, order[(first + k - 2) % #order + 1])
 	end
-	local share = if BossWave.count > 1 then BossWave.hpShareWhenSeveral else 1
-	announceArrival(ids, "Boss", share, BossWave.introSeconds, "The boss wave begins!")
+	announceArrival(ids, "Boss", DangerRules.bossShare(count), BossWave.introSeconds, "The boss wave begins!")
 end
 
--- Which waves are elite waves this run and who comes in each (Brotato: one wave of each active slot, never the
--- same elite twice).
-local function planEliteWaves()
-	eliteWavesPlanned = true
-	table.clear(eliteWavePlan)
-	table.clear(eliteWavesStarted)
-	local random = RandomService.stream("Spawns")
-	local pool = table.clone(EliteWaves.order)
-	for index = 1, math.min(EliteWaves.activeSlots, #EliteWaves.slots) do
-		local slot = EliteWaves.slots[index]
-		local wave = slot[random:NextInteger(1, #slot)]
-		local ids = {}
-		for _ = 1, EliteWaves.count do
-			if #pool == 0 then
-				pool = table.clone(EliteWaves.order)
-			end
-			table.insert(ids, table.remove(pool, random:NextInteger(1, #pool)) :: string)
-		end
-		eliteWavePlan[wave] = ids
-	end
-end
-
-local function startEliteWave(wave: number)
+-- An elite wave started (B11: planned by DangerService): its champions come after red crosses.
+local function startEliteWave(wave: number, ids: { string })
 	eliteWavesStarted[wave] = true
-	local ids = eliteWavePlan[wave]
-	local share = if table.find(EliteWaves.reducedHpWaves, wave) then EliteWaves.reducedHpShare else 1
-	announceArrival(ids, "Champion", share, EliteWaves.introSeconds, "An elite wave! A champion approaches.")
+	local message = if #ids > 1
+		then `An elite wave! {#ids} champions approach.`
+		else "An elite wave! A champion approaches."
+	announceArrival(ids, "Champion", DangerRules.championShare(wave), EliteWaves.introSeconds, message)
 end
 
 local function spawnPending()
@@ -1077,6 +1058,11 @@ local function onEnemyKilled(info: EnemySim.KillInfo)
 	if not wave or victoryQueued then
 		return
 	end
+	if DangerService.isEndless() then
+		-- B11: in endless mode the bosses' death does not end the run, nor the wave (Brotato)
+		notifyParticipants(`{if kind then kind.displayName else "The boss"} is slain!`)
+		return
+	end
 	for _, entry in pendingSpawns do
 		if entry.role == "Boss" then
 			return
@@ -1104,10 +1090,8 @@ local function clear()
 	table.clear(hazards)
 	table.clear(returns)
 	telegraphs = {}
-	bossWaveStarted = false
-	table.clear(eliteWavePlan)
+	table.clear(bossWavesStarted)
 	table.clear(eliteWavesStarted)
-	eliteWavesPlanned = false
 	sendState(true)
 end
 
@@ -1133,14 +1117,13 @@ function BossService.init()
 	EnemySim.EnemyKilled:Connect(onEnemyKilled)
 	RunService.Heartbeat:Connect(function(dt: number)
 		if RunDirector.getPhase() == "Running" then
-			if not eliteWavesPlanned then
-				planEliteWaves()
-			end
 			local wave = RunDirector.getWave()
-			if not bossWaveStarted and wave >= RunSchedule.waveCount() then
-				startBossWave()
-			elseif eliteWavePlan[wave] and not eliteWavesStarted[wave] then
-				startEliteWave(wave)
+			if RunSchedule.wave(wave).boss and not bossWavesStarted[wave] then
+				startBossWave(wave)
+			end
+			local challenge = DangerService.getChallenge(wave)
+			if challenge and challenge.kind == "Elite" and not eliteWavesStarted[wave] then
+				startEliteWave(wave, challenge.champions)
 			end
 		end
 		stateTimer += dt
@@ -1228,7 +1211,13 @@ end
 
 -- The elite waves of this run and the champions coming in them (tests).
 function BossService.getEliteWaves(): { [number]: { string } }
-	return table.clone(eliteWavePlan)
+	local waves = {}
+	for wave, challenge in DangerService.getPlan() do
+		if challenge.kind == "Elite" then
+			waves[wave] = challenge.champions
+		end
+	end
+	return waves
 end
 
 return BossService

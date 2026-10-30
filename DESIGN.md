@@ -136,7 +136,7 @@ Wellenlängen wie in Brotato: Welle 1 dauert 20 s, jede weitere 5 s mehr, Wellen
 | Plünderer (Looter) | Ab Welle 3, 25 s nach Wellenbeginn und danach alle 15 s mit 10 % Chance (Brotato), 30 Studs neben einem Spieler. Läuft weg (am Rand an der Wand entlang), greift nicht an, verschwindet nach 12 s (Annahme). Getötet: eine Kiste und ein Orb mit 8. Gold-ockerfarbener Dieb mit Münzsack. |
 | Bäume | Pro Welle 1 Baum (Annahme) plus der neue Team-Wert „Trees", verteilt über die ersten 70 % der Welle, irgendwo in der Arena mindestens 25 Studs von allen Spielern; höchstens 6 gleichzeitig. Stehen still, tun nichts, Waffen treffen sie wie Gegner (30 HP mal HP-Kurve, Annahme). Getötet: Frucht oder Kiste (20 % Kiste) und ein Orb mit 3. |
 | Neben-Werte | „Fruit Healing" (HP pro Frucht und Kiste) und „Trees" (Bäume pro Welle, Team-Summe) für Items ab B8; neues Effekt-Ereignis „Consumable" (Frucht oder Kiste aufgehoben). |
-| Legendäre Kiste (seit Paket 10) | Heilt voll, ihr Item ist mindestens Legendary (`Config/Loot.luau` → `legendaryCrate`); wird aufgehoben wie eine Kiste und öffnet sich am Wellenende vor den anderen Kisten. Lässt jeder getötete Boss fallen (zählt erst, wenn ein Run nach dem Boss weitergeht, B11 Endlos) und seit Paket 10 Teil 2 jeder getötete Champion der Elite-Welle (wie Brotatos Elites). Die Gloom Elites behalten ihre Truhe (Abschnitt 8), bis B11 sie seltener macht, sonst gäbe es 13 legendäre Items pro Run. |
+| Legendäre Kiste (seit Paket 10) | Heilt voll, ihr Item ist mindestens Legendary (`Config/Loot.luau` → `legendaryCrate`); wird aufgehoben wie eine Kiste und öffnet sich am Wellenende vor den anderen Kisten. Lässt jeder getötete Boss fallen (zählt erst, wenn ein Run nach dem Boss weitergeht, B11 Endlos) und seit Paket 10 Teil 2 jeder getötete Champion der Elite-Welle (wie Brotatos Elites). Seit B11 kommen Gloom Elites nicht mehr von selbst (Abschnitt 10); nach Welle 20 (Endlos) gibt es statt der legendären eine normale Kiste. |
 
 **Run-Ablauf im Prototyp** (Lobby und Arena im selben Server, Werte in `Config/Run.luau` → `flow`):
 
@@ -504,13 +504,13 @@ Annahmen, wo Brotato keine Zahl nennt: Drain tötet nicht, die HP bleiben bei mi
 | Gegner | Rolle | HP | Tempo (Studs/s) | Schaden | XP | Ab Minute |
 | --- | --- | --- | --- | --- | --- | --- |
 | Shadeling | Schwarm, läuft direkt auf dich zu | 10 | 14 | 5 pro Kontakt | 1 | 0 |
-| Brute | Tank, langsam, schiebt den Pulk | 60 | 8 | 12 pro Kontakt | 4 | 2 |
+| Brute | Tank, langsam, schiebt den Pulk | 40 (seit B11, vorher 60) | 8 | 12 pro Kontakt | 4 | 2 |
 | Charger | lädt 0,9 s auf (glüht orange, roter Streifen zeigt die Bahn), stürmt dann geradeaus | 40 | 9, im Ansturm 38 | 8 pro Kontakt | 4 | 3 |
 | Spitter | hält 30 Studs Abstand, schießt alle 2,5 s | 20 | 10 | 8 pro Projektil | 2 | 4 |
 | Abyss Shadeling | stärkerer Shadeling, rote Augen | 18 | 15 | 8 pro Kontakt | 2 | 6 |
 | Splitter | zerfällt beim Tod in 3 Splitlings | 32 | 11 | 7 pro Kontakt | 2 | 7 |
 | Splitling | klein und schnell, nur aus Splittern | 6 | 15 | 3 pro Kontakt | 1 | 7 |
-| Abyss Brute | stärkerer Brute, rote Augen | 140 | 8,5 | 18 pro Kontakt | 8 | 8 |
+| Abyss Brute | stärkerer Brute, rote Augen | 90 (seit B11, vorher 140) | 8,5 | 18 pro Kontakt | 8 | 8 |
 | Gloom Elite | beliebiger Typ, leuchtet, 1,5× so groß, ab 6:00 mit Eigenschaft | 8× | 0,9× | 1,5× | 25 + Truhe | 2, 4, 6 (2×), 8, 10 (2×) |
 | Looter (seit B6) | läuft weg, greift nicht an, verschwindet nach 12 s; lässt eine Kiste fallen (Abschnitt 3) | 120 | 17 | – | 8 | ab Welle 3 zufällig |
 | Tree (seit B6) | steht still, tut nichts; lässt Frucht oder Kiste fallen | 30 | 0 | – | 3 | jede Welle |
@@ -544,7 +544,7 @@ Ein getöteter Boss lässt eine legendäre Kiste fallen (Abschnitt 3). Bis Paket
 
 **Champions (seit Paket 10 Teil 2, `Config/Enemies.luau` → `champions`, `eliteWaves`; Ablauf ebenfalls `BossService`)**
 
-Brotatos acht Elites mit Phasen, mit eigenen Namen und Looks; im Spiel „Champions", damit sie nicht mit den Gloom Elites verwechselt werden. **Elite-Welle** wie Brotato auf Gefahrenstufe 2–3: einmal pro Run in Welle 11 oder 12 (zufällig) kommt nach 2,5 s roten Kreuzen ein Champion (zufällig, nie zweimal im Run) zu den normalen Gegnern. Brotatos weitere Elite-Wellen (14/15, 17/18 auf Stufe 4–5) und die Horden-Wellen schaltet B11 frei (`eliteWaves.activeSlots`). Werte: Brotato 1 HP + 750 pro Welle (Monk 700), 1 Kontakt + 1,5 pro Welle → bei uns 3 HP + 2.550 pro Wachstumsschritt (Abbot 2.380), 3 Schaden + 4,25 pro Schritt (Wachstum wie alle Gegner, Abschnitt 7 unten), HP mal Spielerfaktor, in Welle 11 und 12 nur 75 % HP (Brotato). Solo in Welle 11 also etwa 10.400 HP und 27 Kontaktschaden. Ihre Angriffe treffen so hart wie ihr Kontakt (Wiki nennt keinen Geschoss-Schaden, Annahme) und wachsen genauso. Sie zeigen die Lebensleiste oben wie ein Boss, zählen als Elite, ignorieren Rückstoß, werden von Heralds und Menders ausgelassen, geben 25 XP und lassen eine legendäre Kiste fallen; ihr Tod beendet den Run nicht. Am Wellenende verschwinden sie wie alle Gegner.
+Brotatos acht Elites mit Phasen, mit eigenen Namen und Looks; im Spiel „Champions", damit sie nicht mit den Gloom Elites verwechselt werden. **Elite-Welle** wie Brotato auf Gefahrenstufe 2–3: einmal pro Run in Welle 11 oder 12 (zufällig) kommt nach 2,5 s roten Kreuzen ein Champion (zufällig, nie zweimal im Run) zu den normalen Gegnern. Seit B11 entscheidet die Gefahrenstufe (Abschnitt 10): keine Elite-Welle auf 0–1, eine auf 2–3, drei (11/12, 14/15, 17/18) auf 4–5, die ersten beiden mit 40 % als Horden-Welle. Werte: Brotato 1 HP + 750 pro Welle (Monk 700), 1 Kontakt + 1,5 pro Welle → bei uns 3 HP + 2.550 pro Wachstumsschritt (Abbot 2.380), 3 Schaden + 4,25 pro Schritt (Wachstum wie alle Gegner, Abschnitt 7 unten), HP mal Spielerfaktor, in Welle 11 und 12 nur 75 % HP (Brotato). Solo in Welle 11 also etwa 10.400 HP und 27 Kontaktschaden. Ihre Angriffe treffen so hart wie ihr Kontakt (Wiki nennt keinen Geschoss-Schaden, Annahme) und wachsen genauso. Sie zeigen die Lebensleiste oben wie ein Boss, zählen als Elite, ignorieren Rückstoß, werden von Heralds und Menders ausgelassen, geben 25 XP und lassen eine legendäre Kiste fallen; ihr Tod beendet den Run nicht. Am Wellenende verschwinden sie wie alle Gegner.
 
 Neue Angriffsarten: **Cleave** (Hiebe als rote Streifen vom Champion aus, gefächert auf den nächsten Spieler oder rundum), **Volley** (gezielte Geschoss-Fächer, mehrere Salven), **Scatter** (Geschosse in zufällige Richtungen), **Summon** (ruft Gegner mit dem Wachstum der Welle), Dash mit Seiten-Geschossen (`trailEvery`) und Start-Geschossen; Phase **flee** (läuft vom nächsten Spieler weg). Wind-ups unter 0,2 s zeigen keine Warnung (Dauerfeuer).
 
@@ -797,7 +797,25 @@ Folgerungen: 15 von 24 Siegen statt gut 10 von 24 in B3; die größere Auswahl i
 | Rescuer | +10 % Wiederbelebungstempo | 3 | 150 / 300 / 600 |
 | Second Thoughts | +1 Neuwurf pro Run | 2 | 500 / 1.500 |
 
-**Schwierigkeitsgrade**
+**Gefahrenstufen (seit B11, wie Brotato; ersetzt Normal/Hard/Nightmare)** – in der Lobby für die ganze Lobby gewählt (Feld rechts), bis Paket 13 alle offen. Zahlen in `Config/Difficulty.luau`, Formeln in `Util/DangerRules`.
+
+| Stufe | Was dazukommt |
+| --- | --- |
+| 0 | nichts (die Gegner aus B9 Teil 2 – Stalker, Skulker, Thornback, Herald, Mender, Brood Egg, Reaper, Gobbler – fehlen) |
+| 1 | neue Gegner (die acht oben) |
+| 2 | eine Elite- oder Horden-Welle (Welle 11 oder 12) |
+| 3 | wie 2, Gegner +12 % HP und Schaden |
+| 4 | drei Elite- oder Horden-Wellen (11/12, 14/15, 17/18), Gegner +26 % |
+| 5 | wie 4, Gegner +40 %, zwei Bosse in Welle 20 mit je 75 % HP |
+
+- **Elite oder Horde:** Die ersten beiden Plätze werden mit 40 % eine Horden-Welle, sonst Elite-Welle; der dritte ist immer eine Elite-Welle (Brotato). Horden-Welle: die Spawn-Gruppen bringen doppelt so viele Gegner (Brotato nennt keine Zahl, Annahme), Orbs fallen 35 % seltener (Brotato: 35 % weniger Material).
+- **Gloom Elites** (Abschnitt 7) kommen auf keiner Stufe mehr von selbst (Entscheidung „Elites nur in Elite-Wellen", 29.10.2026); Schalter pro Stufe `gloomElites`, Debug-Knopf bleibt.
+- **Regler** wie Brotatos Optionen: Gegner-HP und -Schaden 25–200 %, Tempo 25–150 %, Schritte 25 %, mal der Gefahrenstufe; dazu unser eigener Regler „Enemy count“ (25–200 %, Menge der Spawn-Gruppen).
+- **Nachjustiert nach Owner-Test (30.10.2026, Stufe 0):** Brute und Abyss Brute stauten sich und waren nicht totzukriegen, die kleinen passten. Deshalb beide mit 65 % HP (Grundwert und Zuwachs) und ihre Spawn-Gruppen mit 65 % der Größe.
+- **Endlos-Modus** (Schalter in der Lobby): Welle 20 läuft wie immer, ihre Bosse zu töten beendet weder Run noch Welle. Danach geht es weiter, bis keiner mehr lebt; wer das Ende von Welle 20 erreicht, hat gewonnen. Endlos-Wellen 60 s mit den Gruppen von Welle 20 (Länge Annahme), Wachstum pro Welle läuft weiter, dazu Brotatos Endlos-Faktor: w = Welle − 20, mult = 2 + max(0, (Welle − 35) × 0,2), Faktor = w (w + 1) / 2 / 100 × mult; HP × (1 + 2,25 × Faktor), Schaden × (1 + Faktor), Tempo × (1 + min(1,75, Faktor / 13,33)). Jede 10. Welle (30, 40 …) ist eine Boss-Welle (90 s, Annahme) mit beiden Bossen; die Elite-Plätze wiederholen sich alle 10 Wellen (21/22, 24/25, 27/28 …), ohne Horden, jeder 10er-Block bringt einen Champion mehr in Elite- und Boss-Wellen, Champions dürfen sich wiederholen. Nach Welle 20 lassen Bosse und Champions eine normale statt der legendären Kiste fallen.
+- **Noch nicht drin (Brotato):** Endlos-Faktor auf Shop-Preise, Unverwundbarkeit und %-HP-Schaden (Strang-B-Dateien), „Welle wiederholen" (Brotatos Wiki beschreibt es nicht; eigenes Teilpaket).
+
+**Alter Plan Schwierigkeitsgrade (ersetzt durch B11)**
 
 | Stufe | Freischaltung | Gegner-HP | Gegner-Schaden | Embers |
 | --- | --- | --- | --- | --- |
@@ -1130,7 +1148,7 @@ Bis zum Soft Launch rund 40–50 Sessions und 50–60 Stunden Zeit des Owners (6
 | Gegner | Spawn-Marker vor dem Erscheinen, Wellen als Spawn-Gruppen (Typ, Anzahl, Start, Abstand), Werte pro Typ = Grund + Zuwachs pro Welle, neue Verhalten: Beschleuniger, flüchtender Schütze, Konter-Schütze, Buffer, Heiler, Ei (schlüpft nach 5 s), Hieb-Gegner, Beute-Fresser | B9 |
 | Elites und Boss | Phasen-Automat (Angriffe, Wechsel bei HP-Schwelle oder Zeit), Vorwarnen–Ausführen–Erholen, 2 Bosse, Elites mit Phasen | 10 (umgesetzt: Teil 1 Bosse, Teil 2 acht Champions und eine Elite-Welle; weitere Elite-Wellen → B11) |
 | Charaktere | Regelpakete statt Klassen: Startwerte, Startwaffe zur Wahl, Waffen-Plätze 1–12, Multiplikatoren auf Gewinne, Shop-Regeln, Wunsch-Tags (5 % Shop-Gewicht), Sonderregeln | B10 |
-| Schwierigkeit | Gefahrenstufen 0–5 (neue Gegner ab 1, Elite-/Horden-Wellen ab 2, +12/+26/+40 % Gegner-HP und -Schaden ab 3/4/5, 2 Bosse auf 5), Endlos nach Welle 20 mit Brotatos Formel, Regler für Gegner-HP/-Schaden/-Tempo, Welle wiederholen | B11 |
+| Schwierigkeit | Gefahrenstufen 0–5 (neue Gegner ab 1, Elite-/Horden-Wellen ab 2, +12/+26/+40 % Gegner-HP und -Schaden ab 3/4/5, 2 Bosse auf 5), Endlos nach Welle 20 mit Brotatos Formel, Regler für Gegner-HP/-Schaden/-Tempo, Welle wiederholen | B11 (umgesetzt bis auf „Welle wiederholen") |
 | Bauten | Engineering-Wert, Geschütztürme (5 Stufen), Minen, Garten, wandernder Bot, Begleiter (Pets), höchstens 100 Bauten | B12 |
 | Fortschritt | Erfolge mit Zählern schalten Charaktere, Waffen, Items frei; Gefahrenstufe pro Charakter | 13 |
 | Anzeige | Tooltips mit Skalierung („20 (+80 % Melee)"), Set-Bonus-Fortschritt, Item-Limits, Werte Haupt/Neben umschaltbar, Vorschau kommender Elite-/Horden-Wellen | 14 |

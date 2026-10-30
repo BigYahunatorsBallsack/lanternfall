@@ -115,6 +115,7 @@ local function render()
 	statusLabel.Text = statusText(state, me)
 	renderPlayers(state)
 	require(script.Parent.CharacterChoice).render() -- B10 lobby extension
+	require(script.Parent.DangerChoice).render() -- B11 lobby extension
 end
 
 local function build()
@@ -226,6 +227,7 @@ local function build()
 	require(script.Parent.CharacterChoice).mount(card, row, classButtons) -- B10
 	list.AnchorPoint = Vector2.new(0, 0) -- keep the player list above the taller B10 choice panel
 	list.Position = UDim2.fromOffset(12, 90)
+	require(script.Parent.DangerChoice).mount(screen) -- B11
 end
 
 function LobbyController.start()

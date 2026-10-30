@@ -20,6 +20,7 @@ local LootRules = require(Shared.Util.LootRules)
 local Signal = require(Shared.Util.Signal)
 local Types = require(Shared.Net.Types)
 
+local DangerService = require(script.Parent.DangerService)
 local EnemySim = require(script.Parent.EnemySim)
 local RandomService = require(script.Parent.RandomService)
 local RunDirector = require(script.Parent.RunDirector)
@@ -112,7 +113,12 @@ local function onEnemyKilled(info: EnemySim.KillInfo)
 	if
 		swallowed <= 0
 		and kind
-		and not LootRules.dropsOrb(kind, RunDirector.getWave(), RandomService.number("Loot"))
+		and not LootRules.dropsOrb(
+			kind,
+			RunDirector.getWave(),
+			RandomService.number("Loot"),
+			DangerService.orbShare() -- B11: hordes drop fewer
+		)
 	then
 		return
 	end

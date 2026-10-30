@@ -7,6 +7,7 @@
 
 local Shared = game:GetService("ReplicatedStorage").Shared
 local Config = require(Shared.Config)
+local DangerRules = require(Shared.Util.DangerRules)
 local RunSchedule = require(Shared.Util.RunSchedule)
 
 export type Rect = { minX: number, maxX: number, minZ: number, maxZ: number }
@@ -32,6 +33,21 @@ function SpawnRules.waveAt(minutes: number): number
 	return math.clamp(math.floor(minutes) + 1, 1, #Spawn.groups)
 end
 
+-- B11: the run's wave at schedule minute `minutes`, also past the last one (endless mode; waveAt stops at the last).
+function SpawnRules.runWave(minutes: number): number
+	return math.max(math.floor(minutes) + 1, 1)
+end
+
+-- Growth steps of `wave` from a list of steps per wave; past the list (endless mode, B11) the last step's increase
+-- goes on per wave.
+function SpawnRules.step(steps: { number }, wave: number): number
+	local count = #steps
+	if wave <= count then
+		return steps[math.max(wave, 1)]
+	end
+	return steps[count] + (steps[count] - steps[count - 1]) * (wave - count)
+end
+
 -- Multipliers on an enemy's HP and damage when it spawns in `wave` (before difficulty): its kind's values plus
 -- hpPerWave and damagePerWave per growth step of the wave (Run.spawn.growth), like Brotato (B9).
 function SpawnRules.growth(enemyId: string, wave: number): (number, number)
@@ -40,13 +56,12 @@ function SpawnRules.growth(enemyId: string, wave: number): (number, number)
 		return 1, 1
 	end
 	local growth = Spawn.growth
-	local index = math.clamp(wave, 1, #growth.hpSteps)
-	local hp = if kind.hp > 0 then 1 + kind.hpPerWave * growth.hpSteps[index] / kind.hp else 1
+	local hp = if kind.hp > 0 then 1 + kind.hpPerWave * SpawnRules.step(growth.hpSteps, wave) / kind.hp else 1
 	local damage = kind.contactDamage
 	if damage <= 0 and kind.ranged then
 		damage = kind.ranged.projectileDamage
 	end
-	return hp, if damage > 0 then 1 + kind.damagePerWave * growth.damageSteps[index] / damage else 1
+	return hp, if damage > 0 then 1 + kind.damagePerWave * SpawnRules.step(growth.damageSteps, wave) / damage else 1
 end
 
 -- Swarm Rush running at this minute: the wave's groups pause, Shadeling groups come at rateMultiplier their rate.
@@ -71,17 +86,37 @@ local function groupRate(groups: { Group }): number
 	return rate
 end
 
-local rushGroups: { [number]: { Group } } = {}
+local rushGroups: { [any]: { Group } } = {}
+local filtered: { [any]: { Group } } = {}
 
--- The spawn groups running at this minute: the wave's own, or during a Swarm Rush one Shadeling group with
--- rateMultiplier times their enemies per second.
-function SpawnRules.groupsAt(minutes: number): { Group }
-	local wave = SpawnRules.waveAt(minutes)
+-- The groups of `wave` on danger level `danger` (B11: kinds from danger 1 left out below it; default: all).
+local function waveGroups(wave: number, danger: number?): { Group }
 	local groups = Spawn.groups[wave].groups :: { Group }
+	if danger == nil or DangerRules.level(danger).newEnemies then
+		return groups
+	end
+	local list = filtered[groups]
+	if not list then
+		list = {}
+		for _, entry in groups do
+			if not DangerRules.isNewEnemy(entry.enemy) then
+				table.insert(list, entry)
+			end
+		end
+		filtered[groups] = list
+	end
+	return list
+end
+
+-- The spawn groups running at this minute on danger level `danger` (B11; nil = every kind): the wave's own, or
+-- during a Swarm Rush one Shadeling group with rateMultiplier times their enemies per second.
+function SpawnRules.groupsAt(minutes: number, danger: number?): { Group }
+	local wave = SpawnRules.waveAt(minutes)
+	local groups = waveGroups(wave, danger)
 	if not SpawnRules.isSwarmRush(minutes) then
 		return groups
 	end
-	local rush = rushGroups[wave]
+	local rush = rushGroups[groups]
 	if not rush then
 		local settings = Spawn.swarmRush
 		rush = {
@@ -91,14 +126,14 @@ function SpawnRules.groupsAt(minutes: number): { Group }
 				every = settings.every,
 			},
 		}
-		rushGroups[wave] = rush
+		rushGroups[groups] = rush
 	end
 	return rush
 end
 
 -- Enemies per second at this minute including the wave intensity (ramp, final wave), Swarm Rush and players.
-function SpawnRules.currentRate(minutes: number, playerCount: number): number
-	return groupRate(SpawnRules.groupsAt(minutes))
+function SpawnRules.currentRate(minutes: number, playerCount: number, danger: number?): number
+	return groupRate(SpawnRules.groupsAt(minutes, danger))
 		* RunSchedule.intensity(minutes)
 		* SpawnRules.playerFactor(playerCount)
 end
@@ -116,8 +151,8 @@ end
 local mixes: { [any]: { [string]: number } } = {}
 
 -- The kinds of the groups running at this minute, weighted by enemies per second (elites, debug waves).
-function SpawnRules.mixAt(minutes: number): { [string]: number }
-	local groups = SpawnRules.groupsAt(minutes)
+function SpawnRules.mixAt(minutes: number, danger: number?): { [string]: number }
+	local groups = SpawnRules.groupsAt(minutes, danger)
 	local weights = mixes[groups]
 	if not weights then
 		weights = {}

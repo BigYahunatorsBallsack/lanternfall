@@ -125,4 +125,20 @@ Remotes.SelectStartWeapon = {
 	args = { Validate.keyOf(Config.Classes), Validate.keyOf(Config.Weapons) },
 }
 Remotes.StartWeaponChoice = { direction = "toClient" }
+-- B11: the lobby's run options for the next run: danger level, endless mode, enemy HP/damage/speed sliders in percent
+-- (snapped to Config.Difficulty.sliders by RunDirector)
+Remotes.SetRunOptions = {
+	direction = "toServer",
+	rateLimit = { count = 6, perSeconds = 1 },
+	args = {
+		Validate.integer(0, #Config.Difficulty.levels - 1),
+		Validate.boolean(),
+		Validate.number(Config.Difficulty.sliders.enemyHp.min, Config.Difficulty.sliders.enemyHp.max),
+		Validate.number(Config.Difficulty.sliders.enemyDamage.min, Config.Difficulty.sliders.enemyDamage.max),
+		Validate.number(Config.Difficulty.sliders.enemySpeed.min, Config.Difficulty.sliders.enemySpeed.max),
+		Validate.optional(
+			Validate.number(Config.Difficulty.sliders.enemyCount.min, Config.Difficulty.sliders.enemyCount.max)
+		),
+	},
+}
 return table.freeze(Remotes)

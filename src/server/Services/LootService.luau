@@ -19,6 +19,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Shared = ReplicatedStorage.Shared
 local Config = require(Shared.Config)
+local DangerRules = require(Shared.Util.DangerRules)
 local EnemyKinds = require(Shared.Util.EnemyKinds)
 local LootRules = require(Shared.Util.LootRules)
 local Net = require(Shared.Net)
@@ -215,7 +216,9 @@ local function onEnemyKilled(info: EnemySim.KillInfo)
 	if info.boss then -- a boss or, since WP10 part 2, a champion
 		local champion = Config.Enemies.champions[info.enemyId] ~= nil
 		if if champion then Config.Enemies.eliteWaves.legendaryCrate else Config.Enemies.bossWave.legendaryCrate then
-			dropPickup(info.position.X, info.position.Z, LEGENDARY)
+			-- B11: after wave 20 (endless) a normal crate instead (Brotato)
+			local legendary = DangerRules.legendaryCrates(RunDirector.getWave())
+			dropPickup(info.position.X, info.position.Z, if legendary then LEGENDARY else CRATE)
 		end
 		return
 	end

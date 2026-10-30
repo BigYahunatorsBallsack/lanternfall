@@ -14,6 +14,9 @@
 -- of spawn groups like Brotato's (Config.Run.spawn.groups): each fires every few seconds and brings several enemies
 -- of one kind at one spot, which red crosses on the floor (remote SpawnMarkers) show markerSeconds before they come;
 -- HP and damage grow per wave and kind (SpawnRules.growth), and the team's Enemy Speed stat makes new enemies faster.
+-- Since B11 the danger level (DangerService) decides which kinds spawn, multiplies HP, damage and speed (with the
+-- enemy sliders and, in endless mode, Brotato's endless factor), doubles the groups in horde waves and switches the
+-- Gloom Elites; past wave 20 (endless) the groups of the last wave go on and growth keeps rising.
 -- Uses EnemySim; BossService spawns what champions summon (spawnAt); AdminService pauses it and spawns test waves,
 -- elites, Looters and Trees.
 
@@ -28,6 +31,8 @@ local LootRules = require(ReplicatedStorage.Shared.Util.LootRules)
 local RunSchedule = require(ReplicatedStorage.Shared.Util.RunSchedule)
 local StatMath = require(ReplicatedStorage.Shared.Util.StatMath)
 
+local DangerRules = require(ReplicatedStorage.Shared.Util.DangerRules)
+local DangerService = require(script.Parent.DangerService)
 local EnemySim = require(script.Parent.EnemySim)
 local MapService = require(script.Parent.MapService)
 local RandomService = require(script.Parent.RandomService)
@@ -111,14 +116,12 @@ local function spawnAt(
 	elite: boolean?,
 	affix: number?
 ): number?
-	local tiers = Config.Difficulty.tiers
-	local tier = tiers[RunDirector.getDifficulty()] or tiers[Config.Difficulty.default]
-	local hpGrowth, damageGrowth = SpawnRules.growth(enemyId, SpawnRules.waveAt(atMinutes))
-	local hpMultiplier = hpGrowth * tier.enemyHp * StatMath.enemyFactor(StatService.getTeamStat("enemyHp"))
-	local damageMultiplier = damageGrowth
-		* tier.enemyDamage
-		* StatMath.enemyFactor(StatService.getTeamStat("enemyDamage"))
-	local speedMultiplier = StatMath.enemyFactor(StatService.getTeamStat("enemySpeed"))
+	local wave = SpawnRules.runWave(atMinutes)
+	local dangerHp, dangerDamage, dangerSpeed = DangerService.multipliers(wave)
+	local hpGrowth, damageGrowth = SpawnRules.growth(enemyId, wave)
+	local hpMultiplier = hpGrowth * dangerHp * StatMath.enemyFactor(StatService.getTeamStat("enemyHp"))
+	local damageMultiplier = damageGrowth * dangerDamage * StatMath.enemyFactor(StatService.getTeamStat("enemyDamage"))
+	local speedMultiplier = dangerSpeed * StatMath.enemyFactor(StatService.getTeamStat("enemySpeed"))
 	return EnemySim.spawn(enemyId, x, z, hpMultiplier, damageMultiplier, elite, affix, speedMultiplier)
 end
 
@@ -145,7 +148,7 @@ end
 -- One Gloom Elite of the current mix around a random living player, from Run.spawn.elites.affixFromMinute with a
 -- random affix. Returns its name, or nil without a spot.
 local function spawnElite(anchor: Anchor, atMinutes: number): string?
-	local enemyId = SpawnRules.pickEnemy(SpawnRules.mixAt(atMinutes), roll())
+	local enemyId = SpawnRules.pickEnemy(SpawnRules.mixAt(atMinutes, DangerService.getDanger()), roll())
 	local affix = if SpawnRules.affixesAt(atMinutes) then pickIndex(#Config.Enemies.elite.affixes) else nil
 	if not spawnOne(anchor, enemyId, atMinutes, true, affix) then
 		return nil
@@ -182,7 +185,8 @@ local function updateEvents(atMinutes: number, anchors: { Anchor }, cap: number)
 	if #anchors == 0 then
 		return
 	end
-	for _ = 1, SpawnRules.elitesDue(from, atMinutes) do
+	local gloom = DangerRules.level(DangerService.getDanger()).gloomElites -- B11: off on every level by default
+	for _ = 1, if gloom then SpawnRules.elitesDue(from, atMinutes) else 0 do
 		local name = spawnElite(anchors[pickIndex(#anchors)], atMinutes)
 		if name then
 			notifyParticipants(`A {name} appeared! Kill it for a chest.`)
@@ -428,7 +432,7 @@ end
 -- placed as soon as the alive cap leaves room (enemies whose markers show count too), so a full cap delays a group
 -- instead of dropping it (at most a few firings are saved up). Nobody alive: nothing is owed.
 local function updateGroups(dt: number, atMinutes: number, anchors: { Anchor }, cap: number)
-	local groups = SpawnRules.groupsAt(atMinutes)
+	local groups = SpawnRules.groupsAt(atMinutes, DangerService.getDanger())
 	if groups ~= activeGroups then
 		activeGroups = groups
 		table.clear(groupTimers)
@@ -439,7 +443,7 @@ local function updateGroups(dt: number, atMinutes: number, anchors: { Anchor }, 
 		end
 	end
 	local count = playerCount()
-	local factor = StatMath.enemyFactor(StatService.getTeamStat("enemyCount"))
+	local factor = StatMath.enemyFactor(StatService.getTeamStat("enemyCount")) * DangerService.spawnMultiplier()
 	for index, entry in groups do
 		local size = SpawnRules.groupSize(entry, atMinutes, count) * factor
 		groupTimers[index] -= dt
@@ -518,7 +522,7 @@ end
 function SpawnDirector.spawnWave(around: Vector3, count: number): number
 	local cap = SpawnRules.cap(playerCount())
 	local atMinutes = minutes()
-	local mix = SpawnRules.mixAt(atMinutes)
+	local mix = SpawnRules.mixAt(atMinutes, DangerService.getDanger())
 	local anchor = { position = around, velocity = Vector3.zero }
 	local spawned = 0
 	for _ = 1, count do
@@ -572,8 +576,9 @@ function SpawnDirector.getRate(): number
 	if paused or RunDirector.getPhase() ~= "Running" then
 		return 0
 	end
-	return SpawnRules.currentRate(minutes(), playerCount())
+	return SpawnRules.currentRate(minutes(), playerCount(), DangerService.getDanger())
 		* StatMath.enemyFactor(StatService.getTeamStat("enemyCount"))
+		* DangerService.spawnMultiplier()
 end
 
 -- True while a Swarm Rush is running.

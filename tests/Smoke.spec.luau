@@ -1038,7 +1038,7 @@ describe("smoke", function()
 		world.advance(0.3)
 	end)
 
-	it("starts Swarm Rush with a ring of Shadelings and announces elites", function()
+	it("starts Swarm Rush with a ring of Shadelings and no Gloom Elites", function()
 		SpawnDirector.setPaused(false)
 		-- an enemy left far behind comes back on the spawn ring
 		local center = Config.Map.arena.center
@@ -1051,7 +1051,8 @@ describe("smoke", function()
 		RunDirector.skipTo(RunSchedule.wave(Config.Run.spawn.swarmRush.atMinutes[1] + 1).startsAt + 0.1)
 		world.advance(1)
 		expect(SpawnDirector.isSwarmRush()).toBe(true)
-		expect(string.find(toastTexts(), "appeared! Kill it for a chest.", 1, true) ~= nil).toBe(true)
+		-- B11: the Gloom Elites of the skipped minutes are off on every danger level
+		expect(string.find(toastTexts(), "appeared! Kill it for a chest.", 1, true)).toBe(nil)
 		-- the HUD's wave banner announces it
 		expect(world.gui("HUD", "WaveTitle").Text).toBe(`WAVE {Config.Run.spawn.swarmRush.atMinutes[1] + 1}`)
 		expect(string.find(world.gui("HUD", "WaveEvents").Text, "Swarm Rush", 1, true) ~= nil).toBe(true)

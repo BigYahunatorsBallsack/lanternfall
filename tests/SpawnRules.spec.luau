@@ -16,7 +16,7 @@ describe("SpawnRules", function()
 			return SpawnRules.currentRate(minutes, 1) / RunSchedule.intensity(minutes)
 		end
 		expect(base(0.5)).toBeNear(1.6) -- wave 1: a group of 4 Shadelings every 2.5 s
-		expect(base(14.5)).toBeNear(8.59, 0.01)
+		expect(base(14.5)).toBeNear(8.15, 0.01) -- B11: fewer Brutes and Abyss Brutes
 		expect(SpawnRules.currentRate(14.5, 4)).toBeNear(SpawnRules.currentRate(14.5, 1) * 2.8)
 		local previous = 0
 		for wave = 1, 20 do
@@ -78,7 +78,15 @@ describe("SpawnRules", function()
 		expect(final.final).toBe(true)
 		expect(RunSchedule.wave(19).final).toBe(false)
 		expect(RunSchedule.intensity(19.9) > waves.rampTo).toBe(true)
-		expect(RunSchedule.waveAt(1400).number).toBe(20) -- after the run stays in the last wave
+		-- B11: past the run's end the endless waves follow (60 s each, every 10th a 90 s boss wave)
+		expect(RunSchedule.waveAt(1400).number).toBe(26)
+		expect(RunSchedule.wave(21).startsAt).toBe(1050)
+		expect(RunSchedule.wave(21).endless).toBe(true)
+		expect(RunSchedule.wave(30).boss).toBe(true)
+		expect(RunSchedule.wave(30).endsAt - RunSchedule.wave(30).startsAt).toBe(90)
+		expect(RunSchedule.wave(31).startsAt).toBe(1050 + 9 * 60 + 90)
+		expect(RunSchedule.wave(20).boss).toBe(true)
+		expect(RunSchedule.wave(29).boss).toBe(false)
 	end)
 
 	it("turns fighting seconds into one schedule minute per wave", function()
@@ -88,16 +96,20 @@ describe("SpawnRules", function()
 		expect(RunSchedule.minutesAt(32.5)).toBeNear(1.5)
 		expect(RunSchedule.minutesAt(540)).toBeNear(12)
 		expect(RunSchedule.minutesAt(1005)).toBeNear(19.5) -- halfway through the 90 s wave 20
-		expect(RunSchedule.minutesAt(1400)).toBeNear(20)
+		expect(RunSchedule.minutesAt(1400)).toBeNear(25 + 50 / 60) -- endless wave 26 (B11)
 	end)
 
 	it("names what each wave brings on its banner", function()
 		expect(#RunSchedule.eventsOf(1)).toBe(0)
-		expect(table.concat(RunSchedule.eventsOf(3), "|")).toBe("New: Brutes|A Gloom Elite!")
-		expect(table.concat(RunSchedule.eventsOf(6), "|")).toBe("New: Spitters|A Gloom Elite!")
+		expect(table.concat(RunSchedule.eventsOf(3), "|")).toBe("New: Brutes")
+		expect(table.concat(RunSchedule.eventsOf(6), "|")).toBe("New: Spitters")
 		expect(table.concat(RunSchedule.eventsOf(7), "|")).toBe("Swarm Rush!")
-		expect(table.concat(RunSchedule.eventsOf(11), "|")).toBe("New: Splitters, Reapers|2 Gloom Elites!")
+		expect(table.concat(RunSchedule.eventsOf(11), "|")).toBe("New: Splitters, Reapers")
 		expect(table.concat(RunSchedule.eventsOf(20), "|")).toBe("Final wave")
+		-- B11: kinds from danger 1 are left out below it, endless boss waves are named
+		expect(table.concat(RunSchedule.eventsOf(11, 0), "|")).toBe("New: Splitters")
+		expect(#RunSchedule.eventsOf(4, 0)).toBe(0)
+		expect(table.concat(RunSchedule.eventsOf(30), "|")).toBe("Boss wave")
 	end)
 
 	it("caps alive enemies at 80 + 20 per extra player, at most 140", function()
