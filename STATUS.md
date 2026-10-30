@@ -38,7 +38,7 @@ Jeder Strang ändert nur **seine** Zeile (Regeln: `docs/PARALLEL.md`).
 - B6 (30.10.2026, Annahmen im Test prüfen): Kisten sind 25 % der Früchte/Kisten-Drops (Brotato nennt keinen Grundwert), Brute/Abyss Brute 3 %, Charger 2 % statt 1 %; Plünderer verschwindet nach 12 s; 1 Baum pro Welle mit 30 HP; Kisten öffnen sich vor den Level-up-Karten, nach 10 s wird genommen; liegengebliebene Kisten gehen an den nächsten Spieler. Elite-Truhen bleiben bis Paket 10/B11 wie sie sind (sonst 13 legendäre Items pro Run).
 
 - B9 (30.10.2026): Gegner-Werte wachsen pro Typ wie Brotato (Grundwert + Zuwachs pro Schritt), aber die Schritte pro Welle folgen der alten, getesteten Kurve (Brotatos „Welle − 1" war in der Simulation viel zu schwer: 0 von 12 Siegen). Spawn-Ring näher (32–52 Studs), damit die Marker sichtbar sind; Annahmen im Test prüfen.
-- Owner (30.10.2026): Kamera bleibt bei 50° (nicht wie Brotato von oben). B8 Items übernimmt Claude statt ChatGPT, weil ChatGPT wenig Limit hat.
+- Owner (30.10.2026): Kamera bleibt bei 50° (nicht wie Brotato von oben), aber weiter herausgezoomt (Abstand 100 statt 70), damit man Spawns früher sieht. Schwierigkeit wird erst später mit mehreren Charakteren feinjustiert. B8 Items übernimmt Claude statt ChatGPT, weil ChatGPT wenig Limit hat.
 
 ## Owner und Ablauf
 
