@@ -106,7 +106,14 @@ local function classBonusOf(player: Player): StatMath.Sheet
 	for _, weapon in WeaponService.getWeapons(player) do
 		table.insert(ids, weapon.id)
 	end
-	return WeaponClasses.bonuses(ids)
+	local bonus = WeaponClasses.bonuses(ids)
+	for _, weapon in WeaponService.getWeapons(player) do
+		local config = Config.Weapons[weapon.id]
+		if config and config.heldStats then
+			StatMath.add(bonus, config.heldStats[weapon.tier])
+		end
+	end
+	return bonus
 end
 
 -- The player's weapons changed: recompute only if the class bonuses did (setStats fires Changed as well).
@@ -160,6 +167,9 @@ end
 -- Lifecycle -------------------------------------------------------------------------
 
 function StatService.init()
+	WeaponService.KillGrowth:Connect(function(player, gains)
+		StatService.addStats(player, gains)
+	end)
 	RunDirector.RunStarted:Connect(onRunStarted)
 	RunDirector.PhaseChanged:Connect(function(phase)
 		if phase == "Lobby" or phase == "Countdown" then

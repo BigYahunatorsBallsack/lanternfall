@@ -44,6 +44,7 @@ export type StatId =
 	| "bounce"
 	| "burnSpeed"
 	| "burnSpread"
+	| "engineering"
 
 export type Stat = {
 	id: string,
@@ -119,6 +120,7 @@ local ORDER: { Stat } = {
 	extra("bounce", "Bounce", false), -- extra bounces of every projectile (Chain Lightning: extra jumps)
 	extra("burnSpeed", "Burning Speed", true), -- burns tick this much faster
 	extra("burnSpread", "Burning Spread", false), -- burns pass on to this many more enemies
+	extra("engineering", "Engineering", false), -- B7 Chain Gun scaling; acquisition and primary upgrades follow in B12
 }
 
 local byId: { [string]: Stat } = {}

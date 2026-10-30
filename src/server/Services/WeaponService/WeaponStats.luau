@@ -83,7 +83,7 @@ function WeaponStats.compute(
 		end
 	end
 
-	for statId, share in weapon.scaling do
+	for statId, share in (if weapon.tierScaling then weapon.tierScaling[tier] else weapon.scaling) do
 		damage += share * (bonuses[statId] or 0)
 	end
 	local damageFactor = WeaponStats.damageFactor(bonuses)

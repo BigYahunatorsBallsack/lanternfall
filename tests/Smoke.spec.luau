@@ -324,8 +324,8 @@ describe("smoke", function()
 		expect(WeaponService.getDamageStats(me).SparkBolt.kills).toBe(kills)
 	end)
 
-	it("adds, levels and swaps weapons with the debug buttons and draws them", function()
-		-- getImplemented is sorted: BoomerangAxe, ChainLightning, OrbitBlades, Shockwave, SparkBolt, ThornTrail
+	it("draws the six original weapons, tiers and debug swaps", function()
+		-- Explicit fixtures: new catalog entries must not change this original visual regression.
 		local function most(name, seconds)
 			local best = 0
 			for _ = 1, seconds / 0.1 do
@@ -334,23 +334,23 @@ describe("smoke", function()
 			end
 			return best
 		end
-		world.click(world.gui("Debug", "AddWeapon"))
+		assert(WeaponService.addWeapon(me, "BoomerangAxe"))
 		world.click(world.gui("Debug", "SpawnWave"))
 		expect(most("BoomerangAxe", 3) > 0).toBe(true)
 		expect(weaponRows()).toBe("Spark Bolt I | Boomerang Axe I")
-		world.click(world.gui("Debug", "AddWeapon"))
+		assert(WeaponService.addWeapon(me, "ChainLightning"))
 		world.click(world.gui("Debug", "SpawnWave"))
 		expect(most("ChainLightning", 3) > 0).toBe(true)
-		world.click(world.gui("Debug", "AddWeapon"))
+		assert(WeaponService.addWeapon(me, "OrbitBlades"))
 		world.advance(0.2)
 		expect(weaponParts("OrbitBlade")).toBe(Config.Weapons.OrbitBlades.base.count)
 		expect(weaponParts("OrbitBladeBody")).toBe(Config.Weapons.OrbitBlades.base.count) -- brass under each edge
 		world.click(world.gui("Debug", "TierUpWeapons"))
 		world.advance(0.2)
 		expect(weaponRows()).toBe("Spark Bolt II | Boomerang Axe II | Chain Lightning II | Orbit Blades II")
-		world.click(world.gui("Debug", "AddWeapon")) -- Shockwave
+		assert(WeaponService.addWeapon(me, "Shockwave")) -- Shockwave
 		world.advance(0.2)
-		world.click(world.gui("Debug", "AddWeapon")) -- Thorn Trail: six weapons like Brotato
+		assert(WeaponService.addWeapon(me, "ThornTrail")) -- Thorn Trail: six weapons like Brotato
 		world.advance(0.2)
 		expect(#WeaponService.getWeapons(me)).toBe(Config.Player.maxWeapons)
 		world.click(world.gui("Debug", "AddWeapon"))
@@ -359,21 +359,29 @@ describe("smoke", function()
 		world.advance(1)
 
 		world.click(world.gui("Debug", "NextWeapon"))
+		expect(#WeaponService.getWeapons(me)).toBe(1)
+		for _, weapon in WeaponService.getWeapons(me) do
+			WeaponService.removeWeapon(me, weapon.uid)
+		end
+		assert(WeaponService.addWeapon(me, "ThornTrail"))
 		world.advance(0.2)
 		expect(weaponRows()).toBe("Thorn Trail I")
 		expect(weaponParts("ThornPatch") > 0).toBe(true)
 		expect(weaponParts("Thorn") > 0).toBe(true)
-		for _ = 1, 4 do -- Boomerang Axe, Chain Lightning, Orbit Blades, Shockwave
-			world.click(world.gui("Debug", "NextWeapon"))
+		for _, weapon in WeaponService.getWeapons(me) do
+			WeaponService.removeWeapon(me, weapon.uid)
 		end
+		assert(WeaponService.addWeapon(me, "Shockwave"))
 		world.click(world.gui("Debug", "SpawnWave"))
 		expect(most("Shockwave", 4) > 0).toBe(true)
 		expect(weaponRows()).toBe("Shockwave I")
 
-		world.click(world.gui("Debug", "NextWeapon")) -- Spark Bolt
-		world.click(world.gui("Debug", "AddWeapon")) -- Boomerang Axe
-		world.click(world.gui("Debug", "AddWeapon")) -- Chain Lightning
-		world.click(world.gui("Debug", "AddWeapon")) -- Orbit Blades
+		for _, weapon in WeaponService.getWeapons(me) do
+			WeaponService.removeWeapon(me, weapon.uid)
+		end
+		for _, id in { "SparkBolt", "BoomerangAxe", "ChainLightning", "OrbitBlades" } do
+			assert(WeaponService.addWeapon(me, id))
+		end
 		world.advance(1.1) -- debug buttons allow 5 clicks per second
 		for _ = 1, Config.Player.maxWeaponTier do
 			world.click(world.gui("Debug", "TierUpWeapons"))
