@@ -121,9 +121,11 @@ local handlers: { [string]: (player: Player) -> (boolean, string?) } = {
 		if RunDirector.getParticipantState(player) ~= "Alive" or not RunDirector.isActive() then
 			return false, "NotRunning"
 		end
-		local taken, dodged = CombatService.damagePlayer(player, Config.Admin.hurtSelfDamage)
+		local taken, dodged, blocked = CombatService.damagePlayer(player, Config.Admin.hurtSelfDamage)
 		if dodged then
 			return true, "Dodged!"
+		elseif blocked then
+			return true, "Blocked by a shield"
 		elseif taken == 0 then
 			return true, "No damage: you are protected right now"
 		end

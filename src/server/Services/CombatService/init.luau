@@ -141,11 +141,11 @@ local function resetAll()
 	end
 end
 
--- Damage to a living participant, e.g. from enemy contact or projectiles. Returns the HP lost and whether the hit
--- was dodged.
-function CombatService.damagePlayer(player: Player, damage: number): (number, boolean)
+-- Damage to a living participant, e.g. from enemy contact or projectiles. Returns the HP lost, whether the hit
+-- was dodged and whether a hit shield (item effect, since B4) took it.
+function CombatService.damagePlayer(player: Player, damage: number): (number, boolean, boolean)
 	if not canBeHurt(player) then
-		return 0, false
+		return 0, false, false
 	end
 	local state = getVitals(player)
 	local taken, dodged, blocked = state:hit(damage, now(), RandomService.number("Combat", player))
@@ -161,7 +161,7 @@ function CombatService.damagePlayer(player: Player, damage: number): (number, bo
 			RunDirector.setParticipantState(player, "Down")
 		end
 	end
-	return taken, dodged
+	return taken, dodged, blocked
 end
 
 -- Heals a living player. Returns the HP gained.
