@@ -233,7 +233,12 @@ local function render(dt: number)
 			Models.setDetail(visual, lowDetail and visual.hpBar == nil) -- elites keep every detail
 			local status = after.statuses[i] or 0
 			local burning = bit32.btest(status, Snapshot.STATUS_BURNING)
-			Models.setStatus(visual, burning, bit32.btest(status, Snapshot.STATUS_SLOWED))
+			Models.setStatus(
+				visual,
+				burning,
+				bit32.btest(status, Snapshot.STATUS_SLOWED),
+				bit32.btest(status, Snapshot.STATUS_BUFFED)
+			)
 			if burning and embersLeft > 0 and now >= current.emberAt then
 				embersLeft -= 1
 				current.emberAt = now + embers.interval
@@ -312,13 +317,23 @@ end
 
 -- Queries ---------------------------------------------------------------------------
 
--- Whether a drawn enemy shows as burning and as slowed (B5; smoke test). false, false for enemies not drawn.
-function EnemyRenderer.getStatus(id: number): (boolean, boolean)
+-- Whether a drawn enemy shows as burning, as slowed (B5) and as buffed by a Herald (B9; tests). All false for
+-- enemies not drawn.
+function EnemyRenderer.getStatus(id: number): (boolean, boolean, boolean)
 	local entry = drawn[id]
 	if not entry then
-		return false, false
+		return false, false, false
 	end
-	return entry.visual.burning, entry.visual.slowed
+	return entry.visual.burning, entry.visual.slowed, entry.visual.buffed
+end
+
+-- Where a drawn enemy stands right now (interpolated, on the floor), nil for enemies not drawn (BossController, WP10).
+function EnemyRenderer.getPosition(id: number): Vector3?
+	local entry = drawn[id]
+	if not entry or entry.seenFrame == 0 then
+		return nil
+	end
+	return Vector3.new(entry.x, floorY, entry.z)
 end
 
 function EnemyRenderer.getStats(): Stats

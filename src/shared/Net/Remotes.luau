@@ -113,6 +113,9 @@ local Remotes: { [string]: Definition } = {
 	OrbBag = { direction = "toClient" }, -- B6: XP of the orbs in the team's bag (number), to everyone on change
 	Pickups = { direction = "toClient" }, -- B6: Net/Types.PickupEvents of one simulation step, to participants
 	CrateOffer = { direction = "toClient" }, -- B6: Net/Types.CrateOffer, to the choosing player
+	SpawnMarkers = { direction = "toClient" }, -- B9: Net/Types.SpawnMarkers of one spawn group, to participants
+	BossState = { direction = "toClient" }, -- WP10: Net/Types.BossState, to participants while a boss is alive
+	BossTelegraphs = { direction = "toClient" }, -- WP10: { Net/Types.BossTelegraph } of one step, to participants
 }
 
 -- B10: class + starting weapon are intents, checked against the current lobby choice.

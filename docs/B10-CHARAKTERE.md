@@ -44,6 +44,6 @@ Die Multiplikatoren gelten für erworbene Werte einschließlich negativer Änder
 
 `CharactersB10.spec.luau` bootet den echten, unveränderten Katalog mit Server und Client und prüft alle zehn Pakete, zwei Spieler, verbotene Auswahl, Startitems, Item-/Karten-/dynamische Multiplikatoren, Konvertierungen, Teil-Limits, zwölf Waffen, Kauf-Verschmelzung und Reset. Der bestehende Smoke-Test verwendet eine explizite alte Spark-Mage-Testfigur für seine allgemeinen Kampf-/Item-Szenarien; B10 wird unabhängig davon mit den produktiven Daten geprüft.
 
-Vor Integration weiterer main-Änderungen: 349 Tests in 27 Dateien bestanden, StyLua und Rojo-Build erfolgreich, Selene ohne Fehler (acht bestehende UI-Stilwarnungen).
+Nach Integration von main inklusive B9/Boss (`327e6f9`): 388 Tests in 31 Dateien bestanden, StyLua und Rojo-Build erfolgreich, Selene ohne Fehler (acht bestehende UI-Stilwarnungen).
 
 Die Tests laufen über den vorhandenen Test-Prelude mit portablem Lune, weil hier kein Rust-Compiler vorhanden ist. Kein langer Balance-Bot-Lauf. Studio-Ansicht, echte Netzwerk-Latenz und Bedienbarkeit auf Geräten müssen nach Synchronisierung dieses Branches geprüft werden; die beim Entwickeln offene Studio-Experience enthielt den B10-Stand noch nicht.

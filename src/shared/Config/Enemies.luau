@@ -9,6 +9,11 @@ export type Enemy = {
 	hp: number,
 	speed: number, -- studs/s
 	contactDamage: number,
+	-- B9, Brotato: HP and damage grow by these per growth step (damage: contact damage, or the shot damage of an
+	-- enemy without contact damage); wave n: hp + hpPerWave * Run.spawn.growth.hpSteps[n] (about n - 1 by wave 20).
+	-- All kinds use about 0.68 x hp and 0.34 x damage, which gives the 14x HP and 7.5x damage of wave 20 from before.
+	hpPerWave: number,
+	damagePerWave: number,
 	xp: number,
 	radius: number, -- collision circle, studs (assumption)
 	mass: number, -- crowd weight: heavier enemies push lighter ones aside (assumption)
@@ -27,6 +32,126 @@ export type Enemy = {
 	loot: Loot?,
 	flee: Flee?,
 	anchored: boolean?, -- never moves, nothing pushes it (Trees); players walk through it
+	-- since B9 part 2 (Brotato's enemy behaviours, DESIGN.md section 7)
+	accelerate: Accelerate?,
+	retaliate: Retaliate?,
+	pulse: Pulse?,
+	hatch: Hatch?,
+	slash: Slash?,
+	eat: Eat?,
+	-- since WP10: a boss of the boss wave (Config.Enemies.bosses); BossService runs its phases and attacks
+	boss: BossPlan?,
+}
+
+-- WP10, Brotato's bosses: phases ("mutations") that switch at an HP share or after some seconds, whichever comes
+-- first; each phase runs its attacks in turn with a pause in between. Every attack warns first (a red circle or
+-- line on the floor, BossTelegraphs), strikes and recovers. BossService/BossBrain is the state machine.
+export type BossPlan = {
+	phases: { BossPhase }, -- in order; phase 1 starts at spawn
+	attacks: { [string]: BossAttack },
+}
+
+export type BossPhase = {
+	fromHp: number?, -- starts once the boss is at or below this share of its max HP ...
+	afterSeconds: number?, -- ... or this many seconds after it appeared, whichever comes first (not for phase 1)
+	attacks: { string }, -- keys in BossPlan.attacks, tried in this order (one on cooldown or out of range is skipped)
+	pauseSeconds: number, -- walking between two attacks
+	speedMultiplier: number?, -- on its walking speed in this phase (default 1)
+	roam: boolean?, -- runs all over the arena instead of after the nearest player
+	orbit: BossOrbit?, -- projectiles circling it during this phase
+	announce: string?, -- message to everyone when the phase starts
+}
+
+-- Projectiles that circle the boss and hurt players they touch (Brotato's Predator).
+export type BossOrbit = {
+	count: number,
+	radius: number, -- studs from its centre
+	turnsPerSecond: number,
+	hitRadius: number, -- studs, size of each projectile
+	damage: number, -- grows with the boss's damage like its contact damage
+}
+
+-- One attack. `kind` decides which fields it uses:
+--   Dash: rushes `distance` studs at `speed` along the line it showed; hurts every player it runs into once.
+--   Slam: hits everyone within `radius` of where it stands.
+--   Ring: `count` projectiles in every direction, `bursts` times `burstGapSeconds` apart.
+--   Rain: `count` red circles (`radius`) at random spots within `spread` of every living player; they hit when the
+--     wind-up ends (Brotato's Invoker: projectiles that "spawn after a second of priming").
+--   Circle: `count` spots on a circle of `spread` studs around every living player; each fires a projectile at the
+--     centre when the wind-up ends.
+export type BossAttack = {
+	kind: string,
+	windupSeconds: number, -- the warning on the floor
+	recoverSeconds: number,
+	cooldownSeconds: number?, -- from the start of its wind-up until it may come again
+	range: number?, -- only starts when the nearest player is at most this far from the boss's edge
+	moving: boolean?, -- keeps walking during wind-up and strike (else it stands still)
+	damage: number, -- per hit or projectile; grows with the boss's damage like its contact damage
+	speed: number?, -- Dash
+	distance: number?, -- Dash
+	radius: number?, -- Slam, Rain: hit circle
+	count: number?, -- Ring, Rain, Circle
+	bursts: number?, -- Ring
+	burstGapSeconds: number?, -- Ring
+	spread: number?, -- Rain, Circle
+	projectileSpeed: number?, -- Ring, Circle
+	projectileRange: number?, -- Ring (Circle: twice its spread)
+	projectileRadius: number?, -- Ring, Circle
+}
+
+-- Enemies that get faster the longer they live (Stalker, B9).
+export type Accelerate = {
+	perSecond: number, -- share of its base speed it gains every second
+	max: number, -- at most this many times its base speed
+}
+
+-- Enemies that shoot a ring of projectiles when hit (Thornback, B9). Shots fly like the Spitter's (EnemySim/Volleys).
+export type Retaliate = {
+	count: number, -- shots in the ring
+	cooldownSeconds: number, -- at most one ring this often
+	projectileDamage: number, -- grows with the enemy's damage like its contact damage
+	projectileSpeed: number,
+	projectileRange: number,
+	projectileRadius: number,
+}
+
+-- Enemies that help the others around them every few seconds while a player is near (Herald buffs, Mender heals; B9).
+-- Clients see a ring around it for a moment when it does (Net/Snapshot mode bits).
+export type Pulse = {
+	radius: number, -- studs around it
+	intervalSeconds: number,
+	-- Herald: up to `buffCount` enemies that are not buffed yet get stronger for good
+	buffCount: number?,
+	buffDamage: number?, -- multiplier on contact and shot damage
+	buffSpeed: number?, -- multiplier on speed
+	buffHp: number?, -- share of max HP added (to HP and max HP)
+	-- Mender: every other enemy in the radius heals this share of its max HP
+	heal: number?,
+}
+
+-- Enemies that stand still and hatch into others after a while unless killed first (Brood Egg, B9).
+export type Hatch = {
+	seconds: number,
+	enemy: string, -- key in types
+	count: number,
+	spread: number, -- studs around the egg
+}
+
+-- Enemies that stop near a player, wind up (a red disc on the floor shows the area) and then hit everyone in the
+-- circle (Reaper, B9). Walking out during the wind-up dodges it.
+export type Slash = {
+	triggerRange: number, -- studs from its centre to the player's
+	windupSeconds: number,
+	radius: number, -- studs around its centre
+	damage: number, -- grows with the enemy's damage like its contact damage
+	recoverSeconds: number,
+	cooldownSeconds: number, -- walking before the next wind-up
+}
+
+-- Enemies that go for the orbs on the floor and eat them; killed they drop what they ate (Gobbler, B9).
+export type Eat = {
+	seekRange: number, -- studs; it walks to the nearest orb within this, else to the nearest player
+	reach: number, -- studs from its edge at which it swallows an orb
 }
 
 -- What a killed enemy drops besides its orb (B6, Config.Loot); missing values use the defaults there.
@@ -41,6 +166,7 @@ export type Loot = {
 -- (without a kill) after Config.Loot.looter.lifetimeSeconds.
 export type Flee = {
 	edgeMargin: number, -- studs; closer to the arena edge it also runs along the wall, so it is not stuck in a corner
+	range: number?, -- B9: flees only from a player closer than this, otherwise acts normally (nil: always)
 }
 
 -- Enemies that hold their distance and shoot (Spitter). Projectiles fly straight, are stopped by obstacles and
@@ -100,6 +226,8 @@ local Enemies: { [string]: Enemy } = {
 		hp = 10,
 		speed = 14,
 		contactDamage = 5,
+		hpPerWave = 6.8,
+		damagePerWave = 1.7,
 		xp = 1,
 		radius = 1.5,
 		mass = 1,
@@ -112,6 +240,8 @@ local Enemies: { [string]: Enemy } = {
 		hp = 60,
 		speed = 8,
 		contactDamage = 12,
+		hpPerWave = 41,
+		damagePerWave = 4.1,
 		xp = 4,
 		radius = 2.5,
 		mass = 6,
@@ -125,6 +255,8 @@ local Enemies: { [string]: Enemy } = {
 		hp = 20,
 		speed = 10,
 		contactDamage = 0,
+		hpPerWave = 13.6,
+		damagePerWave = 2.7,
 		xp = 2,
 		radius = 1.5,
 		mass = 1,
@@ -140,7 +272,7 @@ local Enemies: { [string]: Enemy } = {
 			aimLead = 0.3,
 		},
 	},
-	-- typeId 4 is the boss
+	-- typeId 4 is the first boss (bosses below)
 	Charger = {
 		id = "Charger",
 		typeId = 5,
@@ -148,6 +280,8 @@ local Enemies: { [string]: Enemy } = {
 		hp = 40,
 		speed = 9,
 		contactDamage = 8,
+		hpPerWave = 27,
+		damagePerWave = 2.7,
 		xp = 4,
 		radius = 1.8,
 		mass = 3,
@@ -169,6 +303,8 @@ local Enemies: { [string]: Enemy } = {
 		hp = 32,
 		speed = 11,
 		contactDamage = 7,
+		hpPerWave = 22,
+		damagePerWave = 2.4,
 		xp = 2,
 		radius = 1.9,
 		mass = 2,
@@ -183,6 +319,8 @@ local Enemies: { [string]: Enemy } = {
 		hp = 6,
 		speed = 15,
 		contactDamage = 3,
+		hpPerWave = 4.1,
+		damagePerWave = 1,
 		xp = 1,
 		radius = 1,
 		mass = 0.6,
@@ -196,6 +334,8 @@ local Enemies: { [string]: Enemy } = {
 		hp = 18,
 		speed = 15,
 		contactDamage = 8,
+		hpPerWave = 12.2,
+		damagePerWave = 2.7,
 		xp = 2,
 		radius = 1.6,
 		mass = 1.2,
@@ -209,6 +349,8 @@ local Enemies: { [string]: Enemy } = {
 		hp = 140,
 		speed = 8.5,
 		contactDamage = 18,
+		hpPerWave = 95,
+		damagePerWave = 6.1,
 		xp = 8,
 		radius = 2.8,
 		mass = 8,
@@ -225,6 +367,8 @@ local Enemies: { [string]: Enemy } = {
 		hp = 120, -- assumption, see above
 		speed = 17,
 		contactDamage = 0,
+		hpPerWave = 82,
+		damagePerWave = 0,
 		xp = 8, -- Brotato: 8 materials
 		radius = 1.4,
 		mass = 1,
@@ -241,12 +385,185 @@ local Enemies: { [string]: Enemy } = {
 		hp = 30, -- assumption; grows with the HP curve like every enemy
 		speed = 0,
 		contactDamage = 0,
+		hpPerWave = 20.4,
+		damagePerWave = 0,
 		xp = 3, -- Brotato: 3 materials
 		radius = 2.2,
 		mass = 1000,
 		knockbackResistance = 1,
 		loot = { alwaysOrbs = true, consumableChance = 1, crateShare = 0.2 }, -- Brotato: 20 % crates
 		anchored = true,
+	},
+	-- B9 part 2: Brotato's other enemy behaviours, each with its own silhouette or palette (EnemyRenderer/Models).
+	-- Values are assumptions in the spirit of the Brotato enemies they follow; check them in the test.
+	-- Accelerator (like Brotato's ones that speed up): starts slow, keeps getting faster.
+	Stalker = {
+		id = "Stalker",
+		typeId = 12,
+		displayName = "Stalker",
+		hp = 14,
+		speed = 8,
+		contactDamage = 6,
+		hpPerWave = 9.5,
+		damagePerWave = 2,
+		xp = 2,
+		radius = 1.5,
+		mass = 1,
+		knockbackResistance = 0,
+		look = "Shadeling",
+		accelerate = { perSecond = 0.12, max = 2.4 },
+	},
+	-- Fleeing shooter: keeps far away, runs off when a player comes close and shoots from a distance.
+	Skulker = {
+		id = "Skulker",
+		typeId = 13,
+		displayName = "Skulker",
+		hp = 18,
+		speed = 13,
+		contactDamage = 0,
+		hpPerWave = 12.2,
+		damagePerWave = 2.4,
+		xp = 3,
+		radius = 1.5,
+		mass = 1,
+		knockbackResistance = 0.5,
+		look = "Spitter",
+		ranged = {
+			keepDistance = 36,
+			fireInterval = 3,
+			fireRange = 40,
+			projectileDamage = 7,
+			projectileSpeed = 20,
+			projectileRange = 55,
+			projectileRadius = 0.6,
+			aimLead = 0.5,
+		},
+		flee = { edgeMargin = 12, range = 22 },
+	},
+	-- Counter-shooter: slow and tough; every hit makes it spray a ring of thorns.
+	Thornback = {
+		id = "Thornback",
+		typeId = 14,
+		displayName = "Thornback",
+		hp = 70,
+		speed = 7,
+		contactDamage = 10,
+		hpPerWave = 48,
+		damagePerWave = 3.4,
+		xp = 5,
+		radius = 2.3,
+		mass = 5,
+		knockbackResistance = 0.9,
+		look = "Brute",
+		loot = { consumableChance = 0.03 },
+		retaliate = {
+			count = 8,
+			cooldownSeconds = 1.5,
+			projectileDamage = 6,
+			projectileSpeed = 15,
+			projectileRange = 26,
+			projectileRadius = 0.6,
+		},
+	},
+	-- Buffer: walks with the crowd and makes the enemies around it stronger for good.
+	Herald = {
+		id = "Herald",
+		typeId = 15,
+		displayName = "Herald",
+		hp = 30,
+		speed = 9,
+		contactDamage = 4,
+		hpPerWave = 20.4,
+		damagePerWave = 1.4,
+		xp = 4,
+		radius = 1.6,
+		mass = 1.5,
+		knockbackResistance = 0.5,
+		look = "Spitter",
+		pulse = {
+			radius = 14,
+			intervalSeconds = 4,
+			buffCount = 5,
+			buffDamage = 1.5,
+			buffSpeed = 1.25,
+			buffHp = 0.5,
+		},
+	},
+	-- Healer: heals the enemies around it every few seconds; kill it first.
+	Mender = {
+		id = "Mender",
+		typeId = 16,
+		displayName = "Mender",
+		hp = 30,
+		speed = 9,
+		contactDamage = 4,
+		hpPerWave = 20.4,
+		damagePerWave = 1.4,
+		xp = 4,
+		radius = 1.6,
+		mass = 1.5,
+		knockbackResistance = 0.5,
+		look = "Spitter",
+		pulse = { radius = 14, intervalSeconds = 3, heal = 0.3 },
+	},
+	-- Egg: lies still and hatches into Shadelings unless it is broken in time.
+	BroodEgg = {
+		id = "BroodEgg",
+		typeId = 17,
+		displayName = "Brood Egg",
+		hp = 20,
+		speed = 0,
+		contactDamage = 0,
+		hpPerWave = 13.6,
+		damagePerWave = 0,
+		xp = 1,
+		radius = 1.4,
+		mass = 1000,
+		knockbackResistance = 1,
+		anchored = true,
+		hatch = { seconds = 5, enemy = "Shadeling", count = 4, spread = 2 },
+	},
+	-- Slasher: stops next to a player, winds up and cuts everything around it.
+	Reaper = {
+		id = "Reaper",
+		typeId = 18,
+		displayName = "Reaper",
+		hp = 45,
+		speed = 11,
+		contactDamage = 0,
+		hpPerWave = 30.6,
+		damagePerWave = 4.8,
+		xp = 4,
+		radius = 1.8,
+		mass = 3,
+		knockbackResistance = 0.8,
+		look = "Charger",
+		slash = {
+			triggerRange = 7,
+			windupSeconds = 0.7,
+			radius = 7.5,
+			damage = 14,
+			recoverSeconds = 0.6,
+			cooldownSeconds = 1.6,
+		},
+	},
+	-- Loot eater: goes for the orbs on the floor and swallows them; killed it drops all it ate.
+	Gobbler = {
+		id = "Gobbler",
+		typeId = 19,
+		displayName = "Gobbler",
+		hp = 40,
+		speed = 12,
+		contactDamage = 5,
+		hpPerWave = 27,
+		damagePerWave = 1.7,
+		xp = 3,
+		radius = 1.6,
+		mass = 1.5,
+		knockbackResistance = 0.3,
+		look = "Looter",
+		loot = { alwaysOrbs = true },
+		eat = { seekRange = 45, reach = 0.8 },
 	},
 }
 
@@ -272,22 +589,174 @@ local Elite = table.freeze({
 	}) :: { Affix },
 })
 
-local Boss = table.freeze({
-	id = "LanternEater",
-	typeId = 4,
-	displayName = "The Lantern Eater",
-	hp = 4000, -- multiplied by the player factor (see Run.playerFactor)
-	speed = 9,
-	radius = 5, -- assumption
-	slam = table.freeze({ radius = 14, telegraph = 1.2, damage = 35 }),
-	charge = table.freeze({ telegraph = 0.8, damage = 30 }),
-	summon = table.freeze({ interval = 25, count = 20, enemy = "Shadeling" }),
-	phase2 = table.freeze({ hpThreshold = 0.5, attackSpeedMultiplier = 1.25 }),
-	reward = table.freeze({ upgradesPerPlayer = 3 }), -- embers in Economy.embers.bossKill
+-- WP10: the bosses of the boss wave (the last wave, Run.spawn.waves), after Brotato's two (wave 20, 90 s). One of
+-- them comes, picked at random (B11: both on the highest danger level). The wave ends with a victory when every
+-- boss is dead or when its time runs out (Brotato). Values from Brotato's Predator and Invoker, scaled like our other
+-- enemies (HP about 3.4x, damage about 3x, speed relative to the player); attack numbers the wiki does not give are
+-- assumptions. HP and damage then get the difficulty and the team's enemy stats, HP also the player factor
+-- (Run.playerFactor). Bosses count as elites for Damage vs Elites and ignore knockback; Heralds and Menders skip them.
+local Bosses: { [string]: Enemy } = {
+	-- like Brotato's Predator: chases you and dashes, ringed by circling embers; from half HP (or after 45 s) no more
+	-- dashes but slams and rings of shots in every direction
+	LanternEater = {
+		id = "LanternEater",
+		typeId = 4,
+		displayName = "The Lantern Eater",
+		hp = 100000, -- Brotato 29,900
+		speed = 11, -- Brotato 300, about 2/3 of the player
+		contactDamage = 90, -- Brotato 30
+		hpPerWave = 0,
+		damagePerWave = 0,
+		xp = 0, -- the run ends with it
+		radius = 4.5,
+		mass = 60,
+		knockbackResistance = 1,
+		boss = {
+			phases = {
+				{
+					attacks = { "Dash" },
+					pauseSeconds = 1.2,
+					orbit = { count = 4, radius = 9, turnsPerSecond = 0.35, hitRadius = 1.3, damage = 60 },
+				},
+				{
+					fromHp = 0.5,
+					afterSeconds = 45,
+					attacks = { "Slam", "Ring" },
+					pauseSeconds = 0.8,
+					speedMultiplier = 1.15,
+					announce = "The Lantern Eater flares up!",
+				},
+			},
+			attacks = {
+				Dash = {
+					kind = "Dash",
+					windupSeconds = 0.8,
+					recoverSeconds = 0.9,
+					range = 40,
+					damage = 90,
+					speed = 40,
+					distance = 38,
+				},
+				Slam = {
+					kind = "Slam",
+					windupSeconds = 1.2,
+					recoverSeconds = 0.6,
+					cooldownSeconds = 4,
+					range = 10,
+					damage = 105,
+					radius = 14,
+				},
+				Ring = {
+					kind = "Ring",
+					windupSeconds = 0.6,
+					recoverSeconds = 0.6,
+					cooldownSeconds = 3,
+					damage = 70, -- Brotato 23 per projectile
+					count = 16,
+					bursts = 2,
+					burstGapSeconds = 0.4,
+					projectileSpeed = 16,
+					projectileRange = 60,
+					projectileRadius = 0.8,
+				},
+			},
+		},
+	},
+	-- like Brotato's Invoker: slow, calls red circles around every player that strike after a second; at 60 % HP (or
+	-- after 30 s) more of them over a wider area; at 40 % (or after 60 s) it runs all over the arena and rings every
+	-- player with shots that fly inwards
+	HollowSeer = {
+		id = "HollowSeer",
+		typeId = 20,
+		displayName = "The Hollow Seer",
+		hp = 100000, -- Brotato 29,900
+		speed = 7, -- Brotato 200
+		contactDamage = 60, -- Brotato 19.5
+		hpPerWave = 0,
+		damagePerWave = 0,
+		xp = 0,
+		radius = 4,
+		mass = 60,
+		knockbackResistance = 1,
+		boss = {
+			phases = {
+				{ attacks = { "Rain" }, pauseSeconds = 0 },
+				{
+					fromHp = 0.6,
+					afterSeconds = 30,
+					attacks = { "WideRain" },
+					pauseSeconds = 0,
+					announce = "The Hollow Seer's veil tears!",
+				},
+				{
+					fromHp = 0.4,
+					afterSeconds = 60,
+					attacks = { "Circle" },
+					pauseSeconds = 0,
+					speedMultiplier = 2.5, -- Brotato: from 200 to 500
+					roam = true,
+					announce = "The Hollow Seer runs wild!",
+				},
+			},
+			attacks = {
+				Rain = {
+					kind = "Rain",
+					windupSeconds = 1,
+					recoverSeconds = 0,
+					cooldownSeconds = 2, -- Brotato: every two seconds
+					moving = true,
+					damage = 60,
+					count = 5,
+					spread = 10,
+					radius = 3,
+				},
+				WideRain = {
+					kind = "Rain",
+					windupSeconds = 1,
+					recoverSeconds = 0,
+					cooldownSeconds = 2,
+					moving = true,
+					damage = 60,
+					count = 10,
+					spread = 18,
+					radius = 3,
+				},
+				Circle = {
+					kind = "Circle",
+					windupSeconds = 1,
+					recoverSeconds = 0,
+					cooldownSeconds = 2.5,
+					moving = true,
+					damage = 60,
+					count = 12,
+					spread = 13,
+					projectileSpeed = 14,
+					projectileRadius = 0.8,
+				},
+			},
+		},
+	},
+}
+
+-- How the boss wave brings its bosses (BossService).
+local BossWave = table.freeze({
+	count = 1, -- bosses per run (B11: 2 on the highest danger level, each with hpShareWhenSeveral of its HP)
+	hpShareWhenSeveral = 0.75, -- Brotato
+	order = table.freeze({ "LanternEater", "HollowSeer" }), -- picked at random; "SpawnBoss" goes through them in turn
+	introSeconds = 2.5, -- after the boss wave starts: red crosses show where it comes
+	spawnDistance = 28, -- studs from a random living player
+	stateInterval = 0.2, -- seconds between BossState updates (HP bar)
+	legendaryCrate = true, -- a killed boss drops a legendary crate (matters once a run goes on after it, B11)
 })
+
+for _, boss in Bosses do
+	table.freeze(boss)
+end
 
 return table.freeze({
 	types = table.freeze(Enemies),
 	elite = Elite,
-	boss = Boss,
+	bosses = table.freeze(Bosses),
+	bossWave = BossWave,
+	boss = Bosses.LanternEater, -- the HUD's label for the old boss phase (unused since WP10)
 })

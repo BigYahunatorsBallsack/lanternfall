@@ -20,6 +20,15 @@
 -- Since B6 fleeing enemies (Looters, kind.flee) run away from the nearest target instead, along the wall when it is
 -- close, and anchored ones (Trees, kind.anchored) never move: separation pushes only the other enemy and players
 -- walk through them.
+-- Since B9 (part 2) more behaviours: accelerating enemies get faster while they live (kind.accelerate), fleeing
+-- shooters flee only from players inside flee.range, counter-shooters report a ring of shots when hit (World.damage,
+-- kind.retaliate), pulsing enemies buff or heal the others around them (kind.pulse, step 7), eggs report themselves
+-- when they hatch (World.hatches, kind.hatch), slashers wind up near a player and hit everyone in their circle
+-- (kind.slash, like a charger's modes; the hit counts as contact damage) and enemies with a goal (World.setGoal: the
+-- Gobbler's orb) walk to it instead of the nearest target.
+-- Since WP10 bosses (kind.boss) walk like any enemy; BossService holds them still, sends them roaming (setGoal),
+-- moves them during a dash (teleport) and changes their speed per phase (setSpeedFactor). Heralds and Menders skip
+-- them (Brotato: bosses cannot be buffed).
 -- Enemies that die between steps stay in the arrays with hp 0 until the next step; every query skips them,
 -- so array indices (and the hash) stay valid until then.
 
@@ -51,6 +60,8 @@ local EPSILON = 1e-6
 local HEAD_ON = 0.05 -- below this share of sideways movement an enemy counts as running straight at an obstacle
 local GOLDEN_ANGLE = 2.399963 -- spreads the push direction of enemies standing exactly on top of each other
 local GOLDEN_RATIO = 0.618034 -- spreads the first shot of ranged enemies so they do not fire in sync
+local PULSE_SHOW_SECONDS = 0.5 -- clients see the ring of a buff or heal this long (mode wind-up; look only)
+local HATCH_WARN_SECONDS = 1.5 -- an egg shakes (mode wind-up) this long before it hatches (look only)
 
 local World = {}
 World.__index = World
@@ -84,6 +95,13 @@ export type World = typeof(setmetatable(
 		rushLeft: { number }, -- studs the rush may still go
 		summonTimers: { number }, -- seconds until a summoner calls again
 		slowFactors: { number }, -- share of its speed a slowed enemy keeps, 1 when not slowed (B5)
+		speedFactors: { number }, -- multiplier on its kind's speed from spawning (the team's Enemy Speed stat, B9)
+		boosts: { number }, -- multiplier on its speed from accelerating (kind.accelerate), 1 otherwise (B9)
+		buffed: { boolean }, -- a Herald made it stronger (once per enemy, shown in snapshots; B9)
+		abilityTimers: { number }, -- seconds until it pulses or hatches, or its counter-shot cooldown (B9)
+		goalXs: { number }, -- where it walks instead of the nearest target while hasGoal (World.setGoal, B9)
+		goalZs: { number },
+		hasGoal: { boolean },
 		slowLeft: { number }, -- seconds the slow lasts
 		burning: { boolean }, -- shown in snapshots; the weapons (WeaponService/Afflictions) run the burn itself
 		columns: { { any } }, -- every per-enemy array above, for compacting and clearing
@@ -101,6 +119,10 @@ export type World = typeof(setmetatable(
 		-- ids of the summoners that call enemies after the last step
 		summons: { number },
 		summonCount: number,
+		-- ids of the eggs that hatch after the last step (B9)
+		hatches: { number },
+		hatchCount: number,
+		strikers: { number }, -- scratch: indices of slashers that strike in this step
 	},
 	World
 ))
@@ -128,6 +150,13 @@ function World.new(params: Params): World
 		rushLeft = {},
 		summonTimers = {},
 		slowFactors = {},
+		speedFactors = {},
+		boosts = {},
+		buffed = {},
+		abilityTimers = {},
+		goalXs = {},
+		goalZs = {},
+		hasGoal = {},
 		slowLeft = {},
 		burning = {},
 		columns = {},
@@ -143,6 +172,9 @@ function World.new(params: Params): World
 		shotCount = 0,
 		summons = {},
 		summonCount = 0,
+		hatches = {},
+		hatchCount = 0,
+		strikers = {},
 	}
 	self.columns = {
 		self.ids,
@@ -162,6 +194,13 @@ function World.new(params: Params): World
 		self.rushLeft,
 		self.summonTimers,
 		self.slowFactors,
+		self.speedFactors,
+		self.boosts,
+		self.buffed,
+		self.abilityTimers,
+		self.goalXs,
+		self.goalZs,
+		self.hasGoal,
 		self.slowLeft,
 		self.burning,
 	} :: { { any } }
@@ -169,6 +208,18 @@ function World.new(params: Params): World
 end
 
 -- Spawning and removing -------------------------------------------------------------
+
+-- The config damage behind a kind's shotDamage column: its projectile, its slash or its counter-shots (0 for none).
+function World.baseShotDamage(kind: Kind): number
+	if kind.ranged then
+		return kind.ranged.projectileDamage
+	elseif kind.slash then
+		return kind.slash.damage
+	elseif kind.retaliate then
+		return kind.retaliate.projectileDamage
+	end
+	return 0
+end
 
 local function allocateId(self: World): number
 	repeat
@@ -178,7 +229,8 @@ local function allocateId(self: World): number
 end
 
 -- Adds an enemy and returns its id, or nil when maxEnemies are alive. `shotDamage` is the damage of each projectile
--- of a ranged kind (default: its config value).
+-- of a ranged kind, the hit of a slasher or the shots of a counter-shooter (default: its config value), `speedFactor`
+-- a multiplier on its kind's speed (default 1).
 function World.spawn(
 	self: World,
 	kind: Kind,
@@ -186,7 +238,8 @@ function World.spawn(
 	z: number,
 	hp: number,
 	contactDamage: number,
-	shotDamage: number?
+	shotDamage: number?,
+	speedFactor: number?
 ): number?
 	if self.alive >= self.params.maxEnemies then
 		return nil
@@ -205,16 +258,28 @@ function World.spawn(
 	self.contactDamage[i] = contactDamage
 	local ranged = kind.ranged
 	local spread = (id * GOLDEN_RATIO) % 1 -- so a group spawned together does not act in sync
-	self.shotDamage[i] = if ranged then shotDamage or ranged.projectileDamage else 0
+	self.shotDamage[i] = shotDamage or World.baseShotDamage(kind)
 	self.shotCooldown[i] = if ranged then ranged.fireInterval * spread else 0
 	self.modes[i] = MODE_WALK
-	self.modeTimers[i] = if kind.charge then kind.charge.cooldownSeconds * spread else 0
+	local cooldown = if kind.charge
+		then kind.charge.cooldownSeconds
+		elseif kind.slash then kind.slash.cooldownSeconds
+		else 0
+	self.modeTimers[i] = cooldown * spread
 	self.rushXs[i], self.rushZs[i], self.rushLeft[i] = 0, 0, 0
 	self.summonTimers[i] = if kind.summon then kind.summon.intervalSeconds * (0.5 + 0.5 * spread) else 0
 	self.slowFactors[i], self.slowLeft[i], self.burning[i] = 1, 0, false
+	local speed = math.max(0, speedFactor or 1)
+	self.speedFactors[i] = speed
+	self.boosts[i], self.buffed[i], self.hasGoal[i] = 1, false, false
+	self.goalXs[i], self.goalZs[i] = 0, 0
+	self.abilityTimers[i] = if kind.pulse
+		then kind.pulse.intervalSeconds * (0.5 + 0.5 * spread)
+		elseif kind.hatch then kind.hatch.seconds
+		else 0
 	self.indexOf[id] = i
 	self.maxRadius = math.max(self.maxRadius, kind.radius)
-	self.maxSpeed = math.max(self.maxSpeed, kind.speed)
+	self.maxSpeed = math.max(self.maxSpeed, kind.speed * speed)
 	self.hash:insert(i, x, z) -- visible to queries right away
 	return id
 end
@@ -276,22 +341,29 @@ end
 -- Damage ------------------------------------------------------------------------------
 
 -- Returns true when this hit killed the enemy, the HP it actually took (at most what was left) and the damage after
--- the enemy's damageTaken multiplier (Armored elites take less). Hits on unknown or dead enemies do nothing.
-function World.damage(self: World, id: number, amount: number): (boolean, number, number)
+-- the enemy's damageTaken multiplier (Armored elites take less), and since B9 whether a counter-shooter that
+-- survived fires its ring now (its cooldown starts). Hits on unknown or dead enemies do nothing.
+function World.damage(self: World, id: number, amount: number): (boolean, number, number, boolean)
 	local i = self.indexOf[id]
 	if not i or self.hp[i] <= 0 or not (amount > 0) then
-		return false, 0, 0
+		return false, 0, 0, false
 	end
-	local applied = amount * (self.kinds[i].damageTaken or 1)
+	local kind = self.kinds[i]
+	local applied = amount * (kind.damageTaken or 1)
 	local hp = self.hp[i]
 	local left = hp - applied
 	if left > 0 then
 		self.hp[i] = left
-		return false, applied, applied
+		local retaliate = kind.retaliate
+		if retaliate and self.abilityTimers[i] <= 0 then
+			self.abilityTimers[i] = retaliate.cooldownSeconds
+			return false, applied, applied, true
+		end
+		return false, applied, applied, false
 	end
 	self.hp[i] = 0
 	self.alive -= 1
-	return true, hp, applied
+	return true, hp, applied, false
 end
 
 -- Queries (dead enemies are skipped; data of an enemy killed since the last step stays readable) --------------
@@ -327,22 +399,22 @@ function World.getHealth(self: World, id: number): (number, number)
 	return self.hp[i], self.maxHp[i]
 end
 
--- The HP and damage multipliers the enemy was spawned with (minute and difficulty, on top of its kind's values),
--- so enemies it splits into or calls can get the same. 1, 1 for unknown ids.
-function World.getMultipliers(self: World, id: number): (number, number)
+-- The HP, damage and speed multipliers the enemy was spawned with (wave and difficulty, on top of its kind's values),
+-- so enemies it splits into or calls can get the same. 1, 1, 1 for unknown ids.
+function World.getMultipliers(self: World, id: number): (number, number, number)
 	local i = self.indexOf[id]
 	if not i then
-		return 1, 1
+		return 1, 1, 1
 	end
 	local kind = self.kinds[i]
 	local hpMultiplier = self.maxHp[i] / kind.hp
 	local damageMultiplier = 1
 	if kind.contactDamage > 0 then
 		damageMultiplier = self.contactDamage[i] / kind.contactDamage
-	elseif kind.ranged and kind.ranged.projectileDamage > 0 then
-		damageMultiplier = self.shotDamage[i] / kind.ranged.projectileDamage
+	elseif World.baseShotDamage(kind) > 0 then
+		damageMultiplier = self.shotDamage[i] / World.baseShotDamage(kind)
 	end
-	return hpMultiplier, damageMultiplier
+	return hpMultiplier, damageMultiplier, self.speedFactors[i]
 end
 
 -- The enemy's mode (World.MODE_*) and its rush direction (only meaningful from the wind-up on).
@@ -568,13 +640,38 @@ function World.setBurning(self: World, id: number, on: boolean)
 	end
 end
 
--- Whether the enemy is slowed and whether it burns.
-function World.getStatus(self: World, id: number): (boolean, boolean)
+-- Whether the enemy is slowed, whether it burns and whether a Herald buffed it (B9).
+function World.getStatus(self: World, id: number): (boolean, boolean, boolean)
 	local i = self.indexOf[id]
 	if not i or self.hp[i] <= 0 then
-		return false, false
+		return false, false, false
 	end
-	return self.slowFactors[i] < 1, self.burning[i]
+	return self.slowFactors[i] < 1, self.burning[i], self.buffed[i]
+end
+
+-- Makes a living enemy walk to (x, z) instead of the nearest target, or back to the target without x and z (the
+-- Gobbler going for an orb, B9).
+function World.setGoal(self: World, id: number, x: number?, z: number?)
+	local i = self.indexOf[id]
+	if not i or self.hp[i] <= 0 then
+		return
+	end
+	if x and z then
+		self.goalXs[i], self.goalZs[i], self.hasGoal[i] = x, z, true
+	else
+		self.hasGoal[i] = false
+	end
+end
+
+-- Sets the multiplier on a living enemy's speed (spawned with the team's Enemy Speed; a boss phase changes it, WP10).
+function World.setSpeedFactor(self: World, id: number, factor: number)
+	local i = self.indexOf[id]
+	if not i or self.hp[i] <= 0 then
+		return
+	end
+	local speed = math.max(0, factor)
+	self.speedFactors[i] = speed
+	self.maxSpeed = math.max(self.maxSpeed, self.kinds[i].speed * speed * self.boosts[i])
 end
 
 -- Puts a living enemy at (x, z) right away (SpawnDirector moves enemies left far behind). The hash follows on the
@@ -600,7 +697,7 @@ local function rushStep(
 )
 	local p = self.params
 	local radius = self.kinds[i].radius
-	local move = math.min(charge.speed * self.slowFactors[i] * dt, self.rushLeft[i])
+	local move = math.min(charge.speed * self.speedFactors[i] * self.slowFactors[i] * dt, self.rushLeft[i])
 	local x, z = self.xs[i] + self.rushXs[i] * move, self.zs[i] + self.rushZs[i] * move
 	local left = self.rushLeft[i] - move
 	local stop = left <= EPSILON
@@ -670,6 +767,72 @@ local function chargeStep(
 	return false
 end
 
+-- One step of a slasher (B9): it walks until a target is within triggerRange, then stands and winds up, strikes
+-- everyone in its circle when the wind-up ends (step 5 counts the hit as contact damage) and recovers. Returns true
+-- while it stands still.
+local function slashStep(self: World, i: number, slash: Enemies.Slash, dt: number, distance: number): boolean
+	local modes, timers = self.modes, self.modeTimers
+	local mode = modes[i]
+	local timer = timers[i] - dt
+	if mode == MODE_WINDUP then
+		if timer > 0 then
+			timers[i] = timer
+		else
+			table.insert(self.strikers, i)
+			modes[i] = MODE_RECOVER
+			timers[i] = slash.recoverSeconds
+		end
+		return true
+	elseif mode == MODE_RECOVER then
+		if timer > 0 then
+			timers[i] = timer
+		else
+			modes[i] = MODE_WALK
+			timers[i] = slash.cooldownSeconds
+		end
+		return true
+	end
+	timers[i] = math.max(timer, 0)
+	if timer <= 0 and distance <= slash.triggerRange then
+		modes[i] = MODE_WINDUP
+		timers[i] = slash.windupSeconds
+		return true
+	end
+	return false
+end
+
+-- A Herald's buff or a Mender's heal on the enemies around enemy i (B9). Heralds buff only enemies that are not
+-- buffed yet and no other pulsing ones.
+local function pulseAt(self: World, i: number, pulse: Enemies.Pulse)
+	local xs, zs, hp, maxHp, kinds = self.xs, self.zs, self.hp, self.maxHp, self.kinds
+	local scratch = self.scratch
+	local found = self.hash:query(xs[i], zs[i], pulse.radius + self.maxRadius, scratch)
+	local buffsLeft = pulse.buffCount or 0
+	for s = 1, found do
+		local j = scratch[s]
+		if j ~= i and hp[j] > 0 then
+			local reach = pulse.radius + kinds[j].radius
+			local dx, dz = xs[j] - xs[i], zs[j] - zs[i]
+			if dx * dx + dz * dz <= reach * reach then
+				if pulse.heal and not kinds[j].boss then
+					hp[j] = math.min(maxHp[j], hp[j] + maxHp[j] * pulse.heal)
+				end
+				if buffsLeft > 0 and not self.buffed[j] and not kinds[j].pulse and not kinds[j].boss then
+					buffsLeft -= 1
+					self.buffed[j] = true
+					self.contactDamage[j] *= pulse.buffDamage or 1
+					self.shotDamage[j] *= pulse.buffDamage or 1
+					self.speedFactors[j] *= pulse.buffSpeed or 1
+					local bonus = maxHp[j] * (pulse.buffHp or 0)
+					maxHp[j] += bonus
+					hp[j] += bonus
+					self.maxSpeed = math.max(self.maxSpeed, kinds[j].speed * self.speedFactors[j] * self.boosts[j])
+				end
+			end
+		end
+	end
+end
+
 local function rebuildHash(self: World)
 	local hash, xs, zs = self.hash, self.xs, self.zs
 	hash:clear()
@@ -702,6 +865,8 @@ function World.step(
 	local obstacles = p.obstacles
 	local maxRadius = self.maxRadius
 
+	table.clear(self.strikers)
+
 	-- 2. steering
 	if targetCount > 0 then
 		local tolerance = p.keepDistanceTolerance
@@ -727,16 +892,33 @@ function World.step(
 			then
 				continue
 			end
+			local slash = kind.slash
+			if slash and slashStep(self, i, slash, dt, distance) then
+				continue
+			end
+			local accelerate = kind.accelerate
+			if accelerate then
+				local boost = math.min(accelerate.max, self.boosts[i] + accelerate.perSecond * dt)
+				self.boosts[i] = boost
+				self.maxSpeed = math.max(self.maxSpeed, kind.speed * self.speedFactors[i] * boost)
+			end
+			local toGoal = self.hasGoal[i]
+			if toGoal then
+				bestDx, bestDz = self.goalXs[i] - x, self.goalZs[i] - z
+				distance = math.sqrt(bestDx * bestDx + bestDz * bestDz)
+			end
 			if distance <= EPSILON or kind.anchored then
 				continue
 			end
 			local radius = kind.radius
-			local maxMove = kind.speed * self.slowFactors[i] * dt
+			local maxMove = kind.speed * self.speedFactors[i] * self.boosts[i] * self.slowFactors[i] * dt
 			local dirX, dirZ = bestDx / distance, bestDz / distance
 			local advance
 			local ranged = kind.ranged
 			local flee = kind.flee
-			if flee then
+			if toGoal then
+				advance = math.min(maxMove, distance)
+			elseif flee and (flee.range == nil or distance < flee.range) then
 				dirX, dirZ = fleeDirection(p, x, z, bestDx, bestDz, distance, flee.edgeMargin)
 				advance = maxMove
 			elseif ranged then
@@ -866,6 +1048,20 @@ function World.step(
 			end
 		end
 	end
+	-- slashers that strike in this step hit every target in their circle (B9)
+	for _, i in self.strikers do
+		local slash = kinds[i].slash
+		local hit = self.shotDamage[i]
+		if slash and hit > 0 then
+			local reach = slash.radius + playerRadius
+			for t = 1, targetCount do
+				local dx, dz = hitXs[t] - xs[i], hitZs[t] - zs[i]
+				if dx * dx + dz * dz <= reach * reach and hit > contacts[t] then
+					contacts[t] = hit
+				end
+			end
+		end
+	end
 	rebuildHash(self)
 
 	-- 6. ranged enemies count down while a target is in fire range and report a shot at the nearest one
@@ -922,6 +1118,47 @@ function World.step(
 		summons[k] = nil
 	end
 	self.summonCount = summonCount
+
+	-- 7b. (B9) pulsing enemies buff or heal the others around them while there is a target, eggs count down and
+	-- report themselves when they hatch, counter-shot cooldowns run out
+	local hatches, hatchCount = self.hatches, 0
+	local abilityTimers, modes, modeTimers = self.abilityTimers, self.modes, self.modeTimers
+	for i = 1, count do
+		local kind = kinds[i]
+		local pulse = kind.pulse
+		if pulse then
+			if modes[i] == MODE_WINDUP then
+				modeTimers[i] -= dt
+				if modeTimers[i] <= 0 then
+					modes[i] = MODE_WALK
+				end
+			end
+			if targetCount > 0 then
+				local timer = abilityTimers[i] - dt
+				if timer <= 0 then
+					timer += pulse.intervalSeconds
+					pulseAt(self, i, pulse)
+					modes[i], modeTimers[i] = MODE_WINDUP, PULSE_SHOW_SECONDS
+				end
+				abilityTimers[i] = timer
+			end
+		elseif kind.hatch then
+			local before = abilityTimers[i]
+			local timer = before - dt
+			abilityTimers[i] = timer
+			modes[i] = if timer <= HATCH_WARN_SECONDS then MODE_WINDUP else MODE_WALK
+			if timer <= 0 and before > 0 then
+				hatchCount += 1
+				hatches[hatchCount] = ids[i]
+			end
+		elseif kind.retaliate then
+			abilityTimers[i] = math.max(0, abilityTimers[i] - dt)
+		end
+	end
+	for k = hatchCount + 1, self.hatchCount do
+		hatches[k] = nil
+	end
+	self.hatchCount = hatchCount
 
 	-- 8. slows run out
 	local slowFactors, slowLeft = self.slowFactors, self.slowLeft

@@ -324,6 +324,70 @@ function ConfigCheck.run(): { string }
 		then
 			problem(`Enemy {id} needs positive charge values`)
 		end
+		-- B9 behaviours
+		local accelerate = enemy.accelerate
+		if accelerate and not (accelerate.perSecond > 0 and accelerate.max >= 1) then
+			problem(`Enemy {id} needs accelerate.perSecond above 0 and max of at least 1`)
+		end
+		local retaliate = enemy.retaliate
+		if
+			retaliate
+			and not (
+				retaliate.count >= 1
+				and retaliate.cooldownSeconds >= 0
+				and retaliate.projectileDamage > 0
+				and retaliate.projectileSpeed > 0
+				and retaliate.projectileRange > 0
+				and retaliate.projectileRadius > 0
+			)
+		then
+			problem(`Enemy {id} needs positive retaliate values`)
+		end
+		local pulse = enemy.pulse
+		if pulse then
+			if not (pulse.radius > 0 and pulse.intervalSeconds > 0) then
+				problem(`Enemy {id} needs a pulse radius and interval above 0`)
+			end
+			if not (pulse.heal or pulse.buffCount) then
+				problem(`Enemy {id} pulses without a buff or heal`)
+			end
+		end
+		local hatch = enemy.hatch
+		if
+			hatch
+			and not (
+				Config.Enemies.types[hatch.enemy]
+				and hatch.enemy ~= id
+				and hatch.count >= 1
+				and hatch.seconds > 0
+				and hatch.spread >= 0
+			)
+		then
+			problem(`Enemy {id} must hatch at least 1 of another known enemy after some seconds`)
+		end
+		local slash = enemy.slash
+		if
+			slash
+			and not (
+				slash.triggerRange > 0
+				and slash.windupSeconds > 0
+				and slash.radius > 0
+				and slash.damage > 0
+				and slash.recoverSeconds >= 0
+				and slash.cooldownSeconds >= 0
+			)
+		then
+			problem(`Enemy {id} needs positive slash values`)
+		end
+		local eat = enemy.eat
+		if eat and not (eat.seekRange > 0 and eat.reach >= 0) then
+			problem(`Enemy {id} needs eat.seekRange above 0 and a reach of at least 0`)
+		end
+	end
+	for _, enemyId in Config.Admin.newEnemies do
+		if not Config.Enemies.types[enemyId] then
+			problem(`Admin.newEnemies names unknown enemy {enemyId}`)
+		end
 	end
 
 	local affixes = Config.Enemies.elite.affixes
@@ -359,29 +423,36 @@ function ConfigCheck.run(): { string }
 		problem("Run.spawn.ringMin must be above 0 and at most ringMax")
 	end
 
-	for _, step in Config.Run.spawn.mix do
-		local sum = 0
-		for enemyId, weight in step.weights do
-			sum += weight
-			if not Config.Enemies.types[enemyId] then
-				problem(`Spawn mix at minute {step.fromMinute} uses unknown enemy {enemyId}`)
+	local spawn = Config.Run.spawn
+	-- B9: spawn groups of every wave and HP and damage growth per kind
+	if #spawn.groups ~= #spawn.waves.lengthsSeconds then
+		problem("Run.spawn.groups needs one entry per wave in Run.spawn.waves")
+	end
+	for index, entry in spawn.groups do
+		for _, group in entry.groups do
+			if not Config.Enemies.types[group.enemy] then
+				problem(`Run.spawn.groups wave {index} uses unknown enemy {group.enemy}`)
 			end
-		end
-		if math.abs(sum - 1) > 1e-6 then
-			problem(`Spawn mix at minute {step.fromMinute} sums to {sum}, expected 1`)
+			if not (group.size > 0 and group.every > 0) then
+				problem(`Run.spawn.groups wave {index} needs sizes and intervals above 0`)
+			end
 		end
 	end
-
-	local spawn = Config.Run.spawn
-	for name, curve in { rateCurve = spawn.rateCurve, hpCurve = spawn.hpCurve, damageCurve = spawn.damageCurve } do
-		if #curve == 0 or curve[1][1] ~= 0 then
-			problem(`Run.spawn.{name} must start at minute 0`)
-		end
-		for k, point in curve do
-			if not (point[2] > 0) or (k > 1 and point[1] <= curve[k - 1][1]) then
-				problem(`Run.spawn.{name} needs values above 0 at rising minutes`)
-				break
-			end
+	if not (spawn.maxOwedFirings >= 1) then
+		problem("Run.spawn.maxOwedFirings must be at least 1")
+	end
+	if not (spawn.firstShare >= 0 and spawn.groupSpread >= 0 and spawn.markerSeconds >= 0) then
+		problem("Run.spawn.firstShare, groupSpread and markerSeconds must not be negative")
+	end
+	if #spawn.growth.hpSteps < #spawn.groups or #spawn.growth.damageSteps < #spawn.groups then
+		problem("Run.spawn.growth needs hpSteps and damageSteps for every wave")
+	end
+	if not (spawn.swarmRush.every > 0) then
+		problem("Run.spawn.swarmRush.every must be above 0")
+	end
+	for enemyId, kind in Config.Enemies.types do
+		if not (kind.hpPerWave >= 0 and kind.damagePerWave >= 0) then
+			problem(`Enemies.{enemyId} needs hpPerWave and damagePerWave of at least 0`)
 		end
 	end
 	local waves = spawn.waves
@@ -466,9 +537,87 @@ function ConfigCheck.run(): { string }
 		end
 	end
 	for id, enemy in Config.Enemies.types do
-		if enemy.ranged and enemy.flee then
-			problem(`Enemy {id} cannot both shoot and flee`)
+		if enemy.ranged and enemy.flee and not enemy.flee.range then
+			problem(`Enemy {id} cannot both shoot and always flee (B9: give flee a range)`)
 		end
+	end
+
+	-- WP10: bosses and the boss wave
+	local bossTypeIds: { [number]: string } = {}
+	for id, enemy in Config.Enemies.types do
+		bossTypeIds[enemy.typeId] = id
+	end
+	local attackKinds = { Dash = true, Slam = true, Ring = true, Rain = true, Circle = true }
+	for id, boss in Config.Enemies.bosses do
+		if boss.id ~= id then
+			problem(`Boss key {id} does not match id {boss.id}`)
+		end
+		if bossTypeIds[boss.typeId] then
+			problem(`Boss {id} reuses typeId {boss.typeId} of {bossTypeIds[boss.typeId]}`)
+		end
+		bossTypeIds[boss.typeId] = id
+		if boss.typeId < 1 or boss.typeId >= Config.Enemies.elite.typeIdOffset then
+			problem(`Boss {id} typeId must be 1-{Config.Enemies.elite.typeIdOffset - 1}`)
+		end
+		if not (boss.hp > 0 and boss.radius > 0 and boss.mass > 0 and boss.speed >= 0) then
+			problem(`Boss {id} needs hp, radius and mass above 0 and a speed of at least 0`)
+		end
+		local plan = boss.boss
+		if not (plan and #plan.phases >= 1) then
+			problem(`Boss {id} needs a boss plan with at least one phase`)
+			continue
+		end
+		for index, phase in plan.phases do
+			if index > 1 and not (phase.fromHp or phase.afterSeconds) then
+				problem(`Boss {id} phase {index} needs fromHp or afterSeconds`)
+			end
+			if #phase.attacks == 0 or phase.pauseSeconds < 0 then
+				problem(`Boss {id} phase {index} needs attacks and a pause of at least 0`)
+			end
+			for _, attackId in phase.attacks do
+				if not plan.attacks[attackId] then
+					problem(`Boss {id} phase {index} uses unknown attack {attackId}`)
+				end
+			end
+			local orbit = phase.orbit
+			if orbit and not (orbit.count >= 1 and orbit.radius > 0 and orbit.hitRadius > 0) then
+				problem(`Boss {id} phase {index} needs a positive orbit`)
+			end
+		end
+		for attackId, attack in plan.attacks do
+			if not attackKinds[attack.kind] then
+				problem(`Boss {id} attack {attackId} has unknown kind {attack.kind}`)
+			end
+			if not (attack.windupSeconds > 0 and attack.recoverSeconds >= 0 and attack.damage >= 0) then
+				problem(`Boss {id} attack {attackId} needs a wind-up above 0`)
+			end
+			local needs = {
+				Dash = { attack.speed, attack.distance },
+				Slam = { attack.radius },
+				Ring = { attack.count, attack.projectileSpeed, attack.projectileRange, attack.projectileRadius },
+				Rain = { attack.count, attack.spread, attack.radius },
+				Circle = { attack.count, attack.spread, attack.projectileSpeed, attack.projectileRadius },
+			}
+			for _, value in needs[attack.kind] or {} do
+				if not (value and value > 0) then
+					problem(`Boss {id} attack {attackId} misses a value its kind {attack.kind} needs`)
+					break
+				end
+			end
+		end
+	end
+	local bossWave = Config.Enemies.bossWave
+	for _, bossId in bossWave.order do
+		if not Config.Enemies.bosses[bossId] then
+			problem(`Enemies.bossWave.order names unknown boss {bossId}`)
+		end
+	end
+	if not (bossWave.count >= 1 and #bossWave.order >= 1 and bossWave.stateInterval > 0) then
+		problem("Enemies.bossWave needs count, order and stateInterval")
+	end
+	local lengths = Config.Run.spawn.waves.lengthsSeconds
+	if Config.Admin.skipToBossLeadSeconds ~= lengths[#lengths] then
+		problem("Admin.skipToBossLeadSeconds should equal the boss wave's length (lands at the end of the wave before)")
 	end
 
 	-- B10: validate every selectable loadout and character rule before services start.

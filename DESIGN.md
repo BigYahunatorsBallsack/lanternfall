@@ -53,7 +53,7 @@ Zwei Schleifen tragen das Spiel: im Run wird man nach jeder Welle durch Level-up
 
 **Richtung Brotato (Entscheidung des Owners am 27.10.2026, umgesetzt ab Paket B1):** Das Spiel fühlte sich nach dem Spaß-Paket schon wie Brotato an (feste Arena, feste Kamera, Wellen). Deshalb gehen wir gezielt dorthin: kurze Wellen, danach eine Shop-Phase. Mechaniken, Formeln und Zahlen orientieren sich eng an Brotato; Namen, Texte, Items, Charaktere und Look sind unsere eigenen (keine Kopie von geschütztem Inhalt). Plan: B1 Wellen mit Shop, B2 Werte-System und Items mit Vor- und Nachteilen, B3 Shop-Feinschliff (Sperren, Verkaufen, Verschmelzen), B4 Charaktere mit Trade-offs (Abschnitt 20).
 
-**Plan nach der Brotato-Referenz (29.10.2026):** Der Owner hat eine Referenz aller Brotato-Mechaniken (Basisspiel ohne DLC, Zahlen aus dem Community-Wiki) geliefert; alles daraus soll so gut wie möglich ins Spiel. Der Abgleich mit dem Stand nach B2 und die neuen Pakete B3–B12 stehen in Abschnitt 20. Entscheidung des Owners: Ein Run bekommt **20 Wellen wie Brotato** (20, 25, 30 … 55 s, Wellen 9–19 je 60 s, Welle 20 = Boss-Welle mit 90 s, endet sofort, wenn der Boss stirbt). **Seit B3 umgesetzt;** bis der Boss kommt (Paket 10), ist Welle 20 eine normale, harte 90-s-Welle, und wer sie übersteht, gewinnt.
+**Plan nach der Brotato-Referenz (29.10.2026):** Der Owner hat eine Referenz aller Brotato-Mechaniken (Basisspiel ohne DLC, Zahlen aus dem Community-Wiki) geliefert; alles daraus soll so gut wie möglich ins Spiel. Der Abgleich mit dem Stand nach B2 und die neuen Pakete B3–B12 stehen in Abschnitt 20. Entscheidung des Owners: Ein Run bekommt **20 Wellen wie Brotato** (20, 25, 30 … 55 s, Wellen 9–19 je 60 s, Welle 20 = Boss-Welle mit 90 s, endet sofort, wenn der Boss stirbt). **Seit B3 umgesetzt;** seit Paket 10 bringt Welle 20 einen Boss (Abschnitt 7). Wie in Brotato gewinnt man, wenn der Boss stirbt oder die 90 s der Welle ablaufen.
 
 ```text
 Welle (20–60 s kämpfen, XP-Orbs = Shards sammeln)
@@ -64,16 +64,16 @@ Wellenende: Gegner verschwinden, liegende Orbs in den Beutel (seit B6), Truhen �
    ▼
 Kisten (seit B6: Item nehmen oder verkaufen) → Werte-Karten (eine Wahl pro Level dieser Welle)
    → Shop (max. 40 s, „Ready")
-   │ alle bereit oder Zeit um                      │ nach Welle 20
+   │ alle bereit oder Zeit um                      │ Welle 20: Boss tot oder Zeit um
    ▼                                               ▼
-nächste Welle                               Boss → Run-Ende (Embers, „Nochmal")
+nächste Welle                               Run-Ende (Embers, „Nochmal")
 ```
 
 ```text
 Hub-Lobby → Run startet → Welle ⇄ Level-ups & Shop
                               │ nach Welle 20      │ alle down (Scheitern)
                               ▼                    ▼
-                  Welle 20 (Boss ab Paket 10) ──Sieg──→ Run-Ende (Embers, „Nochmal")
+                  Welle 20 (Boss seit Paket 10) ──Sieg──→ Run-Ende (Embers, „Nochmal")
                                                    │
 Hub-Lobby ←──── nächster Run ──── Talente & Klassen ←┘
 ```
@@ -98,7 +98,7 @@ Wellenlängen wie in Brotato: Welle 1 dauert 20 s, jede weitere 5 s mehr, Wellen
 | 16 | nur noch die starken Gegnerarten |
 | 17 | dritter Swarm Rush, 2 Elites |
 | 19 | 2 Elites |
-| 20 | letzte Welle (90 s), 1,4-fache Spawnrate; ab Paket 10 mit Boss |
+| 20 | letzte Welle (90 s), 1,4-fache Spawnrate; seit Paket 10 Boss-Welle (Abschnitt 7) |
 | ≈ 25–30 Min | Run-Ende: Statistik, Embers, „Nochmal" |
 
 **Wellenende und Shop (seit Paket B1, seit B2 mit Items und Werten, seit B3 komplett; Werte in `Config/Shop.luau` und `Config/Items.luau`):**
@@ -136,15 +136,15 @@ Wellenlängen wie in Brotato: Welle 1 dauert 20 s, jede weitere 5 s mehr, Wellen
 | Plünderer (Looter) | Ab Welle 3, 25 s nach Wellenbeginn und danach alle 15 s mit 10 % Chance (Brotato), 30 Studs neben einem Spieler. Läuft weg (am Rand an der Wand entlang), greift nicht an, verschwindet nach 12 s (Annahme). Getötet: eine Kiste und ein Orb mit 8. Gold-ockerfarbener Dieb mit Münzsack. |
 | Bäume | Pro Welle 1 Baum (Annahme) plus der neue Team-Wert „Trees", verteilt über die ersten 70 % der Welle, irgendwo in der Arena mindestens 25 Studs von allen Spielern; höchstens 6 gleichzeitig. Stehen still, tun nichts, Waffen treffen sie wie Gegner (30 HP mal HP-Kurve, Annahme). Getötet: Frucht oder Kiste (20 % Kiste) und ein Orb mit 3. |
 | Neben-Werte | „Fruit Healing" (HP pro Frucht und Kiste) und „Trees" (Bäume pro Welle, Team-Summe) für Items ab B8; neues Effekt-Ereignis „Consumable" (Frucht oder Kiste aufgehoben). |
-| Noch nicht | Legendäre Kiste (Item der Stufe IV, heilt voll) von Elites und Boss kommt mit dem Boss (Paket 10) bzw. den seltenen Elites (B11); bis dahin bleibt die Elite-Truhe (Abschnitt 8), sonst gäbe es 13 legendäre Items pro Run. |
+| Legendäre Kiste (seit Paket 10) | Heilt voll, ihr Item ist mindestens Legendary (`Config/Loot.luau` → `legendaryCrate`); wird aufgehoben wie eine Kiste und öffnet sich am Wellenende vor den anderen Kisten. Lässt jeder getötete Boss fallen (zählt erst, wenn ein Run nach dem Boss weitergeht, B11 Endlos). Die seltenen Elites aus B11 sollen sie auch fallen lassen; bis dahin bleibt die Elite-Truhe (Abschnitt 8), sonst gäbe es 13 legendäre Items pro Run. |
 
 **Run-Ablauf im Prototyp** (Lobby und Arena im selben Server, Werte in `Config/Run.luau` → `flow`):
 
 1. **Lobby:** Klasse wählen, „Ready" drücken. Wer bereit ist, kommt in den nächsten Run (max. 4).
 2. **Countdown:** startet mit dem ersten bereiten Spieler, 10 s; sind alle im Server bereit, sofort auf 3 s verkürzt. Bricht ab, wenn niemand mehr bereit ist.
 3. **Run:** alle Bereiten werden in die Arena gesetzt, Welle 1 beginnt; nach jeder Welle kommt die Shop-Phase (Phase „Shop"). Wer später kommt oder nicht bereit war, wartet in der Lobby und kann sich schon für den nächsten Run bereit melden.
-4. **Nach Welle 20 = Boss-Phase** (seit B3, vorher nach Welle 12). Bis der Boss da ist (Paket 10), zählt das Erreichen der Boss-Phase als Sieg.
-5. **Ende:** Sieg (Boss besiegt), Niederlage (niemand mehr „Alive", also alle down) oder abgebrochen (alle haben den Server verlassen, dann direkt zurück in die Lobby).
+4. **Welle 20 = Boss-Welle** (seit Paket 10; vorher zählte das Überleben von Welle 20 als Sieg). Die alte Phase „Boss" wird nicht mehr betreten.
+5. **Ende:** Sieg (Boss besiegt oder Welle 20 überlebt), Niederlage (niemand mehr „Alive", also alle down) oder abgebrochen (alle haben den Server verlassen, dann direkt zurück in die Lobby).
 6. **Ergebnis:** 15 s Ergebnis-Bildschirm mit „Play again"; drücken alle Teilnehmer „Play again", geht es sofort weiter. Danach zurück in die Lobby, wer „Play again" gedrückt hat, startet direkt den nächsten Countdown.
 
 ## 4. Steuerung & Spieler-Grundwerte
@@ -152,7 +152,7 @@ Wellenlängen wie in Brotato: Welle 1 dauert 20 s, jede weitere 5 s mehr, Wellen
 Spieler steuern nur Bewegung und einen Dash; Angreifen, Zielen und Aufsammeln passiert automatisch.
 
 - **Mobile:** virtueller Stick links, Dash-Button rechts. **PC:** WASD + Leertaste. **Konsole:** linker Stick + A.
-- **Kamera:** feste Schräg-Kamera (etwa 50° Neigung, fester Zoom; seit dem Feedback nach Paket 9 flacher, vorher 60°). Bewusst nicht wie Megabonk (Third-Person hinter der Figur, drehbar): Waffen zielen automatisch, man soll die Traube rundherum sehen, und am Handy reicht ein Daumen (Entscheidung des Owners, Paket 4). Die Kamera steht südlich der Figur und schaut nach Norden, W/Stick nach oben läuft also immer bildschirm-aufwärts.
+- **Kamera:** feste Schräg-Kamera (etwa 50° Neigung, fester Zoom; seit dem Feedback nach Paket 9 flacher, vorher 60°; seit B9 weiter herausgezoomt, damit man mehr vom Schlachtfeld und die Spawn-Markierungen früher sieht). Bewusst nicht wie Megabonk (Third-Person hinter der Figur, drehbar): Waffen zielen automatisch, man soll die Traube rundherum sehen, und am Handy reicht ein Daumen (Entscheidung des Owners, Paket 4). Die Kamera steht südlich der Figur und schaut nach Norden, W/Stick nach oben läuft also immer bildschirm-aufwärts.
 - **Zielen:** jede Waffe hat eine feste Zielregel (nächster Gegner, zufälliger Gegner, um den Spieler herum).
 - **Charakter:** Roblox-R15-Avatar mit Klassen-Kostüm darüber (Abschnitt 14).
 
@@ -219,7 +219,7 @@ Explosionen, Brennen, Durchschlag, Abprall und Rückstoß kamen mit der Kampf-Ti
 
 **Stillstand (seit B4):** Wer in einer Welle mindestens 0,2 s langsamer als 1 Stud/s ist, steht still; wieder losgehen zählt ebenso erst nach 0,2 s, damit kurzes Zucken den Bonus nicht flackern lässt (Annahme, Brotato nennt keine Zahlen; `Config/Effects.luau` → `standStill`). Im Shop, down oder außerhalb des Runs gibt es keinen Stillstands-Bonus.
 
-Seit Paket 4 umgesetzt (Werte in `Config/Player.luau` und `Config/Camera.luau`): Kamera 50° Neigung (seit Feedback zu Paket 9, vorher 60°), 70 Studs Abstand, Sichtfeld 40°, folgt weich. Springen ist aus; Leertaste, Gamepad-A und ein runder Dash-Knopf unten rechts lösen den Dash aus (am Handy größer). Der Dash schiebt die Figur in 0,15 s 12 Studs in Laufrichtung (im Stand in Blickrichtung); Wände und Ruinen stoppen ihn. Der Knopf zeigt den Cooldown als dunkle Füllung. Wer „down" ist, kann nicht laufen und nicht dashen. Klassenbonus auf HP wird beim Run-Start eingerechnet (Blade Warden 120 HP; seit B2 als +20 Max HP). Im HUD unten Mitte die eigene HP-Leiste (rot unter 30 %), kurzer roter Bildschirm-Blitz bei Treffern, HP der Mitspieler in der Team-Liste.
+Seit Paket 4 umgesetzt (Werte in `Config/Player.luau` und `Config/Camera.luau`): Kamera 50° Neigung (seit Feedback zu Paket 9, vorher 60°), 100 Studs Abstand (seit B9, vorher 70), Sichtfeld 40°, folgt weich. Springen ist aus; Leertaste, Gamepad-A und ein runder Dash-Knopf unten rechts lösen den Dash aus (am Handy größer). Der Dash schiebt die Figur in 0,15 s 12 Studs in Laufrichtung (im Stand in Blickrichtung); Wände und Ruinen stoppen ihn. Der Knopf zeigt den Cooldown als dunkle Füllung. Wer „down" ist, kann nicht laufen und nicht dashen. Klassenbonus auf HP wird beim Run-Start eingerechnet (Blade Warden 120 HP; seit B2 als +20 Max HP). Im HUD unten Mitte die eigene HP-Leiste (rot unter 30 %), kurzer roter Bildschirm-Blitz bei Treffern, HP der Mitspieler in der Team-Liste.
 
 Alle Werte stehen in Config-Modulen, nicht im Code.
 
@@ -514,20 +514,33 @@ Annahmen, wo Brotato keine Zahl nennt: Drain tötet nicht, die HP bleiben bei mi
 | Gloom Elite | beliebiger Typ, leuchtet, 1,5× so groß, ab 6:00 mit Eigenschaft | 8× | 0,9× | 1,5× | 25 + Truhe | 2, 4, 6 (2×), 8, 10 (2×) |
 | Looter (seit B6) | läuft weg, greift nicht an, verschwindet nach 12 s; lässt eine Kiste fallen (Abschnitt 3) | 120 | 17 | – | 8 | ab Welle 3 zufällig |
 | Tree (seit B6) | steht still, tut nichts; lässt Frucht oder Kiste fallen | 30 | 0 | – | 3 | jede Welle |
-| The Lantern Eater | Boss | 4.000 × Spielerfaktor | 9 | siehe unten | – | Welle 20 (ab Paket 10; bis B3 nach Welle 12) |
+| Stalker (seit B9) | wird jede Sekunde 12 % schneller, bis 2,4× | 14 | 8 bis 19 | 6 pro Kontakt | 2 | Welle 4 |
+| Skulker (seit B9) | Schütze, hält 36 Studs Abstand, flieht vor Spielern näher als 22 Studs | 18 | 13 | 7 pro Projektil, alle 3 s | 3 | Welle 10 |
+| Thornback (seit B9) | Panzer; jeder Treffer, der ihn nicht tötet, schießt einen Ring aus 8 Dornen (höchstens alle 1,5 s) | 70 | 7 | 10 pro Kontakt, 6 pro Dorn | 5 | Welle 12 |
+| Herald (seit B9) | alle 4 s: bis zu 5 Gegner im Umkreis von 14 Studs werden dauerhaft stärker (×1,5 Schaden, ×1,25 Tempo, +50 % HP, golden) | 30 | 9 | 4 pro Kontakt | 4 | Welle 9 |
+| Mender (seit B9) | alle 3 s heilt er alle anderen Gegner im Umkreis von 14 Studs um 30 % ihrer HP | 30 | 9 | 4 pro Kontakt | 4 | Welle 10 |
+| Brood Egg (seit B9) | steht still, wackelt und glüht ab 1,5 s vorher, schlüpft nach 5 s zu 4 Shadelings | 20 | 0 | – | 1 | Welle 8 |
+| Reaper (seit B9) | bleibt 7 Studs vor dir stehen, holt 0,7 s aus (roter Kreis am Boden) und trifft alles im Kreis (7,5 Studs) | 45 | 11 | 14 pro Hieb | 4 | Welle 11 |
+| Gobbler (seit B9) | läuft zu XP-Orbs im Umkreis von 45 Studs und frisst sie; getötet lässt er alles Gefressene als ein Orb fallen | 40 | 12 | 5 pro Kontakt | 3 | Welle 8 |
+| The Lantern Eater (seit Paket 10) | Boss nach Brotatos Predator | 100.000 × Spielerfaktor | 11 | 90 Kontakt, siehe unten | – | Welle 20, zufällig einer der beiden |
+| The Hollow Seer (seit Paket 10) | Boss nach Brotatos Invoker | 100.000 × Spielerfaktor | 7, in Phase 3 17,5 | 60 Kontakt, siehe unten | – | Welle 20, zufällig einer der beiden |
 
 **Looter und Tree (seit B6):** HP, Schaden und XP wachsen mit den Kurven wie bei allen. Der Looter flieht vor dem nächsten Spieler; nahe am Rand läuft er an der Wand entlang statt hinein (`flee.edgeMargin`). Der Baum ist „verankert": Er bewegt sich nie, andere Gegner werden von ihm weggeschoben, Spieler laufen durch ihn hindurch, Rückstoß wirkt nicht. Beide werden nie auf den Spawn-Ring zurückgeholt und zählen zur Gegner-Obergrenze.
 
 **Rückstoß-Widerstand (seit B5, `Config/Enemies.luau` → `knockbackResistance`):** Anteil eines Rückstoßes, den ein Gegner ignoriert, nach ähnlichen Brotato-Gegnern: Shadeling, Splitling und Abyss Shadeling 0, Splitter 0,5, Charger 0,8, Brute und Abyss Brute 0,9, Spitter 0,95; Gloom Elites (und später Bosse) 1, also gar kein Rückstoß. Vorher wurde der Schubs durch die Masse über 1 geteilt (Brute 1/6); ohne eigenen Wert gilt das weiter.
 
-**Boss: The Lantern Eater**
+**Bosse (seit Paket 10, `Config/Enemies.luau` → `bosses`, `bossWave`; Ablauf `BossService`, Phasen-Automat `BossService/BossBrain`)**
 
-1. **Bodenschlag:** roter Kreis, Radius 14 Studs, 1,2 s Vorwarnung, 35 Schaden.
-2. **Ansturm:** rennt geradeaus; Linie 0,8 s vorher sichtbar, 30 Schaden.
-3. **Schatten rufen:** beschwört alle 25 s 20 Shadelings.
-4. **Phase 2 ab 50 % HP:** alle Angriffe 25 % schneller.
+Wie Brotatos Welle 20: Zu Beginn der Boss-Welle zeigen rote Kreuze 2,5 s lang, wo der Boss erscheint (28 Studs neben einem zufälligen Spieler); er kommt zufällig aus den beiden (auf der höchsten Gefahrenstufe, B11, beide mit je 75 % HP). Die normalen Spawn-Gruppen laufen weiter. **Sieg**, wenn alle Bosse der Welle tot sind oder die 90 s ablaufen (Brotato-Wiki: „when all bosses … have been killed or the wave … ends due to time"). Bosse zählen als Elite (Damage vs Elites, Item-Effekte für Elites), ignorieren Rückstoß, werden nie auf den Spawn-Ring zurückgeholt, Heralds und Menders lassen sie aus (Brotato: Bosse lassen sich nicht stärken). HP und Schaden: Wert aus der Tabelle mal Schwierigkeit und Team-Werte (Enemy HP/Damage), HP auch mal Spielerfaktor; kein Wachstum pro Welle (sie kommen nur in Welle 20). Werte nach Brotato (Predator/Invoker: 29.900 HP, 30 Kontakt, 23 pro Geschoss) mal unserem Gegner-Maßstab (HP ≈ 3,4×, Schaden ≈ 3×); Zahlen, die das Wiki nicht nennt, sind Annahmen.
 
-Sieg = Boss-Truhe (3 Upgrades für jeden Spieler) + 150 Embers, danach Run-Ende-Screen.
+**Phasen-Automat:** Jede Phase beginnt bei einem HP-Anteil oder nach einer Zeit seit dem Erscheinen, was zuerst kommt (Brotato: „Mutations happen at either a Health percentage or when time is up"), gewechselt wird zwischen zwei Angriffen. In einer Phase läuft der Boss `pauseSeconds`, dann nimmt er den nächsten Angriff der Liste, der nicht abklingt und in Reichweite ist: **Vorwarnen** (rote Fläche am Boden, die sich bis zum Treffer füllt) → **Ausführen** → **Erholen**. Angriffsarten: Dash (rennt die angezeigte Linie entlang, trifft jeden einmal), Slam (Kreis um ihn), Ring (Geschosse in alle Richtungen, mehrere Salven), Rain (rote Kreise an zufälligen Stellen um jeden Spieler, treffen nach 1 s), Circle (Kreis aus Punkten um jeden Spieler, jeder schießt zur Mitte). Dazu Phasen-Werte: Tempo-Faktor, Herumrennen (`roam`), kreisende Glut (`orbit`), Meldung.
+
+| Boss | Phase 1 | Phase 2 | Phase 3 |
+| --- | --- | --- | --- |
+| The Lantern Eater (Predator) | jagt dich, Dash (0,8 s Linie, 38 Studs, 90 Schaden), 4 Glutkugeln kreisen um ihn (60 Schaden) | ab 50 % HP oder nach 45 s: kein Dash mehr; Bodenschlag (1,2 s roter Kreis, 14 Studs, 105 Schaden) und Ring aus 2 × 16 Geschossen (70), Tempo × 1,15 | – |
+| The Hollow Seer (Invoker) | langsam; alle 2 s 5 rote Kreise (3 Studs) bis 10 Studs um jeden Spieler, treffen nach 1 s (60) | ab 60 % HP oder nach 30 s: 10 Kreise bis 18 Studs | ab 40 % HP oder nach 60 s: Tempo × 2,5, rennt durch die ganze Arena, alle 2,5 s ein Kreis aus 12 Geschossen (13 Studs) um jeden Spieler, die zur Mitte fliegen |
+
+Ein getöteter Boss lässt eine legendäre Kiste fallen (Abschnitt 3). Bis Paket 10 standen hier ein „Lantern Eater" mit 4.000 HP, Beschwören von 20 Shadelings und einer Boss-Truhe; ersetzt durch die Brotato-Bosse (Brotatos Bosse beschwören nicht, und der Run endet mit ihrem Tod). Brotatos „Elites mit Phasen" (Rhino, Butcher, Monk …) kommen in Teil 2 dieses Pakets auf demselben Phasen-Automaten; bis dahin bleiben die Gloom Elites mit Eigenschaften. Debug-Knöpfe: „Spawn next boss" (in jeder Welle, sein Tod beendet den Run nicht), „Boss -25% HP", „Legendary crate"; „Skip to …" springt ans Ende von Welle 19.
 
 **Spawn-Director**
 
@@ -545,8 +558,8 @@ fSpieler              = 1 + 0.6 · (n − 1)               n = Spieler im Run �
 Bis Paket 9 stiegen Rate und HP gerade an (`(1.5 + 0.55 · t)` und `1 + 0.15 · t`): Der Run begann gleich voll und fühlte sich danach immer gleich an (Owner-Feedback). Die Kurven starten ruhiger und steigen spät steiler; HP und Schaden gelten ab dem Spawn, beides mal Schwierigkeit. Seit B2 steigen HP (bis 5 statt 3,8) und Schaden (bis 3,4 statt 1,25) deutlich steiler: Die Werte der Spieler wachsen jetzt ohne Grenze, ohne steilere Gegner überlebten gute Bots alle 12 Wellen, ohne in den letzten Wellen in Gefahr zu kommen (Abschnitt 9). Brotato macht es genauso: Dort gewinnen Gegner jede Welle HP und Schaden dazu. Seit B3 laufen die Kurven über 20 Wellen: bis Welle 12 fast wie in B2, danach bis 14-fache HP und 7,5-fachen Schaden in Welle 20 (Messung in Abschnitt 9). Neue Gegnerarten kommen seltener (Charger Welle 5, Spitter 6, Abyss Shadelings 9, Splitter 11, Abyss Brutes 13, ab Welle 16 nur noch die starken).
 
 - Gleichzeitig maximal 80 Gegner + 20 pro weiterem Spieler (höchstens 140); beim Limit pausiert das Spawnen.
-- Spawn-Ort: Ring 45–60 Studs um einen zufälligen Spieler, außerhalb der Sicht, nie in Hindernissen.
-- Mischung (seit dem Spaß-Paket): fast jede Minute kommt etwas Neues, siehe Tabelle in Abschnitt 3. Ab Minute 4 rund 10 % Spitter (Paket 9, vorher 20 %: damit starben auch gute Spieler um Minute 5 am Dauerbeschuss), ab Minute 10 keine einfachen Shadelings und Brutes mehr. Genaue Anteile in `Config/Run.luau` → `spawn.mix`.
+- Spawn-Ort: Ring 32–52 Studs um einen zufälligen Spieler (seit B9, vorher 45–60 knapp außer Sicht), nie in Hindernissen; rote Kreuze zeigen 1 s vorher, wo eine Gruppe erscheint.
+- Mischung (seit dem Spaß-Paket): fast jede Minute kommt etwas Neues, siehe Tabelle in Abschnitt 3. Ab Minute 4 rund 10 % Spitter (Paket 9, vorher 20 %: damit starben auch gute Spieler um Minute 5 am Dauerbeschuss), ab Minute 10 keine einfachen Shadelings und Brutes mehr. Seit B9 stehen statt Anteilen feste Spawn-Gruppen pro Welle in `Config/Run.luau` → `spawn.groups` (gleiche Gegner pro Sekunde und Mischung, siehe unten).
 - „Swarm Rush" in Welle 6 und 10 (Plan-Minute 5 und 9): 60 % der Welle doppelte Spawnrate, nur Shadelings.
 
 **Stand im Code (seit Paket 3):** Der SpawnDirector kann Rate, Spielerfaktor, Obergrenze, Spawn-Ring, Mischung nach Minute und HP-Faktor (mal Schwierigkeit). Er spawnt nur in der Phase „Running", um einen zufälligen lebenden Teilnehmer, und rechnet n aus den Teilnehmern, die noch im Server sind. Swarm Rush, Elites und die Schüsse der Spitter kamen mit Paket 9.
@@ -570,6 +583,29 @@ Bis Paket 9 stiegen Rate und HP gerade an (`(1.5 + 0.55 · t)` und `1 + 0.15 · 
 | Abyss-Gegner | Stärkere Versionen von Shadeling und Brute mit dem gleichen Modell, aber roten Augen. |
 | Elite-Eigenschaften | Ab 6:00 bekommt jede Elite zufällig eine: **Swift** (1,45× Tempo), **Armored** (nimmt nur 60 % Schaden), **Summoning** (ruft alle 6 s 4 Shadelings um sich, solange ein Spieler nahe ist). Sie steht über der Lebensleiste („Armored") und im Namen („Armored Gloom Brute"). |
 | Rückstoß | Spark Bolt schiebt getroffene Gegner 0,8 Studs zurück, Boomerang Axe 1,5 Studs (nur Treffer, die nicht töten). |
+
+**Stand im Code (seit B9 Teil 1, 30.10.2026):** Wellen, Spawns und Gegner-Werte wie Brotato. Werte in `Config/Run.luau` (`spawn.groups`, `growth`, `firstShare`, `groupSpread`, `markerSeconds`) und `Config/Enemies.luau` (`hpPerWave`, `damagePerWave`).
+
+| Was | Umsetzung |
+| --- | --- |
+| Spawn-Gruppen | Jede Welle ist eine Liste von Gruppen: Gegnertyp, Anzahl, Abstand in Sekunden (Welle 1: 4 Shadelings alle 2,5 s; Welle 20: 15 Abyss Shadelings alle 3 s, 10 Abyss Brutes alle 7,2 s, 8 Charger, 7 Spitter, 7 Splitter). Eine Gruppe kommt das erste Mal nach 30 % ihres Abstands, dann regelmäßig, mit Anzahl × Wellenstärke × fSpieler × Team-Wert „Enemies" Gegnern (Bruchteile wandern in die nächste) auf einen Fleck des Spawn-Rings (Streuung 1,6 Studs × √Anzahl). Die Zahlen übernehmen Gegner pro Sekunde und Mischung der Ratenkurve und Mischung von vorher. Ist die Obergrenze voll, wird die Gruppe kleiner oder fällt aus. Elites und Test-Wellen nehmen die Typen der laufenden Gruppen (gewichtet nach Gegnern pro Sekunde); die Wellen-Ansage („New: Brutes") steht an der Welle. |
+| Spawn-Marker | Pro Gegner ein rotes, pulsierendes Kreuz am Boden, 1 s bevor er erscheint (Remote `SpawnMarkers`, Client `SpawnMarkerRenderer`). Wer Spawnen pausiert oder die Welle beendet, verwirft angekündigte Gruppen. |
+| Swarm Rush | Die Gruppen der Welle pausieren; stattdessen alle 2 s eine Shadeling-Gruppe mit doppelt so vielen Gegnern pro Sekunde. Der Ring beim Start bleibt bei 45 Studs. |
+| Werte pro Typ und Welle | Brotato: HP = Grundwert + Zuwachs × (Welle − 1). Bei uns hat jeder Typ `hpPerWave` und `damagePerWave` (alle etwa 0,68 × HP und 0,34 × Schaden, z. B. Shadeling 10 HP + 6,8, 5 Schaden + 1,7; Spitter-Zuwachs gilt für den Schuss). Mit Brotatos „Welle − 1" verlor die Balance-Simulation 12 von 12 Runs bis Welle 3–10 (Welle 5 hätte 2,3-fache HP). Deshalb zählt jede Welle eine Zahl von **Wachstumsschritten** (`spawn.growth`), die der getesteten Kurve von vorher folgt: Welle 1 = 0, Welle 5 ≈ 0,9, Welle 10 ≈ 3,5, Welle 15 ≈ 8,5, Welle 20 ≈ 18; seit der Messung unten 30 % mehr HP-Schritte und 15 % mehr Schaden-Schritte (Welle 20 ≈ 17× HP, 8× Schaden). Elites, Splitlinge und gerufene Gegner übernehmen den Faktor. |
+| Messung | Balance-Sim, fight-Bot, Blade Warden und Spark Mage mit je 12 Seeds: vor B9 8 von 24 gewonnen; mit Spawn-Gruppen und alter Kurve 18 von 24; mit 30 %/15 % mehr Wachstum ebenfalls 18 von 24. Die Gruppen machen es also leichter, und mehr HP/Schaden ändert daran kaum etwas (Vermutung: Gegner kommen gebündelt aus weniger Richtungen, Flächenwaffen treffen mehr). Nach zwei Versuchen gestoppt; der Owner beurteilt es im Test, Stellschrauben sind Gruppengrößen und Wachstumsschritte. |
+| Gegner-Tempo | Neben-Wert `enemySpeed` „Enemy Speed" (Team-Summe wie Enemy HP): neue Gegner laufen und stürmen × (1 + Wert/100). Für Items aus B8. |
+
+**Stand im Code (seit B9 Teil 2, 30.10.2026):** 8 neue Gegner mit neuen Verhalten (Tabelle oben), Werte in `Config/Enemies.luau` (`accelerate`, `flee.range`, `retaliate`, `pulse`, `hatch`, `slash`, `eat`). Alle wachsen wie die anderen mit `hpPerWave`/`damagePerWave` (Hieb und Dornen wie der Kontaktschaden). Die Wellen in `Config/Run.luau` bekamen je eine eigene Gruppe pro neuem Gegner (ab der Welle in der Tabelle); dafür sind die Gruppen von Shadeling, Abyss Shadeling, Spitter, Charger und Brute etwas kleiner, Gegner pro Sekunde bleiben etwa gleich.
+
+| Was | Umsetzung |
+| --- | --- |
+| Herald-Buff | Jeder Gegner höchstens einmal, nicht andere Heralds oder Mender. Gebuffte Gegner sind golden (Snapshot-Status „buffed"). Pulse nur, solange ein Spieler lebt. Herald und Mender zeigen beim Puls kurz einen Ring (gold bzw. grün). |
+| Ei | Verankert wie ein Baum (wird nie bewegt oder zurückgeholt). Die geschlüpften Shadelings übernehmen die Wachstums-Faktoren des Eis. |
+| Reaper | Ausholen wie beim Charger (rot, steht still); wer den roten Kreis rechtzeitig verlässt, wird nicht getroffen. |
+| Gobbler | Immer mit Orb (`alwaysOrbs`). Was er bis zum Wellenende gefressen hat und nicht zurückgibt, ist weg. |
+| Elites | Hieb- und Dornen-Schaden × 1,5 wie der Kontaktschaden. |
+| Messung | Kurz-Check, Balance-Sim fight-Bot mit je 3 Seeds: Blade Warden 1 von 3, Spark Mage 0 von 3 gewonnen (Teil 1 allein: 18 von 24). Die neuen Gegner machen es also deutlich schwerer. Nicht nachjustiert: Die Schwierigkeit stimmt der Owner später mit mehreren Charakteren ab (Entscheidung 30.10.2026). |
+| Debug | Knopf „Spawn next new enemy" ruft die 8 neuen Gegner nacheinander in deine Nähe (`Config/Admin.luau` → `newEnemies`). |
 
 Ein Gegner-Typ ist im Snapshot ein Byte; Elites senden Typ + 128, so kennt der Client sie ohne Zusatzdaten. Seit dem Spaß-Paket kommt ein zweites Byte dazu (Modus des Chargers und Elite-Eigenschaft, Abschnitt 15).
 
@@ -815,6 +851,14 @@ Bewusst nicht: harte Countdown-Angebote oder Serien, die bei einem verpassten Ta
 | Splitter | gesprungene Urne mit Messingband, türkis leuchtenden Rissen und drei schwebenden Irrlichtern, auf zwei Füßchen |
 | Splitling | kleines türkises Irrlicht mit Flammenspitze und Maskenscherbe, hüpft |
 | Abyss-Varianten | blutschwarz, geschwärzte Bronze, Obsidian-Maske, rote Augen, Hörner und Stacheln |
+| Stalker | Shadeling in kränklichem Grün |
+| Skulker | Kultist (Spitter-Form) in Türkis |
+| Thornback | Soldat (Brute-Form) in Rostrot mit Dornen |
+| Herald | Kultist in weißer Robe mit Gold |
+| Mender | Kultist in grüner Robe |
+| Brood Egg | bleiches, geädertes Ei mit violettem Glühen innen; glüht und wackelt vor dem Schlüpfen |
+| Reaper | Widder (Charger-Form) in Schwarz und Knochen; roter Kreis beim Ausholen |
+| Gobbler | aufgeblähter Dieb (Looter-Form) in Violett |
 | Gloom Elite | königsviolett und gold, goldene Augen, drehende Sonnenstrahlen-Krone, Leuchten, Lebensleiste mit dem Namen der Eigenschaft. Swift: cyan Schweif; Armored: Stahl statt Messing; Summoning: zwei grüne Irrlichter kreisen |
 
 - **Waffen und Fähigkeiten (seit Paket 9d):** Alles, was leuchtet, hat einen weißen Kern in einem farbigen, durchscheinenden Schein; was fliegt, zieht einen Schweif. Feste Teile sind Messing.
@@ -875,9 +919,9 @@ tests/               Unit-Tests für reine Module (Runner in tools/luau-test-run
 **Gerüst (seit Arbeitspaket 2)**
 
 - **Lebenszyklus:** Server- und Client-Bootstrap laden jedes Modul in `Services` bzw. `Controllers` über `Util/Loader`, alphabetisch. Oberste Ebene legt nur Zustand und Signals an, `init()` verbindet Remotes und Events (ohne zu warten), danach läuft `start()` je Modul in eigenem Thread. Module requiren sich direkt; RunDirector hängt nur von MapService und PlayerDataService ab, alle anderen hängen sich an RunDirector.
-- **RunDirector** besitzt den Run-Ablauf (Regeln als reine Zustandsmaschine in `RunDirector/RunFlow.luau`, mit Unit-Tests). Signals für spätere Pakete: `RunStarted(players)`, `RunEnded(results)`, `PhaseChanged(phase, previous)`, `ParticipantStateChanged(player, state)`. Befehle: `setParticipantState` (ReviveService), `endRun("Victory")` und `setBossEncounter` (Boss), `getElapsed()` (SpawnDirector).
+- **RunDirector** besitzt den Run-Ablauf (Regeln als reine Zustandsmaschine in `RunDirector/RunFlow.luau`, mit Unit-Tests). Signals für spätere Pakete: `RunStarted(players)`, `RunEnded(results)`, `PhaseChanged(phase, previous)`, `ParticipantStateChanged(player, state)`. Befehle: `setParticipantState` (ReviveService), `endRun("Victory")` (BossService, seit Paket 10), `getElapsed()` (SpawnDirector).
 - **RunState:** Der Server schickt bei jeder Änderung den vollständigen, kleinen Zustand (`Net/Types.luau`) an alle; Timer laufen auf dem Client über `workspace:GetServerTimeNow()`, also kein Senden pro Sekunde. Ein neuer Client holt sich den Stand mit `RequestSync`.
-- **Phasen:** Lobby → Countdown → Running ⇄ Shop (seit B1, nach jeder Welle außer der letzten) → Boss → Ended → Lobby. Gegner, Waffen und Schaden laufen nur in Running und Boss (`isActive`); der Run läuft in Running, Shop und Boss (`isOngoing`). Die Kampfzeit (`getElapsed`) steht im Shop still; RunState schickt dafür `wave`, `pausedSeconds` und `pausedAt`. Teilnehmer-Zustände: Alive, Down, Out.
+- **Phasen:** Lobby → Countdown → Running ⇄ Shop (seit B1, nach jeder Welle außer der letzten) → Ended → Lobby; die letzte Welle ist seit Paket 10 die Boss-Welle (Phase Running), die alte Phase „Boss" wird nicht mehr betreten. Gegner, Waffen und Schaden laufen nur in Running und Boss (`isActive`); der Run läuft in Running, Shop und Boss (`isOngoing`). Die Kampfzeit (`getElapsed`) steht im Shop still; RunState schickt dafür `wave`, `pausedSeconds` und `pausedAt`. Teilnehmer-Zustände: Alive, Down, Out.
 - **Platzhalter-Karte:** MapService baut Lobby (80 × 80) und Arena (300 × 300, violette Nebelwand, 5 runde Platzhalter-Ruinen) beim Serverstart aus `Config/Map.luau`, auf Höhe 100 und abseits vom Standard-Baseplate. Die echte Karte folgt in Paket 21.
 
 **Gegner-Engine** (seit Paket 3; Werte in `Config/Simulation.luau`)
@@ -912,7 +956,7 @@ tests/               Unit-Tests für reine Module (Runner in tools/luau-test-run
 - Signal `EnemySim.Contact(player, damage)` – Spieler-HP mit 0,5 s Schutz nach Treffer (seit Paket 4 über CombatService).
 - Signal `EnemySim.ShotHit(player, damage)` – ein Gegner-Geschoss traf (seit Paket 9, auch über CombatService).
 - **Gegner-Geschosse** (seit Paket 9): `World` meldet pro Schritt, welcher Spitter schießt (Abklingzeit als eigene Spalte); `EnemySim/Volleys.luau` (rein, mit Unit-Tests) fliegt die Kugeln gegen die Spielerpositionen mit Vorlauf, Ruinen und Arenarand. `EnemyShots` geht nach jedem Snapshot mit Änderungen an die Teilnehmer (abgefeuert: Ort, Richtung, Tempo, Reichweite, Serverzeit; beendet: ID und Strecke); `EnemyShotRenderer` zeichnet gepoolte Kugeln in Serverzeit.
-- **Truhen** (seit Paket 9): `LootService` legt bei `EnemyKilled` einer Elite eine Truhe ab, öffnet sie nach jedem Schritt, wenn ein lebender Spieler nah genug ist, und vergibt über `UpgradeService.grantChest(player)` (Evolution, sonst Upgrade, sonst Heilung; Auswahl rein in `UpgradePool.chestUpgrade`). `Chests` (Liste am Boden) und `ChestOpened` (wer was bekam) gehen an die Teilnehmer; `LootService.drop(position)` kann die Boss-Truhe (Paket 10) nutzen. `ChestController` zeichnet Truhen, Pfeile und das Belohnungs-Banner.
+- **Truhen** (seit Paket 9): `LootService` legt bei `EnemyKilled` einer Elite eine Truhe ab, öffnet sie nach jedem Schritt, wenn ein lebender Spieler nah genug ist, und vergibt über `UpgradeService.grantChest(player)` (Evolution, sonst Upgrade, sonst Heilung; Auswahl rein in `UpgradePool.chestUpgrade`). `Chests` (Liste am Boden) und `ChestOpened` (wer was bekam) gehen an die Teilnehmer; Seit Paket 10 lässt ein Boss statt einer Truhe eine legendäre Kiste fallen (`KillInfo.boss`). `ChestController` zeichnet Truhen, Pfeile und das Belohnungs-Banner.
 
 **Spieler** (seit Paket 4)
 
@@ -1056,14 +1100,14 @@ Bis zum Soft Launch rund 40–50 Sessions und 50–60 Stunden Zeit des Owners (6
 | Run | 20 Wellen mit Brotatos Dauern, Boss-Welle 20 (90 s) | B3, 10 |
 | Shop | Sperren (kostenlos, Preis bleibt), Verkaufen (25 % des Preises), Waffen-Stufen I–IV statt Level 1–5, Verschmelzen zweier gleicher Waffen gleicher Stufe (per Knopf oder automatisch bei vollen Plätzen), Gratis-Neuwurf nach 4 Käufen, Waffen-Pool 20 % eigene / 15 % gleiche Klasse / 65 % alle, keine Wiederholung des vorigen Wurfs | B3 |
 | Effekte | Ereignisse (Welle startet/endet, Treffer, Krit, Kill, Ausweichen, getroffen, Aufsammeln, Level-up, Shop betreten, Timer), Effekte als Daten {Auslöser, Bedingung, Aktion, Werte}, Werte im Stillstand/in Bewegung, „pro X", „nächste Welle", Wachstum am Wellenende, Multiplikatoren auf Wert-Gewinne (für Charaktere), getrennte Zufalls-Ströme (Shop, Drops, Spawns, Kampf) | B4 (umgesetzt) |
-| Neben-Werte | Item-Preise, Gratis-Neuwürfe, Doppel-Beute, Schaden gegen Bosse/Elites, Frucht-Heilung, Heilung beim Aufsammeln, Gegner-Anzahl/-HP/-Schaden/-Tempo, Explosionsschaden und -größe, Durchschlag, Abprall, Brenn-Tempo und -Ausbreitung, Rückstoß | B4 (umgesetzt bis auf Gegner-Tempo → B9), B5 (umgesetzt), B6 (Frucht-Heilung, Bäume umgesetzt) |
+| Neben-Werte | Item-Preise, Gratis-Neuwürfe, Doppel-Beute, Schaden gegen Bosse/Elites, Frucht-Heilung, Heilung beim Aufsammeln, Gegner-Anzahl/-HP/-Schaden/-Tempo, Explosionsschaden und -größe, Durchschlag, Abprall, Brenn-Tempo und -Ausbreitung, Rückstoß | B4 (umgesetzt; Gegner-Tempo seit B9), B5 (umgesetzt), B6 (Frucht-Heilung, Bäume umgesetzt) |
 | Kampf | Krit-Chance und Krit-Faktor pro Waffe (×1,5 bis ×4), Lebensraub pro Waffe, Rückstoß mit Widerstand der Gegner, Brennen (stapelt nicht, Ausbreitung), Verlangsamen, Explosionen, Durchschlag mit Schadensabzug, Abprall, höchstens 12 Angriffe/s, Skalierung pro Waffe (z. B. 80 % Melee, mehrere Werte), Schutz nach Treffer 0,2–0,4 s | B5 (umgesetzt) |
 | Waffenklassen | 1–2 Klassen pro Waffe, gestaffelte Boni bei 2–6 Waffen einer Klasse (Brotatos 15 Staffeln, eigene Klassennamen) | B5 (umgesetzt mit 14 Klassen; Tool → B12) |
 | Waffen | 20–24 eigene Waffen statt 6, alle Klassen und Effekt-Arten (Stoß/Schwung, Schrot, Raketen, Feuer, Eis, Stapel pro Kill, Wert solange getragen, Heil-Geschoss, Magazin) | B7 |
 | Items | ~100 statt 46, viele mit Effekten (Kill, Ausweichen, Wellenende, Gegner-Änderung, Zufallswerte), Item-Limits | B8 |
-| Beute | Drop-Chance 100 % bis Welle 4, dann −1,5 % pro Welle (mind. 50 %), Beutel (Liegengebliebenes zieht in der nächsten Welle je Drop 1 dazu), höchstens 50 liegende Beute-Objekte (darüber zusammenlegen), Heil-Früchte, Kisten von normalen Gegnern (Item nehmen oder verkaufen, Chance sinkt mit jeder Kiste der Welle), Plünderer-Gegner, Bäume, Legendäre Kiste von Elites/Boss | B6 (umgesetzt bis auf die Legendäre Kiste → 10, B11) |
+| Beute | Drop-Chance 100 % bis Welle 4, dann −1,5 % pro Welle (mind. 50 %), Beutel (Liegengebliebenes zieht in der nächsten Welle je Drop 1 dazu), höchstens 50 liegende Beute-Objekte (darüber zusammenlegen), Heil-Früchte, Kisten von normalen Gegnern (Item nehmen oder verkaufen, Chance sinkt mit jeder Kiste der Welle), Plünderer-Gegner, Bäume, Legendäre Kiste von Elites/Boss | B6 (umgesetzt; Legendäre Kiste seit 10 vom Boss, von Elites → B11) |
 | Gegner | Spawn-Marker vor dem Erscheinen, Wellen als Spawn-Gruppen (Typ, Anzahl, Start, Abstand), Werte pro Typ = Grund + Zuwachs pro Welle, neue Verhalten: Beschleuniger, flüchtender Schütze, Konter-Schütze, Buffer, Heiler, Ei (schlüpft nach 5 s), Hieb-Gegner, Beute-Fresser | B9 |
-| Elites und Boss | Phasen-Automat (Angriffe, Wechsel bei HP-Schwelle oder Zeit), Vorwarnen–Ausführen–Erholen, 2 Bosse, Elites mit Phasen | 10 |
+| Elites und Boss | Phasen-Automat (Angriffe, Wechsel bei HP-Schwelle oder Zeit), Vorwarnen–Ausführen–Erholen, 2 Bosse, Elites mit Phasen | 10 (Teil 1 Bosse umgesetzt, Teil 2 Elites offen) |
 | Charaktere | Regelpakete statt Klassen: Startwerte, Startwaffe zur Wahl, Waffen-Plätze 1–12, Multiplikatoren auf Gewinne, Shop-Regeln, Wunsch-Tags (5 % Shop-Gewicht), Sonderregeln | B10 |
 | Schwierigkeit | Gefahrenstufen 0–5 (neue Gegner ab 1, Elite-/Horden-Wellen ab 2, +12/+26/+40 % Gegner-HP und -Schaden ab 3/4/5, 2 Bosse auf 5), Endlos nach Welle 20 mit Brotatos Formel, Regler für Gegner-HP/-Schaden/-Tempo, Welle wiederholen | B11 |
 | Bauten | Engineering-Wert, Geschütztürme (5 Stufen), Minen, Garten, wandernder Bot, Begleiter (Pets), höchstens 100 Bauten | B12 |
@@ -1098,9 +1142,9 @@ Bis zum Soft Launch rund 40–50 Sessions und 50–60 Stunden Zeit des Owners (6
 | B6 | Brotato 6: Beute – sinkende Drop-Chance, Beutel, Heil-Früchte, Kisten von normalen Gegnern, Plünderer, Bäume, Beute-Obergrenze (umgesetzt 30.10.2026, Branch `wp-b6-loot`) | Vertical Slice | High | 1–2 | 1 h | Wirtschaft beurteilen |
 | B7 | Brotato 7: Waffen-Paket – 24 Waffen, 18 neue Basisspiel-Vorbilder (umgesetzt auf `wp-b7-weapons`, Studio-Abnahme offen) | Vertical Slice | Medium | 2 | 1 h | Waffen ausprobieren |
 | B8 | Brotato 8: Item-Paket – auf ~100 Items, viele mit Effekten (umgesetzt 30.10.2026 mit 114 Items, Branch `wp-b8-items`, von Claude statt ChatGPT) | Vertical Slice | Medium | 2 | 1 h | Items ausprobieren |
-| B9 | Brotato 9: Gegner-Paket – Spawn-Marker, Wellen als Spawn-Gruppen, Werte pro Typ und Welle, 8 neue Verhalten | Vertical Slice | Extra high | 2 | 1 h | Schwierigkeit und Lesbarkeit beurteilen |
+| B9 | Brotato 9: Gegner-Paket – Spawn-Marker, Wellen als Spawn-Gruppen, Werte pro Typ und Welle, 8 neue Verhalten (Teil 1 Spawn-Gruppen, Marker, Werte pro Welle, Gegner-Tempo umgesetzt 30.10.2026, Branch `wp-b9a-spawn-groups`; Teil 2 die 8 neuen Gegner umgesetzt 30.10.2026, Branch `wp-b9b-new-enemies`) | Vertical Slice | Extra high | 2 | 1 h | Schwierigkeit und Lesbarkeit beurteilen |
 | B10 | Brotato 10: Charaktere – 10–12 Charaktere als Regelpakete (umgesetzt; ersetzt die Klassen), Charakter- und Waffenwahl in der Lobby | Vertical Slice | High | 2 | 1,5 h | jeden Charakter einmal spielen |
-| 10 | Boss und Elites mit Phasen: Boss-Welle 20 (90 s), 2 Bosse mit Phasen-Wechseln, Vorwarnungen, Elites mit Phasen | Vertical Slice | High | 2 | 1,5 h | Boss 3× spielen |
+| 10 | Boss und Elites mit Phasen: Boss-Welle 20 (90 s), 2 Bosse mit Phasen-Wechseln, Vorwarnungen, Elites mit Phasen (Teil 1 Boss-Welle, 2 Bosse, Phasen-Automat, legendäre Kiste umgesetzt 30.10.2026, Branch `wp-10-boss`; Teil 2 Elites mit Phasen offen) | Vertical Slice | High | 2 | 1,5 h | Boss 3× spielen |
 | B11 | Brotato 11: Gefahrenstufen 0–5, Elite- und Horden-Wellen, Endlos-Modus, Regler für Gegner-Werte, Welle wiederholen | Vertical Slice | High | 1–2 | 1 h | Stufen durchprobieren |
 | B12 | Brotato 12: Bauten und Begleiter – Engineering, Türme, Minen, Garten, Bot, Pets | Vertical Slice | High | 2 | 1 h | Bau-Builds testen |
 | 11 | Down & Wiederbeleben während der Welle (Aufstehen am Wellenende gibt es seit B1) | Vertical Slice | Medium | 1 | 1 h | mit 2 Clients testen |

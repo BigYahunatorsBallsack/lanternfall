@@ -108,11 +108,9 @@ end
 function RunSchedule.eventsOf(number: number): { string }
 	local minute = number - 1
 	local events = {}
-	for _, entry in Spawn.mix do
-		local announce = (entry :: any).announce :: string?
-		if announce and entry.fromMinute == minute then
-			table.insert(events, `New: {announce}`)
-		end
+	local entry = Spawn.groups[number]
+	if entry and entry.announce then
+		table.insert(events, `New: {entry.announce}`)
 	end
 	for _, start in Spawn.swarmRush.atMinutes do
 		if start == minute then

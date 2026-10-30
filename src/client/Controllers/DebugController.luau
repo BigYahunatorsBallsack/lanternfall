@@ -49,6 +49,10 @@ local BUTTON_TEXT: { [string]: string } = {
 	SpawnTree = "Spawn a tree",
 	DropCrate = "Drop a crate",
 	AddNewItem = "Next new item",
+	SpawnNewEnemy = "Spawn next new enemy",
+	SpawnBoss = "Spawn next boss",
+	HurtBoss = `Boss -{math.round(Config.Admin.hurtBossShare * 100)}% HP`,
+	DropLegendaryCrate = "Legendary crate",
 }
 
 local BUTTON_SIZE = Vector2.new(150, 30)

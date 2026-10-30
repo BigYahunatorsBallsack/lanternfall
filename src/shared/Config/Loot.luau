@@ -30,6 +30,9 @@ return table.freeze({
 	-- like a shop item (wave and Luck), at least minTier. Not chosen in autoPickSeconds (Config.Run.levelUp) or before
 	-- the next wave: taken.
 	crate = table.freeze({ heal = 30, minTier = 1 }),
+	-- Legendary crate (Brotato's elite crate, since WP10): from bosses (later also rare elites, B11). Heals healShare of
+	-- max HP and holds an item of at least minTier (4 = Legendary); it opens like a crate, before the other crates.
+	legendaryCrate = table.freeze({ healShare = 1, minTier = 4 }),
 
 	-- Looters (Brotato's Loot Alien): from wave fromWave, after firstSeconds in a wave and every everySeconds after
 	-- that, one appears with `chance` (all at once: count) near a random living player. It runs away from the

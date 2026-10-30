@@ -1,7 +1,8 @@
 --!strict
--- Owns the run flow: lobby, countdown, waves with a shop between them, boss phase and results (rules in RunFlow).
+-- Owns the run flow: lobby, countdown, waves with a shop between them and results (rules in RunFlow). The last wave
+-- is the boss wave (BossService, WP10): surviving it wins, and BossService calls endRun("Victory") when its bosses die.
 -- Moves characters via MapService, checks classes via PlayerDataService and syncs clients via RunState.
--- Other services listen to its signals and call setParticipantState / endRun / setBossEncounter.
+-- Other services listen to its signals and call setParticipantState / endRun.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -65,7 +66,6 @@ local flow = RunFlow.new({
 local sentVersion = -1
 local processing = false
 local inArena: { [Player]: boolean } = {} -- characters that belong in the arena until the next lobby phase
-local bossEncounter: (() -> ())? = nil
 
 local function now(): number
 	return workspace:GetServerTimeNow()
@@ -104,17 +104,6 @@ local function returnToLobby()
 	table.clear(inArena)
 end
 
-local function startBoss()
-	if bossEncounter then
-		notifyParticipants(`{Config.Enemies.boss.displayName} awakens!`)
-		task.spawn(bossEncounter)
-	else
-		print("[Lanternfall] No boss yet (WP10): reaching the boss phase counts as a victory")
-		notifyParticipants("The boss is not in the game yet - victory!")
-		flow:endRun("Victory", now())
-	end
-end
-
 local function handle(event: RunFlow.Event)
 	if event.kind == "RunStarted" then
 		local players = toPlayers(event.userIds)
@@ -130,8 +119,6 @@ local function handle(event: RunFlow.Event)
 		RunDirector.PhaseChanged:Fire(event.phase, event.previous)
 		if event.phase == "Lobby" then
 			returnToLobby()
-		elseif event.phase == "Boss" then
-			startBoss()
 		end
 	elseif event.kind == "ParticipantStateChanged" then
 		local player = Players:GetPlayerByUserId(event.userId)
@@ -248,7 +235,7 @@ function RunDirector.getPhase(): Types.Phase
 	return flow.phase
 end
 
--- Running or Boss.
+-- Running (or the old Boss phase, no longer entered since WP10).
 function RunDirector.isActive(): boolean
 	return flow:isActive()
 end
@@ -295,7 +282,7 @@ function RunDirector.setParticipantState(player: Player, state: Types.Participan
 	return ok, reason
 end
 
--- Ends the active run, e.g. "Victory" when the boss dies (WP10).
+-- Ends the active run, e.g. "Victory" when the bosses die (BossService, WP10).
 function RunDirector.endRun(outcome: Types.Outcome): (boolean, string?)
 	local ok, reason = flow:endRun(outcome, now())
 	process()
@@ -317,12 +304,6 @@ end
 
 function RunDirector.isHoldingWaves(): boolean
 	return flow.holdWaves
-end
-
--- Called after the final wave instead of the placeholder victory. The boss service (WP10) registers this and calls
--- RunDirector.endRun("Victory") when the boss dies.
-function RunDirector.setBossEncounter(start: () -> ())
-	bossEncounter = start
 end
 
 function RunDirector.notifyRejection(player: Player, reason: string?)

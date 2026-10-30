@@ -7,7 +7,8 @@
 -- WP9), Contact and ShotHit for player damage (WP4, WP9), Stepped for the weapons (WP5). Enemies and shots are
 -- cleared when a run starts and ends and when a wave ends (Shop phase). Since B5 weapons also slow enemies and mark
 -- them as burning (slow, setBurning); both travel in the snapshot's status byte. Since B6 SpawnDirector removes
--- escaping Looters without a kill (remove).
+-- escaping Looters without a kill (remove). Since WP10 BossService steers bosses (setGoal, teleport, setSpeedFactor)
+-- and fires their projectiles (fireShot); kills report whether a boss died.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
@@ -33,6 +34,7 @@ export type KillInfo = {
 	position: Vector3, -- on the arena floor
 	xp: number,
 	elite: boolean, -- a Gloom Elite: drops a chest (LootService)
+	boss: boolean, -- a boss (WP10, BossService)
 	killer: Player?,
 }
 
@@ -210,7 +212,8 @@ local function spawnAround(
 	count: number,
 	spread: number,
 	hpMultiplier: number,
-	damageMultiplier: number
+	damageMultiplier: number,
+	speedMultiplier: number
 )
 	local turn = RandomService.number("Spawns") * 2 * math.pi
 	for k = 1, count do
@@ -220,8 +223,66 @@ local function spawnAround(
 			x + math.cos(angle) * spread,
 			z + math.sin(angle) * spread,
 			hpMultiplier,
-			damageMultiplier
+			damageMultiplier,
+			nil,
+			nil,
+			speedMultiplier
 		)
+	end
+end
+
+-- A counter-shooter that was hit sprays its ring of shots (kind.retaliate, B9), evenly around it.
+local function fireRing(id: number)
+	local kind = world:getKind(id)
+	local retaliate = kind and kind.retaliate
+	local x, z = world:getPosition(id)
+	if not (kind and retaliate and x and z) then
+		return
+	end
+	local _, damageMultiplier = world:getMultipliers(id)
+	local damage = retaliate.projectileDamage * damageMultiplier
+	local now = workspace:GetServerTimeNow()
+	local turn = RandomService.number("Combat") * 2 * math.pi
+	for k = 1, retaliate.count do
+		local angle = turn + (k - 1) / retaliate.count * 2 * math.pi
+		local dx, dz = math.cos(angle), math.sin(angle)
+		local startX, startZ = x + dx * kind.radius, z + dz * kind.radius
+		local shotId = volleys:fire(
+			startX,
+			startZ,
+			dx,
+			dz,
+			retaliate.projectileSpeed,
+			retaliate.projectileRange,
+			retaliate.projectileRadius,
+			damage
+		)
+		table.insert(firedShots, {
+			id = shotId,
+			x = startX,
+			z = startZ,
+			dx = dx,
+			dz = dz,
+			speed = retaliate.projectileSpeed,
+			range = retaliate.projectileRange,
+			at = now,
+		})
+	end
+end
+
+-- Eggs the last step reported hatch: their enemies appear around them and the egg is gone (no kill, B9).
+local function hatchEggs()
+	local hatches = world.hatches
+	for h = 1, world.hatchCount do
+		local id = hatches[h]
+		local kind = world:getKind(id)
+		local hatch = kind and kind.hatch
+		local x, z = world:getPosition(id)
+		if hatch and x and z then
+			local hpMultiplier, damageMultiplier, speedMultiplier = world:getMultipliers(id)
+			world:remove(id)
+			spawnAround(hatch.enemy, x, z, hatch.count, hatch.spread, hpMultiplier, damageMultiplier, speedMultiplier)
+		end
 	end
 end
 
@@ -234,8 +295,17 @@ local function callSummons()
 		local summon = kind and kind.summon
 		local x, z = world:getPosition(id)
 		if kind and summon and x and z then
-			local hpMultiplier, damageMultiplier = world:getMultipliers(id)
-			spawnAround(summon.enemy, x, z, summon.count, kind.radius + 2, hpMultiplier, damageMultiplier)
+			local hpMultiplier, damageMultiplier, speedMultiplier = world:getMultipliers(id)
+			spawnAround(
+				summon.enemy,
+				x,
+				z,
+				summon.count,
+				kind.radius + 2,
+				hpMultiplier,
+				damageMultiplier,
+				speedMultiplier
+			)
 		end
 	end
 end
@@ -253,6 +323,7 @@ local function stepOnce()
 	end
 	fireShots(stepNow)
 	callSummons()
+	hatchEggs()
 	EnemySim.Stepped:Fire(STEP_SECONDS, stepNow)
 	local seconds = os.clock() - startedAt
 	window.steps += 1
@@ -292,7 +363,7 @@ local function sendSnapshot()
 	local count = 0
 	local ids, xs, zs, typeIds, hp, maxHp = world.ids, world.xs, world.zs, world.typeIds, world.hp, world.maxHp
 	local kinds, modes, rushXs, rushZs = world.kinds, world.modes, world.rushXs, world.rushZs
-	local slowFactors, burning = world.slowFactors, world.burning
+	local slowFactors, burning, buffed = world.slowFactors, world.burning, world.buffed
 	for i = 1, world.count do
 		if hp[i] > 0 then
 			count += 1
@@ -310,6 +381,7 @@ local function sendSnapshot()
 			)
 			columns.statuses[count] = (if burning[i] then Snapshot.STATUS_BURNING else 0)
 				+ (if slowFactors[i] < 1 then Snapshot.STATUS_SLOWED else 0)
+				+ (if buffed[i] then Snapshot.STATUS_BUFFED else 0)
 		end
 	end
 	local packets = Snapshot.encode(currentTick, columns, count)
@@ -395,8 +467,9 @@ end
 
 -- Spawns an enemy of Config.Enemies.types[enemyId] (its Gloom Elite variant if `elite`, with `affix` an index into
 -- Config.Enemies.elite.affixes; Util/EnemyKinds) at world x/z. HP, contact and projectile damage are the kind's
--- values times the multipliers (minute and difficulty, see SpawnDirector). Returns the new id, or nil when the hard
--- cap (Config.Run.spawn.cap.max) is reached.
+-- values times the multipliers (wave and difficulty, see SpawnDirector), its speed times `speedMultiplier` (the
+-- team's Enemy Speed stat, B9; default 1). Returns the new id, or nil when the hard cap (Config.Run.spawn.cap.max)
+-- is reached.
 function EnemySim.spawn(
 	enemyId: string,
 	x: number,
@@ -404,19 +477,33 @@ function EnemySim.spawn(
 	hpMultiplier: number,
 	damageMultiplier: number,
 	elite: boolean?,
-	affix: number?
+	affix: number?,
+	speedMultiplier: number?
 ): number?
 	local kind = EnemyKinds.get(enemyId, elite, affix)
 	assert(kind, `Unknown enemy {enemyId}`)
-	local shotDamage = if kind.ranged then kind.ranged.projectileDamage * damageMultiplier else nil
-	return world:spawn(kind, x, z, kind.hp * hpMultiplier, kind.contactDamage * damageMultiplier, shotDamage)
+	local baseShot = World.baseShotDamage(kind)
+	local shotDamage = if baseShot > 0 then baseShot * damageMultiplier else nil
+	return world:spawn(
+		kind,
+		x,
+		z,
+		kind.hp * hpMultiplier,
+		kind.contactDamage * damageMultiplier,
+		shotDamage,
+		speedMultiplier
+	)
 end
 
 -- Deals damage to one enemy. Returns true if this hit killed it (and fires EnemyKilled), the HP it took and the
--- damage after the enemy's own damageTaken multiplier (for damage numbers). A killed Splitter falls apart.
+-- damage after the enemy's own damageTaken multiplier (for damage numbers). A killed Splitter falls apart; a
+-- counter-shooter that survives sprays its ring (B9).
 function EnemySim.damage(id: number, amount: number, source: Player?): (boolean, number, number)
-	local killed, dealt, applied = world:damage(id, amount)
+	local killed, dealt, applied, retaliates = world:damage(id, amount)
 	if not killed then
+		if retaliates then
+			fireRing(id)
+		end
 		return false, dealt, applied
 	end
 	local kind = world:getKind(id)
@@ -424,8 +511,8 @@ function EnemySim.damage(id: number, amount: number, source: Player?): (boolean,
 	if kind and x and z then
 		local split = kind.split
 		if split then
-			local hpMultiplier, damageMultiplier = world:getMultipliers(id)
-			spawnAround(split.enemy, x, z, split.count, split.spread, hpMultiplier, damageMultiplier)
+			local hpMultiplier, damageMultiplier, speedMultiplier = world:getMultipliers(id)
+			spawnAround(split.enemy, x, z, split.count, split.spread, hpMultiplier, damageMultiplier, speedMultiplier)
 		end
 		EnemySim.EnemyKilled:Fire({
 			id = id,
@@ -434,6 +521,7 @@ function EnemySim.damage(id: number, amount: number, source: Player?): (boolean,
 			position = Vector3.new(x, floorY, z),
 			xp = kind.xp,
 			elite = kind.elite == true,
+			boss = kind.boss ~= nil,
 			killer = source,
 		} :: KillInfo)
 	end
@@ -458,6 +546,36 @@ end
 -- Removes a living enemy without a kill: no EnemyKilled, no loot (a Looter escaping, B6). Returns true if it was alive.
 function EnemySim.remove(id: number): boolean
 	return world:remove(id)
+end
+
+-- Multiplier on a living enemy's speed (a boss phase, WP10).
+function EnemySim.setSpeedFactor(id: number, factor: number)
+	world:setSpeedFactor(id, factor)
+end
+
+-- Fires one enemy projectile from x/z along the unit direction dx/dz (boss attacks, WP10). It flies like a
+-- Spitter's (Volleys) and goes to the participants with the next EnemyShots.
+function EnemySim.fireShot(
+	x: number,
+	z: number,
+	dx: number,
+	dz: number,
+	speed: number,
+	range: number,
+	radius: number,
+	damage: number
+)
+	local id = volleys:fire(x, z, dx, dz, speed, range, radius, damage)
+	table.insert(firedShots, {
+		id = id,
+		x = x,
+		z = z,
+		dx = dx,
+		dz = dz,
+		speed = speed,
+		range = range,
+		at = workspace:GetServerTimeNow(),
+	})
 end
 
 -- Moves a living enemy to `position` (x/z) at once, without crossing the space in between.
@@ -521,13 +639,14 @@ function EnemySim.getPlayerPosition(player: Player): Vector3?
 	return Vector3.new(contactXs[index], floorY, contactZs[index])
 end
 
--- Enemy id (key in Config.Enemies.types) and whether it is an elite, nil for unknown ids.
+-- Enemy id (key in Config.Enemies.types or .bosses) and whether it is an elite, nil for unknown ids. Bosses count as
+-- elites (Damage vs Elites, item effects on elites; WP10).
 function EnemySim.getKind(id: number): (string?, boolean)
 	local kind = world:getKind(id)
 	if not kind then
 		return nil, false
 	end
-	return kind.id, kind.elite == true
+	return kind.id, kind.elite == true or kind.boss ~= nil
 end
 
 -- Mode of a living enemy (EnemySim/World.MODE_*: walk, wind-up, rush, recover) and its rush direction x/z.
@@ -552,6 +671,28 @@ function EnemySim.collectIds(out: { number }): number
 	return count
 end
 
+-- Ids of the living enemies that eat orbs (kind.eat, the Gobbler, B9), written to out[1 .. n]; returns n.
+function EnemySim.collectEaters(out: { number }): number
+	local count = 0
+	local ids, hp, kinds = world.ids, world.hp, world.kinds
+	for i = 1, world.count do
+		if hp[i] > 0 and kinds[i].eat then
+			count += 1
+			out[count] = ids[i]
+		end
+	end
+	return count
+end
+
+-- Makes an enemy walk to `position` instead of the nearest player, or back to the players with nil (B9).
+function EnemySim.setGoal(id: number, position: Vector3?)
+	if position then
+		world:setGoal(id, position.X, position.Z)
+	else
+		world:setGoal(id)
+	end
+end
+
 -- Number of enemy projectiles in flight.
 function EnemySim.getShotCount(): number
 	return volleys:getCount()
@@ -560,6 +701,23 @@ end
 -- Current HP of an enemy, 0 for dead or unknown ids (item effects since B8: damage by a share of the enemy's HP).
 function EnemySim.getHealth(id: number): number
 	return (world:getHealth(id))
+end
+
+-- Current HP of an enemy as a share of its max HP, 0 for dead or unknown ids (BossService, WP10).
+function EnemySim.getHealthShare(id: number): number
+	local hp, maxHp = world:getHealth(id)
+	return if maxHp > 0 then math.max(0, hp) / maxHp else 0
+end
+
+-- Max HP of an enemy, 0 for unknown ids.
+function EnemySim.getMaxHealth(id: number): number
+	local _, maxHp = world:getHealth(id)
+	return maxHp
+end
+
+-- The HP, damage and speed multipliers the enemy was spawned with (1, 1, 1 for unknown ids).
+function EnemySim.getMultipliers(id: number): (number, number, number)
+	return world:getMultipliers(id)
 end
 
 -- Number of living enemies.
