@@ -243,6 +243,13 @@ describe("items in a run (B8)", function()
 		expect(RunDirector.getParticipantState(me)).toBe("Alive")
 	end)
 
+	it("gives the new items one after another with the debug button", function()
+		local first = Config.Admin.newItems[1]
+		local before = StatService.getItemCounts(me)[first] or 0
+		click("AddNewItem")
+		expect(StatService.getItemCounts(me)[first]).toBe(before + 1)
+	end)
+
 	it("finished without any runtime error", function()
 		expect(#world.errors).toBe(0)
 	end)

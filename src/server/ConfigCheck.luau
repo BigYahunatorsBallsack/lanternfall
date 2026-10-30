@@ -207,6 +207,11 @@ function ConfigCheck.run(): { string }
 			problem(`Items has no item of tier {tier}`)
 		end
 	end
+	for _, itemId in Config.Admin.newItems do
+		if not Config.Items.byId[itemId] then
+			problem(`Admin.newItems names unknown item {itemId}`)
+		end
+	end
 	if not Config.Items.tiers[Config.Items.chestMinTier] then
 		problem("Items.chestMinTier must be a rarity tier")
 	end

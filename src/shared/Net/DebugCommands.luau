@@ -28,4 +28,5 @@ return table.freeze({
 	"SpawnLooter", -- a Looter near yourself (since B6; it runs away and drops a crate)
 	"SpawnTree", -- a Tree next to yourself (since B6; drops a fruit or crate)
 	"DropCrate", -- a crate at your feet (since B6; it opens at the end of the wave)
+	"AddNewItem", -- the next item of the latest item package (since B8, Config.Admin.newItems), one after another
 })
