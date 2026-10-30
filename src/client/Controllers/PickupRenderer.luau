@@ -4,7 +4,8 @@
 -- into the player like orbs; left at the wave end they simply vanish. Lying ones are placed once; only flying ones move
 -- each frame, together in one workspace:BulkMoveTo. Also shows a small chip under the timer with the team's bag
 -- (OrbBag, ExperienceService) and the crates waiting for the end of the wave (CrateOffer, UpgradeService) while a run
--- is on. The server decides every pickup; this only shows it.
+-- is on. Since WP10 legendary crates: a bigger crimson crate with a gold band and a glow. The server decides every
+-- pickup; this only shows it.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -22,11 +23,14 @@ local Widgets = require(script.Parent.Parent.UI.Widgets)
 
 local FOLDER_NAME = "LanternfallPickups"
 local FLY_SECONDS = 0.3
-local CRATE = 2 -- kind in Net/Types.PickupEvents (1 = fruit)
+local CRATE, LEGENDARY = 2, 3 -- kinds in Net/Types.PickupEvents (1 = fruit)
 local FRUIT_COLOR = Color3.fromRGB(255, 112, 64)
 local LEAF_COLOR = Color3.fromRGB(96, 168, 92)
 local WOOD_COLOR = Color3.fromRGB(92, 60, 40)
 local BAND_COLOR = Color3.fromRGB(255, 196, 87) -- Theme.accent, the lantern yellow
+local LEGENDARY_WOOD = Color3.fromRGB(120, 28, 36) -- crimson lacquer, the Legendary tier's red
+local LEGENDARY_BAND = Color3.fromRGB(236, 188, 88)
+local LEGENDARY_GLOW = Color3.fromRGB(255, 80, 80)
 local CHIP_Y = 126 -- pixels from the top, under the HUD's timer panel
 
 -- One pickup's parts and where each sits relative to the pickup's floor point.
@@ -59,6 +63,22 @@ local cratePool = VisualKit.objectPool(function(): Visual
 	return { parts = { box, band }, offsets = { CFrame.new(0, 0.8, 0), CFrame.new(0, 1.1, 0) } }
 end, partsOf)
 
+local legendaryPool = VisualKit.objectPool(function(): Visual
+	local box = VisualKit.solid(
+		"LegendaryCrate",
+		Enum.PartType.Block,
+		Vector3.new(2.8, 2.2, 2.8),
+		LEGENDARY_WOOD,
+		Enum.Material.Wood
+	)
+	local band = VisualKit.part("LegendaryBand", Enum.PartType.Block, Vector3.new(2.95, 0.35, 2.95), LEGENDARY_BAND)
+	local glow = VisualKit.halo("LegendaryGlow", Enum.PartType.Ball, Vector3.one * 4.5, LEGENDARY_GLOW, 0.8)
+	return {
+		parts = { box, band, glow },
+		offsets = { CFrame.new(0, 1.1, 0), CFrame.new(0, 1.5, 0), CFrame.new(0, 1.2, 0) },
+	}
+end, partsOf)
+
 local pickups: { [number]: Pickup } = {}
 local flights: { Flight } = {}
 local bag = 0
@@ -84,7 +104,7 @@ local function getFolder(): Folder
 end
 
 local function poolOf(kind: number)
-	return if kind == CRATE then cratePool else fruitPool
+	return if kind == LEGENDARY then legendaryPool elseif kind == CRATE then cratePool else fruitPool
 end
 
 local function place(visual: Visual, position: Vector3, yaw: number)
