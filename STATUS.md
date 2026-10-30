@@ -4,12 +4,11 @@ Kurzer Projektstand für neue Sessions. **Zuerst lesen**, dann aus `DESIGN.md` n
 
 ## Stand (30.10.2026)
 
-- **Gemerged:** WP1–WP9, 9b, 9d, B1 (Wellen + Shop), B2 (Werte, 46 Items, Werte-Karten), Plan B3–B12 (PR #16), B3 (Shop komplett: Sperren, Verkaufen, Waffen-Stufen I–IV + Verschmelzen, Gratis-Neuwurf, Handy-Layout, 20 Wellen; PR #17, vom Owner in Studio getestet).
-- **B4 fertig, wartet auf Test:** Effekt-Maschine, Neben-Werte, Zufalls-Ströme, 32 Items mit Effekten (Branch `wp-b4-effect-engine`, PR #18).
-- **B5 fertig, wartet auf Test:** Kampf-Tiefe: Krit pro Waffe, Rückstoß + Rückstoß-Resistenz, Brennen (Ticks, Ausbreiten), Explosionen, Durchbohren/Abprallen mit Abschwächung, Verlangsamen sichtbar, 14 Waffenklassen mit Set-Boni, 12 Kampf-Items (Branch `wp-b5-combat`, baut auf B4 auf). Der Owner testet B4 und B5 zusammen (`/mnt/project-files/lanternfall-b5/TESTANLEITUNG.md`); erst B4 mergen, dann B5.
+- **Gemerged:** WP1–WP9, 9b, 9d, B1 (Wellen + Shop), B2 (Werte, 46 Items, Werte-Karten), Plan B3–B12 (PR #16), B3 (Shop komplett: Sperren, Verkaufen, Waffen-Stufen I–IV + Verschmelzen, Gratis-Neuwurf, Handy-Layout, 20 Wellen; PR #17), B4 (Effekt-Maschine, Neben-Werte, Zufalls-Ströme, 32 Items mit Effekten; PR #18) und B5 (Kampf-Tiefe: Krit pro Waffe, Rückstoß + Resistenz, Brennen, Explosionen, Durchbohren/Abprallen, Verlangsamen sichtbar, 14 Waffenklassen, 12 Kampf-Items; PR #19). B4 und B5 hat der Owner am 30.10.2026 zusammen in Studio getestet (`/mnt/project-files/lanternfall-b5/TESTANLEITUNG.md`).
+- **Test-Falle Brennen:** Spark Bolt (15) tötet Welle-1-Gegner (10 HP) mit einem Treffer, die fangen also nie Feuer (wie in Brotato). Brennen in Testanleitungen immer an einem Elite oder in späteren Wellen zeigen.
 - **Balance-Stand:** nach B3 gewannen gute Bots ca. 40 % der 20-Wellen-Runs (Wand bei Welle 13); eine Messung nach B4 (24 Runs) 15 von 24, Gegnerkurven unverändert. Blade Warden schwächer als Spark Mage (Thema für B5/B10).
 - **Bekannt und harmlos:** Output-Zeile „DataStoreService: StudioAccessToApisNotAllowed … HttpRequestsCache“ kommt von einem Studio-Plugin, nicht aus unserem Code.
-- **Als Nächstes:** B6 Beute (**High**), erst nach dem Test von B4+B5 bzw. wenn der Owner es sagt. Danach B7 Waffen (Medium), B8 Items (Medium), B9 Gegner (XH), B10 Charaktere (High), WP10 Boss (High), B11 Gefahrenstufen (High), B12 Bauten (High). Tabelle: `DESIGN.md` Abschnitt 20.
+- **Als Nächstes:** B6 Beute (**High**), wenn der Owner es sagt. Danach B7 Waffen (Medium), B8 Items (Medium), B9 Gegner (XH), B10 Charaktere (High), WP10 Boss (High), B11 Gefahrenstufen (High), B12 Bauten (High). Tabelle: `DESIGN.md` Abschnitt 20.
 
 ## Feste Entscheidungen des Owners
 
