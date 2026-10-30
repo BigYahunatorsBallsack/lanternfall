@@ -287,4 +287,11 @@ export type CrateOffer = {
 	pending: number, -- further crates after this one (closed: crates waiting for the end of the wave)
 }
 
+-- Where a spawn group will appear (SpawnDirector -> SpawnMarkerRenderer, B9): red crosses on the floor until the
+-- enemies come.
+export type SpawnMarkers = {
+	points: { number }, -- flat: x, z of every enemy of the group
+	spawnsAt: number, -- server time
+}
+
 return {}
