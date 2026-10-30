@@ -39,6 +39,64 @@ export type Enemy = {
 	hatch: Hatch?,
 	slash: Slash?,
 	eat: Eat?,
+	-- since WP10: a boss of the boss wave (Config.Enemies.bosses); BossService runs its phases and attacks
+	boss: BossPlan?,
+}
+
+-- WP10, Brotato's bosses: phases ("mutations") that switch at an HP share or after some seconds, whichever comes
+-- first; each phase runs its attacks in turn with a pause in between. Every attack warns first (a red circle or
+-- line on the floor, BossTelegraphs), strikes and recovers. BossService/BossBrain is the state machine.
+export type BossPlan = {
+	phases: { BossPhase }, -- in order; phase 1 starts at spawn
+	attacks: { [string]: BossAttack },
+}
+
+export type BossPhase = {
+	fromHp: number?, -- starts once the boss is at or below this share of its max HP ...
+	afterSeconds: number?, -- ... or this many seconds after it appeared, whichever comes first (not for phase 1)
+	attacks: { string }, -- keys in BossPlan.attacks, tried in this order (one on cooldown or out of range is skipped)
+	pauseSeconds: number, -- walking between two attacks
+	speedMultiplier: number?, -- on its walking speed in this phase (default 1)
+	roam: boolean?, -- runs all over the arena instead of after the nearest player
+	orbit: BossOrbit?, -- projectiles circling it during this phase
+	announce: string?, -- message to everyone when the phase starts
+}
+
+-- Projectiles that circle the boss and hurt players they touch (Brotato's Predator).
+export type BossOrbit = {
+	count: number,
+	radius: number, -- studs from its centre
+	turnsPerSecond: number,
+	hitRadius: number, -- studs, size of each projectile
+	damage: number, -- grows with the boss's damage like its contact damage
+}
+
+-- One attack. `kind` decides which fields it uses:
+--   Dash: rushes `distance` studs at `speed` along the line it showed; hurts every player it runs into once.
+--   Slam: hits everyone within `radius` of where it stands.
+--   Ring: `count` projectiles in every direction, `bursts` times `burstGapSeconds` apart.
+--   Rain: `count` red circles (`radius`) at random spots within `spread` of every living player; they hit when the
+--     wind-up ends (Brotato's Invoker: projectiles that "spawn after a second of priming").
+--   Circle: `count` spots on a circle of `spread` studs around every living player; each fires a projectile at the
+--     centre when the wind-up ends.
+export type BossAttack = {
+	kind: string,
+	windupSeconds: number, -- the warning on the floor
+	recoverSeconds: number,
+	cooldownSeconds: number?, -- from the start of its wind-up until it may come again
+	range: number?, -- only starts when the nearest player is at most this far from the boss's edge
+	moving: boolean?, -- keeps walking during wind-up and strike (else it stands still)
+	damage: number, -- per hit or projectile; grows with the boss's damage like its contact damage
+	speed: number?, -- Dash
+	distance: number?, -- Dash
+	radius: number?, -- Slam, Rain: hit circle
+	count: number?, -- Ring, Rain, Circle
+	bursts: number?, -- Ring
+	burstGapSeconds: number?, -- Ring
+	spread: number?, -- Rain, Circle
+	projectileSpeed: number?, -- Ring, Circle
+	projectileRange: number?, -- Ring (Circle: twice its spread)
+	projectileRadius: number?, -- Ring, Circle
 }
 
 -- Enemies that get faster the longer they live (Stalker, B9).
@@ -214,7 +272,7 @@ local Enemies: { [string]: Enemy } = {
 			aimLead = 0.3,
 		},
 	},
-	-- typeId 4 is the boss
+	-- typeId 4 is the first boss (bosses below)
 	Charger = {
 		id = "Charger",
 		typeId = 5,
@@ -531,22 +589,174 @@ local Elite = table.freeze({
 	}) :: { Affix },
 })
 
-local Boss = table.freeze({
-	id = "LanternEater",
-	typeId = 4,
-	displayName = "The Lantern Eater",
-	hp = 4000, -- multiplied by the player factor (see Run.playerFactor)
-	speed = 9,
-	radius = 5, -- assumption
-	slam = table.freeze({ radius = 14, telegraph = 1.2, damage = 35 }),
-	charge = table.freeze({ telegraph = 0.8, damage = 30 }),
-	summon = table.freeze({ interval = 25, count = 20, enemy = "Shadeling" }),
-	phase2 = table.freeze({ hpThreshold = 0.5, attackSpeedMultiplier = 1.25 }),
-	reward = table.freeze({ upgradesPerPlayer = 3 }), -- embers in Economy.embers.bossKill
+-- WP10: the bosses of the boss wave (the last wave, Run.spawn.waves), after Brotato's two (wave 20, 90 s). One of
+-- them comes, picked at random (B11: both on the highest danger level). The wave ends with a victory when every
+-- boss is dead or when its time runs out (Brotato). Values from Brotato's Predator and Invoker, scaled like our other
+-- enemies (HP about 3.4x, damage about 3x, speed relative to the player); attack numbers the wiki does not give are
+-- assumptions. HP and damage then get the difficulty and the team's enemy stats, HP also the player factor
+-- (Run.playerFactor). Bosses count as elites for Damage vs Elites and ignore knockback; Heralds and Menders skip them.
+local Bosses: { [string]: Enemy } = {
+	-- like Brotato's Predator: chases you and dashes, ringed by circling embers; from half HP (or after 45 s) no more
+	-- dashes but slams and rings of shots in every direction
+	LanternEater = {
+		id = "LanternEater",
+		typeId = 4,
+		displayName = "The Lantern Eater",
+		hp = 100000, -- Brotato 29,900
+		speed = 11, -- Brotato 300, about 2/3 of the player
+		contactDamage = 90, -- Brotato 30
+		hpPerWave = 0,
+		damagePerWave = 0,
+		xp = 0, -- the run ends with it
+		radius = 4.5,
+		mass = 60,
+		knockbackResistance = 1,
+		boss = {
+			phases = {
+				{
+					attacks = { "Dash" },
+					pauseSeconds = 1.2,
+					orbit = { count = 4, radius = 9, turnsPerSecond = 0.35, hitRadius = 1.3, damage = 60 },
+				},
+				{
+					fromHp = 0.5,
+					afterSeconds = 45,
+					attacks = { "Slam", "Ring" },
+					pauseSeconds = 0.8,
+					speedMultiplier = 1.15,
+					announce = "The Lantern Eater flares up!",
+				},
+			},
+			attacks = {
+				Dash = {
+					kind = "Dash",
+					windupSeconds = 0.8,
+					recoverSeconds = 0.9,
+					range = 40,
+					damage = 90,
+					speed = 40,
+					distance = 38,
+				},
+				Slam = {
+					kind = "Slam",
+					windupSeconds = 1.2,
+					recoverSeconds = 0.6,
+					cooldownSeconds = 4,
+					range = 10,
+					damage = 105,
+					radius = 14,
+				},
+				Ring = {
+					kind = "Ring",
+					windupSeconds = 0.6,
+					recoverSeconds = 0.6,
+					cooldownSeconds = 3,
+					damage = 70, -- Brotato 23 per projectile
+					count = 16,
+					bursts = 2,
+					burstGapSeconds = 0.4,
+					projectileSpeed = 16,
+					projectileRange = 60,
+					projectileRadius = 0.8,
+				},
+			},
+		},
+	},
+	-- like Brotato's Invoker: slow, calls red circles around every player that strike after a second; at 60 % HP (or
+	-- after 30 s) more of them over a wider area; at 40 % (or after 60 s) it runs all over the arena and rings every
+	-- player with shots that fly inwards
+	HollowSeer = {
+		id = "HollowSeer",
+		typeId = 20,
+		displayName = "The Hollow Seer",
+		hp = 100000, -- Brotato 29,900
+		speed = 7, -- Brotato 200
+		contactDamage = 60, -- Brotato 19.5
+		hpPerWave = 0,
+		damagePerWave = 0,
+		xp = 0,
+		radius = 4,
+		mass = 60,
+		knockbackResistance = 1,
+		boss = {
+			phases = {
+				{ attacks = { "Rain" }, pauseSeconds = 0 },
+				{
+					fromHp = 0.6,
+					afterSeconds = 30,
+					attacks = { "WideRain" },
+					pauseSeconds = 0,
+					announce = "The Hollow Seer's veil tears!",
+				},
+				{
+					fromHp = 0.4,
+					afterSeconds = 60,
+					attacks = { "Circle" },
+					pauseSeconds = 0,
+					speedMultiplier = 2.5, -- Brotato: from 200 to 500
+					roam = true,
+					announce = "The Hollow Seer runs wild!",
+				},
+			},
+			attacks = {
+				Rain = {
+					kind = "Rain",
+					windupSeconds = 1,
+					recoverSeconds = 0,
+					cooldownSeconds = 2, -- Brotato: every two seconds
+					moving = true,
+					damage = 60,
+					count = 5,
+					spread = 10,
+					radius = 3,
+				},
+				WideRain = {
+					kind = "Rain",
+					windupSeconds = 1,
+					recoverSeconds = 0,
+					cooldownSeconds = 2,
+					moving = true,
+					damage = 60,
+					count = 10,
+					spread = 18,
+					radius = 3,
+				},
+				Circle = {
+					kind = "Circle",
+					windupSeconds = 1,
+					recoverSeconds = 0,
+					cooldownSeconds = 2.5,
+					moving = true,
+					damage = 60,
+					count = 12,
+					spread = 13,
+					projectileSpeed = 14,
+					projectileRadius = 0.8,
+				},
+			},
+		},
+	},
+}
+
+-- How the boss wave brings its bosses (BossService).
+local BossWave = table.freeze({
+	count = 1, -- bosses per run (B11: 2 on the highest danger level, each with hpShareWhenSeveral of its HP)
+	hpShareWhenSeveral = 0.75, -- Brotato
+	order = table.freeze({ "LanternEater", "HollowSeer" }), -- picked at random; "SpawnBoss" goes through them in turn
+	introSeconds = 2.5, -- after the boss wave starts: red crosses show where it comes
+	spawnDistance = 28, -- studs from a random living player
+	stateInterval = 0.2, -- seconds between BossState updates (HP bar)
+	legendaryCrate = true, -- a killed boss drops a legendary crate (matters once a run goes on after it, B11)
 })
+
+for _, boss in Bosses do
+	table.freeze(boss)
+end
 
 return table.freeze({
 	types = table.freeze(Enemies),
 	elite = Elite,
-	boss = Boss,
+	bosses = table.freeze(Bosses),
+	bossWave = BossWave,
+	boss = Bosses.LanternEater, -- the HUD's label for the old boss phase (unused since WP10)
 })
