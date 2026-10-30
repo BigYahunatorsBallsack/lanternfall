@@ -27,6 +27,7 @@
 -- Events (triggers): Acquire (this copy is taken), WaveStart, WaveEnd (before Harvesting pays), ShopEnter (offers
 -- rolled), Reroll, Buy, Sell, LevelUp, Hit, Crit, Kill (weapon hits of the owner), Dodge, Hurt (HP lost), Pickup
 -- (per orb picked up), Chest, Timer (every `interval` seconds of a wave).
+-- Since B6 also Consumable (a fruit or crate picked up; a crate fires Chest as well).
 -- Conditions: `chance` (0..1, rolled per copy), `crit` / `elite` (Hit, Crit, Kill), `fromWave` / `untilWave`,
 -- `maxPerWave` (firings per wave).
 -- Copies: an effect without `chance` works count times as strong; with `chance` every copy rolls on its own.
@@ -81,6 +82,7 @@ return table.freeze({
 		"Pickup",
 		"Chest",
 		"Timer",
+		"Consumable",
 	}),
 	passiveActions = set({ "Stats", "PerX" }), -- only with trigger "Always"
 	eventActions = set({

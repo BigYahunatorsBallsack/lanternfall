@@ -44,6 +44,8 @@ export type StatId =
 	| "bounce"
 	| "burnSpeed"
 	| "burnSpread"
+	| "fruitHeal"
+	| "trees"
 
 export type Stat = {
 	id: string,
@@ -119,6 +121,9 @@ local ORDER: { Stat } = {
 	extra("bounce", "Bounce", false), -- extra bounces of every projectile (Chain Lightning: extra jumps)
 	extra("burnSpeed", "Burning Speed", true), -- burns tick this much faster
 	extra("burnSpread", "Burning Spread", false), -- burns pass on to this many more enemies
+	-- loot (since B6, Config.Loot)
+	extra("fruitHeal", "Fruit Healing", false), -- HP every fruit and crate heals on top
+	extra("trees", "Trees", false), -- more trees every wave; the whole team's values add up
 }
 
 local byId: { [string]: Stat } = {}
