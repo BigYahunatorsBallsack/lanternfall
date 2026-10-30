@@ -1,14 +1,16 @@
 --!strict
--- The boss on screen (DESIGN.md section 7, WP10): a big HP bar at the top with its name and phase (BossState from
--- BossService), the warnings of its attacks on the floor (BossTelegraphs: red circles that fill up and red lines that
--- show a dash, until they strike) and the embers circling it in a phase with an orbit (Config.Enemies.bosses). The
--- server decides every hit; this only shows it. Uses EnemyRenderer for where the boss stands.
+-- The boss on screen (DESIGN.md section 7, WP10; since part 2 also the champion of an elite wave): a big HP bar at
+-- the top with its name and phase (BossState from BossService), the warnings of its attacks on the floor
+-- (BossTelegraphs: red circles that fill up and red lines that show a dash or slash, until they strike) and the
+-- embers circling it in a phase with an orbit (Config.Enemies.bosses). The server decides every hit; this only shows
+-- it. Uses EnemyRenderer for where the boss stands.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared:WaitForChild("Config"))
+local Enemies = require(Shared:WaitForChild("Config"):WaitForChild("Enemies"))
 local Net = require(Shared:WaitForChild("Net"))
 local Types = require(Shared:WaitForChild("Net"):WaitForChild("Types"))
 
@@ -45,6 +47,11 @@ local screen: ScreenGui? = nil
 local nameLabel: TextLabel? = nil
 local phaseLabel: TextLabel? = nil
 local barFill: Frame? = nil
+
+-- A boss or (since WP10 part 2) a champion of an elite wave.
+local function kindOf(bossId: string): Enemies.Enemy?
+	return Config.Enemies.bosses[bossId] or Config.Enemies.champions[bossId]
+end
 
 local function getFolder(): Folder
 	local current = folder
@@ -123,7 +130,7 @@ local function updateBar()
 	if not first then
 		return
 	end
-	local kind = Config.Enemies.bosses[first.bossId]
+	local kind = kindOf(first.bossId)
 	name.Text = if kind then kind.displayName else first.bossId
 	if #bosses > 1 then
 		name.Text ..= ` and {#bosses - 1} more`
@@ -206,7 +213,7 @@ end
 local function placeEmbers(now: number)
 	local used = 0
 	for _, info in bosses do
-		local kind = Config.Enemies.bosses[info.bossId]
+		local kind = kindOf(info.bossId)
 		local plan = kind and kind.boss
 		local phase = plan and plan.phases[info.phase]
 		local orbit = phase and phase.orbit

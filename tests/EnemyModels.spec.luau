@@ -37,6 +37,27 @@ describe("EnemyModels", function()
 		end
 	end)
 
+	it("builds every boss and champion with its glow within the elite part budget (WP10)", function()
+		local kinds = {}
+		for _, kind in Config.Enemies.bosses do
+			table.insert(kinds, kind)
+		end
+		for _, kind in Config.Enemies.champions do
+			table.insert(kinds, kind)
+		end
+		expect(#kinds).toBe(10)
+		for _, kind in kinds do
+			local visual = Models.build(kind.typeId)
+			expect(visual.model.Name).toBe(kind.id)
+			expect(#visual.parts <= MAX_ELITE_PARTS).toBe(true)
+			local lit = false
+			for _, object in visual.model:GetDescendants() do
+				lit = lit or object.ClassName == "PointLight"
+			end
+			expect(lit).toBe(true)
+		end
+	end)
+
 	it("leaves out the small trims in low detail and brings them back", function()
 		local visual = Models.build(Config.Enemies.types.Shadeling.typeId)
 		local full = posed(visual)

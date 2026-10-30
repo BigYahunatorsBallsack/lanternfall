@@ -21,6 +21,9 @@
 -- Since WP10 the bosses: the Lantern Eater, a hulking soot-iron furnace with a porcelain jaw, a glowing grate for a
 -- belly and lanterns caged on its back; the Hollow Seer, a towering veiled oracle with one great eye and a spinning
 -- brass halo, hovering above the floor. Both carry a red glow. Their attacks are drawn by BossController.
+-- Since WP10 part 2 the eight champions of the elite waves, each its own silhouette with the same red glow: a brass
+-- ram, a hooded butcher with a cleaver, a robed abbot with a staff, a swamp lizard, a walking obelisk with orbiting
+-- stones, a sickle-armed wraith, a brood mother with glowing egg sacs and a winged stone gargoyle.
 
 local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
 local Config = require(Shared:WaitForChild("Config"))
@@ -292,6 +295,95 @@ local PALETTES: { [string]: Palette } = {
 		mask = PORCELAIN,
 		eye = Color3.fromRGB(150, 230, 255),
 		accent = Color3.fromRGB(255, 70, 90), -- its red circles
+		spikes = false,
+	},
+	-- WP10 part 2: the champions
+	BrassRam = { -- soot hide, polished brass horns, a furnace-orange brow
+		cloth = Color3.fromRGB(58, 40, 30),
+		clothDark = Color3.fromRGB(40, 28, 22),
+		soot = SOOT,
+		metal = Color3.fromRGB(214, 168, 80),
+		metalDark = BRASS_DARK,
+		mask = PORCELAIN,
+		eye = Color3.fromRGB(255, 170, 70),
+		accent = Color3.fromRGB(255, 120, 40),
+		spikes = false,
+	},
+	Flayer = { -- blood-brown leather, a red-hot cleaver
+		cloth = Color3.fromRGB(70, 34, 32),
+		clothDark = Color3.fromRGB(46, 30, 26),
+		soot = SOOT,
+		metal = BRASS,
+		metalDark = BRASS_DARK,
+		mask = PORCELAIN,
+		eye = Color3.fromRGB(255, 80, 70),
+		accent = Color3.fromRGB(255, 90, 60),
+		spikes = false,
+	},
+	Abbot = { -- ash-grey robes, gold sash, violet eyes and orb
+		cloth = Color3.fromRGB(70, 66, 78),
+		clothDark = Color3.fromRGB(44, 40, 52),
+		soot = SOOT,
+		metal = Color3.fromRGB(226, 182, 92),
+		metalDark = BRASS_DARK,
+		mask = PORCELAIN,
+		eye = Color3.fromRGB(200, 120, 255),
+		accent = Color3.fromRGB(255, 200, 110),
+		spikes = false,
+	},
+	MireJaw = { -- swamp green scales, brass ridge, yellow eyes
+		cloth = Color3.fromRGB(46, 70, 44),
+		clothDark = Color3.fromRGB(32, 50, 32),
+		soot = Color3.fromRGB(30, 36, 26),
+		metal = BRASS,
+		metalDark = BRASS_DARK,
+		mask = PORCELAIN,
+		eye = Color3.fromRGB(240, 230, 90),
+		accent = Color3.fromRGB(240, 230, 90),
+		spikes = false,
+	},
+	Monolith = { -- dark slate with cyan runes
+		cloth = Color3.fromRGB(56, 58, 70),
+		clothDark = Color3.fromRGB(38, 40, 50),
+		soot = SOOT,
+		metal = BRASS,
+		metalDark = BRASS_DARK,
+		mask = PORCELAIN,
+		eye = Color3.fromRGB(110, 230, 255),
+		accent = Color3.fromRGB(110, 230, 255),
+		spikes = false,
+	},
+	SickleWraith = { -- pale violet chitin, bright brass sickles, green eyes
+		cloth = Color3.fromRGB(84, 70, 110),
+		clothDark = Color3.fromRGB(56, 46, 78),
+		soot = SOOT,
+		metal = Color3.fromRGB(220, 176, 90),
+		metalDark = BRASS_DARK,
+		mask = PORCELAIN,
+		eye = Color3.fromRGB(150, 255, 140),
+		accent = Color3.fromRGB(150, 255, 140),
+		spikes = false,
+	},
+	BroodMatron = { -- deep plum with glowing pink egg sacs
+		cloth = Color3.fromRGB(78, 36, 64),
+		clothDark = Color3.fromRGB(52, 26, 44),
+		soot = SOOT,
+		metal = BRASS,
+		metalDark = BRASS_DARK,
+		mask = PORCELAIN,
+		eye = Color3.fromRGB(255, 120, 200),
+		accent = Color3.fromRGB(255, 120, 200),
+		spikes = false,
+	},
+	StoneSeraph = { -- weathered grey stone, a gold mouth and eyes
+		cloth = Color3.fromRGB(96, 94, 100),
+		clothDark = Color3.fromRGB(66, 64, 72),
+		soot = Color3.fromRGB(50, 48, 54),
+		metal = Color3.fromRGB(226, 182, 92),
+		metalDark = BRASS_DARK,
+		mask = PORCELAIN,
+		eye = Color3.fromRGB(255, 210, 90),
+		accent = Color3.fromRGB(255, 210, 90),
 		spikes = false,
 	},
 	Tree = {
@@ -1156,13 +1248,13 @@ local BUILDERS: { [string]: Build } = {
 			{ glow = true, heat = true },
 			FACING
 		)
-		for index = -1, 1 do
+		for index, x in { -0.18, 0.18 } do -- two bars keep it within the elite part budget
 			piece(
 				rig,
-				`GrateBar{index + 2}`,
+				`GrateBar{index}`,
 				"block",
 				v(0.07, 0.9, 0.06),
-				v(index * 0.25, 1.35, -0.86),
+				v(x, 1.35, -0.86),
 				p.metalDark,
 				{ metal = true, detail = true }
 			)
@@ -1299,6 +1391,408 @@ local BUILDERS: { [string]: Build } = {
 		end
 		rig.crown = v(0, 3.9, 0) * rig.r
 		return { stride = 8, bob = 0.03, roll = 0.03, lean = 0.05, legSwing = 0, armSwing = 0 }
+	end,
+	-- WP10 part 2, the champions. A brass-plated ram on four legs with curled horns and a glowing forehead plate
+	BrassRam = function(rig)
+		local p = rig.palette
+		shadow(rig, 2.1)
+		piece(rig, "Body", "egg", v(1.5, 1.25, 2), v(0, 1.25, 0.1), p.cloth, { flash = true })
+		piece(rig, "Plate", "block", v(1.2, 0.15, 1.5), v(0, 1.88, 0.1), p.metal, { metal = true })
+		piece(rig, "Head", "egg", v(0.85, 0.85, 1), v(0, 1.45, -1.05), p.soot, { flash = true })
+		piece(rig, "Brow", "block", v(0.7, 0.35, 0.12), v(0, 1.65, -1.52), p.accent, { glow = true }, TILTED)
+		eye(rig, "EyeLeft", v(0.16, 0.08, 0.05), v(-0.22, 1.42, -1.53), -0.25)
+		eye(rig, "EyeRight", v(0.16, 0.08, 0.05), v(0.22, 1.42, -1.53), 0.25)
+		for _, side in { -1, 1 } do
+			local name = if side < 0 then "Left" else "Right"
+			rod(
+				rig,
+				`Horn{name}`,
+				v(0.35 * side, 1.8, -1.1),
+				v(0.9 * side, 2.05, -0.75),
+				0.22,
+				p.metal,
+				{ metal = true }
+			)
+			rod(
+				rig,
+				`HornTip{name}`,
+				v(0.9 * side, 2.05, -0.75),
+				v(0.85 * side, 1.5, -1.25),
+				0.16,
+				p.metalDark,
+				{ metal = true, detail = true }
+			)
+			for index, z in { -0.55, 0.7 } do
+				local anim = if (index == 1) == (side < 0) then LEG_LEFT else LEG_RIGHT
+				piece(
+					rig,
+					`Leg{name}{index}`,
+					"block",
+					v(0.35, 0.8, 0.35),
+					v(0.5 * side, 0.4, z),
+					p.soot,
+					{ anim = anim, pivot = v(0.5 * side, 0.8, z) }
+				)
+			end
+		end
+		rig.crown = v(0, 2.3, 0) * rig.r
+		return { stride = 7, bob = 0.06, roll = 0.04, lean = 0.15, legSwing = 0.6, armSwing = 0 }
+	end,
+	-- a hooded butcher in a leather apron, porcelain mask, a huge glowing cleaver in one hand
+	Flayer = function(rig)
+		local p = rig.palette
+		shadow(rig, 2)
+		piece(rig, "Body", "egg", v(1.8, 1.9, 1.5), v(0, 1.35, 0.05), p.cloth, { flash = true })
+		piece(
+			rig,
+			"Apron",
+			"block",
+			v(1.2, 1.4, 0.1),
+			v(0, 1.1, -0.72),
+			p.clothDark,
+			{ material = Enum.Material.Fabric }
+		)
+		piece(rig, "Hood", "egg", v(0.95, 1, 0.95), v(0, 2.5, -0.1), p.soot, { flash = true })
+		piece(rig, "Mask", "egg", v(0.65, 0.75, 0.2), v(0, 2.45, -0.5), p.mask, nil)
+		eye(rig, "EyeLeft", v(0.15, 0.06, 0.04), v(-0.15, 2.55, -0.6), -0.2)
+		eye(rig, "EyeRight", v(0.15, 0.06, 0.04), v(0.15, 2.55, -0.6), 0.2)
+		local shoulderRight = v(1, 1.95, 0)
+		piece(
+			rig,
+			"ArmRight",
+			"block",
+			v(0.45, 1.2, 0.45),
+			v(1.1, 1.35, -0.1),
+			p.cloth,
+			{ anim = ARM_RIGHT, pivot = shoulderRight }
+		)
+		piece(
+			rig,
+			"Cleaver",
+			"block",
+			v(0.1, 1.1, 1.4),
+			v(1.15, 0.9, -0.75),
+			p.accent,
+			{ anim = ARM_RIGHT, pivot = shoulderRight, glow = true }
+		)
+		piece(
+			rig,
+			"Handle",
+			"block",
+			v(0.14, 0.14, 0.5),
+			v(1.15, 0.9, -0.05),
+			p.metalDark,
+			{ anim = ARM_RIGHT, pivot = shoulderRight, metal = true, detail = true }
+		)
+		local shoulderLeft = v(-1, 1.95, 0)
+		piece(
+			rig,
+			"ArmLeft",
+			"block",
+			v(0.45, 1.2, 0.45),
+			v(-1.1, 1.35, -0.1),
+			p.cloth,
+			{ anim = ARM_LEFT, pivot = shoulderLeft }
+		)
+		piece(
+			rig,
+			"Hook",
+			"block",
+			v(0.12, 0.45, 0.12),
+			v(-1.1, 0.6, -0.15),
+			p.metal,
+			{ anim = ARM_LEFT, pivot = shoulderLeft, metal = true }
+		)
+		for _, side in { -1, 1 } do
+			local name = if side < 0 then "Left" else "Right"
+			local leg = if side < 0 then LEG_LEFT else LEG_RIGHT
+			piece(
+				rig,
+				`Leg{name}`,
+				"block",
+				v(0.5, 0.6, 0.5),
+				v(0.45 * side, 0.3, 0.1),
+				p.soot,
+				{ anim = leg, pivot = v(0.45 * side, 0.6, 0.1) }
+			)
+		end
+		rig.crown = v(0, 3.15, 0) * rig.r
+		return { stride = 8, bob = 0.05, roll = 0.08, lean = 0.1, legSwing = 0.45, armSwing = 0.6 }
+	end,
+	-- a tall abbot in a hooded robe with two burning eyes, a crooked staff and an orb floating over his hand
+	Abbot = function(rig)
+		local p = rig.palette
+		shadow(rig, 1.8)
+		piece(
+			rig,
+			"Body",
+			"cylinder",
+			v(2.2, 1.3, 1.3),
+			v(0, 1.1, 0),
+			p.cloth,
+			{ material = Enum.Material.Fabric, flash = true },
+			UPRIGHT
+		)
+		piece(rig, "Mantle", "egg", v(1.6, 0.6, 1.4), v(0, 2.2, 0), p.clothDark, nil)
+		piece(
+			rig,
+			"Sash",
+			"cylinder",
+			v(0.12, 1.34, 1.34),
+			v(0, 1.4, 0),
+			p.metal,
+			{ metal = true, detail = true },
+			UPRIGHT
+		)
+		piece(rig, "Hood", "egg", v(1, 1.15, 1), v(0, 2.75, 0), p.clothDark, { flash = true })
+		piece(rig, "Face", "egg", v(0.6, 0.7, 0.2), v(0, 2.7, -0.42), p.soot, nil)
+		eye(rig, "EyeLeft", v(0.13, 0.13, 0.05), v(-0.13, 2.78, -0.52), 0)
+		eye(rig, "EyeRight", v(0.13, 0.13, 0.05), v(0.13, 2.78, -0.52), 0)
+		rod(rig, "Staff", v(0.85, 0.1, -0.4), v(0.85, 3.4, -0.4), 0.12, p.metalDark, { metal = true })
+		piece(rig, "StaffHead", "ball", v(0.35, 0.35, 0.35), v(0.85, 3.5, -0.4), p.accent, { glow = true })
+		piece(rig, "Orb", "ball", v(0.4, 0.4, 0.4), v(-0.85, 1.9, -0.6), p.eye, { glow = true, anim = FLOAT })
+		piece(rig, "HandLeft", "ball", v(0.28, 0.28, 0.28), v(-0.75, 1.55, -0.5), p.mask, nil)
+		rig.crown = v(0, 3.6, 0) * rig.r
+		return { stride = 7, bob = 0.03, roll = 0.03, lean = 0.08, legSwing = 0, armSwing = 0 }
+	end,
+	-- a long, low swamp lizard with brass-capped scales, a toothy snout and a heavy tail
+	MireJaw = function(rig)
+		local p = rig.palette
+		shadow(rig, 2.3)
+		piece(rig, "Body", "egg", v(1.4, 0.8, 2.4), v(0, 0.75, 0.2), p.cloth, { flash = true })
+		piece(rig, "Snout", "block", v(0.8, 0.45, 1.2), v(0, 0.75, -1.4), p.clothDark, { flash = true })
+		piece(rig, "Jaw", "block", v(0.75, 0.2, 1.1), v(0, 0.45, -1.35), p.mask, nil)
+		for index = 1, 3 do
+			piece(
+				rig,
+				`Teeth{index}`,
+				"block",
+				v(0.7, 0.08, 0.08),
+				v(0, 0.58, -0.95 - index * 0.25),
+				p.mask,
+				{ detail = index ~= 3 }
+			)
+		end
+		eye(rig, "EyeLeft", v(0.16, 0.1, 0.12), v(-0.3, 1.1, -0.9), 0)
+		eye(rig, "EyeRight", v(0.16, 0.1, 0.12), v(0.3, 1.1, -0.9), 0)
+		piece(rig, "Ridge", "block", v(0.3, 0.2, 1.8), v(0, 1.15, 0.2), p.metal, { metal = true })
+		piece(
+			rig,
+			"Tail",
+			"wedge",
+			v(0.6, 0.45, 1.6),
+			v(0, 0.5, 1.95),
+			p.cloth,
+			{ anim = SWING, pivot = v(0, 0.6, 1.2) }
+		)
+		for _, side in { -1, 1 } do
+			local name = if side < 0 then "Left" else "Right"
+			for index, z in { -0.5, 0.8 } do
+				local anim = if (index == 1) == (side < 0) then LEG_LEFT else LEG_RIGHT
+				piece(
+					rig,
+					`Leg{name}{index}`,
+					"block",
+					v(0.35, 0.4, 0.4),
+					v(0.75 * side, 0.2, z),
+					p.soot,
+					{ anim = anim, pivot = v(0.75 * side, 0.4, z) }
+				)
+			end
+		end
+		rig.crown = v(0, 1.6, 0) * rig.r
+		return { stride = 6, bob = 0.03, roll = 0.1, lean = 0.05, legSwing = 0.7, armSwing = 0 }
+	end,
+	-- a walking obelisk of cracked dark stone, glowing runes and stones orbiting its top
+	Monolith = function(rig)
+		local p = rig.palette
+		shadow(rig, 2)
+		piece(
+			rig,
+			"Body",
+			"block",
+			v(1.3, 2.6, 1.3),
+			v(0, 1.6, 0),
+			p.cloth,
+			{ flash = true, material = Enum.Material.Slate }
+		)
+		piece(
+			rig,
+			"Cap",
+			"wedge",
+			v(1.35, 0.6, 1.35),
+			v(0, 3.2, 0),
+			p.clothDark,
+			{ flash = true, material = Enum.Material.Slate }
+		)
+		piece(rig, "Base", "block", v(1.6, 0.35, 1.6), v(0, 0.2, 0), p.metalDark, { metal = true })
+		for index, y in { 1.1, 1.8, 2.5 } do
+			piece(
+				rig,
+				`Rune{index}`,
+				"block",
+				v(0.5, 0.12, 0.05),
+				v(0, y, -0.67),
+				p.accent,
+				{ glow = true, detail = index == 2 }
+			)
+		end
+		eye(rig, "Eye", v(0.4, 0.14, 0.05), v(0, 2.85, -0.67), 0)
+		local top = v(0, 2.9, 0)
+		for index = 0, 2 do
+			local angle = index * 2 * math.pi / 3
+			piece(
+				rig,
+				`Stone{index}`,
+				"block",
+				v(0.35, 0.35, 0.35),
+				top + v(math.cos(angle) * 1.25, 0, math.sin(angle) * 1.25),
+				p.clothDark,
+				{ anim = SPIN, pivot = top, material = Enum.Material.Slate },
+				CFrame.Angles(0.6, angle, 0.4)
+			)
+		end
+		rig.crown = v(0, 3.8, 0) * rig.r
+		return { stride = 10, bob = 0.04, roll = 0.06, lean = 0.03, legSwing = 0, armSwing = 0 }
+	end,
+	-- a thin, stalking wraith with a narrow head, two great brass sickles for arms and bent legs
+	SickleWraith = function(rig)
+		local p = rig.palette
+		shadow(rig, 1.8)
+		piece(rig, "Body", "egg", v(0.9, 1.7, 0.9), v(0, 1.65, 0.1), p.cloth, { flash = true })
+		piece(rig, "Abdomen", "egg", v(0.9, 0.8, 1.4), v(0, 1.1, 0.8), p.clothDark, { flash = true })
+		piece(rig, "Head", "egg", v(0.75, 0.5, 0.6), v(0, 2.6, -0.2), p.mask, nil)
+		eye(rig, "EyeLeft", v(0.22, 0.2, 0.12), v(-0.3, 2.65, -0.35), -0.3)
+		eye(rig, "EyeRight", v(0.22, 0.2, 0.12), v(0.3, 2.65, -0.35), 0.3)
+		for _, side in { -1, 1 } do
+			local name = if side < 0 then "Left" else "Right"
+			local arm = if side < 0 then ARM_LEFT else ARM_RIGHT
+			local leg = if side < 0 then LEG_LEFT else LEG_RIGHT
+			local shoulder = v(0.45 * side, 2.2, -0.2)
+			rod(rig, `Arm{name}`, shoulder, v(0.7 * side, 2.4, -1), 0.16, p.soot, { anim = arm, pivot = shoulder })
+			rod(
+				rig,
+				`Sickle{name}`,
+				v(0.7 * side, 2.4, -1),
+				v(0.6 * side, 1.2, -1.3),
+				0.14,
+				p.metal,
+				{ anim = arm, pivot = shoulder, metal = true }
+			)
+			rod(
+				rig,
+				`Leg{name}`,
+				v(0.35 * side, 1.2, 0.2),
+				v(0.8 * side, 0, 0.3),
+				0.14,
+				p.soot,
+				{ anim = leg, pivot = v(0.35 * side, 1.2, 0.2) }
+			)
+		end
+		rig.crown = v(0, 3.1, 0) * rig.r
+		return { stride = 9, bob = 0.04, roll = 0.04, lean = 0.2, legSwing = 0.5, armSwing = 0.3 }
+	end,
+	-- a bloated mother with a glowing egg-sac abdomen, a small masked head and short clawed legs
+	BroodMatron = function(rig)
+		local p = rig.palette
+		shadow(rig, 2.2)
+		piece(rig, "Body", "egg", v(1.9, 1.6, 2), v(0, 1.2, 0.35), p.cloth, { flash = true })
+		piece(rig, "Thorax", "egg", v(1.1, 1, 1), v(0, 1.45, -0.75), p.clothDark, { flash = true })
+		piece(rig, "Head", "egg", v(0.7, 0.6, 0.6), v(0, 1.85, -1.25), p.mask, nil)
+		eye(rig, "EyeLeft", v(0.14, 0.08, 0.05), v(-0.15, 1.9, -1.55), -0.2)
+		eye(rig, "EyeRight", v(0.14, 0.08, 0.05), v(0.15, 1.9, -1.55), 0.2)
+		for index, offset in { v(-0.55, 1.75, 0.3), v(0.55, 1.7, 0.5), v(0, 1.95, 0.75), v(0, 1.3, 1.25) } do
+			piece(rig, `Sac{index}`, "ball", v(0.45, 0.45, 0.45), offset, p.accent, { glow = true, detail = index > 2 })
+		end
+		piece(rig, "Collar", "cylinder", v(0.1, 1.15, 1.15), v(0, 1.45, -0.55), p.metal, { metal = true }, FACING)
+		for _, side in { -1, 1 } do
+			local name = if side < 0 then "Left" else "Right"
+			for index, z in { -0.7, 0.4 } do
+				local anim = if (index == 1) == (side < 0) then LEG_LEFT else LEG_RIGHT
+				rod(
+					rig,
+					`Leg{name}{index}`,
+					v(0.6 * side, 0.9, z),
+					v(1.1 * side, 0, z - 0.1),
+					0.16,
+					p.soot,
+					{ anim = anim, pivot = v(0.6 * side, 0.9, z) }
+				)
+			end
+		end
+		rig.crown = v(0, 2.4, 0) * rig.r
+		return { stride = 7, bob = 0.05, roll = 0.06, lean = 0.05, legSwing = 0.5, armSwing = 0 }
+	end,
+	-- a crouching stone gargoyle with spread wings, horns and a glowing gold mouth
+	StoneSeraph = function(rig)
+		local p = rig.palette
+		shadow(rig, 2)
+		piece(
+			rig,
+			"Body",
+			"egg",
+			v(1.4, 1.5, 1.3),
+			v(0, 1.2, 0.1),
+			p.cloth,
+			{ flash = true, material = Enum.Material.Slate }
+		)
+		piece(
+			rig,
+			"Head",
+			"egg",
+			v(0.9, 0.8, 0.85),
+			v(0, 2.1, -0.45),
+			p.cloth,
+			{ flash = true, material = Enum.Material.Slate }
+		)
+		piece(rig, "Mouth", "block", v(0.45, 0.1, 0.08), v(0, 1.92, -0.85), p.accent, { glow = true })
+		eye(rig, "EyeLeft", v(0.15, 0.08, 0.05), v(-0.2, 2.2, -0.85), -0.25)
+		eye(rig, "EyeRight", v(0.15, 0.08, 0.05), v(0.2, 2.2, -0.85), 0.25)
+		for _, side in { -1, 1 } do
+			local name = if side < 0 then "Left" else "Right"
+			local arm = if side < 0 then ARM_LEFT else ARM_RIGHT
+			local leg = if side < 0 then LEG_LEFT else LEG_RIGHT
+			rod(
+				rig,
+				`Horn{name}`,
+				v(0.3 * side, 2.4, -0.4),
+				v(0.55 * side, 2.85, -0.1),
+				0.14,
+				p.metal,
+				{ metal = true }
+			)
+			local root = v(0.55 * side, 1.7, 0.5)
+			piece(
+				rig,
+				`Wing{name}`,
+				"wedge",
+				v(0.12, 1.4, 1.6),
+				v(1.2 * side, 2.1, 0.7),
+				p.clothDark,
+				{ anim = arm, pivot = root, material = Enum.Material.Slate },
+				CFrame.Angles(0, 0, -0.5 * side)
+			)
+			piece(
+				rig,
+				`Leg{name}`,
+				"block",
+				v(0.45, 0.55, 0.55),
+				v(0.45 * side, 0.28, 0.15),
+				p.soot,
+				{ anim = leg, pivot = v(0.45 * side, 0.55, 0.15) }
+			)
+		end
+		piece(
+			rig,
+			"Tail",
+			"block",
+			v(0.2, 0.2, 1.1),
+			v(0, 0.55, 0.95),
+			p.clothDark,
+			{ anim = SWING, pivot = v(0, 0.7, 0.5), detail = true }
+		)
+		rig.crown = v(0, 3, 0) * rig.r
+		return { stride = 8, bob = 0.06, roll = 0.05, lean = 0.12, legSwing = 0.4, armSwing = 0.35 }
 	end,
 }
 
