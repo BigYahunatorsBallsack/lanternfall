@@ -504,6 +504,14 @@ Annahmen, wo Brotato keine Zahl nennt: Drain tötet nicht, die HP bleiben bei mi
 | Gloom Elite | beliebiger Typ, leuchtet, 1,5× so groß, ab 6:00 mit Eigenschaft | 8× | 0,9× | 1,5× | 25 + Truhe | 2, 4, 6 (2×), 8, 10 (2×) |
 | Looter (seit B6) | läuft weg, greift nicht an, verschwindet nach 12 s; lässt eine Kiste fallen (Abschnitt 3) | 120 | 17 | – | 8 | ab Welle 3 zufällig |
 | Tree (seit B6) | steht still, tut nichts; lässt Frucht oder Kiste fallen | 30 | 0 | – | 3 | jede Welle |
+| Stalker (seit B9) | wird jede Sekunde 12 % schneller, bis 2,4× | 14 | 8 bis 19 | 6 pro Kontakt | 2 | Welle 4 |
+| Skulker (seit B9) | Schütze, hält 36 Studs Abstand, flieht vor Spielern näher als 22 Studs | 18 | 13 | 7 pro Projektil, alle 3 s | 3 | Welle 10 |
+| Thornback (seit B9) | Panzer; jeder Treffer, der ihn nicht tötet, schießt einen Ring aus 8 Dornen (höchstens alle 1,5 s) | 70 | 7 | 10 pro Kontakt, 6 pro Dorn | 5 | Welle 12 |
+| Herald (seit B9) | alle 4 s: bis zu 5 Gegner im Umkreis von 14 Studs werden dauerhaft stärker (×1,5 Schaden, ×1,25 Tempo, +50 % HP, golden) | 30 | 9 | 4 pro Kontakt | 4 | Welle 9 |
+| Mender (seit B9) | alle 3 s heilt er alle anderen Gegner im Umkreis von 14 Studs um 30 % ihrer HP | 30 | 9 | 4 pro Kontakt | 4 | Welle 10 |
+| Brood Egg (seit B9) | steht still, wackelt und glüht ab 1,5 s vorher, schlüpft nach 5 s zu 4 Shadelings | 20 | 0 | – | 1 | Welle 8 |
+| Reaper (seit B9) | bleibt 7 Studs vor dir stehen, holt 0,7 s aus (roter Kreis am Boden) und trifft alles im Kreis (7,5 Studs) | 45 | 11 | 14 pro Hieb | 4 | Welle 11 |
+| Gobbler (seit B9) | läuft zu XP-Orbs im Umkreis von 45 Studs und frisst sie; getötet lässt er alles Gefressene als ein Orb fallen | 40 | 12 | 5 pro Kontakt | 3 | Welle 8 |
 | The Lantern Eater | Boss | 4.000 × Spielerfaktor | 9 | siehe unten | – | Welle 20 (ab Paket 10; bis B3 nach Welle 12) |
 
 **Looter und Tree (seit B6):** HP, Schaden und XP wachsen mit den Kurven wie bei allen. Der Looter flieht vor dem nächsten Spieler; nahe am Rand läuft er an der Wand entlang statt hinein (`flee.edgeMargin`). Der Baum ist „verankert": Er bewegt sich nie, andere Gegner werden von ihm weggeschoben, Spieler laufen durch ihn hindurch, Rückstoß wirkt nicht. Beide werden nie auf den Spawn-Ring zurückgeholt und zählen zur Gegner-Obergrenze.
@@ -571,6 +579,18 @@ Bis Paket 9 stiegen Rate und HP gerade an (`(1.5 + 0.55 · t)` und `1 + 0.15 · 
 | Werte pro Typ und Welle | Brotato: HP = Grundwert + Zuwachs × (Welle − 1). Bei uns hat jeder Typ `hpPerWave` und `damagePerWave` (alle etwa 0,68 × HP und 0,34 × Schaden, z. B. Shadeling 10 HP + 6,8, 5 Schaden + 1,7; Spitter-Zuwachs gilt für den Schuss). Mit Brotatos „Welle − 1" verlor die Balance-Simulation 12 von 12 Runs bis Welle 3–10 (Welle 5 hätte 2,3-fache HP). Deshalb zählt jede Welle eine Zahl von **Wachstumsschritten** (`spawn.growth`), die der getesteten Kurve von vorher folgt: Welle 1 = 0, Welle 5 ≈ 0,9, Welle 10 ≈ 3,5, Welle 15 ≈ 8,5, Welle 20 ≈ 18; seit der Messung unten 30 % mehr HP-Schritte und 15 % mehr Schaden-Schritte (Welle 20 ≈ 17× HP, 8× Schaden). Elites, Splitlinge und gerufene Gegner übernehmen den Faktor. |
 | Messung | Balance-Sim, fight-Bot, Blade Warden und Spark Mage mit je 12 Seeds: vor B9 8 von 24 gewonnen; mit Spawn-Gruppen und alter Kurve 18 von 24; mit 30 %/15 % mehr Wachstum ebenfalls 18 von 24. Die Gruppen machen es also leichter, und mehr HP/Schaden ändert daran kaum etwas (Vermutung: Gegner kommen gebündelt aus weniger Richtungen, Flächenwaffen treffen mehr). Nach zwei Versuchen gestoppt; der Owner beurteilt es im Test, Stellschrauben sind Gruppengrößen und Wachstumsschritte. |
 | Gegner-Tempo | Neben-Wert `enemySpeed` „Enemy Speed" (Team-Summe wie Enemy HP): neue Gegner laufen und stürmen × (1 + Wert/100). Für Items aus B8. |
+
+**Stand im Code (seit B9 Teil 2, 30.10.2026):** 8 neue Gegner mit neuen Verhalten (Tabelle oben), Werte in `Config/Enemies.luau` (`accelerate`, `flee.range`, `retaliate`, `pulse`, `hatch`, `slash`, `eat`). Alle wachsen wie die anderen mit `hpPerWave`/`damagePerWave` (Hieb und Dornen wie der Kontaktschaden). Die Wellen in `Config/Run.luau` bekamen je eine eigene Gruppe pro neuem Gegner (ab der Welle in der Tabelle); dafür sind die Gruppen von Shadeling, Abyss Shadeling, Spitter, Charger und Brute etwas kleiner, Gegner pro Sekunde bleiben etwa gleich.
+
+| Was | Umsetzung |
+| --- | --- |
+| Herald-Buff | Jeder Gegner höchstens einmal, nicht andere Heralds oder Mender. Gebuffte Gegner sind golden (Snapshot-Status „buffed"). Pulse nur, solange ein Spieler lebt. Herald und Mender zeigen beim Puls kurz einen Ring (gold bzw. grün). |
+| Ei | Verankert wie ein Baum (wird nie bewegt oder zurückgeholt). Die geschlüpften Shadelings übernehmen die Wachstums-Faktoren des Eis. |
+| Reaper | Ausholen wie beim Charger (rot, steht still); wer den roten Kreis rechtzeitig verlässt, wird nicht getroffen. |
+| Gobbler | Immer mit Orb (`alwaysOrbs`). Was er bis zum Wellenende gefressen hat und nicht zurückgibt, ist weg. |
+| Elites | Hieb- und Dornen-Schaden × 1,5 wie der Kontaktschaden. |
+| Messung | Kurz-Check, Balance-Sim fight-Bot mit je 3 Seeds: Blade Warden 1 von 3, Spark Mage 0 von 3 gewonnen (Teil 1 allein: 18 von 24). Die neuen Gegner machen es also deutlich schwerer. Nicht nachjustiert: Die Schwierigkeit stimmt der Owner später mit mehreren Charakteren ab (Entscheidung 30.10.2026). |
+| Debug | Knopf „Spawn next new enemy" ruft die 8 neuen Gegner nacheinander in deine Nähe (`Config/Admin.luau` → `newEnemies`). |
 
 Ein Gegner-Typ ist im Snapshot ein Byte; Elites senden Typ + 128, so kennt der Client sie ohne Zusatzdaten. Seit dem Spaß-Paket kommt ein zweites Byte dazu (Modus des Chargers und Elite-Eigenschaft, Abschnitt 15).
 
@@ -816,6 +836,14 @@ Bewusst nicht: harte Countdown-Angebote oder Serien, die bei einem verpassten Ta
 | Splitter | gesprungene Urne mit Messingband, türkis leuchtenden Rissen und drei schwebenden Irrlichtern, auf zwei Füßchen |
 | Splitling | kleines türkises Irrlicht mit Flammenspitze und Maskenscherbe, hüpft |
 | Abyss-Varianten | blutschwarz, geschwärzte Bronze, Obsidian-Maske, rote Augen, Hörner und Stacheln |
+| Stalker | Shadeling in kränklichem Grün |
+| Skulker | Kultist (Spitter-Form) in Türkis |
+| Thornback | Soldat (Brute-Form) in Rostrot mit Dornen |
+| Herald | Kultist in weißer Robe mit Gold |
+| Mender | Kultist in grüner Robe |
+| Brood Egg | bleiches, geädertes Ei mit violettem Glühen innen; glüht und wackelt vor dem Schlüpfen |
+| Reaper | Widder (Charger-Form) in Schwarz und Knochen; roter Kreis beim Ausholen |
+| Gobbler | aufgeblähter Dieb (Looter-Form) in Violett |
 | Gloom Elite | königsviolett und gold, goldene Augen, drehende Sonnenstrahlen-Krone, Leuchten, Lebensleiste mit dem Namen der Eigenschaft. Swift: cyan Schweif; Armored: Stahl statt Messing; Summoning: zwei grüne Irrlichter kreisen |
 
 - **Waffen und Fähigkeiten (seit Paket 9d):** Alles, was leuchtet, hat einen weißen Kern in einem farbigen, durchscheinenden Schein; was fliegt, zieht einen Schweif. Feste Teile sind Messing.
@@ -1099,7 +1127,7 @@ Bis zum Soft Launch rund 40–50 Sessions und 50–60 Stunden Zeit des Owners (6
 | B6 | Brotato 6: Beute – sinkende Drop-Chance, Beutel, Heil-Früchte, Kisten von normalen Gegnern, Plünderer, Bäume, Beute-Obergrenze (umgesetzt 30.10.2026, Branch `wp-b6-loot`) | Vertical Slice | High | 1–2 | 1 h | Wirtschaft beurteilen |
 | B7 | Brotato 7: Waffen-Paket – 24 Waffen, 18 neue Basisspiel-Vorbilder (umgesetzt auf `wp-b7-weapons`, Studio-Abnahme offen) | Vertical Slice | Medium | 2 | 1 h | Waffen ausprobieren |
 | B8 | Brotato 8: Item-Paket – auf ~100 Items, viele mit Effekten (umgesetzt 30.10.2026 mit 114 Items, Branch `wp-b8-items`, von Claude statt ChatGPT) | Vertical Slice | Medium | 2 | 1 h | Items ausprobieren |
-| B9 | Brotato 9: Gegner-Paket – Spawn-Marker, Wellen als Spawn-Gruppen, Werte pro Typ und Welle, 8 neue Verhalten (Teil 1 Spawn-Gruppen, Marker, Werte pro Welle, Gegner-Tempo umgesetzt 30.10.2026, Branch `wp-b9a-spawn-groups`; Teil 2 die 8 Verhalten) | Vertical Slice | Extra high | 2 | 1 h | Schwierigkeit und Lesbarkeit beurteilen |
+| B9 | Brotato 9: Gegner-Paket – Spawn-Marker, Wellen als Spawn-Gruppen, Werte pro Typ und Welle, 8 neue Verhalten (Teil 1 Spawn-Gruppen, Marker, Werte pro Welle, Gegner-Tempo umgesetzt 30.10.2026, Branch `wp-b9a-spawn-groups`; Teil 2 die 8 neuen Gegner umgesetzt 30.10.2026, Branch `wp-b9b-new-enemies`) | Vertical Slice | Extra high | 2 | 1 h | Schwierigkeit und Lesbarkeit beurteilen |
 | B10 | Brotato 10: Charaktere – 10–12 Charaktere als Regelpakete (ersetzt die Klassen), Charakter- und Waffenwahl in der Lobby | Vertical Slice | High | 2 | 1,5 h | jeden Charakter einmal spielen |
 | 10 | Boss und Elites mit Phasen: Boss-Welle 20 (90 s), 2 Bosse mit Phasen-Wechseln, Vorwarnungen, Elites mit Phasen | Vertical Slice | High | 2 | 1,5 h | Boss 3× spielen |
 | B11 | Brotato 11: Gefahrenstufen 0–5, Elite- und Horden-Wellen, Endlos-Modus, Regler für Gegner-Werte, Welle wiederholen | Vertical Slice | High | 1–2 | 1 h | Stufen durchprobieren |
