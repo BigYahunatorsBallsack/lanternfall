@@ -6,7 +6,8 @@
 -- themselves (both keep the parent's minute and difficulty multipliers). Signals: EnemyKilled for XP and loot (WP6,
 -- WP9), Contact and ShotHit for player damage (WP4, WP9), Stepped for the weapons (WP5). Enemies and shots are
 -- cleared when a run starts and ends and when a wave ends (Shop phase). Since B5 weapons also slow enemies and mark
--- them as burning (slow, setBurning); both travel in the snapshot's status byte.
+-- them as burning (slow, setBurning); both travel in the snapshot's status byte. Since B6 SpawnDirector removes
+-- escaping Looters without a kill (remove).
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
@@ -452,6 +453,11 @@ end
 -- Shows a living enemy as burning (or not) in the snapshots; WeaponService runs the burn itself (B5).
 function EnemySim.setBurning(id: number, on: boolean)
 	world:setBurning(id, on)
+end
+
+-- Removes a living enemy without a kill: no EnemyKilled, no loot (a Looter escaping, B6). Returns true if it was alive.
+function EnemySim.remove(id: number): boolean
+	return world:remove(id)
 end
 
 -- Moves a living enemy to `position` (x/z) at once, without crossing the space in between.
