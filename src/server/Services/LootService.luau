@@ -39,7 +39,8 @@ local LootService = {}
 
 -- (player: Player): the player got the reward of a chest or picked up a crate (Brotato's crate pickup)
 LootService.ChestCollected = Signal.new()
--- (player: Player, kind: string): the player picked up a fruit or a crate ("Fruit", "Crate"; B6)
+-- (player: Player, kind: string, wasFull: boolean): the player picked up a fruit or a crate ("Fruit", "Crate"; B6),
+-- wasFull: at max HP before its healing (B8)
 LootService.ConsumableCollected = Signal.new()
 
 type Pickup = { id: number, x: number, z: number, kind: number }
@@ -182,6 +183,8 @@ end
 
 -- What a fruit or crate does for the player who takes it: healing, and a crate's item waits for the wave end.
 local function consume(player: Player, kind: number)
+	local hp, maxHp = CombatService.getHp(player)
+	local wasFull = hp >= maxHp -- before the healing (B8: effects for picking one up at full HP)
 	local base = if kind == CRATE then Loot.crate.heal else Loot.fruit.heal
 	CombatService.healPlayer(player, math.max(0, base + StatService.getStat(player, "fruitHeal")))
 	if kind == CRATE then
@@ -189,9 +192,9 @@ local function consume(player: Player, kind: number)
 			Net.fireClient("Notify", player, "Crate! It opens after the wave.")
 		end
 		LootService.ChestCollected:Fire(player)
-		LootService.ConsumableCollected:Fire(player, "Crate")
+		LootService.ConsumableCollected:Fire(player, "Crate", wasFull)
 	else
-		LootService.ConsumableCollected:Fire(player, "Fruit")
+		LootService.ConsumableCollected:Fire(player, "Fruit", wasFull)
 	end
 end
 

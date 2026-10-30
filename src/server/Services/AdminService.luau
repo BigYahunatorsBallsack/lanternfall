@@ -40,6 +40,7 @@ local AdminService = {}
 local hitList: { number } = {}
 local effectItemIndex: { [Player]: number } = {} -- the last item "AddEffectItem" gave
 local combatItemIndex: { [Player]: number } = {} -- the last item "AddCombatItem" gave
+local newItemIndex: { [Player]: number } = {} -- the last item "AddNewItem" gave (B8)
 
 -- Stats and effect actions of the combat items (B5).
 local COMBAT_STATS = {
@@ -359,6 +360,9 @@ local handlers: { [string]: (player: Player) -> (boolean, string?) } = {
 		LootService.dropPickup(position, "Crate")
 		return true, "Dropped a crate"
 	end,
+	AddNewItem = function(player)
+		return nextItem(player, Config.Admin.newItems, newItemIndex)
+	end,
 }
 
 local function collectStats(): Types.DebugStats
@@ -404,6 +408,7 @@ function AdminService.init()
 	Players.PlayerRemoving:Connect(function(player)
 		effectItemIndex[player] = nil
 		combatItemIndex[player] = nil
+		newItemIndex[player] = nil
 	end)
 
 	Net.onServer("DebugCommand", function(player, command: string)

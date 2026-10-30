@@ -125,6 +125,18 @@ function Vitals.heal(self: Vitals, amount: number): number
 	return gained
 end
 
+-- Loses up to `amount` HP straight away, ignoring armor, dodge, shields and hit protection and giving none, but never
+-- below 1 HP (item effects since B8: Brotato's "you take 1 damage per second"; not lethal is an assumption). Returns
+-- the HP lost.
+function Vitals.drain(self: Vitals, amount: number): number
+	if amount <= 0 or self:isDown() then
+		return 0
+	end
+	local lost = math.max(0, math.min(amount, self.hp - 1))
+	self.hp -= lost
+	return lost
+end
+
 -- Sets HP to a fraction of the maximum, at least 1 (revive).
 function Vitals.setFraction(self: Vitals, fraction: number)
 	self.hp = math.clamp(math.ceil(self.maxHp * fraction), 1, self.maxHp)

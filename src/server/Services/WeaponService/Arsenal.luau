@@ -45,7 +45,8 @@ export type Enemies = {
 }
 
 -- What dealt a hit (onHit): a weapon's own hit, an explosion (weapon or item effect) or a burn tick (B5).
-export type HitSource = "Weapon" | "Explosion" | "Burn"
+-- Since B8 also "Strike": a direct hit of an item effect (no crit, life steal or knockback).
+export type HitSource = "Weapon" | "Explosion" | "Burn" | "Strike"
 
 -- How ctx:hit lands (B5): nil for a normal hit, "Explosion" (no life steal, no knockback) or "Bounce" (a bounced
 -- projectile: no knockback).
@@ -153,7 +154,7 @@ export type DamageStats = { [string]: { damage: number, kills: number } }
 
 -- An item effect's burn or explosion waiting for the end of the step (B5).
 type Queued = {
-	kind: "Burn" | "Explosion",
+	kind: "Burn" | "Explosion" | "Strike",
 	ownerId: number,
 	id: number?, -- Burn: the enemy
 	x: number, -- Explosion: the center
@@ -162,6 +163,7 @@ type Queued = {
 	scaling: { [string]: number }?,
 	ticks: number, -- Burn
 	size: number, -- Explosion: share of Config.Combat.explosion.baseRadius
+	flat: number?, -- Strike: damage added after the owner's stats (B8)
 }
 
 local MAX_PROJECTILE_ID = 2 ^ 31
@@ -800,6 +802,58 @@ local function itemExplosion(self: Arsenal, entry: Queued, bonuses: Bonuses)
 	end
 end
 
+-- Item effects (B8) --------------------------------------------------------------------------
+
+-- Hits enemy `id` for the owner at the end of this step: (damage + sum of scaling * stat) times Damage %, plus `flat`
+-- (e.g. a share of the enemy's HP) untouched by stats; Damage vs Elites applies to both. No crit, life steal or
+-- knockback (Brotato's Cyberball, Baby Elephant, Giant Belt; assumption). Owners not in the arsenal do nothing.
+function Arsenal.queueStrike(
+	self: Arsenal,
+	ownerId: number,
+	id: number,
+	damage: number,
+	scaling: { [string]: number }?,
+	flat: number
+)
+	if self.owners[ownerId] then
+		table.insert(self.queue, {
+			kind = "Strike",
+			ownerId = ownerId,
+			id = id,
+			x = 0,
+			z = 0,
+			damage = damage,
+			scaling = scaling,
+			ticks = 0,
+			size = 0,
+			flat = flat,
+		})
+	end
+end
+
+local function itemStrike(self: Arsenal, entry: Queued, bonuses: Bonuses)
+	local enemies = self.params.enemies
+	local id = entry.id :: number
+	if not enemies.isAlive(id) then
+		return
+	end
+	local hit = entry.flat or 0
+	if entry.damage > 0 or entry.scaling then
+		hit += WeaponStats.ownerDamage(entry.damage, entry.scaling, bonuses)
+	end
+	local eliteDamage = (bonuses.eliteDamage or 0) / 100
+	if eliteDamage ~= 0 and enemies.isElite and enemies.isElite(id) then
+		hit *= math.max(0, 1 + eliteDamage)
+	end
+	if hit <= 0 then
+		return
+	end
+	local killed, dealt = enemies.damage(id, hit, entry.ownerId, false, false)
+	if self.params.onHit and dealt > 0 then
+		self.params.onHit(entry.ownerId, nil, id, dealt, false, killed, "Strike")
+	end
+end
+
 -- Carries out what item effects queued; what those hits queue in turn waits for the next step.
 local function runQueue(self: Arsenal)
 	local queue = self.queue
@@ -826,6 +880,8 @@ local function runQueue(self: Arsenal)
 					math.max(0, math.floor(bonuses.burnSpread or 0))
 				)
 			)
+		elseif entry.kind == "Strike" then
+			itemStrike(self, entry, bonuses)
 		else
 			itemExplosion(self, entry, bonuses)
 		end

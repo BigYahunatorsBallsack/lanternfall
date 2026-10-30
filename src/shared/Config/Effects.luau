@@ -24,12 +24,19 @@
 --                            per tick, times Damage % (Brotato's burning items; burns do not stack)
 --   Hit/Crit/Kill + Explode  an explosion at the enemy (B5): `amount` + `scaling` damage, radius `size` times
 --                            Config.Combat.explosion.baseRadius; copies that fire together add their damage
+--   any event + Strike       (B8) hits an enemy: `amount` + `scaling` times Damage %, plus `hpShare` of its current HP
+--                            (`eliteHpShare` for elites); `target` "random" = a random living enemy (one per copy that
+--                            fires), else the enemy of a Hit, Crit or Kill (damage times copies). No crit, life steal,
+--                            knockback; its kills count as Kill events, its hits not as Hit
+--   any event + Drain        (B8) lose `amount` HP, never below 1, ignoring armor, dodge and hit protection
 -- Events (triggers): Acquire (this copy is taken), WaveStart, WaveEnd (before Harvesting pays), ShopEnter (offers
 -- rolled), Reroll, Buy, Sell, LevelUp, Hit, Crit, Kill (weapon hits of the owner), Dodge, Hurt (HP lost), Pickup
 -- (per orb picked up), Chest, Timer (every `interval` seconds of a wave).
 -- Since B6 also Consumable (a fruit or crate picked up; a crate fires Chest as well).
 -- Conditions: `chance` (0..1, rolled per copy), `crit` / `elite` (Hit, Crit, Kill), `fromWave` / `untilWave`,
--- `maxPerWave` (firings per wave).
+-- `maxPerWave` (firings per wave); since B8 `fullHp` (Consumable: at max HP before its healing).
+-- PerX since B8: `per` may be negative ("per -1 % Speed"), `min` keeps the steps from dropping below it; more sources:
+-- "enemies" (living enemies right now) and "distinctItemsTier1".."distinctItemsTier4" (different items of that tier).
 -- Copies: an effect without `chance` works count times as strong; with `chance` every copy rolls on its own.
 
 export type Effect = {
@@ -53,6 +60,11 @@ export type Effect = {
 	scaling: { [string]: number }?, -- Burn, Explode: stat id -> share added to `amount` (B5)
 	ticks: number?, -- Burn
 	size: number?, -- Explode: share of the base explosion radius
+	min: number?, -- PerX: fewest steps (B8)
+	fullHp: boolean?, -- Consumable: only at max HP (B8)
+	target: string?, -- Strike: "random" or nil (the event's enemy) (B8)
+	hpShare: number?, -- Strike: share of the enemy's current HP added (B8)
+	eliteHpShare: number?, -- Strike: hpShare against elites (B8)
 }
 
 local function set(list: { string }): { [string]: boolean }
@@ -99,10 +111,21 @@ return table.freeze({
 		"UpgradeWeapon",
 		"Burn",
 		"Explode",
+		"Strike",
+		"Drain",
 	}),
 	enemyTriggers = set({ "Hit", "Crit", "Kill" }), -- events with an enemy: the only ones for Burn and Explode (B5)
 	states = set({ "Still", "Moving" }),
-	perXSources = set({ "shards", "distinctWeapons" }), -- and every stat id
+	perXSources = set({
+		"shards",
+		"distinctWeapons",
+		"enemies",
+		"distinctItemsTier1",
+		"distinctItemsTier2",
+		"distinctItemsTier3",
+		"distinctItemsTier4",
+	}), -- and every stat id
+	strikeTargets = set({ "random" }), -- Strike without a target hits the event's enemy (B8)
 
 	-- Standing still (Brotato's "while standing still"): moving slower than maxSpeed studs/s for at least
 	-- settleSeconds; moving again counts after the same time, so a stutter step does not flicker the bonus.
