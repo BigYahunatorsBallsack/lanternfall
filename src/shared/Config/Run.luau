@@ -413,10 +413,16 @@ local Run = {
 		chestRadius = 20, -- studs, every player inside gets an elite chest reward
 		chestOpenRadius = 3.5, -- studs; a living player this close opens the chest (assumption)
 		chestHealFraction = 0.5, -- every rewarded player also heals this share of max HP (WP9, against chip damage)
-		downTimerSeconds = 30,
-		reviveSeconds = 3,
+		downTimerSeconds = 30, -- a downed player is out for the rest of the wave after this (WP11)
+		reviveSeconds = 3, -- a living teammate stands next to them this long to revive them
 		reviveHpFraction = 0.4,
 		maxPurchasedRevivesPerRun = 1,
+		-- WP11 (assumptions, check in the test)
+		reviveRadius = 6, -- studs between the teammate and the downed player (ground distance)
+		reviveDecaySeconds = 3, -- with nobody near, a started revive drains back to zero in this time
+		downTimerPausesWhileReviving = true, -- the 30 s stand still while a teammate is reviving
+		reviveProtectionSeconds = 2, -- invulnerable this long after standing up
+		outReturnsAtWaveEnd = true, -- players who are out stand up at the end of the wave too (Brotato co-op)
 	}),
 }
 

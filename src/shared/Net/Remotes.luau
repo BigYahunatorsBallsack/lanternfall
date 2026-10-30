@@ -141,4 +141,6 @@ Remotes.SetRunOptions = {
 		),
 	},
 }
+-- WP11: Net/Types.ReviveState, to everyone when someone goes down or out, stands up, or a revive starts or stops
+Remotes.ReviveState = { direction = "toClient" }
 return table.freeze(Remotes)

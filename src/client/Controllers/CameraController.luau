@@ -2,7 +2,8 @@
 -- Fixed top-down camera (DESIGN.md section 4, values in Config.Camera): looks north at the local
 -- character from a fixed angle and distance, no rotating or zooming. Started by the client bootstrap.
 -- Because the camera never turns, W/stick-up always walks up the screen. shake() adds a short wobble for big hits
--- (Config.Feedback.shake; EnemyRenderer, ChestController, FeedbackController).
+-- (Config.Feedback.shake; EnemyRenderer, ChestController, FeedbackController). follow() watches a teammate instead
+-- (ReviveController, while the local player is out, WP11).
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -24,6 +25,7 @@ local offset = Vector3.new(0, math.sin(pitch), math.cos(pitch)) * CameraConfig.d
 local focus: Vector3? = nil
 local shakeStrength = 0 -- 0-1, see shake()
 local shakeTime = 0
+local followed: Player? = nil -- watched instead of the local player
 
 -- Camera offset of the current shake: smooth noise, growing with the square of the strength.
 local function shakeOffset(dt: number): Vector3
@@ -38,7 +40,8 @@ local function shakeOffset(dt: number): Vector3
 end
 
 local function targetPosition(): Vector3?
-	local character = Players.LocalPlayer.Character
+	local watched = followed
+	local character = if watched and watched.Parent then watched.Character else Players.LocalPlayer.Character
 	local root = character and character:FindFirstChild("HumanoidRootPart")
 	if root and root:IsA("BasePart") then
 		return root.Position + Vector3.new(0, CameraConfig.targetHeightOffset, 0)
@@ -80,6 +83,15 @@ function CameraController.shake(strength: number)
 	if Config.Feedback.shake.enabled and strength > 0 then
 		shakeStrength = math.min(1, shakeStrength + strength)
 	end
+end
+
+-- Watches `player` instead of the local player; nil goes back to the local player.
+function CameraController.follow(player: Player?)
+	followed = player
+end
+
+function CameraController.getFollowed(): Player?
+	return followed
 end
 
 function CameraController.start()
