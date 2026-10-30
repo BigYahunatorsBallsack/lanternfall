@@ -1,0 +1,16 @@
+## [Strang] Paket – Kurzname
+
+**Was gebaut wurde (2–4 Sätze, Deutsch):** …
+
+**Geteilte Dateien, die ich angefasst habe (nur angehängt):** `Config/Stats.luau` (+ `fruitHeal`) …
+
+**Neue Schnittstellen für den anderen Strang:** neue Ereignisse, Werte-Ids, Config-Felder, Funktionen, Remotes – mit Datei und einem Satz Bedeutung. „Keine", wenn keine.
+
+**Wunsch an den anderen Strang:** Was dort geändert werden müsste (Datei, was, warum). „Keiner", wenn keiner.
+
+**Checks:** StyLua ✅/❌ · Selene ✅/❌ · Tests (`tests/…spec.luau`) ✅/❌ · Was ich nicht prüfen konnte: …
+
+**Testanleitung für den Owner (Deutsch, nummeriert, Klick für Klick):**
+1. …
+
+**Offene Punkte / Annahmen:** …

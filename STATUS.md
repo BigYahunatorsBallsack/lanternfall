@@ -8,7 +8,16 @@ Kurzer Projektstand für neue Sessions. **Zuerst lesen**, dann aus `DESIGN.md` n
 - **Test-Falle Brennen:** Spark Bolt (15) tötet Welle-1-Gegner (10 HP) mit einem Treffer, die fangen also nie Feuer (wie in Brotato). Brennen in Testanleitungen immer an einem Elite oder in späteren Wellen zeigen.
 - **Balance-Stand:** nach B3 gewannen gute Bots ca. 40 % der 20-Wellen-Runs (Wand bei Welle 13); eine Messung nach B4 (24 Runs) 15 von 24, Gegnerkurven unverändert. Blade Warden schwächer als Spark Mage (Thema für B5/B10).
 - **Bekannt und harmlos:** Output-Zeile „DataStoreService: StudioAccessToApisNotAllowed … HttpRequestsCache“ kommt von einem Studio-Plugin, nicht aus unserem Code.
-- **Als Nächstes:** B6 Beute (**High**), wenn der Owner es sagt. Danach B7 Waffen (Medium), B8 Items (Medium), B9 Gegner (XH), B10 Charaktere (High), WP10 Boss (High), B11 Gefahrenstufen (High), B12 Bauten (High). Tabelle: `DESIGN.md` Abschnitt 20.
+- **Als Nächstes:** Ab B6 arbeiten Claude und ChatGPT parallel in zwei Strängen (Regeln, Dateibesitz, Runden: `docs/PARALLEL.md`; ChatGPT liest `AGENTS.md`). Runde 1: B6 Beute (Claude, **High**) und B7 Waffen (ChatGPT, Medium), jeweils wenn der Owner es sagt. Tabelle: `DESIGN.md` Abschnitt 20.
+
+## Stränge
+
+Jeder Strang ändert nur **seine** Zeile (Regeln: `docs/PARALLEL.md`).
+
+| Strang | KI | Aktuelles Paket | Branch / PR | Stand | Danach |
+| --- | --- | --- | --- | --- | --- |
+| A – Engine und Ablauf | Claude | B6 Beute (High) | – | wartet auf Start durch den Owner | B9 Gegner (XH) |
+| B – Inhalte und Spieler-Regeln | ChatGPT | B7 Waffen (Medium) | – | wartet auf Start durch den Owner | B8 Items (Medium, erst nach Merge von B6) |
 
 ## Feste Entscheidungen des Owners
 
