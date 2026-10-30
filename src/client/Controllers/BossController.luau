@@ -28,6 +28,8 @@ local DISC_HEIGHT = 0.1 -- studs
 local EDGE_TRANSPARENCY = 0.55 -- the outline of a warning
 local FILL_TRANSPARENCY = 0.35 -- the inner disc that grows until it strikes
 local FLASH_SECONDS = 0.18 -- a warning flashes this long when it strikes
+local POOL_COLOR = Color3.fromRGB(120, 200, 60) -- WP10 part 2: mud and acid pools that stay a while
+local POOL_TRANSPARENCY = 0.45
 local BAR_Y = 158 -- pixels from the top, under the loot chip
 local BAR_WIDTH = 420
 local BAR_HEIGHT = 16
@@ -175,8 +177,19 @@ end
 -- Places a warning: the outline shows the whole area, the inner part grows until it strikes, then both flash.
 local function placeTelegraph(entry: Telegraph, now: number): boolean
 	local info = entry.info
-	if now >= info.hitsAt + FLASH_SECONDS then
+	local endsAt = info.endsAt
+	if now >= (if endsAt then math.max(endsAt, info.hitsAt + FLASH_SECONDS) else info.hitsAt + FLASH_SECONDS) then
 		return false
+	end
+	if endsAt and now >= info.hitsAt + FLASH_SECONDS then
+		-- a pool: stays at full size in its own color until it dries up
+		local diameter = info.radius * 2
+		local upright = CFrame.new(info.x, floorY + DISC_HEIGHT, info.z) * CFrame.Angles(0, 0, math.pi / 2)
+		entry.edge.Color, entry.fill.Color = POOL_COLOR, POOL_COLOR
+		entry.edge.Transparency, entry.fill.Transparency = POOL_TRANSPARENCY, 1
+		entry.edge.Size = Vector3.new(DISC_HEIGHT, diameter, diameter)
+		entry.edge.CFrame = upright
+		return true
 	end
 	local span = math.max(info.hitsAt - info.startsAt, 1e-3)
 	local t = math.clamp((now - info.startsAt) / span, 0, 1)
@@ -304,6 +317,18 @@ function BossController.getBarText(): string
 		return ""
 	end
 	return `{name.Text} | {phase.Text}`
+end
+
+-- Pools lying on the floor right now (WP10 part 2, tests).
+function BossController.getPoolCount(): number
+	local now = workspace:GetServerTimeNow()
+	local count = 0
+	for _, entry in telegraphs do
+		if entry.info.endsAt and now >= entry.info.hitsAt then
+			count += 1
+		end
+	end
+	return count
 end
 
 -- Warnings on the floor right now and embers circling a boss (tests).

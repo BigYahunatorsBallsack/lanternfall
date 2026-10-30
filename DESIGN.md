@@ -548,16 +548,18 @@ Brotatos acht Elites mit Phasen, mit eigenen Namen und Looks; im Spiel „Champi
 
 Neue Angriffsarten: **Cleave** (Hiebe als rote Streifen vom Champion aus, gefächert auf den nächsten Spieler oder rundum), **Volley** (gezielte Geschoss-Fächer, mehrere Salven), **Scatter** (Geschosse in zufällige Richtungen), **Summon** (ruft Gegner mit dem Wachstum der Welle), Dash mit Seiten-Geschossen (`trailEvery`) und Start-Geschossen; Phase **flee** (läuft vom nächsten Spieler weg). Wind-ups unter 0,2 s zeigen keine Warnung (Dauerfeuer).
 
-| Champion (Vorbild) | Tempo | Phase 1 | Phase 2 | Phase 3/4 |
-| --- | --- | --- | --- | --- |
-| The Brass Ram (Rhino) | 11 | Ansturm (0,7 s Linie, 32 Studs), alle 5 Studs ein Geschoss-Paar zur Seite | ab 60 % HP oder 25 s: kürzer (20 Studs), öfter, dazu 2 Geschosse auf dich beim Start | – |
-| The Flayer (Butcher) | 9 | alle 1,25 s 4 Hiebe im 60°-Fächer auf dich (16 Studs) | ab 70 % / 25 s: 8 Hiebe rundum (22 Studs) jede Sekunde | ab 40 % / 40 s: 3 schnelle Hiebe alle 0,75 s, ein Drittel weniger Schaden |
-| The Abbot (Monk) | 15 | legt 6 Brood Eggs (Brotato 15) | ab 85 % / 10 s: 5 Geschosse pro Sekunde auf dich | ab 50 % / 30 s: flieht und ruft alle 3 s 2 Reaper (Brotato: Tentakel); ab 30 % / 40 s wieder Geschosse. HP-Schwellen sind unsere (Brotato nur Zeit) |
-| The Mire Jaw (Croc) | 15 | Ausfallschritt (18 Studs) jede Sekunde, Biss rundum (7 Studs) | ab 60 % / 25 s: Ausfallschritt und Kreis aus 10 Geschossen um dich | – |
-| The Monolith (Colossus) | 13 | jagt dich, jede Sekunde 14 Geschosse in alle Richtungen (Brotato 50) | ab 60 % / 25 s: wandert, alle 1,2 s Geschoss-Kreis um dich (Brotato 0,5 s) | – |
-| The Sickle Wraith (Mantis) | 11 | alle 1,25 s 6 Hiebe rundum (12 Studs) | ab 60 % / 25 s: Sprung alle 1,3 s mit Geschossen zur Seite | – |
-| The Brood Matron (Mother) | 11 | alle 1,4 s 4 Hiebe rundum | ab 60 % / 25 s: 8 Hiebe alle 0,65 s und alle 2 s 4 Shadelings (Brotato ≈ 9 pro Sekunde) | – |
-| The Stone Seraph (Gargoyle) | 15 | wandert, alle 0,8 s Ring aus 12 Geschossen (Brotato 0,3 s) | ab 60 % / 30 s: jagt dich, alle 0,6 s Fächer aus 5 Geschossen | ab 30 % / 45 s: alle 0,15 s 3 Geschosse in zufällige Richtungen |
+Owner-Feedback nach dem ersten Test: Die Angriffe waren sich zu ähnlich („Reskin"). Deshalb hat jeder Champion eine **Spezial-Mechanik**, die nur er hat (Spalte rechts); rundum-Hiebe macht nur noch die Brood Matron. Neue Bausteine dafür: Ansturm mit Abprallen (`bounces`), lenkender Ansturm (`turnRate`), Pfützen, die liegen bleiben und alle 0,5 s weh tun (`Pools`, `poolEvery`; grün am Boden), Bumerang-Geschosse (`Boomerang`), Bebenlinie (`March`), X-Schnitt (`Cross`), Sprung auf die Stelle des Spielers (`Leap`) und Spiralen (`spinPerBurst`).
+
+| Champion (Vorbild) | Tempo | Phase 1 | Phase 2 | Phase 3/4 | Spezial |
+| --- | --- | --- | --- | --- | --- |
+| The Brass Ram (Rhino) | 11 | Ansturm (0,8 s Linie), alle 6 Studs Geschosse zur Seite | ab 60 % HP oder 25 s: kurze schnelle Anstürme, 2 Geschosse auf dich beim Start | – | Ansturm prallt bis zu 2× von Wand oder Säule ab, Ring aus 8 Geschossen bei jedem Abprall |
+| The Flayer (Butcher) | 9 | alle 1,25 s 4 Hiebe im 60°-Fächer auf dich (16 Studs) | ab 70 % / 25 s: wirft Hackbeile, dazwischen Hiebe | ab 40 % / 40 s: Hackbeile und 3 schnelle Hiebe, ein Drittel weniger Schaden | 3 Hackbeile fliegen 26 Studs raus und zu ihm zurück |
+| The Abbot (Monk) | 15 | legt 6 Brood Eggs (Brotato 15) | ab 85 % / 10 s: 5 Geschosse pro Sekunde auf dich | ab 50 % / 30 s: flieht und ruft alle 3 s 2 Reaper (Brotato: Tentakel); ab 30 % / 40 s wieder Geschosse. HP-Schwellen sind unsere | Eier, Flucht, Helfer |
+| The Mire Jaw (Croc) | 15 | Biss rundum (7 Studs) und Todesrolle | ab 60 % / 25 s: Rolle hinterlässt alle 7 Studs eine Schlammpfütze (4 s) | – | Todesrolle lenkt dir hinterher (90–110°/s) |
+| The Monolith (Colossus) | 13 | Bebenlinie und alle 1,5 s 14 Geschosse in alle Richtungen (Brotato 50) | ab 60 % / 25 s: wandert, Bebenlinie und Geschoss-Kreis um dich | – | Bebenlinie: 12 Kreise laufen von ihm über dich hinaus |
+| The Sickle Wraith (Mantis) | 11 | X aus zwei 22-Studs-Schnitten genau auf dir | ab 60 % / 25 s: drei X nacheinander um dich, dazwischen Sprünge mit Geschossen zur Seite | – | X-Schnitt: schräg ausweichen |
+| The Brood Matron (Mother) | 11 | alle 1,4 s 4 Hiebe rundum, Säurepfützen | ab 60 % / 25 s: 8 Hiebe alle 0,65 s, Pfützen, alle 2 s 4 Shadelings (Brotato ≈ 9 pro Sekunde) | – | 3 Säurepfützen um sie, 5 s lang |
+| The Stone Seraph (Gargoyle) | 15 | wandert, Spirale aus 10 Salven à 6 Geschossen | ab 60 % / 30 s: Sturzflug und Geschoss-Fächer | ab 30 % / 45 s: alle 0,15 s 3 Geschosse in zufällige Richtungen | Sturzflug: Schatten-Kreis auf deiner Stelle, 1,1 s später landet sie dort mit Ring |
 
 Geschoss-Zahlen sind wegen des Performance-Budgets (Abschnitt 15) kleiner als in Brotato; Wind-ups, Distanzen und Geschoss-Tempo nennt das Wiki nicht (Annahmen, im Test prüfen). Debug-Knopf „Spawn next champion" ruft sie der Reihe nach, in jeder Welle, mit dem Wachstum von mindestens Welle 11.
 

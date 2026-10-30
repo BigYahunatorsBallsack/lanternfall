@@ -171,6 +171,27 @@ describe("champions", function()
 		expect(#BossService.getBosses()).toBe(0)
 	end)
 
+	it("gives each champion its own move: the Brood Matron's acid pools stay on the floor", function()
+		click("KillEnemies")
+		for _ = 1, #EliteWaves.order do
+			click("SpawnChampion")
+			if BossService.getBosses()[1].bossId == "BroodMatron" then
+				break
+			end
+			click("KillEnemies")
+		end
+		expect(BossService.getBosses()[1].bossId).toBe("BroodMatron")
+		local pooled = waitFor(8, function()
+			return controller("BossController").getPoolCount() > 0
+		end)
+		expect(pooled).toBe(true)
+		waitFor(1.5, function()
+			return false
+		end)
+		expect(controller("BossController").getPoolCount() > 0).toBe(true) -- still there after its strike
+		click("KillEnemies")
+	end)
+
 	it("brings its champion with the elite wave, with 75 % HP grown by the wave", function()
 		click("SkipWave")
 		expect(RunDirector.getPhase()).toBe("Shop")

@@ -41,6 +41,7 @@ local SPAWN_TRIES = 16
 local ROAM_REACHED = 4 -- studs: a roaming boss picks its next spot this close to the last one
 local ROAM_MARGIN = 12 -- studs from the arena edge
 local FLEE_LOOKAHEAD = 20 -- studs: a fleeing champion runs towards a spot this far away from the nearest player
+local POOL_ARM_SECONDS = 0.4 -- a new pool shows this long before it hurts
 local SHOWN_WINDUP = 0.2 -- seconds: shorter wind-ups of shots from its body show no warning (a spray every 0.15 s)
 
 type Target = { player: Player, x: number, z: number }
@@ -63,6 +64,10 @@ type Boss = {
 	dashLeft: number,
 	dashHit: { [Player]: boolean },
 	trailLeft: number, -- Dash: studs until its next pair of side projectiles
+	poolLeft: number, -- Dash: studs until its next pool
+	bouncesLeft: number, -- Dash: walls it may still bounce off
+	leapX: number, -- Leap: where it lands
+	leapZ: number,
 	spots: { number }, -- Rain and Circle: flat x, z of every spot; Cleave: flat dx, dz of every slash
 	roamX: number?,
 	roamZ: number?,
@@ -86,6 +91,25 @@ local sentEmpty = true
 local telegraphs: { Types.BossTelegraph } = {}
 local targets: { Target } = {}
 local orbitHits: { [Player]: boolean } = {}
+
+-- Floor hazards that strike later than the attack that made them (Cross, March) or stay a while (pools): a circle or
+-- a strip from x/z along dx/dz. Lingering ones hurt each player inside at most once per `tick`.
+type Hazard = {
+	x: number,
+	z: number,
+	radius: number,
+	dx: number?,
+	dz: number?,
+	length: number?,
+	hitsAt: number,
+	endsAt: number?,
+	tick: number,
+	damage: number,
+	lastHit: { [Player]: number },
+}
+local hazards: { Hazard } = {}
+-- Thrown cleavers on their way out: at `at` one flies back from x/z to the champion that threw it (Boomerang).
+local returns: { { id: number, x: number, z: number, at: number, attack: Enemies.BossAttack, damage: number } } = {}
 
 local bounds = (function()
 	local arena = MapService.getArenaBounds()
@@ -136,9 +160,17 @@ end
 
 -- Telegraphs ------------------------------------------------------------------------
 
-local function circle(x: number, z: number, radius: number, seconds: number)
+local function circle(x: number, z: number, radius: number, seconds: number, lingerSeconds: number?)
 	local at = now()
-	table.insert(telegraphs, { shape = "Circle", x = x, z = z, radius = radius, startsAt = at, hitsAt = at + seconds })
+	table.insert(telegraphs, {
+		shape = "Circle",
+		x = x,
+		z = z,
+		radius = radius,
+		startsAt = at,
+		hitsAt = at + seconds,
+		endsAt = if lingerSeconds then at + seconds + lingerSeconds else nil,
+	})
 end
 
 local function line(x: number, z: number, dx: number, dz: number, length: number, halfWidth: number, seconds: number)
@@ -154,6 +186,40 @@ local function line(x: number, z: number, dx: number, dz: number, length: number
 		startsAt = at,
 		hitsAt = at + seconds,
 	})
+end
+
+-- A hazard striking `seconds` from now (lingering `lingerSeconds` after that), with its warning on the floor.
+local function addHazard(
+	x: number,
+	z: number,
+	radius: number,
+	seconds: number,
+	damage: number,
+	lingerSeconds: number?,
+	tick: number?,
+	dx: number?,
+	dz: number?,
+	length: number?
+)
+	local at = now()
+	table.insert(hazards, {
+		x = x,
+		z = z,
+		radius = radius,
+		dx = dx,
+		dz = dz,
+		length = length,
+		hitsAt = at + seconds,
+		endsAt = if lingerSeconds then at + seconds + lingerSeconds else nil,
+		tick = tick or 0.5,
+		damage = damage,
+		lastHit = {},
+	})
+	if dx and dz and length then
+		line(x, z, dx, dz, length, radius, seconds)
+	else
+		circle(x, z, radius, seconds, lingerSeconds)
+	end
 end
 
 local function sendTelegraphs()
@@ -270,6 +336,10 @@ local function spawnUnit(
 		dashLeft = 0,
 		dashHit = {},
 		trailLeft = 0,
+		poolLeft = 0,
+		bouncesLeft = 0,
+		leapX = x,
+		leapZ = z,
 		spots = {},
 		roamX = nil,
 		roamZ = nil,
@@ -421,7 +491,14 @@ local function windup(boss: Boss, attack: Enemies.BossAttack, x: number, z: numb
 		line(x, z, boss.dirX, boss.dirZ, radius + (attack.distance or 0), radius, seconds)
 	elseif attack.kind == "Slam" then
 		circle(x, z, attack.radius or 0, seconds)
-	elseif attack.kind == "Ring" or attack.kind == "Volley" or attack.kind == "Scatter" or attack.kind == "Summon" then
+	elseif
+		attack.kind == "Ring"
+		or attack.kind == "Volley"
+		or attack.kind == "Scatter"
+		or attack.kind == "Summon"
+		or attack.kind == "Boomerang"
+		or attack.kind == "Pools"
+	then
 		if seconds >= SHOWN_WINDUP then
 			circle(x, z, radius + 1.5, seconds)
 		end
@@ -431,6 +508,63 @@ local function windup(boss: Boss, attack: Enemies.BossAttack, x: number, z: numb
 		local spots = boss.spots
 		for k = 1, #spots - 1, 2 do
 			line(x, z, spots[k], spots[k + 1], radius + (attack.distance or 0), attack.radius or 1, seconds)
+		end
+	elseif attack.kind == "Leap" then
+		-- it lands where the nearest player stands now (a shadow on the floor), if there is room
+		local target = nearestTarget(x, z)
+		local lx, lz = if target then target.x else x, if target then target.z else z
+		lx = math.clamp(lx, bounds.minX + radius, bounds.maxX - radius)
+		lz = math.clamp(lz, bounds.minZ + radius, bounds.maxZ - radius)
+		if not isFree(lx, lz, radius) then
+			lx, lz = x, z
+		end
+		boss.leapX, boss.leapZ = lx, lz
+		circle(lx, lz, attack.radius or radius, seconds)
+	elseif attack.kind == "March" then
+		-- a row of circles from it towards the nearest player and beyond, striking one after another
+		local target = nearestTarget(x, z)
+		local dx, dz = if target then target.x - x else 0, if target then target.z - z else 1
+		local length = math.max(math.sqrt(dx * dx + dz * dz), 1e-3)
+		dx, dz = dx / length, dz / length
+		local damage = attack.damage * boss.damageMultiplier
+		local spacing = attack.spacing or 4
+		for k = 1, attack.count or 1 do
+			local cx, cz = x + dx * (radius + spacing * k), z + dz * (radius + spacing * k)
+			if cx < bounds.minX or cx > bounds.maxX or cz < bounds.minZ or cz > bounds.maxZ then
+				break
+			end
+			addHazard(cx, cz, attack.radius or 2, seconds + (k - 1) * (attack.stepSeconds or 0.1), damage)
+		end
+	elseif attack.kind == "Cross" then
+		-- an X of two long strips on the nearest player (later ones at random spots around it), one after another
+		local target = nearestTarget(x, z)
+		local damage = attack.damage * boss.damageMultiplier
+		local random = RandomService.stream("Combat")
+		local length = attack.distance or 20
+		for k = 1, attack.count or 1 do
+			local cx, cz = if target then target.x else x, if target then target.z else z
+			if k > 1 then
+				local angle = random:NextNumber() * 2 * math.pi
+				local distance = random:NextNumber() * (attack.spread or 0)
+				cx, cz = cx + math.cos(angle) * distance, cz + math.sin(angle) * distance
+			end
+			local turn = random:NextNumber() * math.pi
+			for _, extra in { 0, math.pi / 2 } do
+				local dx, dz = math.cos(turn + extra), math.sin(turn + extra)
+				local delay = seconds + (k - 1) * (attack.stepSeconds or 0)
+				addHazard(
+					cx - dx * length / 2,
+					cz - dz * length / 2,
+					attack.radius or 1,
+					delay,
+					damage,
+					nil,
+					nil,
+					dx,
+					dz,
+					length
+				)
+			end
 		end
 	elseif attack.kind == "Rain" then
 		local random = RandomService.stream("Combat")
@@ -464,7 +598,10 @@ end
 local function ring(boss: Boss, attack: Enemies.BossAttack, x: number, z: number, burst: number)
 	local count = attack.count or 0
 	local radius = boss.kind.radius
-	local turn = (burst - 1) * 0.5 / math.max(count, 1) * 2 * math.pi -- every other burst fills the gaps
+	-- every other burst fills the gaps, or with spinPerBurst each burst turns further: a spiral
+	local turn = if attack.spinPerBurst
+		then (burst - 1) * math.rad(attack.spinPerBurst)
+		else (burst - 1) * 0.5 / math.max(count, 1) * 2 * math.pi
 	for k = 1, count do
 		local angle = turn + (k - 1) / count * 2 * math.pi
 		local dx, dz = math.cos(angle), math.sin(angle)
@@ -477,6 +614,8 @@ local function strike(boss: Boss, attack: Enemies.BossAttack, x: number, z: numb
 	if attack.kind == "Dash" then
 		boss.dashLeft = attack.distance or 0
 		boss.trailLeft = attack.trailEvery or 0
+		boss.poolLeft = attack.poolEvery or 0
+		boss.bouncesLeft = attack.bounces or 0
 		local starting = attack.startShots or 0
 		if starting > 0 then
 			local radius = boss.kind.radius
@@ -530,6 +669,52 @@ local function strike(boss: Boss, attack: Enemies.BossAttack, x: number, z: numb
 		for k = 1, #directions - 1, 2 do
 			local dx, dz = directions[k], directions[k + 1]
 			shot(attack, damage, x + dx * radius, z + dz * radius, dx, dz)
+		end
+	elseif attack.kind == "Leap" then
+		local lx, lz = boss.leapX, boss.leapZ
+		EnemySim.teleport(boss.id, Vector3.new(lx, 0, lz))
+		local reach = (attack.radius or boss.kind.radius) + PLAYER_RADIUS
+		for _, target in targets do
+			if (target.x - lx) ^ 2 + (target.z - lz) ^ 2 <= reach * reach then
+				hurt(target.player, damage)
+			end
+		end
+		if (attack.count or 0) > 0 then
+			ring(boss, attack, lx, lz, burst)
+		end
+	elseif attack.kind == "Boomerang" then
+		-- cleavers fly out and, once at their range, back to where the champion is then
+		local radius = boss.kind.radius
+		local range = attack.projectileRange or 20
+		local outSeconds = range / math.max(attack.projectileSpeed or 15, 1e-3)
+		local directions = fan(attack.count or 1, attack.arc or 0, false, x, z, scratchDirections)
+		for k = 1, #directions - 1, 2 do
+			local dx, dz = directions[k], directions[k + 1]
+			local sx, sz = x + dx * radius, z + dz * radius
+			shot(attack, damage, sx, sz, dx, dz)
+			local ex = math.clamp(sx + dx * range, bounds.minX, bounds.maxX)
+			local ez = math.clamp(sz + dz * range, bounds.minZ, bounds.maxZ)
+			table.insert(
+				returns,
+				{ id = boss.id, x = ex, z = ez, at = now() + outSeconds, attack = attack, damage = damage }
+			)
+		end
+	elseif attack.kind == "Pools" then
+		local random = RandomService.stream("Combat")
+		local spread = attack.spread or 6
+		for _ = 1, attack.count or 1 do
+			local angle = random:NextNumber() * 2 * math.pi
+			local distance = boss.kind.radius + random:NextNumber() * spread
+			local px, pz = x + math.cos(angle) * distance, z + math.sin(angle) * distance
+			addHazard(
+				px,
+				pz,
+				attack.poolRadius or 3,
+				POOL_ARM_SECONDS,
+				damage,
+				attack.poolSeconds or 4,
+				attack.poolTick
+			)
 		end
 	elseif attack.kind == "Summon" then
 		local enemyId = attack.enemy
@@ -593,28 +778,83 @@ end
 
 -- One step of a dash: moves the boss along its line, hurts every player it runs into once and stops at an obstacle,
 -- the arena edge or the end of the line.
+-- Turns a homing dash towards the nearest player, at most turnRate degrees a second.
+local function steer(boss: Boss, attack: Enemies.BossAttack, x: number, z: number, dt: number)
+	local target = nearestTarget(x, z)
+	if not (target and attack.turnRate) then
+		return
+	end
+	local current = math.atan2(boss.dirZ, boss.dirX)
+	local wanted = math.atan2(target.z - z, target.x - x)
+	local delta = (wanted - current + math.pi) % (2 * math.pi) - math.pi
+	local maxTurn = math.rad(attack.turnRate) * dt
+	local angle = current + math.clamp(delta, -maxTurn, maxTurn)
+	boss.dirX, boss.dirZ = math.cos(angle), math.sin(angle)
+end
+
 local function dashStep(boss: Boss, attack: Enemies.BossAttack, x: number, z: number, dt: number)
 	local radius = boss.kind.radius
+	local damage = attack.damage * boss.damageMultiplier
+	steer(boss, attack, x, z, dt)
 	local move = math.min((attack.speed or 0) * dt, boss.dashLeft)
 	local nx, nz = x + boss.dirX * move, z + boss.dirZ * move
-	local blocked = nx < bounds.minX + radius
-		or nx > bounds.maxX - radius
-		or nz < bounds.minZ + radius
-		or nz > bounds.maxZ - radius
+	local outX = nx < bounds.minX + radius or nx > bounds.maxX - radius
+	local outZ = nz < bounds.minZ + radius or nz > bounds.maxZ - radius
+	local hitObstacle: typeof(obstacles[1])? = nil
 	for _, obstacle in obstacles do
 		if (nx - obstacle.x) ^ 2 + (nz - obstacle.z) ^ 2 < (obstacle.radius + radius) ^ 2 then
-			blocked = true
+			hitObstacle = obstacle
 		end
 	end
-	if blocked then
-		boss.dashLeft = 0
-		BossBrain.endAct(boss.brain)
+	if outX or outZ or hitObstacle then
+		if boss.bouncesLeft <= 0 then
+			boss.dashLeft = 0
+			BossBrain.endAct(boss.brain)
+			return
+		end
+		-- bounces off the wall or pillar (Brass Ram) and bursts a ring of projectiles
+		boss.bouncesLeft -= 1
+		if outX then
+			boss.dirX = -boss.dirX
+		end
+		if outZ then
+			boss.dirZ = -boss.dirZ
+		end
+		if hitObstacle and not (outX or outZ) then
+			local ox, oz = x - hitObstacle.x, z - hitObstacle.z
+			local length = math.max(math.sqrt(ox * ox + oz * oz), 1e-3)
+			ox, oz = ox / length, oz / length
+			local along = boss.dirX * ox + boss.dirZ * oz
+			boss.dirX, boss.dirZ = boss.dirX - 2 * along * ox, boss.dirZ - 2 * along * oz
+		end
+		local count = attack.bounceShots or 0
+		for k = 1, count do
+			local angle = (k - 1) / count * 2 * math.pi
+			local dx, dz = math.cos(angle), math.sin(angle)
+			shot(attack, damage, x + dx * radius, z + dz * radius, dx, dz)
+		end
 		return
 	end
 	boss.dashLeft -= move
 	EnemySim.teleport(boss.id, Vector3.new(nx, 0, nz))
 	local reach = radius + PLAYER_RADIUS
-	local damage = attack.damage * boss.damageMultiplier
+	local poolEvery = attack.poolEvery
+	if poolEvery and poolEvery > 0 then
+		-- leaves pools behind (Mire Jaw's mud)
+		boss.poolLeft -= move
+		if boss.poolLeft <= 0 then
+			boss.poolLeft += poolEvery
+			addHazard(
+				nx,
+				nz,
+				attack.poolRadius or 3,
+				POOL_ARM_SECONDS,
+				damage,
+				attack.poolSeconds or 4,
+				attack.poolTick
+			)
+		end
+	end
 	local every = attack.trailEvery
 	if every and every > 0 then
 		-- a pair of projectiles to its sides every `every` studs (Brotato's Rhino and Mantis)
@@ -738,14 +978,74 @@ local function stepBoss(boss: Boss, dt: number, at: number)
 	orbitStep(boss, x, z, at)
 end
 
+local function insideHazard(hazard: Hazard, x: number, z: number): boolean
+	local reach = hazard.radius + PLAYER_RADIUS
+	local dx, dz, length = hazard.dx, hazard.dz, hazard.length
+	if dx and dz and length then
+		local along = math.clamp((x - hazard.x) * dx + (z - hazard.z) * dz, 0, length)
+		return (x - hazard.x - dx * along) ^ 2 + (z - hazard.z - dz * along) ^ 2 <= reach * reach
+	end
+	return (x - hazard.x) ^ 2 + (z - hazard.z) ^ 2 <= reach * reach
+end
+
+-- Strikes the hazards whose time came, hurts players standing in pools, ends pools whose time ran out and sends
+-- thrown cleavers back.
+local function stepHazards(at: number)
+	for index = #hazards, 1, -1 do
+		local hazard = hazards[index]
+		if at < hazard.hitsAt then
+			continue
+		end
+		local endsAt = hazard.endsAt
+		if endsAt and at >= endsAt then
+			table.remove(hazards, index)
+			continue
+		end
+		for _, target in targets do
+			local last = hazard.lastHit[target.player]
+			if (not last or at - last >= hazard.tick) and insideHazard(hazard, target.x, target.z) then
+				hazard.lastHit[target.player] = at
+				hurt(target.player, hazard.damage)
+			end
+		end
+		if not endsAt then
+			table.remove(hazards, index)
+		end
+	end
+	for index = #returns, 1, -1 do
+		local entry = returns[index]
+		if at >= entry.at then
+			table.remove(returns, index)
+			local home = EnemySim.getPosition(entry.id)
+			if home then
+				local dx, dz = home.X - entry.x, home.Z - entry.z
+				local length = math.sqrt(dx * dx + dz * dz)
+				if length > 1e-3 then
+					EnemySim.fireShot(
+						entry.x,
+						entry.z,
+						dx / length,
+						dz / length,
+						entry.attack.projectileSpeed or 15,
+						length,
+						entry.attack.projectileRadius or 0.6,
+						entry.damage
+					)
+				end
+			end
+		end
+	end
+end
+
 local function onStepped(dt: number, at: number)
 	if #pendingSpawns > 0 then
 		spawnPending()
 	end
-	if #bosses == 0 then
+	if #bosses == 0 and #hazards == 0 and #returns == 0 then
 		return
 	end
 	collectTargets()
+	stepHazards(at)
 	for index = #bosses, 1, -1 do
 		local boss = bosses[index]
 		if EnemySim.isAlive(boss.id) then
@@ -801,6 +1101,8 @@ end
 local function clear()
 	table.clear(bosses)
 	table.clear(pendingSpawns)
+	table.clear(hazards)
+	table.clear(returns)
 	telegraphs = {}
 	bossWaveStarted = false
 	table.clear(eliteWavePlan)
@@ -816,9 +1118,11 @@ function BossService.init()
 	RunDirector.RunEnded:Connect(clear)
 	RunDirector.PhaseChanged:Connect(function(phase)
 		if phase == "Shop" then
-			-- a wave ends: enemies fade away, so do champions and bosses called for a test
+			-- a wave ends: enemies fade away, so do champions and bosses called for a test, and their pools
 			table.clear(bosses)
 			table.clear(pendingSpawns)
+			table.clear(hazards)
+			table.clear(returns)
 			sendState(true)
 		end
 	end)

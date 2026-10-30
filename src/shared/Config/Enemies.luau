@@ -90,6 +90,17 @@ export type BossOrbit = {
 --   Summon: `count` enemies of `enemy` (with this wave's growth) within `spread` studs of it.
 --   A Dash can also fire a pair of projectiles to its sides every `trailEvery` studs and `startShots` projectiles
 --   (fan of `arc`) at the nearest player when it starts.
+-- Each champion also has a signature move (owner feedback: attacks should not feel like reskins):
+--   Dash `bounces` off walls and pillars (`bounceShots` in a ring each time), steers after the nearest player with
+--     `turnRate` (degrees/s) and leaves a pool every `poolEvery` studs.
+--   Boomerang: `count` projectiles in a fan of `arc` that fly `projectileRange` studs and come back to it.
+--   Pools: `count` pools (`poolRadius`) within `spread` studs of it that hurt every `poolTick` s for `poolSeconds`.
+--   March: `count` circles (`radius`) `spacing` studs apart from it towards the nearest player, `stepSeconds` apart.
+--   Cross: an X of two strips `distance` long (`radius` half wide) on the nearest player; `count` of them,
+--     `stepSeconds` apart, the later ones within `spread` studs.
+--   Leap: jumps onto where the nearest player stood when the warning showed; hits within `radius`, then a ring of
+--     `count` projectiles.
+--   A Ring with `spinPerBurst` (degrees) turns with every burst: a spiral.
 export type BossAttack = {
 	kind: string,
 	windupSeconds: number, -- the warning on the floor
@@ -114,6 +125,16 @@ export type BossAttack = {
 	enemy: string?, -- Summon: key in Config.Enemies.types
 	trailEvery: number?, -- Dash: studs between two pairs of side projectiles
 	startShots: number?, -- Dash
+	bounces: number?, -- Dash
+	bounceShots: number?, -- Dash
+	turnRate: number?, -- Dash
+	poolEvery: number?, -- Dash
+	poolRadius: number?, -- Dash, Pools
+	poolSeconds: number?, -- Dash, Pools
+	poolTick: number?, -- Dash, Pools (default 0.5)
+	spacing: number?, -- March
+	stepSeconds: number?, -- March, Cross
+	spinPerBurst: number?, -- Ring
 }
 
 -- Enemies that get faster the longer they live (Stalker, B9).
@@ -813,7 +834,8 @@ end
 
 local Champions: { [string]: Enemy } = {
 	-- Rhino: charges every 2 s, throwing projectiles to its sides; at 60 % HP (or after 25 s) every 1.3 s, shorter,
-	-- with 2 more projectiles at you when it starts
+	-- with 2 more projectiles at you when it starts. Signature: its first charges bounce off walls and pillars twice,
+	-- bursting a ring of projectiles at each bounce.
 	BrassRam = champion("BrassRam", 21, "The Brass Ram", 11, {
 		phases = {
 			{ attacks = { "Charge" }, pauseSeconds = 0.6 },
@@ -828,13 +850,15 @@ local Champions: { [string]: Enemy } = {
 		attacks = {
 			Charge = with(TRAIL_SHOT, {
 				kind = "Dash",
-				windupSeconds = 0.7,
-				recoverSeconds = 0.5,
+				windupSeconds = 0.8,
+				recoverSeconds = 0.6,
 				range = 45,
 				damage = 3,
 				speed = 38,
-				distance = 32,
-				trailEvery = 5,
+				distance = 70, -- room for its bounces
+				trailEvery = 6,
+				bounces = 2,
+				bounceShots = 8,
 			}),
 			QuickCharge = with(TRAIL_SHOT, {
 				kind = "Dash",
@@ -850,19 +874,19 @@ local Champions: { [string]: Enemy } = {
 			}),
 		},
 	}),
-	-- Butcher: 4 slashes at you every 1.25 s; at 70 % HP (or 25 s) 8 slashes all around every second; at 40 % (or
-	-- 40 s) 3 quick slashes every 0.75 s that hurt a third less
+	-- Butcher: 4 slashes at you every 1.25 s; at 70 % HP (or 25 s) it throws (Brotato: 8 slashes all around); at 40 %
+	-- (or 40 s) 3 quick slashes every 0.75 s that hurt a third less. Signature: 3 cleavers that fly out and come back.
 	Flayer = champion("Flayer", 22, "The Flayer", 9, {
 		phases = {
 			{ attacks = { "Cleave" }, pauseSeconds = 0.3 },
 			{
 				fromHp = 0.7,
 				afterSeconds = 25,
-				attacks = { "Whirl" },
-				pauseSeconds = 0.2,
-				announce = "The Flayer starts to whirl!",
+				attacks = { "Cleavers", "Cleave" },
+				pauseSeconds = 0.3,
+				announce = "The Flayer throws its cleavers!",
 			},
-			{ fromHp = 0.4, afterSeconds = 40, attacks = { "QuickCleave" }, pauseSeconds = 0.1 },
+			{ fromHp = 0.4, afterSeconds = 40, attacks = { "Cleavers", "QuickCleave" }, pauseSeconds = 0.1 },
 		},
 		attacks = {
 			Cleave = {
@@ -877,17 +901,18 @@ local Champions: { [string]: Enemy } = {
 				distance = 16,
 				radius = 1.2,
 			},
-			Whirl = {
-				kind = "Cleave",
-				windupSeconds = 0.7,
-				recoverSeconds = 0.2,
-				cooldownSeconds = 1,
-				range = 24,
+			Cleavers = {
+				kind = "Boomerang",
+				windupSeconds = 0.5,
+				recoverSeconds = 0.4,
+				cooldownSeconds = 2.5,
+				range = 40,
 				damage = 3,
-				count = 8,
-				around = true,
-				distance = 22,
-				radius = 1.2,
+				count = 3,
+				arc = 50,
+				projectileSpeed = 16,
+				projectileRange = 26,
+				projectileRadius = 1,
 			},
 			QuickCleave = {
 				kind = "Cleave",
@@ -961,28 +986,44 @@ local Champions: { [string]: Enemy } = {
 		abbot.hpPerWave = 2380 -- Brotato 700
 		return abbot
 	end)(),
-	-- Croc: lunges every second and slashes around itself; at 60 % HP (or 25 s) lunges and rings you with projectiles
+	-- Croc: lunges every second and bites around itself; at 60 % HP (or 25 s) more (Brotato: a circle of projectiles
+	-- around you). Signature: a death roll that steers after you, from phase 2 leaving pools of mud behind.
 	MireJaw = champion("MireJaw", 24, "The Mire Jaw", 15, {
 		phases = {
-			{ attacks = { "Snap", "Lunge" }, pauseSeconds = 0.2 },
+			{ attacks = { "Snap", "Roll" }, pauseSeconds = 0.3 },
 			{
 				fromHp = 0.6,
 				afterSeconds = 25,
-				attacks = { "Jaws", "Lunge" },
+				attacks = { "Snap", "MudRoll" },
 				pauseSeconds = 0.2,
-				announce = "The Mire Jaw thrashes!",
+				announce = "The Mire Jaw churns the mud!",
 			},
 		},
 		attacks = {
-			Lunge = {
+			Roll = {
 				kind = "Dash",
-				windupSeconds = 0.5,
-				recoverSeconds = 0.3,
-				cooldownSeconds = 1,
+				windupSeconds = 0.6,
+				recoverSeconds = 0.5,
+				cooldownSeconds = 1.5,
 				range = 35,
 				damage = 3,
-				speed = 40,
-				distance = 18,
+				speed = 24,
+				distance = 36,
+				turnRate = 90,
+			},
+			MudRoll = {
+				kind = "Dash",
+				windupSeconds = 0.5,
+				recoverSeconds = 0.4,
+				cooldownSeconds = 1.2,
+				range = 40,
+				damage = 3,
+				speed = 26,
+				distance = 40,
+				turnRate = 110,
+				poolEvery = 7,
+				poolRadius = 3,
+				poolSeconds = 4,
 			},
 			Snap = {
 				kind = "Slam",
@@ -993,41 +1034,42 @@ local Champions: { [string]: Enemy } = {
 				damage = 3,
 				radius = 7,
 			},
-			Jaws = {
-				kind = "Circle",
-				windupSeconds = 0.9,
-				recoverSeconds = 0,
-				cooldownSeconds = 2,
-				moving = true,
-				damage = 3,
-				count = 10,
-				spread = 12,
-				projectileSpeed = 13,
-				projectileRadius = 0.7,
-			},
 		},
 	}),
 	-- Colossus: chases you under a hail of projectiles every second (Brotato: 50 in a big area); at 60 % HP (or 25 s)
-	-- wanders the arena and rings you with projectiles
+	-- wanders the arena and rings you with projectiles. Signature: a quake line, a row of circles that runs from it
+	-- over you and beyond.
 	Monolith = (function()
 		local monolith = champion("Monolith", 25, "The Monolith", 13, {
 			phases = {
-				{ attacks = { "Hail" }, pauseSeconds = 0 },
+				{ attacks = { "Quake", "Hail" }, pauseSeconds = 0.4 },
 				{
 					fromHp = 0.6,
 					afterSeconds = 25,
-					attacks = { "Encircle" },
-					pauseSeconds = 0,
+					attacks = { "Quake", "Encircle" },
+					pauseSeconds = 0.2,
 					roam = true,
 					announce = "The Monolith wanders off!",
 				},
 			},
 			attacks = {
+				Quake = {
+					kind = "March",
+					windupSeconds = 0.7,
+					recoverSeconds = 0.3,
+					cooldownSeconds = 2.5,
+					range = 45,
+					damage = 3,
+					count = 12,
+					spacing = 4,
+					radius = 2.5,
+					stepSeconds = 0.08,
+				},
 				Hail = {
 					kind = "Scatter",
 					windupSeconds = 0.4,
 					recoverSeconds = 0,
-					cooldownSeconds = 1,
+					cooldownSeconds = 1.5,
 					moving = true,
 					damage = 3,
 					count = 14,
@@ -1039,7 +1081,7 @@ local Champions: { [string]: Enemy } = {
 					kind = "Circle",
 					windupSeconds = 1,
 					recoverSeconds = 0,
-					cooldownSeconds = 1.2, -- Brotato 0.5
+					cooldownSeconds = 1.5, -- Brotato 0.5
 					moving = true,
 					damage = 3,
 					count = 10,
@@ -1053,31 +1095,45 @@ local Champions: { [string]: Enemy } = {
 		monolith.mass = 50
 		return monolith
 	end)(),
-	-- Mantis: chases you and slashes all around every 1.25 s; at 60 % HP (or 25 s) charges every 1.3 s, leaving
-	-- slashes behind
+	-- Mantis: chases you and slashes every 1.25 s; at 60 % HP (or 25 s) charges every 1.3 s, leaving slashes behind.
+	-- Signature: a big X of two cuts right on you (step out diagonally); from phase 2 three in a row around you,
+	-- between its pounces.
 	SickleWraith = champion("SickleWraith", 26, "The Sickle Wraith", 11, {
 		phases = {
-			{ attacks = { "Scythes" }, pauseSeconds = 0.3 },
+			{ attacks = { "Cross" }, pauseSeconds = 0.4 },
 			{
 				fromHp = 0.6,
 				afterSeconds = 25,
-				attacks = { "Pounce" },
+				attacks = { "TripleCross", "Pounce" },
 				pauseSeconds = 0.2,
 				announce = "The Sickle Wraith pounces!",
 			},
 		},
 		attacks = {
-			Scythes = {
-				kind = "Cleave",
-				windupSeconds = 0.6,
-				recoverSeconds = 0.2,
+			Cross = {
+				kind = "Cross",
+				windupSeconds = 0.8,
+				recoverSeconds = 0.3,
 				cooldownSeconds = 1.25,
-				range = 14,
+				range = 40,
+				moving = true,
 				damage = 3,
-				count = 6,
-				around = true,
-				distance = 12,
+				count = 1,
+				distance = 22,
+				radius = 1.1,
+			},
+			TripleCross = {
+				kind = "Cross",
+				windupSeconds = 0.7,
+				recoverSeconds = 0.3,
+				cooldownSeconds = 2.5,
+				range = 40,
+				damage = 3,
+				count = 3,
+				distance = 18,
 				radius = 1,
+				spread = 8,
+				stepSeconds = 0.35,
 			},
 			Pounce = with(TRAIL_SHOT, {
 				kind = "Dash",
@@ -1093,14 +1149,15 @@ local Champions: { [string]: Enemy } = {
 		},
 	}),
 	-- Mother: a four-pronged slash every 1.4 s; at 60 % HP (or 25 s) double slashes every 0.65 s and a stream of
-	-- small enemies (Brotato: about 9 Fin Aliens a second; fewer here, the alive cap would stop them anyway)
+	-- small enemies (Brotato: about 9 Fin Aliens a second; fewer here, the alive cap would stop them anyway).
+	-- Signature: acid sacs it drops around itself, pools that stay and hurt; it is the only one slashing all around.
 	BroodMatron = champion("BroodMatron", 27, "The Brood Matron", 11, {
 		phases = {
-			{ attacks = { "Prongs" }, pauseSeconds = 0.3 },
+			{ attacks = { "Prongs", "Acid" }, pauseSeconds = 0.3 },
 			{
 				fromHp = 0.6,
 				afterSeconds = 25,
-				attacks = { "Brood", "DoubleProngs" },
+				attacks = { "Brood", "Acid", "DoubleProngs" },
 				pauseSeconds = 0.1,
 				announce = "The Brood Matron's young hatch!",
 			},
@@ -1130,6 +1187,18 @@ local Champions: { [string]: Enemy } = {
 				distance = 14,
 				radius = 1.2,
 			},
+			Acid = {
+				kind = "Pools",
+				windupSeconds = 0.4,
+				recoverSeconds = 0.2,
+				cooldownSeconds = 3,
+				moving = true,
+				damage = 3,
+				count = 3,
+				spread = 10,
+				poolRadius = 3.5,
+				poolSeconds = 5,
+			},
 			Brood = {
 				kind = "Summon",
 				windupSeconds = 0.3,
@@ -1143,17 +1212,18 @@ local Champions: { [string]: Enemy } = {
 			},
 		},
 	}),
-	-- Gargoyle: wanders, a big ring of projectiles again and again; at 60 % HP (or 30 s) chases you with fans of
-	-- projectiles; at 30 % (or 45 s) sprays projectiles in random directions
+	-- Gargoyle: wanders, a big ring of projectiles again and again; at 60 % HP (or 30 s) chases you; at 30 % (or 45 s)
+	-- sprays projectiles in random directions. Signature: its rings turn into a spiral, and in phase 2 it dives onto
+	-- your spot (a shadow on the floor) and bursts a ring where it lands.
 	StoneSeraph = champion("StoneSeraph", 28, "The Stone Seraph", 15, {
 		phases = {
-			{ attacks = { "Halo" }, pauseSeconds = 0, roam = true },
+			{ attacks = { "Spiral" }, pauseSeconds = 0.3, roam = true },
 			{
 				fromHp = 0.6,
 				afterSeconds = 30,
-				attacks = { "Barrage" },
-				pauseSeconds = 0,
-				announce = "The Stone Seraph swoops in!",
+				attacks = { "Dive", "Barrage" },
+				pauseSeconds = 0.2,
+				announce = "The Stone Seraph takes to the air!",
 			},
 			{
 				fromHp = 0.3,
@@ -1164,23 +1234,39 @@ local Champions: { [string]: Enemy } = {
 			},
 		},
 		attacks = {
-			Halo = {
+			Spiral = {
 				kind = "Ring",
 				windupSeconds = 0.3,
-				recoverSeconds = 0,
-				cooldownSeconds = 0.8, -- Brotato 0.3
+				recoverSeconds = 0.2,
+				cooldownSeconds = 2.5, -- Brotato: a ring every 0.3 s
 				moving = true,
 				damage = 3,
-				count = 12,
+				count = 6,
+				bursts = 10,
+				burstGapSeconds = 0.15,
+				spinPerBurst = 11,
 				projectileSpeed = 12,
 				projectileRange = 45,
+				projectileRadius = 0.7,
+			},
+			Dive = {
+				kind = "Leap",
+				windupSeconds = 1.1,
+				recoverSeconds = 0.5,
+				cooldownSeconds = 3,
+				range = 50,
+				damage = 3,
+				radius = 6,
+				count = 10,
+				projectileSpeed = 12,
+				projectileRange = 30,
 				projectileRadius = 0.7,
 			},
 			Barrage = {
 				kind = "Volley",
 				windupSeconds = 0.3,
 				recoverSeconds = 0,
-				cooldownSeconds = 0.6, -- Brotato: 12 every 0.4 s
+				cooldownSeconds = 0.8, -- Brotato: 12 every 0.4 s
 				moving = true,
 				range = 60,
 				damage = 3,

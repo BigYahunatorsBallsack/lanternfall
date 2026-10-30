@@ -559,6 +559,11 @@ function ConfigCheck.run(): { string }
 		Volley = true,
 		Scatter = true,
 		Summon = true,
+		Boomerang = true,
+		Pools = true,
+		March = true,
+		Cross = true,
+		Leap = true,
 	}
 	local withPlans: { [string]: Enemies.Enemy } = table.clone(Config.Enemies.bosses)
 	for id, champion in Config.Enemies.champions do
@@ -620,7 +625,18 @@ function ConfigCheck.run(): { string }
 				Volley = { attack.count, attack.projectileSpeed, attack.projectileRange, attack.projectileRadius },
 				Scatter = { attack.count, attack.projectileSpeed, attack.projectileRange, attack.projectileRadius },
 				Summon = { attack.count },
+				Boomerang = { attack.count, attack.projectileSpeed, attack.projectileRange, attack.projectileRadius },
+				Pools = { attack.count, attack.poolRadius, attack.poolSeconds },
+				March = { attack.count, attack.spacing, attack.radius },
+				Cross = { attack.count, attack.distance, attack.radius },
+				Leap = { attack.radius },
 			}
+			if attack.poolEvery and not (attack.poolRadius and attack.poolSeconds) then
+				problem(`Boss {id} attack {attackId} leaves pools without their radius and time`)
+			end
+			if attack.kind == "Leap" and (attack.count or 0) > 0 and not attack.projectileSpeed then
+				problem(`Boss {id} attack {attackId} fires a ring without projectile values`)
+			end
 			if (attack.trailEvery or attack.startShots) and not (attack.projectileSpeed and attack.projectileRange) then
 				problem(`Boss {id} attack {attackId} fires projectiles without their speed and range`)
 			end
