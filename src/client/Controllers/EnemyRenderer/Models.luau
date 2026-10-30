@@ -161,6 +161,29 @@ local PALETTES: { [string]: Palette } = {
 		accent = Color3.fromRGB(90, 236, 228),
 		spikes = false,
 	},
+	-- B6
+	Looter = {
+		cloth = Color3.fromRGB(96, 74, 40), -- worn ochre coat
+		clothDark = Color3.fromRGB(66, 50, 28),
+		soot = SOOT,
+		metal = BRASS,
+		metalDark = Color3.fromRGB(122, 96, 64), -- the sack
+		mask = PORCELAIN,
+		eye = Color3.fromRGB(255, 214, 92), -- gold, like what it carries
+		accent = Color3.fromRGB(255, 196, 87),
+		spikes = false,
+	},
+	Tree = {
+		cloth = Color3.fromRGB(58, 44, 40), -- dark bark
+		clothDark = Color3.fromRGB(40, 30, 28),
+		soot = SOOT,
+		metal = BRASS,
+		metalDark = BRASS_DARK,
+		mask = PORCELAIN,
+		eye = Color3.fromRGB(255, 112, 64), -- lantern fruits, as on the floor (PickupRenderer)
+		accent = Color3.fromRGB(52, 78, 58), -- dusky leaves
+		spikes = false,
+	},
 }
 -- Abyss variants: blood-black cloth, blackened bronze, obsidian masks, crimson eyes, horns
 local ABYSS: Palette = {
@@ -879,6 +902,85 @@ local BUILDERS: { [string]: Build } = {
 		eye(rig, "Eye", v(0.3, 0.08, 0.05), v(0, 1, -0.8), 0)
 		rig.crown = v(0, 2.3, 0) * rig.r
 		return { stride = 3, bob = 0.15, roll = 0.1, lean = 0.3, legSwing = 0, armSwing = 0 }
+	end,
+
+	-- B6: a hunched little thief in an ochre coat and porcelain mask, a fat sack of glowing coins on its back, legs going
+	Looter = function(rig)
+		local p = rig.palette
+		shadow(rig, 1.8)
+		piece(rig, "Body", "egg", v(1.4, 1.35, 1.3), v(0, 0.95, 0), p.cloth, { flash = true })
+		piece(rig, "Hood", "egg", v(1, 0.95, 1.05), v(0, 1.65, -0.2), p.clothDark, { flash = true })
+		piece(rig, "Mask", "cylinder", v(0.08, 0.7, 0.7), v(0, 1.62, -0.68), p.mask, nil, TILTED * FACING)
+		eye(rig, "EyeLeft", v(0.18, 0.1, 0.05), v(-0.16, 1.68, -0.74), 0)
+		eye(rig, "EyeRight", v(0.18, 0.1, 0.05), v(0.16, 1.68, -0.74), 0)
+		piece(
+			rig,
+			"Sack",
+			"egg",
+			v(1.35, 1.3, 1.15),
+			v(0, 1.45, 0.75),
+			p.metalDark,
+			{ material = Enum.Material.Fabric, flash = true }
+		)
+		piece(
+			rig,
+			"SackTie",
+			"cylinder",
+			v(0.12, 0.5, 0.5),
+			v(0, 2.1, 0.75),
+			p.metal,
+			{ metal = true, detail = true },
+			UPRIGHT
+		)
+		piece(rig, "Coins", "ball", v(0.4, 0.4, 0.4), v(0, 2.3, 0.75), p.eye, { glow = true })
+		for _, side in { -1, 1 } do
+			local name = if side < 0 then "LegLeft" else "LegRight"
+			local leg = if side < 0 then LEG_LEFT else LEG_RIGHT
+			piece(
+				rig,
+				name,
+				"block",
+				v(0.3, 0.55, 0.3),
+				v(0.35 * side, 0.28, 0),
+				p.soot,
+				{ anim = leg, pivot = v(0.35 * side, 0.55, 0) }
+			)
+		end
+		rig.crown = v(0, 2.6, 0) * rig.r
+		return { stride = 3.5, bob = 0.1, roll = 0.08, lean = 0.3, legSwing = 0.8, armSwing = 0 }
+	end,
+
+	-- B6: a gnarled dead-dark tree with a dusky crown and three lantern fruits; it never moves
+	Tree = function(rig)
+		local p = rig.palette
+		shadow(rig, 2)
+		piece(rig, "Trunk", "cylinder", v(2.3, 0.6, 0.6), v(0, 1.15, 0), p.cloth, { flash = true }, UPRIGHT)
+		rod(rig, "BranchLeft", v(0, 1.8, 0), v(-0.75, 2.55, 0.1), 0.22, p.cloth)
+		rod(rig, "BranchRight", v(0, 1.6, 0), v(0.7, 2.4, -0.2), 0.2, p.cloth)
+		rod(rig, "Root", v(0, 0.3, 0), v(0.6, 0.05, 0.35), 0.2, p.clothDark, { detail = true })
+		piece(
+			rig,
+			"Crown",
+			"egg",
+			v(2, 1.3, 2),
+			v(0, 2.85, 0),
+			p.accent,
+			{ material = Enum.Material.Grass, flash = true }
+		)
+		local fruits = { v(-0.65, 2.45, -0.55), v(0.7, 2.6, -0.3), v(0.1, 2.35, 0.75) }
+		for index, position in fruits do
+			piece(
+				rig,
+				`Fruit{index}`,
+				"ball",
+				v(0.32, 0.32, 0.32),
+				position,
+				p.eye,
+				{ glow = true, detail = index > 2 }
+			)
+		end
+		rig.crown = v(0, 3.6, 0) * rig.r
+		return { stride = 5, bob = 0, roll = 0, lean = 0, legSwing = 0, armSwing = 0 }
 	end,
 }
 

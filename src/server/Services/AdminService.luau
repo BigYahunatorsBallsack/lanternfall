@@ -1,6 +1,7 @@
 --!strict
 -- Debug commands for testing (end the wave, stop the wave timer, Shards, knock yourself down, hurt/heal yourself, win, spawn/hit/kill enemies and elites, pause
--- spawning, add/swap/level/evolve weapons, weapons off, team level-up, the B4 effect items one by one) and the stats
+-- spawning, add/swap/level/evolve weapons, weapons off, team level-up, the B4 effect items one by one, since B6 Looters,
+-- Trees and crates) and the stats
 -- panel feed (DebugStats once per second). Admins only:
 -- everyone in Studio, the owner of a user-owned experience and Config.Admin.userIds. Handles the DebugCommand remote
 -- and uses RunDirector, CombatService, EnemySim, ExperienceService, ShopService, SpawnDirector, StatService,
@@ -23,6 +24,7 @@ local UpgradeText = require(Shared.Util.UpgradeText)
 local CombatService = require(script.Parent.CombatService)
 local EnemySim = require(script.Parent.EnemySim)
 local ExperienceService = require(script.Parent.ExperienceService)
+local LootService = require(script.Parent.LootService)
 local MapService = require(script.Parent.MapService)
 local RunDirector = require(script.Parent.RunDirector)
 local ShopService = require(script.Parent.ShopService)
@@ -334,6 +336,28 @@ local handlers: { [string]: (player: Player) -> (boolean, string?) } = {
 	end,
 	AddCombatItem = function(player)
 		return nextItem(player, combatItems, combatItemIndex)
+	end,
+	SpawnLooter = function(player)
+		local position, reason = runPosition(player)
+		if not position then
+			return false, reason
+		end
+		return true, if SpawnDirector.spawnLooter(position) then "A Looter appeared" else "No room for a Looter here"
+	end,
+	SpawnTree = function(player)
+		local position, reason = runPosition(player)
+		if not position then
+			return false, reason
+		end
+		return true, if SpawnDirector.spawnTree(position) then "A Tree grew" else "No room for a Tree here"
+	end,
+	DropCrate = function(player)
+		local position, reason = runPosition(player)
+		if not position then
+			return false, reason
+		end
+		LootService.dropPickup(position, "Crate")
+		return true, "Dropped a crate"
 	end,
 }
 

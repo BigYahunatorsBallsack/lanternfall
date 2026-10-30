@@ -25,4 +25,7 @@ return table.freeze({
 	"GainLevel", -- the team reaches the next level right away (level-up cards)
 	"AddEffectItem", -- the next item with an effect or a secondary stat (since B4), one after another
 	"AddCombatItem", -- the next item with a combat stat or a burn or explode effect (since B5), one after another
+	"SpawnLooter", -- a Looter near yourself (since B6; it runs away and drops a crate)
+	"SpawnTree", -- a Tree next to yourself (since B6; drops a fruit or crate)
+	"DropCrate", -- a crate at your feet (since B6; it opens at the end of the wave)
 })

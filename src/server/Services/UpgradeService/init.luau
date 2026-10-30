@@ -6,7 +6,9 @@
 -- ChooseUpgrade and RequestReroll (new cards for Shards at the shop's reroll prices, paid through ShopService), picks
 -- the first card after Config.Run.levelUp.autoPickSeconds and adds the picked stat through StatService. Sends
 -- LevelUpOffer to the chooser. Elite chests (LootService) call grantChest: an evolution or an item; AdminService uses
--- getEvolutions and evolve.
+-- getEvolutions and evolve. Since B6 crates (LootService.addCrate -> addCrate) wait for the end of the wave too and open
+-- first, one by one: an item rolled like a shop item (wave and Luck, Config.Loot.crate), taken or sold for Shards
+-- (ChooseCrate, CrateOffer to the chooser); taken automatically when its time runs out or the shop closes.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -14,7 +16,9 @@ local RunService = game:GetService("RunService")
 
 local Shared = ReplicatedStorage.Shared
 local Config = require(Shared.Config)
+local LootRules = require(Shared.Util.LootRules)
 local Net = require(Shared.Net)
+local StatMath = require(Shared.Util.StatMath)
 local Types = require(Shared.Net.Types)
 
 local CombatService = require(script.Parent.CombatService)
@@ -31,9 +35,14 @@ local LevelUp = Config.Run.levelUp
 
 type Offer = { cards: { Types.UpgradeCard }, expiresAt: number, rerolls: number }
 
+-- An open crate (B6): its item and what selling it gives.
+type Crate = { itemId: string, tier: number, sellPrice: number, expiresAt: number }
+
 type State = {
 	levels: { number }, -- team levels still to choose for; the first one is open while `offer` is set
 	offer: Offer?,
+	crates: number, -- crates waiting (not counting the open one)
+	crate: Crate?, -- open crate; crates open before level-up cards
 }
 
 local UpgradeService = {}
@@ -61,6 +70,43 @@ local function sendOffer(player: Player, state: State)
 	Net.fireClient("LevelUpOffer", player, payload)
 end
 
+local function sendCrate(player: Player, state: State)
+	local crate = state.crate
+	local payload: Types.CrateOffer = {
+		open = crate ~= nil,
+		itemId = if crate then crate.itemId else "",
+		tier = if crate then crate.tier else 0,
+		count = if crate then (StatService.getItemCounts(player)[crate.itemId] or 0) + 1 else 0,
+		sellPrice = if crate then crate.sellPrice else 0,
+		expiresAt = if crate then crate.expiresAt else 0,
+		pending = state.crates,
+	}
+	Net.fireClient("CrateOffer", player, payload)
+end
+
+-- The item of a crate opened after the wave that just ended: rarity like a shop item, at least
+-- Config.Loot.crate.minTier; nil if no item is left at all.
+local function rollCrate(player: Player): Crate?
+	local function random(): number
+		return RandomService.number("Loot", player)
+	end
+	local wave = RunDirector.getWave()
+	local tier =
+		math.max(Config.Loot.crate.minTier, StatMath.rollTier(wave, StatService.getStat(player, "luck"), random()))
+	local itemId = ShopRules.pickItem(tier, StatService.getItemCounts(player), {}, random)
+	local item = itemId and Config.Items.byId[itemId]
+	if not (itemId and item) then
+		return nil
+	end
+	local price = ShopRules.price(item.price, wave)
+	return {
+		itemId = itemId,
+		tier = item.tier,
+		sellPrice = LootRules.sellPrice(price, Config.Shop.sellShare, StatService.getStat(player, "sellValue")),
+		expiresAt = now() + LevelUp.autoPickSeconds,
+	}
+end
+
 local function roll(player: Player, state: State, avoid: { [string]: boolean }?): { Types.UpgradeCard }
 	return UpgradePool.roll({
 		level = state.levels[1] or 1,
@@ -74,6 +120,18 @@ local function roll(player: Player, state: State, avoid: { [string]: boolean }?)
 end
 
 local function openNext(player: Player, state: State)
+	state.offer = nil
+	state.crate = nil
+	while state.crates > 0 and not state.crate do
+		state.crates -= 1
+		state.crate = rollCrate(player)
+	end
+	sendCrate(player, state)
+	if state.crate then
+		CombatService.setChoosing(player, true)
+		sendOffer(player, state) -- the level-ups waiting after the crates
+		return
+	end
 	if #state.levels == 0 then
 		state.offer = nil
 		CombatService.setChoosing(player, false)
@@ -86,9 +144,28 @@ end
 
 local function closeAll(state: State, player: Player)
 	table.clear(state.levels)
-	if state.offer then
+	state.crates = 0
+	if state.offer or state.crate then
 		openNext(player, state)
+	else
+		sendCrate(player, state)
 	end
+end
+
+-- Takes (or sells) the open crate's item and opens what waits next. A crate item that hit its limit meanwhile is
+-- sold instead.
+local function chooseCrate(player: Player, take: boolean): boolean
+	local state = states[player]
+	local crate = state and state.crate
+	if not (state and crate) then
+		return false
+	end
+	state.crate = nil
+	if not (take and StatService.addItem(player, crate.itemId)) then
+		ShopService.addShards(player, crate.sellPrice)
+	end
+	openNext(player, state)
+	return true
 end
 
 local function choose(player: Player, cardId: string): boolean
@@ -109,8 +186,18 @@ local function choose(player: Player, cardId: string): boolean
 	return false
 end
 
--- Picks the first card of every open and waiting choice (the shop closed before the player chose).
+-- Takes every open and waiting crate and picks the first card of every open and waiting choice (the shop closed
+-- before the player chose).
 local function pickAll(player: Player, state: State)
+	local crateGuard = state.crates + 2
+	while (state.crate or state.crates > 0) and crateGuard > 0 do
+		crateGuard -= 1
+		if state.crate then
+			chooseCrate(player, true)
+		else
+			openNext(player, state)
+		end
+	end
 	local guard = #state.levels + 1
 	while state.offer and state.offer.cards[1] and guard > 0 do
 		guard -= 1
@@ -149,7 +236,7 @@ local function onLevelGained(level: number)
 		local state = states[player]
 		if state and RunDirector.getParticipantState(player) ~= "Out" then
 			table.insert(state.levels, level)
-			if shopOpen and not state.offer then
+			if shopOpen and not (state.offer or state.crate) then
 				openNext(player, state)
 			else
 				sendOffer(player, state) -- shows the new number of choices waiting
@@ -161,7 +248,7 @@ end
 local function onRunStarted(participants: { Player })
 	table.clear(states)
 	for _, player in participants do
-		states[player] = { levels = {}, offer = nil }
+		states[player] = { levels = {}, offer = nil, crates = 0, crate = nil }
 	end
 end
 
@@ -171,6 +258,10 @@ local function autoPick()
 		local offer = state.offer
 		if offer and time >= offer.expiresAt and offer.cards[1] then
 			choose(player, offer.cards[1].id)
+		end
+		local crate = state.crate
+		if crate and time >= crate.expiresAt then
+			chooseCrate(player, true)
 		end
 	end
 end
@@ -187,7 +278,7 @@ function UpgradeService.init()
 			end
 		elseif phase == "Shop" then
 			for player, state in states do
-				if not state.offer and #state.levels > 0 then
+				if not (state.offer or state.crate) and (#state.levels > 0 or state.crates > 0) then
 					openNext(player, state)
 				end
 			end
@@ -211,12 +302,18 @@ function UpgradeService.init()
 		if state and state.offer then
 			sendOffer(requester, state)
 		end
+		if state then
+			sendCrate(requester, state)
+		end
 	end)
 
 	Net.onServer("ChooseUpgrade", function(player, cardId: string)
 		choose(player, cardId) -- ids the server did not offer are ignored
 	end)
 	Net.onServer("RequestReroll", reroll)
+	Net.onServer("ChooseCrate", function(player, take: boolean)
+		chooseCrate(player, take) -- nothing happens without an open crate
+	end)
 
 	RunService.Heartbeat:Connect(autoPick)
 end
@@ -265,7 +362,34 @@ function UpgradeService.grantChest(player: Player): Types.ChestReward?
 	return { kind = "Reward", itemId = "Heal", level = 0 }
 end
 
+-- A crate was picked up (LootService, B6): it opens at the end of the wave, before the level-up cards (right away if
+-- the shop is open and nothing else is). False for players who are not in the run or out.
+function UpgradeService.addCrate(player: Player): boolean
+	local state = states[player]
+	if not state or RunDirector.getParticipantState(player) == "Out" then
+		return false
+	end
+	state.crates += 1
+	if RunDirector.getPhase() == "Shop" and not (state.offer or state.crate) then
+		openNext(player, state)
+	else
+		sendCrate(player, state)
+	end
+	return true
+end
+
 -- Queries ---------------------------------------------------------------------------
+
+-- The open crate (item id, rarity, sell price) and how many wait after it, or nil (B6, tests).
+function UpgradeService.getCrate(player: Player): ({ itemId: string, tier: number, sellPrice: number }?, number)
+	local state = states[player]
+	if not state then
+		return nil, 0
+	end
+	local crate = state.crate
+	return if crate then { itemId = crate.itemId, tier = crate.tier, sellPrice = crate.sellPrice } else nil,
+		state.crates
+end
 
 -- Evolution ids the player may take now: weapon at max tier plus the item (DESIGN.md section 6), sorted.
 function UpgradeService.getEvolutions(player: Player): { string }

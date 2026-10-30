@@ -23,6 +23,24 @@ export type Enemy = {
 	affix: number?, -- index into elite.affixes, 1 or more
 	damageTaken: number?, -- multiplier on every hit it takes (1 if nil)
 	summon: Summon?,
+	-- since B6 (Config.Loot)
+	loot: Loot?,
+	flee: Flee?,
+	anchored: boolean?, -- never moves, nothing pushes it (Trees); players walk through it
+}
+
+-- What a killed enemy drops besides its orb (B6, Config.Loot); missing values use the defaults there.
+export type Loot = {
+	alwaysOrbs: boolean?, -- drops its orb whatever the wave's drop chance
+	consumableChance: number?, -- chance of a fruit or crate, before Luck
+	crateShare: number?, -- share of those that are crates, before Luck and the crates of this wave
+	crate: boolean?, -- always a crate (Looters)
+}
+
+-- Enemies that run away from the nearest player and do not attack (Looters, B6). SpawnDirector removes them
+-- (without a kill) after Config.Loot.looter.lifetimeSeconds.
+export type Flee = {
+	edgeMargin: number, -- studs; closer to the arena edge it also runs along the wall, so it is not stuck in a corner
 }
 
 -- Enemies that hold their distance and shoot (Spitter). Projectiles fly straight, are stopped by obstacles and
@@ -98,6 +116,7 @@ local Enemies: { [string]: Enemy } = {
 		radius = 2.5,
 		mass = 6,
 		knockbackResistance = 0.9, -- B5, like Bruiser
+		loot = { consumableChance = 0.03 }, -- B6, assumption: tougher enemies drop more
 	},
 	Spitter = {
 		id = "Spitter",
@@ -133,6 +152,7 @@ local Enemies: { [string]: Enemy } = {
 		radius = 1.8,
 		mass = 3,
 		knockbackResistance = 0.8, -- B5, like Charger
+		loot = { consumableChance = 0.02 }, -- B6, assumption
 		charge = {
 			triggerRange = 24,
 			windupSeconds = 0.9,
@@ -194,6 +214,39 @@ local Enemies: { [string]: Enemy } = {
 		mass = 8,
 		knockbackResistance = 0.9, -- B5, like Bruiser
 		look = "Brute",
+		loot = { consumableChance = 0.03 }, -- B6, assumption
+	},
+	-- B6: Brotato's Loot Alien. Appears now and then (Config.Loot.looter), runs away, escapes after a while; killed
+	-- it drops a crate and a big orb. HP like Brotato's (about 12 Shadelings), faster than the crowd.
+	Looter = {
+		id = "Looter",
+		typeId = 10,
+		displayName = "Looter",
+		hp = 120, -- assumption, see above
+		speed = 17,
+		contactDamage = 0,
+		xp = 8, -- Brotato: 8 materials
+		radius = 1.4,
+		mass = 1,
+		knockbackResistance = 0,
+		loot = { alwaysOrbs = true, consumableChance = 1, crate = true },
+		flee = { edgeMargin = 12 },
+	},
+	-- B6: Brotato's Tree. Stands still and does nothing (Config.Loot.trees); killed it drops a fruit (or a crate) and
+	-- an orb of 3.
+	Tree = {
+		id = "Tree",
+		typeId = 11,
+		displayName = "Tree",
+		hp = 30, -- assumption; grows with the HP curve like every enemy
+		speed = 0,
+		contactDamage = 0,
+		xp = 3, -- Brotato: 3 materials
+		radius = 2.2,
+		mass = 1000,
+		knockbackResistance = 1,
+		loot = { alwaysOrbs = true, consumableChance = 1, crateShare = 0.2 }, -- Brotato: 20 % crates
+		anchored = true,
 	},
 }
 

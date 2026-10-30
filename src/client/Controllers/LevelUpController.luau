@@ -4,6 +4,8 @@
 -- bar running down to the automatic pick and a reroll for Shards. Tap or click a card, or press 1-4. Cards ignore
 -- input for a moment after they appear, so a thumb on the move stick does not pick one by accident. Sends
 -- ChooseUpgrade and RequestReroll; texts from Util/UpgradeText, Shards from the ShopState remote (ShopService).
+-- Since B6 crates open here first, one by one (CrateOffer from UpgradeService): the item's card with "Take" and
+-- "Sell (+N Shards)" (keys 1 and 2) and the same bar to the automatic take; sends ChooseCrate.
 
 local ContextActionService = game:GetService("ContextActionService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -46,20 +48,51 @@ type CardView = {
 
 local cards: { CardView } = {}
 
+-- the crate panel (B6)
+local levelPanel: Frame
+local cratePanel: Frame
+local crateSubtitle: TextLabel
+local crateCard: CardView
+local crateTimerFill: Frame
+local sellButton: TextButton
+local STAT_COLORS = { plus = Theme.success, minus = Theme.danger }
+
 local offer: Types.LevelUpOffer? = nil
+local crate: Types.CrateOffer? = nil
+local crateShownAt = 0
 local shownAt = 0 -- os.clock() when the current cards appeared
 local waiting = false -- a pick or reroll was sent, the server has not answered yet
 local shardCount = 0 -- from ShopState, for the reroll button
 
+local function isCrateOpen(): boolean
+	return crate ~= nil and crate.open and RunStateController.getView() == "Run"
+end
+
 local function isOpen(): boolean
-	return offer ~= nil and offer.open and RunStateController.getView() == "Run"
+	return (offer ~= nil and offer.open or isCrateOpen()) and RunStateController.getView() == "Run"
 end
 
 local function accepting(): boolean
-	return isOpen() and not waiting and os.clock() - shownAt >= LevelUp.inputDelaySeconds
+	local since = if isCrateOpen() then crateShownAt else shownAt
+	return isOpen() and not waiting and os.clock() - since >= LevelUp.inputDelaySeconds
+end
+
+-- Takes (or sells) the open crate's item.
+local function chooseCrate(take: boolean)
+	if not (isCrateOpen() and accepting()) then
+		return
+	end
+	waiting = true
+	Net.fireServer("ChooseCrate", take)
 end
 
 local function pick(index: number)
+	if isCrateOpen() then
+		if index <= 2 then
+			chooseCrate(index == 1)
+		end
+		return
+	end
 	local current = offer
 	local card = current and current.cards[index]
 	if not (card and accepting()) then
@@ -86,16 +119,18 @@ local function initials(title: string): string
 	return string.upper(table.concat(letters, "", 1, math.min(#letters, 2)))
 end
 
-local function buildCard(index: number): CardView
+local function buildCard(index: number, parent: Instance?, name: string?): CardView
 	local touch = UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled
 	local button = Widgets.button({
-		Name = `Card{index}`,
+		Name = name or `Card{index}`,
 		Text = "",
 		Size = UDim2.fromOffset(CARD_SIZE.X, CARD_SIZE.Y),
 		LayoutOrder = index,
-		Parent = cardRow,
+		Parent = parent or cardRow,
 	}, function()
-		pick(index)
+		if not parent then
+			pick(index)
+		end
 	end)
 	Widgets.padding(12).Parent = button
 	Widgets.list(6).Parent = button
@@ -174,12 +209,37 @@ local function renderCards(current: Types.LevelUpOffer)
 	end
 end
 
+local function renderCrate(current: Types.CrateOffer)
+	local item = Config.Items.byId[current.itemId]
+	local title = if item then item.displayName else current.itemId
+	local color = Theme.tiers[current.tier] or Theme.accent
+	crateSubtitle.Text = if current.pending > 0
+		then `Take it or sell it · {current.pending} more waiting`
+		else "Take it or sell it"
+	crateCard.badge.Text = string.upper(`{UpgradeText.tierName(current.tier)} · x{current.count}`)
+	crateCard.badge.TextColor3 = color
+	crateCard.name.Text = title
+	crateCard.detail.Text = UpgradeText.itemLines(current.itemId, STAT_COLORS)
+	crateCard.icon.BackgroundColor3 = color
+	crateCard.letters.Text = initials(title)
+	crateCard.edge.Color = color
+	sellButton.Text = `Sell (+{current.sellPrice} Shards)`
+end
+
 local function render()
 	if not screen then
 		return -- an offer arrived before start() built the UI; start() renders it
 	end
-	local current = offer
 	screen.Enabled = isOpen()
+	local crateOpen = isCrateOpen()
+	cratePanel.Visible = crateOpen
+	levelPanel.Visible = not crateOpen
+	local currentCrate = crate
+	if crateOpen and currentCrate then
+		renderCrate(currentCrate)
+		return
+	end
+	local current = offer
 	if not (current and screen.Enabled) then
 		return
 	end
@@ -206,16 +266,105 @@ local function onOffer(newOffer: Types.LevelUpOffer)
 	render()
 end
 
+local function onCrate(newCrate: Types.CrateOffer)
+	local previous = crate
+	crate = newCrate
+	waiting = false
+	if newCrate.open and not (previous and previous.open and previous.expiresAt == newCrate.expiresAt) then
+		crateShownAt = os.clock()
+	end
+	render()
+end
+
 local function updateTimer()
-	local current = offer
+	local current = if isCrateOpen() then crate else offer
 	if not (current and screen.Enabled) then
 		return
 	end
+	local fill = if isCrateOpen() then crateTimerFill else timerFill
 	local remaining = math.max(0, current.expiresAt - workspace:GetServerTimeNow())
 	local target = UDim2.fromScale(math.clamp(remaining / LevelUp.autoPickSeconds, 0, 1), 1)
-	if timerFill.Size ~= target then
-		timerFill.Size = target
+	if fill.Size ~= target then
+		fill.Size = target
 	end
+end
+
+local function timerBar(parent: Instance, order: number, name: string): Frame
+	local track = Widgets.create("Frame", {
+		Name = name,
+		BackgroundColor3 = Theme.button,
+		Size = UDim2.new(1, 0, 0, 8),
+		LayoutOrder = order,
+		Parent = parent,
+	}, { Widgets.corner(UDim.new(0, 4)) })
+	return Widgets.create("Frame", {
+		Name = `{name}Fill`,
+		BackgroundColor3 = Theme.accent,
+		Size = UDim2.fromScale(1, 1),
+		Parent = track,
+	}, { Widgets.corner(UDim.new(0, 4)) })
+end
+
+-- The crate panel (B6): title, the item's card, the timer and Take / Sell.
+local function buildCrate()
+	local touch = UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled
+	cratePanel = Widgets.panel({
+		Name = "Crate",
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.fromScale(0.5, 0.5),
+		Size = UDim2.fromOffset(2 * CARD_SIZE.X + CARD_GAP + 28, 0),
+		Visible = false,
+		Parent = screen,
+	})
+	Widgets.list(8).Parent = cratePanel
+	Widgets.label({
+		Name = "CrateTitle",
+		Text = "CRATE",
+		Font = Theme.fontBold,
+		TextSize = Theme.titleSize,
+		TextColor3 = Theme.accent,
+		Size = UDim2.new(1, 0, 0, Theme.titleSize + 6),
+		LayoutOrder = 1,
+		Parent = cratePanel,
+	})
+	crateSubtitle = Widgets.label({ Name = "CrateSubtitle", LayoutOrder = 2, Parent = cratePanel })
+	crateCard = buildCard(3, cratePanel, "CrateCard")
+	crateCard.button.Size = UDim2.fromOffset(2 * CARD_SIZE.X + CARD_GAP, CARD_SIZE.Y)
+	crateCard.button.AutoButtonColor = false
+	crateCard.detail.RichText = true
+	crateCard.detail.Size = UDim2.new(1, 0, 0, 70)
+	local key = crateCard.button:FindFirstChild("Key")
+	if key and key:IsA("TextLabel") then
+		key.Text = "" -- the buttons below carry the keys
+	end
+	crateTimerFill = timerBar(cratePanel, 4, "CrateTimer")
+	local buttons = Widgets.create("Frame", {
+		Name = "Buttons",
+		BackgroundTransparency = 1,
+		Size = UDim2.new(1, 0, 0, 44),
+		LayoutOrder = 5,
+		Parent = cratePanel,
+	})
+	Widgets.list(CARD_GAP, Enum.FillDirection.Horizontal).Parent = buttons
+	Widgets.button({
+		Name = "Take",
+		Text = if touch then "Take" else "Take [1]",
+		Size = UDim2.fromOffset(CARD_SIZE.X, 44),
+		BackgroundColor3 = Theme.accent,
+		TextColor3 = Theme.accentText,
+		LayoutOrder = 1,
+		Parent = buttons,
+	}, function()
+		chooseCrate(true)
+	end)
+	sellButton = Widgets.button({
+		Name = "Sell",
+		Size = UDim2.fromOffset(CARD_SIZE.X, 44),
+		LayoutOrder = 2,
+		Parent = buttons,
+	}, function()
+		chooseCrate(false)
+	end)
 end
 
 local function build()
@@ -228,6 +377,7 @@ local function build()
 		Size = UDim2.fromOffset(width + 28, 0),
 		Parent = screen,
 	})
+	levelPanel = panel
 	Widgets.list(8).Parent = panel
 	titleLabel = Widgets.label({
 		Name = "Title",
@@ -250,25 +400,14 @@ local function build()
 	for index = 1, LevelUp.cardCount do
 		cards[index] = buildCard(index)
 	end
-	local track = Widgets.create("Frame", {
-		Name = "Timer",
-		BackgroundColor3 = Theme.button,
-		Size = UDim2.new(1, 0, 0, 8),
-		LayoutOrder = 4,
-		Parent = panel,
-	}, { Widgets.corner(UDim.new(0, 4)) })
-	timerFill = Widgets.create("Frame", {
-		Name = "Fill",
-		BackgroundColor3 = Theme.accent,
-		Size = UDim2.fromScale(1, 1),
-		Parent = track,
-	}, { Widgets.corner(UDim.new(0, 4)) })
+	timerFill = timerBar(panel, 4, "Timer")
 	rerollButton = Widgets.button({
 		Name = "Reroll",
 		Size = UDim2.fromOffset(240, 44),
 		LayoutOrder = 5,
 		Parent = panel,
 	}, reroll)
+	buildCrate()
 end
 
 local function bindKeys()
@@ -298,6 +437,7 @@ end
 
 function LevelUpController.init()
 	Net.onClient("LevelUpOffer", onOffer)
+	Net.onClient("CrateOffer", onCrate)
 	Net.onClient("ShopState", function(shop: Types.ShopState)
 		shardCount = shop.shards
 		render()
@@ -324,7 +464,12 @@ end
 
 -- The open choice, or nil (smoke test and later tutorials, WP19).
 function LevelUpController.getOffer(): Types.LevelUpOffer?
-	return if isOpen() then offer else nil
+	return if isOpen() and not isCrateOpen() then offer else nil
+end
+
+-- The open crate, or nil (B6, tests).
+function LevelUpController.getCrate(): Types.CrateOffer?
+	return if isCrateOpen() then crate else nil
 end
 
 return LevelUpController

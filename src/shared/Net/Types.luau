@@ -269,4 +269,23 @@ export type DebugStats = {
 	shots: number, -- enemy projectiles in flight
 }
 
+-- Fruits and crates on the floor (LootService -> PickupRenderer, B6), batched per simulation step, to participants.
+export type PickupEvents = {
+	reset: boolean?, -- drop every pickup first (run start and end, full sync)
+	dropped: { number }, -- flat: id, x, z, kind (1 = fruit, 2 = crate) for every new pickup
+	collected: { number }, -- flat: id, userId for every pickup a player took (userId 0: it vanished)
+}
+
+-- The local player's crate choice (UpgradeService -> LevelUpController, B6): crates found in a wave open one by one at
+-- its end, before the level-up cards. Sent when it opens, closes or the number waiting changes.
+export type CrateOffer = {
+	open: boolean,
+	itemId: string, -- key in Config.Items; "" while closed
+	tier: number, -- rarity 1..4
+	count: number, -- how many of it the player owns after taking it
+	sellPrice: number, -- Shards for selling it instead
+	expiresAt: number, -- server time; taken automatically then
+	pending: number, -- further crates after this one (closed: crates waiting for the end of the wave)
+}
+
 return {}

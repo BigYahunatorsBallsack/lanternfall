@@ -54,4 +54,4 @@ Bei Konflikten mit der PDF folgt B7 der konkreten Waffentabelle: Medical Gun hei
 
 ## Automatisierte Prüfung
 
-23 Spec-Dateien bestanden. Neue Fälle stehen in `WeaponsB7.spec.luau` und `WeaponsB7Integration.spec.luau`; alte Erwartungen an exakt sechs Waffen wurden aktualisiert. Der vorhandene Rust-Runner führt jede Datei separat aus. Lokal lief derselbe Prelude über einen Lune-Adapter, weil Rust fehlt. StyLua bestanden; Selene `src`: keine Fehler, acht bestehende UI-Warnungen. Studio, reale Geräte und Netzwerk noch nicht geprüft. Keine Balance-Simulation durchgeführt.
+25 Spec-Dateien / 320 Tests bestanden (inklusive gemergtem B6). Neue Fälle stehen in `WeaponsB7.spec.luau` und `WeaponsB7Integration.spec.luau`; alte Erwartungen an exakt sechs Waffen wurden aktualisiert. Der vorhandene Rust-Runner führt jede Datei separat aus. Lokal lief derselbe Prelude über einen Lune-Adapter, weil Rust fehlt. StyLua bestanden; Selene `src`: keine Fehler, acht bestehende UI-Warnungen. Studio, reale Geräte und Netzwerk noch nicht geprüft. Keine Balance-Simulation durchgeführt.
