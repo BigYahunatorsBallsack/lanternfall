@@ -39,4 +39,15 @@ return table.freeze({
 		"TitanGirdle",
 		"PyreAshes",
 	}) :: { string },
+	-- "SpawnNewEnemy" (since B9): the enemies of the latest enemy package, one after another
+	newEnemies = table.freeze({
+		"Stalker",
+		"Skulker",
+		"Thornback",
+		"Herald",
+		"Mender",
+		"BroodEgg",
+		"Reaper",
+		"Gobbler",
+	}) :: { string },
 })
