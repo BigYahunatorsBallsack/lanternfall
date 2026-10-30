@@ -79,33 +79,39 @@ local Run = {
 		-- the spawn ring (groupSpread * sqrt(count) studs). The numbers keep the enemies per second and the mix of
 		-- the old rate curve and mix (before the wave intensity, which averages 0.95). Since B9 part 2 the new kinds
 		-- (Config.Enemies: Stalker from wave 4, Brood Egg and Gobbler 8, Herald 9, Skulker and Mender 10, Reaper 11,
-		-- Thornback 12) take a share of the Shadelings' rate.
+		-- Thornback 12) take a share of the Shadelings' rate. B11: Brute and Abyss Brute groups at 65 % of their size
+		-- (owner test 30.10.2026: the big ones pile up and cannot be killed, the small ones are fine).
 		groups = table.freeze({
 			wave({ group("Shadeling", 4, 2.5) }), -- wave 1: 1.60 enemies/s
 			wave({ group("Shadeling", 6, 2.4) }), -- wave 2: 2.50 enemies/s
-			wave({ group("Shadeling", 6, 2.3), group("Brute", 3, 4.6) }, { "Brute" }), -- wave 3: 3.26 enemies/s
-			wave({ group("Shadeling", 7, 2.6), group("Brute", 4, 5.2), group("Stalker", 2, 6) }, { "Stalker" }), -- wave 4: 3.79 enemies/s
+			wave({ group("Shadeling", 6, 2.3), group("Brute", 2, 4.6) }, { "Brute" }), -- wave 3: 3.26 enemies/s
+			wave({ group("Shadeling", 7, 2.6), group("Brute", 2.6, 5.2), group("Stalker", 2, 6) }, { "Stalker" }), -- wave 4: 3.79 enemies/s
 			wave(
-				{ group("Shadeling", 7, 2.7), group("Brute", 4, 5.2), group("Charger", 3, 5.8), group("Stalker", 2, 6) },
+				{
+					group("Shadeling", 7, 2.7),
+					group("Brute", 2.6, 5.2),
+					group("Charger", 3, 5.8),
+					group("Stalker", 2, 6),
+				},
 				{ "Charger" }
 			), -- wave 5: 4.21 enemies/s
 			wave({
 				group("Shadeling", 6, 2.4),
-				group("Brute", 4, 5.2),
+				group("Brute", 2.6, 5.2),
 				group("Charger", 3, 5.2),
 				group("Spitter", 3, 6.3),
 				group("Stalker", 3, 7),
 			}, { "Spitter" }), -- wave 6: 4.75 enemies/s
 			wave({
 				group("Shadeling", 7, 2.5),
-				group("Brute", 4, 4.8),
+				group("Brute", 2.6, 4.8),
 				group("Charger", 4, 6.4),
 				group("Spitter", 4, 7.7),
 				group("Stalker", 3, 7),
 			}), -- wave 7: 5.21 enemies/s
 			wave({
 				group("Shadeling", 7, 2.6),
-				group("Brute", 5, 5.5),
+				group("Brute", 3.2, 5.5),
 				group("Charger", 4, 5.9),
 				group("Spitter", 4, 7),
 				group("Stalker", 3, 7),
@@ -115,7 +121,7 @@ local Run = {
 			wave({
 				group("Shadeling", 5, 2.5),
 				group("AbyssShadeling", 4, 3.3),
-				group("Brute", 4, 5),
+				group("Brute", 2.6, 5),
 				group("Charger", 4, 5.4),
 				group("Spitter", 4, 6.5),
 				group("Stalker", 3, 7),
@@ -126,7 +132,7 @@ local Run = {
 			wave({
 				group("Shadeling", 5, 2.4),
 				group("AbyssShadeling", 3, 3),
-				group("Brute", 4, 4.7),
+				group("Brute", 2.6, 4.7),
 				group("Charger", 5, 6.3),
 				group("Spitter", 5, 7.6),
 				group("Stalker", 3, 7),
@@ -139,7 +145,7 @@ local Run = {
 			wave({
 				group("Shadeling", 2, 2.3),
 				group("AbyssShadeling", 5, 2.9),
-				group("Brute", 3, 4.3),
+				group("Brute", 2, 4.3),
 				group("Charger", 4, 6),
 				group("Spitter", 5, 7.2),
 				group("Splitter", 5, 5.5),
@@ -154,7 +160,7 @@ local Run = {
 			wave({
 				group("Shadeling", 3, 2.7),
 				group("AbyssShadeling", 6, 3.2),
-				group("Brute", 3, 5.4),
+				group("Brute", 2, 5.4),
 				group("Charger", 4, 5.7),
 				group("Spitter", 5, 6.8),
 				group("Splitter", 6, 6.3),
@@ -170,8 +176,8 @@ local Run = {
 			wave({
 				group("Shadeling", 2, 2.6),
 				group("AbyssShadeling", 6, 3.1),
-				group("Brute", 2, 5.2),
-				group("AbyssBrute", 5, 6.5),
+				group("Brute", 1.3, 5.2),
+				group("AbyssBrute", 3.2, 6.5),
 				group("Charger", 6, 6.5),
 				group("Spitter", 4, 6.5),
 				group("Splitter", 5, 5.9),
@@ -187,8 +193,8 @@ local Run = {
 			wave({
 				group("Shadeling", 2, 2.5),
 				group("AbyssShadeling", 6, 3),
-				group("Brute", 2, 5),
-				group("AbyssBrute", 6, 7.4),
+				group("Brute", 1.3, 5),
+				group("AbyssBrute", 3.9, 7.4),
 				group("Charger", 6, 6.2),
 				group("Spitter", 5, 7.4),
 				group("Splitter", 5, 5.6),
@@ -204,8 +210,8 @@ local Run = {
 			wave({
 				group("Shadeling", 2, 2.4),
 				group("AbyssShadeling", 7, 3.1),
-				group("Brute", 2, 4.8),
-				group("AbyssBrute", 6, 7.1),
+				group("Brute", 1.3, 4.8),
+				group("AbyssBrute", 3.9, 7.1),
 				group("Charger", 6, 5.9),
 				group("Spitter", 5, 7.1),
 				group("Splitter", 6, 6.5),
@@ -220,7 +226,7 @@ local Run = {
 			}), -- wave 15: 8.59 enemies/s
 			wave({
 				group("AbyssShadeling", 9, 3),
-				group("AbyssBrute", 9, 7.4),
+				group("AbyssBrute", 5.9, 7.4),
 				group("Charger", 7, 5.7),
 				group("Spitter", 5, 6.9),
 				group("Splitter", 6, 5.7),
@@ -235,7 +241,7 @@ local Run = {
 			}), -- wave 16: 8.81 enemies/s
 			wave({
 				group("AbyssShadeling", 10, 3.1),
-				group("AbyssBrute", 9, 7.1),
+				group("AbyssBrute", 5.9, 7.1),
 				group("Charger", 8, 6.3),
 				group("Spitter", 5, 6.7),
 				group("Splitter", 6, 5.5),
@@ -250,7 +256,7 @@ local Run = {
 			}), -- wave 17: 9.19 enemies/s
 			wave({
 				group("AbyssShadeling", 10, 3),
-				group("AbyssBrute", 9, 6.9),
+				group("AbyssBrute", 5.9, 6.9),
 				group("Charger", 8, 6.1),
 				group("Spitter", 6, 7.5),
 				group("Splitter", 7, 6.3),
@@ -265,7 +271,7 @@ local Run = {
 			}), -- wave 18: 9.45 enemies/s
 			wave({
 				group("AbyssShadeling", 10, 2.9),
-				group("AbyssBrute", 9, 6.7),
+				group("AbyssBrute", 5.9, 6.7),
 				group("Charger", 8, 6),
 				group("Spitter", 6, 7.3),
 				group("Splitter", 7, 6.1),
@@ -280,7 +286,7 @@ local Run = {
 			}), -- wave 19: 9.68 enemies/s
 			wave({
 				group("AbyssShadeling", 11, 3),
-				group("AbyssBrute", 10, 7.2),
+				group("AbyssBrute", 6.5, 7.2),
 				group("Charger", 8, 5.8),
 				group("Spitter", 6, 7.1),
 				group("Splitter", 7, 5.9),

@@ -37,6 +37,7 @@ function DangerRules.defaultOptions(): Types.RunOptions
 		enemyHp = sliders.enemyHp.default,
 		enemyDamage = sliders.enemyDamage.default,
 		enemySpeed = sliders.enemySpeed.default,
+		enemyCount = sliders.enemyCount.default,
 	}
 end
 
@@ -54,6 +55,7 @@ function DangerRules.clean(options: Types.RunOptions): Types.RunOptions
 		enemyHp = snap(options.enemyHp, sliders.enemyHp),
 		enemyDamage = snap(options.enemyDamage, sliders.enemyDamage),
 		enemySpeed = snap(options.enemySpeed, sliders.enemySpeed),
+		enemyCount = snap(options.enemyCount or sliders.enemyCount.default, sliders.enemyCount),
 	}
 end
 
@@ -65,7 +67,7 @@ function DangerRules.label(options: Types.RunOptions): string
 	end
 	for _, id in Difficulty.sliderOrder do
 		local slider = Difficulty.sliders[id]
-		local value = (options :: any)[id] :: number
+		local value = ((options :: any)[id] or slider.default) :: number
 		if value ~= slider.default then
 			table.insert(parts, `{slider.label} {value}%`)
 		end
@@ -85,10 +87,15 @@ end
 function DangerRules.multipliers(options: Types.RunOptions, wave: number): (number, number, number)
 	local level = DangerRules.level(options.danger)
 	local factor = DangerRules.endlessFactor(wave)
-	local hp = level.enemyHp * options.enemyHp / 100 * (1 + factor * Endless.hpFactor)
+	local hp = Difficulty.base.enemyHp * level.enemyHp * options.enemyHp / 100 * (1 + factor * Endless.hpFactor)
 	local damage = level.enemyDamage * options.enemyDamage / 100 * (1 + factor)
 	local speed = options.enemySpeed / 100 * (1 + math.min(Endless.speedCap, factor / Endless.speedDivisor))
 	return hp, damage, speed
+end
+
+-- Multiplier on the enemies the spawn groups bring: our base tuning and the Enemy count slider.
+function DangerRules.countMultiplier(options: Types.RunOptions): number
+	return Difficulty.base.enemyCount * (options.enemyCount or Difficulty.sliders.enemyCount.default) / 100
 end
 
 -- True if spawn groups of `enemyId` take part on this danger level.

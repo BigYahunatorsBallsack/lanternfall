@@ -136,6 +136,9 @@ Remotes.SetRunOptions = {
 		Validate.number(Config.Difficulty.sliders.enemyHp.min, Config.Difficulty.sliders.enemyHp.max),
 		Validate.number(Config.Difficulty.sliders.enemyDamage.min, Config.Difficulty.sliders.enemyDamage.max),
 		Validate.number(Config.Difficulty.sliders.enemySpeed.min, Config.Difficulty.sliders.enemySpeed.max),
+		Validate.optional(
+			Validate.number(Config.Difficulty.sliders.enemyCount.min, Config.Difficulty.sliders.enemyCount.max)
+		),
 	},
 }
 return table.freeze(Remotes)

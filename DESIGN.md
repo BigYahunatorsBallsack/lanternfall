@@ -504,13 +504,13 @@ Annahmen, wo Brotato keine Zahl nennt: Drain tötet nicht, die HP bleiben bei mi
 | Gegner | Rolle | HP | Tempo (Studs/s) | Schaden | XP | Ab Minute |
 | --- | --- | --- | --- | --- | --- | --- |
 | Shadeling | Schwarm, läuft direkt auf dich zu | 10 | 14 | 5 pro Kontakt | 1 | 0 |
-| Brute | Tank, langsam, schiebt den Pulk | 60 | 8 | 12 pro Kontakt | 4 | 2 |
+| Brute | Tank, langsam, schiebt den Pulk | 40 (seit B11, vorher 60) | 8 | 12 pro Kontakt | 4 | 2 |
 | Charger | lädt 0,9 s auf (glüht orange, roter Streifen zeigt die Bahn), stürmt dann geradeaus | 40 | 9, im Ansturm 38 | 8 pro Kontakt | 4 | 3 |
 | Spitter | hält 30 Studs Abstand, schießt alle 2,5 s | 20 | 10 | 8 pro Projektil | 2 | 4 |
 | Abyss Shadeling | stärkerer Shadeling, rote Augen | 18 | 15 | 8 pro Kontakt | 2 | 6 |
 | Splitter | zerfällt beim Tod in 3 Splitlings | 32 | 11 | 7 pro Kontakt | 2 | 7 |
 | Splitling | klein und schnell, nur aus Splittern | 6 | 15 | 3 pro Kontakt | 1 | 7 |
-| Abyss Brute | stärkerer Brute, rote Augen | 140 | 8,5 | 18 pro Kontakt | 8 | 8 |
+| Abyss Brute | stärkerer Brute, rote Augen | 90 (seit B11, vorher 140) | 8,5 | 18 pro Kontakt | 8 | 8 |
 | Gloom Elite | beliebiger Typ, leuchtet, 1,5× so groß, ab 6:00 mit Eigenschaft | 8× | 0,9× | 1,5× | 25 + Truhe | 2, 4, 6 (2×), 8, 10 (2×) |
 | Looter (seit B6) | läuft weg, greift nicht an, verschwindet nach 12 s; lässt eine Kiste fallen (Abschnitt 3) | 120 | 17 | – | 8 | ab Welle 3 zufällig |
 | Tree (seit B6) | steht still, tut nichts; lässt Frucht oder Kiste fallen | 30 | 0 | – | 3 | jede Welle |
@@ -810,7 +810,8 @@ Folgerungen: 15 von 24 Siegen statt gut 10 von 24 in B3; die größere Auswahl i
 
 - **Elite oder Horde:** Die ersten beiden Plätze werden mit 40 % eine Horden-Welle, sonst Elite-Welle; der dritte ist immer eine Elite-Welle (Brotato). Horden-Welle: die Spawn-Gruppen bringen doppelt so viele Gegner (Brotato nennt keine Zahl, Annahme), Orbs fallen 35 % seltener (Brotato: 35 % weniger Material).
 - **Gloom Elites** (Abschnitt 7) kommen auf keiner Stufe mehr von selbst (Entscheidung „Elites nur in Elite-Wellen", 29.10.2026); Schalter pro Stufe `gloomElites`, Debug-Knopf bleibt.
-- **Regler** wie Brotatos Optionen: Gegner-HP und -Schaden 25–200 %, Tempo 25–150 %, Schritte 25 %, mal der Gefahrenstufe.
+- **Regler** wie Brotatos Optionen: Gegner-HP und -Schaden 25–200 %, Tempo 25–150 %, Schritte 25 %, mal der Gefahrenstufe; dazu unser eigener Regler „Enemy count“ (25–200 %, Menge der Spawn-Gruppen).
+- **Nachjustiert nach Owner-Test (30.10.2026, Stufe 0):** Brute und Abyss Brute stauten sich und waren nicht totzukriegen, die kleinen passten. Deshalb beide mit 65 % HP (Grundwert und Zuwachs) und ihre Spawn-Gruppen mit 65 % der Größe.
 - **Endlos-Modus** (Schalter in der Lobby): Welle 20 läuft wie immer, ihre Bosse zu töten beendet weder Run noch Welle. Danach geht es weiter, bis keiner mehr lebt; wer das Ende von Welle 20 erreicht, hat gewonnen. Endlos-Wellen 60 s mit den Gruppen von Welle 20 (Länge Annahme), Wachstum pro Welle läuft weiter, dazu Brotatos Endlos-Faktor: w = Welle − 20, mult = 2 + max(0, (Welle − 35) × 0,2), Faktor = w (w + 1) / 2 / 100 × mult; HP × (1 + 2,25 × Faktor), Schaden × (1 + Faktor), Tempo × (1 + min(1,75, Faktor / 13,33)). Jede 10. Welle (30, 40 …) ist eine Boss-Welle (90 s, Annahme) mit beiden Bossen; die Elite-Plätze wiederholen sich alle 10 Wellen (21/22, 24/25, 27/28 …), ohne Horden, jeder 10er-Block bringt einen Champion mehr in Elite- und Boss-Wellen, Champions dürfen sich wiederholen. Nach Welle 20 lassen Bosse und Champions eine normale statt der legendären Kiste fallen.
 - **Noch nicht drin (Brotato):** Endlos-Faktor auf Shop-Preise, Unverwundbarkeit und %-HP-Schaden (Strang-B-Dateien), „Welle wiederholen" (Brotatos Wiki beschreibt es nicht; eigenes Teilpaket).
 

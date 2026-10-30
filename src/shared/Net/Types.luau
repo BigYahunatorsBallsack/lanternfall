@@ -41,6 +41,7 @@ export type RunOptions = {
 	enemyHp: number,
 	enemyDamage: number,
 	enemySpeed: number,
+	enemyCount: number?, -- percent of the enemies the spawn groups bring (default 100)
 }
 
 export type RunState = {

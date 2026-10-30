@@ -626,6 +626,7 @@ function RunFlow.setOptions(self: RunFlow, options: Types.RunOptions)
 		and old.enemyHp == options.enemyHp
 		and old.enemyDamage == options.enemyDamage
 		and old.enemySpeed == options.enemySpeed
+		and old.enemyCount == options.enemyCount
 	then
 		return
 	end

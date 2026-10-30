@@ -16,7 +16,7 @@ describe("SpawnRules", function()
 			return SpawnRules.currentRate(minutes, 1) / RunSchedule.intensity(minutes)
 		end
 		expect(base(0.5)).toBeNear(1.6) -- wave 1: a group of 4 Shadelings every 2.5 s
-		expect(base(14.5)).toBeNear(8.59, 0.01)
+		expect(base(14.5)).toBeNear(8.15, 0.01) -- B11: fewer Brutes and Abyss Brutes
 		expect(SpawnRules.currentRate(14.5, 4)).toBeNear(SpawnRules.currentRate(14.5, 1) * 2.8)
 		local previous = 0
 		for wave = 1, 20 do

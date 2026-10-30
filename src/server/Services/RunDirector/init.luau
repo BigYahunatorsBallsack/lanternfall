@@ -208,7 +208,15 @@ function RunDirector.init()
 
 	Net.onServer(
 		"SetRunOptions",
-		function(player, danger: number, endless: boolean, enemyHp: number, enemyDamage: number, enemySpeed: number)
+		function(
+			player,
+			danger: number,
+			endless: boolean,
+			enemyHp: number,
+			enemyDamage: number,
+			enemySpeed: number,
+			enemyCount: number?
+		)
 			if not flow.players[player.UserId] then
 				reject(player, "UnknownPlayer")
 				return
@@ -219,6 +227,7 @@ function RunDirector.init()
 				enemyHp = enemyHp,
 				enemyDamage = enemyDamage,
 				enemySpeed = enemySpeed,
+				enemyCount = enemyCount,
 			}))
 			process()
 		end

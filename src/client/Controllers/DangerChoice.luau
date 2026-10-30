@@ -38,7 +38,15 @@ local function send(change: (Types.RunOptions) -> ())
 	local options = table.clone(current())
 	change(options)
 	local clean = DangerRules.clean(options)
-	Net.fireServer("SetRunOptions", clean.danger, clean.endless, clean.enemyHp, clean.enemyDamage, clean.enemySpeed)
+	Net.fireServer(
+		"SetRunOptions",
+		clean.danger,
+		clean.endless,
+		clean.enemyHp,
+		clean.enemyDamage,
+		clean.enemySpeed,
+		clean.enemyCount
+	)
 end
 
 function DangerChoice.render()

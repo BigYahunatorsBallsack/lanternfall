@@ -77,13 +77,18 @@ local Difficulty = {
 		orbShare = 0.65, -- Brotato: enemies drop 35 % fewer materials during a horde
 	}),
 
-	-- Brotato's accessibility sliders (percent): they multiply with the danger level
+	-- Our tuning on every level: enemy HP and the number of enemies the spawn groups bring, before the level and the
+	-- sliders (1 = as configured; the B11 owner test only asked for weaker Brutes, see Config.Enemies)
+	base = table.freeze({ enemyHp = 1, enemyCount = 1 }),
+
+	-- Brotato's accessibility sliders (percent): they multiply with the danger level; Enemy count is our own
 	sliders = table.freeze({
 		enemyHp = table.freeze({ min = 25, max = 200, step = 25, default = 100, label = "Enemy HP" }),
 		enemyDamage = table.freeze({ min = 25, max = 200, step = 25, default = 100, label = "Enemy damage" }),
 		enemySpeed = table.freeze({ min = 25, max = 150, step = 25, default = 100, label = "Enemy speed" }),
+		enemyCount = table.freeze({ min = 25, max = 200, step = 25, default = 100, label = "Enemy count" }),
 	}),
-	sliderOrder = table.freeze({ "enemyHp", "enemyDamage", "enemySpeed" }),
+	sliderOrder = table.freeze({ "enemyHp", "enemyDamage", "enemySpeed", "enemyCount" }),
 
 	-- Endless mode (Brotato): the run goes on after wave 20 until everyone is out; reaching it counts as a win.
 	-- endless wave = wave - 20; mult = 2 + max(0, (wave - 35) * 0.2); factor = w (w + 1) / 2 / 100 * mult.
