@@ -13,6 +13,17 @@ local function sum(list: { number }): number
 	return total
 end
 
+-- One spawn group of a wave (B9, Brotato): `size` enemies of `enemy` appear together at one spot every `every`
+-- seconds of the wave (DESIGN.md section 7).
+local function group(enemy: string, size: number, every: number)
+	return table.freeze({ enemy = enemy, size = size, every = every })
+end
+
+-- A wave's spawn groups; `announce` names what is new on the wave banner (HUD).
+local function wave(groups: { any }, announce: string?)
+	return table.freeze({ groups = table.freeze(groups), announce = announce })
+end
+
 local Run = {
 	durationSeconds = sum(WAVE_LENGTHS), -- fighting time of all waves; surviving the last one wins (boss in WP10)
 	maxPlayers = 4,
@@ -33,47 +44,6 @@ local Run = {
 	playerFactor = table.freeze({ perExtraPlayer = 0.6 }),
 
 	spawn = table.freeze({
-		-- Curves are keyframes { minute, value }, linear in between and flat after the last one (Util/RunSchedule).
-		-- A "minute" here is one wave of the schedule: wave n runs from minute n - 1 to minute n, whatever its length
-		-- in seconds, so minute 2 = the start of wave 3.
-		-- enemies/s = rate curve * wave intensity * fPlayers (* Swarm Rush)
-		rateCurve = table.freeze({
-			table.freeze({ 0, 1 }), -- calm start: a few Shadelings for the first level-ups
-			table.freeze({ 1, 2.2 }),
-			table.freeze({ 3, 3.6 }),
-			table.freeze({ 6, 5 }),
-			table.freeze({ 10, 6.8 }),
-			table.freeze({ 15, 8.6 }),
-			table.freeze({ 20, 10 }),
-		}),
-		-- multiplier on enemy HP at spawn time (times difficulty); grows faster and faster. Since B2 steeper, because
-		-- player stats grow without limit (Brotato's enemies gain HP and damage every wave too). Since B3 up to wave 20
-		-- (14 at the end; with the B2 curve simply continued good bots won 17 of 18 runs).
-		hpCurve = table.freeze({
-			table.freeze({ 0, 1 }),
-			table.freeze({ 2, 1.15 }),
-			table.freeze({ 4, 1.5 }),
-			table.freeze({ 6, 2 }),
-			table.freeze({ 8, 2.7 }),
-			table.freeze({ 10, 3.6 }),
-			table.freeze({ 12, 4.6 }),
-			table.freeze({ 14, 6.2 }),
-			table.freeze({ 16, 8.4 }),
-			table.freeze({ 18, 11 }),
-			table.freeze({ 20, 14 }),
-		}),
-		-- multiplier on contact and projectile damage at spawn time (times difficulty); since B2 up to 3.4 instead of
-		-- 1.25 at the end, against stacked Max HP, Armor and Regeneration
-		damageCurve = table.freeze({
-			table.freeze({ 0, 1 }),
-			table.freeze({ 3, 1.1 }),
-			table.freeze({ 6, 1.6 }),
-			table.freeze({ 9, 2.3 }),
-			table.freeze({ 12, 3.1 }),
-			table.freeze({ 15, 4.5 }),
-			table.freeze({ 18, 6.2 }),
-			table.freeze({ 20, 7.5 }),
-		}),
 		-- Waves (Brotato direction since B1): wave n lasts lengthsSeconds[n], then the shop opens (Config.Shop) and the
 		-- clock stops until the next wave. The rate ramps from rampFrom to rampTo through each wave; the final wave runs
 		-- at finalRate times that. Wave 1 = 20 s, +5 s per wave, at most 60 s, the final one 90 s, like Brotato.
@@ -85,8 +55,10 @@ local Run = {
 		}),
 		-- alive cap = base + perExtraPlayer * (n - 1), at most max
 		cap = table.freeze({ base = 80, perExtraPlayer = 20, max = 140 }),
-		ringMin = 45, -- studs around a random player
-		ringMax = 60,
+		-- studs around a random player; since B9 closer (before 45-60, just out of sight), so the spawn markers are
+		-- seen (assumption)
+		ringMin = 32,
+		ringMax = 52,
 		-- against running away (WP9): this share of spawns lands in a cone in front of a walking player (assumption)
 		ahead = table.freeze({ share = 0.35, halfAngleDegrees = 60, minSpeed = 4 }),
 		-- enemies farther than `distance` from every living player move to a new spawn point (like a fresh spawn),
@@ -94,80 +66,154 @@ local Run = {
 		-- farthest ones beyond `atCapDistance`, so running in circles with a full trailing crowd does not stop new
 		-- enemies from coming (assumption)
 		recycle = table.freeze({ distance = 80, intervalSeconds = 1, atCapDistance = 40, atCapCount = 5 }),
-		-- enemy mix by minute; the last entry with fromMinute <= t applies. `announce` shows on the wave banner of the
-		-- wave that starts at fromMinute (HUD).
-		mix = table.freeze({
-			table.freeze({ fromMinute = 0, weights = table.freeze({ Shadeling = 1 }) }),
-			table.freeze({
-				fromMinute = 2,
-				announce = "Brutes",
-				weights = table.freeze({ Shadeling = 0.8, Brute = 0.2 }),
-			}),
-			table.freeze({
-				fromMinute = 4,
-				announce = "Chargers",
-				weights = table.freeze({ Shadeling = 0.7, Brute = 0.18, Charger = 0.12 }),
-			}),
-			table.freeze({
-				fromMinute = 5,
-				announce = "Spitters",
-				weights = table.freeze({ Shadeling = 0.62, Brute = 0.16, Charger = 0.12, Spitter = 0.1 }),
-			}),
-			table.freeze({
-				fromMinute = 8,
-				announce = "Abyss Shadelings",
-				weights = table.freeze({
-					Shadeling = 0.45,
-					AbyssShadeling = 0.2,
-					Brute = 0.13,
-					Charger = 0.12,
-					Spitter = 0.1,
-				}),
-			}),
-			table.freeze({
-				fromMinute = 10,
-				announce = "Splitters",
-				weights = table.freeze({
-					Shadeling = 0.25,
-					AbyssShadeling = 0.3,
-					Brute = 0.1,
-					Charger = 0.12,
-					Spitter = 0.1,
-					Splitter = 0.13,
-				}),
-			}),
-			table.freeze({
-				fromMinute = 12,
-				announce = "Abyss Brutes",
-				weights = table.freeze({
-					Shadeling = 0.1,
-					AbyssShadeling = 0.42,
-					Brute = 0.05,
-					AbyssBrute = 0.1,
-					Charger = 0.12,
-					Spitter = 0.1,
-					Splitter = 0.11,
-				}),
-			}),
-			table.freeze({
-				fromMinute = 15,
-				weights = table.freeze({
-					AbyssShadeling = 0.5,
-					AbyssBrute = 0.14,
-					Charger = 0.14,
-					Spitter = 0.1,
-					Splitter = 0.12,
-				}),
-			}),
+		-- Spawn groups of every wave (B9, Brotato's waves; before: a rate curve and a mix by minute). Each group
+		-- fires every `every` seconds from the wave start (the first time after firstShare of that) and brings
+		-- size * wave intensity * fPlayers * the team's Enemies stat enemies of one kind, spread around one spot on
+		-- the spawn ring (groupSpread * sqrt(count) studs). The numbers keep the enemies per second and the mix of
+		-- the old rate curve and mix (before the wave intensity, which averages 0.95).
+		groups = table.freeze({
+			wave({ group("Shadeling", 4, 2.5) }), -- wave 1: 1.60 enemies/s
+			wave({ group("Shadeling", 6, 2.4) }), -- wave 2: 2.50 enemies/s
+			wave({ group("Shadeling", 6, 2.3), group("Brute", 3, 4.6) }, "Brutes"), -- wave 3: 3.26 enemies/s
+			wave({ group("Shadeling", 8, 2.6), group("Brute", 4, 5.2) }), -- wave 4: 3.85 enemies/s
+			wave({ group("Shadeling", 8, 2.7), group("Brute", 4, 5.2), group("Charger", 3, 5.8) }, "Chargers"), -- wave 5: 4.25 enemies/s
+			wave(
+				{
+					group("Shadeling", 7, 2.4),
+					group("Brute", 4, 5.2),
+					group("Charger", 3, 5.2),
+					group("Spitter", 3, 6.3),
+				},
+				"Spitters"
+			), -- wave 6: 4.74 enemies/s
+			wave({
+				group("Shadeling", 8, 2.5),
+				group("Brute", 4, 4.8),
+				group("Charger", 4, 6.4),
+				group("Spitter", 4, 7.7),
+			}), -- wave 7: 5.18 enemies/s
+			wave({
+				group("Shadeling", 9, 2.6),
+				group("Brute", 5, 5.5),
+				group("Charger", 4, 5.9),
+				group("Spitter", 4, 7.0),
+			}), -- wave 8: 5.62 enemies/s
+			wave(
+				{
+					group("Shadeling", 7, 2.5),
+					group("AbyssShadeling", 4, 3.3),
+					group("Brute", 4, 5.0),
+					group("Charger", 4, 5.4),
+					group("Spitter", 4, 6.5),
+				},
+				"Abyss Shadelings"
+			), -- wave 9: 6.17 enemies/s
+			wave({
+				group("Shadeling", 7, 2.4),
+				group("AbyssShadeling", 4, 3.0),
+				group("Brute", 4, 4.7),
+				group("Charger", 5, 6.3),
+				group("Spitter", 5, 7.6),
+			}), -- wave 10: 6.55 enemies/s
+			wave(
+				{
+					group("Shadeling", 4, 2.3),
+					group("AbyssShadeling", 6, 2.9),
+					group("Brute", 3, 4.3),
+					group("Charger", 5, 6.0),
+					group("Spitter", 5, 7.2),
+					group("Splitter", 5, 5.5),
+				},
+				"Splitters"
+			), -- wave 11: 6.94 enemies/s
+			wave({
+				group("Shadeling", 5, 2.7),
+				group("AbyssShadeling", 7, 3.2),
+				group("Brute", 4, 5.4),
+				group("Charger", 5, 5.7),
+				group("Spitter", 5, 6.8),
+				group("Splitter", 6, 6.3),
+			}), -- wave 12: 7.34 enemies/s
+			wave(
+				{
+					group("Shadeling", 2, 2.6),
+					group("AbyssShadeling", 10, 3.1),
+					group("Brute", 2, 5.2),
+					group("AbyssBrute", 5, 6.5),
+					group("Charger", 6, 6.5),
+					group("Spitter", 5, 6.5),
+					group("Splitter", 5, 5.9),
+				},
+				"Abyss Brutes"
+			), -- wave 13: 7.69 enemies/s
+			wave({
+				group("Shadeling", 2, 2.5),
+				group("AbyssShadeling", 10, 3.0),
+				group("Brute", 2, 5.0),
+				group("AbyssBrute", 6, 7.4),
+				group("Charger", 6, 6.2),
+				group("Spitter", 6, 7.4),
+				group("Splitter", 5, 5.6),
+			}), -- wave 14: 8.02 enemies/s
+			wave({
+				group("Shadeling", 2, 2.4),
+				group("AbyssShadeling", 11, 3.1),
+				group("Brute", 2, 4.8),
+				group("AbyssBrute", 6, 7.1),
+				group("Charger", 6, 5.9),
+				group("Spitter", 6, 7.1),
+				group("Splitter", 6, 6.5),
+			}), -- wave 15: 8.43 enemies/s
+			wave({
+				group("AbyssShadeling", 13, 3.0),
+				group("AbyssBrute", 9, 7.4),
+				group("Charger", 7, 5.7),
+				group("Spitter", 6, 6.9),
+				group("Splitter", 6, 5.7),
+			}), -- wave 16: 8.70 enemies/s
+			wave({
+				group("AbyssShadeling", 14, 3.1),
+				group("AbyssBrute", 9, 7.1),
+				group("Charger", 8, 6.3),
+				group("Spitter", 6, 6.7),
+				group("Splitter", 6, 5.5),
+			}), -- wave 17: 9.04 enemies/s
+			wave({
+				group("AbyssShadeling", 14, 3.0),
+				group("AbyssBrute", 9, 6.9),
+				group("Charger", 8, 6.1),
+				group("Spitter", 7, 7.5),
+				group("Splitter", 7, 6.3),
+			}), -- wave 18: 9.33 enemies/s
+			wave({
+				group("AbyssShadeling", 14, 2.9),
+				group("AbyssBrute", 9, 6.7),
+				group("Charger", 8, 6.0),
+				group("Spitter", 7, 7.3),
+				group("Splitter", 7, 6.1),
+			}), -- wave 19: 9.61 enemies/s
+			wave({
+				group("AbyssShadeling", 15, 3.0),
+				group("AbyssBrute", 10, 7.2),
+				group("Charger", 8, 5.8),
+				group("Spitter", 7, 7.1),
+				group("Splitter", 7, 5.9),
+			}), -- wave 20: 9.94 enemies/s
 		}),
+		firstShare = 0.3, -- a group fires the first time after this share of its interval (assumption)
+		groupSpread = 1.6, -- studs * sqrt(enemies in the group) (assumption)
+		-- red crosses on the floor show where enemies will appear, this long before they do (Brotato; assumption)
+		markerSeconds = 1,
 		swarmRush = table.freeze({
 			atMinutes = table.freeze({ 6, 11, 16 }),
 			durationShare = 0.6, -- of its wave
-			rateMultiplier = 2,
+			rateMultiplier = 2, -- of the wave's groups, which pause meanwhile
 			enemy = "Shadeling",
-			ringCount = 24, -- extra Shadelings in a closed ring at ringMin around every player when it starts (assumption)
+			every = 2, -- seconds between the Shadeling groups of a Swarm Rush (B9)
+			ringCount = 24, -- extra Shadelings in a closed ring around every player when it starts (assumption)
+			ringDistance = 45, -- studs; the old ringMin, so the ring did not come closer with B9
 		}),
-		-- Gloom Elites of the current mix (Config.Enemies.elite) at these minutes, also above the alive cap; from
+		-- Gloom Elites of the wave's groups (weighted by enemies per second) (Config.Enemies.elite) at these minutes, also above the alive cap; from
 		-- affixFromMinute each gets a random affix (Swift, Armored, Summoning)
 		elites = table.freeze({
 			waves = table.freeze({

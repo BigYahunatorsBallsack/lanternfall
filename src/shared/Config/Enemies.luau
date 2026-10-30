@@ -9,6 +9,10 @@ export type Enemy = {
 	hp: number,
 	speed: number, -- studs/s
 	contactDamage: number,
+	-- B9, Brotato: HP and damage grow by these every wave after the first (damage: contact damage, or the shot
+	-- damage of an enemy without contact damage); wave w: hp + hpPerWave * (w - 1)
+	hpPerWave: number,
+	damagePerWave: number,
 	xp: number,
 	radius: number, -- collision circle, studs (assumption)
 	mass: number, -- crowd weight: heavier enemies push lighter ones aside (assumption)
@@ -100,6 +104,8 @@ local Enemies: { [string]: Enemy } = {
 		hp = 10,
 		speed = 14,
 		contactDamage = 5,
+		hpPerWave = 6.8,
+		damagePerWave = 1.7,
 		xp = 1,
 		radius = 1.5,
 		mass = 1,
@@ -112,6 +118,8 @@ local Enemies: { [string]: Enemy } = {
 		hp = 60,
 		speed = 8,
 		contactDamage = 12,
+		hpPerWave = 41,
+		damagePerWave = 4.1,
 		xp = 4,
 		radius = 2.5,
 		mass = 6,
@@ -125,6 +133,8 @@ local Enemies: { [string]: Enemy } = {
 		hp = 20,
 		speed = 10,
 		contactDamage = 0,
+		hpPerWave = 13.6,
+		damagePerWave = 2.7,
 		xp = 2,
 		radius = 1.5,
 		mass = 1,
@@ -148,6 +158,8 @@ local Enemies: { [string]: Enemy } = {
 		hp = 40,
 		speed = 9,
 		contactDamage = 8,
+		hpPerWave = 27,
+		damagePerWave = 2.7,
 		xp = 4,
 		radius = 1.8,
 		mass = 3,
@@ -169,6 +181,8 @@ local Enemies: { [string]: Enemy } = {
 		hp = 32,
 		speed = 11,
 		contactDamage = 7,
+		hpPerWave = 22,
+		damagePerWave = 2.4,
 		xp = 2,
 		radius = 1.9,
 		mass = 2,
@@ -183,6 +197,8 @@ local Enemies: { [string]: Enemy } = {
 		hp = 6,
 		speed = 15,
 		contactDamage = 3,
+		hpPerWave = 4.1,
+		damagePerWave = 1,
 		xp = 1,
 		radius = 1,
 		mass = 0.6,
@@ -196,6 +212,8 @@ local Enemies: { [string]: Enemy } = {
 		hp = 18,
 		speed = 15,
 		contactDamage = 8,
+		hpPerWave = 12.2,
+		damagePerWave = 2.7,
 		xp = 2,
 		radius = 1.6,
 		mass = 1.2,
@@ -209,6 +227,8 @@ local Enemies: { [string]: Enemy } = {
 		hp = 140,
 		speed = 8.5,
 		contactDamage = 18,
+		hpPerWave = 95,
+		damagePerWave = 6.1,
 		xp = 8,
 		radius = 2.8,
 		mass = 8,
@@ -225,6 +245,8 @@ local Enemies: { [string]: Enemy } = {
 		hp = 120, -- assumption, see above
 		speed = 17,
 		contactDamage = 0,
+		hpPerWave = 82,
+		damagePerWave = 0,
 		xp = 8, -- Brotato: 8 materials
 		radius = 1.4,
 		mass = 1,
@@ -241,6 +263,8 @@ local Enemies: { [string]: Enemy } = {
 		hp = 30, -- assumption; grows with the HP curve like every enemy
 		speed = 0,
 		contactDamage = 0,
+		hpPerWave = 20.4,
+		damagePerWave = 0,
 		xp = 3, -- Brotato: 3 materials
 		radius = 2.2,
 		mass = 1000,

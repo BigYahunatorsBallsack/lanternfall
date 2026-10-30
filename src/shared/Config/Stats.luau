@@ -46,6 +46,7 @@ export type StatId =
 	| "burnSpread"
 	| "fruitHeal"
 	| "trees"
+	| "enemySpeed"
 
 export type Stat = {
 	id: string,
@@ -124,6 +125,8 @@ local ORDER: { Stat } = {
 	-- loot (since B6, Config.Loot)
 	extra("fruitHeal", "Fruit Healing", false), -- HP every fruit and crate heals on top
 	extra("trees", "Trees", false), -- more trees every wave; the whole team's values add up
+	-- enemies (since B9)
+	extra("enemySpeed", "Enemy Speed", true, true), -- speed of enemies that spawn; team total
 }
 
 local byId: { [string]: Stat } = {}

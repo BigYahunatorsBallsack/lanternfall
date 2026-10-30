@@ -84,6 +84,7 @@ export type World = typeof(setmetatable(
 		rushLeft: { number }, -- studs the rush may still go
 		summonTimers: { number }, -- seconds until a summoner calls again
 		slowFactors: { number }, -- share of its speed a slowed enemy keeps, 1 when not slowed (B5)
+		speedFactors: { number }, -- multiplier on its kind's speed from spawning (the team's Enemy Speed stat, B9)
 		slowLeft: { number }, -- seconds the slow lasts
 		burning: { boolean }, -- shown in snapshots; the weapons (WeaponService/Afflictions) run the burn itself
 		columns: { { any } }, -- every per-enemy array above, for compacting and clearing
@@ -128,6 +129,7 @@ function World.new(params: Params): World
 		rushLeft = {},
 		summonTimers = {},
 		slowFactors = {},
+		speedFactors = {},
 		slowLeft = {},
 		burning = {},
 		columns = {},
@@ -162,6 +164,7 @@ function World.new(params: Params): World
 		self.rushLeft,
 		self.summonTimers,
 		self.slowFactors,
+		self.speedFactors,
 		self.slowLeft,
 		self.burning,
 	} :: { { any } }
@@ -178,7 +181,7 @@ local function allocateId(self: World): number
 end
 
 -- Adds an enemy and returns its id, or nil when maxEnemies are alive. `shotDamage` is the damage of each projectile
--- of a ranged kind (default: its config value).
+-- of a ranged kind (default: its config value), `speedFactor` a multiplier on its kind's speed (default 1).
 function World.spawn(
 	self: World,
 	kind: Kind,
@@ -186,7 +189,8 @@ function World.spawn(
 	z: number,
 	hp: number,
 	contactDamage: number,
-	shotDamage: number?
+	shotDamage: number?,
+	speedFactor: number?
 ): number?
 	if self.alive >= self.params.maxEnemies then
 		return nil
@@ -212,9 +216,11 @@ function World.spawn(
 	self.rushXs[i], self.rushZs[i], self.rushLeft[i] = 0, 0, 0
 	self.summonTimers[i] = if kind.summon then kind.summon.intervalSeconds * (0.5 + 0.5 * spread) else 0
 	self.slowFactors[i], self.slowLeft[i], self.burning[i] = 1, 0, false
+	local speed = math.max(0, speedFactor or 1)
+	self.speedFactors[i] = speed
 	self.indexOf[id] = i
 	self.maxRadius = math.max(self.maxRadius, kind.radius)
-	self.maxSpeed = math.max(self.maxSpeed, kind.speed)
+	self.maxSpeed = math.max(self.maxSpeed, kind.speed * speed)
 	self.hash:insert(i, x, z) -- visible to queries right away
 	return id
 end
@@ -327,12 +333,12 @@ function World.getHealth(self: World, id: number): (number, number)
 	return self.hp[i], self.maxHp[i]
 end
 
--- The HP and damage multipliers the enemy was spawned with (minute and difficulty, on top of its kind's values),
--- so enemies it splits into or calls can get the same. 1, 1 for unknown ids.
-function World.getMultipliers(self: World, id: number): (number, number)
+-- The HP, damage and speed multipliers the enemy was spawned with (wave and difficulty, on top of its kind's values),
+-- so enemies it splits into or calls can get the same. 1, 1, 1 for unknown ids.
+function World.getMultipliers(self: World, id: number): (number, number, number)
 	local i = self.indexOf[id]
 	if not i then
-		return 1, 1
+		return 1, 1, 1
 	end
 	local kind = self.kinds[i]
 	local hpMultiplier = self.maxHp[i] / kind.hp
@@ -342,7 +348,7 @@ function World.getMultipliers(self: World, id: number): (number, number)
 	elseif kind.ranged and kind.ranged.projectileDamage > 0 then
 		damageMultiplier = self.shotDamage[i] / kind.ranged.projectileDamage
 	end
-	return hpMultiplier, damageMultiplier
+	return hpMultiplier, damageMultiplier, self.speedFactors[i]
 end
 
 -- The enemy's mode (World.MODE_*) and its rush direction (only meaningful from the wind-up on).
@@ -600,7 +606,7 @@ local function rushStep(
 )
 	local p = self.params
 	local radius = self.kinds[i].radius
-	local move = math.min(charge.speed * self.slowFactors[i] * dt, self.rushLeft[i])
+	local move = math.min(charge.speed * self.speedFactors[i] * self.slowFactors[i] * dt, self.rushLeft[i])
 	local x, z = self.xs[i] + self.rushXs[i] * move, self.zs[i] + self.rushZs[i] * move
 	local left = self.rushLeft[i] - move
 	local stop = left <= EPSILON
@@ -731,7 +737,7 @@ function World.step(
 				continue
 			end
 			local radius = kind.radius
-			local maxMove = kind.speed * self.slowFactors[i] * dt
+			local maxMove = kind.speed * self.speedFactors[i] * self.slowFactors[i] * dt
 			local dirX, dirZ = bestDx / distance, bestDz / distance
 			local advance
 			local ranged = kind.ranged

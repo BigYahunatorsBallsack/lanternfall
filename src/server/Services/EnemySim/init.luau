@@ -210,7 +210,8 @@ local function spawnAround(
 	count: number,
 	spread: number,
 	hpMultiplier: number,
-	damageMultiplier: number
+	damageMultiplier: number,
+	speedMultiplier: number
 )
 	local turn = RandomService.number("Spawns") * 2 * math.pi
 	for k = 1, count do
@@ -220,7 +221,10 @@ local function spawnAround(
 			x + math.cos(angle) * spread,
 			z + math.sin(angle) * spread,
 			hpMultiplier,
-			damageMultiplier
+			damageMultiplier,
+			nil,
+			nil,
+			speedMultiplier
 		)
 	end
 end
@@ -234,8 +238,17 @@ local function callSummons()
 		local summon = kind and kind.summon
 		local x, z = world:getPosition(id)
 		if kind and summon and x and z then
-			local hpMultiplier, damageMultiplier = world:getMultipliers(id)
-			spawnAround(summon.enemy, x, z, summon.count, kind.radius + 2, hpMultiplier, damageMultiplier)
+			local hpMultiplier, damageMultiplier, speedMultiplier = world:getMultipliers(id)
+			spawnAround(
+				summon.enemy,
+				x,
+				z,
+				summon.count,
+				kind.radius + 2,
+				hpMultiplier,
+				damageMultiplier,
+				speedMultiplier
+			)
 		end
 	end
 end
@@ -395,8 +408,9 @@ end
 
 -- Spawns an enemy of Config.Enemies.types[enemyId] (its Gloom Elite variant if `elite`, with `affix` an index into
 -- Config.Enemies.elite.affixes; Util/EnemyKinds) at world x/z. HP, contact and projectile damage are the kind's
--- values times the multipliers (minute and difficulty, see SpawnDirector). Returns the new id, or nil when the hard
--- cap (Config.Run.spawn.cap.max) is reached.
+-- values times the multipliers (wave and difficulty, see SpawnDirector), its speed times `speedMultiplier` (the
+-- team's Enemy Speed stat, B9; default 1). Returns the new id, or nil when the hard cap (Config.Run.spawn.cap.max)
+-- is reached.
 function EnemySim.spawn(
 	enemyId: string,
 	x: number,
@@ -404,12 +418,21 @@ function EnemySim.spawn(
 	hpMultiplier: number,
 	damageMultiplier: number,
 	elite: boolean?,
-	affix: number?
+	affix: number?,
+	speedMultiplier: number?
 ): number?
 	local kind = EnemyKinds.get(enemyId, elite, affix)
 	assert(kind, `Unknown enemy {enemyId}`)
 	local shotDamage = if kind.ranged then kind.ranged.projectileDamage * damageMultiplier else nil
-	return world:spawn(kind, x, z, kind.hp * hpMultiplier, kind.contactDamage * damageMultiplier, shotDamage)
+	return world:spawn(
+		kind,
+		x,
+		z,
+		kind.hp * hpMultiplier,
+		kind.contactDamage * damageMultiplier,
+		shotDamage,
+		speedMultiplier
+	)
 end
 
 -- Deals damage to one enemy. Returns true if this hit killed it (and fires EnemyKilled), the HP it took and the
@@ -424,8 +447,8 @@ function EnemySim.damage(id: number, amount: number, source: Player?): (boolean,
 	if kind and x and z then
 		local split = kind.split
 		if split then
-			local hpMultiplier, damageMultiplier = world:getMultipliers(id)
-			spawnAround(split.enemy, x, z, split.count, split.spread, hpMultiplier, damageMultiplier)
+			local hpMultiplier, damageMultiplier, speedMultiplier = world:getMultipliers(id)
+			spawnAround(split.enemy, x, z, split.count, split.spread, hpMultiplier, damageMultiplier, speedMultiplier)
 		end
 		EnemySim.EnemyKilled:Fire({
 			id = id,

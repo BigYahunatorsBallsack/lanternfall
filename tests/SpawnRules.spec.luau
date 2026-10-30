@@ -8,16 +8,44 @@ local SpawnRules = require(game:GetService("ServerScriptService").Server.Service
 local bounds = { minX = -150, maxX = 150, minZ = -150, maxZ = 150 }
 
 describe("SpawnRules", function()
-	it("matches the design's player factors and rates", function()
+	it("matches the design's player factors and spawns more enemies wave by wave", function()
 		expect(SpawnRules.playerFactor(1)).toBeNear(1)
 		expect(SpawnRules.playerFactor(2)).toBeNear(1.6)
 		expect(SpawnRules.playerFactor(4)).toBeNear(2.8)
-		expect(SpawnRules.rate(0, 1)).toBeNear(1) -- calm start
-		expect(SpawnRules.rate(0.5, 1)).toBeNear(1.6) -- halfway between the keyframes at 0 and 1
-		expect(SpawnRules.rate(15, 1)).toBeNear(8.6)
-		expect(SpawnRules.rate(15, 4)).toBeNear(8.6 * 2.8)
-		expect(SpawnRules.rate(20, 1)).toBeNear(10)
-		expect(SpawnRules.rate(25, 1)).toBeNear(10) -- flat after the last keyframe
+		local function base(minutes)
+			return SpawnRules.currentRate(minutes, 1) / RunSchedule.intensity(minutes)
+		end
+		expect(base(0.5)).toBeNear(1.6) -- wave 1: a group of 4 Shadelings every 2.5 s
+		expect(base(14.5)).toBeNear(8.43, 0.01)
+		expect(SpawnRules.currentRate(14.5, 4)).toBeNear(SpawnRules.currentRate(14.5, 1) * 2.8)
+		local previous = 0
+		for wave = 1, 20 do
+			local minutes = wave - 0.5
+			if not SpawnRules.isSwarmRush(wave - 1) then
+				expect(base(minutes) > previous).toBe(true)
+				previous = base(minutes)
+			end
+		end
+		expect(SpawnRules.waveAt(0)).toBe(1)
+		expect(SpawnRules.waveAt(19.9)).toBe(20)
+		expect(SpawnRules.waveAt(25)).toBe(20)
+	end)
+
+	it("fires each group after a share of its interval and spreads it around one spot", function()
+		local group = Config.Run.spawn.groups[1].groups[1]
+		expect(SpawnRules.firstFiring(group)).toBeNear(group.every * Config.Run.spawn.firstShare)
+		expect(SpawnRules.groupSize(group, 0, 1)).toBeNear(group.size * Config.Run.spawn.waves.rampFrom)
+		expect(SpawnRules.groupSize(group, 0, 2)).toBeNear(group.size * Config.Run.spawn.waves.rampFrom * 1.6)
+		local state = 5
+		local function random()
+			state = (state * 1103515245 + 12345) % 2147483648
+			return state / 2147483648
+		end
+		local reach = Config.Run.spawn.groupSpread * math.sqrt(9)
+		for _ = 1, 100 do
+			local dx, dz = SpawnRules.groupOffset(random, 9)
+			expect(math.sqrt(dx * dx + dz * dz) <= reach + 1e-6).toBe(true)
+		end
 	end)
 
 	it("reads keyframe curves linearly between points", function()
@@ -80,42 +108,48 @@ describe("SpawnRules", function()
 		expect(SpawnRules.cap(0)).toBe(80)
 	end)
 
-	it("grows HP and damage faster and faster", function()
-		expect(SpawnRules.hpFactor(0)).toBeNear(1)
-		expect(SpawnRules.hpFactor(4)).toBeNear(1.5)
-		expect(SpawnRules.hpFactor(20)).toBeNear(Config.Run.spawn.hpCurve[#Config.Run.spawn.hpCurve][2])
-		local early = SpawnRules.hpFactor(2) - SpawnRules.hpFactor(0)
-		local late = SpawnRules.hpFactor(20) - SpawnRules.hpFactor(18)
-		expect(late > early * 3).toBe(true) -- steeper since B2 (unlimited player stats)
-		expect(SpawnRules.damageFactor(0)).toBeNear(1)
-		expect(SpawnRules.damageFactor(6)).toBeNear(1.6)
-		expect(SpawnRules.damageFactor(20) > SpawnRules.damageFactor(12)).toBe(true)
+	it("grows HP and damage of every kind by its own amount per wave, like Brotato", function()
+		local shadeling = Config.Enemies.types.Shadeling
+		local hp, damage = SpawnRules.growth("Shadeling", 1)
+		expect(hp).toBeNear(1)
+		expect(damage).toBeNear(1)
+		hp, damage = SpawnRules.growth("Shadeling", 20)
+		expect(hp * shadeling.hp).toBeNear(shadeling.hp + 19 * shadeling.hpPerWave)
+		expect(damage * shadeling.contactDamage).toBeNear(shadeling.contactDamage + 19 * shadeling.damagePerWave)
+		-- a Spitter's growth counts on its shots
+		local spitter = Config.Enemies.types.Spitter
+		local _, shots = SpawnRules.growth("Spitter", 11)
+		expect(shots * spitter.ranged.projectileDamage).toBeNear(
+			spitter.ranged.projectileDamage + 10 * spitter.damagePerWave
+		)
+		local _, tree = SpawnRules.growth("Tree", 20)
+		expect(tree).toBe(1) -- no damage to grow
+		expect(SpawnRules.growth("Nobody", 5)).toBe(1)
 	end)
 
-	it("brings something new into the mix every few waves", function()
+	it("brings something new every few waves", function()
 		expect(SpawnRules.mixAt(1.9).Brute).toBe(nil)
-		expect(SpawnRules.mixAt(2).Brute).toBeNear(0.2)
+		expect(SpawnRules.mixAt(2).Brute ~= nil).toBe(true)
 		expect(SpawnRules.mixAt(3.99).Charger).toBe(nil)
-		expect(SpawnRules.mixAt(4).Charger).toBeNear(0.12)
+		expect(SpawnRules.mixAt(4).Charger ~= nil).toBe(true)
 		expect(SpawnRules.mixAt(4.99).Spitter).toBe(nil)
-		expect(SpawnRules.mixAt(5).Spitter).toBeNear(0.1) -- 0.2 in the original design, halved in WP9
-		expect(SpawnRules.mixAt(8).AbyssShadeling).toBeNear(0.2)
-		expect(SpawnRules.mixAt(10).Splitter).toBeNear(0.13)
-		expect(SpawnRules.mixAt(12).AbyssBrute).toBeNear(0.1)
+		expect(SpawnRules.mixAt(5).Spitter ~= nil).toBe(true)
+		expect(SpawnRules.mixAt(8).AbyssShadeling ~= nil).toBe(true)
+		expect(SpawnRules.mixAt(10).Splitter ~= nil).toBe(true)
+		expect(SpawnRules.mixAt(12).AbyssBrute ~= nil).toBe(true)
 		expect(SpawnRules.mixAt(15).Shadeling).toBe(nil) -- only the stronger kinds late in the run
 		expect(SpawnRules.mixAt(15).Splitling).toBe(nil) -- Splitlings come only from Splitters
 	end)
 
 	it("picks enemies by weight", function()
-		local weights = SpawnRules.mixAt(5.5)
-		local counts = { Shadeling = 0, Brute = 0, Charger = 0, Spitter = 0 }
+		local weights = { Shadeling = 0.6, Brute = 0.3, Spitter = 0.1 }
+		local counts = { Shadeling = 0, Brute = 0, Spitter = 0 }
 		for i = 0, 999 do
 			local id = SpawnRules.pickEnemy(weights, i / 1000)
 			counts[id] += 1
 		end
-		expect(counts.Shadeling).toBeNear(620, 1)
-		expect(counts.Brute).toBeNear(160, 1)
-		expect(counts.Charger).toBeNear(120, 1)
+		expect(counts.Shadeling).toBeNear(600, 1)
+		expect(counts.Brute).toBeNear(300, 1)
 		expect(counts.Spitter).toBeNear(100, 1)
 		expect(SpawnRules.pickEnemy(weights, 0.999999)).toBe("Spitter")
 	end)
@@ -162,11 +196,17 @@ describe("SpawnRules", function()
 		expect(SpawnRules.isSwarmRush(11.2)).toBe(true)
 		expect(SpawnRules.isSwarmRush(16.2)).toBe(true)
 		local intensity = RunSchedule.intensity(6.2)
-		expect(SpawnRules.currentRate(6.2, 1)).toBeNear(SpawnRules.rate(6.2, 1) * intensity * 2)
-		expect(SpawnRules.currentRate(7, 1)).toBeNear(SpawnRules.rate(7, 1) * RunSchedule.intensity(7))
-		expect(SpawnRules.currentMix(6.2).Shadeling).toBe(1)
-		expect(SpawnRules.currentMix(6.2).Brute).toBe(nil)
-		expect(SpawnRules.currentMix(7).Spitter).toBeNear(0.1)
+		local ownRate = 0
+		for _, group in Config.Run.spawn.groups[7].groups do
+			ownRate += group.size / group.every
+		end
+		expect(SpawnRules.currentRate(6.2, 1)).toBeNear(ownRate * intensity * 2)
+		expect(#SpawnRules.groupsAt(6.2)).toBe(1)
+		expect(SpawnRules.groupsAt(6.2)[1].enemy).toBe("Shadeling")
+		expect(SpawnRules.groupsAt(6.2)).toBe(SpawnRules.groupsAt(6.3)) -- the same groups all through the rush
+		expect(SpawnRules.groupsAt(6.7)).toBe(Config.Run.spawn.groups[7].groups)
+		expect(SpawnRules.mixAt(6.2).Brute).toBe(nil)
+		expect(SpawnRules.mixAt(7).Spitter ~= nil).toBe(true)
 		expect(SpawnRules.swarmRushStarted(5.9, 6)).toBe(true)
 		expect(SpawnRules.swarmRushStarted(6, 6.1)).toBe(false)
 		expect(SpawnRules.swarmRushStarted(0, 19.8)).toBe(true)
