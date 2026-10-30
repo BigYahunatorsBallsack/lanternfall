@@ -4,7 +4,7 @@
 -- mass, since B5 full knockback resistance), the elite XP and typeId + elite.typeIdOffset: one plain elite and one per affix (Swift, Armored, ...), all
 -- with the same typeId; the affix travels in the snapshot flags (Net/Snapshot). Minute and difficulty multipliers
 -- come on top at spawn time (EnemySim.spawn). Since WP10 also the bosses (Config.Enemies.bosses), without elite
--- variants. Used by EnemySim, SpawnDirector, BossService and EnemyRenderer/Models.
+-- variants, and since WP10 part 2 the champions of the elite waves (Config.Enemies.champions). Used by EnemySim, SpawnDirector, BossService and EnemyRenderer/Models.
 
 local Enemies = require(script.Parent.Parent.Config.Enemies)
 
@@ -66,14 +66,19 @@ for id, base in Enemies.types do
 	byTypeId[elite.typeId] = elite
 end
 
-local bosses: { [string]: Enemies.Enemy } = {}
+local bosses: { [string]: Enemies.Enemy } = {} -- bosses and champions: every kind with a boss plan
 for id, boss in Enemies.bosses do
 	bosses[id] = boss
 	byTypeId[boss.typeId] = boss
 end
+for id, champion in Enemies.champions do
+	bosses[id] = champion
+	byTypeId[champion.typeId] = champion
+end
 
 -- The kind for an enemy id from Config.Enemies.types; with `elite` its elite variant, with `affix` (index into
--- Config.Enemies.elite.affixes) the elite with that affix. A boss id gives the boss (bosses count as elites, WP10).
+-- Config.Enemies.elite.affixes) the elite with that affix. A boss or champion id gives that kind (they count as
+-- elites, WP10).
 -- nil for unknown ids and affixes.
 function EnemyKinds.get(enemyId: string, elite: boolean?, affix: number?): Enemies.Enemy?
 	local boss = bosses[enemyId]

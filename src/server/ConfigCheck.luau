@@ -6,6 +6,8 @@ local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
 local Config = require(Shared.Config)
 local EffectsConfig = require(Shared.Config.Effects)
 local Snapshot = require(Shared.Net.Snapshot)
+local Enemies = require(Shared.Config.Enemies) -- WP10 part 2
+local RunSchedule = require(Shared.Util.RunSchedule) -- WP10 part 2
 
 local ConfigCheck = {}
 
@@ -542,13 +544,35 @@ function ConfigCheck.run(): { string }
 		end
 	end
 
-	-- WP10: bosses and the boss wave
+	-- WP10: bosses and the boss wave; since part 2 also the champions and the elite waves
 	local bossTypeIds: { [number]: string } = {}
 	for id, enemy in Config.Enemies.types do
 		bossTypeIds[enemy.typeId] = id
 	end
-	local attackKinds = { Dash = true, Slam = true, Ring = true, Rain = true, Circle = true }
-	for id, boss in Config.Enemies.bosses do
+	local attackKinds = {
+		Dash = true,
+		Slam = true,
+		Ring = true,
+		Rain = true,
+		Circle = true,
+		Cleave = true,
+		Volley = true,
+		Scatter = true,
+		Summon = true,
+		Boomerang = true,
+		Pools = true,
+		March = true,
+		Cross = true,
+		Leap = true,
+	}
+	local withPlans: { [string]: Enemies.Enemy } = table.clone(Config.Enemies.bosses)
+	for id, champion in Config.Enemies.champions do
+		if withPlans[id] then
+			problem(`Champion {id} has the id of a boss`)
+		end
+		withPlans[id] = champion
+	end
+	for id, boss in withPlans do
 		if boss.id ~= id then
 			problem(`Boss key {id} does not match id {boss.id}`)
 		end
@@ -597,7 +621,28 @@ function ConfigCheck.run(): { string }
 				Ring = { attack.count, attack.projectileSpeed, attack.projectileRange, attack.projectileRadius },
 				Rain = { attack.count, attack.spread, attack.radius },
 				Circle = { attack.count, attack.spread, attack.projectileSpeed, attack.projectileRadius },
+				Cleave = { attack.count, attack.distance, attack.radius },
+				Volley = { attack.count, attack.projectileSpeed, attack.projectileRange, attack.projectileRadius },
+				Scatter = { attack.count, attack.projectileSpeed, attack.projectileRange, attack.projectileRadius },
+				Summon = { attack.count },
+				Boomerang = { attack.count, attack.projectileSpeed, attack.projectileRange, attack.projectileRadius },
+				Pools = { attack.count, attack.poolRadius, attack.poolSeconds },
+				March = { attack.count, attack.spacing, attack.radius },
+				Cross = { attack.count, attack.distance, attack.radius },
+				Leap = { attack.radius },
 			}
+			if attack.poolEvery and not (attack.poolRadius and attack.poolSeconds) then
+				problem(`Boss {id} attack {attackId} leaves pools without their radius and time`)
+			end
+			if attack.kind == "Leap" and (attack.count or 0) > 0 and not attack.projectileSpeed then
+				problem(`Boss {id} attack {attackId} fires a ring without projectile values`)
+			end
+			if (attack.trailEvery or attack.startShots) and not (attack.projectileSpeed and attack.projectileRange) then
+				problem(`Boss {id} attack {attackId} fires projectiles without their speed and range`)
+			end
+			if attack.kind == "Summon" and not (attack.enemy and Config.Enemies.types[attack.enemy]) then
+				problem(`Boss {id} attack {attackId} summons an unknown enemy`)
+			end
 			for _, value in needs[attack.kind] or {} do
 				if not (value and value > 0) then
 					problem(`Boss {id} attack {attackId} misses a value its kind {attack.kind} needs`)
@@ -614,6 +659,29 @@ function ConfigCheck.run(): { string }
 	end
 	if not (bossWave.count >= 1 and #bossWave.order >= 1 and bossWave.stateInterval > 0) then
 		problem("Enemies.bossWave needs count, order and stateInterval")
+	end
+	local eliteWaves = Config.Enemies.eliteWaves
+	for _, championId in eliteWaves.order do
+		if not Config.Enemies.champions[championId] then
+			problem(`Enemies.eliteWaves.order names unknown champion {championId}`)
+		end
+	end
+	for _, slot in eliteWaves.slots do
+		for _, wave in slot do
+			if wave < 1 or wave >= RunSchedule.waveCount() then
+				problem(`Enemies.eliteWaves slot wave {wave} must come before the boss wave`)
+			end
+		end
+	end
+	if
+		not (
+			eliteWaves.count >= 1
+			and eliteWaves.activeSlots <= #eliteWaves.slots
+			and eliteWaves.reducedHpShare > 0
+			and eliteWaves.reducedHpShare <= 1
+		)
+	then
+		problem("Enemies.eliteWaves needs count, activeSlots within its slots and a reducedHpShare of 0-1")
 	end
 	local lengths = Config.Run.spawn.waves.lengthsSeconds
 	if Config.Admin.skipToBossLeadSeconds ~= lengths[#lengths] then

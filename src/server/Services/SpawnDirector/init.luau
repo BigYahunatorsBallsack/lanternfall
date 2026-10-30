@@ -14,7 +14,8 @@
 -- of spawn groups like Brotato's (Config.Run.spawn.groups): each fires every few seconds and brings several enemies
 -- of one kind at one spot, which red crosses on the floor (remote SpawnMarkers) show markerSeconds before they come;
 -- HP and damage grow per wave and kind (SpawnRules.growth), and the team's Enemy Speed stat makes new enemies faster.
--- Uses EnemySim; AdminService pauses it and spawns test waves, elites, Looters and Trees.
+-- Uses EnemySim; BossService spawns what champions summon (spawnAt); AdminService pauses it and spawns test waves,
+-- elites, Looters and Trees.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
@@ -546,6 +547,12 @@ end
 -- B9). Returns true if it appeared.
 function SpawnDirector.spawnEnemy(enemyId: string, around: Vector3): boolean
 	return spawnOne({ position = around, velocity = Vector3.zero }, enemyId, minutes())
+end
+
+-- Spawns one `enemyId` at x/z with this wave's growth, the difficulty and the team's enemy stats (BossService: what
+-- champions summon, WP10 part 2). Returns its id, or nil at the hard cap.
+function SpawnDirector.spawnAt(enemyId: string, x: number, z: number): number?
+	return spawnAt(enemyId, x, z, minutes())
 end
 
 -- Spawns a Tree close to `around` (AdminService "SpawnTree", B6). Returns true if one appeared.

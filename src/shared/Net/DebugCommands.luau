@@ -31,6 +31,7 @@ return table.freeze({
 	"AddNewItem", -- the next item of the latest item package (since B8, Config.Admin.newItems), one after another
 	"SpawnNewEnemy", -- the next enemy of the latest enemy package near yourself (since B9, Config.Admin.newEnemies)
 	"SpawnBoss", -- the next boss near yourself, in any wave; killing it does not end the run (since WP10)
-	"HurtBoss", -- every boss loses Config.Admin.hurtBossShare of its max HP, to see the phases (since WP10)
+	"HurtBoss", -- every boss and champion loses Config.Admin.hurtBossShare of its max HP, to see the phases (WP10)
 	"DropLegendaryCrate", -- a legendary crate at your feet (since WP10; heals fully, Legendary item after the wave)
+	"SpawnChampion", -- the next champion of the elite waves near yourself, in any wave (since WP10 part 2)
 })

@@ -1,14 +1,16 @@
 --!strict
--- The boss on screen (DESIGN.md section 7, WP10): a big HP bar at the top with its name and phase (BossState from
--- BossService), the warnings of its attacks on the floor (BossTelegraphs: red circles that fill up and red lines that
--- show a dash, until they strike) and the embers circling it in a phase with an orbit (Config.Enemies.bosses). The
--- server decides every hit; this only shows it. Uses EnemyRenderer for where the boss stands.
+-- The boss on screen (DESIGN.md section 7, WP10; since part 2 also the champion of an elite wave): a big HP bar at
+-- the top with its name and phase (BossState from BossService), the warnings of its attacks on the floor
+-- (BossTelegraphs: red circles that fill up and red lines that show a dash or slash, until they strike) and the
+-- embers circling it in a phase with an orbit (Config.Enemies.bosses). The server decides every hit; this only shows
+-- it. Uses EnemyRenderer for where the boss stands.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared:WaitForChild("Config"))
+local Enemies = require(Shared:WaitForChild("Config"):WaitForChild("Enemies"))
 local Net = require(Shared:WaitForChild("Net"))
 local Types = require(Shared:WaitForChild("Net"):WaitForChild("Types"))
 
@@ -26,6 +28,8 @@ local DISC_HEIGHT = 0.1 -- studs
 local EDGE_TRANSPARENCY = 0.55 -- the outline of a warning
 local FILL_TRANSPARENCY = 0.35 -- the inner disc that grows until it strikes
 local FLASH_SECONDS = 0.18 -- a warning flashes this long when it strikes
+local POOL_COLOR = Color3.fromRGB(120, 200, 60) -- WP10 part 2: mud and acid pools that stay a while
+local POOL_TRANSPARENCY = 0.45
 local BAR_Y = 158 -- pixels from the top, under the loot chip
 local BAR_WIDTH = 420
 local BAR_HEIGHT = 16
@@ -45,6 +49,11 @@ local screen: ScreenGui? = nil
 local nameLabel: TextLabel? = nil
 local phaseLabel: TextLabel? = nil
 local barFill: Frame? = nil
+
+-- A boss or (since WP10 part 2) a champion of an elite wave.
+local function kindOf(bossId: string): Enemies.Enemy?
+	return Config.Enemies.bosses[bossId] or Config.Enemies.champions[bossId]
+end
 
 local function getFolder(): Folder
 	local current = folder
@@ -123,7 +132,7 @@ local function updateBar()
 	if not first then
 		return
 	end
-	local kind = Config.Enemies.bosses[first.bossId]
+	local kind = kindOf(first.bossId)
 	name.Text = if kind then kind.displayName else first.bossId
 	if #bosses > 1 then
 		name.Text ..= ` and {#bosses - 1} more`
@@ -168,8 +177,19 @@ end
 -- Places a warning: the outline shows the whole area, the inner part grows until it strikes, then both flash.
 local function placeTelegraph(entry: Telegraph, now: number): boolean
 	local info = entry.info
-	if now >= info.hitsAt + FLASH_SECONDS then
+	local endsAt = info.endsAt
+	if now >= (if endsAt then math.max(endsAt, info.hitsAt + FLASH_SECONDS) else info.hitsAt + FLASH_SECONDS) then
 		return false
+	end
+	if endsAt and now >= info.hitsAt + FLASH_SECONDS then
+		-- a pool: stays at full size in its own color until it dries up
+		local diameter = info.radius * 2
+		local upright = CFrame.new(info.x, floorY + DISC_HEIGHT, info.z) * CFrame.Angles(0, 0, math.pi / 2)
+		entry.edge.Color, entry.fill.Color = POOL_COLOR, POOL_COLOR
+		entry.edge.Transparency, entry.fill.Transparency = POOL_TRANSPARENCY, 1
+		entry.edge.Size = Vector3.new(DISC_HEIGHT, diameter, diameter)
+		entry.edge.CFrame = upright
+		return true
 	end
 	local span = math.max(info.hitsAt - info.startsAt, 1e-3)
 	local t = math.clamp((now - info.startsAt) / span, 0, 1)
@@ -206,7 +226,7 @@ end
 local function placeEmbers(now: number)
 	local used = 0
 	for _, info in bosses do
-		local kind = Config.Enemies.bosses[info.bossId]
+		local kind = kindOf(info.bossId)
 		local plan = kind and kind.boss
 		local phase = plan and plan.phases[info.phase]
 		local orbit = phase and phase.orbit
@@ -297,6 +317,18 @@ function BossController.getBarText(): string
 		return ""
 	end
 	return `{name.Text} | {phase.Text}`
+end
+
+-- Pools lying on the floor right now (WP10 part 2, tests).
+function BossController.getPoolCount(): number
+	local now = workspace:GetServerTimeNow()
+	local count = 0
+	for _, entry in telegraphs do
+		if entry.info.endsAt and now >= entry.info.hitsAt then
+			count += 1
+		end
+	end
+	return count
 end
 
 -- Warnings on the floor right now and embers circling a boss (tests).

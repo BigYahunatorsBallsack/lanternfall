@@ -323,6 +323,7 @@ export type BossTelegraph = {
 	length: number?,
 	startsAt: number,
 	hitsAt: number,
+	endsAt: number?, -- WP10 part 2: a pool stays on the floor (and hurts) until then
 }
 
 return {}
