@@ -17,6 +17,9 @@
 --   7. summoners count down while there is a target and report themselves in World.summons; EnemySim spawns the
 --      enemies they call
 --   8. slows run out (since B5: a slowed enemy walks and rushes at slowFactors of its speed, see World.slow)
+-- Since B6 fleeing enemies (Looters, kind.flee) run away from the nearest target instead, along the wall when it is
+-- close, and anchored ones (Trees, kind.anchored) never move: separation pushes only the other enemy and players
+-- walk through them.
 -- Enemies that die between steps stay in the arrays with hp 0 until the next step; every query skips them,
 -- so array indices (and the hash) stay valid until then.
 
@@ -244,6 +247,17 @@ local function compact(self: World): boolean
 	return true
 end
 
+-- Removes a living enemy without a kill (a Looter escaping, B6). Returns true if it was alive.
+function World.remove(self: World, id: number): boolean
+	local i = self.indexOf[id]
+	if not i or self.hp[i] <= 0 then
+		return false
+	end
+	self.hp[i] = 0
+	self.alive -= 1
+	return true
+end
+
 -- Removes every enemy without reporting kills (run start and end).
 function World.clear(self: World)
 	for _, column in self.columns do
@@ -412,6 +426,36 @@ function World.nearest(self: World, x: number, z: number, maxRange: number?): (n
 end
 
 -- Step ----------------------------------------------------------------------------------
+
+-- Unit direction away from the nearest target (dx, dz: from the enemy to it, `distance` long) for a fleeing enemy at
+-- (x, z): the part that runs into a wall closer than `margin` is dropped, and in a corner it slips out along the wall
+-- that leads away from the target, towards the middle of the arena.
+local function fleeDirection(
+	p: Params,
+	x: number,
+	z: number,
+	dx: number,
+	dz: number,
+	distance: number,
+	margin: number
+): (number, number)
+	local ax, az = -dx / distance, -dz / distance
+	if (x - p.minX < margin and ax < 0) or (p.maxX - x < margin and ax > 0) then
+		ax = 0
+	end
+	if (z - p.minZ < margin and az < 0) or (p.maxZ - z < margin and az > 0) then
+		az = 0
+	end
+	if math.abs(ax) <= EPSILON and math.abs(az) <= EPSILON then
+		if math.abs(dx) < math.abs(dz) then
+			ax = if (p.minX + p.maxX) / 2 >= x then 1 else -1
+		else
+			az = if (p.minZ + p.maxZ) / 2 >= z then 1 else -1
+		end
+	end
+	local length = math.sqrt(ax * ax + az * az)
+	return ax / length, az / length
+end
 
 -- Turns a velocity that runs into an obstacle into one that slides along its edge at the same speed.
 local function slideAroundObstacles(
@@ -683,14 +727,19 @@ function World.step(
 			then
 				continue
 			end
-			if distance <= EPSILON then
+			if distance <= EPSILON or kind.anchored then
 				continue
 			end
 			local radius = kind.radius
 			local maxMove = kind.speed * self.slowFactors[i] * dt
+			local dirX, dirZ = bestDx / distance, bestDz / distance
 			local advance
 			local ranged = kind.ranged
-			if ranged then
+			local flee = kind.flee
+			if flee then
+				dirX, dirZ = fleeDirection(p, x, z, bestDx, bestDz, distance, flee.edgeMargin)
+				advance = maxMove
+			elseif ranged then
 				local keep = ranged.keepDistance
 				if distance > keep + tolerance then
 					advance = math.min(maxMove, distance - keep)
@@ -705,7 +754,7 @@ function World.step(
 			if advance == 0 then
 				continue
 			end
-			local vx, vz = bestDx / distance * advance, bestDz / distance * advance
+			local vx, vz = dirX * advance, dirZ * advance
 			vx, vz = slideAroundObstacles(obstacles, x, z, vx, vz, radius + steerMargin, ids[i])
 
 			-- give way: move towards a neighbour at most until touching it
@@ -761,6 +810,11 @@ function World.step(
 						local massJ = kindJ.mass
 						local total = massI + massJ
 						local pushI, pushJ = push * massJ / total, push * massI / total
+						if kindI.anchored then
+							pushI, pushJ = 0, if kindJ.anchored then 0 else push
+						elseif kindJ.anchored then
+							pushI, pushJ = push, 0
+						end
 						xs[i] -= nx * pushI
 						zs[i] -= nz * pushI
 						xs[j] += nx * pushJ
@@ -774,7 +828,11 @@ function World.step(
 	-- 4. constraints
 	local minX, maxX, minZ, maxZ = p.minX, p.maxX, p.minZ, p.maxZ
 	for i = 1, count do
-		local radius = kinds[i].radius
+		local kind = kinds[i]
+		if kind.anchored then
+			continue
+		end
+		local radius = kind.radius
 		local x, z = xs[i], zs[i]
 		for _, obstacle in obstacles do
 			x, z = pushOut(x, z, obstacle.x, obstacle.z, obstacle.radius + radius, ids[i])

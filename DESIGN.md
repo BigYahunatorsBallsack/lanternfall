@@ -59,10 +59,11 @@ Zwei Schleifen tragen das Spiel: im Run wird man nach jeder Welle durch Level-up
 Welle (20–60 s kämpfen, XP-Orbs = Shards sammeln)
    │ Timer abgelaufen
    ▼
-Wellenende: Gegner verschwinden, liegende Orbs gehen ans Team, Truhen öffnen sich,
+Wellenende: Gegner verschwinden, liegende Orbs in den Beutel (seit B6), Truhen öffnen sich,
             Harvesting zahlt aus, alle voll geheilt, wer down ist, steht auf
    ▼
-Werte-Karten (eine Wahl pro Level dieser Welle) → Shop (max. 40 s, „Ready")
+Kisten (seit B6: Item nehmen oder verkaufen) → Werte-Karten (eine Wahl pro Level dieser Welle)
+   → Shop (max. 40 s, „Ready")
    │ alle bereit oder Zeit um                      │ nach Welle 20
    ▼                                               ▼
 nächste Welle                               Boss → Run-Ende (Embers, „Nochmal")
@@ -105,7 +106,7 @@ Wellenlängen wie in Brotato: Welle 1 dauert 20 s, jede weitere 5 s mehr, Wellen
 | Was | Umsetzung |
 | --- | --- |
 | Uhr | Die Kampfzeit stoppt genau am Wellenende und läuft erst mit der nächsten Welle weiter. Timer oben zeigt die Restzeit der Welle bzw. des Shops. |
-| Wellenende | Restliche Gegner und Geschosse verschwinden. Liegende XP-Orbs gehen ans Team, ihre Shards werden gleichmäßig auf alle verteilt, die nicht „Out" sind (Brotato legt sie in einen „Beutel" für später; das kann B3 nachholen). Liegende Elite-Truhen öffnen sich für alle. Alle werden voll geheilt, wer down ist, steht mit voller HP auf. Seit B4 laufen dann die Wellenende-Effekte der Items (Wachstum, Zufallswerte; Abschnitt 6), danach zahlt Harvesting aus (seit B2, Abschnitt 4). |
+| Wellenende | Restliche Gegner und Geschosse verschwinden. Liegende XP-Orbs kommen seit B6 in den Beutel des Teams (unten; bis B5 gingen sie sofort ans Team und ihre Shards an alle). Liegende Elite-Truhen öffnen sich für alle, liegende Kisten gehen an den nächsten Spieler, liegende Früchte verschwinden. Alle werden voll geheilt, wer down ist, steht mit voller HP auf. Seit B4 laufen dann die Wellenende-Effekte der Items (Wachstum, Zufallswerte; Abschnitt 6), danach zahlt Harvesting aus (seit B2, Abschnitt 4). |
 | Level-ups | XP sammelt sich in der Welle; die Kartenwahl (seit B2 1 aus 4 Werte-Karten, Abschnitt 9) kommt erst am Wellenende, eine pro gewonnenem Level. Im HUD steht so lange „LV 5 · +2 at wave end". Was beim Start der nächsten Welle noch offen ist, wird automatisch gewählt. |
 | Shards | Geld im Run (Brotatos „Materialien"): jeder XP-Punkt eines Orbs, den man selbst aufsammelt, gibt 1 Shard. Getrennt von den Embers (Meta-Währung). |
 | Angebote | Pro Spieler 4 eigene Angebote, nie zweimal dasselbe: eine Waffe einer Stufe I–IV oder ein Item (Abschnitt 6). Nach Welle 1–2 mindestens 2 Waffen, nach Welle 3–5 mindestens 1, sonst je Platz 35 % Waffe, 65 % Item. Items kann man unbegrenzt oft kaufen und stapeln (einzelne mit Obergrenze, z. B. Iron Shackle 1×); die Karte zeigt „x3" = so viele hat man nach dem Kauf. Nach einem Neuwurf kommt nichts aus dem vorigen Wurf wieder, solange es anderes gibt (seit B3). |
@@ -121,7 +122,21 @@ Wellenlängen wie in Brotato: Welle 1 dauert 20 s, jede weitere 5 s mehr, Wellen
 | Ready | Der Shop schließt nach 40 s oder sobald alle, die nicht „Out" sind, „Ready" gedrückt haben. In der Team-Liste steht „shopping" bzw. „ready". Im Shop gibt es keine Gegner. |
 | Eigener Bildschirm | Level-up-Karten und Shop liegen auf einem eigenen, dunklen Bildschirm mit „WAVE n CLEARED" (darunter „Pick your level-ups" bzw. „Spend your Shards"); die Arena ist nicht zu sehen. Timer, XP-Leiste, Build und Team-Liste bleiben sichtbar. Wie in Brotato steht die Figur still: kein Laufen, kein Dash, bis die nächste Welle startet (Owner-Wunsch nach B1). |
 | Handy (seit B3) | Der Shop passt sich der Bildschirmgröße an. Auf kleinen Bildschirmen (Handy quer) kommt ein kompaktes Layout ohne Kopfzeile, und die Werte-Liste liegt hinter dem Knopf „STATS" („← SHOP" geht zurück). |
-| Noch nicht | Beutel für liegengebliebene Orbs (B6). |
+
+**Beute wie Brotato (seit B6, Werte in `Config/Loot.luau`, Formeln in `Util/LootRules.luau`):**
+
+| Was | Umsetzung |
+| --- | --- |
+| Drop-Chance | Bis Welle 4 lässt jeder Gegner sein Orb fallen, danach mit 100 % − 1,5 % × Welle, mindestens 50 % (Welle 5: 92,5 %, Welle 10: 85 %, Welle 20: 70 %). Elites, Plünderer und Bäume immer. |
+| Beutel | Orbs, die am Wellenende noch liegen, kommen in den Beutel des Teams statt ausgezahlt zu werden. In den nächsten Wellen nimmt jedes neue Orb seinen eigenen Wert noch einmal aus dem Beutel mit (Aufheben zählt doppelt), bis er leer ist. Unter dem Timer steht dann „Bag 34". Am Run-Ende ist er verloren. |
+| Obergrenze | Höchstens 50 Orbs liegen gleichzeitig (Brotato); darüber wandert der Wert eines neuen Orbs ins nächste liegende (vorher 300). Früchte höchstens 40 (Annahme), Kisten immer. |
+| Früchte und Kisten | Ein getöteter Gegner lässt mit 1 % (Brute, Abyss Brute 3 %, Charger 2 %, Annahme) × (1 + Luck/100) eine Frucht oder Kiste fallen; Luck ist der Schnitt des Teams, −100 Luck = nichts. Eine Kiste ist es mit 25 % (Annahme, Brotato nennt keinen Grundwert) × (1 + Luck/100) / (1 + Kisten dieser Welle), sonst eine Frucht. Elites lassen weiter ihre Truhe fallen. Aufgesammelt wird im Orb-Radius (mal Pickup Range). |
+| Frucht | Heilt 30 HP (Brotato 3 × 10) plus den neuen Neben-Wert „Fruit Healing". Glühende orange Frucht mit Blatt. |
+| Kiste | Heilt wie eine Frucht und enthält ein Item (Seltenheit wie im Shop nach Welle und Luck). Meldung „Crate! It opens after the wave." Am Wellenende öffnen sich die Kisten einzeln **vor** den Level-up-Karten: Karte mit dem Item, „Take [1]" oder „Sell (+N Shards) [2]" (25 % des Shop-Preises + Sell Value, wie Waffen). Nach 10 s oder wenn der Shop schließt wird genommen. Kisten zählen für Items mit Truhen-Effekt (Satchel). Unter dem Timer steht „2 crates", solange welche warten. |
+| Plünderer (Looter) | Ab Welle 3, 25 s nach Wellenbeginn und danach alle 15 s mit 10 % Chance (Brotato), 30 Studs neben einem Spieler. Läuft weg (am Rand an der Wand entlang), greift nicht an, verschwindet nach 12 s (Annahme). Getötet: eine Kiste und ein Orb mit 8. Gold-ockerfarbener Dieb mit Münzsack. |
+| Bäume | Pro Welle 1 Baum (Annahme) plus der neue Team-Wert „Trees", verteilt über die ersten 70 % der Welle, irgendwo in der Arena mindestens 25 Studs von allen Spielern; höchstens 6 gleichzeitig. Stehen still, tun nichts, Waffen treffen sie wie Gegner (30 HP mal HP-Kurve, Annahme). Getötet: Frucht oder Kiste (20 % Kiste) und ein Orb mit 3. |
+| Neben-Werte | „Fruit Healing" (HP pro Frucht und Kiste) und „Trees" (Bäume pro Welle, Team-Summe) für Items ab B8; neues Effekt-Ereignis „Consumable" (Frucht oder Kiste aufgehoben). |
+| Noch nicht | Legendäre Kiste (Item der Stufe IV, heilt voll) von Elites und Boss kommt mit dem Boss (Paket 10) bzw. den seltenen Elites (B11); bis dahin bleibt die Elite-Truhe (Abschnitt 8), sonst gäbe es 13 legendäre Items pro Run. |
 
 **Run-Ablauf im Prototyp** (Lobby und Arena im selben Server, Werte in `Config/Run.luau` → `flow`):
 
@@ -450,7 +465,11 @@ Effekt-Aktionen dazu (`Config/Effects.luau`): „Burn" (Gegner in Brand setzen) 
 | Splitling | klein und schnell, nur aus Splittern | 6 | 15 | 3 pro Kontakt | 1 | 7 |
 | Abyss Brute | stärkerer Brute, rote Augen | 140 | 8,5 | 18 pro Kontakt | 8 | 8 |
 | Gloom Elite | beliebiger Typ, leuchtet, 1,5× so groß, ab 6:00 mit Eigenschaft | 8× | 0,9× | 1,5× | 25 + Truhe | 2, 4, 6 (2×), 8, 10 (2×) |
+| Looter (seit B6) | läuft weg, greift nicht an, verschwindet nach 12 s; lässt eine Kiste fallen (Abschnitt 3) | 120 | 17 | – | 8 | ab Welle 3 zufällig |
+| Tree (seit B6) | steht still, tut nichts; lässt Frucht oder Kiste fallen | 30 | 0 | – | 3 | jede Welle |
 | The Lantern Eater | Boss | 4.000 × Spielerfaktor | 9 | siehe unten | – | Welle 20 (ab Paket 10; bis B3 nach Welle 12) |
+
+**Looter und Tree (seit B6):** HP, Schaden und XP wachsen mit den Kurven wie bei allen. Der Looter flieht vor dem nächsten Spieler; nahe am Rand läuft er an der Wand entlang statt hinein (`flee.edgeMargin`). Der Baum ist „verankert": Er bewegt sich nie, andere Gegner werden von ihm weggeschoben, Spieler laufen durch ihn hindurch, Rückstoß wirkt nicht. Beide werden nie auf den Spawn-Ring zurückgeholt und zählen zur Gegner-Obergrenze.
 
 **Rückstoß-Widerstand (seit B5, `Config/Enemies.luau` → `knockbackResistance`):** Anteil eines Rückstoßes, den ein Gegner ignoriert, nach ähnlichen Brotato-Gegnern: Shadeling, Splitling und Abyss Shadeling 0, Splitter 0,5, Charger 0,8, Brute und Abyss Brute 0,9, Spitter 0,95; Gloom Elites (und später Bosse) 1, also gar kein Rückstoß. Vorher wurde der Schubs durch die Masse über 1 geteilt (Brute 1/6); ohne eigenen Wert gilt das weiter.
 
@@ -990,12 +1009,12 @@ Bis zum Soft Launch rund 40–50 Sessions und 50–60 Stunden Zeit des Owners (6
 | Run | 20 Wellen mit Brotatos Dauern, Boss-Welle 20 (90 s) | B3, 10 |
 | Shop | Sperren (kostenlos, Preis bleibt), Verkaufen (25 % des Preises), Waffen-Stufen I–IV statt Level 1–5, Verschmelzen zweier gleicher Waffen gleicher Stufe (per Knopf oder automatisch bei vollen Plätzen), Gratis-Neuwurf nach 4 Käufen, Waffen-Pool 20 % eigene / 15 % gleiche Klasse / 65 % alle, keine Wiederholung des vorigen Wurfs | B3 |
 | Effekte | Ereignisse (Welle startet/endet, Treffer, Krit, Kill, Ausweichen, getroffen, Aufsammeln, Level-up, Shop betreten, Timer), Effekte als Daten {Auslöser, Bedingung, Aktion, Werte}, Werte im Stillstand/in Bewegung, „pro X", „nächste Welle", Wachstum am Wellenende, Multiplikatoren auf Wert-Gewinne (für Charaktere), getrennte Zufalls-Ströme (Shop, Drops, Spawns, Kampf) | B4 (umgesetzt) |
-| Neben-Werte | Item-Preise, Gratis-Neuwürfe, Doppel-Beute, Schaden gegen Bosse/Elites, Frucht-Heilung, Heilung beim Aufsammeln, Gegner-Anzahl/-HP/-Schaden/-Tempo, Explosionsschaden und -größe, Durchschlag, Abprall, Brenn-Tempo und -Ausbreitung, Rückstoß | B4 (umgesetzt bis auf Frucht-Heilung → B6, Gegner-Tempo → B9), B5 (umgesetzt) |
+| Neben-Werte | Item-Preise, Gratis-Neuwürfe, Doppel-Beute, Schaden gegen Bosse/Elites, Frucht-Heilung, Heilung beim Aufsammeln, Gegner-Anzahl/-HP/-Schaden/-Tempo, Explosionsschaden und -größe, Durchschlag, Abprall, Brenn-Tempo und -Ausbreitung, Rückstoß | B4 (umgesetzt bis auf Gegner-Tempo → B9), B5 (umgesetzt), B6 (Frucht-Heilung, Bäume umgesetzt) |
 | Kampf | Krit-Chance und Krit-Faktor pro Waffe (×1,5 bis ×4), Lebensraub pro Waffe, Rückstoß mit Widerstand der Gegner, Brennen (stapelt nicht, Ausbreitung), Verlangsamen, Explosionen, Durchschlag mit Schadensabzug, Abprall, höchstens 12 Angriffe/s, Skalierung pro Waffe (z. B. 80 % Melee, mehrere Werte), Schutz nach Treffer 0,2–0,4 s | B5 (umgesetzt) |
 | Waffenklassen | 1–2 Klassen pro Waffe, gestaffelte Boni bei 2–6 Waffen einer Klasse (Brotatos 15 Staffeln, eigene Klassennamen) | B5 (umgesetzt mit 14 Klassen; Tool → B12) |
 | Waffen | 20–24 eigene Waffen statt 6, alle Klassen und Effekt-Arten (Stoß/Schwung, Schrot, Raketen, Feuer, Eis, Stapel pro Kill, Wert solange getragen, Heil-Geschoss, Magazin) | B7 |
 | Items | ~100 statt 46, viele mit Effekten (Kill, Ausweichen, Wellenende, Gegner-Änderung, Zufallswerte), Item-Limits | B8 |
-| Beute | Drop-Chance 100 % bis Welle 4, dann −1,5 % pro Welle (mind. 50 %), Beutel (Liegengebliebenes zieht in der nächsten Welle je Drop 1 dazu), höchstens 50 liegende Beute-Objekte (darüber zusammenlegen), Heil-Früchte, Kisten von normalen Gegnern (Item nehmen oder verkaufen, Chance sinkt mit jeder Kiste der Welle), Plünderer-Gegner, Bäume, Legendäre Kiste von Elites/Boss | B6 |
+| Beute | Drop-Chance 100 % bis Welle 4, dann −1,5 % pro Welle (mind. 50 %), Beutel (Liegengebliebenes zieht in der nächsten Welle je Drop 1 dazu), höchstens 50 liegende Beute-Objekte (darüber zusammenlegen), Heil-Früchte, Kisten von normalen Gegnern (Item nehmen oder verkaufen, Chance sinkt mit jeder Kiste der Welle), Plünderer-Gegner, Bäume, Legendäre Kiste von Elites/Boss | B6 (umgesetzt bis auf die Legendäre Kiste → 10, B11) |
 | Gegner | Spawn-Marker vor dem Erscheinen, Wellen als Spawn-Gruppen (Typ, Anzahl, Start, Abstand), Werte pro Typ = Grund + Zuwachs pro Welle, neue Verhalten: Beschleuniger, flüchtender Schütze, Konter-Schütze, Buffer, Heiler, Ei (schlüpft nach 5 s), Hieb-Gegner, Beute-Fresser | B9 |
 | Elites und Boss | Phasen-Automat (Angriffe, Wechsel bei HP-Schwelle oder Zeit), Vorwarnen–Ausführen–Erholen, 2 Bosse, Elites mit Phasen | 10 |
 | Charaktere | Regelpakete statt Klassen: Startwerte, Startwaffe zur Wahl, Waffen-Plätze 1–12, Multiplikatoren auf Gewinne, Shop-Regeln, Wunsch-Tags (5 % Shop-Gewicht), Sonderregeln | B10 |
@@ -1029,7 +1048,7 @@ Bis zum Soft Launch rund 40–50 Sessions und 50–60 Stunden Zeit des Owners (6
 | B3 | Brotato 3: Shop komplett und 20 Wellen – Run auf 20 Wellen mit Brotatos Dauern, Sperren, Verkaufen, Waffen-Stufen I–IV statt Level, Verschmelzen, Gratis-Neuwurf nach 4 Käufen, Waffen-Pool-Regeln, Evolutionen ab Stufe IV, Handy-Layout (umgesetzt 29.10.2026, Branch `wp-b3-shop-complete`) | Vertical Slice | High | 1–2 | 1 h | Shop am PC und Handy bedienen |
 | B4 | Brotato 4: Effekt-Maschine – Ereignisse, Effekte als Daten, bedingte und „pro X"-Werte, nächste Welle, Wellenende-Wachstum, Neben-Werte, getrennte Zufalls-Ströme, ~20 neue Items mit Effekten (umgesetzt 29.10.2026 mit 32 Items, Branch `wp-b4-effect-engine`) | Vertical Slice | Extra high | 2 | 1 h | neue Items ausprobieren |
 | B5 | Brotato 5: Kampf-Tiefe – Krit und Lebensraub pro Waffe, Rückstoß, Brennen, Verlangsamen, Explosionen, Durchschlag/Abprall, 12 Angriffe/s, Skalierung pro Waffe, Waffenklassen mit Set-Boni (umgesetzt 30.10.2026 mit 12 Kampf-Items, Branch `wp-b5-combat`) | Vertical Slice | Extra high | 2 | 1 h | Waffengefühl beurteilen |
-| B6 | Brotato 6: Beute – sinkende Drop-Chance, Beutel, Heil-Früchte, Kisten von normalen Gegnern, Plünderer, Bäume, Beute-Obergrenze | Vertical Slice | High | 1–2 | 1 h | Wirtschaft beurteilen |
+| B6 | Brotato 6: Beute – sinkende Drop-Chance, Beutel, Heil-Früchte, Kisten von normalen Gegnern, Plünderer, Bäume, Beute-Obergrenze (umgesetzt 30.10.2026, Branch `wp-b6-loot`) | Vertical Slice | High | 1–2 | 1 h | Wirtschaft beurteilen |
 | B7 | Brotato 7: Waffen-Paket – auf 20–24 Waffen, alle Klassen und Effekt-Arten | Vertical Slice | Medium | 2 | 1 h | Waffen ausprobieren |
 | B8 | Brotato 8: Item-Paket – auf ~100 Items, viele mit Effekten | Vertical Slice | Medium | 2 | 1 h | Items ausprobieren |
 | B9 | Brotato 9: Gegner-Paket – Spawn-Marker, Wellen als Spawn-Gruppen, Werte pro Typ und Welle, 8 neue Verhalten | Vertical Slice | Extra high | 2 | 1 h | Schwierigkeit und Lesbarkeit beurteilen |

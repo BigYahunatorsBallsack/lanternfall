@@ -350,6 +350,53 @@ describe("EnemyWorld", function()
 		print(`  step with 140 enemies: {string.format("%.3f", milliseconds)} ms`)
 		expect(milliseconds < Sim.budget.stepMilliseconds).toBe(true)
 	end)
+
+	it("lets a Looter run away from the nearest player and along the wall instead of into it (B6)", function()
+		local world = newWorld()
+		local id = spawn(world, "Looter", 20, 0)
+		run(world, 1, { 0 }, { 0 })
+		expect(distance(world, id, 0, 0)).toBeNear(20 + Types.Looter.speed, 0.01)
+		local x, z = world:getPosition(id)
+		expect(math.abs(z) < 0.01).toBe(true)
+		-- pressed against the east wall with the player straight west: it slips along the wall
+		local cornered = spawn(world, "Looter", HALF - 2, 0)
+		run(world, 1, { HALF - 30 }, { 0.5 })
+		local cx, cz = world:getPosition(cornered)
+		expect(cx <= HALF - Types.Looter.radius + 0.01).toBe(true)
+		expect(math.abs(cz) > Types.Looter.speed * 0.5).toBe(true)
+		expect(x > 0).toBe(true)
+	end)
+
+	it("never moves a Tree: not walking, not pushed by enemies or players, not knocked back (B6)", function()
+		local world = newWorld()
+		local tree = spawn(world, "Tree", 0, 0)
+		for index = 1, 12 do
+			local angle = index / 12 * 2 * math.pi
+			spawn(world, "Brute", math.cos(angle) * 3, math.sin(angle) * 3)
+		end
+		world:push(tree, 5, 5)
+		run(world, 2, { 0.5 }, { 0.5 }) -- a player standing right on it
+		local x, z = world:getPosition(tree)
+		expect(x).toBe(0)
+		expect(z).toBe(0)
+		local nearest = math.huge
+		local ids = {}
+		for i = 1, world:queryRadius(0, 0, 3, ids) do
+			if ids[i] ~= tree then
+				nearest = math.min(nearest, distance(world, ids[i], 0, 0))
+			end
+		end
+		expect(nearest > Types.Tree.radius).toBe(true) -- the Brutes were pushed off it
+	end)
+
+	it("removes an enemy without a kill (an escaping Looter, B6)", function()
+		local world = newWorld()
+		local id = spawn(world, "Looter", 10, 0)
+		expect(world:remove(id)).toBe(true)
+		expect(world:isAlive(id)).toBe(false)
+		expect(world:getAliveCount()).toBe(0)
+		expect(world:remove(id)).toBe(false)
+	end)
 end)
 
 describe("lag-corrected contacts", function()

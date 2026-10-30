@@ -3,8 +3,9 @@
 -- orb within their pickup radius right after each enemy step, and the XP goes to one team level (Progression).
 -- Sends TeamProgress to everyone and XpOrbs to the participants, and fires LevelGained, which UpgradeService turns
 -- into level-up cards, and OrbsCollected, which ShopService turns into Shards, and OrbsPickedUp for item effects
--- (EffectService). Orbs still on the floor when a wave ends are collected for the team (XP) and split evenly between
--- the participants who are not out (Shards). StatService sets each player's Pickup Range, XP Gain and Double Orbs
+-- (EffectService). Since B6 like Brotato (Config.Loot, Util/LootRules): from wave 5 normal enemies drop their orb
+-- only by chance, and orbs still on the floor when a wave ends go into the team's bag; in the next waves every new orb
+-- takes as much again from the bag. Sends OrbBag (what is in the bag) to everyone. StatService sets each player's Pickup Range, XP Gain and Double Orbs
 -- (setStats; a doubled orb gives twice its Shards and XP like Brotato's Metal Detector, rolled on RandomService's
 -- Loot stream); ShopService adds Harvesting XP with addXp; AdminService calls grantLevel.
 
@@ -14,6 +15,8 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Shared = ReplicatedStorage.Shared
 local Config = require(Shared.Config)
 local Net = require(Shared.Net)
+local EnemyKinds = require(Shared.Util.EnemyKinds)
+local LootRules = require(Shared.Util.LootRules)
 local Signal = require(Shared.Util.Signal)
 local Types = require(Shared.Net.Types)
 
@@ -28,8 +31,7 @@ local ExperienceService = {}
 
 -- (level: number): the team reached this level; fired once per level, in order
 ExperienceService.LevelGained = Signal.new()
--- (player: Player, xp: number): XP of the orbs this player picked up, doubled ones twice (or their share of the
--- leftovers at wave end)
+-- (player: Player, xp: number): XP of the orbs this player picked up, doubled ones twice
 ExperienceService.OrbsCollected = Signal.new()
 -- (player: Player, orbs: number): how many orbs this player picked up in one step (not the leftovers)
 ExperienceService.OrbsPickedUp = Signal.new()
@@ -40,6 +42,7 @@ local pickupBonus: { [Player]: number } = {} -- Pickup Range as a fraction
 local xpBonus: { [Player]: number } = {} -- XP Gain as a fraction
 local doubleChance: { [Player]: number } = {} -- Double Orbs as a chance 0..1
 local paused = false
+local bag = 0 -- XP of the orbs left at the end of earlier waves (B6)
 
 -- Changes since the last flush, in the flat Net/Types.XpOrbEvents layout.
 local changedOrbs: { number } = {}
@@ -57,6 +60,10 @@ end
 
 local function sendProgress()
 	Net.fireAllClients("TeamProgress", progressPayload())
+end
+
+local function sendBag()
+	Net.fireAllClients("OrbBag", bag)
 end
 
 local function round(value: number): number
@@ -96,13 +103,24 @@ local function onEnemyKilled(info: EnemySim.KillInfo)
 	if paused or not RunDirector.isActive() or info.xp <= 0 then
 		return
 	end
+	local kind = EnemyKinds.get(info.enemyId, info.elite)
+	if kind and not LootRules.dropsOrb(kind, RunDirector.getWave(), RandomService.number("Loot")) then
+		return
+	end
+	local value = info.xp
+	local pulled = LootRules.bagPull(bag, value)
+	if pulled > 0 then
+		bag -= pulled
+		value += pulled
+		sendBag()
+	end
 	local x, z = round(info.position.X), round(info.position.Z)
-	local id = field:spawn(x, z, info.xp)
-	local orbX, orbZ, value = field:get(id)
+	local id = field:spawn(x, z, value)
+	local orbX, orbZ, orbValue = field:get(id)
 	table.insert(changedOrbs, id)
 	table.insert(changedOrbs, orbX or x)
 	table.insert(changedOrbs, orbZ or z)
-	table.insert(changedOrbs, value or info.xp)
+	table.insert(changedOrbs, orbValue or value)
 end
 
 local function onStepped()
@@ -145,23 +163,14 @@ local function onStepped()
 	flush()
 end
 
--- End of a wave: every orb left goes to the team, its Shards are split between the participants who are not out.
-local function collectLeftovers()
+-- End of a wave: every orb left goes into the bag (Brotato, since B6).
+local function bagLeftovers()
 	local total = field:total()
 	clearOrbs()
-	if total <= 0 or paused then
-		return
+	if total > 0 and not paused then
+		bag += total
+		sendBag()
 	end
-	local sharers = {}
-	for _, player in RunDirector.getParticipants() do
-		if RunDirector.getParticipantState(player) ~= "Out" then
-			table.insert(sharers, player)
-		end
-	end
-	for _, player in sharers do
-		ExperienceService.OrbsCollected:Fire(player, total / #sharers)
-	end
-	gain(total)
 end
 
 -- Lifecycle -------------------------------------------------------------------------
@@ -172,13 +181,15 @@ function ExperienceService.init()
 	RunDirector.RunStarted:Connect(function()
 		progress:reset()
 		clearOrbs()
+		bag = 0
+		sendBag()
 		sendProgress()
 	end)
 	RunDirector.PhaseChanged:Connect(function(phase)
 		if phase == "Ended" or phase == "Lobby" then
 			clearOrbs()
 		elseif phase == "Shop" then
-			collectLeftovers()
+			bagLeftovers()
 		end
 	end)
 	RunDirector.ParticipantStateChanged:Connect(sendProgress) -- a player who is out no longer counts
@@ -195,6 +206,7 @@ function ExperienceService.init()
 			requester,
 			{ reset = true, orbs = field:flatten(), collected = {} } :: Types.XpOrbEvents
 		)
+		Net.fireClient("OrbBag", requester, bag)
 	end)
 end
 
@@ -243,6 +255,17 @@ end
 
 function ExperienceService.getOrbCount(): number
 	return field:count()
+end
+
+-- XP (and Shards) waiting in the bag for the next waves (B6).
+function ExperienceService.getBag(): number
+	return bag
+end
+
+-- Tests: fills the bag as if orbs worth `amount` had been left at the end of a wave.
+function ExperienceService.addToBag(amount: number)
+	bag += math.max(0, amount)
+	sendBag()
 end
 
 return ExperienceService

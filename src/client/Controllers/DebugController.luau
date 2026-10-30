@@ -45,6 +45,9 @@ local BUTTON_TEXT: { [string]: string } = {
 	GainLevel = "Team +1 level",
 	AddEffectItem = "Next effect item",
 	AddCombatItem = "Next combat item",
+	SpawnLooter = "Spawn a looter",
+	SpawnTree = "Spawn a tree",
+	DropCrate = "Drop a crate",
 }
 
 local BUTTON_SIZE = Vector2.new(150, 30)

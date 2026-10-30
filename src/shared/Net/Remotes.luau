@@ -83,6 +83,11 @@ local Remotes: { [string]: Definition } = {
 		rateLimit = { count = 5, perSeconds = 1 },
 		args = { Validate.oneOf(DebugCommands) }, -- admin only, checked by AdminService
 	},
+	ChooseCrate = {
+		direction = "toServer",
+		rateLimit = { count = 4, perSeconds = 1 },
+		args = { Validate.boolean() }, -- B6: take (true) or sell (false) the open crate's item; UpgradeService checks
+	},
 
 	-- Server -> client state
 	RunState = { direction = "toClient" }, -- full Net/Types.RunState, sent on every change
@@ -105,6 +110,9 @@ local Remotes: { [string]: Definition } = {
 	ChestOpened = { direction = "toClient" }, -- Net/Types.ChestOpened, to participants
 	ShopState = { direction = "toClient" }, -- Net/Types.ShopState, to its player on change (Shards also during waves)
 	DebugStats = { direction = "toClient" }, -- Net/Types.DebugStats, admins only, once per second
+	OrbBag = { direction = "toClient" }, -- B6: XP of the orbs in the team's bag (number), to everyone on change
+	Pickups = { direction = "toClient" }, -- B6: Net/Types.PickupEvents of one simulation step, to participants
+	CrateOffer = { direction = "toClient" }, -- B6: Net/Types.CrateOffer, to the choosing player
 }
 
 return table.freeze(Remotes)

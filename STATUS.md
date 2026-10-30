@@ -9,6 +9,7 @@ Kurzer Projektstand für neue Sessions. **Zuerst lesen**, dann aus `DESIGN.md` n
 - **Balance-Stand:** nach B3 gewannen gute Bots ca. 40 % der 20-Wellen-Runs (Wand bei Welle 13); eine Messung nach B4 (24 Runs) 15 von 24, Gegnerkurven unverändert. Blade Warden schwächer als Spark Mage (Thema für B5/B10).
 - **Bekannt und harmlos:** Output-Zeile „DataStoreService: StudioAccessToApisNotAllowed … HttpRequestsCache“ kommt von einem Studio-Plugin, nicht aus unserem Code.
 - **Als Nächstes:** Ab B6 arbeiten Claude und ChatGPT parallel in zwei Strängen (Regeln, Dateibesitz, Runden: `docs/PARALLEL.md`; ChatGPT liest `AGENTS.md`). Runde 1: B6 Beute (Claude, **High**) und B7 Waffen (ChatGPT, Medium), jeweils wenn der Owner es sagt. Tabelle: `DESIGN.md` Abschnitt 20.
+- **B6 Beute (Strang A, 30.10.2026):** PR `[Claude] B6 Beute` von Branch `wp-b6-loot`, wartet auf Test und OK des Owners (`/mnt/project-files/lanternfall-b6/TESTANLEITUNG.md`). Drop-Chance ab Welle 5, Beutel, höchstens 50 Orbs, Früchte und Kisten (Item nehmen oder verkaufen vor den Level-up-Karten), Plünderer, Bäume. Legendäre Kiste kommt mit Paket 10/B11. Danach für Strang A: B9 Gegner (**Extra high**); B8 (Strang B) darf erst nach dem Merge von B6 starten.
 
 ## Stränge
 
@@ -16,7 +17,7 @@ Jeder Strang ändert nur **seine** Zeile (Regeln: `docs/PARALLEL.md`).
 
 | Strang | KI | Aktuelles Paket | Branch / PR | Stand | Danach |
 | --- | --- | --- | --- | --- | --- |
-| A – Engine und Ablauf | Claude | B6 Beute (High) | – | wartet auf Start durch den Owner | B9 Gegner (XH) |
+| A – Engine und Ablauf | Claude | B6 Beute (High) | `wp-b6-loot` / PR `[Claude] B6 Beute` | fertig, wartet auf Test und Merge | B9 Gegner (XH) |
 | B – Inhalte und Spieler-Regeln | ChatGPT | B7 Waffen (Medium) | – | wartet auf Start durch den Owner | B8 Items (Medium, erst nach Merge von B6) |
 
 ## Feste Entscheidungen des Owners
@@ -32,6 +33,7 @@ Jeder Strang ändert nur **seine** Zeile (Regeln: `docs/PARALLEL.md`).
 - Owner (29.10.2026): keine ausführlichen Balance-Simulationen mehr pro Paket, er testet selbst; Pakete dürfen ohne seinen Test aufeinander aufbauen, wenn er das sagt.
 - B5 (30.10.2026): Brotatos Waffen-Sets heißen bei uns **Waffenklassen** mit eigenen Namen (Edge, Bludgeon, Arcane, Spectral, Volatile, Longshot, Colossal, Remedy, Knightly, Choir, Keen, Primal, Steward, Brawl); Boni ab 2 Waffen, Kopien zählen, Maximum bei 6. Jede Waffe hat 1–2 Klassen und ist Melee oder Ranged.
 - Annahmen (Wiki schweigt, im Test prüfen): Brennen springt pro Tick auf den nächsten nicht brennenden Gegner in 8 Studs; Abprall-Ziel zufällig in 25 Studs; Rückstoß 0,1 Studs pro Punkt; Elites sind immun gegen Rückstoß.
+- B6 (30.10.2026, Annahmen im Test prüfen): Kisten sind 25 % der Früchte/Kisten-Drops (Brotato nennt keinen Grundwert), Brute/Abyss Brute 3 %, Charger 2 % statt 1 %; Plünderer verschwindet nach 12 s; 1 Baum pro Welle mit 30 HP; Kisten öffnen sich vor den Level-up-Karten, nach 10 s wird genommen; liegengebliebene Kisten gehen an den nächsten Spieler. Elite-Truhen bleiben bis Paket 10/B11 wie sie sind (sonst 13 legendäre Items pro Run).
 
 ## Owner und Ablauf
 
@@ -50,6 +52,7 @@ Jeder Strang ändert nur **seine** Zeile (Regeln: `docs/PARALLEL.md`).
 - Zufall: Server würfelt nur über `RandomService` (Ströme Shop, Upgrades, Loot, Spawns, Combat, Effects). Der Seed steht beim Run-Start im Output; `Config/Run.luau` → `seed` spielt ihn nach. In reinen Specs gibt es kein `Random`; der Mock (`RobloxMock`) hat ein deterministisches `Random.new(seed)`.
 - Effekte testen: Debug-Knopf „Next effect item" gibt der Reihe nach jedes Item mit Effekt oder Neben-Wert, „Next combat item" jedes Kampf-Item (Brennen, Explodieren, Durchbohren, Abprallen, Rückstoß). Ende-zu-Ende-Tests für Effekte und Kampf in `tests/Smoke.spec.luau` (Helfer `give`, `bonusText`); `EnemyRenderer.getStatus(id)` liefert brennt/verlangsamt auf dem Client.
 - Kampf-Falle: Item-Brände und -Explosionen (EffectService → `WeaponService.burnEnemy/explodeAt`) laufen über eine Warteschlange am Ende von `Arsenal.step`, sonst würden Explosion → Kill → Explosion rekursiv laufen und die Scratch-Arrays überschreiben. StatService rechnet Klassen-Boni nur neu, wenn sie sich ändern (sonst Schleife mit `WeaponService.Changed`).
+- Beute testen (B6): Debug-Knöpfe „Spawn a looter", „Spawn a tree", „Drop a crate". Ende-zu-Ende-Tests in `tests/Loot.spec.luau`, Formeln in `tests/LootRules.spec.luau`. `tests/Smoke.spec.luau` schaltet zufällige Früchte/Kisten mit `LootService.setDropsPaused(true)` ab, sonst öffnen sich Kisten vor den Level-up-Karten und die Smoke-Tests werden zufällig rot.
 
 ## Code-Landkarte
 
@@ -60,3 +63,4 @@ Jeder Strang ändert nur **seine** Zeile (Regeln: `docs/PARALLEL.md`).
 - Texte aus der Config: `Util/UpgradeText` (Karten, Items, Waffen-Schaden), `Util/EffectText` (Effekt-Zeilen, Bonus- und Auszahlungs-Texte), `Util/WeaponClasses` (Klassen zählen, Boni, Namen).
 - Gegner-Snapshot: 10 Bytes pro Gegner, Byte 9 = Status (brennt/verlangsamt) für die Färbung im `EnemyRenderer`.
 - Reine Regeln (Formeln) liegen in Untermodulen (`ShopRules`, `RunFlow`, `SpawnRules`, `WeaponStats`, `Afflictions`, `Util/WeaponClasses`, `UpgradePool`, `EffectRules`, `Streams`, `Util/StatMath`, `Util/RunSchedule`) und haben Unit-Tests in `tests/`.
+- Beute (B6): `Config/Loot.luau` (alle Zahlen), `Util/LootRules` (Formeln), `ExperienceService` (Drop-Chance der Orbs, Beutel, Remote `OrbBag`), `LootService` (Elite-Truhen, Früchte und Kisten am Boden, Remote `Pickups`), `UpgradeService` (Kisten-Wahl vor den Karten, Remotes `CrateOffer`/`ChooseCrate`), `SpawnDirector` (Plünderer, Bäume), `EnemySim/World` (`flee`, `anchored`, `remove`). Client: `PickupRenderer` (Früchte, Kisten, Beutel-Anzeige), `LevelUpController` (Kisten-Panel).
