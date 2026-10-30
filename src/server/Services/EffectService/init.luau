@@ -604,6 +604,9 @@ function EffectService.init()
 	LootService.ChestCollected:Connect(function(player)
 		fireFor(player, "Chest")
 	end)
+	LootService.ConsumableCollected:Connect(function(player)
+		fireFor(player, "Consumable") -- B6: fruits and crates
+	end)
 	EnemySim.Stepped:Connect(onStepped)
 
 	RunDirector.SyncRequested:Connect(function(requester)

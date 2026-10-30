@@ -8,8 +8,10 @@
 -- with Shadelings only and starts with a ring around every player. Enemies left far behind every player come back
 -- on the spawn ring, so running in circles with a trailing crowd does not stop the pressure. Since B4 the team's enemy
 -- stats from items (Enemies, Enemy HP, Enemy Damage; StatService.getTeamStat) scale the spawn rate and the HP and
--- damage of new enemies, and every roll comes from RandomService's Spawns stream. Uses EnemySim; AdminService pauses
--- it and spawns test waves and elites.
+-- damage of new enemies, and every roll comes from RandomService's Spawns stream. Since B6 (Config.Loot) every wave
+-- brings a few Trees (more with the team's Trees stat) and from wave 3 now and then a Looter, which escapes (is
+-- removed without a kill) after a while; neither is ever moved back onto the spawn ring. Uses EnemySim; AdminService
+-- pauses it and spawns test waves, elites, Looters and Trees.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
@@ -17,6 +19,7 @@ local RunService = game:GetService("RunService")
 local Config = require(ReplicatedStorage.Shared.Config)
 local EnemyKinds = require(ReplicatedStorage.Shared.Util.EnemyKinds)
 local Net = require(ReplicatedStorage.Shared.Net)
+local LootRules = require(ReplicatedStorage.Shared.Util.LootRules)
 local RunSchedule = require(ReplicatedStorage.Shared.Util.RunSchedule)
 local StatMath = require(ReplicatedStorage.Shared.Util.StatMath)
 
@@ -36,6 +39,12 @@ local pending = 0 -- fractional enemies owed by the spawn rate
 local lastMinutes = 0 -- run time of the last update, to notice elite and Swarm Rush times passing
 local recycleTimer = 0
 local recycleIds: { number } = {}
+-- B6: Looters and Trees of the current wave
+local plannedWave = 0 -- the wave whose trees are planned
+local lootSeconds = 0 -- seconds into the wave at the last update (Looter rolls)
+local treeTimes: { number } = {} -- seconds into the wave at which the next trees appear
+local looters: { [number]: number } = {} -- enemy id -> server time at which it escapes
+local trees: { [number]: boolean } = {} -- enemy ids
 local obstacles: { SpawnRules.Circle } = MapService.getObstacles()
 local bounds: SpawnRules.Rect = (function()
 	local arena = MapService.getArenaBounds()
@@ -91,7 +100,7 @@ local function spawnAt(
 	atMinutes: number,
 	elite: boolean?,
 	affix: number?
-): boolean
+): number?
 	local tiers = Config.Difficulty.tiers
 	local tier = tiers[RunDirector.getDifficulty()] or tiers[Config.Difficulty.default]
 	local hpMultiplier = SpawnRules.hpFactor(atMinutes)
@@ -100,7 +109,7 @@ local function spawnAt(
 	local damageMultiplier = SpawnRules.damageFactor(atMinutes)
 		* tier.enemyDamage
 		* StatMath.enemyFactor(StatService.getTeamStat("enemyDamage"))
-	return EnemySim.spawn(enemyId, x, z, hpMultiplier, damageMultiplier, elite, affix) ~= nil
+	return EnemySim.spawn(enemyId, x, z, hpMultiplier, damageMultiplier, elite, affix)
 end
 
 -- Spawns one enemy of `enemyId` on the ring around `anchor`, in front of a walking player for part of the spawns
@@ -120,7 +129,7 @@ local function spawnOne(anchor: Anchor, enemyId: string, atMinutes: number, elit
 	if not (x and z) then
 		return false
 	end
-	return spawnAt(enemyId, x, z, atMinutes, elite, affix)
+	return spawnAt(enemyId, x, z, atMinutes, elite, affix) ~= nil
 end
 
 -- One Gloom Elite of the current mix around a random living player, from Run.spawn.elites.affixFromMinute with a
@@ -174,6 +183,126 @@ local function updateEvents(atMinutes: number, anchors: { Anchor }, cap: number)
 	end
 end
 
+-- Loot enemies (B6) ------------------------------------------------------------------
+
+local function prune(ids: { [number]: any }): number
+	local count = 0
+	for id in ids do
+		if EnemySim.isAlive(id) then
+			count += 1
+		else
+			ids[id] = nil
+		end
+	end
+	return count
+end
+
+-- A Looter at Config.Loot.looter.spawnDistance from `anchor`. Returns its id, or nil without a free spot.
+local function spawnLooter(anchor: Anchor, atMinutes: number): number?
+	local rule = Config.Loot.looter
+	local kind = EnemyKinds.get(rule.enemy)
+	if not kind then
+		return nil
+	end
+	local around = anchor.position
+	for _ = 1, SPAWN_TRIES do
+		local angle = roll() * 2 * math.pi
+		local x = around.X + math.cos(angle) * rule.spawnDistance
+		local z = around.Z + math.sin(angle) * rule.spawnDistance
+		if SpawnRules.isFree(x, z, kind.radius, bounds, obstacles) then
+			local id = spawnAt(rule.enemy, x, z, atMinutes)
+			if id then
+				looters[id] = workspace:GetServerTimeNow() + rule.lifetimeSeconds
+			end
+			return id
+		end
+	end
+	return nil
+end
+
+-- A Tree at a random free spot of the arena at least Config.Loot.trees.minPlayerDistance from every living player
+-- (`near`: close to that point instead, debug). Returns its id, or nil without a spot or at maxAlive trees.
+local function spawnTree(anchors: { Anchor }, atMinutes: number, near: Vector3?): number?
+	local rule = Config.Loot.trees
+	local kind = EnemyKinds.get(rule.enemy)
+	if not kind or prune(trees) >= rule.maxAlive then
+		return nil
+	end
+	local minSquared = rule.minPlayerDistance * rule.minPlayerDistance
+	for _ = 1, SPAWN_TRIES do
+		local x, z
+		if near then
+			local angle = roll() * 2 * math.pi
+			x, z = near.X + math.cos(angle) * 12, near.Z + math.sin(angle) * 12
+		else
+			x = bounds.minX + kind.radius + roll() * (bounds.maxX - bounds.minX - 2 * kind.radius)
+			z = bounds.minZ + kind.radius + roll() * (bounds.maxZ - bounds.minZ - 2 * kind.radius)
+		end
+		local clear = near ~= nil
+		if not clear then
+			clear = true
+			for _, anchor in anchors do
+				local dx, dz = anchor.position.X - x, anchor.position.Z - z
+				if dx * dx + dz * dz < minSquared then
+					clear = false
+					break
+				end
+			end
+		end
+		if clear and SpawnRules.isFree(x, z, kind.radius, bounds, obstacles) then
+			local id = spawnAt(rule.enemy, x, z, atMinutes)
+			if id then
+				trees[id] = true
+			end
+			return id
+		end
+	end
+	return nil
+end
+
+-- Trees due in this wave, Looter rolls and Looters that escape (B6).
+local function updateLoot(atMinutes: number, anchors: { Anchor })
+	local wave = RunDirector.getWave()
+	local schedule = RunSchedule.wave(wave)
+	local seconds = RunDirector.getElapsed() - schedule.startsAt
+	if plannedWave ~= wave then
+		plannedWave = wave
+		lootSeconds = 0
+		table.clear(looters)
+		table.clear(trees)
+		local count = LootRules.treesForWave(StatService.getTeamStat("trees"), roll())
+		treeTimes = LootRules.treeTimes(count, schedule.endsAt - schedule.startsAt)
+	end
+	if #anchors > 0 then
+		while treeTimes[1] and seconds >= treeTimes[1] do
+			table.remove(treeTimes, 1)
+			spawnTree(anchors, atMinutes)
+		end
+		local rule = Config.Loot.looter
+		for _ = 1, LootRules.looterRollsDue(wave, lootSeconds, seconds) do
+			if roll() < rule.chance then
+				for _ = 1, rule.count do
+					spawnLooter(anchors[pickIndex(#anchors)], atMinutes)
+				end
+			end
+		end
+	end
+	lootSeconds = seconds
+end
+
+-- Looters whose time is up escape (also while spawning is paused).
+local function escapeLooters()
+	local now = workspace:GetServerTimeNow()
+	for id, escapeAt in looters do
+		if not EnemySim.isAlive(id) then
+			looters[id] = nil
+		elseif now >= escapeAt then
+			looters[id] = nil
+			EnemySim.remove(id)
+		end
+	end
+end
+
 -- Squared distance from (x, z) to the closest living player.
 local function closestSquared(anchors: { Anchor }, x: number, z: number): number
 	local best = math.huge
@@ -211,7 +340,7 @@ local function recycle(anchors: { Anchor }, cap: number)
 	local candidates: { { id: number, squared: number } } = {}
 	for i = 1, count do
 		local id = recycleIds[i]
-		local position = EnemySim.getPosition(id)
+		local position = if looters[id] or trees[id] then nil else EnemySim.getPosition(id)
 		if position then
 			local squared = closestSquared(anchors, position.X, position.Z)
 			if squared > farSquared then
@@ -237,6 +366,7 @@ local function update(dt: number)
 	local cap = SpawnRules.cap(count)
 	local anchors = aliveAnchors()
 	updateEvents(atMinutes, anchors, cap)
+	updateLoot(atMinutes, anchors)
 	recycleTimer += dt
 	if recycleTimer >= Config.Run.spawn.recycle.intervalSeconds and #anchors > 0 then
 		recycleTimer = 0
@@ -269,10 +399,16 @@ function SpawnDirector.init()
 		paused = false
 		lastMinutes = 0
 		recycleTimer = 0
+		plannedWave = 0
+		table.clear(looters)
+		table.clear(trees)
 	end)
 	RunService.Heartbeat:Connect(function(dt: number)
-		if not paused and RunDirector.getPhase() == "Running" then
-			update(dt)
+		if RunDirector.getPhase() == "Running" then
+			if not paused then
+				update(dt)
+			end
+			escapeLooters()
 		end
 	end)
 end
@@ -313,6 +449,16 @@ end
 -- its name, or nil if no free spot was found.
 function SpawnDirector.spawnElite(around: Vector3): string?
 	return spawnElite({ position = around, velocity = Vector3.zero }, minutes())
+end
+
+-- Spawns a Looter near `around` (AdminService "SpawnLooter", B6). Returns true if one appeared.
+function SpawnDirector.spawnLooter(around: Vector3): boolean
+	return spawnLooter({ position = around, velocity = Vector3.zero }, minutes()) ~= nil
+end
+
+-- Spawns a Tree close to `around` (AdminService "SpawnTree", B6). Returns true if one appeared.
+function SpawnDirector.spawnTree(around: Vector3): boolean
+	return spawnTree({}, minutes(), around) ~= nil
 end
 
 -- Queries ---------------------------------------------------------------------------

@@ -428,6 +428,27 @@ function ConfigCheck.run(): { string }
 		end
 	end
 
+	-- Loot (B6): the Looter and Tree enemies exist and behave as such, chances are chances
+	local loot = Config.Loot
+	local looter = Config.Enemies.types[loot.looter.enemy]
+	if not (looter and looter.flee and looter.contactDamage == 0) then
+		problem(`Loot.looter.enemy {loot.looter.enemy} must be a known enemy with flee and no contact damage`)
+	end
+	local tree = Config.Enemies.types[loot.trees.enemy]
+	if not (tree and tree.anchored and tree.speed == 0 and tree.contactDamage == 0) then
+		problem(`Loot.trees.enemy {loot.trees.enemy} must be a known anchored enemy with speed and contact damage 0`)
+	end
+	for _, value in { loot.consumables.chance, loot.consumables.crateShare, loot.looter.chance, loot.orbDrop.minChance } do
+		if value < 0 or value > 1 then
+			problem("Loot chances must lie between 0 and 1")
+		end
+	end
+	for id, enemy in Config.Enemies.types do
+		if enemy.ranged and enemy.flee then
+			problem(`Enemy {id} cannot both shoot and flee`)
+		end
+	end
+
 	return problems
 end
 
