@@ -19,7 +19,7 @@ Jeder Strang ändert nur **seine** Zeile (Regeln: `docs/PARALLEL.md`).
 | Strang | KI | Aktuelles Paket | Branch / PR | Stand | Danach |
 | --- | --- | --- | --- | --- | --- |
 | A – Engine und Ablauf | Claude | B6 Beute (High) | `wp-b6-loot` / PR `[Claude] B6 Beute` | fertig, wartet auf Test und Merge | B9 Gegner (XH) |
-| B – Inhalte und Spieler-Regeln | ChatGPT | B7 Waffen (Medium) | – | wartet auf Start durch den Owner | B8 Items (Medium, erst nach Merge von B6) |
+| B – Inhalte und Spieler-Regeln | ChatGPT | B7 Waffen (Medium) | `wp-b7-weapons` | umgesetzt, automatisiert getestet; Studio-Abnahme offen | B8 Items (Medium, erst nach Merge von B6) |
 
 ## Feste Entscheidungen des Owners
 
@@ -66,3 +66,12 @@ Jeder Strang ändert nur **seine** Zeile (Regeln: `docs/PARALLEL.md`).
 - Gegner-Snapshot: 10 Bytes pro Gegner, Byte 9 = Status (brennt/verlangsamt) für die Färbung im `EnemyRenderer`.
 - Reine Regeln (Formeln) liegen in Untermodulen (`ShopRules`, `RunFlow`, `SpawnRules`, `WeaponStats`, `Afflictions`, `Util/WeaponClasses`, `UpgradePool`, `EffectRules`, `Streams`, `Util/StatMath`, `Util/RunSchedule`) und haben Unit-Tests in `tests/`.
 - Beute (B6): `Config/Loot.luau` (alle Zahlen), `Util/LootRules` (Formeln), `ExperienceService` (Drop-Chance der Orbs, Beutel, Remote `OrbBag`), `LootService` (Elite-Truhen, Früchte und Kisten am Boden, Remote `Pickups`), `UpgradeService` (Kisten-Wahl vor den Karten, Remotes `CrateOffer`/`ChooseCrate`), `SpawnDirector` (Plünderer, Bäume), `EnemySim/World` (`flee`, `anchored`, `remove`). Client: `PickupRenderer` (Früchte, Kisten, Beutel-Anzeige), `LevelUpController` (Kisten-Panel).
+
+## B7 – Übergabe (30.10.2026)
+
+- 18 neue Waffen nach konkreten Brotato-Basisspiel-Vorbildern, insgesamt 24; Zuordnung, Quellen und Testanleitung: `docs/B7-WAFFEN.md`.
+- Neue optionale Config-Felder: `minTier`, `tierScaling`, `heldStats`, `killGainStat`; exakte Stufenpreise in `Shop.weaponTierPrices`. Bestehende Waffen behalten ihre Werte. `Arsenal` unverändert.
+- `WeaponService.KillGrowth(player, gains)` wird nach dem Simulationsschritt ausgezahlt; `StatService` verarbeitet permanente Kill-Gewinne. Teilzähler und neue Waffen-Projektile werden beim Shop-Eintritt gelöscht.
+- `Net/Types.WeaponEffect.angle` ergänzt für gerichtete Nahkampf-Visuals. Kein Remote hinzugefügt oder verändert.
+- `engineering` ist als ausgeblendeter Neben-Wert reserviert, damit Cathedral Engine wie Chain Gun mit Ranged Damage + Engineering skaliert; Erwerb, primäre Karten und Bauten bleiben B12. Neue Waffenklasse Dread = Legendary mit HP-Malus ×10. Choir bleibt bestehend, bekommt kein DLC-Vorbild in B7.
+- Tests: 25 Spec-Dateien / 320 Tests bestanden (inklusive gemergtem B6) (lokaler Lune-Adapter für den bestehenden Test-Prelude, da Rust hier fehlt). StyLua sauber; Selene src: 0 Fehler, 8 bestehende UI-Warnungen. Kein echter Studio-, Geräte- oder Netzwerktest.

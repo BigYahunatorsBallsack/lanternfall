@@ -238,7 +238,7 @@ Jede Klasse: eine Startwaffe, ein passiver Bonus, ein eigenes Kostüm. Keine eig
 
 ## 6. Waffen, Items & Evolutionen
 
-v1 hat 6 Waffen, 90 Items (seit B5, vorher 78 bzw. 46) und 2 Evolutionen. Seit B2 trägt jeder Spieler bis zu 6 Waffen (vorher 4). Seit B3 hat jede Waffe wie in Brotato eine Stufe I–IV statt Level 1–5; dieselbe Waffe darf man mehrmals tragen, zwei gleiche gleicher Stufe verschmelzen zur nächsten (Abschnitt 3). Items ersetzen seit B2 die 6 Passive: Man kann sie beliebig oft kaufen, sie stapeln ohne Grenze.
+Seit B7 hat v1 24 Waffen, 90 Items (seit B5, vorher 78 bzw. 46) und 2 Evolutionen. Seit B2 trägt jeder Spieler bis zu 6 Waffen (vorher 4). Seit B3 hat jede Waffe wie in Brotato eine Stufe I–IV statt Level 1–5; dieselbe Waffe darf man mehrmals tragen, zwei gleiche gleicher Stufe verschmelzen zur nächsten (Abschnitt 3). Items ersetzen seit B2 die 6 Passive: Man kann sie beliebig oft kaufen, sie stapeln ohne Grenze.
 
 **Waffen (Startwerte Stufe I; seit B3 Stufen statt Level)**
 
@@ -484,6 +484,10 @@ Effekt-Aktionen dazu (`Config/Effects.luau`): „Burn" (Gegner in Brand setzen) 
 Neu in der Effekt-Maschine (B8): Aktion „Strike" (Treffer an einem zufälligen oder dem getroffenen Gegner: Grundschaden + Skalierung mal Damage %, dazu wahlweise ein Anteil seiner aktuellen HP; Damage vs Elites zählt, kein Krit, kein Life Steal, kein Rückstoß; seine Kills zählen als Kill, seine Treffer nicht als Treffer), Aktion „Drain" (HP verlieren ohne Rüstung, Ausweichen und Schutzzeit), Bedingung „volle HP" beim Aufheben einer Frucht oder Kiste (vor ihrer Heilung), „pro X" auch mit negativem Schritt und Untergrenze, neue Quellen „lebende Gegner" und „verschiedene Items einer Stufe".
 
 Annahmen, wo Brotato keine Zahl nennt: Drain tötet nicht, die HP bleiben bei mindestens 1 (Brotato: „you take 1 damage per second"), und er löst „getroffen"-Effekte nicht aus. Strike kann nicht kritten. Titan's Girdle rechnet mit den HP nach dem Krit-Treffer.
+
+### B7: Waffen-Paket
+
+18 neue Waffen nach konkreten Brotato-Basisspiel-Vorbildern, insgesamt 24. Quellen, Zuordnung und Testanleitung: `docs/B7-WAFFEN.md`. Exakte Stufenpreise, Mindeststufen, stufenabhängige Skalierung, Werte beim Tragen und permanente Kill-Gewinne. Bisherige Waffen behalten ihre Daten. Medical Gun wird als Lebensraub-Waffe umgesetzt, Icicle als durchschlagende Elementarwaffe. Engineering bleibt bis B12 ohne neue Erwerbsquellen. Dread ergänzt Legendary; keine neuen DLC-Waffen.
 
 ## 7. Gegner, Elites & Boss
 
@@ -1082,7 +1086,7 @@ Bis zum Soft Launch rund 40–50 Sessions und 50–60 Stunden Zeit des Owners (6
 | B4 | Brotato 4: Effekt-Maschine – Ereignisse, Effekte als Daten, bedingte und „pro X"-Werte, nächste Welle, Wellenende-Wachstum, Neben-Werte, getrennte Zufalls-Ströme, ~20 neue Items mit Effekten (umgesetzt 29.10.2026 mit 32 Items, Branch `wp-b4-effect-engine`) | Vertical Slice | Extra high | 2 | 1 h | neue Items ausprobieren |
 | B5 | Brotato 5: Kampf-Tiefe – Krit und Lebensraub pro Waffe, Rückstoß, Brennen, Verlangsamen, Explosionen, Durchschlag/Abprall, 12 Angriffe/s, Skalierung pro Waffe, Waffenklassen mit Set-Boni (umgesetzt 30.10.2026 mit 12 Kampf-Items, Branch `wp-b5-combat`) | Vertical Slice | Extra high | 2 | 1 h | Waffengefühl beurteilen |
 | B6 | Brotato 6: Beute – sinkende Drop-Chance, Beutel, Heil-Früchte, Kisten von normalen Gegnern, Plünderer, Bäume, Beute-Obergrenze (umgesetzt 30.10.2026, Branch `wp-b6-loot`) | Vertical Slice | High | 1–2 | 1 h | Wirtschaft beurteilen |
-| B7 | Brotato 7: Waffen-Paket – auf 20–24 Waffen, alle Klassen und Effekt-Arten | Vertical Slice | Medium | 2 | 1 h | Waffen ausprobieren |
+| B7 | Brotato 7: Waffen-Paket – 24 Waffen, 18 neue Basisspiel-Vorbilder (umgesetzt auf `wp-b7-weapons`, Studio-Abnahme offen) | Vertical Slice | Medium | 2 | 1 h | Waffen ausprobieren |
 | B8 | Brotato 8: Item-Paket – auf ~100 Items, viele mit Effekten (umgesetzt 30.10.2026 mit 114 Items, Branch `wp-b8-items`, von Claude statt ChatGPT) | Vertical Slice | Medium | 2 | 1 h | Items ausprobieren |
 | B9 | Brotato 9: Gegner-Paket – Spawn-Marker, Wellen als Spawn-Gruppen, Werte pro Typ und Welle, 8 neue Verhalten | Vertical Slice | Extra high | 2 | 1 h | Schwierigkeit und Lesbarkeit beurteilen |
 | B10 | Brotato 10: Charaktere – 10–12 Charaktere als Regelpakete (ersetzt die Klassen), Charakter- und Waffenwahl in der Lobby | Vertical Slice | High | 2 | 1,5 h | jeden Charakter einmal spielen |
