@@ -1,5 +1,6 @@
 --!strict
--- Enemy, elite and boss records (DESIGN.md section 7). Read by EnemySim, SpawnDirector and EnemyRenderer.
+-- Enemy, elite, champion and boss records (DESIGN.md section 7). Read by EnemySim, SpawnDirector, BossService and
+-- EnemyRenderer.
 -- `typeId` is the 1-byte id sent in enemy snapshots; it must be unique and stay stable.
 
 export type Enemy = {
@@ -39,7 +40,8 @@ export type Enemy = {
 	hatch: Hatch?,
 	slash: Slash?,
 	eat: Eat?,
-	-- since WP10: a boss of the boss wave (Config.Enemies.bosses); BossService runs its phases and attacks
+	-- since WP10: a boss of the boss wave (Config.Enemies.bosses) or, since WP10 part 2, a champion of an elite wave
+	-- (Config.Enemies.champions); BossService runs its phases and attacks
 	boss: BossPlan?,
 }
 
@@ -58,6 +60,7 @@ export type BossPhase = {
 	pauseSeconds: number, -- walking between two attacks
 	speedMultiplier: number?, -- on its walking speed in this phase (default 1)
 	roam: boolean?, -- runs all over the arena instead of after the nearest player
+	flee: boolean?, -- runs away from the nearest player (WP10 part 2, Brotato's Monk)
 	orbit: BossOrbit?, -- projectiles circling it during this phase
 	announce: string?, -- message to everyone when the phase starts
 }
@@ -79,6 +82,14 @@ export type BossOrbit = {
 --     wind-up ends (Brotato's Invoker: projectiles that "spawn after a second of priming").
 --   Circle: `count` spots on a circle of `spread` studs around every living player; each fires a projectile at the
 --     centre when the wind-up ends.
+-- Since WP10 part 2 (the champions, Brotato's elites):
+--   Cleave: `count` slashes from where it stands (red strips `distance` long, `radius` half wide): a fan of `arc`
+--     degrees aimed at the nearest player, or with `around` evenly in every direction; hits each player once.
+--   Volley: `count` projectiles in a fan of `arc` degrees at the nearest player, `bursts` times.
+--   Scatter: `count` projectiles in random directions.
+--   Summon: `count` enemies of `enemy` (with this wave's growth) within `spread` studs of it.
+--   A Dash can also fire a pair of projectiles to its sides every `trailEvery` studs and `startShots` projectiles
+--   (fan of `arc`) at the nearest player when it starts.
 export type BossAttack = {
 	kind: string,
 	windupSeconds: number, -- the warning on the floor
@@ -97,6 +108,12 @@ export type BossAttack = {
 	projectileSpeed: number?, -- Ring, Circle
 	projectileRange: number?, -- Ring (Circle: twice its spread)
 	projectileRadius: number?, -- Ring, Circle
+	-- since WP10 part 2
+	arc: number?, -- Cleave, Volley, Dash startShots: degrees of the fan
+	around: boolean?, -- Cleave: in every direction instead of at the nearest player
+	enemy: string?, -- Summon: key in Config.Enemies.types
+	trailEvery: number?, -- Dash: studs between two pairs of side projectiles
+	startShots: number?, -- Dash
 }
 
 -- Enemies that get faster the longer they live (Stalker, B9).
@@ -753,10 +770,477 @@ for _, boss in Bosses do
 	table.freeze(boss)
 end
 
+-- WP10 part 2: the champions of the elite waves, after Brotato's eight elites (Rhino, Butcher, Monk, Croc, Colossus,
+-- Mantis, Mother, Gargoyle), with our own names and looks. Like the bosses they run phases of attacks (BossService),
+-- show an HP bar at the top, count as elites, ignore knockback and drop a legendary crate. Brotato: 1 HP + 750 per
+-- wave (Monk 700), 1 contact damage + 1.5 per wave; scaled like our other enemies (HP x 3.4 per step, damage x 2.8)
+-- and grown by Run.spawn.growth like every enemy, HP also with the player factor (Run.playerFactor). Their attacks
+-- hit as hard as their contact damage (the wiki gives no projectile damage, assumption) and grow alike. Speeds:
+-- Brotato's 200-350 like the bosses (300 = 13 studs/s). Attack timings follow the wiki ("charges every 2 s"); wind-up
+-- times, distances, projectile speeds and counts it does not give are assumptions, counts kept within the
+-- projectile budget (DESIGN.md section 15).
+local CHAMPION_HP_PER_WAVE = 2550 -- Brotato 750
+local CHAMPION_DAMAGE_PER_WAVE = 4.25 -- Brotato 1.5
+
+local function champion(id: string, typeId: number, displayName: string, speed: number, plan: BossPlan): Enemy
+	return {
+		id = id,
+		typeId = typeId,
+		displayName = displayName,
+		hp = 3, -- Brotato 1
+		speed = speed,
+		contactDamage = 3, -- Brotato 1
+		hpPerWave = CHAMPION_HP_PER_WAVE,
+		damagePerWave = CHAMPION_DAMAGE_PER_WAVE,
+		xp = 25, -- like a Gloom Elite (Brotato: 10 materials)
+		radius = 3.2,
+		mass = 30,
+		knockbackResistance = 1,
+		boss = plan,
+	}
+end
+
+-- side projectiles of the charges
+local TRAIL_SHOT = { projectileSpeed = 12, projectileRange = 18, projectileRadius = 0.6 }
+
+local function with(base: { [string]: any }, extra: { [string]: any }): BossAttack
+	local attack = table.clone(base)
+	for key, value in extra do
+		attack[key] = value
+	end
+	return attack :: any
+end
+
+local Champions: { [string]: Enemy } = {
+	-- Rhino: charges every 2 s, throwing projectiles to its sides; at 60 % HP (or after 25 s) every 1.3 s, shorter,
+	-- with 2 more projectiles at you when it starts
+	BrassRam = champion("BrassRam", 21, "The Brass Ram", 11, {
+		phases = {
+			{ attacks = { "Charge" }, pauseSeconds = 0.6 },
+			{
+				fromHp = 0.6,
+				afterSeconds = 25,
+				attacks = { "QuickCharge" },
+				pauseSeconds = 0.3,
+				announce = "The Brass Ram is enraged!",
+			},
+		},
+		attacks = {
+			Charge = with(TRAIL_SHOT, {
+				kind = "Dash",
+				windupSeconds = 0.7,
+				recoverSeconds = 0.5,
+				range = 45,
+				damage = 3,
+				speed = 38,
+				distance = 32,
+				trailEvery = 5,
+			}),
+			QuickCharge = with(TRAIL_SHOT, {
+				kind = "Dash",
+				windupSeconds = 0.5,
+				recoverSeconds = 0.3,
+				range = 40,
+				damage = 3,
+				speed = 40,
+				distance = 20,
+				trailEvery = 5,
+				startShots = 2,
+				arc = 20,
+			}),
+		},
+	}),
+	-- Butcher: 4 slashes at you every 1.25 s; at 70 % HP (or 25 s) 8 slashes all around every second; at 40 % (or
+	-- 40 s) 3 quick slashes every 0.75 s that hurt a third less
+	Flayer = champion("Flayer", 22, "The Flayer", 9, {
+		phases = {
+			{ attacks = { "Cleave" }, pauseSeconds = 0.3 },
+			{
+				fromHp = 0.7,
+				afterSeconds = 25,
+				attacks = { "Whirl" },
+				pauseSeconds = 0.2,
+				announce = "The Flayer starts to whirl!",
+			},
+			{ fromHp = 0.4, afterSeconds = 40, attacks = { "QuickCleave" }, pauseSeconds = 0.1 },
+		},
+		attacks = {
+			Cleave = {
+				kind = "Cleave",
+				windupSeconds = 0.6,
+				recoverSeconds = 0.3,
+				cooldownSeconds = 1.25,
+				range = 18,
+				damage = 3,
+				count = 4,
+				arc = 60,
+				distance = 16,
+				radius = 1.2,
+			},
+			Whirl = {
+				kind = "Cleave",
+				windupSeconds = 0.7,
+				recoverSeconds = 0.2,
+				cooldownSeconds = 1,
+				range = 24,
+				damage = 3,
+				count = 8,
+				around = true,
+				distance = 22,
+				radius = 1.2,
+			},
+			QuickCleave = {
+				kind = "Cleave",
+				windupSeconds = 0.45,
+				recoverSeconds = 0.15,
+				cooldownSeconds = 0.75,
+				range = 18,
+				damage = 2,
+				count = 3,
+				arc = 40,
+				distance = 16,
+				radius = 1.2,
+			},
+		},
+	}),
+	-- Monk: lays eggs, then (10 s) fires 5 projectiles a second at you; at 30 s it runs away for 10 s calling helpers,
+	-- then shoots again. Brotato switches by time only; the HP shares are ours (assumption), so damage moves it on too.
+	Abbot = (function()
+		local abbot = champion("Abbot", 23, "The Abbot", 15, {
+			phases = {
+				{ attacks = { "Eggs" }, pauseSeconds = 1.5 },
+				{ fromHp = 0.85, afterSeconds = 10, attacks = { "Bolts" }, pauseSeconds = 0 },
+				{
+					fromHp = 0.5,
+					afterSeconds = 30,
+					attacks = { "Helpers" },
+					pauseSeconds = 1,
+					speedMultiplier = 1.1,
+					flee = true,
+					announce = "The Abbot flees and calls for help!",
+				},
+				{ fromHp = 0.3, afterSeconds = 40, attacks = { "Bolts" }, pauseSeconds = 0 },
+			},
+			attacks = {
+				Eggs = {
+					kind = "Summon",
+					windupSeconds = 1,
+					recoverSeconds = 0.5,
+					cooldownSeconds = 30, -- once in this phase
+					damage = 0,
+					enemy = "BroodEgg", -- Brotato: 15 Slasher Eggs
+					count = 6,
+					spread = 8,
+				},
+				Bolts = {
+					kind = "Volley",
+					windupSeconds = 0.4,
+					recoverSeconds = 0.2,
+					range = 60,
+					damage = 3,
+					count = 1,
+					bursts = 5,
+					burstGapSeconds = 0.2,
+					projectileSpeed = 18,
+					projectileRange = 55,
+					projectileRadius = 0.6,
+				},
+				Helpers = {
+					kind = "Summon",
+					windupSeconds = 0.6,
+					recoverSeconds = 0.3,
+					cooldownSeconds = 3,
+					moving = true,
+					damage = 0,
+					enemy = "Reaper", -- Brotato: Tentacles
+					count = 2,
+					spread = 6,
+				},
+			},
+		})
+		abbot.hpPerWave = 2380 -- Brotato 700
+		return abbot
+	end)(),
+	-- Croc: lunges every second and slashes around itself; at 60 % HP (or 25 s) lunges and rings you with projectiles
+	MireJaw = champion("MireJaw", 24, "The Mire Jaw", 15, {
+		phases = {
+			{ attacks = { "Snap", "Lunge" }, pauseSeconds = 0.2 },
+			{
+				fromHp = 0.6,
+				afterSeconds = 25,
+				attacks = { "Jaws", "Lunge" },
+				pauseSeconds = 0.2,
+				announce = "The Mire Jaw thrashes!",
+			},
+		},
+		attacks = {
+			Lunge = {
+				kind = "Dash",
+				windupSeconds = 0.5,
+				recoverSeconds = 0.3,
+				cooldownSeconds = 1,
+				range = 35,
+				damage = 3,
+				speed = 40,
+				distance = 18,
+			},
+			Snap = {
+				kind = "Slam",
+				windupSeconds = 0.5,
+				recoverSeconds = 0.2,
+				cooldownSeconds = 2,
+				range = 6,
+				damage = 3,
+				radius = 7,
+			},
+			Jaws = {
+				kind = "Circle",
+				windupSeconds = 0.9,
+				recoverSeconds = 0,
+				cooldownSeconds = 2,
+				moving = true,
+				damage = 3,
+				count = 10,
+				spread = 12,
+				projectileSpeed = 13,
+				projectileRadius = 0.7,
+			},
+		},
+	}),
+	-- Colossus: chases you under a hail of projectiles every second (Brotato: 50 in a big area); at 60 % HP (or 25 s)
+	-- wanders the arena and rings you with projectiles
+	Monolith = (function()
+		local monolith = champion("Monolith", 25, "The Monolith", 13, {
+			phases = {
+				{ attacks = { "Hail" }, pauseSeconds = 0 },
+				{
+					fromHp = 0.6,
+					afterSeconds = 25,
+					attacks = { "Encircle" },
+					pauseSeconds = 0,
+					roam = true,
+					announce = "The Monolith wanders off!",
+				},
+			},
+			attacks = {
+				Hail = {
+					kind = "Scatter",
+					windupSeconds = 0.4,
+					recoverSeconds = 0,
+					cooldownSeconds = 1,
+					moving = true,
+					damage = 3,
+					count = 14,
+					projectileSpeed = 10,
+					projectileRange = 40,
+					projectileRadius = 0.7,
+				},
+				Encircle = {
+					kind = "Circle",
+					windupSeconds = 1,
+					recoverSeconds = 0,
+					cooldownSeconds = 1.2, -- Brotato 0.5
+					moving = true,
+					damage = 3,
+					count = 10,
+					spread = 14,
+					projectileSpeed = 13,
+					projectileRadius = 0.7,
+				},
+			},
+		})
+		monolith.radius = 3.8
+		monolith.mass = 50
+		return monolith
+	end)(),
+	-- Mantis: chases you and slashes all around every 1.25 s; at 60 % HP (or 25 s) charges every 1.3 s, leaving
+	-- slashes behind
+	SickleWraith = champion("SickleWraith", 26, "The Sickle Wraith", 11, {
+		phases = {
+			{ attacks = { "Scythes" }, pauseSeconds = 0.3 },
+			{
+				fromHp = 0.6,
+				afterSeconds = 25,
+				attacks = { "Pounce" },
+				pauseSeconds = 0.2,
+				announce = "The Sickle Wraith pounces!",
+			},
+		},
+		attacks = {
+			Scythes = {
+				kind = "Cleave",
+				windupSeconds = 0.6,
+				recoverSeconds = 0.2,
+				cooldownSeconds = 1.25,
+				range = 14,
+				damage = 3,
+				count = 6,
+				around = true,
+				distance = 12,
+				radius = 1,
+			},
+			Pounce = with(TRAIL_SHOT, {
+				kind = "Dash",
+				windupSeconds = 0.6,
+				recoverSeconds = 0.3,
+				cooldownSeconds = 1.3,
+				range = 40,
+				damage = 3,
+				speed = 40,
+				distance = 26,
+				trailEvery = 4,
+			}),
+		},
+	}),
+	-- Mother: a four-pronged slash every 1.4 s; at 60 % HP (or 25 s) double slashes every 0.65 s and a stream of
+	-- small enemies (Brotato: about 9 Fin Aliens a second; fewer here, the alive cap would stop them anyway)
+	BroodMatron = champion("BroodMatron", 27, "The Brood Matron", 11, {
+		phases = {
+			{ attacks = { "Prongs" }, pauseSeconds = 0.3 },
+			{
+				fromHp = 0.6,
+				afterSeconds = 25,
+				attacks = { "Brood", "DoubleProngs" },
+				pauseSeconds = 0.1,
+				announce = "The Brood Matron's young hatch!",
+			},
+		},
+		attacks = {
+			Prongs = {
+				kind = "Cleave",
+				windupSeconds = 0.6,
+				recoverSeconds = 0.2,
+				cooldownSeconds = 1.4,
+				range = 16,
+				damage = 3,
+				count = 4,
+				around = true,
+				distance = 14,
+				radius = 1.2,
+			},
+			DoubleProngs = {
+				kind = "Cleave",
+				windupSeconds = 0.4,
+				recoverSeconds = 0.1,
+				cooldownSeconds = 0.65,
+				range = 16,
+				damage = 3,
+				count = 8,
+				around = true,
+				distance = 14,
+				radius = 1.2,
+			},
+			Brood = {
+				kind = "Summon",
+				windupSeconds = 0.3,
+				recoverSeconds = 0,
+				cooldownSeconds = 2,
+				moving = true,
+				damage = 0,
+				enemy = "Shadeling",
+				count = 4,
+				spread = 5,
+			},
+		},
+	}),
+	-- Gargoyle: wanders, a big ring of projectiles again and again; at 60 % HP (or 30 s) chases you with fans of
+	-- projectiles; at 30 % (or 45 s) sprays projectiles in random directions
+	StoneSeraph = champion("StoneSeraph", 28, "The Stone Seraph", 15, {
+		phases = {
+			{ attacks = { "Halo" }, pauseSeconds = 0, roam = true },
+			{
+				fromHp = 0.6,
+				afterSeconds = 30,
+				attacks = { "Barrage" },
+				pauseSeconds = 0,
+				announce = "The Stone Seraph swoops in!",
+			},
+			{
+				fromHp = 0.3,
+				afterSeconds = 45,
+				attacks = { "Spray" },
+				pauseSeconds = 0,
+				announce = "The Stone Seraph cracks!",
+			},
+		},
+		attacks = {
+			Halo = {
+				kind = "Ring",
+				windupSeconds = 0.3,
+				recoverSeconds = 0,
+				cooldownSeconds = 0.8, -- Brotato 0.3
+				moving = true,
+				damage = 3,
+				count = 12,
+				projectileSpeed = 12,
+				projectileRange = 45,
+				projectileRadius = 0.7,
+			},
+			Barrage = {
+				kind = "Volley",
+				windupSeconds = 0.3,
+				recoverSeconds = 0,
+				cooldownSeconds = 0.6, -- Brotato: 12 every 0.4 s
+				moving = true,
+				range = 60,
+				damage = 3,
+				count = 5,
+				arc = 50,
+				projectileSpeed = 15,
+				projectileRange = 50,
+				projectileRadius = 0.6,
+			},
+			Spray = {
+				kind = "Scatter",
+				windupSeconds = 0.05,
+				recoverSeconds = 0,
+				cooldownSeconds = 0.15, -- Brotato 0.01-0.15
+				moving = true,
+				damage = 3,
+				count = 3,
+				projectileSpeed = 13,
+				projectileRange = 40,
+				projectileRadius = 0.6,
+			},
+		},
+	}),
+}
+
+-- Brotato's elite waves (DESIGN.md section 7): one champion joins the wave's normal enemies, after red crosses like
+-- the boss. Brotato: danger 2-3 one challenging wave (11 or 12), danger 4-5 three (11/12, 14/15, 17/18), 60 % of
+-- them elite, the rest horde waves. Until the danger levels come (B11) the first slot is on and always an elite wave.
+local EliteWaves = table.freeze({
+	slots = table.freeze({ table.freeze({ 11, 12 }), table.freeze({ 14, 15 }), table.freeze({ 17, 18 }) }),
+	activeSlots = 1, -- B11: by danger level
+	count = 1, -- champions per elite wave (Brotato; endless mode brings more)
+	-- picked at random, never twice in a run; "SpawnChampion" goes through them in turn
+	order = table.freeze({
+		"BrassRam",
+		"Flayer",
+		"Abbot",
+		"MireJaw",
+		"Monolith",
+		"SickleWraith",
+		"BroodMatron",
+		"StoneSeraph",
+	}),
+	reducedHpWaves = table.freeze({ 11, 12 }), -- Brotato: elites come with 75 % HP in waves 11 and 12
+	reducedHpShare = 0.75,
+	introSeconds = 2.5, -- after the wave starts: red crosses show where it comes
+	debugMinWave = 11, -- "SpawnChampion" in an earlier wave grows it like this wave (else it has 3 HP in wave 1)
+	legendaryCrate = true, -- a killed champion drops a legendary crate (Brotato)
+})
+
+for _, champion in Champions do
+	table.freeze(champion)
+end
+
 return table.freeze({
 	types = table.freeze(Enemies),
 	elite = Elite,
 	bosses = table.freeze(Bosses),
 	bossWave = BossWave,
+	champions = table.freeze(Champions), -- WP10 part 2
+	eliteWaves = EliteWaves,
 	boss = Bosses.LanternEater, -- the HUD's label for the old boss phase (unused since WP10)
 })

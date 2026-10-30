@@ -35,7 +35,7 @@ end
 -- Multipliers on an enemy's HP and damage when it spawns in `wave` (before difficulty): its kind's values plus
 -- hpPerWave and damagePerWave per growth step of the wave (Run.spawn.growth), like Brotato (B9).
 function SpawnRules.growth(enemyId: string, wave: number): (number, number)
-	local kind = Config.Enemies.types[enemyId]
+	local kind = Config.Enemies.types[enemyId] or Config.Enemies.champions[enemyId] -- champions grow too (WP10)
 	if not kind then
 		return 1, 1
 	end
