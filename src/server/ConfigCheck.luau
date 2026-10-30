@@ -359,29 +359,36 @@ function ConfigCheck.run(): { string }
 		problem("Run.spawn.ringMin must be above 0 and at most ringMax")
 	end
 
-	for _, step in Config.Run.spawn.mix do
-		local sum = 0
-		for enemyId, weight in step.weights do
-			sum += weight
-			if not Config.Enemies.types[enemyId] then
-				problem(`Spawn mix at minute {step.fromMinute} uses unknown enemy {enemyId}`)
+	local spawn = Config.Run.spawn
+	-- B9: spawn groups of every wave and HP and damage growth per kind
+	if #spawn.groups ~= #spawn.waves.lengthsSeconds then
+		problem("Run.spawn.groups needs one entry per wave in Run.spawn.waves")
+	end
+	for index, entry in spawn.groups do
+		for _, group in entry.groups do
+			if not Config.Enemies.types[group.enemy] then
+				problem(`Run.spawn.groups wave {index} uses unknown enemy {group.enemy}`)
 			end
-		end
-		if math.abs(sum - 1) > 1e-6 then
-			problem(`Spawn mix at minute {step.fromMinute} sums to {sum}, expected 1`)
+			if not (group.size > 0 and group.every > 0) then
+				problem(`Run.spawn.groups wave {index} needs sizes and intervals above 0`)
+			end
 		end
 	end
-
-	local spawn = Config.Run.spawn
-	for name, curve in { rateCurve = spawn.rateCurve, hpCurve = spawn.hpCurve, damageCurve = spawn.damageCurve } do
-		if #curve == 0 or curve[1][1] ~= 0 then
-			problem(`Run.spawn.{name} must start at minute 0`)
-		end
-		for k, point in curve do
-			if not (point[2] > 0) or (k > 1 and point[1] <= curve[k - 1][1]) then
-				problem(`Run.spawn.{name} needs values above 0 at rising minutes`)
-				break
-			end
+	if not (spawn.maxOwedFirings >= 1) then
+		problem("Run.spawn.maxOwedFirings must be at least 1")
+	end
+	if not (spawn.firstShare >= 0 and spawn.groupSpread >= 0 and spawn.markerSeconds >= 0) then
+		problem("Run.spawn.firstShare, groupSpread and markerSeconds must not be negative")
+	end
+	if #spawn.growth.hpSteps < #spawn.groups or #spawn.growth.damageSteps < #spawn.groups then
+		problem("Run.spawn.growth needs hpSteps and damageSteps for every wave")
+	end
+	if not (spawn.swarmRush.every > 0) then
+		problem("Run.spawn.swarmRush.every must be above 0")
+	end
+	for enemyId, kind in Config.Enemies.types do
+		if not (kind.hpPerWave >= 0 and kind.damagePerWave >= 0) then
+			problem(`Enemies.{enemyId} needs hpPerWave and damagePerWave of at least 0`)
 		end
 	end
 	local waves = spawn.waves

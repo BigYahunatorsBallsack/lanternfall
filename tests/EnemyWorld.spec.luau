@@ -86,6 +86,16 @@ describe("EnemyWorld", function()
 		expect(distance(world, id, 0, 0)).toBeNear(Types.Shadeling.radius + Sim.playerRadius, 0.01)
 	end)
 
+	it("walks faster with a speed factor and passes it on (Enemy Speed, B9)", function()
+		local world = newWorld()
+		local kind = Types.Shadeling
+		local id = world:spawn(kind, 50, 0, kind.hp, kind.contactDamage, nil, 1.5) :: number
+		run(world, 1, { 0 }, { 0 })
+		expect(distance(world, id, 0, 0)).toBeNear(50 - kind.speed * 1.5, 0.01)
+		local _, _, speed = world:getMultipliers(id)
+		expect(speed).toBeNear(1.5)
+	end)
+
 	it("chases the nearest of several players", function()
 		local world = newWorld()
 		local id = spawn(world, "Shadeling", 20, 0)

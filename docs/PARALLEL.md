@@ -17,7 +17,7 @@ Pro Runde baut jeder Strang **ein** Paket. Eine Runde ist vorbei, wenn beide PRs
 | Runde | Strang A – Claude | Strang B – ChatGPT | Abhängigkeit |
 | --- | --- | --- | --- |
 | 1 | **B6** Beute (High) | **B7** Waffen (Medium) | keine, kann sofort parallel |
-| 2 | **B9** Gegner (Extra high) | **B8** Items (Medium) | B8 startet erst, wenn B6 gemerged ist (Items für Früchte, Kisten, Beutel brauchen dessen Ereignisse). Items, die B9-Gegner brauchen, kommen in Runde 3 nach. |
+| 2 | **B9** Gegner (Extra high) **und B8** Items (Medium) | – | B8 startet erst, wenn B6 gemerged ist (Items für Früchte, Kisten, Beutel brauchen dessen Ereignisse). Items, die B9-Gegner brauchen, kommen in Runde 3 nach. **Owner 30.10.2026:** B8 macht Claude (Strang A), weil ChatGPT wenig Limit hat. |
 | 3 | **WP10** Boss + Elite-Phasen (High) | **B10** Charaktere (High) | WP10 braucht B9. B10 braucht B7 (Startwaffen) und B8. |
 | 4 | **B11** Gefahrenstufen (High) | **B12** Bauten + Begleiter (High) | B11 startet erst, wenn B10 gemerged ist (beide ändern die Lobby). |
 
@@ -49,6 +49,8 @@ Jede Datei hat **einen** Besitzer-Strang. Nur der Besitzer ändert sie. Braucht 
 - `Config/init.luau`, `server/ConfigCheck.luau`, `server/init.server.luau`, `client/init.client.luau` (neue Module eintragen)
 - `HUDController`, `LobbyController` (B10 Charakterwahl, B11 Gefahrenstufe), `UI/*`, `Vfx/*`, `tests/helpers/RobloxMock.luau`
 - `STATUS.md`, `DESIGN.md` (siehe Abschnitt 5)
+
+**Ausnahme B8 (30.10.2026):** B8 hat Claude statt ChatGPT gebaut (PR #22, gemerged). Die Item-Dateien gehören weiter Strang B.
 
 **Ausnahme B10:** Die Charaktere ersetzen die Klassen. B10 darf deshalb in `RunDirector`, `RunStatsService` und `PlayerDataService` genau die Stellen anpassen, die `Config.Classes` lesen, und nennt sie im PR unter „Neue Schnittstellen".
 

@@ -1,7 +1,7 @@
 --!strict
--- Spawn formulas from DESIGN.md section 7, as pure functions of Config.Run: rate (curve, waves, Swarm Rush), alive
--- cap, HP and damage factors, enemy mix by minute, elite times and the spawn ring around a player (optionally in
--- front of them). Curves and waves come from the shared Util/RunSchedule, which the HUD uses too. Used by
+-- Spawn formulas from DESIGN.md section 7, as pure functions of Config.Run: the spawn groups of each wave (since B9,
+-- with Swarm Rush), alive cap, HP and damage growth per wave (Config.Enemies), elite times and the spawn ring around
+-- a player (optionally in front of them). Waves come from the shared Util/RunSchedule, which the HUD uses too. Used by
 -- SpawnDirector; tested in tests/SpawnRules.spec.luau. `minutes` is schedule time (RunSchedule.minutesAt): one
 -- minute per wave, fractions allowed.
 
@@ -16,16 +16,9 @@ local Spawn = Config.Run.spawn
 
 local SpawnRules = {}
 
-local RUSH_WEIGHTS = table.freeze({ [Spawn.swarmRush.enemy] = 1 })
-
 -- fPlayers = 1 + perExtraPlayer * (n - 1)
 function SpawnRules.playerFactor(playerCount: number): number
 	return 1 + Config.Run.playerFactor.perExtraPlayer * (math.max(playerCount, 1) - 1)
-end
-
--- Enemies per second from the rate curve, before waves and Swarm Rush.
-function SpawnRules.rate(minutes: number, playerCount: number): number
-	return RunSchedule.curve(Spawn.rateCurve, minutes) * SpawnRules.playerFactor(playerCount)
 end
 
 -- Enemies alive at the same time; spawning pauses at this number.
@@ -34,28 +27,29 @@ function SpawnRules.cap(playerCount: number): number
 	return math.min(cap.base + cap.perExtraPlayer * (math.max(playerCount, 1) - 1), cap.max)
 end
 
--- Multiplier on enemy HP at spawn time (before difficulty).
-function SpawnRules.hpFactor(minutes: number): number
-	return RunSchedule.curve(Spawn.hpCurve, minutes)
+-- The wave (1 for the first) running at schedule minute `minutes`.
+function SpawnRules.waveAt(minutes: number): number
+	return math.clamp(math.floor(minutes) + 1, 1, #Spawn.groups)
 end
 
--- Multiplier on enemy contact and projectile damage at spawn time (before difficulty).
-function SpawnRules.damageFactor(minutes: number): number
-	return RunSchedule.curve(Spawn.damageCurve, minutes)
-end
-
--- Weights of the mix entry that applies at this minute (the last one with fromMinute <= minutes).
-function SpawnRules.mixAt(minutes: number): { [string]: number }
-	local weights = Spawn.mix[1].weights
-	for _, entry in Spawn.mix do
-		if entry.fromMinute <= minutes then
-			weights = entry.weights
-		end
+-- Multipliers on an enemy's HP and damage when it spawns in `wave` (before difficulty): its kind's values plus
+-- hpPerWave and damagePerWave per growth step of the wave (Run.spawn.growth), like Brotato (B9).
+function SpawnRules.growth(enemyId: string, wave: number): (number, number)
+	local kind = Config.Enemies.types[enemyId]
+	if not kind then
+		return 1, 1
 	end
-	return weights
+	local growth = Spawn.growth
+	local index = math.clamp(wave, 1, #growth.hpSteps)
+	local hp = if kind.hp > 0 then 1 + kind.hpPerWave * growth.hpSteps[index] / kind.hp else 1
+	local damage = kind.contactDamage
+	if damage <= 0 and kind.ranged then
+		damage = kind.ranged.projectileDamage
+	end
+	return hp, if damage > 0 then 1 + kind.damagePerWave * growth.damageSteps[index] / damage else 1
 end
 
--- Swarm Rush running at this minute: only `swarmRush.enemy`, rate times `rateMultiplier`.
+-- Swarm Rush running at this minute: the wave's groups pause, Shadeling groups come at rateMultiplier their rate.
 function SpawnRules.isSwarmRush(minutes: number): boolean
 	local rush = Spawn.swarmRush
 	for _, start in rush.atMinutes do
@@ -66,18 +60,80 @@ function SpawnRules.isSwarmRush(minutes: number): boolean
 	return false
 end
 
--- Enemies per second including the wave intensity (ramp, final wave) and Swarm Rush.
-function SpawnRules.currentRate(minutes: number, playerCount: number): number
-	local rate = SpawnRules.rate(minutes, playerCount) * RunSchedule.intensity(minutes)
-	return if SpawnRules.isSwarmRush(minutes) then rate * Spawn.swarmRush.rateMultiplier else rate
+export type Group = { enemy: string, size: number, every: number }
+
+-- Enemies per second of a wave's groups (before the wave intensity and player count).
+local function groupRate(groups: { Group }): number
+	local rate = 0
+	for _, entry in groups do
+		rate += entry.size / entry.every
+	end
+	return rate
 end
 
--- Mix weights including Swarm Rush.
-function SpawnRules.currentMix(minutes: number): { [string]: number }
-	if SpawnRules.isSwarmRush(minutes) then
-		return RUSH_WEIGHTS
+local rushGroups: { [number]: { Group } } = {}
+
+-- The spawn groups running at this minute: the wave's own, or during a Swarm Rush one Shadeling group with
+-- rateMultiplier times their enemies per second.
+function SpawnRules.groupsAt(minutes: number): { Group }
+	local wave = SpawnRules.waveAt(minutes)
+	local groups = Spawn.groups[wave].groups :: { Group }
+	if not SpawnRules.isSwarmRush(minutes) then
+		return groups
 	end
-	return SpawnRules.mixAt(minutes)
+	local rush = rushGroups[wave]
+	if not rush then
+		local settings = Spawn.swarmRush
+		rush = {
+			{
+				enemy = settings.enemy,
+				size = groupRate(groups) * settings.rateMultiplier * settings.every,
+				every = settings.every,
+			},
+		}
+		rushGroups[wave] = rush
+	end
+	return rush
+end
+
+-- Enemies per second at this minute including the wave intensity (ramp, final wave), Swarm Rush and players.
+function SpawnRules.currentRate(minutes: number, playerCount: number): number
+	return groupRate(SpawnRules.groupsAt(minutes))
+		* RunSchedule.intensity(minutes)
+		* SpawnRules.playerFactor(playerCount)
+end
+
+-- Enemies one firing of `group` brings at this minute (fractions carry over to its next firing).
+function SpawnRules.groupSize(group: Group, minutes: number, playerCount: number): number
+	return group.size * RunSchedule.intensity(minutes) * SpawnRules.playerFactor(playerCount)
+end
+
+-- Seconds into its wave at which a group fires the first time.
+function SpawnRules.firstFiring(group: Group): number
+	return group.every * Spawn.firstShare
+end
+
+local mixes: { [any]: { [string]: number } } = {}
+
+-- The kinds of the groups running at this minute, weighted by enemies per second (elites, debug waves).
+function SpawnRules.mixAt(minutes: number): { [string]: number }
+	local groups = SpawnRules.groupsAt(minutes)
+	local weights = mixes[groups]
+	if not weights then
+		weights = {}
+		for _, entry in groups do
+			weights[entry.enemy] = (weights[entry.enemy] or 0) + entry.size / entry.every
+		end
+		mixes[groups] = weights
+	end
+	return weights
+end
+
+-- Offset of one enemy of a group of `count` from the group's spot: random in a disc of groupSpread * sqrt(count).
+function SpawnRules.groupOffset(random: () -> number, count: number): (number, number)
+	local radius = Spawn.groupSpread * math.sqrt(math.max(count, 1)) * math.sqrt(random())
+	local angle = random() * 2 * math.pi
+	return math.cos(angle) * radius, math.sin(angle) * radius
 end
 
 -- True if the run time passed a Swarm Rush start in (from, to].

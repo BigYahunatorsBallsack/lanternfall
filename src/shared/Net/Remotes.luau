@@ -113,6 +113,7 @@ local Remotes: { [string]: Definition } = {
 	OrbBag = { direction = "toClient" }, -- B6: XP of the orbs in the team's bag (number), to everyone on change
 	Pickups = { direction = "toClient" }, -- B6: Net/Types.PickupEvents of one simulation step, to participants
 	CrateOffer = { direction = "toClient" }, -- B6: Net/Types.CrateOffer, to the choosing player
+	SpawnMarkers = { direction = "toClient" }, -- B9: Net/Types.SpawnMarkers of one spawn group, to participants
 }
 
 return table.freeze(Remotes)

@@ -10,8 +10,11 @@
 -- stats from items (Enemies, Enemy HP, Enemy Damage; StatService.getTeamStat) scale the spawn rate and the HP and
 -- damage of new enemies, and every roll comes from RandomService's Spawns stream. Since B6 (Config.Loot) every wave
 -- brings a few Trees (more with the team's Trees stat) and from wave 3 now and then a Looter, which escapes (is
--- removed without a kill) after a while; neither is ever moved back onto the spawn ring. Uses EnemySim; AdminService
--- pauses it and spawns test waves, elites, Looters and Trees.
+-- removed without a kill) after a while; neither is ever moved back onto the spawn ring. Since B9 every wave is a set
+-- of spawn groups like Brotato's (Config.Run.spawn.groups): each fires every few seconds and brings several enemies
+-- of one kind at one spot, which red crosses on the floor (remote SpawnMarkers) show markerSeconds before they come;
+-- HP and damage grow per wave and kind (SpawnRules.growth), and the team's Enemy Speed stat makes new enemies faster.
+-- Uses EnemySim; AdminService pauses it and spawns test waves, elites, Looters and Trees.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
@@ -19,6 +22,7 @@ local RunService = game:GetService("RunService")
 local Config = require(ReplicatedStorage.Shared.Config)
 local EnemyKinds = require(ReplicatedStorage.Shared.Util.EnemyKinds)
 local Net = require(ReplicatedStorage.Shared.Net)
+local Types = require(ReplicatedStorage.Shared.Net.Types)
 local LootRules = require(ReplicatedStorage.Shared.Util.LootRules)
 local RunSchedule = require(ReplicatedStorage.Shared.Util.RunSchedule)
 local StatMath = require(ReplicatedStorage.Shared.Util.StatMath)
@@ -35,7 +39,12 @@ local SPAWN_TRIES = 12 -- random ring points tried per enemy before giving up un
 local SpawnDirector = {}
 
 local paused = false
-local pending = 0 -- fractional enemies owed by the spawn rate
+-- B9: the spawn groups running now (SpawnRules.groupsAt), seconds until each fires and fractional enemies it owes
+local activeGroups: { SpawnRules.Group }? = nil
+local groupTimers: { number } = {}
+local groupOwed: { number } = {}
+type Queued = { enemyId: string, x: number, z: number, at: number }
+local queued: { Queued } = {} -- enemies whose markers are showing, in order of spawn time
 local lastMinutes = 0 -- run time of the last update, to notice elite and Swarm Rush times passing
 local recycleTimer = 0
 local recycleIds: { number } = {}
@@ -103,13 +112,13 @@ local function spawnAt(
 ): number?
 	local tiers = Config.Difficulty.tiers
 	local tier = tiers[RunDirector.getDifficulty()] or tiers[Config.Difficulty.default]
-	local hpMultiplier = SpawnRules.hpFactor(atMinutes)
-		* tier.enemyHp
-		* StatMath.enemyFactor(StatService.getTeamStat("enemyHp"))
-	local damageMultiplier = SpawnRules.damageFactor(atMinutes)
+	local hpGrowth, damageGrowth = SpawnRules.growth(enemyId, SpawnRules.waveAt(atMinutes))
+	local hpMultiplier = hpGrowth * tier.enemyHp * StatMath.enemyFactor(StatService.getTeamStat("enemyHp"))
+	local damageMultiplier = damageGrowth
 		* tier.enemyDamage
 		* StatMath.enemyFactor(StatService.getTeamStat("enemyDamage"))
-	return EnemySim.spawn(enemyId, x, z, hpMultiplier, damageMultiplier, elite, affix)
+	local speedMultiplier = StatMath.enemyFactor(StatService.getTeamStat("enemySpeed"))
+	return EnemySim.spawn(enemyId, x, z, hpMultiplier, damageMultiplier, elite, affix, speedMultiplier)
 end
 
 -- Spawns one enemy of `enemyId` on the ring around `anchor`, in front of a walking player for part of the spawns
@@ -157,7 +166,7 @@ local function spawnRushRing(anchors: { Anchor }, atMinutes: number, cap: number
 			if EnemySim.getCount() >= cap then
 				return
 			end
-			local x, z = SpawnRules.ringPoint(index, rush.ringCount, around.X, around.Z, Config.Run.spawn.ringMin)
+			local x, z = SpawnRules.ringPoint(index, rush.ringCount, around.X, around.Z, rush.ringDistance)
 			if SpawnRules.isFree(x, z, kind.radius, bounds, obstacles) then
 				spawnAt(rush.enemy, x, z, atMinutes)
 			end
@@ -360,10 +369,93 @@ local function recycle(anchors: { Anchor }, cap: number)
 	end
 end
 
-local function update(dt: number)
+-- Spawn groups (B9) -----------------------------------------------------------------
+
+-- Puts `count` enemies of `enemyId` around one spot on the ring around `anchor` (in front of a walking player for
+-- part of the groups) into the queue and shows their markers. Returns how many were placed.
+local function queueGroup(anchor: Anchor, enemyId: string, count: number): number
+	local kind = EnemyKinds.get(enemyId)
+	if not kind then
+		return 0
+	end
+	local around, velocity = anchor.position, anchor.velocity
+	local heading = SpawnRules.aheadHeading(velocity.X, velocity.Z, roll())
+	local x, z =
+		SpawnRules.findSpawnPoint(roll, around.X, around.Z, kind.radius, bounds, obstacles, SPAWN_TRIES, heading)
+	if not (x and z) and heading then
+		x, z = SpawnRules.findSpawnPoint(roll, around.X, around.Z, kind.radius, bounds, obstacles, SPAWN_TRIES)
+	end
+	if not (x and z) then
+		return 0
+	end
+	local at = workspace:GetServerTimeNow() + Config.Run.spawn.markerSeconds
+	local points = {}
+	for _ = 1, count do
+		local px, pz = x, z
+		for _ = 1, 3 do
+			local dx, dz = SpawnRules.groupOffset(roll, count)
+			if SpawnRules.isFree(x + dx, z + dz, kind.radius, bounds, obstacles) then
+				px, pz = x + dx, z + dz
+				break
+			end
+		end
+		table.insert(queued, { enemyId = enemyId, x = px, z = pz, at = at })
+		table.insert(points, px)
+		table.insert(points, pz)
+	end
+	local markers: Types.SpawnMarkers = { points = points, spawnsAt = at }
+	for _, player in RunDirector.getParticipants() do
+		Net.fireClient("SpawnMarkers", player, markers)
+	end
+	return count
+end
+
+-- Spawns the queued enemies whose markers ran out.
+local function spawnQueued(atMinutes: number)
+	local now = workspace:GetServerTimeNow()
+	while queued[1] and queued[1].at <= now do
+		local entry = table.remove(queued, 1) :: Queued
+		spawnAt(entry.enemyId, entry.x, entry.z, atMinutes)
+	end
+end
+
+-- Counts down the running spawn groups; a group that fires adds its enemies to what it owes, and owed enemies are
+-- placed as soon as the alive cap leaves room (enemies whose markers show count too), so a full cap delays a group
+-- instead of dropping it (at most a few firings are saved up). Nobody alive: nothing is owed.
+local function updateGroups(dt: number, atMinutes: number, anchors: { Anchor }, cap: number)
+	local groups = SpawnRules.groupsAt(atMinutes)
+	if groups ~= activeGroups then
+		activeGroups = groups
+		table.clear(groupTimers)
+		table.clear(groupOwed)
+		for index, entry in groups do
+			groupTimers[index] = SpawnRules.firstFiring(entry)
+			groupOwed[index] = 0
+		end
+	end
 	local count = playerCount()
+	local factor = StatMath.enemyFactor(StatService.getTeamStat("enemyCount"))
+	for index, entry in groups do
+		local size = SpawnRules.groupSize(entry, atMinutes, count) * factor
+		groupTimers[index] -= dt
+		if groupTimers[index] <= 0 then
+			groupTimers[index] += entry.every
+			groupOwed[index] = math.min(groupOwed[index] + size, size * Config.Run.spawn.maxOwedFirings)
+		end
+		if #anchors == 0 then
+			groupOwed[index] = 0
+			continue
+		end
+		local place = math.min(math.floor(groupOwed[index]), cap - EnemySim.getCount() - #queued)
+		if place > 0 then
+			groupOwed[index] -= queueGroup(anchors[pickIndex(#anchors)], entry.enemy, place)
+		end
+	end
+end
+
+local function update(dt: number)
 	local atMinutes = minutes()
-	local cap = SpawnRules.cap(count)
+	local cap = SpawnRules.cap(playerCount())
 	local anchors = aliveAnchors()
 	updateEvents(atMinutes, anchors, cap)
 	updateLoot(atMinutes, anchors)
@@ -372,30 +464,16 @@ local function update(dt: number)
 		recycleTimer = 0
 		recycle(anchors, cap)
 	end
-	pending += SpawnRules.currentRate(atMinutes, count) * StatMath.enemyFactor(StatService.getTeamStat("enemyCount")) * dt
-	if pending < 1 then
-		return
-	end
-	if #anchors == 0 then
-		pending = 0 -- nobody to spawn around (everyone down): do not save up enemies for later
-		return
-	end
-	local mix = SpawnRules.currentMix(atMinutes)
-	while pending >= 1 do
-		if EnemySim.getCount() >= cap then
-			pending = 1 -- spawning pauses at the cap; the next free slot fills right away
-			return
-		end
-		pending -= 1
-		spawnOne(anchors[pickIndex(#anchors)], SpawnRules.pickEnemy(mix, roll()), atMinutes)
-	end
+	updateGroups(dt, atMinutes, anchors, cap)
+	spawnQueued(atMinutes)
 end
 
 -- Lifecycle -------------------------------------------------------------------------
 
 function SpawnDirector.init()
 	RunDirector.RunStarted:Connect(function()
-		pending = 0
+		activeGroups = nil
+		table.clear(queued)
 		paused = false
 		lastMinutes = 0
 		recycleTimer = 0
@@ -409,6 +487,9 @@ function SpawnDirector.init()
 				update(dt)
 			end
 			escapeLooters()
+		else
+			activeGroups = nil -- the next wave starts its groups afresh
+			table.clear(queued)
 		end
 	end)
 end
@@ -418,7 +499,8 @@ end
 -- While paused nothing spawns, also no elites or Swarm Rush (their times passing meanwhile are skipped).
 function SpawnDirector.setPaused(value: boolean)
 	paused = value
-	pending = 0
+	activeGroups = nil
+	table.clear(queued)
 	lastMinutes = minutes()
 end
 
@@ -431,7 +513,7 @@ end
 function SpawnDirector.spawnWave(around: Vector3, count: number): number
 	local cap = SpawnRules.cap(playerCount())
 	local atMinutes = minutes()
-	local mix = SpawnRules.currentMix(atMinutes)
+	local mix = SpawnRules.mixAt(atMinutes)
 	local anchor = { position = around, velocity = Vector3.zero }
 	local spawned = 0
 	for _ = 1, count do
@@ -468,7 +550,7 @@ function SpawnDirector.getCap(): number
 	return SpawnRules.cap(playerCount())
 end
 
--- Enemies per second right now (0 while paused or outside the Running phase).
+-- Enemies per second right now from the spawn groups (0 while paused or outside the Running phase).
 function SpawnDirector.getRate(): number
 	if paused or RunDirector.getPhase() ~= "Running" then
 		return 0
