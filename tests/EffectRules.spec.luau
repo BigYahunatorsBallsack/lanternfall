@@ -183,6 +183,13 @@ describe("EffectText", function()
 		expect(EffectText.line(Config.Items.byId.PulseDraught.effects[1])).toBe("Dodge: heal 50 HP (50%)")
 		expect(EffectText.line(Config.Items.byId.HuntersTally.effects[1])).toBe("Kill (crit): +1 Shard (33%)")
 		expect(EffectText.line(Config.Items.byId.FieldCenser.effects[1])).toBe("Every 5s: +2 HP Regeneration this wave")
+		expect(EffectText.line(Config.Items.byId.SmolderingWick.effects[1])).toBe(
+			"Hit: burn 3x1 (+100% Elemental Damage) (25%)"
+		)
+		expect(EffectText.line(Config.Items.byId.BurstingSigil.effects[1])).toBe(
+			"Kill: explode for 10 (+50% Melee Damage) (20%)"
+		)
+		expect(EffectText.line(Config.Items.byId.RecoilSpring.effects[1])).toBe("+1% Damage per 1 Knockback")
 		expect(EffectText.line(Config.Items.byId.TitheBox.effects[1])).toBe(
 			"Wave start: +20% of your Shards (until wave 19)"
 		)

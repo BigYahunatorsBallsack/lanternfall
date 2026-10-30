@@ -34,6 +34,7 @@ export type Event = {
 	wave: number,
 	crit: boolean?, -- Hit, Crit, Kill
 	elite: boolean?, -- Hit, Crit, Kill
+	enemyId: number?, -- Hit, Crit, Kill (B5: Burn and Explode act on it)
 }
 
 -- Temporary bonuses of one player.

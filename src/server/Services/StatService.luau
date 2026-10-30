@@ -1,7 +1,8 @@
 --!strict
 -- Player stats and items in a run (DESIGN.md sections 4 and 6, Brotato direction since B2). Since B4 in layers like
 -- Brotato's modifier pipeline: the base values, then the permanent gains (class, items stacking, level-up cards,
--- Harvesting growth, Max HP per team level from ExperienceService.LevelGained, and Grow effects), then the bonuses item
+-- Harvesting growth, Max HP per team level from ExperienceService.LevelGained, Grow effects and since B5 the weapon class
+-- bonuses of the weapons carried, Util/WeaponClasses, on WeaponService.Changed), then the bonuses item
 -- effects give right now (EffectService.setDynamic: standing still, "per X", this wave, next wave). Every gain is
 -- scaled by the class's gainMultipliers (Util/StatMath); caps apply where a stat is used. On every change the sheet
 -- goes to WeaponService, CombatService and ExperienceService, the player gets Stats and everyone gets Items. Players
@@ -18,6 +19,7 @@ local Net = require(Shared.Net)
 local Signal = require(Shared.Util.Signal)
 local Types = require(Shared.Net.Types)
 local StatMath = require(Shared.Util.StatMath)
+local WeaponClasses = require(Shared.Util.WeaponClasses)
 
 local CombatService = require(script.Parent.CombatService)
 local ExperienceService = require(script.Parent.ExperienceService)
@@ -29,6 +31,7 @@ type State = {
 	itemOrder: { string }, -- in the order they were first taken, for the HUD
 	upgrades: StatMath.Sheet, -- level-up cards, Harvesting growth and Grow effects
 	levels: number, -- team levels gained in this run (Max HP each)
+	classBonus: StatMath.Sheet, -- weapon class bonuses of the weapons carried (B5)
 	dynamic: StatMath.Sheet, -- item effect bonuses right now (EffectService)
 	permanent: StatMath.Sheet, -- base plus every permanent gain
 	sheet: StatMath.Sheet, -- permanent plus dynamic: what the game uses
@@ -63,6 +66,7 @@ local function computePermanent(player: Player, state: State): StatMath.Sheet
 		end
 	end
 	StatMath.add(gains, state.upgrades)
+	StatMath.add(gains, state.classBonus)
 	gains.maxHp = (gains.maxHp or 0) + state.levels * Config.Stats.maxHpPerLevel
 	return StatMath.addGains(StatMath.baseSheet(), gains, multipliersOf(player))
 end
@@ -97,6 +101,34 @@ local function update(player: Player, state: State, permanent: boolean)
 	end
 end
 
+local function classBonusOf(player: Player): StatMath.Sheet
+	local ids = {}
+	for _, weapon in WeaponService.getWeapons(player) do
+		table.insert(ids, weapon.id)
+	end
+	return WeaponClasses.bonuses(ids)
+end
+
+-- The player's weapons changed: recompute only if the class bonuses did (setStats fires Changed as well).
+local function onWeaponsChanged(player: Player)
+	local state = states[player]
+	if not state then
+		return
+	end
+	local bonus = classBonusOf(player)
+	local same = true
+	for statId, value in bonus do
+		same = same and state.classBonus[statId] == value
+	end
+	for statId in state.classBonus do
+		same = same and bonus[statId] ~= nil
+	end
+	if not same then
+		state.classBonus = bonus
+		update(player, state, true)
+	end
+end
+
 local function resetToBase(player: Player)
 	states[player] = nil
 	push(player, StatMath.baseSheet())
@@ -111,6 +143,7 @@ local function onRunStarted(participants: { Player })
 				itemOrder = {},
 				upgrades = {},
 				levels = 0,
+				classBonus = classBonusOf(player),
 				dynamic = {},
 				permanent = {},
 				sheet = {},
@@ -135,6 +168,7 @@ function StatService.init()
 			end
 		end
 	end)
+	WeaponService.Changed:Connect(onWeaponsChanged)
 	ExperienceService.LevelGained:Connect(function()
 		for player, state in states do
 			if RunDirector.getParticipantState(player) ~= "Out" then

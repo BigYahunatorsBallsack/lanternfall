@@ -1,7 +1,7 @@
 --!strict
 -- Texts of item effects (DESIGN.md sections 6 and 13, since B4), built from Config.Effects records, Config.Stats and
 -- Config.Weapons: one line per effect for shop cards and chest rewards ("Wave end: +3% Damage", "+8 Armor while
--- standing still", "Kill (crit): +1 Shard (33%)"), the feedback text when an effect pays out ("+50 HP") and the
+-- standing still", "Kill (crit): +1 Shard (33%)", since B5 "Hit: burn 3x1 (+100% Elemental Damage) (25%)"), the feedback text when an effect pays out ("+50 HP") and the
 -- HUD's active bonus lines ("+8 Armor (standing still)"). Used by UpgradeText, ProcTextController and the HUD;
 -- tested in tests/EffectRules.spec.luau.
 
@@ -62,6 +62,24 @@ function EffectText.stats(stats: { [string]: number }?): string
 	return table.concat(parts, ", ")
 end
 
+-- What a damage scales with (Brotato's notation, B5): "+100% Elemental Damage, +50% Melee Damage"; "" for none.
+function EffectText.scaling(scaling: { [string]: number }?): string
+	local parts = {}
+	for _, stat in Config.Stats.order do
+		local share = scaling and scaling[stat.id]
+		if share and share ~= 0 then
+			table.insert(parts, `{if share > 0 then "+" else "-"}{number(math.abs(share) * 100)}% {stat.displayName}`)
+		end
+	end
+	return table.concat(parts, ", ")
+end
+
+-- "10 (+50% Melee Damage)" or "10".
+local function damageText(amount: number, scaling: { [string]: number }?): string
+	local extra = EffectText.scaling(scaling)
+	return if extra ~= "" then `{number(amount)} ({extra})` else number(amount)
+end
+
 -- "80 Shards", "different weapon", "1% Speed".
 local function sourceText(source: string, per: number): string
 	if source == "shards" then
@@ -104,6 +122,10 @@ local function body(effect: Effects.Effect): string
 			else `the first {number(amount)} hits taken deal no damage`
 	elseif action == "UpgradeWeapon" then
 		return `a random weapon +1 tier{if stats ~= "" then ` (none: {stats})` else ""}`
+	elseif action == "Burn" then
+		return `burn {number(effect.ticks or 0)}x{damageText(effect.amount or 0, effect.scaling)}`
+	elseif action == "Explode" then
+		return `explode for {damageText(effect.amount or 0, effect.scaling)}`
 	end
 	return action
 end

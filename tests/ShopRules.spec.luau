@@ -131,8 +131,12 @@ describe("ShopRules", function()
 		expect(first(0.1).itemId).toBe("OrbitBlades") -- below 20 %: an owned weapon
 		expect(first(0.1).isNew).toBe(false)
 		expect(first(0.1).count).toBe(1)
-		local sameClass = first(0.3).itemId -- 20-35 %: a melee weapon like the owned one
-		expect(Config.Weapons[sameClass].class).toBe("Melee")
+		local sameClass = first(0.3).itemId -- 20-35 %: a weapon sharing a weapon class with the owned one (B5)
+		local shares = false
+		for _, classId in Config.Weapons[sameClass].classes do
+			shares = shares or table.find(Config.Weapons.OrbitBlades.classes, classId) ~= nil
+		end
+		expect(shares).toBe(true)
 		expect(first(0.9).isNew).toBe(true) -- otherwise any weapon; 0.9 picks one near the end of the list
 	end)
 
@@ -174,7 +178,7 @@ describe("ShopRules", function()
 	it("offers items again and again, counting what the player owns", function()
 		local owned = {}
 		for _, item in Config.Items.list do
-			owned[item.id] = 3
+			owned[item.id] = item.limit or 3
 		end
 		local offers = ShopRules.roll(params({ wave = 9, ownedItems = owned, weapons = {} }))
 		expect(#offers).toBe(Config.Shop.slots)

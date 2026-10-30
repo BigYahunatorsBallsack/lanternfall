@@ -24,4 +24,5 @@ return table.freeze({
 	"ToggleWeapons", -- switch every player's weapons off or on
 	"GainLevel", -- the team reaches the next level right away (level-up cards)
 	"AddEffectItem", -- the next item with an effect or a secondary stat (since B4), one after another
+	"AddCombatItem", -- the next item with a combat stat or a burn or explode effect (since B5), one after another
 })

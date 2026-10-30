@@ -36,6 +36,31 @@ function ConfigCheck.run(): { string }
 		if weapon.base.cooldown and weapon.base.cooldown <= 0 then
 			problem(`Weapon {id} needs a cooldown above 0`)
 		end
+		-- B5: melee or ranged, 1-2 known weapon classes, crit values
+		if weapon.kind ~= "Melee" and weapon.kind ~= "Ranged" then
+			problem(`Weapon {id} needs kind Melee or Ranged`)
+		end
+		if #weapon.classes < 1 or #weapon.classes > 2 then
+			problem(`Weapon {id} needs 1 or 2 weapon classes`)
+		end
+		for _, classId in weapon.classes do
+			if not Config.WeaponClasses.byId[classId] then
+				problem(`Weapon {id} has unknown weapon class {classId}`)
+			end
+		end
+		local critChance, critDamage = weapon.base.critChance, weapon.base.critDamage
+		if not (critChance and critChance >= 0 and critChance <= 1) then
+			problem(`Weapon {id} needs a critChance between 0 and 1`)
+		end
+		if not (critDamage and critDamage >= 1) then
+			problem(`Weapon {id} needs a critDamage of at least 1`)
+		end
+		if weapon.base.knockback == nil then
+			problem(`Weapon {id} needs a knockback (0 for none)`)
+		end
+		if weapon.base.burnDamage and not (weapon.base.burnTicks and weapon.base.burnTicks >= 1) then
+			problem(`Weapon {id} burns but has no burnTicks`)
+		end
 		for tier, delta in weapon.tiers do
 			for key in delta :: { [string]: number } do
 				if key ~= "damage" and weapon.base[key] == nil then
@@ -59,8 +84,16 @@ function ConfigCheck.run(): { string }
 	local Effects = Config.Effects
 	local NEEDS_STATS =
 		{ Stats = true, PerX = true, Grow = true, WaveStats = true, TimedStats = true, NextWaveStats = true }
-	local NEEDS_AMOUNT =
-		{ Heal = true, Shards = true, ShardShare = true, HpFraction = true, RandomStats = true, Shields = true }
+	local NEEDS_AMOUNT = {
+		Heal = true,
+		Shards = true,
+		ShardShare = true,
+		HpFraction = true,
+		RandomStats = true,
+		Shields = true,
+		Burn = true,
+		Explode = true,
+	}
 	local function checkEffect(owner: string, effect: EffectsConfig.Effect)
 		if not Effects.triggers[effect.trigger] then
 			problem(`{owner} has unknown trigger {effect.trigger}`)
@@ -100,6 +133,20 @@ function ConfigCheck.run(): { string }
 		end
 		if effect.chance and not (effect.chance > 0 and effect.chance <= 1) then
 			problem(`{owner} needs a chance between 0 and 1`)
+		end
+		if effect.action == "Burn" or effect.action == "Explode" then
+			if not Effects.enemyTriggers[effect.trigger] then
+				problem(`{owner}: {effect.action} needs an enemy trigger (Hit, Crit or Kill)`)
+			end
+			if effect.scaling then
+				checkStats(owner, effect.scaling)
+			end
+		end
+		if effect.action == "Burn" and not (effect.ticks and effect.ticks >= 1) then
+			problem(`{owner}: Burn needs at least 1 tick`)
+		end
+		if effect.action == "Explode" and not (effect.size and effect.size > 0) then
+			problem(`{owner}: Explode needs a size above 0`)
 		end
 	end
 
@@ -161,6 +208,14 @@ function ConfigCheck.run(): { string }
 			if weapon.base[key] == nil then
 				problem(`Weapon {id} grows {key} with Range, which its base stats do not have`)
 			end
+		end
+	end
+	for _, weaponClass in Config.WeaponClasses.order do
+		for count, stats in weaponClass.bonuses do
+			if count < Config.WeaponClasses.minCount or count > Config.WeaponClasses.maxCount then
+				problem(`Weapon class {weaponClass.id} has a bonus for {count} weapons`)
+			end
+			checkStats(`Weapon class {weaponClass.id}`, stats)
 		end
 	end
 	if Config.Shop.slots < 1 or Config.Shop.phaseSeconds <= 0 then

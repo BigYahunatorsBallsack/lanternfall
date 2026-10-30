@@ -169,7 +169,8 @@ local function copiesOf(weaponId: string, ownedWeapons: { OwnedWeapon }): number
 	return count
 end
 
--- Picks the weapon of one weapon slot from Brotato's pool: owned ones, else ones sharing a class with an owned one,
+-- Picks the weapon of one weapon slot from Brotato's pool: owned ones, else ones sharing a weapon class
+-- (Config.WeaponClasses, since B5; before Melee/Ranged/Elemental) with an owned one,
 -- else any; a pool with nothing left falls through to the next. `avoid` holds ids already in this shop or (while
 -- others are left) in the previous roll. nil if every weapon is avoided.
 local function pickWeapon(params: Params, avoid: { [string]: boolean }, strict: { [string]: boolean }): string?
@@ -179,7 +180,9 @@ local function pickWeapon(params: Params, avoid: { [string]: boolean }, strict: 
 		ownedIds[owned.id] = true
 		local config = Weapons[owned.id]
 		if config then
-			ownedClasses[config.class] = true
+			for _, classId in config.classes do
+				ownedClasses[classId] = true
+			end
 		end
 	end
 	local function pool(filter: (string) -> boolean, skip: { [string]: boolean }): { string }
@@ -202,7 +205,14 @@ local function pickWeapon(params: Params, avoid: { [string]: boolean }, strict: 
 	if roll < rule.owned + rule.sameClass then
 		table.insert(filters, function(weaponId)
 			local config = Weapons[weaponId]
-			return config ~= nil and ownedClasses[config.class] == true
+			if config then
+				for _, classId in config.classes do
+					if ownedClasses[classId] then
+						return true
+					end
+				end
+			end
+			return false
 		end)
 	end
 	table.insert(filters, function()
