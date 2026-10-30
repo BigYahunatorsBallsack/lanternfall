@@ -109,7 +109,7 @@ local function payload(player: Player, state: State): Types.ShopState
 		rerollPrice = if state.freeRerolls > 0 then 0 else ShopRules.rerollPrice(state.wave, state.rerolls),
 		freeRerolls = state.freeRerolls,
 		weapons = weapons,
-		maxWeapons = Config.Player.maxWeapons,
+		maxWeapons = WeaponService.getMaxWeapons(player),
 	}
 end
 
@@ -137,8 +137,9 @@ local function refresh(player: Player, state: State)
 					offer.itemId,
 					offer.tier,
 					weapons,
-					Config.Player.maxWeapons,
-					Config.Player.maxWeaponTier
+					WeaponService.getMaxWeapons(player),
+					Config.Player.maxWeaponTier,
+					RunDirector.getParticipantClassId(player)
 				)
 			else
 				local owned = items[offer.itemId] or 0
@@ -168,12 +169,13 @@ end
 -- New offers; locked unsold ones (`keep`) stay. `previous`: ids of the roll before, not offered again if possible.
 local function roll(player: Player, state: State, keep: { Types.ShopOffer }, previous: { [string]: boolean }?)
 	state.offers = ShopRules.roll({
+		classId = RunDirector.getParticipantClassId(player),
 		wave = state.wave,
 		luck = StatService.getStat(player, "luck"),
 		priceFactor = priceFactor(player),
 		weapons = WeaponService.getImplemented(),
 		ownedWeapons = ownedWeapons(player),
-		maxWeapons = Config.Player.maxWeapons,
+		maxWeapons = WeaponService.getMaxWeapons(player),
 		maxTier = Config.Player.maxWeaponTier,
 		ownedItems = StatService.getItemCounts(player),
 		keep = keep,
@@ -248,7 +250,18 @@ local function grant(player: Player, offer: Types.ShopOffer): boolean
 		return (StatService.addItem(player, offer.itemId))
 	end
 	local weapons = WeaponService.getWeapons(player)
-	if #weapons >= Config.Player.maxWeapons then
+	local merges, blocked = ShopRules.weaponStatus(
+		offer.itemId,
+		offer.tier,
+		weapons,
+		WeaponService.getMaxWeapons(player),
+		Config.Player.maxWeaponTier,
+		RunDirector.getParticipantClassId(player)
+	)
+	if blocked then
+		return false
+	end
+	if merges then
 		for _, weapon in weapons do
 			if weapon.id == offer.itemId and weapon.tier == offer.tier and not weapon.evolution then
 				return (WeaponService.raiseTier(player, weapon.uid))

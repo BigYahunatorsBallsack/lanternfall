@@ -310,4 +310,14 @@ function RunDirector.notifyRejection(player: Player, reason: string?)
 	reject(player, reason)
 end
 
+-- B10: current lobby choice, separate from the frozen participant class of an active run.
+function RunDirector.getSelectedClassId(player: Player): string?
+	for _, info in flow:snapshot().players do
+		if info.userId == player.UserId and Config.Classes[info.classId] then
+			return info.classId
+		end
+	end
+	return nil
+end
+
 return RunDirector

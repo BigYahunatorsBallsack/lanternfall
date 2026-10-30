@@ -22,6 +22,14 @@ local ShopRules = require(ServerScriptService.Server.Services.ShopService.ShopRu
 local StatService = require(ServerScriptService.Server.Services.StatService)
 local StatMath = require(game:GetService("ReplicatedStorage").Shared.Util.StatMath)
 local Config = require(game:GetService("ReplicatedStorage").Shared.Config)
+-- Keep the original broad regression scenario independent of B10 trade-offs and starting items.
+-- CharactersB10.spec.luau boots the untouched catalog and exercises every actual character end to end.
+Config.Classes.SparkMage.stats = { attackSpeed = 10 }
+Config.Classes.SparkMage.gainMultipliers = nil
+Config.Classes.SparkMage.startItems = nil
+Config.Classes.SparkMage.startWeapon = "SparkBolt"
+Config.Classes.SparkMage.startWeapons = { "SparkBolt" }
+
 local Format = require(game:GetService("ReplicatedStorage").Shared.Util.Format)
 local RunSchedule = require(game:GetService("ReplicatedStorage").Shared.Util.RunSchedule)
 

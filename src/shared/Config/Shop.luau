@@ -85,4 +85,5 @@ local Shop = {
 	}),
 }
 
+Shop.wantedTagChance = 0.05 -- B10: dedicated matching-tag draw; empty pools fall back.
 return table.freeze(Shop)

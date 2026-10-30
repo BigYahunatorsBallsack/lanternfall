@@ -1,6 +1,8 @@
 --!strict
+-- B10: fixed starting stats bypass gain multipliers; item/card/level gains are scaled. Character conversions
+-- read unconverted permanent + dynamic stats once, and weapon-dependent bonuses refresh on every loadout change.
 -- Player stats and items in a run (DESIGN.md sections 4 and 6, Brotato direction since B2). Since B4 in layers like
--- Brotato's modifier pipeline: the base values, then the permanent gains (class, items stacking, level-up cards,
+-- Brotato's modifier pipeline: the base values, then the permanent gains (items stacking, level-up cards,
 -- Harvesting growth, Max HP per team level from ExperienceService.LevelGained, Grow effects and since B5 the weapon class
 -- bonuses of the weapons carried, Util/WeaponClasses, on WeaponService.Changed), then the bonuses item
 -- effects give right now (EffectService.setDynamic: standing still, "per X", this wave, next wave). Every gain is
@@ -20,6 +22,7 @@ local Signal = require(Shared.Util.Signal)
 local Types = require(Shared.Net.Types)
 local StatMath = require(Shared.Util.StatMath)
 local WeaponClasses = require(Shared.Util.WeaponClasses)
+local CharacterRules = require(Shared.Util.CharacterRules)
 
 local CombatService = require(script.Parent.CombatService)
 local ExperienceService = require(script.Parent.ExperienceService)
@@ -27,6 +30,8 @@ local RunDirector = require(script.Parent.RunDirector)
 local WeaponService = require(script.Parent.WeaponService)
 
 type State = {
+	rawPermanent: StatMath.Sheet,
+	weaponKey: string,
 	items: { [string]: number }, -- item id -> count
 	itemOrder: { string }, -- in the order they were first taken, for the HUD
 	upgrades: StatMath.Sheet, -- level-up cards, Harvesting growth and Grow effects
@@ -57,7 +62,7 @@ local function computePermanent(player: Player, state: State): StatMath.Sheet
 	local classId = RunDirector.getParticipantClassId(player)
 	local class = classId and Config.Classes[classId]
 	if class then
-		StatMath.add(gains, class.stats)
+		StatMath.add(gains, class.perLevel or {}, state.levels)
 	end
 	for itemId, count in state.items do
 		local item = Config.Items.byId[itemId]
@@ -68,7 +73,11 @@ local function computePermanent(player: Player, state: State): StatMath.Sheet
 	StatMath.add(gains, state.upgrades)
 	StatMath.add(gains, state.classBonus)
 	gains.maxHp = (gains.maxHp or 0) + state.levels * Config.Stats.maxHpPerLevel
-	return StatMath.addGains(StatMath.baseSheet(), gains, multipliersOf(player))
+	local sheet = StatMath.addGains(StatMath.baseSheet(), gains, multipliersOf(player))
+	if class then
+		StatMath.add(sheet, class.stats)
+	end
+	return sheet
 end
 
 local function push(player: Player, sheet: StatMath.Sheet)
@@ -92,9 +101,27 @@ end
 -- Recomputes the sheet (the permanent layer too if `permanent`) and sends it everywhere.
 local function update(player: Player, state: State, permanent: boolean)
 	if permanent then
-		state.permanent = computePermanent(player, state)
+		state.rawPermanent = computePermanent(player, state)
+		state.permanent = table.clone(state.rawPermanent)
+		StatMath.add(
+			state.permanent,
+			CharacterRules.bonuses(
+				RunDirector.getParticipantClassId(player),
+				state.rawPermanent,
+				WeaponService.getWeapons(player)
+			)
+		)
 	end
-	state.sheet = StatMath.addGains(table.clone(state.permanent), state.dynamic, multipliersOf(player))
+	state.sheet = StatMath.addGains(table.clone(state.rawPermanent), state.dynamic, multipliersOf(player))
+	StatMath.add(
+		state.sheet,
+		CharacterRules.bonuses(
+			RunDirector.getParticipantClassId(player),
+			state.sheet,
+			WeaponService.getWeapons(player),
+			state.rawPermanent
+		)
+	)
 	push(player, state.sheet)
 	if permanent then
 		StatService.PermanentChanged:Fire(player)
@@ -123,7 +150,12 @@ local function onWeaponsChanged(player: Player)
 		return
 	end
 	local bonus = classBonusOf(player)
-	local same = true
+	local ids = {}
+	for _, weapon in WeaponService.getWeapons(player) do
+		table.insert(ids, weapon.id)
+	end
+	local key = table.concat(ids, ":")
+	local same = state.weaponKey == key
 	for statId, value in bonus do
 		same = same and state.classBonus[statId] == value
 	end
@@ -131,6 +163,7 @@ local function onWeaponsChanged(player: Player)
 		same = same and bonus[statId] ~= nil
 	end
 	if not same then
+		state.weaponKey = key
 		state.classBonus = bonus
 		update(player, state, true)
 	end
@@ -146,6 +179,8 @@ local function onRunStarted(participants: { Player })
 	for _, player in Players:GetPlayers() do
 		if table.find(participants, player) then
 			local state: State = {
+				rawPermanent = {},
+				weaponKey = "",
 				items = {},
 				itemOrder = {},
 				upgrades = {},
@@ -157,6 +192,11 @@ local function onRunStarted(participants: { Player })
 			}
 			states[player] = state
 			update(player, state, true)
+			local classId = RunDirector.getParticipantClassId(player)
+			local class = classId and Config.Classes[classId]
+			for _, itemId in (class and class.startItems) or {} do
+				StatService.addItem(player, itemId)
+			end
 			Net.fireAllClients("Items", itemLoadout(player))
 		else
 			resetToBase(player) -- sat this run out
