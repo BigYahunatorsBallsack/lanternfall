@@ -24,6 +24,9 @@ local Config = require(game:GetService("ReplicatedStorage").Shared.Config)
 local Format = require(game:GetService("ReplicatedStorage").Shared.Util.Format)
 local RunSchedule = require(game:GetService("ReplicatedStorage").Shared.Util.RunSchedule)
 
+-- Random fruits and crates (B6) would open crate choices before the level-up cards here; tests/Loot.spec.luau covers them.
+LootService.setDropsPaused(true)
+
 local me = world.addPlayer("Owner", 1, true)
 world.step()
 runScript(folderProxy("src/client", "Client"), "init.client.luau")
