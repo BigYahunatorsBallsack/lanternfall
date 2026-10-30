@@ -19,6 +19,7 @@ export type Frame = {
 	typeIds: { number },
 	hpFractions: { number },
 	flags: { number },
+	statuses: { number },
 	indexOf: { [number]: number },
 }
 
@@ -79,6 +80,7 @@ local function takeFrame(self: SnapshotBuffer, tick: number): Frame
 		typeIds = {},
 		hpFractions = {},
 		flags = {},
+		statuses = {},
 		indexOf = {},
 	}
 end

@@ -218,6 +218,15 @@ local function plainType(typeName)
 	return { __type = typeName }
 end
 local Color3Meta = plainType("Color3")
+Color3Meta.__index = {
+	Lerp = function(self, other, alpha)
+		return setmetatable({
+			R = self.R + (other.R - self.R) * alpha,
+			G = self.G + (other.G - self.G) * alpha,
+			B = self.B + (other.B - self.B) * alpha,
+		}, Color3Meta)
+	end,
+}
 local Color3Lib = {
 	new = function(r, g, b)
 		return setmetatable({ R = r, G = g, B = b }, Color3Meta)

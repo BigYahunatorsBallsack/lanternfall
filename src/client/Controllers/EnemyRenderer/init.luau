@@ -4,10 +4,11 @@
 -- newest tick and every part moves with one workspace:BulkMoveTo per frame. Models.pose animates the walk: the step
 -- cycle advances with the distance an enemy covers, so legs and bobbing match its speed. Hits flash the model
 -- white; the snapshot flags show a charger's wind-up and rush (it then faces its rush direction from the flags) and
--- an elite's affix (Models.setMode, setAffix). An enemy that drops out of the snapshots died: it leaves a glowing
+-- an elite's affix (Models.setMode, setAffix), the status byte (B5) burning and slowed enemies (Models.setStatus;
+-- burning ones also give off embers, Config.Feedback.burnEmbers). An enemy that drops out of the snapshots died: it leaves a glowing
 -- puff (DeathBursts), an elite also shakes the camera. Big crowds switch the plain enemies to low detail (Models.setDetail, limits in
 -- Config.Feedback.enemyDetail). Active only while the local player is in a running run (RunStateController).
--- DebugController reads getStats().
+-- DebugController reads getStats(), the smoke test getStatus().
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
@@ -18,6 +19,7 @@ local Config = require(Shared:WaitForChild("Config"))
 local Net = require(Shared:WaitForChild("Net"))
 
 local Snapshot = require(Shared:WaitForChild("Net"):WaitForChild("Snapshot"))
+local Bursts = require(script.Parent.Parent.Vfx.Bursts)
 
 local CameraController = require(script.Parent.CameraController)
 local DeathBursts = require(script.DeathBursts)
@@ -42,6 +44,7 @@ type Drawn = {
 	move: number, -- 0 standing to 1 walking at its own speed, smoothed
 	x: number, -- where it was drawn last, for its walk and death burst
 	z: number,
+	emberAt: number, -- os.clock() of the next ember puff while burning
 }
 
 local FOLDER_NAME = "LanternfallEnemies"
@@ -52,6 +55,8 @@ local MIN_TURN_MOVE = 0.05 -- studs between two ticks; slower enemies keep their
 local MOVE_SMOOTHING = 8 -- per second; how quickly the walk animation follows speed changes
 local MAX_STEP_STUDS = 4 -- per frame; longer jumps (an enemy moved to a new spawn point) do not count as walking
 local GOLDEN_RATIO = 0.618034 -- spreads the seeds of neighbouring ids
+local EMBER_COLOR = Color3.fromRGB(255, 120, 40)
+local EMBER_HEIGHT = 1.6 -- times the enemy radius above the floor
 local STATS_WINDOW_SECONDS = 1
 
 local EnemyRenderer = {}
@@ -110,6 +115,7 @@ local function acquire(id: number, typeId: number, hp: number): Drawn
 		move = 0,
 		x = 0,
 		z = 0,
+		emberAt = 0,
 	}
 	drawn[id] = entry
 	return entry
@@ -187,6 +193,8 @@ local function render(dt: number)
 		local turn = math.min(1, TURN_PER_SECOND * dt)
 		local chargeTurn = math.min(1, CHARGE_TURN_PER_SECOND * dt)
 		local interpolate = before ~= after
+		local embers = Config.Feedback.burnEmbers
+		local embersLeft = if embers.enabled then (if touch then embers.maxPerFrameTouch else embers.maxPerFrame) else 0
 		updateDetail(after.count)
 		for i = 1, after.count do
 			local id = after.ids[i]
@@ -223,6 +231,15 @@ local function render(dt: number)
 			Models.setAffix(visual, affix)
 			Models.setMode(visual, mode)
 			Models.setDetail(visual, lowDetail and visual.hpBar == nil) -- elites keep every detail
+			local status = after.statuses[i] or 0
+			local burning = bit32.btest(status, Snapshot.STATUS_BURNING)
+			Models.setStatus(visual, burning, bit32.btest(status, Snapshot.STATUS_SLOWED))
+			if burning and embersLeft > 0 and now >= current.emberAt then
+				embersLeft -= 1
+				current.emberAt = now + embers.interval
+				local position = Vector3.new(x, floorY + visual.radius * EMBER_HEIGHT, z)
+				Bursts.emit("ember", EMBER_COLOR, position, embers.particles)
+			end
 			if hp < current.lastHp then
 				current.flashUntil = now + FLASH_SECONDS
 				Models.setFlash(visual, true)
@@ -294,6 +311,15 @@ function EnemyRenderer.start()
 end
 
 -- Queries ---------------------------------------------------------------------------
+
+-- Whether a drawn enemy shows as burning and as slowed (B5; smoke test). false, false for enemies not drawn.
+function EnemyRenderer.getStatus(id: number): (boolean, boolean)
+	local entry = drawn[id]
+	if not entry then
+		return false, false
+	end
+	return entry.visual.burning, entry.visual.slowed
+end
 
 function EnemyRenderer.getStats(): Stats
 	local count = 0

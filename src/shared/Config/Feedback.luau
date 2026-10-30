@@ -1,6 +1,7 @@
 --!strict
 -- Hit feedback (DESIGN.md section 14, since the fun package after WP9): damage numbers, death bursts and camera
--- shake, plus when big crowds drop small enemy trims (since the Deadlock look package). Read by WeaponService
+-- shake, plus when big crowds drop small enemy trims (since the Deadlock look package) and the embers of burning
+-- enemies (B5). Read by WeaponService
 -- (which hits to send), DamageNumberController, EnemyRenderer, CameraController and FeedbackController. The switches
 -- become player settings with the full HUD (WP14).
 
@@ -24,6 +25,15 @@ return table.freeze({
 		lowAbove = 80,
 		lowAboveTouch = 40,
 		backBelowShare = 0.85, -- full detail again below this share of the limit
+	}),
+	-- embers rising from burning enemies (B5): `particles` every `interval` seconds per enemy, at most `maxPerFrame`
+	-- enemies emit in one frame (assumption)
+	burnEmbers = table.freeze({
+		enabled = true,
+		interval = 0.3,
+		particles = 2,
+		maxPerFrame = 6,
+		maxPerFrameTouch = 3,
 	}),
 	-- strength 0-1 of a camera shake; several shakes add up to at most 1
 	shake = table.freeze({
