@@ -1,7 +1,7 @@
 --!strict
 -- Every enemy kind the simulation and the renderer know: the types from Config.Enemies plus Gloom Elite variants of
 -- each (DESIGN.md section 7) with the elite multipliers applied (HP, speed, contact and projectile damage, radius,
--- mass), the elite XP and typeId + elite.typeIdOffset: one plain elite and one per affix (Swift, Armored, ...), all
+-- mass, since B5 full knockback resistance), the elite XP and typeId + elite.typeIdOffset: one plain elite and one per affix (Swift, Armored, ...), all
 -- with the same typeId; the affix travels in the snapshot flags (Net/Snapshot). Minute and difficulty multipliers
 -- come on top at spawn time (EnemySim.spawn). Used by EnemySim, SpawnDirector and EnemyRenderer/Models.
 
@@ -35,6 +35,7 @@ for id, base in Enemies.types do
 	elite.speed = base.speed * Elite.speedMultiplier
 	elite.radius = base.radius * Elite.sizeMultiplier
 	elite.mass = base.mass * Elite.massMultiplier
+	elite.knockbackResistance = Elite.knockbackResistance
 	elite.xp = Elite.xp
 	elite.elite = true
 	local ranged = base.ranged

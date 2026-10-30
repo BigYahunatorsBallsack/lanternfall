@@ -11,6 +11,7 @@ local Types = require(script.Parent.Parent.Net.Types)
 local EffectText = require(script.Parent.EffectText)
 local Format = require(script.Parent.Format)
 local StatMath = require(script.Parent.StatMath)
+local WeaponClasses = require(script.Parent.WeaponClasses)
 
 export type Colors = { plus: Color3, minus: Color3 }
 
@@ -90,7 +91,39 @@ function UpgradeText.weaponTier(weapon: Weapons.Weapon, tier: number): string
 	if total.duration then
 		table.insert(parts, `{signed(total.duration)}s duration`)
 	end
+	if total.critChance then
+		table.insert(parts, `{signed(math.round(total.critChance * 100))}% crit`)
+	end
+	if total.critDamage then
+		table.insert(parts, `{signed(total.critDamage)}x crit damage`)
+	end
+	if total.lifeSteal then
+		table.insert(parts, `{signed(math.round(total.lifeSteal * 100))}% life steal`)
+	end
+	if total.knockback then
+		table.insert(parts, `{signed(total.knockback)} knockback`)
+	end
 	return table.concat(parts, ", ")
+end
+
+-- A weapon's damage, scaling and crit at a tier before the owner's stats (B5, Brotato's notation), e.g.
+-- "18 (+100% Melee Damage) · crit x2 (8%)".
+function UpgradeText.weaponDamage(weapon: Weapons.Weapon, tier: number): string
+	local damageBonus = 0
+	local critChance, critDamage = weapon.base.critChance or Config.Player.critChance, weapon.base.critDamage
+	for n = 2, math.min(tier, #weapon.tiers) do
+		local delta = weapon.tiers[n] :: { [string]: number }
+		damageBonus += delta.damage or 0
+		critChance += delta.critChance or 0
+		critDamage = (critDamage or Config.Player.critMultiplier) + (delta.critDamage or 0)
+	end
+	local damage = math.round((weapon.base.damage or 0) * (1 + damageBonus) * 10) / 10
+	local text = number(damage)
+	local scaling = EffectText.scaling(weapon.scaling)
+	if scaling ~= "" then
+		text ..= ` ({scaling})`
+	end
+	return `{text} · crit x{number(critDamage or Config.Player.critMultiplier)} ({number(math.round(critChance * 100))}%)`
 end
 
 -- Weapon name with its tier, e.g. "Spark Bolt II"; an evolved weapon shows its evolution's name.
@@ -129,8 +162,8 @@ function UpgradeText.itemLines(itemId: string, colors: Colors?, separator: strin
 	return if separator then (string.gsub(text, "\n", separator)) else text
 end
 
--- Title, effect text and badge of a shop offer. Weapons: name with tier ("Spark Bolt II"), description, what the tier
--- adds and whether buying merges it; badge "Uncommon · NEW" or "Uncommon · own 2". Items: their stat lines (rich text
+-- Title, effect text and badge of a shop offer. Weapons: name with tier ("Spark Bolt II"), description, its weapon
+-- classes and damage line (B5), what the tier adds and whether buying merges it; badge "Uncommon · NEW" or "Uncommon · own 2". Items: their stat lines (rich text
 -- with `colors`) and effect lines, the rarity and how many the player owns ("Rare · x2").
 function UpgradeText.offer(offer: Types.ShopOffer, colors: Colors?): (string, string, string)
 	if offer.kind == "Weapon" then
@@ -139,7 +172,8 @@ function UpgradeText.offer(offer: Types.ShopOffer, colors: Colors?): (string, st
 		if not weapon then
 			return offer.itemId, "", badge
 		end
-		local lines = { weapon.description }
+		local lines =
+			{ weapon.description, WeaponClasses.names(offer.itemId), UpgradeText.weaponDamage(weapon, offer.tier) }
 		local bonus = UpgradeText.weaponTier(weapon, offer.tier)
 		if bonus ~= "" then
 			table.insert(lines, bonus)

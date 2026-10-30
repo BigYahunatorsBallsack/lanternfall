@@ -392,7 +392,7 @@ describe("smoke", function()
 		)
 		expect(world.gui("HUD", "ItemsTitle").Text).toBe("ITEMS (2)")
 		world.click(world.gui("Debug", "SpawnWave"))
-		expect(most("Starfire", 3) > 0).toBe(true)
+		expect(most("Explosion", 3) > 0).toBe(true) -- Starfire blasts, drawn by Visuals/Explosion since B5
 	end)
 
 	it("drops XP orbs that the player picks up for the whole team", function()
@@ -1101,6 +1101,87 @@ describe("smoke", function()
 		end
 		WeaponService.setPaused(false)
 		SpawnDirector.setPaused(spawningWasPaused)
+	end)
+
+	it("runs Brotato's combat: weapon class bonuses, burning, exploding items and slowed enemies", function()
+		local wasPaused = SpawnDirector.isPaused()
+		SpawnDirector.setPaused(true)
+		WeaponService.setPaused(false)
+		world.click(world.gui("Debug", "KillEnemies"))
+		world.advance(0.3)
+		local center = Config.Map.arena.center
+		standAt(center.X, center.Z)
+
+		-- weapon classes: a second Orbit Blades gives Edge 2 and Spectral 2 on top of the stats
+		for _, weapon in WeaponService.getWeapons(me) do
+			WeaponService.removeWeapon(me, weapon.uid)
+		end
+		WeaponService.addWeapon(me, "OrbitBlades")
+		local melee, dodge = StatService.getStat(me, "meleeDamage"), StatService.getStat(me, "dodge")
+		local _, _, second = WeaponService.addWeapon(me, "OrbitBlades")
+		expect(StatService.getStat(me, "meleeDamage")).toBe(melee + 1)
+		expect(StatService.getStat(me, "dodge")).toBe(dodge + 6)
+		WeaponService.removeWeapon(me, second :: number)
+		expect(StatService.getStat(me, "meleeDamage")).toBe(melee)
+		WeaponService.addWeapon(me, "OrbitBlades")
+
+		-- Smoldering Wick x4: blade hits set enemies on fire, the clients see it, burn ticks show in orange
+		for _ = 1, 4 do
+			give("SmolderingWick")
+		end
+		local tough = {}
+		for k = 1, 6 do
+			local angle = k / 6 * 2 * math.pi
+			local id = EnemySim.spawn("Brute", center.X + math.cos(angle) * 5, center.Z + math.sin(angle) * 5, 50, 0)
+			table.insert(tough, id)
+		end
+		local burning, shownBurning = false, false
+		for _ = 1, 30 do
+			world.advance(0.1)
+			for _, id in tough do
+				burning = burning or WeaponService.isBurning(id)
+				shownBurning = shownBurning or (enemyRenderer().getStatus(id))
+			end
+		end
+		expect(burning).toBe(true)
+		expect(shownBurning).toBe(true)
+
+		-- Thorn Trail slows what stands on it; the clients see it
+		WeaponService.addWeapon(me, "ThornTrail")
+		local slowed = false
+		for _ = 1, 20 do
+			world.advance(0.1)
+			for _, id in tough do
+				slowed = slowed or select(2, enemyRenderer().getStatus(id))
+			end
+		end
+		expect(slowed).toBe(true)
+
+		-- Bursting Sigil x3: kills blow up (the "Explosion" visual)
+		world.click(world.gui("Debug", "KillEnemies"))
+		for _ = 1, 3 do
+			give("BurstingSigil")
+		end
+		local blasts = 0
+		for _ = 1, 3 do
+			for k = 1, 10 do
+				local angle = k / 10 * 2 * math.pi
+				EnemySim.spawn("Shadeling", center.X + math.cos(angle) * 4, center.Z + math.sin(angle) * 4, 0.2, 0)
+			end
+			for _ = 1, 15 do
+				world.advance(0.1)
+				blasts = math.max(blasts, weaponParts("Explosion"))
+			end
+		end
+		expect(blasts > 0).toBe(true)
+
+		-- the debug button gives the combat items one after another
+		world.click(world.gui("Debug", "AddCombatItem"))
+		world.advance(0.2)
+		expect(string.find(toastTexts(), ": ", 1, true) ~= nil).toBe(true)
+		world.click(world.gui("Debug", "KillEnemies"))
+		world.advance(0.2)
+		SpawnDirector.setPaused(wasPaused)
 	end)
 
 	it("puts a respawned participant back into the arena", function()

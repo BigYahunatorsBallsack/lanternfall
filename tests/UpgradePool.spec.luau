@@ -125,12 +125,18 @@ describe("UpgradeText", function()
 		}
 		local title, detail, badge = UpgradeText.offer(weapon :: any)
 		expect(title).toBe("Spark Bolt III")
-		expect(detail).toBe("Fires at the nearest enemy, pierces 1.\n+1 bolt, +40% damage\nMerges into IV")
+		expect(detail).toBe(
+			"Fires at the nearest enemy, pierces 1.\nArcane · Keen\n21 (+100% Ranged Damage) · crit x1.5 (20%)"
+				.. "\n+1 bolt, +40% damage\nMerges into IV"
+		)
 		expect(badge).toBe("Rare · own 1")
 		weapon.tier, weapon.isNew, weapon.merges, weapon.blocked = 1, true, false, true
 		title, detail, badge = UpgradeText.offer(weapon :: any)
 		expect(title).toBe("Spark Bolt I")
-		expect(detail).toBe("Fires at the nearest enemy, pierces 1.\nWeapon slots full")
+		expect(detail).toBe(
+			"Fires at the nearest enemy, pierces 1.\nArcane · Keen\n15 (+100% Ranged Damage) · crit x1.5 (20%)"
+				.. "\nWeapon slots full"
+		)
 		expect(badge).toBe("Common · NEW")
 		title, detail, badge = UpgradeText.offer({
 			id = "2:Item:GlassLantern",

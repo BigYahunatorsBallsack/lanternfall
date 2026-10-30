@@ -2,8 +2,9 @@
 -- Spark Bolt look: a white-hot bolt inside a soft blue halo with a fading trail, per "Fire" effect, flying from where
 -- the server fired it at the server's speed and vanishing at its range or where an "End" effect says an enemy
 -- stopped it (with a few sparks). Positions follow server time, so the bolt is where the server has it. Starfire
--- (evolution) bolts burn gold, and its "Blast" effects show as a white flash, an expanding ring of fire and embers.
--- Visual for WeaponRenderer (behavior WeaponService/Behaviors/SparkBolt).
+-- (evolution) bolts burn gold; its blasts are drawn by Visuals/Explosion (since B5). A bolt that bounces (B5) ends at
+-- the enemy and comes back as a new "Fire" from there. Visual for WeaponRenderer (behavior
+-- WeaponService/Behaviors/SparkBolt).
 
 local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
 local Types = require(Shared:WaitForChild("Net"):WaitForChild("Types"))
@@ -22,16 +23,6 @@ local TRAIL_WIDTH = 0.55
 local TRAIL_SECONDS = 0.16
 local HEIGHT = 2 -- studs above the floor
 local HIT_SPARKS = 5
-
-local BLAST_DURATION = 0.4 -- seconds
-local FLASH_SECONDS = 0.12 -- the white flash at the start of a blast
-local FLASH_COLOR = Color3.fromRGB(255, 250, 230)
-local RING_COLOR = Color3.fromRGB(255, 150, 60)
-local RING_THICKNESS = 0.2
-local RING_START = 0.3 -- share of the radius the ring starts at
-local BLAST_SPARKS = 10
-local BLAST_EMBERS = 14
-local UPRIGHT = CFrame.Angles(0, 0, math.pi / 2) -- a cylinder's axis is X: lay the disc flat
 
 type BoltParts = { core: BasePart, halo: BasePart, trail: Trail, starfire: boolean }
 
@@ -58,34 +49,7 @@ end, function(parts: BoltParts): { BasePart }
 	return { parts.core, parts.halo }
 end)
 
-type BlastParts = { flash: BasePart, ring: BasePart }
-
-type Blast = {
-	parts: BlastParts?,
-	x: number,
-	z: number,
-	radius: number,
-	at: number,
-}
-
-local blastPool = VisualKit.objectPool(function(): BlastParts
-	return {
-		flash = VisualKit.part("Starfire", Enum.PartType.Ball, Vector3.one, FLASH_COLOR),
-		ring = VisualKit.part("StarfireRing", Enum.PartType.Cylinder, Vector3.one, RING_COLOR),
-	}
-end, function(parts: BlastParts): { BasePart }
-	return { parts.flash, parts.ring }
-end)
-
 local bolts: { [number]: Bolt } = {} -- by projectile id
-local blasts: { Blast } = {}
-
-local function removeBlast(index: number)
-	local blast = table.remove(blasts, index) :: Blast
-	if blast.parts then
-		blastPool:release(blast.parts)
-	end
-end
 
 local function remove(id: number, bolt: Bolt)
 	if bolt.parts then
@@ -107,13 +71,6 @@ end
 local SparkBolt = {}
 
 function SparkBolt.effect(effect: Types.WeaponEffect)
-	if effect.kind == "Blast" then
-		table.insert(
-			blasts,
-			{ parts = nil, x = effect.x or 0, z = effect.z or 0, radius = effect.radius or 0, at = effect.at }
-		)
-		return
-	end
 	local id = effect.id
 	if not id then
 		return
@@ -166,40 +123,11 @@ function SparkBolt.render(frame: VisualKit.Frame)
 		frame.move(current.core, cframe)
 		frame.move(current.halo, cframe)
 	end
-	for index = #blasts, 1, -1 do
-		local blast = blasts[index]
-		local t = math.max(0, (frame.now - blast.at) / BLAST_DURATION)
-		if t >= 1 then
-			removeBlast(index)
-			continue
-		end
-		local center = Vector3.new(blast.x, frame.floorY + HEIGHT, blast.z)
-		local parts = blast.parts
-		if not parts then
-			parts = blastPool:acquire(frame.folder)
-			blast.parts = parts
-			Bursts.emit("spark", RING_COLOR, center, BLAST_SPARKS)
-			Bursts.emit("ember", STARFIRE_HALO_COLOR, center, BLAST_EMBERS)
-		end
-		local current = parts :: BlastParts
-		local flashT = math.min(1, (frame.now - blast.at) / FLASH_SECONDS)
-		current.flash.Size = Vector3.one * blast.radius * (1 - 0.5 * flashT)
-		current.flash.Transparency = 0.1 + 0.9 * flashT
-		frame.move(current.flash, CFrame.new(center))
-		local grow = 1 - (1 - t) ^ 3
-		local diameter = 2 * blast.radius * (RING_START + (1 - RING_START) * grow)
-		current.ring.Size = Vector3.new(RING_THICKNESS, diameter, diameter)
-		current.ring.Transparency = 0.15 + 0.85 * t
-		frame.move(current.ring, CFrame.new(blast.x, frame.floorY + 0.2, blast.z) * UPRIGHT)
-	end
 end
 
 function SparkBolt.clear()
 	for id, bolt in bolts do
 		remove(id, bolt)
-	end
-	for index = #blasts, 1, -1 do
-		removeBlast(index)
 	end
 end
 

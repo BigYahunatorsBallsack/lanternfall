@@ -16,6 +16,7 @@
 --      flies them (EnemySim/Volleys)
 --   7. summoners count down while there is a target and report themselves in World.summons; EnemySim spawns the
 --      enemies they call
+--   8. slows run out (since B5: a slowed enemy walks and rushes at slowFactors of its speed, see World.slow)
 -- Enemies that die between steps stay in the arrays with hp 0 until the next step; every query skips them,
 -- so array indices (and the hash) stay valid until then.
 
@@ -79,6 +80,9 @@ export type World = typeof(setmetatable(
 		rushZs: { number },
 		rushLeft: { number }, -- studs the rush may still go
 		summonTimers: { number }, -- seconds until a summoner calls again
+		slowFactors: { number }, -- share of its speed a slowed enemy keeps, 1 when not slowed (B5)
+		slowLeft: { number }, -- seconds the slow lasts
+		burning: { boolean }, -- shown in snapshots; the weapons (WeaponService/Afflictions) run the burn itself
 		columns: { { any } }, -- every per-enemy array above, for compacting and clearing
 		indexOf: { [number]: number }, -- id -> array index
 		nextId: number,
@@ -120,6 +124,9 @@ function World.new(params: Params): World
 		rushZs = {},
 		rushLeft = {},
 		summonTimers = {},
+		slowFactors = {},
+		slowLeft = {},
+		burning = {},
 		columns = {},
 		indexOf = {},
 		nextId = 0,
@@ -151,6 +158,9 @@ function World.new(params: Params): World
 		self.rushZs,
 		self.rushLeft,
 		self.summonTimers,
+		self.slowFactors,
+		self.slowLeft,
+		self.burning,
 	} :: { { any } }
 	return setmetatable(self, World)
 end
@@ -198,6 +208,7 @@ function World.spawn(
 	self.modeTimers[i] = if kind.charge then kind.charge.cooldownSeconds * spread else 0
 	self.rushXs[i], self.rushZs[i], self.rushLeft[i] = 0, 0, 0
 	self.summonTimers[i] = if kind.summon then kind.summon.intervalSeconds * (0.5 + 0.5 * spread) else 0
+	self.slowFactors[i], self.slowLeft[i], self.burning[i] = 1, 0, false
 	self.indexOf[id] = i
 	self.maxRadius = math.max(self.maxRadius, kind.radius)
 	self.maxSpeed = math.max(self.maxSpeed, kind.speed)
@@ -460,8 +471,18 @@ local function pushOut(
 	return cx + math.cos(angle) * minDistance, cz + math.sin(angle) * minDistance
 end
 
--- Moves a living enemy by (dx, dz), divided by its mass above 1 so heavy enemies barely budge, keeping it out of
--- obstacles and inside the arena. For knockback. The hash follows on the next step.
+-- How much of a knockback reaches the enemy (since B5 Brotato's knockback resistance): 1 - knockbackResistance if
+-- the kind sets it, else 1 / mass above 1, so heavy enemies barely budge.
+function World.knockbackShare(kind: Kind): number
+	local resistance = kind.knockbackResistance
+	if resistance then
+		return math.clamp(1 - resistance, 0, 1)
+	end
+	return 1 / math.max(1, kind.mass)
+end
+
+-- Moves a living enemy by (dx, dz) times its knockback share (World.knockbackShare), keeping it out of obstacles and
+-- inside the arena. For knockback. The hash follows on the next step.
 function World.push(self: World, id: number, dx: number, dz: number)
 	local i = self.indexOf[id]
 	if not i or self.hp[i] <= 0 then
@@ -469,7 +490,7 @@ function World.push(self: World, id: number, dx: number, dz: number)
 	end
 	local p = self.params
 	local kind = self.kinds[i]
-	local scale = 1 / math.max(1, kind.mass)
+	local scale = World.knockbackShare(kind)
 	local radius = kind.radius
 	local x, z = self.xs[i] + dx * scale, self.zs[i] + dz * scale
 	for _, obstacle in p.obstacles do
@@ -477,6 +498,39 @@ function World.push(self: World, id: number, dx: number, dz: number)
 	end
 	self.xs[i] = math.clamp(x, p.minX + radius, p.maxX - radius)
 	self.zs[i] = math.clamp(z, p.minZ + radius, p.maxZ - radius)
+end
+
+-- Slows a living enemy to `factor` (0..1) of its speed for `seconds` (B5). Slows do not stack: the stronger one wins,
+-- an equal one refreshes the time (assumption, DESIGN.md section 6).
+function World.slow(self: World, id: number, factor: number, seconds: number)
+	local i = self.indexOf[id]
+	if not i or self.hp[i] <= 0 or not (seconds > 0) then
+		return
+	end
+	factor = math.clamp(factor, 0, 1)
+	local current = self.slowFactors[i]
+	if factor < current or self.slowLeft[i] <= 0 then
+		self.slowFactors[i], self.slowLeft[i] = factor, seconds
+	elseif factor == current then
+		self.slowLeft[i] = math.max(self.slowLeft[i], seconds)
+	end
+end
+
+-- Marks a living enemy as burning or not, for the snapshots (the burn itself is WeaponService/Afflictions).
+function World.setBurning(self: World, id: number, on: boolean)
+	local i = self.indexOf[id]
+	if i and self.hp[i] > 0 then
+		self.burning[i] = on
+	end
+end
+
+-- Whether the enemy is slowed and whether it burns.
+function World.getStatus(self: World, id: number): (boolean, boolean)
+	local i = self.indexOf[id]
+	if not i or self.hp[i] <= 0 then
+		return false, false
+	end
+	return self.slowFactors[i] < 1, self.burning[i]
 end
 
 -- Puts a living enemy at (x, z) right away (SpawnDirector moves enemies left far behind). The hash follows on the
@@ -502,7 +556,7 @@ local function rushStep(
 )
 	local p = self.params
 	local radius = self.kinds[i].radius
-	local move = math.min(charge.speed * dt, self.rushLeft[i])
+	local move = math.min(charge.speed * self.slowFactors[i] * dt, self.rushLeft[i])
 	local x, z = self.xs[i] + self.rushXs[i] * move, self.zs[i] + self.rushZs[i] * move
 	local left = self.rushLeft[i] - move
 	local stop = left <= EPSILON
@@ -633,7 +687,7 @@ function World.step(
 				continue
 			end
 			local radius = kind.radius
-			local maxMove = kind.speed * dt
+			local maxMove = kind.speed * self.slowFactors[i] * dt
 			local advance
 			local ranged = kind.ranged
 			if ranged then
@@ -810,6 +864,18 @@ function World.step(
 		summons[k] = nil
 	end
 	self.summonCount = summonCount
+
+	-- 8. slows run out
+	local slowFactors, slowLeft = self.slowFactors, self.slowLeft
+	for i = 1, count do
+		if slowFactors[i] < 1 then
+			local left = slowLeft[i] - dt
+			slowLeft[i] = left
+			if left <= 0 then
+				slowFactors[i], slowLeft[i] = 1, 0
+			end
+		end
+	end
 	return contacts
 end
 

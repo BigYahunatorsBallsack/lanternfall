@@ -13,6 +13,7 @@
 -- rush; their furnace and eyes turn white-hot (setMode). Gloom Elites (Util/EnemyKinds) are gilded, bigger, wear a
 -- spinning sunburst crown, glow and show an HP bar with the name of their affix (setAffix), which also changes
 -- their look: Swift leaves a trail, Armored turns its metal to steel, Summoning is circled by two wisps.
+-- Since B5 burning enemies glow ember-red and slowed ones turn frost-blue (setStatus).
 
 local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
 local Config = require(Shared:WaitForChild("Config"))
@@ -69,6 +70,8 @@ export type Visual = {
 	mode: number, -- what setMode last showed
 	affix: number, -- what setAffix last showed
 	flashing: boolean,
+	burning: boolean, -- what setStatus last showed
+	slowed: boolean,
 }
 
 type Palette = {
@@ -191,6 +194,9 @@ local UNKNOWN_COLOR = Color3.fromRGB(255, 0, 255)
 local FLASH_COLOR = Color3.fromRGB(255, 255, 255)
 local RUSH_COLOR = Color3.fromRGB(200, 44, 36) -- charger body during wind-up and rush
 local HOT_COLOR = Color3.fromRGB(255, 240, 176) -- charger furnace and eyes during wind-up and rush
+local BURN_COLOR = Color3.fromRGB(255, 96, 28) -- burning enemies (B5)
+local FROST_COLOR = Color3.fromRGB(140, 200, 255) -- slowed enemies (B5)
+local STATUS_TINT = 0.55 -- share of the status color mixed into the body
 local TELEGRAPH_COLOR = Color3.fromRGB(255, 60, 60)
 local TELEGRAPH_TRANSPARENCY = 0.55 -- the rush path during the wind-up
 
@@ -1068,6 +1074,8 @@ function Models.build(typeId: number): Visual
 		mode = 0,
 		affix = 0,
 		flashing = false,
+		burning = false,
+		slowed = false,
 	}
 end
 
@@ -1088,14 +1096,17 @@ end
 -- Colors of the parts that react to hits and to a charger's mode.
 local function paint(visual: Visual)
 	local charging = isCharging(visual.mode)
+	local tint = if visual.burning then BURN_COLOR elseif visual.slowed then FROST_COLOR else nil
 	for index, part in visual.flashParts do
+		local own = visual.flashColors[index]
 		part.Color = if visual.flashing
 			then FLASH_COLOR
 			elseif charging and part == visual.body then RUSH_COLOR
-			else visual.flashColors[index]
+			elseif tint then own:Lerp(tint, STATUS_TINT)
+			else own
 	end
 	for index, part in visual.heatParts do
-		part.Color = if charging then HOT_COLOR else visual.heatColors[index]
+		part.Color = if charging then HOT_COLOR elseif visual.burning then BURN_COLOR else visual.heatColors[index]
 	end
 end
 
@@ -1105,6 +1116,15 @@ function Models.setFlash(visual: Visual, on: boolean)
 		return
 	end
 	visual.flashing = on
+	paint(visual)
+end
+
+-- Burning (ember-red) and slowed (frost-blue) looks; burning wins when both apply (B5).
+function Models.setStatus(visual: Visual, burning: boolean, slowed: boolean)
+	if visual.burning == burning and visual.slowed == slowed then
+		return
+	end
+	visual.burning, visual.slowed = burning, slowed
 	paint(visual)
 end
 
@@ -1171,6 +1191,7 @@ end
 -- Puts a pooled model back to its plain look.
 function Models.reset(visual: Visual)
 	visual.flashing = false
+	visual.burning, visual.slowed = false, false
 	Models.setMode(visual, 0)
 	paint(visual)
 	local trail = visual.trail

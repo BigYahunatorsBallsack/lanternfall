@@ -12,6 +12,8 @@ export type Enemy = {
 	xp: number,
 	radius: number, -- collision circle, studs (assumption)
 	mass: number, -- crowd weight: heavier enemies push lighter ones aside (assumption)
+	-- share of a knockback the enemy ignores (0..1, Brotato's knockback resistance, B5); default 1 - 1 / mass above 1
+	knockbackResistance: number?,
 	look: string?, -- reuses the model of this enemy id in another color (EnemyRenderer/Models); default: its own id
 	ranged: Ranged?,
 	charge: Charge?,
@@ -83,6 +85,7 @@ local Enemies: { [string]: Enemy } = {
 		xp = 1,
 		radius = 1.5,
 		mass = 1,
+		knockbackResistance = 0, -- B5, like Brotato's Baby Alien
 	},
 	Brute = {
 		id = "Brute",
@@ -94,6 +97,7 @@ local Enemies: { [string]: Enemy } = {
 		xp = 4,
 		radius = 2.5,
 		mass = 6,
+		knockbackResistance = 0.9, -- B5, like Bruiser
 	},
 	Spitter = {
 		id = "Spitter",
@@ -105,6 +109,7 @@ local Enemies: { [string]: Enemy } = {
 		xp = 2,
 		radius = 1.5,
 		mass = 1,
+		knockbackResistance = 0.95, -- B5, like Spitter
 		ranged = {
 			keepDistance = 30,
 			fireInterval = 2.5,
@@ -127,6 +132,7 @@ local Enemies: { [string]: Enemy } = {
 		xp = 4,
 		radius = 1.8,
 		mass = 3,
+		knockbackResistance = 0.8, -- B5, like Charger
 		charge = {
 			triggerRange = 24,
 			windupSeconds = 0.9,
@@ -146,6 +152,7 @@ local Enemies: { [string]: Enemy } = {
 		xp = 2,
 		radius = 1.9,
 		mass = 2,
+		knockbackResistance = 0.5, -- B5, like Helmet Alien
 		split = { enemy = "Splitling", count = 3, spread = 1.5 },
 	},
 	-- only from Splitters
@@ -159,6 +166,7 @@ local Enemies: { [string]: Enemy } = {
 		xp = 1,
 		radius = 1,
 		mass = 0.6,
+		knockbackResistance = 0, -- B5, like Baby Alien
 	},
 	-- stronger versions of the first enemies for the second half of the run
 	AbyssShadeling = {
@@ -171,6 +179,7 @@ local Enemies: { [string]: Enemy } = {
 		xp = 2,
 		radius = 1.6,
 		mass = 1.2,
+		knockbackResistance = 0, -- B5, like Chaser
 		look = "Shadeling",
 	},
 	AbyssBrute = {
@@ -183,6 +192,7 @@ local Enemies: { [string]: Enemy } = {
 		xp = 8,
 		radius = 2.8,
 		mass = 8,
+		knockbackResistance = 0.9, -- B5, like Bruiser
 		look = "Brute",
 	},
 }
@@ -194,6 +204,7 @@ local Elite = table.freeze({
 	damageMultiplier = 1.5, -- contact and projectile damage
 	sizeMultiplier = 1.5, -- collision radius and model
 	massMultiplier = 2.25, -- pushes normal enemies of its type aside (assumption)
+	knockbackResistance = 1, -- B5: elites ignore knockback like in Brotato
 	xp = 25,
 	dropsChest = true,
 	typeIdOffset = 128, -- snapshot typeId of the elite variant = typeId + this (base typeIds stay below it)

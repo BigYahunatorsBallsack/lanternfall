@@ -2,7 +2,8 @@
 -- Thorn Trail (DESIGN.md section 6): while the owner is up, a thorn patch (`radius`) is dropped under them whenever
 -- they moved dropSpacing studs from the last one, or when no patch of theirs is left under them. Each patch lies for
 -- `duration` seconds. Every tickInterval all enemies on any patch take damage, each enemy once per tick however many
--- patches it stands on. Patches already on the floor keep hurting while the owner is down. No cooldown: the trail is
+-- patches it stands on; since B5 each tick also slows them (the weapon's slow, applied by Arsenal's hit). Patches
+-- already on the floor keep hurting while the owner is down. No cooldown: the trail is
 -- always on. Effect: "Drop" with id, center, radius and duration. Behavior for WeaponService/Arsenal; drawn by
 -- WeaponRenderer/Visuals/ThornTrail.
 

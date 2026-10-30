@@ -5,7 +5,8 @@
 -- EnemyShots. Splitters fall apart into smaller enemies when killed and Summoning elites call enemies around
 -- themselves (both keep the parent's minute and difficulty multipliers). Signals: EnemyKilled for XP and loot (WP6,
 -- WP9), Contact and ShotHit for player damage (WP4, WP9), Stepped for the weapons (WP5). Enemies and shots are
--- cleared when a run starts and ends and when a wave ends (Shop phase).
+-- cleared when a run starts and ends and when a wave ends (Shop phase). Since B5 weapons also slow enemies and mark
+-- them as burning (slow, setBurning); both travel in the snapshot's status byte.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
@@ -290,6 +291,7 @@ local function sendSnapshot()
 	local count = 0
 	local ids, xs, zs, typeIds, hp, maxHp = world.ids, world.xs, world.zs, world.typeIds, world.hp, world.maxHp
 	local kinds, modes, rushXs, rushZs = world.kinds, world.modes, world.rushXs, world.rushZs
+	local slowFactors, burning = world.slowFactors, world.burning
 	for i = 1, world.count do
 		if hp[i] > 0 then
 			count += 1
@@ -305,6 +307,8 @@ local function sendSnapshot()
 				if charging then rushXs[i] else nil,
 				if charging then rushZs[i] else nil
 			)
+			columns.statuses[count] = (if burning[i] then Snapshot.STATUS_BURNING else 0)
+				+ (if slowFactors[i] < 1 then Snapshot.STATUS_SLOWED else 0)
 		end
 	end
 	local packets = Snapshot.encode(currentTick, columns, count)
@@ -435,9 +439,19 @@ function EnemySim.damage(id: number, amount: number, source: Player?): (boolean,
 	return true, dealt, applied
 end
 
--- Pushes a living enemy along the floor by `offset` (x/z), less the heavier it is (knockback).
+-- Pushes a living enemy along the floor by `offset` (x/z), less the more it resists knockback (World.push).
 function EnemySim.push(id: number, offset: Vector3)
 	world:push(id, offset.X, offset.Z)
+end
+
+-- Slows a living enemy to `factor` of its speed for `seconds`; the stronger slow wins (B5, World.slow).
+function EnemySim.slow(id: number, factor: number, seconds: number)
+	world:slow(id, factor, seconds)
+end
+
+-- Shows a living enemy as burning (or not) in the snapshots; WeaponService runs the burn itself (B5).
+function EnemySim.setBurning(id: number, on: boolean)
+	world:setBurning(id, on)
 end
 
 -- Moves a living enemy to `position` (x/z) at once, without crossing the space in between.

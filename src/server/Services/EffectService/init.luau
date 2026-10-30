@@ -3,7 +3,8 @@
 -- rules in EffectService/EffectRules). The event bus of the effect engine: it listens to the other services (wave
 -- start and end, shop, level-ups, weapon hits, crits and kills, dodges, hits taken, orbs, chests, a timer), fires the
 -- matching effects of each participant's items and carries out their actions (stats for the rest of the run, this
--- wave, a few seconds or the next wave, healing, Shards, HP, random stats, hit shields, weapon tiers). Passive effects
+-- wave, a few seconds or the next wave, healing, Shards, HP, random stats, hit shields, weapon tiers; since B5 burning
+-- and blowing up the enemy of a Hit, Crit or Kill through WeaponService). Burn ticks only count as Kill events. Passive effects
 -- (standing still or moving, "per X") and the temporary bonuses go to StatService as one bonus sheet (setDynamic),
 -- only when it changes. Also does what a secondary stat does on its own: Orb Healing heals on pickups. Sends
 -- EffectProcs (feedback texts over the character) during a wave, one Notify toast for what paid out at the wave end or
@@ -204,12 +205,24 @@ local function upgradeWeapon(state: State, entry: EffectRules.Entry)
 	end
 end
 
--- Carries out one firing of an entry with `strength` (EffectRules.strength). Returns true if a bonus changed.
-local function apply(state: State, entry: EffectRules.Entry, strength: number): boolean
+-- Carries out one firing of an entry with `strength` (EffectRules.strength) for `event`. Returns true if a bonus
+-- changed.
+local function apply(state: State, entry: EffectRules.Entry, strength: number, event: EffectRules.Event): boolean
 	local player = state.player
 	local effect = entry.effect
 	local action = effect.action
-	if action == "Grow" then
+	if action == "Burn" then
+		if event.enemyId then -- burns do not stack: more copies only mean more chances
+			WeaponService.burnEnemy(player, event.enemyId, effect.amount or 0, effect.scaling, effect.ticks or 0)
+		end
+	elseif action == "Explode" then
+		local position = event.enemyId and EnemySim.getPosition(event.enemyId)
+		if position then
+			local damage = (effect.amount or 0) * strength
+			local scaling = scaled(effect.scaling, strength)
+			WeaponService.explodeAt(player, position, damage, scaling, effect.size or 1)
+		end
+	elseif action == "Grow" then
 		local stats = scaled(effect.stats, strength)
 		if StatService.addStats(player, stats) then
 			addProc(state, { itemId = entry.itemId, kind = "Stats", stats = stats })
@@ -271,7 +284,7 @@ local function fire(state: State, event: EffectRules.Event, entries: { EffectRul
 			local strength = EffectRules.strength(entry, state.roll)
 			if strength > 0 then
 				EffectRules.countFiring(entry, state.buffs)
-				changed = apply(state, entry, strength) or changed
+				changed = apply(state, entry, strength, event) or changed
 			end
 		end
 	end
@@ -294,7 +307,7 @@ end
 
 -- Events -------------------------------------------------------------------------------------
 
-local function onHit(ownerId: number, enemyId: number, _dealt: number, crit: boolean, killed: boolean)
+local function onHit(ownerId: number, enemyId: number, _dealt: number, crit: boolean, killed: boolean, source: string)
 	local state = byUserId[ownerId]
 	if not (state and state.hitTriggers) then
 		return
@@ -305,12 +318,14 @@ local function onHit(ownerId: number, enemyId: number, _dealt: number, crit: boo
 		elite = isElite
 	end
 	local wave = RunDirector.getWave()
-	fire(state, { trigger = "Hit", wave = wave, crit = crit, elite = elite })
-	if crit then
-		fire(state, { trigger = "Crit", wave = wave, crit = true, elite = elite })
+	if source ~= "Burn" then -- burn ticks are no hits (Brotato), but their kills count
+		fire(state, { trigger = "Hit", wave = wave, crit = crit, elite = elite, enemyId = enemyId })
+		if crit then
+			fire(state, { trigger = "Crit", wave = wave, crit = true, elite = elite, enemyId = enemyId })
+		end
 	end
 	if killed then
-		fire(state, { trigger = "Kill", wave = wave, crit = crit, elite = elite })
+		fire(state, { trigger = "Kill", wave = wave, crit = crit, elite = elite, enemyId = enemyId })
 	end
 end
 

@@ -1,7 +1,7 @@
 --!strict
 -- Damage numbers of the local player's own hits (DESIGN.md section 14, hit feedback): each DamageNumbers packet
 -- (Net/HitNumbers, one per simulation step) becomes small white numbers over the hit enemies, critical hits big and
--- golden with a "!". They rise and fade (Config.Feedback.damageNumbers); at most maxVisible at once (fewer on touch
+-- golden with a "!", burn ticks orange (B5). They rise and fade (Config.Feedback.damageNumbers); at most maxVisible at once (fewer on touch
 -- devices), the oldest makes room. BillboardGuis from a pool sit on one anchor part, so moving a number is one
 -- property. Active only while the local player is in a running run (RunStateController). The server decides
 -- every hit; this only shows them.
@@ -25,6 +25,7 @@ local CRIT_TEXT_SIZE = 32
 local CRIT_POP = 0.35 -- a critical number starts this much bigger and shrinks to its size
 local NORMAL_COLOR = Color3.fromRGB(255, 255, 255)
 local CRIT_COLOR = Color3.fromRGB(255, 205, 70)
+local BURN_COLOR = Color3.fromRGB(255, 130, 50)
 local STROKE_COLOR = Color3.fromRGB(20, 12, 30)
 local GUI_WIDTH = 90
 local FADE_FROM = 0.5 -- share of the lifetime after which a number fades out
@@ -112,7 +113,7 @@ local function show(hit: HitNumbers.Hit, now: number)
 	entry.z = hit.z + (rng:NextNumber() * 2 - 1) * JITTER
 	local label = entry.label
 	label.Text = if hit.crit then `{hit.amount}!` else tostring(hit.amount)
-	label.TextColor3 = if hit.crit then CRIT_COLOR else NORMAL_COLOR
+	label.TextColor3 = if hit.crit then CRIT_COLOR elseif hit.burn then BURN_COLOR else NORMAL_COLOR
 	label.TextSize = if hit.crit then CRIT_TEXT_SIZE else TEXT_SIZE
 	label.TextTransparency = 0
 	label.TextStrokeTransparency = 0.2

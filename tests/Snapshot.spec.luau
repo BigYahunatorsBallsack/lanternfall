@@ -1,4 +1,5 @@
--- Unit tests for the enemy snapshot format (Net/Snapshot): round trip, splitting into parts, limits.
+-- Unit tests for the enemy snapshot format (Net/Snapshot): round trip (since B5 with the status byte), splitting into
+-- parts, limits.
 
 local Snapshot = require(game:GetService("ReplicatedStorage").Shared.Net.Snapshot)
 
@@ -11,6 +12,7 @@ local function columnsOf(count)
 		columns.typeIds[i] = 1 + i % 3
 		columns.hpFractions[i] = (i % 10) / 10
 		columns.flags[i] = Snapshot.packFlags(i % 4, i % 3)
+		columns.statuses[i] = i % 4 -- burning, slowed, both or none
 	end
 	return columns
 end
@@ -45,6 +47,7 @@ describe("Snapshot", function()
 			expect(decoded.typeIds[i]).toBe(source.typeIds[i])
 			expect(decoded.hpFractions[i]).toBeNear(source.hpFractions[i], 1 / 255)
 			expect(decoded.flags[i]).toBe(source.flags[i])
+			expect(decoded.statuses[i]).toBe(source.statuses[i])
 			local mode, affix = Snapshot.unpackFlags(decoded.flags[i])
 			expect(mode).toBe(i % 4)
 			expect(affix).toBe(i % 3)

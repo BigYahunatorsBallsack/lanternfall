@@ -20,6 +20,10 @@
 --   any event + RandomStats  `amount` points split at random between the primary stats (randomPoint below)
 --   any event + Shields      `amount` hits nullified until the wave ends
 --   any event + UpgradeWeapon a random weapon below the max tier one tier up; without one, `stats` instead
+--   Hit/Crit/Kill + Burn     sets the enemy on fire (B5): `ticks` ticks of `amount` + `scaling` (stat id -> share)
+--                            per tick, times Damage % (Brotato's burning items; burns do not stack)
+--   Hit/Crit/Kill + Explode  an explosion at the enemy (B5): `amount` + `scaling` damage, radius `size` times
+--                            Config.Combat.explosion.baseRadius; copies that fire together add their damage
 -- Events (triggers): Acquire (this copy is taken), WaveStart, WaveEnd (before Harvesting pays), ShopEnter (offers
 -- rolled), Reroll, Buy, Sell, LevelUp, Hit, Crit, Kill (weapon hits of the owner), Dodge, Hurt (HP lost), Pickup
 -- (per orb picked up), Chest, Timer (every `interval` seconds of a wave).
@@ -45,6 +49,9 @@ export type Effect = {
 	fromWave: number?,
 	untilWave: number?,
 	maxPerWave: number?,
+	scaling: { [string]: number }?, -- Burn, Explode: stat id -> share added to `amount` (B5)
+	ticks: number?, -- Burn
+	size: number?, -- Explode: share of the base explosion radius
 }
 
 local function set(list: { string }): { [string]: boolean }
@@ -88,7 +95,10 @@ return table.freeze({
 		"RandomStats",
 		"Shields",
 		"UpgradeWeapon",
+		"Burn",
+		"Explode",
 	}),
+	enemyTriggers = set({ "Hit", "Crit", "Kill" }), -- events with an enemy: the only ones for Burn and Explode (B5)
 	states = set({ "Still", "Moving" }),
 	perXSources = set({ "shards", "distinctWeapons" }), -- and every stat id
 

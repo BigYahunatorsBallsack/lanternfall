@@ -1,7 +1,8 @@
 --!strict
 -- Player stats (DESIGN.md section 4, Brotato direction since B2): the list of stats, their level-up upgrade values
 -- and the numbers of the formulas in Util/StatMath. Since B4 also Brotato's secondary stats for the shop, Shards and
--- the enemies (only from items; hidden in the stat panel while 0). Values are kept in the units the player sees: "percent" stats in
+-- the enemies (only from items; hidden in the stat panel while 0), since B5 the combat ones (knockback, explosions,
+-- piercing, bouncing, burning; rules in Config.Combat). Values are kept in the units the player sees: "percent" stats in
 -- percent points (5 = +5 %), the others as plain numbers. Read by StatService (sums), WeaponStats, CombatService,
 -- ExperienceService, ShopService, UpgradeService and the client (stat panel, card texts).
 --
@@ -35,6 +36,14 @@ export type StatId =
 	| "enemyCount"
 	| "enemyHp"
 	| "enemyDamage"
+	| "knockback"
+	| "explosionDamage"
+	| "explosionSize"
+	| "piercing"
+	| "piercingDamage"
+	| "bounce"
+	| "burnSpeed"
+	| "burnSpread"
 
 export type Stat = {
 	id: string,
@@ -101,6 +110,15 @@ local ORDER: { Stat } = {
 	extra("enemyCount", "Enemies", true, true), -- spawn rate; the whole team's values add up
 	extra("enemyHp", "Enemy HP", true, true), -- HP of enemies that spawn; team total
 	extra("enemyDamage", "Enemy Damage", true, true), -- damage of enemies that spawn; team total
+	-- combat (since B5, Config.Combat)
+	extra("knockback", "Knockback", false), -- points added to every weapon's knockback
+	extra("explosionDamage", "Explosion Damage", true), -- damage of every explosion
+	extra("explosionSize", "Explosion Size", true), -- radius of every explosion
+	extra("piercing", "Piercing", false), -- extra enemies every projectile flies through
+	extra("piercingDamage", "Piercing Damage", true), -- gives back some of the damage lost per pierce
+	extra("bounce", "Bounce", false), -- extra bounces of every projectile (Chain Lightning: extra jumps)
+	extra("burnSpeed", "Burning Speed", true), -- burns tick this much faster
+	extra("burnSpread", "Burning Spread", false), -- burns pass on to this many more enemies
 }
 
 local byId: { [string]: Stat } = {}

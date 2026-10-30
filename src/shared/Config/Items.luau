@@ -7,6 +7,7 @@
 -- Since B4 items can also have effects (Config.Effects: standing still, "per X", growth at the end of a wave, next wave,
 -- on kill, on dodge ...; EffectService runs them). The items after the 46 of B2 each take one Brotato item's
 -- mechanics and numbers (named in the comment, HP times hpScale); what needs a later package is left out and noted.
+-- Since B5 12 more for the combat stats and effects (burning, explosions, piercing, bouncing, knockback).
 -- Also the rarity tiers: their chances by wave (shop) or level (level-up cards), raised by Luck (Util/StatMath).
 -- Read by StatService, EffectService, ShopService/ShopRules, UpgradeService and the client (texts, colors).
 
@@ -45,6 +46,9 @@ local function item(
 		for index, effect in effects do
 			if effect.stats then
 				table.freeze(effect.stats)
+			end
+			if effect.scaling then
+				table.freeze(effect.scaling)
 			end
 			effects[index] = table.freeze(effect)
 		end
@@ -221,6 +225,40 @@ local LIST: { Item } = {
 	}),
 	item("EmberAnvil", "Ember Anvil", 4, 120, {}, 1, { -- Anvil
 		{ trigger = "ShopEnter", action = "UpgradeWeapon", stats = { armor = 2 } },
+	}),
+	-- Combat (since B5: burning, explosions, piercing, bouncing, knockback; Config.Combat). Brotato item in the
+	-- comment; prices marked "assumption" are not known from Brotato.
+	item("SmolderingWick", "Smoldering Wick", 1, 25, {}, 4, { -- Scared Sausage
+		{ trigger = "Hit", action = "Burn", chance = 0.25, amount = 1, scaling = { elementalDamage = 1 }, ticks = 3 },
+	}),
+	item("AshSerpent", "Ash Serpent", 1, 25, { burnSpread = 1, maxHp = -10 }), -- Snake
+	item("Bellows", "Bellows", 2, 40, { burnSpeed = 20 }, 2), -- Eyes Surgery (price assumption)
+	item("BlackPowder", "Black Powder", 1, 20, { explosionDamage = 15 }), -- Dynamite (price assumption)
+	item("FulminateJar", "Fulminate Jar", 3, 60, { explosionSize = 25 }), -- Plastic Explosive (price assumption)
+	item("BurstingSigil", "Bursting Sigil", 3, 65, {}, nil, { -- Rip and Tear (price assumption)
+		{
+			trigger = "Kill",
+			action = "Explode",
+			chance = 0.2,
+			amount = 10,
+			scaling = { meleeDamage = 0.5 },
+			size = 0.65,
+		},
+	}),
+	item("NeedleCharm", "Needle Charm", 3, 75, { piercing = 1, damage = -10 }), -- Bandana
+	item( -- Sharp Bullet
+		"HollowNail",
+		"Hollow Nail",
+		1,
+		25,
+		{ piercing = 1, piercingDamage = -20, damage = -5, knockback = -3 },
+		1
+	),
+	item("GourdLantern", "Gourd Lantern", 2, 40, { piercingDamage = 15, damage = -2 }), -- Pumpkin
+	item("MirrorShard", "Mirror Shard", 4, 110, { bounce = 1, damage = -25 }), -- Ricochet
+	item("IronGauntlet", "Iron Gauntlet", 1, 20, { knockback = 3 }), -- Boxing Glove (price assumption)
+	item("RecoilSpring", "Recoil Spring", 3, 60, { knockback = 5 }, 3, { -- Coil (price assumption)
+		{ trigger = "Always", action = "PerX", source = "knockback", per = 1, stats = { damage = 1 } },
 	}),
 }
 

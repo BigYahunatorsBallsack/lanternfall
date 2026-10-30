@@ -265,7 +265,38 @@ describe("EnemyWorld", function()
 		expect(world:querySegment(1000, 1000, 1000, 1000, 1, out)).toBe(0) -- a point works too
 	end)
 
-	it("pushes enemies less the heavier they are, never into obstacles or out of the arena", function()
+	it("slows enemies: the stronger slow wins, an equal one refreshes, it runs out (B5)", function()
+		local world = newWorld()
+		local slowed = spawn(world, "Shadeling", 0, 0)
+		local free = spawn(world, "Shadeling", 0, 10)
+		world:slow(slowed, 0.5, 1)
+		world:slow(slowed, 0.8, 5) -- weaker: ignored
+		expect(world.slowFactors[world.indexOf[slowed]]).toBe(0.5)
+		expect((world:getStatus(slowed))).toBe(true)
+		expect((world:getStatus(free))).toBe(false)
+		-- walks at half speed towards a target far away
+		local step = 1 / Sim.tickRate
+		world:step(step, { 100 }, { 0 }, 1)
+		local x = world:getPosition(slowed)
+		local freeX = world:getPosition(free)
+		expect(x).toBeNear(freeX / 2, 0.05)
+		world:slow(slowed, 0.5, 2) -- the same slow refreshes
+		for _ = 1, math.ceil(1.5 / step) do
+			world:step(step, {}, {}, 0)
+		end
+		expect((world:getStatus(slowed))).toBe(true)
+		for _ = 1, math.ceil(1 / step) do
+			world:step(step, {}, {}, 0)
+		end
+		expect((world:getStatus(slowed))).toBe(false)
+		expect(world.slowFactors[world.indexOf[slowed]]).toBe(1)
+		world:setBurning(free, true)
+		expect(select(2, world:getStatus(free))).toBe(true)
+		world:damage(free, 100)
+		expect(select(2, world:getStatus(free))).toBe(false) -- dead enemies show nothing
+	end)
+
+	it("pushes enemies less the more they resist knockback, never into obstacles or out of the arena", function()
 		local world = newWorld({ { x = 20, z = 0, radius = 4 } })
 		local light = spawn(world, "Shadeling", 0, 0)
 		local heavy = spawn(world, "Brute", 0, 30)
@@ -276,7 +307,8 @@ describe("EnemyWorld", function()
 		world:push(blocked, 3, 0)
 		world:push(wall, 10, 0)
 		expect(world:getPosition(light)).toBeNear(3)
-		expect(select(2, world:getPosition(heavy))).toBeNear(30 + 3 / Types.Brute.mass)
+		expect(select(2, world:getPosition(heavy))).toBeNear(30 + 3 * (1 - Types.Brute.knockbackResistance))
+		expect(World.knockbackShare({ mass = 4 } :: any)).toBeNear(0.25) -- without a resistance: 1 / mass
 		expect(20 - world:getPosition(blocked) >= 4 + Types.Shadeling.radius - 1e-6).toBe(true)
 		expect(world:getPosition(wall)).toBeNear(HALF - Types.Shadeling.radius)
 		world:damage(light, 100)

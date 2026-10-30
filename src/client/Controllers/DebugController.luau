@@ -44,6 +44,7 @@ local BUTTON_TEXT: { [string]: string } = {
 	ToggleWeapons = "Weapons on/off",
 	GainLevel = "Team +1 level",
 	AddEffectItem = "Next effect item",
+	AddCombatItem = "Next combat item",
 }
 
 local BUTTON_SIZE = Vector2.new(150, 30)

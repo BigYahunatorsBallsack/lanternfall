@@ -8,7 +8,9 @@
 -- (weapons are named by their uid, since B3 a player may carry the same weapon several times); StatService sets the
 -- owner's stats (setStats) and life steal heals through CombatService; the results screen (WP14) getDamageStats.
 -- Since B4 crits and life steal roll on RandomService's Combat stream, every hit goes to the hit listener
--- (EffectService: Hit, Crit and Kill effects) and Changed fires whenever a player's weapons change.
+-- (EffectService: Hit, Crit and Kill effects) and Changed fires whenever a player's weapons change. Since B5 weapons
+-- slow and burn enemies (EnemySim.slow, setBurning), burn ticks show as orange damage numbers, and item effects burn
+-- and blow up enemies through burnEnemy and explodeAt (EffectService). Burns go out when a wave ends.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -32,9 +34,16 @@ local WeaponService = {}
 -- (player: Player): the player's weapons changed (added, removed, merged, tier, evolution)
 WeaponService.Changed = Signal.new()
 
--- Hit listener: (ownerId, enemyId, dealt, crit, killed), set by EffectService. A plain callback, not a Signal:
--- it runs for every hit.
-type HitListener = (ownerId: number, enemyId: number, dealt: number, crit: boolean, killed: boolean) -> ()
+-- Hit listener: (ownerId, enemyId, dealt, crit, killed, source), set by EffectService. A plain callback, not a
+-- Signal: it runs for every hit. `source` says what dealt it (Arsenal.HitSource: "Weapon", "Explosion", "Burn").
+export type HitListener = (
+	ownerId: number,
+	enemyId: number,
+	dealt: number,
+	crit: boolean,
+	killed: boolean,
+	source: Arsenal.HitSource
+) -> ()
 local hitListener: HitListener? = nil
 
 local function loadBehaviors(): { [string]: Arsenal.Behavior }
@@ -67,7 +76,7 @@ type HitFeed = {
 
 local hitFeeds: { [number]: HitFeed } = {} -- by owner userId
 
-local function recordHit(ownerId: number, id: number, applied: number, crit: boolean, killed: boolean)
+local function recordHit(ownerId: number, id: number, applied: number, crit: boolean, killed: boolean, burn: boolean)
 	if not Config.Feedback.damageNumbers.enabled or applied <= 0 then
 		return
 	end
@@ -76,7 +85,9 @@ local function recordHit(ownerId: number, id: number, applied: number, crit: boo
 		feed = { indexOf = {}, xs = {}, zs = {}, amounts = {}, flags = {}, count = 0 }
 		hitFeeds[ownerId] = feed
 	end
-	local flags = (if crit then HitNumbers.FLAG_CRIT else 0) + (if killed then HitNumbers.FLAG_KILL else 0)
+	local flags = (if crit then HitNumbers.FLAG_CRIT else 0)
+		+ (if killed then HitNumbers.FLAG_KILL else 0)
+		+ (if burn then HitNumbers.FLAG_BURN else 0)
 	local index = feed.indexOf[id]
 	if index then
 		feed.amounts[index] += applied
@@ -133,18 +144,21 @@ local arsenal = Arsenal.new({
 			end
 			return nil, nil
 		end,
-		damage = function(id: number, amount: number, ownerId: number, crit: boolean): (boolean, number)
+		damage = function(id: number, amount: number, ownerId: number, crit: boolean, burn: boolean): (boolean, number)
 			local killed, dealt, applied = EnemySim.damage(id, amount, playerOf(ownerId))
-			recordHit(ownerId, id, applied, crit, killed)
+			recordHit(ownerId, id, applied, crit, killed, burn)
 			return killed, dealt
 		end,
 		push = function(id: number, dx: number, dz: number)
 			EnemySim.push(id, Vector3.new(dx, 0, dz))
 		end,
+		isAlive = EnemySim.isAlive,
 		isElite = function(id: number): boolean
 			local _, elite = EnemySim.getKind(id)
 			return elite
 		end,
+		slow = EnemySim.slow,
+		setBurning = EnemySim.setBurning,
 	},
 	behaviors = loadBehaviors(),
 	maxWeapons = Config.Player.maxWeapons,
@@ -158,10 +172,18 @@ local arsenal = Arsenal.new({
 			CombatService.lifeSteal(player)
 		end
 	end,
-	onHit = function(weapon: Arsenal.Weapon, id: number, dealt: number, crit: boolean, killed: boolean)
+	onHit = function(
+		ownerId: number,
+		_weapon: Arsenal.Weapon?,
+		id: number,
+		dealt: number,
+		crit: boolean,
+		killed: boolean,
+		source: Arsenal.HitSource
+	)
 		local listener = hitListener
 		if listener then
-			listener(weapon.ownerId, id, dealt, crit, killed)
+			listener(ownerId, id, dealt, crit, killed, source)
 		end
 	end,
 	sweepStep = Config.Simulation.weaponSweepStep,
@@ -245,6 +267,11 @@ end
 function WeaponService.init()
 	RunDirector.RunStarted:Connect(onRunStarted)
 	EnemySim.Stepped:Connect(onStepped)
+	RunDirector.PhaseChanged:Connect(function(phase)
+		if phase == "Shop" then
+			arsenal:clearCombat() -- the enemies left fade away (EnemySim), so do their burns
+		end
+	end)
 	RunDirector.SyncRequested:Connect(function(requester)
 		for _, player in Players:GetPlayers() do
 			Net.fireClient("Loadout", requester, loadoutOf(player))
@@ -321,6 +348,30 @@ function WeaponService.setHitListener(listener: HitListener?)
 	hitListener = listener
 end
 
+-- Item effects (B5, EffectService): sets an enemy on fire for the player at the end of this step, `ticks` ticks of
+-- (damage + sum of scaling * stat) times Damage %, with the player's Burning Speed and Spread.
+function WeaponService.burnEnemy(
+	player: Player,
+	enemyId: number,
+	damage: number,
+	scaling: { [string]: number }?,
+	ticks: number
+)
+	arsenal:queueBurn(player.UserId, enemyId, damage, scaling, ticks)
+end
+
+-- Item effects (B5, EffectService): an explosion of the player's at `position` at the end of this step, (damage +
+-- sum of scaling * stat) times Damage % and Explosion Damage, `size` times the base radius times Explosion Size.
+function WeaponService.explodeAt(
+	player: Player,
+	position: Vector3,
+	damage: number,
+	scaling: { [string]: number }?,
+	size: number
+)
+	arsenal:queueExplosion(player.UserId, position.X, position.Z, damage, scaling, size)
+end
+
 -- Debug: switches every player's weapons off (no hits, no visuals) or back on. Resets at run start.
 function WeaponService.setPaused(value: boolean)
 	paused = value
@@ -352,6 +403,11 @@ end
 -- Ids of the weapons that can be given out (config record plus behavior module), sorted.
 function WeaponService.getImplemented(): { string }
 	return arsenal:getImplemented()
+end
+
+-- Whether an enemy burns right now (B5; smoke test).
+function WeaponService.isBurning(enemyId: number): boolean
+	return arsenal:isBurning(enemyId)
 end
 
 -- Damage dealt and kills per weapon in the current (or last) run.

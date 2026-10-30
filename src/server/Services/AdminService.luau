@@ -37,18 +37,61 @@ local AdminService = {}
 
 local hitList: { number } = {}
 local effectItemIndex: { [Player]: number } = {} -- the last item "AddEffectItem" gave
+local combatItemIndex: { [Player]: number } = {} -- the last item "AddCombatItem" gave
 
--- Items with effects or a secondary stat (since B4), in the order of Config.Items.
+-- Stats and effect actions of the combat items (B5).
+local COMBAT_STATS = {
+	knockback = true,
+	explosionDamage = true,
+	explosionSize = true,
+	piercing = true,
+	piercingDamage = true,
+	bounce = true,
+	burnSpeed = true,
+	burnSpread = true,
+}
+local COMBAT_ACTIONS = { Burn = true, Explode = true }
+
+-- Items with effects or a secondary stat (since B4) and the combat ones among them (B5), in the order of Config.Items.
 local effectItems: { string } = {}
+local combatItems: { string } = {}
 for _, item in Config.Items.list do
-	local secondary = false
+	local secondary, combat = false, false
 	for statId in item.stats do
 		local stat = Config.Stats.byId[statId]
 		secondary = secondary or (stat ~= nil and stat.hideWhenZero)
+		combat = combat or COMBAT_STATS[statId] == true
+	end
+	for _, effect in item.effects or {} do
+		combat = combat or COMBAT_ACTIONS[effect.action] == true
 	end
 	if item.effects or secondary then
 		table.insert(effectItems, item.id)
 	end
+	if combat then
+		table.insert(combatItems, item.id)
+	end
+end
+
+-- Gives the player the next item of `list` after the one `last` remembers (skipping those at their limit).
+local function nextItem(player: Player, list: { string }, last: { [Player]: number }): (boolean, string?)
+	if not RunDirector.isOngoing() then
+		return false, "NotRunning"
+	end
+	local start = last[player] or 0
+	for step = 1, #list do
+		local index = (start + step - 1) % #list + 1
+		local itemId = list[index]
+		local ok, reason = StatService.addItem(player, itemId)
+		if ok then
+			last[player] = index
+			local item = Config.Items.byId[itemId]
+			return true, `{item.displayName}: {UpgradeText.itemLines(itemId, nil, " · ")}`
+		elseif reason == "NotParticipant" then
+			return false, reason
+		end
+	end
+	return true, "Every item of this list is at its limit"
 end
 
 local function enemies(count: number): string
@@ -287,23 +330,10 @@ local handlers: { [string]: (player: Player) -> (boolean, string?) } = {
 		return true, `Team level {ExperienceService.getLevel()}`
 	end,
 	AddEffectItem = function(player)
-		if not RunDirector.isOngoing() then
-			return false, "NotRunning"
-		end
-		local start = effectItemIndex[player] or 0
-		for step = 1, #effectItems do
-			local index = (start + step - 1) % #effectItems + 1
-			local itemId = effectItems[index]
-			local ok, reason = StatService.addItem(player, itemId)
-			if ok then
-				effectItemIndex[player] = index
-				local item = Config.Items.byId[itemId]
-				return true, `{item.displayName}: {UpgradeText.itemLines(itemId, nil, " · ")}`
-			elseif reason == "NotParticipant" then
-				return false, reason
-			end
-		end
-		return true, "Every effect item is at its limit"
+		return nextItem(player, effectItems, effectItemIndex)
+	end,
+	AddCombatItem = function(player)
+		return nextItem(player, combatItems, combatItemIndex)
 	end,
 }
 
@@ -349,6 +379,7 @@ function AdminService.init()
 
 	Players.PlayerRemoving:Connect(function(player)
 		effectItemIndex[player] = nil
+		combatItemIndex[player] = nil
 	end)
 
 	Net.onServer("DebugCommand", function(player, command: string)
