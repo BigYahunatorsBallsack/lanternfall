@@ -620,6 +620,39 @@ function ConfigCheck.run(): { string }
 		problem("Admin.skipToBossLeadSeconds should equal the boss wave's length (lands at the end of the wave before)")
 	end
 
+	-- B10: validate every selectable loadout and character rule before services start.
+	for id, class in Config.Classes do
+		if class.available then
+			local cap = class.maxWeapons or Config.Player.maxWeapons
+			if cap < 1 or cap > 12 or cap % 1 ~= 0 then
+				problem(`Character {id}: invalid weapon cap`)
+			end
+			if not table.find(class.startWeapons, class.startWeapon) then
+				problem(`Character {id}: default missing from choices`)
+			end
+			for _, weaponId in class.startWeapons do
+				local weapon = Config.Weapons[weaponId]
+				if not weapon or not hasBehavior(weapon.behavior) or (weapon.minTier or 1) > 1 then
+					problem(`Character {id}: invalid starting weapon {weaponId}`)
+				elseif class.weaponKind and weapon.kind ~= class.weaponKind then
+					problem(`Character {id}: forbidden starting weapon`)
+				end
+			end
+			for _, itemId in class.startItems or {} do
+				if not Config.Items.byId[itemId] then
+					problem(`Character {id}: unknown starting item {itemId}`)
+				end
+			end
+			checkStats(`Character {id} level`, class.perLevel or {})
+			checkStats(`Character {id} weapon`, class.perWeapon or {})
+			checkStats(`Character {id} distinct weapon`, class.perDistinctWeapon or {})
+			for statId, factor in class.gainMultipliers or {} do
+				if not Config.Stats.byId[statId] or factor < 0 then
+					problem(`Character {id}: invalid multiplier {statId}`)
+				end
+			end
+		end
+	end
 	return problems
 end
 

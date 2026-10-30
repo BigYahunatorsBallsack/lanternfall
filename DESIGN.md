@@ -213,7 +213,7 @@ Explosionen, Brennen, Durchschlag, Abprall und Rückstoß kamen mit der Kampf-Ti
 
 **Wie Werte zusammenkommen (seit B4, `StatService`, `Util/StatMath`):**
 
-1. **Dauerhaft:** Grundwerte + (Klasse + Items × Anzahl + Werte-Karten + Wachstum aus Effekten + 10 Max HP pro Team-Level), jeder Gewinn mal dem Multiplikator der Klasse für diesen Wert (`gainMultipliers`, z. B. Damage × 0,5 = „Damage-Änderungen halbiert"; noch ohne Werte, für die Charaktere in B10). Harvesting-Wachstum gehört dazu.
+1. **Dauerhaft:** Grundwerte + feste Charakter-Startwerte + (Items × Anzahl + Werte-Karten + Wachstum aus Effekten + Team-Level-Gewinne), jeder erworbene Gewinn mal dem Charakter-Multiplikator für diesen Wert (`gainMultipliers`, z. B. Damage × 0,5 = „Damage-Änderungen halbiert"; noch ohne Werte, für die Charaktere in B10). Harvesting-Wachstum gehört dazu.
 2. **Bedingt und zeitweise** (aus Effekten, Abschnitt 6): Stillstand, „pro X", „diese Welle", „nächste Welle", Timer. Sie kommen obendrauf, auch mal dem Multiplikator, und verschwinden, wenn die Bedingung endet. „Pro X" mit einem Wert als Quelle zählt nur den dauerhaften Wert, damit sich Effekte nicht gegenseitig hochschaukeln.
 3. **Obergrenzen** (Ausweichen 60 %, Krit 100 %) gelten erst dort, wo der Wert wirkt.
 
@@ -223,18 +223,28 @@ Seit Paket 4 umgesetzt (Werte in `Config/Player.luau` und `Config/Camera.luau`):
 
 Alle Werte stehen in Config-Modulen, nicht im Code.
 
-## 5. Klassen
+## 5. Charaktere (B10)
 
-v1 startet mit zwei kostenlosen Klassen; ab Live-Ops kommt alle 3–4 Wochen eine neue, freischaltbar mit Embers oder per Game Pass.
+Zehn auswählbare Regelpakete ersetzen die beiden Prototyp-Klassen. Namen und Look bleiben eigenständig; Regeln und Zahlen folgen zehn Charakteren des Brotato-Basisspiels. Vollständige Zuordnung, Quellen und Studio-Test: `docs/B10-CHARAKTERE.md`.
 
-| Klasse | Startwaffe | Klassen-Bonus | Spielgefühl | Verfügbar |
-| --- | --- | --- | --- | --- |
-| Blade Warden | Orbit Blades | +20 Max HP (seit B2; vorher +20 %) | Nahkampf, mitten rein | v1, gratis |
-| Spark Mage | Spark Bolt | +10 % Attack Speed (seit B2; vorher −10 % Cooldown) | Fernkampf, ausweichen | v1, gratis |
-| Lantern Keeper | Lantern Pulse (heilt Team im Radius) | +25 % Wiederbelebungstempo | Support im Koop | Live-Ops, 2.500 Embers oder Pass |
-| Trapper | Thorn Trail | +15 Range (seit B2; vorher +15 % Fläche) | Zonen kontrollieren | Live-Ops, 2.500 Embers oder Pass |
+| Charakter | Vorbild | Besonderheit |
+| --- | --- | --- |
+| Blade Warden | Well Rounded | +50 HP, +5 % Tempo, +8 Harvesting |
+| Spark Mage | Mage | Elementar-Gewinne ×1,25; zwei Startitems; kein Nah-/Fernkampf-Wertegewinn |
+| Night Watch | Ranger | zusätzliche Pistole, nur Fernkampf, Fernkampf-Gewinne ×1,5, HP-Gewinne ×0,75 |
+| Many Hands | Multitasker | zwölf Plätze, +20 % Schaden und −5 % je Waffe |
+| Sole Conductor | One Armed | ein Platz, +200 % Angriffstempo, Schadensgewinne ×2 |
+| Duel Maestro | Gladiator | nur Nahkampf, Angriffstempo je unterschiedlicher Waffe |
+| Far Seer | Hunter | Schaden aus Reichweite, bessere Krit-Gewinne, kein Harvesting-Gewinn |
+| Marble Host | Chunky | Schaden aus dauerhaften HP, bessere HP-Gewinne, kein Tempogewinn |
+| Twin Ledger | Generalist | drei Nah-/drei Fernkampfplätze; wechselseitige Werte ohne Rückkopplung |
+| Candle Scholar | Apprentice | Angriffsgewinne und HP-Abzug pro Team-Level |
 
-Jede Klasse: eine Startwaffe, ein passiver Bonus, ein eigenes Kostüm. Keine eigenen Skill-Bäume in v1. Seit B2 sind die Klassen-Boni normale Werte (`Config/Classes.luau` → `stats`, Abschnitt 4); Charaktere mit Plus und Minus wie in Brotato folgen in B10. Seit B4 kann eine Klasse jeden Gewinn eines Werts vervielfachen (`gainMultipliers`, Abschnitt 4); die beiden Klassen nutzen das noch nicht.
+Charakter und Startwaffe werden in der Lobby gewählt, der Server prüft Auswahl und laufenden Run. Startwaffen sind eine kuratierte Teilmenge der bereits umgesetzten B7-Waffen aus den jeweiligen Vorbild-Startlisten. Alle zehn sind bis Paket 13 frei verfügbar; alte Profil-IDs bleiben gültig, die beiden nie verfügbaren Prototypen bleiben gesperrt.
+
+Feste Charakter-Startwerte werden unverändert addiert; `gainMultipliers` wirken auf Items, Karten, Wachstum, Team-Level und dynamische Item-Boni. Charakter-Umrechnungen lesen den unkonvertierten Wertebogen einmal (keine Rückkopplung). Marble Host zählt ausdrücklich nur dauerhafte HP. Waffenanzahl/-vielfalt werden auch beim Verkauf und Verschmelzen neu berechnet.
+
+Der Shop verwendet persönliche Waffenlimits und Nah-/Fernkampf-Beschränkungen, einschließlich Kauf-Verschmelzung bei einem vollen Teil-Limit. Bei 5 % der Item-Ziehungen wird innerhalb der gewürfelten Seltenheit ein passendes Wunsch-Tag bevorzugt; fehlt ein passendes Item, gilt der normale Pool. Item-Tags sind aus positiven Werten/Effekt-Boni des eigenen Katalogs abgeleitete Affinitäten, keine vollständige Kopie der Wiki-Taglisten. Limit, Sperren und Duplikatvermeidung bleiben erhalten.
 
 ## 6. Waffen, Items & Evolutionen
 
@@ -1133,7 +1143,7 @@ Bis zum Soft Launch rund 40–50 Sessions und 50–60 Stunden Zeit des Owners (6
 | B7 | Brotato 7: Waffen-Paket – 24 Waffen, 18 neue Basisspiel-Vorbilder (umgesetzt auf `wp-b7-weapons`, Studio-Abnahme offen) | Vertical Slice | Medium | 2 | 1 h | Waffen ausprobieren |
 | B8 | Brotato 8: Item-Paket – auf ~100 Items, viele mit Effekten (umgesetzt 30.10.2026 mit 114 Items, Branch `wp-b8-items`, von Claude statt ChatGPT) | Vertical Slice | Medium | 2 | 1 h | Items ausprobieren |
 | B9 | Brotato 9: Gegner-Paket – Spawn-Marker, Wellen als Spawn-Gruppen, Werte pro Typ und Welle, 8 neue Verhalten (Teil 1 Spawn-Gruppen, Marker, Werte pro Welle, Gegner-Tempo umgesetzt 30.10.2026, Branch `wp-b9a-spawn-groups`; Teil 2 die 8 neuen Gegner umgesetzt 30.10.2026, Branch `wp-b9b-new-enemies`) | Vertical Slice | Extra high | 2 | 1 h | Schwierigkeit und Lesbarkeit beurteilen |
-| B10 | Brotato 10: Charaktere – 10–12 Charaktere als Regelpakete (ersetzt die Klassen), Charakter- und Waffenwahl in der Lobby | Vertical Slice | High | 2 | 1,5 h | jeden Charakter einmal spielen |
+| B10 | Brotato 10: Charaktere – 10–12 Charaktere als Regelpakete (umgesetzt; ersetzt die Klassen), Charakter- und Waffenwahl in der Lobby | Vertical Slice | High | 2 | 1,5 h | jeden Charakter einmal spielen |
 | 10 | Boss und Elites mit Phasen: Boss-Welle 20 (90 s), 2 Bosse mit Phasen-Wechseln, Vorwarnungen, Elites mit Phasen (Teil 1 Boss-Welle, 2 Bosse, Phasen-Automat, legendäre Kiste umgesetzt 30.10.2026, Branch `wp-10-boss`; Teil 2 Elites mit Phasen offen) | Vertical Slice | High | 2 | 1,5 h | Boss 3× spielen |
 | B11 | Brotato 11: Gefahrenstufen 0–5, Elite- und Horden-Wellen, Endlos-Modus, Regler für Gegner-Werte, Welle wiederholen | Vertical Slice | High | 1–2 | 1 h | Stufen durchprobieren |
 | B12 | Brotato 12: Bauten und Begleiter – Engineering, Türme, Minen, Garten, Bot, Pets | Vertical Slice | High | 2 | 1 h | Bau-Builds testen |

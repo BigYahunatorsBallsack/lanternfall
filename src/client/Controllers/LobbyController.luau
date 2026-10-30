@@ -114,6 +114,7 @@ local function render()
 
 	statusLabel.Text = statusText(state, me)
 	renderPlayers(state)
+	require(script.Parent.CharacterChoice).render() -- B10 lobby extension
 end
 
 local function build()
@@ -222,6 +223,9 @@ local function build()
 		Parent = list,
 	})
 	Widgets.list(4).Parent = playerRows
+	require(script.Parent.CharacterChoice).mount(card, row, classButtons) -- B10
+	list.AnchorPoint = Vector2.new(0, 0) -- keep the player list above the taller B10 choice panel
+	list.Position = UDim2.fromOffset(12, 90)
 end
 
 function LobbyController.start()
