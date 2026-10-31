@@ -32,11 +32,11 @@ local Tooltip = require(script.Parent.Parent.UI.Tooltip)
 local TooltipText = require(Shared:WaitForChild("Util"):WaitForChild("TooltipText"))
 local Widgets = require(script.Parent.Parent.UI.Widgets)
 
-local CARD_WIDTH = 180
-local CARD_HEIGHT = { normal = 214, compact = 178 } -- the buy button; the lock button sits below it
-local DETAIL_HEIGHT = { normal = 86, compact = 54 }
-local LOCK_HEIGHT = 30
-local CHIP_SIZE = Vector2.new(116, 46)
+local CARD_WIDTH = 200
+local CARD_HEIGHT = { normal = 254, compact = 210 } -- the buy button; the lock button sits below it
+local DETAIL_HEIGHT = { normal = 116, compact = 76 }
+local LOCK_HEIGHT = 36
+local CHIP_SIZE = Vector2.new(126, 52)
 local GAP = 10
 local HEADER_HEIGHT = 34
 local WEAPONS_TITLE_HEIGHT = 20
@@ -50,11 +50,15 @@ local MAX_SCALE = 1.4
 -- Below this scale the normal layout is too small to read: compact layout, stats behind a button (phones).
 local COMPACT_BELOW = 0.85
 
-local SHARDS_COLOR = Color3.fromRGB(120, 230, 210) -- teal: Shards, not XP and not Embers
-local BACKDROP_COLOR = Color3.fromRGB(12, 9, 20) -- the screen between waves, darker than the panels
+local SHARDS_COLOR = Theme.shards -- teal: Shards, not XP and not Embers
+local BACKDROP_COLOR = Theme.canvas -- the screen between waves, darker than the panels
 local LOCKED_COLOR = Color3.fromRGB(110, 170, 255)
 local STAT_COLORS = { plus = Theme.success, minus = Theme.danger }
 
+local MAX_WEAPON_SLOTS = Config.Player.maxWeapons
+for _, class in Config.Classes do
+	MAX_WEAPON_SLOTS = math.max(MAX_WEAPON_SLOTS, class.maxWeapons or 0)
+end
 local ShopController = {}
 
 local screen: ScreenGui
@@ -204,7 +208,7 @@ local function panelSize(): Vector2
 	local slots = Config.Shop.slots
 	local width = math.max(slots * CARD_WIDTH + (slots - 1) * GAP, 3 * CHIP_SIZE.X + 2 * GAP) + 2 * PADDING
 	local perRow = math.max(1, math.floor((width - 2 * PADDING + GAP) / (CHIP_SIZE.X + GAP)))
-	local chipRows = math.ceil(Config.Player.maxWeapons / perRow)
+	local chipRows = math.ceil((if shop then shop.maxWeapons else Config.Player.maxWeapons) / perRow)
 	-- the compact layout leaves out the header (the HUD shows the timer) and the weapons title (in the action hint)
 	local rows = if compact then 4 else 6
 	local height = (if compact then 0 else HEADER_HEIGHT + WEAPONS_TITLE_HEIGHT)
@@ -234,7 +238,7 @@ local function fitScale(size: Vector2, besideStats: boolean): number
 	local area = screenArea()
 	local top = area.Y * TOP_RESERVE
 	local reserved = if besideStats then StatsController.reservedWidth() else MARGIN
-	local width = (area.X - 2 * reserved) / size.X
+	local width = (area.X - reserved - MARGIN * 2) / size.X
 	local height = (area.Y - top - MARGIN) / size.Y
 	return math.clamp(math.min(width, height), 0.1, MAX_SCALE)
 end
@@ -251,7 +255,8 @@ local function applyLayout()
 	panel.Size = UDim2.fromOffset(size.X, size.Y)
 	local area = screenArea()
 	local top = area.Y * TOP_RESERVE
-	panel.Position = UDim2.fromOffset(area.X / 2, top + (area.Y - top) / 2)
+	local available = area.X - (if compact then 0 else StatsController.reservedWidth())
+	panel.Position = UDim2.fromOffset(available / 2, top + (area.Y - top) / 2)
 
 	local buttonHeight = if compact then CARD_HEIGHT.compact else CARD_HEIGHT.normal
 	cardRow.Size = UDim2.new(1, 0, 0, cardHeight())
@@ -259,7 +264,7 @@ local function applyLayout()
 		view.frame.Size = UDim2.fromOffset(CARD_WIDTH, cardHeight())
 		view.button.Size = UDim2.fromOffset(CARD_WIDTH, buttonHeight)
 		view.detail.Size = UDim2.new(1, 0, 0, if compact then DETAIL_HEIGHT.compact else DETAIL_HEIGHT.normal)
-		view.detail.TextSize = if compact then 14 else 15
+		view.detail.TextSize = if compact then 15 else 17
 		view.detailSize.MaxTextSize = view.detail.TextSize
 	end
 	statsButton.Visible = compact
@@ -437,7 +442,7 @@ local function buildCard(index: number): CardView
 		LayoutOrder = 3,
 		Parent = button,
 	})
-	local detailSize = Widgets.create("UITextSizeConstraint", { MinTextSize = 9, MaxTextSize = 15, Parent = detail })
+	local detailSize = Widgets.create("UITextSizeConstraint", { MinTextSize = 13, MaxTextSize = 17, Parent = detail })
 	local price = Widgets.label({
 		Name = "Price",
 		Font = Theme.fontBold,
@@ -631,7 +636,7 @@ local function build()
 		SortOrder = Enum.SortOrder.LayoutOrder,
 		Parent = chipRow,
 	})
-	for index = 1, Config.Player.maxWeapons do
+	for index = 1, MAX_WEAPON_SLOTS do
 		chips[index] = buildChip(index)
 	end
 

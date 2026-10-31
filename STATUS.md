@@ -60,7 +60,7 @@ Jeder Strang ändert nur **seine** Zeile (Regeln: `docs/PARALLEL.md`).
 | Strang | KI | Aktuelles Paket | Branch / PR | Stand | Danach |
 | --- | --- | --- | --- | --- | --- |
 | A – Engine und Ablauf | Claude | Paket 21 Sounds, Musik, Karten-Feinschliff (Medium) | `wp-21-audio-map` | fertig, selbst gemerged | Paket 22 Performance-Pass Handy + Netzwerk (**Extra high**), dann weiter nach „Plan bis zum Launch" |
-| B – Inhalte und Spieler-Regeln | ChatGPT | B12 Bauten + Begleiter (High) | `wp-b12-structures` | umgesetzt und automatisiert geprüft; Merge vom Owner autorisiert, Studio-Test offen | nächstes Paket nach Owner-Zuteilung |
+| B – Inhalte und Spieler-Regeln | ChatGPT | Großes UI-Redesign, erster Abschnitt | `wp-ui-redesign` | getesteter Zwischenstand, Draft; Übergabe in docs/UI-REDESIGN-HANDOFF.md | UI/HUD/Shop durch nächste Instanz fertigstellen |
 
 ## Feste Entscheidungen des Owners
 
@@ -197,3 +197,10 @@ Jeder Strang ändert nur **seine** Zeile (Regeln: `docs/PARALLEL.md`).
 - Aktuellen main-Stand `15dd3e1` inklusive B11, Wiederbeleben und Speichern aufgenommen. Konflikte ausschließlich additive Einträge in Config/Net, beide Seiten erhalten. Gesamtes Repo erneut geprüft; kein Eingriff in A-Dienste oder Balance-Simulationen. Smoke-Test deaktiviert zufällige Bauten wie zuvor zufällige Drops; B12 hat eigene Integrationstests.
 - Ergebnisstatistik führt weiterhin nur getragene Waffen: eigene Bau-Schadenszeile später bei Strang A/HUD. Studio-Verbindung geprüft, dort B12 noch nicht synchronisiert; echter Solo-/Zwei-Client-/Gerätetest bleibt offen.
 - B12-Abschlussprüfung: 452 Tests in 39 Dateien bestanden (einschließlich acht B12-Integrationsszenarien), StyLua sauber, Selene 0 Fehler / 8 vorhandene UI-Stilwarnungen, Rojo-Build erfolgreich. Owner hat Abschluss, erneute Repo-Prüfung und Merge ausdrücklich beauftragt.
+
+## UI-Redesign – Zwischenstand (31.10.2026)
+
+- Owner beauftragt großes UI-Redesign im Stil von Brotato und ausdrücklich einen frühen Stopp mit Übergabe an nächste Instanz. Basis main `d7152ca`. UI-Auftrag umfasst Lobby/Debug und gemeinsame UI-Module; keine Serveränderungen.
+- Branch `wp-ui-redesign`: neue Palette, Lobby-Tabs mit Scrollbereich und responsiven Auswahlrastern, Profil/Stores aus Party-Liste getrennt, Debug standardmäßig geschlossen und scrollbar; Shop nutzt Platz links der Stats, größere Karten und bis zu zwölf Waffenplätze.
+- 60 Specs: 650 Tests bestanden, 1 bekannter sporadischer B12-Minentest fehlgeschlagen (Zeile 211). Neue UI-Spec 4/4, HubStudio 10/10. StyLua und Build geprüft; Selene 0 Fehler / 11 vorhandene UI-Stilwarnungen. Kein neuer Studio-Sichttest; nur alter UI-Stand im laufenden Studio angesehen.
+- **Nicht fertig, nicht mergen:** HUD, mobiler Shop, Stats-Scroll, Level-up/Ergebnis und Meta-Fenster noch bearbeiten und visuell abnehmen. Vollständige Fortsetzung, Dateilandkarte und Werkzeuge: `docs/UI-REDESIGN-HANDOFF.md`.

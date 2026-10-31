@@ -80,14 +80,14 @@ local function build(): ScreenGui
 	local gridWidth = 2 * BUTTON_SIZE.X + BUTTON_GAP
 	local panel = Widgets.panel({
 		Name = "Debug",
-		AnchorPoint = Vector2.new(1, 0.5),
-		Position = UDim2.new(1, -12, 0.5, 0),
-		Size = UDim2.fromOffset(gridWidth + 28, 0),
+		AnchorPoint = Vector2.new(1, 1),
+		Position = UDim2.new(1, -12, 1, -12),
+		Size = UDim2.fromOffset(124, 0),
 		Parent = screen,
 	})
 	Widgets.list(BUTTON_GAP).Parent = panel
 
-	local grid = Widgets.create("Frame", {
+	local grid = Widgets.create("ScrollingFrame", {
 		Name = "Buttons",
 		BackgroundTransparency = 1,
 		AutomaticSize = Enum.AutomaticSize.Y,
@@ -103,20 +103,25 @@ local function build(): ScreenGui
 		Parent = grid,
 	})
 
-	local open = true
+	local open = false
+	grid.Visible = false
+	local statsPanel: Frame
 	local header: TextButton
 	header = Widgets.button({
 		Name = "Header",
-		Text = "DEBUG (hide)",
+		Text = "DEBUG",
 		TextSize = 16,
 		TextColor3 = Theme.accent,
-		Size = UDim2.fromOffset(gridWidth, BUTTON_SIZE.Y),
+		Size = UDim2.fromOffset(96, BUTTON_SIZE.Y),
 		LayoutOrder = 0,
 		Parent = panel,
 	}, function()
 		open = not open
+		panel.Size = UDim2.fromOffset(if open then gridWidth + 28 else 124, 0)
+		header.Size = UDim2.fromOffset(if open then gridWidth else 96, BUTTON_SIZE.Y)
 		header.Text = if open then "DEBUG (hide)" else "DEBUG"
 		grid.Visible = open
+		statsPanel.Visible = open
 	end)
 
 	for index, command in DebugCommands do
@@ -131,7 +136,8 @@ local function build(): ScreenGui
 		end)
 	end
 
-	local statsPanel = Widgets.panel({
+	statsPanel = Widgets.panel({
+		Visible = false,
 		Name = "Stats",
 		AnchorPoint = Vector2.new(0, 1),
 		Position = UDim2.new(0, 12, 1, -12),

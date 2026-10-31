@@ -926,6 +926,12 @@ Bewusst nicht: harte Countdown-Angebote oder Serien, die bei einem verpassten Ta
 
 **Barrierefreiheit:** Bildschirmwackeln und Schadenszahlen abschaltbar (seit Paket 14 im Einstellungsmenü; global zusätzlich in `Config/Feedback.luau`); Gefahrzonen mit Farbe und Muster; Musik/Effekte getrennt regelbar.
 
+### UI-Redesign (Owner-Auftrag 31.10.2026, Zwischenstand)
+
+Brotato dient als Vorbild für Informationshierarchie: klare Karten, Wertevergleich, Seltenheitsfarben und getrennte Hauptaktionen; Lanternfall behält eigene Farben und Texte. Die Lobby wird über PLAY / DIFFICULTY / PARTY / COLLECTION gegliedert, kleine Bildschirme scrollen statt alle Bedienelemente zu verkleinern. Anthrazit/Olive, Pergamenttext und Laternen-Gold ersetzen die transparenten violetten Hauptflächen. Debug ist standardmäßig geschlossen. Der Shop nutzt die Fläche links neben den Werten und bildet die tatsächliche Waffenplatz-Kapazität ab.
+
+Das große Redesign ist noch nicht abgeschlossen: Kampf-HUD, mobiler Shop, Auswahl-/Ergebnisbildschirme und Meta-Fenster folgen. Konkreter Arbeitsstand und nächste Schritte: `docs/UI-REDESIGN-HANDOFF.md`. Dieser Zwischenstand ist kein visuell abgenommener Release.
+
 ## 14. Art-Direction & Audio
 
 - **Stil (seit Paket 9d, Wunsch des Owners: „im Style von Deadlock"): okkultes Art déco.** Gealtertes Messing und Gold, Porzellanmasken, Gasmasken und Kutten, rußschwarze Kreaturen, dazu leuchtende Augen, Linsen und Risse in kräftigen Neonfarben, Sonnenstrahlen- und Zackenformen. Übernommen ist nur die Stimmung: keine Figuren, Namen, Logos oder Designs aus Deadlock.

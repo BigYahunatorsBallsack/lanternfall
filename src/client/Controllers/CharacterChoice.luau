@@ -147,4 +147,49 @@ function CharacterChoice.mount(card: Frame, row: Frame, buttonsByClass: { [strin
 	CharacterChoice.render()
 end
 
+-- Reflow the selection grid without recreating buttons or changing selection handlers.
+function CharacterChoice.resize(width: number)
+	if not weaponRow or not details then
+		return
+	end
+	local card = weaponRow.Parent
+	for _, name in { "Ready", "BackToHub" } do
+		local action = card:FindFirstChild(name)
+		if action then
+			action.Size = UDim2.new(1, 0, 0, if name == "Ready" then 60 else 48)
+		end
+	end
+	local row = card:FindFirstChild("Classes")
+	local grid = row and row:FindFirstChildOfClass("UIGridLayout")
+	local columns = if width < 540 then 2 else 5
+	if row and grid then
+		grid.CellSize = UDim2.new(1 / columns, -8, 0, 78)
+		grid.CellPadding = UDim2.fromOffset(8, 8)
+		local count = 0
+		for _ in classButtons do
+			count += 1
+		end
+		row.Size = UDim2.new(1, 0, 0, math.ceil(count / columns) * 86 - 8)
+	end
+	details.TextXAlignment = Enum.TextXAlignment.Left
+	details.AutomaticSize = Enum.AutomaticSize.Y
+	details.Size = UDim2.new(1, 0, 0, 68)
+	local old = weaponRow:FindFirstChildOfClass("UIListLayout")
+	if old then
+		old:Destroy()
+	end
+	local weaponGrid = weaponRow:FindFirstChildOfClass("UIGridLayout")
+		or Widgets.create("UIGridLayout", {
+			CellPadding = UDim2.fromOffset(8, 8),
+			SortOrder = Enum.SortOrder.LayoutOrder,
+			Parent = weaponRow,
+		})
+	local count = 0
+	for _ in buttons do
+		count += 1
+	end
+	local weaponColumns = if width < 540 then 2 else math.max(1, math.min(5, count))
+	weaponGrid.CellSize = UDim2.new(1 / weaponColumns, -8, 0, 48)
+	weaponRow.Size = UDim2.new(1, 0, 0, math.max(1, math.ceil(count / weaponColumns)) * 56 - 8)
+end
 return CharacterChoice
