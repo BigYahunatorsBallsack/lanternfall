@@ -77,6 +77,21 @@ describe("Migrations", function()
 		expect(data.boost.by).toBe("")
 	end)
 
+	it("marks the First Night done for players with runs (v7, Paket 19)", function()
+		local played = ProfileTemplate.new() :: any
+		played.schemaVersion = 6
+		played.tutorial = nil
+		played.stats.runs = 2
+		Migrations.run(played, ProfileTemplate.SCHEMA_VERSION)
+		expect(played.tutorial.firstNight).toBe(true)
+		expect(played.tutorial.lobbyHint).toBe(false)
+		local fresh = ProfileTemplate.new() :: any
+		fresh.schemaVersion = 6
+		fresh.tutorial = nil
+		Migrations.run(fresh, ProfileTemplate.SCHEMA_VERSION)
+		expect(fresh.tutorial.firstNight).toBe(false)
+	end)
+
 	it("treats data without a version as v1", function()
 		local data = v1Data()
 		data.schemaVersion = nil
@@ -143,6 +158,14 @@ describe("ProfileRecords", function()
 		expect(data.characterStats.SparkMage.bestDanger).toBe(3)
 		expect(data.characterStats.BladeWarden.runs).toBe(1)
 		expect(data.characterStats.BladeWarden.bestWave).toBe(4)
+	end)
+
+	it("marks the First Night done after any run (Paket 19)", function()
+		local data = ProfileTemplate.new()
+		expect(data.tutorial.firstNight).toBe(false)
+		ProfileRecords.applyRun(data, run())
+		expect(data.tutorial.firstNight).toBe(true)
+		expect(data.tutorial.lobbyHint).toBe(false)
 	end)
 
 	it("skips the character record without a class", function()

@@ -254,7 +254,7 @@ describe("schema v6", function()
 		data.quests = { day = "", list = {} }
 		data.streak = { lastLogin = 1700000000, count = 0 }
 		expect(Migrations.run(data, ProfileTemplate.SCHEMA_VERSION)).toBe(5)
-		expect(data.schemaVersion).toBe(6)
+		expect(data.schemaVersion).toBe(ProfileTemplate.SCHEMA_VERSION)
 		expect(next(data.badges)).toBe(nil)
 		expect(data.weekly.week).toBe(0)
 		expect(data.quests.swaps).toBe(0)

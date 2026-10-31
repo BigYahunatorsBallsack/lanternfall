@@ -500,6 +500,62 @@ describe("RunFlow", function()
 		end)
 	end)
 
+	describe("First Night (Paket 19)", function()
+		local function firstNightFlow()
+			local clock = fakeTime()
+			local settings = table.clone(SETTINGS)
+			settings.firstNightWaves = 2
+			local flow = RunFlow.new(settings)
+			flow:addPlayer(1, "Player1")
+			flow:setOptions({
+				danger = 0,
+				endless = false,
+				enemyHp = 75,
+				enemyDamage = 50,
+				enemySpeed = 100,
+				firstNight = true,
+			})
+			expect(flow:launch({ 1 }, clock.now)).toBe(true)
+			clock.advance(SETTINGS.countdownSeconds)
+			flow:update(clock.now)
+			flow:drainEvents()
+			return flow, clock
+		end
+
+		it("wins after its shorter number of waves", function()
+			local flow, clock = firstNightFlow()
+			expect(flow.phase).toBe("Running")
+			expect(flow:skipTo(20, clock.now)).toBe(true)
+			expect(flow.phase).toBe("Shop")
+			flow:setShopReady(1, true, clock.now)
+			expect(flow.wave).toBe(2)
+			expect(flow:skipTo(45, clock.now)).toBe(true) -- end of wave 2 = end of the First Night, no shop
+			expect(flow.phase).toBe("Ended")
+			expect((flow.results :: any).outcome).toBe("Victory")
+			expect((flow.results :: any).wave).toBe(2)
+		end)
+
+		it("does not skip past its last wave", function()
+			local flow, clock = firstNightFlow()
+			expect(flow:skipTo(500, clock.now)).toBe(true)
+			expect(flow.phase).toBe("Ended")
+			expect(flow.wave).toBe(2)
+		end)
+
+		it("keeps a normal run at every wave", function()
+			local settings = table.clone(SETTINGS)
+			settings.firstNightWaves = 2
+			local clock = fakeTime()
+			local flow = RunFlow.new(settings)
+			flow:addPlayer(1, "Player1")
+			flow:setReady(1, true, clock.now)
+			clock.advance(SETTINGS.allReadyCountdownSeconds)
+			flow:update(clock.now)
+			expect(flow:skipTo(45, clock.now)).toBe(true)
+			expect(flow.phase).toBe("Shop")
+		end)
+	end)
+
 	describe("snapshot", function()
 		it("lists players in join order with run state", function()
 			local flow, clock = newFlow(3)
