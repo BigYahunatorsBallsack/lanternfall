@@ -1,20 +1,20 @@
 --!strict
 -- Damage numbers of the local player's own hits (DESIGN.md section 14, hit feedback): each DamageNumbers packet
 -- (Net/HitNumbers, one per simulation step) becomes small white numbers over the hit enemies, critical hits big and
--- golden with a "!", burn ticks orange (B5). They rise and fade (Config.Feedback.damageNumbers); at most maxVisible at once (fewer on touch
--- devices), the oldest makes room. BillboardGuis from a pool sit on one anchor part, so moving a number is one
+-- golden with a "!", burn ticks orange (B5). They rise and fade (Config.Feedback.damageNumbers); at most maxVisible at once (fewer at
+-- Low graphics, GraphicsController), the oldest makes room. BillboardGuis from a pool sit on one anchor part, so moving a number is one
 -- property. Active only while the local player is in a running run (RunStateController). The server decides
 -- every hit; this only shows them. Since Paket 14 the settings menu can switch them off (SettingsController).
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
-local UserInputService = game:GetService("UserInputService")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared:WaitForChild("Config"))
 local Net = require(Shared:WaitForChild("Net"))
 local HitNumbers = require(Shared:WaitForChild("Net"):WaitForChild("HitNumbers"))
 
+local GraphicsController = require(script.Parent.GraphicsController)
 local RunStateController = require(script.Parent.RunStateController)
 local SettingsController = require(script.Parent.SettingsController)
 
@@ -36,8 +36,6 @@ type Shown = { gui: BillboardGui, label: TextLabel, startedAt: number, x: number
 local DamageNumberController = {}
 
 local Settings = Config.Feedback.damageNumbers
-local touch = UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled
-local maxVisible = if touch then Settings.maxVisibleTouch else Settings.maxVisible
 local anchorPosition = Vector3.new(0, Config.Map.arena.center.Y, 0)
 local rng = Random.new()
 
@@ -99,6 +97,7 @@ end
 
 local function show(hit: HitNumbers.Hit, now: number)
 	local entry: Shown
+	local maxVisible = if GraphicsController.isLow() then Settings.maxVisibleTouch else Settings.maxVisible
 	if #shown >= maxVisible then
 		entry = table.remove(shown, 1) :: Shown
 	else

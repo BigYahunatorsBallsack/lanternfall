@@ -92,6 +92,22 @@ describe("Migrations", function()
 		expect(fresh.tutorial.firstNight).toBe(false)
 	end)
 
+	it("adds the graphics setting as Auto and keeps the other settings (v8, Paket 22)", function()
+		local data = ProfileTemplate.new() :: any
+		data.schemaVersion = 7
+		data.settings = { shake = false, damageNumbers = true, music = 0.3, effects = 0.6 }
+		Migrations.run(data, ProfileTemplate.SCHEMA_VERSION)
+		expect(data.settings.graphics).toBe("Auto")
+		expect(data.settings.shake).toBe(false)
+		expect(data.settings.music).toBe(0.3)
+		local broken = ProfileTemplate.new() :: any
+		broken.schemaVersion = 7
+		broken.settings = "nonsense"
+		Migrations.run(broken, ProfileTemplate.SCHEMA_VERSION)
+		expect(broken.settings.graphics).toBe("Auto")
+		expect(broken.settings.shake).toBe(true)
+	end)
+
 	it("treats data without a version as v1", function()
 		local data = v1Data()
 		data.schemaVersion = nil

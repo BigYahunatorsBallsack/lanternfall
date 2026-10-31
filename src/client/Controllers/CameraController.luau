@@ -96,6 +96,12 @@ function CameraController.getFollowed(): Player?
 	return followed
 end
 
+-- The point the camera looks at (smoothed, without the shake), nil before the first character (Paket 22: renderers
+-- skip what is off the screen, Util/ViewBounds).
+function CameraController.getFocus(): Vector3?
+	return focus
+end
+
 function CameraController.start()
 	RunService:BindToRenderStep(RENDER_STEP_NAME, Enum.RenderPriority.Camera.Value + 1, update)
 end

@@ -10,6 +10,7 @@ return table.freeze({
 		damageNumbers = true, -- own damage numbers over enemies
 		music = 0.6, -- volume 0..1
 		effects = 0.8, -- volume 0..1
+		graphics = "Auto", -- Paket 22: "Auto", "High" or "Low" (Config.Graphics)
 	}),
 	volumeStep = 0.1, -- the - and + buttons of a volume
 	saveDelaySeconds = 1, -- the client sends the settings this long after the last change (one save per burst)
