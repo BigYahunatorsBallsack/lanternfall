@@ -897,12 +897,14 @@ Bewusst nicht: harte Countdown-Angebote oder Serien, die bei einem verpassten Ta
 - **Shop (seit B1, seit B2 mit Items):** neben dem Timer immer die eigenen Shards (türkis). Zwischen den Wellen verdeckt ein dunkler Hintergrund die Arena (unter dem HUD, Titel „WAVE n CLEARED"). Nach den Level-up-Karten ein Fenster „SHOP" mit „Wave 3 cleared · next wave in 34", 4 Karten (Badge „NEW"/„LV 3", bei Items Stufe und Anzahl wie „RARE · X2", Name, Effekt, Preis in Shards, rot wenn zu teuer, „SOLD" nach dem Kauf), „Reroll (5 Shards)" und „READY" (danach „WAITING…", nochmal tippen = weiter einkaufen). Seit B2 haben Item-Karten Rahmen und Badge in der Farbe ihrer Stufe (grau, blau, violett, rot) und zeigen ihre Werte zeilenweise, Vorteile grün, Nachteile rot. Rechts daneben während Kartenwahl und Shop die Werte-Liste „STATS" (`StatsController`). Seit B3: Kopfzeile „SHOP · Wave 3/20 cleared · next wave in 34"; Waffen-Karten heißen „Spark Bolt II", Badge „UNCOMMON · NEW"/„· OWN 2", Rahmen in der Farbe der Stufe, darunter was die Stufe bringt und ggf. „Merges into III" oder „Weapon slots full"; unter jeder Karte „Lock" (gesperrt: „LOCKED", blauer Rahmen). Darunter „WEAPONS 4/6" mit je einem Feld pro Waffe („Spark Bolt II", „can merge"); Antippen wählt sie aus, daneben „Merge → III" und „Sell (+7)". „Reroll (free)" bei Gratis-Neuwurf. Das Fenster skaliert sich auf den freien Platz unter der HUD-Leiste; ist es dafür zu klein (Handy), kompaktes Layout ohne Kopfzeile, Werte-Liste hinter „STATS", zurück mit „← SHOP". Die Waffenliste oben links im HUD zeigt Stufen („Spark Bolt II", entwickelt nur den Namen der Evolution).
 - **Treffer-Gefühl (seit dem Spaß-Paket nach Paket 9):** eigene Schadenszahlen über den Gegnern (weiß, kritische Treffer groß, golden, mit „!"), Partikel-Puff beim Tod, Kamera-Wackeln, wenn man selbst getroffen wird, bei Elite-Tod und Truhe, goldener Lichtring um die Figur beim Level-up.
 - **Level-up:** 3 große Karten (Icon, Name, eine Zeile Effekt, „NEW"/„LV 3"), daumentauglich. Seit Paket 6: Fenster in der Bildmitte mit „LEVEL n", „Pick one", drei Karten (Icon = Kreis mit Anfangsbuchstaben, gelb Waffe, grün Passiv, violett Belohnung), einem Balken, der bis zur automatischen Wahl abläuft, und „Reroll (1 left)". Seit B2 vier Werte-Karten (Tasten 1–4) mit Wert-Name, Effekt („+8% Damage") und Stufe als Badge und Rahmenfarbe; der Knopf heißt „Reroll (n Shards)" und ist grau, wenn die Shards fehlen.
-- **Run-Ende:** Zeit, Kills, Schaden pro Waffe, Embers inkl. Boni, großer „Nochmal"-Knopf.
+- **Run-Ende:** Zeit, Kills, Schaden pro Waffe, Embers inkl. Boni, großer „Nochmal"-Knopf. Seit Paket 14 unter den Embers „YOUR WEAPONS" (je Zeile „Spark Bolt III · 12.3k damage · 140 kills", meister Schaden zuerst); der Teil mit Embers, Waffen und Team scrollt, wenn er nicht passt (Handy).
+- **Tooltips (Paket 14):** Maus drüber oder antippen (schließt nach 4 s): Waffen im HUD und im Shop („Damage 32 | 18 (+100% Melee Damage)", Krit, Cooldown, Reichweite, Klassen), Items (Stufe, Anzahl, Limit „max 3", auch als Shop-Badge), Werte (was der Wert gerade bewirkt, z. B. „You take 21% less damage"), Waffenklassen („Edge 2/6", Bonus jeder Anzahl). Die Werte-Liste schaltet zwischen PRIMARY und SECONDARY um. Unter der Welle steht die nächste geplante Elite- oder Horden-Welle („Elite wave in 3"), ihr Tooltip listet alle; das Wellen-Banner nennt sie. Mitspieler außer Sicht zeigt ein Pfeil am Bildschirmrand (rot = gestürzt).
+- **Einstellungen (Paket 14):** Zahnrad oben rechts: Bildschirmwackeln, Schadenszahlen, Musik und Effekte (Lautstärke in 10er-Schritten), im Profil gespeichert.
 - **Shop, Talente, Pass:** je ein Fenster, max. 2 Taps bis Kauf.
 
 **Erster Start (FTUE):** Erst-Join landet direkt in „First Night" (3-Min-Solo-Run, leichter) → Pfeil „Move" → erstes Level-up nach ~5 s mit „Pick one" → Minute 2 Mini-Elite mit Truhe → Minute 3 Run-Ende, dann Lobby mit Hinweis auf den Talent-Altar.
 
-**Barrierefreiheit:** Bildschirmwackeln und Schadenszahlen abschaltbar (bis zum Einstellungsmenü in Paket 14 als Schalter in `Config/Feedback.luau`); Gefahrzonen mit Farbe und Muster; Musik/Effekte getrennt regelbar.
+**Barrierefreiheit:** Bildschirmwackeln und Schadenszahlen abschaltbar (seit Paket 14 im Einstellungsmenü; global zusätzlich in `Config/Feedback.luau`); Gefahrzonen mit Farbe und Muster; Musik/Effekte getrennt regelbar.
 
 ## 14. Art-Direction & Audio
 
@@ -1091,7 +1093,7 @@ tests/               Unit-Tests für reine Module (Runner in tools/luau-test-run
 
 ```lua
 {
-  schemaVersion = 3,
+  schemaVersion = 4, -- v4 (Paket 14): settings = { shake, damageNumbers, music, effects }
   embers = 0,
   talents = { toughness = 0, power = 0, reach = 0, greed = 0, rescuer = 0, rerolls = 0 }, -- ungenutzt seit dem Brotato-Plan, bleibt bis zu einer Migration
   classes = { "BladeWarden", "SparkMage" },
@@ -1224,7 +1226,7 @@ Bis zum Soft Launch rund 40–50 Sessions und 50–60 Stunden Zeit des Owners (6
 | 11 | Down & Wiederbeleben während der Welle (Aufstehen am Wellenende gibt es seit B1; umgesetzt 30.10.2026, Branch `wp-11-revive`) | Vertical Slice | Medium | 1 | 1 h | mit 2 Clients testen |
 | 12 | Datenspeicherung: ProfileStore, Schema, Migration (umgesetzt 31.10.2026, Branch `wp-12-save`: Schema v2 mit Run-Rekord, Lobby-Anzeige) | Vertical Slice | Extra high | 1–2 | 1 h | Test-Experience anlegen, Join/Leave testen |
 | 13 | Fortschritt: Embers, Erfolge schalten Charaktere, Waffen und Items frei, Gefahrenstufe pro Charakter (statt Talente und Normal/Hard/Nightmare; umgesetzt 31.10.2026, Branch `wp-13-progress`: 22 Erfolge, Schema v3) | Vertical Slice | Medium | 1–2 | 1 h | Freischaltungen abnicken |
-| 14 | HUD, Run-Ende, mobiles Layout, Tooltips (Skalierung, Set-Bonus, Elite-Vorschau) | Vertical Slice | Medium | 2–3 | 2 h | Handy-Screenshots |
+| 14 | HUD, Run-Ende, mobiles Layout, Tooltips (Skalierung, Set-Bonus, Elite-Vorschau) (umgesetzt 31.10.2026, Branch `wp-14-hud`: Tooltips, Wellen-Vorschau, Einstellungsmenü, Schema v4) | Vertical Slice | Medium | 2–3 | 2 h | Handy-Screenshots |
 | 15 | Hub-Lobby, Teleport, Party, Quick Join | MVP | Extra high | 2–3 | 2 h | Party-Teleport testen |
 | 16 | Käufe: Passes, Products, ProcessReceipt | MVP | Extra high | 1–2 | 1 h | Produkte im Creator Hub anlegen, IDs liefern, Testkäufe |
 | 17 | Ember-Shop-, Freischaltungs- und Pass-UI | MVP | Medium | 2 | 1 h | Look abnicken |
