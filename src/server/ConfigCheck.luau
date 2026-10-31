@@ -1008,6 +1008,10 @@ function ConfigCheck.run(): { string }
 			checkSoundId(`music {name}`, track.sound)
 		end
 	end
+	local bus = audio.effectsBus
+	if bus.ratio < 1 or bus.midRange[1] >= bus.midRange[2] or bus.attack <= 0 or bus.release <= 0 then
+		problem("Audio: effectsBus needs ratio >= 1, a rising midRange and positive attack/release")
+	end
 	if audio.hearRadius <= audio.fullRadius or audio.fadeSeconds <= 0 then
 		problem("Audio: hearRadius must be above fullRadius and fadeSeconds positive")
 	end

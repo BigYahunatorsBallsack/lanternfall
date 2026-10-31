@@ -10,6 +10,8 @@ runScript(ServerScriptService.Server, "init.server.luau")
 
 local Services = ServerScriptService.Server.Services
 local CombatService = require(Services.CombatService)
+local ExperienceService = require(Services.ExperienceService)
+local UpgradeService = require(Services.UpgradeService)
 local ReviveService = require(Services.ReviveService)
 local RunDirector = require(Services.RunDirector)
 local SpawnDirector = require(Services.SpawnDirector)
@@ -100,6 +102,9 @@ describe("revive", function()
 		expect(CameraController.getFollowed()).toBe(peer)
 		expect(ReviveController.getHint()).toBe("You are out until the wave ends – watching Peer")
 		expect(ReviveController.getLabel(1)).toBe("OUT")
+		-- the team still levels up for them: the cards wait for the shop
+		ExperienceService.grantLevel()
+		world.advance(0.2)
 		-- out players cannot be revived any more
 		place(peer, 1, 0)
 		world.advance(Coop.reviveSeconds + 0.5)
@@ -114,6 +119,7 @@ describe("revive", function()
 		local hp = CombatService.getHp(me)
 		expect(hp > 0).toBe(true)
 		expect(CameraController.getFollowed()).toBe(nil)
+		expect(UpgradeService.getOffer(me) ~= nil).toBe(true) -- the level gained while out
 	end)
 
 	it("ends the run when the last one standing goes down", function()

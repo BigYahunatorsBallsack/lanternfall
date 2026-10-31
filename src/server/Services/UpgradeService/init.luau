@@ -255,7 +255,9 @@ local function onLevelGained(level: number)
 	local shopOpen = RunDirector.getPhase() == "Shop"
 	for _, player in RunDirector.getParticipants() do
 		local state = states[player]
-		if state and RunDirector.getParticipantState(player) ~= "Out" then
+		-- players who are out still level up when they come back at the end of the wave (WP11)
+		local out = RunDirector.getParticipantState(player) == "Out" and not Config.Run.coop.outReturnsAtWaveEnd
+		if state and not out then
 			table.insert(state.levels, level)
 			if shopOpen and not (state.offer or state.crate) then
 				openNext(player, state)
@@ -315,8 +317,8 @@ function UpgradeService.init()
 	end)
 	RunDirector.ParticipantStateChanged:Connect(function(player, participantState)
 		local state = states[player]
-		if state and participantState == "Out" then
-			closeAll(state, player)
+		if state and participantState == "Out" and not Config.Run.coop.outReturnsAtWaveEnd then
+			closeAll(state, player) -- out for good: what waits is gone (with outReturnsAtWaveEnd it waits for the shop)
 		end
 	end)
 	Players.PlayerRemoving:Connect(function(player)
