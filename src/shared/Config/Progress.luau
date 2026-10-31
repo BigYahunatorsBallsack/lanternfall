@@ -3,7 +3,8 @@
 -- unlock characters, weapons and items; each also pays Embers once. Whatever an achievement unlocks is locked until
 -- it is done: locked characters cannot be picked, locked weapons and items never show up in the shop or in crates.
 -- Danger levels are opened per character: winning danger d with a character opens d + 1 for it.
--- Read by Util/ProgressRules (server and client), PlayerDataService, ConfigCheck and the lobby.
+-- Read by Util/ProgressRules (server and client), PlayerDataService, ConfigCheck and the lobby. Since Paket 17 also the
+-- Ember prices of locked characters (Util/EmberShopRules, EmberShopService).
 
 export type Unlocks = {
 	characters: { string }?, -- Config.Classes ids
@@ -213,5 +214,25 @@ return table.freeze({
 	embers = table.freeze({
 		perDangerLevel = 0.1,
 		partyMinPlayers = 2,
+	}),
+	-- Paket 17 Ember shop: a locked character can be bought early for this many Embers (DESIGN.md section 12 names
+	-- 2,500 Embers for a character; the two easy unlocks cost less). Characters not listed can not be bought.
+	-- Cosmetics and their prices are in Config.Cosmetics.
+	characterPrices = table.freeze({
+		ManyHands = 1000,
+		SoleConductor = 1000,
+		MarbleHost = 2500,
+		CandleScholar = 2500,
+		FarSeer = 2500,
+		TwinLedger = 2500,
+	}) :: { [string]: number },
+	-- Ember shop messages (game text)
+	shopTexts = table.freeze({
+		bought = "Unlocked: ", -- + name
+		notEnough = "Not enough Embers",
+		alreadyOwned = "You already own this",
+		notForSale = "This can not be bought with Embers",
+		vipOnly = "Comes with the VIP pass",
+		notLoaded = "Your saved data is not loaded yet",
 	}),
 })
