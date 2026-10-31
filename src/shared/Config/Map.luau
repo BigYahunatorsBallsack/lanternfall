@@ -1,7 +1,8 @@
 --!strict
--- Placeholder map layout (DESIGN.md section 14): lobby platform and arena, built in code by MapService
--- until the real map arrives in WP21. EnemySim and SpawnDirector read the arena bounds and obstacles
--- through MapService. All values in studs.
+-- Map layout (DESIGN.md section 14, Map 1 "The Ruined City"): lobby platform and arena, built in code by MapService.
+-- EnemySim and SpawnDirector read the arena bounds and obstacles through MapService. All values in studs.
+-- Since Paket 21 `lighting` sets the evening mood and `decor` the dressing (MapService/Decor): only looks, nothing
+-- in it changes where players or enemies can walk.
 
 return table.freeze({
 	arena = table.freeze({
@@ -28,4 +29,46 @@ return table.freeze({
 	}),
 	floorThickness = 4,
 	wallThickness = 2,
+
+	-- Paket 21: dusk over the ruins. Set on the server at start (Lighting replicates). enabled = false keeps
+	-- whatever Lighting the place file has. Colors are { red, green, blue } 0..255.
+	lighting = table.freeze({
+		enabled = true,
+		clockTime = 18.3, -- low warm sun, long shadows
+		brightness = 2,
+		ambient = { 58, 48, 78 },
+		outdoorAmbient = { 92, 78, 112 },
+		atmosphere = table.freeze({
+			density = 0.28,
+			offset = 0.15,
+			color = { 150, 120, 170 },
+			decay = { 92, 60, 110 },
+			glare = 0.15,
+			haze = 1.2,
+		}),
+		colorCorrection = table.freeze({
+			contrast = 0.08,
+			saturation = 0.08,
+			tint = { 255, 244, 232 },
+		}),
+		bloom = table.freeze({ intensity = 0.35, size = 24, threshold = 1.8 }),
+	}),
+
+	-- Paket 21: the dressing. Everything inside the arena is flat and walk-through; lamps and ruins stand outside the
+	-- fog wall. Lights are few and cast no shadows (phones, Paket 22).
+	decor = table.freeze({
+		seed = 2112, -- the same scattered slabs and ruins every time
+		sunburstRays = 16, -- brass rays around the start circle
+		sunburstLength = 26,
+		floorSlabs = 40, -- cracked lighter slabs scattered over the arena floor
+		lampsPerSide = 4, -- lamp posts outside each arena wall
+		lampDistance = 7, -- from the wall
+		lampHeight = 12,
+		lampLightRange = 26,
+		backdropRuins = 28, -- broken walls and blocks beyond the fog wall
+		backdropDepth = { 10, 45 }, -- how far beyond the wall
+		obelisks = true, -- a glowing obelisk at each arena corner
+		motes = table.freeze({ rate = 6, lifetime = { 6, 10 } }), -- floating embers over the arena, per second
+		lobbyLamps = 6, -- around the lobby
+	}),
 })
