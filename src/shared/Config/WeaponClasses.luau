@@ -142,6 +142,14 @@ local ORDER: { WeaponClass } = {
 	}),
 }
 
+table.insert(
+	ORDER,
+	class(
+		"Artisan",
+		"Artisan",
+		{ { engineering = 1 }, { engineering = 2 }, { engineering = 3 }, { engineering = 4 }, { engineering = 5 } }
+	)
+)
 local byId: { [string]: WeaponClass } = {}
 for _, entry in ORDER do
 	byId[entry.id] = entry
