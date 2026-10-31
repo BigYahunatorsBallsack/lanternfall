@@ -91,7 +91,7 @@ describe("progress", function()
 		world.advance(Config.Run.flow.resultsSeconds + 0.5)
 		expect(data.achievements.FirstNight).toBe(true)
 		local embers = minutes * Config.Economy.embers.perMinuteSurvived + 50
-		expect(data.embers).toBe(embers)
+		expect(data.embers).toBe(embers + Config.Quests.streak.days[1].embers) -- Paket 18: login streak day 1
 		expect(hasToast("Achievement: First Night")).toBe(true)
 		expect(hasToast(`Run saved: +{embers} Embers`)).toBe(true)
 		expect(string.find(world.gui("Lobby", "Record").Text, `{data.embers} Embers`, 1, true) ~= nil).toBe(true)

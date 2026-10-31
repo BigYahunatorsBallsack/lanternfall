@@ -716,6 +716,44 @@ function methods.PromptGamePassPurchase(_, player, id)
 	table.insert(world.prompts, { kind = "Pass", player = player, id = id })
 end
 
+-- Paket 18: BadgeService records awards in world.badges["userId:badgeId"] (world.badgeError makes the calls throw),
+-- UserService names offline players, Players:GetFriendsAsync lists world.friends[userId] on one page.
+world.badges = {}
+world.friends = {}
+function methods.UserHasBadgeAsync(_, userId, badgeId)
+	if world.badgeError then
+		error(world.badgeError, 2)
+	end
+	return world.badges[`{userId}:{badgeId}`] == true
+end
+function methods.AwardBadge(_, userId, badgeId)
+	if world.badgeError then
+		error(world.badgeError, 2)
+	end
+	world.badges[`{userId}:{badgeId}`] = true
+	return true
+end
+function methods.GetUserInfosByUserIdsAsync(_, ids)
+	local infos = {}
+	for _, id in ids do
+		table.insert(infos, { Id = id, Username = `user{id}`, DisplayName = `User {id}` })
+	end
+	return infos
+end
+function methods.GetFriendsAsync(_, userId)
+	local page = {}
+	for _, id in world.friends[userId] or {} do
+		table.insert(page, { Id = id, Username = `user{id}`, DisplayName = `User {id}`, IsOnline = false })
+	end
+	return {
+		IsFinished = true,
+		GetCurrentPage = function()
+			return page
+		end,
+		AdvanceToNextPageAsync = function() end,
+	}
+end
+
 local InstanceLib = { new = newInstance }
 
 -- Services ----------------------------------------------------------------------
@@ -729,6 +767,8 @@ local StarterGui = newInstance("StarterGui", { Name = "StarterGui" })
 local SoundService = newInstance("SoundService", { Name = "SoundService" }) -- Paket 14
 local TeleportService = newInstance("TeleportService", { Name = "TeleportService" }) -- Paket 15
 local MarketplaceService = newInstance("MarketplaceService", { Name = "MarketplaceService" }) -- Paket 16
+local BadgeService = newInstance("BadgeService", { Name = "BadgeService" }) -- Paket 18
+local UserService = newInstance("UserService", { Name = "UserService" }) -- Paket 18
 local UserInputService =
 	newInstance("UserInputService", { Name = "UserInputService", TouchEnabled = false, KeyboardEnabled = true })
 world.renderSteps = {}
@@ -773,6 +813,8 @@ __services.SoundService = SoundService
 __services.TeleportService = TeleportService
 __services.MarketplaceService = MarketplaceService
 world.market = MarketplaceService
+__services.BadgeService = BadgeService
+__services.UserService = UserService
 game.PlaceId = 0
 game.GameId = 0
 game.JobId = ""
@@ -798,9 +840,15 @@ _G.ColorSequence = ColorSequenceLib
 _G.Random = RandomLib
 _G.Enum = EnumLib
 _G.workspace = Workspace
+-- Paket 18: os.time follows the fake clock from a fixed date (2027-01-01 00:00 UTC + clock.now), so daily quests and
+-- weekly leaderboards are the same in every test run
+world.unixBase = 1798761600
 _G.os = setmetatable({
 	clock = function()
 		return clock.now
+	end,
+	time = function()
+		return world.unixBase + math.floor(clock.now)
 	end,
 }, { __index = os })
 _G.typeof = function(value)

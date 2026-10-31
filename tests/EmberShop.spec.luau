@@ -35,6 +35,9 @@ local Client = folderProxy("src/client", "Client")
 runScript(Client, "init.client.luau")
 world.advance(0.5)
 local EmberShopController = require(Client.Controllers.EmberShopController)
+-- Paket 18: the first login of the day pays login streak Embers; this spec starts from 0 Embers
+PlayerDataService.get(me).embers = 0
+PlayerDataService.refresh(me)
 local RunStateController = require(Client.Controllers.RunStateController)
 
 local function hasToast(prefix: string): boolean
