@@ -8,7 +8,8 @@
 -- rewards and revives (WP11) use damagePlayer, healPlayer and protect; item effects (EffectService) healPlayer,
 -- setHitShields, setHpFraction and (since B8) drainPlayer. When a wave ends
 -- (Shop phase) players who are down stand up and everyone heals (Config.Shop.waveEnd); nobody walks or dashes in the
--- shop.
+-- shop. B11 part 2: a RunDirector checkpoint keeps each participant's HP from the start of the wave; after a "Retry
+-- wave" (RunDirector.WaveRetried, once StatService restored the stats) they stand there with that HP again.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -311,6 +312,27 @@ function CombatService.init()
 				send(player)
 			end
 		end
+	end)
+	local waveStartHp: { [Player]: number } = {}
+	RunDirector.addCheckpoint("Combat", function()
+		local saved = {}
+		for _, player in RunDirector.getParticipants() do
+			saved[player] = getVitals(player).hp
+		end
+		return saved
+	end, function(saved: { [Player]: number })
+		waveStartHp = table.clone(saved)
+	end)
+	RunDirector.WaveRetried:Connect(function()
+		table.clear(choosing)
+		for _, player in RunDirector.getParticipants() do
+			local state = getVitals(player)
+			state:reset(state.maxHp)
+			state.hp = math.clamp(waveStartHp[player] or state.maxHp, 1, state.maxHp)
+			applyWalkSpeed(player)
+			send(player)
+		end
+		table.clear(waveStartHp)
 	end)
 	RunDirector.ParticipantStateChanged:Connect(function(player, participantState)
 		local state = getVitals(player)

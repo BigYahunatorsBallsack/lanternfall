@@ -157,4 +157,10 @@ Remotes.SaveSettings = {
 }
 -- Paket 14: { Net/Types.WaveChallenge }, the planned elite and horde waves of the run so far, to the participants
 Remotes.WavePlan = { direction = "toClient" }
+-- B11 part 2: "Retry wave" on the results after a defeat; RunDirector checks the phase, the outcome and the retries left
+Remotes.RetryWave = {
+	direction = "toServer",
+	rateLimit = { count = 2, perSeconds = 1 },
+	args = {},
+}
 return table.freeze(Remotes)

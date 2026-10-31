@@ -490,6 +490,16 @@ function SpawnDirector.init()
 		table.clear(looters)
 		table.clear(trees)
 	end)
+	RunDirector.WaveRetried:Connect(function()
+		-- B11 part 2: the clock went back to the start of the wave; its trees and Looters are planned again
+		activeGroups = nil
+		table.clear(queued)
+		lastMinutes = minutes()
+		recycleTimer = 0
+		plannedWave = 0
+		table.clear(looters)
+		table.clear(trees)
+	end)
 	RunService.Heartbeat:Connect(function(dt: number)
 		if RunDirector.getPhase() == "Running" then
 			if not paused then

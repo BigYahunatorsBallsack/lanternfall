@@ -10,7 +10,8 @@
 -- first, one by one: an item rolled like a shop item (wave and Luck, Config.Loot.crate), taken or sold for Shards
 -- (ChooseCrate, CrateOffer to the chooser); taken automatically when its time runs out or the shop closes. Since WP10
 -- legendary crates (addCrate with `legendary`) hold an item of at least Config.Loot.legendaryCrate.minTier and open
--- first.
+-- first. B11 part 2: the cards and crates still open are picked on RunDirector.WaveStarting, before the wave's
+-- "Retry wave" checkpoint is saved (a retried wave starts with nothing open; closeAll ran on the results).
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -285,7 +286,7 @@ end
 function UpgradeService.init()
 	ExperienceService.LevelGained:Connect(onLevelGained)
 	RunDirector.RunStarted:Connect(onRunStarted)
-	RunDirector.PhaseChanged:Connect(function(phase, previous)
+	RunDirector.PhaseChanged:Connect(function(phase)
 		if phase == "Ended" or phase == "Lobby" then
 			for player, state in states do
 				closeAll(state, player)
@@ -299,10 +300,11 @@ function UpgradeService.init()
 					openNext(player, state)
 				end
 			end
-		elseif previous == "Shop" then
-			for player, state in states do
-				pickAll(player, state)
-			end
+		end
+	end)
+	RunDirector.WaveStarting:Connect(function()
+		for player, state in states do
+			pickAll(player, state)
 		end
 	end)
 	RunDirector.ParticipantStateChanged:Connect(function(player, participantState)

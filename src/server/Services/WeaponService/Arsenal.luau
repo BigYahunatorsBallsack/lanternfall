@@ -24,6 +24,7 @@ local Combat = require(Shared.Config.Combat)
 local Evolutions = require(Shared.Config.Evolutions)
 local Weapons = require(Shared.Config.Weapons)
 local StatMath = require(Shared.Util.StatMath)
+local Copy = require(Shared.Util.Copy)
 
 local Afflictions = require(script.Parent.Afflictions)
 local WeaponStats = require(script.Parent.WeaponStats)
@@ -695,6 +696,71 @@ function Arsenal.evolve(self: Arsenal, ownerId: number, uid: number, evolutionId
 	weapon.behavior = behavior
 	recompute(self, weapon, owner)
 	return true, nil
+end
+
+-- B11 part 2 ("Retry wave"): a copy of the owner's weapons (slot order, tiers, evolutions, damage and kills so far
+-- and the behaviors' own data) that restoreWeapons puts back.
+export type SavedWeapon = {
+	uid: number,
+	id: string,
+	tier: number,
+	evolution: string?,
+	addedAt: number,
+	state: { [string]: any },
+	damageDealt: number,
+	kills: number,
+}
+
+function Arsenal.saveWeapons(self: Arsenal, ownerId: number): { SavedWeapon }
+	local saved = {}
+	for _, weapon in self:getWeapons(ownerId) do
+		table.insert(saved, {
+			uid = weapon.uid,
+			id = weapon.id,
+			tier = weapon.tier,
+			evolution = weapon.evolution,
+			addedAt = weapon.addedAt,
+			state = Copy.deep(weapon.state),
+			damageDealt = weapon.damageDealt,
+			kills = weapon.kills,
+		})
+	end
+	return saved
+end
+
+-- Replaces the owner's weapons with saved ones (cooldowns start ready). False if the owner is unknown.
+function Arsenal.restoreWeapons(self: Arsenal, ownerId: number, saved: { SavedWeapon }): boolean
+	local owner = self.owners[ownerId]
+	if not owner then
+		return false
+	end
+	local weapons: { Weapon } = {}
+	for _, entry in saved do
+		local config = Weapons[entry.id]
+		local behavior = config and self.params.behaviors[config.behavior]
+		if config and behavior then
+			local weapon: Weapon = {
+				uid = entry.uid,
+				id = entry.id,
+				config = config,
+				behaviorName = config.behavior,
+				behavior = behavior,
+				ownerId = ownerId,
+				tier = entry.tier,
+				evolution = entry.evolution,
+				stats = {},
+				addedAt = entry.addedAt,
+				cooldownLeft = 0,
+				state = Copy.deep(entry.state),
+				damageDealt = entry.damageDealt,
+				kills = entry.kills,
+			}
+			recompute(self, weapon, owner)
+			table.insert(weapons, weapon)
+		end
+	end
+	owner.weapons = weapons
+	return true
 end
 
 -- The owner's weapons in slot order (live; do not change them).

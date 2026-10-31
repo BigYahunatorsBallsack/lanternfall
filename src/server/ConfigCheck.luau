@@ -531,6 +531,9 @@ function ConfigCheck.run(): { string }
 	if flow.resultsSeconds <= 0 then
 		problem("Run.flow.resultsSeconds must be above 0")
 	end
+	if flow.maxRetries < 0 or flow.maxRetries % 1 ~= 0 then
+		problem("Run.flow.maxRetries must be a whole number of 0 or more")
+	end
 	if Config.Admin.skipToBossLeadSeconds >= Config.Run.durationSeconds then
 		problem("Admin.skipToBossLeadSeconds must be shorter than the run")
 	end

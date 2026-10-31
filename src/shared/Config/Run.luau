@@ -45,6 +45,9 @@ local Run = {
 		allReadyCountdownSeconds = 3, -- countdown is cut to this once every player in the server is ready
 		resultsSeconds = 15, -- results screen, then everyone returns to the lobby
 		defaultClassId = "BladeWarden",
+		-- B11 part 2: "Retry wave" on the results after a defeat starts the lost wave again from its start state
+		-- (XP, level, Shards, stats, weapons, items, HP), this often per run (assumption)
+		maxRetries = 3,
 	}),
 
 	-- fPlayers = 1 + perExtraPlayer * (n - 1)

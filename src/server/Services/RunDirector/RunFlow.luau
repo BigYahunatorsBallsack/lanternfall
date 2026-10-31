@@ -532,8 +532,9 @@ function RunFlow.setShopReady(self: RunFlow, userId: number, ready: boolean, now
 end
 
 -- B11 part 2: after a defeat, starts the lost wave again from its beginning with every participant still in the game
--- standing (Brotato's "Retry wave"). Any participant may ask while the results show. The services restore what they
--- keep from the wave start on WaveRetried.
+-- standing (Brotato's "Retry wave"). Any participant may ask while the results show. WaveRetried comes first, so the
+-- services restore their wave-start state (RunDirector checkpoints) before the participants stand up and the wave
+-- starts again (PhaseChanged Ended -> Running).
 function RunFlow.retryWave(self: RunFlow, userId: number, now: number): (boolean, string?)
 	local results = self.results
 	if self.phase ~= "Ended" or not results or results.outcome ~= "Defeat" then
@@ -546,6 +547,7 @@ function RunFlow.retryWave(self: RunFlow, userId: number, now: number): (boolean
 		return false, "NoRetriesLeft"
 	end
 	self.retries += 1
+	push(self, { kind = "WaveRetried", wave = self.wave })
 	self.results = nil
 	self.runEndedAt = nil
 	self.pausedAt = nil
@@ -565,7 +567,6 @@ function RunFlow.retryWave(self: RunFlow, userId: number, now: number): (boolean
 		end
 	end
 	setPhase(self, "Running", nil)
-	push(self, { kind = "WaveRetried", wave = self.wave })
 	return true, nil
 end
 

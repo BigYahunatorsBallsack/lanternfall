@@ -11,6 +11,8 @@
 -- outside the run have the base stats. Fires ItemAdded and PermanentChanged for EffectService.
 -- Used by ShopService (items, Luck, Harvesting, shop stats), UpgradeService (upgrades, Luck, items for evolutions and
 -- chests), SpawnDirector (the team's enemy stats), EffectService, AdminService and RunStatsService.
+-- B11 part 2: a RunDirector checkpoint keeps the items, cards, growth and levels from the start of each wave for
+-- "Retry wave".
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -128,6 +130,14 @@ local function update(player: Player, state: State, permanent: boolean)
 	end
 end
 
+local function weaponKeyOf(player: Player): string
+	local ids = {}
+	for _, weapon in WeaponService.getWeapons(player) do
+		table.insert(ids, weapon.id)
+	end
+	return table.concat(ids, ":")
+end
+
 local function classBonusOf(player: Player): StatMath.Sheet
 	local ids = {}
 	for _, weapon in WeaponService.getWeapons(player) do
@@ -150,11 +160,7 @@ local function onWeaponsChanged(player: Player)
 		return
 	end
 	local bonus = classBonusOf(player)
-	local ids = {}
-	for _, weapon in WeaponService.getWeapons(player) do
-		table.insert(ids, weapon.id)
-	end
-	local key = table.concat(ids, ":")
+	local key = weaponKeyOf(player)
 	local same = state.weaponKey == key
 	for statId, value in bonus do
 		same = same and state.classBonus[statId] == value
@@ -166,6 +172,37 @@ local function onWeaponsChanged(player: Player)
 		state.weaponKey = key
 		state.classBonus = bonus
 		update(player, state, true)
+	end
+end
+
+type Saved = { items: { [string]: number }, itemOrder: { string }, upgrades: StatMath.Sheet, levels: number }
+
+local function saveCheckpoint(): { [Player]: Saved }
+	local saved = {}
+	for player, state in states do
+		saved[player] = {
+			items = table.clone(state.items),
+			itemOrder = table.clone(state.itemOrder),
+			upgrades = table.clone(state.upgrades),
+			levels = state.levels,
+		}
+	end
+	return saved
+end
+
+local function restoreCheckpoint(saved: { [Player]: Saved })
+	for player, state in states do
+		local data = saved[player]
+		if data then
+			state.items = table.clone(data.items)
+			state.itemOrder = table.clone(data.itemOrder)
+			state.upgrades = table.clone(data.upgrades)
+			state.levels = data.levels
+			state.classBonus = classBonusOf(player)
+			state.weaponKey = weaponKeyOf(player)
+			update(player, state, true)
+			Net.fireAllClients("Items", itemLoadout(player))
+		end
 	end
 end
 
@@ -219,6 +256,7 @@ function StatService.init()
 		end
 	end)
 	WeaponService.Changed:Connect(onWeaponsChanged)
+	RunDirector.addCheckpoint("Stats", saveCheckpoint, restoreCheckpoint)
 	ExperienceService.LevelGained:Connect(function()
 		for player, state in states do
 			if RunDirector.getParticipantState(player) ~= "Out" then

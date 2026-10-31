@@ -131,9 +131,19 @@ local function load(player: Player)
 	sendInfo(player)
 end
 
+local releaseHooks: { (Player) -> () } = {}
+
 local function release(player: Player)
 	loading[player] = nil
 	local profile = profiles[player]
+	if profile then
+		for _, hook in releaseHooks do
+			local ok, err = pcall(hook, player)
+			if not ok then
+				task.spawn(error, `[Lanternfall] PlayerDataService release hook failed: {err}`, 0)
+			end
+		end
+	end
 	profiles[player] = nil
 	if profile then
 		profile:EndSession() -- last save, frees the session lock
@@ -229,11 +239,12 @@ function PlayerDataService.maxDanger(player: Player, classId: string?): number
 end
 
 -- Adds a finished run to the player's record (since Paket 13 with Embers and achievements), saves it and sends the
--- rewards to the player (RunRewards, a Notify per achievement). False if the data is not loaded.
-function PlayerDataService.recordRun(player: Player, run: ProfileRecords.RunRecord): boolean
+-- rewards to the player (RunRewards, a Notify per achievement). False if the data is not loaded; true plus the
+-- rewards otherwise.
+function PlayerDataService.recordRun(player: Player, run: ProfileRecords.RunRecord): (boolean, Types.RunRewards?)
 	local profile = profiles[player]
 	if not (profile and profile:IsActive()) then
-		return false
+		return false, nil
 	end
 	local rewards = ProfileRecords.applyRun(profile.Data, run)
 	if Config.Save.saveAfterRun then
@@ -248,7 +259,13 @@ function PlayerDataService.recordRun(player: Player, run: ProfileRecords.RunReco
 		Net.fireClient("Notify", player, `Achievement: {achievement.name}{unlock}`)
 	end
 	PlayerDataService.Changed:Fire(player)
-	return true
+	return true, rewards
+end
+
+-- B11 part 2: `hook(player)` runs right before a leaving player's data is saved for the last time (RunStatsService
+-- records a run it held back for "Retry wave").
+function PlayerDataService.onRelease(hook: (Player) -> ())
+	table.insert(releaseHooks, hook)
 end
 
 -- Debug button (Paket 13): every achievement done, without paying its Embers.

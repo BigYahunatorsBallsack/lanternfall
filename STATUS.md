@@ -22,6 +22,7 @@ Kurzer Projektstand für neue Sessions. **Zuerst lesen**, dann aus `DESIGN.md` n
 
 - **Paket 13 Fortschritt (31.10.2026):** PR #33 von Branch `wp-13-progress`, nach OK des Owners gemerged; Owner bestätigt: 4 Start-Charaktere und Gefahrenstufe pro Charakter bleiben (`/mnt/project-files/lanternfall-wp13/TESTANLEITUNG.md`). Embers pro Run (Minuten, Champions, Bosse, Gefahrenstufe, Party), 22 Erfolge über alle Runs, die 6 Charaktere, 5 Waffen und 11 Items freischalten (gesperrt = nicht wählbar, nie im Shop, nie in Kisten), Gefahrenstufe pro Charakter (Lobby-Stufe = höchste, die jemand in der Lobby offen hat), Schema v3, Erfolge-Fenster in der Lobby, Embers auf dem Ergebnis-Bildschirm, Debug-Knopf „Unlock everything".
 - **Paket 14 HUD (31.10.2026):** Branch `wp-14-hud`, vom Owner zum Selbst-Mergen freigegeben (Testanleitung kommt gesammelt, wenn er fragt). Tooltips (Maus: drüberfahren, Handy: antippen, schließt nach 4 s) für Waffen im HUD und im Shop (echter Schaden neben Brotatos Schreibweise „Damage 32 | 18 (+100% Melee Damage)", Krit, Cooldown, Reichweite), Items (Stufe, Anzahl, Limit), Werte (was der Wert gerade bewirkt) und Waffenklassen (Bonus jeder Anzahl, aktiver fett); Werte-Liste mit Umschalter PRIMARY/SECONDARY; Klassen-Zeilen „Edge 2/6"; Shop-Badge „· max 3" bei Items mit Limit. Unter der Welle „Elite wave in 3"/„Horde wave next" (Remote `WavePlan`, Tooltip mit allen geplanten Wellen), Wellen-Banner nennt Elite-/Horden-Welle. Pfeile am Bildschirmrand zu Mitspielern außer Sicht (rot = gestürzt). Einstellungsmenü (Zahnrad oben rechts): Bildschirmwackeln, Schadenszahlen, Musik- und Effekt-Lautstärke (SoundGroups „Music"/„Effects" für Paket 21), gespeichert im Profil (Schema v4, Remote `SaveSettings`). Run-Ende: eigene Waffen mit Schaden und Kills, Embers zuerst, Mitte scrollt auf dem Handy. Handy: weniger Item-Zeilen im HUD (`Widgets.isCompact`).
+- **B11 Teil 2 „Welle wiederholen" (31.10.2026):** Branch `wp-b11b-retry-wave-2`, selbst gemerged (Owner-Freigabe). Nach einer Niederlage zeigt der Ergebnis-Bildschirm „RETRY WAVE n (x left)": die verlorene Welle beginnt von vorn, alle stehen, und alles steht wie zu Wellenbeginn (Team-Level und XP, Beutel, Shards, gesperrte Shop-Angebote, Items, Karten-Werte, Waffen mit Stufen, HP, „nächste Welle"-Boni, Run-Statistik). Höchstens 3 Mal pro Run (`Config.Run.flow.maxRetries`). Eine Niederlage, die noch wiederholbar ist, wird erst gespeichert (Embers, Erfolge), wenn der Ergebnis-Bildschirm endet, „Play again" gedrückt wird oder der Spieler geht; dann kommt ein Hinweis „Run saved: +N Embers".
 
 ## Plan bis zum Launch (Owner, 31.10.2026)
 
@@ -41,7 +42,7 @@ Claude baut **alle** restlichen Pakete außer B12 (macht ChatGPT). **Ein Paket p
 | 10 | 22 Performance-Pass Handy + Netzwerk | Extra high | offen | Handy-Tests, Mikroprofiler-Screenshots |
 | 11 | 23 Sicherheits- und Code-Review | Extra high | offen | Ergebnis abnicken |
 | 12 | 24 Launch-Paket: Icon, Thumbnails, Beschreibung, Clips | Medium | offen | Clips, Fragebogen, Ads |
-| – | B11 Teil 2 „Welle wiederholen" (exakter Wellenstart-Stand) | Medium | wartet auf B12-Merge (WIP auf `wp-b11b-retry-wave`) | testen |
+| – | B11 Teil 2 „Welle wiederholen" (exakter Wellenstart-Stand) | Medium | fertig (`wp-b11b-retry-wave-2`) | testen |
 
 Offen außerdem: PR #31 (Out-Spieler behalten Level-ups/Kisten bis zum Shop) wartet auf Test.
 
@@ -51,7 +52,7 @@ Jeder Strang ändert nur **seine** Zeile (Regeln: `docs/PARALLEL.md`).
 
 | Strang | KI | Aktuelles Paket | Branch / PR | Stand | Danach |
 | --- | --- | --- | --- | --- | --- |
-| A – Engine und Ablauf | Claude | Paket 14 HUD/Tooltips (Medium) | `wp-14-hud` | fertig, selbst gemerged | Paket 15 Hub-Lobby, Teleport, Party (Extra high), dann weiter nach „Plan bis zum Launch" |
+| A – Engine und Ablauf | Claude | B11 Teil 2 „Welle wiederholen" (Medium) | `wp-b11b-retry-wave-2` | fertig, selbst gemerged | Paket 15 Hub-Lobby, Teleport, Party (Extra high), dann weiter nach „Plan bis zum Launch" |
 | B – Inhalte und Spieler-Regeln | ChatGPT | B12 Bauten + Begleiter (High) | `wp-b12-structures` | umgesetzt und automatisiert geprüft; Merge vom Owner autorisiert, Studio-Test offen | nächstes Paket nach Owner-Zuteilung |
 
 ## Feste Entscheidungen des Owners
@@ -81,6 +82,7 @@ Jeder Strang ändert nur **seine** Zeile (Regeln: `docs/PARALLEL.md`).
 - Paket 11 (30.10.2026, Annahmen, im Test prüfen): Wer nach 30 s nicht wiederbelebt ist, ist nur bis zum Wellenende raus und steht dann wieder auf (wie Brotatos Koop; Design sagte vorher „Zuschauer bis Run-Ende", das wäre bei 20 Wellen zu hart). Kreis 6 Studs, Timer steht während der Wiederbelebung, Balken läuft in 3 s leer, 2 s Schutz danach. Alles in `Config.Run.coop`.
 
 - Paket 13 (31.10.2026, Annahmen, im Test prüfen): Gefahrenstufe pro Charakter wie im Plan (Sieg auf d öffnet d + 1 für diesen Charakter; ob Brotato das global macht, ist nicht geprüft). Im Koop entscheidet die höchste offene Stufe in der Lobby, andere spielen mit. Embers: Werte aus `Config.Economy.embers` (10/Minute, 15/Champion, 150/Boss), dazu +10 % pro Gefahrenstufe (neu, `Config.Progress.embers.perDangerLevel`) und +10 % Party ab 2 Spielern. Erfolge zahlen ihre Embers einmal; schon erreichte Ziele (alte Profile) werden beim Laden still erledigt. Start offen: Blade Warden, Spark Mage, Night Watch, Duel Maestro. Gesperrt werden nur Waffen/Items, die keine Start-Ausrüstung sind (ConfigCheck prüft das). „Unlock everything" setzt auch `characterStats.bestDanger` auf 4, damit alle Stufen offen sind.
+- B11 Teil 2 (31.10.2026, Annahmen, im Test prüfen): Höchstens 3 Retries pro Run (Brotatos Grenze nicht geprüft). Jeder Teilnehmer darf den Retry auslösen, „Play again" zählt danach nicht mehr. Zufall würfelt beim Retry neu (Spawns, Krits, Drops). Die Niederlage zählt nur einmal im Rekord: ein Retry verwirft sie, gespeichert wird erst der Run, der endet. Server-Neustart während der Ergebnisse verliert eine zurückgehaltene Niederlage.
 
 ## Owner und Ablauf
 
@@ -113,6 +115,8 @@ Jeder Strang ändert nur **seine** Zeile (Regeln: `docs/PARALLEL.md`).
 
 - Fortschritt testen (Paket 13): Ende-zu-Ende in `tests/Progress.spec.luau` (gesperrte Charaktere, Lobby-Stufen-Grenze, Embers + Erfolge nach dem Run, Fenster, Debug-Knopf), Regeln in `tests/ProgressRules.spec.luau` (auch: Shop und Kisten bieten nie Gesperrtes an, Migration v2 → v3). **Specs, die gesperrte Charaktere oder Stufen > 0 über die Lobby wählen, rufen vorher `PlayerDataService.unlockAll(player)`** (siehe `CharactersB10.spec`, `Danger.spec`). `RunDirector.setOptions` (Tests/Admin) umgeht die Stufen-Grenze, bis wieder jemand die Remote benutzt.
 
+- Welle wiederholen testen (B11 Teil 2): Ende-zu-Ende in `tests/RetryWave.spec.luau` (Stand vor/nach dem Retry, Knopf, Zähler, Speichern erst nach den Ergebnissen), Regeln in `tests/RunFlow.spec.luau` („retry wave").
+
 - HUD testen (Paket 14): Ende-zu-Ende in `tests/Hud14.spec.luau` (Einstellungen speichern, `WavePlan`, Tooltips, Werte-Seiten, Waffen auf dem Ergebnis-Bildschirm). `UI/Tooltip.open(objekt)` öffnet in Specs den Tooltip eines Objekts, `Tooltip.getShown()` liefert Titel und Text. Der Mock kennt jetzt `MouseEnter/MouseLeave/MouseMoved/InputBegan` und `SoundService`, aber keine `AbsoluteSize`/`WorldToScreenPoint` (Pfeile und Scroll-Höhe laufen dort nicht). `Champions.spec` war einmal zufällig rot (Zeile 248), danach 3× grün.
 
 ## Code-Landkarte
@@ -138,6 +142,8 @@ Jeder Strang ändert nur **seine** Zeile (Regeln: `docs/PARALLEL.md`).
 - Fortschritt (Paket 13): `Config/Progress.luau` (Erfolge, Freischaltungen, Start-Stufe, Ember-Zuschläge), `Util/ProgressRules` (Fortschritt, gesperrt/offen, Stufe pro Charakter, Embers eines Runs; Server und Client). `PlayerDataService`: `ownsClass` mit Sperre, `isUnlocked`, `lockedSet`, `maxDanger`, `unlockAll`, Signal `Changed`; `recordRun` schickt `RunRewards` (`Types.RunRewards`) und eine Notify pro Erfolg. `ProfileRecords.applyRun` gibt die Belohnung zurück, `completeAchievements`; `ProfileInfo` hat `embers`, `achievements`, `progress`, `characterDanger`, `ownedClasses`. `RunStatsService` zählt Champions und Wiederbelebungen (`ReviveService.Revived`). `RunDirector`: `dangerCap`/`enforceDangerCap`. Shop: `ShopRules.Params.unavailable`, `ShopRules.chestItem(..., unavailable)`; `UpgradeService` nutzt `lockedSet` für Kisten. Client: `ProfileCard` (Embers, Knopf), `AchievementList` (Fenster), `CharacterChoice` (Sperre, „danger up to"), `DangerChoice` (dunkle Stufen), `ResultsController` (Zeile „Rewards").
 
 - HUD (Paket 14): `Config/Settings.luau` (Standardwerte, Speicher-Verzögerung, Tooltip, Handy-Grenze), `UI/Tooltip` (Tooltips für Maus und Touch), `Util/TooltipText` (Texte: Waffe, Item, Wert, Klasse, Wellenplan), `UpgradeText.weaponBase`. Client: `SettingsController` (Zahnrad, Menü, SoundGroups, `get()`; Camera- und DamageNumberController fragen ihn), `HUDController` (Tooltips, `WavePreview`, Mitspieler-Pfeile, `getWavePlan`), `StatsController.setPage`, `ResultsController` (Teil „Details" scrollt, „YOUR WEAPONS"). Server: `DangerService` schickt `WavePlan`, `RunStatsService`/`Tally` geben `RunSummaryPlayer.weapons`, `PlayerDataService` nimmt `SaveSettings` (Schema v4: `settings`).
+
+- Welle wiederholen (B11 Teil 2): `RunDirector.addCheckpoint(name, save, restore)` – jeder Dienst mit Run-Zustand meldet dort an, was er vom Wellenstart braucht (Stat, Shop, Experience, Weapons über `Arsenal.saveWeapons/restoreWeapons`, Combat, Effects, RunStats). Gespeichert wird nach dem neuen Signal `RunDirector.WaveStarting` (dort wählt `UpgradeService` offene Karten/Kisten automatisch) und vor `PhaseChanged` → Running. Beim Retry (Remote `RetryWave`, `RunFlow.retryWave`): alle `restore`, dann Signal `RunDirector.WaveRetried` (Combat setzt HP, Effects baut Einträge neu, SpawnDirector plant die Welle neu), dann `PhaseChanged` Ended → Running, also läuft der normale Wellenstart (Bauten, Effekte) erneut. **Neuer Dienst mit Run-Zustand → Checkpoint anmelden**, sonst überlebt sein Stand einen Retry. `Util/Copy.deep` für Tiefkopien; `PlayerDataService.onRelease(hook)` läuft vor dem letzten Speichern eines gehenden Spielers.
 
 ## B7 – Übergabe (30.10.2026)
 

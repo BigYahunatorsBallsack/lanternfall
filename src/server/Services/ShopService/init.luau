@@ -11,12 +11,14 @@
 -- with spendShards. Since B4 the shop stats work (Item Prices, Free Rerolls, Sell Value), offers roll on
 -- RandomService's Shop stream, and signals tell EffectService about the wave end (before Harvesting pays), the
 -- opened shop, rerolls, purchases, sales and the Shards held; item effects pay Shards through addShards.
+-- B11 part 2: a RunDirector checkpoint keeps the Shards and locked offers from the start of each wave ("Retry wave").
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Shared = ReplicatedStorage.Shared
 local Config = require(Shared.Config)
+local Copy = require(Shared.Util.Copy)
 local Net = require(Shared.Net)
 local Signal = require(Shared.Util.Signal)
 local StatMath = require(Shared.Util.StatMath)
@@ -420,6 +422,27 @@ function ShopService.init()
 		for _, player in participants do
 			states[player] = newState()
 			send(player, states[player])
+		end
+	end)
+	RunDirector.addCheckpoint("Shop", function()
+		local saved = {}
+		for player, state in states do
+			saved[player] = {
+				shards = state.shards,
+				carried = Copy.deep(if state.open then lockedOffers(state.offers) else state.carried),
+			}
+		end
+		return saved
+	end, function(saved: { [Player]: { shards: number, carried: { Types.ShopOffer } } })
+		for player, state in states do
+			local data = saved[player]
+			if data then
+				state.shards = data.shards
+				state.carried = Copy.deep(data.carried)
+				state.open = false
+				state.offers = {}
+				send(player, state)
+			end
 		end
 	end)
 	RunDirector.PhaseChanged:Connect(function(phase)
