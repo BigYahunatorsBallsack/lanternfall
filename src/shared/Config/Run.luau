@@ -48,6 +48,9 @@ local Run = {
 		-- B11 part 2: "Retry wave" on the results after a defeat starts the lost wave again from its start state
 		-- (XP, level, Shards, stats, weapons, items, HP), this often per run (assumption)
 		maxRetries = 3,
+		-- playtest after Paket 24: endless mode is no longer picked in the lobby; winning the boss wave asks every
+		-- participant "continue endless or stop?" for this long (more "continue" than "stop" goes on, else it is won)
+		endlessChoiceSeconds = 20,
 	}),
 
 	-- fPlayers = 1 + perExtraPlayer * (n - 1)

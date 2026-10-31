@@ -93,6 +93,7 @@ local flow = RunFlow.new({
 	shopSeconds = Config.Shop.phaseSeconds,
 	maxPlayers = Config.Run.maxPlayers,
 	maxRetries = Config.Run.flow.maxRetries,
+	endlessChoiceSeconds = Config.Run.flow.endlessChoiceSeconds, -- playtest after Paket 24
 	firstNightWaves = Config.FirstNight.waves, -- Paket 19
 	defaultClassId = Config.Run.flow.defaultClassId,
 	waveEndAt = function(number: number): number
@@ -204,6 +205,9 @@ local function handle(event: RunFlow.Event)
 		RunDirector.WaveRetried:Fire(event.wave)
 		local left = Config.Run.flow.maxRetries - flow.retries
 		notifyParticipants(`Wave {event.wave} starts again ({left} {if left == 1 then "retry" else "retries"} left)`)
+	elseif event.kind == "EndlessChosen" then -- playtest after Paket 24: the vote after the boss wave said continue
+		print("[Lanternfall] Endless mode chosen after the boss wave")
+		notifyParticipants("Endless mode! The night goes on.")
 	end
 end
 
@@ -299,59 +303,64 @@ function RunDirector.init()
 		end
 	end)
 
-	Net.onServer(
-		"SetRunOptions",
-		function(
-			player,
-			danger: number,
-			endless: boolean,
-			enemyHp: number,
-			enemyDamage: number,
-			enemySpeed: number,
-			enemyCount: number?
-		)
-			if not flow.players[player.UserId] then
-				reject(player, "UnknownPlayer")
-				return
-			end
-			if PlaceService.isHub() then -- Paket 15: the party's options, kept by PartyService
-				RunDirector.OptionsRequested:Fire(
-					player,
-					DangerRules.clean({
-						danger = danger,
-						endless = endless,
-						enemyHp = enemyHp,
-						enemyDamage = enemyDamage,
-						enemySpeed = enemySpeed,
-						enemyCount = enemyCount,
-					})
-				)
-				return
-			end
-			local cap = dangerCap()
-			if danger > cap then
-				Net.fireClient(
-					"Notify",
-					player,
-					`Danger {danger} is locked. Win danger {danger - 1} with your character to open it.`
-				)
-				danger = cap
-			end
-			capOverride = false
-			flow:setOptions(DangerRules.clean({
-				danger = danger,
-				endless = endless,
-				enemyHp = enemyHp,
-				enemyDamage = enemyDamage,
-				enemySpeed = enemySpeed,
-				enemyCount = enemyCount,
-			}))
-			process()
-		end
+	Net.onServer("SetRunOptions", function(
+		player,
+		danger: number,
+		_endless: boolean, -- ignored since the playtest after Paket 24
+		enemyHp: number,
+		enemyDamage: number,
+		enemySpeed: number,
+		enemyCount: number?
 	)
+		if not flow.players[player.UserId] then
+			reject(player, "UnknownPlayer")
+			return
+		end
+		if PlaceService.isHub() then -- Paket 15: the party's options, kept by PartyService
+			RunDirector.OptionsRequested:Fire(
+				player,
+				DangerRules.clean({
+					danger = danger,
+					endless = false, -- playtest after Paket 24: endless is chosen after the boss wave
+					enemyHp = enemyHp,
+					enemyDamage = enemyDamage,
+					enemySpeed = enemySpeed,
+					enemyCount = enemyCount,
+				})
+			)
+			return
+		end
+		local cap = dangerCap()
+		if danger > cap then
+			Net.fireClient(
+				"Notify",
+				player,
+				`Danger {danger} is locked. Win danger {danger - 1} with your character to open it.`
+			)
+			danger = cap
+		end
+		capOverride = false
+		flow:setOptions(DangerRules.clean({
+			danger = danger,
+			endless = false, -- playtest after Paket 24: endless is chosen after the boss wave (ChooseEndless)
+			enemyHp = enemyHp,
+			enemyDamage = enemyDamage,
+			enemySpeed = enemySpeed,
+			enemyCount = enemyCount,
+		}))
+		process()
+	end)
 
 	Net.onServer("SetShopReady", function(player, ready: boolean)
 		local ok, reason = flow:setShopReady(player.UserId, ready, now())
+		if not ok then
+			reject(player, reason)
+		end
+		process()
+	end)
+
+	Net.onServer("ChooseEndless", function(player, continue: boolean)
+		local ok, reason = flow:chooseEndless(player.UserId, continue, now())
 		if not ok then
 			reject(player, reason)
 		end

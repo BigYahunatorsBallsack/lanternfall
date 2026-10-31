@@ -1,6 +1,7 @@
 --!strict
--- B11 lobby extension: danger level 0-5, endless mode and the enemy sliders for the next run (Config.Difficulty),
+-- B11 lobby extension: danger level 0-5 and the enemy sliders for the next run (Config.Difficulty),
 -- shared by everyone in the server. Mounted and rendered by LobbyController; sends SetRunOptions.
+-- Since the playtest after Paket 24 there is no endless switch any more: the run asks after the boss wave (ShopController).
 -- Since Paket 13 levels above the one open for the local player's character are dimmed (the server allows them only
 -- if someone in the lobby has them open).
 -- Paket 15: on the hub the choice belongs to the party (PartyController's options); only its leader changes it.
@@ -25,7 +26,6 @@ local DangerChoice = {}
 
 local levelButtons: { [number]: TextButton } = {}
 local description: TextLabel?
-local endlessButton: TextButton?
 local sliderLabels: { [string]: TextLabel } = {}
 local titleLabel: TextLabel? = nil
 local lastPress = 0
@@ -51,7 +51,7 @@ local function send(change: (Types.RunOptions) -> ())
 	Net.fireServer(
 		"SetRunOptions",
 		clean.danger,
-		clean.endless,
+		false, -- endless: since the playtest after Paket 24 chosen after the boss wave (ChooseEndless)
 		clean.enemyHp,
 		clean.enemyDamage,
 		clean.enemySpeed,
@@ -80,11 +80,6 @@ function DangerChoice.render()
 			then "DANGER (whole lobby)"
 			elseif PartyController.isLeader() then "DANGER (your party)"
 			else "DANGER (your leader picks)"
-	end
-	if endlessButton then
-		endlessButton.Text = if options.endless then "ENDLESS: ON" else "ENDLESS: OFF"
-		endlessButton.BackgroundColor3 = if options.endless then Theme.accent else Theme.button
-		endlessButton.TextColor3 = if options.endless then Theme.accentText else Theme.text
 	end
 	for id, label in sliderLabels do
 		local slider = (Difficulty.sliders :: any)[id]
@@ -184,18 +179,6 @@ function DangerChoice.mount(screen: ScreenGui)
 		LayoutOrder = 3,
 		Parent = panel,
 	})
-	endlessButton = Widgets.button({
-		Name = "Endless",
-		Text = "ENDLESS: OFF",
-		TextSize = 16,
-		Size = UDim2.new(1, 0, 0, 44),
-		LayoutOrder = 4,
-		Parent = panel,
-	}, function()
-		send(function(options)
-			options.endless = not options.endless
-		end)
-	end)
 	for index, id in Difficulty.sliderOrder do
 		sliderRow(panel, id, 4 + index)
 	end

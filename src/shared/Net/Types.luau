@@ -60,7 +60,12 @@ export type RunState = {
 	results: Results?, -- Ended
 	options: RunOptions, -- B11: the lobby's choice for the next run
 	runOptions: RunOptions?, -- B11: the choice the current run started with
+	-- playtest after Paket 24: set while the "continue endless?" vote after the boss wave is open (Shop phase); the
+	-- votes cast so far
+	endlessVote: { EndlessVote }?,
 }
+
+export type EndlessVote = { userId: number, continue: boolean }
 
 -- HP and dash state of one player (CombatService -> PlayerStateController), sent to everyone on change.
 export type PlayerVitals = {

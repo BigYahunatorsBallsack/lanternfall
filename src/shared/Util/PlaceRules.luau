@@ -96,7 +96,7 @@ function PlaceRules.readOptions(value: any): Types.RunOptions
 				(options :: any)[key] = value[key]
 			end
 		end
-		options.endless = value.endless == true
+		options.endless = false -- playtest after Paket 24: endless is chosen after the boss wave, never up front
 		options.firstNight = value.firstNight == true or nil -- Paket 19 (only easier and never counts as a win)
 	end
 	return DangerRules.clean(options)
