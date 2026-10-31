@@ -73,6 +73,8 @@ return table.freeze({
 		Revived = table.freeze({ priority = "high", fields = { "Wave" } }),
 		RetryWave = table.freeze({ priority = "high", fields = { "Wave", "Danger" } }),
 		FirstNightSkipped = table.freeze({ priority = "high", fields = { "Wave" } }), -- value: wave
+		-- Paket 23: the movement check moved a player back (reason Speed/Outside/Pillar); value: studs of the move
+		MovementCorrected = table.freeze({ priority = "low", fields = { "Reason", "Wave" } }),
 	}),
 
 	-- "PlayerDown" cause: what hit the player in the moment they went down

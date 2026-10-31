@@ -10,6 +10,7 @@
 -- (Shop phase) players who are down stand up and everyone heals (Config.Shop.waveEnd); nobody walks or dashes in the
 -- shop. B11 part 2: a RunDirector checkpoint keeps each participant's HP from the start of the wave; after a "Retry
 -- wave" (RunDirector.WaveRetried, once StatService restored the stats) they stand there with that HP again.
+-- Paket 23: every walk speed it sets and every dash it grants also goes to MapService's movement check.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -23,6 +24,7 @@ local Types = require(Shared.Net.Types)
 local StatMath = require(Shared.Util.StatMath)
 
 local EnemySim = require(script.Parent.EnemySim)
+local MapService = require(script.Parent.MapService)
 local RandomService = require(script.Parent.RandomService)
 local RunDirector = require(script.Parent.RunDirector)
 local Vitals = require(script.Vitals)
@@ -95,18 +97,19 @@ local function canBeHurt(player: Player): boolean
 end
 
 local function applyWalkSpeed(player: Player)
-	local character = player.Character
-	local humanoid = character and character:FindFirstChildOfClass("Humanoid")
-	if not humanoid then
-		return
-	end
 	local participantState = RunDirector.getParticipantState(player)
 	local standing = participantState == nil or participantState == "Alive" or not RunDirector.isActive()
 	local sheet = stats[player]
 	local speed = PlayerConfig.moveSpeed * StatMath.speedFactor(if sheet then sheet.speed or 0 else 0)
 	local frozen = choosing[player] and Config.Run.levelUp.freezeWhileChoosing
 	local shopping = RunDirector.getPhase() == "Shop" -- the shop is a screen of its own, the arena is hidden
-	humanoid.WalkSpeed = if standing and not frozen and not shopping then speed else 0
+	local walkSpeed = if standing and not frozen and not shopping then speed else 0
+	MapService.setMoveSpeed(player, walkSpeed) -- Paket 23: the movement check allows this speed
+	local character = player.Character
+	local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+	if humanoid then
+		humanoid.WalkSpeed = walkSpeed
+	end
 end
 
 local function onCharacterAdded(player: Player, character: Model)
@@ -285,7 +288,9 @@ function CombatService.init()
 			send(player)
 			return
 		end
-		getVitals(player):dash(now())
+		if getVitals(player):dash(now()) then
+			MapService.dashGranted(player) -- Paket 23: the movement check allows the dash distance
+		end
 		send(player)
 	end)
 
