@@ -982,6 +982,35 @@ function ConfigCheck.run(): { string }
 	if #analytics.onboarding.steps < 2 or analytics.budget.perMinute < 1 then
 		problem("Analytics: the funnel needs steps and the budget must be positive")
 	end
+	-- Paket 21: sounds and music
+	local audio = Config.Audio
+	local function checkSoundId(owner: string, sound: string)
+		if sound ~= "" and not (string.match(sound, "^rbxassetid://%d+$") or string.match(sound, "^rbxasset://")) then
+			problem(`Audio: {owner} sound must be "", "rbxassetid://<id>" or "rbxasset://..."`)
+		end
+	end
+	for id, cue in audio.cues do
+		checkSoundId(`cue {id}`, cue.sound)
+		if cue.voices < 1 or cue.volume < 0 or cue.pitch <= 0 or cue.minInterval < 0 then
+			problem(`Audio: cue {id} needs voices >= 1, volume >= 0, pitch > 0 and minInterval >= 0`)
+		end
+	end
+	for kind, cueId in audio.weaponKinds do
+		if not audio.cues[cueId] then
+			problem(`Audio: weapon kind {kind} plays unknown cue {cueId}`)
+		end
+	end
+	for _, name in { "lobby", "run", "shop", "boss", "results", "victory", "defeat" } do
+		local track = audio.music[name]
+		if not track then
+			problem(`Audio: music track {name} is missing`)
+		else
+			checkSoundId(`music {name}`, track.sound)
+		end
+	end
+	if audio.hearRadius <= audio.fullRadius or audio.fadeSeconds <= 0 then
+		problem("Audio: hearRadius must be above fullRadius and fadeSeconds positive")
+	end
 	return problems
 end
 

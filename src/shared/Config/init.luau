@@ -35,4 +35,5 @@ return {
 	Badges = require(script.Badges), -- Paket 18
 	FirstNight = require(script.FirstNight), -- Paket 19
 	Analytics = require(script.Analytics), -- Paket 20
+	Audio = require(script.Audio), -- Paket 21
 }
