@@ -21,11 +21,12 @@ local UpgradeText = require(Shared:WaitForChild("Util"):WaitForChild("UpgradeTex
 local RunStateController = require(script.Parent.RunStateController)
 local Theme = require(script.Parent.Parent.UI.Theme)
 local Widgets = require(script.Parent.Parent.UI.Widgets)
+local Dialog = require(script.Parent.Parent.UI.Dialog)
 
 local LevelUp = Config.Run.levelUp
-local CARD_SIZE = Vector2.new(180, 200)
+local CARD_SIZE = Vector2.new(210, 268)
 local CARD_GAP = 12
-local ICON_SIZE = 52
+local ICON_SIZE = 44
 local KEYS = { Enum.KeyCode.One, Enum.KeyCode.Two, Enum.KeyCode.Three, Enum.KeyCode.Four }
 
 local LevelUpController = {}
@@ -160,7 +161,8 @@ local function buildCard(index: number, parent: Instance?, name: string?): CardV
 	local name = Widgets.label({
 		Name = "CardName",
 		Font = Theme.fontBold,
-		TextSize = 22,
+		TextSize = 20,
+		Size = UDim2.new(1, 0, 0, 48),
 		LayoutOrder = 3,
 		Parent = button,
 	})
@@ -168,7 +170,7 @@ local function buildCard(index: number, parent: Instance?, name: string?): CardV
 		Name = "Detail",
 		TextSize = 17,
 		TextColor3 = Theme.textDim,
-		Size = UDim2.new(1, 0, 0, 44),
+		Size = UDim2.new(1, 0, 0, 62),
 		LayoutOrder = 4,
 		Parent = button,
 	})
@@ -329,19 +331,21 @@ local function buildCrate()
 	})
 	crateSubtitle = Widgets.label({ Name = "CrateSubtitle", LayoutOrder = 2, Parent = cratePanel })
 	crateCard = buildCard(3, cratePanel, "CrateCard")
-	crateCard.button.Size = UDim2.fromOffset(2 * CARD_SIZE.X + CARD_GAP, CARD_SIZE.Y)
+	crateCard.button.Size = UDim2.fromScale(1, 0)
+	crateCard.button.AutomaticSize = Enum.AutomaticSize.Y
 	crateCard.button.AutoButtonColor = false
 	crateCard.detail.RichText = true
-	crateCard.detail.Size = UDim2.new(1, 0, 0, 70)
+	crateCard.detail.Size = UDim2.new(1, 0, 0, 24)
+	crateCard.detail.AutomaticSize = Enum.AutomaticSize.Y
 	local key = crateCard.button:FindFirstChild("Key")
 	if key and key:IsA("TextLabel") then
-		key.Text = "" -- the buttons below carry the keys
+		key.Visible = false -- the buttons below carry the keys
 	end
 	crateTimerFill = timerBar(cratePanel, 4, "CrateTimer")
 	local buttons = Widgets.create("Frame", {
 		Name = "Buttons",
 		BackgroundTransparency = 1,
-		Size = UDim2.new(1, 0, 0, 44),
+		Size = UDim2.new(1, 0, 0, 48),
 		LayoutOrder = 5,
 		Parent = cratePanel,
 	})
@@ -349,7 +353,7 @@ local function buildCrate()
 	Widgets.button({
 		Name = "Take",
 		Text = if touch then "Take" else "Take [1]",
-		Size = UDim2.fromOffset(CARD_SIZE.X, 44),
+		Size = UDim2.new(0.5, -CARD_GAP / 2, 0, 48),
 		BackgroundColor3 = Theme.accent,
 		TextColor3 = Theme.accentText,
 		LayoutOrder = 1,
@@ -359,7 +363,7 @@ local function buildCrate()
 	end)
 	sellButton = Widgets.button({
 		Name = "Sell",
-		Size = UDim2.fromOffset(CARD_SIZE.X, 44),
+		Size = UDim2.new(0.5, -CARD_GAP / 2, 0, 48),
 		LayoutOrder = 2,
 		Parent = buttons,
 	}, function()
@@ -396,7 +400,11 @@ local function build()
 		LayoutOrder = 3,
 		Parent = panel,
 	})
-	Widgets.list(CARD_GAP, Enum.FillDirection.Horizontal).Parent = cardRow
+	local grid = Widgets.create("UIGridLayout", {
+		CellPadding = UDim2.fromOffset(CARD_GAP, CARD_GAP),
+		SortOrder = Enum.SortOrder.LayoutOrder,
+		Parent = cardRow,
+	})
 	for index = 1, LevelUp.cardCount do
 		cards[index] = buildCard(index)
 	end
@@ -408,6 +416,19 @@ local function build()
 		Parent = panel,
 	}, reroll)
 	buildCrate()
+	Dialog.wrap(panel, nil, width + 28)
+	Dialog.wrap(cratePanel, nil, 480)
+	local function resize()
+		local available = panel.Size.X.Offset - 28
+		local columns = if available >= 760 then LevelUp.cardCount elseif available >= 300 then 2 else 1
+		local rows = math.ceil(LevelUp.cardCount / columns)
+		grid.CellSize = UDim2.new(1 / columns, -CARD_GAP * (columns - 1) / columns, 0, CARD_SIZE.Y)
+		grid.FillDirectionMaxCells = columns
+		cardRow.Size = UDim2.new(1, 0, 0, rows * CARD_SIZE.Y + (rows - 1) * CARD_GAP)
+		rerollButton.Size = UDim2.new(1, 0, 0, 48)
+	end
+	panel:GetPropertyChangedSignal("Size"):Connect(resize)
+	resize()
 end
 
 local function bindKeys()

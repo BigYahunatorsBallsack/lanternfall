@@ -54,11 +54,13 @@ function AchievementList.render(info: Types.ProfileInfo?)
 			TextXAlignment = Enum.TextXAlignment.Left,
 			TextColor3 = if done then Theme.accent else Theme.text,
 			Size = UDim2.new(1, -8, 0, ROW_HEIGHT),
+			AutomaticSize = Enum.AutomaticSize.Y,
 			LayoutOrder = index,
 			Parent = rows,
 		})
 	end
-	rows.CanvasSize = UDim2.fromOffset(0, #Config.Progress.achievements * (ROW_HEIGHT + 4))
+	rows.CanvasSize = UDim2.new()
+	rows.AutomaticCanvasSize = Enum.AutomaticSize.Y
 end
 
 -- Builds the (hidden) window in the middle of the lobby screen.

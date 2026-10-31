@@ -151,7 +151,13 @@ function LaunchRules.check(context: Context): { Item }
 			then "Every music track has a sound"
 			else `No music yet for: {table.concat(silent, ", ")} (Config.Audio music)`
 	)
-	local sounds = missing(Config.Audio.ownSounds)
+	local sounds = {}
+	for name, id in Config.Audio.ownSounds do
+		if id == "" or id == "0" then
+			table.insert(sounds, name)
+		end
+	end
+	table.sort(sounds)
 	add(
 		"Sounds",
 		"should",

@@ -47,8 +47,6 @@ local XP_COLOR = Color3.fromRGB(96, 170, 255) -- the color of small XP orbs
 local BANNER_SECONDS = 2.6
 local BANNER_FADE_SECONDS = 0.4
 local BANNER_TITLE_SIZE = 56
-local MAX_ITEM_ROWS = 8 -- different items listed; the rest as "+3 more"
-local MAX_ITEM_ROWS_COMPACT = 3 -- on small screens (Paket 14)
 local ARROW_MARGIN = 36 -- pixels between a teammate arrow and the screen edge
 local ARROW_SIZE = 34
 local CHALLENGE_COLOR = Color3.fromRGB(255, 150, 70) -- elite and horde waves ahead
@@ -57,6 +55,9 @@ local MAX_BONUS_LINES = 4 -- active effect bonuses over the HP bar; the rest as 
 local HUDController = {}
 
 local screen: ScreenGui
+local buildPanel: Frame
+local buildButton: TextButton
+local buildOpen = false
 local timerLabel: TextLabel
 local hintLabel: TextLabel
 local teamRows: Frame
@@ -235,6 +236,8 @@ local function renderTeam(state: Types.RunState)
 				Text = `{info.name} · {STATE_TEXT[stateName] or stateName}{hpText}{pickText}`,
 				TextColor3 = if stateName == "Alive" then Theme.text else Theme.danger,
 				TextXAlignment = Enum.TextXAlignment.Right,
+				TextSize = if workspace.CurrentCamera and workspace.CurrentCamera.ViewportSize.X < 1100 then 14 else 18,
+				AutomaticSize = Enum.AutomaticSize.Y,
 				LayoutOrder = order,
 				Parent = teamRows,
 			})
@@ -262,24 +265,15 @@ local function renderItems()
 	end
 	itemsTitle.Visible = #items > 0
 	itemsTitle.Text = `ITEMS ({total})`
-	local maxRows = if Widgets.isCompact() then MAX_ITEM_ROWS_COMPACT else MAX_ITEM_ROWS
 	for index, info in items do
-		if index > maxRows then
-			Widgets.label({
-				Text = `+{#items - maxRows} more`,
-				TextColor3 = Theme.textDim,
-				TextXAlignment = Enum.TextXAlignment.Left,
-				LayoutOrder = index,
-				Parent = itemRows,
-			})
-			break
-		end
 		local item = Config.Items.byId[info.id]
 		local row = Widgets.label({
 			Name = info.id,
 			Text = `{if item then item.displayName else info.id}{if info.count > 1 then ` x{info.count}` else ""}`,
 			TextColor3 = if item then Theme.tiers[item.tier] or Theme.text else Theme.text,
 			TextXAlignment = Enum.TextXAlignment.Left,
+			TextSize = 17,
+			AutomaticSize = Enum.AutomaticSize.Y,
 			LayoutOrder = index,
 			Parent = itemRows,
 		})
@@ -311,6 +305,8 @@ local function renderWeapons()
 			Name = `Weapon{index}`,
 			Text = UpgradeText.weaponName(weapon.id, weapon.tier, weapon.evolution),
 			TextXAlignment = Enum.TextXAlignment.Left,
+			TextSize = 17,
+			AutomaticSize = Enum.AutomaticSize.Y,
 			LayoutOrder = index,
 			Parent = weaponRows,
 		})
@@ -458,6 +454,15 @@ local function render()
 	if not (state and screen.Enabled) then
 		return
 	end
+	local fighting = state.phase == "Running" or state.phase == "Boss"
+	buildButton.Visible = fighting
+	buildPanel.Visible = fighting and buildOpen
+	for _, name in { "Health", "Team", "Timer" } do
+		local object = screen:FindFirstChild(name)
+		if object then
+			object.Visible = fighting
+		end
+	end
 	local hint, color = hintText(state)
 	hintLabel.Text = hint
 	hintLabel.TextColor3 = color
@@ -507,8 +512,8 @@ local function build()
 	timerLabel = Widgets.label({
 		Text = "00:00",
 		Font = Theme.fontBold,
-		TextSize = 44,
-		Size = UDim2.new(1, 0, 0, 48),
+		TextSize = 30,
+		Size = UDim2.new(1, 0, 0, 34),
 		TextColor3 = Theme.accent,
 		LayoutOrder = 1,
 		Parent = top,
@@ -516,6 +521,7 @@ local function build()
 	hintLabel = Widgets.label({ TextSize = 18, LayoutOrder = 2, Parent = top })
 	previewLabel = Widgets.label({
 		Name = "WavePreview",
+		AutomaticSize = Enum.AutomaticSize.Y,
 		TextSize = 16,
 		Font = Theme.fontBold,
 		TextColor3 = CHALLENGE_COLOR,
@@ -562,7 +568,38 @@ local function build()
 		Size = UDim2.fromOffset(240, 0),
 		Parent = screen,
 	})
-	Widgets.list(4).Parent = weapons
+	buildPanel = weapons
+	weapons.Visible = false
+	weapons.ZIndex = 3
+	buildButton = Widgets.button({
+		Name = "BuildToggle",
+		Text = "BUILD  +",
+		TextSize = 16,
+		Position = UDim2.fromOffset(12, 12),
+		Size = UDim2.fromOffset(132, 44),
+		Parent = screen,
+	}, function()
+		buildOpen = not buildOpen
+		buildPanel.Visible = buildOpen
+		buildButton.Text = if buildOpen then "BUILD  −" else "BUILD  +"
+	end)
+	weapons.Position = UDim2.fromOffset(12, 64)
+	weapons.Size = UDim2.fromOffset(300, 360)
+	weapons.AutomaticSize = Enum.AutomaticSize.None
+	local buildScroll = Widgets.create("ScrollingFrame", {
+		Name = "BuildContent",
+		BackgroundTransparency = 1,
+		BorderSizePixel = 0,
+		Size = UDim2.fromScale(1, 1),
+		CanvasSize = UDim2.new(),
+		AutomaticCanvasSize = Enum.AutomaticSize.Y,
+		ScrollingDirection = Enum.ScrollingDirection.Y,
+		ScrollBarThickness = 4,
+		Parent = weapons,
+	})
+	local buildList = Widgets.list(6)
+	buildList.VerticalAlignment = Enum.VerticalAlignment.Top
+	buildList.Parent = buildScroll
 	weaponsTitle = Widgets.label({
 		Name = "WeaponsTitle",
 		Text = "WEAPONS",
@@ -570,7 +607,7 @@ local function build()
 		TextColor3 = Theme.textDim,
 		TextXAlignment = Enum.TextXAlignment.Left,
 		LayoutOrder = 0,
-		Parent = weapons,
+		Parent = buildScroll,
 	})
 	weaponRows = Widgets.create("Frame", {
 		Name = "WeaponRows",
@@ -578,7 +615,7 @@ local function build()
 		AutomaticSize = Enum.AutomaticSize.Y,
 		Size = UDim2.new(1, 0, 0, 0),
 		LayoutOrder = 1,
-		Parent = weapons,
+		Parent = buildScroll,
 	})
 	Widgets.list(4).Parent = weaponRows
 	itemsTitle = Widgets.label({
@@ -589,7 +626,7 @@ local function build()
 		TextXAlignment = Enum.TextXAlignment.Left,
 		Visible = false,
 		LayoutOrder = 2,
-		Parent = weapons,
+		Parent = buildScroll,
 	})
 	itemRows = Widgets.create("Frame", {
 		Name = "ItemRows",
@@ -597,7 +634,7 @@ local function build()
 		AutomaticSize = Enum.AutomaticSize.Y,
 		Size = UDim2.new(1, 0, 0, 0),
 		LayoutOrder = 3,
-		Parent = weapons,
+		Parent = buildScroll,
 	})
 	Widgets.list(4).Parent = itemRows
 
@@ -643,6 +680,37 @@ local function build()
 		Parent = track,
 	})
 
+	local function resizeHud()
+		local area = if workspace.CurrentCamera then workspace.CurrentCamera.ViewportSize else Vector2.new(1280, 720)
+		local narrow = area.X < 700
+		Widgets.unscaled(top)
+		Widgets.unscaled(hp)
+		Widgets.unscaled(weapons)
+		Widgets.unscaled(team)
+		top.Size = UDim2.fromOffset(
+			if narrow then math.max(140, math.min(200, area.X - 180)) else math.min(320, area.X - 480),
+			0
+		)
+		top.AnchorPoint = Vector2.new(if narrow then 0 else 0.5, 0)
+		top.Position = if narrow then UDim2.fromOffset(12, 8) else UDim2.new(0.5, 0, 0, 8)
+		hp.Size = UDim2.fromOffset(math.min(HP_BAR_WIDTH, area.X - 120), 0)
+		team.Size = UDim2.fromOffset(if narrow then 150 elseif area.X < 1100 then 200 else 260, 0)
+		buildButton.Position = UDim2.fromOffset(12, if narrow then 234 else 12)
+		weapons.Position = UDim2.fromOffset(12, if narrow then 284 else 128)
+		weapons.Size = UDim2.fromOffset(
+			math.min(340, area.X - 24),
+			math.max(120, math.min(360, area.Y - (if narrow then 384 else 234)))
+		)
+		placeTeamPanel()
+		local current = RunStateController.get()
+		if current then
+			renderTeam(current)
+		end
+	end
+	resizeHud()
+	if workspace.CurrentCamera then
+		workspace.CurrentCamera:GetPropertyChangedSignal("ViewportSize"):Connect(resizeHud)
+	end
 	arrowLayer = Widgets.create("Frame", {
 		Name = "TeamArrows",
 		BackgroundTransparency = 1,

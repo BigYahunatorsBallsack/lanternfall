@@ -314,6 +314,7 @@ function StoreController.mount(list: Frame): Frame
 			TextSize = 15,
 			TextXAlignment = Enum.TextXAlignment.Left,
 			Size = UDim2.new(1, -8, 0, ROW_HEIGHT),
+			AutomaticSize = Enum.AutomaticSize.Y,
 			LayoutOrder = count,
 			Parent = scroll,
 		}, function()
@@ -330,7 +331,8 @@ function StoreController.mount(list: Frame): Frame
 			addRow(product.key)
 		end
 	end
-	scroll.CanvasSize = UDim2.fromOffset(0, count * (ROW_HEIGHT + 6))
+	scroll.CanvasSize = UDim2.new()
+	scroll.AutomaticCanvasSize = Enum.AutomaticSize.Y
 	tokensLabel = Widgets.label({
 		Name = "Tokens",
 		TextSize = 15,

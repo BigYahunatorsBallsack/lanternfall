@@ -28,8 +28,8 @@ local Tooltip = require(script.Parent.Parent.UI.Tooltip)
 local TooltipText = require(Shared:WaitForChild("Util"):WaitForChild("TooltipText"))
 local Widgets = require(script.Parent.Parent.UI.Widgets)
 
-local PANEL_WIDTH = 230
-local ROW_HEIGHT = 18
+local PANEL_WIDTH = 260
+local ROW_HEIGHT = 24
 local CLASS_TEXT_SIZE = 13
 
 local StatsController = {}
@@ -145,7 +145,7 @@ local function build()
 	local titleRow = Widgets.create("Frame", {
 		Name = "TitleRow",
 		BackgroundTransparency = 1,
-		Size = UDim2.new(1, 0, 0, 26),
+		Size = UDim2.new(1, 0, 0, 44),
 		LayoutOrder = 0,
 		Parent = panel,
 	})
@@ -234,6 +234,39 @@ local function build()
 		Parent = panel,
 	})
 	Widgets.list(1).Parent = classList
+	Widgets.unscaled(panel)
+	local contents = Widgets.create("ScrollingFrame", {
+		Name = "StatsContent",
+		BackgroundTransparency = 1,
+		BorderSizePixel = 0,
+		Size = UDim2.fromScale(1, 1),
+		CanvasSize = UDim2.new(),
+		AutomaticCanvasSize = Enum.AutomaticSize.Y,
+		ScrollingDirection = Enum.ScrollingDirection.Y,
+		ScrollBarThickness = 4,
+		Parent = panel,
+	})
+	for _, child in panel:GetChildren() do
+		if child ~= contents and (child:IsA("GuiObject") or child:IsA("UIListLayout")) then
+			child.Parent = contents
+			if child:IsA("UIListLayout") then
+				child.VerticalAlignment = Enum.VerticalAlignment.Top
+			end
+		end
+	end
+	local function resize()
+		local area = if workspace.CurrentCamera then workspace.CurrentCamera.ViewportSize else Vector2.new(1280, 720)
+		local compact = area.X < 1000 or area.Y < 600
+		panel.AutomaticSize = Enum.AutomaticSize.None
+		panel.AnchorPoint = Vector2.new(if compact then 0.5 else 1, 0)
+		panel.Position = if compact then UDim2.new(0.5, 0, 0, 76) else UDim2.new(1, -12, 0, 76)
+		panel.Size =
+			UDim2.fromOffset(if compact then math.min(520, area.X - 24) else PANEL_WIDTH, math.max(120, area.Y - 158))
+	end
+	resize()
+	if workspace.CurrentCamera then
+		workspace.CurrentCamera:GetPropertyChangedSignal("ViewportSize"):Connect(resize)
+	end
 end
 
 -- Lifecycle -------------------------------------------------------------------------

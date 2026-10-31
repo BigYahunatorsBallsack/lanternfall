@@ -80,7 +80,7 @@ describe("launch check", function()
 		expect(find(items, "Music").ok).toBe(silent == 0)
 		local sounds = 0
 		for _, id in Config.Audio.ownSounds do
-			if id == 0 then
+			if id == "" or id == "0" then
 				sounds += 1
 			end
 		end

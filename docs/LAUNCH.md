@@ -84,7 +84,7 @@ Erledigt = der Debug-Knopf „Launch check" zeigt `[ok]`. Reihenfolge = Vorschla
 1. **Live-Experience festlegen.** Regel aus CLAUDE.md: getestet wird gegen die Test-Experience, nie gegen Live-Daten. Für den Launch also eine eigene Experience „Lanternfall" mit zwei Places (Hub + Run) anlegen; Pässe, Produkte und Badges dort neu anlegen. Alle IDs (Universe-ID, beide Place-IDs, 2 Pass-, 6 Produkt-, 5 Badge-IDs) an Claude/ChatGPT schicken; die tragen sie als neuen Eintrag in `Config/Places`, `Config/Store`, `Config/Badges` ein. Danach in der Test-Experience deren Universe-ID als `gameId` setzen, damit Live nie Test-IDs benutzt (der Launch-Check meldet das als MUST).
 2. **Badge-IDs** (5 Badges, Namen und Texte in `Config/Badges.luau`) anlegen und schicken.
 3. **Musik-IDs** (7 Stücke: Lobby, Welle, Shop, Boss, Ergebnis, Sieg, Niederlage) in der Toolbox aussuchen und schicken.
-4. **15 eigene Sounds** hochladen (`/mnt/project-files/lanternfall-sfx/HOCHLADEN.md`) und die IDs schicken.
+4. ~~15 eigene Sounds~~ erledigt (31.10.2026); in der Live-Experience gehen sie weiter, solange die Audio-Dateien für sie freigegeben sind (Creator Hub → Audio → Berechtigungen).
 5. **Places einstellen:** Hub max. 24 Spieler, Run-Place max. 4; beide mit dem aktuellen Code veröffentlichen (Rojo verbunden → Datei → Veröffentlichen). Avatar: R15 only. Private Server: an (Plan: 100 Robux/Monat).
 6. **Handy-Test** auf einem echten, eher alten Handy: ein ganzer Run, Grafik LOW ansehen, Ziel ≥ 30 FPS.
 7. **Testkäufe** im veröffentlichten Spiel (Studio-Testkäufe kosten nichts, echte schon: lieber in Studio).

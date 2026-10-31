@@ -17,11 +17,12 @@ local Types = require(Shared:WaitForChild("Net"):WaitForChild("Types"))
 
 local Theme = require(script.Parent.Parent.UI.Theme)
 local Widgets = require(script.Parent.Parent.UI.Widgets)
+local Dialog = require(script.Parent.Parent.UI.Dialog)
 
 local BUTTON_SIZE = 44
 local MARGIN = 12
-local PANEL_WIDTH = 380
-local ROW_HEIGHT = 44
+local PANEL_WIDTH = 440
+local ROW_HEIGHT = 52
 local TOGGLE_WIDTH = 96
 local STEP_WIDTH = 44
 
@@ -104,7 +105,7 @@ local function row(order: number, text: string): Frame
 	Widgets.label({
 		Text = text,
 		TextXAlignment = Enum.TextXAlignment.Left,
-		Size = UDim2.fromScale(0.5, 1),
+		Size = UDim2.new(1, -164, 1, 0),
 		Parent = frame,
 	})
 	return frame
@@ -199,7 +200,7 @@ local function build()
 		Size = UDim2.fromOffset(BUTTON_SIZE, BUTTON_SIZE),
 		Parent = screen,
 	})
-	Widgets.scaled(holder)
+	-- Keep the settings target at least 44 px on touch screens.
 	Widgets.button({
 		Name = "Gear",
 		Text = "⚙",
@@ -245,6 +246,9 @@ local function build()
 		LayoutOrder = 7,
 		Parent = menu,
 	}, function()
+		SettingsController.setOpen(false)
+	end)
+	Dialog.wrap(menu, function()
 		SettingsController.setOpen(false)
 	end)
 end
