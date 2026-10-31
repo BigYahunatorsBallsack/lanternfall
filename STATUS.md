@@ -64,7 +64,7 @@ Jeder Strang ändert nur **seine** Zeile (Regeln: `docs/PARALLEL.md`).
 | Strang | KI | Aktuelles Paket | Branch / PR | Stand | Danach |
 | --- | --- | --- | --- | --- | --- |
 | A – Engine und Ablauf | Claude | Paket 23 Sicherheits- und Code-Review (Extra high) | `wp-23-security` | fertig, selbst gemerged | Paket 24 Launch-Paket (Medium), dann weiter nach „Plan bis zum Launch" |
-| B – Inhalte und Spieler-Regeln | ChatGPT | B12 Bauten + Begleiter (High) | `wp-b12-structures` | umgesetzt und automatisiert geprüft; Merge vom Owner autorisiert, Studio-Test offen | nächstes Paket nach Owner-Zuteilung |
+| B – Inhalte und Spieler-Regeln | ChatGPT | UI-Redesign implementiert | `wp-ui-redesign` | PR #46; main bis Paket 23 integriert, 705 Tests grün, Merge vom Owner autorisiert | Studio-Sichttest solo/2 Clients |
 
 ## Feste Entscheidungen des Owners
 
@@ -208,3 +208,25 @@ Jeder Strang ändert nur **seine** Zeile (Regeln: `docs/PARALLEL.md`).
 - Aktuellen main-Stand `15dd3e1` inklusive B11, Wiederbeleben und Speichern aufgenommen. Konflikte ausschließlich additive Einträge in Config/Net, beide Seiten erhalten. Gesamtes Repo erneut geprüft; kein Eingriff in A-Dienste oder Balance-Simulationen. Smoke-Test deaktiviert zufällige Bauten wie zuvor zufällige Drops; B12 hat eigene Integrationstests.
 - Ergebnisstatistik führt weiterhin nur getragene Waffen: eigene Bau-Schadenszeile später bei Strang A/HUD. Studio-Verbindung geprüft, dort B12 noch nicht synchronisiert; echter Solo-/Zwei-Client-/Gerätetest bleibt offen.
 - B12-Abschlussprüfung: 452 Tests in 39 Dateien bestanden (einschließlich acht B12-Integrationsszenarien), StyLua sauber, Selene 0 Fehler / 8 vorhandene UI-Stilwarnungen, Rojo-Build erfolgreich. Owner hat Abschluss, erneute Repo-Prüfung und Merge ausdrücklich beauftragt.
+
+## UI-Redesign – Zwischenstand (31.10.2026)
+
+- Owner beauftragt großes UI-Redesign im Stil von Brotato und ausdrücklich einen frühen Stopp mit Übergabe an nächste Instanz. Basis main `d7152ca`. UI-Auftrag umfasst Lobby/Debug und gemeinsame UI-Module; keine Serveränderungen.
+- Branch `wp-ui-redesign`: neue Palette, Lobby-Tabs mit Scrollbereich und responsiven Auswahlrastern, Profil/Stores aus Party-Liste getrennt, Debug standardmäßig geschlossen und scrollbar; Shop nutzt Platz links der Stats, größere Karten und bis zu zwölf Waffenplätze.
+- 60 Specs: 650 Tests bestanden, 1 bekannter sporadischer B12-Minentest fehlgeschlagen (Zeile 211). Neue UI-Spec 4/4, HubStudio 10/10. StyLua und Build geprüft; Selene 0 Fehler / 11 vorhandene UI-Stilwarnungen. Kein neuer Studio-Sichttest; nur alter UI-Stand im laufenden Studio angesehen.
+- **Nicht fertig, nicht mergen:** HUD, mobiler Shop, Stats-Scroll, Level-up/Ergebnis und Meta-Fenster noch bearbeiten und visuell abnehmen. Vollständige Fortsetzung, Dateilandkarte und Werkzeuge: `docs/UI-REDESIGN-HANDOFF.md`.
+
+
+## UI-Redesign – Fortsetzung abgeschlossen im Code (31.10.2026)
+
+- Owner hebt die frühere Übergabe ausdrücklich auf und beauftragt die Fertigstellung durch dieselbe Instanz. PR #46 auf `wp-ui-redesign`; weiterhin kein Merge-Auftrag für das Redesign.
+- Ergänzt: vollständiges einklappbares Kampf-Inventar, responsive HUD-/Boss-/Revive-Anzeigen, mobiler Shop mit Scrollbereich und festem Footer, scrollbare Effektdetails/Werte, responsive Level-up-/Truhen-/Ergebnisfenster, alle zwölf Waffen im Ergebnis, gemeinsame Dialoghülle für Collection/Settings/Einladungen, wachsende Meta-Zeilen und einklappbare Tutorialhilfe. Server, Zahlen, Remotes und Kaufbestätigungen bleiben unverändert.
+- Prüfergebnis: 60 Specs / 656 Tests bestanden, neue UI-Spec 9/9; FirstNight zusätzlich um Ein-/Ausklappen ergänzt. StyLua, Diff-Check, Rojo-Build erfolgreich. Selene: 0 Fehler, 11 vorhandene UDim2-Stilwarnungen; gecachte Roblox-API, weil der API-Download fehlschlägt. Früherer sporadischer B12-Minentest bleibt historisch dokumentiert; in den aktuellen Läufen grün, keine Änderung am Minencode.
+- Es ist kein Studio verbunden. Echte Darstellung, Touch-/Maus-Scrollverhalten und Solo-/Zwei-Client-Abnahme stehen daher aus. Die alte Übergabedatei beschreibt nun Umsetzung und konkrete Abnahme statt Arbeiten für einen anderen Agenten: `docs/UI-REDESIGN-HANDOFF.md`.
+
+
+## UI-Redesign – Konfliktauflösung und Merge-Freigabe (31.10.2026)
+
+- Owner beauftragt ausdrücklich: Konflikte auflösen und PR #46 mergen. Aktuellen main `c37cc78` einschließlich Audio-Korrektur sowie Performance-Paket 22 und Sicherheits-Paket 23 aufgenommen.
+- Konflikt in der Strang-Tabelle gelöst: aktueller A-Stand aus main und UI-Stand von B erhalten. Automatisch zusammengeführte Settings und Debug-Anzeigen geprüft: Graphics Auto/High/Low samt Speicherung sowie neue Netzwerk-/Speicher-/Frame-Anzeigen bleiben erhalten. Debug-Befehle in begrenztem Scrollbereich, längere Diagnosezeilen dürfen wachsen.
+- Zusammengeführter Stand: **67 Specs, 705 Tests bestanden**, StyLua, Diff-Check und Rojo-Build erfolgreich; Selene 0 Fehler / 11 bestehende Stilwarnungen. Paket 22 enthält bereits den B12-Minen-/Frucht-Testfix. Studio weiterhin nicht verbunden, daher kein neuer Sichttest behauptet.

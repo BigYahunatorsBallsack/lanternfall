@@ -126,6 +126,7 @@ local function render()
 	require(script.Parent.DangerChoice).render() -- B11 lobby extension
 	require(script.Parent.ProfileCard).render() -- Paket 12 lobby extension
 	PartyController.render() -- Paket 15 lobby extension
+	require(script.Parent.Parent.UI.LobbyLayout).refresh()
 end
 
 local function build()
@@ -238,10 +239,13 @@ local function build()
 	list.AnchorPoint = Vector2.new(0, 0) -- keep the player list above the taller B10 choice panel
 	list.Position = UDim2.fromOffset(12, 90)
 	require(script.Parent.DangerChoice).mount(screen) -- B11
-	require(script.Parent.ProfileCard).mount(list) -- Paket 12
+	local record = Widgets.panel({ Name = "Collection", Size = UDim2.fromOffset(640, 0), Parent = screen })
+	Widgets.list(12).Parent = record
+	require(script.Parent.ProfileCard).mount(record) -- Saved record and persistent progression get their own page.
 	PartyController.mountRows(list, playerRows, playersTitle) -- Paket 15
 	PartyController.mountActions(card)
 	PartyController.mountInvite(screen)
+	require(script.Parent.Parent.UI.LobbyLayout).mount(screen, card, list, record, banner)
 end
 
 function LobbyController.start()

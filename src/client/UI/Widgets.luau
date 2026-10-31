@@ -1,5 +1,5 @@
 --!strict
--- Small helpers that build the prototype UI in code. Used by the UI controllers. Buttons click (Audio/Sfx, Paket 21).
+-- Shared controls for the Lanternfall UI. Used by the UI controllers. Buttons click (Audio/Sfx, Paket 21).
 -- Sizes are pixels on a 1280x720 reference screen; panels made with Widgets.panel scale with the viewport.
 
 local Players = game:GetService("Players")
@@ -129,7 +129,7 @@ function Widgets.panel(props: { [string]: any }): Frame
 		uiScale,
 		Widgets.corner(),
 		Widgets.padding(14),
-		Widgets.create("UIStroke", { Color = Theme.stroke, Thickness = 1.5 }),
+		Widgets.create("UIStroke", { Color = Theme.stroke, Thickness = 2 }),
 	})
 end
 
@@ -191,6 +191,19 @@ end
 function Widgets.clearRows(container: Instance)
 	for _, child in container:GetChildren() do
 		if child:IsA("GuiObject") then
+			child:Destroy()
+		end
+	end
+end
+
+-- A responsive container owns its pixel layout; do not scale a nested panel a second time.
+function Widgets.unscaled(frame: GuiObject)
+	for _, child in frame:GetChildren() do
+		if child:IsA("UIScale") then
+			local index = table.find(scales, child)
+			if index then
+				table.remove(scales, index)
+			end
 			child:Destroy()
 		end
 	end

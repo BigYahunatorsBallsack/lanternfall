@@ -24,11 +24,11 @@ local PartyController = require(script.Parent.PartyController)
 local RunStateController = require(script.Parent.RunStateController)
 local Theme = require(script.Parent.Parent.UI.Theme)
 local Widgets = require(script.Parent.Parent.UI.Widgets)
+local Dialog = require(script.Parent.Parent.UI.Dialog)
 
 local BUTTON_COOLDOWN = 0.3 -- seconds; keeps taps below the server rate limit
 local DETAILS_MAX_HEIGHT = 330 -- reference pixels of the team, weapons and rewards part before it scrolls
 local DETAILS_MAX_HEIGHT_COMPACT = 150 -- on small screens
-local MAX_WEAPON_ROWS = 6
 
 local OUTCOME_TEXT: { [string]: { title: string, subtitle: string } } = {
 	Victory = { title = "VICTORY", subtitle = "The lanterns held until dawn" },
@@ -94,13 +94,12 @@ local function renderWeapons()
 	local weapons = if mine and mine.weapons then mine.weapons else {}
 	weaponsTitle.Visible = #weapons > 0
 	for index, weapon in weapons do
-		if index > MAX_WEAPON_ROWS then
-			break
-		end
 		Widgets.label({
 			Name = weapon.id,
 			Text = `{UpgradeText.weaponName(weapon.id, weapon.tier, weapon.evolution)} · {compact(weapon.damage)} damage · {weapon.kills} kills`,
 			TextSize = 17,
+			AutomaticSize = Enum.AutomaticSize.Y,
+			TextXAlignment = Enum.TextXAlignment.Left,
 			TextColor3 = if index == 1 then Theme.text else Theme.textDim,
 			LayoutOrder = index,
 			Parent = weaponRows,
@@ -233,7 +232,13 @@ local function build()
 		Parent = card,
 	})
 	subtitleLabel = Widgets.label({ TextColor3 = Theme.textDim, LayoutOrder = 2, Parent = card })
-	timeLabel = Widgets.label({ Font = Theme.fontBold, TextSize = 26, LayoutOrder = 3, Parent = card })
+	timeLabel = Widgets.label({
+		Font = Theme.fontBold,
+		TextSize = 20,
+		AutomaticSize = Enum.AutomaticSize.Y,
+		LayoutOrder = 3,
+		Parent = card,
+	})
 	statsLabel = Widgets.label({ Name = "Stats", TextColor3 = Theme.text, LayoutOrder = 4, Parent = card })
 
 	details = Widgets.create("ScrollingFrame", {
@@ -248,6 +253,7 @@ local function build()
 		Parent = card,
 	})
 	detailsLayout = Widgets.list(8)
+	detailsLayout.VerticalAlignment = Enum.VerticalAlignment.Top
 	detailsLayout.Parent = details
 	detailsLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
 		fitDetails()
@@ -286,7 +292,7 @@ local function build()
 		Name = "PlayAgain",
 		Text = "PLAY AGAIN",
 		TextSize = 26,
-		Size = UDim2.fromOffset(360, 64),
+		Size = UDim2.new(1, 0, 0, 64),
 		LayoutOrder = 7,
 		Parent = card,
 	}, function()
@@ -302,7 +308,7 @@ local function build()
 		Name = "RetryWave",
 		Text = "RETRY WAVE",
 		TextSize = 22,
-		Size = UDim2.fromOffset(360, 52),
+		Size = UDim2.new(1, 0, 0, 52),
 		Visible = false,
 		LayoutOrder = 6,
 		Parent = card,
@@ -318,7 +324,7 @@ local function build()
 		Name = "BackToHub",
 		Text = "BACK TO HUB",
 		TextSize = 20,
-		Size = UDim2.fromOffset(360, 44),
+		Size = UDim2.new(1, 0, 0, 48),
 		Visible = false,
 		LayoutOrder = 9,
 		Parent = card,
@@ -341,6 +347,7 @@ local function build()
 		LayoutOrder = 0, -- the Embers first, so they show without scrolling
 		Parent = details,
 	})
+	Dialog.wrap(card, nil, 680)
 end
 
 function ResultsController.start()

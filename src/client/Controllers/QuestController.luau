@@ -98,6 +98,7 @@ function QuestController.render()
 			Name = `Quest_{index}`,
 			BackgroundTransparency = 1,
 			Size = UDim2.new(1, 0, 0, ROW_HEIGHT),
+			AutomaticSize = Enum.AutomaticSize.Y,
 			LayoutOrder = index,
 			Parent = container,
 		})
@@ -108,7 +109,8 @@ function QuestController.render()
 			TextSize = 15,
 			TextXAlignment = Enum.TextXAlignment.Left,
 			TextColor3 = if quest.done then Theme.success else Theme.text,
-			Size = UDim2.new(1, if canSwap then -96 else 0, 1, 0),
+			Size = UDim2.new(1, if canSwap then -96 else 0, 0, ROW_HEIGHT),
+			AutomaticSize = Enum.AutomaticSize.Y,
 			Parent = row,
 		})
 		if canSwap then
@@ -118,7 +120,7 @@ function QuestController.render()
 				TextSize = 14,
 				AnchorPoint = Vector2.new(1, 0.5),
 				Position = UDim2.fromScale(1, 0.5),
-				Size = UDim2.fromOffset(88, 36),
+				Size = UDim2.fromOffset(88, 44),
 				Parent = row,
 			}, function()
 				Net.fireServer("SwapQuest", index)
@@ -238,6 +240,7 @@ function QuestController.mount(row: Frame, screen: Instance)
 		TextWrapped = true,
 		TextColor3 = Theme.textDim,
 		Size = UDim2.new(1, 0, 0, 34),
+		AutomaticSize = Enum.AutomaticSize.Y,
 		LayoutOrder = 6,
 		Parent = panel,
 	})

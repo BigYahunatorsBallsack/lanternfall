@@ -290,7 +290,9 @@ function PartyController.mountRows(panel: Frame, rows: Frame, title: TextLabel?)
 		LayoutOrder = 2,
 		Parent = panel,
 	})
-	Widgets.list(2).Parent = list
+	local layout = Widgets.list(2)
+	layout.VerticalAlignment = Enum.VerticalAlignment.Top
+	layout.Parent = list
 	hubList = list
 end
 
@@ -364,7 +366,13 @@ function PartyController.mountInvite(screen: ScreenGui)
 		Parent = screen,
 	})
 	Widgets.list(8).Parent = panel
-	inviteLabel = Widgets.label({ Name = "Text", Font = Theme.fontBold, LayoutOrder = 1, Parent = panel })
+	inviteLabel = Widgets.label({
+		Name = "Text",
+		Font = Theme.fontBold,
+		AutomaticSize = Enum.AutomaticSize.Y,
+		LayoutOrder = 1,
+		Parent = panel,
+	})
 	local buttons = Widgets.create("Frame", {
 		Name = "Buttons",
 		BackgroundTransparency = 1,
@@ -383,7 +391,7 @@ function PartyController.mountInvite(screen: ScreenGui)
 	local join = Widgets.button({
 		Name = "Join",
 		Text = "JOIN",
-		Size = UDim2.fromOffset(150, 44),
+		Size = UDim2.new(0.5, -5, 0, 44),
 		LayoutOrder = 1,
 		Parent = buttons,
 	}, function()
@@ -394,13 +402,17 @@ function PartyController.mountInvite(screen: ScreenGui)
 	Widgets.button({
 		Name = "Decline",
 		Text = "NO",
-		Size = UDim2.fromOffset(150, 44),
+		Size = UDim2.new(0.5, -5, 0, 44),
 		LayoutOrder = 2,
 		Parent = buttons,
 	}, function()
 		answer(false)
 	end)
 	invitePanel = panel
+	local Dialog = require(script.Parent.Parent.UI.Dialog)
+	Dialog.wrap(panel, function()
+		answer(false)
+	end)
 end
 
 -- Rendering -------------------------------------------------------------------------

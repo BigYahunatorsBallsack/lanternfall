@@ -97,7 +97,7 @@ local function sliderRow(parent: Frame, id: string, order: number)
 	local row = Widgets.create("Frame", {
 		Name = `Slider_{id}`,
 		BackgroundTransparency = 1,
-		Size = UDim2.new(1, 0, 0, 34),
+		Size = UDim2.new(1, 0, 0, 44),
 		LayoutOrder = order,
 		Parent = parent,
 	})
@@ -106,7 +106,7 @@ local function sliderRow(parent: Frame, id: string, order: number)
 		Name = "Less",
 		Text = "-",
 		TextSize = 20,
-		Size = UDim2.fromOffset(40, 34),
+		Size = UDim2.fromOffset(44, 44),
 		LayoutOrder = 1,
 		Parent = row,
 	}, function()
@@ -117,7 +117,7 @@ local function sliderRow(parent: Frame, id: string, order: number)
 	sliderLabels[id] = Widgets.label({
 		Name = "Value",
 		TextSize = 16,
-		Size = UDim2.new(1, -92, 1, 0),
+		Size = UDim2.new(1, -100, 1, 0),
 		LayoutOrder = 2,
 		Parent = row,
 	})
@@ -125,7 +125,7 @@ local function sliderRow(parent: Frame, id: string, order: number)
 		Name = "More",
 		Text = "+",
 		TextSize = 20,
-		Size = UDim2.fromOffset(40, 34),
+		Size = UDim2.fromOffset(44, 44),
 		LayoutOrder = 3,
 		Parent = row,
 	}, function()
@@ -156,7 +156,7 @@ function DangerChoice.mount(screen: ScreenGui)
 	local row = Widgets.create("Frame", {
 		Name = "Levels",
 		BackgroundTransparency = 1,
-		Size = UDim2.new(1, 0, 0, 40),
+		Size = UDim2.new(1, 0, 0, 44),
 		LayoutOrder = 2,
 		Parent = panel,
 	})
@@ -188,7 +188,7 @@ function DangerChoice.mount(screen: ScreenGui)
 		Name = "Endless",
 		Text = "ENDLESS: OFF",
 		TextSize = 16,
-		Size = UDim2.new(1, 0, 0, 36),
+		Size = UDim2.new(1, 0, 0, 44),
 		LayoutOrder = 4,
 		Parent = panel,
 	}, function()

@@ -19,6 +19,7 @@ local LevelUpController = require(script.Parent.LevelUpController)
 local RunStateController = require(script.Parent.RunStateController)
 local Theme = require(script.Parent.Parent.UI.Theme)
 local Widgets = require(script.Parent.Parent.UI.Widgets)
+local Dialog = require(script.Parent.Parent.UI.Dialog)
 
 local FirstNight = Config.FirstNight
 local Hints = FirstNight.hints
@@ -31,6 +32,8 @@ local screen: ScreenGui
 local hintPanel: Frame
 local hintLabel: TextLabel
 local lobbyPanel: Frame
+local helpButton: TextButton
+local expanded = true
 
 -- Per run (cleared outside a First Night): where the character started, which hints are done, the timed hint and
 -- until when it shows.
@@ -133,21 +136,35 @@ local function update()
 	local id = if state then current(state) else nil
 	if id ~= shown then
 		shown = id
+		expanded = true
 		if id then
 			hintLabel.Text = hintText(id)
 		end
 	end
-	hintPanel.Visible = state ~= nil -- Skip stays while the run goes, the text only with a hint
+	hintPanel.Visible = state ~= nil and expanded
+	helpButton.Visible = state ~= nil
 	hintLabel.Visible = id ~= nil
-	screen.Enabled = hintPanel.Visible or lobbyPanel.Visible
+	screen.Enabled = state ~= nil or lobbyPanel.Visible
 end
 
 local function build()
 	screen = Widgets.screen("FirstNight", 7)
+	helpButton = Widgets.button({
+		Name = "Help",
+		Text = "HELP",
+		TextSize = 15,
+		AnchorPoint = Vector2.new(1, 0),
+		Position = UDim2.new(1, -72, 0, 8),
+		Size = UDim2.fromOffset(96, 44),
+		Parent = screen,
+	}, function()
+		expanded = not expanded
+		update()
+	end)
 	hintPanel = Widgets.panel({
 		Name = "Hint",
 		AnchorPoint = Vector2.new(0.5, 0),
-		Position = UDim2.new(0.5, 0, 0, 96),
+		Position = UDim2.new(0.5, 0, 0, 60),
 		Size = UDim2.fromOffset(560, 0),
 		Visible = false,
 		Parent = screen,
@@ -155,6 +172,7 @@ local function build()
 	Widgets.list(8).Parent = hintPanel
 	hintLabel = Widgets.label({
 		Name = "Text",
+		TextSize = 16,
 		Font = Theme.fontBold,
 		TextColor3 = Theme.accent,
 		AutomaticSize = Enum.AutomaticSize.Y,
@@ -165,13 +183,33 @@ local function build()
 		Name = "Skip",
 		Text = Hints.skip,
 		TextSize = 16,
-		Size = UDim2.fromOffset(110, 32),
+		Size = UDim2.new(1, 0, 0, 44),
 		LayoutOrder = 2,
 		Parent = hintPanel,
 	}, function()
 		Net.fireServer("SkipFirstNight")
 	end)
 
+	Widgets.button({
+		Name = "HideHint",
+		Text = "GOT IT",
+		TextSize = 16,
+		Size = UDim2.new(1, 0, 0, 44),
+		LayoutOrder = 3,
+		Parent = hintPanel,
+	}, function()
+		expanded = false
+		update()
+	end)
+	Widgets.unscaled(hintPanel)
+	local function resize()
+		local area = if workspace.CurrentCamera then workspace.CurrentCamera.ViewportSize else Vector2.new(1280, 720)
+		hintPanel.Size = UDim2.fromOffset(math.min(560, area.X - 24), 0)
+	end
+	resize()
+	if workspace.CurrentCamera then
+		workspace.CurrentCamera:GetPropertyChangedSignal("ViewportSize"):Connect(resize)
+	end
 	lobbyPanel = Widgets.panel({
 		Name = "Lobby",
 		AnchorPoint = Vector2.new(0.5, 0.5),
@@ -208,6 +246,7 @@ local function build()
 		lobbyPanel.Visible = false
 		update()
 	end)
+	Dialog.wrap(lobbyPanel)
 end
 
 function FirstNightController.init()

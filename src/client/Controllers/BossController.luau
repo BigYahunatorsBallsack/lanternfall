@@ -119,6 +119,19 @@ local function buildBar()
 		LayoutOrder = 3,
 		Parent = panel,
 	})
+
+	Widgets.unscaled(panel)
+	local function resize()
+		local area = if workspace.CurrentCamera then workspace.CurrentCamera.ViewportSize else Vector2.new(1280, 720)
+		local narrow = area.X < 700
+		panel.AnchorPoint = Vector2.new(if narrow then 0 else 0.5, 0)
+		panel.Position = if narrow then UDim2.fromOffset(12, 296) else UDim2.new(0.5, 0, 0, BAR_Y)
+		panel.Size = UDim2.fromOffset(if narrow then area.X - 24 else math.min(BAR_WIDTH, area.X - 440), 0)
+	end
+	resize()
+	if workspace.CurrentCamera then
+		workspace.CurrentCamera:GetPropertyChangedSignal("ViewportSize"):Connect(resize)
+	end
 	screen = gui
 end
 
