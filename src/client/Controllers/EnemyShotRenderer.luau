@@ -11,7 +11,7 @@ local RunService = game:GetService("RunService")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared:WaitForChild("Config"))
 local Net = require(Shared:WaitForChild("Net"))
-local Types = require(Shared:WaitForChild("Net"):WaitForChild("Types"))
+local ShotFeed = require(Shared:WaitForChild("Net"):WaitForChild("ShotFeed"))
 
 local Bursts = require(script.Parent.Parent.Vfx.Bursts)
 local RunStateController = require(script.Parent.RunStateController)
@@ -90,10 +90,11 @@ local function clear()
 	end
 end
 
-local function onEvents(events: Types.EnemyShotEvents)
-	if not enabled then
+local function onEvents(packet: any)
+	if not enabled or typeof(packet) ~= "buffer" then
 		return
 	end
+	local events = ShotFeed.decode(packet)
 	if events.reset then
 		clear()
 	end

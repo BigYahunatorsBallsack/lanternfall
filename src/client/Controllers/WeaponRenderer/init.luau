@@ -12,6 +12,7 @@ local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared:WaitForChild("Config"))
 local Net = require(Shared:WaitForChild("Net"))
 local Types = require(Shared:WaitForChild("Net"):WaitForChild("Types"))
+local WeaponFx = require(Shared:WaitForChild("Net"):WaitForChild("WeaponFx"))
 
 local LoadoutController = require(script.Parent.LoadoutController)
 local RunStateController = require(script.Parent.RunStateController)
@@ -159,10 +160,11 @@ end
 -- Lifecycle -------------------------------------------------------------------------
 
 function WeaponRenderer.init()
-	Net.onClient("WeaponEffects", function(effects: { Types.WeaponEffect })
-		if not enabled or typeof(effects) ~= "table" then
+	Net.onClient("WeaponEffects", function(packet: any)
+		if not enabled then
 			return
 		end
+		local effects: { Types.WeaponEffect } = WeaponFx.decodeShared(packet) :: any
 		for _, effect in effects do
 			local visual = visuals[effect.weapon]
 			if visual and visual.effect then

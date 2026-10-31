@@ -14,6 +14,7 @@ local Config = require(Shared:WaitForChild("Config"))
 local HitNumbers = require(Shared:WaitForChild("Net"):WaitForChild("HitNumbers"))
 local Net = require(Shared:WaitForChild("Net"))
 local Types = require(Shared:WaitForChild("Net"):WaitForChild("Types"))
+local WeaponFx = require(Shared:WaitForChild("Net"):WaitForChild("WeaponFx"))
 
 local Sfx = require(script.Parent.Parent.Audio.Sfx)
 local PlayerStateController = require(script.Parent.PlayerStateController)
@@ -45,10 +46,11 @@ local function floorPoint(x: number?, z: number?): Vector3?
 	return Vector3.new(x, Config.Map.arena.center.Y, z)
 end
 
-local function onWeaponEffects(effects: { Types.WeaponEffect })
+local function onWeaponEffects(packet: any)
 	if not inRun() then
 		return
 	end
+	local effects: { Types.WeaponEffect } = WeaponFx.decodeShared(packet) :: any
 	local me = localId()
 	for _, effect in effects do
 		local cueId = Config.Audio.weaponKinds[effect.kind]
