@@ -1,5 +1,5 @@
 --!strict
--- Default player data, schema v5 (DESIGN.md section 16). Used by PlayerDataService (ProfileStore template) and
+-- Default player data, schema v6 (DESIGN.md section 16). Used by PlayerDataService (ProfileStore template) and
 -- Migrations. Schema change = SCHEMA_VERSION + 1 and a step in Migrations; never drop a field without a step.
 
 -- One character's record (Paket 12; since Paket 13 it opens the danger levels per character, Util/ProgressRules).
@@ -33,21 +33,25 @@ export type Data = {
 	},
 	achievements: { [string]: boolean }, -- v3: Config.Progress achievement ids that are done
 	characterStats: { [string]: CharacterStats }, -- v2, by Config.Classes id
-	quests: { day: string, list: { any } },
-	streak: { lastLogin: number, count: number },
+	-- v6 (Paket 18): the UTC day of the list (Util/QuestRules.day as text, "" = none yet), the day's quests
+	-- (QuestRules.Quest) and the swaps used that day
+	quests: { day: string, list: { any }, swaps: number },
+	streak: { lastLogin: number, count: number }, -- v6: lastLogin = UTC day of the last paid login, count = its day 1-7
 	pass: { season: number, xp: number, premium: boolean, claimed: { [string]: boolean } },
 	receipts: { string }, -- PurchaseIds already granted, oldest first (v5: a list, was an unused map before)
 	settings: { shake: boolean, damageNumbers: boolean, music: number, effects: number }, -- v4 (Config.Settings)
 	tokens: { revives: number, rerolls: number }, -- v5: bought revives and shop rerolls not used yet
 	passCache: { [string]: boolean }, -- v5: game passes owned when last checked (used when the check fails)
 	boost: { untilTime: number, by: string }, -- v5: Ember Boost until this os.time(), started by this player name
+	badges: { [string]: boolean }, -- v6: Config.Badges keys awarded (or found owned)
+	weekly: { week: number, best: { [string]: number } }, -- v6: this week's best leaderboard scores (LeaderboardRules)
 }
 
 local Config = require(game:GetService("ReplicatedStorage").Shared.Config)
 
 local ProfileTemplate = {}
 
-ProfileTemplate.SCHEMA_VERSION = 5
+ProfileTemplate.SCHEMA_VERSION = 6
 
 -- Default settings (Config.Settings.defaults) as a new table (v4).
 function ProfileTemplate.newSettings(): { shake: boolean, damageNumbers: boolean, music: number, effects: number }
@@ -85,7 +89,7 @@ function ProfileTemplate.new(): Data
 		},
 		achievements = {},
 		characterStats = {},
-		quests = { day = "", list = {} },
+		quests = { day = "", list = {}, swaps = 0 },
 		streak = { lastLogin = 0, count = 0 },
 		pass = { season = 1, xp = 0, premium = false, claimed = {} },
 		receipts = {},
@@ -93,6 +97,8 @@ function ProfileTemplate.new(): Data
 		tokens = { revives = 0, rerolls = 0 },
 		passCache = {},
 		boost = { untilTime = 0, by = "" },
+		badges = {},
+		weekly = { week = 0, best = {} },
 	}
 end
 

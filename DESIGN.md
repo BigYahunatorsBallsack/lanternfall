@@ -873,6 +873,13 @@ Party spielt auf der Stufe des Party-Leiters; Mitspieler dürfen mit, auch ohne 
 
 Bewusst nicht: harte Countdown-Angebote oder Serien, die bei einem verpassten Tag alles löschen.
 
+**Umgesetzt (Paket 18, 31.10.2026):** Zahlen in `Config/Quests.luau`, `Config/Leaderboards.luau`, `Config/Badges.luau`; Regeln in `Util/QuestRules` und `Util/LeaderboardRules`.
+
+- **Tägliche Quests:** 3 pro UTC-Tag aus 8 Arten (Gegner töten 800/1.500, 10 Min mit einem eigenen Charakter überleben, 2 Teammates wiederbeleben, 3 Champions, Welle 12/16 erreichen, 3 Runs beenden, einen Run gewinnen, 2 Runs zu zweit oder mehr), 50–100 Embers. Pro Spieler und Tag ausgewürfelt (überall gleich), nur fertige Runs zählen (Kills = Team-Kills), Embers sofort bei Erledigung (Zeile „Quest: …" auf dem Ergebnis-Bildschirm, Einblendung). 1 Tausch pro Tag (nur offene Quests). Neue Quests um 00:00 UTC, auch während man im Server ist.
+- **Login-Serie:** erster Besuch eines UTC-Tages zahlt automatisch: Tag 1–6 = 25/50/75/100/125/150 Embers, Tag 7 = Laterne „Seventh Vigil" (nur so zu bekommen; wer sie hat, bekommt 300 Embers), danach wieder Tag 1. Ein verpasster Tag (egal wie viele) setzt 2 Tage zurück: nach Tag 5 kommt Tag 4 statt 6 (Annahme zur Regel oben).
+- **Ranglisten (wöchentlich, Montag 00:00 UTC):** pro Gefahrenstufe „BEST WAVE" (weiteste Welle, bei Gleichstand mehr Kills) und „MOST KILLS" (in einem Run), je für alle (Top 50) und Freunde (bis 30 Freunde). „Längste Zeit" aus dem alten Plan entfällt: Runs haben seit B1 feste Wellenlängen, die Welle sagt mehr. Der Server schreibt nach jedem fertigen Run, nur wenn der Wert die eigene Wochenbestzeit schlägt (OrderedDataStore pro Tafel, Stufe und Woche). Lobby-Fenster LEADERBOARDS; die Ranglisten-Tafel als Objekt im Hub kommt mit Paket 21.
+- **Badges:** 5 Stück: „Lantern Lit" (erster Besuch), „First Night" (ersten Run beenden), „Kingslayer" (Boss besiegen), „Ten Thousand Shades" (10.000 Kills), „Lantern Saint" (Gefahrenstufe 5 gewinnen). „Alle Evolutionen" entfällt (Evolutionen werden seit dem Brotato-Plan nicht mehr gezählt). Vergeben wird nur, wenn die Badge-ID in `Config/Badges.luau` steht; in Studio nur als Output-Zeile.
+
 ## 12. Monetarisierung
 
 | Produkt | Typ | Preis (Robux) | Inhalt | Phase |
@@ -1105,11 +1112,11 @@ tests/               Unit-Tests für reine Module (Runner in tools/luau-test-run
 
 ## 16. Datenspeicherung & Sicherheit
 
-**Datenschema v5** (seit Paket 12; v1 → v2 ergänzt Siege, beste Welle, höchste gewonnene Gefahrenstufe und den Rekord pro Charakter; v2 → v3 (Paket 13) Champion-Kills, Wiederbelebungen, verdiente Embers gesamt und die erledigten Erfolge; v3 → v4 (Paket 14) Einstellungen; v4 → v5 (Paket 16) Käufe)
+**Datenschema v6** (seit Paket 12; v1 → v2 ergänzt Siege, beste Welle, höchste gewonnene Gefahrenstufe und den Rekord pro Charakter; v2 → v3 (Paket 13) Champion-Kills, Wiederbelebungen, verdiente Embers gesamt und die erledigten Erfolge; v3 → v4 (Paket 14) Einstellungen; v4 → v5 (Paket 16) Käufe; v5 → v6 (Paket 18) Quests, Login-Serie, Badges, Wochenbestwerte)
 
 ```lua
 {
-  schemaVersion = 5, -- v4 (Paket 14): settings = { shake, damageNumbers, music, effects }; v5 (Paket 16) siehe unten
+  schemaVersion = 6, -- v4 (Paket 14): settings = { shake, damageNumbers, music, effects }; v5 (Paket 16) siehe unten
   embers = 0,
   talents = { toughness = 0, power = 0, reach = 0, greed = 0, rescuer = 0, rerolls = 0 }, -- ungenutzt seit dem Brotato-Plan, bleibt bis zu einer Migration
   classes = { "BladeWarden", "SparkMage" },
@@ -1120,13 +1127,15 @@ tests/               Unit-Tests für reine Module (Runner in tools/luau-test-run
             embersBought = 0, purchases = 0 }, -- seit v5: gekaufte Embers (nicht in embersEarned), gebuchte Produkte
   achievements = {}, -- seit v3: [Erfolg-Id] = true
   characterStats = {}, -- [Charakter-Id] = { runs, wins, bestWave, bestDanger }; Grundlage für Paket 13
-  quests = { day = "", list = {} },
-  streak = { lastLogin = 0, count = 0 },
+  quests = { day = "", list = {}, swaps = 0 }, -- v6: UTC-Tag (Zahl als Text), Quests { id, goal, embers, classId?, progress, done }, Tausche
+  streak = { lastLogin = 0, count = 0 }, -- v6: UTC-Tag des letzten bezahlten Logins, sein Serientag 1-7
   pass = { season = 1, xp = 0, premium = false, claimed = {} },
   receipts = {}, -- bereits verarbeitete PurchaseIds; seit v5 eine Liste (älteste zuerst, höchstens 100)
   tokens = { revives = 0, rerolls = 0 }, -- v5: gekaufte, noch nicht benutzte Revives und Shop-Neuwürfe
   passCache = {}, -- v5: [Pass] = true/false beim letzten Check (gilt, wenn Roblox nicht antwortet)
   boost = { untilTime = 0, by = "" }, -- v5: Ember Boost bis os.time(), gestartet von (Name)
+  badges = {}, -- v6: [Badge-Schlüssel] = true, vergeben (Config/Badges)
+  weekly = { week = 0, best = {} }, -- v6: Ranglisten-Woche und eigene Bestwerte ["Wave_D3"] = Wert
 }
 ```
 

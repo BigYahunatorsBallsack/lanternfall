@@ -13,7 +13,6 @@ local Net = require(Shared:WaitForChild("Net"))
 local ProgressRules = require(Shared:WaitForChild("Util"):WaitForChild("ProgressRules"))
 local Types = require(Shared:WaitForChild("Net"):WaitForChild("Types"))
 
-local AchievementList = require(script.Parent.AchievementList)
 local Theme = require(script.Parent.Parent.UI.Theme)
 local Widgets = require(script.Parent.Parent.UI.Widgets)
 
@@ -161,6 +160,8 @@ local function cosmeticRows(slot: string): { Row }
 					Net.fireServer("EquipCosmetic", slot, id)
 				end,
 			}
+		elseif entry.reward then -- Paket 18: login streak reward
+			row = { id = id, text = `{entry.name} · {Config.Progress.shopTexts.rewardOnly}`, color = Theme.textDim }
 		elseif entry.vip then
 			row = {
 				id = id,
@@ -267,15 +268,16 @@ function EmberShopController.isOpen(): boolean
 	return window ~= nil and window.Visible
 end
 
--- One lobby window at a time: opening this closes the store and the achievements.
+-- One lobby window at a time: opening this closes the others (ProfileCard.closeWindows).
 function EmberShopController.setOpen(open: boolean)
 	if not window then
 		return
 	end
+	if open then
+		require(script.Parent.ProfileCard).closeWindows() -- one lobby window at a time (Paket 18)
+	end
 	window.Visible = open
 	if open then
-		AchievementList.setOpen(false)
-		require(script.Parent.StoreController).setOpen(false)
 		EmberShopController.render()
 	end
 end

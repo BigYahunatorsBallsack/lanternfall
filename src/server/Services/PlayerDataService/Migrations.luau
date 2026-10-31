@@ -65,6 +65,18 @@ local steps: { [number]: (data: any) -> () } = {
 			data.boost = { untilTime = 0, by = "" }
 		end
 	end,
+	-- v5 -> v6 (Paket 18): daily quests with swaps, the login streak by UTC day, badges and weekly leaderboard bests.
+	-- quests and streak were never used before, so they start fresh.
+	[5] = function(data)
+		data.quests = { day = "", list = {}, swaps = 0 }
+		data.streak = { lastLogin = 0, count = 0 }
+		if type(data.badges) ~= "table" then
+			data.badges = {}
+		end
+		if type(data.weekly) ~= "table" then
+			data.weekly = { week = 0, best = {} }
+		end
+	end,
 }
 
 Migrations.steps = steps

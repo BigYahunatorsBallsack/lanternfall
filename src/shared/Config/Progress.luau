@@ -233,6 +233,7 @@ return table.freeze({
 		alreadyOwned = "You already own this",
 		notForSale = "This can not be bought with Embers",
 		vipOnly = "Comes with the VIP pass",
+		rewardOnly = "Earned on day 7 of the login streak", -- Paket 18
 		notLoaded = "Your saved data is not loaded yet",
 	}),
 })

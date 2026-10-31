@@ -5,6 +5,7 @@
 local Config = require(script.Parent.Parent.Config)
 local DebugCommands = require(script.Parent.DebugCommands)
 local EmberShopRules = require(script.Parent.Parent.Util.EmberShopRules)
+local LeaderboardRules = require(script.Parent.Parent.Util.LeaderboardRules)
 local PurchaseRules = require(script.Parent.Parent.Util.PurchaseRules)
 local Validate = require(script.Parent.Validate)
 
@@ -217,4 +218,22 @@ Remotes.EquipCosmetic = {
 	rateLimit = { count = 4, perSeconds = 2 },
 	args = { Validate.oneOf(Config.Cosmetics.slots), Validate.oneOf(equipIds) },
 }
+-- Paket 18: daily quests and the login streak (QuestService); swapping checks the swaps left and that it is not done
+Remotes.QuestState = { direction = "toClient" } -- Net/Types.QuestState, to its player on change
+Remotes.SwapQuest = {
+	direction = "toServer",
+	rateLimit = { count = 2, perSeconds = 2 },
+	args = { Validate.integer(1, Config.Quests.daily) }, -- index of the quest in the list
+}
+-- Paket 18: weekly leaderboards (LeaderboardService answers with Leaderboard; reads are cached per server)
+Remotes.RequestLeaderboard = {
+	direction = "toServer",
+	rateLimit = { count = 6, perSeconds = 3 },
+	args = {
+		Validate.oneOf(LeaderboardRules.boardKeys()),
+		Validate.integer(0, #Config.Difficulty.levels - 1), -- danger level
+		Validate.oneOf(Config.Leaderboards.scopes),
+	},
+}
+Remotes.Leaderboard = { direction = "toClient" } -- Net/Types.LeaderboardPage, to the player who asked
 return table.freeze(Remotes)

@@ -60,6 +60,7 @@ local BUTTON_TEXT: { [string]: string } = {
 	FakePurchase = "Fake purchase: next product",
 	ToggleFakePasses = "Fake passes on/off",
 	AddEmbers = `+{Config.Admin.addEmbers} Embers`,
+	NextDay = "Next day (quests)",
 }
 
 local BUTTON_SIZE = Vector2.new(150, 30)

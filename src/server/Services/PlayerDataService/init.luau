@@ -7,7 +7,8 @@
 -- (ShopService, UpgradeService) and the danger levels open per character (RunDirector). Since Paket 14 it keeps the
 -- settings from the settings menu (remote SaveSettings). Since Paket 16 it grants developer products exactly once
 -- (processPurchase, for MonetizationService's ProcessReceipt). Since Paket 17 EmberShopService changes the data and
--- calls refresh.
+-- calls refresh. Since Paket 18 QuestService, LeaderboardService and BadgeService add to each recorded run
+-- (onRunRecorded).
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -135,6 +136,7 @@ local function load(player: Player)
 end
 
 local releaseHooks: { (Player) -> () } = {}
+local recordHooks: { (Player, ProfileTemplate.Data, ProfileRecords.RunRecord, Types.RunRewards) -> () } = {}
 
 local function release(player: Player)
 	loading[player] = nil
@@ -250,6 +252,13 @@ function PlayerDataService.recordRun(player: Player, run: ProfileRecords.RunReco
 		return false, nil
 	end
 	local rewards = ProfileRecords.applyRun(profile.Data, run)
+	for _, hook in recordHooks do -- Paket 18: quests, leaderboards, badges
+		local ok, err = pcall(hook, player, profile.Data, run, rewards)
+		if not ok then
+			task.spawn(error, `[Lanternfall] PlayerDataService run hook failed: {err}`, 0)
+		end
+	end
+	rewards.totalEmbers = profile.Data.embers
 	if Config.Save.saveAfterRun then
 		profile:Save()
 	end
@@ -318,6 +327,17 @@ end
 -- records a run it held back for "Retry wave").
 function PlayerDataService.onRelease(hook: (Player) -> ())
 	table.insert(releaseHooks, hook)
+end
+
+-- Paket 18: `hook(player, data, run, rewards)` runs for every recorded run, after the run's Embers and achievements
+-- and before the save; it may change the data and add Embers and lines to `rewards` (must not yield).
+function PlayerDataService.onRunRecorded(hook: (
+	Player,
+	ProfileTemplate.Data,
+	ProfileRecords.RunRecord,
+	Types.RunRewards
+) -> ())
+	table.insert(recordHooks, hook)
 end
 
 -- Debug button (Paket 13): every achievement done, without paying its Embers.

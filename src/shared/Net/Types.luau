@@ -454,4 +454,44 @@ export type StoreState = {
 	boost: { secondsLeft: number, by: string, sentAt: number }?, -- the player's Ember Boost, if one runs
 }
 
+-- Paket 18: one daily quest as the lobby shows it (QuestService -> QuestController).
+export type QuestInfo = {
+	id: string, -- Config.Quests.pool id
+	text: string, -- what to do (Util/QuestRules.text)
+	goal: number,
+	progress: number,
+	embers: number,
+	done: boolean,
+}
+
+-- Paket 18: the player's daily quests and login streak (remote QuestState, to its player on change).
+export type QuestState = {
+	quests: { QuestInfo },
+	swapsLeft: number,
+	streakDay: number, -- day 1-7 of the login streak paid last (0 = none yet)
+	resetsIn: number, -- seconds until the next quests (next UTC day) when sent
+	sentAt: number, -- workspace:GetServerTimeNow() when sent
+}
+
+-- Paket 18: one line of a leaderboard.
+export type LeaderboardEntry = {
+	rank: number,
+	userId: number,
+	name: string,
+	score: number, -- Util/LeaderboardRules.read/text
+}
+
+-- Paket 18: a leaderboard page (remote Leaderboard, to the player who asked).
+export type LeaderboardPage = {
+	board: string, -- Config.Leaderboards board key
+	danger: number,
+	scope: string, -- "Global" or "Friends"
+	entries: { LeaderboardEntry },
+	mine: number, -- the player's best score this week on this board (0 = none)
+	saved: boolean, -- false: Studio without API access or no DataStore, scores only live in this server
+	failed: boolean, -- Roblox did not answer; the entries may be old or empty
+	resetsIn: number, -- seconds until the weekly reset when sent
+	sentAt: number,
+}
+
 return {}

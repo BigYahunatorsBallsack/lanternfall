@@ -9,6 +9,18 @@ function Format.time(seconds: number): string
 	return string.format("%02d:%02d", total // 60, total % 60)
 end
 
+-- Paket 18: a long wait in its two largest units: 90061 -> "1d 1h", 18720 -> "5h 12m", 59 -> "0m".
+function Format.duration(seconds: number): string
+	local total = math.max(0, math.floor(seconds))
+	local days, hours, minutes = total // 86400, total % 86400 // 3600, total % 3600 // 60
+	if days > 0 then
+		return `{days}d {hours}h`
+	elseif hours > 0 then
+		return `{hours}h {minutes}m`
+	end
+	return `{minutes}m`
+end
+
 local ROMAN = { "I", "II", "III", "IV", "V", "VI" }
 
 -- Weapon tier as a Roman numeral: 3 -> "III" (Brotato's tiers I-IV, since B3).

@@ -30,4 +30,7 @@ return {
 	Places = require(script.Places), -- Paket 15
 	Store = require(script.Store), -- Paket 16
 	Cosmetics = require(script.Cosmetics), -- Paket 17
+	Quests = require(script.Quests), -- Paket 18
+	Leaderboards = require(script.Leaderboards), -- Paket 18
+	Badges = require(script.Badges), -- Paket 18
 }

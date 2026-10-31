@@ -16,7 +16,6 @@ local Net = require(Shared:WaitForChild("Net"))
 local PurchaseRules = require(Shared:WaitForChild("Util"):WaitForChild("PurchaseRules"))
 local Types = require(Shared:WaitForChild("Net"):WaitForChild("Types"))
 
-local AchievementList = require(script.Parent.AchievementList)
 local RunStateController = require(script.Parent.RunStateController)
 local Theme = require(script.Parent.Parent.UI.Theme)
 local Widgets = require(script.Parent.Parent.UI.Widgets)
@@ -239,11 +238,10 @@ end
 
 function StoreController.setOpen(open: boolean)
 	if window then
-		window.Visible = open
 		if open then
-			AchievementList.setOpen(false)
-			require(script.Parent.EmberShopController).setOpen(false) -- Paket 17 (required here: it requires us)
+			require(script.Parent.ProfileCard).closeWindows() -- one lobby window at a time (Paket 18)
 		end
+		window.Visible = open
 	end
 end
 
