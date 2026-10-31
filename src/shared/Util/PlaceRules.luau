@@ -97,6 +97,7 @@ function PlaceRules.readOptions(value: any): Types.RunOptions
 			end
 		end
 		options.endless = value.endless == true
+		options.firstNight = value.firstNight == true or nil -- Paket 19 (only easier and never counts as a win)
 	end
 	return DangerRules.clean(options)
 end
@@ -109,6 +110,7 @@ local function writeOptions(options: Types.RunOptions): { [string]: any }
 		enemyDamage = options.enemyDamage,
 		enemySpeed = options.enemySpeed,
 		enemyCount = options.enemyCount,
+		firstNight = options.firstNight,
 	}
 end
 

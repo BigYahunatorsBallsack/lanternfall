@@ -2,6 +2,7 @@
 -- (also tampered ones) and how quick join forms a group.
 
 local Shared = game:GetService("ReplicatedStorage").Shared
+local Config = require(Shared.Config)
 local DangerRules = require(Shared.Util.DangerRules)
 local PlaceRules = require(Shared.Util.PlaceRules)
 
@@ -63,6 +64,16 @@ describe("run ticket", function()
 		expect(parsed.picks[8].classId).toBe("BladeWarden")
 		expect(parsed.picks[8].weaponId).toBe(nil)
 		expect(parsed.hubJobId).toBe("job-abc")
+		expect(parsed.options.firstNight).toBe(nil)
+	end)
+
+	it("carries the First Night (Paket 19)", function()
+		local value = ticket()
+		value.options = DangerRules.firstNightOptions()
+		local parsed = PlaceRules.parseRunTicket(PlaceRules.runTicket(value), 8, 4, isClass, isWeapon)
+		expect(parsed.options.firstNight).toBe(true)
+		expect(parsed.options.endless).toBe(false)
+		expect(parsed.options.enemyDamage).toBe(Config.FirstNight.options.enemyDamage)
 	end)
 
 	it("refuses tickets for someone else, of another kind or version, and broken groups", function()

@@ -77,6 +77,12 @@ local steps: { [number]: (data: any) -> () } = {
 			data.weekly = { week = 0, best = {} }
 		end
 	end,
+	-- v6 -> v7 (Paket 19): the First Night is done for everyone who already finished a run.
+	[6] = function(data)
+		local stats = if type(data.stats) == "table" then data.stats else {}
+		local runs = if type(stats.runs) == "number" then stats.runs else 0
+		data.tutorial = { firstNight = runs > 0, lobbyHint = false }
+	end,
 }
 
 Migrations.steps = steps

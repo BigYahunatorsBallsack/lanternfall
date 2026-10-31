@@ -43,6 +43,7 @@ export type RunOptions = {
 	enemyDamage: number,
 	enemySpeed: number,
 	enemyCount: number?, -- percent of the enemies the spawn groups bring (default 100)
+	firstNight: boolean?, -- Paket 19: the short First Night run of a new player (Config.FirstNight)
 }
 
 export type RunState = {

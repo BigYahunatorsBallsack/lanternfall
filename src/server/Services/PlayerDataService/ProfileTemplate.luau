@@ -1,5 +1,5 @@
 --!strict
--- Default player data, schema v6 (DESIGN.md section 16). Used by PlayerDataService (ProfileStore template) and
+-- Default player data, schema v7 (DESIGN.md section 16). Used by PlayerDataService (ProfileStore template) and
 -- Migrations. Schema change = SCHEMA_VERSION + 1 and a step in Migrations; never drop a field without a step.
 
 -- One character's record (Paket 12; since Paket 13 it opens the danger levels per character, Util/ProgressRules).
@@ -45,13 +45,16 @@ export type Data = {
 	boost: { untilTime: number, by: string }, -- v5: Ember Boost until this os.time(), started by this player name
 	badges: { [string]: boolean }, -- v6: Config.Badges keys awarded (or found owned)
 	weekly: { week: number, best: { [string]: number } }, -- v6: this week's best leaderboard scores (LeaderboardRules)
+	-- v7 (Paket 19): the First Night was played (or skipped) or a run was finished; lobbyHint = the lobby hint after the
+	-- First Night is still to be shown (on the hub after the teleport back)
+	tutorial: { firstNight: boolean, lobbyHint: boolean },
 }
 
 local Config = require(game:GetService("ReplicatedStorage").Shared.Config)
 
 local ProfileTemplate = {}
 
-ProfileTemplate.SCHEMA_VERSION = 6
+ProfileTemplate.SCHEMA_VERSION = 7
 
 -- Default settings (Config.Settings.defaults) as a new table (v4).
 function ProfileTemplate.newSettings(): { shake: boolean, damageNumbers: boolean, music: number, effects: number }
@@ -99,6 +102,7 @@ function ProfileTemplate.new(): Data
 		boost = { untilTime = 0, by = "" },
 		badges = {},
 		weekly = { week = 0, best = {} },
+		tutorial = { firstNight = false, lobbyHint = false },
 	}
 end
 

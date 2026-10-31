@@ -25,6 +25,7 @@ local BossService = require(script.Parent.BossService)
 local CombatService = require(script.Parent.CombatService)
 local EmberShopService = require(script.Parent.EmberShopService)
 local EnemySim = require(script.Parent.EnemySim)
+local FirstNightService = require(script.Parent.FirstNightService)
 local ExperienceService = require(script.Parent.ExperienceService)
 local LootService = require(script.Parent.LootService)
 local MapService = require(script.Parent.MapService)
@@ -487,6 +488,14 @@ handlers.ToggleFakePasses = function(player)
 	local on = not MonetizationService.hasFakePasses(player)
 	MonetizationService.setFakePasses(player, on)
 	return true, if on then "You own every game pass (this session only)" else "Game passes as Roblox says"
+end
+
+-- Paket 19: a First Night right now (any player, also when it was played already)
+handlers.StartFirstNight = function(player)
+	if not FirstNightService.launch(player) then
+		return false, "Only in the lobby (and not in a party with others)"
+	end
+	return true, "First Night starts"
 end
 
 handlers.GiveStructureKit = function(player)

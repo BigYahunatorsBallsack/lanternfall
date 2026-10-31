@@ -104,11 +104,13 @@ local function onRunEnded(results: Types.Results)
 	end
 
 	if results.outcome ~= "Abandoned" then
-		local danger = RunDirector.getRunOptions().danger
+		local runOptions = RunDirector.getRunOptions()
+		local danger = runOptions.danger
+		local firstNight = runOptions.firstNight == true -- Paket 19: counts as a finished run, not as a win
 		local hold = results.outcome == "Defeat" and (results.retriesLeft or 0) > 0
 		for _, player in participants do
 			local record = {
-				won = results.outcome == "Victory",
+				won = results.outcome == "Victory" and not firstNight,
 				wave = results.wave or RunDirector.getWave(),
 				danger = danger,
 				classId = RunDirector.getParticipantClassId(player) or "",
@@ -119,6 +121,7 @@ local function onRunEnded(results: Types.Results)
 				revives = revives[player] or 0,
 				players = #results.players,
 				bonuses = MonetizationService.getEmberBonuses(player),
+				firstNight = if firstNight then true else nil,
 			}
 			if hold then
 				heldRecords[player] = record

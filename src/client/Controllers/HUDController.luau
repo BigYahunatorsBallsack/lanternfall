@@ -18,6 +18,7 @@ local TweenService = game:GetService("TweenService")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared:WaitForChild("Config"))
+local DangerRules = require(Shared:WaitForChild("Util"):WaitForChild("DangerRules"))
 local EffectText = require(Shared:WaitForChild("Util"):WaitForChild("EffectText"))
 local Net = require(Shared:WaitForChild("Net"))
 local Format = require(Shared:WaitForChild("Util"):WaitForChild("Format"))
@@ -82,6 +83,15 @@ local function hintText(state: Types.RunState): (string, Color3)
 		return string.upper(Config.Enemies.boss.displayName), Theme.danger
 	end
 	local wave = RunSchedule.wave(state.wave)
+	if state.runOptions and state.runOptions.firstNight then -- Paket 19: the First Night has fewer waves
+		local count = DangerRules.waveCount(state.runOptions)
+		if state.phase == "Shop" then
+			return `Shop · wave {wave.number + 1} / {count} next`, Theme.success
+		elseif wave.number >= count then
+			return `Final wave {wave.number} / {count}`, Theme.danger
+		end
+		return `Wave {wave.number} / {count}`, Theme.textDim
+	end
 	if state.phase == "Shop" and wave.number >= wave.count then
 		return `Shop · endless wave {wave.number + 1} next`, Theme.success -- B11
 	elseif state.phase == "Shop" then

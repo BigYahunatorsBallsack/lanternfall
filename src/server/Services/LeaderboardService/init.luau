@@ -72,6 +72,9 @@ local function write(storeName: string, userId: number, score: number)
 end
 
 local function onRunRecorded(player: Player, data: any, run: any)
+	if run.firstNight then
+		return -- Paket 19: the First Night is easier and shorter, it does not go on the boards
+	end
 	local week = LeaderboardRules.week(clock())
 	local best = bestOf(data, week)
 	for _, board in Leaderboards.boards do

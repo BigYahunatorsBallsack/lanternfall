@@ -51,16 +51,42 @@ function DangerRules.clean(options: Types.RunOptions): Types.RunOptions
 	local sliders = Difficulty.sliders
 	return {
 		danger = math.clamp(math.floor(options.danger), 0, #Difficulty.levels - 1),
-		endless = options.endless == true,
+		endless = options.endless == true and options.firstNight ~= true,
 		enemyHp = snap(options.enemyHp, sliders.enemyHp),
 		enemyDamage = snap(options.enemyDamage, sliders.enemyDamage),
 		enemySpeed = snap(options.enemySpeed, sliders.enemySpeed),
 		enemyCount = snap(options.enemyCount or sliders.enemyCount.default, sliders.enemyCount),
+		firstNight = if options.firstNight == true then true else nil, -- Paket 19 (never endless)
 	}
+end
+
+-- Paket 19: the First Night's options (Config.FirstNight), cleaned.
+function DangerRules.firstNightOptions(): Types.RunOptions
+	local values = Config.FirstNight.options
+	return DangerRules.clean({
+		danger = values.danger,
+		endless = false,
+		enemyHp = values.enemyHp,
+		enemyDamage = values.enemyDamage,
+		enemySpeed = values.enemySpeed,
+		enemyCount = values.enemyCount,
+		firstNight = true,
+	})
+end
+
+-- Paket 19: waves in a run with these options (the First Night is shorter).
+function DangerRules.waveCount(options: Types.RunOptions?): number
+	if options and options.firstNight then
+		return math.min(Config.FirstNight.waves, WAVE_COUNT)
+	end
+	return WAVE_COUNT
 end
 
 -- Short text for the HUD and results, e.g. "Danger 3 · Endless · HP 150%".
 function DangerRules.label(options: Types.RunOptions): string
+	if options.firstNight then
+		return Config.FirstNight.label -- Paket 19
+	end
 	local parts = { DangerRules.level(options.danger).displayName }
 	if options.endless then
 		table.insert(parts, "Endless")
