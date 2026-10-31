@@ -29,6 +29,7 @@ local CombatService = require(script.Parent.CombatService)
 local EmberShopService = require(script.Parent.EmberShopService)
 local EnemySim = require(script.Parent.EnemySim)
 local FirstNightService = require(script.Parent.FirstNightService)
+local LaunchService = require(script.Parent.LaunchService) -- Paket 24
 local ExperienceService = require(script.Parent.ExperienceService)
 local LootService = require(script.Parent.LootService)
 local MapService = require(script.Parent.MapService)
@@ -528,6 +529,45 @@ handlers.GiveStructureKit = function(player)
 	end
 	StatService.addItem(player, "CalibratedTools")
 	return true, "Structure kit granted: deploys next wave"
+end
+
+-- Paket 24: the launch check (LaunchService) to the Output
+handlers.LaunchCheck = function(_player)
+	return true, LaunchService.report()
+end
+
+-- Paket 24: a scene to film for clips and thumbnails (Config.Launch.showcase): wave timer stopped, every weapon slot
+-- filled, weapons raised to the showcase tier, a big crowd around the admin
+handlers.Showcase = function(player)
+	local position, reason = runPosition(player)
+	if not position then
+		return false, reason
+	end
+	local ok, armedReason = armed(player)
+	if not ok then
+		return false, armedReason
+	end
+	local settings = Config.Launch.showcase
+	RunDirector.setHoldWaves(true)
+	local owned = ownedIds(player)
+	for _, weaponId in WeaponService.getImplemented() do
+		if #WeaponService.getWeapons(player) >= Config.Player.maxWeapons then
+			break
+		end
+		if not table.find(owned, weaponId) then
+			WeaponService.addWeapon(player, weaponId, settings.weaponTier)
+			table.insert(owned, weaponId)
+		end
+	end
+	for _, weapon in WeaponService.getWeapons(player) do
+		for _ = weapon.tier + 1, settings.weaponTier do
+			if not WeaponService.raiseTier(player, weapon.uid) then
+				break
+			end
+		end
+	end
+	local spawned = SpawnDirector.spawnWave(position, settings.enemies)
+	return true, `Showcase: wave timer stopped, {#WeaponService.getWeapons(player)} weapons, {enemies(spawned)} spawned`
 end
 
 function AdminService.init()

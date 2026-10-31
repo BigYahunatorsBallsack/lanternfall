@@ -78,6 +78,8 @@ local function cue(main: Spec, fallback: Spec, minInterval: number, voices: numb
 end
 
 return table.freeze({
+	-- Paket 24: the upload state of the own sounds for the launch check (Util/LaunchRules); 0 = not uploaded
+	ownSounds = table.freeze(table.clone(OWN)) :: { [string]: number },
 	-- Effects heard at a world position get quieter with the distance to the local player's character: full volume
 	-- up to `fullRadius` studs, silent from `hearRadius` on (the 50 degree camera shows roughly 80 studs around).
 	fullRadius = 30,
