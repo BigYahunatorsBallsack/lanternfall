@@ -7,6 +7,9 @@
 -- endless mode the run goes on after wave 20 (Util/RunSchedule has the endless waves).
 -- Since Paket 13 the lobby's danger level is capped by the highest level someone in the lobby has opened with the
 -- character they picked (PlayerDataService.maxDanger); teammates without it may play along.
+-- B11 part 2 "Retry wave": services register a checkpoint (addCheckpoint) that is saved when a wave starts (after
+-- WaveStarting, before PhaseChanged) and restored when a participant retries the lost wave on the results (remote
+-- RetryWave); then WaveRetried fires and the wave starts again with PhaseChanged Ended -> Running.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -36,6 +39,8 @@ local REJECTION_TEXT: { [string]: string } = {
 	Locked = "This character is not unlocked yet",
 	NoCharacter = "Your character has not loaded yet",
 	EnemyCap = "The enemy limit is reached",
+	NotDefeated = "Only after a defeat",
+	NoRetriesLeft = "No retries left in this run",
 }
 
 local RunDirector = {}
@@ -50,6 +55,16 @@ RunDirector.PhaseChanged = Signal.new()
 RunDirector.ParticipantStateChanged = Signal.new()
 -- (player: Player): a client asked for a full sync; other services send their state too
 RunDirector.SyncRequested = Signal.new()
+-- (wave: number): a wave is about to start (from the shop or the countdown); fired before the checkpoint is saved and
+-- before PhaseChanged, e.g. for UpgradeService to pick the cards still open (B11 part 2)
+RunDirector.WaveStarting = Signal.new()
+-- (wave: number): the lost wave starts again; every checkpoint was restored, PhaseChanged to Running comes next
+RunDirector.WaveRetried = Signal.new()
+
+-- B11 part 2: what the services keep from the start of the current wave for "Retry wave".
+type Checkpoint = { name: string, save: () -> any, restore: (any) -> () }
+local checkpoints: { Checkpoint } = {}
+local savedCheckpoint: { [string]: any } = {}
 
 local flow = RunFlow.new({
 	countdownSeconds = Config.Run.flow.countdownSeconds,
@@ -64,6 +79,7 @@ local flow = RunFlow.new({
 	end)(),
 	shopSeconds = Config.Shop.phaseSeconds,
 	maxPlayers = Config.Run.maxPlayers,
+	maxRetries = Config.Run.flow.maxRetries,
 	defaultClassId = Config.Run.flow.defaultClassId,
 	waveEndAt = function(number: number): number
 		return RunSchedule.wave(number).endsAt
@@ -112,6 +128,31 @@ local function returnToLobby()
 	table.clear(inArena)
 end
 
+-- Saves every service's checkpoint; one that fails is reported and skipped.
+local function saveCheckpoints()
+	table.clear(savedCheckpoint)
+	for _, checkpoint in checkpoints do
+		local ok, result = pcall(checkpoint.save)
+		if ok then
+			savedCheckpoint[checkpoint.name] = result
+		else
+			task.spawn(error, `[Lanternfall] Checkpoint {checkpoint.name} failed to save: {result}`, 0)
+		end
+	end
+end
+
+local function restoreCheckpoints()
+	for _, checkpoint in checkpoints do
+		local data = savedCheckpoint[checkpoint.name]
+		if data ~= nil then
+			local ok, err = pcall(checkpoint.restore, data)
+			if not ok then
+				task.spawn(error, `[Lanternfall] Checkpoint {checkpoint.name} failed to restore: {err}`, 0)
+			end
+		end
+	end
+end
+
 local function handle(event: RunFlow.Event)
 	if event.kind == "RunStarted" then
 		local players = toPlayers(event.userIds)
@@ -124,6 +165,10 @@ local function handle(event: RunFlow.Event)
 		print(`[Lanternfall] Run ended: {results.outcome} after {Format.time(results.survivedSeconds)}`)
 		RunDirector.RunEnded:Fire(results)
 	elseif event.kind == "PhaseChanged" then
+		if event.phase == "Running" and (event.previous == "Shop" or event.previous == "Countdown") then
+			RunDirector.WaveStarting:Fire(flow.wave)
+			saveCheckpoints()
+		end
 		RunDirector.PhaseChanged:Fire(event.phase, event.previous)
 		if event.phase == "Lobby" then
 			returnToLobby()
@@ -133,6 +178,13 @@ local function handle(event: RunFlow.Event)
 		if player then
 			RunDirector.ParticipantStateChanged:Fire(player, event.state)
 		end
+	elseif event.kind == "WaveRetried" then
+		print(`[Lanternfall] Wave {event.wave} retried`)
+		restoreCheckpoints()
+		sendToArena(toPlayers(flow:getParticipantIds()))
+		RunDirector.WaveRetried:Fire(event.wave)
+		local left = Config.Run.flow.maxRetries - flow.retries
+		notifyParticipants(`Wave {event.wave} starts again ({left} {if left == 1 then "retry" else "retries"} left)`)
 	end
 end
 
@@ -280,6 +332,14 @@ function RunDirector.init()
 		process()
 	end)
 
+	Net.onServer("RetryWave", function(player)
+		local ok, reason = flow:retryWave(player.UserId, now())
+		if not ok then
+			reject(player, reason)
+		end
+		process()
+	end)
+
 	Net.onServer("SetReady", function(player, ready: boolean)
 		local ok, reason = flow:setReady(player.UserId, ready, now())
 		if not ok then
@@ -395,6 +455,20 @@ end
 
 function RunDirector.isHoldingWaves(): boolean
 	return flow.holdWaves
+end
+
+-- B11 part 2: registers what a service keeps from the start of each wave. `save` runs when a wave starts (after
+-- WaveStarting) and returns a copy of the state; `restore` gets that copy back when the wave is retried. Restores run
+-- in the order the services registered; work that needs every service restored belongs on WaveRetried.
+function RunDirector.addCheckpoint(name: string, save: () -> any, restore: (any) -> ())
+	table.insert(checkpoints, { name = name, save = save, restore = restore })
+end
+
+-- B11 part 2: starts the lost wave again (tests and admin; players use the remote RetryWave).
+function RunDirector.retryWave(player: Player): (boolean, string?)
+	local ok, reason = flow:retryWave(player.UserId, now())
+	process()
+	return ok, reason
 end
 
 function RunDirector.notifyRejection(player: Player, reason: string?)

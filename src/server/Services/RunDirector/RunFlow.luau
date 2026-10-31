@@ -3,7 +3,8 @@
 -- wave is the boss wave (BossService); surviving it wins, and so does killing its bosses (endRun, WP10). The old
 -- Boss phase is no longer entered. Since B11 the lobby picks run options (danger level, endless mode, enemy sliders;
 -- Util/DangerRules); in endless mode the run goes on after the last wave until nobody is alive, and reaching the end
--- of the last wave counts as a win.
+-- of the last wave counts as a win. B11 part 2: after a defeat in a wave, "Retry wave" starts that wave again from its
+-- beginning (retryWave, at most maxRetries per run).
 -- Owned by RunDirector, which feeds it player events and the clock (`now` in seconds). No Roblox APIs
 -- here, so the rules are unit-tested outside Studio (tests/RunFlow.spec.luau).
 --
@@ -29,6 +30,7 @@ export type Settings = {
 	-- plus endlessWaveSeconds per wave
 	waveEndAt: ((number) -> number)?,
 	endlessWaveSeconds: number?,
+	maxRetries: number?, -- B11 part 2: "Retry wave" this often per run after a defeat (default 0: never)
 }
 
 export type Event =
@@ -36,6 +38,7 @@ export type Event =
 	| { kind: "RunStarted", userIds: { number } }
 	| { kind: "RunEnded", results: Types.Results }
 	| { kind: "ParticipantStateChanged", userId: number, state: ParticipantState }
+	| { kind: "WaveRetried", wave: number }
 
 type Entry = {
 	userId: number,
@@ -74,6 +77,7 @@ export type RunFlow = typeof(setmetatable(
 		players: { [number]: Entry },
 		participants: { [number]: Participant },
 		results: Types.Results?,
+		retries: number, -- B11 part 2: waves retried in this run
 		version: number,
 		counter: number,
 		events: { Event },
@@ -98,6 +102,7 @@ function RunFlow.new(settings: Settings): RunFlow
 		players = {},
 		participants = {},
 		results = nil,
+		retries = 0,
 		version = 0,
 		counter = 0,
 		events = {},
@@ -255,6 +260,7 @@ local function startRun(self: RunFlow, now: number)
 	self.pausedAt = nil
 	self.heldAt = if self.holdWaves then now else nil
 	self.results = nil
+	self.retries = 0
 	push(self, { kind = "RunStarted", userIds = userIds })
 	setPhase(self, "Running", nil)
 end
@@ -283,6 +289,7 @@ local function finishRun(self: RunFlow, outcome: Outcome, now: number)
 		players = entries,
 		wave = self.wave,
 		endless = self.runOptions.endless,
+		retriesLeft = if outcome == "Defeat" then math.max(0, (self.settings.maxRetries or 0) - self.retries) else 0,
 	}
 	self.runEndedAt = now
 	self.results = results
@@ -521,6 +528,45 @@ function RunFlow.setShopReady(self: RunFlow, userId: number, ready: boolean, now
 		changed(self)
 		evaluate(self, now)
 	end
+	return true, nil
+end
+
+-- B11 part 2: after a defeat, starts the lost wave again from its beginning with every participant still in the game
+-- standing (Brotato's "Retry wave"). Any participant may ask while the results show. WaveRetried comes first, so the
+-- services restore their wave-start state (RunDirector checkpoints) before the participants stand up and the wave
+-- starts again (PhaseChanged Ended -> Running).
+function RunFlow.retryWave(self: RunFlow, userId: number, now: number): (boolean, string?)
+	local results = self.results
+	if self.phase ~= "Ended" or not results or results.outcome ~= "Defeat" then
+		return false, "NotDefeated"
+	end
+	if not self.participants[userId] then
+		return false, "NotParticipant"
+	end
+	if (results.retriesLeft or 0) <= 0 then
+		return false, "NoRetriesLeft"
+	end
+	self.retries += 1
+	push(self, { kind = "WaveRetried", wave = self.wave })
+	self.results = nil
+	self.runEndedAt = nil
+	self.pausedAt = nil
+	self.heldAt = if self.holdWaves then now else nil
+	-- the clock goes back to the start of the wave
+	local startsAt = if self.wave > 1 then waveEnd(self, self.wave - 1) else 0
+	self.runStartedAt = now - startsAt - self.pausedSeconds
+	for id, participant in self.participants do
+		participant.shopReady = false
+		local entry = self.players[id]
+		if entry then
+			entry.ready = false -- a "Play again" pressed on the results no longer counts
+		end
+		if participant.state ~= "Alive" then
+			participant.state = "Alive"
+			push(self, { kind = "ParticipantStateChanged", userId = id, state = "Alive" })
+		end
+	end
+	setPhase(self, "Running", nil)
 	return true, nil
 end
 

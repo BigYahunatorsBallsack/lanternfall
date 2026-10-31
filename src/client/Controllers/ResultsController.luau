@@ -4,6 +4,8 @@
 -- participants in the Ended phase. Since Paket 13 also the Embers, achievements and unlocks of the run (RunRewards).
 -- Paket 14: the local player's weapons with their damage and kills (most damage first), and the team, weapons and
 -- rewards in a part that scrolls when it does not fit (phones, Widgets.isCompact).
+-- B11 part 2: after a defeat with retries left, "Retry wave" (remote RetryWave) starts the lost wave again from its
+-- start; such a defeat is only saved (Embers) once the results are over, so the rewards line says so.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -41,6 +43,7 @@ local timeLabel: TextLabel
 local statsLabel: TextLabel
 local teamRows: Frame
 local againButton: TextButton
+local retryButton: TextButton
 local footerLabel: TextLabel
 local lastPress = 0
 local summary: Types.RunSummary? = nil
@@ -116,6 +119,18 @@ fitDetails = function()
 	details.CanvasSize = UDim2.fromOffset(0, content.Y / scale)
 end
 
+local function canRetry(results: Types.Results): boolean
+	if results.outcome ~= "Defeat" or (results.retriesLeft or 0) <= 0 then
+		return false
+	end
+	for _, entry in results.players do
+		if entry.userId == Players.LocalPlayer.UserId then
+			return true
+		end
+	end
+	return false
+end
+
 local function render()
 	local state = RunStateController.get()
 	screen.Enabled = state ~= nil and RunStateController.getView() == "Results"
@@ -135,7 +150,11 @@ local function render()
 	timeLabel.Text = `Time {Format.time(results.survivedSeconds)}{reached} · {results.difficulty}`
 	statsLabel.Text = if summary then `Team level {summary.teamLevel} · {summary.kills} kills` else ""
 	statsLabel.Visible = summary ~= nil
-	rewardsLabel.Visible = rewards ~= nil
+	local retry = canRetry(results)
+	rewardsLabel.Visible = rewards ~= nil or retry
+	if not rewards and retry then
+		rewardsLabel.Text = "Embers are saved when the results end, unless the wave is retried"
+	end
 	if rewards then
 		local parts = {}
 		for _, line in rewards.lines do
@@ -181,6 +200,11 @@ local function render()
 	againButton.BackgroundColor3 = if ready then Theme.button else Theme.accent
 	againButton.TextColor3 = if ready then Theme.text else Theme.accentText
 	footerLabel.Text = footerText()
+	retryButton.Visible = retry
+	if retry then
+		local left = results.retriesLeft or 0
+		retryButton.Text = `RETRY WAVE {results.wave or ""} ({left} left)`
+	end
 end
 
 local function build()
@@ -265,6 +289,22 @@ local function build()
 		if me and now - lastPress >= BUTTON_COOLDOWN then
 			lastPress = now
 			Net.fireServer("SetReady", not me.ready)
+		end
+	end)
+
+	retryButton = Widgets.button({
+		Name = "RetryWave",
+		Text = "RETRY WAVE",
+		TextSize = 22,
+		Size = UDim2.fromOffset(360, 52),
+		Visible = false,
+		LayoutOrder = 6,
+		Parent = card,
+	}, function()
+		local now = os.clock()
+		if now - lastPress >= BUTTON_COOLDOWN then
+			lastPress = now
+			Net.fireServer("RetryWave")
 		end
 	end)
 

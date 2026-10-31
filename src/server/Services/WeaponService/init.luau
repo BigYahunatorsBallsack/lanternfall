@@ -11,6 +11,7 @@
 -- (EffectService: Hit, Crit and Kill effects) and Changed fires whenever a player's weapons change. Since B5 weapons
 -- slow and burn enemies (EnemySim.slow, setBurning), burn ticks show as orange damage numbers, and item effects burn
 -- and blow up enemies through burnEnemy and explodeAt (EffectService). Burns go out when a wave ends.
+-- B11 part 2: a RunDirector checkpoint keeps the weapons from the start of each wave for "Retry wave".
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -343,6 +344,22 @@ function WeaponService.init()
 				end
 			end
 			arsenal:clearCombat() -- the enemies left fade away (EnemySim), so do their burns
+		end
+	end)
+	-- B11 part 2: the weapons from the start of the wave for "Retry wave"
+	RunDirector.addCheckpoint("Weapons", function()
+		local saved = {}
+		for _, player in RunDirector.getParticipants() do
+			saved[player] = arsenal:saveWeapons(player.UserId)
+		end
+		return saved
+	end, function(saved: { [Player]: { Arsenal.SavedWeapon } })
+		arsenal:clearCombat()
+		growth = {}
+		for player, weapons in saved do
+			if player.Parent and arsenal:restoreWeapons(player.UserId, weapons) then
+				send(player)
+			end
 		end
 	end)
 	RunDirector.SyncRequested:Connect(function(requester)

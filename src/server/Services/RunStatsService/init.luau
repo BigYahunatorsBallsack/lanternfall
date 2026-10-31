@@ -5,6 +5,9 @@
 -- Listens to RunDirector, EnemySim, ExperienceService and CombatService; reads loadouts from WeaponService and
 -- StatService (items). Since Paket 12 it also adds each finished run to the participants' saved record
 -- (PlayerDataService); since Paket 13 with champion kills and revives (ReviveService) for the achievements.
+-- B11 part 2: a RunDirector checkpoint keeps the statistics from the start of each wave for "Retry wave", and a defeat
+-- that can still be retried is only saved once the results are over (lobby or "Play again") or the player leaves, so
+-- a retried wave never counts twice.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -13,6 +16,7 @@ local Shared = ReplicatedStorage.Shared
 local Config = require(Shared.Config)
 local Net = require(Shared.Net)
 local Types = require(Shared.Net.Types)
+local Copy = require(Shared.Util.Copy)
 
 local CombatService = require(script.Parent.CombatService)
 local EnemySim = require(script.Parent.EnemySim)
@@ -33,6 +37,7 @@ local lastSummary: Types.RunSummary? = nil
 local bossKills = 0 -- bosses only, for the saved record
 local championKills = 0 -- Paket 13
 local revives: { [Player]: number } = {} -- Paket 13: teammates each player revived this run
+local heldRecords: { [Player]: any } = {} -- B11 part 2: defeats that may still be retried, saved later
 
 local function loadoutsOf(participants: { Player }): { [number]: Tally.Loadout }
 	local loadouts = {}
@@ -98,8 +103,9 @@ local function onRunEnded(results: Types.Results)
 
 	if results.outcome ~= "Abandoned" then
 		local danger = RunDirector.getRunOptions().danger
+		local hold = results.outcome == "Defeat" and (results.retriesLeft or 0) > 0
 		for _, player in participants do
-			PlayerDataService.recordRun(player, {
+			local record = {
 				won = results.outcome == "Victory",
 				wave = results.wave or RunDirector.getWave(),
 				danger = danger,
@@ -110,16 +116,62 @@ local function onRunEnded(results: Types.Results)
 				champions = championKills,
 				revives = revives[player] or 0,
 				players = #results.players,
-			})
+			}
+			if hold then
+				heldRecords[player] = record
+			else
+				PlayerDataService.recordRun(player, record)
+			end
 		end
 	end
 end
+
+-- Saves a defeat that was held back for "Retry wave" (the results are over or the player leaves).
+local function saveHeld(player: Player)
+	local record = heldRecords[player]
+	heldRecords[player] = nil
+	if record then
+		local ok, rewards = PlayerDataService.recordRun(player, record)
+		if ok and rewards then
+			Net.fireClient("Notify", player, `Run saved: +{rewards.embers} Embers`)
+		end
+	end
+end
+
+local function saveAllHeld()
+	for player in heldRecords do
+		saveHeld(player)
+	end
+end
+
+type Saved = { tally: Tally.Tally, bossKills: number, championKills: number, revives: { [Player]: number } }
 
 -- Lifecycle -------------------------------------------------------------------------
 
 function RunStatsService.init()
 	RunDirector.RunStarted:Connect(onRunStarted)
 	RunDirector.RunEnded:Connect(onRunEnded)
+	RunDirector.PhaseChanged:Connect(function(phase)
+		if phase == "Lobby" or phase == "Countdown" then
+			saveAllHeld()
+		end
+	end)
+	PlayerDataService.onRelease(saveHeld)
+	RunDirector.addCheckpoint("RunStats", function(): Saved
+		return {
+			tally = Copy.deep(tally),
+			bossKills = bossKills,
+			championKills = championKills,
+			revives = table.clone(revives),
+		}
+	end, function(saved: Saved)
+		table.clear(heldRecords) -- the run goes on
+		tally = Copy.deep(saved.tally)
+		bossKills = saved.bossKills
+		championKills = saved.championKills
+		revives = table.clone(saved.revives)
+		lastSummary = nil
+	end)
 	RunDirector.SyncRequested:Connect(function(player)
 		if lastSummary and RunDirector.getPhase() == "Ended" then
 			Net.fireClient("RunSummary", player, lastSummary)

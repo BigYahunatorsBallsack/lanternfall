@@ -31,6 +31,7 @@ export type Results = {
 	players: { ResultEntry },
 	wave: number?, -- B11: the wave the run ended in
 	endless: boolean?, -- B11
+	retriesLeft: number?, -- B11 part 2: "Retry wave" can still be used this often (defeats only)
 }
 
 -- B11: what the lobby chose for a run (Config.Difficulty): danger level 0-5, endless mode and the enemy sliders in
