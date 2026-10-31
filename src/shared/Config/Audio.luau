@@ -5,7 +5,7 @@
 --
 -- Effects: Lanternfall's own soft sounds (made by tools/sfx/generate.py, files in assets/sfx/lf_XX_<name>.ogg). After
 -- uploading a file (Creator Hub -> Creations -> Audio, or Studio -> Asset Manager -> Bulk Import) paste its asset id
--- into OWN below; while an id is 0 the cue plays a quiet, filtered placeholder that ships with every Roblox client.
+-- into OWN below; while an id is "" the cue plays a quiet, filtered placeholder that ships with every Roblox client.
 -- Music: replace `sound` with "rbxassetid://<id>" (Studio Toolbox -> Audio, right click -> Copy Asset ID); "" = off.
 --   volume  0..1 before the Effects/Music group volume
 --   pitch   playback speed (1 = as recorded; 2 = an octave higher and twice as short)
@@ -28,23 +28,23 @@ export type Track = {
 	looped: boolean,
 }
 
--- Asset ids of the own sounds (Paket 21b). 0 = not uploaded yet: the cue uses its placeholder.
+-- Asset ids of the own sounds (Paket 21b), as text (big numbers). "" = not uploaded yet: the cue uses its placeholder.
 local OWN = {
-	blip = 0, -- lf_01_blip.ogg   XP orbs, fruit
-	thock = 0, -- lf_02_thock.ogg  own hits
-	puff = 0, -- lf_03_puff.ogg   enemy deaths
-	pop = 0, -- lf_04_pop.ogg    ranged shots
-	swish = 0, -- lf_05_swish.ogg  melee swings, dash
-	tick = 0, -- lf_06_tick.ogg   button clicks
-	arp = 0, -- lf_07_arp.ogg    level up
-	chime = 0, -- lf_08_chime.ogg  crate, chest, wave cleared
-	oof = 0, -- lf_09_oof.ogg    the local player hurt
-	gong = 0, -- lf_10_gong.ogg   wave start, boss wave, downed
-	thump = 0, -- lf_11_thump.ogg  pulse, drop
-	boom = 0, -- lf_12_boom.ogg   explosions, elite deaths
-	zap = 0, -- lf_13_zap.ogg    chain lightning
-	tink = 0, -- lf_14_tink.ogg   crits
-	warn = 0, -- lf_15_warn.ogg   boss attack warnings
+	blip = "127049480197579", -- lf_01_blip.ogg   XP orbs, fruit
+	thock = "123702132059569", -- lf_02_thock.ogg  own hits
+	puff = "88819708804506", -- lf_03_puff.ogg   enemy deaths
+	pop = "133423609966718", -- lf_04_pop.ogg    ranged shots
+	swish = "97672176200337", -- lf_05_swish.ogg  melee swings, dash
+	tick = "112460234084175", -- lf_06_tick.ogg   button clicks
+	arp = "111686985480244", -- lf_07_arp.ogg    level up
+	chime = "112879666967930", -- lf_08_chime.ogg  crate, chest, wave cleared
+	oof = "122760404822682", -- lf_09_oof.ogg    the local player hurt
+	gong = "", -- lf_10_gong.ogg   wave start, boss wave, downed
+	thump = "83133602178751", -- lf_11_thump.ogg  pulse, drop
+	boom = "78482803081590", -- lf_12_boom.ogg   explosions, elite deaths
+	zap = "92202941641501", -- lf_13_zap.ogg    chain lightning
+	tink = "123392096949001", -- lf_14_tink.ogg   crits
+	warn = "85746059022075", -- lf_15_warn.ogg   boss attack warnings
 }
 
 -- Placeholders: only the soft built-in sounds (the metal sword and crash sounds were too harsh), kept low.
@@ -56,8 +56,8 @@ local CLICK = "rbxasset://sounds/clickfast.wav"
 type Spec = { sound: string, volume: number, pitch: number }
 
 local function own(name: string, volume: number, pitch: number): Spec
-	local id = (OWN :: { [string]: number })[name]
-	return { sound = if id and id > 0 then `rbxassetid://{id}` else "", volume = volume, pitch = pitch }
+	local id = (OWN :: { [string]: string })[name]
+	return { sound = if id and id ~= "" then `rbxassetid://{id}` else "", volume = volume, pitch = pitch }
 end
 
 local function placeholder(sound: string, volume: number, pitch: number): Spec
