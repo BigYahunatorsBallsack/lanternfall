@@ -2,7 +2,8 @@
 -- Paket 12 lobby extension: the local player's saved record (runs, wins, best wave, kills) under the player list,
 -- with a hint when Studio does not save for real. Mounted and rendered by LobbyController; reads ProfileInfo.
 -- Since Paket 13 also the Embers and an "ACHIEVEMENTS" button that opens AchievementList; CharacterChoice and
--- DangerChoice read the unlocks from ProfileCard.get().
+-- DangerChoice read the unlocks from ProfileCard.get(). Since Paket 16 the STORE button and the Ember Boost line below
+-- it (StoreController).
 
 local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
 local Config = require(Shared:WaitForChild("Config"))
@@ -88,9 +89,11 @@ function ProfileCard.mount(list: Frame)
 		LayoutOrder = 13,
 		Parent = list,
 	}, function()
+		require(script.Parent.StoreController).setOpen(false) -- Paket 16: one window at a time
 		AchievementList.setOpen(not AchievementList.isOpen())
 	end)
 	AchievementList.mount(list.Parent :: Instance)
+	require(script.Parent.StoreController).mount(list) -- Paket 16
 	Net.onClient("ProfileInfo", function(payload: Types.ProfileInfo)
 		info = payload
 		ProfileCard.render()

@@ -374,6 +374,8 @@ local EVENTS = {
 	-- Paket 15: portals and teleports
 	Triggered = true,
 	TeleportInitFailed = true,
+	-- Paket 16: purchases
+	PromptGamePassPurchaseFinished = true,
 }
 
 local function isA(className, target)
@@ -686,6 +688,31 @@ function methods.TeleportAsync(_, placeId, players, options)
 	table.insert(world.teleports, { placeId = placeId, players = table.clone(players), options = options })
 end
 
+-- Paket 16: MarketplaceService. world.ownedPasses["userId:passId"] = true owns a pass, world.marketError makes the
+-- calls throw, world.robuxPrices[id] is what GetProductInfo reports; prompts are recorded in world.prompts and
+-- world.buyProduct runs ProcessReceipt like Roblox does after a purchase.
+world.ownedPasses = {}
+world.robuxPrices = {}
+world.prompts = {}
+function methods.UserOwnsGamePassAsync(_, userId, passId)
+	if world.marketError then
+		error(world.marketError, 2)
+	end
+	return world.ownedPasses[`{userId}:{passId}`] == true
+end
+function methods.GetProductInfo(_, id, infoType)
+	if world.marketError then
+		error(world.marketError, 2)
+	end
+	return { PriceInRobux = world.robuxPrices[id] or 0, InfoType = infoType }
+end
+function methods.PromptProductPurchase(_, player, id)
+	table.insert(world.prompts, { kind = "Product", player = player, id = id })
+end
+function methods.PromptGamePassPurchase(_, player, id)
+	table.insert(world.prompts, { kind = "Pass", player = player, id = id })
+end
+
 local InstanceLib = { new = newInstance }
 
 -- Services ----------------------------------------------------------------------
@@ -698,6 +725,7 @@ local ContextActionService = newInstance("ContextActionService", { Name = "Conte
 local StarterGui = newInstance("StarterGui", { Name = "StarterGui" })
 local SoundService = newInstance("SoundService", { Name = "SoundService" }) -- Paket 14
 local TeleportService = newInstance("TeleportService", { Name = "TeleportService" }) -- Paket 15
+local MarketplaceService = newInstance("MarketplaceService", { Name = "MarketplaceService" }) -- Paket 16
 local UserInputService =
 	newInstance("UserInputService", { Name = "UserInputService", TouchEnabled = false, KeyboardEnabled = true })
 world.renderSteps = {}
@@ -740,7 +768,10 @@ __services.ContextActionService = ContextActionService
 __services.StarterGui = StarterGui
 __services.SoundService = SoundService
 __services.TeleportService = TeleportService
+__services.MarketplaceService = MarketplaceService
+world.market = MarketplaceService
 game.PlaceId = 0
+game.GameId = 0
 game.JobId = ""
 __services.UserInputService = UserInputService
 game.CreatorType = EnumLib.CreatorType.User
@@ -886,6 +917,24 @@ function world.pressAction(name)
 	local callback = world.actions[name]
 	assert(callback, `no action {name}`)
 	return callback(name, EnumLib.UserInputState.Begin)
+end
+
+-- Paket 16: Roblox calls ProcessReceipt for a purchase; returns a table whose `decision` is filled in when the
+-- callback returns (it may wait for a save).
+function world.buyProduct(player, productId, purchaseId)
+	local outcome = { decision = nil }
+	task.spawn(function()
+		local callback = MarketplaceService.ProcessReceipt
+		assert(callback, "no ProcessReceipt callback")
+		outcome.decision = callback({
+			PlayerId = player.UserId,
+			ProductId = productId,
+			PurchaseId = purchaseId,
+			CurrencySpent = world.robuxPrices[productId] or 0,
+			PlaceIdWherePurchased = game.PlaceId,
+		})
+	end)
+	return outcome
 end
 
 function world.click(button)

@@ -8,7 +8,8 @@
 -- (phones) it gets a compact layout and the stat panel moves behind a STATS button. Everything comes from the
 -- server's ShopState (ShopService); sends BuyShopOffer, LockShopOffer, RerollShop, SellWeapon, MergeWeapons and
 -- SetShopReady. The stats sit next to it (StatsController). Since Paket 14 each weapon field has a tooltip with the
--- weapon's real damage, scaling and stats (UI/Tooltip; LoadoutController has the effective stats).
+-- weapon's real damage, scaling and stats (UI/Tooltip; LoadoutController has the effective stats). Paket 16: next to
+-- the reroll a bonus reroll button (StoreController: VIP reroll, reroll tokens or the reroll pack).
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
@@ -25,6 +26,7 @@ local LevelUpController = require(script.Parent.LevelUpController)
 local LoadoutController = require(script.Parent.LoadoutController)
 local RunStateController = require(script.Parent.RunStateController)
 local StatsController = require(script.Parent.StatsController)
+local StoreController = require(script.Parent.StoreController)
 local Theme = require(script.Parent.Parent.UI.Theme)
 local Tooltip = require(script.Parent.Parent.UI.Tooltip)
 local TooltipText = require(Shared:WaitForChild("Util"):WaitForChild("TooltipText"))
@@ -662,17 +664,19 @@ local function build()
 	}, sell)
 
 	local buttons = row("Buttons", BUTTON_HEIGHT, 6, panel)
+	-- widths fit the panel with every button shown (compact layout: reroll, bonus reroll, STATS, READY)
 	rerollButton = Widgets.button({
 		Name = "Reroll",
-		Size = UDim2.fromOffset(240, BUTTON_HEIGHT),
+		Size = UDim2.fromOffset(210, BUTTON_HEIGHT),
 		LayoutOrder = 1,
 		Parent = buttons,
 	}, reroll)
+	StoreController.mountShop(buttons, 2, BUTTON_HEIGHT) -- Paket 16
 	statsButton = Widgets.button({
 		Name = "StatsToggle",
 		Text = "STATS",
-		Size = UDim2.fromOffset(120, BUTTON_HEIGHT),
-		LayoutOrder = 2,
+		Size = UDim2.fromOffset(110, BUTTON_HEIGHT),
+		LayoutOrder = 3,
 		Visible = false,
 		Parent = buttons,
 	}, function()
@@ -680,8 +684,8 @@ local function build()
 	end)
 	readyButton = Widgets.button({
 		Name = "Ready",
-		Size = UDim2.fromOffset(300, BUTTON_HEIGHT),
-		LayoutOrder = 3,
+		Size = UDim2.fromOffset(230, BUTTON_HEIGHT),
+		LayoutOrder = 4,
 		Parent = buttons,
 	}, toggleReady)
 
