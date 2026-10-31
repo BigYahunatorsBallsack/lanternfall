@@ -260,6 +260,10 @@ describe("bosses", function()
 			click("HurtBoss")
 		end
 		world.advance(0.3)
+		-- playtest after Paket 24: the vote "continue in endless mode?" first; its time running out wins the run
+		expect(RunDirector.getPhase()).toBe("Shop")
+		expect(world.gui("EndlessChoice").Enabled).toBe(true)
+		world.advance(Config.Run.flow.endlessChoiceSeconds + 0.3)
 		expect(RunDirector.getPhase()).toBe("Ended")
 		expect(world.gui("Results").Enabled).toBe(true)
 	end)

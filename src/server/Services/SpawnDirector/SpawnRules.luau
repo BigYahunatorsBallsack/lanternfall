@@ -49,7 +49,8 @@ function SpawnRules.step(steps: { number }, wave: number): number
 end
 
 -- Multipliers on an enemy's HP and damage when it spawns in `wave` (before difficulty): its kind's values plus
--- hpPerWave and damagePerWave per growth step of the wave (Run.spawn.growth), like Brotato (B9).
+-- hpPerWave and damagePerWave per growth step of the wave (Run.spawn.growth), like Brotato (B9). Normal enemies'
+-- damage also gets growth.damageScale (playtest after Paket 24).
 function SpawnRules.growth(enemyId: string, wave: number): (number, number)
 	local kind = Config.Enemies.types[enemyId] or Config.Enemies.champions[enemyId] -- champions grow too (WP10)
 	if not kind then
@@ -61,7 +62,9 @@ function SpawnRules.growth(enemyId: string, wave: number): (number, number)
 	if damage <= 0 and kind.ranged then
 		damage = kind.ranged.projectileDamage
 	end
-	return hp, if damage > 0 then 1 + kind.damagePerWave * SpawnRules.step(growth.damageSteps, wave) / damage else 1
+	local scale = if Config.Enemies.types[enemyId] then growth.damageScale or 1 else 1 -- not champions
+	return hp,
+		scale * (if damage > 0 then 1 + kind.damagePerWave * SpawnRules.step(growth.damageSteps, wave) / damage else 1)
 end
 
 -- Swarm Rush running at this minute: the wave's groups pause, Shadeling groups come at rateMultiplier their rate.

@@ -167,6 +167,13 @@ Remotes.SaveSettings = {
 -- Paket 14: { Net/Types.WaveChallenge }, the planned elite and horde waves of the run so far, to the participants
 Remotes.WavePlan = { direction = "toClient" }
 -- B11 part 2: "Retry wave" on the results after a defeat; RunDirector checks the phase, the outcome and the retries left
+-- Playtest after Paket 24: the vote after the boss wave, true = continue in endless mode; RunDirector checks that the
+-- vote is open and the player takes part
+Remotes.ChooseEndless = {
+	direction = "toServer",
+	rateLimit = { count = 3, perSeconds = 1 },
+	args = { Validate.boolean() },
+}
 Remotes.RetryWave = {
 	direction = "toServer",
 	rateLimit = { count = 2, perSeconds = 1 },

@@ -321,7 +321,9 @@ end)
 -- Enemy shots and chests as a client sees them (EnemyShots, Chests), so bots can dodge and loot.
 local shots = {}
 local shotsFired = 0
-world.getRemote("EnemyShots").OnClientEvent:Connect(function(events)
+local ShotFeed = require(game:GetService("ReplicatedStorage").Shared.Net.ShotFeed)
+world.getRemote("EnemyShots").OnClientEvent:Connect(function(packet)
+	local events = if type(packet) == "buffer" then ShotFeed.decode(packet) else packet -- buffer since Paket 22
 	if events.reset then
 		table.clear(shots)
 	end

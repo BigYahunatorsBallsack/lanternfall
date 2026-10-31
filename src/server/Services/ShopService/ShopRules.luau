@@ -268,6 +268,32 @@ local function pickWeapon(
 	return nil
 end
 
+-- Playtest after Paket 24: with every weapon slot full, most weapon offers could not be bought (only the same weapon
+-- at the same tier merges), which felt like "fewer weapons in the shop". So a weapon slot then offers one of the
+-- player's own weapons at a tier it merges with, with Shop.fullSlots.mergeChance. Returns id and tier, or nil.
+local function pickMergeable(params: Params, taken: { [string]: boolean }): (string?, number?)
+	if #params.ownedWeapons < params.maxWeapons or params.random() >= Shop.fullSlots.mergeChance then
+		return nil, nil
+	end
+	local choices: { OwnedWeapon } = {}
+	for _, owned in params.ownedWeapons do
+		if
+			not taken[owned.id]
+			and not owned.evolution
+			and owned.tier < params.maxTier
+			and Shop.weaponPrices[owned.id]
+			and CharacterRules.weaponAllowed(params.classId, owned.id)
+		then
+			table.insert(choices, owned)
+		end
+	end
+	if #choices == 0 then
+		return nil, nil
+	end
+	local choice = choices[math.min(#choices, math.floor(params.random() * #choices) + 1)]
+	return choice.id, choice.tier
+end
+
 local function weaponOffer(weaponId: string, params: Params, tier: number): Types.ShopOffer
 	local merges, blocked =
 		ShopRules.weaponStatus(weaponId, tier, params.ownedWeapons, params.maxWeapons, params.maxTier, params.classId)
@@ -332,7 +358,15 @@ function ShopRules.roll(params: Params): { Types.ShopOffer }
 		local wantWeapon = weaponsLeft > 0 or params.random() < Shop.weaponChance
 		local offer: Types.ShopOffer? = nil
 		local weaponTier = math.clamp(StatMath.rollTier(params.wave, params.luck, params.random()), 1, params.maxTier)
-		local weaponId = if wantWeapon then pickWeapon(params, avoid, taken, weaponTier) else nil
+		local weaponId: string? = nil
+		if wantWeapon then
+			local mergeId, mergeTier = pickMergeable(params, taken)
+			if mergeId and mergeTier then
+				weaponId, weaponTier = mergeId, mergeTier
+			else
+				weaponId = pickWeapon(params, avoid, taken, weaponTier)
+			end
+		end
 		if weaponId then
 			offer = weaponOffer(weaponId, params, weaponTier)
 			weaponsLeft -= 1

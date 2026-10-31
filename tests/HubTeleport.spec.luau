@@ -102,7 +102,7 @@ describe("hub teleports", function()
 		expect(ticket.picks[3].classId).toBe("SparkMage")
 		expect(ticket.picks[3].weaponId).toBe(weapon)
 		expect(ticket.options.danger).toBe(1)
-		expect(ticket.options.endless).toBe(true)
+		expect(ticket.options.endless).toBe(false) -- playtest after Paket 24: no endless from the lobby
 		expect(#ticket.partyId > 0).toBe(true)
 		-- they arrive on the run place: gone from the hub
 		world.removePlayer(peer)

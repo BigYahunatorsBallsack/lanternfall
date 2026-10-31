@@ -16,6 +16,9 @@ local Shop = {
 	-- Which weapon a weapon slot offers (Brotato): with `owned` chance one the player already has, else with
 	-- `sameClass` chance one that shares a class with one of theirs, else any weapon (all of them only if nothing fits)
 	weaponPool = table.freeze({ owned = 0.2, sameClass = 0.15 }),
+	-- Playtest after Paket 24: with every weapon slot full a weapon slot offers one of the player's own weapons at a
+	-- tier it merges with this often (before, only about 1 in 7 weapon offers could still be bought then)
+	fullSlots = table.freeze({ mergeChance = 0.6 }),
 
 	-- price = floor((base + wave * waveAdd + base * waveFactor * wave) * multiplier), at least 1; wave = the wave
 	-- that just ended

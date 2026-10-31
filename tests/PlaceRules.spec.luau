@@ -59,7 +59,7 @@ describe("run ticket", function()
 		expect(parsed.leader).toBe(7)
 		expect(#parsed.group).toBe(2)
 		expect(parsed.options.danger).toBe(3)
-		expect(parsed.options.endless).toBe(true)
+		expect(parsed.options.endless).toBe(false) -- playtest after Paket 24: chosen after the boss wave, never up front
 		expect(parsed.picks[7].weaponId).toBe("SparkBolt")
 		expect(parsed.picks[8].classId).toBe("BladeWarden")
 		expect(parsed.picks[8].weaponId).toBe(nil)
