@@ -469,6 +469,30 @@ local function copyArgs(...)
 end
 
 local InstanceMeta = { __type = "Instance" }
+
+-- Real Roblox property names (tests/helpers/RobloxApi.luau, made by tools/api/generate.py): writing a property a
+-- class does not have errors like in Roblox, e.g. "MidRange is not a valid member of EqualizerSoundEffect".
+local API = loadHelper("tests/helpers/RobloxApi.luau")
+local validProps = {}
+local function isValidProp(className, key)
+	local cache = validProps[className]
+	if cache == nil then
+		if not API[className] then
+			validProps[className] = false
+			return true
+		end
+		cache = {}
+		local current = className
+		while current and API[current] do
+			for _, name in API[current].props do
+				cache[name] = true
+			end
+			current = API[current].super
+		end
+		validProps[className] = cache
+	end
+	return cache == false or cache[key] == true
+end
 local methods = {}
 
 -- Properties every new part starts with, as in Roblox.
@@ -551,6 +575,9 @@ InstanceMeta.__newindex = function(instance, key, value)
 			end
 		end
 		return
+	end
+	if rawget(instance, "__checked") and not isValidProp(props.ClassName, key) then
+		error(`{key} is not a valid member of {props.ClassName} "{props.Name}"`, 2)
 	end
 	local changed = props[key] ~= value
 	props[key] = value
@@ -681,11 +708,11 @@ function methods.Clear() end
 -- Paket 21: sounds record each play in world.soundsPlayed (by name, e.g. "hit2" or "lobby").
 world.soundsPlayed = {}
 function methods.Play(self)
-	self.IsPlaying = true
+	rawget(self, "__props").IsPlaying = true
 	table.insert(world.soundsPlayed, self.Name)
 end
 function methods.Stop(self)
-	self.IsPlaying = false
+	rawget(self, "__props").IsPlaying = false
 end
 function methods.Emit(_, count)
 	world.particlesEmitted = (world.particlesEmitted or 0) + (count or 1)
@@ -738,7 +765,7 @@ end
 
 -- Paket 15: TeleportOptions keep their data; players return what world.addPlayer gave them as join data.
 function methods.SetTeleportData(self, data)
-	self.TeleportData = data
+	rawget(self, "__props").TeleportData = data -- mock-only field, read by specs
 end
 function methods.GetTeleportData(self)
 	return self.TeleportData
@@ -846,7 +873,17 @@ do
 	end
 end
 
-local InstanceLib = { new = newInstance }
+-- Instances the code under test creates get their property names checked (the mock's own setup does not).
+local InstanceLib = {
+	new = function(className, parent)
+		local instance = newInstance(className)
+		rawset(instance, "__checked", true)
+		if parent ~= nil then
+			instance.Parent = parent
+		end
+		return instance
+	end,
+}
 
 -- Services ----------------------------------------------------------------------
 

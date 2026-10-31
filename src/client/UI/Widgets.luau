@@ -163,7 +163,11 @@ function Widgets.button(props: { [string]: any }, onClick: () -> ()): TextButton
 	end
 	local button = Widgets.create("TextButton", defaults, { Widgets.corner() })
 	button.Activated:Connect(function()
-		Sfx.play("uiClick") -- Paket 21
+		-- Paket 21; a sound problem must never stop the button from working
+		local ok, err = pcall(Sfx.play, "uiClick")
+		if not ok then
+			warn(`[Lanternfall] click sound failed: {err}`)
+		end
 		onClick()
 	end)
 	return button

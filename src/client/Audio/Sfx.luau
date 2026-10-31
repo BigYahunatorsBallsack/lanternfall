@@ -63,7 +63,6 @@ local function shapeBus(group: SoundGroup)
 	eq.LowGain = bus.lowGain
 	eq.MidGain = bus.midGain
 	eq.HighGain = bus.highGain
-	eq.MidRange = NumberRange.new(bus.midRange[1], bus.midRange[2])
 	eq.Priority = 2
 	eq.Parent = group
 	local compressor = Instance.new("CompressorSoundEffect")

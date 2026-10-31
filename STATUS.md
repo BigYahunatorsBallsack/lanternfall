@@ -4,6 +4,8 @@ Kurzer Projektstand für neue Sessions. **Zuerst lesen**, dann aus `DESIGN.md` n
 
 ## Stand (31.10.2026)
 
+- Fix nach Owner-Test der .rbxl: `EqualizerSoundEffect.MidRange` gibt es in Roblox nicht; der Fehler brach jeden Button-Klick ab (kein Klick, kein Sound). Entfernt, Klick-Sound läuft jetzt in `pcall`. Testpaket (.rbxl via `rojo build`) liegt in Project Files `lanternfall-testpaket/`.
+
 - **Gemerged:** WP1–WP9, 9b, 9d, B1 (Wellen + Shop), B2 (Werte, 46 Items, Werte-Karten), Plan B3–B12 (PR #16), B3 (Shop komplett: Sperren, Verkaufen, Waffen-Stufen I–IV + Verschmelzen, Gratis-Neuwurf, Handy-Layout, 20 Wellen; PR #17), B4 (Effekt-Maschine, Neben-Werte, Zufalls-Ströme, 32 Items mit Effekten; PR #18) und B5 (Kampf-Tiefe: Krit pro Waffe, Rückstoß + Resistenz, Brennen, Explosionen, Durchbohren/Abprallen, Verlangsamen sichtbar, 14 Waffenklassen, 12 Kampf-Items; PR #19). B4 und B5 hat der Owner am 30.10.2026 zusammen in Studio getestet (`/mnt/project-files/lanternfall-b5/TESTANLEITUNG.md`).
 - **Test-Falle Brennen:** Spark Bolt (15) tötet Welle-1-Gegner (10 HP) mit einem Treffer, die fangen also nie Feuer (wie in Brotato). Brennen in Testanleitungen immer an einem Elite oder in späteren Wellen zeigen.
 - **Balance-Stand:** nach B3 gewannen gute Bots ca. 40 % der 20-Wellen-Runs (Wand bei Welle 13); eine Messung nach B4 (24 Runs) 15 von 24, Gegnerkurven unverändert. Blade Warden schwächer als Spark Mage (Thema für B5/B10).
@@ -113,7 +115,7 @@ Jeder Strang ändert nur **seine** Zeile (Regeln: `docs/PARALLEL.md`).
 ## Werkzeuge im Cloud-Container
 
 - Rokit-Downloads sind blockiert: `cargo install stylua --features luau` und `cargo install selene` (je ~1–2 min), Test-Runner: `cd tools/luau-test-runner && cargo build --release`.
-- Tests: `tools/luau-test-runner/target/release/luau-test-runner . tests/<Name>.spec.luau`, eine Datei pro Aufruf (RunDirector ist nicht reentrant). `tests/helpers/RobloxMock.luau` simuliert Roblox; prüft keine echten Property-Namen.
+- Tests: `tools/luau-test-runner/target/release/luau-test-runner . tests/<Name>.spec.luau`, eine Datei pro Aufruf (RunDirector ist nicht reentrant). `tests/helpers/RobloxMock.luau` simuliert Roblox. Seit 31.10.2026 prüft er bei per `Instance.new` erzeugten Objekten echte Property-Namen gegen `tests/helpers/RobloxApi.luau` (neu erzeugen: API-Dump von raw.githubusercontent.com/MaximumADHD/Roblox-Client-Tracker/roblox/Full-API-Dump.json laden, dann `python3 tools/api/generate.py <dump>`, z. B. wenn neue Klassen dazukommen). Mock-interne Felder schreibt der Mock per `rawget(self, "__props")`.
 - Selene: `selene generate-roblox-std` scheitert. Nur `src` linten, aus einem Scratch-Ordner mit `selene.toml` (`std = "roblox-lite"`, `shadowing = "allow"`) und `roblox-lite.yml` (`base: luau`, Roblox-Globals inkl. `buffer` als `any: true`).
 - Balance: `tests/balance/BalanceSim.luau` (lange Laufzeit). Varianten parallel aus Repo-Kopien im Scratchpad laufen lassen (4 Kerne); Streuung ist groß, für gute Bots 12+ Seeds.
 - Falle: Eine Laufzeit-Instance darf nicht so heißen wie ein Rojo-ModuleScript daneben.
