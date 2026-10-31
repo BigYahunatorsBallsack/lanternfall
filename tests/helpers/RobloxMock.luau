@@ -754,6 +754,28 @@ function methods.GetFriendsAsync(_, userId)
 	}
 end
 
+-- Paket 20: AnalyticsService records every call in world.analytics as { method, player, args }
+-- (world.analyticsError makes the calls throw).
+world.analytics = {}
+for _, method in
+	{
+		"LogOnboardingFunnelStepEvent",
+		"LogFunnelStepEvent",
+		"LogEconomyEvent",
+		"LogProgressionStartEvent",
+		"LogProgressionCompleteEvent",
+		"LogProgressionFailEvent",
+		"LogCustomEvent",
+	}
+do
+	methods[method] = function(_, player, ...)
+		if world.analyticsError then
+			error(world.analyticsError, 2)
+		end
+		table.insert(world.analytics, { method = method, player = player, args = table.pack(...) })
+	end
+end
+
 local InstanceLib = { new = newInstance }
 
 -- Services ----------------------------------------------------------------------
@@ -768,6 +790,7 @@ local SoundService = newInstance("SoundService", { Name = "SoundService" }) -- P
 local TeleportService = newInstance("TeleportService", { Name = "TeleportService" }) -- Paket 15
 local MarketplaceService = newInstance("MarketplaceService", { Name = "MarketplaceService" }) -- Paket 16
 local BadgeService = newInstance("BadgeService", { Name = "BadgeService" }) -- Paket 18
+local AnalyticsService = newInstance("AnalyticsService", { Name = "AnalyticsService" }) -- Paket 20
 local UserService = newInstance("UserService", { Name = "UserService" }) -- Paket 18
 local UserInputService =
 	newInstance("UserInputService", { Name = "UserInputService", TouchEnabled = false, KeyboardEnabled = true })
@@ -814,6 +837,7 @@ __services.TeleportService = TeleportService
 __services.MarketplaceService = MarketplaceService
 world.market = MarketplaceService
 __services.BadgeService = BadgeService
+__services.AnalyticsService = AnalyticsService
 __services.UserService = UserService
 game.PlaceId = 0
 game.GameId = 0
