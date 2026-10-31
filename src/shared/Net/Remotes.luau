@@ -125,6 +125,8 @@ Remotes.SelectStartWeapon = {
 	args = { Validate.keyOf(Config.Classes), Validate.keyOf(Config.Weapons) },
 }
 Remotes.StartWeaponChoice = { direction = "toClient" }
+Remotes.Structures = { direction = "toClient" } -- B12 authoritative full snapshot; also on RequestSync
+Remotes.StructureBeams = { direction = "toClient" } -- B12 cosmetic attacks
 -- B11: the lobby's run options for the next run: danger level, endless mode, enemy HP/damage/speed sliders in percent
 -- (snapped to Config.Difficulty.sliders by RunDirector)
 Remotes.SetRunOptions = {

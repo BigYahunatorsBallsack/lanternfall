@@ -45,6 +45,8 @@ export type TierDelta = {
 export type WeaponKind = "Melee" | "Ranged"
 
 export type Weapon = {
+	structureKinds: { string }?,
+	structureIntervals: { number }?,
 	id: string,
 	minTier: number?,
 	tierScaling: { { [string]: number } }?,
@@ -861,4 +863,80 @@ Weapons.WinterNeedle = {
 	},
 	countName = "projectile",
 }
+
+Weapons.FoundryKey = {
+	id = "FoundryKey",
+	displayName = "Foundry Key",
+	description = "Sweeps enemies. Deploys a sentry each wave; its kind improves with weapon tier.",
+	kind = "Melee",
+	classes = { "Artisan" },
+	scaling = { meleeDamage = 1 },
+	rangeKeys = { "range" },
+	behavior = "FoundryKey",
+	targeting = "Nearest",
+	minTier = 1,
+	structureKinds = { "BrassSentry", "CinderSentry", "PrismSentry", "SiegeSentry" },
+	base = {
+		damage = 12,
+		cooldown = 1.7,
+		range = 17.5,
+		critDamage = 2,
+		critChance = 0.03,
+		knockback = 20,
+		lifeSteal = 0,
+		width = 1.2,
+		sweepDegrees = 120,
+		attackSeconds = 0.18,
+		meleeMode = 1,
+	},
+	tiers = {
+		{},
+		{ damage = 1 / 3, cooldown = -0.06 },
+		{ damage = 1 / 3, cooldown = -0.09 },
+		{
+			damage = 1 / 3,
+			cooldown = -0.06,
+		},
+	},
+}
+Weapons.RuneAwl = {
+	id = "RuneAwl",
+	displayName = "Rune Awl",
+	description = "Thrusts enemies. Lays engineering mines every 12/9/6/3 seconds by tier.",
+	kind = "Melee",
+	classes = { "Artisan" },
+	scaling = { meleeDamage = 0.5, engineering = 0.5 },
+	rangeKeys = { "range" },
+	behavior = "RuneAwl",
+	targeting = "Nearest",
+	minTier = 1,
+	tierScaling = {
+		{ meleeDamage = 0.5, engineering = 0.5 },
+		{ meleeDamage = 0.5, engineering = 0.6 },
+		{ meleeDamage = 0.5, engineering = 0.7 },
+		{ meleeDamage = 0.5, engineering = 0.8 },
+	},
+	structureKinds = { "RuneMine", "RuneMine", "RuneMine", "RuneMine" },
+	structureIntervals = { 12, 9, 6, 3 },
+	base = {
+		damage = 8,
+		cooldown = 1.06,
+		range = 13.5,
+		critDamage = 2,
+		critChance = 0.1,
+		knockback = 3,
+		lifeSteal = 0,
+		width = 1.2,
+		sweepDegrees = 120,
+		attackSeconds = 0.18,
+		meleeMode = 0,
+	},
+	tiers = {
+		{},
+		{ damage = 0.5, cooldown = -0.05, critChance = 0.05, critDamage = 0.15 },
+		{ damage = 0.5, cooldown = -0.03, critChance = 0.05, critDamage = 0.15 },
+		{ damage = 0.5, cooldown = -0.1, critChance = 0.1, critDamage = 0.2 },
+	},
+}
+
 return table.freeze(Weapons)

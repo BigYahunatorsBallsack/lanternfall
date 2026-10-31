@@ -20,7 +20,7 @@ Kurzer Projektstand für neue Sessions. **Zuerst lesen**, dann aus `DESIGN.md` n
 - **Paket 12 Speichern (Strang A, 31.10.2026):** PR #32 von Branch `wp-12-save`, nach OK des Owners gemerged (`/mnt/project-files/lanternfall-wp12/TESTANLEITUNG.md`). ProfileStore (vendored, `src/server/Vendor/ProfileStore`) mit Session-Sperre, Autosave, Speichern beim Verlassen und nach jedem Run; Schema v2 (Siege, beste Welle, höchste gewonnene Gefahrenstufe, Rekord pro Charakter) mit Migration v1 → v2; Lobby zeigt „YOUR SAVED RECORD"; Debug-Knöpfe „Print my saved data", „Reset my saved data". Owner legt die Test-Experience „Lanternfall Test" an und schaltet dort den Studio-Zugriff auf API-Dienste ein.
 - **Paket 11 Wiederbeleben (Strang A, 30.10.2026):** PR `[Claude] Paket 11 Wiederbeleben` von Branch `wp-11-revive`, wartet auf Test und OK (`/mnt/project-files/lanternfall-wp11/TESTANLEITUNG.md`). Gestürzte zeigen Kreis, „DOWN 23 s" und Balken; Teammate 3 s im Kreis → steht mit 40 % HP auf, 2 s Schutz. Nach 30 s „out" bis Wellenende, Kamera folgt einem Teammate.
 
-- **Paket 13 Fortschritt (31.10.2026):** PR `[Claude] Paket 13 Fortschritt` von Branch `wp-13-progress`, wartet auf Test und OK (`/mnt/project-files/lanternfall-wp13/TESTANLEITUNG.md`). Embers pro Run (Minuten, Champions, Bosse, Gefahrenstufe, Party), 22 Erfolge über alle Runs, die 6 Charaktere, 5 Waffen und 11 Items freischalten (gesperrt = nicht wählbar, nie im Shop, nie in Kisten), Gefahrenstufe pro Charakter (Lobby-Stufe = höchste, die jemand in der Lobby offen hat), Schema v3, Erfolge-Fenster in der Lobby, Embers auf dem Ergebnis-Bildschirm, Debug-Knopf „Unlock everything".
+- **Paket 13 Fortschritt (31.10.2026):** PR #33 von Branch `wp-13-progress`, nach OK des Owners gemerged; Owner bestätigt: 4 Start-Charaktere und Gefahrenstufe pro Charakter bleiben (`/mnt/project-files/lanternfall-wp13/TESTANLEITUNG.md`). Embers pro Run (Minuten, Champions, Bosse, Gefahrenstufe, Party), 22 Erfolge über alle Runs, die 6 Charaktere, 5 Waffen und 11 Items freischalten (gesperrt = nicht wählbar, nie im Shop, nie in Kisten), Gefahrenstufe pro Charakter (Lobby-Stufe = höchste, die jemand in der Lobby offen hat), Schema v3, Erfolge-Fenster in der Lobby, Embers auf dem Ergebnis-Bildschirm, Debug-Knopf „Unlock everything".
 
 ## Plan bis zum Launch (Owner, 31.10.2026)
 
@@ -28,7 +28,7 @@ Claude baut **alle** restlichen Pakete außer B12 (macht ChatGPT). **Ein Paket p
 
 | Reihenfolge | Paket | Effort | Stand | Owner muss |
 | --- | --- | --- | --- | --- |
-| 1 | 13 Fortschritt: Embers, Erfolge, Freischaltungen, Gefahrenstufe pro Charakter | Medium | PR offen (`wp-13-progress`) | Freischaltungen abnicken |
+| 1 | 13 Fortschritt: Embers, Erfolge, Freischaltungen, Gefahrenstufe pro Charakter | Medium | gemerged (PR #33) | – |
 | 2 | 14 HUD, Run-Ende, Handy-Layout, Tooltips (Skalierung, Set-Bonus, Elite-Vorschau), Einstellungsmenü | Medium | offen | Handy-Screenshots |
 | 3 | 15 Hub-Lobby, Teleport, Party, Quick Join (Lobby-Place + Run-Place) | Extra high | offen | zweiten Place im Creator Hub anlegen, Place-ID liefern, Party-Teleport testen |
 | 4 | 16 Käufe: Game Passes, Developer Products, `ProcessReceipt` (idempotent) | Extra high | offen | Produkte/Passes im Creator Hub anlegen, IDs liefern, Testkäufe |
@@ -50,8 +50,8 @@ Jeder Strang ändert nur **seine** Zeile (Regeln: `docs/PARALLEL.md`).
 
 | Strang | KI | Aktuelles Paket | Branch / PR | Stand | Danach |
 | --- | --- | --- | --- | --- | --- |
-| A – Engine und Ablauf | Claude | Paket 13 Fortschritt (Medium) | `wp-13-progress` | fertig, wartet auf Test und Merge | Paket 14 HUD/Tooltips (Medium), dann weiter nach „Plan bis zum Launch" |
-| B – Inhalte und Spieler-Regeln | ChatGPT | B10 Charaktere (High) | `wp-b10-characters` | zehn Charaktere umgesetzt, automatisierte Abnahme; Studio-Test offen | B12 Bauten + Begleiter (High) |
+| A – Engine und Ablauf | Claude | Paket 13 Fortschritt (Medium) | `wp-13-progress` | gemerged (PR #33) | Paket 14 HUD/Tooltips (Medium), dann weiter nach „Plan bis zum Launch" |
+| B – Inhalte und Spieler-Regeln | ChatGPT | B12 Bauten + Begleiter (High) | `wp-b12-structures` | umgesetzt und automatisiert geprüft; Merge vom Owner autorisiert, Studio-Test offen | nächstes Paket nach Owner-Zuteilung |
 
 ## Feste Entscheidungen des Owners
 
@@ -152,3 +152,12 @@ Jeder Strang ändert nur **seine** Zeile (Regeln: `docs/PARALLEL.md`).
 - Studio-Verbindung geprüft: offene Experience enthält noch keinen B10-Quellstand. Deshalb keine Behauptung eines Studio-Playtests; ZIP/Branch zuerst synchronisieren.
 
 - B10-Abschluss: aktuelles main inklusive B9/Boss (`327e6f9`) aufgenommen; Konflikte in STATUS, DESIGN und ConfigCheck unter Erhalt beider Pakete gelöst. 388 Tests in 31 Dateien bestanden; StyLua, Selene (0 Fehler, 8 bestehende UI-Stilwarnungen) und Rojo-Build geprüft.
+
+## Ergänzung B12 (31.10.2026)
+
+- Fünf Türme, Minen, Garten, Orbit Wisp und Storm Familiar; Engineering als primärer Wert, Calibrated Tools und die Basisspiel-Werkzeuge Foundry Key / Rune Awl mit Artisan-Setbonus. Quellen und Klickanleitung: `docs/B12-BAUTEN.md`. Keine neuen DLC-Inhalte.
+- `StructureService` besitzt Simulation/Quellen/Lebenszyklus; `StructureRenderer` zeichnet gepoolte Laternen und Strahlen. Neue Config `Structures`, optionale Item-`structure`, Waffen-`structureKinds`/`structureIntervals`, Server→Client-Remotes `Structures`/`StructureBeams`, Debug `GiveStructureKit`. `WeaponService.structureHit/structureBurn` nutzen Treffer-Effekte und das gemeinsame Brennregister; Arsenal unverändert.
+- Anpassungen: 100 Bauten global, fair nach Teilnehmerzahl geteilt; Soforttreffer statt fliegender Projektile. Normale Kampfwerte skalieren Bauten nicht; Engineering und sekundäre Effekte greifen. Niedergeschlagene Besitzer pausieren, Shop/Run-Ende und Disconnect räumen auf.
+- Aktuellen main-Stand `15dd3e1` inklusive B11, Wiederbeleben und Speichern aufgenommen. Konflikte ausschließlich additive Einträge in Config/Net, beide Seiten erhalten. Gesamtes Repo erneut geprüft; kein Eingriff in A-Dienste oder Balance-Simulationen. Smoke-Test deaktiviert zufällige Bauten wie zuvor zufällige Drops; B12 hat eigene Integrationstests.
+- Ergebnisstatistik führt weiterhin nur getragene Waffen: eigene Bau-Schadenszeile später bei Strang A/HUD. Studio-Verbindung geprüft, dort B12 noch nicht synchronisiert; echter Solo-/Zwei-Client-/Gerätetest bleibt offen.
+- B12-Abschlussprüfung: 452 Tests in 39 Dateien bestanden (einschließlich acht B12-Integrationsszenarien), StyLua sauber, Selene 0 Fehler / 8 vorhandene UI-Stilwarnungen, Rojo-Build erfolgreich. Owner hat Abschluss, erneute Repo-Prüfung und Merge ausdrücklich beauftragt.

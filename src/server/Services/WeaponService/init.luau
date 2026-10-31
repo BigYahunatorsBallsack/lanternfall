@@ -522,4 +522,32 @@ function WeaponService.getMaxWeapons(player: Player): number
 	return CharacterRules.maxWeapons(RunDirector.getParticipantClassId(player))
 end
 
+-- B12: already scaled structure damage, no primary weapon scaling or life steal.
+function WeaponService.structureHit(player: Player, enemyId: number, amount: number, source: Arsenal.HitSource?)
+	local killed, dealt, applied = EnemySim.damage(enemyId, amount, player)
+	recordHit(player.UserId, enemyId, applied, false, killed, false)
+	if hitListener and dealt > 0 then
+		hitListener(player.UserId, enemyId, dealt, false, killed, source or "Weapon")
+	end
+end
+-- B12 shares the existing burn registry: strongest burn wins, timers survive refreshes, secondary stats apply.
+function WeaponService.structureBurn(
+	player: Player,
+	enemyId: number,
+	damage: number,
+	ticks: number,
+	sheet: { [string]: number }
+)
+	arsenal.afflictions:ignite(
+		enemyId,
+		require(script.Afflictions).newBurn(
+			player.UserId,
+			nil,
+			damage,
+			ticks,
+			require(Shared.Util.StatMath).burnInterval(sheet.burnSpeed or 0),
+			math.max(0, math.floor(sheet.burnSpread or 0))
+		)
+	)
+end
 return WeaponService
