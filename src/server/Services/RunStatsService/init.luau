@@ -9,6 +9,8 @@
 -- that can still be retried is only saved once the results are over (lobby or "Play again") or the player leaves, so
 -- a retried wave never counts twice. Paket 16: the record carries the Ember bonuses of passes and the Ember Boost
 -- (MonetizationService) as they are when the run ends.
+-- Paket 23: AdminService marks runs changed by debug commands (markDebugged); their records carry `debug`, and
+-- LeaderboardService leaves them off the boards.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -39,6 +41,7 @@ local lastSummary: Types.RunSummary? = nil
 local bossKills = 0 -- bosses only, for the saved record
 local championKills = 0 -- Paket 13
 local revives: { [Player]: number } = {} -- Paket 13: teammates each player revived this run
+local debugged = false -- Paket 23: an admin changed this run with debug commands (AdminService), no leaderboard score
 local heldRecords: { [Player]: any } = {} -- B11 part 2: defeats that may still be retried, saved later
 
 local function loadoutsOf(participants: { Player }): { [number]: Tally.Loadout }
@@ -75,6 +78,7 @@ local function onRunStarted(participants: { Player })
 	bossKills = 0
 	championKills = 0
 	table.clear(revives)
+	debugged = false
 	for _, player in participants do
 		tally:addPlayer(player.UserId, player.DisplayName, RunDirector.getParticipantClassId(player) or "")
 	end
@@ -122,6 +126,7 @@ local function onRunEnded(results: Types.Results)
 				players = #results.players,
 				bonuses = MonetizationService.getEmberBonuses(player),
 				firstNight = if firstNight then true else nil,
+				debug = if debugged then true else nil, -- Paket 23
 			}
 			if hold then
 				heldRecords[player] = record
@@ -151,6 +156,15 @@ local function saveAllHeld()
 end
 
 type Saved = { tally: Tally.Tally, bossKills: number, championKills: number, revives: { [Player]: number } }
+
+-- Paket 23: an admin changed the running run with a debug command; its records get `debug` (no leaderboard score).
+function RunStatsService.markDebugged()
+	debugged = true
+end
+
+function RunStatsService.isDebugged(): boolean
+	return debugged
+end
 
 -- Lifecycle -------------------------------------------------------------------------
 

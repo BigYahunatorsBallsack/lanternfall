@@ -22,6 +22,7 @@ export type RunRecord = {
 	players: number?, -- Paket 13: players in the run (party bonus)
 	bonuses: { { label: string, share: number } }?, -- Paket 16: Ember bonuses of passes and the Ember Boost
 	firstNight: boolean?, -- Paket 19: the short First Night run (never a win, no leaderboard score)
+	debug: boolean?, -- Paket 23: changed by an admin's debug commands (no leaderboard score)
 }
 
 local ProfileRecords = {}

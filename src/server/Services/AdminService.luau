@@ -7,6 +7,8 @@
 -- and uses RunDirector, CombatService, EnemySim, ExperienceService, ShopService, SpawnDirector, StatService,
 -- UpgradeService, WeaponService and MapService. Sets the player
 -- attribute "LanternfallAdmin" so the client shows the debug panel.
+-- Paket 23: a run changed by debug commands is marked (RunStatsService.markDebugged) and gets no leaderboard score;
+-- "MovementCheck" switches the movement check (MapService).
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -34,6 +36,7 @@ local MonetizationService = require(script.Parent.MonetizationService)
 local PlayerDataService = require(script.Parent.PlayerDataService)
 local QuestService = require(script.Parent.QuestService)
 local RunDirector = require(script.Parent.RunDirector)
+local RunStatsService = require(script.Parent.RunStatsService)
 local ShopService = require(script.Parent.ShopService)
 local SpawnDirector = require(script.Parent.SpawnDirector)
 local StatService = require(script.Parent.StatService)
@@ -509,6 +512,13 @@ handlers.PrintAnalytics = function(_player)
 	return true, `{#entries} analytics events printed to the Output`
 end
 
+-- Paket 23: the movement check (MapService/MovementGuard) on or off for this server; off in Studio by default
+handlers.MovementCheck = function(_player)
+	local on = not MapService.isMovementCheckOn()
+	MapService.setMovementCheck(on)
+	return true, if on then "Movement check on" else "Movement check off"
+end
+
 handlers.GiveStructureKit = function(player)
 	if not RunDirector.isOngoing() then
 		return false, "NotRunning"
@@ -540,12 +550,33 @@ function AdminService.init()
 		newEnemyIndex[player] = nil
 	end)
 
+	-- Paket 23: a run an admin changed with debug commands gets no leaderboard score (RunStatsService "debug"),
+	-- also when a lasting switch (wave timer, spawning, weapons, fake passes, movement check) was set before it
+	local movementCheckDefault = MapService.isMovementCheckOn()
+	RunDirector.RunStarted:Connect(function(participants: { Player })
+		task.defer(function() -- after RunStatsService started the run's record
+			local changed = RunDirector.isHoldingWaves()
+				or SpawnDirector.isPaused()
+				or WeaponService.isPaused()
+				or (movementCheckDefault and not MapService.isMovementCheckOn())
+			for _, player in participants do
+				changed = changed or MonetizationService.hasFakePasses(player)
+			end
+			if changed then
+				RunStatsService.markDebugged()
+			end
+		end)
+	end)
+
 	Net.onServer("DebugCommand", function(player, command: string)
 		if not AdminService.isAdmin(player) then
 			return
 		end
 		local ok, detail = handlers[command](player)
 		print(`[Lanternfall] Debug command {command} by {player.Name}: {if ok then detail or "done" else detail}`)
+		if ok and RunDirector.isOngoing() and not table.find(Config.Security.scoreSafeDebugCommands, command) then
+			RunStatsService.markDebugged()
+		end
 		if not ok then
 			RunDirector.notifyRejection(player, detail)
 		elseif detail then
