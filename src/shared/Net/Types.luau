@@ -341,6 +341,9 @@ export type BossTelegraph = {
 	endsAt: number?, -- WP10 part 2: a pool stays on the floor (and hurts) until then
 }
 
+-- B12 server-only deployments and bounded cosmetic batches.
+export type StructureInfo = { id: number, ownerId: number, kind: string, x: number, z: number }
+export type StructureBeam = { kind: string, x: number, z: number, tx: number, tz: number }
 -- WP11: a participant who is down or out during a wave (ReviveService -> ReviveController). `timeLeft` seconds until
 -- a downed player is out and `progress` (0-1) of the revive, both as of server time `sentAt`; `reviverUserId` is the
 -- teammate standing next to them right now (the progress grows), nil while it drains back.

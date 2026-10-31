@@ -13,8 +13,10 @@
 -- Read by StatService, EffectService, ShopService/ShopRules, UpgradeService and the client (texts, colors).
 
 local Effects = require(script.Parent.Effects)
+local Structures = require(script.Parent.Structures)
 
 export type Item = {
+	structure: string?,
 	id: string,
 	displayName: string,
 	tier: number, -- 1 Common, 2 Uncommon, 3 Rare, 4 Legendary
@@ -382,6 +384,28 @@ local LIST: { Item } = {
 	}),
 }
 
+-- B12: construction items retain the regular shop/stacking/reward pipeline.
+local structureIds = {}
+for id in Structures.kinds do
+	table.insert(structureIds, id)
+end
+table.sort(structureIds)
+for _, id in structureIds do
+	local definition = Structures.kinds[id]
+	table.insert(
+		LIST,
+		table.freeze({
+			id = id,
+			displayName = definition.displayName,
+			tier = definition.tier,
+			price = definition.price,
+			stats = table.freeze({}),
+			structure = id,
+			tags = table.freeze({ "engineering", "structure" }),
+		})
+	)
+end
+table.insert(LIST, item("CalibratedTools", "Calibrated Tools", 3, 70, { attackSpeed = 10 }, 1)) -- Improved Tools
 local byId: { [string]: Item } = {}
 for _, entry in LIST do
 	byId[entry.id] = entry

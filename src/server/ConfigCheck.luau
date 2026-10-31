@@ -747,6 +747,23 @@ function ConfigCheck.run(): { string }
 			end
 		end
 	end
+	-- B12: construction catalogs and sources must agree.
+	for id, definition in Config.Structures.kinds do
+		if definition.interval <= 0 or definition.range < 0 then
+			problem(`Invalid structure timing/range {id}`)
+		end
+		local item = Config.Items.byId[id]
+		if not item or item.structure ~= id then
+			problem(`Missing structure item {id}`)
+		end
+	end
+	for id, weapon in Config.Weapons do
+		for _, kind in weapon.structureKinds or {} do
+			if not Config.Structures.kinds[kind] then
+				problem(`Unknown structure {kind} on {id}`)
+			end
+		end
+	end
 	return problems
 end
 

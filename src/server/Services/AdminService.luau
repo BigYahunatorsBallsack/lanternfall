@@ -457,6 +457,17 @@ function AdminService.isAdmin(player: Player): boolean
 	return table.find(Config.Admin.userIds, player.UserId) ~= nil
 end
 
+handlers.GiveStructureKit = function(player)
+	if not RunDirector.isOngoing() then
+		return false, "NotRunning"
+	end
+	for id in Config.Structures.kinds do
+		StatService.addItem(player, id)
+	end
+	StatService.addItem(player, "CalibratedTools")
+	return true, "Structure kit granted: deploys next wave"
+end
+
 function AdminService.init()
 	for _, command in DebugCommands do
 		assert(handlers[command], `Debug command {command} has no handler`)

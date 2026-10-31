@@ -35,6 +35,8 @@ local RunSchedule = require(game:GetService("ReplicatedStorage").Shared.Util.Run
 
 -- Random fruits and crates (B6) would open crate choices before the level-up cards here; tests/Loot.spec.luau covers them.
 LootService.setDropsPaused(true)
+-- B12 has separate structure integration tests; do not kill this scenario's projectile-test enemies.
+require(ServerScriptService.Server.Services.StructureService).setPaused(true)
 
 local me = world.addPlayer("Owner", 1, true)
 world.step()

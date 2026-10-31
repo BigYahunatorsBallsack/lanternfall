@@ -146,10 +146,16 @@ end
 -- An item's stat lines (rich text with `colors`) followed by its effect lines, joined by `separator` (a new line).
 function UpgradeText.itemLines(itemId: string, colors: Colors?, separator: string?): string
 	local item = Config.Items.byId[itemId]
+	if item and item.structure then
+		return Config.Structures.kinds[item.structure].description
+	end
 	if not item then
 		return ""
 	end
 	local lines = {}
+	if itemId == "CalibratedTools" then
+		table.insert(lines, "Structures gain 50% of your Attack Speed")
+	end
 	local stats = UpgradeText.statLines(item.stats, colors)
 	if stats ~= "" then
 		table.insert(lines, stats)

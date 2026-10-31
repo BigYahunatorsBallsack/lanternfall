@@ -24,6 +24,8 @@ local Shop = {
 	-- (I-IV) is rolled like an item's rarity; its base price is the tier I price times tierPriceFactors[tier]
 	-- (Brotato's weapon tables roughly double the price per tier).
 	weaponPrices = table.freeze({
+		FoundryKey = 20,
+		RuneAwl = 10,
 		OrbitBlades = 18,
 		SparkBolt = 18,
 		Shockwave = 22,
@@ -50,6 +52,8 @@ local Shop = {
 		WinterNeedle = 18.0,
 	}),
 	weaponTierPrices = {
+		FoundryKey = { 20, 39, 74, 149 },
+		RuneAwl = { 10, 22, 45, 91 },
 		BrassKnuckles = { 10.0, 22.0, 45.0, 91.0 },
 		RitualDirk = { 10.0, 22.0, 45.0, 91.0 },
 		LamplighterPike = { 20.0, 39.0, 74.0, 149.0 },
