@@ -43,4 +43,5 @@ return table.freeze({
 	"AddEmbers", -- +Config.Admin.addEmbers saved Embers for the Ember shop (since Paket 17)
 	"NextDay", -- this server acts one day later: new daily quests and the next login streak day (since Paket 18)
 	"StartFirstNight", -- a First Night (short first-start run with hints) right now, from the lobby (since Paket 19)
+	"PrintAnalytics", -- the last analytics events of this server to the Output (since Paket 20)
 })

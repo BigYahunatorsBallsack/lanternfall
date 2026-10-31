@@ -12,6 +12,7 @@ local Config = require(Shared.Config)
 local EmberShopRules = require(Shared.Util.EmberShopRules)
 local Net = require(Shared.Net)
 
+local AnalyticsService = require(script.Parent.AnalyticsService)
 local CosmeticService = require(script.Parent.CosmeticService)
 local MonetizationService = require(script.Parent.MonetizationService)
 local PlayerDataService = require(script.Parent.PlayerDataService)
@@ -51,6 +52,7 @@ local function buy(player: Player, kind: string, id: string)
 		CosmeticService.refresh(player)
 	end
 	print(`{LOG_PREFIX}{player.Name} bought {kind} {id} for {price} Embers`)
+	AnalyticsService.embersSpent(player, "EmberShop", price, `{kind}:{id}`)
 	notify(player, Texts.bought .. nameOf(kind, id))
 	PlayerDataService.refresh(player)
 end

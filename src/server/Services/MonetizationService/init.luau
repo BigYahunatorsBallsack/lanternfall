@@ -25,6 +25,7 @@ local PurchaseRules = require(Shared.Util.PurchaseRules)
 local Signal = require(Shared.Util.Signal)
 local Types = require(Shared.Net.Types)
 
+local AnalyticsService = require(script.Parent.AnalyticsService)
 local PlayerDataService = require(script.Parent.PlayerDataService)
 local ReviveService = require(script.Parent.ReviveService)
 local RunDirector = require(script.Parent.RunDirector)
@@ -304,6 +305,9 @@ function MonetizationService.grant(player: Player, key: string, purchaseId: stri
 	end)
 	if applied then
 		print(`{LOG_PREFIX}Purchase {key} granted to {player.Name} ({purchaseId})`)
+		if product.grant.embers then
+			AnalyticsService.embersEarned(player, "Purchase", product.grant.embers, key)
+		end
 		afterGrant(player, key)
 	end
 	return result

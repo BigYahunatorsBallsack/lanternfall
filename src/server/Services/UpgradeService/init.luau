@@ -21,6 +21,7 @@ local Shared = ReplicatedStorage.Shared
 local Config = require(Shared.Config)
 local LootRules = require(Shared.Util.LootRules)
 local Net = require(Shared.Net)
+local Signal = require(Shared.Util.Signal)
 local StatMath = require(Shared.Util.StatMath)
 local Types = require(Shared.Net.Types)
 
@@ -51,6 +52,10 @@ type State = {
 }
 
 local UpgradeService = {}
+
+-- (player: Player, card: Types.UpgradeCard, offered: { Types.UpgradeCard }, auto: boolean): a level-up card was
+-- picked, by the player or automatically (time ran out, the wave started); Paket 20 analytics
+UpgradeService.CardPicked = Signal.new()
 
 local states: { [Player]: State } = {}
 
@@ -183,7 +188,7 @@ local function chooseCrate(player: Player, take: boolean): boolean
 	return true
 end
 
-local function choose(player: Player, cardId: string): boolean
+local function choose(player: Player, cardId: string, auto: boolean?): boolean
 	local state = states[player]
 	local offer = state and state.offer
 	if not (state and offer) then
@@ -194,6 +199,7 @@ local function choose(player: Player, cardId: string): boolean
 			table.remove(state.levels, 1)
 			state.offer = nil
 			StatService.addUpgrade(player, card.stat, card.amount)
+			UpgradeService.CardPicked:Fire(player, card, offer.cards, auto == true)
 			openNext(player, state)
 			return true
 		end
@@ -216,7 +222,7 @@ local function pickAll(player: Player, state: State)
 	local guard = #state.levels + 1
 	while state.offer and state.offer.cards[1] and guard > 0 do
 		guard -= 1
-		choose(player, state.offer.cards[1].id)
+		choose(player, state.offer.cards[1].id, true)
 	end
 	table.clear(state.levels)
 	sendOffer(player, state)
@@ -272,7 +278,7 @@ local function autoPick()
 	for player, state in states do
 		local offer = state.offer
 		if offer and time >= offer.expiresAt and offer.cards[1] then
-			choose(player, offer.cards[1].id)
+			choose(player, offer.cards[1].id, true)
 		end
 		local crate = state.crate
 		if crate and time >= crate.expiresAt then
