@@ -1,6 +1,8 @@
 --!strict
 -- Lobby screen: status line with the countdown, class choice, Ready button and who is ready.
 -- Shown while the local player is not in a run. Reads RunStateController; sends SelectClass and SetReady.
+-- Paket 15: on the hub PartyController replaces READY and the player list (parties, Play solo, Quick join) and on the
+-- run place adds "Back to hub"; it also gives the status line there.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
@@ -12,6 +14,7 @@ local Net = require(Shared:WaitForChild("Net"))
 local StatMath = require(Shared:WaitForChild("Util"):WaitForChild("StatMath"))
 local Types = require(Shared:WaitForChild("Net"):WaitForChild("Types"))
 
+local PartyController = require(script.Parent.PartyController)
 local RunStateController = require(script.Parent.RunStateController)
 local Theme = require(script.Parent.Parent.UI.Theme)
 local Widgets = require(script.Parent.Parent.UI.Widgets)
@@ -54,6 +57,10 @@ local function bonusText(class: any): string
 end
 
 local function statusText(state: Types.RunState, me: Types.PlayerInfo?): string
+	local placeText = PartyController.statusText() -- Paket 15: hub and run place
+	if placeText then
+		return placeText
+	end
 	local ready = me ~= nil and me.ready
 	if state.phase == "Lobby" then
 		return "Pick a class and press READY"
@@ -108,6 +115,7 @@ local function render()
 	end
 
 	local ready = me ~= nil and me.ready
+	readyButton.Visible = not PartyController.isHub() -- Paket 15: the hub starts runs with Play solo / party / quick join
 	readyButton.Text = if ready then "CANCEL" else "READY"
 	readyButton.BackgroundColor3 = if ready then Theme.button else Theme.success
 	readyButton.TextColor3 = if ready then Theme.text else Theme.accentText
@@ -117,6 +125,7 @@ local function render()
 	require(script.Parent.CharacterChoice).render() -- B10 lobby extension
 	require(script.Parent.DangerChoice).render() -- B11 lobby extension
 	require(script.Parent.ProfileCard).render() -- Paket 12 lobby extension
+	PartyController.render() -- Paket 15 lobby extension
 end
 
 local function build()
@@ -208,7 +217,7 @@ local function build()
 		Parent = screen,
 	})
 	Widgets.list(4).Parent = list
-	Widgets.label({
+	local playersTitle = Widgets.label({
 		Text = `PLAYERS (max {Config.Run.maxPlayers} per run)`,
 		Font = Theme.fontBold,
 		TextColor3 = Theme.textDim,
@@ -230,11 +239,15 @@ local function build()
 	list.Position = UDim2.fromOffset(12, 90)
 	require(script.Parent.DangerChoice).mount(screen) -- B11
 	require(script.Parent.ProfileCard).mount(list) -- Paket 12
+	PartyController.mountRows(list, playerRows, playersTitle) -- Paket 15
+	PartyController.mountActions(card)
+	PartyController.mountInvite(screen)
 end
 
 function LobbyController.start()
 	build()
 	RunStateController.Changed:Connect(render)
+	PartyController.Changed:Connect(render)
 	render()
 
 	-- Countdown and run timer tick every frame; only touch the label when the text changes.
@@ -245,6 +258,7 @@ function LobbyController.start()
 			if statusLabel.Text ~= text then
 				statusLabel.Text = text
 			end
+			PartyController.tick()
 		end
 	end)
 end

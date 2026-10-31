@@ -124,13 +124,7 @@ local function buildPortals(parent: Instance, center: Vector3)
 		local base = center + portal.offset
 		local facing = CFrame.lookAt(base, Vector3.new(center.X, base.Y, center.Z))
 		local w, h = PORTAL_SIZE.X, PORTAL_SIZE.Y
-		local gate = makePart(
-			model,
-			"Gate",
-			PORTAL_SIZE,
-			facing * CFrame.new(0, h / 2, 0),
-			color
-		)
+		local gate = makePart(model, "Gate", PORTAL_SIZE, facing * CFrame.new(0, h / 2, 0), color)
 		gate.Material = Enum.Material.Neon
 		gate.Transparency = 0.35
 		gate.CanCollide = false

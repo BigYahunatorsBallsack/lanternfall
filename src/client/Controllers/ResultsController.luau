@@ -6,6 +6,7 @@
 -- rewards in a part that scrolls when it does not fit (phones, Widgets.isCompact).
 -- B11 part 2: after a defeat with retries left, "Retry wave" (remote RetryWave) starts the lost wave again from its
 -- start; such a defeat is only saved (Embers) once the results are over, so the rewards line says so.
+-- Paket 15: on the run place "Back to hub" (remote ReturnToHub) next to "Play again".
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -19,6 +20,7 @@ local ProgressRules = require(Shared:WaitForChild("Util"):WaitForChild("Progress
 local Types = require(Shared:WaitForChild("Net"):WaitForChild("Types"))
 local UpgradeText = require(Shared:WaitForChild("Util"):WaitForChild("UpgradeText"))
 
+local PartyController = require(script.Parent.PartyController)
 local RunStateController = require(script.Parent.RunStateController)
 local Theme = require(script.Parent.Parent.UI.Theme)
 local Widgets = require(script.Parent.Parent.UI.Widgets)
@@ -44,6 +46,7 @@ local statsLabel: TextLabel
 local teamRows: Frame
 local againButton: TextButton
 local retryButton: TextButton
+local hubButton: TextButton
 local footerLabel: TextLabel
 local lastPress = 0
 local summary: Types.RunSummary? = nil
@@ -200,6 +203,9 @@ local function render()
 	againButton.BackgroundColor3 = if ready then Theme.button else Theme.accent
 	againButton.TextColor3 = if ready then Theme.text else Theme.accentText
 	footerLabel.Text = footerText()
+	local party = PartyController.get()
+	hubButton.Visible = PartyController.getRole() == "Run"
+	hubButton.Text = if party and party.teleporting then "TELEPORTING..." else "BACK TO HUB"
 	retryButton.Visible = retry
 	if retry then
 		local left = results.retriesLeft or 0
@@ -308,6 +314,22 @@ local function build()
 		end
 	end)
 
+	hubButton = Widgets.button({
+		Name = "BackToHub",
+		Text = "BACK TO HUB",
+		TextSize = 20,
+		Size = UDim2.fromOffset(360, 44),
+		Visible = false,
+		LayoutOrder = 9,
+		Parent = card,
+	}, function()
+		local now = os.clock()
+		if now - lastPress >= BUTTON_COOLDOWN then
+			lastPress = now
+			Net.fireServer("ReturnToHub")
+		end
+	end)
+
 	footerLabel = Widgets.label({ TextSize = 16, TextColor3 = Theme.textDim, LayoutOrder = 8, Parent = card })
 	rewardsLabel = Widgets.label({
 		Name = "Rewards",
@@ -324,6 +346,7 @@ end
 function ResultsController.start()
 	build()
 	RunStateController.Changed:Connect(render)
+	PartyController.Changed:Connect(render)
 	Net.onClient("RunSummary", function(received: Types.RunSummary)
 		summary = received
 		render()

@@ -371,6 +371,9 @@ local EVENTS = {
 	MouseLeave = true,
 	MouseMoved = true,
 	InputBegan = true,
+	-- Paket 15: portals and teleports
+	Triggered = true,
+	TeleportInitFailed = true,
 }
 
 local function isA(className, target)
@@ -658,6 +661,31 @@ function methods.Create(_, target, _, goals)
 	}
 end
 
+-- Paket 15: TeleportOptions keep their data; players return what world.addPlayer gave them as join data.
+function methods.SetTeleportData(self, data)
+	self.TeleportData = data
+end
+function methods.GetTeleportData(self)
+	return self.TeleportData
+end
+function methods.GetJoinData(self)
+	return { TeleportData = self.JoinTeleportData }
+end
+-- TeleportService: reserved servers are numbered, teleports are recorded in world.teleports (world.teleportError
+-- makes TeleportAsync throw, like a Roblox error).
+world.teleports = {}
+world.reservedServers = 0
+function methods.ReserveServer(_, placeId)
+	world.reservedServers += 1
+	return `access-{placeId}-{world.reservedServers}`, `server-{world.reservedServers}`
+end
+function methods.TeleportAsync(_, placeId, players, options)
+	if world.teleportError then
+		error(world.teleportError, 2)
+	end
+	table.insert(world.teleports, { placeId = placeId, players = table.clone(players), options = options })
+end
+
 local InstanceLib = { new = newInstance }
 
 -- Services ----------------------------------------------------------------------
@@ -669,6 +697,7 @@ local TweenService = newInstance("TweenService", { Name = "TweenService" })
 local ContextActionService = newInstance("ContextActionService", { Name = "ContextActionService" })
 local StarterGui = newInstance("StarterGui", { Name = "StarterGui" })
 local SoundService = newInstance("SoundService", { Name = "SoundService" }) -- Paket 14
+local TeleportService = newInstance("TeleportService", { Name = "TeleportService" }) -- Paket 15
 local UserInputService =
 	newInstance("UserInputService", { Name = "UserInputService", TouchEnabled = false, KeyboardEnabled = true })
 world.renderSteps = {}
@@ -710,6 +739,9 @@ __services.TweenService = TweenService
 __services.ContextActionService = ContextActionService
 __services.StarterGui = StarterGui
 __services.SoundService = SoundService
+__services.TeleportService = TeleportService
+game.PlaceId = 0
+game.JobId = ""
 __services.UserInputService = UserInputService
 game.CreatorType = EnumLib.CreatorType.User
 game.CreatorId = 0
@@ -794,8 +826,9 @@ local function spawnCharacter(player)
 end
 world.spawnCharacter = spawnCharacter
 
-function world.addPlayer(name, userId, isLocal)
+function world.addPlayer(name, userId, isLocal, teleportData)
 	local player = newInstance("Player", { Name = name, DisplayName = name, UserId = userId })
+	player.JoinTeleportData = teleportData -- Paket 15: what player:GetJoinData().TeleportData returns
 	newInstance("PlayerGui", { Name = "PlayerGui", Parent = player })
 	newInstance("PlayerScripts", { Name = "PlayerScripts", Parent = player })
 	if isLocal then

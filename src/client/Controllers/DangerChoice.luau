@@ -3,6 +3,7 @@
 -- shared by everyone in the server. Mounted and rendered by LobbyController; sends SetRunOptions.
 -- Since Paket 13 levels above the one open for the local player's character are dimmed (the server allows them only
 -- if someone in the lobby has them open).
+-- Paket 15: on the hub the choice belongs to the party (PartyController's options); only its leader changes it.
 
 local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
 local Config = require(Shared:WaitForChild("Config"))
@@ -11,6 +12,7 @@ local Net = require(Shared:WaitForChild("Net"))
 local Types = require(Shared:WaitForChild("Net"):WaitForChild("Types"))
 
 local CharacterChoice = require(script.Parent.CharacterChoice)
+local PartyController = require(script.Parent.PartyController)
 local RunStateController = require(script.Parent.RunStateController)
 local Theme = require(script.Parent.Parent.UI.Theme)
 local Widgets = require(script.Parent.Parent.UI.Widgets)
@@ -25,9 +27,14 @@ local levelButtons: { [number]: TextButton } = {}
 local description: TextLabel?
 local endlessButton: TextButton?
 local sliderLabels: { [string]: TextLabel } = {}
+local titleLabel: TextLabel? = nil
 local lastPress = 0
 
 local function current(): Types.RunOptions
+	local party = PartyController.get()
+	if party and party.role == "Hub" then
+		return party.options
+	end
 	local state = RunStateController.get()
 	return if state and state.options then state.options else DangerRules.defaultOptions()
 end
@@ -68,6 +75,12 @@ function DangerChoice.render()
 		then `\nOpen for your character: 0-{open}. Win danger {open} with it to open {open + 1}.`
 		else ""
 	description.Text = DangerRules.level(options.danger).description .. note
+	if titleLabel then
+		titleLabel.Text = if not PartyController.isHub()
+			then "DANGER (whole lobby)"
+			elseif PartyController.isLeader() then "DANGER (your party)"
+			else "DANGER (your leader picks)"
+	end
 	if endlessButton then
 		endlessButton.Text = if options.endless then "ENDLESS: ON" else "ENDLESS: OFF"
 		endlessButton.BackgroundColor3 = if options.endless then Theme.accent else Theme.button
@@ -132,7 +145,8 @@ function DangerChoice.mount(screen: ScreenGui)
 		Parent = screen,
 	})
 	Widgets.list(6).Parent = panel
-	Widgets.label({
+	titleLabel = Widgets.label({
+		Name = "Title",
 		Text = "DANGER (whole lobby)",
 		Font = Theme.fontBold,
 		TextColor3 = Theme.textDim,

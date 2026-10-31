@@ -482,11 +482,8 @@ end
 
 local function onPlayerAdded(player: Player)
 	if PlaceService.isHub() then
-		local ticket = PlaceRules.parseHubTicket(
-			PlaceService.getTeleportData(player),
-			player.UserId,
-			Config.Places.party.maxSize
-		)
+		local ticket =
+			PlaceRules.parseHubTicket(PlaceService.getTeleportData(player), player.UserId, Config.Places.party.maxSize)
 		if ticket then
 			book:arrive(player.UserId, ticket.partyId, ticket.leader, now(), Config.Places.runPlace.hubTagSeconds)
 		end

@@ -160,7 +160,11 @@ end
 
 -- Sends one player from the run place back to the hub: to the hub server they came from if it still runs and has
 -- room, otherwise to any hub server. Yields.
-function PlaceService.teleportToHub(player: Player, ticket: PlaceRules.HubTicket?, hubJobId: string?): (boolean, string?)
+function PlaceService.teleportToHub(
+	player: Player,
+	ticket: PlaceRules.HubTicket?,
+	hubJobId: string?
+): (boolean, string?)
 	local experience = PlaceService.getExperience()
 	if not (experience and PlaceService.canTeleport()) then
 		return false, "teleports are off here"
