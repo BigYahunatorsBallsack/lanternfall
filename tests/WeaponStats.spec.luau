@@ -44,7 +44,7 @@ describe("WeaponStats", function()
 		local bolt = compute("SparkBolt", 1, { rangedDamage = 3, meleeDamage = 10, damage = 20, maxHp = 50 })
 		expect(bolt.damage).toBeNear((W.SparkBolt.base.damage + 3) * 1.2) -- melee does not count for a ranged weapon
 		local blades = compute("OrbitBlades", 1, { meleeDamage = 4 })
-		expect(blades.damage).toBeNear(W.OrbitBlades.base.damage + 4)
+		expect(blades.damage).toBeNear(W.OrbitBlades.base.damage + 4 * W.OrbitBlades.scaling.meleeDamage)
 		local weak = compute("ThornTrail", 1, { elementalDamage = -50, damage = -90 })
 		expect(weak.damage).toBe(1) -- never below 1
 	end)

@@ -65,7 +65,7 @@ local offerCounter = 0
 
 local function newState(): State
 	return {
-		shards = 0,
+		shards = Config.Shop.startShards, -- playtest after Paket 24: something to buy in the first shop
 		open = false,
 		wave = 0,
 		offers = {},

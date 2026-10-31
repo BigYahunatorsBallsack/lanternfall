@@ -85,6 +85,10 @@ local Shop = {
 	-- every further reroll in the same shop adds the increase again. Level-up cards reroll at the same prices.
 	reroll = table.freeze({ increaseFactor = 0.4, firstFactor = 0.75 }),
 
+	-- Shards every participant starts a run with. Playtest after Paket 24: after wave 1 there was sometimes nothing
+	-- to buy (ranged characters kill far away and collect few orbs; wave 1 brought 2-28 Shards in the balance
+	-- simulation, the cheapest offers cost 12-23). Assumption: like Brotato's start money.
+	startShards = 30,
 	shardsPerXp = 1, -- Shards a player gets per XP of an orb they pick up (orbs are Brotato's materials)
 	waveEnd = table.freeze({
 		healFraction = 1, -- every participant heals to this share of max HP when a wave ends

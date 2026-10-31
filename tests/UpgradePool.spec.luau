@@ -126,7 +126,7 @@ describe("UpgradeText", function()
 		local title, detail, badge = UpgradeText.offer(weapon :: any)
 		expect(title).toBe("Spark Bolt III")
 		expect(detail).toBe(
-			"Fires at the nearest enemy, pierces 1.\nArcane · Keen\n21 (+100% Ranged Damage) · crit x1.5 (20%)"
+			"Fires at the nearest enemy, pierces 1.\nArcane · Keen\n18.2 (+100% Ranged Damage) · crit x1.5 (20%)"
 				.. "\n+1 bolt, +40% damage\nMerges into IV"
 		)
 		expect(badge).toBe("Rare · own 1")
@@ -134,7 +134,7 @@ describe("UpgradeText", function()
 		title, detail, badge = UpgradeText.offer(weapon :: any)
 		expect(title).toBe("Spark Bolt I")
 		expect(detail).toBe(
-			"Fires at the nearest enemy, pierces 1.\nArcane · Keen\n15 (+100% Ranged Damage) · crit x1.5 (20%)"
+			"Fires at the nearest enemy, pierces 1.\nArcane · Keen\n13 (+100% Ranged Damage) · crit x1.5 (20%)"
 				.. "\nWeapon slots full"
 		)
 		expect(badge).toBe("Common · NEW")

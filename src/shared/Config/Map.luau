@@ -70,6 +70,9 @@ return table.freeze({
 		backdropRuins = 18, -- broken walls and blocks beyond the fog wall
 		backdropDepth = { 10, 45 }, -- how far beyond the wall
 		obelisks = true, -- a glowing obelisk at each arena corner
+		-- ground beyond the fog wall under the lamps, ruins and obelisks (playtest after Paket 24: they floated in view
+		-- once the arena got smaller); `margin` studs past the wall, its top `drop` studs below the arena floor
+		outskirts = table.freeze({ margin = 70, thickness = 4, drop = 0.3 }),
 		motes = table.freeze({ rate = 6, lifetime = { 6, 10 } }), -- floating embers over the arena, per second
 		lobbyLamps = 6, -- around the lobby
 	}),
