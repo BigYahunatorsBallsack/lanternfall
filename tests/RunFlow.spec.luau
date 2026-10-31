@@ -12,7 +12,7 @@ local SETTINGS = {
 	shopSeconds = 30,
 	maxPlayers = 4,
 	defaultClassId = "BladeWarden",
-	difficulty = "Normal",
+	endlessWaveSeconds = 60,
 }
 
 local function kinds(events)
@@ -451,6 +451,52 @@ describe("RunFlow", function()
 			flow:endRun("Victory", clock.now)
 			flow:removePlayer(1, clock.now)
 			expect(flow.phase).toBe("Lobby")
+		end)
+	end)
+
+	describe("run options and endless mode (B11)", function()
+		it("locks the lobby's options at run start", function()
+			local flow, clock = newFlow(1)
+			flow:setOptions({ danger = 3, endless = true, enemyHp = 100, enemyDamage = 100, enemySpeed = 100 })
+			flow:setReady(1, true, clock.now)
+			clock.advance(SETTINGS.allReadyCountdownSeconds)
+			flow:update(clock.now)
+			flow:setOptions({ danger = 1, endless = false, enemyHp = 100, enemyDamage = 100, enemySpeed = 100 })
+			expect(flow:getRunOptions().danger).toBe(3)
+			expect(flow:snapshot().difficulty).toBe("Danger 3 · Endless")
+			expect(flow:snapshot().options.danger).toBe(1)
+		end)
+
+		it("goes on after the last wave in endless mode and counts dying there as a win", function()
+			local flow, clock = newFlow(1)
+			flow:setOptions({ danger = 0, endless = true, enemyHp = 100, enemyDamage = 100, enemySpeed = 100 })
+			flow:setReady(1, true, clock.now)
+			clock.advance(SETTINGS.allReadyCountdownSeconds)
+			flow:update(clock.now)
+			expect(flow:skipTo(75, clock.now)).toBe(true) -- end of the last wave
+			expect(flow.phase).toBe("Shop")
+			flow:setShopReady(1, true, clock.now)
+			expect(flow.phase).toBe("Running")
+			expect(flow.wave).toBe(4)
+			expect(flow:skipTo(75 + 60, clock.now)).toBe(true) -- endless wave 4 lasts 60 s
+			expect(flow.phase).toBe("Shop")
+			flow:setShopReady(1, true, clock.now)
+			flow:drainEvents()
+			flow:setParticipantState(1, "Out", clock.now)
+			local results = flow.results :: any
+			expect(results.outcome).toBe("Victory")
+			expect(results.wave).toBe(5)
+			expect(results.endless).toBe(true)
+		end)
+
+		it("is a defeat to die before the end of the last wave in endless mode", function()
+			local flow, clock = newFlow(1)
+			flow:setOptions({ danger = 0, endless = true, enemyHp = 100, enemyDamage = 100, enemySpeed = 100 })
+			flow:setReady(1, true, clock.now)
+			clock.advance(SETTINGS.allReadyCountdownSeconds)
+			flow:update(clock.now)
+			flow:setParticipantState(1, "Out", clock.now)
+			expect((flow.results :: any).outcome).toBe("Defeat")
 		end)
 	end)
 

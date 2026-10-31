@@ -4,6 +4,7 @@
 -- and the HUD shows the same waves without a remote. Tested in tests/SpawnRules.spec.luau.
 
 local Run = require(script.Parent.Parent.Config.Run)
+local Difficulty = require(script.Parent.Parent.Config.Difficulty)
 
 local Spawn = Run.spawn
 local Waves = Spawn.waves
@@ -15,7 +16,9 @@ export type Wave = {
 	count: number, -- waves in a run
 	startsAt: number, -- fighting seconds (the clock stops in the shop between waves)
 	endsAt: number, -- fighting seconds, when the shop opens (or the boss comes after the final wave)
-	final: boolean, -- the last wave before the boss
+	final: boolean, -- the boss wave that ends a run (wave 20)
+	endless: boolean, -- B11: a wave after the final one (endless mode)
+	boss: boolean, -- B11: wave 20 and every Difficulty.endless.bossEvery waves after it
 }
 
 local RunSchedule = {}
@@ -23,12 +26,36 @@ local RunSchedule = {}
 local LENGTHS = Waves.lengthsSeconds
 local WAVE_COUNT = #LENGTHS
 local STARTS: { number } = {}
+local TOTAL = 0
 do
-	local at = 0
 	for index, length in LENGTHS do
-		STARTS[index] = at
-		at += length
+		STARTS[index] = TOTAL
+		TOTAL += length
 	end
+end
+local Endless = Difficulty.endless
+
+local function isEndlessBoss(number: number): boolean
+	return number > WAVE_COUNT and (number - WAVE_COUNT) % Endless.bossEvery == 0
+end
+
+-- Endless wave `number` (> WAVE_COUNT): starts after the run's waves and the endless waves before it (B11).
+local function endlessWave(number: number): Wave
+	local before = number - WAVE_COUNT - 1
+	local bossesBefore = math.floor(before / Endless.bossEvery)
+	local startsAt = TOTAL
+		+ before * Endless.waveSeconds
+		+ bossesBefore * (Endless.bossWaveSeconds - Endless.waveSeconds)
+	local boss = isEndlessBoss(number)
+	return {
+		number = number,
+		count = WAVE_COUNT,
+		startsAt = startsAt,
+		endsAt = startsAt + if boss then Endless.bossWaveSeconds else Endless.waveSeconds,
+		final = false,
+		endless = true,
+		boss = boss,
+	}
 end
 
 -- Value of a keyframe curve at `minutes`: linear between keyframes, flat before the first and after the last.
@@ -54,20 +81,33 @@ function RunSchedule.waveCount(): number
 	return WAVE_COUNT
 end
 
--- The wave with this number (clamped to the run's waves).
+-- The wave with this number (at least 1); past the run's waves the endless ones (B11).
 function RunSchedule.wave(number: number): Wave
-	local n = math.clamp(number, 1, WAVE_COUNT)
+	if number > WAVE_COUNT then
+		return endlessWave(math.floor(number))
+	end
+	local n = math.max(number, 1)
 	return {
 		number = n,
 		count = WAVE_COUNT,
 		startsAt = STARTS[n],
 		endsAt = STARTS[n] + LENGTHS[n],
 		final = n == WAVE_COUNT,
+		endless = false,
+		boss = n == WAVE_COUNT,
 	}
 end
 
--- The wave at `seconds` of fighting time; a wave's end belongs to the next wave.
+-- The wave at `seconds` of fighting time; a wave's end belongs to the next wave. Past the run's waves the endless
+-- ones (B11).
 function RunSchedule.waveAt(seconds: number): Wave
+	if seconds >= TOTAL then
+		local number = WAVE_COUNT + 1
+		while RunSchedule.wave(number).endsAt <= seconds do
+			number += 1
+		end
+		return RunSchedule.wave(number)
+	end
 	local number = 1
 	for index = WAVE_COUNT, 1, -1 do
 		if seconds >= STARTS[index] then
@@ -105,19 +145,29 @@ function RunSchedule.elitesDue(fromMinutes: number, toMinutes: number): number
 end
 
 -- What the wave with this number brings, for its banner: new enemies, Swarm Rush, elites. Empty for none.
-function RunSchedule.eventsOf(number: number): { string }
+-- `danger` (B11, default 5) leaves out the kinds that come from danger 1 and the Gloom Elites where they are off.
+function RunSchedule.eventsOf(number: number, danger: number?): { string }
 	local minute = number - 1
 	local events = {}
+	local level = Difficulty.levels[math.clamp(danger or #Difficulty.levels - 1, 0, #Difficulty.levels - 1) + 1]
 	local entry = Spawn.groups[number]
 	if entry and entry.announce then
-		table.insert(events, `New: {entry.announce}`)
+		local names = {}
+		for _, item in entry.announce do
+			if level.newEnemies or not table.find(Difficulty.newEnemies, item.enemy) then
+				table.insert(names, item.name)
+			end
+		end
+		if #names > 0 then
+			table.insert(events, `New: {table.concat(names, ", ")}`)
+		end
 	end
 	for _, start in Spawn.swarmRush.atMinutes do
 		if start == minute then
 			table.insert(events, "Swarm Rush!")
 		end
 	end
-	local elites = RunSchedule.elitesDue(minute - 1e-6, minute)
+	local elites = if level.gloomElites then RunSchedule.elitesDue(minute - 1e-6, minute) else 0
 	if elites > 1 then
 		table.insert(events, `{elites} Gloom Elites!`)
 	elseif elites == 1 then
@@ -125,6 +175,8 @@ function RunSchedule.eventsOf(number: number): { string }
 	end
 	if number == WAVE_COUNT then
 		table.insert(events, "Final wave")
+	elseif isEndlessBoss(number) then
+		table.insert(events, "Boss wave")
 	end
 	return events
 end

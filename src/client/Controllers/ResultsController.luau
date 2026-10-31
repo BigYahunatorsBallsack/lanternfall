@@ -79,7 +79,8 @@ local function render()
 	titleLabel.Text = text.title
 	titleLabel.TextColor3 = if results.outcome == "Victory" then Theme.accent else Theme.gloom
 	subtitleLabel.Text = text.subtitle
-	timeLabel.Text = `Time {Format.time(results.survivedSeconds)} · {results.difficulty}`
+	local reached = if results.wave then ` · wave {results.wave}` else "" -- B11
+	timeLabel.Text = `Time {Format.time(results.survivedSeconds)}{reached} · {results.difficulty}`
 	statsLabel.Text = if summary then `Team level {summary.teamLevel} · {summary.kills} kills` else ""
 	statsLabel.Visible = summary ~= nil
 

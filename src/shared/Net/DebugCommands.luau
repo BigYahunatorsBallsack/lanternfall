@@ -35,4 +35,6 @@ return table.freeze({
 	"DropLegendaryCrate", -- a legendary crate at your feet (since WP10; heals fully, Legendary item after the wave)
 	"SpawnChampion", -- the next champion of the elite waves near yourself, in any wave (since WP10 part 2)
 	"GiveStructureKit", -- B12: one of every construction item, deployed next wave
+	"PrintProfile", -- print your saved data to the Output (since Paket 12)
+	"ResetProfile", -- your saved data back to a fresh profile (since Paket 12)
 })

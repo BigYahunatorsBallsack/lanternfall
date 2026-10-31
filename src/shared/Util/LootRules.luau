@@ -19,12 +19,13 @@ function LootRules.orbChance(wave: number): number
 	return math.max(rule.minChance, 1 - rule.lossPerWave * wave)
 end
 
--- Whether a killed enemy of this kind drops its orb; `roll` is a random number 0 <= x < 1.
-function LootRules.dropsOrb(kind: Enemies.Enemy, wave: number, roll: number): boolean
+-- Whether a killed enemy of this kind drops its orb; `roll` is a random number 0 <= x < 1. `share` (B11, default 1)
+-- multiplies the chance (horde waves drop fewer).
+function LootRules.dropsOrb(kind: Enemies.Enemy, wave: number, roll: number, share: number?): boolean
 	if kind.elite or (kind.loot and kind.loot.alwaysOrbs) then
 		return true
 	end
-	return roll < LootRules.orbChance(wave)
+	return roll < LootRules.orbChance(wave) * (share or 1)
 end
 
 -- How much of the bag a new orb worth `value` takes along (at most what is in the bag).

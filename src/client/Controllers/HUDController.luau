@@ -66,8 +66,12 @@ local function hintText(state: Types.RunState): (string, Color3)
 		return string.upper(Config.Enemies.boss.displayName), Theme.danger
 	end
 	local wave = RunSchedule.wave(state.wave)
-	if state.phase == "Shop" then
+	if state.phase == "Shop" and wave.number >= wave.count then
+		return `Shop · endless wave {wave.number + 1} next`, Theme.success -- B11
+	elseif state.phase == "Shop" then
 		return `Shop · wave {wave.number + 1} / {wave.count} next`, Theme.success
+	elseif wave.endless then
+		return `Endless wave {wave.number}`, if wave.boss then Theme.danger else Theme.textDim -- B11
 	elseif wave.final then
 		return `Final wave {wave.number} / {wave.count}`, Theme.danger
 	end
@@ -80,7 +84,9 @@ local function showWaveBanner(number: number)
 	if old then
 		old:Destroy()
 	end
-	local events = RunSchedule.eventsOf(number)
+	local state = RunStateController.get()
+	local options = state and (state.runOptions or state.options)
+	local events = RunSchedule.eventsOf(number, if options then options.danger else nil) -- B11: by danger level
 	local banner = Widgets.create("Frame", {
 		Name = "WaveBanner",
 		BackgroundTransparency = 1,

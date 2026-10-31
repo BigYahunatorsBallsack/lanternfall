@@ -478,19 +478,52 @@ function ConfigCheck.run(): { string }
 		end
 	end
 
-	for id, tier in Config.Difficulty.tiers do
-		if tier.unlockedBy and not Config.Difficulty.tiers[tier.unlockedBy] then
-			problem(`Difficulty {id} unlocked by unknown tier {tier.unlockedBy}`)
+	-- B11: danger levels, enemy sliders, new enemies
+	local difficulty = Config.Difficulty
+	for index, level in difficulty.levels do
+		if level.level ~= index - 1 then
+			problem(`Difficulty.levels[{index}] must be danger level {index - 1}`)
 		end
+		if not (level.enemyHp > 0 and level.enemyDamage > 0 and level.bossCount >= 1) then
+			problem(`Difficulty level {level.level} needs positive enemy multipliers and at least one boss`)
+		end
+		if level.challengeSlots > #Config.Enemies.eliteWaves.slots then
+			problem(`Difficulty level {level.level} has more challenge slots than Enemies.eliteWaves.slots`)
+		end
+		if level.bossCount > #Config.Enemies.bossWave.order then
+			problem(`Difficulty level {level.level} wants more bosses than Enemies.bossWave.order has`)
+		end
+	end
+	if not difficulty.levels[difficulty.defaultLevel + 1] then
+		problem("Difficulty.defaultLevel is not a danger level")
+	end
+	for _, enemyId in difficulty.newEnemies do
+		if not Config.Enemies.types[enemyId] then
+			problem(`Difficulty.newEnemies names unknown enemy {enemyId}`)
+		end
+	end
+	for _, id in difficulty.sliderOrder do
+		local slider = (difficulty.sliders :: any)[id]
+		if
+			not (
+				slider
+				and slider.min > 0
+				and slider.min <= slider.default
+				and slider.default <= slider.max
+				and slider.step > 0
+			)
+		then
+			problem(`Difficulty.sliders.{id} needs 0 < min <= default <= max and a step`)
+		end
+	end
+	if not (difficulty.endless.waveSeconds > 0 and difficulty.endless.bossEvery >= 1) then
+		problem("Difficulty.endless needs waveSeconds and bossEvery")
 	end
 
 	local flow = Config.Run.flow
 	local defaultClass = Config.Classes[flow.defaultClassId]
 	if not (defaultClass and defaultClass.available and defaultClass.free) then
 		problem(`Run.flow.defaultClassId {flow.defaultClassId} must be an available free class`)
-	end
-	if not Config.Difficulty.tiers[flow.defaultDifficulty] then
-		problem(`Run.flow.defaultDifficulty {flow.defaultDifficulty} is not a difficulty tier`)
 	end
 	if flow.allReadyCountdownSeconds <= 0 or flow.allReadyCountdownSeconds > flow.countdownSeconds then
 		problem("Run.flow.allReadyCountdownSeconds must be above 0 and at most countdownSeconds")
@@ -657,8 +690,8 @@ function ConfigCheck.run(): { string }
 			problem(`Enemies.bossWave.order names unknown boss {bossId}`)
 		end
 	end
-	if not (bossWave.count >= 1 and #bossWave.order >= 1 and bossWave.stateInterval > 0) then
-		problem("Enemies.bossWave needs count, order and stateInterval")
+	if not (#bossWave.order >= 1 and bossWave.stateInterval > 0) then
+		problem("Enemies.bossWave needs order and stateInterval")
 	end
 	local eliteWaves = Config.Enemies.eliteWaves
 	for _, championId in eliteWaves.order do
@@ -673,15 +706,8 @@ function ConfigCheck.run(): { string }
 			end
 		end
 	end
-	if
-		not (
-			eliteWaves.count >= 1
-			and eliteWaves.activeSlots <= #eliteWaves.slots
-			and eliteWaves.reducedHpShare > 0
-			and eliteWaves.reducedHpShare <= 1
-		)
-	then
-		problem("Enemies.eliteWaves needs count, activeSlots within its slots and a reducedHpShare of 0-1")
+	if not (eliteWaves.count >= 1 and eliteWaves.reducedHpShare > 0 and eliteWaves.reducedHpShare <= 1) then
+		problem("Enemies.eliteWaves needs count and a reducedHpShare of 0-1")
 	end
 	local lengths = Config.Run.spawn.waves.lengthsSeconds
 	if Config.Admin.skipToBossLeadSeconds ~= lengths[#lengths] then

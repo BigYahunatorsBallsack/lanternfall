@@ -24,4 +24,5 @@ return {
 	Shop = require(script.Shop),
 	Loot = require(script.Loot),
 	Structures = require(script.Structures),
+	Save = require(script.Save), -- Paket 12
 }

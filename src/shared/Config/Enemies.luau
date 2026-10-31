@@ -275,10 +275,10 @@ local Enemies: { [string]: Enemy } = {
 		id = "Brute",
 		typeId = 2,
 		displayName = "Brute",
-		hp = 60,
+		hp = 40, -- B11: 60 -> 40, +41 -> +27 per step (owner: big ones pile up; 65 %)
 		speed = 8,
 		contactDamage = 12,
-		hpPerWave = 41,
+		hpPerWave = 27,
 		damagePerWave = 4.1,
 		xp = 4,
 		radius = 2.5,
@@ -384,10 +384,10 @@ local Enemies: { [string]: Enemy } = {
 		id = "AbyssBrute",
 		typeId = 9,
 		displayName = "Abyss Brute",
-		hp = 140,
+		hp = 90, -- B11: 140 -> 90, +95 -> +62 per step (owner: big ones pile up; 65 %)
 		speed = 8.5,
 		contactDamage = 18,
-		hpPerWave = 95,
+		hpPerWave = 62,
 		damagePerWave = 6.1,
 		xp = 8,
 		radius = 2.8,
@@ -778,8 +778,9 @@ local Bosses: { [string]: Enemy } = {
 
 -- How the boss wave brings its bosses (BossService).
 local BossWave = table.freeze({
-	count = 1, -- bosses per run (B11: 2 on the highest danger level, each with hpShareWhenSeveral of its HP)
-	hpShareWhenSeveral = 0.75, -- Brotato
+	-- bosses per boss wave: Config.Difficulty (B11: 2 on danger 5, every boss in endless boss waves), each with
+	-- this share of its HP when more than one comes (Brotato)
+	hpShareWhenSeveral = 0.75,
 	order = table.freeze({ "LanternEater", "HollowSeer" }), -- picked at random; "SpawnBoss" goes through them in turn
 	introSeconds = 2.5, -- after the boss wave starts: red crosses show where it comes
 	spawnDistance = 28, -- studs from a random living player
@@ -1294,11 +1295,11 @@ local Champions: { [string]: Enemy } = {
 
 -- Brotato's elite waves (DESIGN.md section 7): one champion joins the wave's normal enemies, after red crosses like
 -- the boss. Brotato: danger 2-3 one challenging wave (11 or 12), danger 4-5 three (11/12, 14/15, 17/18), 60 % of
--- them elite, the rest horde waves. Until the danger levels come (B11) the first slot is on and always an elite wave.
+-- them elite, the rest horde waves. Since B11 Config.Difficulty decides how many slots a run has and which become
+-- horde waves (Util/DangerRules.planBlock); endless mode repeats the slots every 10 waves.
 local EliteWaves = table.freeze({
 	slots = table.freeze({ table.freeze({ 11, 12 }), table.freeze({ 14, 15 }), table.freeze({ 17, 18 }) }),
-	activeSlots = 1, -- B11: by danger level
-	count = 1, -- champions per elite wave (Brotato; endless mode brings more)
+	count = 1, -- champions per elite wave (Brotato; endless mode adds Difficulty.endless.championsPerBlock per block)
 	-- picked at random, never twice in a run; "SpawnChampion" goes through them in turn
 	order = table.freeze({
 		"BrassRam",

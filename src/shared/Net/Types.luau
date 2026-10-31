@@ -27,8 +27,21 @@ export type ResultEntry = {
 export type Results = {
 	outcome: Outcome,
 	survivedSeconds: number,
-	difficulty: string,
+	difficulty: string, -- e.g. "Danger 3 · Endless" (B11)
 	players: { ResultEntry },
+	wave: number?, -- B11: the wave the run ended in
+	endless: boolean?, -- B11
+}
+
+-- B11: what the lobby chose for a run (Config.Difficulty): danger level 0-5, endless mode and the enemy sliders in
+-- percent.
+export type RunOptions = {
+	danger: number,
+	endless: boolean,
+	enemyHp: number,
+	enemyDamage: number,
+	enemySpeed: number,
+	enemyCount: number?, -- percent of the enemies the spawn groups bring (default 100)
 }
 
 export type RunState = {
@@ -43,6 +56,8 @@ export type RunState = {
 	pausedAt: number?, -- Shop: when the clock stopped
 	players: { PlayerInfo },
 	results: Results?, -- Ended
+	options: RunOptions, -- B11: the lobby's choice for the next run
+	runOptions: RunOptions?, -- B11: the choice the current run started with
 }
 
 -- HP and dash state of one player (CombatService -> PlayerStateController), sent to everyone on change.
@@ -329,4 +344,36 @@ export type BossTelegraph = {
 -- B12 server-only deployments and bounded cosmetic batches.
 export type StructureInfo = { id: number, ownerId: number, kind: string, x: number, z: number }
 export type StructureBeam = { kind: string, x: number, z: number, tx: number, tz: number }
+-- WP11: a participant who is down or out during a wave (ReviveService -> ReviveController). `timeLeft` seconds until
+-- a downed player is out and `progress` (0-1) of the revive, both as of server time `sentAt`; `reviverUserId` is the
+-- teammate standing next to them right now (the progress grows), nil while it drains back.
+export type ReviveInfo = {
+	userId: number,
+	state: ParticipantState, -- "Down" or "Out"
+	timeLeft: number,
+	progress: number,
+	reviverUserId: number?,
+	sentAt: number,
+}
+
+export type ReviveState = {
+	players: { ReviveInfo },
+}
+
+-- Paket 12: how player data is kept this session (PlayerDataService). "DataStore" saves for real; "Mock" is Studio
+-- without API access (kept only until the test stops); "Memory" has no DataStoreService at all (tests).
+export type SaveMode = "DataStore" | "Mock" | "Memory"
+
+-- Paket 12: the local player's saved record for the lobby (PlayerDataService -> ProfileCard), on load and change.
+export type ProfileInfo = {
+	saveMode: SaveMode,
+	schemaVersion: number,
+	runs: number,
+	wins: number,
+	kills: number,
+	bossKills: number,
+	bestWave: number,
+	bestDanger: number, -- highest danger level won, -1 = never won
+}
+
 return {}
