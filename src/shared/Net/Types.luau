@@ -392,6 +392,7 @@ export type ProfileInfo = {
 	characterDanger: { [string]: number }?, -- class id -> highest danger level open for it
 	ownedClasses: { string }?, -- characters bought with Embers (unlocked without the achievement)
 	settings: Settings?, -- Paket 14
+	cosmetics: { owned: { string }, equipped: { [string]: string } }?, -- Paket 17: bought and picked cosmetics
 }
 
 -- Paket 14: a player's settings (Config.Settings.defaults), saved in the profile.

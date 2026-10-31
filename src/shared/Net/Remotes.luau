@@ -4,6 +4,7 @@
 
 local Config = require(script.Parent.Parent.Config)
 local DebugCommands = require(script.Parent.DebugCommands)
+local EmberShopRules = require(script.Parent.Parent.Util.EmberShopRules)
 local PurchaseRules = require(script.Parent.Parent.Util.PurchaseRules)
 local Validate = require(script.Parent.Validate)
 
@@ -201,4 +202,19 @@ Remotes.RequestPurchase = {
 -- Paket 16: a free reroll from the VIP pass or a bought reroll token; only while the player's shop is open
 Remotes.UseBonusReroll = { direction = "toServer", rateLimit = { count = 4, perSeconds = 1 }, args = {} }
 Remotes.StoreState = { direction = "toClient" } -- Net/Types.StoreState, to its player on change
+-- Paket 17 Ember shop: buy a locked character ("Character", class id) or a cosmetic ("Cosmetic", Config.Cosmetics id)
+-- with Embers; EmberShopService checks the price, the saved Embers and that it is not owned yet
+Remotes.BuyWithEmbers = {
+	direction = "toServer",
+	rateLimit = { count = 3, perSeconds = 2 },
+	args = { Validate.oneOf(EmberShopRules.KINDS), Validate.string(ID_LENGTH) },
+}
+-- Paket 17: put an owned cosmetic (or Config.Cosmetics.none) into a slot; shown on the character for everyone
+local equipIds = table.clone(EmberShopRules.ids())
+table.insert(equipIds, Config.Cosmetics.none)
+Remotes.EquipCosmetic = {
+	direction = "toServer",
+	rateLimit = { count = 4, perSeconds = 2 },
+	args = { Validate.oneOf(Config.Cosmetics.slots), Validate.oneOf(equipIds) },
+}
 return table.freeze(Remotes)

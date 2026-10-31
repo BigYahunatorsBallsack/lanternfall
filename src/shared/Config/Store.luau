@@ -69,7 +69,7 @@ return table.freeze({
 		table.freeze({
 			key = "VIP",
 			name = "VIP",
-			text = `VIP tag and golden trail, +{Economy.vipExtraRerolls} free shop reroll per run, `
+			text = `VIP tag, Gilded Sunburst lantern and Gilded Trail, +{Economy.vipExtraRerolls} free shop reroll per run, `
 				.. `+{math.round(Economy.bonuses.vip * 100)}% Embers`,
 			price = Economy.prices.vip,
 		}),
@@ -143,7 +143,7 @@ return table.freeze({
 		tag = "VIP",
 		color = table.freeze({ 245, 197, 66 }), -- RGB (no Color3 here: pure specs load Config)
 		colorHex = "F5C542", -- the same color for the chat tag
-		trailSeconds = 0.45, -- trail lifetime
+		-- the VIP lantern and trail are cosmetics since Paket 17 (Config.Cosmetics, vip = true)
 	}),
 
 	texts = table.freeze({
