@@ -22,6 +22,7 @@ local Net = require(Shared.Net)
 local Signal = require(Shared.Util.Signal)
 local Types = require(Shared.Net.Types)
 local HitNumbers = require(Shared.Net.HitNumbers)
+local WeaponFx = require(Shared.Net.WeaponFx)
 
 local CombatService = require(script.Parent.CombatService)
 local EnemySim = require(script.Parent.EnemySim)
@@ -29,6 +30,8 @@ local MapService = require(script.Parent.MapService)
 local RandomService = require(script.Parent.RandomService)
 local RunDirector = require(script.Parent.RunDirector)
 local Arsenal = require(script.Arsenal)
+local Afflictions = require(script.Afflictions)
+local StatMath = require(Shared.Util.StatMath)
 local CharacterRules = require(Shared.Util.CharacterRules)
 local selections: { [Player]: { [string]: string } } = {}
 
@@ -292,8 +295,10 @@ local function onStepped(dt: number, stepNow: number)
 	sendHitFeeds()
 	local effects = arsenal:drainEffects()
 	if #effects > 0 then
+		-- Paket 22: one compact packet per step (Net/WeaponFx) instead of a table per effect
+		local packet = WeaponFx.encode(effects)
 		for _, player in participants do
-			Net.fireClient("WeaponEffects", player, effects)
+			Net.fireClient("WeaponEffects", player, packet)
 		end
 	end
 end
@@ -570,12 +575,12 @@ function WeaponService.structureBurn(
 )
 	arsenal.afflictions:ignite(
 		enemyId,
-		require(script.Afflictions).newBurn(
+		Afflictions.newBurn(
 			player.UserId,
 			nil,
 			damage,
 			ticks,
-			require(Shared.Util.StatMath).burnInterval(sheet.burnSpeed or 0),
+			StatMath.burnInterval(sheet.burnSpeed or 0),
 			math.max(0, math.floor(sheet.burnSpread or 0))
 		)
 	)

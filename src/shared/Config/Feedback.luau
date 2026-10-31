@@ -3,13 +3,14 @@
 -- shake, plus when big crowds drop small enemy trims (since the Deadlock look package) and the embers of burning
 -- enemies (B5). Read by WeaponService
 -- (which hits to send), DamageNumberController, EnemyRenderer, CameraController and FeedbackController. Since Paket 14
--- each player can also switch shaking and damage numbers off in the settings menu (Config.Settings).
+-- each player can also switch shaking and damage numbers off in the settings menu (Config.Settings). Since Paket 22 the
+-- *Touch values are the Low graphics values (Config.Graphics; phones get Low unless the player picks High).
 
 return table.freeze({
 	damageNumbers = table.freeze({
 		enabled = true,
 		maxVisible = 40, -- numbers on screen at once; the oldest makes room
-		maxVisibleTouch = 20, -- on phones and tablets
+		maxVisibleTouch = 20, -- with Low graphics (phones and tablets by default)
 		seconds = 0.7, -- each number rises and fades this long
 		riseStuds = 2.5,
 	}),
@@ -20,7 +21,7 @@ return table.freeze({
 		eliteParticles = 30,
 	}),
 	-- above this many enemies on screen, plain enemies leave out small trims (claws, filters, hems) to move a third
-	-- fewer parts; elites keep them (assumption, to be checked on phones in WP22)
+	-- fewer parts; elites keep them (assumption); lowAboveTouch with Low graphics (Paket 22)
 	enemyDetail = table.freeze({
 		lowAbove = 80,
 		lowAboveTouch = 40,

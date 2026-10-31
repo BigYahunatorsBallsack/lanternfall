@@ -83,6 +83,14 @@ local steps: { [number]: (data: any) -> () } = {
 		local runs = if type(stats.runs) == "number" then stats.runs else 0
 		data.tutorial = { firstNight = runs > 0, lobbyHint = false }
 	end,
+	-- v7 -> v8 (Paket 22): the graphics setting, Auto for everyone
+	[7] = function(data)
+		if type(data.settings) ~= "table" then
+			data.settings = ProfileTemplate.newSettings()
+		elseif data.settings.graphics == nil then
+			data.settings.graphics = ProfileTemplate.newSettings().graphics
+		end
+	end,
 }
 
 Migrations.steps = steps

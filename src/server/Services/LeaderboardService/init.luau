@@ -74,6 +74,8 @@ end
 local function onRunRecorded(player: Player, data: any, run: any)
 	if run.firstNight then
 		return -- Paket 19: the First Night is easier and shorter, it does not go on the boards
+	elseif run.debug then
+		return -- Paket 23: an admin changed the run with debug commands
 	end
 	local week = LeaderboardRules.week(clock())
 	local best = bestOf(data, week)

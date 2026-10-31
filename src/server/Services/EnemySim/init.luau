@@ -18,6 +18,7 @@ local Config = require(Shared.Config)
 local Net = require(Shared.Net)
 local Signal = require(Shared.Util.Signal)
 local EnemyKinds = require(Shared.Util.EnemyKinds)
+local ShotFeed = require(Shared.Net.ShotFeed)
 local Snapshot = require(Shared.Net.Snapshot)
 local Types = require(Shared.Net.Types)
 
@@ -350,7 +351,8 @@ local function sendShots(reset: boolean?)
 	if not reset and #firedShots == 0 and #endedShots == 0 then
 		return
 	end
-	local payload: Types.EnemyShotEvents = { reset = reset, fired = firedShots, ended = endedShots }
+	-- Paket 22: one compact packet (Net/ShotFeed) instead of a table per shot
+	local payload = ShotFeed.encode({ reset = reset, fired = firedShots, ended = endedShots })
 	for _, player in RunDirector.getParticipants() do
 		Net.fireClient("EnemyShots", player, payload)
 	end

@@ -92,6 +92,22 @@ describe("sound pool", function()
 		expect(sound.SoundId).toBe(Config.Audio.cues.uiClick.sound)
 	end)
 
+	it("softens the effects group and uses no harsh placeholder (Paket 21b)", function()
+		local effects = SoundService:FindFirstChild("Effects")
+		local eq = effects:FindFirstChild("LanternfallEq")
+		expect(eq.ClassName).toBe("EqualizerSoundEffect")
+		expect(eq.HighGain).toBe(Config.Audio.effectsBus.highGain)
+		expect(effects:FindFirstChild("LanternfallCompressor").ClassName).toBe("CompressorSoundEffect")
+		for id, cue in Config.Audio.cues do
+			for _, harsh in { "swordslash", "swordlunge", "unsheath", "collide" } do
+				if string.find(cue.sound, harsh, 1, true) then
+					error(`cue {id} still plays {harsh}`)
+				end
+			end
+			expect(cue.volume <= 0.5).toBe(true)
+		end
+	end)
+
 	it("skips plays that come too fast, too far away or are unknown", function()
 		world.advance(1)
 		expect(Sfx.play("levelUp")).toBe(true)

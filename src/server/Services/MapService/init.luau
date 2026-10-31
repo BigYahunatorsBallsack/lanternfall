@@ -4,6 +4,9 @@
 -- obstacles and player positions.
 -- Paket 15: on the hub (PlaceService) the lobby gets three portals (Play solo, Party run, Quick join) with a
 -- ProximityPrompt each; PartyService listens to PortalTriggered.
+-- Paket 23: characters placed in the arena are checked by MapService/MovementGuard; getRootPosition and
+-- getRootVelocity hand out only believable values. CombatService reports walk speeds and dashes (setMoveSpeed,
+-- dashGranted), AnalyticsService counts MovementCorrected, AdminService switches the check (setMovementCheck).
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -12,6 +15,7 @@ local Config = require(ReplicatedStorage.Shared.Config)
 local Signal = require(ReplicatedStorage.Shared.Util.Signal)
 
 local Decor = require(script.Decor)
+local MovementGuard = require(script.MovementGuard)
 local PlaceService = require(script.Parent.PlaceService)
 
 export type Zone = "Lobby" | "Arena"
@@ -49,6 +53,9 @@ local MapService = {}
 
 -- (player: Player, mode: string): a player used a hub portal ("Solo", "Party" or "QuickJoin"; Paket 15)
 MapService.PortalTriggered = Signal.new()
+-- (player: Player, reason: "Speed" | "Outside" | "Pillar", distance: number): the movement check moved a character
+-- back (Paket 23)
+MapService.MovementCorrected = MovementGuard.Corrected
 
 local lobbySpawn: SpawnLocation? = nil
 local random = Random.new()
@@ -276,6 +283,7 @@ function MapService.init()
 	end
 	Decor.applyLighting()
 	buildMap()
+	MovementGuard.init()
 
 	local function onPlayerAdded(player: Player)
 		player.RespawnLocation = lobbySpawn
@@ -305,24 +313,50 @@ function MapService.getObstacles(): { Circle }
 	return circles
 end
 
--- Position of the player's HumanoidRootPart, or nil while the character is missing.
+-- Position of the player's HumanoidRootPart, or nil while the character is missing. In the arena only a believable
+-- one (Paket 23, MovementGuard: an impossible move is undone and the last accepted spot comes back).
 function MapService.getRootPosition(player: Player): Vector3?
 	local character = player.Character
 	local root = character and character:FindFirstChild("HumanoidRootPart")
 	if root and root:IsA("BasePart") then
-		return root.Position
+		return MovementGuard.check(player, root)
 	end
 	return nil
 end
 
--- Velocity of the player's HumanoidRootPart, zero while the character is missing.
+-- Velocity of the player's HumanoidRootPart, zero while the character is missing. In the arena no faster over the
+-- floor than the player can walk or dash (Paket 23: a cheated velocity would mislead enemy aim and item effects).
 function MapService.getRootVelocity(player: Player): Vector3
 	local character = player.Character
 	local root = character and character:FindFirstChild("HumanoidRootPart")
 	if root and root:IsA("BasePart") then
-		return root.AssemblyLinearVelocity
+		return MovementGuard.clampVelocity(player, root.AssemblyLinearVelocity)
 	end
 	return Vector3.zero
+end
+
+-- Paket 23: the walk speed CombatService just set on the player's character (0 while they may not walk).
+function MapService.setMoveSpeed(player: Player, speed: number)
+	MovementGuard.setSpeed(player, speed)
+end
+
+-- Paket 23: CombatService granted the player a dash (the movement check allows its distance).
+function MapService.dashGranted(player: Player)
+	MovementGuard.dashed(player)
+end
+
+-- Paket 23: the movement check on or off for this server (debug button, tests).
+function MapService.setMovementCheck(on: boolean)
+	MovementGuard.setEnabled(on)
+end
+
+function MapService.isMovementCheckOn(): boolean
+	return MovementGuard.isEnabled()
+end
+
+-- Paket 23: how often the movement check moved the player back since their character was last placed.
+function MapService.getMovementCorrections(player: Player): number
+	return MovementGuard.getStrikes(player)
 end
 
 function MapService.isInZone(position: Vector3, zone: Zone): boolean
@@ -356,6 +390,12 @@ function MapService.placeCharacter(player: Player, zone: Zone, slot: number, cou
 	local cframe = if (lookAt - position).Magnitude > 0.1 then CFrame.lookAt(position, lookAt) else CFrame.new(position)
 	root.AssemblyLinearVelocity = Vector3.zero
 	character:PivotTo(cframe)
+	-- Paket 23: from here the movement check accepts this spot (arena) or stops checking (lobby)
+	if zone == "Arena" then
+		MovementGuard.watch(player, root)
+	else
+		MovementGuard.unwatch(player)
+	end
 end
 
 -- Places the character in the zone only if it is not already standing there (e.g. after a normal spawn).

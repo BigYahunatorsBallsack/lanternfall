@@ -1,4 +1,5 @@
 --!strict
+--!native
 -- Weapon framework core (DESIGN.md section 6) as plain data without Roblox instances, so tests/Weapons.spec.luau
 -- can run it against a real enemy World. Owned by WeaponService, which places the owners before every step, sends
 -- their loadouts and passes the effects on to the clients.

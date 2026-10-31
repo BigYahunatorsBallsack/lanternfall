@@ -1,4 +1,5 @@
 --!strict
+--!native
 -- Uniform grid over the x/z plane for neighbour and hit queries (DESIGN.md section 15, cell size from
 -- Config.Simulation). Used by EnemySim's World. Items are plain numbers (array indices); the grid is
 -- rebuilt every step with clear() and insert(), and buckets are reused so rebuilding makes no garbage.

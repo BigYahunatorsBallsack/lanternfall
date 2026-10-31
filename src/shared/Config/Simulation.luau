@@ -29,5 +29,25 @@ return table.freeze({
 		stepMilliseconds = 4, -- server time per simulation step
 		clientFps = 30, -- at least, on a mid-range phone
 		networkKilobytesPerSecond = 50, -- at most, per client
+		clientMemoryMegabytes = 1000, -- at most on a phone (Paket 22, assumption: low-end phones close apps far above it)
+	}),
+
+	-- Paket 22: estimated bytes per remote call (Net/NetSize). Roblox does not publish its format; these follow
+	-- community measurements (assumption). Only used by the performance spec (tests/Perf22); in the game the debug
+	-- panel reads Roblox's own counter (Stats.DataReceiveKbps).
+	netSize = table.freeze({
+		callOverhead = 9, -- per call: which remote, how many arguments
+		typeByte = 1, -- every value
+		number = 8, -- a double
+		maxDepth = 8, -- nested tables deeper than this count as empty
+		other = table.freeze({
+			Vector3 = 12,
+			Vector2 = 8,
+			CFrame = 24,
+			Color3 = 12,
+			EnumItem = 3,
+			Instance = 4,
+			default = 8,
+		}),
 	}),
 })

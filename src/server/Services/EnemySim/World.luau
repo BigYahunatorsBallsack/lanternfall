@@ -1,4 +1,5 @@
 --!strict
+--!native
 -- Enemies as plain data (DESIGN.md section 15): column arrays, a spatial hash and one step function.
 -- No Roblox instances, so tests/EnemyWorld.spec.luau can run it. Owned by EnemySim, which feeds it the
 -- player positions and turns the result into snapshots and signals; weapons query, damage and push it.

@@ -1,4 +1,5 @@
 --!strict
+--!native
 -- Burning enemies (DESIGN.md section 6, Brotato's burn since B5) as plain data, owned by WeaponService/Arsenal: weapons
 -- with burnDamage and item effects ignite enemies, and every `interval` seconds a burn deals its damage once, until
 -- its ticks are used up or the enemy is gone. Burns do not stack: igniting a burning enemy keeps the higher damage, the

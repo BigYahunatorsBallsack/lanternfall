@@ -1,6 +1,7 @@
 --!strict
 -- The settings menu (Paket 14, DESIGN.md section 13): a gear button in the top right corner opens a panel with
--- screen shake, damage numbers and the music and effects volumes. Changes apply at once and are sent with
+-- screen shake, damage numbers, the music and effects volumes and the graphics quality (Paket 22: Auto, High, Low;
+-- GraphicsController decides what Auto means on this device). Changes apply at once and are sent with
 -- SaveSettings once a burst of changes is over (Config.Settings); the server keeps them in the profile and sends them
 -- back with ProfileInfo when the data loads. Volumes go to the SoundGroups "Music" and "Effects" in SoundService.
 -- Read by CameraController (shake) and DamageNumberController; HUDController keeps its team panel below the button.
@@ -59,7 +60,14 @@ end
 
 local function send()
 	changedAt = 0
-	Net.fireServer("SaveSettings", current.shake, current.damageNumbers, current.music, current.effects)
+	Net.fireServer(
+		"SaveSettings",
+		current.shake,
+		current.damageNumbers,
+		current.music,
+		current.effects,
+		current.graphics
+	)
 end
 
 -- Saves after Config.Settings.saveDelaySeconds without another change.
@@ -163,6 +171,24 @@ local function volumeRow(order: number, text: string, key: string)
 	end)
 end
 
+-- A button that steps through `choices` (e.g. Config.Graphics.choices) and shows the current one in capitals.
+local function choiceRow(order: number, text: string, key: string, choices: { string })
+	local frame = row(order, text)
+	local button = Widgets.button({
+		Name = "Choice",
+		AnchorPoint = Vector2.new(1, 0.5),
+		Position = UDim2.fromScale(1, 0.5),
+		Size = UDim2.new(0, TOGGLE_WIDTH, 1, -6),
+		Parent = frame,
+	}, function()
+		local index = table.find(choices, (current :: any)[key]) or 0
+		set(key, choices[index % #choices + 1])
+	end)
+	table.insert(refreshers, function()
+		button.Text = string.upper(tostring((current :: any)[key] or choices[1]))
+	end)
+end
+
 local function build()
 	screen = Widgets.screen("Settings", 6)
 	screen.Enabled = true
@@ -206,17 +232,18 @@ local function build()
 	toggleRow(2, "Damage numbers", "damageNumbers")
 	volumeRow(3, "Music", "music")
 	volumeRow(4, "Effects", "effects")
+	choiceRow(5, "Graphics", "graphics", Config.Graphics.choices)
 	Widgets.label({
 		Text = "Saved with your progress",
 		TextSize = 14,
 		TextColor3 = Theme.textDim,
-		LayoutOrder = 5,
+		LayoutOrder = 6,
 		Parent = menu,
 	})
 	Widgets.button({
 		Name = "Close",
 		Text = "CLOSE",
-		LayoutOrder = 6,
+		LayoutOrder = 7,
 		Parent = menu,
 	}, function()
 		SettingsController.setOpen(false)
@@ -232,6 +259,9 @@ function SettingsController.init()
 	Net.onClient("ProfileInfo", function(info: Types.ProfileInfo)
 		if info.settings and changedAt == 0 then -- a change not sent yet wins over the saved values
 			current = table.clone(info.settings)
+			if current.graphics == nil then -- a server from before Paket 22
+				current.graphics = Config.Settings.defaults.graphics
+			end
 			apply()
 		end
 	end)

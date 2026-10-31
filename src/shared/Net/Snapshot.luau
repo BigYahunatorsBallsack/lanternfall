@@ -1,4 +1,5 @@
 --!strict
+--!native
 -- Binary enemy snapshot format. Encoded by EnemySim on the server, decoded by EnemyRenderer on the client.
 --
 -- Packet layout (little endian):

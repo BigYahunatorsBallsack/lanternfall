@@ -402,6 +402,7 @@ export type Settings = {
 	damageNumbers: boolean,
 	music: number, -- volume 0..1
 	effects: number, -- volume 0..1
+	graphics: string?, -- Paket 22: "Auto", "High" or "Low" (Config.Graphics.choices); nil in old data = "Auto"
 }
 
 -- Paket 14: an elite or horde wave planned for this run (DangerService -> HUD), remote WavePlan.

@@ -96,7 +96,7 @@ local Remotes: { [string]: Definition } = {
 	RunState = { direction = "toClient" }, -- full Net/Types.RunState, sent on every change
 	PlayerState = { direction = "toClient" }, -- Net/Types.PlayerVitals of one player, to everyone
 	Loadout = { direction = "toClient" }, -- Net/Types.Loadout of one player, to everyone on change
-	WeaponEffects = { direction = "toClient" }, -- { Net/Types.WeaponEffect } of one simulation step, to participants
+	WeaponEffects = { direction = "toClient" }, -- buffer (Net/WeaponFx, since Paket 22) of one simulation step, to participants
 	LevelUpOffer = { direction = "toClient" }, -- Net/Types.LevelUpOffer, to the choosing player
 	TeamProgress = { direction = "toClient" }, -- Net/Types.TeamProgress, to everyone on change
 	XpOrbs = { direction = "toClient" }, -- Net/Types.XpOrbEvents of one simulation step, to participants
@@ -107,7 +107,7 @@ local Remotes: { [string]: Definition } = {
 	RunSummary = { direction = "toClient" }, -- Net/Types.RunSummary, to the participants when a run ends
 	Notify = { direction = "toClient" }, -- short on-screen messages
 	EnemySnapshot = { direction = "toClient", unreliable = true }, -- buffer, see Net/Snapshot
-	EnemyShots = { direction = "toClient" }, -- Net/Types.EnemyShotEvents after each snapshot with changes, to participants
+	EnemyShots = { direction = "toClient" }, -- buffer (Net/ShotFeed, since Paket 22) after each snapshot with changes
 	DamageNumbers = { direction = "toClient", unreliable = true }, -- buffer, see Net/HitNumbers; own hits, per step
 	Chests = { direction = "toClient" }, -- { Net/Types.ChestInfo } on the floor, to participants on change
 	ChestOpened = { direction = "toClient" }, -- Net/Types.ChestOpened, to participants
@@ -156,7 +156,13 @@ Remotes.RunRewards = { direction = "toClient" }
 Remotes.SaveSettings = {
 	direction = "toServer",
 	rateLimit = { count = 3, perSeconds = 5 }, -- the client sends once per burst of changes (Config.Settings)
-	args = { Validate.boolean(), Validate.boolean(), Validate.number(0, 1), Validate.number(0, 1) },
+	args = {
+		Validate.boolean(),
+		Validate.boolean(),
+		Validate.number(0, 1),
+		Validate.number(0, 1),
+		Validate.optional(Validate.oneOf(Config.Graphics.choices)), -- Paket 22: graphics quality
+	},
 }
 -- Paket 14: { Net/Types.WaveChallenge }, the planned elite and horde waves of the run so far, to the participants
 Remotes.WavePlan = { direction = "toClient" }

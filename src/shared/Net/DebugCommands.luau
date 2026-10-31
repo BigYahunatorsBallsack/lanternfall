@@ -44,4 +44,5 @@ return table.freeze({
 	"NextDay", -- this server acts one day later: new daily quests and the next login streak day (since Paket 18)
 	"StartFirstNight", -- a First Night (short first-start run with hints) right now, from the lobby (since Paket 19)
 	"PrintAnalytics", -- the last analytics events of this server to the Output (since Paket 20)
+	"MovementCheck", -- the movement check (anti-cheat) on or off for this server; off in Studio by default (Paket 23)
 })

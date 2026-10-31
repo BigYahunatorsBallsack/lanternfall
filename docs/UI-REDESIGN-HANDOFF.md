@@ -5,10 +5,10 @@ Stand: 31.10.2026. Der Owner hat den geplanten Instanzwechsel aufgehoben und die
 ## Branch und Umfang
 
 - PR: https://github.com/BigYahunatorsBallsack/lanternfall/pull/46
-- Branch: `wp-ui-redesign`, Basis main `d7152ca`.
+- Branch: `wp-ui-redesign`, ursprüngliche Basis main `d7152ca`; vor Merge auf main `c37cc78` einschließlich Paket 22/23 aktualisiert.
 - Arbeitsordner: `C:/Users/jonas/Documents/Roblox/lanternfall/lanternfall/.work-b7`.
 - Nicht den übergeordneten Arbeitsordner benutzen: dort liegen ältere, fremde Änderungen. `.b7-tools/` enthält ausschließlich unversionierte Werkzeuge und Builds.
-- Der UI-Auftrag umfasst auch ehemals A zugeordnete Client-Dateien. Keine Änderung an Server, Balancing, Remotes, Speicherformat oder Kaufbestätigungen. Kein Merge-Auftrag für diesen PR.
+- Der UI-Auftrag umfasst auch ehemals A zugeordnete Client-Dateien. Keine Änderung an Server, Balancing, Remotes, Speicherformat oder Kaufbestätigungen. Der Owner hat am 31.10.2026 die Konfliktauflösung und den Merge ausdrücklich beauftragt.
 
 ## Umgesetzt
 
@@ -29,11 +29,11 @@ Die bestehenden Auswahl-, Kauf-, Lock-, Verkaufs-, Merge-, Reroll-, Ready-, Part
 
 ## Automatische Prüfung
 
-- 60 Spec-Dateien, 656 Tests bestanden; neue UI-Spec 9/9.
+- 67 Spec-Dateien, 705 Tests bestanden nach Integration des aktuellen main; neue UI-Spec 9/9.
 - UI-Spec: Tabwechsel, Meta-Fenster, mobile Breiten, Settings-Schließen, echte Charakter-/Ready-/Upgrade-Abläufe, vollständiges Inventar, Shop-Footer und Stats-Wechsel bei 390×844 / 844×390, zwölf Ergebniswaffen.
 - FirstNight-Spec prüft zusätzlich GOT IT und HELP, ohne den Tutoriallauf zu beenden.
 - StyLua, `git diff --check`, Rojo-Build erfolgreich; Selene 0 Fehler / 11 bestehende UDim2-Stilwarnungen, mit gecachter Roblox-API.
-- Ein früherer Lauf des ersten Zwischenstands hatte den bereits in STATUS genannten sporadischen B12-Minenfehler (Zeile 211). Aktuelle Läufe bestanden. Kein Servercode wurde dafür geändert.
+- Ein früherer Lauf des ersten Zwischenstands hatte den bereits in STATUS genannten sporadischen B12-Minenfehler (Zeile 211). Paket 22 auf main enthält inzwischen dessen Korrektur; diese bleibt erhalten. Der aktuelle zusammengeführte Lauf ist grün.
 - Lune führt die bestehenden Specs mit dem vorhandenen Test-Prelude und RobloxMock aus. **Der Mock berechnet keine echten Pixelpositionen, Schriftumbrüche oder Scrollgesten.**
 
 ## Noch nötige Studio-Abnahme
@@ -47,7 +47,7 @@ Während der Fortsetzung liefert Studio MCP keine verbundenen Instanzen. Es gibt
 5. Shop: Angebote kaufen, sperren, neu würfeln, Waffen auswählen/verkaufen/zusammenführen, READY. Lange Effekte innerhalb einer Karte scrollen. Auf Handy bleibt der Footer erreichbar, STATS öffnet eine eigene Ansicht, Back to Shop kehrt zurück. Many Hands mit zwölf Waffen prüfen.
 6. Truhe, Sieg/Niederlage und Retry prüfen: Texte und komplette Waffenstatistik müssen erreichbar sein. Mit zwei Clients Party-Einladung, Ready/Waiting, Teamstatus und Down/Revive kontrollieren. Studio-Output auf Fehler prüfen.
 
-Keine echten Robux-Käufe für die Layoutabnahme nötig. Preise, Sperren und Bestätigungen bleiben bestehen. Erst nach erfolgreicher Studio-Abnahme und Owner-OK mergen.
+Keine echten Robux-Käufe für die Layoutabnahme nötig. Preise, Sperren und Bestätigungen bleiben bestehen. Der Merge ist vom Owner freigegeben; die beschriebenen Studio-Prüfungen stehen weiterhin aus.
 
 ## Lokale Werkzeuge
 

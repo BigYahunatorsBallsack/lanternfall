@@ -1,4 +1,5 @@
 --!strict
+--!native
 -- Enemy projectiles as plain data (DESIGN.md section 7, Spitter shots): each flies straight at its speed, ends at
 -- its range, at an obstacle or the arena edge, and hurts the first target it touches. No Roblox instances, so
 -- tests/EnemyWorld.spec.luau can run it. Owned by EnemySim, which fires the shots World reports and turns hits into

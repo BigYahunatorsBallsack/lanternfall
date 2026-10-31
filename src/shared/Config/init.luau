@@ -36,4 +36,6 @@ return {
 	FirstNight = require(script.FirstNight), -- Paket 19
 	Analytics = require(script.Analytics), -- Paket 20
 	Audio = require(script.Audio), -- Paket 21
+	Graphics = require(script.Graphics), -- Paket 22
+	Security = require(script.Security), -- Paket 23
 }

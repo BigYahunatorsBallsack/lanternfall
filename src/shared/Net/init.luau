@@ -55,6 +55,11 @@ function Net.initServer(): number
 		remote.Name = name
 		remote.Parent = folder
 		remotes[name] = remote :: any
+		if definition.direction == "toClient" then
+			-- Paket 23: a cheat can fire any remote at the server. Without a handler Roblox would queue those calls
+			-- (warnings, memory); this one drops them right away.
+			(remote :: any).OnServerEvent:Connect(function() end)
+		end
 		created += 1
 	end
 	folder.Parent = script

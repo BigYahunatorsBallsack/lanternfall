@@ -177,10 +177,16 @@ function PlayerDataService.init()
 	-- Paket 14: only the values change; nothing is sent back (the client already shows them)
 	Net.onServer(
 		"SaveSettings",
-		function(player, shake: boolean, damageNumbers: boolean, music: number, effects: number)
+		function(player, shake: boolean, damageNumbers: boolean, music: number, effects: number, graphics: string?)
 			local data = PlayerDataService.get(player)
 			if data then
-				data.settings = { shake = shake, damageNumbers = damageNumbers, music = music, effects = effects }
+				data.settings = {
+					shake = shake,
+					damageNumbers = damageNumbers,
+					music = music,
+					effects = effects,
+					graphics = graphics or Config.Settings.defaults.graphics, -- Paket 22
+				}
 			end
 		end
 	)
