@@ -6,8 +6,8 @@
 -- hears "granted" (exactly once, also across servers). Game passes are checked when a player joins (cached in the
 -- profile for when the check fails) and count right away after a purchase in the session.
 --
--- What the purchases do: VIP gives a tag over the head and in the chat (player attribute), a golden trail, a free
--- shop reroll per run and +10 % Embers; Double Embers doubles a run's Embers (RunStatsService asks getEmberBonuses).
+-- What the purchases do: VIP gives a tag over the head and in the chat (player attribute), the VIP lantern and
+-- golden trail (since Paket 17 cosmetics, CosmeticService listens to PerksChanged), a free shop reroll per run and +10 % Embers; Double Embers doubles a run's Embers (RunStatsService asks getEmberBonuses).
 -- Revive tokens stand a down player up (ReviveService.standUp, once per run, co-op only), reroll tokens reroll the
 -- shop for free (ShopService.rerollFree), Ember packs add Embers, the Server Ember Boost gives everyone in this server
 -- (and who joins while it runs) +50 % Embers for 30 min; it is kept in each player's profile, so it goes along to the
@@ -35,13 +35,13 @@ local Economy = Config.Economy
 local Texts = Store.texts
 local LOG_PREFIX = "[Lanternfall] "
 local DECORATION_NAME = "LanternfallVip"
-local TRAIL_TOP = "VipTrailTop"
-local TRAIL_BOTTOM = "VipTrailBottom"
 
 local MonetizationService = {}
 
 -- (player: Player, key: string): a developer product was granted now (not for a repeated receipt)
 MonetizationService.Granted = Signal.new()
+-- (player: Player): the player's pass perks were applied again (join, pass check, pass bought, debug); Paket 17
+MonetizationService.PerksChanged = Signal.new()
 
 local market: any = nil -- MarketplaceService, nil where it does not exist (tests without the mock)
 local ids: any = nil -- Config.Store ids of this experience
@@ -107,16 +107,10 @@ local function clearDecoration(character: Model)
 	if existing then
 		existing:Destroy()
 	end
-	local root = character:FindFirstChild("HumanoidRootPart")
-	for _, name in { TRAIL_TOP, TRAIL_BOTTOM } do
-		local attachment = root and root:FindFirstChild(name)
-		if attachment then
-			attachment:Destroy()
-		end
-	end
 end
 
--- VIP tag over the head and a golden trail, seen by everyone (made on the server, so it replicates).
+-- VIP tag over the head, seen by everyone (made on the server, so it replicates). The VIP lantern and trail are
+-- cosmetics since Paket 17 (CosmeticService).
 local function decorate(player: Player, character: Model?)
 	if not character then
 		return
@@ -152,30 +146,13 @@ local function decorate(player: Player, character: Model?)
 	label.TextStrokeTransparency = 0.3
 	label.Parent = tag
 
-	local top = Instance.new("Attachment")
-	top.Name = TRAIL_TOP
-	top.Position = Vector3.new(0, 0.9, 0)
-	top.Parent = root
-	local bottom = Instance.new("Attachment")
-	bottom.Name = TRAIL_BOTTOM
-	bottom.Position = Vector3.new(0, -0.9, 0)
-	bottom.Parent = root
-	local trail = Instance.new("Trail")
-	trail.Name = "VipTrail"
-	trail.Attachment0 = top
-	trail.Attachment1 = bottom
-	trail.Color = ColorSequence.new(color)
-	trail.Transparency = NumberSequence.new(0.25, 1)
-	trail.Lifetime = style.trailSeconds
-	trail.LightEmission = 0.6
-	trail.Parent = folder
-
 	folder.Parent = character
 end
 
 local function applyPerks(player: Player)
 	player:SetAttribute(Store.vip.attribute, MonetizationService.owns(player, "VIP"))
 	decorate(player, player.Character)
+	MonetizationService.PerksChanged:Fire(player)
 end
 
 -- Store state ------------------------------------------------------------------------------

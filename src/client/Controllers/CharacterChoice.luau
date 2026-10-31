@@ -1,6 +1,7 @@
 --!strict
 -- B10 lobby extension; mounted by LobbyController, which owns visibility and READY.
--- Since Paket 13 locked characters show what unlocks them and the highest danger level open for the character.
+-- Since Paket 13 locked characters show what unlocks them and the highest danger level open for the character;
+-- since Paket 17 also their Ember shop price.
 local Shared = game:GetService("ReplicatedStorage").Shared
 local Config = require(Shared.Config)
 local Net = require(Shared.Net)
@@ -46,6 +47,10 @@ local function renderLocks()
 		else
 			button.TextSize = 12
 			button.Text = `{class.displayName}\nLOCKED: {ProgressRules.requirement("characters", classId) or ""}`
+			local price = Config.Progress.characterPrices[classId] -- Paket 17: or buy it in the Ember shop
+			if price then
+				button.Text ..= `\nor {price} Embers (Ember shop)`
+			end
 			button.BackgroundColor3 = Theme.panel
 			button.TextColor3 = Theme.textDim
 		end

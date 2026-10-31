@@ -29,4 +29,5 @@ return {
 	Settings = require(script.Settings), -- Paket 14
 	Places = require(script.Places), -- Paket 15
 	Store = require(script.Store), -- Paket 16
+	Cosmetics = require(script.Cosmetics), -- Paket 17
 }

@@ -23,6 +23,7 @@ local UpgradeText = require(Shared.Util.UpgradeText)
 
 local BossService = require(script.Parent.BossService)
 local CombatService = require(script.Parent.CombatService)
+local EmberShopService = require(script.Parent.EmberShopService)
 local EnemySim = require(script.Parent.EnemySim)
 local ExperienceService = require(script.Parent.ExperienceService)
 local LootService = require(script.Parent.LootService)
@@ -470,6 +471,12 @@ handlers.FakePurchase = function(player)
 		return false, "Your saved data is not loaded yet"
 	end
 	return true, `Fake purchase: {MonetizationService.fakePurchase(player)}`
+end
+handlers.AddEmbers = function(player)
+	if not EmberShopService.addEmbers(player, Config.Admin.addEmbers) then
+		return false, "Your saved data is not loaded yet"
+	end
+	return true, `+{Config.Admin.addEmbers} Embers`
 end
 handlers.ToggleFakePasses = function(player)
 	local on = not MonetizationService.hasFakePasses(player)

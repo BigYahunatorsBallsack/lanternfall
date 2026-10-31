@@ -8,6 +8,8 @@ local EffectsConfig = require(Shared.Config.Effects)
 local Snapshot = require(Shared.Net.Snapshot)
 local Enemies = require(Shared.Config.Enemies) -- WP10 part 2
 local RunSchedule = require(Shared.Util.RunSchedule) -- WP10 part 2
+local EmberShopRules = require(Shared.Util.EmberShopRules) -- Paket 17
+local ProgressRules = require(Shared.Util.ProgressRules) -- Paket 17
 
 local ConfigCheck = {}
 
@@ -848,6 +850,51 @@ function ConfigCheck.run(): { string }
 	for _, portal in places.portals do
 		if math.abs(portal.offset.X) > lobbyHalf or math.abs(portal.offset.Z) > lobbyHalf then
 			problem(`Portal {portal.mode} stands outside the lobby`)
+		end
+	end
+
+	-- Paket 17: Ember shop prices and cosmetics.
+	for classId, price in Config.Progress.characterPrices do
+		local class = Config.Classes[classId]
+		if not (class and class.available) then
+			problem(`Ember shop: price for unknown or unavailable character {classId}`)
+		elseif not ProgressRules.isLockable("characters", classId) then
+			problem(`Ember shop: {classId} has a price but is never locked`)
+		end
+		if price <= 0 or price % 1 ~= 0 then
+			problem(`Ember shop: price of {classId} must be a whole number above 0`)
+		end
+	end
+	local cosmetics = Config.Cosmetics
+	local cosmeticIds: { [string]: boolean } = {}
+	for slot, list in { Lantern = cosmetics.lanterns, Trail = cosmetics.trails } :: { [string]: { any } } do
+		if not table.find(cosmetics.slots, slot) then
+			problem(`Cosmetics: slot {slot} is not in slots`)
+		end
+		for _, entry in list do
+			if cosmeticIds[entry.id] or entry.id == cosmetics.none then
+				problem(`Cosmetics: id {entry.id} is used twice`)
+			end
+			cosmeticIds[entry.id] = true
+			if entry.slot ~= slot then
+				problem(`Cosmetics: {entry.id} is listed under {slot} but has slot {entry.slot}`)
+			end
+			if entry.price < 0 or entry.price % 1 ~= 0 or (entry.vip and entry.price ~= 0) then
+				problem(`Cosmetics: {entry.id} needs a whole price of at least 0 (0 for VIP entries)`)
+			end
+			if #entry.id > 32 then
+				problem(`Cosmetics: id {entry.id} is longer than 32 characters (remote limit)`)
+			end
+		end
+	end
+	for _, defaults in { cosmetics.defaults, cosmetics.vipDefaults } do
+		for slot, id in defaults do
+			local entry = EmberShopRules.cosmetic(id)
+			if not entry or entry.slot ~= slot then
+				problem(`Cosmetics: default {id} for {slot} is not a cosmetic of that slot`)
+			elseif defaults == cosmetics.defaults and (entry.vip or entry.price > 0) then
+				problem(`Cosmetics: default {id} must be free for everyone`)
+			end
 		end
 	end
 

@@ -6,6 +6,7 @@ return table.freeze({
 	userIds = table.freeze({}) :: { number },
 	allowInStudio = true,
 	addShards = 100, -- "AddShards"
+	addEmbers = 1000, -- "AddEmbers" (since Paket 17): saved Embers for the Ember shop
 	-- "SkipToBoss" leaves this many seconds until the end of the run: since WP10 the boss wave's 90 s, so it lands at
 	-- the end of wave 19 (its shop, then the boss wave)
 	skipToBossLeadSeconds = 90,

@@ -472,6 +472,9 @@ InstanceMeta.__index = function(instance, key)
 	if key == "Parent" then
 		return nil
 	end
+	if key == "CFrame" and props.Position ~= nil then
+		return cf(props.Position) -- Paket 17: a part placed by Position (rotation is not simulated)
+	end
 	if EVENTS[key] then
 		local events = rawget(instance, "__events")
 		events[key] = events[key] or newSignal()

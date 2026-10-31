@@ -6,7 +6,8 @@
 -- Since Paket 13 also Embers, achievements and unlocks (Util/ProgressRules): what is locked for a player
 -- (ShopService, UpgradeService) and the danger levels open per character (RunDirector). Since Paket 14 it keeps the
 -- settings from the settings menu (remote SaveSettings). Since Paket 16 it grants developer products exactly once
--- (processPurchase, for MonetizationService's ProcessReceipt).
+-- (processPurchase, for MonetizationService's ProcessReceipt). Since Paket 17 EmberShopService changes the data and
+-- calls refresh.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -343,6 +344,12 @@ end
 -- Sends the lobby record again (the client asked for a full sync).
 function PlayerDataService.sync(player: Player)
 	sendInfo(player)
+end
+
+-- Paket 17: the data was changed from outside (Ember shop): sends the lobby record and fires Changed (unlocks).
+function PlayerDataService.refresh(player: Player)
+	sendInfo(player)
+	PlayerDataService.Changed:Fire(player)
 end
 
 -- Debug button: every saved value as lines for the Output; nil if not loaded.

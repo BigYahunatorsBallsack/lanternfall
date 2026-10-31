@@ -40,4 +40,5 @@ return table.freeze({
 	"UnlockAll", -- every achievement done and every danger level open for you (since Paket 13; Reset locks again)
 	"FakePurchase", -- the next developer product as if bought, through the real receipt path (since Paket 16)
 	"ToggleFakePasses", -- own every game pass or none for this session, nothing saved (since Paket 16)
+	"AddEmbers", -- +Config.Admin.addEmbers saved Embers for the Ember shop (since Paket 17)
 })
