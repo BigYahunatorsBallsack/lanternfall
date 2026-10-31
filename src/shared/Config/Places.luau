@@ -10,7 +10,7 @@
 return table.freeze({
 	-- One entry per experience (place ids from Creator Hub -> Places); the live experience gets its own entry later.
 	experiences = table.freeze({
-		table.freeze({ name = "Lanternfall Test", hub = 0, run = 0 }),
+		table.freeze({ name = "Lanternfall Test", hub = 107221182628232, run = 111626395581383 }),
 	}) :: { { name: string, hub: number, run: number } },
 
 	party = table.freeze({
