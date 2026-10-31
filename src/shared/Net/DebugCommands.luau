@@ -41,4 +41,5 @@ return table.freeze({
 	"FakePurchase", -- the next developer product as if bought, through the real receipt path (since Paket 16)
 	"ToggleFakePasses", -- own every game pass or none for this session, nothing saved (since Paket 16)
 	"AddEmbers", -- +Config.Admin.addEmbers saved Embers for the Ember shop (since Paket 17)
+	"NextDay", -- this server acts one day later: new daily quests and the next login streak day (since Paket 18)
 })

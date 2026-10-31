@@ -11,7 +11,7 @@ local ProgressRules = require(script.Parent.ProgressRules)
 local Cosmetics = Config.Cosmetics
 
 export type Kind = "Character" | "Cosmetic"
-export type Reason = "notForSale" | "alreadyOwned" | "notEnough" | "vipOnly"
+export type Reason = "notForSale" | "alreadyOwned" | "notEnough" | "vipOnly" | "rewardOnly"
 
 -- What the rules read and change of the saved data (ProfileTemplate.Data has more).
 export type Wallet = {
@@ -61,6 +61,8 @@ function EmberShopRules.ownsCosmetic(id: string, owned: { string }, vip: boolean
 		return false
 	elseif entry.vip then
 		return vip
+	elseif entry.reward then -- Paket 18: earned, e.g. on day 7 of the login streak
+		return table.find(owned, id) ~= nil
 	end
 	return entry.price <= 0 or table.find(owned, id) ~= nil
 end
@@ -70,8 +72,8 @@ function EmberShopRules.ownsCharacter(classId: string, wallet: Wallet): boolean
 	return ProgressRules.isUnlocked("characters", classId, wallet.achievements, wallet.classes)
 end
 
--- Its price in Embers, or nil and why it can not be bought (notForSale, alreadyOwned, vipOnly, notEnough; with
--- notEnough the price is returned too).
+-- Its price in Embers, or nil and why it can not be bought (notForSale, alreadyOwned, vipOnly, rewardOnly, notEnough;
+-- with notEnough the price is returned too).
 function EmberShopRules.price(kind: string, id: string, wallet: Wallet, vip: boolean): (number?, Reason?)
 	local price: number?
 	if kind == "Character" then
@@ -89,6 +91,8 @@ function EmberShopRules.price(kind: string, id: string, wallet: Wallet, vip: boo
 			return nil, "alreadyOwned"
 		elseif entry.vip then
 			return nil, "vipOnly"
+		elseif entry.reward then
+			return nil, "rewardOnly"
 		end
 		price = entry.price
 	else

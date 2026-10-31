@@ -1,8 +1,9 @@
 --!strict
 -- Cosmetics bought with Embers in the Ember shop (Paket 17, DESIGN.md sections 10 and 14): a lantern that floats next
 -- to the player and a trail behind them. Look only, no gameplay. VIP-only entries are owned while the player has the
--- VIP pass and can not be bought with Embers. Read by Util/EmberShopRules (server and client), CosmeticService (builds
--- them on the character) and EmberShopController (lobby window). Colors are RGB tables (pure specs load Config).
+-- VIP pass and can not be bought with Embers; reward entries (Paket 18) are only earned (login streak). Read by
+-- Util/EmberShopRules (server and client), CosmeticService (builds them on the character) and EmberShopController
+-- (lobby window). Colors are RGB tables (pure specs load Config).
 
 export type Rgb = { number } -- { r, g, b } 0-255
 
@@ -12,6 +13,7 @@ export type Lantern = {
 	name: string, -- game text
 	price: number, -- Embers; 0 = everyone owns it
 	vip: boolean?, -- owned with the VIP pass only (not for Embers)
+	reward: string?, -- Paket 18: only earned, never sold ("Streak" = day 7 of the login streak, Config.Quests)
 	style: "Cage" | "Orb" | "Spire", -- shape of the model (CosmeticService)
 	frame: Rgb, -- brass, silver, obsidian ...
 	metal: boolean, -- Metal material for the frame, else SmoothPlastic
@@ -24,6 +26,7 @@ export type Trail = {
 	name: string,
 	price: number,
 	vip: boolean?,
+	reward: string?, -- Paket 18, like Lantern.reward
 	colors: { Rgb }, -- start and end color of the trail
 }
 
@@ -79,6 +82,18 @@ local lanterns: { Lantern } = {
 		frame = { 26, 20, 34 },
 		metal = false,
 		glow = { 176, 96, 255 },
+	},
+	-- Paket 18: day 7 of the login streak (Config.Quests.streak), not for sale
+	{
+		id = "VigilLantern",
+		slot = "Lantern",
+		name = "Seventh Vigil",
+		price = 0,
+		reward = "Streak",
+		style = "Spire",
+		frame = { 214, 220, 230 },
+		metal = true,
+		glow = { 140, 200, 255 },
 	},
 	{
 		id = "GildedSunburst",
