@@ -64,7 +64,7 @@ Jeder Strang ändert nur **seine** Zeile (Regeln: `docs/PARALLEL.md`).
 | Strang | KI | Aktuelles Paket | Branch / PR | Stand | Danach |
 | --- | --- | --- | --- | --- | --- |
 | A – Engine und Ablauf | Claude | Paket 23 Sicherheits- und Code-Review (Extra high) | `wp-23-security` | fertig, selbst gemerged | Paket 24 Launch-Paket (Medium), dann weiter nach „Plan bis zum Launch" |
-| B – Inhalte und Spieler-Regeln | ChatGPT | UI-Redesign implementiert | `wp-ui-redesign` | PR #46; main bis Paket 23 integriert, 705 Tests grün, Merge vom Owner autorisiert | Studio-Sichttest solo/2 Clients |
+| B – Inhalte und Spieler-Regeln | ChatGPT | Gegner-Art: erste vier Modelle im bestätigten Brotato-Stil | `codex/enemy-model-redesign` | Shadeling, Brute, Spitter, Charger; 708 Tests grün; Studio-Client mit 140 Modellen geprüft; PR folgt | Weitere Arten einzeln ausarbeiten; 2 Clients und Handy prüfen |
 
 ## Feste Entscheidungen des Owners
 
@@ -230,3 +230,10 @@ Jeder Strang ändert nur **seine** Zeile (Regeln: `docs/PARALLEL.md`).
 - Owner beauftragt ausdrücklich: Konflikte auflösen und PR #46 mergen. Aktuellen main `c37cc78` einschließlich Audio-Korrektur sowie Performance-Paket 22 und Sicherheits-Paket 23 aufgenommen.
 - Konflikt in der Strang-Tabelle gelöst: aktueller A-Stand aus main und UI-Stand von B erhalten. Automatisch zusammengeführte Settings und Debug-Anzeigen geprüft: Graphics Auto/High/Low samt Speicherung sowie neue Netzwerk-/Speicher-/Frame-Anzeigen bleiben erhalten. Debug-Befehle in begrenztem Scrollbereich, längere Diagnosezeilen dürfen wachsen.
 - Zusammengeführter Stand: **67 Specs, 705 Tests bestanden**, StyLua, Diff-Check und Rojo-Build erfolgreich; Selene 0 Fehler / 11 bestehende Stilwarnungen. Paket 22 enthält bereits den B12-Minen-/Frucht-Testfix. Studio weiterhin nicht verbunden, daher kein neuer Sichttest behauptet.
+
+## Gegner-Art, erste Serie (ChatGPT, 31.10.2026)
+
+- Owner-Auftrag: Gegner einzeln und detaillierter im Brotato-Stil überarbeiten. Bestätigt ist der kompakte violette Shadeling mit schwarzen Konturen und flächigen Farben; größere Arten sollen mehr Details in derselben Formensprache bekommen. Die realistischeren frühen Entwürfe wurden verworfen.
+- Erste Serie: Shadeling, Brute, Spitter, Charger und deren Gloom-Elites. Eigenes Artwork in `EnemyRenderer/MeshCatalog`, vorhandenes Pool-/Animations-/Statussystem bleibt bestehen; keine Balance- oder Serveränderung. Andere Arten sind noch offen. Details, Asset-Herkunft und Testanleitung: `docs/ENEMY-ART.md`.
+- Prüfung: 67 Specs / 708 Tests; Selene 0 Fehler, 11 bestehende Warnungen; Rojo-Build; native Studio-Vorschau und Client-Funktionstest mit 140 animierten Modellen (1.050 Teile/Pose). Alle 23 neuen Mesh-/Textur-Inhalte im Client geladen. Kein vollständiger Run-, 2-Client- oder Handy-FPS-Test.
+- Werkzeug: `tools/PreviewEnemyArt.luau` in der Studio-Befehlsleiste erzeugt/entfernt eine isolierte Modellreihe. Meshes beim Vorladen als Instanzen an `ContentProvider` geben; bloße Asset-IDs wurden als Bilder angefragt und meldeten fälschlich Fehler. Test-Runner unter Windows braucht Pfade mit `/` (`Path.as_posix()`).

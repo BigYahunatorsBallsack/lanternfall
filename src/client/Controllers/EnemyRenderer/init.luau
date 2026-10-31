@@ -370,6 +370,7 @@ end
 -- Lifecycle -------------------------------------------------------------------------
 
 function EnemyRenderer.init()
+	task.spawn(Models.preload)
 	Net.onClient("EnemySnapshot", function(packet: any)
 		if enabled and typeof(packet) == "buffer" then
 			window.bytes += buffer.len(packet)
