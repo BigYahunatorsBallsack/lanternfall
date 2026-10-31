@@ -42,7 +42,7 @@ local kinds: { [string]: Definition } = {
 		tier = 2,
 		price = 40,
 		color = { 247, 117, 53 },
-		pierce = 100,
+		pierce = -1,
 		ticks = 8,
 		description = "Deploys a flame sentry: eight burn ticks of 5 (+33% Engineering).",
 	},

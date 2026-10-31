@@ -187,7 +187,7 @@ Spieler steuern nur Bewegung und einen Dash; Angreifen, Zielen und Aufsammeln pa
 | XP Gain (%) | eingesammelte XP × (1 + Wert/100) (nur aus Items) |
 | Pickup Range (%) | Aufsammelradius × (1 + Wert/100) (nur aus Items) |
 
-Engineering aus Brotato fehlt bewusst bis zu den Bauten (B12). Knockback gibt es seit B5 als Neben-Wert (unten).
+Engineering ist seit B12 ein primärer Wert mit Karten +2/+3/+4/+6 und skaliert Bauten und passende Werkzeugwaffen. Knockback gibt es seit B5 als Neben-Wert (unten).
 
 **Neben-Werte (seit B4, wie Brotatos „Secondary Stats"; Zahlen in `Config/Stats.luau`):** Sie kommen nur aus Items und stehen in der Werte-Liste nur, solange sie nicht 0 sind. Gegner-Werte zählen für das ganze Team zusammen (alle, die nicht „Out" sind) und gelten für Gegner, die danach erscheinen.
 
@@ -422,7 +422,7 @@ Allgemein: Krit-Chance pro Treffer = Krit der Waffe + Crit Chance (bis 100 %), K
 | Angriffstempo | höchstens 12 Angriffe pro Sekunde (kürzester Cooldown 1/12 s). |
 | Schutz nach Treffer | 0,4 s (Abschnitt 4). |
 
-**Waffenklassen (seit B5, Brotatos „Sets", `Config/WeaponClasses.luau`, `Util/WeaponClasses.luau`):** Jede Waffe gehört zu 1–2 Klassen. Wer 2–6 Waffen einer Klasse trägt (Kopien zählen mit), bekommt den Bonus dieser Anzahl (die Stufen ersetzen sich, sie addieren sich nicht); mehr als 6 zählen wie 6. Die Boni kommen zu den dauerhaften Werten (Abschnitt 4) und ändern sich sofort, wenn man eine Waffe kauft, verkauft oder verschmilzt. Zahlen von Brotato (Max HP mal 10), Namen eigene. Brotatos Tool-Klasse (Engineering) kommt mit den Bauten (B12), seine Legendary-Klasse hat bei uns noch keine Waffen. Der Shop bevorzugt mit 15 % Waffen, die eine Klasse mit einer getragenen Waffe teilen (seit B3, jetzt nach Waffenklassen statt Melee/Ranged/Elemental).
+**Waffenklassen (seit B5, Brotatos „Sets", `Config/WeaponClasses.luau`, `Util/WeaponClasses.luau`):** Jede Waffe gehört zu 1–2 Klassen. Wer 2–6 Waffen einer Klasse trägt (Kopien zählen mit), bekommt den Bonus dieser Anzahl (die Stufen ersetzen sich, sie addieren sich nicht); mehr als 6 zählen wie 6. Die Boni kommen zu den dauerhaften Werten (Abschnitt 4) und ändern sich sofort, wenn man eine Waffe kauft, verkauft oder verschmilzt. Zahlen von Brotato (Max HP mal 10), Namen eigene. Brotatos Tool-Klasse heißt seit B12 Artisan (+1 bis +5 Engineering); Legendary heißt seit B7 Dread. Der Shop bevorzugt mit 15 % Waffen, die eine Klasse mit einer getragenen Waffe teilen (seit B3, jetzt nach Waffenklassen statt Melee/Ranged/Elemental).
 
 | Klasse | Vorbild | 2 Waffen | 3 | 4 | 5 | 6 |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -498,6 +498,12 @@ Annahmen, wo Brotato keine Zahl nennt: Drain tötet nicht, die HP bleiben bei mi
 ### B7: Waffen-Paket
 
 18 neue Waffen nach konkreten Brotato-Basisspiel-Vorbildern, insgesamt 24. Quellen, Zuordnung und Testanleitung: `docs/B7-WAFFEN.md`. Exakte Stufenpreise, Mindeststufen, stufenabhängige Skalierung, Werte beim Tragen und permanente Kill-Gewinne. Bisherige Waffen behalten ihre Daten. Medical Gun wird als Lebensraub-Waffe umgesetzt, Icicle als durchschlagende Elementarwaffe. Engineering bleibt bis B12 ohne neue Erwerbsquellen. Dread ergänzt Legendary; keine neuen DLC-Waffen.
+
+### B12 – Bauten und Begleiter (31.10.2026)
+
+Fünf Turmvarianten, Minen, Garten, Orbit Wisp und Storm Familiar; zehn Shop-Items einschließlich Calibrated Tools, dazu Foundry Key und Rune Awl als Basisspiel-Werkzeugwaffen. Quellen, Zahlen und Testanleitung: `docs/B12-BAUTEN.md`. Server berechnet alle Treffer und baut Quellen zu Wellenbeginn neu; Shop/Run-Ende räumt auf. Engineering skaliert Bauten, primäre Kampfwerte ansonsten nicht (Ausnahmen im Baukatalog); bestehende sekundäre Boni und gemeinsames Brenn-System greifen.
+
+Koop-Anpassung: maximal 100 aktive Bauten pro Server, fair nach Teilnehmerzahl geteilt, Überschuss ersetzt eigene Bauten. Treffer als Strahlen statt fliegender Projektile, gepoolte Laternenmodelle. Echte Studio-/Geräteabnahme offen; automatisierte Solo-/Koop-Abnahme vorhanden. Arsenal bleibt unverändert.
 
 ## 7. Gegner, Elites & Boss
 
@@ -1187,7 +1193,7 @@ Bis zum Soft Launch rund 40–50 Sessions und 50–60 Stunden Zeit des Owners (6
 | B10 | Brotato 10: Charaktere – 10–12 Charaktere als Regelpakete (umgesetzt; ersetzt die Klassen), Charakter- und Waffenwahl in der Lobby | Vertical Slice | High | 2 | 1,5 h | jeden Charakter einmal spielen |
 | 10 | Boss und Elites mit Phasen: Boss-Welle 20 (90 s), 2 Bosse mit Phasen-Wechseln, Vorwarnungen, Elites mit Phasen (Teil 1 Boss-Welle, 2 Bosse, Phasen-Automat, legendäre Kiste umgesetzt 30.10.2026, Branch `wp-10-boss`; Teil 2 acht Champions mit Phasen und Elite-Welle 11/12 umgesetzt 30.10.2026, Branch `wp-10b-elites`) | Vertical Slice | High | 2 | 1,5 h | Boss 3× spielen |
 | B11 | Brotato 11: Gefahrenstufen 0–5, Elite- und Horden-Wellen, Endlos-Modus, Regler für Gegner-Werte, Welle wiederholen | Vertical Slice | High | 1–2 | 1 h | Stufen durchprobieren |
-| B12 | Brotato 12: Bauten und Begleiter – Engineering, Türme, Minen, Garten, Bot, Pets | Vertical Slice | High | 2 | 1 h | Bau-Builds testen |
+| B12 | Bauten und Begleiter umgesetzt: Engineering, fünf Türme, Minen, Garten, Bot, Pet, zwei Werkzeugwaffen | Vertical Slice | High | 2 | 1 h | Automatisiert geprüft; Studio-Bau-Builds testen |
 | 11 | Down & Wiederbeleben während der Welle (Aufstehen am Wellenende gibt es seit B1; umgesetzt 30.10.2026, Branch `wp-11-revive`) | Vertical Slice | Medium | 1 | 1 h | mit 2 Clients testen |
 | 12 | Datenspeicherung: ProfileStore, Schema, Migration (umgesetzt 31.10.2026, Branch `wp-12-save`: Schema v2 mit Run-Rekord, Lobby-Anzeige) | Vertical Slice | Extra high | 1–2 | 1 h | Test-Experience anlegen, Join/Leave testen |
 | 13 | Fortschritt: Embers, Erfolge schalten Charaktere, Waffen und Items frei, Gefahrenstufe pro Charakter (statt Talente und Normal/Hard/Nightmare) | Vertical Slice | Medium | 1–2 | 1 h | Freischaltungen abnicken |

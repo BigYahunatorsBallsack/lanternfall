@@ -27,7 +27,7 @@ Jeder Strang ändert nur **seine** Zeile (Regeln: `docs/PARALLEL.md`).
 | Strang | KI | Aktuelles Paket | Branch / PR | Stand | Danach |
 | --- | --- | --- | --- | --- | --- |
 | A – Engine und Ablauf | Claude | Paket 12 Speichern (Extra high) | `wp-12-save` | fertig, wartet auf Test und Merge | B11 Teil 2 „Welle wiederholen" (Medium, nach B12), dann Paket 15 Teleport (Extra high) |
-| B – Inhalte und Spieler-Regeln | ChatGPT | B10 Charaktere (High) | `wp-b10-characters` | zehn Charaktere umgesetzt, automatisierte Abnahme; Studio-Test offen | B12 Bauten + Begleiter (High) |
+| B – Inhalte und Spieler-Regeln | ChatGPT | B12 Bauten + Begleiter (High) | `wp-b12-structures` | umgesetzt und automatisiert geprüft; Merge vom Owner autorisiert, Studio-Test offen | nächstes Paket nach Owner-Zuteilung |
 
 ## Feste Entscheidungen des Owners
 
@@ -122,3 +122,12 @@ Jeder Strang ändert nur **seine** Zeile (Regeln: `docs/PARALLEL.md`).
 - Studio-Verbindung geprüft: offene Experience enthält noch keinen B10-Quellstand. Deshalb keine Behauptung eines Studio-Playtests; ZIP/Branch zuerst synchronisieren.
 
 - B10-Abschluss: aktuelles main inklusive B9/Boss (`327e6f9`) aufgenommen; Konflikte in STATUS, DESIGN und ConfigCheck unter Erhalt beider Pakete gelöst. 388 Tests in 31 Dateien bestanden; StyLua, Selene (0 Fehler, 8 bestehende UI-Stilwarnungen) und Rojo-Build geprüft.
+
+## Ergänzung B12 (31.10.2026)
+
+- Fünf Türme, Minen, Garten, Orbit Wisp und Storm Familiar; Engineering als primärer Wert, Calibrated Tools und die Basisspiel-Werkzeuge Foundry Key / Rune Awl mit Artisan-Setbonus. Quellen und Klickanleitung: `docs/B12-BAUTEN.md`. Keine neuen DLC-Inhalte.
+- `StructureService` besitzt Simulation/Quellen/Lebenszyklus; `StructureRenderer` zeichnet gepoolte Laternen und Strahlen. Neue Config `Structures`, optionale Item-`structure`, Waffen-`structureKinds`/`structureIntervals`, Server→Client-Remotes `Structures`/`StructureBeams`, Debug `GiveStructureKit`. `WeaponService.structureHit/structureBurn` nutzen Treffer-Effekte und das gemeinsame Brennregister; Arsenal unverändert.
+- Anpassungen: 100 Bauten global, fair nach Teilnehmerzahl geteilt; Soforttreffer statt fliegender Projektile. Normale Kampfwerte skalieren Bauten nicht; Engineering und sekundäre Effekte greifen. Niedergeschlagene Besitzer pausieren, Shop/Run-Ende und Disconnect räumen auf.
+- Aktuellen main-Stand `15dd3e1` inklusive B11, Wiederbeleben und Speichern aufgenommen. Konflikte ausschließlich additive Einträge in Config/Net, beide Seiten erhalten. Gesamtes Repo erneut geprüft; kein Eingriff in A-Dienste oder Balance-Simulationen. Smoke-Test deaktiviert zufällige Bauten wie zuvor zufällige Drops; B12 hat eigene Integrationstests.
+- Ergebnisstatistik führt weiterhin nur getragene Waffen: eigene Bau-Schadenszeile später bei Strang A/HUD. Studio-Verbindung geprüft, dort B12 noch nicht synchronisiert; echter Solo-/Zwei-Client-/Gerätetest bleibt offen.
+- B12-Abschlussprüfung: 452 Tests in 39 Dateien bestanden (einschließlich acht B12-Integrationsszenarien), StyLua sauber, Selene 0 Fehler / 8 vorhandene UI-Stilwarnungen, Rojo-Build erfolgreich. Owner hat Abschluss, erneute Repo-Prüfung und Merge ausdrücklich beauftragt.

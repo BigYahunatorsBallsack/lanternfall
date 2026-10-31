@@ -184,13 +184,17 @@ local function ray(o, def, sheet, direction)
 		local pa, pb = Enemy.getPosition(a), Enemy.getPosition(b)
 		return pa ~= nil and (pb == nil or (pa - o.position).Magnitude < (pb - o.position).Magnitude)
 	end)
-	local limit = 1 + (def.pierce or 0) + math.max(0, math.floor(sheet.piercing or 0))
+	local limit = if def.pierce == -1
+		then #ids
+		else 1 + (def.pierce or 0) + math.max(0, math.floor(sheet.piercing or 0))
+	local lastPosition = target
 	for index, id in ids do
 		if index > limit then
 			break
 		end
 		local at = Enemy.getPosition(id)
 		if at then
+			lastPosition = at
 			impact(o, def, sheet, id, at, Rules.pierceFactor(def, sheet) ^ (index - 1))
 		end
 	end
@@ -200,7 +204,7 @@ local function ray(o, def, sheet, direction)
 		for i = 1, math.min(#ids, limit) do
 			visited[ids[i]] = true
 		end
-		local origin = Enemy.getPosition(ids[math.min(#ids, limit)]) or target
+		local origin = lastPosition
 		local damage = Rules.damage(def, sheet)
 		for _ = 1, math.max(0, math.floor(sheet.bounce or 0)) do
 			local nearby = {}
