@@ -143,4 +143,6 @@ Remotes.SetRunOptions = {
 }
 -- WP11: Net/Types.ReviveState, to everyone when someone goes down or out, stands up, or a revive starts or stops
 Remotes.ReviveState = { direction = "toClient" }
+-- Paket 12: Net/Types.ProfileInfo, to its player when the saved data loads or changes
+Remotes.ProfileInfo = { direction = "toClient" }
 return table.freeze(Remotes)

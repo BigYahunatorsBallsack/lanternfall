@@ -3,18 +3,21 @@
 -- over time, damage taken and downs while a run is active. When the run ends it sends RunSummary to the participants
 -- and prints a summary block to the server Output (Developer Console F9 -> Server in a live game).
 -- Listens to RunDirector, EnemySim, ExperienceService and CombatService; reads loadouts from WeaponService and
--- StatService (items).
+-- StatService (items). Since Paket 12 it also adds each finished run to the participants' saved record
+-- (PlayerDataService).
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Shared = ReplicatedStorage.Shared
+local Config = require(Shared.Config)
 local Net = require(Shared.Net)
 local Types = require(Shared.Net.Types)
 
 local CombatService = require(script.Parent.CombatService)
 local EnemySim = require(script.Parent.EnemySim)
 local ExperienceService = require(script.Parent.ExperienceService)
+local PlayerDataService = require(script.Parent.PlayerDataService)
 local RunDirector = require(script.Parent.RunDirector)
 local StatService = require(script.Parent.StatService)
 local WeaponService = require(script.Parent.WeaponService)
@@ -26,6 +29,7 @@ local RunStatsService = {}
 
 local tally = Tally.new()
 local lastSummary: Types.RunSummary? = nil
+local bossKills = 0 -- bosses only, for the saved record
 
 local function loadoutsOf(participants: { Player }): { [number]: Tally.Loadout }
 	local loadouts = {}
@@ -57,6 +61,7 @@ end
 local function onRunStarted(participants: { Player })
 	tally = Tally.new()
 	lastSummary = nil
+	bossKills = 0
 	for _, player in participants do
 		tally:addPlayer(player.UserId, player.DisplayName, RunDirector.getParticipantClassId(player) or "")
 	end
@@ -84,6 +89,21 @@ local function onRunEnded(results: Types.Results)
 	for _, player in participants do
 		Net.fireClient("RunSummary", player, summary)
 	end
+
+	if results.outcome ~= "Abandoned" then
+		local danger = RunDirector.getRunOptions().danger
+		for _, player in participants do
+			PlayerDataService.recordRun(player, {
+				won = results.outcome == "Victory",
+				wave = results.wave or RunDirector.getWave(),
+				danger = danger,
+				classId = RunDirector.getParticipantClassId(player) or "",
+				kills = tally.kills,
+				bossKills = bossKills,
+				seconds = results.survivedSeconds,
+			})
+		end
+	end
 end
 
 -- Lifecycle -------------------------------------------------------------------------
@@ -95,6 +115,7 @@ function RunStatsService.init()
 		if lastSummary and RunDirector.getPhase() == "Ended" then
 			Net.fireClient("RunSummary", player, lastSummary)
 		end
+		PlayerDataService.sync(player)
 	end)
 	RunDirector.ParticipantStateChanged:Connect(function(player, state)
 		if state == "Down" then
@@ -104,6 +125,9 @@ function RunStatsService.init()
 	EnemySim.EnemyKilled:Connect(function(info)
 		if RunDirector.isActive() then
 			tally:recordKill(info.enemyId)
+			if Config.Enemies.bosses[info.enemyId] then
+				bossKills += 1
+			end
 		end
 	end)
 	ExperienceService.LevelGained:Connect(function(level)

@@ -357,4 +357,20 @@ export type ReviveState = {
 	players: { ReviveInfo },
 }
 
+-- Paket 12: how player data is kept this session (PlayerDataService). "DataStore" saves for real; "Mock" is Studio
+-- without API access (kept only until the test stops); "Memory" has no DataStoreService at all (tests).
+export type SaveMode = "DataStore" | "Mock" | "Memory"
+
+-- Paket 12: the local player's saved record for the lobby (PlayerDataService -> ProfileCard), on load and change.
+export type ProfileInfo = {
+	saveMode: SaveMode,
+	schemaVersion: number,
+	runs: number,
+	wins: number,
+	kills: number,
+	bossKills: number,
+	bestWave: number,
+	bestDanger: number, -- highest danger level won, -1 = never won
+}
+
 return {}

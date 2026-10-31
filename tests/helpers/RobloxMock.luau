@@ -805,6 +805,14 @@ function world.removePlayer(player)
 	player.Parent = nil
 end
 
+-- Paket 12: Player:Kick removes the player like leaving; the message stays readable on the player.
+function methods.Kick(self, message)
+	self.KickMessage = message or ""
+	if self.Parent == Players then
+		world.removePlayer(self)
+	end
+end
+
 function world.getRemote(name)
 	for _, instance in world.instances do
 		if isA(instance.ClassName, "BaseRemoteEvent") and instance.Name == name then

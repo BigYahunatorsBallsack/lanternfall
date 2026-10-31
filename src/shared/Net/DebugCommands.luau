@@ -34,4 +34,6 @@ return table.freeze({
 	"HurtBoss", -- every boss and champion loses Config.Admin.hurtBossShare of its max HP, to see the phases (WP10)
 	"DropLegendaryCrate", -- a legendary crate at your feet (since WP10; heals fully, Legendary item after the wave)
 	"SpawnChampion", -- the next champion of the elite waves near yourself, in any wave (since WP10 part 2)
+	"PrintProfile", -- print your saved data to the Output (since Paket 12)
+	"ResetProfile", -- your saved data back to a fresh profile (since Paket 12)
 })
