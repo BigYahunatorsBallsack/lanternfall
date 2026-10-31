@@ -326,4 +326,7 @@ export type BossTelegraph = {
 	endsAt: number?, -- WP10 part 2: a pool stays on the floor (and hurts) until then
 }
 
+-- B12 server-only deployments and bounded cosmetic batches.
+export type StructureInfo = { id: number, ownerId: number, kind: string, x: number, z: number }
+export type StructureBeam = { kind: string, x: number, z: number, tx: number, tz: number }
 return {}

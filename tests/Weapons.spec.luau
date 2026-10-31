@@ -173,7 +173,7 @@ describe("Arsenal", function()
 	it("lists the weapons that have a behavior", function()
 		local implemented = setup().arsenal:getImplemented()
 		expect(table.concat(implemented, ",")).toBe(
-			"BoomerangAxe,BrassKnuckles,CathedralEngine,ChainLightning,CinderBreath,DuskSabre,GalvanicFork,Gravestone,LamplighterPike,LeechCarbine,MortarLantern,OrbitBlades,RattleRepeater,RitualDirk,ScatterBell,Shockwave,ShrapnelOrgan,SparkBolt,SpiritFlint,ThornTrail,TithePalm,WatchmanPistol,WinterNeedle,WraithHatchet"
+			"BoomerangAxe,BrassKnuckles,CathedralEngine,ChainLightning,CinderBreath,DuskSabre,FoundryKey,GalvanicFork,Gravestone,LamplighterPike,LeechCarbine,MortarLantern,OrbitBlades,RattleRepeater,RitualDirk,RuneAwl,ScatterBell,Shockwave,ShrapnelOrgan,SparkBolt,SpiritFlint,ThornTrail,TithePalm,WatchmanPistol,WinterNeedle,WraithHatchet"
 		)
 	end)
 

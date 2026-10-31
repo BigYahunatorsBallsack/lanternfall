@@ -125,4 +125,6 @@ Remotes.SelectStartWeapon = {
 	args = { Validate.keyOf(Config.Classes), Validate.keyOf(Config.Weapons) },
 }
 Remotes.StartWeaponChoice = { direction = "toClient" }
+Remotes.Structures = { direction = "toClient" } -- B12 authoritative full snapshot; also on RequestSync
+Remotes.StructureBeams = { direction = "toClient" } -- B12 cosmetic attacks
 return table.freeze(Remotes)

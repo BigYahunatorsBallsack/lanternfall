@@ -1,0 +1,181 @@
+--!strict
+-- B12 integrated server/client deployments and isolated scaling checks.
+local world = loadHelper("tests/helpers/RobloxMock.luau")
+local Server = game:GetService("ServerScriptService").Server
+runScript(Server, "init.server.luau")
+local Shared = game:GetService("ReplicatedStorage").Shared
+local Config = require(Shared.Config)
+local S = Server.Services
+local Run = require(S.RunDirector)
+local Stats = require(S.StatService)
+local Structures = require(S.StructureService)
+local Rules = require(S.StructureService.Rules)
+local Weapons = require(S.WeaponService)
+local Enemy = require(S.EnemySim)
+local Loot = require(S.LootService)
+local Combat = require(S.CombatService)
+local Spawn = require(S.SpawnDirector)
+local me = world.addPlayer("Owner", 1, true)
+world.step()
+runScript(folderProxy("src/client", "Client"), "init.client.luau")
+world.advance(0.5)
+Spawn.setPaused(true)
+Run.setHoldWaves(true)
+world.fireServerAs(me, "SetReady", true)
+world.advance(3.5)
+Weapons.setPaused(true)
+Spawn.setPaused(true)
+Combat.protect(me, 10000)
+local function nextWave()
+	Run.skipTo(require(Shared.Util.RunSchedule).wave(Run.getWave()).endsAt)
+	world.advance(0.1)
+	assert(Run.getPhase() == "Shop")
+	world.fireServerAs(me, "SetShopReady", true)
+	world.advance(1)
+	assert(Run.getPhase() == "Running")
+end
+local function find(kind)
+	for _, o in Structures.getSnapshot() do
+		if o.kind == kind then
+			return o
+		end
+	end
+	error("missing " .. kind)
+end
+local function at(o)
+	return Vector3.new(o.x, Config.Map.arena.center.Y, o.z)
+end
+
+describe("B12 structures", function()
+	it("makes Engineering a primary upgrade and keeps primary damage out of structures", function()
+		expect(Config.Stats.byId.engineering.primary).toBe(true)
+		local def = Config.Structures.kinds.BrassSentry
+		expect(Rules.damage(def, { engineering = 10, damage = 500, rangedDamage = 100 })).toBe(18)
+		expect(Rules.interval(def, { attackSpeed = 200 }, false)).toBe(0.73)
+		expect(Rules.interval(def, { attackSpeed = 200 }, true)).toBeNear(0.365)
+		expect(Rules.heal(Config.Structures.kinds.MercySentry, { engineering = 19 })).toBe(30)
+		expect(Rules.heal(Config.Structures.kinds.MercySentry, { engineering = 20 })).toBe(40)
+	end)
+	it("deploys every item at wave start, renders it and creates real fruit", function()
+		for id in Config.Structures.kinds do
+			assert(Stats.addItem(me, id))
+		end
+		nextWave()
+		expect(#Structures.getSnapshot()).toBe(9)
+		expect(#Loot.getPickups() > 0).toBe(true)
+		expect(#workspace:FindFirstChild("LanternfallStructures"):GetChildren() >= 18).toBe(true)
+		expect(find("OrbitWisp").ownerId).toBe(me.UserId)
+	end)
+	it("damages enemies through structures and heals only the nearby owner", function()
+		local turret = find("BrassSentry")
+		local e = Enemy.spawn("Brute", turret.x + 4, turret.z, 100, 0)
+		assert(e)
+		local hp = Enemy.getHealth(e)
+		world.advance(1)
+		expect(Enemy.getHealth(e) < hp).toBe(true)
+		local heal = find("MercySentry")
+		me.Character.HumanoidRootPart.Position = at(heal)
+		Combat.drainPlayer(me, 50)
+		local before = Combat.getHp(me)
+		world.advance(2.3)
+		expect(Combat.getHp(me) > before).toBe(true)
+	end)
+	it("lays recurring mines, clears them in the shop and rebuilds sources", function()
+		world.advance(12.1)
+		local mines = 0
+		for _, o in Structures.getSnapshot() do
+			if o.kind == "RuneMine" then
+				mines += 1
+			end
+		end
+		expect(mines >= 2).toBe(true)
+		Run.skipTo(require(Shared.Util.RunSchedule).wave(Run.getWave()).endsAt)
+		world.advance(0.1)
+		expect(#Structures.getSnapshot()).toBe(0)
+		assert(Weapons.addWeapon(me, "FoundryKey", 4))
+		assert(Weapons.addWeapon(me, "RuneAwl", 4))
+		world.fireServerAs(me, "SetShopReady", true)
+		world.advance(1)
+		local siege = 0
+		for _, o in Structures.getSnapshot() do
+			if o.kind == "SiegeSentry" then
+				siege += 1
+			end
+		end
+		expect(siege).toBe(2)
+		local before = #Structures.getSnapshot()
+		world.advance(3.2)
+		expect(#Structures.getSnapshot() > before).toBe(true)
+	end)
+	it("bounds allocations, resets after the run and reports no runtime errors", function()
+		for _ = 1, 110 do
+			assert(Stats.addItem(me, "BrassSentry"))
+		end
+		nextWave()
+		expect(#Structures.getSnapshot()).toBe(Config.Structures.maxActive)
+		world.advance(14)
+		expect(#Structures.getSnapshot()).toBe(Config.Structures.maxActive)
+		Run.endRun("Defeat")
+		world.advance(0.1)
+		expect(#Structures.getSnapshot()).toBe(0)
+		assert(#world.errors == 0, table.concat(world.errors, "\n"))
+	end)
+	it("ticks flame burns even while the sentry continually refreshes them", function()
+		world.advance(Config.Run.flow.resultsSeconds + 0.1)
+		world.fireServerAs(me, "SetReady", true)
+		world.advance(3.5)
+		Spawn.setPaused(true)
+		Weapons.setPaused(true)
+		Combat.protect(me, 10000)
+		assert(Stats.addItem(me, "CinderSentry"))
+		nextWave()
+		for _, weapon in Weapons.getWeapons(me) do
+			Weapons.removeWeapon(me, weapon.uid)
+		end
+		Weapons.setPaused(false)
+		local o = find("CinderSentry")
+		local enemy = Enemy.spawn("Brute", o.x + 6, o.z, 100, 0, nil, nil, 0)
+		local before = Enemy.getHealth(enemy)
+		world.advance(2.3)
+		expect(before - Enemy.getHealth(enemy) >= 10).toBe(true)
+		assert(#world.errors == 0, table.concat(world.errors, "\n"))
+	end)
+	it("shares the construction budget fairly and cleans up disconnects", function()
+		Run.endRun("Defeat")
+		world.advance(Config.Run.flow.resultsSeconds + 0.1)
+		local peer = world.addPlayer("Builder", 2, false)
+		world.step()
+		world.fireServerAs(me, "SetReady", true)
+		world.fireServerAs(peer, "SetReady", true)
+		world.advance(Config.Run.flow.allReadyCountdownSeconds + 0.1)
+		Spawn.setPaused(true)
+		Weapons.setPaused(true)
+		Combat.protect(me, 10000)
+		Combat.protect(peer, 10000)
+		expect(#Structures.getSnapshot()).toBe(0)
+		for _ = 1, 100 do
+			assert(Stats.addItem(me, "BrassSentry"))
+			assert(Stats.addItem(peer, "RuneMine"))
+		end
+		Run.skipTo(require(Shared.Util.RunSchedule).wave(Run.getWave()).endsAt)
+		world.advance(0.1)
+		world.fireServerAs(me, "SetShopReady", true)
+		world.fireServerAs(peer, "SetShopReady", true)
+		world.advance(1)
+		local counts = {}
+		for _, o in Structures.getSnapshot() do
+			counts[o.ownerId] = (counts[o.ownerId] or 0) + 1
+		end
+		expect(counts[me.UserId]).toBe(50)
+		expect(counts[peer.UserId]).toBe(50)
+		world.advance(12.2)
+		expect(#Structures.getSnapshot()).toBe(100)
+		world.removePlayer(peer)
+		world.advance(0.3)
+		expect(#Structures.getSnapshot()).toBe(50)
+		for _, o in Structures.getSnapshot() do
+			expect(o.ownerId).toBe(me.UserId)
+		end
+		assert(#world.errors == 0, table.concat(world.errors, "\n"))
+	end)
+end)
