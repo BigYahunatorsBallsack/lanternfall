@@ -1,4 +1,5 @@
 --!strict
+--!native
 -- Collects enemy snapshot packets (Net/Snapshot) into complete ticks and picks the two ticks to draw
 -- between. Used by EnemyRenderer; pure Luau, tested in tests/SnapshotBuffer.spec.luau.
 --
