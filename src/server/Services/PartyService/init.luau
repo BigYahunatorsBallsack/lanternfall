@@ -5,6 +5,7 @@
 -- Party rules in Parties (pure), ticket and quick join rules in Util/PlaceRules. Sends each player their view
 -- (remote PartyState) in every role; outside the hub that only says which place this is, the run place's view comes
 -- from RunPlaceService. Listens to RunDirector, MapService (portals) and PlayerDataService (danger levels).
+-- Paket 23: the same player can be invited again only after Config.Security.reinviteSeconds.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -41,6 +42,7 @@ local REASON_TEXT: { [string]: string } = {
 	Queued = "You are in quick join; cancel it first",
 	Unknown = "Please wait a moment and try again",
 	RunHere = "A run is already going in this server (Studio runs one group at a time)",
+	InvitedRecently = "You just invited them; wait a moment", -- Paket 23
 }
 
 local PartyService = {}
@@ -52,6 +54,7 @@ local quickStartsAt: number? = nil -- the forming group leaves at this time
 local quickGroup: { number } = {} -- leaders in the forming group
 local partyStartsAt: { [number]: number } = {} -- leader -> party run countdown end
 local teleporting: { [number]: number } = {} -- userId -> give up waiting at this time
+local invitedAt: { [string]: number } = {} -- Paket 23: "from:to" -> time of the last invite (no popup spam)
 local sentVersion = -1
 local dirty = true
 local elapsed = 0
@@ -498,6 +501,12 @@ local function onPlayerRemoving(player: Player)
 	optionsOf[userId] = nil
 	teleporting[userId] = nil
 	partyStartsAt[userId] = nil
+	for pair in invitedAt do
+		local from, to = string.match(pair, "^(%d+):(%d+)$")
+		if tonumber(from) == userId or tonumber(to) == userId then
+			invitedAt[pair] = nil
+		end
+	end
 	touch()
 end
 
@@ -519,11 +528,18 @@ function PartyService.init()
 			notify(player, "Queued")
 			return
 		end
+		local pair = `{player.UserId}:{targetId}`
+		local last = invitedAt[pair]
+		if last and now() - last < Config.Security.reinviteSeconds then
+			notify(player, "InvitedRecently")
+			return
+		end
 		local ok, reason = book:invite(player.UserId, targetId, now(), Config.Places.party.inviteSeconds)
 		if not ok then
 			notify(player, reason)
 			return
 		end
+		invitedAt[pair] = now()
 		Net.fireClient("Notify", player, `Invite sent to {target.DisplayName}`)
 		touch()
 	end)

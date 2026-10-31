@@ -10,6 +10,7 @@ local Enemies = require(Shared.Config.Enemies) -- WP10 part 2
 local RunSchedule = require(Shared.Util.RunSchedule) -- WP10 part 2
 local EmberShopRules = require(Shared.Util.EmberShopRules) -- Paket 17
 local ProgressRules = require(Shared.Util.ProgressRules) -- Paket 17
+local DebugCommands = require(Shared.Net.DebugCommands) -- Paket 23
 
 local ConfigCheck = {}
 
@@ -1014,6 +1015,30 @@ function ConfigCheck.run(): { string }
 	end
 	if audio.hearRadius <= audio.fullRadius or audio.fadeSeconds <= 0 then
 		problem("Audio: hearRadius must be above fullRadius and fadeSeconds positive")
+	end
+	-- Paket 23: anti-cheat values
+	local security = Config.Security
+	local movement = security.movement
+	if
+		movement.speedTolerance < 1
+		or movement.burstSeconds <= 0
+		or movement.slackStuds < 0
+		or movement.dashCredit < 1
+		or movement.speedGraceSeconds < 0
+		or movement.arenaMargin < 0
+		or movement.pillarCore < 0
+	then
+		problem(
+			"Security: movement needs speedTolerance >= 1, dashCredit >= 1, burstSeconds > 0 and no negative values"
+		)
+	end
+	for _, command in security.scoreSafeDebugCommands do
+		if not table.find(DebugCommands, command) then
+			problem(`Security: scoreSafeDebugCommands names unknown debug command {command}`)
+		end
+	end
+	if security.reinviteSeconds < 0 then
+		problem("Security: reinviteSeconds must not be negative")
 	end
 	return problems
 end

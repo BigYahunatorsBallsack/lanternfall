@@ -17,7 +17,11 @@ end
 
 function Validate.integer(min: number, max: number): Validator
 	return function(value)
-		return typeof(value) == "number" and value == math.floor(value) and value >= min and value <= max
+		return typeof(value) == "number"
+			and isFinite(value)
+			and value == math.floor(value)
+			and value >= min
+			and value <= max
 	end
 end
 
