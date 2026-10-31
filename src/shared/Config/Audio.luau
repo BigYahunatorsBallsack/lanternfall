@@ -93,7 +93,6 @@ return table.freeze({
 		lowGain = 0,
 		midGain = -2,
 		highGain = -9,
-		midRange = { 350, 2600 }, -- Hz between the low and high band
 		threshold = -20, -- dB where the compressor starts
 		ratio = 3,
 		attack = 0.005,

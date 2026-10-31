@@ -1010,8 +1010,8 @@ function ConfigCheck.run(): { string }
 		end
 	end
 	local bus = audio.effectsBus
-	if bus.ratio < 1 or bus.midRange[1] >= bus.midRange[2] or bus.attack <= 0 or bus.release <= 0 then
-		problem("Audio: effectsBus needs ratio >= 1, a rising midRange and positive attack/release")
+	if bus.ratio < 1 or bus.attack <= 0 or bus.release <= 0 then
+		problem("Audio: effectsBus needs ratio >= 1 and positive attack/release")
 	end
 	if audio.hearRadius <= audio.fullRadius or audio.fadeSeconds <= 0 then
 		problem("Audio: hearRadius must be above fullRadius and fadeSeconds positive")
