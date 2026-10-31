@@ -1,6 +1,6 @@
 --!strict
--- Builds the placeholder lobby and arena from Config.Map (the real map follows in WP21) and moves
--- characters between them. Called by RunDirector; EnemySim and SpawnDirector read the arena bounds,
+-- Builds the lobby and arena from Config.Map and moves characters between them; since Paket 21 MapService/Decor adds
+-- the dressing and the evening lighting. Called by RunDirector; EnemySim and SpawnDirector read the arena bounds,
 -- obstacles and player positions.
 -- Paket 15: on the hub (PlaceService) the lobby gets three portals (Play solo, Party run, Quick join) with a
 -- ProximityPrompt each; PartyService listens to PortalTriggered.
@@ -11,6 +11,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Config = require(ReplicatedStorage.Shared.Config)
 local Signal = require(ReplicatedStorage.Shared.Util.Signal)
 
+local Decor = require(script.Decor)
 local PlaceService = require(script.Parent.PlaceService)
 
 export type Zone = "Lobby" | "Arena"
@@ -204,6 +205,7 @@ local function buildMap(): Folder
 	if PlaceService.isHub() then
 		buildPortals(lobbyModel, lobby.center)
 	end
+	Decor.buildLobby(lobbyModel)
 
 	local arena = Config.Map.arena
 	local arenaModel = buildArea(
@@ -242,6 +244,7 @@ local function buildMap(): Folder
 		pillar.Shape = Enum.PartType.Cylinder
 		pillar.Material = Enum.Material.Cobblestone
 	end
+	Decor.buildArena(arenaModel)
 
 	folder.Parent = workspace
 	return folder
@@ -271,6 +274,7 @@ function MapService.init()
 	if workspace:FindFirstChild(MAP_NAME) then
 		warn(`[Lanternfall] {MAP_NAME} already exists in Workspace; building a fresh copy next to it`)
 	end
+	Decor.applyLighting()
 	buildMap()
 
 	local function onPlayerAdded(player: Player)
