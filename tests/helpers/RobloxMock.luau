@@ -446,6 +446,10 @@ local function newInstance(className, props)
 			initial[key] = value
 		end
 	end
+	if className == "Sound" then -- Paket 21
+		initial.IsPlaying = false
+		initial.TimeLength = 0
+	end
 	rawset(instance, "__props", initial)
 	rawset(instance, "__children", {})
 	rawset(instance, "__events", {})
@@ -624,6 +628,15 @@ end
 -- Trail and Beam segments are not simulated.
 function methods.Clear() end
 -- ParticleEmitter: counts emitted particles in world.particlesEmitted.
+-- Paket 21: sounds record each play in world.soundsPlayed (by name, e.g. "hit2" or "lobby").
+world.soundsPlayed = {}
+function methods.Play(self)
+	self.IsPlaying = true
+	table.insert(world.soundsPlayed, self.Name)
+end
+function methods.Stop(self)
+	self.IsPlaying = false
+end
 function methods.Emit(_, count)
 	world.particlesEmitted = (world.particlesEmitted or 0) + (count or 1)
 end
@@ -787,6 +800,8 @@ local TweenService = newInstance("TweenService", { Name = "TweenService" })
 local ContextActionService = newInstance("ContextActionService", { Name = "ContextActionService" })
 local StarterGui = newInstance("StarterGui", { Name = "StarterGui" })
 local SoundService = newInstance("SoundService", { Name = "SoundService" }) -- Paket 14
+local Lighting = newInstance("Lighting", { Name = "Lighting" }) -- Paket 21
+world.lighting = Lighting
 local TeleportService = newInstance("TeleportService", { Name = "TeleportService" }) -- Paket 15
 local MarketplaceService = newInstance("MarketplaceService", { Name = "MarketplaceService" }) -- Paket 16
 local BadgeService = newInstance("BadgeService", { Name = "BadgeService" }) -- Paket 18
@@ -833,6 +848,7 @@ __services.TweenService = TweenService
 __services.ContextActionService = ContextActionService
 __services.StarterGui = StarterGui
 __services.SoundService = SoundService
+__services.Lighting = Lighting
 __services.TeleportService = TeleportService
 __services.MarketplaceService = MarketplaceService
 world.market = MarketplaceService
