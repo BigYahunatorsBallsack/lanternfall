@@ -306,11 +306,15 @@ describe("smoke", function()
 		world.advance(1.2)
 		local stats = world.gui("Debug", "Stats")
 		expect(stats ~= nil).toBe(true)
-		expect(stats.Enemies.Text).toBe(
-			`Enemies {Config.Run.spawn.cap.base} / {Config.Run.spawn.cap.base} · drawn {Config.Run.spawn.cap.base} · shots 0`
-		)
+		local cap = Config.Run.spawn.cap.base
+		local culled = enemyRenderer().getStats().culled
+		expect(stats.Enemies.Text).toBe(`Enemies {cap} / {cap} · drawn {cap} ({culled} off screen) · shots 0`)
 		expect(string.find(stats.Server.Text, "Server step", 1, true) ~= nil).toBe(true)
 		expect(string.find(stats.Network.Text, "KB/s", 1, true) ~= nil).toBe(true)
+		-- Paket 22: frame time, memory (Roblox's Stats service is missing in tests) and the graphics level
+		expect(string.find(stats.Fps.Text, "frame", 1, true) ~= nil).toBe(true)
+		expect(stats.Memory.Text).toBe("Memory ? MB · instances ?")
+		expect(stats.Graphics.Text).toBe("Graphics High (auto)")
 	end)
 
 	it("shoots Spark Bolts that kill enemies once weapons are on", function()

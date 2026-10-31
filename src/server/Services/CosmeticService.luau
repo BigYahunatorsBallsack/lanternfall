@@ -3,8 +3,10 @@
 -- trail behind them, from what the player picked in the Ember shop (Util/EmberShopRules.shown; VIP players get the VIP
 -- lantern and trail until they pick something else). Built on the server from a few simple parts welded to the
 -- HumanoidRootPart, so everyone sees them; look only (no collision, no queries, massless). Rebuilt on spawn, when the
--- data loads or changes and when pass perks change. Called by EmberShopService (refresh after a buy or equip).
+-- data loads or changes and when pass perks change. Called by EmberShopService (refresh after a buy or equip). The
+-- lantern's light is tagged optional (Config.Graphics): Low graphics turns other players' lanterns off on a client.
 
+local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -107,6 +109,7 @@ local function buildLantern(folder: Folder, root: BasePart, lantern: CosmeticsCo
 			light.Range = style.lightRange
 			light.Brightness = style.lightBrightness
 			light.Parent = part
+			CollectionService:AddTag(light, Config.Graphics.optionalLightTag)
 		end
 		local weld = Instance.new("WeldConstraint")
 		weld.Part0 = root

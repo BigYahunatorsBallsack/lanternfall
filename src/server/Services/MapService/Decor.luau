@@ -3,8 +3,10 @@
 -- with violet haze, brass bands and broken caps on the ruin pillars, a brass sunburst around the start circle,
 -- cracked slabs on the floor, lamp posts, broken walls and glowing obelisks beyond the fog wall, embers drifting over
 -- the arena and lamps around the lobby. Only looks: everything inside the arena is walk-through and flat, everything
--- solid stands outside the walls. Numbers in Config.Map.lighting and Config.Map.decor.
+-- solid stands outside the walls. Numbers in Config.Map.lighting and Config.Map.decor. Since Paket 22 the lamp and
+-- obelisk lights and the ember emitter carry Config.Graphics tags, so Low graphics can turn them down on a client.
 
+local CollectionService = game:GetService("CollectionService")
 local Lighting = game:GetService("Lighting")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -63,6 +65,7 @@ local function light(parent: Instance, color: Color3, range: number, brightness:
 	pointLight.Brightness = brightness
 	pointLight.Shadows = false
 	pointLight.Parent = parent
+	CollectionService:AddTag(pointLight, Config.Graphics.optionalLightTag)
 end
 
 -- A cylinder standing up (Roblox cylinders lie along X).
@@ -374,6 +377,7 @@ local function motes(model: Model, center: Vector3)
 	emitter.Shape = Enum.ParticleEmitterShape.Box
 	emitter.ShapeStyle = Enum.ParticleEmitterShapeStyle.Volume
 	emitter.Parent = area
+	CollectionService:AddTag(emitter, Config.Graphics.motesTag)
 end
 
 function Decor.buildArena(arenaModel: Model)

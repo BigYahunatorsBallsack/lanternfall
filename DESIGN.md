@@ -919,7 +919,7 @@ Bewusst nicht: harte Countdown-Angebote oder Serien, die bei einem verpassten Ta
 - **Level-up:** 3 große Karten (Icon, Name, eine Zeile Effekt, „NEW"/„LV 3"), daumentauglich. Seit Paket 6: Fenster in der Bildmitte mit „LEVEL n", „Pick one", drei Karten (Icon = Kreis mit Anfangsbuchstaben, gelb Waffe, grün Passiv, violett Belohnung), einem Balken, der bis zur automatischen Wahl abläuft, und „Reroll (1 left)". Seit B2 vier Werte-Karten (Tasten 1–4) mit Wert-Name, Effekt („+8% Damage") und Stufe als Badge und Rahmenfarbe; der Knopf heißt „Reroll (n Shards)" und ist grau, wenn die Shards fehlen.
 - **Run-Ende:** Zeit, Kills, Schaden pro Waffe, Embers inkl. Boni, großer „Nochmal"-Knopf. Seit Paket 14 unter den Embers „YOUR WEAPONS" (je Zeile „Spark Bolt III · 12.3k damage · 140 kills", meister Schaden zuerst); der Teil mit Embers, Waffen und Team scrollt, wenn er nicht passt (Handy).
 - **Tooltips (Paket 14):** Maus drüber oder antippen (schließt nach 4 s): Waffen im HUD und im Shop („Damage 32 | 18 (+100% Melee Damage)", Krit, Cooldown, Reichweite, Klassen), Items (Stufe, Anzahl, Limit „max 3", auch als Shop-Badge), Werte (was der Wert gerade bewirkt, z. B. „You take 21% less damage"), Waffenklassen („Edge 2/6", Bonus jeder Anzahl). Die Werte-Liste schaltet zwischen PRIMARY und SECONDARY um. Unter der Welle steht die nächste geplante Elite- oder Horden-Welle („Elite wave in 3"), ihr Tooltip listet alle; das Wellen-Banner nennt sie. Mitspieler außer Sicht zeigt ein Pfeil am Bildschirmrand (rot = gestürzt).
-- **Einstellungen (Paket 14):** Zahnrad oben rechts: Bildschirmwackeln, Schadenszahlen, Musik und Effekte (Lautstärke in 10er-Schritten), im Profil gespeichert.
+- **Einstellungen (Paket 14):** Zahnrad oben rechts: Bildschirmwackeln, Schadenszahlen, Musik und Effekte (Lautstärke in 10er-Schritten), im Profil gespeichert. Seit Paket 22 auch **Graphics** (Auto / High / Low, Abschnitt 15).
 - **Shop, Talente, Pass:** je ein Fenster, max. 2 Taps bis Kauf.
 
 **Erster Start (FTUE, seit Paket 19 „First Night"):** Wer noch nie einen Run beendet hat (`tutorial.firstNight = false`), landet nach dem Laden (2 s) direkt in „First Night": Solo-Run aus den ersten **3 Wellen** (20 + 25 + 30 s Kampf, zwei Shops), leichter (Gefahr 0, Gegner-HP 75 %, Schaden 50 %, Anzahl 75 %), Anzeige „First Night" und „Wave 1 / 3". Hinweise oben in der Mitte, einer nach dem anderen: „Move" (bis die Figur 6 Studs gegangen ist) → Waffen schießen von selbst, Orbs einsammeln → „Pick one" solange Level-up-Karten offen sind → Shop erklärt (nur der erste) → Welle 3: ein Plünderer erscheint nach 4 s (Mini-Elite mit Kiste) → Welle 3 überleben = Sieg. Danach in der Lobby einmal der Hinweis „Dawn breaks!" (Charakter wählen, Gefahrenstufe, Erfolge öffnen Charaktere). Knopf „Skip" beendet den First Night und zählt ihn als erledigt. Der First Night zählt als beendeter Run (Embers, Erfolg und Badge „First Night", Quests), aber **nicht als Sieg** (öffnet keine Gefahrenstufe) und nicht für Ranglisten. Wo: Hub → Solo-Teleport mit First-Night-Ticket; ein Server allein → direkt dort; trifft ein Neuer auf andere Spieler im selben Server, startet keiner (er spielt normal mit). In Studio nur über den Debug-Knopf „Start First Night" (`Config/FirstNight.luau` → `autoStartInStudio`). Talent-Altar entfällt (seit Brotato-Plan).
@@ -1110,16 +1110,26 @@ tests/               Unit-Tests für reine Module (Runner in tools/luau-test-run
 | Client-FPS Mittelklasse-Handy | ≥ 30 |
 | Netzwerk pro Client | < 50 KB/s |
 | Partikel-Emitter | so wenige wie möglich, gepoolt (`Vfx/Bursts`: einer pro Stil und Farbe, ≈ 30); dazu einer für die Glut über der Arena (Paket 21) |
-| Lichter der Karte | ohne Schatten, höchstens ≈ 30 (Paket 21: 16 Laternen + 4 Obelisken + 5 Säulen-Runen ohne Licht + 6 Lobby-Laternen + Portale) |
+| Lichter der Karte | ohne Schatten, höchstens ≈ 30 (Paket 21: 16 Laternen + 4 Obelisken + 5 Säulen-Runen ohne Licht + 6 Lobby-Laternen + Portale); bei Grafik Low nur Portale und Lobby-Boden (Paket 22) |
 | Teile pro Gegner | höchstens 20, Elite 25 (Test `EnemyModels.spec`); in großen Trauben wenig Details |
+| Speicher Client (Handy) | < 1.000 MB (Annahme, Paket 22; Debug-Anzeige wird rot) |
+
+**Performance-Pass (Paket 22)**
+
+- **Messung:** `tests/Perf22.spec.luau` spielt den schlimmsten Fall im Test-Runner (4 Spieler, 140 Gegner mit 40-fachen HP, je 6 Waffen auf Stufe IV, Items mit Effekten, alle Bauten, 20 s) und gibt pro Remote die geschätzten KB/s des eigenen Clients (`Net/NetSize`: Roblox' Format nach Messungen der Community, Annahme) und die Rechenzeit pro Handler aus (Profiler im Mock). Vorher ≈ 57,7 KB/s, jetzt ≈ 31,5 KB/s (Budget 50); davon Gegner-Snapshots ≈ 21 KB/s (10 Bytes pro Gegner, 15 Hz, unverändert), Waffen-Effekte ≈ 4 KB/s. Server ≈ 2,5 ms pro Schritt (Budget 4). Client-Zeiten im Mock sind nur eine Rangliste (Instanzen sind dort Lua-Tabellen); vorne liegt der EnemyRenderer.
+- **Kompakte Formate (`buffer`):** `WeaponEffects` (`Net/WeaponFx`: Waffe und Art als Index in eine sortierte Liste, Koordinaten als f32, Ziele als Ganzzahlen; unbekannte Namen und Zusatzfelder gehen als Text mit), `Structures`/`StructureBeams` (`Net/StructureFeed`: Id, Besitzer, Art, x/z) und `EnemyShots` (`Net/ShotFeed`). Orbit-Wisps kreisen auf dem Client um ihren Besitzer (Winkel aus `workspace:GetServerTimeNow()`), der Server schickt `Structures` nur bei Änderungen. Kaputte Pakete ergeben leere Listen statt Fehlern.
+- **Server:** `StructureService` rechnet ohne Tabellen-Kopien pro Bau und Schritt (Werte-Blatt einmal pro Spieler und Schritt), sortiert Strahl-Ziele ohne Vector3. Heiße Module laufen mit `--!native` (EnemySim/World, Volleys, SpatialHash, Snapshot, Arsenal, Afflictions, EnemyRenderer, SnapshotBuffer); im Test-Runner nicht messbar.
+- **Grafikstufe** (`Config/Graphics.luau`, `GraphicsController`): Einstellung Auto / High / Low (Profil, Schema v8). Low = die bisherigen Handy-Werte (`*Touch` in `Config/Feedback`: weniger Details ab kleineren Trauben, Todesfunken, Glut, Schadenszahlen) auf jedem Gerät, dazu kein Bloom, optionale Lichter aus (Deko-Laternen und Obelisken, Laternen anderer Spieler; die eigene bleibt; Server setzt CollectionService-Tags) und 40 % der schwebenden Glut. Auto = Low auf Touch-Geräten ohne Tastatur, bei Roblox-Grafikregler ≤ 4 oder wenn ein Run 6 s unter 28 FPS läuft (dann bis zum Verlassen; in Studio aus, weil mehrere Clients auf einem PC langsamer sind).
+- **Sichtfeld:** `EnemyRenderer` stellt Gegner außerhalb des Bildes nicht (`Util/ViewBounds`: Kegel der festen Kamera, Rand = 2 × Radius + 3 Studs) und lässt dort keine Funken/Glut; Neue, Elites, Bosse und Gegner in Vorwarnung/Ansturm/Puls (Warnflächen reichen weit) immer. Der Tod spielt trotzdem seinen Sound.
+- **Debug-Anzeige:** alle empfangenen Daten (`Stats.DataReceiveKbps`, daneben Gegnerdaten), FPS mit Bildzeit und schlechtestem Bild, Speicher (`GetTotalMemoryUsageMb`) und Instanzen, Gegner außerhalb des Bildes, Grafikstufe mit Grund.
 
 ## 16. Datenspeicherung & Sicherheit
 
-**Datenschema v7** (seit Paket 12; v1 → v2 ergänzt Siege, beste Welle, höchste gewonnene Gefahrenstufe und den Rekord pro Charakter; v2 → v3 (Paket 13) Champion-Kills, Wiederbelebungen, verdiente Embers gesamt und die erledigten Erfolge; v3 → v4 (Paket 14) Einstellungen; v4 → v5 (Paket 16) Käufe; v5 → v6 (Paket 18) Quests, Login-Serie, Badges, Wochenbestwerte; v6 → v7 (Paket 19) `tutorial`, First Night erledigt = schon Runs gespielt)
+**Datenschema v8** (seit Paket 12; v1 → v2 ergänzt Siege, beste Welle, höchste gewonnene Gefahrenstufe und den Rekord pro Charakter; v2 → v3 (Paket 13) Champion-Kills, Wiederbelebungen, verdiente Embers gesamt und die erledigten Erfolge; v3 → v4 (Paket 14) Einstellungen; v4 → v5 (Paket 16) Käufe; v5 → v6 (Paket 18) Quests, Login-Serie, Badges, Wochenbestwerte; v6 → v7 (Paket 19) `tutorial`, First Night erledigt = schon Runs gespielt; v7 → v8 (Paket 22) `settings.graphics` = „Auto")
 
 ```lua
 {
-  schemaVersion = 7, -- v4 (Paket 14): settings = { shake, damageNumbers, music, effects }; v5 (Paket 16) siehe unten
+  schemaVersion = 8, -- v4 (Paket 14): settings = { shake, damageNumbers, music, effects }; v8 (Paket 22) + graphics; v5 (Paket 16) siehe unten
   embers = 0,
   talents = { toughness = 0, power = 0, reach = 0, greed = 0, rescuer = 0, rerolls = 0 }, -- ungenutzt seit dem Brotato-Plan, bleibt bis zu einer Migration
   classes = { "BladeWarden", "SparkMage" },
@@ -1275,7 +1285,7 @@ Bis zum Soft Launch rund 40–50 Sessions und 50–60 Stunden Zeit des Owners (6
 | 19 | Erster Start (FTUE) | MVP | Medium | 1 | 1 h | neue Tester beobachten |
 | 20 | Analytics-Events | MVP | Medium | 1 | 0,5 h | Dashboard ansehen |
 | 21 | VFX, Sounds, Musik, Map-Feinschliff | MVP | Medium (Low fürs Platzieren) | 2 | 2 h | auswählen |
-| 22 | Performance-Pass Mobile + Netzwerk | MVP | Extra high | 1–2 | 1,5 h | Handy-Tests, Mikroprofiler-Screenshots |
+| 22 | Performance-Pass Mobile + Netzwerk (umgesetzt 31.10.2026, Branch `wp-22-performance`: kompakte Remotes, Grafikstufe, Sichtfeld, Debug-Anzeige, Schema v8) | MVP | Extra high | 1–2 | 1,5 h | Handy-Tests, Mikroprofiler-Screenshots |
 | 23 | Sicherheits- und Code-Review | MVP | Extra high | 1–2 | 0,5 h | Ergebnis abnicken |
 | 24 | Launch-Paket: Icon, Thumbnails, Beschreibung, Clips | Soft Launch | Medium | 1 | 3 h | Clips, Fragebogen, Ads |
 | 25 | Bugfixing (laufend) | alle | Medium, nach 2 Fehlversuchen Extra high | – | – | Bug-Report |

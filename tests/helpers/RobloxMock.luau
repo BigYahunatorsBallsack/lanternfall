@@ -6,6 +6,9 @@
 local world = { errors = {}, instances = {}, frame = 0 }
 local clock = { now = 1000 }
 world.clock = clock
+-- Paket 22: the real CPU clock (os.clock follows the fake clock below), for the performance spec
+local realClock = os.clock
+world.realClock = realClock
 
 local realTypeof = typeof
 
@@ -34,10 +37,33 @@ local function toThread(callback)
 	end)
 end
 
+-- Paket 22: with world.profiler = { [key] = seconds } set, every spawned function (signal handlers, RenderStepped,
+-- Heartbeat) adds its own CPU time (minus the handlers it spawned itself) under "file:line" of its definition.
+local profileStack = {}
+local function profiled(callback, co, ...)
+	local frame = { child = 0 }
+	table.insert(profileStack, frame)
+	local started = realClock()
+	resume(co, ...)
+	local elapsed = realClock() - started
+	table.remove(profileStack)
+	local parent = profileStack[#profileStack]
+	if parent then
+		parent.child += elapsed
+	end
+	local source, line = debug.info(callback, "sl")
+	local key = `{source}:{line}`
+	world.profiler[key] = (world.profiler[key] or 0) + elapsed - frame.child
+end
+
 local task = {}
 function task.spawn(callback, ...)
 	local co = toThread(callback)
-	resume(co, ...)
+	if world.profiler and type(callback) == "function" then
+		profiled(callback, co, ...)
+	else
+		resume(co, ...)
+	end
 	return co
 end
 function task.defer(callback, ...)
@@ -350,6 +376,14 @@ local SUPERCLASS = {
 	RemoteEvent = "BaseRemoteEvent",
 	UnreliableRemoteEvent = "BaseRemoteEvent",
 	BaseRemoteEvent = "Instance",
+	-- Paket 22: graphics quality turns lights, bloom and emitters off
+	PointLight = "Light",
+	SpotLight = "Light",
+	SurfaceLight = "Light",
+	Light = "Instance",
+	BloomEffect = "PostEffect",
+	ColorCorrectionEffect = "PostEffect",
+	PostEffect = "Instance",
 }
 
 local EVENTS = {
@@ -376,6 +410,8 @@ local EVENTS = {
 	TeleportInitFailed = true,
 	-- Paket 16: purchases
 	PromptGamePassPurchaseFinished = true,
+	-- Paket 22: fired when an instance is parented to this one
+	ChildAdded = true,
 }
 
 local function isA(className, target)
@@ -509,6 +545,10 @@ InstanceMeta.__newindex = function(instance, key, value)
 		props.Parent = value
 		if value ~= nil and getmetatable(value) == InstanceMeta then
 			table.insert(rawget(value, "__children"), instance)
+			local added = rawget(value, "__events").ChildAdded
+			if added and old ~= value then
+				added:Fire(instance)
+			end
 		end
 		return
 	end
@@ -526,6 +566,16 @@ end
 
 function methods.GetChildren(self)
 	return table.clone(rawget(self, "__children"))
+end
+function methods.IsDescendantOf(self, ancestor)
+	local node = self.Parent
+	while node ~= nil do
+		if node == ancestor then
+			return true
+		end
+		node = node.Parent
+	end
+	return false
 end
 function methods.GetDescendants(self)
 	local list = {}
@@ -659,12 +709,19 @@ end
 function methods.FireServer(self, ...)
 	self.OnServerEvent:Fire(world.localPlayer, copyArgs(...))
 end
+-- Paket 22: world.netWatch(remoteName, player or nil for all, ...) sees every server -> client call before it is copied.
 function methods.FireClient(self, player, ...)
+	if world.netWatch then
+		world.netWatch(self.Name, player, ...)
+	end
 	if player == world.localPlayer then
 		self.OnClientEvent:Fire(copyArgs(...))
 	end
 end
 function methods.FireAllClients(self, ...)
+	if world.netWatch then
+		world.netWatch(self.Name, nil, ...)
+	end
 	if world.localPlayer then
 		self.OnClientEvent:Fire(copyArgs(...))
 	end
@@ -807,6 +864,46 @@ local MarketplaceService = newInstance("MarketplaceService", { Name = "Marketpla
 local BadgeService = newInstance("BadgeService", { Name = "BadgeService" }) -- Paket 18
 local AnalyticsService = newInstance("AnalyticsService", { Name = "AnalyticsService" }) -- Paket 20
 local UserService = newInstance("UserService", { Name = "UserService" }) -- Paket 18
+-- Paket 22: CollectionService tags (AddTag, RemoveTag, HasTag, GetTagged, GetInstanceAddedSignal)
+local CollectionService = newInstance("CollectionService", { Name = "CollectionService" })
+local tagged = {}
+local tagAdded = {}
+local function tagSignal(tag)
+	tagAdded[tag] = tagAdded[tag] or newSignal()
+	return tagAdded[tag]
+end
+function methods.AddTag(self, instance, tag)
+	if self ~= CollectionService then -- instance:AddTag(tag)
+		instance, tag = self, instance
+	end
+	tagged[tag] = tagged[tag] or {}
+	if not table.find(tagged[tag], instance) then
+		table.insert(tagged[tag], instance)
+		tagSignal(tag):Fire(instance)
+	end
+end
+function methods.RemoveTag(self, instance, tag)
+	if self ~= CollectionService then
+		instance, tag = self, instance
+	end
+	local list = tagged[tag]
+	local index = list and table.find(list, instance)
+	if index then
+		table.remove(list, index)
+	end
+end
+function methods.HasTag(self, instance, tag)
+	if self ~= CollectionService then
+		instance, tag = self, instance
+	end
+	return tagged[tag] ~= nil and table.find(tagged[tag], instance) ~= nil
+end
+function methods.GetTagged(_, tag)
+	return table.clone(tagged[tag] or {})
+end
+function methods.GetInstanceAddedSignal(_, tag)
+	return tagSignal(tag)
+end
 local UserInputService =
 	newInstance("UserInputService", { Name = "UserInputService", TouchEnabled = false, KeyboardEnabled = true })
 world.renderSteps = {}
@@ -855,6 +952,7 @@ world.market = MarketplaceService
 __services.BadgeService = BadgeService
 __services.AnalyticsService = AnalyticsService
 __services.UserService = UserService
+__services.CollectionService = CollectionService
 game.PlaceId = 0
 game.GameId = 0
 game.JobId = ""

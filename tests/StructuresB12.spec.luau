@@ -45,6 +45,15 @@ end
 local function at(o)
 	return Vector3.new(o.x, Config.Map.arena.center.Y, o.z)
 end
+-- Fruit the garden drops (counted here: the owner may stand close enough to pick it up at once, Paket 22)
+local fruitDropped = 0
+local dropPickup = Loot.dropPickup
+Loot.dropPickup = function(position, kind)
+	if kind == "Fruit" then
+		fruitDropped += 1
+	end
+	return dropPickup(position, kind)
+end
 
 describe("B12 structures", function()
 	it("makes Engineering a primary upgrade and keeps primary damage out of structures", function()
@@ -62,7 +71,7 @@ describe("B12 structures", function()
 		end
 		nextWave()
 		expect(#Structures.getSnapshot()).toBe(9)
-		expect(#Loot.getPickups() > 0).toBe(true)
+		expect(fruitDropped > 0).toBe(true)
 		expect(#workspace:FindFirstChild("LanternfallStructures"):GetChildren() >= 18).toBe(true)
 		expect(find("OrbitWisp").ownerId).toBe(me.UserId)
 	end)
@@ -81,6 +90,7 @@ describe("B12 structures", function()
 		expect(Combat.getHp(me) > before).toBe(true)
 	end)
 	it("lays recurring mines, clears them in the shop and rebuilds sources", function()
+		Enemy.killAll() -- the Brute of the last test would set mines off (Paket 22: flaky)
 		world.advance(12.1)
 		local mines = 0
 		for _, o in Structures.getSnapshot() do

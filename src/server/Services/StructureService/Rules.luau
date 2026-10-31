@@ -1,6 +1,7 @@
 --!strict
 -- Pure engineering formulas; used by StructureService and tests. Primary combat stats do not scale structures.
 local Config = require(game:GetService("ReplicatedStorage").Shared.Config)
+local StatMath = require(game:GetService("ReplicatedStorage").Shared.Util.StatMath)
 local Rules = {}
 function Rules.damage(def, sheet)
 	return math.max(
@@ -17,10 +18,7 @@ function Rules.heal(def, sheet)
 end
 function Rules.interval(def, sheet, improved: boolean)
 	local speed = if improved then (sheet.attackSpeed or 0) * Config.Structures.improvedToolsShare else 0
-	return math.max(
-		Config.Structures.minInterval,
-		def.interval * require(game:GetService("ReplicatedStorage").Shared.Util.StatMath).cooldownFactor(speed)
-	)
+	return math.max(Config.Structures.minInterval, def.interval * StatMath.cooldownFactor(speed))
 end
 function Rules.pierceFactor(def, sheet)
 	return math.clamp(

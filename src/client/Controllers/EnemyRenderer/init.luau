@@ -1,4 +1,5 @@
 --!strict
+--!native
 -- Draws the server's enemies (DESIGN.md section 15): EnemySnapshot packets go into a SnapshotBuffer, models
 -- are pooled per enemy type (EnemyRenderer/Models), positions are interpolated about 100 ms behind the
 -- newest tick and every part moves with one workspace:BulkMoveTo per frame. Models.pose animates the walk: the step
@@ -7,28 +8,33 @@
 -- an elite's affix (Models.setMode, setAffix), the status byte (B5) burning and slowed enemies (Models.setStatus;
 -- burning ones also give off embers, Config.Feedback.burnEmbers). An enemy that drops out of the snapshots died: it leaves a glowing
 -- puff (DeathBursts), an elite also shakes the camera. Big crowds switch the plain enemies to low detail (Models.setDetail, limits in
--- Config.Feedback.enemyDetail). Active only while the local player is in a running run (RunStateController).
+-- Config.Feedback.enemyDetail). Since Paket 22 enemies off the screen (Util/ViewBounds, Config.Graphics) are not posed
+-- and leave no particles; Low graphics (GraphicsController) uses the touch limits on every device.
+-- Active only while the local player is in a running run (RunStateController).
 -- DebugController reads getStats(), the smoke test getStatus().
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
-local UserInputService = game:GetService("UserInputService")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared:WaitForChild("Config"))
 local Net = require(Shared:WaitForChild("Net"))
 
 local Snapshot = require(Shared:WaitForChild("Net"):WaitForChild("Snapshot"))
+local EnemyKinds = require(Shared:WaitForChild("Util"):WaitForChild("EnemyKinds"))
+local ViewBounds = require(Shared:WaitForChild("Util"):WaitForChild("ViewBounds"))
 local Bursts = require(script.Parent.Parent.Vfx.Bursts)
 
 local CameraController = require(script.Parent.CameraController)
 local DeathBursts = require(script.DeathBursts)
+local GraphicsController = require(script.Parent.GraphicsController)
 local Models = require(script.Models)
 local RunStateController = require(script.Parent.RunStateController)
 local SnapshotBuffer = require(script.SnapshotBuffer)
 
 export type Stats = {
-	drawn: number, -- enemies on screen right now
+	drawn: number, -- enemies with a model right now
+	culled: number, -- of these, not posed in the last frame (off the screen)
 	receivedKilobytesPerSecond: number,
 }
 
@@ -42,9 +48,12 @@ type Drawn = {
 	seed: number, -- spreads idle motions of neighbouring ids
 	phase: number, -- step cycle in radians
 	move: number, -- 0 standing to 1 walking at its own speed, smoothed
-	x: number, -- where it was drawn last, for its walk and death burst
+	x: number, -- where it was last frame, for its walk and death burst
 	z: number,
+	posedX: number, -- where its model was last placed (off the screen it stays there)
+	posedZ: number,
 	emberAt: number, -- os.clock() of the next ember puff while burning
+	alwaysPosed: boolean, -- elites and bosses are placed even off the screen (HP bar, glow)
 }
 
 local FOLDER_NAME = "LanternfallEnemies"
@@ -67,16 +76,17 @@ local pools: { [number]: { Models.Visual } } = {} -- by typeId
 local folder: Folder? = nil
 local enabled = false
 local lowDetail = false
-local touch = UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled
 local frameNumber = 0
 local floorY = Config.Map.arena.center.Y
+local view = ViewBounds.new()
+local CameraConfig = Config.Camera
 
 -- Reused lists for workspace:BulkMoveTo.
 local partList: { BasePart } = {}
 local cframeList: { CFrame } = {}
 local listLength = 0
 
-local stats: Stats = { drawn = 0, receivedKilobytesPerSecond = 0 }
+local stats: Stats = { drawn = 0, culled = 0, receivedKilobytesPerSecond = 0 }
 local window = { startedAt = os.clock(), bytes = 0 }
 
 local function getFolder(): Folder
@@ -100,6 +110,7 @@ local function acquire(id: number, typeId: number, hp: number): Drawn
 		visual = Models.build(typeId)
 	end
 	visual.model.Parent = getFolder()
+	local kind: any = EnemyKinds.byTypeId(typeId)
 	if visual.hpBar then
 		visual.hpBar.Size = UDim2.fromScale(hp, 1)
 	end
@@ -115,7 +126,10 @@ local function acquire(id: number, typeId: number, hp: number): Drawn
 		move = 0,
 		x = 0,
 		z = 0,
+		posedX = 0,
+		posedZ = 0,
 		emberAt = 0,
+		alwaysPosed = visual.hpBar ~= nil or (kind ~= nil and kind.boss ~= nil),
 	}
 	drawn[id] = entry
 	return entry
@@ -175,8 +189,39 @@ end
 -- Low detail above the crowd limit, back to full detail only well below it, so it does not flicker at the limit.
 local function updateDetail(enemies: number)
 	local settings = Config.Feedback.enemyDetail
-	local limit = if touch then settings.lowAboveTouch else settings.lowAbove
+	local limit = if GraphicsController.isLow() then settings.lowAboveTouch else settings.lowAbove
 	lowDetail = enemies > (if lowDetail then limit * settings.backBelowShare else limit)
+end
+
+-- Places the view of this frame (CameraController's focus, the camera's field of view and screen shape); without a
+-- focus or with culling off everything counts as on the screen.
+local function updateView()
+	local focus = CameraController.getFocus()
+	local camera = workspace.CurrentCamera
+	if not (Config.Graphics.cullOffscreen and focus and camera) then
+		view.valid = false
+		return
+	end
+	local size = camera.ViewportSize
+	local aspect = if size.Y > 0 then size.X / size.Y else 1
+	ViewBounds.update(
+		view,
+		focus.X,
+		focus.Y,
+		focus.Z,
+		CameraConfig.pitchDegrees,
+		CameraConfig.distance,
+		camera.FieldOfView,
+		aspect
+	)
+end
+
+-- Whether a model of `radius` standing at floor point (x, z) may show on the screen: a sphere around its middle with
+-- the margins of Config.Graphics (its height, the camera shake, a frame of lag).
+local function onScreen(x: number, z: number, radius: number): boolean
+	local graphics = Config.Graphics
+	local margin = radius * graphics.cullMarginRadii + graphics.cullMarginStuds
+	return ViewBounds.contains(view, x, floorY + radius, z, margin)
 end
 
 local function render(dt: number)
@@ -189,12 +234,15 @@ local function render(dt: number)
 	frameNumber += 1
 	local now = os.clock()
 	local count = 0
+	local culled = 0
+	updateView()
 	if before and after then
 		local turn = math.min(1, TURN_PER_SECOND * dt)
 		local chargeTurn = math.min(1, CHARGE_TURN_PER_SECOND * dt)
 		local interpolate = before ~= after
 		local embers = Config.Feedback.burnEmbers
-		local embersLeft = if embers.enabled then (if touch then embers.maxPerFrameTouch else embers.maxPerFrame) else 0
+		local low = GraphicsController.isLow()
+		local embersLeft = if embers.enabled then (if low then embers.maxPerFrameTouch else embers.maxPerFrame) else 0
 		updateDetail(after.count)
 		for i = 1, after.count do
 			local id = after.ids[i]
@@ -228,6 +276,13 @@ local function render(dt: number)
 			end
 
 			local visual = current.visual
+			-- off the screen (now and where the model stands) a plain enemy keeps its model where it is; new ones,
+			-- elites, bosses and enemies in a wind-up, rush or pulse (their telegraph reaches far) are always placed
+			local visible = current.seenFrame == 0
+				or current.alwaysPosed
+				or mode ~= 0
+				or onScreen(x, z, visual.radius)
+				or onScreen(current.posedX, current.posedZ, visual.radius)
 			Models.setAffix(visual, affix)
 			Models.setMode(visual, mode)
 			Models.setDetail(visual, lowDetail and visual.hpBar == nil) -- elites keep every detail
@@ -239,7 +294,7 @@ local function render(dt: number)
 				bit32.btest(status, Snapshot.STATUS_SLOWED),
 				bit32.btest(status, Snapshot.STATUS_BUFFED)
 			)
-			if burning and embersLeft > 0 and now >= current.emberAt then
+			if burning and visible and embersLeft > 0 and now >= current.emberAt then
 				embersLeft -= 1
 				current.emberAt = now + embers.interval
 				local position = Vector3.new(x, floorY + visual.radius * EMBER_HEIGHT, z)
@@ -273,16 +328,32 @@ local function render(dt: number)
 			current.seenFrame = frameNumber
 			current.x, current.z = x, z
 
-			local base = CFrame.new(x, floorY, z) * CFrame.Angles(0, current.yaw, 0)
-			count =
-				Models.pose(visual, base, current.phase, current.move, now, current.seed, partList, cframeList, count)
+			if visible then
+				current.posedX, current.posedZ = x, z
+				local base = CFrame.new(x, floorY, z) * CFrame.Angles(0, current.yaw, 0)
+				count = Models.pose(
+					visual,
+					base,
+					current.phase,
+					current.move,
+					now,
+					current.seed,
+					partList,
+					cframeList,
+					count
+				)
+			else
+				culled += 1
+			end
 		end
 	end
+	stats.culled = culled
 	for id, entry in drawn do
 		if entry.seenFrame ~= frameNumber then
 			-- died (enemies only leave the snapshots when killed, or all at once when the run ends)
 			local elite = entry.visual.hpBar ~= nil
-			DeathBursts.burst(entry.x, floorY, entry.z, entry.visual.glowColor, elite)
+			local seen = elite or onScreen(entry.x, entry.z, entry.visual.radius)
+			DeathBursts.burst(entry.x, floorY, entry.z, entry.visual.glowColor, elite, seen)
 			if elite then
 				CameraController.shake(Config.Feedback.shake.eliteKill)
 			end

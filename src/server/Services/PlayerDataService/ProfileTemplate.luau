@@ -39,7 +39,8 @@ export type Data = {
 	streak: { lastLogin: number, count: number }, -- v6: lastLogin = UTC day of the last paid login, count = its day 1-7
 	pass: { season: number, xp: number, premium: boolean, claimed: { [string]: boolean } },
 	receipts: { string }, -- PurchaseIds already granted, oldest first (v5: a list, was an unused map before)
-	settings: { shake: boolean, damageNumbers: boolean, music: number, effects: number }, -- v4 (Config.Settings)
+	-- v4 (Config.Settings); graphics since v8 (Paket 22)
+	settings: { shake: boolean, damageNumbers: boolean, music: number, effects: number, graphics: string },
 	tokens: { revives: number, rerolls: number }, -- v5: bought revives and shop rerolls not used yet
 	passCache: { [string]: boolean }, -- v5: game passes owned when last checked (used when the check fails)
 	boost: { untilTime: number, by: string }, -- v5: Ember Boost until this os.time(), started by this player name
@@ -54,16 +55,23 @@ local Config = require(game:GetService("ReplicatedStorage").Shared.Config)
 
 local ProfileTemplate = {}
 
-ProfileTemplate.SCHEMA_VERSION = 7
+ProfileTemplate.SCHEMA_VERSION = 8
 
--- Default settings (Config.Settings.defaults) as a new table (v4).
-function ProfileTemplate.newSettings(): { shake: boolean, damageNumbers: boolean, music: number, effects: number }
+-- Default settings (Config.Settings.defaults) as a new table (v4, graphics since v8).
+function ProfileTemplate.newSettings(): {
+	shake: boolean,
+	damageNumbers: boolean,
+	music: number,
+	effects: number,
+	graphics: string,
+}
 	local defaults = Config.Settings.defaults
 	return {
 		shake = defaults.shake,
 		damageNumbers = defaults.damageNumbers,
 		music = defaults.music,
 		effects = defaults.effects,
+		graphics = defaults.graphics,
 	}
 end
 

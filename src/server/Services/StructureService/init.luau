@@ -1,10 +1,14 @@
 --!strict
 -- B12 authoritative structures: item-owned deployments, attacks, mines, fruit and companions.
 -- Loader initializes this service; clients only receive bounded snapshots and cosmetic beams.
+-- Paket 22: the snapshot goes out only when structures appear or vanish (at most every snapshotInterval) and both
+-- feeds are compact buffers (Net/StructureFeed); orbiting companions follow server time, so clients draw them
+-- around their owner every frame without updates.
 local Players = game:GetService("Players")
 local Shared = game:GetService("ReplicatedStorage").Shared
 local Config = require(Shared.Config)
 local Net = require(Shared.Net)
+local StructureFeed = require(Shared.Net.StructureFeed)
 local Run = require(script.Parent.RunDirector)
 local Stats = require(script.Parent.StatService)
 local Enemy = require(script.Parent.EnemySim)
@@ -22,8 +26,26 @@ local generators: { any } = {}
 local serial = 0
 local dirty = true
 local elapsed = 0
-local clock = 0
 local beams = {}
+-- Paket 22: the owner's stats are copied once per step, not once per structure (StatService hands out copies)
+local stepSheets: { [Player]: any } = {}
+local stepImproved: { [Player]: boolean } = {}
+local function sheetOf(player: Player): any
+	local sheet = stepSheets[player]
+	if not sheet then
+		sheet = Stats.getSheet(player)
+		stepSheets[player] = sheet
+	end
+	return sheet
+end
+local function improvedOf(player: Player): boolean
+	local improved = stepImproved[player]
+	if improved == nil then
+		improved = (Stats.getItemCounts(player).CalibratedTools or 0) > 0
+		stepImproved[player] = improved
+	end
+	return improved
+end
 local function snapshot()
 	local result = {}
 	for _, o in objects do
@@ -32,7 +54,7 @@ local function snapshot()
 	return result
 end
 local function sync()
-	Net.fireAllClients("Structures", snapshot())
+	Net.fireAllClients("Structures", StructureFeed.encodeStructures(snapshot()))
 	dirty = false
 end
 local function reset()
@@ -41,7 +63,6 @@ local function reset()
 	table.clear(beams)
 	dirty = true
 	elapsed = 0
-	clock = 0
 	sync()
 end
 local function position(player)
@@ -180,10 +201,17 @@ local function ray(o, def, sheet, direction)
 	local target = o.position + direction * def.range
 	local ids = {}
 	Enemy.querySegment(o.position, target, C.rayWidth, ids)
-	table.sort(ids, function(a, b)
-		local pa, pb = Enemy.getPosition(a), Enemy.getPosition(b)
-		return pa ~= nil and (pb == nil or (pa - o.position).Magnitude < (pb - o.position).Magnitude)
-	end)
+	if #ids > 1 then
+		-- nearest first; distances once per enemy instead of in every comparison (Paket 22)
+		local distances = {}
+		for _, id in ids do
+			local at = Enemy.getPosition(id)
+			distances[id] = if at then (at - o.position).Magnitude else math.huge
+		end
+		table.sort(ids, function(a, b)
+			return distances[a] < distances[b]
+		end)
+	end
 	local limit = if def.pierce == -1
 		then #ids
 		else 1 + (def.pierce or 0) + math.max(0, math.floor(sheet.piercing or 0))
@@ -235,7 +263,8 @@ local function step(dt)
 	if paused or not Run.isActive() then
 		return
 	end
-	clock += dt
+	table.clear(stepSheets)
+	table.clear(stepImproved)
 	elapsed += dt
 	for _, generator in generators do
 		if Run.getParticipantState(generator.owner) == "Alive" then
@@ -244,8 +273,8 @@ local function step(dt)
 				add(generator.owner, generator.kind)
 				generator.remaining = Rules.interval(
 					generator.definition or C.kinds[generator.kind],
-					Stats.getSheet(generator.owner),
-					(Stats.getItemCounts(generator.owner).CalibratedTools or 0) > 0
+					sheetOf(generator.owner),
+					improvedOf(generator.owner)
 				)
 			end
 		end
@@ -256,11 +285,11 @@ local function step(dt)
 			continue
 		end
 		local def = C.kinds[o.kind]
-		local sheet = Stats.getSheet(o.owner)
 		if def.mode == "Orbit" then
 			local root = Map.getRootPosition(o.owner)
 			if root then
-				local angle = clock * C.orbitSpeed + o.id
+				-- server time, so clients compute the same angle (StructureRenderer)
+				local angle = workspace:GetServerTimeNow() * C.orbitSpeed + o.id
 				o.position = root + Vector3.new(math.cos(angle) * C.orbitRadius, 0, math.sin(angle) * C.orbitRadius)
 			end
 		end
@@ -268,7 +297,8 @@ local function step(dt)
 		if o.remaining > 0 then
 			continue
 		end
-		o.remaining = Rules.interval(def, sheet, (Stats.getItemCounts(o.owner).CalibratedTools or 0) > 0)
+		local sheet = sheetOf(o.owner)
+		o.remaining = Rules.interval(def, sheet, improvedOf(o.owner))
 		if def.mode == "Garden" then
 			Loot.dropPickup(o.position + Vector3.new(C.fruitOffset, 0, 0), "Fruit")
 		elseif def.mode == "Heal" then
@@ -315,10 +345,13 @@ local function step(dt)
 	if elapsed >= C.snapshotInterval then
 		elapsed = 0
 		if #beams > 0 then
-			Net.fireAllClients("StructureBeams", beams)
+			local packet = StructureFeed.encodeBeams(beams)
+			for _, player in Run.getParticipants() do
+				Net.fireClient("StructureBeams", player, packet)
+			end
 			beams = {}
 		end
-		if #objects > 0 or dirty then
+		if dirty then
 			sync()
 		end
 	end
@@ -334,7 +367,7 @@ function Service.init()
 	end)
 	Enemy.Stepped:Connect(step)
 	Run.SyncRequested:Connect(function(player)
-		Net.fireClient("Structures", player, snapshot())
+		Net.fireClient("Structures", player, StructureFeed.encodeStructures(snapshot()))
 	end)
 	Players.PlayerRemoving:Connect(function(player)
 		for i = #objects, 1, -1 do
