@@ -1166,6 +1166,14 @@ tests/               Unit-Tests für reine Module (Runner in tools/luau-test-run
 
 Eigene Events (AnalyticsService): Funnel „Erster Start" (gejoint → bewegt → erster Kill → erstes Level-up → Minute 3 → Run-Ende → Lobby → zweiter Run); Economy (Embers-Quellen/Senken); Progression (Schwierigkeit, Bosssiege); Custom (Todesursache, Karten-Pickrate, Run-Länge, Spieler pro Run).
 
+Umsetzung (Paket 20, Werte in `Config/Analytics.luau`):
+
+- **Onboarding-Funnel** (Roblox `LogOnboardingFunnelStepEvent`): 1 Joined, 2 Moved (6 Studs gelaufen, Teleports zählen nicht), 3 FirstKill, 4 FirstLevelUp, 5 Played3Minutes (seit dem Beitritt), 6 FirstRunEnded (auch Skip/Abbruch), 7 BackInLobby (Ergebnis vorbei: Lobby, Hub oder „Play again"), 8 SecondRun. Nur Spieler ohne fertigen Run; mit genau einem Run ab Schritt 7. Schritte gehen streng in Reihenfolge raus, ein früh erreichter wartet.
+- **Progression** (`LogProgression{Start,Complete,Fail}Event`): Pfad `Danger<n>` (+ `Endless`) bzw. `FirstNight`, Level = Welle; Start bei jedem Wellenstart (auch nach „Retry wave"), Complete im Shop bzw. beim Sieg, Fail bei Niederlage/Abbruch.
+- **Economy** (`LogEconomyEvent`, Währung „Embers"): Quellen RunReward (Gameplay, Artikel = Stufe `D<n>`), Achievement (Gameplay), Quest (Gameplay, Artikel = Quest-ID), LoginStreak (TimedReward, `Day<n>`), Purchase (IAP, Produkt-Schlüssel); Senke EmberShop (Shop, `Character:<id>`/`Cosmetic:<id>`).
+- **Custom** (`LogCustomEvent`, max. 3 Felder): RunEnded (Wert Sekunden; Ergebnis, Stufe, Spieler), PlayerDown (Contact/Shot/Other, nächster Gegner, Welle), BossKilled (Boss/Champion, Stufe; Wert Welle), CardOffered/CardPicked (Werte-Karte, Stufe, Auto/Player), ItemBought (Weapon/Item, ID, Welle), Revived, RetryWave, FirstNightSkipped.
+- Budget pro Server: 120 + 20 pro Spieler und Minute (Annahme nach Roblox-Doku); „low"-Ereignisse (CardOffered, ItemBought) lassen 25 % frei. Studio sendet nichts; Debug-Knopf „Print analytics log".
+
 | KPI | Startziel Soft Launch | Hebel, wenn zu niedrig |
 | --- | --- | --- |
 | D1-Retention | ≥ 20 % | ersten Run kürzer/leichter, mehr Feedback beim ersten Level-up |

@@ -16,6 +16,7 @@ local Net = require(Shared.Net)
 local QuestRules = require(Shared.Util.QuestRules)
 local Types = require(Shared.Net.Types)
 
+local AnalyticsService = require(script.Parent.AnalyticsService)
 local PlayerDataService = require(script.Parent.PlayerDataService)
 local RunDirector = require(script.Parent.RunDirector)
 
@@ -98,6 +99,7 @@ local function payStreak(player: Player, data: any, today: number): boolean
 		reward = if entry then `{entry.name} ({string.lower(entry.slot)}, wear it in the Ember shop)` else cosmetic
 	else
 		addEmbers(data, embers)
+		AnalyticsService.embersEarned(player, "LoginStreak", embers, `Day{streakDay}`)
 		reward = `+{embers} Embers`
 	end
 	print(`{LOG_PREFIX}{player.Name} login streak day {streakDay}: {reward}`)
@@ -150,6 +152,7 @@ local function onRunRecorded(player: Player, data: any, run: any, rewards: Types
 	for _, quest in finished do
 		local text = QuestRules.text(quest)
 		addEmbers(data, quest.embers)
+		AnalyticsService.embersEarned(player, "Quest", quest.embers, quest.id)
 		rewards.embers += quest.embers
 		table.insert(rewards.lines, { label = `Quest: {text}`, amount = quest.embers })
 		notify(player, `{Texts.questDone}{text} +{quest.embers} Embers`)

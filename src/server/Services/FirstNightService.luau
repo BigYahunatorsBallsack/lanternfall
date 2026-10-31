@@ -16,6 +16,7 @@ local Config = require(Shared.Config)
 local DangerRules = require(Shared.Util.DangerRules)
 local Net = require(Shared.Net)
 
+local AnalyticsService = require(script.Parent.AnalyticsService)
 local MapService = require(script.Parent.MapService)
 local PartyService = require(script.Parent.PartyService)
 local PlaceService = require(script.Parent.PlaceService)
@@ -135,6 +136,8 @@ function FirstNightService.skip(player: Player): (boolean, string?)
 		PlayerDataService.refresh(player)
 	end
 	print(`[Lanternfall] {player.Name} skipped the First Night`)
+	local wave = RunDirector.getWave()
+	AnalyticsService.custom(player, "FirstNightSkipped", wave, { wave })
 	return RunDirector.endRun("Abandoned")
 end
 

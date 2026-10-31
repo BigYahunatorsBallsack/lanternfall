@@ -21,6 +21,7 @@ local RunSchedule = require(Shared.Util.RunSchedule)
 local Types = require(Shared.Net.Types)
 local UpgradeText = require(Shared.Util.UpgradeText)
 
+local AnalyticsService = require(script.Parent.AnalyticsService)
 local BossService = require(script.Parent.BossService)
 local CombatService = require(script.Parent.CombatService)
 local EmberShopService = require(script.Parent.EmberShopService)
@@ -496,6 +497,16 @@ handlers.StartFirstNight = function(player)
 		return false, "Only in the lobby (and not in a party with others)"
 	end
 	return true, "First Night starts"
+end
+
+-- Paket 20: the analytics events this server sent last (Roblox does not record events from Studio)
+handlers.PrintAnalytics = function(_player)
+	local entries, dropped = AnalyticsService.getLog()
+	print(`[Lanternfall] ===== Analytics: last {#entries} events (dropped by the budget: {dropped}) =====`)
+	for _, entry in entries do
+		print(`[Lanternfall] {entry.method} {entry.player} {entry.text}`)
+	end
+	return true, `{#entries} analytics events printed to the Output`
 end
 
 handlers.GiveStructureKit = function(player)
