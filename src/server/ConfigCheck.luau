@@ -747,6 +747,54 @@ function ConfigCheck.run(): { string }
 			end
 		end
 	end
+
+	-- Paket 13: achievements and unlocks (Config.Progress)
+	local achievementIds: { [string]: boolean } = {}
+	for _, achievement in Config.Progress.achievements do
+		local owner = `Achievement {achievement.id}`
+		if achievementIds[achievement.id] then
+			problem(`{owner} is listed twice`)
+		end
+		achievementIds[achievement.id] = true
+		local byStat = achievement.stat ~= nil and achievement.goal ~= nil
+		if byStat == (achievement.winWith ~= nil) then
+			problem(`{owner} needs either stat + goal or winWith`)
+		end
+		if achievement.winWith and not Config.Classes[achievement.winWith] then
+			problem(`{owner} wins with unknown character {achievement.winWith}`)
+		end
+		if achievement.embers < 0 then
+			problem(`{owner} needs Embers of at least 0`)
+		end
+		local unlocks = achievement.unlocks or {}
+		for _, classId in unlocks.characters or {} do
+			if not Config.Classes[classId] then
+				problem(`{owner} unlocks unknown character {classId}`)
+			elseif classId == Config.Run.flow.defaultClassId then
+				problem(`{owner} locks the default character {classId}`)
+			end
+		end
+		for _, weaponId in unlocks.weapons or {} do
+			if not Config.Weapons[weaponId] then
+				problem(`{owner} unlocks unknown weapon {weaponId}`)
+			end
+			for classId, class in Config.Classes do
+				if table.find(class.startWeapons, weaponId) or table.find(class.extraWeapons or {}, weaponId) then
+					problem(`{owner} locks {weaponId}, a starting weapon of {classId}`)
+				end
+			end
+		end
+		for _, itemId in unlocks.items or {} do
+			if not Config.Items.byId[itemId] then
+				problem(`{owner} unlocks unknown item {itemId}`)
+			end
+			for classId, class in Config.Classes do
+				if table.find(class.startItems or {}, itemId) then
+					problem(`{owner} locks {itemId}, a starting item of {classId}`)
+				end
+			end
+		end
+	end
 	return problems
 end
 

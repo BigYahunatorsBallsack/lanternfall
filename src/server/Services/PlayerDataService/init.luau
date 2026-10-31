@@ -3,6 +3,8 @@
 -- autosave and a last save on leave and shutdown. Schema in ProfileTemplate, upgrades in Migrations, run records in
 -- ProfileRecords. Without DataStoreService (tests) it keeps data in MemoryStore. Called by RunDirector (class
 -- checks), RunStatsService (records finished runs, resends the lobby record on sync) and AdminService (debug buttons).
+-- Since Paket 13 also Embers, achievements and unlocks (Util/ProgressRules): what is locked for a player
+-- (ShopService, UpgradeService) and the danger levels open per character (RunDirector).
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -10,6 +12,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Shared = ReplicatedStorage.Shared
 local Config = require(Shared.Config)
 local Net = require(Shared.Net)
+local ProgressRules = require(Shared.Util.ProgressRules)
 local Signal = require(Shared.Util.Signal)
 local Types = require(Shared.Net.Types)
 
@@ -24,6 +27,8 @@ local PlayerDataService = {}
 
 -- (player: Player, data: ProfileTemplate.Data): the player's saved data is loaded and ready to change
 PlayerDataService.Loaded = Signal.new()
+-- (player: Player): unlocks or records changed after loading (finished run, debug buttons); Paket 13
+PlayerDataService.Changed = Signal.new()
 
 local store: any = nil -- ProfileStore object or MemoryStore
 local profileStore: any = nil -- the ProfileStore module, nil with MemoryStore
@@ -99,6 +104,7 @@ local function load(player: Player)
 	profile:AddUserId(player.UserId) -- GDPR: ties the profile to the player
 	local from = Migrations.run(profile.Data, ProfileTemplate.SCHEMA_VERSION)
 	profile:Reconcile()
+	ProfileRecords.completeAchievements(profile.Data) -- e.g. old records that already reach a goal
 	if from < ProfileTemplate.SCHEMA_VERSION then
 		print(`{LOG_PREFIX}Saved data of {player.Name} upgraded from schema {from} to {ProfileTemplate.SCHEMA_VERSION}`)
 	elseif from > ProfileTemplate.SCHEMA_VERSION then
@@ -168,30 +174,90 @@ function PlayerDataService.isLoaded(player: Player): boolean
 	return profiles[player] ~= nil
 end
 
--- Free classes are always owned; others must be unlocked in the profile.
+-- Free classes are owned unless an achievement locks them (Paket 13: then done or bought with Embers); others must
+-- be in the profile.
 function PlayerDataService.ownsClass(player: Player, classId: string): boolean
 	local class = Config.Classes[classId]
 	if not class then
 		return false
 	end
-	if class.free then
-		return true
-	end
 	local data = PlayerDataService.get(player)
+	if class.free then
+		if not ProgressRules.isLockable("characters", classId) then
+			return true
+		end
+		return data ~= nil and ProgressRules.isUnlocked("characters", classId, data.achievements, data.classes)
+	end
 	return data ~= nil and table.find(data.classes, classId) ~= nil
 end
 
--- Adds a finished run to the player's record and saves it. False if the data is not loaded.
+-- Paket 13: whether a weapon or item is unlocked for the player (everything lockable is locked until loaded).
+function PlayerDataService.isUnlocked(player: Player, kind: ProgressRules.Kind, id: string): boolean
+	local data = PlayerDataService.get(player)
+	return ProgressRules.isUnlocked(
+		kind,
+		id,
+		if data then data.achievements else {},
+		if data then data.classes else nil
+	)
+end
+
+-- Paket 13: the player's locked ids of a kind as a set (the shop and crates skip them).
+function PlayerDataService.lockedSet(player: Player, kind: ProgressRules.Kind): { [string]: boolean }
+	local data = PlayerDataService.get(player)
+	return ProgressRules.lockedSet(kind, if data then data.achievements else {}, if data then data.classes else nil)
+end
+
+-- Paket 13: highest danger level open for the player with this character (start level until loaded).
+function PlayerDataService.maxDanger(player: Player, classId: string?): number
+	local data = PlayerDataService.get(player)
+	if not data then
+		return ProgressRules.maxDanger({ stats = {}, characterStats = {} }, nil)
+	end
+	return ProgressRules.maxDanger(data :: any, classId)
+end
+
+-- Adds a finished run to the player's record (since Paket 13 with Embers and achievements), saves it and sends the
+-- rewards to the player (RunRewards, a Notify per achievement). False if the data is not loaded.
 function PlayerDataService.recordRun(player: Player, run: ProfileRecords.RunRecord): boolean
 	local profile = profiles[player]
 	if not (profile and profile:IsActive()) then
 		return false
 	end
-	ProfileRecords.applyRun(profile.Data, run)
+	local rewards = ProfileRecords.applyRun(profile.Data, run)
 	if Config.Save.saveAfterRun then
 		profile:Save()
 	end
 	sendInfo(player)
+	Net.fireClient("RunRewards", player, rewards)
+	for _, id in rewards.achievements do
+		local achievement = ProgressRules.get(id) :: any
+		local names = ProgressRules.unlockNames(achievement)
+		local unlock = if #names > 0 then ` - unlocked {table.concat(names, ", ")}` else ""
+		Net.fireClient("Notify", player, `Achievement: {achievement.name}{unlock}`)
+	end
+	PlayerDataService.Changed:Fire(player)
+	return true
+end
+
+-- Debug button (Paket 13): every achievement done, without paying its Embers.
+function PlayerDataService.unlockAll(player: Player): boolean
+	local data = PlayerDataService.get(player)
+	if not data then
+		return false
+	end
+	for _, achievement in Config.Progress.achievements do
+		data.achievements[achievement.id] = true
+	end
+	for classId, class in Config.Classes do
+		if class.available then
+			local character = data.characterStats[classId] or ProfileTemplate.newCharacterStats()
+			character.bestDanger = #Config.Difficulty.levels - 2 -- opens the highest level
+			data.characterStats[classId] = character
+		end
+	end
+	sendInfo(player)
+	PlayerDataService.Changed:Fire(player)
 	return true
 end
 
@@ -221,6 +287,7 @@ function PlayerDataService.reset(player: Player): boolean
 	end
 	profile:Save()
 	sendInfo(player)
+	PlayerDataService.Changed:Fire(player)
 	return true
 end
 

@@ -65,7 +65,8 @@ describe("player data", function()
 		expect(info ~= nil).toBe(true)
 		expect(info.runs).toBe(3)
 		expect(info.saveMode).toBe("Memory")
-		expect(recordText()).toBe("3 runs · 0 wins · best wave 0\n900 kills · 1 bosses")
+		-- Paket 13: the old record already completes "First Night" (+50) and "Kingslayer" (+200) when it loads
+		expect(recordText()).toBe("250 Embers\n3 runs · 0 wins · best wave 0\n900 kills · 1 bosses")
 		expect(world.gui("Lobby", "SaveMode").Visible).toBe(true)
 	end)
 

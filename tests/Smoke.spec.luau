@@ -1411,7 +1411,7 @@ describe("smoke", function()
 				table.insert(toasts, object.Text)
 			end
 		end
-		expect(table.find(toasts, "This class is not unlocked yet") ~= nil).toBe(true)
+		expect(table.find(toasts, "This character is not unlocked yet") ~= nil).toBe(true)
 	end)
 
 	it("finished without any runtime error", function()

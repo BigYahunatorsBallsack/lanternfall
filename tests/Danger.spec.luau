@@ -28,6 +28,8 @@ local me = world.addPlayer("Owner", 1, true)
 world.step()
 runScript(folderProxy("src/client", "Client"), "init.client.luau")
 world.advance(0.5)
+-- Paket 13: danger levels open per character; this spec picks them all from the lobby
+require(ServerScriptService.Server.Services.PlayerDataService).unlockAll(me)
 
 local function heal()
 	CombatService.healPlayer(me, 1e6)

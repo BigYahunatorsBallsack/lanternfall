@@ -21,6 +21,10 @@ local peer = world.addPlayer("Peer", 2, false)
 world.step()
 runScript(folderProxy("src/client", "Client"), "init.client.luau")
 world.advance(0.5)
+-- Paket 13: most characters start locked; this spec plays all of them
+local PlayerDataService = require(Services.PlayerDataService)
+PlayerDataService.unlockAll(me)
+PlayerDataService.unlockAll(peer)
 Spawn.setPaused(true)
 Run.setHoldWaves(true)
 

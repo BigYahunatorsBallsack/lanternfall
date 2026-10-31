@@ -18,6 +18,17 @@ local steps: { [number]: (data: any) -> () } = {
 			data.characterStats = {}
 		end
 	end,
+	-- v2 -> v3 (Paket 13): champion kills, revives, Embers earned and the achievements that are done
+	[2] = function(data)
+		local stats = if type(data.stats) == "table" then data.stats else {}
+		data.stats = stats
+		stats.championKills = stats.championKills or 0
+		stats.revives = stats.revives or 0
+		stats.embersEarned = stats.embersEarned or 0
+		if type(data.achievements) ~= "table" then
+			data.achievements = {}
+		end
+	end,
 }
 
 Migrations.steps = steps

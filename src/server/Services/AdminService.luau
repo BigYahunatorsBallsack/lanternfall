@@ -428,6 +428,12 @@ local handlers: { [string]: (player: Player) -> (boolean, string?) } = {
 		end
 		return true, "Saved data reset"
 	end,
+	UnlockAll = function(player)
+		if not PlayerDataService.unlockAll(player) then
+			return false, "Your saved data is not loaded yet"
+		end
+		return true, "Everything unlocked (Reset my saved data locks it again)"
+	end,
 }
 
 local function collectStats(): Types.DebugStats

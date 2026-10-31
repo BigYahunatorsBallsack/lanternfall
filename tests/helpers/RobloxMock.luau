@@ -340,6 +340,7 @@ local SUPERCLASS = {
 	PVInstance = "Instance",
 	Frame = "GuiObject",
 	TextLabel = "GuiObject",
+	ScrollingFrame = "GuiObject", -- Paket 13
 	TextButton = "GuiButton",
 	GuiButton = "GuiObject",
 	GuiObject = "GuiBase2d",

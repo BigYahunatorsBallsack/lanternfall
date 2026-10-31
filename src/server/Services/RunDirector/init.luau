@@ -5,6 +5,8 @@
 -- Other services listen to its signals and call setParticipantState / endRun.
 -- Since B11 the lobby picks the run options (danger level, endless mode, enemy sliders; remote SetRunOptions), and in
 -- endless mode the run goes on after wave 20 (Util/RunSchedule has the endless waves).
+-- Since Paket 13 the lobby's danger level is capped by the highest level someone in the lobby has opened with the
+-- character they picked (PlayerDataService.maxDanger); teammates without it may play along.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -31,7 +33,7 @@ local REJECTION_TEXT: { [string]: string } = {
 	AlreadyPast = "The timer is already past that point",
 	NotShopping = "The shop is closed",
 	UnknownPlayer = "Please wait a moment and try again",
-	Locked = "This class is not unlocked yet",
+	Locked = "This character is not unlocked yet",
 	NoCharacter = "Your character has not loaded yet",
 	EnemyCap = "The enemy limit is reached",
 }
@@ -69,6 +71,7 @@ local flow = RunFlow.new({
 })
 
 local sentVersion = -1
+local capOverride = false -- Paket 13: options set by tests or admins (RunDirector.setOptions) skip the danger cap
 local processing = false
 local inArena: { [Player]: boolean } = {} -- characters that belong in the arena until the next lobby phase
 
@@ -159,6 +162,30 @@ local function reject(player: Player, reason: string?)
 	Net.fireClient("Notify", player, REJECTION_TEXT[reason or ""] or "Not possible right now")
 end
 
+-- Paket 13: highest danger level someone in the lobby has open with the character they picked.
+local function dangerCap(): number
+	local cap = 0
+	for _, player in Players:GetPlayers() do
+		if flow.players[player.UserId] then
+			cap = math.max(cap, PlayerDataService.maxDanger(player, RunDirector.getSelectedClassId(player)))
+		end
+	end
+	return cap
+end
+
+-- Paket 13: lowers the lobby's danger level when nobody has it open any more (character change, leave, new record).
+local function enforceDangerCap()
+	if capOverride then
+		return
+	end
+	local cap = dangerCap()
+	if flow.options.danger > cap then
+		local options = table.clone(flow.options)
+		options.danger = cap
+		flow:setOptions(DangerRules.clean(options))
+	end
+end
+
 local function onCharacterAdded(player: Player)
 	-- Respawns land in the lobby (MapService sets RespawnLocation); participants go back to the arena.
 	if inArena[player] then
@@ -182,6 +209,7 @@ end
 local function onPlayerRemoving(player: Player)
 	inArena[player] = nil
 	flow:removePlayer(player.UserId, now())
+	enforceDangerCap()
 	process()
 end
 
@@ -203,6 +231,7 @@ function RunDirector.init()
 		if not ok then
 			reject(player, reason)
 		end
+		enforceDangerCap()
 		process()
 	end)
 
@@ -221,6 +250,16 @@ function RunDirector.init()
 				reject(player, "UnknownPlayer")
 				return
 			end
+			local cap = dangerCap()
+			if danger > cap then
+				Net.fireClient(
+					"Notify",
+					player,
+					`Danger {danger} is locked. Win danger {danger - 1} with your character to open it.`
+				)
+				danger = cap
+			end
+			capOverride = false
 			flow:setOptions(DangerRules.clean({
 				danger = danger,
 				endless = endless,
@@ -248,6 +287,13 @@ function RunDirector.init()
 		end
 		process()
 	end)
+
+	local function onProgress()
+		enforceDangerCap()
+		process()
+	end
+	PlayerDataService.Loaded:Connect(onProgress)
+	PlayerDataService.Changed:Connect(onProgress)
 
 	Players.PlayerAdded:Connect(onPlayerAdded)
 	Players.PlayerRemoving:Connect(onPlayerRemoving)
@@ -299,6 +345,7 @@ end
 
 -- B11: sets the lobby's options for the next run (tests and admin; players use the remote SetRunOptions).
 function RunDirector.setOptions(options: Types.RunOptions)
+	capOverride = true -- tests and admins may pick any danger level
 	flow:setOptions(DangerRules.clean(options))
 	process()
 end

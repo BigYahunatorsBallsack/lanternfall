@@ -36,4 +36,5 @@ return table.freeze({
 	"SpawnChampion", -- the next champion of the elite waves near yourself, in any wave (since WP10 part 2)
 	"PrintProfile", -- print your saved data to the Output (since Paket 12)
 	"ResetProfile", -- your saved data back to a fresh profile (since Paket 12)
+	"UnlockAll", -- every achievement done and every danger level open for you (since Paket 13; Reset locks again)
 })

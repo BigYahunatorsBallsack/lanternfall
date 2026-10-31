@@ -24,4 +24,5 @@ return {
 	Shop = require(script.Shop),
 	Loot = require(script.Loot),
 	Save = require(script.Save), -- Paket 12
+	Progress = require(script.Progress), -- Paket 13
 }

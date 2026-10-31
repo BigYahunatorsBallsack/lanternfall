@@ -145,4 +145,6 @@ Remotes.SetRunOptions = {
 Remotes.ReviveState = { direction = "toClient" }
 -- Paket 12: Net/Types.ProfileInfo, to its player when the saved data loads or changes
 Remotes.ProfileInfo = { direction = "toClient" }
+-- Paket 13: Net/Types.RunRewards, to each participant when a finished run is saved
+Remotes.RunRewards = { direction = "toClient" }
 return table.freeze(Remotes)

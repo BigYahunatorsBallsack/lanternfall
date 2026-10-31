@@ -371,6 +371,21 @@ export type ProfileInfo = {
 	bossKills: number,
 	bestWave: number,
 	bestDanger: number, -- highest danger level won, -1 = never won
+	-- Paket 13
+	embers: number?,
+	achievements: { [string]: boolean }?, -- done achievement ids
+	progress: { [string]: number }?, -- achievement id -> current value (Util/ProgressRules.progress)
+	characterDanger: { [string]: number }?, -- class id -> highest danger level open for it
+	ownedClasses: { string }?, -- characters bought with Embers (unlocked without the achievement)
+}
+
+-- Paket 13: what a finished run paid one player (PlayerDataService -> ResultsController), remote RunRewards.
+export type RunRewards = {
+	embers: number, -- the run's Embers plus achievement Embers
+	lines: { { label: string, amount: number } }, -- the run's Embers, line by line
+	achievements: { string }, -- ids of the achievements done by this run
+	unlocked: { string }, -- names of what they unlocked
+	totalEmbers: number, -- Embers after the run
 }
 
 return {}
