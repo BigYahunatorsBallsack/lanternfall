@@ -442,4 +442,15 @@ export type PartyState = {
 	group: { arrived: number, expected: number, startsBy: number? }?, -- run place: the group still arriving
 }
 
+-- Paket 16: what the local player owns and can buy (MonetizationService -> StoreController), remote StoreState.
+export type StoreState = {
+	setUp: { [string]: boolean }, -- pass or product key -> has a Creator Hub id in this experience (can be bought)
+	prices: { [string]: number }, -- key -> Robux (the real price once the server read it, else Config.Store's)
+	passes: { [string]: boolean }, -- pass key -> owned
+	tokens: { revives: number, rerolls: number }, -- bought, not used yet
+	vipRerolls: number, -- VIP shop rerolls left in this run
+	reviveUsed: boolean, -- a revive was used in this run (once per run)
+	boost: { secondsLeft: number, by: string, sentAt: number }?, -- the player's Ember Boost, if one runs
+}
+
 return {}

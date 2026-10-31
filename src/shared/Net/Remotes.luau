@@ -4,6 +4,7 @@
 
 local Config = require(script.Parent.Parent.Config)
 local DebugCommands = require(script.Parent.DebugCommands)
+local PurchaseRules = require(script.Parent.Parent.Util.PurchaseRules)
 local Validate = require(script.Parent.Validate)
 
 export type Definition = {
@@ -189,4 +190,15 @@ Remotes.PlayFromHub = {
 }
 -- Run place: back to the hub (RunPlaceService; not during the player's own run)
 Remotes.ReturnToHub = { direction = "toServer", rateLimit = { count = 1, perSeconds = 2 }, args = {} }
+-- Paket 16: Robux purchases. The client only asks; MonetizationService checks the key is set up and allowed right now
+-- (Revive: down in a running co-op wave, once per run; passes: not owned yet), then shows Roblox's purchase prompt.
+-- Everything a purchase gives is granted by the server in ProcessReceipt.
+Remotes.RequestPurchase = {
+	direction = "toServer",
+	rateLimit = { count = 3, perSeconds = 3 },
+	args = { Validate.oneOf(PurchaseRules.keys()) }, -- pass or product key from Config.Store
+}
+-- Paket 16: a free reroll from the VIP pass or a bought reroll token; only while the player's shop is open
+Remotes.UseBonusReroll = { direction = "toServer", rateLimit = { count = 4, perSeconds = 1 }, args = {} }
+Remotes.StoreState = { direction = "toClient" } -- Net/Types.StoreState, to its player on change
 return table.freeze(Remotes)

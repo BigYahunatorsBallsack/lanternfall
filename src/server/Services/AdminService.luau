@@ -27,6 +27,7 @@ local EnemySim = require(script.Parent.EnemySim)
 local ExperienceService = require(script.Parent.ExperienceService)
 local LootService = require(script.Parent.LootService)
 local MapService = require(script.Parent.MapService)
+local MonetizationService = require(script.Parent.MonetizationService)
 local PlayerDataService = require(script.Parent.PlayerDataService)
 local RunDirector = require(script.Parent.RunDirector)
 local ShopService = require(script.Parent.ShopService)
@@ -461,6 +462,19 @@ function AdminService.isAdmin(player: Player): boolean
 		return true
 	end
 	return table.find(Config.Admin.userIds, player.UserId) ~= nil
+end
+
+-- Paket 16: purchases without Robux (also before the Creator Hub ids exist)
+handlers.FakePurchase = function(player)
+	if not PlayerDataService.isLoaded(player) then
+		return false, "Your saved data is not loaded yet"
+	end
+	return true, `Fake purchase: {MonetizationService.fakePurchase(player)}`
+end
+handlers.ToggleFakePasses = function(player)
+	local on = not MonetizationService.hasFakePasses(player)
+	MonetizationService.setFakePasses(player, on)
+	return true, if on then "You own every game pass (this session only)" else "Game passes as Roblox says"
 end
 
 handlers.GiveStructureKit = function(player)
