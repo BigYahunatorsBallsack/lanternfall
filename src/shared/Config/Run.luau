@@ -333,15 +333,17 @@ local Run = {
 				20.55,
 				23.41,
 			}),
+			-- playtest after Paket 24 ("I can just stand still from wave 3"): the early steps rise like Brotato's
+			-- n - 1 times 0.5 (before 0.17, 0.29, 0.62, 1.18, 1.75, 2.43, 3.21 for waves 2-8)
 			damageSteps = table.freeze({
 				0,
-				0.17,
-				0.29,
-				0.62,
-				1.18,
-				1.75,
-				2.43,
-				3.21,
+				0.5,
+				1,
+				1.5,
+				2,
+				2.5,
+				3,
+				3.5,
 				4,
 				4.85,
 				5.75,
@@ -355,6 +357,9 @@ local Run = {
 				18.69,
 				20.88,
 			}),
+			-- Playtest after Paket 24: every normal enemy's damage (contact, shots and attacks) times this on top of the
+			-- steps; champions and bosses have their own numbers and are left out
+			damageScale = 1.5,
 		}),
 		firstShare = 0.3, -- a group fires the first time after this share of its interval (assumption)
 		-- at the alive cap a group waits for room instead of being dropped; it saves up at most this many firings

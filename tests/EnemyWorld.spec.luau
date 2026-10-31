@@ -113,12 +113,23 @@ describe("EnemyWorld", function()
 		expect(z).toBe(10)
 	end)
 
+	it("backs ranged enemies off slowly when a player comes close", function()
+		local world = newWorld()
+		local spitter = Types.Spitter
+		local id = spawn(world, "Spitter", 0, -8)
+		run(world, 1, { 0 }, { 0 })
+		local backed = distance(world, id, 0, 0) - 8
+		expect(backed > 0).toBe(true)
+		expect(backed).toBeNear(spitter.speed * (spitter.ranged :: any).retreatSpeedFactor, 0.5)
+		expect(backed < spitter.speed * 0.5).toBe(true) -- a player (16 studs/s) catches it
+	end)
+
 	it("keeps ranged enemies at their distance", function()
 		local world = newWorld()
 		local keep = Types.Spitter.ranged.keepDistance
 		local far = spawn(world, "Spitter", 0, 60)
 		local near = spawn(world, "Spitter", 0, -8)
-		run(world, 5, { 0 }, { 0 })
+		run(world, 10, { 0 }, { 0 }) -- it backs off at retreatSpeedFactor of its speed (playtest after Paket 24)
 		expect(math.abs(distance(world, far, 0, 0) - keep) <= Sim.keepDistanceTolerance + 0.01).toBe(true)
 		expect(math.abs(distance(world, near, 0, 0) - keep) <= Sim.keepDistanceTolerance + 0.01).toBe(true)
 	end)
@@ -627,23 +638,24 @@ describe("B9 behaviours", function()
 		expect(world.boosts[world.indexOf[id]]).toBeNear(accelerate.max, 1e-6)
 		-- a fresh one walks at its base speed
 		local fresh = newWorld()
-		local slow = spawn(fresh, "Stalker", 100, 0) :: number
+		local slow = spawn(fresh, "Stalker", 60, 0) :: number
 		fresh:step(STEP, { 0 }, { 0 }, 1)
-		expect(100 - (fresh:getPosition(slow) :: number)).toBeNear(
+		expect(60 - (fresh:getPosition(slow) :: number)).toBeNear(
 			Types.Stalker.speed * STEP * (1 + accelerate.perSecond * STEP),
 			1e-3
 		)
 	end)
 
-	it("lets a Skulker run from a close player but walk up to its shooting distance from a far one", function()
+	it("lets a Skulker back off slowly from a close player and walk up to its shooting distance", function()
 		local skulker = Types.Skulker
-		local flee = skulker.flee :: any
+		expect(skulker.flee).toBe(nil) -- playtest after Paket 24: it no longer runs off
 		local world = newWorld()
-		local near = spawn(world, "Skulker", flee.range - 6, 0) :: number
-		local far = spawn(world, "Skulker", 0, 80) :: number
+		local near = spawn(world, "Skulker", 16, 0) :: number
+		local far = spawn(world, "Skulker", 0, 70) :: number
 		run(world, 0.5, { 0 }, { 0 })
-		expect(distance(world, near, 0, 0) > flee.range - 6 + 2).toBe(true)
-		expect(distance(world, far, 0, 0) < 80 - 2).toBe(true)
+		local backed = distance(world, near, 0, 0) - 16
+		expect(backed > 0 and backed < skulker.speed * 0.5 * 0.5).toBe(true)
+		expect(distance(world, far, 0, 0) < 70 - 2).toBe(true)
 		run(world, 6, { 0 }, { 0 })
 		expect(distance(world, far, 0, 0)).toBeNear(
 			(skulker.ranged :: any).keepDistance,

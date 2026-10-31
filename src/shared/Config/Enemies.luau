@@ -218,6 +218,9 @@ export type Ranged = {
 	projectileRange: number, -- studs a shot flies before it fades (assumption)
 	projectileRadius: number, -- studs, hit circle of a shot (assumption)
 	aimLead: number, -- 0 = aims where the player is, 1 = where a player walking straight on will be (assumption)
+	-- share of its speed it backs off with when a player comes closer than keepDistance (default 1). Playtest after
+	-- Paket 24: shooters that ran off at full speed were impossible to catch, so they now back off slowly.
+	retreatSpeedFactor: number?,
 }
 
 -- Enemies that stop, wind up (clients see it glow) and then rush in a straight line at where the player stood
@@ -275,10 +278,12 @@ local Enemies: { [string]: Enemy } = {
 		id = "Brute",
 		typeId = 2,
 		displayName = "Brute",
-		hp = 40, -- B11: 60 -> 40, +41 -> +27 per step (owner: big ones pile up; 65 %)
+		-- B11: 60 -> 40, +41 -> +27 per step (owner: big ones pile up; 65 %); playtest after Paket 24: too weak again,
+		-- so 40 -> 56 and +27 -> +38 (about 93 % of the old values); the spawn rate stays
+		hp = 56,
 		speed = 8,
 		contactDamage = 12,
-		hpPerWave = 27,
+		hpPerWave = 38,
 		damagePerWave = 4.1,
 		xp = 4,
 		radius = 2.5,
@@ -308,6 +313,7 @@ local Enemies: { [string]: Enemy } = {
 			projectileRange = 50,
 			projectileRadius = 0.6,
 			aimLead = 0.3,
+			retreatSpeedFactor = 0.3, -- playtest after Paket 24: backs off slowly, so it can be caught
 		},
 	},
 	-- typeId 4 is the first boss (bosses below)
@@ -384,10 +390,12 @@ local Enemies: { [string]: Enemy } = {
 		id = "AbyssBrute",
 		typeId = 9,
 		displayName = "Abyss Brute",
-		hp = 90, -- B11: 140 -> 90, +95 -> +62 per step (owner: big ones pile up; 65 %)
+		-- B11: 140 -> 90, +95 -> +62 per step (owner: big ones pile up; 65 %); playtest after Paket 24: like the Brute
+		-- 90 -> 126 and +62 -> +87
+		hp = 126,
 		speed = 8.5,
 		contactDamage = 18,
-		hpPerWave = 62,
+		hpPerWave = 87,
 		damagePerWave = 6.1,
 		xp = 8,
 		radius = 2.8,
@@ -451,7 +459,8 @@ local Enemies: { [string]: Enemy } = {
 		look = "Shadeling",
 		accelerate = { perSecond = 0.12, max = 2.4 },
 	},
-	-- Fleeing shooter: keeps far away, runs off when a player comes close and shoots from a distance.
+	-- Distant shooter: keeps far away and shoots from there; since the playtest after Paket 24 it no longer runs off
+	-- when a player comes close, it only backs off slowly like the Spitter.
 	Skulker = {
 		id = "Skulker",
 		typeId = 13,
@@ -475,8 +484,8 @@ local Enemies: { [string]: Enemy } = {
 			projectileRange = 55,
 			projectileRadius = 0.6,
 			aimLead = 0.5,
+			retreatSpeedFactor = 0.3, -- playtest after Paket 24: no more running off (was flee within 22 studs)
 		},
-		flee = { edgeMargin = 12, range = 22 },
 	},
 	-- Counter-shooter: slow and tough; every hit makes it spray a ring of thorns.
 	Thornback = {
