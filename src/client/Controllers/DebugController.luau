@@ -59,6 +59,7 @@ local BUTTON_TEXT: { [string]: string } = {
 	UnlockAll = "Unlock everything",
 	FakePurchase = "Fake purchase: next product",
 	ToggleFakePasses = "Fake passes on/off",
+	AddEmbers = `+{Config.Admin.addEmbers} Embers`,
 }
 
 local BUTTON_SIZE = Vector2.new(150, 30)

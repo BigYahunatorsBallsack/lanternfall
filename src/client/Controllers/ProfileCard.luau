@@ -3,7 +3,7 @@
 -- with a hint when Studio does not save for real. Mounted and rendered by LobbyController; reads ProfileInfo.
 -- Since Paket 13 also the Embers and an "ACHIEVEMENTS" button that opens AchievementList; CharacterChoice and
 -- DangerChoice read the unlocks from ProfileCard.get(). Since Paket 16 the STORE button and the Ember Boost line below
--- it (StoreController).
+-- it (StoreController); since Paket 17 the EMBER SHOP button next to STORE (EmberShopController).
 
 local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
 local Config = require(Shared:WaitForChild("Config"))
@@ -90,16 +90,19 @@ function ProfileCard.mount(list: Frame)
 		Parent = list,
 	}, function()
 		require(script.Parent.StoreController).setOpen(false) -- Paket 16: one window at a time
+		require(script.Parent.EmberShopController).setOpen(false) -- Paket 17
 		AchievementList.setOpen(not AchievementList.isOpen())
 	end)
 	AchievementList.mount(list.Parent :: Instance)
-	require(script.Parent.StoreController).mount(list) -- Paket 16
+	local storeRow = require(script.Parent.StoreController).mount(list) -- Paket 16
+	require(script.Parent.EmberShopController).mount(storeRow, list.Parent :: Instance) -- Paket 17
 	Net.onClient("ProfileInfo", function(payload: Types.ProfileInfo)
 		info = payload
 		ProfileCard.render()
 		-- unlocks changed: the other lobby extensions read them (required here, they require ProfileCard)
 		require(script.Parent.CharacterChoice).render()
 		require(script.Parent.DangerChoice).render()
+		require(script.Parent.EmberShopController).render() -- Paket 17
 	end)
 	ProfileCard.render()
 end

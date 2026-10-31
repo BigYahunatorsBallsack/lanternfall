@@ -242,12 +242,14 @@ function StoreController.setOpen(open: boolean)
 		window.Visible = open
 		if open then
 			AchievementList.setOpen(false)
+			require(script.Parent.EmberShopController).setOpen(false) -- Paket 17 (required here: it requires us)
 		end
 	end
 end
 
 -- Adds the boost line and the STORE button to the lobby's player list panel (ProfileCard) and builds the window.
-function StoreController.mount(list: Frame)
+-- Returns the button row, where Paket 17 adds the EMBER SHOP button next to STORE.
+function StoreController.mount(list: Frame): Frame
 	boostLabel = Widgets.label({
 		Name = "EmberBoost",
 		TextSize = 14,
@@ -257,15 +259,23 @@ function StoreController.mount(list: Frame)
 		LayoutOrder = 14,
 		Parent = list,
 	})
+	local row = Widgets.create("Frame", {
+		Name = "StoreRow",
+		BackgroundTransparency = 1,
+		Size = UDim2.new(1, 0, 0, 38),
+		LayoutOrder = 15,
+		Parent = list,
+	})
+	Widgets.list(6, Enum.FillDirection.Horizontal).Parent = row
 	Widgets.button({
 		Name = "OpenStore",
 		Text = "STORE",
 		TextSize = 16,
-		Size = UDim2.new(1, 0, 0, 38),
+		Size = UDim2.new(0.5, -3, 1, 0),
 		BackgroundColor3 = Theme.accent,
 		TextColor3 = Theme.accentText,
-		LayoutOrder = 15,
-		Parent = list,
+		LayoutOrder = 1,
+		Parent = row,
 	}, function()
 		StoreController.setOpen(not StoreController.isOpen())
 	end)
@@ -341,6 +351,7 @@ function StoreController.mount(list: Frame)
 		StoreController.setOpen(false)
 	end)
 	render()
+	return row
 end
 
 -- Adds the bonus reroll button to the shop's button row (ShopController).
