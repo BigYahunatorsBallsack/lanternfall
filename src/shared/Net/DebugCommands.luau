@@ -42,4 +42,5 @@ return table.freeze({
 	"ToggleFakePasses", -- own every game pass or none for this session, nothing saved (since Paket 16)
 	"AddEmbers", -- +Config.Admin.addEmbers saved Embers for the Ember shop (since Paket 17)
 	"NextDay", -- this server acts one day later: new daily quests and the next login streak day (since Paket 18)
+	"StartFirstNight", -- a First Night (short first-start run with hints) right now, from the lobby (since Paket 19)
 })

@@ -33,4 +33,5 @@ return {
 	Quests = require(script.Quests), -- Paket 18
 	Leaderboards = require(script.Leaderboards), -- Paket 18
 	Badges = require(script.Badges), -- Paket 18
+	FirstNight = require(script.FirstNight), -- Paket 19
 }

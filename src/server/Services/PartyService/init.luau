@@ -669,6 +669,17 @@ function PartyService.isTeleporting(player: Player): boolean
 	return teleporting[player.UserId] ~= nil
 end
 
+-- Paket 19: sends a player who is not in a party with others into a solo run with these options (FirstNightService:
+-- the First Night). Teleports to a run server, or in Studio starts it here. False if the player is busy or in a party.
+function PartyService.launchSolo(player: Player, options: Types.RunOptions): boolean
+	local userId = player.UserId
+	if #book:membersOf(userId) > 1 or isBusy(userId) or inQueue(book:leaderOf(userId)) then
+		return false
+	end
+	launch({ userId }, options, userId)
+	return true
+end
+
 -- Whatever the player would get on the screen (tests).
 function PartyService.getView(player: Player): Types.PartyState
 	return viewFor(player)

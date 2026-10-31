@@ -5,6 +5,7 @@
 -- Util/DangerRules); in endless mode the run goes on after the last wave until nobody is alive, and reaching the end
 -- of the last wave counts as a win. B11 part 2: after a defeat in a wave, "Retry wave" starts that wave again from its
 -- beginning (retryWave, at most maxRetries per run). Paket 15: launch starts a run for a given group right away.
+-- Paket 19: a First Night run (runOptions.firstNight) is won after settings.firstNightWaves waves.
 -- Owned by RunDirector, which feeds it player events and the clock (`now` in seconds). No Roblox APIs
 -- here, so the rules are unit-tested outside Studio (tests/RunFlow.spec.luau).
 --
@@ -31,6 +32,7 @@ export type Settings = {
 	waveEndAt: ((number) -> number)?,
 	endlessWaveSeconds: number?,
 	maxRetries: number?, -- B11 part 2: "Retry wave" this often per run after a defeat (default 0: never)
+	firstNightWaves: number?, -- Paket 19: a First Night run (options.firstNight) wins after this many waves
 }
 
 export type Event =
@@ -140,9 +142,18 @@ local function waveEnd(self: RunFlow, n: number): number
 	return ends[#ends] + (n - #ends) * (self.settings.endlessWaveSeconds or 60)
 end
 
+-- Paket 19: the run's last wave (the First Night is shorter).
+local function lastWave(self: RunFlow): number
+	local count = #self.settings.waveEnds
+	if self.runOptions.firstNight then
+		return math.min(count, self.settings.firstNightWaves or count)
+	end
+	return count
+end
+
 -- In endless mode the end of the last wave was reached (counts as a win, Brotato).
 local function pastLastWave(self: RunFlow): boolean
-	local count = #self.settings.waveEnds
+	local count = lastWave(self)
 	return self.wave > count or (self.wave == count and self.phase == "Shop")
 end
 
@@ -512,7 +523,7 @@ function RunFlow.skipTo(self: RunFlow, elapsed: number, now: number): (boolean, 
 		return false, "NotRunning"
 	end
 	local ends = self.settings.waveEnds
-	local target = if self.runOptions.endless then elapsed else math.min(elapsed, ends[#ends])
+	local target = if self.runOptions.endless then elapsed else math.min(elapsed, ends[lastWave(self)])
 	if target <= self:getElapsed(now) then
 		return false, "AlreadyPast"
 	end
@@ -620,9 +631,8 @@ function RunFlow.update(self: RunFlow, now: number)
 			startRun(self, now)
 		end
 	elseif phase == "Running" then
-		local ends = self.settings.waveEnds
 		if self:getElapsed(now) >= waveEnd(self, self.wave) then
-			if self.wave >= #ends and not self.runOptions.endless then
+			if self.wave >= lastWave(self) and not self.runOptions.endless then
 				finishRun(self, "Victory", now) -- surviving the boss wave wins, like Brotato (WP10)
 			else
 				openShop(self, now)
@@ -705,6 +715,7 @@ function RunFlow.setOptions(self: RunFlow, options: Types.RunOptions)
 		and old.enemyDamage == options.enemyDamage
 		and old.enemySpeed == options.enemySpeed
 		and old.enemyCount == options.enemyCount
+		and old.firstNight == options.firstNight
 	then
 		return
 	end

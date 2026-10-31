@@ -236,4 +236,11 @@ Remotes.RequestLeaderboard = {
 	},
 }
 Remotes.Leaderboard = { direction = "toClient" } -- Net/Types.LeaderboardPage, to the player who asked
+-- Paket 19: "Skip" on the First Night hints (FirstNightService checks that the player is in a First Night run)
+Remotes.SkipFirstNight = {
+	direction = "toServer",
+	rateLimit = { count = 1, perSeconds = 2 },
+	args = {},
+}
+Remotes.FirstNightLobby = { direction = "toClient" } -- Paket 19: show the lobby hint after the First Night (no data)
 return table.freeze(Remotes)

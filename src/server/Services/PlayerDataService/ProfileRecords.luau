@@ -21,6 +21,7 @@ export type RunRecord = {
 	revives: number?, -- Paket 13: teammates this player revived
 	players: number?, -- Paket 13: players in the run (party bonus)
 	bonuses: { { label: string, share: number } }?, -- Paket 16: Ember bonuses of passes and the Ember Boost
+	firstNight: boolean?, -- Paket 19: the short First Night run (never a win, no leaderboard score)
 }
 
 local ProfileRecords = {}
@@ -49,6 +50,9 @@ end
 function ProfileRecords.applyRun(data: ProfileTemplate.Data, run: RunRecord): Types.RunRewards
 	local stats = data.stats
 	stats.runs += 1
+	-- Paket 19: any finished run means the First Night is not needed any more
+	data.tutorial = data.tutorial or { firstNight = true, lobbyHint = false }
+	data.tutorial.firstNight = true
 	stats.kills += run.kills
 	stats.bossKills += run.bossKills
 	stats.championKills += run.champions or 0

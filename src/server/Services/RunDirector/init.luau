@@ -14,6 +14,8 @@
 -- (in Studio it starts the group's run here with launch), the hub's run options belong to the parties
 -- (OptionsRequested), and READY only counts as "Play again" after a run. On the run place RunPlaceService launches the
 -- group that arrived.
+-- Paket 19: launch also starts a new player's First Night (FirstNightService, options.firstNight: fewer waves); the
+-- lobby gets its old options back once that run started.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -91,6 +93,7 @@ local flow = RunFlow.new({
 	shopSeconds = Config.Shop.phaseSeconds,
 	maxPlayers = Config.Run.maxPlayers,
 	maxRetries = Config.Run.flow.maxRetries,
+	firstNightWaves = Config.FirstNight.waves, -- Paket 19
 	defaultClassId = Config.Run.flow.defaultClassId,
 	waveEndAt = function(number: number): number
 		return RunSchedule.wave(number).endsAt
@@ -101,6 +104,7 @@ local sentVersion = -1
 local capOverride = false -- Paket 13: options set by tests or admins (RunDirector.setOptions) skip the danger cap
 local processing = false
 local inArena: { [Player]: boolean } = {} -- characters that belong in the arena until the next lobby phase
+local lobbyOptions: Types.RunOptions? = nil -- Paket 19: the lobby's options before a First Night was launched
 
 local function now(): number
 	return workspace:GetServerTimeNow()
@@ -170,6 +174,10 @@ local function handle(event: RunFlow.Event)
 		print(`[Lanternfall] Run started with {#players} player(s), {DangerRules.label(flow:getRunOptions())}`)
 		sendToArena(players)
 		notifyParticipants("Survive until dawn!")
+		if lobbyOptions and flow.options.firstNight then -- Paket 19: the next run is a normal one again
+			flow:setOptions(lobbyOptions)
+		end
+		lobbyOptions = nil
 		RunDirector.RunStarted:Fire(players)
 	elseif event.kind == "RunEnded" then
 		local results = event.results
@@ -525,6 +533,9 @@ function RunDirector.launch(players: { Player }, options: Types.RunOptions?, cap
 		return false, "Busy"
 	end
 	if options then
+		if options.firstNight and not flow.options.firstNight then
+			lobbyOptions = table.clone(flow.options)
+		end
 		capOverride = not capped
 		flow:setOptions(DangerRules.clean(options))
 		enforceDangerCap()
@@ -534,6 +545,10 @@ function RunDirector.launch(players: { Player }, options: Types.RunOptions?, cap
 		table.insert(userIds, player.UserId)
 	end
 	local ok, reason = flow:launch(userIds, now())
+	if not ok and lobbyOptions then -- Paket 19: a First Night that could not start leaves the lobby as it was
+		flow:setOptions(lobbyOptions)
+		lobbyOptions = nil
+	end
 	process()
 	return ok, reason
 end
