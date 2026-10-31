@@ -30,6 +30,7 @@ local LootService = require(script.Parent.LootService)
 local MapService = require(script.Parent.MapService)
 local MonetizationService = require(script.Parent.MonetizationService)
 local PlayerDataService = require(script.Parent.PlayerDataService)
+local QuestService = require(script.Parent.QuestService)
 local RunDirector = require(script.Parent.RunDirector)
 local ShopService = require(script.Parent.ShopService)
 local SpawnDirector = require(script.Parent.SpawnDirector)
@@ -477,6 +478,10 @@ handlers.AddEmbers = function(player)
 		return false, "Your saved data is not loaded yet"
 	end
 	return true, `+{Config.Admin.addEmbers} Embers`
+end
+handlers.NextDay = function()
+	QuestService.nextDay()
+	return true, "This server is one day later: new quests and the next login streak day"
 end
 handlers.ToggleFakePasses = function(player)
 	local on = not MonetizationService.hasFakePasses(player)
