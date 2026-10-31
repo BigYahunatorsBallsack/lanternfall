@@ -966,7 +966,8 @@ Bewusst nicht: harte Countdown-Angebote oder Serien, die bei einem verpassten Ta
 - Assets: Roblox-KI-Generierung und Creator Store, nur mit erlaubter Nutzung; keine fremden Marken/Figuren/Memes.
 - **Kosmetik (Paket 17):** Laternen aus 5–8 einfachen Teilen in drei Formen (Cage = Käfig mit vier Streben, Orb = leuchtende Kugel mit Messingkappen, Spire = schmaler Turm mit gedrehter Spitze), Rahmen aus Messing, Silber oder Obsidian, Kern aus Neon mit kleinem Licht; schweben rechts über der Schulter. Spuren als Farbverlauf hinter der Figur. Katalog: Brass Lantern (gratis), Jade Censer, Crimson Vigil, Moonglass Lantern, Void Lamp, Gilded Sunburst (VIP); Ember Trail, Spectral Trail, Venom Trail, Royal Trail, Gilded Trail (VIP).
 - VFX sparsam und gepoolt (`src/client/Vfx/Bursts.luau`: Funken, Glut, Seelen, Rauch, Staub; ein Emitter pro Stil und Farbe, Partikel per `Emit`); Audio aus der Roblox-Bibliothek, eigener Boss-Track.
-- **Map 1 „The Ruined City":** 300 × 300 Studs, flacher Boden, wenige große Ruinen, Nebelwand als Rand.
+- **Audio (Paket 21):** gepoolte 2D-Effekte (`Audio/Sfx`; die Kamera ist zu weit weg für Roblox' 3D-Abfall), leiser mit dem Abstand zur eigenen Figur (voll bis 30, still ab 110 Studs), Mitspieler-Waffen 45 %, jede Wiedergabe ±8 % Tonhöhe, Mindestabstand pro Effekt gegen Lärm in der Traube. Effekte: Knopf-Klick, Waffen nach Art (Schuss, Hieb, Druckwelle, Blitz, Explosion, Ablegen), eigene Treffer/Krits, Gegner-/Elite-Tod, XP-Orbs (Combo: Tonhöhe steigt pro Orb, zurück nach 0,6 s Pause), Frucht, Kiste, Truhe, getroffen, gestürzt, Dash, Level-up, Wellenstart/-ende, Boss-Welle, Boss-Warnung. Musik: ein Loop je Zustand (Lobby, Welle, Shop, Boss-Welle, Ergebnis), 1,5 s Überblendung, Sieg/Niederlage einmalig über dem auf 30 % gedämpften Ergebnis-Track. Effekte starten mit Roblox' eingebauten Sounds, Musik ist leer, bis der Owner Tracks in der Toolbox auswählt (`Config/Audio.luau`).
+- **Map 1 „The Ruined City":** 300 × 300 Studs, flacher Boden, wenige große Ruinen, Nebelwand als Rand. **Seit Paket 21:** Abendstimmung (Uhrzeit 18:30, violetter Dunst, leichte Farbkorrektur und Bloom), Ruinensäulen mit Messingband, schiefer Kappe und violettem Leucht-Runenring, Messing-Sonnenstrahlen um den Startkreis, verstreute hellere Bodenplatten, schwebende Glut; hinter der Nebelwand Laternenpfähle (4 pro Seite), Mauerreste und vier Obelisken mit türkis leuchtendem Riss; Laternen in der Lobby. In der Arena ist die Deko flach und durchlässig, an den Laufwegen ändert sich nichts. Zahlen in `Config.Map.lighting` und `Config.Map.decor`.
 
 ## 15. Technische Architektur
 
@@ -1107,7 +1108,8 @@ tests/               Unit-Tests für reine Module (Runner in tools/luau-test-run
 | Server-Simulation | 15 Hz, unter 4 ms pro Schritt |
 | Client-FPS Mittelklasse-Handy | ≥ 30 |
 | Netzwerk pro Client | < 50 KB/s |
-| Partikel-Emitter | so wenige wie möglich, gepoolt (`Vfx/Bursts`: einer pro Stil und Farbe, ≈ 30) |
+| Partikel-Emitter | so wenige wie möglich, gepoolt (`Vfx/Bursts`: einer pro Stil und Farbe, ≈ 30); dazu einer für die Glut über der Arena (Paket 21) |
+| Lichter der Karte | ohne Schatten, höchstens ≈ 30 (Paket 21: 16 Laternen + 4 Obelisken + 5 Säulen-Runen ohne Licht + 6 Lobby-Laternen + Portale) |
 | Teile pro Gegner | höchstens 20, Elite 25 (Test `EnemyModels.spec`); in großen Trauben wenig Details |
 
 ## 16. Datenspeicherung & Sicherheit
