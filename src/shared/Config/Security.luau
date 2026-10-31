@@ -32,6 +32,7 @@ return table.freeze({
 		"UnlockAll",
 		"AddEmbers",
 		"FakePurchase",
+		"LaunchCheck", -- Paket 24
 	}),
 
 	-- Hub parties: the same player can be invited again only after this many seconds (no invite popup spam).

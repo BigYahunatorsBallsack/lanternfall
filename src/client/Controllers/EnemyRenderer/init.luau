@@ -79,7 +79,6 @@ local lowDetail = false
 local frameNumber = 0
 local floorY = Config.Map.arena.center.Y
 local view = ViewBounds.new()
-local CameraConfig = Config.Camera
 
 -- Reused lists for workspace:BulkMoveTo.
 local partList: { BasePart } = {}
@@ -204,16 +203,8 @@ local function updateView()
 	end
 	local size = camera.ViewportSize
 	local aspect = if size.Y > 0 then size.X / size.Y else 1
-	ViewBounds.update(
-		view,
-		focus.X,
-		focus.Y,
-		focus.Z,
-		CameraConfig.pitchDegrees,
-		CameraConfig.distance,
-		camera.FieldOfView,
-		aspect
-	)
+	local pitchDegrees, distance = CameraController.getView() -- Paket 24: capture shots change both
+	ViewBounds.update(view, focus.X, focus.Y, focus.Z, pitchDegrees, distance, camera.FieldOfView, aspect)
 end
 
 -- Whether a model of `radius` standing at floor point (x, z) may show on the screen: a sphere around its middle with

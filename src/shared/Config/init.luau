@@ -38,4 +38,5 @@ return {
 	Audio = require(script.Audio), -- Paket 21
 	Graphics = require(script.Graphics), -- Paket 22
 	Security = require(script.Security), -- Paket 23
+	Launch = require(script.Launch), -- Paket 24
 }

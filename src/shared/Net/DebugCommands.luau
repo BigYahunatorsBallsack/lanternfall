@@ -45,4 +45,6 @@ return table.freeze({
 	"StartFirstNight", -- a First Night (short first-start run with hints) right now, from the lobby (since Paket 19)
 	"PrintAnalytics", -- the last analytics events of this server to the Output (since Paket 20)
 	"MovementCheck", -- the movement check (anti-cheat) on or off for this server; off in Studio by default (Paket 23)
+	"LaunchCheck", -- print what is still missing before the launch (Paket 24, LaunchService)
+	"Showcase", -- a scene to film: wave timer stopped, full weapon slots, a big crowd around you (Paket 24)
 })

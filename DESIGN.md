@@ -1301,7 +1301,7 @@ Bis zum Soft Launch rund 40–50 Sessions und 50–60 Stunden Zeit des Owners (6
 | 21 | VFX, Sounds, Musik, Map-Feinschliff | MVP | Medium (Low fürs Platzieren) | 2 | 2 h | auswählen |
 | 22 | Performance-Pass Mobile + Netzwerk (umgesetzt 31.10.2026, Branch `wp-22-performance`: kompakte Remotes, Grafikstufe, Sichtfeld, Debug-Anzeige, Schema v8) | MVP | Extra high | 1–2 | 1,5 h | Handy-Tests, Mikroprofiler-Screenshots |
 | 23 | Sicherheits- und Code-Review (umgesetzt 31.10.2026, Branch `wp-23-security`: Bewegungs-Check, Debug-Runs ohne Rangliste, Einladungs-Sperre, Remote-Härtung; Bericht `docs/SICHERHEIT.md`) | MVP | Extra high | 1–2 | 0,5 h | Ergebnis abnicken |
-| 24 | Launch-Paket: Icon, Thumbnails, Beschreibung, Clips | Soft Launch | Medium | 1 | 3 h | Clips, Fragebogen, Ads |
+| 24 | Launch-Paket: Icon, Thumbnails, Beschreibung, Clips (umgesetzt auf `wp-24-launch`, Anleitung `docs/LAUNCH.md`) | Soft Launch | Medium | 1 | 3 h | Clips, Fragebogen, Ads |
 | 25 | Bugfixing (laufend) | alle | Medium, nach 2 Fehlversuchen Extra high | – | – | Bug-Report |
 | 26 | Live-Ops-Update | Live-Ops | Medium | 1–2/Woche | 3–5 h/Woche | Feedback, Prioritäten, Tests |
 
@@ -1339,6 +1339,8 @@ Der Owner ist Produzent und Tester; Claude Code (und ab B6 parallel ChatGPT, sie
 2. **Soft Launch** (Woche 8): öffentlich 16+, Fragebogen komplett, Roblox Ads mit kleinem Testbudget (Vorschlag 50–100 €), 2–3 Icon-Varianten.
 3. **U16-Freigabe** nach 250 „highly engaged" Plays + Safety Review.
 4. **Skalieren** nur bei D1/D7 im Ziel.
+
+**Launch-Paket (Paket 24, 31.10.2026):** Spielseiten-Text, Fragebogen-Antworten, Clip-Ideen und die Liste vor dem Launch stehen in `docs/LAUNCH.md`. Im Spiel: Launch-Check (Debug-Knopf, Studio-Zeile, Warnung auf Live-Servern bei offenen MUST-Punkten), Aufnahme-Modus für Admins (F6 Menüs aus, F7 Kamera: Game camera, Close, Low hero, Wide) und Debug „Showcase scene" (Wellen-Timer steht, 6 Waffen Stufe III, 70 Gegner). Bilder: 3 Icon-Varianten und 3 Thumbnails in `assets/launch/` (gemalt aus Code, `tools/launch/art.py`); echte Screenshots aus dem Aufnahme-Modus sollen davor stehen. Live läuft als eigene Experience mit eigenen IDs (Test-Experience bleibt Test).
 
 Marketing: beschreibender Titel, klares Icon (Laterne gegen Horde); 15–30-s-Clips für TikTok/Shorts (Blade-Storm-Evolution, 4-Spieler-Boss, Rettung in letzter Sekunde); Roblox-Gruppe + Discord ab Tag 1; kleinere Roblox-Survival-YouTuber anschreiben.
 

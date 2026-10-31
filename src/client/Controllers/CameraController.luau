@@ -4,6 +4,8 @@
 -- Because the camera never turns, W/stick-up always walks up the screen. shake() adds a short wobble for big hits
 -- (Config.Feedback.shake; EnemyRenderer, ChestController, FeedbackController). follow() watches a teammate instead
 -- (ReviveController, while the local player is out, WP11). Since Paket 14 the settings menu can switch shaking off.
+-- Since Paket 24 setShot() swaps angle, distance and field of view for capture mode (CaptureController,
+-- Config.Launch.capture.shots); the camera still looks north, so EnemyRenderer's view test reads getView().
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -28,6 +30,9 @@ local focus: Vector3? = nil
 local shakeStrength = 0 -- 0-1, see shake()
 local shakeTime = 0
 local followed: Player? = nil -- watched instead of the local player
+-- Paket 24: the capture shot in use (nil = the game camera of Config.Camera)
+local shotPitch, shotDistance, shotFieldOfView =
+	CameraConfig.pitchDegrees, CameraConfig.distance, CameraConfig.fieldOfView
 
 -- Camera offset of the current shake: smooth noise, growing with the square of the strength.
 local function shakeOffset(dt: number): Vector3
@@ -59,8 +64,8 @@ local function update(dt: number)
 	if camera.CameraType ~= Enum.CameraType.Scriptable then
 		camera.CameraType = Enum.CameraType.Scriptable
 	end
-	if camera.FieldOfView ~= CameraConfig.fieldOfView then
-		camera.FieldOfView = CameraConfig.fieldOfView
+	if camera.FieldOfView ~= shotFieldOfView then
+		camera.FieldOfView = shotFieldOfView
 	end
 
 	local target = targetPosition()
@@ -100,6 +105,24 @@ end
 -- skip what is off the screen, Util/ViewBounds).
 function CameraController.getFocus(): Vector3?
 	return focus
+end
+
+-- Paket 24: uses a capture shot (pitch, distance, field of view); nil or a shot with distance 0 goes back to the
+-- game camera.
+function CameraController.setShot(shot: { pitchDegrees: number, distance: number, fieldOfView: number }?)
+	if shot and shot.distance > 0 then
+		shotPitch, shotDistance, shotFieldOfView = shot.pitchDegrees, shot.distance, shot.fieldOfView
+	else
+		shotPitch, shotDistance, shotFieldOfView =
+			CameraConfig.pitchDegrees, CameraConfig.distance, CameraConfig.fieldOfView
+	end
+	local angle = math.rad(shotPitch)
+	offset = Vector3.new(0, math.sin(angle), math.cos(angle)) * shotDistance
+end
+
+-- Paket 24: the camera's pitch (degrees), distance (studs) and field of view in use.
+function CameraController.getView(): (number, number, number)
+	return shotPitch, shotDistance, shotFieldOfView
 end
 
 function CameraController.start()
