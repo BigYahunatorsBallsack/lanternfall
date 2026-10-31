@@ -2,7 +2,9 @@
 -- Debug panel for admins (player attribute "LanternfallAdmin", set by AdminService): one button per
 -- debug command, plus a stats panel with the server numbers (DebugStats remote) and the client's own
 -- (FPS, EnemyRenderer). Values that break a budget in Config.Simulation turn red. The server checks
--- admin rights again, so this panel is only a convenience.
+-- admin rights again, so this panel is only a convenience. Since Paket 22 the panel also shows the frame time (average
+-- and worst), all data this client receives (Roblox's Stats service), memory, instances, enemies off the screen and the
+-- graphics level (GraphicsController).
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -16,6 +18,7 @@ local Net = require(Shared:WaitForChild("Net"))
 local Types = require(Shared:WaitForChild("Net"):WaitForChild("Types"))
 
 local EnemyRenderer = require(script.Parent.EnemyRenderer)
+local GraphicsController = require(script.Parent.GraphicsController)
 local Theme = require(script.Parent.Parent.UI.Theme)
 local Widgets = require(script.Parent.Parent.UI.Widgets)
 
@@ -73,6 +76,25 @@ local DebugController = {}
 local serverStats: Types.DebugStats? = nil
 local statsLines: { [string]: TextLabel } = {}
 local fps = 0
+local worstFrameMilliseconds = 0
+
+-- Roblox's Stats service (network, memory); missing in the test runner.
+local robloxStats: any = nil
+do
+	local ok, service = pcall(function()
+		return game:GetService("Stats")
+	end)
+	robloxStats = if ok then service else nil
+end
+
+-- Reads a number from the Stats service, nil where it cannot.
+local function readStat(read: (any) -> number): number?
+	if not robloxStats then
+		return nil
+	end
+	local ok, value = pcall(read, robloxStats)
+	return if ok and type(value) == "number" then value else nil
+end
 
 local function build(): ScreenGui
 	local screen = Widgets.screen("Debug", 10)
@@ -135,11 +157,11 @@ local function build(): ScreenGui
 		Name = "Stats",
 		AnchorPoint = Vector2.new(0, 1),
 		Position = UDim2.new(0, 12, 1, -12),
-		Size = UDim2.fromOffset(300, 0),
+		Size = UDim2.fromOffset(400, 0),
 		Parent = screen,
 	})
 	Widgets.list(2).Parent = statsPanel
-	for index, name in { "Enemies", "Spawning", "Server", "Network", "Fps" } do
+	for index, name in { "Enemies", "Spawning", "Server", "Network", "Fps", "Memory", "Graphics" } do
 		statsLines[name] = Widgets.label({
 			Name = name,
 			Text = "",
@@ -168,7 +190,7 @@ local function refreshStats()
 	if server then
 		setLine(
 			"Enemies",
-			`Enemies {server.enemies} / {server.cap} · drawn {client.drawn} · shots {server.shots}`,
+			`Enemies {server.enemies} / {server.cap} · drawn {client.drawn} ({client.culled} off screen) · shots {server.shots}`,
 			false
 		)
 		setLine(
@@ -194,12 +216,45 @@ local function refreshStats()
 		setLine("Spawning", "Waiting for server stats", false)
 		setLine("Server", "", false)
 	end
+	local received = readStat(function(service)
+		return service.DataReceiveKbps
+	end)
+	if received then
+		setLine(
+			"Network",
+			string.format("Data in %.1f KB/s (enemies %.1f)", received, client.receivedKilobytesPerSecond),
+			received > budget.networkKilobytesPerSecond
+		)
+	else
+		setLine(
+			"Network",
+			string.format("Enemy data %.1f KB/s", client.receivedKilobytesPerSecond),
+			client.receivedKilobytesPerSecond > budget.networkKilobytesPerSecond
+		)
+	end
+	local frameMilliseconds = if fps > 0 then 1000 / fps else 0
 	setLine(
-		"Network",
-		string.format("Enemy data %.1f KB/s", client.receivedKilobytesPerSecond),
-		client.receivedKilobytesPerSecond > budget.networkKilobytesPerSecond
+		"Fps",
+		string.format("FPS %d · frame %.1f ms (worst %.1f)", fps, frameMilliseconds, worstFrameMilliseconds),
+		fps < budget.clientFps
 	)
-	setLine("Fps", string.format("FPS %d", fps), fps < budget.clientFps)
+	local memory = readStat(function(service)
+		return service:GetTotalMemoryUsageMb()
+	end)
+	local instances = readStat(function(service)
+		return service.InstanceCount
+	end)
+	setLine(
+		"Memory",
+		string.format(
+			"Memory %s MB · instances %s",
+			if memory then tostring(math.round(memory)) else "?",
+			if instances then tostring(instances) else "?"
+		),
+		memory ~= nil and memory > budget.clientMemoryMegabytes
+	)
+	local level, reason = GraphicsController.getLevel()
+	setLine("Graphics", `Graphics {level} ({reason})`, false)
 end
 
 function DebugController.init()
@@ -223,13 +278,15 @@ function DebugController.start()
 	player:GetAttributeChangedSignal(ADMIN_ATTRIBUTE):Connect(update)
 	update()
 
-	local frames, elapsed = 0, 0
+	local frames, elapsed, worst = 0, 0, 0
 	RunService.RenderStepped:Connect(function(dt: number)
 		frames += 1
 		elapsed += dt
+		worst = math.max(worst, dt)
 		if elapsed >= STATS_REFRESH_SECONDS then
 			fps = math.round(frames / elapsed)
-			frames, elapsed = 0, 0
+			worstFrameMilliseconds = worst * 1000
+			frames, elapsed, worst = 0, 0, 0
 			if screen and screen.Enabled then
 				refreshStats()
 			end
