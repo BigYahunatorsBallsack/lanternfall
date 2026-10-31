@@ -52,7 +52,29 @@ describe("Migrations", function()
 		expect(next(data.characterStats)).toBe(nil)
 		expect(data.embers).toBe(40)
 		expect(data.talents.toughness).toBe(1)
-		expect(data.receipts.abc).toBe(true)
+		expect(data.receipts[1]).toBe("abc") -- since v5 a list of PurchaseIds (Paket 16)
+	end)
+
+	it("turns v4 receipts into a list and adds the purchase fields (v5, Paket 16)", function()
+		local data = ProfileTemplate.new() :: any
+		data.schemaVersion = 4
+		data.receipts = { ["p2"] = true, ["p1"] = true }
+		data.stats.embersBought = nil
+		data.stats.purchases = nil
+		data.tokens = nil
+		data.passCache = nil
+		data.boost = nil
+		expect(Migrations.run(data, ProfileTemplate.SCHEMA_VERSION)).toBe(4)
+		expect(#data.receipts).toBe(2)
+		expect(data.receipts[1]).toBe("p1")
+		expect(data.receipts[2]).toBe("p2")
+		expect(data.stats.embersBought).toBe(0)
+		expect(data.stats.purchases).toBe(0)
+		expect(data.tokens.revives).toBe(0)
+		expect(data.tokens.rerolls).toBe(0)
+		expect(next(data.passCache)).toBe(nil)
+		expect(data.boost.untilTime).toBe(0)
+		expect(data.boost.by).toBe("")
 	end)
 
 	it("treats data without a version as v1", function()

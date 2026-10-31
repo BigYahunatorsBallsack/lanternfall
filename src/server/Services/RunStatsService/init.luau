@@ -7,7 +7,8 @@
 -- (PlayerDataService); since Paket 13 with champion kills and revives (ReviveService) for the achievements.
 -- B11 part 2: a RunDirector checkpoint keeps the statistics from the start of each wave for "Retry wave", and a defeat
 -- that can still be retried is only saved once the results are over (lobby or "Play again") or the player leaves, so
--- a retried wave never counts twice.
+-- a retried wave never counts twice. Paket 16: the record carries the Ember bonuses of passes and the Ember Boost
+-- (MonetizationService) as they are when the run ends.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -21,6 +22,7 @@ local Copy = require(Shared.Util.Copy)
 local CombatService = require(script.Parent.CombatService)
 local EnemySim = require(script.Parent.EnemySim)
 local ExperienceService = require(script.Parent.ExperienceService)
+local MonetizationService = require(script.Parent.MonetizationService)
 local PlayerDataService = require(script.Parent.PlayerDataService)
 local ReviveService = require(script.Parent.ReviveService)
 local RunDirector = require(script.Parent.RunDirector)
@@ -116,6 +118,7 @@ local function onRunEnded(results: Types.Results)
 				champions = championKills,
 				revives = revives[player] or 0,
 				players = #results.players,
+				bonuses = MonetizationService.getEmberBonuses(player),
 			}
 			if hold then
 				heldRecords[player] = record

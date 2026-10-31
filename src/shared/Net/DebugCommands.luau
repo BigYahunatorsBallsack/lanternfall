@@ -38,4 +38,6 @@ return table.freeze({
 	"PrintProfile", -- print your saved data to the Output (since Paket 12)
 	"ResetProfile", -- your saved data back to a fresh profile (since Paket 12)
 	"UnlockAll", -- every achievement done and every danger level open for you (since Paket 13; Reset locks again)
+	"FakePurchase", -- the next developer product as if bought, through the real receipt path (since Paket 16)
+	"ToggleFakePasses", -- own every game pass or none for this session, nothing saved (since Paket 16)
 })

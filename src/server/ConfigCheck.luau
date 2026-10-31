@@ -850,6 +850,68 @@ function ConfigCheck.run(): { string }
 			problem(`Portal {portal.mode} stands outside the lobby`)
 		end
 	end
+
+	-- Paket 16: passes, products and their ids per experience.
+	local store = Config.Store
+	local storeKeys: { [string]: string } = {}
+	for _, pass in store.passes do
+		if storeKeys[pass.key] then
+			problem(`Store: key {pass.key} is used twice`)
+		end
+		storeKeys[pass.key] = "passes"
+		if pass.price <= 0 then
+			problem(`Store: pass {pass.key} needs a positive reference price`)
+		end
+	end
+	for _, product in store.products do
+		if storeKeys[product.key] then
+			problem(`Store: key {product.key} is used twice`)
+		end
+		storeKeys[product.key] = "products"
+		if product.price <= 0 then
+			problem(`Store: product {product.key} needs a positive reference price`)
+		end
+		local grant = product.grant
+		if not (grant.embers or grant.revives or grant.rerolls or grant.serverBoost) then
+			problem(`Store: product {product.key} gives nothing`)
+		end
+		for _, amount in { grant.embers, grant.revives, grant.rerolls } do
+			if amount and (amount <= 0 or amount ~= math.floor(amount)) then
+				problem(`Store: product {product.key} must give whole, positive amounts`)
+			end
+		end
+	end
+	local seenGames: { [number]: boolean } = {}
+	for _, experience in store.experiences do
+		if seenGames[experience.gameId] then
+			problem(`Store: gameId {experience.gameId} has two entries`)
+		end
+		seenGames[experience.gameId] = true
+		local seenIds: { [number]: string } = {}
+		for key, list in storeKeys do
+			local id = (experience :: any)[list][key]
+			if id == nil then
+				problem(`Store: {experience.name} has no {list} id for {key} (0 = not set)`)
+			elseif id ~= math.floor(id) or id < 0 then
+				problem(`Store: {experience.name} {key} id must be a whole number (0 = not set)`)
+			elseif id ~= 0 then
+				if seenIds[id] then
+					problem(`Store: {experience.name} uses id {id} for {seenIds[id]} and {key}`)
+				end
+				seenIds[id] = key
+			end
+		end
+		for _, list in { "passes", "products" } do
+			for key in (experience :: any)[list] do
+				if storeKeys[key] ~= list then
+					problem(`Store: {experience.name} has an id for unknown {list} key {key}`)
+				end
+			end
+		end
+	end
+	if store.receiptMemory < 1 or store.receiptWaitSeconds <= 0 or store.passCheckAttempts < 1 then
+		problem("Store: receiptMemory, receiptWaitSeconds and passCheckAttempts must be positive")
+	end
 	return problems
 end
 

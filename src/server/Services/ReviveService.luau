@@ -4,7 +4,8 @@
 -- reviveSeconds stands them up with reviveHpFraction of their HP (CombatService) and a short protection; after
 -- downTimerSeconds without that they are out for the rest of the wave and stand up when it ends (like Brotato's
 -- co-op). Nobody alive ends the run (RunFlow). Sends ReviveState to every client on change (ReviveController).
--- Fires Revived for the saved record (RunStatsService, Paket 13).
+-- Fires Revived for the saved record (RunStatsService, Paket 13). Since Paket 16 a bought revive stands a player up
+-- right away (standUp, MonetizationService).
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -151,6 +152,32 @@ local function step(dt: number)
 	if changed and next(outcomes) == nil then
 		send()
 	end
+end
+
+-- Paket 16: whether `player` is down or out in a running wave while a teammate still stands (a bought revive works).
+function ReviveService.canStandUp(player: Player): boolean
+	if RunDirector.getPhase() ~= "Running" or not (downed[player] or out[player]) then
+		return false
+	end
+	for _, other in RunDirector.getParticipants() do
+		if other ~= player and RunDirector.getParticipantState(other) == "Alive" then
+			return true
+		end
+	end
+	return false
+end
+
+-- Paket 16: stands a down or out player up right away, like a teammate's revive (HP, protection). False if not
+-- possible (canStandUp).
+function ReviveService.standUp(player: Player): boolean
+	if not ReviveService.canStandUp(player) then
+		return false
+	end
+	local ok = RunDirector.setParticipantState(player, "Alive")
+	if ok then
+		CombatService.protect(player, Coop.reviveProtectionSeconds)
+	end
+	return ok
 end
 
 -- Seconds left and revive progress (0-1) of a downed player, nil if they are not down (tests, admin).

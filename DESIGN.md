@@ -644,7 +644,7 @@ Ein Gegner-Typ ist im Snapshot ein Byte; Elites senden Typ + 128, so kennt der C
   Seit Paket 9: Die Truhe liegt, wo die Elite starb (goldene Kiste mit Lichtsäule, Pfeil am Bildschirmrand, wenn sie außer Sicht ist), und öffnet sich, sobald ein lebender Spieler auf 3,5 Studs heran ist. Jeder lebende Spieler im Umkreis bekommt: eine Evolution, wenn er eine nehmen darf; sonst (seit B2) ein Item, mindestens Uncommon, Stufe nach Welle und Luck gewürfelt wie im Shop (Banner „CHEST – Might x2 – -10 Max HP, +5% Damage"); gibt es keins mehr, volle Heilung. Bis B1: +1 Level einer Waffe oder eines Passivs. Dazu heilt die Truhe jeden Belohnten um 50 % seiner max. HP (neu, Annahme: ohne Heilung bringt jeder Spitter-Treffer bleibenden Schaden). Die eigene Belohnung erscheint groß in der Bildschirmmitte („CHEST – Starfire – Spark Bolt evolved!"). Truhen verschwinden am Run-Ende.
 - **Down & Wiederbeleben (Paket 11):** bei 0 HP „down" (30-s-Timer); ein lebender Teammate steht 3 s im Kreis von 6 Studs um ihn → Wiederbelebung mit 40 % HP und 2 s Schutz. Während jemand wiederbelebt, steht der Timer; geht er weg, läuft der Balken in 3 s wieder leer. Timer abgelaufen → „out" bis zum Wellenende (Kamera folgt einem lebenden Teammate), danach steht er wie die Gestürzten mit der Wellenend-Heilung wieder auf (wie Brotatos Koop; vorher: Zuschauer bis Run-Ende). Alle Werte in `Config.Run.coop`, Annahmen im Test prüfen.
 - **Run-Ende:** alle gleichzeitig down = Run vorbei.
-- **Revive-Token (Kauf):** höchstens 1 pro Spieler und Run.
+- **Revive-Token (Kauf):** höchstens 1 pro Spieler und Run (seit Paket 16, Abschnitt 12; nur mit einem stehenden Mitspieler).
 - **Ein-/Aussteigen:** kein Beitritt in laufende Runs (v1); wer geht, fällt raus, Spawn-Director rechnet ab nächstem Tick neu.
 - **Solo:** jederzeit, Spielerfaktor 1. **Kein Friendly Fire, kein PvP.**
 
@@ -888,6 +888,17 @@ Bewusst nicht: harte Countdown-Angebote oder Serien, die bei einem verpassten Ta
 | Private Server | Roblox-Funktion | z. B. 100/Monat | eigener Server | Soft Launch |
 | Abo „Keeper+" | Robux-Abo | offen | tägliche Embers + monatlicher Skin | später |
 
+**Umgesetzt (Paket 16, 31.10.2026):** VIP, Double Embers, Revive, Reroll ×3 (`3 Rerolls`), die drei Ember-Pakete und der Server Ember Boost; Klassen-Pass, Lantern Pass, Kosmetik-Shop und Abo bleiben Live-Ops. Katalog und IDs in `Config/Store.luau` (pro Experience, ID 0 = noch nicht angelegt → im Store „not set up yet", nicht kaufbar), Zahlen in `Config/Economy.luau`, Regeln in `Util/PurchaseRules`, Server `MonetizationService`, Client `StoreController`.
+
+- **Wo man kauft:** Lobby-Knopf „STORE" (Passes, 3 Rerolls, Ember-Pakete, Boost; Preis, „OWNED", gespeicherte Revives/Rerolls), im Shop der Knopf neben „Reroll" („Bonus reroll (n)" oder „+3 rerolls · R$ 25"), beim Gestürzt-Sein im Koop „REVIVE NOW · R$ 49" bzw. „USE REVIVE (1)". Nie während man kämpft. Den Kaufdialog zeigt Roblox; der Client schickt nur den Wunsch (`RequestPurchase`), der Server prüft (eingerichtet, Pass nicht schon da, Revive nur liegend, 1× pro Run, mit einem stehenden Mitspieler) und öffnet den Dialog.
+- **VIP:** Schild „VIP" über dem Kopf, „[VIP]" vor Chat-Nachrichten, goldene Spur, +1 Gratis-Neuwurf im Shop pro Run, +10 % Embers. Die exklusive Laterne kommt mit der Kosmetik (Paket 17).
+- **Double Embers:** +100 % auf die Embers jedes Runs.
+- **Revive:** eine Revive-Marke im Profil; liegt man gerade, steht man sofort auf (40 % HP und 2 s Schutz wie beim Wiederbeleben), sonst beim nächsten Mal per Knopf. Höchstens 1 pro Run, nur wenn noch ein Mitspieler steht (solo endet der Run beim Sturz).
+- **3 Rerolls:** drei gespeicherte Gratis-Neuwürfe für den Shop (erst der VIP-Neuwurf, dann die Marken); sie erhöhen den Neuwurf-Preis nicht.
+- **Server Ember Boost:** +50 % Embers für 30 Minuten für alle im Server und alle, die in der Zeit beitreten; Einblendung mit Käufer-Namen, Zeile in der Lobby. Wird im Profil jedes Spielers gespeichert und gilt deshalb auch auf dem Run-Place; ein weiterer Kauf verlängert.
+- **Ember-Boni** addieren sich (alle drei = +160 %) und zählen auf die Run-Embers nach Gefahrenstufe und Party-Bonus, als eigene Zeilen auf dem Ergebnis-Bildschirm; Erfolge und gekaufte Embers bekommen keinen Bonus.
+- **Sicherheit:** `ProcessReceipt` bucht eine PurchaseId genau einmal (Abschnitt 16). Game Passes prüft der Server beim Beitritt (3 Versuche; scheitert Roblox, gilt der gespeicherte Stand) und zählt im Spiel gekaufte sofort. Keine Zufallskäufe, deshalb keine Odds-Anzeige und kein `PolicyService`-Sonderfall.
+
 **Regeln:** keine Lootboxen in v1; spätere Kisten mit Odds in % vor dem Kauf (Summe 100 %) und Behandlung von `ArePaidRandomItemsRestricted`; Avatar-Einstellung „R15 only" (18+-Rate gilt für Passes, Products, Abos, Private Server); keine Belohnung fürs Anschauen von Video-Feeds; Kaufknöpfe nie dort, wo man im Kampf versehentlich tippt.
 
 ## 13. UX/UI & Onboarding
@@ -1092,35 +1103,39 @@ tests/               Unit-Tests für reine Module (Runner in tools/luau-test-run
 
 ## 16. Datenspeicherung & Sicherheit
 
-**Datenschema v3** (seit Paket 12; v1 → v2 ergänzt Siege, beste Welle, höchste gewonnene Gefahrenstufe und den Rekord pro Charakter; v2 → v3 (Paket 13) Champion-Kills, Wiederbelebungen, verdiente Embers gesamt und die erledigten Erfolge)
+**Datenschema v5** (seit Paket 12; v1 → v2 ergänzt Siege, beste Welle, höchste gewonnene Gefahrenstufe und den Rekord pro Charakter; v2 → v3 (Paket 13) Champion-Kills, Wiederbelebungen, verdiente Embers gesamt und die erledigten Erfolge; v3 → v4 (Paket 14) Einstellungen; v4 → v5 (Paket 16) Käufe)
 
 ```lua
 {
-  schemaVersion = 4, -- v4 (Paket 14): settings = { shake, damageNumbers, music, effects }
+  schemaVersion = 5, -- v4 (Paket 14): settings = { shake, damageNumbers, music, effects }; v5 (Paket 16) siehe unten
   embers = 0,
   talents = { toughness = 0, power = 0, reach = 0, greed = 0, rescuer = 0, rerolls = 0 }, -- ungenutzt seit dem Brotato-Plan, bleibt bis zu einer Migration
   classes = { "BladeWarden", "SparkMage" },
   difficultyUnlocked = "Normal",
   cosmetics = { owned = {}, equipped = {} },
   stats = { runs = 0, kills = 0, bossKills = 0, bestTime = 0, wins = 0, bestWave = 0, bestDanger = -1,
-            championKills = 0, revives = 0, embersEarned = 0 }, -- die letzten drei seit v3
+            championKills = 0, revives = 0, embersEarned = 0, -- seit v3
+            embersBought = 0, purchases = 0 }, -- seit v5: gekaufte Embers (nicht in embersEarned), gebuchte Produkte
   achievements = {}, -- seit v3: [Erfolg-Id] = true
   characterStats = {}, -- [Charakter-Id] = { runs, wins, bestWave, bestDanger }; Grundlage für Paket 13
   quests = { day = "", list = {} },
   streak = { lastLogin = 0, count = 0 },
   pass = { season = 1, xp = 0, premium = false, claimed = {} },
-  receipts = {}, -- bereits verarbeitete PurchaseIds
+  receipts = {}, -- bereits verarbeitete PurchaseIds; seit v5 eine Liste (älteste zuerst, höchstens 100)
+  tokens = { revives = 0, rerolls = 0 }, -- v5: gekaufte, noch nicht benutzte Revives und Shop-Neuwürfe
+  passCache = {}, -- v5: [Pass] = true/false beim letzten Check (gilt, wenn Roblox nicht antwortet)
+  boost = { untilTime = 0, by = "" }, -- v5: Ember Boost bis os.time(), gestartet von (Name)
 }
 ```
 
 - ProfileStore mit Session-Locking; laden beim Join, speichern beim Verlassen, nach Käufen, Autosave.
 - **Umgesetzt (Paket 12):** ProfileStore von loleris (vendored in `src/server/Vendor/ProfileStore`), DataStore „PlayerData", Schlüssel `Player_<UserId>`, Autosave alle 300 s, zusätzlich nach jedem Run; Speichern beim Verlassen und beim Herunterfahren. Jeder fertige Run (nicht abgebrochen) zählt in `stats` und `characterStats`. Kann ein Profil nicht geladen werden oder übernimmt es ein anderer Server, wird der Spieler mit Hinweis gekickt. In Studio ohne API-Zugriff speichert ProfileStore nur zum Schein; die Lobby zeigt das an („YOUR SAVED RECORD", roter Hinweis). Debug-Knöpfe „Print my saved data", „Reset my saved data" (nur in der Lobby).
 - Schema-Änderung = `schemaVersion` +1 + Migrationsfunktion; nie Felder ohne Migration löschen.
-- `ProcessReceipt` speichert die PurchaseId im Profil und meldet erst danach „granted".
+- `ProcessReceipt` speichert die PurchaseId im Profil und meldet erst danach „granted". **Umgesetzt (Paket 16)** nach ProfileStores Muster: Spieler nicht im Server oder Produkt unbekannt → „NotProcessedYet" (Roblox fragt später wieder, auch in anderen Servern); sonst bis 30 s auf das Profil warten, eine unbekannte PurchaseId zusammen mit dem Inhalt ins Profil schreiben, speichern und erst „PurchaseGranted" melden, wenn ein Speicherstand die PurchaseId enthält (sonst „NotProcessedYet"; der Inhalt kommt beim nächsten Versuch nicht doppelt).
 - Game Passes beim Join prüfen und cachen, Käufe in der Sitzung sofort freischalten.
 - Entwicklung in einer separaten Test-Experience.
 
-**Sicherheit:** Client schickt nur Absichten (Bewegung, Dash, Level-up-Wahl, Kaufwunsch). Server berechnet Schaden, Kills, XP, Drops, Embers, Truhen, Ranglistenwerte. Jede Remote mit Rate-Limit und Validierung (nur angebotene Karten-IDs, Dash nur nach Cooldown). Bewegungs-Plausibilitätscheck. Admin-Befehle nur für die UserId des Owners, serverseitig geprüft: Admin ist, wer in Studio testet, der Besitzer einer Experience im eigenen Account (`game.CreatorId`) und wer in `Config/Admin.luau` steht. Test-Befehle seit Paket 2: Timer +1 Minute, zu 11:50 springen, sich selbst umhauen/aufstehen, Run gewinnen. Seit Paket 3: 40 Gegner um sich spawnen (Obergrenze gilt), Gegner in 20 Studs Umkreis treffen (5 Schaden), alle Gegner töten, Spawnen pausieren/fortsetzen. Seit Paket 4: sich selbst 25 Schaden geben (Rüstung und Schutz gelten), sich voll heilen; dazu eine Messanzeige unten links (Gegnerzahl, Spawnrate, Serverzeit pro Schritt, Gegnerdaten in KB/s, FPS; rot, wenn ein Budget überschritten ist). Seit Paket 5: nächste fehlende Waffe hinzufügen, nur die nächste Waffe behalten (zum Ausprobieren einzeln), alle Waffen +1 Level, alle Waffen aus/an (gilt bis zum nächsten Run); das Debug-Menü hat dafür zwei Spalten. Seit Paket 8: Waffen entwickeln („Evolve weapons"). Seit Paket 9: eine Elite in der Nähe spawnen („Spawn an elite", ihre Truhe lässt sich so testen); die Messanzeige zeigt auch die Gegner-Geschosse in der Luft. Seit B1: „End this wave" (statt „+1 minute", springt ans Wellenende und öffnet den Shop), „Stop/run wave timer" (die Welle endet nicht, bis man wieder drückt; gilt auch für die nächsten Runs), „+100 Shards". Shop-Remotes: `BuyShopOffer` (nur vom Server angebotene IDs, Preis und Plätze prüft der Server), `RerollShop`, `SetShopReady` (nur in der Shop-Phase). Seit B3: `LockShopOffer` (Angebots-ID, an/aus), `SellWeapon` und `MergeWeapons` (Waffen-`uid` als Ganzzahl; der Server prüft, dass der Spieler sie trägt, eine Partnerin gleicher Stufe da ist und es nicht die letzte Waffe ist), alle nur in der Shop-Phase; Debug-Knopf „Weapons +1 tier" statt „+1 Level". Seit Paket 15: `InviteToParty`/`KickFromParty` (UserId eines Spielers im Server), `AnswerInvite` (UserId des Einladenden, nur mit offener Einladung), `LeaveParty`, `PlayFromHub` („Solo", „Party", „QuickJoin", „Cancel"; nur auf dem Hub, Party-Start und Quick Join nur der Anführer, nicht während eines Teleports), `ReturnToHub` (nur auf dem Run-Place, nicht im eigenen Run); Teleport-Tickets werden auf dem Run-Place wie Eingaben geprüft.
+**Sicherheit:** Client schickt nur Absichten (Bewegung, Dash, Level-up-Wahl, Kaufwunsch). Server berechnet Schaden, Kills, XP, Drops, Embers, Truhen, Ranglistenwerte. Jede Remote mit Rate-Limit und Validierung (nur angebotene Karten-IDs, Dash nur nach Cooldown). Bewegungs-Plausibilitätscheck. Admin-Befehle nur für die UserId des Owners, serverseitig geprüft: Admin ist, wer in Studio testet, der Besitzer einer Experience im eigenen Account (`game.CreatorId`) und wer in `Config/Admin.luau` steht. Test-Befehle seit Paket 2: Timer +1 Minute, zu 11:50 springen, sich selbst umhauen/aufstehen, Run gewinnen. Seit Paket 3: 40 Gegner um sich spawnen (Obergrenze gilt), Gegner in 20 Studs Umkreis treffen (5 Schaden), alle Gegner töten, Spawnen pausieren/fortsetzen. Seit Paket 4: sich selbst 25 Schaden geben (Rüstung und Schutz gelten), sich voll heilen; dazu eine Messanzeige unten links (Gegnerzahl, Spawnrate, Serverzeit pro Schritt, Gegnerdaten in KB/s, FPS; rot, wenn ein Budget überschritten ist). Seit Paket 5: nächste fehlende Waffe hinzufügen, nur die nächste Waffe behalten (zum Ausprobieren einzeln), alle Waffen +1 Level, alle Waffen aus/an (gilt bis zum nächsten Run); das Debug-Menü hat dafür zwei Spalten. Seit Paket 8: Waffen entwickeln („Evolve weapons"). Seit Paket 9: eine Elite in der Nähe spawnen („Spawn an elite", ihre Truhe lässt sich so testen); die Messanzeige zeigt auch die Gegner-Geschosse in der Luft. Seit B1: „End this wave" (statt „+1 minute", springt ans Wellenende und öffnet den Shop), „Stop/run wave timer" (die Welle endet nicht, bis man wieder drückt; gilt auch für die nächsten Runs), „+100 Shards". Shop-Remotes: `BuyShopOffer` (nur vom Server angebotene IDs, Preis und Plätze prüft der Server), `RerollShop`, `SetShopReady` (nur in der Shop-Phase). Seit B3: `LockShopOffer` (Angebots-ID, an/aus), `SellWeapon` und `MergeWeapons` (Waffen-`uid` als Ganzzahl; der Server prüft, dass der Spieler sie trägt, eine Partnerin gleicher Stufe da ist und es nicht die letzte Waffe ist), alle nur in der Shop-Phase; Debug-Knopf „Weapons +1 tier" statt „+1 Level". Seit Paket 15: `InviteToParty`/`KickFromParty` (UserId eines Spielers im Server), `AnswerInvite` (UserId des Einladenden, nur mit offener Einladung), `LeaveParty`, `PlayFromHub` („Solo", „Party", „QuickJoin", „Cancel"; nur auf dem Hub, Party-Start und Quick Join nur der Anführer, nicht während eines Teleports), `ReturnToHub` (nur auf dem Run-Place, nicht im eigenen Run); Teleport-Tickets werden auf dem Run-Place wie Eingaben geprüft. Seit Paket 16: `RequestPurchase` (Schlüssel aus `Config/Store`, nur Wunsch: der Server prüft und zeigt Roblox' Kaufdialog; gutgeschrieben wird nur in `ProcessReceipt`), `UseBonusReroll` (nur im offenen Shop, VIP-Neuwurf oder Marke); Debug-Knöpfe „Fake purchase: next product" (nächstes Produkt über denselben Buchungsweg) und „Fake passes on/off" (nur diese Sitzung, nichts gespeichert).
 
 ## 17. Compliance & Plattform-Regeln
 
@@ -1231,7 +1246,7 @@ Bis zum Soft Launch rund 40–50 Sessions und 50–60 Stunden Zeit des Owners (6
 | 13 | Fortschritt: Embers, Erfolge schalten Charaktere, Waffen und Items frei, Gefahrenstufe pro Charakter (statt Talente und Normal/Hard/Nightmare; umgesetzt 31.10.2026, Branch `wp-13-progress`: 22 Erfolge, Schema v3) | Vertical Slice | Medium | 1–2 | 1 h | Freischaltungen abnicken |
 | 14 | HUD, Run-Ende, mobiles Layout, Tooltips (Skalierung, Set-Bonus, Elite-Vorschau) (umgesetzt 31.10.2026, Branch `wp-14-hud`: Tooltips, Wellen-Vorschau, Einstellungsmenü, Schema v4) | Vertical Slice | Medium | 2–3 | 2 h | Handy-Screenshots |
 | 15 | Hub-Lobby, Teleport, Party, Quick Join (umgesetzt 31.10.2026, Branch `wp-15-hub-teleport`: Hub- und Run-Place mit gleichem Code, Partys, Quick Join im Hub-Server, Portale, Back to hub; in Studio Runs im Hub-Server) | MVP | Extra high | 2–3 | 2 h | zweiten Place anlegen, Place-IDs liefern, Party-Teleport testen |
-| 16 | Käufe: Passes, Products, ProcessReceipt | MVP | Extra high | 1–2 | 1 h | Produkte im Creator Hub anlegen, IDs liefern, Testkäufe |
+| 16 | Käufe: Passes, Products, ProcessReceipt (umgesetzt 31.10.2026, Branch `wp-16-purchases`) | MVP | Extra high | 1–2 | 1 h | Produkte im Creator Hub anlegen, IDs liefern, Testkäufe |
 | 17 | Ember-Shop-, Freischaltungs- und Pass-UI | MVP | Medium | 2 | 1 h | Look abnicken |
 | 18 | Quests, Login-Serie, Ranglisten, Badges | MVP | Medium | 2 | 1 h | Badges im Creator Hub anlegen |
 | 19 | Erster Start (FTUE) | MVP | Medium | 1 | 1 h | neue Tester beobachten |

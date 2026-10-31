@@ -5,7 +5,8 @@
 -- checks), RunStatsService (records finished runs, resends the lobby record on sync) and AdminService (debug buttons).
 -- Since Paket 13 also Embers, achievements and unlocks (Util/ProgressRules): what is locked for a player
 -- (ShopService, UpgradeService) and the danger levels open per character (RunDirector). Since Paket 14 it keeps the
--- settings from the settings menu (remote SaveSettings).
+-- settings from the settings menu (remote SaveSettings). Since Paket 16 it grants developer products exactly once
+-- (processPurchase, for MonetizationService's ProcessReceipt).
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -14,6 +15,7 @@ local Shared = ReplicatedStorage.Shared
 local Config = require(Shared.Config)
 local Net = require(Shared.Net)
 local ProgressRules = require(Shared.Util.ProgressRules)
+local PurchaseRules = require(Shared.Util.PurchaseRules)
 local Signal = require(Shared.Util.Signal)
 local Types = require(Shared.Net.Types)
 
@@ -260,6 +262,55 @@ function PlayerDataService.recordRun(player: Player, run: ProfileRecords.RunReco
 	end
 	PlayerDataService.Changed:Fire(player)
 	return true, rewards
+end
+
+-- Paket 16: "Granted" once the purchase is in the saved data (tell Roblox PurchaseGranted), "Retry" if that is not
+-- certain yet (NotProcessedYet: Roblox asks again later, also in another server).
+export type PurchaseResult = "Granted" | "Retry"
+
+-- Paket 16: grants a developer product exactly once (DESIGN.md section 16, ProfileStore's receipt pattern). Waits up
+-- to Config.Store.receiptWaitSeconds for the player's data to load. A PurchaseId the data does not know yet runs
+-- `apply(data)` (must not yield) and is remembered with it; then the purchase counts as granted only once a save holds
+-- the PurchaseId. Yields. Returns the result and whether `apply` ran now (false for a repeated receipt).
+function PlayerDataService.processPurchase(
+	player: Player,
+	purchaseId: string,
+	apply: (data: ProfileTemplate.Data) -> ()
+): (PurchaseResult, boolean)
+	local deadline = os.clock() + Config.Store.receiptWaitSeconds
+	while not profiles[player] and present(player) and os.clock() < deadline do
+		task.wait(0.1)
+	end
+	local profile = profiles[player]
+	if not (profile and profile:IsActive()) then
+		return "Retry", false
+	end
+	local applied = false
+	if not PurchaseRules.knows(profile.Data.receipts, purchaseId) then
+		apply(profile.Data)
+		PurchaseRules.remember(profile.Data.receipts, purchaseId, Config.Store.receiptMemory)
+		applied = true
+		sendInfo(player)
+	end
+	local function saved(): boolean
+		local last = profile.LastSavedData
+		return type(last) == "table"
+			and type(last.receipts) == "table"
+			and PurchaseRules.knows(last.receipts, purchaseId)
+	end
+	if saved() then
+		return "Granted", applied
+	end
+	local done = false
+	local connection = profile.OnAfterSave:Connect(function()
+		done = done or saved()
+	end)
+	profile:Save()
+	while not done and profile:IsActive() and os.clock() < deadline do
+		task.wait(0.1)
+	end
+	connection:Disconnect()
+	return if done or saved() then "Granted" else "Retry", applied
 end
 
 -- B11 part 2: `hook(player)` runs right before a leaving player's data is saved for the last time (RunStatsService

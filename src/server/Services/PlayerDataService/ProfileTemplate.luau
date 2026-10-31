@@ -1,5 +1,5 @@
 --!strict
--- Default player data, schema v4 (DESIGN.md section 16). Used by PlayerDataService (ProfileStore template) and
+-- Default player data, schema v5 (DESIGN.md section 16). Used by PlayerDataService (ProfileStore template) and
 -- Migrations. Schema change = SCHEMA_VERSION + 1 and a step in Migrations; never drop a field without a step.
 
 -- One character's record (Paket 12; since Paket 13 it opens the danger levels per character, Util/ProgressRules).
@@ -28,21 +28,26 @@ export type Data = {
 		championKills: number, -- v3: champions killed by the team in the player's runs
 		revives: number, -- v3: teammates this player revived
 		embersEarned: number, -- v3: every Ember ever earned (runs and achievements)
+		embersBought: number, -- v5: Embers from Robux packs (not in embersEarned)
+		purchases: number, -- v5: developer products granted
 	},
 	achievements: { [string]: boolean }, -- v3: Config.Progress achievement ids that are done
 	characterStats: { [string]: CharacterStats }, -- v2, by Config.Classes id
 	quests: { day: string, list: { any } },
 	streak: { lastLogin: number, count: number },
 	pass: { season: number, xp: number, premium: boolean, claimed: { [string]: boolean } },
-	receipts: { [string]: boolean }, -- PurchaseIds that were already granted
+	receipts: { string }, -- PurchaseIds already granted, oldest first (v5: a list, was an unused map before)
 	settings: { shake: boolean, damageNumbers: boolean, music: number, effects: number }, -- v4 (Config.Settings)
+	tokens: { revives: number, rerolls: number }, -- v5: bought revives and shop rerolls not used yet
+	passCache: { [string]: boolean }, -- v5: game passes owned when last checked (used when the check fails)
+	boost: { untilTime: number, by: string }, -- v5: Ember Boost until this os.time(), started by this player name
 }
 
 local Config = require(game:GetService("ReplicatedStorage").Shared.Config)
 
 local ProfileTemplate = {}
 
-ProfileTemplate.SCHEMA_VERSION = 4
+ProfileTemplate.SCHEMA_VERSION = 5
 
 -- Default settings (Config.Settings.defaults) as a new table (v4).
 function ProfileTemplate.newSettings(): { shake: boolean, damageNumbers: boolean, music: number, effects: number }
@@ -75,6 +80,8 @@ function ProfileTemplate.new(): Data
 			championKills = 0,
 			revives = 0,
 			embersEarned = 0,
+			embersBought = 0,
+			purchases = 0,
 		},
 		achievements = {},
 		characterStats = {},
@@ -83,6 +90,9 @@ function ProfileTemplate.new(): Data
 		pass = { season = 1, xp = 0, premium = false, claimed = {} },
 		receipts = {},
 		settings = ProfileTemplate.newSettings(),
+		tokens = { revives = 0, rerolls = 0 },
+		passCache = {},
+		boost = { untilTime = 0, by = "" },
 	}
 end
 

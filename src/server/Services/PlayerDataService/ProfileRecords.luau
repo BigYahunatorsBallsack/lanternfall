@@ -20,6 +20,7 @@ export type RunRecord = {
 	champions: number?, -- Paket 13: champions the team killed
 	revives: number?, -- Paket 13: teammates this player revived
 	players: number?, -- Paket 13: players in the run (party bonus)
+	bonuses: { { label: string, share: number } }?, -- Paket 16: Ember bonuses of passes and the Ember Boost
 }
 
 local ProfileRecords = {}
@@ -76,6 +77,7 @@ function ProfileRecords.applyRun(data: ProfileTemplate.Data, run: RunRecord): Ty
 		bosses = run.bossKills,
 		danger = run.danger,
 		players = run.players or 1,
+		bonuses = run.bonuses,
 	})
 	data.embers += embers
 	stats.embersEarned += embers

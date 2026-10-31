@@ -23,6 +23,7 @@ export type RunEmbers = {
 	bosses: number, -- bosses the team killed
 	danger: number,
 	players: number, -- players in the run
+	bonuses: { { label: string, share: number } }?, -- Paket 16: passes and Ember Boost (Util/PurchaseRules)
 }
 
 export type EmberLine = { label: string, amount: number }
@@ -142,7 +143,8 @@ function ProgressRules.maxDanger(record: Record, classId: string?): number
 	return math.clamp(math.max(Progress.startDanger, won + 1), 0, #Config.Difficulty.levels - 1)
 end
 
--- Embers of a finished run as lines for the results screen and their total.
+-- Embers of a finished run as lines for the results screen and their total. Since Paket 16 with the bonuses of
+-- passes and the Ember Boost (run.bonuses) as the last lines.
 function ProgressRules.runEmbers(run: RunEmbers): (number, { EmberLine })
 	local base = Config.Economy.embers
 	local minutes = math.floor(math.max(0, run.seconds) / 60)
@@ -168,6 +170,15 @@ function ProgressRules.runEmbers(run: RunEmbers): (number, { EmberLine })
 		if party > 0 then
 			table.insert(lines, { label = "Party bonus", amount = party })
 			total += party
+		end
+	end
+	-- Paket 16: purchase bonuses add up, each counted from the Embers before them (not from each other)
+	local before = total
+	for _, bonus in run.bonuses or {} do
+		local amount = math.floor(before * bonus.share)
+		if amount > 0 then
+			table.insert(lines, { label = `{bonus.label} (+{math.round(bonus.share * 100)}%)`, amount = amount })
+			total += amount
 		end
 	end
 	return total, lines

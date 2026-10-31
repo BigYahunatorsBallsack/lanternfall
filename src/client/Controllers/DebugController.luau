@@ -57,6 +57,8 @@ local BUTTON_TEXT: { [string]: string } = {
 	PrintProfile = "Print my saved data",
 	ResetProfile = "Reset my saved data",
 	UnlockAll = "Unlock everything",
+	FakePurchase = "Fake purchase: next product",
+	ToggleFakePasses = "Fake passes on/off",
 }
 
 local BUTTON_SIZE = Vector2.new(150, 30)
