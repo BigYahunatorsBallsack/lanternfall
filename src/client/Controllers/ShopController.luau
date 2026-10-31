@@ -7,7 +7,8 @@
 -- sell or merge it), a reroll with its price (or free) and READY. The panel scales to fit the screen; on small screens
 -- (phones) it gets a compact layout and the stat panel moves behind a STATS button. Everything comes from the
 -- server's ShopState (ShopService); sends BuyShopOffer, LockShopOffer, RerollShop, SellWeapon, MergeWeapons and
--- SetShopReady. The stats sit next to it (StatsController).
+-- SetShopReady. The stats sit next to it (StatsController). Since Paket 14 each weapon field has a tooltip with the
+-- weapon's real damage, scaling and stats (UI/Tooltip; LoadoutController has the effective stats).
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
@@ -21,9 +22,12 @@ local Types = require(Shared:WaitForChild("Net"):WaitForChild("Types"))
 local UpgradeText = require(Shared:WaitForChild("Util"):WaitForChild("UpgradeText"))
 
 local LevelUpController = require(script.Parent.LevelUpController)
+local LoadoutController = require(script.Parent.LoadoutController)
 local RunStateController = require(script.Parent.RunStateController)
 local StatsController = require(script.Parent.StatsController)
 local Theme = require(script.Parent.Parent.UI.Theme)
+local Tooltip = require(script.Parent.Parent.UI.Tooltip)
+local TooltipText = require(Shared:WaitForChild("Util"):WaitForChild("TooltipText"))
 local Widgets = require(script.Parent.Parent.UI.Widgets)
 
 local CARD_WIDTH = 180
@@ -493,6 +497,16 @@ local function buildChip(index: number): ChipView
 		LayoutOrder = 2,
 		Parent = button,
 	})
+	Tooltip.attach(button, function()
+		local weapon = shop and shop.weapons[index]
+		local loadout = LoadoutController.getLocal()
+		for _, info in if weapon and loadout then loadout.weapons else {} do
+			if weapon and info.uid == weapon.uid then
+				return TooltipText.weapon(info)
+			end
+		end
+		return nil, nil
+	end)
 	return { button = button, name = name, info = info, edge = edge }
 end
 

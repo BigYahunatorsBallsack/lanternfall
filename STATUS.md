@@ -21,6 +21,7 @@ Kurzer Projektstand für neue Sessions. **Zuerst lesen**, dann aus `DESIGN.md` n
 - **Paket 11 Wiederbeleben (Strang A, 30.10.2026):** PR `[Claude] Paket 11 Wiederbeleben` von Branch `wp-11-revive`, wartet auf Test und OK (`/mnt/project-files/lanternfall-wp11/TESTANLEITUNG.md`). Gestürzte zeigen Kreis, „DOWN 23 s" und Balken; Teammate 3 s im Kreis → steht mit 40 % HP auf, 2 s Schutz. Nach 30 s „out" bis Wellenende, Kamera folgt einem Teammate.
 
 - **Paket 13 Fortschritt (31.10.2026):** PR #33 von Branch `wp-13-progress`, nach OK des Owners gemerged; Owner bestätigt: 4 Start-Charaktere und Gefahrenstufe pro Charakter bleiben (`/mnt/project-files/lanternfall-wp13/TESTANLEITUNG.md`). Embers pro Run (Minuten, Champions, Bosse, Gefahrenstufe, Party), 22 Erfolge über alle Runs, die 6 Charaktere, 5 Waffen und 11 Items freischalten (gesperrt = nicht wählbar, nie im Shop, nie in Kisten), Gefahrenstufe pro Charakter (Lobby-Stufe = höchste, die jemand in der Lobby offen hat), Schema v3, Erfolge-Fenster in der Lobby, Embers auf dem Ergebnis-Bildschirm, Debug-Knopf „Unlock everything".
+- **Paket 14 HUD (31.10.2026):** Branch `wp-14-hud`, vom Owner zum Selbst-Mergen freigegeben (Testanleitung kommt gesammelt, wenn er fragt). Tooltips (Maus: drüberfahren, Handy: antippen, schließt nach 4 s) für Waffen im HUD und im Shop (echter Schaden neben Brotatos Schreibweise „Damage 32 | 18 (+100% Melee Damage)", Krit, Cooldown, Reichweite), Items (Stufe, Anzahl, Limit), Werte (was der Wert gerade bewirkt) und Waffenklassen (Bonus jeder Anzahl, aktiver fett); Werte-Liste mit Umschalter PRIMARY/SECONDARY; Klassen-Zeilen „Edge 2/6"; Shop-Badge „· max 3" bei Items mit Limit. Unter der Welle „Elite wave in 3"/„Horde wave next" (Remote `WavePlan`, Tooltip mit allen geplanten Wellen), Wellen-Banner nennt Elite-/Horden-Welle. Pfeile am Bildschirmrand zu Mitspielern außer Sicht (rot = gestürzt). Einstellungsmenü (Zahnrad oben rechts): Bildschirmwackeln, Schadenszahlen, Musik- und Effekt-Lautstärke (SoundGroups „Music"/„Effects" für Paket 21), gespeichert im Profil (Schema v4, Remote `SaveSettings`). Run-Ende: eigene Waffen mit Schaden und Kills, Embers zuerst, Mitte scrollt auf dem Handy. Handy: weniger Item-Zeilen im HUD (`Widgets.isCompact`).
 
 ## Plan bis zum Launch (Owner, 31.10.2026)
 
@@ -29,7 +30,7 @@ Claude baut **alle** restlichen Pakete außer B12 (macht ChatGPT). **Ein Paket p
 | Reihenfolge | Paket | Effort | Stand | Owner muss |
 | --- | --- | --- | --- | --- |
 | 1 | 13 Fortschritt: Embers, Erfolge, Freischaltungen, Gefahrenstufe pro Charakter | Medium | gemerged (PR #33) | – |
-| 2 | 14 HUD, Run-Ende, Handy-Layout, Tooltips (Skalierung, Set-Bonus, Elite-Vorschau), Einstellungsmenü | Medium | offen | Handy-Screenshots |
+| 2 | 14 HUD, Run-Ende, Handy-Layout, Tooltips (Skalierung, Set-Bonus, Elite-Vorschau), Einstellungsmenü | Medium | fertig (`wp-14-hud`) | Handy-Screenshots |
 | 3 | 15 Hub-Lobby, Teleport, Party, Quick Join (Lobby-Place + Run-Place) | Extra high | offen | zweiten Place im Creator Hub anlegen, Place-ID liefern, Party-Teleport testen |
 | 4 | 16 Käufe: Game Passes, Developer Products, `ProcessReceipt` (idempotent) | Extra high | offen | Produkte/Passes im Creator Hub anlegen, IDs liefern, Testkäufe |
 | 5 | 17 Ember-Shop (Charaktere früher freikaufen, Kosmetik), Freischaltungs- und Pass-UI | Medium | offen | Look abnicken |
@@ -50,7 +51,7 @@ Jeder Strang ändert nur **seine** Zeile (Regeln: `docs/PARALLEL.md`).
 
 | Strang | KI | Aktuelles Paket | Branch / PR | Stand | Danach |
 | --- | --- | --- | --- | --- | --- |
-| A – Engine und Ablauf | Claude | Paket 13 Fortschritt (Medium) | `wp-13-progress` | gemerged (PR #33) | Paket 14 HUD/Tooltips (Medium), dann weiter nach „Plan bis zum Launch" |
+| A – Engine und Ablauf | Claude | Paket 14 HUD/Tooltips (Medium) | `wp-14-hud` | fertig, selbst gemerged | Paket 15 Hub-Lobby, Teleport, Party (Extra high), dann weiter nach „Plan bis zum Launch" |
 | B – Inhalte und Spieler-Regeln | ChatGPT | B12 Bauten + Begleiter (High) | `wp-b12-structures` | umgesetzt und automatisiert geprüft; Merge vom Owner autorisiert, Studio-Test offen | nächstes Paket nach Owner-Zuteilung |
 
 ## Feste Entscheidungen des Owners
@@ -112,6 +113,8 @@ Jeder Strang ändert nur **seine** Zeile (Regeln: `docs/PARALLEL.md`).
 
 - Fortschritt testen (Paket 13): Ende-zu-Ende in `tests/Progress.spec.luau` (gesperrte Charaktere, Lobby-Stufen-Grenze, Embers + Erfolge nach dem Run, Fenster, Debug-Knopf), Regeln in `tests/ProgressRules.spec.luau` (auch: Shop und Kisten bieten nie Gesperrtes an, Migration v2 → v3). **Specs, die gesperrte Charaktere oder Stufen > 0 über die Lobby wählen, rufen vorher `PlayerDataService.unlockAll(player)`** (siehe `CharactersB10.spec`, `Danger.spec`). `RunDirector.setOptions` (Tests/Admin) umgeht die Stufen-Grenze, bis wieder jemand die Remote benutzt.
 
+- HUD testen (Paket 14): Ende-zu-Ende in `tests/Hud14.spec.luau` (Einstellungen speichern, `WavePlan`, Tooltips, Werte-Seiten, Waffen auf dem Ergebnis-Bildschirm). `UI/Tooltip.open(objekt)` öffnet in Specs den Tooltip eines Objekts, `Tooltip.getShown()` liefert Titel und Text. Der Mock kennt jetzt `MouseEnter/MouseLeave/MouseMoved/InputBegan` und `SoundService`, aber keine `AbsoluteSize`/`WorldToScreenPoint` (Pfeile und Scroll-Höhe laufen dort nicht). `Champions.spec` war einmal zufällig rot (Zeile 248), danach 3× grün.
+
 ## Code-Landkarte
 
 - `src/shared/Config/*` – alle Zahlen (Run/Wellen, Shop, Items, Stats, Weapons, WeaponClasses, Combat, Evolutions, Enemies, Player …).
@@ -133,6 +136,8 @@ Jeder Strang ändert nur **seine** Zeile (Regeln: `docs/PARALLEL.md`).
 - Speichern (Paket 12): `Config/Save.luau` (Store-Name, Schlüssel, Kick-Texte), `PlayerDataService` (Sitzungen, Laden/Freigeben, `recordRun`, `getSaveMode`, `dump`, `reset`, Signal `Loaded`) mit `ProfileTemplate` (Schema v2), `Migrations` (Schritte pro Version), `ProfileRecords` (Run → Rekord, Lobby-Info, Dump), `MemoryStore` (Ersatz ohne DataStore). `RunStatsService` trägt jeden fertigen Run ein. Remote `ProfileInfo` (`Types.ProfileInfo`, `Types.SaveMode`). Client: `ProfileCard` (Lobby, unter der Spielerliste).
 
 - Fortschritt (Paket 13): `Config/Progress.luau` (Erfolge, Freischaltungen, Start-Stufe, Ember-Zuschläge), `Util/ProgressRules` (Fortschritt, gesperrt/offen, Stufe pro Charakter, Embers eines Runs; Server und Client). `PlayerDataService`: `ownsClass` mit Sperre, `isUnlocked`, `lockedSet`, `maxDanger`, `unlockAll`, Signal `Changed`; `recordRun` schickt `RunRewards` (`Types.RunRewards`) und eine Notify pro Erfolg. `ProfileRecords.applyRun` gibt die Belohnung zurück, `completeAchievements`; `ProfileInfo` hat `embers`, `achievements`, `progress`, `characterDanger`, `ownedClasses`. `RunStatsService` zählt Champions und Wiederbelebungen (`ReviveService.Revived`). `RunDirector`: `dangerCap`/`enforceDangerCap`. Shop: `ShopRules.Params.unavailable`, `ShopRules.chestItem(..., unavailable)`; `UpgradeService` nutzt `lockedSet` für Kisten. Client: `ProfileCard` (Embers, Knopf), `AchievementList` (Fenster), `CharacterChoice` (Sperre, „danger up to"), `DangerChoice` (dunkle Stufen), `ResultsController` (Zeile „Rewards").
+
+- HUD (Paket 14): `Config/Settings.luau` (Standardwerte, Speicher-Verzögerung, Tooltip, Handy-Grenze), `UI/Tooltip` (Tooltips für Maus und Touch), `Util/TooltipText` (Texte: Waffe, Item, Wert, Klasse, Wellenplan), `UpgradeText.weaponBase`. Client: `SettingsController` (Zahnrad, Menü, SoundGroups, `get()`; Camera- und DamageNumberController fragen ihn), `HUDController` (Tooltips, `WavePreview`, Mitspieler-Pfeile, `getWavePlan`), `StatsController.setPage`, `ResultsController` (Teil „Details" scrollt, „YOUR WEAPONS"). Server: `DangerService` schickt `WavePlan`, `RunStatsService`/`Tally` geben `RunSummaryPlayer.weapons`, `PlayerDataService` nimmt `SaveSettings` (Schema v4: `settings`).
 
 ## B7 – Übergabe (30.10.2026)
 

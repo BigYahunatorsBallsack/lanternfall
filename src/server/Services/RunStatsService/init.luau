@@ -50,6 +50,7 @@ local function loadoutsOf(participants: { Player }): { [number]: Tally.Loadout }
 			entry = {
 				id = weapon.id,
 				tier = weapon.tier,
+				evolution = weapon.evolution,
 				damage = if stats then stats.damage else 0,
 				kills = if stats then stats.kills else 0,
 			}

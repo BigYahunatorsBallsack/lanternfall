@@ -116,6 +116,7 @@ function ProfileRecords.info(data: ProfileTemplate.Data, saveMode: Types.SaveMod
 		progress = progress,
 		characterDanger = characterDanger,
 		ownedClasses = table.clone(data.classes),
+		settings = if type(data.settings) == "table" then table.clone(data.settings) else nil,
 	}
 end
 

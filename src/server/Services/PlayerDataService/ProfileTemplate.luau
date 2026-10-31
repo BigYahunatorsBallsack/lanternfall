@@ -1,5 +1,5 @@
 --!strict
--- Default player data, schema v3 (DESIGN.md section 16). Used by PlayerDataService (ProfileStore template) and
+-- Default player data, schema v4 (DESIGN.md section 16). Used by PlayerDataService (ProfileStore template) and
 -- Migrations. Schema change = SCHEMA_VERSION + 1 and a step in Migrations; never drop a field without a step.
 
 -- One character's record (Paket 12; since Paket 13 it opens the danger levels per character, Util/ProgressRules).
@@ -35,11 +35,25 @@ export type Data = {
 	streak: { lastLogin: number, count: number },
 	pass: { season: number, xp: number, premium: boolean, claimed: { [string]: boolean } },
 	receipts: { [string]: boolean }, -- PurchaseIds that were already granted
+	settings: { shake: boolean, damageNumbers: boolean, music: number, effects: number }, -- v4 (Config.Settings)
 }
+
+local Config = require(game:GetService("ReplicatedStorage").Shared.Config)
 
 local ProfileTemplate = {}
 
-ProfileTemplate.SCHEMA_VERSION = 3
+ProfileTemplate.SCHEMA_VERSION = 4
+
+-- Default settings (Config.Settings.defaults) as a new table (v4).
+function ProfileTemplate.newSettings(): { shake: boolean, damageNumbers: boolean, music: number, effects: number }
+	local defaults = Config.Settings.defaults
+	return {
+		shake = defaults.shake,
+		damageNumbers = defaults.damageNumbers,
+		music = defaults.music,
+		effects = defaults.effects,
+	}
+end
 
 -- Fresh default data; every call returns new tables.
 function ProfileTemplate.new(): Data
@@ -68,6 +82,7 @@ function ProfileTemplate.new(): Data
 		streak = { lastLogin = 0, count = 0 },
 		pass = { season = 1, xp = 0, premium = false, claimed = {} },
 		receipts = {},
+		settings = ProfileTemplate.newSettings(),
 	}
 end
 

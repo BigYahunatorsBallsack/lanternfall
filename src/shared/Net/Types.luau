@@ -261,6 +261,16 @@ export type RunSummaryPlayer = {
 	damageDealt: number, -- by the player's weapons
 	damageTaken: number,
 	downs: number,
+	weapons: { RunSummaryWeapon }?, -- Paket 14: by damage, most first
+}
+
+-- Paket 14: one weapon on the results screen; copies of a weapon share a line at their highest tier.
+export type RunSummaryWeapon = {
+	id: string,
+	tier: number,
+	evolution: string?,
+	damage: number,
+	kills: number,
 }
 
 -- Run statistics, sent to the participants right after the run ended.
@@ -380,6 +390,21 @@ export type ProfileInfo = {
 	progress: { [string]: number }?, -- achievement id -> current value (Util/ProgressRules.progress)
 	characterDanger: { [string]: number }?, -- class id -> highest danger level open for it
 	ownedClasses: { string }?, -- characters bought with Embers (unlocked without the achievement)
+	settings: Settings?, -- Paket 14
+}
+
+-- Paket 14: a player's settings (Config.Settings.defaults), saved in the profile.
+export type Settings = {
+	shake: boolean,
+	damageNumbers: boolean,
+	music: number, -- volume 0..1
+	effects: number, -- volume 0..1
+}
+
+-- Paket 14: an elite or horde wave planned for this run (DangerService -> HUD), remote WavePlan.
+export type WaveChallenge = {
+	wave: number,
+	kind: string, -- "Elite" or "Horde"
 }
 
 -- Paket 13: what a finished run paid one player (PlayerDataService -> ResultsController), remote RunRewards.

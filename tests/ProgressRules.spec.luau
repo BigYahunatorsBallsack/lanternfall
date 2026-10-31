@@ -116,7 +116,7 @@ describe("saved progress", function()
 		data.stats.championKills = nil
 		data.stats.revives = nil
 		data.stats.embersEarned = nil
-		expect(Migrations.run(data, ProfileTemplate.SCHEMA_VERSION)).toBe(2)
+		expect(Migrations.run(data, 3)).toBe(2)
 		expect(data.schemaVersion).toBe(3)
 		expect(data.stats.championKills).toBe(0)
 		expect(data.stats.revives).toBe(0)

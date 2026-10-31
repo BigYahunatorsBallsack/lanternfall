@@ -149,4 +149,12 @@ Remotes.ReviveState = { direction = "toClient" }
 Remotes.ProfileInfo = { direction = "toClient" }
 -- Paket 13: Net/Types.RunRewards, to each participant when a finished run is saved
 Remotes.RunRewards = { direction = "toClient" }
+-- Paket 14: the settings menu (shake, damage numbers, music and effects volume), saved in the profile
+Remotes.SaveSettings = {
+	direction = "toServer",
+	rateLimit = { count = 3, perSeconds = 5 }, -- the client sends once per burst of changes (Config.Settings)
+	args = { Validate.boolean(), Validate.boolean(), Validate.number(0, 1), Validate.number(0, 1) },
+}
+-- Paket 14: { Net/Types.WaveChallenge }, the planned elite and horde waves of the run so far, to the participants
+Remotes.WavePlan = { direction = "toClient" }
 return table.freeze(Remotes)
