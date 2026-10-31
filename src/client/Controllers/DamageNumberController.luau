@@ -4,7 +4,7 @@
 -- golden with a "!", burn ticks orange (B5). They rise and fade (Config.Feedback.damageNumbers); at most maxVisible at once (fewer on touch
 -- devices), the oldest makes room. BillboardGuis from a pool sit on one anchor part, so moving a number is one
 -- property. Active only while the local player is in a running run (RunStateController). The server decides
--- every hit; this only shows them.
+-- every hit; this only shows them. Since Paket 14 the settings menu can switch them off (SettingsController).
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
@@ -16,6 +16,7 @@ local Net = require(Shared:WaitForChild("Net"))
 local HitNumbers = require(Shared:WaitForChild("Net"):WaitForChild("HitNumbers"))
 
 local RunStateController = require(script.Parent.RunStateController)
+local SettingsController = require(script.Parent.SettingsController)
 
 local FOLDER_NAME = "LanternfallDamageNumbers"
 local HEIGHT = 3.2 -- studs above the floor where a number starts (the anchor sits on the floor)
@@ -123,7 +124,7 @@ local function show(hit: HitNumbers.Hit, now: number)
 end
 
 local function onPacket(packet: any)
-	if not (enabled and Settings.enabled and typeof(packet) == "buffer") then
+	if not (enabled and Settings.enabled and SettingsController.get().damageNumbers and typeof(packet) == "buffer") then
 		return
 	end
 	local now = os.clock()

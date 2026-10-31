@@ -366,6 +366,11 @@ local EVENTS = {
 	Died = true,
 	Changed = true,
 	AncestryChanged = true,
+	-- Paket 14: tooltips and the settings menu
+	MouseEnter = true,
+	MouseLeave = true,
+	MouseMoved = true,
+	InputBegan = true,
 }
 
 local function isA(className, target)
@@ -663,6 +668,7 @@ local Workspace = newInstance("Workspace", { Name = "Workspace" })
 local TweenService = newInstance("TweenService", { Name = "TweenService" })
 local ContextActionService = newInstance("ContextActionService", { Name = "ContextActionService" })
 local StarterGui = newInstance("StarterGui", { Name = "StarterGui" })
+local SoundService = newInstance("SoundService", { Name = "SoundService" }) -- Paket 14
 local UserInputService =
 	newInstance("UserInputService", { Name = "UserInputService", TouchEnabled = false, KeyboardEnabled = true })
 world.renderSteps = {}
@@ -703,6 +709,7 @@ __services.Workspace = Workspace
 __services.TweenService = TweenService
 __services.ContextActionService = ContextActionService
 __services.StarterGui = StarterGui
+__services.SoundService = SoundService
 __services.UserInputService = UserInputService
 game.CreatorType = EnumLib.CreatorType.User
 game.CreatorId = 0

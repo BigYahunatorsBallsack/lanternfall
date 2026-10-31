@@ -2,8 +2,8 @@
 -- Hit feedback (DESIGN.md section 14, since the fun package after WP9): damage numbers, death bursts and camera
 -- shake, plus when big crowds drop small enemy trims (since the Deadlock look package) and the embers of burning
 -- enemies (B5). Read by WeaponService
--- (which hits to send), DamageNumberController, EnemyRenderer, CameraController and FeedbackController. The switches
--- become player settings with the full HUD (WP14).
+-- (which hits to send), DamageNumberController, EnemyRenderer, CameraController and FeedbackController. Since Paket 14
+-- each player can also switch shaking and damage numbers off in the settings menu (Config.Settings).
 
 return table.freeze({
 	damageNumbers = table.freeze({

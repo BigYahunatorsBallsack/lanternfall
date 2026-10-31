@@ -86,15 +86,12 @@ local Run = {
 			wave({ group("Shadeling", 6, 2.4) }), -- wave 2: 2.50 enemies/s
 			wave({ group("Shadeling", 6, 2.3), group("Brute", 2, 4.6) }, { "Brute" }), -- wave 3: 3.26 enemies/s
 			wave({ group("Shadeling", 7, 2.6), group("Brute", 2.6, 5.2), group("Stalker", 2, 6) }, { "Stalker" }), -- wave 4: 3.79 enemies/s
-			wave(
-				{
-					group("Shadeling", 7, 2.7),
-					group("Brute", 2.6, 5.2),
-					group("Charger", 3, 5.8),
-					group("Stalker", 2, 6),
-				},
-				{ "Charger" }
-			), -- wave 5: 4.21 enemies/s
+			wave({
+				group("Shadeling", 7, 2.7),
+				group("Brute", 2.6, 5.2),
+				group("Charger", 3, 5.8),
+				group("Stalker", 2, 6),
+			}, { "Charger" }), -- wave 5: 4.21 enemies/s
 			wave({
 				group("Shadeling", 6, 2.4),
 				group("Brute", 2.6, 5.2),

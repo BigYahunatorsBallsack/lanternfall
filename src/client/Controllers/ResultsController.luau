@@ -2,8 +2,10 @@
 -- Results screen after a run: outcome, survived time, team, "Play again" (= SetReady) and the countdown
 -- back to the lobby, plus team level, kills and damage per player from RunSummary (RunStatsService). Shown to the
 -- participants in the Ended phase. Since Paket 13 also the Embers, achievements and unlocks of the run (RunRewards).
--- WP14 adds the final layout.
+-- Paket 14: the local player's weapons with their damage and kills (most damage first), and the team, weapons and
+-- rewards in a part that scrolls when it does not fit (phones, Widgets.isCompact).
 
+local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 
@@ -13,12 +15,16 @@ local Format = require(Shared:WaitForChild("Util"):WaitForChild("Format"))
 local Net = require(Shared:WaitForChild("Net"))
 local ProgressRules = require(Shared:WaitForChild("Util"):WaitForChild("ProgressRules"))
 local Types = require(Shared:WaitForChild("Net"):WaitForChild("Types"))
+local UpgradeText = require(Shared:WaitForChild("Util"):WaitForChild("UpgradeText"))
 
 local RunStateController = require(script.Parent.RunStateController)
 local Theme = require(script.Parent.Parent.UI.Theme)
 local Widgets = require(script.Parent.Parent.UI.Widgets)
 
 local BUTTON_COOLDOWN = 0.3 -- seconds; keeps taps below the server rate limit
+local DETAILS_MAX_HEIGHT = 330 -- reference pixels of the team, weapons and rewards part before it scrolls
+local DETAILS_MAX_HEIGHT_COMPACT = 150 -- on small screens
+local MAX_WEAPON_ROWS = 6
 
 local OUTCOME_TEXT: { [string]: { title: string, subtitle: string } } = {
 	Victory = { title = "VICTORY", subtitle = "The lanterns held until dawn" },
@@ -40,6 +46,11 @@ local lastPress = 0
 local summary: Types.RunSummary? = nil
 local rewards: Types.RunRewards? = nil -- Paket 13: Embers and achievements of the run that just ended
 local rewardsLabel: TextLabel
+local card: Frame
+local details: ScrollingFrame
+local detailsLayout: UIListLayout
+local weaponsTitle: TextLabel
+local weaponRows: Frame
 
 local function className(classId: string): string
 	local class = Config.Classes[classId]
@@ -55,6 +66,8 @@ local function compact(value: number): string
 	return tostring(value)
 end
 
+local fitDetails: () -> ()
+
 local function summaryOf(userId: number): Types.RunSummaryPlayer?
 	for _, entry in if summary then summary.players else {} do
 		if entry.userId == userId then
@@ -66,6 +79,41 @@ end
 
 local function footerText(): string
 	return `Back to the lobby in {math.ceil(RunStateController.getPhaseRemaining())}`
+end
+
+-- The local player's weapons: "Spark Bolt III · 12.3k damage · 140 kills".
+local function renderWeapons()
+	Widgets.clearRows(weaponRows)
+	local mine = summaryOf(Players.LocalPlayer.UserId)
+	local weapons = if mine and mine.weapons then mine.weapons else {}
+	weaponsTitle.Visible = #weapons > 0
+	for index, weapon in weapons do
+		if index > MAX_WEAPON_ROWS then
+			break
+		end
+		Widgets.label({
+			Name = weapon.id,
+			Text = `{UpgradeText.weaponName(weapon.id, weapon.tier, weapon.evolution)} · {compact(weapon.damage)} damage · {weapon.kills} kills`,
+			TextSize = 17,
+			TextColor3 = if index == 1 then Theme.text else Theme.textDim,
+			LayoutOrder = index,
+			Parent = weaponRows,
+		})
+	end
+end
+
+-- The details part is as tall as its content, up to a limit; beyond that it scrolls.
+fitDetails = function()
+	local content = detailsLayout.AbsoluteContentSize
+	if not content then
+		return
+	end
+	local uiScale = card:FindFirstChildOfClass("UIScale")
+	local scale = if uiScale and uiScale.Scale > 0 then uiScale.Scale else 1
+	local limit = if Widgets.isCompact() then DETAILS_MAX_HEIGHT_COMPACT else DETAILS_MAX_HEIGHT
+	local height = math.min(content.Y / scale, limit)
+	details.Size = UDim2.new(1, 0, 0, height)
+	details.CanvasSize = UDim2.fromOffset(0, content.Y / scale)
 end
 
 local function render()
@@ -124,6 +172,9 @@ local function render()
 		})
 	end
 
+	renderWeapons()
+	fitDetails()
+
 	local me = RunStateController.getLocalPlayer()
 	local ready = me ~= nil and me.ready
 	againButton.Text = if ready then "WAITING FOR TEAM - CANCEL" else "PLAY AGAIN"
@@ -135,7 +186,7 @@ end
 local function build()
 	screen = Widgets.screen("Results", 2)
 
-	local card = Widgets.panel({
+	card = Widgets.panel({
 		Name = "Results",
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		Position = UDim2.fromScale(0.5, 0.5),
@@ -155,15 +206,51 @@ local function build()
 	timeLabel = Widgets.label({ Font = Theme.fontBold, TextSize = 26, LayoutOrder = 3, Parent = card })
 	statsLabel = Widgets.label({ Name = "Stats", TextColor3 = Theme.text, LayoutOrder = 4, Parent = card })
 
+	details = Widgets.create("ScrollingFrame", {
+		Name = "Details",
+		BackgroundTransparency = 1,
+		BorderSizePixel = 0,
+		ScrollBarThickness = 6,
+		ScrollingDirection = Enum.ScrollingDirection.Y,
+		CanvasSize = UDim2.new(),
+		Size = UDim2.new(1, 0, 0, DETAILS_MAX_HEIGHT_COMPACT),
+		LayoutOrder = 5,
+		Parent = card,
+	})
+	detailsLayout = Widgets.list(8)
+	detailsLayout.Parent = details
+	detailsLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+		fitDetails()
+	end)
+
 	teamRows = Widgets.create("Frame", {
 		Name = "Team",
 		BackgroundTransparency = 1,
 		AutomaticSize = Enum.AutomaticSize.Y,
-		Size = UDim2.new(1, 0, 0, 0),
-		LayoutOrder = 5,
-		Parent = card,
+		Size = UDim2.new(1, -8, 0, 0),
+		LayoutOrder = 1,
+		Parent = details,
 	})
 	Widgets.list(4).Parent = teamRows
+	weaponsTitle = Widgets.label({
+		Name = "WeaponsTitle",
+		Text = "YOUR WEAPONS",
+		Font = Theme.fontBold,
+		TextSize = 16,
+		TextColor3 = Theme.textDim,
+		Visible = false,
+		LayoutOrder = 2,
+		Parent = details,
+	})
+	weaponRows = Widgets.create("Frame", {
+		Name = "Weapons",
+		BackgroundTransparency = 1,
+		AutomaticSize = Enum.AutomaticSize.Y,
+		Size = UDim2.new(1, -8, 0, 0),
+		LayoutOrder = 3,
+		Parent = details,
+	})
+	Widgets.list(2).Parent = weaponRows
 
 	againButton = Widgets.button({
 		Name = "PlayAgain",
@@ -187,10 +274,10 @@ local function build()
 		TextColor3 = Theme.accent,
 		TextWrapped = true,
 		AutomaticSize = Enum.AutomaticSize.Y,
-		Size = UDim2.new(1, 0, 0, 20),
+		Size = UDim2.new(1, -8, 0, 20),
 		Visible = false,
-		LayoutOrder = 6,
-		Parent = card,
+		LayoutOrder = 0, -- the Embers first, so they show without scrolling
+		Parent = details,
 	})
 end
 

@@ -5,7 +5,11 @@
 -- (who is picking a card, who is done shopping), your weapons with their levels and your items with their counts in
 -- their rarity color (the first few). Since B4 the item effect bonuses active right now sit above the HP bar
 -- (ActiveBonuses remote: "+8 Armor (standing still)"). Shown while the local player is in a running run; reads
--- RunStateController, PlayerStateController, LoadoutController and ProgressController. WP14 builds the full HUD.
+-- RunStateController, PlayerStateController, LoadoutController and ProgressController.
+-- Paket 14: weapons and items have tooltips (UI/Tooltip, Util/TooltipText: real damage, scaling, limits), under the
+-- wave the next planned elite or horde wave (remote WavePlan from DangerService, all planned waves in its tooltip;
+-- the wave banner names them too), arrows at the screen edge point to teammates out of sight, the team panel sits
+-- below the settings button, and small screens (Widgets.isCompact) list fewer items.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -26,7 +30,10 @@ local LoadoutController = require(script.Parent.LoadoutController)
 local PlayerStateController = require(script.Parent.PlayerStateController)
 local ProgressController = require(script.Parent.ProgressController)
 local RunStateController = require(script.Parent.RunStateController)
+local SettingsController = require(script.Parent.SettingsController)
 local Theme = require(script.Parent.Parent.UI.Theme)
+local Tooltip = require(script.Parent.Parent.UI.Tooltip)
+local TooltipText = require(Shared:WaitForChild("Util"):WaitForChild("TooltipText"))
 local Widgets = require(script.Parent.Parent.UI.Widgets)
 
 local STATE_TEXT: { [string]: string } = { Alive = "alive", Down = "DOWN", Out = "out" }
@@ -40,6 +47,10 @@ local BANNER_SECONDS = 2.6
 local BANNER_FADE_SECONDS = 0.4
 local BANNER_TITLE_SIZE = 56
 local MAX_ITEM_ROWS = 8 -- different items listed; the rest as "+3 more"
+local MAX_ITEM_ROWS_COMPACT = 3 -- on small screens (Paket 14)
+local ARROW_MARGIN = 36 -- pixels between a teammate arrow and the screen edge
+local ARROW_SIZE = 34
+local CHALLENGE_COLOR = Color3.fromRGB(255, 150, 70) -- elite and horde waves ahead
 local MAX_BONUS_LINES = 4 -- active effect bonuses over the HP bar; the rest as "+2 more"
 
 local HUDController = {}
@@ -60,6 +71,11 @@ local itemRows: Frame
 local xpFill: Frame
 local xpLabel: TextLabel
 local bannerWave = 0 -- the wave whose banner was shown; 0 before the first
+local previewLabel: TextLabel
+local wavePlan: { Types.WaveChallenge } = {} -- Paket 14: planned elite and horde waves of the run (WavePlan)
+local teamPanel: Frame
+local arrowLayer: Frame
+local arrows: { [number]: Frame } = {}
 
 local function hintText(state: Types.RunState): (string, Color3)
 	if state.phase == "Boss" then
@@ -87,6 +103,11 @@ local function showWaveBanner(number: number)
 	local state = RunStateController.get()
 	local options = state and (state.runOptions or state.options)
 	local events = RunSchedule.eventsOf(number, if options then options.danger else nil) -- B11: by danger level
+	for _, challenge in wavePlan do
+		if challenge.wave == number then
+			table.insert(events, 1, if challenge.kind == "Horde" then "Horde wave!" else "Elite wave!")
+		end
+	end
 	local banner = Widgets.create("Frame", {
 		Name = "WaveBanner",
 		BackgroundTransparency = 1,
@@ -176,6 +197,11 @@ local function updateWave()
 		hintLabel.Text = hint
 		hintLabel.TextColor3 = color
 	end
+	local preview = TooltipText.nextChallenge(wavePlan, state.wave)
+	previewLabel.Visible = preview ~= nil
+	if preview and previewLabel.Text ~= preview then
+		previewLabel.Text = preview
+	end
 	if state.phase == "Running" and state.wave ~= bannerWave then
 		bannerWave = state.wave
 		showWaveBanner(state.wave)
@@ -226,10 +252,11 @@ local function renderItems()
 	end
 	itemsTitle.Visible = #items > 0
 	itemsTitle.Text = `ITEMS ({total})`
+	local maxRows = if Widgets.isCompact() then MAX_ITEM_ROWS_COMPACT else MAX_ITEM_ROWS
 	for index, info in items do
-		if index > MAX_ITEM_ROWS then
+		if index > maxRows then
 			Widgets.label({
-				Text = `+{#items - MAX_ITEM_ROWS} more`,
+				Text = `+{#items - maxRows} more`,
 				TextColor3 = Theme.textDim,
 				TextXAlignment = Enum.TextXAlignment.Left,
 				LayoutOrder = index,
@@ -238,13 +265,18 @@ local function renderItems()
 			break
 		end
 		local item = Config.Items.byId[info.id]
-		Widgets.label({
+		local row = Widgets.label({
+			Name = info.id,
 			Text = `{if item then item.displayName else info.id}{if info.count > 1 then ` x{info.count}` else ""}`,
 			TextColor3 = if item then Theme.tiers[item.tier] or Theme.text else Theme.text,
 			TextXAlignment = Enum.TextXAlignment.Left,
 			LayoutOrder = index,
 			Parent = itemRows,
 		})
+		local itemId, count = info.id, info.count
+		Tooltip.attach(row, function()
+			return TooltipText.item(itemId, count)
+		end)
 	end
 end
 
@@ -265,12 +297,23 @@ local function renderWeapons()
 		return
 	end
 	for index, weapon in loadout.weapons do
-		Widgets.label({
+		local row = Widgets.label({
+			Name = `Weapon{index}`,
 			Text = UpgradeText.weaponName(weapon.id, weapon.tier, weapon.evolution),
 			TextXAlignment = Enum.TextXAlignment.Left,
 			LayoutOrder = index,
 			Parent = weaponRows,
 		})
+		local uid = weapon.uid
+		Tooltip.attach(row, function()
+			local current = LoadoutController.getLocal()
+			for _, info in if current then current.weapons else {} do
+				if info.uid == uid then
+					return TooltipText.weapon(info)
+				end
+			end
+			return nil, nil
+		end)
 	end
 end
 
@@ -308,6 +351,97 @@ local function onVitalsChanged(userId: number, vitals: Types.PlayerVitals, previ
 	end
 end
 
+-- The team panel stays below the settings button, which scales with the screen.
+local function placeTeamPanel()
+	local uiScale = teamPanel:FindFirstChildOfClass("UIScale")
+	local scale = if uiScale then uiScale.Scale else 1
+	teamPanel.Position = UDim2.new(1, -12, 0, 8 + SettingsController.RESERVED_HEIGHT * scale)
+end
+
+local function newArrow(name: string): Frame
+	local holder = Widgets.create("Frame", {
+		Name = name,
+		BackgroundTransparency = 1,
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Size = UDim2.fromOffset(ARROW_SIZE, ARROW_SIZE),
+		Parent = arrowLayer,
+	})
+	Widgets.label({
+		Name = "Arrow",
+		Text = "▶",
+		Font = Theme.fontBold,
+		TextSize = ARROW_SIZE,
+		TextColor3 = Theme.accent,
+		TextStrokeTransparency = 0.3,
+		Size = UDim2.fromScale(1, 1),
+		Parent = holder,
+	})
+	Widgets.label({
+		Name = "Name",
+		Text = name,
+		TextSize = 14,
+		TextStrokeTransparency = 0.3,
+		AnchorPoint = Vector2.new(0.5, 0),
+		Position = UDim2.new(0.5, 0, 1, 0),
+		Size = UDim2.fromOffset(120, 16),
+		Parent = holder,
+	})
+	return holder
+end
+
+-- Every frame: an arrow at the screen edge for each teammate whose character is out of sight.
+local function updateArrows()
+	local camera = workspace.CurrentCamera
+	local state = RunStateController.get()
+	local seen: { [number]: boolean } = {}
+	local size = screen.AbsoluteSize
+	if camera and state and size and (camera :: any).WorldToScreenPoint then
+		local center = size / 2
+		local half = center - Vector2.new(ARROW_MARGIN, ARROW_MARGIN)
+		for _, info in state.players do
+			local stateName = info.state or "Alive"
+			if not info.participant or info.userId == Players.LocalPlayer.UserId or stateName == "Out" then
+				continue
+			end
+			local player = Players:GetPlayerByUserId(info.userId)
+			local character = player and player.Character
+			local root = character and character:FindFirstChild("HumanoidRootPart")
+			if not (root and root:IsA("BasePart")) then
+				continue
+			end
+			local point, onScreen = camera:WorldToScreenPoint(root.Position)
+			local inside = onScreen and point.X >= 0 and point.Y >= 0 and point.X <= size.X and point.Y <= size.Y
+			if inside then
+				continue
+			end
+			local direction = Vector2.new(point.X, point.Y) - center
+			if point.Z < 0 then
+				direction = -direction
+			end
+			if direction.Magnitude < 1e-3 then
+				continue
+			end
+			direction = direction.Unit
+			local reach = math.min(half.X / math.abs(direction.X), half.Y / math.abs(direction.Y))
+			local at = center + direction * reach
+			local arrow = arrows[info.userId] or newArrow(info.name)
+			arrows[info.userId] = arrow
+			arrow.Position = UDim2.fromOffset(at.X, at.Y)
+			local label = arrow:FindFirstChild("Arrow") :: TextLabel
+			label.Rotation = math.deg(math.atan2(direction.Y, direction.X))
+			label.TextColor3 = if stateName == "Down" then Theme.danger else Theme.accent
+			arrow.Visible = true
+			seen[info.userId] = true
+		end
+	end
+	for userId, arrow in arrows do
+		if not seen[userId] then
+			arrow:Destroy()
+			arrows[userId] = nil
+		end
+	end
+end
+
 local function render()
 	local state = RunStateController.get()
 	screen.Enabled = state ~= nil and RunStateController.getView() == "Run"
@@ -317,6 +451,7 @@ local function render()
 	local hint, color = hintText(state)
 	hintLabel.Text = hint
 	hintLabel.TextColor3 = color
+	placeTeamPanel()
 	renderTeam(state)
 	renderHp()
 	renderWeapons()
@@ -369,14 +504,28 @@ local function build()
 		Parent = top,
 	})
 	hintLabel = Widgets.label({ TextSize = 18, LayoutOrder = 2, Parent = top })
+	previewLabel = Widgets.label({
+		Name = "WavePreview",
+		TextSize = 16,
+		Font = Theme.fontBold,
+		TextColor3 = CHALLENGE_COLOR,
+		Visible = false,
+		LayoutOrder = 3,
+		Parent = top,
+	})
+	Tooltip.attach(previewLabel, function()
+		local state = RunStateController.get()
+		return TooltipText.wavePlan(wavePlan, if state then state.wave + 1 else 1)
+	end)
 
 	local team = Widgets.panel({
 		Name = "Team",
 		AnchorPoint = Vector2.new(1, 0),
-		Position = UDim2.new(1, -12, 0, 8),
+		Position = UDim2.new(1, -12, 0, 8 + SettingsController.RESERVED_HEIGHT),
 		Size = UDim2.fromOffset(260, 0),
 		Parent = screen,
 	})
+	teamPanel = team
 	Widgets.list(4).Parent = team
 	Widgets.label({
 		Text = "TEAM",
@@ -484,6 +633,14 @@ local function build()
 		Parent = track,
 	})
 
+	arrowLayer = Widgets.create("Frame", {
+		Name = "TeamArrows",
+		BackgroundTransparency = 1,
+		Size = UDim2.fromScale(1, 1),
+		Active = false,
+		Parent = screen,
+	})
+
 	hitFlash = Widgets.create("Frame", {
 		Name = "HitFlash",
 		BackgroundColor3 = Theme.danger,
@@ -497,12 +654,25 @@ local function build()
 end
 
 function HUDController.init()
+	Net.onClient("WavePlan", function(list: { Types.WaveChallenge })
+		wavePlan = list
+	end)
+	RunStateController.Changed:Connect(function()
+		if RunStateController.getView() ~= "Run" then
+			wavePlan = {} -- belongs to the run that ended
+		end
+	end)
 	Net.onClient("ActiveBonuses", function(list: { Types.ActiveBonus })
 		bonuses = list
 		if screen then
 			renderBonuses()
 		end
 	end)
+end
+
+-- The planned elite and horde waves the server sent (tests).
+function HUDController.getWavePlan(): { Types.WaveChallenge }
+	return wavePlan
 end
 
 function HUDController.start()
@@ -529,6 +699,7 @@ function HUDController.start()
 	RunService.Heartbeat:Connect(function()
 		if screen.Enabled then
 			updateWave()
+			updateArrows()
 		end
 	end)
 end

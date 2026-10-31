@@ -2,6 +2,7 @@
 -- The current run's danger rules (B11, Config.Difficulty, formulas in Util/DangerRules): which waves are elite or
 -- horde waves (planned per block of waves once the run's seed is set, Spawns stream), the multipliers on new enemies'
 -- HP, damage and speed (danger level, enemy sliders, endless factor) and which kinds spawn. Announces horde waves.
+-- Since Paket 14 it sends the planned waves to the participants (remote WavePlan) for the HUD's preview.
 -- Used by SpawnDirector, BossService, ExperienceService and LootService.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -11,6 +12,7 @@ local Shared = ReplicatedStorage.Shared
 local Config = require(Shared.Config)
 local DangerRules = require(Shared.Util.DangerRules)
 local Net = require(Shared.Net)
+local Types = require(Shared.Net.Types)
 
 local RandomService = require(script.Parent.RandomService)
 local RunDirector = require(script.Parent.RunDirector)
@@ -21,6 +23,26 @@ local plan: { [number]: DangerRules.Challenge } = {}
 local plannedBlocks: { [number]: boolean } = {}
 local pool: { string } = {}
 local announcedWave = 0
+local sentCount = -1 -- planned waves last sent with WavePlan
+
+-- The plan as a list by wave (Net/Types.WaveChallenge).
+local function planList(): { Types.WaveChallenge }
+	local list = {}
+	for wave, challenge in plan do
+		table.insert(list, { wave = wave, kind = challenge.kind })
+	end
+	table.sort(list, function(a, b)
+		return a.wave < b.wave
+	end)
+	return list
+end
+
+local function sendPlan(players: { Player })
+	local list = planList()
+	for _, player in players do
+		Net.fireClient("WavePlan", player, list)
+	end
+end
 
 local function planUpTo(wave: number)
 	local block = DangerRules.block(wave)
@@ -45,16 +67,27 @@ local function clear()
 	table.clear(plannedBlocks)
 	table.clear(pool)
 	announcedWave = 0
+	sentCount = -1
 end
 
 function DangerService.init()
 	RunDirector.RunStarted:Connect(clear)
+	RunDirector.SyncRequested:Connect(function(player)
+		if RunDirector.isOngoing() and sentCount >= 0 then
+			sendPlan({ player })
+		end
+	end)
 	RunService.Heartbeat:Connect(function()
 		if RunDirector.getPhase() ~= "Running" then
 			return
 		end
 		local wave = RunDirector.getWave()
 		planUpTo(wave)
+		local count = #planList()
+		if count ~= sentCount then
+			sentCount = count
+			sendPlan(RunDirector.getParticipants())
+		end
 		if announcedWave ~= wave then
 			announcedWave = wave
 			local challenge = plan[wave]

@@ -4,7 +4,8 @@
 -- ProfileRecords. Without DataStoreService (tests) it keeps data in MemoryStore. Called by RunDirector (class
 -- checks), RunStatsService (records finished runs, resends the lobby record on sync) and AdminService (debug buttons).
 -- Since Paket 13 also Embers, achievements and unlocks (Util/ProgressRules): what is locked for a player
--- (ShopService, UpgradeService) and the danger levels open per character (RunDirector).
+-- (ShopService, UpgradeService) and the danger levels open per character (RunDirector). Since Paket 14 it keeps the
+-- settings from the settings menu (remote SaveSettings).
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -158,6 +159,16 @@ function PlayerDataService.init()
 	Players.PlayerAdded:Connect(function(player)
 		task.spawn(load, player)
 	end)
+	-- Paket 14: only the values change; nothing is sent back (the client already shows them)
+	Net.onServer(
+		"SaveSettings",
+		function(player, shake: boolean, damageNumbers: boolean, music: number, effects: number)
+			local data = PlayerDataService.get(player)
+			if data then
+				data.settings = { shake = shake, damageNumbers = damageNumbers, music = music, effects = effects }
+			end
+		end
+	)
 	Players.PlayerRemoving:Connect(release)
 	for _, player in Players:GetPlayers() do
 		task.spawn(load, player)

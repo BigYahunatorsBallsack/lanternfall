@@ -20,7 +20,7 @@ export type PlayerTally = {
 
 -- What the run's players carried at the end (from WeaponService and StatService).
 export type Loadout = {
-	weapons: { { id: string, tier: number, damage: number, kills: number } },
+	weapons: { { id: string, tier: number, evolution: string?, damage: number, kills: number } },
 	items: { Types.ItemInfo },
 }
 
@@ -109,13 +109,28 @@ end
 function Tally.summary(self: Tally, loadouts: { [number]: Loadout }): Types.RunSummary
 	local players = {}
 	for _, entry in self.players do
-		local damage, kills = sumWeapons(loadouts[entry.userId])
+		local loadout = loadouts[entry.userId]
+		local damage, kills = sumWeapons(loadout)
+		local weapons: { Types.RunSummaryWeapon } = {}
+		for _, weapon in if loadout then loadout.weapons else {} do
+			table.insert(weapons, {
+				id = weapon.id,
+				tier = weapon.tier,
+				evolution = weapon.evolution,
+				damage = math.round(weapon.damage),
+				kills = weapon.kills,
+			})
+		end
+		table.sort(weapons, function(a, b)
+			return a.damage > b.damage
+		end)
 		table.insert(players, {
 			userId = entry.userId,
 			kills = kills,
 			damageDealt = math.round(damage),
 			damageTaken = math.round(entry.damageTaken),
 			downs = entry.downs,
+			weapons = weapons,
 		})
 	end
 	return { teamLevel = self:getLevel(), kills = self.kills, players = players }

@@ -3,6 +3,8 @@
 -- Called by PlayerDataService right after a profile loads, before ProfileStore's Reconcile fills in missing keys.
 -- Every schema change adds one step here; steps only add or convert fields, they never drop one.
 
+local ProfileTemplate = require(script.Parent.ProfileTemplate)
+
 local Migrations = {}
 
 -- steps[v] turns data of version v into version v + 1 (in place).
@@ -27,6 +29,12 @@ local steps: { [number]: (data: any) -> () } = {
 		stats.embersEarned = stats.embersEarned or 0
 		if type(data.achievements) ~= "table" then
 			data.achievements = {}
+		end
+	end,
+	-- v3 -> v4 (Paket 14): settings from the settings menu (ProfileStore's Reconcile would add them too)
+	[3] = function(data)
+		if type(data.settings) ~= "table" then
+			data.settings = ProfileTemplate.newSettings()
 		end
 	end,
 }

@@ -109,13 +109,22 @@ end
 -- A weapon's damage, scaling and crit at a tier before the owner's stats (B5, Brotato's notation), e.g.
 -- "18 (+100% Melee Damage) · crit x2 (8%)".
 function UpgradeText.weaponDamage(weapon: Weapons.Weapon, tier: number): string
-	local damageBonus = 0
 	local critChance, critDamage = weapon.base.critChance or Config.Player.critChance, weapon.base.critDamage
 	for n = 2, math.min(tier, #weapon.tiers) do
 		local delta = weapon.tiers[n] :: { [string]: number }
-		damageBonus += delta.damage or 0
 		critChance += delta.critChance or 0
 		critDamage = (critDamage or Config.Player.critMultiplier) + (delta.critDamage or 0)
+	end
+	local crit = `crit x{number(critDamage or Config.Player.critMultiplier)} ({number(math.round(critChance * 100))}%)`
+	return `{UpgradeText.weaponBase(weapon, tier)} · {crit}`
+end
+
+-- Only the damage and scaling part of weaponDamage, e.g. "18 (+100% Melee Damage)" (Paket 14 tooltips).
+function UpgradeText.weaponBase(weapon: Weapons.Weapon, tier: number): string
+	local damageBonus = 0
+	for n = 2, math.min(tier, #weapon.tiers) do
+		local delta = weapon.tiers[n] :: { [string]: number }
+		damageBonus += delta.damage or 0
 	end
 	local damage = math.round((weapon.base.damage or 0) * (1 + damageBonus) * 10) / 10
 	local text = number(damage)
@@ -123,7 +132,7 @@ function UpgradeText.weaponDamage(weapon: Weapons.Weapon, tier: number): string
 	if scaling ~= "" then
 		text ..= ` ({scaling})`
 	end
-	return `{text} · crit x{number(critDamage or Config.Player.critMultiplier)} ({number(math.round(critChance * 100))}%)`
+	return text
 end
 
 -- Weapon name with its tier, e.g. "Spark Bolt II"; an evolved weapon shows its evolution's name.
@@ -188,6 +197,9 @@ function UpgradeText.offer(offer: Types.ShopOffer, colors: Colors?): (string, st
 	local item = Config.Items.byId[offer.itemId]
 	local owned = offer.count - 1
 	local badge = UpgradeText.tierName(offer.tier) .. (if owned > 0 then ` · x{owned}` else "")
+	if item and item.limit then -- Paket 14: Brotato's item limits
+		badge ..= ` · max {item.limit}`
+	end
 	if not item then
 		return offer.itemId, "", badge
 	end
