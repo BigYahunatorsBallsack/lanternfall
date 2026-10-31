@@ -10,7 +10,8 @@
 -- first, one by one: an item rolled like a shop item (wave and Luck, Config.Loot.crate), taken or sold for Shards
 -- (ChooseCrate, CrateOffer to the chooser); taken automatically when its time runs out or the shop closes. Since WP10
 -- legendary crates (addCrate with `legendary`) hold an item of at least Config.Loot.legendaryCrate.minTier and open
--- first.
+-- first. B11 part 2: the cards and crates still open are picked on RunDirector.WaveStarting, before the wave's
+-- "Retry wave" checkpoint is saved (a retried wave starts with nothing open; closeAll ran on the results).
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -20,11 +21,13 @@ local Shared = ReplicatedStorage.Shared
 local Config = require(Shared.Config)
 local LootRules = require(Shared.Util.LootRules)
 local Net = require(Shared.Net)
+local Signal = require(Shared.Util.Signal)
 local StatMath = require(Shared.Util.StatMath)
 local Types = require(Shared.Net.Types)
 
 local CombatService = require(script.Parent.CombatService)
 local ExperienceService = require(script.Parent.ExperienceService)
+local PlayerDataService = require(script.Parent.PlayerDataService)
 local RandomService = require(script.Parent.RandomService)
 local RunDirector = require(script.Parent.RunDirector)
 local ShopService = require(script.Parent.ShopService)
@@ -49,6 +52,10 @@ type State = {
 }
 
 local UpgradeService = {}
+
+-- (player: Player, card: Types.UpgradeCard, offered: { Types.UpgradeCard }, auto: boolean): a level-up card was
+-- picked, by the player or automatically (time ran out, the wave started); Paket 20 analytics
+UpgradeService.CardPicked = Signal.new()
 
 local states: { [Player]: State } = {}
 
@@ -95,7 +102,13 @@ local function rollCrate(player: Player, minTier: number): Crate?
 	end
 	local wave = RunDirector.getWave()
 	local tier = math.max(minTier, StatMath.rollTier(wave, StatService.getStat(player, "luck"), random()))
-	local itemId = ShopRules.pickItem(tier, StatService.getItemCounts(player), {}, random)
+	-- Paket 13: items the player has not unlocked never come out of a crate
+	local itemId = ShopRules.pickItem(
+		tier,
+		StatService.getItemCounts(player),
+		PlayerDataService.lockedSet(player, "items"),
+		random
+	)
 	local item = itemId and Config.Items.byId[itemId]
 	if not (itemId and item) then
 		return nil
@@ -175,7 +188,7 @@ local function chooseCrate(player: Player, take: boolean): boolean
 	return true
 end
 
-local function choose(player: Player, cardId: string): boolean
+local function choose(player: Player, cardId: string, auto: boolean?): boolean
 	local state = states[player]
 	local offer = state and state.offer
 	if not (state and offer) then
@@ -186,6 +199,7 @@ local function choose(player: Player, cardId: string): boolean
 			table.remove(state.levels, 1)
 			state.offer = nil
 			StatService.addUpgrade(player, card.stat, card.amount)
+			UpgradeService.CardPicked:Fire(player, card, offer.cards, auto == true)
 			openNext(player, state)
 			return true
 		end
@@ -208,7 +222,7 @@ local function pickAll(player: Player, state: State)
 	local guard = #state.levels + 1
 	while state.offer and state.offer.cards[1] and guard > 0 do
 		guard -= 1
-		choose(player, state.offer.cards[1].id)
+		choose(player, state.offer.cards[1].id, true)
 	end
 	table.clear(state.levels)
 	sendOffer(player, state)
@@ -266,7 +280,7 @@ local function autoPick()
 	for player, state in states do
 		local offer = state.offer
 		if offer and time >= offer.expiresAt and offer.cards[1] then
-			choose(player, offer.cards[1].id)
+			choose(player, offer.cards[1].id, true)
 		end
 		local crate = state.crate
 		if crate and time >= crate.expiresAt then
@@ -280,7 +294,7 @@ end
 function UpgradeService.init()
 	ExperienceService.LevelGained:Connect(onLevelGained)
 	RunDirector.RunStarted:Connect(onRunStarted)
-	RunDirector.PhaseChanged:Connect(function(phase, previous)
+	RunDirector.PhaseChanged:Connect(function(phase)
 		if phase == "Ended" or phase == "Lobby" then
 			for player, state in states do
 				closeAll(state, player)
@@ -294,10 +308,11 @@ function UpgradeService.init()
 					openNext(player, state)
 				end
 			end
-		elseif previous == "Shop" then
-			for player, state in states do
-				pickAll(player, state)
-			end
+		end
+	end)
+	RunDirector.WaveStarting:Connect(function()
+		for player, state in states do
+			pickAll(player, state)
 		end
 	end)
 	RunDirector.ParticipantStateChanged:Connect(function(player, participantState)
@@ -364,7 +379,8 @@ function UpgradeService.grantChest(player: Player): Types.ChestReward?
 		StatService.getItemCounts(player),
 		function(): number
 			return RandomService.number("Loot", player)
-		end
+		end,
+		PlayerDataService.lockedSet(player, "items") -- Paket 13
 	)
 	if itemId and StatService.addItem(player, itemId) then
 		return { kind = "Item", itemId = itemId, level = StatService.getItemCounts(player)[itemId] or 1 }

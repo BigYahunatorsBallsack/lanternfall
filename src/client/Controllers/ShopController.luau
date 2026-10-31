@@ -7,7 +7,9 @@
 -- sell or merge it), a reroll with its price (or free) and READY. The panel scales to fit the screen; on small screens
 -- (phones) it gets a compact layout and the stat panel moves behind a STATS button. Everything comes from the
 -- server's ShopState (ShopService); sends BuyShopOffer, LockShopOffer, RerollShop, SellWeapon, MergeWeapons and
--- SetShopReady. The stats sit next to it (StatsController).
+-- SetShopReady. The stats sit next to it (StatsController). Since Paket 14 each weapon field has a tooltip with the
+-- weapon's real damage, scaling and stats (UI/Tooltip; LoadoutController has the effective stats). Paket 16: next to
+-- the reroll a bonus reroll button (StoreController: VIP reroll, reroll tokens or the reroll pack).
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
@@ -21,9 +23,13 @@ local Types = require(Shared:WaitForChild("Net"):WaitForChild("Types"))
 local UpgradeText = require(Shared:WaitForChild("Util"):WaitForChild("UpgradeText"))
 
 local LevelUpController = require(script.Parent.LevelUpController)
+local LoadoutController = require(script.Parent.LoadoutController)
 local RunStateController = require(script.Parent.RunStateController)
 local StatsController = require(script.Parent.StatsController)
+local StoreController = require(script.Parent.StoreController)
 local Theme = require(script.Parent.Parent.UI.Theme)
+local Tooltip = require(script.Parent.Parent.UI.Tooltip)
+local TooltipText = require(Shared:WaitForChild("Util"):WaitForChild("TooltipText"))
 local Widgets = require(script.Parent.Parent.UI.Widgets)
 
 local CARD_WIDTH = 180
@@ -493,6 +499,16 @@ local function buildChip(index: number): ChipView
 		LayoutOrder = 2,
 		Parent = button,
 	})
+	Tooltip.attach(button, function()
+		local weapon = shop and shop.weapons[index]
+		local loadout = LoadoutController.getLocal()
+		for _, info in if weapon and loadout then loadout.weapons else {} do
+			if weapon and info.uid == weapon.uid then
+				return TooltipText.weapon(info)
+			end
+		end
+		return nil, nil
+	end)
 	return { button = button, name = name, info = info, edge = edge }
 end
 
@@ -648,17 +664,19 @@ local function build()
 	}, sell)
 
 	local buttons = row("Buttons", BUTTON_HEIGHT, 6, panel)
+	-- widths fit the panel with every button shown (compact layout: reroll, bonus reroll, STATS, READY)
 	rerollButton = Widgets.button({
 		Name = "Reroll",
-		Size = UDim2.fromOffset(240, BUTTON_HEIGHT),
+		Size = UDim2.fromOffset(210, BUTTON_HEIGHT),
 		LayoutOrder = 1,
 		Parent = buttons,
 	}, reroll)
+	StoreController.mountShop(buttons, 2, BUTTON_HEIGHT) -- Paket 16
 	statsButton = Widgets.button({
 		Name = "StatsToggle",
 		Text = "STATS",
-		Size = UDim2.fromOffset(120, BUTTON_HEIGHT),
-		LayoutOrder = 2,
+		Size = UDim2.fromOffset(110, BUTTON_HEIGHT),
+		LayoutOrder = 3,
 		Visible = false,
 		Parent = buttons,
 	}, function()
@@ -666,8 +684,8 @@ local function build()
 	end)
 	readyButton = Widgets.button({
 		Name = "Ready",
-		Size = UDim2.fromOffset(300, BUTTON_HEIGHT),
-		LayoutOrder = 3,
+		Size = UDim2.fromOffset(230, BUTTON_HEIGHT),
+		LayoutOrder = 4,
 		Parent = buttons,
 	}, toggleReady)
 

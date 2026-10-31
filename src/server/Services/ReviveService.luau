@@ -4,6 +4,8 @@
 -- reviveSeconds stands them up with reviveHpFraction of their HP (CombatService) and a short protection; after
 -- downTimerSeconds without that they are out for the rest of the wave and stand up when it ends (like Brotato's
 -- co-op). Nobody alive ends the run (RunFlow). Sends ReviveState to every client on change (ReviveController).
+-- Fires Revived for the saved record (RunStatsService, Paket 13). Since Paket 16 a bought revive stands a player up
+-- right away (standUp, MonetizationService).
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -12,6 +14,7 @@ local RunService = game:GetService("RunService")
 local Shared = ReplicatedStorage.Shared
 local Config = require(Shared.Config)
 local Net = require(Shared.Net)
+local Signal = require(Shared.Util.Signal)
 local ReviveRules = require(Shared.Util.ReviveRules)
 local Types = require(Shared.Net.Types)
 
@@ -28,6 +31,9 @@ local SETTINGS: ReviveRules.Settings = {
 }
 
 local ReviveService = {}
+
+-- (reviver: Player, revived: Player): a teammate stood someone up (Paket 13)
+ReviveService.Revived = Signal.new()
 
 local downed: { [Player]: ReviveRules.Entry } = {}
 local reviverOf: { [Player]: Player } = {}
@@ -137,11 +143,41 @@ local function step(dt: number)
 	end
 	-- applied after the loop: changing a participant's state fires onParticipantState, which edits `downed`
 	for player, outcome in outcomes do
+		local reviver = reviverOf[player]
+		if outcome == "Revived" and reviver then
+			ReviveService.Revived:Fire(reviver, player)
+		end
 		RunDirector.setParticipantState(player, if outcome == "Revived" then "Alive" else "Out")
 	end
 	if changed and next(outcomes) == nil then
 		send()
 	end
+end
+
+-- Paket 16: whether `player` is down or out in a running wave while a teammate still stands (a bought revive works).
+function ReviveService.canStandUp(player: Player): boolean
+	if RunDirector.getPhase() ~= "Running" or not (downed[player] or out[player]) then
+		return false
+	end
+	for _, other in RunDirector.getParticipants() do
+		if other ~= player and RunDirector.getParticipantState(other) == "Alive" then
+			return true
+		end
+	end
+	return false
+end
+
+-- Paket 16: stands a down or out player up right away, like a teammate's revive (HP, protection). False if not
+-- possible (canStandUp).
+function ReviveService.standUp(player: Player): boolean
+	if not ReviveService.canStandUp(player) then
+		return false
+	end
+	local ok = RunDirector.setParticipantState(player, "Alive")
+	if ok then
+		CombatService.protect(player, Coop.reviveProtectionSeconds)
+	end
+	return ok
 end
 
 -- Seconds left and revive progress (0-1) of a downed player, nil if they are not down (tests, admin).

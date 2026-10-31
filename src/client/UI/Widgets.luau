@@ -1,9 +1,13 @@
 --!strict
--- Small helpers that build the prototype UI in code. Used by the UI controllers.
+-- Small helpers that build the prototype UI in code. Used by the UI controllers. Buttons click (Audio/Sfx, Paket 21).
 -- Sizes are pixels on a 1280x720 reference screen; panels made with Widgets.panel scale with the viewport.
 
 local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
+local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config"))
+
+local Sfx = require(script.Parent.Parent.Audio.Sfx)
 local Theme = require(script.Parent.Theme)
 
 local REFERENCE_SIZE = Vector2.new(1280, 720)
@@ -158,8 +162,29 @@ function Widgets.button(props: { [string]: any }, onClick: () -> ()): TextButton
 		defaults[key] = value
 	end
 	local button = Widgets.create("TextButton", defaults, { Widgets.corner() })
-	button.Activated:Connect(onClick)
+	button.Activated:Connect(function()
+		Sfx.play("uiClick") -- Paket 21
+		onClick()
+	end)
 	return button
+end
+
+-- True on small screens (phones): the HUD and the results screen use their compact layout (Paket 14).
+function Widgets.isCompact(): boolean
+	local camera = workspace.CurrentCamera
+	if not camera then
+		return false
+	end
+	local viewport = camera.ViewportSize
+	local settings = Config.Settings
+	return viewport.X < settings.compactWidth or viewport.Y < settings.compactHeight
+end
+
+-- Gives a frame that is not a panel the same screen scale as the panels.
+function Widgets.scaled(frame: GuiObject)
+	watchViewport()
+	local uiScale = Widgets.create("UIScale", { Scale = viewportScale(), Parent = frame })
+	table.insert(scales, uiScale)
 end
 
 -- Removes every GuiObject child (rows of a list) but keeps layouts and decorations.

@@ -54,6 +54,15 @@ local BUTTON_TEXT: { [string]: string } = {
 	HurtBoss = `Boss -{math.round(Config.Admin.hurtBossShare * 100)}% HP`,
 	DropLegendaryCrate = "Legendary crate",
 	SpawnChampion = "Spawn next champion",
+	PrintProfile = "Print my saved data",
+	ResetProfile = "Reset my saved data",
+	UnlockAll = "Unlock everything",
+	FakePurchase = "Fake purchase: next product",
+	ToggleFakePasses = "Fake passes on/off",
+	AddEmbers = `+{Config.Admin.addEmbers} Embers`,
+	NextDay = "Next day (quests)",
+	StartFirstNight = "Start First Night",
+	PrintAnalytics = "Print analytics log",
 }
 
 local BUTTON_SIZE = Vector2.new(150, 30)

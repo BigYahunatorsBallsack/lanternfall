@@ -5,7 +5,10 @@
 -- less is better), Dodge with its cap; since B4 the secondary stats of the shop and the enemies only while they are not
 -- 0. On small screens the shop hides it behind a STATS button (setSuppressed, since B3). Since B5 a WEAPON CLASSES part
 -- below lists the classes of the weapons carried with their count and current bonus (Util/WeaponClasses; the bonus is
--- already in the stats above). Read by the smoke test (get).
+-- already in the stats above). Since Paket 14 a PRIMARY / SECONDARY switch in the title row (Brotato's two stat pages;
+-- the secondary page lists the secondary stats that are not 0), tooltips that say what a stat does with its value
+-- (Util/TooltipText) and class lines with their progress ("Edge 2/6", the bonus of every count in the tooltip).
+-- Read by the smoke test (get).
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -21,6 +24,8 @@ local WeaponClasses = require(Shared:WaitForChild("Util"):WaitForChild("WeaponCl
 local LoadoutController = require(script.Parent.LoadoutController)
 local RunStateController = require(script.Parent.RunStateController)
 local Theme = require(script.Parent.Parent.UI.Theme)
+local Tooltip = require(script.Parent.Parent.UI.Tooltip)
+local TooltipText = require(Shared:WaitForChild("Util"):WaitForChild("TooltipText"))
 local Widgets = require(script.Parent.Parent.UI.Widgets)
 
 local PANEL_WIDTH = 230
@@ -40,6 +45,9 @@ local sheet: Types.StatSheet = StatMath.baseSheet()
 local baseSheet = StatMath.baseSheet()
 local classTitle: TextLabel
 local classList: Frame
+local page: "Primary" | "Secondary" = "Primary" -- Paket 14
+local pageButton: TextButton
+local emptyLabel: TextLabel
 
 local function valueText(statId: string, value: number): string
 	local stat = Config.Stats.byId[statId]
@@ -54,15 +62,16 @@ local function valueText(statId: string, value: number): string
 	return text
 end
 
--- "Edge 2: +1 Melee Damage, +1% Life Steal" or "Keen 1 (2 for a bonus)".
+-- "Edge 2/6: +1 Melee Damage, +1% Life Steal" or "Keen 1/6 (2 for a bonus)".
 local function classLine(classId: string, count: number): string
 	local class = Config.WeaponClasses.byId[classId]
 	local name = if class then class.displayName else classId
+	local progress = `{count}/{Config.WeaponClasses.maxCount}`
 	local bonus = WeaponClasses.bonus(classId, count)
 	if not bonus then
-		return `<font color="#9A93A8">{name} {count} ({Config.WeaponClasses.minCount} for a bonus)</font>`
+		return `<font color="#9A93A8">{name} {progress} ({Config.WeaponClasses.minCount} for a bonus)</font>`
 	end
-	return `<b>{name} {count}</b>: {(string.gsub(UpgradeText.statLines(bonus), "\n", ", "))}`
+	return `<b>{name} {progress}</b>: {(string.gsub(UpgradeText.statLines(bonus), "\n", ", "))}`
 end
 
 local function renderClasses()
@@ -75,7 +84,8 @@ local function renderClasses()
 	local carried = WeaponClasses.carried(ids)
 	classTitle.Visible = #carried > 0
 	for index, entry in carried do
-		Widgets.label({
+		local classId, count = entry.id, entry.count
+		local row = Widgets.label({
 			Name = entry.id,
 			Text = classLine(entry.id, entry.count),
 			RichText = true,
@@ -87,6 +97,9 @@ local function renderClasses()
 			LayoutOrder = index,
 			Parent = classList,
 		})
+		Tooltip.attach(row, function()
+			return TooltipText.weaponClass(classId, count)
+		end)
 	end
 end
 
@@ -99,6 +112,7 @@ local function render()
 	if screen.Enabled then
 		renderClasses()
 	end
+	local anySecondary = false
 	for statId, label in values do
 		local value = sheet[statId] or 0
 		local base = baseSheet[statId] or 0
@@ -107,8 +121,15 @@ local function render()
 		local worse = if stat and stat.inverted then value > base else value < base
 		label.Text = valueText(statId, value)
 		label.TextColor3 = if better then Theme.success elseif worse then Theme.danger else Theme.text
-		rows[statId].Visible = not (stat and stat.hideWhenZero and math.abs(value) < 1e-9)
+		local primary = stat == nil or stat.primary
+		local hidden = stat ~= nil and stat.hideWhenZero and math.abs(value) < 1e-9
+		rows[statId].Visible = if page == "Primary" then primary else not primary and not hidden
+		if rows[statId].Visible and not primary then
+			anySecondary = true
+		end
 	end
+	emptyLabel.Visible = page == "Secondary" and not anySecondary
+	pageButton.Text = if page == "Primary" then "PRIMARY ▸" else "SECONDARY ▸"
 end
 
 local function build()
@@ -121,25 +142,48 @@ local function build()
 		Parent = screen,
 	})
 	Widgets.list(2).Parent = panel
+	local titleRow = Widgets.create("Frame", {
+		Name = "TitleRow",
+		BackgroundTransparency = 1,
+		Size = UDim2.new(1, 0, 0, 26),
+		LayoutOrder = 0,
+		Parent = panel,
+	})
 	Widgets.label({
 		Name = "Title",
 		Text = "STATS",
 		Font = Theme.fontBold,
 		TextColor3 = Theme.textDim,
 		TextXAlignment = Enum.TextXAlignment.Left,
-		LayoutOrder = 0,
-		Parent = panel,
+		Size = UDim2.fromScale(0.4, 1),
+		Parent = titleRow,
 	})
+	-- Paket 14: Brotato's primary and secondary stat pages
+	pageButton = Widgets.button({
+		Name = "Page",
+		Text = "PRIMARY ▸",
+		TextSize = 13,
+		AnchorPoint = Vector2.new(1, 0),
+		Position = UDim2.fromScale(1, 0),
+		Size = UDim2.fromScale(0.6, 1),
+		Parent = titleRow,
+	}, function()
+		StatsController.setPage(if page == "Primary" then "Secondary" else "Primary")
+	end)
 	for index, stat in Config.Stats.order do
 		local row = Widgets.create("Frame", {
 			Name = stat.id,
 			BackgroundTransparency = 1,
 			Size = UDim2.new(1, 0, 0, ROW_HEIGHT),
 			LayoutOrder = index,
-			Visible = not stat.hideWhenZero,
+			Visible = stat.primary,
 			Parent = panel,
 		})
 		rows[stat.id] = row
+		local statId = stat.id
+		Tooltip.attach(row, function()
+			return TooltipText.stat(statId, sheet[statId] or 0)
+		end)
 		Widgets.label({
 			Name = "Label",
 			Text = stat.displayName,
@@ -161,6 +205,16 @@ local function build()
 		})
 	end
 	local after = #Config.Stats.order
+	emptyLabel = Widgets.label({
+		Name = "NoSecondary",
+		Text = "None yet: secondary stats come from items.",
+		TextSize = 14,
+		TextColor3 = Theme.textDim,
+		AutomaticSize = Enum.AutomaticSize.Y,
+		Visible = false,
+		LayoutOrder = after,
+		Parent = panel,
+	})
 	classTitle = Widgets.label({
 		Name = "ClassesTitle",
 		Text = "WEAPON CLASSES",
@@ -210,6 +264,12 @@ function StatsController.setSuppressed(value: boolean)
 		suppressed = value
 		render()
 	end
+end
+
+-- Shows the primary or the secondary stats (Paket 14).
+function StatsController.setPage(value: "Primary" | "Secondary")
+	page = value
+	render()
 end
 
 -- Queries ---------------------------------------------------------------------------

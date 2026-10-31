@@ -1,6 +1,6 @@
 --!strict
--- Ember sources, bonuses and reference prices (DESIGN.md sections 10-12). Read by RunDirector and
--- MonetizationService. Product/pass ids from the Creator Hub are added in WP16.
+-- Ember sources, bonuses and reference prices (DESIGN.md sections 10-12). Read by Util/ProgressRules, Config.Store,
+-- Util/PurchaseRules and MonetizationService. Product/pass ids from the Creator Hub are in Config.Store (Paket 16).
 
 return table.freeze({
 	embers = table.freeze({

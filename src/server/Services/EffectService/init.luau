@@ -11,12 +11,15 @@
 -- in the shop (Util/EffectText), and ActiveBonuses (for the HUD) to the owner. Rolls on RandomService's Effects stream.
 -- Uses CombatService, EnemySim, ExperienceService, LootService, MapService, RandomService, RunDirector, ShopService,
 -- StatService and WeaponService; the smoke test reads getBonuses.
+-- B11 part 2: a RunDirector checkpoint keeps the "next wave" bonuses each wave starts with; after a "Retry wave" the
+-- entries are rebuilt from the restored items (RunDirector.WaveRetried) and the wave starts as usual.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Shared = ReplicatedStorage.Shared
 local Config = require(Shared.Config)
+local Copy = require(Shared.Util.Copy)
 local Net = require(Shared.Net)
 local Types = require(Shared.Net.Types)
 local EffectText = require(Shared.Util.EffectText)
@@ -568,6 +571,26 @@ function EffectService.init()
 			clear()
 		elseif phase == "Shop" or previous == "Running" then
 			onWaveEnd() -- the shop, or the run went on to the boss or ended in a wave
+		end
+	end)
+	RunDirector.addCheckpoint("Effects", function()
+		local saved = {}
+		for player, state in states do
+			saved[player] = Copy.deep(state.buffs.nextWave)
+		end
+		return saved
+	end, function(saved: { [Player]: { [string]: EffectRules.Sheet } })
+		for player, state in states do
+			state.buffs = EffectRules.newBuffs()
+			state.buffs.nextWave = Copy.deep(saved[player] or {})
+		end
+	end)
+	RunDirector.WaveRetried:Connect(function()
+		for _, state in states do
+			rebuild(state) -- the items are the ones from the wave start again
+			state.distinctWeapons = countDistinctWeapons(state.player)
+			table.clear(state.procs)
+			refresh(state)
 		end
 	end)
 	RunDirector.ParticipantStateChanged:Connect(function(player)

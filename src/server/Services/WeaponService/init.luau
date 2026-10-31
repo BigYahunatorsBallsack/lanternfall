@@ -11,6 +11,7 @@
 -- (EffectService: Hit, Crit and Kill effects) and Changed fires whenever a player's weapons change. Since B5 weapons
 -- slow and burn enemies (EnemySim.slow, setBurning), burn ticks show as orange damage numbers, and item effects burn
 -- and blow up enemies through burnEnemy and explodeAt (EffectService). Burns go out when a wave ends.
+-- B11 part 2: a RunDirector checkpoint keeps the weapons from the start of each wave for "Retry wave".
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -297,24 +298,37 @@ local function onStepped(dt: number, stepNow: number)
 	end
 end
 
+-- B10: picks the starting weapon for the character the player chose in the lobby (remote SelectStartWeapon;
+-- Paket 15: RunPlaceService applies the hub pick). False if it is not one of that character's starting weapons.
+function WeaponService.selectStartWeapon(player: Player, classId: string, weaponId: string): boolean
+	local class = Config.Classes[classId]
+	if RunDirector.isOngoing() and RunDirector.getParticipantState(player) ~= nil then
+		return false
+	end
+	if RunDirector.getSelectedClassId(player) ~= classId or not class or not class.available then
+		return false
+	end
+	if not table.find(class.startWeapons, weaponId) then
+		return false
+	end
+	local choices = selections[player] or {}
+	selections[player] = choices
+	choices[classId] = weaponId
+	Net.fireClient("StartWeaponChoice", player, classId, weaponId)
+	return true
+end
+
+-- Paket 15: the starting weapon the player picked for a character, nil if they kept the default.
+function WeaponService.getStartWeapon(player: Player, classId: string): string?
+	local choices = selections[player]
+	return if choices then choices[classId] else nil
+end
+
 -- Lifecycle -------------------------------------------------------------------------
 
 function WeaponService.init()
 	Net.onServer("SelectStartWeapon", function(player, classId: string, weaponId: string)
-		local class = Config.Classes[classId]
-		if RunDirector.isOngoing() and RunDirector.getParticipantState(player) ~= nil then
-			return
-		end
-		if RunDirector.getSelectedClassId(player) ~= classId or not class or not class.available then
-			return
-		end
-		if not table.find(class.startWeapons, weaponId) then
-			return
-		end
-		local choices = selections[player] or {}
-		selections[player] = choices
-		choices[classId] = weaponId
-		Net.fireClient("StartWeaponChoice", player, classId, weaponId)
+		WeaponService.selectStartWeapon(player, classId, weaponId)
 	end)
 	RunDirector.SyncRequested:Connect(function(player)
 		for classId, weaponId in selections[player] or {} do
@@ -343,6 +357,22 @@ function WeaponService.init()
 				end
 			end
 			arsenal:clearCombat() -- the enemies left fade away (EnemySim), so do their burns
+		end
+	end)
+	-- B11 part 2: the weapons from the start of the wave for "Retry wave"
+	RunDirector.addCheckpoint("Weapons", function()
+		local saved = {}
+		for _, player in RunDirector.getParticipants() do
+			saved[player] = arsenal:saveWeapons(player.UserId)
+		end
+		return saved
+	end, function(saved: { [Player]: { Arsenal.SavedWeapon } })
+		arsenal:clearCombat()
+		growth = {}
+		for player, weapons in saved do
+			if player.Parent and arsenal:restoreWeapons(player.UserId, weapons) then
+				send(player)
+			end
 		end
 	end)
 	RunDirector.SyncRequested:Connect(function(requester)
@@ -522,4 +552,32 @@ function WeaponService.getMaxWeapons(player: Player): number
 	return CharacterRules.maxWeapons(RunDirector.getParticipantClassId(player))
 end
 
+-- B12: already scaled structure damage, no primary weapon scaling or life steal.
+function WeaponService.structureHit(player: Player, enemyId: number, amount: number, source: Arsenal.HitSource?)
+	local killed, dealt, applied = EnemySim.damage(enemyId, amount, player)
+	recordHit(player.UserId, enemyId, applied, false, killed, false)
+	if hitListener and dealt > 0 then
+		hitListener(player.UserId, enemyId, dealt, false, killed, source or "Weapon")
+	end
+end
+-- B12 shares the existing burn registry: strongest burn wins, timers survive refreshes, secondary stats apply.
+function WeaponService.structureBurn(
+	player: Player,
+	enemyId: number,
+	damage: number,
+	ticks: number,
+	sheet: { [string]: number }
+)
+	arsenal.afflictions:ignite(
+		enemyId,
+		require(script.Afflictions).newBurn(
+			player.UserId,
+			nil,
+			damage,
+			ticks,
+			require(Shared.Util.StatMath).burnInterval(sheet.burnSpeed or 0),
+			math.max(0, math.floor(sheet.burnSpread or 0))
+		)
+	)
+end
 return WeaponService

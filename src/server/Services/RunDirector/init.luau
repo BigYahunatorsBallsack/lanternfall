@@ -5,6 +5,17 @@
 -- Other services listen to its signals and call setParticipantState / endRun.
 -- Since B11 the lobby picks the run options (danger level, endless mode, enemy sliders; remote SetRunOptions), and in
 -- endless mode the run goes on after wave 20 (Util/RunSchedule has the endless waves).
+-- Since Paket 13 the lobby's danger level is capped by the highest level someone in the lobby has opened with the
+-- character they picked (PlayerDataService.maxDanger); teammates without it may play along.
+-- B11 part 2 "Retry wave": services register a checkpoint (addCheckpoint) that is saved when a wave starts (after
+-- WaveStarting, before PhaseChanged) and restored when a participant retries the lost wave on the results (remote
+-- RetryWave); then WaveRetried fires and the wave starts again with PhaseChanged Ended -> Running.
+-- Paket 15: on the hub (PlaceService) players do not ready up; PartyService teleports each group to its own run server
+-- (in Studio it starts the group's run here with launch), the hub's run options belong to the parties
+-- (OptionsRequested), and READY only counts as "Play again" after a run. On the run place RunPlaceService launches the
+-- group that arrived.
+-- Paket 19: launch also starts a new player's First Night (FirstNightService, options.firstNight: fewer waves); the
+-- lobby gets its old options back once that run started.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -20,6 +31,7 @@ local Signal = require(Shared.Util.Signal)
 local Types = require(Shared.Net.Types)
 
 local MapService = require(script.Parent.MapService)
+local PlaceService = require(script.Parent.PlaceService)
 local PlayerDataService = require(script.Parent.PlayerDataService)
 local RunFlow = require(script.RunFlow)
 
@@ -31,9 +43,13 @@ local REJECTION_TEXT: { [string]: string } = {
 	AlreadyPast = "The timer is already past that point",
 	NotShopping = "The shop is closed",
 	UnknownPlayer = "Please wait a moment and try again",
-	Locked = "This class is not unlocked yet",
+	Locked = "This character is not unlocked yet",
 	NoCharacter = "Your character has not loaded yet",
 	EnemyCap = "The enemy limit is reached",
+	NotDefeated = "Only after a defeat",
+	NoRetriesLeft = "No retries left in this run",
+	UseHub = "Pick Play solo, Party run or Quick join",
+	Busy = "A run is already going in this server",
 }
 
 local RunDirector = {}
@@ -48,6 +64,20 @@ RunDirector.PhaseChanged = Signal.new()
 RunDirector.ParticipantStateChanged = Signal.new()
 -- (player: Player): a client asked for a full sync; other services send their state too
 RunDirector.SyncRequested = Signal.new()
+-- (wave: number): a wave is about to start (from the shop or the countdown); fired before the checkpoint is saved and
+-- before PhaseChanged, e.g. for UpgradeService to pick the cards still open (B11 part 2)
+RunDirector.WaveStarting = Signal.new()
+-- (wave: number): the lost wave starts again; every checkpoint was restored, PhaseChanged to Running comes next
+RunDirector.WaveRetried = Signal.new()
+-- (player: Player, classId: string): a player picked a character in the lobby (Paket 15: PartyService resends)
+RunDirector.ClassSelected = Signal.new()
+-- (player: Player, options: Types.RunOptions): on the hub, a player picked run options for their party (Paket 15)
+RunDirector.OptionsRequested = Signal.new()
+
+-- B11 part 2: what the services keep from the start of the current wave for "Retry wave".
+type Checkpoint = { name: string, save: () -> any, restore: (any) -> () }
+local checkpoints: { Checkpoint } = {}
+local savedCheckpoint: { [string]: any } = {}
 
 local flow = RunFlow.new({
 	countdownSeconds = Config.Run.flow.countdownSeconds,
@@ -62,6 +92,8 @@ local flow = RunFlow.new({
 	end)(),
 	shopSeconds = Config.Shop.phaseSeconds,
 	maxPlayers = Config.Run.maxPlayers,
+	maxRetries = Config.Run.flow.maxRetries,
+	firstNightWaves = Config.FirstNight.waves, -- Paket 19
 	defaultClassId = Config.Run.flow.defaultClassId,
 	waveEndAt = function(number: number): number
 		return RunSchedule.wave(number).endsAt
@@ -69,8 +101,10 @@ local flow = RunFlow.new({
 })
 
 local sentVersion = -1
+local capOverride = false -- Paket 13: options set by tests or admins (RunDirector.setOptions) skip the danger cap
 local processing = false
 local inArena: { [Player]: boolean } = {} -- characters that belong in the arena until the next lobby phase
+local lobbyOptions: Types.RunOptions? = nil -- Paket 19: the lobby's options before a First Night was launched
 
 local function now(): number
 	return workspace:GetServerTimeNow()
@@ -109,18 +143,51 @@ local function returnToLobby()
 	table.clear(inArena)
 end
 
+-- Saves every service's checkpoint; one that fails is reported and skipped.
+local function saveCheckpoints()
+	table.clear(savedCheckpoint)
+	for _, checkpoint in checkpoints do
+		local ok, result = pcall(checkpoint.save)
+		if ok then
+			savedCheckpoint[checkpoint.name] = result
+		else
+			task.spawn(error, `[Lanternfall] Checkpoint {checkpoint.name} failed to save: {result}`, 0)
+		end
+	end
+end
+
+local function restoreCheckpoints()
+	for _, checkpoint in checkpoints do
+		local data = savedCheckpoint[checkpoint.name]
+		if data ~= nil then
+			local ok, err = pcall(checkpoint.restore, data)
+			if not ok then
+				task.spawn(error, `[Lanternfall] Checkpoint {checkpoint.name} failed to restore: {err}`, 0)
+			end
+		end
+	end
+end
+
 local function handle(event: RunFlow.Event)
 	if event.kind == "RunStarted" then
 		local players = toPlayers(event.userIds)
 		print(`[Lanternfall] Run started with {#players} player(s), {DangerRules.label(flow:getRunOptions())}`)
 		sendToArena(players)
 		notifyParticipants("Survive until dawn!")
+		if lobbyOptions and flow.options.firstNight then -- Paket 19: the next run is a normal one again
+			flow:setOptions(lobbyOptions)
+		end
+		lobbyOptions = nil
 		RunDirector.RunStarted:Fire(players)
 	elseif event.kind == "RunEnded" then
 		local results = event.results
 		print(`[Lanternfall] Run ended: {results.outcome} after {Format.time(results.survivedSeconds)}`)
 		RunDirector.RunEnded:Fire(results)
 	elseif event.kind == "PhaseChanged" then
+		if event.phase == "Running" and (event.previous == "Shop" or event.previous == "Countdown") then
+			RunDirector.WaveStarting:Fire(flow.wave)
+			saveCheckpoints()
+		end
 		RunDirector.PhaseChanged:Fire(event.phase, event.previous)
 		if event.phase == "Lobby" then
 			returnToLobby()
@@ -130,6 +197,13 @@ local function handle(event: RunFlow.Event)
 		if player then
 			RunDirector.ParticipantStateChanged:Fire(player, event.state)
 		end
+	elseif event.kind == "WaveRetried" then
+		print(`[Lanternfall] Wave {event.wave} retried`)
+		restoreCheckpoints()
+		sendToArena(toPlayers(flow:getParticipantIds()))
+		RunDirector.WaveRetried:Fire(event.wave)
+		local left = Config.Run.flow.maxRetries - flow.retries
+		notifyParticipants(`Wave {event.wave} starts again ({left} {if left == 1 then "retry" else "retries"} left)`)
 	end
 end
 
@@ -159,6 +233,30 @@ local function reject(player: Player, reason: string?)
 	Net.fireClient("Notify", player, REJECTION_TEXT[reason or ""] or "Not possible right now")
 end
 
+-- Paket 13: highest danger level someone in the lobby has open with the character they picked.
+local function dangerCap(): number
+	local cap = 0
+	for _, player in Players:GetPlayers() do
+		if flow.players[player.UserId] then
+			cap = math.max(cap, PlayerDataService.maxDanger(player, RunDirector.getSelectedClassId(player)))
+		end
+	end
+	return cap
+end
+
+-- Paket 13: lowers the lobby's danger level when nobody has it open any more (character change, leave, new record).
+local function enforceDangerCap()
+	if capOverride then
+		return
+	end
+	local cap = dangerCap()
+	if flow.options.danger > cap then
+		local options = table.clone(flow.options)
+		options.danger = cap
+		flow:setOptions(DangerRules.clean(options))
+	end
+end
+
 local function onCharacterAdded(player: Player)
 	-- Respawns land in the lobby (MapService sets RespawnLocation); participants go back to the arena.
 	if inArena[player] then
@@ -182,6 +280,7 @@ end
 local function onPlayerRemoving(player: Player)
 	inArena[player] = nil
 	flow:removePlayer(player.UserId, now())
+	enforceDangerCap()
 	process()
 end
 
@@ -194,16 +293,10 @@ function RunDirector.init()
 	end)
 
 	Net.onServer("SelectClass", function(player, classId: string)
-		local class = Config.Classes[classId]
-		if not (class and class.available and PlayerDataService.ownsClass(player, classId)) then
-			reject(player, "Locked")
-			return
-		end
-		local ok, reason = flow:setClass(player.UserId, classId)
+		local ok, reason = RunDirector.selectClass(player, classId)
 		if not ok then
 			reject(player, reason)
 		end
-		process()
 	end)
 
 	Net.onServer(
@@ -221,6 +314,30 @@ function RunDirector.init()
 				reject(player, "UnknownPlayer")
 				return
 			end
+			if PlaceService.isHub() then -- Paket 15: the party's options, kept by PartyService
+				RunDirector.OptionsRequested:Fire(
+					player,
+					DangerRules.clean({
+						danger = danger,
+						endless = endless,
+						enemyHp = enemyHp,
+						enemyDamage = enemyDamage,
+						enemySpeed = enemySpeed,
+						enemyCount = enemyCount,
+					})
+				)
+				return
+			end
+			local cap = dangerCap()
+			if danger > cap then
+				Net.fireClient(
+					"Notify",
+					player,
+					`Danger {danger} is locked. Win danger {danger - 1} with your character to open it.`
+				)
+				danger = cap
+			end
+			capOverride = false
 			flow:setOptions(DangerRules.clean({
 				danger = danger,
 				endless = endless,
@@ -241,13 +358,33 @@ function RunDirector.init()
 		process()
 	end)
 
+	Net.onServer("RetryWave", function(player)
+		local ok, reason = flow:retryWave(player.UserId, now())
+		if not ok then
+			reject(player, reason)
+		end
+		process()
+	end)
+
 	Net.onServer("SetReady", function(player, ready: boolean)
+		-- Paket 15: on the hub READY is only "Play again" on the results of a run played here (Studio)
+		if PlaceService.isHub() and ready and not (flow.phase == "Ended" and flow:isParticipant(player.UserId)) then
+			reject(player, "UseHub")
+			return
+		end
 		local ok, reason = flow:setReady(player.UserId, ready, now())
 		if not ok then
 			reject(player, reason)
 		end
 		process()
 	end)
+
+	local function onProgress()
+		enforceDangerCap()
+		process()
+	end
+	PlayerDataService.Loaded:Connect(onProgress)
+	PlayerDataService.Changed:Connect(onProgress)
 
 	Players.PlayerAdded:Connect(onPlayerAdded)
 	Players.PlayerRemoving:Connect(onPlayerRemoving)
@@ -298,8 +435,11 @@ function RunDirector.getRunOptions(): Types.RunOptions
 end
 
 -- B11: sets the lobby's options for the next run (tests and admin; players use the remote SetRunOptions).
-function RunDirector.setOptions(options: Types.RunOptions)
+-- Paket 15: `capped` keeps the danger cap of the players in the lobby (options from a run place ticket).
+function RunDirector.setOptions(options: Types.RunOptions, capped: boolean?)
+	capOverride = not capped -- tests and admins may pick any danger level
 	flow:setOptions(DangerRules.clean(options))
+	enforceDangerCap()
 	process()
 end
 
@@ -350,8 +490,74 @@ function RunDirector.isHoldingWaves(): boolean
 	return flow.holdWaves
 end
 
+-- B11 part 2: registers what a service keeps from the start of each wave. `save` runs when a wave starts (after
+-- WaveStarting) and returns a copy of the state; `restore` gets that copy back when the wave is retried. Restores run
+-- in the order the services registered; work that needs every service restored belongs on WaveRetried.
+function RunDirector.addCheckpoint(name: string, save: () -> any, restore: (any) -> ())
+	table.insert(checkpoints, { name = name, save = save, restore = restore })
+end
+
+-- B11 part 2: starts the lost wave again (tests and admin; players use the remote RetryWave).
+function RunDirector.retryWave(player: Player): (boolean, string?)
+	local ok, reason = flow:retryWave(player.UserId, now())
+	process()
+	return ok, reason
+end
+
 function RunDirector.notifyRejection(player: Player, reason: string?)
 	reject(player, reason)
+end
+
+-- Picks the player's character for the next run (remote SelectClass; RunPlaceService applies hub picks). Checks
+-- that it exists, is playable and unlocked for the player.
+function RunDirector.selectClass(player: Player, classId: string): (boolean, string?)
+	local class = Config.Classes[classId]
+	if not (class and class.available and PlayerDataService.ownsClass(player, classId)) then
+		return false, "Locked"
+	end
+	local ok, reason = flow:setClass(player.UserId, classId)
+	enforceDangerCap()
+	process()
+	if ok then
+		RunDirector.ClassSelected:Fire(player, classId)
+	end
+	return ok, reason
+end
+
+-- Paket 15: starts a run for exactly these players after the short countdown: a hub group in Studio (PartyService)
+-- or the group that arrived on a run place (RunPlaceService). `options` replace the lobby's; with `capped` the
+-- danger cap of the players here still applies (tickets), without it they are used as they are (PartyService
+-- already capped them for the group).
+function RunDirector.launch(players: { Player }, options: Types.RunOptions?, capped: boolean?): (boolean, string?)
+	if flow.phase ~= "Lobby" and flow.phase ~= "Countdown" then
+		return false, "Busy"
+	end
+	if options then
+		if options.firstNight and not flow.options.firstNight then
+			lobbyOptions = table.clone(flow.options)
+		end
+		capOverride = not capped
+		flow:setOptions(DangerRules.clean(options))
+		enforceDangerCap()
+	end
+	local userIds = {}
+	for _, player in players do
+		table.insert(userIds, player.UserId)
+	end
+	local ok, reason = flow:launch(userIds, now())
+	if not ok and lobbyOptions then -- Paket 19: a First Night that could not start leaves the lobby as it was
+		flow:setOptions(lobbyOptions)
+		lobbyOptions = nil
+	end
+	process()
+	return ok, reason
+end
+
+-- Ready for the next run, like the READY button (RunPlaceService queues players who arrive during a run).
+function RunDirector.setReady(player: Player, ready: boolean): (boolean, string?)
+	local ok, reason = flow:setReady(player.UserId, ready, now())
+	process()
+	return ok, reason
 end
 
 -- B10: current lobby choice, separate from the frozen participant class of an active run.

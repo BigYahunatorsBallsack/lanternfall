@@ -8,6 +8,7 @@
 -- takes as much again from the bag. Sends OrbBag (what is in the bag) to everyone. StatService sets each player's Pickup Range, XP Gain and Double Orbs
 -- (setStats; a doubled orb gives twice its Shards and XP like Brotato's Metal Detector, rolled on RandomService's
 -- Loot stream); ShopService adds Harvesting XP with addXp; AdminService calls grantLevel.
+-- B11 part 2: a RunDirector checkpoint keeps the team level, XP and bag from the start of each wave ("Retry wave").
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -235,6 +236,17 @@ function ExperienceService.init()
 			bagLeftovers()
 			table.clear(eaten) -- Gobblers alive at the wave end take what they ate with them
 		end
+	end)
+	RunDirector.addCheckpoint("Experience", function()
+		return { level = progress.level, xp = progress.xp, bag = bag }
+	end, function(saved: { level: number, xp: number, bag: number })
+		progress.level = saved.level
+		progress.xp = saved.xp
+		bag = saved.bag
+		table.clear(eaten)
+		clearOrbs()
+		sendBag()
+		sendProgress()
 	end)
 	RunDirector.ParticipantStateChanged:Connect(sendProgress) -- a player who is out no longer counts
 	Players.PlayerRemoving:Connect(function(player)

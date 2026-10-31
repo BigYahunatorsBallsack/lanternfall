@@ -23,6 +23,8 @@ Pro Runde baut jeder Strang **ein** Paket. Eine Runde ist vorbei, wenn beide PRs
 
 Danach (Pakete 11–26): Extra-high-Pakete an Claude (12 Speichern, 15 Teleport, 16 Käufe, 22 Performance, 23 Sicherheit), Medium-Pakete mit klarem Umfang an ChatGPT (13 Fortschritt, 14 HUD/Tooltips, 17 Shop-UI, 18 Quests, 20 Analytics). Die Zuteilung legt der Owner pro Runde fest und trägt sie hier ein.
 
+**Owner 31.10.2026:** Claude baut alle Pakete ab 13 (auch die oben ChatGPT zugedachten), nur B12 bleibt bei ChatGPT. Reihenfolge und Effort: `STATUS.md` → „Plan bis zum Launch“. Ist Claudes Limit leer, übernimmt ChatGPT das nächste offene Paket dieser Liste.
+
 ## 3. Wem welche Dateien gehören
 
 Jede Datei hat **einen** Besitzer-Strang. Nur der Besitzer ändert sie. Braucht der andere Strang dort etwas, schreibt er es unter „Wunsch an den anderen Strang" in seinen PR, statt die Datei anzufassen.

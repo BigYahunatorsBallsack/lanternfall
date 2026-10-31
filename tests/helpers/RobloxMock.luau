@@ -340,6 +340,7 @@ local SUPERCLASS = {
 	PVInstance = "Instance",
 	Frame = "GuiObject",
 	TextLabel = "GuiObject",
+	ScrollingFrame = "GuiObject", -- Paket 13
 	TextButton = "GuiButton",
 	GuiButton = "GuiObject",
 	GuiObject = "GuiBase2d",
@@ -365,6 +366,16 @@ local EVENTS = {
 	Died = true,
 	Changed = true,
 	AncestryChanged = true,
+	-- Paket 14: tooltips and the settings menu
+	MouseEnter = true,
+	MouseLeave = true,
+	MouseMoved = true,
+	InputBegan = true,
+	-- Paket 15: portals and teleports
+	Triggered = true,
+	TeleportInitFailed = true,
+	-- Paket 16: purchases
+	PromptGamePassPurchaseFinished = true,
 }
 
 local function isA(className, target)
@@ -435,6 +446,10 @@ local function newInstance(className, props)
 			initial[key] = value
 		end
 	end
+	if className == "Sound" then -- Paket 21
+		initial.IsPlaying = false
+		initial.TimeLength = 0
+	end
 	rawset(instance, "__props", initial)
 	rawset(instance, "__children", {})
 	rawset(instance, "__events", {})
@@ -460,6 +475,9 @@ InstanceMeta.__index = function(instance, key)
 	end
 	if key == "Parent" then
 		return nil
+	end
+	if key == "CFrame" and props.Position ~= nil then
+		return cf(props.Position) -- Paket 17: a part placed by Position (rotation is not simulated)
 	end
 	if EVENTS[key] then
 		local events = rawget(instance, "__events")
@@ -610,6 +628,15 @@ end
 -- Trail and Beam segments are not simulated.
 function methods.Clear() end
 -- ParticleEmitter: counts emitted particles in world.particlesEmitted.
+-- Paket 21: sounds record each play in world.soundsPlayed (by name, e.g. "hit2" or "lobby").
+world.soundsPlayed = {}
+function methods.Play(self)
+	self.IsPlaying = true
+	table.insert(world.soundsPlayed, self.Name)
+end
+function methods.Stop(self)
+	self.IsPlaying = false
+end
 function methods.Emit(_, count)
 	world.particlesEmitted = (world.particlesEmitted or 0) + (count or 1)
 end
@@ -652,6 +679,116 @@ function methods.Create(_, target, _, goals)
 	}
 end
 
+-- Paket 15: TeleportOptions keep their data; players return what world.addPlayer gave them as join data.
+function methods.SetTeleportData(self, data)
+	self.TeleportData = data
+end
+function methods.GetTeleportData(self)
+	return self.TeleportData
+end
+function methods.GetJoinData(self)
+	return { TeleportData = self.JoinTeleportData }
+end
+-- TeleportService: reserved servers are numbered, teleports are recorded in world.teleports (world.teleportError
+-- makes TeleportAsync throw, like a Roblox error).
+world.teleports = {}
+world.reservedServers = 0
+function methods.ReserveServer(_, placeId)
+	world.reservedServers += 1
+	return `access-{placeId}-{world.reservedServers}`, `server-{world.reservedServers}`
+end
+function methods.TeleportAsync(_, placeId, players, options)
+	if world.teleportError then
+		error(world.teleportError, 2)
+	end
+	table.insert(world.teleports, { placeId = placeId, players = table.clone(players), options = options })
+end
+
+-- Paket 16: MarketplaceService. world.ownedPasses["userId:passId"] = true owns a pass, world.marketError makes the
+-- calls throw, world.robuxPrices[id] is what GetProductInfo reports; prompts are recorded in world.prompts and
+-- world.buyProduct runs ProcessReceipt like Roblox does after a purchase.
+world.ownedPasses = {}
+world.robuxPrices = {}
+world.prompts = {}
+function methods.UserOwnsGamePassAsync(_, userId, passId)
+	if world.marketError then
+		error(world.marketError, 2)
+	end
+	return world.ownedPasses[`{userId}:{passId}`] == true
+end
+function methods.GetProductInfo(_, id, infoType)
+	if world.marketError then
+		error(world.marketError, 2)
+	end
+	return { PriceInRobux = world.robuxPrices[id] or 0, InfoType = infoType }
+end
+function methods.PromptProductPurchase(_, player, id)
+	table.insert(world.prompts, { kind = "Product", player = player, id = id })
+end
+function methods.PromptGamePassPurchase(_, player, id)
+	table.insert(world.prompts, { kind = "Pass", player = player, id = id })
+end
+
+-- Paket 18: BadgeService records awards in world.badges["userId:badgeId"] (world.badgeError makes the calls throw),
+-- UserService names offline players, Players:GetFriendsAsync lists world.friends[userId] on one page.
+world.badges = {}
+world.friends = {}
+function methods.UserHasBadgeAsync(_, userId, badgeId)
+	if world.badgeError then
+		error(world.badgeError, 2)
+	end
+	return world.badges[`{userId}:{badgeId}`] == true
+end
+function methods.AwardBadge(_, userId, badgeId)
+	if world.badgeError then
+		error(world.badgeError, 2)
+	end
+	world.badges[`{userId}:{badgeId}`] = true
+	return true
+end
+function methods.GetUserInfosByUserIdsAsync(_, ids)
+	local infos = {}
+	for _, id in ids do
+		table.insert(infos, { Id = id, Username = `user{id}`, DisplayName = `User {id}` })
+	end
+	return infos
+end
+function methods.GetFriendsAsync(_, userId)
+	local page = {}
+	for _, id in world.friends[userId] or {} do
+		table.insert(page, { Id = id, Username = `user{id}`, DisplayName = `User {id}`, IsOnline = false })
+	end
+	return {
+		IsFinished = true,
+		GetCurrentPage = function()
+			return page
+		end,
+		AdvanceToNextPageAsync = function() end,
+	}
+end
+
+-- Paket 20: AnalyticsService records every call in world.analytics as { method, player, args }
+-- (world.analyticsError makes the calls throw).
+world.analytics = {}
+for _, method in
+	{
+		"LogOnboardingFunnelStepEvent",
+		"LogFunnelStepEvent",
+		"LogEconomyEvent",
+		"LogProgressionStartEvent",
+		"LogProgressionCompleteEvent",
+		"LogProgressionFailEvent",
+		"LogCustomEvent",
+	}
+do
+	methods[method] = function(_, player, ...)
+		if world.analyticsError then
+			error(world.analyticsError, 2)
+		end
+		table.insert(world.analytics, { method = method, player = player, args = table.pack(...) })
+	end
+end
+
 local InstanceLib = { new = newInstance }
 
 -- Services ----------------------------------------------------------------------
@@ -662,6 +799,14 @@ local Workspace = newInstance("Workspace", { Name = "Workspace" })
 local TweenService = newInstance("TweenService", { Name = "TweenService" })
 local ContextActionService = newInstance("ContextActionService", { Name = "ContextActionService" })
 local StarterGui = newInstance("StarterGui", { Name = "StarterGui" })
+local SoundService = newInstance("SoundService", { Name = "SoundService" }) -- Paket 14
+local Lighting = newInstance("Lighting", { Name = "Lighting" }) -- Paket 21
+world.lighting = Lighting
+local TeleportService = newInstance("TeleportService", { Name = "TeleportService" }) -- Paket 15
+local MarketplaceService = newInstance("MarketplaceService", { Name = "MarketplaceService" }) -- Paket 16
+local BadgeService = newInstance("BadgeService", { Name = "BadgeService" }) -- Paket 18
+local AnalyticsService = newInstance("AnalyticsService", { Name = "AnalyticsService" }) -- Paket 20
+local UserService = newInstance("UserService", { Name = "UserService" }) -- Paket 18
 local UserInputService =
 	newInstance("UserInputService", { Name = "UserInputService", TouchEnabled = false, KeyboardEnabled = true })
 world.renderSteps = {}
@@ -702,6 +847,17 @@ __services.Workspace = Workspace
 __services.TweenService = TweenService
 __services.ContextActionService = ContextActionService
 __services.StarterGui = StarterGui
+__services.SoundService = SoundService
+__services.Lighting = Lighting
+__services.TeleportService = TeleportService
+__services.MarketplaceService = MarketplaceService
+world.market = MarketplaceService
+__services.BadgeService = BadgeService
+__services.AnalyticsService = AnalyticsService
+__services.UserService = UserService
+game.PlaceId = 0
+game.GameId = 0
+game.JobId = ""
 __services.UserInputService = UserInputService
 game.CreatorType = EnumLib.CreatorType.User
 game.CreatorId = 0
@@ -724,9 +880,15 @@ _G.ColorSequence = ColorSequenceLib
 _G.Random = RandomLib
 _G.Enum = EnumLib
 _G.workspace = Workspace
+-- Paket 18: os.time follows the fake clock from a fixed date (2027-01-01 00:00 UTC + clock.now), so daily quests and
+-- weekly leaderboards are the same in every test run
+world.unixBase = 1798761600
 _G.os = setmetatable({
 	clock = function()
 		return clock.now
+	end,
+	time = function()
+		return world.unixBase + math.floor(clock.now)
 	end,
 }, { __index = os })
 _G.typeof = function(value)
@@ -786,8 +948,9 @@ local function spawnCharacter(player)
 end
 world.spawnCharacter = spawnCharacter
 
-function world.addPlayer(name, userId, isLocal)
+function world.addPlayer(name, userId, isLocal, teleportData)
 	local player = newInstance("Player", { Name = name, DisplayName = name, UserId = userId })
+	player.JoinTeleportData = teleportData -- Paket 15: what player:GetJoinData().TeleportData returns
 	newInstance("PlayerGui", { Name = "PlayerGui", Parent = player })
 	newInstance("PlayerScripts", { Name = "PlayerScripts", Parent = player })
 	if isLocal then
@@ -803,6 +966,14 @@ end
 function world.removePlayer(player)
 	Players.PlayerRemoving:Fire(player)
 	player.Parent = nil
+end
+
+-- Paket 12: Player:Kick removes the player like leaving; the message stays readable on the player.
+function methods.Kick(self, message)
+	self.KickMessage = message or ""
+	if self.Parent == Players then
+		world.removePlayer(self)
+	end
 end
 
 function world.getRemote(name)
@@ -837,6 +1008,24 @@ function world.pressAction(name)
 	local callback = world.actions[name]
 	assert(callback, `no action {name}`)
 	return callback(name, EnumLib.UserInputState.Begin)
+end
+
+-- Paket 16: Roblox calls ProcessReceipt for a purchase; returns a table whose `decision` is filled in when the
+-- callback returns (it may wait for a save).
+function world.buyProduct(player, productId, purchaseId)
+	local outcome = { decision = nil }
+	task.spawn(function()
+		local callback = MarketplaceService.ProcessReceipt
+		assert(callback, "no ProcessReceipt callback")
+		outcome.decision = callback({
+			PlayerId = player.UserId,
+			ProductId = productId,
+			PurchaseId = purchaseId,
+			CurrencySpent = world.robuxPrices[productId] or 0,
+			PlaceIdWherePurchased = game.PlaceId,
+		})
+	end)
+	return outcome
 end
 
 function world.click(button)

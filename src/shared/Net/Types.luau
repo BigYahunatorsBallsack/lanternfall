@@ -31,6 +31,7 @@ export type Results = {
 	players: { ResultEntry },
 	wave: number?, -- B11: the wave the run ended in
 	endless: boolean?, -- B11
+	retriesLeft: number?, -- B11 part 2: "Retry wave" can still be used this often (defeats only)
 }
 
 -- B11: what the lobby chose for a run (Config.Difficulty): danger level 0-5, endless mode and the enemy sliders in
@@ -42,6 +43,7 @@ export type RunOptions = {
 	enemyDamage: number,
 	enemySpeed: number,
 	enemyCount: number?, -- percent of the enemies the spawn groups bring (default 100)
+	firstNight: boolean?, -- Paket 19: the short First Night run of a new player (Config.FirstNight)
 }
 
 export type RunState = {
@@ -261,6 +263,16 @@ export type RunSummaryPlayer = {
 	damageDealt: number, -- by the player's weapons
 	damageTaken: number,
 	downs: number,
+	weapons: { RunSummaryWeapon }?, -- Paket 14: by damage, most first
+}
+
+-- Paket 14: one weapon on the results screen; copies of a weapon share a line at their highest tier.
+export type RunSummaryWeapon = {
+	id: string,
+	tier: number,
+	evolution: string?,
+	damage: number,
+	kills: number,
 }
 
 -- Run statistics, sent to the participants right after the run ended.
@@ -341,6 +353,9 @@ export type BossTelegraph = {
 	endsAt: number?, -- WP10 part 2: a pool stays on the floor (and hurts) until then
 }
 
+-- B12 server-only deployments and bounded cosmetic batches.
+export type StructureInfo = { id: number, ownerId: number, kind: string, x: number, z: number }
+export type StructureBeam = { kind: string, x: number, z: number, tx: number, tz: number }
 -- WP11: a participant who is down or out during a wave (ReviveService -> ReviveController). `timeLeft` seconds until
 -- a downed player is out and `progress` (0-1) of the revive, both as of server time `sentAt`; `reviverUserId` is the
 -- teammate standing next to them right now (the progress grows), nil while it drains back.
@@ -355,6 +370,129 @@ export type ReviveInfo = {
 
 export type ReviveState = {
 	players: { ReviveInfo },
+}
+
+-- Paket 12: how player data is kept this session (PlayerDataService). "DataStore" saves for real; "Mock" is Studio
+-- without API access (kept only until the test stops); "Memory" has no DataStoreService at all (tests).
+export type SaveMode = "DataStore" | "Mock" | "Memory"
+
+-- Paket 12: the local player's saved record for the lobby (PlayerDataService -> ProfileCard), on load and change.
+export type ProfileInfo = {
+	saveMode: SaveMode,
+	schemaVersion: number,
+	runs: number,
+	wins: number,
+	kills: number,
+	bossKills: number,
+	bestWave: number,
+	bestDanger: number, -- highest danger level won, -1 = never won
+	-- Paket 13
+	embers: number?,
+	achievements: { [string]: boolean }?, -- done achievement ids
+	progress: { [string]: number }?, -- achievement id -> current value (Util/ProgressRules.progress)
+	characterDanger: { [string]: number }?, -- class id -> highest danger level open for it
+	ownedClasses: { string }?, -- characters bought with Embers (unlocked without the achievement)
+	settings: Settings?, -- Paket 14
+	cosmetics: { owned: { string }, equipped: { [string]: string } }?, -- Paket 17: bought and picked cosmetics
+}
+
+-- Paket 14: a player's settings (Config.Settings.defaults), saved in the profile.
+export type Settings = {
+	shake: boolean,
+	damageNumbers: boolean,
+	music: number, -- volume 0..1
+	effects: number, -- volume 0..1
+}
+
+-- Paket 14: an elite or horde wave planned for this run (DangerService -> HUD), remote WavePlan.
+export type WaveChallenge = {
+	wave: number,
+	kind: string, -- "Elite" or "Horde"
+}
+
+-- Paket 13: what a finished run paid one player (PlayerDataService -> ResultsController), remote RunRewards.
+export type RunRewards = {
+	embers: number, -- the run's Embers plus achievement Embers
+	lines: { { label: string, amount: number } }, -- the run's Embers, line by line
+	achievements: { string }, -- ids of the achievements done by this run
+	unlocked: { string }, -- names of what they unlocked
+	totalEmbers: number, -- Embers after the run
+}
+
+-- Paket 15: another player in the hub, as the party panel lists them (PartyService -> PartyController).
+export type HubPlayer = {
+	userId: number,
+	name: string,
+	status: string, -- "Solo", "Party", "Queue" (quick join) or "Busy" (teleporting or in a run)
+	partySize: number, -- players in their party (1 = solo)
+	invited: boolean, -- the local player invited them and they have not answered yet
+}
+
+-- Paket 15: what one player sees of places, parties and quick join (remote PartyState, to that player on change).
+export type PartyState = {
+	role: string, -- "Hub", "Run" or "Single" (Util/PlaceRules)
+	canTeleport: boolean, -- false in Studio: the hub starts runs in its own server
+	leaderId: number, -- leader of the player's party (the player when solo)
+	members: { { userId: number, name: string } }, -- the party, leader first; only the player when solo
+	options: RunOptions, -- the run options of the party (picked by its leader)
+	invite: { fromId: number, fromName: string, expiresAt: number }?, -- the newest invite to the player
+	queue: { players: number, groupSize: number, startsAt: number? }?, -- in quick join: queued players, the forming
+	-- group and when it leaves
+	launchAt: number?, -- the party run starts at this server time (leader pressed START)
+	teleporting: boolean,
+	players: { HubPlayer }, -- the other players in this hub
+	group: { arrived: number, expected: number, startsBy: number? }?, -- run place: the group still arriving
+}
+
+-- Paket 16: what the local player owns and can buy (MonetizationService -> StoreController), remote StoreState.
+export type StoreState = {
+	setUp: { [string]: boolean }, -- pass or product key -> has a Creator Hub id in this experience (can be bought)
+	prices: { [string]: number }, -- key -> Robux (the real price once the server read it, else Config.Store's)
+	passes: { [string]: boolean }, -- pass key -> owned
+	tokens: { revives: number, rerolls: number }, -- bought, not used yet
+	vipRerolls: number, -- VIP shop rerolls left in this run
+	reviveUsed: boolean, -- a revive was used in this run (once per run)
+	boost: { secondsLeft: number, by: string, sentAt: number }?, -- the player's Ember Boost, if one runs
+}
+
+-- Paket 18: one daily quest as the lobby shows it (QuestService -> QuestController).
+export type QuestInfo = {
+	id: string, -- Config.Quests.pool id
+	text: string, -- what to do (Util/QuestRules.text)
+	goal: number,
+	progress: number,
+	embers: number,
+	done: boolean,
+}
+
+-- Paket 18: the player's daily quests and login streak (remote QuestState, to its player on change).
+export type QuestState = {
+	quests: { QuestInfo },
+	swapsLeft: number,
+	streakDay: number, -- day 1-7 of the login streak paid last (0 = none yet)
+	resetsIn: number, -- seconds until the next quests (next UTC day) when sent
+	sentAt: number, -- workspace:GetServerTimeNow() when sent
+}
+
+-- Paket 18: one line of a leaderboard.
+export type LeaderboardEntry = {
+	rank: number,
+	userId: number,
+	name: string,
+	score: number, -- Util/LeaderboardRules.read/text
+}
+
+-- Paket 18: a leaderboard page (remote Leaderboard, to the player who asked).
+export type LeaderboardPage = {
+	board: string, -- Config.Leaderboards board key
+	danger: number,
+	scope: string, -- "Global" or "Friends"
+	entries: { LeaderboardEntry },
+	mine: number, -- the player's best score this week on this board (0 = none)
+	saved: boolean, -- false: Studio without API access or no DataStore, scores only live in this server
+	failed: boolean, -- Roblox did not answer; the entries may be old or empty
+	resetsIn: number, -- seconds until the weekly reset when sent
+	sentAt: number,
 }
 
 return {}

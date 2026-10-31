@@ -23,4 +23,17 @@ return {
 	Feedback = require(script.Feedback),
 	Shop = require(script.Shop),
 	Loot = require(script.Loot),
+	Structures = require(script.Structures),
+	Save = require(script.Save), -- Paket 12
+	Progress = require(script.Progress), -- Paket 13
+	Settings = require(script.Settings), -- Paket 14
+	Places = require(script.Places), -- Paket 15
+	Store = require(script.Store), -- Paket 16
+	Cosmetics = require(script.Cosmetics), -- Paket 17
+	Quests = require(script.Quests), -- Paket 18
+	Leaderboards = require(script.Leaderboards), -- Paket 18
+	Badges = require(script.Badges), -- Paket 18
+	FirstNight = require(script.FirstNight), -- Paket 19
+	Analytics = require(script.Analytics), -- Paket 20
+	Audio = require(script.Audio), -- Paket 21
 }

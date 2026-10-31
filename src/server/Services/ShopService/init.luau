@@ -11,18 +11,22 @@
 -- with spendShards. Since B4 the shop stats work (Item Prices, Free Rerolls, Sell Value), offers roll on
 -- RandomService's Shop stream, and signals tell EffectService about the wave end (before Harvesting pays), the
 -- opened shop, rerolls, purchases, sales and the Shards held; item effects pay Shards through addShards.
+-- B11 part 2: a RunDirector checkpoint keeps the Shards and locked offers from the start of each wave ("Retry wave").
+-- Paket 16: bought and VIP rerolls go through rerollFree (MonetizationService pays them with its tokens).
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Shared = ReplicatedStorage.Shared
 local Config = require(Shared.Config)
+local Copy = require(Shared.Util.Copy)
 local Net = require(Shared.Net)
 local Signal = require(Shared.Util.Signal)
 local StatMath = require(Shared.Util.StatMath)
 local Types = require(Shared.Net.Types)
 
 local ExperienceService = require(script.Parent.ExperienceService)
+local PlayerDataService = require(script.Parent.PlayerDataService)
 local RandomService = require(script.Parent.RandomService)
 local RunDirector = require(script.Parent.RunDirector)
 local StatService = require(script.Parent.StatService)
@@ -166,6 +170,15 @@ local function send(player: Player, state: State)
 	end
 end
 
+-- Paket 13: weapon and item ids the player has not unlocked yet (never offered).
+local function lockedIds(player: Player): { [string]: boolean }
+	local set = PlayerDataService.lockedSet(player, "weapons")
+	for itemId in PlayerDataService.lockedSet(player, "items") do
+		set[itemId] = true
+	end
+	return set
+end
+
 -- New offers; locked unsold ones (`keep`) stay. `previous`: ids of the roll before, not offered again if possible.
 local function roll(player: Player, state: State, keep: { Types.ShopOffer }, previous: { [string]: boolean }?)
 	state.offers = ShopRules.roll({
@@ -180,6 +193,7 @@ local function roll(player: Player, state: State, keep: { Types.ShopOffer }, pre
 		ownedItems = StatService.getItemCounts(player),
 		keep = keep,
 		previous = previous,
+		unavailable = lockedIds(player),
 		nextId = function(): string
 			offerCounter += 1
 			return tostring(offerCounter)
@@ -321,6 +335,19 @@ local function buy(player: Player, offerId: string)
 	send(player, state)
 end
 
+-- New offers in place of the unlocked ones (nothing from the previous roll comes back while there is other stock).
+local function rollAgain(player: Player, state: State)
+	local previous: { [string]: boolean } = {}
+	for _, offer in state.offers do
+		if not offer.locked then
+			previous[offer.itemId] = true
+		end
+	end
+	roll(player, state, lockedOffers(state.offers), previous)
+	ShopService.Rerolled:Fire(player)
+	send(player, state)
+end
+
 local function reroll(player: Player)
 	local state = openState(player)
 	if not state then
@@ -337,15 +364,7 @@ local function reroll(player: Player)
 		state.shards -= price
 		state.rerolls += 1
 	end
-	local previous: { [string]: boolean } = {}
-	for _, offer in state.offers do
-		if not offer.locked then
-			previous[offer.itemId] = true
-		end
-	end
-	roll(player, state, lockedOffers(state.offers), previous)
-	ShopService.Rerolled:Fire(player)
-	send(player, state)
+	rollAgain(player, state)
 end
 
 local function lock(player: Player, offerId: string, locked: boolean)
@@ -411,6 +430,27 @@ function ShopService.init()
 			send(player, states[player])
 		end
 	end)
+	RunDirector.addCheckpoint("Shop", function()
+		local saved = {}
+		for player, state in states do
+			saved[player] = {
+				shards = state.shards,
+				carried = Copy.deep(if state.open then lockedOffers(state.offers) else state.carried),
+			}
+		end
+		return saved
+	end, function(saved: { [Player]: { shards: number, carried: { Types.ShopOffer } } })
+		for player, state in states do
+			local data = saved[player]
+			if data then
+				state.shards = data.shards
+				state.carried = Copy.deep(data.carried)
+				state.open = false
+				state.offers = {}
+				send(player, state)
+			end
+		end
+	end)
 	RunDirector.PhaseChanged:Connect(function(phase)
 		if phase == "Shop" then
 			openShop()
@@ -462,6 +502,22 @@ function ShopService.addShards(player: Player, amount: number): boolean
 	end
 	state.shards += amount
 	send(player, state)
+	return true
+end
+
+-- Paket 16: whether the player's shop is open right now.
+function ShopService.isOpen(player: Player): boolean
+	return openState(player) ~= nil
+end
+
+-- Paket 16: a reroll that costs nothing and does not raise the reroll price (bought or VIP rerolls). False if the
+-- player's shop is not open.
+function ShopService.rerollFree(player: Player): boolean
+	local state = openState(player)
+	if not state then
+		return false
+	end
+	rollAgain(player, state)
 	return true
 end
 

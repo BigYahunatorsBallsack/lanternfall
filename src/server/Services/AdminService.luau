@@ -21,12 +21,18 @@ local RunSchedule = require(Shared.Util.RunSchedule)
 local Types = require(Shared.Net.Types)
 local UpgradeText = require(Shared.Util.UpgradeText)
 
+local AnalyticsService = require(script.Parent.AnalyticsService)
 local BossService = require(script.Parent.BossService)
 local CombatService = require(script.Parent.CombatService)
+local EmberShopService = require(script.Parent.EmberShopService)
 local EnemySim = require(script.Parent.EnemySim)
+local FirstNightService = require(script.Parent.FirstNightService)
 local ExperienceService = require(script.Parent.ExperienceService)
 local LootService = require(script.Parent.LootService)
 local MapService = require(script.Parent.MapService)
+local MonetizationService = require(script.Parent.MonetizationService)
+local PlayerDataService = require(script.Parent.PlayerDataService)
+local QuestService = require(script.Parent.QuestService)
 local RunDirector = require(script.Parent.RunDirector)
 local ShopService = require(script.Parent.ShopService)
 local SpawnDirector = require(script.Parent.SpawnDirector)
@@ -407,6 +413,32 @@ local handlers: { [string]: (player: Player) -> (boolean, string?) } = {
 		local name = BossService.spawnNextChampion(position)
 		return true, if name then `{name} appeared` else "No room for a champion"
 	end,
+	PrintProfile = function(player)
+		local lines = PlayerDataService.dump(player)
+		if not lines then
+			return false, "Your saved data is not loaded yet"
+		end
+		print(`[Lanternfall] ===== Saved data of {player.Name} ({PlayerDataService.getSaveMode()}) =====`)
+		for _, line in lines do
+			print(`[Lanternfall] {line}`)
+		end
+		return true, "Saved data printed to the Output"
+	end,
+	ResetProfile = function(player)
+		if RunDirector.isOngoing() then
+			return false, "Only in the lobby"
+		end
+		if not PlayerDataService.reset(player) then
+			return false, "Your saved data is not loaded yet"
+		end
+		return true, "Saved data reset"
+	end,
+	UnlockAll = function(player)
+		if not PlayerDataService.unlockAll(player) then
+			return false, "Your saved data is not loaded yet"
+		end
+		return true, "Everything unlocked (Reset my saved data locks it again)"
+	end,
 }
 
 local function collectStats(): Types.DebugStats
@@ -434,6 +466,58 @@ function AdminService.isAdmin(player: Player): boolean
 		return true
 	end
 	return table.find(Config.Admin.userIds, player.UserId) ~= nil
+end
+
+-- Paket 16: purchases without Robux (also before the Creator Hub ids exist)
+handlers.FakePurchase = function(player)
+	if not PlayerDataService.isLoaded(player) then
+		return false, "Your saved data is not loaded yet"
+	end
+	return true, `Fake purchase: {MonetizationService.fakePurchase(player)}`
+end
+handlers.AddEmbers = function(player)
+	if not EmberShopService.addEmbers(player, Config.Admin.addEmbers) then
+		return false, "Your saved data is not loaded yet"
+	end
+	return true, `+{Config.Admin.addEmbers} Embers`
+end
+handlers.NextDay = function()
+	QuestService.nextDay()
+	return true, "This server is one day later: new quests and the next login streak day"
+end
+handlers.ToggleFakePasses = function(player)
+	local on = not MonetizationService.hasFakePasses(player)
+	MonetizationService.setFakePasses(player, on)
+	return true, if on then "You own every game pass (this session only)" else "Game passes as Roblox says"
+end
+
+-- Paket 19: a First Night right now (any player, also when it was played already)
+handlers.StartFirstNight = function(player)
+	if not FirstNightService.launch(player) then
+		return false, "Only in the lobby (and not in a party with others)"
+	end
+	return true, "First Night starts"
+end
+
+-- Paket 20: the analytics events this server sent last (Roblox does not record events from Studio)
+handlers.PrintAnalytics = function(_player)
+	local entries, dropped = AnalyticsService.getLog()
+	print(`[Lanternfall] ===== Analytics: last {#entries} events (dropped by the budget: {dropped}) =====`)
+	for _, entry in entries do
+		print(`[Lanternfall] {entry.method} {entry.player} {entry.text}`)
+	end
+	return true, `{#entries} analytics events printed to the Output`
+end
+
+handlers.GiveStructureKit = function(player)
+	if not RunDirector.isOngoing() then
+		return false, "NotRunning"
+	end
+	for id in Config.Structures.kinds do
+		StatService.addItem(player, id)
+	end
+	StatService.addItem(player, "CalibratedTools")
+	return true, "Structure kit granted: deploys next wave"
 end
 
 function AdminService.init()

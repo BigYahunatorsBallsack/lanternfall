@@ -187,7 +187,7 @@ Spieler steuern nur Bewegung und einen Dash; Angreifen, Zielen und Aufsammeln pa
 | XP Gain (%) | eingesammelte XP × (1 + Wert/100) (nur aus Items) |
 | Pickup Range (%) | Aufsammelradius × (1 + Wert/100) (nur aus Items) |
 
-Engineering aus Brotato fehlt bewusst bis zu den Bauten (B12). Knockback gibt es seit B5 als Neben-Wert (unten).
+Engineering ist seit B12 ein primärer Wert mit Karten +2/+3/+4/+6 und skaliert Bauten und passende Werkzeugwaffen. Knockback gibt es seit B5 als Neben-Wert (unten).
 
 **Neben-Werte (seit B4, wie Brotatos „Secondary Stats"; Zahlen in `Config/Stats.luau`):** Sie kommen nur aus Items und stehen in der Werte-Liste nur, solange sie nicht 0 sind. Gegner-Werte zählen für das ganze Team zusammen (alle, die nicht „Out" sind) und gelten für Gegner, die danach erscheinen.
 
@@ -422,7 +422,7 @@ Allgemein: Krit-Chance pro Treffer = Krit der Waffe + Crit Chance (bis 100 %), K
 | Angriffstempo | höchstens 12 Angriffe pro Sekunde (kürzester Cooldown 1/12 s). |
 | Schutz nach Treffer | 0,4 s (Abschnitt 4). |
 
-**Waffenklassen (seit B5, Brotatos „Sets", `Config/WeaponClasses.luau`, `Util/WeaponClasses.luau`):** Jede Waffe gehört zu 1–2 Klassen. Wer 2–6 Waffen einer Klasse trägt (Kopien zählen mit), bekommt den Bonus dieser Anzahl (die Stufen ersetzen sich, sie addieren sich nicht); mehr als 6 zählen wie 6. Die Boni kommen zu den dauerhaften Werten (Abschnitt 4) und ändern sich sofort, wenn man eine Waffe kauft, verkauft oder verschmilzt. Zahlen von Brotato (Max HP mal 10), Namen eigene. Brotatos Tool-Klasse (Engineering) kommt mit den Bauten (B12), seine Legendary-Klasse hat bei uns noch keine Waffen. Der Shop bevorzugt mit 15 % Waffen, die eine Klasse mit einer getragenen Waffe teilen (seit B3, jetzt nach Waffenklassen statt Melee/Ranged/Elemental).
+**Waffenklassen (seit B5, Brotatos „Sets", `Config/WeaponClasses.luau`, `Util/WeaponClasses.luau`):** Jede Waffe gehört zu 1–2 Klassen. Wer 2–6 Waffen einer Klasse trägt (Kopien zählen mit), bekommt den Bonus dieser Anzahl (die Stufen ersetzen sich, sie addieren sich nicht); mehr als 6 zählen wie 6. Die Boni kommen zu den dauerhaften Werten (Abschnitt 4) und ändern sich sofort, wenn man eine Waffe kauft, verkauft oder verschmilzt. Zahlen von Brotato (Max HP mal 10), Namen eigene. Brotatos Tool-Klasse heißt seit B12 Artisan (+1 bis +5 Engineering); Legendary heißt seit B7 Dread. Der Shop bevorzugt mit 15 % Waffen, die eine Klasse mit einer getragenen Waffe teilen (seit B3, jetzt nach Waffenklassen statt Melee/Ranged/Elemental).
 
 | Klasse | Vorbild | 2 Waffen | 3 | 4 | 5 | 6 |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -498,6 +498,12 @@ Annahmen, wo Brotato keine Zahl nennt: Drain tötet nicht, die HP bleiben bei mi
 ### B7: Waffen-Paket
 
 18 neue Waffen nach konkreten Brotato-Basisspiel-Vorbildern, insgesamt 24. Quellen, Zuordnung und Testanleitung: `docs/B7-WAFFEN.md`. Exakte Stufenpreise, Mindeststufen, stufenabhängige Skalierung, Werte beim Tragen und permanente Kill-Gewinne. Bisherige Waffen behalten ihre Daten. Medical Gun wird als Lebensraub-Waffe umgesetzt, Icicle als durchschlagende Elementarwaffe. Engineering bleibt bis B12 ohne neue Erwerbsquellen. Dread ergänzt Legendary; keine neuen DLC-Waffen.
+
+### B12 – Bauten und Begleiter (31.10.2026)
+
+Fünf Turmvarianten, Minen, Garten, Orbit Wisp und Storm Familiar; zehn Shop-Items einschließlich Calibrated Tools, dazu Foundry Key und Rune Awl als Basisspiel-Werkzeugwaffen. Quellen, Zahlen und Testanleitung: `docs/B12-BAUTEN.md`. Server berechnet alle Treffer und baut Quellen zu Wellenbeginn neu; Shop/Run-Ende räumt auf. Engineering skaliert Bauten, primäre Kampfwerte ansonsten nicht (Ausnahmen im Baukatalog); bestehende sekundäre Boni und gemeinsames Brenn-System greifen.
+
+Koop-Anpassung: maximal 100 aktive Bauten pro Server, fair nach Teilnehmerzahl geteilt, Überschuss ersetzt eigene Bauten. Treffer als Strahlen statt fliegender Projektile, gepoolte Laternenmodelle. Echte Studio-/Geräteabnahme offen; automatisierte Solo-/Koop-Abnahme vorhanden. Arsenal bleibt unverändert.
 
 ## 7. Gegner, Elites & Boss
 
@@ -638,7 +644,7 @@ Ein Gegner-Typ ist im Snapshot ein Byte; Elites senden Typ + 128, so kennt der C
   Seit Paket 9: Die Truhe liegt, wo die Elite starb (goldene Kiste mit Lichtsäule, Pfeil am Bildschirmrand, wenn sie außer Sicht ist), und öffnet sich, sobald ein lebender Spieler auf 3,5 Studs heran ist. Jeder lebende Spieler im Umkreis bekommt: eine Evolution, wenn er eine nehmen darf; sonst (seit B2) ein Item, mindestens Uncommon, Stufe nach Welle und Luck gewürfelt wie im Shop (Banner „CHEST – Might x2 – -10 Max HP, +5% Damage"); gibt es keins mehr, volle Heilung. Bis B1: +1 Level einer Waffe oder eines Passivs. Dazu heilt die Truhe jeden Belohnten um 50 % seiner max. HP (neu, Annahme: ohne Heilung bringt jeder Spitter-Treffer bleibenden Schaden). Die eigene Belohnung erscheint groß in der Bildschirmmitte („CHEST – Starfire – Spark Bolt evolved!"). Truhen verschwinden am Run-Ende.
 - **Down & Wiederbeleben (Paket 11):** bei 0 HP „down" (30-s-Timer); ein lebender Teammate steht 3 s im Kreis von 6 Studs um ihn → Wiederbelebung mit 40 % HP und 2 s Schutz. Während jemand wiederbelebt, steht der Timer; geht er weg, läuft der Balken in 3 s wieder leer. Timer abgelaufen → „out" bis zum Wellenende (Kamera folgt einem lebenden Teammate), danach steht er wie die Gestürzten mit der Wellenend-Heilung wieder auf (wie Brotatos Koop; vorher: Zuschauer bis Run-Ende). Alle Werte in `Config.Run.coop`, Annahmen im Test prüfen.
 - **Run-Ende:** alle gleichzeitig down = Run vorbei.
-- **Revive-Token (Kauf):** höchstens 1 pro Spieler und Run.
+- **Revive-Token (Kauf):** höchstens 1 pro Spieler und Run (seit Paket 16, Abschnitt 12; nur mit einem stehenden Mitspieler).
 - **Ein-/Aussteigen:** kein Beitritt in laufende Runs (v1); wer geht, fällt raus, Spawn-Director rechnet ab nächstem Tick neu.
 - **Solo:** jederzeit, Spielerfaktor 1. **Kein Friendly Fire, kein PvP.**
 
@@ -784,7 +790,33 @@ Folgerungen: 15 von 24 Siegen statt gut 10 von 24 in B3; die größere Auswahl i
 | Boss besiegt | 150 |
 | tägliche Quest | 50–100 |
 
-**Geplant (Paket 13, Brotato-Referenz):** Brotato hat keine dauerhaften Stärke-Boni, nur Freischaltungen. Die Stärke-Talente unten fallen deshalb weg (Vorschlag vom 29.10.2026, Owner hat den Plan abgenickt). Charaktere, Waffen und Items werden über Erfolge freigeschaltet („Gewinne einen Run mit X", „Töte 2.000 Gegner"); Embers kaufen Freischaltungen und Kosmetik früher frei. Statt Normal/Hard/Nightmare kommen Gefahrenstufen 0–5 pro Charakter (Paket B11). Die Tabellen unten sind der alte Plan.
+**Umgesetzt (Paket 13, 31.10.2026, Brotato-Referenz):** Keine dauerhaften Stärke-Boni, nur Freischaltungen; die Talente unten entfallen (Felder bleiben im Schema). Alle Zahlen in `Config/Progress.luau`, Formeln in `Util/ProgressRules`.
+
+- **Embers pro Run** (jeder fertige Run, nicht abgebrochen): 10 pro volle überlebte Minute, 15 pro getötetem Champion, 150 pro Boss; dazu +10 % pro Gefahrenstufe und +10 % Party-Bonus ab 2 Spielern. Ergebnis-Bildschirm zeigt die Zeilen und die Summe. Embers kaufen ab Paket 17 Charaktere früher frei (Ember-Shop).
+- **22 Erfolge** zählen über alle Runs (Gesamtwerte im Profil) und zahlen einmal Embers (50–500). Was ein Erfolg freischaltet, ist bis dahin gesperrt: gesperrte Charaktere kann man nicht wählen (Lobby zeigt „LOCKED: …“ mit der Bedingung), gesperrte Waffen und Items kommen nie im Shop und nie aus Kisten. Startwaffen und Start-Items werden nie gesperrt.
+- **Von Anfang an offen:** Blade Warden, Spark Mage, Night Watch, Duel Maestro und alle übrigen Waffen und Items.
+
+| Erfolg | Bedingung | Embers | Schaltet frei |
+| --- | --- | --- | --- |
+| First Night | 1 Run beenden | 50 | – |
+| Deep Into the Night | Welle 10 erreichen | 100 | Many Hands |
+| Dawn | einen Run gewinnen | 200 | Lantern Codex |
+| A Thousand Shades | 2.000 Gegner töten | 100 | Sole Conductor |
+| Endless Swarm | 20.000 Gegner töten | 300 | Eight-Eyed Idol |
+| Champion Hunter | 5 Champions töten | 150 | Mortar Lantern |
+| Kingslayer | einen Boss töten | 200 | Cathedral Engine |
+| Rescuer | 5 Teammates wiederbeleben | 100 | Hearth Sprite |
+| Regular | 25 Runs beenden | 200 | Tithe Palm |
+| Sieg mit Blade Warden / Spark Mage / Night Watch / Duel Maestro | Run gewinnen | je 100 | Marble Host / Candle Scholar / Far Seer / Twin Ledger |
+| Sieg mit Many Hands / Sole Conductor / Far Seer / Marble Host / Twin Ledger / Candle Scholar | Run gewinnen | je 100 | Dusk Sabre / Titan Arms / Fortune Coin / Colossus Heart / Cinder Breath / Eternal Flame |
+| Brave / Fearless / Lantern Saint | Gefahrenstufe 1 / 3 / 5 gewinnen | 150 / 250 / 500 | Crimson Hand / Thunder Shells / Pyre Ashes |
+
+- **Gefahrenstufe pro Charakter:** Jeder Charakter startet mit Stufe 0; wer Stufe d mit ihm gewinnt, öffnet d + 1 für ihn (Annahme nach dem Plan; Brotato-Wiki prüfen). Im Koop gilt die Lobby-Stufe für alle: wählbar ist sie, wenn **irgendwer** in der Lobby sie mit seinem gewählten Charakter offen hat; Mitspieler ohne Freischaltung spielen mit. Wechselt jemand den Charakter oder geht, sinkt die Stufe, falls sie keiner mehr offen hat.
+- Lobby: „YOUR SAVED RECORD“ zeigt die Embers und den Knopf „ACHIEVEMENTS n/22“ (Fenster mit Fortschritt, Embers und Freischaltung pro Erfolg); bei der Charakterwahl steht „danger up to n“. Erfolge melden sich nach dem Run als Einblendung „Achievement: … - unlocked …“.
+- Debug-Knopf „Unlock everything“ (alle Erfolge erledigt, alle Stufen offen, ohne Embers); „Reset my saved data“ sperrt wieder.
+- **Ember-Shop (Paket 17, 31.10.2026):** Lobby-Knopf „EMBER SHOP“ neben „STORE“, Fenster mit Reitern CHARACTERS, LANTERNS, TRAILS, UNLOCKS. Gesperrte Charaktere lassen sich früher freikaufen (Many Hands, Sole Conductor je 1.000 Embers; Marble Host, Candle Scholar, Far Seer, Twin Ledger je 2.500); daneben steht, welcher Erfolg sie gratis freischaltet, und die Lobby-Knöpfe zeigen „or n Embers (Ember shop)“. Waffen und Items sind nicht kaufbar (Brotato), der Reiter UNLOCKS listet sie mit ihrem Erfolg. Kosmetik für Embers: Laternen (schweben rechts neben der Figur) und Spuren, kaufen, tragen oder ablegen; VIP-Einträge gehören zum VIP-Pass (Knopf öffnet den Pass-Kauf). Jeder Kauf braucht einen zweiten Druck innerhalb von 3 s. Preise in `Config/Progress.luau` (`characterPrices`) und `Config/Cosmetics.luau`, Regeln in `Util/EmberShopRules`, Server `EmberShopService` und `CosmeticService`, Client `EmberShopController`.
+
+Die Tabellen unten sind der alte Plan.
 
 **Talente** (alle zusammen ≈ 12.650 Embers, also 50–70 Runs)
 
@@ -797,7 +829,7 @@ Folgerungen: 15 von 24 Siegen statt gut 10 von 24 in B3; die größere Auswahl i
 | Rescuer | +10 % Wiederbelebungstempo | 3 | 150 / 300 / 600 |
 | Second Thoughts | +1 Neuwurf pro Run | 2 | 500 / 1.500 |
 
-**Gefahrenstufen (seit B11, wie Brotato; ersetzt Normal/Hard/Nightmare)** – in der Lobby für die ganze Lobby gewählt (Feld rechts), bis Paket 13 alle offen. Zahlen in `Config/Difficulty.luau`, Formeln in `Util/DangerRules`.
+**Gefahrenstufen (seit B11, wie Brotato; ersetzt Normal/Hard/Nightmare)** – in der Lobby für die ganze Lobby gewählt (Feld rechts); seit Paket 13 pro Charakter freigeschaltet (siehe oben). Zahlen in `Config/Difficulty.luau`, Formeln in `Util/DangerRules`.
 
 | Stufe | Was dazukommt |
 | --- | --- |
@@ -813,7 +845,8 @@ Folgerungen: 15 von 24 Siegen statt gut 10 von 24 in B3; die größere Auswahl i
 - **Regler** wie Brotatos Optionen: Gegner-HP und -Schaden 25–200 %, Tempo 25–150 %, Schritte 25 %, mal der Gefahrenstufe; dazu unser eigener Regler „Enemy count“ (25–200 %, Menge der Spawn-Gruppen).
 - **Nachjustiert nach Owner-Test (30.10.2026, Stufe 0):** Brute und Abyss Brute stauten sich und waren nicht totzukriegen, die kleinen passten. Deshalb beide mit 65 % HP (Grundwert und Zuwachs) und ihre Spawn-Gruppen mit 65 % der Größe.
 - **Endlos-Modus** (Schalter in der Lobby): Welle 20 läuft wie immer, ihre Bosse zu töten beendet weder Run noch Welle. Danach geht es weiter, bis keiner mehr lebt; wer das Ende von Welle 20 erreicht, hat gewonnen. Endlos-Wellen 60 s mit den Gruppen von Welle 20 (Länge Annahme), Wachstum pro Welle läuft weiter, dazu Brotatos Endlos-Faktor: w = Welle − 20, mult = 2 + max(0, (Welle − 35) × 0,2), Faktor = w (w + 1) / 2 / 100 × mult; HP × (1 + 2,25 × Faktor), Schaden × (1 + Faktor), Tempo × (1 + min(1,75, Faktor / 13,33)). Jede 10. Welle (30, 40 …) ist eine Boss-Welle (90 s, Annahme) mit beiden Bossen; die Elite-Plätze wiederholen sich alle 10 Wellen (21/22, 24/25, 27/28 …), ohne Horden, jeder 10er-Block bringt einen Champion mehr in Elite- und Boss-Wellen, Champions dürfen sich wiederholen. Nach Welle 20 lassen Bosse und Champions eine normale statt der legendären Kiste fallen.
-- **Noch nicht drin (Brotato):** Endlos-Faktor auf Shop-Preise, Unverwundbarkeit und %-HP-Schaden (Strang-B-Dateien), „Welle wiederholen" (Brotatos Wiki beschreibt es nicht; eigenes Teilpaket).
+- **Welle wiederholen** (B11 Teil 2): Nach einer Niederlage bietet der Ergebnis-Bildschirm „Retry wave" an (höchstens `Config.Run.flow.maxRetries` = 3 Mal pro Run, jeder Teilnehmer darf). Die verlorene Welle beginnt von vorn mit exakt dem Stand ihres Beginns: Team-Level und XP, Orb-Beutel, Shards und gesperrte Shop-Angebote, Items, Werte aus Karten und Wachstum, Waffen mit Stufen, HP, „nächste Welle"-Boni und Run-Statistik; alle stehen wieder. Eine noch wiederholbare Niederlage wird erst gespeichert, wenn die Ergebnisse enden oder der Spieler geht.
+- **Noch nicht drin (Brotato):** Endlos-Faktor auf Shop-Preise, Unverwundbarkeit und %-HP-Schaden (Strang-B-Dateien).
 
 **Alter Plan Schwierigkeitsgrade (ersetzt durch B11)**
 
@@ -840,6 +873,13 @@ Party spielt auf der Stufe des Party-Leiters; Mitspieler dürfen mit, auch ohne 
 
 Bewusst nicht: harte Countdown-Angebote oder Serien, die bei einem verpassten Tag alles löschen.
 
+**Umgesetzt (Paket 18, 31.10.2026):** Zahlen in `Config/Quests.luau`, `Config/Leaderboards.luau`, `Config/Badges.luau`; Regeln in `Util/QuestRules` und `Util/LeaderboardRules`.
+
+- **Tägliche Quests:** 3 pro UTC-Tag aus 8 Arten (Gegner töten 800/1.500, 10 Min mit einem eigenen Charakter überleben, 2 Teammates wiederbeleben, 3 Champions, Welle 12/16 erreichen, 3 Runs beenden, einen Run gewinnen, 2 Runs zu zweit oder mehr), 50–100 Embers. Pro Spieler und Tag ausgewürfelt (überall gleich), nur fertige Runs zählen (Kills = Team-Kills), Embers sofort bei Erledigung (Zeile „Quest: …" auf dem Ergebnis-Bildschirm, Einblendung). 1 Tausch pro Tag (nur offene Quests). Neue Quests um 00:00 UTC, auch während man im Server ist.
+- **Login-Serie:** erster Besuch eines UTC-Tages zahlt automatisch: Tag 1–6 = 25/50/75/100/125/150 Embers, Tag 7 = Laterne „Seventh Vigil" (nur so zu bekommen; wer sie hat, bekommt 300 Embers), danach wieder Tag 1. Ein verpasster Tag (egal wie viele) setzt 2 Tage zurück: nach Tag 5 kommt Tag 4 statt 6 (Annahme zur Regel oben).
+- **Ranglisten (wöchentlich, Montag 00:00 UTC):** pro Gefahrenstufe „BEST WAVE" (weiteste Welle, bei Gleichstand mehr Kills) und „MOST KILLS" (in einem Run), je für alle (Top 50) und Freunde (bis 30 Freunde). „Längste Zeit" aus dem alten Plan entfällt: Runs haben seit B1 feste Wellenlängen, die Welle sagt mehr. Der Server schreibt nach jedem fertigen Run, nur wenn der Wert die eigene Wochenbestzeit schlägt (OrderedDataStore pro Tafel, Stufe und Woche). Lobby-Fenster LEADERBOARDS; die Ranglisten-Tafel als Objekt im Hub kommt mit Paket 21.
+- **Badges:** 5 Stück: „Lantern Lit" (erster Besuch), „First Night" (ersten Run beenden), „Kingslayer" (Boss besiegen), „Ten Thousand Shades" (10.000 Kills), „Lantern Saint" (Gefahrenstufe 5 gewinnen). „Alle Evolutionen" entfällt (Evolutionen werden seit dem Brotato-Plan nicht mehr gezählt). Vergeben wird nur, wenn die Badge-ID in `Config/Badges.luau` steht; in Studio nur als Output-Zeile.
+
 ## 12. Monetarisierung
 
 | Produkt | Typ | Preis (Robux) | Inhalt | Phase |
@@ -856,22 +896,35 @@ Bewusst nicht: harte Countdown-Angebote oder Serien, die bei einem verpassten Ta
 | Private Server | Roblox-Funktion | z. B. 100/Monat | eigener Server | Soft Launch |
 | Abo „Keeper+" | Robux-Abo | offen | tägliche Embers + monatlicher Skin | später |
 
+**Umgesetzt (Paket 16, 31.10.2026):** VIP, Double Embers, Revive, Reroll ×3 (`3 Rerolls`), die drei Ember-Pakete und der Server Ember Boost; Klassen-Pass, Lantern Pass, Kosmetik-Shop und Abo bleiben Live-Ops. Katalog und IDs in `Config/Store.luau` (pro Experience, ID 0 = noch nicht angelegt → im Store „not set up yet", nicht kaufbar), Zahlen in `Config/Economy.luau`, Regeln in `Util/PurchaseRules`, Server `MonetizationService`, Client `StoreController`.
+
+- **Wo man kauft:** Lobby-Knopf „STORE" (Passes, 3 Rerolls, Ember-Pakete, Boost; Preis, „OWNED", gespeicherte Revives/Rerolls), im Shop der Knopf neben „Reroll" („Bonus reroll (n)" oder „+3 rerolls · R$ 25"), beim Gestürzt-Sein im Koop „REVIVE NOW · R$ 49" bzw. „USE REVIVE (1)". Nie während man kämpft. Den Kaufdialog zeigt Roblox; der Client schickt nur den Wunsch (`RequestPurchase`), der Server prüft (eingerichtet, Pass nicht schon da, Revive nur liegend, 1× pro Run, mit einem stehenden Mitspieler) und öffnet den Dialog.
+- **VIP:** Schild „VIP" über dem Kopf, „[VIP]" vor Chat-Nachrichten, goldene Spur, +1 Gratis-Neuwurf im Shop pro Run, +10 % Embers. Seit Paket 17 sind Laterne „Gilded Sunburst“ und Spur „Gilded Trail“ VIP-Kosmetik: VIP-Spieler tragen sie, solange sie nichts anderes wählen.
+- **Double Embers:** +100 % auf die Embers jedes Runs.
+- **Revive:** eine Revive-Marke im Profil; liegt man gerade, steht man sofort auf (40 % HP und 2 s Schutz wie beim Wiederbeleben), sonst beim nächsten Mal per Knopf. Höchstens 1 pro Run, nur wenn noch ein Mitspieler steht (solo endet der Run beim Sturz).
+- **3 Rerolls:** drei gespeicherte Gratis-Neuwürfe für den Shop (erst der VIP-Neuwurf, dann die Marken); sie erhöhen den Neuwurf-Preis nicht.
+- **Server Ember Boost:** +50 % Embers für 30 Minuten für alle im Server und alle, die in der Zeit beitreten; Einblendung mit Käufer-Namen, Zeile in der Lobby. Wird im Profil jedes Spielers gespeichert und gilt deshalb auch auf dem Run-Place; ein weiterer Kauf verlängert.
+- **Ember-Boni** addieren sich (alle drei = +160 %) und zählen auf die Run-Embers nach Gefahrenstufe und Party-Bonus, als eigene Zeilen auf dem Ergebnis-Bildschirm; Erfolge und gekaufte Embers bekommen keinen Bonus.
+- **Sicherheit:** `ProcessReceipt` bucht eine PurchaseId genau einmal (Abschnitt 16). Game Passes prüft der Server beim Beitritt (3 Versuche; scheitert Roblox, gilt der gespeicherte Stand) und zählt im Spiel gekaufte sofort. Keine Zufallskäufe, deshalb keine Odds-Anzeige und kein `PolicyService`-Sonderfall.
+
 **Regeln:** keine Lootboxen in v1; spätere Kisten mit Odds in % vor dem Kauf (Summe 100 %) und Behandlung von `ArePaidRandomItemsRestricted`; Avatar-Einstellung „R15 only" (18+-Rate gilt für Passes, Products, Abos, Private Server); keine Belohnung fürs Anschauen von Video-Feeds; Kaufknöpfe nie dort, wo man im Kampf versehentlich tippt.
 
 ## 13. UX/UI & Onboarding
 
-- **Hub-Lobby:** Spawn, Run-Portale (Solo, Party, Quick Join), Talent-Altar, Klassen-Statuen, Shop-Stand, Ranglisten-Tafel.
+- **Hub-Lobby:** Spawn, Run-Portale (Solo, Party, Quick Join), Talent-Altar, Klassen-Statuen, Shop-Stand, Ranglisten-Tafel. **Umgesetzt (Paket 15):** drei Portale (Steinrahmen mit leuchtendem Tor und Schild, ProximityPrompt „PLAY SOLO"/„PARTY RUN"/„QUICK JOIN") und dieselben Knöpfe im Lobby-Fenster statt READY: PLAY SOLO, als Anführer START PARTY RUN (n/4) mit 3-s-Countdown (nochmal drücken bricht ab), Mitglieder sehen „LEADER STARTS"; QUICK JOIN / CANCEL QUICK JOIN. Links „PARTY AND PLAYERS": die eigene Party (Anführer mit ★, „Kick" für den Anführer, „Leave") und alle anderen im Hub mit Status und „Invite"; Einladungen erscheinen oben als „Name invites you to their party (30)" mit JOIN/NO. Das Danger-Feld zeigt die Wahl der Party („DANGER (your party)" bzw. „(your leader picks)"). Statuszeile: „Party run starts in 3", „Quick join: waiting for players (1/4)...", „Quick join: group of 3 found - leaving in 12", „Teleporting to your run...". Auf dem Run-Place: „Waiting for your group (2/3)...", danach die bekannte Lobby mit READY plus „BACK TO HUB" (auch auf dem Ergebnis-Bildschirm). Talent-Altar, Statuen, Shop-Stand und Ranglisten-Tafel folgen mit Paket 17/18/21.
 - **HUD:** oben Team-XP-Leiste mit Level, Timer Mitte, Kills rechts; unten links HP, unten rechts Dash; Waffen/Passive oben links; Teammates außer Sicht als Randpfeile. Seit Paket 5 steht oben links die Waffenliste mit Level („LV 2", ab Level 5 „MAX"; seit B3 Stufen wie „Spark Bolt II"), seit Paket 6 darunter die Passive und oben Mitte die Team-XP-Leiste mit „LV n" über dem Timer; in der Team-Liste steht „picking", solange jemand Karten wählt. Seit B2 stehen statt der Passive die Items da („ITEMS (5)", je Zeile „Might x3" in der Farbe der Stufe, höchstens 8 Zeilen, dann „+n more").
 - **Wellen (seit dem Spaß-Paket nach Paket 9, seit B1 mit Shop):** der große Timer zeigt die Restzeit der Welle bzw. des Shops; darunter „Wave 3 / 12", im Shop grün „Shop · wave 4 / 12 next", in der letzten Welle rot „Final wave 12 / 12". Zu Beginn jeder Welle ein großes „WAVE n" oben in der Mitte (2,6 s), darunter, was sie bringt: „New: Chargers", „Swarm Rush!", „2 Gloom Elites!", „Final wave". Rot, wenn etwas Neues kommt. Der Client rechnet das selbst aus der Konfiguration (`Util/RunSchedule.luau`), ohne eigene Remote.
 - **Shop (seit B1, seit B2 mit Items):** neben dem Timer immer die eigenen Shards (türkis). Zwischen den Wellen verdeckt ein dunkler Hintergrund die Arena (unter dem HUD, Titel „WAVE n CLEARED"). Nach den Level-up-Karten ein Fenster „SHOP" mit „Wave 3 cleared · next wave in 34", 4 Karten (Badge „NEW"/„LV 3", bei Items Stufe und Anzahl wie „RARE · X2", Name, Effekt, Preis in Shards, rot wenn zu teuer, „SOLD" nach dem Kauf), „Reroll (5 Shards)" und „READY" (danach „WAITING…", nochmal tippen = weiter einkaufen). Seit B2 haben Item-Karten Rahmen und Badge in der Farbe ihrer Stufe (grau, blau, violett, rot) und zeigen ihre Werte zeilenweise, Vorteile grün, Nachteile rot. Rechts daneben während Kartenwahl und Shop die Werte-Liste „STATS" (`StatsController`). Seit B3: Kopfzeile „SHOP · Wave 3/20 cleared · next wave in 34"; Waffen-Karten heißen „Spark Bolt II", Badge „UNCOMMON · NEW"/„· OWN 2", Rahmen in der Farbe der Stufe, darunter was die Stufe bringt und ggf. „Merges into III" oder „Weapon slots full"; unter jeder Karte „Lock" (gesperrt: „LOCKED", blauer Rahmen). Darunter „WEAPONS 4/6" mit je einem Feld pro Waffe („Spark Bolt II", „can merge"); Antippen wählt sie aus, daneben „Merge → III" und „Sell (+7)". „Reroll (free)" bei Gratis-Neuwurf. Das Fenster skaliert sich auf den freien Platz unter der HUD-Leiste; ist es dafür zu klein (Handy), kompaktes Layout ohne Kopfzeile, Werte-Liste hinter „STATS", zurück mit „← SHOP". Die Waffenliste oben links im HUD zeigt Stufen („Spark Bolt II", entwickelt nur den Namen der Evolution).
 - **Treffer-Gefühl (seit dem Spaß-Paket nach Paket 9):** eigene Schadenszahlen über den Gegnern (weiß, kritische Treffer groß, golden, mit „!"), Partikel-Puff beim Tod, Kamera-Wackeln, wenn man selbst getroffen wird, bei Elite-Tod und Truhe, goldener Lichtring um die Figur beim Level-up.
 - **Level-up:** 3 große Karten (Icon, Name, eine Zeile Effekt, „NEW"/„LV 3"), daumentauglich. Seit Paket 6: Fenster in der Bildmitte mit „LEVEL n", „Pick one", drei Karten (Icon = Kreis mit Anfangsbuchstaben, gelb Waffe, grün Passiv, violett Belohnung), einem Balken, der bis zur automatischen Wahl abläuft, und „Reroll (1 left)". Seit B2 vier Werte-Karten (Tasten 1–4) mit Wert-Name, Effekt („+8% Damage") und Stufe als Badge und Rahmenfarbe; der Knopf heißt „Reroll (n Shards)" und ist grau, wenn die Shards fehlen.
-- **Run-Ende:** Zeit, Kills, Schaden pro Waffe, Embers inkl. Boni, großer „Nochmal"-Knopf.
+- **Run-Ende:** Zeit, Kills, Schaden pro Waffe, Embers inkl. Boni, großer „Nochmal"-Knopf. Seit Paket 14 unter den Embers „YOUR WEAPONS" (je Zeile „Spark Bolt III · 12.3k damage · 140 kills", meister Schaden zuerst); der Teil mit Embers, Waffen und Team scrollt, wenn er nicht passt (Handy).
+- **Tooltips (Paket 14):** Maus drüber oder antippen (schließt nach 4 s): Waffen im HUD und im Shop („Damage 32 | 18 (+100% Melee Damage)", Krit, Cooldown, Reichweite, Klassen), Items (Stufe, Anzahl, Limit „max 3", auch als Shop-Badge), Werte (was der Wert gerade bewirkt, z. B. „You take 21% less damage"), Waffenklassen („Edge 2/6", Bonus jeder Anzahl). Die Werte-Liste schaltet zwischen PRIMARY und SECONDARY um. Unter der Welle steht die nächste geplante Elite- oder Horden-Welle („Elite wave in 3"), ihr Tooltip listet alle; das Wellen-Banner nennt sie. Mitspieler außer Sicht zeigt ein Pfeil am Bildschirmrand (rot = gestürzt).
+- **Einstellungen (Paket 14):** Zahnrad oben rechts: Bildschirmwackeln, Schadenszahlen, Musik und Effekte (Lautstärke in 10er-Schritten), im Profil gespeichert.
 - **Shop, Talente, Pass:** je ein Fenster, max. 2 Taps bis Kauf.
 
-**Erster Start (FTUE):** Erst-Join landet direkt in „First Night" (3-Min-Solo-Run, leichter) → Pfeil „Move" → erstes Level-up nach ~5 s mit „Pick one" → Minute 2 Mini-Elite mit Truhe → Minute 3 Run-Ende, dann Lobby mit Hinweis auf den Talent-Altar.
+**Erster Start (FTUE, seit Paket 19 „First Night"):** Wer noch nie einen Run beendet hat (`tutorial.firstNight = false`), landet nach dem Laden (2 s) direkt in „First Night": Solo-Run aus den ersten **3 Wellen** (20 + 25 + 30 s Kampf, zwei Shops), leichter (Gefahr 0, Gegner-HP 75 %, Schaden 50 %, Anzahl 75 %), Anzeige „First Night" und „Wave 1 / 3". Hinweise oben in der Mitte, einer nach dem anderen: „Move" (bis die Figur 6 Studs gegangen ist) → Waffen schießen von selbst, Orbs einsammeln → „Pick one" solange Level-up-Karten offen sind → Shop erklärt (nur der erste) → Welle 3: ein Plünderer erscheint nach 4 s (Mini-Elite mit Kiste) → Welle 3 überleben = Sieg. Danach in der Lobby einmal der Hinweis „Dawn breaks!" (Charakter wählen, Gefahrenstufe, Erfolge öffnen Charaktere). Knopf „Skip" beendet den First Night und zählt ihn als erledigt. Der First Night zählt als beendeter Run (Embers, Erfolg und Badge „First Night", Quests), aber **nicht als Sieg** (öffnet keine Gefahrenstufe) und nicht für Ranglisten. Wo: Hub → Solo-Teleport mit First-Night-Ticket; ein Server allein → direkt dort; trifft ein Neuer auf andere Spieler im selben Server, startet keiner (er spielt normal mit). In Studio nur über den Debug-Knopf „Start First Night" (`Config/FirstNight.luau` → `autoStartInStudio`). Talent-Altar entfällt (seit Brotato-Plan).
 
-**Barrierefreiheit:** Bildschirmwackeln und Schadenszahlen abschaltbar (bis zum Einstellungsmenü in Paket 14 als Schalter in `Config/Feedback.luau`); Gefahrzonen mit Farbe und Muster; Musik/Effekte getrennt regelbar.
+**Barrierefreiheit:** Bildschirmwackeln und Schadenszahlen abschaltbar (seit Paket 14 im Einstellungsmenü; global zusätzlich in `Config/Feedback.luau`); Gefahrzonen mit Farbe und Muster; Musik/Effekte getrennt regelbar.
 
 ## 14. Art-Direction & Audio
 
@@ -911,8 +964,10 @@ Bewusst nicht: harte Countdown-Angebote oder Serien, die bei einem verpassten Ta
   - Spitter-Schüsse: heller Kern in rosa Schein mit Schweif, Funken beim Einschlag.
   - Tod: Funken und aufsteigende Seelen-Irrlichter in der Augenfarbe, Elites zusätzlich Glut.
 - Assets: Roblox-KI-Generierung und Creator Store, nur mit erlaubter Nutzung; keine fremden Marken/Figuren/Memes.
+- **Kosmetik (Paket 17):** Laternen aus 5–8 einfachen Teilen in drei Formen (Cage = Käfig mit vier Streben, Orb = leuchtende Kugel mit Messingkappen, Spire = schmaler Turm mit gedrehter Spitze), Rahmen aus Messing, Silber oder Obsidian, Kern aus Neon mit kleinem Licht; schweben rechts über der Schulter. Spuren als Farbverlauf hinter der Figur. Katalog: Brass Lantern (gratis), Jade Censer, Crimson Vigil, Moonglass Lantern, Void Lamp, Gilded Sunburst (VIP); Ember Trail, Spectral Trail, Venom Trail, Royal Trail, Gilded Trail (VIP).
 - VFX sparsam und gepoolt (`src/client/Vfx/Bursts.luau`: Funken, Glut, Seelen, Rauch, Staub; ein Emitter pro Stil und Farbe, Partikel per `Emit`); Audio aus der Roblox-Bibliothek, eigener Boss-Track.
-- **Map 1 „The Ruined City":** 300 × 300 Studs, flacher Boden, wenige große Ruinen, Nebelwand als Rand.
+- **Audio (Paket 21):** gepoolte 2D-Effekte (`Audio/Sfx`; die Kamera ist zu weit weg für Roblox' 3D-Abfall), leiser mit dem Abstand zur eigenen Figur (voll bis 30, still ab 110 Studs), Mitspieler-Waffen 45 %, jede Wiedergabe ±8 % Tonhöhe, Mindestabstand pro Effekt gegen Lärm in der Traube. Effekte: Knopf-Klick, Waffen nach Art (Schuss, Hieb, Druckwelle, Blitz, Explosion, Ablegen), eigene Treffer/Krits, Gegner-/Elite-Tod, XP-Orbs (Combo: Tonhöhe steigt pro Orb, zurück nach 0,6 s Pause), Frucht, Kiste, Truhe, getroffen, gestürzt, Dash, Level-up, Wellenstart/-ende, Boss-Welle, Boss-Warnung. Musik: ein Loop je Zustand (Lobby, Welle, Shop, Boss-Welle, Ergebnis), 1,5 s Überblendung, Sieg/Niederlage einmalig über dem auf 30 % gedämpften Ergebnis-Track. Effekte starten mit Roblox' eingebauten Sounds, Musik ist leer, bis der Owner Tracks in der Toolbox auswählt (`Config/Audio.luau`).
+- **Map 1 „The Ruined City":** 300 × 300 Studs, flacher Boden, wenige große Ruinen, Nebelwand als Rand. **Seit Paket 21:** Abendstimmung (Uhrzeit 18:30, violetter Dunst, leichte Farbkorrektur und Bloom), Ruinensäulen mit Messingband, schiefer Kappe und violettem Leucht-Runenring, Messing-Sonnenstrahlen um den Startkreis, verstreute hellere Bodenplatten, schwebende Glut; hinter der Nebelwand Laternenpfähle (4 pro Seite), Mauerreste und vier Obelisken mit türkis leuchtendem Riss; Laternen in der Lobby. In der Arena ist die Deko flach und durchlässig, an den Laufwegen ändert sich nichts. Zahlen in `Config.Map.lighting` und `Config.Map.decor`.
 
 ## 15. Technische Architektur
 
@@ -929,6 +984,8 @@ VFX & Audio                                                 PlayerDataService (P
 ```
 
 **Places:** Prototyp = eine Place, max. 4 Spieler, Lobby + Arena im selben Server. Ab MVP = Hub-Place (bis 24) + Run-Place (max. 4), Wechsel per TeleportService mit reservierten Servern; Party und Schwierigkeit als Teleport-Daten.
+
+**Umgesetzt (Paket 15):** Beide Places bekommen denselben Code; `Config/Places.luau` → `experiences` nennt pro Experience die Place-IDs von Hub (Start-Place) und Run-Place, `Util/PlaceRules.resolve` macht daraus die Rolle „Hub", „Run" oder „Single" (nicht eingetragen oder 0: Lobby und Arena in einem Server wie bisher). `PlaceService` kennt die Rolle und teleportiert: Hub → `ReserveServer` + `TeleportAsync` mit `TeleportOptions.ReservedServerAccessCode` und einem Ticket als Teleport-Daten (Version, Gruppe, Anführer, Party-ID, Run-Optionen, Charakter + Startwaffe pro Spieler, `JobId` des Hub-Servers); Run-Place → Hub mit `ServerInstanceId` des alten Hub-Servers, bei GameFull/GameEnded/GameNotFound ohne. Je 3 Versuche im Abstand von 2 s, `TeleportInitFailed` mit Flooded/Failure wird wiederholt, sonst bekommt der Spieler einen Hinweis; nach 30 s ohne Abreise gilt der Teleport als gescheitert. Das Ticket läuft über den Client, also prüft der Run-Place jedes Feld (`PlaceRules.parseRunTicket`) und behandelt die Wahl wie Lobby-Eingaben (`RunDirector.selectClass`, `WeaponService.selectStartWeapon`, Gefahrenstufe mit dem Deckel der anwesenden Spieler). `PartyService` (Hub) führt Partys (reine Regeln in `PartyService/Parties`: Einladung 30 s, Annehmen, Ablehnen, Verlassen, Rauswerfen, neuer Anführer, max. 4), die Quick-Join-Warteschlange (`PlaceRules.quickGroup`: Einträge in Ankunftsreihenfolge, Partys bleiben zusammen; ab 2 Spielern 15 s, volle Gruppe 3 s; Stufe = niedrigste der Gruppe, Standard-Regler) und die Starts. `RunPlaceService` wartet, bis die Gruppe da und geladen ist (höchstens 20 s nach dem Ersten), startet ihren Run mit `RunDirector.launch` (3-s-Countdown), Spätere sind für den nächsten Run bereit; „Back to hub" (Remote `ReturnToHub`, nicht während des eigenen Runs) gibt die Party-ID mit, der Hub setzt die Party mit dem alten Anführer wieder zusammen (`Parties.arrive`, 120 s). **Studio** kann nicht teleportieren: dort startet der Hub den Run der Gruppe in seinem eigenen Server (`RunDirector.launch`, ein Run gleichzeitig), READY gilt auf dem Hub nur als „Play again" nach so einem Run. Ein Profil wechselt mit dem Spieler den Server; ProfileStore wartet auf die Freigabe durch den alten Server (Session-Lock).
 
 **Ordnerstruktur (Rojo, `src/` → Studio)**
 
@@ -1051,36 +1108,48 @@ tests/               Unit-Tests für reine Module (Runner in tools/luau-test-run
 | Server-Simulation | 15 Hz, unter 4 ms pro Schritt |
 | Client-FPS Mittelklasse-Handy | ≥ 30 |
 | Netzwerk pro Client | < 50 KB/s |
-| Partikel-Emitter | so wenige wie möglich, gepoolt (`Vfx/Bursts`: einer pro Stil und Farbe, ≈ 30) |
+| Partikel-Emitter | so wenige wie möglich, gepoolt (`Vfx/Bursts`: einer pro Stil und Farbe, ≈ 30); dazu einer für die Glut über der Arena (Paket 21) |
+| Lichter der Karte | ohne Schatten, höchstens ≈ 30 (Paket 21: 16 Laternen + 4 Obelisken + 5 Säulen-Runen ohne Licht + 6 Lobby-Laternen + Portale) |
 | Teile pro Gegner | höchstens 20, Elite 25 (Test `EnemyModels.spec`); in großen Trauben wenig Details |
 
 ## 16. Datenspeicherung & Sicherheit
 
-**Datenschema v1**
+**Datenschema v7** (seit Paket 12; v1 → v2 ergänzt Siege, beste Welle, höchste gewonnene Gefahrenstufe und den Rekord pro Charakter; v2 → v3 (Paket 13) Champion-Kills, Wiederbelebungen, verdiente Embers gesamt und die erledigten Erfolge; v3 → v4 (Paket 14) Einstellungen; v4 → v5 (Paket 16) Käufe; v5 → v6 (Paket 18) Quests, Login-Serie, Badges, Wochenbestwerte; v6 → v7 (Paket 19) `tutorial`, First Night erledigt = schon Runs gespielt)
 
 ```lua
 {
-  schemaVersion = 1,
+  schemaVersion = 7, -- v4 (Paket 14): settings = { shake, damageNumbers, music, effects }; v5 (Paket 16) siehe unten
   embers = 0,
-  talents = { toughness = 0, power = 0, reach = 0, greed = 0, rescuer = 0, rerolls = 0 },
+  talents = { toughness = 0, power = 0, reach = 0, greed = 0, rescuer = 0, rerolls = 0 }, -- ungenutzt seit dem Brotato-Plan, bleibt bis zu einer Migration
   classes = { "BladeWarden", "SparkMage" },
   difficultyUnlocked = "Normal",
-  cosmetics = { owned = {}, equipped = {} },
-  stats = { runs = 0, kills = 0, bossKills = 0, bestTime = 0 },
-  quests = { day = "", list = {} },
-  streak = { lastLogin = 0, count = 0 },
+  cosmetics = { owned = {}, equipped = {} }, -- seit Paket 17 genutzt: owned = gekaufte Ids, equipped = [Platz] = Id oder "None" (Schema bleibt v5)
+  stats = { runs = 0, kills = 0, bossKills = 0, bestTime = 0, wins = 0, bestWave = 0, bestDanger = -1,
+            championKills = 0, revives = 0, embersEarned = 0, -- seit v3
+            embersBought = 0, purchases = 0 }, -- seit v5: gekaufte Embers (nicht in embersEarned), gebuchte Produkte
+  achievements = {}, -- seit v3: [Erfolg-Id] = true
+  characterStats = {}, -- [Charakter-Id] = { runs, wins, bestWave, bestDanger }; Grundlage für Paket 13
+  quests = { day = "", list = {}, swaps = 0 }, -- v6: UTC-Tag (Zahl als Text), Quests { id, goal, embers, classId?, progress, done }, Tausche
+  streak = { lastLogin = 0, count = 0 }, -- v6: UTC-Tag des letzten bezahlten Logins, sein Serientag 1-7
   pass = { season = 1, xp = 0, premium = false, claimed = {} },
-  receipts = {}, -- bereits verarbeitete PurchaseIds
+  receipts = {}, -- bereits verarbeitete PurchaseIds; seit v5 eine Liste (älteste zuerst, höchstens 100)
+  tokens = { revives = 0, rerolls = 0 }, -- v5: gekaufte, noch nicht benutzte Revives und Shop-Neuwürfe
+  passCache = {}, -- v5: [Pass] = true/false beim letzten Check (gilt, wenn Roblox nicht antwortet)
+  boost = { untilTime = 0, by = "" }, -- v5: Ember Boost bis os.time(), gestartet von (Name)
+  badges = {}, -- v6: [Badge-Schlüssel] = true, vergeben (Config/Badges)
+  weekly = { week = 0, best = {} }, -- v6: Ranglisten-Woche und eigene Bestwerte ["Wave_D3"] = Wert
+  tutorial = { firstNight = false, lobbyHint = false }, -- v7: First Night gespielt/übersprungen; Lobby-Hinweis noch offen
 }
 ```
 
 - ProfileStore mit Session-Locking; laden beim Join, speichern beim Verlassen, nach Käufen, Autosave.
+- **Umgesetzt (Paket 12):** ProfileStore von loleris (vendored in `src/server/Vendor/ProfileStore`), DataStore „PlayerData", Schlüssel `Player_<UserId>`, Autosave alle 300 s, zusätzlich nach jedem Run; Speichern beim Verlassen und beim Herunterfahren. Jeder fertige Run (nicht abgebrochen) zählt in `stats` und `characterStats`. Kann ein Profil nicht geladen werden oder übernimmt es ein anderer Server, wird der Spieler mit Hinweis gekickt. In Studio ohne API-Zugriff speichert ProfileStore nur zum Schein; die Lobby zeigt das an („YOUR SAVED RECORD", roter Hinweis). Debug-Knöpfe „Print my saved data", „Reset my saved data" (nur in der Lobby).
 - Schema-Änderung = `schemaVersion` +1 + Migrationsfunktion; nie Felder ohne Migration löschen.
-- `ProcessReceipt` speichert die PurchaseId im Profil und meldet erst danach „granted".
+- `ProcessReceipt` speichert die PurchaseId im Profil und meldet erst danach „granted". **Umgesetzt (Paket 16)** nach ProfileStores Muster: Spieler nicht im Server oder Produkt unbekannt → „NotProcessedYet" (Roblox fragt später wieder, auch in anderen Servern); sonst bis 30 s auf das Profil warten, eine unbekannte PurchaseId zusammen mit dem Inhalt ins Profil schreiben, speichern und erst „PurchaseGranted" melden, wenn ein Speicherstand die PurchaseId enthält (sonst „NotProcessedYet"; der Inhalt kommt beim nächsten Versuch nicht doppelt).
 - Game Passes beim Join prüfen und cachen, Käufe in der Sitzung sofort freischalten.
 - Entwicklung in einer separaten Test-Experience.
 
-**Sicherheit:** Client schickt nur Absichten (Bewegung, Dash, Level-up-Wahl, Kaufwunsch). Server berechnet Schaden, Kills, XP, Drops, Embers, Truhen, Ranglistenwerte. Jede Remote mit Rate-Limit und Validierung (nur angebotene Karten-IDs, Dash nur nach Cooldown). Bewegungs-Plausibilitätscheck. Admin-Befehle nur für die UserId des Owners, serverseitig geprüft: Admin ist, wer in Studio testet, der Besitzer einer Experience im eigenen Account (`game.CreatorId`) und wer in `Config/Admin.luau` steht. Test-Befehle seit Paket 2: Timer +1 Minute, zu 11:50 springen, sich selbst umhauen/aufstehen, Run gewinnen. Seit Paket 3: 40 Gegner um sich spawnen (Obergrenze gilt), Gegner in 20 Studs Umkreis treffen (5 Schaden), alle Gegner töten, Spawnen pausieren/fortsetzen. Seit Paket 4: sich selbst 25 Schaden geben (Rüstung und Schutz gelten), sich voll heilen; dazu eine Messanzeige unten links (Gegnerzahl, Spawnrate, Serverzeit pro Schritt, Gegnerdaten in KB/s, FPS; rot, wenn ein Budget überschritten ist). Seit Paket 5: nächste fehlende Waffe hinzufügen, nur die nächste Waffe behalten (zum Ausprobieren einzeln), alle Waffen +1 Level, alle Waffen aus/an (gilt bis zum nächsten Run); das Debug-Menü hat dafür zwei Spalten. Seit Paket 8: Waffen entwickeln („Evolve weapons"). Seit Paket 9: eine Elite in der Nähe spawnen („Spawn an elite", ihre Truhe lässt sich so testen); die Messanzeige zeigt auch die Gegner-Geschosse in der Luft. Seit B1: „End this wave" (statt „+1 minute", springt ans Wellenende und öffnet den Shop), „Stop/run wave timer" (die Welle endet nicht, bis man wieder drückt; gilt auch für die nächsten Runs), „+100 Shards". Shop-Remotes: `BuyShopOffer` (nur vom Server angebotene IDs, Preis und Plätze prüft der Server), `RerollShop`, `SetShopReady` (nur in der Shop-Phase). Seit B3: `LockShopOffer` (Angebots-ID, an/aus), `SellWeapon` und `MergeWeapons` (Waffen-`uid` als Ganzzahl; der Server prüft, dass der Spieler sie trägt, eine Partnerin gleicher Stufe da ist und es nicht die letzte Waffe ist), alle nur in der Shop-Phase; Debug-Knopf „Weapons +1 tier" statt „+1 Level".
+**Sicherheit:** Client schickt nur Absichten (Bewegung, Dash, Level-up-Wahl, Kaufwunsch). Server berechnet Schaden, Kills, XP, Drops, Embers, Truhen, Ranglistenwerte. Jede Remote mit Rate-Limit und Validierung (nur angebotene Karten-IDs, Dash nur nach Cooldown). Bewegungs-Plausibilitätscheck. Admin-Befehle nur für die UserId des Owners, serverseitig geprüft: Admin ist, wer in Studio testet, der Besitzer einer Experience im eigenen Account (`game.CreatorId`) und wer in `Config/Admin.luau` steht. Test-Befehle seit Paket 2: Timer +1 Minute, zu 11:50 springen, sich selbst umhauen/aufstehen, Run gewinnen. Seit Paket 3: 40 Gegner um sich spawnen (Obergrenze gilt), Gegner in 20 Studs Umkreis treffen (5 Schaden), alle Gegner töten, Spawnen pausieren/fortsetzen. Seit Paket 4: sich selbst 25 Schaden geben (Rüstung und Schutz gelten), sich voll heilen; dazu eine Messanzeige unten links (Gegnerzahl, Spawnrate, Serverzeit pro Schritt, Gegnerdaten in KB/s, FPS; rot, wenn ein Budget überschritten ist). Seit Paket 5: nächste fehlende Waffe hinzufügen, nur die nächste Waffe behalten (zum Ausprobieren einzeln), alle Waffen +1 Level, alle Waffen aus/an (gilt bis zum nächsten Run); das Debug-Menü hat dafür zwei Spalten. Seit Paket 8: Waffen entwickeln („Evolve weapons"). Seit Paket 9: eine Elite in der Nähe spawnen („Spawn an elite", ihre Truhe lässt sich so testen); die Messanzeige zeigt auch die Gegner-Geschosse in der Luft. Seit B1: „End this wave" (statt „+1 minute", springt ans Wellenende und öffnet den Shop), „Stop/run wave timer" (die Welle endet nicht, bis man wieder drückt; gilt auch für die nächsten Runs), „+100 Shards". Shop-Remotes: `BuyShopOffer` (nur vom Server angebotene IDs, Preis und Plätze prüft der Server), `RerollShop`, `SetShopReady` (nur in der Shop-Phase). Seit B3: `LockShopOffer` (Angebots-ID, an/aus), `SellWeapon` und `MergeWeapons` (Waffen-`uid` als Ganzzahl; der Server prüft, dass der Spieler sie trägt, eine Partnerin gleicher Stufe da ist und es nicht die letzte Waffe ist), alle nur in der Shop-Phase; Debug-Knopf „Weapons +1 tier" statt „+1 Level". Seit Paket 15: `InviteToParty`/`KickFromParty` (UserId eines Spielers im Server), `AnswerInvite` (UserId des Einladenden, nur mit offener Einladung), `LeaveParty`, `PlayFromHub` („Solo", „Party", „QuickJoin", „Cancel"; nur auf dem Hub, Party-Start und Quick Join nur der Anführer, nicht während eines Teleports), `ReturnToHub` (nur auf dem Run-Place, nicht im eigenen Run); Teleport-Tickets werden auf dem Run-Place wie Eingaben geprüft. Seit Paket 16: `RequestPurchase` (Schlüssel aus `Config/Store`, nur Wunsch: der Server prüft und zeigt Roblox' Kaufdialog; gutgeschrieben wird nur in `ProcessReceipt`), `UseBonusReroll` (nur im offenen Shop, VIP-Neuwurf oder Marke); Debug-Knöpfe „Fake purchase: next product" (nächstes Produkt über denselben Buchungsweg) und „Fake passes on/off" (nur diese Sitzung, nichts gespeichert). Seit Paket 17: `BuyWithEmbers` (Art „Character“/„Cosmetic“ + Id; der Server prüft Preis, Embers, Besitz, VIP-Einträge nie für Embers) und `EquipCosmetic` (Platz + Id aus `Config/Cosmetics` oder „None“, nur Besessenes); Debug-Knopf „+1000 Embers“.
 
 ## 17. Compliance & Plattform-Regeln
 
@@ -1098,6 +1167,14 @@ tests/               Unit-Tests für reine Module (Runner in tools/luau-test-run
 ## 18. Analytics & KPIs
 
 Eigene Events (AnalyticsService): Funnel „Erster Start" (gejoint → bewegt → erster Kill → erstes Level-up → Minute 3 → Run-Ende → Lobby → zweiter Run); Economy (Embers-Quellen/Senken); Progression (Schwierigkeit, Bosssiege); Custom (Todesursache, Karten-Pickrate, Run-Länge, Spieler pro Run).
+
+Umsetzung (Paket 20, Werte in `Config/Analytics.luau`):
+
+- **Onboarding-Funnel** (Roblox `LogOnboardingFunnelStepEvent`): 1 Joined, 2 Moved (6 Studs gelaufen, Teleports zählen nicht), 3 FirstKill, 4 FirstLevelUp, 5 Played3Minutes (seit dem Beitritt), 6 FirstRunEnded (auch Skip/Abbruch), 7 BackInLobby (Ergebnis vorbei: Lobby, Hub oder „Play again"), 8 SecondRun. Nur Spieler ohne fertigen Run; mit genau einem Run ab Schritt 7. Schritte gehen streng in Reihenfolge raus, ein früh erreichter wartet.
+- **Progression** (`LogProgression{Start,Complete,Fail}Event`): Pfad `Danger<n>` (+ `Endless`) bzw. `FirstNight`, Level = Welle; Start bei jedem Wellenstart (auch nach „Retry wave"), Complete im Shop bzw. beim Sieg, Fail bei Niederlage/Abbruch.
+- **Economy** (`LogEconomyEvent`, Währung „Embers"): Quellen RunReward (Gameplay, Artikel = Stufe `D<n>`), Achievement (Gameplay), Quest (Gameplay, Artikel = Quest-ID), LoginStreak (TimedReward, `Day<n>`), Purchase (IAP, Produkt-Schlüssel); Senke EmberShop (Shop, `Character:<id>`/`Cosmetic:<id>`).
+- **Custom** (`LogCustomEvent`, max. 3 Felder): RunEnded (Wert Sekunden; Ergebnis, Stufe, Spieler), PlayerDown (Contact/Shot/Other, nächster Gegner, Welle), BossKilled (Boss/Champion, Stufe; Wert Welle), CardOffered/CardPicked (Werte-Karte, Stufe, Auto/Player), ItemBought (Weapon/Item, ID, Welle), Revived, RetryWave, FirstNightSkipped.
+- Budget pro Server: 120 + 20 pro Spieler und Minute (Annahme nach Roblox-Doku); „low"-Ereignisse (CardOffered, ItemBought) lassen 25 % frei. Studio sendet nichts; Debug-Knopf „Print analytics log".
 
 | KPI | Startziel Soft Launch | Hebel, wenn zu niedrig |
 | --- | --- | --- |
@@ -1148,7 +1225,7 @@ Bis zum Soft Launch rund 40–50 Sessions und 50–60 Stunden Zeit des Owners (6
 | Gegner | Spawn-Marker vor dem Erscheinen, Wellen als Spawn-Gruppen (Typ, Anzahl, Start, Abstand), Werte pro Typ = Grund + Zuwachs pro Welle, neue Verhalten: Beschleuniger, flüchtender Schütze, Konter-Schütze, Buffer, Heiler, Ei (schlüpft nach 5 s), Hieb-Gegner, Beute-Fresser | B9 |
 | Elites und Boss | Phasen-Automat (Angriffe, Wechsel bei HP-Schwelle oder Zeit), Vorwarnen–Ausführen–Erholen, 2 Bosse, Elites mit Phasen | 10 (umgesetzt: Teil 1 Bosse, Teil 2 acht Champions und eine Elite-Welle; weitere Elite-Wellen → B11) |
 | Charaktere | Regelpakete statt Klassen: Startwerte, Startwaffe zur Wahl, Waffen-Plätze 1–12, Multiplikatoren auf Gewinne, Shop-Regeln, Wunsch-Tags (5 % Shop-Gewicht), Sonderregeln | B10 |
-| Schwierigkeit | Gefahrenstufen 0–5 (neue Gegner ab 1, Elite-/Horden-Wellen ab 2, +12/+26/+40 % Gegner-HP und -Schaden ab 3/4/5, 2 Bosse auf 5), Endlos nach Welle 20 mit Brotatos Formel, Regler für Gegner-HP/-Schaden/-Tempo, Welle wiederholen | B11 (umgesetzt bis auf „Welle wiederholen") |
+| Schwierigkeit | Gefahrenstufen 0–5 (neue Gegner ab 1, Elite-/Horden-Wellen ab 2, +12/+26/+40 % Gegner-HP und -Schaden ab 3/4/5, 2 Bosse auf 5), Endlos nach Welle 20 mit Brotatos Formel, Regler für Gegner-HP/-Schaden/-Tempo, Welle wiederholen | B11 (umgesetzt, „Welle wiederholen" in Teil 2) |
 | Bauten | Engineering-Wert, Geschütztürme (5 Stufen), Minen, Garten, wandernder Bot, Begleiter (Pets), höchstens 100 Bauten | B12 |
 | Fortschritt | Erfolge mit Zählern schalten Charaktere, Waffen, Items frei; Gefahrenstufe pro Charakter | 13 |
 | Anzeige | Tooltips mit Skalierung („20 (+80 % Melee)"), Set-Bonus-Fortschritt, Item-Limits, Werte Haupt/Neben umschaltbar, Vorschau kommender Elite-/Horden-Wellen | 14 |
@@ -1185,14 +1262,14 @@ Bis zum Soft Launch rund 40–50 Sessions und 50–60 Stunden Zeit des Owners (6
 | B10 | Brotato 10: Charaktere – 10–12 Charaktere als Regelpakete (umgesetzt; ersetzt die Klassen), Charakter- und Waffenwahl in der Lobby | Vertical Slice | High | 2 | 1,5 h | jeden Charakter einmal spielen |
 | 10 | Boss und Elites mit Phasen: Boss-Welle 20 (90 s), 2 Bosse mit Phasen-Wechseln, Vorwarnungen, Elites mit Phasen (Teil 1 Boss-Welle, 2 Bosse, Phasen-Automat, legendäre Kiste umgesetzt 30.10.2026, Branch `wp-10-boss`; Teil 2 acht Champions mit Phasen und Elite-Welle 11/12 umgesetzt 30.10.2026, Branch `wp-10b-elites`) | Vertical Slice | High | 2 | 1,5 h | Boss 3× spielen |
 | B11 | Brotato 11: Gefahrenstufen 0–5, Elite- und Horden-Wellen, Endlos-Modus, Regler für Gegner-Werte, Welle wiederholen | Vertical Slice | High | 1–2 | 1 h | Stufen durchprobieren |
-| B12 | Brotato 12: Bauten und Begleiter – Engineering, Türme, Minen, Garten, Bot, Pets | Vertical Slice | High | 2 | 1 h | Bau-Builds testen |
+| B12 | Bauten und Begleiter umgesetzt: Engineering, fünf Türme, Minen, Garten, Bot, Pet, zwei Werkzeugwaffen | Vertical Slice | High | 2 | 1 h | Automatisiert geprüft; Studio-Bau-Builds testen |
 | 11 | Down & Wiederbeleben während der Welle (Aufstehen am Wellenende gibt es seit B1; umgesetzt 30.10.2026, Branch `wp-11-revive`) | Vertical Slice | Medium | 1 | 1 h | mit 2 Clients testen |
-| 12 | Datenspeicherung: ProfileStore, Schema, Migration | Vertical Slice | Extra high | 1–2 | 1 h | Test-Experience anlegen, Join/Leave testen |
-| 13 | Fortschritt: Embers, Erfolge schalten Charaktere, Waffen und Items frei, Gefahrenstufe pro Charakter (statt Talente und Normal/Hard/Nightmare) | Vertical Slice | Medium | 1–2 | 1 h | Freischaltungen abnicken |
-| 14 | HUD, Run-Ende, mobiles Layout, Tooltips (Skalierung, Set-Bonus, Elite-Vorschau) | Vertical Slice | Medium | 2–3 | 2 h | Handy-Screenshots |
-| 15 | Hub-Lobby, Teleport, Party, Quick Join | MVP | Extra high | 2–3 | 2 h | Party-Teleport testen |
-| 16 | Käufe: Passes, Products, ProcessReceipt | MVP | Extra high | 1–2 | 1 h | Produkte im Creator Hub anlegen, IDs liefern, Testkäufe |
-| 17 | Ember-Shop-, Freischaltungs- und Pass-UI | MVP | Medium | 2 | 1 h | Look abnicken |
+| 12 | Datenspeicherung: ProfileStore, Schema, Migration (umgesetzt 31.10.2026, Branch `wp-12-save`: Schema v2 mit Run-Rekord, Lobby-Anzeige) | Vertical Slice | Extra high | 1–2 | 1 h | Test-Experience anlegen, Join/Leave testen |
+| 13 | Fortschritt: Embers, Erfolge schalten Charaktere, Waffen und Items frei, Gefahrenstufe pro Charakter (statt Talente und Normal/Hard/Nightmare; umgesetzt 31.10.2026, Branch `wp-13-progress`: 22 Erfolge, Schema v3) | Vertical Slice | Medium | 1–2 | 1 h | Freischaltungen abnicken |
+| 14 | HUD, Run-Ende, mobiles Layout, Tooltips (Skalierung, Set-Bonus, Elite-Vorschau) (umgesetzt 31.10.2026, Branch `wp-14-hud`: Tooltips, Wellen-Vorschau, Einstellungsmenü, Schema v4) | Vertical Slice | Medium | 2–3 | 2 h | Handy-Screenshots |
+| 15 | Hub-Lobby, Teleport, Party, Quick Join (umgesetzt 31.10.2026, Branch `wp-15-hub-teleport`: Hub- und Run-Place mit gleichem Code, Partys, Quick Join im Hub-Server, Portale, Back to hub; in Studio Runs im Hub-Server) | MVP | Extra high | 2–3 | 2 h | zweiten Place anlegen, Place-IDs liefern, Party-Teleport testen |
+| 16 | Käufe: Passes, Products, ProcessReceipt (umgesetzt 31.10.2026, Branch `wp-16-purchases`) | MVP | Extra high | 1–2 | 1 h | Produkte im Creator Hub anlegen, IDs liefern, Testkäufe |
+| 17 | Ember-Shop-, Freischaltungs- und Pass-UI (umgesetzt 31.10.2026, Branch `wp-17-ember-shop`) | MVP | Medium | 2 | 1 h | Look abnicken |
 | 18 | Quests, Login-Serie, Ranglisten, Badges | MVP | Medium | 2 | 1 h | Badges im Creator Hub anlegen |
 | 19 | Erster Start (FTUE) | MVP | Medium | 1 | 1 h | neue Tester beobachten |
 | 20 | Analytics-Events | MVP | Medium | 1 | 0,5 h | Dashboard ansehen |

@@ -8,6 +8,8 @@ local EffectsConfig = require(Shared.Config.Effects)
 local Snapshot = require(Shared.Net.Snapshot)
 local Enemies = require(Shared.Config.Enemies) -- WP10 part 2
 local RunSchedule = require(Shared.Util.RunSchedule) -- WP10 part 2
+local EmberShopRules = require(Shared.Util.EmberShopRules) -- Paket 17
+local ProgressRules = require(Shared.Util.ProgressRules) -- Paket 17
 
 local ConfigCheck = {}
 
@@ -531,6 +533,9 @@ function ConfigCheck.run(): { string }
 	if flow.resultsSeconds <= 0 then
 		problem("Run.flow.resultsSeconds must be above 0")
 	end
+	if flow.maxRetries < 0 or flow.maxRetries % 1 ~= 0 then
+		problem("Run.flow.maxRetries must be a whole number of 0 or more")
+	end
 	if Config.Admin.skipToBossLeadSeconds >= Config.Run.durationSeconds then
 		problem("Admin.skipToBossLeadSeconds must be shorter than the run")
 	end
@@ -746,6 +751,265 @@ function ConfigCheck.run(): { string }
 				end
 			end
 		end
+	end
+
+	-- Paket 13: achievements and unlocks (Config.Progress)
+	local achievementIds: { [string]: boolean } = {}
+	for _, achievement in Config.Progress.achievements do
+		local owner = `Achievement {achievement.id}`
+		if achievementIds[achievement.id] then
+			problem(`{owner} is listed twice`)
+		end
+		achievementIds[achievement.id] = true
+		local byStat = achievement.stat ~= nil and achievement.goal ~= nil
+		if byStat == (achievement.winWith ~= nil) then
+			problem(`{owner} needs either stat + goal or winWith`)
+		end
+		if achievement.winWith and not Config.Classes[achievement.winWith] then
+			problem(`{owner} wins with unknown character {achievement.winWith}`)
+		end
+		if achievement.embers < 0 then
+			problem(`{owner} needs Embers of at least 0`)
+		end
+		local unlocks = achievement.unlocks or {}
+		for _, classId in unlocks.characters or {} do
+			if not Config.Classes[classId] then
+				problem(`{owner} unlocks unknown character {classId}`)
+			elseif classId == Config.Run.flow.defaultClassId then
+				problem(`{owner} locks the default character {classId}`)
+			end
+		end
+		for _, weaponId in unlocks.weapons or {} do
+			if not Config.Weapons[weaponId] then
+				problem(`{owner} unlocks unknown weapon {weaponId}`)
+			end
+			for classId, class in Config.Classes do
+				if table.find(class.startWeapons, weaponId) or table.find(class.extraWeapons or {}, weaponId) then
+					problem(`{owner} locks {weaponId}, a starting weapon of {classId}`)
+				end
+			end
+		end
+		for _, itemId in unlocks.items or {} do
+			if not Config.Items.byId[itemId] then
+				problem(`{owner} unlocks unknown item {itemId}`)
+			end
+			for classId, class in Config.Classes do
+				if table.find(class.startItems or {}, itemId) then
+					problem(`{owner} locks {itemId}, a starting item of {classId}`)
+				end
+			end
+		end
+	end
+
+	-- B12: construction catalogs and sources must agree.
+	for id, definition in Config.Structures.kinds do
+		if definition.interval <= 0 or definition.range < 0 then
+			problem(`Invalid structure timing/range {id}`)
+		end
+		local item = Config.Items.byId[id]
+		if not item or item.structure ~= id then
+			problem(`Missing structure item {id}`)
+		end
+	end
+	for id, weapon in Config.Weapons do
+		for _, kind in weapon.structureKinds or {} do
+			if not Config.Structures.kinds[kind] then
+				problem(`Unknown structure {kind} on {id}`)
+			end
+		end
+	end
+	-- Paket 15: places, parties and portals.
+	local places = Config.Places
+	if places.party.maxSize ~= Config.Run.maxPlayers then
+		problem(`Places.party.maxSize ({places.party.maxSize}) must equal Run.maxPlayers ({Config.Run.maxPlayers})`)
+	end
+	if places.quickJoin.minPlayers < 1 or places.quickJoin.minPlayers > places.party.maxSize then
+		problem("Places.quickJoin.minPlayers must be between 1 and party.maxSize")
+	end
+	if places.teleport.attempts < 1 then
+		problem("Places.teleport.attempts must be at least 1")
+	end
+	local seenPlaces: { [number]: string } = {}
+	for _, experience in places.experiences do
+		for _, key in { "hub", "run" } do
+			local id = (experience :: any)[key] :: number
+			if id ~= math.floor(id) or id < 0 then
+				problem(`Places: {experience.name} {key} id must be a whole number (0 = not set)`)
+			elseif id ~= 0 then
+				if seenPlaces[id] then
+					problem(`Places: id {id} is used twice ({seenPlaces[id]} and {experience.name} {key})`)
+				end
+				seenPlaces[id] = `{experience.name} {key}`
+			end
+		end
+		if (experience.hub == 0) ~= (experience.run == 0) then
+			problem(`Places: {experience.name} needs both a hub and a run place id (or neither)`)
+		end
+	end
+	local lobbyHalf = Config.Map.lobby.size / 2
+	for _, portal in places.portals do
+		if math.abs(portal.offset.X) > lobbyHalf or math.abs(portal.offset.Z) > lobbyHalf then
+			problem(`Portal {portal.mode} stands outside the lobby`)
+		end
+	end
+
+	-- Paket 17: Ember shop prices and cosmetics.
+	for classId, price in Config.Progress.characterPrices do
+		local class = Config.Classes[classId]
+		if not (class and class.available) then
+			problem(`Ember shop: price for unknown or unavailable character {classId}`)
+		elseif not ProgressRules.isLockable("characters", classId) then
+			problem(`Ember shop: {classId} has a price but is never locked`)
+		end
+		if price <= 0 or price % 1 ~= 0 then
+			problem(`Ember shop: price of {classId} must be a whole number above 0`)
+		end
+	end
+	local cosmetics = Config.Cosmetics
+	local cosmeticIds: { [string]: boolean } = {}
+	for slot, list in { Lantern = cosmetics.lanterns, Trail = cosmetics.trails } :: { [string]: { any } } do
+		if not table.find(cosmetics.slots, slot) then
+			problem(`Cosmetics: slot {slot} is not in slots`)
+		end
+		for _, entry in list do
+			if cosmeticIds[entry.id] or entry.id == cosmetics.none then
+				problem(`Cosmetics: id {entry.id} is used twice`)
+			end
+			cosmeticIds[entry.id] = true
+			if entry.slot ~= slot then
+				problem(`Cosmetics: {entry.id} is listed under {slot} but has slot {entry.slot}`)
+			end
+			if entry.price < 0 or entry.price % 1 ~= 0 or (entry.vip and entry.price ~= 0) then
+				problem(`Cosmetics: {entry.id} needs a whole price of at least 0 (0 for VIP entries)`)
+			end
+			if #entry.id > 32 then
+				problem(`Cosmetics: id {entry.id} is longer than 32 characters (remote limit)`)
+			end
+		end
+	end
+	for _, defaults in { cosmetics.defaults, cosmetics.vipDefaults } do
+		for slot, id in defaults do
+			local entry = EmberShopRules.cosmetic(id)
+			if not entry or entry.slot ~= slot then
+				problem(`Cosmetics: default {id} for {slot} is not a cosmetic of that slot`)
+			elseif defaults == cosmetics.defaults and (entry.vip or entry.price > 0) then
+				problem(`Cosmetics: default {id} must be free for everyone`)
+			end
+		end
+	end
+
+	-- Paket 16: passes, products and their ids per experience.
+	local store = Config.Store
+	local storeKeys: { [string]: string } = {}
+	for _, pass in store.passes do
+		if storeKeys[pass.key] then
+			problem(`Store: key {pass.key} is used twice`)
+		end
+		storeKeys[pass.key] = "passes"
+		if pass.price <= 0 then
+			problem(`Store: pass {pass.key} needs a positive reference price`)
+		end
+	end
+	for _, product in store.products do
+		if storeKeys[product.key] then
+			problem(`Store: key {product.key} is used twice`)
+		end
+		storeKeys[product.key] = "products"
+		if product.price <= 0 then
+			problem(`Store: product {product.key} needs a positive reference price`)
+		end
+		local grant = product.grant
+		if not (grant.embers or grant.revives or grant.rerolls or grant.serverBoost) then
+			problem(`Store: product {product.key} gives nothing`)
+		end
+		for _, amount in { grant.embers, grant.revives, grant.rerolls } do
+			if amount and (amount <= 0 or amount ~= math.floor(amount)) then
+				problem(`Store: product {product.key} must give whole, positive amounts`)
+			end
+		end
+	end
+	local seenGames: { [number]: boolean } = {}
+	for _, experience in store.experiences do
+		if seenGames[experience.gameId] then
+			problem(`Store: gameId {experience.gameId} has two entries`)
+		end
+		seenGames[experience.gameId] = true
+		local seenIds: { [number]: string } = {}
+		for key, list in storeKeys do
+			local id = (experience :: any)[list][key]
+			if id == nil then
+				problem(`Store: {experience.name} has no {list} id for {key} (0 = not set)`)
+			elseif id ~= math.floor(id) or id < 0 then
+				problem(`Store: {experience.name} {key} id must be a whole number (0 = not set)`)
+			elseif id ~= 0 then
+				if seenIds[id] then
+					problem(`Store: {experience.name} uses id {id} for {seenIds[id]} and {key}`)
+				end
+				seenIds[id] = key
+			end
+		end
+		for _, list in { "passes", "products" } do
+			for key in (experience :: any)[list] do
+				if storeKeys[key] ~= list then
+					problem(`Store: {experience.name} has an id for unknown {list} key {key}`)
+				end
+			end
+		end
+	end
+	if store.receiptMemory < 1 or store.receiptWaitSeconds <= 0 or store.passCheckAttempts < 1 then
+		problem("Store: receiptMemory, receiptWaitSeconds and passCheckAttempts must be positive")
+	end
+
+	-- Paket 20: analytics events (Roblox allows three custom fields and its own transaction types)
+	local analytics = Config.Analytics
+	local transactionTypes =
+		{ IAP = true, Shop = true, Gameplay = true, ContextualPurchase = true, TimedReward = true, Onboarding = true }
+	for _, list in { analytics.economy.sources, analytics.economy.sinks } do
+		for key, transaction in list :: { [string]: string } do
+			if not transactionTypes[transaction] then
+				problem(`Analytics: Ember {key} uses unknown transaction type {transaction}`)
+			end
+		end
+	end
+	for name, event in analytics.custom do
+		if #event.fields > 3 then
+			problem(`Analytics: {name} has more than 3 fields`)
+		end
+		if event.priority ~= "high" and event.priority ~= "low" then
+			problem(`Analytics: {name} priority must be "high" or "low"`)
+		end
+	end
+	if #analytics.onboarding.steps < 2 or analytics.budget.perMinute < 1 then
+		problem("Analytics: the funnel needs steps and the budget must be positive")
+	end
+	-- Paket 21: sounds and music
+	local audio = Config.Audio
+	local function checkSoundId(owner: string, sound: string)
+		if sound ~= "" and not (string.match(sound, "^rbxassetid://%d+$") or string.match(sound, "^rbxasset://")) then
+			problem(`Audio: {owner} sound must be "", "rbxassetid://<id>" or "rbxasset://..."`)
+		end
+	end
+	for id, cue in audio.cues do
+		checkSoundId(`cue {id}`, cue.sound)
+		if cue.voices < 1 or cue.volume < 0 or cue.pitch <= 0 or cue.minInterval < 0 then
+			problem(`Audio: cue {id} needs voices >= 1, volume >= 0, pitch > 0 and minInterval >= 0`)
+		end
+	end
+	for kind, cueId in audio.weaponKinds do
+		if not audio.cues[cueId] then
+			problem(`Audio: weapon kind {kind} plays unknown cue {cueId}`)
+		end
+	end
+	for _, name in { "lobby", "run", "shop", "boss", "results", "victory", "defeat" } do
+		local track = audio.music[name]
+		if not track then
+			problem(`Audio: music track {name} is missing`)
+		else
+			checkSoundId(`music {name}`, track.sound)
+		end
+	end
+	if audio.hearRadius <= audio.fullRadius or audio.fadeSeconds <= 0 then
+		problem("Audio: hearRadius must be above fullRadius and fadeSeconds positive")
 	end
 	return problems
 end

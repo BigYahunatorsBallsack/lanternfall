@@ -3,7 +3,9 @@
 -- wave is the boss wave (BossService); surviving it wins, and so does killing its bosses (endRun, WP10). The old
 -- Boss phase is no longer entered. Since B11 the lobby picks run options (danger level, endless mode, enemy sliders;
 -- Util/DangerRules); in endless mode the run goes on after the last wave until nobody is alive, and reaching the end
--- of the last wave counts as a win.
+-- of the last wave counts as a win. B11 part 2: after a defeat in a wave, "Retry wave" starts that wave again from its
+-- beginning (retryWave, at most maxRetries per run). Paket 15: launch starts a run for a given group right away.
+-- Paket 19: a First Night run (runOptions.firstNight) is won after settings.firstNightWaves waves.
 -- Owned by RunDirector, which feeds it player events and the clock (`now` in seconds). No Roblox APIs
 -- here, so the rules are unit-tested outside Studio (tests/RunFlow.spec.luau).
 --
@@ -29,6 +31,8 @@ export type Settings = {
 	-- plus endlessWaveSeconds per wave
 	waveEndAt: ((number) -> number)?,
 	endlessWaveSeconds: number?,
+	maxRetries: number?, -- B11 part 2: "Retry wave" this often per run after a defeat (default 0: never)
+	firstNightWaves: number?, -- Paket 19: a First Night run (options.firstNight) wins after this many waves
 }
 
 export type Event =
@@ -36,6 +40,7 @@ export type Event =
 	| { kind: "RunStarted", userIds: { number } }
 	| { kind: "RunEnded", results: Types.Results }
 	| { kind: "ParticipantStateChanged", userId: number, state: ParticipantState }
+	| { kind: "WaveRetried", wave: number }
 
 type Entry = {
 	userId: number,
@@ -74,6 +79,7 @@ export type RunFlow = typeof(setmetatable(
 		players: { [number]: Entry },
 		participants: { [number]: Participant },
 		results: Types.Results?,
+		retries: number, -- B11 part 2: waves retried in this run
 		version: number,
 		counter: number,
 		events: { Event },
@@ -98,6 +104,7 @@ function RunFlow.new(settings: Settings): RunFlow
 		players = {},
 		participants = {},
 		results = nil,
+		retries = 0,
 		version = 0,
 		counter = 0,
 		events = {},
@@ -135,9 +142,18 @@ local function waveEnd(self: RunFlow, n: number): number
 	return ends[#ends] + (n - #ends) * (self.settings.endlessWaveSeconds or 60)
 end
 
+-- Paket 19: the run's last wave (the First Night is shorter).
+local function lastWave(self: RunFlow): number
+	local count = #self.settings.waveEnds
+	if self.runOptions.firstNight then
+		return math.min(count, self.settings.firstNightWaves or count)
+	end
+	return count
+end
+
 -- In endless mode the end of the last wave was reached (counts as a win, Brotato).
 local function pastLastWave(self: RunFlow): boolean
-	local count = #self.settings.waveEnds
+	local count = lastWave(self)
 	return self.wave > count or (self.wave == count and self.phase == "Shop")
 end
 
@@ -255,6 +271,7 @@ local function startRun(self: RunFlow, now: number)
 	self.pausedAt = nil
 	self.heldAt = if self.holdWaves then now else nil
 	self.results = nil
+	self.retries = 0
 	push(self, { kind = "RunStarted", userIds = userIds })
 	setPhase(self, "Running", nil)
 end
@@ -283,6 +300,7 @@ local function finishRun(self: RunFlow, outcome: Outcome, now: number)
 		players = entries,
 		wave = self.wave,
 		endless = self.runOptions.endless,
+		retriesLeft = if outcome == "Defeat" then math.max(0, (self.settings.maxRetries or 0) - self.retries) else 0,
 	}
 	self.runEndedAt = now
 	self.results = results
@@ -423,6 +441,38 @@ function RunFlow.setClass(self: RunFlow, userId: number, classId: string): (bool
 	return true, nil
 end
 
+-- Paket 15: starts a run for exactly these players (a group from the hub in Studio, or the group that arrived on a
+-- run place): they become ready and the short countdown starts. Only from the lobby (or an open countdown).
+function RunFlow.launch(self: RunFlow, userIds: { number }, now: number): (boolean, string?)
+	if self.phase ~= "Lobby" and self.phase ~= "Countdown" then
+		return false, "Busy"
+	end
+	local any = false
+	for _, userId in userIds do
+		local entry = self.players[userId]
+		if entry then
+			any = true
+			if not entry.ready then
+				entry.ready = true
+				self.counter += 1
+				entry.readyOrder = self.counter
+				changed(self)
+			end
+		end
+	end
+	if not any then
+		return false, "UnknownPlayer"
+	end
+	local endsAt = now + self.settings.allReadyCountdownSeconds
+	if self.phase == "Lobby" then
+		setPhase(self, "Countdown", endsAt)
+	elseif self.phaseEndsAt == nil or endsAt < self.phaseEndsAt then
+		self.phaseEndsAt = endsAt
+		changed(self)
+	end
+	return true, nil
+end
+
 -- Ready = join the next run. On the results screen this is the "Play again" button.
 function RunFlow.setReady(self: RunFlow, userId: number, ready: boolean, now: number): (boolean, string?)
 	local entry = self.players[userId]
@@ -473,7 +523,7 @@ function RunFlow.skipTo(self: RunFlow, elapsed: number, now: number): (boolean, 
 		return false, "NotRunning"
 	end
 	local ends = self.settings.waveEnds
-	local target = if self.runOptions.endless then elapsed else math.min(elapsed, ends[#ends])
+	local target = if self.runOptions.endless then elapsed else math.min(elapsed, ends[lastWave(self)])
 	if target <= self:getElapsed(now) then
 		return false, "AlreadyPast"
 	end
@@ -524,6 +574,45 @@ function RunFlow.setShopReady(self: RunFlow, userId: number, ready: boolean, now
 	return true, nil
 end
 
+-- B11 part 2: after a defeat, starts the lost wave again from its beginning with every participant still in the game
+-- standing (Brotato's "Retry wave"). Any participant may ask while the results show. WaveRetried comes first, so the
+-- services restore their wave-start state (RunDirector checkpoints) before the participants stand up and the wave
+-- starts again (PhaseChanged Ended -> Running).
+function RunFlow.retryWave(self: RunFlow, userId: number, now: number): (boolean, string?)
+	local results = self.results
+	if self.phase ~= "Ended" or not results or results.outcome ~= "Defeat" then
+		return false, "NotDefeated"
+	end
+	if not self.participants[userId] then
+		return false, "NotParticipant"
+	end
+	if (results.retriesLeft or 0) <= 0 then
+		return false, "NoRetriesLeft"
+	end
+	self.retries += 1
+	push(self, { kind = "WaveRetried", wave = self.wave })
+	self.results = nil
+	self.runEndedAt = nil
+	self.pausedAt = nil
+	self.heldAt = if self.holdWaves then now else nil
+	-- the clock goes back to the start of the wave
+	local startsAt = if self.wave > 1 then waveEnd(self, self.wave - 1) else 0
+	self.runStartedAt = now - startsAt - self.pausedSeconds
+	for id, participant in self.participants do
+		participant.shopReady = false
+		local entry = self.players[id]
+		if entry then
+			entry.ready = false -- a "Play again" pressed on the results no longer counts
+		end
+		if participant.state ~= "Alive" then
+			participant.state = "Alive"
+			push(self, { kind = "ParticipantStateChanged", userId = id, state = "Alive" })
+		end
+	end
+	setPhase(self, "Running", nil)
+	return true, nil
+end
+
 function RunFlow.endRun(self: RunFlow, outcome: Outcome, now: number): (boolean, string?)
 	if not self:isOngoing() then
 		return false, "NotRunning"
@@ -542,9 +631,8 @@ function RunFlow.update(self: RunFlow, now: number)
 			startRun(self, now)
 		end
 	elseif phase == "Running" then
-		local ends = self.settings.waveEnds
 		if self:getElapsed(now) >= waveEnd(self, self.wave) then
-			if self.wave >= #ends and not self.runOptions.endless then
+			if self.wave >= lastWave(self) and not self.runOptions.endless then
 				finishRun(self, "Victory", now) -- surviving the boss wave wins, like Brotato (WP10)
 			else
 				openShop(self, now)
@@ -627,6 +715,7 @@ function RunFlow.setOptions(self: RunFlow, options: Types.RunOptions)
 		and old.enemyDamage == options.enemyDamage
 		and old.enemySpeed == options.enemySpeed
 		and old.enemyCount == options.enemyCount
+		and old.firstNight == options.firstNight
 	then
 		return
 	end

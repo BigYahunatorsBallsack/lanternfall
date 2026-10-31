@@ -45,6 +45,9 @@ local Run = {
 		allReadyCountdownSeconds = 3, -- countdown is cut to this once every player in the server is ready
 		resultsSeconds = 15, -- results screen, then everyone returns to the lobby
 		defaultClassId = "BladeWarden",
+		-- B11 part 2: "Retry wave" on the results after a defeat starts the lost wave again from its start state
+		-- (XP, level, Shards, stats, weapons, items, HP), this often per run (assumption)
+		maxRetries = 3,
 	}),
 
 	-- fPlayers = 1 + perExtraPlayer * (n - 1)
@@ -86,15 +89,12 @@ local Run = {
 			wave({ group("Shadeling", 6, 2.4) }), -- wave 2: 2.50 enemies/s
 			wave({ group("Shadeling", 6, 2.3), group("Brute", 2, 4.6) }, { "Brute" }), -- wave 3: 3.26 enemies/s
 			wave({ group("Shadeling", 7, 2.6), group("Brute", 2.6, 5.2), group("Stalker", 2, 6) }, { "Stalker" }), -- wave 4: 3.79 enemies/s
-			wave(
-				{
-					group("Shadeling", 7, 2.7),
-					group("Brute", 2.6, 5.2),
-					group("Charger", 3, 5.8),
-					group("Stalker", 2, 6),
-				},
-				{ "Charger" }
-			), -- wave 5: 4.21 enemies/s
+			wave({
+				group("Shadeling", 7, 2.7),
+				group("Brute", 2.6, 5.2),
+				group("Charger", 3, 5.8),
+				group("Stalker", 2, 6),
+			}, { "Charger" }), -- wave 5: 4.21 enemies/s
 			wave({
 				group("Shadeling", 6, 2.4),
 				group("Brute", 2.6, 5.2),

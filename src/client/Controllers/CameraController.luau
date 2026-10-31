@@ -3,7 +3,7 @@
 -- character from a fixed angle and distance, no rotating or zooming. Started by the client bootstrap.
 -- Because the camera never turns, W/stick-up always walks up the screen. shake() adds a short wobble for big hits
 -- (Config.Feedback.shake; EnemyRenderer, ChestController, FeedbackController). follow() watches a teammate instead
--- (ReviveController, while the local player is out, WP11).
+-- (ReviveController, while the local player is out, WP11). Since Paket 14 the settings menu can switch shaking off.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -11,6 +11,8 @@ local RunService = game:GetService("RunService")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared:WaitForChild("Config"))
+
+local SettingsController = require(script.Parent.SettingsController)
 
 local CameraConfig = Config.Camera
 local RENDER_STEP_NAME = "LanternfallCamera"
@@ -80,7 +82,7 @@ end
 
 -- Adds a camera shake of `strength` (0-1; shakes add up to at most 1, then fade out).
 function CameraController.shake(strength: number)
-	if Config.Feedback.shake.enabled and strength > 0 then
+	if Config.Feedback.shake.enabled and SettingsController.get().shake and strength > 0 then
 		shakeStrength = math.min(1, shakeStrength + strength)
 	end
 end

@@ -1,9 +1,13 @@
 --!strict
 -- B10 lobby extension; mounted by LobbyController, which owns visibility and READY.
+-- Since Paket 13 locked characters show what unlocks them and the highest danger level open for the character;
+-- since Paket 17 also their Ember shop price.
 local Shared = game:GetService("ReplicatedStorage").Shared
 local Config = require(Shared.Config)
 local Net = require(Shared.Net)
 local CharacterRules = require(Shared.Util.CharacterRules)
+local ProgressRules = require(Shared.Util.ProgressRules)
+local ProfileCard = require(script.Parent.ProfileCard)
 local RunStateController = require(script.Parent.RunStateController)
 local Theme = require(script.Parent.Parent.UI.Theme)
 local Widgets = require(script.Parent.Parent.UI.Widgets)
@@ -14,8 +18,47 @@ local weaponRow: Frame?
 local renderedClass: string? = nil
 local buttons: { [string]: TextButton } = {}
 local lastPress = 0
+local classButtons: { [string]: TextButton } = {}
+
+-- Paket 13: whether the local player has unlocked a character (lockable ones count as locked until loaded).
+function CharacterChoice.isUnlocked(classId: string): boolean
+	local info = ProfileCard.get()
+	return ProgressRules.isUnlocked(
+		"characters",
+		classId,
+		if info then info.achievements or {} else {},
+		if info then info.ownedClasses else nil
+	)
+end
+
+-- Paket 13: highest danger level the local player has open with a character.
+function CharacterChoice.maxDanger(classId: string): number
+	local info = ProfileCard.get()
+	local open = info and info.characterDanger and info.characterDanger[classId]
+	return open or Config.Progress.startDanger
+end
+
+local function renderLocks()
+	for classId, button in classButtons do
+		local class = Config.Classes[classId]
+		if CharacterChoice.isUnlocked(classId) then
+			button.Text = class.displayName
+			button.TextSize = 16
+		else
+			button.TextSize = 12
+			button.Text = `{class.displayName}\nLOCKED: {ProgressRules.requirement("characters", classId) or ""}`
+			local price = Config.Progress.characterPrices[classId] -- Paket 17: or buy it in the Ember shop
+			if price then
+				button.Text ..= `\nor {price} Embers (Ember shop)`
+			end
+			button.BackgroundColor3 = Theme.panel
+			button.TextColor3 = Theme.textDim
+		end
+	end
+end
 
 function CharacterChoice.render()
+	renderLocks()
 	local me = RunStateController.getLocalPlayer()
 	if not me or not details or not weaponRow then
 		return
@@ -24,7 +67,8 @@ function CharacterChoice.render()
 	if not class then
 		return
 	end
-	details.Text = `{class.displayName} · {CharacterRules.maxWeapons(me.classId)} slots\n{class.description}`
+	details.Text = `{class.displayName} · {CharacterRules.maxWeapons(me.classId)} slots · `
+		.. `danger up to {CharacterChoice.maxDanger(me.classId)}\n{class.description}`
 	if renderedClass ~= me.classId then
 		renderedClass = me.classId
 		Widgets.clearRows(weaponRow)
@@ -53,7 +97,7 @@ function CharacterChoice.render()
 	end
 end
 
-function CharacterChoice.mount(card: Frame, row: Frame, classButtons: { [string]: TextButton })
+function CharacterChoice.mount(card: Frame, row: Frame, buttonsByClass: { [string]: TextButton })
 	-- Reuse the existing buttons and handlers; keep the shared lobby module append-only.
 	for _, child in card:GetChildren() do
 		if child:IsA("TextLabel") then
@@ -72,6 +116,7 @@ function CharacterChoice.mount(card: Frame, row: Frame, classButtons: { [string]
 		SortOrder = Enum.SortOrder.LayoutOrder,
 		Parent = row,
 	})
+	classButtons = buttonsByClass
 	for classId, button in classButtons do
 		button.Text = Config.Classes[classId].displayName
 		button.TextSize = 16
