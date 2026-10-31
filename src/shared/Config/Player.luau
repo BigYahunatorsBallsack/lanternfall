@@ -12,7 +12,9 @@ return table.freeze({
 		duration = 0.15, -- seconds the dash movement takes (distance / duration = dash speed)
 		cooldownTolerance = 0.25, -- seconds the server forgives, so ping does not eat a dash
 	}),
-	pickupRadius = 8, -- studs (XP orbs, healing, embers)
+	-- studs (XP orbs, healing, embers); 8 until the playtest after Paket 24, now about Brotato's share of the arena
+	-- width (150 of about 2000 px) for the 160-stud arena
+	pickupRadius = 12,
 	minDamagePerHit = 1,
 	hitInvulnerability = 0.4, -- seconds of protection after taking a hit (B5: Brotato range 0.2-0.4, before 0.5)
 	-- crits of weapons that set no critChance / critDamage of their own (Brotato: most weapons x2 at 3 %; since B5,
