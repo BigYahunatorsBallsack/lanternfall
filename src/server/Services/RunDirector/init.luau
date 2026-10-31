@@ -10,6 +10,10 @@
 -- B11 part 2 "Retry wave": services register a checkpoint (addCheckpoint) that is saved when a wave starts (after
 -- WaveStarting, before PhaseChanged) and restored when a participant retries the lost wave on the results (remote
 -- RetryWave); then WaveRetried fires and the wave starts again with PhaseChanged Ended -> Running.
+-- Paket 15: on the hub (PlaceService) players do not ready up; PartyService teleports each group to its own run server
+-- (in Studio it starts the group's run here with launch), the hub's run options belong to the parties
+-- (OptionsRequested), and READY only counts as "Play again" after a run. On the run place RunPlaceService launches the
+-- group that arrived.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -25,6 +29,7 @@ local Signal = require(Shared.Util.Signal)
 local Types = require(Shared.Net.Types)
 
 local MapService = require(script.Parent.MapService)
+local PlaceService = require(script.Parent.PlaceService)
 local PlayerDataService = require(script.Parent.PlayerDataService)
 local RunFlow = require(script.RunFlow)
 
@@ -41,6 +46,8 @@ local REJECTION_TEXT: { [string]: string } = {
 	EnemyCap = "The enemy limit is reached",
 	NotDefeated = "Only after a defeat",
 	NoRetriesLeft = "No retries left in this run",
+	UseHub = "Pick Play solo, Party run or Quick join",
+	Busy = "A run is already going in this server",
 }
 
 local RunDirector = {}
@@ -60,6 +67,10 @@ RunDirector.SyncRequested = Signal.new()
 RunDirector.WaveStarting = Signal.new()
 -- (wave: number): the lost wave starts again; every checkpoint was restored, PhaseChanged to Running comes next
 RunDirector.WaveRetried = Signal.new()
+-- (player: Player, classId: string): a player picked a character in the lobby (Paket 15: PartyService resends)
+RunDirector.ClassSelected = Signal.new()
+-- (player: Player, options: Types.RunOptions): on the hub, a player picked run options for their party (Paket 15)
+RunDirector.OptionsRequested = Signal.new()
 
 -- B11 part 2: what the services keep from the start of the current wave for "Retry wave".
 type Checkpoint = { name: string, save: () -> any, restore: (any) -> () }
@@ -274,17 +285,10 @@ function RunDirector.init()
 	end)
 
 	Net.onServer("SelectClass", function(player, classId: string)
-		local class = Config.Classes[classId]
-		if not (class and class.available and PlayerDataService.ownsClass(player, classId)) then
-			reject(player, "Locked")
-			return
-		end
-		local ok, reason = flow:setClass(player.UserId, classId)
+		local ok, reason = RunDirector.selectClass(player, classId)
 		if not ok then
 			reject(player, reason)
 		end
-		enforceDangerCap()
-		process()
 	end)
 
 	Net.onServer(
@@ -300,6 +304,20 @@ function RunDirector.init()
 		)
 			if not flow.players[player.UserId] then
 				reject(player, "UnknownPlayer")
+				return
+			end
+			if PlaceService.isHub() then -- Paket 15: the party's options, kept by PartyService
+				RunDirector.OptionsRequested:Fire(
+					player,
+					DangerRules.clean({
+						danger = danger,
+						endless = endless,
+						enemyHp = enemyHp,
+						enemyDamage = enemyDamage,
+						enemySpeed = enemySpeed,
+						enemyCount = enemyCount,
+					})
+				)
 				return
 			end
 			local cap = dangerCap()
@@ -341,6 +359,11 @@ function RunDirector.init()
 	end)
 
 	Net.onServer("SetReady", function(player, ready: boolean)
+		-- Paket 15: on the hub READY is only "Play again" on the results of a run played here (Studio)
+		if PlaceService.isHub() and ready and not (flow.phase == "Ended" and flow:isParticipant(player.UserId)) then
+			reject(player, "UseHub")
+			return
+		end
 		local ok, reason = flow:setReady(player.UserId, ready, now())
 		if not ok then
 			reject(player, reason)
@@ -404,9 +427,11 @@ function RunDirector.getRunOptions(): Types.RunOptions
 end
 
 -- B11: sets the lobby's options for the next run (tests and admin; players use the remote SetRunOptions).
-function RunDirector.setOptions(options: Types.RunOptions)
-	capOverride = true -- tests and admins may pick any danger level
+-- Paket 15: `capped` keeps the danger cap of the players in the lobby (options from a run place ticket).
+function RunDirector.setOptions(options: Types.RunOptions, capped: boolean?)
+	capOverride = not capped -- tests and admins may pick any danger level
 	flow:setOptions(DangerRules.clean(options))
+	enforceDangerCap()
 	process()
 end
 
@@ -473,6 +498,51 @@ end
 
 function RunDirector.notifyRejection(player: Player, reason: string?)
 	reject(player, reason)
+end
+
+-- Picks the player's character for the next run (remote SelectClass; RunPlaceService applies hub picks). Checks
+-- that it exists, is playable and unlocked for the player.
+function RunDirector.selectClass(player: Player, classId: string): (boolean, string?)
+	local class = Config.Classes[classId]
+	if not (class and class.available and PlayerDataService.ownsClass(player, classId)) then
+		return false, "Locked"
+	end
+	local ok, reason = flow:setClass(player.UserId, classId)
+	enforceDangerCap()
+	process()
+	if ok then
+		RunDirector.ClassSelected:Fire(player, classId)
+	end
+	return ok, reason
+end
+
+-- Paket 15: starts a run for exactly these players after the short countdown: a hub group in Studio (PartyService)
+-- or the group that arrived on a run place (RunPlaceService). `options` replace the lobby's; with `capped` the
+-- danger cap of the players here still applies (tickets), without it they are used as they are (PartyService
+-- already capped them for the group).
+function RunDirector.launch(players: { Player }, options: Types.RunOptions?, capped: boolean?): (boolean, string?)
+	if flow.phase ~= "Lobby" and flow.phase ~= "Countdown" then
+		return false, "Busy"
+	end
+	if options then
+		capOverride = not capped
+		flow:setOptions(DangerRules.clean(options))
+		enforceDangerCap()
+	end
+	local userIds = {}
+	for _, player in players do
+		table.insert(userIds, player.UserId)
+	end
+	local ok, reason = flow:launch(userIds, now())
+	process()
+	return ok, reason
+end
+
+-- Ready for the next run, like the READY button (RunPlaceService queues players who arrive during a run).
+function RunDirector.setReady(player: Player, ready: boolean): (boolean, string?)
+	local ok, reason = flow:setReady(player.UserId, ready, now())
+	process()
+	return ok, reason
 end
 
 -- B10: current lobby choice, separate from the frozen participant class of an active run.

@@ -163,4 +163,30 @@ Remotes.RetryWave = {
 	rateLimit = { count = 2, perSeconds = 1 },
 	args = {},
 }
+-- Paket 15: hub parties and portals (PartyService checks the role, the party and who may do what)
+Remotes.PartyState = { direction = "toClient" } -- Net/Types.PartyState, to its player on change
+Remotes.InviteToParty = {
+	direction = "toServer",
+	rateLimit = { count = 3, perSeconds = 2 },
+	args = { Validate.integer(1, 2 ^ 53) }, -- userId of a player in this hub
+}
+Remotes.AnswerInvite = {
+	direction = "toServer",
+	rateLimit = { count = 4, perSeconds = 2 },
+	args = { Validate.integer(1, 2 ^ 53), Validate.boolean() }, -- inviter's userId, accept
+}
+Remotes.LeaveParty = { direction = "toServer", rateLimit = { count = 2, perSeconds = 2 }, args = {} }
+Remotes.KickFromParty = {
+	direction = "toServer",
+	rateLimit = { count = 3, perSeconds = 2 },
+	args = { Validate.integer(1, 2 ^ 53) }, -- userId of a party member; leader only
+}
+-- Play solo, start the party run (leader), join quick join, or cancel the countdown/queue
+Remotes.PlayFromHub = {
+	direction = "toServer",
+	rateLimit = { count = 3, perSeconds = 2 },
+	args = { Validate.oneOf({ "Solo", "Party", "QuickJoin", "Cancel" }) },
+}
+-- Run place: back to the hub (RunPlaceService; not during the player's own run)
+Remotes.ReturnToHub = { direction = "toServer", rateLimit = { count = 1, perSeconds = 2 }, args = {} }
 return table.freeze(Remotes)

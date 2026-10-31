@@ -2,11 +2,16 @@
 -- Builds the placeholder lobby and arena from Config.Map (the real map follows in WP21) and moves
 -- characters between them. Called by RunDirector; EnemySim and SpawnDirector read the arena bounds,
 -- obstacles and player positions.
+-- Paket 15: on the hub (PlaceService) the lobby gets three portals (Play solo, Party run, Quick join) with a
+-- ProximityPrompt each; PartyService listens to PortalTriggered.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Config = require(ReplicatedStorage.Shared.Config)
+local Signal = require(ReplicatedStorage.Shared.Util.Signal)
+
+local PlaceService = require(script.Parent.PlaceService)
 
 export type Zone = "Lobby" | "Arena"
 
@@ -31,8 +36,18 @@ local ARENA_WALL_COLOR = Color3.fromRGB(90, 50, 140)
 local ARENA_WALL_TRANSPARENCY = 0.4
 local ARENA_MARKER_COLOR = Color3.fromRGB(255, 196, 87)
 local RUIN_COLOR = Color3.fromRGB(96, 90, 104)
+local PORTAL_COLORS: { [string]: Color3 } = {
+	Solo = Color3.fromRGB(255, 196, 87),
+	Party = Color3.fromRGB(152, 102, 218),
+	QuickJoin = Color3.fromRGB(96, 214, 200),
+}
+local PORTAL_SIZE = Vector3.new(10, 12, 1) -- width, height, depth of the glowing gate
+local PORTAL_FRAME = 1.2 -- thickness of the stone frame
 
 local MapService = {}
+
+-- (player: Player, mode: string): a player used a hub portal ("Solo", "Party" or "QuickJoin"; Paket 15)
+MapService.PortalTriggered = Signal.new()
 
 local lobbySpawn: SpawnLocation? = nil
 local random = Random.new()
@@ -100,6 +115,67 @@ local function buildArea(
 	return model
 end
 
+-- Paket 15: a stone frame with a glowing gate, a sign and a ProximityPrompt per hub portal.
+local function buildPortals(parent: Instance, center: Vector3)
+	for _, portal in Config.Places.portals do
+		local color = PORTAL_COLORS[portal.mode] or LOBBY_PAD_COLOR
+		local model = Instance.new("Model")
+		model.Name = `Portal{portal.mode}`
+		local base = center + portal.offset
+		local facing = CFrame.lookAt(base, Vector3.new(center.X, base.Y, center.Z))
+		local w, h = PORTAL_SIZE.X, PORTAL_SIZE.Y
+		local gate = makePart(model, "Gate", PORTAL_SIZE, facing * CFrame.new(0, h / 2, 0), color)
+		gate.Material = Enum.Material.Neon
+		gate.Transparency = 0.35
+		gate.CanCollide = false
+		gate.CastShadow = false
+		local frameParts = {
+			{ "Left", Vector3.new(PORTAL_FRAME, h + PORTAL_FRAME, 2), CFrame.new(-(w + PORTAL_FRAME) / 2, h / 2, 0) },
+			{ "Right", Vector3.new(PORTAL_FRAME, h + PORTAL_FRAME, 2), CFrame.new((w + PORTAL_FRAME) / 2, h / 2, 0) },
+			{ "Top", Vector3.new(w + 2 * PORTAL_FRAME, PORTAL_FRAME, 2), CFrame.new(0, h + PORTAL_FRAME / 2, 0) },
+		}
+		for _, entry in frameParts do
+			local part = makePart(model, entry[1], entry[2], facing * entry[3], RUIN_COLOR)
+			part.Material = Enum.Material.Slate
+		end
+		local light = Instance.new("PointLight")
+		light.Color = color
+		light.Range = 16
+		light.Parent = gate
+
+		local sign = Instance.new("BillboardGui")
+		sign.Name = "Sign"
+		sign.Size = UDim2.fromOffset(220, 50)
+		sign.StudsOffset = Vector3.new(0, h / 2 + 3, 0)
+		sign.AlwaysOnTop = false
+		sign.MaxDistance = 120
+		sign.Parent = gate
+		local text = Instance.new("TextLabel")
+		text.BackgroundTransparency = 1
+		text.Size = UDim2.fromScale(1, 1)
+		text.Font = Enum.Font.GothamBold
+		text.TextScaled = true
+		text.TextColor3 = color
+		text.TextStrokeTransparency = 0.4
+		text.Text = portal.label
+		text.Parent = sign
+
+		local prompt = Instance.new("ProximityPrompt")
+		prompt.Name = "Prompt"
+		prompt.ActionText = portal.label
+		prompt.ObjectText = "Portal"
+		prompt.HoldDuration = 0.3
+		prompt.MaxActivationDistance = Config.Places.portalPromptDistance
+		prompt.RequiresLineOfSight = false
+		prompt.Parent = gate
+		local mode = portal.mode
+		prompt.Triggered:Connect(function(player: Player)
+			MapService.PortalTriggered:Fire(player, mode)
+		end)
+		model.Parent = parent
+	end
+end
+
 local function buildMap(): Folder
 	local folder = Instance.new("Folder")
 	folder.Name = MAP_NAME
@@ -124,6 +200,10 @@ local function buildMap(): Folder
 	light.Range = lobby.size / 2
 	light.Parent = pad
 	lobbySpawn = pad
+
+	if PlaceService.isHub() then
+		buildPortals(lobbyModel, lobby.center)
+	end
 
 	local arena = Config.Map.arena
 	local arenaModel = buildArea(

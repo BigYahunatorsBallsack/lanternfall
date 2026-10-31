@@ -27,4 +27,5 @@ return {
 	Save = require(script.Save), -- Paket 12
 	Progress = require(script.Progress), -- Paket 13
 	Settings = require(script.Settings), -- Paket 14
+	Places = require(script.Places), -- Paket 15
 }

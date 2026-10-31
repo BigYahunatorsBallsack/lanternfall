@@ -816,6 +816,40 @@ function ConfigCheck.run(): { string }
 			end
 		end
 	end
+	-- Paket 15: places, parties and portals.
+	local places = Config.Places
+	if places.party.maxSize ~= Config.Run.maxPlayers then
+		problem(`Places.party.maxSize ({places.party.maxSize}) must equal Run.maxPlayers ({Config.Run.maxPlayers})`)
+	end
+	if places.quickJoin.minPlayers < 1 or places.quickJoin.minPlayers > places.party.maxSize then
+		problem("Places.quickJoin.minPlayers must be between 1 and party.maxSize")
+	end
+	if places.teleport.attempts < 1 then
+		problem("Places.teleport.attempts must be at least 1")
+	end
+	local seenPlaces: { [number]: string } = {}
+	for _, experience in places.experiences do
+		for _, key in { "hub", "run" } do
+			local id = (experience :: any)[key] :: number
+			if id ~= math.floor(id) or id < 0 then
+				problem(`Places: {experience.name} {key} id must be a whole number (0 = not set)`)
+			elseif id ~= 0 then
+				if seenPlaces[id] then
+					problem(`Places: id {id} is used twice ({seenPlaces[id]} and {experience.name} {key})`)
+				end
+				seenPlaces[id] = `{experience.name} {key}`
+			end
+		end
+		if (experience.hub == 0) ~= (experience.run == 0) then
+			problem(`Places: {experience.name} needs both a hub and a run place id (or neither)`)
+		end
+	end
+	local lobbyHalf = Config.Map.lobby.size / 2
+	for _, portal in places.portals do
+		if math.abs(portal.offset.X) > lobbyHalf or math.abs(portal.offset.Z) > lobbyHalf then
+			problem(`Portal {portal.mode} stands outside the lobby`)
+		end
+	end
 	return problems
 end
 
