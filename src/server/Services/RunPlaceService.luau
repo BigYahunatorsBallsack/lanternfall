@@ -31,6 +31,7 @@ local group: PlaceRules.RunTicket? = nil -- the first valid ticket that arrived
 local firstArrivalAt: number? = nil
 local launched = false
 local tickets: { [Player]: PlaceRules.RunTicket } = {}
+local here: { [Player]: boolean } = {} -- arrived and checked for a ticket
 local picked: { [Player]: boolean } = {} -- the hub pick was applied (after the profile loaded)
 local leaving: { [Player]: boolean } = {} -- "Back to hub" in progress
 local elapsed = 0
@@ -63,9 +64,13 @@ local function arrived(): { Player }
 	return list
 end
 
--- Applies the character and weapon the player picked in the hub (checked like lobby input), once.
+-- Applies the character and weapon the player picked in the hub (checked like lobby input), once: after the ticket
+-- was read, the profile loaded (unlocks) and RunDirector knows the player (signal order is not fixed).
 local function applyPick(player: Player)
-	if picked[player] or not PlayerDataService.isLoaded(player) then
+	if picked[player] or not here[player] or not PlayerDataService.isLoaded(player) then
+		return
+	end
+	if RunDirector.getSelectedClassId(player) == nil then
 		return
 	end
 	picked[player] = true
@@ -84,6 +89,9 @@ local function applyPick(player: Player)
 end
 
 local function tryLaunch(t: number)
+	for player in here do
+		applyPick(player)
+	end
 	if launched or not group or not firstArrivalAt then
 		return
 	end
@@ -91,9 +99,8 @@ local function tryLaunch(t: number)
 		launched = true -- someone readied up by hand meanwhile
 		return
 	end
-	local here = arrived()
 	local ready = {}
-	for _, player in here do
+	for _, player in arrived() do
 		if picked[player] then
 			table.insert(ready, player)
 		end
@@ -196,6 +203,7 @@ local function onPlayerAdded(player: Player)
 			firstArrivalAt = now()
 		end
 	end
+	here[player] = true
 	applyPick(player)
 	dirty = true
 end
@@ -222,6 +230,7 @@ function RunPlaceService.init()
 	Players.PlayerAdded:Connect(onPlayerAdded)
 	Players.PlayerRemoving:Connect(function(player)
 		tickets[player] = nil
+		here[player] = nil
 		picked[player] = nil
 		leaving[player] = nil
 		dirty = true
