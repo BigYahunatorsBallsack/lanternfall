@@ -53,14 +53,14 @@ return table.freeze({
 		table.freeze({
 			name = "Lanternfall Test",
 			gameId = 0, -- Creator Hub -> experience -> "Copy Universe ID"; 0 = any experience
-			passes = table.freeze({ VIP = 0, DoubleEmbers = 0 }),
+			passes = table.freeze({ VIP = 2061811127, DoubleEmbers = 2061966995 }),
 			products = table.freeze({
-				Revive = 0,
-				Rerolls = 0,
-				Embers1 = 0,
-				Embers2 = 0,
-				Embers3 = 0,
-				ServerBoost = 0,
+				Revive = 3724781719,
+				Rerolls = 3724781889,
+				Embers1 = 3724782123, -- 1000 Embers
+				Embers2 = 3724782230, -- 5000 Embers
+				Embers3 = 3724782376, -- 15000 Embers
+				ServerBoost = 3724782507,
 			}),
 		}),
 	}) :: { Ids },
