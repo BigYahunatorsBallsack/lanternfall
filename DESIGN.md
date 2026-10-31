@@ -1056,17 +1056,18 @@ tests/               Unit-Tests für reine Module (Runner in tools/luau-test-run
 
 ## 16. Datenspeicherung & Sicherheit
 
-**Datenschema v1**
+**Datenschema v2** (seit Paket 12; v1 → v2 ergänzt Siege, beste Welle, höchste gewonnene Gefahrenstufe und den Rekord pro Charakter)
 
 ```lua
 {
-  schemaVersion = 1,
+  schemaVersion = 2,
   embers = 0,
-  talents = { toughness = 0, power = 0, reach = 0, greed = 0, rescuer = 0, rerolls = 0 },
+  talents = { toughness = 0, power = 0, reach = 0, greed = 0, rescuer = 0, rerolls = 0 }, -- ungenutzt seit dem Brotato-Plan, bleibt bis zu einer Migration
   classes = { "BladeWarden", "SparkMage" },
   difficultyUnlocked = "Normal",
   cosmetics = { owned = {}, equipped = {} },
-  stats = { runs = 0, kills = 0, bossKills = 0, bestTime = 0 },
+  stats = { runs = 0, kills = 0, bossKills = 0, bestTime = 0, wins = 0, bestWave = 0, bestDanger = -1 },
+  characterStats = {}, -- [Charakter-Id] = { runs, wins, bestWave, bestDanger }; Grundlage für Paket 13
   quests = { day = "", list = {} },
   streak = { lastLogin = 0, count = 0 },
   pass = { season = 1, xp = 0, premium = false, claimed = {} },
@@ -1075,6 +1076,7 @@ tests/               Unit-Tests für reine Module (Runner in tools/luau-test-run
 ```
 
 - ProfileStore mit Session-Locking; laden beim Join, speichern beim Verlassen, nach Käufen, Autosave.
+- **Umgesetzt (Paket 12):** ProfileStore von loleris (vendored in `src/server/Vendor/ProfileStore`), DataStore „PlayerData", Schlüssel `Player_<UserId>`, Autosave alle 300 s, zusätzlich nach jedem Run; Speichern beim Verlassen und beim Herunterfahren. Jeder fertige Run (nicht abgebrochen) zählt in `stats` und `characterStats`. Kann ein Profil nicht geladen werden oder übernimmt es ein anderer Server, wird der Spieler mit Hinweis gekickt. In Studio ohne API-Zugriff speichert ProfileStore nur zum Schein; die Lobby zeigt das an („YOUR SAVED RECORD", roter Hinweis). Debug-Knöpfe „Print my saved data", „Reset my saved data" (nur in der Lobby).
 - Schema-Änderung = `schemaVersion` +1 + Migrationsfunktion; nie Felder ohne Migration löschen.
 - `ProcessReceipt` speichert die PurchaseId im Profil und meldet erst danach „granted".
 - Game Passes beim Join prüfen und cachen, Käufe in der Sitzung sofort freischalten.
@@ -1187,7 +1189,7 @@ Bis zum Soft Launch rund 40–50 Sessions und 50–60 Stunden Zeit des Owners (6
 | B11 | Brotato 11: Gefahrenstufen 0–5, Elite- und Horden-Wellen, Endlos-Modus, Regler für Gegner-Werte, Welle wiederholen | Vertical Slice | High | 1–2 | 1 h | Stufen durchprobieren |
 | B12 | Brotato 12: Bauten und Begleiter – Engineering, Türme, Minen, Garten, Bot, Pets | Vertical Slice | High | 2 | 1 h | Bau-Builds testen |
 | 11 | Down & Wiederbeleben während der Welle (Aufstehen am Wellenende gibt es seit B1; umgesetzt 30.10.2026, Branch `wp-11-revive`) | Vertical Slice | Medium | 1 | 1 h | mit 2 Clients testen |
-| 12 | Datenspeicherung: ProfileStore, Schema, Migration | Vertical Slice | Extra high | 1–2 | 1 h | Test-Experience anlegen, Join/Leave testen |
+| 12 | Datenspeicherung: ProfileStore, Schema, Migration (umgesetzt 31.10.2026, Branch `wp-12-save`: Schema v2 mit Run-Rekord, Lobby-Anzeige) | Vertical Slice | Extra high | 1–2 | 1 h | Test-Experience anlegen, Join/Leave testen |
 | 13 | Fortschritt: Embers, Erfolge schalten Charaktere, Waffen und Items frei, Gefahrenstufe pro Charakter (statt Talente und Normal/Hard/Nightmare) | Vertical Slice | Medium | 1–2 | 1 h | Freischaltungen abnicken |
 | 14 | HUD, Run-Ende, mobiles Layout, Tooltips (Skalierung, Set-Bonus, Elite-Vorschau) | Vertical Slice | Medium | 2–3 | 2 h | Handy-Screenshots |
 | 15 | Hub-Lobby, Teleport, Party, Quick Join | MVP | Extra high | 2–3 | 2 h | Party-Teleport testen |

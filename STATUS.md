@@ -17,6 +17,7 @@ Kurzer Projektstand für neue Sessions. **Zuerst lesen**, dann aus `DESIGN.md` n
 - **Paket 10 Teil 2 Champions (Strang A, 30.10.2026):** PR `[Claude] Paket 10 Teil 2 Champions` von Branch `wp-10b-elites`, wartet auf Test und OK (`/mnt/project-files/lanternfall-wp10b/TESTANLEITUNG.md`). Acht Champions nach Brotatos Elites (Brass Ram, Flayer, Abbot, Mire Jaw, Monolith, Sickle Wraith, Brood Matron, Stone Seraph) mit 2–4 Phasen auf dem Boss-Automaten; neue Angriffsarten Cleave, Volley, Scatter, Summon, Dash mit Seiten-Geschossen, Phase „flee". Eine Elite-Welle pro Run (11 oder 12, wie Gefahrenstufe 2–3), Champion mit 75 % HP, wächst mit der Welle, legendäre Kiste. Gloom Elites mit Truhe bleiben bis B11. Danach für Strang A: B11 Gefahrenstufen. Nach dem ersten Test (Owner: Angriffe zu ähnlich) hat jeder Champion eine eigene Spezial-Mechanik: Abprall-Ansturm, Bumerang-Hackbeile, lenkende Rolle mit Schlammpfützen, Bebenlinie, X-Schnitt, Säurepfützen, Spirale und Sturzflug.
 
 - **B11 Gefahrenstufen + Endlos (Strang A, 30.10.2026):** PR #29 von Branch `wp-b11-danger`, nach Test des Owners gemerged (`/mnt/project-files/lanternfall-b11/TESTANLEITUNG.md`). Lobby-Feld „Danger" rechts: Stufe 0–5, Endlos an/aus, Regler Gegner-HP/-Schaden/-Tempo, gilt für die ganze Lobby. Stufen wie Brotato (neue Gegner ab 1, Elite-/Horden-Wellen ab 2, +12/26/40 %, zwei Bosse auf 5), Endlos mit Brotatos Endlos-Faktor, Boss-Wellen alle 10 Wellen. Gloom Elites kommen nicht mehr von selbst. Standard ist Stufe 0 (wie Brotato): Champions erst ab Stufe 2.
+- **Paket 12 Speichern (Strang A, 31.10.2026):** PR `[Claude] Paket 12 Speichern` von Branch `wp-12-save`, wartet auf Test und OK (`/mnt/project-files/lanternfall-wp12/TESTANLEITUNG.md`). ProfileStore (vendored, `src/server/Vendor/ProfileStore`) mit Session-Sperre, Autosave, Speichern beim Verlassen und nach jedem Run; Schema v2 (Siege, beste Welle, höchste gewonnene Gefahrenstufe, Rekord pro Charakter) mit Migration v1 → v2; Lobby zeigt „YOUR SAVED RECORD"; Debug-Knöpfe „Print my saved data", „Reset my saved data". Owner legt die Test-Experience „Lanternfall Test" an und schaltet dort den Studio-Zugriff auf API-Dienste ein.
 - **Paket 11 Wiederbeleben (Strang A, 30.10.2026):** PR `[Claude] Paket 11 Wiederbeleben` von Branch `wp-11-revive`, wartet auf Test und OK (`/mnt/project-files/lanternfall-wp11/TESTANLEITUNG.md`). Gestürzte zeigen Kreis, „DOWN 23 s" und Balken; Teammate 3 s im Kreis → steht mit 40 % HP auf, 2 s Schutz. Nach 30 s „out" bis Wellenende, Kamera folgt einem Teammate.
 
 ## Stränge
@@ -25,7 +26,7 @@ Jeder Strang ändert nur **seine** Zeile (Regeln: `docs/PARALLEL.md`).
 
 | Strang | KI | Aktuelles Paket | Branch / PR | Stand | Danach |
 | --- | --- | --- | --- | --- | --- |
-| A – Engine und Ablauf | Claude | Paket 11 Wiederbeleben (Medium) | `wp-11-revive` | fertig, wartet auf Test und Merge | B11 Teil 2 „Welle wiederholen" (Medium), eigener PR |
+| A – Engine und Ablauf | Claude | Paket 12 Speichern (Extra high) | `wp-12-save` | fertig, wartet auf Test und Merge | B11 Teil 2 „Welle wiederholen" (Medium, nach B12), dann Paket 15 Teleport (Extra high) |
 | B – Inhalte und Spieler-Regeln | ChatGPT | B10 Charaktere (High) | `wp-b10-characters` | zehn Charaktere umgesetzt, automatisierte Abnahme; Studio-Test offen | B12 Bauten + Begleiter (High) |
 
 ## Feste Entscheidungen des Owners
@@ -51,6 +52,7 @@ Jeder Strang ändert nur **seine** Zeile (Regeln: `docs/PARALLEL.md`).
 
 - B11 Owner-Test (30.10.2026): auf Stufe 0 zu viele große Gegner, die nicht sterben (keine Tode, die kleinen passen) → Brute/Abyss Brute 65 % HP und 65 % Gruppengröße, neuer Regler „Enemy count“. Das Brotato-PDF des Owners hat nur die Formel, keine Werte pro Gegner/Welle.
 - B11 (30.10.2026, Brotato-Wiki „Danger Levels", „Endless Mode"): Gefahrenstufe gilt für die ganze Lobby, jeder darf sie in der Lobby ändern; ein laufender Run behält seine Wahl. Annahmen, im Test prüfen: Horde = doppelt so viele Gegner pro Spawn-Gruppe, Endlos-Wellen 60 s, Endlos-Boss-Wellen 90 s, Gloom Elites aus. „Welle wiederholen" fehlt (Wiki beschreibt es nicht). Endlos-Faktor auf Shop-Preise/Unverwundbarkeit fehlt (Strang-B-Dateien). Shop-Kopfzeile zeigt in Endlos noch „Wave 23/20" (ShopController, Strang B).
+- Paket 12 (31.10.2026): Gespeichert wird nur in der Test-Experience „Lanternfall Test" (eigene DataStores); die spätere Live-Experience bekommt eigene Daten. Run-Rekord zählt Team-Kills, nur Bosse (nicht Champions) als `bossKills`, Sieg = Ausgang „Victory" (Endlos: Ende von Welle 20 erreicht); abgebrochene Runs zählen nicht. Talente-Felder bleiben im Schema (nie ohne Migration löschen), obwohl Paket 13 sie nicht nutzt. Kann ein Profil nicht geladen werden oder öffnet es ein anderer Server, wird der Spieler mit Hinweis gekickt (ProfileStore-Standard, sonst ginge Fortschritt verloren). ProfileStore liegt serverseitig in `src/server/Vendor` (nicht `src/shared/Packages`: Clients brauchen es nicht, und `Packages/` steht in `.gitignore`).
 - Paket 11 (30.10.2026, Annahmen, im Test prüfen): Wer nach 30 s nicht wiederbelebt ist, ist nur bis zum Wellenende raus und steht dann wieder auf (wie Brotatos Koop; Design sagte vorher „Zuschauer bis Run-Ende", das wäre bei 20 Wellen zu hart). Kreis 6 Studs, Timer steht während der Wiederbelebung, Balken läuft in 3 s leer, 2 s Schutz danach. Alles in `Config.Run.coop`.
 
 ## Owner und Ablauf
@@ -80,6 +82,8 @@ Jeder Strang ändert nur **seine** Zeile (Regeln: `docs/PARALLEL.md`).
 - Gefahrenstufen testen (B11): Lobby-Feld rechts oder `RunDirector.setOptions({...})` in Specs (vor READY). Ende-zu-Ende in `tests/Danger.spec.luau`, Formeln in `tests/DangerRules.spec.luau`. `DangerService.getPlan()` zeigt Elite-/Horden-Wellen. Champions-Spec läuft auf Stufe 4 (auf Stufe 0 gibt es keine Elite-Welle mehr).
 - Wiederbeleben testen (Paket 11): nur mit 2 Clients sinnvoll (solo endet der Run beim Sturz). Ende-zu-Ende in `tests/Revive.spec.luau` (Figuren mit `HumanoidRootPart.Position` versetzen), Regeln in `tests/ReviveRules.spec.luau`. `ReviveService.get(player)` liefert Restzeit und Fortschritt.
 
+- Speichern testen (Paket 12): Ende-zu-Ende in `tests/PlayerData.spec.luau` (läuft auf `PlayerDataService/MemoryStore`, gleiche Aufrufe wie ProfileStore; `store:refuse`, `store:takeOver`, `store:put` für alte Schemata), Migration und Rekord in `tests/PlayerDataRules.spec.luau`. Im Mock gibt es kein `DataStoreService`, dann nimmt `PlayerDataService` automatisch `MemoryStore`. Output zeigt beim ersten Laden „Saving: on / Studio test mode / memory only". `Player:Kick` im Mock entfernt den Spieler und merkt sich `KickMessage`. Neues Schema: `ProfileTemplate.SCHEMA_VERSION` +1, Schritt in `Migrations.steps`, Test in `PlayerDataRules.spec.luau`.
+
 ## Code-Landkarte
 
 - `src/shared/Config/*` – alle Zahlen (Run/Wellen, Shop, Items, Stats, Weapons, WeaponClasses, Combat, Evolutions, Enemies, Player …).
@@ -97,6 +101,8 @@ Jeder Strang ändert nur **seine** Zeile (Regeln: `docs/PARALLEL.md`).
 
 - Gefahrenstufen (B11): `Config/Difficulty.luau` (Stufen, neue Gegner, Horde, Regler, Endlos), `Util/DangerRules` (Formeln, Plan der Elite-/Horden-Wellen pro 10er-Block), `DangerService` (Plan des Runs, Multiplikatoren, Horde), `RunFlow` (Optionen, Endlos, Sieg ab Welle 20), `Util/RunSchedule` (Endlos-Wellen, `boss`), `SpawnRules` (`runWave`, `step`, Gruppen nach Stufe). Remote `SetRunOptions`, `RunState.options`/`runOptions`, `Results.wave`. Client: `DangerChoice` (Lobby-Feld).
 - Wiederbeleben (Paket 11): `Config.Run.coop` (Werte), `Util/ReviveRules` (Timer, Balken; auch der Client rechnet damit), `ReviveService` (Gestürzte, Helfer im Kreis, Out bis Wellenende, Remote `ReviveState` mit `Types.ReviveInfo`). Client: `ReviveController` (Kreis, Schild über dem Kopf, Hinweiszeile, Zuschauer-Kamera über `CameraController.follow`).
+
+- Speichern (Paket 12): `Config/Save.luau` (Store-Name, Schlüssel, Kick-Texte), `PlayerDataService` (Sitzungen, Laden/Freigeben, `recordRun`, `getSaveMode`, `dump`, `reset`, Signal `Loaded`) mit `ProfileTemplate` (Schema v2), `Migrations` (Schritte pro Version), `ProfileRecords` (Run → Rekord, Lobby-Info, Dump), `MemoryStore` (Ersatz ohne DataStore). `RunStatsService` trägt jeden fertigen Run ein. Remote `ProfileInfo` (`Types.ProfileInfo`, `Types.SaveMode`). Client: `ProfileCard` (Lobby, unter der Spielerliste).
 
 ## B7 – Übergabe (30.10.2026)
 

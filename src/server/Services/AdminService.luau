@@ -27,6 +27,7 @@ local EnemySim = require(script.Parent.EnemySim)
 local ExperienceService = require(script.Parent.ExperienceService)
 local LootService = require(script.Parent.LootService)
 local MapService = require(script.Parent.MapService)
+local PlayerDataService = require(script.Parent.PlayerDataService)
 local RunDirector = require(script.Parent.RunDirector)
 local ShopService = require(script.Parent.ShopService)
 local SpawnDirector = require(script.Parent.SpawnDirector)
@@ -406,6 +407,26 @@ local handlers: { [string]: (player: Player) -> (boolean, string?) } = {
 		end
 		local name = BossService.spawnNextChampion(position)
 		return true, if name then `{name} appeared` else "No room for a champion"
+	end,
+	PrintProfile = function(player)
+		local lines = PlayerDataService.dump(player)
+		if not lines then
+			return false, "Your saved data is not loaded yet"
+		end
+		print(`[Lanternfall] ===== Saved data of {player.Name} ({PlayerDataService.getSaveMode()}) =====`)
+		for _, line in lines do
+			print(`[Lanternfall] {line}`)
+		end
+		return true, "Saved data printed to the Output"
+	end,
+	ResetProfile = function(player)
+		if RunDirector.isOngoing() then
+			return false, "Only in the lobby"
+		end
+		if not PlayerDataService.reset(player) then
+			return false, "Your saved data is not loaded yet"
+		end
+		return true, "Saved data reset"
 	end,
 }
 
