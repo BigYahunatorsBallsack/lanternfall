@@ -4,7 +4,7 @@
 -- and prints a summary block to the server Output (Developer Console F9 -> Server in a live game).
 -- Listens to RunDirector, EnemySim, ExperienceService and CombatService; reads loadouts from WeaponService and
 -- StatService (items). Since Paket 12 it also adds each finished run to the participants' saved record
--- (PlayerDataService).
+-- (PlayerDataService); since Paket 13 with champion kills and revives (ReviveService) for the achievements.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -18,6 +18,7 @@ local CombatService = require(script.Parent.CombatService)
 local EnemySim = require(script.Parent.EnemySim)
 local ExperienceService = require(script.Parent.ExperienceService)
 local PlayerDataService = require(script.Parent.PlayerDataService)
+local ReviveService = require(script.Parent.ReviveService)
 local RunDirector = require(script.Parent.RunDirector)
 local StatService = require(script.Parent.StatService)
 local WeaponService = require(script.Parent.WeaponService)
@@ -30,6 +31,8 @@ local RunStatsService = {}
 local tally = Tally.new()
 local lastSummary: Types.RunSummary? = nil
 local bossKills = 0 -- bosses only, for the saved record
+local championKills = 0 -- Paket 13
+local revives: { [Player]: number } = {} -- Paket 13: teammates each player revived this run
 
 local function loadoutsOf(participants: { Player }): { [number]: Tally.Loadout }
 	local loadouts = {}
@@ -62,6 +65,8 @@ local function onRunStarted(participants: { Player })
 	tally = Tally.new()
 	lastSummary = nil
 	bossKills = 0
+	championKills = 0
+	table.clear(revives)
 	for _, player in participants do
 		tally:addPlayer(player.UserId, player.DisplayName, RunDirector.getParticipantClassId(player) or "")
 	end
@@ -101,6 +106,9 @@ local function onRunEnded(results: Types.Results)
 				kills = tally.kills,
 				bossKills = bossKills,
 				seconds = results.survivedSeconds,
+				champions = championKills,
+				revives = revives[player] or 0,
+				players = #results.players,
 			})
 		end
 	end
@@ -127,12 +135,19 @@ function RunStatsService.init()
 			tally:recordKill(info.enemyId)
 			if Config.Enemies.bosses[info.enemyId] then
 				bossKills += 1
+			elseif Config.Enemies.champions[info.enemyId] then
+				championKills += 1
 			end
 		end
 	end)
 	ExperienceService.LevelGained:Connect(function(level)
 		if RunDirector.isActive() then
 			tally:recordLevel(level, RunDirector.getElapsed())
+		end
+	end)
+	ReviveService.Revived:Connect(function(reviver: Player)
+		if RunDirector.isActive() then
+			revives[reviver] = (revives[reviver] or 0) + 1
 		end
 	end)
 	CombatService.PlayerDamaged:Connect(function(player, taken)

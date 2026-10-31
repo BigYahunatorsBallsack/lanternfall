@@ -4,6 +4,7 @@
 -- reviveSeconds stands them up with reviveHpFraction of their HP (CombatService) and a short protection; after
 -- downTimerSeconds without that they are out for the rest of the wave and stand up when it ends (like Brotato's
 -- co-op). Nobody alive ends the run (RunFlow). Sends ReviveState to every client on change (ReviveController).
+-- Fires Revived for the saved record (RunStatsService, Paket 13).
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -12,6 +13,7 @@ local RunService = game:GetService("RunService")
 local Shared = ReplicatedStorage.Shared
 local Config = require(Shared.Config)
 local Net = require(Shared.Net)
+local Signal = require(Shared.Util.Signal)
 local ReviveRules = require(Shared.Util.ReviveRules)
 local Types = require(Shared.Net.Types)
 
@@ -28,6 +30,9 @@ local SETTINGS: ReviveRules.Settings = {
 }
 
 local ReviveService = {}
+
+-- (reviver: Player, revived: Player): a teammate stood someone up (Paket 13)
+ReviveService.Revived = Signal.new()
 
 local downed: { [Player]: ReviveRules.Entry } = {}
 local reviverOf: { [Player]: Player } = {}
@@ -137,6 +142,10 @@ local function step(dt: number)
 	end
 	-- applied after the loop: changing a participant's state fires onParticipantState, which edits `downed`
 	for player, outcome in outcomes do
+		local reviver = reviverOf[player]
+		if outcome == "Revived" and reviver then
+			ReviveService.Revived:Fire(reviver, player)
+		end
 		RunDirector.setParticipantState(player, if outcome == "Revived" then "Alive" else "Out")
 	end
 	if changed and next(outcomes) == nil then

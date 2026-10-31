@@ -1,7 +1,8 @@
 --!strict
 -- Results screen after a run: outcome, survived time, team, "Play again" (= SetReady) and the countdown
 -- back to the lobby, plus team level, kills and damage per player from RunSummary (RunStatsService). Shown to the
--- participants in the Ended phase. WP14 adds embers and the final layout.
+-- participants in the Ended phase. Since Paket 13 also the Embers, achievements and unlocks of the run (RunRewards).
+-- WP14 adds the final layout.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
@@ -10,6 +11,7 @@ local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared:WaitForChild("Config"))
 local Format = require(Shared:WaitForChild("Util"):WaitForChild("Format"))
 local Net = require(Shared:WaitForChild("Net"))
+local ProgressRules = require(Shared:WaitForChild("Util"):WaitForChild("ProgressRules"))
 local Types = require(Shared:WaitForChild("Net"):WaitForChild("Types"))
 
 local RunStateController = require(script.Parent.RunStateController)
@@ -36,6 +38,8 @@ local againButton: TextButton
 local footerLabel: TextLabel
 local lastPress = 0
 local summary: Types.RunSummary? = nil
+local rewards: Types.RunRewards? = nil -- Paket 13: Embers and achievements of the run that just ended
+local rewardsLabel: TextLabel
 
 local function className(classId: string): string
 	local class = Config.Classes[classId]
@@ -83,6 +87,27 @@ local function render()
 	timeLabel.Text = `Time {Format.time(results.survivedSeconds)}{reached} · {results.difficulty}`
 	statsLabel.Text = if summary then `Team level {summary.teamLevel} · {summary.kills} kills` else ""
 	statsLabel.Visible = summary ~= nil
+	rewardsLabel.Visible = rewards ~= nil
+	if rewards then
+		local parts = {}
+		for _, line in rewards.lines do
+			table.insert(parts, `{line.label} +{line.amount}`)
+		end
+		local text = `+{rewards.embers} EMBERS ({rewards.totalEmbers} total)`
+		if #parts > 0 then
+			text ..= `\n{table.concat(parts, " · ")}`
+		end
+		for _, id in rewards.achievements do
+			local achievement = ProgressRules.get(id)
+			if achievement then
+				text ..= `\nAchievement: {achievement.name} (+{achievement.embers})`
+			end
+		end
+		if #rewards.unlocked > 0 then
+			text ..= `\nUnlocked: {table.concat(rewards.unlocked, ", ")}`
+		end
+		rewardsLabel.Text = text
+	end
 
 	Widgets.clearRows(teamRows)
 	for index, entry in results.players do
@@ -145,7 +170,7 @@ local function build()
 		Text = "PLAY AGAIN",
 		TextSize = 26,
 		Size = UDim2.fromOffset(360, 64),
-		LayoutOrder = 6,
+		LayoutOrder = 7,
 		Parent = card,
 	}, function()
 		local me = RunStateController.getLocalPlayer()
@@ -156,7 +181,17 @@ local function build()
 		end
 	end)
 
-	footerLabel = Widgets.label({ TextSize = 16, TextColor3 = Theme.textDim, LayoutOrder = 7, Parent = card })
+	footerLabel = Widgets.label({ TextSize = 16, TextColor3 = Theme.textDim, LayoutOrder = 8, Parent = card })
+	rewardsLabel = Widgets.label({
+		Name = "Rewards",
+		TextColor3 = Theme.accent,
+		TextWrapped = true,
+		AutomaticSize = Enum.AutomaticSize.Y,
+		Size = UDim2.new(1, 0, 0, 20),
+		Visible = false,
+		LayoutOrder = 6,
+		Parent = card,
+	})
 end
 
 function ResultsController.start()
@@ -165,6 +200,15 @@ function ResultsController.start()
 	Net.onClient("RunSummary", function(received: Types.RunSummary)
 		summary = received
 		render()
+	end)
+	Net.onClient("RunRewards", function(received: Types.RunRewards)
+		rewards = received
+		render()
+	end)
+	RunStateController.Changed:Connect(function()
+		if RunStateController.getView() ~= "Results" then
+			rewards = nil -- belongs to the run that just ended
+		end
 	end)
 	render()
 

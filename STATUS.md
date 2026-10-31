@@ -2,7 +2,7 @@
 
 Kurzer Projektstand für neue Sessions. **Zuerst lesen**, dann aus `DESIGN.md` nur die Abschnitte, die das Paket braucht. Jedes Paket aktualisiert diese Datei im eigenen PR.
 
-## Stand (30.10.2026)
+## Stand (31.10.2026)
 
 - **Gemerged:** WP1–WP9, 9b, 9d, B1 (Wellen + Shop), B2 (Werte, 46 Items, Werte-Karten), Plan B3–B12 (PR #16), B3 (Shop komplett: Sperren, Verkaufen, Waffen-Stufen I–IV + Verschmelzen, Gratis-Neuwurf, Handy-Layout, 20 Wellen; PR #17), B4 (Effekt-Maschine, Neben-Werte, Zufalls-Ströme, 32 Items mit Effekten; PR #18) und B5 (Kampf-Tiefe: Krit pro Waffe, Rückstoß + Resistenz, Brennen, Explosionen, Durchbohren/Abprallen, Verlangsamen sichtbar, 14 Waffenklassen, 12 Kampf-Items; PR #19). B4 und B5 hat der Owner am 30.10.2026 zusammen in Studio getestet (`/mnt/project-files/lanternfall-b5/TESTANLEITUNG.md`).
 - **Test-Falle Brennen:** Spark Bolt (15) tötet Welle-1-Gegner (10 HP) mit einem Treffer, die fangen also nie Feuer (wie in Brotato). Brennen in Testanleitungen immer an einem Elite oder in späteren Wellen zeigen.
@@ -17,8 +17,32 @@ Kurzer Projektstand für neue Sessions. **Zuerst lesen**, dann aus `DESIGN.md` n
 - **Paket 10 Teil 2 Champions (Strang A, 30.10.2026):** PR `[Claude] Paket 10 Teil 2 Champions` von Branch `wp-10b-elites`, wartet auf Test und OK (`/mnt/project-files/lanternfall-wp10b/TESTANLEITUNG.md`). Acht Champions nach Brotatos Elites (Brass Ram, Flayer, Abbot, Mire Jaw, Monolith, Sickle Wraith, Brood Matron, Stone Seraph) mit 2–4 Phasen auf dem Boss-Automaten; neue Angriffsarten Cleave, Volley, Scatter, Summon, Dash mit Seiten-Geschossen, Phase „flee". Eine Elite-Welle pro Run (11 oder 12, wie Gefahrenstufe 2–3), Champion mit 75 % HP, wächst mit der Welle, legendäre Kiste. Gloom Elites mit Truhe bleiben bis B11. Danach für Strang A: B11 Gefahrenstufen. Nach dem ersten Test (Owner: Angriffe zu ähnlich) hat jeder Champion eine eigene Spezial-Mechanik: Abprall-Ansturm, Bumerang-Hackbeile, lenkende Rolle mit Schlammpfützen, Bebenlinie, X-Schnitt, Säurepfützen, Spirale und Sturzflug.
 
 - **B11 Gefahrenstufen + Endlos (Strang A, 30.10.2026):** PR #29 von Branch `wp-b11-danger`, nach Test des Owners gemerged (`/mnt/project-files/lanternfall-b11/TESTANLEITUNG.md`). Lobby-Feld „Danger" rechts: Stufe 0–5, Endlos an/aus, Regler Gegner-HP/-Schaden/-Tempo, gilt für die ganze Lobby. Stufen wie Brotato (neue Gegner ab 1, Elite-/Horden-Wellen ab 2, +12/26/40 %, zwei Bosse auf 5), Endlos mit Brotatos Endlos-Faktor, Boss-Wellen alle 10 Wellen. Gloom Elites kommen nicht mehr von selbst. Standard ist Stufe 0 (wie Brotato): Champions erst ab Stufe 2.
-- **Paket 12 Speichern (Strang A, 31.10.2026):** PR `[Claude] Paket 12 Speichern` von Branch `wp-12-save`, wartet auf Test und OK (`/mnt/project-files/lanternfall-wp12/TESTANLEITUNG.md`). ProfileStore (vendored, `src/server/Vendor/ProfileStore`) mit Session-Sperre, Autosave, Speichern beim Verlassen und nach jedem Run; Schema v2 (Siege, beste Welle, höchste gewonnene Gefahrenstufe, Rekord pro Charakter) mit Migration v1 → v2; Lobby zeigt „YOUR SAVED RECORD"; Debug-Knöpfe „Print my saved data", „Reset my saved data". Owner legt die Test-Experience „Lanternfall Test" an und schaltet dort den Studio-Zugriff auf API-Dienste ein.
+- **Paket 12 Speichern (Strang A, 31.10.2026):** PR #32 von Branch `wp-12-save`, nach OK des Owners gemerged (`/mnt/project-files/lanternfall-wp12/TESTANLEITUNG.md`). ProfileStore (vendored, `src/server/Vendor/ProfileStore`) mit Session-Sperre, Autosave, Speichern beim Verlassen und nach jedem Run; Schema v2 (Siege, beste Welle, höchste gewonnene Gefahrenstufe, Rekord pro Charakter) mit Migration v1 → v2; Lobby zeigt „YOUR SAVED RECORD"; Debug-Knöpfe „Print my saved data", „Reset my saved data". Owner legt die Test-Experience „Lanternfall Test" an und schaltet dort den Studio-Zugriff auf API-Dienste ein.
 - **Paket 11 Wiederbeleben (Strang A, 30.10.2026):** PR `[Claude] Paket 11 Wiederbeleben` von Branch `wp-11-revive`, wartet auf Test und OK (`/mnt/project-files/lanternfall-wp11/TESTANLEITUNG.md`). Gestürzte zeigen Kreis, „DOWN 23 s" und Balken; Teammate 3 s im Kreis → steht mit 40 % HP auf, 2 s Schutz. Nach 30 s „out" bis Wellenende, Kamera folgt einem Teammate.
+
+- **Paket 13 Fortschritt (31.10.2026):** PR #33 von Branch `wp-13-progress`, nach OK des Owners gemerged; Owner bestätigt: 4 Start-Charaktere und Gefahrenstufe pro Charakter bleiben (`/mnt/project-files/lanternfall-wp13/TESTANLEITUNG.md`). Embers pro Run (Minuten, Champions, Bosse, Gefahrenstufe, Party), 22 Erfolge über alle Runs, die 6 Charaktere, 5 Waffen und 11 Items freischalten (gesperrt = nicht wählbar, nie im Shop, nie in Kisten), Gefahrenstufe pro Charakter (Lobby-Stufe = höchste, die jemand in der Lobby offen hat), Schema v3, Erfolge-Fenster in der Lobby, Embers auf dem Ergebnis-Bildschirm, Debug-Knopf „Unlock everything".
+
+## Plan bis zum Launch (Owner, 31.10.2026)
+
+Claude baut **alle** restlichen Pakete außer B12 (macht ChatGPT). **Ein Paket pro Thread**, jeweils mit dem Effort aus der Tabelle; jeder PR baut auf dem vorigen auf, wenn der noch nicht gemerged ist (Owner testet auch mehrere zusammen). Ist Claudes Limit leer, macht der Owner mit ChatGPT weiter: dann einfach das nächste offene Paket dieser Tabelle nehmen. Wer ein Paket fertig hat, setzt hier den Stand.
+
+| Reihenfolge | Paket | Effort | Stand | Owner muss |
+| --- | --- | --- | --- | --- |
+| 1 | 13 Fortschritt: Embers, Erfolge, Freischaltungen, Gefahrenstufe pro Charakter | Medium | gemerged (PR #33) | – |
+| 2 | 14 HUD, Run-Ende, Handy-Layout, Tooltips (Skalierung, Set-Bonus, Elite-Vorschau), Einstellungsmenü | Medium | offen | Handy-Screenshots |
+| 3 | 15 Hub-Lobby, Teleport, Party, Quick Join (Lobby-Place + Run-Place) | Extra high | offen | zweiten Place im Creator Hub anlegen, Place-ID liefern, Party-Teleport testen |
+| 4 | 16 Käufe: Game Passes, Developer Products, `ProcessReceipt` (idempotent) | Extra high | offen | Produkte/Passes im Creator Hub anlegen, IDs liefern, Testkäufe |
+| 5 | 17 Ember-Shop (Charaktere früher freikaufen, Kosmetik), Freischaltungs- und Pass-UI | Medium | offen | Look abnicken |
+| 6 | 18 Tägliche Quests, Login-Serie, Ranglisten, Badges | Medium | offen | Badges im Creator Hub anlegen, IDs liefern |
+| 7 | 19 Erster Start (FTUE, „First Night") | Medium | offen | neue Tester beobachten |
+| 8 | 20 Analytics-Events (AnalyticsService) | Medium | offen | Dashboard ansehen |
+| 9 | 21 VFX, Sounds, Musik, Karten-Feinschliff | Medium | offen | Sounds/Musik auswählen |
+| 10 | 22 Performance-Pass Handy + Netzwerk | Extra high | offen | Handy-Tests, Mikroprofiler-Screenshots |
+| 11 | 23 Sicherheits- und Code-Review | Extra high | offen | Ergebnis abnicken |
+| 12 | 24 Launch-Paket: Icon, Thumbnails, Beschreibung, Clips | Medium | offen | Clips, Fragebogen, Ads |
+| – | B11 Teil 2 „Welle wiederholen" (exakter Wellenstart-Stand) | Medium | wartet auf B12-Merge (WIP auf `wp-b11b-retry-wave`) | testen |
+
+Offen außerdem: PR #31 (Out-Spieler behalten Level-ups/Kisten bis zum Shop) wartet auf Test.
 
 ## Stränge
 
@@ -26,7 +50,7 @@ Jeder Strang ändert nur **seine** Zeile (Regeln: `docs/PARALLEL.md`).
 
 | Strang | KI | Aktuelles Paket | Branch / PR | Stand | Danach |
 | --- | --- | --- | --- | --- | --- |
-| A – Engine und Ablauf | Claude | Paket 12 Speichern (Extra high) | `wp-12-save` | fertig, wartet auf Test und Merge | B11 Teil 2 „Welle wiederholen" (Medium, nach B12), dann Paket 15 Teleport (Extra high) |
+| A – Engine und Ablauf | Claude | Paket 13 Fortschritt (Medium) | `wp-13-progress` | gemerged (PR #33) | Paket 14 HUD/Tooltips (Medium), dann weiter nach „Plan bis zum Launch" |
 | B – Inhalte und Spieler-Regeln | ChatGPT | B12 Bauten + Begleiter (High) | `wp-b12-structures` | umgesetzt und automatisiert geprüft; Merge vom Owner autorisiert, Studio-Test offen | nächstes Paket nach Owner-Zuteilung |
 
 ## Feste Entscheidungen des Owners
@@ -54,6 +78,8 @@ Jeder Strang ändert nur **seine** Zeile (Regeln: `docs/PARALLEL.md`).
 - B11 (30.10.2026, Brotato-Wiki „Danger Levels", „Endless Mode"): Gefahrenstufe gilt für die ganze Lobby, jeder darf sie in der Lobby ändern; ein laufender Run behält seine Wahl. Annahmen, im Test prüfen: Horde = doppelt so viele Gegner pro Spawn-Gruppe, Endlos-Wellen 60 s, Endlos-Boss-Wellen 90 s, Gloom Elites aus. „Welle wiederholen" fehlt (Wiki beschreibt es nicht). Endlos-Faktor auf Shop-Preise/Unverwundbarkeit fehlt (Strang-B-Dateien). Shop-Kopfzeile zeigt in Endlos noch „Wave 23/20" (ShopController, Strang B).
 - Paket 12 (31.10.2026): Gespeichert wird nur in der Test-Experience „Lanternfall Test" (eigene DataStores); die spätere Live-Experience bekommt eigene Daten. Run-Rekord zählt Team-Kills, nur Bosse (nicht Champions) als `bossKills`, Sieg = Ausgang „Victory" (Endlos: Ende von Welle 20 erreicht); abgebrochene Runs zählen nicht. Talente-Felder bleiben im Schema (nie ohne Migration löschen), obwohl Paket 13 sie nicht nutzt. Kann ein Profil nicht geladen werden oder öffnet es ein anderer Server, wird der Spieler mit Hinweis gekickt (ProfileStore-Standard, sonst ginge Fortschritt verloren). ProfileStore liegt serverseitig in `src/server/Vendor` (nicht `src/shared/Packages`: Clients brauchen es nicht, und `Packages/` steht in `.gitignore`).
 - Paket 11 (30.10.2026, Annahmen, im Test prüfen): Wer nach 30 s nicht wiederbelebt ist, ist nur bis zum Wellenende raus und steht dann wieder auf (wie Brotatos Koop; Design sagte vorher „Zuschauer bis Run-Ende", das wäre bei 20 Wellen zu hart). Kreis 6 Studs, Timer steht während der Wiederbelebung, Balken läuft in 3 s leer, 2 s Schutz danach. Alles in `Config.Run.coop`.
+
+- Paket 13 (31.10.2026, Annahmen, im Test prüfen): Gefahrenstufe pro Charakter wie im Plan (Sieg auf d öffnet d + 1 für diesen Charakter; ob Brotato das global macht, ist nicht geprüft). Im Koop entscheidet die höchste offene Stufe in der Lobby, andere spielen mit. Embers: Werte aus `Config.Economy.embers` (10/Minute, 15/Champion, 150/Boss), dazu +10 % pro Gefahrenstufe (neu, `Config.Progress.embers.perDangerLevel`) und +10 % Party ab 2 Spielern. Erfolge zahlen ihre Embers einmal; schon erreichte Ziele (alte Profile) werden beim Laden still erledigt. Start offen: Blade Warden, Spark Mage, Night Watch, Duel Maestro. Gesperrt werden nur Waffen/Items, die keine Start-Ausrüstung sind (ConfigCheck prüft das). „Unlock everything" setzt auch `characterStats.bestDanger` auf 4, damit alle Stufen offen sind.
 
 ## Owner und Ablauf
 
@@ -84,6 +110,8 @@ Jeder Strang ändert nur **seine** Zeile (Regeln: `docs/PARALLEL.md`).
 
 - Speichern testen (Paket 12): Ende-zu-Ende in `tests/PlayerData.spec.luau` (läuft auf `PlayerDataService/MemoryStore`, gleiche Aufrufe wie ProfileStore; `store:refuse`, `store:takeOver`, `store:put` für alte Schemata), Migration und Rekord in `tests/PlayerDataRules.spec.luau`. Im Mock gibt es kein `DataStoreService`, dann nimmt `PlayerDataService` automatisch `MemoryStore`. Output zeigt beim ersten Laden „Saving: on / Studio test mode / memory only". `Player:Kick` im Mock entfernt den Spieler und merkt sich `KickMessage`. Neues Schema: `ProfileTemplate.SCHEMA_VERSION` +1, Schritt in `Migrations.steps`, Test in `PlayerDataRules.spec.luau`.
 
+- Fortschritt testen (Paket 13): Ende-zu-Ende in `tests/Progress.spec.luau` (gesperrte Charaktere, Lobby-Stufen-Grenze, Embers + Erfolge nach dem Run, Fenster, Debug-Knopf), Regeln in `tests/ProgressRules.spec.luau` (auch: Shop und Kisten bieten nie Gesperrtes an, Migration v2 → v3). **Specs, die gesperrte Charaktere oder Stufen > 0 über die Lobby wählen, rufen vorher `PlayerDataService.unlockAll(player)`** (siehe `CharactersB10.spec`, `Danger.spec`). `RunDirector.setOptions` (Tests/Admin) umgeht die Stufen-Grenze, bis wieder jemand die Remote benutzt.
+
 ## Code-Landkarte
 
 - `src/shared/Config/*` – alle Zahlen (Run/Wellen, Shop, Items, Stats, Weapons, WeaponClasses, Combat, Evolutions, Enemies, Player …).
@@ -103,6 +131,8 @@ Jeder Strang ändert nur **seine** Zeile (Regeln: `docs/PARALLEL.md`).
 - Wiederbeleben (Paket 11): `Config.Run.coop` (Werte), `Util/ReviveRules` (Timer, Balken; auch der Client rechnet damit), `ReviveService` (Gestürzte, Helfer im Kreis, Out bis Wellenende, Remote `ReviveState` mit `Types.ReviveInfo`). Client: `ReviveController` (Kreis, Schild über dem Kopf, Hinweiszeile, Zuschauer-Kamera über `CameraController.follow`).
 
 - Speichern (Paket 12): `Config/Save.luau` (Store-Name, Schlüssel, Kick-Texte), `PlayerDataService` (Sitzungen, Laden/Freigeben, `recordRun`, `getSaveMode`, `dump`, `reset`, Signal `Loaded`) mit `ProfileTemplate` (Schema v2), `Migrations` (Schritte pro Version), `ProfileRecords` (Run → Rekord, Lobby-Info, Dump), `MemoryStore` (Ersatz ohne DataStore). `RunStatsService` trägt jeden fertigen Run ein. Remote `ProfileInfo` (`Types.ProfileInfo`, `Types.SaveMode`). Client: `ProfileCard` (Lobby, unter der Spielerliste).
+
+- Fortschritt (Paket 13): `Config/Progress.luau` (Erfolge, Freischaltungen, Start-Stufe, Ember-Zuschläge), `Util/ProgressRules` (Fortschritt, gesperrt/offen, Stufe pro Charakter, Embers eines Runs; Server und Client). `PlayerDataService`: `ownsClass` mit Sperre, `isUnlocked`, `lockedSet`, `maxDanger`, `unlockAll`, Signal `Changed`; `recordRun` schickt `RunRewards` (`Types.RunRewards`) und eine Notify pro Erfolg. `ProfileRecords.applyRun` gibt die Belohnung zurück, `completeAchievements`; `ProfileInfo` hat `embers`, `achievements`, `progress`, `characterDanger`, `ownedClasses`. `RunStatsService` zählt Champions und Wiederbelebungen (`ReviveService.Revived`). `RunDirector`: `dangerCap`/`enforceDangerCap`. Shop: `ShopRules.Params.unavailable`, `ShopRules.chestItem(..., unavailable)`; `UpgradeService` nutzt `lockedSet` für Kisten. Client: `ProfileCard` (Embers, Knopf), `AchievementList` (Fenster), `CharacterChoice` (Sperre, „danger up to"), `DangerChoice` (dunkle Stufen), `ResultsController` (Zeile „Rewards").
 
 ## B7 – Übergabe (30.10.2026)
 

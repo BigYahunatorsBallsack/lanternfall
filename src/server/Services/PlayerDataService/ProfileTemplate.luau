@@ -1,8 +1,8 @@
 --!strict
--- Default player data, schema v2 (DESIGN.md section 16). Used by PlayerDataService (ProfileStore template) and
+-- Default player data, schema v3 (DESIGN.md section 16). Used by PlayerDataService (ProfileStore template) and
 -- Migrations. Schema change = SCHEMA_VERSION + 1 and a step in Migrations; never drop a field without a step.
 
--- One character's record (Paket 12; Paket 13 unlocks the danger levels per character from it).
+-- One character's record (Paket 12; since Paket 13 it opens the danger levels per character, Util/ProgressRules).
 export type CharacterStats = {
 	runs: number,
 	wins: number,
@@ -25,7 +25,11 @@ export type Data = {
 		wins: number, -- v2
 		bestWave: number, -- v2: furthest wave reached
 		bestDanger: number, -- v2: highest danger level won, -1 = never won
+		championKills: number, -- v3: champions killed by the team in the player's runs
+		revives: number, -- v3: teammates this player revived
+		embersEarned: number, -- v3: every Ember ever earned (runs and achievements)
 	},
+	achievements: { [string]: boolean }, -- v3: Config.Progress achievement ids that are done
 	characterStats: { [string]: CharacterStats }, -- v2, by Config.Classes id
 	quests: { day: string, list: { any } },
 	streak: { lastLogin: number, count: number },
@@ -35,7 +39,7 @@ export type Data = {
 
 local ProfileTemplate = {}
 
-ProfileTemplate.SCHEMA_VERSION = 2
+ProfileTemplate.SCHEMA_VERSION = 3
 
 -- Fresh default data; every call returns new tables.
 function ProfileTemplate.new(): Data
@@ -46,7 +50,19 @@ function ProfileTemplate.new(): Data
 		classes = { "BladeWarden", "SparkMage" },
 		difficultyUnlocked = "Normal",
 		cosmetics = { owned = {}, equipped = {} },
-		stats = { runs = 0, kills = 0, bossKills = 0, bestTime = 0, wins = 0, bestWave = 0, bestDanger = -1 },
+		stats = {
+			runs = 0,
+			kills = 0,
+			bossKills = 0,
+			bestTime = 0,
+			wins = 0,
+			bestWave = 0,
+			bestDanger = -1,
+			championKills = 0,
+			revives = 0,
+			embersEarned = 0,
+		},
+		achievements = {},
 		characterStats = {},
 		quests = { day = "", list = {} },
 		streak = { lastLogin = 0, count = 0 },

@@ -1,6 +1,8 @@
 --!strict
 -- B11 lobby extension: danger level 0-5, endless mode and the enemy sliders for the next run (Config.Difficulty),
 -- shared by everyone in the server. Mounted and rendered by LobbyController; sends SetRunOptions.
+-- Since Paket 13 levels above the one open for the local player's character are dimmed (the server allows them only
+-- if someone in the lobby has them open).
 
 local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
 local Config = require(Shared:WaitForChild("Config"))
@@ -8,6 +10,7 @@ local DangerRules = require(Shared:WaitForChild("Util"):WaitForChild("DangerRule
 local Net = require(Shared:WaitForChild("Net"))
 local Types = require(Shared:WaitForChild("Net"):WaitForChild("Types"))
 
+local CharacterChoice = require(script.Parent.CharacterChoice)
 local RunStateController = require(script.Parent.RunStateController)
 local Theme = require(script.Parent.Parent.UI.Theme)
 local Widgets = require(script.Parent.Parent.UI.Widgets)
@@ -54,12 +57,17 @@ function DangerChoice.render()
 		return
 	end
 	local options = current()
+	local me = RunStateController.getLocalPlayer()
+	local open = if me then CharacterChoice.maxDanger(me.classId) else Config.Progress.startDanger
 	for level, button in levelButtons do
 		local chosen = level == options.danger
 		button.BackgroundColor3 = if chosen then Theme.danger else Theme.button
-		button.TextColor3 = if chosen then Theme.accentText else Theme.text
+		button.TextColor3 = if chosen then Theme.accentText elseif level > open then Theme.textDim else Theme.text
 	end
-	description.Text = DangerRules.level(options.danger).description
+	local note = if open < #Difficulty.levels - 1
+		then `\nOpen for your character: 0-{open}. Win danger {open} with it to open {open + 1}.`
+		else ""
+	description.Text = DangerRules.level(options.danger).description .. note
 	if endlessButton then
 		endlessButton.Text = if options.endless then "ENDLESS: ON" else "ENDLESS: OFF"
 		endlessButton.BackgroundColor3 = if options.endless then Theme.accent else Theme.button

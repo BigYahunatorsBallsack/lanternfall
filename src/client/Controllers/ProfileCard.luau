@@ -1,11 +1,15 @@
 --!strict
 -- Paket 12 lobby extension: the local player's saved record (runs, wins, best wave, kills) under the player list,
 -- with a hint when Studio does not save for real. Mounted and rendered by LobbyController; reads ProfileInfo.
+-- Since Paket 13 also the Embers and an "ACHIEVEMENTS" button that opens AchievementList; CharacterChoice and
+-- DangerChoice read the unlocks from ProfileCard.get().
 
 local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
+local Config = require(Shared:WaitForChild("Config"))
 local Net = require(Shared:WaitForChild("Net"))
 local Types = require(Shared:WaitForChild("Net"):WaitForChild("Types"))
 
+local AchievementList = require(script.Parent.AchievementList)
 local Theme = require(script.Parent.Parent.UI.Theme)
 local Widgets = require(script.Parent.Parent.UI.Widgets)
 
@@ -14,6 +18,7 @@ local ProfileCard = {}
 local info: Types.ProfileInfo? = nil
 local recordLabel: TextLabel?
 local saveLabel: TextLabel?
+local achievementsButton: TextButton?
 
 function ProfileCard.get(): Types.ProfileInfo?
 	return info
@@ -29,8 +34,17 @@ function ProfileCard.render()
 		return
 	end
 	local danger = if info.bestDanger >= 0 then ` · won on danger {info.bestDanger}` else ""
-	recordLabel.Text = `{info.runs} runs · {info.wins} wins · best wave {info.bestWave}{danger}\n`
+	recordLabel.Text = `{info.embers or 0} Embers\n`
+		.. `{info.runs} runs · {info.wins} wins · best wave {info.bestWave}{danger}\n`
 		.. `{info.kills} kills · {info.bossKills} bosses`
+	if achievementsButton then
+		local done = 0
+		for _ in info.achievements or {} do
+			done += 1
+		end
+		achievementsButton.Text = `ACHIEVEMENTS {done}/{#Config.Progress.achievements}`
+	end
+	AchievementList.render(info)
 	saveLabel.Visible = info.saveMode ~= "DataStore"
 	saveLabel.Text = if info.saveMode == "Mock"
 		then "Studio test: not saved (API access is off)"
@@ -66,9 +80,23 @@ function ProfileCard.mount(list: Frame)
 		LayoutOrder = 12,
 		Parent = list,
 	})
+	achievementsButton = Widgets.button({
+		Name = "OpenAchievements",
+		Text = "ACHIEVEMENTS",
+		TextSize = 16,
+		Size = UDim2.new(1, 0, 0, 38),
+		LayoutOrder = 13,
+		Parent = list,
+	}, function()
+		AchievementList.setOpen(not AchievementList.isOpen())
+	end)
+	AchievementList.mount(list.Parent :: Instance)
 	Net.onClient("ProfileInfo", function(payload: Types.ProfileInfo)
 		info = payload
 		ProfileCard.render()
+		-- unlocks changed: the other lobby extensions read them (required here, they require ProfileCard)
+		require(script.Parent.CharacterChoice).render()
+		require(script.Parent.DangerChoice).render()
 	end)
 	ProfileCard.render()
 end

@@ -37,4 +37,5 @@ return table.freeze({
 	"GiveStructureKit", -- B12: one of every construction item, deployed next wave
 	"PrintProfile", -- print your saved data to the Output (since Paket 12)
 	"ResetProfile", -- your saved data back to a fresh profile (since Paket 12)
+	"UnlockAll", -- every achievement done and every danger level open for you (since Paket 13; Reset locks again)
 })

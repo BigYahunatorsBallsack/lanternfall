@@ -23,6 +23,7 @@ local StatMath = require(Shared.Util.StatMath)
 local Types = require(Shared.Net.Types)
 
 local ExperienceService = require(script.Parent.ExperienceService)
+local PlayerDataService = require(script.Parent.PlayerDataService)
 local RandomService = require(script.Parent.RandomService)
 local RunDirector = require(script.Parent.RunDirector)
 local StatService = require(script.Parent.StatService)
@@ -166,6 +167,15 @@ local function send(player: Player, state: State)
 	end
 end
 
+-- Paket 13: weapon and item ids the player has not unlocked yet (never offered).
+local function lockedIds(player: Player): { [string]: boolean }
+	local set = PlayerDataService.lockedSet(player, "weapons")
+	for itemId in PlayerDataService.lockedSet(player, "items") do
+		set[itemId] = true
+	end
+	return set
+end
+
 -- New offers; locked unsold ones (`keep`) stay. `previous`: ids of the roll before, not offered again if possible.
 local function roll(player: Player, state: State, keep: { Types.ShopOffer }, previous: { [string]: boolean }?)
 	state.offers = ShopRules.roll({
@@ -180,6 +190,7 @@ local function roll(player: Player, state: State, keep: { Types.ShopOffer }, pre
 		ownedItems = StatService.getItemCounts(player),
 		keep = keep,
 		previous = previous,
+		unavailable = lockedIds(player),
 		nextId = function(): string
 			offerCounter += 1
 			return tostring(offerCounter)

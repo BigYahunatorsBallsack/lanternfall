@@ -56,6 +56,7 @@ local BUTTON_TEXT: { [string]: string } = {
 	SpawnChampion = "Spawn next champion",
 	PrintProfile = "Print my saved data",
 	ResetProfile = "Reset my saved data",
+	UnlockAll = "Unlock everything",
 }
 
 local BUTTON_SIZE = Vector2.new(150, 30)

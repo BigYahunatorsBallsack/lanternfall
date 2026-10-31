@@ -31,6 +31,7 @@ export type Params = {
 	priceFactor: number?, -- from the Item Prices stat (StatMath.priceFactor); 1 if nil
 	keep: { Types.ShopOffer }?, -- locked offers; they stay first and their weapons and items are not rolled again
 	previous: { [string]: boolean }?, -- weapon and item ids of the roll before (reroll); avoided while others are left
+	unavailable: { [string]: boolean }?, -- Paket 13: weapon and item ids the player has not unlocked; never offered
 	nextId: () -> string, -- unique prefix for each new offer id
 	random: () -> number, -- 0 <= x < 1
 }
@@ -149,15 +150,17 @@ function ShopRules.pickItem(
 	return nil
 end
 
--- The item of an elite chest: tier rolled by wave and Luck, at least Config.Items.chestMinTier.
+-- The item of an elite chest: tier rolled by wave and Luck, at least Config.Items.chestMinTier. `unavailable`
+-- (Paket 13): item ids the player has not unlocked.
 function ShopRules.chestItem(
 	wave: number,
 	luck: number,
 	ownedItems: { [string]: number },
-	random: () -> number
+	random: () -> number,
+	unavailable: { [string]: boolean }?
 ): string?
 	local tier = math.max(Items.chestMinTier, StatMath.rollTier(wave, luck, random()))
-	return ShopRules.pickItem(tier, ownedItems, {}, random)
+	return ShopRules.pickItem(tier, ownedItems, if unavailable then table.clone(unavailable) else {}, random)
 end
 
 -- Whether buying a weapon of `tier` merges into an owned copy (every slot full, a copy of the same tier below the max
@@ -311,6 +314,10 @@ function ShopRules.roll(params: Params): { Types.ShopOffer }
 	local avoid: { [string]: boolean } = {} -- in this shop or the previous roll
 	for itemId in params.previous or {} do
 		avoid[itemId] = true
+	end
+	for id in params.unavailable or {} do -- Paket 13: not unlocked counts as taken, so it is never offered
+		taken[id] = true
+		avoid[id] = true
 	end
 	local weaponsLeft = ShopRules.guaranteedWeapons(params.wave)
 	for _, offer in params.keep or {} do

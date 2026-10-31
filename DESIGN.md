@@ -790,7 +790,32 @@ Folgerungen: 15 von 24 Siegen statt gut 10 von 24 in B3; die größere Auswahl i
 | Boss besiegt | 150 |
 | tägliche Quest | 50–100 |
 
-**Geplant (Paket 13, Brotato-Referenz):** Brotato hat keine dauerhaften Stärke-Boni, nur Freischaltungen. Die Stärke-Talente unten fallen deshalb weg (Vorschlag vom 29.10.2026, Owner hat den Plan abgenickt). Charaktere, Waffen und Items werden über Erfolge freigeschaltet („Gewinne einen Run mit X", „Töte 2.000 Gegner"); Embers kaufen Freischaltungen und Kosmetik früher frei. Statt Normal/Hard/Nightmare kommen Gefahrenstufen 0–5 pro Charakter (Paket B11). Die Tabellen unten sind der alte Plan.
+**Umgesetzt (Paket 13, 31.10.2026, Brotato-Referenz):** Keine dauerhaften Stärke-Boni, nur Freischaltungen; die Talente unten entfallen (Felder bleiben im Schema). Alle Zahlen in `Config/Progress.luau`, Formeln in `Util/ProgressRules`.
+
+- **Embers pro Run** (jeder fertige Run, nicht abgebrochen): 10 pro volle überlebte Minute, 15 pro getötetem Champion, 150 pro Boss; dazu +10 % pro Gefahrenstufe und +10 % Party-Bonus ab 2 Spielern. Ergebnis-Bildschirm zeigt die Zeilen und die Summe. Embers kaufen ab Paket 17 Charaktere früher frei (Ember-Shop).
+- **22 Erfolge** zählen über alle Runs (Gesamtwerte im Profil) und zahlen einmal Embers (50–500). Was ein Erfolg freischaltet, ist bis dahin gesperrt: gesperrte Charaktere kann man nicht wählen (Lobby zeigt „LOCKED: …“ mit der Bedingung), gesperrte Waffen und Items kommen nie im Shop und nie aus Kisten. Startwaffen und Start-Items werden nie gesperrt.
+- **Von Anfang an offen:** Blade Warden, Spark Mage, Night Watch, Duel Maestro und alle übrigen Waffen und Items.
+
+| Erfolg | Bedingung | Embers | Schaltet frei |
+| --- | --- | --- | --- |
+| First Night | 1 Run beenden | 50 | – |
+| Deep Into the Night | Welle 10 erreichen | 100 | Many Hands |
+| Dawn | einen Run gewinnen | 200 | Lantern Codex |
+| A Thousand Shades | 2.000 Gegner töten | 100 | Sole Conductor |
+| Endless Swarm | 20.000 Gegner töten | 300 | Eight-Eyed Idol |
+| Champion Hunter | 5 Champions töten | 150 | Mortar Lantern |
+| Kingslayer | einen Boss töten | 200 | Cathedral Engine |
+| Rescuer | 5 Teammates wiederbeleben | 100 | Hearth Sprite |
+| Regular | 25 Runs beenden | 200 | Tithe Palm |
+| Sieg mit Blade Warden / Spark Mage / Night Watch / Duel Maestro | Run gewinnen | je 100 | Marble Host / Candle Scholar / Far Seer / Twin Ledger |
+| Sieg mit Many Hands / Sole Conductor / Far Seer / Marble Host / Twin Ledger / Candle Scholar | Run gewinnen | je 100 | Dusk Sabre / Titan Arms / Fortune Coin / Colossus Heart / Cinder Breath / Eternal Flame |
+| Brave / Fearless / Lantern Saint | Gefahrenstufe 1 / 3 / 5 gewinnen | 150 / 250 / 500 | Crimson Hand / Thunder Shells / Pyre Ashes |
+
+- **Gefahrenstufe pro Charakter:** Jeder Charakter startet mit Stufe 0; wer Stufe d mit ihm gewinnt, öffnet d + 1 für ihn (Annahme nach dem Plan; Brotato-Wiki prüfen). Im Koop gilt die Lobby-Stufe für alle: wählbar ist sie, wenn **irgendwer** in der Lobby sie mit seinem gewählten Charakter offen hat; Mitspieler ohne Freischaltung spielen mit. Wechselt jemand den Charakter oder geht, sinkt die Stufe, falls sie keiner mehr offen hat.
+- Lobby: „YOUR SAVED RECORD“ zeigt die Embers und den Knopf „ACHIEVEMENTS n/22“ (Fenster mit Fortschritt, Embers und Freischaltung pro Erfolg); bei der Charakterwahl steht „danger up to n“. Erfolge melden sich nach dem Run als Einblendung „Achievement: … - unlocked …“.
+- Debug-Knopf „Unlock everything“ (alle Erfolge erledigt, alle Stufen offen, ohne Embers); „Reset my saved data“ sperrt wieder.
+
+Die Tabellen unten sind der alte Plan.
 
 **Talente** (alle zusammen ≈ 12.650 Embers, also 50–70 Runs)
 
@@ -803,7 +828,7 @@ Folgerungen: 15 von 24 Siegen statt gut 10 von 24 in B3; die größere Auswahl i
 | Rescuer | +10 % Wiederbelebungstempo | 3 | 150 / 300 / 600 |
 | Second Thoughts | +1 Neuwurf pro Run | 2 | 500 / 1.500 |
 
-**Gefahrenstufen (seit B11, wie Brotato; ersetzt Normal/Hard/Nightmare)** – in der Lobby für die ganze Lobby gewählt (Feld rechts), bis Paket 13 alle offen. Zahlen in `Config/Difficulty.luau`, Formeln in `Util/DangerRules`.
+**Gefahrenstufen (seit B11, wie Brotato; ersetzt Normal/Hard/Nightmare)** – in der Lobby für die ganze Lobby gewählt (Feld rechts); seit Paket 13 pro Charakter freigeschaltet (siehe oben). Zahlen in `Config/Difficulty.luau`, Formeln in `Util/DangerRules`.
 
 | Stufe | Was dazukommt |
 | --- | --- |
@@ -1062,17 +1087,19 @@ tests/               Unit-Tests für reine Module (Runner in tools/luau-test-run
 
 ## 16. Datenspeicherung & Sicherheit
 
-**Datenschema v2** (seit Paket 12; v1 → v2 ergänzt Siege, beste Welle, höchste gewonnene Gefahrenstufe und den Rekord pro Charakter)
+**Datenschema v3** (seit Paket 12; v1 → v2 ergänzt Siege, beste Welle, höchste gewonnene Gefahrenstufe und den Rekord pro Charakter; v2 → v3 (Paket 13) Champion-Kills, Wiederbelebungen, verdiente Embers gesamt und die erledigten Erfolge)
 
 ```lua
 {
-  schemaVersion = 2,
+  schemaVersion = 3,
   embers = 0,
   talents = { toughness = 0, power = 0, reach = 0, greed = 0, rescuer = 0, rerolls = 0 }, -- ungenutzt seit dem Brotato-Plan, bleibt bis zu einer Migration
   classes = { "BladeWarden", "SparkMage" },
   difficultyUnlocked = "Normal",
   cosmetics = { owned = {}, equipped = {} },
-  stats = { runs = 0, kills = 0, bossKills = 0, bestTime = 0, wins = 0, bestWave = 0, bestDanger = -1 },
+  stats = { runs = 0, kills = 0, bossKills = 0, bestTime = 0, wins = 0, bestWave = 0, bestDanger = -1,
+            championKills = 0, revives = 0, embersEarned = 0 }, -- die letzten drei seit v3
+  achievements = {}, -- seit v3: [Erfolg-Id] = true
   characterStats = {}, -- [Charakter-Id] = { runs, wins, bestWave, bestDanger }; Grundlage für Paket 13
   quests = { day = "", list = {} },
   streak = { lastLogin = 0, count = 0 },
@@ -1196,7 +1223,7 @@ Bis zum Soft Launch rund 40–50 Sessions und 50–60 Stunden Zeit des Owners (6
 | B12 | Bauten und Begleiter umgesetzt: Engineering, fünf Türme, Minen, Garten, Bot, Pet, zwei Werkzeugwaffen | Vertical Slice | High | 2 | 1 h | Automatisiert geprüft; Studio-Bau-Builds testen |
 | 11 | Down & Wiederbeleben während der Welle (Aufstehen am Wellenende gibt es seit B1; umgesetzt 30.10.2026, Branch `wp-11-revive`) | Vertical Slice | Medium | 1 | 1 h | mit 2 Clients testen |
 | 12 | Datenspeicherung: ProfileStore, Schema, Migration (umgesetzt 31.10.2026, Branch `wp-12-save`: Schema v2 mit Run-Rekord, Lobby-Anzeige) | Vertical Slice | Extra high | 1–2 | 1 h | Test-Experience anlegen, Join/Leave testen |
-| 13 | Fortschritt: Embers, Erfolge schalten Charaktere, Waffen und Items frei, Gefahrenstufe pro Charakter (statt Talente und Normal/Hard/Nightmare) | Vertical Slice | Medium | 1–2 | 1 h | Freischaltungen abnicken |
+| 13 | Fortschritt: Embers, Erfolge schalten Charaktere, Waffen und Items frei, Gefahrenstufe pro Charakter (statt Talente und Normal/Hard/Nightmare; umgesetzt 31.10.2026, Branch `wp-13-progress`: 22 Erfolge, Schema v3) | Vertical Slice | Medium | 1–2 | 1 h | Freischaltungen abnicken |
 | 14 | HUD, Run-Ende, mobiles Layout, Tooltips (Skalierung, Set-Bonus, Elite-Vorschau) | Vertical Slice | Medium | 2–3 | 2 h | Handy-Screenshots |
 | 15 | Hub-Lobby, Teleport, Party, Quick Join | MVP | Extra high | 2–3 | 2 h | Party-Teleport testen |
 | 16 | Käufe: Passes, Products, ProcessReceipt | MVP | Extra high | 1–2 | 1 h | Produkte im Creator Hub anlegen, IDs liefern, Testkäufe |

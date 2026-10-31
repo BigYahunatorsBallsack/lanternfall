@@ -25,6 +25,7 @@ local Types = require(Shared.Net.Types)
 
 local CombatService = require(script.Parent.CombatService)
 local ExperienceService = require(script.Parent.ExperienceService)
+local PlayerDataService = require(script.Parent.PlayerDataService)
 local RandomService = require(script.Parent.RandomService)
 local RunDirector = require(script.Parent.RunDirector)
 local ShopService = require(script.Parent.ShopService)
@@ -95,7 +96,13 @@ local function rollCrate(player: Player, minTier: number): Crate?
 	end
 	local wave = RunDirector.getWave()
 	local tier = math.max(minTier, StatMath.rollTier(wave, StatService.getStat(player, "luck"), random()))
-	local itemId = ShopRules.pickItem(tier, StatService.getItemCounts(player), {}, random)
+	-- Paket 13: items the player has not unlocked never come out of a crate
+	local itemId = ShopRules.pickItem(
+		tier,
+		StatService.getItemCounts(player),
+		PlayerDataService.lockedSet(player, "items"),
+		random
+	)
 	local item = itemId and Config.Items.byId[itemId]
 	if not (itemId and item) then
 		return nil
@@ -362,7 +369,8 @@ function UpgradeService.grantChest(player: Player): Types.ChestReward?
 		StatService.getItemCounts(player),
 		function(): number
 			return RandomService.number("Loot", player)
-		end
+		end,
+		PlayerDataService.lockedSet(player, "items") -- Paket 13
 	)
 	if itemId and StatService.addItem(player, itemId) then
 		return { kind = "Item", itemId = itemId, level = StatService.getItemCounts(player)[itemId] or 1 }
