@@ -1,6 +1,6 @@
 --!strict
 -- In-memory stand-in for ProfileStore with the calls PlayerDataService uses (StartSessionAsync, Profile.Data,
--- AddUserId, Reconcile, Save, EndSession, IsActive, OnSessionEnd). PlayerDataService uses it when the place has no
+-- AddUserId, Reconcile, Save, EndSession, IsActive, OnSessionEnd; since Paket 16 LastSavedData and OnAfterSave). PlayerDataService uses it when the place has no
 -- DataStoreService (the test runner); tests/PlayerData.spec.luau also uses it to refuse a load or to end a session
 -- as if another server took it. Data lives only as long as the server.
 
@@ -45,6 +45,7 @@ function MemoryStore.new(template: any)
 		active = {} :: { [string]: any }, -- open sessions per key
 		refused = {} :: { [string]: boolean },
 		saves = 0, -- how often anything was written (tests)
+		failing = false, -- tests: saves do nothing, like a DataStore outage (Paket 16)
 	}, MemoryStore)
 end
 
@@ -62,9 +63,11 @@ function MemoryStore.StartSessionAsync(self: any, key: string, params: any?): an
 	local stored = self.saved[key]
 	local profile = setmetatable({
 		Data = if stored then deepCopy(stored) else deepCopy(self.template),
+		LastSavedData = if stored then deepCopy(stored) else deepCopy(self.template),
 		Key = key,
 		UserIds = {},
 		OnSessionEnd = Signal.new(),
+		OnAfterSave = Signal.new(),
 		store = self,
 		active = true,
 	}, Profile)
@@ -85,6 +88,11 @@ end
 -- Tests: put data under a key, e.g. an old schema version.
 function MemoryStore.put(self: any, key: string, data: any)
 	self.saved[key] = deepCopy(data)
+end
+
+-- Tests: while failing, saves write nothing and OnAfterSave stays quiet (Paket 16: receipts wait for a save).
+function MemoryStore.setFailing(self: any, failing: boolean)
+	self.failing = failing
 end
 
 -- Tests: another server opens the profile; this server's session ends.
@@ -110,9 +118,11 @@ function Profile.Reconcile(self: any)
 end
 
 function Profile.Save(self: any)
-	if self.active then
+	if self.active and not self.store.failing then
 		self.store.saved[self.Key] = deepCopy(self.Data)
 		self.store.saves += 1
+		self.LastSavedData = deepCopy(self.Data)
+		self.OnAfterSave:Fire(self.LastSavedData)
 	end
 end
 

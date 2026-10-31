@@ -28,4 +28,5 @@ return {
 	Progress = require(script.Progress), -- Paket 13
 	Settings = require(script.Settings), -- Paket 14
 	Places = require(script.Places), -- Paket 15
+	Store = require(script.Store), -- Paket 16
 }

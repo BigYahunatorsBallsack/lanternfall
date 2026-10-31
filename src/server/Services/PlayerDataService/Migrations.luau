@@ -37,6 +37,34 @@ local steps: { [number]: (data: any) -> () } = {
 			data.settings = ProfileTemplate.newSettings()
 		end
 	end,
+	-- v4 -> v5 (Paket 16): receipts become a list (oldest first), purchase counters, tokens, pass cache and boost
+	[4] = function(data)
+		local receipts = {}
+		if type(data.receipts) == "table" then
+			for key, value in data.receipts do
+				if type(key) == "string" and value == true then
+					table.insert(receipts, key) -- old map: no order known
+				elseif type(key) == "number" and type(value) == "string" then
+					table.insert(receipts, value)
+				end
+			end
+			table.sort(receipts)
+		end
+		data.receipts = receipts
+		local stats = if type(data.stats) == "table" then data.stats else {}
+		data.stats = stats
+		stats.embersBought = stats.embersBought or 0
+		stats.purchases = stats.purchases or 0
+		if type(data.tokens) ~= "table" then
+			data.tokens = { revives = 0, rerolls = 0 }
+		end
+		if type(data.passCache) ~= "table" then
+			data.passCache = {}
+		end
+		if type(data.boost) ~= "table" then
+			data.boost = { untilTime = 0, by = "" }
+		end
+	end,
 }
 
 Migrations.steps = steps
