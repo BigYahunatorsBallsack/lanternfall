@@ -184,11 +184,10 @@ function MovementGuard.clampVelocity(player: Player, velocity: Vector3): Vector3
 	local flat = Vector3.new(velocity.X, 0, velocity.Z)
 	local limit = MovementRules.maxSpeed(watch.entry, DASH_SPEED, now(), Settings)
 	local speed = flat.Magnitude
-	if speed <= limit or speed == 0 then
+	if speed ~= speed or speed == math.huge then
+		return Vector3.zero -- broken numbers from a cheat
+	elseif speed <= limit then
 		return velocity
-	end
-	if speed ~= speed then
-		return Vector3.zero
 	end
 	local scaled = flat * (limit / speed)
 	return Vector3.new(scaled.X, velocity.Y, scaled.Z)
