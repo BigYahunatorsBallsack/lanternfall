@@ -959,6 +959,29 @@ function ConfigCheck.run(): { string }
 	if store.receiptMemory < 1 or store.receiptWaitSeconds <= 0 or store.passCheckAttempts < 1 then
 		problem("Store: receiptMemory, receiptWaitSeconds and passCheckAttempts must be positive")
 	end
+
+	-- Paket 20: analytics events (Roblox allows three custom fields and its own transaction types)
+	local analytics = Config.Analytics
+	local transactionTypes =
+		{ IAP = true, Shop = true, Gameplay = true, ContextualPurchase = true, TimedReward = true, Onboarding = true }
+	for _, list in { analytics.economy.sources, analytics.economy.sinks } do
+		for key, transaction in list :: { [string]: string } do
+			if not transactionTypes[transaction] then
+				problem(`Analytics: Ember {key} uses unknown transaction type {transaction}`)
+			end
+		end
+	end
+	for name, event in analytics.custom do
+		if #event.fields > 3 then
+			problem(`Analytics: {name} has more than 3 fields`)
+		end
+		if event.priority ~= "high" and event.priority ~= "low" then
+			problem(`Analytics: {name} priority must be "high" or "low"`)
+		end
+	end
+	if #analytics.onboarding.steps < 2 or analytics.budget.perMinute < 1 then
+		problem("Analytics: the funnel needs steps and the budget must be positive")
+	end
 	return problems
 end
 

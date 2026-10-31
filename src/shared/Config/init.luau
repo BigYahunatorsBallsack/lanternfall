@@ -34,4 +34,5 @@ return {
 	Leaderboards = require(script.Leaderboards), -- Paket 18
 	Badges = require(script.Badges), -- Paket 18
 	FirstNight = require(script.FirstNight), -- Paket 19
+	Analytics = require(script.Analytics), -- Paket 20
 }
