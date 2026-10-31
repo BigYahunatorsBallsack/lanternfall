@@ -922,7 +922,7 @@ Bewusst nicht: harte Countdown-Angebote oder Serien, die bei einem verpassten Ta
 - **Einstellungen (Paket 14):** Zahnrad oben rechts: Bildschirmwackeln, Schadenszahlen, Musik und Effekte (Lautstärke in 10er-Schritten), im Profil gespeichert.
 - **Shop, Talente, Pass:** je ein Fenster, max. 2 Taps bis Kauf.
 
-**Erster Start (FTUE):** Erst-Join landet direkt in „First Night" (3-Min-Solo-Run, leichter) → Pfeil „Move" → erstes Level-up nach ~5 s mit „Pick one" → Minute 2 Mini-Elite mit Truhe → Minute 3 Run-Ende, dann Lobby mit Hinweis auf den Talent-Altar.
+**Erster Start (FTUE, seit Paket 19 „First Night"):** Wer noch nie einen Run beendet hat (`tutorial.firstNight = false`), landet nach dem Laden (2 s) direkt in „First Night": Solo-Run aus den ersten **3 Wellen** (20 + 25 + 30 s Kampf, zwei Shops), leichter (Gefahr 0, Gegner-HP 75 %, Schaden 50 %, Anzahl 75 %), Anzeige „First Night" und „Wave 1 / 3". Hinweise oben in der Mitte, einer nach dem anderen: „Move" (bis die Figur 6 Studs gegangen ist) → Waffen schießen von selbst, Orbs einsammeln → „Pick one" solange Level-up-Karten offen sind → Shop erklärt (nur der erste) → Welle 3: ein Plünderer erscheint nach 4 s (Mini-Elite mit Kiste) → Welle 3 überleben = Sieg. Danach in der Lobby einmal der Hinweis „Dawn breaks!" (Charakter wählen, Gefahrenstufe, Erfolge öffnen Charaktere). Knopf „Skip" beendet den First Night und zählt ihn als erledigt. Der First Night zählt als beendeter Run (Embers, Erfolg und Badge „First Night", Quests), aber **nicht als Sieg** (öffnet keine Gefahrenstufe) und nicht für Ranglisten. Wo: Hub → Solo-Teleport mit First-Night-Ticket; ein Server allein → direkt dort; trifft ein Neuer auf andere Spieler im selben Server, startet keiner (er spielt normal mit). In Studio nur über den Debug-Knopf „Start First Night" (`Config/FirstNight.luau` → `autoStartInStudio`). Talent-Altar entfällt (seit Brotato-Plan).
 
 **Barrierefreiheit:** Bildschirmwackeln und Schadenszahlen abschaltbar (seit Paket 14 im Einstellungsmenü; global zusätzlich in `Config/Feedback.luau`); Gefahrzonen mit Farbe und Muster; Musik/Effekte getrennt regelbar.
 
@@ -1112,11 +1112,11 @@ tests/               Unit-Tests für reine Module (Runner in tools/luau-test-run
 
 ## 16. Datenspeicherung & Sicherheit
 
-**Datenschema v6** (seit Paket 12; v1 → v2 ergänzt Siege, beste Welle, höchste gewonnene Gefahrenstufe und den Rekord pro Charakter; v2 → v3 (Paket 13) Champion-Kills, Wiederbelebungen, verdiente Embers gesamt und die erledigten Erfolge; v3 → v4 (Paket 14) Einstellungen; v4 → v5 (Paket 16) Käufe; v5 → v6 (Paket 18) Quests, Login-Serie, Badges, Wochenbestwerte)
+**Datenschema v7** (seit Paket 12; v1 → v2 ergänzt Siege, beste Welle, höchste gewonnene Gefahrenstufe und den Rekord pro Charakter; v2 → v3 (Paket 13) Champion-Kills, Wiederbelebungen, verdiente Embers gesamt und die erledigten Erfolge; v3 → v4 (Paket 14) Einstellungen; v4 → v5 (Paket 16) Käufe; v5 → v6 (Paket 18) Quests, Login-Serie, Badges, Wochenbestwerte; v6 → v7 (Paket 19) `tutorial`, First Night erledigt = schon Runs gespielt)
 
 ```lua
 {
-  schemaVersion = 6, -- v4 (Paket 14): settings = { shake, damageNumbers, music, effects }; v5 (Paket 16) siehe unten
+  schemaVersion = 7, -- v4 (Paket 14): settings = { shake, damageNumbers, music, effects }; v5 (Paket 16) siehe unten
   embers = 0,
   talents = { toughness = 0, power = 0, reach = 0, greed = 0, rescuer = 0, rerolls = 0 }, -- ungenutzt seit dem Brotato-Plan, bleibt bis zu einer Migration
   classes = { "BladeWarden", "SparkMage" },
@@ -1136,6 +1136,7 @@ tests/               Unit-Tests für reine Module (Runner in tools/luau-test-run
   boost = { untilTime = 0, by = "" }, -- v5: Ember Boost bis os.time(), gestartet von (Name)
   badges = {}, -- v6: [Badge-Schlüssel] = true, vergeben (Config/Badges)
   weekly = { week = 0, best = {} }, -- v6: Ranglisten-Woche und eigene Bestwerte ["Wave_D3"] = Wert
+  tutorial = { firstNight = false, lobbyHint = false }, -- v7: First Night gespielt/übersprungen; Lobby-Hinweis noch offen
 }
 ```
 
