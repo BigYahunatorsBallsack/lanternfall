@@ -417,4 +417,29 @@ export type RunRewards = {
 	totalEmbers: number, -- Embers after the run
 }
 
+-- Paket 15: another player in the hub, as the party panel lists them (PartyService -> PartyController).
+export type HubPlayer = {
+	userId: number,
+	name: string,
+	status: string, -- "Solo", "Party", "Queue" (quick join) or "Busy" (teleporting or in a run)
+	partySize: number, -- players in their party (1 = solo)
+	invited: boolean, -- the local player invited them and they have not answered yet
+}
+
+-- Paket 15: what one player sees of places, parties and quick join (remote PartyState, to that player on change).
+export type PartyState = {
+	role: string, -- "Hub", "Run" or "Single" (Util/PlaceRules)
+	canTeleport: boolean, -- false in Studio: the hub starts runs in its own server
+	leaderId: number, -- leader of the player's party (the player when solo)
+	members: { { userId: number, name: string } }, -- the party, leader first; only the player when solo
+	options: RunOptions, -- the run options of the party (picked by its leader)
+	invite: { fromId: number, fromName: string, expiresAt: number }?, -- the newest invite to the player
+	queue: { players: number, groupSize: number, startsAt: number? }?, -- in quick join: queued players, the forming
+	-- group and when it leaves
+	launchAt: number?, -- the party run starts at this server time (leader pressed START)
+	teleporting: boolean,
+	players: { HubPlayer }, -- the other players in this hub
+	group: { arrived: number, expected: number, startsBy: number? }?, -- run place: the group still arriving
+}
+
 return {}

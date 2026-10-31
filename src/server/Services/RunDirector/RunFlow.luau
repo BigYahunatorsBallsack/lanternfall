@@ -4,7 +4,7 @@
 -- Boss phase is no longer entered. Since B11 the lobby picks run options (danger level, endless mode, enemy sliders;
 -- Util/DangerRules); in endless mode the run goes on after the last wave until nobody is alive, and reaching the end
 -- of the last wave counts as a win. B11 part 2: after a defeat in a wave, "Retry wave" starts that wave again from its
--- beginning (retryWave, at most maxRetries per run).
+-- beginning (retryWave, at most maxRetries per run). Paket 15: launch starts a run for a given group right away.
 -- Owned by RunDirector, which feeds it player events and the clock (`now` in seconds). No Roblox APIs
 -- here, so the rules are unit-tested outside Studio (tests/RunFlow.spec.luau).
 --
@@ -425,6 +425,38 @@ function RunFlow.setClass(self: RunFlow, userId: number, classId: string): (bool
 	end
 	if entry.classId ~= classId then
 		entry.classId = classId
+		changed(self)
+	end
+	return true, nil
+end
+
+-- Paket 15: starts a run for exactly these players (a group from the hub in Studio, or the group that arrived on a
+-- run place): they become ready and the short countdown starts. Only from the lobby (or an open countdown).
+function RunFlow.launch(self: RunFlow, userIds: { number }, now: number): (boolean, string?)
+	if self.phase ~= "Lobby" and self.phase ~= "Countdown" then
+		return false, "Busy"
+	end
+	local any = false
+	for _, userId in userIds do
+		local entry = self.players[userId]
+		if entry then
+			any = true
+			if not entry.ready then
+				entry.ready = true
+				self.counter += 1
+				entry.readyOrder = self.counter
+				changed(self)
+			end
+		end
+	end
+	if not any then
+		return false, "UnknownPlayer"
+	end
+	local endsAt = now + self.settings.allReadyCountdownSeconds
+	if self.phase == "Lobby" then
+		setPhase(self, "Countdown", endsAt)
+	elseif self.phaseEndsAt == nil or endsAt < self.phaseEndsAt then
+		self.phaseEndsAt = endsAt
 		changed(self)
 	end
 	return true, nil

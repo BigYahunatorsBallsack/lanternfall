@@ -298,24 +298,37 @@ local function onStepped(dt: number, stepNow: number)
 	end
 end
 
+-- B10: picks the starting weapon for the character the player chose in the lobby (remote SelectStartWeapon;
+-- Paket 15: RunPlaceService applies the hub pick). False if it is not one of that character's starting weapons.
+function WeaponService.selectStartWeapon(player: Player, classId: string, weaponId: string): boolean
+	local class = Config.Classes[classId]
+	if RunDirector.isOngoing() and RunDirector.getParticipantState(player) ~= nil then
+		return false
+	end
+	if RunDirector.getSelectedClassId(player) ~= classId or not class or not class.available then
+		return false
+	end
+	if not table.find(class.startWeapons, weaponId) then
+		return false
+	end
+	local choices = selections[player] or {}
+	selections[player] = choices
+	choices[classId] = weaponId
+	Net.fireClient("StartWeaponChoice", player, classId, weaponId)
+	return true
+end
+
+-- Paket 15: the starting weapon the player picked for a character, nil if they kept the default.
+function WeaponService.getStartWeapon(player: Player, classId: string): string?
+	local choices = selections[player]
+	return if choices then choices[classId] else nil
+end
+
 -- Lifecycle -------------------------------------------------------------------------
 
 function WeaponService.init()
 	Net.onServer("SelectStartWeapon", function(player, classId: string, weaponId: string)
-		local class = Config.Classes[classId]
-		if RunDirector.isOngoing() and RunDirector.getParticipantState(player) ~= nil then
-			return
-		end
-		if RunDirector.getSelectedClassId(player) ~= classId or not class or not class.available then
-			return
-		end
-		if not table.find(class.startWeapons, weaponId) then
-			return
-		end
-		local choices = selections[player] or {}
-		selections[player] = choices
-		choices[classId] = weaponId
-		Net.fireClient("StartWeaponChoice", player, classId, weaponId)
+		WeaponService.selectStartWeapon(player, classId, weaponId)
 	end)
 	RunDirector.SyncRequested:Connect(function(player)
 		for classId, weaponId in selections[player] or {} do
