@@ -8,8 +8,8 @@
 --     (QuestService), Ember packs (MonetizationService) as sources, the Ember shop (EmberShopService) as sink,
 --   * custom events from Config.Analytics.custom: run end (length, outcome, players), what downed a player, bosses
 --     killed, level-up cards offered and picked (UpgradeService.CardPicked), shop buys (ShopService.Bought),
---     revives, "Retry wave", First Night skipped (FirstNightService).
--- Listens to RunDirector, EnemySim, ExperienceService, PlayerDataService, ReviveService, ShopService and
+--     revives, "Retry wave", First Night skipped (FirstNightService), movement check corrections (Paket 23).
+-- Listens to RunDirector, EnemySim, ExperienceService, MapService, PlayerDataService, ReviveService, ShopService and
 -- UpgradeService; those never require this module, the services that report Embers call it. Every call goes through a
 -- per-server budget (Config.Analytics.budget) and a pcall. Roblox does not record events from Studio: the last events
 -- stay in a log for the debug button "Print analytics log" (AdminService) and the tests.
@@ -25,6 +25,7 @@ local Types = require(Shared.Net.Types)
 
 local EnemySim = require(script.Parent.EnemySim)
 local ExperienceService = require(script.Parent.ExperienceService)
+local MapService = require(script.Parent.MapService)
 local PlayerDataService = require(script.Parent.PlayerDataService)
 local ReviveService = require(script.Parent.ReviveService)
 local RunDirector = require(script.Parent.RunDirector)
@@ -362,6 +363,11 @@ function AnalyticsService.init()
 	end)
 	ShopService.Bought:Connect(function(player: Player, kind: string, itemId: string)
 		customEvent(player, "ItemBought", nil, { kind, itemId, RunDirector.getWave() })
+	end)
+	-- Paket 23: how often the movement check moves someone back (many on fair players = it is too strict)
+	MapService.MovementCorrected:Connect(function(player: Player, reason: string, distance: number)
+		local studs = if distance == math.huge then 0 else math.floor(distance + 0.5)
+		customEvent(player, "MovementCorrected", studs, { reason, RunDirector.getWave() })
 	end)
 	UpgradeService.CardPicked:Connect(onCardPicked)
 	Players.PlayerRemoving:Connect(function(player)
