@@ -125,6 +125,13 @@ function ProfileCard.mount(list: Frame)
 		require(script.Parent.DangerChoice).render()
 		require(script.Parent.EmberShopController).render() -- Paket 17
 	end)
+	local Dialog = require(script.Parent.Parent.UI.Dialog)
+	for _, name in { "Achievements", "Store", "EmberShop", "Quests", "Leaderboards" } do
+		local panel = list.Parent:FindFirstChild(name)
+		if panel and panel:IsA("Frame") then
+			Dialog.wrap(panel, ProfileCard.closeWindows)
+		end
+	end
 	ProfileCard.render()
 end
 

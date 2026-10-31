@@ -252,6 +252,7 @@ function EmberShopController.render()
 			TextColor3 = row.color,
 			AutoButtonColor = press ~= nil,
 			Size = UDim2.new(1, -8, 0, ROW_HEIGHT),
+			AutomaticSize = Enum.AutomaticSize.Y,
 			LayoutOrder = index,
 			Parent = container,
 		}, function()
@@ -261,7 +262,8 @@ function EmberShopController.render()
 		end)
 		Widgets.padding(8).Parent = button
 	end
-	container.CanvasSize = UDim2.fromOffset(0, #list * (ROW_HEIGHT + 6))
+	container.CanvasSize = UDim2.new()
+	container.AutomaticCanvasSize = Enum.AutomaticSize.Y
 end
 
 function EmberShopController.isOpen(): boolean

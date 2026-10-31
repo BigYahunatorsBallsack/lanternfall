@@ -926,11 +926,17 @@ Bewusst nicht: harte Countdown-Angebote oder Serien, die bei einem verpassten Ta
 
 **Barrierefreiheit:** Bildschirmwackeln und Schadenszahlen abschaltbar (seit Paket 14 im Einstellungsmenü; global zusätzlich in `Config/Feedback.luau`); Gefahrzonen mit Farbe und Muster; Musik/Effekte getrennt regelbar.
 
-### UI-Redesign (Owner-Auftrag 31.10.2026, Zwischenstand)
+### UI-Redesign (Owner-Auftrag 31.10.2026)
 
-Brotato dient als Vorbild für Informationshierarchie: klare Karten, Wertevergleich, Seltenheitsfarben und getrennte Hauptaktionen; Lanternfall behält eigene Farben und Texte. Die Lobby wird über PLAY / DIFFICULTY / PARTY / COLLECTION gegliedert, kleine Bildschirme scrollen statt alle Bedienelemente zu verkleinern. Anthrazit/Olive, Pergamenttext und Laternen-Gold ersetzen die transparenten violetten Hauptflächen. Debug ist standardmäßig geschlossen. Der Shop nutzt die Fläche links neben den Werten und bildet die tatsächliche Waffenplatz-Kapazität ab.
+Brotato dient als Vorbild für Informationshierarchie: klare Karten, Wertevergleich, Seltenheitsfarben und getrennte Hauptaktionen; Lanternfall behält eigene Farben und Texte. Anthrazit/Olive, Pergamenttext und Laternen-Gold ersetzen die transparenten violetten Hauptflächen. Debug bleibt standardmäßig geschlossen.
 
-Das große Redesign ist noch nicht abgeschlossen: Kampf-HUD, mobiler Shop, Auswahl-/Ergebnisbildschirme und Meta-Fenster folgen. Konkreter Arbeitsstand und nächste Schritte: `docs/UI-REDESIGN-HANDOFF.md`. Dieser Zwischenstand ist kein visuell abgenommener Release.
+- Lobby: PLAY / DIFFICULTY / PARTY / COLLECTION, ein sichtbarer Inhaltsbereich und responsive Charakter-/Startwaffenraster.
+- Kampf: kompakte HP-/XP-/Wellenanzeige und Teamstatus; BUILD öffnet die vollständigen Waffen und Items mit Tooltips. Kampfpanels verstecken sich zwischen Wellen.
+- Shop: vier Angebote auf breiten Screens, zwei Spalten auf kleinen Screens (eine auf sehr schmalen). Angebote und Waffen scrollen, Rerolls/READY bleiben im festen Footer. Effekte können innerhalb einer Karte scrollen; Preise und Sperren bleiben sichtbar. Bis zur höchsten Charakterkapazität unterstützte Waffenplätze. Werte rechts auf Desktop, separate STATS-Ansicht auf Handy.
+- Level-up/Truhen/Ergebnisse: gemeinsame scrollbare Fenster, Auswahlkarten mit Umbruch, alle Waffen im Ergebnis, unveränderte serverbestimmte Auswahl- und Belohnungsregeln.
+- Collection/Settings/Einladungen: gemeinsame responsive Dialoghülle, bleibender Schließen-Knopf, wachsende Zeilen für lange Texte. Tutorialhinweise lassen sich mit GOT IT einklappen und über HELP wieder öffnen; Skip behält seine bestehende Bedeutung.
+
+Umsetzungsstand, technische Checks und die noch ausstehende echte Studio-Abnahme: `docs/UI-REDESIGN-HANDOFF.md`. Automatische Tests prüfen GUI-Struktur und Bedienabläufe, keine Roblox-Schriftumbrüche oder Pixelpositionen.
 
 ## 14. Art-Direction & Audio
 

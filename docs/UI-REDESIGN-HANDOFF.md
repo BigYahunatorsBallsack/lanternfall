@@ -1,83 +1,57 @@
-# UI-Redesign – Übergabe an die nächste Instanz
+# UI-Redesign – Implementierung und Abnahme
 
-Stand: 31.10.2026. **Bewusst ein Zwischenstand, kein fertig abgenommenes Redesign.**
+Stand: 31.10.2026. Der Owner hat den geplanten Instanzwechsel aufgehoben und die Fortsetzung beauftragt. **Die geplanten UI-Bereiche sind implementiert; der echte Studio-Sichttest steht aus.**
 
-## Auftrag und Abbruchpunkt
+## Branch und Umfang
 
-Owner: „Schau dir mal den aktuellen stand des projekts an, ich hätte gerne ein großes UI redesign im Style von Brotato, damit alles endlich übersichtlich ist. Mach das bitte, hör aber auf, bevor das limit aufgebraucht ist, damit ich es an eine andere instanz zum finishen weitergeben kann.“
+- PR: https://github.com/BigYahunatorsBallsack/lanternfall/pull/46
+- Branch: `wp-ui-redesign`, Basis main `d7152ca`.
+- Arbeitsordner: `C:/Users/jonas/Documents/Roblox/lanternfall/lanternfall/.work-b7`.
+- Nicht den übergeordneten Arbeitsordner benutzen: dort liegen ältere, fremde Änderungen. `.b7-tools/` enthält ausschließlich unversionierte Werkzeuge und Builds.
+- Der UI-Auftrag umfasst auch ehemals A zugeordnete Client-Dateien. Keine Änderung an Server, Balancing, Remotes, Speicherformat oder Kaufbestätigungen. Kein Merge-Auftrag für diesen PR.
 
-Dieser Auftrag erlaubt Änderungen an den betroffenen Client-UI-Dateien einschließlich der früher zwischen A/B geteilten bzw. A gehörenden Lobby-/Debug-Dateien. Server, Spielregeln, Kaufabläufe und Speicherformat bleiben unangetastet. Kein Merge-Auftrag für dieses neue Redesign. Als Draft übergeben.
+## Umgesetzt
 
-## Wo weiterarbeiten
+Brotato dient als Vorbild für klare Karten, Seltenheitsfarben und getrennte Aktionen. Eigene Palette aus Anthrazit/Olive, Pergamenttext und Laternen-Gold; keine übernommenen Assets.
 
-- Repo: `BigYahunatorsBallsack/lanternfall`
-- Branch: `wp-ui-redesign`
-- Basis: `d7152ca` (aktuelles main beim Start; beinhaltet B12 und Pakete bis 21 einschließlich Shop/Käufe, Party/Hub, Quests und HUD).
-- Lokaler Arbeitsordner: `C:/Users/jonas/Documents/Roblox/lanternfall/lanternfall/.work-b7`
-- **Nicht den übergeordneten Ordner benutzen:** dort liegen viele ältere, fremde uncommittete Änderungen.
-- `.b7-tools/` ist unversionierter lokaler Werkzeug-/Build-Scratch, nicht committen.
-- `git fetch origin main` vor Fortsetzung; ggf. neuen main aufnehmen und Konflikte sorgfältig lösen.
+| Bereich | Verhalten / Dateien |
+| --- | --- |
+| Grundlage | `UI/Theme`, `Widgets.unscaled`, neue `UI/Dialog`: responsive Breite, vertikaler Scrollbereich, dauerhaft erreichbares Schließen. |
+| Lobby | `UI/LobbyLayout`, `LobbyController`, `CharacterChoice`: PLAY / DIFFICULTY / PARTY / COLLECTION; nur ein sichtbarer Bereich; Charaktere und Startwaffen als Raster. |
+| Kampf | `HUDController`: kompaktere Anzeigen; BUILD öffnet alle Waffen und Items mit Tooltips. Im Shop keine doppelte Inventar-/HP-Anzeige. Boss-/Revive-Anzeigen an schmale Screens angepasst. |
+| Shop | `ShopController`: vier Desktop-Angebote, zwei mobile Spalten, eine bei sehr schmalem Fenster. Scrollender Inhalt, fester Reroll-/READY-Footer, scrollbare Effektdetails, bis zu zwölf Waffenplätze. |
+| Werte | `StatsController`: scrollbare Primary-/Secondary-Werte und Waffenklassen; rechts auf Desktop, über STATS und Back to Shop auf kleinen Screens. |
+| Auswahl / Ergebnis | `LevelUpController`, `ResultsController`: umbruchfähige Karten, scrollbare Truhen/Ergebnisse, relative Aktionsbreiten, kein Abschneiden nach sechs Waffen. |
+| Meta | `ProfileCard`, Achievements/Stores/Quests: gemeinsame Dialoge, lange Zeilen wachsen, Listen beginnen oben. Settings und Party-Einladung passen sich ebenfalls an. |
+| Tutorial / Debug | First Night: GOT IT klappt die Hilfe ein, HELP öffnet sie erneut, Skip bleibt verfügbar. Debug beginnt eingeklappt und scrollt nach Öffnen. |
 
-## Befund und Gestaltungsrichtung
+Die bestehenden Auswahl-, Kauf-, Lock-, Verkaufs-, Merge-, Reroll-, Ready-, Party- und Einstellungs-Handler bleiben erhalten.
 
-Live-Screenshot des alten Stands im laufenden Studio geprüft: Status oben, Charakterwahl unten mittig, Party/Rekord/Shop/Quests links übereinander, Schwierigkeit rechts von offenem Debug verdeckt. Unabhängig skalierte Panels konkurrieren um Platz. Der Shop reserviert rechts Platz für Stats und unnötigerweise denselben Platz links; Karten werden dadurch sehr klein.
+## Automatische Prüfung
 
-Brotato als **Informationsarchitektur**, mit eigenem Look: klare, fast rechteckige Karten, hoher Kontrast, Seltenheitsfarbe als Kennzeichnung, grüne/rote Werte, Aktionen deutlich getrennt. Anthrazit/Olive, Pergamenttext, Laternen-Gold statt der bisherigen durchsichtigen violetten Flächen. Keine kopierten Assets.
+- 60 Spec-Dateien, 656 Tests bestanden; neue UI-Spec 9/9.
+- UI-Spec: Tabwechsel, Meta-Fenster, mobile Breiten, Settings-Schließen, echte Charakter-/Ready-/Upgrade-Abläufe, vollständiges Inventar, Shop-Footer und Stats-Wechsel bei 390×844 / 844×390, zwölf Ergebniswaffen.
+- FirstNight-Spec prüft zusätzlich GOT IT und HELP, ohne den Tutoriallauf zu beenden.
+- StyLua, `git diff --check`, Rojo-Build erfolgreich; Selene 0 Fehler / 11 bestehende UDim2-Stilwarnungen, mit gecachter Roblox-API.
+- Ein früherer Lauf des ersten Zwischenstands hatte den bereits in STATUS genannten sporadischen B12-Minenfehler (Zeile 211). Aktuelle Läufe bestanden. Kein Servercode wurde dafür geändert.
+- Lune führt die bestehenden Specs mit dem vorhandenen Test-Prelude und RobloxMock aus. **Der Mock berechnet keine echten Pixelpositionen, Schriftumbrüche oder Scrollgesten.**
 
-Visuelle Referenz: [Brotato-Shop-Screenshot](https://www.mobygames.com/game/192086/brotato/screenshots/windows/1131022/) – vier Angebote, Waffen darunter, Werte rechts. Die Referenz wurde zum Strukturvergleich gesucht; keine Assets übernommen.
+## Noch nötige Studio-Abnahme
 
-## Bereits umgesetzt
+Während der Fortsetzung liefert Studio MCP keine verbundenen Instanzen. Es gibt daher keinen Screenshot oder Playtest der neuen Darstellung. Die frühere Aufnahme zeigte ausschließlich den alten Stand.
 
-1. **Theme.luau:** deckende dunkle Flächen, ruhigere Kontrastfarben, 5-px-Ecken, gemeinsame `canvas`, `surface`, `shards`-Farben. Vorhandene Controller übernehmen die Palette automatisch.
-2. **UI/LobbyLayout.luau:** eigener Hintergrund, Marken-/Statuskopf, Tabs PLAY / DIFFICULTY / PARTY / COLLECTION. Nur ein Inhaltsbereich sichtbar. Vertikaler Scrollbereich statt Panels, die aus dem Bildschirm wachsen. Bestehende Controls werden umgehängt; ihre Remote-/Kauf-/Party-Handler bleiben erhalten. Tabs schließen offene Profilfenster über das vorhandene `ProfileCard.closeWindows`.
-3. **LobbyController:** Profil mit Erfolgen, Stores und Quests in separate Collection-Fläche verlagert. Layout nach Montage aller Erweiterungen eingebunden.
-4. **CharacterChoice.resize:** zwei Charakterspalten auf schmalen Screens, fünf auf breiten; Startwaffen als umbruchfähiges Raster; Beschreibung kann wachsen; READY/Back-to-hub passen in die verfügbare Breite.
-5. **Widgets.unscaled:** verhindert doppelte UIScale-Verkleinerung innerhalb des responsiven Lobby-Layouts; entfernt die Skala auch aus Widgets' Beobachtungsliste.
-6. **DebugController:** standardmäßig kleiner DEBUG-Knopf unten rechts, Diagnosewerte ebenfalls zu. Aufgeklappt scrollen die zahlreichen Befehle in einer begrenzten Fläche.
-7. **ShopController:** nutzt freie Fläche links der Stats, breitere/höhere Karten, größere Details und Sperrknöpfe; keine Verkleinerung der Detailtexte bis auf 9 px. Waffenplätze bis zur höchsten Charakterkapazität gebaut, Höhe nach aktueller Kapazität (vorher nur sechs trotz Many Hands mit zwölf). Bestehende Kauf-/Verkauf-/Merge-/Lock-/Reroll-Handler unverändert.
-8. **UiRedesign.spec.luau:** echte Bootstrap-Tests für Tab-Sichtbarkeit, Collection-Trennung, Profilfenster-Schließen, 390×844-Reflow, Debug, Auswahl/READY und zwölften Waffenplatz.
+1. Branch `wp-ui-redesign` aus dem oben genannten Arbeitsordner per Rojo synchronisieren. Alternativ den lokalen Build `.b7-tools/ui-redesign.rbxlx` in Studio öffnen. Play neu starten; ein bereits laufender Client hat die neuen Module noch nicht geladen.
+2. Desktop 1280×720 und 1920×1080: alle vier Lobby-Tabs anklicken. Charakter und Startwaffe ändern, Gefahr einstellen, Collection-Fenster und Settings öffnen/schließen. Dialoge sollen über der Lobby liegen; lange Listen müssen bis zum letzten Eintrag erreichbar sein.
+3. Geräteemulator 390×844 und 844×390: dieselben Wege wiederholen. Lesbare Texte ohne globale Verkleinerung, kein horizontaler Überlauf. Auch lange gesperrte Charaktertexte und viele Startwaffen prüfen.
+4. Run starten: HP/XP/Wellenzeit und Teamstatus kontrollieren, BUILD öffnen/schließen, alle Itemzeilen und Tooltips prüfen. Mit Debug GainLevel und SkipWave Level-up und Shop erreichen. First Night separat starten; GOT IT und HELP testen.
+5. Shop: Angebote kaufen, sperren, neu würfeln, Waffen auswählen/verkaufen/zusammenführen, READY. Lange Effekte innerhalb einer Karte scrollen. Auf Handy bleibt der Footer erreichbar, STATS öffnet eine eigene Ansicht, Back to Shop kehrt zurück. Many Hands mit zwölf Waffen prüfen.
+6. Truhe, Sieg/Niederlage und Retry prüfen: Texte und komplette Waffenstatistik müssen erreichbar sein. Mit zwei Clients Party-Einladung, Ready/Waiting, Teamstatus und Down/Revive kontrollieren. Studio-Output auf Fehler prüfen.
 
-## Prüfergebnis und Grenzen
+Keine echten Robux-Käufe für die Layoutabnahme nötig. Preise, Sperren und Bestätigungen bleiben bestehen. Erst nach erfolgreicher Studio-Abnahme und Owner-OK mergen.
 
-- Gesamte Suite: **60 Spec-Dateien, 650 Tests bestanden, 1 fehlgeschlagen**.
-- Fehler: `StructuresB12.spec.luau`, „arms mines on contact and detonates after an enemy leaves“, Zeile 211: erwartet 0 Bauten, bekommt 1. STATUS nennt bereits auf main sporadische B12-Minenfehler. B12 und Server nicht verändert. **Nicht als vollständig grüne Suite ausgeben.** Kein Versuch, diesen separaten Simulationsfehler im UI-PR zu verstecken.
-- Neue UI-Spec: 4/4 bestanden; HubStudio-Spec 10/10. Nach dem letzten Debug-Scroll-Feinschliff UI-Spec erneut 4/4.
-- Selene src: 0 Fehler, 11 vorhandene UDim2-Stilwarnungen in alten UI-Zeilen. StyLua für geänderte Dateien, `git diff --check` und Rojo-Build geprüft.
-- Lune verwendet den existierenden Test-Prelude plus RobloxMock. **Es prüft keine echten Roblox-Layouts/AbsoluteSize/Schriftumbrüche.**
-- Verbundenes Studio: „Main Lobby“, Place 107221182628232, laufender Client. Nur alten Stand als Screenshot angesehen. Neue Quellen wurden dort nicht synchronisiert; **noch kein visueller Nachher-Test, keine Behauptung eines fertigen Looks.** Offenen Playtest nicht als neue Version interpretieren.
-- Einrichtungs-/Restprobleme aus alten STATUS-Einträgen (Musik-IDs, Badges usw.) nicht Teil dieses UI-Auftrags.
+## Lokale Werkzeuge
 
-## Nächste Arbeit – in dieser Reihenfolge
-
-### 1. Visuell in Studio abnehmen
-
-Branch synchronisieren, Play neu starten, Screenshots 1280×720 und 1920×1080 sowie 390×844 und 844×390 machen. Zuerst prüfen: Lobby-Hintergrund/ZIndex gegenüber Dialogen, AutomaticSize + ScrollingFrame, Locked-Charakter-Texte, Charakterwechsel mit unterschiedlich vielen Startwaffen, alle Tabs, Einladungspopup und Settings über Tabs. Collection-Fenster behalten noch ihre alten Größen und Positionen.
-
-Neue Layout-Verantwortung liegt in `UI/LobbyLayout.luau`; nicht wieder einzelne Controller frei auf dem Bildschirm verteilen. Kaufbestätigungen, echte Robux-Preise, Sperren und Sichtbarkeit unbedingt erhalten.
-
-### 2. Kampf-HUD neu ordnen
-
-`HUDController`: kompakte HP/XP/Wellenleiste, Teamstatus am Rand, Waffen als übersichtliche Leiste, Items in ein einklappbares Inventar mit Tooltips. Zwischen Wellen keine doppelte Inventarliste hinter dem Shop. Down/Revive, Boss-Leiste, WavePreview, Settings und Handysteuerung berücksichtigen. `ReviveController`, `BossController`, `FirstNightController` visuell auf Überlagerungen prüfen, ihre Spielregeln nicht ändern.
-
-### 3. Shop auf das endgültige Layout bringen
-
-Desktop: Angebote, Waffen/Items, Stats als zusammenhängende Oberfläche statt unabhängiger Panels. Seltenheitsleiste und nachvollziehbare Platzhalter/Icons ergänzen; Lesbarkeit vor Dekoration. **Handy-Shop aktuell noch überwiegend alter Scale-Ansatz:** auf 2×2-Angebote oder Scrollbereich umbauen, Footer und Rerolls mit gut tippbaren Flächen, Stats als eigene Ansicht. Many Hands mit zwölf Waffen und sehr lange Itemeffekte testen. `StatsController` bei vielen sekundären Werten/Waffenklassen scrollbar begrenzen.
-
-### 4. Auswahl- und Ergebnisbildschirme
-
-`LevelUpController` und `ResultsController` in dieselbe klare Karten-/Spaltenstruktur übernehmen. Lange Texte, Truhe + Level-ups nacheinander, Sieg/Niederlage, Retry und Bonuszeilen prüfen. Bestehende Zahlen/Belohnungen bleiben serverbestimmt.
-
-### 5. Meta-Fenster und Feinschliff
-
-Settings, Store, Ember Shop, Achievements, Quests, Leaderboards: einheitliche Titel-/Schließen-Zeile, Scrollbereich, Footer, Touch-Ziele. Collection sollte später nach Records / Unlocks / Cosmetics / Store gegliedert werden; die heutigen Knöpfe bleiben erreichbar. Keine Echtgeld-Aktionen bei automatisierten visuellen Tests auslösen.
-
-### 6. Abschließen
-
-Gezielte UI-Integrationstests + gesamte Suite, Format/Lint/Build. Separaten B12-Flake sauber dokumentieren oder als eigenen Fix behandeln. STATUS/Design/Handoff aktualisieren, Draft in fertigen PR umwandeln. **Erst nach neuem Owner-OK mergen.**
-
-## Werkzeuge und Befehle (Windows)
-
-PowerShell im Arbeitsordner. Direkte Tool-Binaries, Rokit-Shims funktionierten hier nicht:
+PowerShell im Arbeitsordner; Rokit-Binaries direkt:
 
 ```powershell
 & 'C:/Users/jonas/.rokit/tool-storage/johnnymorganz/stylua/2.6.0/stylua.exe' <geänderte Dateien>
@@ -86,8 +60,4 @@ PowerShell im Arbeitsordner. Direkte Tool-Binaries, Rokit-Shims funktionierten h
 .b7-tools/lune.exe run .b7-tools/run.luau tests/UiRedesign.spec.luau
 ```
 
-Eine Spec je Lune-Aufruf. `run.luau` ist ein lokaler Adapter: liest src/tests, lädt `tools/luau-test-runner/prelude.luau` und reicht die Spec weiter. Wenn auf anderer Maschine Rust vorhanden: den regulären Runner nach AGENTS nutzen. Bei Python immer UTF-8; keine Dateien mit PowerShell-Standardencoding überschreiben.
-
-## Kurzer Starttext für die nächste Instanz
-
-> Setze das große UI-Redesign auf Branch `wp-ui-redesign` fort. Lies AGENTS.md, STATUS.md und docs/UI-REDESIGN-HANDOFF.md. Der Zwischenstand ist absichtlich noch nicht fertig oder visuell abgenommen. Beginne mit dem Studio-Layoutcheck, danach HUD, mobiler Shop, Level-up/Ergebnis und Meta-Fenster. Serverregeln und Kaufbestätigungen erhalten. Nicht ungefragt mergen.
+Eine Spec pro Prozess. Der lokale Lune-Adapter nutzt `tools/luau-test-runner/prelude.luau`; alternativ den regulären Rust-Runner nach AGENTS bauen. Dateien immer als UTF-8 schreiben.

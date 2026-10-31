@@ -1,10 +1,10 @@
 --!strict
 -- Shards and the shop between waves (DESIGN.md sections 3 and 13, Brotato direction since B1, complete since B3). A
 -- small Shards counter next to the timer during the whole run. Between waves an opaque backdrop hides the arena (below
--- the HUD, so the timer, build and team stay visible) with "WAVE n CLEARED"; once the level-up cards are done
+-- the HUD; combat panels hide between waves) with "WAVE n CLEARED"; once the level-up cards are done
 -- (LevelUpController), the shop panel: up to four offers (weapons: name with tier, effect, merge hint; items: name,
 -- stat lines in green and red; rarity in its color; price) each with a Lock button, the player's weapons (tap one to
--- sell or merge it), a reroll with its price (or free) and READY. The panel scales to fit the screen; on small screens
+-- sell or merge it), a reroll with its price (or free) and READY. The unscaled panel scrolls with fixed footer actions; on small screens
 -- (phones) it gets a compact layout and the stat panel moves behind a STATS button. Everything comes from the
 -- server's ShopState (ShopService); sends BuyShopOffer, LockShopOffer, RerollShop, SellWeapon, MergeWeapons and
 -- SetShopReady. The stats sit next to it (StatsController). Since Paket 14 each weapon field has a tooltip with the
@@ -35,20 +35,17 @@ local Widgets = require(script.Parent.Parent.UI.Widgets)
 local CARD_WIDTH = 200
 local CARD_HEIGHT = { normal = 254, compact = 210 } -- the buy button; the lock button sits below it
 local DETAIL_HEIGHT = { normal = 116, compact = 76 }
-local LOCK_HEIGHT = 36
+local LOCK_HEIGHT = 44
 local CHIP_SIZE = Vector2.new(126, 52)
 local GAP = 10
 local HEADER_HEIGHT = 34
 local WEAPONS_TITLE_HEIGHT = 20
-local ACTION_HEIGHT = 40
+local ACTION_HEIGHT = 44
 local BUTTON_HEIGHT = 46
 local PADDING = 14
 -- Screen space the shop leaves free: the HUD's top bar (timer, XP, Shards) and a margin at the bottom and sides.
-local TOP_RESERVE = 0.14 -- share of the screen height
+local TOP_RESERVE = 76 -- pixels for the wave and currency header
 local MARGIN = 8
-local MAX_SCALE = 1.4
--- Below this scale the normal layout is too small to read: compact layout, stats behind a button (phones).
-local COMPACT_BELOW = 0.85
 
 local SHARDS_COLOR = Theme.shards -- teal: Shards, not XP and not Embers
 local BACKDROP_COLOR = Theme.canvas -- the screen between waves, darker than the panels
@@ -68,6 +65,11 @@ local backdropHint: TextLabel
 local shardsLabel: TextLabel
 local panel: Frame
 local panelScale: UIScale
+local shopScroll: ScrollingFrame
+local footer: Frame
+local footerButtons: Frame
+local actionsRow: Frame
+local shardsPanel: Frame
 local header: Frame
 local subtitleLabel: TextLabel
 local cardRow: Frame
@@ -87,7 +89,7 @@ type CardView = {
 	badge: TextLabel,
 	name: TextLabel,
 	detail: TextLabel,
-	detailSize: UITextSizeConstraint,
+	detailArea: ScrollingFrame,
 	price: TextLabel,
 	edge: UIStroke,
 	lock: TextButton,
@@ -203,73 +205,65 @@ local function cardHeight(): number
 	return (if compact then CARD_HEIGHT.compact else CARD_HEIGHT.normal) + GAP / 2 + LOCK_HEIGHT
 end
 
--- Unscaled size of the panel in the current layout.
-local function panelSize(): Vector2
-	local slots = Config.Shop.slots
-	local width = math.max(slots * CARD_WIDTH + (slots - 1) * GAP, 3 * CHIP_SIZE.X + 2 * GAP) + 2 * PADDING
-	local perRow = math.max(1, math.floor((width - 2 * PADDING + GAP) / (CHIP_SIZE.X + GAP)))
-	local chipRows = math.ceil((if shop then shop.maxWeapons else Config.Player.maxWeapons) / perRow)
-	-- the compact layout leaves out the header (the HUD shows the timer) and the weapons title (in the action hint)
-	local rows = if compact then 4 else 6
-	local height = (if compact then 0 else HEADER_HEIGHT + WEAPONS_TITLE_HEIGHT)
-		+ cardHeight()
-		+ chipRows * CHIP_SIZE.Y
-		+ (chipRows - 1) * GAP
-		+ ACTION_HEIGHT
-		+ BUTTON_HEIGHT
-		+ (rows - 1) * GAP
-		+ 2 * PADDING
-	return Vector2.new(width, height)
-end
-
--- The shop screen's area (the viewport without Roblox's top bar), or the viewport before the screen has a size.
+-- The shop uses real pixels and scrolling, never a tiny scaled four-card strip.
 local function screenArea(): Vector2
 	local size = screen and screen.AbsoluteSize
 	if typeof(size) == "Vector2" and size.X > 0 and size.Y > 0 then
 		return size
 	end
-	local camera = workspace.CurrentCamera
-	return if camera then camera.ViewportSize else Vector2.new(1280, 720)
+	return if workspace.CurrentCamera then workspace.CurrentCamera.ViewportSize else Vector2.new(1280, 720)
 end
-
--- Scale of the panel so it fits below the HUD's top bar and, if `besideStats`, between the stat panel and the left
--- edge's mirror image.
-local function fitScale(size: Vector2, besideStats: boolean): number
-	local area = screenArea()
-	local top = area.Y * TOP_RESERVE
-	local reserved = if besideStats then StatsController.reservedWidth() else MARGIN
-	local width = (area.X - reserved - MARGIN * 2) / size.X
-	local height = (area.Y - top - MARGIN) / size.Y
-	return math.clamp(math.min(width, height), 0.1, MAX_SCALE)
-end
-
 local function applyLayout()
-	compact = false
-	local scale = fitScale(panelSize(), true)
-	if scale < COMPACT_BELOW then
-		compact = true
-		scale = fitScale(panelSize(), false)
-	end
-	panelScale.Scale = scale
-	local size = panelSize()
-	panel.Size = UDim2.fromOffset(size.X, size.Y)
 	local area = screenArea()
-	local top = area.Y * TOP_RESERVE
-	local available = area.X - (if compact then 0 else StatsController.reservedWidth())
-	panel.Position = UDim2.fromOffset(available / 2, top + (area.Y - top) / 2)
-
-	local buttonHeight = if compact then CARD_HEIGHT.compact else CARD_HEIGHT.normal
-	cardRow.Size = UDim2.new(1, 0, 0, cardHeight())
+	compact = area.X < 1000 or area.Y < 600
+	local reserved = if compact then 0 else StatsController.reservedWidth()
+	local width = math.min(1120, area.X - reserved - 2 * MARGIN)
+	local columns = if compact then (if width < 340 then 1 else 2) else Config.Shop.slots
+	local cardWidth = (width - 2 * PADDING - (columns - 1) * GAP) / columns
+	local cardRows = math.ceil(Config.Shop.slots / columns)
+	local perRow = math.max(1, math.floor((width - 2 * PADDING + GAP) / (CHIP_SIZE.X + GAP)))
+	local chipRows = math.max(1, math.ceil((if shop then #shop.weapons else 0) / perRow))
+	local footerHeight = if compact then 2 * BUTTON_HEIGHT + GAP else BUTTON_HEIGHT
+	local actionsHeight = if compact then 3 * ACTION_HEIGHT + 2 * GAP else ACTION_HEIGHT
+	local contentHeight = HEADER_HEIGHT
+		+ cardRows * cardHeight()
+		+ (cardRows - 1) * GAP
+		+ WEAPONS_TITLE_HEIGHT
+		+ chipRows * (CHIP_SIZE.Y + GAP)
+		+ actionsHeight
+		+ 5 * GAP
+		+ 2 * PADDING
+	panelScale.Scale = 1
+	panel.Size = UDim2.fromOffset(width, contentHeight)
+	panel.AnchorPoint = Vector2.new(0, 0)
+	panel.Position = UDim2.new()
+	shopScroll.Position = UDim2.fromOffset(MARGIN, TOP_RESERVE)
+	shopScroll.Size = UDim2.new(0, width + 6, 1, -TOP_RESERVE - footerHeight - 24)
+	shopScroll.CanvasSize = UDim2.fromOffset(0, contentHeight)
+	footer.Position = UDim2.new(0, MARGIN, 1, -footerHeight - 12)
+	footer.Size = UDim2.fromOffset(width, footerHeight)
+	local footerGrid = footerButtons:FindFirstChildOfClass("UIGridLayout")
+	footerGrid.CellSize = UDim2.new(if compact then 0.5 else 1 / 3, -GAP, 0, BUTTON_HEIGHT)
+	local cardGrid = cardRow:FindFirstChildOfClass("UIGridLayout")
+	cardGrid.CellSize = UDim2.fromOffset(cardWidth, cardHeight())
+	cardRow.Size = UDim2.new(1, 0, 0, cardRows * cardHeight() + (cardRows - 1) * GAP)
 	for _, view in cards do
-		view.frame.Size = UDim2.fromOffset(CARD_WIDTH, cardHeight())
-		view.button.Size = UDim2.fromOffset(CARD_WIDTH, buttonHeight)
-		view.detail.Size = UDim2.new(1, 0, 0, if compact then DETAIL_HEIGHT.compact else DETAIL_HEIGHT.normal)
+		view.button.Size = UDim2.fromOffset(cardWidth, if compact then CARD_HEIGHT.compact else CARD_HEIGHT.normal)
+		view.lock.Size = UDim2.fromOffset(cardWidth, LOCK_HEIGHT)
+		view.detailArea.Size = UDim2.new(1, 0, 0, if compact then DETAIL_HEIGHT.compact else DETAIL_HEIGHT.normal)
 		view.detail.TextSize = if compact then 15 else 17
-		view.detailSize.MaxTextSize = view.detail.TextSize
 	end
+	local actionsGrid = actionsRow:FindFirstChildOfClass("UIGridLayout")
+	actionsGrid.CellSize = UDim2.new(if compact then 1 else 1 / 3, -GAP, 0, ACTION_HEIGHT)
+	actionsRow.Size = UDim2.new(1, 0, 0, actionsHeight)
 	statsButton.Visible = compact
-	header.Visible = not compact
-	weaponsTitle.Visible = not compact
+	header.Visible = true
+	weaponsTitle.Visible = true
+	footer.Visible = panel.Visible
+	shardsPanel.AnchorPoint = Vector2.new(0, 0)
+	local state = RunStateController.get()
+	local betweenWaves = state and state.phase == "Shop"
+	shardsPanel.Position = UDim2.fromOffset(12, if betweenWaves then 12 elseif area.X < 700 then 176 else 68)
 end
 
 -- Rendering -----------------------------------------------------------------------------
@@ -286,7 +280,7 @@ local function renderCards(current: Types.ShopState)
 			view.badge.TextColor3 = color
 			view.name.Text = title
 			view.detail.Text = detail
-			view.price.Text = if offer.sold then "" else `{offer.price} Shards`
+			view.price.Text = if offer.sold then "" else `BUY · {offer.price} Shards`
 			view.price.TextColor3 = if affordable then SHARDS_COLOR else Theme.danger
 			view.edge.Color = if offer.sold then Theme.stroke elseif offer.locked then LOCKED_COLOR else color
 			view.edge.Thickness = if offer.locked then 3 else 2
@@ -370,6 +364,8 @@ function render()
 	applyLayout()
 	local statsInstead = shopping and compact and showingStats
 	panel.Visible = shopping and not statsInstead
+	shopScroll.Visible = panel.Visible
+	footer.Visible = panel.Visible
 	backButton.Visible = statsInstead
 	StatsController.setSuppressed(shopping and compact and not showingStats)
 	if not (current and shopping) then
@@ -427,26 +423,37 @@ local function buildCard(index: number): CardView
 		Name = "OfferName",
 		Font = Theme.fontBold,
 		TextSize = 19,
-		Size = UDim2.new(1, 0, 0, 44),
+		Size = UDim2.new(1, 0, 0, 52),
 		LayoutOrder = 2,
 		Parent = button,
 	})
-	-- Items with effects (B4) have long texts: they shrink to fit instead of running out of the card.
+	-- Long effects scroll inside the card while the price and lock action remain reachable.
+	local detailArea = Widgets.create("ScrollingFrame", {
+		Name = "EffectDetails",
+		BackgroundTransparency = 1,
+		BorderSizePixel = 0,
+		ScrollBarThickness = 3,
+		CanvasSize = UDim2.new(),
+		AutomaticCanvasSize = Enum.AutomaticSize.Y,
+		ScrollingDirection = Enum.ScrollingDirection.Y,
+		LayoutOrder = 3,
+		Parent = button,
+	})
 	local detail = Widgets.label({
 		Name = "Detail",
 		TextSize = 15,
-		TextScaled = true,
+		AutomaticSize = Enum.AutomaticSize.Y,
+		Size = UDim2.new(1, -6, 0, 0),
 		TextColor3 = Theme.textDim,
 		RichText = true,
 		TextYAlignment = Enum.TextYAlignment.Top,
 		LayoutOrder = 3,
-		Parent = button,
+		Parent = detailArea,
 	})
-	local detailSize = Widgets.create("UITextSizeConstraint", { MinTextSize = 13, MaxTextSize = 17, Parent = detail })
 	local price = Widgets.label({
 		Name = "Price",
 		Font = Theme.fontBold,
-		TextSize = 19,
+		TextSize = 16,
 		Size = UDim2.new(1, 0, 0, 24),
 		TextColor3 = SHARDS_COLOR,
 		LayoutOrder = 4,
@@ -468,7 +475,7 @@ local function buildCard(index: number): CardView
 		badge = badge,
 		name = name,
 		detail = detail,
-		detailSize = detailSize,
+		detailArea = detailArea,
 		price = price,
 		edge = edge,
 		lock = lock,
@@ -547,6 +554,7 @@ local function build()
 	})
 	local banner = Widgets.panel({
 		Name = "Header",
+		Visible = false, -- The shop owns its header; choices have their own modal title.
 		BackgroundTransparency = 1,
 		AnchorPoint = Vector2.new(0.5, 0),
 		Position = UDim2.fromScale(0.5, 0.17),
@@ -573,6 +581,8 @@ local function build()
 		Size = UDim2.fromOffset(150, 0),
 		Parent = screen,
 	})
+	shardsPanel = shards
+	Widgets.unscaled(shards)
 	shardsLabel = Widgets.label({
 		Name = "ShardsText",
 		Font = Theme.fontBold,
@@ -581,6 +591,20 @@ local function build()
 		Parent = shards,
 	})
 
+	shopScroll = Widgets.create("ScrollingFrame", {
+		Name = "ShopContent",
+		BackgroundTransparency = 1,
+		BorderSizePixel = 0,
+		ScrollBarThickness = 5,
+		ScrollBarImageColor3 = Theme.stroke,
+		CanvasSize = UDim2.new(),
+		ScrollingDirection = Enum.ScrollingDirection.Y,
+		Parent = screen,
+	})
+	footer = Widgets.create(
+		"Frame",
+		{ Name = "ShopFooter", BackgroundColor3 = Theme.panel, BorderSizePixel = 0, Parent = screen }
+	)
 	-- Own scale instead of Widgets.panel's: the shop fits itself to the free screen space (applyLayout).
 	panelScale = Widgets.create("UIScale", { Scale = 1 })
 	panel = Widgets.create("Frame", {
@@ -589,7 +613,7 @@ local function build()
 		BackgroundTransparency = Theme.panelTransparency,
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		Visible = false,
-		Parent = screen,
+		Parent = shopScroll,
 	}, {
 		panelScale,
 		Widgets.corner(),
@@ -608,6 +632,11 @@ local function build()
 	})
 
 	cardRow = row("Offers", 0, 2, panel)
+	cardRow:FindFirstChildOfClass("UIListLayout"):Destroy()
+	Widgets.create(
+		"UIGridLayout",
+		{ CellPadding = UDim2.fromOffset(GAP, GAP), SortOrder = Enum.SortOrder.LayoutOrder, Parent = cardRow }
+	)
 	for index = 1, Config.Shop.slots do
 		cards[index] = buildCard(index)
 	end
@@ -641,6 +670,12 @@ local function build()
 	end
 
 	local actions = row("Actions", ACTION_HEIGHT, 5, panel)
+	actionsRow = actions
+	actions:FindFirstChildOfClass("UIListLayout"):Destroy()
+	Widgets.create(
+		"UIGridLayout",
+		{ CellPadding = UDim2.fromOffset(GAP, GAP), SortOrder = Enum.SortOrder.LayoutOrder, Parent = actions }
+	)
 	actionHint = Widgets.label({
 		Name = "ActionHint",
 		TextSize = 16,
@@ -668,7 +703,14 @@ local function build()
 		Parent = actions,
 	}, sell)
 
-	local buttons = row("Buttons", BUTTON_HEIGHT, 6, panel)
+	local buttons = row("Buttons", BUTTON_HEIGHT, 6, footer)
+	buttons.Size = UDim2.fromScale(1, 1)
+	footerButtons = buttons
+	buttons:FindFirstChildOfClass("UIListLayout"):Destroy()
+	Widgets.create(
+		"UIGridLayout",
+		{ CellPadding = UDim2.fromOffset(GAP, GAP), SortOrder = Enum.SortOrder.LayoutOrder, Parent = buttons }
+	)
 	-- widths fit the panel with every button shown (compact layout: reroll, bonus reroll, STATS, READY)
 	rerollButton = Widgets.button({
 		Name = "Reroll",

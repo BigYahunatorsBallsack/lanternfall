@@ -60,7 +60,7 @@ Jeder Strang ändert nur **seine** Zeile (Regeln: `docs/PARALLEL.md`).
 | Strang | KI | Aktuelles Paket | Branch / PR | Stand | Danach |
 | --- | --- | --- | --- | --- | --- |
 | A – Engine und Ablauf | Claude | Paket 21 Sounds, Musik, Karten-Feinschliff (Medium) | `wp-21-audio-map` | fertig, selbst gemerged | Paket 22 Performance-Pass Handy + Netzwerk (**Extra high**), dann weiter nach „Plan bis zum Launch" |
-| B – Inhalte und Spieler-Regeln | ChatGPT | Großes UI-Redesign, erster Abschnitt | `wp-ui-redesign` | getesteter Zwischenstand, Draft; Übergabe in docs/UI-REDESIGN-HANDOFF.md | UI/HUD/Shop durch nächste Instanz fertigstellen |
+| B – Inhalte und Spieler-Regeln | ChatGPT | UI-Redesign implementiert | `wp-ui-redesign` | PR #46; Lobby/HUD/Shop/Dialoge, automatische Checks bestanden | Studio-Sichttest solo/2 Clients und Owner-Abnahme |
 
 ## Feste Entscheidungen des Owners
 
@@ -204,3 +204,11 @@ Jeder Strang ändert nur **seine** Zeile (Regeln: `docs/PARALLEL.md`).
 - Branch `wp-ui-redesign`: neue Palette, Lobby-Tabs mit Scrollbereich und responsiven Auswahlrastern, Profil/Stores aus Party-Liste getrennt, Debug standardmäßig geschlossen und scrollbar; Shop nutzt Platz links der Stats, größere Karten und bis zu zwölf Waffenplätze.
 - 60 Specs: 650 Tests bestanden, 1 bekannter sporadischer B12-Minentest fehlgeschlagen (Zeile 211). Neue UI-Spec 4/4, HubStudio 10/10. StyLua und Build geprüft; Selene 0 Fehler / 11 vorhandene UI-Stilwarnungen. Kein neuer Studio-Sichttest; nur alter UI-Stand im laufenden Studio angesehen.
 - **Nicht fertig, nicht mergen:** HUD, mobiler Shop, Stats-Scroll, Level-up/Ergebnis und Meta-Fenster noch bearbeiten und visuell abnehmen. Vollständige Fortsetzung, Dateilandkarte und Werkzeuge: `docs/UI-REDESIGN-HANDOFF.md`.
+
+
+## UI-Redesign – Fortsetzung abgeschlossen im Code (31.10.2026)
+
+- Owner hebt die frühere Übergabe ausdrücklich auf und beauftragt die Fertigstellung durch dieselbe Instanz. PR #46 auf `wp-ui-redesign`; weiterhin kein Merge-Auftrag für das Redesign.
+- Ergänzt: vollständiges einklappbares Kampf-Inventar, responsive HUD-/Boss-/Revive-Anzeigen, mobiler Shop mit Scrollbereich und festem Footer, scrollbare Effektdetails/Werte, responsive Level-up-/Truhen-/Ergebnisfenster, alle zwölf Waffen im Ergebnis, gemeinsame Dialoghülle für Collection/Settings/Einladungen, wachsende Meta-Zeilen und einklappbare Tutorialhilfe. Server, Zahlen, Remotes und Kaufbestätigungen bleiben unverändert.
+- Prüfergebnis: 60 Specs / 656 Tests bestanden, neue UI-Spec 9/9; FirstNight zusätzlich um Ein-/Ausklappen ergänzt. StyLua, Diff-Check, Rojo-Build erfolgreich. Selene: 0 Fehler, 11 vorhandene UDim2-Stilwarnungen; gecachte Roblox-API, weil der API-Download fehlschlägt. Früherer sporadischer B12-Minentest bleibt historisch dokumentiert; in den aktuellen Läufen grün, keine Änderung am Minencode.
+- Es ist kein Studio verbunden. Echte Darstellung, Touch-/Maus-Scrollverhalten und Solo-/Zwei-Client-Abnahme stehen daher aus. Die alte Übergabedatei beschreibt nun Umsetzung und konkrete Abnahme statt Arbeiten für einen anderen Agenten: `docs/UI-REDESIGN-HANDOFF.md`.
