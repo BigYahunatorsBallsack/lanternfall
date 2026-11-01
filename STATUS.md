@@ -70,7 +70,7 @@ Jeder Strang ändert nur **seine** Zeile (Regeln: `docs/PARALLEL.md`).
 | Strang | KI | Aktuelles Paket | Branch / PR | Stand | Danach |
 | --- | --- | --- | --- | --- | --- |
 | A – Engine und Ablauf | Claude | Paket 23 Sicherheits- und Code-Review (Extra high) | `wp-23-security` | fertig, selbst gemerged | Paket 24 Launch-Paket (Medium), dann weiter nach „Plan bis zum Launch" |
-| B – Inhalte und Spieler-Regeln | ChatGPT | Gegner-Art: erste vier Modelle im bestätigten Brotato-Stil | `codex/enemy-model-redesign` | Shadeling, Brute, Spitter, Charger; 726 Tests grün; Studio-Client mit 140 Modellen geprüft; PR #56 | Weitere Arten einzeln ausarbeiten; 2 Clients und Handy prüfen |
+| B – Inhalte und Spieler-Regeln | ChatGPT | Gegner-Art: 17 normale Typen im bestätigten Stil | `codex/enemy-model-redesign` / PR #56 | Erste vier bestätigt; weitere 13 eingebunden; 728 Tests, Studio-Client mit 140 Modellen / 74 Inhalten geprüft | Bosse und Champions; 2 Clients und Handy prüfen |
 
 ## Feste Entscheidungen des Owners
 
@@ -246,3 +246,10 @@ Jeder Strang ändert nur **seine** Zeile (Regeln: `docs/PARALLEL.md`).
 - Werkzeug: `tools/PreviewEnemyArt.luau` in der Studio-Befehlsleiste erzeugt/entfernt eine isolierte Modellreihe. Meshes beim Vorladen als Instanzen an `ContentProvider` geben; bloße Asset-IDs wurden als Bilder angefragt und meldeten fälschlich Fehler. Test-Runner unter Windows braucht Pfade mit `/` (`Path.as_posix()`).
 
 - Abschluss 01.11.2026: `main` bis `9833229` (Launch, Kamera, Endless-Auswahl und Playtest-Balance) aufgenommen; STATUS-Konflikt mit aktuellem A-Stand und eigener B-Zeile gelöst. 69 Specs / 726 Tests bestanden, Format/Lint/Build geprüft. API-Mock um die zwei neu verwendeten Roblox-Klassen ergänzt. Temporäre Studio-Vorschauen und verworfene Prototypen entfernt; die vier Produktionsmodelle sind eingebunden.
+
+## Gegner-Art, zweite Serie (ChatGPT, 01.11.2026)
+
+- Owner bestätigt die ersten vier Modelle und beauftragt die weiteren Typen. 13 zusätzliche normale Typen einschließlich Abyss-Varianten umgesetzt; eigener Katalog-Eintrag je Typ, erntbare Bäume bleiben unverändert. Modelle, Herkunft und vier weitere Vorschauseiten: `docs/ENEMY-ART.md`.
+- Zusätzliche Details und Proportionen als Artwork-Daten, vorhandene Warnflächen/Statusfarben/Rigs bleiben bestehen. Reaper hat getrennte Sicheln, Gobbler getrennte Gliedmaßen und eine korrigierte dunkle Mundöffnung; Mender erhält eine manuelle dunkle Gesichtsplatte, um generierte niedliche Gesichtszüge abzudecken. Looter bleibt wegen unsauberer Segmentierungsdarstellung als sauber texturierter Körper mit Wippbewegung erhalten.
+- 69 Specs / 728 Tests; Selene 0 Fehler / 11 alte Warnungen; StyLua und Rojo-Build. Native Client-Mischung: 140 Modelle, alle 74 Mesh-/Texturinhalte geladen, 1.247 volle / 1.019 reduzierte Teile pro Pose, 32 Warnflächen geprüft. Funktionsprüfung, kein Handy-FPS-Benchmark. Keine Änderung an Simulation, Balance oder Server.
+- Owner beauftragt weitere Fortsetzung: als Nächstes die zwei Bosse und acht Champions im selben Stil ausarbeiten.

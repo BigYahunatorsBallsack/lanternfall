@@ -1,6 +1,15 @@
 --!strict
--- Run in Studio's Edit-mode command bar to inspect the four authored enemies; run again to remove the preview.
+-- Run in Studio's Edit-mode command bar to inspect one enemy-art page; run again to remove the preview.
 -- This developer tool is outside the Rojo src tree and is never shipped as a game script.
+local page = 1 -- 1: first four; 2: split/loot; 3: hunters; 4: support/reaper; 5: abyss comparison
+local pages = {
+	{ "Shadeling", "Brute", "Spitter", "Charger" },
+	{ "Splitter", "Splitling", "Looter", "Gobbler" },
+	{ "Stalker", "Skulker", "Thornback", "AbyssBrute" },
+	{ "Herald", "Mender", "Reaper", "BroodEgg" },
+	{ "Shadeling", "AbyssShadeling", "Brute", "AbyssBrute" },
+}
+assert(pages[page], "Choose preview page 1 through 5")
 assert(not game:GetService("RunService"):IsRunning(), "Stop Play before opening the art preview")
 local folderName = "LanternfallArtPreview"
 local existing = workspace:FindFirstChild(folderName)
@@ -48,7 +57,7 @@ floor.Material = Enum.Material.SmoothPlastic
 floor.Color = Color3.fromRGB(110, 102, 112)
 floor.Parent = root
 local positions = { Vector3.new(5, 0, 4), Vector3.new(-5, 0, 4), Vector3.new(5, 0, -4), Vector3.new(-5, 0, -4) }
-for i, id in { "Shadeling", "Brute", "Spitter", "Charger" } do
+for i, id in pages[page] do
 	local base = origin + positions[i]
 	local visual = Models.build(Config.Enemies.types[id].typeId)
 	visual.model.Parent = root
@@ -81,4 +90,5 @@ for i, id in { "Shadeling", "Brute", "Spitter", "Charger" } do
 	text.Parent = gui
 end
 camera.FieldOfView = 42
-camera.CFrame = CFrame.lookAt(origin + Vector3.new(0, 18, -20), origin + Vector3.new(0, 1.6, 0))
+camera.CFrame = CFrame.lookAt(origin + Vector3.new(0, 16, -23), origin + Vector3.new(0, 1.7, 0))
+game:GetService("ContentProvider"):PreloadAsync({ root })

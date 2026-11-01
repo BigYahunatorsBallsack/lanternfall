@@ -987,6 +987,8 @@ Umsetzungsstand, technische Checks und die noch ausstehende echte Studio-Abnahme
 
 **Gegner-Redesign, Owner 31.10.2026 (erste Serie):** Für Shadeling, Brute, Spitter und Charger ersetzt die bestätigte Brotato-nahe Cartoon-Optik den oben dokumentierten früheren Look: kompakte violette Körper, schwarze Konturen, flächige Farben und deutlich lesbare Augen, Mäuler, Flossen oder Hornpanzer. Größere Arten erhalten zusätzliche Körper- und Panzerdetails innerhalb desselben Stils. Diese vier Typen und ihre Gloom-Elites verwenden eigene texturierte Mesh-Segmente aus `EnemyRenderer/MeshCatalog.luau`, mit dem bisherigen Pool, Rig, Kollisionsradius und Status-Feedback. Die Parts-Limits bleiben unverändert (diese Modelle: 5/13/4/9 Parts). Weitere Arten, Abyss-Varianten, Bosse und Champions sind noch offen. [Ausarbeitung, Herkunft und Prüfungen](docs/ENEMY-ART.md).
 
+**Fortsetzung 01.11.2026:** Der Owner bestätigt die erste Serie; inzwischen verwenden alle 17 normalen Gegnerarten einschließlich Abyss-Varianten eigene Einträge im Cartoon-Katalog. Neue Formen für Splitter, Looter, Herald, Mender, Reaper, Gobbler und Brood Egg; Splitling, Stalker, Skulker, Thornback und Abyss-Varianten bauen sichtbar auf der bestätigten Familie auf. 3–19 Teile normal, bis zu 24 als Elite. Schnitt-/Unterstützungs-/Sturmwarnungen und alle Gameplay-Werte bleiben erhalten. Erntbare Bäume unverändert; Bosse und Champions werden anschließend einzeln ausgearbeitet.
+
 ## 15. Technische Architektur
 
 Der Server simuliert Gegner, Treffer und Belohnungen als reine Daten; Clients bekommen kompakte Snapshots und zeichnen nur.

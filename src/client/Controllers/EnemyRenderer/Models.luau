@@ -1,6 +1,6 @@
 --!strict
--- EnemyRenderer's pooled looks: Shadeling, Brute, Spitter and Charger use authored cartoon segments from
--- MeshCatalog; other types retain their occult art-deco parts until their own art pass (DESIGN.md section 14).
+-- EnemyRenderer's pooled looks: ordinary enemies use authored cartoon segments from MeshCatalog;
+-- harvestable trees, bosses and champions retain their occult art-deco parts until their own art pass (DESIGN.md section 14).
 -- Sizes follow each enemy's existing collision radius from Config.Enemies.
 -- Every part belongs to a simple rig: it stands on the floor, rides on the body (which bobs, sways and leans while
 -- walking) or swings around a pivot (legs, arms, a censer, spinning crowns). Models.pose places all visible parts
@@ -682,20 +682,16 @@ local MESH_MOTION =
 local function buildMesh(rig: Rig, look: MeshCatalog.Look, elite: boolean?): Gait
 	shadow(rig, 2.0)
 	for _, item in look.pieces do
-		local part = piece(
-			rig,
-			item.name,
-			"block",
-			item.size / look.radius,
-			item.position / look.radius,
-			if elite then Color3.fromRGB(255, 225, 170) else Color3.new(1, 1, 1),
-			{
-				anim = MESH_MOTION[item.motion],
-				pivot = if item.pivot then item.pivot / look.radius else nil,
-				flash = true,
-				detail = item.detail,
-			}
-		)
+		local tint = item.tint or look.tint or Color3.new(1, 1, 1)
+		if elite then
+			tint = Color3.new(tint.R, tint.G * 225 / 255, tint.B * 170 / 255)
+		end
+		local part = piece(rig, item.name, "block", item.size / look.radius, item.position / look.radius, tint, {
+			anim = MESH_MOTION[item.motion],
+			pivot = if item.pivot then item.pivot / look.radius else nil,
+			flash = true,
+			detail = item.detail,
+		})
 		local mesh = Instance.new("SpecialMesh")
 		mesh.MeshType = Enum.MeshType.FileMesh
 		mesh.MeshId = item.mesh
@@ -709,7 +705,16 @@ local function buildMesh(rig: Rig, look: MeshCatalog.Look, elite: boolean?): Gai
 		mesh.Parent = part
 		rig.meshSkins[part] = { mesh = mesh, texture = item.texture, armor = item.armor == true or item.name == "Head" }
 	end
-	if look == MeshCatalog.Brute then
+	for _, trim in look.trims or {} do
+		local rotation = trim.rotation
+		piece(rig, trim.name, trim.shape, trim.size / look.radius, trim.position / look.radius, trim.color, {
+			anim = if trim.motion then MESH_MOTION[trim.motion] else BODY,
+			pivot = if trim.pivot then trim.pivot / look.radius else nil,
+			detail = trim.detail,
+			flash = true,
+		}, if rotation then CFrame.Angles(rotation.X, rotation.Y, rotation.Z) else nil)
+	end
+	if look.shoulders then
 		-- The heavy variant shares the approved species, with broader anatomy and outlined chitin shoulders.
 		for _, side in { -1, 1 } do
 			local suffix = if side < 0 then "Left" else "Right"
@@ -757,6 +762,9 @@ local function buildMesh(rig: Rig, look: MeshCatalog.Look, elite: boolean?): Gai
 		end
 	end
 	rig.crown = Vector3.new(0, look.crownHeight * rig.r / look.radius, 0)
+	if look.stationary then
+		return { stride = 1, bob = 0, roll = 0, lean = 0, legSwing = 0, armSwing = 0 }
+	end
 	return { stride = look.stride or 4.8, bob = 0.045, roll = 0.055, lean = 0.065, legSwing = 0.24, armSwing = 0.20 }
 end
 

@@ -115,15 +115,43 @@ describe("EnemyModels", function()
 				expect(skin.mesh.Scale.Y * item.meshSize.Y).toBeNear(part.Size.Y)
 				expect(skin.mesh.Scale.Z * item.meshSize.Z).toBeNear(part.Size.Z)
 			end
-			for _, motion in (if id == "Spitter" then { 2, 7 } elseif id == "Charger" then { 2, 3, 4 } else { 2, 5, 6 }) do
+			local expected = {
+				Shadeling = { 2, 5, 6 },
+				Brute = { 2, 5, 6 },
+				Spitter = { 2, 7 },
+				Charger = { 2, 3, 4 },
+				Splitling = { 2, 5, 6 },
+				AbyssShadeling = { 2, 5, 6 },
+				AbyssBrute = { 2, 5, 6 },
+				Stalker = { 2, 5, 6 },
+				Skulker = { 2, 7 },
+				Thornback = { 2, 3, 4 },
+				Looter = { 2 },
+				Gobbler = { 2, 3, 4, 5, 6 },
+				Reaper = { 2, 3, 4, 5, 6 },
+				Herald = { 2, 7 },
+				Mender = { 2, 7 },
+				Splitter = { 2 },
+				BroodEgg = { 2 },
+				Tree = { 2 },
+			}
+			assert(expected[id], id .. " has no movement expectation")
+			for _, motion in expected[id] do
 				expect(motions[motion]).toBe(true)
 			end
 		end
 	end)
 
 	it("restores textured looks after hit flashes, status effects and pool reuse", function()
-		for _, id in { "Shadeling", "Brute", "Spitter", "Charger" } do
+		for id in Config.Enemies.types do
+			if id == "Tree" then
+				continue
+			end
 			local visual = Models.build(Config.Enemies.types[id].typeId)
+			local original = {}
+			for part, skin in visual.meshSkins do
+				original[part] = skin.mesh.VertexColor
+			end
 			Models.setStatus(visual, true, true, true)
 			Models.setFlash(visual, true)
 			for _, skin in visual.meshSkins do
@@ -136,11 +164,11 @@ describe("EnemyModels", function()
 				expect(skin.mesh.VertexColor.Z < skin.mesh.VertexColor.X).toBe(true)
 			end
 			Models.reset(visual)
-			for _, skin in visual.meshSkins do
+			for part, skin in visual.meshSkins do
 				expect(skin.mesh.TextureId).toBe(skin.texture)
-				expect(skin.mesh.VertexColor.X).toBe(1)
-				expect(skin.mesh.VertexColor.Y).toBe(1)
-				expect(skin.mesh.VertexColor.Z).toBe(1)
+				expect(skin.mesh.VertexColor.X).toBe(original[part].X)
+				expect(skin.mesh.VertexColor.Y).toBe(original[part].Y)
+				expect(skin.mesh.VertexColor.Z).toBe(original[part].Z)
 			end
 		end
 	end)
@@ -153,7 +181,10 @@ describe("EnemyModels", function()
 			end
 		end
 		assert(armored)
-		for _, id in { "Shadeling", "Brute", "Spitter", "Charger" } do
+		for id in Config.Enemies.types do
+			if id == "Tree" then
+				continue
+			end
 			local visual = Models.build(Config.Enemies.types[id].typeId + Config.Enemies.elite.typeIdOffset)
 			Models.setAffix(visual, armored)
 			local armorCount = 0
@@ -174,6 +205,46 @@ describe("EnemyModels", function()
 				Models.setAffix(visual, armored)
 			end
 			expect(armorCount > 0).toBe(true)
+		end
+	end)
+	it("uses authored anatomy for every ordinary enemy and preserves each warning footprint", function()
+		for _, kind in Config.Enemies.types do
+			if kind.id == "Tree" then
+				continue
+			end
+			local visual = Models.build(kind.typeId)
+			expect(next(visual.meshSkins) ~= nil).toBe(true)
+			if not (kind.pulse or kind.slash or kind.charge) then
+				continue
+			end
+			local warning = visual.telegraph
+			assert(warning)
+			if kind.pulse then
+				expect(warning.Size.Y).toBeNear(kind.pulse.radius * 2)
+			elseif kind.slash then
+				expect(warning.Size.Y).toBeNear((kind.slash.radius + Config.Simulation.playerRadius) * 2)
+			end
+			local before = posed(visual)
+			Models.setMode(visual, Models.MODE_WINDUP)
+			expect(posed(visual)).toBe(before + 1)
+			expect(warning.Transparency < 1).toBe(true)
+			Models.reset(visual)
+			expect(warning.Transparency).toBe(1)
+			expect(posed(visual)).toBe(before)
+		end
+	end)
+
+	it("keeps anchored eggs still while rendering a moving crowd", function()
+		for _, id in { "BroodEgg" } do
+			local visual = Models.build(Config.Enemies.types[id].typeId)
+			local a, b = {}, {}
+			Models.pose(visual, CFrame.new(), 0, 1, 0, 0, {}, a, 0)
+			Models.pose(visual, CFrame.new(), 1.7, 1, 3, 1, {}, b, 0)
+			for i, frame in a do
+				expect(frame.Position.X).toBeNear(b[i].Position.X)
+				expect(frame.Position.Y).toBeNear(b[i].Position.Y)
+				expect(frame.Position.Z).toBeNear(b[i].Position.Z)
+			end
 		end
 	end)
 end)
