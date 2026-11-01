@@ -70,7 +70,7 @@ Jeder Strang ändert nur **seine** Zeile (Regeln: `docs/PARALLEL.md`).
 | Strang | KI | Aktuelles Paket | Branch / PR | Stand | Danach |
 | --- | --- | --- | --- | --- | --- |
 | A – Engine und Ablauf | Claude | Paket 23 Sicherheits- und Code-Review (Extra high) | `wp-23-security` | fertig, selbst gemerged | Paket 24 Launch-Paket (Medium), dann weiter nach „Plan bis zum Launch" |
-| B – Inhalte und Spieler-Regeln | ChatGPT | Gegner-Art: erste vier Modelle im bestätigten Brotato-Stil | `codex/enemy-model-redesign` | Shadeling, Brute, Spitter, Charger; 726 Tests grün; Studio-Client mit 140 Modellen geprüft; PR folgt | Weitere Arten einzeln ausarbeiten; 2 Clients und Handy prüfen |
+| B – Inhalte und Spieler-Regeln | ChatGPT | Gegner-Art: erste vier Modelle im bestätigten Brotato-Stil | `codex/enemy-model-redesign` | Shadeling, Brute, Spitter, Charger; 726 Tests grün; Studio-Client mit 140 Modellen geprüft; PR #56 | Weitere Arten einzeln ausarbeiten; 2 Clients und Handy prüfen |
 
 ## Feste Entscheidungen des Owners
 
