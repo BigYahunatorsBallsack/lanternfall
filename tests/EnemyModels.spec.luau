@@ -5,6 +5,8 @@ loadHelper("tests/helpers/RobloxMock.luau")
 
 local Models = require(folderProxy("src/client", "Client").Controllers.EnemyRenderer.Models)
 local Config = require(game:GetService("ReplicatedStorage").Shared.Config)
+local EnemyKinds = require(game:GetService("ReplicatedStorage").Shared.Util.EnemyKinds)
+local Catalog = require(folderProxy("src/client", "Client").Controllers.EnemyRenderer.MeshCatalog)
 
 local MAX_PARTS = 20 -- per plain enemy (DESIGN.md section 15)
 local MAX_ELITE_PARTS = 25
@@ -50,6 +52,10 @@ describe("EnemyModels", function()
 			local visual = Models.build(kind.typeId)
 			expect(visual.model.Name).toBe(kind.id)
 			expect(#visual.parts <= MAX_ELITE_PARTS).toBe(true)
+			expect(next(visual.meshSkins) ~= nil).toBe(true)
+			for _, part in visual.parts do
+				expect(part.Anchored and not part.CanCollide and not part.CanQuery and not part.CanTouch).toBe(true)
+			end
 			local lit = false
 			for _, object in visual.model:GetDescendants() do
 				lit = lit or object.ClassName == "PointLight"
@@ -93,7 +99,9 @@ describe("EnemyModels", function()
 	it("preserves authored mesh proportions and moves each limb through the shared rig", function()
 		local catalog = require(folderProxy("src/client", "Client").Controllers.EnemyRenderer.MeshCatalog)
 		for id, look in catalog do
-			local visual = Models.build(Config.Enemies.types[id].typeId)
+			local kind = EnemyKinds.get(id)
+			assert(kind)
+			local visual = Models.build(kind.typeId)
 			local motions = {}
 			for i, part in visual.parts do
 				motions[visual.anims[i]] = true
@@ -134,6 +142,16 @@ describe("EnemyModels", function()
 				Splitter = { 2 },
 				BroodEgg = { 2 },
 				Tree = { 2 },
+				LanternEater = { 2, 3, 4, 5, 6 },
+				HollowSeer = { 2, 7 },
+				Abbot = { 2, 7 },
+				MireJaw = { 2, 3, 4, 5, 6 },
+				Monolith = { 2, 3, 4, 5, 6 },
+				StoneSeraph = { 2, 7 },
+				BrassRam = { 2, 3, 4 },
+				Flayer = { 2, 5, 6 },
+				SickleWraith = { 2, 3, 4, 5, 6 },
+				BroodMatron = { 2, 3, 4 },
 			}
 			assert(expected[id], id .. " has no movement expectation")
 			for _, motion in expected[id] do
@@ -143,14 +161,15 @@ describe("EnemyModels", function()
 	end)
 
 	it("restores textured looks after hit flashes, status effects and pool reuse", function()
-		for id in Config.Enemies.types do
-			if id == "Tree" then
-				continue
-			end
-			local visual = Models.build(Config.Enemies.types[id].typeId)
+		for id in Catalog do
+			local kind = EnemyKinds.get(id)
+			assert(kind)
+			local visual = Models.build(kind.typeId)
 			local original = {}
+			local materials = {}
 			for part, skin in visual.meshSkins do
 				original[part] = skin.mesh.VertexColor
+				materials[part] = part.Material
 			end
 			Models.setStatus(visual, true, true, true)
 			Models.setFlash(visual, true)
@@ -165,6 +184,7 @@ describe("EnemyModels", function()
 			end
 			Models.reset(visual)
 			for part, skin in visual.meshSkins do
+				expect(part.Material).toBe(materials[part])
 				expect(skin.mesh.TextureId).toBe(skin.texture)
 				expect(skin.mesh.VertexColor.X).toBe(original[part].X)
 				expect(skin.mesh.VertexColor.Y).toBe(original[part].Y)
@@ -236,7 +256,9 @@ describe("EnemyModels", function()
 
 	it("keeps anchored eggs still while rendering a moving crowd", function()
 		for _, id in { "BroodEgg" } do
-			local visual = Models.build(Config.Enemies.types[id].typeId)
+			local kind = EnemyKinds.get(id)
+			assert(kind)
+			local visual = Models.build(kind.typeId)
 			local a, b = {}, {}
 			Models.pose(visual, CFrame.new(), 0, 1, 0, 0, {}, a, 0)
 			Models.pose(visual, CFrame.new(), 1.7, 1, 3, 1, {}, b, 0)
@@ -247,4 +269,33 @@ describe("EnemyModels", function()
 			end
 		end
 	end)
+
+	it(
+		"preloads every ordinary, boss and champion look and cleans up temporary models even on fetch failure",
+		function()
+			local provider = game:GetService("ContentProvider")
+			for _, fails in { false, true } do
+				local captured
+				rawset(provider, "PreloadAsync", function(_, models)
+					captured = models
+					if fails then
+						error("simulated content fetch failure")
+					end
+				end)
+				local ok, err = pcall(Models.preload)
+				rawset(provider, "PreloadAsync", nil)
+				assert(ok, tostring(err))
+				assert(captured)
+				expect(#captured).toBe(27)
+				local seen = {}
+				for _, model in captured do
+					seen[model.Name] = true
+					expect(#model:GetChildren()).toBe(0)
+				end
+				for id in Catalog do
+					expect(seen[id]).toBe(true)
+				end
+			end
+		end
+	)
 end)

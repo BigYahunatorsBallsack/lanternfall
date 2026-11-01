@@ -70,7 +70,7 @@ Jeder Strang ändert nur **seine** Zeile (Regeln: `docs/PARALLEL.md`).
 | Strang | KI | Aktuelles Paket | Branch / PR | Stand | Danach |
 | --- | --- | --- | --- | --- | --- |
 | A – Engine und Ablauf | Claude | Paket 23 Sicherheits- und Code-Review (Extra high) | `wp-23-security` | fertig, selbst gemerged | Paket 24 Launch-Paket (Medium), dann weiter nach „Plan bis zum Launch" |
-| B – Inhalte und Spieler-Regeln | ChatGPT | Gegner-Art: 17 normale Typen im bestätigten Stil | `codex/enemy-model-redesign` / PR #56 | Erste vier bestätigt; weitere 13 eingebunden; 728 Tests, Studio-Client mit 140 Modellen / 74 Inhalten geprüft | Bosse und Champions; 2 Clients und Handy prüfen |
+| B – Inhalte und Spieler-Regeln | ChatGPT | Gegner-Art: alle 27 Typen einschließlich Bosse/Champions | `codex/enemy-model-redesign` / PR #56 | 729 Tests; native Studio-Prüfung mit 140 Modellen / 124 Inhalten; größere Modelle ausgearbeitet | Visuelle Abnahme; 2 Clients und Handy prüfen |
 
 ## Feste Entscheidungen des Owners
 
@@ -253,3 +253,10 @@ Jeder Strang ändert nur **seine** Zeile (Regeln: `docs/PARALLEL.md`).
 - Zusätzliche Details und Proportionen als Artwork-Daten, vorhandene Warnflächen/Statusfarben/Rigs bleiben bestehen. Reaper hat getrennte Sicheln, Gobbler getrennte Gliedmaßen und eine korrigierte dunkle Mundöffnung; Mender erhält eine manuelle dunkle Gesichtsplatte, um generierte niedliche Gesichtszüge abzudecken. Looter bleibt wegen unsauberer Segmentierungsdarstellung als sauber texturierter Körper mit Wippbewegung erhalten.
 - 69 Specs / 728 Tests; Selene 0 Fehler / 11 alte Warnungen; StyLua und Rojo-Build. Native Client-Mischung: 140 Modelle, alle 74 Mesh-/Texturinhalte geladen, 1.247 volle / 1.019 reduzierte Teile pro Pose, 32 Warnflächen geprüft. Funktionsprüfung, kein Handy-FPS-Benchmark. Keine Änderung an Simulation, Balance oder Server.
 - Owner beauftragt weitere Fortsetzung: als Nächstes die zwei Bosse und acht Champions im selben Stil ausarbeiten.
+
+## Gegner-Art, Bosse und Champions (ChatGPT, 02.11.2026)
+
+- Die vom Owner beauftragte Fortsetzung umfasst nun beide Bosse und alle acht Champions. Sechs neue Grundmodelle, vier gezielt ausgearbeitete Varianten der bestätigten Familie; Monolith als gedrungener Felskörper, Flayer mit zwei unterschiedlichen Klingen, Brood Matron mit sechs Beinen und drei Eiern. Alle 27 Typen eingebunden; erntbarer Baum unverändert. Bilder, Herkunft und gemessene Geometriezahlen: `docs/ENEMY-ART.md`.
+- Vorladen löst auch Boss-/Champion-IDs über `EnemyKinds` auf. Steinmaterial bleibt bei Status-/Treffer-/Pool-Reset erhalten. Vorhandenes Bosslicht abgeschwächt, damit es die Farben nicht überstrahlt. Keine Änderungen an Gameplay, Netzwerk, Kollisionsradien oder Server; Warnungen bleiben bestehen. Die zehn großen Modelle haben 4–20 Parts, innerhalb des Limits von 25.
+- 69 Specs / 729 Tests; StyLua, Selene (0 Fehler / 11 alte Warnungen) und Rojo-Build erfolgreich. Native Client-Prüfung: alle 124 Inhalte geladen, 140 animierte Modelle aus allen 27 Typen, 1.251 volle / 1.037 reduzierte Teile pro Pose, 32 Warnflächen und zehn Bosslichter. Der native Test berücksichtigt, dass Pool-Reset einen aktiven Affix erhält und der Renderer ihn separat umstellt. Kein FPS-Benchmark, vollständiger Run-/2-Client-/Handy-/veröffentlichter Place-Test bleibt offen.
+- Studio-Produktionsmodule nach Konfliktprüfung synchronisiert, Play beendet, eigene Bühnen/Prototypen entfernt. Vorschauwerkzeug hat nun Seiten 1–8, Bosse/Champions auf 6–8. Der kurzzeitig durch Nutzungslimit blockierte Studio-Abgleich konnte nach „mach weiter“ erfolgreich abgeschlossen werden. PR #56 aktualisiert; keine Merge-Freigabe für diesen PR und kein Merge vorgenommen.

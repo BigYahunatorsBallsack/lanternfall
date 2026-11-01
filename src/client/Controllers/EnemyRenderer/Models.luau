@@ -1,28 +1,17 @@
 --!strict
--- EnemyRenderer's pooled looks: ordinary enemies use authored cartoon segments from MeshCatalog;
--- harvestable trees, bosses and champions retain their occult art-deco parts until their own art pass (DESIGN.md section 14).
+-- EnemyRenderer's pooled looks: ordinary enemies, bosses and champions use authored cartoon segments from MeshCatalog;
+-- harvestable trees retain their original occult art-deco parts (DESIGN.md section 14).
 -- Sizes follow each enemy's existing collision radius from Config.Enemies.
 -- Every part belongs to a simple rig: it stands on the floor, rides on the body (which bobs, sways and leans while
 -- walking) or swings around a pivot (legs, arms, a censer, spinning crowns). Models.pose places all visible parts
 -- of one enemy for a frame; EnemyRenderer moves them with workspace:BulkMoveTo. In big crowds EnemyRenderer turns
 -- on low detail (setDetail): small trims (claws, filters, hems, bands) vanish and are not moved, a third fewer
 -- parts to move.
--- Enemies with a `look` reuse that silhouette in their own palette (Abyss variants: blood-black with crimson eyes
--- and extra spikes). Chargers carry a floor strip that lights up during their wind-up and shows where they will
--- rush; their furnace and eyes turn white-hot (setMode). Gloom Elites (Util/EnemyKinds) are gilded, bigger, wear a
--- spinning sunburst crown, glow and show an HP bar with the name of their affix (setAffix), which also changes
--- their look: Swift leaves a trail, Armored turns its metal to steel, Summoning is circled by two wisps.
--- Since B5 burning enemies glow ember-red and slowed ones turn frost-blue (setStatus).
--- Since B9 the new kinds mostly reuse a silhouette in their own palette (Stalker, Skulker, Thornback, Herald, Mender,
--- Reaper, Gobbler); the Brood Egg has its own. A Reaper shows a red disc of its cut during the wind-up, Heralds and
--- Menders a golden or green ring when they pulse, an egg glows and shakes before it hatches, and enemies a Herald
--- buffed turn gold (setStatus).
--- Since WP10 the bosses: the Lantern Eater, a hulking soot-iron furnace with a porcelain jaw, a glowing grate for a
--- belly and lanterns caged on its back; the Hollow Seer, a towering veiled oracle with one great eye and a spinning
--- brass halo, hovering above the floor. Both carry a red glow. Their attacks are drawn by BossController.
--- Since WP10 part 2 the eight champions of the elite waves, each its own silhouette with the same red glow: a brass
--- ram, a hooded butcher with a cleaver, a robed abbot with a staff, a swamp lizard, a walking obelisk with orbiting
--- stones, a sickle-armed wraith, a brood mother with glowing egg sacs and a winged stone gargoyle.
+-- MeshCatalog selects every enemy and champion by ID, including deliberately authored Abyss variants.
+-- The primitive builders remain as fallbacks and supply the harvestable tree. The catalog preserves the
+-- existing radius, pooling, status colors, white hit flash and each ordinary enemy's floor warning.
+-- Gloom Elites retain their crown, HP/affix label, Swift trail, Armored plates and Summoning wisps.
+-- Bosses and champions retain a restrained red glow; BossController renders their separate attack warnings.
 
 local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
 local Config = require(Shared:WaitForChild("Config"))
@@ -50,7 +39,7 @@ type Gait = {
 	armSwing: number, -- radians
 }
 
-type MeshSkin = { mesh: SpecialMesh, texture: string, armor: boolean }
+type MeshSkin = { mesh: SpecialMesh, texture: string, armor: boolean, material: Enum.Material }
 
 export type Visual = {
 	meshSkins: { [BasePart]: MeshSkin },
@@ -448,8 +437,8 @@ local SHADOW_THICKNESS = 0.05 -- studs
 local ELITE_GLOW_BRIGHTNESS = 3
 local ELITE_GLOW_RANGE = 14 -- studs
 local BOSS_GLOW_COLOR = Color3.fromRGB(255, 70, 60) -- WP10
-local BOSS_GLOW_BRIGHTNESS = 4
-local BOSS_GLOW_RANGE = 26 -- studs
+local BOSS_GLOW_BRIGHTNESS = 0.65 -- retain the warning accent without bleaching the authored textures
+local BOSS_GLOW_RANGE = 14 -- studs
 local HP_BAR_COLOR = Color3.fromRGB(236, 96, 96)
 local HP_BAR_BACK_COLOR = Color3.fromRGB(24, 20, 34)
 local HP_BAR_WIDTH = 70 -- pixels
@@ -691,6 +680,7 @@ local function buildMesh(rig: Rig, look: MeshCatalog.Look, elite: boolean?): Gai
 			pivot = if item.pivot then item.pivot / look.radius else nil,
 			flash = true,
 			detail = item.detail,
+			material = item.material,
 		})
 		local mesh = Instance.new("SpecialMesh")
 		mesh.MeshType = Enum.MeshType.FileMesh
@@ -703,7 +693,12 @@ local function buildMesh(rig: Rig, look: MeshCatalog.Look, elite: boolean?): Gai
 		) * (rig.r / look.radius)
 		mesh.VertexColor = Vector3.new(part.Color.R, part.Color.G, part.Color.B)
 		mesh.Parent = part
-		rig.meshSkins[part] = { mesh = mesh, texture = item.texture, armor = item.armor == true or item.name == "Head" }
+		rig.meshSkins[part] = {
+			mesh = mesh,
+			texture = item.texture,
+			armor = item.armor == true or item.name == "Head",
+			material = part.Material,
+		}
 	end
 	for _, trim in look.trims or {} do
 		local rotation = trim.rotation
@@ -2144,7 +2139,9 @@ end
 function Models.preload()
 	local models = {}
 	for id in MeshCatalog do
-		table.insert(models, Models.build(Config.Enemies.types[id].typeId).model)
+		local kind = EnemyKinds.get(id)
+		assert(kind, `Enemy artwork has no matching kind: {id}`)
+		table.insert(models, Models.build(kind.typeId).model)
 	end
 	local ok, err = pcall(function()
 		game:GetService("ContentProvider"):PreloadAsync(models)
@@ -2172,7 +2169,7 @@ local function paint(visual: Visual)
 			local affix = Config.Enemies.elite.affixes[visual.affix]
 			local armored = affix and affix.id == "Armored"
 			own = if armored then STEEL else own
-			part.Material = if armored then Enum.Material.Metal else Enum.Material.SmoothPlastic
+			part.Material = if armored then Enum.Material.Metal else skin.material
 		end
 		part.Color = if visual.flashing
 			then FLASH_COLOR

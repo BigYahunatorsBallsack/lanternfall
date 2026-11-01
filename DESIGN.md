@@ -989,6 +989,8 @@ Umsetzungsstand, technische Checks und die noch ausstehende echte Studio-Abnahme
 
 **Fortsetzung 01.11.2026:** Der Owner bestätigt die erste Serie; inzwischen verwenden alle 17 normalen Gegnerarten einschließlich Abyss-Varianten eigene Einträge im Cartoon-Katalog. Neue Formen für Splitter, Looter, Herald, Mender, Reaper, Gobbler und Brood Egg; Splitling, Stalker, Skulker, Thornback und Abyss-Varianten bauen sichtbar auf der bestätigten Familie auf. 3–19 Teile normal, bis zu 24 als Elite. Schnitt-/Unterstützungs-/Sturmwarnungen und alle Gameplay-Werte bleiben erhalten. Erntbare Bäume unverändert; Bosse und Champions werden anschließend einzeln ausgearbeitet.
 
+**Bosse/Champions, Abschluss 02.11.2026:** Die beiden Bosse und acht Champions verwenden ebenfalls eigene Cartoon-Looks. Große Modelle erhalten passende Formen: Ofenmaul und Hornschultern, Halo, schwere Rammbockhörner, Hackbeil/Hakenklinge, Drüsen, Steinplatten und Kristalle, lange Sicheln, sechs Beine mit drei Bruteiern sowie breite Flügel. Der Monolith ist ein gedrungener matter Felskörper; humanoide Vorentwürfe wurden verworfen. 4–20 Parts je Boss/Champion, maximal 10.922 Mesh-Dreiecke beim Brood Matron. Vorladen und Material-Reset umfassen alle 27 Typen. Bosslichter bleiben als dezenter roter Akzent erhalten (0,65 Helligkeit, 14 Studs); separate Angriffswarnungen und sämtliche Spielwerte bleiben erhalten. Herkunft, Bilder und Prüfung in `docs/ENEMY-ART.md`; Geräte-Abnahme steht aus.
+
 ## 15. Technische Architektur
 
 Der Server simuliert Gegner, Treffer und Belohnungen als reine Daten; Clients bekommen kompakte Snapshots und zeichnen nur.

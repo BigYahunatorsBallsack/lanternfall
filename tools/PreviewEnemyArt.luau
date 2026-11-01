@@ -1,15 +1,19 @@
 --!strict
 -- Run in Studio's Edit-mode command bar to inspect one enemy-art page; run again to remove the preview.
 -- This developer tool is outside the Rojo src tree and is never shipped as a game script.
-local page = 1 -- 1: first four; 2: split/loot; 3: hunters; 4: support/reaper; 5: abyss comparison
+local page = 1 -- 1–5: ordinary enemies; 6: bosses/support champions; 7: weapon/brood champions; 8: stone champions
 local pages = {
 	{ "Shadeling", "Brute", "Spitter", "Charger" },
 	{ "Splitter", "Splitling", "Looter", "Gobbler" },
 	{ "Stalker", "Skulker", "Thornback", "AbyssBrute" },
 	{ "Herald", "Mender", "Reaper", "BroodEgg" },
 	{ "Shadeling", "AbyssShadeling", "Brute", "AbyssBrute" },
+	{ "LanternEater", "HollowSeer", "Abbot", "MireJaw" },
+	{ "BrassRam", "Flayer", "SickleWraith", "BroodMatron" },
+	{ "Monolith", "StoneSeraph" },
 }
-assert(pages[page], "Choose preview page 1 through 5")
+assert(pages[page], "Choose preview page 1 through 8")
+local large = page >= 6
 assert(not game:GetService("RunService"):IsRunning(), "Stop Play before opening the art preview")
 local folderName = "LanternfallArtPreview"
 local existing = workspace:FindFirstChild(folderName)
@@ -43,7 +47,7 @@ source.MeshCatalog:Clone().Parent = scripts
 local module = source.Models:Clone()
 module.Parent = scripts
 local Models = require(module)
-local Config = require(game.ReplicatedStorage.Shared.Config)
+local EnemyKinds = require(game.ReplicatedStorage.Shared.Util.EnemyKinds)
 local origin = Vector3.new(2000, 12, 0)
 local floor = Instance.new("Part")
 floor.Name = "PreviewFloor"
@@ -51,15 +55,19 @@ floor.Anchored = true
 floor.CanCollide = false
 floor.CanTouch = false
 floor.CanQuery = false
-floor.Size = Vector3.new(24, 0.4, 22)
+floor.Size = if large then Vector3.new(50, 0.4, 42) else Vector3.new(24, 0.4, 22)
 floor.Position = origin - Vector3.new(0, 0.22, 0)
 floor.Material = Enum.Material.SmoothPlastic
 floor.Color = Color3.fromRGB(110, 102, 112)
 floor.Parent = root
 local positions = { Vector3.new(5, 0, 4), Vector3.new(-5, 0, 4), Vector3.new(5, 0, -4), Vector3.new(-5, 0, -4) }
+if large then
+	positions = { Vector3.new(8, 0, -7), Vector3.new(-8, 0, -7), Vector3.new(8, 0, 7), Vector3.new(-8, 0, 7) }
+end
 for i, id in pages[page] do
 	local base = origin + positions[i]
-	local visual = Models.build(Config.Enemies.types[id].typeId)
+	local kind = assert(EnemyKinds.get(id))
+	local visual = Models.build(kind.typeId)
 	visual.model.Parent = root
 	local parts, frames = {}, {}
 	Models.pose(visual, CFrame.new(base), 0.65, 0.5, 0, 0, parts, frames, 0)
@@ -67,7 +75,7 @@ for i, id in pages[page] do
 	local anchor = Instance.new("Part")
 	anchor.Name = id .. "LabelAnchor"
 	anchor.Size = Vector3.new(0.1, 0.1, 0.1)
-	anchor.Position = base + Vector3.new(0, 0.1, -2.8)
+	anchor.Position = base + Vector3.new(0, 0.1, if large then -5.5 else -2.8)
 	anchor.Anchored = true
 	anchor.CanCollide = false
 	anchor.CanQuery = false
@@ -90,5 +98,7 @@ for i, id in pages[page] do
 	text.Parent = gui
 end
 camera.FieldOfView = 42
-camera.CFrame = CFrame.lookAt(origin + Vector3.new(0, 16, -23), origin + Vector3.new(0, 1.7, 0))
+camera.CFrame = if large
+	then CFrame.lookAt(origin + Vector3.new(0, 25, -37), origin + Vector3.new(0, 3, 0))
+	else CFrame.lookAt(origin + Vector3.new(0, 16, -23), origin + Vector3.new(0, 1.7, 0))
 game:GetService("ContentProvider"):PreloadAsync({ root })

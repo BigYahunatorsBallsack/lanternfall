@@ -13,6 +13,7 @@ export type Piece = {
 	detail: boolean?,
 	armor: boolean?,
 	tint: Color3?,
+	material: Enum.Material?,
 }
 export type Trim = {
 	name: string,
@@ -581,6 +582,331 @@ MeshCatalog.Gobbler = {
 	},
 }
 
+-- Large enemies retain separate anatomy and the same client-only pooled rig.
+MeshCatalog.LanternEater = {
+	radius = 4.5,
+	crownHeight = 9.22316,
+	stride = 6.8,
+	pieces = {
+		{
+			name = "Body",
+			motion = "Body",
+			mesh = "rbxassetid://78703034076867",
+			texture = "rbxassetid://90157288366698",
+			size = Vector3.new(6.06159, 6.79662, 5.88556),
+			meshSize = Vector3.new(6.06159, 6.79662, 5.88556),
+			position = Vector3.new(-0.00464, 4.11312, 0.12407),
+			armor = true,
+		},
+		{
+			name = "Head",
+			motion = "Body",
+			mesh = "rbxassetid://71858625084813",
+			texture = "rbxassetid://121330066988133",
+			size = Vector3.new(8.19846, 4.25387, 4.31068),
+			meshSize = Vector3.new(8.19846, 4.25387, 4.31068),
+			position = Vector3.new(-0.01294, 6.74622, -0.27242),
+			armor = true,
+		},
+		{
+			name = "LegLeft",
+			motion = "LegLeft",
+			mesh = "rbxassetid://138589985485595",
+			texture = "rbxassetid://140661157224864",
+			size = Vector3.new(2.03294, 2.17626, 2.63012),
+			meshSize = Vector3.new(2.03294, 2.17626, 2.63012),
+			position = Vector3.new(-1.33008, 1.09549, -0.30025),
+			pivot = Vector3.new(-1.33008, 1.85718, -0.22025),
+		},
+		{
+			name = "LegRight",
+			motion = "LegRight",
+			mesh = "rbxassetid://114449216348195",
+			texture = "rbxassetid://124476348905419",
+			size = Vector3.new(2.0422, 2.17967, 2.62345),
+			meshSize = Vector3.new(2.0422, 2.17967, 2.62345),
+			position = Vector3.new(1.32129, 1.08984, -0.31002),
+			pivot = Vector3.new(1.32129, 1.85272, -0.23002),
+		},
+		{
+			name = "ArmLeft",
+			motion = "ArmLeft",
+			mesh = "rbxassetid://132812382707995",
+			texture = "rbxassetid://100807786917692",
+			size = Vector3.new(2.94304, 5.22661, 2.41374),
+			meshSize = Vector3.new(2.94304, 5.22661, 2.41374),
+			position = Vector3.new(-3.02856, 3.4936, -0.0334),
+			pivot = Vector3.new(-3.02856, 5.32291, 0.0466),
+		},
+		{
+			name = "ArmRight",
+			motion = "ArmRight",
+			mesh = "rbxassetid://123248838157358",
+			texture = "rbxassetid://85711208820057",
+			size = Vector3.new(2.93484, 5.192, 2.40609),
+			meshSize = Vector3.new(2.93484, 5.192, 2.40609),
+			position = Vector3.new(3.03271, 3.49163, -0.03047),
+			pivot = Vector3.new(3.03271, 5.30883, 0.04953),
+		},
+		{
+			name = "Maw",
+			motion = "Body",
+			mesh = "rbxassetid://104550885033634",
+			texture = "rbxassetid://103518696243488",
+			size = Vector3.new(3.64373, 3.47674, 1.24267),
+			meshSize = Vector3.new(3.64373, 3.47674, 1.24267),
+			position = Vector3.new(-0.00708, 3.02922, -2.44551),
+		},
+	},
+}
+
+MeshCatalog.HollowSeer = {
+	radius = 4,
+	crownHeight = 9.95749,
+	stride = 6,
+	pieces = {
+		{
+			name = "Body",
+			motion = "Body",
+			mesh = "rbxassetid://84703565225592",
+			texture = "rbxassetid://129247993826246",
+			size = Vector3.new(5.63496, 7.64161, 6.76709),
+			meshSize = Vector3.new(5.63496, 7.64161, 6.76709),
+			position = Vector3.new(0.00439, 3.82081, 0),
+			armor = true,
+		},
+		{
+			name = "Head",
+			motion = "Body",
+			mesh = "rbxassetid://131279949621211",
+			texture = "rbxassetid://118909274020016",
+			size = Vector3.new(4.51887, 5.02135, 2.82747),
+			meshSize = Vector3.new(4.51887, 5.02135, 2.82747),
+			position = Vector3.new(0.00635, 7.09682, -1.37012),
+			armor = true,
+		},
+		{
+			name = "Arms",
+			motion = "Sway",
+			mesh = "rbxassetid://80478106854085",
+			texture = "rbxassetid://122391351143477",
+			size = Vector3.new(8, 3.91136, 1.78683),
+			meshSize = Vector3.new(8, 3.91136, 1.78683),
+			position = Vector3.new(0, 2.81835, -1.19092),
+			pivot = Vector3.new(0, 4.18733, -1.11092),
+		},
+	},
+}
+
+MeshCatalog.Abbot = {
+	radius = 3.5,
+	crownHeight = 8.34314,
+	stride = 5.4,
+	pieces = {
+		{
+			name = "Body",
+			motion = "Body",
+			mesh = "rbxassetid://109181925174488",
+			texture = "rbxassetid://102457329259566",
+			size = Vector3.new(3.98477, 7.99314, 3.69088),
+			meshSize = Vector3.new(3.98477, 7.99314, 3.69088),
+			position = Vector3.new(-0.20703, 3.99657, 0),
+			armor = true,
+		},
+		{
+			name = "Arms",
+			motion = "Sway",
+			mesh = "rbxassetid://123506906923170",
+			texture = "rbxassetid://78355393031807",
+			size = Vector3.new(7, 5.8178, 1.39034),
+			meshSize = Vector3.new(7, 5.8178, 1.39034),
+			position = Vector3.new(0, 4.82512, 0.02515),
+			pivot = Vector3.new(0, 6.86135, 0.10515),
+		},
+		{
+			name = "BackSacs",
+			motion = "Body",
+			mesh = "rbxassetid://98897192108669",
+			texture = "rbxassetid://133436631586251",
+			size = Vector3.new(2.56101, 1.58747, 1.05596),
+			meshSize = Vector3.new(2.56101, 1.58747, 1.05596),
+			position = Vector3.new(-0.25244, 4.29153, -1.22827),
+		},
+	},
+}
+
+MeshCatalog.MireJaw = {
+	radius = 3.25,
+	crownHeight = 6.34999,
+	stride = 5,
+	pieces = {
+		{
+			name = "Body",
+			motion = "Body",
+			mesh = "rbxassetid://88911221323597",
+			texture = "rbxassetid://120539556866915",
+			size = Vector3.new(4.8052, 3.21329, 4.33916),
+			meshSize = Vector3.new(4.8052, 3.21329, 4.33916),
+			position = Vector3.new(0.0083, 2.36523, -0.31687),
+			armor = true,
+		},
+		{
+			name = "Head",
+			motion = "Body",
+			mesh = "rbxassetid://124819330115533",
+			texture = "rbxassetid://104588901699022",
+			size = Vector3.new(4.79162, 4.00659, 5.08104),
+			meshSize = Vector3.new(4.79162, 4.00659, 5.08104),
+			position = Vector3.new(0.00146, 3.9967, -0.00742),
+			armor = true,
+		},
+		{
+			name = "ArmLeft",
+			motion = "ArmLeft",
+			mesh = "rbxassetid://103808310305216",
+			texture = "rbxassetid://92419734887014",
+			size = Vector3.new(1.45302, 3.42673, 1.62136),
+			meshSize = Vector3.new(1.45302, 3.42673, 1.62136),
+			position = Vector3.new(-2.50464, 2.01192, -0.31065),
+			pivot = Vector3.new(-2.50464, 3.21128, -0.23065),
+		},
+		{
+			name = "LegRight",
+			motion = "LegRight",
+			mesh = "rbxassetid://121800493353703",
+			texture = "rbxassetid://126957453633039",
+			size = Vector3.new(1.52797, 1.47371, 1.37911),
+			meshSize = Vector3.new(1.52797, 1.47371, 1.37911),
+			position = Vector3.new(1.12207, 0.73685, -0.14024),
+			pivot = Vector3.new(1.12207, 1.25265, -0.06024),
+		},
+		{
+			name = "ArmRight",
+			motion = "ArmRight",
+			mesh = "rbxassetid://131127222990227",
+			texture = "rbxassetid://113034822805263",
+			size = Vector3.new(1.4505, 3.45745, 1.63043),
+			meshSize = Vector3.new(1.4505, 3.45745, 1.63043),
+			position = Vector3.new(2.50586, 2.01401, -0.31504),
+			pivot = Vector3.new(2.50586, 3.22412, -0.23504),
+		},
+		{
+			name = "LegLeft",
+			motion = "LegLeft",
+			mesh = "rbxassetid://102138936373411",
+			texture = "rbxassetid://79199640295143",
+			size = Vector3.new(1.50866, 1.46176, 1.3795),
+			meshSize = Vector3.new(1.50866, 1.46176, 1.3795),
+			position = Vector3.new(-1.14307, 0.73543, -0.14256),
+			pivot = Vector3.new(-1.14307, 1.24705, -0.06256),
+		},
+		{
+			name = "Tail",
+			motion = "Body",
+			mesh = "rbxassetid://113057598730802",
+			texture = "rbxassetid://137738573638100",
+			size = Vector3.new(0.47195, 0.64797, 0.97182),
+			meshSize = Vector3.new(0.47195, 0.64797, 0.97182),
+			position = Vector3.new(0.00952, 2.58163, 2.06203),
+		},
+	},
+}
+
+MeshCatalog.Monolith = {
+	radius = 3.05,
+	crownHeight = 5.4,
+	stride = 6.3,
+	tint = Color3.fromRGB(207, 198, 235),
+	pieces = {
+		{
+			name = "Body",
+			motion = "Body",
+			mesh = "rbxassetid://71821017098301",
+			texture = "rbxassetid://83645951343916",
+			size = Vector3.new(3.85374, 4.49965, 4.24279),
+			meshSize = Vector3.new(3.44084, 5.23215, 4.00263),
+			position = Vector3.new(0.01723, 2.73817, -0.00000),
+			armor = true,
+		},
+		{
+			name = "ArmLeft",
+			motion = "ArmLeft",
+			mesh = "rbxassetid://81833767074162",
+			texture = "rbxassetid://83645951343916",
+			size = Vector3.new(1.31279, 2.39843, 1.61554),
+			meshSize = Vector3.new(1.17213, 2.78887, 1.52409),
+			position = Vector3.new(-2.29688, 1.80108, 0.04887),
+			pivot = Vector3.new(-2.29688, 2.76045, 0.09887),
+		},
+		{
+			name = "ArmRight",
+			motion = "ArmRight",
+			mesh = "rbxassetid://108676731470938",
+			texture = "rbxassetid://83645951343916",
+			size = Vector3.new(1.26949, 2.40787, 1.61667),
+			meshSize = Vector3.new(1.13347, 2.79985, 1.52516),
+			position = Vector3.new(2.31848, 1.80014, 0.05550),
+			pivot = Vector3.new(2.31848, 2.76329, 0.10550),
+		},
+		{
+			name = "LegRight",
+			motion = "LegRight",
+			mesh = "rbxassetid://123192338254731",
+			texture = "rbxassetid://83645951343916",
+			size = Vector3.new(1.39799, 1.00913, 2.03140),
+			meshSize = Vector3.new(1.24821, 1.17341, 1.91642),
+			position = Vector3.new(0.97535, 0.50504, 0.19942),
+			pivot = Vector3.new(0.97535, 0.90869, 0.24942),
+		},
+		{
+			name = "LegLeft",
+			motion = "LegLeft",
+			mesh = "rbxassetid://115718379192006",
+			texture = "rbxassetid://83645951343916",
+			size = Vector3.new(1.42058, 1.02160, 2.02790),
+			meshSize = Vector3.new(1.26838, 1.18791, 1.91311),
+			position = Vector3.new(-0.96359, 0.51080, 0.19923),
+			pivot = Vector3.new(-0.96359, 0.91944, 0.24923),
+		},
+	},
+}
+MeshCatalog.StoneSeraph = {
+	radius = 4.3,
+	crownHeight = 7.32000,
+	stride = 5.4,
+	pieces = {
+		{
+			name = "Body",
+			motion = "Body",
+			mesh = "rbxassetid://138349421149145",
+			texture = "rbxassetid://136614482888152",
+			size = Vector3.new(3.05718, 3.71414, 3.69119),
+			meshSize = Vector3.new(2.9116, 4.52944, 3.35563),
+			position = Vector3.new(-0.00923, 2.5315, 0),
+			armor = true,
+		},
+		{
+			name = "Wings",
+			motion = "Sway",
+			mesh = "rbxassetid://134175659313725",
+			texture = "rbxassetid://128114092699401",
+			size = Vector3.new(9.10487, 4.10749, 2.1179),
+			meshSize = Vector3.new(8.6713, 5.00913, 1.92536),
+			position = Vector3.new(0, 4.91625, 0.60936),
+			pivot = Vector3.new(0, 3.2, 0.6),
+		},
+		{
+			name = "Legs",
+			motion = "Body",
+			mesh = "rbxassetid://74961286081447",
+			texture = "rbxassetid://105671048737018",
+			size = Vector3.new(5.57887, 3.73569, 2.37646),
+			meshSize = Vector3.new(5.31321, 4.55572, 2.16042),
+			position = Vector3.new(-0.0082, 1.86785, -0.143),
+		},
+	},
+}
+
 -- Related species share topology but have deliberate proportions, colors and silhouette details.
 local function scaled(v: Vector3, scale: Vector3): Vector3
 	return Vector3.new(v.X * scale.X, v.Y * scale.Y, v.Z * scale.Z)
@@ -596,6 +922,16 @@ local function variant(base: Look, scale: Vector3, tint: Color3): Look
 		part.position = scaled(original.position, scale)
 		part.pivot = if original.pivot then scaled(original.pivot, scale) else nil
 		table.insert(look.pieces, part)
+	end
+	if base.trims then
+		look.trims = {}
+		for _, original in base.trims do
+			local trim = table.clone(original)
+			trim.size = scaled(original.size, scale)
+			trim.position = scaled(original.position, scale)
+			trim.pivot = if original.pivot then scaled(original.pivot, scale) else nil
+			table.insert(look.trims, trim)
+		end
 	end
 	return look
 end
@@ -715,6 +1051,187 @@ MeshCatalog.Mender.trims = {
 		size = v(0.74, 0.11, 0.12),
 		position = v(0, 1.97, -1.53),
 		color = rgb(150, 222, 190),
+	},
+}
+-- Champion variants share the approved species while their weapons and brood anatomy define their roles.
+local BRASS = rgb(202, 159, 79)
+MeshCatalog.BrassRam = variant(MeshCatalog.Charger, v(1.12, 1.05, 1.08), rgb(204, 185, 216))
+MeshCatalog.BrassRam.crownHeight = 4.1
+MeshCatalog.BrassRam.stride = 6
+for _, part in MeshCatalog.BrassRam.pieces do
+	if part.name == "Horns" then
+		part.size = scaled(part.size, v(1.38, 1.9, 1.65))
+		part.position = v(0, 2.25, -1.75)
+		part.tint = rgb(255, 217, 148)
+	end
+end
+for row = 1, 3 do
+	appendTrims(MeshCatalog.BrassRam, {
+		{
+			name = `BackPlateRim{row}`,
+			shape = "egg",
+			size = v(2.25, 0.23, 0.44),
+			position = v(0, if row == 2 then 2.88 else 2.7, -0.95 + row * 0.68),
+			color = INK,
+		},
+		{
+			name = `BackPlate{row}`,
+			shape = "egg",
+			size = v(2.08, 0.16, 0.31),
+			position = v(0, if row == 2 then 2.94 else 2.76, -0.95 + row * 0.68),
+			color = BRASS,
+		},
+	})
+end
+for _, side in { -1, 1 } do
+	appendTrims(MeshCatalog.BrassRam, {
+		{
+			name = `HornCollar{side}`,
+			shape = "egg",
+			size = v(0.42, 0.42, 0.38),
+			position = v(side * 0.92, 2.12, -1.65),
+			color = INK,
+		},
+		{
+			name = `HornStud{side}`,
+			shape = "egg",
+			size = v(0.21, 0.24, 0.12),
+			position = v(side * 0.92, 2.16, -1.87),
+			color = BONE,
+			detail = true,
+		},
+	})
+end
+
+MeshCatalog.Flayer = variant(MeshCatalog.Brute, v(1, 1, 1), rgb(241, 163, 174))
+MeshCatalog.Flayer.stride = 6.2
+MeshCatalog.Flayer.crownHeight = 3.8
+for _, side in { 1 } do
+	local motion = if side < 0 then "ArmLeft" else "ArmRight"
+	local pivot = v(side * 0.94, 1.67, -0.23)
+	local shape = if side < 0 then "wedge" else "block"
+	local rotation = v(0, if side < 0 then math.pi else 0, -side * 0.24)
+	local center = v(side * 1.75, 1.45, -0.83)
+	local size = if side < 0 then v(0.9, 2.25, 0.44) else v(0.94, 1.85, 0.38)
+	appendTrims(MeshCatalog.Flayer, {
+		{
+			name = `CleaverRim{side}`,
+			shape = shape,
+			size = size,
+			position = center,
+			color = INK,
+			motion = motion,
+			pivot = pivot,
+			rotation = rotation,
+		},
+		{
+			name = `Cleaver{side}`,
+			shape = shape,
+			size = scaled(size, v(0.82, 0.9, 0.9)),
+			position = center + v(0, 0, -0.055),
+			color = BONE,
+			motion = motion,
+			pivot = pivot,
+			rotation = rotation,
+		},
+		{
+			name = `CleaverSpine{side}`,
+			shape = "block",
+			size = v(0.12, 1.21, 0.1),
+			position = center + v(-side * 0.16, 0.15, -0.25),
+			color = rgb(134, 68, 79),
+			motion = motion,
+			pivot = pivot,
+			rotation = rotation,
+			detail = true,
+		},
+		{
+			name = `BladeRivet{side}`,
+			shape = "egg",
+			size = v(0.13, 0.13, 0.07),
+			position = center + v(-side * 0.13, 0.51, -0.3),
+			color = INK,
+			motion = motion,
+			pivot = pivot,
+			detail = true,
+		},
+	})
+end
+
+-- The off-hand carries a hooked blade, while the other arm keeps the broad cleaver.
+local flayerHook = table.clone(MeshCatalog.Reaper.pieces[5])
+flayerHook.name = "HookedBlade"
+flayerHook.size = v(1.2, 2.4, 0.62)
+flayerHook.position = v(-1.65, 1.65, -0.8)
+flayerHook.pivot = v(-0.94, 1.67, -0.23)
+flayerHook.tint = rgb(255, 232, 204)
+table.insert(MeshCatalog.Flayer.pieces, flayerHook)
+
+MeshCatalog.SickleWraith = variant(MeshCatalog.Reaper, v(0.92, 1.12, 0.94), rgb(210, 218, 248))
+MeshCatalog.SickleWraith.crownHeight = 5.25
+MeshCatalog.SickleWraith.stride = 4.5
+for _, part in MeshCatalog.SickleWraith.pieces do
+	if part.name == "SickleLeft" or part.name == "SickleRight" then
+		part.size = scaled(part.size, v(1.48, 1.42, 1.12))
+		part.position += v(if part.name == "SickleLeft" then -0.18 else 0.18, 0.18, 0)
+		part.tint = rgb(255, 237, 205)
+	end
+end
+for _, side in { -1, 1 } do
+	appendTrims(MeshCatalog.SickleWraith, thorn(`Crest{side}`, v(side * 0.58, 3.55, 0.53), v(0.27, 0.95, 0.43), side))
+end
+
+MeshCatalog.BroodMatron = variant(MeshCatalog.Charger, v(1.32, 1.14, 1.25), rgb(224, 168, 215))
+MeshCatalog.BroodMatron.crownHeight = 5.1
+MeshCatalog.BroodMatron.stride = 5.7
+for _, side in { -1, 1 } do
+	local original = MeshCatalog.BroodMatron.pieces[if side < 0 then 3 else 2]
+	local leg = table.clone(original)
+	leg.name = if side < 0 then "LegMiddleLeft" else "LegMiddleRight"
+	leg.position = v(side * 1.25, original.position.Y, -0.08)
+	leg.pivot = v(side * 1.25, (original.pivot :: Vector3).Y, -0.05)
+	leg.motion = if side < 0 then "LegLeft" else "LegRight"
+	table.insert(MeshCatalog.BroodMatron.pieces, leg)
+	appendTrims(MeshCatalog.BroodMatron, thorn(`BroodGuard{side}`, v(side * 1.62, 2.85, 0.6), v(0.3, 1.05, 0.62), side))
+end
+for i, center in { v(-0.77, 3.35, 0.45), v(0.77, 3.35, 0.45), v(0, 3.8, 1.45) } do
+	local egg = table.clone(MeshCatalog.BroodEgg.pieces[1])
+	egg.name = `BroodSac{i}`
+	egg.size = egg.size * 0.48
+	egg.position = center
+	egg.tint = rgb(255, 211, 224)
+	table.insert(MeshCatalog.BroodMatron.pieces, egg)
+	appendTrims(MeshCatalog.BroodMatron, {
+		{
+			name = `SacSocket{i}`,
+			shape = "egg",
+			size = v(1.45, 0.4, 1.4),
+			position = center - v(0, 0.52, 0),
+			color = INK,
+		},
+	})
+end
+
+-- Recessed eye slits keep the rock creature readable without a separate humanoid face.
+for _, part in MeshCatalog.Monolith.pieces do
+	part.material = Enum.Material.Slate
+end
+MeshCatalog.Monolith.trims = {
+	{
+		name = "EyeLeft",
+		shape = "egg",
+		size = v(0.55, 0.16, 0.26),
+		position = v(-0.38, 3.37, -1.77),
+		color = INK,
+		rotation = v(0, 0, -0.1),
+	},
+	{
+		name = "EyeRight",
+		shape = "egg",
+		size = v(0.55, 0.16, 0.26),
+		position = v(0.38, 3.37, -1.77),
+		color = INK,
+		rotation = v(0, 0, 0.1),
 	},
 }
 return MeshCatalog
