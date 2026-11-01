@@ -1,33 +1,22 @@
 --!strict
--- Enemy looks (DESIGN.md section 14, art direction "occult art deco"): the Gloom as masked cultists and soot-black
--- creatures with aged brass, porcelain masks and glowing eyes, lenses and cracks, one silhouette per type. Built in
--- code from parts for EnemyRenderer's pool (no uploaded meshes); sizes follow each enemy's collision radius from
--- Config.Enemies, so what you see is what touches you.
+-- EnemyRenderer's pooled looks: ordinary enemies, bosses and champions use authored cartoon segments from MeshCatalog;
+-- harvestable trees retain their original occult art-deco parts (DESIGN.md section 14).
+-- Sizes follow each enemy's existing collision radius from Config.Enemies.
 -- Every part belongs to a simple rig: it stands on the floor, rides on the body (which bobs, sways and leans while
 -- walking) or swings around a pivot (legs, arms, a censer, spinning crowns). Models.pose places all visible parts
 -- of one enemy for a frame; EnemyRenderer moves them with workspace:BulkMoveTo. In big crowds EnemyRenderer turns
 -- on low detail (setDetail): small trims (claws, filters, hems, bands) vanish and are not moved, a third fewer
 -- parts to move.
--- Enemies with a `look` reuse that silhouette in their own palette (Abyss variants: blood-black with crimson eyes
--- and extra spikes). Chargers carry a floor strip that lights up during their wind-up and shows where they will
--- rush; their furnace and eyes turn white-hot (setMode). Gloom Elites (Util/EnemyKinds) are gilded, bigger, wear a
--- spinning sunburst crown, glow and show an HP bar with the name of their affix (setAffix), which also changes
--- their look: Swift leaves a trail, Armored turns its metal to steel, Summoning is circled by two wisps.
--- Since B5 burning enemies glow ember-red and slowed ones turn frost-blue (setStatus).
--- Since B9 the new kinds mostly reuse a silhouette in their own palette (Stalker, Skulker, Thornback, Herald, Mender,
--- Reaper, Gobbler); the Brood Egg has its own. A Reaper shows a red disc of its cut during the wind-up, Heralds and
--- Menders a golden or green ring when they pulse, an egg glows and shakes before it hatches, and enemies a Herald
--- buffed turn gold (setStatus).
--- Since WP10 the bosses: the Lantern Eater, a hulking soot-iron furnace with a porcelain jaw, a glowing grate for a
--- belly and lanterns caged on its back; the Hollow Seer, a towering veiled oracle with one great eye and a spinning
--- brass halo, hovering above the floor. Both carry a red glow. Their attacks are drawn by BossController.
--- Since WP10 part 2 the eight champions of the elite waves, each its own silhouette with the same red glow: a brass
--- ram, a hooded butcher with a cleaver, a robed abbot with a staff, a swamp lizard, a walking obelisk with orbiting
--- stones, a sickle-armed wraith, a brood mother with glowing egg sacs and a winged stone gargoyle.
+-- MeshCatalog selects every enemy and champion by ID, including deliberately authored Abyss variants.
+-- The primitive builders remain as fallbacks and supply the harvestable tree. The catalog preserves the
+-- existing radius, pooling, status colors, white hit flash and each ordinary enemy's floor warning.
+-- Gloom Elites retain their crown, HP/affix label, Swift trail, Armored plates and Summoning wisps.
+-- Bosses and champions retain a restrained red glow; BossController renders their separate attack warnings.
 
 local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
 local Config = require(Shared:WaitForChild("Config"))
 local EnemyKinds = require(Shared:WaitForChild("Util"):WaitForChild("EnemyKinds"))
+local MeshCatalog = require(script.Parent.MeshCatalog)
 
 -- How a part moves (see Models.pose).
 local GROUND = 1 -- with the floor point: shadows, the rush path
@@ -50,7 +39,10 @@ type Gait = {
 	armSwing: number, -- radians
 }
 
+type MeshSkin = { mesh: SpecialMesh, texture: string, armor: boolean, material: Enum.Material }
+
 export type Visual = {
+	meshSkins: { [BasePart]: MeshSkin },
 	model: Model,
 	parts: { BasePart },
 	anims: { number }, -- per part, how it moves
@@ -445,8 +437,8 @@ local SHADOW_THICKNESS = 0.05 -- studs
 local ELITE_GLOW_BRIGHTNESS = 3
 local ELITE_GLOW_RANGE = 14 -- studs
 local BOSS_GLOW_COLOR = Color3.fromRGB(255, 70, 60) -- WP10
-local BOSS_GLOW_BRIGHTNESS = 4
-local BOSS_GLOW_RANGE = 26 -- studs
+local BOSS_GLOW_BRIGHTNESS = 0.65 -- retain the warning accent without bleaching the authored textures
+local BOSS_GLOW_RANGE = 14 -- studs
 local HP_BAR_COLOR = Color3.fromRGB(236, 96, 96)
 local HP_BAR_BACK_COLOR = Color3.fromRGB(24, 20, 34)
 local HP_BAR_WIDTH = 70 -- pixels
@@ -483,6 +475,7 @@ Models.MODE_RECOVER = 3
 -- Building ---------------------------------------------------------------------------------------------------------
 
 type Rig = {
+	meshSkins: { [BasePart]: MeshSkin },
 	model: Model,
 	r: number,
 	palette: Palette,
@@ -500,6 +493,7 @@ type Rig = {
 
 local function newRig(model: Model, r: number, palette: Palette): Rig
 	return {
+		meshSkins = {},
 		model = model,
 		r = r,
 		palette = palette,
@@ -541,7 +535,9 @@ local function newPiece(
 	material: Enum.Material
 ): BasePart
 	local part: BasePart
-	if shape == "wedge" then
+	if shape == "spike" then
+		part = Instance.new("CornerWedgePart")
+	elseif shape == "wedge" then
 		part = Instance.new("WedgePart")
 	else
 		local plain = Instance.new("Part")
@@ -666,6 +662,105 @@ end
 
 local function eye(rig: Rig, name: string, size: Vector3, position: Vector3, tilt: number)
 	piece(rig, name, "block", size, position, rig.palette.eye, { glow = true }, CFrame.Angles(0, 0, tilt))
+end
+
+-- File meshes can be assigned locally without a yielding asset load or runtime geometry generation.
+-- Every rigid mesh segment joins the existing pool/pose/LOD paths; only artwork is replaced.
+local MESH_MOTION =
+	{ Sway = SWING, Body = BODY, LegLeft = LEG_LEFT, LegRight = LEG_RIGHT, ArmLeft = ARM_LEFT, ArmRight = ARM_RIGHT }
+local function buildMesh(rig: Rig, look: MeshCatalog.Look, elite: boolean?): Gait
+	shadow(rig, 2.0)
+	for _, item in look.pieces do
+		local tint = item.tint or look.tint or Color3.new(1, 1, 1)
+		if elite then
+			tint = Color3.new(tint.R, tint.G * 225 / 255, tint.B * 170 / 255)
+		end
+		local part = piece(rig, item.name, "block", item.size / look.radius, item.position / look.radius, tint, {
+			anim = MESH_MOTION[item.motion],
+			pivot = if item.pivot then item.pivot / look.radius else nil,
+			flash = true,
+			detail = item.detail,
+			material = item.material,
+		})
+		local mesh = Instance.new("SpecialMesh")
+		mesh.MeshType = Enum.MeshType.FileMesh
+		mesh.MeshId = item.mesh
+		mesh.TextureId = item.texture
+		mesh.Scale = Vector3.new(
+			item.size.X / item.meshSize.X,
+			item.size.Y / item.meshSize.Y,
+			item.size.Z / item.meshSize.Z
+		) * (rig.r / look.radius)
+		mesh.VertexColor = Vector3.new(part.Color.R, part.Color.G, part.Color.B)
+		mesh.Parent = part
+		rig.meshSkins[part] = {
+			mesh = mesh,
+			texture = item.texture,
+			armor = item.armor == true or item.name == "Head",
+			material = part.Material,
+		}
+	end
+	for _, trim in look.trims or {} do
+		local rotation = trim.rotation
+		piece(rig, trim.name, trim.shape, trim.size / look.radius, trim.position / look.radius, trim.color, {
+			anim = if trim.motion then MESH_MOTION[trim.motion] else BODY,
+			pivot = if trim.pivot then trim.pivot / look.radius else nil,
+			detail = trim.detail,
+			flash = true,
+		}, if rotation then CFrame.Angles(rotation.X, rotation.Y, rotation.Z) else nil)
+	end
+	if look.shoulders then
+		-- The heavy variant shares the approved species, with broader anatomy and outlined chitin shoulders.
+		for _, side in { -1, 1 } do
+			local suffix = if side < 0 then "Left" else "Right"
+			local motion = if side < 0 then ARM_LEFT else ARM_RIGHT
+			local pivot = v(side * 0.94, 1.67, -0.23) / look.radius
+			piece(
+				rig,
+				`ShoulderRim{suffix}`,
+				"egg",
+				v(0.62, 0.25, 0.62),
+				v(side * 0.64, 1.01, -0.08),
+				SOOT,
+				{ anim = motion, pivot = pivot }
+			)
+			piece(
+				rig,
+				`ShoulderPlate{suffix}`,
+				"egg",
+				v(0.56, 0.22, 0.56),
+				v(side * 0.64, 1.04, -0.10),
+				Color3.fromRGB(96, 68, 130),
+				{ anim = motion, pivot = pivot, metal = true, material = Enum.Material.SmoothPlastic }
+			)
+			local turn = CFrame.Angles(0, if side < 0 then math.pi else 0, -side * 0.38)
+			piece(
+				rig,
+				`HornRim{suffix}`,
+				"spike",
+				v(0.24, 0.48, 0.30),
+				v(side * 0.70, 1.28, -0.03),
+				SOOT,
+				{ anim = motion, pivot = pivot },
+				turn
+			)
+			piece(
+				rig,
+				`Horn{suffix}`,
+				"spike",
+				v(0.19, 0.40, 0.24),
+				v(side * 0.70, 1.29, -0.065),
+				PORCELAIN,
+				{ anim = motion, pivot = pivot, detail = true },
+				turn
+			)
+		end
+	end
+	rig.crown = Vector3.new(0, look.crownHeight * rig.r / look.radius, 0)
+	if look.stationary then
+		return { stride = 1, bob = 0, roll = 0, lean = 0, legSwing = 0, armSwing = 0 }
+	end
+	return { stride = look.stride or 4.8, bob = 0.045, roll = 0.055, lean = 0.065, legSwing = 0.24, armSwing = 0.20 }
 end
 
 type Build = (rig: Rig) -> Gait
@@ -1960,7 +2055,11 @@ function Models.build(typeId: number): Visual
 	local rig = newRig(model, r, palette)
 	local look = enemy and EnemyKinds.lookOf(enemy)
 	local builder = look and BUILDERS[look]
-	local gait = if builder then builder(rig) else buildUnknown(rig)
+	local meshLook = enemy and MeshCatalog[enemy.id]
+	local gait = if meshLook
+		then buildMesh(rig, meshLook, enemy and enemy.elite)
+		elseif builder then builder(rig)
+		else buildUnknown(rig)
 	local telegraph: BasePart? = nil
 	if enemy and enemy.charge then
 		telegraph = addTelegraph(rig, enemy.charge.maxDistance)
@@ -1985,6 +2084,7 @@ function Models.build(typeId: number): Visual
 	end
 	return {
 		model = model,
+		meshSkins = rig.meshSkins,
 		parts = rig.parts,
 		anims = rig.anims,
 		pivots = rig.pivots,
@@ -2034,6 +2134,26 @@ local function setHidden(visual: Visual, part: BasePart, hidden: boolean)
 	end
 end
 
+-- Warm mesh and texture content while the player is in the lobby. Preload instances rather than bare IDs:
+-- ContentProvider needs the SpecialMesh property context to request geometry instead of an image.
+function Models.preload()
+	local models = {}
+	for id in MeshCatalog do
+		local kind = EnemyKinds.get(id)
+		assert(kind, `Enemy artwork has no matching kind: {id}`)
+		table.insert(models, Models.build(kind.typeId).model)
+	end
+	local ok, err = pcall(function()
+		game:GetService("ContentProvider"):PreloadAsync(models)
+	end)
+	for _, model in models do
+		model:Destroy()
+	end
+	if not ok then
+		warn(`[Lanternfall] Enemy artwork preload failed: {err}`)
+	end
+end
+
 -- Colors of the parts that react to hits and to a charger's mode.
 local function paint(visual: Visual)
 	local charging = visual.windupTint and isCharging(visual.mode)
@@ -2044,6 +2164,13 @@ local function paint(visual: Visual)
 		else nil
 	for index, part in visual.flashParts do
 		local own = visual.flashColors[index]
+		local skin = visual.meshSkins[part]
+		if skin and skin.armor then
+			local affix = Config.Enemies.elite.affixes[visual.affix]
+			local armored = affix and affix.id == "Armored"
+			own = if armored then STEEL else own
+			part.Material = if armored then Enum.Material.Metal else skin.material
+		end
 		part.Color = if visual.flashing
 			then FLASH_COLOR
 			elseif charging and part == visual.body then RUSH_COLOR
@@ -2052,6 +2179,13 @@ local function paint(visual: Visual)
 	end
 	for index, part in visual.heatParts do
 		part.Color = if charging then HOT_COLOR elseif visual.burning then BURN_COLOR else visual.heatColors[index]
+	end
+	-- VertexColor tints textured meshes. Temporarily removing the texture makes a hit flash truly white;
+	-- reset restores both the texture and its untinted color before this model returns to the pool.
+	for part, skin in visual.meshSkins do
+		local color = part.Color
+		skin.mesh.VertexColor = Vector3.new(color.R, color.G, color.B)
+		skin.mesh.TextureId = if visual.flashing then "" else skin.texture
 	end
 end
 
@@ -2112,6 +2246,9 @@ function Models.setAffix(visual: Visual, affix: number)
 	end
 	for index, part in visual.metalParts do
 		part.Color = if id == "Armored" then STEEL else visual.metalColors[index]
+	end
+	if next(visual.meshSkins) then
+		paint(visual)
 	end
 	for index, parts in visual.affixParts do
 		for _, part in parts do

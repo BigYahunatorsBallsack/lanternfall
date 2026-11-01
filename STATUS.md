@@ -69,8 +69,8 @@ Jeder Strang ändert nur **seine** Zeile (Regeln: `docs/PARALLEL.md`).
 
 | Strang | KI | Aktuelles Paket | Branch / PR | Stand | Danach |
 | --- | --- | --- | --- | --- | --- |
-| A – Engine und Ablauf | Claude | Paket 24 Launch-Paket (Medium) | `wp-24-launch` | fertig, selbst gemerged | Plan bis zum Launch abgeschlossen; als Nächstes IDs des Owners eintragen (Live-Experience, Badges, Musik), dann Live-Ops |
-| B – Inhalte und Spieler-Regeln | ChatGPT | UI-Redesign implementiert | `wp-ui-redesign` | PR #46; main bis Paket 23 integriert, 705 Tests grün, Merge vom Owner autorisiert | Studio-Sichttest solo/2 Clients |
+| A – Engine und Ablauf | Claude | Paket 23 Sicherheits- und Code-Review (Extra high) | `wp-23-security` | fertig, selbst gemerged | Paket 24 Launch-Paket (Medium), dann weiter nach „Plan bis zum Launch" |
+| B – Inhalte und Spieler-Regeln | ChatGPT | Gegner-Art: alle 27 Typen einschließlich Bosse/Champions | `codex/enemy-model-redesign` / PR #56 | 729 Tests; native Studio-Prüfung mit 140 Modellen / 124 Inhalten; größere Modelle ausgearbeitet | Visuelle Abnahme; 2 Clients und Handy prüfen |
 
 ## Feste Entscheidungen des Owners
 
@@ -237,3 +237,26 @@ Jeder Strang ändert nur **seine** Zeile (Regeln: `docs/PARALLEL.md`).
 - Owner beauftragt ausdrücklich: Konflikte auflösen und PR #46 mergen. Aktuellen main `c37cc78` einschließlich Audio-Korrektur sowie Performance-Paket 22 und Sicherheits-Paket 23 aufgenommen.
 - Konflikt in der Strang-Tabelle gelöst: aktueller A-Stand aus main und UI-Stand von B erhalten. Automatisch zusammengeführte Settings und Debug-Anzeigen geprüft: Graphics Auto/High/Low samt Speicherung sowie neue Netzwerk-/Speicher-/Frame-Anzeigen bleiben erhalten. Debug-Befehle in begrenztem Scrollbereich, längere Diagnosezeilen dürfen wachsen.
 - Zusammengeführter Stand: **67 Specs, 705 Tests bestanden**, StyLua, Diff-Check und Rojo-Build erfolgreich; Selene 0 Fehler / 11 bestehende Stilwarnungen. Paket 22 enthält bereits den B12-Minen-/Frucht-Testfix. Studio weiterhin nicht verbunden, daher kein neuer Sichttest behauptet.
+
+## Gegner-Art, erste Serie (ChatGPT, 31.10.2026)
+
+- Owner-Auftrag: Gegner einzeln und detaillierter im Brotato-Stil überarbeiten. Bestätigt ist der kompakte violette Shadeling mit schwarzen Konturen und flächigen Farben; größere Arten sollen mehr Details in derselben Formensprache bekommen. Die realistischeren frühen Entwürfe wurden verworfen.
+- Erste Serie: Shadeling, Brute, Spitter, Charger und deren Gloom-Elites. Eigenes Artwork in `EnemyRenderer/MeshCatalog`, vorhandenes Pool-/Animations-/Statussystem bleibt bestehen; keine Balance- oder Serveränderung. Andere Arten sind noch offen. Details, Asset-Herkunft und Testanleitung: `docs/ENEMY-ART.md`.
+- Prüfung: 67 Specs / 708 Tests; Selene 0 Fehler, 11 bestehende Warnungen; Rojo-Build; native Studio-Vorschau und Client-Funktionstest mit 140 animierten Modellen (1.050 Teile/Pose). Alle 23 neuen Mesh-/Textur-Inhalte im Client geladen. Kein vollständiger Run-, 2-Client- oder Handy-FPS-Test.
+- Werkzeug: `tools/PreviewEnemyArt.luau` in der Studio-Befehlsleiste erzeugt/entfernt eine isolierte Modellreihe. Meshes beim Vorladen als Instanzen an `ContentProvider` geben; bloße Asset-IDs wurden als Bilder angefragt und meldeten fälschlich Fehler. Test-Runner unter Windows braucht Pfade mit `/` (`Path.as_posix()`).
+
+- Abschluss 01.11.2026: `main` bis `9833229` (Launch, Kamera, Endless-Auswahl und Playtest-Balance) aufgenommen; STATUS-Konflikt mit aktuellem A-Stand und eigener B-Zeile gelöst. 69 Specs / 726 Tests bestanden, Format/Lint/Build geprüft. API-Mock um die zwei neu verwendeten Roblox-Klassen ergänzt. Temporäre Studio-Vorschauen und verworfene Prototypen entfernt; die vier Produktionsmodelle sind eingebunden.
+
+## Gegner-Art, zweite Serie (ChatGPT, 01.11.2026)
+
+- Owner bestätigt die ersten vier Modelle und beauftragt die weiteren Typen. 13 zusätzliche normale Typen einschließlich Abyss-Varianten umgesetzt; eigener Katalog-Eintrag je Typ, erntbare Bäume bleiben unverändert. Modelle, Herkunft und vier weitere Vorschauseiten: `docs/ENEMY-ART.md`.
+- Zusätzliche Details und Proportionen als Artwork-Daten, vorhandene Warnflächen/Statusfarben/Rigs bleiben bestehen. Reaper hat getrennte Sicheln, Gobbler getrennte Gliedmaßen und eine korrigierte dunkle Mundöffnung; Mender erhält eine manuelle dunkle Gesichtsplatte, um generierte niedliche Gesichtszüge abzudecken. Looter bleibt wegen unsauberer Segmentierungsdarstellung als sauber texturierter Körper mit Wippbewegung erhalten.
+- 69 Specs / 728 Tests; Selene 0 Fehler / 11 alte Warnungen; StyLua und Rojo-Build. Native Client-Mischung: 140 Modelle, alle 74 Mesh-/Texturinhalte geladen, 1.247 volle / 1.019 reduzierte Teile pro Pose, 32 Warnflächen geprüft. Funktionsprüfung, kein Handy-FPS-Benchmark. Keine Änderung an Simulation, Balance oder Server.
+- Owner beauftragt weitere Fortsetzung: als Nächstes die zwei Bosse und acht Champions im selben Stil ausarbeiten.
+
+## Gegner-Art, Bosse und Champions (ChatGPT, 02.11.2026)
+
+- Die vom Owner beauftragte Fortsetzung umfasst nun beide Bosse und alle acht Champions. Sechs neue Grundmodelle, vier gezielt ausgearbeitete Varianten der bestätigten Familie; Monolith als gedrungener Felskörper, Flayer mit zwei unterschiedlichen Klingen, Brood Matron mit sechs Beinen und drei Eiern. Alle 27 Typen eingebunden; erntbarer Baum unverändert. Bilder, Herkunft und gemessene Geometriezahlen: `docs/ENEMY-ART.md`.
+- Vorladen löst auch Boss-/Champion-IDs über `EnemyKinds` auf. Steinmaterial bleibt bei Status-/Treffer-/Pool-Reset erhalten. Vorhandenes Bosslicht abgeschwächt, damit es die Farben nicht überstrahlt. Keine Änderungen an Gameplay, Netzwerk, Kollisionsradien oder Server; Warnungen bleiben bestehen. Die zehn großen Modelle haben 4–20 Parts, innerhalb des Limits von 25.
+- 69 Specs / 729 Tests; StyLua, Selene (0 Fehler / 11 alte Warnungen) und Rojo-Build erfolgreich. Native Client-Prüfung: alle 124 Inhalte geladen, 140 animierte Modelle aus allen 27 Typen, 1.251 volle / 1.037 reduzierte Teile pro Pose, 32 Warnflächen und zehn Bosslichter. Der native Test berücksichtigt, dass Pool-Reset einen aktiven Affix erhält und der Renderer ihn separat umstellt. Kein FPS-Benchmark, vollständiger Run-/2-Client-/Handy-/veröffentlichter Place-Test bleibt offen.
+- Studio-Produktionsmodule nach Konfliktprüfung synchronisiert, Play beendet, eigene Bühnen/Prototypen entfernt. Vorschauwerkzeug hat nun Seiten 1–8, Bosse/Champions auf 6–8. Der kurzzeitig durch Nutzungslimit blockierte Studio-Abgleich konnte nach „mach weiter“ erfolgreich abgeschlossen werden. PR #56 aktualisiert; keine Merge-Freigabe für diesen PR und kein Merge vorgenommen.
