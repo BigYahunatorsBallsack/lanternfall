@@ -6,6 +6,9 @@
 -- of the last wave counts as a win. B11 part 2: after a defeat in a wave, "Retry wave" starts that wave again from its
 -- beginning (retryWave, at most maxRetries per run). Paket 15: launch starts a run for a given group right away.
 -- Paket 19: a First Night run (runOptions.firstNight) is won after settings.firstNightWaves waves.
+-- Playtest after Paket 24: endless mode is no longer picked in the lobby. Winning the boss wave (surviving it or
+-- killing its bosses) opens the shop with a vote instead (settings.endlessChoiceSeconds): "Continue" by more than
+-- half of the votes turns the run endless and the shop goes on as usual; otherwise (a tie, or time up) it is won.
 -- Owned by RunDirector, which feeds it player events and the clock (`now` in seconds). No Roblox APIs
 -- here, so the rules are unit-tested outside Studio (tests/RunFlow.spec.luau).
 --
@@ -33,6 +36,9 @@ export type Settings = {
 	endlessWaveSeconds: number?,
 	maxRetries: number?, -- B11 part 2: "Retry wave" this often per run after a defeat (default 0: never)
 	firstNightWaves: number?, -- Paket 19: a First Night run (options.firstNight) wins after this many waves
+	-- playtest after Paket 24: seconds of the "continue endless?" vote after winning the boss wave (nil: no vote, the
+	-- run is won at once)
+	endlessChoiceSeconds: number?,
 }
 
 export type Event =
@@ -41,6 +47,7 @@ export type Event =
 	| { kind: "RunEnded", results: Types.Results }
 	| { kind: "ParticipantStateChanged", userId: number, state: ParticipantState }
 	| { kind: "WaveRetried", wave: number }
+	| { kind: "EndlessChosen" }
 
 type Entry = {
 	userId: number,
@@ -80,6 +87,7 @@ export type RunFlow = typeof(setmetatable(
 		participants: { [number]: Participant },
 		results: Types.Results?,
 		retries: number, -- B11 part 2: waves retried in this run
+		endlessVotes: { [number]: boolean }?, -- while the endless vote after the boss wave is open: userId -> continue
 		version: number,
 		counter: number,
 		events: { Event },
@@ -105,6 +113,7 @@ function RunFlow.new(settings: Settings): RunFlow
 		participants = {},
 		results = nil,
 		retries = 0,
+		endlessVotes = nil,
 		version = 0,
 		counter = 0,
 		events = {},
@@ -229,6 +238,7 @@ local function toLobby(self: RunFlow, now: number)
 	self.pausedAt = nil
 	self.heldAt = nil
 	self.results = nil
+	self.endlessVotes = nil
 	setPhase(self, "Lobby", nil)
 	-- players who pressed "Play again" start the next countdown right away
 	evaluate(self, now)
@@ -272,6 +282,7 @@ local function startRun(self: RunFlow, now: number)
 	self.heldAt = if self.holdWaves then now else nil
 	self.results = nil
 	self.retries = 0
+	self.endlessVotes = nil
 	push(self, { kind = "RunStarted", userIds = userIds })
 	setPhase(self, "Running", nil)
 end
@@ -304,6 +315,7 @@ local function finishRun(self: RunFlow, outcome: Outcome, now: number)
 	}
 	self.runEndedAt = now
 	self.results = results
+	self.endlessVotes = nil
 	push(self, { kind = "RunEnded", results = results })
 
 	if next(self.participants) == nil then
@@ -311,6 +323,63 @@ local function finishRun(self: RunFlow, outcome: Outcome, now: number)
 	else
 		setPhase(self, "Ended", now + self.settings.resultsSeconds)
 	end
+end
+
+-- Playtest after Paket 24: whether winning the current wave asks the participants about endless mode.
+local function offersEndless(self: RunFlow): boolean
+	return self.settings.endlessChoiceSeconds ~= nil
+		and not self.runOptions.endless
+		and not self.runOptions.firstNight
+		and self.wave >= lastWave(self)
+end
+
+-- The boss wave is won: open its shop with the endless vote (the shop timer waits for the vote).
+local function offerEndless(self: RunFlow, now: number)
+	openShop(self, now)
+	self.endlessVotes = {}
+	self.phaseEndsAt = now + (self.settings.endlessChoiceSeconds :: number)
+end
+
+-- Counts the votes: more "continue" than "stop" makes the run endless and lets the shop go on; otherwise it is won.
+local function closeEndlessVote(self: RunFlow, now: number)
+	local continue, stop = 0, 0
+	for userId, vote in self.endlessVotes or {} do
+		if self.participants[userId] then
+			if vote then
+				continue += 1
+			else
+				stop += 1
+			end
+		end
+	end
+	self.endlessVotes = nil
+	if continue > stop then
+		local options = table.clone(self.runOptions)
+		options.endless = true
+		self.runOptions = options
+		self.phaseEndsAt = now + self.settings.shopSeconds
+		for _, participant in self.participants do
+			participant.shopReady = false
+		end
+		changed(self)
+		push(self, { kind = "EndlessChosen" })
+	else
+		finishRun(self, "Victory", now)
+	end
+end
+
+-- Everyone in the run voted.
+local function allVoted(self: RunFlow): boolean
+	local votes = self.endlessVotes
+	if not votes then
+		return false
+	end
+	for userId in self.participants do
+		if votes[userId] == nil then
+			return false
+		end
+	end
+	return true
 end
 
 -- Checks the transitions that depend on player state rather than on time.
@@ -330,6 +399,10 @@ function evaluate(self: RunFlow, now: number)
 	elseif phase == "Running" or phase == "Boss" or phase == "Shop" then
 		if next(self.participants) == nil then
 			finishRun(self, "Abandoned", now)
+		elseif self.endlessVotes then
+			if allVoted(self) then
+				closeEndlessVote(self, now)
+			end
 		elseif not anyAlive(self) then
 			finishRun(self, "Defeat", now)
 		elseif phase == "Shop" and allShopReady(self) then
@@ -562,6 +635,9 @@ function RunFlow.setShopReady(self: RunFlow, userId: number, ready: boolean, now
 	if self.phase ~= "Shop" then
 		return false, "NotShopping"
 	end
+	if self.endlessVotes then
+		return false, "ChoosingEndless"
+	end
 	local participant = self.participants[userId]
 	if not participant then
 		return false, "NotParticipant"
@@ -617,7 +693,29 @@ function RunFlow.endRun(self: RunFlow, outcome: Outcome, now: number): (boolean,
 	if not self:isOngoing() then
 		return false, "NotRunning"
 	end
+	if outcome == "Victory" and self.phase == "Running" and offersEndless(self) then
+		offerEndless(self, now) -- the bosses died: ask about endless mode first
+		return true, nil
+	end
 	finishRun(self, outcome, now)
+	return true, nil
+end
+
+-- Playtest after Paket 24: a participant's vote after the boss wave (true: continue in endless mode). A changed vote
+-- counts; the vote closes once everyone voted or its time is up.
+function RunFlow.chooseEndless(self: RunFlow, userId: number, continue: boolean, now: number): (boolean, string?)
+	local votes = self.endlessVotes
+	if self.phase ~= "Shop" or not votes then
+		return false, "NoEndlessChoice"
+	end
+	if not self.participants[userId] then
+		return false, "NotParticipant"
+	end
+	if votes[userId] ~= continue then
+		votes[userId] = continue
+		changed(self)
+		evaluate(self, now)
+	end
 	return true, nil
 end
 
@@ -632,7 +730,9 @@ function RunFlow.update(self: RunFlow, now: number)
 		end
 	elseif phase == "Running" then
 		if self:getElapsed(now) >= waveEnd(self, self.wave) then
-			if self.wave >= lastWave(self) and not self.runOptions.endless then
+			if offersEndless(self) then
+				offerEndless(self, now) -- surviving the boss wave wins; first the endless vote
+			elseif self.wave >= lastWave(self) and not self.runOptions.endless then
 				finishRun(self, "Victory", now) -- surviving the boss wave wins, like Brotato (WP10)
 			else
 				openShop(self, now)
@@ -640,7 +740,11 @@ function RunFlow.update(self: RunFlow, now: number)
 		end
 	elseif phase == "Shop" then
 		if now >= (self.phaseEndsAt :: number) then
-			closeShop(self, now)
+			if self.endlessVotes then
+				closeEndlessVote(self, now)
+			else
+				closeShop(self, now)
+			end
 		end
 	elseif phase == "Ended" then
 		if now >= (self.phaseEndsAt :: number) then
@@ -701,6 +805,20 @@ function RunFlow.snapshot(self: RunFlow): Types.RunState
 		results = self.results,
 		options = table.clone(self.options),
 		runOptions = if self.runStartedAt then table.clone(self.runOptions) else nil,
+		endlessVote = (function(): { Types.EndlessVote }?
+			local votes = self.endlessVotes
+			if not votes then
+				return nil
+			end
+			local list: { Types.EndlessVote } = {}
+			for userId, continue in votes do
+				table.insert(list, { userId = userId, continue = continue })
+			end
+			table.sort(list, function(a, b)
+				return a.userId < b.userId
+			end)
+			return list
+		end)(),
 	}
 end
 

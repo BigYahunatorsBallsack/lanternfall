@@ -17,6 +17,7 @@ local Format = require(Shared:WaitForChild("Util"):WaitForChild("Format"))
 local Net = require(Shared:WaitForChild("Net"))
 local Types = require(Shared:WaitForChild("Net"):WaitForChild("Types"))
 
+local CaptureController = require(script.Parent.CaptureController) -- Paket 24
 local EnemyRenderer = require(script.Parent.EnemyRenderer)
 local GraphicsController = require(script.Parent.GraphicsController)
 local Theme = require(script.Parent.Parent.UI.Theme)
@@ -66,6 +67,9 @@ local BUTTON_TEXT: { [string]: string } = {
 	NextDay = "Next day (quests)",
 	StartFirstNight = "Start First Night",
 	PrintAnalytics = "Print analytics log",
+	MovementCheck = "Movement check on/off",
+	LaunchCheck = "Launch check",
+	Showcase = "Showcase scene",
 }
 
 local BUTTON_SIZE = Vector2.new(150, 30)
@@ -162,6 +166,16 @@ local function build(): ScreenGui
 			Net.fireServer("DebugCommand", command)
 		end)
 	end
+	-- Paket 24: capture mode runs on this client only (no server command)
+	Widgets.button({
+		Name = "CaptureMode",
+		Text = `Capture mode ({Config.Launch.capture.toggleKey})`,
+		TextSize = 14,
+		LayoutOrder = #DebugCommands + 1,
+		Parent = grid,
+	}, function()
+		CaptureController.toggle()
+	end)
 
 	statsPanel = Widgets.panel({
 		Visible = false,

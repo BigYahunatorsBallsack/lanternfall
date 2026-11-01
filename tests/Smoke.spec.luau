@@ -244,21 +244,26 @@ describe("smoke", function()
 
 	it("chases the player until it touches them", function()
 		local contacts = 0
+		CombatService.healPlayer(me, 1e6) -- full HP: since the playtest after Paket 24 a crowd hurts a lot
 		local hpBefore = CombatService.getHp(me)
 		local connection = EnemySim.Contact:Connect(function(player, damage)
 			expect(player).toBe(me)
-			-- grows a little with the growth steps (Run.spawn.growth)
-			expect(damage).toBeNear(Config.Enemies.types.Shadeling.contactDamage, 0.1)
+			-- grows a little with the growth steps; normal enemies' damage times damageScale (Run.spawn.growth)
+			expect(damage).toBeNear(
+				Config.Enemies.types.Shadeling.contactDamage * (Config.Run.spawn.growth.damageScale or 1),
+				0.1
+			)
 			contacts += 1
 		end)
-		world.advance(5)
+		world.advance(2) -- since the playtest after Paket 24 a crowd kills a still player within a few seconds
 		connection:Disconnect()
 		expect(contacts > 0).toBe(true)
 		-- every touch hurts, at most once per hit protection window
 		local lost = hpBefore - CombatService.getHp(me)
-		local hitsAllowed = math.ceil(5 / Config.Player.hitInvulnerability) + 1
+		local hitsAllowed = math.ceil(2 / Config.Player.hitInvulnerability) + 1
 		expect(lost > 0).toBe(true)
-		expect(lost <= hitsAllowed * Config.Enemies.types.Shadeling.contactDamage * 1.1).toBe(true)
+		local hit = Config.Enemies.types.Shadeling.contactDamage * (Config.Run.spawn.growth.damageScale or 1)
+		expect(lost <= hitsAllowed * hit * 1.1).toBe(true)
 		CombatService.protect(me, 1e6) -- keep the rest of the smoke test alive
 		local root = me.Character.HumanoidRootPart.Position
 		local id, distance = EnemySim.nearest(root)
@@ -1233,6 +1238,13 @@ describe("smoke", function()
 		expect(#BossService.getBosses()).toBe(1)
 		RunDirector.skipTo(Config.Run.durationSeconds) -- its time runs out with the boss alive
 		world.advance(0.2)
+		-- playtest after Paket 24: first the vote "continue in endless mode?"; END RUN wins the run
+		expect(phase()).toBe("Shop")
+		expect(world.gui("EndlessChoice").Enabled).toBe(true)
+		expect(world.gui("EndlessChoice", "Title").Text).toBe("BOSS DEFEATED!")
+		world.click(world.gui("EndlessChoice", "Stop"))
+		world.advance(0.2)
+		expect(world.gui("EndlessChoice").Enabled).toBe(false)
 		expect(phase()).toBe("Ended")
 		expect(world.gui("Results").Enabled).toBe(true)
 		expect(world.gui("HUD").Enabled).toBe(false)

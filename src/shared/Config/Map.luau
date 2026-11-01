@@ -7,17 +7,19 @@
 return table.freeze({
 	arena = table.freeze({
 		center = Vector3.new(0, 100, 0), -- center of the floor surface
-		size = 300, -- side length of the square arena
+		-- 300 until the playtest after Paket 24; now about Brotato's arena: a bit more than one screen wide (the camera
+		-- shows about 130 x 95 studs), so enemies stay close and walking away does not solve every wave
+		size = 160, -- side length of the square arena
 		wallHeight = 40,
 		spawnRadius = 8, -- participants start on a circle of this radius
 		-- Placeholder ruins: round pillars that enemies walk around (circles for EnemySim).
-		-- x/z are offsets from the arena center.
+		-- x/z are offsets from the arena center (halved with the smaller arena).
 		obstacles = table.freeze({
-			table.freeze({ x = 0, z = 35, radius = 4 }),
-			table.freeze({ x = -70, z = -50, radius = 8 }),
-			table.freeze({ x = 65, z = -75, radius = 6 }),
-			table.freeze({ x = -60, z = 70, radius = 7 }),
-			table.freeze({ x = 75, z = 55, radius = 10 }),
+			table.freeze({ x = 0, z = 22, radius = 3 }),
+			table.freeze({ x = -38, z = -28, radius = 5 }),
+			table.freeze({ x = 36, z = -40, radius = 4 }),
+			table.freeze({ x = -34, z = 40, radius = 4.5 }),
+			table.freeze({ x = 42, z = 32, radius = 6 }),
 		}) :: { { x: number, z: number, radius: number } },
 		obstacleHeight = 14,
 	}),
@@ -60,14 +62,17 @@ return table.freeze({
 		seed = 2112, -- the same scattered slabs and ruins every time
 		sunburstRays = 16, -- brass rays around the start circle
 		sunburstLength = 26,
-		floorSlabs = 40, -- cracked lighter slabs scattered over the arena floor
-		lampsPerSide = 4, -- lamp posts outside each arena wall
+		floorSlabs = 16, -- cracked lighter slabs scattered over the arena floor
+		lampsPerSide = 3, -- lamp posts outside each arena wall
 		lampDistance = 7, -- from the wall
 		lampHeight = 12,
 		lampLightRange = 26,
-		backdropRuins = 28, -- broken walls and blocks beyond the fog wall
+		backdropRuins = 18, -- broken walls and blocks beyond the fog wall
 		backdropDepth = { 10, 45 }, -- how far beyond the wall
 		obelisks = true, -- a glowing obelisk at each arena corner
+		-- ground beyond the fog wall under the lamps, ruins and obelisks (playtest after Paket 24: they floated in view
+		-- once the arena got smaller); `margin` studs past the wall, its top `drop` studs below the arena floor
+		outskirts = table.freeze({ margin = 70, thickness = 4, drop = 0.3 }),
 		motes = table.freeze({ rate = 6, lifetime = { 6, 10 } }), -- floating embers over the arena, per second
 		lobbyLamps = 6, -- around the lobby
 	}),

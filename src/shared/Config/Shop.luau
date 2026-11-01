@@ -16,6 +16,9 @@ local Shop = {
 	-- Which weapon a weapon slot offers (Brotato): with `owned` chance one the player already has, else with
 	-- `sameClass` chance one that shares a class with one of theirs, else any weapon (all of them only if nothing fits)
 	weaponPool = table.freeze({ owned = 0.2, sameClass = 0.15 }),
+	-- Playtest after Paket 24: with every weapon slot full a weapon slot offers one of the player's own weapons at a
+	-- tier it merges with this often (before, only about 1 in 7 weapon offers could still be bought then)
+	fullSlots = table.freeze({ mergeChance = 0.6 }),
 
 	-- price = floor((base + wave * waveAdd + base * waveFactor * wave) * multiplier), at least 1; wave = the wave
 	-- that just ended
@@ -82,6 +85,10 @@ local Shop = {
 	-- every further reroll in the same shop adds the increase again. Level-up cards reroll at the same prices.
 	reroll = table.freeze({ increaseFactor = 0.4, firstFactor = 0.75 }),
 
+	-- Shards every participant starts a run with. Playtest after Paket 24: after wave 1 there was sometimes nothing
+	-- to buy (ranged characters kill far away and collect few orbs; wave 1 brought 2-28 Shards in the balance
+	-- simulation, the cheapest offers cost 12-23). Assumption: like Brotato's start money.
+	startShards = 30,
 	shardsPerXp = 1, -- Shards a player gets per XP of an orb they pick up (orbs are Brotato's materials)
 	waveEnd = table.freeze({
 		healFraction = 1, -- every participant heals to this share of max HP when a wave ends

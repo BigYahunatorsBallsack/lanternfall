@@ -160,12 +160,15 @@ describe("enemies off the screen", function()
 		world.advance(0.5)
 
 		local root = me.Character.HumanoidRootPart
+		-- the arena is about one screen wide since the playtest after Paket 24: stand at the west wall, so the far
+		-- row at the east wall is well off a 16:9 screen
+		local arena = Config.Map.arena
+		root.Position = Vector3.new(arena.center.X - arena.size / 2 + 8, root.Position.Y, arena.center.Z)
+		world.advance(1)
 		local x, z = root.Position.X, root.Position.Z
 		local far = 0
 		for k = 1, 6 do
-			-- two rows: 120 studs east and west of the player, well off a 16:9 screen
-			local side = if k % 2 == 0 then 1 else -1
-			if EnemySim.spawn("Shadeling", x + side * 120, z + k * 3, 100, 0) then
+			if EnemySim.spawn("Shadeling", x + arena.size - 16, z + (k - 3.5) * 6, 100, 0) then
 				far += 1
 			end
 		end

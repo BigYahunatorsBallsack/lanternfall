@@ -298,6 +298,22 @@ local function backdrop(model: Model, center: Vector3, random: Random)
 	end
 end
 
+-- Ground beyond the fog wall, so lamps, ruins and obelisks out there stand on something (playtest after Paket 24:
+-- with the smaller arena they were in view and hung over the void). A little below the arena floor, no collisions.
+local function outskirts(model: Model, center: Vector3)
+	local settings = Config.Map.decor.outskirts
+	local size = Config.Map.arena.size + 2 * (Config.Map.wallThickness + settings.margin)
+	local ground = part(
+		model,
+		"Outskirts",
+		Vector3.new(size, settings.thickness, size),
+		CFrame.new(center - Vector3.new(0, settings.drop + settings.thickness / 2, 0)),
+		DARK_STONE,
+		Enum.Material.Slate
+	)
+	ghost(ground)
+end
+
 -- A tall obelisk with a glowing crack and a sunburst crown at each corner.
 local function obelisks(model: Model, center: Vector3)
 	if not Config.Map.decor.obelisks then
@@ -388,6 +404,7 @@ function Decor.buildArena(arenaModel: Model)
 	dressPillars(model, center)
 	sunburst(model, center)
 	floorSlabs(model, center, random)
+	outskirts(model, center)
 	borderLamps(model, center)
 	backdrop(model, center, random)
 	obelisks(model, center)

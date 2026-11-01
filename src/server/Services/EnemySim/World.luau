@@ -927,7 +927,7 @@ function World.step(
 				if distance > keep + tolerance then
 					advance = math.min(maxMove, distance - keep)
 				elseif distance < keep - tolerance then
-					advance = -math.min(maxMove, keep - distance)
+					advance = -math.min(maxMove * (ranged.retreatSpeedFactor or 1), keep - distance)
 				else
 					advance = 0
 				end

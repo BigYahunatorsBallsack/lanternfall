@@ -233,4 +233,34 @@ describe("ShopRules", function()
 			expect(Config.Items.byId[itemId :: string].tier >= Config.Items.chestMinTier).toBe(true)
 		end
 	end)
+	it("offers own weapons to merge more often once every slot is full (playtest after Paket 24)", function()
+		local full = {}
+		for _ = 1, 6 do
+			table.insert(full, { id = "SparkBolt", tier = 1 })
+		end
+		local function buyable(owned)
+			local n = 0
+			for seed = 1, 300 do
+				for _, offer in ShopRules.roll(params({ wave = 10, ownedWeapons = owned, random = lcg(seed) })) do
+					if offer.kind == "Weapon" and not offer.blocked then
+						n += 1
+						if #owned == 6 then
+							expect(offer.itemId).toBe("SparkBolt")
+							expect(offer.tier).toBe(1)
+							expect(offer.merges).toBe(true)
+						end
+					end
+				end
+			end
+			return n / 300
+		end
+		-- with chance mergeChance a weapon slot brings the own weapon at its tier, so about half of the weapon offers
+		-- (one per shop at most for a single weapon id) can still be bought
+		expect(buyable(full) > 0.4).toBe(true)
+		local maxed = {}
+		for _ = 1, 6 do
+			table.insert(maxed, { id = "SparkBolt", tier = 4 })
+		end
+		expect(buyable(maxed)).toBe(0) -- tier IV merges with nothing
+	end)
 end)

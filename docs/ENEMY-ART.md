@@ -1,8 +1,8 @@
 # Gegner-Redesign – erste vier Modelle
 
-Stand: 31.10.2026. Der Owner hat den kompakten violetten Shadeling mit schwarzen Konturen als Stilrichtung bestätigt. Größere Gegner sollen innerhalb dieses Stils zusätzliche Formen und Details erhalten. Referenz: [Brotato-Gegnerübersicht des Owners](https://justgameguides.com/game/brotato/enemies).
+Stand: 01.11.2026. Der Owner hat den kompakten violetten Shadeling mit schwarzen Konturen als Stilrichtung bestätigt. Größere Gegner sollen innerhalb dieses Stils zusätzliche Formen und Details erhalten. Referenz: [Brotato-Gegnerübersicht des Owners](https://justgameguides.com/game/brotato/enemies).
 
-![Die ersten vier Modelle in der Studio-Vorschau](images/enemy-art-first-four.png)
+![Die ersten vier Modelle in der Studio-Vorschau](images/enemy-art-first-four.jpg)
 
 ## Umfang
 
@@ -37,10 +37,11 @@ Die endgültigen einzelnen Mesh- und Textur-IDs stehen vollständig im Katalog. 
 
 ## Geprüft und offen
 
-- 67 Testdateien: **708 Tests erfolgreich**, darunter Budget, Gelenkzuordnung, Mesh-Proportionen, Textur-/Status-Reset und Armored nach Treffern.
+- 69 Testdateien: **726 Tests erfolgreich**, darunter Budget, Gelenkzuordnung, Mesh-Proportionen, Textur-/Status-Reset und Armored nach Treffern.
 - StyLua, Selene (0 Fehler; 11 vorhandene Warnungen außerhalb dieses Umbaus) und Rojo-Build erfolgreich.
 - Studio Edit: Formen einzeln, Vergleich mit den alten Modellen, Treffer-/Statusfarben und Modellreihe geprüft.
 - Studio Play, Client: alle 23 unterschiedlichen Mesh-/Texturinhalte erfolgreich geladen. 140 animierte Modelle über den echten `Models.pose`-/`BulkMoveTo`-Pfad bewegt, 1.050 sichtbare Teile pro Pose. Charger-Vorwarnung erscheint und verschwindet beim Reset korrekt.
+- Aktuellen `main` bis `9833229` aufgenommen: neue Kamera-/Capture-Schnittstelle und Spielablauf bleiben erhalten. Gesamte Testsuite und Build danach erneut geprüft; die native Studio-Prüfung galt den Modellmodulen. Der strengere API-Mock enthält jetzt auch `CornerWedgePart` und `ContentProvider`.
 - Der 140-Modell-Test ist ein **Funktionstest, kein FPS-Benchmark**. Ein vollständiger Run, 2 Clients, Handy-FPS/Texture-Memory und das Laden im veröffentlichten Run-Place wurden nicht geprüft. Die vorhandene Warnung zu Asset `203785492` stammt nicht aus diesem Artwork-Katalog.
 
 ## In Studio ansehen

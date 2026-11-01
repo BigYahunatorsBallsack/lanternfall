@@ -122,14 +122,15 @@ describe("SpawnRules", function()
 
 	it("grows HP and damage of every kind by its own amount per growth step", function()
 		local shadeling = Config.Enemies.types.Shadeling
+		local steps = Config.Run.spawn.growth
+		local scale = steps.damageScale or 1 -- playtest after Paket 24: normal enemies hit harder
 		local hp, damage = SpawnRules.growth("Shadeling", 1)
 		expect(hp).toBeNear(1)
-		expect(damage).toBeNear(1)
-		local steps = Config.Run.spawn.growth
+		expect(damage).toBeNear(scale)
 		hp, damage = SpawnRules.growth("Shadeling", 20)
 		expect(hp * shadeling.hp).toBeNear(shadeling.hp + steps.hpSteps[20] * shadeling.hpPerWave)
 		expect(damage * shadeling.contactDamage).toBeNear(
-			shadeling.contactDamage + steps.damageSteps[20] * shadeling.damagePerWave
+			scale * (shadeling.contactDamage + steps.damageSteps[20] * shadeling.damagePerWave)
 		)
 		expect(hp > 12).toBe(true) -- at least about the 14x of the curve before B9
 		expect(SpawnRules.growth("Shadeling", 5) < 2).toBe(true) -- few steps early, many late
@@ -137,10 +138,12 @@ describe("SpawnRules", function()
 		local spitter = Config.Enemies.types.Spitter
 		local _, shots = SpawnRules.growth("Spitter", 11)
 		expect(shots * spitter.ranged.projectileDamage).toBeNear(
-			spitter.ranged.projectileDamage + steps.damageSteps[11] * spitter.damagePerWave
+			scale * (spitter.ranged.projectileDamage + steps.damageSteps[11] * spitter.damagePerWave)
 		)
 		local _, tree = SpawnRules.growth("Tree", 20)
-		expect(tree).toBe(1) -- no damage to grow
+		expect(tree).toBe(scale) -- no damage to grow, only the scale
+		local _, champion = SpawnRules.growth("BrassRam", 1)
+		expect(champion).toBeNear(1) -- champions keep their own numbers
 		expect(SpawnRules.growth("Nobody", 5)).toBe(1)
 	end)
 
