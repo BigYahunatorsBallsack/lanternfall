@@ -38,7 +38,7 @@ local TooltipText = require(Shared:WaitForChild("Util"):WaitForChild("TooltipTex
 local Widgets = require(script.Parent.Parent.UI.Widgets)
 
 local STATE_TEXT: { [string]: string } = { Alive = "alive", Down = "DOWN", Out = "out" }
-local HP_BAR_WIDTH = 360
+local HP_BAR_WIDTH = 310
 local HIT_FLASH_SECONDS = 0.35
 local HIT_FLASH_TRANSPARENCY = 0.75 -- red screen tint right after a hit
 local LOW_HP_FRACTION = 0.3
@@ -243,6 +243,7 @@ local function renderTeam(state: Types.RunState)
 			})
 		end
 	end
+	teamPanel.Visible = order > 1 and (state.phase == "Running" or state.phase == "Boss")
 end
 
 local function renderHp()
@@ -480,11 +481,16 @@ local function build()
 
 	local top = Widgets.panel({
 		Name = "Timer",
+		BackgroundTransparency = 1,
 		AnchorPoint = Vector2.new(0.5, 0),
 		Position = UDim2.new(0.5, 0, 0, 8),
 		Size = UDim2.fromOffset(XP_BAR_WIDTH, 0),
 		Parent = screen,
 	})
+	local topOutline = top:FindFirstChildOfClass("UIStroke")
+	if topOutline then
+		topOutline:Destroy()
+	end
 	Widgets.list(2).Parent = top
 	-- Team XP bar with the level (DESIGN.md section 13); a Frame, so the timer stays the panel's first TextLabel.
 	local xpTrack = Widgets.create("Frame", {
@@ -512,13 +518,22 @@ local function build()
 	timerLabel = Widgets.label({
 		Text = "00:00",
 		Font = Theme.fontBold,
-		TextSize = 30,
-		Size = UDim2.new(1, 0, 0, 34),
-		TextColor3 = Theme.accent,
+		TextSize = 44,
+		Size = UDim2.new(1, 0, 0, 50),
+		TextStrokeTransparency = 0,
+		TextStrokeColor3 = Theme.stroke,
+		TextColor3 = Theme.text,
 		LayoutOrder = 1,
 		Parent = top,
 	})
-	hintLabel = Widgets.label({ TextSize = 18, LayoutOrder = 2, Parent = top })
+	hintLabel = Widgets.label({
+		TextSize = 17,
+		Font = Theme.fontBold,
+		TextStrokeTransparency = 0,
+		TextStrokeColor3 = Theme.stroke,
+		LayoutOrder = 2,
+		Parent = top,
+	})
 	previewLabel = Widgets.label({
 		Name = "WavePreview",
 		AutomaticSize = Enum.AutomaticSize.Y,
@@ -646,6 +661,11 @@ local function build()
 		Parent = screen,
 	})
 	Widgets.list(6).Parent = hp
+	xpTrack.Parent = hp
+	xpTrack.LayoutOrder = 2
+	xpTrack.Size = UDim2.new(1, 0, 0, 18)
+	xpLabel.TextSize = 13
+	xpLabel.TextStrokeTransparency = 0.35
 	bonusLabel = Widgets.label({
 		Name = "Bonuses",
 		Text = "",
@@ -654,13 +674,13 @@ local function build()
 		AutomaticSize = Enum.AutomaticSize.Y,
 		Size = UDim2.new(1, 0, 0, 0),
 		Visible = false,
-		LayoutOrder = 0,
+		LayoutOrder = 3,
 		Parent = hp,
 	})
 	local track = Widgets.create("Frame", {
 		Name = "Track",
 		BackgroundColor3 = Theme.button,
-		Size = UDim2.new(1, 0, 0, 26),
+		Size = UDim2.new(1, 0, 0, 34),
 		LayoutOrder = 1,
 		Parent = hp,
 	}, { Widgets.corner(UDim.new(0, 8)) })
@@ -672,6 +692,7 @@ local function build()
 	}, { Widgets.corner(UDim.new(0, 8)) })
 	hpLabel = Widgets.label({
 		Name = "HpText",
+		TextColor3 = Theme.accentText,
 		Text = "",
 		Font = Theme.fontBold,
 		TextSize = 18,
@@ -687,20 +708,17 @@ local function build()
 		Widgets.unscaled(hp)
 		Widgets.unscaled(weapons)
 		Widgets.unscaled(team)
-		top.Size = UDim2.fromOffset(
-			if narrow then math.max(140, math.min(200, area.X - 180)) else math.min(320, area.X - 480),
-			0
-		)
-		top.AnchorPoint = Vector2.new(if narrow then 0 else 0.5, 0)
-		top.Position = if narrow then UDim2.fromOffset(12, 8) else UDim2.new(0.5, 0, 0, 8)
-		hp.Size = UDim2.fromOffset(math.min(HP_BAR_WIDTH, area.X - 120), 0)
+		top.Size = UDim2.fromOffset(if narrow then 138 else 240, 0)
+		top.AnchorPoint = Vector2.new(if narrow then 1 else 0.5, 0)
+		top.Position = if narrow then UDim2.new(1, -8, 0, 56) else UDim2.new(0.5, 0, 0, 8)
+		timerLabel.TextSize = if narrow then 34 else 44
+		hp.AnchorPoint = Vector2.new(0, 0)
+		hp.Position = UDim2.fromOffset(12, 12)
+		hp.Size = UDim2.fromOffset(if narrow then math.max(180, area.X - 174) else HP_BAR_WIDTH, 0)
 		team.Size = UDim2.fromOffset(if narrow then 150 elseif area.X < 1100 then 200 else 260, 0)
-		buildButton.Position = UDim2.fromOffset(12, if narrow then 234 else 12)
-		weapons.Position = UDim2.fromOffset(12, if narrow then 284 else 128)
-		weapons.Size = UDim2.fromOffset(
-			math.min(340, area.X - 24),
-			math.max(120, math.min(360, area.Y - (if narrow then 384 else 234)))
-		)
+		buildButton.Position = UDim2.fromOffset(12, 164)
+		weapons.Position = UDim2.fromOffset(12, 218)
+		weapons.Size = UDim2.fromOffset(math.min(340, area.X - 24), math.max(120, math.min(360, area.Y - 242)))
 		placeTeamPanel()
 		local current = RunStateController.get()
 		if current then

@@ -159,6 +159,10 @@ local function buildButton()
 end
 
 local function updateButton()
+	local state = RunStateController.get()
+	button.Visible = RunStateController.getView() == "Run"
+		and state ~= nil
+		and (state.phase == "Running" or state.phase == "Boss")
 	local remaining = math.max(0, PlayerStateController.getDashReadyAt() - now())
 	local fraction = math.clamp(remaining / DashConfig.cooldown, 0, 1)
 	local target = UDim2.fromScale(1, fraction)

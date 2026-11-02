@@ -106,12 +106,18 @@ local function build(): ScreenGui
 	local gridWidth = 2 * BUTTON_SIZE.X + BUTTON_GAP
 	local panel = Widgets.panel({
 		Name = "Debug",
-		AnchorPoint = Vector2.new(1, 1),
-		Position = UDim2.new(1, -12, 1, -12),
-		Size = UDim2.fromOffset(124, 0),
+		AnchorPoint = Vector2.new(1, 0),
+		Position = UDim2.new(1, -72, 0, 8),
+		Size = UDim2.fromOffset(104, 0),
 		Parent = screen,
 	})
 	Widgets.list(BUTTON_GAP).Parent = panel
+	Widgets.unscaled(panel)
+	local padding = panel:FindFirstChildOfClass("UIPadding") :: UIPadding
+	padding.PaddingTop = UDim.new(0, 4)
+	padding.PaddingBottom = UDim.new(0, 4)
+	padding.PaddingLeft = UDim.new(0, 4)
+	padding.PaddingRight = UDim.new(0, 4)
 
 	local grid = Widgets.create("ScrollingFrame", {
 		Name = "Buttons",
@@ -148,7 +154,12 @@ local function build(): ScreenGui
 		Parent = panel,
 	}, function()
 		open = not open
-		panel.Size = UDim2.fromOffset(if open then gridWidth + 28 else 124, 0)
+		panel.Size = UDim2.fromOffset(if open then gridWidth + 28 else 104, 0)
+		local pad = UDim.new(0, if open then 14 else 4)
+		padding.PaddingTop = pad
+		padding.PaddingBottom = pad
+		padding.PaddingLeft = pad
+		padding.PaddingRight = pad
 		header.Size = UDim2.fromOffset(if open then gridWidth else 96, BUTTON_SIZE.Y)
 		header.Text = if open then "DEBUG (hide)" else "DEBUG"
 		grid.Visible = open

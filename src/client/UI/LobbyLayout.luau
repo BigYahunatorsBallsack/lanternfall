@@ -9,6 +9,19 @@ local Layout = {}
 local refresh: (() -> ())? = nil
 
 function Layout.mount(screen: ScreenGui, choose: Frame, players: Frame, record: Frame, status: Frame)
+	-- Fill the safe-area margins too, while controls stay inside Roblox's usable viewport.
+	local canvas = Widgets.screen("LobbyCanvas", 0)
+	canvas.IgnoreGuiInset = true
+	Widgets.create("Frame", {
+		Size = UDim2.fromScale(1, 1),
+		BackgroundColor3 = Theme.canvas,
+		BorderSizePixel = 0,
+		Parent = canvas,
+	})
+	canvas.Enabled = screen.Enabled
+	screen:GetPropertyChangedSignal("Enabled"):Connect(function()
+		canvas.Enabled = screen.Enabled
+	end)
 	local backdrop = Widgets.create("Frame", {
 		Name = "LobbyBackdrop",
 		BackgroundColor3 = Theme.canvas,
@@ -27,11 +40,13 @@ function Layout.mount(screen: ScreenGui, choose: Frame, players: Frame, record: 
 	Widgets.label({
 		Name = "Brand",
 		Text = "LANTERNFALL",
-		TextSize = 32,
+		TextSize = 44,
 		Font = Theme.fontBold,
-		TextColor3 = Theme.accent,
-		TextXAlignment = Enum.TextXAlignment.Left,
-		Size = UDim2.new(1, -56, 0, 44),
+		TextColor3 = Theme.text,
+		TextXAlignment = Enum.TextXAlignment.Center,
+		Size = UDim2.new(1, 0, 0, 50),
+		TextStrokeColor3 = Theme.stroke,
+		TextStrokeTransparency = 0,
 		Parent = heading,
 	})
 	Widgets.unscaled(status)
@@ -47,18 +62,37 @@ function Layout.mount(screen: ScreenGui, choose: Frame, players: Frame, record: 
 		elseif child:IsA("TextLabel") then
 			child.TextSize = 17
 			child.TextColor3 = Theme.textDim
-			child.TextXAlignment = Enum.TextXAlignment.Left
+			child.TextXAlignment = Enum.TextXAlignment.Center
 			child.Size = UDim2.fromScale(1, 1)
 		end
 	end
 	local nav = Widgets.create("Frame", {
 		Name = "Navigation",
 		BackgroundTransparency = 1,
-		Position = UDim2.fromOffset(16, 110),
+		AnchorPoint = Vector2.new(0.5, 0),
+		Position = UDim2.new(0.5, 0, 0, 110),
 		Size = UDim2.new(1, -32, 0, 46),
 		Parent = backdrop,
 	})
 	Widgets.list(8, Enum.FillDirection.Horizontal).Parent = nav
+	local footer = Widgets.create("Frame", {
+		Name = "LobbyFooter",
+		BackgroundColor3 = Theme.canvas,
+		BorderSizePixel = 0,
+		AnchorPoint = Vector2.new(0.5, 1),
+		Position = UDim2.new(0.5, 0, 1, -12),
+		Size = UDim2.fromOffset(600, 58),
+		Parent = backdrop,
+	})
+	Widgets.list(8).Parent = footer
+	for order, name in { "Ready", "HubActions", "BackToHub" } do
+		local action = choose:FindFirstChild(name)
+		if action and action:IsA("GuiObject") then
+			action.Parent = footer
+			action.LayoutOrder = order
+			action.Size = UDim2.new(1, 0, 0, if name == "BackToHub" then 44 else 52)
+		end
+	end
 	local scroll = Widgets.create("ScrollingFrame", {
 		Name = "LobbyContent",
 		Position = UDim2.fromOffset(16, 174),
@@ -112,6 +146,7 @@ function Layout.mount(screen: ScreenGui, choose: Frame, players: Frame, record: 
 				buttons[i].BackgroundColor3 = if i == selected then Theme.accent else Theme.button
 				buttons[i].TextColor3 = if i == selected then Theme.accentText else Theme.text
 			end
+			Layout.refresh()
 		end)
 	end
 	buttons[1].BackgroundColor3 = Theme.accent
@@ -121,9 +156,29 @@ function Layout.mount(screen: ScreenGui, choose: Frame, players: Frame, record: 
 		if typeof(area) ~= "Vector2" or area.X <= 0 then
 			area = if workspace.CurrentCamera then workspace.CurrentCamera.ViewportSize else Vector2.new(1280, 720)
 		end
-		local width = math.min(920, math.max(240, area.X - 48))
+		nav.Size = UDim2.fromOffset(math.min(660, area.X - 32), 44)
+		local short = area.Y < 420
+		local contentTop = if short then 110 else 174
+		nav.Position = UDim2.new(0.5, 0, 0, if short then 52 else 110)
+		status.Visible = not short
+		scroll.Position = UDim2.fromOffset(16, contentTop)
+		local brand = heading:FindFirstChild("Brand") :: TextLabel
+		brand.TextSize = if area.X < 600 or short then 28 else 44
+		brand.Size = UDim2.new(1, if area.X < 600 or short then -160 else 0, 0, if short then 36 else 50)
+		local width = math.min(1160, math.max(240, area.X - 48))
 		content.Size = UDim2.fromOffset(width, 0)
-		CharacterChoice.resize(width - 36)
+		local count, footerHeight = 0, 0
+		for _, child in footer:GetChildren() do
+			if child:IsA("GuiObject") and child.Visible then
+				count += 1
+				footerHeight += child.Size.Y.Offset
+			end
+		end
+		footerHeight += math.max(0, count - 1) * 8
+		footer.Visible = selected == 1 and count > 0
+		footer.Size = UDim2.fromOffset(width - 8, footerHeight)
+		scroll.Size = UDim2.new(1, -32, 1, -contentTop - 16 - (if footer.Visible then footerHeight + 12 else 0))
+		CharacterChoice.resize(width - 36, area.Y)
 		for _, button in buttons do
 			button.TextSize = if area.X < 600 then 12 else 16
 		end

@@ -21,12 +21,13 @@ local UpgradeText = require(Shared:WaitForChild("Util"):WaitForChild("UpgradeTex
 local RunStateController = require(script.Parent.RunStateController)
 local Theme = require(script.Parent.Parent.UI.Theme)
 local Widgets = require(script.Parent.Parent.UI.Widgets)
+local Icons = require(script.Parent.Parent.UI.Icons)
 local Dialog = require(script.Parent.Parent.UI.Dialog)
 
 local LevelUp = Config.Run.levelUp
-local CARD_SIZE = Vector2.new(210, 268)
+local CARD_SIZE = Vector2.new(210, 300)
 local CARD_GAP = 12
-local ICON_SIZE = 44
+local ICON_SIZE = 76
 local KEYS = { Enum.KeyCode.One, Enum.KeyCode.Two, Enum.KeyCode.Three, Enum.KeyCode.Four }
 
 local LevelUpController = {}
@@ -112,14 +113,6 @@ local function reroll()
 	Net.fireServer("RequestReroll")
 end
 
-local function initials(title: string): string
-	local letters = {}
-	for word in string.gmatch(title, "%a+") do
-		table.insert(letters, string.sub(word, 1, 1))
-	end
-	return string.upper(table.concat(letters, "", 1, math.min(#letters, 2)))
-end
-
 local function buildCard(index: number, parent: Instance?, name: string?): CardView
 	local touch = UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled
 	local button = Widgets.button({
@@ -135,7 +128,7 @@ local function buildCard(index: number, parent: Instance?, name: string?): CardV
 	end)
 	Widgets.padding(12).Parent = button
 	Widgets.list(6).Parent = button
-	local edge = Widgets.create("UIStroke", { Name = "Edge", Color = Theme.stroke, Thickness = 2, Parent = button })
+	local edge = button:FindFirstChild("Outline") :: UIStroke
 	local badge = Widgets.label({
 		Name = "Badge",
 		Font = Theme.fontBold,
@@ -146,6 +139,7 @@ local function buildCard(index: number, parent: Instance?, name: string?): CardV
 	})
 	local icon = Widgets.create("Frame", {
 		Name = "Icon",
+		BackgroundTransparency = 1,
 		Size = UDim2.fromOffset(ICON_SIZE, ICON_SIZE),
 		LayoutOrder = 2,
 		Parent = button,
@@ -205,8 +199,10 @@ local function renderCards(current: Types.LevelUpOffer)
 			view.name.Text = title
 			view.detail.Text = detail
 			view.icon.BackgroundColor3 = color
-			view.letters.Text = initials(title)
-			view.edge.Color = color
+			view.letters.Text = ""
+			Icons.draw(view.icon, "stat", card.stat)
+			view.edge.Color = Theme.stroke
+			view.detail.TextColor3 = Theme.success
 		end
 	end
 end
@@ -223,8 +219,9 @@ local function renderCrate(current: Types.CrateOffer)
 	crateCard.name.Text = title
 	crateCard.detail.Text = UpgradeText.itemLines(current.itemId, STAT_COLORS)
 	crateCard.icon.BackgroundColor3 = color
-	crateCard.letters.Text = initials(title)
-	crateCard.edge.Color = color
+	crateCard.letters.Text = ""
+	Icons.draw(crateCard.icon, "item", current.itemId)
+	crateCard.edge.Color = Theme.stroke
 	sellButton.Text = `Sell (+{current.sellPrice} Shards)`
 end
 
