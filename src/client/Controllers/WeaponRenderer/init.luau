@@ -17,6 +17,7 @@ local WeaponFx = require(Shared:WaitForChild("Net"):WaitForChild("WeaponFx"))
 local LoadoutController = require(script.Parent.LoadoutController)
 local RunStateController = require(script.Parent.RunStateController)
 local VisualKit = require(script.VisualKit)
+local HeldModels = require(script.HeldModels)
 
 local FOLDER_NAME = "LanternfallWeapons"
 
@@ -105,6 +106,7 @@ local function setEnabled(value: boolean)
 	end
 	enabled = value
 	if not value then
+		HeldModels.clear()
 		for _, visual in visuals do
 			if visual.clear then
 				visual.clear()
@@ -132,7 +134,8 @@ local function render(dt: number)
 			local position = rootPosition(userId)
 			if position then
 				local owner: VisualKit.Owner = { userId = userId, position = position }
-				for _, weapon in loadout.weapons do
+				for slot, weapon in loadout.weapons do
+					HeldModels.renderWeapon(owner, weapon, slot, #loadout.weapons, frame)
 					local behavior = behaviorOf(weapon)
 					local visual = behavior and visuals[behavior]
 					if visual and visual.renderWeapon then
@@ -147,6 +150,7 @@ local function render(dt: number)
 			visual.render(frame)
 		end
 	end
+	HeldModels.finish(frame)
 
 	for k = listLength + 1, previousLength do
 		partList[k] = nil
