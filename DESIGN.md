@@ -941,6 +941,14 @@ Brotato dient als Vorbild für Informationshierarchie: klare Karten, Wertevergle
 
 Umsetzungsstand, technische Checks und die noch ausstehende echte Studio-Abnahme: `docs/UI-REDESIGN-HANDOFF.md`. Automatische Tests prüfen GUI-Struktur und Bedienabläufe, keine Roblox-Schriftumbrüche oder Pixelpositionen.
 
+### Brotato-UI-Rework (Owner-Auftrag 02.11.2026)
+
+- Warme Stein-/Olivflächen, kräftige dunkle Konturen, helle Schrift und grüne Hauptaktionen. Eigene gezeichnete Charakterporträts, Waffenformen und Wertesymbole; keine importierten Brotato-Spielgrafiken.
+- Charakterwahl als Bildraster mit separatem Detailbereich und Startwaffen-Karten. Freischaltpreise bleiben auf gesperrten Karten sichtbar; Bedingungen stehen im Tooltip. Play-/Ready-Aktionen bleiben beim Scrollen am unteren Bildschirmrand.
+- Shop mit vier Bildangeboten, Seltenheitsband, farbigen Effekten, Preisen und getrennten Sperrknöpfen. Waffen und alle Items bilden das Inventar darunter. Werte stehen auf Desktop direkt daneben. Kurzes Handy-Querformat erhält horizontale kompakte Karten und vier Aktionen in einer Zeile; Portrait bleibt bei zwei Angeboten pro Reihe.
+- HP/XP gemeinsam links oben, Timer in der Mitte; Teamliste nur bei mehreren Teilnehmern. Dash wird in Menüs und zwischen Wellen ausgeblendet. Gemeinsame Dialoge zentrieren kurze Inhalte und liegen vor anderen Spielanzeigen.
+- Bilder, Prüfgrenzen und Bedienanleitung: `docs/UI-BROTATO-REWORK.md`. Item-Symbole stellen Wertekategorien dar; Figuren und Inhalte bleiben eigene Lanternfall-Entwürfe. Keine Änderung der Serverregeln oder Zahlen.
+
 ## 14. Art-Direction & Audio
 
 - **Stil (seit Paket 9d, Wunsch des Owners: „im Style von Deadlock"): okkultes Art déco.** Gealtertes Messing und Gold, Porzellanmasken, Gasmasken und Kutten, rußschwarze Kreaturen, dazu leuchtende Augen, Linsen und Risse in kräftigen Neonfarben, Sonnenstrahlen- und Zackenformen. Übernommen ist nur die Stimmung: keine Figuren, Namen, Logos oder Designs aus Deadlock.

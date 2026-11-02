@@ -119,6 +119,7 @@ function Widgets.panel(props: { [string]: any }): Frame
 	table.insert(scales, uiScale)
 	local defaults = {
 		BackgroundColor3 = Theme.panel,
+		BorderSizePixel = 0,
 		BackgroundTransparency = Theme.panelTransparency,
 		AutomaticSize = Enum.AutomaticSize.Y,
 	}
@@ -129,13 +130,14 @@ function Widgets.panel(props: { [string]: any }): Frame
 		uiScale,
 		Widgets.corner(),
 		Widgets.padding(14),
-		Widgets.create("UIStroke", { Color = Theme.stroke, Thickness = 2 }),
+		Widgets.create("UIStroke", { Color = Theme.stroke, Thickness = 3 }),
 	})
 end
 
 function Widgets.label(props: { [string]: any }): TextLabel
 	local defaults = {
 		BackgroundTransparency = 1,
+		BorderSizePixel = 0,
 		Font = Theme.font,
 		TextColor3 = Theme.text,
 		TextSize = Theme.textSize,
@@ -151,6 +153,7 @@ end
 function Widgets.button(props: { [string]: any }, onClick: () -> ()): TextButton
 	local defaults = {
 		BackgroundColor3 = Theme.button,
+		BorderSizePixel = 0,
 		Font = Theme.fontBold,
 		TextColor3 = Theme.text,
 		TextSize = Theme.textSize,
@@ -161,7 +164,13 @@ function Widgets.button(props: { [string]: any }, onClick: () -> ()): TextButton
 	for key, value in props do
 		defaults[key] = value
 	end
-	local button = Widgets.create("TextButton", defaults, { Widgets.corner() })
+	local button = Widgets.create("TextButton", defaults, {
+		Widgets.corner(),
+		Widgets.create(
+			"UIStroke",
+			{ Name = "Outline", ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Color = Theme.stroke, Thickness = 3 }
+		),
+	})
 	button.Activated:Connect(function()
 		-- Paket 21; a sound problem must never stop the button from working
 		local ok, err = pcall(Sfx.play, "uiClick")

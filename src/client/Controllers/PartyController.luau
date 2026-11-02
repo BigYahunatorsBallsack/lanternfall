@@ -445,8 +445,8 @@ local function renderActions(current: Types.PartyState)
 	end
 	quick.Visible = leading
 	quick.Text = if current.queue then "CANCEL QUICK JOIN" else "QUICK JOIN"
-	quick.BackgroundColor3 = if current.queue then Theme.button else Theme.accent
-	quick.TextColor3 = if current.queue then Theme.text else Theme.accentText
+	quick.BackgroundColor3 = Theme.button
+	quick.TextColor3 = Theme.text
 end
 
 local function renderInvite(current: Types.PartyState?)

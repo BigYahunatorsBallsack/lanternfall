@@ -3,6 +3,7 @@
 local Widgets = require(script.Parent.Widgets)
 local Theme = require(script.Parent.Theme)
 local Dialog = {}
+local layers: { [ScreenGui]: { order: number, roots: { Frame } } } = {}
 function Dialog.wrap(panel: Frame, close: (() -> ())?, maxWidth: number?)
 	local parent = panel.Parent
 	local width = maxWidth or panel.Size.X.Offset
@@ -11,13 +12,35 @@ function Dialog.wrap(panel: Frame, close: (() -> ())?, maxWidth: number?)
 		Name = panel.Name .. "Dialog",
 		Size = UDim2.fromScale(1, 1),
 		BackgroundColor3 = Theme.canvas,
-		BackgroundTransparency = 0.08,
+		BackgroundTransparency = 0,
 		BorderSizePixel = 0,
 		Active = true,
 		ZIndex = 20,
 		Visible = panel.Visible,
 		Parent = parent,
 	})
+	local host = parent
+	while host and not host:IsA("ScreenGui") do
+		host = host.Parent
+	end
+	local function updateLayer()
+		if not host then
+			return
+		end
+		local gui = host :: ScreenGui
+		local layer = layers[gui]
+		local open = false
+		for _, modal in layer.roots do
+			open = open or modal.Visible
+		end
+		gui.DisplayOrder = if open then math.max(20, layer.order) else layer.order
+	end
+	if host then
+		local gui = host :: ScreenGui
+		layers[gui] = layers[gui] or { order = gui.DisplayOrder, roots = {} }
+		table.insert(layers[gui].roots, root)
+		updateLayer()
+	end
 	local scroll = Widgets.create("ScrollingFrame", {
 		Name = "Content",
 		BackgroundTransparency = 1,
@@ -54,8 +77,18 @@ function Dialog.wrap(panel: Frame, close: (() -> ())?, maxWidth: number?)
 		end
 		panel.Size = UDim2.fromOffset(math.max(240, math.min(width, area.X - 40)), 0)
 	end
+	local function center()
+		local available, size = scroll.AbsoluteSize, panel.AbsoluteSize
+		if typeof(available) == "Vector2" and typeof(size) == "Vector2" then
+			local y = math.max(0, math.floor((available.Y - size.Y) / 2))
+			panel.Position = UDim2.new(0.5, 0, 0, y)
+		end
+	end
+	panel:GetPropertyChangedSignal("AbsoluteSize"):Connect(center)
+	scroll:GetPropertyChangedSignal("AbsoluteSize"):Connect(center)
 	panel:GetPropertyChangedSignal("Visible"):Connect(function()
 		root.Visible = panel.Visible
+		updateLayer()
 		if panel.Visible then
 			scroll.CanvasPosition = Vector2.new(0, 0)
 			resize()

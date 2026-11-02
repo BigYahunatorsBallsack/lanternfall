@@ -23,13 +23,14 @@ local WeaponClasses = require(Shared:WaitForChild("Util"):WaitForChild("WeaponCl
 
 local LoadoutController = require(script.Parent.LoadoutController)
 local RunStateController = require(script.Parent.RunStateController)
+local Icons = require(script.Parent.Parent.UI.Icons)
 local Theme = require(script.Parent.Parent.UI.Theme)
 local Tooltip = require(script.Parent.Parent.UI.Tooltip)
 local TooltipText = require(Shared:WaitForChild("Util"):WaitForChild("TooltipText"))
 local Widgets = require(script.Parent.Parent.UI.Widgets)
 
 local PANEL_WIDTH = 260
-local ROW_HEIGHT = 24
+local ROW_HEIGHT = 30
 local CLASS_TEXT_SIZE = 13
 
 local StatsController = {}
@@ -69,7 +70,7 @@ local function classLine(classId: string, count: number): string
 	local progress = `{count}/{Config.WeaponClasses.maxCount}`
 	local bonus = WeaponClasses.bonus(classId, count)
 	if not bonus then
-		return `<font color="#9A93A8">{name} {progress} ({Config.WeaponClasses.minCount} for a bonus)</font>`
+		return `<font color="#CCCAB9">{name} {progress} ({Config.WeaponClasses.minCount} for a bonus)</font>`
 	end
 	return `<b>{name} {progress}</b>: {(string.gsub(UpgradeText.statLines(bonus), "\n", ", "))}`
 end
@@ -180,6 +181,9 @@ local function build()
 			Parent = panel,
 		})
 		rows[stat.id] = row
+		local icon = Icons.holder(row, 24)
+		icon.Position = UDim2.fromOffset(0, 3)
+		Icons.draw(icon, "stat", stat.id)
 		local statId = stat.id
 		Tooltip.attach(row, function()
 			return TooltipText.stat(statId, sheet[statId] or 0)
@@ -190,7 +194,8 @@ local function build()
 			TextSize = 15,
 			TextColor3 = Theme.textDim,
 			TextXAlignment = Enum.TextXAlignment.Left,
-			Size = UDim2.fromScale(0.62, 1),
+			Position = UDim2.fromOffset(30, 0),
+			Size = UDim2.new(0.70, -30, 1, 0),
 			Parent = row,
 		})
 		values[stat.id] = Widgets.label({
@@ -200,7 +205,7 @@ local function build()
 			TextXAlignment = Enum.TextXAlignment.Right,
 			AnchorPoint = Vector2.new(1, 0),
 			Position = UDim2.fromScale(1, 0),
-			Size = UDim2.fromScale(0.38, 1),
+			Size = UDim2.fromScale(0.30, 1),
 			Parent = row,
 		})
 	end
@@ -255,15 +260,23 @@ local function build()
 		end
 	end
 	local function resize()
-		local area = if workspace.CurrentCamera then workspace.CurrentCamera.ViewportSize else Vector2.new(1280, 720)
+		local area = screen.AbsoluteSize
+		if typeof(area) ~= "Vector2" or area.X <= 0 then
+			area = if workspace.CurrentCamera then workspace.CurrentCamera.ViewportSize else Vector2.new(1280, 720)
+		end
 		local compact = area.X < 1000 or area.Y < 600
+		local groupWidth = math.min(Theme.shopMaxWidth + PANEL_WIDTH + 2 * MARGIN, area.X - 16)
+		local right = math.floor((area.X - groupWidth) / 2) + MARGIN
 		panel.AutomaticSize = Enum.AutomaticSize.None
 		panel.AnchorPoint = Vector2.new(if compact then 0.5 else 1, 0)
-		panel.Position = if compact then UDim2.new(0.5, 0, 0, 76) else UDim2.new(1, -12, 0, 76)
-		panel.Size =
-			UDim2.fromOffset(if compact then math.min(520, area.X - 24) else PANEL_WIDTH, math.max(120, area.Y - 158))
+		panel.Position = if compact then UDim2.new(0.5, 0, 0, 76) else UDim2.new(1, -right, 0, 76)
+		panel.Size = UDim2.fromOffset(
+			if compact then math.min(520, area.X - 24) else PANEL_WIDTH,
+			math.max(120, area.Y - (if compact then 158 else 100))
+		)
 	end
 	resize()
+	screen:GetPropertyChangedSignal("AbsoluteSize"):Connect(resize)
 	if workspace.CurrentCamera then
 		workspace.CurrentCamera:GetPropertyChangedSignal("ViewportSize"):Connect(resize)
 	end

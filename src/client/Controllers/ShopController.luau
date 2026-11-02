@@ -27,16 +27,18 @@ local LoadoutController = require(script.Parent.LoadoutController)
 local RunStateController = require(script.Parent.RunStateController)
 local StatsController = require(script.Parent.StatsController)
 local StoreController = require(script.Parent.StoreController)
+local Icons = require(script.Parent.Parent.UI.Icons)
+local ProgressController = require(script.Parent.ProgressController)
 local Theme = require(script.Parent.Parent.UI.Theme)
 local Tooltip = require(script.Parent.Parent.UI.Tooltip)
 local TooltipText = require(Shared:WaitForChild("Util"):WaitForChild("TooltipText"))
 local Widgets = require(script.Parent.Parent.UI.Widgets)
 
 local CARD_WIDTH = 200
-local CARD_HEIGHT = { normal = 254, compact = 210 } -- the buy button; the lock button sits below it
-local DETAIL_HEIGHT = { normal = 116, compact = 76 }
+local CARD_HEIGHT = { normal = 300, compact = 284 } -- the buy button; the lock button sits below it
+local DETAIL_HEIGHT = { normal = 98, compact = 82 }
 local LOCK_HEIGHT = 44
-local CHIP_SIZE = Vector2.new(126, 52)
+local CHIP_SIZE = Vector2.new(136, 102)
 local GAP = 10
 local HEADER_HEIGHT = 34
 local WEAPONS_TITLE_HEIGHT = 20
@@ -72,9 +74,13 @@ local actionsRow: Frame
 local shardsPanel: Frame
 local header: Frame
 local subtitleLabel: TextLabel
+local shortSubtitle: TextLabel
 local cardRow: Frame
 local weaponsTitle: TextLabel
 local chipRow: Frame
+local itemRow: Frame
+local itemTitle: TextLabel
+local itemViews: { [string]: Frame } = {}
 local actionHint: TextLabel
 local sellButton: TextButton
 local mergeButton: TextButton
@@ -84,6 +90,9 @@ local readyButton: TextButton
 local backButton: TextButton
 
 type CardView = {
+	icon: Frame,
+	list: UIListLayout,
+	padding: UIPadding,
 	frame: Frame,
 	button: TextButton,
 	badge: TextLabel,
@@ -96,6 +105,7 @@ type CardView = {
 }
 
 type ChipView = {
+	icon: Frame,
 	button: TextButton,
 	name: TextLabel,
 	info: TextLabel,
@@ -107,6 +117,7 @@ local chips: { ChipView } = {}
 local shop: Types.ShopState? = nil
 local selectedUid: number? = nil
 local compact = false
+local landscape = false
 local showingStats = false -- compact layout: the stat panel is shown instead of the shop
 
 local function localInfo(): Types.PlayerInfo?
@@ -202,7 +213,9 @@ end
 -- Layout --------------------------------------------------------------------------------
 
 local function cardHeight(): number
-	return (if compact then CARD_HEIGHT.compact else CARD_HEIGHT.normal) + GAP / 2 + LOCK_HEIGHT
+	return (if landscape then 120 elseif compact then CARD_HEIGHT.compact else CARD_HEIGHT.normal)
+		+ GAP / 2
+		+ LOCK_HEIGHT
 end
 
 -- The shop uses real pixels and scrolling, never a tiny scaled four-card strip.
@@ -216,54 +229,92 @@ end
 local function applyLayout()
 	local area = screenArea()
 	compact = area.X < 1000 or area.Y < 600
+	landscape = area.Y < 420 and area.X >= 600
 	local reserved = if compact then 0 else StatsController.reservedWidth()
-	local width = math.min(1120, area.X - reserved - 2 * MARGIN)
+	local width = math.min(Theme.shopMaxWidth, area.X - reserved - 2 * MARGIN)
+	local left = math.floor((area.X - width - reserved) / 2)
 	local columns = if compact then (if width < 340 then 1 else 2) else Config.Shop.slots
 	local cardWidth = (width - 2 * PADDING - (columns - 1) * GAP) / columns
 	local cardRows = math.ceil(Config.Shop.slots / columns)
 	local perRow = math.max(1, math.floor((width - 2 * PADDING + GAP) / (CHIP_SIZE.X + GAP)))
 	local chipRows = math.max(1, math.ceil((if shop then #shop.weapons else 0) / perRow))
-	local footerHeight = if compact then 2 * BUTTON_HEIGHT + GAP else BUTTON_HEIGHT
+	local itemCount = #ProgressController.getLocalItems()
+	local itemColumns = math.max(1, math.floor((width - 2 * PADDING + GAP) / 74))
+	local itemHeight = if itemCount > 0 then math.ceil(itemCount / itemColumns) * 74 - GAP else 0
+	itemRow.Size = UDim2.new(1, 0, 0, itemHeight)
+	local footerHeight = if compact and not landscape then 2 * BUTTON_HEIGHT + GAP else BUTTON_HEIGHT
+	local topReserve = if landscape then 64 else TOP_RESERVE
 	local actionsHeight = if compact then 3 * ACTION_HEIGHT + 2 * GAP else ACTION_HEIGHT
-	local contentHeight = HEADER_HEIGHT
+	local contentHeight = (if landscape then -GAP else HEADER_HEIGHT)
 		+ cardRows * cardHeight()
 		+ (cardRows - 1) * GAP
 		+ WEAPONS_TITLE_HEIGHT
 		+ chipRows * (CHIP_SIZE.Y + GAP)
 		+ actionsHeight
+		+ (if itemCount > 0 then itemHeight + WEAPONS_TITLE_HEIGHT + 2 * GAP else 0)
 		+ 5 * GAP
 		+ 2 * PADDING
 	panelScale.Scale = 1
 	panel.Size = UDim2.fromOffset(width, contentHeight)
 	panel.AnchorPoint = Vector2.new(0, 0)
 	panel.Position = UDim2.new()
-	shopScroll.Position = UDim2.fromOffset(MARGIN, TOP_RESERVE)
-	shopScroll.Size = UDim2.new(0, width + 6, 1, -TOP_RESERVE - footerHeight - 24)
+	shopScroll.Position = UDim2.fromOffset(left, topReserve)
+	shopScroll.Size = UDim2.new(0, width + 6, 1, -topReserve - footerHeight - (if landscape then 16 else 24))
 	shopScroll.CanvasSize = UDim2.fromOffset(0, contentHeight)
-	footer.Position = UDim2.new(0, MARGIN, 1, -footerHeight - 12)
+	footer.Position = UDim2.new(0, left, 1, -footerHeight - 12)
 	footer.Size = UDim2.fromOffset(width, footerHeight)
 	local footerGrid = footerButtons:FindFirstChildOfClass("UIGridLayout")
-	footerGrid.CellSize = UDim2.new(if compact then 0.5 else 1 / 3, -GAP, 0, BUTTON_HEIGHT)
+	footerGrid.CellSize = UDim2.new(if landscape then 0.25 elseif compact then 0.5 else 1 / 3, -GAP, 0, BUTTON_HEIGHT)
 	local cardGrid = cardRow:FindFirstChildOfClass("UIGridLayout")
 	cardGrid.CellSize = UDim2.fromOffset(cardWidth, cardHeight())
 	cardRow.Size = UDim2.new(1, 0, 0, cardRows * cardHeight() + (cardRows - 1) * GAP)
 	for _, view in cards do
-		view.button.Size = UDim2.fromOffset(cardWidth, if compact then CARD_HEIGHT.compact else CARD_HEIGHT.normal)
+		view.button.Size = UDim2.fromOffset(
+			cardWidth,
+			if landscape then 120 elseif compact then CARD_HEIGHT.compact else CARD_HEIGHT.normal
+		)
 		view.lock.Size = UDim2.fromOffset(cardWidth, LOCK_HEIGHT)
-		view.detailArea.Size = UDim2.new(1, 0, 0, if compact then DETAIL_HEIGHT.compact else DETAIL_HEIGHT.normal)
+		view.list.Parent = if landscape then nil else view.button
+		local pad = UDim.new(0, if landscape then 0 else 10)
+		view.padding.PaddingTop = pad
+		view.padding.PaddingBottom = pad
+		view.padding.PaddingLeft = pad
+		view.padding.PaddingRight = pad
+		view.badge.Position = UDim2.new()
+		view.icon.Size = UDim2.fromOffset(if landscape then 52 else 68, if landscape then 52 else 68)
+		view.icon.Position = if landscape then UDim2.fromOffset(22, 28) else UDim2.new()
+		view.name.Position = if landscape then UDim2.fromOffset(104, 23) else UDim2.new()
+		view.name.Size = UDim2.new(1, if landscape then -112 else 0, 0, if landscape then 34 else 42)
+		view.name.TextSize = if landscape then 17 else 19
+		view.detailArea.Position = if landscape then UDim2.fromOffset(104, 61) else UDim2.new()
+		view.detailArea.Size = UDim2.new(
+			1,
+			if landscape then -112 else 0,
+			0,
+			if landscape then 52 elseif compact then DETAIL_HEIGHT.compact else DETAIL_HEIGHT.normal
+		)
 		view.detail.TextSize = if compact then 15 else 17
+		view.price.Position = if landscape then UDim2.fromOffset(6, 87) else UDim2.new()
+		view.price.Size = if landscape then UDim2.fromOffset(90, 27) else UDim2.new(1, 0, 0, 32)
+		view.price.TextSize = if landscape then 14 else 19
 	end
 	local actionsGrid = actionsRow:FindFirstChildOfClass("UIGridLayout")
 	actionsGrid.CellSize = UDim2.new(if compact then 1 else 1 / 3, -GAP, 0, ACTION_HEIGHT)
 	actionsRow.Size = UDim2.new(1, 0, 0, actionsHeight)
 	statsButton.Visible = compact
-	header.Visible = true
+	header.Visible = not landscape
+	shortSubtitle.Visible = landscape and panel.Visible
+	shortSubtitle.Position = UDim2.fromOffset(left + 172, 12)
+	shortSubtitle.Size = UDim2.fromOffset(math.max(140, width - 380), 44)
 	weaponsTitle.Visible = true
 	footer.Visible = panel.Visible
 	shardsPanel.AnchorPoint = Vector2.new(0, 0)
 	local state = RunStateController.get()
 	local betweenWaves = state and state.phase == "Shop"
-	shardsPanel.Position = UDim2.fromOffset(12, if betweenWaves then 12 elseif area.X < 700 then 176 else 68)
+	shardsPanel.Position = UDim2.fromOffset(
+		if betweenWaves then left + 4 else 12,
+		if betweenWaves then 12 elseif area.X < 700 then 104 else 100
+	)
 end
 
 -- Rendering -----------------------------------------------------------------------------
@@ -277,13 +328,16 @@ local function renderCards(current: Types.ShopState)
 			local color = Theme.tiers[offer.tier] or Theme.accent
 			local affordable = current.shards >= offer.price and not offer.blocked
 			view.badge.Text = if offer.sold then "SOLD" else string.upper(badge)
-			view.badge.TextColor3 = color
+			view.badge.TextColor3 = Theme.stroke
+			view.badge.BackgroundColor3 = color
+			Icons.draw(view.icon, string.lower(offer.kind), offer.itemId)
 			view.name.Text = title
 			view.detail.Text = detail
-			view.price.Text = if offer.sold then "" else `BUY · {offer.price} Shards`
-			view.price.TextColor3 = if affordable then SHARDS_COLOR else Theme.danger
-			view.edge.Color = if offer.sold then Theme.stroke elseif offer.locked then LOCKED_COLOR else color
-			view.edge.Thickness = if offer.locked then 3 else 2
+			view.price.Text = if offer.sold then "SOLD" else `{offer.price} Shards`
+			view.price.TextColor3 = if affordable then Theme.accentText else Theme.text
+			view.price.BackgroundColor3 = if affordable then Theme.accent else Theme.panel
+			view.edge.Color = if offer.locked then LOCKED_COLOR else Theme.stroke
+			view.edge.Thickness = 3
 			view.button.AutoButtonColor = not offer.sold and affordable
 			view.button.BackgroundTransparency = if offer.sold then 0.6 else 0
 			view.lock.Visible = not offer.sold
@@ -307,9 +361,10 @@ local function renderWeapons(current: Types.ShopState)
 			local color = Theme.tiers[weapon.tier] or Theme.accent
 			view.name.Text = UpgradeText.weaponName(weapon.id, weapon.tier, weapon.evolution)
 			view.name.TextColor3 = color
+			Icons.draw(view.icon, "weapon", weapon.id)
 			view.info.Text = if weapon.canMerge then "can merge" else ""
 			view.edge.Color = if selected then Theme.accent else color
-			view.edge.Thickness = if selected then 3 else 1.5
+			view.edge.Thickness = 3
 		end
 	end
 	local weapon = selectedWeapon(current)
@@ -328,6 +383,51 @@ local function renderWeapons(current: Types.ShopState)
 	end
 end
 
+local function renderItems()
+	local owned = ProgressController.getLocalItems()
+	local seen = {}
+	itemTitle.Text = `ITEMS  {#owned}`
+	itemTitle.Visible = #owned > 0
+	itemRow.Visible = #owned > 0
+	for index, entry in owned do
+		seen[entry.id] = true
+		local view = itemViews[entry.id]
+		if not view then
+			view = Widgets.create(
+				"Frame",
+				{ Name = entry.id, BackgroundColor3 = Theme.button, BorderSizePixel = 0, Parent = itemRow },
+				{ Widgets.corner(), Widgets.create("UIStroke", { Color = Theme.stroke, Thickness = 2 }) }
+			)
+			itemViews[entry.id] = view
+			local icon = Icons.holder(view, 48)
+			icon.Position = UDim2.fromOffset(8, 2)
+			Icons.draw(icon, "item", entry.id)
+			Widgets.label({
+				Name = "Count",
+				Font = Theme.fontBold,
+				TextSize = 13,
+				Size = UDim2.new(1, -4, 0, 18),
+				Position = UDim2.new(0, 2, 1, -19),
+				Parent = view,
+			})
+			local id = entry.id
+			Tooltip.attach(view, function()
+				local item = Config.Items.byId[id]
+				return if item then item.displayName else id, UpgradeText.itemLines(id, STAT_COLORS)
+			end)
+		end
+		view.LayoutOrder = index
+		local count = view:FindFirstChild("Count") :: TextLabel
+		count.Text = `×{entry.count}`
+	end
+	for id, view in itemViews do
+		if not seen[id] then
+			view:Destroy()
+			itemViews[id] = nil
+		end
+	end
+end
+
 local function renderButtons(current: Types.ShopState)
 	local free = current.freeRerolls > 0
 	local canReroll = free or current.shards >= current.rerollPrice
@@ -338,7 +438,7 @@ local function renderButtons(current: Types.ShopState)
 	rerollButton.AutoButtonColor = canReroll
 	local info = localInfo()
 	local ready = info ~= nil and info.shopReady == true
-	readyButton.Text = if ready then "WAITING… (tap to shop)" else "READY"
+	readyButton.Text = if ready then "WAITING… (tap to shop)" else "GO  →"
 	readyButton.BackgroundColor3 = if ready then Theme.button else Theme.accent
 	readyButton.TextColor3 = if ready then Theme.text else Theme.accentText
 end
@@ -366,6 +466,7 @@ function render()
 	panel.Visible = shopping and not statsInstead
 	shopScroll.Visible = panel.Visible
 	footer.Visible = panel.Visible
+	shortSubtitle.Visible = landscape and panel.Visible
 	backButton.Visible = statsInstead
 	StatsController.setSuppressed(shopping and compact and not showingStats)
 	if not (current and shopping) then
@@ -373,6 +474,7 @@ function render()
 	end
 	renderCards(current)
 	renderWeapons(current)
+	renderItems()
 	renderButtons(current)
 end
 
@@ -382,11 +484,11 @@ local function updateSubtitle()
 	end
 	local state = RunStateController.get()
 	local left = math.ceil(RunStateController.getPhaseRemaining())
-	local text =
-		`SHOP · Wave {if state then state.wave else 0}/{RunSchedule.waveCount()} cleared · next wave in {left}`
+	local text = `SHOP  ·  WAVE {if state then state.wave else 0}/{RunSchedule.waveCount()}  ·  {left}s`
 	if subtitleLabel.Text ~= text then
 		subtitleLabel.Text = text
 	end
+	shortSubtitle.Text = text
 end
 
 -- Building --------------------------------------------------------------------------------
@@ -407,24 +509,28 @@ local function buildCard(index: number): CardView
 	}, function()
 		buy(index)
 	end)
-	Widgets.padding(10).Parent = button
-	Widgets.list(4).Parent = button
-	local edge = Widgets.create("UIStroke", { Name = "Edge", Color = Theme.stroke, Thickness = 2, Parent = button })
+	local padding = Widgets.padding(10)
+	padding.Parent = button
+	local list = Widgets.list(4)
+	list.Parent = button
+	local edge = button:FindFirstChild("Outline") :: UIStroke
 	local badge = Widgets.label({
 		Name = "Badge",
 		Font = Theme.fontBold,
 		TextSize = 14,
 		TextColor3 = Theme.accent,
-		Size = UDim2.new(1, 0, 0, 18),
+		BackgroundTransparency = 0,
+		Size = UDim2.new(1, 0, 0, 20),
 		LayoutOrder = 1,
 		Parent = button,
 	})
+	local icon = Icons.holder(button, 68, 2)
 	local name = Widgets.label({
 		Name = "OfferName",
 		Font = Theme.fontBold,
 		TextSize = 19,
-		Size = UDim2.new(1, 0, 0, 52),
-		LayoutOrder = 2,
+		Size = UDim2.new(1, 0, 0, 42),
+		LayoutOrder = 3,
 		Parent = button,
 	})
 	-- Long effects scroll inside the card while the price and lock action remain reachable.
@@ -436,7 +542,7 @@ local function buildCard(index: number): CardView
 		CanvasSize = UDim2.new(),
 		AutomaticCanvasSize = Enum.AutomaticSize.Y,
 		ScrollingDirection = Enum.ScrollingDirection.Y,
-		LayoutOrder = 3,
+		LayoutOrder = 4,
 		Parent = button,
 	})
 	local detail = Widgets.label({
@@ -453,10 +559,11 @@ local function buildCard(index: number): CardView
 	local price = Widgets.label({
 		Name = "Price",
 		Font = Theme.fontBold,
-		TextSize = 16,
-		Size = UDim2.new(1, 0, 0, 24),
+		TextSize = 19,
+		BackgroundTransparency = 0,
+		Size = UDim2.new(1, 0, 0, 32),
 		TextColor3 = SHARDS_COLOR,
-		LayoutOrder = 4,
+		LayoutOrder = 5,
 		Parent = button,
 	})
 	local lock = Widgets.button({
@@ -471,6 +578,9 @@ local function buildCard(index: number): CardView
 	end)
 	return {
 		frame = frame,
+		icon = icon,
+		list = list,
+		padding = padding,
 		button = button,
 		badge = badge,
 		name = name,
@@ -492,14 +602,15 @@ local function buildChip(index: number): ChipView
 	}, function()
 		selectChip(index)
 	end)
-	local edge = Widgets.create("UIStroke", { Name = "Edge", Color = Theme.stroke, Thickness = 1.5, Parent = button })
+	local edge = button:FindFirstChild("Outline") :: UIStroke
+	local icon = Icons.holder(button, 46, 0)
 	Widgets.padding(4).Parent = button
 	Widgets.list(0).Parent = button
 	local name = Widgets.label({
 		Name = "WeaponName",
 		Font = Theme.fontBold,
-		TextSize = 15,
-		Size = UDim2.new(1, 0, 0, 20),
+		TextSize = 13,
+		Size = UDim2.new(1, 0, 0, 32),
 		LayoutOrder = 1,
 		Parent = button,
 	})
@@ -521,7 +632,7 @@ local function buildChip(index: number): ChipView
 		end
 		return nil, nil
 	end)
-	return { button = button, name = name, info = info, edge = edge }
+	return { button = button, icon = icon, name = name, info = info, edge = edge }
 end
 
 local function row(name: string, height: number, order: number, parent: Instance): Frame
@@ -547,11 +658,6 @@ local function build()
 		Size = UDim2.fromScale(1, 1),
 		Parent = backdrop,
 	})
-	Widgets.create("UIGradient", {
-		Rotation = 90,
-		Color = ColorSequence.new(BACKDROP_COLOR, Theme.panel),
-		Parent = cover,
-	})
 	local banner = Widgets.panel({
 		Name = "Header",
 		Visible = false, -- The shop owns its header; choices have their own modal title.
@@ -574,6 +680,14 @@ local function build()
 	backdropHint = Widgets.label({ Name = "Hint", TextColor3 = Theme.textDim, LayoutOrder = 2, Parent = banner })
 
 	screen = Widgets.screen("Shop", 4)
+	shortSubtitle = Widgets.label({
+		Name = "ShortSubtitle",
+		Font = Theme.fontBold,
+		TextSize = 15,
+		TextColor3 = Theme.accent,
+		Visible = false,
+		Parent = screen,
+	})
 	local shards = Widgets.panel({
 		Name = "Shards",
 		AnchorPoint = Vector2.new(1, 0),
@@ -618,7 +732,7 @@ local function build()
 		panelScale,
 		Widgets.corner(),
 		Widgets.padding(PADDING),
-		Widgets.create("UIStroke", { Color = Theme.stroke, Thickness = 1.5 }),
+		Widgets.create("UIStroke", { Color = Theme.stroke, Thickness = 3 }),
 	})
 	Widgets.list(GAP).Parent = panel
 
@@ -669,6 +783,25 @@ local function build()
 		chips[index] = buildChip(index)
 	end
 
+	itemTitle = Widgets.label({
+		Name = "ItemsTitle",
+		Font = Theme.fontBold,
+		TextSize = 15,
+		TextColor3 = Theme.textDim,
+		Size = UDim2.new(1, 0, 0, WEAPONS_TITLE_HEIGHT),
+		LayoutOrder = 6,
+		Parent = panel,
+	})
+	itemRow = Widgets.create(
+		"Frame",
+		{ Name = "Items", BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 64), LayoutOrder = 7, Parent = panel }
+	)
+	Widgets.create("UIGridLayout", {
+		CellSize = UDim2.fromOffset(64, 64),
+		CellPadding = UDim2.fromOffset(GAP, GAP),
+		SortOrder = Enum.SortOrder.LayoutOrder,
+		Parent = itemRow,
+	})
 	local actions = row("Actions", ACTION_HEIGHT, 5, panel)
 	actionsRow = actions
 	actions:FindFirstChildOfClass("UIListLayout"):Destroy()
@@ -764,6 +897,7 @@ end
 function ShopController.start()
 	build()
 	RunStateController.Changed:Connect(render)
+	ProgressController.ItemsChanged:Connect(render)
 	render()
 	local camera = workspace.CurrentCamera
 	if camera then

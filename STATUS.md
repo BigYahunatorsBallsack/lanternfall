@@ -70,7 +70,7 @@ Jeder Strang ändert nur **seine** Zeile (Regeln: `docs/PARALLEL.md`).
 | Strang | KI | Aktuelles Paket | Branch / PR | Stand | Danach |
 | --- | --- | --- | --- | --- | --- |
 | A – Engine und Ablauf | Claude | Paket 24 Launch-Paket (Medium) | `wp-24-launch` | fertig, selbst gemerged | Plan bis zum Launch abgeschlossen; als Nächstes IDs des Owners eintragen (Live-Experience, Badges, Musik), dann Live-Ops |
-| B – Inhalte und Spieler-Regeln | ChatGPT | UI-Redesign implementiert | `wp-ui-redesign` | PR #46; main bis Paket 23 integriert, 705 Tests grün, Merge vom Owner autorisiert | Studio-Sichttest solo/2 Clients |
+| B – Inhalte und Spieler-Regeln | ChatGPT | Neues Brotato-UI implementiert und solo in Studio geprüft | `codex/brotato-ui-rework` | 69 Specs / 724 Tests grün; native Desktop-/Handy-Vorschauen; Gegner-Art PR #56 weiter offen | Owner-Abnahme, echter Zwei-Client-/Gerätetest; UI-PR nach #56 |
 
 ## Feste Entscheidungen des Owners
 
@@ -237,3 +237,11 @@ Jeder Strang ändert nur **seine** Zeile (Regeln: `docs/PARALLEL.md`).
 - Owner beauftragt ausdrücklich: Konflikte auflösen und PR #46 mergen. Aktuellen main `c37cc78` einschließlich Audio-Korrektur sowie Performance-Paket 22 und Sicherheits-Paket 23 aufgenommen.
 - Konflikt in der Strang-Tabelle gelöst: aktueller A-Stand aus main und UI-Stand von B erhalten. Automatisch zusammengeführte Settings und Debug-Anzeigen geprüft: Graphics Auto/High/Low samt Speicherung sowie neue Netzwerk-/Speicher-/Frame-Anzeigen bleiben erhalten. Debug-Befehle in begrenztem Scrollbereich, längere Diagnosezeilen dürfen wachsen.
 - Zusammengeführter Stand: **67 Specs, 705 Tests bestanden**, StyLua, Diff-Check und Rojo-Build erfolgreich; Selene 0 Fehler / 11 bestehende Stilwarnungen. Paket 22 enthält bereits den B12-Minen-/Frucht-Testfix. Studio weiterhin nicht verbunden, daher kein neuer Sichttest behauptet.
+
+## Brotato-UI-Rework abgeschlossen (02.11.2026)
+
+- Neuer ausdrücklicher Owner-Auftrag nach dem Gegner-Art-Paket: große UI-Überarbeitung näher an Brotato. Isolierter Worktree `.work-ui`, Branch `codex/brotato-ui-rework` von main `9833229`; der vorhandene Arbeitsbaum und der Gegner-Branch blieben unangetastet.
+- Bildkarten für Charaktere/Startwaffen, Detailansicht, sichtbare Freischaltpreise, feste Startaktionen; Shop mit Illustrationen, Inventar, separaten Werten und kurzer Querformat-Darstellung; ruhigeres HP-/XP-HUD und gemeinsame zentrierte Dialoge. Kein Server-, Remote-, Profil- oder Balancing-Umbau.
+- 69 Specs / 724 Tests grün, StyLua/Diff/Rojo erfolgreich; Selene 0 Fehler / 11 vorhandene Warnungen mit gecachter API. Neue Regression für Itemmengen, unveränderte Illustrationen bei Preisupdates, feste Aktionen, Querformat, Dash und Dialogreihenfolge. Frühere textbasierte Freischaltprüfungen auf die neuen Labels und Tooltips umgestellt.
+- Studio war verbunden: Solo-Lauf, Kauf, Sperre, Inventar, mobiler STATS-Wechsel, Level-up und Ergebnisdialog geprüft; Sichtkontrolle in HD-720/1080 und Handy-Portrait/Querformat. Simulation zurückgesetzt und Play beendet. UI-Produktionsmodule synchronisiert, vorhandene Gegner-Art erhalten. Bestehende Asset-/Badge-Warnungen separat dokumentiert. Echter Zwei-Client-Lauf und physisches Handy bleiben offen.
+- Native Bilder und Abnahme: `docs/UI-BROTATO-REWORK.md`. PR-Text vorbereitet in `docs/UI-BROTATO-PR.md`; kein zweiter offener PR wegen `docs/PARALLEL.md` Abschnitt 4, solange Gegner-Art PR #56 offen ist. UI-Branch nach Abschluss von #56 mit main abgleichen, dann PR öffnen. Kein Merge oder Publish beauftragt.
