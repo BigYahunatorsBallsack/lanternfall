@@ -126,7 +126,11 @@ describe("loot", function()
 		expect(pickupsOf("Fruit")).toBe(1)
 		local lying = controller("PickupRenderer").getCounts()
 		expect(lying).toBe(1)
-		expect(#workspace:FindFirstChild("LanternfallPickups"):GetChildren()).toBe(2) -- fruit and leaf
+		local fruitVisuals = workspace:FindFirstChild("LanternfallPickups")
+		expect(#fruitVisuals:GetChildren()).toBe(5)
+		for _, partName in { "Fruit", "FruitHighlight", "Stem", "LeafLeft", "LeafRight" } do
+			expect(fruitVisuals:FindFirstChild(partName) ~= nil).toBe(true)
+		end
 		standAt(here.X + 40, here.Z)
 		world.advance(0.2)
 		expect(pickupsOf("Fruit")).toBe(0)

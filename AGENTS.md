@@ -1,5 +1,11 @@
 # AGENTS.md – Lanternfall (für ChatGPT / Codex und andere KI-Agenten)
 
+## Verbindlicher Projektstand
+
+- Das GitHub-Repository `BigYahunatorsBallsack/lanternfall` ist die Quelle fuer den aktuellen Projektstand. Vor jeder Arbeit den aktuellen `main` auf GitHub pruefen und Aenderungen von dort ableiten.
+- Der lokale Ordner `C:\Users\jonas\Documents\Roblox\lanternfall\lanternfall` ist veraltet. Seinen Inhalt oder seinen lokalen `main` nicht als aktuellen Stand verwenden; vorhandene lokale Aenderungen unangetastet lassen.
+- Studio kann fuer Laufzeittests genutzt werden. Vor einem Befund den dort geladenen Code mit GitHub `main` abgleichen, da Studio ebenfalls einen aelteren Stand enthalten kann.
+
 Koop-Survivors für **Roblox** in **Luau** (kein Godot, kein Unity). 1–4 Spieler, 20 Wellen im Stil von Brotato, Shop zwischen den Wellen.
 
 ## Zuerst lesen (in dieser Reihenfolge)

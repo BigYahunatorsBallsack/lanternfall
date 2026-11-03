@@ -1,10 +1,11 @@
 -- Held weapons: every configured weapon has a safe model, duplicates can coexist, and stale models return to pools.
 
-loadHelper("tests/helpers/RobloxMock.luau")
+local world = loadHelper("tests/helpers/RobloxMock.luau")
 
 local Config = require(game:GetService("ReplicatedStorage").Shared.Config)
 local HeldModels = require(folderProxy("src/client", "Client").Controllers.WeaponRenderer.HeldModels)
 local MeshCatalog = require(folderProxy("src/client", "Client").Controllers.WeaponRenderer.HeldMeshCatalog)
+local HeldMeshLoader = require(folderProxy("src/client", "Client").Controllers.WeaponRenderer.HeldMeshLoader)
 
 local function frame(folder, number)
 	return {
@@ -79,5 +80,22 @@ describe("Held weapon models", function()
 		expect(#folder:GetChildren()).toBe(one)
 		HeldModels.clear()
 		expect(#folder:GetChildren()).toBe(0)
+	end)
+
+	it("keeps the silhouette when a mesh asset fails and retries later", function()
+		_G.Content = {
+			fromUri = function(uri)
+				return uri
+			end,
+		}
+		world.assetFetchStatus = Enum.AssetFetchStatus.Failure
+		HeldMeshLoader.request("WatchmanPistol")
+		expect(HeldMeshLoader.prototypes("WatchmanPistol")).toBe(nil)
+		world.assetFetchStatus = Enum.AssetFetchStatus.Success
+		HeldMeshLoader.request("WatchmanPistol")
+		expect(HeldMeshLoader.prototypes("WatchmanPistol")).toBe(nil)
+		world.advance(21)
+		HeldMeshLoader.request("WatchmanPistol")
+		expect(HeldMeshLoader.prototypes("WatchmanPistol") ~= nil).toBe(true)
 	end)
 end)
