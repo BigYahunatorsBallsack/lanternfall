@@ -360,6 +360,7 @@ local EnumLib = setmetatable({}, {
 local SUPERCLASS = {
 	Part = "BasePart",
 	WedgePart = "BasePart",
+	CornerWedgePart = "BasePart", -- pointed shoulder chitin in the authored enemy looks
 	SpawnLocation = "Part",
 	BasePart = "PVInstance",
 	Model = "PVInstance",
@@ -687,6 +688,7 @@ end
 function methods.RequestStreamAroundAsync() end
 function methods.SetStateEnabled() end
 function methods.SetCoreGuiEnabled() end
+function methods.PreloadAsync() end -- native asset fetching is checked in Studio
 function methods.BindToRenderStep(self, name, _, callback)
 	world.renderSteps[name] = callback
 end
@@ -977,6 +979,7 @@ end
 
 __services.Players = Players
 __services.RunService = RunService
+__services.ContentProvider = newInstance("ContentProvider", { Name = "ContentProvider" })
 __services.Workspace = Workspace
 __services.TweenService = TweenService
 __services.ContextActionService = ContextActionService
