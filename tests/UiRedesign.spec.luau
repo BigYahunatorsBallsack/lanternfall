@@ -140,11 +140,12 @@ describe("UI redesign foundation", function()
 		local Stats = require(Server.Services.StatService)
 		local Progress = require(Client.Controllers.ProgressController)
 		local first = Shop.getOffers(me)[1]
-		local art = world.gui("Shop", "Offer1").Artwork.Illustration
+		local art = world.gui("Shop", "Offer1"):FindFirstChild("Illustration", true)
+		expect(art ~= nil).toBe(true)
 		expect(art:GetAttribute("IconKey")).toBe(string.lower(first.kind) .. ":" .. first.itemId)
 		Shop.addShards(me, 10)
 		world.advance(0.2)
-		expect(world.gui("Shop", "Offer1").Artwork.Illustration).toBe(art)
+		expect(world.gui("Shop", "Offer1"):FindFirstChild("Illustration", true)).toBe(art)
 		local inventory = world.gui("Shop", "Items")
 		for _, item in Progress.getLocalItems() do
 			expect(inventory[item.id].Count.Text).toBe(`×{item.count}`)

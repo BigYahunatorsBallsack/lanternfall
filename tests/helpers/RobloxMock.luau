@@ -688,7 +688,19 @@ end
 function methods.RequestStreamAroundAsync() end
 function methods.SetStateEnabled() end
 function methods.SetCoreGuiEnabled() end
-function methods.PreloadAsync() end -- native asset fetching is checked in Studio
+function methods.PreloadAsync(_, assets, callback)
+	if callback then
+		for _, asset in assets do
+			callback(
+				asset.TextureID or asset.MeshId or asset.Image or "",
+				world.assetFetchStatus or EnumLib.AssetFetchStatus.Success
+			)
+		end
+	end
+end -- native asset fetching is checked in Studio
+function methods.CreateMeshPartAsync(_, meshContent)
+	return newInstance("MeshPart", { MeshId = meshContent })
+end
 function methods.BindToRenderStep(self, name, _, callback)
 	world.renderSteps[name] = callback
 end
@@ -980,6 +992,7 @@ end
 __services.Players = Players
 __services.RunService = RunService
 __services.ContentProvider = newInstance("ContentProvider", { Name = "ContentProvider" })
+__services.AssetService = newInstance("AssetService", { Name = "AssetService" })
 __services.Workspace = Workspace
 __services.TweenService = TweenService
 __services.ContextActionService = ContextActionService

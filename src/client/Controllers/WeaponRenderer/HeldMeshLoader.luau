@@ -58,7 +58,15 @@ function HeldMeshLoader.request(id: string)
 			for _, piece in pieces do
 				table.insert(parts, piece.part)
 			end
-			contentProvider:PreloadAsync(parts)
+			local failedAsset: string? = nil
+			contentProvider:PreloadAsync(parts, function(contentId, status)
+				if status ~= Enum.AssetFetchStatus.Success and not failedAsset then
+					failedAsset = tostring(contentId)
+				end
+			end)
+			if failedAsset then
+				error(`asset fetch failed: {failedAsset}`)
+			end
 		end)
 		loading[id] = nil
 		if ok then
