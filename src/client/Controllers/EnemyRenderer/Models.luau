@@ -1,6 +1,6 @@
 --!strict
 -- EnemyRenderer's pooled looks: ordinary enemies, bosses and champions use authored cartoon segments from MeshCatalog;
--- harvestable trees retain their original occult art-deco parts (DESIGN.md section 14).
+-- harvestable trees use the same authored mesh path (DESIGN.md section 14).
 -- Sizes follow each enemy's existing collision radius from Config.Enemies.
 -- Every part belongs to a simple rig: it stands on the floor, rides on the body (which bobs, sways and leans while
 -- walking) or swings around a pivot (legs, arms, a censer, spinning crowns). Models.pose places all visible parts
@@ -8,7 +8,7 @@
 -- on low detail (setDetail): small trims (claws, filters, hems, bands) vanish and are not moved, a third fewer
 -- parts to move.
 -- MeshCatalog selects every enemy and champion by ID, including deliberately authored Abyss variants.
--- The primitive builders remain as fallbacks and supply the harvestable tree. The catalog preserves the
+-- The primitive builders remain as fallbacks. The catalog preserves the
 -- existing radius, pooling, status colors, white hit flash and each ordinary enemy's floor warning.
 -- Gloom Elites retain their crown, HP/affix label, Swift trail, Armored plates and Summoning wisps.
 -- Bosses and champions retain a restrained red glow; BossController renders their separate attack warnings.
