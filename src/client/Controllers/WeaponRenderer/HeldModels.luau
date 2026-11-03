@@ -3,6 +3,7 @@
 -- hit detection and attack effects remain entirely in WeaponService and the existing Visuals modules.
 
 local VisualKit = require(script.Parent.VisualKit)
+local HeldMeshLoader = require(script.Parent.HeldMeshLoader)
 
 local INK = Color3.fromRGB(25, 21, 29)
 local IRON = Color3.fromRGB(99, 105, 110)
@@ -19,7 +20,7 @@ local RED = Color3.fromRGB(215, 97, 82)
 
 type Piece = { part: BasePart, offset: CFrame }
 type Build = ({ Piece }) -> ()
-type Model = { pieces: { Piece }, seen: number, id: string }
+type Model = { pieces: { Piece }, seen: number, poolKey: string }
 
 local HeldModels = {}
 
@@ -266,18 +267,27 @@ local BUILDERS: { [string]: Build } = {
 local pools: { [string]: VisualKit.ObjectPool<{ Piece }> } = {}
 local active: { [string]: Model } = {}
 
-local function getPool(id: string): VisualKit.ObjectPool<{ Piece }>?
-	local pool = pools[id]
+local function getPool(id: string): (VisualKit.ObjectPool<{ Piece }>?, string?)
+	HeldMeshLoader.request(id)
+	local prototypes = HeldMeshLoader.prototypes(id)
+	local key = `{id}:{if prototypes then "mesh" else "solid"}`
+	local pool = pools[key]
 	if pool then
-		return pool
+		return pool, key
 	end
 	local build = BUILDERS[id]
 	if not build then
-		return nil
+		return nil, nil
 	end
 	pool = VisualKit.objectPool(function(): { Piece }
 		local parts = {}
-		build(parts)
+		if prototypes then
+			for _, prototype in prototypes do
+				table.insert(parts, { part = prototype.part:Clone(), offset = prototype.offset })
+			end
+		else
+			build(parts)
+		end
 		return parts
 	end, function(parts: { Piece }): { BasePart }
 		local list = {}
@@ -286,8 +296,8 @@ local function getPool(id: string): VisualKit.ObjectPool<{ Piece }>?
 		end
 		return list
 	end)
-	pools[id] = pool
-	return pool
+	pools[key] = pool
+	return pool, key
 end
 
 function HeldModels.has(id: string): boolean
@@ -303,12 +313,17 @@ function HeldModels.renderWeapon(
 )
 	local key = `{owner.userId}:{weapon.uid}`
 	local current = active[key]
+	local pool, poolKey = getPool(weapon.id)
+	if not pool or not poolKey then
+		return
+	end
+	if current and current.poolKey ~= poolKey then
+		(pools[current.poolKey] :: VisualKit.ObjectPool<{ Piece }>):release(current.pieces)
+		active[key] = nil
+		current = nil
+	end
 	if not current then
-		local pool = getPool(weapon.id)
-		if not pool then
-			return
-		end
-		current = { pieces = pool:acquire(frame.folder), seen = 0, id = weapon.id }
+		current = { pieces = pool:acquire(frame.folder), seen = 0, poolKey = poolKey }
 		active[key] = current
 	end
 	current.seen = frame.number
@@ -326,7 +341,7 @@ end
 function HeldModels.finish(frame: VisualKit.Frame)
 	for key, model in active do
 		if model.seen ~= frame.number then
-			(pools[model.id] :: VisualKit.ObjectPool<{ Piece }>):release(model.pieces)
+			(pools[model.poolKey] :: VisualKit.ObjectPool<{ Piece }>):release(model.pieces)
 			active[key] = nil
 		end
 	end
@@ -334,7 +349,7 @@ end
 
 function HeldModels.clear()
 	for key, model in active do
-		(pools[model.id] :: VisualKit.ObjectPool<{ Piece }>):release(model.pieces)
+		(pools[model.poolKey] :: VisualKit.ObjectPool<{ Piece }>):release(model.pieces)
 		active[key] = nil
 	end
 end
