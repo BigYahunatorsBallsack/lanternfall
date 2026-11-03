@@ -38,7 +38,7 @@ local CARD_WIDTH = 200
 local CARD_HEIGHT = { normal = 344, compact = 312 } -- the buy button; the lock button sits below it
 local DETAIL_HEIGHT = { normal = 82, compact = 70 }
 local LOCK_HEIGHT = 44
-local CHIP_SIZE = Vector2.new(136, 102)
+local CHIP_SIZE = Vector2.new(136, 118)
 local GAP = 10
 local HEADER_HEIGHT = 34
 local WEAPONS_TITLE_HEIGHT = 20
@@ -286,11 +286,11 @@ local function applyLayout()
 			then UDim2.fromOffset(84, 60)
 			else UDim2.new(1, 0, 0, if compact then 112 else 132)
 		view.artStage.Position = if landscape then UDim2.fromOffset(8, 24) else UDim2.new()
-		local iconSize = if landscape then 52 elseif compact then 94 else 112
+		local iconSize = if landscape then 58 elseif compact then 106 else 128
 		view.icon.Size = UDim2.fromOffset(iconSize, iconSize)
 		view.name.Position = if landscape then UDim2.fromOffset(104, 23) else UDim2.new()
 		view.name.Size = UDim2.new(1, if landscape then -112 else 0, 0, if landscape then 34 else 42)
-		view.name.TextSize = if landscape then 17 else 19
+		view.name.TextSize = if landscape then 18 else 21
 		view.detailArea.Position = if landscape then UDim2.fromOffset(104, 61) else UDim2.new()
 		view.detailArea.Size = UDim2.new(
 			1,
@@ -298,10 +298,10 @@ local function applyLayout()
 			0,
 			if landscape then 52 elseif compact then DETAIL_HEIGHT.compact else DETAIL_HEIGHT.normal
 		)
-		view.detail.TextSize = if compact then 15 else 17
+		view.detail.TextSize = if compact then 16 else 18
 		view.price.Position = if landscape then UDim2.fromOffset(6, 87) else UDim2.new()
 		view.price.Size = if landscape then UDim2.fromOffset(90, 27) else UDim2.new(1, 0, 0, 32)
-		view.price.TextSize = if landscape then 14 else 19
+		view.price.TextSize = if landscape then 15 else 20
 	end
 	local actionsGrid = actionsRow:FindFirstChildOfClass("UIGridLayout")
 	actionsGrid.CellSize = UDim2.new(if compact then 1 else 1 / 3, -GAP, 0, ACTION_HEIGHT)
@@ -619,22 +619,22 @@ local function buildChip(index: number): ChipView
 		selectChip(index)
 	end)
 	local edge = button:FindFirstChild("Outline") :: UIStroke
-	local icon = Icons.holder(button, 46, 0)
+	local icon = Icons.holder(button, 70, 0)
 	Widgets.padding(4).Parent = button
 	Widgets.list(0).Parent = button
 	local name = Widgets.label({
 		Name = "WeaponName",
 		Font = Theme.fontBold,
-		TextSize = 13,
-		Size = UDim2.new(1, 0, 0, 32),
+		TextSize = 15,
+		Size = UDim2.new(1, 0, 0, 26),
 		LayoutOrder = 1,
 		Parent = button,
 	})
 	local info = Widgets.label({
 		Name = "Info",
-		TextSize = 13,
+		TextSize = 12,
 		TextColor3 = SHARDS_COLOR,
-		Size = UDim2.new(1, 0, 0, 16),
+		Size = UDim2.new(1, 0, 0, 14),
 		LayoutOrder = 2,
 		Parent = button,
 	})

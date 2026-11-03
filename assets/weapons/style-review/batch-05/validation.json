@@ -1,0 +1,92 @@
+[
+  {
+    "file": "cathedral-engine-v2.png",
+    "size": [
+      1254,
+      1254
+    ],
+    "alpha": [
+      0,
+      255
+    ],
+    "visibleBoundsAlpha16": [
+      57,
+      139,
+      1189,
+      1112
+    ],
+    "sha256": "1cd1b06eab8f54014908d941df3c160d655268a381fbd99c1db84fbfebaef771"
+  },
+  {
+    "file": "foundry-key-v2.png",
+    "size": [
+      1254,
+      1254
+    ],
+    "alpha": [
+      0,
+      255
+    ],
+    "visibleBoundsAlpha16": [
+      68,
+      130,
+      1181,
+      1183
+    ],
+    "sha256": "4d8351131bdc540685cca02aa80d6274c4e4f3e742ef789360048655a77590f6"
+  },
+  {
+    "file": "mortar-lantern-v2.png",
+    "size": [
+      1254,
+      1254
+    ],
+    "alpha": [
+      0,
+      255
+    ],
+    "visibleBoundsAlpha16": [
+      50,
+      213,
+      1204,
+      1079
+    ],
+    "sha256": "44cefa8c7773450833d5bcfb1aab4a814c4a5ad39ca235561256ed28c9ff4b4b"
+  },
+  {
+    "file": "rune-awl-v2.png",
+    "size": [
+      1254,
+      1254
+    ],
+    "alpha": [
+      0,
+      255
+    ],
+    "visibleBoundsAlpha16": [
+      299,
+      112,
+      1038,
+      1179
+    ],
+    "sha256": "5d75f785452741cb4d4ec5d447c0eb30304cf8993f574a399159a6a87c8fc97f"
+  },
+  {
+    "file": "winter-needle-v2.png",
+    "size": [
+      1254,
+      1254
+    ],
+    "alpha": [
+      0,
+      255
+    ],
+    "visibleBoundsAlpha16": [
+      111,
+      285,
+      1156,
+      1058
+    ],
+    "sha256": "b2bd391ec8248abc685cfaff75ae9943237df900e8161f73938c01536cd27ee8"
+  }
+]

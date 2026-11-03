@@ -1,0 +1,51 @@
+{
+  "batch": 1,
+  "status": "approved-by-owner",
+  "tool": "built-in image_gen",
+  "approvedStyleReference": "../watchman-pistol-v2.png",
+  "assets": [
+    {
+      "id": "OrbitBlades",
+      "name": "Orbit Blades",
+      "file": "orbit-blades-v2.png",
+      "source": "image_gen",
+      "destination": "assets/weapons/style-review/batch-01/orbit-blades-v2.png",
+      "reviewStatus": "approved-by-owner"
+    },
+    {
+      "id": "SparkBolt",
+      "name": "Spark Bolt",
+      "file": "spark-bolt-v2.png",
+      "source": "image_gen",
+      "destination": "assets/weapons/style-review/batch-01/spark-bolt-v2.png",
+      "reviewStatus": "approved-by-owner"
+    },
+    {
+      "id": "Shockwave",
+      "name": "Shockwave",
+      "file": "shockwave-v4.png",
+      "source": "image_gen",
+      "destination": "assets/weapons/style-review/batch-01/shockwave-v4.png",
+      "previousFile": "shockwave-v3.png",
+      "revisionReason": "Added reinforced striking caps, central riveted collar, leather wrapping and sparse wood marks; centered hammer shape preserved.",
+      "reviewStatus": "approved-by-owner",
+      "reviewNote": "Owner: das passt. Shockwave v4 and this detail level approved."
+    },
+    {
+      "id": "ChainLightning",
+      "name": "Chain Lightning",
+      "file": "chain-lightning-v2.png",
+      "source": "image_gen",
+      "destination": "assets/weapons/style-review/batch-01/chain-lightning-v2.png",
+      "reviewStatus": "approved-by-owner"
+    },
+    {
+      "id": "ThornTrail",
+      "name": "Thorn Trail",
+      "file": "thorn-trail-v2.png",
+      "source": "image_gen",
+      "destination": "assets/weapons/style-review/batch-01/thorn-trail-v2.png",
+      "reviewStatus": "approved-by-owner"
+    }
+  ]
+}

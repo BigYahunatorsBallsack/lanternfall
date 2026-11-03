@@ -1,0 +1,127 @@
+[
+  {
+    "file": "chain-lightning-v2.png",
+    "size": [
+      1254,
+      1254
+    ],
+    "alpha": [
+      0,
+      255
+    ],
+    "allAlphaBounds": [
+      33,
+      87,
+      1138,
+      1239
+    ],
+    "visibleBoundsAlpha16": [
+      174,
+      180,
+      1118,
+      1142
+    ],
+    "maxAlphaAtEdge": 0,
+    "sha256": "d10f4f8362507a836a5768a33fca60d11ec01f285a7bc3e698ad5acdf7ee0885"
+  },
+  {
+    "file": "orbit-blades-v2.png",
+    "size": [
+      1254,
+      1254
+    ],
+    "alpha": [
+      0,
+      255
+    ],
+    "allAlphaBounds": [
+      23,
+      47,
+      1224,
+      1230
+    ],
+    "visibleBoundsAlpha16": [
+      134,
+      168,
+      1105,
+      1109
+    ],
+    "maxAlphaAtEdge": 0,
+    "sha256": "5e41d3a51aa46be14b4c88cde2fdc148c18c37ebf14ff5138c4221bb27d2b08b"
+  },
+  {
+    "file": "shockwave-v2.png",
+    "size": [
+      1254,
+      1254
+    ],
+    "alpha": [
+      0,
+      255
+    ],
+    "allAlphaBounds": [
+      0,
+      20,
+      1218,
+      1238
+    ],
+    "visibleBoundsAlpha16": [
+      235,
+      204,
+      1051,
+      1076
+    ],
+    "maxAlphaAtEdge": 1,
+    "sha256": "592304c70a404afa86e673b0d0a89c39b890e1718a2057af8ec80ab97891876d"
+  },
+  {
+    "file": "spark-bolt-v2.png",
+    "size": [
+      1254,
+      1254
+    ],
+    "alpha": [
+      0,
+      255
+    ],
+    "allAlphaBounds": [
+      146,
+      86,
+      1146,
+      1158
+    ],
+    "visibleBoundsAlpha16": [
+      175,
+      233,
+      1077,
+      1048
+    ],
+    "maxAlphaAtEdge": 0,
+    "sha256": "13906d1fffde5be28ed7b5b6e24c1ae5f3c0b069238c7ba62d866cb331218d34"
+  },
+  {
+    "file": "thorn-trail-v2.png",
+    "size": [
+      1254,
+      1254
+    ],
+    "alpha": [
+      0,
+      255
+    ],
+    "allAlphaBounds": [
+      97,
+      21,
+      1186,
+      1214
+    ],
+    "visibleBoundsAlpha16": [
+      176,
+      85,
+      1063,
+      1179
+    ],
+    "maxAlphaAtEdge": 0,
+    "sha256": "9bb51d5c419e74ea0ac03f8545963b9891bb34519502de3010d799ea153ef02c"
+  }
+]

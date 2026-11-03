@@ -1,0 +1,56 @@
+{
+  "batch": 4,
+  "status": "approved-by-owner",
+  "tool": "built-in image_gen",
+  "approvedStyleReferences": [
+    "../batch-01/shockwave-v4.png",
+    "../watchman-pistol-v2.png"
+  ],
+  "assets": [
+    {
+      "id": "ScatterBell",
+      "name": "Scatter Bell",
+      "file": "scatter-bell-v2.png",
+      "source": "image_gen",
+      "destination": "assets/weapons/style-review/batch-04/scatter-bell-v2.png",
+      "reviewStatus": "approved-by-owner",
+      "reviewNote": "Owner: passt, weiter."
+    },
+    {
+      "id": "ShrapnelOrgan",
+      "name": "Shrapnel Organ",
+      "file": "shrapnel-organ-v2.png",
+      "source": "image_gen",
+      "destination": "assets/weapons/style-review/batch-04/shrapnel-organ-v2.png",
+      "reviewStatus": "approved-by-owner",
+      "reviewNote": "Owner: passt, weiter."
+    },
+    {
+      "id": "CinderBreath",
+      "name": "Cinder Breath",
+      "file": "cinder-breath-v2.png",
+      "source": "image_gen",
+      "destination": "assets/weapons/style-review/batch-04/cinder-breath-v2.png",
+      "reviewStatus": "approved-by-owner",
+      "reviewNote": "Owner: passt, weiter."
+    },
+    {
+      "id": "GalvanicFork",
+      "name": "Galvanic Fork",
+      "file": "galvanic-fork-v2.png",
+      "source": "image_gen",
+      "destination": "assets/weapons/style-review/batch-04/galvanic-fork-v2.png",
+      "reviewStatus": "approved-by-owner",
+      "reviewNote": "Owner: passt, weiter."
+    },
+    {
+      "id": "LeechCarbine",
+      "name": "Leech Carbine",
+      "file": "leech-carbine-v2.png",
+      "source": "image_gen",
+      "destination": "assets/weapons/style-review/batch-04/leech-carbine-v2.png",
+      "reviewStatus": "approved-by-owner",
+      "reviewNote": "Owner: passt, weiter."
+    }
+  ]
+}

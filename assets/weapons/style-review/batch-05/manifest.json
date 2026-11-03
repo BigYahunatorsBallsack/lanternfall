@@ -1,0 +1,51 @@
+{
+  "batch": 5,
+  "status": "approved-by-owner",
+  "tool": "built-in image_gen",
+  "approvedStyleReferences": [
+    "../batch-01/shockwave-v4.png",
+    "../watchman-pistol-v2.png"
+  ],
+  "assets": [
+    {
+      "id": "CathedralEngine",
+      "name": "Cathedral Engine",
+      "file": "cathedral-engine-v2.png",
+      "source": "image_gen",
+      "destination": "assets/weapons/style-review/batch-05/cathedral-engine-v2.png",
+      "reviewStatus": "approved-by-owner"
+    },
+    {
+      "id": "MortarLantern",
+      "name": "Mortar Lantern",
+      "file": "mortar-lantern-v2.png",
+      "source": "image_gen",
+      "destination": "assets/weapons/style-review/batch-05/mortar-lantern-v2.png",
+      "reviewStatus": "approved-by-owner"
+    },
+    {
+      "id": "WinterNeedle",
+      "name": "Winter Needle",
+      "file": "winter-needle-v2.png",
+      "source": "image_gen",
+      "destination": "assets/weapons/style-review/batch-05/winter-needle-v2.png",
+      "reviewStatus": "approved-by-owner"
+    },
+    {
+      "id": "FoundryKey",
+      "name": "Foundry Key",
+      "file": "foundry-key-v2.png",
+      "source": "image_gen",
+      "destination": "assets/weapons/style-review/batch-05/foundry-key-v2.png",
+      "reviewStatus": "approved-by-owner"
+    },
+    {
+      "id": "RuneAwl",
+      "name": "Rune Awl",
+      "file": "rune-awl-v2.png",
+      "source": "image_gen",
+      "destination": "assets/weapons/style-review/batch-05/rune-awl-v2.png",
+      "reviewStatus": "approved-by-owner"
+    }
+  ]
+}

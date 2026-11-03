@@ -1,0 +1,92 @@
+[
+  {
+    "file": "boomerang-axe-v2.png",
+    "size": [
+      1254,
+      1254
+    ],
+    "alpha": [
+      0,
+      255
+    ],
+    "visibleBoundsAlpha16": [
+      192,
+      77,
+      1177,
+      1191
+    ],
+    "sha256": "5fef3eb4251de5b10c52882336319d72049261fb6f18565551f623675dc8448b"
+  },
+  {
+    "file": "brass-knuckles-v2.png",
+    "size": [
+      1254,
+      1254
+    ],
+    "alpha": [
+      0,
+      255
+    ],
+    "visibleBoundsAlpha16": [
+      75,
+      263,
+      1179,
+      1065
+    ],
+    "sha256": "06b7bffe10611639d05384de8f01d8aca46ea20594e5ee23744399cb330e1c37"
+  },
+  {
+    "file": "dusk-sabre-v2.png",
+    "size": [
+      1254,
+      1254
+    ],
+    "alpha": [
+      0,
+      255
+    ],
+    "visibleBoundsAlpha16": [
+      76,
+      92,
+      1188,
+      1204
+    ],
+    "sha256": "d5c9013427ee522c537e50cfa5f824ced8b337e59fc60c44d35aea6ca0b4b40c"
+  },
+  {
+    "file": "lamplighter-pike-v2.png",
+    "size": [
+      1254,
+      1254
+    ],
+    "alpha": [
+      0,
+      255
+    ],
+    "visibleBoundsAlpha16": [
+      114,
+      60,
+      1198,
+      1212
+    ],
+    "sha256": "4692a2bcd0ddf51caa3530067d4be0bebad2db9d5653cea5a6bb0936b6c0ba8c"
+  },
+  {
+    "file": "ritual-dirk-v2.png",
+    "size": [
+      1254,
+      1254
+    ],
+    "alpha": [
+      0,
+      255
+    ],
+    "visibleBoundsAlpha16": [
+      202,
+      106,
+      1102,
+      1184
+    ],
+    "sha256": "a2eebdb7ab806e396bccc3925252029bcbd58a719c7010b7f279b97796cb709a"
+  }
+]

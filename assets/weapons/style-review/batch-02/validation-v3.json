@@ -1,0 +1,38 @@
+[
+  {
+    "file": "boomerang-axe-v3.png",
+    "size": [
+      1254,
+      1254
+    ],
+    "alpha": [
+      0,
+      255
+    ],
+    "visibleBoundsAlpha16": [
+      264,
+      261,
+      993,
+      1105
+    ],
+    "sha256": "99b39f2d9b7e18082eb19c249f18d989be468dca9844bc56f27e78e5067c0c81"
+  },
+  {
+    "file": "lamplighter-pike-v3.png",
+    "size": [
+      1254,
+      1254
+    ],
+    "alpha": [
+      0,
+      255
+    ],
+    "visibleBoundsAlpha16": [
+      114,
+      59,
+      1200,
+      1211
+    ],
+    "sha256": "aa6efe950be5bfe65281ba53388711814897c499f411da80db34ff9c9195f36a"
+  }
+]

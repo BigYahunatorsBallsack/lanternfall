@@ -1,0 +1,14 @@
+[
+  {
+    "id": "BoomerangAxe",
+    "file": "boomerang-axe-v3.png",
+    "source": "image_gen",
+    "destination": "assets/weapons/style-review/batch-02/boomerang-axe-v3.png"
+  },
+  {
+    "id": "LamplighterPike",
+    "file": "lamplighter-pike-v3.png",
+    "source": "image_gen",
+    "destination": "assets/weapons/style-review/batch-02/lamplighter-pike-v3.png"
+  }
+]

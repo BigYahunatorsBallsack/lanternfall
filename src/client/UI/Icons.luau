@@ -56,12 +56,15 @@ end
 local function character(root: Frame, id: string)
 	local imageId = CharacterPortraits[id]
 	if imageId then
+		local portraitScale = if id == "MarbleHost" then 0.84 else 1
 		Widgets.create("ImageLabel", {
 			Name = "CharacterPortrait",
 			BackgroundTransparency = 1,
 			Image = imageId,
 			ScaleType = Enum.ScaleType.Fit,
-			Size = UDim2.fromScale(1, 1),
+			AnchorPoint = Vector2.new(0.5, 0.5),
+			Position = UDim2.fromScale(0.5, 0.5),
+			Size = UDim2.fromScale(portraitScale, portraitScale),
 			Parent = root,
 		})
 		return

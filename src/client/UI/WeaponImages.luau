@@ -1,10 +1,32 @@
 --!strict
--- Illustrated shop art based on the authored weapon models. Unlisted weapons keep their drawn icon.
+-- Approved original weapon illustrations shared by the shop, loadout, and character selection UI.
 local images: { [string]: string } = {
-	OrbitBlades = "rbxassetid://100657243174086",
-	SparkBolt = "rbxassetid://75616128781264",
-	Shockwave = "rbxassetid://75586102878422",
-	BoomerangAxe = "rbxassetid://104278709997396",
+	OrbitBlades = "rbxassetid://133542364580029",
+	SparkBolt = "rbxassetid://127156194532888",
+	Shockwave = "rbxassetid://98436713527306",
+	ChainLightning = "rbxassetid://127328437513589",
+	ThornTrail = "rbxassetid://106452342715800",
+	BoomerangAxe = "rbxassetid://138620241615477",
+	BrassKnuckles = "rbxassetid://136609660487600",
+	RitualDirk = "rbxassetid://113475132706281",
+	LamplighterPike = "rbxassetid://71088784577346",
+	DuskSabre = "rbxassetid://132575382149937",
+	Gravestone = "rbxassetid://110225119196440",
+	TithePalm = "rbxassetid://100003455612421",
+	WraithHatchet = "rbxassetid://99992149223305",
+	SpiritFlint = "rbxassetid://108762423162071",
+	WatchmanPistol = "rbxassetid://80257020876779",
+	RattleRepeater = "rbxassetid://133455875426572",
+	ScatterBell = "rbxassetid://72309688121604",
+	ShrapnelOrgan = "rbxassetid://109959771103487",
+	CinderBreath = "rbxassetid://130335722460426",
+	GalvanicFork = "rbxassetid://136482228927368",
+	LeechCarbine = "rbxassetid://86650482651000",
+	CathedralEngine = "rbxassetid://133831855948263",
+	MortarLantern = "rbxassetid://103872538280159",
+	WinterNeedle = "rbxassetid://101729840233321",
+	FoundryKey = "rbxassetid://79155350379574",
+	RuneAwl = "rbxassetid://90717482239252",
 }
 
 return table.freeze(images)
