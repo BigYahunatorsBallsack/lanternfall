@@ -1,13 +1,14 @@
 --!strict
 -- Draws fruits and crates on the arena floor (DESIGN.md section 3, since B6) from the server's Pickups events
--- (LootService): a bright green fruit with leaves, a dark wooden crate with a glowing brass band. Picked up they fly
+-- (LootService): an authored green fruit and two outlined cartoon loot boxes. Picked up they fly
 -- into the player like orbs; left at the wave end they simply vanish. Lying ones are placed once; only flying ones move
 -- each frame, together in one workspace:BulkMoveTo. Also shows a small chip under the timer with the team's bag
 -- (OrbBag, ExperienceService) and the crates waiting for the end of the wave (CrateOffer, UpgradeService) while a run
--- is on. Since WP10 legendary crates: a bigger crimson crate with a gold band and a glow. The server decides every
+-- is on. Legendary crates use a larger crimson and gold mesh with a glow. The server decides every
 -- pickup; this only shows it.
 
 local Players = game:GetService("Players")
+local ContentProvider = game:GetService("ContentProvider")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 
@@ -24,13 +25,6 @@ local Widgets = require(script.Parent.Parent.UI.Widgets)
 local FOLDER_NAME = "LanternfallPickups"
 local FLY_SECONDS = 0.3
 local CRATE, LEGENDARY = 2, 3 -- kinds in Net/Types.PickupEvents (1 = fruit)
-local FRUIT_COLOR = Color3.fromRGB(132, 215, 78)
-local LEAF_COLOR = Color3.fromRGB(64, 133, 64)
-local FRUIT_HIGHLIGHT = Color3.fromRGB(189, 239, 114)
-local WOOD_COLOR = Color3.fromRGB(92, 60, 40)
-local BAND_COLOR = Color3.fromRGB(255, 196, 87) -- Theme.accent, the lantern yellow
-local LEGENDARY_WOOD = Color3.fromRGB(120, 28, 36) -- crimson lacquer, the Legendary tier's red
-local LEGENDARY_BAND = Color3.fromRGB(236, 188, 88)
 local LEGENDARY_GLOW = Color3.fromRGB(255, 80, 80)
 local CHIP_Y = 126 -- pixels from the top, under the HUD's timer panel
 
@@ -48,75 +42,65 @@ local function partsOf(visual: Visual): { BasePart }
 	return visual.parts
 end
 
+-- The meshes are project-owned Studio assets, created to match the authored enemy family.
+local function textured(name: string, size: Vector3, meshId: string, textureId: string): BasePart
+	local part = VisualKit.solid(name, Enum.PartType.Block, size, Color3.new(1, 1, 1), Enum.Material.SmoothPlastic)
+	local mesh = Instance.new("SpecialMesh")
+	mesh.MeshType = Enum.MeshType.FileMesh
+	mesh.MeshId = meshId
+	mesh.TextureId = textureId
+	mesh.Scale = Vector3.one
+	mesh.Parent = part
+	return part
+end
+
 local fruitPool = VisualKit.objectPool(function(): Visual
-	local fruit = VisualKit.solid(
+	local fruit = textured(
 		"Fruit",
-		Enum.PartType.Ball,
-		Vector3.new(1.35, 1.2, 1.35),
-		FRUIT_COLOR,
-		Enum.Material.SmoothPlastic
+		Vector3.new(1.154, 1.4, 1.151),
+		"rbxassetid://132082253219697",
+		"rbxassetid://128370118812590"
 	)
-	local highlight = VisualKit.solid(
-		"FruitHighlight",
-		Enum.PartType.Ball,
-		Vector3.new(0.38, 0.24, 0.2),
-		FRUIT_HIGHLIGHT,
-		Enum.Material.SmoothPlastic
-	)
-	local stem = VisualKit.solid(
-		"Stem",
-		Enum.PartType.Block,
-		Vector3.new(0.18, 0.4, 0.18),
-		LEAF_COLOR,
-		Enum.Material.SmoothPlastic
-	)
-	local left = VisualKit.solid(
-		"LeafLeft",
-		Enum.PartType.Block,
-		Vector3.new(0.65, 0.16, 0.28),
-		LEAF_COLOR,
-		Enum.Material.SmoothPlastic
-	)
-	local right = VisualKit.solid(
-		"LeafRight",
-		Enum.PartType.Block,
-		Vector3.new(0.65, 0.16, 0.28),
-		LEAF_COLOR,
-		Enum.Material.SmoothPlastic
-	)
-	return {
-		parts = { fruit, highlight, stem, left, right },
-		offsets = {
-			CFrame.new(0, 0.85, 0),
-			CFrame.new(-0.24, 1.12, -0.65),
-			CFrame.new(0, 1.6, 0),
-			CFrame.new(-0.37, 1.48, 0) * CFrame.Angles(0, 0, -0.38),
-			CFrame.new(0.37, 1.48, 0) * CFrame.Angles(0, 0, 0.38),
-		},
-	}
+	return { parts = { fruit }, offsets = { CFrame.new(0, 0.7, 0) } }
 end, partsOf)
 
 local cratePool = VisualKit.objectPool(function(): Visual
-	local box = VisualKit.solid("Crate", Enum.PartType.Block, Vector3.new(2, 1.6, 2), WOOD_COLOR, Enum.Material.Wood)
-	local band = VisualKit.part("CrateBand", Enum.PartType.Block, Vector3.new(2.1, 0.25, 2.1), BAND_COLOR)
-	return { parts = { box, band }, offsets = { CFrame.new(0, 0.8, 0), CFrame.new(0, 1.1, 0) } }
+	local box = textured(
+		"Crate",
+		Vector3.new(2.084, 1.792, 2.1),
+		"rbxassetid://100965126796476",
+		"rbxassetid://112322320300852"
+	)
+	return { parts = { box }, offsets = { CFrame.new(0, 0.896, 0) } }
 end, partsOf)
 
 local legendaryPool = VisualKit.objectPool(function(): Visual
-	local box = VisualKit.solid(
+	local box = textured(
 		"LegendaryCrate",
-		Enum.PartType.Block,
-		Vector3.new(2.8, 2.2, 2.8),
-		LEGENDARY_WOOD,
-		Enum.Material.Wood
+		Vector3.new(2.8, 2.068, 1.996),
+		"rbxassetid://137593654643123",
+		"rbxassetid://130650417605654"
 	)
-	local band = VisualKit.part("LegendaryBand", Enum.PartType.Block, Vector3.new(2.95, 0.35, 2.95), LEGENDARY_BAND)
-	local glow = VisualKit.halo("LegendaryGlow", Enum.PartType.Ball, Vector3.one * 4.5, LEGENDARY_GLOW, 0.8)
+	local glow = VisualKit.halo("LegendaryGlow", Enum.PartType.Ball, Vector3.one * 3.6, LEGENDARY_GLOW, 0.9)
 	return {
-		parts = { box, band, glow },
-		offsets = { CFrame.new(0, 1.1, 0), CFrame.new(0, 1.5, 0), CFrame.new(0, 1.2, 0) },
+		parts = { box, glow },
+		offsets = { CFrame.new(0, 1.034, 0), CFrame.new(0, 1.034, 0) },
 	}
 end, partsOf)
+
+local function preloadMeshes()
+	local holder = Instance.new("Folder")
+	local fruit = fruitPool:acquire(holder)
+	local crate = cratePool:acquire(holder)
+	local legendary = legendaryPool:acquire(holder)
+	pcall(function()
+		ContentProvider:PreloadAsync({ fruit.parts[1], crate.parts[1], legendary.parts[1] })
+	end)
+	fruitPool:release(fruit)
+	cratePool:release(crate)
+	legendaryPool:release(legendary)
+	holder:Destroy()
+end
 
 local pickups: { [number]: Pickup } = {}
 local flights: { Flight } = {}
@@ -302,6 +286,7 @@ end
 
 function PickupRenderer.start()
 	buildChip()
+	task.spawn(preloadMeshes)
 	RunStateController.Changed:Connect(updateChip)
 	updateChip()
 	RunService.RenderStepped:Connect(render)

@@ -1234,4 +1234,58 @@ MeshCatalog.Monolith.trims = {
 		rotation = v(0, 0, 0.1),
 	},
 }
+
+-- Harvestable tree: the same textured, pooled rig as the enemy family. Original meshes were authored for this game.
+MeshCatalog.Tree = {
+	radius = 2.2,
+	crownHeight = 5.2,
+	stationary = true,
+	pieces = {
+		{
+			name = "Trunk",
+			motion = "Body",
+			mesh = "rbxassetid://92336739812593",
+			texture = "rbxassetid://111463576406680",
+			size = Vector3.new(2.759, 2.485, 2.193),
+			meshSize = Vector3.new(2.20711, 1.98801, 1.75443),
+			position = Vector3.new(-0.08, 1.493, 0.032),
+		},
+		{
+			name = "Roots",
+			motion = "Body",
+			mesh = "rbxassetid://77823250970345",
+			texture = "rbxassetid://70368800892028",
+			size = Vector3.new(2.882, 0.905, 2.589),
+			meshSize = Vector3.new(2.30588, 0.724, 2.07113),
+			position = Vector3.new(-0.015, 0.453, 0.03),
+		},
+		{
+			name = "Foliage",
+			motion = "Body",
+			mesh = "rbxassetid://101879099242968",
+			texture = "rbxassetid://121175113091032",
+			size = Vector3.new(4.795, 3.119, 4.75),
+			meshSize = Vector3.new(3.83585, 2.49498, 3.8),
+			position = Vector3.new(0, 3.54, 0),
+		},
+		{
+			name = "FruitLeft",
+			motion = "Body",
+			mesh = "rbxassetid://132082253219697",
+			texture = "rbxassetid://128370118812590",
+			size = Vector3.new(0.52, 0.63, 0.52),
+			meshSize = Vector3.new(1.1539, 1.4, 1.15084),
+			position = Vector3.new(-0.82, 3.26, 2.6),
+		},
+		{
+			name = "FruitRight",
+			motion = "Body",
+			mesh = "rbxassetid://132082253219697",
+			texture = "rbxassetid://128370118812590",
+			size = Vector3.new(0.52, 0.63, 0.52),
+			meshSize = Vector3.new(1.1539, 1.4, 1.15084),
+			position = Vector3.new(0.85, 3.05, 2.65),
+		},
+	},
+}
 return MeshCatalog

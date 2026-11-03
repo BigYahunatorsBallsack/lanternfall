@@ -286,7 +286,7 @@ describe("EnemyModels", function()
 				rawset(provider, "PreloadAsync", nil)
 				assert(ok, tostring(err))
 				assert(captured)
-				expect(#captured).toBe(27)
+				expect(#captured).toBe(28)
 				local seen = {}
 				for _, model in captured do
 					seen[model.Name] = true
