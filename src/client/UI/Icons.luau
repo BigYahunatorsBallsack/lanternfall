@@ -1,7 +1,9 @@
 --!strict
--- Original scalable UI illustrations, used by character selection, shop and upgrade cards. No external assets.
+-- Scalable UI illustrations with uploaded character and weapon art, used by selection, shop and upgrade cards.
 local Widgets = require(script.Parent.Widgets)
 local Theme = require(script.Parent.Theme)
+local WeaponImages = require(script.Parent.WeaponImages)
+local CharacterPortraits = require(script.Parent.CharacterPortraits)
 local Config = require(game:GetService("ReplicatedStorage").Shared.Config)
 local Icons = {}
 local rgb = Color3.fromRGB
@@ -50,6 +52,18 @@ local function shape(
 end
 
 local function character(root: Frame, id: string)
+	local imageId = CharacterPortraits[id]
+	if imageId then
+		Widgets.create("ImageLabel", {
+			Name = "CharacterPortrait",
+			BackgroundTransparency = 1,
+			Image = imageId,
+			ScaleType = Enum.ScaleType.Fit,
+			Size = UDim2.fromScale(1, 1),
+			Parent = root,
+		})
+		return
+	end
 	local c = palettes[id] or GOLD
 	shape(root, 50, 84, 58, 14, INK, 0, 0.5, false)
 	shape(root, 50, 57, 58, 66, c, -4, 0.43)
@@ -240,7 +254,33 @@ function Icons.draw(parent: GuiObject, kind: string, id: string): Frame
 	if kind == "character" then
 		character(root, id)
 	elseif kind == "weapon" then
-		weapon(root, id)
+		local fallback = Widgets.create("Frame", {
+			Name = "DrawnWeapon",
+			BackgroundTransparency = 1,
+			Size = UDim2.fromScale(1, 1),
+			Parent = root,
+		})
+		weapon(fallback, id)
+		local imageId = WeaponImages[id]
+		if imageId then
+			local art = Widgets.create("ImageLabel", {
+				Name = "WeaponImage",
+				BackgroundTransparency = 1,
+				Image = imageId,
+				ImageTransparency = 1,
+				ScaleType = Enum.ScaleType.Fit,
+				Size = UDim2.fromScale(1, 1),
+				Parent = root,
+			})
+			local function reveal()
+				if art.IsLoaded and root.Parent then
+					fallback.Visible = false
+					art.ImageTransparency = 0
+				end
+			end
+			art:GetPropertyChangedSignal("IsLoaded"):Connect(reveal)
+			reveal()
+		end
 	elseif kind == "item" then
 		local item = Config.Items.byId[id]
 		local selected = "luck"

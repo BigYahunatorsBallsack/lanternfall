@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lanternfall · Weapon Shop UI Review</title>
+  <style>
+    :root { --ink:#181713; --canvas:#37362f; --panel:#535248; --card:#666458; --cream:#fff7df; --muted:#d0cbb8; --green:#b6df76; --blue:#79b5e7; --red:#ec796d; --gold:#f2c674; }
+    * { box-sizing:border-box; }
+    body { margin:0; min-width:320px; background:var(--canvas); color:var(--cream); font-family:"Trebuchet MS", "Arial Rounded MT Bold", Arial, sans-serif; font-weight:800; }
+    button { font:inherit; cursor:pointer; }
+    button:focus-visible { outline:3px solid #fff; outline-offset:3px; }
+    .game { width:min(1440px, 100%); min-height:100vh; margin:auto; padding:18px 24px 24px; background:radial-gradient(circle at 50% -15%, #49483e, transparent 48%), var(--canvas); }
+    .top { display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:16px; min-height:78px; }
+    .wave { width:max-content; max-width:100%; padding:10px 17px; border:4px solid var(--ink); border-radius:9px; background:#555347; box-shadow:0 4px 0 var(--ink); font-size:16px; letter-spacing:.07em; }
+    .wave strong { color:var(--gold); }
+    .title { text-align:center; line-height:.88; font-size:clamp(40px, 4.5vw, 62px); letter-spacing:.035em; -webkit-text-stroke:2px var(--ink); text-shadow:3px 4px 0 var(--ink); }
+    .money { justify-self:end; display:flex; align-items:center; gap:11px; padding:8px 16px; border:4px solid var(--ink); border-radius:10px; background:#545e3e; box-shadow:0 4px 0 var(--ink); font-size:31px; color:var(--green); }
+    .gem { width:25px; height:25px; transform:rotate(45deg); border:3px solid var(--ink); border-radius:5px; background:var(--green); box-shadow:inset -5px -4px #709e4a; }
+    .content { display:grid; grid-template-columns:minmax(0,1fr) 235px; gap:16px; margin-top:19px; }
+    .main { min-width:0; }
+    .section-head { display:flex; justify-content:space-between; align-items:end; gap:12px; margin:0 2px 12px; }
+    .section-head h2 { margin:0; font-size:19px; letter-spacing:.08em; }
+    .section-head span { color:var(--muted); font-size:13px; }
+    .offers { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:11px; }
+    .offer { min-width:0; border:4px solid var(--ink); border-radius:11px; background:var(--card); box-shadow:0 5px 0 var(--ink); overflow:hidden; display:flex; flex-direction:column; position:relative; }
+    .offer.selected { border-color:var(--gold); box-shadow:0 0 0 3px var(--ink), 0 5px 0 var(--ink); }
+    .offer.sold { filter:saturate(.48); }
+    .rarity { position:absolute; z-index:2; top:9px; left:9px; padding:4px 9px; border:2px solid var(--ink); border-radius:6px; background:#dbd3bd; color:var(--ink); font-size:12px; }
+    .offer[data-tier="2"] .rarity { background:var(--blue); }
+    .art { height:190px; background:#777366; border-bottom:4px solid var(--ink); position:relative; overflow:hidden; }
+    .art:before { content:""; position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); width:140px; height:140px; border-radius:50%; border:3px solid #a19b85; opacity:.52; }
+    .art img { position:absolute; inset:10px; width:calc(100% - 20px); height:calc(100% - 20px); object-fit:contain; object-position:center; filter:drop-shadow(3px 5px 1px #25201899); }
+    .offer-body { padding:11px 12px 9px; flex:1; }
+    .offer h3 { margin:0 0 2px; font-size:19px; line-height:1.05; }
+    .type { font-size:12px; color:#ebe3ca; letter-spacing:.04em; }
+    .desc { min-height:34px; margin:11px 0 9px; color:#f3ecd8; font-size:13px; font-weight:700; line-height:1.25; }
+    .stats { display:grid; gap:5px; padding-top:7px; border-top:2px solid #413e36; }
+    .stat { display:flex; justify-content:space-between; gap:7px; font-size:13px; }
+    .stat span { color:#ddd6c2; }
+    .stat b { color:var(--cream); }
+    .stat .positive { color:var(--green); }
+    .offer-actions { padding:8px; display:grid; grid-template-columns:1fr 38px; gap:6px; background:#565449; border-top:3px solid var(--ink); }
+    .buy, .lock, .action, .go { border:3px solid var(--ink); border-radius:7px; box-shadow:0 3px 0 var(--ink); min-height:39px; }
+    .buy { background:var(--green); color:#202817; font-size:16px; }
+    .buy:disabled { background:#777a69; color:#ccc9b9; cursor:default; }
+    .lock { background:#8f8a77; color:var(--cream); font-size:17px; }
+    .lock.on { background:var(--blue); color:var(--ink); }
+    .lock svg { width:19px; height:19px; fill:none; stroke:currentColor; stroke-width:2.7; stroke-linecap:round; stroke-linejoin:round; vertical-align:middle; }
+    .sidebar { border:4px solid var(--ink); border-radius:11px; background:var(--panel); box-shadow:0 5px 0 var(--ink); padding:12px 13px; align-self:start; }
+    .sidebar h2 { font-size:18px; letter-spacing:.07em; margin:0 0 9px; }
+    .side-sub { margin:12px 0 6px; padding-top:11px; border-top:3px solid var(--ink); font-size:12px; letter-spacing:.1em; color:var(--muted); }
+    .side-stat { display:flex; justify-content:space-between; gap:10px; padding:4px 0; font-size:13px; }
+    .side-stat span { color:#e3deca; }
+    .side-stat b { color:var(--green); }
+    .side-stat .neutral { color:var(--cream); }
+    .inventory { display:flex; align-items:center; gap:12px; margin-top:19px; padding:10px 12px; border:4px solid var(--ink); border-radius:11px; background:var(--panel); box-shadow:0 5px 0 var(--ink); }
+    .inventory h2 { margin:0 12px 0 0; font-size:16px; white-space:nowrap; }
+    .slots { display:flex; gap:7px; flex:1; }
+    .slot { width:58px; height:54px; flex:0 0 auto; display:grid; place-items:center; border:3px solid var(--ink); border-radius:7px; background:#777263; }
+    .slot img { width:100%; height:100%; object-fit:contain; }
+    .slot.empty { color:#bcb6a3; font-size:25px; background:#4e4c43; }
+    .inventory-note { color:var(--muted); font-size:12px; font-weight:700; text-align:right; }
+    .footer { display:flex; align-items:center; justify-content:space-between; gap:13px; margin-top:19px; }
+    .footer-left { display:flex; gap:10px; align-items:center; }
+    .action { padding:8px 17px; background:#aaa18a; color:var(--ink); font-size:17px; }
+    .action small { font-size:12px; }
+    .hint { color:#dbd3ba; font-size:12px; font-weight:700; }
+    .go { min-width:222px; padding:8px 18px; background:var(--green); color:#202817; font-size:23px; }
+    button:hover:not(:disabled) { filter:brightness(1.08); transform:translateY(-1px); }
+    button:active:not(:disabled) { transform:translateY(2px); box-shadow:0 1px 0 var(--ink); }
+    @media(max-width:1100px) { .content { grid-template-columns:1fr; } .sidebar { display:grid; grid-template-columns:repeat(2,1fr); gap:0 18px; } .sidebar h2 { grid-column:1/-1; } .side-sub { grid-column:1/-1; } }
+    @media(max-width:750px) { .game { padding:12px; } .top { grid-template-columns:1fr 1fr; } .title { grid-column:1/-1; grid-row:1; margin:5px 0 12px; } .wave { grid-column:1; grid-row:2; font-size:12px; } .money { grid-column:2; grid-row:2; font-size:23px; } .offers { grid-template-columns:repeat(2,minmax(0,1fr)); } .inventory { flex-wrap:wrap; } .inventory h2 { width:100%; } .inventory-note { display:none; } .footer { flex-wrap:wrap; } .go { width:100%; } }
+    @media(max-width:420px) { .offers { gap:7px; } .art { height:140px; } .offer-body { padding:8px; } .offer h3 { font-size:16px; } .desc { font-size:12px; } .stat { font-size:11px; } .side-stat { font-size:12px; } .slots { gap:4px; } .slot { width:45px; height:45px; } .section-head span { display:none; } }
+  </style>
+</head>
+<body>
+  <main class="game">
+    <header class="top">
+      <div class="wave"><strong>WAVE 06</strong> CLEARED</div>
+      <h1 class="title">SHOP</h1>
+      <div class="money" aria-label="144 Shards"><i class="gem" aria-hidden="true"></i><span id="shards">144</span></div>
+    </header>
+
+    <div class="content">
+      <section class="main" aria-label="Shop weapon offers">
+        <div class="section-head"><h2>CHOOSE YOUR WEAPON</h2><span>Buy, lock for later, or reroll</span></div>
+        <div class="offers">
+          <article class="offer selected" data-tier="1" data-price="35" tabindex="0">
+            <span class="rarity">I · COMMON</span><div class="art"><img src="assets/orbit-blades.png" alt="Orbit Blades circular saw"></div>
+            <div class="offer-body"><h3>Orbit Blades</h3><div class="type">MELEE · EDGE / SPECTRAL</div><p class="desc">Two blades circle around you.</p><div class="stats"><div class="stat"><span>Damage</span><b>6</b></div><div class="stat"><span>Blades</span><b>2</b></div><div class="stat"><span>Crit chance</span><b>8%</b></div></div></div>
+            <div class="offer-actions"><button class="buy" type="button">35 ◈ BUY</button><button class="lock" type="button" aria-label="Lock Orbit Blades" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></button></div>
+          </article>
+          <article class="offer" data-tier="2" data-price="66" tabindex="0">
+            <span class="rarity">II · UNCOMMON</span><div class="art"><img src="assets/spark-bolt.png" alt="Spark Bolt pistol"></div>
+            <div class="offer-body"><h3>Spark Bolt</h3><div class="type">RANGED · ARCANE / KEEN</div><p class="desc">Fires at the nearest enemy.</p><div class="stats"><div class="stat"><span>Damage</span><b>13</b></div><div class="stat"><span>Cooldown</span><b>0.9s</b></div><div class="stat"><span>Pierces</span><b>1 enemy</b></div></div></div>
+            <div class="offer-actions"><button class="buy" type="button">66 ◈ BUY</button><button class="lock" type="button" aria-label="Lock Spark Bolt" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></button></div>
+          </article>
+          <article class="offer" data-tier="1" data-price="41" tabindex="0">
+            <span class="rarity">I · COMMON</span><div class="art"><img src="assets/shockwave.png" alt="Shockwave hammer"></div>
+            <div class="offer-body"><h3>Shockwave</h3><div class="type">MELEE · BLUDGEON / COLOSSAL</div><p class="desc">A blast pushes enemies away.</p><div class="stats"><div class="stat"><span>Damage</span><b>15</b></div><div class="stat"><span>Cooldown</span><b>3.0s</b></div><div class="stat"><span>Knockback</span><b class="positive">30</b></div></div></div>
+            <div class="offer-actions"><button class="buy" type="button">41 ◈ BUY</button><button class="lock" type="button" aria-label="Lock Shockwave" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></button></div>
+          </article>
+          <article class="offer" data-tier="1" data-price="44" tabindex="0">
+            <span class="rarity">I · COMMON</span><div class="art"><img src="assets/boomerang-axe.png" alt="Boomerang Axe"></div>
+            <div class="offer-body"><h3>Boomerang Axe</h3><div class="type">RANGED · EDGE / PRIMAL</div><p class="desc">Flies out and back through enemies.</p><div class="stats"><div class="stat"><span>Damage</span><b>15</b></div><div class="stat"><span>Cooldown</span><b>1.6s</b></div><div class="stat"><span>Pierces</span><b class="positive">Unlimited</b></div></div></div>
+            <div class="offer-actions"><button class="buy" type="button">44 ◈ BUY</button><button class="lock" type="button" aria-label="Lock Boomerang Axe" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></button></div>
+          </article>
+        </div>
+      </section>
+
+      <aside class="sidebar" aria-label="Player stats">
+        <h2>YOUR STATS <span style="color:var(--gold)">· LV 8</span></h2>
+        <div class="side-sub">SURVIVAL</div>
+        <div class="side-stat"><span>Max HP</span><b>78</b></div><div class="side-stat"><span>HP regen</span><b class="neutral">2</b></div><div class="side-stat"><span>Armor</span><b>4</b></div><div class="side-stat"><span>Dodge</span><b class="neutral">0%</b></div>
+        <div class="side-sub">OFFENSE</div>
+        <div class="side-stat"><span>Damage</span><b>+18%</b></div><div class="side-stat"><span>Melee damage</span><b>+5</b></div><div class="side-stat"><span>Ranged damage</span><b>+3</b></div><div class="side-stat"><span>Attack speed</span><b>+12%</b></div><div class="side-stat"><span>Crit chance</span><b class="neutral">8%</b></div>
+        <div class="side-sub">UTILITY</div>
+        <div class="side-stat"><span>Speed</span><b>+8%</b></div><div class="side-stat"><span>Luck</span><b class="neutral">0</b></div><div class="side-stat"><span>Pickup range</span><b class="neutral">100%</b></div>
+      </aside>
+    </div>
+
+    <section class="inventory" aria-label="Equipped weapons">
+      <h2>WEAPONS <span style="color:var(--gold)">3 / 6</span></h2>
+      <div class="slots"><div class="slot"><img src="assets/orbit-blades.png" alt="Orbit Blades equipped"></div><div class="slot"><img src="assets/spark-bolt.png" alt="Spark Bolt equipped"></div><div class="slot"><img src="assets/shockwave.png" alt="Shockwave equipped"></div><div class="slot empty">+</div><div class="slot empty">+</div><div class="slot empty">+</div></div>
+      <div class="inventory-note">Select a weapon to merge or recycle</div>
+    </section>
+    <footer class="footer"><div class="footer-left"><button id="reroll" class="action" type="button">↻ REROLL <small>· 8 ◈</small></button><span class="hint" id="message" role="status">Tap a card to inspect it</span></div><button class="go" type="button" id="go">GO · WAVE 07 →</button></footer>
+  </main>
+  <script>
+    const cards = [...document.querySelectorAll('.offer')];
+    const money = document.getElementById('shards');
+    const message = document.getElementById('message');
+    cards.forEach(card => {
+      const select = () => { cards.forEach(c => c.classList.remove('selected')); card.classList.add('selected'); message.textContent = card.querySelector('h3').textContent + ' selected'; };
+      card.addEventListener('click', event => { if (!event.target.closest('button')) select(); });
+      card.addEventListener('keydown', event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); select(); } });
+      card.querySelector('.lock').addEventListener('click', event => { const button = event.currentTarget; const on = button.getAttribute('aria-pressed') !== 'true'; button.setAttribute('aria-pressed', String(on)); button.classList.toggle('on', on); message.textContent = on ? 'Offer locked for next wave' : 'Offer unlocked'; });
+      card.querySelector('.buy').addEventListener('click', event => { const price = Number(card.dataset.price); const balance = Number(money.textContent); if (balance < price) { message.textContent = 'Not enough Shards'; return; } money.textContent = String(balance - price); event.currentTarget.textContent = 'PURCHASED'; event.currentTarget.disabled = true; card.classList.add('sold'); message.textContent = card.querySelector('h3').textContent + ' purchased'; });
+    });
+    document.getElementById('reroll').addEventListener('click', () => { const balance = Number(money.textContent); if (balance < 8) { message.textContent = 'Not enough Shards'; return; } money.textContent = String(balance - 8); cards.forEach(card => { card.classList.remove('sold'); const buy = card.querySelector('.buy'); buy.disabled = false; buy.textContent = card.dataset.price + ' ◈ BUY'; }); message.textContent = 'Offers refreshed · preview interaction'; });
+    document.getElementById('go').addEventListener('click', () => { message.textContent = 'Preview only · next wave is not connected'; });
+  </script>
+</body>
+</html>
