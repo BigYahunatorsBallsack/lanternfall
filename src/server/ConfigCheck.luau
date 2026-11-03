@@ -1023,14 +1023,11 @@ function ConfigCheck.run(): { string }
 		movement.speedTolerance < 1
 		or movement.burstSeconds <= 0
 		or movement.slackStuds < 0
-		or movement.dashCredit < 1
 		or movement.speedGraceSeconds < 0
 		or movement.arenaMargin < 0
 		or movement.pillarCore < 0
 	then
-		problem(
-			"Security: movement needs speedTolerance >= 1, dashCredit >= 1, burstSeconds > 0 and no negative values"
-		)
+		problem("Security: movement needs speedTolerance >= 1, burstSeconds > 0 and no negative values")
 	end
 	for _, command in security.scoreSafeDebugCommands do
 		if not table.find(DebugCommands, command) then

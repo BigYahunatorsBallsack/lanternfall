@@ -5,8 +5,8 @@
 -- Paket 15: on the hub (PlaceService) the lobby gets three portals (Play solo, Party run, Quick join) with a
 -- ProximityPrompt each; PartyService listens to PortalTriggered.
 -- Paket 23: characters placed in the arena are checked by MapService/MovementGuard; getRootPosition and
--- getRootVelocity hand out only believable values. CombatService reports walk speeds and dashes (setMoveSpeed,
--- dashGranted), AnalyticsService counts MovementCorrected, AdminService switches the check (setMovementCheck).
+-- getRootVelocity hand out only believable values. CombatService reports walk speeds (setMoveSpeed),
+-- AnalyticsService counts MovementCorrected, AdminService switches the check (setMovementCheck).
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -325,7 +325,7 @@ function MapService.getRootPosition(player: Player): Vector3?
 end
 
 -- Velocity of the player's HumanoidRootPart, zero while the character is missing. In the arena no faster over the
--- floor than the player can walk or dash (Paket 23: a cheated velocity would mislead enemy aim and item effects).
+-- floor than the player can walk (Paket 23: a cheated velocity would mislead enemy aim and item effects).
 function MapService.getRootVelocity(player: Player): Vector3
 	local character = player.Character
 	local root = character and character:FindFirstChild("HumanoidRootPart")
@@ -338,11 +338,6 @@ end
 -- Paket 23: the walk speed CombatService just set on the player's character (0 while they may not walk).
 function MapService.setMoveSpeed(player: Player, speed: number)
 	MovementGuard.setSpeed(player, speed)
-end
-
--- Paket 23: CombatService granted the player a dash (the movement check allows its distance).
-function MapService.dashGranted(player: Player)
-	MovementGuard.dashed(player)
 end
 
 -- Paket 23: the movement check on or off for this server (debug button, tests).

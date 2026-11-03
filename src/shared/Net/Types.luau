@@ -67,12 +67,11 @@ export type RunState = {
 
 export type EndlessVote = { userId: number, continue: boolean }
 
--- HP and dash state of one player (CombatService -> PlayerStateController), sent to everyone on change.
+-- HP state of one player (CombatService -> PlayerStateController), sent to everyone on change.
 export type PlayerVitals = {
 	userId: number,
 	hp: number,
 	maxHp: number,
-	dashReadyAt: number, -- server time when the next dash is allowed
 	invulnerableUntil: number, -- server time
 	choosing: boolean, -- picking a level-up card (frozen and invulnerable only with Run.levelUp.freezeWhileChoosing)
 }

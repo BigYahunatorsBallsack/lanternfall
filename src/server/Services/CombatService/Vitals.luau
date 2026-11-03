@@ -1,14 +1,11 @@
 --!strict
--- Pure HP, armor, dodge, hit protection and dash cooldown rules for one player (DESIGN.md section 4).
+-- Pure HP, armor, dodge and hit protection rules for one player (DESIGN.md section 4).
 -- No Roblox objects, so it is unit tested. Used by CombatService, which passes server times as `now`, the defense
 -- from the player's stats (Util/StatMath: armor factor and dodge chance) and a random roll per hit.
 
 export type Settings = {
 	minDamagePerHit: number,
 	hitInvulnerability: number, -- seconds of protection after a hit
-	dashCooldown: number,
-	dashInvulnerability: number,
-	dashCooldownTolerance: number, -- the server accepts a dash this many seconds early (ping)
 }
 
 local Vitals = {}
@@ -21,10 +18,9 @@ export type Vitals = typeof(setmetatable(
 		maxHp: number,
 		damageFactor: number, -- share of a hit's damage taken (Armor stat)
 		dodgeChance: number, -- 0..1 (Dodge stat)
-		invulnerableUntil: number, -- dash and hit protection
+		invulnerableUntil: number, -- hit protection
 		shielded: boolean, -- invulnerable until switched off (level-up choice)
 		hitShields: number, -- hits nullified completely (item effects, since B4)
-		dashReadyAt: number,
 	},
 	Vitals
 ))
@@ -39,18 +35,16 @@ function Vitals.new(maxHp: number, settings: Settings): Vitals
 		invulnerableUntil = 0,
 		shielded = false,
 		hitShields = 0,
-		dashReadyAt = 0,
 	}, Vitals)
 end
 
--- Full HP with a new maximum, no protection, dash ready (run start, back in the lobby). Defense stays as set.
+-- Full HP with a new maximum and no protection (run start, back in the lobby). Defense stays as set.
 function Vitals.reset(self: Vitals, maxHp: number)
 	self.maxHp = maxHp
 	self.hp = maxHp
 	self.invulnerableUntil = 0
 	self.shielded = false
 	self.hitShields = 0
-	self.dashReadyAt = 0
 end
 
 -- A new maximum during the run (Max HP stat): a higher maximum adds the difference to the current HP,
@@ -144,20 +138,6 @@ end
 
 function Vitals.knockDown(self: Vitals)
 	self.hp = 0
-end
-
--- Starts a dash if the cooldown allows it. Returns false plus a reason otherwise.
-function Vitals.dash(self: Vitals, now: number): (boolean, string?)
-	if self:isDown() then
-		return false, "Down"
-	end
-	local settings = self.settings
-	if now < self.dashReadyAt - settings.dashCooldownTolerance then
-		return false, "Cooldown"
-	end
-	self.dashReadyAt = now + settings.dashCooldown
-	self:protect(now, settings.dashInvulnerability)
-	return true, nil
 end
 
 return Vitals

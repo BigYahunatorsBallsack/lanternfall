@@ -1,4 +1,4 @@
--- Unit tests for player HP, armor, dodge, hit protection and dash rules (src/server/Services/CombatService/Vitals.luau).
+-- Unit tests for player HP, armor, dodge and hit protection (src/server/Services/CombatService/Vitals.luau).
 -- Run: see README "Für Entwickler".
 
 local ServerScriptService = game:GetService("ServerScriptService")
@@ -7,9 +7,6 @@ local Vitals = require(ServerScriptService.Server.Services.CombatService.Vitals)
 local SETTINGS = {
 	minDamagePerHit = 1,
 	hitInvulnerability = 0.5,
-	dashCooldown = 6,
-	dashInvulnerability = 0.3,
-	dashCooldownTolerance = 0.25,
 }
 
 describe("Vitals", function()
@@ -73,43 +70,19 @@ describe("Vitals", function()
 		expect(v:isDown()).toBe(false)
 	end)
 
-	it("dashes with a cooldown and short invulnerability", function()
-		local v = Vitals.new(100, SETTINGS)
-		expect(v:dash(10)).toBe(true)
-		expect(v.dashReadyAt).toBe(16)
-		expect(v:isInvulnerable(10.2)).toBe(true)
-		expect(v:hit(5, 10.2)).toBe(0)
-		expect(v:isInvulnerable(10.3)).toBe(false)
-		local ok, reason = v:dash(12)
-		expect(ok).toBe(false)
-		expect(reason).toBe("Cooldown")
-		expect(v:dash(15.8)).toBe(true) -- within the ping tolerance
-	end)
-
-	it("cannot dash while down", function()
-		local v = Vitals.new(100, SETTINGS)
-		v:knockDown()
-		local ok, reason = v:dash(0)
-		expect(ok).toBe(false)
-		expect(reason).toBe("Down")
-	end)
-
 	it("never shortens an existing protection", function()
 		local v = Vitals.new(100, SETTINGS)
 		v:protect(0, 10)
 		v:hit(5, 1) -- protected, no new window
-		v:dash(2)
 		expect(v.invulnerableUntil).toBe(10)
 	end)
 
 	it("resets for a new run", function()
 		local v = Vitals.new(100, SETTINGS)
 		v:hit(50, 0)
-		v:dash(0)
 		v:reset(120)
 		expect(v.hp).toBe(120)
 		expect(v.maxHp).toBe(120)
-		expect(v.dashReadyAt).toBe(0)
 		expect(v:isInvulnerable(0)).toBe(false)
 	end)
 

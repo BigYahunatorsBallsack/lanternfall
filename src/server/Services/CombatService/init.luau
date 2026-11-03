@@ -1,16 +1,16 @@
 --!strict
--- Player HP, armor, dodge, hit protection and dash (rules in CombatService/Vitals). Takes enemy contact damage
--- from EnemySim, handles the RequestDash remote, knocks players down at 0 HP via RunDirector and sends
+-- Player HP, armor, dodge and hit protection (rules in CombatService/Vitals). Takes enemy contact damage
+-- from EnemySim, knocks players down at 0 HP via RunDirector and sends
 -- PlayerState to every client on change. Fires PlayerDamaged (RunStatsService, EffectService), Dodged and Blocked
 -- (EffectService). Sets walk speed and turns jumping off on each character. Dodge rolls come from RandomService.
 -- StatService sets the player's stats (setStats: Max HP, HP Regeneration, Armor, Dodge, Speed; Util/StatMath),
 -- WeaponService calls lifeSteal, UpgradeService the level-up choice (setChoosing: shielded and standing still);
 -- rewards and revives (WP11) use damagePlayer, healPlayer and protect; item effects (EffectService) healPlayer,
 -- setHitShields, setHpFraction and (since B8) drainPlayer. When a wave ends
--- (Shop phase) players who are down stand up and everyone heals (Config.Shop.waveEnd); nobody walks or dashes in the
+-- (Shop phase) players who are down stand up and everyone heals (Config.Shop.waveEnd); nobody walks in the
 -- shop. B11 part 2: a RunDirector checkpoint keeps each participant's HP from the start of the wave; after a "Retry
 -- wave" (RunDirector.WaveRetried, once StatService restored the stats) they stand there with that HP again.
--- Paket 23: every walk speed it sets and every dash it grants also goes to MapService's movement check.
+-- Paket 23: every walk speed it sets also goes to MapService's movement check.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -34,9 +34,6 @@ local PlayerConfig = Config.Player
 local SETTINGS: Vitals.Settings = {
 	minDamagePerHit = PlayerConfig.minDamagePerHit,
 	hitInvulnerability = PlayerConfig.hitInvulnerability,
-	dashCooldown = PlayerConfig.dash.cooldown,
-	dashInvulnerability = PlayerConfig.dash.invulnerability,
-	dashCooldownTolerance = PlayerConfig.dash.cooldownTolerance,
 }
 
 local CombatService = {}
@@ -69,7 +66,6 @@ local function payload(player: Player, state: Vitals.Vitals): Types.PlayerVitals
 		userId = player.UserId,
 		hp = math.ceil(state.hp),
 		maxHp = state.maxHp,
-		dashReadyAt = state.dashReadyAt,
 		invulnerableUntil = state.invulnerableUntil,
 		choosing = choosing[player] == true,
 	}
@@ -117,7 +113,7 @@ local function onCharacterAdded(player: Player, character: Model)
 	if not (humanoid and humanoid:IsA("Humanoid")) then
 		return
 	end
-	-- Space and gamepad A dash instead of jumping (DESIGN.md section 4); no jump button on phones.
+	-- Jumping is disabled for this game (DESIGN.md section 4).
 	humanoid.UseJumpPower = true
 	humanoid.JumpPower = 0
 	humanoid.JumpHeight = 0
@@ -239,7 +235,7 @@ end
 
 -- Marks the player as choosing a level-up card (DESIGN.md section 8); weapons keep firing. Only with
 -- Config.Run.levelUp.freezeWhileChoosing they stand still and are invulnerable, and ending the choice leaves
--- protectionAfterPick seconds of protection; otherwise they keep walking, dashing and taking hits.
+-- protectionAfterPick seconds of protection; otherwise they keep walking and taking hits.
 function CombatService.setChoosing(player: Player, value: boolean)
 	if (choosing[player] == true) == value then
 		return
@@ -277,22 +273,6 @@ function CombatService.init()
 
 	EnemySim.Contact:Connect(CombatService.damagePlayer)
 	EnemySim.ShotHit:Connect(CombatService.damagePlayer)
-
-	-- The client moves its own character right away; the server checks the cooldown and grants the
-	-- short invulnerability. Rejected dashes send the real cooldown back so the client corrects itself.
-	Net.onServer("RequestDash", function(player)
-		local participantState = RunDirector.getParticipantState(player)
-		local standingStill = RunDirector.isActive() and participantState ~= nil and participantState ~= "Alive"
-		local shopping = RunDirector.getPhase() == "Shop"
-		if standingStill or shopping or (choosing[player] and Config.Run.levelUp.freezeWhileChoosing) then
-			send(player)
-			return
-		end
-		if getVitals(player):dash(now()) then
-			MapService.dashGranted(player) -- Paket 23: the movement check allows the dash distance
-		end
-		send(player)
-	end)
 
 	RunDirector.RunStarted:Connect(resetAll)
 	RunDirector.PhaseChanged:Connect(function(phase, previous)

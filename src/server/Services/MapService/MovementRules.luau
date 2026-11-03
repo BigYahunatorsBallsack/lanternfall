@@ -1,6 +1,6 @@
 --!strict
 -- Rules of the movement plausibility check (Paket 23): a distance budget per checked character that refills with the
--- walk speed CombatService set and pays for every accepted move, extra budget for dashes the server granted, the arena
+-- walk speed CombatService set and pays for every accepted move, the arena
 -- box and the ruin pillars, and the fastest believable velocity. Pure (no Roblox calls); MapService/MovementGuard
 -- keeps one Entry per character, tests/MovementRules.spec checks the rules.
 
@@ -8,8 +8,6 @@ export type Settings = {
 	speedTolerance: number,
 	burstSeconds: number,
 	slackStuds: number,
-	dashCredit: number,
-	dashSeconds: number,
 	speedGraceSeconds: number,
 	arenaMargin: number,
 	pillarCore: number,
@@ -33,7 +31,6 @@ export type Entry = {
 	speed: number, -- walk speed in studs/s (0 while it may not walk)
 	oldSpeed: number, -- the walk speed before the last slowdown
 	slowedAt: number, -- when that slowdown happened
-	dashUntil: number, -- until then the velocity may reach the dash speed
 }
 
 export type Block = "Outside" | "Pillar"
@@ -60,7 +57,6 @@ function MovementRules.new(x: number, y: number, z: number, speed: number, now: 
 		speed = speed,
 		oldSpeed = speed,
 		slowedAt = -math.huge,
-		dashUntil = -math.huge,
 	}
 end
 
@@ -80,7 +76,7 @@ function MovementRules.speedAt(entry: Entry, now: number, settings: Settings): n
 	return entry.speed
 end
 
--- Adds what the walk speed earned since the last refill, up to the capacity (more only stays from a dash).
+-- Adds what the walk speed earned since the last refill, up to the capacity.
 function MovementRules.refill(entry: Entry, now: number, settings: Settings)
 	local dt = now - entry.checkedAt
 	if dt <= 0 then
@@ -103,13 +99,6 @@ function MovementRules.setSpeed(entry: Entry, speed: number, now: number, settin
 		entry.slowedAt = now
 	end
 	entry.speed = speed
-end
-
--- The server granted a dash of `distance` studs.
-function MovementRules.addDash(entry: Entry, distance: number, now: number, settings: Settings)
-	MovementRules.refill(entry, now, settings)
-	entry.budget += distance * settings.dashCredit
-	entry.dashUntil = now + settings.dashSeconds
 end
 
 -- Whether (x, z) is somewhere a real character can not stand: beyond the arena walls (or no real number) or inside a
@@ -157,14 +146,9 @@ function MovementRules.tryMove(
 	return true, distance
 end
 
--- Fastest believable speed over the floor right now (studs/s): the walk speed with tolerance, the dash speed while a
--- granted dash runs.
-function MovementRules.maxSpeed(entry: Entry, dashSpeed: number, now: number, settings: Settings): number
-	local walk = MovementRules.speedAt(entry, now, settings) * settings.speedTolerance
-	if now < entry.dashUntil then
-		return math.max(walk, dashSpeed * settings.speedTolerance)
-	end
-	return walk
+-- Fastest believable speed over the floor right now (studs/s): the walk speed with tolerance.
+function MovementRules.maxSpeed(entry: Entry, now: number, settings: Settings): number
+	return MovementRules.speedAt(entry, now, settings) * settings.speedTolerance
 end
 
 return MovementRules

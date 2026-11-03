@@ -1,7 +1,7 @@
 --!strict
 -- Which game event plays which sound effect (Paket 21, DESIGN.md section 14): weapons firing (WeaponEffects, team
 -- mates quieter), the own hits and crits (DamageNumbers), loot picked up by the local player (XpOrbs with a rising
--- combo pitch, Pickups, ChestOpened), the local player hurt, downed, dashing and levelling up, and the run flow
+-- combo pitch, Pickups, ChestOpened), the local player hurt, downed and levelling up, and the run flow
 -- (wave start and end, boss wave, boss attack warnings). Enemy deaths play from EnemyRenderer/DeathBursts, button
 -- clicks from Widgets.button. Sounds come from Audio/Sfx; cues and numbers from Config.Audio. Combat sounds only play
 -- while the local player is in a running run (RunStateController).
@@ -188,12 +188,6 @@ function AudioController.init()
 			end
 		end
 	)
-	PlayerStateController.Dashed:Connect(function(userId: number)
-		if inRun() then
-			local scale = if userId == localId() then 1 else Config.Audio.otherPlayersVolume
-			Sfx.play("dash", nil, scale)
-		end
-	end)
 	ProgressController.TeamChanged:Connect(function(progress: Types.TeamProgress, previous: Types.TeamProgress?)
 		if previous and progress.level > previous.level and inRun() then
 			Sfx.play("levelUp")

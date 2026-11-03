@@ -18,7 +18,7 @@ Alles, was der Owner für den Soft Launch im Creator Hub einträgt, plus die Lis
 ```text
 The Gloom rises every night. Hold up your lantern and survive.
 
-Lanternfall is a co-op horde survivor for 1-4 players. Your weapons fire on their own: you move, dodge and dash while hundreds of enemies close in. Survive 20 waves, shop between them and face a boss at the end.
+Lanternfall is a co-op horde survivor for 1-4 players. Your weapons fire on their own: you move and dodge while hundreds of enemies close in. Survive 20 waves, shop between them and face a boss at the end.
 
 • 10 characters, each with its own play style
 • 24 weapons in 4 tiers: buy two of the same and merge them
@@ -57,7 +57,7 @@ Tip: Like and favourite the game to get notified about weekly updates!
 
 | Clip | So geht's |
 | --- | --- |
-| „Eine gegen 140" | Showcase scene, Kamera Wide, 10 s nur ausweichen und dashen, dann Close |
+| „Eine gegen 140" | Showcase scene, Kamera Wide, 10 s nur ausweichen, dann Close |
 | Waffen verschmelzen | Im Shop zwei gleiche Waffen kaufen, Verschmelzen zeigen, dann Showcase |
 | Boss-Finale zu viert | 4 Spieler (echte Freunde), Debug „Skip to boss", Kamera Low hero |
 | Rettung in letzter Sekunde | Mitspieler geht down (Debug „Knock me down"), der andere rettet ihn bei „DOWN 1 s" |
