@@ -107,15 +107,15 @@ function CharacterChoice.render()
 				Net.fireServer("SelectStartWeapon", class.id, weaponId)
 			end)
 			local tile = buttons[weaponId]
-			local art = Icons.holder(tile, 46)
+			local art = Icons.holder(tile, 80)
 			art.AnchorPoint = Vector2.new(0.5, 0)
-			art.Position = UDim2.new(0.5, 0, 0, 4)
+			art.Position = UDim2.new(0.5, 0, 0, 2)
 			Icons.draw(art, "weapon", weaponId)
 			Widgets.label({
 				Name = "WeaponName",
 				Text = Config.Weapons[weaponId].displayName,
-				TextSize = 13,
-				Position = UDim2.new(0, 4, 1, -32),
+				TextSize = 17,
+				Position = UDim2.new(0, 4, 1, -30),
 				Size = UDim2.new(1, -8, 0, 28),
 				Parent = tile,
 			})
@@ -164,17 +164,17 @@ function CharacterChoice.mount(card: Frame, row: Frame, buttonsByClass: { [strin
 	classButtons = buttonsByClass
 	for classId, button in classButtons do
 		button.Text = ""
-		local art = Icons.holder(button, 70)
+		local art = Icons.holder(button, 96)
 		art.AnchorPoint = Vector2.new(0.5, 0)
-		art.Position = UDim2.new(0.5, 0, 0, 8)
+		art.Position = UDim2.new(0.5, 0, 0, 2)
 		Icons.draw(art, "character", classId)
 		Widgets.label({
 			Name = "CharacterName",
 			Text = Config.Classes[classId].displayName,
-			TextSize = 15,
+			TextSize = 17,
 			Font = Theme.fontBold,
-			Position = UDim2.new(0, 4, 1, -54),
-			Size = UDim2.new(1, -8, 0, 36),
+			Position = UDim2.new(0, 4, 1, -47),
+			Size = UDim2.new(1, -8, 0, 30),
 			Parent = button,
 		})
 		Widgets.label({
@@ -228,15 +228,15 @@ function CharacterChoice.mount(card: Frame, row: Frame, buttonsByClass: { [strin
 		Size = UDim2.new(1, -28, 0, 38),
 		Parent = summary,
 	})
-	portrait = Icons.holder(summary, 94)
+	portrait = Icons.holder(summary, 112)
 	portrait.Position = UDim2.fromOffset(12, 45)
 	metrics = Widgets.label({
 		Name = "CharacterCapacity",
 		TextSize = 15,
 		TextColor3 = Theme.accent,
 		TextXAlignment = Enum.TextXAlignment.Left,
-		Position = UDim2.fromOffset(116, 54),
-		Size = UDim2.new(1, -126, 0, 70),
+		Position = UDim2.fromOffset(134, 54),
+		Size = UDim2.new(1, -144, 0, 70),
 		Parent = summary,
 	})
 	ruleArea = Widgets.create("ScrollingFrame", {
@@ -246,8 +246,8 @@ function CharacterChoice.mount(card: Frame, row: Frame, buttonsByClass: { [strin
 		ScrollBarThickness = 3,
 		CanvasSize = UDim2.new(),
 		AutomaticCanvasSize = Enum.AutomaticSize.Y,
-		Position = UDim2.fromOffset(14, 150),
-		Size = UDim2.new(1, -28, 1, -164),
+		Position = UDim2.fromOffset(14, 164),
+		Size = UDim2.new(1, -28, 1, -178),
 		Parent = summary,
 	})
 	details = Widgets.label({
@@ -264,19 +264,19 @@ function CharacterChoice.mount(card: Frame, row: Frame, buttonsByClass: { [strin
 		Text = "STARTING WEAPON",
 		TextXAlignment = Enum.TextXAlignment.Left,
 		Font = Theme.fontBold,
-		TextSize = 19,
+		TextSize = 20,
 		LayoutOrder = 3,
 		Parent = card,
 	})
 	weaponRow = Widgets.create("Frame", {
 		Name = "StartingWeapons",
 		BackgroundTransparency = 1,
-		Size = UDim2.new(1, 0, 0, 86),
+		Size = UDim2.new(1, 0, 0, 108),
 		LayoutOrder = 4,
 		Parent = card,
 	})
 	Widgets.create("UIGridLayout", {
-		CellSize = UDim2.new(0.2, -8, 0, 86),
+		CellSize = UDim2.new(0.2, -8, 0, 108),
 		CellPadding = UDim2.fromOffset(10, 10),
 		SortOrder = Enum.SortOrder.LayoutOrder,
 		Parent = weaponRow,
@@ -316,10 +316,11 @@ function CharacterChoice.resize(width: number, height: number?)
 	local gridHeight = math.ceil(count / columns) * (cellHeight + 10) - 10
 	grid.CellSize = UDim2.new(1 / columns, -8, 0, cellHeight)
 	for _, button in classButtons do
-		local size = if short then 44 else 70
+		local size = if short then 64 else 96
 		button.Artwork.Size = UDim2.fromOffset(size, size)
-		button.CharacterName.TextSize = if short then 13 else 15
-		button.CharacterName.Position = UDim2.new(0, 4, 1, if short then -48 else -54)
+		button.CharacterName.TextSize = if short then 14 else 17
+		button.CharacterName.Position = UDim2.new(0, 4, 1, if short then -43 else -47)
+		button.CharacterName.Size = UDim2.new(1, -8, 0, if short then 25 else 30)
 	end
 	classRow.Size = if wide then UDim2.new(0.63, -16, 0, gridHeight) else UDim2.new(1, 0, 0, gridHeight)
 	classRow.Position = UDim2.new()
@@ -331,8 +332,14 @@ function CharacterChoice.resize(width: number, height: number?)
 		weaponCount += 1
 	end
 	local weaponColumns = if width < 540 then 2 else math.max(1, math.min(5, weaponCount))
-	weaponRow:FindFirstChildOfClass("UIGridLayout").CellSize = UDim2.new(1 / weaponColumns, -8, 0, 86)
-	weaponRow.Size = UDim2.new(1, 0, 0, math.max(1, math.ceil(weaponCount / weaponColumns)) * 96 - 10)
+	local weaponHeight = if short then 96 else 108
+	weaponRow:FindFirstChildOfClass("UIGridLayout").CellSize = UDim2.new(1 / weaponColumns, -8, 0, weaponHeight)
+	for _, button in buttons do
+		local iconSize = if short then 66 else 80
+		button.Artwork.Size = UDim2.fromOffset(iconSize, iconSize)
+		button.WeaponName.TextSize = if short then 14 else 17
+	end
+	weaponRow.Size = UDim2.new(1, 0, 0, math.max(1, math.ceil(weaponCount / weaponColumns)) * (weaponHeight + 10) - 10)
 end
 
 return CharacterChoice

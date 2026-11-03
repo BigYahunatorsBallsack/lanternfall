@@ -1,0 +1,56 @@
+{
+  "batch": 3,
+  "status": "approved-by-owner",
+  "tool": "built-in image_gen",
+  "approvedStyleReferences": [
+    "../batch-01/shockwave-v4.png",
+    "../watchman-pistol-v2.png"
+  ],
+  "assets": [
+    {
+      "id": "Gravestone",
+      "name": "Gravestone",
+      "file": "gravestone-v2.png",
+      "source": "image_gen",
+      "destination": "assets/weapons/style-review/batch-03/gravestone-v2.png",
+      "reviewStatus": "approved-by-owner",
+      "reviewNote": "Owner: sieht gut aus, weiter gehts."
+    },
+    {
+      "id": "TithePalm",
+      "name": "Tithe Palm",
+      "file": "tithe-palm-v2.png",
+      "source": "image_gen",
+      "destination": "assets/weapons/style-review/batch-03/tithe-palm-v2.png",
+      "reviewStatus": "approved-by-owner",
+      "reviewNote": "Owner: sieht gut aus, weiter gehts."
+    },
+    {
+      "id": "WraithHatchet",
+      "name": "Wraith Hatchet",
+      "file": "wraith-hatchet-v2.png",
+      "source": "image_gen",
+      "destination": "assets/weapons/style-review/batch-03/wraith-hatchet-v2.png",
+      "reviewStatus": "approved-by-owner",
+      "reviewNote": "Owner: sieht gut aus, weiter gehts."
+    },
+    {
+      "id": "SpiritFlint",
+      "name": "Spirit Flint",
+      "file": "spirit-flint-v2.png",
+      "source": "image_gen",
+      "destination": "assets/weapons/style-review/batch-03/spirit-flint-v2.png",
+      "reviewStatus": "approved-by-owner",
+      "reviewNote": "Owner: sieht gut aus, weiter gehts."
+    },
+    {
+      "id": "RattleRepeater",
+      "name": "Rattle Repeater",
+      "file": "rattle-repeater-v2.png",
+      "source": "image_gen",
+      "destination": "assets/weapons/style-review/batch-03/rattle-repeater-v2.png",
+      "reviewStatus": "approved-by-owner",
+      "reviewNote": "Owner: sieht gut aus, weiter gehts."
+    }
+  ]
+}

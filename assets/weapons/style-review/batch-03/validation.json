@@ -1,0 +1,92 @@
+[
+  {
+    "file": "gravestone-v2.png",
+    "size": [
+      1254,
+      1254
+    ],
+    "alpha": [
+      0,
+      255
+    ],
+    "visibleBoundsAlpha16": [
+      200,
+      134,
+      1062,
+      1161
+    ],
+    "sha256": "f8bbb06a9b6b0b89d25302aa2f7b87c7e64277dfd1fe2ce353d9a62babaf77f8"
+  },
+  {
+    "file": "rattle-repeater-v2.png",
+    "size": [
+      1774,
+      887
+    ],
+    "alpha": [
+      0,
+      255
+    ],
+    "visibleBoundsAlpha16": [
+      81,
+      87,
+      1696,
+      829
+    ],
+    "sha256": "c2e5e405f61eaf006bf97400be706292eba55fd70882c64514bb937ff07a22ef"
+  },
+  {
+    "file": "spirit-flint-v2.png",
+    "size": [
+      1254,
+      1254
+    ],
+    "alpha": [
+      0,
+      255
+    ],
+    "visibleBoundsAlpha16": [
+      247,
+      139,
+      1040,
+      1156
+    ],
+    "sha256": "9854f4a0bb54e50de2535e8ac8373005a5de1049c51fd8bb7e5e6eb94c11f91a"
+  },
+  {
+    "file": "tithe-palm-v2.png",
+    "size": [
+      1254,
+      1254
+    ],
+    "alpha": [
+      0,
+      255
+    ],
+    "visibleBoundsAlpha16": [
+      143,
+      124,
+      1060,
+      1179
+    ],
+    "sha256": "402e9d26bef87dd3ff34c9db07c49858cec29b7574de5db89ead255dbe8a7a0b"
+  },
+  {
+    "file": "wraith-hatchet-v2.png",
+    "size": [
+      1254,
+      1254
+    ],
+    "alpha": [
+      0,
+      255
+    ],
+    "visibleBoundsAlpha16": [
+      244,
+      106,
+      1060,
+      1180
+    ],
+    "sha256": "7cda16a02e99557527215bb9720971e022ee3be3043fc957cfc9a0dc470e6693"
+  }
+]

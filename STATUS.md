@@ -285,3 +285,56 @@ Jeder Strang ändert nur **seine** Zeile (Regeln: `docs/PARALLEL.md`).
 ## Update 03.11.2026 – Spieler-Dash entfernt
 
 Steuerung besteht aus Laufen; Springen bleibt deaktiviert. Dash-Button, Remote, Cooldown, Schutzfenster, Effekte und die Dash-Ausnahme im Bewegungs-Check sind entfernt. Die Ansturm-Angriffe von Bossen und Champions bleiben bestehen. Ältere Dash-Angaben oben beschreiben den früheren Stand.
+
+## Waffen-Icons: freigegebener Stil und erste Fuenferserie (ChatGPT, 03.11.2026)
+
+- Owner hat `assets/weapons/style-review/watchman-pistol-v2.png` als Stilprobe freigegeben: kantige Brotato-nahe Silhouette, wenige Farb- und Schattenflaechen. Die bisherigen 3D-Modelle sind ausdruecklich keine Vorlage. Fruehere Entwuerfe unter `assets/weapons/brotato/` sind nicht freigegeben.
+- Verbindlicher Ablauf: jeweils hoechstens fuenf weitere Waffenbilder erstellen, dann pausieren und dem Owner zur Bewertung zeigen. Erst nach seiner Rueckmeldung fortsetzen.
+- Serie 01 liegt in `assets/weapons/style-review/batch-01/`: Orbit Blades, Spark Bolt, Shockwave, Chain Lightning, Thorn Trail. Alle fuenf sind mit dem eingebauten ImageGen-Werkzeug als separate transparente PNGs erstellt, 1254 x 1254. Stilreferenzen: freigegebene Pistole und die zuvor angesehenen Wiki-Sprites; keine Modellvorlagen.
+- Bilder visuell geprueft, verschiedene Silhouetten und sichtbare Konturen vollstaendig im Bild. RGBA/Transparenz geprueft; unmodifizierte Originale bleiben erhalten. `PROMPTS.md`, `manifest.json` und `validation.json` dokumentieren Prompts, Herkunft und Dateipruefung. Bei Shockwave liegt ein unsichtbarer Alpha-1-Pixel am Bildrand; keine sichtbare Waffe angeschnitten.
+- Aktueller Stand: Serie 01 wartet auf Owner-Bewertung. Kein Upload, keine Spiel-Einbindung und kein Merge fuer diese Serie; keine Codeaenderungen. Mit Watchman Pistol sind jetzt sechs Waffen im neuen Stil entworfen, davon bisher nur die Pistole freigegeben.
+
+- Rueckmeldung zur Serie 01: Shockwave v2 wirkte wie eine Schusswaffe mit Hammerkopf. Neue Variante `batch-01/shockwave-v3.png`: Stiel mittig unter einem querliegenden Hammerkopf, laengerer gerader Stiel und klare T-Silhouette. Mit ImageGen ueberarbeitet, transparente PNG geprueft, v2 erhalten. Weiterhin Pause fuer Owner-Bewertung; keine weiteren Waffen erstellt.
+
+- Shockwave v3: Owner findet die Hammerform besser, aber etwas zu simpel. Neue Variante `batch-01/shockwave-v4.png` behaelt die mittige T-Form und ergaenzt verstaerkte Schlagflaechen, ein Mittelband mit zwei Nieten, Metallfassung und Lederwicklungen. Mit ImageGen erstellt, Transparenz und Bildraender geprueft. V2/V3 bleiben erhalten; v4 wartet auf Bewertung. Weiterhin keine naechste Fuenferserie begonnen.
+
+## Waffen-Icons: zweite Fuenferserie (ChatGPT, 03.11.2026)
+
+- Owner bestaetigt Shockwave v4 mit "das passt". Dessen mittlerer Detailgrad (wenige klare Beschlaege/Nieten/Wicklungen, flaeches Brotato-nahes Rendering) ist neben Watchman Pistol v2 Stilreferenz fuer die folgenden Waffen. Shockwave im Manifest ausdruecklich als freigegeben markiert.
+- Serie 02: Boomerang Axe, Brass Knuckles, Ritual Dirk, Lamplighter Pike und Dusk Sabre. Je ein mit ImageGen erstelltes transparentes PNG unter `assets/weapons/style-review/batch-02/`, mit exakten Prompts, Quellenmanifest und Dateipruefung. Keine 3D-Modellvorlagen; unterschiedliche Silhouetten von Wurfaxt, Schlagring, kurzem Dolch, langem Speer mit kleiner Laterne und gebogenem Saebel.
+- Alle fuenf visuell geprueft; PNG/RGBA, Transparenz und vollstaendige sichtbare Konturen im Bild bestaetigt. Keine Spiel-, Balance- oder Codeaenderung, kein Upload/Publish/Merge.
+- Erneut Pause nach genau fuenf neuen Waffen. Serie 02 wartet auf Owner-Bewertung. Insgesamt elf Waffen im neuen Stil entworfen (eine Pistole und zwei Serien), noch keine weitere Serie begonnen. Naechste nach Freigabe: Gravestone, Tithe Palm, Wraith Hatchet, Spirit Flint, Rattle Repeater.
+
+- Serie 02, Owner-Korrekturen: Boomerang Axe v2 wirkte seltsam; Lamplighter Pike v2 hatte eine unpassende haengende Laterne. `boomerang-axe-v3.png` hat jetzt einen konventionellen einseitigen Axtkopf statt der grossen U-Sichel. `lamplighter-pike-v3.png` behaelt den Speer und integriert eine kleine feste Lampenfassung direkt im Schaft unter der Spitze, ohne Haken oder Anhaenger.
+- Beide mit ImageGen ueberarbeitet, transparente PNGs und Bildraender geprueft, v2 erhalten, genaue Prompts und Herkunft in `batch-02/REVISIONS-v3.md` und `revisions-v3.json`. Die erste Axt-Anfrage wurde vom Bilddienst blockiert; eine kuerzere Beschreibung des isolierten Cartoon-Icons war erfolgreich. Beide v3-Entwuerfe warten auf Owner-Bewertung. Keine weiteren Waffen begonnen.
+
+- Boomerang Axe v3 laut Owner zu normal, kein Bumerang mehr. `batch-02/boomerang-axe-v4.png` als klare V-Form mit zwei Armen neu aufgebaut: Holz-/Ledergriff links, breite integrierte Axtschneide rechts. Flache Form und Brotato-naher Stil erhalten, ImageGen-Prompt und Dateipruefung gespeichert, vorige Varianten erhalten. V4 wartet auf Bewertung; Serie 02 bleibt pausiert.
+
+- Boomerang Axe v5: Owner liefert konkrete Formvorlage (als Referenz unter `batch-02/references/` gesichert). Lange Holzseite, kuerzere breite Metallseite, Kreuzbindung und zwei helle Federn als stilisiertes Icon umgesetzt; keine normale Axt oder symmetrische V-Neuinterpretation. Owner bestaetigt das erzeugte v5-Bild direkt mit "passt". V5 im Manifest freigegeben; PNG/Transparenz und vollstaendige sichtbare Konturen geprueft. Naechste Serie kann beginnen.
+
+## Waffen-Icons: dritte Fuenferserie (ChatGPT, 03.11.2026)
+
+- Nach der ausdruecklichen Freigabe von Boomerang Axe v5 die naechsten fuenf erstellt: Gravestone, Tithe Palm, Wraith Hatchet, Spirit Flint, Rattle Repeater. Eigenstaendige Silhouetten als Grabsteinplatte, offene gepanzerte Handschuhwaffe mit Muenzmotiv, Geisteraxt mit Knochenstiel, umwickelte Feuersteinklinge ohne Stiel und Repetierer mit Trommelmagazin. Stil/Detailgrad weiter anhand Shockwave v4 und Watchman Pistol v2, ohne 3D-Modellvorlagen.
+- Serie unter `assets/weapons/style-review/batch-03/` gesichert; exakte ImageGen-Prompts, Quellenmanifest und PNG-Pruefungen dabei. Alle fuenf visuell geprueft, RGBA/Transparenz und vollstaendige sichtbare Konturen im Bild bestaetigt. Vier quadratische Bilder, Rattle Repeater vom Bilddienst im Querformat geliefert; Originalformat erhalten.
+- Erneute Pause nach genau fuenf weiteren Waffen. Serie 03 wartet auf Bewertung. Jetzt 16 von 26 Waffen im neuen Stil entworfen. Kein Upload, Codeumbau, Merge oder Publish. Als naechste Serie nach Rueckmeldung vorgesehen: Scatter Bell, Shrapnel Organ, Cinder Breath, Galvanic Fork, Leech Carbine. Danach Cathedral Engine, Mortar Lantern, Winter Needle, Foundry Key, Rune Awl.
+
+## Waffen-Icons: vierte Fuenferserie (ChatGPT, 03.11.2026)
+
+- Owner bestaetigt Serie 03 mit "sieht gut aus, weiter gehts"; alle fuenf Eintraege im Batch-03-Manifest als freigegeben markiert.
+- Serie 04 mit ImageGen erzeugt: Scatter Bell (breite Glockenmuendung mit vier Oeffnungen), Shrapnel Organ (drei Orgelpfeifen), Cinder Breath (Brenner mit geformter Metallmaul-Muendung), Galvanic Fork (zweizinkige Stimmgabel), Leech Carbine (schlanker Karabiner mit aufgesetztem Reservoir). Eigenstaendige Silhouetten; Referenzen waren freigegebene Shop-Bilder und zuvor recherchierte Brotato-Icons, keine 3D-Modelle.
+- Fuenf transparente PNGs unter `assets/weapons/style-review/batch-04/` mit exakten Prompts und Quellenmanifest. Visuell geprueft, RGBA und sichtbare Raender innerhalb aller Leinwaende bestaetigt; SHA-256 in `validation.json`. Kein Spiel-Upload oder Codeumbau.
+- Pause nach fuenf neuen Waffen fuer Owner-Bewertung. Damit 21 von 26 im neuen Stil entworfen, 16 zuvor vom Owner freigegeben. Naechste Serie nach Rueckmeldung: Cathedral Engine, Mortar Lantern, Winter Needle, Foundry Key, Rune Awl.
+
+## Waffen-Icons: fuenfte und letzte Fuenferserie (ChatGPT, 03.11.2026)
+
+- Owner bestaetigt Serie 04 mit "passt, weiter"; alle fuenf Eintraege im Batch-04-Manifest als freigegeben markiert.
+- Letzte Serie 05 mit ImageGen erzeugt: Cathedral Engine (drei waagerechte Laeufe und gotischer Rahmen), Mortar Lantern (fest integrierte Lampe im Raketenwerfer), Winter Needle (schmaler Eisnadel-Werfer), Foundry Key (grosses Eisenschluessel-Werkzeug), Rune Awl (duenner Stahlspitz mit Runenfassung). Je eigene klar lesbare Silhouette; keine 3D-Modellvorlage.
+- Fuenf transparente PNGs unter `assets/weapons/style-review/batch-05/` mit exakten Prompts, Herkunftsmanifest und SHA-256-Dateipruefung. Visuell geprueft, RGBA und sichtbare Konturen vollstaendig innerhalb der Bildraender bestaetigt.
+- Damit sind alle 26 Waffen als neue stilisierte Entwuerfe vorhanden. Die letzten fuenf warten auf Owner-Bewertung; Pause gemaess Vereinbarung. Vor Integration nach Freigabe: finalen Satz normalisieren, Roblox-Bilder hochladen, `UI/WeaponImages`-Zuordnung fuer 26 Waffen vervollstaendigen und Shop/Inventar im Studio pruefen. Kein Upload, Codeumbau, Merge oder Publish in dieser Bewertungsserie.
+
+## Waffen-Icons: Integration und Kartenlayout (ChatGPT, 03.11.2026)
+
+- Owner bestaetigt Serie 05 mit "weiter"; alle fuenf Serien und Watchman Pistol sind damit freigegeben. Die 26 ausgewaehlten transparenten Original-PNGs liegen gesammelt unter `assets/weapons/final/`; die Entwurfs- und Revisionsdateien bleiben unter `assets/weapons/style-review/` nachvollziehbar. Die verworfenen frueheren Waffenbilder unter `assets/weapons/brotato/` werden nicht verwendet.
+- Alle 26 finalen Bilder in Roblox Studio als neue Image-Assets hochgeladen; IDs in `src/client/UI/WeaponImages.luau` und `assets/weapons/final/roblox-assets.json` eingetragen. Die Waffenliste, das finale Manifest und die Asset-Zuordnung enthalten dieselben 26 eindeutigen IDs. Im Studio-Client haben alle 26 Bilder den Preload-Status `Success` erreicht; im Shop sind Angebots- und eigene Waffenbilder sichtbar.
+- Lobby-Karten fuer Charaktere und Startwaffen sowie Shop-Angebote und eigene Waffenslots nutzen groessere Bildflaechen und Schrift. Marble Host wird im zentralen Portrait-Renderer auf 84 % skaliert, damit er optisch zu den anderen Charakteren passt. Vorher/Nachher in Studio bei normaler Bildschirmgroesse geprueft; Owner bestaetigt Layout und Marble-Host-Korrektur.
+- `CharacterPortraits.luau` mit den bereits in Studio verwendeten zehn Asset-IDs ins Repo aufgenommen, da `Icons.luau` das Modul benoetigt. StyLua und Selene fuer alle geaenderten Luau-Dateien sauber; Rojo-Build erfolgreich. Der volle Selene-Lauf meldet 0 Fehler, 11 bereits vorhandene Warnungen in nicht bearbeiteten Dateien. Studio-Output hat keine neuen Luau-Fehler; bestehende Warnungen zu Asset `203785492` und nicht eingerichteten Badges sind unabhaengig von diesem Paket.

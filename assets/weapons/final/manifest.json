@@ -1,0 +1,33 @@
+{
+  "status": "approved-by-owner",
+  "format": "transparent PNG",
+  "source": "Original stylized illustrations for Lanternfall's weapon UI",
+  "weapons": {
+    "OrbitBlades": "orbit-blades.png",
+    "SparkBolt": "spark-bolt.png",
+    "Shockwave": "shockwave.png",
+    "ChainLightning": "chain-lightning.png",
+    "ThornTrail": "thorn-trail.png",
+    "BoomerangAxe": "boomerang-axe.png",
+    "BrassKnuckles": "brass-knuckles.png",
+    "RitualDirk": "ritual-dirk.png",
+    "LamplighterPike": "lamplighter-pike.png",
+    "DuskSabre": "dusk-sabre.png",
+    "Gravestone": "gravestone.png",
+    "TithePalm": "tithe-palm.png",
+    "WraithHatchet": "wraith-hatchet.png",
+    "SpiritFlint": "spirit-flint.png",
+    "WatchmanPistol": "watchman-pistol.png",
+    "RattleRepeater": "rattle-repeater.png",
+    "ScatterBell": "scatter-bell.png",
+    "ShrapnelOrgan": "shrapnel-organ.png",
+    "CinderBreath": "cinder-breath.png",
+    "GalvanicFork": "galvanic-fork.png",
+    "LeechCarbine": "leech-carbine.png",
+    "CathedralEngine": "cathedral-engine.png",
+    "MortarLantern": "mortar-lantern.png",
+    "WinterNeedle": "winter-needle.png",
+    "FoundryKey": "foundry-key.png",
+    "RuneAwl": "rune-awl.png"
+  }
+}

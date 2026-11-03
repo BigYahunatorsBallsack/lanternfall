@@ -1,0 +1,56 @@
+{
+  "batch": 2,
+  "status": "approved-by-owner",
+  "tool": "built-in image_gen",
+  "approvedStyleReferences": [
+    "../batch-01/shockwave-v4.png",
+    "../watchman-pistol-v2.png"
+  ],
+  "assets": [
+    {
+      "id": "BoomerangAxe",
+      "name": "Boomerang Axe",
+      "file": "boomerang-axe-v5.png",
+      "source": "image_gen",
+      "destination": "assets/weapons/style-review/batch-02/boomerang-axe-v5.png",
+      "reviewStatus": "approved-by-owner",
+      "previousFile": "boomerang-axe-v4.png",
+      "revisionReason": "Owner: normal axe no longer evokes a boomerang. Rebuilt as open V-shaped boomerang with one wrapped grip arm and one integrated axe blade arm.",
+      "reviewNote": "Owner: passt. User supplied reference followed closely for silhouette and construction.",
+      "shapeReference": "references/boomerang-axe-user-reference.png"
+    },
+    {
+      "id": "BrassKnuckles",
+      "name": "Brass Knuckles",
+      "file": "brass-knuckles-v2.png",
+      "source": "image_gen",
+      "destination": "assets/weapons/style-review/batch-02/brass-knuckles-v2.png",
+      "reviewStatus": "approved-by-owner"
+    },
+    {
+      "id": "RitualDirk",
+      "name": "Ritual Dirk",
+      "file": "ritual-dirk-v2.png",
+      "source": "image_gen",
+      "destination": "assets/weapons/style-review/batch-02/ritual-dirk-v2.png",
+      "reviewStatus": "approved-by-owner"
+    },
+    {
+      "id": "LamplighterPike",
+      "name": "Lamplighter Pike",
+      "file": "lamplighter-pike-v3.png",
+      "source": "image_gen",
+      "destination": "assets/weapons/style-review/batch-02/lamplighter-pike-v3.png",
+      "reviewStatus": "approved-by-owner",
+      "previousFile": "lamplighter-pike-v2.png"
+    },
+    {
+      "id": "DuskSabre",
+      "name": "Dusk Sabre",
+      "file": "dusk-sabre-v2.png",
+      "source": "image_gen",
+      "destination": "assets/weapons/style-review/batch-02/dusk-sabre-v2.png",
+      "reviewStatus": "approved-by-owner"
+    }
+  ]
+}
