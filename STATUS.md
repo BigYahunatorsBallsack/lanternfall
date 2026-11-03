@@ -70,7 +70,7 @@ Jeder Strang ändert nur **seine** Zeile (Regeln: `docs/PARALLEL.md`).
 | Strang | KI | Aktuelles Paket | Branch / PR | Stand | Danach |
 | --- | --- | --- | --- | --- | --- |
 | A – Engine und Ablauf | Claude | Paket 24 Launch-Paket (Medium) | `wp-24-launch` | fertig, selbst gemerged | Plan bis zum Launch abgeschlossen; als Nächstes IDs des Owners eintragen (Live-Experience, Badges, Musik), dann Live-Ops |
-| B – Inhalte und Spieler-Regeln | ChatGPT | Paket 21c: Baum, Frucht und Kisten als Modelle | `wp-21c-loot-models` | Meshes und SpecialMesh in Studio geprüft; StyLua, Selene (0 Fehler) und Rojo-Build erfolgreich; PR vorbereitet | Owner-Abnahme im Run, besonders auf Handy |
+| B – Inhalte und Spieler-Regeln | ChatGPT | Paket 21c: Baum, Frucht und Kisten als Modelle | `wp-21c-loot-models` / PR #69 | Meshes und SpecialMesh in Studio geprüft; StyLua, Selene (0 Fehler) und Rojo-Build erfolgreich; PR offen | Owner-Abnahme im Run, besonders auf Handy |
 
 ## Feste Entscheidungen des Owners
 
