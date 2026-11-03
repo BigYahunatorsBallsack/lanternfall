@@ -11,4 +11,6 @@ This is a standalone, clickable review page. It does not connect to Roblox gamep
 
 The four weapon illustrations were created with the built-in image generation tool, using the item contact sheet as a style reference and the current weapon model descriptions as subject constraints. All four have transparent backgrounds. Prompts requested one weapon per icon, chunky asymmetrical shape, dark ink contour, broad painted lighting, no frame or text. The icon files live in `assets/`.
 
+The Orbit Blades image was corrected after checking the authored mesh in Studio: its current held model is a circular saw, not a sword.
+
 The four cards and their stats are a sample view, not a captured live shop state. Buying, locking and rerolling demonstrate visual states only. Prices and the level 8 sidebar are illustrative. The in-game implementation will use the actual server shop state and current stat calculations.
