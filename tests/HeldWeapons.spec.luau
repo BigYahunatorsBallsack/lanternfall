@@ -4,6 +4,7 @@ loadHelper("tests/helpers/RobloxMock.luau")
 
 local Config = require(game:GetService("ReplicatedStorage").Shared.Config)
 local HeldModels = require(folderProxy("src/client", "Client").Controllers.WeaponRenderer.HeldModels)
+local MeshCatalog = require(folderProxy("src/client", "Client").Controllers.WeaponRenderer.HeldMeshCatalog)
 
 local function frame(folder, number)
 	return {
@@ -25,6 +26,22 @@ local function frame(folder, number)
 end
 
 describe("Held weapon models", function()
+	it("has a textured mesh for every configured weapon", function()
+		local count = 0
+		for id in Config.Weapons do
+			count += 1
+			local look = MeshCatalog[id]
+			expect(look ~= nil).toBe(true)
+			expect(#look.pieces >= 1 and #look.pieces <= 12).toBe(true)
+			for _, piece in look.pieces do
+				expect(piece.mesh:match("^rbxassetid://%d+$") ~= nil).toBe(true)
+				expect(piece.texture:match("^rbxassetid://%d+$") ~= nil).toBe(true)
+				expect(piece.size.X > 0 and piece.size.Y > 0 and piece.size.Z > 0).toBe(true)
+			end
+		end
+		expect(count).toBe(26)
+	end)
+
 	it("covers every weapon with a small, non-colliding model", function()
 		local folder = Instance.new("Folder")
 		local count = 0
