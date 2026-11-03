@@ -7,8 +7,8 @@
 -- sell or merge it), a reroll with its price (or free) and READY. The unscaled panel scrolls with fixed footer actions; on small screens
 -- (phones) it gets a compact layout and the stat panel moves behind a STATS button. Everything comes from the
 -- server's ShopState (ShopService); sends BuyShopOffer, LockShopOffer, RerollShop, SellWeapon, MergeWeapons and
--- SetShopReady. The stats sit next to it (StatsController). Since Paket 14 each weapon field has a tooltip with the
--- weapon's real damage, scaling and stats (UI/Tooltip; LoadoutController has the effective stats). Paket 16: next to
+-- SetShopReady. The stats sit next to it (StatsController). Weapon descriptions open from dedicated buttons on offers
+-- and owned weapons, showing effective stats from LoadoutController without an inner scroll area. Paket 16: next to
 -- the reroll a bonus reroll button (StoreController: VIP reroll, reroll tokens or the reroll pack).
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -35,8 +35,9 @@ local TooltipText = require(Shared:WaitForChild("Util"):WaitForChild("TooltipTex
 local Widgets = require(script.Parent.Parent.UI.Widgets)
 
 local CARD_WIDTH = 200
-local CARD_HEIGHT = { normal = 344, compact = 312 } -- the buy button; the lock button sits below it
+local CARD_HEIGHT = { normal = 344, compact = 312 } -- the buy button; weapon details and lock sit below it
 local DETAIL_HEIGHT = { normal = 82, compact = 70 }
+local DETAIL_BUTTON_HEIGHT = 34
 local LOCK_HEIGHT = 44
 local CHIP_SIZE = Vector2.new(136, 118)
 local GAP = 10
@@ -88,6 +89,10 @@ local rerollButton: TextButton
 local statsButton: TextButton
 local readyButton: TextButton
 local backButton: TextButton
+local detailOverlay: Frame
+local detailPanel: Frame
+local detailTitle: TextLabel
+local detailBody: TextLabel
 
 type CardView = {
 	icon: Frame,
@@ -100,14 +105,17 @@ type CardView = {
 	name: TextLabel,
 	detail: TextLabel,
 	detailArea: ScrollingFrame,
+	details: TextButton,
 	price: TextLabel,
 	edge: UIStroke,
 	lock: TextButton,
 }
 
 type ChipView = {
+	frame: Frame,
 	icon: Frame,
 	button: TextButton,
+	details: TextButton,
 	name: TextLabel,
 	info: TextLabel,
 	edge: UIStroke,
@@ -117,6 +125,8 @@ local cards: { CardView } = {}
 local chips: { ChipView } = {}
 local shop: Types.ShopState? = nil
 local selectedUid: number? = nil
+local detailOfferId: string? = nil
+local detailWeaponUid: number? = nil
 local compact = false
 local landscape = false
 local showingStats = false -- compact layout: the stat panel is shown instead of the shop
@@ -196,6 +206,34 @@ end
 
 local render: () -> ()
 
+local function openOfferDetails(index: number)
+	local current = shop
+	local offer = current and current.offers[index]
+	if not (offer and offer.kind == "Weapon" and not offer.sold and isShopping()) then
+		return
+	end
+	detailOfferId = offer.id
+	detailWeaponUid = nil
+	render()
+end
+
+local function openWeaponDetails(index: number)
+	local current = shop
+	local weapon = current and current.weapons[index]
+	if not (weapon and isShopping()) then
+		return
+	end
+	detailWeaponUid = weapon.uid
+	detailOfferId = nil
+	render()
+end
+
+local function closeDetails()
+	detailOfferId = nil
+	detailWeaponUid = nil
+	render()
+end
+
 local function selectChip(index: number)
 	local current = shop
 	local weapon = current and current.weapons[index]
@@ -214,7 +252,12 @@ end
 -- Layout --------------------------------------------------------------------------------
 
 local function cardHeight(): number
-	return (if landscape then 120 elseif compact then CARD_HEIGHT.compact else CARD_HEIGHT.normal)
+	return (
+		if landscape
+			then 120 + DETAIL_BUTTON_HEIGHT + GAP / 2
+			elseif compact then CARD_HEIGHT.compact
+			else CARD_HEIGHT.normal
+	)
 		+ GAP / 2
 		+ LOCK_HEIGHT
 end
@@ -229,6 +272,7 @@ local function screenArea(): Vector2
 end
 local function applyLayout()
 	local area = screenArea()
+	detailPanel.Size = UDim2.fromOffset(math.min(560, area.X - 32), math.min(500, area.Y - 32))
 	compact = area.X < 1000 or area.Y < 600
 	landscape = area.Y < 420 and area.X >= 600
 	local reserved = if compact then 0 else StatsController.reservedWidth()
@@ -274,6 +318,7 @@ local function applyLayout()
 			cardWidth,
 			if landscape then 120 elseif compact then CARD_HEIGHT.compact else CARD_HEIGHT.normal
 		)
+		view.details.Size = UDim2.fromOffset(cardWidth, DETAIL_BUTTON_HEIGHT)
 		view.lock.Size = UDim2.fromOffset(cardWidth, LOCK_HEIGHT)
 		view.list.Parent = if landscape then nil else view.button
 		local pad = UDim.new(0, if landscape then 0 else 10)
@@ -337,7 +382,17 @@ local function renderCards(current: Types.ShopState)
 			view.badge.BackgroundColor3 = color
 			Icons.draw(view.icon, string.lower(offer.kind), offer.itemId)
 			view.name.Text = title
-			view.detail.Text = detail
+			view.detail.Text = if offer.kind == "Weapon" then "" else detail
+			view.detailArea.Visible = offer.kind ~= "Weapon"
+			view.details.Visible = offer.kind == "Weapon" and not offer.sold
+			view.button.Size = UDim2.fromOffset(
+				view.button.Size.X.Offset,
+				if landscape
+						or offer.kind ~= "Weapon"
+						or offer.sold
+					then (if landscape then 120 elseif compact then CARD_HEIGHT.compact else CARD_HEIGHT.normal)
+					else (if compact then CARD_HEIGHT.compact else CARD_HEIGHT.normal) - DETAIL_BUTTON_HEIGHT - GAP / 2
+			)
 			view.price.Text = if offer.sold then "SOLD" else `{offer.price} Shards`
 			view.price.TextColor3 = if affordable then Theme.accentText else Theme.text
 			view.price.BackgroundColor3 = if affordable then Theme.accent else Theme.panel
@@ -360,7 +415,7 @@ local function renderWeapons(current: Types.ShopState)
 	end
 	for index, view in chips do
 		local weapon = current.weapons[index]
-		view.button.Visible = weapon ~= nil
+		view.frame.Visible = weapon ~= nil
 		if weapon then
 			local selected = weapon.uid == selectedUid
 			local color = Theme.tiers[weapon.tier] or Theme.accent
@@ -385,6 +440,35 @@ local function renderWeapons(current: Types.ShopState)
 			then `Weapons {#current.weapons}/{current.maxWeapons} · tap one to sell or merge`
 			else "Tap a weapon to sell or merge it"
 		actionHint.TextColor3 = Theme.textDim
+	end
+end
+
+local function renderDetails(current: Types.ShopState, shopping: boolean)
+	local title: string? = nil
+	local body: string? = nil
+	if shopping and detailOfferId then
+		for _, offer in current.offers do
+			if offer.id == detailOfferId and offer.kind == "Weapon" and not offer.sold then
+				title, body = UpgradeText.offer(offer, STAT_COLORS)
+				break
+			end
+		end
+	elseif shopping and detailWeaponUid then
+		local loadout = LoadoutController.getLocal()
+		for _, weapon in if loadout then loadout.weapons else {} do
+			if weapon.uid == detailWeaponUid then
+				title, body = TooltipText.weapon(weapon)
+				break
+			end
+		end
+	end
+	detailOverlay.Visible = title ~= nil
+	if title then
+		detailTitle.Text = title
+		detailBody.Text = body or ""
+	else
+		detailOfferId = nil
+		detailWeaponUid = nil
 	end
 end
 
@@ -475,12 +559,16 @@ function render()
 	backButton.Visible = statsInstead
 	StatsController.setSuppressed(shopping and compact and not showingStats)
 	if not (current and shopping) then
+		detailOverlay.Visible = false
+		detailOfferId = nil
+		detailWeaponUid = nil
 		return
 	end
 	renderCards(current)
 	renderWeapons(current)
 	renderItems()
 	renderButtons(current)
+	renderDetails(current, shopping)
 end
 
 local function updateSubtitle()
@@ -581,12 +669,23 @@ local function buildCard(index: number): CardView
 		LayoutOrder = 5,
 		Parent = button,
 	})
+	local details = Widgets.button({
+		Name = `OfferDetails{index}`,
+		Text = "DETAILS",
+		TextSize = 15,
+		Size = UDim2.fromOffset(CARD_WIDTH, DETAIL_BUTTON_HEIGHT),
+		LayoutOrder = 2,
+		Visible = false,
+		Parent = frame,
+	}, function()
+		openOfferDetails(index)
+	end)
 	local lock = Widgets.button({
 		Name = `Lock{index}`,
 		Text = "Lock",
 		TextSize = 15,
 		Size = UDim2.fromOffset(CARD_WIDTH, LOCK_HEIGHT),
-		LayoutOrder = 2,
+		LayoutOrder = 3,
 		Parent = frame,
 	}, function()
 		toggleLock(index)
@@ -602,6 +701,7 @@ local function buildCard(index: number): CardView
 		name = name,
 		detail = detail,
 		detailArea = detailArea,
+		details = details,
 		price = price,
 		edge = edge,
 		lock = lock,
@@ -609,24 +709,30 @@ local function buildCard(index: number): CardView
 end
 
 local function buildChip(index: number): ChipView
-	local button = Widgets.button({
-		Name = `Weapon{index}`,
-		Text = "",
+	local frame = Widgets.create("Frame", {
+		Name = `WeaponSlot{index}`,
+		BackgroundTransparency = 1,
 		Size = UDim2.fromOffset(CHIP_SIZE.X, CHIP_SIZE.Y),
 		LayoutOrder = index,
 		Parent = chipRow,
+	})
+	local button = Widgets.button({
+		Name = `Weapon{index}`,
+		Text = "",
+		Size = UDim2.fromOffset(CHIP_SIZE.X, CHIP_SIZE.Y - 28),
+		Parent = frame,
 	}, function()
 		selectChip(index)
 	end)
 	local edge = button:FindFirstChild("Outline") :: UIStroke
-	local icon = Icons.holder(button, 70, 0)
+	local icon = Icons.holder(button, 48, 0)
 	Widgets.padding(4).Parent = button
 	Widgets.list(0).Parent = button
 	local name = Widgets.label({
 		Name = "WeaponName",
 		Font = Theme.fontBold,
 		TextSize = 15,
-		Size = UDim2.new(1, 0, 0, 26),
+		Size = UDim2.new(1, 0, 0, 22),
 		LayoutOrder = 1,
 		Parent = button,
 	})
@@ -634,21 +740,21 @@ local function buildChip(index: number): ChipView
 		Name = "Info",
 		TextSize = 12,
 		TextColor3 = SHARDS_COLOR,
-		Size = UDim2.new(1, 0, 0, 14),
+		Size = UDim2.new(1, 0, 0, 12),
 		LayoutOrder = 2,
 		Parent = button,
 	})
-	Tooltip.attach(button, function()
-		local weapon = shop and shop.weapons[index]
-		local loadout = LoadoutController.getLocal()
-		for _, info in if weapon and loadout then loadout.weapons else {} do
-			if weapon and info.uid == weapon.uid then
-				return TooltipText.weapon(info)
-			end
-		end
-		return nil, nil
+	local details = Widgets.button({
+		Name = `WeaponDetails{index}`,
+		Text = "DETAILS",
+		TextSize = 12,
+		Size = UDim2.fromOffset(CHIP_SIZE.X, 26),
+		Position = UDim2.fromOffset(0, CHIP_SIZE.Y - 26),
+		Parent = frame,
+	}, function()
+		openWeaponDetails(index)
 	end)
-	return { button = button, icon = icon, name = name, info = info, edge = edge }
+	return { frame = frame, button = button, details = details, icon = icon, name = name, info = info, edge = edge }
 end
 
 local function row(name: string, height: number, order: number, parent: Instance): Frame
@@ -696,6 +802,57 @@ local function build()
 	backdropHint = Widgets.label({ Name = "Hint", TextColor3 = Theme.textDim, LayoutOrder = 2, Parent = banner })
 
 	screen = Widgets.screen("Shop", 4)
+	detailOverlay = Widgets.create("Frame", {
+		Name = "WeaponDetailsOverlay",
+		BackgroundColor3 = Theme.canvas,
+		BackgroundTransparency = 0.18,
+		BorderSizePixel = 0,
+		Size = UDim2.fromScale(1, 1),
+		Visible = false,
+		Active = true,
+		ZIndex = 20,
+		Parent = screen,
+	})
+	detailPanel = Widgets.create("Frame", {
+		Name = "WeaponDetailsPanel",
+		BackgroundColor3 = Theme.panel,
+		BorderSizePixel = 0,
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.fromScale(0.5, 0.5),
+		ZIndex = 21,
+		Parent = detailOverlay,
+	}, { Widgets.corner(), Widgets.create("UIStroke", { Color = Theme.stroke, Thickness = 3 }) })
+	detailTitle = Widgets.label({
+		Name = "WeaponDetailsTitle",
+		Font = Theme.fontBold,
+		TextScaled = true,
+		Size = UDim2.new(1, -32, 0, 42),
+		Position = UDim2.fromOffset(16, 14),
+		ZIndex = 22,
+		Parent = detailPanel,
+	})
+	Widgets.create("UITextSizeConstraint", { MaxTextSize = 24, Parent = detailTitle })
+	detailBody = Widgets.label({
+		Name = "WeaponDetailsBody",
+		RichText = true,
+		TextScaled = true,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		TextYAlignment = Enum.TextYAlignment.Top,
+		Size = UDim2.new(1, -32, 1, -128),
+		Position = UDim2.fromOffset(16, 64),
+		ZIndex = 22,
+		Parent = detailPanel,
+	})
+	Widgets.create("UITextSizeConstraint", { MaxTextSize = 20, Parent = detailBody })
+	Widgets.button({
+		Name = "CloseWeaponDetails",
+		Text = "CLOSE",
+		Size = UDim2.fromOffset(150, 42),
+		AnchorPoint = Vector2.new(0.5, 1),
+		Position = UDim2.new(0.5, 0, 1, -14),
+		ZIndex = 22,
+		Parent = detailPanel,
+	}, closeDetails)
 	shortSubtitle = Widgets.label({
 		Name = "ShortSubtitle",
 		Font = Theme.fontBold,
@@ -949,3 +1106,4 @@ function ShopController.isCompact(): boolean
 end
 
 return ShopController
+
