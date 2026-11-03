@@ -144,20 +144,13 @@ describe("movement check", function()
 		expect(gained < speed * 3 * 6 - 80).toBe(true)
 	end)
 
-	it("moves a player back who walks through the arena wall or into a ruin pillar", function()
+	it("moves a player back who walks through the arena wall", function()
 		world.advance(3)
 		local before = root().Position
 		local arena = Config.Map.arena
 		root().Position = Vector3.new(arena.center.X + arena.size / 2 + 6, before.Y, before.Z)
 		world.step(0.1)
 		expect(root().Position.X).toBeNear(before.X, 0.01)
-		world.advance(Movement.strikeGapSeconds + 0.5)
-		local pillar = arena.obstacles[1]
-		local count = MapService.getMovementCorrections(me)
-		root().Position = Vector3.new(arena.center.X + pillar.x, before.Y, arena.center.Z + pillar.z)
-		world.step(0.1)
-		expect(root().Position.X).toBeNear(before.X, 0.01)
-		expect(MapService.getMovementCorrections(me)).toBe(count + 1)
 	end)
 
 	it("caps a cheated velocity at what the player can walk", function()

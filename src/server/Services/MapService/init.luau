@@ -1,6 +1,6 @@
 --!strict
 -- Builds the lobby and arena from Config.Map and moves characters between them; since Paket 21 MapService/Decor adds
--- the dressing and the evening lighting. Called by RunDirector; EnemySim and SpawnDirector read the arena bounds,
+-- the dressing and daylight lighting. Called by RunDirector; EnemySim and SpawnDirector read the arena bounds,
 -- obstacles and player positions.
 -- Paket 15: on the hub (PlaceService) the lobby gets three portals (Play solo, Party run, Quick join) with a
 -- ProximityPrompt each; PartyService listens to PortalTriggered.
@@ -33,12 +33,12 @@ local CHARACTER_WAIT_SECONDS = 10
 local DEFAULT_ROOT_HEIGHT = 3 -- studs from the floor to the HumanoidRootPart if no Humanoid is found
 local SPAWN_DROP_HEIGHT = 0.5 -- small gap so the character never spawns inside the floor
 
--- Placeholder look: warm stone for players' areas, violet fog walls around the arena.
+-- Warm lobby stone and a neutral arena keep combat silhouettes easy to read.
 local LOBBY_FLOOR_COLOR = Color3.fromRGB(122, 108, 92)
 local LOBBY_PAD_COLOR = Color3.fromRGB(255, 196, 87)
-local ARENA_FLOOR_COLOR = Color3.fromRGB(58, 54, 66)
-local ARENA_WALL_COLOR = Color3.fromRGB(90, 50, 140)
-local ARENA_WALL_TRANSPARENCY = 0.4
+local ARENA_FLOOR_COLOR = Color3.fromRGB(86, 84, 89)
+local ARENA_WALL_COLOR = Color3.fromRGB(54, 51, 59)
+local ARENA_WALL_TRANSPARENCY = 0.55
 local ARENA_MARKER_COLOR = Color3.fromRGB(255, 196, 87)
 local RUIN_COLOR = Color3.fromRGB(96, 90, 104)
 local PORTAL_COLORS: { [string]: Color3 } = {
@@ -233,11 +233,11 @@ local function buildMap(): Folder
 		ARENA_MARKER_COLOR
 	)
 	marker.Material = Enum.Material.Neon
-	marker.Transparency = 0.6
+	marker.Transparency = 1
 	marker.CanCollide = false
 	marker.CastShadow = false
 
-	-- Round pillars: the same circles EnemySim steers around. A cylinder's axis is X, so stand it up.
+	-- Optional obstacle geometry follows the same circles EnemySim uses.
 	local height = arena.obstacleHeight
 	for index, obstacle in arena.obstacles do
 		local pillar = makePart(
