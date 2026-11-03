@@ -3,6 +3,7 @@
 local Widgets = require(script.Parent.Widgets)
 local Theme = require(script.Parent.Theme)
 local WeaponImages = require(script.Parent.WeaponImages)
+local ContentProvider = game:GetService("ContentProvider")
 local CharacterPortraits = require(script.Parent.CharacterPortraits)
 local Config = require(game:GetService("ReplicatedStorage").Shared.Config)
 local Icons = {}
@@ -272,14 +273,18 @@ function Icons.draw(parent: GuiObject, kind: string, id: string): Frame
 				Size = UDim2.fromScale(1, 1),
 				Parent = root,
 			})
-			local function reveal()
-				if art.IsLoaded and root.Parent then
+			task.spawn(function()
+				local loaded = false
+				local ok = pcall(function()
+					ContentProvider:PreloadAsync({ art }, function(_, status)
+						loaded = status == Enum.AssetFetchStatus.Success
+					end)
+				end)
+				if ok and loaded and root.Parent then
 					fallback.Visible = false
 					art.ImageTransparency = 0
 				end
-			end
-			art:GetPropertyChangedSignal("IsLoaded"):Connect(reveal)
-			reveal()
+			end)
 		end
 	elseif kind == "item" then
 		local item = Config.Items.byId[id]
