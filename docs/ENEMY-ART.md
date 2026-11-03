@@ -13,7 +13,7 @@ Stand: 02.11.2026. Der Owner hat den kompakten violetten Shadeling mit schwarzen
 | Spitter | Breites Schussmaul, Giftdrüsen, Kiemen/Flossen, pendelnde Arme | 4 | 3.498 |
 | Charger | Segmentierter Hornpanzer, tiefer Kopf, vier getrennte Beine und erhaltene Sturmvorwarnung | 9 | 4.322 |
 
-Alle 27 Gegnertypen sind eingebunden: 17 normale Arten einschließlich der beiden Abyss-Varianten, zwei Bosse und acht Champions. Die normalen Arten haben weiterhin ihre Gloom-Elites. Der erntbare Baum bleibt unverändert.
+Alle 27 Gegnertypen sind eingebunden: 17 normale Arten einschließlich der beiden Abyss-Varianten, zwei Bosse und acht Champions. Die normalen Arten haben weiterhin ihre Gloom-Elites. Der erntbare Baum wurde anschließend für das neue Arena-Design überarbeitet; siehe `docs/MAP-TREE-FRUIT.md`.
 
 ## Zweite Serie: weitere 13 Typen
 
@@ -81,7 +81,7 @@ Die Meshes wurden über den Roblox-Studio-Generator für dieses Projekt erstellt
 | Spitter | `105000492232715` | Schussmaul gekürzt und verbreitert |
 | Charger | `113557863847473` | Körper und vier Beine für den Gang getrennt |
 
-Weitere ursprüngliche Roblox-Modell-IDs: Splitter `99658228849027`, Looter `131708596826531`, Herald `71366442585330`, Mender `129319117741511`, Reaper `121159822400279`, Gobbler `131547563447190`, Brood Egg `96453350435303`. Reaper und Gobbler wurden weiter segmentiert. Looter behält das vollständige Körpermesh mit eigener Wippbewegung, weil die Segmentierung die saubere Darstellung des Tragbeutels verschlechterte. Die Mender-Texturversuche wurden verworfen; das Originalmesh mit passender Originaltextur und einer manuell aufgebauten dunklen Gesichtsplatte wird verwendet. Ein Baum-Prototyp gehört nicht zu diesem Gegner-Auftrag und ist nicht eingebunden.
+Weitere ursprüngliche Roblox-Modell-IDs: Splitter `99658228849027`, Looter `131708596826531`, Herald `71366442585330`, Mender `129319117741511`, Reaper `121159822400279`, Gobbler `131547563447190`, Brood Egg `96453350435303`. Reaper und Gobbler wurden weiter segmentiert. Looter behält das vollständige Körpermesh mit eigener Wippbewegung, weil die Segmentierung die saubere Darstellung des Tragbeutels verschlechterte. Die Mender-Texturversuche wurden verworfen; das Originalmesh mit passender Originaltextur und einer manuell aufgebauten dunklen Gesichtsplatte wird verwendet. Der Baum war nicht Teil dieses Gegner-Art-Auftrags; seine spätere Überarbeitung ist in `docs/MAP-TREE-FRUIT.md` beschrieben.
 
 Ausgangsmodelle der dritten Serie: Lantern Eater `140428240994360`, Hollow Seer `89158399112594`, Abbot `104135697173464`, Mire Jaw `131487295599875`, Monolith `88961293389120`, Stone Seraph `86636902006156`. Monolith wurde anschließend in Körper, Arme und Füße segmentiert, verbreitert, gestaucht und mit mattem Material/Sehschlitzen ergänzt. Die humanoiden Vorentwürfe für Monolith und vier weitere Champions wurden verworfen. Brass Ram und Brood Matron verwenden überarbeitete Charger-Geometrie, Flayer kombiniert Brute und eine Reaper-Hakenklinge, Sickle Wraith erweitert den Reaper. Brood Matron trägt drei verkleinerte Brood-Egg-Schalen. Temporäre Modelle und verworfene Entwürfe wurden aus Studio entfernt.
 

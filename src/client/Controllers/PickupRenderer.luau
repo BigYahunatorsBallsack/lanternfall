@@ -1,6 +1,6 @@
 --!strict
 -- Draws fruits and crates on the arena floor (DESIGN.md section 3, since B6) from the server's Pickups events
--- (LootService): a glowing lantern fruit with a leaf, a dark wooden crate with a glowing brass band. Picked up they fly
+-- (LootService): a bright green fruit with leaves, a dark wooden crate with a glowing brass band. Picked up they fly
 -- into the player like orbs; left at the wave end they simply vanish. Lying ones are placed once; only flying ones move
 -- each frame, together in one workspace:BulkMoveTo. Also shows a small chip under the timer with the team's bag
 -- (OrbBag, ExperienceService) and the crates waiting for the end of the wave (CrateOffer, UpgradeService) while a run
@@ -24,8 +24,9 @@ local Widgets = require(script.Parent.Parent.UI.Widgets)
 local FOLDER_NAME = "LanternfallPickups"
 local FLY_SECONDS = 0.3
 local CRATE, LEGENDARY = 2, 3 -- kinds in Net/Types.PickupEvents (1 = fruit)
-local FRUIT_COLOR = Color3.fromRGB(255, 112, 64)
-local LEAF_COLOR = Color3.fromRGB(96, 168, 92)
+local FRUIT_COLOR = Color3.fromRGB(132, 215, 78)
+local LEAF_COLOR = Color3.fromRGB(64, 133, 64)
+local FRUIT_HIGHLIGHT = Color3.fromRGB(189, 239, 114)
 local WOOD_COLOR = Color3.fromRGB(92, 60, 40)
 local BAND_COLOR = Color3.fromRGB(255, 196, 87) -- Theme.accent, the lantern yellow
 local LEGENDARY_WOOD = Color3.fromRGB(120, 28, 36) -- crimson lacquer, the Legendary tier's red
@@ -48,12 +49,50 @@ local function partsOf(visual: Visual): { BasePart }
 end
 
 local fruitPool = VisualKit.objectPool(function(): Visual
-	local fruit = VisualKit.part("Fruit", Enum.PartType.Ball, Vector3.one * 1.3, FRUIT_COLOR)
-	local leaf =
-		VisualKit.solid("Leaf", Enum.PartType.Block, Vector3.new(0.5, 0.12, 0.8), LEAF_COLOR, Enum.Material.Grass)
+	local fruit = VisualKit.solid(
+		"Fruit",
+		Enum.PartType.Ball,
+		Vector3.new(1.35, 1.2, 1.35),
+		FRUIT_COLOR,
+		Enum.Material.SmoothPlastic
+	)
+	local highlight = VisualKit.solid(
+		"FruitHighlight",
+		Enum.PartType.Ball,
+		Vector3.new(0.38, 0.24, 0.2),
+		FRUIT_HIGHLIGHT,
+		Enum.Material.SmoothPlastic
+	)
+	local stem = VisualKit.solid(
+		"Stem",
+		Enum.PartType.Block,
+		Vector3.new(0.18, 0.4, 0.18),
+		LEAF_COLOR,
+		Enum.Material.SmoothPlastic
+	)
+	local left = VisualKit.solid(
+		"LeafLeft",
+		Enum.PartType.Block,
+		Vector3.new(0.65, 0.16, 0.28),
+		LEAF_COLOR,
+		Enum.Material.SmoothPlastic
+	)
+	local right = VisualKit.solid(
+		"LeafRight",
+		Enum.PartType.Block,
+		Vector3.new(0.65, 0.16, 0.28),
+		LEAF_COLOR,
+		Enum.Material.SmoothPlastic
+	)
 	return {
-		parts = { fruit, leaf },
-		offsets = { CFrame.new(0, 1.05, 0), CFrame.new(0.2, 1.75, 0) * CFrame.Angles(0, 0.6, 0.4) },
+		parts = { fruit, highlight, stem, left, right },
+		offsets = {
+			CFrame.new(0, 0.85, 0),
+			CFrame.new(-0.24, 1.12, -0.65),
+			CFrame.new(0, 1.6, 0),
+			CFrame.new(-0.37, 1.48, 0) * CFrame.Angles(0, 0, -0.38),
+			CFrame.new(0.37, 1.48, 0) * CFrame.Angles(0, 0, 0.38),
+		},
 	}
 end, partsOf)
 

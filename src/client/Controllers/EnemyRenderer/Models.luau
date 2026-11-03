@@ -379,14 +379,14 @@ local PALETTES: { [string]: Palette } = {
 		spikes = false,
 	},
 	Tree = {
-		cloth = Color3.fromRGB(58, 44, 40), -- dark bark
-		clothDark = Color3.fromRGB(40, 30, 28),
+		cloth = Color3.fromRGB(95, 66, 45), -- warm bark
+		clothDark = Color3.fromRGB(62, 43, 34),
 		soot = SOOT,
 		metal = BRASS,
 		metalDark = BRASS_DARK,
 		mask = PORCELAIN,
-		eye = Color3.fromRGB(255, 112, 64), -- lantern fruits, as on the floor (PickupRenderer)
-		accent = Color3.fromRGB(52, 78, 58), -- dusky leaves
+		eye = Color3.fromRGB(132, 215, 78), -- fruit matches PickupRenderer
+		accent = Color3.fromRGB(65, 126, 72), -- rounded green crown
 		spikes = false,
 	},
 }
@@ -1287,36 +1287,39 @@ local BUILDERS: { [string]: Build } = {
 		return { stride = 5, bob = 0, roll = 0, lean = 0, legSwing = 0, armSwing = 0 }
 	end,
 
-	-- B6: a gnarled dead-dark tree with a dusky crown and three lantern fruits; it never moves
+	-- A compact, rounded green tree with a sturdy trunk and visible lime fruit.
 	Tree = function(rig)
 		local p = rig.palette
-		shadow(rig, 2)
-		piece(rig, "Trunk", "cylinder", v(2.3, 0.6, 0.6), v(0, 1.15, 0), p.cloth, { flash = true }, UPRIGHT)
-		rod(rig, "BranchLeft", v(0, 1.8, 0), v(-0.75, 2.55, 0.1), 0.22, p.cloth)
-		rod(rig, "BranchRight", v(0, 1.6, 0), v(0.7, 2.4, -0.2), 0.2, p.cloth)
-		rod(rig, "Root", v(0, 0.3, 0), v(0.6, 0.05, 0.35), 0.2, p.clothDark, { detail = true })
+		shadow(rig, 2.5)
+		piece(rig, "Trunk", "cylinder", v(2.1, 0.72, 0.72), v(0, 1.05, 0), p.cloth, { flash = true }, UPRIGHT)
+		rod(rig, "RootLeft", v(0, 0.5, 0), v(-0.75, 0.08, -0.3), 0.25, p.clothDark, { detail = true })
+		rod(rig, "RootRight", v(0, 0.5, 0), v(0.7, 0.08, 0.35), 0.25, p.clothDark, { detail = true })
+		rod(rig, "BranchLeft", v(0, 1.65, 0), v(-0.72, 2.35, 0), 0.27, p.cloth)
+		rod(rig, "BranchRight", v(0, 1.6, 0), v(0.7, 2.25, 0.1), 0.27, p.cloth)
+		piece(rig, "CrownCenter", "egg", v(1.8, 1.45, 1.65), v(0, 2.55, 0), p.accent, { flash = true })
 		piece(
 			rig,
-			"Crown",
-			"egg",
-			v(2, 1.3, 2),
-			v(0, 2.85, 0),
-			p.accent,
-			{ material = Enum.Material.Grass, flash = true }
+			"CrownLeft",
+			"ball",
+			v(1.2, 1.2, 1.2),
+			v(-0.73, 2.55, 0.05),
+			Color3.fromRGB(78, 149, 77),
+			{ flash = true }
 		)
-		local fruits = { v(-0.65, 2.45, -0.55), v(0.7, 2.6, -0.3), v(0.1, 2.35, 0.75) }
+		piece(
+			rig,
+			"CrownRight",
+			"ball",
+			v(1.15, 1.15, 1.15),
+			v(0.7, 2.5, 0),
+			Color3.fromRGB(53, 109, 65),
+			{ flash = true }
+		)
+		local fruits = { v(-0.5, 2.08, 1.06), v(0.55, 2.02, 1.02) }
 		for index, position in fruits do
-			piece(
-				rig,
-				`Fruit{index}`,
-				"ball",
-				v(0.32, 0.32, 0.32),
-				position,
-				p.eye,
-				{ glow = true, detail = index > 2 }
-			)
+			piece(rig, `Fruit{index}`, "egg", v(0.34, 0.38, 0.34), position, p.eye, { detail = index > 1 })
 		end
-		rig.crown = v(0, 3.6, 0) * rig.r
+		rig.crown = v(0, 3.5, 0) * rig.r
 		return { stride = 5, bob = 0, roll = 0, lean = 0, legSwing = 0, armSwing = 0 }
 	end,
 	-- WP10: a hulking furnace beast on two short legs, walking on its knuckles

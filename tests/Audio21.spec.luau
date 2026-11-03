@@ -52,25 +52,19 @@ describe("map", function()
 		expect(decor ~= nil).toBe(true)
 		expect(map.Lobby:FindFirstChild("Decor") ~= nil).toBe(true)
 		local arena = Config.Map.arena
-		local half = arena.size / 2
-		local inside, outside, lights = 0, 0, 0
+		local slabs = 0
 		for _, instance in descendants(decor) do
-			if instance.ClassName == "PointLight" then
-				lights += 1
-			elseif instance:IsA("BasePart") then
-				local offset = instance.CFrame.Position - arena.center
-				if math.abs(offset.X) < half and math.abs(offset.Z) < half then
-					inside += 1
-					expect(instance.CanCollide).toBe(false)
-				else
-					outside += 1
+			if instance:IsA("BasePart") then
+				expect(instance.CanCollide).toBe(false)
+				if string.sub(instance.Name, 1, 4) == "Slab" then
+					slabs += 1
 				end
 			end
 		end
-		expect(inside > Config.Map.decor.floorSlabs).toBe(true)
-		expect(outside > Config.Map.decor.backdropRuins).toBe(true)
-		expect(lights).toBe(4 * Config.Map.decor.lampsPerSide + 4)
-		expect(decor:FindFirstChild("Motes"):FindFirstChildOfClass("ParticleEmitter") ~= nil).toBe(true)
+		expect(slabs).toBe(Config.Map.decor.floorSlabs)
+		expect(decor:FindFirstChild("Outskirts") ~= nil).toBe(true)
+		expect(#arena.obstacles).toBe(0)
+		expect(decor:FindFirstChild("Motes") == nil).toBe(true)
 	end)
 end)
 
