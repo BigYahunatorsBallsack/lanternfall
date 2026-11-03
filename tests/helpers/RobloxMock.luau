@@ -1141,7 +1141,7 @@ function world.gui(screenName, objectName)
 	return screen:FindFirstChild(objectName, true)
 end
 
--- Presses the key of a ContextActionService action (e.g. Space for the dash).
+-- Presses the key of a ContextActionService action (e.g. Space for the jump suppressor).
 function world.pressAction(name)
 	local callback = world.actions[name]
 	assert(callback, `no action {name}`)

@@ -36,11 +36,6 @@ local Remotes: { [string]: Definition } = {
 		rateLimit = { count = 4, perSeconds = 1 },
 		args = { Validate.boolean() }, -- join the next run (also "Play again" on the results screen)
 	},
-	RequestDash = {
-		direction = "toServer",
-		rateLimit = { count = 2, perSeconds = 1 },
-		args = { Validate.vector3(1.01) }, -- unit move direction; cooldown is checked by the service
-	},
 	ChooseUpgrade = {
 		direction = "toServer",
 		rateLimit = { count = 4, perSeconds = 1 },

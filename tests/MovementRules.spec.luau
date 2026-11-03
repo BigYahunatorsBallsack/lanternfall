@@ -1,5 +1,5 @@
 -- Unit tests for the movement plausibility rules (src/server/Services/MapService/MovementRules.luau, Paket 23): the
--- distance budget, dashes, slowdowns, lag bursts, the arena box, the ruin pillars and the believable velocity.
+-- distance budget, slowdowns, lag bursts, the arena box, the ruin pillars and the believable velocity.
 
 local MovementRules = require(game:GetService("ServerScriptService").Server.Services.MapService.MovementRules)
 
@@ -7,8 +7,6 @@ local SETTINGS = {
 	speedTolerance = 1.25,
 	burstSeconds = 2.5,
 	slackStuds = 6,
-	dashCredit = 1.25,
-	dashSeconds = 0.6,
 	speedGraceSeconds = 1,
 	arenaMargin = 2,
 	pillarCore = 1,
@@ -81,14 +79,6 @@ describe("MovementRules", function()
 		expect(ok).toBe(true)
 	end)
 
-	it("pays a granted dash on top of the walk", function()
-		local entry = MovementRules.new(0, 3, 0, SPEED, 0, SETTINGS)
-		MovementRules.tryMove(entry, 50, 3, 0, 0, SETTINGS) -- budget almost used up
-		expect(MovementRules.tryMove(entry, 62, 3, 0, 0.15, SETTINGS)).toBe(false)
-		MovementRules.addDash(entry, 12, 0.15, SETTINGS)
-		expect(MovementRules.tryMove(entry, 62, 3, 0, 0.15, SETTINGS)).toBe(true)
-	end)
-
 	it("keeps the old speed for speedGraceSeconds after a slowdown, then only the slack", function()
 		local entry = MovementRules.new(0, 3, 0, SPEED, 0, SETTINGS)
 		MovementRules.setSpeed(entry, 0, 0, SETTINGS)
@@ -127,12 +117,12 @@ describe("MovementRules", function()
 		expect(MovementRules.blocked(AREA, 0, -math.huge, SETTINGS)).toBe("Outside")
 	end)
 
-	it("believes walk speed, and dash speed only right after a granted dash", function()
+	it("caps believable velocity at walk speed with tolerance", function()
 		local entry = MovementRules.new(0, 3, 0, SPEED, 0, SETTINGS)
-		expect(MovementRules.maxSpeed(entry, 80, 0, SETTINGS)).toBe(20)
-		MovementRules.addDash(entry, 12, 1, SETTINGS)
-		expect(MovementRules.maxSpeed(entry, 80, 1.2, SETTINGS)).toBe(100)
-		expect(MovementRules.maxSpeed(entry, 80, 2, SETTINGS)).toBe(20)
+		expect(MovementRules.maxSpeed(entry, 0, SETTINGS)).toBe(20)
+		MovementRules.setSpeed(entry, 0, 1, SETTINGS)
+		expect(MovementRules.maxSpeed(entry, 1.2, SETTINGS)).toBe(20)
+		expect(MovementRules.maxSpeed(entry, 2.1, SETTINGS)).toBe(0)
 	end)
 
 	it("rebase moves the accepted spot without paying and refills the budget", function()

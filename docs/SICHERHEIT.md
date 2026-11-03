@@ -26,7 +26,7 @@ Ergebnis zum Abnicken für den Owner. Geprüft wurde der Stand von `main` nach P
 ## Was geändert wurde
 
 1. **Bewegungs-Check** (`MapService/MovementGuard`, Regeln in `MapService/MovementRules`, Werte in `Config/Security.luau`). Sobald der Server eine Figur in die Arena gestellt hat, vergleicht er jede Position mit der zuletzt erlaubten:
-   - Laufen hat ein „Strecken-Konto": es füllt sich mit dem Lauftempo (das der Server selbst setzt) × 1,25 und fasst 2,5 s Laufen + 6 Studs (Lag-Spitzen). Ein vom Server erlaubter Dash zahlt seine 12 Studs (× 1,25) extra ein.
+   - Laufen hat ein „Strecken-Konto": es füllt sich mit dem Lauftempo (das der Server selbst setzt) × 1,25 und fasst 2,5 s Laufen + 6 Studs (Lag-Spitzen).
    - Zu weit, außerhalb der Arena-Wand oder mitten in einer Säule → die Figur wird auf die letzte erlaubte Stelle zurückgesetzt, und alle Dienste (Gegner, Waffen, Aufsammeln, Wiederbeleben) sehen nur diese Stelle.
    - Die Geschwindigkeit, die Gegner zum Vorhalten und Items für „im Stillstand" lesen, wird auf das Machbare gedeckelt.
    - Nach dem Hinstellen 1 s Ruhezeit (der Client meldet kurz noch die alte Stelle), nach dem Abbremsen (Shop, Level-up, gestürzt) zählt 1 s das alte Tempo.

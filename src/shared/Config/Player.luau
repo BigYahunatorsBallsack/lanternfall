@@ -1,17 +1,10 @@
 --!strict
--- Base player values at run start (DESIGN.md section 4). Read by CombatService, WeaponService, InputController and HUD.
+-- Base player values at run start (DESIGN.md section 4). Read by CombatService, WeaponService and HUD.
 -- The stats that grow during a run (Config.Stats) start from maxHp, moveSpeed, pickupRadius and critChance here.
 
 return table.freeze({
 	maxHp = 100,
 	moveSpeed = 16, -- studs/s
-	dash = table.freeze({
-		distance = 12, -- studs
-		cooldown = 6, -- seconds
-		invulnerability = 0.3, -- seconds
-		duration = 0.15, -- seconds the dash movement takes (distance / duration = dash speed)
-		cooldownTolerance = 0.25, -- seconds the server forgives, so ping does not eat a dash
-	}),
 	-- studs (XP orbs, healing, embers); 8 until the playtest after Paket 24, now about Brotato's share of the arena
 	-- width (150 of about 2000 px) for the 160-stud arena
 	pickupRadius = 12,

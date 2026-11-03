@@ -8,7 +8,7 @@ Das neue UI ersetzt die textlastige Darstellung durch große Bildkarten, kräfti
 
 - **Lobby:** zehn Charakterporträts mit sichtbarer Auswahl, eigenem Detailbereich, Startwaffenbildern, Schloss und Freischaltpreis. Auswahlregeln und kostenlose Freischaltbedingungen bleiben per Tooltip erreichbar. Play/Quick Join/Ready bleiben außerhalb des Scrollbereichs sichtbar. Auf kurzen Displays werden Überschrift und Karten kompakter.
 - **Shop:** vier bebilderte Angebote, farbige Seltenheit, grüne/rote Effekte, eigener Preisbereich und separate Sperrknöpfe. Darunter Waffen mit Verkaufs-/Kombinationsauswahl sowie das vollständige Item-Inventar mit Mengen und Tooltips. Die Aktionen bleiben beim Scrollen sichtbar. Desktop zeigt die Werte direkt daneben; Portrait zeigt zwei Karten pro Reihe, kurzes Querformat zwei kompakte Karten und eine einzelne Aktionszeile.
-- **HUD:** HP und XP gemeinsam links oben, Zeit und Welle in der Mitte, Build auf Abruf. Die Teamliste entfällt solo. Der Dashknopf verschwindet zwischen Wellen und außerhalb des Runs.
+- **HUD:** HP und XP gemeinsam links oben, Zeit und Welle in der Mitte, Build auf Abruf. Die Teamliste entfällt solo. Es gibt keinen Dashknopf.
 - **Dialoge:** Level-ups und Kisten haben gezeichnete Symbole. Die gemeinsame Dialoghülle zentriert kurze Fenster, lässt lange Inhalte scrollen und hält Schließen erreichbar. Offene Dialoge liegen vor Debug und anderen Spielanzeigen. Settings, Collection und Ergebnisse übernehmen die gemeinsame Gestaltung.
 
 `UI/Icons.luau` zeichnet Originalgrafiken aus Roblox-GUI-Formen. Charaktere haben eigene Porträts; Waffen teilen sich passende Grundformen mit Varianten. Item-Symbole zeigen die positive Wertekategorie, nicht 114 separate Item-Illustrationen. Unveränderte Illustrationen werden bei Preis-/Statusmeldungen wiederverwendet.
@@ -28,7 +28,7 @@ Die Bilder stammen aus Roblox Studio, nicht aus einem Mockup. Der Debugknopf ist
 ## Prüfung
 
 - **69 Specs / 724 Tests bestanden**, einschließlich Kauf, Sperren, Reroll, Verkauf, Kombination, Level-up-Auswahl, Itemmengen, Freischaltungen, Einladungen und Mehrspieler-Abläufen im Mock.
-- `UiRedesign.spec.luau`: 10 Tests; zusätzlich Prüfung von stabilen Illustrationen bei Preisänderungen, Itemmengen, festem Lobby-Footer, Querformat, Dash-Sichtbarkeit und Dialogreihenfolge. Die vorhandenen Freischalt-Tests lesen die neuen Namen-/Preislabels und prüfen den Anforderungstext im Tooltip.
+- `UiRedesign.spec.luau`: 10 Tests; zusätzlich Prüfung von stabilen Illustrationen bei Preisänderungen, Itemmengen, festem Lobby-Footer, Querformat, HUD-Sichtbarkeit und Dialogreihenfolge. Die vorhandenen Freischalt-Tests lesen die neuen Namen-/Preislabels und prüfen den Anforderungstext im Tooltip.
 - StyLua, `git diff --check` und Rojo-Build erfolgreich. Selene: **0 Fehler, 11 vorhandene Stilwarnungen**. Der API-Download ist nicht erreichbar; Selene verwendet seinen vorhandenen Roblox-Cache.
 - Studio: Lobby, HUD, Shop, Level-up, Settings und Ergebnisse angesehen; HD-720/1080 sowie iPhone 17 Pro in Portrait/Querformat geprüft. Effektive nutzbare Größen hängen von den Roblox-Inset-Flächen ab; auf dem iPhone wurden u. a. 401 × 720 und 750 × 323 GUI-Pixel geprüft.
 - Native Bedienprobe: Play solo, Itemkauf (108 → 88 Shards), sichtbarer Itemzähler, Angebotssperre, STATS mit ausgeblendetem Shop-Footer, Level-up-Tastenauswahl und Ergebnisdialog. Die bestehenden Serverprüfungen wurden verwendet.

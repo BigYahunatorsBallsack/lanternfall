@@ -411,7 +411,7 @@ local Run = {
 		legendaryEvery = table.freeze({ fromLevel = 25, every = 5 }),
 		autoPickSeconds = 10, -- first card is picked automatically after this
 		-- While picking: true = the player stands still and is invulnerable (original design); false = they keep walking,
-		-- dashing and taking hits (owner feedback after WP9)
+		-- taking hits (owner feedback after WP9)
 		freezeWhileChoosing = false,
 		protectionAfterPick = 0.5, -- with freezeWhileChoosing: seconds still invulnerable after the last pick (assumption)
 		inputDelaySeconds = 0.4, -- cards ignore taps this long after they appear, against accidental picks (assumption)

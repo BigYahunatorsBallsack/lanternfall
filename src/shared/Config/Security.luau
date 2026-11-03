@@ -4,8 +4,8 @@
 
 return table.freeze({
 	-- Movement check (MapService/MovementGuard): the client moves its own character, so the server compares every
-	-- position it reads with the last one it accepted. A move that is faster than the player can walk (plus the dashes
-	-- the server granted), that leaves the arena or ends inside a ruin pillar is undone: the character goes back to
+	-- position it reads with the last one it accepted. A move that is faster than the player can walk,
+	-- leaves the arena or ends inside a ruin pillar is undone: the character goes back to
 	-- the last accepted spot and the services keep using that spot. Only for characters the server placed in the
 	-- arena (participants of a run); the lobby and the hub stay unchecked.
 	movement = table.freeze({
@@ -14,8 +14,6 @@ return table.freeze({
 		speedTolerance = 1.25, -- allowed speed = the walk speed CombatService set x this
 		burstSeconds = 2.5, -- the budget holds this many seconds of walking (lag spikes deliver moves in bursts)
 		slackStuds = 6, -- always allowed on top (ping jitter, physics pushes between players)
-		dashCredit = 1.25, -- a dash the server granted adds Config.Player.dash.distance x this to the budget
-		dashSeconds = 0.6, -- after a granted dash the velocity may reach the dash speed for this long (ping)
 		speedGraceSeconds = 1, -- after a slowdown (shop, level-up freeze, down) the old speed still counts this long
 		arenaMargin = 2, -- studs a position may be beyond the arena floor's edge (the walls stop real players)
 		pillarCore = 1, -- studs inside a ruin pillar's radius that count as "in the wall" (noclip)

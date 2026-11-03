@@ -34,7 +34,7 @@ local OWN = {
 	thock = "123702132059569", -- lf_02_thock.ogg  own hits
 	puff = "88819708804506", -- lf_03_puff.ogg   enemy deaths
 	pop = "133423609966718", -- lf_04_pop.ogg    ranged shots
-	swish = "97672176200337", -- lf_05_swish.ogg  melee swings, dash
+	swish = "97672176200337", -- lf_05_swish.ogg  melee swings
 	tick = "112460234084175", -- lf_06_tick.ogg   button clicks
 	arp = "111686985480244", -- lf_07_arp.ogg    level up
 	chime = "112879666967930", -- lf_08_chime.ogg  crate, chest, wave cleared
@@ -122,7 +122,6 @@ return table.freeze({
 		-- the local player
 		hurt = cue(own("oof", 0.3, 1), placeholder(THUD, 0.25, 0.8), 0.15, 2),
 		down = cue(own("gong", 0.35, 0.75), placeholder(THUD, 0.35, 0.45), 0.5, 1),
-		dash = cue(own("swish", 0.2, 1.35), placeholder(AIR, 0.15, 1.1), 0.1, 2),
 		levelUp = cue(own("arp", 0.28, 1), placeholder(PING, 0.12, 0.8), 0.3, 1, 0),
 		-- run flow
 		waveStart = cue(own("gong", 0.3, 1), placeholder(THUD, 0.3, 0.55), 1, 1, 0),

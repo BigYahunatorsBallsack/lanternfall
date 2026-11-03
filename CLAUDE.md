@@ -33,7 +33,7 @@ Koop-Survivors für Roblox (1–4 Spieler, 12-Min-Runs, Boss bei 12:00). Das vol
 
 ## Architektur-Regeln (nicht verhandelbar)
 
-1. **Server-Autorität:** Der Client sendet nur Absichten (Bewegung, Dash, Level-up-Wahl, Kaufwunsch). Schaden, Kills, XP, Drops, Embers, Truhen und Ranglistenwerte berechnet ausschließlich der Server.
+1. **Server-Autorität:** Der Client sendet nur Absichten (Bewegung, Level-up-Wahl, Kaufwunsch). Schaden, Kills, XP, Drops, Embers, Truhen und Ranglistenwerte berechnet ausschließlich der Server.
 2. **Jede Remote** wird in `src/shared/Net` definiert, hat ein Rate-Limit und wird serverseitig validiert (Typen, Bereiche, nur vom Server angebotene IDs).
 3. **Keine Balancing-Zahl im Code.** Alle Werte in `src/shared/Config/*` – Waffen, Passive, Gegner, Klassen, Talente, Economy, Difficulty.
 4. **Gegner sind Daten**, keine Humanoids: Server-Simulation mit 15 Hz und Spatial Hash (8 Studs), Snapshots per UnreliableRemoteEvent in einem `buffer`, Client rendert gepoolte Modelle mit Interpolation und `workspace:BulkMoveTo`. Obergrenze 80 + 20 pro weiterem Spieler, max. 140.

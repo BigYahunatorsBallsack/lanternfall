@@ -281,3 +281,7 @@ Jeder Strang ändert nur **seine** Zeile (Regeln: `docs/PARALLEL.md`).
 - `UI/ItemImages` ordnet Item-IDs den Bild-Assets zu; `UI/Icons` zeigt die bisherige Statistik-Illustration während des Ladens und bei einem Ladefehler. Im Studio-Client luden alle 111 Bilder erfolgreich; sichtbare ImageLabels sind für `IsLoaded` nötig. Kein Gameplay-, Balance- oder Netzwerk-Umbau.
 - Beim Abgleich mit dem neuen Waffen-Shop-PR denselben Ladefehler in `WeaponImage` behoben: transparente ImageLabels laden in Studio nicht; die sichtbare, noch leere Bildfläche erhält das gezeichnete Fallback bis `IsLoaded`.
 - StyLua, Selene für die beiden geänderten Luau-Module (0 Fehler/Warnungen), Rojo-Build und statische Zuordnungsprüfung erfolgreich. Der Rust-Test-Runner ist in dieser Umgebung nicht verfügbar; die eigentliche Shop-/Inventar-Darstellung nach dem Merge und ein mobiler Sichttest stehen aus.
+
+## Update 03.11.2026 – Spieler-Dash entfernt
+
+Steuerung besteht aus Laufen; Springen bleibt deaktiviert. Dash-Button, Remote, Cooldown, Schutzfenster, Effekte und die Dash-Ausnahme im Bewegungs-Check sind entfernt. Die Ansturm-Angriffe von Bossen und Champions bleiben bestehen. Ältere Dash-Angaben oben beschreiben den früheren Stand.

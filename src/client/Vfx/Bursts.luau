@@ -1,6 +1,6 @@
 --!strict
 -- Pooled particle bursts (DESIGN.md section 14, VFX): sparks, rising embers, soft soul wisps and smoke puffs for
--- hits, deaths, blasts and the dash. One hidden part with a ParticleEmitter per style, color and scale: an
+-- hits, deaths and blasts. One hidden part with a ParticleEmitter per style, color and scale: an
 -- emitter's colors apply to its particles in flight too, so different colors never share one. Particles live in
 -- world space, so one emitter moved from burst to burst serves them all. Used by EnemyRenderer/DeathBursts,
 -- WeaponRenderer visuals and FeedbackController.

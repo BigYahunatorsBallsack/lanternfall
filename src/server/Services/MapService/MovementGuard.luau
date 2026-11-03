@@ -5,7 +5,7 @@
 -- character in the arena (watch), every position MapService reads goes through check(): a move the character could
 -- not have made is undone (the character goes back to the last accepted spot) and the services keep that spot, so
 -- enemies, pickups, revives and weapons never see the cheated one. Corrections are logged and fire Corrected
--- (AnalyticsService counts them). CombatService reports the walk speed it sets and the dashes it grants. Also caps the
+-- (AnalyticsService counts them). CombatService reports the walk speed it sets. Also caps the
 -- velocity the services read (enemy aim, standing-still items). Off in Studio unless Config says otherwise or the
 -- debug button turns it on.
 
@@ -19,7 +19,6 @@ local Signal = require(ReplicatedStorage.Shared.Util.Signal)
 local MovementRules = require(script.Parent.MovementRules)
 
 local Settings = Config.Security.movement
-local DASH_SPEED = Config.Player.dash.distance / Config.Player.dash.duration
 local SETTLE_SECONDS = 1 -- after the server placed a character, its own client may still report the old spot
 local LOG_PREFIX = "[Lanternfall] "
 
@@ -124,14 +123,6 @@ function MovementGuard.setSpeed(player: Player, speed: number)
 	end
 end
 
--- CombatService: the server granted a dash.
-function MovementGuard.dashed(player: Player)
-	local watch = watches[player]
-	if watch then
-		MovementRules.addDash(watch.entry, Config.Player.dash.distance, now(), Settings)
-	end
-end
-
 -- The position MapService hands to the services for `root` (the player's HumanoidRootPart): its real position if the
 -- move is believable, else the last accepted one after putting the character back there.
 function MovementGuard.check(player: Player, root: BasePart): Vector3
@@ -182,7 +173,7 @@ function MovementGuard.clampVelocity(player: Player, velocity: Vector3): Vector3
 		return velocity
 	end
 	local flat = Vector3.new(velocity.X, 0, velocity.Z)
-	local limit = MovementRules.maxSpeed(watch.entry, DASH_SPEED, now(), Settings)
+	local limit = MovementRules.maxSpeed(watch.entry, now(), Settings)
 	local speed = flat.Magnitude
 	if speed ~= speed or speed == math.huge then
 		return Vector3.zero -- broken numbers from a cheat

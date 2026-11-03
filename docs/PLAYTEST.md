@@ -19,7 +19,7 @@ Hinweis: Nach jeder Code-Änderung musst du in Studio erneut veröffentlichen, s
 
 1. Du startest das Spiel zuerst über die Roblox-App (nicht Studio). Die Freunde treten dir bei (Profil → **Beitreten**) oder nutzen den Link.
 2. Höchstens 4 spielen gleichzeitig einen Run, ein fünfter wartet in der Lobby und ist beim nächsten Run dabei.
-3. **Nichts erklären** außer „WASD/Stick laufen, Leertaste/Knopf = Dash". Genau beobachten, was unklar ist.
+3. **Nichts erklären** außer „WASD/Stick laufen; Waffen feuern automatisch". Genau beobachten, was unklar ist.
 4. Mindestens: ein Run solo pro Person (wer will), dann Runs zu zweit bis zu viert. Beide Klassen ausprobieren lassen.
 5. Du siehst als Besitzer das Debug-Panel. Bitte im Test **nicht** benutzen, sonst stimmen die Zahlen nicht.
 6. Nach jedem Run: **F9** drücken (Developer Console) → oben **Server** wählen → den Block zwischen
