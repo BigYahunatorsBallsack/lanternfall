@@ -35,8 +35,8 @@ local TooltipText = require(Shared:WaitForChild("Util"):WaitForChild("TooltipTex
 local Widgets = require(script.Parent.Parent.UI.Widgets)
 
 local CARD_WIDTH = 200
-local CARD_HEIGHT = { normal = 300, compact = 284 } -- the buy button; the lock button sits below it
-local DETAIL_HEIGHT = { normal = 98, compact = 82 }
+local CARD_HEIGHT = { normal = 344, compact = 312 } -- the buy button; the lock button sits below it
+local DETAIL_HEIGHT = { normal = 82, compact = 70 }
 local LOCK_HEIGHT = 44
 local CHIP_SIZE = Vector2.new(136, 102)
 local GAP = 10
@@ -91,6 +91,7 @@ local backButton: TextButton
 
 type CardView = {
 	icon: Frame,
+	artStage: Frame,
 	list: UIListLayout,
 	padding: UIPadding,
 	frame: Frame,
@@ -281,8 +282,12 @@ local function applyLayout()
 		view.padding.PaddingLeft = pad
 		view.padding.PaddingRight = pad
 		view.badge.Position = UDim2.new()
-		view.icon.Size = UDim2.fromOffset(if landscape then 52 else 68, if landscape then 52 else 68)
-		view.icon.Position = if landscape then UDim2.fromOffset(22, 28) else UDim2.new()
+		view.artStage.Size = if landscape
+			then UDim2.fromOffset(84, 60)
+			else UDim2.new(1, 0, 0, if compact then 112 else 132)
+		view.artStage.Position = if landscape then UDim2.fromOffset(8, 24) else UDim2.new()
+		local iconSize = if landscape then 52 elseif compact then 94 else 112
+		view.icon.Size = UDim2.fromOffset(iconSize, iconSize)
 		view.name.Position = if landscape then UDim2.fromOffset(104, 23) else UDim2.new()
 		view.name.Size = UDim2.new(1, if landscape then -112 else 0, 0, if landscape then 34 else 42)
 		view.name.TextSize = if landscape then 17 else 19
@@ -524,7 +529,17 @@ local function buildCard(index: number): CardView
 		LayoutOrder = 1,
 		Parent = button,
 	})
-	local icon = Icons.holder(button, 68, 2)
+	local artStage = Widgets.create("Frame", {
+		Name = "ArtworkStage",
+		BackgroundColor3 = Theme.surface,
+		BorderSizePixel = 0,
+		Size = UDim2.new(1, 0, 0, 132),
+		LayoutOrder = 2,
+		Parent = button,
+	}, { Widgets.corner(), Widgets.create("UIStroke", { Color = Theme.stroke, Thickness = 2 }) })
+	local icon = Icons.holder(artStage, 112)
+	icon.AnchorPoint = Vector2.new(0.5, 0.5)
+	icon.Position = UDim2.fromScale(0.5, 0.5)
 	local name = Widgets.label({
 		Name = "OfferName",
 		Font = Theme.fontBold,
@@ -579,6 +594,7 @@ local function buildCard(index: number): CardView
 	return {
 		frame = frame,
 		icon = icon,
+		artStage = artStage,
 		list = list,
 		padding = padding,
 		button = button,
