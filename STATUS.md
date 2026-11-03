@@ -70,7 +70,7 @@ Jeder Strang ändert nur **seine** Zeile (Regeln: `docs/PARALLEL.md`).
 | Strang | KI | Aktuelles Paket | Branch / PR | Stand | Danach |
 | --- | --- | --- | --- | --- | --- |
 | A – Engine und Ablauf | Claude | Paket 24 Launch-Paket (Medium) | `wp-24-launch` | fertig, selbst gemerged | Plan bis zum Launch abgeschlossen; als Nächstes IDs des Owners eintragen (Live-Experience, Badges, Musik), dann Live-Ops |
-| B – Inhalte und Spieler-Regeln | ChatGPT | Neues Brotato-UI implementiert und solo in Studio geprüft | `codex/brotato-ui-rework` | 69 Specs / 724 Tests grün; native Desktop-/Handy-Vorschauen; Gegner-Art PR #56 weiter offen | Owner-Abnahme, echter Zwei-Client-/Gerätetest; UI-PR nach #56 |
+| B – Inhalte und Spieler-Regeln | ChatGPT | Paket 21c: Baum, Frucht und Kisten als Modelle | `wp-21c-loot-models` | Meshes und SpecialMesh in Studio geprüft; StyLua, Selene (0 Fehler) und Rojo-Build erfolgreich; PR vorbereitet | Owner-Abnahme im Run, besonders auf Handy |
 
 ## Feste Entscheidungen des Owners
 
@@ -346,3 +346,9 @@ Steuerung besteht aus Laufen; Springen bleibt deaktiviert. Dash-Button, Remote, 
 - Echter Fehler behoben: `HeldMeshLoader` prueft jetzt den finalen `AssetFetchStatus` aus `PreloadAsync`. Bei einem fehlgeschlagenen Mesh oder einer Textur bleibt die einfache Waffen-Silhouette aktiv; der Loader versucht es nach seiner bestehenden Wartezeit erneut. Ein gezielter Test simuliert Fehlschlag und erfolgreiche Wiederholung.
 - Gesamtlauf: 731 Tests bestanden, 0 fehlgeschlagen; StyLua fuer alle geaenderten Luau-Dateien sauber, Selene 0 Fehler / 11 bestehende Stilwarnungen, Rojo-Build erfolgreich.
 - Studio Edit auf der verbundenen, aelteren `.work-b7`-Synchronisierung: alle 26 Waffenmodelle mit 70 MeshParts erfolgreich geladen. Ein Solo-Start meldete keine neuen Luau-Laufzeitfehler. Der Studio-Stand ist nicht identisch mit dem GitHub-`main`; ein exakter visueller Test des neuen PR, Zwei-Client- und Handy-Test stehen noch aus.
+
+## Paket 21c: Baum, Frucht und Kisten als 3D-Modelle (ChatGPT, 03.11.2026)
+
+- Vier eigene Studio-Modelle erzeugt und ihre Einzel-Meshes/Texturen in den Client-Renderern eingebunden. Baum: Stamm, Wurzeln, Krone und zwei von der Spielkamera sichtbare Fruechte im bestehenden Gegnerpool; Frucht und gruene Kiste: je ein Mesh statt der bisherigen 5 bzw. 2 Parts; legendaere Kiste: rotes/goldenes Mesh plus dezenter Schimmer. Drop-, Heilungs- und Item-Logik unveraendert. Herkunft und Modell-IDs in `docs/MAP-TREE-FRUIT.md`.
+- Studio-Vorschau mit den echten `SpecialMesh`-IDs: alle 12 unterschiedlichen Mesh-/Texturinhalte `Success`; Geometrie und Farben bei festem Spielkamerawinkel sichtbar. Testbuehne danach entfernt. Der in Studio geladene Code war aelter als GitHub `main`, daher kein Run-Befund fuer diesen Branch.
+- StyLua fuer die fuenf geaenderten Luau-Dateien sauber; Selene 0 Fehler / 11 bestehende Warnungen in anderen Dateien; Rojo-Build erfolgreich. Luau-Specs nicht ausgefuehrt, weil auf diesem Rechner weder Cargo noch Lune vorhanden ist. Solo-/Zwei-Client-/Handy-Run durch den Owner nach Branch-Synchronisierung offen.
