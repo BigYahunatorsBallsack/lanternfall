@@ -1,9 +1,10 @@
 --!strict
--- Scalable UI illustrations with uploaded character and weapon art, used by selection, shop and upgrade cards.
+-- Scalable UI illustrations with uploaded character, weapon, and item art.
 local Widgets = require(script.Parent.Widgets)
 local Theme = require(script.Parent.Theme)
 local WeaponImages = require(script.Parent.WeaponImages)
 local CharacterPortraits = require(script.Parent.CharacterPortraits)
+local ItemImages = require(script.Parent.ItemImages)
 local Config = require(game:GetService("ReplicatedStorage").Shared.Config)
 local Icons = {}
 local rgb = Color3.fromRGB
@@ -267,7 +268,6 @@ function Icons.draw(parent: GuiObject, kind: string, id: string): Frame
 				Name = "WeaponImage",
 				BackgroundTransparency = 1,
 				Image = imageId,
-				ImageTransparency = 1,
 				ScaleType = Enum.ScaleType.Fit,
 				Size = UDim2.fromScale(1, 1),
 				Parent = root,
@@ -275,7 +275,6 @@ function Icons.draw(parent: GuiObject, kind: string, id: string): Frame
 			local function reveal()
 				if art.IsLoaded and root.Parent then
 					fallback.Visible = false
-					art.ImageTransparency = 0
 				end
 			end
 			art:GetPropertyChangedSignal("IsLoaded"):Connect(reveal)
@@ -290,7 +289,31 @@ function Icons.draw(parent: GuiObject, kind: string, id: string): Frame
 				break
 			end
 		end
-		stat(root, selected)
+		local fallback = Widgets.create("Frame", {
+			Name = "Fallback",
+			BackgroundTransparency = 1,
+			Size = UDim2.fromScale(1, 1),
+			Parent = root,
+		})
+		stat(fallback, selected)
+		local assetId = ItemImages[id]
+		if assetId then
+			local art = Widgets.create("ImageLabel", {
+				Name = "ItemArt",
+				BackgroundTransparency = 1,
+				Size = UDim2.fromScale(1, 1),
+				ScaleType = Enum.ScaleType.Fit,
+				Image = assetId,
+				Parent = root,
+			})
+			local function showWhenLoaded()
+				if art.IsLoaded and root.Parent then
+					fallback.Visible = false
+				end
+			end
+			art:GetPropertyChangedSignal("IsLoaded"):Connect(showWhenLoaded)
+			showWhenLoaded()
+		end
 	else
 		stat(root, id)
 	end
