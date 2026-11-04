@@ -6,6 +6,7 @@ local WeaponImages = require(script.Parent.WeaponImages)
 local ContentProvider = game:GetService("ContentProvider")
 local CharacterPortraits = require(script.Parent.CharacterPortraits)
 local ItemImages = require(script.Parent.ItemImages)
+local StatImages = require(script.Parent.StatImages)
 local Config = require(game:GetService("ReplicatedStorage").Shared.Config)
 local Icons = {}
 local rgb = Color3.fromRGB
@@ -323,7 +324,31 @@ function Icons.draw(parent: GuiObject, kind: string, id: string): Frame
 			showWhenLoaded()
 		end
 	else
-		stat(root, id)
+		local fallback = Widgets.create("Frame", {
+			Name = "Fallback",
+			BackgroundTransparency = 1,
+			Size = UDim2.fromScale(1, 1),
+			Parent = root,
+		})
+		stat(fallback, id)
+		local assetId = StatImages[id]
+		if assetId then
+			local art = Widgets.create("ImageLabel", {
+				Name = "StatArt",
+				BackgroundTransparency = 1,
+				Size = UDim2.fromScale(1, 1),
+				ScaleType = Enum.ScaleType.Fit,
+				Image = assetId,
+				Parent = root,
+			})
+			local function showWhenLoaded()
+				if art.IsLoaded and root.Parent then
+					fallback.Visible = false
+				end
+			end
+			art:GetPropertyChangedSignal("IsLoaded"):Connect(showWhenLoaded)
+			showWhenLoaded()
+		end
 	end
 	return root
 end
