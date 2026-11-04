@@ -6,6 +6,6 @@ The first ten images were individually approved by the owner. The remaining 28 w
 
 ## Roblox upload
 
-The PNGs must be uploaded to the game's Roblox creator inventory before the UI can display them. Add their `rbxassetid://...` IDs to `src/client/UI/StatImages.luau`, using the `id`/`file` pairs in `manifest.json`. `Icons.draw` already reads this map for both level-up cards and the shop stat panel. Until an ID is set and loaded, the existing drawn icon remains visible.
+All 38 PNGs were uploaded to the game's Roblox creator inventory on 04.11.2026. Their `rbxassetid://...` IDs are recorded in `final/roblox-assets.json` and `src/client/UI/StatImages.luau`. `Icons.draw` reads this map for both level-up cards and the shop stat panel; the existing drawn icon stays visible until the image loads.
 
-The image upload is still pending because no Roblox Studio instance was connected during this work. The `final/` files and the UI hook are ready for the IDs.
+Roblox Studio's Edit DataModel loaded all 38 assets successfully through temporary `ImageLabel` instances and `ContentProvider:PreloadAsync`. A gameplay view of the new UI still requires the merged code to be synchronized into Studio.
