@@ -39,6 +39,7 @@ local function drop(weapon: Arsenal.Weapon, ctx: Arsenal.Context, patches: { Pat
 	end
 	ctx:emit(weapon, {
 		kind = "Drop",
+		uid = weapon.uid,
 		id = ctx:nextId(),
 		x = patch.x,
 		z = patch.z,

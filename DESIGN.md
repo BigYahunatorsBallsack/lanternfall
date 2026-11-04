@@ -507,6 +507,12 @@ Fünf Turmvarianten, Minen, Garten, Orbit Wisp und Storm Familiar; zehn Shop-Ite
 
 Koop-Anpassung: maximal 100 aktive Bauten pro Server, fair nach Teilnehmerzahl geteilt, Überschuss ersetzt eigene Bauten. Treffer als Strahlen statt fliegender Projektile, gepoolte Laternenmodelle. Echte Studio-/Geräteabnahme offen; automatisierte Solo-/Koop-Abnahme vorhanden. Arsenal bleibt unverändert.
 
+### Waffenansicht nach den freigegebenen Sprites (Paket 21e)
+
+Die 26 freigegebenen Waffenillustrationen sind zugleich die Ansichten der schwebenden Waffen im Run. Kleine, gepoolte, nicht kollidierende Anker tragen kameraseitige Bildflächen; die älteren Meshformen werden im Run nicht mehr angezeigt. Jede Waffenkopie hat eine stabile Position nach ihrer `uid`. Servereffekte benennen diese Kopie, damit Nahkampfstiche und -schwünge, Schussrückstoß, Hammerstöße und Dornspuren an der richtigen Waffe animiert werden. Die geworfene Bumerangaxt und die Orbitklingen zeigen ebenfalls ihre freigegebenen Bilder; bei einer ungeraden Anzahl Orbitklingen zeigt das Paarbild optisch eine zusätzliche Klinge.
+
+Projektilwaffen starten ihre serverseitig berechneten Schüsse an der Mündung der schwebenden Waffe; der erste Blitzabschnitt beginnt dort ebenfalls. Schaden, Ziele und Kollision bleiben serverseitig. Positions- und Animationswerte liegen in `Config/WeaponVisuals.luau`; `Util/WeaponPose.luau` wird von Server und Client genutzt. Das bestehende `WeaponFx`-Format transportiert `uid` als optionales Zusatzfeld, ohne die Remote oder das Paketlayout zu ändern.
+
 ## 7. Gegner, Elites & Boss
 
 | Gegner | Rolle | HP | Tempo (Studs/s) | Schaden | XP | Ab Minute |

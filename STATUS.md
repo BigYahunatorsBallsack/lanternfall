@@ -70,7 +70,7 @@ Jeder Strang ändert nur **seine** Zeile (Regeln: `docs/PARALLEL.md`).
 | Strang | KI | Aktuelles Paket | Branch / PR | Stand | Danach |
 | --- | --- | --- | --- | --- | --- |
 | A – Engine und Ablauf | Claude | Paket 24 Launch-Paket (Medium) | `wp-24-launch` | fertig, selbst gemerged | Plan bis zum Launch abgeschlossen; als Nächstes IDs des Owners eintragen (Live-Experience, Badges, Musik), dann Live-Ops |
-| B – Inhalte und Spieler-Regeln | ChatGPT | Paket 21d: Hub-Spawn und Lobby-Art | `wp-21d-lobby-art` / PR #72 | Original-Meshes und Layout in Studio-Vorschau geprüft; StyLua, Selene (0 Fehler) und Rojo-Build erfolgreich; PR offen | Hub- und Handy-Abnahme nach Branch-Synchronisierung |
+| B – Inhalte und Spieler-Regeln | ChatGPT | Paket 21e: Waffenansicht und Angriffsanimationen | `wp-21e-weapon-models` | 26 Sprite-Ansichten, Angriffsbewegungen und serverseitige Schussursprünge umgesetzt; Studio- und Luau-Laufzeittest offen | Owner-Abnahme im Solo-, Koop- und Handy-Run |
 
 ## Feste Entscheidungen des Owners
 
@@ -364,3 +364,9 @@ Steuerung besteht aus Laufen; Springen bleibt deaktiviert. Dash-Button, Remote, 
 - Neuer visueller Dienst `LobbyArtService` und `Config/LobbyArt.luau`: drei texturierte Portalbögen um die vorhandenen interaktiven Gates, ein steinerner Spawnkreis mit Messing-Sigil, ein Leuchtkörper hinter dem Spawn, sechs neue Laternen, Wege und niedrige Randruinen. Die bisherigen Lobby-Lampen werden zur Laufzeit ausgeblendet. Neue Teile sind ohne Kollision, Berührung und Query; Lichter tragen den bestehenden Grafik-Tag. Keine Run-/Portal-/Netzwerkregel geändert.
 - Drei Originalmodelle mit insgesamt sechs Mesh-Segmenten und Texturen wurden über Studio erzeugt; alle Asset-IDs und die Herkunft stehen in `docs/LOBBY-ART.md`. Die optische Gesamtansicht wurde mit dem echten Dienstcode auf einer separaten 80×80-Studio-Vorschaubühne geprüft. Studio war in Edit mit einer leeren Place-Datei verbunden, daher kein echter Branch-Run- oder Zwei-Client-Test.
 - Nach Owner-Screenshot der Vorschau: Die farbigen Gate-Flächen waren in der ersten Vorschaubühne nicht wie im echten `MapService` zu den Bögen gedreht. Die Vorschau wurde korrigiert; zusätzlich sind die echten Gate-Flächen nun auf die Bogenöffnung verkleinert und nach hinten versetzt. Alte Steinrahmen bleiben als unsichtbare Kollision erhalten. Prompt und Schilder bleiben am Gate; Studio-Vorschau zeigt keine seitlich austretenden Farbflächen mehr.
+
+## Paket 21e: Waffenansicht und Angriffsanimationen (ChatGPT, 04.11.2026)
+
+- Grundlage ist der aktuelle GitHub-`main` in einem separaten Checkout; der veraltete lokale Projektordner und seine Aenderungen blieben unangetastet. Alle 26 freigegebenen Waffenbilder werden als gepoolte Welt-Sprites statt der alten Meshformen angezeigt. Orbitklingen und geworfene Axt nutzen dieselben Bilder; das Paarbild der Orbitklingen zeigt bei einer ungeraden Anzahl optisch eine zusaetzliche Klinge.
+- Nahkampfwaffen stossen oder schwingen beim serverseitigen Treffer, Schusswaffen bewegen sich beim Schuss rueckwaerts, Axt/Blitz/Hammer/Dornenspur bewegen die richtige Waffenkopie. `uid` wird im bestehenden WeaponFx-Format als optionales Zusatzfeld uebertragen. Die serverseitigen Projektile starten an einer stabilen Muedungsposition der jeweiligen schwebenden Waffe; `Arsenal` bleibt unveraendert.
+- StyLua fuer die geaenderten Module und Specs sauber; Selene 0 Fehler / 11 bestehende Warnungen in anderen Dateien; Rojo-Build und `git diff --check` erfolgreich. Kein kompletter Run moeglich: die verbundene Studio-Instanz hat keinen Place offen; auf diesem Rechner sind weder Cargo noch Lune fuer die Luau-Specs verfuegbar. Owner prueft Aussehen, Treffer, Zwei-Client- und Handy-Verhalten nach Branch-Synchronisierung.

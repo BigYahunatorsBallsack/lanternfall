@@ -16,7 +16,7 @@ function Shockwave.fire(weapon: Arsenal.Weapon, ctx: Arsenal.Context): boolean
 	if count == 0 then
 		return false
 	end
-	ctx:emit(weapon, { kind = "Pulse", x = ctx.x, z = ctx.z, radius = stats.radius })
+	ctx:emit(weapon, { kind = "Pulse", uid = weapon.uid, x = ctx.x, z = ctx.z, radius = stats.radius })
 	for i = 1, count do
 		ctx:hit(weapon, found[i])
 	end

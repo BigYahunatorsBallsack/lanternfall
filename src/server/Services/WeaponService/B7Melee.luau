@@ -39,6 +39,7 @@ function Melee.fire(weapon: Arsenal.Weapon, ctx: Arsenal.Context): boolean
 	end
 	ctx:emit(weapon, {
 		kind = "Strike",
+		uid = weapon.uid,
 		x = ctx.x,
 		z = ctx.z,
 		dx = dx,
