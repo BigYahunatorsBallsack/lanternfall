@@ -70,7 +70,7 @@ Jeder Strang ändert nur **seine** Zeile (Regeln: `docs/PARALLEL.md`).
 | Strang | KI | Aktuelles Paket | Branch / PR | Stand | Danach |
 | --- | --- | --- | --- | --- | --- |
 | A – Engine und Ablauf | Claude | Paket 24 Launch-Paket (Medium) | `wp-24-launch` | fertig, selbst gemerged | Plan bis zum Launch abgeschlossen; als Nächstes IDs des Owners eintragen (Live-Experience, Badges, Musik), dann Live-Ops |
-| B – Inhalte und Spieler-Regeln | ChatGPT | Paket 21c: Baum, Frucht und Kisten als Modelle | `wp-21c-loot-models` / PR #69 | Meshes und SpecialMesh in Studio geprüft; StyLua, Selene (0 Fehler) und Rojo-Build erfolgreich; PR offen | Owner-Abnahme im Run, besonders auf Handy |
+| B – Inhalte und Spieler-Regeln | ChatGPT | Paket 21d: Hub-Spawn und Lobby-Art | `wp-21d-lobby-art` | Original-Meshes und Layout in Studio-Vorschau geprüft; Quelle: aktueller GitHub-main; PR und Owner-Run-Test folgen | Hub- und Handy-Abnahme nach Branch-Synchronisierung |
 
 ## Feste Entscheidungen des Owners
 
@@ -358,3 +358,8 @@ Steuerung besteht aus Laufen; Springen bleibt deaktiviert. Dash-Button, Remote, 
 - Fuer alle 38 IDs aus `Config/Stats.luau` gibt es eigene transparente 1254×1254-PNGs unter `assets/ui/stats/final/`. Die ersten zehn Motive hat der Owner einzeln freigegeben; die restlichen 28 wurden auf seinen Wunsch ohne Fuenferpausen erstellt und als Gesamtgalerie visuell geprueft. Die Ranged-Damage-Illustration zeigt eine neu gezeichnete Hand mit der Watchman-Pistole im Spielstil.
 - `UI/Icons.luau` liest fuer Level-up-Karten und die Shop-Werteliste die neue `UI/StatImages.luau`-Tabelle und zeigt bis zum erfolgreichen Bild-Upload weiterhin die bisher gezeichneten Symbole. Die 38 Roblox-Bild-IDs fehlen noch, weil keine Studio-Instanz verbunden war; Bilder und Zuordnung stehen in `assets/ui/stats/manifest.json` und `README.md` bereit.
 - Nach Freigabe des Owners wurden am 04.11.2026 alle 38 PNGs ueber die verbundene Main-Lobby-Studio-Instanz hochgeladen. Die eindeutigen IDs stehen in `assets/ui/stats/final/roblox-assets.json` und `UI/StatImages.luau`; alle 38 Bilder erreichten in Studio Edit mit `ImageLabel` + `ContentProvider:PreloadAsync` den Status `Success`. Ein sichtbarer Level-up-/Shop-Test mit dem gemergten Code steht noch aus.
+
+## Hub-Spawn und Lobby-Art (ChatGPT, 04.11.2026)
+
+- Neuer visueller Dienst `LobbyArtService` und `Config/LobbyArt.luau`: drei texturierte Portalbögen um die vorhandenen interaktiven Gates, ein steinerner Spawnkreis mit Messing-Sigil, ein Leuchtkörper hinter dem Spawn, sechs neue Laternen, Wege und niedrige Randruinen. Die bisherigen Lobby-Lampen werden zur Laufzeit ausgeblendet. Neue Teile sind ohne Kollision, Berührung und Query; Lichter tragen den bestehenden Grafik-Tag. Keine Run-/Portal-/Netzwerkregel geändert.
+- Drei Originalmodelle mit insgesamt sechs Mesh-Segmenten und Texturen wurden über Studio erzeugt; alle Asset-IDs und die Herkunft stehen in `docs/LOBBY-ART.md`. Die optische Gesamtansicht wurde mit dem echten Dienstcode auf einer separaten 80×80-Studio-Vorschaubühne geprüft. Studio war in Edit mit einer leeren Place-Datei verbunden, daher kein echter Branch-Run- oder Zwei-Client-Test.
