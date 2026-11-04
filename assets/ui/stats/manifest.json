@@ -1,0 +1,196 @@
+{
+  "count": 38,
+  "sourceConfig": "src/shared/Config/Stats.luau",
+  "assets": [
+    {
+      "id": "maxHp",
+      "file": "final/maxHp.png",
+      "reviewStatus": "approved"
+    },
+    {
+      "id": "hpRegen",
+      "file": "final/hpRegen.png",
+      "reviewStatus": "approved"
+    },
+    {
+      "id": "lifeSteal",
+      "file": "final/lifeSteal.png",
+      "reviewStatus": "approved"
+    },
+    {
+      "id": "damage",
+      "file": "final/damage.png",
+      "reviewStatus": "approved"
+    },
+    {
+      "id": "meleeDamage",
+      "file": "final/meleeDamage.png",
+      "reviewStatus": "approved"
+    },
+    {
+      "id": "rangedDamage",
+      "file": "final/rangedDamage.png",
+      "reviewStatus": "approved"
+    },
+    {
+      "id": "elementalDamage",
+      "file": "final/elementalDamage.png",
+      "reviewStatus": "approved"
+    },
+    {
+      "id": "attackSpeed",
+      "file": "final/attackSpeed.png",
+      "reviewStatus": "approved"
+    },
+    {
+      "id": "critChance",
+      "file": "final/critChance.png",
+      "reviewStatus": "approved"
+    },
+    {
+      "id": "range",
+      "file": "final/range.png",
+      "reviewStatus": "approved"
+    },
+    {
+      "id": "armor",
+      "file": "final/armor.png",
+      "reviewStatus": "completed"
+    },
+    {
+      "id": "dodge",
+      "file": "final/dodge.png",
+      "reviewStatus": "completed"
+    },
+    {
+      "id": "speed",
+      "file": "final/speed.png",
+      "reviewStatus": "completed"
+    },
+    {
+      "id": "luck",
+      "file": "final/luck.png",
+      "reviewStatus": "completed"
+    },
+    {
+      "id": "harvesting",
+      "file": "final/harvesting.png",
+      "reviewStatus": "completed"
+    },
+    {
+      "id": "xpGain",
+      "file": "final/xpGain.png",
+      "reviewStatus": "completed"
+    },
+    {
+      "id": "pickupRange",
+      "file": "final/pickupRange.png",
+      "reviewStatus": "completed"
+    },
+    {
+      "id": "itemPrice",
+      "file": "final/itemPrice.png",
+      "reviewStatus": "completed"
+    },
+    {
+      "id": "freeRerolls",
+      "file": "final/freeRerolls.png",
+      "reviewStatus": "completed"
+    },
+    {
+      "id": "sellValue",
+      "file": "final/sellValue.png",
+      "reviewStatus": "completed"
+    },
+    {
+      "id": "doubleShards",
+      "file": "final/doubleShards.png",
+      "reviewStatus": "completed"
+    },
+    {
+      "id": "shardHealing",
+      "file": "final/shardHealing.png",
+      "reviewStatus": "completed"
+    },
+    {
+      "id": "eliteDamage",
+      "file": "final/eliteDamage.png",
+      "reviewStatus": "completed"
+    },
+    {
+      "id": "enemyCount",
+      "file": "final/enemyCount.png",
+      "reviewStatus": "completed"
+    },
+    {
+      "id": "enemyHp",
+      "file": "final/enemyHp.png",
+      "reviewStatus": "completed"
+    },
+    {
+      "id": "enemyDamage",
+      "file": "final/enemyDamage.png",
+      "reviewStatus": "completed"
+    },
+    {
+      "id": "knockback",
+      "file": "final/knockback.png",
+      "reviewStatus": "completed"
+    },
+    {
+      "id": "explosionDamage",
+      "file": "final/explosionDamage.png",
+      "reviewStatus": "completed"
+    },
+    {
+      "id": "explosionSize",
+      "file": "final/explosionSize.png",
+      "reviewStatus": "completed"
+    },
+    {
+      "id": "piercing",
+      "file": "final/piercing.png",
+      "reviewStatus": "completed"
+    },
+    {
+      "id": "piercingDamage",
+      "file": "final/piercingDamage.png",
+      "reviewStatus": "completed"
+    },
+    {
+      "id": "bounce",
+      "file": "final/bounce.png",
+      "reviewStatus": "completed"
+    },
+    {
+      "id": "burnSpeed",
+      "file": "final/burnSpeed.png",
+      "reviewStatus": "completed"
+    },
+    {
+      "id": "burnSpread",
+      "file": "final/burnSpread.png",
+      "reviewStatus": "completed"
+    },
+    {
+      "id": "fruitHeal",
+      "file": "final/fruitHeal.png",
+      "reviewStatus": "completed"
+    },
+    {
+      "id": "trees",
+      "file": "final/trees.png",
+      "reviewStatus": "completed"
+    },
+    {
+      "id": "engineering",
+      "file": "final/engineering.png",
+      "reviewStatus": "completed"
+    },
+    {
+      "id": "enemySpeed",
+      "file": "final/enemySpeed.png",
+      "reviewStatus": "completed"
+    }
+  ]
+}
