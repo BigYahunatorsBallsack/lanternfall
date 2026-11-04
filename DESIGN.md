@@ -1320,6 +1320,7 @@ Bis zum Soft Launch rund 40–50 Sessions und 50–60 Stunden Zeit des Owners (6
 | 24 | Launch-Paket: Icon, Thumbnails, Beschreibung, Clips (umgesetzt auf `wp-24-launch`, Anleitung `docs/LAUNCH.md`) | Soft Launch | Medium | 1 | 3 h | Clips, Fragebogen, Ads |
 | 25 | Bugfixing (laufend) | alle | Medium, nach 2 Fehlversuchen Extra high | – | – | Bug-Report |
 | 26 | Live-Ops-Update | Live-Ops | Medium | 1–2/Woche | 3–5 h/Woche | Feedback, Prioritäten, Tests |
+| 21d | Hub-Spawn und Lobby-Art: Original-Meshes für Portalbögen, Leuchtkörper und Laternen, steinerner Spawnkreis, Wege und Randruinen; rein visuell (`docs/LOBBY-ART.md`) | MVP | Medium | 1 | 30 min | Hub im Studio und auf Handy beurteilen |
 
 **Effort-Regeln:** Medium = Standard. High = Spiellogik mit vielen Sonderfällen. Extra high = Architektur, Gegner-Engine, Waffen-Framework, Speichern, Käufe, Teleport, Performance, Sicherheit. Low = Texte, Preise, Zahlen. Max = nicht nutzen (langsamer, frisst Nutzungslimit). Bug zweimal ungelöst → neue Session auf Extra high mit Bug-Report.
 
