@@ -37,6 +37,9 @@ describe("World weapon sprites", function()
 		for id in Config.Weapons do
 			count += 1
 			expect(HeldModels.has(id)).toBe(true)
+			if id ~= "OrbitBlades" then
+				expect(Config.WeaponVisuals.spriteStuds[id] ~= nil).toBe(true)
+			end
 			local sprite = SpriteKit.create(id, 3, "TestWeapon")
 			expect(sprite.picture.Image).toBe(Images[id])
 			expect(sprite.anchor.CanCollide).toBe(false)
@@ -44,6 +47,9 @@ describe("World weapon sprites", function()
 			sprite.anchor:Destroy()
 		end
 		expect(count).toBe(26)
+		expect(Config.WeaponVisuals.spriteStuds.BrassKnuckles < Config.WeaponVisuals.spriteStuds.LamplighterPike).toBe(
+			true
+		)
 	end)
 
 	it("keeps duplicate copies separate and animates only the attacking uid", function()
@@ -85,14 +91,20 @@ describe("World weapon sprites", function()
 		local weapon =
 			{ uid = 3, id = "OrbitBlades", addedAt = 0, stats = { count = 2, radius = 7, rotationSpeed = 180 } }
 		OrbitBlades.renderWeapon(owner, weapon, frame(folder, 1, 1))
-		expect(#folder:GetChildren()).toBe(1)
+		local blades = folder:GetChildren()
+		expect(#blades).toBe(2)
+		expect(blades[1].CFrame.Position.X < 0).toBe(true)
+		expect(blades[2].CFrame.Position.X > 0).toBe(true)
+		weapon.stats.count = 3
+		OrbitBlades.renderWeapon(owner, weapon, frame(folder, 2, 1.1))
+		expect(#folder:GetChildren()).toBe(3)
 		OrbitBlades.clear()
 		expect(#folder:GetChildren()).toBe(0)
 	end)
 
 	it("sends the precise copy id and starts shots beyond the held weapon", function()
-		local x, z = Pose.anchor(10, 20, 4)
-		local mx, mz = Pose.muzzle(10, 20, 4, 1, 0)
+		local x, z = Pose.anchor(10, 20, 4, "WatchmanPistol")
+		local mx, mz = Pose.muzzle(10, 20, 4, "WatchmanPistol", 1, 0)
 		expect(mx > x).toBe(true)
 		expect(mz).toBe(z)
 		local effects = WeaponFx.decode(

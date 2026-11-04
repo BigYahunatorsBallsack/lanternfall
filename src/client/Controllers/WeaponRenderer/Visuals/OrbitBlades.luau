@@ -1,5 +1,5 @@
 --!strict
--- Rotates approved paired-blade artwork around the owner on the server's Orbit clock and count.
+-- Draws each approved blade cutout at its matching server hit orbit position.
 
 local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
 local Config = require(Shared:WaitForChild("Config"))
@@ -10,6 +10,11 @@ local SpriteKit = require(script.Parent.Parent.SpriteKit)
 local VisualKit = require(script.Parent.Parent.VisualKit)
 
 type Set = { sprites: { SpriteKit.Sprite }, seen: number }
+
+local BLADE_IMAGES = {
+	"rbxassetid://82762074237036",
+	"rbxassetid://111823063839810",
+}
 
 local pool = VisualKit.objectPool(function(): SpriteKit.Sprite
 	return SpriteKit.create("OrbitBlades", 1, "OrbitBlades")
@@ -37,24 +42,26 @@ function OrbitBlades.renderWeapon(owner: VisualKit.Owner, weapon: Types.WeaponIn
 	set.seen = frame.number
 	local stats = weapon.stats
 	local count = math.max(0, math.floor(stats.count))
-	local pairs = math.ceil(count / 2)
-	while #set.sprites < pairs do
+	while #set.sprites < count do
 		table.insert(set.sprites, pool:acquire(frame.folder))
 	end
-	while #set.sprites > pairs do
+	while #set.sprites > count do
 		pool:release(table.remove(set.sprites) :: SpriteKit.Sprite)
 	end
 	for index, sprite in set.sprites do
-		local angle = Orbit.bladeAngle(stats.rotationSpeed, weapon.addedAt, frame.now, index, pairs * 2)
+		local angle = Orbit.bladeAngle(stats.rotationSpeed, weapon.addedAt, frame.now, index, count)
 		local gui = sprite.picture.Parent :: BillboardGui
-		gui.Size = UDim2.fromScale(
-			stats.radius * Config.WeaponVisuals.orbitArtRadiusScale,
-			stats.radius * Config.WeaponVisuals.orbitArtRadiusScale
-		)
+		gui.Size = UDim2.fromScale(Config.WeaponVisuals.orbitBladeStuds, Config.WeaponVisuals.orbitBladeStuds)
+		sprite.picture.Image = BLADE_IMAGES[(index - 1) % #BLADE_IMAGES + 1]
 		sprite.picture.Rotation = math.deg(angle)
+		local distance = stats.radius - Config.WeaponVisuals.orbitBladeStuds / 2
 		frame.move(
 			sprite.anchor,
-			CFrame.new(owner.position.X, frame.floorY + Config.WeaponVisuals.holdHeight, owner.position.Z)
+			CFrame.new(
+				owner.position.X + math.cos(angle) * distance,
+				frame.floorY + Config.WeaponVisuals.holdHeight,
+				owner.position.Z + math.sin(angle) * distance
+			)
 		)
 	end
 end

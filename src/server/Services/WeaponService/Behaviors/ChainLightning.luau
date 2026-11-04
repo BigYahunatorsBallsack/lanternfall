@@ -43,7 +43,7 @@ function ChainLightning.fire(weapon: Arsenal.Weapon, ctx: Arsenal.Context): bool
 	if ctx:nearestEnemies(ctx.x, ctx.z, stats.range, 1, targets) == 0 then
 		return false
 	end
-	local startX, startZ = WeaponPose.anchor(ctx.x, ctx.z, weapon.uid)
+	local startX, startZ = WeaponPose.anchor(ctx.x, ctx.z, weapon.uid, weapon.id)
 	local points = { startX, startZ }
 	local hit: { [number]: boolean } = {}
 	local id: number? = targets[1]

@@ -70,7 +70,7 @@ Jeder Strang ändert nur **seine** Zeile (Regeln: `docs/PARALLEL.md`).
 | Strang | KI | Aktuelles Paket | Branch / PR | Stand | Danach |
 | --- | --- | --- | --- | --- | --- |
 | A – Engine und Ablauf | Claude | Paket 24 Launch-Paket (Medium) | `wp-24-launch` | fertig, selbst gemerged | Plan bis zum Launch abgeschlossen; als Nächstes IDs des Owners eintragen (Live-Experience, Badges, Musik), dann Live-Ops |
-| B – Inhalte und Spieler-Regeln | ChatGPT | Paket 21e: Waffenansicht und Angriffsanimationen | `wp-21e-weapon-models` | 26 Sprite-Ansichten, Angriffsbewegungen und serverseitige Schussursprünge umgesetzt; Studio- und Luau-Laufzeittest offen | Owner-Abnahme im Solo-, Koop- und Handy-Run |
+| B – Inhalte und Spieler-Regeln | ChatGPT | Paket 21e: Waffenansicht und Angriffsanimationen | `wp-21e-weapon-models` | 26 Sprite-Ansichten mit individuellen Größen, einzeln kreisende Klingen, Angriffsbewegungen und serverseitige Schussursprünge umgesetzt; Luau-Laufzeittest offen | Owner-Abnahme im Solo-, Koop- und Handy-Run |
 
 ## Feste Entscheidungen des Owners
 
@@ -367,6 +367,6 @@ Steuerung besteht aus Laufen; Springen bleibt deaktiviert. Dash-Button, Remote, 
 
 ## Paket 21e: Waffenansicht und Angriffsanimationen (ChatGPT, 04.11.2026)
 
-- Grundlage ist der aktuelle GitHub-`main` in einem separaten Checkout; der veraltete lokale Projektordner und seine Aenderungen blieben unangetastet. Alle 26 freigegebenen Waffenbilder werden als gepoolte Welt-Sprites statt der alten Meshformen angezeigt. Orbitklingen und geworfene Axt nutzen dieselben Bilder; das Paarbild der Orbitklingen zeigt bei einer ungeraden Anzahl optisch eine zusaetzliche Klinge.
+- Grundlage ist der aktuelle GitHub-`main` in einem separaten Checkout; der veraltete lokale Projektordner und seine Aenderungen blieben unangetastet. Alle 26 freigegebenen Waffenbilder werden als gepoolte Welt-Sprites statt der alten Meshformen angezeigt. Individuelle Groessen und Abstaende halten kleine Waffen wie Schlagringe nah am Charakter und lange Waffen erkennbar. Die zwei Orbitklingen wurden aus dem freigegebenen Paarbild getrennt, vom Owner zum Upload freigegeben und als Roblox-Assets hochgeladen. Sie kreisen einzeln auf den serverseitigen Trefferbahnen; der Studio-Preload beider neuen Bilder war erfolgreich.
 - Nahkampfwaffen stossen oder schwingen beim serverseitigen Treffer, Schusswaffen bewegen sich beim Schuss rueckwaerts, Axt/Blitz/Hammer/Dornenspur bewegen die richtige Waffenkopie. `uid` wird im bestehenden WeaponFx-Format als optionales Zusatzfeld uebertragen. Die serverseitigen Projektile starten an einer stabilen Muedungsposition der jeweiligen schwebenden Waffe; `Arsenal` bleibt unveraendert.
 - StyLua fuer die geaenderten Module und Specs sauber; Selene 0 Fehler / 11 bestehende Warnungen in anderen Dateien; Rojo-Build und `git diff --check` erfolgreich. Kein kompletter Run moeglich: die verbundene Studio-Instanz hat keinen Place offen; auf diesem Rechner sind weder Cargo noch Lune fuer die Luau-Specs verfuegbar. Owner prueft Aussehen, Treffer, Zwei-Client- und Handy-Verhalten nach Branch-Synchronisierung.

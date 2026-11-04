@@ -58,7 +58,7 @@ function BoomerangAxe.fire(weapon: Arsenal.Weapon, ctx: Arsenal.Context): boolea
 	end
 	local axes = axesOf(weapon)
 	local hitsPerWay = if stats.pierce < 0 then math.huge else stats.pierce + 1
-	local heldX, heldZ = WeaponPose.anchor(ctx.x, ctx.z, weapon.uid)
+	local heldX, heldZ = WeaponPose.anchor(ctx.x, ctx.z, weapon.uid, weapon.id)
 	for k = 1, count do
 		local tx, tz = ctx:enemyPosition(targets[math.min(k, targetCount)])
 		local dx, dz = (tx or heldX + 1) - heldX, (tz or heldZ) - heldZ

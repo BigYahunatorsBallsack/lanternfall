@@ -13,22 +13,28 @@ function WeaponPose.direction(uid: number): (number, number)
 	return math.cos(angle), math.sin(angle)
 end
 
-function WeaponPose.anchor(x: number, z: number, uid: number): (number, number)
+function WeaponPose.radius(id: string): number
+	return Visuals.holdRadiusById[id] or Visuals.holdRadius
+end
+
+function WeaponPose.anchor(x: number, z: number, uid: number, id: string): (number, number)
 	local dx, dz = WeaponPose.direction(uid)
-	return x + dx * Visuals.holdRadius, z + dz * Visuals.holdRadius
+	local radius = WeaponPose.radius(id)
+	return x + dx * radius, z + dz * radius
 end
 
 function WeaponPose.muzzle(
 	x: number,
 	z: number,
 	uid: number,
+	id: string,
 	dx: number,
 	dz: number,
 	targetDistance: number?
 ): (number, number)
-	local hx, hz = WeaponPose.anchor(x, z, uid)
-	local distance =
-		math.min(Visuals.muzzleDistance, math.max(0, (targetDistance or math.huge) - Visuals.muzzleClearance))
+	local hx, hz = WeaponPose.anchor(x, z, uid, id)
+	local muzzleDistance = (Visuals.spriteStuds[id] or 2.1) * Visuals.muzzleFraction
+	local distance = math.min(muzzleDistance, math.max(0, (targetDistance or math.huge) - Visuals.muzzleClearance))
 	return hx + dx * distance, hz + dz * distance
 end
 

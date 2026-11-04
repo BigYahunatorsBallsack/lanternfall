@@ -32,7 +32,7 @@ local function poolOf(id: string): VisualKit.ObjectPool<SpriteKit.Sprite>
 		return pool
 	end
 	local created = VisualKit.objectPool(function(): SpriteKit.Sprite
-		return SpriteKit.create(id, LOOK.spriteStuds, `Held{id}`)
+		return SpriteKit.create(id, LOOK.spriteStuds[id], `Held{id}`)
 	end, function(sprite: SpriteKit.Sprite): { BasePart }
 		return { sprite.anchor }
 	end)
@@ -112,7 +112,7 @@ function HeldModels.renderWeapon(
 	model.seen = frame.number
 
 	local radialX, radialZ = WeaponPose.direction(weapon.uid)
-	local x, z = WeaponPose.anchor(owner.position.X, owner.position.Z, weapon.uid)
+	local x, z = WeaponPose.anchor(owner.position.X, owner.position.Z, weapon.uid, weapon.id)
 	local dx, dz = radialX, radialZ
 	local attack = attacks[key]
 	if attack then
@@ -132,8 +132,9 @@ function HeldModels.renderWeapon(
 					local turn = math.rad(attack.angle * (t - 0.5))
 					local c, s = math.cos(turn), math.sin(turn)
 					dx, dz = dx * c - dz * s, dx * s + dz * c
-					x = owner.position.X + dx * LOOK.holdRadius
-					z = owner.position.Z + dz * LOOK.holdRadius
+					local radius = WeaponPose.radius(weapon.id)
+					x = owner.position.X + dx * radius
+					z = owner.position.Z + dz * radius
 				end
 			elseif attack.kind == "Fire" then
 				local recoil = math.sin(math.pi * t) * LOOK.recoilDistance
