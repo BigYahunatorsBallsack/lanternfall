@@ -57,6 +57,7 @@ return table.freeze({
 	muzzleClearance = 0.25,
 	recoilDistance = 0.42,
 	thrustDistance = 1.45,
+	strikeTipFraction = 0.35,
 	attackSeconds = 0.2,
 	idleBob = 0.12,
 	idleBobSpeed = 2.5,

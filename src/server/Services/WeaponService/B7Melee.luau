@@ -45,6 +45,7 @@ function Melee.fire(weapon: Arsenal.Weapon, ctx: Arsenal.Context): boolean
 		dx = dx,
 		dz = dz,
 		range = stats.range,
+		targetDistance = length,
 		radius = stats.width,
 		duration = stats.attackSeconds,
 		angle = if sweep then stats.sweepDegrees else 0,

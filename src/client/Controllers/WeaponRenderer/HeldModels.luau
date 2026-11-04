@@ -12,7 +12,7 @@ local VisualKit = require(script.Parent.VisualKit)
 
 local LOOK = Config.WeaponVisuals
 
-type Attack = { at: number, duration: number, dx: number, dz: number, kind: string, angle: number }
+type Attack = { at: number, duration: number, dx: number, dz: number, kind: string, angle: number, distance: number }
 type Model = { sprite: SpriteKit.Sprite, id: string, seen: number }
 
 local pools: { [string]: VisualKit.ObjectPool<SpriteKit.Sprite> } = {}
@@ -80,6 +80,7 @@ function HeldModels.effect(effect: Types.WeaponEffect)
 		dz = dz,
 		kind = effect.kind,
 		angle = effect.angle or 0,
+		distance = effect.targetDistance or 0,
 	}
 end
 
@@ -125,7 +126,13 @@ function HeldModels.renderWeapon(
 			end
 			if attack.kind == "Strike" then
 				if attack.angle == 0 then
-					local extension = math.sin(math.pi * t) * LOOK.thrustDistance
+					local reach = math.max(
+						LOOK.thrustDistance,
+						attack.distance
+							- WeaponPose.radius(weapon.id)
+							- LOOK.spriteStuds[weapon.id] * LOOK.strikeTipFraction
+					)
+					local extension = math.sin(math.pi * t) * reach
 					x += dx * extension
 					z += dz * extension
 				else

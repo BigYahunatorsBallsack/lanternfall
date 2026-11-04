@@ -72,6 +72,7 @@ describe("World weapon sprites", function()
 			duration = 0.2,
 			dx = 1,
 			dz = 0,
+			targetDistance = 9,
 		})
 		HeldModels.renderWeapon(owner, one, 1, 2, frame(folder, 2, 1.1))
 		HeldModels.renderWeapon(owner, two, 2, 2, frame(folder, 2, 1.1))
@@ -107,9 +108,10 @@ describe("World weapon sprites", function()
 		local mx, mz = Pose.muzzle(10, 20, 4, "WatchmanPistol", 1, 0)
 		expect(mx > x).toBe(true)
 		expect(mz).toBe(z)
-		local effects = WeaponFx.decode(
-			WeaponFx.encode({ { weapon = "RitualDirk", userId = 7, uid = 4, kind = "Strike", at = 1 } })
-		)
+		local effects = WeaponFx.decode(WeaponFx.encode({
+			{ weapon = "RitualDirk", userId = 7, uid = 4, kind = "Strike", at = 1, targetDistance = 9 },
+		}))
 		expect(effects[1].uid).toBe(4)
+		expect(effects[1].targetDistance).toBe(9)
 	end)
 end)
