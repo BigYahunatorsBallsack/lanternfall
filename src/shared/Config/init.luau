@@ -40,4 +40,5 @@ return {
 	Security = require(script.Security), -- Paket 23
 	Launch = require(script.Launch), -- Paket 24
 	LobbyArt = require(script.LobbyArt), -- Paket 21d
+	WeaponVisuals = require(script.WeaponVisuals),
 }

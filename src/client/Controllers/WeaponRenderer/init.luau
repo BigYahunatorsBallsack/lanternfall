@@ -170,6 +170,7 @@ function WeaponRenderer.init()
 		end
 		local effects: { Types.WeaponEffect } = WeaponFx.decodeShared(packet) :: any
 		for _, effect in effects do
+			HeldModels.effect(effect)
 			local visual = visuals[effect.weapon]
 			if visual and visual.effect then
 				visual.effect(effect)

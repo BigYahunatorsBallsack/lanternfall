@@ -1,89 +1,44 @@
 --!strict
--- Boomerang Axe look: a spinning double-headed axe per "Fire" effect (dark handle, brass heads with glowing
--- edges) that sweeps a ring of light behind it as it flies out at the server's speed and range, then back to its
--- owner's character as this client sees it, until the server's "End" effect says it is gone. Visual for
--- WeaponRenderer (behavior WeaponService/Behaviors/BoomerangAxe).
+-- Renders the approved Boomerang Axe sprite at the server-thrown position and spins it until the server ends it.
 
 local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
+local Config = require(Shared:WaitForChild("Config"))
 local Types = require(Shared:WaitForChild("Net"):WaitForChild("Types"))
 
+local SpriteKit = require(script.Parent.Parent.SpriteKit)
 local VisualKit = require(script.Parent.Parent.VisualKit)
 
-local EDGE_COLOR = Color3.fromRGB(255, 150, 90) -- hot orange
-local HEAD_COLOR = Color3.fromRGB(196, 150, 72) -- brass
-local HANDLE_COLOR = Color3.fromRGB(64, 46, 40)
-local HANDLE_SIZE = Vector3.new(2.2, 0.22, 0.22) -- studs, along X
-local HEAD_SIZE = Vector3.new(0.55, 0.28, 1.1)
-local EDGE_SIZE = Vector3.new(0.2, 0.2, 1.35)
-local HEAD_AT = 0.85 -- studs from the middle
-local EDGE_AT = 1.2
-local TRAIL_WIDTH = 2.6 -- studs, the ring the spinning edges sweep
-local TRAIL_SECONDS = 0.1
-local HEIGHT = 2 -- studs above the floor
-local SPIN = math.rad(900) -- radians/s
-local MAX_SECONDS = 5 -- drops an axe whose "End" effect never arrived
-
--- where each part sits on the spinning axe
-local OFFSETS = {
-	headA = CFrame.new(HEAD_AT, 0, 0),
-	headB = CFrame.new(-HEAD_AT, 0, 0),
-	edgeA = CFrame.new(EDGE_AT, 0, 0),
-	edgeB = CFrame.new(-EDGE_AT, 0, 0),
-}
-
-type AxeParts = {
-	handle: BasePart,
-	headA: BasePart,
-	headB: BasePart,
-	edgeA: BasePart,
-	edgeB: BasePart,
-	trail: Trail,
-}
+local LOOK = Config.WeaponVisuals
 
 type Axe = {
-	parts: AxeParts?,
+	sprite: SpriteKit.Sprite?,
 	userId: number,
-	x: number, -- start
+	x: number,
 	z: number,
 	dx: number,
 	dz: number,
 	speed: number,
 	range: number,
 	at: number,
-	backX: number?, -- position on the way back, moved every frame
+	backX: number?,
 	backZ: number?,
 }
 
-local pool = VisualKit.objectPool(function(): AxeParts
-	local handle = VisualKit.solid("BoomerangAxe", Enum.PartType.Block, HANDLE_SIZE, HANDLE_COLOR, Enum.Material.Wood)
-	local function head()
-		return VisualKit.solid("BoomerangAxeHead", Enum.PartType.Block, HEAD_SIZE, HEAD_COLOR, Enum.Material.Metal)
-	end
-	local function edge()
-		return VisualKit.part("BoomerangAxeEdge", Enum.PartType.Block, EDGE_SIZE, EDGE_COLOR)
-	end
-	return {
-		handle = handle,
-		headA = head(),
-		headB = head(),
-		edgeA = edge(),
-		edgeB = edge(),
-		trail = VisualKit.trail(handle, EDGE_COLOR, TRAIL_WIDTH, TRAIL_SECONDS, "X"),
-	}
-end, function(parts: AxeParts): { BasePart }
-	return { parts.handle, parts.headA, parts.headB, parts.edgeA, parts.edgeB }
+local pool = VisualKit.objectPool(function(): SpriteKit.Sprite
+	return SpriteKit.create("BoomerangAxe", LOOK.thrownSpriteStuds, "ThrownBoomerangAxe")
+end, function(sprite: SpriteKit.Sprite): { BasePart }
+	return { sprite.anchor }
 end)
 
-local axes: { [number]: Axe } = {} -- by projectile id
+local axes: { [number]: Axe } = {}
+local BoomerangAxe = {}
 
 local function remove(id: number, axe: Axe)
-	if axe.parts then
-		pool:release(axe.parts)
+	if axe.sprite then
+		pool:release(axe.sprite)
 	end
 	axes[id] = nil
 end
-
-local BoomerangAxe = {}
 
 function BoomerangAxe.effect(effect: Types.WeaponEffect)
 	local id = effect.id
@@ -92,7 +47,6 @@ function BoomerangAxe.effect(effect: Types.WeaponEffect)
 	end
 	if effect.kind == "Fire" then
 		axes[id] = {
-			parts = nil,
 			userId = effect.userId,
 			x = effect.x or 0,
 			z = effect.z or 0,
@@ -113,7 +67,7 @@ end
 function BoomerangAxe.render(frame: VisualKit.Frame)
 	for id, axe in axes do
 		local age = frame.now - axe.at
-		if age > MAX_SECONDS then
+		if age > LOOK.thrownMaxSeconds then
 			remove(id, axe)
 			continue
 		end
@@ -135,20 +89,13 @@ function BoomerangAxe.render(frame: VisualKit.Frame)
 			end
 			axe.backX, axe.backZ = x, z
 		end
-		local parts = axe.parts
-		if not parts then
-			local created = pool:acquire(frame.folder)
-			created.trail:Clear()
-			axe.parts = created
-			parts = created
+		local sprite = axe.sprite
+		if not sprite then
+			sprite = pool:acquire(frame.folder)
+			axe.sprite = sprite
 		end
-		local current = parts :: AxeParts
-		local cframe = CFrame.new(x, frame.floorY + HEIGHT, z) * CFrame.Angles(0, age * SPIN, 0)
-		frame.move(current.handle, cframe)
-		frame.move(current.headA, cframe * OFFSETS.headA)
-		frame.move(current.headB, cframe * OFFSETS.headB)
-		frame.move(current.edgeA, cframe * OFFSETS.edgeA)
-		frame.move(current.edgeB, cframe * OFFSETS.edgeB)
+		sprite.picture.Rotation = age * LOOK.thrownSpinDegreesPerSecond
+		frame.move(sprite.anchor, CFrame.new(x, frame.floorY + LOOK.projectileHeight, z))
 	end
 end
 
