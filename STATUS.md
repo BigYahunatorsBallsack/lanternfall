@@ -70,7 +70,7 @@ Jeder Strang ändert nur **seine** Zeile (Regeln: `docs/PARALLEL.md`).
 | Strang | KI | Aktuelles Paket | Branch / PR | Stand | Danach |
 | --- | --- | --- | --- | --- | --- |
 | A – Engine und Ablauf | Claude | Paket 24 Launch-Paket (Medium) | `wp-24-launch` | fertig, selbst gemerged | Plan bis zum Launch abgeschlossen; als Nächstes IDs des Owners eintragen (Live-Experience, Badges, Musik), dann Live-Ops |
-| B – Inhalte und Spieler-Regeln | ChatGPT | Paket 21d: Hub-Spawn und Lobby-Art | `wp-21d-lobby-art` | Original-Meshes und Layout in Studio-Vorschau geprüft; Quelle: aktueller GitHub-main; PR und Owner-Run-Test folgen | Hub- und Handy-Abnahme nach Branch-Synchronisierung |
+| B – Inhalte und Spieler-Regeln | ChatGPT | Paket 21d: Hub-Spawn und Lobby-Art | `wp-21d-lobby-art` / PR #72 | Original-Meshes und Layout in Studio-Vorschau geprüft; StyLua, Selene (0 Fehler) und Rojo-Build erfolgreich; PR offen | Hub- und Handy-Abnahme nach Branch-Synchronisierung |
 
 ## Feste Entscheidungen des Owners
 
