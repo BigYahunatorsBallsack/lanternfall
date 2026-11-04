@@ -6,7 +6,7 @@ The hub keeps its 80 × 80 stud playable floor, central `LobbySpawn` and the thr
 
 - Original cartoon meshes use broad stone and brass forms, dark outlines, warm lantern accents and a small number of readable details. They borrow the approved enemy artwork's compact, painted feel without using another game's assets.
 - A stone and brass arrival sigil marks the 20 × 20 stud spawn pad. The lantern beacon sits 24 studs behind it, leaving the pad clear for arrivals.
-- Stone paths lead to the existing Solo, Party and Quick Join gates. Each has a textured arch and its own small colored keystone light. The gate planes remain visible at lower opacity; their `ProximityPrompt` and signs remain unchanged.
+- Stone paths lead to the existing Solo, Party and Quick Join gates. Each has a textured arch and its own small colored keystone light. The gate planes are sized and inset to fit the arch opening; their `ProximityPrompt` and signs remain unchanged. The old structural frames remain as invisible colliders inside the new arches.
 - Six original street lantern models replace the old visual posts. A low perimeter and four corner ruins establish the edge of the hub. All added geometry has collision, touch and query disabled. Optional lights carry the existing graphics tag.
 
 ## Asset provenance

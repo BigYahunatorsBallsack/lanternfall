@@ -191,7 +191,15 @@ local function buildPortals(parent: Model, lobbyModel: Model)
 		if original then
 			local gate = original:FindFirstChild("Gate")
 			if gate and gate:IsA("BasePart") then
+				gate.Size = settings.gateSize
+				gate.CFrame = gate.CFrame * CFrame.new(settings.gateInset)
 				gate.Transparency = settings.gateTransparency
+			end
+			for _, child in original:GetChildren() do
+				if child:IsA("BasePart") and child ~= gate then
+					child.Transparency = 1
+					child.CastShadow = false
+				end
 			end
 		end
 
