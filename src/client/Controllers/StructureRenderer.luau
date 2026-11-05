@@ -10,20 +10,29 @@ local Config = require(Shared.Config)
 local Net = require(Shared.Net)
 local StructureFeed = require(Shared.Net.StructureFeed)
 local Kit = require(script.Parent.WeaponRenderer.VisualKit)
+local WorldSprite = require(
+	game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Util"):WaitForChild("WorldSprite")
+)
 local Renderer = {}
 local folder: Folder
 local live = {}
-local orbits: { [number]: { parts: { BasePart }, ownerId: number, id: number } } = {}
+local orbits: { [number]: { parts: any, ownerId: number, id: number } } = {}
 local flashes = {}
 local C = Config.Structures
 local FLOOR_Y = Config.Map.arena.center.Y
+local Sprites = Config.Sprites
 local pool = Kit.objectPool(function()
-	return {
-		Kit.part("Plinth", Enum.PartType.Cylinder, Vector3.new(0.6, 3, 3), Color3.fromRGB(86, 73, 57)),
-		Kit.part("Lantern", Enum.PartType.Ball, Vector3.new(1.5, 1.5, 1.5), Color3.new(1, 1, 1)),
-	}
+	local sprite = WorldSprite.create({
+		name = "Structure",
+		image = Sprites.images.plinth,
+		studs = Sprites.structure.studs,
+		ground = 0.05,
+	})
+	local top = WorldSprite.addLayer(sprite, Sprites.images.structureBall, Sprites.structure.topScale)
+	top.Position = UDim2.fromScale(0.5, 0.33)
+	return { sprite = sprite, top = top, anchor = sprite.anchor :: BasePart }
 end, function(parts)
-	return parts
+	return { parts.anchor }
 end)
 local beamPool = Kit.objectPool(function()
 	return { Kit.part("StructureRay", Enum.PartType.Block, Vector3.new(0.12, 0.12, 1), Color3.new(1, 1, 1)) }
@@ -31,9 +40,8 @@ end, function(parts)
 	return parts
 end)
 
-local function place(parts: { BasePart }, x: number, z: number)
-	parts[1].CFrame = CFrame.new(x, FLOOR_Y + 0.4, z) * CFrame.Angles(0, 0, math.pi / 2)
-	parts[2].CFrame = CFrame.new(x, FLOOR_Y + 1.5, z)
+local function place(parts: any, x: number, z: number)
+	parts.anchor.CFrame = CFrame.new(x, FLOOR_Y, z)
 end
 
 local function ownerRoot(userId: number): Vector3?
@@ -58,10 +66,10 @@ local function onStructures(packet: any)
 		if not parts then
 			parts = pool:acquire(folder)
 			live[row.id] = parts
-			parts[2].Color = Color3.fromRGB(def.color[1], def.color[2], def.color[3])
-			parts[2].Shape = if def.mode == "Mine" or def.mode == "Garden"
-				then Enum.PartType.Block
-				else Enum.PartType.Ball
+			parts.top.ImageColor3 = Color3.fromRGB(def.color[1], def.color[2], def.color[3])
+			parts.top.Image = if def.mode == "Mine" or def.mode == "Garden"
+				then Sprites.images.structureBlock
+				else Sprites.images.structureBall
 		end
 		place(parts, row.x, row.z)
 		orbits[row.id] = if def.mode == "Orbit" then { parts = parts, ownerId = row.ownerId, id = row.id } else nil

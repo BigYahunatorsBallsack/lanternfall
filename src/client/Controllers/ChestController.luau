@@ -20,18 +20,17 @@ local RunStateController = require(script.Parent.RunStateController)
 local Theme = require(script.Parent.Parent.UI.Theme)
 local Widgets = require(script.Parent.Parent.UI.Widgets)
 local VisualKit = require(script.Parent.WeaponRenderer.VisualKit)
+local WorldSprite = require(
+	game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Util"):WaitForChild("WorldSprite")
+)
 
 local FOLDER_NAME = "LanternfallChests"
-local BOX_COLOR = Color3.fromRGB(120, 72, 30)
 local GOLD_COLOR = Color3.fromRGB(255, 196, 87)
-local BOX_SIZE = Vector3.new(2.6, 1.8, 1.8)
-local BAND_SIZE = Vector3.new(2.7, 0.35, 1.9)
 local BEAM_WIDTH = 0.6
 local BEAM_HEIGHT = 26 -- studs, visible from far away with the top-down camera
 local BEAM_TRANSPARENCY = 0.55
 local LIGHT_RANGE = 16
 local LIGHT_BRIGHTNESS = 3
-local SPIN_PER_SECOND = 1.2 -- radians
 local BOB_HEIGHT = 0.3
 local BOB_SPEED = 3
 local ARROW_MARGIN = 40 -- pixels from the screen edge
@@ -39,7 +38,7 @@ local ARROW_SIZE = 44
 local BANNER_SECONDS = 3
 local BANNER_FADE_SECONDS = 0.4
 
-type Drawn = { model: Model, box: BasePart, band: BasePart, beam: BasePart, arrow: TextLabel }
+type Drawn = { model: Model, box: BasePart, beam: BasePart, arrow: TextLabel }
 
 local ChestController = {}
 
@@ -65,11 +64,14 @@ end
 local function build(): Drawn
 	local model = Instance.new("Model")
 	model.Name = "Chest"
-	local box = VisualKit.part("Box", Enum.PartType.Block, BOX_SIZE, BOX_COLOR)
-	box.Material = Enum.Material.SmoothPlastic
+	local sprite = WorldSprite.create({
+		name = "Box",
+		image = Config.Sprites.images.chest,
+		studs = Config.Sprites.chest.studs,
+		ground = 0.1,
+	})
+	local box = sprite.anchor :: BasePart
 	box.Parent = model
-	local band = VisualKit.part("Band", Enum.PartType.Block, BAND_SIZE, GOLD_COLOR)
-	band.Parent = model
 	local beam =
 		VisualKit.part("Beam", Enum.PartType.Block, Vector3.new(BEAM_WIDTH, BEAM_HEIGHT, BEAM_WIDTH), GOLD_COLOR)
 	beam.Transparency = BEAM_TRANSPARENCY
@@ -91,7 +93,7 @@ local function build(): Drawn
 		Parent = screen,
 	})
 	model.Parent = getFolder()
-	return { model = model, box = box, band = band, beam = beam, arrow = arrow }
+	return { model = model, box = box, beam = beam, arrow = arrow }
 end
 
 local function destroy(id: number)
@@ -154,10 +156,8 @@ local function render()
 		if not chest then
 			continue
 		end
-		local y = floorY + BOX_SIZE.Y / 2 + BOB_HEIGHT * (1 + math.sin(now * BOB_SPEED + id))
-		local base = CFrame.new(chest.x, y, chest.z) * CFrame.Angles(0, now * SPIN_PER_SECOND, 0)
-		entry.box.CFrame = base
-		entry.band.CFrame = base * CFrame.new(0, BOX_SIZE.Y * 0.2, 0)
+		local y = floorY + BOB_HEIGHT * (1 + math.sin(now * BOB_SPEED + id))
+		entry.box.CFrame = CFrame.new(chest.x, y, chest.z)
 		entry.beam.CFrame = CFrame.new(chest.x, floorY + BEAM_HEIGHT / 2, chest.z)
 		placeArrow(entry.arrow, Vector3.new(chest.x, floorY, chest.z))
 	end

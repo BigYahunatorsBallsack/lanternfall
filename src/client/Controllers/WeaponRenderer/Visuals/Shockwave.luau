@@ -8,6 +8,9 @@ local LOOK = require(Shared:WaitForChild("Config"):WaitForChild("WeaponVisuals")
 
 local Bursts = require(script.Parent.Parent.Parent.Parent.Vfx.Bursts)
 local VisualKit = require(script.Parent.Parent.VisualKit)
+local WorldSprite = require(
+	game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Util"):WaitForChild("WorldSprite")
+)
 
 local WAVE_COLOR = Color3.fromRGB(255, 205, 110) -- lantern yellow
 local RING_COLOR = Color3.fromRGB(255, 238, 190)
@@ -30,7 +33,7 @@ local DUST_RADIUS = 0.6 -- share of the blast radius
 local HEIGHT = 1.5 -- studs above the floor for the flash
 local UPRIGHT = CFrame.Angles(0, 0, math.pi / 2) -- a cylinder's axis is X: lay the disc flat
 
-type WaveParts = { disc: BasePart, flash: BasePart, segments: { BasePart } }
+type WaveParts = { disc: BasePart, flash: WorldSprite.Sprite, segments: { BasePart } }
 
 type Wave = {
 	parts: WaveParts?,
@@ -40,6 +43,7 @@ type Wave = {
 	at: number, -- hammer contact time after the swing begins
 }
 
+local FLASH_PICTURE_SCALE = 1.6 -- the picture's edge is soft, so it is larger than the old ball
 local pool = VisualKit.objectPool(function(): WaveParts
 	local segments: { BasePart } = {}
 	for _ = 1, SEGMENTS do
@@ -47,11 +51,11 @@ local pool = VisualKit.objectPool(function(): WaveParts
 	end
 	return {
 		disc = VisualKit.part("Shockwave", Enum.PartType.Cylinder, Vector3.new(DISC_THICKNESS, 1, 1), WAVE_COLOR),
-		flash = VisualKit.part("ShockwaveFlash", Enum.PartType.Ball, Vector3.one, FLASH_COLOR),
+		flash = WorldSprite.glow("ShockwaveFlash", FLASH_SIZE * FLASH_PICTURE_SCALE, FLASH_COLOR),
 		segments = segments,
 	}
 end, function(parts: WaveParts): { BasePart }
-	local list = { parts.disc, parts.flash }
+	local list = { parts.disc, parts.flash.anchor :: BasePart }
 	for _, segment in parts.segments do
 		table.insert(list, segment)
 	end
@@ -117,9 +121,9 @@ function Shockwave.render(frame: VisualKit.Frame)
 		frame.move(current.disc, CFrame.new(wave.x, frame.floorY + DISC_HEIGHT, wave.z) * UPRIGHT)
 
 		local flashT = math.min(1, age / FLASH_SECONDS)
-		current.flash.Size = Vector3.one * FLASH_SIZE * (1 - 0.6 * flashT)
-		current.flash.Transparency = 0.1 + 0.9 * flashT
-		frame.move(current.flash, CFrame.new(wave.x, frame.floorY + HEIGHT, wave.z))
+		WorldSprite.setStuds(current.flash, FLASH_SIZE * (1 - 0.6 * flashT) * FLASH_PICTURE_SCALE)
+		WorldSprite.setFade(current.flash, 0.1 + 0.9 * flashT)
+		frame.move(current.flash.anchor :: BasePart, CFrame.new(wave.x, frame.floorY + HEIGHT, wave.z))
 
 		local height = SEGMENT_HEIGHT * (1 - 0.7 * t)
 		local length = 2 * math.pi * radius / SEGMENTS * SEGMENT_FILL

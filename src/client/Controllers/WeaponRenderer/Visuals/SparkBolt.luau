@@ -9,24 +9,28 @@
 local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
 local Types = require(Shared:WaitForChild("Net"):WaitForChild("Types"))
 local LOOK = require(Shared:WaitForChild("Config"):WaitForChild("WeaponVisuals"))
+local LOOK_SPRITES = require(Shared:WaitForChild("Config"):WaitForChild("Sprites"))
 
 local Bursts = require(script.Parent.Parent.Parent.Parent.Vfx.Bursts)
 local HeldModels = require(script.Parent.Parent.HeldModels)
 local VisualKit = require(script.Parent.Parent.VisualKit)
+local WorldSprite = require(
+	game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Util"):WaitForChild("WorldSprite")
+)
 
 local CORE_COLOR = Color3.fromRGB(230, 246, 255)
 local HALO_COLOR = Color3.fromRGB(110, 196, 255) -- spark blue
 local STARFIRE_CORE_COLOR = Color3.fromRGB(255, 246, 214)
 local STARFIRE_HALO_COLOR = Color3.fromRGB(255, 168, 70)
-local CORE_SIZE = Vector3.new(0.3, 0.3, 1.5) -- studs, long side along the flight
-local HALO_SIZE = Vector3.new(0.95, 0.95, 2.4)
-local HALO_TRANSPARENCY = 0.6
+local SPRITES = LOOK_SPRITES
+local BOLT_STUDS = 2.4 * SPRITES.glowScale -- the picture points along the flight
+local CORE_SHARE = 0.6
 local TRAIL_WIDTH = 0.55
 local TRAIL_SECONDS = 0.16
 local HEIGHT = 2 -- studs above the floor
 local HIT_SPARKS = 5
 
-type BoltParts = { core: BasePart, halo: BasePart, trail: Trail, starfire: boolean }
+type BoltParts = { sprite: WorldSprite.Sprite, core: BasePart, color: Color3, trail: Trail, starfire: boolean }
 
 type Bolt = {
 	parts: BoltParts?,
@@ -45,13 +49,14 @@ type Bolt = {
 }
 
 local boltPool = VisualKit.objectPool(function(): BoltParts
-	local core = VisualKit.part("SparkBolt", Enum.PartType.Block, CORE_SIZE, CORE_COLOR)
-	local halo =
-		VisualKit.egg(VisualKit.halo("SparkBoltHalo", Enum.PartType.Block, HALO_SIZE, HALO_COLOR, HALO_TRANSPARENCY))
+	local sprite = WorldSprite.create({ name = "SparkBolt", image = SPRITES.images.bolt, studs = BOLT_STUDS })
+	sprite.picture.ImageColor3 = HALO_COLOR
+	WorldSprite.addLayer(sprite, SPRITES.images.bolt, CORE_SHARE, CORE_COLOR)
+	local core = sprite.anchor :: BasePart
 	local trail = VisualKit.trail(core, HALO_COLOR, TRAIL_WIDTH, TRAIL_SECONDS)
-	return { core = core, halo = halo, trail = trail, starfire = false }
+	return { sprite = sprite, core = core, color = HALO_COLOR, trail = trail, starfire = false }
 end, function(parts: BoltParts): { BasePart }
-	return { parts.core, parts.halo }
+	return { parts.core }
 end)
 
 local bolts: { [number]: Bolt } = {} -- by projectile id
@@ -68,9 +73,10 @@ local function paint(parts: BoltParts, starfire: boolean)
 		return
 	end
 	parts.starfire = starfire
-	parts.core.Color = if starfire then STARFIRE_CORE_COLOR else CORE_COLOR
-	parts.halo.Color = if starfire then STARFIRE_HALO_COLOR else HALO_COLOR
-	parts.trail.Color = ColorSequence.new(parts.halo.Color)
+	parts.sprite.layers[1].ImageColor3 = if starfire then STARFIRE_CORE_COLOR else CORE_COLOR
+	parts.color = if starfire then STARFIRE_HALO_COLOR else HALO_COLOR
+	parts.sprite.picture.ImageColor3 = parts.color
+	parts.trail.Color = ColorSequence.new(parts.color)
 end
 
 local SparkBolt = {}
@@ -115,7 +121,7 @@ function SparkBolt.render(frame: VisualKit.Frame)
 			if bolt.stopAt and bolt.parts then
 				local parts = bolt.parts :: BoltParts
 				local at = Vector3.new(bolt.x + bolt.dx * stop, frame.floorY + HEIGHT, bolt.z + bolt.dz * stop)
-				Bursts.emit("spark", parts.halo.Color, at, HIT_SPARKS)
+				Bursts.emit("spark", parts.color, at, HIT_SPARKS)
 			end
 			remove(id, bolt)
 			continue
@@ -135,8 +141,8 @@ function SparkBolt.render(frame: VisualKit.Frame)
 		)
 		local cframe = CFrame.lookAt(position, position + Vector3.new(bolt.dx, 0, bolt.dz))
 		local current = parts :: BoltParts
+		current.sprite.picture.Rotation = WorldSprite.screenAngle(bolt.dx, bolt.dz)
 		frame.move(current.core, cframe)
-		frame.move(current.halo, cframe)
 	end
 end
 

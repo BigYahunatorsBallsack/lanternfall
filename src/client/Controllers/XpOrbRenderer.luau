@@ -1,5 +1,5 @@
 --!strict
--- Draws the XP orbs (DESIGN.md section 8) from the server's XpOrbs events (ExperienceService): pooled glowing balls
+-- Draws the XP orbs (DESIGN.md section 8) from the server's XpOrbs events (ExperienceService): pooled round sprites
 -- on the floor, sized and colored by how much XP they hold, that fly into the player who picked them up. Lying orbs
 -- are placed once; only flying ones move each frame, together in one workspace:BulkMoveTo. The server decides every
 -- pickup; this only shows it.
@@ -14,6 +14,9 @@ local Net = require(Shared:WaitForChild("Net"))
 local Types = require(Shared:WaitForChild("Net"):WaitForChild("Types"))
 
 local VisualKit = require(script.Parent.WeaponRenderer.VisualKit)
+local WorldSprite = require(
+	game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Util"):WaitForChild("WorldSprite")
+)
 
 local FOLDER_NAME = "LanternfallXpOrbs"
 local FLY_SECONDS = 0.25
@@ -32,8 +35,12 @@ local XpOrbRenderer = {}
 
 local floorY = Config.Map.arena.center.Y
 local folder: Folder? = nil
+local spriteOf: { [BasePart]: WorldSprite.Sprite } = {}
 local pool = VisualKit.pool(function(): BasePart
-	return VisualKit.part("XpOrb", Enum.PartType.Ball, Vector3.one, TIERS[1].color)
+	local sprite = WorldSprite.create({ name = "XpOrb", image = Config.Sprites.images.orb, studs = TIERS[1].size })
+	local anchor = sprite.anchor :: BasePart
+	spriteOf[anchor] = sprite
+	return anchor
 end)
 local orbs: { [number]: Orb } = {}
 local flights: { Flight } = {}
@@ -109,8 +116,9 @@ local function onEvents(events: Types.XpOrbEvents)
 			orbs[id] = orb
 		end
 		local tier = tierOf(value)
-		orb.part.Size = Vector3.one * tier.size
-		orb.part.Color = tier.color
+		local sprite = spriteOf[orb.part]
+		WorldSprite.setStuds(sprite, tier.size * Config.Sprites.orbScale)
+		sprite.picture.ImageColor3 = tier.color
 		table.insert(partList, orb.part)
 		table.insert(cframeList, CFrame.new(x, floorY + HOVER + tier.size / 2, z))
 	end

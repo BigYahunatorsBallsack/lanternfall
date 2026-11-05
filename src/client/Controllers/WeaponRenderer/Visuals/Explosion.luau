@@ -8,6 +8,9 @@ local Types = require(Shared:WaitForChild("Net"):WaitForChild("Types"))
 
 local Bursts = require(script.Parent.Parent.Parent.Parent.Vfx.Bursts)
 local VisualKit = require(script.Parent.Parent.VisualKit)
+local WorldSprite = require(
+	game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Util"):WaitForChild("WorldSprite")
+)
 
 local DURATION = 0.4 -- seconds
 local FLASH_SECONDS = 0.12 -- the white flash at the start of a blast
@@ -22,7 +25,7 @@ local EMBERS = 14
 local MAX_BLASTS = 24 -- drawn at once; more in one moment are skipped (many small blasts look the same)
 local UPRIGHT = CFrame.Angles(0, 0, math.pi / 2) -- a cylinder's axis is X: lay the disc flat
 
-type BlastParts = { flash: BasePart, ring: BasePart }
+type BlastParts = { flash: WorldSprite.Sprite, ring: BasePart }
 
 type Blast = {
 	parts: BlastParts?,
@@ -32,13 +35,14 @@ type Blast = {
 	at: number,
 }
 
+local FLASH_PICTURE_SCALE = 1.6 -- the picture's edge is soft, so it is larger than the old ball
 local pool = VisualKit.objectPool(function(): BlastParts
 	return {
-		flash = VisualKit.part("Explosion", Enum.PartType.Ball, Vector3.one, FLASH_COLOR),
+		flash = WorldSprite.glow("Explosion", 1, FLASH_COLOR),
 		ring = VisualKit.part("ExplosionRing", Enum.PartType.Cylinder, Vector3.one, RING_COLOR),
 	}
 end, function(parts: BlastParts): { BasePart }
-	return { parts.flash, parts.ring }
+	return { parts.flash.anchor :: BasePart, parts.ring }
 end)
 
 local blasts: { Blast } = {}
@@ -79,9 +83,9 @@ function Explosion.render(frame: VisualKit.Frame)
 		end
 		local current = parts :: BlastParts
 		local flashT = math.min(1, (frame.now - blast.at) / FLASH_SECONDS)
-		current.flash.Size = Vector3.one * blast.radius * (1 - 0.5 * flashT)
-		current.flash.Transparency = 0.1 + 0.9 * flashT
-		frame.move(current.flash, CFrame.new(center))
+		WorldSprite.setStuds(current.flash, blast.radius * (1 - 0.5 * flashT) * FLASH_PICTURE_SCALE)
+		WorldSprite.setFade(current.flash, 0.1 + 0.9 * flashT)
+		frame.move(current.flash.anchor :: BasePart, CFrame.new(center))
 		local grow = 1 - (1 - t) ^ 3
 		local diameter = 2 * blast.radius * (RING_START + (1 - RING_START) * grow)
 		current.ring.Size = Vector3.new(RING_THICKNESS, diameter, diameter)

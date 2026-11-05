@@ -1,24 +1,38 @@
 --!strict
--- Preloads replicated skins on each device and swaps local avatar visibility only after success; called by CharacterAnimationController.
+-- Gives every player's character one 2D sprite on this device and hides the avatar once the sprite image has loaded (the
+-- avatar stays visible if it never does); called by CharacterAnimationController.
+local ContentProvider = game:GetService("ContentProvider")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local ContentProvider = game:GetService("ContentProvider")
-local Art = require(ReplicatedStorage.Shared.Config.CharacterArt)
 
-type Entry = {
+local Shared = ReplicatedStorage.Shared
+local Look = require(Shared.Config.Sprites).character
+local Portraits = require(script.Parent.Parent.UI.CharacterPortraits)
+local WorldSprite = require(
+	game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Util"):WaitForChild("WorldSprite")
+)
+
+local CLASS_ATTRIBUTE = "LanternfallClassId"
+local HOLDER_NAME = "LanternfallCharacterSprites"
+
+export type Entry = {
 	character: Model,
-	skin: Model,
 	root: BasePart,
+	humanoid: Humanoid?,
+	sprite: WorldSprite.Sprite,
+	classId: string?, -- the class the sprite shows
+	loading: string?, -- the class being loaded
 	ready: boolean,
 	attempts: number,
 	nextTry: number,
 	hidden: { [Instance]: number },
 	connection: RBXScriptConnection?,
-	pending: thread?,
-	timeout: thread?,
 }
+
 local entries: { [Player]: Entry } = {}
+local holder: Folder? = nil
 local Visibility = {}
+
 local nativeNames: { [string]: boolean } = {
 	Head = true,
 	UpperTorso = true,
@@ -38,18 +52,19 @@ local nativeNames: { [string]: boolean } = {
 	RightFoot = true,
 }
 
-local function showSkin(entry: Entry, visible: boolean)
-	for _, part in entry.skin:GetDescendants() do
-		if part:IsA("BasePart") then
-			part.LocalTransparencyModifier = if visible then 0 else 1
-		end
+local function getHolder(): Folder
+	local current = holder
+	if current then
+		return current
 	end
+	local created = Instance.new("Folder")
+	created.Name = HOLDER_NAME
+	created.Parent = Players.LocalPlayer:WaitForChild("PlayerGui")
+	holder = created
+	return created
 end
 
 local function hideNative(entry: Entry, instance: Instance)
-	if instance:IsDescendantOf(entry.skin) then
-		return
-	end
 	if instance:IsA("BasePart") then
 		if
 			(instance.Parent == entry.character and nativeNames[instance.Name])
@@ -77,11 +92,7 @@ function Visibility.forget(player: Player)
 	if entry.connection then
 		entry.connection:Disconnect()
 	end
-	for _, thread in { entry.pending, entry.timeout } do
-		if coroutine.status(thread) ~= "dead" then
-			task.cancel(thread)
-		end
-	end
+	WorldSprite.destroy(entry.sprite)
 	for instance, value in entry.hidden do
 		if instance.Parent then
 			if instance:IsA("BasePart") then
@@ -93,87 +104,129 @@ function Visibility.forget(player: Player)
 	end
 end
 
-local function load(player: Player, entry: Entry)
+-- The sprite values of a class: its image is square, the egg body is `bodyStuds` tall on every class.
+function Visibility.specOf(classId: string): WorldSprite.Spec?
+	local bounds = Look.classes[classId]
+	local image = (Portraits :: any)[classId]
+	if not (bounds and image) then
+		return nil
+	end
+	return {
+		name = "CharacterSprite",
+		image = image,
+		studs = Look.bodyStuds / bounds.height,
+		ground = bounds.ground,
+		center = bounds.center,
+		pixels = Look.pixels,
+	}
+end
+
+local function show(entry: Entry, classId: string, spec: WorldSprite.Spec)
+	WorldSprite.setImage(entry.sprite, spec)
+	WorldSprite.setVisible(entry.sprite, true)
+	entry.classId = classId
+	entry.ready = true
+	for _, instance in entry.character:GetDescendants() do
+		hideNative(entry, instance)
+	end
+end
+
+local function load(player: Player, entry: Entry, classId: string)
+	local spec = Visibility.specOf(classId)
+	if not spec then
+		entry.attempts = Look.loadAttempts
+		return
+	end
+	entry.loading = classId
 	entry.attempts += 1
-	entry.pending = task.defer(function()
+	task.spawn(function()
+		local probe = Instance.new("ImageLabel")
+		probe.Image = spec.image
 		local failed = false
 		local ok = pcall(function()
-			ContentProvider:PreloadAsync({ entry.skin }, function(_id, status)
+			ContentProvider:PreloadAsync({ probe }, function(_id, status)
 				if status ~= Enum.AssetFetchStatus.Success then
 					failed = true
 				end
 			end)
 		end)
-		if entries[player] ~= entry then
+		probe:Destroy()
+		if entries[player] ~= entry or entry.loading ~= classId then
 			return
 		end
-		entry.pending = nil
-		if entry.timeout then
-			task.cancel(entry.timeout)
-			entry.timeout = nil
-		end
-		entry.ready = ok and not failed
-		if entry.ready then
-			for _, instance in entry.character:GetDescendants() do
-				hideNative(entry, instance)
-			end
-			showSkin(entry, true)
+		entry.loading = nil
+		if ok and not failed then
+			entry.attempts = 0
+			show(entry, classId, spec)
 		else
-			entry.nextTry = os.clock() + Art.retrySeconds
+			entry.nextTry = os.clock() + Look.retrySeconds
 		end
 	end)
-	entry.timeout = task.delay(Art.preloadTimeoutSeconds, function()
-		if entries[player] ~= entry then
-			return
-		end
-		if entry.pending then
-			task.cancel(entry.pending)
-			entry.pending = nil
-		end
-		entry.timeout = nil
-		entry.nextTry = os.clock() + Art.retrySeconds
-	end)
+end
+
+local function floorDrop(root: BasePart, humanoid: Humanoid?): number
+	local hip = if humanoid then humanoid.HipHeight else 2
+	return hip + root.Size.Y / 2
 end
 
 function Visibility.update()
 	for _, player in Players:GetPlayers() do
 		local character = player.Character
-		local skin = character and character:FindFirstChild(Art.folderName)
 		local root = character and character:FindFirstChild("HumanoidRootPart")
 		local entry = entries[player]
-		if entry and (entry.character ~= character or entry.skin ~= skin) then
+		if entry and (entry.character ~= character or entry.root ~= root) then
 			Visibility.forget(player)
 			entry = nil
 		end
-		if not (character and skin and skin:IsA("Model") and root and root:IsA("BasePart")) then
+		if not (character and root and root:IsA("BasePart")) then
+			continue
+		end
+		local classId = character:GetAttribute(CLASS_ATTRIBUTE)
+		if typeof(classId) ~= "string" then
 			continue
 		end
 		if not entry then
-			entry = {
+			local humanoid = character:FindFirstChildOfClass("Humanoid")
+			local spec: WorldSprite.Spec = Visibility.specOf(classId)
+				or { name = "CharacterSprite", image = "", studs = Look.bodyStuds }
+			local sprite = WorldSprite.attach(root, getHolder(), spec, floorDrop(root, humanoid))
+			WorldSprite.setVisible(sprite, false)
+			local created: Entry = {
 				character = character,
-				skin = skin,
 				root = root,
+				humanoid = humanoid,
+				sprite = sprite,
+				classId = nil,
+				loading = nil,
 				ready = false,
 				attempts = 0,
 				nextTry = 0,
 				hidden = {},
 			}
-			entries[player] = entry
-			local current = entry
-			current.connection = character.DescendantAdded:Connect(function(instance)
-				if current.ready then
-					hideNative(current, instance)
+			created.connection = character.DescendantAdded:Connect(function(instance)
+				if created.ready then
+					hideNative(created, instance)
 				end
 			end)
-			showSkin(current, false)
+			entries[player] = created
+			entry = created
+		end
+		local current = entry :: Entry
+		-- Roblox can load the humanoid after the root; the height of the feet depends on it.
+		if not current.humanoid then
+			local humanoid = character:FindFirstChildOfClass("Humanoid")
+			if humanoid then
+				current.humanoid = humanoid
+				current.sprite.gui.StudsOffsetWorldSpace = Vector3.new(0, -floorDrop(root, humanoid), 0)
+			end
 		end
 		if
-			not entry.ready
-			and not entry.pending
-			and entry.attempts < Art.loadAttempts
-			and os.clock() >= entry.nextTry
+			current.classId ~= classId
+			and current.loading ~= classId
+			and current.attempts < Look.loadAttempts
+			and os.clock() >= current.nextTry
 		then
-			load(player, entry)
+			load(player, current, classId)
 		end
 	end
 end

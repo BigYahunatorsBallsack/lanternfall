@@ -6,8 +6,10 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Config = require(ReplicatedStorage.Shared.Config)
 local PlaceService = require(script.Parent.PlaceService)
+local WorldSprite = require(ReplicatedStorage.Shared.Util.WorldSprite)
 
 local art = Config.LobbyArt
+local sprites = Config.Sprites
 local lobby = Config.Map.lobby
 
 local LobbyArtService = {}
@@ -45,17 +47,29 @@ local function makePart(
 	return part
 end
 
-local function makeMesh(parent: Instance, name: string, data: any, cframe: CFrame, tint: Color3): Part
-	local part = makePart(parent, name, data.size, cframe, tint, Enum.Material.SmoothPlastic)
-	local mesh = Instance.new("SpecialMesh")
-	mesh.MeshType = Enum.MeshType.FileMesh
-	mesh.MeshId = data.mesh
-	mesh.TextureId = data.texture
-	mesh.Scale =
-		Vector3.new(data.size.X / data.sourceSize.X, data.size.Y / data.sourceSize.Y, data.size.Z / data.sourceSize.Z)
-	mesh.VertexColor = Vector3.new(tint.R, tint.G, tint.B)
-	mesh.Parent = part
-	return part
+-- A lobby prop as a 2D sprite standing on `floor`; its picture comes from Config.Sprites.lobby.
+local function makeProp(parent: Instance, name: string, floor: Vector3): BasePart
+	local data = sprites.lobby[name]
+	local sprite = WorldSprite.create({
+		name = name,
+		image = if data then data.image else "",
+		studs = if data then data.studs else 8,
+		ground = if data then data.ground or 0 else 0,
+		center = if data then data.center else nil,
+	})
+	local anchor = sprite.anchor :: BasePart
+	anchor.CFrame = CFrame.new(floor)
+	anchor.Parent = parent
+	return anchor
+end
+
+-- A soft colored glow in the air, with the light that used to sit in a neon part.
+local function makeGlow(parent: Instance, name: string, studs: number, position: Vector3, color: Color3): BasePart
+	local sprite = WorldSprite.glow(name, studs, color, 0.45)
+	local anchor = sprite.anchor :: BasePart
+	anchor.CFrame = CFrame.new(position)
+	anchor.Parent = parent
+	return anchor
 end
 
 local function addLight(parent: Instance, color: Color3, range: number, brightness: number)
@@ -133,18 +147,8 @@ local function buildSpawn(parent: Model, lobbyModel: Model)
 	local base = lobby.center + spawn.beaconOffset
 	local beacon = Instance.new("Model")
 	beacon.Name = "VigilBeacon"
-	for _, item in art.meshes.beacon do
-		makeMesh(beacon, item.name, item, CFrame.new(base + item.offset), Color3.new(1, 1, 1))
-	end
-	local glow = makePart(
-		beacon,
-		"AmberCore",
-		Vector3.new(1.5, 3.2, 1.5),
-		CFrame.new(base + Vector3.new(0, 6.3, 0)),
-		rgb(colors.amber),
-		Enum.Material.Neon
-	)
-	glow.Transparency = 0.7
+	makeProp(beacon, "Beacon", base)
+	local glow = makeGlow(beacon, "AmberCore", 5, base + Vector3.new(0, 6.3, 0), rgb(colors.amber))
 	addLight(glow, rgb(colors.amber), 24, 1.2)
 	beacon.Parent = parent
 end
@@ -211,22 +215,14 @@ local function buildPortals(parent: Model, lobbyModel: Model)
 			rgb(art.colors.stoneDark),
 			Enum.Material.Slate
 		)
-		makeMesh(
-			model,
-			"CarvedArch",
-			art.meshes.arch,
-			facing * CFrame.new(0, art.meshes.arch.size.Y / 2, 0),
-			rgb(art.colors.stoneLight)
-		)
-		local emblem = makePart(
+		makeProp(model, "Arch", base)
+		local emblem = makeGlow(
 			model,
 			"Emblem",
-			settings.emblemSize,
-			facing * CFrame.new(0, art.meshes.arch.size.Y - 2.1, -2.1),
-			color,
-			Enum.Material.Neon
+			settings.emblemSize.X * sprites.glowScale * 2,
+			(facing * CFrame.new(0, art.meshes.arch.size.Y - 2.1, -2.1)).Position,
+			color
 		)
-		emblem.Shape = Enum.PartType.Ball
 		addLight(emblem, color, settings.glowRange, settings.glowBrightness)
 		model.Parent = parent
 	end
@@ -237,12 +233,8 @@ local function buildLamps(parent: Model)
 		local model = Instance.new("Model")
 		model.Name = `StreetLantern{index}`
 		local base = lobby.center + offset
-		for _, item in art.meshes.lamp do
-			local part = makeMesh(model, item.name, item, CFrame.new(base + item.offset), Color3.new(1, 1, 1))
-			if item.name == "Cage" then
-				addLight(part, rgb(art.colors.amber), art.lamps.range, art.lamps.brightness)
-			end
-		end
+		local anchor = makeProp(model, "Lamp", base)
+		addLight(anchor, rgb(art.colors.amber), art.lamps.range, art.lamps.brightness)
 		model.Parent = parent
 	end
 end
@@ -266,7 +258,7 @@ end
 
 local function buildPerimeter(parent: Model)
 	local edge = lobby.size / 2 - art.perimeter.margin
-	local height = art.perimeter.parapetHeight
+	local height = sprites.lobbyParapetHeight -- a flat band on the floor
 	local thickness = art.perimeter.parapetThickness
 	for _, side in
 		{
@@ -288,16 +280,15 @@ local function buildPerimeter(parent: Model)
 	local tower = art.perimeter.cornerTowerSize
 	for _, x in { -edge + tower.X / 2, edge - tower.X / 2 } do
 		for _, z in { -edge + tower.Z / 2, edge - tower.Z / 2 } do
-			local base = lobby.center + Vector3.new(x, tower.Y / 2, z)
-			makePart(parent, "CornerRuin", tower, CFrame.new(base), rgb(art.colors.stone), Enum.Material.Slate)
-			makePart(
-				parent,
-				"CornerCap",
-				Vector3.new(tower.X + 0.6, 0.5, tower.Z + 0.6),
-				CFrame.new(base + Vector3.new(0, tower.Y / 2 + 0.25, 0)),
-				rgb(art.colors.brassDark),
-				Enum.Material.Metal
-			)
+			local sprite = WorldSprite.create({
+				name = "CornerRuin",
+				image = sprites.images.cornerRuin,
+				studs = sprites.lobbyCornerStuds,
+				ground = 0.05,
+			})
+			local anchor = sprite.anchor :: BasePart
+			anchor.CFrame = CFrame.new(lobby.center + Vector3.new(x, 0, z))
+			anchor.Parent = parent
 		end
 	end
 end
