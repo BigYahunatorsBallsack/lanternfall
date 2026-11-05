@@ -1,0 +1,257 @@
+{
+  "id": "SoleConductor",
+  "name": "Sole Conductor",
+  "github_main": "f515df9082fa134f5cc5bdf179122aaee9f05563",
+  "meshes": [
+    {
+      "name": "Head",
+      "triangles": 4992,
+      "closed": true,
+      "volume": 17.146688,
+      "weighted_vertices": 2498
+    },
+    {
+      "name": "RightHand",
+      "triangles": 864,
+      "closed": true,
+      "volume": 0.031628,
+      "weighted_vertices": 434
+    },
+    {
+      "name": "LeftFoot",
+      "triangles": 736,
+      "closed": true,
+      "volume": 0.073497,
+      "weighted_vertices": 370
+    },
+    {
+      "name": "RightFoot",
+      "triangles": 736,
+      "closed": true,
+      "volume": 0.073494,
+      "weighted_vertices": 370
+    },
+    {
+      "name": "LowerTorso",
+      "triangles": 12,
+      "closed": true,
+      "volume": 4.3e-05,
+      "weighted_vertices": 8
+    },
+    {
+      "name": "UpperTorso",
+      "triangles": 12,
+      "closed": true,
+      "volume": 4.3e-05,
+      "weighted_vertices": 8
+    },
+    {
+      "name": "LeftUpperArm",
+      "triangles": 12,
+      "closed": true,
+      "volume": 4.3e-05,
+      "weighted_vertices": 8
+    },
+    {
+      "name": "LeftLowerArm",
+      "triangles": 12,
+      "closed": true,
+      "volume": 4.3e-05,
+      "weighted_vertices": 8
+    },
+    {
+      "name": "LeftHand",
+      "triangles": 12,
+      "closed": true,
+      "volume": 4.3e-05,
+      "weighted_vertices": 8
+    },
+    {
+      "name": "LeftUpperLeg",
+      "triangles": 12,
+      "closed": true,
+      "volume": 4.3e-05,
+      "weighted_vertices": 8
+    },
+    {
+      "name": "LeftLowerLeg",
+      "triangles": 12,
+      "closed": true,
+      "volume": 4.3e-05,
+      "weighted_vertices": 8
+    },
+    {
+      "name": "RightUpperArm",
+      "triangles": 12,
+      "closed": true,
+      "volume": 4.3e-05,
+      "weighted_vertices": 8
+    },
+    {
+      "name": "RightLowerArm",
+      "triangles": 12,
+      "closed": true,
+      "volume": 4.3e-05,
+      "weighted_vertices": 8
+    },
+    {
+      "name": "RightUpperLeg",
+      "triangles": 12,
+      "closed": true,
+      "volume": 4.3e-05,
+      "weighted_vertices": 8
+    },
+    {
+      "name": "RightLowerLeg",
+      "triangles": 12,
+      "closed": true,
+      "volume": 4.3e-05,
+      "weighted_vertices": 8
+    }
+  ],
+  "total_triangles": 7460,
+  "bone_parents": {
+    "Root": null,
+    "HumanoidRootNode": "Root",
+    "LowerTorso": "HumanoidRootNode",
+    "UpperTorso": "LowerTorso",
+    "Head": "UpperTorso",
+    "LeftUpperArm": "UpperTorso",
+    "LeftLowerArm": "LeftUpperArm",
+    "LeftHand": "LeftLowerArm",
+    "LeftUpperLeg": "LowerTorso",
+    "LeftLowerLeg": "LeftUpperLeg",
+    "LeftFoot": "LeftLowerLeg",
+    "RightUpperArm": "UpperTorso",
+    "RightLowerArm": "RightUpperArm",
+    "RightHand": "RightLowerArm",
+    "RightUpperLeg": "LowerTorso",
+    "RightLowerLeg": "RightUpperLeg",
+    "RightFoot": "RightLowerLeg"
+  },
+  "bone_positions": {
+    "Root": [
+      0,
+      0,
+      0
+    ],
+    "HumanoidRootNode": [
+      0,
+      0,
+      0
+    ],
+    "LowerTorso": [
+      0,
+      0,
+      0
+    ],
+    "UpperTorso": [
+      0,
+      0,
+      0.15
+    ],
+    "Head": [
+      0,
+      0,
+      0.32
+    ],
+    "LeftUpperArm": [
+      1.483212051576663,
+      -0.015,
+      -0.02
+    ],
+    "LeftLowerArm": [
+      1.723732924805311,
+      -0.06,
+      -0.21
+    ],
+    "LeftHand": [
+      1.7938848461636667,
+      -0.115,
+      -0.39
+    ],
+    "LeftUpperLeg": [
+      0.6413889952763948,
+      -0.1,
+      -0.92
+    ],
+    "LeftLowerLeg": [
+      0.6413889952763948,
+      -0.12,
+      -1.13
+    ],
+    "LeftFoot": [
+      0.6413889952763948,
+      -0.13,
+      -1.3
+    ],
+    "RightUpperArm": [
+      -1.483212051576663,
+      -0.015,
+      -0.02
+    ],
+    "RightLowerArm": [
+      -1.723732924805311,
+      -0.06,
+      -0.21
+    ],
+    "RightHand": [
+      -1.7938848461636667,
+      -0.115,
+      -0.39
+    ],
+    "RightUpperLeg": [
+      -0.6413889952763948,
+      -0.1,
+      -0.92
+    ],
+    "RightLowerLeg": [
+      -0.6413889952763948,
+      -0.12,
+      -1.13
+    ],
+    "RightFoot": [
+      -0.6413889952763948,
+      -0.13,
+      -1.3
+    ]
+  },
+  "joint_names": {
+    "LowerTorso": "Root",
+    "UpperTorso": "Waist",
+    "Head": "Neck",
+    "LeftUpperArm": "LeftShoulder",
+    "LeftLowerArm": "LeftElbow",
+    "LeftHand": "LeftWrist",
+    "LeftUpperLeg": "LeftHip",
+    "LeftLowerLeg": "LeftKnee",
+    "LeftFoot": "LeftAnkle",
+    "RightUpperArm": "RightShoulder",
+    "RightLowerArm": "RightElbow",
+    "RightHand": "RightWrist",
+    "RightUpperLeg": "RightHip",
+    "RightLowerLeg": "RightKnee",
+    "RightFoot": "RightAnkle"
+  },
+  "actions": [
+    "Idle",
+    "Walk"
+  ],
+  "internal_parts": [
+    "LowerTorso",
+    "UpperTorso",
+    "LeftUpperArm",
+    "LeftLowerArm",
+    "LeftHand",
+    "LeftUpperLeg",
+    "LeftLowerLeg",
+    "RightUpperArm",
+    "RightLowerArm",
+    "RightUpperLeg",
+    "RightLowerLeg"
+  ],
+  "rig_class": "Experience-specific standard R15 hierarchy; preserves the compact egg silhouette. Not a Marketplace body submission.",
+  "source_texture_resolution": 4096,
+  "game_texture_resolution": 2048,
+  "studio_runtime_tested": false
+}

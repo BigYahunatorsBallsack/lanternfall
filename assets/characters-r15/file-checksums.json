@@ -1,0 +1,1412 @@
+[
+  {
+    "path": "BladeWarden/animations/Idle.fbx",
+    "bytes": 629084,
+    "sha256": "e60b3b57b763477ec99b0f3a2d4f51c1b34cdd5447431a7e6ac56f71b009fbdd"
+  },
+  {
+    "path": "BladeWarden/animations/Walk.fbx",
+    "bytes": 630876,
+    "sha256": "14b616794c53da9ad34d5f8906f518086844fd960be257fe2ac198f9d9951bb4"
+  },
+  {
+    "path": "BladeWarden/BladeWarden_Game.blend",
+    "bytes": 2316710,
+    "sha256": "ce6ee55fd11dc0001c5415590985a2ca2b98098672f0bdff726a91b60d9acd98"
+  },
+  {
+    "path": "BladeWarden/BladeWarden_R15.blend",
+    "bytes": 2047704,
+    "sha256": "1b9a65d6f346bcb9593124fc14dd92d0e77891a58a736b3d0af0d3ac7d32e614"
+  },
+  {
+    "path": "BladeWarden/BladeWarden_R15.fbx",
+    "bytes": 785532,
+    "sha256": "85893f1319ba624dc8b6c79e53537935f85dbc8971baf015c784be05f2162842"
+  },
+  {
+    "path": "BladeWarden/BladeWarden_R15.glb",
+    "bytes": 676012,
+    "sha256": "fd1fb675c7aade04f5aa7e589f2fb58b7f4d98503dfed48d587d13d1ab0d0b74"
+  },
+  {
+    "path": "BladeWarden/FourViews.png",
+    "bytes": 1585663,
+    "sha256": "c126115af20f4deb114cf3899bf4b46f3c50cec6f40c4116ce45a922f0ca57f7"
+  },
+  {
+    "path": "BladeWarden/reference.png",
+    "bytes": 604936,
+    "sha256": "af05db0ec28fc17763f87c6422dade6dd984dbe1d6cce13c46029452dff54301"
+  },
+  {
+    "path": "BladeWarden/renders/01_front.png",
+    "bytes": 648031,
+    "sha256": "19a3b3dd48f800423c3dda3abe284deac3531e75e8d0fd9f1c260a47bfc54361"
+  },
+  {
+    "path": "BladeWarden/renders/02_side.png",
+    "bytes": 627785,
+    "sha256": "5e054df97ad0bb42ecc5ac5696287104a005c6aa40ff6a68290143b5a14a6215"
+  },
+  {
+    "path": "BladeWarden/renders/03_back.png",
+    "bytes": 624046,
+    "sha256": "ea53add44c95fcffff6de4acfae3c09bacff009fc47e171fb56fc62d95640fb3"
+  },
+  {
+    "path": "BladeWarden/renders/04_elevated_three_quarter.png",
+    "bytes": 669115,
+    "sha256": "c69fff509eeaf689549ae5557e7710b38c91ce1f430c1396ef04a39e421111ef"
+  },
+  {
+    "path": "BladeWarden/renders/05_walk_pose.png",
+    "bytes": 669857,
+    "sha256": "0b76ea84adea89d8f577f8a94264d941c5ffe1c46a009cabab8cd2ff2cef14c5"
+  },
+  {
+    "path": "BladeWarden/renders/06_game_mesh.png",
+    "bytes": 373682,
+    "sha256": "e74aaa378aaafcebf08df7b69bd5bfd7133cdfb685425dd7c135bf1a11174673"
+  },
+  {
+    "path": "BladeWarden/textures/BaseColor_2K.png",
+    "bytes": 170543,
+    "sha256": "ba67272749659e1e0ab494560e3776c5abb7f737873185c96abe3f47874a4fe1"
+  },
+  {
+    "path": "BladeWarden/textures/BaseColor_4K.png",
+    "bytes": 442738,
+    "sha256": "49427c0a9d90580c6586a2e59eeafe2aeae0e87b622657ec4a8f5cfb9baf5b31"
+  },
+  {
+    "path": "BladeWarden/textures/GameAtlas_BaseColor_2K.png",
+    "bytes": 184359,
+    "sha256": "4521290d2b66072458fdf33995cfb352a934c5499c9d2cd60c4b7aea400ad364"
+  },
+  {
+    "path": "BladeWarden/textures/GameAtlas_BaseColor_4K.png",
+    "bytes": 511349,
+    "sha256": "b0de4eec7de61d40a9be858b14574f77a18cea30343b20bd9c1f31f6f6775783"
+  },
+  {
+    "path": "BladeWarden/textures/GameAtlas_Emission_2K.png",
+    "bytes": 12287,
+    "sha256": "abc4f0945e189c3d9bd9144e7b38f9fa767ee648445530c3d9220dea1ff54dff"
+  },
+  {
+    "path": "BladeWarden/textures/GameAtlas_Emission_4K.png",
+    "bytes": 48918,
+    "sha256": "04677a4cd9894ebc7cdc62b07f0adfb2c50147562c5ecab179974c131695e1be"
+  },
+  {
+    "path": "BladeWarden/textures/GameAtlas_Normal_2K.png",
+    "bytes": 85652,
+    "sha256": "c24a28551b0b5dd265cce5675e8ba98c75fe66e6108e08ffe7a1cee3c72c1557"
+  },
+  {
+    "path": "BladeWarden/textures/GameAtlas_Normal_4K.png",
+    "bytes": 237795,
+    "sha256": "56a7d9f95172982d2a023f88ae1968e039e0c3de2b35d37d7d5c087db23461fa"
+  },
+  {
+    "path": "BladeWarden/textures/GameAtlas_Roughness_2K.png",
+    "bytes": 17708,
+    "sha256": "62642b021b9866fd8267d7f152245981bf0f6ab1a9628422bf1b1a4154a46c35"
+  },
+  {
+    "path": "BladeWarden/textures/GameAtlas_Roughness_4K.png",
+    "bytes": 47005,
+    "sha256": "eac3cb3e986bb5073599c3a8ac299d36f22e1c6b8fa37c974a8e5032dc85b65a"
+  },
+  {
+    "path": "BladeWarden/textures/Height_4K.png",
+    "bytes": 80153,
+    "sha256": "9b9a7851aa9fcee9faca398d0427e8bea0a0cb6095077d090c94e33790e2c189"
+  },
+  {
+    "path": "BladeWarden/textures/Normal_2K.png",
+    "bytes": 88191,
+    "sha256": "d5f520da0375675ca27bbe32ea99467dd3b4aa10443b2e7f8730422961aa8a2b"
+  },
+  {
+    "path": "BladeWarden/textures/Normal_4K.png",
+    "bytes": 237787,
+    "sha256": "e3b4ff8f75d3ea1799b823033a133c16626854a52a514ed0c4c6fe05d0e26b02"
+  },
+  {
+    "path": "BladeWarden/textures/Roughness_2K.png",
+    "bytes": 18007,
+    "sha256": "4dbc45969f748eecbd5a1ce26d832e6d902ce79754c0f1cc6878bf9f3e8889ab"
+  },
+  {
+    "path": "BladeWarden/textures/Roughness_4K.png",
+    "bytes": 46110,
+    "sha256": "34d242b84ff8c69b1f94f900747ad053b029dd3abeb2c0e461d6eeb60e9fb441"
+  },
+  {
+    "path": "CandleScholar/animations/Idle.fbx",
+    "bytes": 693884,
+    "sha256": "db27d300567291d5468bd8e4c992e0c0c0dc881a63b59429305eb8f156beb567"
+  },
+  {
+    "path": "CandleScholar/animations/Walk.fbx",
+    "bytes": 695708,
+    "sha256": "4211d982456d7478918861815c8d238e58bb63ee3081823aaaa0edeef602d886"
+  },
+  {
+    "path": "CandleScholar/CandleScholar_Game.blend",
+    "bytes": 2626422,
+    "sha256": "c9785fba0cd26f3db9ae181d1f5a1c51da499c629bd003fa03c124e3073f2bd1"
+  },
+  {
+    "path": "CandleScholar/CandleScholar_R15.blend",
+    "bytes": 2495297,
+    "sha256": "78d109e2a2fa5ddf14fe9c30df6e20b0e16a5411c740b91bd85e6153ea5e0c92"
+  },
+  {
+    "path": "CandleScholar/CandleScholar_R15.fbx",
+    "bytes": 861212,
+    "sha256": "d27bba9f82dac5fab59f671a4dfee271a740cc6cc00f8cfc6026db642822fe11"
+  },
+  {
+    "path": "CandleScholar/CandleScholar_R15.glb",
+    "bytes": 780832,
+    "sha256": "0249285eb05a27d3d19706dbfac24d06a9627cfbab7d57a4bed642aa45fe73a6"
+  },
+  {
+    "path": "CandleScholar/FourViews.png",
+    "bytes": 1626672,
+    "sha256": "4fa8d32351776898abdbfad37275345dddea34b7adae0d4dc5ef39a48ff7b22c"
+  },
+  {
+    "path": "CandleScholar/reference.png",
+    "bytes": 608343,
+    "sha256": "009c96df1d820557cdb6013f12dba799b2213dd98fc135ae8537b20e6ecdcff2"
+  },
+  {
+    "path": "CandleScholar/renders/01_front.png",
+    "bytes": 661509,
+    "sha256": "cb260534181efb97cd0b9b802ee1b5ff290176704219b7e4161dc04bb32a8335"
+  },
+  {
+    "path": "CandleScholar/renders/02_side.png",
+    "bytes": 627861,
+    "sha256": "6d5d3355a2bae8bc4b7ab31964b03953258c72e24e3c703c36d5d90f86f6a842"
+  },
+  {
+    "path": "CandleScholar/renders/03_back.png",
+    "bytes": 628208,
+    "sha256": "b405379c6265a717dd6e4a823601761db8c8550b0df5db394c52030623e4e594"
+  },
+  {
+    "path": "CandleScholar/renders/04_elevated_three_quarter.png",
+    "bytes": 682546,
+    "sha256": "75cfd13acb26767f85212a4ff4e412370dda1555ae35d31195d54bf2389d4448"
+  },
+  {
+    "path": "CandleScholar/renders/05_walk_pose.png",
+    "bytes": 684153,
+    "sha256": "902d752027b6d7ff11060de67bf964fac8ad13399f83a3dabb52ca4eba69569a"
+  },
+  {
+    "path": "CandleScholar/renders/06_game_mesh.png",
+    "bytes": 383960,
+    "sha256": "f32a6e24bd8a53fa81cc5564681e9f4a4a37e9f91d54a404c859be42591e057f"
+  },
+  {
+    "path": "CandleScholar/textures/BaseColor_2K.png",
+    "bytes": 179640,
+    "sha256": "d29174319e0a1558c2becd4f5a995daedf2a76bf99ada863400fbaf37b7296cd"
+  },
+  {
+    "path": "CandleScholar/textures/BaseColor_4K.png",
+    "bytes": 471639,
+    "sha256": "26aee313704f1a7d1d4325956f18617588dde65f438102c9640cff7d76c2f025"
+  },
+  {
+    "path": "CandleScholar/textures/GameAtlas_BaseColor_2K.png",
+    "bytes": 195299,
+    "sha256": "cbec957d7713f977bca8c65cf4ecd29abad66b21d53d3570cfe134d95804c276"
+  },
+  {
+    "path": "CandleScholar/textures/GameAtlas_BaseColor_4K.png",
+    "bytes": 540795,
+    "sha256": "d4c64bfc462bf374d9bd019e2c42bb25a195a3218cf58889a82ff3f229f78491"
+  },
+  {
+    "path": "CandleScholar/textures/GameAtlas_Emission_2K.png",
+    "bytes": 12795,
+    "sha256": "a64be03cba0ad3dcb35a4ea582dc9d63332fdb0763791138967b494adb2c2c71"
+  },
+  {
+    "path": "CandleScholar/textures/GameAtlas_Emission_4K.png",
+    "bytes": 49581,
+    "sha256": "f2b5f24c65bc696dea4271765085a5aeb7aefb8eab5386df7e7ae0c4829ed113"
+  },
+  {
+    "path": "CandleScholar/textures/GameAtlas_Normal_2K.png",
+    "bytes": 94107,
+    "sha256": "3f610337bbbd551876c26d22bee8a9a3b6346b411841e1b74902e23a23e370ad"
+  },
+  {
+    "path": "CandleScholar/textures/GameAtlas_Normal_4K.png",
+    "bytes": 253114,
+    "sha256": "777fc898114a04518341145373b7e23832903c356d4ddd79a271d01181a9704d"
+  },
+  {
+    "path": "CandleScholar/textures/GameAtlas_Roughness_2K.png",
+    "bytes": 8646,
+    "sha256": "137689b9300032d78c916db93b51ac54d185248a7aafb3605c27050571f90ba1"
+  },
+  {
+    "path": "CandleScholar/textures/GameAtlas_Roughness_4K.png",
+    "bytes": 25762,
+    "sha256": "e55c832d3f335903f79a0b68ab200da27411e014407318183d63abebf3b68f9f"
+  },
+  {
+    "path": "CandleScholar/textures/Normal_2K.png",
+    "bytes": 97211,
+    "sha256": "115204c990bafbd1759e36fc5bf0b132296979b86b8701fb366e9c2fa154926b"
+  },
+  {
+    "path": "CandleScholar/textures/Normal_4K.png",
+    "bytes": 251578,
+    "sha256": "e7625abdfd957205340033f6496bb3274d0c6a495d239cac1a0727637537d48d"
+  },
+  {
+    "path": "CandleScholar/textures/Roughness_2K.png",
+    "bytes": 8533,
+    "sha256": "91f753586637286b1c191c68d4b922a453e30e5d661abd9d90861a0adaa9b00d"
+  },
+  {
+    "path": "CandleScholar/textures/Roughness_4K.png",
+    "bytes": 25455,
+    "sha256": "fee732bdcd32ead60a6a9fd3d91d3767758a939266c1d2984a7b31765f580387"
+  },
+  {
+    "path": "Character_Gallery.png",
+    "bytes": 1856920,
+    "sha256": "bc8cefdadd555c6a006203f2cd686cfc0cb213bb8a82d2a43c2f9e1432e5c63b"
+  },
+  {
+    "path": "DuelMaestro/animations/Idle.fbx",
+    "bytes": 628748,
+    "sha256": "fb124fd783d137739d7e1c129433d786645df67b159130ea6ceb492d01934cf3"
+  },
+  {
+    "path": "DuelMaestro/animations/Walk.fbx",
+    "bytes": 630588,
+    "sha256": "b772beb1e7d98b056c674d29dc78ebbf0e4e6c0d9c61bc8682e14116d194c7f0"
+  },
+  {
+    "path": "DuelMaestro/DuelMaestro_Game.blend",
+    "bytes": 2304106,
+    "sha256": "b48de8ab4e9dc9d156d5be22ee1c7b6e4824281a204f52efcbcbd0f25f64fa98"
+  },
+  {
+    "path": "DuelMaestro/DuelMaestro_R15.blend",
+    "bytes": 2041761,
+    "sha256": "65faf97d94867306797a9120e873712a7606210c18370b56fe8284f6e997dfad"
+  },
+  {
+    "path": "DuelMaestro/DuelMaestro_R15.fbx",
+    "bytes": 778588,
+    "sha256": "c05bf0a2a8c74600a11975244e6cf11e68c8f83f20dd63083535f94347958b69"
+  },
+  {
+    "path": "DuelMaestro/DuelMaestro_R15.glb",
+    "bytes": 660496,
+    "sha256": "5c58ccff273da98ceeb706867497345e3040554e80462bb1e8995e4aae7bd222"
+  },
+  {
+    "path": "DuelMaestro/FourViews.png",
+    "bytes": 1586814,
+    "sha256": "8e6d897f4b383ebb3b3b8ed892507a80682d96774516db6eed6707f5d14f9365"
+  },
+  {
+    "path": "DuelMaestro/reference.png",
+    "bytes": 651617,
+    "sha256": "5c58032cbc682023ed47bc918cfb8449c71c44e08adae12a5cc10a0e89ed20e8"
+  },
+  {
+    "path": "DuelMaestro/renders/01_front.png",
+    "bytes": 652929,
+    "sha256": "29877c49394838d8385edbec03a61c756e30d604957f4eded9028b7b370ea86e"
+  },
+  {
+    "path": "DuelMaestro/renders/02_side.png",
+    "bytes": 623573,
+    "sha256": "b3bcbcc90e49c6b5d7d0fcb753edec79ff420618422c45f5e9a3738ff9d4b461"
+  },
+  {
+    "path": "DuelMaestro/renders/03_back.png",
+    "bytes": 624694,
+    "sha256": "9a9f2a251403952165678925150fd48ecd5a235a7c38aaf15938d0949cafcb84"
+  },
+  {
+    "path": "DuelMaestro/renders/04_elevated_three_quarter.png",
+    "bytes": 669643,
+    "sha256": "de53312980a99439987d9f1591c34aa1b95fd21f10175a5d2520bb79ecebcbcf"
+  },
+  {
+    "path": "DuelMaestro/renders/05_walk_pose.png",
+    "bytes": 669050,
+    "sha256": "6115f4cb8550c86ef48df349474e5069a7ecbcdf7f89aa4dc8c0f63a6e99ad57"
+  },
+  {
+    "path": "DuelMaestro/renders/06_game_mesh.png",
+    "bytes": 377539,
+    "sha256": "306838a661a5628fc5068b60fc91743ef93a9b2e2c443b062674bb40d855a98e"
+  },
+  {
+    "path": "DuelMaestro/textures/BaseColor_2K.png",
+    "bytes": 171921,
+    "sha256": "7fa04c4a5ab714794c5589f1df67b4132ab1bf0dba96706d700f57b54b70e1ff"
+  },
+  {
+    "path": "DuelMaestro/textures/BaseColor_4K.png",
+    "bytes": 452574,
+    "sha256": "18bff60e72ea30079f57181cd1f6107bf91de70f109a0858fe7af790054b83d1"
+  },
+  {
+    "path": "DuelMaestro/textures/GameAtlas_BaseColor_2K.png",
+    "bytes": 186277,
+    "sha256": "641c27991cee9f94053a3e35bcf7a0a2eb380707beda4d1c31157ac2d689c8ba"
+  },
+  {
+    "path": "DuelMaestro/textures/GameAtlas_BaseColor_4K.png",
+    "bytes": 519504,
+    "sha256": "1802598b8900085089233645c55f5ae5857d0ffbe391154c633d9f89d53a5596"
+  },
+  {
+    "path": "DuelMaestro/textures/GameAtlas_Emission_2K.png",
+    "bytes": 12287,
+    "sha256": "abc4f0945e189c3d9bd9144e7b38f9fa767ee648445530c3d9220dea1ff54dff"
+  },
+  {
+    "path": "DuelMaestro/textures/GameAtlas_Emission_4K.png",
+    "bytes": 48918,
+    "sha256": "04677a4cd9894ebc7cdc62b07f0adfb2c50147562c5ecab179974c131695e1be"
+  },
+  {
+    "path": "DuelMaestro/textures/GameAtlas_Normal_2K.png",
+    "bytes": 86239,
+    "sha256": "b386edeb018d522135e7b7502645ff872a6a598a2e8e0984d3d8c75195c75bea"
+  },
+  {
+    "path": "DuelMaestro/textures/GameAtlas_Normal_4K.png",
+    "bytes": 241850,
+    "sha256": "6d79686a634d64368ebe6ffab07a6640ca74e5e198fdca3662000806dc6770ee"
+  },
+  {
+    "path": "DuelMaestro/textures/GameAtlas_Roughness_2K.png",
+    "bytes": 8542,
+    "sha256": "2b4547391fed57292eea9413ee2748727f1db2b742f78db4632a3335aa233208"
+  },
+  {
+    "path": "DuelMaestro/textures/GameAtlas_Roughness_4K.png",
+    "bytes": 25727,
+    "sha256": "d39da8007bfe2a3e41274e824e86aa779778f1c45a99b4450669d2b7556b7142"
+  },
+  {
+    "path": "DuelMaestro/textures/Normal_2K.png",
+    "bytes": 88980,
+    "sha256": "6ac6a5d00ad6bad51703a58424d319f92c3ee18dbc93508aa9d9e8b537b7fb2a"
+  },
+  {
+    "path": "DuelMaestro/textures/Normal_4K.png",
+    "bytes": 243077,
+    "sha256": "39471ba94c842d3ea97e9df7053318592a98b7eb31cdae4228cb8b0a1142c1b4"
+  },
+  {
+    "path": "DuelMaestro/textures/Roughness_2K.png",
+    "bytes": 8533,
+    "sha256": "91f753586637286b1c191c68d4b922a453e30e5d661abd9d90861a0adaa9b00d"
+  },
+  {
+    "path": "DuelMaestro/textures/Roughness_4K.png",
+    "bytes": 25455,
+    "sha256": "fee732bdcd32ead60a6a9fd3d91d3767758a939266c1d2984a7b31765f580387"
+  },
+  {
+    "path": "FarSeer/animations/Idle.fbx",
+    "bytes": 647820,
+    "sha256": "998c979e39b5132da4afc8cc99bf7e9c9b9609707960a6a1a23aa7a742bd3056"
+  },
+  {
+    "path": "FarSeer/animations/Walk.fbx",
+    "bytes": 649628,
+    "sha256": "5511727311323527432eeb7b74ffe600d5b51e8add42a7f1bb5a5b345e639f2c"
+  },
+  {
+    "path": "FarSeer/FarSeer_Game.blend",
+    "bytes": 2293219,
+    "sha256": "b8dc646163ab522cdd422e2d7b668f6abe444d7009b9f295e956f992aaab432f"
+  },
+  {
+    "path": "FarSeer/FarSeer_R15.blend",
+    "bytes": 2155766,
+    "sha256": "bb7b45c66f5591e0ad842f8769db24ca2953790ef3123d1b898620bd5cbb3b51"
+  },
+  {
+    "path": "FarSeer/FarSeer_R15.fbx",
+    "bytes": 777676,
+    "sha256": "92b35457abb8122c90dde07fb8a18df5c50a5f2aade4d7e36732239913f03398"
+  },
+  {
+    "path": "FarSeer/FarSeer_R15.glb",
+    "bytes": 672172,
+    "sha256": "424427e06cc8395ee6a49f1a051000b60a64bc506ff5adf693c45dc4aa16eb08"
+  },
+  {
+    "path": "FarSeer/FourViews.png",
+    "bytes": 1601025,
+    "sha256": "97749190cbc3fed06c309b21d5b8e0d32527f1c8512e7c5a21483eb6fbeba1bd"
+  },
+  {
+    "path": "FarSeer/reference.png",
+    "bytes": 663544,
+    "sha256": "852f535f3c61ac9120a736222084a2be92d3e356b0817f006c4f882a093b1851"
+  },
+  {
+    "path": "FarSeer/renders/01_front.png",
+    "bytes": 655718,
+    "sha256": "6444ecff289876d04bbf83897e8449e1f06dbab83d22cfa71da179ddf087837e"
+  },
+  {
+    "path": "FarSeer/renders/02_side.png",
+    "bytes": 634010,
+    "sha256": "c7112efbf57aeb0c22f40dda67010d4e4d343fdb7dfa70cf827d167a69f41a93"
+  },
+  {
+    "path": "FarSeer/renders/03_back.png",
+    "bytes": 632943,
+    "sha256": "594292fcb3b6f4e8140d23ceeb9069e56f78ad1c95ae96e1d0313ae71bf10402"
+  },
+  {
+    "path": "FarSeer/renders/04_elevated_three_quarter.png",
+    "bytes": 673075,
+    "sha256": "2d50ce6a5fc2bb22d64d786dbcf5228138b736629112cc54ac22821208ca47d6"
+  },
+  {
+    "path": "FarSeer/renders/05_walk_pose.png",
+    "bytes": 672666,
+    "sha256": "abf1b249a1012509575cc3f8d8932bfcda1804707b95dc977e0ca58726609564"
+  },
+  {
+    "path": "FarSeer/renders/06_game_mesh.png",
+    "bytes": 379836,
+    "sha256": "96894df6db990bb4ec07ba9bae01faa1efef89e1f19daf4fcef177104045dbe3"
+  },
+  {
+    "path": "FarSeer/textures/BaseColor_2K.png",
+    "bytes": 160279,
+    "sha256": "54840258276506309c5a815bd347878dee8d2085b89358243c4d2fbee5b5b146"
+  },
+  {
+    "path": "FarSeer/textures/BaseColor_4K.png",
+    "bytes": 420466,
+    "sha256": "99024c9a526d2e4085da2571d8858c9c0eef3db45dc74252cb715c4bbc5fd926"
+  },
+  {
+    "path": "FarSeer/textures/GameAtlas_BaseColor_2K.png",
+    "bytes": 174989,
+    "sha256": "0f640413a22d019b27bf802820bce9d597265a10677e56c91d0994d3c02120d1"
+  },
+  {
+    "path": "FarSeer/textures/GameAtlas_BaseColor_4K.png",
+    "bytes": 481616,
+    "sha256": "9881c5237f39310054aff269eb08bf5c085b9832a5ea911c0ad54667b295b3ea"
+  },
+  {
+    "path": "FarSeer/textures/GameAtlas_Emission_2K.png",
+    "bytes": 12287,
+    "sha256": "abc4f0945e189c3d9bd9144e7b38f9fa767ee648445530c3d9220dea1ff54dff"
+  },
+  {
+    "path": "FarSeer/textures/GameAtlas_Emission_4K.png",
+    "bytes": 48918,
+    "sha256": "04677a4cd9894ebc7cdc62b07f0adfb2c50147562c5ecab179974c131695e1be"
+  },
+  {
+    "path": "FarSeer/textures/GameAtlas_Normal_2K.png",
+    "bytes": 77561,
+    "sha256": "4cab07fbe9bfd88cb992345458b4e16206fe163a25e6937184adbd5de9f0164c"
+  },
+  {
+    "path": "FarSeer/textures/GameAtlas_Normal_4K.png",
+    "bytes": 216903,
+    "sha256": "d999c88140aaf26639b301ec7c536007d62f033b20c669a3b29f536e05a8461b"
+  },
+  {
+    "path": "FarSeer/textures/GameAtlas_Roughness_2K.png",
+    "bytes": 8628,
+    "sha256": "44d115ca61fbbdb4e115b0a894364a04e6698efd4bc2d5f165022dd69af2e110"
+  },
+  {
+    "path": "FarSeer/textures/GameAtlas_Roughness_4K.png",
+    "bytes": 25757,
+    "sha256": "8623e1ca555b3609a212fcf9ab08a48da3bd83b1dcdfa19466c8c1845dff49ec"
+  },
+  {
+    "path": "FarSeer/textures/Normal_2K.png",
+    "bytes": 79576,
+    "sha256": "de51ee58d5f8a053293aee969a3e1867d3b4606abb72d3205bccb7c34e4ced62"
+  },
+  {
+    "path": "FarSeer/textures/Normal_4K.png",
+    "bytes": 217384,
+    "sha256": "fa1cb081f0868aaa3ec4dbf259fe00f9e141d6c70fb063700594b60232625996"
+  },
+  {
+    "path": "FarSeer/textures/Roughness_2K.png",
+    "bytes": 8533,
+    "sha256": "91f753586637286b1c191c68d4b922a453e30e5d661abd9d90861a0adaa9b00d"
+  },
+  {
+    "path": "FarSeer/textures/Roughness_4K.png",
+    "bytes": 25455,
+    "sha256": "fee732bdcd32ead60a6a9fd3d91d3767758a939266c1d2984a7b31765f580387"
+  },
+  {
+    "path": "ManyHands/animations/Idle.fbx",
+    "bytes": 664348,
+    "sha256": "7aa6c9422ae43c240aedecdddb902cd2ebec9edabfce9663fd54e7c6b71fd295"
+  },
+  {
+    "path": "ManyHands/animations/Walk.fbx",
+    "bytes": 666140,
+    "sha256": "774b834214fc53f752a69d87eb89686254651c1d8a44fb35ff3a49db8463d0c1"
+  },
+  {
+    "path": "ManyHands/FourViews.png",
+    "bytes": 1626479,
+    "sha256": "7a91dd410b3f7db3b0b3af660f8835e6de925e7326fd14002f45774cfb4d5dbb"
+  },
+  {
+    "path": "ManyHands/ManyHands_Game.blend",
+    "bytes": 2622085,
+    "sha256": "5fc14a385ae8095edd9938cc610983de39a85a392a0afe59a2df2f3fa28919f4"
+  },
+  {
+    "path": "ManyHands/ManyHands_R15.blend",
+    "bytes": 2335538,
+    "sha256": "c9f957ae88cc50dc50bbbb153dd2b2541daf99bdf399696015b403397701a3af"
+  },
+  {
+    "path": "ManyHands/ManyHands_R15.fbx",
+    "bytes": 864268,
+    "sha256": "c49e0495bae1d88fada18c5b75d14368c701b9706898da6971adc7a36209b472"
+  },
+  {
+    "path": "ManyHands/ManyHands_R15.glb",
+    "bytes": 763624,
+    "sha256": "d5d56f5eb1bb3732a533383d4451d7e5ac25a8748368df1647f8d16389970117"
+  },
+  {
+    "path": "ManyHands/reference.png",
+    "bytes": 650031,
+    "sha256": "b1e798d7e33ce4cc7af5fdd382ec2e2952c0640ec84c913fbfca2788d8c90f50"
+  },
+  {
+    "path": "ManyHands/renders/01_front.png",
+    "bytes": 667027,
+    "sha256": "3b341ce39404a753b850e8c6ebaad07fc0246428cb6a8b736c371667d0b18451"
+  },
+  {
+    "path": "ManyHands/renders/02_side.png",
+    "bytes": 627983,
+    "sha256": "9962e6d63662b02c8d25d4b0af15b1eccd87aa1243614af2d87dda99a0de3099"
+  },
+  {
+    "path": "ManyHands/renders/03_back.png",
+    "bytes": 631188,
+    "sha256": "585ebf61bdbf7a5a6a8206391542589a92da9a8292c0bbd40f2a9ca9e791781a"
+  },
+  {
+    "path": "ManyHands/renders/04_elevated_three_quarter.png",
+    "bytes": 679653,
+    "sha256": "2f67cd798f8c23d905aff7ba38393482a300c9f4af72821510dd60de3f14d723"
+  },
+  {
+    "path": "ManyHands/renders/05_walk_pose.png",
+    "bytes": 680172,
+    "sha256": "c30734bd77aaeacee5075740ee61a6bbe2afc842dc7f5b3e9e7909bffc6ec70b"
+  },
+  {
+    "path": "ManyHands/renders/06_game_mesh.png",
+    "bytes": 387933,
+    "sha256": "53099e1804bf8bf258813d7bd25f01a10c6fd8937df663e87c7199e66dcfdc67"
+  },
+  {
+    "path": "ManyHands/textures/BaseColor_2K.png",
+    "bytes": 196981,
+    "sha256": "da12ac5ecf3c38c9d2dffe04cb177329fc6a530233570570463ce831219b9657"
+  },
+  {
+    "path": "ManyHands/textures/BaseColor_4K.png",
+    "bytes": 526528,
+    "sha256": "09cd9701d7f5fdc5daa26d31f87b19058f66b8c88a79b2c406957eb7d7b53060"
+  },
+  {
+    "path": "ManyHands/textures/GameAtlas_BaseColor_2K.png",
+    "bytes": 213242,
+    "sha256": "a364d5e334cf616ab38350fbf7613215d5a16d2590779697fa91b4f5ccb40d1a"
+  },
+  {
+    "path": "ManyHands/textures/GameAtlas_BaseColor_4K.png",
+    "bytes": 600869,
+    "sha256": "94e93997d5dc751800eb897d3e82af53916cff7a24e6470ddb896dfe23e40f9e"
+  },
+  {
+    "path": "ManyHands/textures/GameAtlas_Emission_2K.png",
+    "bytes": 12287,
+    "sha256": "abc4f0945e189c3d9bd9144e7b38f9fa767ee648445530c3d9220dea1ff54dff"
+  },
+  {
+    "path": "ManyHands/textures/GameAtlas_Emission_4K.png",
+    "bytes": 48918,
+    "sha256": "04677a4cd9894ebc7cdc62b07f0adfb2c50147562c5ecab179974c131695e1be"
+  },
+  {
+    "path": "ManyHands/textures/GameAtlas_Normal_2K.png",
+    "bytes": 109385,
+    "sha256": "44f1e5fe28d871b03b22947723800566fb637188af17c86200e5ca6c4024352e"
+  },
+  {
+    "path": "ManyHands/textures/GameAtlas_Normal_4K.png",
+    "bytes": 300586,
+    "sha256": "96ff024f3a017d42fb568e89a702469f4c9f7cace57ba3ab14c1b3569f79bff9"
+  },
+  {
+    "path": "ManyHands/textures/GameAtlas_Roughness_2K.png",
+    "bytes": 8569,
+    "sha256": "f7866d30a7169731e9113caaecc3bd234c5c4eb64f51de672a6bfb6104d57f75"
+  },
+  {
+    "path": "ManyHands/textures/GameAtlas_Roughness_4K.png",
+    "bytes": 25740,
+    "sha256": "2d4492104043b4558d2f0dd5f43b8e987b8052864be6b5159aff63be5d2c8930"
+  },
+  {
+    "path": "ManyHands/textures/Normal_2K.png",
+    "bytes": 113093,
+    "sha256": "5e03f936bc5fdf45049b9ae6de857d3329744ebce790c30f7a3d861eeb751ca1"
+  },
+  {
+    "path": "ManyHands/textures/Normal_4K.png",
+    "bytes": 301632,
+    "sha256": "c9507eed410f381237beb8bbdb8132de576cffdc2f40966a9a04d36f31b8abd8"
+  },
+  {
+    "path": "ManyHands/textures/Roughness_2K.png",
+    "bytes": 8533,
+    "sha256": "91f753586637286b1c191c68d4b922a453e30e5d661abd9d90861a0adaa9b00d"
+  },
+  {
+    "path": "ManyHands/textures/Roughness_4K.png",
+    "bytes": 25455,
+    "sha256": "fee732bdcd32ead60a6a9fd3d91d3767758a939266c1d2984a7b31765f580387"
+  },
+  {
+    "path": "MarbleHost/animations/Idle.fbx",
+    "bytes": 641468,
+    "sha256": "1bfe873768842bf37c57800083c1624de3bb47281c6aa0fac09b4dcc0af16e8a"
+  },
+  {
+    "path": "MarbleHost/animations/Walk.fbx",
+    "bytes": 643324,
+    "sha256": "50872565b55e81ebcf09514103713799759d058b1419f54aefd5423c1b03bc33"
+  },
+  {
+    "path": "MarbleHost/FourViews.png",
+    "bytes": 1636831,
+    "sha256": "4bc983d8031ed3ea73c33c252afd88a52439a36d4cdef0eefe5adabb4e9bda77"
+  },
+  {
+    "path": "MarbleHost/MarbleHost_Game.blend",
+    "bytes": 2345433,
+    "sha256": "13a8c03c248b24ee2e0bc4fc5313a3b0ff33ee9733daaf5ab8f6bb2a13adf431"
+  },
+  {
+    "path": "MarbleHost/MarbleHost_R15.blend",
+    "bytes": 2097617,
+    "sha256": "28daff32617a85a52a93a5f1b58951a8e0477fa6203cdd9842dee3b5c809feb8"
+  },
+  {
+    "path": "MarbleHost/MarbleHost_R15.fbx",
+    "bytes": 813196,
+    "sha256": "1152cedededc523c58348ca77ecc63bd71c60ff0e44bb69949391f1e4073e765"
+  },
+  {
+    "path": "MarbleHost/MarbleHost_R15.glb",
+    "bytes": 690588,
+    "sha256": "7a0634f354f83b5db5a57c1b27ad02934ac1cb7eb2c51a83c3cd5a41c20a1698"
+  },
+  {
+    "path": "MarbleHost/reference.png",
+    "bytes": 800500,
+    "sha256": "4d95e2798225c44edcd856802f9bec96fc60e13cf76ef8769d40d4bc238051ef"
+  },
+  {
+    "path": "MarbleHost/renders/01_front.png",
+    "bytes": 654809,
+    "sha256": "f622f970f0ebceaaf3c8b1a742d568d3ae5582ea704ee5b0003bb28a295a2f15"
+  },
+  {
+    "path": "MarbleHost/renders/02_side.png",
+    "bytes": 629513,
+    "sha256": "948f777250683cdb60b3cf3c2566e3cd0e3d6dc940df0731bf355179fd8f5610"
+  },
+  {
+    "path": "MarbleHost/renders/03_back.png",
+    "bytes": 628611,
+    "sha256": "d2f1a70a1da0ea4ddc046e05ddcdc777a6d793f5f8a2fe5c39f4419d81af8746"
+  },
+  {
+    "path": "MarbleHost/renders/04_elevated_three_quarter.png",
+    "bytes": 677965,
+    "sha256": "9b7cd47f626322354bef16430597ef0276c16cc616062b11a88eb42d5f2e23ee"
+  },
+  {
+    "path": "MarbleHost/renders/05_walk_pose.png",
+    "bytes": 677946,
+    "sha256": "c45c2f1a814dad0765a3e662774392e5c45cd1c32ca0071e4b07c54654fe3c3f"
+  },
+  {
+    "path": "MarbleHost/renders/06_game_mesh.png",
+    "bytes": 379518,
+    "sha256": "be22fe74e7e10ea9332d9e09134467b2252796839fc1b664029a815850ffa57e"
+  },
+  {
+    "path": "MarbleHost/textures/BaseColor_2K.png",
+    "bytes": 181759,
+    "sha256": "7f13c07da9e47035ed41933eb8e53021a755fdb99010b265a88c9fb91b727f7b"
+  },
+  {
+    "path": "MarbleHost/textures/BaseColor_4K.png",
+    "bytes": 469877,
+    "sha256": "d8d6c23b29e970a48f18942938e6596d699b1c7cc9cf2053e5f79c2ddc21a08f"
+  },
+  {
+    "path": "MarbleHost/textures/GameAtlas_BaseColor_2K.png",
+    "bytes": 198094,
+    "sha256": "c9bfcf7a677757224857d6dae7d905aa9af60673b4b47cc32892734e22f7df55"
+  },
+  {
+    "path": "MarbleHost/textures/GameAtlas_BaseColor_4K.png",
+    "bytes": 536475,
+    "sha256": "11227e19b517448fba99f4168c197fecf7373bd87c89e4981f8cc12f9bdea683"
+  },
+  {
+    "path": "MarbleHost/textures/GameAtlas_Emission_2K.png",
+    "bytes": 12287,
+    "sha256": "abc4f0945e189c3d9bd9144e7b38f9fa767ee648445530c3d9220dea1ff54dff"
+  },
+  {
+    "path": "MarbleHost/textures/GameAtlas_Emission_4K.png",
+    "bytes": 48918,
+    "sha256": "04677a4cd9894ebc7cdc62b07f0adfb2c50147562c5ecab179974c131695e1be"
+  },
+  {
+    "path": "MarbleHost/textures/GameAtlas_Normal_2K.png",
+    "bytes": 96184,
+    "sha256": "11110e89db78904f115dff4451e0f2b020b117f076b09078e8ae9da0c77bf19a"
+  },
+  {
+    "path": "MarbleHost/textures/GameAtlas_Normal_4K.png",
+    "bytes": 253366,
+    "sha256": "7bcf8110acfd1b16414cdd728569e240ff8b7b0e2fd84b6ae9a5e22464b2443f"
+  },
+  {
+    "path": "MarbleHost/textures/GameAtlas_Roughness_2K.png",
+    "bytes": 8588,
+    "sha256": "fbdea56153dccde198d2b85c2514863f6f2c50fccc91ac516d9bb88f8fba557d"
+  },
+  {
+    "path": "MarbleHost/textures/GameAtlas_Roughness_4K.png",
+    "bytes": 25740,
+    "sha256": "f402381282c744f665fe4af737c383a4540591f8e5c5ca0d89d4ab91a76b46b8"
+  },
+  {
+    "path": "MarbleHost/textures/Normal_2K.png",
+    "bytes": 98859,
+    "sha256": "d98f4e2bb8d40411593763adf10bf0492a7aec459a425a669bdb0167148b758b"
+  },
+  {
+    "path": "MarbleHost/textures/Normal_4K.png",
+    "bytes": 248329,
+    "sha256": "1257d0293d5344c5b98400de1ad96277965018ca4ad12367a91ebf307404e86e"
+  },
+  {
+    "path": "MarbleHost/textures/Roughness_2K.png",
+    "bytes": 8533,
+    "sha256": "91f753586637286b1c191c68d4b922a453e30e5d661abd9d90861a0adaa9b00d"
+  },
+  {
+    "path": "MarbleHost/textures/Roughness_4K.png",
+    "bytes": 25455,
+    "sha256": "fee732bdcd32ead60a6a9fd3d91d3767758a939266c1d2984a7b31765f580387"
+  },
+  {
+    "path": "NightWatch/animations/Idle.fbx",
+    "bytes": 656700,
+    "sha256": "f5e67d4b5fce5f1293c7d1b8b518e6b1d493fe10cebf4decc4eeb43095f260e1"
+  },
+  {
+    "path": "NightWatch/animations/Walk.fbx",
+    "bytes": 658476,
+    "sha256": "700c5f3b3c45a7ea53ad5fc29b17985973a1dab9c6f788cec638b73ef058bc16"
+  },
+  {
+    "path": "NightWatch/FourViews.png",
+    "bytes": 1632137,
+    "sha256": "8fe60716aa885a73038c95cc0a739ff311e99f50db98777d6dad93c81a904e41"
+  },
+  {
+    "path": "NightWatch/NightWatch_Game.blend",
+    "bytes": 2488305,
+    "sha256": "37644c750c5082ce9696e65af84f755542b70c3c31c4a36bb16b2cbd344580a7"
+  },
+  {
+    "path": "NightWatch/NightWatch_R15.blend",
+    "bytes": 2291152,
+    "sha256": "dcdc06096aa713da2e7b0f21f1dc3e4bb44606229b1b8d0be0f33fa06f81acf2"
+  },
+  {
+    "path": "NightWatch/NightWatch_R15.fbx",
+    "bytes": 827484,
+    "sha256": "2bd2613ec5a5e0340045b67739aecfc21235e04c816665edae75ebac8f8d1778"
+  },
+  {
+    "path": "NightWatch/NightWatch_R15.glb",
+    "bytes": 729464,
+    "sha256": "5ac48551d31570c11de39212dcf24ec7a526dc4bf625c03f661eba10c0406059"
+  },
+  {
+    "path": "NightWatch/reference.png",
+    "bytes": 627148,
+    "sha256": "7ad3f065c1562d8b90c1d4cdae854e28dd1bfd8849d480c30d09338626cbd656"
+  },
+  {
+    "path": "NightWatch/renders/01_front.png",
+    "bytes": 662095,
+    "sha256": "5dbf5e0b1f5dafcc2b37b3526ce71b62662d4b6b00595595dfce097d17bffadc"
+  },
+  {
+    "path": "NightWatch/renders/02_side.png",
+    "bytes": 631657,
+    "sha256": "9564c2e9bd1190354aba4b313c8cc4ee92b4469482d89c30cd9882fb9fbb65c6"
+  },
+  {
+    "path": "NightWatch/renders/03_back.png",
+    "bytes": 637044,
+    "sha256": "737086ec8bfbae2d928ad5a69f7837a32112c17a932ae664ea719e2e0b82db5a"
+  },
+  {
+    "path": "NightWatch/renders/04_elevated_three_quarter.png",
+    "bytes": 691017,
+    "sha256": "27292e2689d67f482aa70ab3b3040e505b372ae634b8bb95e4ea569ee454bb97"
+  },
+  {
+    "path": "NightWatch/renders/05_walk_pose.png",
+    "bytes": 691146,
+    "sha256": "6aa83c30a64f5543d60796a144c1583475f428171d1029ed0e213acf166a98ba"
+  },
+  {
+    "path": "NightWatch/renders/06_game_mesh.png",
+    "bytes": 383748,
+    "sha256": "70e916a5de616416c83444c1f44ee181ed86154b0deefd04289d486d6229d6f1"
+  },
+  {
+    "path": "NightWatch/textures/BaseColor_2K.png",
+    "bytes": 183001,
+    "sha256": "466397b424cb2bca72e5eb10106fe0f5d8b86fd56964579dfb89b7b5c777b2d2"
+  },
+  {
+    "path": "NightWatch/textures/BaseColor_4K.png",
+    "bytes": 484061,
+    "sha256": "e543498e36f405d0e8d2631fde496fe8892bbb6a4b0ac3bca98833044f274c8a"
+  },
+  {
+    "path": "NightWatch/textures/GameAtlas_BaseColor_2K.png",
+    "bytes": 199415,
+    "sha256": "0a8b4876d3de47666e9a701236c9f6244bf6498da6156e6c447ece953b9dbb8c"
+  },
+  {
+    "path": "NightWatch/textures/GameAtlas_BaseColor_4K.png",
+    "bytes": 552992,
+    "sha256": "b2c7ab13c37179277c174424d137eb276cd43725c4f79fb07f18d6e78049e3a1"
+  },
+  {
+    "path": "NightWatch/textures/GameAtlas_Emission_2K.png",
+    "bytes": 12287,
+    "sha256": "abc4f0945e189c3d9bd9144e7b38f9fa767ee648445530c3d9220dea1ff54dff"
+  },
+  {
+    "path": "NightWatch/textures/GameAtlas_Emission_4K.png",
+    "bytes": 48918,
+    "sha256": "04677a4cd9894ebc7cdc62b07f0adfb2c50147562c5ecab179974c131695e1be"
+  },
+  {
+    "path": "NightWatch/textures/GameAtlas_Normal_2K.png",
+    "bytes": 94049,
+    "sha256": "ab1c5f48511b9b69af8a75ce6508723c4fb99065076ec97bff3ed07ab3ce02bb"
+  },
+  {
+    "path": "NightWatch/textures/GameAtlas_Normal_4K.png",
+    "bytes": 259658,
+    "sha256": "e48081f2ab7c4cda494a3d7f2f779f92abb5b280b4167275a661b9ca0a33452e"
+  },
+  {
+    "path": "NightWatch/textures/GameAtlas_Roughness_2K.png",
+    "bytes": 8605,
+    "sha256": "5d22f47dd76ee1d03257fc4cdd0f5c3ba9c835a10ac3275714c1c7c4aac3f520"
+  },
+  {
+    "path": "NightWatch/textures/GameAtlas_Roughness_4K.png",
+    "bytes": 25751,
+    "sha256": "9f96d314153db2e50be28791e17029b2add3ffe11b4f94cbd008009345b0080c"
+  },
+  {
+    "path": "NightWatch/textures/Normal_2K.png",
+    "bytes": 97379,
+    "sha256": "324d92ade7f4418c256968beec91b43b1bfa31aea97d29ab007fd1378673ed0b"
+  },
+  {
+    "path": "NightWatch/textures/Normal_4K.png",
+    "bytes": 259580,
+    "sha256": "b91df541da1213e65bcf0e127b457061fe5a1e48e00f3d98d465ef2ebbc180a5"
+  },
+  {
+    "path": "NightWatch/textures/Roughness_2K.png",
+    "bytes": 8533,
+    "sha256": "91f753586637286b1c191c68d4b922a453e30e5d661abd9d90861a0adaa9b00d"
+  },
+  {
+    "path": "NightWatch/textures/Roughness_4K.png",
+    "bytes": 25455,
+    "sha256": "fee732bdcd32ead60a6a9fd3d91d3767758a939266c1d2984a7b31765f580387"
+  },
+  {
+    "path": "SoleConductor/animations/Idle.fbx",
+    "bytes": 608124,
+    "sha256": "bf356023dc7bbab7a3c09959b15b49132f198aefa9409c9aa6d60ff910031855"
+  },
+  {
+    "path": "SoleConductor/animations/Walk.fbx",
+    "bytes": 609964,
+    "sha256": "c6fe9d30ab4d123abcbd2da19752f08fb1ea7978ce3aa7f5877bbedd741f815e"
+  },
+  {
+    "path": "SoleConductor/FourViews.png",
+    "bytes": 1578182,
+    "sha256": "ad5da241fd80056644ab8c1647e39af4766798a44c45b849d6e6faf32527511e"
+  },
+  {
+    "path": "SoleConductor/reference.png",
+    "bytes": 606113,
+    "sha256": "730f8cb431719e1b98fb7c819ca13558c40d8ae1df6ab57b138e5d443ebfed2b"
+  },
+  {
+    "path": "SoleConductor/renders/01_front.png",
+    "bytes": 649981,
+    "sha256": "e4f1fd97b6417c8bb053549be257f78713597015ccaecc3474a399a4588d6a1e"
+  },
+  {
+    "path": "SoleConductor/renders/02_side.png",
+    "bytes": 621231,
+    "sha256": "633e443484f61270daa8f2914278baf1de485881f686c048c8f9341b785fc298"
+  },
+  {
+    "path": "SoleConductor/renders/03_back.png",
+    "bytes": 621547,
+    "sha256": "1b6eec573b0a2e4c8902b5ab47fa05f7f988529edf8d1292f45657f1394d53c7"
+  },
+  {
+    "path": "SoleConductor/renders/04_elevated_three_quarter.png",
+    "bytes": 668547,
+    "sha256": "d46cd9c20dd9ee6da81062c9a8b5cf9a819bec150a105d554862ee14272bc912"
+  },
+  {
+    "path": "SoleConductor/renders/05_walk_pose.png",
+    "bytes": 669105,
+    "sha256": "bc2be85aa75a3b36808ea5d08cc7862cf9829959818552cab78e9c6ec3ca1d3a"
+  },
+  {
+    "path": "SoleConductor/renders/06_game_mesh.png",
+    "bytes": 376096,
+    "sha256": "e7ebc6bb10620c546cda2c5972af64eab612da56a103bfde9023d0d03749607e"
+  },
+  {
+    "path": "SoleConductor/SoleConductor_Game.blend",
+    "bytes": 2229036,
+    "sha256": "82de8f5bc8efbf1e7c45fdb186bd42185e318621228b147bcf797ccc1f79bddb"
+  },
+  {
+    "path": "SoleConductor/SoleConductor_R15.blend",
+    "bytes": 1969525,
+    "sha256": "9e9c1c678615bab0edad0020d447436bf04a9417e9a9dadefa0c531c7b1518b5"
+  },
+  {
+    "path": "SoleConductor/SoleConductor_R15.fbx",
+    "bytes": 757804,
+    "sha256": "ceee1da8706f6ea89f5aee76efdb880bbfd706b0e22bfb9f91672e83dc715dca"
+  },
+  {
+    "path": "SoleConductor/SoleConductor_R15.glb",
+    "bytes": 632852,
+    "sha256": "569a00319de0c496156b577704144ef460e220138d6f6338f69f0656429e185b"
+  },
+  {
+    "path": "SoleConductor/textures/BaseColor_2K.png",
+    "bytes": 171365,
+    "sha256": "e9beafa4802132ac5b6e5fec82fb06dc11ae6a9fadfc50d323914d8111686712"
+  },
+  {
+    "path": "SoleConductor/textures/BaseColor_4K.png",
+    "bytes": 449875,
+    "sha256": "220bc901ec9d1c0fbd02dc2fd27c1c024197d1b0a03f7c9384078fbcbda0cce5"
+  },
+  {
+    "path": "SoleConductor/textures/GameAtlas_BaseColor_2K.png",
+    "bytes": 185994,
+    "sha256": "f9ac6890ea706b722ba84aae817fb762d854747b9d7f95ca0e0b4254f7477d62"
+  },
+  {
+    "path": "SoleConductor/textures/GameAtlas_BaseColor_4K.png",
+    "bytes": 516455,
+    "sha256": "2fecd153396745e987f0563b3aa555ca59fa810a3ea40c44210a65bb65d896a7"
+  },
+  {
+    "path": "SoleConductor/textures/GameAtlas_Emission_2K.png",
+    "bytes": 12287,
+    "sha256": "abc4f0945e189c3d9bd9144e7b38f9fa767ee648445530c3d9220dea1ff54dff"
+  },
+  {
+    "path": "SoleConductor/textures/GameAtlas_Emission_4K.png",
+    "bytes": 48918,
+    "sha256": "04677a4cd9894ebc7cdc62b07f0adfb2c50147562c5ecab179974c131695e1be"
+  },
+  {
+    "path": "SoleConductor/textures/GameAtlas_Normal_2K.png",
+    "bytes": 86376,
+    "sha256": "6d359d849c8ccbc4a5b014bc5925e227a87f36c1f07641a9ec2e953ceacc850a"
+  },
+  {
+    "path": "SoleConductor/textures/GameAtlas_Normal_4K.png",
+    "bytes": 241332,
+    "sha256": "b313292a31b8483c2e398fa6b65466e7d809da57a8e7ed77af79680b156014bf"
+  },
+  {
+    "path": "SoleConductor/textures/GameAtlas_Roughness_2K.png",
+    "bytes": 8542,
+    "sha256": "2b4547391fed57292eea9413ee2748727f1db2b742f78db4632a3335aa233208"
+  },
+  {
+    "path": "SoleConductor/textures/GameAtlas_Roughness_4K.png",
+    "bytes": 25727,
+    "sha256": "d39da8007bfe2a3e41274e824e86aa779778f1c45a99b4450669d2b7556b7142"
+  },
+  {
+    "path": "SoleConductor/textures/Normal_2K.png",
+    "bytes": 89215,
+    "sha256": "600804fefcc7c430f7d2003176f0b506eeba6c9e4ba4d2d2285ca7580de20c4d"
+  },
+  {
+    "path": "SoleConductor/textures/Normal_4K.png",
+    "bytes": 242436,
+    "sha256": "156a2db5734d3d9500d6ceb64ea29738f9729709f6a986a80ac2585097ba9955"
+  },
+  {
+    "path": "SoleConductor/textures/Roughness_2K.png",
+    "bytes": 8533,
+    "sha256": "91f753586637286b1c191c68d4b922a453e30e5d661abd9d90861a0adaa9b00d"
+  },
+  {
+    "path": "SoleConductor/textures/Roughness_4K.png",
+    "bytes": 25455,
+    "sha256": "fee732bdcd32ead60a6a9fd3d91d3767758a939266c1d2984a7b31765f580387"
+  },
+  {
+    "path": "SparkMage/animations/Idle.fbx",
+    "bytes": 634236,
+    "sha256": "fd471b78eb079e1824bfe1c640bf91bbdbc0353f7f1460924a7c851f90e08ad9"
+  },
+  {
+    "path": "SparkMage/animations/Walk.fbx",
+    "bytes": 636044,
+    "sha256": "2666a5b50f03106918252b7cd6fefb5003d00df614e1db4aca29f4b645910b89"
+  },
+  {
+    "path": "SparkMage/FourViews.png",
+    "bytes": 1627647,
+    "sha256": "81b45205c1849f464b79ef0878ad34125139734836ba3332dd15ee25aec5ecf6"
+  },
+  {
+    "path": "SparkMage/reference.png",
+    "bytes": 503702,
+    "sha256": "125bff097ddf39a0ee23ba34aca4da54b0107feb6817ac4533d9469dc7350de8"
+  },
+  {
+    "path": "SparkMage/renders/01_front.png",
+    "bytes": 663709,
+    "sha256": "c8cbf5f9aaab9a96dcccbd0ad3608988af8f91e2fbba1c6c80991fd62f36cae5"
+  },
+  {
+    "path": "SparkMage/renders/02_side.png",
+    "bytes": 629002,
+    "sha256": "2007ab5bbbce18b8bd7abfdb4fc720abd772b2ba42a57accf94e6ddf94419f50"
+  },
+  {
+    "path": "SparkMage/renders/03_back.png",
+    "bytes": 631236,
+    "sha256": "e5266d2648b788d01becb3414342f22799454ec1e1e8aa6b0d15f8a77475be2c"
+  },
+  {
+    "path": "SparkMage/renders/04_elevated_three_quarter.png",
+    "bytes": 679698,
+    "sha256": "4319877ab0ac22912fbafef144379d2c44036d94afcd22151f84f529cb8211bf"
+  },
+  {
+    "path": "SparkMage/renders/05_walk_pose.png",
+    "bytes": 680925,
+    "sha256": "2cca30c8a85fab17be0dbcb30e33feab1bff3dca99edcbe11214a213cfd2a06b"
+  },
+  {
+    "path": "SparkMage/renders/06_game_mesh.png",
+    "bytes": 385613,
+    "sha256": "5b25f7b0691bf4ccc68af7a261eae42ad3f1a2124fe211fa05d412275e7d2a03"
+  },
+  {
+    "path": "SparkMage/SparkMage_Game.blend",
+    "bytes": 2422806,
+    "sha256": "615e51bb61c25d934fe2767043a38e68075d329cf409b9d9ba22918db67c4711"
+  },
+  {
+    "path": "SparkMage/SparkMage_R15.blend",
+    "bytes": 2162253,
+    "sha256": "282763b7b01e6e279e50e1757805c35c0fb332ad1963ff549edce856d6be989f"
+  },
+  {
+    "path": "SparkMage/SparkMage_R15.fbx",
+    "bytes": 811356,
+    "sha256": "c8fe7f84d137aed0798ecce4f541384955b691a63f34866eb6dad28545745a1a"
+  },
+  {
+    "path": "SparkMage/SparkMage_R15.glb",
+    "bytes": 697364,
+    "sha256": "1eb8b6f1e28d847f130a65c32f6cb7dbf447ef6d493e973d91acd149e81f6e40"
+  },
+  {
+    "path": "SparkMage/textures/BaseColor_2K.png",
+    "bytes": 184112,
+    "sha256": "a153bde1b83cb286814191b01dcc0cafb4300c06e78d7251f38a6b9afe62f4c1"
+  },
+  {
+    "path": "SparkMage/textures/BaseColor_4K.png",
+    "bytes": 490321,
+    "sha256": "b6b87178c30498359c097e252125e76d1b3279e84753006a070d062d45cbdd8f"
+  },
+  {
+    "path": "SparkMage/textures/GameAtlas_BaseColor_2K.png",
+    "bytes": 200975,
+    "sha256": "9713f770a3d3a0b6b16db114c4c8dca7c93d8600492634f2ea00f63a1f8a8d0b"
+  },
+  {
+    "path": "SparkMage/textures/GameAtlas_BaseColor_4K.png",
+    "bytes": 562411,
+    "sha256": "62f73a0b06a49c09a19feb42f4e2d3a4a82766edaf3f423c44612a8d62e1da41"
+  },
+  {
+    "path": "SparkMage/textures/GameAtlas_Emission_2K.png",
+    "bytes": 12527,
+    "sha256": "29ae691129bd547213bae267ccfa33b80dbeb913cbb4d7636b8a9ee171fbdba1"
+  },
+  {
+    "path": "SparkMage/textures/GameAtlas_Emission_4K.png",
+    "bytes": 49256,
+    "sha256": "3d10eabdae160c8d1a1f8d2362c71464559706acb979983b2c673abffe86640d"
+  },
+  {
+    "path": "SparkMage/textures/GameAtlas_Normal_2K.png",
+    "bytes": 98640,
+    "sha256": "077f2aa4717766c9ad56e219cfd34e1da6faac19f8122636e630ee9877e58b95"
+  },
+  {
+    "path": "SparkMage/textures/GameAtlas_Normal_4K.png",
+    "bytes": 271831,
+    "sha256": "5cefa9883ea47994e78525320690d8ac0e8a7eea78830a74272cbfdbe724070f"
+  },
+  {
+    "path": "SparkMage/textures/GameAtlas_Roughness_2K.png",
+    "bytes": 8552,
+    "sha256": "9e9aa7449f473c0faf2bd0f07c8346d2e9735c3178735aed87547b3ad627855b"
+  },
+  {
+    "path": "SparkMage/textures/GameAtlas_Roughness_4K.png",
+    "bytes": 25738,
+    "sha256": "52993307a71857d846056e6ed771aed284b81b3837a9a6cfcaf5a06b1c188db4"
+  },
+  {
+    "path": "SparkMage/textures/Normal_2K.png",
+    "bytes": 101708,
+    "sha256": "284062902dd5b2349a34f52072ff502ead8435aa6662e1ab9f96110ee29735eb"
+  },
+  {
+    "path": "SparkMage/textures/Normal_4K.png",
+    "bytes": 272968,
+    "sha256": "46bdf5343951b8a41a77c6db6d673f9cde2c36262f0fdba5233a8af35537f3ba"
+  },
+  {
+    "path": "SparkMage/textures/Roughness_2K.png",
+    "bytes": 8533,
+    "sha256": "91f753586637286b1c191c68d4b922a453e30e5d661abd9d90861a0adaa9b00d"
+  },
+  {
+    "path": "SparkMage/textures/Roughness_4K.png",
+    "bytes": 25455,
+    "sha256": "fee732bdcd32ead60a6a9fd3d91d3767758a939266c1d2984a7b31765f580387"
+  },
+  {
+    "path": "TwinLedger/animations/Idle.fbx",
+    "bytes": 628428,
+    "sha256": "b025e5e248f7fa533cdc0f2a9271571bb68f7d570a11e16c4a8d23a71a589dfc"
+  },
+  {
+    "path": "TwinLedger/animations/Walk.fbx",
+    "bytes": 630284,
+    "sha256": "b0e4f3ea74bf6b4b65fe232371e52d789e6ad3a17f4ba14a743690a4edca78ba"
+  },
+  {
+    "path": "TwinLedger/FourViews.png",
+    "bytes": 1588998,
+    "sha256": "d3cf40caf90e64d00fd4b2e46193aa50e60692d3ca2bf68664950649ba9c20b9"
+  },
+  {
+    "path": "TwinLedger/reference.png",
+    "bytes": 621459,
+    "sha256": "527f11e28958e73ad444478f73d74e9bccfcd825ea2c2fd060eb7b736baa10e1"
+  },
+  {
+    "path": "TwinLedger/renders/01_front.png",
+    "bytes": 651307,
+    "sha256": "29500c30a2e7f7bc27d5b1189cb0ef4641339b1257df6fcb153ec2011035f193"
+  },
+  {
+    "path": "TwinLedger/renders/02_side.png",
+    "bytes": 625865,
+    "sha256": "b6ab1a4ad8538964b2bebe5268d7c7ba4c1ec84f15c5e91e1a5e5ce65ac75bcc"
+  },
+  {
+    "path": "TwinLedger/renders/03_back.png",
+    "bytes": 623957,
+    "sha256": "dc68797ab69159db825713ac0b609c18f06804ba642ac37f3f01a4e06a43fddb"
+  },
+  {
+    "path": "TwinLedger/renders/04_elevated_three_quarter.png",
+    "bytes": 670549,
+    "sha256": "07558ea47082b408e6e5e8877ed5585473822d4f08365d757765f5d544fbba28"
+  },
+  {
+    "path": "TwinLedger/renders/05_walk_pose.png",
+    "bytes": 670990,
+    "sha256": "47c25511a459d3077662e07468076ac007e245fd1a670078d57f940bbb05c04f"
+  },
+  {
+    "path": "TwinLedger/renders/06_game_mesh.png",
+    "bytes": 376949,
+    "sha256": "f2dc616d2250c24f5e6207cb770fac18660a6d6615fd2655da23018b4a15715f"
+  },
+  {
+    "path": "TwinLedger/textures/BaseColor_2K.png",
+    "bytes": 175839,
+    "sha256": "b2580c833cb25e50198cc22af31ce5405ff02d7b12bd7d8853176363bfc051f3"
+  },
+  {
+    "path": "TwinLedger/textures/BaseColor_4K.png",
+    "bytes": 468299,
+    "sha256": "0f9b64c56347b26dd733e825138609a5288d2c2c7011c6dadf91424c940126b0"
+  },
+  {
+    "path": "TwinLedger/textures/GameAtlas_BaseColor_2K.png",
+    "bytes": 190504,
+    "sha256": "f3637d1ae040aaac51b3c2ede41636b7c7e31ca7c52d1f0848c9dbf5bb7f0309"
+  },
+  {
+    "path": "TwinLedger/textures/GameAtlas_BaseColor_4K.png",
+    "bytes": 534163,
+    "sha256": "f7146215a0fdb87a232e55879a22a84f0652dd7e9a0544312de5dac7ac5807fa"
+  },
+  {
+    "path": "TwinLedger/textures/GameAtlas_Emission_2K.png",
+    "bytes": 12287,
+    "sha256": "abc4f0945e189c3d9bd9144e7b38f9fa767ee648445530c3d9220dea1ff54dff"
+  },
+  {
+    "path": "TwinLedger/textures/GameAtlas_Emission_4K.png",
+    "bytes": 48918,
+    "sha256": "04677a4cd9894ebc7cdc62b07f0adfb2c50147562c5ecab179974c131695e1be"
+  },
+  {
+    "path": "TwinLedger/textures/GameAtlas_Normal_2K.png",
+    "bytes": 91397,
+    "sha256": "b2c2ef0e6198e8f4d04750d73532ab01dfcc3fe13193c01ea971f1ce9aeacd7e"
+  },
+  {
+    "path": "TwinLedger/textures/GameAtlas_Normal_4K.png",
+    "bytes": 254199,
+    "sha256": "abbe881ff3697288b02d4bea7f5a72508d6fafefdaecceb011ab47fc4f9c36de"
+  },
+  {
+    "path": "TwinLedger/textures/GameAtlas_Roughness_2K.png",
+    "bytes": 8542,
+    "sha256": "2b4547391fed57292eea9413ee2748727f1db2b742f78db4632a3335aa233208"
+  },
+  {
+    "path": "TwinLedger/textures/GameAtlas_Roughness_4K.png",
+    "bytes": 25727,
+    "sha256": "d39da8007bfe2a3e41274e824e86aa779778f1c45a99b4450669d2b7556b7142"
+  },
+  {
+    "path": "TwinLedger/textures/Normal_2K.png",
+    "bytes": 94600,
+    "sha256": "4a32f1a403e31384f8c5d4cdaee7114bd1dc66c04f6befc7d8d48aed35ac976b"
+  },
+  {
+    "path": "TwinLedger/textures/Normal_4K.png",
+    "bytes": 255237,
+    "sha256": "8d79b697325a8f2fb78ef98f077687c8dbcb4d848386de9bb3e891829e7fed36"
+  },
+  {
+    "path": "TwinLedger/textures/Roughness_2K.png",
+    "bytes": 8533,
+    "sha256": "91f753586637286b1c191c68d4b922a453e30e5d661abd9d90861a0adaa9b00d"
+  },
+  {
+    "path": "TwinLedger/textures/Roughness_4K.png",
+    "bytes": 25455,
+    "sha256": "fee732bdcd32ead60a6a9fd3d91d3767758a939266c1d2984a7b31765f580387"
+  },
+  {
+    "path": "TwinLedger/TwinLedger_Game.blend",
+    "bytes": 2339812,
+    "sha256": "de2785cba699a86efaa03efdad2bfee480b3845c111c80262fc4e397b9321213"
+  },
+  {
+    "path": "TwinLedger/TwinLedger_R15.blend",
+    "bytes": 2068082,
+    "sha256": "538ef39971e6298c9bcb1199fa6f8dc66945e8a3770a1f7e1684675cbb5639c3"
+  },
+  {
+    "path": "TwinLedger/TwinLedger_R15.fbx",
+    "bytes": 787612,
+    "sha256": "b9a9e9c6571ece417a082408061941c49703a6b7ceb5b356f5267916fcbb2ec4"
+  },
+  {
+    "path": "TwinLedger/TwinLedger_R15.glb",
+    "bytes": 669876,
+    "sha256": "b48daab030b64f84580018dac760c602b72aace7c5e426fbd6bd4d8b84bdbbc7"
+  }
+]

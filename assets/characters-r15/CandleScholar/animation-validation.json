@@ -1,0 +1,22 @@
+{
+  "id": "CandleScholar",
+  "clips": [
+    {
+      "name": "Idle",
+      "pass_clip": true,
+      "action_names": [
+        "CandleScholar_R15|Scene"
+      ],
+      "hand_displacement": 0.028881
+    },
+    {
+      "name": "Walk",
+      "pass_clip": true,
+      "action_names": [
+        "CandleScholar_R15|Scene"
+      ],
+      "hand_displacement": 0.089313
+    }
+  ],
+  "pass": true
+}

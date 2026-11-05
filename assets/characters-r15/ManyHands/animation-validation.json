@@ -1,0 +1,22 @@
+{
+  "id": "ManyHands",
+  "clips": [
+    {
+      "name": "Idle",
+      "pass_clip": true,
+      "action_names": [
+        "ManyHands_R15|Scene"
+      ],
+      "hand_displacement": 0.0285
+    },
+    {
+      "name": "Walk",
+      "pass_clip": true,
+      "action_names": [
+        "ManyHands_R15|Scene"
+      ],
+      "hand_displacement": 0.086432
+    }
+  ],
+  "pass": true
+}

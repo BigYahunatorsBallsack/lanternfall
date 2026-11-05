@@ -1,0 +1,116 @@
+{
+  "R15 | internal driver": {
+    "index": 0,
+    "color": [
+      0.6539999842643738,
+      0.6660000085830688,
+      0.6859999895095825,
+      1.0
+    ],
+    "roughness": 0.5,
+    "alpha": 0.0,
+    "emission": [
+      1.0,
+      1.0,
+      1.0,
+      1.0
+    ],
+    "strength": 0.0,
+    "textured": false
+  },
+  "Surface | original sprite face": {
+    "index": 1,
+    "color": [
+      0.6600000262260437,
+      0.6700000166893005,
+      0.6899999976158142,
+      1.0
+    ],
+    "roughness": 0.47999998927116394,
+    "alpha": 1.0,
+    "emission": [
+      1.0,
+      1.0,
+      1.0,
+      1.0
+    ],
+    "strength": 0.0,
+    "textured": true
+  },
+  "Detail | charcoal": {
+    "index": 2,
+    "color": [
+      0.06499999761581421,
+      0.07000000029802322,
+      0.08699999749660492,
+      1.0
+    ],
+    "roughness": 0.5,
+    "alpha": 1.0,
+    "emission": [
+      1.0,
+      1.0,
+      1.0,
+      1.0
+    ],
+    "strength": 0.0,
+    "textured": false
+  },
+  "Cap | blue band": {
+    "index": 3,
+    "color": [
+      0.1899999976158142,
+      0.3100000023841858,
+      0.49000000953674316,
+      1.0
+    ],
+    "roughness": 0.5699999928474426,
+    "alpha": 1.0,
+    "emission": [
+      1.0,
+      1.0,
+      1.0,
+      1.0
+    ],
+    "strength": 0.0,
+    "textured": false
+  },
+  "Cap | silver badge": {
+    "index": 4,
+    "color": [
+      0.5899999737739563,
+      0.6200000047683716,
+      0.6499999761581421,
+      1.0
+    ],
+    "roughness": 0.3499999940395355,
+    "alpha": 1.0,
+    "emission": [
+      1.0,
+      1.0,
+      1.0,
+      1.0
+    ],
+    "strength": 0.0,
+    "textured": false
+  },
+  "Surface | pale gray limbs": {
+    "index": 5,
+    "color": [
+      0.6539999842643738,
+      0.6660000085830688,
+      0.6859999895095825,
+      1.0
+    ],
+    "roughness": 0.47999998927116394,
+    "alpha": 1.0,
+    "emission": [
+      1.0,
+      1.0,
+      1.0,
+      1.0
+    ],
+    "strength": 0.0,
+    "textured": false
+  }
+}

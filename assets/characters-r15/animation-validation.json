@@ -1,0 +1,222 @@
+[
+  {
+    "id": "BladeWarden",
+    "clips": [
+      {
+        "name": "Idle",
+        "pass_clip": true,
+        "action_names": [
+          "BladeWarden_R15|Scene"
+        ],
+        "hand_displacement": 0.028881
+      },
+      {
+        "name": "Walk",
+        "pass_clip": true,
+        "action_names": [
+          "BladeWarden_R15|Scene"
+        ],
+        "hand_displacement": 0.089313
+      }
+    ],
+    "pass": true
+  },
+  {
+    "id": "SparkMage",
+    "clips": [
+      {
+        "name": "Idle",
+        "pass_clip": true,
+        "action_names": [
+          "SparkMage_R15|Scene"
+        ],
+        "hand_displacement": 0.029674
+      },
+      {
+        "name": "Walk",
+        "pass_clip": true,
+        "action_names": [
+          "SparkMage_R15|Scene"
+        ],
+        "hand_displacement": 0.095695
+      }
+    ],
+    "pass": true
+  },
+  {
+    "id": "NightWatch",
+    "clips": [
+      {
+        "name": "Idle",
+        "pass_clip": true,
+        "action_names": [
+          "NightWatch_R15|Scene"
+        ],
+        "hand_displacement": 0.028881
+      },
+      {
+        "name": "Walk",
+        "pass_clip": true,
+        "action_names": [
+          "NightWatch_R15|Scene"
+        ],
+        "hand_displacement": 0.089313
+      }
+    ],
+    "pass": true
+  },
+  {
+    "id": "ManyHands",
+    "clips": [
+      {
+        "name": "Idle",
+        "pass_clip": true,
+        "action_names": [
+          "ManyHands_R15|Scene"
+        ],
+        "hand_displacement": 0.0285
+      },
+      {
+        "name": "Walk",
+        "pass_clip": true,
+        "action_names": [
+          "ManyHands_R15|Scene"
+        ],
+        "hand_displacement": 0.086432
+      }
+    ],
+    "pass": true
+  },
+  {
+    "id": "SoleConductor",
+    "clips": [
+      {
+        "name": "Idle",
+        "pass_clip": true,
+        "action_names": [
+          "SoleConductor_R15|Scene"
+        ],
+        "hand_displacement": 0.028867
+      },
+      {
+        "name": "Walk",
+        "pass_clip": true,
+        "action_names": [
+          "SoleConductor_R15|Scene"
+        ],
+        "hand_displacement": 0.089209
+      }
+    ],
+    "pass": true
+  },
+  {
+    "id": "DuelMaestro",
+    "clips": [
+      {
+        "name": "Idle",
+        "pass_clip": true,
+        "action_names": [
+          "DuelMaestro_R15|Scene"
+        ],
+        "hand_displacement": 0.028872
+      },
+      {
+        "name": "Walk",
+        "pass_clip": true,
+        "action_names": [
+          "DuelMaestro_R15|Scene"
+        ],
+        "hand_displacement": 0.08925
+      }
+    ],
+    "pass": true
+  },
+  {
+    "id": "FarSeer",
+    "clips": [
+      {
+        "name": "Idle",
+        "pass_clip": true,
+        "action_names": [
+          "FarSeer_R15|Scene"
+        ],
+        "hand_displacement": 0.028893
+      },
+      {
+        "name": "Walk",
+        "pass_clip": true,
+        "action_names": [
+          "FarSeer_R15|Scene"
+        ],
+        "hand_displacement": 0.08941
+      }
+    ],
+    "pass": true
+  },
+  {
+    "id": "MarbleHost",
+    "clips": [
+      {
+        "name": "Idle",
+        "pass_clip": true,
+        "action_names": [
+          "MarbleHost_R15|Scene"
+        ],
+        "hand_displacement": 0.029046
+      },
+      {
+        "name": "Walk",
+        "pass_clip": true,
+        "action_names": [
+          "MarbleHost_R15|Scene"
+        ],
+        "hand_displacement": 0.090635
+      }
+    ],
+    "pass": true
+  },
+  {
+    "id": "TwinLedger",
+    "clips": [
+      {
+        "name": "Idle",
+        "pass_clip": true,
+        "action_names": [
+          "TwinLedger_R15|Scene"
+        ],
+        "hand_displacement": 0.028881
+      },
+      {
+        "name": "Walk",
+        "pass_clip": true,
+        "action_names": [
+          "TwinLedger_R15|Scene"
+        ],
+        "hand_displacement": 0.089313
+      }
+    ],
+    "pass": true
+  },
+  {
+    "id": "CandleScholar",
+    "clips": [
+      {
+        "name": "Idle",
+        "pass_clip": true,
+        "action_names": [
+          "CandleScholar_R15|Scene"
+        ],
+        "hand_displacement": 0.028881
+      },
+      {
+        "name": "Walk",
+        "pass_clip": true,
+        "action_names": [
+          "CandleScholar_R15|Scene"
+        ],
+        "hand_displacement": 0.089313
+      }
+    ],
+    "pass": true
+  }
+]

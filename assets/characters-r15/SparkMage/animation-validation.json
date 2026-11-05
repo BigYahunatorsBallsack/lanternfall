@@ -1,0 +1,22 @@
+{
+  "id": "SparkMage",
+  "clips": [
+    {
+      "name": "Idle",
+      "pass_clip": true,
+      "action_names": [
+        "SparkMage_R15|Scene"
+      ],
+      "hand_displacement": 0.029674
+    },
+    {
+      "name": "Walk",
+      "pass_clip": true,
+      "action_names": [
+        "SparkMage_R15|Scene"
+      ],
+      "hand_displacement": 0.095695
+    }
+  ],
+  "pass": true
+}

@@ -1,0 +1,22 @@
+{
+  "id": "DuelMaestro",
+  "clips": [
+    {
+      "name": "Idle",
+      "pass_clip": true,
+      "action_names": [
+        "DuelMaestro_R15|Scene"
+      ],
+      "hand_displacement": 0.028872
+    },
+    {
+      "name": "Walk",
+      "pass_clip": true,
+      "action_names": [
+        "DuelMaestro_R15|Scene"
+      ],
+      "hand_displacement": 0.08925
+    }
+  ],
+  "pass": true
+}

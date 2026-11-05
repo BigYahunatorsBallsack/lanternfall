@@ -1,0 +1,22 @@
+{
+  "id": "FarSeer",
+  "clips": [
+    {
+      "name": "Idle",
+      "pass_clip": true,
+      "action_names": [
+        "FarSeer_R15|Scene"
+      ],
+      "hand_displacement": 0.028893
+    },
+    {
+      "name": "Walk",
+      "pass_clip": true,
+      "action_names": [
+        "FarSeer_R15|Scene"
+      ],
+      "hand_displacement": 0.08941
+    }
+  ],
+  "pass": true
+}
