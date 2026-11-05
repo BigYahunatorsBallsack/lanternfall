@@ -2,6 +2,8 @@
 
 The left side of each card is the owner-approved source sprite from `assets/weapons/final/`. The right side simulates the world-space BillboardGui weapon beside a simple character, facing right. This is a size and orientation review aid, not a Roblox Studio capture. In the run, each sprite faces the current attack direction.
 
+These comparison sheets show the first size pass. The later in-game size correction and the smaller Cathedral Engine are recorded in `src/shared/Config/WeaponVisuals.luau`; use the current Studio build to judge scale. The `ThornTrail` internal ID now appears as **Thorn Hook** in game and swings instead of leaving ground patches.
+
 ![Approved sprites beside their world-space presentation, part 1](comparison-1.png)
 
 ![Approved sprites beside their world-space presentation, part 2](comparison-2.png)
