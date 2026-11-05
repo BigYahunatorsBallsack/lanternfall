@@ -1,16 +1,21 @@
--- Held weapons: every configured weapon has a safe model, duplicates can coexist, and stale models return to pools.
+-- Approved world sprites, attack copies, and shared shot origins.
 
-local world = loadHelper("tests/helpers/RobloxMock.luau")
+loadHelper("tests/helpers/RobloxMock.luau")
 
-local Config = require(game:GetService("ReplicatedStorage").Shared.Config)
-local HeldModels = require(folderProxy("src/client", "Client").Controllers.WeaponRenderer.HeldModels)
-local MeshCatalog = require(folderProxy("src/client", "Client").Controllers.WeaponRenderer.HeldMeshCatalog)
-local HeldMeshLoader = require(folderProxy("src/client", "Client").Controllers.WeaponRenderer.HeldMeshLoader)
+local Shared = game:GetService("ReplicatedStorage").Shared
+local Config = require(Shared.Config)
+local Pose = require(Shared.Util.WeaponPose)
+local WeaponFx = require(Shared.Net.WeaponFx)
+local renderer = folderProxy("src/client", "Client").Controllers.WeaponRenderer
+local HeldModels = require(renderer.HeldModels)
+local SpriteKit = require(renderer.SpriteKit)
+local OrbitBlades = require(renderer.Visuals.OrbitBlades)
+local Images = require(folderProxy("src/client", "Client").UI.WeaponImages)
 
-local function frame(folder, number)
+local function frame(folder, number, now)
 	return {
 		number = number,
-		now = number,
+		now = now,
 		dt = 1 / 60,
 		floorY = 100,
 		folder = folder,
@@ -26,76 +31,87 @@ local function frame(folder, number)
 	}
 end
 
-describe("Held weapon models", function()
-	it("has a textured mesh for every configured weapon", function()
-		local count = 0
-		for id in Config.Weapons do
-			count += 1
-			local look = MeshCatalog[id]
-			expect(look ~= nil).toBe(true)
-			expect(#look.pieces >= 1 and #look.pieces <= 12).toBe(true)
-			for _, piece in look.pieces do
-				expect(piece.mesh:match("^rbxassetid://%d+$") ~= nil).toBe(true)
-				expect(piece.texture:match("^rbxassetid://%d+$") ~= nil).toBe(true)
-				expect(piece.size.X > 0 and piece.size.Y > 0 and piece.size.Z > 0).toBe(true)
-			end
-		end
-		expect(count).toBe(26)
-	end)
-
-	it("covers every weapon with a small, non-colliding model", function()
-		local folder = Instance.new("Folder")
+describe("World weapon sprites", function()
+	it("uses the approved image for all 26 configured weapons", function()
 		local count = 0
 		for id in Config.Weapons do
 			count += 1
 			expect(HeldModels.has(id)).toBe(true)
-			HeldModels.renderWeapon(
-				{ userId = 1, position = Vector3.zero },
-				{ uid = count, id = id },
-				1,
-				1,
-				frame(folder, count)
-			)
-			local parts = folder:GetChildren()
-			expect(#parts >= 3 and #parts <= 12).toBe(true)
-			for _, part in parts do
-				expect(part.Anchored and not part.CanCollide and not part.CanQuery and not part.CanTouch).toBe(true)
+			if id ~= "OrbitBlades" then
+				expect(Config.WeaponVisuals.spriteStuds[id] ~= nil).toBe(true)
 			end
-			HeldModels.clear()
-			expect(#folder:GetChildren()).toBe(0)
+			local sprite = SpriteKit.create(id, 3, "TestWeapon")
+			expect(sprite.picture.Image).toBe(Images[id])
+			expect(sprite.anchor.CanCollide).toBe(false)
+			expect(sprite.anchor.CanQuery).toBe(false)
+			sprite.anchor:Destroy()
 		end
 		expect(count).toBe(26)
+		expect(Config.WeaponVisuals.spriteStuds.BrassKnuckles < Config.WeaponVisuals.spriteStuds.LamplighterPike).toBe(
+			true
+		)
 	end)
 
-	it("keeps duplicate copies separate and releases them when absent", function()
+	it("keeps duplicate copies separate and animates only the attacking uid", function()
 		local folder = Instance.new("Folder")
-		local owner = { userId = 7, position = Vector3.zero }
-		HeldModels.renderWeapon(owner, { uid = 1, id = "WatchmanPistol" }, 1, 2, frame(folder, 1))
-		local one = #folder:GetChildren()
-		HeldModels.renderWeapon(owner, { uid = 2, id = "WatchmanPistol" }, 2, 2, frame(folder, 1))
-		expect(#folder:GetChildren()).toBe(one * 2)
-		HeldModels.finish(frame(folder, 1))
-		HeldModels.renderWeapon(owner, { uid = 2, id = "WatchmanPistol" }, 1, 1, frame(folder, 2))
-		HeldModels.finish(frame(folder, 2))
-		expect(#folder:GetChildren()).toBe(one)
+		local owner = { userId = 7, position = Vector3.new(0, 100, 0) }
+		local one = { uid = 1, id = "RitualDirk" }
+		local two = { uid = 2, id = "RitualDirk" }
+		HeldModels.renderWeapon(owner, one, 1, 2, frame(folder, 1, 1))
+		HeldModels.renderWeapon(owner, two, 2, 2, frame(folder, 1, 1))
+		local parts = folder:GetChildren()
+		expect(#parts).toBe(2)
+		local first, second = parts[1], parts[2]
+		local firstX, secondX = first.CFrame.Position.X, second.CFrame.Position.X
+		HeldModels.effect({
+			weapon = "RitualDirk",
+			userId = 7,
+			uid = 1,
+			kind = "Strike",
+			at = 1,
+			duration = 0.2,
+			dx = 1,
+			dz = 0,
+			targetDistance = 9,
+		})
+		HeldModels.renderWeapon(owner, one, 1, 2, frame(folder, 2, 1.1))
+		HeldModels.renderWeapon(owner, two, 2, 2, frame(folder, 2, 1.1))
+		expect(first.CFrame.Position.X > firstX).toBe(true)
+		expect(second.CFrame.Position.X).toBe(secondX)
+		HeldModels.finish(frame(folder, 2, 1.1))
+		HeldModels.renderWeapon(owner, two, 1, 1, frame(folder, 3, 1.3))
+		HeldModels.finish(frame(folder, 3, 1.3))
+		expect(#folder:GetChildren()).toBe(1)
 		HeldModels.clear()
 		expect(#folder:GetChildren()).toBe(0)
 	end)
 
-	it("keeps the silhouette when a mesh asset fails and retries later", function()
-		_G.Content = {
-			fromUri = function(uri)
-				return uri
-			end,
-		}
-		world.assetFetchStatus = Enum.AssetFetchStatus.Failure
-		HeldMeshLoader.request("WatchmanPistol")
-		expect(HeldMeshLoader.prototypes("WatchmanPistol")).toBe(nil)
-		world.assetFetchStatus = Enum.AssetFetchStatus.Success
-		HeldMeshLoader.request("WatchmanPistol")
-		expect(HeldMeshLoader.prototypes("WatchmanPistol")).toBe(nil)
-		world.advance(21)
-		HeldMeshLoader.request("WatchmanPistol")
-		expect(HeldMeshLoader.prototypes("WatchmanPistol") ~= nil).toBe(true)
+	it("places orbit artwork on the same clock as its server hit sweep", function()
+		local folder = Instance.new("Folder")
+		local owner = { userId = 8, position = Vector3.new(0, 100, 0) }
+		local weapon =
+			{ uid = 3, id = "OrbitBlades", addedAt = 0, stats = { count = 2, radius = 7, rotationSpeed = 180 } }
+		OrbitBlades.renderWeapon(owner, weapon, frame(folder, 1, 1))
+		local blades = folder:GetChildren()
+		expect(#blades).toBe(2)
+		expect(blades[1].CFrame.Position.X < 0).toBe(true)
+		expect(blades[2].CFrame.Position.X > 0).toBe(true)
+		weapon.stats.count = 3
+		OrbitBlades.renderWeapon(owner, weapon, frame(folder, 2, 1.1))
+		expect(#folder:GetChildren()).toBe(3)
+		OrbitBlades.clear()
+		expect(#folder:GetChildren()).toBe(0)
+	end)
+
+	it("sends the precise copy id and starts shots beyond the held weapon", function()
+		local x, z = Pose.anchor(10, 20, 4, "WatchmanPistol")
+		local mx, mz = Pose.muzzle(10, 20, 4, "WatchmanPistol", 1, 0)
+		expect(mx > x).toBe(true)
+		expect(mz).toBe(z)
+		local effects = WeaponFx.decode(WeaponFx.encode({
+			{ weapon = "RitualDirk", userId = 7, uid = 4, kind = "Strike", at = 1, targetDistance = 9 },
+		}))
+		expect(effects[1].uid).toBe(4)
+		expect(effects[1].targetDistance).toBe(9)
 	end)
 end)

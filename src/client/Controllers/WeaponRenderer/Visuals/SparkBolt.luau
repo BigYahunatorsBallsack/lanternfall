@@ -8,8 +8,10 @@
 
 local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
 local Types = require(Shared:WaitForChild("Net"):WaitForChild("Types"))
+local LOOK = require(Shared:WaitForChild("Config"):WaitForChild("WeaponVisuals"))
 
 local Bursts = require(script.Parent.Parent.Parent.Parent.Vfx.Bursts)
+local HeldModels = require(script.Parent.Parent.HeldModels)
 local VisualKit = require(script.Parent.Parent.VisualKit)
 
 local CORE_COLOR = Color3.fromRGB(230, 246, 255)
@@ -36,6 +38,9 @@ type Bolt = {
 	speed: number,
 	range: number,
 	at: number, -- server time it was fired
+	receivedAt: number,
+	startX: number,
+	startZ: number,
 	stopAt: number?, -- studs; set by the "End" effect
 }
 
@@ -76,6 +81,7 @@ function SparkBolt.effect(effect: Types.WeaponEffect)
 		return
 	end
 	if effect.kind == "Fire" then
+		local startX, startZ = HeldModels.projectileOrigin(effect)
 		bolts[id] = {
 			parts = nil,
 			userId = effect.userId,
@@ -86,6 +92,9 @@ function SparkBolt.effect(effect: Types.WeaponEffect)
 			speed = effect.speed or 0,
 			range = effect.range or 0,
 			at = effect.at,
+			receivedAt = workspace:GetServerTimeNow(),
+			startX = startX,
+			startZ = startZ,
 			stopAt = nil,
 		}
 	elseif effect.kind == "End" then
@@ -98,7 +107,9 @@ end
 
 function SparkBolt.render(frame: VisualKit.Frame)
 	for id, bolt in bolts do
-		local distance = math.max(0, bolt.speed * (frame.now - bolt.at))
+		local blend = math.clamp((frame.now - bolt.receivedAt) / LOOK.projectileCatchupSeconds, 0, 1)
+		local lag = math.max(0, bolt.receivedAt - bolt.at)
+		local distance = math.max(0, bolt.speed * (frame.now - bolt.at - lag * (1 - blend)))
 		local stop = math.min(bolt.range, bolt.stopAt or math.huge)
 		if distance >= stop then
 			if bolt.stopAt and bolt.parts then
@@ -117,7 +128,11 @@ function SparkBolt.render(frame: VisualKit.Frame)
 			bolt.parts = created
 			parts = created
 		end
-		local position = Vector3.new(bolt.x + bolt.dx * distance, frame.floorY + HEIGHT, bolt.z + bolt.dz * distance)
+		local position = Vector3.new(
+			bolt.x + (bolt.startX - bolt.x) * (1 - blend) + bolt.dx * distance,
+			frame.floorY + HEIGHT,
+			bolt.z + (bolt.startZ - bolt.z) * (1 - blend) + bolt.dz * distance
+		)
 		local cframe = CFrame.lookAt(position, position + Vector3.new(bolt.dx, 0, bolt.dz))
 		local current = parts :: BoltParts
 		frame.move(current.core, cframe)

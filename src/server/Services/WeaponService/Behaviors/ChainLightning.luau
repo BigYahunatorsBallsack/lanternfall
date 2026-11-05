@@ -5,6 +5,7 @@
 -- points. Behavior for WeaponService/Arsenal; drawn by WeaponRenderer/Visuals/ChainLightning.
 
 local Arsenal = require(script.Parent.Parent.Arsenal)
+local WeaponPose = require(game:GetService("ReplicatedStorage").Shared.Util.WeaponPose)
 
 local targets: { number } = {}
 local found: { number } = {}
@@ -42,7 +43,18 @@ function ChainLightning.fire(weapon: Arsenal.Weapon, ctx: Arsenal.Context): bool
 	if ctx:nearestEnemies(ctx.x, ctx.z, stats.range, 1, targets) == 0 then
 		return false
 	end
-	local points = { ctx.x, ctx.z }
+	local targetX, targetZ = ctx:enemyPosition(targets[1])
+	if not targetX or not targetZ then
+		return false
+	end
+	local heldX, heldZ = WeaponPose.anchor(ctx.x, ctx.z, weapon.uid, weapon.id)
+	local dx, dz = targetX - heldX, targetZ - heldZ
+	local length = math.sqrt(dx * dx + dz * dz)
+	if length < 1e-6 then
+		dx, dz, length = 1, 0, 1
+	end
+	local startX, startZ = WeaponPose.muzzle(ctx.x, ctx.z, weapon.uid, weapon.id, dx / length, dz / length, length)
+	local points = { startX, startZ }
 	local hit: { [number]: boolean } = {}
 	local id: number? = targets[1]
 	local jumps = math.max(1, math.floor(stats.jumps))
@@ -61,7 +73,7 @@ function ChainLightning.fire(weapon: Arsenal.Weapon, ctx: Arsenal.Context): bool
 			break
 		end
 	end
-	ctx:emit(weapon, { kind = "Chain", points = points })
+	ctx:emit(weapon, { kind = "Chain", uid = weapon.uid, points = points })
 	return true
 end
 

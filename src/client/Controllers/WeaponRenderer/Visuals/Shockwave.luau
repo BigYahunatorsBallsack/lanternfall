@@ -1,11 +1,10 @@
 --!strict
--- Shockwave look: a white flash at the owner, a ring of glowing art-deco segments racing out to the blast radius
--- over a soft golden disc, and a ring of dust kicked up from the floor, all centered on the owner's character as
--- this client sees it when the "Pulse" effect arrives. Visual for WeaponRenderer (behavior
--- WeaponService/Behaviors/Shockwave).
+-- Shockwave look: a small pulse and dust ring at the hammer's server-selected impact position.
+-- Visual for WeaponRenderer (behavior WeaponService/Behaviors/Shockwave).
 
 local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
 local Types = require(Shared:WaitForChild("Net"):WaitForChild("Types"))
+local LOOK = require(Shared:WaitForChild("Config"):WaitForChild("WeaponVisuals"))
 
 local Bursts = require(script.Parent.Parent.Parent.Parent.Vfx.Bursts)
 local VisualKit = require(script.Parent.Parent.VisualKit)
@@ -35,12 +34,10 @@ type WaveParts = { disc: BasePart, flash: BasePart, segments: { BasePart } }
 
 type Wave = {
 	parts: WaveParts?,
-	userId: number,
 	x: number,
 	z: number,
 	radius: number,
-	at: number, -- server time of the blast
-	placed: boolean, -- centered on the owner once, then it stays there
+	at: number, -- hammer contact time after the swing begins
 }
 
 local pool = VisualKit.objectPool(function(): WaveParts
@@ -85,12 +82,10 @@ function Shockwave.effect(effect: Types.WeaponEffect)
 	if effect.kind == "Pulse" then
 		table.insert(waves, {
 			parts = nil,
-			userId = effect.userId,
 			x = effect.x or 0,
 			z = effect.z or 0,
 			radius = effect.radius or 0,
-			at = effect.at,
-			placed = false,
+			at = workspace:GetServerTimeNow() + LOOK.attackSeconds * 0.5,
 		})
 	end
 end
@@ -98,18 +93,14 @@ end
 function Shockwave.render(frame: VisualKit.Frame)
 	for index = #waves, 1, -1 do
 		local wave = waves[index]
-		local age = math.max(0, frame.now - wave.at)
+		local age = frame.now - wave.at
+		if age < 0 then
+			continue
+		end
 		local t = age / DURATION
 		if t >= 1 then
 			remove(index)
 			continue
-		end
-		if not wave.placed then
-			wave.placed = true
-			local position = frame.ownerPosition(wave.userId)
-			if position then
-				wave.x, wave.z = position.X, position.Z
-			end
 		end
 		local parts = wave.parts
 		if not parts then

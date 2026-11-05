@@ -112,6 +112,8 @@ export type WeaponEffect = {
 	duration: number?, -- seconds something stays on the floor
 	points: { number }?, -- floor positions as x1, z1, x2, z2, ... (e.g. the enemies a chain jumped over)
 	angle: number?, -- B7 Strike: sweep arc in degrees; zero is a thrust
+	uid: number?, -- equipped copy that fired; sent as an optional WeaponFx extra field
+	targetDistance: number?, -- Strike target distance from the owner; sent as an optional WeaponFx extra field
 }
 
 -- One enemy projectile (EnemySim -> EnemyShotRenderer). It flies straight from x/z at `speed` from server time `at`

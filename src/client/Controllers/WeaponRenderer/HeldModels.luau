@@ -1,357 +1,250 @@
 --!strict
--- Pooled, hand-built cartoon weapon models that hover beside each equipped player. WeaponRenderer calls this every frame;
--- hit detection and attack effects remain entirely in WeaponService and the existing Visuals modules.
+-- Shows approved weapon artwork beside each player and animates the exact copy named by server attack effects.
 
+local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
+local Config = require(Shared:WaitForChild("Config"))
+local Types = require(Shared:WaitForChild("Net"):WaitForChild("Types"))
+local WeaponPose = require(Shared:WaitForChild("Util"):WaitForChild("WeaponPose"))
+
+local Images = require(script.Parent.Parent.Parent.UI.WeaponImages)
+local SpriteKit = require(script.Parent.SpriteKit)
 local VisualKit = require(script.Parent.VisualKit)
-local HeldMeshLoader = require(script.Parent.HeldMeshLoader)
 
-local INK = Color3.fromRGB(25, 21, 29)
-local IRON = Color3.fromRGB(99, 105, 110)
-local STEEL = Color3.fromRGB(198, 207, 205)
-local BONE = Color3.fromRGB(231, 220, 193)
-local BRASS = Color3.fromRGB(182, 137, 69)
-local DARK_BRASS = Color3.fromRGB(111, 78, 43)
-local WOOD = Color3.fromRGB(101, 65, 48)
-local AMBER = Color3.fromRGB(255, 195, 82)
-local BLUE = Color3.fromRGB(94, 194, 230)
-local GREEN = Color3.fromRGB(96, 165, 113)
-local PURPLE = Color3.fromRGB(170, 124, 211)
-local RED = Color3.fromRGB(215, 97, 82)
+local LOOK = Config.WeaponVisuals
 
-type Piece = { part: BasePart, offset: CFrame }
-type Build = ({ Piece }) -> ()
-type Model = { pieces: { Piece }, seen: number, poolKey: string }
+type Attack = {
+	at: number,
+	duration: number,
+	dx: number,
+	dz: number,
+	kind: string,
+	angle: number,
+	distance: number,
+	x: number,
+	z: number,
+}
+type Model = { sprite: SpriteKit.Sprite, id: string, seen: number, x: number, z: number }
+
+local pools: { [string]: VisualKit.ObjectPool<SpriteKit.Sprite> } = {}
+local active: { [string]: Model } = {}
+local attacks: { [string]: Attack } = {}
+local flights: { [string]: number } = {}
+local nearestByOwner: { [number]: { frame: number, x: number, z: number, found: boolean } } = {}
 
 local HeldModels = {}
 
-local function add(
-	parts: { Piece },
-	name: string,
-	shape: Enum.PartType,
-	size: Vector3,
-	at: Vector3,
-	color: Color3,
-	yaw: number?
-)
-	local part = VisualKit.solid(name, shape, size, color, Enum.Material.SmoothPlastic)
-	table.insert(parts, { part = part, offset = CFrame.new(at) * CFrame.Angles(0, math.rad(yaw or 0), 0) })
+local function keyOf(userId: number, uid: number): string
+	return `{userId}:{uid}`
 end
 
-local function box(parts: { Piece }, name: string, size: Vector3, at: Vector3, color: Color3, yaw: number?)
-	add(parts, name, Enum.PartType.Block, size, at, color, yaw)
-end
-
-local function ball(parts: { Piece }, name: string, size: Vector3, at: Vector3, color: Color3)
-	add(parts, name, Enum.PartType.Ball, size, at, color)
-end
-
-local function handle(parts: { Piece }, length: number, color: Color3?)
-	add(
-		parts,
-		"HandleOutline",
-		Enum.PartType.Cylinder,
-		Vector3.new(length + 0.08, 0.35, 0.34),
-		Vector3.new(0, 0, 0.28),
-		INK,
-		90
-	)
-	add(
-		parts,
-		"Handle",
-		Enum.PartType.Cylinder,
-		Vector3.new(length, 0.37, 0.24),
-		Vector3.new(0, 0.04, 0.28),
-		color or WOOD,
-		90
-	)
-	ball(parts, "Pommel", Vector3.new(0.38, 0.38, 0.38), Vector3.new(0, 0.05, 0.28 + length / 2), BRASS)
-end
-
-local function blade(parts: { Piece }, length: number, width: number, color: Color3?)
-	handle(parts, 0.68)
-	box(parts, "GuardOutline", Vector3.new(width + 0.32, 0.3, 0.26), Vector3.new(0, 0.08, -0.23), INK)
-	box(parts, "Guard", Vector3.new(width + 0.18, 0.32, 0.17), Vector3.new(0, 0.14, -0.23), BRASS)
-	box(
-		parts,
-		"BladeOutline",
-		Vector3.new(width + 0.12, 0.28, length + 0.13),
-		Vector3.new(0, 0.04, -0.4 - length / 2),
-		INK
-	)
-	box(parts, "Blade", Vector3.new(width, 0.29, length), Vector3.new(0, 0.13, -0.4 - length / 2), color or STEEL)
-	box(parts, "Ridge", Vector3.new(0.09, 0.07, length * 0.85), Vector3.new(0, 0.31, -0.4 - length / 2), BONE)
-	local tipOutline = VisualKit.wedge("TipOutline", Vector3.new(width + 0.12, 0.27, 0.38), INK)
-	tipOutline.Material = Enum.Material.SmoothPlastic
-	table.insert(parts, { part = tipOutline, offset = CFrame.new(0, 0.04, -0.56 - length) })
-	local tip = VisualKit.wedge("Tip", Vector3.new(width, 0.28, 0.32), color or STEEL)
-	tip.Material = Enum.Material.SmoothPlastic
-	table.insert(parts, { part = tip, offset = CFrame.new(0, 0.13, -0.56 - length) })
-end
-
-local function gun(parts: { Piece }, length: number, width: number, color: Color3?)
-	box(parts, "StockOutline", Vector3.new(width + 0.18, 0.45, length + 0.13), Vector3.new(0, 0, 0.25), INK)
-	box(parts, "Stock", Vector3.new(width, 0.47, length), Vector3.new(0, 0.08, 0.25), color or WOOD)
-	box(parts, "Grip", Vector3.new(width * 0.48, 0.6, 0.38), Vector3.new(0, -0.37, 0.5), INK)
-	add(
-		parts,
-		"BarrelOutline",
-		Enum.PartType.Cylinder,
-		Vector3.new(length * 0.9, 0.34, width * 0.59),
-		Vector3.new(0, 0.13, -0.64),
-		INK,
-		90
-	)
-	add(
-		parts,
-		"Barrel",
-		Enum.PartType.Cylinder,
-		Vector3.new(length * 0.86, 0.36, width * 0.41),
-		Vector3.new(0, 0.2, -0.65),
-		IRON,
-		90
-	)
-	add(
-		parts,
-		"Muzzle",
-		Enum.PartType.Cylinder,
-		Vector3.new(0.17, 0.41, width * 0.63),
-		Vector3.new(0, 0.19, -0.65 - length * 0.44),
-		BRASS,
-		90
-	)
-end
-
-local function staff(parts: { Piece }, length: number, gem: Color3)
-	handle(parts, length, DARK_BRASS)
-	box(parts, "SocketOutline", Vector3.new(0.66, 0.5, 0.42), Vector3.new(0, 0.08, -0.4 - length / 2), INK)
-	box(parts, "Socket", Vector3.new(0.49, 0.51, 0.31), Vector3.new(0, 0.14, -0.4 - length / 2), BRASS)
-	ball(parts, "Gem", Vector3.new(0.55, 0.55, 0.55), Vector3.new(0, 0.22, -0.7 - length / 2), gem)
-end
-
-local function axe(parts: { Piece }, length: number, color: Color3)
-	handle(parts, length)
-	box(parts, "HeadOutline", Vector3.new(1.4, 0.35, 0.56), Vector3.new(0, 0.04, -0.4 - length / 2), INK)
-	box(parts, "Head", Vector3.new(1.19, 0.37, 0.46), Vector3.new(0, 0.12, -0.4 - length / 2), color)
-	box(parts, "EdgeLeft", Vector3.new(0.17, 0.4, 0.68), Vector3.new(-0.65, 0.13, -0.4 - length / 2), BONE)
-	box(parts, "EdgeRight", Vector3.new(0.17, 0.4, 0.68), Vector3.new(0.65, 0.13, -0.4 - length / 2), BONE)
-end
-
-local BUILDERS: { [string]: Build } = {
-	OrbitBlades = function(p)
-		blade(p, 1.08, 0.35)
-		ball(p, "OrbitCore", Vector3.new(0.4, 0.4, 0.4), Vector3.new(0, 0.35, -0.28), AMBER)
-	end,
-	SparkBolt = function(p)
-		gun(p, 1.02, 0.53, DARK_BRASS)
-		ball(p, "SparkCell", Vector3.new(0.43, 0.4, 0.43), Vector3.new(0, 0.38, 0.18), BLUE)
-	end,
-	Shockwave = function(p)
-		handle(p, 1.05)
-		box(p, "HammerOutline", Vector3.new(1.42, 0.77, 0.75), Vector3.new(0, 0, -0.8), INK)
-		box(p, "Hammer", Vector3.new(1.22, 0.77, 0.62), Vector3.new(0, 0.1, -0.8), BRASS)
-		ball(p, "Stamp", Vector3.new(0.4, 0.18, 0.4), Vector3.new(0, 0.56, -0.8), AMBER)
-	end,
-	ChainLightning = function(p)
-		staff(p, 1.35, BLUE)
-		box(p, "ForkLeft", Vector3.new(0.16, 0.29, 0.8), Vector3.new(-0.38, 0.12, -1.23), IRON, -22)
-		box(p, "ForkRight", Vector3.new(0.16, 0.29, 0.8), Vector3.new(0.38, 0.12, -1.23), IRON, 22)
-	end,
-	ThornTrail = function(p)
-		staff(p, 1.45, GREEN)
-		box(p, "ThornLeft", Vector3.new(0.23, 0.34, 0.7), Vector3.new(-0.42, 0.14, -0.63), GREEN, -35)
-		box(p, "ThornRight", Vector3.new(0.23, 0.34, 0.7), Vector3.new(0.42, 0.14, -0.25), GREEN, 35)
-	end,
-	BoomerangAxe = function(p)
-		axe(p, 1.12, IRON)
-		box(p, "GoldBind", Vector3.new(0.38, 0.42, 0.33), Vector3.new(0, 0.3, -0.88), BRASS)
-	end,
-	BrassKnuckles = function(p)
-		box(p, "FistOutline", Vector3.new(1.15, 0.55, 0.76), Vector3.new(0, 0, 0), INK)
-		box(p, "Fist", Vector3.new(0.98, 0.56, 0.59), Vector3.new(0, 0.11, 0), BRASS)
-		for x = -1, 1 do
-			ball(p, "Knuckle", Vector3.new(0.33, 0.34, 0.3), Vector3.new(x * 0.31, 0.23, -0.38), BONE)
-		end
-	end,
-	RitualDirk = function(p)
-		blade(p, 0.86, 0.49, IRON)
-		ball(p, "RitualEye", Vector3.new(0.38, 0.18, 0.38), Vector3.new(0, 0.35, -0.87), RED)
-	end,
-	LamplighterPike = function(p)
-		staff(p, 1.76, AMBER)
-		box(p, "PikeTip", Vector3.new(0.24, 0.32, 0.79), Vector3.new(0, 0.14, -1.75), STEEL)
-	end,
-	DuskSabre = function(p)
-		blade(p, 1.61, 0.45, IRON)
-		box(p, "CurvedEdge", Vector3.new(0.13, 0.23, 0.73), Vector3.new(0.3, 0.2, -1.65), PURPLE, -16)
-	end,
-	Gravestone = function(p)
-		blade(p, 1.35, 0.96, IRON)
-		box(p, "StoneMark", Vector3.new(0.16, 0.09, 0.68), Vector3.new(0, 0.37, -1.1), PURPLE)
-	end,
-	TithePalm = function(p)
-		box(p, "PalmOutline", Vector3.new(0.98, 0.41, 0.94), Vector3.new(0, 0, -0.2), INK)
-		ball(p, "Palm", Vector3.new(0.79, 0.45, 0.8), Vector3.new(0, 0.13, -0.2), BONE)
-		ball(p, "Seal", Vector3.new(0.35, 0.18, 0.35), Vector3.new(0, 0.45, -0.24), PURPLE)
-		for x = -1, 1 do
-			box(p, "Finger", Vector3.new(0.21, 0.25, 0.55), Vector3.new(x * 0.32, 0.1, -0.77), BONE)
-		end
-	end,
-	WraithHatchet = function(p)
-		axe(p, 0.78, PURPLE)
-		ball(p, "GhostGem", Vector3.new(0.38, 0.22, 0.38), Vector3.new(0, 0.32, -0.74), BONE)
-	end,
-	SpiritFlint = function(p)
-		gun(p, 0.79, 0.49, IRON)
-		ball(p, "SpiritCore", Vector3.new(0.44, 0.4, 0.44), Vector3.new(0, 0.38, -0.27), PURPLE)
-	end,
-	WatchmanPistol = function(p)
-		gun(p, 0.83, 0.58, WOOD)
-		box(p, "Sight", Vector3.new(0.17, 0.22, 0.23), Vector3.new(0, 0.42, -0.42), BONE)
-	end,
-	RattleRepeater = function(p)
-		gun(p, 1.37, 0.66, DARK_BRASS)
-		box(p, "Drum", Vector3.new(0.83, 0.58, 0.6), Vector3.new(0, 0.32, -0.17), BRASS)
-		ball(p, "DrumPin", Vector3.new(0.23, 0.16, 0.23), Vector3.new(0, 0.68, -0.17), BONE)
-	end,
-	ScatterBell = function(p)
-		gun(p, 0.92, 0.71, DARK_BRASS)
-		box(p, "BellMouth", Vector3.new(1.06, 0.63, 0.55), Vector3.new(0, 0.17, -1.22), BRASS)
-	end,
-	ShrapnelOrgan = function(p)
-		gun(p, 1.13, 0.84, IRON)
-		for x = -1, 1 do
-			box(p, "OrganPipe", Vector3.new(0.21, 0.32, 1.34), Vector3.new(x * 0.4, 0.42, -0.71), BRASS)
-		end
-	end,
-	CinderBreath = function(p)
-		gun(p, 1.31, 0.73, IRON)
-		ball(p, "Furnace", Vector3.new(0.66, 0.48, 0.67), Vector3.new(0, 0.39, 0.16), RED)
-		box(p, "Vent", Vector3.new(0.77, 0.18, 0.26), Vector3.new(0, 0.37, -1.36), BRASS)
-	end,
-	GalvanicFork = function(p)
-		staff(p, 1.31, BLUE)
-		for x = -1, 1 do
-			box(p, "LongTine", Vector3.new(0.2, 0.29, 1.05), Vector3.new(x * 0.42, 0.11, -1.41), BRASS)
-		end
-	end,
-	LeechCarbine = function(p)
-		gun(p, 1.33, 0.56, WOOD)
-		ball(p, "LeechVial", Vector3.new(0.34, 0.48, 0.75), Vector3.new(0, 0.46, 0), GREEN)
-	end,
-	CathedralEngine = function(p)
-		gun(p, 1.58, 0.96, DARK_BRASS)
-		box(p, "Spire", Vector3.new(0.25, 0.37, 1.26), Vector3.new(0, 0.53, -0.36), BONE)
-		ball(p, "RoseWindow", Vector3.new(0.43, 0.2, 0.43), Vector3.new(0, 0.75, 0.29), AMBER)
-	end,
-	MortarLantern = function(p)
-		gun(p, 1.07, 0.88, DARK_BRASS)
-		box(p, "LanternCage", Vector3.new(0.69, 0.64, 0.7), Vector3.new(0, 0.48, -0.09), INK)
-		ball(p, "LanternFire", Vector3.new(0.48, 0.43, 0.49), Vector3.new(0, 0.61, -0.09), AMBER)
-	end,
-	WinterNeedle = function(p)
-		gun(p, 1.36, 0.43, BONE)
-		box(p, "IceNeedle", Vector3.new(0.16, 0.32, 0.68), Vector3.new(0, 0.18, -1.5), BLUE)
-	end,
-	FoundryKey = function(p)
-		handle(p, 1.25, BRASS)
-		ball(p, "KeyRingOutline", Vector3.new(0.9, 0.33, 0.9), Vector3.new(0, 0, -0.94), INK)
-		ball(p, "KeyRing", Vector3.new(0.67, 0.35, 0.67), Vector3.new(0, 0.12, -0.94), AMBER)
-		box(p, "Tooth", Vector3.new(0.55, 0.31, 0.19), Vector3.new(0.22, 0.12, -1.46), BRASS)
-	end,
-	RuneAwl = function(p)
-		blade(p, 0.76, 0.24, BRASS)
-		ball(p, "Rune", Vector3.new(0.31, 0.17, 0.31), Vector3.new(0, 0.35, -0.59), BLUE)
-	end,
-}
-
-local pools: { [string]: VisualKit.ObjectPool<{ Piece }> } = {}
-local active: { [string]: Model } = {}
-
-local function getPool(id: string): (VisualKit.ObjectPool<{ Piece }>?, string?)
-	HeldMeshLoader.request(id)
-	local prototypes = HeldMeshLoader.prototypes(id)
-	local key = `{id}:{if prototypes then "mesh" else "solid"}`
-	local pool = pools[key]
+local function poolOf(id: string): VisualKit.ObjectPool<SpriteKit.Sprite>
+	local pool = pools[id]
 	if pool then
-		return pool, key
+		return pool
 	end
-	local build = BUILDERS[id]
-	if not build then
-		return nil, nil
-	end
-	pool = VisualKit.objectPool(function(): { Piece }
-		local parts = {}
-		if prototypes then
-			for _, prototype in prototypes do
-				table.insert(parts, { part = prototype.part:Clone(), offset = prototype.offset })
-			end
-		else
-			build(parts)
-		end
-		return parts
-	end, function(parts: { Piece }): { BasePart }
-		local list = {}
-		for _, piece in parts do
-			table.insert(list, piece.part)
-		end
-		return list
+	local created = VisualKit.objectPool(function(): SpriteKit.Sprite
+		return SpriteKit.create(id, LOOK.spriteStuds[id], `Held{id}`)
+	end, function(sprite: SpriteKit.Sprite): { BasePart }
+		return { sprite.anchor }
 	end)
-	pools[key] = pool
-	return pool, key
+	pools[id] = created
+	return created
+end
+
+local function aimOf(effect: Types.WeaponEffect): (number, number)
+	if effect.dx and effect.dz then
+		return effect.dx, effect.dz
+	end
+	local points = effect.points
+	if points and #points >= 4 then
+		local dx, dz = points[3] - points[1], points[4] - points[2]
+		local length = math.sqrt(dx * dx + dz * dz)
+		if length > 0 then
+			return dx / length, dz / length
+		end
+	end
+	return 0, 0
+end
+
+local function nearestEnemy(owner: VisualKit.Owner, frameNumber: number): (number?, number?)
+	local cached = nearestByOwner[owner.userId]
+	if cached and cached.frame == frameNumber then
+		return if cached.found then cached.x else nil, if cached.found then cached.z else nil
+	end
+	local bestX, bestZ = 0, 0
+	local bestSquared = math.huge
+	local folder = workspace:FindFirstChild("LanternfallEnemies")
+	if folder then
+		for _, child in folder:GetChildren() do
+			if child:IsA("Model") then
+				local body = child:FindFirstChild("Body", true)
+				if body and body:IsA("BasePart") then
+					local position = body.Position
+					local dx, dz = position.X - owner.position.X, position.Z - owner.position.Z
+					local squared = dx * dx + dz * dz
+					if squared < bestSquared then
+						bestSquared = squared
+						bestX, bestZ = position.X, position.Z
+					end
+				end
+			end
+		end
+	end
+	nearestByOwner[owner.userId] = { frame = frameNumber, x = bestX, z = bestZ, found = bestSquared < math.huge }
+	return if bestSquared < math.huge then bestX else nil, if bestSquared < math.huge then bestZ else nil
+end
+
+function HeldModels.effect(effect: Types.WeaponEffect)
+	local uid = effect.uid
+	if not uid then
+		return
+	end
+	local key = keyOf(effect.userId, uid)
+	if effect.weapon == "BoomerangAxe" then
+		if effect.kind == "Fire" then
+			flights[key] = (flights[key] or 0) + 1
+		elseif effect.kind == "End" then
+			flights[key] = math.max(0, (flights[key] or 0) - 1)
+		end
+	end
+	if effect.kind == "End" then
+		return
+	end
+	local dx, dz = aimOf(effect)
+	local duration = if effect.kind == "Strike" then effect.duration or LOOK.attackSeconds else LOOK.attackSeconds
+	attacks[key] = {
+		at = workspace:GetServerTimeNow(),
+		duration = duration,
+		dx = dx,
+		dz = dz,
+		kind = effect.kind,
+		angle = effect.angle or 0,
+		distance = effect.targetDistance or 0,
+		x = effect.x or 0,
+		z = effect.z or 0,
+	}
 end
 
 function HeldModels.has(id: string): boolean
-	return BUILDERS[id] ~= nil
+	return Images[id] ~= nil
 end
 
 function HeldModels.renderWeapon(
 	owner: VisualKit.Owner,
 	weapon: { uid: number, id: string },
-	slot: number,
-	total: number,
+	_slot: number,
+	_total: number,
 	frame: VisualKit.Frame
 )
-	local key = `{owner.userId}:{weapon.uid}`
-	local current = active[key]
-	local pool, poolKey = getPool(weapon.id)
-	if not pool or not poolKey then
+	-- Orbit blades are drawn at their actual server hit positions by Visuals/OrbitBlades.
+	if weapon.id == "OrbitBlades" or not Images[weapon.id] then
 		return
 	end
-	if current and current.poolKey ~= poolKey then
-		(pools[current.poolKey] :: VisualKit.ObjectPool<{ Piece }>):release(current.pieces)
+	local key = keyOf(owner.userId, weapon.uid)
+	local model = active[key]
+	if model and model.id ~= weapon.id then
+		poolOf(model.id):release(model.sprite)
 		active[key] = nil
-		current = nil
+		model = nil
 	end
-	if not current then
-		current = { pieces = pool:acquire(frame.folder), seen = 0, poolKey = poolKey }
-		active[key] = current
+	if not model then
+		model = { sprite = poolOf(weapon.id):acquire(frame.folder), id = weapon.id, seen = 0, x = 0, z = 0 }
+		active[key] = model
 	end
-	current.seen = frame.number
+	model.seen = frame.number
 
-	local angle = -math.pi / 2 + 2 * math.pi * (slot - 1) / total
-	local direction = Vector3.new(math.cos(angle), 0, math.sin(angle))
-	local bob = math.sin(frame.now * 2.5 + slot * 1.7) * 0.13
-	local position = owner.position + direction * 2.7 + Vector3.new(0, 0.95 + bob, 0)
-	local facing = CFrame.lookAt(position, position + direction)
-	for _, piece in current.pieces do
-		frame.move(piece.part, facing * piece.offset)
+	local radialX, radialZ = WeaponPose.direction(weapon.uid)
+	local x, z = WeaponPose.anchor(owner.position.X, owner.position.Z, weapon.uid, weapon.id)
+	local dx, dz = radialX, radialZ
+	local targetX, targetZ = nearestEnemy(owner, frame.number)
+	if targetX and targetZ then
+		local tx, tz = targetX - owner.position.X, targetZ - owner.position.Z
+		local distance = math.sqrt(tx * tx + tz * tz)
+		if distance > 1e-6 then
+			dx, dz = tx / distance, tz / distance
+		end
 	end
+	local attack = attacks[key]
+	if attack then
+		local t = (frame.now - attack.at) / attack.duration
+		if t >= 1 then
+			attacks[key] = nil
+		elseif t >= 0 then
+			if attack.dx ~= 0 or attack.dz ~= 0 then
+				dx, dz = attack.dx, attack.dz
+			end
+			if attack.kind == "Strike" then
+				local reach = math.max(0, attack.distance - LOOK.spriteStuds[weapon.id] * LOOK.strikeTipFraction)
+				local centerX = owner.position.X + dx * reach
+				local centerZ = owner.position.Z + dz * reach
+				local movement = math.sin(math.pi * t)
+				if attack.angle ~= 0 then
+					local turn = math.rad(attack.angle * (t - 0.5))
+					local c, s = math.cos(turn), math.sin(turn)
+					dx, dz = dx * c - dz * s, dx * s + dz * c
+					local side = math.sin(2 * math.pi * t) * WeaponPose.radius(weapon.id) * 0.5
+					centerX += -attack.dz * side
+					centerZ += attack.dx * side
+				end
+				x += (centerX - x) * movement
+				z += (centerZ - z) * movement
+			elseif attack.kind == "Fire" then
+				local recoil = math.sin(math.pi * t) * LOOK.recoilDistance
+				x -= dx * recoil
+				z -= dz * recoil
+			elseif attack.kind == "Pulse" then
+				local movement = math.sin(math.pi * t)
+				local tip = LOOK.spriteStuds[weapon.id] * LOOK.strikeTipFraction
+				local centerX = attack.x - dx * tip
+				local centerZ = attack.z - dz * tip
+				x += (centerX - x) * movement
+				z += (centerZ - z) * movement
+			end
+		end
+	end
+	local bob = math.sin(frame.now * LOOK.idleBobSpeed + weapon.uid) * LOOK.idleBob
+	local sprite = model.sprite
+	model.x, model.z = x, z
+	sprite.picture.Visible = (flights[key] or 0) == 0
+	sprite.picture.Rotation = SpriteKit.rotationToward(weapon.id, dx, dz)
+	frame.move(sprite.anchor, CFrame.new(x, frame.floorY + LOOK.projectileHeight + bob, z))
+end
+
+-- The client projectile starts at the barrel currently on screen, then rejoins the server path.
+function HeldModels.projectileOrigin(effect: Types.WeaponEffect): (number, number)
+	local x, z = effect.x or 0, effect.z or 0
+	local uid = effect.uid
+	if not uid then
+		return x, z
+	end
+	local model = active[keyOf(effect.userId, uid)]
+	if not model or model.seen == 0 then
+		return x, z
+	end
+	local fraction = LOOK.muzzleFractionById[model.id] or LOOK.muzzleFraction
+	local muzzle = (LOOK.spriteStuds[model.id] or 4) * fraction
+	return model.x + (effect.dx or 0) * muzzle, model.z + (effect.dz or 0) * muzzle
 end
 
 function HeldModels.finish(frame: VisualKit.Frame)
 	for key, model in active do
 		if model.seen ~= frame.number then
-			(pools[model.poolKey] :: VisualKit.ObjectPool<{ Piece }>):release(model.pieces)
+			poolOf(model.id):release(model.sprite)
 			active[key] = nil
+			attacks[key] = nil
+			flights[key] = nil
 		end
 	end
 end
 
 function HeldModels.clear()
 	for key, model in active do
-		(pools[model.poolKey] :: VisualKit.ObjectPool<{ Piece }>):release(model.pieces)
+		poolOf(model.id):release(model.sprite)
 		active[key] = nil
 	end
+	table.clear(attacks)
+	table.clear(flights)
+	table.clear(nearestByOwner)
 end
 
 return HeldModels

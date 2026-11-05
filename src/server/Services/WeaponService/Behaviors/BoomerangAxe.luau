@@ -9,6 +9,7 @@
 -- Behavior for WeaponService/Arsenal; drawn by WeaponRenderer/Visuals/BoomerangAxe.
 
 local Arsenal = require(script.Parent.Parent.Arsenal)
+local WeaponPose = require(game:GetService("ReplicatedStorage").Shared.Util.WeaponPose)
 
 type Axe = {
 	id: number,
@@ -57,9 +58,10 @@ function BoomerangAxe.fire(weapon: Arsenal.Weapon, ctx: Arsenal.Context): boolea
 	end
 	local axes = axesOf(weapon)
 	local hitsPerWay = if stats.pierce < 0 then math.huge else stats.pierce + 1
+	local heldX, heldZ = WeaponPose.anchor(ctx.x, ctx.z, weapon.uid, weapon.id)
 	for k = 1, count do
 		local tx, tz = ctx:enemyPosition(targets[math.min(k, targetCount)])
-		local dx, dz = (tx or ctx.x + 1) - ctx.x, (tz or ctx.z) - ctx.z
+		local dx, dz = (tx or heldX + 1) - heldX, (tz or heldZ) - heldZ
 		local length = math.sqrt(dx * dx + dz * dz)
 		if length < EPSILON then
 			dx, dz, length = 1, 0, 1
@@ -73,8 +75,8 @@ function BoomerangAxe.fire(weapon: Arsenal.Weapon, ctx: Arsenal.Context): boolea
 		end
 		local axe: Axe = {
 			id = ctx:nextId(),
-			x = ctx.x,
-			z = ctx.z,
+			x = heldX,
+			z = heldZ,
 			dx = dx,
 			dz = dz,
 			flown = 0,
@@ -90,6 +92,7 @@ function BoomerangAxe.fire(weapon: Arsenal.Weapon, ctx: Arsenal.Context): boolea
 		table.insert(axes, axe)
 		ctx:emit(weapon, {
 			kind = "Fire",
+			uid = weapon.uid,
 			id = axe.id,
 			x = axe.x,
 			z = axe.z,
@@ -161,7 +164,7 @@ function BoomerangAxe.step(weapon: Arsenal.Weapon, ctx: Arsenal.Context, dt: num
 		local axe = axes[index]
 		-- an axe of a downed owner still flies out and back to where they lie
 		if move(weapon, ctx, axe, dt) or ctx.now >= axe.expiresAt then
-			ctx:emit(weapon, { kind = "End", id = axe.id, x = axe.x, z = axe.z })
+			ctx:emit(weapon, { kind = "End", uid = weapon.uid, id = axe.id, x = axe.x, z = axe.z })
 			table.remove(axes, index)
 		end
 	end

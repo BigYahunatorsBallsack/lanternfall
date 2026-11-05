@@ -350,6 +350,20 @@ function Icons.draw(parent: GuiObject, kind: string, id: string): Frame
 			showWhenLoaded()
 		end
 	end
+	-- Uploaded stat artwork is the final illustration. Keeping the drawn fallback underneath
+	-- makes both visible in Studio even while ImageLabel.IsLoaded still reports false.
+	if kind == "stat" and StatImages[id] then
+		local fallback = root:FindFirstChild("Fallback")
+		if fallback then
+			fallback.Visible = false
+		end
+	end
+	if kind == "item" and ItemImages[id] then
+		local fallback = root:FindFirstChild("Fallback")
+		if fallback then
+			fallback.Visible = false
+		end
+	end
 	return root
 end
 

@@ -92,10 +92,6 @@ end
 
 local function place(chain: Chain, frame: VisualKit.Frame)
 	local points = chain.points
-	local position = frame.ownerPosition(chain.userId)
-	if position then
-		points[1], points[2] = position.X, position.Z
-	end
 	local y = frame.floorY + HEIGHT
 	for k = 1, #points // 2 - 1 do
 		local a = Vector3.new(points[2 * k - 1], y, points[2 * k])

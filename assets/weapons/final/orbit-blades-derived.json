@@ -1,0 +1,8 @@
+{
+  "source": "orbit-blades.png",
+  "method": "The two disjoint alpha components were separated without repainting and centered on transparent 850×850 canvases.",
+  "images": {
+    "orbit-blade-a.png": "rbxassetid://82762074237036",
+    "orbit-blade-b.png": "rbxassetid://111823063839810"
+  }
+}

@@ -1,6 +1,7 @@
 --!strict
 -- B7 projectile family for Arsenal: B5 collision/bounces plus spread, magazines and explosion chance.
 local Arsenal = require(script.Parent.Arsenal)
+local WeaponPose = require(game:GetService("ReplicatedStorage").Shared.Util.WeaponPose)
 
 type Bolt = {
 	id: number,
@@ -82,6 +83,7 @@ local function launch(
 	table.insert(boltsOf(weapon), bolt)
 	ctx:emit(weapon, {
 		kind = "Fire",
+		uid = if bounced then nil else weapon.uid,
 		id = bolt.id,
 		x = x,
 		z = z,
@@ -104,9 +106,10 @@ function Projectile.fire(weapon: Arsenal.Weapon, ctx: Arsenal.Context): boolean
 		return false
 	end
 	local hitsPerBolt = if stats.pierce < 0 then math.huge else stats.pierce + 1
+	local heldX, heldZ = WeaponPose.anchor(ctx.x, ctx.z, weapon.uid, weapon.id)
 	for k = 1, count do
 		local tx, tz = ctx:enemyPosition(targets[math.min(k, targetCount)])
-		local dx, dz = (tx or ctx.x + 1) - ctx.x, (tz or ctx.z) - ctx.z
+		local dx, dz = (tx or heldX + 1) - heldX, (tz or heldZ) - heldZ
 		local length = math.sqrt(dx * dx + dz * dz)
 		if length < EPSILON then
 			dx, dz, length = 1, 0, 1
@@ -120,7 +123,8 @@ function Projectile.fire(weapon: Arsenal.Weapon, ctx: Arsenal.Context): boolean
 			local side = if extra % 2 == 1 then 1 else -1
 			dx, dz = rotate(dx, dz, math.rad(stats.spreadDegrees) * side * math.ceil(extra / 2))
 		end
-		launch(weapon, ctx, ctx.x, ctx.z, dx, dz, hitsPerBolt, stats.bounce or 0, 1, false, {})
+		local muzzleX, muzzleZ = WeaponPose.muzzle(ctx.x, ctx.z, weapon.uid, weapon.id, dx, dz, length)
+		launch(weapon, ctx, muzzleX, muzzleZ, dx, dz, hitsPerBolt, stats.bounce or 0, 1, false, {})
 	end
 	if stats.magazine then
 		weapon.state.shots = (weapon.state.shots or 0) + 1

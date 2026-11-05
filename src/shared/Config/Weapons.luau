@@ -132,26 +132,29 @@ local Weapons: { [string]: Weapon } = {
 	Shockwave = {
 		id = "Shockwave",
 		displayName = "Shockwave",
-		description = "A blast around you, pushes enemies away.",
+		description = "Hammer strike sends a weaker shockwave from the impact.",
 		kind = "Melee",
 		classes = { "Bludgeon", "Colossal" },
 		scaling = { meleeDamage = 1, armor = 0.5 }, -- B5: heavy weapons in Brotato also grow with Armor
-		rangeKeys = { "radius" },
+		rangeKeys = { "range" },
 		behavior = "Shockwave",
-		targeting = "Self",
+		targeting = "Nearest",
 		base = {
-			damage = 15, -- playtest after Paket 24: evened out, was 20
-			cooldown = 3.0, -- waits for an enemy in the radius once ready
-			radius = 10,
+			damage = 18,
+			cooldown = 1.4,
+			range = 15,
+			explosionRadius = 4.5,
+			explosionDamage = 0.35,
+			waveKnockbackShare = 0.4,
 			knockback = 30, -- B5: Brotato points like a hammer (before 3 studs)
 			critChance = 0.03,
 			critDamage = 1.75,
 		},
 		tiers = {
 			{},
-			{ damage = 0.3, radius = 2, cooldown = -0.3 },
-			{ damage = 0.4, radius = 2, cooldown = -0.3 },
-			{ damage = 0.6, radius = 3, cooldown = -0.4 },
+			{ damage = 0.3, explosionRadius = 0.75, cooldown = -0.1 },
+			{ damage = 0.4, explosionRadius = 1, cooldown = -0.1 },
+			{ damage = 0.6, explosionRadius = 1.25, cooldown = -0.1 },
 		},
 	},
 	ChainLightning = {
@@ -183,33 +186,33 @@ local Weapons: { [string]: Weapon } = {
 	},
 	ThornTrail = {
 		id = "ThornTrail",
-		displayName = "Thorn Trail",
-		description = "Leaves thorns behind you that slow enemies.",
+		displayName = "Thorn Hook",
+		description = "Sweeps nearby enemies with a slowing thorn hook.",
 		kind = "Melee",
 		classes = { "Primal", "Arcane" },
-		-- B5: mixed like Brotato's torch (before 100 % Elemental); playtest after Paket 24: Elemental 0.8 -> 0.5
 		scaling = { elementalDamage = 0.5, meleeDamage = 0.5 },
-		rangeKeys = {},
+		rangeKeys = { "range" },
 		behavior = "ThornTrail",
-		targeting = "Trail",
+		targeting = "Nearest",
 		base = {
-			damage = 6, -- per tick to every enemy on the trail; playtest after Paket 24: was 8
-			tickInterval = 0.5, -- seconds; an enemy standing on several patches is still hit once per tick
-			duration = 2, -- seconds a patch lies
-			radius = 2.5, -- studs, size of one thorn patch (assumption)
-			dropSpacing = 2, -- studs you move before the next patch is dropped (assumption)
-			maxPatches = 40, -- the oldest patch goes first beyond this (assumption, ~4 s of running at L5)
-			slow = 0.3, -- B5: enemies hit lose this share of their speed (assumption) ...
-			slowSeconds = 0.6, -- ... for this long, so they stay slow while they stand on thorns
-			critChance = 0, -- like Brotato's torch: no crits without Crit Chance
+			damage = 12,
+			cooldown = 0.8,
+			range = 17,
+			width = 1.2,
+			sweepDegrees = 120,
+			attackSeconds = 0.18,
+			meleeMode = 1,
+			slow = 0.3,
+			slowSeconds = 0.6,
+			critChance = 0,
 			critDamage = 1.5,
 			knockback = 0,
 		},
 		tiers = {
 			{},
-			{ duration = 0.5, damage = 0.4 },
-			{ duration = 0.5, damage = 0.5 },
-			{ duration = 1, damage = 0.8 },
+			{ damage = 0.4, range = 2 },
+			{ damage = 0.5, cooldown = -0.08 },
+			{ damage = 0.8, range = 3 },
 		},
 	},
 	BoomerangAxe = {
