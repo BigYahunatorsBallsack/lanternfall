@@ -1,0 +1,22 @@
+{
+  "id": "MarbleHost",
+  "clips": [
+    {
+      "name": "Idle",
+      "pass_clip": true,
+      "action_names": [
+        "MarbleHost_R15|Scene"
+      ],
+      "hand_displacement": 0.029046
+    },
+    {
+      "name": "Walk",
+      "pass_clip": true,
+      "action_names": [
+        "MarbleHost_R15|Scene"
+      ],
+      "hand_displacement": 0.090635
+    }
+  ],
+  "pass": true
+}

@@ -246,6 +246,8 @@ Feste Charakter-Startwerte werden unverändert addiert; `gainMultipliers` wirken
 
 Der Shop verwendet persönliche Waffenlimits und Nah-/Fernkampf-Beschränkungen, einschließlich Kauf-Verschmelzung bei einem vollen Teil-Limit. Bei 5 % der Item-Ziehungen wird innerhalb der gewürfelten Seltenheit ein passendes Wunsch-Tag bevorzugt; fehlt ein passendes Item, gilt der normale Pool. Item-Tags sind aus positiven Werten/Effekt-Boni des eigenen Katalogs abgeleitete Affinitäten, keine vollständige Kopie der Wiki-Taglisten. Limit, Sperren und Duplikatvermeidung bleiben erhalten.
 
+Seit Paket 21f besitzen alle zehn Charaktere räumliche, kompakte Ei-Modelle mit getrennt bewegten Armen und Füßen. Der Server bindet die ausgewählte Optik bei Klassenwahl und Respawn an den vorhandenen R15-Spielcharakter; Klassenregeln und Kollisionen bleiben dort. Jeder Client zeigt das Modell erst nach erfolgreichem Vorladen seiner Meshes und Farbtexturen und animiert seine R15-Bones aus Bewegung und Down-Zustand. Upload-IDs und reine Darstellungswerte stehen in `Config/CharacterArt.luau`, Quellen und Prüfberichte in `assets/characters-r15/`.
+
 ## 6. Waffen, Items & Evolutionen
 
 Seit B7 hat v1 24 Waffen, 90 Items (seit B5, vorher 78 bzw. 46) und 2 Evolutionen. Seit B2 trägt jeder Spieler bis zu 6 Waffen (vorher 4). Seit B3 hat jede Waffe wie in Brotato eine Stufe I–IV statt Level 1–5; dieselbe Waffe darf man mehrmals tragen, zwei gleiche gleicher Stufe verschmelzen zur nächsten (Abschnitt 3). Items ersetzen seit B2 die 6 Passive: Man kann sie beliebig oft kaufen, sie stapeln ohne Grenze.

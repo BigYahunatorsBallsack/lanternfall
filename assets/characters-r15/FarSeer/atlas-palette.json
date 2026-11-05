@@ -1,0 +1,135 @@
+{
+  "R15 | internal driver": {
+    "index": 0,
+    "color": [
+      0.6539999842643738,
+      0.6660000085830688,
+      0.6859999895095825,
+      1.0
+    ],
+    "roughness": 0.5,
+    "alpha": 0.0,
+    "emission": [
+      1.0,
+      1.0,
+      1.0,
+      1.0
+    ],
+    "strength": 0.0,
+    "textured": false
+  },
+  "Surface | original sprite face": {
+    "index": 1,
+    "color": [
+      0.6600000262260437,
+      0.6700000166893005,
+      0.6899999976158142,
+      1.0
+    ],
+    "roughness": 0.47999998927116394,
+    "alpha": 1.0,
+    "emission": [
+      1.0,
+      1.0,
+      1.0,
+      1.0
+    ],
+    "strength": 0.0,
+    "textured": true
+  },
+  "Scope | muted teal": {
+    "index": 2,
+    "color": [
+      0.09000000357627869,
+      0.25999999046325684,
+      0.23999999463558197,
+      1.0
+    ],
+    "roughness": 0.4000000059604645,
+    "alpha": 1.0,
+    "emission": [
+      1.0,
+      1.0,
+      1.0,
+      1.0
+    ],
+    "strength": 0.0,
+    "textured": false
+  },
+  "Detail | charcoal": {
+    "index": 3,
+    "color": [
+      0.06499999761581421,
+      0.07000000029802322,
+      0.08699999749660492,
+      1.0
+    ],
+    "roughness": 0.5,
+    "alpha": 1.0,
+    "emission": [
+      1.0,
+      1.0,
+      1.0,
+      1.0
+    ],
+    "strength": 0.0,
+    "textured": false
+  },
+  "Scope | lens": {
+    "index": 4,
+    "color": [
+      0.3499999940395355,
+      0.5199999809265137,
+      0.5299999713897705,
+      1.0
+    ],
+    "roughness": 0.23000000417232513,
+    "alpha": 1.0,
+    "emission": [
+      1.0,
+      1.0,
+      1.0,
+      1.0
+    ],
+    "strength": 0.0,
+    "textured": false
+  },
+  "Scope | lens reflections": {
+    "index": 5,
+    "color": [
+      0.7799999713897705,
+      0.8899999856948853,
+      0.8799999952316284,
+      1.0
+    ],
+    "roughness": 0.30000001192092896,
+    "alpha": 1.0,
+    "emission": [
+      1.0,
+      1.0,
+      1.0,
+      1.0
+    ],
+    "strength": 0.0,
+    "textured": false
+  },
+  "Surface | pale gray limbs": {
+    "index": 6,
+    "color": [
+      0.6539999842643738,
+      0.6660000085830688,
+      0.6859999895095825,
+      1.0
+    ],
+    "roughness": 0.47999998927116394,
+    "alpha": 1.0,
+    "emission": [
+      1.0,
+      1.0,
+      1.0,
+      1.0
+    ],
+    "strength": 0.0,
+    "textured": false
+  }
+}

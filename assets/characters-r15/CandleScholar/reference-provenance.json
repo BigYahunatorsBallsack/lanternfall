@@ -1,0 +1,50 @@
+{
+  "github_main": "f515df9082fa134f5cc5bdf179122aaee9f05563",
+  "source": "reference.png",
+  "sha256": "009c96df1d820557cdb6013f12dba799b2213dd98fc135ae8537b20e6ecdcff2",
+  "selected_face_components": [
+    [
+      436,
+      518,
+      167,
+      93,
+      4428
+    ],
+    [
+      694,
+      531,
+      156,
+      81,
+      3928
+    ],
+    [
+      425,
+      609,
+      189,
+      119,
+      10819
+    ],
+    [
+      714,
+      616,
+      146,
+      110,
+      8736
+    ],
+    [
+      619,
+      718,
+      84,
+      36,
+      1666
+    ],
+    [
+      773,
+      766,
+      130,
+      151,
+      3834
+    ]
+  ],
+  "method": "Original sprite facial silhouettes projected to a closed, curved UV surface. Occluded cheek reconstructed only where necessary."
+}

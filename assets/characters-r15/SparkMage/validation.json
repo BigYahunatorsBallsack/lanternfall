@@ -1,0 +1,489 @@
+{
+  "id": "SparkMage",
+  "checks": [
+    {
+      "label": "source_blend",
+      "mesh_count": 15,
+      "part_names_valid": true,
+      "armatures": 1,
+      "meshes": [
+        {
+          "name": "Head",
+          "closed": true,
+          "positive_volume": true,
+          "finite": true,
+          "weights_normalized": true
+        },
+        {
+          "name": "LeftHand",
+          "closed": true,
+          "positive_volume": true,
+          "finite": true,
+          "weights_normalized": true
+        },
+        {
+          "name": "RightHand",
+          "closed": true,
+          "positive_volume": true,
+          "finite": true,
+          "weights_normalized": true
+        },
+        {
+          "name": "LeftFoot",
+          "closed": true,
+          "positive_volume": true,
+          "finite": true,
+          "weights_normalized": true
+        },
+        {
+          "name": "RightFoot",
+          "closed": true,
+          "positive_volume": true,
+          "finite": true,
+          "weights_normalized": true
+        },
+        {
+          "name": "LowerTorso",
+          "closed": true,
+          "positive_volume": true,
+          "finite": true,
+          "weights_normalized": true
+        },
+        {
+          "name": "UpperTorso",
+          "closed": true,
+          "positive_volume": true,
+          "finite": true,
+          "weights_normalized": true
+        },
+        {
+          "name": "LeftUpperArm",
+          "closed": true,
+          "positive_volume": true,
+          "finite": true,
+          "weights_normalized": true
+        },
+        {
+          "name": "LeftLowerArm",
+          "closed": true,
+          "positive_volume": true,
+          "finite": true,
+          "weights_normalized": true
+        },
+        {
+          "name": "LeftUpperLeg",
+          "closed": true,
+          "positive_volume": true,
+          "finite": true,
+          "weights_normalized": true
+        },
+        {
+          "name": "LeftLowerLeg",
+          "closed": true,
+          "positive_volume": true,
+          "finite": true,
+          "weights_normalized": true
+        },
+        {
+          "name": "RightUpperArm",
+          "closed": true,
+          "positive_volume": true,
+          "finite": true,
+          "weights_normalized": true
+        },
+        {
+          "name": "RightLowerArm",
+          "closed": true,
+          "positive_volume": true,
+          "finite": true,
+          "weights_normalized": true
+        },
+        {
+          "name": "RightUpperLeg",
+          "closed": true,
+          "positive_volume": true,
+          "finite": true,
+          "weights_normalized": true
+        },
+        {
+          "name": "RightLowerLeg",
+          "closed": true,
+          "positive_volume": true,
+          "finite": true,
+          "weights_normalized": true
+        }
+      ],
+      "hierarchy_valid": true,
+      "bone_count": 17,
+      "textures_present": true,
+      "pass": true
+    },
+    {
+      "label": "game_blend",
+      "mesh_count": 15,
+      "part_names_valid": true,
+      "armatures": 1,
+      "meshes": [
+        {
+          "name": "Head",
+          "closed": true,
+          "positive_volume": true,
+          "finite": true,
+          "weights_normalized": true
+        },
+        {
+          "name": "LeftHand",
+          "closed": true,
+          "positive_volume": true,
+          "finite": true,
+          "weights_normalized": true
+        },
+        {
+          "name": "RightHand",
+          "closed": true,
+          "positive_volume": true,
+          "finite": true,
+          "weights_normalized": true
+        },
+        {
+          "name": "LeftFoot",
+          "closed": true,
+          "positive_volume": true,
+          "finite": true,
+          "weights_normalized": true
+        },
+        {
+          "name": "RightFoot",
+          "closed": true,
+          "positive_volume": true,
+          "finite": true,
+          "weights_normalized": true
+        },
+        {
+          "name": "LowerTorso",
+          "closed": true,
+          "positive_volume": true,
+          "finite": true,
+          "weights_normalized": true
+        },
+        {
+          "name": "UpperTorso",
+          "closed": true,
+          "positive_volume": true,
+          "finite": true,
+          "weights_normalized": true
+        },
+        {
+          "name": "LeftUpperArm",
+          "closed": true,
+          "positive_volume": true,
+          "finite": true,
+          "weights_normalized": true
+        },
+        {
+          "name": "LeftLowerArm",
+          "closed": true,
+          "positive_volume": true,
+          "finite": true,
+          "weights_normalized": true
+        },
+        {
+          "name": "LeftUpperLeg",
+          "closed": true,
+          "positive_volume": true,
+          "finite": true,
+          "weights_normalized": true
+        },
+        {
+          "name": "LeftLowerLeg",
+          "closed": true,
+          "positive_volume": true,
+          "finite": true,
+          "weights_normalized": true
+        },
+        {
+          "name": "RightUpperArm",
+          "closed": true,
+          "positive_volume": true,
+          "finite": true,
+          "weights_normalized": true
+        },
+        {
+          "name": "RightLowerArm",
+          "closed": true,
+          "positive_volume": true,
+          "finite": true,
+          "weights_normalized": true
+        },
+        {
+          "name": "RightUpperLeg",
+          "closed": true,
+          "positive_volume": true,
+          "finite": true,
+          "weights_normalized": true
+        },
+        {
+          "name": "RightLowerLeg",
+          "closed": true,
+          "positive_volume": true,
+          "finite": true,
+          "weights_normalized": true
+        }
+      ],
+      "hierarchy_valid": true,
+      "bone_count": 17,
+      "textures_present": true,
+      "pass": true
+    },
+    {
+      "label": "glb_roundtrip",
+      "mesh_count": 15,
+      "part_names_valid": true,
+      "armatures": 1,
+      "meshes": [
+        {
+          "name": "Head",
+          "closed": true,
+          "positive_volume": true,
+          "finite": true,
+          "weights_normalized": true
+        },
+        {
+          "name": "LeftFoot",
+          "closed": true,
+          "positive_volume": true,
+          "finite": true,
+          "weights_normalized": true
+        },
+        {
+          "name": "LeftHand",
+          "closed": true,
+          "positive_volume": true,
+          "finite": true,
+          "weights_normalized": true
+        },
+        {
+          "name": "LeftLowerArm",
+          "closed": true,
+          "positive_volume": true,
+          "finite": true,
+          "weights_normalized": true
+        },
+        {
+          "name": "LeftLowerLeg",
+          "closed": true,
+          "positive_volume": true,
+          "finite": true,
+          "weights_normalized": true
+        },
+        {
+          "name": "LeftUpperArm",
+          "closed": true,
+          "positive_volume": true,
+          "finite": true,
+          "weights_normalized": true
+        },
+        {
+          "name": "LeftUpperLeg",
+          "closed": true,
+          "positive_volume": true,
+          "finite": true,
+          "weights_normalized": true
+        },
+        {
+          "name": "LowerTorso",
+          "closed": true,
+          "positive_volume": true,
+          "finite": true,
+          "weights_normalized": true
+        },
+        {
+          "name": "RightFoot",
+          "closed": true,
+          "positive_volume": true,
+          "finite": true,
+          "weights_normalized": true
+        },
+        {
+          "name": "RightHand",
+          "closed": true,
+          "positive_volume": true,
+          "finite": true,
+          "weights_normalized": true
+        },
+        {
+          "name": "RightLowerArm",
+          "closed": true,
+          "positive_volume": true,
+          "finite": true,
+          "weights_normalized": true
+        },
+        {
+          "name": "RightLowerLeg",
+          "closed": true,
+          "positive_volume": true,
+          "finite": true,
+          "weights_normalized": true
+        },
+        {
+          "name": "RightUpperArm",
+          "closed": true,
+          "positive_volume": true,
+          "finite": true,
+          "weights_normalized": true
+        },
+        {
+          "name": "RightUpperLeg",
+          "closed": true,
+          "positive_volume": true,
+          "finite": true,
+          "weights_normalized": true
+        },
+        {
+          "name": "UpperTorso",
+          "closed": true,
+          "positive_volume": true,
+          "finite": true,
+          "weights_normalized": true
+        }
+      ],
+      "hierarchy_valid": true,
+      "bone_count": 17,
+      "textures_present": true,
+      "pass": true
+    },
+    {
+      "label": "fbx_roundtrip",
+      "mesh_count": 15,
+      "part_names_valid": true,
+      "armatures": 1,
+      "meshes": [
+        {
+          "name": "LeftLowerArm_Geo",
+          "closed": true,
+          "positive_volume": true,
+          "finite": true,
+          "weights_normalized": true
+        },
+        {
+          "name": "LeftFoot_Geo",
+          "closed": true,
+          "positive_volume": true,
+          "finite": true,
+          "weights_normalized": true
+        },
+        {
+          "name": "LowerTorso_Geo",
+          "closed": true,
+          "positive_volume": true,
+          "finite": true,
+          "weights_normalized": true
+        },
+        {
+          "name": "RightFoot_Geo",
+          "closed": true,
+          "positive_volume": true,
+          "finite": true,
+          "weights_normalized": true
+        },
+        {
+          "name": "RightHand_Geo",
+          "closed": true,
+          "positive_volume": true,
+          "finite": true,
+          "weights_normalized": true
+        },
+        {
+          "name": "RightLowerArm_Geo",
+          "closed": true,
+          "positive_volume": true,
+          "finite": true,
+          "weights_normalized": true
+        },
+        {
+          "name": "RightUpperArm_Geo",
+          "closed": true,
+          "positive_volume": true,
+          "finite": true,
+          "weights_normalized": true
+        },
+        {
+          "name": "UpperTorso_Geo",
+          "closed": true,
+          "positive_volume": true,
+          "finite": true,
+          "weights_normalized": true
+        },
+        {
+          "name": "Head_Geo",
+          "closed": true,
+          "positive_volume": true,
+          "finite": true,
+          "weights_normalized": true
+        },
+        {
+          "name": "LeftHand_Geo",
+          "closed": true,
+          "positive_volume": true,
+          "finite": true,
+          "weights_normalized": true
+        },
+        {
+          "name": "LeftLowerLeg_Geo",
+          "closed": true,
+          "positive_volume": true,
+          "finite": true,
+          "weights_normalized": true
+        },
+        {
+          "name": "LeftUpperArm_Geo",
+          "closed": true,
+          "positive_volume": true,
+          "finite": true,
+          "weights_normalized": true
+        },
+        {
+          "name": "LeftUpperLeg_Geo",
+          "closed": true,
+          "positive_volume": true,
+          "finite": true,
+          "weights_normalized": true
+        },
+        {
+          "name": "RightLowerLeg_Geo",
+          "closed": true,
+          "positive_volume": true,
+          "finite": true,
+          "weights_normalized": true
+        },
+        {
+          "name": "RightUpperLeg_Geo",
+          "closed": true,
+          "positive_volume": true,
+          "finite": true,
+          "weights_normalized": true
+        }
+      ],
+      "hierarchy_valid": true,
+      "bone_count": 17,
+      "textures_present": true,
+      "pass": true
+    }
+  ],
+  "motion": {
+    "pass_motion": true,
+    "centroid_displacements": {
+      "Head": 0.05,
+      "RightHand": 0.097054,
+      "LeftFoot": 0.119599,
+      "RightFoot": 0.019847
+    }
+  },
+  "glb_animations": [
+    "Idle",
+    "Walk"
+  ],
+  "glb_embedded_images": true,
+  "studio_runtime_tested": false,
+  "pass": true
+}

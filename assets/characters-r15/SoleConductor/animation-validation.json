@@ -1,0 +1,22 @@
+{
+  "id": "SoleConductor",
+  "clips": [
+    {
+      "name": "Idle",
+      "pass_clip": true,
+      "action_names": [
+        "SoleConductor_R15|Scene"
+      ],
+      "hand_displacement": 0.028867
+    },
+    {
+      "name": "Walk",
+      "pass_clip": true,
+      "action_names": [
+        "SoleConductor_R15|Scene"
+      ],
+      "hand_displacement": 0.089209
+    }
+  ],
+  "pass": true
+}

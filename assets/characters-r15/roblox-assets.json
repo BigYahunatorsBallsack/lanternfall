@@ -1,0 +1,257 @@
+{
+  "creatorUserId": "3898708794",
+  "universeId": "10773092515",
+  "models": {
+    "BladeWarden": {
+      "assetId": "113282495903461",
+      "operationId": "47256e6c-dd14-4d10-9185-2e761dc1efaa",
+      "state": "Approved"
+    },
+    "SparkMage": {
+      "path": "operations/894a3932-2ee0-49b0-bcb4-71a3feeab62a",
+      "operationId": "894a3932-2ee0-49b0-bcb4-71a3feeab62a",
+      "done": true,
+      "response": {
+        "path": "assets/132853125133078",
+        "revisionId": "1",
+        "revisionCreateTime": "2026-11-05T18:44:39.155Z",
+        "assetId": "132853125133078",
+        "displayName": "Lanternfall Spark Mage R15",
+        "description": "Original Lanternfall character with approved sprite face, closed 3D egg body, separate limbs and optimized game texture atlas.",
+        "assetType": "Model",
+        "creationContext": {
+          "creator": {
+            "userId": "3898708794"
+          }
+        },
+        "moderationResult": {
+          "moderationState": "Approved"
+        },
+        "state": "Active",
+        "isPublished": true
+      },
+      "assetId": "132853125133078",
+      "state": "Approved"
+    },
+    "NightWatch": {
+      "path": "operations/c5a42064-cf9e-4a1f-a59f-053ae0d2978b",
+      "operationId": "c5a42064-cf9e-4a1f-a59f-053ae0d2978b",
+      "done": true,
+      "response": {
+        "path": "assets/136100435515397",
+        "revisionId": "1",
+        "revisionCreateTime": "2026-11-05T18:44:43.24Z",
+        "assetId": "136100435515397",
+        "displayName": "Lanternfall Night Watch R15",
+        "description": "Original Lanternfall character with approved sprite face, closed 3D egg body, separate limbs and optimized game texture atlas.",
+        "assetType": "Model",
+        "creationContext": {
+          "creator": {
+            "userId": "3898708794"
+          }
+        },
+        "moderationResult": {
+          "moderationState": "Approved"
+        },
+        "state": "Active",
+        "isPublished": true
+      },
+      "assetId": "136100435515397",
+      "state": "Approved"
+    },
+    "ManyHands": {
+      "path": "operations/8ad630dd-c44e-4bbc-81f5-e2e532313914",
+      "operationId": "8ad630dd-c44e-4bbc-81f5-e2e532313914",
+      "done": true,
+      "response": {
+        "path": "assets/88057485567894",
+        "revisionId": "1",
+        "revisionCreateTime": "2026-11-05T18:44:50.567Z",
+        "assetId": "88057485567894",
+        "displayName": "Lanternfall Many Hands R15",
+        "description": "Original Lanternfall character with approved sprite face, closed 3D egg body, separate limbs and optimized game texture atlas.",
+        "assetType": "Model",
+        "creationContext": {
+          "creator": {
+            "userId": "3898708794"
+          }
+        },
+        "moderationResult": {
+          "moderationState": "Approved"
+        },
+        "state": "Active",
+        "isPublished": true
+      },
+      "assetId": "88057485567894",
+      "state": "Approved"
+    },
+    "SoleConductor": {
+      "path": "operations/cf4fae0d-8f14-4ffe-92d1-e7880c6f9163",
+      "operationId": "cf4fae0d-8f14-4ffe-92d1-e7880c6f9163",
+      "done": true,
+      "response": {
+        "path": "assets/74404360072431",
+        "revisionId": "1",
+        "revisionCreateTime": "2026-11-05T18:44:46.681Z",
+        "assetId": "74404360072431",
+        "displayName": "Lanternfall Sole Conductor R15",
+        "description": "Original Lanternfall character with approved sprite face, closed 3D egg body, separate limbs and optimized game texture atlas.",
+        "assetType": "Model",
+        "creationContext": {
+          "creator": {
+            "userId": "3898708794"
+          }
+        },
+        "moderationResult": {
+          "moderationState": "Approved"
+        },
+        "state": "Active",
+        "isPublished": true
+      },
+      "assetId": "74404360072431",
+      "state": "Approved"
+    },
+    "DuelMaestro": {
+      "path": "operations/441bd88b-b577-451d-81d8-4b40ef86572f",
+      "operationId": "441bd88b-b577-451d-81d8-4b40ef86572f",
+      "done": true,
+      "response": {
+        "path": "assets/122793795418952",
+        "revisionId": "1",
+        "revisionCreateTime": "2026-11-05T18:44:56.199Z",
+        "assetId": "122793795418952",
+        "displayName": "Lanternfall Duel Maestro R15",
+        "description": "Original Lanternfall character with approved sprite face, closed 3D egg body, separate limbs and optimized game texture atlas.",
+        "assetType": "Model",
+        "creationContext": {
+          "creator": {
+            "userId": "3898708794"
+          }
+        },
+        "moderationResult": {
+          "moderationState": "Approved"
+        },
+        "state": "Active",
+        "isPublished": true
+      },
+      "assetId": "122793795418952",
+      "state": "Approved"
+    },
+    "FarSeer": {
+      "path": "operations/1a503f82-c3da-40ab-b7a0-b65c940119c8",
+      "operationId": "1a503f82-c3da-40ab-b7a0-b65c940119c8",
+      "done": true,
+      "response": {
+        "path": "assets/91898932399105",
+        "revisionId": "1",
+        "revisionCreateTime": "2026-11-05T18:44:54.528Z",
+        "assetId": "91898932399105",
+        "displayName": "Lanternfall Far Seer R15",
+        "description": "Original Lanternfall character with approved sprite face, closed 3D egg body, separate limbs and optimized game texture atlas.",
+        "assetType": "Model",
+        "creationContext": {
+          "creator": {
+            "userId": "3898708794"
+          }
+        },
+        "moderationResult": {
+          "moderationState": "Approved"
+        },
+        "state": "Active",
+        "isPublished": true
+      },
+      "assetId": "91898932399105",
+      "state": "Approved"
+    },
+    "MarbleHost": {
+      "path": "operations/fddd5a31-c537-47e3-95cf-b0f977651d6a",
+      "operationId": "fddd5a31-c537-47e3-95cf-b0f977651d6a",
+      "done": true,
+      "response": {
+        "path": "assets/81751800578901",
+        "revisionId": "1",
+        "revisionCreateTime": "2026-11-05T18:45:04.475Z",
+        "assetId": "81751800578901",
+        "displayName": "Lanternfall Marble Host R15",
+        "description": "Original Lanternfall character with approved sprite face, closed 3D egg body, separate limbs and optimized game texture atlas.",
+        "assetType": "Model",
+        "creationContext": {
+          "creator": {
+            "userId": "3898708794"
+          }
+        },
+        "moderationResult": {
+          "moderationState": "Approved"
+        },
+        "state": "Active",
+        "isPublished": true
+      },
+      "assetId": "81751800578901",
+      "state": "Approved"
+    },
+    "TwinLedger": {
+      "path": "operations/982a9f85-3560-4fc8-8d71-9fefbf28d8fa",
+      "operationId": "982a9f85-3560-4fc8-8d71-9fefbf28d8fa",
+      "done": true,
+      "response": {
+        "path": "assets/71418604732745",
+        "revisionId": "1",
+        "revisionCreateTime": "2026-11-05T18:45:05.002Z",
+        "assetId": "71418604732745",
+        "displayName": "Lanternfall Twin Ledger R15",
+        "description": "Original Lanternfall character with approved sprite face, closed 3D egg body, separate limbs and optimized game texture atlas.",
+        "assetType": "Model",
+        "creationContext": {
+          "creator": {
+            "userId": "3898708794"
+          }
+        },
+        "moderationResult": {
+          "moderationState": "Approved"
+        },
+        "state": "Active",
+        "isPublished": true
+      },
+      "assetId": "71418604732745",
+      "state": "Approved"
+    },
+    "CandleScholar": {
+      "path": "operations/2f430adf-3cbf-41bd-8400-835969a873d7",
+      "operationId": "2f430adf-3cbf-41bd-8400-835969a873d7",
+      "done": true,
+      "response": {
+        "path": "assets/117729705540669",
+        "revisionId": "1",
+        "revisionCreateTime": "2026-11-05T18:45:02.937Z",
+        "assetId": "117729705540669",
+        "displayName": "Lanternfall Candle Scholar R15",
+        "description": "Original Lanternfall character with approved sprite face, closed 3D egg body, separate limbs and optimized game texture atlas.",
+        "assetType": "Model",
+        "creationContext": {
+          "creator": {
+            "userId": "3898708794"
+          }
+        },
+        "moderationResult": {
+          "moderationState": "Approved"
+        },
+        "state": "Active",
+        "isPublished": true
+      },
+      "assetId": "117729705540669",
+      "state": "Approved"
+    }
+  },
+  "colorAtlases": {
+    "BladeWarden": "102871136144318",
+    "SparkMage": "77982768651738",
+    "NightWatch": "125732970180737",
+    "ManyHands": "108360414883382",
+    "SoleConductor": "85268004841253",
+    "DuelMaestro": "73384649452340",
+    "FarSeer": "83802691666369",
+    "MarbleHost": "82889941526444",
+    "TwinLedger": "105385948937432",
+    "CandleScholar": "103235278446532"
+  }
+}
