@@ -1184,4 +1184,115 @@ function world.click(button)
 	button.Activated:Fire()
 end
 
+-- Character art: translation-only model transforms, cloning, asset loading and descendant events.
+-- Real rotations and skin rendering remain Studio checks, as for the earlier CFrame mock.
+SUPERCLASS.MeshPart = "BasePart"
+SUPERCLASS.WeldConstraint = "Constraint"
+SUPERCLASS.Motor6D = "JointInstance"
+SUPERCLASS.Script = "LuaSourceContainer"
+SUPERCLASS.LocalScript = "LuaSourceContainer"
+SUPERCLASS.ModuleScript = "LuaSourceContainer"
+EVENTS.DescendantAdded = true
+EVENTS.PreSimulation = true
+local previousWorldStep = world.step
+function world.step(dt)
+	RunService.PreSimulation:Fire(dt or 1 / 30)
+	previousWorldStep(dt)
+end
+__services.InsertService = newInstance("InsertService", { Name = "InsertService" })
+world.assetTemplates = {}
+world.assetLoads = {}
+function methods.LoadAsset(_, id)
+	table.insert(world.assetLoads, id)
+	if world.assetLoadDelay then
+		task.wait(world.assetLoadDelay)
+	end
+	local template = world.assetTemplates[id]
+	assert(template, `No mock asset {id}`)
+	return template:Clone()
+end
+function methods.FindFirstAncestorWhichIsA(self, name)
+	local node = self.Parent
+	while node do
+		if node:IsA(name) then
+			return node
+		end
+		node = node.Parent
+	end
+	return nil
+end
+function methods.FindFirstChildWhichIsA(self, name, recursive)
+	for _, child in (if recursive then self:GetDescendants() else self:GetChildren()) do
+		if child:IsA(name) then
+			return child
+		end
+	end
+	return nil
+end
+function methods.Clone(self)
+	local copies = {}
+	local function copy(node)
+		local result = newInstance(node.ClassName)
+		copies[node] = result
+		for _, child in node:GetChildren() do
+			copy(child).Parent = result
+		end
+		return result
+	end
+	local result = copy(self)
+	for original, cloned in copies do
+		for key, value in rawget(original, "__props") do
+			if key ~= "Parent" and key ~= "ClassName" then
+				cloned[key] = copies[value] or value
+			end
+		end
+		for key, value in rawget(original, "__attributes") do
+			cloned:SetAttribute(key, value)
+		end
+	end
+	return result
+end
+local previousNewIndex = InstanceMeta.__newindex
+InstanceMeta.__newindex = function(instance, key, value)
+	local changedParent = key == "Parent" and instance.Parent ~= value
+	previousNewIndex(instance, key, value)
+	if changedParent and value then
+		local descendants = instance:GetDescendants()
+		table.insert(descendants, 1, instance)
+		local ancestor = value
+		while ancestor do
+			local events = rawget(ancestor, "__events")
+			local event = events and events.DescendantAdded
+			if event then
+				for _, descendant in descendants do
+					event:Fire(descendant)
+				end
+			end
+			ancestor = ancestor.Parent
+		end
+	end
+end
+CFrameLib.identity = CFrameLib.new()
+function CFrameMeta.PointToWorldSpace(self, point)
+	return self.Position + point
+end
+function CFrameMeta.PointToObjectSpace(self, point)
+	return point - self.Position
+end
+local previousPivotTo = methods.PivotTo
+function methods.PivotTo(self, target)
+	if not self.PrimaryPart then
+		return previousPivotTo(self, target)
+	end
+	local offset = target.Position - self.PrimaryPart.Position
+	for _, part in self:GetDescendants() do
+		if part:IsA("BasePart") then
+			part.CFrame = cf(part.Position + offset)
+			part.Position = part.CFrame.Position
+		end
+	end
+end
+function methods.ScaleTo(_, scale)
+	assert(scale == 1, "The mock does not simulate model scaling")
+end
 return world

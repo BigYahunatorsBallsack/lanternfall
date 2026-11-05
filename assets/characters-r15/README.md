@@ -27,7 +27,44 @@ Die Modelle sind Experience-Rigs. Waffen sind weiterhin separate Ausrüstung;
 sie sind nicht fest in den Körper eingebaut. Eigene Details wie die Mütze,
 das Fernrohr, die sechs Hände und das Kerzenbuch sind räumlich modelliert.
 
-## Dein gemeinsamer Studio-Test am Ende
+## Einbindung in Lanternfall
+
+Alle zehn Modelle sind unter dem Experience-Besitzer hochgeladen und freigegeben.
+`roblox-assets.json` dokumentiert die Modell- und Farbtextur-IDs;
+`src/shared/Config/CharacterArt.luau` enthält die verwendete Laufzeit-Zuordnung.
+Ein erneuter manueller Import ist zum Spielen nicht erforderlich.
+
+`CharacterAppearanceService` hängt das serverseitig gewählte Modell bei Auswahl
+und Respawn an den bestehenden R15-Spielcharakter. Kollisionen, Humanoid,
+Waffen, Kamera und Klassenregeln verwenden weiterhin diesen Spielcharakter.
+Jeder Client lädt Meshes und Farbtexturen vor und blendet den bisherigen Avatar
+erst nach erfolgreichem Laden aus. Bei Ladefehlern bleibt er sichtbar; der
+Ladevorgang wird begrenzt wiederholt. Die Spielmodelle verwenden den originalen
+2K-Farbatlas direkt, damit nicht verfügbare importierte PBR-Komposittexturen
+Gesicht und Körper nicht verdecken.
+
+`CharacterAnimationController` bewegt die R15-Bones für Idle, Laufen und den
+Down-Zustand anhand der tatsächlichen Bewegung. Die Pose wird nach dem nativen
+Animator gesetzt. Dafür sind keine zusätzlich veröffentlichten Animations-IDs
+erforderlich; die FBX-Clips bleiben als editierbare Künstlerdateien enthalten.
+
+## Dein gemeinsamer Spieltest am Ende
+
+1. Aktuellen `main` nach Studio synchronisieren und **Play** starten. In der
+   Lobby die freigeschalteten Charaktere auswählen: passender Körper, Gesicht
+   und eigene Details müssen erscheinen, ohne zweiten sichtbaren Roblox-Avatar.
+2. Einen Run starten, laufen, drehen und stehen bleiben. Hände und Füße müssen
+   sich bewegen; Körper und Gesicht bleiben geschlossen, die Füße am Boden.
+   Waffen, Treffer, Kamera und Klassenwerte wie gewohnt prüfen.
+3. Respawn sowie Down/Revive prüfen. Der ausgewählte Charakter muss wieder
+   erscheinen. Besonders auf die sechs Hände, den einzelnen Arm, die Mütze,
+   das Fernrohr und das Kerzenbuch achten.
+4. Mit **Test → Clients and Servers** zwei Clients starten. Beide müssen auf
+   beiden Bildschirmen mit ihrer jeweiligen Auswahl und Bewegung erscheinen.
+   Danach Lesbarkeit und Bildrate auf dem Handy prüfen. Diese beiden Prüfungen
+   stehen noch aus.
+
+## Optional: Modelle künstlerisch bearbeiten und neu importieren
 
 1. ZIP vollständig entpacken. In einer leeren Studio-Testdatei **File → Import**
    öffnen und zunächst `BladeWarden/BladeWarden_R15.fbx` auswählen.
@@ -40,7 +77,7 @@ das Fernrohr, die sechs Hände und das Kerzenbuch sind räumlich modelliert.
 3. Importieren. Das eingefügte Charakter-Model im Explorer auswählen, den gesamten
    Inhalt von `FinalizeImport.luau` in die Studio-Command-Bar kopieren und ausführen.
    Es prüft die 15 Teile, blendet interne Hilfsteile aus und setzt die passende
-   Fuß-/Kollisionshöhe. Dieses Hilfsskript ist formatiert, aber noch nicht in Studio gelaufen.
+   Fuß-/Kollisionshöhe. Dieses optionale Hilfsskript ist kein Laufzeitdienst.
 4. Den **Animation Editor** öffnen und das Model wählen. Über **Import → From FBX**
    zuerst `animations/Idle.fbx`, danach separat `animations/Walk.fbx` laden.
    Abspielen: Körper bleibt geschlossen, Hände und Füße bewegen sich getrennt,
@@ -50,9 +87,8 @@ das Fernrohr, die sechs Hände und das Kerzenbuch sind räumlich modelliert.
 5. Dasselbe für die übrigen neun Modelle durchführen. Besonders prüfen:
    sechs bewegte Hände bei Many Hands, nur ein sichtbarer Arm bei Sole Conductor,
    Mütze/Fernrohr/Kerzenbuch in Seiten- und Rückansicht und die breitere Form von Marble Host.
-6. Nach dem Einbau in Lanternfall einmal solo und mit zwei Spielern testen:
-   Laufen, Richtungswechsel, Waffenpositionen, Kamera und Fußkontakt. Auf dem Handy
-   Lesbarkeit und Bildrate prüfen. Diese Spieltests stehen ausdrücklich noch aus.
+6. Bei einem neuen Upload Modell- und Farbtextur-IDs in `CharacterArt.luau`
+   aktualisieren und die Spieltests oben wiederholen.
 
 ## Bereits geprüft
 
@@ -63,9 +99,14 @@ Bewegung der sichtbaren Teile gemessen. Jeder GLB-Mesh hat genau ein Material;
 die Texturen sind eingebettet. Zusätzlich wurden alle 20 einzelnen FBX-Clips
 erneut importiert und auf genau einen animierten R15-Rig geprüft.
 
-Studio-Import, Humanoid-Verhalten, Spielintegration und veröffentlichte
-Animations-IDs sind noch nicht geprüft beziehungsweise eingerichtet. Es wurde
-nichts in deine Experience hochgeladen oder in den Spielcode eingebaut.
+In der verbundenen Test-Experience wurden alle zehn Modelle über die echte
+validierte Klassenwahl geladen; alle Farbtexturen erreichten `Success`.
+Blade Warden wurde im Spiel visuell sowie auf Bodenhöhe, Idle, Laufen und
+Respawn geprüft. Die neun Integrationstests bestehen. Der volle Testlauf hat
+dieselben 31 Fehlschläge wie der unveränderte `main`, ohne zusätzliche
+Fehlschläge. Details und Grenzen stehen in `integration-validation.json`.
+Zwei-Client- und Handy-Tests führt der Owner am Ende durch. Die Test-Place wurde
+durch dieses Paket nicht veröffentlicht.
 
 Die Importbezeichnungen und Rigstruktur folgen der offiziellen Dokumentation:
 [Importer](https://create.roblox.com/docs/studio/importer),

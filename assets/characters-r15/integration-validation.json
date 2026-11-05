@@ -1,0 +1,182 @@
+{
+  "date": "2026-11-05",
+  "baselineCommit": "f515df9082fa134f5cc5bdf179122aaee9f05563",
+  "experience": {
+    "universeId": "10773092515",
+    "placeId": "107221182628232",
+    "mode": "Studio solo",
+    "placePublished": false
+  },
+  "sourceComparison": {
+    "existingStudioScriptsMatchedMain": 263,
+    "runtimeModulesMatchedFinalSource": 5,
+    "normalization": "CRLF to LF"
+  },
+  "automated": {
+    "runner": "Lune 0.10.5; one spec per process",
+    "integrationSpecs": 71,
+    "integrationPassed": 709,
+    "integrationFailed": 31,
+    "baselineSpecs": 70,
+    "baselinePassed": 700,
+    "baselineFailed": 31,
+    "newCharacterTestsPassed": 9,
+    "newCharacterTestsFailed": 0,
+    "changedExistingSpecOutcomes": 0,
+    "existingFailingSpecs": [
+      {
+        "spec": "CharactersB10.spec.luau",
+        "passed": 12,
+        "failed": 1
+      },
+      {
+        "spec": "EnemiesB9.spec.luau",
+        "passed": 6,
+        "failed": 1
+      },
+      {
+        "spec": "Graphics22.spec.luau",
+        "passed": 5,
+        "failed": 1
+      },
+      {
+        "spec": "HeldWeapons.spec.luau",
+        "passed": 3,
+        "failed": 1
+      },
+      {
+        "spec": "HubStudio.spec.luau",
+        "passed": 9,
+        "failed": 1
+      },
+      {
+        "spec": "HubTeleport.spec.luau",
+        "passed": 6,
+        "failed": 1
+      },
+      {
+        "spec": "ItemsB8.spec.luau",
+        "passed": 15,
+        "failed": 1
+      },
+      {
+        "spec": "Loot.spec.luau",
+        "passed": 10,
+        "failed": 1
+      },
+      {
+        "spec": "Perf22.spec.luau",
+        "passed": 0,
+        "failed": 1
+      },
+      {
+        "spec": "Progress.spec.luau",
+        "passed": 5,
+        "failed": 1
+      },
+      {
+        "spec": "RetryWave.spec.luau",
+        "passed": 5,
+        "failed": 1
+      },
+      {
+        "spec": "Revive.spec.luau",
+        "passed": 7,
+        "failed": 1
+      },
+      {
+        "spec": "RunPlace.spec.luau",
+        "passed": 5,
+        "failed": 1
+      },
+      {
+        "spec": "Security23Hub.spec.luau",
+        "passed": 2,
+        "failed": 1
+      },
+      {
+        "spec": "Smoke.spec.luau",
+        "passed": 37,
+        "failed": 6
+      },
+      {
+        "spec": "SpawnGroups.spec.luau",
+        "passed": 5,
+        "failed": 1
+      },
+      {
+        "spec": "Store.spec.luau",
+        "passed": 13,
+        "failed": 1
+      },
+      {
+        "spec": "StructuresB12.spec.luau",
+        "passed": 4,
+        "failed": 4
+      },
+      {
+        "spec": "UiRedesign.spec.luau",
+        "passed": 7,
+        "failed": 3
+      },
+      {
+        "spec": "Weapons.spec.luau",
+        "passed": 37,
+        "failed": 2
+      }
+    ]
+  },
+  "tools": {
+    "stylua": "Pass for changed Luau files; only appended helper block formatted",
+    "seleneErrors": 0,
+    "seleneWarnings": 11,
+    "seleneWarningsExisting": true,
+    "rojoBuild": "Pass",
+    "gitDiffCheck": "Pass"
+  },
+  "studio": {
+    "selectionRemote": "SelectClass",
+    "classes": [
+      "BladeWarden",
+      "SparkMage",
+      "NightWatch",
+      "ManyHands",
+      "SoleConductor",
+      "DuelMaestro",
+      "FarSeer",
+      "MarbleHost",
+      "TwinLedger",
+      "CandleScholar"
+    ],
+    "allTen": {
+      "correctSkin": true,
+      "nativeGameplayCharacterPreserved": true,
+      "colorAtlasFetchStatus": "Success",
+      "nativeAvatarHiddenAfterLoad": true,
+      "skinVisible": true
+    },
+    "bladeWarden": {
+      "inGameVisualInspection": true,
+      "floorAlignment": true,
+      "idle": true,
+      "walking": true,
+      "realRespawn": true,
+      "finalMotionSamples": 15,
+      "maximumSampledSpeed": 16,
+      "maximumLegRotationSine": 0.148094043135643,
+      "unexpectedRotationAxisMagnitude": 0
+    },
+    "newLuauErrors": 0,
+    "existingOutputWarnings": [
+      "Asset 203785492 has the wrong type",
+      "Badges are not configured"
+    ],
+    "transientImportedAssetWarnings": "Imported PBR content representations were still generating; runtime uses the approved original color atlas directly",
+    "finalMode": "Edit"
+  },
+  "ownerChecksPending": [
+    "Two-client replication and gameplay",
+    "Mobile readability and frame rate",
+    "Full run including down/revive and all class-specific accessories"
+  ]
+}
