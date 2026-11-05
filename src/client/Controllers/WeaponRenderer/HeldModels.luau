@@ -12,13 +12,24 @@ local VisualKit = require(script.Parent.VisualKit)
 
 local LOOK = Config.WeaponVisuals
 
-type Attack = { at: number, duration: number, dx: number, dz: number, kind: string, angle: number, distance: number }
-type Model = { sprite: SpriteKit.Sprite, id: string, seen: number }
+type Attack = {
+	at: number,
+	duration: number,
+	dx: number,
+	dz: number,
+	kind: string,
+	angle: number,
+	distance: number,
+	x: number,
+	z: number,
+}
+type Model = { sprite: SpriteKit.Sprite, id: string, seen: number, x: number, z: number }
 
 local pools: { [string]: VisualKit.ObjectPool<SpriteKit.Sprite> } = {}
 local active: { [string]: Model } = {}
 local attacks: { [string]: Attack } = {}
 local flights: { [string]: number } = {}
+local nearestByOwner: { [number]: { frame: number, x: number, z: number, found: boolean } } = {}
 
 local HeldModels = {}
 
@@ -55,6 +66,34 @@ local function aimOf(effect: Types.WeaponEffect): (number, number)
 	return 0, 0
 end
 
+local function nearestEnemy(owner: VisualKit.Owner, frameNumber: number): (number?, number?)
+	local cached = nearestByOwner[owner.userId]
+	if cached and cached.frame == frameNumber then
+		return if cached.found then cached.x else nil, if cached.found then cached.z else nil
+	end
+	local bestX, bestZ = 0, 0
+	local bestSquared = math.huge
+	local folder = workspace:FindFirstChild("LanternfallEnemies")
+	if folder then
+		for _, child in folder:GetChildren() do
+			if child:IsA("Model") then
+				local body = child:FindFirstChild("Body", true)
+				if body and body:IsA("BasePart") then
+					local position = body.Position
+					local dx, dz = position.X - owner.position.X, position.Z - owner.position.Z
+					local squared = dx * dx + dz * dz
+					if squared < bestSquared then
+						bestSquared = squared
+						bestX, bestZ = position.X, position.Z
+					end
+				end
+			end
+		end
+	end
+	nearestByOwner[owner.userId] = { frame = frameNumber, x = bestX, z = bestZ, found = bestSquared < math.huge }
+	return if bestSquared < math.huge then bestX else nil, if bestSquared < math.huge then bestZ else nil
+end
+
 function HeldModels.effect(effect: Types.WeaponEffect)
 	local uid = effect.uid
 	if not uid then
@@ -74,13 +113,15 @@ function HeldModels.effect(effect: Types.WeaponEffect)
 	local dx, dz = aimOf(effect)
 	local duration = if effect.kind == "Strike" then effect.duration or LOOK.attackSeconds else LOOK.attackSeconds
 	attacks[key] = {
-		at = math.max(effect.at, workspace:GetServerTimeNow() - duration * 0.25),
+		at = workspace:GetServerTimeNow(),
 		duration = duration,
 		dx = dx,
 		dz = dz,
 		kind = effect.kind,
 		angle = effect.angle or 0,
 		distance = effect.targetDistance or 0,
+		x = effect.x or 0,
+		z = effect.z or 0,
 	}
 end
 
@@ -107,7 +148,7 @@ function HeldModels.renderWeapon(
 		model = nil
 	end
 	if not model then
-		model = { sprite = poolOf(weapon.id):acquire(frame.folder), id = weapon.id, seen = 0 }
+		model = { sprite = poolOf(weapon.id):acquire(frame.folder), id = weapon.id, seen = 0, x = 0, z = 0 }
 		active[key] = model
 	end
 	model.seen = frame.number
@@ -115,6 +156,14 @@ function HeldModels.renderWeapon(
 	local radialX, radialZ = WeaponPose.direction(weapon.uid)
 	local x, z = WeaponPose.anchor(owner.position.X, owner.position.Z, weapon.uid, weapon.id)
 	local dx, dz = radialX, radialZ
+	local targetX, targetZ = nearestEnemy(owner, frame.number)
+	if targetX and targetZ then
+		local tx, tz = targetX - owner.position.X, targetZ - owner.position.Z
+		local distance = math.sqrt(tx * tx + tz * tz)
+		if distance > 1e-6 then
+			dx, dz = tx / distance, tz / distance
+		end
+	end
 	local attack = attacks[key]
 	if attack then
 		local t = (frame.now - attack.at) / attack.duration
@@ -125,40 +174,56 @@ function HeldModels.renderWeapon(
 				dx, dz = attack.dx, attack.dz
 			end
 			if attack.kind == "Strike" then
-				if attack.angle == 0 then
-					local reach = math.max(
-						LOOK.thrustDistance,
-						attack.distance
-							- WeaponPose.radius(weapon.id)
-							- LOOK.spriteStuds[weapon.id] * LOOK.strikeTipFraction
-					)
-					local extension = math.sin(math.pi * t) * reach
-					x += dx * extension
-					z += dz * extension
-				else
+				local reach = math.max(0, attack.distance - LOOK.spriteStuds[weapon.id] * LOOK.strikeTipFraction)
+				local centerX = owner.position.X + dx * reach
+				local centerZ = owner.position.Z + dz * reach
+				local movement = math.sin(math.pi * t)
+				if attack.angle ~= 0 then
 					local turn = math.rad(attack.angle * (t - 0.5))
 					local c, s = math.cos(turn), math.sin(turn)
 					dx, dz = dx * c - dz * s, dx * s + dz * c
-					local radius = WeaponPose.radius(weapon.id)
-					x = owner.position.X + dx * radius
-					z = owner.position.Z + dz * radius
+					local side = math.sin(2 * math.pi * t) * WeaponPose.radius(weapon.id) * 0.5
+					centerX += -attack.dz * side
+					centerZ += attack.dx * side
 				end
+				x += (centerX - x) * movement
+				z += (centerZ - z) * movement
 			elseif attack.kind == "Fire" then
 				local recoil = math.sin(math.pi * t) * LOOK.recoilDistance
 				x -= dx * recoil
 				z -= dz * recoil
 			elseif attack.kind == "Pulse" then
-				local slam = math.sin(math.pi * t) * LOOK.recoilDistance
-				x += dx * slam
-				z += dz * slam
+				local movement = math.sin(math.pi * t)
+				local tip = LOOK.spriteStuds[weapon.id] * LOOK.strikeTipFraction
+				local centerX = attack.x - dx * tip
+				local centerZ = attack.z - dz * tip
+				x += (centerX - x) * movement
+				z += (centerZ - z) * movement
 			end
 		end
 	end
 	local bob = math.sin(frame.now * LOOK.idleBobSpeed + weapon.uid) * LOOK.idleBob
 	local sprite = model.sprite
+	model.x, model.z = x, z
 	sprite.picture.Visible = (flights[key] or 0) == 0
 	sprite.picture.Rotation = SpriteKit.rotationToward(weapon.id, dx, dz)
 	frame.move(sprite.anchor, CFrame.new(x, frame.floorY + LOOK.projectileHeight + bob, z))
+end
+
+-- The client projectile starts at the barrel currently on screen, then rejoins the server path.
+function HeldModels.projectileOrigin(effect: Types.WeaponEffect): (number, number)
+	local x, z = effect.x or 0, effect.z or 0
+	local uid = effect.uid
+	if not uid then
+		return x, z
+	end
+	local model = active[keyOf(effect.userId, uid)]
+	if not model or model.seen == 0 then
+		return x, z
+	end
+	local fraction = LOOK.muzzleFractionById[model.id] or LOOK.muzzleFraction
+	local muzzle = (LOOK.spriteStuds[model.id] or 4) * fraction
+	return model.x + (effect.dx or 0) * muzzle, model.z + (effect.dz or 0) * muzzle
 end
 
 function HeldModels.finish(frame: VisualKit.Frame)
@@ -179,6 +244,7 @@ function HeldModels.clear()
 	end
 	table.clear(attacks)
 	table.clear(flights)
+	table.clear(nearestByOwner)
 end
 
 return HeldModels

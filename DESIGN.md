@@ -256,9 +256,9 @@ Seit B7 hat v1 24 Waffen, 90 Items (seit B5, vorher 78 bzw. 46) und 2 Evolutione
 | --- | --- | --- | --- | --- | --- | --- |
 | Orbit Blades | 2 Klingen kreisen um dich, Radius 7 Studs | 15 pro Treffer (Paket 7, vorher 12) | dauerhaft, 0,5 s pro Gegner | +1 Klinge, +20 % | +1 Klinge, +30 % | +60 % |
 | Spark Bolt | Projektil auf nächsten Gegner, durchbohrt 1 | 15 | 0,9 s | +1 Projektil | +40 % | +50 %, −0,15 s |
-| Shockwave | Druckwelle um dich, Radius 10 Studs | 20 | 3,0 s | +30 %, +2 Radius, −0,3 s | +40 %, +2 Radius, −0,3 s | +60 %, +3 Radius, −0,4 s |
+| Shockwave | Hammerschlag zum nächsten Gegner; kleinere Druckwelle vom Aufschlag | 18 direkt, 35 % in der Welle | 1,4 s | +30 %, +0,75 Wellenradius, −0,1 s | +40 %, +1 Wellenradius, −0,1 s | +60 %, +1,25 Wellenradius, −0,1 s |
 | Chain Lightning | Blitz springt über 3 Gegner | 18 | 2,0 s | +1 Sprung, +30 % | +1 Sprung, +30 % | +1 Sprung, +60 % |
-| Thorn Trail | Dornenspur hinter dir, liegt 2 s | 8 pro 0,5 s | dauerhaft | +0,5 s, +40 % | +0,5 s, +50 % | +1 s, +80 % |
+| Thorn Hook | Dornhaken schwingt auf Gegner zu und verlangsamt sie | 12 | 0,8 s | +40 %, +2 Range | +50 %, −0,08 s | +80 %, +3 Range |
 | Boomerang Axe | fliegt raus und zurück, durchbohrt alles | 25 | 1,6 s | +30 %, −0,2 s | +1 Axt | +40 %, −0,2 s |
 
 Die Prozente sind Schaden auf den Grundwert und addieren sich (Orbit Blades IV: 15 · (1 + 0,2 + 0,3 + 0,6) = 31,5 bei 4 Klingen). Ziel wie in Brotato: Stufe II ≈ 1,7×, III ≈ 2,5–3×, IV ≈ 4–4,5× die Kraft von Stufe I (Annahme, eigene Zahlen; Brotatos Waffen steigen je Stufe ähnlich). Bis B2 gab es Level 1–5 mit kleineren Schritten.
@@ -377,15 +377,15 @@ Werte, die hier noch fehlen (Projektil-Tempo und Reichweite von Spark Bolt und B
 
 Jede Waffe = ein Datensatz im Config-Modul + ein kleines Verhaltens-Modul. Neue Waffe = neuer Datensatz + Verhalten, Framework bleibt unangetastet.
 
-**Stand im Code (seit Paket 8):** Alle sechs Waffen sind spielbar (Orbit Blades, Spark Bolt und Shockwave seit Paket 5, Chain Lightning, Thorn Trail und Boomerang Axe seit Paket 8) und kommen seit B1 aus dem Shop (vorher Level-up-Karten). Jeder Spieler startet den Run mit der Waffe seiner Klasse auf Level 1. Annahmen fürs Spielgefühl (Werte in `Config/Weapons.luau`, Urteil des Owners steht noch aus):
+**Stand im Code (seit Paket 8):** Alle sechs Waffen sind spielbar (Orbit Blades, Spark Bolt und Shockwave seit Paket 5, Chain Lightning, Thorn Hook und Boomerang Axe seit Paket 8) und kommen seit B1 aus dem Shop (vorher Level-up-Karten). Jeder Spieler startet den Run mit der Waffe seiner Klasse auf Level 1. Annahmen fürs Spielgefühl (Werte in `Config/Weapons.luau`, Urteil des Owners steht noch aus):
 
 | Waffe | Annahme |
 | --- | --- |
 | Orbit Blades | Die Klingen sind lange Schwerter, die von 2 Studs bis zum Radius (7) reichen, 1 Stud breit, 240°/s (Paket 7, vorher 180°/s). So treffen sie auch Gegner, die direkt am Spieler stehen (Blade Warden = „mitten rein"). Jeder Gegner höchstens alle 0,5 s; mit 2 Klingen wird jeder Punkt etwa 1,3-mal pro Sekunde überstrichen. Ruhen, solange der Spieler down ist. |
 | Spark Bolt | 60 Studs/s, Reichweite 40 Studs (etwa der sichtbare Bereich), Trefferradius 0,5. Schießt nur, wenn ein Gegner in Reichweite ist. Mehrere Bolts gehen an verschiedene nächste Gegner; gibt es zu wenige, fächern die übrigen um 12° um den nächsten auf. Durchbohrt 1 heißt: fliegt durch den ersten Gegner und stoppt am zweiten (seit B5 bekommt der zweite nur noch 50 %, Brotatos Abzug). Hindernisse halten Bolts nicht auf. |
-| Shockwave | Löst erst aus, wenn ein Gegner im Radius steht. Schubst überlebende Gegner 3 Studs vom Spieler weg (seit B5 Rückstoß 30 Punkte, weniger bei Gegnern mit Rückstoß-Widerstand: Brute 0,3 Studs). Der Schubs ist neu gegenüber dem ursprünglichen Design. |
+| Shockwave (seit Paket 21e) | Schlägt auf den nächsten Gegner innerhalb von 15 Studs. Der direkte Treffer verursacht vollen Waffenschaden und den normalen Rückstoß. Am Aufschlag entsteht eine Druckwelle mit 4,5 Studs Radius; weitere Gegner erhalten 35 % Schaden und 40 % des Rückstoßes vom Aufschlag weg. Explosion Size und Explosion Damage skalieren die Welle. |
 | Chain Lightning (Paket 8) | „Springt über 3 Gegner" heißt: trifft 3 Gegner insgesamt (jedes Level einer mehr). Der erste muss höchstens 25 Studs entfernt sein, jeder weitere höchstens 12 Studs vom vorigen; nie zweimal derselbe. Alle Treffer sofort. Wartet auf einen Gegner in Reichweite. |
-| Thorn Trail (Paket 8) | Alle 2 Studs Weg legt der Spieler ein Dornenfeld mit 2,5 Studs Radius ab (Fläche-Bonus vergrößert es); steht er still, liegt immer eins unter ihm. Alle 0,5 s trifft die Spur jeden Gegner darauf einmal, auch wenn er auf mehreren Feldern steht. Höchstens 40 Felder pro Spieler. Liegende Felder wirken weiter, wenn der Spieler down ist. Seit B5 verlangsamt jeder Tick die getroffenen Gegner 0,6 s lang um 30 % (Annahme), solange sie auf den Dornen stehen also dauerhaft. |
+| Thorn Hook (seit Paket 21e) | Der Dornhaken führt alle 0,8 s einen 120°-Schwung auf den nächsten Gegner im Umkreis von 17 Studs aus. Gegner im Bogen erhalten Schaden und werden 0,6 s lang um 30 % verlangsamt. Keine bleibenden Dornenfelder oder passiven Treffer beim Laufen. Die interne ID `ThornTrail` bleibt für gespeicherte Ausrüstungen bestehen. |
 | Boomerang Axe (Paket 8) | Fliegt mit 40 Studs/s 20 Studs weit zum nächsten Gegner, dreht um und fliegt zurück zu dem Ort, an dem der Spieler jetzt ist. Trifft jeden Gegner einmal auf dem Hinweg und einmal auf dem Rückweg, Trefferbreite 1,2 Studs. Gefangen bei 2 Studs Abstand, spätestens nach 3 s weg. Mehrere Äxte gehen an verschiedene Gegner, sonst 20° gefächert. |
 
 **Evolutionen (seit Paket 8):** Blade Storm (8 Klingen, Radius 10, doppelter Schaden, rot leuchtend) und Starfire (jeder Treffer eines Bolts explodiert mit 6 Studs Radius; die anderen Gegner in der Explosion bekommen den vollen Bolt-Schaden, Annahme) funktionieren. Der Server prüft die Voraussetzung (eine Kopie der Waffe auf Stufe IV, seit B3, vorher Level 5; noch nicht entwickelt, mindestens 1 des Items). Seit Paket 9 kommen sie aus Elite-Truhen (Abschnitt 8). Zum Testen bleibt der Knopf „Evolve weapons": Er hebt Waffen mit Evolution auf Stufe IV, gibt das fehlende Item einmal und entwickelt sie. „Weapons +1 tier" hebt jede Waffe eine Stufe.
@@ -400,9 +400,9 @@ Jede Waffe = ein Datensatz im Config-Modul + ein kleines Verhaltens-Modul. Neue 
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | Orbit Blades | Melee | Edge, Spectral | 100 % Melee | ×2 (8 %) | 2 | eigener Life Steal +3 % ab Stufe III, +6 % auf IV | Radius (Hälfte) |
 | Spark Bolt | Ranged | Arcane, Keen | 100 % Ranged | ×1,5 (20 %) | 8 | durchschlägt 1 (−50 % pro Gegner), springt mit Bounce | Reichweite |
-| Shockwave | Melee | Bludgeon, Colossal | 100 % Melee + 50 % Armor | ×1,75 (3 %) | 30 | – | Radius (Hälfte) |
+| Shockwave | Melee | Bludgeon, Colossal | 100 % Melee + 50 % Armor | ×1,75 (3 %) | 30 direkt, 40 % Welle | Aufschlagwelle mit 35 % Schaden | Schlagreichweite (Hälfte) |
 | Chain Lightning | Ranged | Arcane, Keen | 100 % Elemental | ×2 (3 %) | 0 | Bounce gibt Sprünge | Reichweite und Sprungweite |
-| Thorn Trail | Melee | Primal, Arcane | 80 % Elemental + 50 % Melee | ×1,5 (0 %) | 0 | verlangsamt 30 % | – |
+| Thorn Hook | Melee | Primal, Arcane | 50 % Elemental + 50 % Melee | ×1,5 (0 %) | 0 | 120°-Schwung, verlangsamt 30 % | Reichweite (Hälfte) |
 | Boomerang Axe | Ranged | Edge, Primal | 80 % Ranged + 50 % Melee | ×2,5 (5 %) | 15 | durchschlägt alles ohne Abzug | Reichweite |
 
 Die Zuordnung zu Klassen, Krit-Werte und Skalierung sind unsere Annahmen nach ähnlichen Brotato-Waffen (Knife/Chopper für die Klingen, Crossbow für den Bolt, Hammer für die Shockwave, Lightning Shiv für die Kette, Torch für die Dornen); Urteil des Owners steht aus.
@@ -509,9 +509,9 @@ Koop-Anpassung: maximal 100 aktive Bauten pro Server, fair nach Teilnehmerzahl g
 
 ### Waffenansicht nach den freigegebenen Sprites (Paket 21e)
 
-Die 26 freigegebenen Waffenillustrationen sind zugleich die Ansichten der schwebenden Waffen im Run. Kleine, gepoolte, nicht kollidierende Anker tragen kameraseitige Bildflächen; die älteren Meshformen werden im Run nicht mehr angezeigt. Größe und Abstand zum Charakter sind je Waffe abgestimmt. Jede Waffenkopie hat eine stabile Position nach ihrer `uid`. Servereffekte benennen diese Kopie, damit Nahkampfstiche bis zum anvisierten Gegner, -schwünge, Schussrückstoß, Hammerstöße und Dornspuren an der richtigen Waffe animiert werden. Die geworfene Bumerangaxt nutzt ihr freigegebenes Bild; die zwei Einzelklingen wurden ohne Neuzeichnung aus dem freigegebenen Paarbild getrennt und fliegen einzeln auf ihren serverseitigen Umlaufbahnen.
+Die 26 freigegebenen Waffenillustrationen sind zugleich die Ansichten der schwebenden Waffen im Run. Kleine, gepoolte, nicht kollidierende Anker tragen kameraseitige Bildflächen; die älteren Meshformen werden im Run nicht mehr angezeigt. Größe und Abstand zum Charakter sind je Waffe für die weit entfernte Run-Kamera abgestimmt; die Cathedral Engine bleibt etwas kleiner als die anderen schweren Waffen. Jede Waffenkopie hat eine stabile Position nach ihrer `uid` und richtet sich fortlaufend zum nächsten sichtbaren Gegner aus. Servereffekte benennen diese Kopie, damit Nahkampfstiche und -schwünge bis zum anvisierten Gegner, Schussrückstoß und Hammerstöße an der richtigen Waffe animiert werden. Nahkampftreffer zeigen keinen getrennten Strahl. Die geworfene Bumerangaxt nutzt ihr freigegebenes Bild; die zwei Einzelklingen wurden ohne Neuzeichnung aus dem freigegebenen Paarbild getrennt und fliegen einzeln auf ihren serverseitigen Umlaufbahnen.
 
-Projektilwaffen starten ihre serverseitig berechneten Schüsse an der Mündung der schwebenden Waffe; der erste Blitzabschnitt beginnt dort ebenfalls. Schaden, Ziele und Kollision bleiben serverseitig. Positions- und Animationswerte liegen in `Config/WeaponVisuals.luau`; `Util/WeaponPose.luau` wird von Server und Client genutzt. Das bestehende `WeaponFx`-Format transportiert `uid` als optionales Zusatzfeld, ohne die Remote oder das Paketlayout zu ändern.
+Projektilwaffen starten ihre serverseitig berechneten Schüsse an der Mündung der schwebenden Waffe; der erste Blitzabschnitt beginnt dort ebenfalls. Das Clientbild beginnt am sichtbaren Lauf und gleicht die Netzwerkverzögerung kurz zur serverseitigen Flugbahn an. Der Shockwave-Hammer schlägt zum Ziel, die kleinere Druckwelle wird am Hammerkontakt gezeichnet. Schaden, Ziele und Kollision bleiben serverseitig. Positions- und Animationswerte liegen in `Config/WeaponVisuals.luau`; `Util/WeaponPose.luau` wird von Server und Client genutzt. Das bestehende `WeaponFx`-Format transportiert `uid` als optionales Zusatzfeld, ohne die Remote oder das Paketlayout zu ändern.
 
 ## 7. Gegner, Elites & Boss
 

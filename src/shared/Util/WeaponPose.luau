@@ -33,7 +33,7 @@ function WeaponPose.muzzle(
 	targetDistance: number?
 ): (number, number)
 	local hx, hz = WeaponPose.anchor(x, z, uid, id)
-	local muzzleDistance = (Visuals.spriteStuds[id] or 2.1) * Visuals.muzzleFraction
+	local muzzleDistance = (Visuals.spriteStuds[id] or 4) * (Visuals.muzzleFractionById[id] or Visuals.muzzleFraction)
 	local distance = math.min(muzzleDistance, math.max(0, (targetDistance or math.huge) - Visuals.muzzleClearance))
 	return hx + dx * distance, hz + dz * distance
 end
