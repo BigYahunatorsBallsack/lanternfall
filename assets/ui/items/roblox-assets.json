@@ -81,7 +81,7 @@
     "EmberAnvil": "rbxassetid://139919735633236",
     "SmolderingWick": "rbxassetid://131495832361458",
     "AshSerpent": "rbxassetid://138069474259003",
-    "Bellows": "rbxassetid://101596251956695",
+    "Bellows": "rbxassetid://110223481359323",
     "BlackPowder": "rbxassetid://76284579134466",
     "FulminateJar": "rbxassetid://87893280187588",
     "BurstingSigil": "rbxassetid://97922989055709",
@@ -126,5 +126,12 @@
     "StormFamiliar": "rbxassetid://88109969844278",
     "CalibratedTools": "rbxassetid://112183386647106",
     "BloodLure": "rbxassetid://106200251981015"
+  },
+  "replacementHistory": {
+    "Bellows": {
+      "previousAssetId": "101596251956695",
+      "assetId": "110223481359323",
+      "record": "docs/item-parity/neutral-eye-sprite.json"
+    }
   }
 }

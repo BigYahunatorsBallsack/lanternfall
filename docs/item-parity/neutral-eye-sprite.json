@@ -1,0 +1,45 @@
+{
+  "date": "2026-11-06",
+  "itemId": "Bellows",
+  "itemName": "Eyes Surgery",
+  "ownerRequest": "Create a neutral replacement with no blood or injury depiction; the owner explicitly selected option 1.",
+  "tool": "built-in image_gen",
+  "prompt": "Create ONE original neutral optical-equipment inventory sprite for the Roblox game Lanternfall. It replaces the artwork of the item called Eyes Surgery, but the new subject is entirely benign optical calibration equipment. Subject: chunky round optician's spectacles with pale cyan glass, dark charcoal and warm ivory frames, a small brass adjustment dial, and one short rounded precision screwdriver lying beside them. Only inanimate intact optical equipment. Friendly, harmless, clean. Style: bold thick black outlines, simple flat 2D cartoon colors, two-tone cel shading, strong readable silhouette like a compact survival-game inventory icon, crisp clean edges, no realistic textures. The glasses are the main recognizable shape; keep the little tool subordinate. Composition: centered square icon, entire object visible, generous transparent margin, readable at 48–96 pixels, no background or floor, genuinely transparent alpha. No text, no letters, no border, no watermark. No people, no anatomical eyes or body parts, no blood, no injuries, no surgery, no blades, no needles, no red stains. This is a newly designed family-friendly optical-tool illustration, not an alteration or re-upload of the rejected image.",
+  "assetId": "110223481359323",
+  "creatorUserId": "3898708794",
+  "moderationState": "Approved",
+  "studioPreload": "Success",
+  "file": "assets/ui/items/Bellows.png",
+  "width": 1254,
+  "height": 1254,
+  "mode": "RGBA",
+  "alphaRange": [
+    0,
+    255
+  ],
+  "bytes": 995671,
+  "sha256": "8ccc924437e10c9956dbdac8ff95ab23b40df01e7f47198b4489a892a621b79d",
+  "previousAssetId": "101596251956695",
+  "previousModerationState": "Rejected",
+  "notes": "A different, newly designed optical-equipment illustration. The rejected original was not modified, disguised or re-uploaded. Item gameplay is unchanged.",
+  "checks": {
+    "allActiveImagePreloads": {
+      "success": 125,
+      "failed": 0
+    },
+    "ItemSprites.spec.luau": {
+      "passed": 5,
+      "failed": 0
+    },
+    "PNGManifest": {
+      "verified": 125
+    },
+    "StyLua": "pass",
+    "Selene": {
+      "errors": 0,
+      "existingWarnings": 11
+    },
+    "Rojo": "pass",
+    "git diff --check": "pass"
+  }
+}

@@ -52,3 +52,13 @@ The independently randomized full runs differ in two existing specs: the branch 
 ## Merge compatibility with upgrade artwork
 
 The subsequently merged main `0a841e5` is included before the approved merge. All 185 affected checks across ItemParity, ItemSprites, PrimaryStatArt, UpgradeReference, EffectRules and WeaponStats pass. Original card artwork, Engineering IV +5 and item-image failure handling coexist; the two item-only limit stats reuse the Attack Speed / Dodge symbols without adding upgrade cards. StyLua, Selene, Rojo and diff checks pass. The full-suite figures above remain tied to their explicitly recorded earlier base.
+
+## Neutral Eyes Surgery sprite — owner choice, 6 November 2026
+
+This section supersedes the previous blocked-image status. The owner explicitly requested a neutral replacement instead of the original Eyes Surgery artwork. Built-in image_gen created an original illustration of intact optician glasses and a small adjustment tool, without blood, anatomical eyes or injuries. The different design was uploaded with an accurate neutral description as asset **110223481359323**; Roblox reports **Approved**, and Studio Edit image preloading reports **Success**.
+
+The active catalog now contains **124 unchanged Wiki sprites and one approved original replacement**. All 125 active images have successful preload evidence. The old rejected asset is recorded as history; it was not altered or re-uploaded. Item name, stats, price, tier, limit and effects are unchanged. The full generation prompt, provenance, alpha check, SHA-256 and native checks are recorded in `neutral-eye-sprite.json`.
+
+Owner test: start a new test after syncing the branch, obtain Eyes Surgery from the shop/debug items, and check that the optician glasses appear in its card and inventory. The item should retain +1 Elemental Damage, -10 Range and +20% Burning Speed.
+
+Final replacement checks: all **125/125** active image IDs preloaded together with **Success** in Studio Edit; 5/0 item-sprite tests; 125 PNG manifest checks; StyLua, Rojo and diff checks pass; Selene 0 errors / 11 existing warnings. No branch scripts installed into the concurrently edited Studio place, no live publish and no full gameplay run claimed.

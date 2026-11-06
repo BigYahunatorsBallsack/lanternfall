@@ -22,17 +22,15 @@
   },
   "newFailuresInExistingSpecs": [],
   "assetChecks": {
-    "originalPNGs": 125,
+    "originalPNGs": 124,
     "sourceHashesVerified": 125,
     "uploaded": 125,
-    "studioPreloadSuccess": 124,
-    "robloxModerationRejected": [
-      "Bellows"
-    ]
+    "studioPreloadSuccess": 125,
+    "robloxModerationRejected": [],
+    "neutralReplacementPNGs": 1
   },
   "limitations": [
     "Full suite contains pre-existing main failures; exact per-spec comparisons are included.",
-    "Eyes Surgery original sprite was rejected by Roblox moderation. No alternate upload attempted.",
     "No full branch Studio run, actual two-client run, phone test or live place publish performed."
   ],
   "perSpec": [
@@ -904,5 +902,30 @@
       "git diff --check"
     ],
     "notes": "Retain both primary upgrade artwork and item-error fallback; bind item-only limit stats to related primary icons. The earlier full-suite result remains dated to its recorded base."
+  },
+  "neutralEyeSprite": {
+    "record": "docs/item-parity/neutral-eye-sprite.json",
+    "moderationState": "Approved",
+    "studioPreload": "Success",
+    "checks": {
+      "allActiveImagePreloads": {
+        "success": 125,
+        "failed": 0
+      },
+      "ItemSprites.spec.luau": {
+        "passed": 5,
+        "failed": 0
+      },
+      "PNGManifest": {
+        "verified": 125
+      },
+      "StyLua": "pass",
+      "Selene": {
+        "errors": 0,
+        "existingWarnings": 11
+      },
+      "Rojo": "pass",
+      "git diff --check": "pass"
+    }
   }
 }

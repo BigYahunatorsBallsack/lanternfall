@@ -1,4 +1,4 @@
-"""Check original item PNGs against their provenance manifest; run from the repository root."""
+"""Check item PNGs against their provenance manifest; run from the repository root."""
 import hashlib
 import json
 import struct
@@ -26,7 +26,7 @@ def main():
     assert expected.keys() == observed.keys(), "Missing or unexpected item images"
     files = {p.stem for p in Path("assets/ui/items").glob("*.png")}
     assert files == expected.keys(), "Orphaned or missing PNG files"
-    print(f"Verified {len(observed)} original PNGs: names, dimensions, bytes and SHA-256.")
+    print(f"Verified {len(observed)} item PNGs: names, dimensions, bytes and SHA-256.")
 
 
 if __name__ == "__main__":

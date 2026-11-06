@@ -70,7 +70,7 @@ Jeder Strang ändert nur **seine** Zeile (Regeln: `docs/PARALLEL.md`).
 | Strang | KI | Aktuelles Paket | Branch / PR | Stand | Danach |
 | --- | --- | --- | --- | --- | --- |
 | A – Engine und Ablauf | Claude | Paket 24 Launch-Paket (Medium) | `wp-24-launch` | fertig, selbst gemerged | Plan bis zum Launch abgeschlossen; als Nächstes IDs des Owners eintragen (Live-Experience, Badges, Musik), dann Live-Ops |
-| B – Inhalte und Spieler-Regeln | ChatGPT | B8: Originale Hauptspiel-Items und Sprites | `wp-b8-item-parity` / [PR #78](https://github.com/BigYahunatorsBallsack/lanternfall/pull/78) | 125 Originaleintraege in originalen HP-Einheiten; 125 Sprites hochgeladen, 124 laden, Eyes Surgery von Roblox abgelehnt; 141 neue Tests gruen | Owner-Abnahme und Roblox-Pruefung fuer ein Bild |
+| B – Inhalte und Spieler-Regeln | ChatGPT | B8: Neutrales Eyes-Surgery-Bild | `wp-b8-neutral-eye-sprite` | Neues Optikmotiv vom Owner gewuenscht; Roblox Approved und Studio-Preload Success; alle 125 aktiven Item-Bilder laden | Owner prueft Shop und Inventar |
 
 ## Feste Entscheidungen des Owners
 
@@ -436,3 +436,8 @@ Steuerung besteht aus Laufen; Springen bleibt deaktiviert. Dash-Button, Remote, 
 - Vor PR-Abgabe auch Waffen-main `5a1ec54` aufgenommen. Beide Timing-Grenzen in WeaponStats bleiben erhalten. Vollstaendiger finaler Testlauf: 933/31 in 76 Specs, unveraenderter Waffen-main 792/31 in 74 Specs. Genaue Einzelvergleiche in `docs/item-parity/validation.json`; diese Zahlen ersetzen den frueheren fc17890-Vergleich.
 
 - Owner gibt den Merge von PR #78 ausdruecklich frei (06.11.2026). Den danach gemergten Upgrade-/Stat-Stand `0a841e5` aufgenommen: neue Karten-/Stat-Bilder und Engineering-IV-Wert +5 bleiben erhalten; Item-Ladefehler-Fallback und beide neuen Item-Werte-IDs bleiben ebenfalls erhalten. Betroffene Item-/Bild-/Upgrade-Specs, StyLua, Selene, Rojo und Diff-Pruefung vor Merge erneut geprueft.
+
+## B8: Neutrales Eyes-Surgery-Bild (ChatGPT, 06.11.2026)
+
+- Owner waehlt ein eigenes neutrales Ersatzbild ohne Blut/Verletzungen. Mit dem eingebauten image_gen als neues Optikmotiv erstellt: Brille und Einstellwerkzeug, transparenter RGBA-Hintergrund. Originale abgelehnte Grafik nicht bearbeitet oder erneut hochgeladen.
+- Neues Asset 110223481359323 unter dem Experience-Besitzer hochgeladen, Roblox-Status Approved und nativer Studio-Edit-Preload Success. Bellows-Zuordnung ersetzt; Spielwerte unveraendert. Herkunft, Prompt, Hash und Pruefungen: `docs/item-parity/neutral-eye-sprite.json`. Jetzt 124 unveraenderte Wiki-Sprites plus ein eigenes freigegebenes Ersatzbild; 125 aktive Bilder mit erfolgreichem Preload.
