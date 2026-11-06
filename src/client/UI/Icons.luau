@@ -8,6 +8,7 @@ local CharacterPortraits = require(script.Parent.CharacterPortraits)
 local ItemImages = require(script.Parent.ItemImages)
 local StatImages = require(script.Parent.StatImages)
 local Config = require(game:GetService("ReplicatedStorage").Shared.Config)
+local PrimaryStatArt = require(script.Parent.PrimaryStatArt)
 local Icons = {}
 local rgb = Color3.fromRGB
 local INK, IVORY, GOLD = Theme.stroke, rgb(236, 231, 206), rgb(221, 174, 80)
@@ -245,6 +246,16 @@ end
 
 function Icons.draw(parent: GuiObject, kind: string, id: string): Frame
 	local key = kind .. ":" .. id
+	local upgradeImage: string? = nil
+	if kind == "stat" then
+		local screen = parent:FindFirstAncestorWhichIsA("ScreenGui")
+		if screen and screen.Name == "LevelUp" then
+			upgradeImage = PrimaryStatArt.upgrades[id]
+			if upgradeImage then
+				key = "upgrade:" .. id
+			end
+		end
+	end
 	local old = parent:FindFirstChild("Illustration")
 	if old and old:GetAttribute("IconKey") == key then
 		return old :: Frame
@@ -362,6 +373,14 @@ function Icons.draw(parent: GuiObject, kind: string, id: string): Frame
 		local fallback = root:FindFirstChild("Fallback")
 		if fallback then
 			fallback.Visible = false
+		end
+	end
+	-- LevelUpController and StatsController both request "stat" artwork. Select the wiki's
+	-- separate card illustration only inside the LevelUp screen, without changing either caller.
+	if upgradeImage then
+		local art = root:FindFirstChild("StatArt")
+		if art and art:IsA("ImageLabel") then
+			art.Image = upgradeImage
 		end
 	end
 	return root

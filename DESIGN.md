@@ -189,7 +189,7 @@ Spieler steuern nur Bewegung; Angreifen, Zielen und Aufsammeln passiert automati
 | XP Gain (%) | eingesammelte XP × (1 + Wert/100) (nur aus Items) |
 | Pickup Range (%) | Aufsammelradius × (1 + Wert/100) (nur aus Items) |
 
-Engineering ist seit B12 ein primärer Wert mit Karten +2/+3/+4/+6 und skaliert Bauten und passende Werkzeugwaffen. Knockback gibt es seit B5 als Neben-Wert (unten).
+Engineering ist seit B12 ein primärer Wert und skaliert Bauten und passende Werkzeugwaffen. Die Karten geben original +2/+3/+4/+5 (Owner-Abgleich mit dem Brotato-Wiki vom 06.11.2026). Alle 16 Hauptwert-Karten nutzen die originalen vier Upgrade-Werte und die originalen Wiki-Kartenbilder; die Werte-Liste nutzt die separaten Wiki-Stat-Symbole. Quellen und Bildzuordnung stehen in `assets/ui/stats/brotato/manifest.json`. Knockback gibt es seit B5 als Neben-Wert (unten).
 
 **Neben-Werte (seit B4, wie Brotatos „Secondary Stats"; Zahlen in `Config/Stats.luau`):** Sie kommen nur aus Items und stehen in der Werte-Liste nur, solange sie nicht 0 sind. Gegner-Werte zählen für das ganze Team zusammen (alle, die nicht „Out" sind) und gelten für Gegner, die danach erscheinen.
 
