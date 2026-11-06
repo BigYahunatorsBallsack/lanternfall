@@ -4,6 +4,8 @@ Kurzer Projektstand für neue Sessions. **Zuerst lesen**, dann aus `DESIGN.md` n
 
 ## Stand (31.10.2026)
 
+- **Fix 06.11.2026 (Owner-Wunsch):** Startgeld 30 → 15 Shards (`Shop.startShards`). Neu gespawnte Gegner blitzten einen Frame lang an der falschen Stelle auf (gepooltes Modell stand noch am letzten Todesort bzw. beim Ursprung, das BillboardGui-Bild wurde dort gezeichnet, bevor `BulkMoveTo` es verschob). `EnemyRenderer` setzt die Teile jetzt erst an den Spawnpunkt und hängt das Modell danach in den Workspace (`showAtSpawn`).
+
 - Fix nach Owner-Test der .rbxl: `EqualizerSoundEffect.MidRange` gibt es in Roblox nicht; der Fehler brach jeden Button-Klick ab (kein Klick, kein Sound). Entfernt, Klick-Sound läuft jetzt in `pcall`. Testpaket (.rbxl via `rojo build`) liegt in Project Files `lanternfall-testpaket/`.
 
 - **Gemerged:** WP1–WP9, 9b, 9d, B1 (Wellen + Shop), B2 (Werte, 46 Items, Werte-Karten), Plan B3–B12 (PR #16), B3 (Shop komplett: Sperren, Verkaufen, Waffen-Stufen I–IV + Verschmelzen, Gratis-Neuwurf, Handy-Layout, 20 Wellen; PR #17), B4 (Effekt-Maschine, Neben-Werte, Zufalls-Ströme, 32 Items mit Effekten; PR #18) und B5 (Kampf-Tiefe: Krit pro Waffe, Rückstoß + Resistenz, Brennen, Explosionen, Durchbohren/Abprallen, Verlangsamen sichtbar, 14 Waffenklassen, 12 Kampf-Items; PR #19). B4 und B5 hat der Owner am 30.10.2026 zusammen in Studio getestet (`/mnt/project-files/lanternfall-b5/TESTANLEITUNG.md`).
