@@ -67,13 +67,14 @@ local Sprites = {
 		idleSquash = 0.018,
 		-- The waddle: the body tips over its feet from side to side, flattens while tipped and stretches and lifts when it is
 		-- upright. Rhythm measured from frames of Brotato's Steam clip: one flatten-and-stretch takes about 0.3 s, which is
-		-- half a waddle. The strengths are estimates, the clip is small and busy.
-		walkCycleSeconds = 0.6, -- one step left and right
-		walkTiltDegrees = 7,
-		walkSquash = 0.09,
-		walkHopStuds = 0.25,
+		-- half a waddle. The strengths are estimates, the clip is small and busy; owner found them too bouncy, so they were
+		-- roughly halved and the rhythm slowed (06.11.2026).
+		walkCycleSeconds = 0.75, -- one step left and right (calmed from 0.6 on 06.11.2026)
+		walkTiltDegrees = 4, -- was 7
+		walkSquash = 0.045, -- was 0.09
+		walkHopStuds = 0.1, -- was 0.25
 		-- Two feet in alternating steps; `image` is drawn behind the body.
-		foot = table.freeze({ studs = 1.5, spread = 0.95, lift = 0.45, stride = 0.3 }),
+		foot = table.freeze({ studs = 1.5, spread = 0.95, lift = 0.3, stride = 0.3 }), -- lift was 0.45
 		movingThreshold = 0.2, -- studs/s
 		blendSharpness = 8, -- how softly the walk starts and ends
 		attackSeconds = 0.16,
@@ -101,7 +102,7 @@ local Sprites = {
 		figureWidth = 2.6, -- width of the figure, times the enemy's radius
 		figureWidths = table.freeze({}) :: { [string]: number }, -- other widths by enemy id
 		-- One step cycle: studs walked, hop (share of the radius), sway and lean (radians).
-		gait = table.freeze({ stride = 6, bob = 0.1, roll = 0.1, lean = 0.065 }),
+		gait = table.freeze({ stride = 7.5, bob = 0.04, roll = 0.05, lean = 0.065 }), -- was stride 6, bob 0.1, roll 0.1
 		flashBrightness = 5,
 		statusTint = 0.55,
 		rushTint = { 255, 120, 110 },
@@ -111,7 +112,7 @@ local Sprites = {
 		wispStuds = 0.8, -- times the radius
 		wispOrbit = 1.3, -- times the radius
 		wispSpeed = 1.6, -- radians/s
-		squash = 0.08,
+		squash = 0.04, -- was 0.08
 		windupScale = 0.88,
 		tremble = 0.05, -- share of the radius
 		trembleSpeed = 70,

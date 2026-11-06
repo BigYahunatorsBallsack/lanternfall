@@ -475,3 +475,10 @@ Branch `wp-25-2d-presentation`. **Owner-Entscheidungen dieses Pakets:** Das Spie
 - Anleitung und Pruefgrenzen: `docs/2D-INTEGRATION.md`; Vergleichsbericht: `docs/2d-integration-validation.json`; Bildquellen/IDs: `assets/enemies/base-game/roblox-assets.json`. Weitere Weltgrafiken behalten den Stand des 2D-Zweigs, darunter generische Platzhalter. Kein neuer kompletter nativer Solo-, Zwei-Client-, Handy- oder Run-Place-Test; die offene Studio-Place-Datei wurde nicht mit Branch-Code ueberschrieben.
 
 - Abschlusspruefung der Integration: main965/26 in79 Specs, Integration977/26 in80 Specs, mit identischem Zufallsstart1234 und exakt denselben26 fehlgeschlagenen Tests. Keine neue fehlgeschlagene Pruefung. Beide Review-Fixes im vollstaendigen Abschlusslauf enthalten; unabhaengige Nachpruefung ohne weiteren konkreten Befund. StyLua sauber, Selene0 Fehler/11 bestehende Warnungen, Rojo-Build und Diff-Pruefung erfolgreich;32/32 Gegnerbilder mit nativem Preload Success.
+
+## Ruhigere Laufanimation (06.11.2026)
+
+- Owner fand das Laufen zu hüpfig (Spieler und Gegner). Nur Werte in `Config/Sprites.luau` geändert, ungefähr halbiert, Takt langsamer:
+  - Spieler (`character`): `walkCycleSeconds` 0.6 → 0.75, `walkTiltDegrees` 7 → 4, `walkSquash` 0.09 → 0.045, `walkHopStuds` 0.25 → 0.1, `foot.lift` 0.45 → 0.3.
+  - Gegner (`enemy`): `gait.stride` 6 → 7.5 (weniger Schritte pro Strecke), `gait.bob` 0.1 → 0.04, `gait.roll` 0.1 → 0.05, `squash` 0.08 → 0.04.
+- Feinjustieren: dieselben Felder; kleinere Zahl = ruhiger (bei `walkCycleSeconds`/`stride`: größere Zahl = ruhiger).
