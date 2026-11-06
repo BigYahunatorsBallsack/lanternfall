@@ -68,8 +68,9 @@ function StatMath.armorFactor(armor: number): number
 end
 
 -- Chance (0..1) to dodge a hit, capped at Config.Stats.dodge.max.
-function StatMath.dodgeChance(dodge: number): number
-	return math.clamp(dodge, 0, Stats.dodge.max) / 100
+function StatMath.dodgeChance(dodge: number, cap: number?): number
+	local maximum = if cap and cap > 0 then cap else Stats.dodge.max
+	return math.clamp(dodge, 0, maximum) / 100
 end
 
 -- HP healed per second by HP Regeneration (in our HP, hpScale per tick). 0 below 1 regen.
@@ -135,7 +136,9 @@ function StatMath.format(statId: string, value: number): string
 	local name = if stat then stat.displayName else statId
 	local percent = if stat and stat.percent then "%" else ""
 	local magnitude = math.abs(value)
-	local text = if magnitude == math.floor(magnitude) then tostring(magnitude) else string.format("%.1f", magnitude)
+	local text = if magnitude == math.floor(magnitude)
+		then tostring(magnitude)
+		else (string.format("%.2f", magnitude):gsub("0+$", ""))
 	return `{if value < 0 then "-" else "+"}{text}{percent} {name}`
 end
 

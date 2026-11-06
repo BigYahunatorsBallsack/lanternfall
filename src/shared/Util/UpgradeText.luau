@@ -165,7 +165,16 @@ function UpgradeText.itemLines(itemId: string, colors: Colors?, separator: strin
 	if itemId == "CalibratedTools" then
 		table.insert(lines, "Structures gain 50% of your Attack Speed")
 	end
-	local stats = UpgradeText.statLines(item.stats, colors)
+	local shownStats = table.clone(item.stats)
+	if shownStats.weaponCooldownMin then
+		table.insert(lines, `Minimum weapon and structure cooldown: {shownStats.weaponCooldownMin}s`)
+		shownStats.weaponCooldownMin = nil
+	end
+	if shownStats.dodgeCap then
+		table.insert(lines, `Dodge is capped at {shownStats.dodgeCap}%`)
+		shownStats.dodgeCap = nil
+	end
+	local stats = UpgradeText.statLines(shownStats, colors)
 	if stats ~= "" then
 		table.insert(lines, stats)
 	end

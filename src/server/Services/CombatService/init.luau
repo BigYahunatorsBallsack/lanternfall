@@ -174,15 +174,22 @@ function CombatService.healPlayer(player: Player, amount: number): number
 	return gained
 end
 
--- Item effects (B8): a living participant loses up to `amount` HP, never below 1, without armor, dodge or hit
--- protection (Vitals.drain); no PlayerDamaged. Returns the HP lost.
+-- Item self-damage can down its owner and trigger Hurt effects. Armor, dodge and timed protection do not stop it.
 function CombatService.drainPlayer(player: Player, amount: number): number
 	if not canBeHurt(player) then
 		return 0
 	end
-	local lost = getVitals(player):drain(amount)
+	local state = getVitals(player)
+	local lost, blocked = state:drain(amount)
+	if blocked then
+		CombatService.Blocked:Fire(player)
+	end
 	if lost > 0 then
 		send(player)
+		CombatService.PlayerDamaged:Fire(player, lost)
+		if state:isDown() then
+			RunDirector.setParticipantState(player, "Down")
+		end
 	end
 	return lost
 end
@@ -214,7 +221,7 @@ function CombatService.setStats(player: Player, sheet: StatMath.Sheet)
 	regen[player] = StatMath.regenPerSecond(sheet.hpRegen or 0)
 	local state = getVitals(player)
 	state:setMaxHp(maxHpFor(player))
-	state:setDefense(StatMath.armorFactor(sheet.armor or 0), StatMath.dodgeChance(sheet.dodge or 0))
+	state:setDefense(StatMath.armorFactor(sheet.armor or 0), StatMath.dodgeChance(sheet.dodge or 0, sheet.dodgeCap))
 	applyWalkSpeed(player)
 	send(player)
 end

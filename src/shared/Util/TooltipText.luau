@@ -152,11 +152,19 @@ function TooltipText.item(itemId: string, count: number): (string, string)
 end
 
 -- What a stat does, with its current value.
-function TooltipText.stat(statId: string, value: number): (string, string)
+function TooltipText.stat(statId: string, value: number, sheet: { [string]: number }?): (string, string)
 	local stat = Config.Stats.byId[statId]
 	local title = if stat then stat.displayName else statId
 	local hint = STAT_HINTS[statId]
 	local text = if type(hint) == "function" then hint(value) elseif type(hint) == "string" then hint else ""
+	if statId == "dodge" then
+		local cap = if sheet and (sheet.dodgeCap or 0) > 0 then sheet.dodgeCap else Config.Stats.dodge.max
+		text = `{number(StatMath.dodgeChance(value, cap) * 100)}% chance to dodge a hit (at most {cap}%).`
+	elseif statId == "weaponCooldownMin" then
+		text = "Weapons and attacking structures cannot attack faster than this interval in seconds."
+	elseif statId == "dodgeCap" then
+		text = "The maximum dodge chance allowed by your items."
+	end
 	if stat and not stat.primary then
 		text ..= "\n" .. dim("Secondary stat: only from items.")
 	end

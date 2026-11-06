@@ -119,16 +119,19 @@ function Vitals.heal(self: Vitals, amount: number): number
 	return gained
 end
 
--- Loses up to `amount` HP straight away, ignoring armor, dodge, shields and hit protection and giving none, but never
--- below 1 HP (item effects since B8: Brotato's "you take 1 damage per second"; not lethal is an assumption). Returns
--- the HP lost.
-function Vitals.drain(self: Vitals, amount: number): number
-	if amount <= 0 or self:isDown() then
-		return 0
+-- Lethal self-damage ignores armor, dodge and timed protection. Hit shields can absorb it; no protection is granted.
+-- Returns HP lost and whether a hit shield absorbed it (Blood Donation and Bloody Hand).
+function Vitals.drain(self: Vitals, amount: number): (number, boolean)
+	if amount <= 0 or self:isDown() or self.shielded then
+		return 0, false
 	end
-	local lost = math.max(0, math.min(amount, self.hp - 1))
+	if self.hitShields > 0 then
+		self.hitShields -= 1
+		return 0, true
+	end
+	local lost = math.min(amount, self.hp)
 	self.hp -= lost
-	return lost
+	return lost, false
 end
 
 -- Sets HP to a fraction of the maximum, at least 1 (revive).

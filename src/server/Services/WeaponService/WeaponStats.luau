@@ -90,9 +90,10 @@ function WeaponStats.compute(
 	stats.damage = math.max(1, damage * damageFactor)
 
 	local timing = StatMath.cooldownFactor(bonuses.attackSpeed or 0)
+	local minimum = math.max(minCooldown, bonuses.weaponCooldownMin or 0)
 	for _, key in TIME_STATS do
 		if stats[key] then
-			stats[key] = math.max(minCooldown, stats[key] * timing)
+			stats[key] = math.max(minimum, stats[key] * timing)
 		end
 	end
 	for _, key in RATE_STATS do

@@ -515,6 +515,10 @@ Die 26 freigegebenen Waffenillustrationen sind zugleich die Ansichten der schweb
 
 Projektilwaffen starten ihre serverseitig berechneten Schüsse an der Mündung der schwebenden Waffe; der erste Blitzabschnitt beginnt dort ebenfalls. Das Clientbild beginnt am sichtbaren Lauf und gleicht die Netzwerkverzögerung kurz zur serverseitigen Flugbahn an. Der Shockwave-Hammer schlägt zum Ziel, die kleinere Druckwelle wird am Hammerkontakt gezeichnet. Schaden, Ziele und Kollision bleiben serverseitig. Positions- und Animationswerte liegen in `Config/WeaponVisuals.luau`; `Util/WeaponPose.luau` wird von Server und Client genutzt. Das bestehende `WeaponFx`-Format transportiert `uid` als optionales Zusatzfeld, ohne die Remote oder das Paketlayout zu ändern.
 
+### B8: Original-Items aus dem Hauptspiel (Owner, 06.11.2026)
+
+Der Owner ersetzt fuer Items die fruehere Vorgabe eigener Namen und Bilder: Alle 124 vorhandenen Katalogplaetze werden durch 124 eindeutige Brotato-Hauptspiel-Items ersetzt, mit Originalpreisen, Stufen, Limits, Vor-/Nachteilen und Sonderwirkungen; DLC-Vorbilder entfallen. Die historischen Tabellen oben beschreiben den vorherigen Stand. Die verbindliche Zuordnung und Quellwerte stehen in docs/item-parity/catalog.json; HP bleibt x10. Interne IDs bleiben fuer bestehende Freischaltungen, Waffenentwicklungen und Bauquellen stabil. Ball and Chain, Ghost Outfit, Candy Bag und toedlicher Selbstschaden haben ihre Sonderregeln auch zur Laufzeit. Umsetzungsgrenzen und Testanleitung: docs/item-parity/README.md.
+
 ## 7. Gegner, Elites & Boss
 
 | Gegner | Rolle | HP | Tempo (Studs/s) | Schaden | XP | Ab Minute |

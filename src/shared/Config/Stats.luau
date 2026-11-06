@@ -48,6 +48,8 @@ export type StatId =
 	| "trees"
 	| "engineering"
 	| "enemySpeed"
+	| "weaponCooldownMin"
+	| "dodgeCap"
 
 export type Stat = {
 	id: string,
@@ -129,6 +131,8 @@ local ORDER: { Stat } = {
 	stat("engineering", "Engineering", false, { 2, 3, 4, 6 }), -- B12 primary upgrades, structures and engineering weapons
 	-- enemies (since B9)
 	extra("enemySpeed", "Enemy Speed", true, true), -- speed of enemies that spawn; team total
+	extra("weaponCooldownMin", "Minimum Weapon Cooldown", false, true), -- Ball and Chain, seconds
+	extra("dodgeCap", "Dodge Limit", true), -- Ghost Outfit; absolute cap, zero uses the default
 }
 
 local byId: { [string]: Stat } = {}

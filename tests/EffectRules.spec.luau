@@ -176,7 +176,9 @@ describe("EffectText", function()
 			"+6% Attack Speed per different weapon"
 		)
 		expect(EffectText.line(Config.Items.byId.FortuneCoin.effects[1])).toBe("+2 Luck per 1% Crit Chance")
-		expect(EffectText.line(Config.Items.byId.ClockworkArm.effects[1])).toBe("Wave end: -10 Max HP, +3 Melee Damage")
+		expect(EffectText.line(Config.Items.byId.ClockworkArm.effects[1])).toBe(
+			"Wave end: -10 Max HP, +3 Melee Damage, +3 Engineering"
+		)
 		expect(EffectText.line(Config.Items.byId.GildedPlume.effects[1])).toBe(
 			"Next wave: +100% XP Gain, +50% Enemy Damage"
 		)
@@ -207,7 +209,7 @@ describe("EffectText", function()
 		expect(EffectText.proc({ kind = "Stats", stats = { damage = 3 } })).toBe("+3% Damage")
 		expect(EffectText.proc({ kind = "Weapon", weaponId = "SparkBolt", tier = 2 })).toBe("Spark Bolt II!")
 		expect(EffectText.procWithItem({ itemId = "OathRing", kind = "Stats", stats = { damage = 3 } })).toBe(
-			"Oath Ring: +3% Damage"
+			"Vigilante Ring: +3% Damage"
 		)
 		expect(EffectText.bonus({ itemId = "IronVigil", kind = "Still", stats = { armor = 8 } })).toBe(
 			"+8 Armor (standing still)"

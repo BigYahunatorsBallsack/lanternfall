@@ -37,4 +37,6 @@ return table.freeze({
 		falloff = 0.5,
 		range = 25, -- studs
 	}),
+	-- Giant Belt: health-percent bonus is unmodifiable and weakens in endless waves.
+	healthPercent = table.freeze({ endlessFactorShare = 0.2 }),
 })

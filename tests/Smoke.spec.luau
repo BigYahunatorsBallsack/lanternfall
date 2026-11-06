@@ -720,7 +720,7 @@ describe("smoke", function()
 		local before = StatService.getSheet(me)
 		local _, maxHpBefore = CombatService.getHp(me)
 		for _ = 1, 3 do
-			expect(StatService.addItem(me, "Might")).toBe(true) -- +5 % Damage, -10 Max HP each
+			expect(StatService.addItem(me, "Might")).toBe(true) -- Injection: +7 % Damage, -20 Max HP each
 		end
 		expect(StatService.addItem(me, "Vitality")).toBe(true) -- +30 Max HP, -1 % Damage
 		expect(StatService.addItem(me, "EelFin")).toBe(true) -- +10 % Speed, +3 % Life Steal, -8 Luck
@@ -728,8 +728,8 @@ describe("smoke", function()
 		expect(select(2, StatService.addItem(me, "IronShackle"))).toBe("Limit")
 		world.advance(0.2)
 		local after = StatService.getSheet(me)
-		expect(after.damage).toBe(before.damage + 15 - 1 + 15)
-		expect(after.maxHp).toBe(before.maxHp - 30 + 30)
+		expect(after.damage).toBe(before.damage + 21 - 1 + 15)
+		expect(after.maxHp).toBe(before.maxHp - 60 + 30)
 		expect(after.speed).toBe(before.speed + 10 - 3)
 		local _, maxHp = CombatService.getHp(me)
 		expect(maxHp).toBe(maxHpBefore + after.maxHp - before.maxHp)
@@ -740,7 +740,7 @@ describe("smoke", function()
 			(1 + after.damage / 100) / (1 + before.damage / 100)
 		)
 		expect(weapon.stats.lifeSteal).toBeNear(after.lifeSteal / 100)
-		expect(string.find(itemRows(), "Might x", 1, true) ~= nil).toBe(true)
+		expect(string.find(itemRows(), "Injection x", 1, true) ~= nil).toBe(true)
 		ExperienceService.setPaused(true) -- no cards in the way for the rest of the smoke test
 		world.click(world.gui("Debug", "ToggleSpawning"))
 		world.advance(0.2)
@@ -890,7 +890,7 @@ describe("smoke", function()
 		pickAll()
 		-- Oath Ring grew at the wave end (Sweet Reliquary bought above may add more), told in a toast
 		expect(StatService.getStat(me, "damage") >= damage + 3 * rings).toBe(true)
-		expect(string.find(toastTexts(), "Oath Ring: +", 1, true) ~= nil).toBe(true)
+		expect(string.find(toastTexts(), "Vigilante Ring: +", 1, true) ~= nil).toBe(true)
 		-- the Ember Anvil raised a weapon when the shop opened
 		expect(tierSum()).toBe(if canUpgrade then tiers + 1 else tiers)
 		-- the shop: 25 % off, free rerolls from Jester's Bell

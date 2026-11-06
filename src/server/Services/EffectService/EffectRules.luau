@@ -38,6 +38,7 @@ export type Event = {
 	elite: boolean?, -- Hit, Crit, Kill
 	enemyId: number?, -- Hit, Crit, Kill (B5: Burn and Explode act on it)
 	fullHp: boolean?, -- Consumable: at max HP before its healing (B8)
+	damageDealt: number?, -- restores pre-hit HP for health-percent bonus damage
 }
 
 -- Temporary bonuses of one player.

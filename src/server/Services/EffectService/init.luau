@@ -36,6 +36,7 @@ local ShopService = require(script.Parent.ShopService)
 local StatService = require(script.Parent.StatService)
 local WeaponService = require(script.Parent.WeaponService)
 local EffectRules = require(script.EffectRules)
+local DangerRules = require(Shared.Util.DangerRules)
 
 local StandStill = Config.Effects.standStill
 
@@ -231,14 +232,27 @@ local function strike(state: State, effect: Effects.Effect, strength: number, ev
 			if elite and effect.eliteHpShare then
 				share = effect.eliteHpShare
 			end
-			flat = EnemySim.getHealth(enemyId) * share * times
+			local health = EnemySim.getHealth(enemyId) + (event.damageDealt or 0)
+			local divisor =
+				math.max(1, DangerRules.endlessFactor(event.wave) * Config.Combat.healthPercent.endlessFactorShare)
+			flat = math.floor(health * share * times / divisor)
 		end
-		WeaponService.strikeEnemy(player, enemyId, (effect.amount or 0) * times, scaled(effect.scaling, times), flat)
+		local scaling = if effect.scaling then scaled(effect.scaling, times) else nil
+		WeaponService.strikeEnemy(player, enemyId, (effect.amount or 0) * times, scaling, flat)
 	end
 	if effect.target == "random" then
-		local count = EnemySim.collectIds(strikeIds)
-		for _ = 1, if count > 0 then strength else 0 do
-			hitOne(strikeIds[math.min(count, math.floor(state.roll() * count) + 1)], 1)
+		local total = EnemySim.collectIds(strikeIds)
+		local count = 0
+		for index = 1, total do
+			local enemyId = strikeIds[index]
+			if EnemySim.getKind(enemyId) ~= "Tree" then
+				count += 1
+				strikeIds[count] = enemyId
+			end
+		end
+		if count > 0 then
+			-- Copies independently proc against the same random target for this event.
+			hitOne(strikeIds[math.min(count, math.floor(state.roll() * count) + 1)], strength)
 		end
 	elseif event.enemyId and EnemySim.isAlive(event.enemyId) then
 		hitOne(event.enemyId, strength)
@@ -312,6 +326,12 @@ local function apply(state: State, entry: EffectRules.Entry, strength: number, e
 		for _ = 1, strength do
 			upgradeWeapon(state, entry)
 		end
+	elseif action == "SpawnElite" then
+		-- Lazy require avoids a service initialization cycle through the stat/weapon dependencies.
+		local BossService = require(script.Parent.BossService)
+		for _ = 1, strength do
+			BossService.spawnItemChampion(player)
+		end
 	end
 	return false
 end
@@ -352,7 +372,7 @@ end
 
 -- Events -------------------------------------------------------------------------------------
 
-local function onHit(ownerId: number, enemyId: number, _dealt: number, crit: boolean, killed: boolean, source: string)
+local function onHit(ownerId: number, enemyId: number, dealt: number, crit: boolean, killed: boolean, source: string)
 	local state = byUserId[ownerId]
 	if not (state and state.hitTriggers) then
 		return
@@ -366,7 +386,10 @@ local function onHit(ownerId: number, enemyId: number, _dealt: number, crit: boo
 	if source ~= "Burn" and source ~= "Strike" then -- burn ticks and strikes are no hits, but their kills count
 		fire(state, { trigger = "Hit", wave = wave, crit = crit, elite = elite, enemyId = enemyId })
 		if crit then
-			fire(state, { trigger = "Crit", wave = wave, crit = true, elite = elite, enemyId = enemyId })
+			fire(
+				state,
+				{ trigger = "Crit", wave = wave, crit = true, elite = elite, enemyId = enemyId, damageDealt = dealt }
+			)
 		end
 	end
 	if killed then

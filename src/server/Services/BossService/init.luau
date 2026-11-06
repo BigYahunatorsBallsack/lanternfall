@@ -1165,6 +1165,18 @@ function BossService.spawnNextChampion(around: Vector3): string?
 	return if spawnUnit(championId, x, z, "Champion", false, 1, wave) then kind.displayName else nil
 end
 
+-- Candy Bag adds a random champion at this wave's real growth, independent of the danger-level elite schedule.
+-- Called only by EffectService after the server's item chance succeeds; normal warning and death rewards apply.
+function BossService.spawnItemChampion(player: Player): boolean
+	if RunDirector.getPhase() ~= "Running" then
+		return false
+	end
+	local order = EliteWaves.order
+	local pick = RandomService.stream("Effects", player):NextInteger(1, #order)
+	announceArrival({ order[pick] }, "Champion", 1, EliteWaves.introSeconds, "An extra champion approaches!")
+	return true
+end
+
 -- Every living boss and champion loses `share` of its max HP (AdminService "HurtBoss", to see the phases). Returns how many.
 function BossService.hurtAll(share: number, source: Player?): number
 	local count = 0
