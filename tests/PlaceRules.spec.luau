@@ -12,7 +12,7 @@ local EXPERIENCES = {
 }
 
 local function isClass(id)
-	return id == "BladeWarden" or id == "SparkMage"
+	return id == "NightWatch" or id == "SparkMage"
 end
 
 local function isWeapon(id)
@@ -28,7 +28,7 @@ local function ticket()
 		leader = 7,
 		group = { 7, 8 },
 		options = options,
-		picks = { [7] = { classId = "SparkMage", weaponId = "SparkBolt" }, [8] = { classId = "BladeWarden" } },
+		picks = { [7] = { classId = "SparkMage", weaponId = "SparkBolt" }, [8] = { classId = "NightWatch" } },
 		hubJobId = "job-abc",
 	}
 end
@@ -61,7 +61,7 @@ describe("run ticket", function()
 		expect(parsed.options.danger).toBe(3)
 		expect(parsed.options.endless).toBe(false) -- playtest after Paket 24: chosen after the boss wave, never up front
 		expect(parsed.picks[7].weaponId).toBe("SparkBolt")
-		expect(parsed.picks[8].classId).toBe("BladeWarden")
+		expect(parsed.picks[8].classId).toBe("NightWatch")
 		expect(parsed.picks[8].weaponId).toBe(nil)
 		expect(parsed.hubJobId).toBe("job-abc")
 		expect(parsed.options.firstNight).toBe(nil)
@@ -105,7 +105,7 @@ describe("run ticket", function()
 		local data = PlaceRules.runTicket(ticket())
 		data.options = { danger = 99, endless = "yes", enemyHp = 0 / 0, enemyDamage = math.huge, enemySpeed = "fast" }
 		data.picks["7"] = { classId = "Hacker", weaponId = "SparkBolt" }
-		data.picks["8"] = { classId = "BladeWarden", weaponId = "Nuke" }
+		data.picks["8"] = { classId = "NightWatch", weaponId = "Nuke" }
 		data.leader = 12345
 		local parsed = PlaceRules.parseRunTicket(data, 7, 4, isClass, isWeapon)
 		local defaults = DangerRules.defaultOptions()
@@ -115,7 +115,7 @@ describe("run ticket", function()
 		expect(parsed.options.enemyDamage).toBe(defaults.enemyDamage)
 		expect(parsed.options.enemySpeed).toBe(defaults.enemySpeed)
 		expect(parsed.picks[7]).toBe(nil)
-		expect(parsed.picks[8].classId).toBe("BladeWarden")
+		expect(parsed.picks[8].classId).toBe("NightWatch")
 		expect(parsed.picks[8].weaponId).toBe(nil)
 		expect(parsed.leader).toBe(7) -- a leader outside the group falls back to the first member
 	end)

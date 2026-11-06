@@ -42,10 +42,13 @@ describe("Original item sprites", function()
 		local seen = {}
 		for _, part in folder:GetChildren() do
 			expect(part.Transparency).toBe(1)
-			local board = part:FindFirstChild("ItemArtwork")
+			local board = part:FindFirstChild("Structure")
 			if board then
 				expect(board.Enabled).toBe(true)
-				seen[board.Sprite.Image] = true
+				expect(board.Picture.ImageRectSize.X).toBe(96)
+				expect(board.Picture.ImageRectSize.Y).toBe(96)
+				expect(board.StudsOffset.Y).toBe(Config.Structures.spriteSize / 2)
+				seen[board.Picture.Image] = true
 			end
 		end
 		for id in Config.Structures.kinds do
@@ -54,7 +57,7 @@ describe("Original item sprites", function()
 		Net.fireAllClients("Structures", Feed.encodeStructures({}))
 		expect(#folder:GetChildren()).toBe(0)
 		Net.fireAllClients("Structures", Feed.encodeStructures(rows))
-		expect(#folder:GetChildren()).toBe(2 * #rows)
+		expect(#folder:GetChildren()).toBe(#rows)
 	end)
 	it("keeps a visible stat fallback when Roblox refuses an item image", function()
 		local provider = game:GetService("ContentProvider")

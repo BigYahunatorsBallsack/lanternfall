@@ -11,7 +11,7 @@ local Services = game:GetService("ServerScriptService").Server.Services
 local Migrations = require(Services.PlayerDataService.Migrations)
 local ProfileTemplate = require(Services.PlayerDataService.ProfileTemplate)
 
-local CLASSES = { "BladeWarden", "SparkMage" }
+local CLASSES = { "NightWatch", "SparkMage" }
 local DAY = 20454 -- 2026-01-01
 
 local function run(values)
@@ -23,7 +23,7 @@ local function run(values)
 		wave = 1,
 		won = false,
 		players = 1,
-		classId = "BladeWarden",
+		classId = "NightWatch",
 	}
 	for key, value in values or {} do
 		base[key] = value
@@ -129,7 +129,7 @@ describe("daily quests", function()
 		expect(#finished).toBe(0)
 		expect(list[1].progress).toBe(500)
 		expect(list[2].progress).toBe(8)
-		expect(list[3].progress).toBe(0) -- played Blade Warden
+		expect(list[3].progress).toBe(0) -- played Night Watch
 		expect(list[4].progress).toBe(1)
 		-- the wave quest takes the best run, not the sum; progress stops at the goal
 		finished =

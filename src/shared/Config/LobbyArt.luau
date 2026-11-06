@@ -82,8 +82,6 @@ local lobbyArt = {
 		gateSize = Vector3.new(7.2, 10.8, 0.25),
 		gateInset = Vector3.new(0, -0.4, 0.45),
 		emblemSize = Vector3.new(1.2, 1.2, 1.2),
-		glowRange = 20,
-		glowBrightness = 0.75,
 	},
 	paths = {
 		startZ = -12,
@@ -100,8 +98,6 @@ local lobbyArt = {
 			Vector3.new(-24, 0, 27),
 			Vector3.new(24, 0, 27),
 		},
-		range = 19,
-		brightness = 0.7,
 	},
 	perimeter = {
 		margin = 1.5,

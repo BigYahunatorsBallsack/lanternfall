@@ -55,7 +55,7 @@ local Config = require(game:GetService("ReplicatedStorage").Shared.Config)
 
 local ProfileTemplate = {}
 
-ProfileTemplate.SCHEMA_VERSION = 8
+ProfileTemplate.SCHEMA_VERSION = 9
 
 -- Default settings (Config.Settings.defaults) as a new table (v4, graphics since v8).
 function ProfileTemplate.newSettings(): {
@@ -81,7 +81,7 @@ function ProfileTemplate.new(): Data
 		schemaVersion = ProfileTemplate.SCHEMA_VERSION,
 		embers = 0,
 		talents = { toughness = 0, power = 0, reach = 0, greed = 0, rescuer = 0, rerolls = 0 },
-		classes = { "BladeWarden", "SparkMage" },
+		classes = { "NightWatch", "SparkMage" },
 		difficultyUnlocked = "Normal",
 		cosmetics = { owned = {}, equipped = {} },
 		stats = {

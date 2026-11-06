@@ -21,6 +21,7 @@ world.step()
 runScript(folderProxy("src/client", "Client"), "init.client.luau")
 world.advance(0.5)
 
+Config.Classes.NightWatch.weaponKind = nil -- these tests hand out melee weapons too
 world.click(world.gui("Lobby", "Ready"))
 world.advance(3.5)
 RunDirector.setHoldWaves(true)

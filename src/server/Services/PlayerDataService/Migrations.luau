@@ -91,6 +91,30 @@ local steps: { [number]: (data: any) -> () } = {
 			data.settings.graphics = ProfileTemplate.newSettings().graphics
 		end
 	end,
+	-- v8 -> v9 (Paket 25): the Blade Warden is gone; who owned it owns Night Watch, its daily quests move there too. Its
+	-- old character record stays in the data, nothing reads it any more.
+	[8] = function(data)
+		local classes = {}
+		if type(data.classes) == "table" then
+			for _, id in data.classes do
+				if id ~= "BladeWarden" and not table.find(classes, id) then
+					table.insert(classes, id)
+				end
+			end
+		end
+		if not table.find(classes, "NightWatch") then
+			table.insert(classes, 1, "NightWatch")
+		end
+		data.classes = classes
+		local quests = if type(data.quests) == "table" then data.quests else nil
+		if quests and type(quests.list) == "table" then
+			for _, quest in quests.list do
+				if type(quest) == "table" and quest.classId == "BladeWarden" then
+					quest.classId = "NightWatch"
+				end
+			end
+		end
+	end,
 }
 
 Migrations.steps = steps

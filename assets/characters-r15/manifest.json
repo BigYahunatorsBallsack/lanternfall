@@ -2,17 +2,6 @@
   "github_main": "f515df9082fa134f5cc5bdf179122aaee9f05563",
   "characters": [
     {
-      "id": "BladeWarden",
-      "name": "Blade Warden",
-      "triangles": 8312,
-      "parts": 15,
-      "bones": 17,
-      "game_materials": 1,
-      "source_and_exports_verified": true,
-      "animation_clips_verified": true,
-      "studio_tested": false
-    },
-    {
       "id": "SparkMage",
       "name": "Spark Mage",
       "triangles": 8596,

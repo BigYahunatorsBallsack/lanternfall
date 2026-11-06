@@ -4,6 +4,7 @@
 local Images = require(script.Parent.Parent.Parent.UI.WeaponImages)
 local VisualKit = require(script.Parent.VisualKit)
 local Look = require(game:GetService("ReplicatedStorage").Shared.Config.WeaponVisuals)
+local Sprites = require(game:GetService("ReplicatedStorage").Shared.Config.Sprites)
 
 export type Sprite = { anchor: BasePart, picture: ImageLabel }
 
@@ -31,6 +32,7 @@ function SpriteKit.create(id: string, size: number, name: string): Sprite
 	billboard.AlwaysOnTop = false
 	billboard.LightInfluence = 0
 	billboard.Size = UDim2.fromScale(size, size)
+	billboard.StudsOffset = Vector3.new(0, 0, Sprites.depthBias) -- same layer as characters and enemies
 	billboard.Parent = anchor
 	local picture = Instance.new("ImageLabel")
 	picture.Name = "Sprite"

@@ -1,6 +1,6 @@
 --!strict
 -- Draws fruits and crates on the arena floor (DESIGN.md section 3, since B6) from the server's Pickups events
--- (LootService): an authored green fruit and two outlined cartoon loot boxes. Picked up they fly
+-- (LootService): sprites of the authored green fruit and the two outlined cartoon loot boxes. Picked up they fly
 -- into the player like orbs; left at the wave end they simply vanish. Lying ones are placed once; only flying ones move
 -- each frame, together in one workspace:BulkMoveTo. Also shows a small chip under the timer with the team's bag
 -- (OrbBag, ExperienceService) and the crates waiting for the end of the wave (CrateOffer, UpgradeService) while a run
@@ -20,12 +20,16 @@ local Types = require(Shared:WaitForChild("Net"):WaitForChild("Types"))
 local RunStateController = require(script.Parent.RunStateController)
 local Theme = require(script.Parent.Parent.UI.Theme)
 local VisualKit = require(script.Parent.WeaponRenderer.VisualKit)
+local WorldSprite = require(
+	game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Util"):WaitForChild("WorldSprite")
+)
 local Widgets = require(script.Parent.Parent.UI.Widgets)
 
 local FOLDER_NAME = "LanternfallPickups"
 local FLY_SECONDS = 0.3
 local CRATE, LEGENDARY = 2, 3 -- kinds in Net/Types.PickupEvents (1 = fruit)
 local LEGENDARY_GLOW = Color3.fromRGB(255, 80, 80)
+local LEGENDARY_GLOW_STUDS = 5.4
 local CHIP_Y = 126 -- pixels from the top, under the HUD's timer panel
 
 -- One pickup's parts and where each sits relative to the pickup's floor point.
@@ -42,64 +46,47 @@ local function partsOf(visual: Visual): { BasePart }
 	return visual.parts
 end
 
--- The meshes are project-owned Studio assets, created to match the authored enemy family.
-local function textured(name: string, size: Vector3, meshId: string, textureId: string): BasePart
-	local part = VisualKit.solid(name, Enum.PartType.Block, size, Color3.new(1, 1, 1), Enum.Material.SmoothPlastic)
-	local mesh = Instance.new("SpecialMesh")
-	mesh.MeshType = Enum.MeshType.FileMesh
-	mesh.MeshId = meshId
-	mesh.TextureId = textureId
-	mesh.Scale = Vector3.one
-	mesh.Parent = part
-	return part
+local function pickupSprite(name: string): WorldSprite.Sprite
+	local art = Config.Sprites.pickups[name]
+	return WorldSprite.create({
+		name = name,
+		image = if art then art.image else "",
+		studs = if art then art.studs else 2,
+		ground = if art then art.ground or 0 else 0,
+		center = if art then art.center else nil,
+	})
 end
 
 local fruitPool = VisualKit.objectPool(function(): Visual
-	local fruit = textured(
-		"Fruit",
-		Vector3.new(1.154, 1.4, 1.151),
-		"rbxassetid://132082253219697",
-		"rbxassetid://128370118812590"
-	)
-	return { parts = { fruit }, offsets = { CFrame.new(0, 0.7, 0) } }
+	return { parts = { pickupSprite("Fruit").anchor :: BasePart }, offsets = { CFrame.identity } }
 end, partsOf)
 
 local cratePool = VisualKit.objectPool(function(): Visual
-	local box = textured(
-		"Crate",
-		Vector3.new(2.084, 1.792, 2.1),
-		"rbxassetid://100965126796476",
-		"rbxassetid://112322320300852"
-	)
-	return { parts = { box }, offsets = { CFrame.new(0, 0.896, 0) } }
+	return { parts = { pickupSprite("Crate").anchor :: BasePart }, offsets = { CFrame.identity } }
 end, partsOf)
 
 local legendaryPool = VisualKit.objectPool(function(): Visual
-	local box = textured(
-		"LegendaryCrate",
-		Vector3.new(2.8, 2.068, 1.996),
-		"rbxassetid://137593654643123",
-		"rbxassetid://130650417605654"
-	)
-	local glow = VisualKit.halo("LegendaryGlow", Enum.PartType.Ball, Vector3.one * 3.6, LEGENDARY_GLOW, 0.9)
+	local glow = WorldSprite.glow("LegendaryGlow", LEGENDARY_GLOW_STUDS, LEGENDARY_GLOW)
 	return {
-		parts = { box, glow },
-		offsets = { CFrame.new(0, 1.034, 0), CFrame.new(0, 1.034, 0) },
+		parts = { pickupSprite("LegendaryCrate").anchor :: BasePart, glow.anchor :: BasePart },
+		-- a little behind the crate, so it shines around it
+		offsets = { CFrame.identity, CFrame.new(0, 1.034, -0.3) },
 	}
 end, partsOf)
 
-local function preloadMeshes()
-	local holder = Instance.new("Folder")
-	local fruit = fruitPool:acquire(holder)
-	local crate = cratePool:acquire(holder)
-	local legendary = legendaryPool:acquire(holder)
+local function preloadImages()
+	local probes: { Instance } = {}
+	for _, art in Config.Sprites.pickups do
+		local probe = Instance.new("ImageLabel")
+		probe.Image = art.image
+		table.insert(probes, probe)
+	end
 	pcall(function()
-		ContentProvider:PreloadAsync({ fruit.parts[1], crate.parts[1], legendary.parts[1] })
+		ContentProvider:PreloadAsync(probes)
 	end)
-	fruitPool:release(fruit)
-	cratePool:release(crate)
-	legendaryPool:release(legendary)
-	holder:Destroy()
+	for _, probe in probes do
+		probe:Destroy()
+	end
 end
 
 local pickups: { [number]: Pickup } = {}
@@ -130,8 +117,8 @@ local function poolOf(kind: number)
 	return if kind == LEGENDARY then legendaryPool elseif kind == CRATE then cratePool else fruitPool
 end
 
-local function place(visual: Visual, position: Vector3, yaw: number)
-	local at = CFrame.new(position) * CFrame.Angles(0, yaw, 0)
+local function place(visual: Visual, position: Vector3, _yaw: number)
+	local at = CFrame.new(position)
 	for index, part in visual.parts do
 		table.insert(partList, part)
 		table.insert(cframeList, at * visual.offsets[index])
@@ -286,7 +273,7 @@ end
 
 function PickupRenderer.start()
 	buildChip()
-	task.spawn(preloadMeshes)
+	task.spawn(preloadImages)
 	RunStateController.Changed:Connect(updateChip)
 	updateChip()
 	RunService.RenderStepped:Connect(render)

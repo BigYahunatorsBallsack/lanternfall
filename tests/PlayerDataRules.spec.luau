@@ -12,7 +12,7 @@ local function v1Data()
 		schemaVersion = 1,
 		embers = 40,
 		talents = { toughness = 1, power = 0, reach = 0, greed = 0, rescuer = 0, rerolls = 0 },
-		classes = { "BladeWarden", "SparkMage" },
+		classes = { "NightWatch", "SparkMage" },
 		difficultyUnlocked = "Normal",
 		cosmetics = { owned = {}, equipped = {} },
 		stats = { runs = 3, kills = 900, bossKills = 1, bestTime = 640 },
@@ -163,7 +163,7 @@ describe("ProfileRecords", function()
 			run({ won = true, wave = 20, danger = 3, kills = 2000, bossKills = 1, seconds = 812.6 })
 		)
 		ProfileRecords.applyRun(data, run({ won = true, wave = 20, danger = 1 }))
-		ProfileRecords.applyRun(data, run({ wave = 4, danger = 5, classId = "BladeWarden" }))
+		ProfileRecords.applyRun(data, run({ wave = 4, danger = 5, classId = "NightWatch" }))
 		expect(data.stats.runs).toBe(3)
 		expect(data.stats.wins).toBe(2)
 		expect(data.stats.bossKills).toBe(1)
@@ -172,8 +172,8 @@ describe("ProfileRecords", function()
 		expect(data.stats.bestDanger).toBe(3) -- the danger 5 run was lost
 		expect(data.characterStats.SparkMage.wins).toBe(2)
 		expect(data.characterStats.SparkMage.bestDanger).toBe(3)
-		expect(data.characterStats.BladeWarden.runs).toBe(1)
-		expect(data.characterStats.BladeWarden.bestWave).toBe(4)
+		expect(data.characterStats.NightWatch.runs).toBe(1)
+		expect(data.characterStats.NightWatch.bestWave).toBe(4)
 	end)
 
 	it("marks the First Night done after any run (Paket 19)", function()

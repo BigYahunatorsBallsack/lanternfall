@@ -20,7 +20,7 @@ store:put(keyOf(1), {
 	schemaVersion = 1,
 	embers = 0,
 	talents = { toughness = 0, power = 0, reach = 0, greed = 0, rescuer = 0, rerolls = 0 },
-	classes = { "BladeWarden", "SparkMage" },
+	classes = { "NightWatch", "SparkMage" },
 	difficultyUnlocked = "Normal",
 	cosmetics = { owned = {}, equipped = {} },
 	stats = { runs = 3, kills = 900, bossKills = 1, bestTime = 640 },

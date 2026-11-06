@@ -10,35 +10,23 @@ local Config = require(Shared.Config)
 local Net = require(Shared.Net)
 local StructureFeed = require(Shared.Net.StructureFeed)
 local Kit = require(script.Parent.WeaponRenderer.VisualKit)
+local WorldSprite = require(
+	game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Util"):WaitForChild("WorldSprite")
+)
 local Images = require(script.Parent.Parent.UI.ItemImages)
 local Renderer = {}
 local folder: Folder
 local live = {}
-local orbits: { [number]: { parts: { BasePart }, ownerId: number, id: number } } = {}
+local orbits: { [number]: { parts: any, ownerId: number, id: number } } = {}
 local flashes = {}
 local C = Config.Structures
 local FLOOR_Y = Config.Map.arena.center.Y
+local Sprites = Config.Sprites
 local pool = Kit.objectPool(function()
-	local parts = {
-		Kit.part("Plinth", Enum.PartType.Cylinder, Vector3.new(0.6, 3, 3), Color3.fromRGB(86, 73, 57)),
-		Kit.part("Lantern", Enum.PartType.Ball, Vector3.new(1.5, 1.5, 1.5), Color3.new(1, 1, 1)),
-	}
-	local billboard = Instance.new("BillboardGui")
-	billboard.Name = "ItemArtwork"
-	billboard.Adornee = parts[2]
-	billboard.AlwaysOnTop = false
-	billboard.LightInfluence = 0
-	billboard.Size = UDim2.fromScale(C.spriteSize, C.spriteSize)
-	billboard.Parent = parts[2]
-	local picture = Instance.new("ImageLabel")
-	picture.Name = "Sprite"
-	picture.BackgroundTransparency = 1
-	picture.Size = UDim2.fromScale(1, 1)
-	picture.ScaleType = Enum.ScaleType.Fit
-	picture.Parent = billboard
-	return parts
+	local sprite = WorldSprite.create({ name = "Structure", image = "", studs = 4, ground = 0 })
+	return { sprite = sprite, anchor = sprite.anchor :: BasePart, hover = 0 }
 end, function(parts)
-	return parts
+	return { parts.anchor }
 end)
 local beamPool = Kit.objectPool(function()
 	return { Kit.part("StructureRay", Enum.PartType.Block, Vector3.new(0.12, 0.12, 1), Color3.new(1, 1, 1)) }
@@ -46,9 +34,8 @@ end, function(parts)
 	return parts
 end)
 
-local function place(parts: { BasePart }, x: number, z: number)
-	parts[1].CFrame = CFrame.new(x, FLOOR_Y + 0.4, z) * CFrame.Angles(0, 0, math.pi / 2)
-	parts[2].CFrame = CFrame.new(x, FLOOR_Y + C.spriteSize / 2, z)
+local function place(parts: any, x: number, z: number)
+	parts.anchor.CFrame = CFrame.new(x, FLOOR_Y + parts.hover, z)
 end
 
 local function ownerRoot(userId: number): Vector3?
@@ -73,18 +60,20 @@ local function onStructures(packet: any)
 		if not parts then
 			parts = pool:acquire(folder)
 			live[row.id] = parts
-			parts[2].Color = Color3.fromRGB(def.color[1], def.color[2], def.color[3])
-			parts[2].Shape = if def.mode == "Mine" or def.mode == "Garden"
-				then Enum.PartType.Block
-				else Enum.PartType.Ball
+			parts.hover = Sprites.structureHover[def.mode] or 0
+			local art = Sprites.structures[row.kind]
+			local image = Images[row.kind]
+			if art then
+				WorldSprite.setImage(parts.sprite, {
+					name = "Structure",
+					image = image or art.image,
+					studs = if image then C.spriteSize else art.studs,
+					ground = if image then 0 else art.ground,
+					center = if image then 0.5 else art.center,
+					pixels = if image then 96 else art.pixels,
+				})
+			end
 		end
-		local billboard = parts[2]:FindFirstChild("ItemArtwork") :: BillboardGui
-		local picture = billboard:FindFirstChild("Sprite") :: ImageLabel
-		local image = Images[row.kind]
-		picture.Image = image or ""
-		billboard.Enabled = image ~= nil
-		parts[1].Transparency = if image then 1 else 0
-		parts[2].Transparency = if image then 1 else 0
 		place(parts, row.x, row.z)
 		orbits[row.id] = if def.mode == "Orbit" then { parts = parts, ownerId = row.ownerId, id = row.id } else nil
 	end

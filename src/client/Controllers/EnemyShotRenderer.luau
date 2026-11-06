@@ -16,20 +16,21 @@ local ShotFeed = require(Shared:WaitForChild("Net"):WaitForChild("ShotFeed"))
 local Bursts = require(script.Parent.Parent.Vfx.Bursts)
 local RunStateController = require(script.Parent.RunStateController)
 local VisualKit = require(script.Parent.WeaponRenderer.VisualKit)
+local WorldSprite = require(
+	game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Util"):WaitForChild("WorldSprite")
+)
 
 local FOLDER_NAME = "LanternfallEnemyShots"
 local SHOT_COLOR = Color3.fromRGB(255, 92, 200) -- the Spitter's censer
-local CORE_COLOR = Color3.fromRGB(255, 220, 244)
-local CORE_SIZE = 0.7 -- studs
-local HALO_SIZE = 1.5 -- studs, a bit larger than the hit circle so it reads clearly
-local HALO_TRANSPARENCY = 0.45
+local SHOT_STUDS = 1.5 * Config.Sprites.glowScale -- a bit larger than the hit circle so it reads clearly
+local CORE_SHARE = 0.55
 local TRAIL_WIDTH = 0.9
 local TRAIL_SECONDS = 0.22
 local HEIGHT = 2 -- studs above the floor
 local FADE_STUDS = 4 -- the last studs before the range fade out
 local HIT_SPARKS = 8
 
-type ShotParts = { core: BasePart, halo: BasePart, trail: Trail }
+type ShotParts = { sprite: WorldSprite.Sprite, core: BasePart, trail: Trail }
 
 type Shot = {
 	parts: ShotParts?,
@@ -51,14 +52,13 @@ local folder: Folder? = nil
 local floorY = Config.Map.arena.center.Y
 
 local pool = VisualKit.objectPool(function(): ShotParts
-	local core = VisualKit.part("EnemyShot", Enum.PartType.Ball, Vector3.one * CORE_SIZE, CORE_COLOR)
-	local halo =
-		VisualKit.halo("EnemyShotHalo", Enum.PartType.Ball, Vector3.one * HALO_SIZE, SHOT_COLOR, HALO_TRANSPARENCY)
+	local sprite = WorldSprite.glow("EnemyShot", SHOT_STUDS, SHOT_COLOR, CORE_SHARE)
+	local core = sprite.anchor :: BasePart
 	local trail = VisualKit.trail(core, SHOT_COLOR, TRAIL_WIDTH, TRAIL_SECONDS)
 	trail.FaceCamera = true -- the ball never turns, so let the trail face the camera instead
-	return { core = core, halo = halo, trail = trail }
+	return { sprite = sprite, core = core, trail = trail }
 end, function(parts: ShotParts): { BasePart }
-	return { parts.core, parts.halo }
+	return { parts.core }
 end)
 
 local partList: { BasePart } = {}
@@ -146,14 +146,11 @@ local function render()
 		end
 		local current = parts :: ShotParts
 		local fade = math.clamp(1 - (shot.range - distance) / FADE_STUDS, 0, 1)
-		current.core.Transparency = fade
-		current.halo.Transparency = HALO_TRANSPARENCY + (1 - HALO_TRANSPARENCY) * fade
+		WorldSprite.setFade(current.sprite, fade)
 		local cframe = CFrame.new(shot.x + shot.dx * distance, floorY + HEIGHT, shot.z + shot.dz * distance)
-		partList[count + 1] = current.core
-		cframeList[count + 1] = cframe
-		partList[count + 2] = current.halo
-		cframeList[count + 2] = cframe
-		count += 2
+		count += 1
+		partList[count] = current.core
+		cframeList[count] = cframe
 	end
 	for k = count + 1, listLength do
 		partList[k] = nil

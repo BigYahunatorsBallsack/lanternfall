@@ -18,9 +18,9 @@ local Widgets = require(script.Parent.Parent.UI.Widgets)
 
 local ROW_HEIGHT = 56
 local CONFIRM_SECONDS = 3
-local TABS = { "CHARACTERS", "LANTERNS", "TRAILS", "UNLOCKS" }
-local SLOT_OF_TAB: { [string]: string } = { LANTERNS = "Lantern", TRAILS = "Trail" }
-local NONE_TEXT: { [string]: string } = { Lantern = "No lantern", Trail = "No trail" }
+local TABS = { "CHARACTERS", "LANTERNS", "UNLOCKS" }
+local SLOT_OF_TAB: { [string]: string } = { LANTERNS = "Lantern" }
+local NONE_TEXT: { [string]: string } = { Lantern = "No lantern" }
 
 local Cosmetics = Config.Cosmetics
 

@@ -1,4 +1,5 @@
 # Rojo / Studio build output
+build/
 *.rbxl
 *.rbxlx
 *.rbxm

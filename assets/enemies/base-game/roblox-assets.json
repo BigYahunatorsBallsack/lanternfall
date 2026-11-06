@@ -1,0 +1,264 @@
+{
+  "date": "2026-11-06",
+  "sourcePngsVerified": 34,
+  "mappedTypes": 32,
+  "assets": [
+    {
+      "gameId": "Tree",
+      "source": "assets/enemies/base-game/sprites/bonus/Tree.png",
+      "sourceSha256": "7b9c581ccdcb7aa4e35fe0f7395480c0134e15ea907ea02505bf88d30059f683",
+      "preparedSha256": "742335c910628a1e58b716dcbe63b7ef212216a2fb3251f5362e4f8f778a6e19",
+      "image": "rbxassetid://118122608492552",
+      "preload": "Success"
+    },
+    {
+      "gameId": "Shadeling",
+      "source": "assets/enemies/base-game/sprites/regular/BabyAlien.png",
+      "sourceSha256": "1798e5ea89cc14d62525d4e846db49b7c1622fc79de17e2807a7a0309836efc8",
+      "preparedSha256": "4482b68d9fc2f1db956247d19e4f372fc13fc8b9f3fa47f0ee48abbb1623091c",
+      "image": "rbxassetid://90136470838679",
+      "preload": "Success"
+    },
+    {
+      "gameId": "AbyssShadeling",
+      "source": "assets/enemies/base-game/sprites/regular/Chaser.png",
+      "sourceSha256": "85c007bf86be3cdab98be3883c92d39a0b3e970b56e5fcd4b1d663ab1bc9f81b",
+      "preparedSha256": "76f1b9ca0d6b41c78fceacf522c722b1330f15022ac2ab21e931ed15d1303d31",
+      "image": "rbxassetid://119286671714199",
+      "preload": "Success"
+    },
+    {
+      "gameId": "Spitter",
+      "source": "assets/enemies/base-game/sprites/regular/Spitter.png",
+      "sourceSha256": "43d18f707fedf7a8dff9094338c331852bebb15fb415d0d5333411864375f322",
+      "preparedSha256": "084ed922a0b7abc6cca1370ee1da3fb1c8164bb62e2f65a343a6ac5c93b71d2f",
+      "image": "rbxassetid://113725703927595",
+      "preload": "Success"
+    },
+    {
+      "gameId": "Charger",
+      "source": "assets/enemies/base-game/sprites/regular/Charger.png",
+      "sourceSha256": "3d16ebb804e8526fe81464081f0651aba0553ed6cc9f8f98b95bfe5e95cd50e8",
+      "preparedSha256": "9f3d1ec2c76c31f219c769a5e69f9c2145e2e578068df9715ce0a234b687fcfd",
+      "image": "rbxassetid://115326421174440",
+      "preload": "Success"
+    },
+    {
+      "gameId": "Stalker",
+      "source": "assets/enemies/base-game/sprites/regular/Pursuer.png",
+      "sourceSha256": "f432c0bf678079d423abed9aec365271c515707e81a9ada0aaf388ec6ea37b05",
+      "preparedSha256": "b2595c68ce450fb084b4c322962e73a15d81c799c73cb012eed4f6ec3f64b9ab",
+      "image": "rbxassetid://89014878941096",
+      "preload": "Success"
+    },
+    {
+      "gameId": "Brute",
+      "source": "assets/enemies/base-game/sprites/regular/Bruiser.png",
+      "sourceSha256": "068eefb460e507352e5abe055d876d5cc2ba8fd1c9c13d28b25618a804118fd7",
+      "preparedSha256": "3d8607ab4d2f1f3a3c50e629f4e55e86bee773419dad45e93f754f3107c5bfea",
+      "image": "rbxassetid://117151019869548",
+      "preload": "Success"
+    },
+    {
+      "gameId": "Herald",
+      "source": "assets/enemies/base-game/sprites/regular/Buffer.png",
+      "sourceSha256": "be79b4b1fb5095af9f60b48957a325bfb9a64ec16af2599c72b391a4505455af",
+      "preparedSha256": "954bf001e7469211bf45a3751254e143859f5a2cc77a87c5a1856e91ec95f255",
+      "image": "rbxassetid://139425661191447",
+      "preload": "Success"
+    },
+    {
+      "gameId": "Thornback",
+      "source": "assets/enemies/base-game/sprites/regular/Fly.png",
+      "sourceSha256": "9f17cc1a35916f1a00e526b7c37eb651c0ded4e0b560753d831007060255b15b",
+      "preparedSha256": "8c666fce13926d1211df8c35eba70ddd21897ad5d49beea757ba146717d0b13b",
+      "image": "rbxassetid://85354156532528",
+      "preload": "Success"
+    },
+    {
+      "gameId": "Mender",
+      "source": "assets/enemies/base-game/sprites/regular/Healer.png",
+      "sourceSha256": "6e6ab277c587a8e8f9dea0af5bb7f9f6ff5ceb3f849c091297c740b35d03fa21",
+      "preparedSha256": "420f829a44bde660e70d1903247c0363a106911d720d1e11f3ec619b4558236c",
+      "image": "rbxassetid://101983818060222",
+      "preload": "Success"
+    },
+    {
+      "gameId": "Looter",
+      "source": "assets/enemies/base-game/sprites/regular/Looter.png",
+      "sourceSha256": "deddf4f687125cd0a062a5b9935da9fd49f0da7f7533bcec563cda35e42ea5c0",
+      "preparedSha256": "cc46eabd8677622fca144557e9cb2c4fdc112d256d03e49cf9414c803657fe15",
+      "image": "rbxassetid://90798698929628",
+      "preload": "Success"
+    },
+    {
+      "gameId": "IronHusk",
+      "source": "assets/enemies/base-game/sprites/regular/HelmetAlien.png",
+      "sourceSha256": "7b12f752c59f6d51a678b61cf7ba1faf90afd6f4c7a30173372e4fb27b74482a",
+      "preparedSha256": "bd339f4785178781654da379cf4ee82b0c31676c491c54ef20b60c88fce498e2",
+      "image": "rbxassetid://93602870750878",
+      "preload": "Success"
+    },
+    {
+      "gameId": "Splitling",
+      "source": "assets/enemies/base-game/sprites/regular/FinAlien.png",
+      "sourceSha256": "c4b996439c3defc955a6ecef213672ee99478716bd8d575ad8b9bcad5a61be62",
+      "preparedSha256": "4c68ab9350a7c4494d7ddd9a9386bd2023ab2152aa98f515931a12be2fcaf1c8",
+      "image": "rbxassetid://102643547111851",
+      "preload": "Success"
+    },
+    {
+      "gameId": "Splitter",
+      "source": "assets/enemies/base-game/sprites/regular/Spawner.png",
+      "sourceSha256": "fd6c6ae59af4845f614c5cdeee27c2a1214816d842e56c18a5e8c2397976d6e7",
+      "preparedSha256": "8d9dca821789b5a2f70f3196f182678cff6caf7251feb88612bd024162aefee7",
+      "image": "rbxassetid://108434982177844",
+      "preload": "Success"
+    },
+    {
+      "gameId": "Skulker",
+      "source": "assets/enemies/base-game/sprites/regular/Junkie.png",
+      "sourceSha256": "ea0ea7fe3d53941c73da3619736a5e9d07476a03512f1eb61c07f1cda147ebfc",
+      "preparedSha256": "45f2b402d7d4a01543bac318ee161f5c800e09bfc9df7c8ac53300a773de4693",
+      "image": "rbxassetid://122902149755296",
+      "preload": "Success"
+    },
+    {
+      "gameId": "AbyssBrute",
+      "source": "assets/enemies/base-game/sprites/regular/HornedBruiser.png",
+      "sourceSha256": "cf819d4ec86bd2ed8f8fa4e844bbff1661f7657e0c6aa65859e244e79d7f9487",
+      "preparedSha256": "fdab4bf975c01d041edaa61a2ff5554eb508d592a834f03f5a6a963250add271",
+      "image": "rbxassetid://91993291168142",
+      "preload": "Success"
+    },
+    {
+      "gameId": "HornedRusher",
+      "source": "assets/enemies/base-game/sprites/regular/HornedCharger.png",
+      "sourceSha256": "a0618a2e7790742f1eb1cecc6ef7dff02a3f8f183146dbaf5c212ead01711b49",
+      "preparedSha256": "a0cd452ca4bddf841348fd1c555022b568d65559b4d8d3716dbbcaa4e3ca623b",
+      "image": "rbxassetid://131633554451327",
+      "preload": "Success"
+    },
+    {
+      "gameId": "BroodEgg",
+      "source": "assets/enemies/base-game/sprites/regular/SlasherEgg.png",
+      "sourceSha256": "aa4ecdcb41b91be48980e5d0c75ad1825698145d1dfa8a9320a77f9dcb238793",
+      "preparedSha256": "5caa18ff6f2089ead07b89a8eb091d6a8809f464e64fa5cf49f684f977e8b2f3",
+      "image": "rbxassetid://94137527693258",
+      "preload": "Success"
+    },
+    {
+      "gameId": "Reaper",
+      "source": "assets/enemies/base-game/sprites/regular/Slasher.png",
+      "sourceSha256": "8cac5c127e2f837d17ebabd78714c0230127302e1d422e6c4819cb51bbf185c6",
+      "preparedSha256": "b735999726b24a35afc5748db4cdd21512525f82770123f58c4bf6b4712ac572",
+      "image": "rbxassetid://105821048338383",
+      "preload": "Success"
+    },
+    {
+      "gameId": "DreadTendril",
+      "source": "assets/enemies/base-game/sprites/regular/Tentacle.png",
+      "sourceSha256": "cde7cff1f9b417ff0d7e6c98e734f107b19515b884c2b71e3585b03a68ba084f",
+      "preparedSha256": "6908f4f5cc24a6d1e93cd93b9e51025ba45fda23c5acd8dfa161be20d467fcc6",
+      "image": "rbxassetid://99871423464814",
+      "preload": "Success"
+    },
+    {
+      "gameId": "Hookfang",
+      "source": "assets/enemies/base-game/sprites/regular/Lamprey.png",
+      "sourceSha256": "31e506fcc51b90b502a5c3ddd8af47242477595c29ba416f5b5fbe6d4c5f7e52",
+      "preparedSha256": "4e36698eabfdc1dbb449d1436ee8dbf608e7dbaf97aa149ee3971f51f66ac498",
+      "image": "rbxassetid://98464463608522",
+      "preload": "Success"
+    },
+    {
+      "gameId": "Gobbler",
+      "source": "assets/enemies/base-game/sprites/regular/Gobbler.png",
+      "sourceSha256": "2c3ab9808ffde6d9026a612431acd415f396a887b4e5e9dbcdd9477b4426e6dd",
+      "preparedSha256": "9924c53fa77d2ab4d85078f760b7a4eb491840d5ddbf41462b2493a64aa6f0e9",
+      "image": "rbxassetid://90718600427199",
+      "preload": "Success"
+    },
+    {
+      "gameId": "BrassRam",
+      "source": "assets/enemies/base-game/sprites/elites/Rhino.png",
+      "sourceSha256": "c4a5ad73654c55ecee87c9f9e025cbcdd5157744c141483f96dd1589ef8c6ad4",
+      "preparedSha256": "8e154a3e0d47ea8e6b6d267eeb43d27ea42092530003fbe5e22b5a255b427bd6",
+      "image": "rbxassetid://134889481179920",
+      "preload": "Success"
+    },
+    {
+      "gameId": "Flayer",
+      "source": "assets/enemies/base-game/sprites/elites/Butcher.png",
+      "sourceSha256": "0d95c10f3d57cb642ad7dbbf4f73e2444b87e3463c9b144c41027b4e77bf442d",
+      "preparedSha256": "9bad1dea45943287fceb03c271997e229ffc8d573e2f3144fd8973987fc9d8c2",
+      "image": "rbxassetid://96784705859882",
+      "preload": "Success"
+    },
+    {
+      "gameId": "Abbot",
+      "source": "assets/enemies/base-game/sprites/elites/Monk.png",
+      "sourceSha256": "674900befac70526cf8a5f7386922816389154f2a6ac24224c0936a8c3c4221d",
+      "preparedSha256": "ea7fa1eb9b0a433d727461d11fa3ae925fe19ce8fbd783392bd95d96df78e66f",
+      "image": "rbxassetid://87091057565975",
+      "preload": "Success"
+    },
+    {
+      "gameId": "MireJaw",
+      "source": "assets/enemies/base-game/sprites/elites/Croc.png",
+      "sourceSha256": "a8eeca69c2a1adbe6b406b21612415d294994a9b87da039febc2d67192a8d76b",
+      "preparedSha256": "23651ed291b127426e580d8e8bdf014c63ddafea86934190158602674c399633",
+      "image": "rbxassetid://76969614268824",
+      "preload": "Success"
+    },
+    {
+      "gameId": "Monolith",
+      "source": "assets/enemies/base-game/sprites/elites/Colossus.png",
+      "sourceSha256": "a52b8a8ae54f1d2b87db1a8084a9bc6a525b68d96d121387d78d235f74687f68",
+      "preparedSha256": "018d99ebd8d789ac2791b711a5b149a80d65fd6114dbb86dd9cc19a7fd4f062a",
+      "image": "rbxassetid://74186259832844",
+      "preload": "Success"
+    },
+    {
+      "gameId": "SickleWraith",
+      "source": "assets/enemies/base-game/sprites/elites/Mantis.png",
+      "sourceSha256": "ec007af34598c770b121e68248d01f8306710e4b92c27ca0e82365a49a89d825",
+      "preparedSha256": "403283633638492bec58dd258f02fd97a991d55e195707a681fed3295d874c0b",
+      "image": "rbxassetid://135298002568557",
+      "preload": "Success"
+    },
+    {
+      "gameId": "BroodMatron",
+      "source": "assets/enemies/base-game/sprites/elites/Mother.png",
+      "sourceSha256": "b3c0aff29a6cc1fd159ebb904bb17aeaa709cd04d82ff15255666d7bbf428d9e",
+      "preparedSha256": "483945d3b933ed7e70543457f30cd4bf2f8d468c19f1b3e8253cd83e512bc6d2",
+      "image": "rbxassetid://96141833502145",
+      "preload": "Success"
+    },
+    {
+      "gameId": "StoneSeraph",
+      "source": "assets/enemies/base-game/sprites/elites/Gargoyle.png",
+      "sourceSha256": "120c85a254c5f0bfd5fd71b02ac3da0a1b33639076cd3365a862e7e842957c47",
+      "preparedSha256": "f5fdb6b75b23f08b8cb6b56d858faa078228056add25eb28924d65b000c4efd8",
+      "image": "rbxassetid://88240801032542",
+      "preload": "Success"
+    },
+    {
+      "gameId": "LanternEater",
+      "source": "assets/enemies/base-game/sprites/bosses/Predator.png",
+      "sourceSha256": "2b18f86b84db695976ee9d80200012dea5c82d5e85fb2d0f218773bf154520ce",
+      "preparedSha256": "13de9d0288a6e14b498e50d4da58afa5eca920306d38c5b98477b6a627600d57",
+      "image": "rbxassetid://74533007192197",
+      "preload": "Success"
+    },
+    {
+      "gameId": "HollowSeer",
+      "source": "assets/enemies/base-game/sprites/bosses/Invoker.png",
+      "sourceSha256": "5ca0ad8b909699f1d3c4d1458b72420059a7e310c7aafc8769466a500e148c61",
+      "preparedSha256": "bf6d2c5eb7d8a3a897bcbc99295ce7cb104681bda85696209bcb67bf9ebe58e3",
+      "image": "rbxassetid://77301141181421",
+      "preload": "Success"
+    }
+  ],
+  "variants": "Both Gobbler mutation PNGs remain preserved. The current enemy snapshot has no mutation stage; no new stage is inferred on the client."
+}

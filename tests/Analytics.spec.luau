@@ -227,7 +227,7 @@ describe("analytics", function()
 			won = false,
 			wave = 9,
 			danger = 1,
-			classId = "BladeWarden",
+			classId = "NightWatch",
 			kills = 300,
 			bossKills = 0,
 			seconds = 600,

@@ -13,7 +13,6 @@ return table.freeze({
 	-- Imported models face -Z after their RootPart is normalized.
 	yawDegrees = 0,
 	models = {
-		BladeWarden = 113282495903461,
 		SparkMage = 132853125133078,
 		NightWatch = 136100435515397,
 		ManyHands = 88057485567894,
@@ -25,7 +24,6 @@ return table.freeze({
 		CandleScholar = 117729705540669,
 	},
 	colorAtlases = {
-		BladeWarden = "rbxassetid://102871136144318",
 		SparkMage = "rbxassetid://77982768651738",
 		NightWatch = "rbxassetid://125732970180737",
 		ManyHands = "rbxassetid://108360414883382",

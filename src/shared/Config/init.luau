@@ -41,4 +41,6 @@ return {
 	Launch = require(script.Launch), -- Paket 24
 	LobbyArt = require(script.LobbyArt), -- Paket 21d
 	WeaponVisuals = require(script.WeaponVisuals),
+	SpriteImages = require(script.SpriteImages), -- Paket 25, generated
+	Sprites = require(script.Sprites), -- Paket 25
 }

@@ -1,4 +1,6 @@
-# Lanternfall – zehn Charaktere mit R15-Rig
+# Lanternfall – Charaktere mit R15-Rig
+
+**Nicht mehr im Spiel:** Seit Paket 25 zeigt das Spiel 2D-Bilder. Diese Modelle bleiben als Quelle erhalten. Blade Warden wurde auf Owner-Wunsch ganz entfernt; die Texte unten beschreiben den Stand davor.
 
 Dieses Paket enthält alle zehn aktuell spielbaren Charaktere aus GitHub-main
 `f515df9082fa134f5cc5bdf179122aaee9f05563`. Blade Wardens freigegebene Optik ist die
@@ -67,7 +69,7 @@ erforderlich; die FBX-Clips bleiben als editierbare Künstlerdateien enthalten.
 ## Optional: Modelle künstlerisch bearbeiten und neu importieren
 
 1. ZIP vollständig entpacken. In einer leeren Studio-Testdatei **File → Import**
-   öffnen und zunächst `BladeWarden/BladeWarden_R15.fbx` auswählen.
+   öffnen und zunächst `SparkMage/SparkMage_R15.fbx` auswählen.
 2. Unter **Rig General**: **Rig Type = R15**, **Rig Scale = Default**.
    **Keep Zero Influence Bones** einschalten, **Merge Meshes** ausschalten.
    **Validate UGC Body** ausschalten, da diese Modelle für Lanternfall gedacht sind.

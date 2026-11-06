@@ -387,6 +387,7 @@ local SUPERCLASS = {
 	GuiButton = "GuiObject",
 	GuiObject = "GuiBase2d",
 	ScreenGui = "LayerCollector",
+	BillboardGui = "LayerCollector", -- WorldSprite
 	LayerCollector = "GuiBase2d",
 	GuiBase2d = "Instance",
 	RemoteEvent = "BaseRemoteEvent",
@@ -521,6 +522,9 @@ local function newInstance(className, props)
 		for key, value in PART_DEFAULTS do
 			initial[key] = value
 		end
+	end
+	if className == "BillboardGui" then -- native LayerCollector default
+		initial.Enabled = true
 	end
 	if className == "Sound" then -- Paket 21
 		initial.IsPlaying = false
