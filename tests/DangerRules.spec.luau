@@ -70,8 +70,11 @@ describe("DangerRules", function()
 	end)
 
 	it("leaves the new enemies out below danger 1", function()
-		expect(DangerRules.spawns(0, "Stalker")).toBe(false)
-		expect(DangerRules.spawns(1, "Stalker")).toBe(true)
+		expect(DangerRules.spawns(0, "Thornback")).toBe(false)
+		expect(DangerRules.spawns(1, "Thornback")).toBe(true)
+		expect(DangerRules.spawns(0, "Stalker")).toBe(true)
+		expect(DangerRules.spawns(2, "DreadTendril")).toBe(false)
+		expect(DangerRules.spawns(3, "DreadTendril")).toBe(true)
 		expect(DangerRules.spawns(0, "Shadeling")).toBe(true)
 	end)
 

@@ -96,6 +96,7 @@ describe("bosses", function()
 		world.click(world.gui("Lobby", "Ready"))
 		world.advance(3.5)
 		expect(RunDirector.getPhase()).toBe("Running")
+		require(Services.StatService).addStats(me, { maxHp = 500 })
 		LootService.setDropsPaused(true)
 		click("ToggleWeapons")
 		click("ToggleSpawning")
@@ -210,7 +211,7 @@ describe("bosses", function()
 		expect(RunDirector.getPhase()).toBe("Running")
 	end)
 
-	it("heals fully with a legendary crate and opens a Legendary item after the wave", function()
+	it("heals 100 HP with a legendary crate and opens a Legendary item after the wave", function()
 		LootService.setDropsPaused(true)
 		for _, pickup in LootService.getPickups() do
 			if pickup.kind == "Legendary" then
@@ -220,11 +221,13 @@ describe("bosses", function()
 			end
 		end
 		CombatService.protect(me, 0)
+		CombatService.setHpFraction(me, 0.5)
 		click("HurtSelf")
+		local before = CombatService.getHp(me)
 		click("DropLegendaryCrate")
 		world.advance(0.3)
 		local hp, maxHp = CombatService.getHp(me)
-		expect(hp).toBeNear(maxHp)
+		expect(hp).toBeNear(math.min(maxHp, before + 100))
 		expect(pickupsOf("Legendary")).toBe(0)
 		local _, waiting = UpgradeService.getCrate(me)
 		expect(waiting).toBe(3) -- one from each test boss and this one

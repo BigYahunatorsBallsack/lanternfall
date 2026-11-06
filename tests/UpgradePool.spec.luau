@@ -106,7 +106,7 @@ describe("UpgradeText", function()
 		expect(detail).toBe("+8% Damage")
 		expect(badge).toBe("Uncommon")
 		_, detail = UpgradeText.card(UpgradePool.card("maxHp", 1))
-		expect(detail).toBe("+30 Max HP")
+		expect(detail).toBe("+3 Max HP")
 	end)
 
 	it("describes weapon and item offers", function()
@@ -170,7 +170,7 @@ describe("UpgradeText", function()
 		expect(detail).toBe("Spark Bolt evolved!")
 		title, detail = UpgradeText.chestReward({ kind = "Item", itemId = "Might", level = 2 })
 		expect(title).toBe("Might x2")
-		expect(detail).toBe("-10 Max HP, +5% Damage") -- in the order of the stat panel
+		expect(detail).toBe("-1 Max HP, +5% Damage") -- in the order of the stat panel
 		title = UpgradeText.chestReward({ kind = "Reward", itemId = "Heal", level = 0 })
 		expect(title).toBe("Heal")
 	end)

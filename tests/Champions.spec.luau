@@ -101,6 +101,7 @@ describe("champions", function()
 		world.click(world.gui("Lobby", "Ready"))
 		world.advance(3.5)
 		expect(RunDirector.getPhase()).toBe("Running")
+		require(Services.StatService).addStats(me, { maxHp = 500 })
 		local waves = 0
 		for wave, challenge in DangerService.getPlan() do
 			waves += 1

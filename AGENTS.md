@@ -18,7 +18,7 @@ Koop-Survivors für **Roblox** in **Luau** (kein Godot, kein Unity). 1–4 Spiel
 ## Das Wichtigste in Kürze
 
 - **Parallel-Arbeit:** Claude baut gleichzeitig Strang A. Ändere **nur Dateien deines Strangs**; geteilte Dateien nur am Ende des passenden Blocks ergänzen. Nichts verschieben, umbenennen oder fremde Dateien umformatieren.
-- **Brotato-Regel:** Mechaniken, Formeln und Zahlen so nah wie möglich an Brotato (brotato.wiki.spellsandguns.com). Namen, Texte, Items, Charaktere und Look sind **eigene** (keine Brotato-Namen im Spiel). HP = Brotato × 10.
+- **Brotato-Regel:** Mechaniken, Formeln und Zahlen so nah wie möglich an Brotato (brotato.wiki.spellsandguns.com). Namen, Texte, Items, Charaktere und Look sind **eigene** (keine Brotato-Namen im Spiel). HP und Schaden in originalen Brotato-Einheiten (Owner-Entscheidung 06.11.2026; ersetzt HP × 10).
 - **Server-Autorität:** Der Client schickt nur Absichten. Jede Remote steht in `src/shared/Net/Remotes.luau` mit Rate-Limit und Validierung.
 - **Keine Balancing-Zahl im Code:** alle Werte in `src/shared/Config/*`.
 - **Neue Waffe = Config-Datensatz in `Config/Weapons.luau` + Verhaltensmodul in `src/server/Services/WeaponService/Behaviors/` + Visual in `src/client/Controllers/WeaponRenderer/Visuals/`.** Vorbilder: `SparkBolt`, `BoomerangAxe`, `OrbitBlades`. Das Framework (`Arsenal`) bleibt unverändert.

@@ -1,0 +1,75 @@
+{
+  "specs": 73,
+  "passed": 747,
+  "failed": 31,
+  "new_failures": [],
+  "resolved_baseline_failures": [],
+  "baseline_passed": 709,
+  "baseline_failed": 31,
+  "baseCommit": "d4df36046647bb2390cdb21740b8dc53d1bbdce5",
+  "checked": "2026-11-06",
+  "newSourceAndRuntimeTests": 38,
+  "baselineFailures": [
+    "B10 character catalog > applies Apprentice gains to team levels and resets everything in the next run",
+    "new enemies (B9) > finished without any runtime error",
+    "enemies off the screen > are not placed, while enemies near the camera are",
+    "World weapon sprites > keeps duplicate copies separate and animates only the attacking uid",
+    "hub lobby (Studio) > ran without script errors",
+    "hub teleports > ran without script errors",
+    "items in a run (B8) > finished without any runtime error",
+    "loot > finished without any runtime error",
+    "performance (Paket 22) > keeps the local client under the network budget in a full four-player fight",
+    "progress > finished without any runtime error",
+    "retry wave > finished without any runtime error",
+    "revive > finished without any runtime error",
+    "run place > ran without script errors",
+    "party invites > ran without script errors",
+    "smoke > shoots Spark Bolts that kill enemies once weapons are on",
+    "smoke > draws the six original weapons, tiers and debug swaps",
+    "smoke > drops XP orbs that the player picks up for the whole team",
+    "smoke > keeps level-ups for the end of the wave",
+    "smoke > runs Brotato's combat: weapon class bonuses, burning, exploding items and slowed enemies",
+    "smoke > finished without any runtime error",
+    "spawn groups > finished without any runtime error",
+    "store > finished without any runtime error",
+    "B12 structures > bounds allocations, resets after the run and reports no runtime errors",
+    "B12 structures > ticks flame burns even while the sentry continually refreshes them",
+    "B12 structures > shares the construction budget fairly and cleans up disconnects",
+    "B12 structures > arms mines on contact and detonates after an enemy leaves",
+    "UI redesign foundation > keeps character selection, ready and full-capacity shop slots working",
+    "UI redesign foundation > keeps shop artwork stable on price updates and reflects the complete item inventory",
+    "UI redesign foundation > shows all twelve weapon summaries with accessible result actions",
+    "Spark Bolt > shoots the nearest enemy and kills a Shadeling with one hit",
+    "Shockwave > hits with the hammer and sends a weaker pulse from its impact"
+  ],
+  "styLua": "passed for changed Luau files",
+  "selene": {
+    "errors": 0,
+    "warnings": 11,
+    "newWarnings": 0
+  },
+  "rojoBuild": "passed",
+  "studio": "not run; owner solo/two-client/mobile acceptance remains",
+  "focusedFinalChecks": {
+    "MainGameEnemyStats": {
+      "passed": 29,
+      "failed": 0
+    },
+    "MainGameEnemyRuntime": {
+      "passed": 9,
+      "failed": 0
+    },
+    "Boss": {
+      "passed": 10,
+      "failed": 0
+    },
+    "Config": {
+      "passed": 6,
+      "failed": 0
+    },
+    "LootRules": {
+      "passed": 8,
+      "failed": 0
+    }
+  }
+}
