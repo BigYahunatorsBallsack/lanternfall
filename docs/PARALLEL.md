@@ -2,6 +2,10 @@
 
 Stand 30.10.2026. Ab B6 arbeiten zwei KIs gleichzeitig am Repo: **Claude (Strang A)** und **ChatGPT (Strang B)**. Diese Datei regelt, wer was baut, welche Dateien wem gehören und wie gemerged wird, damit es keine Konflikte gibt. Sie gilt für beide KIs zusätzlich zu `CLAUDE.md` (bzw. `AGENTS.md`).
 
+**Vorrangige Owner-Entscheidung, 06.11.2026: Brotato 1:1.** Fuer beide Straenge gilt die neue Anforderung in `AGENTS.md`, `CLAUDE.md` und am Anfang von `DESIGN.md`: originale Inhalte, Namen, Darstellung, Mechaniken und Werte; HP/Schaden/Heilung mit Faktor 1, keine HP-x10-Skalierung und kein eigenes Ersatz-Balancing. Aeltere gegenteilige Vorgaben sind ersetzt, vorhandene Abweichungen bleiben offene Arbeit. Aktueller Auftrag: ChatGPT implementiert die fehlenden Charaktere als Code; ein anderer Agent liefert die Sprites. Dateibesitz und Merge-Regeln gelten weiterhin.
+
+**Praezisierung und Ausnahme fuer B10, Owner 06.11.2026:** Zielversion ist stabile PC-Version **1.2.0.1 einschliesslich aller DLCs**, keine Beta. ChatGPT darf die fuer vollstaendige Charakterregeln notwendigen gezielten Ergaenzungen in den A-Diensten CombatService/Vitals, ExperienceService/Progression, UpgradeService, Wellenende/EnemySim/SpawnDirector/RunDirector, MapService/Arena-Nutzern und DangerService/DangerRules implementieren (Liste und Zweck: `docs/BROTATO-REQUIREMENTS.md`). Keine allgemeine Freigabe fuer fremde Umbauten; Sprites bleiben beim anderen Agenten. Jede neue Schnittstelle im PR nennen.
+
 ## 1. Wer macht was (Empfehlung nach Stärken)
 
 Beide schreiben guten Luau-Code. Der echte Unterschied in diesem Projekt ist der **Kontext**:

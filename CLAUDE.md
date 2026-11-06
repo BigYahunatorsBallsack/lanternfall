@@ -2,6 +2,15 @@
 
 Koop-Survivors für Roblox (1–4 Spieler, 12-Min-Runs, Boss bei 12:00). Das vollständige Design steht in `DESIGN.md` – vor jedem Arbeitspaket den passenden Abschnitt lesen.
 
+## Verbindliches Ziel: Brotato 1:1 (Owner, 06.11.2026)
+
+- Alles soll 1:1 wie in Brotato sein: Charaktere, Waffen, Items, Namen, Texte, Mechaniken, Formeln, Zahlen und Darstellung. Quelle: https://brotato.wiki.spellsandguns.com/.
+- HP, Schaden und Heilung in originalen Einheiten mit Faktor 1. Keine HP-x10-Skalierung, keine eigenen Ersatzwerte und kein eigenes Balancing.
+- Diese Entscheidung ersetzt aeltere Vorgaben zu eigenen Namen/Inhalten und bloss angenaeherten Brotato-Werten in allen Projektdateien. Historische Beschreibungen belegen keine weiterhin erlaubte Abweichung.
+- Noch vorhandene Abweichungen sind offene Arbeit. Ungeklaerte Quellenwerte und technische Grenzen ausdruecklich dokumentieren; keine ungepruefte 1:1-Behauptung. Der Auftrag aendert nicht automatisch alle bestehenden Systeme in einem Paket.
+- Architektur, Server-Autoritaet, Dateibesitz, getrennte Sprites-/Code-Arbeit und Merge-Freigabe bleiben verbindlich.
+- Referenz ist die stabile PC-Version **1.2.0.1 einschliesslich aller DLCs**, keine Beta. Fuer B10 sind die gezielten Charakter-Ergaenzungen in Strang A ausdruecklich freigegeben (Umfang in `docs/BROTATO-REQUIREMENTS.md`); andere parallele Aenderungen bleiben geschuetzt.
+
 ## Owner & Kommunikation
 
 - Der Owner ist kein Entwickler. Er testet, entscheidet und pflegt den Creator Hub; den Code schreibst du.

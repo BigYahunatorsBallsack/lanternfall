@@ -70,7 +70,7 @@ Jeder Strang ändert nur **seine** Zeile (Regeln: `docs/PARALLEL.md`).
 | Strang | KI | Aktuelles Paket | Branch / PR | Stand | Danach |
 | --- | --- | --- | --- | --- | --- |
 | A – Engine und Ablauf | Claude | Paket 24 Launch-Paket (Medium) | `wp-24-launch` | fertig, selbst gemerged | Plan bis zum Launch abgeschlossen; als Nächstes IDs des Owners eintragen (Live-Experience, Badges, Musik), dann Live-Ops |
-| B - Inhalte und Spieler-Regeln | ChatGPT | Paket 25: 2D mit aktuellem main zusammenfuehren | `wp-25-integrate-2d-main` | 2D, aktuelle Waffen/Items/UI und alle 32 Gegnersprites zusammen; Tests und Bild-Preloads geprueft | Owner-Abnahme und Merge des Integrations-PR |
+| B - Inhalte und Spieler-Regeln | ChatGPT | B10: Brotato-1:1-Vorgabe und fehlende Charaktere | `wp-b10-brotato-characters` | Regeln aktualisiert; Vorpruefung: HP x1, 295 gezielte Tests gruen, Gesamtspiel noch nicht 1:1 | Charakterregeln anhand der Originalquellen; Sprites durch anderen Agenten |
 
 ## Feste Entscheidungen des Owners
 
@@ -475,3 +475,9 @@ Branch `wp-25-2d-presentation`. **Owner-Entscheidungen dieses Pakets:** Das Spie
 - Anleitung und Pruefgrenzen: `docs/2D-INTEGRATION.md`; Vergleichsbericht: `docs/2d-integration-validation.json`; Bildquellen/IDs: `assets/enemies/base-game/roblox-assets.json`. Weitere Weltgrafiken behalten den Stand des 2D-Zweigs, darunter generische Platzhalter. Kein neuer kompletter nativer Solo-, Zwei-Client-, Handy- oder Run-Place-Test; die offene Studio-Place-Datei wurde nicht mit Branch-Code ueberschrieben.
 
 - Abschlusspruefung der Integration: main965/26 in79 Specs, Integration977/26 in80 Specs, mit identischem Zufallsstart1234 und exakt denselben26 fehlgeschlagenen Tests. Keine neue fehlgeschlagene Pruefung. Beide Review-Fixes im vollstaendigen Abschlusslauf enthalten; unabhaengige Nachpruefung ohne weiteren konkreten Befund. StyLua sauber, Selene0 Fehler/11 bestehende Warnungen, Rojo-Build und Diff-Pruefung erfolgreich;32/32 Gegnerbilder mit nativem Preload Success.
+
+## Verbindliches Ziel und Vorpruefung: Brotato 1:1 (Owner, 06.11.2026)
+
+- Owner stellt klar: alles 1:1 wie Brotato, insbesondere HP/Schaden/Heilung mit Faktor 1; keine HP-x10-Skalierung, eigene Ersatznamen oder eigenes Ersatz-Balancing. Diese Vorgabe ersetzt aeltere gegenteilige Festlegungen in diesem Dokument. `AGENTS.md`, `CLAUDE.md`, `DESIGN.md` und `docs/PARALLEL.md` entsprechend praezisiert; veraltete HP-Angaben in `docs/B10-CHARAKTERE.md` berichtigt.
+- Vor Beginn der Charakter-Erweiterung den tatsaechlichen GitHub-main `34df95b` geprueft: gemeinsame HP-Einheit bereits x1. Acht gezielte Specs separat mit Lune ausgefuehrt: 295 bestanden / 0 fehlgeschlagen. Trotzdem ist das Gesamtspiel noch nicht vollstaendig 1:1: unvollstaendiger Item-/Charakterkatalog, eigene Elite-Angriffe und Spawn-Gruppen, andere Gegnerobergrenze, angenaeherte Angriffstempo-Regeln. Bericht und offene Anforderungen: `docs/BROTATO-REQUIREMENTS.md`. Kein kompletter Studio-/Koop-/Handy-Test und keine vollstaendige Gesamtspiel-Abnahme behauptet.
+- Der neue Auftrag betrifft alle fehlenden Charaktere als Code; Sprites liefert ein anderer Agent. Wiki-Eintraege der zehn Primal-Dread-Charaktere enthalten noch keine gueltigen Regeln. Offizielles Update 1.2 vom 02.11.2026 aendert zusaetzlich bestehende Charaktere; die vom Owner gewuenschte Referenzversion muss deshalb feststehen, bevor abweichende Werte implementiert werden. Dateibesitz und Owner-Merge bleiben verbindlich.

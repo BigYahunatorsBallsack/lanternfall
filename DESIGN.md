@@ -2,6 +2,8 @@
 
 Stand: 29.10.2026 · Quelle: claude.ai-Doc „Lanternfall – Game Design Document" (Original mit Diagrammen). Diese Datei ist die Arbeitskopie im Repo; Änderungen am Design hier pflegen.
 
+**Verbindliche Anforderung, Owner 06.11.2026: Brotato 1:1.** Charaktere, Waffen, Items, Namen, Texte, Mechaniken, Formeln, Zahlen und Darstellung sollen dem Original entsprechen (Referenz: https://brotato.wiki.spellsandguns.com/). HP, Schaden und Heilung in Originaleinheiten mit Faktor 1, ohne HP-x10-Skalierung und ohne eigenes Ersatz-Balancing. Diese Vorgabe hat Vorrang vor allen aelteren anderslautenden Abschnitten dieses Dokuments, insbesondere „eigene Namen/Look“, „so nah wie moeglich“ und skalierten HP-/Heilungswerten. Bereits vorhandene Abweichungen sind offene Arbeit; technische Grenzen und fehlende Quellenwerte muessen benannt und duerfen nicht als 1:1 umgesetzt behauptet werden. Architektur, Server-Autoritaet, Dateibesitz und Merge-Freigabe bleiben unveraendert verbindlich. Dieser Zielwechsel allein bedeutet nicht, dass der aktuelle Code bereits vollstaendig 1:1 ist.
+
 ## 1. Überblick & Vision
 
 Lanternfall ist ein Koop-Survivors für 1–4 Spieler: Runs aus 12 kurzen Wellen gegen Schattenhorden, Waffen feuern automatisch, nach jeder Welle wählst du deine Level-ups und kaufst im Shop ein, am Ende wartet ein Boss.
