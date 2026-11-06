@@ -884,5 +884,25 @@
       "smoke > rejects locked classes with a message",
       "smoke > finished without any runtime error"
     ]
+  },
+  "mergeCompatibility": {
+    "baseCommit": "0a841e58cab8dd9f3cd5b4124a576f0a4c793520",
+    "passed": 185,
+    "failed": 0,
+    "specs": {
+      "ItemParity": 136,
+      "ItemSprites": 5,
+      "PrimaryStatArt": 6,
+      "UpgradeReference": 17,
+      "EffectRules": 11,
+      "WeaponStats": 10
+    },
+    "checks": [
+      "StyLua",
+      "Selene: 0 errors, 11 existing warnings",
+      "Rojo build",
+      "git diff --check"
+    ],
+    "notes": "Retain both primary upgrade artwork and item-error fallback; bind item-only limit stats to related primary icons. The earlier full-suite result remains dated to its recorded base."
   }
 }

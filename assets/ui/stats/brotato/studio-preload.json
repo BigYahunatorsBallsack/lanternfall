@@ -1,0 +1,137 @@
+{
+  "date": "2026-11-06",
+  "placeId": "107221182628232",
+  "context": "Edit; temporary unparented ImageLabels, destroyed after PreloadAsync; no loaded game code changed or tested.",
+  "ok": true,
+  "count": 32,
+  "results": [
+    {
+      "asset": "rbxassetid://102704583216699",
+      "status": "Success"
+    },
+    {
+      "asset": "rbxassetid://105396859037041",
+      "status": "Success"
+    },
+    {
+      "asset": "rbxassetid://108237415938408",
+      "status": "Success"
+    },
+    {
+      "asset": "rbxassetid://109653557359587",
+      "status": "Success"
+    },
+    {
+      "asset": "rbxassetid://111193307612951",
+      "status": "Success"
+    },
+    {
+      "asset": "rbxassetid://112833336882610",
+      "status": "Success"
+    },
+    {
+      "asset": "rbxassetid://113071052484562",
+      "status": "Success"
+    },
+    {
+      "asset": "rbxassetid://118660467219436",
+      "status": "Success"
+    },
+    {
+      "asset": "rbxassetid://119230104481038",
+      "status": "Success"
+    },
+    {
+      "asset": "rbxassetid://122896907975213",
+      "status": "Success"
+    },
+    {
+      "asset": "rbxassetid://123067806206951",
+      "status": "Success"
+    },
+    {
+      "asset": "rbxassetid://126022547783892",
+      "status": "Success"
+    },
+    {
+      "asset": "rbxassetid://127093973797687",
+      "status": "Success"
+    },
+    {
+      "asset": "rbxassetid://131593297959422",
+      "status": "Success"
+    },
+    {
+      "asset": "rbxassetid://132161100587128",
+      "status": "Success"
+    },
+    {
+      "asset": "rbxassetid://71580107038050",
+      "status": "Success"
+    },
+    {
+      "asset": "rbxassetid://72661378304647",
+      "status": "Success"
+    },
+    {
+      "asset": "rbxassetid://77408872064411",
+      "status": "Success"
+    },
+    {
+      "asset": "rbxassetid://79508940433777",
+      "status": "Success"
+    },
+    {
+      "asset": "rbxassetid://84827197015332",
+      "status": "Success"
+    },
+    {
+      "asset": "rbxassetid://87735256510505",
+      "status": "Success"
+    },
+    {
+      "asset": "rbxassetid://87800264434768",
+      "status": "Success"
+    },
+    {
+      "asset": "rbxassetid://89515405517156",
+      "status": "Success"
+    },
+    {
+      "asset": "rbxassetid://90001396930266",
+      "status": "Success"
+    },
+    {
+      "asset": "rbxassetid://90118934453139",
+      "status": "Success"
+    },
+    {
+      "asset": "rbxassetid://92361365746773",
+      "status": "Success"
+    },
+    {
+      "asset": "rbxassetid://92995587127722",
+      "status": "Success"
+    },
+    {
+      "asset": "rbxassetid://93523575652422",
+      "status": "Success"
+    },
+    {
+      "asset": "rbxassetid://94107945232558",
+      "status": "Success"
+    },
+    {
+      "asset": "rbxassetid://95161157003841",
+      "status": "Success"
+    },
+    {
+      "asset": "rbxassetid://96308068299734",
+      "status": "Success"
+    },
+    {
+      "asset": "rbxassetid://98204305452902",
+      "status": "Success"
+    }
+  ]
+}

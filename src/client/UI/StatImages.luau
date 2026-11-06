@@ -42,4 +42,14 @@ local images: { [string]: string } = {
 	enemySpeed = "rbxassetid://99537795978142",
 }
 
+-- The owner requested the original wiki symbols for all primary upgrades on 2026-11-06.
+-- Secondary stats keep their existing illustrations because they have no base-game upgrade cards.
+for id, image in require(script.Parent.PrimaryStatArt).stats do
+	images[id] = image
+end
+
+-- Item-only limits share their related primary stat symbol; they have no upgrade illustrations.
+images.weaponCooldownMin = images.attackSpeed
+images.dodgeCap = images.dodge
+
 return table.freeze(images)

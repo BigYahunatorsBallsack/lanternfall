@@ -48,3 +48,7 @@ The Studio asset check did not install branch scripts, change the place, or publ
 The weapon package on main `5a1ec54` is also merged. Original weapon minimum timing and Ball and Chain's 0.75-second restriction are both retained. Latest complete comparison: **933 passed / 31 failed in 76 specs**, against main **792 / 31 in 74 specs**. The current report supersedes the preceding earlier-base totals. Both new specs are fully included in this final run.
 
 The independently randomized full runs differ in two existing specs: the branch avoids the previously flaky mine count failure and has a fluctuating enemy-distance failure in Smoke. A controlled Smoke comparison using seed 1234 in both test loaders gives **14 passed / 29 identical failures on each side**. No production files were changed for that comparison. Remaining failures include the old Wand/Spark Bolt and other weapon/evolution expectations in the shared smoke test; they are outside the item change.
+
+## Merge compatibility with upgrade artwork
+
+The subsequently merged main `0a841e5` is included before the approved merge. All 185 affected checks across ItemParity, ItemSprites, PrimaryStatArt, UpgradeReference, EffectRules and WeaponStats pass. Original card artwork, Engineering IV +5 and item-image failure handling coexist; the two item-only limit stats reuse the Attack Speed / Dodge symbols without adding upgrade cards. StyLua, Selene, Rojo and diff checks pass. The full-suite figures above remain tied to their explicitly recorded earlier base.

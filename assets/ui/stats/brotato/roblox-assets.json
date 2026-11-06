@@ -1,0 +1,264 @@
+{
+  "uploaded": "2026-11-06",
+  "creatorUserId": "3898708794",
+  "studioPlaceId": "107221182628232",
+  "assetType": "Image",
+  "entries": [
+    {
+      "id": "maxHp",
+      "kind": "stat",
+      "file": "stats/maxHp.png",
+      "sha256": "7b2d5062a97da3370496fa2104c45d52f6cfc718f178bb697bc3683ad0502d00",
+      "assetId": "rbxassetid://84827197015332",
+      "moderation": "Approved"
+    },
+    {
+      "id": "maxHp",
+      "kind": "upgrade",
+      "file": "upgrades/maxHp.png",
+      "sha256": "b499221f895ea487e2edbc6a6d8d9ab25833fc6132e5088605c571c830775c79",
+      "assetId": "rbxassetid://87800264434768",
+      "moderation": "Approved"
+    },
+    {
+      "id": "hpRegen",
+      "kind": "stat",
+      "file": "stats/hpRegen.png",
+      "sha256": "38b8c011ea91b42f7ef1bd5b596eaedfb4e294ebb0e6384d02c760a86c51bcc5",
+      "assetId": "rbxassetid://89515405517156",
+      "moderation": "Approved"
+    },
+    {
+      "id": "hpRegen",
+      "kind": "upgrade",
+      "file": "upgrades/hpRegen.png",
+      "sha256": "98451d4aca20e73be3eb0dac799eb567c6c4027af6cb5bbfa860e1d4dc7fae18",
+      "assetId": "rbxassetid://79508940433777",
+      "moderation": "Approved"
+    },
+    {
+      "id": "lifeSteal",
+      "kind": "stat",
+      "file": "stats/lifeSteal.png",
+      "sha256": "befefafda7dd930b78b2b4b82c03e4b21c26c43e28699a5d9736cdce13a5eb2f",
+      "assetId": "rbxassetid://122896907975213",
+      "moderation": "Approved"
+    },
+    {
+      "id": "lifeSteal",
+      "kind": "upgrade",
+      "file": "upgrades/lifeSteal.png",
+      "sha256": "970c3221691ae7184c06e681e622b823a620d0037d74c311a83d7cc391f6791d",
+      "assetId": "rbxassetid://92995587127722",
+      "moderation": "Approved"
+    },
+    {
+      "id": "damage",
+      "kind": "stat",
+      "file": "stats/damage.png",
+      "sha256": "dd22de10abac9e9f01e3d2376363614f92fd89cb1a8543c3123301319c229ca4",
+      "assetId": "rbxassetid://72661378304647",
+      "moderation": "Approved"
+    },
+    {
+      "id": "damage",
+      "kind": "upgrade",
+      "file": "upgrades/damage.png",
+      "sha256": "67f064341fff26895a6db4db32536c97cfb21a9d0340fb5de2a59a20edf9fb0f",
+      "assetId": "rbxassetid://95161157003841",
+      "moderation": "Approved"
+    },
+    {
+      "id": "meleeDamage",
+      "kind": "stat",
+      "file": "stats/meleeDamage.png",
+      "sha256": "e26580c7e0ed4672352ca0594ca75d7d192f55d1b1b106695cb5ed08157b15a8",
+      "assetId": "rbxassetid://71580107038050",
+      "moderation": "Approved"
+    },
+    {
+      "id": "meleeDamage",
+      "kind": "upgrade",
+      "file": "upgrades/meleeDamage.png",
+      "sha256": "fdf750d820eb198b99035a3f408b04d072bdbf89678e9607a0b83d96ef873205",
+      "assetId": "rbxassetid://105396859037041",
+      "moderation": "Approved"
+    },
+    {
+      "id": "rangedDamage",
+      "kind": "stat",
+      "file": "stats/rangedDamage.png",
+      "sha256": "80cc8d7a3b361eaf220a85c9a8f867d1ea37af2302424de7aa68df64a823022d",
+      "assetId": "rbxassetid://77408872064411",
+      "moderation": "Approved"
+    },
+    {
+      "id": "rangedDamage",
+      "kind": "upgrade",
+      "file": "upgrades/rangedDamage.png",
+      "sha256": "6c2113ce2de6077fd7d462b4054a955d870b5b70c01a97666b9e3c1d3037dcc6",
+      "assetId": "rbxassetid://87735256510505",
+      "moderation": "Approved"
+    },
+    {
+      "id": "elementalDamage",
+      "kind": "stat",
+      "file": "stats/elementalDamage.png",
+      "sha256": "14350449eb6168e3a5345cd30c20b4cbba211dc823cb8473f7b77dc85fc1622d",
+      "assetId": "rbxassetid://131593297959422",
+      "moderation": "Approved"
+    },
+    {
+      "id": "elementalDamage",
+      "kind": "upgrade",
+      "file": "upgrades/elementalDamage.png",
+      "sha256": "220111a7ec15620c6d113b1896e7a5cf678359fdd697c7eb24f5021b8ffc7224",
+      "assetId": "rbxassetid://96308068299734",
+      "moderation": "Approved"
+    },
+    {
+      "id": "attackSpeed",
+      "kind": "stat",
+      "file": "stats/attackSpeed.png",
+      "sha256": "8a55bf038b55c7442ed9aaaf07c51c77527c57d97df8eab1256d3dffc7953e70",
+      "assetId": "rbxassetid://93523575652422",
+      "moderation": "Approved"
+    },
+    {
+      "id": "attackSpeed",
+      "kind": "upgrade",
+      "file": "upgrades/attackSpeed.png",
+      "sha256": "bda52b132471c5752e5241ca308650659e67e61234a913994e0f073c417ff86f",
+      "assetId": "rbxassetid://109653557359587",
+      "moderation": "Approved"
+    },
+    {
+      "id": "critChance",
+      "kind": "stat",
+      "file": "stats/critChance.png",
+      "sha256": "04a947161d7e3159bcbf86472614ada1f965bfbe31cda504984989bccc0de37a",
+      "assetId": "rbxassetid://113071052484562",
+      "moderation": "Approved"
+    },
+    {
+      "id": "critChance",
+      "kind": "upgrade",
+      "file": "upgrades/critChance.png",
+      "sha256": "ad9492832b5a7caa862999937b5d9de73383bc274d9c3ea0429795d178a26d47",
+      "assetId": "rbxassetid://90118934453139",
+      "moderation": "Approved"
+    },
+    {
+      "id": "engineering",
+      "kind": "stat",
+      "file": "stats/engineering.png",
+      "sha256": "35c88ea350a4b836dcf580522a51856bfcba2946277e215d5f02d7d469040953",
+      "assetId": "rbxassetid://127093973797687",
+      "moderation": "Approved"
+    },
+    {
+      "id": "engineering",
+      "kind": "upgrade",
+      "file": "upgrades/engineering.png",
+      "sha256": "bdc9b62951001783c807f5fb9599519ec19ab8e9254067395cfabb79ef73f82c",
+      "assetId": "rbxassetid://102704583216699",
+      "moderation": "Approved"
+    },
+    {
+      "id": "range",
+      "kind": "stat",
+      "file": "stats/range.png",
+      "sha256": "591ae9fb58f3c6431a88a862457ab7ec179f51969c3241df178e3f3a6dd13ae1",
+      "assetId": "rbxassetid://132161100587128",
+      "moderation": "Approved"
+    },
+    {
+      "id": "range",
+      "kind": "upgrade",
+      "file": "upgrades/range.png",
+      "sha256": "3e81077e05341fa89a6340718394682b27dec84f86c7b14aee1864161ea2e74f",
+      "assetId": "rbxassetid://118660467219436",
+      "moderation": "Approved"
+    },
+    {
+      "id": "armor",
+      "kind": "stat",
+      "file": "stats/armor.png",
+      "sha256": "9e228073a4d6d70cc79cc6f2ee167086e0a1072743f24525d9e961177776fba9",
+      "assetId": "rbxassetid://94107945232558",
+      "moderation": "Approved"
+    },
+    {
+      "id": "armor",
+      "kind": "upgrade",
+      "file": "upgrades/armor.png",
+      "sha256": "77d98ecc6323306fb93daa5c9ec06e315d743cbc2403d75568aa0380bc140af9",
+      "assetId": "rbxassetid://108237415938408",
+      "moderation": "Approved"
+    },
+    {
+      "id": "dodge",
+      "kind": "stat",
+      "file": "stats/dodge.png",
+      "sha256": "c0ad8417c886f9739e79d622d0531395c2cdd299643146714c62d6b6323fac20",
+      "assetId": "rbxassetid://90001396930266",
+      "moderation": "Approved"
+    },
+    {
+      "id": "dodge",
+      "kind": "upgrade",
+      "file": "upgrades/dodge.png",
+      "sha256": "61a9bf82394431cb4ec4fafe69e17c69e9c6f452c729cbee317887603f93329e",
+      "assetId": "rbxassetid://123067806206951",
+      "moderation": "Approved"
+    },
+    {
+      "id": "speed",
+      "kind": "stat",
+      "file": "stats/speed.png",
+      "sha256": "c70c2a0e05b2776db5d0c5939102dc2212d16bb674779cc9aab288253ac9e5ef",
+      "assetId": "rbxassetid://92361365746773",
+      "moderation": "Approved"
+    },
+    {
+      "id": "speed",
+      "kind": "upgrade",
+      "file": "upgrades/speed.png",
+      "sha256": "fcc407a325bb31d5b6911d38f5c5db46becdd5d3b936de2f4ecc5d9fea2ad85f",
+      "assetId": "rbxassetid://126022547783892",
+      "moderation": "Approved"
+    },
+    {
+      "id": "luck",
+      "kind": "stat",
+      "file": "stats/luck.png",
+      "sha256": "5457d67d2f9f35319586bc9477267a97285f37cced7ae32a27ad22efa237ad95",
+      "assetId": "rbxassetid://111193307612951",
+      "moderation": "Approved"
+    },
+    {
+      "id": "luck",
+      "kind": "upgrade",
+      "file": "upgrades/luck.png",
+      "sha256": "e9998c6b5c9fb4bee8d7e44924d9c5dca00115795870ab889cae9f275019df4b",
+      "assetId": "rbxassetid://119230104481038",
+      "moderation": "Approved"
+    },
+    {
+      "id": "harvesting",
+      "kind": "stat",
+      "file": "stats/harvesting.png",
+      "sha256": "96532c4c4c5506a9845b89701833d179ff9ccb657a1bd79a0aba6cfa1a92301f",
+      "assetId": "rbxassetid://112833336882610",
+      "moderation": "Approved"
+    },
+    {
+      "id": "harvesting",
+      "kind": "upgrade",
+      "file": "upgrades/harvesting.png",
+      "sha256": "889e8bc253b171cd446a97afbc207f5ef9831313b36258155dee2073dc773047",
+      "assetId": "rbxassetid://98204305452902",
+      "moderation": "Approved"
+    }
+  ]
+}
