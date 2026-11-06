@@ -1,5 +1,5 @@
 --!strict
--- Original main-game item sprites for shop, inventory and deployed structures.
+-- Main-game item sprites for shop, inventory and structures; Bellows uses the approved neutral optical-tool artwork.
 -- Sources and byte checks: assets/ui/items/manifest.json; original uploads: roblox-assets.json.
 return table.freeze({
 	Vitality = "rbxassetid://110172907902672",
@@ -82,7 +82,7 @@ return table.freeze({
 	EmberAnvil = "rbxassetid://139919735633236",
 	SmolderingWick = "rbxassetid://131495832361458",
 	AshSerpent = "rbxassetid://138069474259003",
-	Bellows = "rbxassetid://101596251956695",
+	Bellows = "rbxassetid://110223481359323",
 	BlackPowder = "rbxassetid://76284579134466",
 	FulminateJar = "rbxassetid://87893280187588",
 	BurstingSigil = "rbxassetid://97922989055709",

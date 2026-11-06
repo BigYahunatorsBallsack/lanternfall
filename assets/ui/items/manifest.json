@@ -1,5 +1,5 @@
 {
-  "source": "Brotato original main-game item artwork, retrieved from the linked Wiki at the owner's request.",
+  "source": "124 original main-game Wiki sprites plus one owner-requested original neutral optical-equipment replacement.",
   "retrieved": "2026-11-06",
   "items": [
     {
@@ -968,11 +968,20 @@
       "tier": 2,
       "file": "assets/ui/items/Bellows.png",
       "sourcePage": "https://brotato.wiki.spellsandguns.com/Eyes_Surgery",
-      "sourceImage": "https://brotato.wiki.spellsandguns.com/images/2/26/Eyes_Surgery.png",
-      "sha256": "87cb432ae6e8d9004230f262b093de416e4a37e639edbf5dc1e915d672b3f0c8",
-      "width": 96,
-      "height": 96,
-      "bytes": 6716
+      "sourceImage": null,
+      "sha256": "8ccc924437e10c9956dbdac8ff95ab23b40df01e7f47198b4489a892a621b79d",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 995671,
+      "origin": "built-in image_gen",
+      "generationRecord": "docs/item-parity/neutral-eye-sprite.json",
+      "replacedSprite": {
+        "sourceImage": "https://brotato.wiki.spellsandguns.com/images/2/26/Eyes_Surgery.png",
+        "sha256": "87cb432ae6e8d9004230f262b093de416e4a37e639edbf5dc1e915d672b3f0c8",
+        "width": 96,
+        "height": 96,
+        "bytes": 6716
+      }
     },
     {
       "id": "BlackPowder",
