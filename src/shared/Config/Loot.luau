@@ -23,16 +23,15 @@ return table.freeze({
 		maxOnFloor = 40, -- more fruits than this are not dropped (crates always are; assumption)
 		-- Picked up within the orb pickup radius (Config.Player.pickupRadius, times Pickup Range) like orbs.
 	}),
-	-- A fruit heals this much HP (Brotato 3 HP times Config.Stats.hpScale), plus the Fruit Healing stat.
-	fruit = table.freeze({ heal = 30 }),
+	-- A fruit heals this much HP (Brotato 3 HP), plus the Fruit Healing stat.
+	fruit = table.freeze({ heal = 3 }),
 	-- A crate heals like a fruit and holds an item: picked up during the wave, opened one by one at the wave end before
 	-- the level-up cards (take it or sell it for Config.Shop.sellShare + Sell Value of its price). The rarity is rolled
 	-- like a shop item (wave and Luck), at least minTier. Not chosen in autoPickSeconds (Config.Run.levelUp) or before
 	-- the next wave: taken.
-	crate = table.freeze({ heal = 30, minTier = 1 }),
-	-- Legendary crate (Brotato's elite crate, since WP10): from bosses (later also rare elites, B11). Heals healShare of
-	-- max HP and holds an item of at least minTier (4 = Legendary); it opens like a crate, before the other crates.
-	legendaryCrate = table.freeze({ healShare = 1, minTier = 4 }),
+	crate = table.freeze({ heal = 3, minTier = 1 }),
+	-- Legendary crate (Brotato's elite crate, since WP10): from bosses (later also rare elites, B11). Heals 100 HP and holds an item of at least minTier (4 = Legendary); it opens like a crate, before the other crates.
+	legendaryCrate = table.freeze({ heal = 100, minTier = 4 }),
 
 	-- Looters (Brotato's Loot Alien): from wave fromWave, after firstSeconds in a wave and every everySeconds after
 	-- that, one appears with `chance` (all at once: count) near a random living player. It runs away from the
@@ -47,6 +46,8 @@ return table.freeze({
 		lifetimeSeconds = 12, -- assumption
 		spawnDistance = 30, -- studs from the player it appears near (assumption)
 	}),
+	-- Main-game Gobbler: one 3% roll ten seconds into each wave.
+	gobbler = table.freeze({ enemy = "Gobbler", fromWave = 1, firstSeconds = 10, chance = 0.03 }),
 
 	-- Trees: neutral, they stand still and do nothing; weapons hit them like enemies. Every wave brings perWave trees
 	-- plus the team's Trees stat (whole trees; the rest as a chance), spread over the first spawnShare of the wave, at

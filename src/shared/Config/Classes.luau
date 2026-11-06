@@ -1,6 +1,6 @@
 --!strict
 -- B10 character packages read by CharacterRules, services and lobby. References: docs/B10-CHARAKTERE.md.
--- HP uses our x10 scale. Legacy ids remain valid; unlock progression belongs to package 13.
+-- HP uses the original Brotato scale. Legacy ids remain valid; unlock progression belongs to package 13.
 export type Class = {
 	id: string,
 	displayName: string,
@@ -31,8 +31,8 @@ local Classes: { [string]: Class } = {
 		startWeapons = { "WatchmanPistol", "BrassKnuckles", "RitualDirk", "RattleRepeater", "SpiritFlint" },
 		free = true,
 		available = true,
-		description = "+50 Max HP, +5% Speed, +8 Harvesting.",
-		stats = { maxHp = 50, speed = 5, harvesting = 8 },
+		description = "+5 Max HP, +5% Speed, +8 Harvesting.",
+		stats = { maxHp = 5, speed = 5, harvesting = 8 },
 	},
 	SparkMage = {
 		id = "SparkMage",
@@ -119,10 +119,10 @@ local Classes: { [string]: Class } = {
 		startWeapons = { "Gravestone", "BrassKnuckles", "ScatterBell", "GalvanicFork", "ShrapnelOrgan" },
 		free = true,
 		available = true,
-		description = "Max HP gains x1.25; +1% Damage per 30 permanent Max HP. +30 Fruit Healing, -100% Life Steal. Regen/Dodge gains x0.5; Speed gains x0.",
-		stats = { fruitHeal = 30, lifeSteal = -100 },
+		description = "Max HP gains x1.25; +1% Damage per 3 permanent Max HP. +3 Fruit Healing, -100% Life Steal. Regen/Dodge gains x0.5; Speed gains x0.",
+		stats = { fruitHeal = 3, lifeSteal = -100 },
 		gainMultipliers = { maxHp = 1.25, hpRegen = 0.5, dodge = 0.5, speed = 0 },
-		conversions = { { source = "maxHp", target = "damage", per = 30, amount = 1, permanentOnly = true } },
+		conversions = { { source = "maxHp", target = "damage", per = 3, amount = 1, permanentOnly = true } },
 		wantedTags = { "maxHp", "luck", "consumable" },
 	},
 	TwinLedger = {
@@ -148,9 +148,9 @@ local Classes: { [string]: Class } = {
 		startWeapons = { "RitualDirk", "RattleRepeater", "GalvanicFork", "LeechCarbine", "SpiritFlint" },
 		free = true,
 		available = true,
-		description = "Each team level: +2 Melee, +1 Ranged, +1 Elemental, +1 Engineering, -20 Max HP (plus normal level HP).",
+		description = "Each team level: +2 Melee, +1 Ranged, +1 Elemental, +1 Engineering, -2 Max HP (plus normal level HP).",
 		stats = {},
-		perLevel = { meleeDamage = 2, rangedDamage = 1, elementalDamage = 1, engineering = 1, maxHp = -20 },
+		perLevel = { meleeDamage = 2, rangedDamage = 1, elementalDamage = 1, engineering = 1, maxHp = -2 },
 		wantedTags = { "xpGain" },
 	},
 }

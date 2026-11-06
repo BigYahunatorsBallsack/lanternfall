@@ -3,7 +3,7 @@
 -- The stats that grow during a run (Config.Stats) start from maxHp, moveSpeed, pickupRadius and critChance here.
 
 return table.freeze({
-	maxHp = 100,
+	maxHp = 10,
 	moveSpeed = 16, -- studs/s
 	-- studs (XP orbs, healing, embers); 8 until the playtest after Paket 24, now about Brotato's share of the arena
 	-- width (150 of about 2000 px) for the 160-stud arena

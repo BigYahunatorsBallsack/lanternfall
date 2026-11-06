@@ -1,7 +1,7 @@
 --!strict
 -- Weapon classes (DESIGN.md section 6, Brotato's weapon sets since B5): every weapon belongs to one or two classes
 -- (Config.Weapons -> classes). Carrying 2 to 6 weapons of a class (copies count) gives that class's bonus for the
--- count; the bonuses replace each other, they do not add up. Numbers are Brotato's (Max HP times Config.Stats.hpScale),
+-- count; the bonuses replace each other, they do not add up. Numbers are Brotato's, including original Max HP units,
 -- the names our own. Brotato's Tool class (Engineering) follows with structures (B12); its Legendary class has no
 -- weapons here yet. Read by Util/WeaponClasses (StatService adds the bonus, the client shows it) and ShopRules (the
 -- shop prefers classes you own).
@@ -22,12 +22,8 @@ local function class(id: string, displayName: string, bonuses: { { [string]: num
 end
 
 local ORDER: { WeaponClass } = {
-	-- Legendary: HP penalty scaled by ten.
-	class(
-		"Dread",
-		"Dread",
-		{ { maxHp = -200 }, { maxHp = -400 }, { maxHp = -600 }, { maxHp = -800 }, { maxHp = -1000 } }
-	),
+	-- Legendary: HP penalty in original Brotato units.
+	class("Dread", "Dread", { { maxHp = -20 }, { maxHp = -40 }, { maxHp = -60 }, { maxHp = -80 }, { maxHp = -100 } }),
 	-- Blade
 	class("Edge", "Edge", {
 		{ meleeDamage = 1, lifeSteal = 1 },
@@ -39,10 +35,10 @@ local ORDER: { WeaponClass } = {
 	-- Blunt
 	class("Bludgeon", "Bludgeon", {
 		{ armor = 1, speed = -2 },
-		{ armor = 1, maxHp = 30, speed = -4 },
-		{ armor = 2, maxHp = 30, speed = -6 },
-		{ armor = 2, maxHp = 60, speed = -8 },
-		{ armor = 3, maxHp = 60, speed = -10 },
+		{ armor = 1, maxHp = 3, speed = -4 },
+		{ armor = 2, maxHp = 3, speed = -6 },
+		{ armor = 2, maxHp = 6, speed = -8 },
+		{ armor = 3, maxHp = 6, speed = -10 },
 	}),
 	-- Elemental
 	class("Arcane", "Arcane", {
@@ -118,11 +114,11 @@ local ORDER: { WeaponClass } = {
 	}),
 	-- Primitive
 	class("Primal", "Primal", {
-		{ maxHp = 30 },
-		{ maxHp = 60 },
-		{ maxHp = 90 },
-		{ maxHp = 120 },
-		{ maxHp = 150 },
+		{ maxHp = 3 },
+		{ maxHp = 6 },
+		{ maxHp = 9 },
+		{ maxHp = 12 },
+		{ maxHp = 15 },
 	}),
 	-- Support
 	class("Steward", "Steward", {

@@ -6,8 +6,7 @@
 -- percent points (5 = +5 %), the others as plain numbers. Read by StatService (sums), WeaponStats, CombatService,
 -- ExperienceService, ShopService, UpgradeService and the client (stat panel, card texts).
 --
--- HP is Brotato's times `hpScale`: our players start with 100 HP instead of 10, so Max HP values, the HP a
--- regeneration tick heals and the HP life steal heals are multiplied by it.
+-- HP uses Brotato units (owner decision 2026-11-06): 10 base HP, one HP per regeneration/life-steal tick.
 
 export type StatId =
 	"maxHp"
@@ -84,10 +83,9 @@ local function extra(id: string, displayName: string, percent: boolean, inverted
 	})
 end
 
--- In the order of the stat panel. Upgrade values as in Brotato (Max HP times hpScale); Engineering is left out
--- because there are no structures.
+-- In the order of the stat panel. All upgrades use original Brotato units, including Max HP.
 local ORDER: { Stat } = {
-	stat("maxHp", "Max HP", false, { 30, 60, 90, 120 }),
+	stat("maxHp", "Max HP", false, { 3, 6, 9, 12 }),
 	stat("hpRegen", "HP Regeneration", false, { 2, 3, 4, 5 }),
 	stat("lifeSteal", "Life Steal", true, { 1, 2, 3, 4 }),
 	stat("damage", "Damage", true, { 5, 8, 12, 16 }),
@@ -140,8 +138,8 @@ return table.freeze({
 	order = table.freeze(ORDER),
 	byId = table.freeze(byId),
 
-	hpScale = 10,
-	maxHpPerLevel = 10, -- every team level (Brotato: +1 Max HP)
+	hpScale = 1,
+	maxHpPerLevel = 1, -- every team level (Brotato: +1 Max HP)
 
 	-- HP Regeneration: one tick of hpScale HP every baseSeconds / (1 + (regen - 1) / divisor) seconds (1 regen = 5 s,
 	-- 10 regen = 1 s); nothing below 1.

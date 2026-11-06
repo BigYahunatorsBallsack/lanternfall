@@ -58,16 +58,7 @@ local Difficulty = {
 	defaultLevel = 0,
 	-- Danger 1 brings these kinds (B9 part 2's new enemies, our counterpart to Brotato's "new enemies appear");
 	-- below it their spawn groups are left out
-	newEnemies = table.freeze({
-		"Stalker",
-		"Skulker",
-		"Thornback",
-		"Herald",
-		"Mender",
-		"BroodEgg",
-		"Reaper",
-		"Gobbler",
-	}),
+	newEnemies = table.freeze({ "Thornback", "Mender", "BroodEgg", "Reaper", "DreadTendril" }),
 
 	-- Elite or horde wave (Brotato): each of the first two slots is a horde wave with hordeChance, the third slot is
 	-- always an elite wave. Hordes only in the first 20 waves.

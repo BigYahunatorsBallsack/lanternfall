@@ -7,7 +7,7 @@
 
 local Shared = game:GetService("ReplicatedStorage").Shared
 local Config = require(Shared.Config)
-local DangerRules = require(Shared.Util.DangerRules)
+local EnemyStats = require(Shared.Util.EnemyStats)
 local RunSchedule = require(Shared.Util.RunSchedule)
 
 export type Rect = { minX: number, maxX: number, minZ: number, maxZ: number }
@@ -48,23 +48,13 @@ function SpawnRules.step(steps: { number }, wave: number): number
 	return steps[count] + (steps[count] - steps[count - 1]) * (wave - count)
 end
 
--- Multipliers on an enemy's HP and damage when it spawns in `wave` (before difficulty): its kind's values plus
--- hpPerWave and damagePerWave per growth step of the wave (Run.spawn.growth), like Brotato (B9). Normal enemies'
--- damage also gets growth.damageScale (playtest after Paket 24).
-function SpawnRules.growth(enemyId: string, wave: number): (number, number)
+-- Multipliers before danger: base + increment * (wave - 1), independently for HP, contact and shots.
+function SpawnRules.growth(enemyId: string, wave: number): (number, number, number)
 	local kind = Config.Enemies.types[enemyId] or Config.Enemies.champions[enemyId] -- champions grow too (WP10)
 	if not kind then
-		return 1, 1
+		return 1, 1, 1
 	end
-	local growth = Spawn.growth
-	local hp = if kind.hp > 0 then 1 + kind.hpPerWave * SpawnRules.step(growth.hpSteps, wave) / kind.hp else 1
-	local damage = kind.contactDamage
-	if damage <= 0 and kind.ranged then
-		damage = kind.ranged.projectileDamage
-	end
-	local scale = if Config.Enemies.types[enemyId] then growth.damageScale or 1 else 1 -- not champions
-	return hp,
-		scale * (if damage > 0 then 1 + kind.damagePerWave * SpawnRules.step(growth.damageSteps, wave) / damage else 1)
+	return EnemyStats.growth(kind, wave)
 end
 
 -- Swarm Rush running at this minute: the wave's groups pause, Shadeling groups come at rateMultiplier their rate.
@@ -90,23 +80,26 @@ local function groupRate(groups: { Group }): number
 end
 
 local rushGroups: { [any]: { Group } } = {}
-local filtered: { [any]: { Group } } = {}
+local filtered: { [any]: { [number]: { Group } } } = {}
 
 -- The groups of `wave` on danger level `danger` (B11: kinds from danger 1 left out below it; default: all).
 local function waveGroups(wave: number, danger: number?): { Group }
 	local groups = Spawn.groups[wave].groups :: { Group }
-	if danger == nil or DangerRules.level(danger).newEnemies then
-		return groups
+	local level = danger or #Config.Difficulty.levels - 1
+	local byDanger = filtered[groups]
+	if not byDanger then
+		byDanger = {}
+		filtered[groups] = byDanger
 	end
-	local list = filtered[groups]
+	local list = byDanger[level]
 	if not list then
 		list = {}
 		for _, entry in groups do
-			if not DangerRules.isNewEnemy(entry.enemy) then
+			if EnemyStats.canSpawn(Config.Enemies.types[entry.enemy], wave, level) then
 				table.insert(list, entry)
 			end
 		end
-		filtered[groups] = list
+		byDanger[level] = list
 	end
 	return list
 end

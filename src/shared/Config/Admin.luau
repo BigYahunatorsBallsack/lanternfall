@@ -12,8 +12,8 @@ return table.freeze({
 	skipToBossLeadSeconds = 90,
 	spawnWaveCount = 40, -- "SpawnWave": enemies spawned around the admin (the alive cap still applies)
 	hitNearbyRadius = 20, -- "HitNearby": studs around the admin
-	hitNearbyDamage = 5, -- "HitNearby": damage per enemy, so a Shadeling at minute 0 takes two hits
-	hurtSelfDamage = 25, -- "HurtSelf": damage of the test hit (armor and hit protection apply)
+	hitNearbyDamage = 1, -- "HitNearby": damage per enemy, so a Shadeling at minute 0 survives one hit
+	hurtSelfDamage = 2, -- "HurtSelf": damage of the test hit (armor and hit protection apply)
 	statsInterval = 1, -- seconds between stats updates for the admin stats panel
 	hurtBossShare = 0.25, -- "HurtBoss" (since WP10): share of its max HP every boss loses
 	-- "AddNewItem" (since B8): the items of the latest item package, one after another
@@ -53,5 +53,9 @@ return table.freeze({
 		"BroodEgg",
 		"Reaper",
 		"Gobbler",
+		"IronHusk",
+		"HornedRusher",
+		"DreadTendril",
+		"Hookfang",
 	}) :: { string },
 })
