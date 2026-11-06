@@ -118,7 +118,7 @@ function Visibility.poseFeet(entry: Entry, phase: number, amount: number, shown:
 		foot.Visible = shown
 		local side = if index == 1 then -1 else 1
 		local step = wave * side
-		local up = math.max(0, step) * Foot.lift * amount
+		local up = math.max(0, step) ^ 2 * Foot.lift * amount -- squared: lifts off and lands softly
 		local x = side * Foot.spread + swing * side * Foot.stride * amount
 		foot.Size = UDim2.fromScale(share, share)
 		foot.Position = WorldSprite.groundPoint(sprite, x, up)

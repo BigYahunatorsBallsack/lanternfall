@@ -65,16 +65,17 @@ local Sprites = {
 		loadAttempts = 3,
 		idleSpeed = 2.4, -- radians/s
 		idleSquash = 0.018,
-		-- The waddle, by eye from Brotato's trailer (no numbers are published): the body tips over its feet from side to side,
-		-- flattens while tipped and stretches and lifts when it is upright.
-		walkCycleSeconds = 0.3, -- one step left and right
-		walkTiltDegrees = 11,
+		-- The waddle: the body tips over its feet from side to side, flattens while tipped and stretches and lifts when it is
+		-- upright. Rhythm measured from frames of Brotato's Steam clip: one flatten-and-stretch takes about 0.3 s, which is
+		-- half a waddle. The strengths are estimates, the clip is small and busy.
+		walkCycleSeconds = 0.6, -- one step left and right
+		walkTiltDegrees = 7,
 		walkSquash = 0.09,
-		walkHopStuds = 0.35,
+		walkHopStuds = 0.25,
 		-- Two feet in alternating steps; `image` is drawn behind the body.
-		foot = table.freeze({ studs = 1.5, spread = 0.95, lift = 0.55, stride = 0.35 }),
+		foot = table.freeze({ studs = 1.5, spread = 0.95, lift = 0.45, stride = 0.3 }),
 		movingThreshold = 0.2, -- studs/s
-		blendSharpness = 12,
+		blendSharpness = 8, -- how softly the walk starts and ends
 		attackSeconds = 0.16,
 		attackScale = 0.09,
 		hitSeconds = 0.12,
@@ -100,7 +101,7 @@ local Sprites = {
 		figureWidth = 2.6, -- width of the figure, times the enemy's radius
 		figureWidths = table.freeze({}) :: { [string]: number }, -- other widths by enemy id
 		-- One step cycle: studs walked, hop (share of the radius), sway and lean (radians).
-		gait = table.freeze({ stride = 3.6, bob = 0.12, roll = 0.14, lean = 0.065 }),
+		gait = table.freeze({ stride = 6, bob = 0.1, roll = 0.1, lean = 0.065 }),
 		flashBrightness = 5,
 		statusTint = 0.55,
 		rushTint = { 255, 120, 110 },
