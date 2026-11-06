@@ -1,0 +1,438 @@
+{
+  "githubBase": "fc17890b306acbb5eef28599cb2aa48d1c54c040",
+  "date": "2026-11-06",
+  "catalogWeapons": 62,
+  "focusedTests": {
+    "passed": 184,
+    "failed": 0
+  },
+  "selene": {
+    "errors": 0,
+    "warnings": 11,
+    "notes": "Existing warnings outside this change"
+  },
+  "rojoBuild": "success",
+  "studio": {
+    "mode": "Edit",
+    "existingCode": "Contains additional 2D work; not overwritten",
+    "preload": [
+      {
+        "ok": true,
+        "id": "WatchmanPistol",
+        "asset": "rbxassetid://91263885346752",
+        "status": "Success"
+      },
+      {
+        "ok": true,
+        "id": "CactiClub",
+        "asset": "rbxassetid://103431238582378",
+        "status": "Success"
+      },
+      {
+        "ok": true,
+        "id": "Chopper",
+        "asset": "rbxassetid://109766327404694",
+        "status": "Success"
+      },
+      {
+        "ok": true,
+        "id": "OrbitBlades",
+        "asset": "rbxassetid://84906004270862",
+        "status": "Success"
+      },
+      {
+        "ok": true,
+        "id": "Claw",
+        "asset": "rbxassetid://115857576249195",
+        "status": "Success"
+      },
+      {
+        "ok": true,
+        "id": "Drill",
+        "asset": "rbxassetid://127406648168522",
+        "status": "Success"
+      },
+      {
+        "ok": true,
+        "id": "Excalibur",
+        "asset": "rbxassetid://108125648386375",
+        "status": "Success"
+      },
+      {
+        "ok": true,
+        "id": "Quarterstaff",
+        "asset": "rbxassetid://85606319363851",
+        "status": "Success"
+      },
+      {
+        "ok": true,
+        "id": "BrassKnuckles",
+        "asset": "rbxassetid://134149125787966",
+        "status": "Success"
+      },
+      {
+        "ok": true,
+        "id": "FlamingBrassKnuckles",
+        "asset": "rbxassetid://115818940121905",
+        "status": "Success"
+      },
+      {
+        "ok": true,
+        "id": "WraithHatchet",
+        "asset": "rbxassetid://129952869386161",
+        "status": "Success"
+      },
+      {
+        "ok": true,
+        "id": "SpiritFlint",
+        "asset": "rbxassetid://135941737464640",
+        "status": "Success"
+      },
+      {
+        "ok": true,
+        "id": "Shockwave",
+        "asset": "rbxassetid://139787591499703",
+        "status": "Success"
+      },
+      {
+        "ok": true,
+        "id": "TithePalm",
+        "asset": "rbxassetid://122691688911936",
+        "status": "Success"
+      },
+      {
+        "ok": true,
+        "id": "Hatchet",
+        "asset": "rbxassetid://112645708020773",
+        "status": "Success"
+      },
+      {
+        "ok": true,
+        "id": "JoustingLance",
+        "asset": "rbxassetid://88011918883446",
+        "status": "Success"
+      },
+      {
+        "ok": true,
+        "id": "RitualDirk",
+        "asset": "rbxassetid://84611491047940",
+        "status": "Success"
+      },
+      {
+        "ok": true,
+        "id": "ChainLightning",
+        "asset": "rbxassetid://110991165685337",
+        "status": "Success"
+      },
+      {
+        "ok": true,
+        "id": "Plank",
+        "asset": "rbxassetid://117655146550940",
+        "status": "Success"
+      },
+      {
+        "ok": true,
+        "id": "PlasmaSledge",
+        "asset": "rbxassetid://94755671727728",
+        "status": "Success"
+      },
+      {
+        "ok": true,
+        "id": "PowerFist",
+        "asset": "rbxassetid://82542127337545",
+        "status": "Success"
+      },
+      {
+        "ok": true,
+        "id": "ThornTrail",
+        "asset": "rbxassetid://83961921021075",
+        "status": "Success"
+      },
+      {
+        "ok": true,
+        "id": "Gravestone",
+        "asset": "rbxassetid://103924960370937",
+        "status": "Success"
+      },
+      {
+        "ok": true,
+        "id": "Scissors",
+        "asset": "rbxassetid://130925889475771",
+        "status": "Success"
+      },
+      {
+        "ok": true,
+        "id": "RuneAwl",
+        "asset": "rbxassetid://132560505111682",
+        "status": "Success"
+      },
+      {
+        "ok": true,
+        "id": "Scythe",
+        "asset": "rbxassetid://98834036040941",
+        "status": "Success"
+      },
+      {
+        "ok": true,
+        "id": "LamplighterPike",
+        "asset": "rbxassetid://113349505914059",
+        "status": "Success"
+      },
+      {
+        "ok": true,
+        "id": "SpikyShield",
+        "asset": "rbxassetid://73761895084983",
+        "status": "Success"
+      },
+      {
+        "ok": true,
+        "id": "Stick",
+        "asset": "rbxassetid://117629513187071",
+        "status": "Success"
+      },
+      {
+        "ok": true,
+        "id": "DuskSabre",
+        "asset": "rbxassetid://100501056393838",
+        "status": "Success"
+      },
+      {
+        "ok": true,
+        "id": "ThiefDagger",
+        "asset": "rbxassetid://89459874115202",
+        "status": "Success"
+      },
+      {
+        "ok": true,
+        "id": "ThunderSword",
+        "asset": "rbxassetid://137883383699014",
+        "status": "Success"
+      },
+      {
+        "ok": true,
+        "id": "Torch",
+        "asset": "rbxassetid://109852286678819",
+        "status": "Success"
+      },
+      {
+        "ok": true,
+        "id": "FoundryKey",
+        "asset": "rbxassetid://103998112240093",
+        "status": "Success"
+      },
+      {
+        "ok": true,
+        "id": "ChainGun",
+        "asset": "rbxassetid://127192048243194",
+        "status": "Success"
+      },
+      {
+        "ok": true,
+        "id": "BoomerangAxe",
+        "asset": "rbxassetid://85041453882670",
+        "status": "Success"
+      },
+      {
+        "ok": true,
+        "id": "ScatterBell",
+        "asset": "rbxassetid://96098329579669",
+        "status": "Success"
+      },
+      {
+        "ok": true,
+        "id": "CinderBreath",
+        "asset": "rbxassetid://82872713294838",
+        "status": "Success"
+      },
+      {
+        "ok": true,
+        "id": "CathedralEngine",
+        "asset": "rbxassetid://76623000533684",
+        "status": "Success"
+      },
+      {
+        "ok": true,
+        "id": "GhostScepter",
+        "asset": "rbxassetid://126895738750165",
+        "status": "Success"
+      },
+      {
+        "ok": true,
+        "id": "LaserGun",
+        "asset": "rbxassetid://125543792318461",
+        "status": "Success"
+      },
+      {
+        "ok": true,
+        "id": "LeechCarbine",
+        "asset": "rbxassetid://124801503562104",
+        "status": "Success"
+      },
+      {
+        "ok": true,
+        "id": "Minigun",
+        "asset": "rbxassetid://101588787056249",
+        "status": "Success"
+      },
+      {
+        "ok": true,
+        "id": "NuclearLauncher",
+        "asset": "rbxassetid://74911030272274",
+        "status": "Success"
+      },
+      {
+        "ok": true,
+        "id": "Obliterator",
+        "asset": "rbxassetid://124953827160931",
+        "status": "Success"
+      },
+      {
+        "ok": true,
+        "id": "PotatoThrower",
+        "asset": "rbxassetid://78014698925895",
+        "status": "Success"
+      },
+      {
+        "ok": true,
+        "id": "Railgun",
+        "asset": "rbxassetid://98769043157771",
+        "status": "Success"
+      },
+      {
+        "ok": true,
+        "id": "Revolver",
+        "asset": "rbxassetid://82698509340533",
+        "status": "Success"
+      },
+      {
+        "ok": true,
+        "id": "MortarLantern",
+        "asset": "rbxassetid://109638653664397",
+        "status": "Success"
+      },
+      {
+        "ok": true,
+        "id": "ShrapnelOrgan",
+        "asset": "rbxassetid://111145697116821",
+        "status": "Success"
+      },
+      {
+        "ok": true,
+        "id": "Shuriken",
+        "asset": "rbxassetid://79715687370803",
+        "status": "Success"
+      },
+      {
+        "ok": true,
+        "id": "Slingshot",
+        "asset": "rbxassetid://131792923794369",
+        "status": "Success"
+      },
+      {
+        "ok": true,
+        "id": "RattleRepeater",
+        "asset": "rbxassetid://104126337481767",
+        "status": "Success"
+      },
+      {
+        "ok": true,
+        "id": "SniperGun",
+        "asset": "rbxassetid://94214217920026",
+        "status": "Success"
+      },
+      {
+        "ok": true,
+        "id": "GalvanicFork",
+        "asset": "rbxassetid://75716612437131",
+        "status": "Success"
+      },
+      {
+        "ok": true,
+        "id": "SparkBolt",
+        "asset": "rbxassetid://139261420977003",
+        "status": "Success"
+      },
+      {
+        "ok": true,
+        "id": "DEXtroyer",
+        "asset": "rbxassetid://139752782437877",
+        "status": "Success"
+      },
+      {
+        "ok": true,
+        "id": "Fireball",
+        "asset": "rbxassetid://101709897623137",
+        "status": "Success"
+      },
+      {
+        "ok": true,
+        "id": "WinterNeedle",
+        "asset": "rbxassetid://103554367335556",
+        "status": "Success"
+      },
+      {
+        "ok": true,
+        "id": "ParticleAccelerator",
+        "asset": "rbxassetid://84371401742084",
+        "status": "Success"
+      },
+      {
+        "ok": true,
+        "id": "SharpTooth",
+        "asset": "rbxassetid://75974905801158",
+        "status": "Success"
+      },
+      {
+        "ok": true,
+        "id": "VorpalSword",
+        "asset": "rbxassetid://90933257805716",
+        "status": "Success"
+      }
+    ],
+    "allSuccessful": true,
+    "runAndTwoClientTest": "Pending owner branch synchronization"
+  },
+  "completeSuite": {
+    "passed": 792,
+    "failed": 31,
+    "failures": [
+      "FAIL Tally > writes readable log lines with the level per minute and every build\n     tests/RunStats.spec.luau:87: expected \"  Weapons: Orbit Blades II 64 dmg/1 kills\", got \"  Weapons: Circular Saw II 64 dmg/1 kills\"",
+      "FAIL smoke > arms the player with the class weapon and switches weapons off for the enemy tests\n     tests/Smoke.spec.luau:196: expected \"Spark Bolt I\", got \"Wand I\"",
+      "FAIL smoke > spawns enemies on a ring around the player and draws them\n     ./tests/helpers/RobloxMock.luau:185: attempt to index nil with 'X'",
+      "FAIL smoke > chases the player until it touches them\n     tests/Smoke.spec.luau:271: expected about 2.7, got 7.823537459161617",
+      "FAIL smoke > shows enemy and performance numbers to admins\n     tests/Smoke.spec.luau:316: expected \"Enemies 80 / 80 Â· drawn 80 (0 off screen) Â· shots 0\", got \"Enemies 80 / 80 Â· drawn 79 (0 off screen) Â· shots 0\"",
+      "FAIL smoke > shoots Spark Bolts that kill enemies once weapons are on\n     tests/Smoke.spec.luau:342: expected false, got true",
+      "FAIL smoke > draws the six original weapons, tiers and debug swaps\n     tests/Smoke.spec.luau:362: expected true, got false",
+      "FAIL smoke > drops XP orbs that the player picks up for the whole team\n     tests/Smoke.spec.luau:449: expected \"LV 3\", got \"LV 3 Â· +2 at wave end\"",
+      "FAIL smoke > keeps level-ups for the end of the wave\n     tests/Smoke.spec.luau:461: expected \"LV 4 Â· +1 at wave end\", got \"LV 4 Â· +3 at wave end\"",
+      "FAIL smoke > sells weapons and items for Shards in the shop, rerolls and starts the next wave on READY\n     tests/Smoke.spec.luau:615: expected 2, got 3",
+      "FAIL smoke > lets items change HP, speed and weapon damage, stacking without limit\n     tests/Smoke.spec.luau:736: expected about 17.12, got 0",
+      "FAIL smoke > runs item effects: standing still, per X, timers, crit kills, dodges and chests\n     tests/Smoke.spec.luau:796: expected \"Still\", got nil",
+      "FAIL smoke > runs wave end, shop and next-wave effects and the shop stats\n     tests/Smoke.spec.luau:892: expected true, got false",
+      "FAIL smoke > spawns a glowing elite with an HP bar that drops a chest\n     tests/Smoke.spec.luau:939: expected 1, got 0",
+      "FAIL smoke > opens the chest when walked over and shows the reward\n     tests/Smoke.spec.luau:970: attempt to index nil with 'x'",
+      "FAIL smoke > gives the evolution from a chest once the build is ready\n     tests/Smoke.spec.luau:1003: expected true, got false",
+      "FAIL smoke > lets Spitters shoot visible projectiles that hit the player\n     tests/Smoke.spec.luau:1040: expected true, got false",
+      "FAIL smoke > starts Swarm Rush with a ring of Shadelings and no Gloom Elites\n     tests/Smoke.spec.luau:1060: expected true, got false",
+      "FAIL smoke > shows a Charger's wind-up, splits Splitters and names elite affixes\n     tests/Smoke.spec.luau:1107: expected 1, got 0",
+      "FAIL smoke > runs Brotato's combat: weapon class bonuses, burning, exploding items and slowed enemies\n     tests/Smoke.spec.luau:1154: expected 6, got 0",
+      "FAIL smoke > skips to the boss wave, and surviving it wins (WP10)\n     tests/Smoke.spec.luau:1231: expected 19, got 1",
+      "FAIL smoke > starts the next run with Play again\n     tests/Smoke.spec.luau:1268: expected \"Countdown\", got \"Shop\"",
+      "FAIL smoke > keeps walking but suppresses jumping on Space\n     tests/Smoke.spec.luau:1295: expected 16, got 0",
+      "FAIL smoke > takes debug damage with hit protection and heals\n     tests/Smoke.spec.luau:1309: expected 8, got 20",
+      "FAIL smoke > ends in defeat when the only player is knocked down\n     tests/Smoke.spec.luau:1321: expected false, got true",
+      "FAIL smoke > returns to the lobby after the results\n     tests/Smoke.spec.luau:1333: expected \"Lobby\", got \"Running\"",
+      "FAIL smoke > runs with two players and keeps late joiners in the lobby\n     tests/Smoke.spec.luau:1345: expected \"Countdown\", got \"Running\"",
+      "FAIL smoke > keeps running while one of two is down, and enemies go for the one still standing\n     tests/Smoke.spec.luau:1363: attempt to index nil with 'id'",
+      "FAIL smoke > stands a downed player up with full HP when the wave ends\n     tests/Smoke.spec.luau:1389: expected \"Shop\", got \"Ended\"",
+      "FAIL smoke > rejects locked classes with a message\n     tests/Smoke.spec.luau:1411: attempt to index nil with 'classId'",
+      "FAIL smoke > finished without any runtime error\n     tests/Smoke.spec.luau:1423: runtime error: ./src/shared/Net/RateLimiter.luau:30: table index is nil"
+    ],
+    "baselineMain": {
+      "sha": "fc17890b306acbb5eef28599cb2aa48d1c54c040",
+      "passed": 747,
+      "failed": 31
+    },
+    "notes": "Remaining failures are confined to unchanged A-owned Smoke and RunStats specs: old prototype names/attacks/evolutions and mock follow-on errors. These are not a clean full-suite pass. The focused B weapon/visual/shop/runtime checks pass."
+  }
+}

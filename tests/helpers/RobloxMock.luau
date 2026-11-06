@@ -166,6 +166,21 @@ end
 Vector3.__add = function(a, b)
 	return v3(a.X + b.X, a.Y + b.Y, a.Z + b.Z)
 end
+
+-- Weapon sprite projection and lobby interpolation use these native vector methods.
+local vectorIndex = Vector3.__index
+Vector3.__index = function(v, key)
+	if key == "Dot" then
+		return function(a, b)
+			return a.X * b.X + a.Y * b.Y + a.Z * b.Z
+		end
+	elseif key == "Lerp" then
+		return function(a, b, alpha)
+			return a + (b - a) * alpha
+		end
+	end
+	return vectorIndex(v, key)
+end
 Vector3.__sub = function(a, b)
 	return v3(a.X - b.X, a.Y - b.Y, a.Z - b.Z)
 end
@@ -1273,6 +1288,8 @@ InstanceMeta.__newindex = function(instance, key, value)
 	end
 end
 CFrameLib.identity = CFrameLib.new()
+CFrameMeta.RightVector = v3(1, 0, 0)
+CFrameMeta.UpVector = v3(0, 1, 0)
 function CFrameMeta.PointToWorldSpace(self, point)
 	return self.Position + point
 end

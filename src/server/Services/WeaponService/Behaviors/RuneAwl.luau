@@ -1,3 +1,3 @@
 --!strict
--- B12 tool attack, used by Arsenal; construction is handled by StructureService.
-return require(script.Parent.Parent.B7Melee)
+-- Screwdriver behavior for Arsenal; exact tier data in Config.Weapons.
+return require(script.Parent.Parent.BrotatoMelee)

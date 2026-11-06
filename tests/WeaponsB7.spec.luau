@@ -143,6 +143,37 @@ local function effectsOf(scene, kind)
 end
 
 describe("B7 weapons", function()
+	it("Crossbow only gains its original piercing on critical projectiles", function()
+		for _, critical in { false, true } do
+			local scene = setup()
+			give(scene, "BoomerangAxe", 1)
+			local weapon = scene.arsenal:getWeapons(OWNER)[1]
+			weapon.stats.critChance = if critical then 1 else 0
+			weapon.stats.knockback = 0
+			local first = spawn(scene, "Shadeling", 10, 0, TOUGH)
+			local second = spawn(scene, "Shadeling", 16, 0, TOUGH)
+			run(scene, 0.5)
+			expect(lost(scene, first, TOUGH) > 0).toBe(true)
+			expect(lost(scene, second, TOUGH) > 0).toBe(critical)
+		end
+	end)
+	it("a killing rocket still explodes at its impact position", function()
+		local scene = setup()
+		give(scene, "MortarLantern", 2)
+		local target = spawn(scene, "Shadeling", 8, 0, 0.01)
+		local neighbor = spawn(scene, "Shadeling", 8, 4, TOUGH)
+		run(scene, 0.4)
+		expect(scene.world:isAlive(target)).toBe(false)
+		expect(lost(scene, neighbor, TOUGH)).toBeNear(30)
+	end)
+	it("a killed Cacti Club target still releases all three secondary projectiles", function()
+		local scene = setup()
+		give(scene, "CactiClub", 1)
+		local target = spawn(scene, "Shadeling", 8, 0, 0.01)
+		run(scene, 0.3)
+		expect(scene.world:isAlive(target)).toBe(false)
+		expect(#effectsOf(scene, "Fire")).toBe(3)
+	end)
 	it("runs every new weapon at each supported tier through real collision", function()
 		for id, config in W do
 			if not config.minTier then
@@ -184,7 +215,7 @@ describe("B7 weapons", function()
 	end)
 	it("magazines count volleys, reload, then resume without consuming ammo on empty aim", function()
 		local scene = setup()
-		give(scene, "CathedralEngine", 4)
+		give(scene, "ChainGun", 4)
 		local weapon = scene.arsenal:getWeapons(OWNER)[1]
 		run(scene, 1)
 		expect(weapon.state.shots or 0).toBe(0)
@@ -210,7 +241,7 @@ describe("B7 weapons", function()
 		expect(knife.critDamage).toBe(4)
 		expect(knife.critChance).toBeNear(0.5)
 		local smg = Stats.compute(W.RattleRepeater, 4, { rangedDamage = 10 }, nil, 1 / 12)
-		expect(smg.damage).toBeNear(16) -- 8 base + 80% of 10 Ranged Damage
+		expect(smg.damage).toBeNear(8 + 10 * 0.8) -- playtest after Paket 24 (was 16)
 		expect(ShopRules.weaponPrice("RitualDirk", 4, 1)).toBe(101)
 	end)
 	it("shop never promotes a common roll to a restricted weapon", function()

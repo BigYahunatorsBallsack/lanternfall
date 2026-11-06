@@ -1,3 +1,3 @@
 --!strict
--- Shrapnel Organ pooled visual for WeaponRenderer.
-return require(script.Parent.Parent.B7ProjectileVisual)(Color3.fromRGB(230, 110, 70))
+-- Shredder attack visual for WeaponRenderer; held art comes from UI.WeaponImages.
+return require(script.Parent.Parent.B7ProjectileVisual)(Color3.fromRGB(225, 190, 110))

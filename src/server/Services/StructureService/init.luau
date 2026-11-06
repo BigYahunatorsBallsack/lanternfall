@@ -95,7 +95,7 @@ local function position(player)
 	end
 	return root
 end
-local function add(player, kind)
+local function add(player, kind, definition)
 	local own = {}
 	for i, o in objects do
 		if o.owner == player then
@@ -110,10 +110,15 @@ local function add(player, kind)
 		table.remove(objects, own[RandomService.stream("Combat", player):NextInteger(1, #own)])
 	end
 	serial += 1
-	table.insert(
-		objects,
-		{ id = serial, owner = player, kind = kind, position = position(player), remaining = 0, armed = false }
-	)
+	table.insert(objects, {
+		id = serial,
+		owner = player,
+		kind = kind,
+		definition = definition,
+		position = position(player),
+		remaining = 0,
+		armed = false,
+	})
 	dirty = true
 end
 local function addGenerator(player, kind, definition)
@@ -140,7 +145,11 @@ local function addWeaponSources(player)
 		local config = Config.Weapons[weapon.id]
 		if config.structureKinds then
 			local kind = config.structureKinds[weapon.tier]
-			add(player, kind)
+			local definition = if config.gardenIntervals then table.clone(C.kinds[kind]) else nil
+			if definition then
+				definition.interval = config.gardenIntervals[weapon.tier]
+			end
+			add(player, kind, definition)
 			if config.structureIntervals and #generators < C.maxActive then
 				local def = table.clone(C.kinds[kind])
 				def.interval = config.structureIntervals[weapon.tier]
@@ -284,7 +293,7 @@ local function step(dt)
 		if Run.getParticipantState(o.owner) ~= "Alive" then
 			continue
 		end
-		local def = C.kinds[o.kind]
+		local def = o.definition or C.kinds[o.kind]
 		if def.mode == "Orbit" then
 			local root = Map.getRootPosition(o.owner)
 			if root then

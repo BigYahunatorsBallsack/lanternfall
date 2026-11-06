@@ -100,13 +100,6 @@ function HeldModels.effect(effect: Types.WeaponEffect)
 		return
 	end
 	local key = keyOf(effect.userId, uid)
-	if effect.weapon == "BoomerangAxe" then
-		if effect.kind == "Fire" then
-			flights[key] = (flights[key] or 0) + 1
-		elseif effect.kind == "End" then
-			flights[key] = math.max(0, (flights[key] or 0) - 1)
-		end
-	end
 	if effect.kind == "End" then
 		return
 	end
@@ -137,7 +130,7 @@ function HeldModels.renderWeapon(
 	frame: VisualKit.Frame
 )
 	-- Orbit blades are drawn at their actual server hit positions by Visuals/OrbitBlades.
-	if weapon.id == "OrbitBlades" or not Images[weapon.id] then
+	if not Images[weapon.id] then
 		return
 	end
 	local key = keyOf(owner.userId, weapon.uid)
