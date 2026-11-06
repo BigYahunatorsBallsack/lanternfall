@@ -45,6 +45,8 @@ type Drawn = {
 	lastHp: number,
 	flashUntil: number, -- 0 when not flashing
 	seenFrame: number, -- 0 until it was drawn once
+	placed: boolean, -- its parts were moved to where it stands while the model was still hidden
+	shown: boolean, -- its model is in the workspace
 	seed: number, -- spreads idle motions of neighbouring ids
 	phase: number, -- step cycle in radians
 	move: number, -- 0 standing to 1 walking at its own speed, smoothed
@@ -108,7 +110,8 @@ local function acquire(id: number, typeId: number, hp: number): Drawn
 	else
 		visual = Models.build(typeId)
 	end
-	visual.model.Parent = getFolder()
+	-- the model is parented only after its parts stand at the spawn point (render), so a pooled model does not flash
+	-- up where it last died and a new one not at the origin
 	local kind: any = EnemyKinds.byTypeId(typeId)
 	if visual.hpBar then
 		visual.hpBar.Size = UDim2.fromScale(hp, 1)
@@ -120,6 +123,8 @@ local function acquire(id: number, typeId: number, hp: number): Drawn
 		lastHp = hp,
 		flashUntil = 0,
 		seenFrame = 0,
+		placed = false,
+		shown = false,
 		seed = (id * GOLDEN_RATIO) % 1 * 2 * math.pi,
 		phase = (id * GOLDEN_RATIO) % 1 * 2 * math.pi,
 		move = 0,
@@ -269,7 +274,8 @@ local function render(dt: number)
 			local visual = current.visual
 			-- off the screen (now and where the model stands) a plain enemy keeps its model where it is; new ones,
 			-- elites, bosses and enemies in a wind-up, rush or pulse (their telegraph reaches far) are always placed
-			local visible = current.seenFrame == 0
+			local visible = not current.shown
+				or current.seenFrame == 0
 				or current.alwaysPosed
 				or mode ~= 0
 				or onScreen(x, z, visual.radius)
@@ -322,6 +328,7 @@ local function render(dt: number)
 			if visible then
 				current.posedX, current.posedZ = x, z
 				local base = CFrame.new(x, floorY, z) * CFrame.Angles(0, current.yaw, 0)
+				local first = count
 				count = Models.pose(
 					visual,
 					base,
@@ -333,6 +340,20 @@ local function render(dt: number)
 					cframeList,
 					count
 				)
+				if not current.shown then
+					-- a new enemy: move its hidden parts straight to where it stands and show the model one frame
+					-- later, so its pictures are never drawn at an old position
+					for k = first + 1, count do
+						partList[k].CFrame = cframeList[k]
+					end
+					count = first
+					if current.placed then
+						visual.model.Parent = getFolder()
+						current.shown = true
+					else
+						current.placed = true
+					end
+				end
 			else
 				culled += 1
 			end
