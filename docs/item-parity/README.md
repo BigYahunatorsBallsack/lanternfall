@@ -1,4 +1,4 @@
-# Item replacement â€” 6 November 2026
+# Item replacement — 6 November 2026
 
 The owner's request replaces the **125 existing catalog entries** with 125 distinct items from Brotato's main game. It does not add the rest of Brotato's catalog. Original names, prices, rarity, ownership limits, stat packages and the represented special effects replace the previous Lanternfall variants. DLC equivalents Baby Squid, Bone Dice, Cauldron, Coral, Goblet and Ashes are replaced by Bat, Tentacle, Lemonade, Mushroom, Sunglasses and Warrior Helmet.
 
