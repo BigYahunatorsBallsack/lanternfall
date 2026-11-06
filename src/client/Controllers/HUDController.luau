@@ -66,6 +66,7 @@ local hpLabel: TextLabel
 local bonusLabel: TextLabel
 local bonuses: { Types.ActiveBonus } = {}
 local hitFlash: Frame
+local HIT_FLASH_TOP_MARGIN = 100 -- pixels, more than any top bar
 local weaponsTitle: TextLabel
 local weaponRows: Frame
 local itemsTitle: TextLabel
@@ -742,7 +743,9 @@ local function build()
 		BackgroundColor3 = Theme.danger,
 		BackgroundTransparency = 1,
 		BorderSizePixel = 0,
-		Size = UDim2.fromScale(1, 1),
+		-- also under the top bar: the flash must not leave a bright stripe on the floor picture
+		Position = UDim2.fromOffset(0, -HIT_FLASH_TOP_MARGIN),
+		Size = UDim2.new(1, 0, 1, HIT_FLASH_TOP_MARGIN),
 		Active = false,
 		ZIndex = 0,
 		Parent = screen,

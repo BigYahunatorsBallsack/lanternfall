@@ -134,7 +134,7 @@ local function decorate(player: Player, character: Model?)
 	tag.Name = "VipTag"
 	tag.Adornee = character:FindFirstChild("Head") or root
 	tag.Size = UDim2.fromOffset(56, 22)
-	tag.StudsOffset = Vector3.new(0, 2.4, 0)
+	tag.StudsOffset = Vector3.new(0, Config.Sprites.character.bodyStuds + 0.8, 0) -- above the figure on the screen
 	tag.MaxDistance = 400
 	tag.Parent = folder
 	local label = Instance.new("TextLabel")

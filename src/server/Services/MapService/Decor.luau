@@ -65,6 +65,12 @@ function Decor.applyLighting()
 	Lighting.GlobalShadows = false
 	Lighting.EnvironmentDiffuseScale = 0
 	Lighting.EnvironmentSpecularScale = 0
+	-- Effects the place file brings along would blur or tint the flat pictures; ours follow below.
+	for _, effect in Lighting:GetChildren() do
+		if effect:IsA("PostEffect") then
+			effect.Enabled = false
+		end
+	end
 
 	local atmosphere = Lighting:FindFirstChildOfClass("Atmosphere") or Instance.new("Atmosphere")
 	atmosphere.Density = settings.atmosphere.density
@@ -81,6 +87,7 @@ function Decor.applyLighting()
 	grade.Contrast = settings.colorCorrection.contrast
 	grade.Saturation = settings.colorCorrection.saturation
 	grade.TintColor = rgb(settings.colorCorrection.tint)
+	grade.Enabled = true
 	grade.Parent = Lighting
 
 	local bloom = Lighting:FindFirstChild("LanternfallBloom") or Instance.new("BloomEffect")
@@ -89,6 +96,7 @@ function Decor.applyLighting()
 	glow.Intensity = settings.bloom.intensity
 	glow.Size = settings.bloom.size
 	glow.Threshold = settings.bloom.threshold
+	glow.Enabled = true
 	glow.Parent = Lighting
 end
 

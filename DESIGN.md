@@ -219,7 +219,7 @@ Explosionen, Brennen, Durchschlag, Abprall und Rückstoß kamen mit der Kampf-Ti
 
 **Stillstand (seit B4):** Wer in einer Welle mindestens 0,2 s langsamer als 1 Stud/s ist, steht still; wieder losgehen zählt ebenso erst nach 0,2 s, damit kurzes Zucken den Bonus nicht flackern lässt (Annahme, Brotato nennt keine Zahlen; `Config/Effects.luau` → `standStill`). Im Shop, down oder außerhalb des Runs gibt es keinen Stillstands-Bonus.
 
-Seit Paket 4 umgesetzt (Werte in `Config/Player.luau` und `Config/Camera.luau`): Kamera 50° Neigung (seit Feedback zu Paket 9, vorher 60°), 100 Studs Abstand (seit B9, vorher 70), Sichtfeld 40°, folgt weich. Springen ist aus; Leertaste und Gamepad-A lösen keine Aktion aus; es gibt keinen Dash-Knopf. Wer „down" ist, kann nicht laufen. Klassenbonus auf HP wird beim Run-Start eingerechnet. Im HUD unten Mitte die eigene HP-Leiste (rot unter 30 %), kurzer roter Bildschirm-Blitz bei Treffern, HP der Mitspieler in der Team-Liste.
+Seit Paket 4 umgesetzt (Werte in `Config/Player.luau` und `Config/Camera.luau`): Kamera seit Paket 25 fast senkrecht von oben wie in Brotato: 89,5° Neigung (vorher 50°, davor 60°), 115 Studs Abstand (vorher 100, davor 70), Sichtfeld 40°, folgt weich. Nicht genau 90°, damit weiter südlich stehende Figuren vor den nördlichen bleiben. Springen ist aus; Leertaste und Gamepad-A lösen keine Aktion aus; es gibt keinen Dash-Knopf. Wer „down" ist, kann nicht laufen. Klassenbonus auf HP wird beim Run-Start eingerechnet. Im HUD unten Mitte die eigene HP-Leiste (rot unter 30 %), kurzer roter Bildschirm-Blitz bei Treffern, HP der Mitspieler in der Team-Liste.
 
 Alle Werte stehen in Config-Modulen, nicht im Code.
 
@@ -966,6 +966,7 @@ Umsetzungsstand, technische Checks und die noch ausstehende echte Studio-Abnahme
 | Größen | `Config/Sprites.luau`. Gegner: Breite = Trefferradius × `enemy.figureWidth`, die Trefferzonen bleiben unverändert. Gloom Elites nutzen das Bild ihrer Art, größer und mit Krone. |
 | Animation | Ein Bild pro Figur. Spiegeln, Hüpfen, Quetschen, Neigen, Treffer-Blitz und Färbung macht der Code. |
 | Boden | Kachelbild pro Fläche (`Sprites.floors`). Warnflächen und Ringe bleiben flache Teile am Boden. |
+| Kamera und Licht | Fast senkrecht von oben (Abschnitt 4). Flaches Licht ohne Sonne, Schatten, Reflexe und Lichtquellen (`Map.lighting`), Bilder zeigen ihre genauen Farben. Dunkler Boden rund um Arena und Lobby. Weil man Höhe von oben nicht sieht, wirkt alles „nach oben“ auf dem Bild: Hüpfen, Krone, VIP-Schild und Laternenlicht liegen nördlich der Figur. |
 | Unsichtbar | Spieler-Avatar, Gegner-Anker, Portal-Rahmen und Lobby-Masten bleiben für Bewegung, Kollision und Prompts erhalten, ohne sichtbar zu sein. |
 
 - **Stil (seit Paket 9d, Wunsch des Owners: „im Style von Deadlock"): okkultes Art déco.** Gealtertes Messing und Gold, Porzellanmasken, Gasmasken und Kutten, rußschwarze Kreaturen, dazu leuchtende Augen, Linsen und Risse in kräftigen Neonfarben, Sonnenstrahlen- und Zackenformen. Übernommen ist nur die Stimmung: keine Figuren, Namen, Logos oder Designs aus Deadlock.

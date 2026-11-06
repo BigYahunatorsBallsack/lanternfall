@@ -21,7 +21,7 @@ Der Owner will den Look so nah wie möglich an Brotato:
 - genau eine Figur pro Bild, vollständig im Bild, mit etwas Rand
 - keine Schrift, kein Boden, kein Schatten, kein Leuchtrand: Schatten, Treffer-Blitz, Hüpfen und Wackeln macht das Spiel selbst
 - **nur ein Bild pro Figur**, keine Animationsbilder
-- Figuren schauen nach vorn oder nach rechts; läuft eine Figur nach links, spiegelt das Spiel sie
+- Figuren von vorn gezeichnet, wie in Brotato, obwohl die Kamera von oben schaut; sie schauen nach vorn oder nach rechts, läuft eine Figur nach links, spiegelt das Spiel sie
 - Charaktere halten **keine Waffen**: Waffen schweben wie in Brotato um die Figur
 - Boden-Bilder sind nahtlos kachelbar und haben keine Transparenz
 
