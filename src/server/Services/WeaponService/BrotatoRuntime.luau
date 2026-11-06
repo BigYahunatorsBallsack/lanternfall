@@ -54,7 +54,8 @@ function Runtime.hurt(weapons: { Arsenal.Weapon })
 	end
 end
 
-function Runtime.recompute(weapons: { Arsenal.Weapon }, bonuses: { [string]: number })
+function Runtime.recompute(weapons: { Arsenal.Weapon }, bonuses: { [string]: number }): boolean
+	local changed = false
 	local copies: { [string]: number } = {}
 	for _, weapon in weapons do
 		copies[weapon.id] = (copies[weapon.id] or 0) + 1
@@ -76,7 +77,9 @@ function Runtime.recompute(weapons: { Arsenal.Weapon }, bonuses: { [string]: num
 		weapon.stats = tiered
 		weapon.state.derivedBonuses = bonuses
 		weapon.state.derivedStamp = stamp
+		changed = true
 	end
+	return changed
 end
 
 return Runtime

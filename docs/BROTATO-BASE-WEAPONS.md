@@ -81,3 +81,13 @@ Eigene Angriffsmodule registrieren jede Waffe. Die gemeinsamen Brotato-Verhalten
 | Particle Accelerator | `ParticleAccelerator` | 3 |
 | Sharp Tooth | `SharpTooth` | 1 |
 | Vorpal Sword | `VorpalSword` | 2 |
+
+## Testanleitung für den Owner
+
+1. Den Branch `wp-b7-brotato-base` mit Rojo synchronisieren oder die lokale Datei `lanternfall-brotato-base.rbxl` in einem separaten Studio-Fenster öffnen. Den derzeit offenen 2D-Arbeitsstand vorher speichern.
+2. In der Lobby Blade Warden wählen. Startwaffen müssen Originalnamen und Originalbilder zeigen, zum Beispiel Pistol, Fist und Knife. Einen Run starten: dieselbe Waffe ist als 2D-Sprite neben der Figur sichtbar.
+3. Im Debug-Menü `NextWeapon` durchgehen: jede der 62 Waffen erscheint mit eigenem Originalbild; stärkere Waffen beginnen direkt in ihrer Mindeststufe. Hammer schwingt, Circular Saw schwingt als einzelne Waffe und Crossbow bleibt beim Schuss sichtbar.
+4. Im Shop zwei gleiche Waffen gleicher Stufe verschmelzen, eine verkaufen und ein neues Angebot kaufen. Name, Stufe, Bild und Werte müssen zusammenpassen. Bei zwei Sticks steigt der Schaden; Hand erhöht Harvesting, Excalibur verringert Armor.
+5. An einem starken Gegner Crossbow/Shuriken mit hoher Crit Chance testen; Lightning Shiv/Cacti Club erzeugen zusätzliche Geschosse, Rocket Launcher explodiert auch bei einem tödlichen Treffer. Revolver/Chain Gun haben nach ihrem Magazin eine längere Pause.
+6. Drill und Railgun mindestens zehn Sekunden halten, dann Schaden nehmen. Railgun verliert seinen Schadenszuwachs; Drill behält das Angriffstempo bis Wellenende. Pruner, Wrench und Screwdriver erzeugen Garten/Turm/Minen. Mit Scythe verliert die Figur regelmäßig HP, auch ohne Gegnerkontakt.
+7. Mit zwei Clients prüfen, ob beide Spieler dieselben Waffen und Angriffe sehen. Auf dem Handy oder im Gerätesimulator Shopbilder, Lesbarkeit und Ausrichtung prüfen. Output darf keine neuen roten Luau-Fehler zeigen.

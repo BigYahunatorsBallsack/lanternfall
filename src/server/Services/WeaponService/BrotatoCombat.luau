@@ -29,6 +29,9 @@ function Combat.hit(
 	weapon.stats = stats
 	weapon.state.secondaryHit = secondary == true
 	local killed = ctx:hit(weapon, id, share, if bounced then "Bounce" else nil)
+	if not killed and not bounced and stats.knockbackPiercing and adapter.knockbackPiercing then
+		adapter.knockbackPiercing(id, ctx.x, ctx.z, stats.knockback, stats.knockbackPiercing)
+	end
 	weapon.state.secondaryHit = false
 	if
 		not secondary

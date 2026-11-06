@@ -35,6 +35,7 @@ local StatMath = require(Shared.Util.StatMath)
 local CharacterRules = require(Shared.Util.CharacterRules)
 local BrotatoCombat = require(script.BrotatoCombat)
 local BrotatoRuntime = require(script.BrotatoRuntime)
+local EnemyKinds = require(Shared.Util.EnemyKinds)
 local waveBonuses: { [Player]: { [string]: number } } = {}
 local selections: { [Player]: { [string]: string } } = {}
 
@@ -252,6 +253,7 @@ local function loadoutOf(player: Player): Types.Loadout
 end
 
 local function send(player: Player)
+	BrotatoRuntime.recompute(arsenal:getWeapons(player.UserId), ownerStats[player] or {})
 	Net.fireAllClients("Loadout", loadoutOf(player))
 	WeaponService.Changed:Fire(player)
 end
@@ -332,7 +334,9 @@ local function onStepped(dt: number, stepNow: number)
 			if changed then
 				send(player)
 			end
-			BrotatoRuntime.recompute(weapons, ownerStats[player] or {})
+			if BrotatoRuntime.recompute(weapons, ownerStats[player] or {}) then
+				Net.fireAllClients("Loadout", loadoutOf(player))
+			end
 		end
 	end
 	arsenal:step(dt, stepNow)
@@ -386,6 +390,25 @@ end
 function WeaponService.init()
 	BrotatoCombat.configure({
 		health = EnemySim.getHealth,
+		knockbackPiercing = function(id, x, z, amount, piercing)
+			local kindId, elite = EnemySim.getKind(id)
+			local kind = kindId and EnemyKinds.get(kindId, elite)
+			local position = EnemySim.getPosition(id)
+			if not kind or kind.anchored or not position then
+				return
+			end
+			local resistance = kind.knockbackResistance or (1 - 1 / math.max(1, kind.mass))
+			local direction = Vector3.new(position.X - x, 0, position.Z - z)
+			if direction.Magnitude < 1e-6 then
+				return
+			end
+			local extra = direction.Unit * (amount * resistance * piercing)
+			if resistance < 1 then
+				EnemySim.push(id, extra / (1 - resistance))
+			else
+				EnemySim.teleport(id, position + extra)
+			end
+		end,
 		isElite = function(id)
 			local _, elite = EnemySim.getKind(id)
 			return elite

@@ -5,11 +5,18 @@ Inputs are local snapshots of Weapons and Template:Weapon_Data. No network write
 import html
 import json
 import re
+import urllib.request
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "assets/weapons/brotato-base"
 OUT.mkdir(parents=True, exist_ok=True)
+for filename, url in {
+    "weapon-data-wiki.txt": "https://brotato.wiki.spellsandguns.com/index.php?title=Template:Weapon_Data&action=raw",
+    "weapons-wiki.html": "https://brotato.wiki.spellsandguns.com/Weapons",
+}.items():
+    if not (ROOT/filename).exists():
+        (ROOT/filename).write_bytes(urllib.request.urlopen(url, timeout=30).read())
 RAW = (ROOT / "weapon-data-wiki.txt").read_text(encoding="utf-8")
 PAGE = (ROOT / "weapons-wiki.html").read_text(encoding="utf-8")
 
@@ -180,7 +187,7 @@ for r in records:
         for k,v in feat.items():
             if k not in ["held","structureKinds","structureIntervals","gardenIntervals","killGainStat","armorPerWeapon"]:
                 s[k] = at(v,max(t,r["minTier"]-1))
-		
+
         s["levelScaling"] = r["scaling"][max(t,r["minTier"]-1)].get("level",0)
         if "secondaryCount" in s:
             s.update(secondaryRangeStuds=40, secondarySpeed=60, secondaryRadius=.5, secondarySlowSeconds=1)
