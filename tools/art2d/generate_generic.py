@@ -84,6 +84,14 @@ def crown(size=256):
     return done(image, size)
 
 
+def foot(size=128):
+    """One small rounded foot."""
+    image, draw = canvas(size)
+    unit = size / 128
+    draw.ellipse(box([14 * unit, 34 * unit, 114 * unit, 96 * unit]), fill=(70, 62, 58, 255), outline=OUTLINE, width=int(8 * SCALE * unit))
+    return done(image, size)
+
+
 def beam(size=128):
     """A soft upright column of light."""
     x, y = np.meshgrid(np.linspace(-1, 1, size), np.linspace(0, 1, size))
@@ -137,6 +145,7 @@ def main():
         "bolt": bolt(),
         "crown": crown(),
         "beam": beam(),
+        "foot": foot(),
     }
     for shape in ("Cage", "Orb", "Spire"):
         for part in ("Frame", "Glow"):

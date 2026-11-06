@@ -82,7 +82,9 @@ function CharacterAnimationController.update(dt: number)
 		local walking = speed > Look.movingThreshold and not down
 		local target = if walking then 1 else 0
 		motion.blend += (target - motion.blend) * (1 - math.exp(-Look.blendSharpness * dt))
-		motion.phase = (motion.phase + step / Look.walkStride * 2 * math.pi) % (2 * math.pi)
+		if walking then
+			motion.phase = (motion.phase + dt / Look.walkCycleSeconds * 2 * math.pi) % (2 * math.pi)
+		end
 		motion.idle += dt * Look.idleSpeed
 
 		-- Faces the way it walks; standing or walking straight up and down keeps the last side.
@@ -98,16 +100,20 @@ function CharacterAnimationController.update(dt: number)
 			motion.health = humanoid.Health
 		end
 
-		local scaleX, scaleY, rotation = 1, 1, 0
+		Visibility.poseFeet(entry, motion.phase, motion.blend, not down)
+		local scaleX, scaleY, rotation, lift = 1, 1, 0, 0
 		if down then
 			rotation = if entry.sprite.flipped then -Look.downRotationDegrees else Look.downRotationDegrees
 		else
+			-- Tipped to a side the body sits flat, upright between two steps it stretches and lifts off.
 			local wave = math.sin(motion.phase)
+			local upright = math.cos(2 * motion.phase)
 			local breath = math.sin(motion.idle) * Look.idleSquash * (1 - motion.blend)
-			local stride = math.abs(wave) * Look.walkSquash * motion.blend
-			scaleY = 1 + breath + stride
-			scaleX = 1 - breath - stride * 0.6
-			rotation = wave * Look.walkRollDegrees * motion.blend
+			local stretch = upright * Look.walkSquash * motion.blend
+			scaleY = 1 + breath + stretch
+			scaleX = 1 - breath - stretch * 0.8
+			rotation = wave * Look.walkTiltDegrees * motion.blend
+			lift = (upright + 1) / 2 * Look.walkHopStuds * motion.blend
 			local attack = (now - motion.attackAt) / Look.attackSeconds
 			if attack < 1 then
 				local squeeze = math.sin(attack * math.pi) * Look.attackScale
@@ -115,7 +121,7 @@ function CharacterAnimationController.update(dt: number)
 				scaleY -= squeeze * 0.7
 			end
 		end
-		WorldSprite.pose(entry.sprite, scaleX, scaleY, rotation)
+		WorldSprite.pose(entry.sprite, scaleX, scaleY, rotation, lift)
 
 		local hit = (now - motion.hitAt) < Look.hitSeconds
 		local tint = if hit then "hit" elseif state == "Out" then "out" elseif down then "down" else "plain"

@@ -69,7 +69,7 @@ return table.freeze({
 		table.freeze({
 			key = "VIP",
 			name = "VIP",
-			text = `Gilded Sunburst lantern and Gilded Trail, +{Economy.vipExtraRerolls} free shop reroll per run, `
+			text = `Gilded Sunburst lantern, +{Economy.vipExtraRerolls} free shop reroll per run, `
 				.. `+{math.round(Economy.bonuses.vip * 100)}% Embers`,
 			price = Economy.prices.vip,
 		}),

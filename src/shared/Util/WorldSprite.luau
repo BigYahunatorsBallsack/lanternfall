@@ -29,19 +29,36 @@ export type Sprite = {
 	scaleX: number,
 	scaleY: number,
 	rotation: number,
+	lift: number, -- studs up the screen, a hop
 	layers: { ImageLabel },
 }
 
 local WorldSprite = {}
 
+-- Side of the billboard in studs and how far the ground line is above its bottom.
+local function canvas(sprite: Sprite): (number, number)
+	local side = sprite.studs * Look.canvasMargin
+	return side, (side - sprite.studs) / 2 + sprite.ground * sprite.studs
+end
+
+-- Puts the picture on the ground line. A picture turns around its middle, so the middle moves along to keep the feet
+-- where they are.
+local function place(sprite: Sprite)
+	local side, groundFromBottom = canvas(sprite)
+	local angle = math.rad(sprite.rotation)
+	local toMiddle = sprite.studs * (0.5 - sprite.ground) * sprite.scaleY
+	local shiftX = math.sin(angle) * toMiddle
+	local shiftDown = (1 - math.cos(angle)) * toMiddle
+	sprite.picture.Position =
+		UDim2.fromScale(0.5 + shiftX / side, 1 - groundFromBottom / side + (shiftDown - sprite.lift) / side)
+end
+
 -- Size and placement of billboard and picture for the sprite's size; pose() scales around the ground point.
 local function layout(sprite: Sprite)
-	local side = sprite.studs * Look.canvasMargin
-	local padding = (side - sprite.studs) / 2
-	local groundFromBottom = padding + sprite.ground * sprite.studs
+	local side, groundFromBottom = canvas(sprite)
 	sprite.gui.Size = UDim2.fromScale(side, side)
 	sprite.gui.StudsOffset = Vector3.new(0, side / 2 - groundFromBottom, Look.depthBias)
-	sprite.picture.Position = UDim2.fromScale(0.5, 1 - groundFromBottom / side)
+	place(sprite)
 end
 
 local function anchorPoint(sprite: Sprite): Vector2
@@ -64,6 +81,7 @@ local function build(adornee: BasePart, spec: Spec): Sprite
 	picture.BackgroundTransparency = 1
 	picture.Image = spec.image
 	picture.ScaleType = Enum.ScaleType.Stretch
+	picture.ZIndex = 2
 	picture.Parent = gui
 	local sprite: Sprite = {
 		anchor = nil,
@@ -77,6 +95,7 @@ local function build(adornee: BasePart, spec: Spec): Sprite
 		scaleX = 1,
 		scaleY = 1,
 		rotation = 0,
+		lift = 0,
 		layers = {},
 	}
 	picture.AnchorPoint = anchorPoint(sprite)
@@ -168,19 +187,42 @@ function WorldSprite.setFlip(sprite: Sprite, flipped: boolean)
 	end
 end
 
--- Squash, stretch and sway around the ground point. Writes only what changed noticeably, so crowds stay cheap.
-function WorldSprite.pose(sprite: Sprite, scaleX: number, scaleY: number, rotation: number)
+-- Squash, stretch and sway around the ground point, `lift` studs up the screen. Writes only what changed noticeably, so
+-- crowds stay cheap.
+function WorldSprite.pose(sprite: Sprite, scaleX: number, scaleY: number, rotation: number, lift: number?)
+	local moved = false
 	if
 		math.abs(scaleX - sprite.scaleX) >= Look.poseScaleStep
 		or math.abs(scaleY - sprite.scaleY) >= Look.poseScaleStep
 	then
 		sprite.scaleX, sprite.scaleY = scaleX, scaleY
 		resize(sprite)
+		moved = true
 	end
 	if math.abs(rotation - sprite.rotation) >= Look.poseRotationStep then
 		sprite.rotation = rotation
 		sprite.picture.Rotation = rotation
+		moved = true
 	end
+	local up = lift or 0
+	if math.abs(up - sprite.lift) >= Look.poseScaleStep then
+		sprite.lift = up
+		moved = true
+	end
+	if moved then
+		place(sprite)
+	end
+end
+
+-- Where a point of the ground line lies on the billboard, as UDim2 scale: `x` studs to the side, `up` studs above it.
+function WorldSprite.groundPoint(sprite: Sprite, x: number, up: number): UDim2
+	local side, groundFromBottom = canvas(sprite)
+	return UDim2.fromScale(0.5 + x / side, 1 - (groundFromBottom + up) / side)
+end
+
+-- `studs` as a share of the billboard, for pictures placed on it by hand.
+function WorldSprite.share(sprite: Sprite, studs: number): number
+	return studs / (sprite.studs * Look.canvasMargin)
 end
 
 -- Multiplies the picture with `color`; `brightness` above 1 washes it out towards white (hit flashes).

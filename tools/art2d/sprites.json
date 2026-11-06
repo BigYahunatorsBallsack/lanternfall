@@ -396,6 +396,9 @@
    },
    "lanternSpireGlow": {
     "text": "Laterne Turm: Leuchtkern."
+   },
+   "foot": {
+    "text": "Ein Fuß der Charaktere, dunkel und rund, von vorn. Das Spiel zeichnet ihn zweimal und bewegt ihn im Wechselschritt."
    }
   }
  },

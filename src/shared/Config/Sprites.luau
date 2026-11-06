@@ -65,10 +65,14 @@ local Sprites = {
 		loadAttempts = 3,
 		idleSpeed = 2.4, -- radians/s
 		idleSquash = 0.018,
-		walkStride = 5, -- studs per step cycle
-		walkHop = 0.07, -- share of the body height
-		walkSquash = 0.035,
-		walkRollDegrees = 4,
+		-- The waddle, by eye from Brotato's trailer (no numbers are published): the body tips over its feet from side to side,
+		-- flattens while tipped and stretches and lifts when it is upright.
+		walkCycleSeconds = 0.3, -- one step left and right
+		walkTiltDegrees = 11,
+		walkSquash = 0.09,
+		walkHopStuds = 0.35,
+		-- Two feet in alternating steps; `image` is drawn behind the body.
+		foot = table.freeze({ studs = 1.5, spread = 0.95, lift = 0.55, stride = 0.35 }),
 		movingThreshold = 0.2, -- studs/s
 		blendSharpness = 12,
 		attackSeconds = 0.16,
@@ -96,7 +100,7 @@ local Sprites = {
 		figureWidth = 2.6, -- width of the figure, times the enemy's radius
 		figureWidths = table.freeze({}) :: { [string]: number }, -- other widths by enemy id
 		-- One step cycle: studs walked, hop (share of the radius), sway and lean (radians).
-		gait = table.freeze({ stride = 4.8, bob = 0.045, roll = 0.055, lean = 0.065 }),
+		gait = table.freeze({ stride = 3.6, bob = 0.12, roll = 0.14, lean = 0.065 }),
 		flashBrightness = 5,
 		statusTint = 0.55,
 		rushTint = { 255, 120, 110 },
@@ -106,7 +110,7 @@ local Sprites = {
 		wispStuds = 0.8, -- times the radius
 		wispOrbit = 1.3, -- times the radius
 		wispSpeed = 1.6, -- radians/s
-		squash = 0.05,
+		squash = 0.08,
 		windupScale = 0.88,
 		tremble = 0.05, -- share of the radius
 		trembleSpeed = 70,

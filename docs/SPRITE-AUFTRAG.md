@@ -9,7 +9,7 @@ Der Owner will den Look so nah wie möglich an Brotato:
 - flache Cartoon-Farben, dicke dunkle Kontur, kaum Schattierung
 - große, einfache Formen, die auch bei 60 Pixeln Größe auf dem Handy lesbar bleiben
 - überall dieselbe Konturstärke und dieselbe Farbwelt, damit alles zusammenpasst
-- Charaktere: kleine runde Knollen-Figur mit Gesicht und zwei Füßen, Unterschiede über Gesicht und Accessoires
+- Charaktere: kleine runde Knollen-Figur mit Gesicht, **ohne Füße und Beine** (die Füße sind das eigene Bild `shared/foot`, das Spiel bewegt sie), Unterschiede über Gesicht und Accessoires
 - Gegner: kleine, freche Monster mit klarer Silhouette
 
 **Alles neu zeichnen.** Bilder aus Brotato oder dem Brotato-Wiki nicht kopieren, nicht abpausen und nicht als Eingabe verwenden. Der Stil darf ähnlich sein, die Bilder müssen eigene sein: Sie landen auf dem Roblox-Konto des Owners.
@@ -181,6 +181,7 @@ Kommt die Liste nicht passend hier an, gilt `tools/art2d/sprites.json`.
 | `assets/world2d/final/shared/lanternOrbGlow.png` | Laterne Kugel: Leuchtkern. |
 | `assets/world2d/final/shared/lanternSpireFrame.png` | Laterne Turm: Rahmen. |
 | `assets/world2d/final/shared/lanternSpireGlow.png` | Laterne Turm: Leuchtkern. |
+| `assets/world2d/final/shared/foot.png` | Ein Fuß der Charaktere, dunkel und rund, von vorn. Das Spiel zeichnet ihn zweimal und bewegt ihn im Wechselschritt. |
 
 ### Item-Icons (fehlt ein Bild, bleibt das heutige). Name und Wirkung: src/shared/Config/Items.luau
 

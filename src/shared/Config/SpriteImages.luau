@@ -398,6 +398,7 @@ return table.freeze({
 		beam = "rbxassetid://130026533415560",
 		bolt = "rbxassetid://108007687802611",
 		crown = "rbxassetid://110169364260345",
+		foot = "rbxassetid://90237657257080",
 		glow = "rbxassetid://118565509118827",
 		lanternCageFrame = "rbxassetid://136874886926942",
 		lanternCageGlow = "rbxassetid://117007632429690",

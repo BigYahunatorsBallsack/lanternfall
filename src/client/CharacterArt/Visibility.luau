@@ -8,6 +8,8 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Shared = ReplicatedStorage.Shared
 local Look = require(Shared.Config.Sprites).character
 local ShadowLook = require(Shared.Config.Sprites).shadow
+local Foot = Look.foot
+local FootImage = require(Shared.Config.Sprites).images.foot
 local WorldSprite = require(
 	game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Util"):WaitForChild("WorldSprite")
 )
@@ -23,6 +25,7 @@ export type Entry = {
 	humanoid: Humanoid?,
 	sprite: WorldSprite.Sprite,
 	shadow: BasePart,
+	feet: { ImageLabel },
 	drop: number, -- from the root part down to the feet
 	classId: string?, -- the class the sprite shows
 	loading: string?, -- the class being loaded
@@ -93,6 +96,33 @@ local function makeShadow(): BasePart
 	part.CastShadow = false
 	part.Parent = folder
 	return part
+end
+
+local function makeFoot(sprite: WorldSprite.Sprite, name: string): ImageLabel
+	local foot = Instance.new("ImageLabel")
+	foot.Name = name
+	foot.BackgroundTransparency = 1
+	foot.Image = FootImage
+	foot.AnchorPoint = Vector2.new(0.5, 0.5)
+	foot.ZIndex = 1 -- behind the body
+	foot.Parent = sprite.gui
+	return foot
+end
+
+-- Keeps the feet under the character: `phase` is the step (radians), `amount` 0 when standing and 1 when walking.
+function Visibility.poseFeet(entry: Entry, phase: number, amount: number, shown: boolean)
+	local sprite = entry.sprite
+	local share = WorldSprite.share(sprite, Foot.studs)
+	local wave, swing = math.sin(phase), math.cos(phase)
+	for index, foot in entry.feet do
+		foot.Visible = shown
+		local side = if index == 1 then -1 else 1
+		local step = wave * side
+		local up = math.max(0, step) * Foot.lift * amount
+		local x = side * Foot.spread + swing * side * Foot.stride * amount
+		foot.Size = UDim2.fromScale(share, share)
+		foot.Position = WorldSprite.groundPoint(sprite, x, up)
+	end
 end
 
 local function hideNative(entry: Entry, instance: Instance)
@@ -230,6 +260,7 @@ function Visibility.update()
 				humanoid = humanoid,
 				sprite = sprite,
 				shadow = makeShadow(),
+				feet = { makeFoot(sprite, "FootLeft"), makeFoot(sprite, "FootRight") },
 				drop = drop,
 				classId = nil,
 				loading = nil,

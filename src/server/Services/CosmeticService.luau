@@ -1,7 +1,7 @@
 --!strict
--- Cosmetics on the character (Paket 17, DESIGN.md section 14): the lantern that floats next to the player and the
--- trail behind them, from what the player picked in the Ember shop (Util/EmberShopRules.shown; VIP players get the VIP
--- lantern and trail until they pick something else). Built on the server as a 2D sprite welded to the
+-- Cosmetics on the character (Paket 17, DESIGN.md section 14): the lantern that floats next to the player, from what the
+-- player picked in the Ember shop (Util/EmberShopRules.shown; VIP players get the VIP lantern until they pick something
+-- else). Trails stay in the saved data but are not drawn or offered since Paket 25 (Owner). Built on the server as a 2D sprite welded to the
 -- HumanoidRootPart, so everyone sees them; look only (no collision, no queries, massless). Rebuilt on spawn, when the
 -- data loads or changes and when pass perks change. Called by EmberShopService (refresh after a buy or equip).
 
@@ -18,8 +18,6 @@ local MonetizationService = require(script.Parent.MonetizationService)
 local PlayerDataService = require(script.Parent.PlayerDataService)
 
 local FOLDER_NAME = "LanternfallCosmetics"
-local TRAIL_TOP = "CosmeticTrailTop"
-local TRAIL_BOTTOM = "CosmeticTrailBottom"
 local ROOT_WAIT_SECONDS = 5
 
 local Cosmetics = Config.Cosmetics
@@ -34,13 +32,6 @@ local function clear(character: Model)
 	local folder = character:FindFirstChild(FOLDER_NAME)
 	if folder then
 		folder:Destroy()
-	end
-	local root = character:FindFirstChild("HumanoidRootPart")
-	for _, name in { TRAIL_TOP, TRAIL_BOTTOM } do
-		local attachment = root and root:FindFirstChild(name)
-		if attachment then
-			attachment:Destroy()
-		end
 	end
 end
 
@@ -65,28 +56,6 @@ local function buildLantern(folder: Folder, root: BasePart, lantern: CosmeticsCo
 	weld.Part1 = part
 	weld.Parent = part
 	part.Parent = folder
-end
-
-local function buildTrail(folder: Folder, root: BasePart, trail: CosmeticsConfig.Trail)
-	local style = Cosmetics.trail
-	local top = Instance.new("Attachment")
-	top.Name = TRAIL_TOP
-	top.Position = Vector3.new(0, style.width / 2, 0)
-	top.Parent = root
-	local bottom = Instance.new("Attachment")
-	bottom.Name = TRAIL_BOTTOM
-	bottom.Position = Vector3.new(0, -style.width / 2, 0)
-	bottom.Parent = root
-	local effect = Instance.new("Trail")
-	effect.Name = "Trail"
-	effect.Attachment0 = top
-	effect.Attachment1 = bottom
-	effect.Color = ColorSequence.new(rgb(trail.colors[1]), rgb(trail.colors[#trail.colors]))
-	effect.Transparency = NumberSequence.new(0.25, 1)
-	effect.Lifetime = style.lifetime
-	effect.LightEmission = 0.6
-	effect.FaceCamera = true -- flat from straight above otherwise
-	effect.Parent = folder
 end
 
 -- The cosmetic ids the player's slots show now (nil = nothing), from the saved picks and the VIP pass.
@@ -128,10 +97,6 @@ function CosmeticService.refresh(player: Player)
 	local lantern = shown.Lantern and EmberShopRules.cosmetic(shown.Lantern)
 	if lantern then
 		buildLantern(folder, root, lantern :: any)
-	end
-	local trail = shown.Trail and EmberShopRules.cosmetic(shown.Trail)
-	if trail then
-		buildTrail(folder, root, trail :: any)
 	end
 	folder.Parent = character
 end
