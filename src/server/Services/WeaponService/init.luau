@@ -196,6 +196,9 @@ local arsenal = Arsenal.new({
 		killed: boolean,
 		source: Arsenal.HitSource
 	)
+		if not killed and dealt > 0 and _weapon and source == "Weapon" then
+			EnemySim.retaliate(id, _weapon.config.kind)
+		end
 		if killed and _weapon and _weapon.config.killGainStat then
 			local state = _weapon.state
 			state.waveKills = (state.waveKills or 0) + 1

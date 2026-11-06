@@ -76,6 +76,8 @@ local function set(list: { string }): { [string]: boolean }
 end
 
 return table.freeze({
+	-- Bait's acquisition effect is executed by SpawnDirector and checkpointed for wave retries.
+	lure = table.freeze({ item = "BloodLure", enemy = "Hookfang", minCount = 7, maxCount = 8 }),
 	triggers = set({
 		"Always",
 		"Acquire",
@@ -131,8 +133,8 @@ return table.freeze({
 	-- settleSeconds; moving again counts after the same time, so a stutter step does not flicker the bonus.
 	-- Only during a wave and while alive (assumption: Brotato gives no numbers).
 	standStill = table.freeze({ maxSpeed = 1, settleSeconds = 0.2 }),
-	-- RandomStats: one point of each primary stat in Config.Stats units (Brotato's points, Max HP times hpScale).
-	randomPoint = table.freeze({ maxHp = 10 }), -- every other stat: 1
+	-- RandomStats: one point of each primary stat in Config.Stats units (Brotato's points, Max original HP units).
+	randomPoint = table.freeze({ maxHp = 1 }), -- every other stat: 1
 	-- Feedback texts over the own character when an effect pays out (EffectProcs remote), per player and step.
 	procs = table.freeze({ maxPerStep = 6 }),
 })

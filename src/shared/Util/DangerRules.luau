@@ -126,7 +126,8 @@ end
 
 -- True if spawn groups of `enemyId` take part on this danger level.
 function DangerRules.spawns(danger: number, enemyId: string): boolean
-	return DangerRules.level(danger).newEnemies or not NEW_ENEMIES[enemyId]
+	local kind = Config.Enemies.types[enemyId]
+	return if kind then danger >= (kind.minDanger or 0) else false
 end
 
 -- True if the kind only comes from danger 1 on.

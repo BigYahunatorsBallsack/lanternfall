@@ -8,11 +8,17 @@ export type Enemy = {
 	typeId: number,
 	displayName: string,
 	hp: number,
-	speed: number, -- studs/s
+	speed: number, -- minimum studs/s; wiki speed / 450 * player base speed
+	speedMax: number?, -- sampled once at spawn
+	firstWave: number?,
+	firstWaveByDanger: { [number]: number }?,
+	minDanger: number?,
+	specialSpawn: boolean?, -- trees, loot encounters and lure enemies are not ordinary groups
+	shotDamagePerWave: number?,
 	contactDamage: number,
 	-- B9, Brotato: HP and damage grow by these per growth step (damage: contact damage, or the shot damage of an
-	-- enemy without contact damage); wave n: hp + hpPerWave * Run.spawn.growth.hpSteps[n] (about n - 1 by wave 20).
-	-- All kinds use about 0.68 x hp and 0.34 x damage, which gives the 14x HP and 7.5x damage of wave 20 from before.
+	-- enemy without contact damage); wave n uses exactly n - 1 growth steps.
+	-- Growth is exactly base + per-wave increment * (wave - 1), before danger and accessibility modifiers.
 	hpPerWave: number,
 	damagePerWave: number,
 	xp: number,
@@ -147,7 +153,9 @@ export type Accelerate = {
 export type Retaliate = {
 	count: number, -- shots in the ring
 	cooldownSeconds: number, -- at most one ring this often
-	projectileDamage: number, -- grows with the enemy's damage like its contact damage
+	projectileDamage: number, -- independent projectile damage growth
+	rangedOnly: boolean?,
+	chance: number?,
 	projectileSpeed: number,
 	projectileRange: number,
 	projectileRadius: number,
@@ -165,6 +173,8 @@ export type Pulse = {
 	buffHp: number?, -- share of max HP added (to HP and max HP)
 	-- Mender: every other enemy in the radius heals this share of its max HP
 	heal: number?,
+	healFlat: number?, -- base healing plus healPerWave * (wave - 1)
+	healPerWave: number?,
 }
 
 -- Enemies that stand still and hatch into others after a while unless killed first (Brood Egg, B9).
@@ -229,6 +239,11 @@ export type Charge = {
 	triggerRange: number, -- studs; winds up when the nearest player is this close and the cooldown is over
 	windupSeconds: number, -- standing still and glowing before the rush
 	speed: number, -- studs/s during the rush
+	projectileDamage: number?, -- optional side shots while charging (Hookfang)
+	projectileSpeed: number?,
+	projectileRange: number?,
+	projectileRadius: number?,
+	trailEvery: number?,
 	maxDistance: number, -- studs; the rush ends here, at an obstacle, the arena edge or a player
 	recoverSeconds: number, -- standing still after the rush
 	cooldownSeconds: number, -- walking normally before the next wind-up can start
@@ -259,48 +274,67 @@ export type Affix = {
 	summon: Summon?,
 }
 
+-- Source: https://brotato.wiki.spellsandguns.com/Enemies (Crash Zone, 2026-11-06).
+-- Only distances/speeds are converted to Roblox world units; HP and damage use the original units.
+local Player = require(script.Parent.Player)
+local function speed(value: number): number
+	return value / 450 * Player.moveSpeed
+end
+
 local Enemies: { [string]: Enemy } = {
 	Shadeling = {
 		id = "Shadeling",
 		typeId = 1,
 		displayName = "Shadeling",
-		hp = 10,
-		speed = 14,
-		contactDamage = 5,
-		hpPerWave = 6.8,
-		damagePerWave = 1.7,
+		hp = 3,
+		speed = speed(200),
+		contactDamage = 1,
+		hpPerWave = 2,
+		damagePerWave = 0.6,
 		xp = 1,
 		radius = 1.5,
 		mass = 1,
 		knockbackResistance = 0, -- B5, like Brotato's Baby Alien
+		loot = { consumableChance = 0.01, crateShare = 0.01 },
+		firstWave = 1,
+		minDanger = 0,
+		speedMax = speed(300),
 	},
 	Brute = {
 		id = "Brute",
 		typeId = 2,
 		displayName = "Brute",
-		-- B11: 60 -> 40, +41 -> +27 per step (owner: big ones pile up; 65 %); playtest after Paket 24: too weak again,
-		-- so 40 -> 56 and +27 -> +38 (about 93 % of the old values); the spawn rate stays
-		hp = 56,
-		speed = 8,
-		contactDamage = 12,
-		hpPerWave = 38,
-		damagePerWave = 4.1,
-		xp = 4,
+		hp = 20,
+		speed = speed(300),
+		contactDamage = 2,
+		hpPerWave = 11,
+		damagePerWave = 0.85,
+		xp = 3,
 		radius = 2.5,
 		mass = 6,
 		knockbackResistance = 0.9, -- B5, like Bruiser
-		loot = { consumableChance = 0.03 }, -- B6, assumption: tougher enemies drop more
+		loot = { consumableChance = 0.03, crateShare = 0.03 },
+		firstWave = 8,
+		minDanger = 0,
+		charge = {
+			triggerRange = 24,
+			windupSeconds = 0.9,
+			speed = 38,
+			maxDistance = 30,
+			recoverSeconds = 0.2,
+			cooldownSeconds = 3,
+		},
 	},
 	Spitter = {
 		id = "Spitter",
 		typeId = 3,
 		displayName = "Spitter",
-		hp = 20,
-		speed = 10,
-		contactDamage = 0,
-		hpPerWave = 13.6,
-		damagePerWave = 2.7,
-		xp = 2,
+		hp = 8,
+		speed = speed(200),
+		contactDamage = 1,
+		hpPerWave = 1,
+		damagePerWave = 0.6,
+		xp = 1,
 		radius = 1.5,
 		mass = 1,
 		knockbackResistance = 0.95, -- B5, like Spitter
@@ -308,29 +342,32 @@ local Enemies: { [string]: Enemy } = {
 			keepDistance = 30,
 			fireInterval = 2.5,
 			fireRange = 34,
-			projectileDamage = 8,
+			projectileDamage = 1,
 			projectileSpeed = 18,
 			projectileRange = 50,
 			projectileRadius = 0.6,
 			aimLead = 0.3,
 			retreatSpeedFactor = 0.3, -- playtest after Paket 24: backs off slowly, so it can be caught
 		},
+		loot = { consumableChance = 0.03, crateShare = 0.1 },
+		firstWave = 4,
+		minDanger = 0,
+		shotDamagePerWave = 0.75,
 	},
 	-- typeId 4 is the first boss (bosses below)
 	Charger = {
 		id = "Charger",
 		typeId = 5,
 		displayName = "Charger",
-		hp = 40,
-		speed = 9,
-		contactDamage = 8,
-		hpPerWave = 27,
-		damagePerWave = 2.7,
-		xp = 4,
+		hp = 4,
+		speed = speed(400),
+		contactDamage = 1,
+		hpPerWave = 2.5,
+		damagePerWave = 0.85,
+		xp = 1,
 		radius = 1.8,
 		mass = 3,
 		knockbackResistance = 0.8, -- B5, like Charger
-		loot = { consumableChance = 0.02 }, -- B6, assumption
 		charge = {
 			triggerRange = 24,
 			windupSeconds = 0.9,
@@ -339,88 +376,114 @@ local Enemies: { [string]: Enemy } = {
 			recoverSeconds = 1.2,
 			cooldownSeconds = 3,
 		},
+		loot = { consumableChance = 0.01, crateShare = 0.01 },
+		firstWave = 3,
+		minDanger = 0,
 	},
 	Splitter = {
 		id = "Splitter",
 		typeId = 6,
 		displayName = "Splitter",
-		hp = 32,
-		speed = 11,
-		contactDamage = 7,
-		hpPerWave = 22,
-		damagePerWave = 2.4,
-		xp = 2,
+		hp = 10,
+		speed = speed(120),
+		contactDamage = 1,
+		hpPerWave = 1,
+		damagePerWave = 0.85,
+		xp = 1,
 		radius = 1.9,
 		mass = 2,
-		knockbackResistance = 0.5, -- B5, like Helmet Alien
-		split = { enemy = "Splitling", count = 3, spread = 1.5 },
+		knockbackResistance = 0.7, -- B5, like Helmet Alien
+		split = { enemy = "Skulker", count = 3, spread = 1.5 },
+		loot = { consumableChance = 0.01, crateShare = 0.01 },
+		firstWave = 14,
+		minDanger = 0,
 	},
 	-- only from Splitters
 	Splitling = {
 		id = "Splitling",
 		typeId = 7,
 		displayName = "Splitling",
-		hp = 6,
-		speed = 15,
-		contactDamage = 3,
-		hpPerWave = 4.1,
+		hp = 12,
+		speed = speed(400),
+		contactDamage = 1,
+		hpPerWave = 2,
 		damagePerWave = 1,
 		xp = 1,
 		radius = 1,
 		mass = 0.6,
 		knockbackResistance = 0, -- B5, like Baby Alien
+		loot = { consumableChance = 0.02, crateShare = 0.03 },
+		firstWave = 15,
+		minDanger = 0,
+		firstWaveByDanger = { [1] = 9 },
 	},
 	-- stronger versions of the first enemies for the second half of the run
 	AbyssShadeling = {
 		id = "AbyssShadeling",
 		typeId = 8,
 		displayName = "Abyss Shadeling",
-		hp = 18,
-		speed = 15,
-		contactDamage = 8,
-		hpPerWave = 12.2,
-		damagePerWave = 2.7,
-		xp = 2,
+		hp = 1,
+		speed = speed(380),
+		contactDamage = 1,
+		hpPerWave = 1,
+		damagePerWave = 0.6,
+		xp = 1,
 		radius = 1.6,
 		mass = 1.2,
 		knockbackResistance = 0, -- B5, like Chaser
 		look = "Shadeling",
+		loot = { consumableChance = 0.02, crateShare = 0.03 },
+		firstWave = 2,
+		minDanger = 0,
 	},
 	AbyssBrute = {
 		id = "AbyssBrute",
 		typeId = 9,
 		displayName = "Abyss Brute",
-		-- B11: 140 -> 90, +95 -> +62 per step (owner: big ones pile up; 65 %); playtest after Paket 24: like the Brute
-		-- 90 -> 126 and +62 -> +87
-		hp = 126,
-		speed = 8.5,
-		contactDamage = 18,
-		hpPerWave = 87,
-		damagePerWave = 6.1,
-		xp = 8,
+		hp = 30,
+		speed = speed(300),
+		contactDamage = 1,
+		hpPerWave = 22,
+		damagePerWave = 1.15,
+		xp = 3,
 		radius = 2.8,
 		mass = 8,
 		knockbackResistance = 0.9, -- B5, like Bruiser
 		look = "Brute",
-		loot = { consumableChance = 0.03 }, -- B6, assumption
+		loot = { consumableChance = 0.03, crateShare = 0.03 },
+		firstWave = 13,
+		minDanger = 0,
+		firstWaveByDanger = { [1] = 8 },
+		charge = {
+			triggerRange = 24,
+			windupSeconds = 0.9,
+			speed = 38,
+			maxDistance = 30,
+			recoverSeconds = 0.2,
+			cooldownSeconds = 3,
+		},
 	},
 	-- B6: Brotato's Loot Alien. Appears now and then (Config.Loot.looter), runs away, escapes after a while; killed
-	-- it drops a crate and a big orb. HP like Brotato's (about 12 Shadelings), faster than the crowd.
+	-- it drops a guaranteed crate and eight materials. Original Looter HP and wave growth follow the wiki.
 	Looter = {
 		id = "Looter",
 		typeId = 10,
 		displayName = "Looter",
-		hp = 120, -- assumption, see above
-		speed = 17,
-		contactDamage = 0,
-		hpPerWave = 82,
-		damagePerWave = 0,
+		hp = 5, -- assumption, see above
+		speed = speed(300),
+		contactDamage = 1,
+		hpPerWave = 30,
+		damagePerWave = 0.85,
 		xp = 8, -- Brotato: 8 materials
 		radius = 1.4,
 		mass = 1,
 		knockbackResistance = 0,
-		loot = { alwaysOrbs = true, consumableChance = 1, crate = true },
 		flee = { edgeMargin = 12 },
+		loot = { consumableChance = 1, crateShare = 1, alwaysOrbs = true, crate = true },
+		firstWave = 3,
+		minDanger = 0,
+		speedMax = speed(400),
+		specialSpawn = true,
 	},
 	-- B6: Brotato's Tree. Stands still and does nothing (Config.Loot.trees); killed it drops a fruit (or a crate) and
 	-- an orb of 3.
@@ -428,36 +491,42 @@ local Enemies: { [string]: Enemy } = {
 		id = "Tree",
 		typeId = 11,
 		displayName = "Tree",
-		hp = 30, -- assumption; grows with the HP curve like every enemy
-		speed = 0,
+		hp = 10,
+		speed = speed(0),
 		contactDamage = 0,
-		hpPerWave = 20.4,
+		hpPerWave = 5,
 		damagePerWave = 0,
 		xp = 3, -- Brotato: 3 materials
 		radius = 2.2,
 		mass = 1000,
 		knockbackResistance = 1,
-		loot = { alwaysOrbs = true, consumableChance = 1, crateShare = 0.2 }, -- Brotato: 20 % crates
 		anchored = true,
+		loot = { consumableChance = 1, crateShare = 0.2, alwaysOrbs = true },
+		firstWave = 1,
+		minDanger = 0,
+		specialSpawn = true,
 	},
 	-- B9 part 2: Brotato's other enemy behaviours, each with its own silhouette or palette (EnemyRenderer/Models).
-	-- Values are assumptions in the spirit of the Brotato enemies they follow; check them in the test.
+	-- Base stats and per-wave increments match the main-game wiki; attack geometry remains a Roblox adaptation.
 	-- Accelerator (like Brotato's ones that speed up): starts slow, keeps getting faster.
 	Stalker = {
 		id = "Stalker",
 		typeId = 12,
 		displayName = "Stalker",
-		hp = 14,
-		speed = 8,
-		contactDamage = 6,
-		hpPerWave = 9.5,
-		damagePerWave = 2,
-		xp = 2,
+		hp = 10,
+		speed = speed(150),
+		contactDamage = 1,
+		hpPerWave = 24,
+		damagePerWave = 1.2,
+		xp = 3,
 		radius = 1.5,
 		mass = 1,
 		knockbackResistance = 0,
 		look = "Shadeling",
-		accelerate = { perSecond = 0.12, max = 2.4 },
+		accelerate = { perSecond = 0.12, max = 4 },
+		loot = { consumableChance = 0.03, crateShare = 0.03 },
+		firstWave = 11,
+		minDanger = 0,
 	},
 	-- Distant shooter: keeps far away and shoots from there; since the playtest after Paket 24 it no longer runs off
 	-- when a player comes close, it only backs off slowly like the Spitter.
@@ -465,12 +534,12 @@ local Enemies: { [string]: Enemy } = {
 		id = "Skulker",
 		typeId = 13,
 		displayName = "Skulker",
-		hp = 18,
-		speed = 13,
-		contactDamage = 0,
-		hpPerWave = 12.2,
-		damagePerWave = 2.4,
-		xp = 3,
+		hp = 5,
+		speed = speed(350),
+		contactDamage = 1,
+		hpPerWave = 5,
+		damagePerWave = 1,
+		xp = 1,
 		radius = 1.5,
 		mass = 1,
 		knockbackResistance = 0.5,
@@ -479,138 +548,274 @@ local Enemies: { [string]: Enemy } = {
 			keepDistance = 36,
 			fireInterval = 3,
 			fireRange = 40,
-			projectileDamage = 7,
+			projectileDamage = 1,
 			projectileSpeed = 20,
 			projectileRange = 55,
 			projectileRadius = 0.6,
 			aimLead = 0.5,
 			retreatSpeedFactor = 0.3, -- playtest after Paket 24: no more running off (was flee within 22 studs)
 		},
+		loot = { consumableChance = 0.01, crateShare = 0.01 },
+		firstWave = 14,
+		minDanger = 0,
+		shotDamagePerWave = 1,
 	},
 	-- Counter-shooter: slow and tough; every hit makes it spray a ring of thorns.
 	Thornback = {
 		id = "Thornback",
 		typeId = 14,
 		displayName = "Thornback",
-		hp = 70,
-		speed = 7,
-		contactDamage = 10,
-		hpPerWave = 48,
-		damagePerWave = 3.4,
-		xp = 5,
+		hp = 15,
+		speed = speed(325),
+		contactDamage = 1,
+		hpPerWave = 4,
+		damagePerWave = 0.85,
+		xp = 1,
 		radius = 2.3,
 		mass = 5,
-		knockbackResistance = 0.9,
+		knockbackResistance = 0,
 		look = "Brute",
-		loot = { consumableChance = 0.03 },
 		retaliate = {
 			count = 8,
-			cooldownSeconds = 1.5,
-			projectileDamage = 6,
+			cooldownSeconds = 0,
+			projectileDamage = 1,
+			rangedOnly = true,
+			chance = 0.5,
 			projectileSpeed = 15,
 			projectileRange = 26,
 			projectileRadius = 0.6,
 		},
+		loot = { consumableChance = 0.01, crateShare = 0.01 },
+		firstWave = 4,
+		minDanger = 1,
+		speedMax = speed(375),
+		shotDamagePerWave = 1,
 	},
 	-- Buffer: walks with the crowd and makes the enemies around it stronger for good.
 	Herald = {
 		id = "Herald",
 		typeId = 15,
 		displayName = "Herald",
-		hp = 30,
-		speed = 9,
-		contactDamage = 4,
-		hpPerWave = 20.4,
-		damagePerWave = 1.4,
-		xp = 4,
+		hp = 20,
+		speed = speed(150),
+		contactDamage = 1,
+		hpPerWave = 3,
+		damagePerWave = 0.6,
+		xp = 2,
 		radius = 1.6,
 		mass = 1.5,
-		knockbackResistance = 0.5,
+		knockbackResistance = 0.95,
 		look = "Spitter",
 		pulse = {
 			radius = 14,
 			intervalSeconds = 4,
 			buffCount = 5,
-			buffDamage = 1.5,
-			buffSpeed = 1.25,
-			buffHp = 0.5,
+			buffDamage = 1.25,
+			buffSpeed = 1.5,
+			buffHp = 1.5,
 		},
+		loot = { consumableChance = 0.01, crateShare = 0.01 },
+		firstWave = 16,
+		minDanger = 0,
+		flee = { edgeMargin = 12 },
 	},
 	-- Healer: heals the enemies around it every few seconds; kill it first.
 	Mender = {
 		id = "Mender",
 		typeId = 16,
 		displayName = "Mender",
-		hp = 30,
-		speed = 9,
-		contactDamage = 4,
-		hpPerWave = 20.4,
-		damagePerWave = 1.4,
-		xp = 4,
+		hp = 10,
+		speed = speed(400),
+		contactDamage = 1,
+		hpPerWave = 8,
+		damagePerWave = 0.85,
+		xp = 2,
 		radius = 1.6,
 		mass = 1.5,
-		knockbackResistance = 0.5,
+		knockbackResistance = 0,
 		look = "Spitter",
-		pulse = { radius = 14, intervalSeconds = 3, heal = 0.3 },
+		pulse = { radius = 14, intervalSeconds = 3, healFlat = 100, healPerWave = 10 },
+		loot = { consumableChance = 0.03, crateShare = 0.03 },
+		firstWave = 7,
+		minDanger = 1,
 	},
 	-- Egg: lies still and hatches into Shadelings unless it is broken in time.
 	BroodEgg = {
 		id = "BroodEgg",
 		typeId = 17,
 		displayName = "Brood Egg",
-		hp = 20,
-		speed = 0,
-		contactDamage = 0,
-		hpPerWave = 13.6,
-		damagePerWave = 0,
+		hp = 5,
+		speed = speed(0),
+		contactDamage = 1,
+		hpPerWave = 3,
+		damagePerWave = 0.6,
 		xp = 1,
 		radius = 1.4,
 		mass = 1000,
 		knockbackResistance = 1,
 		anchored = true,
-		hatch = { seconds = 5, enemy = "Shadeling", count = 4, spread = 2 },
+		hatch = { seconds = 5, enemy = "Reaper", count = 1, spread = 2 },
+		loot = { consumableChance = 0, crateShare = 0 },
+		firstWave = 7,
+		minDanger = 1,
 	},
 	-- Slasher: stops next to a player, winds up and cuts everything around it.
 	Reaper = {
 		id = "Reaper",
 		typeId = 18,
 		displayName = "Reaper",
-		hp = 45,
-		speed = 11,
-		contactDamage = 0,
-		hpPerWave = 30.6,
-		damagePerWave = 4.8,
-		xp = 4,
+		hp = 50,
+		speed = speed(250),
+		contactDamage = 1,
+		hpPerWave = 25,
+		damagePerWave = 1.15,
+		xp = 3,
 		radius = 1.8,
 		mass = 3,
-		knockbackResistance = 0.8,
+		knockbackResistance = 0.9,
 		look = "Charger",
 		slash = {
 			triggerRange = 7,
 			windupSeconds = 0.7,
 			radius = 7.5,
-			damage = 14,
+			damage = 1,
 			recoverSeconds = 0.6,
 			cooldownSeconds = 1.6,
 		},
+		loot = { consumableChance = 0.01, crateShare = 0.01 },
+		firstWave = 4,
+		minDanger = 1,
+		speedMax = speed(300),
+		shotDamagePerWave = 1,
 	},
 	-- Loot eater: goes for the orbs on the floor and swallows them; killed it drops all it ate.
 	Gobbler = {
 		id = "Gobbler",
 		typeId = 19,
 		displayName = "Gobbler",
-		hp = 40,
-		speed = 12,
-		contactDamage = 5,
-		hpPerWave = 27,
-		damagePerWave = 1.7,
-		xp = 3,
+		hp = 5,
+		speed = speed(300),
+		contactDamage = 1,
+		hpPerWave = 30,
+		damagePerWave = 0.85,
+		xp = 8,
 		radius = 1.6,
 		mass = 1.5,
-		knockbackResistance = 0.3,
+		knockbackResistance = 0,
 		look = "Looter",
-		loot = { alwaysOrbs = true },
 		eat = { seekRange = 45, reach = 0.8 },
+		loot = { consumableChance = 1, crateShare = 1, alwaysOrbs = true, crate = true },
+		firstWave = 1,
+		minDanger = 0,
+		speedMax = speed(400),
+		specialSpawn = true,
+	},
+	IronHusk = {
+		id = "IronHusk",
+		typeId = 29,
+		displayName = "Iron Husk",
+		hp = 8,
+		hpPerWave = 4,
+		speed = speed(225),
+		contactDamage = 1,
+		damagePerWave = 1,
+		xp = 1,
+		radius = 1.7,
+		mass = 2,
+		look = "Shadeling",
+		knockbackResistance = 0.5,
+		loot = { consumableChance = 0.01, crateShare = 0.01 },
+		firstWave = 13,
+		minDanger = 0,
+		speedMax = speed(275),
+		firstWaveByDanger = { [1] = 10, [4] = 4 },
+	},
+	HornedRusher = {
+		id = "HornedRusher",
+		typeId = 30,
+		displayName = "Horned Rusher",
+		hp = 12,
+		hpPerWave = 5,
+		speed = speed(425),
+		contactDamage = 1,
+		damagePerWave = 1.1,
+		xp = 1,
+		radius = 1.4,
+		mass = 1,
+		look = "Shadeling",
+		knockbackResistance = 0.8,
+		loot = { consumableChance = 0.01, crateShare = 0.01 },
+		firstWave = 18,
+		minDanger = 0,
+		firstWaveByDanger = { [4] = 5 },
+		charge = {
+			triggerRange = 24,
+			windupSeconds = 0.9,
+			speed = 38,
+			maxDistance = 30,
+			recoverSeconds = 0.2,
+			cooldownSeconds = 3,
+		},
+	},
+	DreadTendril = {
+		id = "DreadTendril",
+		typeId = 31,
+		displayName = "Dread Tendril",
+		hp = 100,
+		hpPerWave = 20,
+		speed = speed(175),
+		contactDamage = 1,
+		damagePerWave = 1,
+		xp = 3,
+		radius = 2,
+		mass = 3,
+		look = "Charger",
+		slash = {
+			triggerRange = 9,
+			windupSeconds = 0.7,
+			radius = 9,
+			damage = 1,
+			recoverSeconds = 0.6,
+			cooldownSeconds = 1.6,
+		},
+		knockbackResistance = 0.7,
+		loot = { consumableChance = 0.02, crateShare = 0.02 },
+		firstWave = 13,
+		minDanger = 3,
+		shotDamagePerWave = 1,
+	},
+	Hookfang = {
+		id = "Hookfang",
+		typeId = 32,
+		displayName = "Hookfang",
+		hp = 30,
+		hpPerWave = 15,
+		speed = speed(350),
+		contactDamage = 1,
+		damagePerWave = 0.75,
+		xp = 1,
+		radius = 1.6,
+		mass = 3,
+		look = "Charger",
+		charge = {
+			triggerRange = 50,
+			windupSeconds = 0.2,
+			speed = 38,
+			maxDistance = 30,
+			recoverSeconds = 0.2,
+			cooldownSeconds = 1.5,
+			projectileDamage = 1,
+			projectileSpeed = 16,
+			projectileRange = 35,
+			projectileRadius = 0.6,
+			trailEvery = 5,
+		},
+		knockbackResistance = 0.95,
+		loot = { consumableChance = 0.01, crateShare = 0.01 },
+		firstWave = 1,
+		minDanger = 0,
+		specialSpawn = true,
+		shotDamagePerWave = 0.75,
 	},
 }
 
@@ -639,8 +844,7 @@ local Elite = table.freeze({
 -- WP10: the bosses of the boss wave (the last wave, Run.spawn.waves), after Brotato's two (wave 20, 90 s). One of
 -- them comes, picked at random (B11: both on the highest danger level). The wave ends with a victory when every
 -- boss is dead or when its time runs out (Brotato). Values from Brotato's Predator and Invoker, scaled like our other
--- enemies (HP about 3.4x, damage about 3x, speed relative to the player); attack numbers the wiki does not give are
--- assumptions. HP and damage then get the difficulty and the team's enemy stats, HP also the player factor
+-- enemies in original HP/damage units; attack geometry not supplied by the wiki remains an adaptation. HP and damage then get the difficulty and the team's enemy stats, HP also the player factor
 -- (Run.playerFactor). Bosses count as elites for Damage vs Elites and ignore knockback; Heralds and Menders skip them.
 local Bosses: { [string]: Enemy } = {
 	-- like Brotato's Predator: chases you and dashes, ringed by circling embers; from half HP (or after 45 s) no more
@@ -649,9 +853,9 @@ local Bosses: { [string]: Enemy } = {
 		id = "LanternEater",
 		typeId = 4,
 		displayName = "The Lantern Eater",
-		hp = 100000, -- Brotato 29,900
-		speed = 11, -- Brotato 300, about 2/3 of the player
-		contactDamage = 90, -- Brotato 30
+		hp = 29250,
+		speed = speed(300),
+		contactDamage = 30,
 		hpPerWave = 0,
 		damagePerWave = 0,
 		xp = 0, -- the run ends with it
@@ -663,14 +867,14 @@ local Bosses: { [string]: Enemy } = {
 				{
 					attacks = { "Dash" },
 					pauseSeconds = 1.2,
-					orbit = { count = 4, radius = 9, turnsPerSecond = 0.35, hitRadius = 1.3, damage = 60 },
+					orbit = { count = 4, radius = 9, turnsPerSecond = 0.35, hitRadius = 1.3, damage = 23 },
 				},
 				{
 					fromHp = 0.5,
 					afterSeconds = 45,
 					attacks = { "Slam", "Ring" },
 					pauseSeconds = 0.8,
-					speedMultiplier = 1.15,
+					speedMultiplier = 1,
 					announce = "The Lantern Eater flares up!",
 				},
 			},
@@ -680,7 +884,7 @@ local Bosses: { [string]: Enemy } = {
 					windupSeconds = 0.8,
 					recoverSeconds = 0.9,
 					range = 40,
-					damage = 90,
+					damage = 30,
 					speed = 40,
 					distance = 38,
 				},
@@ -690,7 +894,7 @@ local Bosses: { [string]: Enemy } = {
 					recoverSeconds = 0.6,
 					cooldownSeconds = 4,
 					range = 10,
-					damage = 105,
+					damage = 30,
 					radius = 14,
 				},
 				Ring = {
@@ -698,7 +902,7 @@ local Bosses: { [string]: Enemy } = {
 					windupSeconds = 0.6,
 					recoverSeconds = 0.6,
 					cooldownSeconds = 3,
-					damage = 70, -- Brotato 23 per projectile
+					damage = 23,
 					count = 16,
 					bursts = 2,
 					burstGapSeconds = 0.4,
@@ -716,9 +920,9 @@ local Bosses: { [string]: Enemy } = {
 		id = "HollowSeer",
 		typeId = 20,
 		displayName = "The Hollow Seer",
-		hp = 100000, -- Brotato 29,900
-		speed = 7, -- Brotato 200
-		contactDamage = 60, -- Brotato 19.5
+		hp = 29250,
+		speed = speed(200),
+		contactDamage = 30,
 		hpPerWave = 0,
 		damagePerWave = 0,
 		xp = 0,
@@ -729,7 +933,7 @@ local Bosses: { [string]: Enemy } = {
 			phases = {
 				{ attacks = { "Rain" }, pauseSeconds = 0 },
 				{
-					fromHp = 0.6,
+					fromHp = 0.75,
 					afterSeconds = 30,
 					attacks = { "WideRain" },
 					pauseSeconds = 0,
@@ -752,7 +956,7 @@ local Bosses: { [string]: Enemy } = {
 					recoverSeconds = 0,
 					cooldownSeconds = 2, -- Brotato: every two seconds
 					moving = true,
-					damage = 60,
+					damage = 23,
 					count = 5,
 					spread = 10,
 					radius = 3,
@@ -763,7 +967,7 @@ local Bosses: { [string]: Enemy } = {
 					recoverSeconds = 0,
 					cooldownSeconds = 2,
 					moving = true,
-					damage = 60,
+					damage = 23,
 					count = 10,
 					spread = 18,
 					radius = 3,
@@ -774,7 +978,7 @@ local Bosses: { [string]: Enemy } = {
 					recoverSeconds = 0,
 					cooldownSeconds = 2.5,
 					moving = true,
-					damage = 60,
+					damage = 23,
 					count = 12,
 					spread = 13,
 					projectileSpeed = 14,
@@ -804,26 +1008,26 @@ end
 -- WP10 part 2: the champions of the elite waves, after Brotato's eight elites (Rhino, Butcher, Monk, Croc, Colossus,
 -- Mantis, Mother, Gargoyle), with our own names and looks. Like the bosses they run phases of attacks (BossService),
 -- show an HP bar at the top, count as elites, ignore knockback and drop a legendary crate. Brotato: 1 HP + 750 per
--- wave (Monk 700), 1 contact damage + 1.5 per wave; scaled like our other enemies (HP x 3.4 per step, damage x 2.8)
+-- wave after wave 1 (Monk 700), 1 contact damage + 1.5 per wave after wave 1
 -- and grown by Run.spawn.growth like every enemy, HP also with the player factor (Run.playerFactor). Their attacks
 -- hit as hard as their contact damage (the wiki gives no projectile damage, assumption) and grow alike. Speeds:
--- Brotato's 200-350 like the bosses (300 = 13 studs/s). Attack timings follow the wiki ("charges every 2 s"); wind-up
+-- Brotato's speeds converted relative to the player (450 = 16 studs/s). Attack timings follow the wiki ("charges every 2 s"); wind-up
 -- times, distances, projectile speeds and counts it does not give are assumptions, counts kept within the
 -- projectile budget (DESIGN.md section 15).
-local CHAMPION_HP_PER_WAVE = 2550 -- Brotato 750
-local CHAMPION_DAMAGE_PER_WAVE = 4.25 -- Brotato 1.5
+local CHAMPION_HP_PER_WAVE = 750
+local CHAMPION_DAMAGE_PER_WAVE = 1.5
 
 local function champion(id: string, typeId: number, displayName: string, speed: number, plan: BossPlan): Enemy
 	return {
 		id = id,
 		typeId = typeId,
 		displayName = displayName,
-		hp = 3, -- Brotato 1
+		hp = 1,
 		speed = speed,
-		contactDamage = 3, -- Brotato 1
+		contactDamage = 1,
 		hpPerWave = CHAMPION_HP_PER_WAVE,
 		damagePerWave = CHAMPION_DAMAGE_PER_WAVE,
-		xp = 25, -- like a Gloom Elite (Brotato: 10 materials)
+		xp = 10,
 		radius = 3.2,
 		mass = 30,
 		knockbackResistance = 1,
@@ -846,7 +1050,7 @@ local Champions: { [string]: Enemy } = {
 	-- Rhino: charges every 2 s, throwing projectiles to its sides; at 60 % HP (or after 25 s) every 1.3 s, shorter,
 	-- with 2 more projectiles at you when it starts. Signature: its first charges bounce off walls and pillars twice,
 	-- bursting a ring of projectiles at each bounce.
-	BrassRam = champion("BrassRam", 21, "The Brass Ram", 11, {
+	BrassRam = champion("BrassRam", 21, "The Brass Ram", speed(250), {
 		phases = {
 			{ attacks = { "Charge" }, pauseSeconds = 0.6 },
 			{
@@ -863,7 +1067,7 @@ local Champions: { [string]: Enemy } = {
 				windupSeconds = 0.8,
 				recoverSeconds = 0.6,
 				range = 45,
-				damage = 3,
+				damage = 1,
 				speed = 38,
 				distance = 70, -- room for its bounces
 				trailEvery = 6,
@@ -875,7 +1079,7 @@ local Champions: { [string]: Enemy } = {
 				windupSeconds = 0.5,
 				recoverSeconds = 0.3,
 				range = 40,
-				damage = 3,
+				damage = 1,
 				speed = 40,
 				distance = 20,
 				trailEvery = 5,
@@ -886,7 +1090,7 @@ local Champions: { [string]: Enemy } = {
 	}),
 	-- Butcher: 4 slashes at you every 1.25 s; at 70 % HP (or 25 s) it throws (Brotato: 8 slashes all around); at 40 %
 	-- (or 40 s) 3 quick slashes every 0.75 s that hurt a third less. Signature: 3 cleavers that fly out and come back.
-	Flayer = champion("Flayer", 22, "The Flayer", 9, {
+	Flayer = champion("Flayer", 22, "The Flayer", speed(200), {
 		phases = {
 			{ attacks = { "Cleave" }, pauseSeconds = 0.3 },
 			{
@@ -905,7 +1109,7 @@ local Champions: { [string]: Enemy } = {
 				recoverSeconds = 0.3,
 				cooldownSeconds = 1.25,
 				range = 18,
-				damage = 3,
+				damage = 1,
 				count = 4,
 				arc = 60,
 				distance = 16,
@@ -917,7 +1121,7 @@ local Champions: { [string]: Enemy } = {
 				recoverSeconds = 0.4,
 				cooldownSeconds = 2.5,
 				range = 40,
-				damage = 3,
+				damage = 1,
 				count = 3,
 				arc = 50,
 				projectileSpeed = 16,
@@ -930,7 +1134,7 @@ local Champions: { [string]: Enemy } = {
 				recoverSeconds = 0.15,
 				cooldownSeconds = 0.75,
 				range = 18,
-				damage = 2,
+				damage = 0.67,
 				count = 3,
 				arc = 40,
 				distance = 16,
@@ -941,7 +1145,7 @@ local Champions: { [string]: Enemy } = {
 	-- Monk: lays eggs, then (10 s) fires 5 projectiles a second at you; at 30 s it runs away for 10 s calling helpers,
 	-- then shoots again. Brotato switches by time only; the HP shares are ours (assumption), so damage moves it on too.
 	Abbot = (function()
-		local abbot = champion("Abbot", 23, "The Abbot", 15, {
+		local abbot = champion("Abbot", 23, "The Abbot", speed(350), {
 			phases = {
 				{ attacks = { "Eggs" }, pauseSeconds = 1.5 },
 				{ fromHp = 0.85, afterSeconds = 10, attacks = { "Bolts" }, pauseSeconds = 0 },
@@ -972,7 +1176,7 @@ local Champions: { [string]: Enemy } = {
 					windupSeconds = 0.4,
 					recoverSeconds = 0.2,
 					range = 60,
-					damage = 3,
+					damage = 1,
 					count = 1,
 					bursts = 5,
 					burstGapSeconds = 0.2,
@@ -987,18 +1191,18 @@ local Champions: { [string]: Enemy } = {
 					cooldownSeconds = 3,
 					moving = true,
 					damage = 0,
-					enemy = "Reaper", -- Brotato: Tentacles
+					enemy = "DreadTendril", -- Tentacle reference
 					count = 2,
 					spread = 6,
 				},
 			},
 		})
-		abbot.hpPerWave = 2380 -- Brotato 700
+		abbot.hpPerWave = 700
 		return abbot
 	end)(),
 	-- Croc: lunges every second and bites around itself; at 60 % HP (or 25 s) more (Brotato: a circle of projectiles
 	-- around you). Signature: a death roll that steers after you, from phase 2 leaving pools of mud behind.
-	MireJaw = champion("MireJaw", 24, "The Mire Jaw", 15, {
+	MireJaw = champion("MireJaw", 24, "The Mire Jaw", speed(350), {
 		phases = {
 			{ attacks = { "Snap", "Roll" }, pauseSeconds = 0.3 },
 			{
@@ -1016,7 +1220,7 @@ local Champions: { [string]: Enemy } = {
 				recoverSeconds = 0.5,
 				cooldownSeconds = 1.5,
 				range = 35,
-				damage = 3,
+				damage = 1,
 				speed = 24,
 				distance = 36,
 				turnRate = 90,
@@ -1027,7 +1231,7 @@ local Champions: { [string]: Enemy } = {
 				recoverSeconds = 0.4,
 				cooldownSeconds = 1.2,
 				range = 40,
-				damage = 3,
+				damage = 1,
 				speed = 26,
 				distance = 40,
 				turnRate = 110,
@@ -1041,7 +1245,7 @@ local Champions: { [string]: Enemy } = {
 				recoverSeconds = 0.2,
 				cooldownSeconds = 2,
 				range = 6,
-				damage = 3,
+				damage = 1,
 				radius = 7,
 			},
 		},
@@ -1050,7 +1254,7 @@ local Champions: { [string]: Enemy } = {
 	-- wanders the arena and rings you with projectiles. Signature: a quake line, a row of circles that runs from it
 	-- over you and beyond.
 	Monolith = (function()
-		local monolith = champion("Monolith", 25, "The Monolith", 13, {
+		local monolith = champion("Monolith", 25, "The Monolith", speed(300), {
 			phases = {
 				{ attacks = { "Quake", "Hail" }, pauseSeconds = 0.4 },
 				{
@@ -1069,7 +1273,7 @@ local Champions: { [string]: Enemy } = {
 					recoverSeconds = 0.3,
 					cooldownSeconds = 2.5,
 					range = 45,
-					damage = 3,
+					damage = 1,
 					count = 12,
 					spacing = 4,
 					radius = 2.5,
@@ -1081,7 +1285,7 @@ local Champions: { [string]: Enemy } = {
 					recoverSeconds = 0,
 					cooldownSeconds = 1.5,
 					moving = true,
-					damage = 3,
+					damage = 1,
 					count = 14,
 					projectileSpeed = 10,
 					projectileRange = 40,
@@ -1093,7 +1297,7 @@ local Champions: { [string]: Enemy } = {
 					recoverSeconds = 0,
 					cooldownSeconds = 1.5, -- Brotato 0.5
 					moving = true,
-					damage = 3,
+					damage = 1,
 					count = 10,
 					spread = 14,
 					projectileSpeed = 13,
@@ -1108,7 +1312,7 @@ local Champions: { [string]: Enemy } = {
 	-- Mantis: chases you and slashes every 1.25 s; at 60 % HP (or 25 s) charges every 1.3 s, leaving slashes behind.
 	-- Signature: a big X of two cuts right on you (step out diagonally); from phase 2 three in a row around you,
 	-- between its pounces.
-	SickleWraith = champion("SickleWraith", 26, "The Sickle Wraith", 11, {
+	SickleWraith = champion("SickleWraith", 26, "The Sickle Wraith", speed(250), {
 		phases = {
 			{ attacks = { "Cross" }, pauseSeconds = 0.4 },
 			{
@@ -1127,7 +1331,7 @@ local Champions: { [string]: Enemy } = {
 				cooldownSeconds = 1.25,
 				range = 40,
 				moving = true,
-				damage = 3,
+				damage = 1,
 				count = 1,
 				distance = 22,
 				radius = 1.1,
@@ -1138,7 +1342,7 @@ local Champions: { [string]: Enemy } = {
 				recoverSeconds = 0.3,
 				cooldownSeconds = 2.5,
 				range = 40,
-				damage = 3,
+				damage = 1,
 				count = 3,
 				distance = 18,
 				radius = 1,
@@ -1151,7 +1355,7 @@ local Champions: { [string]: Enemy } = {
 				recoverSeconds = 0.3,
 				cooldownSeconds = 1.3,
 				range = 40,
-				damage = 3,
+				damage = 1,
 				speed = 40,
 				distance = 26,
 				trailEvery = 4,
@@ -1161,7 +1365,7 @@ local Champions: { [string]: Enemy } = {
 	-- Mother: a four-pronged slash every 1.4 s; at 60 % HP (or 25 s) double slashes every 0.65 s and a stream of
 	-- small enemies (Brotato: about 9 Fin Aliens a second; fewer here, the alive cap would stop them anyway).
 	-- Signature: acid sacs it drops around itself, pools that stay and hurt; it is the only one slashing all around.
-	BroodMatron = champion("BroodMatron", 27, "The Brood Matron", 11, {
+	BroodMatron = champion("BroodMatron", 27, "The Brood Matron", speed(250), {
 		phases = {
 			{ attacks = { "Prongs", "Acid" }, pauseSeconds = 0.3 },
 			{
@@ -1179,7 +1383,7 @@ local Champions: { [string]: Enemy } = {
 				recoverSeconds = 0.2,
 				cooldownSeconds = 1.4,
 				range = 16,
-				damage = 3,
+				damage = 1,
 				count = 4,
 				around = true,
 				distance = 14,
@@ -1191,7 +1395,7 @@ local Champions: { [string]: Enemy } = {
 				recoverSeconds = 0.1,
 				cooldownSeconds = 0.65,
 				range = 16,
-				damage = 3,
+				damage = 1,
 				count = 8,
 				around = true,
 				distance = 14,
@@ -1203,7 +1407,7 @@ local Champions: { [string]: Enemy } = {
 				recoverSeconds = 0.2,
 				cooldownSeconds = 3,
 				moving = true,
-				damage = 3,
+				damage = 1,
 				count = 3,
 				spread = 10,
 				poolRadius = 3.5,
@@ -1216,7 +1420,7 @@ local Champions: { [string]: Enemy } = {
 				cooldownSeconds = 2,
 				moving = true,
 				damage = 0,
-				enemy = "Shadeling",
+				enemy = "Splitling",
 				count = 4,
 				spread = 5,
 			},
@@ -1225,7 +1429,7 @@ local Champions: { [string]: Enemy } = {
 	-- Gargoyle: wanders, a big ring of projectiles again and again; at 60 % HP (or 30 s) chases you; at 30 % (or 45 s)
 	-- sprays projectiles in random directions. Signature: its rings turn into a spiral, and in phase 2 it dives onto
 	-- your spot (a shadow on the floor) and bursts a ring where it lands.
-	StoneSeraph = champion("StoneSeraph", 28, "The Stone Seraph", 15, {
+	StoneSeraph = champion("StoneSeraph", 28, "The Stone Seraph", speed(350), {
 		phases = {
 			{ attacks = { "Spiral" }, pauseSeconds = 0.3, roam = true },
 			{
@@ -1250,7 +1454,7 @@ local Champions: { [string]: Enemy } = {
 				recoverSeconds = 0.2,
 				cooldownSeconds = 2.5, -- Brotato: a ring every 0.3 s
 				moving = true,
-				damage = 3,
+				damage = 1,
 				count = 6,
 				bursts = 10,
 				burstGapSeconds = 0.15,
@@ -1265,7 +1469,7 @@ local Champions: { [string]: Enemy } = {
 				recoverSeconds = 0.5,
 				cooldownSeconds = 3,
 				range = 50,
-				damage = 3,
+				damage = 1,
 				radius = 6,
 				count = 10,
 				projectileSpeed = 12,
@@ -1279,7 +1483,7 @@ local Champions: { [string]: Enemy } = {
 				cooldownSeconds = 0.8, -- Brotato: 12 every 0.4 s
 				moving = true,
 				range = 60,
-				damage = 3,
+				damage = 1,
 				count = 5,
 				arc = 50,
 				projectileSpeed = 15,
@@ -1292,7 +1496,7 @@ local Champions: { [string]: Enemy } = {
 				recoverSeconds = 0,
 				cooldownSeconds = 0.15, -- Brotato 0.01-0.15
 				moving = true,
-				damage = 3,
+				damage = 1,
 				count = 3,
 				projectileSpeed = 13,
 				projectileRange = 40,

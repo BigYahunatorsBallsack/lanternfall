@@ -210,7 +210,7 @@ describe("B7 weapons", function()
 		expect(knife.critDamage).toBe(4)
 		expect(knife.critChance).toBeNear(0.5)
 		local smg = Stats.compute(W.RattleRepeater, 4, { rangedDamage = 10 }, nil, 1 / 12)
-		expect(smg.damage).toBeNear(2.5 * (1 + 1 / 3 + 1 / 3 + 1) + 10 * 0.4) -- playtest after Paket 24 (was 16)
+		expect(smg.damage).toBeNear(16) -- 8 base + 80% of 10 Ranged Damage
 		expect(ShopRules.weaponPrice("RitualDirk", 4, 1)).toBe(101)
 	end)
 	it("shop never promotes a common roll to a restricted weapon", function()

@@ -83,7 +83,7 @@ describe("EnemyWorld", function()
 		local id = spawn(world, "Shadeling", 50, 0)
 		run(world, 1, { 0 }, { 0 })
 		expect(distance(world, id, 0, 0)).toBeNear(50 - Types.Shadeling.speed, 0.01)
-		run(world, 4, { 0 }, { 0 })
+		run(world, 50 / Types.Shadeling.speed + 1, { 0 }, { 0 })
 		expect(distance(world, id, 0, 0)).toBeNear(Types.Shadeling.radius + Sim.playerRadius, 0.01)
 	end)
 
@@ -182,7 +182,7 @@ describe("EnemyWorld", function()
 		local world = newWorld({ { x = 0, z = 20, radius = 6 } })
 		local id = spawn(world, "Shadeling", 0, 40)
 		local closest = math.huge
-		for _ = 1, 6 / STEP do
+		for _ = 1, math.ceil(80 / Types.Shadeling.speed / STEP) do
 			world:step(STEP, { 0 }, { 0 }, 1)
 			local x, z = world:getPosition(id)
 			closest = math.min(closest, math.sqrt(x * x + (z - 20) ^ 2))
@@ -213,8 +213,8 @@ describe("EnemyWorld", function()
 		local world = newWorld()
 		local id = spawn(world, "Shadeling", 5, 5)
 		local other = spawn(world, "Shadeling", 40, 40)
-		expect(world:damage(id, 4)).toBe(false)
-		expect(world:getHealth(id)).toBe(Types.Shadeling.hp - 4)
+		expect(world:damage(id, 1)).toBe(false)
+		expect(world:getHealth(id)).toBe(Types.Shadeling.hp - 1)
 		expect(world:damage(id, 100)).toBe(true)
 		expect(world:damage(id, 100)).toBe(false)
 		expect(world:isAlive(id)).toBe(false)
@@ -341,8 +341,8 @@ describe("EnemyWorld", function()
 	it("reports the HP a hit actually took", function()
 		local world = newWorld()
 		local id = spawn(world, "Shadeling", 0, 0)
-		expect(select(2, world:damage(id, 4))).toBe(4)
-		expect(select(2, world:damage(id, 100))).toBe(Types.Shadeling.hp - 4)
+		expect(select(2, world:damage(id, 1))).toBe(1)
+		expect(select(2, world:damage(id, 100))).toBe(Types.Shadeling.hp - 1)
 		expect(select(2, world:damage(id, 100))).toBe(0)
 	end)
 
@@ -620,8 +620,14 @@ describe("lag-corrected contacts", function()
 		local hpMultiplier, damageMultiplier = world:getMultipliers(id :: number)
 		expect(hpMultiplier).toBeNear(2.5)
 		expect(damageMultiplier).toBeNear(1.2)
-		local spitter =
-			world:spawn(Types.Spitter, 20, 0, Types.Spitter.hp, 0, Types.Spitter.ranged.projectileDamage * 1.5)
+		local spitter = world:spawn(
+			Types.Spitter,
+			20,
+			0,
+			Types.Spitter.hp,
+			Types.Spitter.contactDamage * 1.5,
+			Types.Spitter.ranged.projectileDamage * 1.5
+		)
 		local _, shotMultiplier = world:getMultipliers(spitter :: number)
 		expect(shotMultiplier).toBeNear(1.5)
 	end)
@@ -663,17 +669,17 @@ describe("B9 behaviours", function()
 		)
 	end)
 
-	it("lets a Thornback fire a counter ring when hit, at most once per cooldown", function()
+	it("defers ranged-only counter-shots to the weapon hit handler", function()
 		local retaliate = Types.Thornback.retaliate :: any
 		local world = newWorld()
 		local id = spawn(world, "Thornback", 40, 0) :: number
 		local _, _, _, fires = world:damage(id, 1)
-		expect(fires).toBe(true)
+		expect(fires).toBe(false)
 		_, _, _, fires = world:damage(id, 1)
 		expect(fires).toBe(false)
 		run(world, retaliate.cooldownSeconds + STEP, { 0 }, { 0 })
 		_, _, _, fires = world:damage(id, 1)
-		expect(fires).toBe(true)
+		expect(fires).toBe(false)
 		-- the killing hit fires nothing
 		run(world, retaliate.cooldownSeconds + STEP, { 0 }, { 0 })
 		local killed
@@ -751,7 +757,7 @@ describe("B9 behaviours", function()
 		world:damage(mender, 1)
 		run(world, pulse.intervalSeconds + STEP, { 140 }, { 0 })
 		local hp, maxHp = world:getHealth(brute)
-		expect(hp).toBeNear(maxHp * (0.2 + pulse.heal))
+		expect(hp).toBeNear(math.min(maxHp, maxHp * 0.2 + pulse.healFlat))
 		expect(world:getHealth(mender)).toBeNear(Types.Mender.hp - 1)
 	end)
 

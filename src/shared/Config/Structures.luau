@@ -70,7 +70,7 @@ local kinds: { [string]: Definition } = {
 		tier = 2,
 		price = 40,
 		color = { 97, 231, 145 },
-		description = "Deploys a healing sentry: floor(3 +5% Engineering) x10 HP every 2.2s, for its owner.",
+		description = "Deploys a healing sentry: floor(3 +5% Engineering) HP every 2.2s, for its owner.",
 	},
 	SiegeSentry = {
 		displayName = "Siege Sentry",

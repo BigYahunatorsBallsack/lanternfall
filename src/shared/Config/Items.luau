@@ -2,11 +2,11 @@
 -- Items (DESIGN.md section 6, Brotato direction since B2; they replace the six passives). Bought in the shop between
 -- waves or found in elite chests. Every item changes stats (Config.Stats ids, in the units the player sees), most
 -- with a downside, and stacks without limit unless `limit` says otherwise. The stat packages follow Brotato's items
--- (HP times Config.Stats.hpScale); names and looks are our own. Vitality, Haste, Focus, Magnet, Might and Armor keep
+-- (original HP units); names and looks are our own. Vitality, Haste, Focus, Magnet, Might and Armor keep
 -- the ids of the old passives, so the evolutions (Config.Evolutions) still find them.
 -- Since B4 items can also have effects (Config.Effects: standing still, "per X", growth at the end of a wave, next wave,
 -- on kill, on dodge ...; EffectService runs them). The items after the 46 of B2 each take one Brotato item's
--- mechanics and numbers (named in the comment, HP times hpScale); what needs a later package is left out and noted.
+-- mechanics and numbers (named in the comment, original HP units); what needs a later package is left out and noted.
 -- Since B5 12 more for the combat stats and effects (burning, explosions, piercing, bouncing, knockback), since B8
 -- 24 more (kills, pickups, rerolls, level-ups, fruits and crates, living enemies, HP drain, strikes on enemies).
 -- Also the rarity tiers: their chances by wave (shop) or level (level-up cards), raised by Luck (Util/StatMath).
@@ -16,6 +16,7 @@ local Effects = require(script.Parent.Effects)
 local Structures = require(script.Parent.Structures)
 
 export type Item = {
+	description: string?,
 	structure: string?,
 	id: string,
 	displayName: string,
@@ -44,7 +45,8 @@ local function item(
 	price: number,
 	stats: { [string]: number },
 	limit: number?,
-	effects: { Effects.Effect }?
+	effects: { Effects.Effect }?,
+	description: string?
 ): Item
 	if effects then
 		for index, effect in effects do
@@ -88,6 +90,7 @@ local function item(
 	end
 	table.sort(tags)
 	return table.freeze({
+		description = description,
 		tags = table.freeze(tags),
 		id = id,
 		displayName = displayName,
@@ -101,27 +104,27 @@ end
 
 local LIST: { Item } = {
 	-- Common
-	item("Vitality", "Vitality", 1, 15, { maxHp = 30, damage = -1 }),
+	item("Vitality", "Vitality", 1, 15, { maxHp = 3, damage = -1 }),
 	item("Haste", "Haste", 1, 20, { speed = 4, range = -6 }),
 	item("Focus", "Focus", 1, 20, { attackSpeed = 10, damage = -2 }),
 	item("Magnet", "Magnet", 1, 20, { pickupRange = 30 }),
-	item("Might", "Might", 1, 18, { damage = 5, maxHp = -10 }),
-	item("Armor", "Armor Plate", 1, 18, { armor = 1, maxHp = -10 }),
-	item("WaxHeart", "Wax Heart", 1, 18, { maxHp = 20, hpRegen = 2, speed = -1 }),
+	item("Might", "Might", 1, 18, { damage = 5, maxHp = -1 }),
+	item("Armor", "Armor Plate", 1, 18, { armor = 1, maxHp = -1 }),
+	item("WaxHeart", "Wax Heart", 1, 18, { maxHp = 2, hpRegen = 2, speed = -1 }),
 	item("CrackedLens", "Cracked Lens", 1, 20, { range = 20 }),
 	item("BoneKnuckles", "Bone Knuckles", 1, 15, { meleeDamage = 1 }),
 	item("TallowCandle", "Tallow Candle", 1, 20, { meleeDamage = 2, elementalDamage = 1, harvesting = -2 }),
 	item("MothWing", "Moth Wing", 1, 30, { lifeSteal = 2, elementalDamage = -1 }),
 	item("GraveSpade", "Grave Spade", 1, 15, { harvesting = 8, meleeDamage = -1 }),
-	item("CatClaw", "Cat Claw", 1, 20, { meleeDamage = 1, critChance = 3, maxHp = -10 }),
+	item("CatClaw", "Cat Claw", 1, 20, { meleeDamage = 1, critChance = 3, maxHp = -1 }),
 	item("RustedCoin", "Rusted Coin", 1, 15, { luck = 8, damage = -1 }),
 	item("FlintShard", "Flint Shard", 1, 15, { rangedDamage = 1, meleeDamage = -1 }),
-	item("WardRune", "Ward Rune", 1, 20, { dodge = 3, maxHp = -10 }),
+	item("WardRune", "Ward Rune", 1, 20, { dodge = 3, maxHp = -1 }),
 	-- Common with Brotato's secondary stats and effects (since B4)
 	item("PawnTicket", "Pawn Ticket", 1, 15, { itemPrice = -5 }, 5), -- Coupon
 	item("ChitteringFamiliar", "Chittering Familiar", 1, 25, { shardHealing = 8, rangedDamage = -1 }, 13), -- Cute Monkey
 	item("BoneCharm", "Bone Charm", 1, 15, {}, nil, { -- Jelly
-		{ trigger = "Always", action = "PerX", source = "distinctWeapons", per = 1, stats = { maxHp = 10 } },
+		{ trigger = "Always", action = "PerX", source = "distinctWeapons", per = 1, stats = { maxHp = 1 } },
 	}),
 	item("Satchel", "Satchel", 1, 15, { speed = -1 }, 3, { -- Bag (Brotato's crates are our chests)
 		{ trigger = "Chest", action = "Shards", amount = 15 },
@@ -135,7 +138,7 @@ local LIST: { Item } = {
 	item("LoadedDice", "Loaded Dice", 2, 50, { dodge = 8, armor = -1 }),
 	item("NarrowScope", "Narrow Scope", 2, 45, { damage = 12, range = -12 }),
 	item("Whetstone", "Whetstone", 2, 35, { meleeDamage = 3, attackSpeed = -3 }),
-	item("AcidVial", "Acid Vial", 2, 65, { maxHp = 80, dodge = -2 }),
+	item("AcidVial", "Acid Vial", 2, 65, { maxHp = 8, dodge = -2 }),
 	item("StaticBracelet", "Static Bracelet", 2, 55, { critChance = 4, elementalDamage = 2, rangedDamage = -2 }),
 	item("PowderPouch", "Powder Pouch", 2, 45, { rangedDamage = 2, attackSpeed = 5, armor = -1 }),
 	item("LanternOil", "Lantern Oil", 2, 45, { luck = 15, speed = 2, damage = -2 }),
@@ -147,21 +150,21 @@ local LIST: { Item } = {
 	item("JesterBell", "Jester's Bell", 2, 30, { freeRerolls = 1 }, 3), -- Dangerous Bunny
 	-- Metal Detector without its +2 Engineering (B12)
 	item("DowsingRod", "Dowsing Rod", 2, 40, { doubleShards = 5, luck = 6, damage = -5 }, 20),
-	item("QuiltedCoat", "Quilted Coat", 2, 45, { maxHp = 30 }, 1, { -- Padding
-		{ trigger = "Always", action = "PerX", source = "shards", per = 80, stats = { maxHp = 10 } },
+	item("QuiltedCoat", "Quilted Coat", 2, 45, { maxHp = 3 }, 1, { -- Padding
+		{ trigger = "Always", action = "PerX", source = "shards", per = 80, stats = { maxHp = 1 } },
 	}),
 	item("TitheBox", "Tithe Box", 2, 40, {}, 1, { -- Piggy Bank: stops working at wave 20
 		{ trigger = "WaveStart", action = "ShardShare", amount = 20, untilWave = 19 },
 	}),
 	item("RottingHeart", "Rotting Heart", 2, 30, {}, nil, { -- Decomposing Flesh
-		{ trigger = "LevelUp", action = "Grow", stats = { lifeSteal = 1, maxHp = -10 } },
+		{ trigger = "LevelUp", action = "Grow", stats = { lifeSteal = 1, maxHp = -1 } },
 	}),
 	item("ScrapAltar", "Scrap Altar", 2, 35, { sellValue = 35 }, 1), -- Recycling Machine
 	-- Rare
 	item("GlassLantern", "Glass Lantern", 3, 75, { damage = 25, armor = -3 }),
 	item("FourLeafCharm", "Four-Leaf Charm", 3, 65, { luck = 20, dodge = 6, lifeSteal = -2 }),
 	item("EelFin", "Eel Fin", 3, 65, { speed = 10, lifeSteal = 3, luck = -8 }),
-	item("BloodOffering", "Blood Offering", 3, 55, { harvesting = 40, maxHp = -20 }),
+	item("BloodOffering", "Blood Offering", 3, 55, { harvesting = 40, maxHp = -2 }),
 	item("IronShackle", "Iron Shackle", 3, 75, { damage = 15, armor = 3, speed = -3 }, 1),
 	item("ClockworkGears", "Clockwork Gears", 3, 70, { attackSpeed = 10, critChance = 5, range = -10 }),
 	item("TomeOfEchoes", "Tome of Echoes", 3, 70, { xpGain = 50, lifeSteal = -2 }),
@@ -185,7 +188,7 @@ local LIST: { Item } = {
 		{ trigger = "WaveEnd", action = "Grow", stats = { damage = 3 } },
 	}),
 	item("PulseDraught", "Pulse Draught", 3, 60, { dodge = 5 }, 1, { -- Adrenaline
-		{ trigger = "Dodge", action = "Heal", amount = 50, chance = 0.5 },
+		{ trigger = "Dodge", action = "Heal", amount = 5, chance = 0.5 },
 	}),
 	item("HuntersTally", "Hunter's Tally", 3, 55, {}, 3, { -- Hunting Trophy
 		{ trigger = "Kill", action = "Shards", amount = 1, chance = 0.33, crit = true },
@@ -202,7 +205,7 @@ local LIST: { Item } = {
 	item("PlagueRat", "Plague Rat", 3, 55, { lifeSteal = 5, enemyCount = 10, harvesting = -5 }, 5), -- Mouse
 	-- Candle (its fog rule for Nightmare does not apply here)
 	item("HushCandle", "Hush Candle", 3, 65, { elementalDamage = 4, hpRegen = 1, enemyCount = -10, damage = -5 }, 1),
-	item("Changeling", "Changeling", 3, 80, { maxHp = 150, enemyHp = 10 }), -- Alien Baby
+	item("Changeling", "Changeling", 3, 80, { maxHp = 15, enemyHp = 10 }), -- Alien Baby
 	item("SweetReliquary", "Sweet Reliquary", 3, 70, {}, 1, { -- Candy Bag without the extra elites (B11)
 		{ trigger = "WaveEnd", action = "RandomStats", amount = 8 },
 	}),
@@ -222,7 +225,7 @@ local LIST: { Item } = {
 		100,
 		{ rangedDamage = 5, damage = 10, range = 10, attackSpeed = -5, critChance = -5 }
 	),
-	item("ColossusHeart", "Colossus Heart", 4, 110, { maxHp = 150, hpRegen = 5, speed = -10 }),
+	item("ColossusHeart", "Colossus Heart", 4, 110, { maxHp = 15, hpRegen = 5, speed = -10 }),
 	item(
 		"BrassHarness",
 		"Brass Harness",
@@ -237,14 +240,14 @@ local LIST: { Item } = {
 		100,
 		{ meleeDamage = 10, elementalDamage = 10, range = -20, pickupRange = -20 }
 	),
-	item("LanternCodex", "Lantern Codex", 4, 90, { xpGain = 50, luck = 10, maxHp = -30 }),
+	item("LanternCodex", "Lantern Codex", 4, 90, { xpGain = 50, luck = 10, maxHp = -3 }),
 	item("EternalFlame", "Eternal Flame", 4, 120, { damage = 20, attackSpeed = 20, armor = -2 }),
 	-- Legendary with effects (since B4)
 	item("ClockworkArm", "Clockwork Arm", 4, 100, {}, nil, { -- Robot Arm without its +3 Engineering (B12)
-		{ trigger = "WaveEnd", action = "Grow", stats = { meleeDamage = 3, maxHp = -10 } },
+		{ trigger = "WaveEnd", action = "Grow", stats = { meleeDamage = 3, maxHp = -1 } },
 	}),
 	item("EvergreenSprig", "Evergreen Sprig", 4, 110, {}, nil, { -- Grind's Magical Leaf
-		{ trigger = "WaveEnd", action = "Grow", stats = { maxHp = 30, hpRegen = 1, lifeSteal = 1 } },
+		{ trigger = "WaveEnd", action = "Grow", stats = { maxHp = 3, hpRegen = 1, lifeSteal = 1 } },
 	}),
 	item("FortuneCoin", "Fortune Coin", 4, 105, { armor = -2 }, 1, { -- Lucky Coin
 		{ trigger = "Always", action = "PerX", source = "critChance", per = 1, stats = { luck = 2 } },
@@ -266,7 +269,7 @@ local LIST: { Item } = {
 	item("SmolderingWick", "Smoldering Wick", 1, 25, {}, 4, { -- Scared Sausage
 		{ trigger = "Hit", action = "Burn", chance = 0.25, amount = 1, scaling = { elementalDamage = 1 }, ticks = 3 },
 	}),
-	item("AshSerpent", "Ash Serpent", 1, 25, { burnSpread = 1, maxHp = -10 }), -- Snake
+	item("AshSerpent", "Ash Serpent", 1, 25, { burnSpread = 1, maxHp = -1 }), -- Snake
 	item("Bellows", "Bellows", 2, 40, { burnSpeed = 20 }, 2), -- Eyes Surgery (price assumption)
 	item("BlackPowder", "Black Powder", 1, 20, { explosionDamage = 15 }), -- Dynamite (price assumption)
 	item("FulminateJar", "Fulminate Jar", 3, 60, { explosionSize = 25 }), -- Plastic Explosive (price assumption)
@@ -295,12 +298,12 @@ local LIST: { Item } = {
 	item("RecoilSpring", "Recoil Spring", 3, 60, { knockback = 5 }, 3, { -- Coil (price assumption)
 		{ trigger = "Always", action = "PerX", source = "knockback", per = 1, stats = { damage = 1 } },
 	}),
-	-- Item package (since B8): Brotato item in the comment, its numbers (HP times hpScale); Engineering, curses and
+	-- Item package (since B8): Brotato item in the comment, its numbers (original HP units); Engineering, curses and
 	-- structures are left out until their packages.
 	-- Common
-	item("GrubTincture", "Grub Tincture", 1, 15, { maxHp = 30, hpRegen = 2, fruitHeal = -10 }), -- Alien Worm
-	item("BeckoningBell", "Beckoning Bell", 1, 30, { maxHp = 20, damage = 5, enemyCount = 5 }, 10), -- Gentle Alien
-	item("TaintedElixir", "Tainted Elixir", 1, 20, { maxHp = 20, meleeDamage = 2, attackSpeed = -3 }), -- Defective Steroids
+	item("GrubTincture", "Grub Tincture", 1, 15, { maxHp = 3, hpRegen = 2, fruitHeal = -1 }), -- Alien Worm
+	item("BeckoningBell", "Beckoning Bell", 1, 30, { maxHp = 2, damage = 5, enemyCount = 5 }, 10), -- Gentle Alien
+	item("TaintedElixir", "Tainted Elixir", 1, 20, { maxHp = 2, meleeDamage = 2, attackSpeed = -3 }), -- Defective Steroids
 	item("HookedTongue", "Hooked Tongue", 1, 25, { pickupRange = 30, knockback = 1 }), -- Alien Tongue
 	item("CrackedSkull", "Cracked Skull", 1, 25, { damage = 6, range = -8 }), -- Head Injury
 	item("WispJar", "Wisp Jar", 1, 22, {}, nil, { -- Baby Elephant
@@ -330,7 +333,7 @@ local LIST: { Item } = {
 	}),
 	item("Knucklebones", "Knucklebones", 2, 30, {}, 2, { -- Bone Dice
 		{ trigger = "Reroll", action = "Grow", chance = 0.5, stats = { damage = 1 } },
-		{ trigger = "Reroll", action = "Grow", chance = 0.1, stats = { maxHp = -10 } },
+		{ trigger = "Reroll", action = "Grow", chance = 0.1, stats = { maxHp = -1 } },
 	}),
 	item("WitchKettle", "Witch's Kettle", 2, 35, { pickupRange = 50, hpRegen = -2 }, 1, { -- Cauldron
 		{ trigger = "Consumable", action = "TimedStats", seconds = 2, stats = { damage = 20 } },
@@ -339,7 +342,7 @@ local LIST: { Item } = {
 		{ trigger = "Always", action = "Stats", state = "Still", stats = { hpRegen = 10 } },
 	}),
 	-- Rare
-	item("AstralPhilter", "Astral Philter", 3, 85, { maxHp = 80, hpRegen = 3, luck = -8 }), -- Alien Magic
+	item("AstralPhilter", "Astral Philter", 3, 85, { maxHp = 8, hpRegen = 3, luck = -8 }), -- Alien Magic
 	item( -- Honey
 		"AmberResin",
 		"Amber Resin",
@@ -355,14 +358,14 @@ local LIST: { Item } = {
 		{ trigger = "Always", action = "PerX", source = "distinctItemsTier4", per = 1, stats = { hpRegen = -3 } },
 	}),
 	item("BloodChalice", "Blood Chalice", 3, 70, { hpRegen = -3 }, 3, { -- Goblet
-		{ trigger = "Kill", action = "Heal", chance = 0.15, amount = 10 },
+		{ trigger = "Kill", action = "Heal", chance = 0.15, amount = 1 },
 	}),
 	-- Legendary
 	item("CrimsonHand", "Crimson Hand", 4, 110, { lifeSteal = 10 }, 1, { -- Bloody Hand
 		{ trigger = "Always", action = "PerX", source = "lifeSteal", per = 1, stats = { damage = 2 } },
-		{ trigger = "Timer", action = "Drain", interval = 1, amount = 10 },
+		{ trigger = "Timer", action = "Drain", interval = 1, amount = 1 },
 	}),
-	item("VelvetDivan", "Velvet Divan", 4, 100, { maxHp = 50, speed = -20 }, 1, { -- Esty's Couch
+	item("VelvetDivan", "Velvet Divan", 4, 100, { maxHp = 5, speed = -20 }, 1, { -- Esty's Couch
 		{ trigger = "Always", action = "PerX", source = "speed", per = -1, min = 0, stats = { hpRegen = 2 } },
 	}),
 	item( -- Exoskeleton without its +5 Engineering (B12)
@@ -374,7 +377,7 @@ local LIST: { Item } = {
 	),
 	item("ThunderShells", "Thunder Shells", 4, 100, { explosionDamage = 60, explosionSize = 15, damage = -15 }), -- Explosive Shells
 	item("SecondStomach", "Second Stomach", 4, 100, {}, 1, { -- Extra Stomach
-		{ trigger = "Consumable", action = "Grow", fullHp = true, maxPerWave = 8, stats = { maxHp = 10 } },
+		{ trigger = "Consumable", action = "Grow", fullHp = true, maxPerWave = 8, stats = { maxHp = 1 } },
 	}),
 	item("TitanGirdle", "Titan's Girdle", 4, 110, {}, 1, { -- Giant Belt
 		{ trigger = "Crit", action = "Strike", hpShare = 0.1, eliteHpShare = 0.01 },
@@ -406,6 +409,19 @@ for _, id in structureIds do
 	)
 end
 table.insert(LIST, item("CalibratedTools", "Calibrated Tools", 3, 70, { attackSpeed = 10 }, 1)) -- Improved Tools
+table.insert(
+	LIST,
+	item(
+		"BloodLure",
+		"Blood Lure",
+		2,
+		25,
+		{ damage = 8 },
+		nil,
+		nil,
+		"7-8 Hookfangs appear at the start of the next wave for each new lure."
+	)
+) -- Bait
 local byId: { [string]: Item } = {}
 for _, entry in LIST do
 	byId[entry.id] = entry

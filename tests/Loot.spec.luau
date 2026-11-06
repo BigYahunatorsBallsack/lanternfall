@@ -207,9 +207,13 @@ describe("loot", function()
 		local bag = ExperienceService.getBag()
 		expect(controller("PickupRenderer").getChipText()).toBe(`Bag {bag}`)
 		click("SpawnWave")
-		local killed = EnemySim.getCount()
+		local ids, value = {}, 0
+		for i = 1, EnemySim.collectIds(ids) do
+			local id = EnemySim.getKind(ids[i])
+			value += Config.Enemies.types[id].xp
+		end
 		click("KillEnemies")
-		expect(ExperienceService.getBag()).toBe(math.max(0, bag - killed))
+		expect(ExperienceService.getBag()).toBe(math.max(0, bag - value))
 	end)
 
 	it("spawns a Looter that runs away and escapes without dropping anything", function()
