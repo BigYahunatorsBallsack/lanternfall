@@ -216,7 +216,7 @@ function CharacterChoice.mount(card: Frame, row: Frame, buttonsByClass: { [strin
 	end
 	summary = Widgets.create(
 		"Frame",
-		{ Name = "CharacterSummary", BackgroundColor3 = Theme.surface, BorderSizePixel = 0, Parent = stage },
+		{ Name = "CharacterSummary", BackgroundColor3 = Theme.panel, BorderSizePixel = 0, Parent = stage },
 		{ Widgets.corner(), Widgets.create("UIStroke", { Color = Theme.stroke, Thickness = 3 }) }
 	)
 	selectedName = Widgets.label({

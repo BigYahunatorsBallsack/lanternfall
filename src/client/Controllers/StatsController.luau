@@ -29,11 +29,33 @@ local Tooltip = require(script.Parent.Parent.UI.Tooltip)
 local TooltipText = require(Shared:WaitForChild("Util"):WaitForChild("TooltipText"))
 local Widgets = require(script.Parent.Parent.UI.Widgets)
 
-local PANEL_WIDTH = 260
-local ROW_HEIGHT = 30
+local PANEL_WIDTH = 274
+local ROW_HEIGHT = 22
 local CLASS_TEXT_SIZE = 13
+local PRIMARY_ORDER = {
+	"maxHp",
+	"hpRegen",
+	"lifeSteal",
+	"damage",
+	"meleeDamage",
+	"rangedDamage",
+	"elementalDamage",
+	"attackSpeed",
+	"critChance",
+	"engineering",
+	"range",
+	"armor",
+	"dodge",
+	"speed",
+	"luck",
+	"harvesting",
+}
 
+local ProgressController = require(script.Parent.ProgressController)
+local ShopLayout = require(script.Parent.Parent.UI.ShopLayout)
+local Signal = require(Shared.Util.Signal)
 local StatsController = {}
+StatsController.Changed = Signal.new()
 
 local MARGIN = 12
 
@@ -48,17 +70,15 @@ local classTitle: TextLabel
 local classList: Frame
 local page: "Primary" | "Secondary" = "Primary" -- Paket 14
 local pageButton: TextButton
+local secondaryButton: TextButton
+local levelValue: TextLabel
 local emptyLabel: TextLabel
 
 local function valueText(statId: string, value: number): string
-	local stat = Config.Stats.byId[statId]
 	local rounded = math.round(value * 100) / 100
 	local text = if rounded == math.floor(rounded)
 		then tostring(rounded)
 		else (string.format("%.2f", rounded):gsub("0+$", ""))
-	if stat and stat.percent then
-		text ..= "%"
-	end
 	local cap = if (sheet.dodgeCap or 0) > 0 then sheet.dodgeCap else Config.Stats.dodge.max
 	if statId == "dodge" and value > cap then
 		text ..= ` (max {cap}%)`
@@ -86,7 +106,8 @@ local function renderClasses()
 		table.insert(ids, weapon.id)
 	end
 	local carried = WeaponClasses.carried(ids)
-	classTitle.Visible = #carried > 0
+	classTitle.Visible = #carried > 0 and page == "Secondary"
+	classList.Visible = page == "Secondary"
 	for index, entry in carried do
 		local classId, count = entry.id, entry.count
 		local row = Widgets.label({
@@ -116,6 +137,8 @@ local function render()
 	if screen.Enabled then
 		renderClasses()
 	end
+	local progress = ProgressController.getTeam()
+	levelValue.Text = tostring(if progress then progress.level else 1)
 	local anySecondary = false
 	for statId, label in values do
 		local value = sheet[statId] or 0
@@ -125,6 +148,8 @@ local function render()
 		local worse = if stat and stat.inverted then value > base else value < base
 		label.Text = valueText(statId, value)
 		label.TextColor3 = if better then Theme.success elseif worse then Theme.danger else Theme.text
+		local caption = rows[statId]:FindFirstChild("Label") :: TextLabel
+		caption.TextColor3 = label.TextColor3
 		local primary = stat == nil or stat.primary
 		local hidden = stat ~= nil and stat.hideWhenZero and math.abs(value) < 1e-9
 		rows[statId].Visible = if page == "Primary" then primary else not primary and not hidden
@@ -133,7 +158,8 @@ local function render()
 		end
 	end
 	emptyLabel.Visible = page == "Secondary" and not anySecondary
-	pageButton.Text = if page == "Primary" then "PRIMARY ▸" else "SECONDARY ▸"
+	pageButton.BackgroundTransparency = if page == "Primary" then 1 else 0
+	secondaryButton.BackgroundTransparency = if page == "Secondary" then 1 else 0
 end
 
 local function build()
@@ -149,43 +175,83 @@ local function build()
 	local titleRow = Widgets.create("Frame", {
 		Name = "TitleRow",
 		BackgroundTransparency = 1,
-		Size = UDim2.new(1, 0, 0, 44),
+		Size = UDim2.new(1, 0, 0, 84),
 		LayoutOrder = 0,
 		Parent = panel,
 	})
 	Widgets.label({
 		Name = "Title",
-		Text = "STATS",
+		Text = "Stats",
+		TextSize = 28,
 		Font = Theme.fontBold,
-		TextColor3 = Theme.textDim,
-		TextXAlignment = Enum.TextXAlignment.Left,
-		Size = UDim2.fromScale(0.4, 1),
+		TextColor3 = Theme.text,
+		TextXAlignment = Enum.TextXAlignment.Center,
+		Size = UDim2.new(1, 0, 0, 38),
 		Parent = titleRow,
 	})
 	-- Paket 14: Brotato's primary and secondary stat pages
 	pageButton = Widgets.button({
 		Name = "Page",
-		Text = "PRIMARY ▸",
-		TextSize = 13,
-		AnchorPoint = Vector2.new(1, 0),
-		Position = UDim2.fromScale(1, 0),
-		Size = UDim2.fromScale(0.6, 1),
+		Text = "Primary",
+		TextSize = 18,
+		Font = Theme.font,
+		Position = UDim2.fromOffset(0, 48),
+		Size = UDim2.new(0.5, -2, 0, 34),
 		Parent = titleRow,
 	}, function()
-		StatsController.setPage(if page == "Primary" then "Secondary" else "Primary")
+		StatsController.setPage("Primary")
 	end)
+	pageButton.Outline.Thickness = 0
+	secondaryButton = Widgets.button({
+		Name = "SecondaryPage",
+		Text = "Secondary",
+		Font = Theme.font,
+		TextSize = 18,
+		Position = UDim2.new(0.5, 2, 0, 48),
+		Size = UDim2.new(0.5, -2, 0, 34),
+		Parent = titleRow,
+	}, function()
+		StatsController.setPage("Secondary")
+	end)
+	secondaryButton.Outline.Thickness = 0
+	local levelRow = Widgets.create("Frame", {
+		Name = "CurrentLevel",
+		BackgroundTransparency = 1,
+		Size = UDim2.new(1, 0, 0, ROW_HEIGHT),
+		LayoutOrder = 1,
+		Parent = panel,
+	})
+	local levelIcon = Icons.holder(levelRow, 20)
+	Icons.draw(levelIcon, "stat", "xpGain")
+	Widgets.label({
+		Name = "Label",
+		Text = "Current Level",
+		TextSize = 16,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		Position = UDim2.fromOffset(28, 0),
+		Size = UDim2.new(1, -65, 1, 0),
+		Parent = levelRow,
+	})
+	levelValue = Widgets.label({
+		Name = "Value",
+		TextSize = 16,
+		TextXAlignment = Enum.TextXAlignment.Right,
+		Position = UDim2.new(1, -38, 0, 0),
+		Size = UDim2.new(0, 38, 1, 0),
+		Parent = levelRow,
+	})
 	for index, stat in Config.Stats.order do
 		local row = Widgets.create("Frame", {
 			Name = stat.id,
 			BackgroundTransparency = 1,
 			Size = UDim2.new(1, 0, 0, ROW_HEIGHT),
-			LayoutOrder = index,
+			LayoutOrder = (table.find(PRIMARY_ORDER, stat.id) or (100 + index)) + 1,
 			Visible = stat.primary,
 			Parent = panel,
 		})
 		rows[stat.id] = row
-		local icon = Icons.holder(row, 24)
-		icon.Position = UDim2.fromOffset(0, 3)
+		local icon = Icons.holder(row, 20)
+		icon.Position = UDim2.fromOffset(0, 1)
 		Icons.draw(icon, "stat", stat.id)
 		local statId = stat.id
 		Tooltip.attach(row, function()
@@ -193,26 +259,26 @@ local function build()
 		end)
 		Widgets.label({
 			Name = "Label",
-			Text = stat.displayName,
-			TextSize = 15,
+			Text = (if stat.percent then "% " else "") .. stat.displayName,
+			TextSize = 16,
 			TextColor3 = Theme.textDim,
 			TextXAlignment = Enum.TextXAlignment.Left,
-			Position = UDim2.fromOffset(30, 0),
-			Size = UDim2.new(0.70, -30, 1, 0),
+			Position = UDim2.fromOffset(28, 0),
+			Size = UDim2.new(1, -66, 1, 0),
 			Parent = row,
 		})
 		values[stat.id] = Widgets.label({
 			Name = "Value",
-			TextSize = 15,
-			Font = Theme.fontBold,
+			TextSize = 16,
+			Font = Theme.font,
 			TextXAlignment = Enum.TextXAlignment.Right,
 			AnchorPoint = Vector2.new(1, 0),
 			Position = UDim2.fromScale(1, 0),
-			Size = UDim2.fromScale(0.30, 1),
+			Size = UDim2.fromOffset(38, ROW_HEIGHT),
 			Parent = row,
 		})
 	end
-	local after = #Config.Stats.order
+	local after = #Config.Stats.order + 2
 	emptyLabel = Widgets.label({
 		Name = "NoSecondary",
 		Text = "None yet: secondary stats come from items.",
@@ -243,6 +309,8 @@ local function build()
 	})
 	Widgets.list(1).Parent = classList
 	Widgets.unscaled(panel)
+	panel:FindFirstChildOfClass("UIStroke").Thickness = 0
+	local scale = Widgets.create("UIScale", { Parent = panel })
 	local contents = Widgets.create("ScrollingFrame", {
 		Name = "StatsContent",
 		BackgroundTransparency = 1,
@@ -267,15 +335,17 @@ local function build()
 		if typeof(area) ~= "Vector2" or area.X <= 0 then
 			area = if workspace.CurrentCamera then workspace.CurrentCamera.ViewportSize else Vector2.new(1280, 720)
 		end
-		local compact = area.X < 1000 or area.Y < 600
-		local groupWidth = math.min(Theme.shopMaxWidth + PANEL_WIDTH + 2 * MARGIN, area.X - 16)
-		local right = math.floor((area.X - groupWidth) / 2) + MARGIN
+		local layout = ShopLayout.measure(area)
+		local compact = layout.compact
+		scale.Scale = layout.scale
 		panel.AutomaticSize = Enum.AutomaticSize.None
-		panel.AnchorPoint = Vector2.new(if compact then 0.5 else 1, 0)
-		panel.Position = if compact then UDim2.new(0.5, 0, 0, 76) else UDim2.new(1, -right, 0, 76)
+		panel.AnchorPoint = Vector2.new(if compact then 0.5 else 0, 0)
+		panel.Position = if compact
+			then UDim2.new(0.5, 0, 0, 76)
+			else UDim2.fromOffset(layout.statsX * layout.scale, 16 * layout.scale)
 		panel.Size = UDim2.fromOffset(
-			if compact then math.min(520, area.X - 24) else PANEL_WIDTH,
-			math.max(120, area.Y - (if compact then 158 else 100))
+			if compact then math.min(520, area.X - 24) else layout.statsWidth,
+			if compact then math.max(120, area.Y - 158) else layout.statsHeight
 		)
 	end
 	resize()
@@ -291,12 +361,14 @@ function StatsController.init()
 	Net.onClient("Stats", function(newSheet: Types.StatSheet)
 		sheet = newSheet
 		render()
+		StatsController.Changed:Fire(newSheet)
 	end)
 end
 
 function StatsController.start()
 	build()
 	RunStateController.Changed:Connect(render)
+	ProgressController.TeamChanged:Connect(render)
 	LoadoutController.Changed:Connect(function(userId: number)
 		if userId == Players.LocalPlayer.UserId then
 			render()

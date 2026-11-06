@@ -970,6 +970,12 @@ Umsetzungsstand, technische Checks und die noch ausstehende echte Studio-Abnahme
 - HP/XP gemeinsam links oben, Timer in der Mitte; Teamliste nur bei mehreren Teilnehmern. Gemeinsame Dialoge zentrieren kurze Inhalte und liegen vor anderen Spielanzeigen.
 - Bilder, Prüfgrenzen und Bedienanleitung: `docs/UI-BROTATO-REWORK.md`. Item-Symbole stellen Wertekategorien dar; Figuren und Inhalte bleiben eigene Lanternfall-Entwürfe. Keine Änderung der Serverregeln oder Zahlen.
 
+### Freigegebene Shop-Komposition (Owner, 06.11.2026)
+
+Der Owner bestaetigt die vorab gezeigte Brotato-Shop-Vorschau. Auf Desktop stehen vier hohe Angebote nebeneinander: kleine Illustration und Name oben, sichtbare Waffenwerte bzw. Item-Effekte darunter, Preis am Kartenende und separater Lock-Knopf. Items liegen unten links, die getragenen Waffen als kleine Kacheln daneben. Die rechte Spalte zeigt Level und Primary-/Secondary-Werte, darunter die echte Elite-/Horden-Planung und GO fuer die naechste Welle. Reroll bleibt oben.
+
+Die UI verwendet neutralgraue Hintergruende, fast schwarze Karten/Knöpfe, weisse Arial-Schrift, blaue/violette/rote Seltenheitsrahmen, gruene Vorteile und rote Nachteile. HP sind rot, XP gruen. Die gemeinsame Gestaltung gilt auch fuer Lobby, Level-ups und Dialoge. Auf kleinen Displays bleiben Angebote/Inhalte scrollbar und die Hauptaktionen fest erreichbar; die Werte sind ueber STATS/SHOP umschaltbar. Preis, Sperre, Kauf, Verkauf, Verschmelzen, Gratis-/Bonus-Rerolls und Bereitschaft bleiben serverbestimmt. Details und Abnahme: docs/UI-APPROVED-SHOP.md.
+
 ## 14. Art-Direction & Audio
 
 - **Stil (seit Paket 9d, Wunsch des Owners: „im Style von Deadlock"): okkultes Art déco.** Gealtertes Messing und Gold, Porzellanmasken, Gasmasken und Kutten, rußschwarze Kreaturen, dazu leuchtende Augen, Linsen und Risse in kräftigen Neonfarben, Sonnenstrahlen- und Zackenformen. Übernommen ist nur die Stimmung: keine Figuren, Namen, Logos oder Designs aus Deadlock.

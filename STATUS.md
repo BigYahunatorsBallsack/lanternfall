@@ -70,7 +70,7 @@ Jeder Strang ändert nur **seine** Zeile (Regeln: `docs/PARALLEL.md`).
 | Strang | KI | Aktuelles Paket | Branch / PR | Stand | Danach |
 | --- | --- | --- | --- | --- | --- |
 | A – Engine und Ablauf | Claude | Paket 24 Launch-Paket (Medium) | `wp-24-launch` | fertig, selbst gemerged | Plan bis zum Launch abgeschlossen; als Nächstes IDs des Owners eintragen (Live-Experience, Badges, Musik), dann Live-Ops |
-| B – Inhalte und Spieler-Regeln | ChatGPT | B8: Neutrales Eyes-Surgery-Bild | `wp-b8-neutral-eye-sprite` | Neues Optikmotiv vom Owner gewuenscht; Roblox Approved und Studio-Preload Success; alle 125 aktiven Item-Bilder laden | Owner prueft Shop und Inventar |
+| B – Inhalte und Spieler-Regeln | ChatGPT | Paket 21j: Freigegebenes Brotato-UI | `wp-21j-brotato-ui` | Shop-Komposition, Werte, Inventar, HUD und Menüs umgesetzt; vier neue UI-Tests und native Solo-Abnahme | Owner-Test mit zwei Clients und Handy; PR nicht selbst mergen |
 
 ## Feste Entscheidungen des Owners
 
@@ -441,3 +441,11 @@ Steuerung besteht aus Laufen; Springen bleibt deaktiviert. Dash-Button, Remote, 
 
 - Owner waehlt ein eigenes neutrales Ersatzbild ohne Blut/Verletzungen. Mit dem eingebauten image_gen als neues Optikmotiv erstellt: Brille und Einstellwerkzeug, transparenter RGBA-Hintergrund. Originale abgelehnte Grafik nicht bearbeitet oder erneut hochgeladen.
 - Neues Asset 110223481359323 unter dem Experience-Besitzer hochgeladen, Roblox-Status Approved und nativer Studio-Edit-Preload Success. Bellows-Zuordnung ersetzt; Spielwerte unveraendert. Herkunft, Prompt, Hash und Pruefungen: `docs/item-parity/neutral-eye-sprite.json`. Jetzt 124 unveraenderte Wiki-Sprites plus ein eigenes freigegebenes Ersatzbild; 125 aktive Bilder mit erfolgreichem Preload.
+
+
+## Paket 21j: Freigegebenes Brotato-UI (ChatGPT, 06.11.2026)
+
+- Owner bestaetigt den zuerst gezeigten Shop-Entwurf mit „genau so“. Vier Angebote mit kleinen Bildern oben links, Werten direkt auf den Waffenkarten, separaten Sperren und Preisfeldern; Items unten links, Waffen daneben, Primary/Secondary rechts, Reroll oben und GO unten rechts. Graue Flaechen, Arial, Seltenheitsrahmen und rote HP-/gruene XP-Leisten gelten auch fuer Lobby, Level-ups und Dialoge. Das ausdrueckliche UI-Rework umfasst die beteiligten Anzeigecontroller und gemeinsamen UI-Dateien.
+- Von GitHub-main fc17890 getrennt begonnen, die inzwischen gemergten Waffen-/Item-/Stat-Pakete bis 9a26036 und den spaeteren neutralen Augen-Bildfix f73e05b aufgenommen. Bestehende Inhalte, serverseitige Kaufregeln und neue Item-Grenzen bleiben erhalten; keine Remotes, Profile oder Balancing-Dateien fuer dieses UI-Paket geaendert. Read-only Waffenvorschau inklusive Level-Skalierung und Mindestcooldown gegen den echten Kampfcode geprueft.
+- Vergleich vor dem letzten reinen Bildfix: main 956 bestanden / 31 bestehende Fehlschlaege in 78 Specs; UI 960 / dieselben 31 in 79 Specs. Alle Specs einzeln ausgefuehrt. Vier neue UI-Tests gruen; absichtlich invertierte No-Bounce-Bedingung wird vom Vorschautest erkannt. StyLua, Selene (0 Fehler / 11 bestehende Warnungen), Rojo-Build und Diff-Pruefung erfolgreich. Einzelbericht: docs/ui-validation.json.
+- Native Tests in separaten lokalen Studio-Dateien. Vor der Sichtpruefung des aufgenommenen main alle 352 Produktionsmodule mit dem UI-Checkout abgeglichen: identisch. Shop-Kauf 478 -> 378 Shards und Sperren geprueft; im vorherigen Solo-Stand auch Reroll, Verkauf, Verschmelzen, GO, Level-up und Settings. Die fremden Aenderungen der offenen Main-Lobby wurden nicht ueberschrieben. Keine Veroeffentlichung und kein Merge. Echte Screenshots, Pruefgrenzen und Owner-Anleitung: docs/UI-APPROVED-SHOP.md. Zwei-Client- und physischer Handy-Test bleiben offen.
