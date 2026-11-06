@@ -42,7 +42,7 @@ local DT = 1 / 15 -- one enemy simulation step per frame
 local PICK_DELAY = 1.5 -- seconds a bot needs to pick a card (a human: 1-3 s)
 local EVADE_RANGE = 20 -- studs; the evade bot reacts to enemies this close
 local KITE_RADIUS = 50 -- studs around the arena center
-local FIGHT_DISTANCE = { BladeWarden = 6, SparkMage = 14 } -- studs the fight bot keeps enemies away
+local FIGHT_DISTANCE = { NightWatch = 14, SparkMage = 14 } -- studs the fight bot keeps enemies away
 local STOP_AT = 180 -- seconds; the stop3 bot stands still from here on
 local DODGE_RANGE = 6 -- studs; a moving bot reacts to an enemy shot this close that is heading at it
 local DODGE_MISS = 2.5 -- studs; shots passing farther away than this are ignored
@@ -77,7 +77,7 @@ local STAT_TASTE = {
 	enemyHp = -1,
 	enemyDamage = -1.5,
 }
-local CLASS_DAMAGE = { BladeWarden = "meleeDamage", SparkMage = "rangedDamage" }
+local CLASS_DAMAGE = { NightWatch = "rangedDamage", SparkMage = "rangedDamage" }
 local CLASS_DAMAGE_TASTE = 4
 -- "one step" of stats without level-up values
 local SECONDARY_STEP = {
@@ -121,11 +121,11 @@ local TIER_STEP = 6 -- one weapon tier more, in WEAPON_TASTE units
 
 local SEEDS = { 11, 22, 33, 44, 55, 66 }
 local SCENARIOS = {
-	{ class = "BladeWarden", bot = "idle" },
-	{ class = "BladeWarden", bot = "stop3" },
-	{ class = "BladeWarden", bot = "evade" },
-	{ class = "BladeWarden", bot = "kite" },
-	{ class = "BladeWarden", bot = "fight" },
+	{ class = "NightWatch", bot = "idle" },
+	{ class = "NightWatch", bot = "stop3" },
+	{ class = "NightWatch", bot = "evade" },
+	{ class = "NightWatch", bot = "kite" },
+	{ class = "NightWatch", bot = "fight" },
 	{ class = "SparkMage", bot = "idle" },
 	{ class = "SparkMage", bot = "stop3" },
 	{ class = "SparkMage", bot = "evade" },

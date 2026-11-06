@@ -42,4 +42,9 @@ local images: { [string]: string } = {
 	enemySpeed = "rbxassetid://99537795978142",
 }
 
+-- Pictures delivered through tools/art2d/import_sprites.py replace today's.
+for id, image in require(game:GetService("ReplicatedStorage").Shared.Config.SpriteImages).stats do
+	images[id] = image
+end
+
 return table.freeze(images)

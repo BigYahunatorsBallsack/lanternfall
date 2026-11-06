@@ -7,7 +7,6 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Shared = ReplicatedStorage.Shared
 local Look = require(Shared.Config.Sprites).character
-local Portraits = require(script.Parent.Parent.UI.CharacterPortraits)
 local WorldSprite = require(
 	game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Util"):WaitForChild("WorldSprite")
 )
@@ -104,20 +103,19 @@ function Visibility.forget(player: Player)
 	end
 end
 
--- The sprite values of a class: its image is square, the egg body is `bodyStuds` tall on every class.
+-- The sprite values of a class: its image is square, the figure is `bodyStuds` tall on every class.
 function Visibility.specOf(classId: string): WorldSprite.Spec?
-	local bounds = Look.classes[classId]
-	local image = (Portraits :: any)[classId]
-	if not (bounds and image) then
+	local entry = Look.classes[classId]
+	if not entry then
 		return nil
 	end
 	return {
 		name = "CharacterSprite",
-		image = image,
-		studs = Look.bodyStuds / bounds.height,
-		ground = bounds.ground,
-		center = bounds.center,
-		pixels = Look.pixels,
+		image = entry.image,
+		studs = Look.bodyStuds / entry.height,
+		ground = entry.ground,
+		center = entry.center,
+		pixels = entry.pixels,
 	}
 end
 

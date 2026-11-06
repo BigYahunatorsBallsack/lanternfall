@@ -1,0 +1,865 @@
+{
+ "characters": {
+  "title": "Charaktere (bleiben neun, kein Blade Warden)",
+  "pixels": 1024,
+  "items": {
+   "NightWatch": {
+    "text": "Standard-Figur. Schütze mit dunkler Mütze, schräger misstrauischer Blick. Vorbild-Regeln: Ranger.",
+    "existing": {
+     "image": "rbxassetid://111582119023759",
+     "pixels": 1024,
+     "center": 0.536,
+     "ground": 0.168,
+     "height": 0.638
+    }
+   },
+   "SparkMage": {
+    "text": "Magier, frech grinsend, kleine gelbe Funken am Körper. Vorbild-Regeln: Mage.",
+    "existing": {
+     "image": "rbxassetid://125236680482622",
+     "pixels": 1024,
+     "center": 0.518,
+     "ground": 0.176,
+     "height": 0.592
+    }
+   },
+   "ManyHands": {
+    "text": "Gestresst, Schweißtropfen, viele kleine dunkle Hände rund um den Körper. Vorbild-Regeln: Multitasker.",
+    "existing": {
+     "image": "rbxassetid://136334812450541",
+     "pixels": 1024,
+     "center": 0.493,
+     "ground": 0.163,
+     "height": 0.61
+    }
+   },
+   "SoleConductor": {
+    "text": "Lässig, ein Auge fast zu, schiefes Lächeln. Vorbild-Regeln: One Armed.",
+    "existing": {
+     "image": "rbxassetid://121628946000677",
+     "pixels": 1024,
+     "center": 0.543,
+     "ground": 0.174,
+     "height": 0.59
+    }
+   },
+   "DuelMaestro": {
+    "text": "Eitler Fechter, hochgezogene Braue, kleines Lächeln. Vorbild-Regeln: Gladiator.",
+    "existing": {
+     "image": "rbxassetid://132151924425438",
+     "pixels": 1024,
+     "center": 0.507,
+     "ground": 0.167,
+     "height": 0.606
+    }
+   },
+   "FarSeer": {
+    "text": "Kneift ein Auge zu, hält ein Fernrohr ans andere. Vorbild-Regeln: Hunter.",
+    "existing": {
+     "image": "rbxassetid://135951339807724",
+     "pixels": 1024,
+     "center": 0.555,
+     "ground": 0.159,
+     "height": 0.607
+    }
+   },
+   "MarbleHost": {
+    "text": "Breit und schwer, müder Blick, Risse wie Marmor. Vorbild-Regeln: Bull.",
+    "existing": {
+     "image": "rbxassetid://114718404867898",
+     "pixels": 1024,
+     "center": 0.491,
+     "ground": 0.116,
+     "height": 0.691
+    }
+   },
+   "TwinLedger": {
+    "text": "Listig, zwei unterschiedliche Augen, kleines Lächeln. Vorbild-Regeln: Ambidextrous.",
+    "existing": {
+     "image": "rbxassetid://114087158937283",
+     "pixels": 1024,
+     "center": 0.506,
+     "ground": 0.167,
+     "height": 0.606
+    }
+   },
+   "CandleScholar": {
+    "text": "Traurig-müde, Augenringe, offenes Buch mit brennender Kerze. Vorbild-Regeln: Apprentice.",
+    "existing": {
+     "image": "rbxassetid://94184260896734",
+     "pixels": 1024,
+     "center": 0.486,
+     "ground": 0.166,
+     "height": 0.608
+    }
+   }
+  }
+ },
+ "enemies": {
+  "title": "Gegner",
+  "pixels": 512,
+  "items": {
+   "Shadeling": {
+    "text": "Kleiner Standard-Gegner, läuft stumpf auf den Spieler zu. Muss bei großer Menge gut lesbar sein."
+   },
+   "Stalker": {
+    "text": "Schneller, dünner Verwandter des Shadeling."
+   },
+   "AbyssShadeling": {
+    "text": "Dunklere, gefährlichere Variante des Shadeling."
+   },
+   "Brute": {
+    "text": "Groß, schwer, langsam, viel Masse."
+   },
+   "AbyssBrute": {
+    "text": "Dunklere, gefährlichere Variante des Brute."
+   },
+   "Thornback": {
+    "text": "Massig, mit Stacheln auf dem Rücken; wirft Stacheln zurück, wenn man ihn trifft."
+   },
+   "Spitter": {
+    "text": "Bleibt auf Abstand und spuckt Geschosse, großer Mund."
+   },
+   "Skulker": {
+    "text": "Hinterhältiger Schütze, duckt sich, flieht vor dem Spieler."
+   },
+   "Herald": {
+    "text": "Unterstützer, stärkt andere Gegner: Horn oder Fahne, goldene Akzente."
+   },
+   "Mender": {
+    "text": "Heiler, heilt andere Gegner: grüne Akzente, freundlich-unheimlich."
+   },
+   "Charger": {
+    "text": "Stürmt in gerader Linie: gesenkter Kopf, Hörner, vorgebeugt."
+   },
+   "Reaper": {
+    "text": "Schlägt im Halbkreis zu: lange Klingenarme."
+   },
+   "Splitter": {
+    "text": "Rund und prall, zerplatzt beim Tod in kleine Splitlinge."
+   },
+   "Splitling": {
+    "text": "Winziger Rest des Splitter, gleiche Farbe."
+   },
+   "BroodEgg": {
+    "text": "Unbewegliches Ei, aus dem Gegner schlüpfen. Kein Gesicht nötig."
+   },
+   "Looter": {
+    "text": "Flieht mit einem Beutel auf dem Rücken, lässt beim Tod eine Kiste fallen."
+   },
+   "Gobbler": {
+    "text": "Frisst herumliegende Beute: riesiger Mund, runder Bauch."
+   },
+   "Tree": {
+    "text": "Kleiner Baum, steht still und lässt Früchte fallen. Dicker Stamm, runde Krone."
+   },
+   "LanternEater": {
+    "text": "Boss. Riesiges Raubtier, jagt und stürmt, glühender Bauch."
+   },
+   "HollowSeer": {
+    "text": "Boss. Schwebende Gestalt mit großem leuchtendem Auge, wirkt Magie."
+   },
+   "BrassRam": {
+    "text": "Champion. Messing-Widder, stürmt und prallt von Wänden ab."
+   },
+   "Flayer": {
+    "text": "Champion. Hager mit langen Krallen."
+   },
+   "Abbot": {
+    "text": "Champion. Kuttenträger mit Kapuze, schnell."
+   },
+   "MireJaw": {
+    "text": "Champion. Sumpfwesen, vor allem Maul."
+   },
+   "Monolith": {
+    "text": "Champion. Lebender Steinblock."
+   },
+   "SickleWraith": {
+    "text": "Champion. Schwebender Geist mit zwei Sicheln."
+   },
+   "BroodMatron": {
+    "text": "Champion. Dicke Mutter-Kreatur mit Eiern am Körper."
+   },
+   "StoneSeraph": {
+    "text": "Champion. Engel aus Stein mit Flügeln."
+   }
+  }
+ },
+ "pickups": {
+  "title": "Beute",
+  "pixels": 512,
+  "items": {
+   "Fruit": {
+    "text": "Grüne Frucht, heilt beim Einsammeln."
+   },
+   "Crate": {
+    "text": "Normale Holzkiste mit dunkler Kontur."
+   },
+   "LegendaryCrate": {
+    "text": "Besondere Kiste, rot und gold."
+   }
+  }
+ },
+ "structures": {
+  "title": "Bauten und Begleiter",
+  "pixels": 512,
+  "items": {
+   "BrassSentry": {
+    "text": "Geschützturm aus Messing, schießt Kugeln."
+   },
+   "CinderSentry": {
+    "text": "Geschützturm, der brennt; orange."
+   },
+   "PrismSentry": {
+    "text": "Geschützturm mit Kristall; türkis."
+   },
+   "MercySentry": {
+    "text": "Heil-Turm; grün mit Kreuz oder Herz."
+   },
+   "SiegeSentry": {
+    "text": "Schwerer Mörser-Turm; violett."
+   },
+   "RuneMine": {
+    "text": "Flache Mine am Boden; gold."
+   },
+   "MoonGarden": {
+    "text": "Kleines Beet mit Früchten; grün."
+   },
+   "OrbitWisp": {
+    "text": "Kleines schwebendes Licht, kreist um den Spieler; blau."
+   },
+   "StormFamiliar": {
+    "text": "Kleines Sturm-Tier, schwebt, schießt Blitze; violett."
+   }
+  }
+ },
+ "world": {
+  "title": "Welt",
+  "pixels": 512,
+  "items": {
+   "Chest": {
+    "text": "Truhe, die ein Elite-Gegner hinterlässt. Holz und Gold, geschlossen."
+   }
+  }
+ },
+ "lobby": {
+  "title": "Lobby",
+  "pixels": 1024,
+  "items": {
+   "Arch": {
+    "text": "Großer Torbogen eines Lobby-Portals, von vorn. Innen frei und transparent: dahinter leuchtet das Spiel."
+   },
+   "Beacon": {
+    "text": "Leuchtfeuer auf einem Sockel, von vorn."
+   },
+   "Lamp": {
+    "text": "Laternenpfahl, von vorn."
+   },
+   "CornerRuin": {
+    "text": "Kleine Ruine für die Ecken der Lobby, von vorn."
+   }
+  }
+ },
+ "floors": {
+  "title": "Boden (nahtlos kachelbar, ohne Transparenz)",
+  "pixels": 1024,
+  "tile": true,
+  "items": {
+   "Arena": {
+    "text": "Boden des Kampffelds: ruhig, hell, damit Gegner gut sichtbar bleiben. Nur leichte Flecken, kleine Steine oder Gras."
+   },
+   "Lobby": {
+    "text": "Boden der Lobby, gleiche Machart, etwas anderer Farbton."
+   }
+  }
+ },
+ "weapons": {
+  "title": "Waffen (fehlt ein Bild, bleibt das heutige)",
+  "pixels": 512,
+  "optional": true,
+  "items": {
+   "OrbitBlades": {
+    "text": "Kreisende Klingen."
+   },
+   "SparkBolt": {
+    "text": "Funken-Stab."
+   },
+   "Shockwave": {
+    "text": "Schockwellen-Hammer."
+   },
+   "ChainLightning": {
+    "text": "Kettenblitz-Stab."
+   },
+   "ThornTrail": {
+    "text": "Dornen-Waffe."
+   },
+   "BoomerangAxe": {
+    "text": "Bumerang-Axt."
+   },
+   "BrassKnuckles": {
+    "text": "Schlagring."
+   },
+   "RitualDirk": {
+    "text": "Ritualdolch."
+   },
+   "LamplighterPike": {
+    "text": "Lange Pike."
+   },
+   "DuskSabre": {
+    "text": "Säbel."
+   },
+   "Gravestone": {
+    "text": "Grabstein als Keule."
+   },
+   "TithePalm": {
+    "text": "Gierige Hand."
+   },
+   "WraithHatchet": {
+    "text": "Geister-Beil."
+   },
+   "SpiritFlint": {
+    "text": "Feuerstein."
+   },
+   "WatchmanPistol": {
+    "text": "Pistole."
+   },
+   "RattleRepeater": {
+    "text": "Schnellfeuer-Gewehr."
+   },
+   "ScatterBell": {
+    "text": "Schrotflinte mit Glockenmündung."
+   },
+   "ShrapnelOrgan": {
+    "text": "Mehrläufige Splitter-Kanone."
+   },
+   "CinderBreath": {
+    "text": "Flammenwerfer."
+   },
+   "GalvanicFork": {
+    "text": "Blitz-Gabel."
+   },
+   "LeechCarbine": {
+    "text": "Blutsauger-Gewehr."
+   },
+   "CathedralEngine": {
+    "text": "Riesige Kanone."
+   },
+   "MortarLantern": {
+    "text": "Mörser in Laternenform."
+   },
+   "WinterNeedle": {
+    "text": "Eisnadel."
+   },
+   "FoundryKey": {
+    "text": "Großer Schraubenschlüssel."
+   },
+   "RuneAwl": {
+    "text": "Runen-Ahle."
+   }
+  },
+  "raw": true
+ },
+ "shared": {
+  "title": "Weiße Bilder, die das Spiel einfärbt (nur Graustufen, Motiv mittig, Glow weich auslaufend)",
+  "pixels": 256,
+  "raw": true,
+  "items": {
+   "glow": {
+    "text": "Weicher runder Lichtfleck, zur Kante hin ganz durchsichtig. Für Leuchten und Explosionen."
+   },
+   "orb": {
+    "text": "Sammel-Material (XP), kleines rundes Korn. Bekommt je Wert eine Farbe."
+   },
+   "bolt": {
+    "text": "Geschoss, zeigt nach rechts. Wird in Flugrichtung gedreht."
+   },
+   "beam": {
+    "text": "Weiche senkrechte Lichtsäule."
+   },
+   "crown": {
+    "text": "Strahlenkranz über Elite-Gegnern, mittig, dreht sich im Spiel."
+   },
+   "lanternCageFrame": {
+    "text": "Laterne Käfig: Rahmen."
+   },
+   "lanternCageGlow": {
+    "text": "Laterne Käfig: Leuchtkern."
+   },
+   "lanternOrbFrame": {
+    "text": "Laterne Kugel: Rahmen."
+   },
+   "lanternOrbGlow": {
+    "text": "Laterne Kugel: Leuchtkern."
+   },
+   "lanternSpireFrame": {
+    "text": "Laterne Turm: Rahmen."
+   },
+   "lanternSpireGlow": {
+    "text": "Laterne Turm: Leuchtkern."
+   }
+  }
+ },
+ "items": {
+  "title": "Item-Icons (fehlt ein Bild, bleibt das heutige). Name und Wirkung: src/shared/Config/Items.luau",
+  "pixels": 256,
+  "optional": true,
+  "raw": true,
+  "items": {
+   "Satchel": {
+    "text": "Item-Icon."
+   },
+   "Vitality": {
+    "text": "Item-Icon."
+   },
+   "Haste": {
+    "text": "Item-Icon."
+   },
+   "Focus": {
+    "text": "Item-Icon."
+   },
+   "Magnet": {
+    "text": "Item-Icon."
+   },
+   "Might": {
+    "text": "Item-Icon."
+   },
+   "Armor": {
+    "text": "Item-Icon."
+   },
+   "WaxHeart": {
+    "text": "Item-Icon."
+   },
+   "CrackedLens": {
+    "text": "Item-Icon."
+   },
+   "BoneKnuckles": {
+    "text": "Item-Icon."
+   },
+   "TallowCandle": {
+    "text": "Item-Icon."
+   },
+   "MothWing": {
+    "text": "Item-Icon."
+   },
+   "GraveSpade": {
+    "text": "Item-Icon."
+   },
+   "RustedCoin": {
+    "text": "Item-Icon."
+   },
+   "FlintShard": {
+    "text": "Item-Icon."
+   },
+   "WardRune": {
+    "text": "Item-Icon."
+   },
+   "PawnTicket": {
+    "text": "Item-Icon."
+   },
+   "ChitteringFamiliar": {
+    "text": "Item-Icon."
+   },
+   "BoneCharm": {
+    "text": "Item-Icon."
+   },
+   "LeechJar": {
+    "text": "Item-Icon."
+   },
+   "AshBlindfold": {
+    "text": "Item-Icon."
+   },
+   "SignalBanner": {
+    "text": "Item-Icon."
+   },
+   "Brazier": {
+    "text": "Item-Icon."
+   },
+   "OilFlask": {
+    "text": "Item-Icon."
+   },
+   "LoadedDice": {
+    "text": "Item-Icon."
+   },
+   "NarrowScope": {
+    "text": "Item-Icon."
+   },
+   "Whetstone": {
+    "text": "Item-Icon."
+   },
+   "AcidVial": {
+    "text": "Item-Icon."
+   },
+   "StaticBracelet": {
+    "text": "Item-Icon."
+   },
+   "PowderPouch": {
+    "text": "Item-Icon."
+   },
+   "LanternOil": {
+    "text": "Item-Icon."
+   },
+   "BitterTonic": {
+    "text": "Item-Icon."
+   },
+   "JesterBell": {
+    "text": "Item-Icon."
+   },
+   "DowsingRod": {
+    "text": "Item-Icon."
+   },
+   "QuiltedCoat": {
+    "text": "Item-Icon."
+   },
+   "TitheBox": {
+    "text": "Item-Icon."
+   },
+   "RottingHeart": {
+    "text": "Item-Icon."
+   },
+   "ScrapAltar": {
+    "text": "Item-Icon."
+   },
+   "GlassLantern": {
+    "text": "Item-Icon."
+   },
+   "FourLeafCharm": {
+    "text": "Item-Icon."
+   },
+   "EelFin": {
+    "text": "Item-Icon."
+   },
+   "BloodOffering": {
+    "text": "Item-Icon."
+   },
+   "IronShackle": {
+    "text": "Item-Icon."
+   },
+   "ClockworkGears": {
+    "text": "Item-Icon."
+   },
+   "TomeOfEchoes": {
+    "text": "Item-Icon."
+   },
+   "SmokeMantle": {
+    "text": "Item-Icon."
+   },
+   "SilverRounds": {
+    "text": "Item-Icon."
+   },
+   "ThornCrown": {
+    "text": "Item-Icon."
+   },
+   "IronVigil": {
+    "text": "Item-Icon."
+   },
+   "StillVeil": {
+    "text": "Item-Icon."
+   },
+   "StoneIdol": {
+    "text": "Item-Icon."
+   },
+   "GildedPlume": {
+    "text": "Item-Icon."
+   },
+   "OathRing": {
+    "text": "Item-Icon."
+   },
+   "PulseDraught": {
+    "text": "Item-Icon."
+   },
+   "HuntersTally": {
+    "text": "Item-Icon."
+   },
+   "GalvanicCoil": {
+    "text": "Item-Icon."
+   },
+   "MourningVeil": {
+    "text": "Item-Icon."
+   },
+   "MossWard": {
+    "text": "Item-Icon."
+   },
+   "PlagueRat": {
+    "text": "Item-Icon."
+   },
+   "HushCandle": {
+    "text": "Item-Icon."
+   },
+   "Changeling": {
+    "text": "Item-Icon."
+   },
+   "SweetReliquary": {
+    "text": "Item-Icon."
+   },
+   "TitanArms": {
+    "text": "Item-Icon."
+   },
+   "ShadowCloak": {
+    "text": "Item-Icon."
+   },
+   "HeavyRounds": {
+    "text": "Item-Icon."
+   },
+   "ColossusHeart": {
+    "text": "Item-Icon."
+   },
+   "BrassHarness": {
+    "text": "Item-Icon."
+   },
+   "WitchMortar": {
+    "text": "Item-Icon."
+   },
+   "LanternCodex": {
+    "text": "Item-Icon."
+   },
+   "EternalFlame": {
+    "text": "Item-Icon."
+   },
+   "ClockworkArm": {
+    "text": "Item-Icon."
+   },
+   "EvergreenSprig": {
+    "text": "Item-Icon."
+   },
+   "FortuneCoin": {
+    "text": "Item-Icon."
+   },
+   "EightEyedIdol": {
+    "text": "Item-Icon."
+   },
+   "LoneFlame": {
+    "text": "Item-Icon."
+   },
+   "FieldCenser": {
+    "text": "Item-Icon."
+   },
+   "EmberAnvil": {
+    "text": "Item-Icon."
+   },
+   "SmolderingWick": {
+    "text": "Item-Icon."
+   },
+   "AshSerpent": {
+    "text": "Item-Icon."
+   },
+   "Bellows": {
+    "text": "Item-Icon."
+   },
+   "BlackPowder": {
+    "text": "Item-Icon."
+   },
+   "FulminateJar": {
+    "text": "Item-Icon."
+   },
+   "BurstingSigil": {
+    "text": "Item-Icon."
+   },
+   "NeedleCharm": {
+    "text": "Item-Icon."
+   },
+   "GourdLantern": {
+    "text": "Item-Icon."
+   },
+   "MirrorShard": {
+    "text": "Item-Icon."
+   },
+   "IronGauntlet": {
+    "text": "Item-Icon."
+   },
+   "RecoilSpring": {
+    "text": "Item-Icon."
+   },
+   "GrubTincture": {
+    "text": "Item-Icon."
+   },
+   "BeckoningBell": {
+    "text": "Item-Icon."
+   },
+   "TaintedElixir": {
+    "text": "Item-Icon."
+   },
+   "HookedTongue": {
+    "text": "Item-Icon."
+   },
+   "CrackedSkull": {
+    "text": "Item-Icon."
+   },
+   "WispJar": {
+    "text": "Item-Icon."
+   },
+   "OrderSash": {
+    "text": "Item-Icon."
+   },
+   "RollingEye": {
+    "text": "Item-Icon."
+   },
+   "InkPolyp": {
+    "text": "Item-Icon."
+   },
+   "Knucklebones": {
+    "text": "Item-Icon."
+   },
+   "WitchKettle": {
+    "text": "Item-Icon."
+   },
+   "SaltCoral": {
+    "text": "Item-Icon."
+   },
+   "AstralPhilter": {
+    "text": "Item-Icon."
+   },
+   "RabbleBanner": {
+    "text": "Item-Icon."
+   },
+   "HearthSprite": {
+    "text": "Item-Icon."
+   },
+   "CrimsonHand": {
+    "text": "Item-Icon."
+   },
+   "BloodChalice": {
+    "text": "Item-Icon."
+   },
+   "VelvetDivan": {
+    "text": "Item-Icon."
+   },
+   "ThunderShells": {
+    "text": "Item-Icon."
+   },
+   "TitanGirdle": {
+    "text": "Item-Icon."
+   },
+   "SecondStomach": {
+    "text": "Item-Icon."
+   },
+   "PyreAshes": {
+    "text": "Item-Icon."
+   },
+   "CalibratedTools": {
+    "text": "Item-Icon."
+   }
+  }
+ },
+ "stats": {
+  "title": "Werte-Icons (fehlt ein Bild, bleibt das heutige)",
+  "pixels": 256,
+  "optional": true,
+  "raw": true,
+  "items": {
+   "maxHp": {
+    "text": "Icon für den Wert."
+   },
+   "hpRegen": {
+    "text": "Icon für den Wert."
+   },
+   "lifeSteal": {
+    "text": "Icon für den Wert."
+   },
+   "damage": {
+    "text": "Icon für den Wert."
+   },
+   "meleeDamage": {
+    "text": "Icon für den Wert."
+   },
+   "rangedDamage": {
+    "text": "Icon für den Wert."
+   },
+   "elementalDamage": {
+    "text": "Icon für den Wert."
+   },
+   "attackSpeed": {
+    "text": "Icon für den Wert."
+   },
+   "critChance": {
+    "text": "Icon für den Wert."
+   },
+   "range": {
+    "text": "Icon für den Wert."
+   },
+   "armor": {
+    "text": "Icon für den Wert."
+   },
+   "dodge": {
+    "text": "Icon für den Wert."
+   },
+   "speed": {
+    "text": "Icon für den Wert."
+   },
+   "luck": {
+    "text": "Icon für den Wert."
+   },
+   "harvesting": {
+    "text": "Icon für den Wert."
+   },
+   "xpGain": {
+    "text": "Icon für den Wert."
+   },
+   "pickupRange": {
+    "text": "Icon für den Wert."
+   },
+   "itemPrice": {
+    "text": "Icon für den Wert."
+   },
+   "freeRerolls": {
+    "text": "Icon für den Wert."
+   },
+   "sellValue": {
+    "text": "Icon für den Wert."
+   },
+   "doubleShards": {
+    "text": "Icon für den Wert."
+   },
+   "shardHealing": {
+    "text": "Icon für den Wert."
+   },
+   "eliteDamage": {
+    "text": "Icon für den Wert."
+   },
+   "enemyCount": {
+    "text": "Icon für den Wert."
+   },
+   "enemyHp": {
+    "text": "Icon für den Wert."
+   },
+   "enemyDamage": {
+    "text": "Icon für den Wert."
+   },
+   "knockback": {
+    "text": "Icon für den Wert."
+   },
+   "explosionDamage": {
+    "text": "Icon für den Wert."
+   },
+   "explosionSize": {
+    "text": "Icon für den Wert."
+   },
+   "piercing": {
+    "text": "Icon für den Wert."
+   },
+   "piercingDamage": {
+    "text": "Icon für den Wert."
+   },
+   "bounce": {
+    "text": "Icon für den Wert."
+   },
+   "burnSpeed": {
+    "text": "Icon für den Wert."
+   },
+   "burnSpread": {
+    "text": "Icon für den Wert."
+   },
+   "fruitHeal": {
+    "text": "Icon für den Wert."
+   },
+   "trees": {
+    "text": "Icon für den Wert."
+   },
+   "engineering": {
+    "text": "Icon für den Wert."
+   },
+   "enemySpeed": {
+    "text": "Icon für den Wert."
+   }
+  }
+ }
+}

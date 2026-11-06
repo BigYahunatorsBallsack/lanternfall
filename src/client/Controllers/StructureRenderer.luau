@@ -22,15 +22,8 @@ local C = Config.Structures
 local FLOOR_Y = Config.Map.arena.center.Y
 local Sprites = Config.Sprites
 local pool = Kit.objectPool(function()
-	local sprite = WorldSprite.create({
-		name = "Structure",
-		image = Sprites.images.plinth,
-		studs = Sprites.structure.studs,
-		ground = 0.05,
-	})
-	local top = WorldSprite.addLayer(sprite, Sprites.images.structureBall, Sprites.structure.topScale)
-	top.Position = UDim2.fromScale(0.5, 0.33)
-	return { sprite = sprite, top = top, anchor = sprite.anchor :: BasePart }
+	local sprite = WorldSprite.create({ name = "Structure", image = "", studs = 4, ground = 0 })
+	return { sprite = sprite, anchor = sprite.anchor :: BasePart, hover = 0 }
 end, function(parts)
 	return { parts.anchor }
 end)
@@ -41,7 +34,7 @@ end, function(parts)
 end)
 
 local function place(parts: any, x: number, z: number)
-	parts.anchor.CFrame = CFrame.new(x, FLOOR_Y, z)
+	parts.anchor.CFrame = CFrame.new(x, FLOOR_Y + parts.hover, z)
 end
 
 local function ownerRoot(userId: number): Vector3?
@@ -66,10 +59,18 @@ local function onStructures(packet: any)
 		if not parts then
 			parts = pool:acquire(folder)
 			live[row.id] = parts
-			parts.top.ImageColor3 = Color3.fromRGB(def.color[1], def.color[2], def.color[3])
-			parts.top.Image = if def.mode == "Mine" or def.mode == "Garden"
-				then Sprites.images.structureBlock
-				else Sprites.images.structureBall
+			parts.hover = Sprites.structureHover[def.mode] or 0
+			local art = Sprites.structures[row.kind]
+			if art then
+				WorldSprite.setImage(parts.sprite, {
+					name = "Structure",
+					image = art.image,
+					studs = art.studs,
+					ground = art.ground,
+					center = art.center,
+					pixels = art.pixels,
+				})
+			end
 		end
 		place(parts, row.x, row.z)
 		orbits[row.id] = if def.mode == "Orbit" then { parts = parts, ownerId = row.ownerId, id = row.id } else nil

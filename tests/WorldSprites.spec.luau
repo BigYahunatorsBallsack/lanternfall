@@ -60,16 +60,18 @@ describe("Enemy sprites", function()
 	end
 	it("has a sprite for every enemy kind", function()
 		eachType(function(kind)
-			local art = Sprites.enemies[kind.id]
+			local art = SpriteModels.artOf(kind)
 			assert(art, `{kind.id} has no sprite`)
 			assert(art.image ~= "", `{kind.id} has no image`)
 			assert(art.studs > 0, kind.id)
 		end)
 	end)
-	it("has a sprite for every Gloom Elite", function()
-		for id in Config.Enemies.types do
-			local art = Sprites.elites[id]
-			assert(art and art.image ~= "", `Gloom {id} has no sprite`)
+	it("draws a Gloom Elite with its kind's picture, larger", function()
+		for id, kind in Config.Enemies.types do
+			local plain = SpriteModels.artOf(EnemyKinds.byTypeId(kind.typeId))
+			local elite = SpriteModels.artOf(EnemyKinds.byTypeId(kind.typeId + Config.Enemies.elite.typeIdOffset))
+			assert(plain and elite and plain.image == elite.image, id)
+			assert(elite.studs > plain.studs, id)
 		end
 	end)
 	it("moves only a few parts per enemy", function()

@@ -197,7 +197,7 @@ local function buildPortals(parent: Model, lobbyModel: Model)
 			if gate and gate:IsA("BasePart") then
 				gate.Size = settings.gateSize
 				gate.CFrame = gate.CFrame * CFrame.new(settings.gateInset)
-				gate.Transparency = settings.gateTransparency
+				gate.Transparency = 1 -- keeps the prompt and the sign; the light behind the arch shows it
 			end
 			for _, child in original:GetChildren() do
 				if child:IsA("BasePart") and child ~= gate then
@@ -216,6 +216,14 @@ local function buildPortals(parent: Model, lobbyModel: Model)
 			Enum.Material.Slate
 		)
 		makeProp(model, "Arch", base)
+		-- The portal's light, a little further from the camera than the arch, so the arch stands in front of it.
+		makeGlow(
+			model,
+			"PortalLight",
+			settings.gateSize.Y * sprites.glowScale,
+			(facing * CFrame.new(0, settings.gateSize.Y / 2, 1)).Position,
+			color
+		)
 		local emblem = makeGlow(
 			model,
 			"Emblem",
@@ -280,15 +288,7 @@ local function buildPerimeter(parent: Model)
 	local tower = art.perimeter.cornerTowerSize
 	for _, x in { -edge + tower.X / 2, edge - tower.X / 2 } do
 		for _, z in { -edge + tower.Z / 2, edge - tower.Z / 2 } do
-			local sprite = WorldSprite.create({
-				name = "CornerRuin",
-				image = sprites.images.cornerRuin,
-				studs = sprites.lobbyCornerStuds,
-				ground = 0.05,
-			})
-			local anchor = sprite.anchor :: BasePart
-			anchor.CFrame = CFrame.new(lobby.center + Vector3.new(x, 0, z))
-			anchor.Parent = parent
+			makeProp(parent, "CornerRuin", lobby.center + Vector3.new(x, 0, z))
 		end
 	end
 end

@@ -1,7 +1,8 @@
 --!strict
--- Values of the 2D presentation (DESIGN.md section 14): image ids, sizes and motion of every world sprite. Read by
--- client/Sprites/WorldSprite, the renderers and the server services that place lobby and cosmetic sprites. Only looks:
--- nothing here changes hit radii, speeds or other gameplay values.
+-- Values of the 2D presentation (DESIGN.md section 14): sizes and motion of every world sprite; the pictures and their
+-- shares come from the generated Config/SpriteImages (tools/art2d/import_sprites.py). Read by Util/WorldSprite, the
+-- renderers and the server services that place lobby and cosmetic sprites. Only looks: nothing here changes hit radii,
+-- speeds or other gameplay values.
 
 -- `studs` is the side of the square image in the world. `ground` is the empty share below the figure's ground line
 -- (0.5 = the anchor is the middle of the picture) and `center` the share of the figure's horizontal middle.
@@ -22,6 +23,27 @@ export type EnemyArt = Art & {
 	glow: Color3?, -- eyes and lenses: its death burst
 }
 
+local Images: any = require(script.Parent.SpriteImages)
+
+-- The world values of a picture whose figure is `height` studs tall.
+local function fit(entry: any, height: number): Art
+	return table.freeze({
+		image = entry.image,
+		studs = height / entry.height,
+		ground = entry.ground,
+		center = entry.center,
+		pixels = entry.pixels,
+	})
+end
+
+local function fitAll(entries: any, heights: { [string]: number }): { [string]: Art }
+	local result: { [string]: Art } = {}
+	for name, entry in entries do
+		result[name] = fit(entry, heights[name] or heights.default)
+	end
+	return table.freeze(result)
+end
+
 local Sprites = {
 	-- Moves every sprite this many studs towards the camera, so a figure standing just in front of a wall is not cut by
 	-- it. All sprites use the same value, which keeps their order front to back.
@@ -32,11 +54,9 @@ local Sprites = {
 	poseScaleStep = 0.004,
 	poseRotationStep = 0.25,
 
-	-- Player characters. Images are the approved sprites in client/UI/CharacterPortraits; shares measured by
-	-- tools/art2d/character_bounds.py.
+	-- Player characters.
 	character = table.freeze({
-		bodyStuds = 4.3, -- height of the egg body, same as the character it replaces
-		pixels = 1024,
+		bodyStuds = 4.3, -- height of the figure
 		retrySeconds = 5,
 		loadAttempts = 3,
 		idleSpeed = 2.4, -- radians/s
@@ -54,42 +74,18 @@ local Sprites = {
 		downRotationDegrees = 78,
 		downTint = Color3.fromRGB(166, 166, 180),
 		outTint = Color3.fromRGB(96, 96, 112),
-		classes = table.freeze({
-			BladeWarden = { center = 0.490, ground = 0.180, height = 0.585 },
-			CandleScholar = { center = 0.486, ground = 0.166, height = 0.608 },
-			DuelMaestro = { center = 0.507, ground = 0.167, height = 0.606 },
-			FarSeer = { center = 0.555, ground = 0.159, height = 0.607 },
-			ManyHands = { center = 0.493, ground = 0.163, height = 0.610 },
-			MarbleHost = { center = 0.491, ground = 0.116, height = 0.691 },
-			NightWatch = { center = 0.536, ground = 0.168, height = 0.638 },
-			SoleConductor = { center = 0.543, ground = 0.174, height = 0.590 },
-			SparkMage = { center = 0.518, ground = 0.176, height = 0.592 },
-			TwinLedger = { center = 0.506, ground = 0.167, height = 0.606 },
-		}),
+		classes = Images.characters,
 	}),
 
-	-- Shared images, drawn by tools/art2d/generate_generic.py; white parts take the color of the object.
-	images = table.freeze({
-		glow = "",
-		orb = "",
-		bolt = "",
-		crown = "",
-		chest = "",
-		beam = "",
-		plinth = "",
-		structureBall = "",
-		structureBlock = "",
-		lanternCageFrame = "",
-		lanternCageGlow = "",
-		lanternOrbFrame = "",
-		lanternOrbGlow = "",
-		lanternSpireFrame = "",
-		lanternSpireGlow = "",
-		cornerRuin = "",
-	}),
+	-- Shared pictures; their white parts take the color of the object.
+	images = Images.shared,
 
 	-- Looks of enemy sprites that are not in the images themselves.
 	enemy = table.freeze({
+		figureWidth = 2.6, -- width of the figure, times the enemy's radius
+		figureWidths = table.freeze({}) :: { [string]: number }, -- other widths by enemy id
+		-- One step cycle: studs walked, hop (share of the radius), sway and lean (radians).
+		gait = table.freeze({ stride = 4.8, bob = 0.045, roll = 0.055, lean = 0.065 }),
 		flashBrightness = 5,
 		statusTint = 0.55,
 		rushTint = Color3.fromRGB(255, 120, 110),
@@ -110,25 +106,35 @@ local Sprites = {
 		lowDetailStep = 3, -- crowds: only every n-th frame poses the picture
 	}),
 
-	-- Filled by tools/art2d/BakeMeshSprites.luau: one image per enemy kind (+ `elites` for its Gloom Elite), from the
-	-- approved enemy designs seen from the game camera.
-	enemies = table.freeze({} :: { [string]: EnemyArt }),
-	elites = table.freeze({} :: { [string]: EnemyArt }),
+	-- One picture per enemy kind; a Gloom Elite uses its kind's picture, larger and with a crown.
+	enemyImages = Images.enemies,
 
-	-- Fruit and crates (PickupRenderer), same source.
-	pickups = table.freeze({} :: { [string]: Art }),
+	-- Fruit and crates (PickupRenderer): figure heights in studs.
+	pickups = fitAll(Images.pickups, { default = 2.6, Fruit = 2.2, Crate = 3, LegendaryCrate = 3.6 }),
 
-	-- Hub lobby props (LobbyArtService): Arch, Beacon, Lamp; same source.
-	lobby = table.freeze({} :: { [string]: Art }),
+	-- Hub lobby props (LobbyArtService).
+	lobby = fitAll(Images.lobby, { default = 10, Arch = 20, Beacon = 14, Lamp = 10, CornerRuin = 12 }),
 	lobbyParapetHeight = 0.12, -- the old low wall, now a flat band
-	lobbyCornerStuds = 12,
+
+	-- Floor pictures: `studs` is the side of one tile (MapService).
+	floors = table.freeze({
+		Arena = table.freeze({ image = Images.floors.Arena, studs = 40 }),
+		Lobby = table.freeze({ image = Images.floors.Lobby, studs = 40 }),
+	}),
 
 	-- Cosmetic lanterns float beside the character (CosmeticService).
 	lantern = table.freeze({ studs = 2.2 }),
 	-- Elite chests.
-	chest = table.freeze({ studs = 3.6, beamStuds = 26, beamWidth = 2.4, beamTransparency = 0.45 }),
-	-- Sentries and companions (StructureRenderer).
-	structure = table.freeze({ studs = 3.6, topScale = 0.5 }),
+	chest = table.freeze({ art = fit(Images.world.Chest, 3.2) }),
+	-- Sentries and companions (StructureRenderer): one picture per kind, figure heights in studs, some float.
+	structures = fitAll(Images.structures, {
+		default = 4.5,
+		RuneMine = 1.8,
+		MoonGarden = 2.8,
+		OrbitWisp = 1.8,
+		StormFamiliar = 2.4,
+	}),
+	structureHover = table.freeze({ Orbit = 2, Radial = 2 }) :: { [string]: number },
 	-- XP orbs are this much larger than their former balls, because a soft edge reads smaller.
 	orbScale = 1.2,
 	-- Bolts and shots: picture size against the former halo.

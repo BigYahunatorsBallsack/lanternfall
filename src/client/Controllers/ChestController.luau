@@ -64,11 +64,13 @@ end
 local function build(): Drawn
 	local model = Instance.new("Model")
 	model.Name = "Chest"
+	local art = Config.Sprites.chest.art
 	local sprite = WorldSprite.create({
 		name = "Box",
-		image = Config.Sprites.images.chest,
-		studs = Config.Sprites.chest.studs,
-		ground = 0.1,
+		image = art.image,
+		studs = art.studs,
+		ground = art.ground,
+		center = art.center,
 	})
 	local box = sprite.anchor :: BasePart
 	box.Parent = model

@@ -223,7 +223,7 @@ describe("Ember shop", function()
 		world.advance(0.3)
 		expect(data.cosmetics.equipped.Lantern).toBe(Cosmetics.none)
 		world.fireServerAs(me, "BuyWithEmbers", "Weapon", "MortarLantern") -- fails validation, nothing happens
-		world.fireServerAs(me, "BuyWithEmbers", "Character", "BladeWarden")
+		world.fireServerAs(me, "BuyWithEmbers", "Character", "NightWatch")
 		world.advance(0.3)
 		expect(hasToast(Texts.notForSale)).toBe(true)
 	end)

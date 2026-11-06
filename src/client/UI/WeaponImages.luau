@@ -29,4 +29,9 @@ local images: { [string]: string } = {
 	RuneAwl = "rbxassetid://90717482239252",
 }
 
+-- Pictures delivered through tools/art2d/import_sprites.py replace today's.
+for id, image in require(game:GetService("ReplicatedStorage").Shared.Config.SpriteImages).weapons do
+	images[id] = image
+end
+
 return table.freeze(images)

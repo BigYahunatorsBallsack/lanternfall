@@ -25,7 +25,7 @@ local function run(overrides)
 		won = false,
 		wave = 7,
 		danger = 0,
-		classId = "BladeWarden",
+		classId = "NightWatch",
 		kills = 120,
 		bossKills = 0,
 		seconds = 300,
@@ -72,7 +72,7 @@ describe("progress rules", function()
 	end)
 
 	it("locks what an achievement unlocks until it is done or bought", function()
-		expect(ProgressRules.isUnlocked("characters", "BladeWarden", {})).toBe(true)
+		expect(ProgressRules.isUnlocked("characters", "NightWatch", {})).toBe(true)
 		expect(ProgressRules.isUnlocked("characters", "ManyHands", {})).toBe(false)
 		expect(ProgressRules.isUnlocked("characters", "ManyHands", { DeepNight = true })).toBe(true)
 		expect(ProgressRules.isUnlocked("characters", "ManyHands", {}, { "ManyHands" })).toBe(true)
@@ -85,12 +85,12 @@ describe("progress rules", function()
 	end)
 
 	it("opens danger levels per character, one above the highest won", function()
-		expect(ProgressRules.maxDanger(record(), "BladeWarden")).toBe(0)
-		local data = record({}, { BladeWarden = { wins = 1, bestDanger = 2 } })
-		expect(ProgressRules.maxDanger(data, "BladeWarden")).toBe(3)
+		expect(ProgressRules.maxDanger(record(), "NightWatch")).toBe(0)
+		local data = record({}, { NightWatch = { wins = 1, bestDanger = 2 } })
+		expect(ProgressRules.maxDanger(data, "NightWatch")).toBe(3)
 		expect(ProgressRules.maxDanger(data, "SparkMage")).toBe(0)
-		data.characterStats.BladeWarden.bestDanger = 5
-		expect(ProgressRules.maxDanger(data, "BladeWarden")).toBe(5)
+		data.characterStats.NightWatch.bestDanger = 5
+		expect(ProgressRules.maxDanger(data, "NightWatch")).toBe(5)
 	end)
 
 	it("pays Embers per minute, champion and boss with danger and party bonus", function()
@@ -152,7 +152,7 @@ describe("saved progress", function()
 		end
 		local info = ProfileRecords.info(data, "Memory")
 		expect(info.characterDanger.NightWatch).toBe(2)
-		expect(info.characterDanger.BladeWarden).toBe(0)
+		expect(info.characterDanger.NightWatch).toBe(0)
 		expect(info.achievements.Dawn).toBe(true)
 		expect(info.progress.ChampionHunter).toBe(5)
 	end)

@@ -1406,7 +1406,7 @@ describe("smoke", function()
 		world.fireServerAs(late, "SelectClass", "Trapper")
 		world.fireServerAs(me, "SelectClass", "Trapper")
 		world.advance(0.2)
-		expect(RunStateController.getPlayer(3).classId).toBe("BladeWarden")
+		expect(RunStateController.getPlayer(3).classId).toBe("NightWatch")
 		local toasts = {}
 		for _, object in world.gui("Notify"):GetDescendants() do
 			if object.ClassName == "TextLabel" then

@@ -137,7 +137,6 @@
   "studio": {
     "selectionRemote": "SelectClass",
     "classes": [
-      "BladeWarden",
       "SparkMage",
       "NightWatch",
       "ManyHands",

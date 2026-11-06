@@ -1,7 +1,7 @@
 --!strict
 -- EnemyRenderer's looks since Paket 25: every enemy is one pooled 2D sprite plus a flat shadow on the floor, with the same
--- functions as the former rig module (Models.luau, kept as the source of the bake in tools/art2d). Sizes come from the
--- bake, so a sprite covers what the model covered; the collision radius stays the enemy's own.
+-- functions as the former rig module (Models.luau). The figure's width follows the enemy's collision radius
+-- (Config/Sprites); pictures come from Config/SpriteImages.
 -- Gloom Elites keep their crown, HP and affix label, Swift trail, Armored steel and Summoning wisps. Bosses and champions
 -- keep their red glow; BossController draws their attack warnings. Floor warnings stay flat parts on the floor.
 
@@ -12,6 +12,8 @@ local EnemyKinds = require(Shared:WaitForChild("Util"):WaitForChild("EnemyKinds"
 local WorldSprite = require(
 	game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Util"):WaitForChild("WorldSprite")
 )
+
+local SpritesConfig = require(Shared:WaitForChild("Config"):WaitForChild("Sprites"))
 
 local Sprites = Config.Sprites
 local Look = Sprites.enemy
@@ -104,20 +106,41 @@ local function flatPart(name: string, shape: Enum.PartType, size: Vector3, color
 	return part
 end
 
--- The sprite values of an enemy kind: the bake's entry for it, an elite falling back to its plain kind.
-local function artOf(enemy: any): Sprites.EnemyArt?
+local artCache: { [any]: SpritesConfig.EnemyArt } = {}
+
+-- The sprite values of an enemy kind. An elite has its plain kind's picture; its larger radius makes it larger.
+local function artOf(enemy: any): SpritesConfig.EnemyArt?
 	if not enemy then
 		return nil
 	end
-	if enemy.elite and Sprites.elites[enemy.id] then
-		return Sprites.elites[enemy.id]
+	local cached = artCache[enemy]
+	if cached then
+		return cached
 	end
-	return Sprites.enemies[enemy.id]
+	local image = Sprites.enemyImages[enemy.id]
+	if not image then
+		return nil
+	end
+	local gait = Look.gait
+	local art: SpritesConfig.EnemyArt = {
+		image = image.image,
+		studs = enemy.radius * (Look.figureWidths[enemy.id] or Look.figureWidth) / image.width,
+		ground = image.ground,
+		center = image.center,
+		pixels = image.pixels,
+		stride = gait.stride,
+		bob = gait.bob,
+		roll = gait.roll,
+		lean = gait.lean,
+		glow = image.color,
+	}
+	artCache[enemy] = art
+	return art
 end
 
 SpriteModels.artOf = artOf
 
-local function addElite(visual: any, enemy: any, art: Sprites.EnemyArt, r: number)
+local function addElite(visual: any, art: SpritesConfig.EnemyArt, r: number)
 	local anchor = visual.body
 	local light = Instance.new("PointLight")
 	light.Color = ELITE_GLOW_COLOR
@@ -202,7 +225,7 @@ function SpriteModels.build(typeId: number): Visual
 	local model = Instance.new("Model")
 	model.Name = if enemy then (if enemy.elite then `Elite{enemy.id}` else enemy.id) else `Unknown{typeId}`
 	local r = if enemy then enemy.radius else 1.5
-	local art: Sprites.EnemyArt = artOf(enemy)
+	local art: SpritesConfig.EnemyArt = artOf(enemy)
 		or { image = "", studs = r * 3, ground = 0.05, stride = 4, bob = 0.05, roll = 0.05, lean = 0.1 }
 	local sprite = WorldSprite.create({
 		name = "Body",
@@ -280,7 +303,7 @@ function SpriteModels.build(typeId: number): Visual
 		poseTick = 0,
 	}
 	if enemy and enemy.elite then
-		addElite(visual, enemy, art, r)
+		addElite(visual, art, r)
 	end
 	if enemy and enemy.boss then
 		local light = Instance.new("PointLight")
@@ -324,12 +347,10 @@ end
 -- Loads every enemy image while the player is in the lobby.
 function SpriteModels.preload()
 	local probes: { Instance } = {}
-	for _, list in { Sprites.enemies, Sprites.elites } do
-		for _, art in list do
-			local probe = Instance.new("ImageLabel")
-			probe.Image = art.image
-			table.insert(probes, probe)
-		end
+	for _, entry in Sprites.enemyImages do
+		local probe = Instance.new("ImageLabel")
+		probe.Image = entry.image
+		table.insert(probes, probe)
 	end
 	local ok, err = pcall(function()
 		game:GetService("ContentProvider"):PreloadAsync(probes)

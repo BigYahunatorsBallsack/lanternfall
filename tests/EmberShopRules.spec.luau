@@ -11,7 +11,7 @@ local function wallet(embers)
 	return {
 		embers = embers or 0,
 		achievements = {},
-		classes = { "BladeWarden", "SparkMage" },
+		classes = { "NightWatch", "SparkMage" },
 		cosmetics = { owned = {}, equipped = {} },
 	}
 end
@@ -29,8 +29,8 @@ describe("Ember shop rules", function()
 	it("prices only locked characters that are listed", function()
 		local price = EmberShopRules.characterPrice("ManyHands")
 		expect(price).toBe(Config.Progress.characterPrices.ManyHands)
-		expect(EmberShopRules.characterPrice("BladeWarden")).toBe(nil)
-		local _, reason = EmberShopRules.price("Character", "BladeWarden", wallet(99999), false)
+		expect(EmberShopRules.characterPrice("NightWatch")).toBe(nil)
+		local _, reason = EmberShopRules.price("Character", "NightWatch", wallet(99999), false)
 		expect(reason).toBe("notForSale")
 		_, reason = EmberShopRules.price("Character", "Nobody", wallet(99999), false)
 		expect(reason).toBe("notForSale")

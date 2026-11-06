@@ -1,6 +1,6 @@
 # B10 – Charaktere und Testanleitung
 
-Zehn Charaktere aus dem Brotato-Basisspiel als eigene Lanternfall-Regelpakete. Keine DLC-Charaktere, keine neuen Waffen in diesem Paket. HP und HP-Abzüge sind mit 10 skaliert. Die Startauswahl enthält ausschließlich bereits implementierte B7-Waffen aus den jeweiligen Vorbild-Startlisten; noch fehlende Waffen werden nicht durch Platzhalter angeboten.
+Charaktere aus dem Brotato-Basisspiel als eigene Lanternfall-Regelpakete (ursprünglich zehn; Blade Warden ist seit Paket 25 entfernt). Keine DLC-Charaktere, keine neuen Waffen in diesem Paket. HP und HP-Abzüge sind mit 10 skaliert. Die Startauswahl enthält ausschließlich bereits implementierte B7-Waffen aus den jeweiligen Vorbild-Startlisten; noch fehlende Waffen werden nicht durch Platzhalter angeboten.
 
 ## Zuordnung und Quellen
 
@@ -8,7 +8,6 @@ Abgleich am 30.10.2026; die Wiki-Namen stehen nur in der Entwicklungsdokumentati
 
 | Lanternfall | Referenz | Umsetzung |
 | --- | --- | --- |
-| Blade Warden | [Well Rounded](https://brotato.wiki.spellsandguns.com/Well_Rounded) | +50 Max HP, +5 % Speed, +8 Harvesting |
 | Spark Mage | [Mage](https://brotato.wiki.spellsandguns.com/Mage) | Elemental ×1,25, Melee/Ranged ×0, Engineering ×0,5; Ash Serpent und Smoldering Wick zu Beginn |
 | Night Watch | [Ranger](https://brotato.wiki.spellsandguns.com/Ranger) | +50 Range, zusätzliche Watchman Pistol; Ranged ×1,5, Max HP ×0,75; keine Nahkampfwaffen |
 | Many Hands | [Multitasker](https://brotato.wiki.spellsandguns.com/Multitasker) | zwölf Plätze; +20 % Damage, −5 % je gehaltener Waffe; Setboni bleiben bei sechs gedeckelt |
@@ -26,23 +25,23 @@ Die Multiplikatoren gelten für erworbene Werte einschließlich negativer Änder
 - Standard sechs Waffen, persönliche Grenzen serverseitig. Nah-/Fernkampf-Verbot gilt auch für direkte Waffenvergaben. Ein volles Teil-Limit erlaubt weiterhin den Kauf einer gleichen Waffenstufe zum Verschmelzen.
 - Wunsch-Tags: 5 % Sonderziehung im passenden Seltenheitspool, danach normaler Fallback. Positive Werte und Effektboni des eigenen Item-Katalogs liefern die Affinitäten; Consumable/Burn erhalten passende Affinitäten. Das ist eine dokumentierte Annäherung an die Wiki-Tags. Keine Seltenheits-Erhöhung durch den Wunsch-Pool.
 - Der Client markiert die Startwaffe erst nach Serverbestätigung. Fremde Charakterwahl, nicht angebotene Waffen und Änderungen während des eigenen Runs werden abgewiesen. Auswahl wird pro Spieler und Charakter innerhalb der Session gemerkt.
-- `BladeWarden` und `SparkMage` behalten ihre Profil-IDs, bekommen aber neue Regelpakete. `LanternKeeper` und `Trapper` bleiben als gesperrte Alt-IDs lesbar. Freischaltungen folgen in Paket 13; die zehn neuen Pakete sind zum Testen alle frei.
+- `SparkMage` behält seine Profil-ID, bekommt aber ein neues Regelpaket. `LanternKeeper` und `Trapper` bleiben als gesperrte Alt-IDs lesbar. Freischaltungen folgen in Paket 13; die zehn neuen Pakete sind zum Testen alle frei.
 - Keine Änderung am Arsenal, Profilformat oder RunFlow. Der Waffenservice setzt die gemeinsame technische Obergrenze auf das größte Charakterlimit und prüft persönliche Regeln vor jeder Vergabe.
 
 ## Test in Studio
 
 1. [Branch als ZIP herunterladen](https://github.com/BigYahunatorsBallsack/lanternfall/archive/refs/heads/wp-b10-characters.zip), entpacken und aus diesem Ordner wie bisher `rojo serve` starten. Studio mit diesem Rojo-Projekt verbinden. Unter **Fenster → Ausgabe** die Ausgabe öffnen.
-2. **Play** starten. In der Lobby müssen zehn Charakterknöpfe sichtbar sein. Jeden kurz anklicken: Beschreibung und angebotene Startwaffen wechseln. Eine andere Startwaffe auswählen und **READY** drücken; genau diese muss im Run erscheinen.
+2. **Play** starten. In der Lobby müssen neun Charakterknöpfe sichtbar sein. Jeden kurz anklicken: Beschreibung und angebotene Startwaffen wechseln. Eine andere Startwaffe auswählen und **READY** drücken; genau diese muss im Run erscheinen.
 3. **Spark Mage**: bei Start Ash Serpent und Smoldering Wick sowie 90 HP prüfen. **Night Watch**: zur gewählten Waffe kommt eine Watchman Pistol dazu; im Shop nur Fernkampfwaffen.
 4. **Sole Conductor**: im Shop nur ein Waffenplatz. Gleiche Waffenstufe kaufen muss die gehaltene Waffe verbessern. Andere Waffe erst nach Verkauf aufnehmen. **Many Hands**: bis zwölf Waffen aufnehmen; Damage sinkt je zusätzlicher Waffe um fünf Punkte und steigt beim Verkauf wieder.
 5. **Duel Maestro**: unterschiedliche Nahkampfwaffen erhöhen Attack Speed, zusätzliche Kopien nicht. **Twin Ledger**: maximal drei Nah- und drei Fernkampfwaffen; vierte gleiche Art blockiert, andere Art weiterhin erlaubt.
-6. **Far Seer**: Range erhöht Damage; **Marble Host**: dauerhafte Max HP erhöhen Damage, Speed-Items ändern Speed nicht; **Candle Scholar**: Level-up erhöht die vier Angriffswerte, Max HP sinkt netto um zehn. **Blade Warden**: Start mit 150 HP, +5 Speed, +8 Harvesting.
+6. **Far Seer**: Range erhöht Damage; **Marble Host**: dauerhafte Max HP erhöhen Damage, Speed-Items ändern Speed nicht; **Candle Scholar**: Level-up erhöht die vier Angriffswerte, Max HP sinkt netto um zehn.
 7. Einen Run beenden und neu starten. Alte Items und Charakterboni dürfen nicht mitgenommen werden. Danach mit **zwei Clients** testen (im selben Studio-Fenster zwischen Clients wechseln): verschiedene Charaktere und Startwaffen wählen, beide READY; Grenzen und Boni müssen pro Spieler getrennt bleiben.
 8. Fenster kleiner ziehen beziehungsweise Handy-Vorschau prüfen: Charakterknöpfe, Beschreibung, Startwaffen und READY müssen bedienbar sein. Ausgabe auf rote Fehler prüfen.
 
 ## Automatisierte Abnahme und Grenzen
 
-`CharactersB10.spec.luau` bootet den echten, unveränderten Katalog mit Server und Client und prüft alle zehn Pakete, zwei Spieler, verbotene Auswahl, Startitems, Item-/Karten-/dynamische Multiplikatoren, Konvertierungen, Teil-Limits, zwölf Waffen, Kauf-Verschmelzung und Reset. Der bestehende Smoke-Test verwendet eine explizite alte Spark-Mage-Testfigur für seine allgemeinen Kampf-/Item-Szenarien; B10 wird unabhängig davon mit den produktiven Daten geprüft.
+`CharactersB10.spec.luau` bootet den echten, unveränderten Katalog mit Server und Client und prüft alle neun Pakete, zwei Spieler, verbotene Auswahl, Startitems, Item-/Karten-/dynamische Multiplikatoren, Konvertierungen, Teil-Limits, zwölf Waffen, Kauf-Verschmelzung und Reset. Der bestehende Smoke-Test verwendet eine explizite alte Spark-Mage-Testfigur für seine allgemeinen Kampf-/Item-Szenarien; B10 wird unabhängig davon mit den produktiven Daten geprüft.
 
 Nach Integration von main inklusive B9/Boss (`327e6f9`): 388 Tests in 31 Dateien bestanden, StyLua und Rojo-Build erfolgreich, Selene ohne Fehler (acht bestehende UI-Stilwarnungen).
 

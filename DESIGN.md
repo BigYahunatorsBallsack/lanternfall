@@ -219,17 +219,16 @@ Explosionen, Brennen, Durchschlag, Abprall und Rückstoß kamen mit der Kampf-Ti
 
 **Stillstand (seit B4):** Wer in einer Welle mindestens 0,2 s langsamer als 1 Stud/s ist, steht still; wieder losgehen zählt ebenso erst nach 0,2 s, damit kurzes Zucken den Bonus nicht flackern lässt (Annahme, Brotato nennt keine Zahlen; `Config/Effects.luau` → `standStill`). Im Shop, down oder außerhalb des Runs gibt es keinen Stillstands-Bonus.
 
-Seit Paket 4 umgesetzt (Werte in `Config/Player.luau` und `Config/Camera.luau`): Kamera 50° Neigung (seit Feedback zu Paket 9, vorher 60°), 100 Studs Abstand (seit B9, vorher 70), Sichtfeld 40°, folgt weich. Springen ist aus; Leertaste und Gamepad-A lösen keine Aktion aus; es gibt keinen Dash-Knopf. Wer „down" ist, kann nicht laufen. Klassenbonus auf HP wird beim Run-Start eingerechnet (Blade Warden 120 HP; seit B2 als +20 Max HP). Im HUD unten Mitte die eigene HP-Leiste (rot unter 30 %), kurzer roter Bildschirm-Blitz bei Treffern, HP der Mitspieler in der Team-Liste.
+Seit Paket 4 umgesetzt (Werte in `Config/Player.luau` und `Config/Camera.luau`): Kamera 50° Neigung (seit Feedback zu Paket 9, vorher 60°), 100 Studs Abstand (seit B9, vorher 70), Sichtfeld 40°, folgt weich. Springen ist aus; Leertaste und Gamepad-A lösen keine Aktion aus; es gibt keinen Dash-Knopf. Wer „down" ist, kann nicht laufen. Klassenbonus auf HP wird beim Run-Start eingerechnet. Im HUD unten Mitte die eigene HP-Leiste (rot unter 30 %), kurzer roter Bildschirm-Blitz bei Treffern, HP der Mitspieler in der Team-Liste.
 
 Alle Werte stehen in Config-Modulen, nicht im Code.
 
 ## 5. Charaktere (B10)
 
-Zehn auswählbare Regelpakete ersetzen die beiden Prototyp-Klassen. Namen und Look bleiben eigenständig; Regeln und Zahlen folgen zehn Charakteren des Brotato-Basisspiels. Vollständige Zuordnung, Quellen und Studio-Test: `docs/B10-CHARAKTERE.md`.
+Neun auswählbare Regelpakete ersetzen die beiden Prototyp-Klassen; ihre Regeln und Zahlen folgen Charakteren des Brotato-Basisspiels. Blade Warden ist seit Paket 25 auf Owner-Wunsch entfernt, Standard-Charakter ist jetzt Night Watch. Vollständige Zuordnung, Quellen und Studio-Test: `docs/B10-CHARAKTERE.md`.
 
 | Charakter | Vorbild | Besonderheit |
 | --- | --- | --- |
-| Blade Warden | Well Rounded | +50 HP, +5 % Tempo, +8 Harvesting |
 | Spark Mage | Mage | Elementar-Gewinne ×1,25; zwei Startitems; kein Nah-/Fernkampf-Wertegewinn |
 | Night Watch | Ranger | zusätzliche Pistole, nur Fernkampf, Fernkampf-Gewinne ×1,5, HP-Gewinne ×0,75 |
 | Many Hands | Multitasker | zwölf Plätze, +20 % Schaden und −5 % je Waffe |
@@ -246,7 +245,7 @@ Feste Charakter-Startwerte werden unverändert addiert; `gainMultipliers` wirken
 
 Der Shop verwendet persönliche Waffenlimits und Nah-/Fernkampf-Beschränkungen, einschließlich Kauf-Verschmelzung bei einem vollen Teil-Limit. Bei 5 % der Item-Ziehungen wird innerhalb der gewürfelten Seltenheit ein passendes Wunsch-Tag bevorzugt; fehlt ein passendes Item, gilt der normale Pool. Item-Tags sind aus positiven Werten/Effekt-Boni des eigenen Katalogs abgeleitete Affinitäten, keine vollständige Kopie der Wiki-Taglisten. Limit, Sperren und Duplikatvermeidung bleiben erhalten.
 
-Seit Paket 21f besitzen alle zehn Charaktere räumliche, kompakte Ei-Modelle mit getrennt bewegten Armen und Füßen. Der Server bindet die ausgewählte Optik bei Klassenwahl und Respawn an den vorhandenen R15-Spielcharakter; Klassenregeln und Kollisionen bleiben dort. Jeder Client zeigt das Modell erst nach erfolgreichem Vorladen seiner Meshes und Farbtexturen und animiert seine R15-Bones aus Bewegung und Down-Zustand. Upload-IDs und reine Darstellungswerte stehen in `Config/CharacterArt.luau`, Quellen und Prüfberichte in `assets/characters-r15/`.
+Seit Paket 25 sind alle Charaktere 2D-Bilder (Abschnitt 14, `Config/SpriteImages`); der Avatar darunter bleibt unsichtbar für Bewegung und Kollision. Die 3D-Modelle aus Paket 21f (`assets/characters-r15`) werden nicht mehr geladen.
 
 ## 6. Waffen, Items & Evolutionen
 
@@ -383,7 +382,7 @@ Jede Waffe = ein Datensatz im Config-Modul + ein kleines Verhaltens-Modul. Neue 
 
 | Waffe | Annahme |
 | --- | --- |
-| Orbit Blades | Die Klingen sind lange Schwerter, die von 2 Studs bis zum Radius (7) reichen, 1 Stud breit, 240°/s (Paket 7, vorher 180°/s). So treffen sie auch Gegner, die direkt am Spieler stehen (Blade Warden = „mitten rein"). Jeder Gegner höchstens alle 0,5 s; mit 2 Klingen wird jeder Punkt etwa 1,3-mal pro Sekunde überstrichen. Ruhen, solange der Spieler down ist. |
+| Orbit Blades | Die Klingen sind lange Schwerter, die von 2 Studs bis zum Radius (7) reichen, 1 Stud breit, 240°/s (Paket 7, vorher 180°/s). So treffen sie auch Gegner, die direkt am Spieler stehen. Jeder Gegner höchstens alle 0,5 s; mit 2 Klingen wird jeder Punkt etwa 1,3-mal pro Sekunde überstrichen. Ruhen, solange der Spieler down ist. |
 | Spark Bolt | 60 Studs/s, Reichweite 40 Studs (etwa der sichtbare Bereich), Trefferradius 0,5. Schießt nur, wenn ein Gegner in Reichweite ist. Mehrere Bolts gehen an verschiedene nächste Gegner; gibt es zu wenige, fächern die übrigen um 12° um den nächsten auf. Durchbohrt 1 heißt: fliegt durch den ersten Gegner und stoppt am zweiten (seit B5 bekommt der zweite nur noch 50 %, Brotatos Abzug). Hindernisse halten Bolts nicht auf. |
 | Shockwave (seit Paket 21e) | Schlägt auf den nächsten Gegner innerhalb von 15 Studs. Der direkte Treffer verursacht vollen Waffenschaden und den normalen Rückstoß. Am Aufschlag entsteht eine Druckwelle mit 4,5 Studs Radius; weitere Gegner erhalten 35 % Schaden und 40 % des Rückstoßes vom Aufschlag weg. Explosion Size und Explosion Damage skalieren die Welle. |
 | Chain Lightning (Paket 8) | „Springt über 3 Gegner" heißt: trifft 3 Gegner insgesamt (jedes Level einer mehr). Der erste muss höchstens 25 Studs entfernt sein, jeder weitere höchstens 12 Studs vom vorigen; nie zweimal derselbe. Alle Treffer sofort. Wartet auf einen Gegner in Reichweite. |
@@ -394,7 +393,7 @@ Jede Waffe = ein Datensatz im Config-Modul + ein kleines Verhaltens-Modul. Neue 
 
 **Spark Mage:** seit Paket 5 wählbar (Spark Bolt, seit B2 +10 % Attack Speed). Das eigene Kostüm kommt mit dem Look in Paket 21.
 
-**Items im Spiel (seit B2):** Items kommen aus dem Shop und aus Elite-Truhen (mindestens Uncommon, Abschnitt 8). Ihre Werte addieren sich mit Klasse, Werte-Karten und Team-Level (Blade Warden mit 2 × Vitality: 100 + 20 + 2 × 30 = 180 HP, Damage −2 %). Mehr Max HP heilt um den Unterschied, weniger kappt nur. Speed ändert das Lauftempo. Oben links im HUD stehen die Items mit Anzahl („Might x3") in der Farbe ihrer Stufe. Die Passive (Paket 6 bis B1) gibt es nicht mehr.
+**Items im Spiel (seit B2):** Items kommen aus dem Shop und aus Elite-Truhen (mindestens Uncommon, Abschnitt 8). Ihre Werte addieren sich mit Klasse, Werte-Karten und Team-Level (zwei Vitality auf 100 Start-HP: 100 + 20 + 2 × 30 = 180 HP, Damage −2 %). Mehr Max HP heilt um den Unterschied, weniger kappt nur. Speed ändert das Lauftempo. Oben links im HUD stehen die Items mit Anzahl („Might x3") in der Farbe ihrer Stufe. Die Passive (Paket 6 bis B1) gibt es nicht mehr.
 
 **Waffen und Werte (seit B2, seit B5 mit Brotatos Kampfwerten; `Config/Weapons.luau` → `kind`, `classes`, `scaling`, `rangeKeys`, `base`):** Jede Waffe ist Melee oder Ranged (Range wirkt bei Melee nur zur Hälfte), gehört zu 1–2 Waffenklassen (unten) und skaliert mit einem oder mehreren Werten (Brotatos Schreibweise „15 (+100 % Melee)"). Seit B5 hat jede Waffe eigene Krit-Werte und einen Rückstoß in Brotato-Punkten. Bis B5 hieß das Feld `class` (Melee/Ranged/Elemental); Elemental ist jetzt eine Waffenklasse.
 
@@ -803,21 +802,21 @@ Folgerungen: 15 von 24 Siegen statt gut 10 von 24 in B3; die größere Auswahl i
 **Umgesetzt (Paket 13, 31.10.2026, Brotato-Referenz):** Keine dauerhaften Stärke-Boni, nur Freischaltungen; die Talente unten entfallen (Felder bleiben im Schema). Alle Zahlen in `Config/Progress.luau`, Formeln in `Util/ProgressRules`.
 
 - **Embers pro Run** (jeder fertige Run, nicht abgebrochen): 10 pro volle überlebte Minute, 15 pro getötetem Champion, 150 pro Boss; dazu +10 % pro Gefahrenstufe und +10 % Party-Bonus ab 2 Spielern. Ergebnis-Bildschirm zeigt die Zeilen und die Summe. Embers kaufen ab Paket 17 Charaktere früher frei (Ember-Shop).
-- **22 Erfolge** zählen über alle Runs (Gesamtwerte im Profil) und zahlen einmal Embers (50–500). Was ein Erfolg freischaltet, ist bis dahin gesperrt: gesperrte Charaktere kann man nicht wählen (Lobby zeigt „LOCKED: …“ mit der Bedingung), gesperrte Waffen und Items kommen nie im Shop und nie aus Kisten. Startwaffen und Start-Items werden nie gesperrt.
-- **Von Anfang an offen:** Blade Warden, Spark Mage, Night Watch, Duel Maestro und alle übrigen Waffen und Items.
+- **21 Erfolge** zählen über alle Runs (Gesamtwerte im Profil) und zahlen einmal Embers (50–500). Was ein Erfolg freischaltet, ist bis dahin gesperrt: gesperrte Charaktere kann man nicht wählen (Lobby zeigt „LOCKED: …“ mit der Bedingung), gesperrte Waffen und Items kommen nie im Shop und nie aus Kisten. Startwaffen und Start-Items werden nie gesperrt.
+- **Von Anfang an offen:** Spark Mage, Night Watch, Duel Maestro und alle übrigen Waffen und Items.
 
 | Erfolg | Bedingung | Embers | Schaltet frei |
 | --- | --- | --- | --- |
 | First Night | 1 Run beenden | 50 | – |
 | Deep Into the Night | Welle 10 erreichen | 100 | Many Hands |
-| Dawn | einen Run gewinnen | 200 | Lantern Codex |
+| Dawn | einen Run gewinnen | 200 | Lantern Codex, Marble Host |
 | A Thousand Shades | 2.000 Gegner töten | 100 | Sole Conductor |
 | Endless Swarm | 20.000 Gegner töten | 300 | Eight-Eyed Idol |
 | Champion Hunter | 5 Champions töten | 150 | Mortar Lantern |
 | Kingslayer | einen Boss töten | 200 | Cathedral Engine |
 | Rescuer | 5 Teammates wiederbeleben | 100 | Hearth Sprite |
 | Regular | 25 Runs beenden | 200 | Tithe Palm |
-| Sieg mit Blade Warden / Spark Mage / Night Watch / Duel Maestro | Run gewinnen | je 100 | Marble Host / Candle Scholar / Far Seer / Twin Ledger |
+| Sieg mit Spark Mage / Night Watch / Duel Maestro | Run gewinnen | je 100 | Candle Scholar / Far Seer / Twin Ledger |
 | Sieg mit Many Hands / Sole Conductor / Far Seer / Marble Host / Twin Ledger / Candle Scholar | Run gewinnen | je 100 | Dusk Sabre / Titan Arms / Fortune Coin / Colossus Heart / Cinder Breath / Eternal Flame |
 | Brave / Fearless / Lantern Saint | Gefahrenstufe 1 / 3 / 5 gewinnen | 150 / 250 / 500 | Crimson Hand / Thunder Shells / Pyre Ashes |
 
@@ -957,6 +956,17 @@ Umsetzungsstand, technische Checks und die noch ausstehende echte Studio-Abnahme
 - Bilder, Prüfgrenzen und Bedienanleitung: `docs/UI-BROTATO-REWORK.md`. Item-Symbole stellen Wertekategorien dar; Figuren und Inhalte bleiben eigene Lanternfall-Entwürfe. Keine Änderung der Serverregeln oder Zahlen.
 
 ## 14. Art-Direction & Audio
+
+**2D-Darstellung (seit Paket 25, Owner-Entscheidung 06.11.2026):** Alles Sichtbare in der Welt sind Bilder, der Look soll so nah wie möglich an Brotato liegen. ChatGPT zeichnet alle Bilder neu nach `docs/SPRITE-AUFTRAG.md`, Claude baut den Code. Bilder aus Brotato oder dem Wiki werden nicht verwendet, weil Roblox nur auf dem Konto des Owners hochgeladene Bilder anzeigt.
+
+| Thema | Regel |
+| --- | --- |
+| Renderer | Ein gemeinsames `Util/WorldSprite`: ein Bild zeigt immer zur Kamera, steht mit den Füßen auf einem unsichtbaren Anker und wird von Wänden verdeckt (kein AlwaysOnTop). Alle Sprites haben denselben Abstand zur Kamera, die Reihenfolge vorn/hinten bleibt dadurch richtig. |
+| Bilder | Liste: `tools/art2d/sprites.json`. `tools/art2d/import_sprites.py` schneidet jedes Bild zu, stellt die Füße auf eine Linie, lädt nur Geändertes hoch und schreibt `Config/SpriteImages.luau` (nie von Hand ändern). Fehlt ein Bild in `assets/world2d/final`, gilt der Platzhalter aus `assets/world2d/placeholder`. |
+| Größen | `Config/Sprites.luau`. Gegner: Breite = Trefferradius × `enemy.figureWidth`, die Trefferzonen bleiben unverändert. Gloom Elites nutzen das Bild ihrer Art, größer und mit Krone. |
+| Animation | Ein Bild pro Figur. Spiegeln, Hüpfen, Quetschen, Neigen, Treffer-Blitz und Färbung macht der Code. |
+| Boden | Kachelbild pro Fläche (`Sprites.floors`). Warnflächen und Ringe bleiben flache Teile am Boden. |
+| Unsichtbar | Spieler-Avatar, Gegner-Anker, Portal-Rahmen und Lobby-Masten bleiben für Bewegung, Kollision und Prompts erhalten, ohne sichtbar zu sein. |
 
 - **Stil (seit Paket 9d, Wunsch des Owners: „im Style von Deadlock"): okkultes Art déco.** Gealtertes Messing und Gold, Porzellanmasken, Gasmasken und Kutten, rußschwarze Kreaturen, dazu leuchtende Augen, Linsen und Risse in kräftigen Neonfarben, Sonnenstrahlen- und Zackenformen. Übernommen ist nur die Stimmung: keine Figuren, Namen, Logos oder Designs aus Deadlock.
 - Low-Poly aus einfachen Formen, flache Materialien (SmoothPlastic, Metal für Messing, Neon für alles, was leuchtet), wenige Texturen. Spieler/Laternen warm-gelb, die Gloom (Gegner) dunkel mit leuchtenden Akzenten; jede Gegnerart hat eine eigene Silhouette und eine eigene Augenfarbe, damit man sie in der Traube erkennt.
@@ -1165,10 +1175,10 @@ tests/               Unit-Tests für reine Module (Runner in tools/luau-test-run
 
 ```lua
 {
-  schemaVersion = 8, -- v4 (Paket 14): settings = { shake, damageNumbers, music, effects }; v8 (Paket 22) + graphics; v5 (Paket 16) siehe unten
+  schemaVersion = 9, -- v9 (Paket 25): Blade Warden wird zu Night Watch; v4 (Paket 14): settings = { shake, damageNumbers, music, effects }; v8 (Paket 22) + graphics; v5 (Paket 16) siehe unten
   embers = 0,
   talents = { toughness = 0, power = 0, reach = 0, greed = 0, rescuer = 0, rerolls = 0 }, -- ungenutzt seit dem Brotato-Plan, bleibt bis zu einer Migration
-  classes = { "BladeWarden", "SparkMage" },
+  classes = { "NightWatch", "SparkMage" },
   difficultyUnlocked = "Normal",
   cosmetics = { owned = {}, equipped = {} }, -- seit Paket 17 genutzt: owned = gekaufte Ids, equipped = [Platz] = Id oder "None" (Schema bleibt v5)
   stats = { runs = 0, kills = 0, bossKills = 0, bestTime = 0, wins = 0, bestWave = 0, bestDanger = -1,

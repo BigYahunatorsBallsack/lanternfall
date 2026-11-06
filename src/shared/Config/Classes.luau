@@ -24,16 +24,6 @@ export type Class = {
 	perLevel: { [string]: number }?,
 }
 local Classes: { [string]: Class } = {
-	BladeWarden = {
-		id = "BladeWarden",
-		displayName = "Blade Warden",
-		startWeapon = "WatchmanPistol",
-		startWeapons = { "WatchmanPistol", "BrassKnuckles", "RitualDirk", "RattleRepeater", "SpiritFlint" },
-		free = true,
-		available = true,
-		description = "+50 Max HP, +5% Speed, +8 Harvesting.",
-		stats = { maxHp = 50, speed = 5, harvesting = 8 },
-	},
 	SparkMage = {
 		id = "SparkMage",
 		displayName = "Spark Mage",

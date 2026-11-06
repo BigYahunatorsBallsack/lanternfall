@@ -12,7 +12,6 @@ local Icons = {}
 local rgb = Color3.fromRGB
 local INK, IVORY, GOLD = Theme.stroke, rgb(236, 231, 206), rgb(221, 174, 80)
 local palettes = {
-	BladeWarden = rgb(165, 183, 134),
 	CandleScholar = rgb(190, 154, 211),
 	DuelMaestro = rgb(197, 126, 114),
 	FarSeer = rgb(130, 178, 176),
@@ -84,7 +83,7 @@ local function character(root: Frame, id: string)
 		shape(root, 50, 24, 33, 28, c, 45, 0.12)
 		shape(root, 50, 33, 66, 10, c, -4, 0.2)
 		shape(root, 50, 23, 10, 10, GOLD, 45, 0.1)
-	elseif id == "NightWatch" or id == "BladeWarden" then
+	elseif id == "NightWatch" then
 		shape(root, 50, 29, 54, 21, IVORY, -4, 0.25)
 		shape(root, 50, 24, 10, 29, c, -4, 0.2)
 	elseif id == "FarSeer" then

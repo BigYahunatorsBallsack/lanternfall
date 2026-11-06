@@ -1,7 +1,7 @@
 --!strict
 -- Original item illustrations uploaded for the inventory and shop.
 -- CatClaw intentionally uses the stat fallback until its design is approved.
-return table.freeze({
+local images: { [string]: string } = {
 	Satchel = "rbxassetid://138578547140053",
 	Vitality = "rbxassetid://133214879114134",
 	Haste = "rbxassetid://101710271430943",
@@ -113,4 +113,11 @@ return table.freeze({
 	SecondStomach = "rbxassetid://136731809315847",
 	PyreAshes = "rbxassetid://88347530651711",
 	CalibratedTools = "rbxassetid://138297938140967",
-})
+}
+
+-- Pictures delivered through tools/art2d/import_sprites.py replace today's.
+for id, image in require(game:GetService("ReplicatedStorage").Shared.Config.SpriteImages).items do
+	images[id] = image
+end
+
+return table.freeze(images)

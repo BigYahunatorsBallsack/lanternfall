@@ -11,7 +11,7 @@ local SETTINGS = {
 	waveEnds = { 20, 45, 75 },
 	shopSeconds = 30,
 	maxPlayers = 4,
-	defaultClassId = "BladeWarden",
+	defaultClassId = "NightWatch",
 	endlessWaveSeconds = 60,
 }
 
@@ -49,7 +49,7 @@ describe("RunFlow", function()
 			expect(flow.phase).toBe("Lobby")
 			local snapshot = flow:snapshot()
 			expect(#snapshot.players).toBe(1)
-			expect(snapshot.players[1].classId).toBe("BladeWarden")
+			expect(snapshot.players[1].classId).toBe("NightWatch")
 			expect(snapshot.players[1].ready).toBe(false)
 		end)
 
@@ -442,7 +442,7 @@ describe("RunFlow", function()
 			local flow, clock = startSolo()
 			flow:endRun("Victory", clock.now)
 			flow:setClass(1, "SparkMage")
-			expect(flow.results.players[1].classId).toBe("BladeWarden")
+			expect(flow.results.players[1].classId).toBe("NightWatch")
 			expect(flow:snapshot().players[1].classId).toBe("SparkMage")
 		end)
 

@@ -99,7 +99,17 @@ local function buildArea(
 		CFrame.new(center - Vector3.new(0, thickness / 2, 0)),
 		floorColor
 	)
-	floor.Material = Enum.Material.Slate
+	floor.Material = Enum.Material.SmoothPlastic
+	local tile = Config.Sprites.floors[name]
+	if tile then
+		local texture = Instance.new("Texture")
+		texture.Name = "FloorTile"
+		texture.Texture = tile.image
+		texture.Face = Enum.NormalId.Top
+		texture.StudsPerTileU = tile.studs
+		texture.StudsPerTileV = tile.studs
+		texture.Parent = floor
+	end
 
 	local wall = Config.Map.wallThickness
 	local offset = size / 2 + wall / 2

@@ -76,30 +76,29 @@ describe("B10 character catalog", function()
 				end
 			end
 		end
-		expect(count).toBe(10)
+		expect(count).toBe(9)
 	end)
 
 	it("uses an acknowledged weapon selection and refuses forged choices", function()
-		intent(me, "SelectClass", "BladeWarden")
-		world.click(world.gui("Lobby", "Start_RitualDirk"))
+		intent(me, "SelectClass", "NightWatch")
+		world.click(world.gui("Lobby", "Start_RattleRepeater"))
 		world.advance(0.4)
-		expect(world.gui("Lobby", "Start_RitualDirk").BackgroundColor3).toBe(
+		expect(world.gui("Lobby", "Start_RattleRepeater").BackgroundColor3).toBe(
 			require(folderProxy("src/client", "Client").UI.Theme).accent
 		)
-		intent(me, "SelectStartWeapon", "BladeWarden", "CathedralEngine") -- known but not a starting choice
-		intent(me, "SelectStartWeapon", "NightWatch", "RattleRepeater") -- wrong character
+		intent(me, "SelectStartWeapon", "NightWatch", "CathedralEngine") -- known but not a starting choice
+		intent(me, "SelectStartWeapon", "SparkMage", "GalvanicFork") -- wrong character
 		intent(me, "SetReady", true)
 		intent(peer, "SetReady", true)
 		world.advance(3.2)
 		Weapons.setPaused(true)
-		expect(Weapons.getWeapons(me)[1].id).toBe("RitualDirk")
-		expect(Stats.getStat(me, "maxHp")).toBe(150)
-		expect(Stats.getStat(me, "speed")).toBe(5)
-		expect(Stats.getStat(me, "harvesting")).toBe(8)
+		expect(Weapons.getWeapons(me)[1].id).toBe("RattleRepeater")
+		expect(Stats.getStat(me, "maxHp")).toBe(100)
+		expect(Stats.getStat(me, "range")).toBe(50)
 		intent(me, "SelectClass", "SoleConductor")
-		intent(me, "SelectStartWeapon", "BladeWarden", "Gravestone")
-		expect(Run.getParticipantClassId(me)).toBe("BladeWarden")
-		expect(Weapons.getWeapons(me)[1].id).toBe("RitualDirk")
+		intent(me, "SelectStartWeapon", "NightWatch", "ScatterBell")
+		expect(Run.getParticipantClassId(me)).toBe("NightWatch")
+		expect(Weapons.getWeapons(me)[1].id).toBe("RattleRepeater")
 	end)
 
 	it("starts Mage items once and scales item/card/dynamic gains", function()
@@ -246,8 +245,8 @@ describe("B10 character catalog", function()
 		expect(Stats.getStat(me, "engineering")).toBe(1)
 		expect(Stats.getStat(me, "maxHp")).toBe(90)
 		expect(Stats.getStat(peer, "maxHp")).toBe(160)
-		start("BladeWarden")
-		expect(Stats.getStat(me, "maxHp")).toBe(150)
+		start("NightWatch")
+		expect(Stats.getStat(me, "maxHp")).toBe(100)
 		expect(Stats.getStat(me, "meleeDamage")).toBe(0)
 		expect(next(Stats.getItemCounts(me))).toBe(nil)
 		expect(#world.errors).toBe(0)

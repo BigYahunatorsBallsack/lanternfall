@@ -46,7 +46,7 @@ describe("Character sprites", function()
 	end)
 	it("publishes the default class without replacing the gameplay character", function()
 		local original = player.Character
-		expect(classOf(original)).toBe("BladeWarden")
+		expect(classOf(original)).toBe("NightWatch")
 		expect(player.Character).toBe(original)
 	end)
 	it("uses the validated server selection for all ten classes", function()

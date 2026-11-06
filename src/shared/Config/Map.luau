@@ -49,10 +49,10 @@ return table.freeze({
 		bloom = table.freeze({ intensity = 0.14, size = 18, threshold = 2 }),
 	}),
 
-	-- Small floor pebbles are walk-through. The lobby keeps its lamps.
+	-- The floor picture carries the small stones since Paket 25, so no pebbles on top. The lobby keeps its lamps.
 	decor = table.freeze({
 		seed = 2112, -- the same scattered pebbles every time
-		floorSlabs = 85, -- small pebbles scattered over the arena floor
+		floorSlabs = 0, -- small pebbles scattered over the arena floor
 		lampHeight = 12,
 		lampLightRange = 26,
 		-- Ground under the arena edge; `margin` extends past the wall and `drop` lowers its top.

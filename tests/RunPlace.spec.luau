@@ -38,7 +38,7 @@ local function ticket()
 		options = options,
 		picks = {
 			[1] = { classId = "SparkMage", weaponId = weapon },
-			[2] = { classId = "BladeWarden" },
+			[2] = { classId = "NightWatch" },
 		},
 		hubJobId = "hub-job-1",
 	})
@@ -89,7 +89,7 @@ describe("run place", function()
 		SpawnDirector.setPaused(true)
 		expect(#RunDirector.getParticipants()).toBe(2)
 		expect(RunDirector.getParticipantClassId(me)).toBe("SparkMage")
-		expect(RunDirector.getParticipantClassId(peer)).toBe("BladeWarden")
+		expect(RunDirector.getParticipantClassId(peer)).toBe("NightWatch")
 		expect(WeaponService.getWeapons(me)[1].id).toBe(weapon)
 		expect(RunDirector.getRunOptions().danger).toBe(0)
 	end)
