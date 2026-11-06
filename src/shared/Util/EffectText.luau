@@ -148,6 +148,8 @@ local function body(effect: Effects.Effect): string
 		return `{damageText(effect.amount or 0, effect.scaling)} damage to {target}`
 	elseif action == "Drain" then
 		return `lose {number(effect.amount or 0)} HP`
+	elseif action == "SpawnElite" then
+		return "an additional elite appears"
 	end
 	return action
 end

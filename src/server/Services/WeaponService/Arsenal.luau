@@ -904,7 +904,7 @@ local function itemStrike(self: Arsenal, entry: Queued, bonuses: Bonuses)
 	if not enemies.isAlive(id) then
 		return
 	end
-	local hit = entry.flat or 0
+	local hit = 0
 	if entry.damage > 0 or entry.scaling then
 		hit += WeaponStats.ownerDamage(entry.damage, entry.scaling, bonuses)
 	end
@@ -912,6 +912,8 @@ local function itemStrike(self: Arsenal, entry: Queued, bonuses: Bonuses)
 	if eliteDamage ~= 0 and enemies.isElite and enemies.isElite(id) then
 		hit *= math.max(0, 1 + eliteDamage)
 	end
+	-- Health-percent damage is added after all modifiers, including Damage vs Elites.
+	hit += entry.flat or 0
 	if hit <= 0 then
 		return
 	end

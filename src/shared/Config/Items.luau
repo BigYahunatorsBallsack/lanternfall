@@ -1,19 +1,10 @@
 --!strict
--- Items (DESIGN.md section 6, Brotato direction since B2; they replace the six passives). Bought in the shop between
--- waves or found in elite chests. Every item changes stats (Config.Stats ids, in the units the player sees), most
--- with a downside, and stacks without limit unless `limit` says otherwise. The stat packages follow Brotato's items
--- (original HP units); names and looks are our own. Vitality, Haste, Focus, Magnet, Might and Armor keep
--- the ids of the old passives, so the evolutions (Config.Evolutions) still find them.
--- Since B4 items can also have effects (Config.Effects: standing still, "per X", growth at the end of a wave, next wave,
--- on kill, on dodge ...; EffectService runs them). The items after the 46 of B2 each take one Brotato item's
--- mechanics and numbers (named in the comment, original HP units); what needs a later package is left out and noted.
--- Since B5 12 more for the combat stats and effects (burning, explosions, piercing, bouncing, knockback), since B8
--- 24 more (kills, pickups, rerolls, level-ups, fruits and crates, living enemies, HP drain, strikes on enemies).
--- Also the rarity tiers: their chances by wave (shop) or level (level-up cards), raised by Luck (Util/StatMath).
--- Read by StatService, EffectService, ShopService/ShopRules, UpgradeService and the client (texts, colors).
+-- Main-game Brotato item replacements, consumed by stats, effects, shops and inventory UI.
+-- Owner request 2026-11-06: original names, prices, tiers, limits and complete effects replace the former variants.
+-- Historical ids remain internal so saved achievement unlocks and weapon evolutions keep working.
+-- HP and healing use original Brotato units (current main). Source facts: docs/item-parity/catalog.json.
 
 local Effects = require(script.Parent.Effects)
-local Structures = require(script.Parent.Structures)
 
 export type Item = {
 	description: string?,
@@ -103,177 +94,308 @@ local function item(
 end
 
 local LIST: { Item } = {
-	-- Common
-	item("Vitality", "Vitality", 1, 15, { maxHp = 3, damage = -1 }),
-	item("Haste", "Haste", 1, 20, { speed = 4, range = -6 }),
-	item("Focus", "Focus", 1, 20, { attackSpeed = 10, damage = -2 }),
-	item("Magnet", "Magnet", 1, 20, { pickupRange = 30 }),
-	item("Might", "Might", 1, 18, { damage = 5, maxHp = -1 }),
-	item("Armor", "Armor Plate", 1, 18, { armor = 1, maxHp = -1 }),
-	item("WaxHeart", "Wax Heart", 1, 18, { maxHp = 2, hpRegen = 2, speed = -1 }),
-	item("CrackedLens", "Cracked Lens", 1, 20, { range = 20 }),
-	item("BoneKnuckles", "Bone Knuckles", 1, 15, { meleeDamage = 1 }),
-	item("TallowCandle", "Tallow Candle", 1, 20, { meleeDamage = 2, elementalDamage = 1, harvesting = -2 }),
-	item("MothWing", "Moth Wing", 1, 30, { lifeSteal = 2, elementalDamage = -1 }),
-	item("GraveSpade", "Grave Spade", 1, 15, { harvesting = 8, meleeDamage = -1 }),
-	item("CatClaw", "Cat Claw", 1, 20, { meleeDamage = 1, critChance = 3, maxHp = -1 }),
-	item("RustedCoin", "Rusted Coin", 1, 15, { luck = 8, damage = -1 }),
-	item("FlintShard", "Flint Shard", 1, 15, { rangedDamage = 1, meleeDamage = -1 }),
-	item("WardRune", "Ward Rune", 1, 20, { dodge = 3, maxHp = -1 }),
-	-- Common with Brotato's secondary stats and effects (since B4)
-	item("PawnTicket", "Pawn Ticket", 1, 15, { itemPrice = -5 }, 5), -- Coupon
-	item("ChitteringFamiliar", "Chittering Familiar", 1, 25, { shardHealing = 8, rangedDamage = -1 }, 13), -- Cute Monkey
-	item("BoneCharm", "Bone Charm", 1, 15, {}, nil, { -- Jelly
-		{ trigger = "Always", action = "PerX", source = "distinctWeapons", per = 1, stats = { maxHp = 1 } },
-	}),
-	item("Satchel", "Satchel", 1, 15, { speed = -1 }, 3, { -- Bag (Brotato's crates are our chests)
-		{ trigger = "Chest", action = "Shards", amount = 15 },
-	}),
-	-- Uncommon
-	item("LeechJar", "Leech Jar", 2, 45, { lifeSteal = 2, hpRegen = 2, harvesting = -3 }),
-	item("AshBlindfold", "Ash Blindfold", 2, 45, { critChance = 5, dodge = 5, range = -15 }),
-	item("SignalBanner", "Signal Banner", 2, 55, { range = 20, attackSpeed = 10 }),
-	item("Brazier", "Brazier", 2, 40, { elementalDamage = 2, hpRegen = 2, speed = -2 }),
-	item("OilFlask", "Oil Flask", 2, 45, { elementalDamage = 4, meleeDamage = -1, rangedDamage = -1 }),
-	item("LoadedDice", "Loaded Dice", 2, 50, { dodge = 8, armor = -1 }),
-	item("NarrowScope", "Narrow Scope", 2, 45, { damage = 12, range = -12 }),
-	item("Whetstone", "Whetstone", 2, 35, { meleeDamage = 3, attackSpeed = -3 }),
-	item("AcidVial", "Acid Vial", 2, 65, { maxHp = 8, dodge = -2 }),
-	item("StaticBracelet", "Static Bracelet", 2, 55, { critChance = 4, elementalDamage = 2, rangedDamage = -2 }),
-	item("PowderPouch", "Powder Pouch", 2, 45, { rangedDamage = 2, attackSpeed = 5, armor = -1 }),
-	item("LanternOil", "Lantern Oil", 2, 45, { luck = 15, speed = 2, damage = -2 }),
-	-- Uncommon with effects (since B4)
-	item("BitterTonic", "Bitter Tonic", 2, 35, {}, nil, { -- Celery Tea
+	item("Vitality", "Cake", 1, 15, { maxHp = 3, damage = -1 }),
+	item("Haste", "Beanie", 1, 20, { speed = 4, range = -6 }),
+	item("Focus", "Coffee", 1, 20, { attackSpeed = 10, damage = -2 }),
+	item("Magnet", "Boiling Water", 1, 30, { elementalDamage = 2, maxHp = -1 }),
+	item("Might", "Injection", 1, 20, { damage = 7, maxHp = -2 }),
+	item("Armor", "Metal Plate", 2, 40, { armor = 2, damage = -3 }),
+	item("WaxHeart", "Broken Mouth", 1, 25, { maxHp = 5, hpRegen = -1 }),
+	item("CrackedLens", "Glasses", 1, 20, { range = 20 }),
+	item("BoneKnuckles", "Plant", 1, 15, { hpRegen = 3, lifeSteal = -1 }),
+	item("TallowCandle", "Charcoal", 1, 20, { elementalDamage = 1, meleeDamage = 2, harvesting = -2 }),
+	item("MothWing", "Butterfly", 1, 30, { lifeSteal = 2, elementalDamage = -1 }),
+	item("GraveSpade", "Fertilizer", 1, 15, { harvesting = 8, meleeDamage = -1 }),
+	item("CatClaw", "Claw Tree", 1, 20, { meleeDamage = 1, critChance = 3, maxHp = -1 }),
+	item("RustedCoin", "Lost Duck", 1, 25, { luck = 8, elementalDamage = -1 }),
+	item("FlintShard", "Lens", 1, 20, { rangedDamage = 1, range = -5 }),
+	item("WardRune", "Peaceful Bee", 1, 18, { dodge = 4, harvesting = 4, meleeDamage = -1, rangedDamage = -1 }),
+	item("PawnTicket", "Coupon", 1, 15, { itemPrice = -5 }, 5),
+	item("ChitteringFamiliar", "Cute Monkey", 1, 25, { rangedDamage = -1, shardHealing = 8 }, 13),
+	item(
+		"BoneCharm",
+		"Jelly",
+		1,
+		15,
+		{},
+		nil,
+		{ { trigger = "Always", action = "PerX", source = "distinctWeapons", per = 1, stats = { maxHp = 1 } } }
+	),
+	item("Satchel", "Bag", 1, 15, { speed = -1 }, 3, { { trigger = "Chest", action = "Shards", amount = 15 } }),
+	item("LeechJar", "Blood Leech", 2, 45, { lifeSteal = 2, hpRegen = 2, harvesting = -3 }),
+	item("AshBlindfold", "Blindfold", 2, 45, { critChance = 5, dodge = 5, range = -15 }),
+	item("SignalBanner", "Banner", 2, 55, { range = 20, attackSpeed = 10, knockback = -5 }),
+	item("Brazier", "Campfire", 2, 40, { elementalDamage = 2, hpRegen = 2, speed = -2 }),
+	item("OilFlask", "Fuel Tank", 2, 45, { elementalDamage = 4, meleeDamage = -1, rangedDamage = -1 }),
+	item("LoadedDice", "Gambling Token", 2, 50, { dodge = 8, armor = -1 }),
+	item("NarrowScope", "Cyclops Worm", 2, 45, { damage = 12, range = -12 }),
+	item("Whetstone", "Mastery", 2, 55, { meleeDamage = 6, rangedDamage = -3 }),
+	item("AcidVial", "Acid", 2, 65, { maxHp = 8, dodge = -2, knockback = -2 }),
+	item("StaticBracelet", "Energy Bracelet", 2, 55, { critChance = 4, elementalDamage = 2, rangedDamage = -2 }),
+	item("PowderPouch", "Small Magazine", 2, 60, { rangedDamage = 2, attackSpeed = 10, damage = -6 }),
+	item("LanternOil", "Shady Potion", 2, 48, { luck = 20, hpRegen = -2 }),
+	item("BitterTonic", "Celery Tea", 2, 35, {}, nil, {
 		{ trigger = "WaveEnd", action = "Grow", stats = { xpGain = 5 } },
 		{ trigger = "Acquire", action = "NextWaveStats", stats = { xpGain = 50, enemyHp = 100 } },
 	}),
-	item("JesterBell", "Jester's Bell", 2, 30, { freeRerolls = 1 }, 3), -- Dangerous Bunny
-	-- Metal Detector without its +2 Engineering (B12)
-	item("DowsingRod", "Dowsing Rod", 2, 40, { doubleShards = 5, luck = 6, damage = -5 }, 20),
-	item("QuiltedCoat", "Quilted Coat", 2, 45, { maxHp = 3 }, 1, { -- Padding
-		{ trigger = "Always", action = "PerX", source = "shards", per = 80, stats = { maxHp = 1 } },
-	}),
-	item("TitheBox", "Tithe Box", 2, 40, {}, 1, { -- Piggy Bank: stops working at wave 20
-		{ trigger = "WaveStart", action = "ShardShare", amount = 20, untilWave = 19 },
-	}),
-	item("RottingHeart", "Rotting Heart", 2, 30, {}, nil, { -- Decomposing Flesh
-		{ trigger = "LevelUp", action = "Grow", stats = { lifeSteal = 1, maxHp = -1 } },
-	}),
-	item("ScrapAltar", "Scrap Altar", 2, 35, { sellValue = 35 }, 1), -- Recycling Machine
-	-- Rare
-	item("GlassLantern", "Glass Lantern", 3, 75, { damage = 25, armor = -3 }),
-	item("FourLeafCharm", "Four-Leaf Charm", 3, 65, { luck = 20, dodge = 6, lifeSteal = -2 }),
-	item("EelFin", "Eel Fin", 3, 65, { speed = 10, lifeSteal = 3, luck = -8 }),
-	item("BloodOffering", "Blood Offering", 3, 55, { harvesting = 40, maxHp = -2 }),
-	item("IronShackle", "Iron Shackle", 3, 75, { damage = 15, armor = 3, speed = -3 }, 1),
-	item("ClockworkGears", "Clockwork Gears", 3, 70, { attackSpeed = 10, critChance = 5, range = -10 }),
-	item("TomeOfEchoes", "Tome of Echoes", 3, 70, { xpGain = 50, lifeSteal = -2 }),
-	item("SmokeMantle", "Smoke Mantle", 3, 80, { dodge = 10, speed = -5, armor = -3 }),
-	item("SilverRounds", "Silver Rounds", 3, 70, { rangedDamage = 3, critChance = 5, speed = -3 }),
-	item("ThornCrown", "Thorn Crown", 3, 70, { meleeDamage = 4, elementalDamage = 4, attackSpeed = -5 }),
-	-- Rare with effects (since B4)
-	item("IronVigil", "Iron Vigil", 3, 75, { speed = -5 }, 1, { -- Barricade without its +3 Knockback (B5)
-		{ trigger = "Always", action = "Stats", state = "Still", stats = { armor = 8 } },
-	}),
-	item("StillVeil", "Still Veil", 3, 70, { dodge = 3, damage = -4 }, nil, { -- Chameleon
-		{ trigger = "Always", action = "Stats", state = "Still", stats = { dodge = 20 } },
-	}),
-	item("StoneIdol", "Stone Idol", 3, 60, { speed = -10 }, nil, { -- Statue
-		{ trigger = "Always", action = "Stats", state = "Still", stats = { attackSpeed = 40 } },
-	}),
-	item("GildedPlume", "Gilded Plume", 3, 50, { xpGain = 25 }, nil, { -- Peacock
-		{ trigger = "Acquire", action = "NextWaveStats", stats = { xpGain = 100, enemyDamage = 50 } },
-	}),
-	item("OathRing", "Oath Ring", 3, 92, {}, nil, { -- Vigilante Ring
-		{ trigger = "WaveEnd", action = "Grow", stats = { damage = 3 } },
-	}),
-	item("PulseDraught", "Pulse Draught", 3, 60, { dodge = 5 }, 1, { -- Adrenaline
-		{ trigger = "Dodge", action = "Heal", amount = 5, chance = 0.5 },
-	}),
-	item("HuntersTally", "Hunter's Tally", 3, 55, {}, 3, { -- Hunting Trophy
-		{ trigger = "Kill", action = "Shards", amount = 1, chance = 0.33, crit = true },
-	}),
-	item("GalvanicCoil", "Galvanic Coil", 3, 65, { damage = -5 }, 1, { -- Power Generator
-		{ trigger = "Always", action = "PerX", source = "speed", per = 1, stats = { damage = 1 } },
-	}),
-	item("MourningVeil", "Mourning Veil", 3, 50, { hpRegen = 8 }, 1, { -- Sad Tomato
-		{ trigger = "WaveStart", action = "HpFraction", amount = 0.5 },
-	}),
-	item("MossWard", "Moss Ward", 3, 50, {}, nil, { -- Tardigrade
-		{ trigger = "WaveStart", action = "Shields", amount = 1 },
-	}),
-	item("PlagueRat", "Plague Rat", 3, 55, { lifeSteal = 5, enemyCount = 10, harvesting = -5 }, 5), -- Mouse
-	-- Candle (its fog rule for Nightmare does not apply here)
-	item("HushCandle", "Hush Candle", 3, 65, { elementalDamage = 4, hpRegen = 1, enemyCount = -10, damage = -5 }, 1),
-	item("Changeling", "Changeling", 3, 80, { maxHp = 15, enemyHp = 10 }), -- Alien Baby
-	item("SweetReliquary", "Sweet Reliquary", 3, 70, {}, 1, { -- Candy Bag without the extra elites (B11)
+	item("JesterBell", "Dangerous Bunny", 2, 30, { freeRerolls = 1 }, 3),
+	item("DowsingRod", "Metal Detector", 2, 40, { luck = 6, engineering = 2, damage = -5, doubleShards = 5 }, 20),
+	item(
+		"QuiltedCoat",
+		"Padding",
+		2,
+		45,
+		{ maxHp = 3 },
+		1,
+		{ { trigger = "Always", action = "PerX", source = "shards", per = 80, stats = { maxHp = 1 } } }
+	),
+	item(
+		"TitheBox",
+		"Piggy Bank",
+		2,
+		40,
+		{},
+		1,
+		{ { trigger = "WaveStart", action = "ShardShare", amount = 20, untilWave = 19 } }
+	),
+	item(
+		"RottingHeart",
+		"Decomposing Flesh",
+		2,
+		30,
+		{},
+		nil,
+		{ { trigger = "LevelUp", action = "Grow", stats = { lifeSteal = 1, maxHp = -1 } } }
+	),
+	item("ScrapAltar", "Recycling Machine", 2, 35, { sellValue = 35 }, 1),
+	item("GlassLantern", "Glass Cannon", 3, 75, { damage = 25, armor = -3 }),
+	item("FourLeafCharm", "Clover", 3, 65, { luck = 20, dodge = 6, lifeSteal = -2 }),
+	item("EelFin", "Fin", 3, 65, { speed = 10, lifeSteal = 3, luck = -8 }),
+	item(
+		"BloodOffering",
+		"Blood Donation",
+		3,
+		50,
+		{ harvesting = 40 },
+		nil,
+		{ { trigger = "Timer", action = "Drain", interval = 1, amount = 1 } }
+	),
+	item(
+		"IronShackle",
+		"Ball and Chain",
+		3,
+		75,
+		{ damage = 15, armor = 3, knockback = 5, speed = -3, weaponCooldownMin = 0.75 },
+		1
+	),
+	item("ClockworkGears", "Poisonous Tonic", 3, 80, { attackSpeed = 10, critChance = 5, range = 15, hpRegen = -2 }),
+	item("TomeOfEchoes", "Bean Teacher", 3, 70, { xpGain = 50, lifeSteal = -2 }),
+	item("SmokeMantle", "Ghost Outfit", 3, 80, { dodge = 10, speed = -5, armor = -3, dodgeCap = 70 }, 1),
+	item("SilverRounds", "Silver Bullet", 3, 70, { eliteDamage = 25 }),
+	item("ThornCrown", "Wheat", 3, 85, { meleeDamage = 4, rangedDamage = 2, harvesting = 10, elementalDamage = -2 }),
+	item(
+		"IronVigil",
+		"Barricade",
+		3,
+		75,
+		{ knockback = 3, speed = -5 },
+		nil,
+		{ { trigger = "Always", action = "Stats", state = "Still", stats = { armor = 8 } } }
+	),
+	item(
+		"StillVeil",
+		"Chameleon",
+		3,
+		70,
+		{ dodge = 3, damage = -4 },
+		nil,
+		{ { trigger = "Always", action = "Stats", state = "Still", stats = { dodge = 20 } } }
+	),
+	item(
+		"StoneIdol",
+		"Statue",
+		3,
+		60,
+		{ speed = -10 },
+		nil,
+		{ { trigger = "Always", action = "Stats", state = "Still", stats = { attackSpeed = 40 } } }
+	),
+	item(
+		"GildedPlume",
+		"Peacock",
+		3,
+		50,
+		{ xpGain = 25 },
+		nil,
+		{ { trigger = "Acquire", action = "NextWaveStats", stats = { xpGain = 100, enemyDamage = 50 } } }
+	),
+	item(
+		"OathRing",
+		"Vigilante Ring",
+		3,
+		92,
+		{},
+		nil,
+		{ { trigger = "WaveEnd", action = "Grow", stats = { damage = 3 } } }
+	),
+	item(
+		"PulseDraught",
+		"Adrenaline",
+		3,
+		60,
+		{ dodge = 5 },
+		1,
+		{ { trigger = "Dodge", action = "Heal", amount = 5, chance = 0.5 } }
+	),
+	item(
+		"HuntersTally",
+		"Hunting Trophy",
+		3,
+		55,
+		{},
+		3,
+		{ { trigger = "Kill", action = "Shards", amount = 1, chance = 0.33, crit = true } }
+	),
+	item(
+		"GalvanicCoil",
+		"Power Generator",
+		3,
+		65,
+		{ damage = -5 },
+		1,
+		{ { trigger = "Always", action = "PerX", source = "speed", per = 1, stats = { damage = 1 } } }
+	),
+	item(
+		"MourningVeil",
+		"Sad Tomato",
+		3,
+		50,
+		{ hpRegen = 8 },
+		1,
+		{ { trigger = "WaveStart", action = "HpFraction", amount = 0.5 } }
+	),
+	item("MossWard", "Tardigrade", 3, 50, {}, nil, { { trigger = "WaveStart", action = "Shields", amount = 1 } }),
+	item("PlagueRat", "Mouse", 3, 55, { lifeSteal = 5, enemyCount = 10, harvesting = -5 }, 5),
+	item("HushCandle", "Candle", 3, 65, { elementalDamage = 4, hpRegen = 1, enemyCount = -10, damage = -5 }, 1),
+	item("Changeling", "Alien Baby", 3, 80, { maxHp = 15, enemyHp = 10 }),
+	item("SweetReliquary", "Candy Bag", 3, 70, {}, 1, {
 		{ trigger = "WaveEnd", action = "RandomStats", amount = 8 },
+		{ trigger = "WaveStart", action = "SpawnElite", chance = 0.1, amount = 1 },
 	}),
-	-- Legendary
-	item("TitanArms", "Titan Arms", 4, 105, { meleeDamage = 12, rangedDamage = 6, attackSpeed = -3, speed = -3 }),
+	item(
+		"TitanArms",
+		"Big Arms",
+		4,
+		105,
+		{ meleeDamage = 12, rangedDamage = 6, knockback = 3, attackSpeed = -3, speed = -3 }
+	),
 	item(
 		"ShadowCloak",
-		"Shadow Cloak",
+		"Cape",
 		4,
 		110,
 		{ lifeSteal = 5, dodge = 20, meleeDamage = -2, rangedDamage = -2, elementalDamage = -2 }
 	),
 	item(
 		"HeavyRounds",
-		"Heavy Rounds",
+		"Heavy Bullets",
 		4,
 		100,
 		{ rangedDamage = 5, damage = 10, range = 10, attackSpeed = -5, critChance = -5 }
 	),
-	item("ColossusHeart", "Colossus Heart", 4, 110, { maxHp = 15, hpRegen = 5, speed = -10 }),
+	item("ColossusHeart", "Octopus", 4, 105, { maxHp = 12, hpRegen = 5, lifeSteal = 3, critChance = -8 }),
+	item("BrassHarness", "Jet Pack", 4, 100, { speed = 15, dodge = 10, maxHp = -5, armor = -1 }),
+	item("WitchMortar", "Gnome", 4, 100, { meleeDamage = 10, elementalDamage = 10, range = -20, pickupRange = -20 }),
+	item("LanternCodex", "Diploma", 4, 90, { engineering = 10, xpGain = 50, maxHp = -3 }),
+	item("EternalFlame", "Potato", 4, 95, {
+		maxHp = 3,
+		hpRegen = 2,
+		lifeSteal = 1,
+		damage = 5,
+		attackSpeed = 5,
+		speed = 3,
+		dodge = 3,
+		armor = 1,
+		luck = 5,
+	}),
 	item(
-		"BrassHarness",
-		"Brass Harness",
-		4,
-		90,
-		{ armor = 3, critChance = 5, speed = 5, hpRegen = -2, lifeSteal = -2 }
-	),
-	item(
-		"WitchMortar",
-		"Witch's Mortar",
+		"ClockworkArm",
+		"Robot Arm",
 		4,
 		100,
-		{ meleeDamage = 10, elementalDamage = 10, range = -20, pickupRange = -20 }
+		{},
+		nil,
+		{ { trigger = "WaveEnd", action = "Grow", stats = { meleeDamage = 3, engineering = 3, maxHp = -1 } } }
 	),
-	item("LanternCodex", "Lantern Codex", 4, 90, { xpGain = 50, luck = 10, maxHp = -3 }),
-	item("EternalFlame", "Eternal Flame", 4, 120, { damage = 20, attackSpeed = 20, armor = -2 }),
-	-- Legendary with effects (since B4)
-	item("ClockworkArm", "Clockwork Arm", 4, 100, {}, nil, { -- Robot Arm without its +3 Engineering (B12)
-		{ trigger = "WaveEnd", action = "Grow", stats = { meleeDamage = 3, maxHp = -1 } },
+	item(
+		"EvergreenSprig",
+		"Grind's Magical Leaf",
+		4,
+		110,
+		{},
+		nil,
+		{ { trigger = "WaveEnd", action = "Grow", stats = { maxHp = 3, hpRegen = 1, lifeSteal = 1 } } }
+	),
+	item(
+		"FortuneCoin",
+		"Lucky Coin",
+		4,
+		105,
+		{ armor = -2 },
+		1,
+		{ { trigger = "Always", action = "PerX", source = "critChance", per = 1, stats = { luck = 2 } } }
+	),
+	item(
+		"EightEyedIdol",
+		"Spider",
+		4,
+		110,
+		{ damage = 12, dodge = -3, harvesting = -5 },
+		nil,
+		{ { trigger = "Always", action = "PerX", source = "distinctWeapons", per = 1, stats = { attackSpeed = 6 } } }
+	),
+	item(
+		"LoneFlame",
+		"Focus",
+		4,
+		110,
+		{ damage = 30 },
+		nil,
+		{ { trigger = "Always", action = "PerX", source = "distinctWeapons", per = 1, stats = { attackSpeed = -3 } } }
+	),
+	item(
+		"FieldCenser",
+		"Medikit",
+		4,
+		95,
+		{ hpRegen = 10, luck = -10 },
+		nil,
+		{ { trigger = "Timer", action = "WaveStats", interval = 5, stats = { hpRegen = 2 } } }
+	),
+	item(
+		"EmberAnvil",
+		"Anvil",
+		4,
+		120,
+		{},
+		1,
+		{ { trigger = "ShopEnter", action = "UpgradeWeapon", stats = { armor = 2 } } }
+	),
+	item("SmolderingWick", "Scared Sausage", 1, 25, {}, 4, {
+		{
+			trigger = "Hit",
+			action = "Burn",
+			chance = 0.25,
+			amount = 1,
+			scaling = { elementalDamage = 1 },
+			ticks = 3,
+		},
 	}),
-	item("EvergreenSprig", "Evergreen Sprig", 4, 110, {}, nil, { -- Grind's Magical Leaf
-		{ trigger = "WaveEnd", action = "Grow", stats = { maxHp = 3, hpRegen = 1, lifeSteal = 1 } },
-	}),
-	item("FortuneCoin", "Fortune Coin", 4, 105, { armor = -2 }, 1, { -- Lucky Coin
-		{ trigger = "Always", action = "PerX", source = "critChance", per = 1, stats = { luck = 2 } },
-	}),
-	item("EightEyedIdol", "Eight-Eyed Idol", 4, 110, { damage = 12, dodge = -3, harvesting = -5 }, nil, { -- Spider
-		{ trigger = "Always", action = "PerX", source = "distinctWeapons", per = 1, stats = { attackSpeed = 6 } },
-	}),
-	item("LoneFlame", "Lone Flame", 4, 110, { damage = 30 }, nil, { -- Focus
-		{ trigger = "Always", action = "PerX", source = "distinctWeapons", per = 1, stats = { attackSpeed = -3 } },
-	}),
-	item("FieldCenser", "Field Censer", 4, 95, { hpRegen = 10, luck = -10 }, nil, { -- Medikit
-		{ trigger = "Timer", action = "WaveStats", interval = 5, stats = { hpRegen = 2 } },
-	}),
-	item("EmberAnvil", "Ember Anvil", 4, 120, {}, 1, { -- Anvil
-		{ trigger = "ShopEnter", action = "UpgradeWeapon", stats = { armor = 2 } },
-	}),
-	-- Combat (since B5: burning, explosions, piercing, bouncing, knockback; Config.Combat). Brotato item in the
-	-- comment; prices marked "assumption" are not known from Brotato.
-	item("SmolderingWick", "Smoldering Wick", 1, 25, {}, 4, { -- Scared Sausage
-		{ trigger = "Hit", action = "Burn", chance = 0.25, amount = 1, scaling = { elementalDamage = 1 }, ticks = 3 },
-	}),
-	item("AshSerpent", "Ash Serpent", 1, 25, { burnSpread = 1, maxHp = -1 }), -- Snake
-	item("Bellows", "Bellows", 2, 40, { burnSpeed = 20 }, 2), -- Eyes Surgery (price assumption)
-	item("BlackPowder", "Black Powder", 1, 20, { explosionDamage = 15 }), -- Dynamite (price assumption)
-	item("FulminateJar", "Fulminate Jar", 3, 60, { explosionSize = 25 }), -- Plastic Explosive (price assumption)
-	item("BurstingSigil", "Bursting Sigil", 3, 65, {}, nil, { -- Rip and Tear (price assumption)
+	item("AshSerpent", "Snake", 1, 25, { maxHp = -1, burnSpread = 1 }),
+	item("Bellows", "Eyes Surgery", 2, 60, { elementalDamage = 1, range = -10, burnSpeed = 20 }, 2),
+	item("BlackPowder", "Dynamite", 1, 20, { explosionDamage = 15 }),
+	item("FulminateJar", "Plastic Explosive", 3, 60, { explosionSize = 25 }),
+	item("BurstingSigil", "Rip and Tear", 3, 65, { critChance = -5 }, 5, {
 		{
 			trigger = "Kill",
 			action = "Explode",
@@ -283,30 +405,26 @@ local LIST: { Item } = {
 			size = 0.65,
 		},
 	}),
-	item("NeedleCharm", "Needle Charm", 3, 75, { piercing = 1, damage = -10 }), -- Bandana
-	item( -- Sharp Bullet
-		"HollowNail",
-		"Hollow Nail",
-		1,
-		25,
-		{ piercing = 1, piercingDamage = -20, damage = -5, knockback = -3 },
-		1
+	item("NeedleCharm", "Bandana", 3, 75, { damage = -10, piercing = 1 }),
+	item("HollowNail", "Sharp Bullet", 1, 25, { damage = -5, knockback = -3, piercing = 1, piercingDamage = -20 }, 1),
+	item("GourdLantern", "Pumpkin", 2, 40, { damage = -2, piercingDamage = 15 }),
+	item("MirrorShard", "Ricochet", 4, 110, { damage = -25, bounce = 1 }),
+	item("IronGauntlet", "Boxing Glove", 1, 18, { meleeDamage = 1, knockback = 3 }),
+	item(
+		"RecoilSpring",
+		"Coil",
+		3,
+		70,
+		{ knockback = 5 },
+		3,
+		{ { trigger = "Always", action = "PerX", source = "knockback", per = 1, stats = { damage = 1 } } }
 	),
-	item("GourdLantern", "Gourd Lantern", 2, 40, { piercingDamage = 15, damage = -2 }), -- Pumpkin
-	item("MirrorShard", "Mirror Shard", 4, 110, { bounce = 1, damage = -25 }), -- Ricochet
-	item("IronGauntlet", "Iron Gauntlet", 1, 20, { knockback = 3 }), -- Boxing Glove (price assumption)
-	item("RecoilSpring", "Recoil Spring", 3, 60, { knockback = 5 }, 3, { -- Coil (price assumption)
-		{ trigger = "Always", action = "PerX", source = "knockback", per = 1, stats = { damage = 1 } },
-	}),
-	-- Item package (since B8): Brotato item in the comment, its numbers (original HP units); Engineering, curses and
-	-- structures are left out until their packages.
-	-- Common
-	item("GrubTincture", "Grub Tincture", 1, 15, { maxHp = 3, hpRegen = 2, fruitHeal = -1 }), -- Alien Worm
-	item("BeckoningBell", "Beckoning Bell", 1, 30, { maxHp = 2, damage = 5, enemyCount = 5 }, 10), -- Gentle Alien
-	item("TaintedElixir", "Tainted Elixir", 1, 20, { maxHp = 2, meleeDamage = 2, attackSpeed = -3 }), -- Defective Steroids
-	item("HookedTongue", "Hooked Tongue", 1, 25, { pickupRange = 30, knockback = 1 }), -- Alien Tongue
-	item("CrackedSkull", "Cracked Skull", 1, 25, { damage = 6, range = -8 }), -- Head Injury
-	item("WispJar", "Wisp Jar", 1, 22, {}, nil, { -- Baby Elephant
+	item("GrubTincture", "Alien Worm", 1, 15, { maxHp = 3, hpRegen = 2, fruitHeal = -1 }),
+	item("BeckoningBell", "Gentle Alien", 1, 30, { maxHp = 2, damage = 5, enemyCount = 5 }, 10),
+	item("TaintedElixir", "Defective Steroids", 1, 20, { maxHp = 2, meleeDamage = 2, attackSpeed = -3 }),
+	item("HookedTongue", "Alien Tongue", 1, 25, { pickupRange = 30, knockback = 1 }),
+	item("CrackedSkull", "Head Injury", 1, 25, { damage = 6, range = -8 }),
+	item("WispJar", "Baby Elephant", 1, 22, {}, nil, {
 		{
 			trigger = "Pickup",
 			action = "Strike",
@@ -316,9 +434,8 @@ local LIST: { Item } = {
 			scaling = { luck = 0.25 },
 		},
 	}),
-	-- Uncommon
-	item("OrderSash", "Sash of the Order", 2, 50, { xpGain = 25, meleeDamage = 3, knockback = 3, luck = -8 }), -- Black Belt
-	item("RollingEye", "Rolling Eye", 2, 30, {}, nil, { -- Cyberball
+	item("OrderSash", "Black Belt", 2, 50, { xpGain = 25, meleeDamage = 3, knockback = 3, luck = -8 }),
+	item("RollingEye", "Cyberball", 2, 30, {}, nil, {
 		{
 			trigger = "Kill",
 			action = "Strike",
@@ -328,100 +445,203 @@ local LIST: { Item } = {
 			scaling = { luck = 0.25 },
 		},
 	}),
-	item("InkPolyp", "Ink Polyp", 2, 55, { attackSpeed = -3 }, nil, { -- Baby Squid
-		{ trigger = "LevelUp", action = "Grow", stats = { hpRegen = 1 } },
-	}),
-	item("Knucklebones", "Knucklebones", 2, 30, {}, 2, { -- Bone Dice
-		{ trigger = "Reroll", action = "Grow", chance = 0.5, stats = { damage = 1 } },
-		{ trigger = "Reroll", action = "Grow", chance = 0.1, stats = { maxHp = -1 } },
-	}),
-	item("WitchKettle", "Witch's Kettle", 2, 35, { pickupRange = 50, hpRegen = -2 }, 1, { -- Cauldron
-		{ trigger = "Consumable", action = "TimedStats", seconds = 2, stats = { damage = 20 } },
-	}),
-	item("SaltCoral", "Salt Coral", 2, 40, { range = -10 }, nil, { -- Coral
-		{ trigger = "Always", action = "Stats", state = "Still", stats = { hpRegen = 10 } },
-	}),
-	-- Rare
-	item("AstralPhilter", "Astral Philter", 3, 85, { maxHp = 8, hpRegen = 3, luck = -8 }), -- Alien Magic
-	item( -- Honey
+	item("InkPolyp", "Bat", 1, 20, { lifeSteal = 2, harvesting = -2 }),
+	item(
+		"Knucklebones",
+		"Tentacle",
+		2,
+		35,
+		{ critChance = 3 },
+		5,
+		{ { trigger = "Kill", action = "Heal", crit = true, chance = 0.2, amount = 1 } }
+	),
+	item("WitchKettle", "Lemonade", 1, 15, { fruitHeal = 1 }),
+	item("SaltCoral", "Mushroom", 1, 25, { hpRegen = 3, luck = -2 }),
+	item("AstralPhilter", "Alien Magic", 3, 85, { maxHp = 8, hpRegen = 3, luck = -8 }),
+	item(
 		"AmberResin",
-		"Amber Resin",
+		"Honey",
 		3,
 		70,
 		{ rangedDamage = 3, explosionDamage = 10, explosionSize = 5, speed = -3, dodge = -3 }
 	),
-	item("RabbleBanner", "Rabble Banner", 3, 75, { armor = -2 }, 1, { -- Community Support
-		{ trigger = "Always", action = "PerX", source = "enemies", per = 1, stats = { attackSpeed = 1 } },
-	}),
-	item("HearthSprite", "Hearth Sprite", 3, 85, {}, 1, { -- Fairy
+	item(
+		"RabbleBanner",
+		"Community Support",
+		3,
+		75,
+		{ armor = -2 },
+		1,
+		{ { trigger = "Always", action = "PerX", source = "enemies", per = 1, stats = { attackSpeed = 1 } } }
+	),
+	item("HearthSprite", "Fairy", 3, 85, {}, 1, {
 		{ trigger = "Always", action = "PerX", source = "distinctItemsTier1", per = 1, stats = { hpRegen = 1 } },
 		{ trigger = "Always", action = "PerX", source = "distinctItemsTier4", per = 1, stats = { hpRegen = -3 } },
 	}),
-	item("BloodChalice", "Blood Chalice", 3, 70, { hpRegen = -3 }, 3, { -- Goblet
-		{ trigger = "Kill", action = "Heal", chance = 0.15, amount = 1 },
-	}),
-	-- Legendary
-	item("CrimsonHand", "Crimson Hand", 4, 110, { lifeSteal = 10 }, 1, { -- Bloody Hand
+	item("BloodChalice", "Sunglasses", 2, 50, { critChance = 10, armor = -1 }),
+	item("CrimsonHand", "Bloody Hand", 4, 110, { lifeSteal = 10 }, 1, {
 		{ trigger = "Always", action = "PerX", source = "lifeSteal", per = 1, stats = { damage = 2 } },
 		{ trigger = "Timer", action = "Drain", interval = 1, amount = 1 },
 	}),
-	item("VelvetDivan", "Velvet Divan", 4, 100, { maxHp = 5, speed = -20 }, 1, { -- Esty's Couch
-		{ trigger = "Always", action = "PerX", source = "speed", per = -1, min = 0, stats = { hpRegen = 2 } },
-	}),
-	item( -- Exoskeleton without its +5 Engineering (B12)
+	item(
+		"VelvetDivan",
+		"Esty's Couch",
+		4,
+		100,
+		{ maxHp = 5, speed = -20 },
+		1,
+		{ { trigger = "Always", action = "PerX", source = "speed", per = -1, min = 0, stats = { hpRegen = 2 } } }
+	),
+	item(
 		"BrassCarapace",
-		"Brass Carapace",
+		"Exoskeleton",
 		4,
 		90,
-		{ armor = 3, critChance = 5, speed = 5, hpRegen = -2, lifeSteal = -2 }
+		{ armor = 3, critChance = 5, engineering = 5, speed = 5, hpRegen = -2, lifeSteal = -2 }
 	),
-	item("ThunderShells", "Thunder Shells", 4, 100, { explosionDamage = 60, explosionSize = 15, damage = -15 }), -- Explosive Shells
-	item("SecondStomach", "Second Stomach", 4, 100, {}, 1, { -- Extra Stomach
-		{ trigger = "Consumable", action = "Grow", fullHp = true, maxPerWave = 8, stats = { maxHp = 1 } },
-	}),
-	item("TitanGirdle", "Titan's Girdle", 4, 110, {}, 1, { -- Giant Belt
-		{ trigger = "Crit", action = "Strike", hpShare = 0.1, eliteHpShare = 0.01 },
-	}),
-	item("PyreAshes", "Pyre Ashes", 4, 100, { damage = 20, attackSpeed = 20, range = 100 }, nil, { -- Ashes
-		{ trigger = "WaveEnd", action = "Grow", stats = { armor = -1 } },
-	}),
-}
-
--- B12: construction items retain the regular shop/stacking/reward pipeline.
-local structureIds = {}
-for id in Structures.kinds do
-	table.insert(structureIds, id)
-end
-table.sort(structureIds)
-for _, id in structureIds do
-	local definition = Structures.kinds[id]
-	table.insert(
-		LIST,
-		table.freeze({
-			id = id,
-			displayName = definition.displayName,
-			tier = definition.tier,
-			price = definition.price,
-			stats = table.freeze({}),
-			structure = id,
-			tags = table.freeze({ "engineering", "structure" }),
-		})
-	)
-end
-table.insert(LIST, item("CalibratedTools", "Calibrated Tools", 3, 70, { attackSpeed = 10 }, 1)) -- Improved Tools
-table.insert(
-	LIST,
+	item("ThunderShells", "Explosive Shells", 4, 100, { explosionDamage = 60, explosionSize = 15, damage = -15 }),
+	item(
+		"SecondStomach",
+		"Extra Stomach",
+		4,
+		100,
+		{},
+		1,
+		{ { trigger = "Consumable", action = "Grow", fullHp = true, maxPerWave = 8, stats = { maxHp = 1 } } }
+	),
+	item(
+		"TitanGirdle",
+		"Giant Belt",
+		4,
+		110,
+		{},
+		1,
+		{ { trigger = "Crit", action = "Strike", hpShare = 0.1, eliteHpShare = 0.01 } }
+	),
+	item("PyreAshes", "Warrior Helmet", 3, 80, { armor = 3, maxHp = 5, speed = -5 }),
+	item("CalibratedTools", "Improved Tools", 3, 70, { attackSpeed = 10 }, 1),
 	item(
 		"BloodLure",
-		"Blood Lure",
+		"Bait",
 		2,
 		25,
 		{ damage = 8 },
 		nil,
 		nil,
 		"7-8 Hookfangs appear at the start of the next wave for each new lure."
-	)
-) -- Bait
+	),
+}
+
+-- Structure ids stay stable for weapon deployments and the compact network feed.
+table.insert(
+	LIST,
+	table.freeze({
+		id = "BrassSentry",
+		displayName = "Turret",
+		tier = 1,
+		price = 15,
+		stats = table.freeze({}),
+		structure = "BrassSentry",
+		tags = table.freeze({ "engineering", "structure" }),
+	})
+)
+table.insert(
+	LIST,
+	table.freeze({
+		id = "CinderSentry",
+		displayName = "Incendiary Turret",
+		tier = 2,
+		price = 40,
+		stats = table.freeze({}),
+		structure = "CinderSentry",
+		tags = table.freeze({ "engineering", "structure" }),
+	})
+)
+table.insert(
+	LIST,
+	table.freeze({
+		id = "PrismSentry",
+		displayName = "Laser Turret",
+		tier = 3,
+		price = 65,
+		stats = table.freeze({}),
+		structure = "PrismSentry",
+		tags = table.freeze({ "engineering", "structure" }),
+	})
+)
+table.insert(
+	LIST,
+	table.freeze({
+		id = "MercySentry",
+		displayName = "Medical Turret",
+		tier = 2,
+		price = 40,
+		stats = table.freeze({}),
+		structure = "MercySentry",
+		tags = table.freeze({ "engineering", "structure" }),
+	})
+)
+table.insert(
+	LIST,
+	table.freeze({
+		id = "SiegeSentry",
+		displayName = "Explosive Turret",
+		tier = 4,
+		price = 80,
+		stats = table.freeze({}),
+		structure = "SiegeSentry",
+		tags = table.freeze({ "engineering", "structure" }),
+	})
+)
+table.insert(
+	LIST,
+	table.freeze({
+		id = "RuneMine",
+		displayName = "Landmines",
+		tier = 1,
+		price = 15,
+		stats = table.freeze({}),
+		structure = "RuneMine",
+		tags = table.freeze({ "engineering", "structure" }),
+	})
+)
+table.insert(
+	LIST,
+	table.freeze({
+		id = "MoonGarden",
+		displayName = "Garden",
+		tier = 2,
+		price = 50,
+		stats = table.freeze({}),
+		structure = "MoonGarden",
+		tags = table.freeze({ "engineering", "structure" }),
+	})
+)
+table.insert(
+	LIST,
+	table.freeze({
+		id = "OrbitWisp",
+		displayName = "Wandering Bot",
+		tier = 3,
+		price = 60,
+		stats = table.freeze({}),
+		structure = "OrbitWisp",
+		tags = table.freeze({ "engineering", "structure" }),
+	})
+)
+table.insert(
+	LIST,
+	table.freeze({
+		id = "StormFamiliar",
+		displayName = "Tyler",
+		tier = 2,
+		price = 62,
+		stats = table.freeze({}),
+		structure = "StormFamiliar",
+		tags = table.freeze({ "engineering", "structure" }),
+	})
+)
+
 local byId: { [string]: Item } = {}
 for _, entry in LIST do
 	byId[entry.id] = entry

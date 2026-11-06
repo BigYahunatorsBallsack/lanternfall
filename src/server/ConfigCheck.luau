@@ -99,6 +99,7 @@ function ConfigCheck.run(): { string }
 		Burn = true,
 		Explode = true,
 		Drain = true,
+		SpawnElite = true,
 	}
 	local function checkEffect(owner: string, effect: EffectsConfig.Effect)
 		if not Effects.triggers[effect.trigger] then

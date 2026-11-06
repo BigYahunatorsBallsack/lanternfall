@@ -52,13 +52,16 @@ local emptyLabel: TextLabel
 
 local function valueText(statId: string, value: number): string
 	local stat = Config.Stats.byId[statId]
-	local rounded = math.round(value * 10) / 10
-	local text = if rounded == math.floor(rounded) then tostring(rounded) else string.format("%.1f", rounded)
+	local rounded = math.round(value * 100) / 100
+	local text = if rounded == math.floor(rounded)
+		then tostring(rounded)
+		else (string.format("%.2f", rounded):gsub("0+$", ""))
 	if stat and stat.percent then
 		text ..= "%"
 	end
-	if statId == "dodge" and value > Config.Stats.dodge.max then
-		text ..= ` (max {Config.Stats.dodge.max}%)`
+	local cap = if (sheet.dodgeCap or 0) > 0 then sheet.dodgeCap else Config.Stats.dodge.max
+	if statId == "dodge" and value > cap then
+		text ..= ` (max {cap}%)`
 	end
 	return text
 end
@@ -186,7 +189,7 @@ local function build()
 		Icons.draw(icon, "stat", stat.id)
 		local statId = stat.id
 		Tooltip.attach(row, function()
-			return TooltipText.stat(statId, sheet[statId] or 0)
+			return TooltipText.stat(statId, sheet[statId] or 0, sheet)
 		end)
 		Widgets.label({
 			Name = "Label",

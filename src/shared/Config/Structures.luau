@@ -21,7 +21,7 @@ export type Definition = {
 }
 local kinds: { [string]: Definition } = {
 	BrassSentry = {
-		displayName = "Brass Sentry",
+		displayName = "Turret",
 		mode = "Shot",
 		damage = 10,
 		engineering = 0.8,
@@ -33,7 +33,7 @@ local kinds: { [string]: Definition } = {
 		description = "Deploys a sentry: 10 (+80% Engineering) damage every 0.73s.",
 	},
 	CinderSentry = {
-		displayName = "Cinder Sentry",
+		displayName = "Incendiary Turret",
 		mode = "Burn",
 		damage = 5,
 		engineering = 0.33,
@@ -47,7 +47,7 @@ local kinds: { [string]: Definition } = {
 		description = "Deploys a flame sentry: eight burn ticks of 5 (+33% Engineering).",
 	},
 	PrismSentry = {
-		displayName = "Prism Sentry",
+		displayName = "Laser Turret",
 		mode = "Shot",
 		damage = 20,
 		engineering = 1.25,
@@ -61,7 +61,7 @@ local kinds: { [string]: Definition } = {
 		description = "Deploys a piercing sentry: 20 (+125% Engineering) damage, pierces 3 targets.",
 	},
 	MercySentry = {
-		displayName = "Mercy Sentry",
+		displayName = "Medical Turret",
 		mode = "Heal",
 		damage = 3,
 		engineering = 0.05,
@@ -73,7 +73,7 @@ local kinds: { [string]: Definition } = {
 		description = "Deploys a healing sentry: floor(3 +5% Engineering) HP every 2.2s, for its owner.",
 	},
 	SiegeSentry = {
-		displayName = "Siege Sentry",
+		displayName = "Explosive Turret",
 		mode = "Explosion",
 		damage = 25,
 		engineering = 1.5,
@@ -86,7 +86,7 @@ local kinds: { [string]: Definition } = {
 		description = "Deploys an explosive sentry: 25 (+150% Engineering) area damage.",
 	},
 	RuneMine = {
-		displayName = "Rune Mine",
+		displayName = "Landmines",
 		mode = "Mine",
 		damage = 10,
 		engineering = 1,
@@ -99,7 +99,7 @@ local kinds: { [string]: Definition } = {
 		description = "Lays a mine at wave start and every 12s: 10 (+100% Engineering) area damage when an enemy leaves it.",
 	},
 	MoonGarden = {
-		displayName = "Moon Garden",
+		displayName = "Garden",
 		mode = "Garden",
 		damage = 0,
 		engineering = 0,
@@ -111,7 +111,7 @@ local kinds: { [string]: Definition } = {
 		description = "Plants a garden: a fruit at wave start and every 15s.",
 	},
 	OrbitWisp = {
-		displayName = "Orbit Wisp",
+		displayName = "Wandering Bot",
 		mode = "Orbit",
 		damage = 0,
 		engineering = 0,
@@ -123,7 +123,7 @@ local kinds: { [string]: Definition } = {
 		description = "An orbiting companion slows nearby enemies, including elites.",
 	},
 	StormFamiliar = {
-		displayName = "Storm Familiar",
+		displayName = "Tyler",
 		mode = "Radial",
 		damage = 12,
 		engineering = 0.9,
@@ -142,6 +142,7 @@ local kinds: { [string]: Definition } = {
 return table.freeze({
 	kinds = kinds,
 	maxActive = 100,
+	spriteSize = 7, -- world studs; original item artwork for all deployed structures
 	maxBeams = 32,
 	bounceRange = 25,
 	bounceFalloff = 0.5,

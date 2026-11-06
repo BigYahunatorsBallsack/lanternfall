@@ -1,0 +1,908 @@
+{
+  "baseCommit": "5a1ec546b4760c8bf0daec6dcf561da950661aec",
+  "baseline": {
+    "specs": 74,
+    "passed": 792,
+    "failed": 31
+  },
+  "branchFullRun": {
+    "specs": 76,
+    "passed": 933,
+    "failed": 31
+  },
+  "latestTargetedChecks": {
+    "ItemParity.spec.luau": {
+      "passed": 136,
+      "failed": 0
+    },
+    "ItemSprites.spec.luau": {
+      "passed": 5,
+      "failed": 0
+    }
+  },
+  "newFailuresInExistingSpecs": [],
+  "assetChecks": {
+    "originalPNGs": 125,
+    "sourceHashesVerified": 125,
+    "uploaded": 125,
+    "studioPreloadSuccess": 124,
+    "robloxModerationRejected": [
+      "Bellows"
+    ]
+  },
+  "limitations": [
+    "Full suite contains pre-existing main failures; exact per-spec comparisons are included.",
+    "Eyes Surgery original sprite was rejected by Roblox moderation. No alternate upload attempted.",
+    "No full branch Studio run, actual two-client run, phone test or live place publish performed."
+  ],
+  "perSpec": [
+    {
+      "spec": "tests/Analytics.spec.luau",
+      "exit": 0,
+      "counts": [
+        "14",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/AnalyticsRules.spec.luau",
+      "exit": 0,
+      "counts": [
+        "6",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/Audio21.spec.luau",
+      "exit": 0,
+      "counts": [
+        "8",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/Boss.spec.luau",
+      "exit": 0,
+      "counts": [
+        "10",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/BossBrain.spec.luau",
+      "exit": 0,
+      "counts": [
+        "6",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/BrotatoWeapons.spec.luau",
+      "exit": 0,
+      "counts": [
+        "69",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/Champions.spec.luau",
+      "exit": 0,
+      "counts": [
+        "5",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/CharacterArt.spec.luau",
+      "exit": 0,
+      "counts": [
+        "9",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/CharactersB10.spec.luau",
+      "exit": 0,
+      "counts": [
+        "13",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/Config.spec.luau",
+      "exit": 0,
+      "counts": [
+        "6",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/Danger.spec.luau",
+      "exit": 0,
+      "counts": [
+        "6",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/DangerRules.spec.luau",
+      "exit": 0,
+      "counts": [
+        "11",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/EffectRules.spec.luau",
+      "exit": 0,
+      "counts": [
+        "11",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/EmberShop.spec.luau",
+      "exit": 0,
+      "counts": [
+        "12",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/EmberShopRules.spec.luau",
+      "exit": 0,
+      "counts": [
+        "8",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/EnemiesB9.spec.luau",
+      "exit": 0,
+      "counts": [
+        "7",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/EnemyModels.spec.luau",
+      "exit": 0,
+      "counts": [
+        "10",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/EnemyWorld.spec.luau",
+      "exit": 0,
+      "counts": [
+        "44",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/Experience.spec.luau",
+      "exit": 0,
+      "counts": [
+        "7",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/FirstNight.spec.luau",
+      "exit": 0,
+      "counts": [
+        "9",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/FirstNightHub.spec.luau",
+      "exit": 0,
+      "counts": [
+        "2",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/Graphics22.spec.luau",
+      "exit": 0,
+      "counts": [
+        "6",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/HeldWeapons.spec.luau",
+      "exit": 0,
+      "counts": [
+        "4",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/HitNumbers.spec.luau",
+      "exit": 0,
+      "counts": [
+        "3",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/HubStudio.spec.luau",
+      "exit": 0,
+      "counts": [
+        "10",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/HubTeleport.spec.luau",
+      "exit": 0,
+      "counts": [
+        "7",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/Hud14.spec.luau",
+      "exit": 0,
+      "counts": [
+        "6",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/ItemParity.spec.luau",
+      "exit": 0,
+      "counts": [
+        "136",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/ItemsB8.spec.luau",
+      "exit": 0,
+      "counts": [
+        "16",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/ItemSprites.spec.luau",
+      "exit": 0,
+      "counts": [
+        "5",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/Launch24.spec.luau",
+      "exit": 0,
+      "counts": [
+        "10",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/Loot.spec.luau",
+      "exit": 0,
+      "counts": [
+        "11",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/LootRules.spec.luau",
+      "exit": 0,
+      "counts": [
+        "8",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/MainGameEnemyRuntime.spec.luau",
+      "exit": 0,
+      "counts": [
+        "9",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/MainGameEnemyStats.spec.luau",
+      "exit": 0,
+      "counts": [
+        "29",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/MovementRules.spec.luau",
+      "exit": 0,
+      "counts": [
+        "11",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/NetCodecs22.spec.luau",
+      "exit": 0,
+      "counts": [
+        "7",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/Parties.spec.luau",
+      "exit": 0,
+      "counts": [
+        "11",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/Perf22.spec.luau",
+      "exit": 0,
+      "counts": [
+        "1",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/PlaceRules.spec.luau",
+      "exit": 0,
+      "counts": [
+        "9",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/PlayerData.spec.luau",
+      "exit": 0,
+      "counts": [
+        "7",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/PlayerDataRules.spec.luau",
+      "exit": 0,
+      "counts": [
+        "14",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/Progress.spec.luau",
+      "exit": 0,
+      "counts": [
+        "6",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/ProgressRules.spec.luau",
+      "exit": 0,
+      "counts": [
+        "10",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/PurchaseRules.spec.luau",
+      "exit": 0,
+      "counts": [
+        "10",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/QuestRules.spec.luau",
+      "exit": 0,
+      "counts": [
+        "18",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/Quests.spec.luau",
+      "exit": 0,
+      "counts": [
+        "11",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/RandomStreams.spec.luau",
+      "exit": 0,
+      "counts": [
+        "3",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/RetryWave.spec.luau",
+      "exit": 0,
+      "counts": [
+        "6",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/Revive.spec.luau",
+      "exit": 0,
+      "counts": [
+        "8",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/ReviveRules.spec.luau",
+      "exit": 0,
+      "counts": [
+        "7",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/RunFlow.spec.luau",
+      "exit": 0,
+      "counts": [
+        "55",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/RunPlace.spec.luau",
+      "exit": 0,
+      "counts": [
+        "6",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/RunStats.spec.luau",
+      "exit": 1,
+      "counts": [
+        "4",
+        "1"
+      ],
+      "failures": [
+        "Tally > writes readable log lines with the level per minute and every build"
+      ]
+    },
+    {
+      "spec": "tests/Security23.spec.luau",
+      "exit": 0,
+      "counts": [
+        "13",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/Security23Hub.spec.luau",
+      "exit": 0,
+      "counts": [
+        "3",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/ShopRules.spec.luau",
+      "exit": 0,
+      "counts": [
+        "14",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/Smoke.spec.luau",
+      "exit": 1,
+      "counts": [
+        "13",
+        "30"
+      ],
+      "failures": [
+        "smoke > arms the player with the class weapon and switches weapons off for the enemy tests",
+        "smoke > spawns enemies on a ring around the player and draws them",
+        "smoke > chases the player until it touches them",
+        "smoke > shows enemy and performance numbers to admins",
+        "smoke > shoots Spark Bolts that kill enemies once weapons are on",
+        "smoke > draws the six original weapons, tiers and debug swaps",
+        "smoke > drops XP orbs that the player picks up for the whole team",
+        "smoke > keeps level-ups for the end of the wave",
+        "smoke > sells weapons and items for Shards in the shop, rerolls and starts the next wave on READY",
+        "smoke > lets items change HP, speed and weapon damage, stacking without limit",
+        "smoke > runs item effects: standing still, per X, timers, crit kills, dodges and chests",
+        "smoke > runs wave end, shop and next-wave effects and the shop stats",
+        "smoke > spawns a glowing elite with an HP bar that drops a chest",
+        "smoke > opens the chest when walked over and shows the reward",
+        "smoke > gives the evolution from a chest once the build is ready",
+        "smoke > lets Spitters shoot visible projectiles that hit the player",
+        "smoke > starts Swarm Rush with a ring of Shadelings and no Gloom Elites",
+        "smoke > shows a Charger's wind-up, splits Splitters and names elite affixes",
+        "smoke > runs Brotato's combat: weapon class bonuses, burning, exploding items and slowed enemies",
+        "smoke > skips to the boss wave, and surviving it wins (WP10)",
+        "smoke > starts the next run with Play again",
+        "smoke > keeps walking but suppresses jumping on Space",
+        "smoke > takes debug damage with hit protection and heals",
+        "smoke > ends in defeat when the only player is knocked down",
+        "smoke > returns to the lobby after the results",
+        "smoke > runs with two players and keeps late joiners in the lobby",
+        "smoke > keeps running while one of two is down, and enemies go for the one still standing",
+        "smoke > stands a downed player up with full HP when the wave ends",
+        "smoke > rejects locked classes with a message",
+        "smoke > finished without any runtime error"
+      ]
+    },
+    {
+      "spec": "tests/Snapshot.spec.luau",
+      "exit": 0,
+      "counts": [
+        "7",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/SnapshotBuffer.spec.luau",
+      "exit": 0,
+      "counts": [
+        "7",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/SpatialHash.spec.luau",
+      "exit": 0,
+      "counts": [
+        "2",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/SpawnGroups.spec.luau",
+      "exit": 0,
+      "counts": [
+        "6",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/SpawnRules.spec.luau",
+      "exit": 0,
+      "counts": [
+        "16",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/StatMath.spec.luau",
+      "exit": 0,
+      "counts": [
+        "8",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/Store.spec.luau",
+      "exit": 0,
+      "counts": [
+        "14",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/StructuresB12.spec.luau",
+      "exit": 0,
+      "counts": [
+        "8",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/UiRedesign.spec.luau",
+      "exit": 0,
+      "counts": [
+        "10",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/UpgradePool.spec.luau",
+      "exit": 0,
+      "counts": [
+        "10",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/ViewBounds.spec.luau",
+      "exit": 0,
+      "counts": [
+        "5",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/Vitals.spec.luau",
+      "exit": 0,
+      "counts": [
+        "13",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/WeaponBalance.spec.luau",
+      "exit": 0,
+      "counts": [
+        "1",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/WeaponClasses.spec.luau",
+      "exit": 0,
+      "counts": [
+        "5",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/Weapons.spec.luau",
+      "exit": 0,
+      "counts": [
+        "16",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/WeaponsB7.spec.luau",
+      "exit": 0,
+      "counts": [
+        "10",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/WeaponsB7Integration.spec.luau",
+      "exit": 0,
+      "counts": [
+        "5",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/WeaponStats.spec.luau",
+      "exit": 0,
+      "counts": [
+        "10",
+        "0"
+      ],
+      "failures": []
+    }
+  ],
+  "previousBaseValidation": {
+    "baseCommit": "fc17890b306acbb5eef28599cb2aa48d1c54c040",
+    "baseline": {
+      "specs": 73,
+      "passed": 747,
+      "failed": 31
+    },
+    "branchFullRun": {
+      "specs": 75,
+      "passed": 887,
+      "failed": 31
+    }
+  },
+  "existingSpecDifferences": [
+    {
+      "spec": "tests/Smoke.spec.luau",
+      "before": [
+        "smoke > arms the player with the class weapon and switches weapons off for the enemy tests",
+        "smoke > spawns enemies on a ring around the player and draws them",
+        "smoke > shows enemy and performance numbers to admins",
+        "smoke > shoots Spark Bolts that kill enemies once weapons are on",
+        "smoke > draws the six original weapons, tiers and debug swaps",
+        "smoke > drops XP orbs that the player picks up for the whole team",
+        "smoke > keeps level-ups for the end of the wave",
+        "smoke > sells weapons and items for Shards in the shop, rerolls and starts the next wave on READY",
+        "smoke > lets items change HP, speed and weapon damage, stacking without limit",
+        "smoke > runs item effects: standing still, per X, timers, crit kills, dodges and chests",
+        "smoke > runs wave end, shop and next-wave effects and the shop stats",
+        "smoke > spawns a glowing elite with an HP bar that drops a chest",
+        "smoke > opens the chest when walked over and shows the reward",
+        "smoke > gives the evolution from a chest once the build is ready",
+        "smoke > lets Spitters shoot visible projectiles that hit the player",
+        "smoke > starts Swarm Rush with a ring of Shadelings and no Gloom Elites",
+        "smoke > shows a Charger's wind-up, splits Splitters and names elite affixes",
+        "smoke > runs Brotato's combat: weapon class bonuses, burning, exploding items and slowed enemies",
+        "smoke > skips to the boss wave, and surviving it wins (WP10)",
+        "smoke > starts the next run with Play again",
+        "smoke > keeps walking but suppresses jumping on Space",
+        "smoke > takes debug damage with hit protection and heals",
+        "smoke > ends in defeat when the only player is knocked down",
+        "smoke > returns to the lobby after the results",
+        "smoke > runs with two players and keeps late joiners in the lobby",
+        "smoke > keeps running while one of two is down, and enemies go for the one still standing",
+        "smoke > stands a downed player up with full HP when the wave ends",
+        "smoke > rejects locked classes with a message",
+        "smoke > finished without any runtime error"
+      ],
+      "after": [
+        "smoke > arms the player with the class weapon and switches weapons off for the enemy tests",
+        "smoke > spawns enemies on a ring around the player and draws them",
+        "smoke > chases the player until it touches them",
+        "smoke > shows enemy and performance numbers to admins",
+        "smoke > shoots Spark Bolts that kill enemies once weapons are on",
+        "smoke > draws the six original weapons, tiers and debug swaps",
+        "smoke > drops XP orbs that the player picks up for the whole team",
+        "smoke > keeps level-ups for the end of the wave",
+        "smoke > sells weapons and items for Shards in the shop, rerolls and starts the next wave on READY",
+        "smoke > lets items change HP, speed and weapon damage, stacking without limit",
+        "smoke > runs item effects: standing still, per X, timers, crit kills, dodges and chests",
+        "smoke > runs wave end, shop and next-wave effects and the shop stats",
+        "smoke > spawns a glowing elite with an HP bar that drops a chest",
+        "smoke > opens the chest when walked over and shows the reward",
+        "smoke > gives the evolution from a chest once the build is ready",
+        "smoke > lets Spitters shoot visible projectiles that hit the player",
+        "smoke > starts Swarm Rush with a ring of Shadelings and no Gloom Elites",
+        "smoke > shows a Charger's wind-up, splits Splitters and names elite affixes",
+        "smoke > runs Brotato's combat: weapon class bonuses, burning, exploding items and slowed enemies",
+        "smoke > skips to the boss wave, and surviving it wins (WP10)",
+        "smoke > starts the next run with Play again",
+        "smoke > keeps walking but suppresses jumping on Space",
+        "smoke > takes debug damage with hit protection and heals",
+        "smoke > ends in defeat when the only player is knocked down",
+        "smoke > returns to the lobby after the results",
+        "smoke > runs with two players and keeps late joiners in the lobby",
+        "smoke > keeps running while one of two is down, and enemies go for the one still standing",
+        "smoke > stands a downed player up with full HP when the wave ends",
+        "smoke > rejects locked classes with a message",
+        "smoke > finished without any runtime error"
+      ]
+    },
+    {
+      "spec": "tests/StructuresB12.spec.luau",
+      "before": [
+        "B12 structures > lays recurring mines, clears them in the shop and rebuilds sources"
+      ],
+      "after": []
+    }
+  ],
+  "seededSmokeComparison": {
+    "seed": 1234,
+    "method": "Override Config.Run.seed only in the test loader memory, in both checkouts.",
+    "baseline": {
+      "passed": 14,
+      "failed": 29
+    },
+    "branch": {
+      "passed": 14,
+      "failed": 29
+    },
+    "identicalFailureNames": [
+      "smoke > arms the player with the class weapon and switches weapons off for the enemy tests",
+      "smoke > spawns enemies on a ring around the player and draws them",
+      "smoke > shows enemy and performance numbers to admins",
+      "smoke > shoots Spark Bolts that kill enemies once weapons are on",
+      "smoke > draws the six original weapons, tiers and debug swaps",
+      "smoke > drops XP orbs that the player picks up for the whole team",
+      "smoke > keeps level-ups for the end of the wave",
+      "smoke > sells weapons and items for Shards in the shop, rerolls and starts the next wave on READY",
+      "smoke > lets items change HP, speed and weapon damage, stacking without limit",
+      "smoke > runs item effects: standing still, per X, timers, crit kills, dodges and chests",
+      "smoke > runs wave end, shop and next-wave effects and the shop stats",
+      "smoke > spawns a glowing elite with an HP bar that drops a chest",
+      "smoke > opens the chest when walked over and shows the reward",
+      "smoke > gives the evolution from a chest once the build is ready",
+      "smoke > lets Spitters shoot visible projectiles that hit the player",
+      "smoke > starts Swarm Rush with a ring of Shadelings and no Gloom Elites",
+      "smoke > shows a Charger's wind-up, splits Splitters and names elite affixes",
+      "smoke > runs Brotato's combat: weapon class bonuses, burning, exploding items and slowed enemies",
+      "smoke > skips to the boss wave, and surviving it wins (WP10)",
+      "smoke > starts the next run with Play again",
+      "smoke > keeps walking but suppresses jumping on Space",
+      "smoke > takes debug damage with hit protection and heals",
+      "smoke > ends in defeat when the only player is knocked down",
+      "smoke > returns to the lobby after the results",
+      "smoke > runs with two players and keeps late joiners in the lobby",
+      "smoke > keeps running while one of two is down, and enemies go for the one still standing",
+      "smoke > stands a downed player up with full HP when the wave ends",
+      "smoke > rejects locked classes with a message",
+      "smoke > finished without any runtime error"
+    ]
+  },
+  "mergeCompatibility": {
+    "baseCommit": "0a841e58cab8dd9f3cd5b4124a576f0a4c793520",
+    "passed": 185,
+    "failed": 0,
+    "specs": {
+      "ItemParity": 136,
+      "ItemSprites": 5,
+      "PrimaryStatArt": 6,
+      "UpgradeReference": 17,
+      "EffectRules": 11,
+      "WeaponStats": 10
+    },
+    "checks": [
+      "StyLua",
+      "Selene: 0 errors, 11 existing warnings",
+      "Rojo build",
+      "git diff --check"
+    ],
+    "notes": "Retain both primary upgrade artwork and item-error fallback; bind item-only limit stats to related primary icons. The earlier full-suite result remains dated to its recorded base."
+  }
+}

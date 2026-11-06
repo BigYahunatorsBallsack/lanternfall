@@ -38,6 +38,8 @@
 -- PerX since B8: `per` may be negative ("per -1 % Speed"), `min` keeps the steps from dropping below it; more sources:
 -- "enemies" (living enemies right now) and "distinctItemsTier1".."distinctItemsTier4" (different items of that tier).
 -- Copies: an effect without `chance` works count times as strong; with `chance` every copy rolls on its own.
+-- SpawnElite: a full-health random champion joins this wave with the usual spawn warning (Candy Bag).
+-- Drain is lethal self-damage, consumes hit shields and fires Hurt; it ignores armor, dodge and hit protection.
 
 export type Effect = {
 	trigger: string,
@@ -115,6 +117,7 @@ return table.freeze({
 		"Explode",
 		"Strike",
 		"Drain",
+		"SpawnElite",
 	}),
 	enemyTriggers = set({ "Hit", "Crit", "Kill" }), -- events with an enemy: the only ones for Burn and Explode (B5)
 	states = set({ "Still", "Moving" }),

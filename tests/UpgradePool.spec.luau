@@ -151,7 +151,7 @@ describe("UpgradeText", function()
 			merges = false,
 			blocked = false,
 		})
-		expect(title).toBe("Glass Lantern")
+		expect(title).toBe("Glass Cannon")
 		expect(detail).toBe("+25% Damage\n-3 Armor")
 		expect(badge).toBe("Rare · x2")
 	end)
@@ -169,8 +169,8 @@ describe("UpgradeText", function()
 		expect(title).toBe("Starfire")
 		expect(detail).toBe("Evolution")
 		title, detail = UpgradeText.chestReward({ kind = "Item", itemId = "Might", level = 2 })
-		expect(title).toBe("Might x2")
-		expect(detail).toBe("-1 Max HP, +5% Damage") -- in the order of the stat panel
+		expect(title).toBe("Injection x2")
+		expect(detail).toBe("-2 Max HP, +7% Damage") -- in the order of the stat panel
 		title = UpgradeText.chestReward({ kind = "Reward", itemId = "Heal", level = 0 })
 		expect(title).toBe("Heal")
 	end)

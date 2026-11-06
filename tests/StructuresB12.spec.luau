@@ -84,7 +84,7 @@ describe("B12 structures", function()
 		expect(Enemy.getHealth(e) < hp).toBe(true)
 		local heal = find("MercySentry")
 		me.Character.HumanoidRootPart.Position = at(heal)
-		Combat.drainPlayer(me, 50)
+		Combat.drainPlayer(me, Config.Stats.hpScale) -- leave the patient alive now that item self-damage is lethal
 		local before = Combat.getHp(me)
 		world.advance(2.3)
 		expect(Combat.getHp(me) > before).toBe(true)

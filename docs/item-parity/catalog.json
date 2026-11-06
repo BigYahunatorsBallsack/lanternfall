@@ -1,0 +1,1960 @@
+{
+  "source": "https://brotato.wiki.spellsandguns.com/Items",
+  "retrieved": "2026-11-06",
+  "scope": "125 current Lanternfall catalog entries replaced by distinct main-game originals; not every Brotato item.",
+  "items": [
+    {
+      "id": "Vitality",
+      "name": "Cake",
+      "tier": 1,
+      "price": 15,
+      "limit": null,
+      "stats": {
+        "maxHp": 3,
+        "damage": -1
+      },
+      "effects": [],
+      "source": "https://brotato.wiki.spellsandguns.com/Cake"
+    },
+    {
+      "id": "Haste",
+      "name": "Beanie",
+      "tier": 1,
+      "price": 20,
+      "limit": null,
+      "stats": {
+        "speed": 4,
+        "range": -6
+      },
+      "effects": [],
+      "source": "https://brotato.wiki.spellsandguns.com/Beanie"
+    },
+    {
+      "id": "Focus",
+      "name": "Coffee",
+      "tier": 1,
+      "price": 20,
+      "limit": null,
+      "stats": {
+        "attackSpeed": 10,
+        "damage": -2
+      },
+      "effects": [],
+      "source": "https://brotato.wiki.spellsandguns.com/Coffee"
+    },
+    {
+      "id": "Magnet",
+      "name": "Boiling Water",
+      "tier": 1,
+      "price": 30,
+      "limit": null,
+      "stats": {
+        "elementalDamage": 2,
+        "maxHp": -1
+      },
+      "effects": [],
+      "source": "https://brotato.wiki.spellsandguns.com/Boiling_Water"
+    },
+    {
+      "id": "Might",
+      "name": "Injection",
+      "tier": 1,
+      "price": 20,
+      "limit": null,
+      "stats": {
+        "damage": 7,
+        "maxHp": -2
+      },
+      "effects": [],
+      "source": "https://brotato.wiki.spellsandguns.com/Injection"
+    },
+    {
+      "id": "Armor",
+      "name": "Metal Plate",
+      "tier": 2,
+      "price": 40,
+      "limit": null,
+      "stats": {
+        "armor": 2,
+        "damage": -3
+      },
+      "effects": [],
+      "source": "https://brotato.wiki.spellsandguns.com/Metal_Plate"
+    },
+    {
+      "id": "WaxHeart",
+      "name": "Broken Mouth",
+      "tier": 1,
+      "price": 25,
+      "limit": null,
+      "stats": {
+        "maxHp": 5,
+        "hpRegen": -1
+      },
+      "effects": [],
+      "source": "https://brotato.wiki.spellsandguns.com/Broken_Mouth"
+    },
+    {
+      "id": "CrackedLens",
+      "name": "Glasses",
+      "tier": 1,
+      "price": 20,
+      "limit": null,
+      "stats": {
+        "range": 20
+      },
+      "effects": [],
+      "source": "https://brotato.wiki.spellsandguns.com/Glasses"
+    },
+    {
+      "id": "BoneKnuckles",
+      "name": "Plant",
+      "tier": 1,
+      "price": 15,
+      "limit": null,
+      "stats": {
+        "hpRegen": 3,
+        "lifeSteal": -1
+      },
+      "effects": [],
+      "source": "https://brotato.wiki.spellsandguns.com/Plant"
+    },
+    {
+      "id": "TallowCandle",
+      "name": "Charcoal",
+      "tier": 1,
+      "price": 20,
+      "limit": null,
+      "stats": {
+        "elementalDamage": 1,
+        "meleeDamage": 2,
+        "harvesting": -2
+      },
+      "effects": [],
+      "source": "https://brotato.wiki.spellsandguns.com/Charcoal"
+    },
+    {
+      "id": "MothWing",
+      "name": "Butterfly",
+      "tier": 1,
+      "price": 30,
+      "limit": null,
+      "stats": {
+        "lifeSteal": 2,
+        "elementalDamage": -1
+      },
+      "effects": [],
+      "source": "https://brotato.wiki.spellsandguns.com/Butterfly"
+    },
+    {
+      "id": "GraveSpade",
+      "name": "Fertilizer",
+      "tier": 1,
+      "price": 15,
+      "limit": null,
+      "stats": {
+        "harvesting": 8,
+        "meleeDamage": -1
+      },
+      "effects": [],
+      "source": "https://brotato.wiki.spellsandguns.com/Fertilizer"
+    },
+    {
+      "id": "CatClaw",
+      "name": "Claw Tree",
+      "tier": 1,
+      "price": 20,
+      "limit": null,
+      "stats": {
+        "meleeDamage": 1,
+        "critChance": 3,
+        "maxHp": -1
+      },
+      "effects": [],
+      "source": "https://brotato.wiki.spellsandguns.com/Claw_Tree"
+    },
+    {
+      "id": "RustedCoin",
+      "name": "Lost Duck",
+      "tier": 1,
+      "price": 25,
+      "limit": null,
+      "stats": {
+        "luck": 8,
+        "elementalDamage": -1
+      },
+      "effects": [],
+      "source": "https://brotato.wiki.spellsandguns.com/Lost_Duck"
+    },
+    {
+      "id": "FlintShard",
+      "name": "Lens",
+      "tier": 1,
+      "price": 20,
+      "limit": null,
+      "stats": {
+        "rangedDamage": 1,
+        "range": -5
+      },
+      "effects": [],
+      "source": "https://brotato.wiki.spellsandguns.com/Lens"
+    },
+    {
+      "id": "WardRune",
+      "name": "Peaceful Bee",
+      "tier": 1,
+      "price": 18,
+      "limit": null,
+      "stats": {
+        "dodge": 4,
+        "harvesting": 4,
+        "meleeDamage": -1,
+        "rangedDamage": -1
+      },
+      "effects": [],
+      "source": "https://brotato.wiki.spellsandguns.com/Peaceful_Bee"
+    },
+    {
+      "id": "PawnTicket",
+      "name": "Coupon",
+      "tier": 1,
+      "price": 15,
+      "limit": 5,
+      "stats": {
+        "itemPrice": -5
+      },
+      "effects": [],
+      "source": "https://brotato.wiki.spellsandguns.com/Coupon"
+    },
+    {
+      "id": "ChitteringFamiliar",
+      "name": "Cute Monkey",
+      "tier": 1,
+      "price": 25,
+      "limit": 13,
+      "stats": {
+        "rangedDamage": -1,
+        "shardHealing": 8
+      },
+      "effects": [],
+      "source": "https://brotato.wiki.spellsandguns.com/Cute_Monkey"
+    },
+    {
+      "id": "BoneCharm",
+      "name": "Jelly",
+      "tier": 1,
+      "price": 15,
+      "limit": null,
+      "stats": {},
+      "effects": [
+        {
+          "trigger": "Always",
+          "action": "PerX",
+          "source": "distinctWeapons",
+          "per": 1,
+          "stats": {
+            "maxHp": 1.0
+          }
+        }
+      ],
+      "source": "https://brotato.wiki.spellsandguns.com/Jelly"
+    },
+    {
+      "id": "Satchel",
+      "name": "Bag",
+      "tier": 1,
+      "price": 15,
+      "limit": 3,
+      "stats": {
+        "speed": -1
+      },
+      "effects": [
+        {
+          "trigger": "Chest",
+          "action": "Shards",
+          "amount": 15
+        }
+      ],
+      "source": "https://brotato.wiki.spellsandguns.com/Bag"
+    },
+    {
+      "id": "LeechJar",
+      "name": "Blood Leech",
+      "tier": 2,
+      "price": 45,
+      "limit": null,
+      "stats": {
+        "lifeSteal": 2,
+        "hpRegen": 2,
+        "harvesting": -3
+      },
+      "effects": [],
+      "source": "https://brotato.wiki.spellsandguns.com/Blood_Leech"
+    },
+    {
+      "id": "AshBlindfold",
+      "name": "Blindfold",
+      "tier": 2,
+      "price": 45,
+      "limit": null,
+      "stats": {
+        "critChance": 5,
+        "dodge": 5,
+        "range": -15
+      },
+      "effects": [],
+      "source": "https://brotato.wiki.spellsandguns.com/Blindfold"
+    },
+    {
+      "id": "SignalBanner",
+      "name": "Banner",
+      "tier": 2,
+      "price": 55,
+      "limit": null,
+      "stats": {
+        "range": 20,
+        "attackSpeed": 10,
+        "knockback": -5
+      },
+      "effects": [],
+      "source": "https://brotato.wiki.spellsandguns.com/Banner"
+    },
+    {
+      "id": "Brazier",
+      "name": "Campfire",
+      "tier": 2,
+      "price": 40,
+      "limit": null,
+      "stats": {
+        "elementalDamage": 2,
+        "hpRegen": 2,
+        "speed": -2
+      },
+      "effects": [],
+      "source": "https://brotato.wiki.spellsandguns.com/Campfire"
+    },
+    {
+      "id": "OilFlask",
+      "name": "Fuel Tank",
+      "tier": 2,
+      "price": 45,
+      "limit": null,
+      "stats": {
+        "elementalDamage": 4,
+        "meleeDamage": -1,
+        "rangedDamage": -1
+      },
+      "effects": [],
+      "source": "https://brotato.wiki.spellsandguns.com/Fuel_Tank"
+    },
+    {
+      "id": "LoadedDice",
+      "name": "Gambling Token",
+      "tier": 2,
+      "price": 50,
+      "limit": null,
+      "stats": {
+        "dodge": 8,
+        "armor": -1
+      },
+      "effects": [],
+      "source": "https://brotato.wiki.spellsandguns.com/Gambling_Token"
+    },
+    {
+      "id": "NarrowScope",
+      "name": "Cyclops Worm",
+      "tier": 2,
+      "price": 45,
+      "limit": null,
+      "stats": {
+        "damage": 12,
+        "range": -12
+      },
+      "effects": [],
+      "source": "https://brotato.wiki.spellsandguns.com/Cyclops_Worm"
+    },
+    {
+      "id": "Whetstone",
+      "name": "Mastery",
+      "tier": 2,
+      "price": 55,
+      "limit": null,
+      "stats": {
+        "meleeDamage": 6,
+        "rangedDamage": -3
+      },
+      "effects": [],
+      "source": "https://brotato.wiki.spellsandguns.com/Mastery"
+    },
+    {
+      "id": "AcidVial",
+      "name": "Acid",
+      "tier": 2,
+      "price": 65,
+      "limit": null,
+      "stats": {
+        "maxHp": 8,
+        "dodge": -2,
+        "knockback": -2
+      },
+      "effects": [],
+      "source": "https://brotato.wiki.spellsandguns.com/Acid"
+    },
+    {
+      "id": "StaticBracelet",
+      "name": "Energy Bracelet",
+      "tier": 2,
+      "price": 55,
+      "limit": null,
+      "stats": {
+        "critChance": 4,
+        "elementalDamage": 2,
+        "rangedDamage": -2
+      },
+      "effects": [],
+      "source": "https://brotato.wiki.spellsandguns.com/Energy_Bracelet"
+    },
+    {
+      "id": "PowderPouch",
+      "name": "Small Magazine",
+      "tier": 2,
+      "price": 60,
+      "limit": null,
+      "stats": {
+        "rangedDamage": 2,
+        "attackSpeed": 10,
+        "damage": -6
+      },
+      "effects": [],
+      "source": "https://brotato.wiki.spellsandguns.com/Small_Magazine"
+    },
+    {
+      "id": "LanternOil",
+      "name": "Shady Potion",
+      "tier": 2,
+      "price": 48,
+      "limit": null,
+      "stats": {
+        "luck": 20,
+        "hpRegen": -2
+      },
+      "effects": [],
+      "source": "https://brotato.wiki.spellsandguns.com/Shady_Potion"
+    },
+    {
+      "id": "BitterTonic",
+      "name": "Celery Tea",
+      "tier": 2,
+      "price": 35,
+      "limit": null,
+      "stats": {},
+      "effects": [
+        {
+          "trigger": "WaveEnd",
+          "action": "Grow",
+          "stats": {
+            "xpGain": 5
+          }
+        },
+        {
+          "trigger": "Acquire",
+          "action": "NextWaveStats",
+          "stats": {
+            "xpGain": 50,
+            "enemyHp": 100
+          }
+        }
+      ],
+      "source": "https://brotato.wiki.spellsandguns.com/Celery_Tea"
+    },
+    {
+      "id": "JesterBell",
+      "name": "Dangerous Bunny",
+      "tier": 2,
+      "price": 30,
+      "limit": 3,
+      "stats": {
+        "freeRerolls": 1
+      },
+      "effects": [],
+      "source": "https://brotato.wiki.spellsandguns.com/Dangerous_Bunny"
+    },
+    {
+      "id": "DowsingRod",
+      "name": "Metal Detector",
+      "tier": 2,
+      "price": 40,
+      "limit": 20,
+      "stats": {
+        "luck": 6,
+        "engineering": 2,
+        "damage": -5,
+        "doubleShards": 5
+      },
+      "effects": [],
+      "source": "https://brotato.wiki.spellsandguns.com/Metal_Detector"
+    },
+    {
+      "id": "QuiltedCoat",
+      "name": "Padding",
+      "tier": 2,
+      "price": 45,
+      "limit": 1,
+      "stats": {
+        "maxHp": 3
+      },
+      "effects": [
+        {
+          "trigger": "Always",
+          "action": "PerX",
+          "source": "shards",
+          "per": 80,
+          "stats": {
+            "maxHp": 1.0
+          }
+        }
+      ],
+      "source": "https://brotato.wiki.spellsandguns.com/Padding"
+    },
+    {
+      "id": "TitheBox",
+      "name": "Piggy Bank",
+      "tier": 2,
+      "price": 40,
+      "limit": 1,
+      "stats": {},
+      "effects": [
+        {
+          "trigger": "WaveStart",
+          "action": "ShardShare",
+          "amount": 20,
+          "untilWave": 19
+        }
+      ],
+      "source": "https://brotato.wiki.spellsandguns.com/Piggy_Bank"
+    },
+    {
+      "id": "RottingHeart",
+      "name": "Decomposing Flesh",
+      "tier": 2,
+      "price": 30,
+      "limit": null,
+      "stats": {},
+      "effects": [
+        {
+          "trigger": "LevelUp",
+          "action": "Grow",
+          "stats": {
+            "lifeSteal": 1,
+            "maxHp": -1.0
+          }
+        }
+      ],
+      "source": "https://brotato.wiki.spellsandguns.com/Decomposing_Flesh"
+    },
+    {
+      "id": "ScrapAltar",
+      "name": "Recycling Machine",
+      "tier": 2,
+      "price": 35,
+      "limit": 1,
+      "stats": {
+        "sellValue": 35
+      },
+      "effects": [],
+      "source": "https://brotato.wiki.spellsandguns.com/Recycling_Machine"
+    },
+    {
+      "id": "GlassLantern",
+      "name": "Glass Cannon",
+      "tier": 3,
+      "price": 75,
+      "limit": null,
+      "stats": {
+        "damage": 25,
+        "armor": -3
+      },
+      "effects": [],
+      "source": "https://brotato.wiki.spellsandguns.com/Glass_Cannon"
+    },
+    {
+      "id": "FourLeafCharm",
+      "name": "Clover",
+      "tier": 3,
+      "price": 65,
+      "limit": null,
+      "stats": {
+        "luck": 20,
+        "dodge": 6,
+        "lifeSteal": -2
+      },
+      "effects": [],
+      "source": "https://brotato.wiki.spellsandguns.com/Clover"
+    },
+    {
+      "id": "EelFin",
+      "name": "Fin",
+      "tier": 3,
+      "price": 65,
+      "limit": null,
+      "stats": {
+        "speed": 10,
+        "lifeSteal": 3,
+        "luck": -8
+      },
+      "effects": [],
+      "source": "https://brotato.wiki.spellsandguns.com/Fin"
+    },
+    {
+      "id": "BloodOffering",
+      "name": "Blood Donation",
+      "tier": 3,
+      "price": 50,
+      "limit": null,
+      "stats": {
+        "harvesting": 40
+      },
+      "effects": [
+        {
+          "trigger": "Timer",
+          "action": "Drain",
+          "interval": 1,
+          "amount": 1.0
+        }
+      ],
+      "source": "https://brotato.wiki.spellsandguns.com/Blood_Donation"
+    },
+    {
+      "id": "IronShackle",
+      "name": "Ball and Chain",
+      "tier": 3,
+      "price": 75,
+      "limit": 1,
+      "stats": {
+        "damage": 15,
+        "armor": 3,
+        "knockback": 5,
+        "speed": -3,
+        "weaponCooldownMin": 0.75
+      },
+      "effects": [],
+      "source": "https://brotato.wiki.spellsandguns.com/Ball_and_Chain"
+    },
+    {
+      "id": "ClockworkGears",
+      "name": "Poisonous Tonic",
+      "tier": 3,
+      "price": 80,
+      "limit": null,
+      "stats": {
+        "attackSpeed": 10,
+        "critChance": 5,
+        "range": 15,
+        "hpRegen": -2
+      },
+      "effects": [],
+      "source": "https://brotato.wiki.spellsandguns.com/Poisonous_Tonic"
+    },
+    {
+      "id": "TomeOfEchoes",
+      "name": "Bean Teacher",
+      "tier": 3,
+      "price": 70,
+      "limit": null,
+      "stats": {
+        "xpGain": 50,
+        "lifeSteal": -2
+      },
+      "effects": [],
+      "source": "https://brotato.wiki.spellsandguns.com/Bean_Teacher"
+    },
+    {
+      "id": "SmokeMantle",
+      "name": "Ghost Outfit",
+      "tier": 3,
+      "price": 80,
+      "limit": 1,
+      "stats": {
+        "dodge": 10,
+        "speed": -5,
+        "armor": -3,
+        "dodgeCap": 70
+      },
+      "effects": [],
+      "source": "https://brotato.wiki.spellsandguns.com/Ghost_Outfit"
+    },
+    {
+      "id": "SilverRounds",
+      "name": "Silver Bullet",
+      "tier": 3,
+      "price": 70,
+      "limit": null,
+      "stats": {
+        "eliteDamage": 25
+      },
+      "effects": [],
+      "source": "https://brotato.wiki.spellsandguns.com/Silver_Bullet"
+    },
+    {
+      "id": "ThornCrown",
+      "name": "Wheat",
+      "tier": 3,
+      "price": 85,
+      "limit": null,
+      "stats": {
+        "meleeDamage": 4,
+        "rangedDamage": 2,
+        "harvesting": 10,
+        "elementalDamage": -2
+      },
+      "effects": [],
+      "source": "https://brotato.wiki.spellsandguns.com/Wheat"
+    },
+    {
+      "id": "IronVigil",
+      "name": "Barricade",
+      "tier": 3,
+      "price": 75,
+      "limit": null,
+      "stats": {
+        "knockback": 3,
+        "speed": -5
+      },
+      "effects": [
+        {
+          "trigger": "Always",
+          "action": "Stats",
+          "state": "Still",
+          "stats": {
+            "armor": 8
+          }
+        }
+      ],
+      "source": "https://brotato.wiki.spellsandguns.com/Barricade"
+    },
+    {
+      "id": "StillVeil",
+      "name": "Chameleon",
+      "tier": 3,
+      "price": 70,
+      "limit": null,
+      "stats": {
+        "dodge": 3,
+        "damage": -4
+      },
+      "effects": [
+        {
+          "trigger": "Always",
+          "action": "Stats",
+          "state": "Still",
+          "stats": {
+            "dodge": 20
+          }
+        }
+      ],
+      "source": "https://brotato.wiki.spellsandguns.com/Chameleon"
+    },
+    {
+      "id": "StoneIdol",
+      "name": "Statue",
+      "tier": 3,
+      "price": 60,
+      "limit": null,
+      "stats": {
+        "speed": -10
+      },
+      "effects": [
+        {
+          "trigger": "Always",
+          "action": "Stats",
+          "state": "Still",
+          "stats": {
+            "attackSpeed": 40
+          }
+        }
+      ],
+      "source": "https://brotato.wiki.spellsandguns.com/Statue"
+    },
+    {
+      "id": "GildedPlume",
+      "name": "Peacock",
+      "tier": 3,
+      "price": 50,
+      "limit": null,
+      "stats": {
+        "xpGain": 25
+      },
+      "effects": [
+        {
+          "trigger": "Acquire",
+          "action": "NextWaveStats",
+          "stats": {
+            "xpGain": 100,
+            "enemyDamage": 50
+          }
+        }
+      ],
+      "source": "https://brotato.wiki.spellsandguns.com/Peacock"
+    },
+    {
+      "id": "OathRing",
+      "name": "Vigilante Ring",
+      "tier": 3,
+      "price": 92,
+      "limit": null,
+      "stats": {},
+      "effects": [
+        {
+          "trigger": "WaveEnd",
+          "action": "Grow",
+          "stats": {
+            "damage": 3
+          }
+        }
+      ],
+      "source": "https://brotato.wiki.spellsandguns.com/Vigilante_Ring"
+    },
+    {
+      "id": "PulseDraught",
+      "name": "Adrenaline",
+      "tier": 3,
+      "price": 60,
+      "limit": 1,
+      "stats": {
+        "dodge": 5
+      },
+      "effects": [
+        {
+          "trigger": "Dodge",
+          "action": "Heal",
+          "amount": 5.0,
+          "chance": 0.5
+        }
+      ],
+      "source": "https://brotato.wiki.spellsandguns.com/Adrenaline"
+    },
+    {
+      "id": "HuntersTally",
+      "name": "Hunting Trophy",
+      "tier": 3,
+      "price": 55,
+      "limit": 3,
+      "stats": {},
+      "effects": [
+        {
+          "trigger": "Kill",
+          "action": "Shards",
+          "amount": 1,
+          "chance": 0.33,
+          "crit": true
+        }
+      ],
+      "source": "https://brotato.wiki.spellsandguns.com/Hunting_Trophy"
+    },
+    {
+      "id": "GalvanicCoil",
+      "name": "Power Generator",
+      "tier": 3,
+      "price": 65,
+      "limit": 1,
+      "stats": {
+        "damage": -5
+      },
+      "effects": [
+        {
+          "trigger": "Always",
+          "action": "PerX",
+          "source": "speed",
+          "per": 1,
+          "stats": {
+            "damage": 1
+          }
+        }
+      ],
+      "source": "https://brotato.wiki.spellsandguns.com/Power_Generator"
+    },
+    {
+      "id": "MourningVeil",
+      "name": "Sad Tomato",
+      "tier": 3,
+      "price": 50,
+      "limit": 1,
+      "stats": {
+        "hpRegen": 8
+      },
+      "effects": [
+        {
+          "trigger": "WaveStart",
+          "action": "HpFraction",
+          "amount": 0.5
+        }
+      ],
+      "source": "https://brotato.wiki.spellsandguns.com/Sad_Tomato"
+    },
+    {
+      "id": "MossWard",
+      "name": "Tardigrade",
+      "tier": 3,
+      "price": 50,
+      "limit": null,
+      "stats": {},
+      "effects": [
+        {
+          "trigger": "WaveStart",
+          "action": "Shields",
+          "amount": 1
+        }
+      ],
+      "source": "https://brotato.wiki.spellsandguns.com/Tardigrade"
+    },
+    {
+      "id": "PlagueRat",
+      "name": "Mouse",
+      "tier": 3,
+      "price": 55,
+      "limit": 5,
+      "stats": {
+        "lifeSteal": 5,
+        "enemyCount": 10,
+        "harvesting": -5
+      },
+      "effects": [],
+      "source": "https://brotato.wiki.spellsandguns.com/Mouse"
+    },
+    {
+      "id": "HushCandle",
+      "name": "Candle",
+      "tier": 3,
+      "price": 65,
+      "limit": 1,
+      "stats": {
+        "elementalDamage": 4,
+        "hpRegen": 1,
+        "enemyCount": -10,
+        "damage": -5
+      },
+      "effects": [],
+      "source": "https://brotato.wiki.spellsandguns.com/Candle"
+    },
+    {
+      "id": "Changeling",
+      "name": "Alien Baby",
+      "tier": 3,
+      "price": 80,
+      "limit": null,
+      "stats": {
+        "maxHp": 15,
+        "enemyHp": 10
+      },
+      "effects": [],
+      "source": "https://brotato.wiki.spellsandguns.com/Alien_Baby"
+    },
+    {
+      "id": "SweetReliquary",
+      "name": "Candy Bag",
+      "tier": 3,
+      "price": 70,
+      "limit": 1,
+      "stats": {},
+      "effects": [
+        {
+          "trigger": "WaveEnd",
+          "action": "RandomStats",
+          "amount": 8
+        },
+        {
+          "trigger": "WaveStart",
+          "action": "SpawnElite",
+          "chance": 0.1,
+          "amount": 1
+        }
+      ],
+      "source": "https://brotato.wiki.spellsandguns.com/Candy_Bag"
+    },
+    {
+      "id": "TitanArms",
+      "name": "Big Arms",
+      "tier": 4,
+      "price": 105,
+      "limit": null,
+      "stats": {
+        "meleeDamage": 12,
+        "rangedDamage": 6,
+        "knockback": 3,
+        "attackSpeed": -3,
+        "speed": -3
+      },
+      "effects": [],
+      "source": "https://brotato.wiki.spellsandguns.com/Big_Arms"
+    },
+    {
+      "id": "ShadowCloak",
+      "name": "Cape",
+      "tier": 4,
+      "price": 110,
+      "limit": null,
+      "stats": {
+        "lifeSteal": 5,
+        "dodge": 20,
+        "meleeDamage": -2,
+        "rangedDamage": -2,
+        "elementalDamage": -2
+      },
+      "effects": [],
+      "source": "https://brotato.wiki.spellsandguns.com/Cape"
+    },
+    {
+      "id": "HeavyRounds",
+      "name": "Heavy Bullets",
+      "tier": 4,
+      "price": 100,
+      "limit": null,
+      "stats": {
+        "rangedDamage": 5,
+        "damage": 10,
+        "range": 10,
+        "attackSpeed": -5,
+        "critChance": -5
+      },
+      "effects": [],
+      "source": "https://brotato.wiki.spellsandguns.com/Heavy_Bullets"
+    },
+    {
+      "id": "ColossusHeart",
+      "name": "Octopus",
+      "tier": 4,
+      "price": 105,
+      "limit": null,
+      "stats": {
+        "maxHp": 12,
+        "hpRegen": 5,
+        "lifeSteal": 3,
+        "critChance": -8
+      },
+      "effects": [],
+      "source": "https://brotato.wiki.spellsandguns.com/Octopus"
+    },
+    {
+      "id": "BrassHarness",
+      "name": "Jet Pack",
+      "tier": 4,
+      "price": 100,
+      "limit": null,
+      "stats": {
+        "speed": 15,
+        "dodge": 10,
+        "maxHp": -5,
+        "armor": -1
+      },
+      "effects": [],
+      "source": "https://brotato.wiki.spellsandguns.com/Jet_Pack"
+    },
+    {
+      "id": "WitchMortar",
+      "name": "Gnome",
+      "tier": 4,
+      "price": 100,
+      "limit": null,
+      "stats": {
+        "meleeDamage": 10,
+        "elementalDamage": 10,
+        "range": -20,
+        "pickupRange": -20
+      },
+      "effects": [],
+      "source": "https://brotato.wiki.spellsandguns.com/Gnome"
+    },
+    {
+      "id": "LanternCodex",
+      "name": "Diploma",
+      "tier": 4,
+      "price": 90,
+      "limit": null,
+      "stats": {
+        "engineering": 10,
+        "xpGain": 50,
+        "maxHp": -3
+      },
+      "effects": [],
+      "source": "https://brotato.wiki.spellsandguns.com/Diploma"
+    },
+    {
+      "id": "EternalFlame",
+      "name": "Potato",
+      "tier": 4,
+      "price": 95,
+      "limit": null,
+      "stats": {
+        "maxHp": 3,
+        "hpRegen": 2,
+        "lifeSteal": 1,
+        "damage": 5,
+        "attackSpeed": 5,
+        "speed": 3,
+        "dodge": 3,
+        "armor": 1,
+        "luck": 5
+      },
+      "effects": [],
+      "source": "https://brotato.wiki.spellsandguns.com/Potato"
+    },
+    {
+      "id": "ClockworkArm",
+      "name": "Robot Arm",
+      "tier": 4,
+      "price": 100,
+      "limit": null,
+      "stats": {},
+      "effects": [
+        {
+          "trigger": "WaveEnd",
+          "action": "Grow",
+          "stats": {
+            "meleeDamage": 3,
+            "engineering": 3,
+            "maxHp": -1.0
+          }
+        }
+      ],
+      "source": "https://brotato.wiki.spellsandguns.com/Robot_Arm"
+    },
+    {
+      "id": "EvergreenSprig",
+      "name": "Grind's Magical Leaf",
+      "tier": 4,
+      "price": 110,
+      "limit": null,
+      "stats": {},
+      "effects": [
+        {
+          "trigger": "WaveEnd",
+          "action": "Grow",
+          "stats": {
+            "maxHp": 3.0,
+            "hpRegen": 1,
+            "lifeSteal": 1
+          }
+        }
+      ],
+      "source": "https://brotato.wiki.spellsandguns.com/Grind%27s_Magical_Leaf"
+    },
+    {
+      "id": "FortuneCoin",
+      "name": "Lucky Coin",
+      "tier": 4,
+      "price": 105,
+      "limit": 1,
+      "stats": {
+        "armor": -2
+      },
+      "effects": [
+        {
+          "trigger": "Always",
+          "action": "PerX",
+          "source": "critChance",
+          "per": 1,
+          "stats": {
+            "luck": 2
+          }
+        }
+      ],
+      "source": "https://brotato.wiki.spellsandguns.com/Lucky_Coin"
+    },
+    {
+      "id": "EightEyedIdol",
+      "name": "Spider",
+      "tier": 4,
+      "price": 110,
+      "limit": null,
+      "stats": {
+        "damage": 12,
+        "dodge": -3,
+        "harvesting": -5
+      },
+      "effects": [
+        {
+          "trigger": "Always",
+          "action": "PerX",
+          "source": "distinctWeapons",
+          "per": 1,
+          "stats": {
+            "attackSpeed": 6
+          }
+        }
+      ],
+      "source": "https://brotato.wiki.spellsandguns.com/Spider"
+    },
+    {
+      "id": "LoneFlame",
+      "name": "Focus",
+      "tier": 4,
+      "price": 110,
+      "limit": null,
+      "stats": {
+        "damage": 30
+      },
+      "effects": [
+        {
+          "trigger": "Always",
+          "action": "PerX",
+          "source": "distinctWeapons",
+          "per": 1,
+          "stats": {
+            "attackSpeed": -3
+          }
+        }
+      ],
+      "source": "https://brotato.wiki.spellsandguns.com/Focus"
+    },
+    {
+      "id": "FieldCenser",
+      "name": "Medikit",
+      "tier": 4,
+      "price": 95,
+      "limit": null,
+      "stats": {
+        "hpRegen": 10,
+        "luck": -10
+      },
+      "effects": [
+        {
+          "trigger": "Timer",
+          "action": "WaveStats",
+          "interval": 5,
+          "stats": {
+            "hpRegen": 2
+          }
+        }
+      ],
+      "source": "https://brotato.wiki.spellsandguns.com/Medikit"
+    },
+    {
+      "id": "EmberAnvil",
+      "name": "Anvil",
+      "tier": 4,
+      "price": 120,
+      "limit": 1,
+      "stats": {},
+      "effects": [
+        {
+          "trigger": "ShopEnter",
+          "action": "UpgradeWeapon",
+          "stats": {
+            "armor": 2
+          }
+        }
+      ],
+      "source": "https://brotato.wiki.spellsandguns.com/Anvil"
+    },
+    {
+      "id": "SmolderingWick",
+      "name": "Scared Sausage",
+      "tier": 1,
+      "price": 25,
+      "limit": 4,
+      "stats": {},
+      "effects": [
+        {
+          "trigger": "Hit",
+          "action": "Burn",
+          "chance": 0.25,
+          "amount": 1,
+          "scaling": {
+            "elementalDamage": 1
+          },
+          "ticks": 3
+        }
+      ],
+      "source": "https://brotato.wiki.spellsandguns.com/Scared_Sausage"
+    },
+    {
+      "id": "AshSerpent",
+      "name": "Snake",
+      "tier": 1,
+      "price": 25,
+      "limit": null,
+      "stats": {
+        "maxHp": -1,
+        "burnSpread": 1
+      },
+      "effects": [],
+      "source": "https://brotato.wiki.spellsandguns.com/Snake"
+    },
+    {
+      "id": "Bellows",
+      "name": "Eyes Surgery",
+      "tier": 2,
+      "price": 60,
+      "limit": 2,
+      "stats": {
+        "elementalDamage": 1,
+        "range": -10,
+        "burnSpeed": 20
+      },
+      "effects": [],
+      "source": "https://brotato.wiki.spellsandguns.com/Eyes_Surgery"
+    },
+    {
+      "id": "BlackPowder",
+      "name": "Dynamite",
+      "tier": 1,
+      "price": 20,
+      "limit": null,
+      "stats": {
+        "explosionDamage": 15
+      },
+      "effects": [],
+      "source": "https://brotato.wiki.spellsandguns.com/Dynamite"
+    },
+    {
+      "id": "FulminateJar",
+      "name": "Plastic Explosive",
+      "tier": 3,
+      "price": 60,
+      "limit": null,
+      "stats": {
+        "explosionSize": 25
+      },
+      "effects": [],
+      "source": "https://brotato.wiki.spellsandguns.com/Plastic_Explosive"
+    },
+    {
+      "id": "BurstingSigil",
+      "name": "Rip and Tear",
+      "tier": 3,
+      "price": 65,
+      "limit": 5,
+      "stats": {
+        "critChance": -5
+      },
+      "effects": [
+        {
+          "trigger": "Kill",
+          "action": "Explode",
+          "chance": 0.2,
+          "amount": 10,
+          "scaling": {
+            "meleeDamage": 0.5
+          },
+          "size": 0.65
+        }
+      ],
+      "source": "https://brotato.wiki.spellsandguns.com/Rip_and_Tear"
+    },
+    {
+      "id": "NeedleCharm",
+      "name": "Bandana",
+      "tier": 3,
+      "price": 75,
+      "limit": null,
+      "stats": {
+        "damage": -10,
+        "piercing": 1
+      },
+      "effects": [],
+      "source": "https://brotato.wiki.spellsandguns.com/Bandana"
+    },
+    {
+      "id": "HollowNail",
+      "name": "Sharp Bullet",
+      "tier": 1,
+      "price": 25,
+      "limit": 1,
+      "stats": {
+        "damage": -5,
+        "knockback": -3,
+        "piercing": 1,
+        "piercingDamage": -20
+      },
+      "effects": [],
+      "source": "https://brotato.wiki.spellsandguns.com/Sharp_Bullet"
+    },
+    {
+      "id": "GourdLantern",
+      "name": "Pumpkin",
+      "tier": 2,
+      "price": 40,
+      "limit": null,
+      "stats": {
+        "damage": -2,
+        "piercingDamage": 15
+      },
+      "effects": [],
+      "source": "https://brotato.wiki.spellsandguns.com/Pumpkin"
+    },
+    {
+      "id": "MirrorShard",
+      "name": "Ricochet",
+      "tier": 4,
+      "price": 110,
+      "limit": null,
+      "stats": {
+        "damage": -25,
+        "bounce": 1
+      },
+      "effects": [],
+      "source": "https://brotato.wiki.spellsandguns.com/Ricochet"
+    },
+    {
+      "id": "IronGauntlet",
+      "name": "Boxing Glove",
+      "tier": 1,
+      "price": 18,
+      "limit": null,
+      "stats": {
+        "meleeDamage": 1,
+        "knockback": 3
+      },
+      "effects": [],
+      "source": "https://brotato.wiki.spellsandguns.com/Boxing_Glove"
+    },
+    {
+      "id": "RecoilSpring",
+      "name": "Coil",
+      "tier": 3,
+      "price": 70,
+      "limit": 3,
+      "stats": {
+        "knockback": 5
+      },
+      "effects": [
+        {
+          "trigger": "Always",
+          "action": "PerX",
+          "source": "knockback",
+          "per": 1,
+          "stats": {
+            "damage": 1
+          }
+        }
+      ],
+      "source": "https://brotato.wiki.spellsandguns.com/Coil"
+    },
+    {
+      "id": "GrubTincture",
+      "name": "Alien Worm",
+      "tier": 1,
+      "price": 15,
+      "limit": null,
+      "stats": {
+        "maxHp": 3,
+        "hpRegen": 2,
+        "fruitHeal": -1
+      },
+      "effects": [],
+      "source": "https://brotato.wiki.spellsandguns.com/Alien_Worm"
+    },
+    {
+      "id": "BeckoningBell",
+      "name": "Gentle Alien",
+      "tier": 1,
+      "price": 30,
+      "limit": 10,
+      "stats": {
+        "maxHp": 2,
+        "damage": 5,
+        "enemyCount": 5
+      },
+      "effects": [],
+      "source": "https://brotato.wiki.spellsandguns.com/Gentle_Alien"
+    },
+    {
+      "id": "TaintedElixir",
+      "name": "Defective Steroids",
+      "tier": 1,
+      "price": 20,
+      "limit": null,
+      "stats": {
+        "maxHp": 2,
+        "meleeDamage": 2,
+        "attackSpeed": -3
+      },
+      "effects": [],
+      "source": "https://brotato.wiki.spellsandguns.com/Defective_Steroids"
+    },
+    {
+      "id": "HookedTongue",
+      "name": "Alien Tongue",
+      "tier": 1,
+      "price": 25,
+      "limit": null,
+      "stats": {
+        "pickupRange": 30,
+        "knockback": 1
+      },
+      "effects": [],
+      "source": "https://brotato.wiki.spellsandguns.com/Alien_Tongue"
+    },
+    {
+      "id": "CrackedSkull",
+      "name": "Head Injury",
+      "tier": 1,
+      "price": 25,
+      "limit": null,
+      "stats": {
+        "damage": 6,
+        "range": -8
+      },
+      "effects": [],
+      "source": "https://brotato.wiki.spellsandguns.com/Head_Injury"
+    },
+    {
+      "id": "WispJar",
+      "name": "Baby Elephant",
+      "tier": 1,
+      "price": 22,
+      "limit": null,
+      "stats": {},
+      "effects": [
+        {
+          "trigger": "Pickup",
+          "action": "Strike",
+          "target": "random",
+          "chance": 0.25,
+          "amount": 1,
+          "scaling": {
+            "luck": 0.25
+          }
+        }
+      ],
+      "source": "https://brotato.wiki.spellsandguns.com/Baby_Elephant"
+    },
+    {
+      "id": "OrderSash",
+      "name": "Black Belt",
+      "tier": 2,
+      "price": 50,
+      "limit": null,
+      "stats": {
+        "xpGain": 25,
+        "meleeDamage": 3,
+        "knockback": 3,
+        "luck": -8
+      },
+      "effects": [],
+      "source": "https://brotato.wiki.spellsandguns.com/Black_Belt"
+    },
+    {
+      "id": "RollingEye",
+      "name": "Cyberball",
+      "tier": 2,
+      "price": 30,
+      "limit": null,
+      "stats": {},
+      "effects": [
+        {
+          "trigger": "Kill",
+          "action": "Strike",
+          "target": "random",
+          "chance": 0.25,
+          "amount": 1,
+          "scaling": {
+            "luck": 0.25
+          }
+        }
+      ],
+      "source": "https://brotato.wiki.spellsandguns.com/Cyberball"
+    },
+    {
+      "id": "InkPolyp",
+      "name": "Bat",
+      "tier": 1,
+      "price": 20,
+      "limit": null,
+      "stats": {
+        "lifeSteal": 2,
+        "harvesting": -2
+      },
+      "effects": [],
+      "source": "https://brotato.wiki.spellsandguns.com/Bat"
+    },
+    {
+      "id": "Knucklebones",
+      "name": "Tentacle",
+      "tier": 2,
+      "price": 35,
+      "limit": 5,
+      "stats": {
+        "critChance": 3
+      },
+      "effects": [
+        {
+          "trigger": "Kill",
+          "action": "Heal",
+          "crit": true,
+          "chance": 0.2,
+          "amount": 1.0
+        }
+      ],
+      "source": "https://brotato.wiki.spellsandguns.com/Tentacle"
+    },
+    {
+      "id": "WitchKettle",
+      "name": "Lemonade",
+      "tier": 1,
+      "price": 15,
+      "limit": null,
+      "stats": {
+        "fruitHeal": 1
+      },
+      "effects": [],
+      "source": "https://brotato.wiki.spellsandguns.com/Lemonade"
+    },
+    {
+      "id": "SaltCoral",
+      "name": "Mushroom",
+      "tier": 1,
+      "price": 25,
+      "limit": null,
+      "stats": {
+        "hpRegen": 3,
+        "luck": -2
+      },
+      "effects": [],
+      "source": "https://brotato.wiki.spellsandguns.com/Mushroom"
+    },
+    {
+      "id": "AstralPhilter",
+      "name": "Alien Magic",
+      "tier": 3,
+      "price": 85,
+      "limit": null,
+      "stats": {
+        "maxHp": 8,
+        "hpRegen": 3,
+        "luck": -8
+      },
+      "effects": [],
+      "source": "https://brotato.wiki.spellsandguns.com/Alien_Magic"
+    },
+    {
+      "id": "AmberResin",
+      "name": "Honey",
+      "tier": 3,
+      "price": 70,
+      "limit": null,
+      "stats": {
+        "rangedDamage": 3,
+        "explosionDamage": 10,
+        "explosionSize": 5,
+        "speed": -3,
+        "dodge": -3
+      },
+      "effects": [],
+      "source": "https://brotato.wiki.spellsandguns.com/Honey"
+    },
+    {
+      "id": "RabbleBanner",
+      "name": "Community Support",
+      "tier": 3,
+      "price": 75,
+      "limit": 1,
+      "stats": {
+        "armor": -2
+      },
+      "effects": [
+        {
+          "trigger": "Always",
+          "action": "PerX",
+          "source": "enemies",
+          "per": 1,
+          "stats": {
+            "attackSpeed": 1
+          }
+        }
+      ],
+      "source": "https://brotato.wiki.spellsandguns.com/Community_Support"
+    },
+    {
+      "id": "HearthSprite",
+      "name": "Fairy",
+      "tier": 3,
+      "price": 85,
+      "limit": 1,
+      "stats": {},
+      "effects": [
+        {
+          "trigger": "Always",
+          "action": "PerX",
+          "source": "distinctItemsTier1",
+          "per": 1,
+          "stats": {
+            "hpRegen": 1
+          }
+        },
+        {
+          "trigger": "Always",
+          "action": "PerX",
+          "source": "distinctItemsTier4",
+          "per": 1,
+          "stats": {
+            "hpRegen": -3
+          }
+        }
+      ],
+      "source": "https://brotato.wiki.spellsandguns.com/Fairy"
+    },
+    {
+      "id": "BloodChalice",
+      "name": "Sunglasses",
+      "tier": 2,
+      "price": 50,
+      "limit": null,
+      "stats": {
+        "critChance": 10,
+        "armor": -1
+      },
+      "effects": [],
+      "source": "https://brotato.wiki.spellsandguns.com/Sunglasses"
+    },
+    {
+      "id": "CrimsonHand",
+      "name": "Bloody Hand",
+      "tier": 4,
+      "price": 110,
+      "limit": 1,
+      "stats": {
+        "lifeSteal": 10
+      },
+      "effects": [
+        {
+          "trigger": "Always",
+          "action": "PerX",
+          "source": "lifeSteal",
+          "per": 1,
+          "stats": {
+            "damage": 2
+          }
+        },
+        {
+          "trigger": "Timer",
+          "action": "Drain",
+          "interval": 1,
+          "amount": 1.0
+        }
+      ],
+      "source": "https://brotato.wiki.spellsandguns.com/Bloody_Hand"
+    },
+    {
+      "id": "VelvetDivan",
+      "name": "Esty's Couch",
+      "tier": 4,
+      "price": 100,
+      "limit": 1,
+      "stats": {
+        "maxHp": 5,
+        "speed": -20
+      },
+      "effects": [
+        {
+          "trigger": "Always",
+          "action": "PerX",
+          "source": "speed",
+          "per": -1,
+          "min": 0,
+          "stats": {
+            "hpRegen": 2
+          }
+        }
+      ],
+      "source": "https://brotato.wiki.spellsandguns.com/Esty%27s_Couch"
+    },
+    {
+      "id": "BrassCarapace",
+      "name": "Exoskeleton",
+      "tier": 4,
+      "price": 90,
+      "limit": null,
+      "stats": {
+        "armor": 3,
+        "critChance": 5,
+        "engineering": 5,
+        "speed": 5,
+        "hpRegen": -2,
+        "lifeSteal": -2
+      },
+      "effects": [],
+      "source": "https://brotato.wiki.spellsandguns.com/Exoskeleton"
+    },
+    {
+      "id": "ThunderShells",
+      "name": "Explosive Shells",
+      "tier": 4,
+      "price": 100,
+      "limit": null,
+      "stats": {
+        "explosionDamage": 60,
+        "explosionSize": 15,
+        "damage": -15
+      },
+      "effects": [],
+      "source": "https://brotato.wiki.spellsandguns.com/Explosive_Shells"
+    },
+    {
+      "id": "SecondStomach",
+      "name": "Extra Stomach",
+      "tier": 4,
+      "price": 100,
+      "limit": 1,
+      "stats": {},
+      "effects": [
+        {
+          "trigger": "Consumable",
+          "action": "Grow",
+          "fullHp": true,
+          "maxPerWave": 8,
+          "stats": {
+            "maxHp": 1.0
+          }
+        }
+      ],
+      "source": "https://brotato.wiki.spellsandguns.com/Extra_Stomach"
+    },
+    {
+      "id": "TitanGirdle",
+      "name": "Giant Belt",
+      "tier": 4,
+      "price": 110,
+      "limit": 1,
+      "stats": {},
+      "effects": [
+        {
+          "trigger": "Crit",
+          "action": "Strike",
+          "hpShare": 0.1,
+          "eliteHpShare": 0.01
+        }
+      ],
+      "source": "https://brotato.wiki.spellsandguns.com/Giant_Belt"
+    },
+    {
+      "id": "PyreAshes",
+      "name": "Warrior Helmet",
+      "tier": 3,
+      "price": 80,
+      "limit": null,
+      "stats": {
+        "armor": 3,
+        "maxHp": 5,
+        "speed": -5
+      },
+      "effects": [],
+      "source": "https://brotato.wiki.spellsandguns.com/Warrior_Helmet"
+    },
+    {
+      "id": "BrassSentry",
+      "name": "Turret",
+      "tier": 1,
+      "price": 15,
+      "limit": null,
+      "stats": {},
+      "effects": [],
+      "source": "https://brotato.wiki.spellsandguns.com/Turret"
+    },
+    {
+      "id": "CinderSentry",
+      "name": "Incendiary Turret",
+      "tier": 2,
+      "price": 40,
+      "limit": null,
+      "stats": {},
+      "effects": [],
+      "source": "https://brotato.wiki.spellsandguns.com/Incendiary_Turret"
+    },
+    {
+      "id": "PrismSentry",
+      "name": "Laser Turret",
+      "tier": 3,
+      "price": 65,
+      "limit": null,
+      "stats": {},
+      "effects": [],
+      "source": "https://brotato.wiki.spellsandguns.com/Laser_Turret"
+    },
+    {
+      "id": "MercySentry",
+      "name": "Medical Turret",
+      "tier": 2,
+      "price": 40,
+      "limit": null,
+      "stats": {},
+      "effects": [],
+      "source": "https://brotato.wiki.spellsandguns.com/Medical_Turret"
+    },
+    {
+      "id": "SiegeSentry",
+      "name": "Explosive Turret",
+      "tier": 4,
+      "price": 80,
+      "limit": null,
+      "stats": {},
+      "effects": [],
+      "source": "https://brotato.wiki.spellsandguns.com/Explosive_Turret"
+    },
+    {
+      "id": "RuneMine",
+      "name": "Landmines",
+      "tier": 1,
+      "price": 15,
+      "limit": null,
+      "stats": {},
+      "effects": [],
+      "source": "https://brotato.wiki.spellsandguns.com/Landmines"
+    },
+    {
+      "id": "MoonGarden",
+      "name": "Garden",
+      "tier": 2,
+      "price": 50,
+      "limit": null,
+      "stats": {},
+      "effects": [],
+      "source": "https://brotato.wiki.spellsandguns.com/Garden"
+    },
+    {
+      "id": "OrbitWisp",
+      "name": "Wandering Bot",
+      "tier": 3,
+      "price": 60,
+      "limit": null,
+      "stats": {},
+      "effects": [],
+      "source": "https://brotato.wiki.spellsandguns.com/Wandering_Bot"
+    },
+    {
+      "id": "StormFamiliar",
+      "name": "Tyler",
+      "tier": 2,
+      "price": 62,
+      "limit": null,
+      "stats": {},
+      "effects": [],
+      "source": "https://brotato.wiki.spellsandguns.com/Tyler"
+    },
+    {
+      "id": "CalibratedTools",
+      "name": "Improved Tools",
+      "tier": 3,
+      "price": 70,
+      "limit": 1,
+      "stats": {
+        "attackSpeed": 10
+      },
+      "effects": [],
+      "source": "https://brotato.wiki.spellsandguns.com/Improved_Tools"
+    },
+    {
+      "id": "BloodLure",
+      "name": "Bait",
+      "tier": 2,
+      "price": 25,
+      "limit": null,
+      "stats": {
+        "damage": 8
+      },
+      "effects": [],
+      "source": "https://brotato.wiki.spellsandguns.com/Bait",
+      "description": "7-8 Hookfangs appear at the start of the next wave for each new lure."
+    }
+  ]
+}

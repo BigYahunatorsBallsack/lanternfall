@@ -48,4 +48,8 @@ for id, image in require(script.Parent.PrimaryStatArt).stats do
 	images[id] = image
 end
 
+-- Item-only limits share their related primary stat symbol; they have no upgrade illustrations.
+images.weaponCooldownMin = images.attackSpeed
+images.dodgeCap = images.dodge
+
 return table.freeze(images)

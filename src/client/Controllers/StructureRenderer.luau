@@ -10,6 +10,7 @@ local Config = require(Shared.Config)
 local Net = require(Shared.Net)
 local StructureFeed = require(Shared.Net.StructureFeed)
 local Kit = require(script.Parent.WeaponRenderer.VisualKit)
+local Images = require(script.Parent.Parent.UI.ItemImages)
 local Renderer = {}
 local folder: Folder
 local live = {}
@@ -18,10 +19,24 @@ local flashes = {}
 local C = Config.Structures
 local FLOOR_Y = Config.Map.arena.center.Y
 local pool = Kit.objectPool(function()
-	return {
+	local parts = {
 		Kit.part("Plinth", Enum.PartType.Cylinder, Vector3.new(0.6, 3, 3), Color3.fromRGB(86, 73, 57)),
 		Kit.part("Lantern", Enum.PartType.Ball, Vector3.new(1.5, 1.5, 1.5), Color3.new(1, 1, 1)),
 	}
+	local billboard = Instance.new("BillboardGui")
+	billboard.Name = "ItemArtwork"
+	billboard.Adornee = parts[2]
+	billboard.AlwaysOnTop = false
+	billboard.LightInfluence = 0
+	billboard.Size = UDim2.fromScale(C.spriteSize, C.spriteSize)
+	billboard.Parent = parts[2]
+	local picture = Instance.new("ImageLabel")
+	picture.Name = "Sprite"
+	picture.BackgroundTransparency = 1
+	picture.Size = UDim2.fromScale(1, 1)
+	picture.ScaleType = Enum.ScaleType.Fit
+	picture.Parent = billboard
+	return parts
 end, function(parts)
 	return parts
 end)
@@ -33,7 +48,7 @@ end)
 
 local function place(parts: { BasePart }, x: number, z: number)
 	parts[1].CFrame = CFrame.new(x, FLOOR_Y + 0.4, z) * CFrame.Angles(0, 0, math.pi / 2)
-	parts[2].CFrame = CFrame.new(x, FLOOR_Y + 1.5, z)
+	parts[2].CFrame = CFrame.new(x, FLOOR_Y + C.spriteSize / 2, z)
 end
 
 local function ownerRoot(userId: number): Vector3?
@@ -63,6 +78,13 @@ local function onStructures(packet: any)
 				then Enum.PartType.Block
 				else Enum.PartType.Ball
 		end
+		local billboard = parts[2]:FindFirstChild("ItemArtwork") :: BillboardGui
+		local picture = billboard:FindFirstChild("Sprite") :: ImageLabel
+		local image = Images[row.kind]
+		picture.Image = image or ""
+		billboard.Enabled = image ~= nil
+		parts[1].Transparency = if image then 1 else 0
+		parts[2].Transparency = if image then 1 else 0
 		place(parts, row.x, row.z)
 		orbits[row.id] = if def.mode == "Orbit" then { parts = parts, ownerId = row.ownerId, id = row.id } else nil
 	end
