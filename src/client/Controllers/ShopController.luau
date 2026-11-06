@@ -33,6 +33,7 @@ local Theme = require(script.Parent.Parent.UI.Theme)
 local Tooltip = require(script.Parent.Parent.UI.Tooltip)
 local TooltipText = require(Shared:WaitForChild("Util"):WaitForChild("TooltipText"))
 local Widgets = require(script.Parent.Parent.UI.Widgets)
+local Composition = require(script.Parent.Parent.UI.ShopComposition)
 
 local CARD_WIDTH = 200
 local CARD_HEIGHT = { normal = 344, compact = 312 } -- the buy button; weapon details and lock sit below it
@@ -51,7 +52,6 @@ local TOP_RESERVE = 76 -- pixels for the wave and currency header
 local MARGIN = 8
 
 local SHARDS_COLOR = Theme.shards -- teal: Shards, not XP and not Embers
-local BACKDROP_COLOR = Theme.canvas -- the screen between waves, darker than the panels
 local LOCKED_COLOR = Color3.fromRGB(110, 170, 255)
 local STAT_COLORS = { plus = Theme.success, minus = Theme.danger }
 
@@ -532,6 +532,37 @@ local function renderButtons(current: Types.ShopState)
 	readyButton.TextColor3 = if ready then Theme.text else Theme.accentText
 end
 
+local function applyComposition(current: Types.ShopState?)
+	local info = localInfo()
+	Composition.apply({
+		screen = screen,
+		panel = panel,
+		panelScale = panelScale,
+		shopScroll = shopScroll,
+		footer = footer,
+		footerButtons = footerButtons,
+		header = header,
+		subtitleLabel = subtitleLabel,
+		shardsPanel = shardsPanel,
+		shardsLabel = shardsLabel,
+		cards = cards,
+		chips = chips,
+		cardRow = cardRow,
+		itemRow = itemRow,
+		itemTitle = itemTitle,
+		chipRow = chipRow,
+		weaponsTitle = weaponsTitle,
+		actionsRow = actionsRow,
+		rerollButton = rerollButton,
+		readyButton = readyButton,
+		current = current,
+		items = ProgressController.getLocalItems(),
+		sheet = StatsController.get(),
+		selectedUid = selectedUid,
+		ready = info ~= nil and info.shopReady == true,
+	}, screenArea())
+end
+
 function render()
 	if not screen then
 		return
@@ -559,6 +590,7 @@ function render()
 	backButton.Visible = statsInstead
 	StatsController.setSuppressed(shopping and compact and not showingStats)
 	if not (current and shopping) then
+		applyComposition(current)
 		detailOverlay.Visible = false
 		detailOfferId = nil
 		detailWeaponUid = nil
@@ -569,6 +601,7 @@ function render()
 	renderItems()
 	renderButtons(current)
 	renderDetails(current, shopping)
+	applyComposition(current)
 end
 
 local function updateSubtitle()
@@ -577,7 +610,10 @@ local function updateSubtitle()
 	end
 	local state = RunStateController.get()
 	local left = math.ceil(RunStateController.getPhaseRemaining())
-	local text = `SHOP  ·  WAVE {if state then state.wave else 0}/{RunSchedule.waveCount()}  ·  {left}s`
+	local text = if compact
+		then `SHOP  ·  WAVE {if state then state.wave else 0}/{RunSchedule.waveCount()}  ·  {left}s`
+		else `Shop (Wave {if state then state.wave else 0})`
+	Composition.setRemaining(left)
 	if subtitleLabel.Text ~= text then
 		subtitleLabel.Text = text
 	end
@@ -775,10 +811,15 @@ local function build()
 	backdrop.IgnoreGuiInset = true
 	local cover = Widgets.create("Frame", {
 		Name = "Cover",
-		BackgroundColor3 = BACKDROP_COLOR,
+		BackgroundColor3 = Color3.new(1, 1, 1),
 		BorderSizePixel = 0,
 		Size = UDim2.fromScale(1, 1),
 		Parent = backdrop,
+	})
+	Widgets.create("UIGradient", {
+		Rotation = 90,
+		Color = ColorSequence.new(Color3.fromRGB(87, 87, 87), Color3.fromRGB(39, 39, 39)),
+		Parent = cover,
 	})
 	local banner = Widgets.panel({
 		Name = "Header",
@@ -1024,6 +1065,13 @@ local function build()
 		LayoutOrder = 1,
 		Parent = buttons,
 	}, reroll)
+	Tooltip.attach(rerollButton, function()
+		local current = shop
+		return "Reroll",
+			if current and current.freeRerolls > 0
+				then `Free rerolls remaining: {current.freeRerolls}`
+				else `Cost: {if current then current.rerollPrice else 0} Shards`
+	end)
 	StoreController.mountShop(buttons, 2, BUTTON_HEIGHT) -- Paket 16
 	statsButton = Widgets.button({
 		Name = "StatsToggle",
@@ -1061,6 +1109,7 @@ end
 -- Lifecycle -------------------------------------------------------------------------
 
 function ShopController.init()
+	Net.onClient("WavePlan", Composition.setPlan)
 	Net.onClient("ShopState", function(state: Types.ShopState)
 		shop = state
 		render()
@@ -1071,6 +1120,7 @@ function ShopController.start()
 	build()
 	RunStateController.Changed:Connect(render)
 	ProgressController.ItemsChanged:Connect(render)
+	StatsController.Changed:Connect(render)
 	render()
 	local camera = workspace.CurrentCamera
 	if camera then
@@ -1106,4 +1156,3 @@ function ShopController.isCompact(): boolean
 end
 
 return ShopController
-

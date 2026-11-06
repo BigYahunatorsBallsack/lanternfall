@@ -197,11 +197,13 @@ local function renderCards(current: Types.LevelUpOffer)
 			view.badge.Text = string.upper(badge)
 			view.badge.TextColor3 = color
 			view.name.Text = title
+			view.name.TextColor3 = color
 			view.detail.Text = detail
-			view.icon.BackgroundColor3 = color
+			view.icon.BackgroundColor3 = Theme.surface
 			view.letters.Text = ""
 			Icons.draw(view.icon, "stat", card.stat)
-			view.edge.Color = Theme.stroke
+			view.edge.Color = if card.tier == 1 then Theme.stroke else color
+			view.button.BackgroundColor3 = Theme.cardSurfaces[card.tier]
 			view.detail.TextColor3 = Theme.success
 		end
 	end
@@ -218,10 +220,12 @@ local function renderCrate(current: Types.CrateOffer)
 	crateCard.badge.TextColor3 = color
 	crateCard.name.Text = title
 	crateCard.detail.Text = UpgradeText.itemLines(current.itemId, STAT_COLORS)
-	crateCard.icon.BackgroundColor3 = color
+	crateCard.icon.BackgroundColor3 = Theme.surface
 	crateCard.letters.Text = ""
 	Icons.draw(crateCard.icon, "item", current.itemId)
-	crateCard.edge.Color = Theme.stroke
+	crateCard.edge.Color = if current.tier == 1 then Theme.stroke else color
+	crateCard.button.BackgroundColor3 = Theme.cardSurfaces[current.tier]
+	crateCard.name.TextColor3 = color
 	sellButton.Text = `Sell (+{current.sellPrice} Shards)`
 end
 

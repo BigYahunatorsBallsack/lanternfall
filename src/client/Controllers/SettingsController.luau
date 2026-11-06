@@ -18,6 +18,8 @@ local Types = require(Shared:WaitForChild("Net"):WaitForChild("Types"))
 local Theme = require(script.Parent.Parent.UI.Theme)
 local Widgets = require(script.Parent.Parent.UI.Widgets)
 local Dialog = require(script.Parent.Parent.UI.Dialog)
+local RunStateController = require(script.Parent.RunStateController)
+local ShopLayout = require(script.Parent.Parent.UI.ShopLayout)
 
 local BUTTON_SIZE = 44
 local MARGIN = 12
@@ -270,6 +272,29 @@ end
 function SettingsController.start()
 	build()
 	apply()
+	local function placeGear()
+		local area = if workspace.CurrentCamera then workspace.CurrentCamera.ViewportSize else Vector2.new(1280, 720)
+		local layout = ShopLayout.measure(area)
+		local state = RunStateController.get()
+		local shopping = state
+			and state.phase == "Shop"
+			and RunStateController.getView() == "Run"
+			and not layout.compact
+		local holder = screen.GearHolder :: Frame
+		holder.AnchorPoint = Vector2.new(if shopping then 0 else 1, 0)
+		holder.Position = if shopping
+			then UDim2.fromOffset((layout.leftWidth - 262) * layout.scale, 22 * layout.scale)
+			else UDim2.new(1, -MARGIN, 0, 8)
+		holder.Size = UDim2.fromOffset(
+			BUTTON_SIZE * (if shopping then layout.scale else 1),
+			BUTTON_SIZE * (if shopping then layout.scale else 1)
+		)
+	end
+	RunStateController.Changed:Connect(placeGear)
+	if workspace.CurrentCamera then
+		workspace.CurrentCamera:GetPropertyChangedSignal("ViewportSize"):Connect(placeGear)
+	end
+	placeGear()
 end
 
 -- Commands --------------------------------------------------------------------------

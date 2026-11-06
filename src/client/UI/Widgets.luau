@@ -130,7 +130,7 @@ function Widgets.panel(props: { [string]: any }): Frame
 		uiScale,
 		Widgets.corner(),
 		Widgets.padding(14),
-		Widgets.create("UIStroke", { Color = Theme.stroke, Thickness = 3 }),
+		Widgets.create("UIStroke", { Color = Theme.stroke, Thickness = 1.5 }),
 	})
 end
 
@@ -168,7 +168,7 @@ function Widgets.button(props: { [string]: any }, onClick: () -> ()): TextButton
 		Widgets.corner(),
 		Widgets.create(
 			"UIStroke",
-			{ Name = "Outline", ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Color = Theme.stroke, Thickness = 3 }
+			{ Name = "Outline", ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Color = Theme.stroke, Thickness = 1.5 }
 		),
 	})
 	button.Activated:Connect(function()

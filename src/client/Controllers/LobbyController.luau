@@ -117,7 +117,7 @@ local function render()
 	local ready = me ~= nil and me.ready
 	readyButton.Visible = not PartyController.isHub() -- Paket 15: the hub starts runs with Play solo / party / quick join
 	readyButton.Text = if ready then "CANCEL" else "READY"
-	readyButton.BackgroundColor3 = if ready then Theme.button else Theme.success
+	readyButton.BackgroundColor3 = if ready then Theme.button else Theme.accent
 	readyButton.TextColor3 = if ready then Theme.text else Theme.accentText
 
 	statusLabel.Text = statusText(state, me)

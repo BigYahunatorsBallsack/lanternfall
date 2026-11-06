@@ -206,12 +206,12 @@ describe("smoke", function()
 
 	it("counts the wave down and stops the wave timer with the debug button", function()
 		world.advance(5)
-		expect(firstText("HUD", "Timer")).toBe("00:15") -- wave 1 lasts 20 s
+		expect(firstText("HUD", "Timer")).toBe("15") -- wave 1 lasts 20 s
 		world.click(world.gui("Debug", "HoldWaves"))
 		CombatService.protect(me, 4) -- weapons are off
 		world.advance(3)
 		expect(RunDirector.isHoldingWaves()).toBe(true)
-		expect(firstText("HUD", "Timer")).toBe("00:15")
+		expect(firstText("HUD", "Timer")).toBe("15")
 		expect(phase()).toBe("Running")
 		expect(string.match(teamText(), "^Owner · alive · %d+ HP$") ~= nil).toBe(true)
 		expect(string.match(world.gui("HUD", "HpText").Text, "^%d+ / 10$") ~= nil).toBe(true) -- Spark Mage: no bonus
@@ -544,9 +544,9 @@ describe("smoke", function()
 		expect(world.gui("Shop", "Shop").Visible).toBe(true)
 		local offers = ShopService.getOffers(me)
 		expect(#offers).toBe(Config.Shop.slots)
-		expect(string.find(world.gui("Shop", "Offer1"):FindFirstChild("Price").Text, "Shards", 1, true) ~= nil).toBe(
-			true
-		)
+		local displayedPrice = world.gui("Shop", "Offer1"):FindFirstChild("Price")
+		expect(tonumber(displayedPrice.Text)).toBe(offers[1].price)
+		expect(displayedPrice.ShardIcon.Visible).toBe(true)
 
 		local shards = ShopService.getShards(me)
 		local first = offers[1]
@@ -558,7 +558,7 @@ describe("smoke", function()
 		world.click(world.gui("Debug", "AddShards"))
 		world.advance(0.2)
 		shards = ShopService.getShards(me)
-		expect(world.gui("Shop", "ShardsText").Text).toBe(`{shards} Shards`)
+		expect(world.gui("Shop", "ShardsText").Text).toBe(tostring(shards))
 		world.click(world.gui("Shop", "Offer1"))
 		world.advance(0.2)
 		expect(first.sold).toBe(true)
@@ -652,7 +652,7 @@ describe("smoke", function()
 		expect(bought).toBe(Config.Shop.freeRerollAfterBuys)
 		expect(shop.get().freeRerolls).toBe(1)
 		expect(shop.get().rerollPrice).toBe(0)
-		expect(world.gui("Shop", "Reroll").Text).toBe("Reroll (free)")
+		expect(string.match(world.gui("Shop", "Reroll").Text, "^REROLL %- 0") ~= nil).toBe(true)
 		shards = ShopService.getShards(me)
 		world.click(world.gui("Shop", "Reroll"))
 		world.advance(0.3)
@@ -898,7 +898,8 @@ describe("smoke", function()
 			expect(offer.price).toBe(ShopRules.offerPrice(offer, 0.75))
 		end
 		local reroll = world.gui("Shop", "Reroll").Text
-		expect(reroll).toBe(if bells > 1 then `Reroll (free x{bells})` else "Reroll (free)")
+		expect(string.match(reroll, "^REROLL %- 0") ~= nil).toBe(true)
+		expect(clientController("ShopController").get().freeRerolls).toBe(bells)
 		-- Gilded Plume's next wave has not started yet
 		local xpInShop = StatService.getStat(me, "xpGain")
 		expect(xpInShop >= xpGain).toBe(true) -- Bitter Tonic bought above grows it

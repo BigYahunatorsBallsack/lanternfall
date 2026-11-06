@@ -43,7 +43,7 @@ local HIT_FLASH_SECONDS = 0.35
 local HIT_FLASH_TRANSPARENCY = 0.75 -- red screen tint right after a hit
 local LOW_HP_FRACTION = 0.3
 local XP_BAR_WIDTH = 420
-local XP_COLOR = Color3.fromRGB(96, 170, 255) -- the color of small XP orbs
+local XP_COLOR = Theme.xp
 local BANNER_SECONDS = 2.6
 local BANNER_FADE_SECONDS = 0.4
 local BANNER_TITLE_SIZE = 56
@@ -181,7 +181,7 @@ end
 local function timerText(state: Types.RunState?): string
 	if state and state.phase == "Running" then
 		local left = RunSchedule.wave(state.wave).endsAt - RunStateController.getElapsed()
-		return Format.time(math.max(0, math.ceil(left)))
+		return tostring(math.max(0, math.ceil(left)))
 	elseif state and state.phase == "Shop" then
 		return Format.time(math.ceil(RunStateController.getPhaseRemaining()))
 	end
@@ -253,7 +253,7 @@ local function renderHp()
 	end
 	local fraction = if vitals.maxHp > 0 then math.clamp(vitals.hp / vitals.maxHp, 0, 1) else 0
 	hpFill.Size = UDim2.fromScale(fraction, 1)
-	hpFill.BackgroundColor3 = if fraction <= LOW_HP_FRACTION then Theme.danger else Theme.success
+	hpFill.BackgroundColor3 = if fraction <= LOW_HP_FRACTION then Theme.danger else Theme.hp
 	hpLabel.Text = `{vitals.hp} / {vitals.maxHp}`
 end
 
@@ -531,7 +531,7 @@ local function build()
 		Font = Theme.fontBold,
 		TextStrokeTransparency = 0,
 		TextStrokeColor3 = Theme.stroke,
-		LayoutOrder = 2,
+		LayoutOrder = 0,
 		Parent = top,
 	})
 	previewLabel = Widgets.label({
@@ -686,13 +686,13 @@ local function build()
 	}, { Widgets.corner(UDim.new(0, 8)) })
 	hpFill = Widgets.create("Frame", {
 		Name = "Fill",
-		BackgroundColor3 = Theme.success,
+		BackgroundColor3 = Theme.hp,
 		Size = UDim2.fromScale(1, 1),
 		Parent = track,
 	}, { Widgets.corner(UDim.new(0, 8)) })
 	hpLabel = Widgets.label({
 		Name = "HpText",
-		TextColor3 = Theme.accentText,
+		TextColor3 = Theme.text,
 		Text = "",
 		Font = Theme.fontBold,
 		TextSize = 18,
@@ -708,6 +708,16 @@ local function build()
 		Widgets.unscaled(hp)
 		Widgets.unscaled(weapons)
 		Widgets.unscaled(team)
+		hp.BackgroundTransparency = 1
+		hp:FindFirstChildOfClass("UIStroke").Thickness = 0
+		local hpPadding = hp:FindFirstChildOfClass("UIPadding") :: UIPadding
+		local zero = UDim.new(0, 0)
+		hpPadding.PaddingTop, hpPadding.PaddingBottom = zero, zero
+		hpPadding.PaddingLeft, hpPadding.PaddingRight = zero, zero
+		track.Size = UDim2.new(1, 0, 0, 24)
+		xpTrack.Size = UDim2.new(1, 0, 0, 14)
+		hpLabel.TextStrokeTransparency = 0
+		hpLabel.TextStrokeColor3 = Theme.stroke
 		top.Size = UDim2.fromOffset(if narrow then 138 else 240, 0)
 		top.AnchorPoint = Vector2.new(if narrow then 1 else 0.5, 0)
 		top.Position = if narrow then UDim2.new(1, -8, 0, 56) else UDim2.new(0.5, 0, 0, 8)
@@ -716,8 +726,8 @@ local function build()
 		hp.Position = UDim2.fromOffset(12, 12)
 		hp.Size = UDim2.fromOffset(if narrow then math.max(180, area.X - 174) else HP_BAR_WIDTH, 0)
 		team.Size = UDim2.fromOffset(if narrow then 150 elseif area.X < 1100 then 200 else 260, 0)
-		buildButton.Position = UDim2.fromOffset(12, 164)
-		weapons.Position = UDim2.fromOffset(12, 218)
+		buildButton.Position = UDim2.fromOffset(12, 132)
+		weapons.Position = UDim2.fromOffset(12, 186)
 		weapons.Size = UDim2.fromOffset(math.min(340, area.X - 24), math.max(120, math.min(360, area.Y - 242)))
 		placeTeamPanel()
 		local current = RunStateController.get()

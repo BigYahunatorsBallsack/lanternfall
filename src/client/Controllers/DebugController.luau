@@ -22,6 +22,8 @@ local EnemyRenderer = require(script.Parent.EnemyRenderer)
 local GraphicsController = require(script.Parent.GraphicsController)
 local Theme = require(script.Parent.Parent.UI.Theme)
 local Widgets = require(script.Parent.Parent.UI.Widgets)
+local RunStateController = require(script.Parent.RunStateController)
+local ShopLayout = require(script.Parent.Parent.UI.ShopLayout)
 
 local ADMIN_ATTRIBUTE = "LanternfallAdmin"
 local STATS_REFRESH_SECONDS = 0.5
@@ -310,9 +312,30 @@ function DebugController.start()
 		end
 		if screen then
 			screen.Enabled = isAdmin
+			local area = if workspace.CurrentCamera
+				then workspace.CurrentCamera.ViewportSize
+				else Vector2.new(1280, 720)
+			local layout = ShopLayout.measure(area)
+			local state = RunStateController.get()
+			local shopping = state
+				and state.phase == "Shop"
+				and RunStateController.getView() == "Run"
+				and not layout.compact
+			local panel = screen.Debug :: Frame
+			local scale = panel:FindFirstChild("ShopScale")
+				or Widgets.create("UIScale", { Name = "ShopScale", Parent = panel })
+			scale.Scale = if shopping then layout.scale else 1
+			panel.AnchorPoint = Vector2.new(if shopping then 0 else 1, 0)
+			panel.Position = if shopping
+				then UDim2.fromOffset((layout.leftWidth - 374) * layout.scale, 24 * layout.scale)
+				else UDim2.new(1, -72, 0, 8)
 		end
 	end
 	player:GetAttributeChangedSignal(ADMIN_ATTRIBUTE):Connect(update)
+	RunStateController.Changed:Connect(update)
+	if workspace.CurrentCamera then
+		workspace.CurrentCamera:GetPropertyChangedSignal("ViewportSize"):Connect(update)
+	end
 	update()
 
 	local frames, elapsed, worst = 0, 0, 0
