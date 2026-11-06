@@ -115,11 +115,11 @@ describe("bosses", function()
 		expect(string.find(text, `Phase 1 of {#kind.boss.phases}`, 1, true) ~= nil).toBe(true)
 		local model = workspace:FindFirstChild("LanternfallEnemies"):FindFirstChild(kind.id)
 		expect(model ~= nil).toBe(true)
-		local lit = false
+		local drawn = false
 		for _, object in model:GetDescendants() do
-			lit = lit or object.ClassName == "PointLight"
+			drawn = drawn or object.ClassName == "BillboardGui"
 		end
-		expect(lit).toBe(true)
+		expect(drawn).toBe(true)
 	end)
 
 	it("counts as an elite, ignores knockback and is never moved back onto the spawn ring", function()

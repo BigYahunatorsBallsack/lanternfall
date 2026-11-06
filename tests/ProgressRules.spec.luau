@@ -152,7 +152,7 @@ describe("saved progress", function()
 		end
 		local info = ProfileRecords.info(data, "Memory")
 		expect(info.characterDanger.NightWatch).toBe(2)
-		expect(info.characterDanger.NightWatch).toBe(0)
+		expect(info.characterDanger.SparkMage).toBe(0)
 		expect(info.achievements.Dawn).toBe(true)
 		expect(info.progress.ChampionHunter).toBe(5)
 	end)

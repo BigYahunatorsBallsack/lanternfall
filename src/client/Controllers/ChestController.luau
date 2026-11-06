@@ -19,18 +19,15 @@ local CameraController = require(script.Parent.CameraController)
 local RunStateController = require(script.Parent.RunStateController)
 local Theme = require(script.Parent.Parent.UI.Theme)
 local Widgets = require(script.Parent.Parent.UI.Widgets)
-local VisualKit = require(script.Parent.WeaponRenderer.VisualKit)
 local WorldSprite = require(
 	game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Util"):WaitForChild("WorldSprite")
 )
 
 local FOLDER_NAME = "LanternfallChests"
 local GOLD_COLOR = Color3.fromRGB(255, 196, 87)
-local BEAM_WIDTH = 0.6
-local BEAM_HEIGHT = 26 -- studs, visible from far away with the top-down camera
-local BEAM_TRANSPARENCY = 0.55
-local LIGHT_RANGE = 16
-local LIGHT_BRIGHTNESS = 3
+local BEAM_WIDTH = 0.2 -- share of the picture's width
+local BEAM_HEIGHT = 26 -- studs, visible from far away
+local BEAM_TRANSPARENCY = 0.3
 local BOB_HEIGHT = 0.3
 local BOB_SPEED = 3
 local ARROW_MARGIN = 40 -- pixels from the screen edge
@@ -74,15 +71,17 @@ local function build(): Drawn
 	})
 	local box = sprite.anchor :: BasePart
 	box.Parent = model
-	local beam =
-		VisualKit.part("Beam", Enum.PartType.Block, Vector3.new(BEAM_WIDTH, BEAM_HEIGHT, BEAM_WIDTH), GOLD_COLOR)
-	beam.Transparency = BEAM_TRANSPARENCY
+	local beamSprite = WorldSprite.create({
+		name = "Beam",
+		image = Config.Sprites.images.beam,
+		studs = BEAM_HEIGHT,
+		ground = 0,
+	})
+	beamSprite.picture.ImageColor3 = GOLD_COLOR
+	beamSprite.picture.ImageTransparency = BEAM_TRANSPARENCY
+	WorldSprite.pose(beamSprite, BEAM_WIDTH, 1, 0)
+	local beam = beamSprite.anchor :: BasePart
 	beam.Parent = model
-	local light = Instance.new("PointLight")
-	light.Color = GOLD_COLOR
-	light.Range = LIGHT_RANGE
-	light.Brightness = LIGHT_BRIGHTNESS
-	light.Parent = box
 	local arrow = Widgets.label({
 		Name = "ChestArrow",
 		Text = ">", -- plain ASCII, every font has it
@@ -160,7 +159,7 @@ local function render()
 		end
 		local y = floorY + BOB_HEIGHT * (1 + math.sin(now * BOB_SPEED + id))
 		entry.box.CFrame = CFrame.new(chest.x, y, chest.z)
-		entry.beam.CFrame = CFrame.new(chest.x, floorY + BEAM_HEIGHT / 2, chest.z)
+		entry.beam.CFrame = CFrame.new(chest.x, floorY, chest.z - 0.3) -- a little north, so the box stands in front
 		placeArrow(entry.arrow, Vector3.new(chest.x, floorY, chest.z))
 	end
 end

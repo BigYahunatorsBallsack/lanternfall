@@ -45,18 +45,22 @@ local function fitAll(entries: any, heights: { [string]: number }): { [string]: 
 end
 
 local Sprites = {
-	-- Moves every sprite this many studs towards the camera, so a figure standing just in front of a wall is not cut by
-	-- it. All sprites use the same value, which keeps their order front to back.
-	depthBias = 4,
+	-- Moves every sprite this many studs towards the camera, so flat floor marks do not cut a figure's feet. All sprites
+	-- use the same value, which keeps their order front to back. More shifts pictures off their shadows at the screen edge.
+	depthBias = 1.5,
 	-- The billboard is larger than the picture by this factor, so squash and sway never clip at its edge.
 	canvasMargin = 1.25,
 	-- Pose changes below these are not written to the picture (saves work with big crowds).
 	poseScaleStep = 0.004,
 	poseRotationStep = 0.25,
 
+	-- The flat dark disc under figures. Colors are { red, green, blue }.
+	shadow = table.freeze({ color = { 0, 0, 0 }, transparency = 0.6, thickness = 0.05 }),
+
 	-- Player characters.
 	character = table.freeze({
-		bodyStuds = 4.3, -- height of the figure
+		bodyStuds = 5.4, -- height of the figure (the character's collision stays the same)
+		shadowStuds = 3.6, -- width of its shadow
 		retrySeconds = 5,
 		loadAttempts = 3,
 		idleSpeed = 2.4, -- radians/s
@@ -72,8 +76,8 @@ local Sprites = {
 		hitSeconds = 0.12,
 		hitBrightness = 4,
 		downRotationDegrees = 78,
-		downTint = Color3.fromRGB(166, 166, 180),
-		outTint = Color3.fromRGB(96, 96, 112),
+		downTint = { 166, 166, 180 },
+		outTint = { 96, 96, 112 },
 		classes = Images.characters,
 	}),
 
@@ -88,8 +92,8 @@ local Sprites = {
 		gait = table.freeze({ stride = 4.8, bob = 0.045, roll = 0.055, lean = 0.065 }),
 		flashBrightness = 5,
 		statusTint = 0.55,
-		rushTint = Color3.fromRGB(255, 120, 110),
-		steelTint = Color3.fromRGB(190, 200, 216),
+		rushTint = { 255, 120, 110 },
+		steelTint = { 190, 200, 216 },
 		crownStuds = 2.6, -- times the radius
 		crownSpinDegrees = 90, -- per second
 		wispStuds = 0.8, -- times the radius

@@ -18,9 +18,9 @@ local SpritesConfig = require(Shared:WaitForChild("Config"):WaitForChild("Sprite
 local Sprites = Config.Sprites
 local Look = Sprites.enemy
 
-local SHADOW_COLOR = Color3.new(0, 0, 0)
-local SHADOW_TRANSPARENCY = 0.6
-local SHADOW_THICKNESS = 0.05 -- studs
+local SHADOW_COLOR = Color3.fromRGB(table.unpack(Sprites.shadow.color))
+local SHADOW_TRANSPARENCY = Sprites.shadow.transparency
+local SHADOW_THICKNESS = Sprites.shadow.thickness
 local SHADOW_DIAMETER = 2 -- times the radius
 local TELEGRAPH_COLOR = Color3.fromRGB(255, 60, 60)
 local TELEGRAPH_TRANSPARENCY = 0.55
@@ -32,12 +32,6 @@ local BURN_COLOR = Color3.fromRGB(255, 96, 28)
 local FROST_COLOR = Color3.fromRGB(140, 200, 255)
 local BUFF_COLOR = Color3.fromRGB(255, 206, 92)
 local ELITE_GOLD = Color3.fromRGB(236, 188, 88)
-local ELITE_GLOW_COLOR = Color3.fromRGB(170, 100, 255)
-local ELITE_GLOW_BRIGHTNESS = 3
-local ELITE_GLOW_RANGE = 14
-local BOSS_GLOW_COLOR = Color3.fromRGB(255, 70, 60)
-local BOSS_GLOW_BRIGHTNESS = 0.65
-local BOSS_GLOW_RANGE = 14
 local AFFIX_COLORS: { [string]: Color3 } = {
 	Swift = Color3.fromRGB(90, 220, 255),
 	Armored = Color3.fromRGB(214, 224, 240),
@@ -52,6 +46,8 @@ local HP_BAR_HEIGHT = 1.4 -- studs above the top of the sprite
 local TRAIL_SECONDS = 0.3
 local UPRIGHT = CFrame.Angles(0, 0, math.pi / 2)
 local DEFAULT_GLOW = Color3.fromRGB(200, 125, 255)
+local RUSH_TINT = Color3.fromRGB(table.unpack(Look.rushTint))
+local STEEL_TINT = Color3.fromRGB(table.unpack(Look.steelTint))
 
 type Gait = { stride: number, bob: number, roll: number, lean: number, legSwing: number, armSwing: number }
 
@@ -66,7 +62,6 @@ export type Visual = {
 	glowColor: Color3,
 	hpBar: Frame?,
 	affixLabel: TextLabel?,
-	glow: PointLight?,
 	trail: Trail?,
 	crown: WorldSprite.Sprite?,
 	wisps: { WorldSprite.Sprite },
@@ -132,7 +127,7 @@ local function artOf(enemy: any): SpritesConfig.EnemyArt?
 		bob = gait.bob,
 		roll = gait.roll,
 		lean = gait.lean,
-		glow = image.color,
+		glow = if image.color then Color3.fromRGB(table.unpack(image.color)) else nil,
 	}
 	artCache[enemy] = art
 	return art
@@ -142,12 +137,6 @@ SpriteModels.artOf = artOf
 
 local function addElite(visual: any, art: SpritesConfig.EnemyArt, r: number)
 	local anchor = visual.body
-	local light = Instance.new("PointLight")
-	light.Color = ELITE_GLOW_COLOR
-	light.Brightness = ELITE_GLOW_BRIGHTNESS
-	light.Range = ELITE_GLOW_RANGE
-	light.Parent = anchor
-
 	local top = Instance.new("Attachment")
 	top.Name = "TrailTop"
 	top.Position = Vector3.new(0, art.studs * 0.4, 0)
@@ -160,6 +149,7 @@ local function addElite(visual: any, art: SpritesConfig.EnemyArt, r: number)
 	trail.Attachment1 = bottom
 	trail.Color = ColorSequence.new(AFFIX_COLORS.Swift)
 	trail.LightEmission = 1
+	trail.FaceCamera = true -- flat from straight above otherwise
 	trail.Lifetime = TRAIL_SECONDS
 	trail.Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.3), NumberSequenceKeypoint.new(1, 1) })
 	trail.Enabled = false
@@ -216,7 +206,6 @@ local function addElite(visual: any, art: SpritesConfig.EnemyArt, r: number)
 	end
 	visual.hpBar = fill
 	visual.affixLabel = label
-	visual.glow = light
 	visual.trail = trail
 end
 
@@ -305,13 +294,6 @@ function SpriteModels.build(typeId: number): Visual
 	if enemy and enemy.elite then
 		addElite(visual, art, r)
 	end
-	if enemy and enemy.boss then
-		local light = Instance.new("PointLight")
-		light.Color = BOSS_GLOW_COLOR
-		light.Brightness = BOSS_GLOW_BRIGHTNESS
-		light.Range = BOSS_GLOW_RANGE
-		light.Parent = body
-	end
 	return visual
 end
 
@@ -328,7 +310,7 @@ local function paint(visual: Visual)
 	end
 	local color = WHITE
 	if visual.windupTint and isCharging(visual.mode) then
-		color = Look.rushTint
+		color = RUSH_TINT
 	elseif visual.burning then
 		color = WHITE:Lerp(BURN_COLOR, Look.statusTint)
 	elseif visual.slowed then
@@ -338,7 +320,7 @@ local function paint(visual: Visual)
 	elseif visual.hpBar then
 		local affix = Config.Enemies.elite.affixes[visual.affix]
 		if affix and affix.id == "Armored" then
-			color = Look.steelTint
+			color = STEEL_TINT
 		end
 	end
 	WorldSprite.setTint(sprite, color)
@@ -392,20 +374,20 @@ function SpriteModels.setMode(visual: Visual, mode: number)
 	end
 end
 
--- An elite's affix: its colored name and glow, Swift's trail, Armored's steel and Summoning's wisps.
+-- An elite's affix: its colored name and crown, Swift's trail, Armored's steel and Summoning's wisps.
 function SpriteModels.setAffix(visual: Visual, affix: number)
-	local label, glow = visual.affixLabel, visual.glow
-	if visual.affix == affix or not (label and glow) then
+	local label, crown = visual.affixLabel, visual.crown
+	if visual.affix == affix or not (label and crown) then
 		return
 	end
 	visual.affix = affix
 	local info = Config.Enemies.elite.affixes[affix]
 	local id = if info then info.id else nil
-	local color = if id then AFFIX_COLORS[id] or ELITE_GLOW_COLOR else ELITE_GLOW_COLOR
+	local color = if id then AFFIX_COLORS[id] or ELITE_GOLD else ELITE_GOLD
 	label.Visible = info ~= nil
 	label.Text = if info then string.upper(info.displayName) else ""
 	label.TextColor3 = color
-	glow.Color = color
+	crown.picture.ImageColor3 = color
 	local trail = visual.trail
 	if trail then
 		trail.Enabled = id == "Swift"
@@ -480,7 +462,7 @@ function SpriteModels.pose(
 
 	count += 1
 	parts[count] = visual.body
-	cframes[count] = CFrame.new(x + shift, y + hop, z)
+	cframes[count] = CFrame.new(x + shift, y, z - hop) -- north is up on the screen; height would not show
 	count += 1
 	parts[count] = visual.shadow
 	cframes[count] = CFrame.new(x, y + SHADOW_THICKNESS, z) * UPRIGHT
@@ -494,7 +476,7 @@ function SpriteModels.pose(
 	if crown then
 		count += 1
 		parts[count] = crown.anchor :: BasePart
-		cframes[count] = CFrame.new(x, y + hop, z)
+		cframes[count] = CFrame.new(x, y, z - hop)
 		crown.picture.Rotation = (now * Look.crownSpinDegrees + seed * 57) % 360
 	end
 	for index, wisp in visual.wisps do
@@ -504,8 +486,8 @@ function SpriteModels.pose(
 			parts[count] = wisp.anchor :: BasePart
 			cframes[count] = CFrame.new(
 				x + math.cos(angle) * Look.wispOrbit * r,
-				y + hop + r,
-				z + math.sin(angle) * Look.wispOrbit * r
+				y,
+				z - hop - r + math.sin(angle) * Look.wispOrbit * r
 			)
 		end
 	end

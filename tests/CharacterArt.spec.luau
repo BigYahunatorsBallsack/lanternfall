@@ -42,7 +42,7 @@ describe("Character sprites", function()
 				count += 1
 			end
 		end
-		expect(count).toBe(10)
+		expect(count).toBe(9)
 	end)
 	it("publishes the default class without replacing the gameplay character", function()
 		local original = player.Character

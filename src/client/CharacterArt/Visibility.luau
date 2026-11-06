@@ -7,18 +7,23 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Shared = ReplicatedStorage.Shared
 local Look = require(Shared.Config.Sprites).character
+local ShadowLook = require(Shared.Config.Sprites).shadow
 local WorldSprite = require(
 	game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Util"):WaitForChild("WorldSprite")
 )
 
 local CLASS_ATTRIBUTE = "LanternfallClassId"
 local HOLDER_NAME = "LanternfallCharacterSprites"
+local SHADOW_FOLDER_NAME = "LanternfallCharacterShadows"
+local UPRIGHT = CFrame.Angles(0, 0, math.pi / 2)
 
 export type Entry = {
 	character: Model,
 	root: BasePart,
 	humanoid: Humanoid?,
 	sprite: WorldSprite.Sprite,
+	shadow: BasePart,
+	drop: number, -- from the root part down to the feet
 	classId: string?, -- the class the sprite shows
 	loading: string?, -- the class being loaded
 	ready: boolean,
@@ -30,6 +35,7 @@ export type Entry = {
 
 local entries: { [Player]: Entry } = {}
 local holder: Folder? = nil
+local shadowFolder: Folder? = nil
 local Visibility = {}
 
 local nativeNames: { [string]: boolean } = {
@@ -63,6 +69,32 @@ local function getHolder(): Folder
 	return created
 end
 
+-- The flat disc under a character, like the enemies' (shown once the sprite is, moved by placeShadow).
+local function makeShadow(): BasePart
+	local folder = shadowFolder
+	if not folder then
+		folder = Instance.new("Folder")
+		folder.Name = SHADOW_FOLDER_NAME
+		folder.Parent = workspace
+		shadowFolder = folder
+	end
+	local look = ShadowLook
+	local part = Instance.new("Part")
+	part.Name = "CharacterShadow"
+	part.Shape = Enum.PartType.Cylinder
+	part.Size = Vector3.new(look.thickness, Look.shadowStuds, Look.shadowStuds)
+	part.Color = Color3.fromRGB(table.unpack(look.color))
+	part.Material = Enum.Material.SmoothPlastic
+	part.Transparency = 1
+	part.Anchored = true
+	part.CanCollide = false
+	part.CanQuery = false
+	part.CanTouch = false
+	part.CastShadow = false
+	part.Parent = folder
+	return part
+end
+
 local function hideNative(entry: Entry, instance: Instance)
 	if instance:IsA("BasePart") then
 		if
@@ -92,6 +124,7 @@ function Visibility.forget(player: Player)
 		entry.connection:Disconnect()
 	end
 	WorldSprite.destroy(entry.sprite)
+	entry.shadow:Destroy()
 	for instance, value in entry.hidden do
 		if instance.Parent then
 			if instance:IsA("BasePart") then
@@ -124,6 +157,7 @@ local function show(entry: Entry, classId: string, spec: WorldSprite.Spec)
 	WorldSprite.setVisible(entry.sprite, true)
 	entry.classId = classId
 	entry.ready = true
+	entry.shadow.Transparency = ShadowLook.transparency
 	for _, instance in entry.character:GetDescendants() do
 		hideNative(entry, instance)
 	end
@@ -187,13 +221,16 @@ function Visibility.update()
 			local humanoid = character:FindFirstChildOfClass("Humanoid")
 			local spec: WorldSprite.Spec = Visibility.specOf(classId)
 				or { name = "CharacterSprite", image = "", studs = Look.bodyStuds }
-			local sprite = WorldSprite.attach(root, getHolder(), spec, floorDrop(root, humanoid))
+			local drop = floorDrop(root, humanoid)
+			local sprite = WorldSprite.attach(root, getHolder(), spec, drop)
 			WorldSprite.setVisible(sprite, false)
 			local created: Entry = {
 				character = character,
 				root = root,
 				humanoid = humanoid,
 				sprite = sprite,
+				shadow = makeShadow(),
+				drop = drop,
 				classId = nil,
 				loading = nil,
 				ready = false,
@@ -215,7 +252,8 @@ function Visibility.update()
 			local humanoid = character:FindFirstChildOfClass("Humanoid")
 			if humanoid then
 				current.humanoid = humanoid
-				current.sprite.gui.StudsOffsetWorldSpace = Vector3.new(0, -floorDrop(root, humanoid), 0)
+				current.drop = floorDrop(root, humanoid)
+				current.sprite.gui.StudsOffsetWorldSpace = Vector3.new(0, -current.drop, 0)
 			end
 		end
 		if
@@ -227,6 +265,12 @@ function Visibility.update()
 			load(player, current, classId)
 		end
 	end
+end
+
+-- Keeps the shadow under the character's feet.
+function Visibility.placeShadow(entry: Entry)
+	local position = entry.root.Position
+	entry.shadow.CFrame = CFrame.new(position.X, position.Y - entry.drop + ShadowLook.thickness, position.Z) * UPRIGHT
 end
 
 function Visibility.get(player: Player): Entry?

@@ -1,7 +1,6 @@
 --!strict
 -- Builds the visual lobby dressing after MapService creates the playable floor and portal prompts.
 
-local CollectionService = game:GetService("CollectionService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Config = require(ReplicatedStorage.Shared.Config)
@@ -63,23 +62,13 @@ local function makeProp(parent: Instance, name: string, floor: Vector3): BasePar
 	return anchor
 end
 
--- A soft colored glow in the air, with the light that used to sit in a neon part.
+-- A soft colored glow, where a neon part used to light things up.
 local function makeGlow(parent: Instance, name: string, studs: number, position: Vector3, color: Color3): BasePart
 	local sprite = WorldSprite.glow(name, studs, color, 0.45)
 	local anchor = sprite.anchor :: BasePart
 	anchor.CFrame = CFrame.new(position)
 	anchor.Parent = parent
 	return anchor
-end
-
-local function addLight(parent: Instance, color: Color3, range: number, brightness: number)
-	local light = Instance.new("PointLight")
-	light.Color = color
-	light.Range = range
-	light.Brightness = brightness
-	light.Shadows = false
-	light.Parent = parent
-	CollectionService:AddTag(light, Config.Graphics.optionalLightTag)
 end
 
 local function disc(parent: Instance, name: string, diameter: number, height: number, color: Color3)
@@ -148,8 +137,8 @@ local function buildSpawn(parent: Model, lobbyModel: Model)
 	local beacon = Instance.new("Model")
 	beacon.Name = "VigilBeacon"
 	makeProp(beacon, "Beacon", base)
-	local glow = makeGlow(beacon, "AmberCore", 5, base + Vector3.new(0, 6.3, 0), rgb(colors.amber))
-	addLight(glow, rgb(colors.amber), 24, 1.2)
+	-- further north is higher on the screen, the camera looks straight down
+	makeGlow(beacon, "AmberCore", 5, base + Vector3.new(0, 0, -sprites.lobby.Beacon.studs * 0.7), rgb(colors.amber))
 	beacon.Parent = parent
 end
 
@@ -221,17 +210,16 @@ local function buildPortals(parent: Model, lobbyModel: Model)
 			model,
 			"PortalLight",
 			settings.gateSize.Y * sprites.glowScale,
-			(facing * CFrame.new(0, settings.gateSize.Y / 2, 1)).Position,
+			base + Vector3.new(0, 0, -settings.gateSize.Y / 2),
 			color
 		)
-		local emblem = makeGlow(
+		makeGlow(
 			model,
 			"Emblem",
 			settings.emblemSize.X * sprites.glowScale * 2,
-			(facing * CFrame.new(0, art.meshes.arch.size.Y - 2.1, -2.1)).Position,
+			base + Vector3.new(0, 0, -sprites.lobby.Arch.studs * 0.8),
 			color
 		)
-		addLight(emblem, color, settings.glowRange, settings.glowBrightness)
 		model.Parent = parent
 	end
 end
@@ -241,8 +229,7 @@ local function buildLamps(parent: Model)
 		local model = Instance.new("Model")
 		model.Name = `StreetLantern{index}`
 		local base = lobby.center + offset
-		local anchor = makeProp(model, "Lamp", base)
-		addLight(anchor, rgb(art.colors.amber), art.lamps.range, art.lamps.brightness)
+		makeProp(model, "Lamp", base)
 		model.Parent = parent
 	end
 end

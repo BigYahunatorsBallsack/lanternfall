@@ -10,6 +10,10 @@ local SpriteModels = require(client.Controllers.EnemyRenderer.SpriteModels)
 
 local Sprites = Config.Sprites
 
+local function sameColor(a: Color3, b: Color3): boolean
+	return math.abs(a.R - b.R) + math.abs(a.G - b.G) + math.abs(a.B - b.B) < 0.01
+end
+
 describe("WorldSprite", function()
 	it("never draws over walls and keeps every sprite on one layer", function()
 		local sprite = WorldSprite.create({ name = "T", image = "rbxassetid://1", studs = 4, ground = 0.25 })
@@ -91,11 +95,11 @@ describe("Enemy sprites", function()
 		expect(telegraph.Transparency).toBe(1)
 		SpriteModels.setMode(charger, SpriteModels.MODE_WINDUP)
 		assert(telegraph.Transparency < 1)
-		expect(charger.sprite.picture.ImageColor3).toBe(Sprites.enemy.rushTint)
+		assert(sameColor(charger.sprite.picture.ImageColor3, Color3.fromRGB(table.unpack(Sprites.enemy.rushTint))))
 		SpriteModels.setMode(charger, SpriteModels.MODE_RUSH)
 		expect(telegraph.Transparency).toBe(1)
 		SpriteModels.reset(charger)
-		expect(charger.sprite.picture.ImageColor3).toBe(Color3.new(1, 1, 1))
+		assert(sameColor(charger.sprite.picture.ImageColor3, Color3.new(1, 1, 1)))
 	end)
 	it("flashes on hits and returns to its status color", function()
 		local visual = SpriteModels.build(Config.Enemies.types.Shadeling.typeId)
@@ -104,9 +108,9 @@ describe("Enemy sprites", function()
 		SpriteModels.setFlash(visual, false)
 		expect(visual.sprite.gui.Brightness).toBe(1)
 		SpriteModels.setStatus(visual, true, false, false)
-		assert(visual.sprite.picture.ImageColor3 ~= Color3.new(1, 1, 1))
+		assert(not sameColor(visual.sprite.picture.ImageColor3, Color3.new(1, 1, 1)))
 		SpriteModels.reset(visual)
-		expect(visual.sprite.picture.ImageColor3).toBe(Color3.new(1, 1, 1))
+		assert(sameColor(visual.sprite.picture.ImageColor3, Color3.new(1, 1, 1)))
 	end)
 	it("gives elites their crown, HP bar, affix name, Armored steel and Summoning wisps", function()
 		local elite = SpriteModels.build(Config.Enemies.types.Brute.typeId + Config.Enemies.elite.typeIdOffset)
@@ -117,7 +121,9 @@ describe("Enemy sprites", function()
 			expect((elite.trail :: Trail).Enabled).toBe(affix.id == "Swift")
 			expect(elite.wisps[1].gui.Enabled).toBe(affix.id == "Summoner")
 			if affix.id == "Armored" then
-				expect(elite.sprite.picture.ImageColor3).toBe(Sprites.enemy.steelTint)
+				assert(
+					sameColor(elite.sprite.picture.ImageColor3, Color3.fromRGB(table.unpack(Sprites.enemy.steelTint)))
+				)
 			end
 		end
 	end)
@@ -126,9 +132,12 @@ describe("Enemy sprites", function()
 		local pixels = visual.sprite.pixels
 		local base = EnemyKinds.get("Shadeling")
 		assert(base)
-		SpriteModels.pose(visual, CFrame.lookAt(Vector3.zero, Vector3.new(-1, 0, 0)), 0, 0, 0, 0, {}, {}, 0)
+		local function walking(x: number): any
+			return { Position = Vector3.zero, LookVector = Vector3.new(x, 0, 0) }
+		end
+		SpriteModels.pose(visual, walking(-1), 0, 0, 0, 0, {}, {}, 0)
 		expect(visual.sprite.flipped).toBe(true)
-		SpriteModels.pose(visual, CFrame.lookAt(Vector3.zero, Vector3.new(1, 0, 0)), 0, 0, 0, 0, {}, {}, 0)
+		SpriteModels.pose(visual, walking(1), 0, 0, 0, 0, {}, {}, 0)
 		expect(visual.sprite.flipped).toBe(false)
 		expect(visual.sprite.pixels).toBe(pixels)
 	end)

@@ -3,10 +3,8 @@
 -- trail behind them, from what the player picked in the Ember shop (Util/EmberShopRules.shown; VIP players get the VIP
 -- lantern and trail until they pick something else). Built on the server as a 2D sprite welded to the
 -- HumanoidRootPart, so everyone sees them; look only (no collision, no queries, massless). Rebuilt on spawn, when the
--- data loads or changes and when pass perks change. Called by EmberShopService (refresh after a buy or equip). The
--- lantern's light is tagged optional (Config.Graphics): Low graphics turns other players' lanterns off on a client.
+-- data loads or changes and when pass perks change. Called by EmberShopService (refresh after a buy or equip).
 
-local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -62,12 +60,6 @@ local function buildLantern(folder: Folder, root: BasePart, lantern: CosmeticsCo
 	part.Anchored = false
 	part.Massless = true
 	part.CFrame = root.CFrame * CFrame.new(offset[1], offset[2], offset[3])
-	local light = Instance.new("PointLight")
-	light.Color = rgb(lantern.glow)
-	light.Range = style.lightRange
-	light.Brightness = style.lightBrightness
-	light.Parent = part
-	CollectionService:AddTag(light, Config.Graphics.optionalLightTag)
 	local weld = Instance.new("WeldConstraint")
 	weld.Part0 = root
 	weld.Part1 = part
@@ -93,6 +85,7 @@ local function buildTrail(folder: Folder, root: BasePart, trail: CosmeticsConfig
 	effect.Transparency = NumberSequence.new(0.25, 1)
 	effect.Lifetime = style.lifetime
 	effect.LightEmission = 0.6
+	effect.FaceCamera = true -- flat from straight above otherwise
 	effect.Parent = folder
 end
 

@@ -131,7 +131,7 @@ describe("items in a run (B8)", function()
 		LootService.dropPickup(position(), "Fruit")
 		world.advance(0.3)
 		local _, grown = CombatService.getHp(me)
-		expect(grown).toBe(maxHp + 10)
+		expect(grown).toBe(maxHp + 8) -- 10, and the default character gains Max HP x0.75
 		CombatService.protect(me, 0)
 		click("HurtSelf")
 		LootService.dropPickup(position(), "Fruit")

@@ -235,9 +235,7 @@ describe("smoke", function()
 		expect(#models >= EnemySim.getCount() - 2 and #models <= EnemySim.getCount()).toBe(true)
 		for _, model in models do
 			expect(model.Name).toBe("Shadeling") -- only Shadelings before minute 2
-			expect(
-				math.abs(model.Body.Position.Y - Config.Map.arena.center.Y - Config.Enemies.types.Shadeling.radius) < 1
-			).toBe(true)
+			expect(math.abs(model.Body.Position.Y - Config.Map.arena.center.Y) < 1).toBe(true) -- the sprite's feet
 		end
 		expect(world.bulkMoves > 0).toBe(true)
 	end)

@@ -165,10 +165,8 @@ return table.freeze({
 	-- The lantern model (CosmeticService): where it floats next to the HumanoidRootPart (studs, right/up/back), its
 	-- size and its light
 	lantern = table.freeze({
-		offset = table.freeze({ 1.7, 1.4, 0.6 }),
+		offset = table.freeze({ 1.7, 1.4, -1.6 }),
 		scale = 1, -- size multiplier of the whole model
-		lightRange = 10,
-		lightBrightness = 1.2,
 	}),
 	trail = table.freeze({
 		lifetime = 0.45, -- seconds

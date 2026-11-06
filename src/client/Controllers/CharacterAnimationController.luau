@@ -26,6 +26,8 @@ type Motion = {
 }
 
 local WHITE = Color3.new(1, 1, 1)
+local DOWN_TINT = Color3.fromRGB(table.unpack(Look.downTint))
+local OUT_TINT = Color3.fromRGB(table.unpack(Look.outTint))
 local motions: { [Player]: Motion } = {}
 local CharacterAnimationController = {}
 
@@ -65,6 +67,7 @@ function CharacterAnimationController.update(dt: number)
 		if not (entry and entry.ready) then
 			continue
 		end
+		Visibility.placeShadow(entry)
 		local motion = motionOf(player)
 		local position = entry.root.Position
 		local dx, dz = position.X - motion.x, position.Z - motion.z
@@ -121,9 +124,9 @@ function CharacterAnimationController.update(dt: number)
 			if tint == "hit" then
 				WorldSprite.setTint(entry.sprite, WHITE, Look.hitBrightness)
 			elseif tint == "out" then
-				WorldSprite.setTint(entry.sprite, Look.outTint)
+				WorldSprite.setTint(entry.sprite, OUT_TINT)
 			elseif tint == "down" then
-				WorldSprite.setTint(entry.sprite, Look.downTint)
+				WorldSprite.setTint(entry.sprite, DOWN_TINT)
 			else
 				WorldSprite.setTint(entry.sprite, WHITE)
 			end
