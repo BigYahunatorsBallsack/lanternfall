@@ -1,3 +1,3 @@
 --!strict
--- B12 tool visual, used by WeaponRenderer.
-return require(script.Parent.Parent.B7MeleeVisual)(Color3.fromRGB(218, 177, 83))
+-- Screwdriver attack visual for WeaponRenderer; held art comes from UI.WeaponImages.
+return require(script.Parent.Parent.B7MeleeVisual)(Color3.fromRGB(225, 190, 110))

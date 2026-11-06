@@ -1,3 +1,4 @@
+--!strict
 -- Unit tests for the weapon class bonuses (Util/WeaponClasses, Config.WeaponClasses; Brotato's set bonuses since B5):
 -- counting copies, the bonus per count up to the cap, adding up several classes and the texts.
 
@@ -9,10 +10,10 @@ local Classes = Config.WeaponClasses
 
 describe("WeaponClasses", function()
 	it("counts every weapon of a class, copies too", function()
-		local counts = WeaponClasses.counts({ "OrbitBlades", "OrbitBlades", "BoomerangAxe", "Unknown" })
-		expect(counts.Edge).toBe(3)
-		expect(counts.Spectral).toBe(2)
-		expect(counts.Primal).toBe(1)
+		local counts = WeaponClasses.counts({ "WraithHatchet", "WraithHatchet", "SpiritFlint", "Unknown" })
+		expect(counts.Spectral).toBe(3)
+		expect(counts.Edge).toBe(nil)
+		expect(counts.Primal).toBe(nil)
 		expect(counts.Arcane).toBe(nil)
 	end)
 
@@ -27,7 +28,7 @@ describe("WeaponClasses", function()
 	end)
 
 	it("adds up the bonuses of every class", function()
-		local sheet = WeaponClasses.bonuses({ "SparkBolt", "ChainLightning", "ThornTrail" })
+		local sheet = WeaponClasses.bonuses({ "SparkBolt", "ChainLightning", "WinterNeedle" })
 		expect(sheet.elementalDamage).toBe(2) -- Arcane 3
 		expect(sheet.critChance).toBe(3) -- Keen 2
 		expect(sheet.maxHp).toBe(nil) -- Primal 1: nothing yet
@@ -35,12 +36,12 @@ describe("WeaponClasses", function()
 	end)
 
 	it("names the classes of a weapon and lists the ones carried in config order", function()
-		expect(WeaponClasses.names("BoomerangAxe")).toBe("Edge · Primal")
+		expect(WeaponClasses.names("BoomerangAxe")).toBe("Precise · Medieval")
 		expect(WeaponClasses.names("Unknown")).toBe("")
 		local carried = WeaponClasses.carried({ "BoomerangAxe", "OrbitBlades" })
-		expect(#carried).toBe(3)
+		expect(#carried).toBe(4)
 		expect(carried[1].id).toBe("Edge")
-		expect(carried[1].count).toBe(2)
+		expect(carried[1].count).toBe(1)
 	end)
 
 	it("has a bonus for every count from 2 to 6 and only known stats", function()

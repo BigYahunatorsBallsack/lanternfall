@@ -1,3 +1,3 @@
 --!strict
--- Thorn Hook swings its approved held sprite through the server's Strike; no ground trail remains.
-return require(script.Parent.Parent.B7MeleeVisual)(Color3.fromRGB(150, 255, 110))
+-- Pruner attack visual for WeaponRenderer; held art comes from UI.WeaponImages.
+return require(script.Parent.Parent.B7MeleeVisual)(Color3.fromRGB(225, 190, 110))

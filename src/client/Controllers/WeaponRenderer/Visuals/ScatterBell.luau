@@ -1,3 +1,3 @@
 --!strict
--- Scatter Bell pooled visual for WeaponRenderer.
-return require(script.Parent.Parent.B7ProjectileVisual)(Color3.fromRGB(110, 210, 240))
+-- Double Barrel Shotgun attack visual for WeaponRenderer; held art comes from UI.WeaponImages.
+return require(script.Parent.Parent.B7ProjectileVisual)(Color3.fromRGB(225, 190, 110))

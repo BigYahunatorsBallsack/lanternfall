@@ -1,4 +1,4 @@
-# Item replacement — 6 November 2026
+# Item replacement â€” 6 November 2026
 
 The owner's request replaces the **125 existing catalog entries** with 125 distinct items from Brotato's main game. It does not add the rest of Brotato's catalog. Original names, prices, rarity, ownership limits, stat packages and the represented special effects replace the previous Lanternfall variants. DLC equivalents Baby Squid, Bone Dice, Cauldron, Coral, Goblet and Ashes are replaced by Bat, Tentacle, Lemonade, Mushroom, Sunglasses and Warrior Helmet.
 
@@ -42,3 +42,9 @@ Current base: `fc17890` (enemy values and enemy sprite package merged). Baseline
 All **125** original PNG hashes were verified and all **125** assets were uploaded. Studio Edit preloading of detached ImageLabels succeeded for **124** sprites. **Eyes Surgery (`Bellows`, asset 101596251956695) is Rejected by Roblox moderation**, confirmed through the Assets API. The original file is retained unchanged, the uploaded id remains traceable, and the UI shows a stat fallback when the image cannot load. There was no alternate upload to bypass moderation. The owner must resolve that asset's moderation outcome with Roblox before its exact sprite can display. Evidence: `assets/ui/items/roblox-validation.json`.
 
 The Studio asset check did not install branch scripts, change the place, or publish it. A full branch run, real two-client test and phone test remain for the owner. The two-player item rules and sprite bindings/pool cleanup were tested in the isolated Luau mock.
+
+## Final main update
+
+The weapon package on main `5a1ec54` is also merged. Original weapon minimum timing and Ball and Chain's 0.75-second restriction are both retained. Latest complete comparison: **933 passed / 31 failed in 76 specs**, against main **792 / 31 in 74 specs**. The current report supersedes the preceding earlier-base totals. Both new specs are fully included in this final run.
+
+The independently randomized full runs differ in two existing specs: the branch avoids the previously flaky mine count failure and has a fluctuating enemy-distance failure in Smoke. A controlled Smoke comparison using seed 1234 in both test loaders gives **14 passed / 29 identical failures on each side**. No production files were changed for that comparison. Remaining failures include the old Wand/Spark Bolt and other weapon/evolution expectations in the shared smoke test; they are outside the item change.

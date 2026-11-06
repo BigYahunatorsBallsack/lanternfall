@@ -1,3 +1,4 @@
+--!strict
 -- Approved world sprites, attack copies, and shared shot origins.
 
 loadHelper("tests/helpers/RobloxMock.luau")
@@ -9,7 +10,6 @@ local WeaponFx = require(Shared.Net.WeaponFx)
 local renderer = folderProxy("src/client", "Client").Controllers.WeaponRenderer
 local HeldModels = require(renderer.HeldModels)
 local SpriteKit = require(renderer.SpriteKit)
-local OrbitBlades = require(renderer.Visuals.OrbitBlades)
 local Images = require(folderProxy("src/client", "Client").UI.WeaponImages)
 
 local function frame(folder, number, now)
@@ -32,7 +32,7 @@ local function frame(folder, number, now)
 end
 
 describe("World weapon sprites", function()
-	it("uses the approved image for all 26 configured weapons", function()
+	it("uses the approved image for all 62 configured weapons", function()
 		local count = 0
 		for id in Config.Weapons do
 			count += 1
@@ -46,7 +46,7 @@ describe("World weapon sprites", function()
 			expect(sprite.anchor.CanQuery).toBe(false)
 			sprite.anchor:Destroy()
 		end
-		expect(count).toBe(26)
+		expect(count).toBe(62)
 		expect(Config.WeaponVisuals.spriteStuds.BrassKnuckles < Config.WeaponVisuals.spriteStuds.LamplighterPike).toBe(
 			true
 		)
@@ -74,11 +74,11 @@ describe("World weapon sprites", function()
 			dz = 0,
 			targetDistance = 9,
 		})
-		HeldModels.renderWeapon(owner, one, 1, 2, frame(folder, 2, 1.1))
-		HeldModels.renderWeapon(owner, two, 2, 2, frame(folder, 2, 1.1))
+		HeldModels.renderWeapon(owner, one, 1, 2, frame(folder, 2, workspace:GetServerTimeNow() + 0.1))
+		HeldModels.renderWeapon(owner, two, 2, 2, frame(folder, 2, workspace:GetServerTimeNow() + 0.1))
 		expect(first.CFrame.Position.X > firstX).toBe(true)
 		expect(second.CFrame.Position.X).toBe(secondX)
-		HeldModels.finish(frame(folder, 2, 1.1))
+		HeldModels.finish(frame(folder, 2, workspace:GetServerTimeNow() + 0.1))
 		HeldModels.renderWeapon(owner, two, 1, 1, frame(folder, 3, 1.3))
 		HeldModels.finish(frame(folder, 3, 1.3))
 		expect(#folder:GetChildren()).toBe(1)
@@ -86,21 +86,37 @@ describe("World weapon sprites", function()
 		expect(#folder:GetChildren()).toBe(0)
 	end)
 
-	it("places orbit artwork on the same clock as its server hit sweep", function()
+	it("shows a single held Circular Saw and keeps Crossbow visible after firing", function()
 		local folder = Instance.new("Folder")
 		local owner = { userId = 8, position = Vector3.new(0, 100, 0) }
-		local weapon =
-			{ uid = 3, id = "OrbitBlades", addedAt = 0, stats = { count = 2, radius = 7, rotationSpeed = 180 } }
-		OrbitBlades.renderWeapon(owner, weapon, frame(folder, 1, 1))
-		local blades = folder:GetChildren()
-		expect(#blades).toBe(2)
-		expect(blades[1].CFrame.Position.X < 0).toBe(true)
-		expect(blades[2].CFrame.Position.X > 0).toBe(true)
-		weapon.stats.count = 3
-		OrbitBlades.renderWeapon(owner, weapon, frame(folder, 2, 1.1))
-		expect(#folder:GetChildren()).toBe(3)
-		OrbitBlades.clear()
-		expect(#folder:GetChildren()).toBe(0)
+		HeldModels.renderWeapon(
+			owner,
+			{ uid = 3, id = "OrbitBlades" },
+			1,
+			2,
+			frame(folder, 1, workspace:GetServerTimeNow())
+		)
+		HeldModels.effect({
+			weapon = "BoomerangAxe",
+			userId = 8,
+			uid = 4,
+			kind = "Fire",
+			at = workspace:GetServerTimeNow(),
+			dx = 1,
+			dz = 0,
+		})
+		HeldModels.renderWeapon(
+			owner,
+			{ uid = 4, id = "BoomerangAxe" },
+			2,
+			2,
+			frame(folder, 1, workspace:GetServerTimeNow())
+		)
+		expect(#folder:GetChildren()).toBe(2)
+		for _, anchor in folder:GetChildren() do
+			expect(anchor.WeaponArtwork.Sprite.Visible).toBe(true)
+		end
+		HeldModels.clear()
 	end)
 
 	it("sends the precise copy id and starts shots beyond the held weapon", function()

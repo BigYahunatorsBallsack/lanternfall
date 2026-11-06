@@ -29,7 +29,7 @@ export type Stats = { [string]: number }
 local WeaponStats = {}
 
 -- Seconds between attacks or hits: shorter with Attack Speed.
-local TIME_STATS = { "cooldown", "tickInterval", "hitCooldownPerEnemy" }
+local TIME_STATS = { "cooldown", "tickInterval", "hitCooldownPerEnemy", "reloadSeconds" }
 -- Turning speeds: faster with Attack Speed.
 local RATE_STATS = { "rotationSpeed" }
 
@@ -87,9 +87,13 @@ function WeaponStats.compute(
 		damage += share * (bonuses[statId] or 0)
 	end
 	local damageFactor = WeaponStats.damageFactor(bonuses)
+	damage += (stats.levelScaling or 0) * (bonuses.level or 1)
 	stats.damage = math.max(1, damage * damageFactor)
 
 	local timing = StatMath.cooldownFactor(bonuses.attackSpeed or 0)
+	if weapon.brotato then
+		minCooldown = Combat.originalWeapons.minCooldown
+	end
 	local minimum = math.max(minCooldown, bonuses.weaponCooldownMin or 0)
 	for _, key in TIME_STATS do
 		if stats[key] then
@@ -144,6 +148,27 @@ function WeaponStats.compute(
 		stats.burnSpread = math.max(0, math.floor((stats.burnSpread or 0) + (bonuses.burnSpread or 0)))
 		stats.burnInterval = StatMath.burnInterval(bonuses.burnSpeed or 0)
 		stats.burnChance = stats.burnChance or 1
+	end
+	if weapon.brotato then
+		if stats.noBounce then
+			stats.bounce = 0
+		end
+		if stats.engineeringSlow then
+			stats.slow = math.clamp(stats.engineeringSlow * (bonuses.engineering or 0), 0, 1)
+		end
+		if stats.secondaryCount then
+			local secondaryStat = if stats.secondaryElemental
+				then "elementalDamage"
+				elseif stats.secondaryRange then "range"
+				else "rangedDamage"
+			stats.secondaryDamage = WeaponStats.ownerDamage(
+				stats.secondaryBase or 0,
+				{ [secondaryStat] = stats.secondaryScaling or 0 },
+				bonuses
+			)
+			stats.secondaryRangeStuds = stats.secondaryRangeStuds or stats.range
+			stats.secondarySpeed = stats.secondarySpeed or stats.projectileSpeed
+		end
 	end
 	return stats
 end

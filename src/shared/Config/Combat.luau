@@ -4,6 +4,10 @@
 -- effect shares. Read by WeaponService (WeaponStats, Arsenal, Afflictions), Util/StatMath and the client texts.
 
 return table.freeze({
+	originalWeapons = table.freeze({
+		minCooldown = 1 / 60, -- server catch-up floor; preserves source cooldowns below the old 1/12 cap
+		maxCatchupAttacks = 4, -- bounds extra attacks within one 15 Hz simulation step
+	}),
 	-- Knockback in Brotato points (a crossbow has 8, a hammer 30), pushed directly away from the owner. The Knockback
 	-- stat adds points to every weapon. Enemies keep 1 - knockbackResistance of it (Config.Enemies), elites none.
 	knockback = table.freeze({

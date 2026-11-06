@@ -1,3 +1,3 @@
 --!strict
--- Scatter Bell behavior for Arsenal; parameters in Config.Weapons.
-return require(script.Parent.Parent.B7Projectile)
+-- Double Barrel Shotgun behavior for Arsenal; exact tier data in Config.Weapons.
+return require(script.Parent.Parent.BrotatoProjectile)

@@ -1,0 +1,3917 @@
+{
+  "source": "https://brotato.wiki.spellsandguns.com/Weapons",
+  "sourcePatch": "1.1.6.3",
+  "retrieved": "2026-11-06",
+  "weapons": [
+    {
+      "id": "CactiClub",
+      "name": "Cacti Club",
+      "kind": "Melee",
+      "minTier": 1,
+      "classes": [
+        "Primitive",
+        "Heavy"
+      ],
+      "attackType": "Sweep",
+      "tiers": [
+        {
+          "damage": 15.0,
+          "cooldown": 1.66,
+          "range": 200.0,
+          "knockback": 8.0,
+          "critDamage": 2.0,
+          "critChance": 0.03,
+          "lifeSteal": 0.0,
+          "price": 20.0
+        },
+        {
+          "damage": 20.0,
+          "cooldown": 1.58,
+          "range": 200.0,
+          "knockback": 8.0,
+          "critDamage": 2.0,
+          "critChance": 0.03,
+          "lifeSteal": 0.0,
+          "price": 39.0
+        },
+        {
+          "damage": 35.0,
+          "cooldown": 1.51,
+          "range": 200.0,
+          "knockback": 8.0,
+          "critDamage": 2.0,
+          "critChance": 0.03,
+          "lifeSteal": 0.0,
+          "price": 74.0
+        },
+        {
+          "damage": 60.0,
+          "cooldown": 1.36,
+          "range": 200.0,
+          "knockback": 8.0,
+          "critDamage": 2.0,
+          "critChance": 0.03,
+          "lifeSteal": 0.0,
+          "price": 149.0
+        }
+      ],
+      "scaling": [
+        {
+          "meleeDamage": 0.8
+        },
+        {
+          "meleeDamage": 0.85
+        },
+        {
+          "meleeDamage": 0.9
+        },
+        {
+          "meleeDamage": 1.0
+        }
+      ],
+      "imageUrl": "https://brotato.wiki.spellsandguns.com/images/a/a1/Cacti_Club.png",
+      "sourceUrl": "https://brotato.wiki.spellsandguns.com/Cacti_Club",
+      "specialSource": "Hitting an enemy spawns {{Color|tier1|3}}/{{Color|tier2|4}}/{{Color|tier3|5}}/{{Color|tier4|6}} projectiles dealing {{Color|tier1|1 + 60%}}/{{Color|tier2|2 + 70%}}/{{Color|tier3|3 + 80%}}/{{Color|tier4|4 + 100%}}{{StatIcon|RangedDamage}} damage"
+    },
+    {
+      "id": "Chopper",
+      "name": "Chopper",
+      "kind": "Melee",
+      "minTier": 1,
+      "classes": [
+        "Blade"
+      ],
+      "attackType": "Sweep",
+      "tiers": [
+        {
+          "damage": 6.0,
+          "cooldown": 0.99,
+          "range": 135.0,
+          "knockback": 2.0,
+          "critDamage": 2.0,
+          "critChance": 0.1,
+          "lifeSteal": 0.0,
+          "price": 15.0
+        },
+        {
+          "damage": 12.0,
+          "cooldown": 0.99,
+          "range": 150.0,
+          "knockback": 2.0,
+          "critDamage": 2.0,
+          "critChance": 0.15,
+          "lifeSteal": 0.0,
+          "price": 31.0
+        },
+        {
+          "damage": 18.0,
+          "cooldown": 0.96,
+          "range": 165.0,
+          "knockback": 2.0,
+          "critDamage": 2.0,
+          "critChance": 0.2,
+          "lifeSteal": 0.0,
+          "price": 61.0
+        },
+        {
+          "damage": 30.0,
+          "cooldown": 0.89,
+          "range": 180.0,
+          "knockback": 2.0,
+          "critDamage": 2.0,
+          "critChance": 0.25,
+          "lifeSteal": 0.0,
+          "price": 122.0
+        }
+      ],
+      "scaling": [
+        {
+          "meleeDamage": 0.5,
+          "maxHp": 0.15
+        },
+        {
+          "meleeDamage": 0.5,
+          "maxHp": 0.2
+        },
+        {
+          "meleeDamage": 0.5,
+          "maxHp": 0.25
+        },
+        {
+          "meleeDamage": 0.5,
+          "maxHp": 0.3
+        }
+      ],
+      "imageUrl": "https://brotato.wiki.spellsandguns.com/images/a/a6/Chopper.png",
+      "sourceUrl": "https://brotato.wiki.spellsandguns.com/Chopper",
+      "specialSource": "{{Color|tier1|+1}}/{{Color|tier2|+1}}/{{Color|tier3|+1}}/{{Color|tier4|+2}} health healed from consumables"
+    },
+    {
+      "id": "OrbitBlades",
+      "name": "Circular Saw",
+      "kind": "Melee",
+      "minTier": 2,
+      "classes": [
+        "Blade",
+        "Medical"
+      ],
+      "attackType": "Sweep",
+      "tiers": [
+        null,
+        {
+          "damage": 10.0,
+          "cooldown": 0.72,
+          "range": 175.0,
+          "knockback": 0.0,
+          "critDamage": 2.0,
+          "critChance": 0.05,
+          "lifeSteal": 0.45,
+          "price": 46.0
+        },
+        {
+          "damage": 15.0,
+          "cooldown": 0.67,
+          "range": 175.0,
+          "knockback": 0.0,
+          "critDamage": 2.0,
+          "critChance": 0.1,
+          "lifeSteal": 0.5,
+          "price": 86.0
+        },
+        {
+          "damage": 25.0,
+          "cooldown": 0.62,
+          "range": 175.0,
+          "knockback": 0.0,
+          "critDamage": 2.0,
+          "critChance": 0.2,
+          "lifeSteal": 0.6,
+          "price": 173.0
+        }
+      ],
+      "scaling": [
+        {},
+        {
+          "meleeDamage": 1.0
+        },
+        {
+          "meleeDamage": 1.0
+        },
+        {
+          "meleeDamage": 1.0
+        }
+      ],
+      "imageUrl": "https://brotato.wiki.spellsandguns.com/images/c/c7/Circular_Saw.png",
+      "sourceUrl": "https://brotato.wiki.spellsandguns.com/Circular_Saw",
+      "specialSource": ""
+    },
+    {
+      "id": "Claw",
+      "name": "Claw",
+      "kind": "Melee",
+      "minTier": 1,
+      "classes": [
+        "Unarmed",
+        "Precise"
+      ],
+      "attackType": "Thrust",
+      "tiers": [
+        {
+          "damage": 5.0,
+          "cooldown": 0.78,
+          "range": 150.0,
+          "knockback": 2.0,
+          "critDamage": 2.0,
+          "critChance": 0.1,
+          "lifeSteal": 0.0,
+          "price": 15.0
+        },
+        {
+          "damage": 10.0,
+          "cooldown": 0.74,
+          "range": 150.0,
+          "knockback": 2.0,
+          "critDamage": 2.15,
+          "critChance": 0.15,
+          "lifeSteal": 0.0,
+          "price": 28.0
+        },
+        {
+          "damage": 15.0,
+          "cooldown": 0.69,
+          "range": 150.0,
+          "knockback": 2.0,
+          "critDamage": 2.3,
+          "critChance": 0.2,
+          "lifeSteal": 0.0,
+          "price": 55.0
+        },
+        {
+          "damage": 25.0,
+          "cooldown": 0.61,
+          "range": 150.0,
+          "knockback": 2.0,
+          "critDamage": 2.5,
+          "critChance": 0.25,
+          "lifeSteal": 0.0,
+          "price": 110.0
+        }
+      ],
+      "scaling": [
+        {
+          "attackSpeed": 0.15,
+          "meleeDamage": 0.5
+        },
+        {
+          "attackSpeed": 0.2,
+          "meleeDamage": 0.5
+        },
+        {
+          "attackSpeed": 0.25,
+          "meleeDamage": 0.5
+        },
+        {
+          "attackSpeed": 0.3,
+          "meleeDamage": 0.5
+        }
+      ],
+      "imageUrl": "https://brotato.wiki.spellsandguns.com/images/4/47/Claw.png",
+      "sourceUrl": "https://brotato.wiki.spellsandguns.com/Claw",
+      "specialSource": "-"
+    },
+    {
+      "id": "Drill",
+      "name": "Drill",
+      "kind": "Melee",
+      "minTier": 4,
+      "classes": [
+        "Legendary",
+        "Precise"
+      ],
+      "attackType": "",
+      "tiers": [
+        null,
+        null,
+        null,
+        {
+          "damage": 10.0,
+          "cooldown": 0.45,
+          "range": 100.0,
+          "knockback": 5.0,
+          "critDamage": 2.5,
+          "critChance": 0.5,
+          "lifeSteal": 0.0,
+          "price": 250.0
+        }
+      ],
+      "scaling": [
+        {},
+        {},
+        {},
+        {
+          "meleeDamage": 1.0,
+          "engineering": 1.0
+        }
+      ],
+      "imageUrl": "https://brotato.wiki.spellsandguns.com/images/8/88/Drill.png",
+      "sourceUrl": "https://brotato.wiki.spellsandguns.com/Drill",
+      "specialSource": "{{Color|green|100%}} chance to gain 1 material when killing an enemy with a critical hit.<br>{{Color|green|+10 % Attack Speed}} every 5 seconds until the end of the wave"
+    },
+    {
+      "id": "Excalibur",
+      "name": "Excalibur",
+      "kind": "Melee",
+      "minTier": 4,
+      "classes": [
+        "Legendary",
+        "Blade"
+      ],
+      "attackType": "Thrust",
+      "tiers": [
+        null,
+        null,
+        null,
+        {
+          "damage": 200.0,
+          "cooldown": 0.66,
+          "range": 200.0,
+          "knockback": 5.0,
+          "critDamage": 2.5,
+          "critChance": 0.1,
+          "lifeSteal": 0.0,
+          "price": 230.0
+        }
+      ],
+      "scaling": [
+        {},
+        {},
+        {},
+        {
+          "meleeDamage": 2.0,
+          "maxHp": 2.0
+        }
+      ],
+      "imageUrl": "https://brotato.wiki.spellsandguns.com/images/f/fa/Excalibur.png",
+      "sourceUrl": "https://brotato.wiki.spellsandguns.com/Excalibur",
+      "specialSource": "Alternates between thrusting and sweeping attacks.<br>{{Color|red|-2 Armor}} for every weapon you have"
+    },
+    {
+      "id": "Quarterstaff",
+      "name": "Quarterstaff",
+      "kind": "Melee",
+      "minTier": 1,
+      "classes": [
+        "Primitive",
+        "Medieval"
+      ],
+      "attackType": "Thrust",
+      "tiers": [
+        {
+          "damage": 10.0,
+          "cooldown": 1.42,
+          "range": 175.0,
+          "knockback": 0.0,
+          "critDamage": 1.5,
+          "critChance": 0.03,
+          "lifeSteal": 0.0,
+          "price": 15.0
+        },
+        {
+          "damage": 15.0,
+          "cooldown": 1.25,
+          "range": 175.0,
+          "knockback": 0.0,
+          "critDamage": 1.5,
+          "critChance": 0.03,
+          "lifeSteal": 0.0,
+          "price": 31.0
+        },
+        {
+          "damage": 20.0,
+          "cooldown": 1.09,
+          "range": 175.0,
+          "knockback": 0.0,
+          "critDamage": 1.5,
+          "critChance": 0.03,
+          "lifeSteal": 0.0,
+          "price": 61.0
+        },
+        {
+          "damage": 30.0,
+          "cooldown": 0.92,
+          "range": 175.0,
+          "knockback": 0.0,
+          "critDamage": 1.5,
+          "critChance": 0.03,
+          "lifeSteal": 0.0,
+          "price": 122.0
+        }
+      ],
+      "scaling": [
+        {
+          "level": 0.75,
+          "meleeDamage": 0.5
+        },
+        {
+          "level": 0.85,
+          "meleeDamage": 0.65
+        },
+        {
+          "level": 1.0,
+          "meleeDamage": 0.85
+        },
+        {
+          "level": 1.25,
+          "meleeDamage": 1.0
+        }
+      ],
+      "imageUrl": "https://brotato.wiki.spellsandguns.com/images/8/85/Quarterstaff.png",
+      "sourceUrl": "https://brotato.wiki.spellsandguns.com/Quarterstaff",
+      "specialSource": "Alternates between thrusting and sweeping attacks <br> {{Color|tier1|+2% XP Gain}}/{{Color|tier2|+5% XP Gain}}/{{Color|tier3|+9% XP Gain}}/{{Color|tier4|+15% XP Gain}}"
+    },
+    {
+      "id": "BrassKnuckles",
+      "name": "Fist",
+      "kind": "Melee",
+      "minTier": 1,
+      "classes": [
+        "Unarmed"
+      ],
+      "attackType": "Thrust",
+      "tiers": [
+        {
+          "damage": 8.0,
+          "cooldown": 0.78,
+          "range": 150.0,
+          "knockback": 15.0,
+          "critDamage": 1.5,
+          "critChance": 0.01,
+          "lifeSteal": 0.0,
+          "price": 10.0
+        },
+        {
+          "damage": 16.0,
+          "cooldown": 0.73,
+          "range": 150.0,
+          "knockback": 15.0,
+          "critDamage": 1.5,
+          "critChance": 0.01,
+          "lifeSteal": 0.0,
+          "price": 22.0
+        },
+        {
+          "damage": 32.0,
+          "cooldown": 0.69,
+          "range": 150.0,
+          "knockback": 15.0,
+          "critDamage": 1.5,
+          "critChance": 0.01,
+          "lifeSteal": 0.0,
+          "price": 45.0
+        },
+        {
+          "damage": 64.0,
+          "cooldown": 0.59,
+          "range": 150.0,
+          "knockback": 15.0,
+          "critDamage": 1.5,
+          "critChance": 0.01,
+          "lifeSteal": 0.0,
+          "price": 91.0
+        }
+      ],
+      "scaling": [
+        {
+          "meleeDamage": 1.0
+        },
+        {
+          "meleeDamage": 1.0
+        },
+        {
+          "meleeDamage": 1.0
+        },
+        {
+          "meleeDamage": 1.0
+        }
+      ],
+      "imageUrl": "https://brotato.wiki.spellsandguns.com/images/1/17/Fist.png",
+      "sourceUrl": "https://brotato.wiki.spellsandguns.com/Fist",
+      "specialSource": ""
+    },
+    {
+      "id": "FlamingBrassKnuckles",
+      "name": "Flaming Brass Knuckles",
+      "kind": "Melee",
+      "minTier": 2,
+      "classes": [
+        "Unarmed",
+        "Elemental"
+      ],
+      "attackType": "Thrust",
+      "tiers": [
+        null,
+        {
+          "damage": 20.0,
+          "cooldown": 0.73,
+          "range": 150.0,
+          "knockback": 15.0,
+          "critDamage": 1.5,
+          "critChance": 0.01,
+          "lifeSteal": 0.0,
+          "price": 46.0
+        },
+        {
+          "damage": 40.0,
+          "cooldown": 0.69,
+          "range": 150.0,
+          "knockback": 15.0,
+          "critDamage": 1.5,
+          "critChance": 0.01,
+          "lifeSteal": 0.0,
+          "price": 86.0
+        },
+        {
+          "damage": 80.0,
+          "cooldown": 0.59,
+          "range": 150.0,
+          "knockback": 15.0,
+          "critDamage": 1.5,
+          "critChance": 0.01,
+          "lifeSteal": 0.0,
+          "price": 173.0
+        }
+      ],
+      "scaling": [
+        {},
+        {
+          "meleeDamage": 1.0
+        },
+        {
+          "meleeDamage": 1.0
+        },
+        {
+          "meleeDamage": 1.0
+        }
+      ],
+      "imageUrl": "https://brotato.wiki.spellsandguns.com/images/c/cf/Flaming_Brass_Knuckles.png",
+      "sourceUrl": "https://brotato.wiki.spellsandguns.com/Flaming_Brass_Knuckles",
+      "specialSource": "Deals -/{{Color|tier2|10x5}}/{{Color|tier3|15x6}}/{{Color|tier4|18x7}}(100%{{StatIcon|ElementalDamage}}) [[Burn|burning]] damage"
+    },
+    {
+      "id": "WraithHatchet",
+      "name": "Ghost Axe",
+      "kind": "Melee",
+      "minTier": 1,
+      "classes": [
+        "Ethereal"
+      ],
+      "attackType": "Sweep",
+      "tiers": [
+        {
+          "damage": 12.0,
+          "cooldown": 1.73,
+          "range": 200.0,
+          "knockback": 2.0,
+          "critDamage": 2.0,
+          "critChance": 0.03,
+          "lifeSteal": 0.0,
+          "price": 20.0
+        },
+        {
+          "damage": 18.0,
+          "cooldown": 1.66,
+          "range": 200.0,
+          "knockback": 2.0,
+          "critDamage": 2.0,
+          "critChance": 0.03,
+          "lifeSteal": 0.0,
+          "price": 39.0
+        },
+        {
+          "damage": 24.0,
+          "cooldown": 1.58,
+          "range": 200.0,
+          "knockback": 2.0,
+          "critDamage": 2.0,
+          "critChance": 0.03,
+          "lifeSteal": 0.0,
+          "price": 74.0
+        },
+        {
+          "damage": 40.0,
+          "cooldown": 1.51,
+          "range": 200.0,
+          "knockback": 2.0,
+          "critDamage": 2.0,
+          "critChance": 0.03,
+          "lifeSteal": 0.0,
+          "price": 149.0
+        }
+      ],
+      "scaling": [
+        {
+          "meleeDamage": 1.0
+        },
+        {
+          "meleeDamage": 1.0
+        },
+        {
+          "meleeDamage": 1.0
+        },
+        {
+          "meleeDamage": 1.0
+        }
+      ],
+      "imageUrl": "https://brotato.wiki.spellsandguns.com/images/3/3a/Ghost_Axe.png",
+      "sourceUrl": "https://brotato.wiki.spellsandguns.com/Ghost_Axe",
+      "specialSource": "+1% [[Damage]] for every {{Color|tier1|20}}/{{Color|tier2|18}}/{{Color|tier3|16}}/{{Color|tier4|12}} kills in a wave with this weapon"
+    },
+    {
+      "id": "SpiritFlint",
+      "name": "Ghost Flint",
+      "kind": "Melee",
+      "minTier": 1,
+      "classes": [
+        "Ethereal"
+      ],
+      "attackType": "Thrust",
+      "tiers": [
+        {
+          "damage": 6.0,
+          "cooldown": 1.23,
+          "range": 170.0,
+          "knockback": 2.0,
+          "critDamage": 2.0,
+          "critChance": 0.03,
+          "lifeSteal": 0.0,
+          "price": 12.0
+        },
+        {
+          "damage": 9.0,
+          "cooldown": 1.17,
+          "range": 180.0,
+          "knockback": 2.0,
+          "critDamage": 2.0,
+          "critChance": 0.03,
+          "lifeSteal": 0.0,
+          "price": 26.0
+        },
+        {
+          "damage": 12.0,
+          "cooldown": 1.1,
+          "range": 190.0,
+          "knockback": 2.0,
+          "critDamage": 2.0,
+          "critChance": 0.03,
+          "lifeSteal": 0.0,
+          "price": 52.0
+        },
+        {
+          "damage": 20.0,
+          "cooldown": 1.04,
+          "range": 200.0,
+          "knockback": 2.0,
+          "critDamage": 2.0,
+          "critChance": 0.03,
+          "lifeSteal": 0.0,
+          "price": 105.0
+        }
+      ],
+      "scaling": [
+        {
+          "meleeDamage": 1.0
+        },
+        {
+          "meleeDamage": 1.0
+        },
+        {
+          "meleeDamage": 1.0
+        },
+        {
+          "meleeDamage": 1.0
+        }
+      ],
+      "imageUrl": "https://brotato.wiki.spellsandguns.com/images/b/b4/Ghost_Flint.png",
+      "sourceUrl": "https://brotato.wiki.spellsandguns.com/Ghost_Flint",
+      "specialSource": "+1% [[Attack Speed]] for every {{Color|tier1|20}}/{{Color|tier2|18}}/{{Color|tier3|16}}/{{Color|tier4|12}} kills in a wave with this weapon"
+    },
+    {
+      "id": "Shockwave",
+      "name": "Hammer",
+      "kind": "Melee",
+      "minTier": 2,
+      "classes": [
+        "Blunt",
+        "Heavy"
+      ],
+      "attackType": "Sweep",
+      "tiers": [
+        null,
+        {
+          "damage": 40.0,
+          "cooldown": 1.67,
+          "range": 175.0,
+          "knockback": 30.0,
+          "critDamage": 1.75,
+          "critChance": 0.03,
+          "lifeSteal": 0.0,
+          "price": 46.0
+        },
+        {
+          "damage": 75.0,
+          "cooldown": 1.59,
+          "range": 175.0,
+          "knockback": 40.0,
+          "critDamage": 1.75,
+          "critChance": 0.03,
+          "lifeSteal": 0.0,
+          "price": 86.0
+        },
+        {
+          "damage": 120.0,
+          "cooldown": 1.5,
+          "range": 175.0,
+          "knockback": 50.0,
+          "critDamage": 1.75,
+          "critChance": 0.03,
+          "lifeSteal": 0.0,
+          "price": 151.0
+        }
+      ],
+      "scaling": [
+        {},
+        {
+          "meleeDamage": 1.5
+        },
+        {
+          "meleeDamage": 1.75
+        },
+        {
+          "meleeDamage": 2.0
+        }
+      ],
+      "imageUrl": "https://brotato.wiki.spellsandguns.com/images/8/81/Hammer.png",
+      "sourceUrl": "https://brotato.wiki.spellsandguns.com/Hammer",
+      "specialSource": "{{Color|tier2|+2}}/{{Color|tier3|+4}}/{{Color|tier4|+6}} Knockback"
+    },
+    {
+      "id": "TithePalm",
+      "name": "Hand",
+      "kind": "Melee",
+      "minTier": 1,
+      "classes": [
+        "Unarmed",
+        "Support"
+      ],
+      "attackType": "Thrust",
+      "tiers": [
+        {
+          "damage": 1.0,
+          "cooldown": 1.01,
+          "range": 150.0,
+          "knockback": 30.0,
+          "critDamage": 1.5,
+          "critChance": 0.01,
+          "lifeSteal": 0.0,
+          "price": 10.0
+        },
+        {
+          "damage": 1.0,
+          "cooldown": 0.93,
+          "range": 150.0,
+          "knockback": 30.0,
+          "critDamage": 1.5,
+          "critChance": 0.01,
+          "lifeSteal": 0.0,
+          "price": 22.0
+        },
+        {
+          "damage": 1.0,
+          "cooldown": 0.86,
+          "range": 150.0,
+          "knockback": 30.0,
+          "critDamage": 1.5,
+          "critChance": 0.01,
+          "lifeSteal": 0.0,
+          "price": 45.0
+        },
+        {
+          "damage": 1.0,
+          "cooldown": 0.71,
+          "range": 150.0,
+          "knockback": 30.0,
+          "critDamage": 1.5,
+          "critChance": 0.01,
+          "lifeSteal": 0.0,
+          "price": 91.0
+        }
+      ],
+      "scaling": [
+        {
+          "meleeDamage": 0.5
+        },
+        {
+          "meleeDamage": 0.5
+        },
+        {
+          "meleeDamage": 0.5
+        },
+        {
+          "meleeDamage": 0.5
+        }
+      ],
+      "imageUrl": "https://brotato.wiki.spellsandguns.com/images/a/a7/Hand.png",
+      "sourceUrl": "https://brotato.wiki.spellsandguns.com/Hand",
+      "specialSource": "{{Color|tier1|+3}}/{{Color|tier2|+6}}/{{Color|tier3|+12}}/{{Color|tier4|+25}} Harvesting"
+    },
+    {
+      "id": "Hatchet",
+      "name": "Hatchet",
+      "kind": "Melee",
+      "minTier": 1,
+      "classes": [
+        "Primitive"
+      ],
+      "attackType": "Sweep",
+      "tiers": [
+        {
+          "damage": 7.0,
+          "cooldown": 0.68,
+          "range": 125.0,
+          "knockback": 2.0,
+          "critDamage": 2.0,
+          "critChance": 0.03,
+          "lifeSteal": 0.0,
+          "price": 10.0
+        },
+        {
+          "damage": 11.0,
+          "cooldown": 0.67,
+          "range": 125.0,
+          "knockback": 2.0,
+          "critDamage": 2.0,
+          "critChance": 0.03,
+          "lifeSteal": 0.0,
+          "price": 22.0
+        },
+        {
+          "damage": 22.0,
+          "cooldown": 0.65,
+          "range": 125.0,
+          "knockback": 2.0,
+          "critDamage": 2.0,
+          "critChance": 0.03,
+          "lifeSteal": 0.0,
+          "price": 45.0
+        },
+        {
+          "damage": 45.0,
+          "cooldown": 0.63,
+          "range": 125.0,
+          "knockback": 2.0,
+          "critDamage": 2.0,
+          "critChance": 0.03,
+          "lifeSteal": 0.0,
+          "price": 91.0
+        }
+      ],
+      "scaling": [
+        {
+          "meleeDamage": 1.0,
+          "attackSpeed": 0.2
+        },
+        {
+          "meleeDamage": 1.0,
+          "attackSpeed": 0.2
+        },
+        {
+          "meleeDamage": 1.0,
+          "attackSpeed": 0.2
+        },
+        {
+          "meleeDamage": 1.0,
+          "attackSpeed": 0.2
+        }
+      ],
+      "imageUrl": "https://brotato.wiki.spellsandguns.com/images/e/ef/Hatchet.png",
+      "sourceUrl": "https://brotato.wiki.spellsandguns.com/Hatchet",
+      "specialSource": ""
+    },
+    {
+      "id": "JoustingLance",
+      "name": "Jousting Lance",
+      "kind": "Melee",
+      "minTier": 1,
+      "classes": [
+        "Medieval"
+      ],
+      "attackType": "Thrust",
+      "tiers": [
+        {
+          "damage": 20.0,
+          "cooldown": 1.58,
+          "range": 250.0,
+          "knockback": 0.0,
+          "critDamage": 2.0,
+          "critChance": 0.03,
+          "lifeSteal": 0.0,
+          "price": 20.0
+        },
+        {
+          "damage": 25.0,
+          "cooldown": 1.5,
+          "range": 250.0,
+          "knockback": 0.0,
+          "critDamage": 2.0,
+          "critChance": 0.03,
+          "lifeSteal": 0.0,
+          "price": 36.0
+        },
+        {
+          "damage": 30.0,
+          "cooldown": 1.42,
+          "range": 250.0,
+          "knockback": 0.0,
+          "critDamage": 2.0,
+          "critChance": 0.03,
+          "lifeSteal": 0.0,
+          "price": 72.0
+        },
+        {
+          "damage": 50.0,
+          "cooldown": 1.33,
+          "range": 250.0,
+          "knockback": 0.0,
+          "critDamage": 2.0,
+          "critChance": 0.03,
+          "lifeSteal": 0.0,
+          "price": 132.0
+        }
+      ],
+      "scaling": [
+        {
+          "meleeDamage": 0.5,
+          "speed": 0.3
+        },
+        {
+          "meleeDamage": 0.5,
+          "speed": 0.35
+        },
+        {
+          "meleeDamage": 0.5,
+          "speed": 0.4
+        },
+        {
+          "meleeDamage": 0.5,
+          "speed": 0.5
+        }
+      ],
+      "imageUrl": "https://brotato.wiki.spellsandguns.com/images/c/c4/Jousting_Lance.png",
+      "sourceUrl": "https://brotato.wiki.spellsandguns.com/Jousting_Lance",
+      "specialSource": "{{Color|tier1|+2}}/{{Color|tier2|+3}}/{{Color|tier3|+4}}/{{Color|tier4|+5}} % Speed <br> {{Color|tier1|-10}}/{{Color|tier2|-15}}/{{Color|tier3|-20}}/{{Color|tier4|-25}} % Damage while standing still"
+    },
+    {
+      "id": "RitualDirk",
+      "name": "Knife",
+      "kind": "Melee",
+      "minTier": 1,
+      "classes": [
+        "Precise"
+      ],
+      "attackType": "Thrust",
+      "tiers": [
+        {
+          "damage": 9.0,
+          "cooldown": 1.01,
+          "range": 150.0,
+          "knockback": 2.0,
+          "critDamage": 2.5,
+          "critChance": 0.2,
+          "lifeSteal": 0.0,
+          "price": 10.0
+        },
+        {
+          "damage": 13.0,
+          "cooldown": 0.93,
+          "range": 150.0,
+          "knockback": 2.0,
+          "critDamage": 3.0,
+          "critChance": 0.3,
+          "lifeSteal": 0.0,
+          "price": 22.0
+        },
+        {
+          "damage": 18.0,
+          "cooldown": 0.86,
+          "range": 150.0,
+          "knockback": 2.0,
+          "critDamage": 3.5,
+          "critChance": 0.4,
+          "lifeSteal": 0.0,
+          "price": 45.0
+        },
+        {
+          "damage": 25.0,
+          "cooldown": 0.78,
+          "range": 150.0,
+          "knockback": 2.0,
+          "critDamage": 4.0,
+          "critChance": 0.5,
+          "lifeSteal": 0.0,
+          "price": 91.0
+        }
+      ],
+      "scaling": [
+        {
+          "meleeDamage": 0.8
+        },
+        {
+          "meleeDamage": 0.8
+        },
+        {
+          "meleeDamage": 0.8
+        },
+        {
+          "meleeDamage": 0.8
+        }
+      ],
+      "imageUrl": "https://brotato.wiki.spellsandguns.com/images/5/58/Knife.png",
+      "sourceUrl": "https://brotato.wiki.spellsandguns.com/Knife",
+      "specialSource": ""
+    },
+    {
+      "id": "ChainLightning",
+      "name": "Lightning Shiv",
+      "kind": "Melee",
+      "minTier": 1,
+      "classes": [
+        "Precise",
+        "Elemental"
+      ],
+      "attackType": "Thrust",
+      "tiers": [
+        {
+          "damage": 3.0,
+          "cooldown": 1.01,
+          "range": 150.0,
+          "knockback": 0.0,
+          "critDamage": 2.0,
+          "critChance": 0.04,
+          "lifeSteal": 0.0,
+          "price": 18.0
+        },
+        {
+          "damage": 6.0,
+          "cooldown": 0.93,
+          "range": 150.0,
+          "knockback": 0.0,
+          "critDamage": 2.0,
+          "critChance": 0.06,
+          "lifeSteal": 0.0,
+          "price": 36.0
+        },
+        {
+          "damage": 9.0,
+          "cooldown": 0.86,
+          "range": 150.0,
+          "knockback": 0.0,
+          "critDamage": 2.0,
+          "critChance": 0.08,
+          "lifeSteal": 0.0,
+          "price": 66.0
+        },
+        {
+          "damage": 15.0,
+          "cooldown": 0.78,
+          "range": 150.0,
+          "knockback": 0.0,
+          "critDamage": 2.0,
+          "critChance": 0.1,
+          "lifeSteal": 0.0,
+          "price": 142.0
+        }
+      ],
+      "scaling": [
+        {
+          "meleeDamage": 0.8
+        },
+        {
+          "meleeDamage": 0.8
+        },
+        {
+          "meleeDamage": 0.8
+        },
+        {
+          "meleeDamage": 0.8
+        }
+      ],
+      "imageUrl": "https://brotato.wiki.spellsandguns.com/images/d/d1/Lightning_Shiv.png",
+      "sourceUrl": "https://brotato.wiki.spellsandguns.com/Lightning_Shiv",
+      "specialSource": "Hitting an enemy spawns a lightning projectile flying towards another random enemy that bounces {{Color|tier1|-}}/{{Color|tier2|1}}/{{Color|tier3|2}}/{{Color|tier4|3}} times and inflicts {{Color|tier1|5}}/{{Color|tier2|6}}/{{Color|tier3|8}}/{{Color|tier4|11}} + (80%{{StatIcon|ElementalDamage}}) damage"
+    },
+    {
+      "id": "Plank",
+      "name": "Plank",
+      "kind": "Melee",
+      "minTier": 1,
+      "classes": [
+        "Explosive",
+        "Elemental"
+      ],
+      "attackType": "Sweep",
+      "tiers": [
+        {
+          "damage": 10.0,
+          "cooldown": 1.23,
+          "range": 150.0,
+          "knockback": 5.0,
+          "critDamage": 2.0,
+          "critChance": 0.03,
+          "lifeSteal": 0.0,
+          "price": 15.0
+        },
+        {
+          "damage": 15.0,
+          "cooldown": 1.14,
+          "range": 150.0,
+          "knockback": 5.0,
+          "critDamage": 2.0,
+          "critChance": 0.03,
+          "lifeSteal": 0.0,
+          "price": 31.0
+        },
+        {
+          "damage": 20.0,
+          "cooldown": 1.06,
+          "range": 150.0,
+          "knockback": 5.0,
+          "critDamage": 2.0,
+          "critChance": 0.03,
+          "lifeSteal": 0.0,
+          "price": 61.0
+        },
+        {
+          "damage": 30.0,
+          "cooldown": 0.98,
+          "range": 150.0,
+          "knockback": 5.0,
+          "critDamage": 2.0,
+          "critChance": 0.03,
+          "lifeSteal": 0.0,
+          "price": 122.0
+        }
+      ],
+      "scaling": [
+        {
+          "meleeDamage": 0.6,
+          "elementalDamage": 0.6,
+          "engineering": 0.6
+        },
+        {
+          "meleeDamage": 0.7,
+          "elementalDamage": 0.7,
+          "engineering": 0.7
+        },
+        {
+          "meleeDamage": 0.8,
+          "elementalDamage": 0.8,
+          "engineering": 0.8
+        },
+        {
+          "meleeDamage": 0.9,
+          "elementalDamage": 0.9,
+          "engineering": 0.9
+        }
+      ],
+      "imageUrl": "https://brotato.wiki.spellsandguns.com/images/0/0d/Plank.png",
+      "sourceUrl": "https://brotato.wiki.spellsandguns.com/Plank",
+      "specialSource": "Hits have {{Color|tier1|25%}}/{{Color|tier2|30%}}/{{Color|tier3|40%}}/{{Color|tier4|50%}} chance to explode."
+    },
+    {
+      "id": "PlasmaSledge",
+      "name": "Plasma Sledge",
+      "kind": "Melee",
+      "minTier": 3,
+      "classes": [
+        "Elemental",
+        "Explosive"
+      ],
+      "attackType": "Sweep",
+      "tiers": [
+        null,
+        null,
+        {
+          "damage": 80.0,
+          "cooldown": 1.55,
+          "range": 175.0,
+          "knockback": 30.0,
+          "critDamage": 1.75,
+          "critChance": 0.03,
+          "lifeSteal": 0.0,
+          "price": 136.0
+        },
+        {
+          "damage": 120.0,
+          "cooldown": 1.49,
+          "range": 175.0,
+          "knockback": 30.0,
+          "critDamage": 1.75,
+          "critChance": 0.03,
+          "lifeSteal": 0.0,
+          "price": 272.0
+        }
+      ],
+      "scaling": [
+        {},
+        {},
+        {
+          "meleeDamage": 1.5,
+          "elementalDamage": 1.5
+        },
+        {
+          "meleeDamage": 2.0,
+          "elementalDamage": 2.0
+        }
+      ],
+      "imageUrl": "https://brotato.wiki.spellsandguns.com/images/4/47/Plasma_Sledge.png",
+      "sourceUrl": "https://brotato.wiki.spellsandguns.com/Plasma_Sledge",
+      "specialSource": "Hits have {{Color|tier3|25%}}/{{Color|tier4|50%}} chance to explode."
+    },
+    {
+      "id": "PowerFist",
+      "name": "Power Fist",
+      "kind": "Melee",
+      "minTier": 3,
+      "classes": [
+        "Unarmed",
+        "Explosive"
+      ],
+      "attackType": "Thrust",
+      "tiers": [
+        null,
+        null,
+        {
+          "damage": 40.0,
+          "cooldown": 0.69,
+          "range": 150.0,
+          "knockback": 15.0,
+          "critDamage": 1.5,
+          "critChance": 0.01,
+          "lifeSteal": 0.0,
+          "price": 110.0
+        },
+        {
+          "damage": 80.0,
+          "cooldown": 0.59,
+          "range": 150.0,
+          "knockback": 15.0,
+          "critDamage": 1.5,
+          "critChance": 0.01,
+          "lifeSteal": 0.0,
+          "price": 221.0
+        }
+      ],
+      "scaling": [
+        {},
+        {},
+        {
+          "meleeDamage": 1.0
+        },
+        {
+          "meleeDamage": 1.0
+        }
+      ],
+      "imageUrl": "https://brotato.wiki.spellsandguns.com/images/9/98/Power_Fist.png",
+      "sourceUrl": "https://brotato.wiki.spellsandguns.com/Power_Fist",
+      "specialSource": "Hits have {{Color|tier3|25%}}/{{Color|tier4|50%}} chance to explode."
+    },
+    {
+      "id": "ThornTrail",
+      "name": "Pruner",
+      "kind": "Melee",
+      "minTier": 1,
+      "classes": [
+        "Support"
+      ],
+      "attackType": "Thrust",
+      "tiers": [
+        {
+          "damage": 10.0,
+          "cooldown": 1.14,
+          "range": 150.0,
+          "knockback": 2.0,
+          "critDamage": 1.25,
+          "critChance": 0.03,
+          "lifeSteal": 0.0,
+          "price": 15.0
+        },
+        {
+          "damage": 15.0,
+          "cooldown": 1.06,
+          "range": 150.0,
+          "knockback": 2.0,
+          "critDamage": 1.5,
+          "critChance": 0.06,
+          "lifeSteal": 0.0,
+          "price": 28.0
+        },
+        {
+          "damage": 20.0,
+          "cooldown": 0.98,
+          "range": 150.0,
+          "knockback": 2.0,
+          "critDamage": 1.75,
+          "critChance": 0.09,
+          "lifeSteal": 0.0,
+          "price": 52.0
+        },
+        {
+          "damage": 25.0,
+          "cooldown": 0.89,
+          "range": 150.0,
+          "knockback": 2.0,
+          "critDamage": 2.0,
+          "critChance": 0.12,
+          "lifeSteal": 0.0,
+          "price": 95.0
+        }
+      ],
+      "scaling": [
+        {
+          "meleeDamage": 0.5
+        },
+        {
+          "meleeDamage": 0.65
+        },
+        {
+          "meleeDamage": 0.8
+        },
+        {
+          "meleeDamage": 1.0
+        }
+      ],
+      "imageUrl": "https://brotato.wiki.spellsandguns.com/images/2/20/Pruner.png",
+      "sourceUrl": "https://brotato.wiki.spellsandguns.com/Pruner",
+      "specialSource": "Spawns a garden that creates a fruit every \t{{Color|tier1|15}}/{{Color|tier2|14}}/{{Color|tier3|12}}/{{Color|tier4|10}} seconds"
+    },
+    {
+      "id": "Gravestone",
+      "name": "Rock",
+      "kind": "Melee",
+      "minTier": 1,
+      "classes": [
+        "Primitive",
+        "Blunt"
+      ],
+      "attackType": "Thrust",
+      "tiers": [
+        {
+          "damage": 20.0,
+          "cooldown": 1.68,
+          "range": 150.0,
+          "knockback": 5.0,
+          "critDamage": 1.5,
+          "critChance": 0.1,
+          "lifeSteal": 0.0,
+          "price": 10.0
+        },
+        {
+          "damage": 35.0,
+          "cooldown": 1.61,
+          "range": 150.0,
+          "knockback": 5.0,
+          "critDamage": 1.5,
+          "critChance": 0.15,
+          "lifeSteal": 0.0,
+          "price": 22.0
+        },
+        {
+          "damage": 50.0,
+          "cooldown": 1.53,
+          "range": 150.0,
+          "knockback": 5.0,
+          "critDamage": 1.5,
+          "critChance": 0.2,
+          "lifeSteal": 0.0,
+          "price": 45.0
+        },
+        {
+          "damage": 70.0,
+          "cooldown": 1.46,
+          "range": 150.0,
+          "knockback": 5.0,
+          "critDamage": 1.5,
+          "critChance": 0.25,
+          "lifeSteal": 0.0,
+          "price": 91.0
+        }
+      ],
+      "scaling": [
+        {
+          "meleeDamage": 1.0
+        },
+        {
+          "meleeDamage": 1.0
+        },
+        {
+          "meleeDamage": 1.0
+        },
+        {
+          "meleeDamage": 1.0
+        }
+      ],
+      "imageUrl": "https://brotato.wiki.spellsandguns.com/images/0/0b/Rock.png",
+      "sourceUrl": "https://brotato.wiki.spellsandguns.com/Rock",
+      "specialSource": "{{Color|tier1|-}}/{{Color|tier2|+1 Armor}}/{{Color|tier3|+1 Armor, +2 Max HP}}/{{Color|tier4|+2 Armor, +2 Max HP}}"
+    },
+    {
+      "id": "Scissors",
+      "name": "Scissors",
+      "kind": "Melee",
+      "minTier": 1,
+      "classes": [
+        "Medical",
+        "Precise"
+      ],
+      "attackType": "Thrust",
+      "tiers": [
+        {
+          "damage": 5.0,
+          "cooldown": 1.01,
+          "range": 150.0,
+          "knockback": 2.0,
+          "critDamage": 2.0,
+          "critChance": 0.1,
+          "lifeSteal": 0.4,
+          "price": 15.0
+        },
+        {
+          "damage": 10.0,
+          "cooldown": 0.98,
+          "range": 150.0,
+          "knockback": 2.0,
+          "critDamage": 2.15,
+          "critChance": 0.12,
+          "lifeSteal": 0.45,
+          "price": 31.0
+        },
+        {
+          "damage": 15.0,
+          "cooldown": 0.94,
+          "range": 150.0,
+          "knockback": 2.0,
+          "critDamage": 2.3,
+          "critChance": 0.15,
+          "lifeSteal": 0.5,
+          "price": 61.0
+        },
+        {
+          "damage": 20.0,
+          "cooldown": 0.86,
+          "range": 150.0,
+          "knockback": 2.0,
+          "critDamage": 2.5,
+          "critChance": 0.2,
+          "lifeSteal": 0.6,
+          "price": 122.0
+        }
+      ],
+      "scaling": [
+        {
+          "meleeDamage": 0.8
+        },
+        {
+          "meleeDamage": 0.8
+        },
+        {
+          "meleeDamage": 0.8
+        },
+        {
+          "meleeDamage": 0.8
+        }
+      ],
+      "imageUrl": "https://brotato.wiki.spellsandguns.com/images/9/92/Scissors.png",
+      "sourceUrl": "https://brotato.wiki.spellsandguns.com/Scissors",
+      "specialSource": ""
+    },
+    {
+      "id": "RuneAwl",
+      "name": "Screwdriver",
+      "kind": "Melee",
+      "minTier": 1,
+      "classes": [
+        "Tool"
+      ],
+      "attackType": "Thrust",
+      "tiers": [
+        {
+          "damage": 8.0,
+          "cooldown": 1.06,
+          "range": 135.0,
+          "knockback": 3.0,
+          "critDamage": 2.0,
+          "critChance": 0.1,
+          "lifeSteal": 0.0,
+          "price": 10.0
+        },
+        {
+          "damage": 12.0,
+          "cooldown": 1.01,
+          "range": 135.0,
+          "knockback": 3.0,
+          "critDamage": 2.15,
+          "critChance": 0.15,
+          "lifeSteal": 0.0,
+          "price": 22.0
+        },
+        {
+          "damage": 16.0,
+          "cooldown": 0.98,
+          "range": 135.0,
+          "knockback": 3.0,
+          "critDamage": 2.3,
+          "critChance": 0.2,
+          "lifeSteal": 0.0,
+          "price": 45.0
+        },
+        {
+          "damage": 20.0,
+          "cooldown": 0.88,
+          "range": 135.0,
+          "knockback": 3.0,
+          "critDamage": 2.5,
+          "critChance": 0.3,
+          "lifeSteal": 0.0,
+          "price": 91.0
+        }
+      ],
+      "scaling": [
+        {
+          "meleeDamage": 0.5,
+          "engineering": 0.5
+        },
+        {
+          "meleeDamage": 0.5,
+          "engineering": 0.6
+        },
+        {
+          "meleeDamage": 0.5,
+          "engineering": 0.7
+        },
+        {
+          "meleeDamage": 0.5,
+          "engineering": 0.8
+        }
+      ],
+      "imageUrl": "https://brotato.wiki.spellsandguns.com/images/1/1d/Screwdriver.png",
+      "sourceUrl": "https://brotato.wiki.spellsandguns.com/Screwdriver",
+      "specialSource": "A landmine spawns every {{Color|tier1|12s}}/{{Color|tier2|9s}}/{{Color|tier3|6s}}/{{Color|tier4|3s}} dealing 10(100%{{StatIcon|Engineering}}) damage in an area"
+    },
+    {
+      "id": "Scythe",
+      "name": "Scythe",
+      "kind": "Melee",
+      "minTier": 4,
+      "classes": [
+        "Legendary",
+        "Ethereal"
+      ],
+      "attackType": "",
+      "tiers": [
+        null,
+        null,
+        null,
+        {
+          "damage": 150.0,
+          "cooldown": 0.72,
+          "range": 250.0,
+          "knockback": 5.0,
+          "critDamage": 2.0,
+          "critChance": 0.03,
+          "lifeSteal": 1.0,
+          "price": 285.0
+        }
+      ],
+      "scaling": [
+        {},
+        {},
+        {},
+        {
+          "meleeDamage": 1.5,
+          "lifeSteal": 1.0
+        }
+      ],
+      "imageUrl": "https://brotato.wiki.spellsandguns.com/images/c/cd/Scythe.png",
+      "sourceUrl": "https://brotato.wiki.spellsandguns.com/Scythe",
+      "specialSource": "You take {{Color|red|3}} damage per second (does not give invulnerability time).<br>{{Color|green|+3 % Damage}} when you take damage until the end of the wave"
+    },
+    {
+      "id": "LamplighterPike",
+      "name": "Spear",
+      "kind": "Melee",
+      "minTier": 1,
+      "classes": [
+        "Primitive"
+      ],
+      "attackType": "Thrust",
+      "tiers": [
+        {
+          "damage": 15.0,
+          "cooldown": 1.52,
+          "range": 350.0,
+          "knockback": 0.0,
+          "critDamage": 2.0,
+          "critChance": 0.03,
+          "lifeSteal": 0.0,
+          "price": 20.0
+        },
+        {
+          "damage": 25.0,
+          "cooldown": 1.4,
+          "range": 375.0,
+          "knockback": 0.0,
+          "critDamage": 2.0,
+          "critChance": 0.03,
+          "lifeSteal": 0.0,
+          "price": 39.0
+        },
+        {
+          "damage": 40.0,
+          "cooldown": 1.28,
+          "range": 400.0,
+          "knockback": 0.0,
+          "critDamage": 2.0,
+          "critChance": 0.03,
+          "lifeSteal": 0.0,
+          "price": 74.0
+        },
+        {
+          "damage": 60.0,
+          "cooldown": 1.24,
+          "range": 500.0,
+          "knockback": 0.0,
+          "critDamage": 2.0,
+          "critChance": 0.03,
+          "lifeSteal": 0.0,
+          "price": 149.0
+        }
+      ],
+      "scaling": [
+        {
+          "meleeDamage": 1.0
+        },
+        {
+          "meleeDamage": 1.0
+        },
+        {
+          "meleeDamage": 1.0
+        },
+        {
+          "meleeDamage": 1.0
+        }
+      ],
+      "imageUrl": "https://brotato.wiki.spellsandguns.com/images/4/4f/Spear.png",
+      "sourceUrl": "https://brotato.wiki.spellsandguns.com/Spear",
+      "specialSource": ""
+    },
+    {
+      "id": "SpikyShield",
+      "name": "Spiky Shield",
+      "kind": "Melee",
+      "minTier": 1,
+      "classes": [
+        "Medieval",
+        "Blunt"
+      ],
+      "attackType": "Thrust",
+      "tiers": [
+        {
+          "damage": 10.0,
+          "cooldown": 1.16,
+          "range": 150.0,
+          "knockback": 20.0,
+          "critDamage": 2.0,
+          "critChance": 0.03,
+          "lifeSteal": 0.0,
+          "price": 15.0
+        },
+        {
+          "damage": 15.0,
+          "cooldown": 1.16,
+          "range": 150.0,
+          "knockback": 20.0,
+          "critDamage": 2.0,
+          "critChance": 0.03,
+          "lifeSteal": 0.0,
+          "price": 31.0
+        },
+        {
+          "damage": 20.0,
+          "cooldown": 1.16,
+          "range": 150.0,
+          "knockback": 20.0,
+          "critDamage": 2.0,
+          "critChance": 0.03,
+          "lifeSteal": 0.0,
+          "price": 61.0
+        },
+        {
+          "damage": 30.0,
+          "cooldown": 1.01,
+          "range": 150.0,
+          "knockback": 20.0,
+          "critDamage": 2.0,
+          "critChance": 0.03,
+          "lifeSteal": 0.0,
+          "price": 122.0
+        }
+      ],
+      "scaling": [
+        {
+          "armor": 1.0
+        },
+        {
+          "armor": 1.25
+        },
+        {
+          "armor": 1.5
+        },
+        {
+          "armor": 2.0
+        }
+      ],
+      "imageUrl": "https://brotato.wiki.spellsandguns.com/images/2/22/Spiky_Shield.png",
+      "sourceUrl": "https://brotato.wiki.spellsandguns.com/Spiky_Shield",
+      "specialSource": ""
+    },
+    {
+      "id": "Stick",
+      "name": "Stick",
+      "kind": "Melee",
+      "minTier": 1,
+      "classes": [
+        "Primitive"
+      ],
+      "attackType": "Thrust",
+      "tiers": [
+        {
+          "damage": 8.0,
+          "cooldown": 1.29,
+          "range": 175.0,
+          "knockback": 0.0,
+          "critDamage": 1.5,
+          "critChance": 0.03,
+          "lifeSteal": 0.0,
+          "price": 10.0
+        },
+        {
+          "damage": 9.0,
+          "cooldown": 1.22,
+          "range": 175.0,
+          "knockback": 0.0,
+          "critDamage": 1.5,
+          "critChance": 0.03,
+          "lifeSteal": 0.0,
+          "price": 22.0
+        },
+        {
+          "damage": 10.0,
+          "cooldown": 1.15,
+          "range": 175.0,
+          "knockback": 0.0,
+          "critDamage": 1.5,
+          "critChance": 0.03,
+          "lifeSteal": 0.0,
+          "price": 45.0
+        },
+        {
+          "damage": 12.0,
+          "cooldown": 1.09,
+          "range": 175.0,
+          "knockback": 0.0,
+          "critDamage": 1.5,
+          "critChance": 0.03,
+          "lifeSteal": 0.0,
+          "price": 91.0
+        }
+      ],
+      "scaling": [
+        {
+          "meleeDamage": 1.0
+        },
+        {
+          "meleeDamage": 1.0
+        },
+        {
+          "meleeDamage": 1.0
+        },
+        {
+          "meleeDamage": 1.0
+        }
+      ],
+      "imageUrl": "https://brotato.wiki.spellsandguns.com/images/a/aa/Stick.png",
+      "sourceUrl": "https://brotato.wiki.spellsandguns.com/Stick",
+      "specialSource": "Deals {{Color|tier1|+4}}/{{Color|tier2|+6}}/{{Color|tier3|+8}}/{{Color|tier4|+10}} base damage for every additional '''stick''' you have"
+    },
+    {
+      "id": "DuskSabre",
+      "name": "Sword",
+      "kind": "Melee",
+      "minTier": 2,
+      "classes": [
+        "Blade",
+        "Medieval"
+      ],
+      "attackType": "Thrust",
+      "tiers": [
+        null,
+        {
+          "damage": 30.0,
+          "cooldown": 1.28,
+          "range": 200.0,
+          "knockback": 5.0,
+          "critDamage": 2.0,
+          "critChance": 0.03,
+          "lifeSteal": 0.0,
+          "price": 51.0
+        },
+        {
+          "damage": 45.0,
+          "cooldown": 1.13,
+          "range": 200.0,
+          "knockback": 5.0,
+          "critDamage": 2.0,
+          "critChance": 0.03,
+          "lifeSteal": 0.0,
+          "price": 95.0
+        },
+        {
+          "damage": 65.0,
+          "cooldown": 0.98,
+          "range": 200.0,
+          "knockback": 5.0,
+          "critDamage": 2.0,
+          "critChance": 0.03,
+          "lifeSteal": 0.0,
+          "price": 190.0
+        }
+      ],
+      "scaling": [
+        {},
+        {
+          "meleeDamage": 1.0
+        },
+        {
+          "meleeDamage": 1.0
+        },
+        {
+          "meleeDamage": 1.0
+        }
+      ],
+      "imageUrl": "https://brotato.wiki.spellsandguns.com/images/8/89/Sword.png",
+      "sourceUrl": "https://brotato.wiki.spellsandguns.com/Sword",
+      "specialSource": "Alternates between thrusting and sweeping attacks"
+    },
+    {
+      "id": "ThiefDagger",
+      "name": "Thief Dagger",
+      "kind": "Melee",
+      "minTier": 1,
+      "classes": [
+        "Precise"
+      ],
+      "attackType": "Thrust",
+      "tiers": [
+        {
+          "damage": 6.0,
+          "cooldown": 1.01,
+          "range": 150.0,
+          "knockback": 2.0,
+          "critDamage": 2.0,
+          "critChance": 0.2,
+          "lifeSteal": 0.0,
+          "price": 12.0
+        },
+        {
+          "damage": 12.0,
+          "cooldown": 0.93,
+          "range": 150.0,
+          "knockback": 2.0,
+          "critDamage": 2.0,
+          "critChance": 0.25,
+          "lifeSteal": 0.0,
+          "price": 26.0
+        },
+        {
+          "damage": 18.0,
+          "cooldown": 0.86,
+          "range": 150.0,
+          "knockback": 2.0,
+          "critDamage": 2.0,
+          "critChance": 0.3,
+          "lifeSteal": 0.0,
+          "price": 52.0
+        },
+        {
+          "damage": 30.0,
+          "cooldown": 0.73,
+          "range": 150.0,
+          "knockback": 2.0,
+          "critDamage": 2.0,
+          "critChance": 0.4,
+          "lifeSteal": 0.0,
+          "price": 105.0
+        }
+      ],
+      "scaling": [
+        {
+          "meleeDamage": 0.5
+        },
+        {
+          "meleeDamage": 0.5
+        },
+        {
+          "meleeDamage": 0.5
+        },
+        {
+          "meleeDamage": 0.5
+        }
+      ],
+      "imageUrl": "https://brotato.wiki.spellsandguns.com/images/4/4d/Thief_Dagger.png",
+      "sourceUrl": "https://brotato.wiki.spellsandguns.com/Thief_Dagger",
+      "specialSource": "{{Color|tier1|50%}}/{{Color|tier2|56%}}/{{Color|tier3|62%}}/{{Color|tier4|80%}} to gain 1 material when killing an enemy with a critical hit with this weapon"
+    },
+    {
+      "id": "ThunderSword",
+      "name": "Thunder Sword",
+      "kind": "Melee",
+      "minTier": 3,
+      "classes": [
+        "Blade",
+        "Elemental"
+      ],
+      "attackType": "Sweep",
+      "tiers": [
+        null,
+        null,
+        {
+          "damage": 40.0,
+          "cooldown": 1.21,
+          "range": 200.0,
+          "knockback": 5.0,
+          "critDamage": 2.0,
+          "critChance": 0.03,
+          "lifeSteal": 0.0,
+          "price": 119.0
+        },
+        {
+          "damage": 75.0,
+          "cooldown": 1.06,
+          "range": 200.0,
+          "knockback": 5.0,
+          "critDamage": 2.0,
+          "critChance": 0.03,
+          "lifeSteal": 0.0,
+          "price": 238.0
+        }
+      ],
+      "scaling": [
+        {},
+        {},
+        {
+          "meleeDamage": 1.25,
+          "elementalDamage": 1.25
+        },
+        {
+          "meleeDamage": 1.5,
+          "elementalDamage": 1.5
+        }
+      ],
+      "imageUrl": "https://brotato.wiki.spellsandguns.com/images/b/bb/Thunder_Sword.png",
+      "sourceUrl": "https://brotato.wiki.spellsandguns.com/Thunder_Sword",
+      "specialSource": "Hitting an enemy spawns {{Color|tier3|2}}/{{Color|tier4|4}} projectiles that slow and damage enemies by 100%{{StatIcon|ElementalDamage}}"
+    },
+    {
+      "id": "Torch",
+      "name": "Torch",
+      "kind": "Melee",
+      "minTier": 1,
+      "classes": [
+        "Primitive",
+        "Elemental"
+      ],
+      "attackType": "Sweep",
+      "tiers": [
+        {
+          "damage": 1.0,
+          "cooldown": 1.1,
+          "range": 175.0,
+          "knockback": 20.0,
+          "critDamage": 1.5,
+          "critChance": 0.0,
+          "lifeSteal": 0.0,
+          "price": 10.0
+        },
+        {
+          "damage": 1.0,
+          "cooldown": 1.04,
+          "range": 175.0,
+          "knockback": 20.0,
+          "critDamage": 1.5,
+          "critChance": 0.0,
+          "lifeSteal": 0.0,
+          "price": 22.0
+        },
+        {
+          "damage": 1.0,
+          "cooldown": 0.95,
+          "range": 175.0,
+          "knockback": 20.0,
+          "critDamage": 1.5,
+          "critChance": 0.0,
+          "lifeSteal": 0.0,
+          "price": 45.0
+        },
+        {
+          "damage": 1.0,
+          "cooldown": 0.8,
+          "range": 175.0,
+          "knockback": 20.0,
+          "critDamage": 1.5,
+          "critChance": 0.0,
+          "lifeSteal": 0.0,
+          "price": 91.0
+        }
+      ],
+      "scaling": [
+        {
+          "meleeDamage": 0.5,
+          "elementalDamage": 0.5
+        },
+        {
+          "meleeDamage": 0.65,
+          "elementalDamage": 0.65
+        },
+        {
+          "meleeDamage": 0.8,
+          "elementalDamage": 0.8
+        },
+        {
+          "meleeDamage": 1.0,
+          "elementalDamage": 1.0
+        }
+      ],
+      "imageUrl": "https://brotato.wiki.spellsandguns.com/images/b/b2/Torch.png",
+      "sourceUrl": "https://brotato.wiki.spellsandguns.com/Torch",
+      "specialSource": "Deals {{Color|tier1|3x3}}/{{Color|tier2|5x5}}/{{Color|tier3|8x6}}/{{Color|tier4|12x9}}(100%{{StatIcon|ElementalDamage}}) [[Burn|burning]] damage. <br> Burning spreads to {{Color|tier1|0}}/{{Color|tier2|0}}/{{Color|tier3|1}}/{{Color|tier4|1}} additional nearby enemies."
+    },
+    {
+      "id": "FoundryKey",
+      "name": "Wrench",
+      "kind": "Melee",
+      "minTier": 1,
+      "classes": [
+        "Tool"
+      ],
+      "attackType": "Sweep",
+      "tiers": [
+        {
+          "damage": 12.0,
+          "cooldown": 1.7,
+          "range": 175.0,
+          "knockback": 20.0,
+          "critDamage": 2.0,
+          "critChance": 0.03,
+          "lifeSteal": 0.0,
+          "price": 20.0
+        },
+        {
+          "damage": 16.0,
+          "cooldown": 1.64,
+          "range": 175.0,
+          "knockback": 20.0,
+          "critDamage": 2.0,
+          "critChance": 0.03,
+          "lifeSteal": 0.0,
+          "price": 39.0
+        },
+        {
+          "damage": 20.0,
+          "cooldown": 1.55,
+          "range": 175.0,
+          "knockback": 20.0,
+          "critDamage": 2.0,
+          "critChance": 0.03,
+          "lifeSteal": 0.0,
+          "price": 74.0
+        },
+        {
+          "damage": 24.0,
+          "cooldown": 1.49,
+          "range": 175.0,
+          "knockback": 20.0,
+          "critDamage": 2.0,
+          "critChance": 0.03,
+          "lifeSteal": 0.0,
+          "price": 149.0
+        }
+      ],
+      "scaling": [
+        {
+          "meleeDamage": 1.0
+        },
+        {
+          "meleeDamage": 1.0
+        },
+        {
+          "meleeDamage": 1.0
+        },
+        {
+          "meleeDamage": 1.0
+        }
+      ],
+      "imageUrl": "https://brotato.wiki.spellsandguns.com/images/7/7c/Wrench.png",
+      "sourceUrl": "https://brotato.wiki.spellsandguns.com/Wrench",
+      "specialSource": "Spawns a [[Turret]]/[[Incendiary Turret]]/[[Laser Turret]]/[[Explosive Turret]]"
+    },
+    {
+      "id": "ChainGun",
+      "name": "Chain Gun",
+      "kind": "Ranged",
+      "minTier": 4,
+      "classes": [
+        "Legendary",
+        "Gun"
+      ],
+      "attackType": "",
+      "tiers": [
+        null,
+        null,
+        null,
+        {
+          "damage": 2.0,
+          "cooldown": 0.073,
+          "range": 500.0,
+          "knockback": 5.0,
+          "critDamage": 1.5,
+          "critChance": 0.03,
+          "lifeSteal": 0.0,
+          "price": 300.0
+        }
+      ],
+      "scaling": [
+        {},
+        {},
+        {},
+        {
+          "rangedDamage": 1.0,
+          "engineering": 1.0
+        }
+      ],
+      "imageUrl": "https://brotato.wiki.spellsandguns.com/images/3/3c/Chain_Gun.png",
+      "sourceUrl": "https://brotato.wiki.spellsandguns.com/Chain_Gun",
+      "specialSource": "Cooldown is {{Color|red|2.04s}} every 100 shots. <br>Pierces {{Color|tier4|1}} enemy dealing -50% less damage with each pierce."
+    },
+    {
+      "id": "BoomerangAxe",
+      "name": "Crossbow",
+      "kind": "Ranged",
+      "minTier": 1,
+      "classes": [
+        "Precise",
+        "Medieval"
+      ],
+      "attackType": "",
+      "tiers": [
+        {
+          "damage": 10.0,
+          "cooldown": 1.13,
+          "range": 350.0,
+          "knockback": 8.0,
+          "critDamage": 1.5,
+          "critChance": 0.3,
+          "lifeSteal": 0.0,
+          "price": 16.0
+        },
+        {
+          "damage": 12.0,
+          "cooldown": 1.13,
+          "range": 350.0,
+          "knockback": 8.0,
+          "critDamage": 1.75,
+          "critChance": 0.35,
+          "lifeSteal": 0.0,
+          "price": 34.0
+        },
+        {
+          "damage": 15.0,
+          "cooldown": 1.13,
+          "range": 350.0,
+          "knockback": 8.0,
+          "critDamage": 2.0,
+          "critChance": 0.4,
+          "lifeSteal": 0.0,
+          "price": 62.0
+        },
+        {
+          "damage": 18.0,
+          "cooldown": 1.13,
+          "range": 350.0,
+          "knockback": 8.0,
+          "critDamage": 2.25,
+          "critChance": 0.45,
+          "lifeSteal": 0.0,
+          "price": 132.0
+        }
+      ],
+      "scaling": [
+        {
+          "rangedDamage": 0.5,
+          "range": 0.1
+        },
+        {
+          "rangedDamage": 0.5,
+          "range": 0.1
+        },
+        {
+          "rangedDamage": 0.5,
+          "range": 0.1
+        },
+        {
+          "rangedDamage": 0.5,
+          "range": 0.1
+        }
+      ],
+      "imageUrl": "https://brotato.wiki.spellsandguns.com/images/7/79/Crossbow.png",
+      "sourceUrl": "https://brotato.wiki.spellsandguns.com/Crossbow",
+      "specialSource": "Pierces up to {{Color|tier1|1}}/{{Color|tier2|2}}/{{Color|tier3|3}}/{{Color|tier4|4}} times on critical hit"
+    },
+    {
+      "id": "ScatterBell",
+      "name": "Double Barrel Shotgun",
+      "kind": "Ranged",
+      "minTier": 1,
+      "classes": [
+        "Gun"
+      ],
+      "attackType": "",
+      "tiers": [
+        {
+          "damage": 3.0,
+          "cooldown": 1.37,
+          "range": 350.0,
+          "knockback": 8.0,
+          "critDamage": 2.0,
+          "critChance": 0.03,
+          "lifeSteal": 0.0,
+          "price": 20.0
+        },
+        {
+          "damage": 6.0,
+          "cooldown": 1.28,
+          "range": 350.0,
+          "knockback": 8.0,
+          "critDamage": 2.0,
+          "critChance": 0.03,
+          "lifeSteal": 0.0,
+          "price": 39.0
+        },
+        {
+          "damage": 9.0,
+          "cooldown": 1.2,
+          "range": 350.0,
+          "knockback": 8.0,
+          "critDamage": 2.0,
+          "critChance": 0.03,
+          "lifeSteal": 0.0,
+          "price": 74.0
+        },
+        {
+          "damage": 9.0,
+          "cooldown": 1.2,
+          "range": 350.0,
+          "knockback": 8.0,
+          "critDamage": 2.0,
+          "critChance": 0.03,
+          "lifeSteal": 0.0,
+          "price": 149.0
+        }
+      ],
+      "scaling": [
+        {
+          "rangedDamage": 0.8
+        },
+        {
+          "rangedDamage": 0.85
+        },
+        {
+          "rangedDamage": 0.9
+        },
+        {
+          "rangedDamage": 1.0
+        }
+      ],
+      "imageUrl": "https://brotato.wiki.spellsandguns.com/images/7/72/Double_Barrel_Shotgun.png",
+      "sourceUrl": "https://brotato.wiki.spellsandguns.com/Double_Barrel_Shotgun",
+      "specialSource": "Pierces {{Color|tier1|2}}/{{Color|tier2|2}}/{{Color|tier3|2}}/{{Color|tier4|3}} enemies, dealing -30% less damage after each piercing"
+    },
+    {
+      "id": "CinderBreath",
+      "name": "Flamethrower",
+      "kind": "Ranged",
+      "minTier": 2,
+      "classes": [
+        "Elemental",
+        "Heavy"
+      ],
+      "attackType": "",
+      "tiers": [
+        null,
+        {
+          "damage": 1.0,
+          "cooldown": 0.12,
+          "range": 250.0,
+          "knockback": 0.0,
+          "critDamage": 2.0,
+          "critChance": 0.0,
+          "lifeSteal": 0.0,
+          "price": 56.0
+        },
+        {
+          "damage": 1.0,
+          "cooldown": 0.12,
+          "range": 300.0,
+          "knockback": 0.0,
+          "critDamage": 2.0,
+          "critChance": 0.0,
+          "lifeSteal": 0.0,
+          "price": 103.0
+        },
+        {
+          "damage": 1.0,
+          "cooldown": 0.09,
+          "range": 400.0,
+          "knockback": 0.0,
+          "critDamage": 2.0,
+          "critChance": 0.0,
+          "lifeSteal": 0.0,
+          "price": 207.0
+        }
+      ],
+      "scaling": [
+        {},
+        {
+          "elementalDamage": 0.01
+        },
+        {
+          "elementalDamage": 0.01
+        },
+        {
+          "elementalDamage": 0.01
+        }
+      ],
+      "imageUrl": "https://brotato.wiki.spellsandguns.com/images/a/ad/Flamethrower.png",
+      "sourceUrl": "https://brotato.wiki.spellsandguns.com/Flamethrower",
+      "specialSource": "Deals -/{{Color|tier2|1x3}}/{{Color|tier3|3x5}}/{{Color|tier4|5x8}}(100%{{StatIcon|ElementalDamage}}) [[Burn|burning]] damage<br> Pierces 99 enemies dealing 1 damage"
+    },
+    {
+      "id": "CathedralEngine",
+      "name": "Gatling Laser",
+      "kind": "Ranged",
+      "minTier": 4,
+      "classes": [
+        "Legendary",
+        "Heavy"
+      ],
+      "attackType": "",
+      "tiers": [
+        null,
+        null,
+        null,
+        {
+          "damage": 10.0,
+          "cooldown": 0.073,
+          "range": 500.0,
+          "knockback": 5.0,
+          "critDamage": 3.0,
+          "critChance": 0.1,
+          "lifeSteal": 0.0,
+          "price": 290.0
+        }
+      ],
+      "scaling": [
+        {},
+        {},
+        {},
+        {
+          "rangedDamage": 1.0
+        }
+      ],
+      "imageUrl": "https://brotato.wiki.spellsandguns.com/images/8/8f/Gatling_Laser.png",
+      "sourceUrl": "https://brotato.wiki.spellsandguns.com/Gatling_Laser",
+      "specialSource": "Pierces {{Color|tier4|3}} enemies dealing -25% less damage with each pierce."
+    },
+    {
+      "id": "GhostScepter",
+      "name": "Ghost Scepter",
+      "kind": "Ranged",
+      "minTier": 1,
+      "classes": [
+        "Ethereal"
+      ],
+      "attackType": "",
+      "tiers": [
+        {
+          "damage": 10.0,
+          "cooldown": 0.98,
+          "range": 300.0,
+          "knockback": 2.0,
+          "critDamage": 2.0,
+          "critChance": 0.03,
+          "lifeSteal": 0.0,
+          "price": 15.0
+        },
+        {
+          "damage": 15.0,
+          "cooldown": 0.93,
+          "range": 350.0,
+          "knockback": 2.0,
+          "critDamage": 2.0,
+          "critChance": 0.03,
+          "lifeSteal": 0.0,
+          "price": 31.0
+        },
+        {
+          "damage": 20.0,
+          "cooldown": 0.88,
+          "range": 400.0,
+          "knockback": 2.0,
+          "critDamage": 2.0,
+          "critChance": 0.03,
+          "lifeSteal": 0.0,
+          "price": 61.0
+        },
+        {
+          "damage": 30.0,
+          "cooldown": 0.83,
+          "range": 450.0,
+          "knockback": 2.0,
+          "critDamage": 2.0,
+          "critChance": 0.03,
+          "lifeSteal": 0.0,
+          "price": 122.0
+        }
+      ],
+      "scaling": [
+        {
+          "rangedDamage": 1.0
+        },
+        {
+          "rangedDamage": 1.0
+        },
+        {
+          "rangedDamage": 1.0
+        },
+        {
+          "rangedDamage": 1.0
+        }
+      ],
+      "imageUrl": "https://brotato.wiki.spellsandguns.com/images/2/29/Ghost_Scepter.png",
+      "sourceUrl": "https://brotato.wiki.spellsandguns.com/Ghost_Scepter",
+      "specialSource": "+1 [[Max HP]] for every {{Color|tier1|20}}/{{Color|tier2|18}}/{{Color|tier3|16}}/{{Color|tier4|12}} kills in a wave with this weapon"
+    },
+    {
+      "id": "LaserGun",
+      "name": "Laser Gun",
+      "kind": "Ranged",
+      "minTier": 1,
+      "classes": [
+        "Gun"
+      ],
+      "attackType": "",
+      "tiers": [
+        {
+          "damage": 40.0,
+          "cooldown": 1.98,
+          "range": 500.0,
+          "knockback": 0.0,
+          "critDamage": 2.0,
+          "critChance": 0.03,
+          "lifeSteal": 0.0,
+          "price": 15.0
+        },
+        {
+          "damage": 55.0,
+          "cooldown": 1.9,
+          "range": 500.0,
+          "knockback": 0.0,
+          "critDamage": 2.0,
+          "critChance": 0.03,
+          "lifeSteal": 0.0,
+          "price": 31.0
+        },
+        {
+          "damage": 70.0,
+          "cooldown": 1.82,
+          "range": 500.0,
+          "knockback": 0.0,
+          "critDamage": 2.0,
+          "critChance": 0.03,
+          "lifeSteal": 0.0,
+          "price": 61.0
+        },
+        {
+          "damage": 100.0,
+          "cooldown": 1.65,
+          "range": 500.0,
+          "knockback": 0.0,
+          "critDamage": 2.0,
+          "critChance": 0.03,
+          "lifeSteal": 0.0,
+          "price": 122.0
+        }
+      ],
+      "scaling": [
+        {
+          "rangedDamage": 4.0
+        },
+        {
+          "rangedDamage": 4.5
+        },
+        {
+          "rangedDamage": 5.0
+        },
+        {
+          "rangedDamage": 6.0
+        }
+      ],
+      "imageUrl": "https://brotato.wiki.spellsandguns.com/images/d/d1/Laser_Gun.png",
+      "sourceUrl": "https://brotato.wiki.spellsandguns.com/Laser_Gun",
+      "specialSource": "Pierces 1 enemy dealing -25% less to the second enemy"
+    },
+    {
+      "id": "LeechCarbine",
+      "name": "Medical Gun",
+      "kind": "Ranged",
+      "minTier": 1,
+      "classes": [
+        "Medical",
+        "Gun"
+      ],
+      "attackType": "",
+      "tiers": [
+        {
+          "damage": 10.0,
+          "cooldown": 0.78,
+          "range": 400.0,
+          "knockback": 0.0,
+          "critDamage": 2.0,
+          "critChance": 0.03,
+          "lifeSteal": 0.5,
+          "price": 15.0
+        },
+        {
+          "damage": 15.0,
+          "cooldown": 0.7,
+          "range": 400.0,
+          "knockback": 0.0,
+          "critDamage": 2.0,
+          "critChance": 0.03,
+          "lifeSteal": 0.55,
+          "price": 31.0
+        },
+        {
+          "damage": 20.0,
+          "cooldown": 0.62,
+          "range": 400.0,
+          "knockback": 0.0,
+          "critDamage": 2.0,
+          "critChance": 0.03,
+          "lifeSteal": 0.6,
+          "price": 61.0
+        },
+        {
+          "damage": 30.0,
+          "cooldown": 0.48,
+          "range": 400.0,
+          "knockback": 0.0,
+          "critDamage": 2.0,
+          "critChance": 0.03,
+          "lifeSteal": 0.65,
+          "price": 122.0
+        }
+      ],
+      "scaling": [
+        {
+          "rangedDamage": 1.0
+        },
+        {
+          "rangedDamage": 1.0
+        },
+        {
+          "rangedDamage": 1.0
+        },
+        {
+          "rangedDamage": 1.0
+        }
+      ],
+      "imageUrl": "https://brotato.wiki.spellsandguns.com/images/f/f6/Medical_Gun.png",
+      "sourceUrl": "https://brotato.wiki.spellsandguns.com/Medical_Gun",
+      "specialSource": ""
+    },
+    {
+      "id": "Minigun",
+      "name": "Minigun",
+      "kind": "Ranged",
+      "minTier": 3,
+      "classes": [
+        "Heavy",
+        "Gun"
+      ],
+      "attackType": "",
+      "tiers": [
+        null,
+        null,
+        {
+          "damage": 2.0,
+          "cooldown": 0.09,
+          "range": 400.0,
+          "knockback": 3.0,
+          "critDamage": 1.75,
+          "critChance": 0.01,
+          "lifeSteal": 0.0,
+          "price": 127.0
+        },
+        {
+          "damage": 5.0,
+          "cooldown": 0.09,
+          "range": 450.0,
+          "knockback": 3.0,
+          "critDamage": 2.0,
+          "critChance": 0.03,
+          "lifeSteal": 0.0,
+          "price": 255.0
+        }
+      ],
+      "scaling": [
+        {},
+        {},
+        {
+          "rangedDamage": 0.5
+        },
+        {
+          "rangedDamage": 0.75
+        }
+      ],
+      "imageUrl": "https://brotato.wiki.spellsandguns.com/images/e/eb/Minigun.png",
+      "sourceUrl": "https://brotato.wiki.spellsandguns.com/Minigun",
+      "specialSource": "Pierces {{Color|tier3|1}}/{{Color|tier4|2}} enemies dealing -25% less damage with each pierce."
+    },
+    {
+      "id": "NuclearLauncher",
+      "name": "Nuclear Launcher",
+      "kind": "Ranged",
+      "minTier": 3,
+      "classes": [
+        "Heavy",
+        "Explosive"
+      ],
+      "attackType": "",
+      "tiers": [
+        null,
+        null,
+        {
+          "damage": 60.0,
+          "cooldown": 2.12,
+          "range": 800.0,
+          "knockback": 15.0,
+          "critDamage": 2.0,
+          "critChance": 0.03,
+          "lifeSteal": 0.0,
+          "price": 144.0
+        },
+        {
+          "damage": 120.0,
+          "cooldown": 2.12,
+          "range": 800.0,
+          "knockback": 15.0,
+          "critDamage": 2.0,
+          "critChance": 0.03,
+          "lifeSteal": 0.0,
+          "price": 289.0
+        }
+      ],
+      "scaling": [
+        {},
+        {},
+        {
+          "rangedDamage": 1.0,
+          "elementalDamage": 1.0
+        },
+        {
+          "rangedDamage": 1.0,
+          "elementalDamage": 1.0
+        }
+      ],
+      "imageUrl": "https://brotato.wiki.spellsandguns.com/images/d/d8/Nuclear_Launcher.png",
+      "sourceUrl": "https://brotato.wiki.spellsandguns.com/Nuclear_Launcher",
+      "specialSource": "Projectiles explode on hit"
+    },
+    {
+      "id": "Obliterator",
+      "name": "Obliterator",
+      "kind": "Ranged",
+      "minTier": 3,
+      "classes": [
+        "Gun",
+        "Heavy"
+      ],
+      "attackType": "",
+      "tiers": [
+        null,
+        null,
+        {
+          "damage": 250.0,
+          "cooldown": 3.23,
+          "range": 800.0,
+          "knockback": 0.0,
+          "critDamage": 2.0,
+          "critChance": 0.03,
+          "lifeSteal": 0.0,
+          "price": 127.0
+        },
+        {
+          "damage": 400.0,
+          "cooldown": 3.23,
+          "range": 1000.0,
+          "knockback": 0.0,
+          "critDamage": 2.0,
+          "critChance": 0.03,
+          "lifeSteal": 0.0,
+          "price": 255.0
+        }
+      ],
+      "scaling": [
+        {},
+        {},
+        {
+          "rangedDamage": 10.0
+        },
+        {
+          "rangedDamage": 15.0
+        }
+      ],
+      "imageUrl": "https://brotato.wiki.spellsandguns.com/images/e/e1/Obliterator.png",
+      "sourceUrl": "https://brotato.wiki.spellsandguns.com/Obliterator",
+      "specialSource": "Pierces through enemies"
+    },
+    {
+      "id": "WatchmanPistol",
+      "name": "Pistol",
+      "kind": "Ranged",
+      "minTier": 1,
+      "classes": [
+        "Gun"
+      ],
+      "attackType": "",
+      "tiers": [
+        {
+          "damage": 12.0,
+          "cooldown": 1.2,
+          "range": 400.0,
+          "knockback": 15.0,
+          "critDamage": 2.0,
+          "critChance": 0.1,
+          "lifeSteal": 0.0,
+          "price": 10.0
+        },
+        {
+          "damage": 20.0,
+          "cooldown": 1.12,
+          "range": 400.0,
+          "knockback": 15.0,
+          "critDamage": 2.0,
+          "critChance": 0.15,
+          "lifeSteal": 0.0,
+          "price": 22.0
+        },
+        {
+          "damage": 30.0,
+          "cooldown": 1.03,
+          "range": 400.0,
+          "knockback": 15.0,
+          "critDamage": 2.0,
+          "critChance": 0.2,
+          "lifeSteal": 0.0,
+          "price": 45.0
+        },
+        {
+          "damage": 50.0,
+          "cooldown": 0.87,
+          "range": 400.0,
+          "knockback": 15.0,
+          "critDamage": 2.0,
+          "critChance": 0.25,
+          "lifeSteal": 0.0,
+          "price": 91.0
+        }
+      ],
+      "scaling": [
+        {
+          "rangedDamage": 1.0
+        },
+        {
+          "rangedDamage": 1.0
+        },
+        {
+          "rangedDamage": 1.0
+        },
+        {
+          "rangedDamage": 1.0
+        }
+      ],
+      "imageUrl": "https://brotato.wiki.spellsandguns.com/images/a/a2/Pistol.png",
+      "sourceUrl": "https://brotato.wiki.spellsandguns.com/Pistol",
+      "specialSource": "Pierces 1 enemy dealing -50% less to the second enemy"
+    },
+    {
+      "id": "PotatoThrower",
+      "name": "Potato Thrower",
+      "kind": "Ranged",
+      "minTier": 2,
+      "classes": [
+        "Support"
+      ],
+      "attackType": "",
+      "tiers": [
+        null,
+        {
+          "damage": 3.0,
+          "cooldown": 0.45,
+          "range": 500.0,
+          "knockback": 20.0,
+          "critDamage": 1.5,
+          "critChance": 0.03,
+          "lifeSteal": 0.0,
+          "price": 36.0
+        },
+        {
+          "damage": 5.0,
+          "cooldown": 0.37,
+          "range": 500.0,
+          "knockback": 25.0,
+          "critDamage": 1.5,
+          "critChance": 0.03,
+          "lifeSteal": 0.0,
+          "price": 69.0
+        },
+        {
+          "damage": 10.0,
+          "cooldown": 0.28,
+          "range": 500.0,
+          "knockback": 30.0,
+          "critDamage": 1.5,
+          "critChance": 0.03,
+          "lifeSteal": 0.0,
+          "price": 139.0
+        }
+      ],
+      "scaling": [
+        {},
+        {
+          "rangedDamage": 0.4,
+          "maxHp": 0.2
+        },
+        {
+          "rangedDamage": 0.4,
+          "maxHp": 0.2
+        },
+        {
+          "rangedDamage": 0.4,
+          "maxHp": 0.2
+        }
+      ],
+      "imageUrl": "https://brotato.wiki.spellsandguns.com/images/c/c6/Potato_Thrower.png",
+      "sourceUrl": "https://brotato.wiki.spellsandguns.com/Potato_Thrower",
+      "specialSource": ""
+    },
+    {
+      "id": "Railgun",
+      "name": "Railgun",
+      "kind": "Ranged",
+      "minTier": 1,
+      "classes": [
+        "Gun",
+        "Heavy"
+      ],
+      "attackType": "",
+      "tiers": [
+        {
+          "damage": 10.0,
+          "cooldown": 1.07,
+          "range": 300.0,
+          "knockback": 15.0,
+          "critDamage": 2.0,
+          "critChance": 0.03,
+          "lifeSteal": 0.0,
+          "price": 20.0
+        },
+        {
+          "damage": 15.0,
+          "cooldown": 1.02,
+          "range": 300.0,
+          "knockback": 15.0,
+          "critDamage": 2.0,
+          "critChance": 0.03,
+          "lifeSteal": 0.0,
+          "price": 40.0
+        },
+        {
+          "damage": 20.0,
+          "cooldown": 0.98,
+          "range": 300.0,
+          "knockback": 15.0,
+          "critDamage": 2.0,
+          "critChance": 0.03,
+          "lifeSteal": 0.0,
+          "price": 80.0
+        },
+        {
+          "damage": 35.0,
+          "cooldown": 0.95,
+          "range": 300.0,
+          "knockback": 15.0,
+          "critDamage": 2.0,
+          "critChance": 0.03,
+          "lifeSteal": 0.0,
+          "price": 160.0
+        }
+      ],
+      "scaling": [
+        {
+          "rangedDamage": 0.8,
+          "dodge": 0.3
+        },
+        {
+          "rangedDamage": 0.8,
+          "dodge": 0.35
+        },
+        {
+          "rangedDamage": 0.8,
+          "dodge": 0.4
+        },
+        {
+          "rangedDamage": 1.0,
+          "dodge": 0.45
+        }
+      ],
+      "imageUrl": "https://brotato.wiki.spellsandguns.com/images/a/ab/Railgun.png",
+      "sourceUrl": "https://brotato.wiki.spellsandguns.com/Railgun",
+      "specialSource": ""
+    },
+    {
+      "id": "Revolver",
+      "name": "Revolver",
+      "kind": "Ranged",
+      "minTier": 1,
+      "classes": [
+        "Gun"
+      ],
+      "attackType": "",
+      "tiers": [
+        {
+          "damage": 15.0,
+          "cooldown": 0.43,
+          "range": 450.0,
+          "knockback": 15.0,
+          "critDamage": 2.0,
+          "critChance": 0.03,
+          "lifeSteal": 0.0,
+          "price": 20.0
+        },
+        {
+          "damage": 20.0,
+          "cooldown": 0.42,
+          "range": 450.0,
+          "knockback": 15.0,
+          "critDamage": 2.0,
+          "critChance": 0.03,
+          "lifeSteal": 0.0,
+          "price": 34.0
+        },
+        {
+          "damage": 25.0,
+          "cooldown": 0.4,
+          "range": 450.0,
+          "knockback": 15.0,
+          "critDamage": 2.0,
+          "critChance": 0.03,
+          "lifeSteal": 0.0,
+          "price": 70.0
+        },
+        {
+          "damage": 40.0,
+          "cooldown": 0.38,
+          "range": 450.0,
+          "knockback": 15.0,
+          "critDamage": 2.0,
+          "critChance": 0.03,
+          "lifeSteal": 0.0,
+          "price": 130.0
+        }
+      ],
+      "scaling": [
+        {
+          "rangedDamage": 1.0
+        },
+        {
+          "rangedDamage": 1.3
+        },
+        {
+          "rangedDamage": 1.65
+        },
+        {
+          "rangedDamage": 2.0
+        }
+      ],
+      "imageUrl": "https://brotato.wiki.spellsandguns.com/images/6/6d/Revolver.png",
+      "sourceUrl": "https://brotato.wiki.spellsandguns.com/Revolver",
+      "specialSource": "Every 6th shot has a longer cooldown: {{Color|tier1|2.07s}}/{{Color|tier2|1.93s}}/{{Color|tier3|1.80s}}/{{Color|tier4|1.67s}}"
+    },
+    {
+      "id": "MortarLantern",
+      "name": "Rocket Launcher",
+      "kind": "Ranged",
+      "minTier": 2,
+      "classes": [
+        "Heavy",
+        "Explosive"
+      ],
+      "attackType": "",
+      "tiers": [
+        null,
+        {
+          "damage": 30.0,
+          "cooldown": 1.78,
+          "range": 500.0,
+          "knockback": 15.0,
+          "critDamage": 2.0,
+          "critChance": 0.03,
+          "lifeSteal": 0.0,
+          "price": 56.0
+        },
+        {
+          "damage": 50.0,
+          "cooldown": 1.37,
+          "range": 550.0,
+          "knockback": 15.0,
+          "critDamage": 2.0,
+          "critChance": 0.03,
+          "lifeSteal": 0.0,
+          "price": 103.0
+        },
+        {
+          "damage": 80.0,
+          "cooldown": 1.03,
+          "range": 600.0,
+          "knockback": 15.0,
+          "critDamage": 2.0,
+          "critChance": 0.03,
+          "lifeSteal": 0.0,
+          "price": 207.0
+        }
+      ],
+      "scaling": [
+        {},
+        {
+          "rangedDamage": 1.0
+        },
+        {
+          "rangedDamage": 1.0
+        },
+        {
+          "rangedDamage": 1.0
+        }
+      ],
+      "imageUrl": "https://brotato.wiki.spellsandguns.com/images/0/05/Rocket_Launcher.png",
+      "sourceUrl": "https://brotato.wiki.spellsandguns.com/Rocket_Launcher",
+      "specialSource": "Projectiles explode on hit"
+    },
+    {
+      "id": "ShrapnelOrgan",
+      "name": "Shredder",
+      "kind": "Ranged",
+      "minTier": 1,
+      "classes": [
+        "Gun",
+        "Explosive"
+      ],
+      "attackType": "",
+      "tiers": [
+        {
+          "damage": 5.0,
+          "cooldown": 1.3,
+          "range": 450.0,
+          "knockback": 0.0,
+          "critDamage": 2.0,
+          "critChance": 0.03,
+          "lifeSteal": 0.0,
+          "price": 15.0
+        },
+        {
+          "damage": 10.0,
+          "cooldown": 1.22,
+          "range": 450.0,
+          "knockback": 0.0,
+          "critDamage": 2.0,
+          "critChance": 0.03,
+          "lifeSteal": 0.0,
+          "price": 31.0
+        },
+        {
+          "damage": 15.0,
+          "cooldown": 1.13,
+          "range": 450.0,
+          "knockback": 0.0,
+          "critDamage": 2.0,
+          "critChance": 0.03,
+          "lifeSteal": 0.0,
+          "price": 61.0
+        },
+        {
+          "damage": 25.0,
+          "cooldown": 1.05,
+          "range": 450.0,
+          "knockback": 0.0,
+          "critDamage": 2.0,
+          "critChance": 0.03,
+          "lifeSteal": 0.0,
+          "price": 122.0
+        }
+      ],
+      "scaling": [
+        {
+          "rangedDamage": 0.5
+        },
+        {
+          "rangedDamage": 0.5
+        },
+        {
+          "rangedDamage": 0.5
+        },
+        {
+          "rangedDamage": 0.5
+        }
+      ],
+      "imageUrl": "https://brotato.wiki.spellsandguns.com/images/6/6e/Shredder.png",
+      "sourceUrl": "https://brotato.wiki.spellsandguns.com/Shredder",
+      "specialSource": "{{Color|tier1|50%}}/{{Color|tier2|65%}}/{{Color|tier3|80%}}/{{Color|tier4|100%}} chance for projectiles to explode on hit. Pierces 3 enemies dealing 100% damage"
+    },
+    {
+      "id": "Shuriken",
+      "name": "Shuriken",
+      "kind": "Ranged",
+      "minTier": 1,
+      "classes": [
+        "Precise"
+      ],
+      "attackType": "",
+      "tiers": [
+        {
+          "damage": 7.0,
+          "cooldown": 0.87,
+          "range": 350.0,
+          "knockback": 0.0,
+          "critDamage": 1.5,
+          "critChance": 0.35,
+          "lifeSteal": 0.0,
+          "price": 12.0
+        },
+        {
+          "damage": 9.0,
+          "cooldown": 0.83,
+          "range": 350.0,
+          "knockback": 0.0,
+          "critDamage": 1.5,
+          "critChance": 0.38,
+          "lifeSteal": 0.0,
+          "price": 26.0
+        },
+        {
+          "damage": 11.0,
+          "cooldown": 0.8,
+          "range": 350.0,
+          "knockback": 0.0,
+          "critDamage": 1.5,
+          "critChance": 0.41,
+          "lifeSteal": 0.0,
+          "price": 52.0
+        },
+        {
+          "damage": 15.0,
+          "cooldown": 0.7,
+          "range": 350.0,
+          "knockback": 0.0,
+          "critDamage": 1.5,
+          "critChance": 0.45,
+          "lifeSteal": 0.0,
+          "price": 105.0
+        }
+      ],
+      "scaling": [
+        {
+          "meleeDamage": 0.25
+        },
+        {
+          "meleeDamage": 0.34
+        },
+        {
+          "meleeDamage": 0.42
+        },
+        {
+          "meleeDamage": 0.5
+        }
+      ],
+      "imageUrl": "https://brotato.wiki.spellsandguns.com/images/a/ac/Shuriken.png",
+      "sourceUrl": "https://brotato.wiki.spellsandguns.com/Shuriken",
+      "specialSource": "Critical hits bounces {{Color|tier1|1}}/{{Color|tier2|2}}/{{Color|tier3|3}}/{{Color|tier4|4}} times"
+    },
+    {
+      "id": "Slingshot",
+      "name": "Slingshot",
+      "kind": "Ranged",
+      "minTier": 1,
+      "classes": [
+        "Primitive"
+      ],
+      "attackType": "",
+      "tiers": [
+        {
+          "damage": 10.0,
+          "cooldown": 1.22,
+          "range": 300.0,
+          "knockback": 5.0,
+          "critDamage": 2.0,
+          "critChance": 0.03,
+          "lifeSteal": 0.0,
+          "price": 15.0
+        },
+        {
+          "damage": 13.0,
+          "cooldown": 1.17,
+          "range": 300.0,
+          "knockback": 5.0,
+          "critDamage": 2.0,
+          "critChance": 0.03,
+          "lifeSteal": 0.0,
+          "price": 31.0
+        },
+        {
+          "damage": 16.0,
+          "cooldown": 1.13,
+          "range": 300.0,
+          "knockback": 5.0,
+          "critDamage": 2.0,
+          "critChance": 0.03,
+          "lifeSteal": 0.0,
+          "price": 61.0
+        },
+        {
+          "damage": 20.0,
+          "cooldown": 1.1,
+          "range": 300.0,
+          "knockback": 5.0,
+          "critDamage": 2.0,
+          "critChance": 0.03,
+          "lifeSteal": 0.0,
+          "price": 122.0
+        }
+      ],
+      "scaling": [
+        {
+          "rangedDamage": 0.8
+        },
+        {
+          "rangedDamage": 0.8
+        },
+        {
+          "rangedDamage": 0.8
+        },
+        {
+          "rangedDamage": 0.8
+        }
+      ],
+      "imageUrl": "https://brotato.wiki.spellsandguns.com/images/3/3f/Slingshot.png",
+      "sourceUrl": "https://brotato.wiki.spellsandguns.com/Slingshot",
+      "specialSource": "Bounces {{Color|tier1|1}}/{{Color|tier2|2}}/{{Color|tier3|3}}/{{Color|tier4|4}} times"
+    },
+    {
+      "id": "RattleRepeater",
+      "name": "SMG",
+      "kind": "Ranged",
+      "minTier": 1,
+      "classes": [
+        "Gun"
+      ],
+      "attackType": "",
+      "tiers": [
+        {
+          "damage": 3.0,
+          "cooldown": 0.17,
+          "range": 400.0,
+          "knockback": 0.0,
+          "critDamage": 1.5,
+          "critChance": 0.01,
+          "lifeSteal": 0.0,
+          "price": 20.0
+        },
+        {
+          "damage": 4.0,
+          "cooldown": 0.17,
+          "range": 400.0,
+          "knockback": 0.0,
+          "critDamage": 1.5,
+          "critChance": 0.01,
+          "lifeSteal": 0.0,
+          "price": 39.0
+        },
+        {
+          "damage": 5.0,
+          "cooldown": 0.17,
+          "range": 400.0,
+          "knockback": 0.0,
+          "critDamage": 1.5,
+          "critChance": 0.01,
+          "lifeSteal": 0.0,
+          "price": 74.0
+        },
+        {
+          "damage": 8.0,
+          "cooldown": 0.15,
+          "range": 400.0,
+          "knockback": 0.0,
+          "critDamage": 1.5,
+          "critChance": 0.01,
+          "lifeSteal": 0.0,
+          "price": 149.0
+        }
+      ],
+      "scaling": [
+        {
+          "rangedDamage": 0.5
+        },
+        {
+          "rangedDamage": 0.6
+        },
+        {
+          "rangedDamage": 0.7
+        },
+        {
+          "rangedDamage": 0.8
+        }
+      ],
+      "imageUrl": "https://brotato.wiki.spellsandguns.com/images/d/d6/SMG.png",
+      "sourceUrl": "https://brotato.wiki.spellsandguns.com/SMG",
+      "specialSource": ""
+    },
+    {
+      "id": "SniperGun",
+      "name": "Sniper Gun",
+      "kind": "Ranged",
+      "minTier": 3,
+      "classes": [
+        "Gun",
+        "Precise"
+      ],
+      "attackType": "",
+      "tiers": [
+        null,
+        null,
+        {
+          "damage": 50.0,
+          "cooldown": 2.4,
+          "range": 800.0,
+          "knockback": 30.0,
+          "critDamage": 3.0,
+          "critChance": 0.2,
+          "lifeSteal": 0.0,
+          "price": 115.0
+        },
+        {
+          "damage": 80.0,
+          "cooldown": 2.4,
+          "range": 1000.0,
+          "knockback": 30.0,
+          "critDamage": 4.0,
+          "critChance": 0.2,
+          "lifeSteal": 0.0,
+          "price": 245.0
+        }
+      ],
+      "scaling": [
+        {},
+        {},
+        {
+          "rangedDamage": 1.0,
+          "range": 0.2
+        },
+        {
+          "rangedDamage": 1.0,
+          "range": 0.3
+        }
+      ],
+      "imageUrl": "https://brotato.wiki.spellsandguns.com/images/8/80/Sniper_Gun.png",
+      "sourceUrl": "https://brotato.wiki.spellsandguns.com/Sniper_Gun",
+      "specialSource": "Hitting an enemy spawns {{Color|tier3|5}}/{{Color|tier4|8}} projectiles dealing 5 +({{Color|tier3|10%}}/{{Color|tier4|15%}}{{StatIcon|Range}})"
+    },
+    {
+      "id": "GalvanicFork",
+      "name": "Taser",
+      "kind": "Ranged",
+      "minTier": 1,
+      "classes": [
+        "Support",
+        "Elemental"
+      ],
+      "attackType": "",
+      "tiers": [
+        {
+          "damage": 7.0,
+          "cooldown": 0.95,
+          "range": 200.0,
+          "knockback": 0.0,
+          "critDamage": 2.0,
+          "critChance": 0.03,
+          "lifeSteal": 0.0,
+          "price": 15.0
+        },
+        {
+          "damage": 7.0,
+          "cooldown": 0.95,
+          "range": 200.0,
+          "knockback": 0.0,
+          "critDamage": 2.0,
+          "critChance": 0.03,
+          "lifeSteal": 0.0,
+          "price": 31.0
+        },
+        {
+          "damage": 7.0,
+          "cooldown": 0.95,
+          "range": 200.0,
+          "knockback": 0.0,
+          "critDamage": 2.0,
+          "critChance": 0.03,
+          "lifeSteal": 0.0,
+          "price": 61.0
+        },
+        {
+          "damage": 14.0,
+          "cooldown": 0.95,
+          "range": 200.0,
+          "knockback": 0.0,
+          "critDamage": 2.0,
+          "critChance": 0.03,
+          "lifeSteal": 0.0,
+          "price": 122.0
+        }
+      ],
+      "scaling": [
+        {
+          "elementalDamage": 0.8
+        },
+        {
+          "elementalDamage": 0.7
+        },
+        {
+          "elementalDamage": 0.6
+        },
+        {
+          "elementalDamage": 0.5
+        }
+      ],
+      "imageUrl": "https://brotato.wiki.spellsandguns.com/images/0/08/Taser.png",
+      "sourceUrl": "https://brotato.wiki.spellsandguns.com/Taser",
+      "specialSource": "Slows enemies in a radius around the projectile"
+    },
+    {
+      "id": "SparkBolt",
+      "name": "Wand",
+      "kind": "Ranged",
+      "minTier": 1,
+      "classes": [
+        "Elemental"
+      ],
+      "attackType": "",
+      "tiers": [
+        {
+          "damage": 1.0,
+          "cooldown": 0.87,
+          "range": 350.0,
+          "knockback": 10.0,
+          "critDamage": 2.0,
+          "critChance": 0.0,
+          "lifeSteal": 0.0,
+          "price": 10.0
+        },
+        {
+          "damage": 1.0,
+          "cooldown": 0.78,
+          "range": 375.0,
+          "knockback": 10.0,
+          "critDamage": 2.0,
+          "critChance": 0.0,
+          "lifeSteal": 0.0,
+          "price": 22.0
+        },
+        {
+          "damage": 1.0,
+          "cooldown": 0.7,
+          "range": 400.0,
+          "knockback": 10.0,
+          "critDamage": 2.0,
+          "critChance": 0.0,
+          "lifeSteal": 0.0,
+          "price": 45.0
+        },
+        {
+          "damage": 1.0,
+          "cooldown": 0.53,
+          "range": 425.0,
+          "knockback": 10.0,
+          "critDamage": 2.0,
+          "critChance": 0.0,
+          "lifeSteal": 0.0,
+          "price": 91.0
+        }
+      ],
+      "scaling": [
+        {
+          "elementalDamage": 0.5
+        },
+        {
+          "elementalDamage": 0.65
+        },
+        {
+          "elementalDamage": 0.8
+        },
+        {
+          "elementalDamage": 1.0
+        }
+      ],
+      "imageUrl": "https://brotato.wiki.spellsandguns.com/images/5/53/Wand.png",
+      "sourceUrl": "https://brotato.wiki.spellsandguns.com/Wand",
+      "specialSource": "Deals {{Color|tier1|3x3}}/{{Color|tier2|5x5}}/{{Color|tier3|8x6}}/{{Color|tier4|12x9}}(100%{{StatIcon|ElementalDamage}}) [[Burn|burning]] damage<br>Pierces 1 enemy dealing -50% less to the second enemy"
+    },
+    {
+      "id": "DEXtroyer",
+      "name": "DEX-troyer",
+      "kind": "Melee",
+      "minTier": 4,
+      "classes": [
+        "Legendary",
+        "Explosive"
+      ],
+      "attackType": "Thrust",
+      "tiers": [
+        null,
+        null,
+        null,
+        {
+          "damage": 100.0,
+          "cooldown": 1.33,
+          "range": 400.0,
+          "knockback": 10.0,
+          "critDamage": 2.0,
+          "critChance": 0.03,
+          "lifeSteal": 0.0,
+          "price": 315.0
+        }
+      ],
+      "scaling": [
+        {},
+        {},
+        {},
+        {
+          "meleeDamage": 1.0,
+          "engineering": 1.0
+        }
+      ],
+      "imageUrl": "https://brotato.wiki.spellsandguns.com/images/3/3c/DEX-troyer.png",
+      "sourceUrl": "https://brotato.wiki.spellsandguns.com/DEX-troyer",
+      "specialSource": "{{Color|green|50%}} chance to explode on hit<br>Hitting an enemy spawns a lightning projectile that bounces {{Color|green|5}} times and deals {{Color|green|30}} ({{Color|green|+100%{{StatIcon|Elemental Damage}}}}) damage"
+    },
+    {
+      "id": "Fireball",
+      "name": "Fireball",
+      "kind": "Ranged",
+      "minTier": 2,
+      "classes": [
+        "Explosive",
+        "Elemental"
+      ],
+      "attackType": "-",
+      "tiers": [
+        null,
+        {
+          "damage": 5.0,
+          "cooldown": 1.12,
+          "range": 400.0,
+          "knockback": 0.0,
+          "critDamage": 1.5,
+          "critChance": 0.03,
+          "lifeSteal": 0.0,
+          "price": 36.0
+        },
+        {
+          "damage": 10.0,
+          "cooldown": 1.03,
+          "range": 450.0,
+          "knockback": 0.0,
+          "critDamage": 1.5,
+          "critChance": 0.03,
+          "lifeSteal": 0.0,
+          "price": 66.0
+        },
+        {
+          "damage": 20.0,
+          "cooldown": 0.87,
+          "range": 500.0,
+          "knockback": 0.0,
+          "critDamage": 1.5,
+          "critChance": 0.03,
+          "lifeSteal": 0.0,
+          "price": 140.0
+        }
+      ],
+      "scaling": [
+        {},
+        {
+          "elementalDamage": 0.25
+        },
+        {
+          "elementalDamage": 0.5
+        },
+        {
+          "elementalDamage": 0.75
+        }
+      ],
+      "imageUrl": "https://brotato.wiki.spellsandguns.com/images/a/ae/Fireball.png",
+      "sourceUrl": "https://brotato.wiki.spellsandguns.com/Fireball",
+      "specialSource": "Projectiles explode on hit.<br>Deals -/{{Color|tier2|5x3}}/{{Color|tier3|6x4}}/{{Color|tier4|8x5}} ({{Color|green|+100%{{StatIcon|Elemental Damage}}}}) burning damage"
+    },
+    {
+      "id": "WinterNeedle",
+      "name": "Icicle",
+      "kind": "Ranged",
+      "minTier": 1,
+      "classes": [
+        "Precise",
+        "Elemental"
+      ],
+      "attackType": "-",
+      "tiers": [
+        {
+          "damage": 10.0,
+          "cooldown": 1.03,
+          "range": 400.0,
+          "knockback": 5.0,
+          "critDamage": 2.0,
+          "critChance": 0.05,
+          "lifeSteal": 0.0,
+          "price": 18.0
+        },
+        {
+          "damage": 20.0,
+          "cooldown": 0.95,
+          "range": 400.0,
+          "knockback": 5.0,
+          "critDamage": 2.0,
+          "critChance": 0.1,
+          "lifeSteal": 0.0,
+          "price": 36.0
+        },
+        {
+          "damage": 30.0,
+          "cooldown": 0.87,
+          "range": 400.0,
+          "knockback": 5.0,
+          "critDamage": 2.5,
+          "critChance": 0.15,
+          "lifeSteal": 0.0,
+          "price": 66.0
+        },
+        {
+          "damage": 40.0,
+          "cooldown": 0.7,
+          "range": 400.0,
+          "knockback": 5.0,
+          "critDamage": 3.0,
+          "critChance": 0.2,
+          "lifeSteal": 0.0,
+          "price": 140.0
+        }
+      ],
+      "scaling": [
+        {
+          "elementalDamage": 1.0
+        },
+        {
+          "elementalDamage": 1.0
+        },
+        {
+          "elementalDamage": 1.0
+        },
+        {
+          "elementalDamage": 1.0
+        }
+      ],
+      "imageUrl": "https://brotato.wiki.spellsandguns.com/images/2/23/Icicle.png",
+      "sourceUrl": "https://brotato.wiki.spellsandguns.com/Icicle",
+      "specialSource": ""
+    },
+    {
+      "id": "ParticleAccelerator",
+      "name": "Particle Accelerator",
+      "kind": "Ranged",
+      "minTier": 3,
+      "classes": [
+        "Heavy",
+        "Elemental"
+      ],
+      "attackType": "-",
+      "tiers": [
+        null,
+        null,
+        {
+          "damage": 60.0,
+          "cooldown": 1.95,
+          "range": 800.0,
+          "knockback": 0.0,
+          "critDamage": 2.0,
+          "critChance": 0.03,
+          "lifeSteal": 0.0,
+          "price": 144.0
+        },
+        {
+          "damage": 120.0,
+          "cooldown": 1.62,
+          "range": 800.0,
+          "knockback": 0.0,
+          "critDamage": 2.0,
+          "critChance": 0.03,
+          "lifeSteal": 0.0,
+          "price": 289.0
+        }
+      ],
+      "scaling": [
+        {},
+        {},
+        {
+          "elementalDamage": 1.0,
+          "engineering": 1.0
+        },
+        {
+          "elementalDamage": 1.0,
+          "engineering": 1.0
+        }
+      ],
+      "imageUrl": "https://brotato.wiki.spellsandguns.com/images/6/68/Particle_Accelerator.png",
+      "sourceUrl": "https://brotato.wiki.spellsandguns.com/Particle_Accelerator",
+      "specialSource": "Deals {{Color|tier3|8x8}}/{{Color|tier4|10x10}} ({{Color|green|+100%{{StatIcon|Elemental Damage}}}}) burning damage<br>Slows enemies by {{Color|tier3|1%}}/{{Color|tier4|2%}} on hit for every {{Color|green|1}} {{Color|green|Engineering}} you have [0%]. <br> Pierces through enemies. <br> Can't bounce"
+    },
+    {
+      "id": "SharpTooth",
+      "name": "Sharp Tooth",
+      "kind": "Melee",
+      "minTier": 1,
+      "classes": [
+        "Primitive",
+        "Precise"
+      ],
+      "attackType": "Thrust",
+      "tiers": [
+        {
+          "damage": 5.0,
+          "cooldown": 1.14,
+          "range": 150.0,
+          "knockback": 2.0,
+          "critDamage": 2.0,
+          "critChance": 0.03,
+          "lifeSteal": 0.0,
+          "price": 12.0
+        },
+        {
+          "damage": 8.0,
+          "cooldown": 1.07,
+          "range": 160.0,
+          "knockback": 2.0,
+          "critDamage": 2.15,
+          "critChance": 0.06,
+          "lifeSteal": 0.0,
+          "price": 26.0
+        },
+        {
+          "damage": 11.0,
+          "cooldown": 1.0,
+          "range": 170.0,
+          "knockback": 2.0,
+          "critDamage": 2.3,
+          "critChance": 0.09,
+          "lifeSteal": 0.0,
+          "price": 52.0
+        },
+        {
+          "damage": 15.0,
+          "cooldown": 0.93,
+          "range": 180.0,
+          "knockback": 2.0,
+          "critDamage": 2.5,
+          "critChance": 0.12,
+          "lifeSteal": 0.0,
+          "price": 105.0
+        }
+      ],
+      "scaling": [
+        {
+          "meleeDamage": 0.5,
+          "lifeSteal": 0.5
+        },
+        {
+          "meleeDamage": 0.5,
+          "lifeSteal": 0.65
+        },
+        {
+          "meleeDamage": 0.5,
+          "lifeSteal": 0.8
+        },
+        {
+          "meleeDamage": 0.5,
+          "lifeSteal": 1.0
+        }
+      ],
+      "imageUrl": "https://brotato.wiki.spellsandguns.com/images/a/af/Sharp_Tooth.png",
+      "sourceUrl": "https://brotato.wiki.spellsandguns.com/Sharp_Tooth",
+      "specialSource": "{{Color|green|+1}} {{Color|green|% Life Steal}} for every {{Color|tier1|25%}}/{{Color|tier2|20%}}/{{Color|tier3|15%}}/{{Color|tier4|10%}} of missing health"
+    },
+    {
+      "id": "VorpalSword",
+      "name": "Vorpal Sword",
+      "kind": "Melee",
+      "minTier": 2,
+      "classes": [
+        "Blade",
+        "Medieval"
+      ],
+      "attackType": "Thrust",
+      "tiers": [
+        null,
+        {
+          "damage": 20.0,
+          "cooldown": 1.11,
+          "range": 200.0,
+          "knockback": 5.0,
+          "critDamage": 2.0,
+          "critChance": 0.03,
+          "lifeSteal": 0.0,
+          "price": 55.0
+        },
+        {
+          "damage": 35.0,
+          "cooldown": 1.03,
+          "range": 200.0,
+          "knockback": 5.0,
+          "critDamage": 2.0,
+          "critChance": 0.03,
+          "lifeSteal": 0.0,
+          "price": 100.0
+        },
+        {
+          "damage": 55.0,
+          "cooldown": 0.95,
+          "range": 200.0,
+          "knockback": 5.0,
+          "critDamage": 2.0,
+          "critChance": 0.03,
+          "lifeSteal": 0.0,
+          "price": 200.0
+        }
+      ],
+      "scaling": [
+        {},
+        {
+          "meleeDamage": 1.0
+        },
+        {
+          "meleeDamage": 1.0
+        },
+        {
+          "meleeDamage": 1.0
+        }
+      ],
+      "imageUrl": "https://brotato.wiki.spellsandguns.com/images/0/06/Vorpal_Sword.png",
+      "sourceUrl": "https://brotato.wiki.spellsandguns.com/Vorpal_Sword",
+      "specialSource": "Alternates between thrusting and sweeping attacks<br>-/{{Color|tier2|1%}}/{{Color|tier3|2%}}/{{Color|tier4|3%}} chance to one shot the target when hitting it"
+    }
+  ]
+}

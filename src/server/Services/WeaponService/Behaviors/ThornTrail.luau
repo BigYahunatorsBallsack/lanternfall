@@ -1,3 +1,3 @@
 --!strict
--- Thorn Hook uses the targeted melee sweep from Arsenal; its slow is applied on each hit.
-return require(script.Parent.Parent.B7Melee)
+-- Pruner behavior for Arsenal; exact tier data in Config.Weapons.
+return require(script.Parent.Parent.BrotatoMelee)
