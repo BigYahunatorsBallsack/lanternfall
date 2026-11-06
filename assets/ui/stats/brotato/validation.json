@@ -1,0 +1,395 @@
+{
+  "date": "2026-11-06",
+  "baseMain": "5a1ec546b4760c8bf0daec6dcf561da950661aec",
+  "source": "https://brotato.wiki.spellsandguns.com/index.php?title=Upgrades&oldid=7968",
+  "images": [
+    {
+      "file": "stats/maxHp.png",
+      "sha256MatchesSource": true,
+      "size": [
+        96,
+        96
+      ],
+      "alpha": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "upgrades/maxHp.png",
+      "sha256MatchesSource": true,
+      "size": [
+        96,
+        96
+      ],
+      "alpha": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "stats/hpRegen.png",
+      "sha256MatchesSource": true,
+      "size": [
+        96,
+        96
+      ],
+      "alpha": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "upgrades/hpRegen.png",
+      "sha256MatchesSource": true,
+      "size": [
+        96,
+        96
+      ],
+      "alpha": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "stats/lifeSteal.png",
+      "sha256MatchesSource": true,
+      "size": [
+        96,
+        96
+      ],
+      "alpha": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "upgrades/lifeSteal.png",
+      "sha256MatchesSource": true,
+      "size": [
+        96,
+        96
+      ],
+      "alpha": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "stats/damage.png",
+      "sha256MatchesSource": true,
+      "size": [
+        96,
+        96
+      ],
+      "alpha": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "upgrades/damage.png",
+      "sha256MatchesSource": true,
+      "size": [
+        96,
+        96
+      ],
+      "alpha": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "stats/meleeDamage.png",
+      "sha256MatchesSource": true,
+      "size": [
+        96,
+        96
+      ],
+      "alpha": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "upgrades/meleeDamage.png",
+      "sha256MatchesSource": true,
+      "size": [
+        96,
+        96
+      ],
+      "alpha": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "stats/rangedDamage.png",
+      "sha256MatchesSource": true,
+      "size": [
+        96,
+        96
+      ],
+      "alpha": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "upgrades/rangedDamage.png",
+      "sha256MatchesSource": true,
+      "size": [
+        96,
+        96
+      ],
+      "alpha": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "stats/elementalDamage.png",
+      "sha256MatchesSource": true,
+      "size": [
+        96,
+        96
+      ],
+      "alpha": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "upgrades/elementalDamage.png",
+      "sha256MatchesSource": true,
+      "size": [
+        96,
+        96
+      ],
+      "alpha": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "stats/attackSpeed.png",
+      "sha256MatchesSource": true,
+      "size": [
+        96,
+        96
+      ],
+      "alpha": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "upgrades/attackSpeed.png",
+      "sha256MatchesSource": true,
+      "size": [
+        96,
+        96
+      ],
+      "alpha": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "stats/critChance.png",
+      "sha256MatchesSource": true,
+      "size": [
+        96,
+        96
+      ],
+      "alpha": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "upgrades/critChance.png",
+      "sha256MatchesSource": true,
+      "size": [
+        96,
+        96
+      ],
+      "alpha": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "stats/engineering.png",
+      "sha256MatchesSource": true,
+      "size": [
+        96,
+        96
+      ],
+      "alpha": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "upgrades/engineering.png",
+      "sha256MatchesSource": true,
+      "size": [
+        96,
+        96
+      ],
+      "alpha": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "stats/range.png",
+      "sha256MatchesSource": true,
+      "size": [
+        96,
+        96
+      ],
+      "alpha": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "upgrades/range.png",
+      "sha256MatchesSource": true,
+      "size": [
+        96,
+        96
+      ],
+      "alpha": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "stats/armor.png",
+      "sha256MatchesSource": true,
+      "size": [
+        96,
+        96
+      ],
+      "alpha": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "upgrades/armor.png",
+      "sha256MatchesSource": true,
+      "size": [
+        96,
+        96
+      ],
+      "alpha": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "stats/dodge.png",
+      "sha256MatchesSource": true,
+      "size": [
+        96,
+        96
+      ],
+      "alpha": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "upgrades/dodge.png",
+      "sha256MatchesSource": true,
+      "size": [
+        96,
+        96
+      ],
+      "alpha": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "stats/speed.png",
+      "sha256MatchesSource": true,
+      "size": [
+        96,
+        96
+      ],
+      "alpha": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "upgrades/speed.png",
+      "sha256MatchesSource": true,
+      "size": [
+        96,
+        96
+      ],
+      "alpha": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "stats/luck.png",
+      "sha256MatchesSource": true,
+      "size": [
+        96,
+        96
+      ],
+      "alpha": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "upgrades/luck.png",
+      "sha256MatchesSource": true,
+      "size": [
+        96,
+        96
+      ],
+      "alpha": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "stats/harvesting.png",
+      "sha256MatchesSource": true,
+      "size": [
+        96,
+        96
+      ],
+      "alpha": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "upgrades/harvesting.png",
+      "sha256MatchesSource": true,
+      "size": [
+        96,
+        96
+      ],
+      "alpha": [
+        0,
+        255
+      ]
+    }
+  ],
+  "upgradeAmountsChecked": 64,
+  "uploadedImages": 32,
+  "allImageIdsUnique": true,
+  "successfulStudioPreloads": 32
+}

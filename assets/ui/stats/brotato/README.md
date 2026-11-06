@@ -7,3 +7,7 @@ These are the original 96 x 96 PNG bytes served by the [Brotato Upgrades wiki](h
 Re-import with `python tools/import-upgrade-reference.py` (Pillow required). The importer validates the complete table and downloads the original files rather than the wiki thumbnails. It does not upload assets or alter the game code.
 
 The 22 other existing stat entries have no level-up cards in the base-game table. Their existing illustrations remain available; no new upgrade types are invented for them.
+
+All 32 PNGs were uploaded as Image assets under the experience owner's user ID 3898708794 after the owner approved this upload directory. All assets are Approved and all 32 reached Success in an Edit-mode ContentProvider preload. IDs and source hashes are in `roblox-assets.json`; the actual preload results are in `studio-preload.json`.
+
+`UI/PrimaryStatArt.luau` supplies the two maps. `StatImages` applies the primary-symbol overrides at the end of its existing table; `Icons.draw` selects the separate upgrade artwork when its existing stat caller belongs to the LevelUp ScreenGui. The context is part of the illustration cache key, so reparenting or rerolling cannot reuse the wrong image. No controller, Remote, saved-data field or loaded Studio game script was changed.
