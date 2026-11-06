@@ -18,6 +18,7 @@ type Shot = {
 	share: number,
 	hit: { [number]: boolean },
 	secondary: boolean,
+	bounced: boolean?,
 	critical: boolean?,
 }
 local Projectile = {}
@@ -203,7 +204,7 @@ function Projectile.step(weapon: Arsenal.Weapon, ctx: Arsenal.Context, dt: numbe
 		for _, entry in ordered do
 			local id = entry.id
 			shot.hit[id] = true
-			Combat.hit(weapon, ctx, id, shot.share, stats, shot.critical, shot.secondary)
+			Combat.hit(weapon, ctx, id, shot.share, stats, shot.critical, shot.secondary, shot.bounced)
 			local x, z = ctx:enemyPosition(id)
 			local bounce = if x and z and shot.bounces > 0 then ctx:bounceTarget(x, z, shot.hit) else nil
 			if bounce and x and z then
@@ -218,6 +219,7 @@ function Projectile.step(weapon: Arsenal.Weapon, ctx: Arsenal.Context, dt: numbe
 						shot.id = ctx:nextId()
 						shot.x, shot.z, shot.dx, shot.dz, shot.flown = x, z, (tx - x) / length, (tz - z) / length, 0
 						shot.bounces -= 1
+						shot.bounced = true
 						shot.share *= stats.bounceDamage or 1
 						ctx:emit(weapon, {
 							kind = "Fire",

@@ -1,7 +1,7 @@
 --!strict
 -- Original base-game Brotato weapon records read by WeaponService, shop and WeaponRenderer.
 -- Generated from the factual catalog in assets/weapons/brotato-base; no DLC or custom weapons.
--- Range uses 0.1 studs per wiki unit; HP scaling inputs/bonuses account for this project's HP x10.
+-- Range uses 0.1 studs per wiki unit; HP uses original Brotato units, as in current main.
 
 export type TierDelta = {
 	[string]: number,
@@ -161,24 +161,24 @@ local Weapons: { [string]: Weapon } = {
 		},
 		scaling = {
 			meleeDamage = 0.5,
-			maxHp = 0.015,
+			maxHp = 0.15,
 		},
 		tierScaling = {
 			{
 				meleeDamage = 0.5,
-				maxHp = 0.015,
+				maxHp = 0.15,
 			},
 			{
 				meleeDamage = 0.5,
-				maxHp = 0.02,
+				maxHp = 0.2,
 			},
 			{
 				meleeDamage = 0.5,
-				maxHp = 0.025,
+				maxHp = 0.25,
 			},
 			{
 				meleeDamage = 0.5,
-				maxHp = 0.03,
+				maxHp = 0.3,
 			},
 		},
 		rangeKeys = { "range" },
@@ -220,16 +220,16 @@ local Weapons: { [string]: Weapon } = {
 		},
 		heldStats = {
 			{
-				fruitHeal = 10,
+				fruitHeal = 1,
 			},
 			{
-				fruitHeal = 10,
+				fruitHeal = 1,
 			},
 			{
-				fruitHeal = 10,
+				fruitHeal = 1,
 			},
 			{
-				fruitHeal = 20,
+				fruitHeal = 2,
 			},
 		},
 	},
@@ -491,24 +491,24 @@ local Weapons: { [string]: Weapon } = {
 		},
 		scaling = {
 			meleeDamage = 2,
-			maxHp = 0.2,
+			maxHp = 2,
 		},
 		tierScaling = {
 			{
 				meleeDamage = 2,
-				maxHp = 0.2,
+				maxHp = 2,
 			},
 			{
 				meleeDamage = 2,
-				maxHp = 0.2,
+				maxHp = 2,
 			},
 			{
 				meleeDamage = 2,
-				maxHp = 0.2,
+				maxHp = 2,
 			},
 			{
 				meleeDamage = 2,
-				maxHp = 0.2,
+				maxHp = 2,
 			},
 		},
 		rangeKeys = { "range" },
@@ -1847,11 +1847,11 @@ local Weapons: { [string]: Weapon } = {
 			},
 			{
 				armor = 1,
-				maxHp = 20,
+				maxHp = 2,
 			},
 			{
 				armor = 2,
-				maxHp = 20,
+				maxHp = 2,
 			},
 		},
 	},
@@ -2088,7 +2088,7 @@ local Weapons: { [string]: Weapon } = {
 			sweepDegrees = 120,
 			attackSeconds = 0.18,
 			meleeMode = 1,
-			selfDamage = 30,
+			selfDamage = 3,
 			selfDamageSeconds = 1,
 			damageOnHurt = 3,
 			levelScaling = 0,
@@ -3629,24 +3629,24 @@ local Weapons: { [string]: Weapon } = {
 		},
 		scaling = {
 			rangedDamage = 0.4,
-			maxHp = 0.02,
+			maxHp = 0.2,
 		},
 		tierScaling = {
 			{
 				rangedDamage = 0.4,
-				maxHp = 0.02,
+				maxHp = 0.2,
 			},
 			{
 				rangedDamage = 0.4,
-				maxHp = 0.02,
+				maxHp = 0.2,
 			},
 			{
 				rangedDamage = 0.4,
-				maxHp = 0.02,
+				maxHp = 0.2,
 			},
 			{
 				rangedDamage = 0.4,
-				maxHp = 0.02,
+				maxHp = 0.2,
 			},
 		},
 		rangeKeys = { "range" },

@@ -100,13 +100,6 @@ function HeldModels.effect(effect: Types.WeaponEffect)
 		return
 	end
 	local key = keyOf(effect.userId, uid)
-	if effect.weapon == "BoomerangAxe" then
-		if effect.kind == "Fire" then
-			flights[key] = (flights[key] or 0) + 1
-		elseif effect.kind == "End" then
-			flights[key] = math.max(0, (flights[key] or 0) - 1)
-		end
-	end
 	if effect.kind == "End" then
 		return
 	end

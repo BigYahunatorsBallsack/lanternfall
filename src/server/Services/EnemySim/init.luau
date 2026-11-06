@@ -18,6 +18,7 @@ local Config = require(Shared.Config)
 local Net = require(Shared.Net)
 local Signal = require(Shared.Util.Signal)
 local EnemyKinds = require(Shared.Util.EnemyKinds)
+local EnemyStats = require(Shared.Util.EnemyStats)
 local ShotFeed = require(Shared.Net.ShotFeed)
 local Snapshot = require(Shared.Net.Snapshot)
 local Types = require(Shared.Net.Types)
@@ -85,6 +86,9 @@ local function newWorld(): World.World
 end
 
 local world = newWorld()
+type SpawnContext = { hp: number, damage: number, speed: number, wave: number }
+local spawnContexts: { [number]: SpawnContext } = {}
+local chargeTrails: { [number]: { x: number, z: number, distance: number } } = {}
 local volleys = (function()
 	local bounds = MapService.getArenaBounds()
 	local center, half = bounds.center, bounds.halfSize
@@ -214,8 +218,10 @@ local function spawnAround(
 	spread: number,
 	hpMultiplier: number,
 	damageMultiplier: number,
-	speedMultiplier: number
+	speedMultiplier: number,
+	parentId: number?
 )
+	local context = if parentId then spawnContexts[parentId] else nil
 	local turn = RandomService.number("Spawns") * 2 * math.pi
 	for k = 1, count do
 		local angle = turn + (k - 1) / count * 2 * math.pi
@@ -223,11 +229,12 @@ local function spawnAround(
 			enemyId,
 			x + math.cos(angle) * spread,
 			z + math.sin(angle) * spread,
-			hpMultiplier,
-			damageMultiplier,
+			if context then context.hp else hpMultiplier,
+			if context then context.damage else damageMultiplier,
 			nil,
 			nil,
-			speedMultiplier
+			if context then context.speed else speedMultiplier,
+			if context then context.wave else nil
 		)
 	end
 end
@@ -240,8 +247,7 @@ local function fireRing(id: number)
 	if not (kind and retaliate and x and z) then
 		return
 	end
-	local _, damageMultiplier = world:getMultipliers(id)
-	local damage = retaliate.projectileDamage * damageMultiplier
+	local damage = world:getShotDamage(id)
 	local now = workspace:GetServerTimeNow()
 	local turn = RandomService.number("Combat") * 2 * math.pi
 	for k = 1, retaliate.count do
@@ -282,7 +288,17 @@ local function hatchEggs()
 		if hatch and x and z then
 			local hpMultiplier, damageMultiplier, speedMultiplier = world:getMultipliers(id)
 			world:remove(id)
-			spawnAround(hatch.enemy, x, z, hatch.count, hatch.spread, hpMultiplier, damageMultiplier, speedMultiplier)
+			spawnAround(
+				hatch.enemy,
+				x,
+				z,
+				hatch.count,
+				hatch.spread,
+				hpMultiplier,
+				damageMultiplier,
+				speedMultiplier,
+				id
+			)
 		end
 	end
 end
@@ -305,7 +321,8 @@ local function callSummons()
 				kind.radius + 2,
 				hpMultiplier,
 				damageMultiplier,
-				speedMultiplier
+				speedMultiplier,
+				id
 			)
 		end
 	end
@@ -323,6 +340,43 @@ local function stepOnce()
 		table.insert(endedShots, ended[k])
 	end
 	fireShots(stepNow)
+	for i = 1, world.count do
+		local id = world.ids[i]
+		local charge = world.kinds[i].charge
+		if charge and charge.projectileDamage and world.modes[i] == World.MODE_RUSH and world.hp[i] > 0 then
+			local x, z = world.xs[i], world.zs[i]
+			local trail = chargeTrails[id]
+			if not trail then
+				trail = { x = x, z = z, distance = charge.trailEvery or 1 }
+				chargeTrails[id] = trail
+			end
+			trail.distance += math.sqrt((x - trail.x) ^ 2 + (z - trail.z) ^ 2)
+			trail.x, trail.z = x, z
+			if trail.distance >= (charge.trailEvery or 1) then
+				trail.distance %= charge.trailEvery or 1
+				for _, side in { -1, 1 } do
+					EnemySim.fireShot(
+						x,
+						z,
+						-world.rushZs[i] * side,
+						world.rushXs[i] * side,
+						charge.projectileSpeed or 1,
+						charge.projectileRange or 1,
+						charge.projectileRadius or 0,
+						world:getShotDamage(id)
+					)
+				end
+			end
+		else
+			chargeTrails[id] = nil
+		end
+	end
+	for id in spawnContexts do
+		if not world:isAlive(id) then
+			spawnContexts[id] = nil
+			chargeTrails[id] = nil
+		end
+	end
 	callSummons()
 	hatchEggs()
 	EnemySim.Stepped:Fire(STEP_SECONDS, stepNow)
@@ -442,6 +496,8 @@ end
 
 function EnemySim.init()
 	RunDirector.RunStarted:Connect(function()
+		table.clear(spawnContexts)
+		table.clear(chargeTrails)
 		world:clear()
 		volleys:clear()
 		accumulator = 0
@@ -449,6 +505,8 @@ function EnemySim.init()
 		sendShots(true)
 	end)
 	local function clearAll()
+		table.clear(spawnContexts)
+		table.clear(chargeTrails)
 		world:clear()
 		volleys:clear()
 		currentTick += 1
@@ -480,21 +538,32 @@ function EnemySim.spawn(
 	damageMultiplier: number,
 	elite: boolean?,
 	affix: number?,
-	speedMultiplier: number?
+	speedMultiplier: number?,
+	wave: number?
 ): number?
 	local kind = EnemyKinds.get(enemyId, elite, affix)
 	assert(kind, `Unknown enemy {enemyId}`)
 	local baseShot = World.baseShotDamage(kind)
-	local shotDamage = if baseShot > 0 then baseShot * damageMultiplier else nil
-	return world:spawn(
+	local hpGrowth, contactGrowth, shotGrowth = 1, 1, 1
+	if wave then
+		hpGrowth, contactGrowth, shotGrowth = EnemyStats.growth(kind, wave)
+	end
+	local shotDamage = if baseShot > 0 then baseShot * damageMultiplier * shotGrowth else nil
+	local speed = (speedMultiplier or 1) * EnemyStats.speedFactor(kind, RandomService.number("Spawns"))
+	local id = world:spawn(
 		kind,
 		x,
 		z,
-		kind.hp * hpMultiplier,
-		kind.contactDamage * damageMultiplier,
+		kind.hp * hpMultiplier * hpGrowth,
+		kind.contactDamage * damageMultiplier * contactGrowth,
 		shotDamage,
-		speedMultiplier
+		speed,
+		wave
 	)
+	if id and wave then
+		spawnContexts[id] = { hp = hpMultiplier, damage = damageMultiplier, speed = speedMultiplier or 1, wave = wave }
+	end
+	return id
 end
 
 -- Deals damage to one enemy. Returns true if this hit killed it (and fires EnemyKilled), the HP it took and the
@@ -514,7 +583,17 @@ function EnemySim.damage(id: number, amount: number, source: Player?): (boolean,
 		local split = kind.split
 		if split then
 			local hpMultiplier, damageMultiplier, speedMultiplier = world:getMultipliers(id)
-			spawnAround(split.enemy, x, z, split.count, split.spread, hpMultiplier, damageMultiplier, speedMultiplier)
+			spawnAround(
+				split.enemy,
+				x,
+				z,
+				split.count,
+				split.spread,
+				hpMultiplier,
+				damageMultiplier,
+				speedMultiplier,
+				id
+			)
 		end
 		EnemySim.EnemyKilled:Fire({
 			id = id,
@@ -528,6 +607,21 @@ function EnemySim.damage(id: number, amount: number, source: Player?): (boolean,
 		} :: KillInfo)
 	end
 	return true, dealt, applied
+end
+
+-- Ranged weapon hits alone can trigger the Fly reference's counter-shot; called by WeaponService.onHit.
+function EnemySim.retaliate(id: number, weaponKind: string)
+	local kind = world:getKind(id)
+	local ability = kind and kind.retaliate
+	if
+		world:isAlive(id)
+		and ability
+		and ability.rangedOnly
+		and weaponKind == "Ranged"
+		and RandomService.number("Combat") < (ability.chance or 1)
+	then
+		fireRing(id)
+	end
 end
 
 -- Pushes a living enemy along the floor by `offset` (x/z), less the more it resists knockback (World.push).

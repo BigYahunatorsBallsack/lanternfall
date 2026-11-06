@@ -60,6 +60,7 @@ local lootSeconds = 0 -- seconds into the wave at the last update (Looter rolls)
 local treeTimes: { number } = {} -- seconds into the wave at which the next trees appear
 local looters: { [number]: number } = {} -- enemy id -> server time at which it escapes
 local trees: { [number]: boolean } = {} -- enemy ids
+local luresSeen: { [number]: number } = {} -- acquired copies already paid for with a special encounter
 local obstacles: { SpawnRules.Circle } = MapService.getObstacles()
 local bounds: SpawnRules.Rect = (function()
 	local arena = MapService.getArenaBounds()
@@ -118,11 +119,10 @@ local function spawnAt(
 ): number?
 	local wave = SpawnRules.runWave(atMinutes)
 	local dangerHp, dangerDamage, dangerSpeed = DangerService.multipliers(wave)
-	local hpGrowth, damageGrowth = SpawnRules.growth(enemyId, wave)
-	local hpMultiplier = hpGrowth * dangerHp * StatMath.enemyFactor(StatService.getTeamStat("enemyHp"))
-	local damageMultiplier = damageGrowth * dangerDamage * StatMath.enemyFactor(StatService.getTeamStat("enemyDamage"))
+	local hpMultiplier = dangerHp * StatMath.enemyFactor(StatService.getTeamStat("enemyHp"))
+	local damageMultiplier = dangerDamage * StatMath.enemyFactor(StatService.getTeamStat("enemyDamage"))
 	local speedMultiplier = dangerSpeed * StatMath.enemyFactor(StatService.getTeamStat("enemySpeed"))
-	return EnemySim.spawn(enemyId, x, z, hpMultiplier, damageMultiplier, elite, affix, speedMultiplier)
+	return EnemySim.spawn(enemyId, x, z, hpMultiplier, damageMultiplier, elite, affix, speedMultiplier, wave)
 end
 
 -- Spawns one enemy of `enemyId` on the ring around `anchor`, in front of a walking player for part of the spawns
@@ -286,6 +286,24 @@ local function updateLoot(atMinutes: number, anchors: { Anchor })
 		table.clear(trees)
 		local count = LootRules.treesForWave(StatService.getTeamStat("trees"), roll())
 		treeTimes = LootRules.treeTimes(count, schedule.endsAt - schedule.startsAt)
+		local lure = Config.Effects.lure
+		for _, player in RunDirector.getParticipants() do
+			local copies = 0
+			for _, entry in StatService.getItems(player) do
+				if entry.id == lure.item then
+					copies = entry.count
+				end
+			end
+			for _ = 1, math.max(0, copies - (luresSeen[player.UserId] or 0)) do
+				local count = lure.minCount + math.floor(roll() * (lure.maxCount - lure.minCount + 1))
+				for _ = 1, count do
+					if #anchors > 0 then
+						spawnOne(anchors[pickIndex(#anchors)], lure.enemy, atMinutes)
+					end
+				end
+			end
+			luresSeen[player.UserId] = copies
+		end
 	end
 	if #anchors > 0 then
 		while treeTimes[1] and seconds >= treeTimes[1] do
@@ -299,6 +317,15 @@ local function updateLoot(atMinutes: number, anchors: { Anchor })
 					spawnLooter(anchors[pickIndex(#anchors)], atMinutes)
 				end
 			end
+		end
+		local gobbler = Config.Loot.gobbler
+		if
+			wave >= gobbler.fromWave
+			and lootSeconds < gobbler.firstSeconds
+			and seconds >= gobbler.firstSeconds
+			and roll() < gobbler.chance
+		then
+			spawnOne(anchors[pickIndex(#anchors)], gobbler.enemy, atMinutes)
 		end
 	end
 	lootSeconds = seconds
@@ -480,7 +507,13 @@ end
 -- Lifecycle -------------------------------------------------------------------------
 
 function SpawnDirector.init()
+	RunDirector.addCheckpoint("EnemyEncounters", function()
+		return table.clone(luresSeen)
+	end, function(saved: { [number]: number })
+		luresSeen = table.clone(saved)
+	end)
 	RunDirector.RunStarted:Connect(function()
+		table.clear(luresSeen)
 		activeGroups = nil
 		table.clear(queued)
 		paused = false

@@ -1,0 +1,750 @@
+[
+  {
+    "id": "Tree",
+    "category": "bonus",
+    "referenceUrl": "https://brotato.wiki.spellsandguns.com/images/a/ac/Tree.png",
+    "spriteFile": "sprites/bonus/Tree.png",
+    "status": "generated and visually inspected",
+    "width": 1254,
+    "height": 1254,
+    "contentBounds": {
+      "left": 165,
+      "right": 1097,
+      "bottom": 1179,
+      "top": 98,
+      "alphaThreshold": 16
+    },
+    "suggestedFootAnchor": {
+      "y": 0.940191,
+      "x": 0.50319
+    },
+    "sha256": "7b9c581ccdcb7aa4e35fe0f7395480c0134e15ea907ea02505bf88d30059f683",
+    "gameId": "Tree"
+  },
+  {
+    "id": "BabyAlien",
+    "category": "regular",
+    "referenceUrl": "https://brotato.wiki.spellsandguns.com/images/a/a7/Baby_Alien.png",
+    "spriteFile": "sprites/regular/BabyAlien.png",
+    "status": "owner-approved baseline",
+    "width": 1254,
+    "height": 1254,
+    "contentBounds": {
+      "left": 185,
+      "right": 1099,
+      "bottom": 1194,
+      "top": 50,
+      "alphaThreshold": 16
+    },
+    "suggestedFootAnchor": {
+      "y": 0.952153,
+      "x": 0.511962
+    },
+    "sha256": "1798e5ea89cc14d62525d4e846db49b7c1622fc79de17e2807a7a0309836efc8",
+    "gameId": "Shadeling"
+  },
+  {
+    "id": "Chaser",
+    "category": "regular",
+    "referenceUrl": "https://brotato.wiki.spellsandguns.com/images/2/22/Chaser.png",
+    "spriteFile": "sprites/regular/Chaser.png",
+    "status": "generated and visually inspected",
+    "width": 1254,
+    "height": 1254,
+    "contentBounds": {
+      "left": 65,
+      "right": 1188,
+      "bottom": 1188,
+      "top": 63,
+      "alphaThreshold": 16
+    },
+    "suggestedFootAnchor": {
+      "y": 0.947368,
+      "x": 0.499601
+    },
+    "sha256": "85c007bf86be3cdab98be3883c92d39a0b3e970b56e5fcd4b1d663ab1bc9f81b",
+    "gameId": "AbyssShadeling"
+  },
+  {
+    "id": "Spitter",
+    "category": "regular",
+    "referenceUrl": "https://brotato.wiki.spellsandguns.com/images/6/62/Spitter.png",
+    "spriteFile": "sprites/regular/Spitter.png",
+    "status": "owner-approved baseline",
+    "width": 1254,
+    "height": 1254,
+    "contentBounds": {
+      "left": 55,
+      "right": 1184,
+      "bottom": 1217,
+      "top": 54,
+      "alphaThreshold": 16
+    },
+    "suggestedFootAnchor": {
+      "y": 0.970494,
+      "x": 0.494019
+    },
+    "sha256": "43d18f707fedf7a8dff9094338c331852bebb15fb415d0d5333411864375f322",
+    "gameId": "Spitter"
+  },
+  {
+    "id": "Charger",
+    "category": "regular",
+    "referenceUrl": "https://brotato.wiki.spellsandguns.com/images/e/e8/Charger.png",
+    "spriteFile": "sprites/regular/Charger.png",
+    "status": "owner-approved baseline",
+    "width": 1254,
+    "height": 1254,
+    "contentBounds": {
+      "left": 72,
+      "right": 1194,
+      "bottom": 1200,
+      "top": 66,
+      "alphaThreshold": 16
+    },
+    "suggestedFootAnchor": {
+      "y": 0.956938,
+      "x": 0.504785
+    },
+    "sha256": "3d16ebb804e8526fe81464081f0651aba0553ed6cc9f8f98b95bfe5e95cd50e8",
+    "gameId": "Charger"
+  },
+  {
+    "id": "Pursuer",
+    "category": "regular",
+    "referenceUrl": "https://brotato.wiki.spellsandguns.com/images/2/2a/Pursuer.png",
+    "spriteFile": "sprites/regular/Pursuer.png",
+    "status": "generated and visually inspected",
+    "width": 1254,
+    "height": 1254,
+    "contentBounds": {
+      "left": 118,
+      "right": 1119,
+      "bottom": 1213,
+      "top": 57,
+      "alphaThreshold": 16
+    },
+    "suggestedFootAnchor": {
+      "y": 0.967305,
+      "x": 0.493222
+    },
+    "sha256": "f432c0bf678079d423abed9aec365271c515707e81a9ada0aaf388ec6ea37b05",
+    "gameId": "Stalker"
+  },
+  {
+    "id": "Bruiser",
+    "category": "regular",
+    "referenceUrl": "https://brotato.wiki.spellsandguns.com/images/e/e4/Bruiser.png",
+    "spriteFile": "sprites/regular/Bruiser.png",
+    "status": "generated and visually inspected",
+    "width": 1254,
+    "height": 1254,
+    "contentBounds": {
+      "left": 85,
+      "right": 1135,
+      "bottom": 1217,
+      "top": 51,
+      "alphaThreshold": 16
+    },
+    "suggestedFootAnchor": {
+      "y": 0.970494,
+      "x": 0.486443
+    },
+    "sha256": "068eefb460e507352e5abe055d876d5cc2ba8fd1c9c13d28b25618a804118fd7",
+    "gameId": "Brute"
+  },
+  {
+    "id": "Buffer",
+    "category": "regular",
+    "referenceUrl": "https://brotato.wiki.spellsandguns.com/images/5/5a/Buffer.png",
+    "spriteFile": "sprites/regular/Buffer.png",
+    "status": "generated and visually inspected",
+    "width": 1254,
+    "height": 1254,
+    "contentBounds": {
+      "left": 119,
+      "right": 1111,
+      "bottom": 1187,
+      "top": 49,
+      "alphaThreshold": 16
+    },
+    "suggestedFootAnchor": {
+      "y": 0.946571,
+      "x": 0.490431
+    },
+    "sha256": "be79b4b1fb5095af9f60b48957a325bfb9a64ec16af2599c72b391a4505455af",
+    "gameId": "Herald"
+  },
+  {
+    "id": "Fly",
+    "category": "regular",
+    "referenceUrl": "https://brotato.wiki.spellsandguns.com/images/0/0c/Fly.png",
+    "spriteFile": "sprites/regular/Fly.png",
+    "status": "generated and visually inspected",
+    "width": 1254,
+    "height": 1254,
+    "contentBounds": {
+      "left": 138,
+      "right": 1089,
+      "bottom": 1185,
+      "top": 44,
+      "alphaThreshold": 16
+    },
+    "suggestedFootAnchor": {
+      "y": 0.944976,
+      "x": 0.489234
+    },
+    "sha256": "9f17cc1a35916f1a00e526b7c37eb651c0ded4e0b560753d831007060255b15b",
+    "gameId": "Thornback"
+  },
+  {
+    "id": "Healer",
+    "category": "regular",
+    "referenceUrl": "https://brotato.wiki.spellsandguns.com/images/6/62/Healer.png",
+    "spriteFile": "sprites/regular/Healer.png",
+    "status": "generated and visually inspected",
+    "width": 1254,
+    "height": 1254,
+    "contentBounds": {
+      "left": 57,
+      "right": 1210,
+      "bottom": 1168,
+      "top": 101,
+      "alphaThreshold": 16
+    },
+    "suggestedFootAnchor": {
+      "y": 0.931419,
+      "x": 0.505183
+    },
+    "sha256": "6e6ab277c587a8e8f9dea0af5bb7f9f6ff5ceb3f849c091297c740b35d03fa21",
+    "gameId": "Mender"
+  },
+  {
+    "id": "Looter",
+    "category": "regular",
+    "referenceUrl": "https://brotato.wiki.spellsandguns.com/images/2/2c/Looter.png",
+    "spriteFile": "sprites/regular/Looter.png",
+    "status": "generated and visually inspected",
+    "width": 1254,
+    "height": 1254,
+    "contentBounds": {
+      "left": 135,
+      "right": 1136,
+      "bottom": 1165,
+      "top": 105,
+      "alphaThreshold": 16
+    },
+    "suggestedFootAnchor": {
+      "y": 0.929027,
+      "x": 0.506778
+    },
+    "sha256": "deddf4f687125cd0a062a5b9935da9fd49f0da7f7533bcec563cda35e42ea5c0",
+    "gameId": "Looter"
+  },
+  {
+    "id": "HelmetAlien",
+    "category": "regular",
+    "referenceUrl": "https://brotato.wiki.spellsandguns.com/images/9/93/Helmet_Alien.png",
+    "spriteFile": "sprites/regular/HelmetAlien.png",
+    "status": "generated and visually inspected",
+    "width": 1254,
+    "height": 1254,
+    "contentBounds": {
+      "left": 148,
+      "right": 1098,
+      "bottom": 1195,
+      "top": 53,
+      "alphaThreshold": 16
+    },
+    "suggestedFootAnchor": {
+      "y": 0.952951,
+      "x": 0.49681
+    },
+    "sha256": "7b12f752c59f6d51a678b61cf7ba1faf90afd6f4c7a30173372e4fb27b74482a",
+    "gameId": "IronHusk"
+  },
+  {
+    "id": "FinAlien",
+    "category": "regular",
+    "referenceUrl": "https://brotato.wiki.spellsandguns.com/images/c/cb/Fin_Alien.png",
+    "spriteFile": "sprites/regular/FinAlien.png",
+    "status": "generated and visually inspected",
+    "width": 1254,
+    "height": 1254,
+    "contentBounds": {
+      "left": 168,
+      "right": 1089,
+      "bottom": 1206,
+      "top": 38,
+      "alphaThreshold": 16
+    },
+    "suggestedFootAnchor": {
+      "y": 0.961722,
+      "x": 0.501196
+    },
+    "sha256": "c4b996439c3defc955a6ecef213672ee99478716bd8d575ad8b9bcad5a61be62",
+    "gameId": "Splitling"
+  },
+  {
+    "id": "Spawner",
+    "category": "regular",
+    "referenceUrl": "https://brotato.wiki.spellsandguns.com/images/6/6c/Spawner.png",
+    "spriteFile": "sprites/regular/Spawner.png",
+    "status": "generated and visually inspected",
+    "width": 1254,
+    "height": 1254,
+    "contentBounds": {
+      "left": 86,
+      "right": 1185,
+      "bottom": 1192,
+      "top": 70,
+      "alphaThreshold": 16
+    },
+    "suggestedFootAnchor": {
+      "y": 0.950558,
+      "x": 0.506778
+    },
+    "sha256": "fd6c6ae59af4845f614c5cdeee27c2a1214816d842e56c18a5e8c2397976d6e7",
+    "gameId": "Splitter"
+  },
+  {
+    "id": "Junkie",
+    "category": "regular",
+    "referenceUrl": "https://brotato.wiki.spellsandguns.com/images/5/59/Junkie.png",
+    "spriteFile": "sprites/regular/Junkie.png",
+    "status": "generated and visually inspected",
+    "width": 1254,
+    "height": 1254,
+    "contentBounds": {
+      "left": 131,
+      "right": 1039,
+      "bottom": 1192,
+      "top": 65,
+      "alphaThreshold": 16
+    },
+    "suggestedFootAnchor": {
+      "y": 0.950558,
+      "x": 0.466507
+    },
+    "sha256": "ea0ea7fe3d53941c73da3619736a5e9d07476a03512f1eb61c07f1cda147ebfc",
+    "gameId": "Skulker"
+  },
+  {
+    "id": "HornedBruiser",
+    "category": "regular",
+    "referenceUrl": "https://brotato.wiki.spellsandguns.com/images/d/d8/Horned_Bruiser.png",
+    "spriteFile": "sprites/regular/HornedBruiser.png",
+    "status": "generated and visually inspected",
+    "width": 1254,
+    "height": 1254,
+    "contentBounds": {
+      "left": 119,
+      "right": 1131,
+      "bottom": 1220,
+      "top": 40,
+      "alphaThreshold": 16
+    },
+    "suggestedFootAnchor": {
+      "y": 0.972887,
+      "x": 0.498405
+    },
+    "sha256": "cf819d4ec86bd2ed8f8fa4e844bbff1661f7657e0c6aa65859e244e79d7f9487",
+    "gameId": "AbyssBrute"
+  },
+  {
+    "id": "HornedCharger",
+    "category": "regular",
+    "referenceUrl": "https://brotato.wiki.spellsandguns.com/images/e/e4/Horned_Charger.png",
+    "spriteFile": "sprites/regular/HornedCharger.png",
+    "status": "generated and visually inspected",
+    "width": 1254,
+    "height": 1254,
+    "contentBounds": {
+      "left": 109,
+      "right": 1173,
+      "bottom": 1211,
+      "top": 61,
+      "alphaThreshold": 16
+    },
+    "suggestedFootAnchor": {
+      "y": 0.96571,
+      "x": 0.511164
+    },
+    "sha256": "a0618a2e7790742f1eb1cecc6ef7dff02a3f8f183146dbaf5c212ead01711b49",
+    "gameId": "HornedRusher"
+  },
+  {
+    "id": "SlasherEgg",
+    "category": "regular",
+    "referenceUrl": "https://brotato.wiki.spellsandguns.com/images/b/b6/Slasher_Egg.png",
+    "spriteFile": "sprites/regular/SlasherEgg.png",
+    "status": "generated and visually inspected",
+    "width": 1254,
+    "height": 1254,
+    "contentBounds": {
+      "left": 158,
+      "right": 1061,
+      "bottom": 1205,
+      "top": 63,
+      "alphaThreshold": 16
+    },
+    "suggestedFootAnchor": {
+      "y": 0.960925,
+      "x": 0.486045
+    },
+    "sha256": "aa4ecdcb41b91be48980e5d0c75ad1825698145d1dfa8a9320a77f9dcb238793",
+    "gameId": "BroodEgg"
+  },
+  {
+    "id": "Slasher",
+    "category": "regular",
+    "referenceUrl": "https://brotato.wiki.spellsandguns.com/images/9/9a/Slasher.png",
+    "spriteFile": "sprites/regular/Slasher.png",
+    "status": "generated and visually inspected",
+    "width": 1254,
+    "height": 1254,
+    "contentBounds": {
+      "left": 33,
+      "right": 1216,
+      "bottom": 1177,
+      "top": 55,
+      "alphaThreshold": 16
+    },
+    "suggestedFootAnchor": {
+      "y": 0.938596,
+      "x": 0.498006
+    },
+    "sha256": "8cac5c127e2f837d17ebabd78714c0230127302e1d422e6c4819cb51bbf185c6",
+    "gameId": "Reaper"
+  },
+  {
+    "id": "Tentacle",
+    "category": "regular",
+    "referenceUrl": "https://brotato.wiki.spellsandguns.com/images/f/f1/TentacleEnemy.png",
+    "spriteFile": "sprites/regular/Tentacle.png",
+    "status": "generated and visually inspected",
+    "width": 1254,
+    "height": 1254,
+    "contentBounds": {
+      "left": 249,
+      "right": 979,
+      "bottom": 1210,
+      "top": 40,
+      "alphaThreshold": 16
+    },
+    "suggestedFootAnchor": {
+      "y": 0.964912,
+      "x": 0.489633
+    },
+    "sha256": "cde7cff1f9b417ff0d7e6c98e734f107b19515b884c2b71e3585b03a68ba084f",
+    "gameId": "DreadTendril"
+  },
+  {
+    "id": "Lamprey",
+    "category": "regular",
+    "referenceUrl": "https://brotato.wiki.spellsandguns.com/images/7/71/Enemy_26.png",
+    "spriteFile": "sprites/regular/Lamprey.png",
+    "status": "generated and visually inspected",
+    "width": 1254,
+    "height": 1254,
+    "contentBounds": {
+      "left": 118,
+      "right": 1117,
+      "bottom": 1170,
+      "top": 122,
+      "alphaThreshold": 16
+    },
+    "suggestedFootAnchor": {
+      "y": 0.933014,
+      "x": 0.492424
+    },
+    "sha256": "31e506fcc51b90b502a5c3ddd8af47242477595c29ba416f5b5fbe6d4c5f7e52",
+    "gameId": "Hookfang"
+  },
+  {
+    "id": "Gobbler",
+    "category": "regular",
+    "referenceUrl": "https://brotato.wiki.spellsandguns.com/images/7/77/Gobbler.png",
+    "spriteFile": "sprites/regular/Gobbler.png",
+    "status": "generated and visually inspected",
+    "width": 1254,
+    "height": 1254,
+    "contentBounds": {
+      "left": 87,
+      "right": 1180,
+      "bottom": 1084,
+      "top": 219,
+      "alphaThreshold": 16
+    },
+    "suggestedFootAnchor": {
+      "y": 0.864434,
+      "x": 0.505183
+    },
+    "sha256": "2c3ab9808ffde6d9026a612431acd415f396a887b4e5e9dbcdd9477b4426e6dd",
+    "gameId": "Gobbler"
+  },
+  {
+    "id": "GobblerMutation1",
+    "category": "variants",
+    "referenceUrl": "https://brotato.wiki.spellsandguns.com/images/c/c1/Gobbler_1.png",
+    "spriteFile": "sprites/variants/GobblerMutation1.png",
+    "status": "generated and visually inspected",
+    "width": 1254,
+    "height": 1254,
+    "contentBounds": {
+      "left": 49,
+      "right": 1221,
+      "bottom": 1059,
+      "top": 183,
+      "alphaThreshold": 16
+    },
+    "suggestedFootAnchor": {
+      "y": 0.844498,
+      "x": 0.50638
+    },
+    "sha256": "c7a697d0fc0af29ab275d883b022b1c690794d7fa711898791a8adfc901bc600",
+    "gameId": "Gobbler"
+  },
+  {
+    "id": "GobblerMutation2",
+    "category": "variants",
+    "referenceUrl": "https://brotato.wiki.spellsandguns.com/images/7/7a/Gobbler_2.png",
+    "spriteFile": "sprites/variants/GobblerMutation2.png",
+    "status": "generated and visually inspected",
+    "width": 1254,
+    "height": 1254,
+    "contentBounds": {
+      "left": 21,
+      "right": 1232,
+      "bottom": 1133,
+      "top": 126,
+      "alphaThreshold": 16
+    },
+    "suggestedFootAnchor": {
+      "y": 0.903509,
+      "x": 0.499601
+    },
+    "sha256": "0e101585eca4c247b94f586ce025a82912883ef10b4dcd57ba5afcd71569411f",
+    "gameId": "Gobbler"
+  },
+  {
+    "id": "Rhino",
+    "category": "elites",
+    "referenceUrl": "https://brotato.wiki.spellsandguns.com/images/c/c2/Rhino.png",
+    "spriteFile": "sprites/elites/Rhino.png",
+    "status": "generated and visually inspected",
+    "width": 1254,
+    "height": 1254,
+    "contentBounds": {
+      "left": 92,
+      "right": 1201,
+      "bottom": 1221,
+      "top": 51,
+      "alphaThreshold": 16
+    },
+    "suggestedFootAnchor": {
+      "y": 0.973684,
+      "x": 0.51555
+    },
+    "sha256": "c4a5ad73654c55ecee87c9f9e025cbcdd5157744c141483f96dd1589ef8c6ad4",
+    "gameId": "BrassRam"
+  },
+  {
+    "id": "Butcher",
+    "category": "elites",
+    "referenceUrl": "https://brotato.wiki.spellsandguns.com/images/f/fb/Butcher.png",
+    "spriteFile": "sprites/elites/Butcher.png",
+    "status": "generated and visually inspected",
+    "width": 1254,
+    "height": 1254,
+    "contentBounds": {
+      "left": 36,
+      "right": 1217,
+      "bottom": 1212,
+      "top": 61,
+      "alphaThreshold": 16
+    },
+    "suggestedFootAnchor": {
+      "y": 0.966507,
+      "x": 0.499601
+    },
+    "sha256": "0d95c10f3d57cb642ad7dbbf4f73e2444b87e3463c9b144c41027b4e77bf442d",
+    "gameId": "Flayer"
+  },
+  {
+    "id": "Monk",
+    "category": "elites",
+    "referenceUrl": "https://brotato.wiki.spellsandguns.com/images/4/44/Monk.png",
+    "spriteFile": "sprites/elites/Monk.png",
+    "status": "generated and visually inspected",
+    "width": 1254,
+    "height": 1254,
+    "contentBounds": {
+      "left": 128,
+      "right": 1123,
+      "bottom": 1209,
+      "top": 49,
+      "alphaThreshold": 16
+    },
+    "suggestedFootAnchor": {
+      "y": 0.964115,
+      "x": 0.498804
+    },
+    "sha256": "674900befac70526cf8a5f7386922816389154f2a6ac24224c0936a8c3c4221d",
+    "gameId": "Abbot"
+  },
+  {
+    "id": "Croc",
+    "category": "elites",
+    "referenceUrl": "https://brotato.wiki.spellsandguns.com/images/8/80/Croc.png",
+    "spriteFile": "sprites/elites/Croc.png",
+    "status": "generated and visually inspected",
+    "width": 1254,
+    "height": 1254,
+    "contentBounds": {
+      "left": 54,
+      "right": 1189,
+      "bottom": 1146,
+      "top": 149,
+      "alphaThreshold": 16
+    },
+    "suggestedFootAnchor": {
+      "y": 0.913876,
+      "x": 0.495614
+    },
+    "sha256": "a8eeca69c2a1adbe6b406b21612415d294994a9b87da039febc2d67192a8d76b",
+    "gameId": "MireJaw"
+  },
+  {
+    "id": "Colossus",
+    "category": "elites",
+    "referenceUrl": "https://brotato.wiki.spellsandguns.com/images/d/d1/Anthead.png",
+    "spriteFile": "sprites/elites/Colossus.png",
+    "status": "generated and visually inspected",
+    "width": 1254,
+    "height": 1254,
+    "contentBounds": {
+      "left": 240,
+      "right": 999,
+      "bottom": 1166,
+      "top": 62,
+      "alphaThreshold": 16
+    },
+    "suggestedFootAnchor": {
+      "y": 0.929825,
+      "x": 0.494019
+    },
+    "sha256": "a52b8a8ae54f1d2b87db1a8084a9bc6a525b68d96d121387d78d235f74687f68",
+    "gameId": "Monolith"
+  },
+  {
+    "id": "Mantis",
+    "category": "elites",
+    "referenceUrl": "https://brotato.wiki.spellsandguns.com/images/4/48/Mantis.png",
+    "spriteFile": "sprites/elites/Mantis.png",
+    "status": "generated and visually inspected",
+    "width": 1254,
+    "height": 1254,
+    "contentBounds": {
+      "left": 77,
+      "right": 1174,
+      "bottom": 1209,
+      "top": 42,
+      "alphaThreshold": 16
+    },
+    "suggestedFootAnchor": {
+      "y": 0.964115,
+      "x": 0.498804
+    },
+    "sha256": "ec007af34598c770b121e68248d01f8306710e4b92c27ca0e82365a49a89d825",
+    "gameId": "SickleWraith"
+  },
+  {
+    "id": "Mother",
+    "category": "elites",
+    "referenceUrl": "https://brotato.wiki.spellsandguns.com/images/8/87/Mother.png",
+    "spriteFile": "sprites/elites/Mother.png",
+    "status": "generated and visually inspected",
+    "width": 1254,
+    "height": 1254,
+    "contentBounds": {
+      "left": 102,
+      "right": 1155,
+      "bottom": 1226,
+      "top": 44,
+      "alphaThreshold": 16
+    },
+    "suggestedFootAnchor": {
+      "y": 0.977671,
+      "x": 0.501196
+    },
+    "sha256": "b3c0aff29a6cc1fd159ebb904bb17aeaa709cd04d82ff15255666d7bbf428d9e",
+    "gameId": "BroodMatron"
+  },
+  {
+    "id": "Gargoyle",
+    "category": "elites",
+    "referenceUrl": "https://brotato.wiki.spellsandguns.com/images/b/bd/Bat_Elite.png",
+    "spriteFile": "sprites/elites/Gargoyle.png",
+    "status": "generated and visually inspected",
+    "width": 1254,
+    "height": 1254,
+    "contentBounds": {
+      "left": 96,
+      "right": 1149,
+      "bottom": 1196,
+      "top": 72,
+      "alphaThreshold": 16
+    },
+    "suggestedFootAnchor": {
+      "y": 0.953748,
+      "x": 0.496411
+    },
+    "sha256": "120c85a254c5f0bfd5fd71b02ac3da0a1b33639076cd3365a862e7e842957c47",
+    "gameId": "StoneSeraph"
+  },
+  {
+    "id": "Predator",
+    "category": "bosses",
+    "referenceUrl": "https://brotato.wiki.spellsandguns.com/images/e/e9/Predator.png",
+    "spriteFile": "sprites/bosses/Predator.png",
+    "status": "generated and visually inspected",
+    "width": 1254,
+    "height": 1254,
+    "contentBounds": {
+      "left": 143,
+      "right": 1080,
+      "bottom": 1186,
+      "top": 66,
+      "alphaThreshold": 16
+    },
+    "suggestedFootAnchor": {
+      "y": 0.945774,
+      "x": 0.48764
+    },
+    "sha256": "2b18f86b84db695976ee9d80200012dea5c82d5e85fb2d0f218773bf154520ce",
+    "gameId": "LanternEater"
+  },
+  {
+    "id": "Invoker",
+    "category": "bosses",
+    "referenceUrl": "https://brotato.wiki.spellsandguns.com/images/3/39/Invoker.png",
+    "spriteFile": "sprites/bosses/Invoker.png",
+    "status": "generated and visually inspected",
+    "width": 1254,
+    "height": 1254,
+    "contentBounds": {
+      "left": 73,
+      "right": 1162,
+      "bottom": 1218,
+      "top": 51,
+      "alphaThreshold": 16
+    },
+    "suggestedFootAnchor": {
+      "y": 0.971292,
+      "x": 0.492424
+    },
+    "sha256": "5ca0ad8b909699f1d3c4d1458b72420059a7e310c7aafc8769466a500e148c61",
+    "gameId": "HollowSeer"
+  }
+]

@@ -1,0 +1,213 @@
+{
+  "tool": "built-in image_gen",
+  "mode": "reference-based redraw and targeted corrections",
+  "approvedBasePromptsFile": "approved-preview-prompts.json",
+  "commonPrompt": "Use case: stylized-concept / style-transfer. Image 1 is the original Brotato base-game creature and is the authoritative anatomy, silhouette, expression, eye-count and palette reference. Image 2 is an OWNER-APPROVED Lanternfall sprite and is the rendering-style reference ONLY; do not borrow its anatomy or accessories. Redraw image 1 as one high-resolution transparent 2D game sprite, in the same clean hand-inked style as image 2: bold smooth black outlines, purple/lavender organic bodies where present in image 1, restrained broad cel-shading and pale edge accents, expressive black eyes with tiny controlled white highlights. Keep source details and colors. Preserve the original viewpoint and pose. Make every eye visible and inside the canvas, including small far-side eyes that are partly cut off in the source. Full complete silhouette centered in a square canvas, roughly 80-85% canvas occupancy with clear padding on EVERY side; do not crop horns, limbs, wings, mouth or base. Clean readable shapes for 64px gameplay. True flat illustrated sprite, not a 3D render, no realistic lighting, no plastic body, no grit, no ornamental additions, no labels or text, no floor, no drop shadow, no scene, no detached particles, no reference-image collage, no sprite sheet. Genuine transparent alpha background. ",
+  "batches": [
+    {
+      "batch": 1,
+      "jobs": [
+        {
+          "id": "Chaser",
+          "detail": "Small pale-lavender larva-like chaser. Keep the reference's rounded upright head, two small pointed antenna nubs, two black eyes with the small far-side eye on the right, very tall narrow tooth-lined dark mouth on the right side, several thin wavy side tendrils, short neck and flattened purple base. The mouth should look comically eager and jagged, not a smile or red tongue.",
+          "style": "BabyAlien"
+        },
+        {
+          "id": "Pursuer",
+          "detail": "Purple pursuer wrapped in sweeping thick ivory curved armor/blade-like bands separated by deep black gaps. Exactly ONE small bright red cyclopean eye is visible through the central opening. Rounded compact torso with an open purple oval top and soft purple base. Preserve the curved band arrangement; do not add normal black eyes, arms, clothes, horns, or teeth.",
+          "style": "Charger"
+        },
+        {
+          "id": "Bruiser",
+          "detail": "Large muscular purple alien with two enormous black eyes, two short curved head feelers, broad shoulders, two heavy curved muscular arms ending in clenched fists, small dark navel mark, and a broad soft legless base. Preserve stocky power and the reference's vacant face; the far-side right eye must be present. No armor, no trousers, no separate feet.",
+          "style": "BabyAlien"
+        },
+        {
+          "id": "Buffer",
+          "detail": "Purple buffer creature with two glossy black eyes and a downturned pale-lavender thick-lipped frown. Head covered in many rounded branching mushroom-like lobes and drippy wart-shaped nodules in pale lavender, not spikes. Keep the tall asymmetrical silhouette, two visible eyes including smaller far-side right eye, and soft flattened base. No floating orbs, no extra teeth, no text.",
+          "style": "BabyAlien"
+        }
+      ]
+    },
+    {
+      "batch": 2,
+      "jobs": [
+        {
+          "id": "Fly",
+          "detail": "Floating ragged purple alien head, NOT a literal insect. Two black eyes, torn red interior opening at the top, ragged pointed purple head edges, long hanging fleshy side tendrils, and a central pale gray heavy tooth/plate shape under the face. Keep source face and ripped organic silhouette, no wings added. Omit source canvas artifacts or loose outline fragments; show only a single complete floating creature with transparent space below.",
+          "style": "BabyAlien"
+        },
+        {
+          "id": "Healer",
+          "detail": "Small purple alien healer with two big black eyes perched high on the left and right upper head edges, a large horizontal off-white bone held across its mouth by about five long curved purple rib-like tendrils, compact round head and short legless purple base. Both eyes fully visible. Preserve the iconic bone-through-mouth silhouette and innocent expression; no medical crosses, clothing, staffs, or new props.",
+          "style": "BabyAlien"
+        },
+        {
+          "id": "Looter",
+          "detail": "Small anxious purple looter, exactly two big side black eyes, downturned black mouth with two small protruding square ivory teeth. Pale ivory bone-like loops cross around the waist and hold bright green angular crystals bundled behind its screen-left shoulder. Keep crystals as crisp green shapes with only restrained attached soft glow, not a large green background. Short compact legless purple base. No coins, chest, bag, armor, text or floating loot.",
+          "style": "BabyAlien"
+        },
+        {
+          "id": "HelmetAlien",
+          "detail": "Small purple alien wearing the exact reference's oversized battered light-gray dome helmet, pointed nicks in the rim, small side rivet and deep angular eye notches. Two small round black eyes appear below its helmet, several short fleshy purple face tentacles hang down, and compact body ends in broad purple base. Preserve gray helmet and facial tendrils, no added soldier gear or metal shine.",
+          "style": "Charger"
+        }
+      ]
+    },
+    {
+      "batch": 3,
+      "jobs": [
+        {
+          "id": "FinAlien",
+          "detail": "Pale lavender chaser variant with a tall spiny webbed dorsal fin rising from its head/back. Keep the larva-like rounded head, TWO black eyes including far-side right eye, tall narrow tooth-lined mouth, four thin wavy side tendrils, short neck and flattened base. The long thin dorsal rays and pale triangular connecting membranes must be clearly visible and uncut. Preserve its lighter lavender color rather than dark purple. No extra fins beyond the reference.",
+          "style": "BabyAlien"
+        },
+        {
+          "id": "Spawner",
+          "detail": "Large slumped lavender sack-shaped spawner, small black eyes high on the upper head (TWO eyes, far-side on right), a drooping swept-back hooked crest, two short forked side arms. Several slit-like organic openings around the head and belly leak short bright green slime drips. Keep broad puddle base and the source's three or four distinct green leaking vents. No teeth or tongue added, no newborn creatures or separate green droplets.",
+          "style": "Spitter"
+        },
+        {
+          "id": "Junkie",
+          "detail": "Small thin pale-lavender alien with swept backward organic head crest, TWO black eye sockets with bright GREEN round pupils instead of white glossy eyes, wide dark happy open mouth with a little dark red inner tongue. Bright green exposed organic shoulder/side patches with a couple of dark circular spots, slim purple body ending in a small soft base. Keep clear green-versus-purple contrast; no extra props, no weapons or clothes.",
+          "style": "BabyAlien"
+        },
+        {
+          "id": "HornedBruiser",
+          "detail": "Stocky muscular purple bruiser with two big black eyes, heavy curved arms and clenched fists. Oversized battered gray helmet bears TWO long upward-curving ivory horns. Two pale gray rigid straps cross the chest in an X, and a dark spiked back shell is visible along both sides, with lavender-white conical spikes. Preserve every defining horn and spike and broad legless base. Fully fit both horn tips inside the canvas. No new equipment or weapon.",
+          "style": "Charger"
+        }
+      ]
+    },
+    {
+      "batch": 4,
+      "jobs": [
+        {
+          "id": "HornedCharger",
+          "detail": "Horned variant of the approved Charger: low purple legless body, massive brick-red ridged cranial shell interleaved with gray-ivory bands, TWO huge black eyes, wide snarling mouth with short irregular square ivory teeth and dark red gums. Add only the source's TWO long upward-curving ivory horns and the longer frontal gray rim. Keep both horns complete and the soft purple base. Match the approved Charger rendering very closely.",
+          "style": "Charger"
+        },
+        {
+          "id": "SlasherEgg",
+          "detail": "A single upright rounded lavender-purple organic egg/pod on a small flared fleshy base. Thick curving violet-magenta veins or seams curl around its surface, edged in black as in source. NO eyes, NO mouth, NO face, NO limbs. Preserve the simple rounded pod silhouette and about five winding purple-magenta vein branches; no white shell fragments or green slime.",
+          "style": "BabyAlien"
+        },
+        {
+          "id": "Slasher",
+          "detail": "A single purple slasher with THREE fused rounded faces/heads on one broad organic trunk and soft base. Each of the three faces has TWO black eyes and a tooth-lined mouth: SIX eyes and THREE mouths altogether, including small far-side eyes at the head contours. FOUR jointed purple arm stalks extend around the body and end in long ivory sickle blades, upper left, upper right, side left and lower right. Preserve the reference's asymmetry and dangerous silhouette. Keep all four blade tips fully inside the canvas; don't merge faces or replace limbs with human arms.",
+          "style": "Charger"
+        },
+        {
+          "id": "Tentacle",
+          "detail": "One tall curved lavender tentacle rising from a broad fleshy base, leaning to screen-right with a rounded hollow-looking tip. Purple-magenta rounded suction nodules protrude alternately along both sides and across the front, with simple curved darker bands on the nodules. Absolutely NO face, NO eyes, NO mouth, NO arms, no extra separate tentacles. Preserve the reference's clean tapered trunk and roughly nine purple suction nodules.",
+          "style": "BabyAlien"
+        }
+      ]
+    },
+    {
+      "batch": 5,
+      "jobs": [
+        {
+          "id": "Lamprey",
+          "detail": "Eyeless purple lamprey enemy shaped as a short upright thick-necked tube on a small broad fleshy base. A huge dark oval suction mouth faces diagonally toward screen-right, ringed with many short pointed off-white triangular teeth, dark maroon-red ridges inside the throat. Tiny yellow-ochre round glands or nodules run down both outside edges of the purple mouth/neck. NO eyes or face added, no real fish tail, no floating particles. Faithfully expand the small reference into clean bold sprite art.",
+          "style": "Charger"
+        },
+        {
+          "id": "Gobbler",
+          "detail": "BASE/SMALLEST Gobbler form exactly as source: thin tan-brown jagged vertical face/jaw with an elongated open dark-red mouth and small ivory teeth, two black-and-white anxious eyes at top, dark purple curved horn-like appendages at the upper sides, tiny low purple body/base behind it. Keep it lean and hungry. NO green crystal growth, NO bulky rock shell yet. The tan face and dark purple backing are essential. Faithfully interpret the small original without adding accessories.",
+          "style": "Charger"
+        },
+        {
+          "id": "GobblerMutation1",
+          "detail": "MIDDLE Gobbler growth form exactly as source: worried tan-brown vertical face on the front/right, two anxious black-and-white eyes, two dark purple horns, long open dark-red tooth-lined mouth. Behind the face is a medium-sized cluster of angular gray-purple rock/crystal lumps with vivid GREEN fissures and small restrained attached green edge glow. Soft small purple base, larger silhouette than the smallest form but head still prominent. Do not replace with a humanoid or a bag of loot.",
+          "style": "Charger"
+        },
+        {
+          "id": "GobblerMutation2",
+          "detail": "FINAL/LARGEST Gobbler growth form exactly as source: enormous irregular mound of angular gray-purple boulders/crystal lumps with vivid GREEN seams and a few small rounded dark nodules covering the mass. Tiny tan-brown distressed face protrudes LOW on the screen-right side, with two bulging black-and-white eyes, small open dark-red tooth-lined mouth, and small side horn. The mound strongly dominates the head. Preserve low wide heavy silhouette and broad purple base; restrained attached green glow only. No new props, no giant head.",
+          "style": "Charger"
+        }
+      ]
+    },
+    {
+      "batch": 6,
+      "jobs": [
+        {
+          "id": "Rhino",
+          "detail": "Elite purple rhino alien with huge ivory bone-like cranial plate sweeping over the entire head and projecting TWO forward/upward horns over its snout. One visible narrow RED slit eye under the plate, dark-red mouth with small triangular ivory teeth, broad legless purple base. Thick ivory cracked blade-like shell plates protrude from both shoulders/sides. Preserve the source's forward-leaning asymmetry and bone plate shapes. Do not create a real four-legged rhinoceros or a knight.",
+          "style": "Charger"
+        },
+        {
+          "id": "Butcher",
+          "detail": "Elite stitched purple butcher with paired lumpy fused heads, FOUR small RED-pupiled eyes in black sockets including the partially hidden far-side eye, large floppy white chef hat and smaller rear white hat/cap, simple unhappy/goofy facial creases. Bulky purple sack body with heavy black stitched seams across chest and vertically down belly. Two short side arms hold gray cleavers with restrained flat red stains. These two cleavers are intrinsic parts of this enemy and MUST be present, fully inside the image. No extra kitchen props, apron, gore, or realistic blood.",
+          "style": "Charger"
+        },
+        {
+          "id": "Monk",
+          "detail": "Elite dark-purple organic column with NO visible ordinary eyes or human face. Multiple wide lavender tentacle loops wrap in three tiers around its trunk, edged with rows of purple-magenta rounded suction nodules. A heavy dark horizontal visor/slit sits under the top loop, plus a few tiny ivory curved fang-like accents on its torso and broad base. Preserve the source's squat tapering tower shape and looping tentacles, not a literal robed human monk; no clothes, staff or hat.",
+          "style": "BabyAlien"
+        },
+        {
+          "id": "Croc",
+          "detail": "Elite purple crocodile-like alien in side/three-quarter pose facing screen-right, with an extremely long wide-open snout, many small triangular ivory teeth lining both jaws, dark-red mouth interior, one visible round YELLOW iris in a black eye socket. Large branching thin purple tendrils/spines form a frill down the screen-left/back of neck, tiny purple side arms, thick legless neck/trunk and soft base. Preserve the compact source design, not a realistic crocodile; no green scales or separate four legs. Fit entire long snout and every frill branch inside the image.",
+          "style": "Charger"
+        }
+      ]
+    },
+    {
+      "batch": 7,
+      "jobs": [
+        {
+          "id": "Colossus",
+          "detail": "Elite Colossus is the purple many-eyed oval creature in image 1, NOT a rock golem or monolith. Tall rounded egg-like purple head/body, two thin curved antennae, EIGHT yellow eyes in thick black sockets: six frontal eyes in three pairs plus two larger side eyes near the top. Short drooping purple tendrils/fringes hang around the lower body, floating silhouette with no broad humanoid torso or human legs. Preserve source eye layout and soft organic folds, no mouth or stone texture added.",
+          "style": "BabyAlien"
+        },
+        {
+          "id": "Mantis",
+          "detail": "Elite purple mantis alien in source's LEFT-facing profile/three-quarter pose. One prominent YELLOW eye, elongated open pointed snout with tiny ivory needle teeth, many long pale ivory scythe/spike appendages jutting up from the head/back and curling around the sides, a curved ivory plate across the lower throat, and compact soft purple base. This is an alien hybrid, not a realistic green praying mantis. Preserve every major ivory sickle and thin purple connecting stalk in image 1, keeping ample margin around the extreme tips.",
+          "style": "Charger"
+        },
+        {
+          "id": "Mother",
+          "detail": "Elite purple Mother alien: a tall tapering organic trunk, enormous upward-gaping dark mouth with dark maroon-red vertical inner ribs, FOUR yellow eyes along its high arched upper rim, several thin wavy purple tendrils down the back/left edge. A row of small gray-purple larva/grub shapes clings across the belly, each with a couple of tiny dark eye spots. A short arm/stalk on the right ends in an ivory sickle blade. Preserve this precise source silhouette, yellow eye row and larvae; no extra baby characters standing separately, no human face, no gore.",
+          "style": "Charger"
+        },
+        {
+          "id": "Gargoyle",
+          "detail": "Elite purple Gargoyle from the BASE GAME, not the DLC Bat. Two wide raised angular bat-like purple wings with golden-orange thin leading edges and long pointed tips. Compact dark-purple face with TWO tiny RED eyes, a dark jagged mandible-like mouth surrounded by four hooked ivory/purple fangs. Purple twisting legless trunk with sweeping overlapping purple-and-gold curved ribbons/wing-folds, soft base. Keep the source's gold-rimmed wing silhouette and red eyes, no stone statue, no extra limbs or weapon.",
+          "style": "Charger"
+        }
+      ]
+    },
+    {
+      "batch": 8,
+      "jobs": [
+        {
+          "id": "Predator",
+          "detail": "Final boss Predator, a purple asymmetric alien with FOUR glossy black eyes clustered on the rounded head: three prominent frontal eyes and one smaller far-side eye. Enormous diagonally open tooth-lined mouth with dark maroon interior and a small red tongue. A huge upright curved purple claw/arm rises on screen-right and bends inward high above the head, with pointed inner hooks; a much smaller claw/arm is on screen-left. Short broad purple legless base. Preserve the source's huge raised claw, four-eye cluster, toothy mouth and lopsided body. No armor, clothes or extra weapons. Fit the entire tall claw comfortably inside the canvas.",
+          "style": "Charger"
+        },
+        {
+          "id": "Invoker",
+          "detail": "Final boss Invoker: tall purple Cthulhu-like alien with SIX glossy black eyes arranged in THREE PAIRS on the face. Four long thin head tendrils arc upward and outward with flattened paddle tips. Four or five drooping purple beard tentacles hang under its eye cluster. Two strong angular long arms and long fingers hold the source's small round white-and-red patterned orb/object against the abdomen. Preserve the white/red object as a non-graphic stylized prop, wrapped in purple fingers, with a few pale claw tips below. Broad tapering legless purple base. Keep exactly six face eyes and all head tendrils inside frame; no wizard robe, staff, extra floating projectiles or spell circles.",
+          "style": "Charger"
+        },
+        {
+          "id": "Tree",
+          "detail": "BONUS neutral tree sprite, not an enemy creature: match the supplied source's small friendly rounded green broadleaf canopy, thick simple black contour, two or three discrete green canopy shades, short brown trunk tapering upward and flaring into a few roots, a couple of dark trunk notches. Preserve the compact lopsided canopy shape and simple hand-drawn style, no face, no eyes, no fruit, no ornaments, no grass patch, no floor or cast shadow. Keep the green and brown palette rather than making it purple.",
+          "style": "BabyAlien"
+        },
+        {
+          "id": "Spawner",
+          "correction": true,
+          "prompt": "Image 1 is the edit target, the newly generated purple spawner. Image 2 is the original anatomy reference. Change ONLY the far-side eyes: image 1 incorrectly has TWO small black eyes stacked on the upper-right contour plus the main eye. Merge those two small side eyes into ONE slightly taller oval black far-side eye with two tiny white highlights. The creature must have exactly TWO eyes total: one main eye and one smaller far-side eye. Preserve the rest of image 1 exactly, including crest, forked arms, green vents/slime, folds, purple palette, bold outline, base and transparent canvas. Do not change pose, size or add any details. Genuine transparent alpha background."
+        },
+        {
+          "id": "Slasher",
+          "correction": true,
+          "prompt": "Image 1 is the edit target, the generated three-faced slasher. Image 2 is the anatomy reference. Make one targeted anatomical correction: each of its THREE fused faces needs TWO black eyes, for SIX face eyes total. Keep all three existing large eyes unchanged and add ONE much smaller far-side black oval eye to the contour of each corresponding face: near the upper-left outer contour of the left face, near the upper/right outer contour of the top face, and near the right outer contour of the lower-right face. Each little eye has two tiny controlled white highlights, belongs to its face, and stays within the canvas. Do not add new heads. Preserve all THREE toothy mouths, all FOUR ivory sickle blades and their arms, the body/base, colors, outline weight, shading, pose and transparent canvas exactly. No extra details, no text, genuine transparent alpha background."
+        }
+      ]
+    }
+  ]
+}

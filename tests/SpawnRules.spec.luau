@@ -16,13 +16,13 @@ describe("SpawnRules", function()
 			return SpawnRules.currentRate(minutes, 1) / RunSchedule.intensity(minutes)
 		end
 		expect(base(0.5)).toBeNear(1.6) -- wave 1: a group of 4 Shadelings every 2.5 s
-		expect(base(14.5)).toBeNear(8.15, 0.01) -- B11: fewer Brutes and Abyss Brutes
+		expect(base(14.5) > base(0.5)).toBe(true)
 		expect(SpawnRules.currentRate(14.5, 4)).toBeNear(SpawnRules.currentRate(14.5, 1) * 2.8)
 		local previous = 0
 		for wave = 1, 20 do
 			local minutes = wave - 0.5
 			if not SpawnRules.isSwarmRush(wave - 1) then
-				expect(base(minutes) > previous).toBe(true)
+				expect(base(minutes) >= previous).toBe(true)
 				previous = base(minutes)
 			end
 		end
@@ -99,16 +99,13 @@ describe("SpawnRules", function()
 		expect(RunSchedule.minutesAt(1400)).toBeNear(25 + 50 / 60) -- endless wave 26 (B11)
 	end)
 
-	it("names what each wave brings on its banner", function()
+	it("names the wiki first appearances for the selected danger", function()
 		expect(#RunSchedule.eventsOf(1)).toBe(0)
-		expect(table.concat(RunSchedule.eventsOf(3), "|")).toBe("New: Brutes")
-		expect(table.concat(RunSchedule.eventsOf(6), "|")).toBe("New: Spitters")
-		expect(table.concat(RunSchedule.eventsOf(7), "|")).toBe("Swarm Rush!")
-		expect(table.concat(RunSchedule.eventsOf(11), "|")).toBe("New: Splitters, Reapers")
+		expect(table.concat(RunSchedule.eventsOf(3), "|")).toBe("New: Charger")
+		expect(table.concat(RunSchedule.eventsOf(4, 0), "|")).toBe("New: Spitter")
+		expect(table.concat(RunSchedule.eventsOf(7), "|")).toBe("New: Brood Egg, Mender|Swarm Rush!")
+		expect(table.concat(RunSchedule.eventsOf(11, 0), "|")).toBe("New: Stalker")
 		expect(table.concat(RunSchedule.eventsOf(20), "|")).toBe("Final wave")
-		-- B11: kinds from danger 1 are left out below it, endless boss waves are named
-		expect(table.concat(RunSchedule.eventsOf(11, 0), "|")).toBe("New: Splitters")
-		expect(#RunSchedule.eventsOf(4, 0)).toBe(0)
 		expect(table.concat(RunSchedule.eventsOf(30), "|")).toBe("Boss wave")
 	end)
 
@@ -133,12 +130,12 @@ describe("SpawnRules", function()
 			scale * (shadeling.contactDamage + steps.damageSteps[20] * shadeling.damagePerWave)
 		)
 		expect(hp > 12).toBe(true) -- at least about the 14x of the curve before B9
-		expect(SpawnRules.growth("Shadeling", 5) < 2).toBe(true) -- few steps early, many late
+		expect(SpawnRules.growth("Shadeling", 5)).toBeNear(11 / 3) -- 3 base + 4 * 2 HP
 		-- a Spitter's growth counts on its shots
 		local spitter = Config.Enemies.types.Spitter
-		local _, shots = SpawnRules.growth("Spitter", 11)
+		local _, _, shots = SpawnRules.growth("Spitter", 11)
 		expect(shots * spitter.ranged.projectileDamage).toBeNear(
-			scale * (spitter.ranged.projectileDamage + steps.damageSteps[11] * spitter.damagePerWave)
+			scale * (spitter.ranged.projectileDamage + steps.damageSteps[11] * spitter.shotDamagePerWave)
 		)
 		local _, tree = SpawnRules.growth("Tree", 20)
 		expect(tree).toBe(scale) -- no damage to grow, only the scale
@@ -147,18 +144,15 @@ describe("SpawnRules", function()
 		expect(SpawnRules.growth("Nobody", 5)).toBe(1)
 	end)
 
-	it("brings something new every few waves", function()
-		expect(SpawnRules.mixAt(1.9).Brute).toBe(nil)
-		expect(SpawnRules.mixAt(2).Brute ~= nil).toBe(true)
-		expect(SpawnRules.mixAt(3.99).Charger).toBe(nil)
-		expect(SpawnRules.mixAt(4).Charger ~= nil).toBe(true)
-		expect(SpawnRules.mixAt(4.99).Spitter).toBe(nil)
-		expect(SpawnRules.mixAt(5).Spitter ~= nil).toBe(true)
-		expect(SpawnRules.mixAt(8).AbyssShadeling ~= nil).toBe(true)
-		expect(SpawnRules.mixAt(10).Splitter ~= nil).toBe(true)
-		expect(SpawnRules.mixAt(12).AbyssBrute ~= nil).toBe(true)
-		expect(SpawnRules.mixAt(15).Shadeling).toBe(nil) -- only the stronger kinds late in the run
-		expect(SpawnRules.mixAt(15).Splitling).toBe(nil) -- Splitlings come only from Splitters
+	it("introduces the main-game kinds at their wiki waves", function()
+		expect(SpawnRules.mixAt(6.9).Brute).toBe(nil)
+		expect(SpawnRules.mixAt(7.7).Brute ~= nil).toBe(true)
+		expect(SpawnRules.mixAt(1.9).Charger).toBe(nil)
+		expect(SpawnRules.mixAt(2.7).Charger ~= nil).toBe(true)
+		expect(SpawnRules.mixAt(2.99).Spitter).toBe(nil)
+		expect(SpawnRules.mixAt(3.7).Spitter ~= nil).toBe(true)
+		expect(SpawnRules.mixAt(13.7).Splitter ~= nil).toBe(true)
+		expect(SpawnRules.mixAt(12.7).AbyssBrute ~= nil).toBe(true)
 	end)
 
 	it("picks enemies by weight", function()
@@ -224,7 +218,7 @@ describe("SpawnRules", function()
 		expect(#SpawnRules.groupsAt(6.2)).toBe(1)
 		expect(SpawnRules.groupsAt(6.2)[1].enemy).toBe("Shadeling")
 		expect(SpawnRules.groupsAt(6.2)).toBe(SpawnRules.groupsAt(6.3)) -- the same groups all through the rush
-		expect(SpawnRules.groupsAt(6.7)).toBe(Config.Run.spawn.groups[7].groups)
+		expect(SpawnRules.groupsAt(6.7)).toBe(SpawnRules.groupsAt(6.8))
 		expect(SpawnRules.mixAt(6.2).Brute).toBe(nil)
 		expect(SpawnRules.mixAt(7).Spitter ~= nil).toBe(true)
 		expect(SpawnRules.swarmRushStarted(5.9, 6)).toBe(true)

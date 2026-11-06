@@ -134,6 +134,10 @@ function UpgradeText.weaponBase(weapon: Weapons.Weapon, tier: number): string
 			elseif weapon.tierScaling then weapon.tierScaling[tier]
 			else weapon.scaling
 	)
+	local levelScaling = weapon.originalScaling and weapon.originalScaling[tier].level
+	if levelScaling and levelScaling ~= 0 then
+		scaling ..= (if scaling == "" then "" else ", ") .. `+{number(levelScaling * 100)}% Level`
+	end
 	if scaling ~= "" then
 		text ..= ` ({scaling})`
 	end
@@ -173,6 +177,9 @@ function UpgradeText.itemLines(itemId: string, colors: Colors?, separator: strin
 	local stats = UpgradeText.statLines(item.stats, colors)
 	if stats ~= "" then
 		table.insert(lines, stats)
+	end
+	if item.description then
+		table.insert(lines, item.description)
 	end
 	local effects = EffectText.lines(item.effects)
 	if effects ~= "" then

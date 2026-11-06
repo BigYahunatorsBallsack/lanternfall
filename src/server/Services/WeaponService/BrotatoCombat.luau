@@ -15,7 +15,8 @@ function Combat.hit(
 	share: number?,
 	shotStats: { [string]: number }?,
 	critical: boolean?,
-	secondary: boolean?
+	secondary: boolean?,
+	bounced: boolean?
 ): (boolean, boolean)
 	local original = weapon.stats
 	local stats = table.clone(shotStats or original)
@@ -27,7 +28,7 @@ function Combat.hit(
 	end
 	weapon.stats = stats
 	weapon.state.secondaryHit = secondary == true
-	local killed = ctx:hit(weapon, id, share)
+	local killed = ctx:hit(weapon, id, share, if bounced then "Bounce" else nil)
 	weapon.state.secondaryHit = false
 	if
 		not secondary

@@ -191,7 +191,10 @@ local function consume(player: Player, kind: number)
 	local hp, maxHp = CombatService.getHp(player)
 	local wasFull = hp >= maxHp -- before the healing (B8: effects for picking one up at full HP)
 	if kind == LEGENDARY then
-		CombatService.healPlayer(player, maxHp * Loot.legendaryCrate.healShare)
+		CombatService.healPlayer(
+			player,
+			math.max(0, Loot.legendaryCrate.heal + StatService.getStat(player, "fruitHeal"))
+		)
 	else
 		local base = if kind == CRATE then Loot.crate.heal else Loot.fruit.heal
 		CombatService.healPlayer(player, math.max(0, base + StatService.getStat(player, "fruitHeal")))

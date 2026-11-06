@@ -109,7 +109,7 @@ print(f"Imported {len(records)} base-game weapons; no DLC. " + ", ".join(r["name
 # Damage and cooldowns remain source values. Only Max HP inputs/bonuses use hpScale.
 FEATURES = {
     "Cacti Club": dict(secondaryCount=[3,4,5,6], secondaryBase=[1,2,3,4], secondaryScaling=[.6,.7,.8,1]),
-    "Chopper": dict(held=[dict(fruitHeal=x*10) for x in [1,1,1,2]]),
+    "Chopper": dict(held=[dict(fruitHeal=x) for x in [1,1,1,2]]),
     "Drill": dict(critMaterialChance=1, timedAttackSpeed=10, timedSeconds=5),
     "Excalibur": dict(armorPerWeapon=-2, meleeMode=2),
     "Quarterstaff": dict(meleeMode=2, held=[dict(xpGain=x) for x in [2,5,9,15]]),
@@ -124,9 +124,9 @@ FEATURES = {
     "Plasma Sledge": dict(explosionChance=[0,0,.25,.5], explosionRadius=[6,6,6,7.5]),
     "Power Fist": dict(explosionChance=[0,0,.25,.5], explosionRadius=[4.5,4.5,4.5,6]),
     "Pruner": dict(structureKinds=["MoonGarden"]*4, gardenIntervals=[15,14,12,10]),
-    "Rock": dict(held=[{},dict(armor=1),dict(armor=1,maxHp=20),dict(armor=2,maxHp=20)]),
+    "Rock": dict(held=[{},dict(armor=1),dict(armor=1,maxHp=2),dict(armor=2,maxHp=2)]),
     "Screwdriver": dict(structureKinds=["RuneMine"]*4, structureIntervals=[12,9,6,3]),
-    "Scythe": dict(selfDamage=30, selfDamageSeconds=1, damageOnHurt=3),
+    "Scythe": dict(selfDamage=3, selfDamageSeconds=1, damageOnHurt=3),
     "Stick": dict(damagePerCopy=[4,6,8,10]),
     "Sword": dict(meleeMode=2),
     "Thief Dagger": dict(critMaterialChance=[.5,.56,.62,.8]),
@@ -199,7 +199,7 @@ for r in records:
     for t in range(4):
         sc = r["scaling"][t] or r["scaling"][r["minTier"]-1]
         original.append(sc)
-        scaling.append({k: v/10 if k == "maxHp" else v for k,v in sc.items() if k != "level"})
+        scaling.append({k: v for k,v in sc.items() if k != "level"})
     # Keep prose short; the complete per-tier mechanics remain data in this record.
     descriptions = {
         "Cacti Club":"Hits release ranged spines.", "Lightning Shiv":"Hits release bouncing elemental lightning.",
@@ -242,7 +242,7 @@ types = types.replace("\tid: string,", "\tid: string,\n\tbrotato: boolean?,\n\to
 (ROOT/"src/shared/Config/Weapons.luau").write_text(
     '--!strict\n-- Original base-game Brotato weapon records read by WeaponService, shop and WeaponRenderer.\n'
     '-- Generated from the factual catalog in assets/weapons/brotato-base; no DLC or custom weapons.\n'
-    '-- Range uses 0.1 studs per wiki unit; HP scaling inputs/bonuses account for this project\'s HP x10.\n\n'
+    '-- Range uses 0.1 studs per wiki unit; HP uses original Brotato units, as in current main.\n\n'
     +types+'local Weapons: { [string]: Weapon } = '+lua(compiled)+'\n\nreturn table.freeze(Weapons)\n', encoding="utf-8")
 
 shop_path = ROOT/"src/shared/Config/Shop.luau"
@@ -259,5 +259,6 @@ for r in records:
     family = "Melee" if r["kind"] == "Melee" else "Projectile"
     path = ROOT/f"src/server/Services/WeaponService/Behaviors/{ident}.luau"
     path.write_text(f'--!strict\n-- {r["name"]} behavior for Arsenal; exact tier data in Config.Weapons.\nreturn require(script.Parent.Parent.Brotato{family})\n',encoding="utf-8")
+    visual_family = "Projectile" if r["name"] in ["Cacti Club", "Lightning Shiv", "Thunder Sword", "DEX-troyer"] else family
     path = ROOT/f"src/client/Controllers/WeaponRenderer/Visuals/{ident}.luau"
-    path.write_text(f'--!strict\n-- {r["name"]} attack visual for WeaponRenderer; held art comes from UI.WeaponImages.\nreturn require(script.Parent.Parent.B7{family}Visual)(Color3.fromRGB(225, 190, 110))\n',encoding="utf-8")
+    path.write_text(f'--!strict\n-- {r["name"]} attack visual for WeaponRenderer; held art comes from UI.WeaponImages.\nreturn require(script.Parent.Parent.B7{visual_family}Visual)(Color3.fromRGB(225, 190, 110))\n',encoding="utf-8")

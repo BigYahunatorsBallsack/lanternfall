@@ -150,6 +150,8 @@ Wellenlängen wie in Brotato: Welle 1 dauert 20 s, jede weitere 5 s mehr, Wellen
 
 ## 4. Steuerung & Spieler-Grundwerte
 
+**Owner-Entscheidung 06.11.2026 (B9c):** Gemeinsame originale Brotato-Skala statt HP ×10: Basis 10 Max HP, +1 pro Level, HP-Karten +3/+6/+9/+12, Regeneration/Lebensraub je 1 HP, Frucht/Kiste 3 HP, legendaere Kiste 100 HP. Flache HP-/Heilungswerte der Items, Charaktere und Waffensets entsprechend; Prozentwerte und Gewinn-Multiplikatoren bleiben unveraendert. Der vorhandene Waffenschaden ist bereits in Brotato-Punkten und wird nicht pauschal durch zehn geteilt. Die neun nachtraeglich veraenderten Referenzwaffen nutzen wieder ihre Wiki-Grundwerte und die SMG-Skalierung. Historische ×10-Angaben in aelteren Paketbeschreibungen sind damit ersetzt.
+
 Spieler steuern nur Bewegung; Angreifen, Zielen und Aufsammeln passiert automatisch.
 
 - **Mobile:** virtueller Stick links. **PC:** WASD. **Konsole:** linker Stick. Springen ist deaktiviert.
@@ -517,9 +519,11 @@ Projektilwaffen starten ihre serverseitig berechneten Schüsse an der Mündung d
 
 ### Privater Originalwaffen-Umbau (Owner, 06.11.2026)
 
-Die bisherige Waffenliste und die früheren eigenen Balance-Anpassungen werden für das private Spiel durch alle 62 Hauptspiel-Waffen der verlinkten Brotato-Wiki-Liste ersetzt. Originalnamen, Stufen I–IV, Mindeststufen, Skalierungen und Preise; keine DLC-Waffen, keine eigenen Evolutionen. HP-Skala ×10 und Umrechnung in Studs bleiben. Details, Quellen, interne ID-Zuordnung und Grenzen der Roblox-Abbildung: `docs/BROTATO-BASE-WEAPONS.md`. Shop und Spielfeld verwenden dieselben Originalsprites. Dies ist das Waffenpaket; eine Umstellung aller Charaktere/Gegner/Karten auf 2D gehört nicht zu diesem Paket.
+Die bisherige Waffenliste und die früheren eigenen Balance-Anpassungen werden für das private Spiel durch alle 62 Hauptspiel-Waffen der verlinkten Brotato-Wiki-Liste ersetzt. Originalnamen, Stufen I–IV, Mindeststufen, Skalierungen und Preise; keine DLC-Waffen, keine eigenen Evolutionen. Die inzwischen auf main eingeführten Original-HP-Einheiten (hpScale = 1) und die Umrechnung in Studs gelten. Details, Quellen, interne ID-Zuordnung und Grenzen der Roblox-Abbildung: `docs/BROTATO-BASE-WEAPONS.md`. Shop und Spielfeld verwenden dieselben Originalsprites. Dies ist das Waffenpaket; eine Umstellung aller Charaktere/Gegner/Karten auf 2D gehört nicht zu diesem Paket.
 
 ## 7. Gegner, Elites & Boss
+
+**Owner-Entscheidung 06.11.2026 (B9c):** Alle 22 normalen Crash-Zone-Eintraege (einschliesslich Baum und Sonderbegegnungen), acht Champions und zwei Bosse sind mit originalen Wiki-Basiswerten angelegt. HP/Schaden = Basis + Zuwachs × (Welle − 1); Kontakt und Geschosse/Hiebe wachsen getrennt. Auftauchwellen folgen der jeweiligen Gefahrenstufe. Tempo wird relativ zum Spieler umgerechnet (450 Wiki-Einheiten = 16 Studs/s), Zufallsintervalle werden einmal pro Spawn gewuerfelt. Vollstaendige Zuordnung, Werte, Integrationsgrenzen und Tests: `docs/B9C-GEGNERWERTE.md`, maschinenlesbar `docs/enemy-reference.json`. Die folgenden alten Balancing-Tabellen beschreiben den vorherigen Stand.
 
 | Gegner | Rolle | HP | Tempo (Studs/s) | Schaden | XP | Ab Minute |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -1283,7 +1287,7 @@ Bis zum Soft Launch rund 40–50 Sessions und 50–60 Stunden Zeit des Owners (6
 | Fortschritt | Erfolge mit Zählern schalten Charaktere, Waffen, Items frei; Gefahrenstufe pro Charakter | 13 |
 | Anzeige | Tooltips mit Skalierung („20 (+80 % Melee)"), Set-Bonus-Fortschritt, Item-Limits, Werte Haupt/Neben umschaltbar, Vorschau kommender Elite-/Horden-Wellen | 14 |
 
-**Bewusst anders als Brotato (bleibt):** Online-Koop für 1–4 mit Wiederbeleben, gemeinsames Team-Level, HP mal 10, 3D-Schräg-Kamera, unsere Evolutionen (ab B3 an Waffen-Stufe IV statt Level 5), Gegner-Obergrenze 80 + 20 pro Spieler (Performance-Budget).
+**Bewusst anders als Brotato (bleibt):** Online-Koop für 1–4 mit Wiederbeleben, gemeinsames Team-Level, originale HP-Einheiten (seit B9c), 3D-Schräg-Kamera, unsere Evolutionen (ab B3 an Waffen-Stufe IV statt Level 5), Gegner-Obergrenze 80 + 20 pro Spieler (Performance-Budget).
 
 **Reihenfolge:** Der Shop (B3) ist das Herz und kommt zuerst. Effekt-Maschine (B4) und Kampf-Tiefe (B5) sind das Gerüst für alle neuen Waffen, Items und Charaktere; Inhalte davor zu bauen hieße, sie später umzubauen. Jedes Paket aktualisiert die Balance-Simulation.
 

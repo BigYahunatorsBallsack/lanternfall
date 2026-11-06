@@ -41,7 +41,7 @@ describe("Brotato original catalog", function()
 				expect(s.knockback).toBeNear(source.knockback * Config.Combat.knockback.studsPerPoint)
 				expect(Config.Shop.weaponTierPrices[id][tier]).toBeNear(source.price)
 				for stat, share in original.scaling[tier] do
-					local bonus = { [stat] = if stat == "maxHp" then 100 else 10 }
+					local bonus = { [stat] = 10 }
 					local effective = WeaponStats.compute(w, tier, bonus, nil, Config.Player.minWeaponCooldown)
 					local scaled = if stat == "level" then source.damage + share * 10 else s.damage + share * 10
 					expect(effective.damage).toBeNear(scaled)
@@ -60,8 +60,8 @@ describe("Brotato original catalog", function()
 		expect(next(Config.Evolutions)).toBe(nil)
 	end)
 	it("converts HP scaling once and includes player level", function()
-		expect(weapon("Chopper", 1, { maxHp = 100 }).stats.damage).toBeNear(7.5)
-		expect(weapon("Excalibur", 4, { maxHp = 100, meleeDamage = 10 }).stats.damage).toBeNear(240)
+		expect(weapon("Chopper", 1, { maxHp = 100 }).stats.damage).toBeNear(21)
+		expect(weapon("Excalibur", 4, { maxHp = 100, meleeDamage = 10 }).stats.damage).toBeNear(420)
 		expect(weapon("Quarterstaff", 1, { level = 8 }).stats.damage).toBeNear(16)
 	end)
 	it("keeps Particle Accelerator from bouncing and scales its slow", function()
@@ -101,7 +101,7 @@ describe("Brotato original catalog", function()
 			drained += amount
 			Runtime.hurt({ scythe })
 		end)
-		expect(drained).toBe(60)
+		expect(drained).toBe(6)
 		expect(Runtime.step({ scythe }, 0, true, 40, 100, function() end).damage).toBe(6)
 	end)
 end)

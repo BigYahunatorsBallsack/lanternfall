@@ -1,3 +1,3 @@
 --!strict
--- Original melee on-hit projectiles; the held sprite supplies the melee animation.
-return require(script.Parent.Parent.B7ProjectileVisual)(Color3.fromRGB(155, 220, 245))
+-- Cacti Club attack visual for WeaponRenderer; held art comes from UI.WeaponImages.
+return require(script.Parent.Parent.B7ProjectileVisual)(Color3.fromRGB(225, 190, 110))

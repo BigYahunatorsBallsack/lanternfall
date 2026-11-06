@@ -49,13 +49,13 @@ function LootRules.consumable(
 		return nil
 	end
 	local loot = kind.loot
+	if loot and loot.crate then
+		return "Crate" -- guaranteed loot encounters are exempt from Luck, including -100 Luck
+	end
 	local factor = math.max(0, 1 + luck / 100)
 	local chance = if loot and loot.consumableChance then loot.consumableChance else Loot.consumables.chance
 	if not (roll < chance * factor) then
 		return nil
-	end
-	if loot and loot.crate then
-		return "Crate"
 	end
 	local share = if loot and loot.crateShare then loot.crateShare else Loot.consumables.crateShare
 	return if crateRoll < share * factor / (1 + math.max(0, crates)) then "Crate" else "Fruit"

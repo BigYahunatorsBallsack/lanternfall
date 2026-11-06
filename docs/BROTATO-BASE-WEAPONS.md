@@ -6,7 +6,7 @@ Owner-Auftrag vom 06.11.2026 ersetzt für dieses Waffenpaket die bisherige Regel
 
 - `assets/weapons/brotato-base/catalog.json`: unveränderte Zahlen aus der Wiki-Datentabelle, pro verfügbarer Stufe I–IV. Schaden, Skalierung, Cooldown, Krit, Reichweite, Rückstoß, Lebensraub und Preis.
 - `Config/Weapons`: ausführbare Datensätze plus Sondereffekte. Die bisherigen 26 internen IDs bleiben erhalten, damit Charakter-Startlisten, Freischaltungen und vorhandene Referenzen gültig bleiben. Angezeigt werden ausschließlich Originalnamen.
-- Reichweite: 10 Wiki-Einheiten = 1 Stud wie im bestehenden Spiel. Max-HP-Skalierungen und HP-Gewinne berücksichtigen die vorhandene HP-Skala ×10. Die Beschreibung zeigt die Originalprozente.
+- Reichweite: 10 Wiki-Einheiten = 1 Stud wie im bestehenden Spiel. Max HP, Heilung und HP-Skalierungen nutzen die inzwischen auf main eingeführten Originaleinheiten (hpScale = 1). Die Beschreibung zeigt die Originalprozente.
 - Die frühere gemeinsame Grenze von 12 Angriffen/s würde Chain Gun/Gatling Laser verfälschen. Die neuen Waffen behalten ihre Ausgangs-Cooldowns, schnelle Schüsse werden innerhalb des 15-Hz-Schritts begrenzt nachgeholt. `Arsenal` ist unverändert.
 - Angriffsgeschwindigkeit mit positiven/negativen Boni verwendet weiter die bestehende Formel des Projekts; Brotatos genaue animationsabhängige Rundung und Nahkampf-Reichweitenwirkung sind damit keine vollständige Godot-Engine-Nachbildung. Projektilgeschwindigkeit, Trefferbreite, Fächerwinkel und Sprite-Abstände sind Anpassungen an die Roblox-Arena, keine aus der Wiki-Tabelle behaupteten Originalwerte.
 - Explosionsgrößen folgen den relativen Größen auf [Explosions](https://brotato.wiki.spellsandguns.com/Explosions), multipliziert mit dem bestehenden Roblox-Grundradius 6 Studs.

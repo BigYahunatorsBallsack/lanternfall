@@ -171,16 +171,16 @@ end)
 describe("EffectText", function()
 	it("writes one line per effect", function()
 		expect(EffectText.line(Config.Items.byId.IronVigil.effects[1])).toBe("+8 Armor while standing still")
-		expect(EffectText.line(Config.Items.byId.QuiltedCoat.effects[1])).toBe("+10 Max HP per 80 Shards")
+		expect(EffectText.line(Config.Items.byId.QuiltedCoat.effects[1])).toBe("+1 Max HP per 80 Shards")
 		expect(EffectText.line(Config.Items.byId.EightEyedIdol.effects[1])).toBe(
 			"+6% Attack Speed per different weapon"
 		)
 		expect(EffectText.line(Config.Items.byId.FortuneCoin.effects[1])).toBe("+2 Luck per 1% Crit Chance")
-		expect(EffectText.line(Config.Items.byId.ClockworkArm.effects[1])).toBe("Wave end: -10 Max HP, +3 Melee Damage")
+		expect(EffectText.line(Config.Items.byId.ClockworkArm.effects[1])).toBe("Wave end: -1 Max HP, +3 Melee Damage")
 		expect(EffectText.line(Config.Items.byId.GildedPlume.effects[1])).toBe(
 			"Next wave: +100% XP Gain, +50% Enemy Damage"
 		)
-		expect(EffectText.line(Config.Items.byId.PulseDraught.effects[1])).toBe("Dodge: heal 50 HP (50%)")
+		expect(EffectText.line(Config.Items.byId.PulseDraught.effects[1])).toBe("Dodge: heal 5 HP (50%)")
 		expect(EffectText.line(Config.Items.byId.HuntersTally.effects[1])).toBe("Kill (crit): +1 Shard (33%)")
 		expect(EffectText.line(Config.Items.byId.FieldCenser.effects[1])).toBe("Every 5s: +2 HP Regeneration this wave")
 		expect(EffectText.line(Config.Items.byId.SmolderingWick.effects[1])).toBe(
@@ -205,7 +205,7 @@ describe("EffectText", function()
 		expect(EffectText.proc({ kind = "Heal", amount = 50 })).toBe("+50 HP")
 		expect(EffectText.proc({ kind = "Shards", amount = 1 })).toBe("+1 Shard")
 		expect(EffectText.proc({ kind = "Stats", stats = { damage = 3 } })).toBe("+3% Damage")
-		expect(EffectText.proc({ kind = "Weapon", weaponId = "SparkBolt", tier = 2 })).toBe("Spark Bolt II!")
+		expect(EffectText.proc({ kind = "Weapon", weaponId = "SparkBolt", tier = 2 })).toBe("Wand II!")
 		expect(EffectText.procWithItem({ itemId = "OathRing", kind = "Stats", stats = { damage = 3 } })).toBe(
 			"Oath Ring: +3% Damage"
 		)

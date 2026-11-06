@@ -34,21 +34,22 @@ describe("LootRules", function()
 
 	it("rolls fruits and crates with Luck, fewer crates the more fell this wave", function()
 		local chance = Config.Loot.consumables.chance
-		local share = Config.Loot.consumables.crateShare
+		local share = Types.Shadeling.loot.crateShare
 		expect(LootRules.consumable(Types.Shadeling, 0, 0, chance + 0.001, 0)).toBe(nil)
 		expect(LootRules.consumable(Types.Shadeling, 0, 0, chance - 0.001, 0.99)).toBe("Fruit")
-		expect(LootRules.consumable(Types.Shadeling, 0, 0, chance - 0.001, share - 0.01)).toBe("Crate")
+		expect(LootRules.consumable(Types.Shadeling, 0, 0, chance - 0.001, share - 0.001)).toBe("Crate")
 		expect(LootRules.consumable(Types.Shadeling, 100, 0, chance * 2 - 0.001, 0.99)).toBe("Fruit") -- Luck doubles it
 		expect(LootRules.consumable(Types.Shadeling, -100, 0, 0, 0)).toBe(nil) -- -100 Luck: nothing
 		-- the second crate of a wave comes half as often
-		expect(LootRules.consumable(Types.Shadeling, 0, 1, 0, share / 2 - 0.01)).toBe("Crate")
-		expect(LootRules.consumable(Types.Shadeling, 0, 1, 0, share / 2 + 0.01)).toBe("Fruit")
+		expect(LootRules.consumable(Types.Shadeling, 0, 1, 0, share / 2 - 0.001)).toBe("Crate")
+		expect(LootRules.consumable(Types.Shadeling, 0, 1, 0, share / 2 + 0.001)).toBe("Fruit")
 		-- bigger enemies drop more often, elites never (they leave chests)
 		expect(LootRules.consumable(Types.Brute, 0, 0, chance + 0.001, 0.99)).toBe("Fruit")
 		expect(LootRules.consumable(EnemyKinds.get("Brute", true) :: any, 0, 0, 0, 0)).toBe(nil)
 	end)
 
 	it("gives a crate for every Looter and a fruit or crate for every Tree", function()
+		expect(LootRules.consumable(Types.Looter, -100, 5, 0.99, 0.99)).toBe("Crate")
 		expect(LootRules.consumable(Types.Looter, 0, 5, 0.99, 0.99)).toBe("Crate")
 		expect(LootRules.consumable(Types.Tree, 0, 0, 0.99, 0.19)).toBe("Crate")
 		expect(LootRules.consumable(Types.Tree, 0, 0, 0.99, 0.21)).toBe("Fruit")
