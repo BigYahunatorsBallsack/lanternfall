@@ -74,11 +74,11 @@ describe("World weapon sprites", function()
 			dz = 0,
 			targetDistance = 9,
 		})
-		HeldModels.renderWeapon(owner, one, 1, 2, frame(folder, 2, workspace:GetServerTimeNow()+.1))
-		HeldModels.renderWeapon(owner, two, 2, 2, frame(folder, 2, workspace:GetServerTimeNow()+.1))
+		HeldModels.renderWeapon(owner, one, 1, 2, frame(folder, 2, workspace:GetServerTimeNow() + 0.1))
+		HeldModels.renderWeapon(owner, two, 2, 2, frame(folder, 2, workspace:GetServerTimeNow() + 0.1))
 		expect(first.CFrame.Position.X > firstX).toBe(true)
 		expect(second.CFrame.Position.X).toBe(secondX)
-		HeldModels.finish(frame(folder, 2, workspace:GetServerTimeNow()+.1))
+		HeldModels.finish(frame(folder, 2, workspace:GetServerTimeNow() + 0.1))
 		HeldModels.renderWeapon(owner, two, 1, 1, frame(folder, 3, 1.3))
 		HeldModels.finish(frame(folder, 3, 1.3))
 		expect(#folder:GetChildren()).toBe(1)
@@ -87,17 +87,37 @@ describe("World weapon sprites", function()
 	end)
 
 	it("shows a single held Circular Saw and keeps Crossbow visible after firing", function()
-        local folder=Instance.new("Folder")
-        local owner={userId=8,position=Vector3.new(0,100,0)}
-        HeldModels.renderWeapon(owner,{uid=3,id="OrbitBlades"},1,2,frame(folder,1,workspace:GetServerTimeNow()))
-        HeldModels.effect({weapon="BoomerangAxe",userId=8,uid=4,kind="Fire",at=workspace:GetServerTimeNow(),dx=1,dz=0})
-        HeldModels.renderWeapon(owner,{uid=4,id="BoomerangAxe"},2,2,frame(folder,1,workspace:GetServerTimeNow()))
-        expect(#folder:GetChildren()).toBe(2)
-        for _,anchor in folder:GetChildren() do
-            expect(anchor.WeaponArtwork.Sprite.Visible).toBe(true)
-        end
-        HeldModels.clear()
-    end)
+		local folder = Instance.new("Folder")
+		local owner = { userId = 8, position = Vector3.new(0, 100, 0) }
+		HeldModels.renderWeapon(
+			owner,
+			{ uid = 3, id = "OrbitBlades" },
+			1,
+			2,
+			frame(folder, 1, workspace:GetServerTimeNow())
+		)
+		HeldModels.effect({
+			weapon = "BoomerangAxe",
+			userId = 8,
+			uid = 4,
+			kind = "Fire",
+			at = workspace:GetServerTimeNow(),
+			dx = 1,
+			dz = 0,
+		})
+		HeldModels.renderWeapon(
+			owner,
+			{ uid = 4, id = "BoomerangAxe" },
+			2,
+			2,
+			frame(folder, 1, workspace:GetServerTimeNow())
+		)
+		expect(#folder:GetChildren()).toBe(2)
+		for _, anchor in folder:GetChildren() do
+			expect(anchor.WeaponArtwork.Sprite.Visible).toBe(true)
+		end
+		HeldModels.clear()
+	end)
 
 	it("sends the precise copy id and starts shots beyond the held weapon", function()
 		local x, z = Pose.anchor(10, 20, 4, "WatchmanPistol")

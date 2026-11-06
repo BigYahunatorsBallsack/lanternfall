@@ -46,9 +46,14 @@ return {
 				["price"] = 149.0,
 			},
 		},
-		["scaling"] = { { ["meleeDamage"] = 0.8 }, { ["meleeDamage"] = 0.85 }, { ["meleeDamage"] = 0.9 }, {
-			["meleeDamage"] = 1.0,
-		} },
+		["scaling"] = {
+			{ ["meleeDamage"] = 0.8 },
+			{ ["meleeDamage"] = 0.85 },
+			{ ["meleeDamage"] = 0.9 },
+			{
+				["meleeDamage"] = 1.0,
+			},
+		},
 	},
 	["Chopper"] = {
 		["name"] = "Chopper",
@@ -329,9 +334,14 @@ return {
 				["price"] = 91.0,
 			},
 		},
-		["scaling"] = { { ["meleeDamage"] = 1.0 }, { ["meleeDamage"] = 1.0 }, { ["meleeDamage"] = 1.0 }, {
-			["meleeDamage"] = 1.0,
-		} },
+		["scaling"] = {
+			{ ["meleeDamage"] = 1.0 },
+			{ ["meleeDamage"] = 1.0 },
+			{ ["meleeDamage"] = 1.0 },
+			{
+				["meleeDamage"] = 1.0,
+			},
+		},
 	},
 	["FlamingBrassKnuckles"] = {
 		["name"] = "Flaming Brass Knuckles",
@@ -416,9 +426,14 @@ return {
 				["price"] = 149.0,
 			},
 		},
-		["scaling"] = { { ["meleeDamage"] = 1.0 }, { ["meleeDamage"] = 1.0 }, { ["meleeDamage"] = 1.0 }, {
-			["meleeDamage"] = 1.0,
-		} },
+		["scaling"] = {
+			{ ["meleeDamage"] = 1.0 },
+			{ ["meleeDamage"] = 1.0 },
+			{ ["meleeDamage"] = 1.0 },
+			{
+				["meleeDamage"] = 1.0,
+			},
+		},
 	},
 	["SpiritFlint"] = {
 		["name"] = "Ghost Flint",
@@ -465,9 +480,14 @@ return {
 				["price"] = 105.0,
 			},
 		},
-		["scaling"] = { { ["meleeDamage"] = 1.0 }, { ["meleeDamage"] = 1.0 }, { ["meleeDamage"] = 1.0 }, {
-			["meleeDamage"] = 1.0,
-		} },
+		["scaling"] = {
+			{ ["meleeDamage"] = 1.0 },
+			{ ["meleeDamage"] = 1.0 },
+			{ ["meleeDamage"] = 1.0 },
+			{
+				["meleeDamage"] = 1.0,
+			},
+		},
 	},
 	["Shockwave"] = {
 		["name"] = "Hammer",
@@ -552,9 +572,14 @@ return {
 				["price"] = 91.0,
 			},
 		},
-		["scaling"] = { { ["meleeDamage"] = 0.5 }, { ["meleeDamage"] = 0.5 }, { ["meleeDamage"] = 0.5 }, {
-			["meleeDamage"] = 0.5,
-		} },
+		["scaling"] = {
+			{ ["meleeDamage"] = 0.5 },
+			{ ["meleeDamage"] = 0.5 },
+			{ ["meleeDamage"] = 0.5 },
+			{
+				["meleeDamage"] = 0.5,
+			},
+		},
 	},
 	["Hatchet"] = {
 		["name"] = "Hatchet",
@@ -705,9 +730,14 @@ return {
 				["price"] = 91.0,
 			},
 		},
-		["scaling"] = { { ["meleeDamage"] = 0.8 }, { ["meleeDamage"] = 0.8 }, { ["meleeDamage"] = 0.8 }, {
-			["meleeDamage"] = 0.8,
-		} },
+		["scaling"] = {
+			{ ["meleeDamage"] = 0.8 },
+			{ ["meleeDamage"] = 0.8 },
+			{ ["meleeDamage"] = 0.8 },
+			{
+				["meleeDamage"] = 0.8,
+			},
+		},
 	},
 	["ChainLightning"] = {
 		["name"] = "Lightning Shiv",
@@ -754,9 +784,14 @@ return {
 				["price"] = 142.0,
 			},
 		},
-		["scaling"] = { { ["meleeDamage"] = 0.8 }, { ["meleeDamage"] = 0.8 }, { ["meleeDamage"] = 0.8 }, {
-			["meleeDamage"] = 0.8,
-		} },
+		["scaling"] = {
+			{ ["meleeDamage"] = 0.8 },
+			{ ["meleeDamage"] = 0.8 },
+			{ ["meleeDamage"] = 0.8 },
+			{
+				["meleeDamage"] = 0.8,
+			},
+		},
 	},
 	["Plank"] = {
 		["name"] = "Plank",
@@ -918,9 +953,14 @@ return {
 				["price"] = 95.0,
 			},
 		},
-		["scaling"] = { { ["meleeDamage"] = 0.5 }, { ["meleeDamage"] = 0.65 }, { ["meleeDamage"] = 0.8 }, {
-			["meleeDamage"] = 1.0,
-		} },
+		["scaling"] = {
+			{ ["meleeDamage"] = 0.5 },
+			{ ["meleeDamage"] = 0.65 },
+			{ ["meleeDamage"] = 0.8 },
+			{
+				["meleeDamage"] = 1.0,
+			},
+		},
 	},
 	["Gravestone"] = {
 		["name"] = "Rock",
@@ -967,9 +1007,14 @@ return {
 				["price"] = 91.0,
 			},
 		},
-		["scaling"] = { { ["meleeDamage"] = 1.0 }, { ["meleeDamage"] = 1.0 }, { ["meleeDamage"] = 1.0 }, {
-			["meleeDamage"] = 1.0,
-		} },
+		["scaling"] = {
+			{ ["meleeDamage"] = 1.0 },
+			{ ["meleeDamage"] = 1.0 },
+			{ ["meleeDamage"] = 1.0 },
+			{
+				["meleeDamage"] = 1.0,
+			},
+		},
 	},
 	["Scissors"] = {
 		["name"] = "Scissors",
@@ -1016,9 +1061,14 @@ return {
 				["price"] = 122.0,
 			},
 		},
-		["scaling"] = { { ["meleeDamage"] = 0.8 }, { ["meleeDamage"] = 0.8 }, { ["meleeDamage"] = 0.8 }, {
-			["meleeDamage"] = 0.8,
-		} },
+		["scaling"] = {
+			{ ["meleeDamage"] = 0.8 },
+			{ ["meleeDamage"] = 0.8 },
+			{ ["meleeDamage"] = 0.8 },
+			{
+				["meleeDamage"] = 0.8,
+			},
+		},
 	},
 	["RuneAwl"] = {
 		["name"] = "Screwdriver",
@@ -1137,9 +1187,14 @@ return {
 				["price"] = 149.0,
 			},
 		},
-		["scaling"] = { { ["meleeDamage"] = 1.0 }, { ["meleeDamage"] = 1.0 }, { ["meleeDamage"] = 1.0 }, {
-			["meleeDamage"] = 1.0,
-		} },
+		["scaling"] = {
+			{ ["meleeDamage"] = 1.0 },
+			{ ["meleeDamage"] = 1.0 },
+			{ ["meleeDamage"] = 1.0 },
+			{
+				["meleeDamage"] = 1.0,
+			},
+		},
 	},
 	["SpikyShield"] = {
 		["name"] = "Spiky Shield",
@@ -1233,9 +1288,14 @@ return {
 				["price"] = 91.0,
 			},
 		},
-		["scaling"] = { { ["meleeDamage"] = 1.0 }, { ["meleeDamage"] = 1.0 }, { ["meleeDamage"] = 1.0 }, {
-			["meleeDamage"] = 1.0,
-		} },
+		["scaling"] = {
+			{ ["meleeDamage"] = 1.0 },
+			{ ["meleeDamage"] = 1.0 },
+			{ ["meleeDamage"] = 1.0 },
+			{
+				["meleeDamage"] = 1.0,
+			},
+		},
 	},
 	["DuskSabre"] = {
 		["name"] = "Sword",
@@ -1320,9 +1380,14 @@ return {
 				["price"] = 105.0,
 			},
 		},
-		["scaling"] = { { ["meleeDamage"] = 0.5 }, { ["meleeDamage"] = 0.5 }, { ["meleeDamage"] = 0.5 }, {
-			["meleeDamage"] = 0.5,
-		} },
+		["scaling"] = {
+			{ ["meleeDamage"] = 0.5 },
+			{ ["meleeDamage"] = 0.5 },
+			{ ["meleeDamage"] = 0.5 },
+			{
+				["meleeDamage"] = 0.5,
+			},
+		},
 	},
 	["ThunderSword"] = {
 		["name"] = "Thunder Sword",
@@ -1455,9 +1520,14 @@ return {
 				["price"] = 149.0,
 			},
 		},
-		["scaling"] = { { ["meleeDamage"] = 1.0 }, { ["meleeDamage"] = 1.0 }, { ["meleeDamage"] = 1.0 }, {
-			["meleeDamage"] = 1.0,
-		} },
+		["scaling"] = {
+			{ ["meleeDamage"] = 1.0 },
+			{ ["meleeDamage"] = 1.0 },
+			{ ["meleeDamage"] = 1.0 },
+			{
+				["meleeDamage"] = 1.0,
+			},
+		},
 	},
 	["ChainGun"] = {
 		["name"] = "Chain Gun",
@@ -1576,9 +1646,14 @@ return {
 				["price"] = 149.0,
 			},
 		},
-		["scaling"] = { { ["rangedDamage"] = 0.8 }, { ["rangedDamage"] = 0.85 }, { ["rangedDamage"] = 0.9 }, {
-			["rangedDamage"] = 1.0,
-		} },
+		["scaling"] = {
+			{ ["rangedDamage"] = 0.8 },
+			{ ["rangedDamage"] = 0.85 },
+			{ ["rangedDamage"] = 0.9 },
+			{
+				["rangedDamage"] = 1.0,
+			},
+		},
 	},
 	["CinderBreath"] = {
 		["name"] = "Flamethrower",
@@ -1616,7 +1691,12 @@ return {
 				["price"] = 207.0,
 			},
 		},
-		["scaling"] = { {}, { ["elementalDamage"] = 0.01 }, { ["elementalDamage"] = 0.01 }, { ["elementalDamage"] = 0.01 } },
+		["scaling"] = {
+			{},
+			{ ["elementalDamage"] = 0.01 },
+			{ ["elementalDamage"] = 0.01 },
+			{ ["elementalDamage"] = 0.01 },
+		},
 	},
 	["CathedralEngine"] = {
 		["name"] = "Gatling Laser",
@@ -1683,9 +1763,14 @@ return {
 				["price"] = 122.0,
 			},
 		},
-		["scaling"] = { { ["rangedDamage"] = 1.0 }, { ["rangedDamage"] = 1.0 }, { ["rangedDamage"] = 1.0 }, {
-			["rangedDamage"] = 1.0,
-		} },
+		["scaling"] = {
+			{ ["rangedDamage"] = 1.0 },
+			{ ["rangedDamage"] = 1.0 },
+			{ ["rangedDamage"] = 1.0 },
+			{
+				["rangedDamage"] = 1.0,
+			},
+		},
 	},
 	["LaserGun"] = {
 		["name"] = "Laser Gun",
@@ -1732,9 +1817,14 @@ return {
 				["price"] = 122.0,
 			},
 		},
-		["scaling"] = { { ["rangedDamage"] = 4.0 }, { ["rangedDamage"] = 4.5 }, { ["rangedDamage"] = 5.0 }, {
-			["rangedDamage"] = 6.0,
-		} },
+		["scaling"] = {
+			{ ["rangedDamage"] = 4.0 },
+			{ ["rangedDamage"] = 4.5 },
+			{ ["rangedDamage"] = 5.0 },
+			{
+				["rangedDamage"] = 6.0,
+			},
+		},
 	},
 	["LeechCarbine"] = {
 		["name"] = "Medical Gun",
@@ -1781,9 +1871,14 @@ return {
 				["price"] = 122.0,
 			},
 		},
-		["scaling"] = { { ["rangedDamage"] = 1.0 }, { ["rangedDamage"] = 1.0 }, { ["rangedDamage"] = 1.0 }, {
-			["rangedDamage"] = 1.0,
-		} },
+		["scaling"] = {
+			{ ["rangedDamage"] = 1.0 },
+			{ ["rangedDamage"] = 1.0 },
+			{ ["rangedDamage"] = 1.0 },
+			{
+				["rangedDamage"] = 1.0,
+			},
+		},
 	},
 	["Minigun"] = {
 		["name"] = "Minigun",
@@ -1922,9 +2017,14 @@ return {
 				["price"] = 91.0,
 			},
 		},
-		["scaling"] = { { ["rangedDamage"] = 1.0 }, { ["rangedDamage"] = 1.0 }, { ["rangedDamage"] = 1.0 }, {
-			["rangedDamage"] = 1.0,
-		} },
+		["scaling"] = {
+			{ ["rangedDamage"] = 1.0 },
+			{ ["rangedDamage"] = 1.0 },
+			{ ["rangedDamage"] = 1.0 },
+			{
+				["rangedDamage"] = 1.0,
+			},
+		},
 	},
 	["PotatoThrower"] = {
 		["name"] = "Potato Thrower",
@@ -2066,9 +2166,14 @@ return {
 				["price"] = 130.0,
 			},
 		},
-		["scaling"] = { { ["rangedDamage"] = 1.0 }, { ["rangedDamage"] = 1.3 }, { ["rangedDamage"] = 1.65 }, {
-			["rangedDamage"] = 2.0,
-		} },
+		["scaling"] = {
+			{ ["rangedDamage"] = 1.0 },
+			{ ["rangedDamage"] = 1.3 },
+			{ ["rangedDamage"] = 1.65 },
+			{
+				["rangedDamage"] = 2.0,
+			},
+		},
 	},
 	["MortarLantern"] = {
 		["name"] = "Rocket Launcher",
@@ -2153,9 +2258,14 @@ return {
 				["price"] = 122.0,
 			},
 		},
-		["scaling"] = { { ["rangedDamage"] = 0.5 }, { ["rangedDamage"] = 0.5 }, { ["rangedDamage"] = 0.5 }, {
-			["rangedDamage"] = 0.5,
-		} },
+		["scaling"] = {
+			{ ["rangedDamage"] = 0.5 },
+			{ ["rangedDamage"] = 0.5 },
+			{ ["rangedDamage"] = 0.5 },
+			{
+				["rangedDamage"] = 0.5,
+			},
+		},
 	},
 	["Shuriken"] = {
 		["name"] = "Shuriken",
@@ -2202,9 +2312,14 @@ return {
 				["price"] = 105.0,
 			},
 		},
-		["scaling"] = { { ["meleeDamage"] = 0.25 }, { ["meleeDamage"] = 0.34 }, { ["meleeDamage"] = 0.42 }, {
-			["meleeDamage"] = 0.5,
-		} },
+		["scaling"] = {
+			{ ["meleeDamage"] = 0.25 },
+			{ ["meleeDamage"] = 0.34 },
+			{ ["meleeDamage"] = 0.42 },
+			{
+				["meleeDamage"] = 0.5,
+			},
+		},
 	},
 	["Slingshot"] = {
 		["name"] = "Slingshot",
@@ -2251,9 +2366,14 @@ return {
 				["price"] = 122.0,
 			},
 		},
-		["scaling"] = { { ["rangedDamage"] = 0.8 }, { ["rangedDamage"] = 0.8 }, { ["rangedDamage"] = 0.8 }, {
-			["rangedDamage"] = 0.8,
-		} },
+		["scaling"] = {
+			{ ["rangedDamage"] = 0.8 },
+			{ ["rangedDamage"] = 0.8 },
+			{ ["rangedDamage"] = 0.8 },
+			{
+				["rangedDamage"] = 0.8,
+			},
+		},
 	},
 	["RattleRepeater"] = {
 		["name"] = "SMG",
@@ -2300,9 +2420,14 @@ return {
 				["price"] = 149.0,
 			},
 		},
-		["scaling"] = { { ["rangedDamage"] = 0.5 }, { ["rangedDamage"] = 0.6 }, { ["rangedDamage"] = 0.7 }, {
-			["rangedDamage"] = 0.8,
-		} },
+		["scaling"] = {
+			{ ["rangedDamage"] = 0.5 },
+			{ ["rangedDamage"] = 0.6 },
+			{ ["rangedDamage"] = 0.7 },
+			{
+				["rangedDamage"] = 0.8,
+			},
+		},
 	},
 	["SniperGun"] = {
 		["name"] = "Sniper Gun",
@@ -2331,7 +2456,12 @@ return {
 				["price"] = 245.0,
 			},
 		},
-		["scaling"] = { {}, {}, { ["rangedDamage"] = 1.0, ["range"] = 0.2 }, { ["rangedDamage"] = 1.0, ["range"] = 0.3 } },
+		["scaling"] = {
+			{},
+			{},
+			{ ["rangedDamage"] = 1.0, ["range"] = 0.2 },
+			{ ["rangedDamage"] = 1.0, ["range"] = 0.3 },
+		},
 	},
 	["GalvanicFork"] = {
 		["name"] = "Taser",
@@ -2493,7 +2623,12 @@ return {
 				["price"] = 140.0,
 			},
 		},
-		["scaling"] = { {}, { ["elementalDamage"] = 0.25 }, { ["elementalDamage"] = 0.5 }, { ["elementalDamage"] = 0.75 } },
+		["scaling"] = {
+			{},
+			{ ["elementalDamage"] = 0.25 },
+			{ ["elementalDamage"] = 0.5 },
+			{ ["elementalDamage"] = 0.75 },
+		},
 	},
 	["WinterNeedle"] = {
 		["name"] = "Icicle",
