@@ -35,7 +35,6 @@ local Store = Config.Store
 local Economy = Config.Economy
 local Texts = Store.texts
 local LOG_PREFIX = "[Lanternfall] "
-local DECORATION_NAME = "LanternfallVip"
 
 local MonetizationService = {}
 
@@ -103,56 +102,8 @@ local function vipRerollsLeft(player: Player): number
 	return math.max(0, Economy.vipExtraRerolls - (vipRerollsUsed[player] or 0))
 end
 
-local function clearDecoration(character: Model)
-	local existing = character:FindFirstChild(DECORATION_NAME)
-	if existing then
-		existing:Destroy()
-	end
-end
-
--- VIP tag over the head, seen by everyone (made on the server, so it replicates). The VIP lantern and trail are
--- cosmetics since Paket 17 (CosmeticService).
-local function decorate(player: Player, character: Model?)
-	if not character then
-		return
-	end
-	local vip = MonetizationService.owns(player, "VIP")
-	local root = character:FindFirstChild("HumanoidRootPart")
-	if not vip or not root then
-		clearDecoration(character)
-		return
-	end
-	if character:FindFirstChild(DECORATION_NAME) then
-		return
-	end
-	local style = Store.vip
-	local color = Color3.fromRGB(style.color[1], style.color[2], style.color[3])
-	local folder = Instance.new("Folder")
-	folder.Name = DECORATION_NAME
-
-	local tag = Instance.new("BillboardGui")
-	tag.Name = "VipTag"
-	tag.Adornee = character:FindFirstChild("Head") or root
-	tag.Size = UDim2.fromOffset(56, 22)
-	tag.StudsOffset = Vector3.new(0, Config.Sprites.character.bodyStuds + 0.8, 0) -- above the figure on the screen
-	tag.MaxDistance = 400
-	tag.Parent = folder
-	local label = Instance.new("TextLabel")
-	label.BackgroundTransparency = 1
-	label.Size = UDim2.fromScale(1, 1)
-	label.Font = Enum.Font.GothamBold
-	label.TextScaled = true
-	label.Text = style.tag
-	label.TextColor3 = color
-	label.TextStrokeTransparency = 0.3
-	label.Parent = tag
-
-	folder.Parent = character
-end
-
 local function applyPerks(player: Player)
 	player:SetAttribute(Store.vip.attribute, MonetizationService.owns(player, "VIP"))
-	decorate(player, player.Character)
 	MonetizationService.PerksChanged:Fire(player)
 end
 
@@ -448,9 +399,6 @@ local function forget(player: Player)
 end
 
 local function onPlayerAdded(player: Player)
-	player.CharacterAdded:Connect(function(character)
-		decorate(player, character)
-	end)
 	task.spawn(checkPasses, player)
 end
 

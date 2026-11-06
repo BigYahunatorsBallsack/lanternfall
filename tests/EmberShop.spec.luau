@@ -81,10 +81,8 @@ describe("Ember shop", function()
 		expect(theirs:GetAttribute("Lantern")).toBe(Cosmetics.vipDefaults.Lantern)
 		expect(theirs:GetAttribute("Trail")).toBe(Cosmetics.vipDefaults.Trail)
 		expect(theirs:FindFirstChild("Trail").ClassName).toBe("Trail")
-		-- the VIP tag stays with the pass, the trail is a cosmetic now
-		local vip = peer.Character:FindFirstChild("LanternfallVip")
-		expect(vip:FindFirstChild("VipTag") ~= nil).toBe(true)
-		expect(vip:FindFirstChild("VipTrail")).toBe(nil)
+		-- nothing else is added to the character: no tag in the world since Paket 25, the trail is a cosmetic
+		expect(peer.Character:FindFirstChild("LanternfallVip")).toBe(nil)
 	end)
 
 	it("shows the price on locked characters and opens the window next to the store", function()

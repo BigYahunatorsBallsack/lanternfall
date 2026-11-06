@@ -69,7 +69,7 @@ return table.freeze({
 		table.freeze({
 			key = "VIP",
 			name = "VIP",
-			text = `VIP tag, Gilded Sunburst lantern and Gilded Trail, +{Economy.vipExtraRerolls} free shop reroll per run, `
+			text = `Gilded Sunburst lantern and Gilded Trail, +{Economy.vipExtraRerolls} free shop reroll per run, `
 				.. `+{math.round(Economy.bonuses.vip * 100)}% Embers`,
 			price = Economy.prices.vip,
 		}),
@@ -139,7 +139,7 @@ return table.freeze({
 	passRetrySeconds = 2,
 
 	vip = table.freeze({
-		attribute = "LanternfallVip", -- player attribute (chat tag on every client)
+		attribute = "LanternfallVip", -- player attribute (chat tag on every client; no tag in the world since Paket 25)
 		tag = "VIP",
 		color = table.freeze({ 245, 197, 66 }), -- RGB (no Color3 here: pure specs load Config)
 		colorHex = "F5C542", -- the same color for the chat tag

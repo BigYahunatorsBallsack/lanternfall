@@ -81,6 +81,13 @@ local Sprites = {
 		classes = Images.characters,
 	}),
 
+	-- Weapons float around the middle of the figure, clear of its body. Only what the eye sees: shots keep the server's
+	-- path (Util/WeaponPose) and start at the barrel on the screen.
+	heldWeapons = table.freeze({
+		lift = 2.7, -- studs north of the feet: the figure's middle on the screen
+		clearance = 3.2, -- studs from that middle to the inner end of a weapon
+	}),
+
 	-- Shared pictures; their white parts take the color of the object.
 	images = Images.shared,
 
