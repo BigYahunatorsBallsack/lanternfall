@@ -43,10 +43,14 @@ function OfferText.stats(id: string, tier: number, sheet: { [string]: number }):
 	for stat, share in (if weapon.tierScaling then weapon.tierScaling[tier] else weapon.scaling) do
 		damage += share * (sheet[stat] or 0)
 	end
+	damage += (result.levelScaling or 0) * (sheet.level or 1)
 	result.damage = math.max(1, damage * math.max(0, 1 + (sheet.damage or 0) / 100))
 	if result.cooldown then
-		result.cooldown =
-			math.max(Config.Player.minWeaponCooldown, result.cooldown * StatMath.cooldownFactor(sheet.attackSpeed or 0))
+		local minimum = math.max(
+			if weapon.brotato then Config.Combat.originalWeapons.minCooldown else Config.Player.minWeaponCooldown,
+			sheet.weaponCooldownMin or 0
+		)
+		result.cooldown = math.max(minimum, result.cooldown * StatMath.cooldownFactor(sheet.attackSpeed or 0))
 	end
 	for _, key in weapon.rangeKeys do
 		if result[key] then
@@ -69,6 +73,9 @@ function OfferText.stats(id: string, tier: number, sheet: { [string]: number }):
 	end
 	if result.bounce then
 		result.bounce = math.max(0, math.floor(result.bounce + (sheet.bounce or 0)))
+	end
+	if weapon.brotato and result.noBounce then
+		result.bounce = 0
 	end
 	return result
 end

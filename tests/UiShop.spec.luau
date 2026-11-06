@@ -36,6 +36,8 @@ describe("Approved shop UI", function()
 					knockback = 3,
 					piercing = 2,
 					bounce = 1,
+					level = 12,
+					weaponCooldownMin = 0.4,
 				},
 				{
 					damage = -150,

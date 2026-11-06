@@ -76,7 +76,9 @@ local emptyLabel: TextLabel
 
 local function valueText(statId: string, value: number): string
 	local rounded = math.round(value * 100) / 100
-	local text = if rounded == math.floor(rounded) then tostring(rounded) else (string.format("%.2f", rounded):gsub("0+$", ""))
+	local text = if rounded == math.floor(rounded)
+		then tostring(rounded)
+		else (string.format("%.2f", rounded):gsub("0+$", ""))
 	local cap = if (sheet.dodgeCap or 0) > 0 then sheet.dodgeCap else Config.Stats.dodge.max
 	if statId == "dodge" and value > cap then
 		text ..= ` (max {cap}%)`
