@@ -482,3 +482,8 @@ Branch `wp-25-2d-presentation`. **Owner-Entscheidungen dieses Pakets:** Das Spie
   - Spieler (`character`): `walkCycleSeconds` 0.6 → 0.75, `walkTiltDegrees` 7 → 4, `walkSquash` 0.09 → 0.045, `walkHopStuds` 0.25 → 0.1, `foot.lift` 0.45 → 0.3.
   - Gegner (`enemy`): `gait.stride` 6 → 7.5 (weniger Schritte pro Strecke), `gait.bob` 0.1 → 0.04, `gait.roll` 0.1 → 0.05, `squash` 0.08 → 0.04.
 - Feinjustieren: dieselben Felder; kleinere Zahl = ruhiger (bei `walkCycleSeconds`/`stride`: größere Zahl = ruhiger).
+
+## Gegner-Bild blitzt beim Spawn nicht mehr auf (06.11.2026)
+
+- Owner sah neue Gegner ganz kurz an der falschen Stelle. Ursache: `EnemyRenderer` hängte das (gepoolte) Modell sofort in den Workspace, die Teile standen da noch am letzten Todesort bzw. am Ursprung; erst danach kam die Verschiebung per `BulkMoveTo`, und das Billboard-Bild wurde einen Frame lang an der alten Stelle gezeichnet.
+- Fix nur in `src/client/Controllers/EnemyRenderer/init.luau`: Ein neuer Gegner bleibt unsichtbar (ohne Parent), seine Teile werden direkt an den Spawn-Punkt gesetzt, sichtbar wird er einen Frame später. Felder `placed`/`shown` im `Drawn`-Eintrag. Server, Remotes und Werte unverändert.
