@@ -50,7 +50,7 @@ local function record(values)
 		won = false,
 		wave = 5,
 		danger = 0,
-		classId = "BladeWarden",
+		classId = "NightWatch",
 		kills = 100,
 		bossKills = 0,
 		seconds = 120,
@@ -82,7 +82,7 @@ describe("login streak and daily quests", function()
 		expect(data.quests.day).toBe(tostring(today()))
 		expect(world.gui("Lobby", "OpenQuests").Text).toBe(`QUESTS 0/{Config.Quests.daily}`)
 		-- the same quests the rules give this player today
-		local expected = QuestRules.roll(1, today(), { "BladeWarden", "DuelMaestro", "NightWatch", "SparkMage" })
+		local expected = QuestRules.roll(1, today(), { "DuelMaestro", "NightWatch", "SparkMage" })
 		for index, quest in state.quests do
 			expect(quest.id).toBe(expected[index].id)
 		end

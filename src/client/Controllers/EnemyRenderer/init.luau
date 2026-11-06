@@ -1,7 +1,7 @@
 --!strict
 --!native
 -- Draws the server's enemies (DESIGN.md section 15): EnemySnapshot packets go into a SnapshotBuffer, models
--- are pooled per enemy type (EnemyRenderer/Models), positions are interpolated about 100 ms behind the
+-- are pooled per enemy type (EnemyRenderer/SpriteModels, 2D since Paket 25), positions are interpolated about 100 ms behind the
 -- newest tick and every part moves with one workspace:BulkMoveTo per frame. Models.pose animates the walk: the step
 -- cycle advances with the distance an enemy covers, so legs and bobbing match its speed. Hits flash the model
 -- white; the snapshot flags show a charger's wind-up and rush (it then faces its rush direction from the flags) and
@@ -28,7 +28,7 @@ local Bursts = require(script.Parent.Parent.Vfx.Bursts)
 local CameraController = require(script.Parent.CameraController)
 local DeathBursts = require(script.DeathBursts)
 local GraphicsController = require(script.Parent.GraphicsController)
-local Models = require(script.Models)
+local Models = require(script.SpriteModels)
 local RunStateController = require(script.Parent.RunStateController)
 local SnapshotBuffer = require(script.SnapshotBuffer)
 

@@ -91,12 +91,10 @@ local function startRun()
 end
 
 describe("store", function()
-	it("checks game passes on join and gives VIP its tag and trail", function()
+	it("checks game passes on join and gives VIP its trail", function()
 		expect(me:GetAttribute(Config.Store.vip.attribute)).toBe(true)
 		expect(peer:GetAttribute(Config.Store.vip.attribute)).toBe(false)
-		local decoration = me.Character:FindFirstChild("LanternfallVip")
-		expect(decoration ~= nil).toBe(true)
-		expect(decoration:FindFirstChild("VipTag") ~= nil).toBe(true)
+		expect(me.Character:FindFirstChild("LanternfallVip")).toBe(nil) -- no tag in the world since Paket 25
 		-- since Paket 17 the golden trail is a cosmetic (CosmeticService, tests/EmberShop.spec.luau)
 		expect(me.Character.LanternfallCosmetics:GetAttribute("Trail")).toBe(Config.Cosmetics.vipDefaults.Trail)
 		expect(peer.Character:FindFirstChild("LanternfallVip")).toBe(nil)
@@ -203,7 +201,6 @@ describe("store", function()
 		world.advance(0.2)
 		expect(MonetizationService.owns(peer, "VIP")).toBe(true)
 		expect(peer:GetAttribute(Config.Store.vip.attribute)).toBe(true)
-		expect(peer.Character:FindFirstChild("LanternfallVip") ~= nil).toBe(true)
 		expect(PlayerDataService.get(peer).passCache.VIP).toBe(true)
 		-- a cancelled prompt changes nothing
 		world.market.PromptGamePassPurchaseFinished:Fire(me, 102, false)

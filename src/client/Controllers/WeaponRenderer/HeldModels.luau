@@ -11,6 +11,7 @@ local SpriteKit = require(script.Parent.SpriteKit)
 local VisualKit = require(script.Parent.VisualKit)
 
 local LOOK = Config.WeaponVisuals
+local RING = Config.Sprites.heldWeapons
 
 type Attack = {
 	at: number,
@@ -94,6 +95,13 @@ local function nearestEnemy(owner: VisualKit.Owner, frameNumber: number): (numbe
 	return if bestSquared < math.huge then bestX else nil, if bestSquared < math.huge then bestZ else nil
 end
 
+-- Where a held weapon floats: around the figure's middle, far enough for its picture to stay off the body.
+local function floatingAt(owner: VisualKit.Owner, uid: number, id: string): (number, number)
+	local dx, dz = WeaponPose.direction(uid)
+	local radius = RING.clearance + (LOOK.spriteStuds[id] or 4) * 0.5
+	return owner.position.X + dx * radius, owner.position.Z - RING.lift + dz * radius
+end
+
 function HeldModels.effect(effect: Types.WeaponEffect)
 	local uid = effect.uid
 	if not uid then
@@ -147,7 +155,7 @@ function HeldModels.renderWeapon(
 	model.seen = frame.number
 
 	local radialX, radialZ = WeaponPose.direction(weapon.uid)
-	local x, z = WeaponPose.anchor(owner.position.X, owner.position.Z, weapon.uid, weapon.id)
+	local x, z = floatingAt(owner, weapon.uid, weapon.id)
 	local dx, dz = radialX, radialZ
 	local targetX, targetZ = nearestEnemy(owner, frame.number)
 	if targetX and targetZ then
@@ -200,7 +208,8 @@ function HeldModels.renderWeapon(
 	model.x, model.z = x, z
 	sprite.picture.Visible = (flights[key] or 0) == 0
 	sprite.picture.Rotation = SpriteKit.rotationToward(weapon.id, dx, dz)
-	frame.move(sprite.anchor, CFrame.new(x, frame.floorY + LOOK.projectileHeight + bob, z))
+	-- bobbing goes up the screen, the camera looks straight down
+	frame.move(sprite.anchor, CFrame.new(x, frame.floorY + LOOK.projectileHeight, z - bob))
 end
 
 -- The client projectile starts at the barrel currently on screen, then rejoins the server path.

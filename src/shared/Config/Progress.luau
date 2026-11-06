@@ -43,7 +43,7 @@ local achievements: { Achievement } = {
 		stat = "wins",
 		goal = 1,
 		embers = 200,
-		unlocks = { items = { "LanternCodex" } },
+		unlocks = { items = { "LanternCodex" }, characters = { "MarbleHost" } },
 	},
 	{
 		id = "ThousandShades",
@@ -100,13 +100,6 @@ local achievements: { Achievement } = {
 		unlocks = { weapons = { "TithePalm" } },
 	},
 	-- Winning with a character unlocks the next one or a weapon/item (like Brotato's character wins)
-	{
-		id = "WinBladeWarden",
-		name = "Warden's Oath",
-		winWith = "BladeWarden",
-		embers = 100,
-		unlocks = { characters = { "MarbleHost" } },
-	},
 	{
 		id = "WinSparkMage",
 		name = "Kindled",

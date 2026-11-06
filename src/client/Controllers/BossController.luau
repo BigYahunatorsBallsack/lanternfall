@@ -18,6 +18,9 @@ local EnemyRenderer = require(script.Parent.EnemyRenderer)
 local RunStateController = require(script.Parent.RunStateController)
 local Theme = require(script.Parent.Parent.UI.Theme)
 local VisualKit = require(script.Parent.WeaponRenderer.VisualKit)
+local WorldSprite = require(
+	game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Util"):WaitForChild("WorldSprite")
+)
 local Widgets = require(script.Parent.Parent.UI.Widgets)
 
 local FOLDER_NAME = "LanternfallBoss"
@@ -44,6 +47,7 @@ local folder: Folder? = nil
 local bosses: { Types.BossInfo } = {}
 local telegraphs: { Telegraph } = {}
 local embers: { BasePart } = {}
+local emberSprites: { [BasePart]: WorldSprite.Sprite } = {}
 
 local screen: ScreenGui? = nil
 local nameLabel: TextLabel? = nil
@@ -74,7 +78,10 @@ local stripPool = VisualKit.pool(function(): BasePart
 	return VisualKit.halo("BossWarningLine", Enum.PartType.Block, Vector3.new(1, DISC_HEIGHT, 1), WARN_COLOR, 1)
 end)
 local emberPool = VisualKit.pool(function(): BasePart
-	return VisualKit.part("BossEmber", Enum.PartType.Ball, Vector3.one, EMBER_COLOR)
+	local sprite = WorldSprite.glow("BossEmber", 1, EMBER_COLOR, 0.5)
+	local anchor = sprite.anchor :: BasePart
+	emberSprites[anchor] = sprite
+	return anchor
 end)
 
 -- HP bar -----------------------------------------------------------------------------
@@ -257,7 +264,7 @@ local function placeEmbers(now: number)
 				embers[used] = ember
 			end
 			local angle = turn + (k - 1) / orbit.count * 2 * math.pi
-			ember.Size = Vector3.one * orbit.hitRadius * 2
+			WorldSprite.setStuds(emberSprites[ember], orbit.hitRadius * 2 * Config.Sprites.glowScale)
 			ember.CFrame = CFrame.new(
 				position.X + math.cos(angle) * orbit.radius,
 				floorY + kind.radius * 0.6,

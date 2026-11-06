@@ -29,34 +29,35 @@ return table.freeze({
 	-- whatever Lighting the place file has. Colors are { red, green, blue } 0..255.
 	lighting = table.freeze({
 		enabled = true,
-		clockTime = 14.5, -- neutral daylight keeps enemies and pickups readable
-		brightness = 2.3,
-		ambient = { 91, 88, 101 },
-		outdoorAmbient = { 128, 124, 134 },
+		-- Flat 2D light since Paket 25: no sun, no shadows, no reflections, so floor pictures show their exact colors.
+		clockTime = 14.5,
+		brightness = 0,
+		ambient = { 255, 255, 255 },
+		outdoorAmbient = { 255, 255, 255 },
 		atmosphere = table.freeze({
-			density = 0.12,
-			offset = 0.15,
+			density = 0,
+			offset = 0,
 			color = { 180, 176, 185 },
 			decay = { 116, 108, 126 },
-			glare = 0.08,
-			haze = 0.4,
+			glare = 0,
+			haze = 0,
 		}),
 		colorCorrection = table.freeze({
-			contrast = 0.06,
-			saturation = 0.02,
-			tint = { 255, 252, 248 },
+			contrast = 0,
+			saturation = 0,
+			tint = { 255, 255, 255 },
 		}),
-		bloom = table.freeze({ intensity = 0.14, size = 18, threshold = 2 }),
+		bloom = table.freeze({ intensity = 0, size = 18, threshold = 2 }),
 	}),
 
-	-- Small floor pebbles are walk-through. The lobby keeps its lamps.
+	-- The floor picture carries the small stones since Paket 25, so no pebbles on top. The lobby keeps its lamps.
 	decor = table.freeze({
 		seed = 2112, -- the same scattered pebbles every time
-		floorSlabs = 85, -- small pebbles scattered over the arena floor
+		floorSlabs = 0, -- small pebbles scattered over the arena floor
 		lampHeight = 12,
-		lampLightRange = 26,
-		-- Ground under the arena edge; `margin` extends past the wall and `drop` lowers its top.
-		outskirts = table.freeze({ margin = 20, thickness = 4, drop = 0.3 }),
+		-- Dark ground around arena and lobby, wide enough that the camera never sees past it; `margin` extends past the wall
+		-- and `drop` lowers its top. Colors are { red, green, blue }.
+		outskirts = table.freeze({ margin = 110, lobbyMargin = 60, thickness = 4, drop = 0.3, color = { 44, 40, 38 } }),
 		motes = table.freeze({ rate = 6, lifetime = { 6, 10 } }), -- graphics setting compatibility
 		lobbyLamps = 6, -- around the lobby
 	}),

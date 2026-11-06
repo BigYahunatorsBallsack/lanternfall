@@ -17,6 +17,7 @@ local WeaponFx = require(Shared:WaitForChild("Net"):WaitForChild("WeaponFx"))
 local LoadoutController = require(script.Parent.LoadoutController)
 local RunStateController = require(script.Parent.RunStateController)
 local VisualKit = require(script.VisualKit)
+local CharacterAnimationController = require(script.Parent.CharacterAnimationController)
 local HeldModels = require(script.HeldModels)
 
 local FOLDER_NAME = "LanternfallWeapons"
@@ -171,6 +172,9 @@ function WeaponRenderer.init()
 		local effects: { Types.WeaponEffect } = WeaponFx.decodeShared(packet) :: any
 		for _, effect in effects do
 			HeldModels.effect(effect)
+			if effect.kind == "Fire" or effect.kind == "Strike" or effect.kind == "Pulse" then
+				CharacterAnimationController.attack(effect.userId)
+			end
 			local visual = visuals[effect.weapon]
 			if visual and visual.effect then
 				visual.effect(effect)

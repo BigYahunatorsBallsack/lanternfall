@@ -45,7 +45,7 @@ local function nextWave()
 end
 
 describe("main-game enemy runtime", function()
-	it("starts Blade Warden with 15 HP on the original scale", function()
+	it("starts Night Watch with 10 HP on the original scale", function()
 		RandomService.setNextSeed(123456)
 		world.fireServerAs(me, "SetReady", true)
 		world.advance(3.5)
@@ -55,7 +55,7 @@ describe("main-game enemy runtime", function()
 		RunDirector.setHoldWaves(true)
 		LootService.setDropsPaused(true)
 		CombatService.protect(me, 1000)
-		expect(CombatService.getHp(me)).toBe(15)
+		expect(CombatService.getHp(me)).toBe(10)
 		clear()
 	end)
 

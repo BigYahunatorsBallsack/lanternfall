@@ -48,7 +48,7 @@ describe("progress", function()
 		button.MouseEnter:Fire(100, 100)
 		expect(string.find(world.gui("Tooltip", "Body").Text, "Reach wave 10", 1, true) ~= nil).toBe(true)
 		button.MouseLeave:Fire()
-		expect(world.gui("Lobby", "BladeWarden").CharacterName.Text).toBe("Blade Warden")
+		expect(world.gui("Lobby", "NightWatch").CharacterName.Text).toBe("Night Watch")
 		world.click(button)
 		world.advance(0.3)
 		expect(RunStateController.getLocalPlayer().classId).toBe(Config.Run.flow.defaultClassId)
@@ -60,8 +60,8 @@ describe("progress", function()
 		world.advance(0.3)
 		expect(RunStateController.get().options.danger).toBe(0)
 		expect(hasToast("Danger 3 is locked")).toBe(true)
-		-- the peer has won danger 2 with Blade Warden: danger 3 opens for the whole lobby
-		PlayerDataService.get(peer).characterStats.BladeWarden = { runs = 1, wins = 1, bestWave = 20, bestDanger = 2 }
+		-- the peer has won danger 2 with Night Watch: danger 3 opens for the whole lobby
+		PlayerDataService.get(peer).characterStats.NightWatch = { runs = 1, wins = 1, bestWave = 20, bestDanger = 2 }
 		world.fireServerAs(peer, "SetRunOptions", 3, false, 100, 100, 100)
 		world.advance(0.3)
 		expect(RunStateController.get().options.danger).toBe(3)

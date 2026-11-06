@@ -2,7 +2,6 @@
 -- Soft daylight, scattered pebbles and lobby lamps for the open arena.
 -- Arena decoration does not block movement.
 
-local CollectionService = game:GetService("CollectionService")
 local Lighting = game:GetService("Lighting")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -49,16 +48,6 @@ local function ghost(target: BasePart)
 	target.CastShadow = false
 end
 
-local function light(parent: Instance, color: Color3, range: number, brightness: number)
-	local pointLight = Instance.new("PointLight")
-	pointLight.Color = color
-	pointLight.Range = range
-	pointLight.Brightness = brightness
-	pointLight.Shadows = false
-	pointLight.Parent = parent
-	CollectionService:AddTag(pointLight, Config.Graphics.optionalLightTag)
-end
-
 -- A cylinder standing up (Roblox cylinders lie along X).
 local function upright(position: Vector3): CFrame
 	return CFrame.new(position) * CFrame.Angles(0, 0, math.pi / 2)
@@ -73,6 +62,15 @@ function Decor.applyLighting()
 	Lighting.Brightness = settings.brightness
 	Lighting.Ambient = rgb(settings.ambient)
 	Lighting.OutdoorAmbient = rgb(settings.outdoorAmbient)
+	Lighting.GlobalShadows = false
+	Lighting.EnvironmentDiffuseScale = 0
+	Lighting.EnvironmentSpecularScale = 0
+	-- Effects the place file brings along would blur or tint the flat pictures; ours follow below.
+	for _, effect in Lighting:GetChildren() do
+		if effect:IsA("PostEffect") then
+			effect.Enabled = false
+		end
+	end
 
 	local atmosphere = Lighting:FindFirstChildOfClass("Atmosphere") or Instance.new("Atmosphere")
 	atmosphere.Density = settings.atmosphere.density
@@ -89,6 +87,7 @@ function Decor.applyLighting()
 	grade.Contrast = settings.colorCorrection.contrast
 	grade.Saturation = settings.colorCorrection.saturation
 	grade.TintColor = rgb(settings.colorCorrection.tint)
+	grade.Enabled = true
 	grade.Parent = Lighting
 
 	local bloom = Lighting:FindFirstChild("LanternfallBloom") or Instance.new("BloomEffect")
@@ -97,6 +96,7 @@ function Decor.applyLighting()
 	glow.Intensity = settings.bloom.intensity
 	glow.Size = settings.bloom.size
 	glow.Threshold = settings.bloom.threshold
+	glow.Enabled = true
 	glow.Parent = Lighting
 end
 
@@ -122,7 +122,7 @@ local function floorSlabs(model: Model, center: Vector3, random: Random)
 end
 
 -- A brass post with a caged lantern and a warm light.
-local function lampPost(model: Model, name: string, base: Vector3, height: number, range: number)
+local function lampPost(model: Model, name: string, base: Vector3, height: number)
 	local post = part(
 		model,
 		`{name}Post`,
@@ -145,7 +145,6 @@ local function lampPost(model: Model, name: string, base: Vector3, height: numbe
 	local top = base + Vector3.new(0, height + 1.2, 0)
 	local core = part(model, `{name}Core`, Vector3.new(1.4, 1.8, 1.4), CFrame.new(top), LAMP_GLOW, Enum.Material.Neon)
 	ghost(core)
-	light(core, LAMP_GLOW, range, 1.5)
 	local roof = part(
 		model,
 		`{name}Roof`,
@@ -169,17 +168,17 @@ local function lampPost(model: Model, name: string, base: Vector3, height: numbe
 	end
 end
 
--- A low ground skirt hides the edge beyond the arena wall.
-local function outskirts(model: Model, center: Vector3)
+-- A dark ground skirt hides everything beyond the wall of an area of side `area`.
+local function outskirts(parent: Model, center: Vector3, area: number, margin: number)
 	local settings = Config.Map.decor.outskirts
-	local size = Config.Map.arena.size + 2 * (Config.Map.wallThickness + settings.margin)
+	local size = area + 2 * (Config.Map.wallThickness + margin)
 	local ground = part(
-		model,
+		parent,
 		"Outskirts",
 		Vector3.new(size, settings.thickness, size),
 		CFrame.new(center - Vector3.new(0, settings.drop + settings.thickness / 2, 0)),
-		Color3.fromRGB(75, 73, 79),
-		Enum.Material.Slate
+		rgb(settings.color),
+		Enum.Material.SmoothPlastic
 	)
 	ghost(ground)
 end
@@ -191,7 +190,7 @@ function Decor.buildArena(arenaModel: Model)
 	local model = Instance.new("Model")
 	model.Name = "Decor"
 	floorSlabs(model, center, random)
-	outskirts(model, center)
+	outskirts(model, center, Config.Map.arena.size, Config.Map.decor.outskirts.margin)
 	model.Parent = arenaModel
 end
 
@@ -207,8 +206,9 @@ function Decor.buildLobby(lobbyModel: Model)
 	for index = 1, count do
 		local angle = if count > 1 then first + (last - first) * (index - 1) / (count - 1) else math.pi / 2
 		local base = lobby.center + Vector3.new(math.cos(angle), 0, math.sin(angle)) * radius
-		lampPost(model, `Lamp{index}`, base, Config.Map.decor.lampHeight * 0.7, Config.Map.decor.lampLightRange * 0.8)
+		lampPost(model, `Lamp{index}`, base, Config.Map.decor.lampHeight * 0.7)
 	end
+	outskirts(lobbyModel, lobby.center, lobby.size, Config.Map.decor.outskirts.lobbyMargin)
 	model.Parent = lobbyModel
 end
 

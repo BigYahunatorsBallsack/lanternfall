@@ -99,7 +99,17 @@ local function buildArea(
 		CFrame.new(center - Vector3.new(0, thickness / 2, 0)),
 		floorColor
 	)
-	floor.Material = Enum.Material.Slate
+	floor.Material = Enum.Material.SmoothPlastic
+	local tile = Config.Sprites.floors[name]
+	if tile then
+		local texture = Instance.new("Texture")
+		texture.Name = "FloorTile"
+		texture.Texture = tile.image
+		texture.Face = Enum.NormalId.Top
+		texture.StudsPerTileU = tile.studs
+		texture.StudsPerTileV = tile.studs
+		texture.Parent = floor
+	end
 
 	local wall = Config.Map.wallThickness
 	local offset = size / 2 + wall / 2
@@ -146,17 +156,13 @@ local function buildPortals(parent: Instance, center: Vector3)
 			local part = makePart(model, entry[1], entry[2], facing * entry[3], RUIN_COLOR)
 			part.Material = Enum.Material.Slate
 		end
-		local light = Instance.new("PointLight")
-		light.Color = color
-		light.Range = 16
-		light.Parent = gate
 
 		local sign = Instance.new("BillboardGui")
 		sign.Name = "Sign"
 		sign.Size = UDim2.fromOffset(220, 50)
 		sign.StudsOffset = Vector3.new(0, h / 2 + 3, 0)
 		sign.AlwaysOnTop = false
-		sign.MaxDistance = 120
+		sign.MaxDistance = 400
 		sign.Parent = gate
 		local text = Instance.new("TextLabel")
 		text.BackgroundTransparency = 1
@@ -203,10 +209,6 @@ local function buildMap(): Folder
 	pad.Neutral = true
 	pad.Duration = 0 -- no spawn force field
 	pad.Parent = lobbyModel
-	local light = Instance.new("PointLight")
-	light.Color = LOBBY_PAD_COLOR
-	light.Range = lobby.size / 2
-	light.Parent = pad
 	lobbySpawn = pad
 
 	if PlaceService.isHub() then

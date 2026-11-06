@@ -2,11 +2,6 @@
   "creatorUserId": "3898708794",
   "universeId": "10773092515",
   "models": {
-    "BladeWarden": {
-      "assetId": "113282495903461",
-      "operationId": "47256e6c-dd14-4d10-9185-2e761dc1efaa",
-      "state": "Approved"
-    },
     "SparkMage": {
       "path": "operations/894a3932-2ee0-49b0-bcb4-71a3feeab62a",
       "operationId": "894a3932-2ee0-49b0-bcb4-71a3feeab62a",
@@ -243,7 +238,6 @@
     }
   },
   "colorAtlases": {
-    "BladeWarden": "102871136144318",
     "SparkMage": "77982768651738",
     "NightWatch": "125732970180737",
     "ManyHands": "108360414883382",

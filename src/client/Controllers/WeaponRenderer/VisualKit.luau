@@ -125,6 +125,7 @@ function VisualKit.trail(part: BasePart, color: Color3, width: number, lifetime:
 	trail.Attachment1 = b
 	trail.Color = ColorSequence.new(color)
 	trail.LightEmission = 1
+	trail.FaceCamera = true -- flat from straight above otherwise
 	trail.Lifetime = lifetime
 	trail.Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.2), NumberSequenceKeypoint.new(1, 1) })
 	trail.WidthScale = NumberSequence.new({ NumberSequenceKeypoint.new(0, 1), NumberSequenceKeypoint.new(1, 0.2) })

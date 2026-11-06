@@ -214,6 +214,7 @@ end
 
 local function build()
 	screen = Widgets.screen("Results", 2)
+	screen.IgnoreGuiInset = true -- its dim layer must cover the floor under the top bar too
 
 	card = Widgets.panel({
 		Name = "Results",
