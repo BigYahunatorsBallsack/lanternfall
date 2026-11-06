@@ -1,3 +1,3 @@
 --!strict
--- Mortar Lantern behavior for Arsenal; parameters in Config.Weapons.
-return require(script.Parent.Parent.B7Projectile)
+-- Rocket Launcher behavior for Arsenal; exact tier data in Config.Weapons.
+return require(script.Parent.Parent.BrotatoProjectile)

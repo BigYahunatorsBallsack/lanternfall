@@ -33,6 +33,9 @@ local Arsenal = require(script.Arsenal)
 local Afflictions = require(script.Afflictions)
 local StatMath = require(Shared.Util.StatMath)
 local CharacterRules = require(Shared.Util.CharacterRules)
+local BrotatoCombat = require(script.BrotatoCombat)
+local BrotatoRuntime = require(script.BrotatoRuntime)
+local waveBonuses: { [Player]: { [string]: number } } = {}
 local selections: { [Player]: { [string]: string } } = {}
 
 local WeaponService = {}
@@ -204,7 +207,15 @@ local arsenal = Arsenal.new({
 				local stat = _weapon.config.killGainStat
 				local gains = growth[ownerId] or {}
 				growth[ownerId] = gains
-				gains[stat] = (gains[stat] or 0) + 1
+				gains[stat] = (gains[stat] or 0) + (if stat == "maxHp" then Config.Stats.hpScale else 1)
+			end
+		end
+		if killed and crit and _weapon and source == "Weapon" and _weapon.stats.critMaterialChance then
+			if RandomService.number("Combat") < _weapon.stats.critMaterialChance then
+				local player = playerOf(ownerId)
+				if player then
+					require(script.Parent.ShopService).addShards(player, 1)
+				end
 			end
 		end
 		local listener = hitListener
@@ -250,6 +261,7 @@ end
 
 local function onRunStarted(participants: { Player })
 	arsenal:clear()
+	table.clear(waveBonuses)
 	paused = false
 	for _, player in participants do
 		-- StatService sends fresh stats when the run starts; before or after this, the owner gets them
@@ -259,7 +271,7 @@ local function onRunStarted(participants: { Player })
 		if class then
 			local choices = selections[player]
 			local chosen = (choices and choices[classId]) or class.startWeapon
-			local ok, reason = arsenal:addWeapon(player.UserId, chosen, now())
+			local ok, reason = arsenal:addWeapon(player.UserId, chosen, now(), Config.Weapons[chosen].minTier)
 			for _, extra in class.extraWeapons or {} do
 				arsenal:addWeapon(player.UserId, extra, now())
 			end
@@ -281,6 +293,43 @@ local function onStepped(dt: number, stepNow: number)
 		if position then
 			local velocity = MapService.getRootVelocity(player)
 			arsenal:place(player.UserId, position.X, position.Z, velocity.X, velocity.Z)
+			local weapons = arsenal:getWeapons(player.UserId)
+			local hp, maxHp = CombatService.getHp(player)
+			local bonus = BrotatoRuntime.step(
+				weapons,
+				dt,
+				velocity.Magnitude > Config.WeaponVisuals.movingThreshold,
+				hp,
+				maxHp,
+				function(amount)
+					if RunDirector.getParticipantState(player) ~= "Alive" then
+						return
+					end
+					local current = CombatService.getHp(player)
+					CombatService.drainPlayer(player, amount)
+					if current <= amount then
+						RunDirector.setParticipantState(player, "Down")
+					end
+					CombatService.PlayerDamaged:Fire(player, math.min(current, amount))
+				end
+			)
+			local previous = waveBonuses[player] or {}
+			local changed = false
+			for stat, amount in bonus do
+				if amount ~= (previous[stat] or 0) then
+					changed = true
+				end
+			end
+			for stat, amount in previous do
+				if amount ~= (bonus[stat] or 0) then
+					changed = true
+				end
+			end
+			waveBonuses[player] = bonus
+			if changed then
+				send(player)
+			end
+			BrotatoRuntime.recompute(weapons, ownerStats[player] or {})
 		end
 	end
 	arsenal:step(dt, stepNow)
@@ -332,6 +381,23 @@ end
 -- Lifecycle -------------------------------------------------------------------------
 
 function WeaponService.init()
+	BrotatoCombat.configure({
+		health = EnemySim.getHealth,
+		isElite = function(id)
+			local _, elite = EnemySim.getKind(id)
+			return elite
+		end,
+	})
+	CombatService.PlayerDamaged:Connect(function(player)
+		BrotatoRuntime.hurt(arsenal:getWeapons(player.UserId))
+	end)
+	require(script.BrotatoProjectile).setSlowAura(function(x, z, radius, factor, seconds)
+		local ids = {}
+		local count = EnemySim.queryRadius(Vector3.new(x, floorY, z), radius, ids)
+		for i = 1, count do
+			EnemySim.slow(ids[i], factor, seconds)
+		end
+	end)
 	Net.onServer("SelectStartWeapon", function(player, classId: string, weaponId: string)
 		WeaponService.selectStartWeapon(player, classId, weaponId)
 	end)
@@ -351,6 +417,7 @@ function WeaponService.init()
 	EnemySim.Stepped:Connect(onStepped)
 	RunDirector.PhaseChanged:Connect(function(phase)
 		if phase == "Shop" then
+			table.clear(waveBonuses)
 			for _, player in Players:GetPlayers() do
 				for _, weapon in arsenal:getWeapons(player.UserId) do
 					if weapon.config.minTier then
@@ -360,6 +427,7 @@ function WeaponService.init()
 					weapon.state.shots = 0
 					weapon.state.reloadLeft = 0
 				end
+				send(player)
 			end
 			arsenal:clearCombat() -- the enemies left fade away (EnemySim), so do their burns
 		end
@@ -386,6 +454,7 @@ function WeaponService.init()
 		end
 	end)
 	Players.PlayerRemoving:Connect(function(player)
+		waveBonuses[player] = nil
 		selections[player] = nil
 		ownerStats[player] = nil
 		hitFeeds[player.UserId] = nil
@@ -585,4 +654,8 @@ function WeaponService.structureBurn(
 		)
 	)
 end
+function WeaponService.getWaveBonuses(player: Player): { [string]: number }
+	return table.clone(waveBonuses[player] or {})
+end
+
 return WeaponService

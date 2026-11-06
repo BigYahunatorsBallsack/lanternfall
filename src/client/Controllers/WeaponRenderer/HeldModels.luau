@@ -137,7 +137,7 @@ function HeldModels.renderWeapon(
 	frame: VisualKit.Frame
 )
 	-- Orbit blades are drawn at their actual server hit positions by Visuals/OrbitBlades.
-	if weapon.id == "OrbitBlades" or not Images[weapon.id] then
+	if not Images[weapon.id] then
 		return
 	end
 	local key = keyOf(owner.userId, weapon.uid)

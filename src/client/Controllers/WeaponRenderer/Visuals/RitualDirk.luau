@@ -1,3 +1,3 @@
 --!strict
--- Ritual Dirk pooled visual for WeaponRenderer.
-return require(script.Parent.Parent.B7MeleeVisual)(Color3.fromRGB(190, 100, 225))
+-- Knife attack visual for WeaponRenderer; held art comes from UI.WeaponImages.
+return require(script.Parent.Parent.B7MeleeVisual)(Color3.fromRGB(225, 190, 110))

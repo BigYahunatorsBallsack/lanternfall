@@ -2,6 +2,7 @@
 -- World-space weapon presentation and muzzle placement, shared by WeaponRenderer and weapon behaviors.
 
 return table.freeze({
+	movingThreshold = 0.1,
 	holdRadius = 4.5,
 	holdHeight = 1.65,
 	spriteStuds = {

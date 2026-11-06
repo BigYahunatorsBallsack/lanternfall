@@ -25,11 +25,11 @@ local ORDER: { WeaponClass } = {
 	-- Legendary: HP penalty scaled by ten.
 	class(
 		"Dread",
-		"Dread",
+		"Legendary",
 		{ { maxHp = -200 }, { maxHp = -400 }, { maxHp = -600 }, { maxHp = -800 }, { maxHp = -1000 } }
 	),
 	-- Blade
-	class("Edge", "Edge", {
+	class("Edge", "Blade", {
 		{ meleeDamage = 1, lifeSteal = 1 },
 		{ meleeDamage = 2, lifeSteal = 2 },
 		{ meleeDamage = 3, lifeSteal = 3 },
@@ -37,7 +37,7 @@ local ORDER: { WeaponClass } = {
 		{ meleeDamage = 5, lifeSteal = 5 },
 	}),
 	-- Blunt
-	class("Bludgeon", "Bludgeon", {
+	class("Bludgeon", "Blunt", {
 		{ armor = 1, speed = -2 },
 		{ armor = 1, maxHp = 30, speed = -4 },
 		{ armor = 2, maxHp = 30, speed = -6 },
@@ -45,7 +45,7 @@ local ORDER: { WeaponClass } = {
 		{ armor = 3, maxHp = 60, speed = -10 },
 	}),
 	-- Elemental
-	class("Arcane", "Arcane", {
+	class("Arcane", "Elemental", {
 		{ elementalDamage = 1 },
 		{ elementalDamage = 2 },
 		{ elementalDamage = 3 },
@@ -53,7 +53,7 @@ local ORDER: { WeaponClass } = {
 		{ elementalDamage = 5 },
 	}),
 	-- Ethereal
-	class("Spectral", "Spectral", {
+	class("Spectral", "Ethereal", {
 		{ dodge = 6, armor = -1 },
 		{ dodge = 12, armor = -2 },
 		{ dodge = 18, armor = -3 },
@@ -61,7 +61,7 @@ local ORDER: { WeaponClass } = {
 		{ dodge = 30, armor = -5 },
 	}),
 	-- Explosive
-	class("Volatile", "Volatile", {
+	class("Volatile", "Explosive", {
 		{ explosionSize = 5 },
 		{ explosionSize = 10 },
 		{ explosionSize = 15 },
@@ -69,7 +69,7 @@ local ORDER: { WeaponClass } = {
 		{ explosionSize = 25 },
 	}),
 	-- Gun
-	class("Longshot", "Longshot", {
+	class("Longshot", "Gun", {
 		{ range = 10 },
 		{ range = 20 },
 		{ range = 30 },
@@ -77,7 +77,7 @@ local ORDER: { WeaponClass } = {
 		{ range = 50 },
 	}),
 	-- Heavy
-	class("Colossal", "Colossal", {
+	class("Colossal", "Heavy", {
 		{ damage = 5 },
 		{ damage = 10 },
 		{ damage = 15 },
@@ -85,7 +85,7 @@ local ORDER: { WeaponClass } = {
 		{ damage = 25 },
 	}),
 	-- Medical
-	class("Remedy", "Remedy", {
+	class("Remedy", "Medical", {
 		{ hpRegen = 1 },
 		{ hpRegen = 2 },
 		{ hpRegen = 3 },
@@ -93,7 +93,7 @@ local ORDER: { WeaponClass } = {
 		{ hpRegen = 5 },
 	}),
 	-- Medieval
-	class("Knightly", "Knightly", {
+	class("Knightly", "Medieval", {
 		{ armor = 1 },
 		{ armor = 1, dodge = 3 },
 		{ armor = 2, dodge = 3 },
@@ -101,7 +101,7 @@ local ORDER: { WeaponClass } = {
 		{ armor = 3, dodge = 6 },
 	}),
 	-- Musical
-	class("Choir", "Choir", {
+	class("Choir", "Musical", {
 		{ luck = 5 },
 		{ luck = 10 },
 		{ luck = 15 },
@@ -109,7 +109,7 @@ local ORDER: { WeaponClass } = {
 		{ luck = 25 },
 	}),
 	-- Precise
-	class("Keen", "Keen", {
+	class("Keen", "Precise", {
 		{ critChance = 3 },
 		{ critChance = 6 },
 		{ critChance = 9 },
@@ -117,7 +117,7 @@ local ORDER: { WeaponClass } = {
 		{ critChance = 15 },
 	}),
 	-- Primitive
-	class("Primal", "Primal", {
+	class("Primal", "Primitive", {
 		{ maxHp = 30 },
 		{ maxHp = 60 },
 		{ maxHp = 90 },
@@ -125,7 +125,7 @@ local ORDER: { WeaponClass } = {
 		{ maxHp = 150 },
 	}),
 	-- Support
-	class("Steward", "Steward", {
+	class("Steward", "Support", {
 		{ harvesting = 5 },
 		{ harvesting = 10 },
 		{ harvesting = 15 },
@@ -133,7 +133,7 @@ local ORDER: { WeaponClass } = {
 		{ harvesting = 25 },
 	}),
 	-- Unarmed
-	class("Brawl", "Brawl", {
+	class("Brawl", "Unarmed", {
 		{ dodge = 3 },
 		{ dodge = 6 },
 		{ dodge = 9 },
@@ -146,7 +146,7 @@ table.insert(
 	ORDER,
 	class(
 		"Artisan",
-		"Artisan",
+		"Tool",
 		{ { engineering = 1 }, { engineering = 2 }, { engineering = 3 }, { engineering = 4 }, { engineering = 5 } }
 	)
 )

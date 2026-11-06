@@ -515,6 +515,10 @@ Die 26 freigegebenen Waffenillustrationen sind zugleich die Ansichten der schweb
 
 Projektilwaffen starten ihre serverseitig berechneten Schüsse an der Mündung der schwebenden Waffe; der erste Blitzabschnitt beginnt dort ebenfalls. Das Clientbild beginnt am sichtbaren Lauf und gleicht die Netzwerkverzögerung kurz zur serverseitigen Flugbahn an. Der Shockwave-Hammer schlägt zum Ziel, die kleinere Druckwelle wird am Hammerkontakt gezeichnet. Schaden, Ziele und Kollision bleiben serverseitig. Positions- und Animationswerte liegen in `Config/WeaponVisuals.luau`; `Util/WeaponPose.luau` wird von Server und Client genutzt. Das bestehende `WeaponFx`-Format transportiert `uid` als optionales Zusatzfeld, ohne die Remote oder das Paketlayout zu ändern.
 
+### Privater Originalwaffen-Umbau (Owner, 06.11.2026)
+
+Die bisherige Waffenliste und die früheren eigenen Balance-Anpassungen werden für das private Spiel durch alle 62 Hauptspiel-Waffen der verlinkten Brotato-Wiki-Liste ersetzt. Originalnamen, Stufen I–IV, Mindeststufen, Skalierungen und Preise; keine DLC-Waffen, keine eigenen Evolutionen. HP-Skala ×10 und Umrechnung in Studs bleiben. Details, Quellen, interne ID-Zuordnung und Grenzen der Roblox-Abbildung: `docs/BROTATO-BASE-WEAPONS.md`. Shop und Spielfeld verwenden dieselben Originalsprites. Dies ist das Waffenpaket; eine Umstellung aller Charaktere/Gegner/Karten auf 2D gehört nicht zu diesem Paket.
+
 ## 7. Gegner, Elites & Boss
 
 | Gegner | Rolle | HP | Tempo (Studs/s) | Schaden | XP | Ab Minute |
