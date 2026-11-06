@@ -83,7 +83,9 @@ local function computePermanent(player: Player, state: State): StatMath.Sheet
 end
 
 local function push(player: Player, sheet: StatMath.Sheet)
-	WeaponService.setStats(player, table.clone(sheet))
+	local weaponSheet = table.clone(sheet)
+	weaponSheet.level = if states[player] then states[player].levels + 1 else 1
+	WeaponService.setStats(player, weaponSheet)
 	CombatService.setStats(player, table.clone(sheet))
 	ExperienceService.setStats(player, table.clone(sheet))
 	Net.fireClient("Stats", player, table.clone(sheet) :: Types.StatSheet)
@@ -149,7 +151,11 @@ local function classBonusOf(player: Player): StatMath.Sheet
 		if config and config.heldStats then
 			StatMath.add(bonus, config.heldStats[weapon.tier])
 		end
+		if config and config.armorPerWeapon then
+			bonus.armor = (bonus.armor or 0) + config.armorPerWeapon * #ids
+		end
 	end
+	StatMath.add(bonus, WeaponService.getWaveBonuses(player))
 	return bonus
 end
 

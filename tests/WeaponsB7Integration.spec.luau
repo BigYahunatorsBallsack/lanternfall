@@ -92,11 +92,11 @@ describe("B7 integration", function()
 		clear()
 		expect(StatService.getStat(me, "damage")).toBe(before + 1)
 	end)
-	it("debug NextWeapon can traverse all 24 weapons and respects minimum tiers", function()
+	it("debug NextWeapon can traverse all 62 weapons and respects minimum tiers", function()
 		clear()
 		give("BoomerangAxe")
 		local seen = {}
-		for _ = 1, 24 do
+		for _ = 1, 62 do
 			world.click(world.gui("Debug", "NextWeapon"))
 			world.advance(0.3)
 			local weapon = WeaponService.getWeapons(me)[1]
@@ -107,6 +107,6 @@ describe("B7 integration", function()
 		for _ in seen do
 			count += 1
 		end
-		expect(count).toBe(24)
+		expect(count).toBe(62)
 	end)
 end)

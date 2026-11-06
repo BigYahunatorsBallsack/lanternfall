@@ -1,0 +1,751 @@
+{
+  "originalArt": "Brotato / Blobfish",
+  "retrieved": "2026-11-06",
+  "usage": "Owner-requested private game prototype",
+  "assets": [
+    {
+      "id": "CactiClub",
+      "name": "Cacti Club",
+      "source": "https://brotato.wiki.spellsandguns.com/images/a/a1/Cacti_Club.png",
+      "file": "sprites/CactiClub.png",
+      "size": [
+        96,
+        96
+      ],
+      "sha256": "7dd73189dd8e98ab55cd31a3272a57594f6e247a6e747761efbfd89ab7435654",
+      "transparent": true
+    },
+    {
+      "id": "Chopper",
+      "name": "Chopper",
+      "source": "https://brotato.wiki.spellsandguns.com/images/a/a6/Chopper.png",
+      "file": "sprites/Chopper.png",
+      "size": [
+        96,
+        96
+      ],
+      "sha256": "d98ec8af8121f25ad3303bb5f843394a64fbb07ccd75c9d4d301f08fe5bdf1a5",
+      "transparent": true
+    },
+    {
+      "id": "OrbitBlades",
+      "name": "Circular Saw",
+      "source": "https://brotato.wiki.spellsandguns.com/images/c/c7/Circular_Saw.png",
+      "file": "sprites/OrbitBlades.png",
+      "size": [
+        96,
+        96
+      ],
+      "sha256": "f5b9671536e49677ad77319c472366558e03308d39d17a1c2eb26e9671792a74",
+      "transparent": true
+    },
+    {
+      "id": "Claw",
+      "name": "Claw",
+      "source": "https://brotato.wiki.spellsandguns.com/images/4/47/Claw.png",
+      "file": "sprites/Claw.png",
+      "size": [
+        96,
+        96
+      ],
+      "sha256": "313dcba411b33818df910add4dc6b88551848a5d900a3fbf9dc7a13e6e6e10d8",
+      "transparent": true
+    },
+    {
+      "id": "Drill",
+      "name": "Drill",
+      "source": "https://brotato.wiki.spellsandguns.com/images/8/88/Drill.png",
+      "file": "sprites/Drill.png",
+      "size": [
+        96,
+        96
+      ],
+      "sha256": "871fb02e5e04ede7b5ac19202c463b16286693748dc6a4a3c581adb5eeeda476",
+      "transparent": true
+    },
+    {
+      "id": "Excalibur",
+      "name": "Excalibur",
+      "source": "https://brotato.wiki.spellsandguns.com/images/f/fa/Excalibur.png",
+      "file": "sprites/Excalibur.png",
+      "size": [
+        96,
+        96
+      ],
+      "sha256": "82e6d2d6b9348c71be640c4d33fc77041dc5148e713f22bd4be2a2d3c59a3418",
+      "transparent": true
+    },
+    {
+      "id": "Quarterstaff",
+      "name": "Quarterstaff",
+      "source": "https://brotato.wiki.spellsandguns.com/images/8/85/Quarterstaff.png",
+      "file": "sprites/Quarterstaff.png",
+      "size": [
+        96,
+        96
+      ],
+      "sha256": "4c712102dd7e45b3451cb97aea99bf77ca158a1dee46380f40806f41e09e5c1e",
+      "transparent": true
+    },
+    {
+      "id": "BrassKnuckles",
+      "name": "Fist",
+      "source": "https://brotato.wiki.spellsandguns.com/images/1/17/Fist.png",
+      "file": "sprites/BrassKnuckles.png",
+      "size": [
+        96,
+        96
+      ],
+      "sha256": "02e3bea65a8d2d73a15b3d126e26fa1fa0b63ceb8c13e9c405290577cac18567",
+      "transparent": true
+    },
+    {
+      "id": "FlamingBrassKnuckles",
+      "name": "Flaming Brass Knuckles",
+      "source": "https://brotato.wiki.spellsandguns.com/images/c/cf/Flaming_Brass_Knuckles.png",
+      "file": "sprites/FlamingBrassKnuckles.png",
+      "size": [
+        96,
+        96
+      ],
+      "sha256": "51112019dd26c1096e35a7cbc1508ae32d8d5234c76681e8f4e8264966473770",
+      "transparent": true
+    },
+    {
+      "id": "WraithHatchet",
+      "name": "Ghost Axe",
+      "source": "https://brotato.wiki.spellsandguns.com/images/3/3a/Ghost_Axe.png",
+      "file": "sprites/WraithHatchet.png",
+      "size": [
+        96,
+        96
+      ],
+      "sha256": "720fac201dd8cccc0b078aba54c662cbeccc1ca6a8dd695ae6da8b0268d0779a",
+      "transparent": true
+    },
+    {
+      "id": "SpiritFlint",
+      "name": "Ghost Flint",
+      "source": "https://brotato.wiki.spellsandguns.com/images/b/b4/Ghost_Flint.png",
+      "file": "sprites/SpiritFlint.png",
+      "size": [
+        96,
+        96
+      ],
+      "sha256": "3c2805cda55df0ffc6a9433e1bcf7f2baa5b80d7a5144b6f40c9833d769e8cb5",
+      "transparent": true
+    },
+    {
+      "id": "Shockwave",
+      "name": "Hammer",
+      "source": "https://brotato.wiki.spellsandguns.com/images/8/81/Hammer.png",
+      "file": "sprites/Shockwave.png",
+      "size": [
+        96,
+        96
+      ],
+      "sha256": "0d1deb372e202d2202ce02880c534d1384b298db4a46dbe9afaadaed84aabda9",
+      "transparent": true
+    },
+    {
+      "id": "TithePalm",
+      "name": "Hand",
+      "source": "https://brotato.wiki.spellsandguns.com/images/a/a7/Hand.png",
+      "file": "sprites/TithePalm.png",
+      "size": [
+        96,
+        96
+      ],
+      "sha256": "84bfe8ddfc75e342253e2a1aefa4fb24bf4cb492a0e1b12310b038566e8ec1eb",
+      "transparent": true
+    },
+    {
+      "id": "Hatchet",
+      "name": "Hatchet",
+      "source": "https://brotato.wiki.spellsandguns.com/images/e/ef/Hatchet.png",
+      "file": "sprites/Hatchet.png",
+      "size": [
+        96,
+        96
+      ],
+      "sha256": "0d93a75d7b749acc7f3ea6bd81001f2febf7d638c0608818985e16e941e7d13c",
+      "transparent": true
+    },
+    {
+      "id": "JoustingLance",
+      "name": "Jousting Lance",
+      "source": "https://brotato.wiki.spellsandguns.com/images/c/c4/Jousting_Lance.png",
+      "file": "sprites/JoustingLance.png",
+      "size": [
+        96,
+        96
+      ],
+      "sha256": "e5842ac7dd13e22ae80dd58dcf8f71a72a8cb182c8e95e36ecceaab250eb3fca",
+      "transparent": true
+    },
+    {
+      "id": "RitualDirk",
+      "name": "Knife",
+      "source": "https://brotato.wiki.spellsandguns.com/images/5/58/Knife.png",
+      "file": "sprites/RitualDirk.png",
+      "size": [
+        96,
+        96
+      ],
+      "sha256": "ede1352e1f9de67f4e7cc067218c21146e7a3cb2fc8553db94bdd461b7575cd7",
+      "transparent": true
+    },
+    {
+      "id": "ChainLightning",
+      "name": "Lightning Shiv",
+      "source": "https://brotato.wiki.spellsandguns.com/images/d/d1/Lightning_Shiv.png",
+      "file": "sprites/ChainLightning.png",
+      "size": [
+        96,
+        96
+      ],
+      "sha256": "4d5bd5317a4c9c01834a070c689054209a21aa824d90da652ebf4317901bccf2",
+      "transparent": true
+    },
+    {
+      "id": "Plank",
+      "name": "Plank",
+      "source": "https://brotato.wiki.spellsandguns.com/images/0/0d/Plank.png",
+      "file": "sprites/Plank.png",
+      "size": [
+        96,
+        96
+      ],
+      "sha256": "ea5f73cbadbdcbcc10e445790d4d90e656df5c0648a6a7ed17467b12f2af1110",
+      "transparent": true
+    },
+    {
+      "id": "PlasmaSledge",
+      "name": "Plasma Sledge",
+      "source": "https://brotato.wiki.spellsandguns.com/images/4/47/Plasma_Sledge.png",
+      "file": "sprites/PlasmaSledge.png",
+      "size": [
+        96,
+        96
+      ],
+      "sha256": "b513abcbe41841889ea5211668186acdd75b896264aa5ceffa81f0724e8ea428",
+      "transparent": true
+    },
+    {
+      "id": "PowerFist",
+      "name": "Power Fist",
+      "source": "https://brotato.wiki.spellsandguns.com/images/9/98/Power_Fist.png",
+      "file": "sprites/PowerFist.png",
+      "size": [
+        96,
+        96
+      ],
+      "sha256": "9f455e69e2ad39f81c14e85bc46eca1fe3d2a21338e9b07b23125db340d93426",
+      "transparent": true
+    },
+    {
+      "id": "ThornTrail",
+      "name": "Pruner",
+      "source": "https://brotato.wiki.spellsandguns.com/images/2/20/Pruner.png",
+      "file": "sprites/ThornTrail.png",
+      "size": [
+        96,
+        96
+      ],
+      "sha256": "849b70b6cb8c4c588164988781768581876c7e2460d85ce86026e242727c5ef2",
+      "transparent": true
+    },
+    {
+      "id": "Gravestone",
+      "name": "Rock",
+      "source": "https://brotato.wiki.spellsandguns.com/images/0/0b/Rock.png",
+      "file": "sprites/Gravestone.png",
+      "size": [
+        96,
+        96
+      ],
+      "sha256": "440c4db2a00cd4d614c26dd519f5345841e36020f8e93936c86136100aa7b1eb",
+      "transparent": true
+    },
+    {
+      "id": "Scissors",
+      "name": "Scissors",
+      "source": "https://brotato.wiki.spellsandguns.com/images/9/92/Scissors.png",
+      "file": "sprites/Scissors.png",
+      "size": [
+        96,
+        96
+      ],
+      "sha256": "0831e478a29dff651135e92f1518cb9cd4645bf69aa194862254fab9bb52b875",
+      "transparent": true
+    },
+    {
+      "id": "RuneAwl",
+      "name": "Screwdriver",
+      "source": "https://brotato.wiki.spellsandguns.com/images/1/1d/Screwdriver.png",
+      "file": "sprites/RuneAwl.png",
+      "size": [
+        96,
+        96
+      ],
+      "sha256": "e6c900751e7600c9d8033af4e2c813f3cb6200af57685a82c0ab07bd6f50c360",
+      "transparent": true
+    },
+    {
+      "id": "Scythe",
+      "name": "Scythe",
+      "source": "https://brotato.wiki.spellsandguns.com/images/c/cd/Scythe.png",
+      "file": "sprites/Scythe.png",
+      "size": [
+        96,
+        96
+      ],
+      "sha256": "80a027933b765daa3bdcfd7373ad4326a73017f50ba8eefdb39fc83af0d4e5be",
+      "transparent": true
+    },
+    {
+      "id": "LamplighterPike",
+      "name": "Spear",
+      "source": "https://brotato.wiki.spellsandguns.com/images/4/4f/Spear.png",
+      "file": "sprites/LamplighterPike.png",
+      "size": [
+        96,
+        96
+      ],
+      "sha256": "5dacabe86c48a8504eb471f4b7ebbfc2be0326773f973c4ba9548e36d09eeeb5",
+      "transparent": true
+    },
+    {
+      "id": "SpikyShield",
+      "name": "Spiky Shield",
+      "source": "https://brotato.wiki.spellsandguns.com/images/2/22/Spiky_Shield.png",
+      "file": "sprites/SpikyShield.png",
+      "size": [
+        96,
+        96
+      ],
+      "sha256": "ad56c033eadd3c7918831183935b3a076c013f825dc3233394c4f7e59931fb2e",
+      "transparent": true
+    },
+    {
+      "id": "Stick",
+      "name": "Stick",
+      "source": "https://brotato.wiki.spellsandguns.com/images/a/aa/Stick.png",
+      "file": "sprites/Stick.png",
+      "size": [
+        96,
+        96
+      ],
+      "sha256": "ddce35b1e7ed544b24304ced132abe05d54abd8e3350e876b4e9067b646ccbd0",
+      "transparent": true
+    },
+    {
+      "id": "DuskSabre",
+      "name": "Sword",
+      "source": "https://brotato.wiki.spellsandguns.com/images/8/89/Sword.png",
+      "file": "sprites/DuskSabre.png",
+      "size": [
+        96,
+        96
+      ],
+      "sha256": "18c15979111e38a9ff86c4a272a729fc43d164fc610646388aa20f213e07535b",
+      "transparent": true
+    },
+    {
+      "id": "ThiefDagger",
+      "name": "Thief Dagger",
+      "source": "https://brotato.wiki.spellsandguns.com/images/4/4d/Thief_Dagger.png",
+      "file": "sprites/ThiefDagger.png",
+      "size": [
+        96,
+        96
+      ],
+      "sha256": "5e427acdad2da58e8b59315fcf19d8e10f692e0ae58b158a7af8b77a9ca20b76",
+      "transparent": true
+    },
+    {
+      "id": "ThunderSword",
+      "name": "Thunder Sword",
+      "source": "https://brotato.wiki.spellsandguns.com/images/b/bb/Thunder_Sword.png",
+      "file": "sprites/ThunderSword.png",
+      "size": [
+        96,
+        96
+      ],
+      "sha256": "6767c1de5cfe430eb5e0142608803fdd66ad25d366a99a262a96e8ba6a7f3e04",
+      "transparent": true
+    },
+    {
+      "id": "Torch",
+      "name": "Torch",
+      "source": "https://brotato.wiki.spellsandguns.com/images/b/b2/Torch.png",
+      "file": "sprites/Torch.png",
+      "size": [
+        96,
+        96
+      ],
+      "sha256": "3c4bcfe6a718a2496247f1644476b35af9ebfb7c04171cd63c54da2d146b241f",
+      "transparent": true
+    },
+    {
+      "id": "FoundryKey",
+      "name": "Wrench",
+      "source": "https://brotato.wiki.spellsandguns.com/images/7/7c/Wrench.png",
+      "file": "sprites/FoundryKey.png",
+      "size": [
+        96,
+        96
+      ],
+      "sha256": "aad76454502325d1c94dc557135a0f21bb7d8144e915571a5902d2eb5689b5f8",
+      "transparent": true
+    },
+    {
+      "id": "ChainGun",
+      "name": "Chain Gun",
+      "source": "https://brotato.wiki.spellsandguns.com/images/3/3c/Chain_Gun.png",
+      "file": "sprites/ChainGun.png",
+      "size": [
+        96,
+        96
+      ],
+      "sha256": "315c0cb762e5587b926d8c734f9d8c249acac51015b6d9d5d65efbb5487af84c",
+      "transparent": true
+    },
+    {
+      "id": "BoomerangAxe",
+      "name": "Crossbow",
+      "source": "https://brotato.wiki.spellsandguns.com/images/7/79/Crossbow.png",
+      "file": "sprites/BoomerangAxe.png",
+      "size": [
+        96,
+        96
+      ],
+      "sha256": "b6b71f8744b43a7b7064fdd4df30e65d6bb7b870f8a82182c0bad642490648ee",
+      "transparent": true
+    },
+    {
+      "id": "ScatterBell",
+      "name": "Double Barrel Shotgun",
+      "source": "https://brotato.wiki.spellsandguns.com/images/7/72/Double_Barrel_Shotgun.png",
+      "file": "sprites/ScatterBell.png",
+      "size": [
+        96,
+        96
+      ],
+      "sha256": "bd7083dc8ddf9bd3aa822af0b1430639fbb07b431a0769b2d265e954880b5938",
+      "transparent": true
+    },
+    {
+      "id": "CinderBreath",
+      "name": "Flamethrower",
+      "source": "https://brotato.wiki.spellsandguns.com/images/a/ad/Flamethrower.png",
+      "file": "sprites/CinderBreath.png",
+      "size": [
+        96,
+        96
+      ],
+      "sha256": "b5e3908da9c76ca76dc576656d003f54b71eaf33f10dc789ea3c9a1850135ee8",
+      "transparent": true
+    },
+    {
+      "id": "CathedralEngine",
+      "name": "Gatling Laser",
+      "source": "https://brotato.wiki.spellsandguns.com/images/8/8f/Gatling_Laser.png",
+      "file": "sprites/CathedralEngine.png",
+      "size": [
+        96,
+        96
+      ],
+      "sha256": "935105c616700cde4b26b17241d860e26cad6f87e2fea2143ed4133026b93d53",
+      "transparent": true
+    },
+    {
+      "id": "GhostScepter",
+      "name": "Ghost Scepter",
+      "source": "https://brotato.wiki.spellsandguns.com/images/2/29/Ghost_Scepter.png",
+      "file": "sprites/GhostScepter.png",
+      "size": [
+        96,
+        96
+      ],
+      "sha256": "b0f230a8206a6b668281d3a9b4271c907036ffe50ee3f66e9e031e2ae4ea5055",
+      "transparent": true
+    },
+    {
+      "id": "LaserGun",
+      "name": "Laser Gun",
+      "source": "https://brotato.wiki.spellsandguns.com/images/d/d1/Laser_Gun.png",
+      "file": "sprites/LaserGun.png",
+      "size": [
+        96,
+        96
+      ],
+      "sha256": "f15ec2dc4e61a52e48ef145d46e9922214c176a614429a6e3fd30b8f30a337de",
+      "transparent": true
+    },
+    {
+      "id": "LeechCarbine",
+      "name": "Medical Gun",
+      "source": "https://brotato.wiki.spellsandguns.com/images/f/f6/Medical_Gun.png",
+      "file": "sprites/LeechCarbine.png",
+      "size": [
+        96,
+        96
+      ],
+      "sha256": "9675394e65d740e25aad7c90dbb9c11b476e26c947d753a26dd4a96d68e1cc95",
+      "transparent": true
+    },
+    {
+      "id": "Minigun",
+      "name": "Minigun",
+      "source": "https://brotato.wiki.spellsandguns.com/images/e/eb/Minigun.png",
+      "file": "sprites/Minigun.png",
+      "size": [
+        96,
+        96
+      ],
+      "sha256": "21c6633783c21a85232c9c6ad7434dff96ea185df9ba5a324112c89540adb830",
+      "transparent": true
+    },
+    {
+      "id": "NuclearLauncher",
+      "name": "Nuclear Launcher",
+      "source": "https://brotato.wiki.spellsandguns.com/images/d/d8/Nuclear_Launcher.png",
+      "file": "sprites/NuclearLauncher.png",
+      "size": [
+        96,
+        96
+      ],
+      "sha256": "1e953a80467d561e809e2dda677fcf0ad5286dcf08aac0ad1bc1f8a994703f27",
+      "transparent": true
+    },
+    {
+      "id": "Obliterator",
+      "name": "Obliterator",
+      "source": "https://brotato.wiki.spellsandguns.com/images/e/e1/Obliterator.png",
+      "file": "sprites/Obliterator.png",
+      "size": [
+        96,
+        96
+      ],
+      "sha256": "55a1499cac06697d00120353b07858b3f81e589f13f808ecdbbf09a93f199dbc",
+      "transparent": true
+    },
+    {
+      "id": "WatchmanPistol",
+      "name": "Pistol",
+      "source": "https://brotato.wiki.spellsandguns.com/images/a/a2/Pistol.png",
+      "file": "sprites/WatchmanPistol.png",
+      "size": [
+        96,
+        96
+      ],
+      "sha256": "e862ebb6f2e67d032817dcb25169d0663ccba8ab7c0b72a5f8a105b031edd43e",
+      "transparent": true
+    },
+    {
+      "id": "PotatoThrower",
+      "name": "Potato Thrower",
+      "source": "https://brotato.wiki.spellsandguns.com/images/c/c6/Potato_Thrower.png",
+      "file": "sprites/PotatoThrower.png",
+      "size": [
+        96,
+        96
+      ],
+      "sha256": "46314306824eaed08da1debb784e16b67dfbeb82021b7f651d93f13d731023c6",
+      "transparent": true
+    },
+    {
+      "id": "Railgun",
+      "name": "Railgun",
+      "source": "https://brotato.wiki.spellsandguns.com/images/a/ab/Railgun.png",
+      "file": "sprites/Railgun.png",
+      "size": [
+        96,
+        96
+      ],
+      "sha256": "a49beccf8a826cf42fbbfa2ecd7dd8b95930301faee816247359ce2eee1cf36d",
+      "transparent": true
+    },
+    {
+      "id": "Revolver",
+      "name": "Revolver",
+      "source": "https://brotato.wiki.spellsandguns.com/images/6/6d/Revolver.png",
+      "file": "sprites/Revolver.png",
+      "size": [
+        96,
+        96
+      ],
+      "sha256": "b3696d76397e177081bf214e15ae67ca77cd35a865409e70f57a7b2834999a7d",
+      "transparent": true
+    },
+    {
+      "id": "MortarLantern",
+      "name": "Rocket Launcher",
+      "source": "https://brotato.wiki.spellsandguns.com/images/0/05/Rocket_Launcher.png",
+      "file": "sprites/MortarLantern.png",
+      "size": [
+        96,
+        96
+      ],
+      "sha256": "0ccfa99e18eee32f8fc8357b88f258cbed04c6520bdfcbfe0c167d5f982721ad",
+      "transparent": true
+    },
+    {
+      "id": "ShrapnelOrgan",
+      "name": "Shredder",
+      "source": "https://brotato.wiki.spellsandguns.com/images/6/6e/Shredder.png",
+      "file": "sprites/ShrapnelOrgan.png",
+      "size": [
+        96,
+        96
+      ],
+      "sha256": "07ea853b0e7e66d7c50bac65b63c0cca5eb240f5ac821eb5a14b2d659af37165",
+      "transparent": true
+    },
+    {
+      "id": "Shuriken",
+      "name": "Shuriken",
+      "source": "https://brotato.wiki.spellsandguns.com/images/a/ac/Shuriken.png",
+      "file": "sprites/Shuriken.png",
+      "size": [
+        96,
+        96
+      ],
+      "sha256": "86ba40cb2b2e0522780517372c1539244d7fe4a410df1947c5c86cd8f9043dd9",
+      "transparent": true
+    },
+    {
+      "id": "Slingshot",
+      "name": "Slingshot",
+      "source": "https://brotato.wiki.spellsandguns.com/images/3/3f/Slingshot.png",
+      "file": "sprites/Slingshot.png",
+      "size": [
+        96,
+        96
+      ],
+      "sha256": "bec91b190c44acd4c8ffe587d5e87902d2fca593e09d0837b590d4fcf7a6cad0",
+      "transparent": true
+    },
+    {
+      "id": "RattleRepeater",
+      "name": "SMG",
+      "source": "https://brotato.wiki.spellsandguns.com/images/d/d6/SMG.png",
+      "file": "sprites/RattleRepeater.png",
+      "size": [
+        96,
+        96
+      ],
+      "sha256": "c64f31ad380bc42231f5b2b91a4a5681f6ff85a7a0a2df0c526715112699ddce",
+      "transparent": true
+    },
+    {
+      "id": "SniperGun",
+      "name": "Sniper Gun",
+      "source": "https://brotato.wiki.spellsandguns.com/images/8/80/Sniper_Gun.png",
+      "file": "sprites/SniperGun.png",
+      "size": [
+        96,
+        96
+      ],
+      "sha256": "a5bb1a6137243981c3e9ab96cf5c6596fff0d108ab2b96b284292380a8d701bb",
+      "transparent": true
+    },
+    {
+      "id": "GalvanicFork",
+      "name": "Taser",
+      "source": "https://brotato.wiki.spellsandguns.com/images/0/08/Taser.png",
+      "file": "sprites/GalvanicFork.png",
+      "size": [
+        96,
+        96
+      ],
+      "sha256": "53b23321c6568fe1e18cf4999f30453d9e3ab520e1e6fc9cabe8e614e605ac9d",
+      "transparent": true
+    },
+    {
+      "id": "SparkBolt",
+      "name": "Wand",
+      "source": "https://brotato.wiki.spellsandguns.com/images/5/53/Wand.png",
+      "file": "sprites/SparkBolt.png",
+      "size": [
+        96,
+        96
+      ],
+      "sha256": "002981d3623121aefaf669f84323bd61e2d6977fc11a2ac4ed440d772850502f",
+      "transparent": true
+    },
+    {
+      "id": "DEXtroyer",
+      "name": "DEX-troyer",
+      "source": "https://brotato.wiki.spellsandguns.com/images/3/3c/DEX-troyer.png",
+      "file": "sprites/DEXtroyer.png",
+      "size": [
+        96,
+        96
+      ],
+      "sha256": "49733bd9901712e9483f49c44e2a650a3459cbfc25c0e871b62539af850a8410",
+      "transparent": true
+    },
+    {
+      "id": "Fireball",
+      "name": "Fireball",
+      "source": "https://brotato.wiki.spellsandguns.com/images/a/ae/Fireball.png",
+      "file": "sprites/Fireball.png",
+      "size": [
+        96,
+        96
+      ],
+      "sha256": "2c6cfce2762816437c2e94bc43c46d9658e43580314a9a4a77edca546c24b69f",
+      "transparent": true
+    },
+    {
+      "id": "WinterNeedle",
+      "name": "Icicle",
+      "source": "https://brotato.wiki.spellsandguns.com/images/2/23/Icicle.png",
+      "file": "sprites/WinterNeedle.png",
+      "size": [
+        96,
+        96
+      ],
+      "sha256": "8e42f9062d842ac07158488ad2885f37778c0c1fc989544228ca05479382af79",
+      "transparent": true
+    },
+    {
+      "id": "ParticleAccelerator",
+      "name": "Particle Accelerator",
+      "source": "https://brotato.wiki.spellsandguns.com/images/6/68/Particle_Accelerator.png",
+      "file": "sprites/ParticleAccelerator.png",
+      "size": [
+        96,
+        96
+      ],
+      "sha256": "fa27fbef0d97a6934cca1f331044103adb2cf1798957fb23ba98da849ed12b45",
+      "transparent": true
+    },
+    {
+      "id": "SharpTooth",
+      "name": "Sharp Tooth",
+      "source": "https://brotato.wiki.spellsandguns.com/images/a/af/Sharp_Tooth.png",
+      "file": "sprites/SharpTooth.png",
+      "size": [
+        96,
+        96
+      ],
+      "sha256": "35963b7970708f1cf0c781bd27e544f24333659ce94c8630afe0eb91da176cef",
+      "transparent": true
+    },
+    {
+      "id": "VorpalSword",
+      "name": "Vorpal Sword",
+      "source": "https://brotato.wiki.spellsandguns.com/images/0/06/Vorpal_Sword.png",
+      "file": "sprites/VorpalSword.png",
+      "size": [
+        96,
+        96
+      ],
+      "sha256": "6e3da496cede9bee9552f0db826587f2aed5bd5d87286d1b46a01873c7fce8d7",
+      "transparent": true
+    }
+  ]
+}

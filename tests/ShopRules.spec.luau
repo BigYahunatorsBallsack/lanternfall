@@ -3,7 +3,7 @@
 local Config = require(game:GetService("ReplicatedStorage").Shared.Config)
 local ShopRules = require(game:GetService("ServerScriptService").Server.Services.ShopService.ShopRules)
 
-local WEAPONS = { "BoomerangAxe", "ChainLightning", "OrbitBlades", "Shockwave", "SparkBolt", "ThornTrail" }
+local WEAPONS = { "BoomerangAxe", "ChainLightning", "RitualDirk", "WatchmanPistol", "SparkBolt", "ThornTrail" }
 
 local function lcg(seed)
 	local state = seed or 0
@@ -94,7 +94,7 @@ describe("ShopRules", function()
 		local base = Config.Shop.weaponPrices.SparkBolt
 		expect(ShopRules.weaponPrice("SparkBolt", 1, 3)).toBe(ShopRules.price(base, 3))
 		expect(ShopRules.weaponPrice("SparkBolt", 3, 3)).toBe(
-			ShopRules.price(base * Config.Shop.tierPriceFactors[3], 3)
+			ShopRules.price(Config.Shop.weaponTierPrices.SparkBolt[3], 3)
 		)
 		expect(ShopRules.weaponPrice("SparkBolt", 2, 3) > ShopRules.weaponPrice("SparkBolt", 1, 3)).toBe(true)
 		expect(ShopRules.sellPrice("SparkBolt", 2, 3)).toBe(math.floor(ShopRules.weaponPrice("SparkBolt", 2, 3) * 0.25))
@@ -118,7 +118,7 @@ describe("ShopRules", function()
 	end)
 
 	it("picks weapons from the pool: owned ones, then the same class, then any", function()
-		local owned = { { id = "OrbitBlades", tier = 1 } }
+		local owned = { { id = "RitualDirk", tier = 1 } }
 		local function first(roll)
 			local offers = ShopRules.roll(params({
 				ownedWeapons = owned,
@@ -128,13 +128,13 @@ describe("ShopRules", function()
 			}))
 			return offers[1]
 		end
-		expect(first(0.1).itemId).toBe("OrbitBlades") -- below 20 %: an owned weapon
+		expect(first(0.1).itemId).toBe("RitualDirk") -- below 20 %: an owned weapon
 		expect(first(0.1).isNew).toBe(false)
 		expect(first(0.1).count).toBe(1)
 		local sameClass = first(0.3).itemId -- 20-35 %: a weapon sharing a weapon class with the owned one (B5)
 		local shares = false
 		for _, classId in Config.Weapons[sameClass].classes do
-			shares = shares or table.find(Config.Weapons.OrbitBlades.classes, classId) ~= nil
+			shares = shares or table.find(Config.Weapons.RitualDirk.classes, classId) ~= nil
 		end
 		expect(shares).toBe(true)
 		expect(first(0.9).isNew).toBe(true) -- otherwise any weapon; 0.9 picks one near the end of the list

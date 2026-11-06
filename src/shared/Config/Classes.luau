@@ -54,7 +54,7 @@ local Classes: { [string]: Class } = {
 		startWeapons = { "WatchmanPistol", "RattleRepeater", "ScatterBell", "ShrapnelOrgan" },
 		free = true,
 		available = true,
-		description = "+50 Range and an extra Watchman Pistol. Ranged weapons only. Ranged gains x1.5; Max HP gains x0.75.",
+		description = "+50 Range and an extra Pistol. Ranged weapons only. Ranged gains x1.5; Max HP gains x0.75.",
 		stats = { range = 50 },
 		extraWeapons = { "WatchmanPistol" },
 		weaponKind = "Ranged",

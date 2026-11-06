@@ -205,7 +205,7 @@ describe("EffectText", function()
 		expect(EffectText.proc({ kind = "Heal", amount = 50 })).toBe("+50 HP")
 		expect(EffectText.proc({ kind = "Shards", amount = 1 })).toBe("+1 Shard")
 		expect(EffectText.proc({ kind = "Stats", stats = { damage = 3 } })).toBe("+3% Damage")
-		expect(EffectText.proc({ kind = "Weapon", weaponId = "SparkBolt", tier = 2 })).toBe("Spark Bolt II!")
+		expect(EffectText.proc({ kind = "Weapon", weaponId = "SparkBolt", tier = 2 })).toBe("Wand II!")
 		expect(EffectText.procWithItem({ itemId = "OathRing", kind = "Stats", stats = { damage = 3 } })).toBe(
 			"Oath Ring: +3% Damage"
 		)
