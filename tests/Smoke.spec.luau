@@ -214,7 +214,7 @@ describe("smoke", function()
 		expect(firstText("HUD", "Timer")).toBe("00:15")
 		expect(phase()).toBe("Running")
 		expect(string.match(teamText(), "^Owner · alive · %d+ HP$") ~= nil).toBe(true)
-		expect(string.match(world.gui("HUD", "HpText").Text, "^%d+ / 100$") ~= nil).toBe(true) -- Spark Mage: no bonus
+		expect(string.match(world.gui("HUD", "HpText").Text, "^%d+ / 10$") ~= nil).toBe(true) -- Spark Mage: no bonus
 	end)
 
 	it("spawns enemies on a ring around the player and draws them", function()
@@ -720,16 +720,16 @@ describe("smoke", function()
 		local before = StatService.getSheet(me)
 		local _, maxHpBefore = CombatService.getHp(me)
 		for _ = 1, 3 do
-			expect(StatService.addItem(me, "Might")).toBe(true) -- Injection: +7 % Damage, -20 Max HP each
+			expect(StatService.addItem(me, "Might")).toBe(true) -- Injection: +7 % Damage, -2 Max HP each
 		end
-		expect(StatService.addItem(me, "Vitality")).toBe(true) -- +30 Max HP, -1 % Damage
+		expect(StatService.addItem(me, "Vitality")).toBe(true) -- Cake: +3 Max HP, -1 % Damage
 		expect(StatService.addItem(me, "EelFin")).toBe(true) -- +10 % Speed, +3 % Life Steal, -8 Luck
 		expect(StatService.addItem(me, "IronShackle")).toBe(true) -- limited to 1
 		expect(select(2, StatService.addItem(me, "IronShackle"))).toBe("Limit")
 		world.advance(0.2)
 		local after = StatService.getSheet(me)
 		expect(after.damage).toBe(before.damage + 21 - 1 + 15)
-		expect(after.maxHp).toBe(before.maxHp - 60 + 30)
+		expect(after.maxHp).toBe(before.maxHp - 6 + 3)
 		expect(after.speed).toBe(before.speed + 10 - 3)
 		local _, maxHp = CombatService.getHp(me)
 		expect(maxHp).toBe(maxHpBefore + after.maxHp - before.maxHp)
@@ -814,7 +814,7 @@ describe("smoke", function()
 		local maxHp = StatService.getStat(me, "maxHp")
 		give("BoneCharm")
 		world.advance(0.1)
-		expect(StatService.getStat(me, "maxHp")).toBe(maxHp + 10 * kinds)
+		expect(StatService.getStat(me, "maxHp")).toBe(maxHp + kinds)
 
 		-- Field Censer: +2 HP Regeneration every 5 s of the wave
 		give("FieldCenser")
@@ -848,7 +848,7 @@ describe("smoke", function()
 		world.advance(0.1)
 		expect(CombatService.getHp(me) > hp).toBe(true)
 		local shown = table.concat(controller("ProcTextController").getShown(), " | ")
-		expect(string.find(shown, "+50 HP", 1, true) ~= nil).toBe(true)
+		expect(string.find(shown, "+5 HP", 1, true) ~= nil).toBe(true)
 
 		-- Satchel: +15 Shards per copy for a chest
 		local satchels = give("Satchel")
@@ -1306,11 +1306,13 @@ describe("smoke", function()
 		world.advance(0.1)
 		world.click(world.gui("Debug", "HurtSelf")) -- still protected
 		world.advance(0.1)
-		expect(CombatService.getHp(me)).toBe(100 - Config.Admin.hurtSelfDamage)
-		expect(world.gui("HUD", "HpText").Text).toBe(`{100 - Config.Admin.hurtSelfDamage} / 100`)
+		expect(CombatService.getHp(me)).toBe(Config.Player.maxHp - Config.Admin.hurtSelfDamage)
+		expect(world.gui("HUD", "HpText").Text).toBe(
+			`{Config.Player.maxHp - Config.Admin.hurtSelfDamage} / {Config.Player.maxHp}`
+		)
 		world.click(world.gui("Debug", "HealSelf"))
 		world.advance(0.6)
-		expect(CombatService.getHp(me)).toBe(100)
+		expect(CombatService.getHp(me)).toBe(Config.Player.maxHp)
 	end)
 
 	it("ends in defeat when the only player is knocked down", function()
@@ -1364,7 +1366,7 @@ describe("smoke", function()
 		world.click(world.gui("Debug", "DownSelf"))
 		world.advance(0.2)
 		expect(phase()).toBe("Running")
-		expect(teamText()).toBe("Owner · DOWN | Friend · alive · 100 HP")
+		expect(teamText()).toBe("Owner · DOWN | Friend · alive · 10 HP")
 		expect(me.Character.Humanoid.WalkSpeed).toBe(0)
 		world.advance(8)
 		local friendRoot = friend.Character.HumanoidRootPart.Position
@@ -1373,8 +1375,8 @@ describe("smoke", function()
 		CombatService.protect(me, 1) -- the crowd around the friend can reach the owner right after standing up
 		world.click(world.gui("Debug", "ReviveSelf"))
 		world.advance(0.2)
-		local reviveHp = math.ceil(100 * Config.Run.coop.reviveHpFraction)
-		expect(teamText()).toBe(`Owner · alive · {reviveHp} HP | Friend · alive · 100 HP`)
+		local reviveHp = math.ceil(Config.Player.maxHp * Config.Run.coop.reviveHpFraction)
+		expect(teamText()).toBe(`Owner · alive · {reviveHp} HP | Friend · alive · 10 HP`)
 		expect(me.Character.Humanoid.WalkSpeed).toBe(Config.Player.moveSpeed)
 	end)
 
@@ -1385,10 +1387,10 @@ describe("smoke", function()
 		world.click(world.gui("Debug", "SkipWave"))
 		world.advance(0.2)
 		expect(phase()).toBe("Shop")
-		expect(teamText()).toBe("Owner · alive · 100 HP · shopping | Friend · alive · 100 HP · shopping")
+		expect(teamText()).toBe("Owner · alive · 10 HP · shopping | Friend · alive · 10 HP · shopping")
 		world.fireServerAs(friend, "SetShopReady", true)
 		world.advance(0.2)
-		expect(teamText()).toBe("Owner · alive · 100 HP · shopping | Friend · alive · 100 HP · ready")
+		expect(teamText()).toBe("Owner · alive · 10 HP · shopping | Friend · alive · 10 HP · ready")
 		expect(phase()).toBe("Shop")
 	end)
 

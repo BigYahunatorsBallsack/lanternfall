@@ -122,7 +122,7 @@ end
 -- Lethal self-damage ignores armor, dodge and timed protection. Hit shields can absorb it; no protection is granted.
 -- Returns HP lost and whether a hit shield absorbed it (Blood Donation and Bloody Hand).
 function Vitals.drain(self: Vitals, amount: number): (number, boolean)
-	if amount <= 0 or self:isDown() or self.shielded then
+	if amount <= 0 or self:isDown() then
 		return 0, false
 	end
 	if self.hitShields > 0 then

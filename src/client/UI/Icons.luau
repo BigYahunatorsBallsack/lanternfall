@@ -362,6 +362,18 @@ function Icons.draw(parent: GuiObject, kind: string, id: string): Frame
 		local fallback = root:FindFirstChild("Fallback")
 		if fallback then
 			fallback.Visible = false
+			local art = root:FindFirstChild("ItemArt")
+			if art then
+				task.spawn(function()
+					pcall(function()
+						ContentProvider:PreloadAsync({ art }, function(_, status)
+							if fallback.Parent then
+								fallback.Visible = status ~= Enum.AssetFetchStatus.Success
+							end
+						end)
+					end)
+				end)
+			end
 		end
 	end
 	return root

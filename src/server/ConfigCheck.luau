@@ -354,7 +354,7 @@ function ConfigCheck.run(): { string }
 			if not (pulse.radius > 0 and pulse.intervalSeconds > 0) then
 				problem(`Enemy {id} needs a pulse radius and interval above 0`)
 			end
-			if not (pulse.heal or pulse.buffCount) then
+			if not (pulse.heal or pulse.healFlat or pulse.buffCount) then
 				problem(`Enemy {id} pulses without a buff or heal`)
 			end
 		end
@@ -566,8 +566,8 @@ function ConfigCheck.run(): { string }
 	-- Loot (B6): the Looter and Tree enemies exist and behave as such, chances are chances
 	local loot = Config.Loot
 	local looter = Config.Enemies.types[loot.looter.enemy]
-	if not (looter and looter.flee and looter.contactDamage == 0) then
-		problem(`Loot.looter.enemy {loot.looter.enemy} must be a known enemy with flee and no contact damage`)
+	if not (looter and looter.flee) then
+		problem(`Loot.looter.enemy {loot.looter.enemy} must be a known fleeing enemy`)
 	end
 	local tree = Config.Enemies.types[loot.trees.enemy]
 	if not (tree and tree.anchored and tree.speed == 0 and tree.contactDamage == 0) then

@@ -5,6 +5,8 @@
 
 local Run = require(script.Parent.Parent.Config.Run)
 local Difficulty = require(script.Parent.Parent.Config.Difficulty)
+local Enemies = require(script.Parent.Parent.Config.Enemies)
+local EnemyStats = require(script.Parent.EnemyStats)
 
 local Spawn = Run.spawn
 local Waves = Spawn.waves
@@ -150,17 +152,19 @@ function RunSchedule.eventsOf(number: number, danger: number?): { string }
 	local minute = number - 1
 	local events = {}
 	local level = Difficulty.levels[math.clamp(danger or #Difficulty.levels - 1, 0, #Difficulty.levels - 1) + 1]
-	local entry = Spawn.groups[number]
-	if entry and entry.announce then
-		local names = {}
-		for _, item in entry.announce do
-			if level.newEnemies or not table.find(Difficulty.newEnemies, item.enemy) then
-				table.insert(names, item.name)
-			end
+	local names = {}
+	for _, kind in Enemies.types do
+		if
+			number > 1
+			and EnemyStats.canSpawn(kind, number, level.level)
+			and EnemyStats.firstWave(kind, level.level) == number
+		then
+			table.insert(names, kind.displayName)
 		end
-		if #names > 0 then
-			table.insert(events, `New: {table.concat(names, ", ")}`)
-		end
+	end
+	table.sort(names)
+	if #names > 0 then
+		table.insert(events, `New: {table.concat(names, ", ")}`)
 	end
 	for _, start in Spawn.swarmRush.atMinutes do
 		if start == minute then

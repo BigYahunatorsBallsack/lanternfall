@@ -1,7 +1,7 @@
 {
   "source": "https://brotato.wiki.spellsandguns.com/Items",
   "retrieved": "2026-11-06",
-  "scope": "Existing Lanternfall catalog replaced by main-game originals; not every Brotato item.",
+  "scope": "125 current Lanternfall catalog entries replaced by distinct main-game originals; not every Brotato item.",
   "items": [
     {
       "id": "Vitality",
@@ -253,7 +253,7 @@
           "source": "distinctWeapons",
           "per": 1,
           "stats": {
-            "maxHp": 10
+            "maxHp": 1.0
           }
         }
       ],
@@ -510,7 +510,7 @@
           "source": "shards",
           "per": 80,
           "stats": {
-            "maxHp": 10
+            "maxHp": 1.0
           }
         }
       ],
@@ -546,7 +546,7 @@
           "action": "Grow",
           "stats": {
             "lifeSteal": 1,
-            "maxHp": -10
+            "maxHp": -1.0
           }
         }
       ],
@@ -619,7 +619,7 @@
           "trigger": "Timer",
           "action": "Drain",
           "interval": 1,
-          "amount": 10
+          "amount": 1.0
         }
       ],
       "source": "https://brotato.wiki.spellsandguns.com/Blood_Donation"
@@ -827,7 +827,7 @@
         {
           "trigger": "Dodge",
           "action": "Heal",
-          "amount": 50,
+          "amount": 5.0,
           "chance": 0.5
         }
       ],
@@ -1112,7 +1112,7 @@
           "stats": {
             "meleeDamage": 3,
             "engineering": 3,
-            "maxHp": -10
+            "maxHp": -1.0
           }
         }
       ],
@@ -1130,7 +1130,7 @@
           "trigger": "WaveEnd",
           "action": "Grow",
           "stats": {
-            "maxHp": 30,
+            "maxHp": 3.0,
             "hpRegen": 1,
             "lifeSteal": 1
           }
@@ -1583,7 +1583,7 @@
           "action": "Heal",
           "crit": true,
           "chance": 0.2,
-          "amount": 10
+          "amount": 1.0
         }
       ],
       "source": "https://brotato.wiki.spellsandguns.com/Tentacle"
@@ -1730,7 +1730,7 @@
           "trigger": "Timer",
           "action": "Drain",
           "interval": 1,
-          "amount": 10
+          "amount": 1.0
         }
       ],
       "source": "https://brotato.wiki.spellsandguns.com/Bloody_Hand"
@@ -1804,7 +1804,7 @@
           "fullHp": true,
           "maxPerWave": 8,
           "stats": {
-            "maxHp": 10
+            "maxHp": 1.0
           }
         }
       ],
@@ -1942,6 +1942,19 @@
       },
       "effects": [],
       "source": "https://brotato.wiki.spellsandguns.com/Improved_Tools"
+    },
+    {
+      "id": "BloodLure",
+      "name": "Bait",
+      "tier": 2,
+      "price": 25,
+      "limit": null,
+      "stats": {
+        "damage": 8
+      },
+      "effects": [],
+      "source": "https://brotato.wiki.spellsandguns.com/Bait",
+      "description": "7-8 Hookfangs appear at the start of the next wave for each new lure."
     }
   ]
 }

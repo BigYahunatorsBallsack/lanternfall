@@ -406,7 +406,7 @@ Weapons.Gravestone = {
 		{ damage = 0.75, cooldown = -0.08, critChance = 0.05 },
 		{ damage = 1.0, cooldown = -0.07, critChance = 0.05 },
 	},
-	heldStats = { {}, { armor = 1 }, { armor = 1, maxHp = 20 }, { armor = 2, maxHp = 20 } },
+	heldStats = { {}, { armor = 1 }, { armor = 1, maxHp = 2 }, { armor = 2, maxHp = 2 } },
 }
 Weapons.TithePalm = {
 	id = "TithePalm",
@@ -449,7 +449,7 @@ Weapons.WraithHatchet = {
 	targeting = "Nearest",
 	minTier = 1,
 	base = {
-		damage = 14.0, -- playtest after Paket 24: weak at the start, was 12.0
+		damage = 12,
 		cooldown = 1.73,
 		range = 20.0,
 		critDamage = 2.0,
@@ -483,7 +483,7 @@ Weapons.SpiritFlint = {
 	targeting = "Nearest",
 	minTier = 1,
 	base = {
-		damage = 8.0, -- playtest after Paket 24: weak at the start, was 6.0
+		damage = 6,
 		cooldown = 1.23,
 		range = 17.0,
 		critDamage = 2.0,
@@ -546,16 +546,15 @@ Weapons.RattleRepeater = {
 	description = "Fires at enemies in range.",
 	kind = "Ranged",
 	classes = { "Longshot" },
-	-- playtest after Paket 24: far too strong (6 hits per second, each with half the Ranged Damage): damage 3 -> 2.5,
-	-- scaling 0.5-0.8 -> 0.25-0.4
-	scaling = { rangedDamage = 0.25 },
-	tierScaling = { { rangedDamage = 0.25 }, { rangedDamage = 0.3 }, { rangedDamage = 0.35 }, { rangedDamage = 0.4 } },
+	-- Original SMG reference scaling in Brotato units.
+	scaling = { rangedDamage = 0.5 },
+	tierScaling = { { rangedDamage = 0.5 }, { rangedDamage = 0.6 }, { rangedDamage = 0.7 }, { rangedDamage = 0.8 } },
 	rangeKeys = { "range" },
 	behavior = "RattleRepeater",
 	targeting = "Nearest",
 	minTier = 1,
 	base = {
-		damage = 2.5,
+		damage = 3,
 		cooldown = 0.17,
 		range = 40.0,
 		critDamage = 1.5,
@@ -585,7 +584,7 @@ Weapons.ScatterBell = {
 	targeting = "Nearest",
 	minTier = 1,
 	base = {
-		damage = 4.0, -- playtest after Paket 24: weak at the start, was 3.0
+		damage = 3,
 		cooldown = 1.37,
 		range = 35.0,
 		critDamage = 2.0,
@@ -617,7 +616,7 @@ Weapons.ShrapnelOrgan = {
 	targeting = "Nearest",
 	minTier = 1,
 	base = {
-		damage = 8.0, -- playtest after Paket 24: weak at the start, was 5.0
+		damage = 5,
 		cooldown = 1.3,
 		range = 45.0,
 		critDamage = 2.0,
@@ -703,7 +702,7 @@ Weapons.GalvanicFork = {
 	targeting = "Nearest",
 	minTier = 1,
 	base = {
-		damage = 10.0, -- playtest after Paket 24: weak at the start, was 7.0
+		damage = 7,
 		cooldown = 0.95,
 		range = 20.0,
 		critDamage = 2.0,
@@ -810,7 +809,7 @@ Weapons.MortarLantern = {
 	targeting = "Nearest",
 	minTier = 2,
 	base = {
-		damage = 22.0, -- playtest after Paket 24: evened out, was 30
+		damage = 30,
 		cooldown = 1.78,
 		range = 50.0,
 		critDamage = 2.0,
@@ -846,7 +845,7 @@ Weapons.WinterNeedle = {
 	targeting = "Nearest",
 	minTier = 1,
 	base = {
-		damage = 12.0, -- playtest after Paket 24: weak at the start, was 10.0
+		damage = 10,
 		cooldown = 1.03,
 		range = 40.0,
 		critDamage = 2.0,
@@ -883,7 +882,7 @@ Weapons.FoundryKey = {
 	minTier = 1,
 	structureKinds = { "BrassSentry", "CinderSentry", "PrismSentry", "SiegeSentry" },
 	base = {
-		damage = 14, -- playtest after Paket 24: weak at the start, was 12
+		damage = 12,
 		cooldown = 1.7,
 		range = 17.5,
 		critDamage = 2,

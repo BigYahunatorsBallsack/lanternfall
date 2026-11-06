@@ -1,0 +1,767 @@
+{
+  "baseCommit": "fc17890b306acbb5eef28599cb2aa48d1c54c040",
+  "baseline": {
+    "specs": 73,
+    "passed": 747,
+    "failed": 31
+  },
+  "branchFullRun": {
+    "specs": 75,
+    "passed": 887,
+    "failed": 31
+  },
+  "latestTargetedChecks": {
+    "ItemParity.spec.luau": {
+      "passed": 136,
+      "failed": 0
+    },
+    "ItemSprites.spec.luau": {
+      "passed": 5,
+      "failed": 0
+    }
+  },
+  "newFailuresInExistingSpecs": [],
+  "assetChecks": {
+    "originalPNGs": 125,
+    "sourceHashesVerified": 125,
+    "uploaded": 125,
+    "studioPreloadSuccess": 124,
+    "robloxModerationRejected": [
+      "Bellows"
+    ]
+  },
+  "limitations": [
+    "Full suite contains the same 31 pre-existing failures as main.",
+    "A final fifth sprite failure-fallback test was added after the full run and passed in the targeted rerun.",
+    "Eyes Surgery original sprite was rejected by Roblox moderation. No alternate upload attempted.",
+    "No full branch Studio run, actual two-client run, phone test or live place publish performed."
+  ],
+  "perSpec": [
+    {
+      "spec": "tests/Analytics.spec.luau",
+      "exit": 0,
+      "counts": [
+        "14",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/AnalyticsRules.spec.luau",
+      "exit": 0,
+      "counts": [
+        "6",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/Audio21.spec.luau",
+      "exit": 0,
+      "counts": [
+        "8",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/Boss.spec.luau",
+      "exit": 0,
+      "counts": [
+        "10",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/BossBrain.spec.luau",
+      "exit": 0,
+      "counts": [
+        "6",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/Champions.spec.luau",
+      "exit": 0,
+      "counts": [
+        "5",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/CharacterArt.spec.luau",
+      "exit": 0,
+      "counts": [
+        "9",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/CharactersB10.spec.luau",
+      "exit": 1,
+      "counts": [
+        "12",
+        "1"
+      ],
+      "failures": [
+        "B10 character catalog > applies Apprentice gains to team levels and resets everything in the next run"
+      ]
+    },
+    {
+      "spec": "tests/Config.spec.luau",
+      "exit": 0,
+      "counts": [
+        "6",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/Danger.spec.luau",
+      "exit": 0,
+      "counts": [
+        "6",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/DangerRules.spec.luau",
+      "exit": 0,
+      "counts": [
+        "11",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/EffectRules.spec.luau",
+      "exit": 0,
+      "counts": [
+        "11",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/EmberShop.spec.luau",
+      "exit": 0,
+      "counts": [
+        "12",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/EmberShopRules.spec.luau",
+      "exit": 0,
+      "counts": [
+        "8",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/EnemiesB9.spec.luau",
+      "exit": 1,
+      "counts": [
+        "6",
+        "1"
+      ],
+      "failures": [
+        "new enemies (B9) > finished without any runtime error"
+      ]
+    },
+    {
+      "spec": "tests/EnemyModels.spec.luau",
+      "exit": 0,
+      "counts": [
+        "10",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/EnemyWorld.spec.luau",
+      "exit": 0,
+      "counts": [
+        "44",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/Experience.spec.luau",
+      "exit": 0,
+      "counts": [
+        "7",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/FirstNight.spec.luau",
+      "exit": 0,
+      "counts": [
+        "9",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/FirstNightHub.spec.luau",
+      "exit": 0,
+      "counts": [
+        "2",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/Graphics22.spec.luau",
+      "exit": 1,
+      "counts": [
+        "5",
+        "1"
+      ],
+      "failures": [
+        "enemies off the screen > are not placed, while enemies near the camera are"
+      ]
+    },
+    {
+      "spec": "tests/HeldWeapons.spec.luau",
+      "exit": 1,
+      "counts": [
+        "3",
+        "1"
+      ],
+      "failures": [
+        "World weapon sprites > keeps duplicate copies separate and animates only the attacking uid"
+      ]
+    },
+    {
+      "spec": "tests/HitNumbers.spec.luau",
+      "exit": 0,
+      "counts": [
+        "3",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/HubStudio.spec.luau",
+      "exit": 1,
+      "counts": [
+        "9",
+        "1"
+      ],
+      "failures": [
+        "hub lobby (Studio) > ran without script errors"
+      ]
+    },
+    {
+      "spec": "tests/HubTeleport.spec.luau",
+      "exit": 1,
+      "counts": [
+        "6",
+        "1"
+      ],
+      "failures": [
+        "hub teleports > ran without script errors"
+      ]
+    },
+    {
+      "spec": "tests/Hud14.spec.luau",
+      "exit": 0,
+      "counts": [
+        "6",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/ItemParity.spec.luau",
+      "exit": 0,
+      "counts": [
+        "136",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/ItemsB8.spec.luau",
+      "exit": 1,
+      "counts": [
+        "15",
+        "1"
+      ],
+      "failures": [
+        "items in a run (B8) > finished without any runtime error"
+      ]
+    },
+    {
+      "spec": "tests/ItemSprites.spec.luau",
+      "exit": 0,
+      "counts": [
+        "4",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/Launch24.spec.luau",
+      "exit": 0,
+      "counts": [
+        "10",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/Loot.spec.luau",
+      "exit": 1,
+      "counts": [
+        "10",
+        "1"
+      ],
+      "failures": [
+        "loot > finished without any runtime error"
+      ]
+    },
+    {
+      "spec": "tests/LootRules.spec.luau",
+      "exit": 0,
+      "counts": [
+        "8",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/MainGameEnemyRuntime.spec.luau",
+      "exit": 0,
+      "counts": [
+        "9",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/MainGameEnemyStats.spec.luau",
+      "exit": 0,
+      "counts": [
+        "29",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/MovementRules.spec.luau",
+      "exit": 0,
+      "counts": [
+        "11",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/NetCodecs22.spec.luau",
+      "exit": 0,
+      "counts": [
+        "7",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/Parties.spec.luau",
+      "exit": 0,
+      "counts": [
+        "11",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/Perf22.spec.luau",
+      "exit": 1,
+      "counts": [
+        "0",
+        "1"
+      ],
+      "failures": [
+        "performance (Paket 22) > keeps the local client under the network budget in a full four-player fight"
+      ]
+    },
+    {
+      "spec": "tests/PlaceRules.spec.luau",
+      "exit": 0,
+      "counts": [
+        "9",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/PlayerData.spec.luau",
+      "exit": 0,
+      "counts": [
+        "7",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/PlayerDataRules.spec.luau",
+      "exit": 0,
+      "counts": [
+        "14",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/Progress.spec.luau",
+      "exit": 1,
+      "counts": [
+        "5",
+        "1"
+      ],
+      "failures": [
+        "progress > finished without any runtime error"
+      ]
+    },
+    {
+      "spec": "tests/ProgressRules.spec.luau",
+      "exit": 0,
+      "counts": [
+        "10",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/PurchaseRules.spec.luau",
+      "exit": 0,
+      "counts": [
+        "10",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/QuestRules.spec.luau",
+      "exit": 0,
+      "counts": [
+        "18",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/Quests.spec.luau",
+      "exit": 0,
+      "counts": [
+        "11",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/RandomStreams.spec.luau",
+      "exit": 0,
+      "counts": [
+        "3",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/RetryWave.spec.luau",
+      "exit": 1,
+      "counts": [
+        "5",
+        "1"
+      ],
+      "failures": [
+        "retry wave > finished without any runtime error"
+      ]
+    },
+    {
+      "spec": "tests/Revive.spec.luau",
+      "exit": 1,
+      "counts": [
+        "7",
+        "1"
+      ],
+      "failures": [
+        "revive > finished without any runtime error"
+      ]
+    },
+    {
+      "spec": "tests/ReviveRules.spec.luau",
+      "exit": 0,
+      "counts": [
+        "7",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/RunFlow.spec.luau",
+      "exit": 0,
+      "counts": [
+        "55",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/RunPlace.spec.luau",
+      "exit": 1,
+      "counts": [
+        "5",
+        "1"
+      ],
+      "failures": [
+        "run place > ran without script errors"
+      ]
+    },
+    {
+      "spec": "tests/RunStats.spec.luau",
+      "exit": 0,
+      "counts": [
+        "5",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/Security23.spec.luau",
+      "exit": 0,
+      "counts": [
+        "13",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/Security23Hub.spec.luau",
+      "exit": 1,
+      "counts": [
+        "2",
+        "1"
+      ],
+      "failures": [
+        "party invites > ran without script errors"
+      ]
+    },
+    {
+      "spec": "tests/ShopRules.spec.luau",
+      "exit": 0,
+      "counts": [
+        "14",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/Smoke.spec.luau",
+      "exit": 1,
+      "counts": [
+        "37",
+        "6"
+      ],
+      "failures": [
+        "smoke > shoots Spark Bolts that kill enemies once weapons are on",
+        "smoke > draws the six original weapons, tiers and debug swaps",
+        "smoke > drops XP orbs that the player picks up for the whole team",
+        "smoke > keeps level-ups for the end of the wave",
+        "smoke > runs Brotato's combat: weapon class bonuses, burning, exploding items and slowed enemies",
+        "smoke > finished without any runtime error"
+      ]
+    },
+    {
+      "spec": "tests/Snapshot.spec.luau",
+      "exit": 0,
+      "counts": [
+        "7",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/SnapshotBuffer.spec.luau",
+      "exit": 0,
+      "counts": [
+        "7",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/SpatialHash.spec.luau",
+      "exit": 0,
+      "counts": [
+        "2",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/SpawnGroups.spec.luau",
+      "exit": 1,
+      "counts": [
+        "5",
+        "1"
+      ],
+      "failures": [
+        "spawn groups > finished without any runtime error"
+      ]
+    },
+    {
+      "spec": "tests/SpawnRules.spec.luau",
+      "exit": 0,
+      "counts": [
+        "16",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/StatMath.spec.luau",
+      "exit": 0,
+      "counts": [
+        "8",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/Store.spec.luau",
+      "exit": 1,
+      "counts": [
+        "13",
+        "1"
+      ],
+      "failures": [
+        "store > finished without any runtime error"
+      ]
+    },
+    {
+      "spec": "tests/StructuresB12.spec.luau",
+      "exit": 1,
+      "counts": [
+        "4",
+        "4"
+      ],
+      "failures": [
+        "B12 structures > bounds allocations, resets after the run and reports no runtime errors",
+        "B12 structures > ticks flame burns even while the sentry continually refreshes them",
+        "B12 structures > shares the construction budget fairly and cleans up disconnects",
+        "B12 structures > arms mines on contact and detonates after an enemy leaves"
+      ]
+    },
+    {
+      "spec": "tests/UiRedesign.spec.luau",
+      "exit": 1,
+      "counts": [
+        "7",
+        "3"
+      ],
+      "failures": [
+        "UI redesign foundation > keeps character selection, ready and full-capacity shop slots working",
+        "UI redesign foundation > keeps shop artwork stable on price updates and reflects the complete item inventory",
+        "UI redesign foundation > shows all twelve weapon summaries with accessible result actions"
+      ]
+    },
+    {
+      "spec": "tests/UpgradePool.spec.luau",
+      "exit": 0,
+      "counts": [
+        "10",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/ViewBounds.spec.luau",
+      "exit": 0,
+      "counts": [
+        "5",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/Vitals.spec.luau",
+      "exit": 0,
+      "counts": [
+        "13",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/WeaponBalance.spec.luau",
+      "exit": 0,
+      "counts": [
+        "1",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/WeaponClasses.spec.luau",
+      "exit": 0,
+      "counts": [
+        "5",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/Weapons.spec.luau",
+      "exit": 1,
+      "counts": [
+        "37",
+        "2"
+      ],
+      "failures": [
+        "Spark Bolt > shoots the nearest enemy and kills a Shadeling with one hit",
+        "Shockwave > hits with the hammer and sends a weaker pulse from its impact"
+      ]
+    },
+    {
+      "spec": "tests/WeaponsB7.spec.luau",
+      "exit": 0,
+      "counts": [
+        "7",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/WeaponsB7Integration.spec.luau",
+      "exit": 0,
+      "counts": [
+        "5",
+        "0"
+      ],
+      "failures": []
+    },
+    {
+      "spec": "tests/WeaponStats.spec.luau",
+      "exit": 0,
+      "counts": [
+        "14",
+        "0"
+      ],
+      "failures": []
+    }
+  ]
+}

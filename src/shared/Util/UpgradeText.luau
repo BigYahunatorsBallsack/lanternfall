@@ -178,6 +178,9 @@ function UpgradeText.itemLines(itemId: string, colors: Colors?, separator: strin
 	if stats ~= "" then
 		table.insert(lines, stats)
 	end
+	if item.description then
+		table.insert(lines, item.description)
+	end
 	local effects = EffectText.lines(item.effects)
 	if effects ~= "" then
 		table.insert(lines, effects)

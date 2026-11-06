@@ -99,11 +99,11 @@ describe("item rules (B8)", function()
 			"Crit: 10% of the enemy's current HP as damage (1% vs elites)"
 		)
 		expect(EffectText.lines(Config.Items.byId.CrimsonHand.effects, " | ")).toBe(
-			"+2% Damage per 1% Life Steal | Every 1s: lose 10 HP"
+			"+2% Damage per 1% Life Steal | Every 1s: lose 1 HP"
 		)
 		expect(EffectText.lines(Config.Items.byId.VelvetDivan.effects)).toBe("+2 HP Regeneration per -1% Speed")
 		expect(EffectText.lines(Config.Items.byId.SecondStomach.effects)).toBe(
-			"Fruit or crate at full HP: +10 Max HP (max 8 per wave)"
+			"Fruit or crate at full HP: +1 Max HP (max 8 per wave)"
 		)
 		expect(EffectText.lines(Config.Items.byId.HearthSprite.effects, " | ")).toBe(
 			"+1 HP Regeneration per different Common item | -3 HP Regeneration per different Legendary item"
@@ -131,7 +131,7 @@ describe("items in a run (B8)", function()
 		LootService.dropPickup(position(), "Fruit")
 		world.advance(0.3)
 		local _, grown = CombatService.getHp(me)
-		expect(grown).toBe(maxHp + 10)
+		expect(grown).toBe(maxHp + 1)
 		CombatService.protect(me, 0)
 		click("HurtSelf")
 		LootService.dropPickup(position(), "Fruit")
@@ -147,7 +147,7 @@ describe("items in a run (B8)", function()
 		world.advance(0.3)
 		expect(stat("damage")).toBe(damage)
 		expect(Config.Items.byId.WitchKettle.displayName).toBe("Lemonade")
-		expect(Config.Items.byId.WitchKettle.stats.fruitHeal).toBe(10)
+		expect(Config.Items.byId.WitchKettle.stats.fruitHeal).toBe(1)
 		world.advance(2)
 		expect(stat("damage")).toBe(damage)
 	end)
@@ -227,7 +227,7 @@ describe("items in a run (B8)", function()
 		click("KillEnemies")
 	end)
 
-	it("drains 10 HP a second and adds Damage per Life Steal (Bloody Hand)", function()
+	it("drains 1 HP a second and adds Damage per Life Steal (Bloody Hand)", function()
 		local damage = stat("damage")
 		give("CrimsonHand")
 		local lifeSteal = StatService.getPermanentSheet(me).lifeSteal or 0

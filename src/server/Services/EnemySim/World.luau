@@ -88,6 +88,7 @@ export type World = typeof(setmetatable(
 		maxHp: { number },
 		contactDamage: { number }, -- damage per touch
 		shotDamage: { number }, -- damage per projectile, 0 for enemies that do not shoot
+		waves: { number }, -- wave at spawn, for flat enemy healing
 		shotCooldown: { number }, -- seconds in fire range until the next shot
 		modes: { number }, -- MODE_*
 		modeTimers: { number }, -- seconds left in the wind-up or recovery; while walking: until a wind-up may start
@@ -143,6 +144,7 @@ function World.new(params: Params): World
 		maxHp = {},
 		contactDamage = {},
 		shotDamage = {},
+		waves = {},
 		shotCooldown = {},
 		modes = {},
 		modeTimers = {},
@@ -187,6 +189,7 @@ function World.new(params: Params): World
 		self.maxHp,
 		self.contactDamage,
 		self.shotDamage,
+		self.waves,
 		self.shotCooldown,
 		self.modes,
 		self.modeTimers,
@@ -218,6 +221,8 @@ function World.baseShotDamage(kind: Kind): number
 		return kind.slash.damage
 	elseif kind.retaliate then
 		return kind.retaliate.projectileDamage
+	elseif kind.charge then
+		return kind.charge.projectileDamage or 0
 	end
 	return 0
 end
@@ -240,7 +245,8 @@ function World.spawn(
 	hp: number,
 	contactDamage: number,
 	shotDamage: number?,
-	speedFactor: number?
+	speedFactor: number?,
+	wave: number?
 ): number?
 	if self.alive >= self.params.maxEnemies then
 		return nil
@@ -260,6 +266,7 @@ function World.spawn(
 	local ranged = kind.ranged
 	local spread = (id * GOLDEN_RATIO) % 1 -- so a group spawned together does not act in sync
 	self.shotDamage[i] = shotDamage or World.baseShotDamage(kind)
+	self.waves[i] = wave or 1
 	self.shotCooldown[i] = if ranged then ranged.fireInterval * spread else 0
 	self.modes[i] = MODE_WALK
 	local cooldown = if kind.charge
@@ -356,7 +363,7 @@ function World.damage(self: World, id: number, amount: number): (boolean, number
 	if left > 0 then
 		self.hp[i] = left
 		local retaliate = kind.retaliate
-		if retaliate and self.abilityTimers[i] <= 0 then
+		if retaliate and not retaliate.rangedOnly and self.abilityTimers[i] <= 0 then
 			self.abilityTimers[i] = retaliate.cooldownSeconds
 			return false, applied, applied, true
 		end
@@ -365,6 +372,11 @@ function World.damage(self: World, id: number, amount: number): (boolean, number
 	self.hp[i] = 0
 	self.alive -= 1
 	return true, hp, applied, false
+end
+
+function World.getShotDamage(self: World, id: number): number
+	local i = self.indexOf[id]
+	return if i then self.shotDamage[i] else 0
 end
 
 -- Queries (dead enemies are skipped; data of an enemy killed since the last step stays readable) --------------
@@ -815,8 +827,11 @@ local function pulseAt(self: World, i: number, pulse: Enemies.Pulse)
 			local reach = pulse.radius + kinds[j].radius
 			local dx, dz = xs[j] - xs[i], zs[j] - zs[i]
 			if dx * dx + dz * dz <= reach * reach then
-				if pulse.heal and not kinds[j].boss then
-					hp[j] = math.min(maxHp[j], hp[j] + maxHp[j] * pulse.heal)
+				if (pulse.heal or pulse.healFlat) and not kinds[j].boss then
+					local healing = if pulse.healFlat
+						then pulse.healFlat + (pulse.healPerWave or 0) * (self.waves[i] - 1)
+						else maxHp[j] * (pulse.heal or 0)
+					hp[j] = math.min(maxHp[j], hp[j] + healing)
 				end
 				if buffsLeft > 0 and not self.buffed[j] and not kinds[j].pulse and not kinds[j].boss then
 					buffsLeft -= 1

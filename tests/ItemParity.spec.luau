@@ -101,6 +101,7 @@ describe("Original item combat rules", function()
 		local vitals = Vitals.new(10, { minDamagePerHit = 1, hitInvulnerability = 0.4 })
 		vitals:setDefense(0.01, 1)
 		vitals:protect(0, 100)
+		vitals.shielded = true -- damage drains do not use the hit-protection path
 		expect(vitals:drain(10)).toBe(10)
 		expect(vitals:isDown()).toBe(true)
 		expect(vitals.invulnerableUntil).toBe(100)

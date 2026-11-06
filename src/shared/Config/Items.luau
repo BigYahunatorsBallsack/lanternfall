@@ -2,11 +2,12 @@
 -- Main-game Brotato item replacements, consumed by stats, effects, shops and inventory UI.
 -- Owner request 2026-11-06: original names, prices, tiers, limits and complete effects replace the former variants.
 -- Historical ids remain internal so saved achievement unlocks and weapon evolutions keep working.
--- HP quantities retain the project's x10 conversion. Source facts: docs/item-parity/catalog.json.
+-- HP and healing use original Brotato units (current main). Source facts: docs/item-parity/catalog.json.
 
 local Effects = require(script.Parent.Effects)
 
 export type Item = {
+	description: string?,
 	structure: string?,
 	id: string,
 	displayName: string,
@@ -35,7 +36,8 @@ local function item(
 	price: number,
 	stats: { [string]: number },
 	limit: number?,
-	effects: { Effects.Effect }?
+	effects: { Effects.Effect }?,
+	description: string?
 ): Item
 	if effects then
 		for index, effect in effects do
@@ -79,6 +81,7 @@ local function item(
 	end
 	table.sort(tags)
 	return table.freeze({
+		description = description,
 		tags = table.freeze(tags),
 		id = id,
 		displayName = displayName,
@@ -91,19 +94,19 @@ local function item(
 end
 
 local LIST: { Item } = {
-	item("Vitality", "Cake", 1, 15, { maxHp = 30, damage = -1 }),
+	item("Vitality", "Cake", 1, 15, { maxHp = 3, damage = -1 }),
 	item("Haste", "Beanie", 1, 20, { speed = 4, range = -6 }),
 	item("Focus", "Coffee", 1, 20, { attackSpeed = 10, damage = -2 }),
-	item("Magnet", "Boiling Water", 1, 30, { elementalDamage = 2, maxHp = -10 }),
-	item("Might", "Injection", 1, 20, { damage = 7, maxHp = -20 }),
+	item("Magnet", "Boiling Water", 1, 30, { elementalDamage = 2, maxHp = -1 }),
+	item("Might", "Injection", 1, 20, { damage = 7, maxHp = -2 }),
 	item("Armor", "Metal Plate", 2, 40, { armor = 2, damage = -3 }),
-	item("WaxHeart", "Broken Mouth", 1, 25, { maxHp = 50, hpRegen = -1 }),
+	item("WaxHeart", "Broken Mouth", 1, 25, { maxHp = 5, hpRegen = -1 }),
 	item("CrackedLens", "Glasses", 1, 20, { range = 20 }),
 	item("BoneKnuckles", "Plant", 1, 15, { hpRegen = 3, lifeSteal = -1 }),
 	item("TallowCandle", "Charcoal", 1, 20, { elementalDamage = 1, meleeDamage = 2, harvesting = -2 }),
 	item("MothWing", "Butterfly", 1, 30, { lifeSteal = 2, elementalDamage = -1 }),
 	item("GraveSpade", "Fertilizer", 1, 15, { harvesting = 8, meleeDamage = -1 }),
-	item("CatClaw", "Claw Tree", 1, 20, { meleeDamage = 1, critChance = 3, maxHp = -10 }),
+	item("CatClaw", "Claw Tree", 1, 20, { meleeDamage = 1, critChance = 3, maxHp = -1 }),
 	item("RustedCoin", "Lost Duck", 1, 25, { luck = 8, elementalDamage = -1 }),
 	item("FlintShard", "Lens", 1, 20, { rangedDamage = 1, range = -5 }),
 	item("WardRune", "Peaceful Bee", 1, 18, { dodge = 4, harvesting = 4, meleeDamage = -1, rangedDamage = -1 }),
@@ -116,7 +119,7 @@ local LIST: { Item } = {
 		15,
 		{},
 		nil,
-		{ { trigger = "Always", action = "PerX", source = "distinctWeapons", per = 1, stats = { maxHp = 10 } } }
+		{ { trigger = "Always", action = "PerX", source = "distinctWeapons", per = 1, stats = { maxHp = 1 } } }
 	),
 	item("Satchel", "Bag", 1, 15, { speed = -1 }, 3, { { trigger = "Chest", action = "Shards", amount = 15 } }),
 	item("LeechJar", "Blood Leech", 2, 45, { lifeSteal = 2, hpRegen = 2, harvesting = -3 }),
@@ -127,7 +130,7 @@ local LIST: { Item } = {
 	item("LoadedDice", "Gambling Token", 2, 50, { dodge = 8, armor = -1 }),
 	item("NarrowScope", "Cyclops Worm", 2, 45, { damage = 12, range = -12 }),
 	item("Whetstone", "Mastery", 2, 55, { meleeDamage = 6, rangedDamage = -3 }),
-	item("AcidVial", "Acid", 2, 65, { maxHp = 80, dodge = -2, knockback = -2 }),
+	item("AcidVial", "Acid", 2, 65, { maxHp = 8, dodge = -2, knockback = -2 }),
 	item("StaticBracelet", "Energy Bracelet", 2, 55, { critChance = 4, elementalDamage = 2, rangedDamage = -2 }),
 	item("PowderPouch", "Small Magazine", 2, 60, { rangedDamage = 2, attackSpeed = 10, damage = -6 }),
 	item("LanternOil", "Shady Potion", 2, 48, { luck = 20, hpRegen = -2 }),
@@ -142,9 +145,9 @@ local LIST: { Item } = {
 		"Padding",
 		2,
 		45,
-		{ maxHp = 30 },
+		{ maxHp = 3 },
 		1,
-		{ { trigger = "Always", action = "PerX", source = "shards", per = 80, stats = { maxHp = 10 } } }
+		{ { trigger = "Always", action = "PerX", source = "shards", per = 80, stats = { maxHp = 1 } } }
 	),
 	item(
 		"TitheBox",
@@ -162,7 +165,7 @@ local LIST: { Item } = {
 		30,
 		{},
 		nil,
-		{ { trigger = "LevelUp", action = "Grow", stats = { lifeSteal = 1, maxHp = -10 } } }
+		{ { trigger = "LevelUp", action = "Grow", stats = { lifeSteal = 1, maxHp = -1 } } }
 	),
 	item("ScrapAltar", "Recycling Machine", 2, 35, { sellValue = 35 }, 1),
 	item("GlassLantern", "Glass Cannon", 3, 75, { damage = 25, armor = -3 }),
@@ -175,7 +178,7 @@ local LIST: { Item } = {
 		50,
 		{ harvesting = 40 },
 		nil,
-		{ { trigger = "Timer", action = "Drain", interval = 1, amount = 10 } }
+		{ { trigger = "Timer", action = "Drain", interval = 1, amount = 1 } }
 	),
 	item(
 		"IronShackle",
@@ -242,7 +245,7 @@ local LIST: { Item } = {
 		60,
 		{ dodge = 5 },
 		1,
-		{ { trigger = "Dodge", action = "Heal", amount = 50, chance = 0.5 } }
+		{ { trigger = "Dodge", action = "Heal", amount = 5, chance = 0.5 } }
 	),
 	item(
 		"HuntersTally",
@@ -274,7 +277,7 @@ local LIST: { Item } = {
 	item("MossWard", "Tardigrade", 3, 50, {}, nil, { { trigger = "WaveStart", action = "Shields", amount = 1 } }),
 	item("PlagueRat", "Mouse", 3, 55, { lifeSteal = 5, enemyCount = 10, harvesting = -5 }, 5),
 	item("HushCandle", "Candle", 3, 65, { elementalDamage = 4, hpRegen = 1, enemyCount = -10, damage = -5 }, 1),
-	item("Changeling", "Alien Baby", 3, 80, { maxHp = 150, enemyHp = 10 }),
+	item("Changeling", "Alien Baby", 3, 80, { maxHp = 15, enemyHp = 10 }),
 	item("SweetReliquary", "Candy Bag", 3, 70, {}, 1, {
 		{ trigger = "WaveEnd", action = "RandomStats", amount = 8 },
 		{ trigger = "WaveStart", action = "SpawnElite", chance = 0.1, amount = 1 },
@@ -300,12 +303,12 @@ local LIST: { Item } = {
 		100,
 		{ rangedDamage = 5, damage = 10, range = 10, attackSpeed = -5, critChance = -5 }
 	),
-	item("ColossusHeart", "Octopus", 4, 105, { maxHp = 120, hpRegen = 5, lifeSteal = 3, critChance = -8 }),
-	item("BrassHarness", "Jet Pack", 4, 100, { speed = 15, dodge = 10, maxHp = -50, armor = -1 }),
+	item("ColossusHeart", "Octopus", 4, 105, { maxHp = 12, hpRegen = 5, lifeSteal = 3, critChance = -8 }),
+	item("BrassHarness", "Jet Pack", 4, 100, { speed = 15, dodge = 10, maxHp = -5, armor = -1 }),
 	item("WitchMortar", "Gnome", 4, 100, { meleeDamage = 10, elementalDamage = 10, range = -20, pickupRange = -20 }),
-	item("LanternCodex", "Diploma", 4, 90, { engineering = 10, xpGain = 50, maxHp = -30 }),
+	item("LanternCodex", "Diploma", 4, 90, { engineering = 10, xpGain = 50, maxHp = -3 }),
 	item("EternalFlame", "Potato", 4, 95, {
-		maxHp = 30,
+		maxHp = 3,
 		hpRegen = 2,
 		lifeSteal = 1,
 		damage = 5,
@@ -322,7 +325,7 @@ local LIST: { Item } = {
 		100,
 		{},
 		nil,
-		{ { trigger = "WaveEnd", action = "Grow", stats = { meleeDamage = 3, engineering = 3, maxHp = -10 } } }
+		{ { trigger = "WaveEnd", action = "Grow", stats = { meleeDamage = 3, engineering = 3, maxHp = -1 } } }
 	),
 	item(
 		"EvergreenSprig",
@@ -331,7 +334,7 @@ local LIST: { Item } = {
 		110,
 		{},
 		nil,
-		{ { trigger = "WaveEnd", action = "Grow", stats = { maxHp = 30, hpRegen = 1, lifeSteal = 1 } } }
+		{ { trigger = "WaveEnd", action = "Grow", stats = { maxHp = 3, hpRegen = 1, lifeSteal = 1 } } }
 	),
 	item(
 		"FortuneCoin",
@@ -388,7 +391,7 @@ local LIST: { Item } = {
 			ticks = 3,
 		},
 	}),
-	item("AshSerpent", "Snake", 1, 25, { maxHp = -10, burnSpread = 1 }),
+	item("AshSerpent", "Snake", 1, 25, { maxHp = -1, burnSpread = 1 }),
 	item("Bellows", "Eyes Surgery", 2, 60, { elementalDamage = 1, range = -10, burnSpeed = 20 }, 2),
 	item("BlackPowder", "Dynamite", 1, 20, { explosionDamage = 15 }),
 	item("FulminateJar", "Plastic Explosive", 3, 60, { explosionSize = 25 }),
@@ -416,9 +419,9 @@ local LIST: { Item } = {
 		3,
 		{ { trigger = "Always", action = "PerX", source = "knockback", per = 1, stats = { damage = 1 } } }
 	),
-	item("GrubTincture", "Alien Worm", 1, 15, { maxHp = 30, hpRegen = 2, fruitHeal = -10 }),
-	item("BeckoningBell", "Gentle Alien", 1, 30, { maxHp = 20, damage = 5, enemyCount = 5 }, 10),
-	item("TaintedElixir", "Defective Steroids", 1, 20, { maxHp = 20, meleeDamage = 2, attackSpeed = -3 }),
+	item("GrubTincture", "Alien Worm", 1, 15, { maxHp = 3, hpRegen = 2, fruitHeal = -1 }),
+	item("BeckoningBell", "Gentle Alien", 1, 30, { maxHp = 2, damage = 5, enemyCount = 5 }, 10),
+	item("TaintedElixir", "Defective Steroids", 1, 20, { maxHp = 2, meleeDamage = 2, attackSpeed = -3 }),
 	item("HookedTongue", "Alien Tongue", 1, 25, { pickupRange = 30, knockback = 1 }),
 	item("CrackedSkull", "Head Injury", 1, 25, { damage = 6, range = -8 }),
 	item("WispJar", "Baby Elephant", 1, 22, {}, nil, {
@@ -450,11 +453,11 @@ local LIST: { Item } = {
 		35,
 		{ critChance = 3 },
 		5,
-		{ { trigger = "Kill", action = "Heal", crit = true, chance = 0.2, amount = 10 } }
+		{ { trigger = "Kill", action = "Heal", crit = true, chance = 0.2, amount = 1 } }
 	),
-	item("WitchKettle", "Lemonade", 1, 15, { fruitHeal = 10 }),
+	item("WitchKettle", "Lemonade", 1, 15, { fruitHeal = 1 }),
 	item("SaltCoral", "Mushroom", 1, 25, { hpRegen = 3, luck = -2 }),
-	item("AstralPhilter", "Alien Magic", 3, 85, { maxHp = 80, hpRegen = 3, luck = -8 }),
+	item("AstralPhilter", "Alien Magic", 3, 85, { maxHp = 8, hpRegen = 3, luck = -8 }),
 	item(
 		"AmberResin",
 		"Honey",
@@ -478,14 +481,14 @@ local LIST: { Item } = {
 	item("BloodChalice", "Sunglasses", 2, 50, { critChance = 10, armor = -1 }),
 	item("CrimsonHand", "Bloody Hand", 4, 110, { lifeSteal = 10 }, 1, {
 		{ trigger = "Always", action = "PerX", source = "lifeSteal", per = 1, stats = { damage = 2 } },
-		{ trigger = "Timer", action = "Drain", interval = 1, amount = 10 },
+		{ trigger = "Timer", action = "Drain", interval = 1, amount = 1 },
 	}),
 	item(
 		"VelvetDivan",
 		"Esty's Couch",
 		4,
 		100,
-		{ maxHp = 50, speed = -20 },
+		{ maxHp = 5, speed = -20 },
 		1,
 		{ { trigger = "Always", action = "PerX", source = "speed", per = -1, min = 0, stats = { hpRegen = 2 } } }
 	),
@@ -504,7 +507,7 @@ local LIST: { Item } = {
 		100,
 		{},
 		1,
-		{ { trigger = "Consumable", action = "Grow", fullHp = true, maxPerWave = 8, stats = { maxHp = 10 } } }
+		{ { trigger = "Consumable", action = "Grow", fullHp = true, maxPerWave = 8, stats = { maxHp = 1 } } }
 	),
 	item(
 		"TitanGirdle",
@@ -515,8 +518,18 @@ local LIST: { Item } = {
 		1,
 		{ { trigger = "Crit", action = "Strike", hpShare = 0.1, eliteHpShare = 0.01 } }
 	),
-	item("PyreAshes", "Warrior Helmet", 3, 80, { armor = 3, maxHp = 50, speed = -5 }),
+	item("PyreAshes", "Warrior Helmet", 3, 80, { armor = 3, maxHp = 5, speed = -5 }),
 	item("CalibratedTools", "Improved Tools", 3, 70, { attackSpeed = 10 }, 1),
+	item(
+		"BloodLure",
+		"Bait",
+		2,
+		25,
+		{ damage = 8 },
+		nil,
+		nil,
+		"7-8 Hookfangs appear at the start of the next wave for each new lure."
+	),
 }
 
 -- Structure ids stay stable for weapon deployments and the compact network feed.

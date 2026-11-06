@@ -70,7 +70,7 @@ local kinds: { [string]: Definition } = {
 		tier = 2,
 		price = 40,
 		color = { 97, 231, 145 },
-		description = "Deploys a healing sentry: floor(3 +5% Engineering) x10 HP every 2.2s, for its owner.",
+		description = "Deploys a healing sentry: floor(3 +5% Engineering) HP every 2.2s, for its owner.",
 	},
 	SiegeSentry = {
 		displayName = "Explosive Turret",
@@ -142,6 +142,7 @@ local kinds: { [string]: Definition } = {
 return table.freeze({
 	kinds = kinds,
 	maxActive = 100,
+	spriteSize = 7, -- world studs; original item artwork for all deployed structures
 	maxBeams = 32,
 	bounceRange = 25,
 	bounceFalloff = 0.5,

@@ -1,5 +1,5 @@
 --!strict
--- Frozen source facts in Brotato units; ItemParity.spec independently checks runtime HP conversion.
+-- Frozen source facts in original Brotato units; consumed by ItemParity.spec.
 return {
 	{ id = "Vitality", name = "Cake", tier = 1, price = 15, limit = nil, stats = { maxHp = 3, damage = -1 } },
 	{ id = "Haste", name = "Beanie", tier = 1, price = 20, limit = nil, stats = { speed = 4, range = -6 } },
@@ -534,4 +534,5 @@ return {
 	{ id = "OrbitWisp", name = "Wandering Bot", tier = 3, price = 60, limit = nil, stats = {} },
 	{ id = "StormFamiliar", name = "Tyler", tier = 2, price = 62, limit = nil, stats = {} },
 	{ id = "CalibratedTools", name = "Improved Tools", tier = 3, price = 70, limit = 1, stats = { attackSpeed = 10 } },
+	{ id = "BloodLure", name = "Bait", tier = 2, price = 25, limit = nil, stats = { damage = 8 } },
 }
