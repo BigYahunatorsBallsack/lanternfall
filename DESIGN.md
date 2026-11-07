@@ -1455,3 +1455,8 @@ Marketing: beschreibender Titel, klares Icon (Laterne gegen Horde); 15–30-s-Cl
 - [TechSpot – Roblox und belohnte Video-Feeds](https://www.techspot.com/news/113630-roblox-cracking-down-games-reward-kids-doomscrolling.html)
 - [Claude Help Center – Effort-Einstellungen](https://support.claude.com/en/articles/8664678-change-the-model-effort-and-thinking-settings)
 
+### Nachkorrektur vom 07.11.2026: Bewegungs-Massstab und Beutebilder
+
+Das Grundtempo verwendet denselben Massstab wie die originalen Waffenreichweiten: 450 Einheiten/s mal 0,1 Stud/Einheit = 45 Studs/s. Normale Gegner und die vorhandenen festen Sturm-/Dash-/Geschosswerte sind proportional darauf abgestimmt. Prozentwerte, Schadenswerte und die ruhigere Animation aus main bleiben erhalten. Schnelle Treffer pruefen den zurueckgelegten Weg, damit Spieler nicht zwischen zwei Ticks uebersprungen werden.
+
+Die bereits vorhandenen originalen Fruit-/Crate-/LegendaryCrate-/Material-PNGs werden fuer die aktive Beutedarstellung verwendet. Normale und legendaere Kisten sind gruen beziehungsweise rot; Materialbilder bleiben bei jeder Menge gruen und sind in Welt und Waehrungsanzeigen identisch. Quellen, technische Grenzen und Owner-Test: `docs/2D-FOLLOWUP.md`.

@@ -100,35 +100,7 @@ function Volleys.getCount(self: Volleys): number
 	return #self.shots
 end
 
--- Distance along the segment from (x, z) in unit direction (dx, dz), length `length`, at which a point of it first
--- comes within `reach` of (cx, cz); nil if it never does.
-local function entryDistance(
-	x: number,
-	z: number,
-	dx: number,
-	dz: number,
-	length: number,
-	cx: number,
-	cz: number,
-	reach: number
-): number?
-	local px, pz = cx - x, cz - z
-	local along = px * dx + pz * dz
-	local closestSquared = px * px + pz * pz - along * along
-	local reachSquared = reach * reach
-	if closestSquared > reachSquared then
-		return nil
-	end
-	local entry = along - math.sqrt(reachSquared - closestSquared)
-	if entry > length then
-		return nil
-	end
-	if entry < 0 then
-		-- the start is already inside: only counts if the circle lies ahead or around it
-		return if px * px + pz * pz <= reachSquared then 0 else nil
-	end
-	return entry
-end
+local entryDistance = require(game:GetService("ReplicatedStorage").Shared.Util.SegmentCircle).entry
 
 -- Advances every shot by dt against the targets (x/z of living players). Afterwards self.hits[1 .. 2 * hitCount]
 -- holds the hits (target index, damage) and self.ended[1 .. 2 * endedCount] the shots that ended early or hit

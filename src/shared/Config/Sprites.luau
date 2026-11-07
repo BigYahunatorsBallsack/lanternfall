@@ -154,6 +154,15 @@ local Sprites = {
 	structureHover = table.freeze({ Orbit = 2, Radial = 2 }) :: { [string]: number },
 	-- XP orbs are this much larger than their former balls, because a soft edge reads smaller.
 	orbScale = 1.2,
+	-- Original green materials: the source icon has transparent margins. Value affects size, never its color.
+	material = table.freeze({
+		hover = 0.4,
+		tiers = table.freeze({
+			{ minValue = 0, size = 1.6 },
+			{ minValue = 4, size = 2 },
+			{ minValue = 20, size = 2.5 },
+		}),
+	}),
 	-- Bolts and shots: picture size against the former halo.
 	glowScale = 1.5,
 }

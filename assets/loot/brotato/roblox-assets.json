@@ -1,0 +1,57 @@
+{
+  "date": "2026-11-07",
+  "recoveredExistingArtwork": true,
+  "sourceFilesUnchanged": true,
+  "preparation": "Existing art2d importer pads and normalizes tightly cropped originals; no new illustration.",
+  "assets": [
+    {
+      "id": "Fruit",
+      "source": "Fruit.png",
+      "sourceUrl": "https://brotato.wiki.spellsandguns.com/images/a/a0/Fruit.png",
+      "sourceSha256": "0e3f0504fc0dbe8bb2ed39d5f3fe32cea9884fb3ecf51e7eca6fece525f9dcda",
+      "preparedSha256": "eb749b3b8873d0f8147bd7b5c202cae78e7ed0f6ea8ce58c5f688df00e9b155a",
+      "image": "rbxassetid://135441353822607",
+      "nativePreload": {
+        "date": "2026-11-06",
+        "status": "Success"
+      }
+    },
+    {
+      "id": "Crate",
+      "source": "Crate.png",
+      "sourceUrl": "https://brotato.wiki.spellsandguns.com/images/4/4f/Crate.png",
+      "sourceSha256": "2d97e116c5df261379d15202f8c2ab92d61c5a8add3a51978d4b896bf257aaa9",
+      "preparedSha256": "502b7fb9fca4bd28e80b91232fb594d5f9b16eb3d772496daf2af283b73e08fe",
+      "image": "rbxassetid://71372348521693",
+      "nativePreload": {
+        "date": "2026-11-06",
+        "status": "Success"
+      }
+    },
+    {
+      "id": "LegendaryCrate",
+      "source": "LegendaryCrate.png",
+      "sourceUrl": "https://brotato.wiki.spellsandguns.com/images/d/d8/Legendary_Crate.png",
+      "sourceSha256": "fb3daf49068e34a0dc6574094a14e3dd6f768e6689794c084ce043dee1fa669d",
+      "preparedSha256": "716224ac77d58dd71df36ed85c88051afbd26ecf638d3a9b3cc1423cfbcb3b8f",
+      "image": "rbxassetid://101920267109905",
+      "nativePreload": {
+        "date": "2026-11-06",
+        "status": "Success"
+      }
+    },
+    {
+      "id": "Material",
+      "source": "Material.png",
+      "sourceUrl": "https://brotato.wiki.spellsandguns.com/images/f/f4/Materials.png",
+      "sourceSha256": "8ba762a3466016b7543a944d7d7ff18c36d958eed1d9f09673183aa56229d7ff",
+      "preparedSha256": "2dae326b790afca86cf4e616641b5662215ce77de6e9f41a2d2805ee53684092",
+      "image": "rbxassetid://133949512212095",
+      "nativePreload": {
+        "date": "2026-11-06",
+        "status": "Success"
+      }
+    }
+  ],
+  "chestAlias": "Legacy elite chest and regular Crate share the same image and prepared hash."
+}

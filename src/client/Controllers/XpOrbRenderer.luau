@@ -1,6 +1,6 @@
 --!strict
--- Draws the XP orbs (DESIGN.md section 8) from the server's XpOrbs events (ExperienceService): pooled round sprites
--- on the floor, sized and colored by how much XP they hold, that fly into the player who picked them up. Lying orbs
+-- Draws materials from the server's XpOrbs events (ExperienceService): pooled original green sprites
+-- on the floor, sized by how much XP they hold, that fly into the player who picked them up. Lying materials
 -- are placed once; only flying ones move each frame, together in one workspace:BulkMoveTo. The server decides every
 -- pickup; this only shows it.
 
@@ -20,13 +20,9 @@ local WorldSprite = require(
 
 local FOLDER_NAME = "LanternfallXpOrbs"
 local FLY_SECONDS = 0.25
-local HOVER = 0.4 -- studs between the floor and the bottom of an orb
+local HOVER = Config.Sprites.material.hover
 -- Looks by XP value: the last tier with minValue <= value applies.
-local TIERS = {
-	{ minValue = 0, size = 0.8, color = Color3.fromRGB(96, 170, 255) },
-	{ minValue = 4, size = 1.1, color = Color3.fromRGB(110, 230, 140) },
-	{ minValue = 20, size = 1.6, color = Color3.fromRGB(255, 120, 110) },
-}
+local TIERS = Config.Sprites.material.tiers
 
 type Orb = { part: BasePart, x: number, z: number }
 type Flight = { part: BasePart, from: Vector3, userId: number, startedAt: number }
@@ -37,7 +33,7 @@ local floorY = Config.Map.arena.center.Y
 local folder: Folder? = nil
 local spriteOf: { [BasePart]: WorldSprite.Sprite } = {}
 local pool = VisualKit.pool(function(): BasePart
-	local sprite = WorldSprite.create({ name = "XpOrb", image = Config.Sprites.images.orb, studs = TIERS[1].size })
+	local sprite = WorldSprite.create({ name = "XpOrb", image = Config.Sprites.images.material, studs = TIERS[1].size })
 	local anchor = sprite.anchor :: BasePart
 	spriteOf[anchor] = sprite
 	return anchor
@@ -118,7 +114,7 @@ local function onEvents(events: Types.XpOrbEvents)
 		local tier = tierOf(value)
 		local sprite = spriteOf[orb.part]
 		WorldSprite.setStuds(sprite, tier.size * Config.Sprites.orbScale)
-		sprite.picture.ImageColor3 = tier.color
+		sprite.picture.ImageColor3 = Color3.new(1, 1, 1)
 		table.insert(partList, orb.part)
 		table.insert(cframeList, CFrame.new(x, floorY + HOVER + tier.size / 2, z))
 	end
