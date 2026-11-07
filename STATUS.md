@@ -484,3 +484,11 @@ Branch `wp-25-2d-presentation`. **Owner-Entscheidungen dieses Pakets:** Das Spie
   - Spieler (`character`): `walkCycleSeconds` 0.6 → 0.75, `walkTiltDegrees` 7 → 4, `walkSquash` 0.09 → 0.045, `walkHopStuds` 0.25 → 0.1, `foot.lift` 0.45 → 0.3.
   - Gegner (`enemy`): `gait.stride` 6 → 7.5 (weniger Schritte pro Strecke), `gait.bob` 0.1 → 0.04, `gait.roll` 0.1 → 0.05, `squash` 0.08 → 0.04.
 - Feinjustieren: dieselben Felder; kleinere Zahl = ruhiger (bei `walkCycleSeconds`/`stride`: größere Zahl = ruhiger).
+
+
+## Paket 21k: UI nach acht Owner-Screenshots (ChatGPT, 07.11.2026)
+
+- Von aktuellem GitHub-main e38a762 im isolierten Checkout gestartet. Der Owner liefert acht verbindliche Layoutreferenzen fuer Startmenue, Charakter-/Waffen-/Gefahrenwahl, HUD, Level-ups und Shop. Neue Seitenfolge statt Lobby-Reitern, kleine Bildkacheln, breite Auswahlkarten, eckige HP/XP, Welle/Sekunden mittig und gruenes Materialsymbol. Bestehende Lanternfall-Inhalte, Koop und Sammlung bleiben erreichbar; keine neuen Remotes, Profile, Balancingwerte oder Serverdienste.
+- Native Solo-Pruefung in separater lokaler Studio-Datei: 358 Produktionsquellen vor der Sichtpruefung abgeglichen. Menuefolge geklickt, Karte mit 1 gewaehlt, Kauf 115 -> 98 (Preis 17), Sperre ueber Neuwurf F erhalten, F 98 -> 97, GO startet WAVE 2 mit 25 Sekunden. Dabei Material-/HP-Ueberlagerung, Preis/Symbol-Ueberlappung und abgeschnittene Stat-Zahlen behoben. Fehlgeschlagene Kartenbild-Ladung zeigt jetzt das vorhandene gezeichnete Symbol; erst roter, danach gruener Regressionstest.
+- Voller Vergleich mit Zufallsstart 1234 und jeder Spec separat: main 977/26 in 80 Specs, UI 982/dieselben 26 in 81 Specs. Keine neuen fehlgeschlagenen Tests. Alte UI-Text-/Navigations-Erwartungen aktualisiert; First-Night-Hinweise bleiben erhalten. StyLua, Rojo und Diff sauber; Selene 0 Fehler / 11 alte Warnungen. Anleitung und Grenzen: docs/UI-REFERENCE-PARITY.md; Einzelbericht: docs/ui-reference-validation.json.
+- Echte Zwei-Client-, physische Handy- und Run-Place-Abnahme noch offen. Kein Publish und kein Selbst-Merge. Die alte lokale Hauptkopie und die fremde Main-Lobby bleiben unangetastet. Branch wp-21k-ui-reference.

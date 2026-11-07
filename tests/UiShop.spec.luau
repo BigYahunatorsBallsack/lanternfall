@@ -85,7 +85,7 @@ describe("Approved shop UI", function()
 		expect(Run.getPhase()).toBe("Shop")
 		local first = world.gui("Shop", "Offer1")
 		expect(first.Size.Y.Offset >= 310).toBe(true)
-		expect(world.gui("Shop", "Offers").Position.Y.Offset).toBe(105)
+		expect(world.gui("Shop", "Offers").Position.Y.Offset).toBe(98)
 		expect(world.gui("Shop", "ItemInventory").Visible).toBe(true)
 		expect(world.gui("Shop", "Ready").Text).toBe("GO (Wave 2)")
 		for index, offer in require(Client.Controllers.ShopController).get().offers do

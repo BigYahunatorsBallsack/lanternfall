@@ -73,6 +73,7 @@ local pageButton: TextButton
 local secondaryButton: TextButton
 local levelValue: TextLabel
 local emptyLabel: TextLabel
+local resizePanel: (() -> ())? = nil
 
 local function valueText(statId: string, value: number): string
 	local rounded = math.round(value * 100) / 100
@@ -160,6 +161,9 @@ local function render()
 	emptyLabel.Visible = page == "Secondary" and not anySecondary
 	pageButton.BackgroundTransparency = if page == "Primary" then 1 else 0
 	secondaryButton.BackgroundTransparency = if page == "Secondary" then 1 else 0
+	if resizePanel then
+		resizePanel()
+	end
 end
 
 local function build()
@@ -310,12 +314,14 @@ local function build()
 	Widgets.list(1).Parent = classList
 	Widgets.unscaled(panel)
 	panel:FindFirstChildOfClass("UIStroke").Thickness = 0
+	panel:FindFirstChildOfClass("UIPadding"):Destroy()
 	local scale = Widgets.create("UIScale", { Parent = panel })
 	local contents = Widgets.create("ScrollingFrame", {
 		Name = "StatsContent",
 		BackgroundTransparency = 1,
 		BorderSizePixel = 0,
-		Size = UDim2.fromScale(1, 1),
+		Position = UDim2.fromOffset(14, 14),
+		Size = UDim2.new(1, -28, 1, -28),
 		CanvasSize = UDim2.new(),
 		AutomaticCanvasSize = Enum.AutomaticSize.Y,
 		ScrollingDirection = Enum.ScrollingDirection.Y,
@@ -337,17 +343,19 @@ local function build()
 		end
 		local layout = ShopLayout.measure(area)
 		local compact = layout.compact
+		local choosing = require(script.Parent.LevelUpController).isOpen()
 		scale.Scale = layout.scale
 		panel.AutomaticSize = Enum.AutomaticSize.None
 		panel.AnchorPoint = Vector2.new(if compact then 0.5 else 0, 0)
 		panel.Position = if compact
 			then UDim2.new(0.5, 0, 0, 76)
-			else UDim2.fromOffset(layout.statsX * layout.scale, 16 * layout.scale)
+			else UDim2.fromOffset(layout.statsX * layout.scale, (if choosing then 126 else 16) * layout.scale)
 		panel.Size = UDim2.fromOffset(
 			if compact then math.min(520, area.X - 24) else layout.statsWidth,
 			if compact then math.max(120, area.Y - 158) else layout.statsHeight
 		)
 	end
+	resizePanel = resize
 	resize()
 	screen:GetPropertyChangedSignal("AbsoluteSize"):Connect(resize)
 	if workspace.CurrentCamera then
@@ -368,6 +376,7 @@ end
 function StatsController.start()
 	build()
 	RunStateController.Changed:Connect(render)
+	require(script.Parent.LevelUpController).Changed:Connect(render)
 	ProgressController.TeamChanged:Connect(render)
 	LoadoutController.Changed:Connect(function(userId: number)
 		if userId == Players.LocalPlayer.UserId then
