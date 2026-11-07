@@ -14,7 +14,11 @@ local Theme = require(script.Parent.Parent.UI.Theme)
 local Widgets = require(script.Parent.Parent.UI.Widgets)
 local Icons = require(script.Parent.Parent.UI.Icons)
 local Tooltip = require(script.Parent.Parent.UI.Tooltip)
+local Signal = require(Shared.Util.Signal)
 local CharacterChoice = {}
+CharacterChoice.Chosen = Signal.new()
+local step = "Character"
+local requestedClass: string? = nil
 local selected: { [string]: string } = {}
 local details: TextLabel?
 local weaponRow: Frame?
@@ -67,15 +71,12 @@ local function renderLocks()
 		local chosen = me ~= nil and me.classId == classId
 		button.Text = ""
 		button.CharacterName.Text = Config.Classes[classId].displayName
-		button.CharacterName.TextColor3 = if chosen
-			then Theme.accentText
-			elseif unlocked then Theme.text
-			else Theme.textDim
+		button.CharacterName.TextColor3 = if unlocked then Theme.text else Theme.textDim
 		button.LockLabel.Visible = not unlocked
 		local price = Config.Progress.characterPrices[classId]
 		button.UnlockPrice.Visible = not unlocked and price ~= nil
 		button.UnlockPrice.Text = if price then `{price} EMBERS` else ""
-		button.SelectionMark.Visible = chosen
+		button.SelectionMark.Visible = false
 		button.Outline.Color = if chosen then Theme.accent else Theme.stroke
 		button.Outline.Thickness = if chosen then 4 else 3
 		if not unlocked then
@@ -94,7 +95,11 @@ function CharacterChoice.render()
 	if not class then
 		return
 	end
-	selectedName.Text = string.upper(class.displayName)
+	if requestedClass == me.classId then
+		requestedClass = nil
+		CharacterChoice.Chosen:Fire("Weapon")
+	end
+	selectedName.Text = class.displayName
 	metrics.Text = `{CharacterRules.maxWeapons(me.classId)} WEAPONS\nDANGER {CharacterChoice.maxDanger(me.classId)}`
 	details.Text = string.gsub(class.description, ", ", "\n")
 	Icons.draw(portrait, "character", me.classId)
@@ -120,6 +125,7 @@ function CharacterChoice.render()
 				end
 				lastPress = os.clock()
 				Net.fireServer("SelectStartWeapon", class.id, weaponId)
+				CharacterChoice.Chosen:Fire("Difficulty")
 			end)
 			local tile = buttons[weaponId]
 			local art = Icons.holder(tile, 80)
@@ -191,6 +197,16 @@ function CharacterChoice.mount(card: Frame, row: Frame, buttonsByClass: { [strin
 	classButtons = buttonsByClass
 	for classId, button in classButtons do
 		button.Text = ""
+		button.Activated:Connect(function()
+			if CharacterChoice.isUnlocked(classId) then
+				requestedClass = classId
+				local me = RunStateController.getLocalPlayer()
+				if me and me.classId == classId then
+					requestedClass = nil
+					CharacterChoice.Chosen:Fire("Weapon")
+				end
+			end
+		end)
 		local art = Icons.holder(button, 96)
 		art.AnchorPoint = Vector2.new(0.5, 0)
 		art.Position = UDim2.new(0.5, 0, 0, 2)
@@ -241,11 +257,13 @@ function CharacterChoice.mount(card: Frame, row: Frame, buttonsByClass: { [strin
 			return class.displayName, if CharacterChoice.isUnlocked(classId) then class.description else locked
 		end)
 	end
-	summary = Widgets.create(
-		"Frame",
-		{ Name = "CharacterSummary", BackgroundColor3 = Theme.panel, BorderSizePixel = 0, Parent = stage },
-		{ Widgets.corner(), Widgets.create("UIStroke", { Color = Theme.stroke, Thickness = 3 }) }
-	)
+	summary = Widgets.create("Frame", {
+		Name = "CharacterSummary",
+		BackgroundColor3 = Theme.panel,
+		BackgroundTransparency = 0.65,
+		BorderSizePixel = 0,
+		Parent = stage,
+	}, { Widgets.corner(), Widgets.create("UIStroke", { Color = Theme.stroke, Thickness = 3 }) })
 	selectedName = Widgets.label({
 		Name = "SelectedCharacter",
 		Font = Theme.fontBold,
@@ -308,6 +326,9 @@ function CharacterChoice.mount(card: Frame, row: Frame, buttonsByClass: { [strin
 		SortOrder = Enum.SortOrder.LayoutOrder,
 		Parent = weaponRow,
 	})
+	summary:FindFirstChildOfClass("UIStroke").Thickness = 0
+	selectedName.TextStrokeTransparency = 0
+	selectedName.TextStrokeColor3 = Theme.stroke
 	local ready = card:FindFirstChild("Ready")
 	if ready and ready:IsA("GuiObject") then
 		ready.LayoutOrder = 5
@@ -319,54 +340,88 @@ function CharacterChoice.mount(card: Frame, row: Frame, buttonsByClass: { [strin
 	CharacterChoice.render()
 end
 
-function CharacterChoice.resize(width: number, height: number?)
+function CharacterChoice.setStep(value: string)
+	step = value
+end
+
+function CharacterChoice.resize(width: number, _height: number?)
 	if not weaponRow or not details then
 		return
 	end
-	local card = weaponRow.Parent
-	for _, name in { "Ready", "BackToHub" } do
-		local action = card:FindFirstChild(name)
-		if action then
-			action.Size = UDim2.new(1, 0, 0, if name == "Ready" then 58 else 46)
-		end
-	end
-	local wide = width >= 860
-	local short = height ~= nil and height < 420
-	choiceTitle.Visible = not short
-	local columns = if width < 540 then 2 else 5
-	local grid = classRow:FindFirstChildOfClass("UIGridLayout")
+	local compact = width < 860
+	local summaryWidth = if compact then width else 500
+	local summaryHeight = if compact then 300 else 334
+	local x = if compact then 0 else math.max(0, (width - (if step == "Difficulty" then 1000 else 730)) / 2)
+	choiceTitle.Visible = false
+	stage.Size = UDim2.new(1, 0, 0, if compact then 490 else 500)
+	summary.Position = UDim2.fromOffset(x, 0)
+	summary.Size = UDim2.fromOffset(summaryWidth, summaryHeight)
+	selectedName.Position = UDim2.fromOffset(8, 4)
+	selectedName.Size = UDim2.new(1, -16, 0, 50)
+	selectedName.TextSize = if compact then 30 else 40
+	selectedName.TextXAlignment = Enum.TextXAlignment.Center
+	portrait.Position = UDim2.fromOffset(16, 62)
+	portrait.Size = UDim2.fromOffset(if compact then 112 else 176, if compact then 140 else 196)
+	portrait.BackgroundTransparency = 0
+	portrait.BackgroundColor3 = Theme.surface
+	metrics.Visible = false
+	ruleArea.Position = UDim2.fromOffset(if compact then 140 else 208, 106)
+	ruleArea.Size = UDim2.new(1, if compact then -150 else -220, 0, if compact then 174 else 188)
+	details.TextSize = if compact then 15 else 16
+	details.Text = string.gsub(details.Text or "", "; ", "\n")
 	local count = 0
 	for _ in classButtons do
 		count += 1
 	end
-	local cellHeight = if short then 100 else 132
-	local gridHeight = math.ceil(count / columns) * (cellHeight + 10) - 10
-	grid.CellSize = UDim2.new(1 / columns, -8, 0, cellHeight)
+	local tile = if compact then 56 else 52
+	local columns = math.max(1, math.min(count, math.floor(width / (tile + 6))))
+	local rows = math.ceil(count / columns)
+	classRow.Visible = step == "Character"
+	classRow.AnchorPoint = Vector2.new(0.5, 0)
+	classRow.Position = UDim2.new(0.5, 0, 0, summaryHeight + 26)
+	classRow.Size = UDim2.fromOffset(columns * (tile + 6) - 6, rows * (tile + 6))
+	local grid = classRow:FindFirstChildOfClass("UIGridLayout")
+	grid.CellSize = UDim2.fromOffset(tile, tile)
+	grid.CellPadding = UDim2.fromOffset(6, 6)
+	grid.HorizontalAlignment = Enum.HorizontalAlignment.Center
 	for _, button in classButtons do
-		local size = if short then 64 else 96
-		button.Artwork.Size = UDim2.fromOffset(size, size)
-		button.CharacterName.TextSize = if short then 14 else 17
-		button.CharacterName.Position = UDim2.new(0, 4, 1, if short then -43 else -47)
-		button.CharacterName.Size = UDim2.new(1, -8, 0, if short then 25 else 30)
+		button.Artwork.AnchorPoint = Vector2.new(0, 0)
+		button.Artwork.Position = UDim2.fromOffset(2, 2)
+		button.Artwork.Size = UDim2.fromOffset(tile - 4, tile - 4)
+		button.CharacterName.Visible = false
+		button.UnlockPrice.Visible = false
+		button.LockLabel.Text = "LOCKED"
+		button.LockLabel.TextSize = 10
+		button.LockLabel.TextStrokeTransparency = 0
 	end
-	classRow.Size = if wide then UDim2.new(0.63, -16, 0, gridHeight) else UDim2.new(1, 0, 0, gridHeight)
-	classRow.Position = UDim2.new()
-	summary.Position = if wide then UDim2.fromScale(0.63, 0) else UDim2.fromOffset(0, gridHeight + 16)
-	summary.Size = if wide then UDim2.new(0.37, 0, 0, gridHeight) else UDim2.new(1, 0, 0, 262)
-	stage.Size = UDim2.new(1, 0, 0, if wide then gridHeight else gridHeight + 278)
+	weaponRow.Parent = stage
+	weaponRow.Visible = step == "Weapon"
+	weaponRow.AnchorPoint = Vector2.new(0.5, 0)
+	weaponRow.Position = UDim2.new(0.5, 0, 0, summaryHeight + 26)
 	local weaponCount = 0
 	for _ in buttons do
 		weaponCount += 1
 	end
-	local weaponColumns = if width < 540 then 2 else math.max(1, math.min(5, weaponCount))
-	local weaponHeight = if short then 96 else 108
-	weaponRow:FindFirstChildOfClass("UIGridLayout").CellSize = UDim2.new(1 / weaponColumns, -8, 0, weaponHeight)
+	local weaponColumns = math.max(1, math.min(weaponCount, math.floor(width / 70)))
+	weaponRow.Size = UDim2.fromOffset(weaponColumns * 70 - 8, math.ceil(weaponCount / weaponColumns) * 70)
+	local weaponGrid = weaponRow:FindFirstChildOfClass("UIGridLayout")
+	weaponGrid.CellSize = UDim2.fromOffset(62, 62)
+	weaponGrid.CellPadding = UDim2.fromOffset(8, 8)
 	for _, button in buttons do
-		local iconSize = if short then 66 else 80
-		button.Artwork.Size = UDim2.fromOffset(iconSize, iconSize)
-		button.WeaponName.TextSize = if short then 14 else 17
+		button.Artwork.Size = UDim2.fromOffset(58, 58)
+		button.WeaponName.Visible = false
 	end
-	weaponRow.Size = UDim2.new(1, 0, 0, math.max(1, math.ceil(weaponCount / weaponColumns)) * (weaponHeight + 10) - 10)
+	for _, child in weaponRow.Parent.Parent:GetChildren() do
+		if child:IsA("TextLabel") and child.Name == "WeaponHeading" then
+			child.Visible = false
+		end
+	end
+end
+
+function CharacterChoice.getStartWeapon(): string?
+	local me = RunStateController.getLocalPlayer()
+	local class = me and Config.Classes[me.classId]
+	return if me and class then selected[me.classId] or class.startWeapon else nil
 end
 
 return CharacterChoice

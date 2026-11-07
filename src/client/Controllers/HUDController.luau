@@ -79,6 +79,7 @@ local wavePlan: { Types.WaveChallenge } = {} -- Paket 14: planned elite and hord
 local teamPanel: Frame
 local arrowLayer: Frame
 local arrows: { [number]: Frame } = {}
+local pendingBadge: TextLabel
 
 local function hintText(state: Types.RunState): (string, Color3)
 	if state.phase == "Boss" then
@@ -175,7 +176,9 @@ local function xpText(): string
 	local team = ProgressController.getTeam()
 	local waiting = LevelUpController.getWaiting()
 	local level = `LV.{if team then team.level else 0}`
-	return if waiting > 0 then `{level} · +{waiting} at wave end` else level
+	pendingBadge.Visible = waiting > 0
+	pendingBadge.Text = `↑ +{waiting}`
+	return `XP {if team then math.floor(team.xp) else 0}/{if team then team.needed else 0} | {level}`
 end
 
 -- Big timer: seconds left in the wave (Running), in the shop (Shop), fighting time in the boss phase.
@@ -196,6 +199,11 @@ local function updateWave()
 	if timerLabel.Text ~= text then
 		timerLabel.Text = text
 	end
+	timerLabel.TextColor3 = if state
+			and state.phase == "Running"
+			and (tonumber(text) or 100) <= 5
+		then Theme.danger
+		else Theme.text
 	local xp = xpText()
 	if xpLabel.Text ~= xp then
 		xpLabel.Text = xp
@@ -204,7 +212,8 @@ local function updateWave()
 		bannerWave = 0
 		return
 	end
-	local hint, color = hintText(state)
+	local hint, color =
+		if state.runOptions and state.runOptions.firstNight then hintText(state) else `WAVE {state.wave}`, Theme.text
 	if hintLabel.Text ~= hint then
 		hintLabel.Text = hint
 		hintLabel.TextColor3 = color
@@ -457,15 +466,18 @@ local function render()
 		return
 	end
 	local fighting = state.phase == "Running" or state.phase == "Boss"
+	local choosing = state.phase == "Shop" and LevelUpController.isOpen()
+	timerLabel.Visible = not choosing
 	buildButton.Visible = fighting
 	buildPanel.Visible = fighting and buildOpen
 	for _, name in { "Health", "Team", "Timer" } do
 		local object = screen:FindFirstChild(name)
 		if object then
-			object.Visible = fighting
+			object.Visible = fighting or (choosing and name ~= "Team")
 		end
 	end
-	local hint, color = hintText(state)
+	local hint, color =
+		if state.runOptions and state.runOptions.firstNight then hintText(state) else `WAVE {state.wave}`, Theme.text
 	hintLabel.Text = hint
 	hintLabel.TextColor3 = color
 	placeTeamPanel()
@@ -479,6 +491,17 @@ end
 
 local function build()
 	screen = Widgets.screen("HUD", 0)
+	pendingBadge = Widgets.label({
+		Name = "PendingLevels",
+		TextSize = 28,
+		TextColor3 = Theme.success,
+		TextStrokeTransparency = 0,
+		AnchorPoint = Vector2.new(1, 0),
+		Position = UDim2.new(1, -72, 0, 12),
+		Size = UDim2.fromOffset(76, 42),
+		Visible = false,
+		Parent = screen,
+	})
 
 	local top = Widgets.panel({
 		Name = "Timer",
@@ -517,6 +540,7 @@ local function build()
 		Parent = xpTrack,
 	})
 	timerLabel = Widgets.label({
+		Name = "Seconds",
 		Text = "00:00",
 		Font = Theme.fontBold,
 		TextSize = 44,
@@ -528,6 +552,7 @@ local function build()
 		Parent = top,
 	})
 	hintLabel = Widgets.label({
+		Name = "Wave",
 		TextSize = 17,
 		Font = Theme.fontBold,
 		TextStrokeTransparency = 0,
@@ -535,6 +560,11 @@ local function build()
 		LayoutOrder = 0,
 		Parent = top,
 	})
+	Tooltip.attach(hintLabel, function()
+		local state = RunStateController.get()
+		local text = if state then hintText(state) else ""
+		return "Wave", text
+	end)
 	previewLabel = Widgets.label({
 		Name = "WavePreview",
 		AutomaticSize = Enum.AutomaticSize.Y,
@@ -705,6 +735,7 @@ local function build()
 	local function resizeHud()
 		local area = if workspace.CurrentCamera then workspace.CurrentCamera.ViewportSize else Vector2.new(1280, 720)
 		local narrow = area.X < 700
+		local factor = if narrow then 0.9 else math.clamp(math.min(area.X / 1280, area.Y / 720), 0.8, 1.5)
 		Widgets.unscaled(top)
 		Widgets.unscaled(hp)
 		Widgets.unscaled(weapons)
@@ -715,19 +746,45 @@ local function build()
 		local zero = UDim.new(0, 0)
 		hpPadding.PaddingTop, hpPadding.PaddingBottom = zero, zero
 		hpPadding.PaddingLeft, hpPadding.PaddingRight = zero, zero
-		track.Size = UDim2.new(1, 0, 0, 24)
-		xpTrack.Size = UDim2.new(1, 0, 0, 14)
+		hp:FindFirstChildOfClass("UIListLayout").Padding = UDim.new(0, 7 * factor)
+		track.Size = UDim2.new(1, 0, 0, 24 * factor)
+		xpTrack.Size = UDim2.new(1, 0, 0, 24 * factor)
+		xpTrack.BackgroundColor3 = Theme.canvas
+		for _, bar in { track, hpFill, xpTrack, xpFill } do
+			local corner = bar:FindFirstChildOfClass("UICorner")
+			if corner then
+				corner.CornerRadius = UDim.new(0, 0)
+			end
+		end
+		for _, bar in { track, xpTrack } do
+			local outline = bar:FindFirstChildOfClass("UIStroke")
+			if not outline then
+				outline = Widgets.create("UIStroke", { Color = Theme.stroke, Parent = bar })
+			end
+			outline.Thickness = 3 * factor
+		end
+		hpLabel.TextSize = 16 * factor
+		xpLabel.TextSize = 16 * factor
+		xpLabel.TextXAlignment = Enum.TextXAlignment.Right
 		hpLabel.TextStrokeTransparency = 0
 		hpLabel.TextStrokeColor3 = Theme.stroke
 		top.Size = UDim2.fromOffset(if narrow then 138 else 240, 0)
 		top.AnchorPoint = Vector2.new(if narrow then 1 else 0.5, 0)
 		top.Position = if narrow then UDim2.new(1, -8, 0, 56) else UDim2.new(0.5, 0, 0, 8)
-		timerLabel.TextSize = if narrow then 34 else 44
+		local topPadding = top:FindFirstChildOfClass("UIPadding")
+		topPadding.PaddingTop, topPadding.PaddingBottom = zero, zero
+		timerLabel.TextSize = 40 * factor
+		timerLabel.Size = UDim2.new(1, 0, 0, 44 * factor)
+		hintLabel.TextSize = 26 * factor
+		hintLabel.Size = UDim2.new(1, 0, 0, 32 * factor)
 		hp.AnchorPoint = Vector2.new(0, 0)
 		hp.Position = UDim2.fromOffset(12, 12)
-		hp.Size = UDim2.fromOffset(if narrow then math.max(180, area.X - 174) else HP_BAR_WIDTH, 0)
+		hp.Size = UDim2.fromOffset(if narrow then math.min(206, math.max(160, area.X - 174)) else 206 * factor, 0)
 		team.Size = UDim2.fromOffset(if narrow then 150 elseif area.X < 1100 then 200 else 260, 0)
-		buildButton.Position = UDim2.fromOffset(12, 132)
+		buildButton.Position = UDim2.new(1, -116, 1, -40)
+		buildButton.Size = UDim2.fromOffset(104, 28)
+		buildButton.BackgroundTransparency = 0.4
+		buildButton.TextSize = 13
 		weapons.Position = UDim2.fromOffset(12, 186)
 		weapons.Size = UDim2.fromOffset(math.min(340, area.X - 24), math.max(120, math.min(360, area.Y - 242)))
 		placeTeamPanel()
@@ -787,6 +844,7 @@ end
 function HUDController.start()
 	build()
 	RunStateController.Changed:Connect(render)
+	LevelUpController.Changed:Connect(render)
 	PlayerStateController.Changed:Connect(onVitalsChanged)
 	LoadoutController.Changed:Connect(function(userId: number)
 		if screen.Enabled and userId == Players.LocalPlayer.UserId then

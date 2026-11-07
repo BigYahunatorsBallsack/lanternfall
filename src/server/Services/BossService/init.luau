@@ -26,6 +26,7 @@ local EnemyKinds = require(Shared.Util.EnemyKinds)
 local Net = require(Shared.Net)
 local RunSchedule = require(Shared.Util.RunSchedule)
 local StatMath = require(Shared.Util.StatMath)
+local SegmentCircle = require(Shared.Util.SegmentCircle)
 local Types = require(Shared.Net.Types)
 
 local CombatService = require(script.Parent.CombatService)
@@ -849,7 +850,10 @@ local function dashStep(boss: Boss, attack: Enemies.BossAttack, x: number, z: nu
 		end
 	end
 	for _, target in targets do
-		if not boss.dashHit[target.player] and (target.x - nx) ^ 2 + (target.z - nz) ^ 2 <= reach * reach then
+		if
+			not boss.dashHit[target.player]
+			and SegmentCircle.entry(x, z, boss.dirX, boss.dirZ, move, target.x, target.z, reach) ~= nil
+		then
 			boss.dashHit[target.player] = true
 			hurt(target.player, damage)
 		end

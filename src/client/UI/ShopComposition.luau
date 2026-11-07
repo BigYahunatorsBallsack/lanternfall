@@ -201,8 +201,19 @@ function Composition.apply(ctx: any, area: Vector2)
 			priceIcon = Currency.mount(view.price, 28)
 			priceIcon.AnchorPoint = Vector2.new(1, 0.5)
 			priceIcon.Position = UDim2.new(1, -6, 0.5, 0)
-			Widgets.create("UIPadding", { PaddingRight = UDim.new(0, 28), Parent = view.price })
 		end
+		local amount = view.price:FindFirstChild("Amount")
+		if not amount then
+			amount = Widgets.label({
+				Name = "Amount",
+				Font = Theme.fontBold,
+				TextSize = 29,
+				Position = UDim2.fromOffset(6, 0),
+				Size = UDim2.new(1, -44, 1, 0),
+				Parent = view.price,
+			})
+		end
+		amount.Visible = not compact
 		priceIcon.Visible = not compact
 		if compact then
 			local offer = ctx.current and ctx.current.offers[view.frame.LayoutOrder]
@@ -238,13 +249,13 @@ function Composition.apply(ctx: any, area: Vector2)
 			place(view.detailArea, 10, 86, cardWidth - 20, height - 162)
 			view.detail.TextXAlignment = Enum.TextXAlignment.Left
 			view.detail.TextSize = 16
-			place(view.price, (cardWidth - 136) / 2, height - 56, 136, 44)
+			place(view.price, (cardWidth - 104) / 2, height - 56, 104, 44)
 			view.price.TextSize = 29
 			view.details.Parent = view.button
 			place(view.details, cardWidth - 70, height - 80, 62, 20)
 			view.details.TextSize = 12
 			view.details.BackgroundTransparency = 1
-			place(view.lock, (cardWidth - 80) / 2, height + 8, 80, 34)
+			place(view.lock, 15, height + 8, cardWidth - 30, 34)
 			view.lock.TextSize = 18
 			view.lock.BackgroundColor3 = Theme.button
 			view.lock.Outline.Thickness = 0
@@ -275,6 +286,9 @@ function Composition.apply(ctx: any, area: Vector2)
 				view.price.TextColor3 = if ctx.current.shards >= offer.price and not offer.blocked
 					then Theme.text
 					else Theme.danger
+				amount.Text = view.price.Text
+				amount.TextColor3 = view.price.TextColor3
+				view.price.Text = ""
 			end
 		end
 	end
@@ -314,6 +328,9 @@ function Composition.apply(ctx: any, area: Vector2)
 		chipGrid.CellPadding = UDim2.fromOffset(10, 10)
 		chipGrid.HorizontalAlignment = Enum.HorizontalAlignment.Center
 		return
+	end
+	if not shopping then
+		ctx.shardsPanel.Position = UDim2.fromOffset(12, 78 * scale)
 	end
 	local width = layout.leftWidth
 	ctx.panelScale.Scale = scale
@@ -362,7 +379,7 @@ function Composition.apply(ctx: any, area: Vector2)
 	end
 	ctx.actionsRow.Visible = ctx.selectedUid ~= nil
 	place(ctx.actionsRow, 14, layout.inventoryY - 52, width - 28, 44)
-	place(ctx.footer, layout.statsX * scale, area.Y - 60 * scale, layout.statsWidth, 44)
+	place(ctx.footer, layout.statsX * scale, (layout.statsHeight + 28) * scale, layout.statsWidth, 44)
 	ctx.footerButtons.Size = UDim2.fromScale(1, 1)
 	ctx.footerButtons:FindFirstChildOfClass("UIGridLayout").CellSize = UDim2.fromScale(1, 1)
 	ctx.readyButton.Text = if ctx.ready
@@ -386,7 +403,7 @@ function Composition.apply(ctx: any, area: Vector2)
 	if shopping then
 		place(ctx.shardsPanel, width * 0.46 * scale, 22 * scale, 150 * scale, 44 * scale)
 	end
-	place(saved.schedule, layout.statsX * scale, area.Y - 166 * scale, layout.statsWidth, 98)
+	place(saved.schedule, layout.statsX * scale, (layout.statsHeight + 84) * scale, layout.statsWidth, 98)
 	saved.scheduleScale.Scale = scale
 	local upcoming = {}
 	for _, entry in plan do
@@ -398,6 +415,7 @@ function Composition.apply(ctx: any, area: Vector2)
 		return a.wave < b.wave
 	end)
 	local first = upcoming[1]
+	saved.schedule.Visible = not compact and shopping and first ~= nil
 	saved.hint.Text = if first
 		then `{if first.kind == "Elite" then "An elite" else "A horde"} will appear on wave {first.wave}`
 		else "No elite waves scheduled"

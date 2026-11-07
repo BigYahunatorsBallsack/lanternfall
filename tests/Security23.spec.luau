@@ -25,6 +25,7 @@ local RunDirector = require(Services.RunDirector)
 local RunStatsService = require(Services.RunStatsService)
 local SpawnDirector = require(Services.SpawnDirector)
 local WeaponService = require(Services.WeaponService)
+local CombatService = require(Services.CombatService)
 
 local me = world.addPlayer("Owner", 1, true)
 world.step()
@@ -50,6 +51,7 @@ local function startRun()
 	world.fireServerAs(me, "SetReady", true)
 	world.advance(Config.Run.flow.allReadyCountdownSeconds + 0.5)
 	expect(RunDirector.getPhase()).toBe("Running")
+	CombatService.protect(me, 1000) -- this spec tests movement/security, not contact damage during its long setup
 	world.advance(1.5) -- placed in the arena, past the settle time
 end
 
@@ -106,13 +108,17 @@ describe("movement check", function()
 		local start = root().Position
 		local speed = walkSpeed()
 		expect(speed > 0).toBe(true)
-		for _ = 1, 30 do
-			moveBy(speed * 0.1, 0)
+		local travelled = 0
+		for step = 1, 30 do
+			local before = root().Position
+			-- Stay inside the arena at any configured base speed; still walk for the full three seconds.
+			moveBy(speed * 0.1 * (if step % 2 == 0 then -1 else 1), 0)
 			world.step(0.1)
+			travelled += (root().Position - before).Magnitude
 		end
 		expect(MapService.getMovementCorrections(me)).toBe(0)
-		local position = MapService.getRootPosition(me) :: Vector3
-		expect(position.X - start.X).toBeNear(speed * 3, 0.01)
+		expect(travelled).toBeNear(speed * 3, 0.01)
+		expect((MapService.getRootPosition(me) :: Vector3).X).toBeNear(start.X, 0.01)
 	end)
 
 	it("moves a teleporting player back and keeps the old spot for the services", function()
@@ -131,8 +137,9 @@ describe("movement check", function()
 		table.clear(reasons)
 		local start = root().Position
 		local speed = walkSpeed()
-		for _ = 1, 60 do
-			moveBy(-speed * 3 * 0.1, 0)
+		for step = 1, 60 do
+			-- Oscillate inside the arena so only the speed budget, not the arena wall, catches the cheat.
+			moveBy(speed * 3 * 0.1 * (if step % 2 == 0 then -1 else 1), 0)
 			world.step(0.1)
 		end
 		expect(table.find(reasons, "Speed") ~= nil).toBe(true)

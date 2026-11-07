@@ -129,8 +129,12 @@ describe("main-game enemy runtime", function()
 	it("fires side projectiles during a Hookfang charge", function()
 		local root = me.Character.HumanoidRootPart.Position
 		EnemySim.spawn("Hookfang", root.X + 20, root.Z, 1, 1, nil, nil, 1, 1)
-		world.advance(3)
-		expect(EnemySim.getShotCount() > 0).toBe(true)
+		local sawShots = false
+		for _ = 1, 30 do
+			world.advance(0.1)
+			sawShots = sawShots or EnemySim.getShotCount() > 0
+		end
+		expect(sawShots).toBe(true) -- faster shots can already have reached their range by the end
 		clear()
 	end)
 
