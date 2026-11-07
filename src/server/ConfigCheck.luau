@@ -286,7 +286,7 @@ function ConfigCheck.run(): { string }
 	for id, class in Config.Classes do
 		checkStats(`Class {id}`, class.stats)
 		local weapon = Config.Weapons[class.startWeapon]
-		if class.available and not weapon then
+		if class.available and class.maxWeapons ~= 0 and not weapon then
 			problem(`Class {id} starts with unknown weapon {class.startWeapon}`)
 		elseif class.available and weapon and not hasBehavior(weapon.behavior) then
 			problem(`Class {id} starts with {class.startWeapon}, which has no behavior module {weapon.behavior}`)
@@ -725,15 +725,16 @@ function ConfigCheck.run(): { string }
 	for id, class in Config.Classes do
 		if class.available then
 			local cap = class.maxWeapons or Config.Player.maxWeapons
-			if cap < 1 or cap > 12 or cap % 1 ~= 0 then
+			if cap < 0 or cap > 24 or cap % 1 ~= 0 then
 				problem(`Character {id}: invalid weapon cap`)
 			end
-			if not table.find(class.startWeapons, class.startWeapon) then
+			if cap > 0 and not table.find(class.startWeapons, class.startWeapon) then
 				problem(`Character {id}: default missing from choices`)
 			end
 			for _, weaponId in class.startWeapons do
 				local weapon = Config.Weapons[weaponId]
-				if not weapon or not hasBehavior(weapon.behavior) or (weapon.minTier or 1) > 1 then
+				local tier = (class.startWeaponTiers and class.startWeaponTiers[weaponId]) or 1
+				if not weapon or not hasBehavior(weapon.behavior) or (weapon.minTier or 1) > tier then
 					problem(`Character {id}: invalid starting weapon {weaponId}`)
 				elseif class.weaponKind and weapon.kind ~= class.weaponKind then
 					problem(`Character {id}: forbidden starting weapon`)
@@ -786,7 +787,10 @@ function ConfigCheck.run(): { string }
 				problem(`{owner} unlocks unknown weapon {weaponId}`)
 			end
 			for classId, class in Config.Classes do
-				if table.find(class.startWeapons, weaponId) or table.find(class.extraWeapons or {}, weaponId) then
+				if
+					class.available
+					and (table.find(class.startWeapons, weaponId) or table.find(class.extraWeapons or {}, weaponId))
+				then
 					problem(`{owner} locks {weaponId}, a starting weapon of {classId}`)
 				end
 			end
@@ -796,7 +800,7 @@ function ConfigCheck.run(): { string }
 				problem(`{owner} unlocks unknown item {itemId}`)
 			end
 			for classId, class in Config.Classes do
-				if table.find(class.startItems or {}, itemId) then
+				if class.available and table.find(class.startItems or {}, itemId) then
 					problem(`{owner} locks {itemId}, a starting item of {classId}`)
 				end
 			end

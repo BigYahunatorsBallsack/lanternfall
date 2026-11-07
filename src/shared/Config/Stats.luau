@@ -49,6 +49,13 @@ export type StatId =
 	| "enemySpeed"
 	| "weaponCooldownMin"
 	| "dodgeCap"
+	| "curse"
+	| "evolution"
+	| "structureAttackSpeed"
+	| "structureRange"
+	| "projectiles"
+	| "accuracy"
+	| "bounceDamage"
 
 export type Stat = {
 	id: string,
@@ -131,6 +138,14 @@ local ORDER: { Stat } = {
 	extra("enemySpeed", "Enemy Speed", true, true), -- speed of enemies that spawn; team total
 	extra("weaponCooldownMin", "Minimum Weapon Cooldown", false, true), -- Ball and Chain, seconds
 	extra("dodgeCap", "Dodge Limit", true), -- Ghost Outfit; absolute cap, zero uses the default
+	-- DLC and character-specific native modifiers, in original points/percent points.
+	extra("curse", "Curse", false),
+	extra("evolution", "Evolution", false),
+	extra("structureAttackSpeed", "Structure Attack Speed", true),
+	extra("structureRange", "Structure Range", false),
+	extra("projectiles", "Projectiles", false),
+	extra("accuracy", "Accuracy", true),
+	extra("bounceDamage", "Bounce Damage", true),
 }
 
 local byId: { [string]: Stat } = {}

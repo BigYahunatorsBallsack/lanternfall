@@ -1,6 +1,7 @@
 --!strict
 -- B10 character packages read by CharacterRules, services and lobby. References: docs/B10-CHARAKTERE.md.
 -- HP uses the original Brotato scale. Legacy ids remain valid; unlock progression belongs to package 13.
+local Catalog = require(script.Parent.CharacterCatalog)
 export type Class = {
 	id: string,
 	displayName: string,
@@ -27,6 +28,7 @@ export type Class = {
 	noHeal: boolean?,
 	oneHit: boolean?,
 	noWaveHeal: boolean?,
+	canAttackWhileMoving: boolean?,
 	minWeaponTier: number?,
 	maxWeaponTier: number?,
 	noDuplicateWeapons: boolean?,
@@ -38,6 +40,7 @@ export type Class = {
 	perTierWeapon: { [number]: { [string]: number } }?,
 	setCountBonus: number?,
 	allWeaponsForSets: boolean?,
+	native: Catalog.CatalogCharacter?,
 }
 local Classes: { [string]: Class } = {
 	SparkMage = {
@@ -181,4 +184,62 @@ Classes.Trapper = {
 	available = false,
 	description = "Retired prototype",
 }
+
+-- Source-complete records remain unavailable until their runtime dependencies and selection paths are verified.
+-- Existing profile ids retain the delivered behavior while the complete native packages are integrated.
+for id, source in Catalog do
+	if Classes[id] then
+		Classes[id].native = source
+		continue
+	end
+	local startTiers: { [string]: number } = {}
+	for _, choice in source.startChoices do
+		startTiers[choice.id] = choice.tier
+	end
+	local conversions = {}
+	for _, conversion in source.conversions do
+		if conversion.sourceKind == "Stat" then
+			table.insert(conversions, conversion)
+		end
+	end
+	Classes[id] = {
+		id = id,
+		displayName = source.displayName,
+		startWeapon = source.startWeapon,
+		startWeapons = source.startWeapons,
+		startWeaponTiers = startTiers,
+		extraWeapons = source.extraWeapons,
+		extraWeaponTiers = source.extraWeaponTiers,
+		startItems = source.startItems,
+		stats = source.stats,
+		gainMultipliers = source.gainMultipliers,
+		perLevel = source.perLevel,
+		perWeapon = source.perWeapon,
+		perDistinctWeapon = source.perDistinctWeapon,
+		perTierWeapon = source.perTierWeapon,
+		weaponClassStats = source.weaponClassStats,
+		weaponKindStats = source.weaponKindStats,
+		conversions = conversions,
+		maxWeapons = source.maxWeapons,
+		weaponKind = source.weaponKind,
+		kindLimits = source.kindLimits,
+		minWeaponTier = source.minWeaponTier,
+		maxWeaponTier = source.maxWeaponTier,
+		baseWeaponSlots = source.baseWeaponSlots,
+		slotsPerLevel = source.slotsPerLevel,
+		maxWeaponSlots = source.maxWeaponSlots,
+		noDuplicateWeapons = source.noDuplicateWeapons,
+		noHeal = source.noHeal,
+		oneHit = source.oneHit,
+		noWaveHeal = source.noWaveHeal,
+		canAttackWhileMoving = source.canAttackWhileMoving,
+		setCountBonus = source.setCountBonus,
+		allWeaponsForSets = source.allWeaponsForSets,
+		wantedTags = source.wantedTags,
+		free = source.free,
+		available = false,
+		description = source.displayName,
+		native = source,
+	}
+end
 return table.freeze(Classes)
