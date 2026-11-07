@@ -16,6 +16,8 @@ export type Class = {
 	weaponKind: string?,
 	kindLimits: { [string]: number }?,
 	extraWeapons: { string }?,
+	startWeaponTiers: { [string]: number }?,
+	extraWeaponTiers: { [string]: number }?,
 	startItems: { string }?,
 	wantedTags: { string }?,
 	perWeapon: { [string]: number }?,
@@ -25,6 +27,17 @@ export type Class = {
 	noHeal: boolean?,
 	oneHit: boolean?,
 	noWaveHeal: boolean?,
+	minWeaponTier: number?,
+	maxWeaponTier: number?,
+	noDuplicateWeapons: boolean?,
+	baseWeaponSlots: number?,
+	slotsPerLevel: number?,
+	maxWeaponSlots: number?,
+	weaponClassStats: { [string]: { [string]: number } }?,
+	weaponKindStats: { [string]: { [string]: number } }?,
+	perTierWeapon: { [number]: { [string]: number } }?,
+	setCountBonus: number?,
+	allWeaponsForSets: boolean?,
 }
 local Classes: { [string]: Class } = {
 	SparkMage = {

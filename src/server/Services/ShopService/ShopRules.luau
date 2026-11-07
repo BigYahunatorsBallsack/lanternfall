@@ -21,6 +21,7 @@ export type OwnedWeapon = { id: string, tier: number, evolution: string? }
 
 export type Params = {
 	classId: string?, -- B10 frozen participant character
+	level: number?,
 	wave: number, -- the wave that just ended
 	luck: number, -- the player's Luck stat
 	weapons: { string }, -- weapon ids that can be sold (WeaponService.getImplemented), sorted
@@ -171,12 +172,16 @@ function ShopRules.weaponStatus(
 	ownedWeapons: { OwnedWeapon },
 	maxWeapons: number,
 	maxTier: number,
-	classId: string?
+	classId: string?,
+	level: number?
 ): (boolean, boolean)
-	if not CharacterRules.weaponAllowed(classId, weaponId) then
+	if not CharacterRules.weaponAllowed(classId, weaponId, tier) then
 		return false, true
 	end
-	if #ownedWeapons < maxWeapons and (not classId or CharacterRules.hasSlot(classId, weaponId, ownedWeapons)) then
+	if
+		#ownedWeapons < maxWeapons
+		and (not classId or CharacterRules.hasSlot(classId, weaponId, ownedWeapons, level, tier))
+	then
 		return false, false
 	end
 	for _, owned in ownedWeapons do
@@ -223,7 +228,7 @@ local function pickWeapon(
 		for _, weaponId in params.weapons do
 			if
 				not skip[weaponId]
-				and CharacterRules.weaponAllowed(params.classId, weaponId)
+				and CharacterRules.weaponAllowed(params.classId, weaponId, tier)
 				and Shop.weaponPrices[weaponId]
 				and (Weapons[weaponId].minTier or 1) <= tier
 				and filter(weaponId)
@@ -282,7 +287,7 @@ local function pickMergeable(params: Params, taken: { [string]: boolean }): (str
 			and not owned.evolution
 			and owned.tier < params.maxTier
 			and Shop.weaponPrices[owned.id]
-			and CharacterRules.weaponAllowed(params.classId, owned.id)
+			and CharacterRules.weaponAllowed(params.classId, owned.id, owned.tier + 1)
 		then
 			table.insert(choices, owned)
 		end
@@ -295,8 +300,15 @@ local function pickMergeable(params: Params, taken: { [string]: boolean }): (str
 end
 
 local function weaponOffer(weaponId: string, params: Params, tier: number): Types.ShopOffer
-	local merges, blocked =
-		ShopRules.weaponStatus(weaponId, tier, params.ownedWeapons, params.maxWeapons, params.maxTier, params.classId)
+	local merges, blocked = ShopRules.weaponStatus(
+		weaponId,
+		tier,
+		params.ownedWeapons,
+		params.maxWeapons,
+		params.maxTier,
+		params.classId,
+		params.level
+	)
 	local copies = copiesOf(weaponId, params.ownedWeapons)
 	return {
 		id = "",
@@ -358,6 +370,8 @@ function ShopRules.roll(params: Params): { Types.ShopOffer }
 		local wantWeapon = weaponsLeft > 0 or params.random() < Shop.weaponChance
 		local offer: Types.ShopOffer? = nil
 		local weaponTier = math.clamp(StatMath.rollTier(params.wave, params.luck, params.random()), 1, params.maxTier)
+		local class = params.classId and Classes[params.classId]
+		weaponTier = math.clamp(weaponTier, if class then class.minWeaponTier or 1 else 1, params.maxTier)
 		local weaponId: string? = nil
 		if wantWeapon then
 			local mergeId, mergeTier = pickMergeable(params, taken)

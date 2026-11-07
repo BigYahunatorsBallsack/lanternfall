@@ -181,15 +181,21 @@ end
 
 -- New offers; locked unsold ones (`keep`) stay. `previous`: ids of the roll before, not offered again if possible.
 local function roll(player: Player, state: State, keep: { Types.ShopOffer }, previous: { [string]: boolean }?)
+	local classId = RunDirector.getParticipantClassId(player)
+	local class = classId and Config.Classes[classId]
 	state.offers = ShopRules.roll({
-		classId = RunDirector.getParticipantClassId(player),
+		classId = classId,
+		level = StatService.getLevel(player),
 		wave = state.wave,
 		luck = StatService.getStat(player, "luck"),
 		priceFactor = priceFactor(player),
 		weapons = WeaponService.getImplemented(),
 		ownedWeapons = ownedWeapons(player),
 		maxWeapons = WeaponService.getMaxWeapons(player),
-		maxTier = Config.Player.maxWeaponTier,
+		maxTier = math.min(
+			Config.Player.maxWeaponTier,
+			if class then class.maxWeaponTier or Config.Player.maxWeaponTier else Config.Player.maxWeaponTier
+		),
 		ownedItems = StatService.getItemCounts(player),
 		keep = keep,
 		previous = previous,

@@ -33,6 +33,44 @@ local TIME_STATS = { "cooldown", "tickInterval", "hitCooldownPerEnemy", "reloadS
 -- Turning speeds: faster with Attack Speed.
 local RATE_STATS = { "rotationSpeed" }
 
+-- Character class/kind modifiers are weapon-local; they never enter the owner's shared item/structure sheet.
+local LOCAL_STATS = {
+	"damage",
+	"meleeDamage",
+	"rangedDamage",
+	"elementalDamage",
+	"engineering",
+	"attackSpeed",
+	"range",
+	"lifeSteal",
+	"critChance",
+	"critDamage",
+	"baseDamage",
+	"weaponRange",
+	"knockback",
+	"explosionDamage",
+	"explosionSize",
+	"piercing",
+	"piercingDamage",
+	"bounce",
+	"burnSpeed",
+	"burnSpread",
+}
+
+local function weaponBonuses(weapon: Weapons.Weapon, bonuses: Bonuses): Bonuses
+	local result = table.clone(bonuses)
+	for _, statId in LOCAL_STATS do
+		local amount = bonuses[`kind.{weapon.kind}.{statId}`] or 0
+		for _, classId in weapon.classes do
+			amount += bonuses[`class.{classId}.{statId}`] or 0
+		end
+		if amount ~= 0 then
+			result[statId] = (result[statId] or 0) + amount
+		end
+	end
+	return result
+end
+
 -- Factor of every damage the owner deals: 1 + Damage / 100, never below 0.
 function WeaponStats.damageFactor(bonuses: Bonuses): number
 	return math.max(0, 1 + (bonuses.damage or 0) / 100)
@@ -60,6 +98,7 @@ function WeaponStats.compute(
 	evolution: Evolutions.Evolution?,
 	minCooldown: number
 ): Stats
+	bonuses = weaponBonuses(weapon, bonuses)
 	local stats: Stats = table.clone(weapon.base)
 	local damageBonus = 0
 	for n = 1, math.min(tier, #weapon.tiers) do
@@ -87,6 +126,7 @@ function WeaponStats.compute(
 		damage += share * (bonuses[statId] or 0)
 	end
 	local damageFactor = WeaponStats.damageFactor(bonuses)
+	damage += bonuses.baseDamage or 0
 	damage += (stats.levelScaling or 0) * (bonuses.level or 1)
 	stats.damage = math.max(1, damage * damageFactor)
 
@@ -108,6 +148,7 @@ function WeaponStats.compute(
 
 	local rule = Stats.range
 	local reach = (bonuses.range or 0) * rule.studsPerPoint * (if weapon.kind == "Melee" then rule.meleeFactor else 1)
+		+ (bonuses.weaponRange or 0) * rule.studsPerPoint
 	for _, key in weapon.rangeKeys do
 		if stats[key] then
 			stats[key] = math.max(rule.minStuds, stats[key] + reach)
@@ -115,7 +156,7 @@ function WeaponStats.compute(
 	end
 
 	stats.critChance = StatMath.critChance(stats.critChance or Player.critChance, bonuses.critChance or 0)
-	stats.critDamage = stats.critDamage or Player.critMultiplier
+	stats.critDamage = (stats.critDamage or Player.critMultiplier) + (bonuses.critDamage or 0) / 100
 	stats.lifeSteal = math.clamp((stats.lifeSteal or 0) + (bonuses.lifeSteal or 0) / 100, 0, 1)
 	stats.eliteDamage = (bonuses.eliteDamage or 0) / 100
 	stats.knockback = math.max(0, (stats.knockback or 0) + (bonuses.knockback or 0)) * Combat.knockback.studsPerPoint

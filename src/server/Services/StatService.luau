@@ -83,7 +83,7 @@ local function computePermanent(player: Player, state: State): StatMath.Sheet
 end
 
 local function push(player: Player, sheet: StatMath.Sheet)
-	local weaponSheet = table.clone(sheet)
+	local weaponSheet = CharacterRules.weaponSheet(RunDirector.getParticipantClassId(player), sheet)
 	weaponSheet.level = if states[player] then states[player].levels + 1 else 1
 	WeaponService.setStats(player, weaponSheet)
 	CombatService.setStats(player, table.clone(sheet))
@@ -135,7 +135,7 @@ end
 local function weaponKeyOf(player: Player): string
 	local ids = {}
 	for _, weapon in WeaponService.getWeapons(player) do
-		table.insert(ids, weapon.id)
+		table.insert(ids, `{weapon.id}:{weapon.tier}`)
 	end
 	return table.concat(ids, ":")
 end
@@ -362,6 +362,11 @@ function StatService.setDynamic(player: Player, bonuses: StatMath.Sheet)
 end
 
 -- Queries ---------------------------------------------------------------------------
+
+function StatService.getLevel(player: Player): number
+	local state = states[player]
+	return if state then state.levels + 1 else 1
+end
 
 -- One stat of the player (the base value outside a run).
 function StatService.getStat(player: Player, statId: string): number

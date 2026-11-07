@@ -177,7 +177,7 @@ local arsenal = Arsenal.new({
 	maxWeapons = (function()
 		local maximum = Config.Player.maxWeapons
 		for id in Config.Classes do
-			maximum = math.max(maximum, CharacterRules.maxWeapons(id))
+			maximum = math.max(maximum, Config.Classes[id].maxWeaponSlots or CharacterRules.maxWeapons(id))
 		end
 		return maximum
 	end)(),
@@ -273,12 +273,13 @@ local function onRunStarted(participants: { Player })
 		arsenal:addOwner(player.UserId, ownerStats[player] or {})
 		local classId = RunDirector.getParticipantClassId(player)
 		local class = classId and Config.Classes[classId]
-		if class then
+		if class and class.maxWeapons ~= 0 then
 			local choices = selections[player]
 			local chosen = (choices and choices[classId]) or class.startWeapon
-			local ok, reason = arsenal:addWeapon(player.UserId, chosen, now(), Config.Weapons[chosen].minTier)
+			local tier = (class.startWeaponTiers and class.startWeaponTiers[chosen]) or Config.Weapons[chosen].minTier
+			local ok, reason = arsenal:addWeapon(player.UserId, chosen, now(), tier)
 			for _, extra in class.extraWeapons or {} do
-				arsenal:addWeapon(player.UserId, extra, now())
+				arsenal:addWeapon(player.UserId, extra, now(), class.extraWeaponTiers and class.extraWeaponTiers[extra])
 			end
 			if not ok then
 				warn(`[Lanternfall] {player.Name} gets no start weapon {class.startWeapon}: {reason}`)
@@ -495,20 +496,16 @@ end
 
 -- Adds a weapon of `tier` (default I); returns its uid.
 function WeaponService.addWeapon(player: Player, weaponId: string, tier: number?): (boolean, string?, number?)
-	if not CharacterRules.weaponAllowed(RunDirector.getParticipantClassId(player), weaponId) then
-		return false, "CharacterRestriction", nil
-	end
-	if
-		not CharacterRules.hasSlot(
-			RunDirector.getParticipantClassId(player),
-			weaponId,
-			WeaponService.getWeapons(player)
-		)
-	then
-		return false, "SlotsFull", nil
-	end
 	local config = Config.Weapons[weaponId]
 	local requestedTier = tier or (config and config.minTier) or 1
+	local classId = RunDirector.getParticipantClassId(player)
+	local level = (ownerStats[player] and ownerStats[player].level) or 1
+	if not CharacterRules.weaponAllowed(classId, weaponId, requestedTier) then
+		return false, "CharacterRestriction", nil
+	end
+	if not CharacterRules.hasSlot(classId, weaponId, WeaponService.getWeapons(player), level, requestedTier) then
+		return false, "SlotsFull", nil
+	end
 	if config and requestedTier < (config.minTier or 1) then
 		return false, "BadTier", nil
 	end
@@ -529,6 +526,14 @@ end
 
 -- One tier up without a partner (admin).
 function WeaponService.raiseTier(player: Player, uid: number): (boolean, string?)
+	for _, weapon in arsenal:getWeapons(player.UserId) do
+		if
+			weapon.uid == uid
+			and not CharacterRules.weaponAllowed(RunDirector.getParticipantClassId(player), weapon.id, weapon.tier + 1)
+		then
+			return false, "CharacterRestriction"
+		end
+	end
 	local ok, reason = arsenal:raiseTier(player.UserId, uid)
 	if ok then
 		send(player)
@@ -538,6 +543,14 @@ end
 
 -- Merges the weapon with another copy of the same tier into the next tier (Arsenal.merge).
 function WeaponService.merge(player: Player, uid: number): (boolean, string?)
+	for _, weapon in arsenal:getWeapons(player.UserId) do
+		if
+			weapon.uid == uid
+			and not CharacterRules.weaponAllowed(RunDirector.getParticipantClassId(player), weapon.id, weapon.tier + 1)
+		then
+			return false, "CharacterRestriction"
+		end
+	end
 	local ok, reason = arsenal:merge(player.UserId, uid)
 	if ok then
 		send(player)
@@ -649,7 +662,10 @@ function WeaponService.getDamageStats(player: Player): Arsenal.DamageStats
 end
 
 function WeaponService.getMaxWeapons(player: Player): number
-	return CharacterRules.maxWeapons(RunDirector.getParticipantClassId(player))
+	return CharacterRules.maxWeapons(
+		RunDirector.getParticipantClassId(player),
+		(ownerStats[player] and ownerStats[player].level) or 1
+	)
 end
 
 -- B12: already scaled structure damage, no primary weapon scaling or life steal.
