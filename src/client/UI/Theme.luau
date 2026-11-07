@@ -18,9 +18,9 @@ return table.freeze({
 	success = Color3.fromRGB(0, 230, 0),
 	danger = Color3.fromRGB(246, 22, 22),
 	statLabel = Color3.fromRGB(220, 216, 163),
-	price = Color3.fromRGB(43, 53, 58),
-	hp = Color3.fromRGB(218, 49, 61),
-	xp = Color3.fromRGB(129, 204, 70),
+	price = Color3.fromRGB(30, 30, 30),
+	hp = Color3.fromRGB(192, 0, 0),
+	xp = Color3.fromRGB(52, 211, 49),
 	cardSurfaces = table.freeze({
 		Color3.fromRGB(8, 8, 8),
 		Color3.fromRGB(18, 33, 40),

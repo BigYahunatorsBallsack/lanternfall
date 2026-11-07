@@ -1,5 +1,5 @@
 --!strict
--- Original green material sprite used by ShopController and the combat currency counter.
+-- Original green material sprite shared by shop prices, level-up rerolls and the combat currency counter.
 local Widgets = require(script.Parent.Widgets)
 local Config = require(game:GetService("ReplicatedStorage").Shared.Config)
 local Currency = {}

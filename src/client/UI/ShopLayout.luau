@@ -14,10 +14,10 @@ function ShopLayout.measure(area: Vector2)
 		leftWidth = width - 310,
 		statsX = width - 290,
 		statsWidth = 274,
-		statsHeight = height - 182,
-		cardY = 105,
-		cardHeight = math.clamp(height * 0.445, 310, 400),
-		inventoryY = math.clamp(height * 0.445, 310, 400) + 184,
+		statsHeight = height - 204,
+		cardY = 98,
+		cardHeight = math.clamp(height * 0.455, 310, 400),
+		inventoryY = math.clamp(height * 0.455, 310, 400) + 195,
 	}
 end
 

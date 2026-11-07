@@ -1,0 +1,1245 @@
+{
+  "base": "e38a7628465ae9255bbf00bd0c5d11915d1a57bc",
+  "seed": 1234,
+  "main": {
+    "label": "main",
+    "seed": 1234,
+    "specs": 80,
+    "passed": 977,
+    "failed": 26,
+    "results": [
+      {
+        "spec": "tests/Analytics.spec.luau",
+        "passed": 14,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/AnalyticsRules.spec.luau",
+        "passed": 6,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/Audio21.spec.luau",
+        "passed": 8,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/Boss.spec.luau",
+        "passed": 10,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/BossBrain.spec.luau",
+        "passed": 6,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/BrotatoWeapons.spec.luau",
+        "passed": 69,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/Champions.spec.luau",
+        "passed": 5,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/CharacterArt.spec.luau",
+        "passed": 9,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/CharactersB10.spec.luau",
+        "passed": 13,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/Config.spec.luau",
+        "passed": 6,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/Danger.spec.luau",
+        "passed": 6,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/DangerRules.spec.luau",
+        "passed": 11,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/EffectRules.spec.luau",
+        "passed": 11,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/EmberShop.spec.luau",
+        "passed": 12,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/EmberShopRules.spec.luau",
+        "passed": 8,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/EnemiesB9.spec.luau",
+        "passed": 7,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/EnemyModels.spec.luau",
+        "passed": 10,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/EnemyWorld.spec.luau",
+        "passed": 44,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/Experience.spec.luau",
+        "passed": 7,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/FirstNight.spec.luau",
+        "passed": 9,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/FirstNightHub.spec.luau",
+        "passed": 2,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/Graphics22.spec.luau",
+        "passed": 6,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/HeldWeapons.spec.luau",
+        "passed": 4,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/HitNumbers.spec.luau",
+        "passed": 3,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/HubStudio.spec.luau",
+        "passed": 10,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/HubTeleport.spec.luau",
+        "passed": 7,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/Hud14.spec.luau",
+        "passed": 6,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/ItemParity.spec.luau",
+        "passed": 136,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/ItemsB8.spec.luau",
+        "passed": 16,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/ItemSprites.spec.luau",
+        "passed": 5,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/Launch24.spec.luau",
+        "passed": 10,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/Loot.spec.luau",
+        "passed": 11,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/LootRules.spec.luau",
+        "passed": 8,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/MainGameEnemyRuntime.spec.luau",
+        "passed": 9,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/MainGameEnemyStats.spec.luau",
+        "passed": 29,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/MovementRules.spec.luau",
+        "passed": 11,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/NetCodecs22.spec.luau",
+        "passed": 7,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/Parties.spec.luau",
+        "passed": 11,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/Perf22.spec.luau",
+        "passed": 1,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/PlaceRules.spec.luau",
+        "passed": 9,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/PlayerData.spec.luau",
+        "passed": 7,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/PlayerDataRules.spec.luau",
+        "passed": 14,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/PrimaryStatArt.spec.luau",
+        "passed": 6,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/Progress.spec.luau",
+        "passed": 6,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/ProgressRules.spec.luau",
+        "passed": 10,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/PurchaseRules.spec.luau",
+        "passed": 10,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/QuestRules.spec.luau",
+        "passed": 18,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/Quests.spec.luau",
+        "passed": 11,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/RandomStreams.spec.luau",
+        "passed": 3,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/RetryWave.spec.luau",
+        "passed": 6,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/Revive.spec.luau",
+        "passed": 8,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/ReviveRules.spec.luau",
+        "passed": 7,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/RunFlow.spec.luau",
+        "passed": 55,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/RunPlace.spec.luau",
+        "passed": 6,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/RunStats.spec.luau",
+        "passed": 4,
+        "failed": 1,
+        "exit": 1,
+        "failures": [
+          "Tally > writes readable log lines with the level per minute and every build"
+        ]
+      },
+      {
+        "spec": "tests/Security23.spec.luau",
+        "passed": 13,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/Security23Hub.spec.luau",
+        "passed": 3,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/ShopRules.spec.luau",
+        "passed": 14,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/Smoke.spec.luau",
+        "passed": 18,
+        "failed": 25,
+        "exit": 1,
+        "failures": [
+          "smoke > arms the player with the class weapon and switches weapons off for the enemy tests",
+          "smoke > spawns enemies on a ring around the player and draws them",
+          "smoke > chases the player until it touches them",
+          "smoke > shows enemy and performance numbers to admins",
+          "smoke > shoots Spark Bolts that kill enemies once weapons are on",
+          "smoke > draws the six original weapons, tiers and debug swaps",
+          "smoke > drops XP orbs that the player picks up for the whole team",
+          "smoke > keeps level-ups for the end of the wave",
+          "smoke > ends the wave: enemies fade, the shop opens and the level-up cards come first",
+          "smoke > opens level-up cards on the screen between waves and applies the pick",
+          "smoke > rerolls the cards for Shards and picks the first card when the time runs out",
+          "smoke > sells weapons and items for Shards in the shop, rerolls and starts the next wave on READY",
+          "smoke > lets items change HP, speed and weapon damage, stacking without limit",
+          "smoke > runs item effects: standing still, per X, timers, crit kills, dodges and chests",
+          "smoke > runs wave end, shop and next-wave effects and the shop stats",
+          "smoke > spawns a glowing elite with an HP bar that drops a chest",
+          "smoke > opens the chest when walked over and shows the reward",
+          "smoke > gives the evolution from a chest once the build is ready",
+          "smoke > lets Spitters shoot visible projectiles that hit the player",
+          "smoke > starts Swarm Rush with a ring of Shadelings and no Gloom Elites",
+          "smoke > shows a Charger's wind-up, splits Splitters and names elite affixes",
+          "smoke > runs Brotato's combat: weapon class bonuses, burning, exploding items and slowed enemies",
+          "smoke > puts a respawned participant back into the arena",
+          "smoke > skips to the boss wave, and surviving it wins (WP10)",
+          "smoke > starts the next run with Play again"
+        ]
+      },
+      {
+        "spec": "tests/Snapshot.spec.luau",
+        "passed": 7,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/SnapshotBuffer.spec.luau",
+        "passed": 7,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/SpatialHash.spec.luau",
+        "passed": 2,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/SpawnGroups.spec.luau",
+        "passed": 6,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/SpawnRules.spec.luau",
+        "passed": 16,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/StatMath.spec.luau",
+        "passed": 8,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/Store.spec.luau",
+        "passed": 14,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/StructuresB12.spec.luau",
+        "passed": 8,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/UiRedesign.spec.luau",
+        "passed": 10,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/UiShop.spec.luau",
+        "passed": 4,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/UpgradePool.spec.luau",
+        "passed": 10,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/UpgradeReference.spec.luau",
+        "passed": 17,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/ViewBounds.spec.luau",
+        "passed": 5,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/Vitals.spec.luau",
+        "passed": 13,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/WeaponBalance.spec.luau",
+        "passed": 1,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/WeaponClasses.spec.luau",
+        "passed": 5,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/Weapons.spec.luau",
+        "passed": 16,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/WeaponsB7.spec.luau",
+        "passed": 10,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/WeaponsB7Integration.spec.luau",
+        "passed": 5,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/WeaponStats.spec.luau",
+        "passed": 10,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/WorldSprites.spec.luau",
+        "passed": 12,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      }
+    ]
+  },
+  "ui": {
+    "label": "ui",
+    "seed": 1234,
+    "specs": 81,
+    "passed": 982,
+    "failed": 26,
+    "results": [
+      {
+        "spec": "tests/Analytics.spec.luau",
+        "passed": 14,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/AnalyticsRules.spec.luau",
+        "passed": 6,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/Audio21.spec.luau",
+        "passed": 8,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/Boss.spec.luau",
+        "passed": 10,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/BossBrain.spec.luau",
+        "passed": 6,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/BrotatoWeapons.spec.luau",
+        "passed": 69,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/Champions.spec.luau",
+        "passed": 5,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/CharacterArt.spec.luau",
+        "passed": 9,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/CharactersB10.spec.luau",
+        "passed": 13,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/Config.spec.luau",
+        "passed": 6,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/Danger.spec.luau",
+        "passed": 6,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/DangerRules.spec.luau",
+        "passed": 11,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/EffectRules.spec.luau",
+        "passed": 11,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/EmberShop.spec.luau",
+        "passed": 12,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/EmberShopRules.spec.luau",
+        "passed": 8,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/EnemiesB9.spec.luau",
+        "passed": 7,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/EnemyModels.spec.luau",
+        "passed": 10,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/EnemyWorld.spec.luau",
+        "passed": 44,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/Experience.spec.luau",
+        "passed": 7,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/FirstNight.spec.luau",
+        "passed": 9,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/FirstNightHub.spec.luau",
+        "passed": 2,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/Graphics22.spec.luau",
+        "passed": 6,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/HeldWeapons.spec.luau",
+        "passed": 4,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/HitNumbers.spec.luau",
+        "passed": 3,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/HubStudio.spec.luau",
+        "passed": 10,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/HubTeleport.spec.luau",
+        "passed": 7,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/Hud14.spec.luau",
+        "passed": 6,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/ItemParity.spec.luau",
+        "passed": 136,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/ItemsB8.spec.luau",
+        "passed": 16,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/ItemSprites.spec.luau",
+        "passed": 5,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/Launch24.spec.luau",
+        "passed": 10,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/Loot.spec.luau",
+        "passed": 11,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/LootRules.spec.luau",
+        "passed": 8,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/MainGameEnemyRuntime.spec.luau",
+        "passed": 9,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/MainGameEnemyStats.spec.luau",
+        "passed": 29,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/MovementRules.spec.luau",
+        "passed": 11,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/NetCodecs22.spec.luau",
+        "passed": 7,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/Parties.spec.luau",
+        "passed": 11,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/Perf22.spec.luau",
+        "passed": 1,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/PlaceRules.spec.luau",
+        "passed": 9,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/PlayerData.spec.luau",
+        "passed": 7,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/PlayerDataRules.spec.luau",
+        "passed": 14,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/PrimaryStatArt.spec.luau",
+        "passed": 7,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/Progress.spec.luau",
+        "passed": 6,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/ProgressRules.spec.luau",
+        "passed": 10,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/PurchaseRules.spec.luau",
+        "passed": 10,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/QuestRules.spec.luau",
+        "passed": 18,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/Quests.spec.luau",
+        "passed": 11,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/RandomStreams.spec.luau",
+        "passed": 3,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/RetryWave.spec.luau",
+        "passed": 6,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/Revive.spec.luau",
+        "passed": 8,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/ReviveRules.spec.luau",
+        "passed": 7,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/RunFlow.spec.luau",
+        "passed": 55,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/RunPlace.spec.luau",
+        "passed": 6,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/RunStats.spec.luau",
+        "passed": 4,
+        "failed": 1,
+        "exit": 1,
+        "failures": [
+          "Tally > writes readable log lines with the level per minute and every build"
+        ]
+      },
+      {
+        "spec": "tests/Security23.spec.luau",
+        "passed": 13,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/Security23Hub.spec.luau",
+        "passed": 3,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/ShopRules.spec.luau",
+        "passed": 14,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/Smoke.spec.luau",
+        "passed": 18,
+        "failed": 25,
+        "exit": 1,
+        "failures": [
+          "smoke > arms the player with the class weapon and switches weapons off for the enemy tests",
+          "smoke > spawns enemies on a ring around the player and draws them",
+          "smoke > chases the player until it touches them",
+          "smoke > shows enemy and performance numbers to admins",
+          "smoke > shoots Spark Bolts that kill enemies once weapons are on",
+          "smoke > draws the six original weapons, tiers and debug swaps",
+          "smoke > drops XP orbs that the player picks up for the whole team",
+          "smoke > keeps level-ups for the end of the wave",
+          "smoke > ends the wave: enemies fade, the shop opens and the level-up cards come first",
+          "smoke > opens level-up cards on the screen between waves and applies the pick",
+          "smoke > rerolls the cards for Shards and picks the first card when the time runs out",
+          "smoke > sells weapons and items for Shards in the shop, rerolls and starts the next wave on READY",
+          "smoke > lets items change HP, speed and weapon damage, stacking without limit",
+          "smoke > runs item effects: standing still, per X, timers, crit kills, dodges and chests",
+          "smoke > runs wave end, shop and next-wave effects and the shop stats",
+          "smoke > spawns a glowing elite with an HP bar that drops a chest",
+          "smoke > opens the chest when walked over and shows the reward",
+          "smoke > gives the evolution from a chest once the build is ready",
+          "smoke > lets Spitters shoot visible projectiles that hit the player",
+          "smoke > starts Swarm Rush with a ring of Shadelings and no Gloom Elites",
+          "smoke > shows a Charger's wind-up, splits Splitters and names elite affixes",
+          "smoke > runs Brotato's combat: weapon class bonuses, burning, exploding items and slowed enemies",
+          "smoke > puts a respawned participant back into the arena",
+          "smoke > skips to the boss wave, and surviving it wins (WP10)",
+          "smoke > starts the next run with Play again"
+        ]
+      },
+      {
+        "spec": "tests/Snapshot.spec.luau",
+        "passed": 7,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/SnapshotBuffer.spec.luau",
+        "passed": 7,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/SpatialHash.spec.luau",
+        "passed": 2,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/SpawnGroups.spec.luau",
+        "passed": 6,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/SpawnRules.spec.luau",
+        "passed": 16,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/StatMath.spec.luau",
+        "passed": 8,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/Store.spec.luau",
+        "passed": 14,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/StructuresB12.spec.luau",
+        "passed": 8,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/UiRedesign.spec.luau",
+        "passed": 10,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/UiReference.spec.luau",
+        "passed": 4,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/UiShop.spec.luau",
+        "passed": 4,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/UpgradePool.spec.luau",
+        "passed": 10,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/UpgradeReference.spec.luau",
+        "passed": 17,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/ViewBounds.spec.luau",
+        "passed": 5,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/Vitals.spec.luau",
+        "passed": 13,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/WeaponBalance.spec.luau",
+        "passed": 1,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/WeaponClasses.spec.luau",
+        "passed": 5,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/Weapons.spec.luau",
+        "passed": 16,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/WeaponsB7.spec.luau",
+        "passed": 10,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/WeaponsB7Integration.spec.luau",
+        "passed": 5,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/WeaponStats.spec.luau",
+        "passed": 10,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      },
+      {
+        "spec": "tests/WorldSprites.spec.luau",
+        "passed": 12,
+        "failed": 0,
+        "exit": 0,
+        "failures": []
+      }
+    ]
+  },
+  "newFailures": [],
+  "native": {
+    "isolatedFile": "lanternfall-ui-reference_AutoRecovery_0.rbxl",
+    "placeId": 0,
+    "productionSourcesCompared": 358,
+    "sourceDifferences": [],
+    "menuFlow": "Main menu, character, weapon, difficulty, READY clicked",
+    "levelChoice": "Keyboard 1 accepted; HP/XP stay visible; seconds hidden; card art displayed",
+    "purchase": {
+      "before": 115,
+      "price": 17,
+      "after": 98,
+      "sold": true
+    },
+    "reroll": {
+      "key": "F",
+      "before": 98,
+      "after": 97,
+      "lockedOfferPreserved": true,
+      "lockedOfferMovedToSlot": 1
+    },
+    "go": {
+      "wave": "WAVE 2",
+      "seconds": "25",
+      "shopVisible": false,
+      "healthVisible": true
+    },
+    "notTested": [
+      "Native two-client run",
+      "Physical phone",
+      "Published run place",
+      "Every character image"
+    ]
+  },
+  "checks": {
+    "stylua": "pass",
+    "seleneErrors": 0,
+    "seleneExistingWarnings": 11,
+    "rojo": "pass"
+  }
+}

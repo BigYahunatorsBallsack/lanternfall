@@ -1,11 +1,11 @@
 {
   "date": "2026-11-07",
-  "mainRevision": "e38a7628465ae9255bbf00bd0c5d11915d1a57bc",
+  "mainRevision": "620546d6196c09fdb8149338de6aac273a900703",
   "seed": 1234,
-  "method": "Every spec runs separately under the checked-in Lune adapter. Unchanged main sources came from git archive HEAD after updating this branch to the pinned main.",
+  "method": "Every spec runs separately under the checked-in Lune adapter. Latest main sources came from git archive origin/main at the pinned revision after PR #87 merged. Main and integration comparators used separate processes with the same seed.",
   "main": {
-    "specCount": 80,
-    "passed": 977,
+    "specCount": 81,
+    "passed": 982,
     "failed": 26,
     "results": [
       {
@@ -304,7 +304,7 @@
       },
       {
         "spec": "PrimaryStatArt.spec.luau",
-        "passed": 6,
+        "passed": 7,
         "failed": 0,
         "exitCode": 0,
         "failures": []
@@ -439,7 +439,7 @@
           },
           {
             "test": "smoke > shows enemy and performance numbers to admins",
-            "detail": "tests/Smoke.spec.luau:314: expected \"Enemies 80 / 80 \u00c2\u00b7 drawn 80 (0 off screen) \u00c2\u00b7 shots 0\", got \"Enemies 80 / 80 \u00c2\u00b7 drawn 79 (0 off screen) \u00c2\u00b7 shots 0\""
+            "detail": "tests/Smoke.spec.luau:314: expected \"Enemies 80 / 80 Â· drawn 80 (0 off screen) Â· shots 0\", got \"Enemies 80 / 80 Â· drawn 79 (0 off screen) Â· shots 0\""
           },
           {
             "test": "smoke > shoots Spark Bolts that kill enemies once weapons are on",
@@ -459,71 +459,71 @@
           },
           {
             "test": "smoke > ends the wave: enemies fade, the shop opens and the level-up cards come first",
-            "detail": "tests/Smoke.spec.luau:465: expected true, got false"
+            "detail": "tests/Smoke.spec.luau:467: expected true, got false"
           },
           {
             "test": "smoke > opens level-up cards on the screen between waves and applies the pick",
-            "detail": "tests/Smoke.spec.luau:481: expected true, got false"
+            "detail": "tests/Smoke.spec.luau:483: expected true, got false"
           },
           {
             "test": "smoke > rerolls the cards for Shards and picks the first card when the time runs out",
-            "detail": "tests/Smoke.spec.luau:519: expected \"Reroll (1 Shards)\", got nil"
+            "detail": "tests/Smoke.spec.luau:521: expected \"REROLL - 1    \", got nil"
           },
           {
             "test": "smoke > sells weapons and items for Shards in the shop, rerolls and starts the next wave on READY",
-            "detail": "tests/Smoke.spec.luau:539: expected true, got false"
+            "detail": "tests/Smoke.spec.luau:541: expected true, got false"
           },
           {
             "test": "smoke > lets items change HP, speed and weapon damage, stacking without limit",
-            "detail": "tests/Smoke.spec.luau:741: expected true, got false"
+            "detail": "tests/Smoke.spec.luau:743: expected true, got false"
           },
           {
             "test": "smoke > runs item effects: standing still, per X, timers, crit kills, dodges and chests",
-            "detail": "tests/Smoke.spec.luau:794: expected \"Still\", got nil"
+            "detail": "tests/Smoke.spec.luau:796: expected \"Still\", got nil"
           },
           {
             "test": "smoke > runs wave end, shop and next-wave effects and the shop stats",
-            "detail": "tests/Smoke.spec.luau:887: expected \"Shop\", got \"Ended\""
+            "detail": "tests/Smoke.spec.luau:889: expected \"Shop\", got \"Ended\""
           },
           {
             "test": "smoke > spawns a glowing elite with an HP bar that drops a chest",
-            "detail": "tests/Smoke.spec.luau:938: expected 1, got 0"
+            "detail": "tests/Smoke.spec.luau:940: expected 1, got 0"
           },
           {
             "test": "smoke > opens the chest when walked over and shows the reward",
-            "detail": "tests/Smoke.spec.luau:969: attempt to index nil with 'x'"
+            "detail": "tests/Smoke.spec.luau:971: attempt to index nil with 'x'"
           },
           {
             "test": "smoke > gives the evolution from a chest once the build is ready",
-            "detail": "tests/Smoke.spec.luau:1002: expected true, got false"
+            "detail": "tests/Smoke.spec.luau:1004: expected true, got false"
           },
           {
             "test": "smoke > lets Spitters shoot visible projectiles that hit the player",
-            "detail": "tests/Smoke.spec.luau:1039: expected true, got false"
+            "detail": "tests/Smoke.spec.luau:1041: expected true, got false"
           },
           {
             "test": "smoke > starts Swarm Rush with a ring of Shadelings and no Gloom Elites",
-            "detail": "tests/Smoke.spec.luau:1059: expected true, got false"
+            "detail": "tests/Smoke.spec.luau:1061: expected true, got false"
           },
           {
             "test": "smoke > shows a Charger's wind-up, splits Splitters and names elite affixes",
-            "detail": "tests/Smoke.spec.luau:1106: expected 1, got 0"
+            "detail": "tests/Smoke.spec.luau:1108: expected 1, got 0"
           },
           {
             "test": "smoke > runs Brotato's combat: weapon class bonuses, burning, exploding items and slowed enemies",
-            "detail": "tests/Smoke.spec.luau:1152: expected 1, got 0"
+            "detail": "tests/Smoke.spec.luau:1154: expected 1, got 0"
           },
           {
             "test": "smoke > puts a respawned participant back into the arena",
-            "detail": "tests/Smoke.spec.luau:1220: expected true, got false"
+            "detail": "tests/Smoke.spec.luau:1222: expected true, got false"
           },
           {
             "test": "smoke > skips to the boss wave, and surviving it wins (WP10)",
-            "detail": "tests/Smoke.spec.luau:1229: expected \"Shop\", got \"Lobby\""
+            "detail": "tests/Smoke.spec.luau:1231: expected \"Shop\", got \"Lobby\""
           },
           {
             "test": "smoke > starts the next run with Play again",
-            "detail": "tests/Smoke.spec.luau:1272: expected \"Spark Bolt I\", got \"Wand I\""
+            "detail": "tests/Smoke.spec.luau:1274: expected \"Spark Bolt I\", got \"Wand I\""
           }
         ]
       },
@@ -586,6 +586,13 @@
       {
         "spec": "UiRedesign.spec.luau",
         "passed": 10,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "UiReference.spec.luau",
+        "passed": 4,
         "failed": 0,
         "exitCode": 0,
         "failures": []
@@ -677,9 +684,9 @@
     ]
   },
   "followup": {
-    "specCount": 85,
-    "passed": 988,
-    "failed": 30,
+    "specCount": 86,
+    "passed": 995,
+    "failed": 28,
     "results": [
       {
         "spec": "Analytics.spec.luau",
@@ -1012,7 +1019,7 @@
       },
       {
         "spec": "PrimaryStatArt.spec.luau",
-        "passed": 6,
+        "passed": 7,
         "failed": 0,
         "exitCode": 0,
         "failures": []
@@ -1129,8 +1136,8 @@
       },
       {
         "spec": "Smoke.spec.luau",
-        "passed": 14,
-        "failed": 29,
+        "passed": 16,
+        "failed": 27,
         "exitCode": 1,
         "failures": [
           {
@@ -1143,7 +1150,7 @@
           },
           {
             "test": "smoke > shows enemy and performance numbers to admins",
-            "detail": "tests/Smoke.spec.luau:314: expected \"Enemies 80 / 80 \u00c2\u00b7 drawn 80 (0 off screen) \u00c2\u00b7 shots 0\", got \"Enemies 80 / 80 \u00c2\u00b7 drawn 79 (0 off screen) \u00c2\u00b7 shots 0\""
+            "detail": "tests/Smoke.spec.luau:314: expected \"Enemies 80 / 80 Â· drawn 80 (0 off screen) Â· shots 0\", got \"Enemies 80 / 80 Â· drawn 79 (0 off screen) Â· shots 0\""
           },
           {
             "test": "smoke > shoots Spark Bolts that kill enemies once weapons are on",
@@ -1154,100 +1161,92 @@
             "detail": "tests/Smoke.spec.luau:360: expected true, got false"
           },
           {
-            "test": "smoke > drops XP orbs that the player picks up for the whole team",
-            "detail": "tests/Smoke.spec.luau:447: expected \"LV 4\", got \"LV 4 \u00c2\u00b7 +3 at wave end\""
-          },
-          {
-            "test": "smoke > keeps level-ups for the end of the wave",
-            "detail": "tests/Smoke.spec.luau:459: expected \"LV 5 \u00c2\u00b7 +1 at wave end\", got \"LV 5 \u00c2\u00b7 +4 at wave end\""
-          },
-          {
             "test": "smoke > sells weapons and items for Shards in the shop, rerolls and starts the next wave on READY",
-            "detail": "tests/Smoke.spec.luau:613: expected 2, got 3"
+            "detail": "tests/Smoke.spec.luau:548: expected 17, got nil"
           },
           {
             "test": "smoke > lets items change HP, speed and weapon damage, stacking without limit",
-            "detail": "tests/Smoke.spec.luau:734: expected about 49.50000000000001, got 0"
+            "detail": "tests/Smoke.spec.luau:736: expected about 49.50000000000001, got 0"
           },
           {
             "test": "smoke > runs item effects: standing still, per X, timers, crit kills, dodges and chests",
-            "detail": "tests/Smoke.spec.luau:794: expected \"Still\", got nil"
+            "detail": "tests/Smoke.spec.luau:796: expected \"Still\", got nil"
           },
           {
             "test": "smoke > runs wave end, shop and next-wave effects and the shop stats",
-            "detail": "tests/Smoke.spec.luau:890: expected true, got false"
+            "detail": "tests/Smoke.spec.luau:892: expected true, got false"
           },
           {
             "test": "smoke > spawns a glowing elite with an HP bar that drops a chest",
-            "detail": "tests/Smoke.spec.luau:938: expected 1, got 0"
+            "detail": "tests/Smoke.spec.luau:940: expected 1, got 0"
           },
           {
             "test": "smoke > opens the chest when walked over and shows the reward",
-            "detail": "tests/Smoke.spec.luau:969: attempt to index nil with 'x'"
+            "detail": "tests/Smoke.spec.luau:971: attempt to index nil with 'x'"
           },
           {
             "test": "smoke > gives the evolution from a chest once the build is ready",
-            "detail": "tests/Smoke.spec.luau:1002: expected true, got false"
+            "detail": "tests/Smoke.spec.luau:1004: expected true, got false"
           },
           {
             "test": "smoke > lets Spitters shoot visible projectiles that hit the player",
-            "detail": "tests/Smoke.spec.luau:1039: expected true, got false"
+            "detail": "tests/Smoke.spec.luau:1041: expected true, got false"
           },
           {
             "test": "smoke > starts Swarm Rush with a ring of Shadelings and no Gloom Elites",
-            "detail": "tests/Smoke.spec.luau:1059: expected true, got false"
+            "detail": "tests/Smoke.spec.luau:1061: expected true, got false"
           },
           {
             "test": "smoke > shows a Charger's wind-up, splits Splitters and names elite affixes",
-            "detail": "tests/Smoke.spec.luau:1106: expected 1, got 0"
+            "detail": "tests/Smoke.spec.luau:1108: expected 1, got 0"
           },
           {
             "test": "smoke > runs Brotato's combat: weapon class bonuses, burning, exploding items and slowed enemies",
-            "detail": "tests/Smoke.spec.luau:1153: expected 9, got 3"
+            "detail": "tests/Smoke.spec.luau:1155: expected 9, got 3"
           },
           {
             "test": "smoke > skips to the boss wave, and surviving it wins (WP10)",
-            "detail": "tests/Smoke.spec.luau:1230: expected 19, got 1"
+            "detail": "tests/Smoke.spec.luau:1232: expected 19, got 1"
           },
           {
             "test": "smoke > starts the next run with Play again",
-            "detail": "tests/Smoke.spec.luau:1267: expected \"Countdown\", got \"Shop\""
+            "detail": "tests/Smoke.spec.luau:1269: expected \"Countdown\", got \"Shop\""
           },
           {
             "test": "smoke > keeps walking but suppresses jumping on Space",
-            "detail": "tests/Smoke.spec.luau:1294: expected 45, got 0"
+            "detail": "tests/Smoke.spec.luau:1297: expected 45, got 0"
           },
           {
             "test": "smoke > takes debug damage with hit protection and heals",
-            "detail": "tests/Smoke.spec.luau:1308: expected 8, got 12"
+            "detail": "tests/Smoke.spec.luau:1311: expected 8, got 12"
           },
           {
             "test": "smoke > ends in defeat when the only player is knocked down",
-            "detail": "tests/Smoke.spec.luau:1320: expected false, got true"
+            "detail": "tests/Smoke.spec.luau:1323: expected false, got true"
           },
           {
             "test": "smoke > returns to the lobby after the results",
-            "detail": "tests/Smoke.spec.luau:1332: expected \"Lobby\", got \"Running\""
+            "detail": "tests/Smoke.spec.luau:1335: expected \"Lobby\", got \"Running\""
           },
           {
             "test": "smoke > runs with two players and keeps late joiners in the lobby",
-            "detail": "tests/Smoke.spec.luau:1344: expected \"Countdown\", got \"Running\""
+            "detail": "tests/Smoke.spec.luau:1347: expected \"Countdown\", got \"Running\""
           },
           {
             "test": "smoke > keeps running while one of two is down, and enemies go for the one still standing",
-            "detail": "tests/Smoke.spec.luau:1362: attempt to index nil with 'id'"
+            "detail": "tests/Smoke.spec.luau:1365: attempt to index nil with 'id'"
           },
           {
             "test": "smoke > stands a downed player up with full HP when the wave ends",
-            "detail": "tests/Smoke.spec.luau:1388: expected \"Shop\", got \"Ended\""
+            "detail": "tests/Smoke.spec.luau:1391: expected \"Shop\", got \"Ended\""
           },
           {
             "test": "smoke > rejects locked classes with a message",
-            "detail": "tests/Smoke.spec.luau:1410: attempt to index nil with 'classId'"
+            "detail": "tests/Smoke.spec.luau:1413: attempt to index nil with 'classId'"
           },
           {
             "test": "smoke > finished without any runtime error",
-            "detail": "tests/Smoke.spec.luau:1422: runtime error: ./src/shared/Net/RateLimiter.luau:30: table index is nil"
+            "detail": "tests/Smoke.spec.luau:1425: runtime error: ./src/shared/Net/RateLimiter.luau:30: table index is nil"
           }
         ]
       },
@@ -1310,6 +1309,13 @@
       {
         "spec": "UiRedesign.spec.luau",
         "passed": 10,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "UiReference.spec.luau",
+        "passed": 4,
         "failed": 0,
         "exitCode": 0,
         "failures": []
@@ -1401,7 +1407,7 @@
     ]
   },
   "fullSuiteGreen": false,
-  "openFailures": "Smoke and RunStats already fail on main. Smoke changes from 25 to 29 failing cases as its broken stateful sequence reacts to faster combat. Four additional net failures remain open; this is not a no-regressions/full-green claim.",
+  "openFailures": "Smoke and RunStats already fail on latest main. Smoke changes from 25 to 27 failing cases in its stateful sequence with faster combat. Two additional net failures remain open; this is not a no-regressions/full-green claim.",
   "targetedChecks": "All 15 new regression cases pass. Existing enemy world, movement/security, enemy runtime, weapon and performance specs pass.",
   "benchmarks": [
     "enemies + 24 max-tier weapons: 3.516 ms, weapons alone 1.011 ms",
@@ -1431,5 +1437,19 @@
     "Mobile device",
     "Published run place"
   ],
-  "scope": "Four recovered original loot images only; other unfinished content-parity changes were not imported."
+  "scope": "Four recovered original loot images only; other unfinished content-parity changes were not imported.",
+  "previousComparison": {
+    "mainRevision": "e38a7628465ae9255bbf00bd0c5d11915d1a57bc",
+    "main": {
+      "passed": 977,
+      "failed": 26,
+      "specCount": 80
+    },
+    "followup": {
+      "passed": 988,
+      "failed": 30,
+      "specCount": 85
+    }
+  },
+  "integration": "PR #87 UI preserved in full. Currency retains the ShardIcon Frame mount contract and uses the original material ImageLabel for new shop, HUD and level-up callers. Independent integration review found no concrete issues. Owner explicitly authorized merge with the documented open tests."
 }

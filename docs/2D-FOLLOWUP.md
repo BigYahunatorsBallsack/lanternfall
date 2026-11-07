@@ -1,6 +1,6 @@
 # 2D-Nachkorrekturen: Tempo und Beutebilder
 
-Grundlage: GitHub-main `e38a7628465ae9255bbf00bd0c5d11915d1a57bc`, einschliesslich der ruhigeren Laufanimationen und des Spawn-Fixes aus PR #85. Das Startgeld bleibt bei 15 Shards.
+Grundlage: GitHub-main `620546d6196c09fdb8149338de6aac273a900703`, einschliesslich der ruhigeren Laufanimationen, des Spawn-Fixes aus PR #85 und der neuen UI aus PR #87. Das Startgeld bleibt bei 15 Shards.
 
 ## Bewegung
 
@@ -32,6 +32,10 @@ Der bereits auf main gemergte Gegner-Spawn-Fix bleibt unveraendert erhalten. Die
 
 Die neuen Regressionen wurden vor den jeweiligen Laufzeitkorrekturen rot und danach gruen beobachtet. Pulse- und Sicherheitsfixtures halten ihre eigentlichen Ziele unabhaengig vom neuen Tempo: Bewegungen bleiben fuer die volle Testdauer innerhalb der Arena, faire Gesamtstrecke und dreifacher Cheat-Speed werden weiterhin geprueft. Der Hookfang-Test beobachtet Geschosse waehrend seines Zeitfensters, weil schnellere Geschosse am Ende schon verschwunden sein koennen. Keine Pruefgrenze wurde herabgesetzt und kein Test uebersprungen.
 
-Vollstaendiger Vergleich und verbleibende Fehlschlaege: `2d-followup-validation.json`. Der Gesamtlauf ist nicht fehlerfrei: main hat 26 Fehlschlaege in Smoke/RunStats, der Branch 30 in denselben beiden Specs. Die bereits fehlerhafte, zustandsabhaengige Smoke-Sequenz reagiert auf das geaenderte Kampftempo; ihre vier zusaetzlichen Netto-Fehlschlaege sind offen. Alle anderen Specs bestehen.
+Vollstaendiger Vergleich und verbleibende Fehlschlaege: `2d-followup-validation.json`. Der Gesamtlauf ist nicht fehlerfrei: main hat 26 Fehlschlaege in Smoke/RunStats, der Branch 28 in denselben beiden Specs. Die bereits fehlerhafte, zustandsabhaengige Smoke-Sequenz reagiert auf das geaenderte Kampftempo; ihre zwei zusaetzlichen Netto-Fehlschlaege sind offen. Alle anderen Specs bestehen.
 
 StyLua, Selene und Rojo-Build wurden geprueft. Native Bild-Preloads und die Unterstuetzung abgetrennter Parts durch BulkMoveTo wurden am 06.11.2026 beobachtet. Beim Abschluss war kein Studio verbunden; ein kompletter nativer Solo-/Zwei-Client-/Handy-Run dieses Branches steht aus. Der vorhandene Studio-Arbeitsstand wurde nicht ueberschrieben und keine Experience veroeffentlicht.
+
+## Integration vor dem freigegebenen Merge
+
+Der Owner hat den Merge trotz der dokumentierten Grenzen freigegeben. Der inzwischen gemergte UI-PR #87 wurde vollstaendig aufgenommen. Die Waehrungsanzeige behaelt den gemeinsamen ShardIcon-Frame-Vertrag; Preise, HUD und Level-up-Neuwuerfe verwenden das Original-Materialbild. Beide STATUS-Nachtraege bleiben erhalten. Unabhaengige Integrationspruefung ohne konkrete Befunde. Erneuter Gesamtlauf gegen aktuellen main: main 982/26 in 81 Specs, Integration 995/28 in 86 Specs; alle 15 neuen Regressionen bestehen. Lint: 0 Fehler, 0 Parsefehler, 11 bestehende Warnungen. Rojo-Build und Formatpruefung erneut bestanden.

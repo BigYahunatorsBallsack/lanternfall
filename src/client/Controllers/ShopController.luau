@@ -588,7 +588,7 @@ function render()
 	footer.Visible = panel.Visible
 	shortSubtitle.Visible = landscape and panel.Visible
 	backButton.Visible = statsInstead
-	StatsController.setSuppressed(shopping and compact and not showingStats)
+	StatsController.setSuppressed(compact and (LevelUpController.isOpen() or (shopping and not showingStats)))
 	if not (current and shopping) then
 		applyComposition(current)
 		detailOverlay.Visible = false
@@ -809,18 +809,7 @@ local function build()
 	-- Between the 3D arena and the HUD (DisplayOrder 0): the shop and the level-up cards are a screen of their own.
 	backdrop = Widgets.screen("Backdrop", -1)
 	backdrop.IgnoreGuiInset = true
-	local cover = Widgets.create("Frame", {
-		Name = "Cover",
-		BackgroundColor3 = Color3.new(1, 1, 1),
-		BorderSizePixel = 0,
-		Size = UDim2.fromScale(1, 1),
-		Parent = backdrop,
-	})
-	Widgets.create("UIGradient", {
-		Rotation = 90,
-		Color = ColorSequence.new(Color3.fromRGB(87, 87, 87), Color3.fromRGB(39, 39, 39)),
-		Parent = cover,
-	})
+	local cover = require(script.Parent.Parent.UI.MenuBackdrop).mount(backdrop)
 	local banner = Widgets.panel({
 		Name = "Header",
 		Visible = false, -- The shop owns its header; choices have their own modal title.
@@ -1118,6 +1107,16 @@ end
 
 function ShopController.start()
 	build()
+	game:GetService("ContextActionService")
+		:BindActionAtPriority("LanternfallShopReroll", function(_: string, state: Enum.UserInputState)
+			if not isShopping() then
+				return Enum.ContextActionResult.Pass
+			end
+			if state == Enum.UserInputState.Begin then
+				reroll()
+			end
+			return Enum.ContextActionResult.Sink
+		end, false, Enum.ContextActionPriority.High.Value, Enum.KeyCode.F)
 	RunStateController.Changed:Connect(render)
 	ProgressController.ItemsChanged:Connect(render)
 	StatsController.Changed:Connect(render)
