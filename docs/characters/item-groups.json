@@ -1,0 +1,971 @@
+{
+  "version": "1.2.0.1",
+  "source": "res://singletons/item_service.gdc",
+  "sourceMd5": "2bb86ac67c9576337a664d6c75a66dec",
+  "translationSource": "res://resources/translations/translations.en.translation",
+  "translationMd5": "701f69b83d82866afc0d55321cceea7c",
+  "groups": {
+    "harvesting": [
+      "item_blood_donation",
+      "item_crown",
+      "item_fertilizer",
+      "item_tractor",
+      "item_wheelbarrow"
+    ],
+    "melee_damage": [
+      "item_mastery",
+      "item_goat_skull",
+      "item_riposte"
+    ],
+    "ranged_damage": [
+      "item_lens"
+    ],
+    "melee_and_ranged_damage": [
+      "item_big_arms",
+      "item_hedgehog"
+    ],
+    "lifesteal": [
+      "item_butterfly",
+      "item_bat",
+      "item_whetstone",
+      "item_decomposing_flesh",
+      "item_bloody_hand",
+      "item_fresh_meat"
+    ],
+    "lifesteal_and_hp_regeneration": [
+      "item_blood_leech"
+    ],
+    "hp_regeneration": [
+      "item_mushroom",
+      "item_plant",
+      "item_sad_tomato",
+      "item_medikit",
+      "item_fairy",
+      "item_potion",
+      "item_fried_rice",
+      "item_baby_squid",
+      "item_coral",
+      "item_penguin"
+    ],
+    "consumable_heal": [
+      "item_jerky",
+      "item_weird_food",
+      "item_lemonade",
+      "item_fruit_basket"
+    ],
+    "speed": [
+      "item_terrified_onion",
+      "item_beanie",
+      "item_power_generator"
+    ],
+    "engineering": [
+      "item_lighthouse",
+      "item_cog",
+      "item_nail",
+      "item_toolbox",
+      "item_book",
+      "item_pencil"
+    ],
+    "elemental_damage": [
+      "item_strange_book",
+      "item_frozen_heart",
+      "item_boiling_water",
+      "item_snowball",
+      "item_toxic_sludge",
+      "item_fuel_tank",
+      "item_will_o_the_wisp"
+    ],
+    "armor": [
+      "item_stone_skin",
+      "item_helmet",
+      "item_metal_plate"
+    ],
+    "dodge": [
+      "item_adrenaline",
+      "item_chameleon",
+      "item_gambling_token",
+      "item_ghost_outfit"
+    ]
+  },
+  "runtimeItems": {
+    "AcidVial": {
+      "nativeId": "item_acid",
+      "nameKey": "ITEM_ACID",
+      "source": "res://items/all/00_base_game/acid/acid_data.tres",
+      "sourceMd5": "a80f63fb5d6ca951147543d374d69f0f",
+      "displayName": "Acid"
+    },
+    "AmberResin": {
+      "nativeId": "item_honey",
+      "nameKey": "ITEM_HONEY",
+      "source": "res://items/all/00_base_game/honey/honey_data.tres",
+      "sourceMd5": "893089f91907fa95d235150772b62f9f",
+      "displayName": "Honey"
+    },
+    "Armor": {
+      "nativeId": "item_metal_plate",
+      "nameKey": "ITEM_METAL_PLATE",
+      "source": "res://items/all/00_base_game/metal_plate/metal_plate_data.tres",
+      "sourceMd5": "b7076a3d021bac18daa7a3a37a182e66",
+      "displayName": "Metal Plate"
+    },
+    "AshBlindfold": {
+      "nativeId": "item_blindfold",
+      "nameKey": "ITEM_BLINDFOLD",
+      "source": "res://items/all/00_base_game/blindfold/blindfold_data.tres",
+      "sourceMd5": "a68e7dd482c3744c9e9e89dab6b13bef",
+      "displayName": "Blindfold"
+    },
+    "AshSerpent": {
+      "nativeId": "item_snake",
+      "nameKey": "ITEM_SNAKE",
+      "source": "res://items/all/00_base_game/snake/snake_data.tres",
+      "sourceMd5": "4cba3168a380af96d6c8b9ec3156f822",
+      "displayName": "Snake"
+    },
+    "AstralPhilter": {
+      "nativeId": "item_alien_magic",
+      "nameKey": "ITEM_ALIEN_MAGIC",
+      "source": "res://items/all/00_base_game/alien_magic/alien_magic_data.tres",
+      "sourceMd5": "42272a8529a19474afe464f7062cf3e1",
+      "displayName": "Alien Magic"
+    },
+    "BeckoningBell": {
+      "nativeId": "item_gentle_alien",
+      "nameKey": "ITEM_GENTLE_ALIEN",
+      "source": "res://items/all/00_base_game/gentle_alien/gentle_alien_data.tres",
+      "sourceMd5": "8bdc844da2e5c7db74827c4f2af4900f",
+      "displayName": "Gentle Alien"
+    },
+    "Bellows": {
+      "nativeId": "item_eyes_surgery",
+      "nameKey": "ITEM_EYES_SURGERY",
+      "source": "res://items/all/00_base_game/eyes_surgery/eye_surgery_data.tres",
+      "sourceMd5": "4afeb1966b8916f98f01a4f00aef1748",
+      "displayName": "Eyes Surgery"
+    },
+    "BitterTonic": {
+      "nativeId": "item_celery_tea",
+      "nameKey": "ITEM_CELERY_TEA",
+      "source": "res://items/all/00_base_game/celery_tea/celery_tea_data.tres",
+      "sourceMd5": "0101fbd8543bd3072568b9932dcf154f",
+      "displayName": "Celery Tea"
+    },
+    "BlackPowder": {
+      "nativeId": "item_dynamite",
+      "nameKey": "ITEM_DYNAMITE",
+      "source": "res://items/all/00_base_game/dynamite/dynamite_data.tres",
+      "sourceMd5": "65b29c419bbb2277b391f1fcb1c60e8e",
+      "displayName": "Dynamite"
+    },
+    "BloodChalice": {
+      "nativeId": "item_sunglasses",
+      "nameKey": "ITEM_SUNGLASSES",
+      "source": "res://items/all/00_base_game/sunglasses/sunglasses_data.tres",
+      "sourceMd5": "db4f20e87651b5ec88ef2c45d9c93bce",
+      "displayName": "Sunglasses"
+    },
+    "BloodLure": {
+      "nativeId": "item_bait",
+      "nameKey": "ITEM_BAIT",
+      "source": "res://items/all/00_base_game/bait/bait_data.tres",
+      "sourceMd5": "7eb42e3b0ac045416ca2b2d4949881b6",
+      "displayName": "Bait"
+    },
+    "BloodOffering": {
+      "nativeId": "item_blood_donation",
+      "nameKey": "ITEM_BLOOD_DONATION",
+      "source": "res://items/all/00_base_game/blood_donation/blood_donation_data.tres",
+      "sourceMd5": "99b9ccec7863064e15aaedfc447780a0",
+      "displayName": "Blood Donation"
+    },
+    "BoneCharm": {
+      "nativeId": "item_jelly",
+      "nameKey": "ITEM_JELLY",
+      "source": "res://items/all/00_base_game/jelly/jelly_data.tres",
+      "sourceMd5": "81c7d7e7d3577548daf9874e51ba4ffb",
+      "displayName": "Jelly"
+    },
+    "BoneKnuckles": {
+      "nativeId": "item_plant",
+      "nameKey": "ITEM_PLANT",
+      "source": "res://items/all/00_base_game/plant/plant_data.tres",
+      "sourceMd5": "4ea37b55119f1965720facadef92e211",
+      "displayName": "Plant"
+    },
+    "BrassCarapace": {
+      "nativeId": "item_exoskeleton",
+      "nameKey": "ITEM_EXOSKELETON",
+      "source": "res://items/all/00_base_game/exoskeleton/exoskeleton_data.tres",
+      "sourceMd5": "cd555be70f1b51d55d5eea0bd259c3a5",
+      "displayName": "Exoskeleton"
+    },
+    "BrassHarness": {
+      "nativeId": "item_jetpack",
+      "nameKey": "ITEM_JETPACK",
+      "source": "res://items/all/00_base_game/jetpack/jetpack_data.tres",
+      "sourceMd5": "44fe07c964f322ae4cc15d4a9f79e2b3",
+      "displayName": "Jet Pack"
+    },
+    "BrassSentry": {
+      "nativeId": "item_turret",
+      "nameKey": "ITEM_TURRET",
+      "source": "res://items/all/00_base_game/turret/turret_data.tres",
+      "sourceMd5": "71799f3ae2b264ea874673f322cc5477",
+      "displayName": "Turret"
+    },
+    "Brazier": {
+      "nativeId": "item_campfire",
+      "nameKey": "ITEM_CAMPFIRE",
+      "source": "res://items/all/00_base_game/campfire/campfire_data.tres",
+      "sourceMd5": "e18d0d8e69e01a47a4f0b130abbe1f91",
+      "displayName": "Campfire"
+    },
+    "BurstingSigil": {
+      "nativeId": "item_rip_and_tear",
+      "nameKey": "ITEM_RIP_AND_TEAR",
+      "source": "res://items/all/00_base_game/rip_and_tear/rip_and_tear_data.tres",
+      "sourceMd5": "b5e314722cfa2286231b22421328545d",
+      "displayName": "Rip and Tear"
+    },
+    "CalibratedTools": {
+      "nativeId": "item_improved_tools",
+      "nameKey": "ITEM_IMPROVED_TOOLS",
+      "source": "res://items/all/00_base_game/improved_tools/improved_tools_data.tres",
+      "sourceMd5": "ad79ea8554f06ae6840bfbb5c9c58fa1",
+      "displayName": "Improved Tools"
+    },
+    "CatClaw": {
+      "nativeId": "item_claw_tree",
+      "nameKey": "ITEM_CLAW_TREE",
+      "source": "res://items/all/00_base_game/claw_tree/claw_tree_data.tres",
+      "sourceMd5": "376dbdf1763a3586ee82fe62413e84ed",
+      "displayName": "Claw Tree"
+    },
+    "Changeling": {
+      "nativeId": "item_alien_baby",
+      "nameKey": "ITEM_ALIEN_BABY",
+      "source": "res://items/all/00_base_game/alien_baby/alien_baby_data.tres",
+      "sourceMd5": "dc00359c16eba2bf2bd1d9c8469c2d82",
+      "displayName": "Alien Baby"
+    },
+    "ChitteringFamiliar": {
+      "nativeId": "item_cute_monkey",
+      "nameKey": "ITEM_CUTE_MONKEY",
+      "source": "res://items/all/00_base_game/cute_monkey/cute_monkey_data.tres",
+      "sourceMd5": "2449b3cf7935af6ce71f36f1036a92b4",
+      "displayName": "Cute Monkey"
+    },
+    "CinderSentry": {
+      "nativeId": "item_turret_flame",
+      "nameKey": "ITEM_TURRET_FLAME",
+      "source": "res://items/all/00_base_game/turret_flame/turret_flame_data.tres",
+      "sourceMd5": "7caf89d85444f1cce8208325991c5f5b",
+      "displayName": "Incendiary Turret"
+    },
+    "ClockworkArm": {
+      "nativeId": "item_robot_arm",
+      "nameKey": "ITEM_ROBOT_ARM",
+      "source": "res://items/all/00_base_game/robot_arm/robot_arm_data.tres",
+      "sourceMd5": "4292ff2c677261dffbdfb01f54aabcf1",
+      "displayName": "Robot Arm"
+    },
+    "ClockworkGears": {
+      "nativeId": "item_poisonous_tonic",
+      "nameKey": "ITEM_POISONOUS_TONIC",
+      "source": "res://items/all/00_base_game/poisonous_tonic/poisonous_tonic_data.tres",
+      "sourceMd5": "c0edbfbcefe6aabcd3282c8606a297d2",
+      "displayName": "Poisonous Tonic"
+    },
+    "ColossusHeart": {
+      "nativeId": "item_octopus",
+      "nameKey": "ITEM_OCTOPUS",
+      "source": "res://items/all/00_base_game/octopus/octopus_data.tres",
+      "sourceMd5": "15512fb1e8f35b18a64700ce55cdd8c9",
+      "displayName": "Octopus"
+    },
+    "CrackedLens": {
+      "nativeId": "item_glasses",
+      "nameKey": "ITEM_GLASSES",
+      "source": "res://items/all/00_base_game/glasses/glasses_data.tres",
+      "sourceMd5": "6f3800b8d537d72820f2d26bdaa48712",
+      "displayName": "Glasses"
+    },
+    "CrackedSkull": {
+      "nativeId": "item_head_injury",
+      "nameKey": "ITEM_HEAD_INJURY",
+      "source": "res://items/all/00_base_game/head_injury/head_injury_data.tres",
+      "sourceMd5": "57c6e9ba2bcada8435dae1baccd7a5e8",
+      "displayName": "Head Injury"
+    },
+    "CrimsonHand": {
+      "nativeId": "item_bloody_hand",
+      "nameKey": "ITEM_BLOODY_HAND",
+      "source": "res://items/all/00_base_game/bloody_hand/bloody_hand_data.tres",
+      "sourceMd5": "36604723c3051ab0079f240610d0b6df",
+      "displayName": "Bloody Hand"
+    },
+    "DowsingRod": {
+      "nativeId": "item_metal_detector",
+      "nameKey": "ITEM_METAL_DETECTOR",
+      "source": "res://items/all/00_base_game/metal_detector/metal_detector_data.tres",
+      "sourceMd5": "68c67d0078e056ceb7de9f524f09b8ce",
+      "displayName": "Metal Detector"
+    },
+    "EelFin": {
+      "nativeId": "item_fin",
+      "nameKey": "ITEM_FIN",
+      "source": "res://items/all/00_base_game/fin/fin_data.tres",
+      "sourceMd5": "ee363f73d52f6db5f1b2249f85cdcb16",
+      "displayName": "Fin"
+    },
+    "EightEyedIdol": {
+      "nativeId": "item_spider",
+      "nameKey": "ITEM_SPIDER",
+      "source": "res://items/all/00_base_game/spider/spider_data.tres",
+      "sourceMd5": "99a2705d1b6f6028cc18fe2fc9c8002c",
+      "displayName": "Spider"
+    },
+    "EmberAnvil": {
+      "nativeId": "item_anvil",
+      "nameKey": "ITEM_ANVIL",
+      "source": "res://items/all/00_base_game/anvil/anvil_data.tres",
+      "sourceMd5": "acc0bcf54b0f36eaf4bad170c1a491db",
+      "displayName": "Anvil"
+    },
+    "EternalFlame": {
+      "nativeId": "item_potato",
+      "nameKey": "ITEM_POTATO",
+      "source": "res://items/all/00_base_game/potato/potato_data.tres",
+      "sourceMd5": "6b23effe95a596fa6098be0cd8fba224",
+      "displayName": "Potato"
+    },
+    "EvergreenSprig": {
+      "nativeId": "item_grinds_magical_leaf",
+      "nameKey": "ITEM_GRINDS_MAGICAL_LEAF",
+      "source": "res://items/all/00_base_game/grinds_magical_leaf/grinds_magical_leaf_data.tres",
+      "sourceMd5": "249ab2d1d906fca4886d40ef2716447e",
+      "displayName": "Grind's Magical Leaf"
+    },
+    "FieldCenser": {
+      "nativeId": "item_medikit",
+      "nameKey": "ITEM_MEDIKIT",
+      "source": "res://items/all/00_base_game/medikit/medikit_data.tres",
+      "sourceMd5": "8f36e6822ae778c8fb297d99f6502073",
+      "displayName": "Medikit"
+    },
+    "FlintShard": {
+      "nativeId": "item_lens",
+      "nameKey": "ITEM_LENS",
+      "source": "res://items/all/00_base_game/lens/lens_data.tres",
+      "sourceMd5": "447648093f488f1fb24baa70317b160b",
+      "displayName": "Lens"
+    },
+    "Focus": {
+      "nativeId": "item_coffee",
+      "nameKey": "ITEM_COFFEE",
+      "source": "res://items/all/00_base_game/coffee/coffee_data.tres",
+      "sourceMd5": "68053322e18c2f8b7c67eae97ac4bb40",
+      "displayName": "Coffee"
+    },
+    "FortuneCoin": {
+      "nativeId": "item_lucky_coin",
+      "nameKey": "ITEM_LUCKY_COIN",
+      "source": "res://items/all/00_base_game/lucky_coin/lucky_coin_data.tres",
+      "sourceMd5": "f12040cf8ff76f98222c4b922422d4ce",
+      "displayName": "Lucky Coin"
+    },
+    "FourLeafCharm": {
+      "nativeId": "item_clover",
+      "nameKey": "ITEM_CLOVER",
+      "source": "res://items/all/00_base_game/clover/clover_data.tres",
+      "sourceMd5": "df181e3cd8a48d203f9c0a86bd42d60f",
+      "displayName": "Clover"
+    },
+    "FulminateJar": {
+      "nativeId": "item_plastic_explosive",
+      "nameKey": "ITEM_PLASTIC_EXPLOSIVE",
+      "source": "res://items/all/00_base_game/plastic_explosive/plastic_explosive_data.tres",
+      "sourceMd5": "29b4e8ee3e8fe75db44e82252883880c",
+      "displayName": "Plastic Explosive"
+    },
+    "GalvanicCoil": {
+      "nativeId": "item_power_generator",
+      "nameKey": "ITEM_POWER_GENERATOR",
+      "source": "res://items/all/00_base_game/power_generator/power_generator_data.tres",
+      "sourceMd5": "b0763062e31972da597db616238509ff",
+      "displayName": "Power Generator"
+    },
+    "GildedPlume": {
+      "nativeId": "item_peacock",
+      "nameKey": "ITEM_PEACOCK",
+      "source": "res://items/all/00_base_game/peacock/peacock_data.tres",
+      "sourceMd5": "ed28567f5923f32d785119f01977f1c5",
+      "displayName": "Peacock"
+    },
+    "GlassLantern": {
+      "nativeId": "item_glass_cannon",
+      "nameKey": "ITEM_GLASS_CANNON",
+      "source": "res://items/all/00_base_game/glass_cannon/glass_cannon_data.tres",
+      "sourceMd5": "919391217d15c2b202fad8d3f2b74aa0",
+      "displayName": "Glass Cannon"
+    },
+    "GourdLantern": {
+      "nativeId": "item_pumpkin",
+      "nameKey": "ITEM_PUMPKIN",
+      "source": "res://items/all/00_base_game/pumpkin/pumpkin_data.tres",
+      "sourceMd5": "e30fde956414cb9a763bdea612a42228",
+      "displayName": "Pumpkin"
+    },
+    "GraveSpade": {
+      "nativeId": "item_fertilizer",
+      "nameKey": "ITEM_FERTILIZER",
+      "source": "res://items/all/00_base_game/fertilizer/fertilizer_data.tres",
+      "sourceMd5": "67ac665d5998714e8376f96ea917d451",
+      "displayName": "Fertilizer"
+    },
+    "GrubTincture": {
+      "nativeId": "item_alien_worm",
+      "nameKey": "ITEM_ALIEN_WORM",
+      "source": "res://items/all/00_base_game/alien_worm/alien_worm_data.tres",
+      "sourceMd5": "0fd0563ef656aa8d5b82b37ee66ba61b",
+      "displayName": "Alien Worm"
+    },
+    "Haste": {
+      "nativeId": "item_beanie",
+      "nameKey": "ITEM_BEANIE",
+      "source": "res://items/all/00_base_game/beanie/beanie_data.tres",
+      "sourceMd5": "fb38aa23922cdc9551d11fadfc34319f",
+      "displayName": "Beanie"
+    },
+    "HearthSprite": {
+      "nativeId": "item_fairy",
+      "nameKey": "ITEM_FAIRY",
+      "source": "res://items/all/00_base_game/fairy/fairy_data.tres",
+      "sourceMd5": "a706e446a920eb006d415688da65f646",
+      "displayName": "Fairy"
+    },
+    "HeavyRounds": {
+      "nativeId": "item_heavy_bullets",
+      "nameKey": "ITEM_HEAVY_BULLETS",
+      "source": "res://items/all/00_base_game/heavy_bullets/heavy_bullets_data.tres",
+      "sourceMd5": "99d2f046bb1fd52e98305570aef2e411",
+      "displayName": "Heavy Bullets"
+    },
+    "HollowNail": {
+      "nativeId": "item_sharp_bullet",
+      "nameKey": "ITEM_SHARP_BULLET",
+      "source": "res://items/all/00_base_game/sharp_bullet/sharp_bullet_data.tres",
+      "sourceMd5": "6a83298c85cc89350253d53bdf5ef820",
+      "displayName": "Sharp Bullet"
+    },
+    "HookedTongue": {
+      "nativeId": "item_alien_tongue",
+      "nameKey": "ITEM_ALIEN_TONGUE",
+      "source": "res://items/all/00_base_game/alien_tongue/alien_tongue_data.tres",
+      "sourceMd5": "ea04cc9353046b9f33893daea8f7963f",
+      "displayName": "Alien Tongue"
+    },
+    "HuntersTally": {
+      "nativeId": "item_hunting_trophy",
+      "nameKey": "ITEM_HUNTING_TROPHY",
+      "source": "res://items/all/00_base_game/hunting_trophy/hunting_trophy_data.tres",
+      "sourceMd5": "e0b74d89904c6a2bb46aacf0f6b44675",
+      "displayName": "Hunting Trophy"
+    },
+    "HushCandle": {
+      "nativeId": "item_candle",
+      "nameKey": "ITEM_CANDLE",
+      "source": "res://items/all/00_base_game/candle/candle_data.tres",
+      "sourceMd5": "a1cf701006ba1a1ee0363e13ba90bc25",
+      "displayName": "Candle"
+    },
+    "InkPolyp": {
+      "nativeId": "item_bat",
+      "nameKey": "ITEM_BAT",
+      "source": "res://items/all/00_base_game/bat/bat_data.tres",
+      "sourceMd5": "85a2e80eacae537453fdb81d0dcf1dc3",
+      "displayName": "Bat"
+    },
+    "IronGauntlet": {
+      "nativeId": "item_boxing_glove",
+      "nameKey": "ITEM_BOXING_GLOVE",
+      "source": "res://items/all/00_base_game/boxing_glove/boxing_glove_data.tres",
+      "sourceMd5": "39f9922ec7886570997d3395b1942294",
+      "displayName": "Boxing Glove"
+    },
+    "IronShackle": {
+      "nativeId": "item_ball_and_chain",
+      "nameKey": "ITEM_BALL_AND_CHAIN",
+      "source": "res://items/all/00_base_game/ball_and_chain/ball_and_chain_data.tres",
+      "sourceMd5": "509bf3e436235afe3ef5ea7749077c6c",
+      "displayName": "Ball and Chain"
+    },
+    "IronVigil": {
+      "nativeId": "item_barricade",
+      "nameKey": "ITEM_BARRICADE",
+      "source": "res://items/all/00_base_game/barricade/barricade_data.tres",
+      "sourceMd5": "497466de7ad1ef10c04e295ae972c76c",
+      "displayName": "Barricade"
+    },
+    "JesterBell": {
+      "nativeId": "item_dangerous_bunny",
+      "nameKey": "ITEM_DANGEROUS_BUNNY",
+      "source": "res://items/all/00_base_game/dangerous_bunny/dangerous_bunny_data.tres",
+      "sourceMd5": "fe88ef898a89a668387d5f684ef8194a",
+      "displayName": "Dangerous Bunny"
+    },
+    "Knucklebones": {
+      "nativeId": "item_tentacle",
+      "nameKey": "ITEM_TENTACLE",
+      "source": "res://items/all/00_base_game/tentacle/tentacle_data.tres",
+      "sourceMd5": "7e849245b5b293c8c3aab549304596ea",
+      "displayName": "Tentacle"
+    },
+    "LanternCodex": {
+      "nativeId": "item_diploma",
+      "nameKey": "ITEM_DIPLOMA",
+      "source": "res://items/all/00_base_game/diploma/diploma_data.tres",
+      "sourceMd5": "b221151d0da14f64b8c0f3119f3e0445",
+      "displayName": "Diploma"
+    },
+    "LanternOil": {
+      "nativeId": "item_shady_potion",
+      "nameKey": "ITEM_SHADY_POTION",
+      "source": "res://items/all/00_base_game/shady_potion/shady_potion_data.tres",
+      "sourceMd5": "a492caad0c0acce9ffe4e4ada114d847",
+      "displayName": "Shady Potion"
+    },
+    "LeechJar": {
+      "nativeId": "item_blood_leech",
+      "nameKey": "ITEM_BLOOD_LEECH",
+      "source": "res://items/all/00_base_game/blood_leech/blood_leech_data.tres",
+      "sourceMd5": "60fe513b84ed105965b801b0c1711a13",
+      "displayName": "Blood Leech"
+    },
+    "LoadedDice": {
+      "nativeId": "item_gambling_token",
+      "nameKey": "ITEM_GAMBLING_TOKEN",
+      "source": "res://items/all/00_base_game/gambling_token/gambling_token_data.tres",
+      "sourceMd5": "50cbb99f3ec47149bf7188e363bb1bf9",
+      "displayName": "Gambling Token"
+    },
+    "LoneFlame": {
+      "nativeId": "item_focus",
+      "nameKey": "ITEM_FOCUS",
+      "source": "res://items/all/00_base_game/focus/focus_data.tres",
+      "sourceMd5": "cd054abb6c2c3c365230882a02b9d6db",
+      "displayName": "Focus"
+    },
+    "Magnet": {
+      "nativeId": "item_boiling_water",
+      "nameKey": "ITEM_BOILING_WATER",
+      "source": "res://items/all/00_base_game/boiling_water/boiling_water_data.tres",
+      "sourceMd5": "164b05f76929528c0ca1fa860eb53438",
+      "displayName": "Boiling Water"
+    },
+    "MercySentry": {
+      "nativeId": "item_turret_healing",
+      "nameKey": "ITEM_TURRET_HEALING",
+      "source": "res://items/all/00_base_game/turret_healing/turret_healing_data.tres",
+      "sourceMd5": "b4fa9cd7c02ba06d71ba0c823457985d",
+      "displayName": "Medical Turret"
+    },
+    "Might": {
+      "nativeId": "item_injection",
+      "nameKey": "ITEM_INJECTION",
+      "source": "res://items/all/00_base_game/injection/injection_data.tres",
+      "sourceMd5": "9999451b6b8979dfd52b8fbc226e49df",
+      "displayName": "Injection"
+    },
+    "MirrorShard": {
+      "nativeId": "item_ricochet",
+      "nameKey": "ITEM_RICOCHET",
+      "source": "res://items/all/00_base_game/ricochet/ricochet_data.tres",
+      "sourceMd5": "8f895f6764c0d8fdc74114115df18a87",
+      "displayName": "Ricochet"
+    },
+    "MoonGarden": {
+      "nativeId": "item_garden",
+      "nameKey": "ITEM_GARDEN",
+      "source": "res://items/all/00_base_game/garden/garden_data.tres",
+      "sourceMd5": "c6c5ccde107f7a7aeab4ce49148d334d",
+      "displayName": "Garden"
+    },
+    "MossWard": {
+      "nativeId": "item_tardigrade",
+      "nameKey": "ITEM_TARDIGRADE",
+      "source": "res://items/all/00_base_game/tardigrade/tardigrade_data.tres",
+      "sourceMd5": "c106198d6b1c6cf40f89e99da64e8f6c",
+      "displayName": "Tardigrade"
+    },
+    "MothWing": {
+      "nativeId": "item_butterfly",
+      "nameKey": "ITEM_BUTTERFLY",
+      "source": "res://items/all/00_base_game/butterfly/butterfly_data.tres",
+      "sourceMd5": "c427822c4813a91363a851ccf75d0bbf",
+      "displayName": "Butterfly"
+    },
+    "MourningVeil": {
+      "nativeId": "item_sad_tomato",
+      "nameKey": "ITEM_SAD_TOMATO",
+      "source": "res://items/all/00_base_game/sad_tomato/sad_tomato_data.tres",
+      "sourceMd5": "02a508cc5f38d8e8a85b4880cb51c433",
+      "displayName": "Sad Tomato"
+    },
+    "NarrowScope": {
+      "nativeId": "item_cyclops_worm",
+      "nameKey": "ITEM_CYCLOPS_WORM",
+      "source": "res://items/all/00_base_game/cyclops_worm/cyclops_worm_data.tres",
+      "sourceMd5": "5c3ce55ea79058caaf01f3759cd68aef",
+      "displayName": "Cyclops Worm"
+    },
+    "NeedleCharm": {
+      "nativeId": "item_bandana",
+      "nameKey": "ITEM_BANDANA",
+      "source": "res://items/all/00_base_game/bandana/bandana_data.tres",
+      "sourceMd5": "efa35fff193f6a90b3c2af36cacaec63",
+      "displayName": "Bandana"
+    },
+    "OathRing": {
+      "nativeId": "item_vigilante_ring",
+      "nameKey": "ITEM_VIGILANTE_RING",
+      "source": "res://items/all/00_base_game/vigilante_ring/vigilante_ring_data.tres",
+      "sourceMd5": "2d1ebb32b3f3da83004d2643c0bb3e6a",
+      "displayName": "Vigilante Ring"
+    },
+    "OilFlask": {
+      "nativeId": "item_fuel_tank",
+      "nameKey": "ITEM_FUEL_TANK",
+      "source": "res://items/all/00_base_game/fuel_tank/fuel_tank_data.tres",
+      "sourceMd5": "c2f6e41167cba9636e25bb4519c800f2",
+      "displayName": "Fuel Tank"
+    },
+    "OrbitWisp": {
+      "nativeId": "item_wandering_bot",
+      "nameKey": "ITEM_WANDERING_BOT",
+      "source": "res://items/all/00_base_game/wandering_bot/wandering_bot_data.tres",
+      "sourceMd5": "eb258375a3f7644cf8960dab6c93f7b5",
+      "displayName": "Wandering Bot"
+    },
+    "OrderSash": {
+      "nativeId": "item_black_belt",
+      "nameKey": "ITEM_BLACK_BELT",
+      "source": "res://items/all/00_base_game/black_belt/black_belt_data.tres",
+      "sourceMd5": "034f7e28e3ba0936236c14ad5bf2b75a",
+      "displayName": "Black Belt"
+    },
+    "PawnTicket": {
+      "nativeId": "item_coupon",
+      "nameKey": "ITEM_COUPON",
+      "source": "res://items/all/00_base_game/coupon/coupon_data.tres",
+      "sourceMd5": "6cb6c669d5fffdc381f46986ed70df16",
+      "displayName": "Coupon"
+    },
+    "PlagueRat": {
+      "nativeId": "item_mouse",
+      "nameKey": "ITEM_MOUSE",
+      "source": "res://items/all/00_base_game/mouse/mouse_data.tres",
+      "sourceMd5": "efe594020c3eee7f706a7eb39a43dd2a",
+      "displayName": "Mouse"
+    },
+    "PowderPouch": {
+      "nativeId": "item_small_magazine",
+      "nameKey": "ITEM_SMALL_MAGAZINE",
+      "source": "res://items/all/00_base_game/small_magazine/small_magazine_data.tres",
+      "sourceMd5": "6993b85ef70b40556530f258953a78de",
+      "displayName": "Small Magazine"
+    },
+    "PrismSentry": {
+      "nativeId": "item_turret_laser",
+      "nameKey": "ITEM_TURRET_LASER",
+      "source": "res://items/all/00_base_game/turret_laser/turret_laser_data.tres",
+      "sourceMd5": "150363ba06667fa90deaabcce42bb430",
+      "displayName": "Laser Turret"
+    },
+    "PulseDraught": {
+      "nativeId": "item_adrenaline",
+      "nameKey": "ITEM_ADRENALINE",
+      "source": "res://items/all/00_base_game/adrenaline/adrenaline_data.tres",
+      "sourceMd5": "06cb5131a533cfc85689391d4e7dbca8",
+      "displayName": "Adrenaline"
+    },
+    "PyreAshes": {
+      "nativeId": "item_warrior_helmet",
+      "nameKey": "ITEM_WARRIOR_HELMET",
+      "source": "res://items/all/00_base_game/warrior_helmet/warrior_helmet_data.tres",
+      "sourceMd5": "253198367301a1fa48894dffede84a47",
+      "displayName": "Warrior Helmet"
+    },
+    "QuiltedCoat": {
+      "nativeId": "item_padding",
+      "nameKey": "ITEM_PADDING",
+      "source": "res://items/all/00_base_game/padding/padding_data.tres",
+      "sourceMd5": "ba4107cc3f4efe38e2dd6a58d8df823e",
+      "displayName": "Padding"
+    },
+    "RabbleBanner": {
+      "nativeId": "item_community_support",
+      "nameKey": "ITEM_COMMUNITY_SUPPORT",
+      "source": "res://items/all/00_base_game/community_support/community_support_data.tres",
+      "sourceMd5": "2bb7965aa0903c13096d4843319284f9",
+      "displayName": "Community Support"
+    },
+    "RecoilSpring": {
+      "nativeId": "item_coil",
+      "nameKey": "ITEM_COIL",
+      "source": "res://items/all/00_base_game/coil/coil_data.tres",
+      "sourceMd5": "7167658c160d371c451fbbd49706008d",
+      "displayName": "Coil"
+    },
+    "RollingEye": {
+      "nativeId": "item_cyberball",
+      "nameKey": "ITEM_CYBERBALL",
+      "source": "res://items/all/00_base_game/cyberball/cyberball_data.tres",
+      "sourceMd5": "4cfb67cd92eb1cad4f03ce3d52c78251",
+      "displayName": "Cyberball"
+    },
+    "RottingHeart": {
+      "nativeId": "item_decomposing_flesh",
+      "nameKey": "ITEM_DECOMPOSING_FLESH",
+      "source": "res://items/all/00_base_game/decomposing_flesh/decomposing_flesh_data.tres",
+      "sourceMd5": "c5d1797d530dae737de9261bc7273332",
+      "displayName": "Decomposing Flesh"
+    },
+    "RuneMine": {
+      "nativeId": "item_landmines",
+      "nameKey": "ITEM_LANDMINES",
+      "source": "res://items/all/00_base_game/landmines/landmines_data.tres",
+      "sourceMd5": "31db4c3c4847f485678e68803a2ee5c7",
+      "displayName": "Landmines"
+    },
+    "RustedCoin": {
+      "nativeId": "item_lost_duck",
+      "nameKey": "ITEM_LOST_DUCK",
+      "source": "res://items/all/00_base_game/lost_duck/lost_duck_data.tres",
+      "sourceMd5": "b0caf5e61c72bcbe71c0196d40ac61f1",
+      "displayName": "Lost Duck"
+    },
+    "SaltCoral": {
+      "nativeId": "item_mushroom",
+      "nameKey": "ITEM_MUSHROOM",
+      "source": "res://items/all/00_base_game/mushroom/mushroom_data.tres",
+      "sourceMd5": "5b7bac63060b560658afda009ebe1654",
+      "displayName": "Mushroom"
+    },
+    "Satchel": {
+      "nativeId": "item_bag",
+      "nameKey": "ITEM_BAG",
+      "source": "res://items/all/00_base_game/bag/bag_data.tres",
+      "sourceMd5": "0813c96654c027e9fd4e0f724e910d63",
+      "displayName": "Bag"
+    },
+    "ScrapAltar": {
+      "nativeId": "item_recycling_machine",
+      "nameKey": "ITEM_RECYCLING_MACHINE",
+      "source": "res://items/all/00_base_game/recycling_machine/recycling_machine_data.tres",
+      "sourceMd5": "e8af3c1a557a7330236062e1201e5902",
+      "displayName": "Recycling Machine"
+    },
+    "SecondStomach": {
+      "nativeId": "item_extra_stomach",
+      "nameKey": "ITEM_EXTRA_STOMACH",
+      "source": "res://items/all/00_base_game/extra_stomach/extra_stomach_data.tres",
+      "sourceMd5": "43c1a1e2b70a7f0dcfec547bb8038cd6",
+      "displayName": "Extra Stomach"
+    },
+    "ShadowCloak": {
+      "nativeId": "item_cape",
+      "nameKey": "ITEM_CAPE",
+      "source": "res://items/all/00_base_game/cape/cape_data.tres",
+      "sourceMd5": "79f9c0ebfa3903acdbecb31c1d7b7f7e",
+      "displayName": "Cape"
+    },
+    "SiegeSentry": {
+      "nativeId": "item_turret_rocket",
+      "nameKey": "ITEM_TURRET_ROCKET",
+      "source": "res://items/all/00_base_game/turret_rocket/turret_rocket_data.tres",
+      "sourceMd5": "d6795535c26cf6ce448220afb45d908d",
+      "displayName": "Explosive Turret"
+    },
+    "SignalBanner": {
+      "nativeId": "item_banner",
+      "nameKey": "ITEM_BANNER",
+      "source": "res://items/all/00_base_game/banner/banner_data.tres",
+      "sourceMd5": "f4ab83c4ecb988b28b2a3b92f15c4bb7",
+      "displayName": "Banner"
+    },
+    "SilverRounds": {
+      "nativeId": "item_silver_bullet",
+      "nameKey": "ITEM_SILVER_BULLET",
+      "source": "res://items/all/00_base_game/silver_bullet/silver_bullet_data.tres",
+      "sourceMd5": "0cc96cb4120ac98f200c050492e40689",
+      "displayName": "Silver Bullet"
+    },
+    "SmokeMantle": {
+      "nativeId": "item_ghost_outfit",
+      "nameKey": "ITEM_GHOST_OUTFIT",
+      "source": "res://items/all/02_new_dawn/ghost_outfit/ghost_outfit_data.tres",
+      "sourceMd5": "1fbe98aef1f36a420edb42a257519906",
+      "displayName": "Ghost Outfit"
+    },
+    "SmolderingWick": {
+      "nativeId": "item_scared_sausage",
+      "nameKey": "ITEM_SCARED_SAUSAGE",
+      "source": "res://items/all/00_base_game/scared_sausage/scared_sausage_data.tres",
+      "sourceMd5": "f20a9e3283ed3b08b8adf06af8987a9c",
+      "displayName": "Scared Sausage"
+    },
+    "StaticBracelet": {
+      "nativeId": "item_energy_bracelet",
+      "nameKey": "ITEM_ENERGY_BRACELET",
+      "source": "res://items/all/00_base_game/energy_bracelet/energy_bracelet_data.tres",
+      "sourceMd5": "f578d34b67775b297df7322d916c89b5",
+      "displayName": "Energy Bracelet"
+    },
+    "StillVeil": {
+      "nativeId": "item_chameleon",
+      "nameKey": "ITEM_CHAMELEON",
+      "source": "res://items/all/00_base_game/chameleon/chameleon_data.tres",
+      "sourceMd5": "0d4e4c7add6ed710c840a8cac651746a",
+      "displayName": "Chameleon"
+    },
+    "StoneIdol": {
+      "nativeId": "item_statue",
+      "nameKey": "ITEM_STATUE",
+      "source": "res://items/all/00_base_game/statue/statue_data.tres",
+      "sourceMd5": "6fb5dd17472e1ffbd217b84d297805fc",
+      "displayName": "Statue"
+    },
+    "StormFamiliar": {
+      "nativeId": "item_tyler",
+      "nameKey": "ITEM_TYLER",
+      "source": "res://items/all/00_base_game/tyler/tyler_data.tres",
+      "sourceMd5": "956b61665778fcc3dc04cc2299ce276b",
+      "displayName": "Tyler"
+    },
+    "SweetReliquary": {
+      "nativeId": "item_candy_bag",
+      "nameKey": "ITEM_CANDY_BAG",
+      "source": "res://items/all/02_new_dawn/candy_bag/candy_bag_data.tres",
+      "sourceMd5": "59aa6c99fe6981e8e5a5edb2fc2a5d22",
+      "displayName": "Candy Bag"
+    },
+    "TaintedElixir": {
+      "nativeId": "item_defective_steroids",
+      "nameKey": "ITEM_DEFECTIVE_STEROIDS",
+      "source": "res://items/all/00_base_game/defective_steroids/defective_steroids_data.tres",
+      "sourceMd5": "18e05a9fe8f1f01c9da8929f13ff9fe9",
+      "displayName": "Defective Steroids"
+    },
+    "TallowCandle": {
+      "nativeId": "item_charcoal",
+      "nameKey": "ITEM_CHARCOAL",
+      "source": "res://items/all/00_base_game/charcoal/charcoal_data.tres",
+      "sourceMd5": "61c19f8406b0552936fb9c9a3622aef3",
+      "displayName": "Charcoal"
+    },
+    "ThornCrown": {
+      "nativeId": "item_wheat",
+      "nameKey": "ITEM_WHEAT",
+      "source": "res://items/all/00_base_game/wheat/wheat_data.tres",
+      "sourceMd5": "10dfda07c8e42d33a57931b66c8e2718",
+      "displayName": "Wheat"
+    },
+    "ThunderShells": {
+      "nativeId": "item_explosive_shells",
+      "nameKey": "ITEM_EXPLOSIVE_SHELLS",
+      "source": "res://items/all/00_base_game/explosive_shells/explosive_shells_data.tres",
+      "sourceMd5": "2ba44534526d3d215ee141087e6c6d89",
+      "displayName": "Explosive Shells"
+    },
+    "TitanArms": {
+      "nativeId": "item_big_arms",
+      "nameKey": "ITEM_BIG_ARMS",
+      "source": "res://items/all/00_base_game/big_arms/big_arms_data.tres",
+      "sourceMd5": "1baf33cea6113c12cb2409d0b7752903",
+      "displayName": "Big Arms"
+    },
+    "TitanGirdle": {
+      "nativeId": "item_giant_belt",
+      "nameKey": "ITEM_GIANT_BELT",
+      "source": "res://items/all/00_base_game/giant_belt/giant_belt_data.tres",
+      "sourceMd5": "4700860b2254885741ecc8a1f806ba95",
+      "displayName": "Giant Belt"
+    },
+    "TitheBox": {
+      "nativeId": "item_piggy_bank",
+      "nameKey": "ITEM_PIGGY_BANK",
+      "source": "res://items/all/00_base_game/piggy_bank/piggy_bank_data.tres",
+      "sourceMd5": "183b5d22be410d21d457be54929ffc45",
+      "displayName": "Piggy Bank"
+    },
+    "TomeOfEchoes": {
+      "nativeId": "item_bean_teacher",
+      "nameKey": "ITEM_BEAN_TEACHER",
+      "source": "res://items/all/00_base_game/bean_teacher/bean_teacher_data.tres",
+      "sourceMd5": "b38cf36639ebab0bc0c0551f587dfdf1",
+      "displayName": "Bean Teacher"
+    },
+    "VelvetDivan": {
+      "nativeId": "item_estys_couch",
+      "nameKey": "ITEM_ESTYS_COUCH",
+      "source": "res://items/all/00_base_game/estys_couch/estys_couch_data.tres",
+      "sourceMd5": "2712fd1f104fa89666db2c981c7a16ad",
+      "displayName": "Esty\u2019s Couch"
+    },
+    "Vitality": {
+      "nativeId": "item_cake",
+      "nameKey": "ITEM_CAKE",
+      "source": "res://items/all/00_base_game/cake/cake_data.tres",
+      "sourceMd5": "dcc398dce567b19e87ac9f50f3b4ff42",
+      "displayName": "Cake"
+    },
+    "WardRune": {
+      "nativeId": "item_peaceful_bee",
+      "nameKey": "ITEM_PEACEFUL_BEE",
+      "source": "res://items/all/00_base_game/peaceful_bee/peaceful_bee_data.tres",
+      "sourceMd5": "2918ee5fd3c2b35de2732d778cf88044",
+      "displayName": "Peaceful Bee"
+    },
+    "WaxHeart": {
+      "nativeId": "item_broken_mouth",
+      "nameKey": "ITEM_BROKEN_MOUTH",
+      "source": "res://items/all/00_base_game/broken_mouth/broken_mouth_data.tres",
+      "sourceMd5": "3a3a98110b550498150c793c780f63ea",
+      "displayName": "Broken Mouth"
+    },
+    "Whetstone": {
+      "nativeId": "item_mastery",
+      "nameKey": "ITEM_MASTERY",
+      "source": "res://items/all/00_base_game/mastery/mastery_data.tres",
+      "sourceMd5": "02b99fd3e6c29d5d0fea0c2da70fcc4b",
+      "displayName": "Mastery"
+    },
+    "WispJar": {
+      "nativeId": "item_baby_elephant",
+      "nameKey": "ITEM_BABY_ELEPHANT",
+      "source": "res://items/all/00_base_game/baby_elephant/baby_elephant_data.tres",
+      "sourceMd5": "5301f70255980afb3b039320c2534b36",
+      "displayName": "Baby Elephant"
+    },
+    "WitchKettle": {
+      "nativeId": "item_lemonade",
+      "nameKey": "ITEM_LEMONADE",
+      "source": "res://items/all/00_base_game/lemonade/lemonade_data.tres",
+      "sourceMd5": "d0315c4b91128ade8ebe4507bf0a5c27",
+      "displayName": "Lemonade"
+    },
+    "WitchMortar": {
+      "nativeId": "item_gnome",
+      "nameKey": "ITEM_GNOME",
+      "source": "res://items/all/00_base_game/gnome/gnome_data.tres",
+      "sourceMd5": "942efc6e5f3165c4daa4173866e019ea",
+      "displayName": "Gnome"
+    }
+  },
+  "endlessBannedItems": [
+    "item_piggy_bank",
+    "item_crown"
+  ]
+}

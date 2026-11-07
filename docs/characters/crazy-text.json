@@ -1,0 +1,27 @@
+{
+  "version": "1.2.0.1",
+  "locale": "en",
+  "source": "res://resources/translations/translations.en.translation",
+  "resourceMd5": "701f69b83d82866afc0d55321cceea7c",
+  "keys": {
+    "CHARACTER_BRAWLER": "Brawler",
+    "CHARACTER_CRAZY": "Crazy",
+    "EFFECT_STARTING_ITEM": "You start with {0} {1}",
+    "EFFECT_WEAPON_CLASS_BONUS": "{0} {1} with {2} weapons",
+    "STAT_ATTACK_SPEED": "% Attack Speed",
+    "STAT_DODGE": "% Dodge",
+    "STAT_ENGINEERING": "Engineering",
+    "STAT_RANGE": "Range",
+    "STAT_RANGED_DAMAGE": "Ranged Damage",
+    "WEAPON_CLASS_PRECISE": "Precise",
+    "WEAPON_CLASS_UNARMED": "Unarmed",
+    "WEAPON_FIST": "Fist",
+    "WEAPON_KNIFE": "Knife"
+  },
+  "use": "Only native factual wording needed by Crazy and Brawler; the full language catalog remains ignored.",
+  "formattingSource": {
+    "resource": "res://singletons/text.gdc",
+    "sourceMd5": "70c974768c77067fc54fa4f6a45736c9",
+    "rule": "Native stat values prefix translated stat labels with one space; percent stat labels include the percent sign."
+  }
+}
