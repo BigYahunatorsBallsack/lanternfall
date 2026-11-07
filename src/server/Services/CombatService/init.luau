@@ -165,6 +165,7 @@ function CombatService.damagePlayer(player: Player, damage: number): (number, bo
 	end
 	local state = getVitals(player)
 	applyCharacterRules(player, state)
+	local wasFull = state.hp >= state.maxHp
 	local taken, dodged, blocked = state:hit(damage, now(), RandomService.number("Combat", player))
 	if dodged then
 		CombatService.Dodged:Fire(player)
@@ -172,6 +173,9 @@ function CombatService.damagePlayer(player: Player, damage: number): (number, bo
 		CombatService.Blocked:Fire(player)
 	end
 	if taken > 0 then
+		if wasFull then
+			regenProgress[player] = 0
+		end
 		send(player)
 		CombatService.PlayerDamaged:Fire(player, taken)
 		if state:isDown() then
@@ -187,6 +191,9 @@ function CombatService.healPlayer(player: Player, amount: number): number
 	applyCharacterRules(player, state)
 	local gained = state:heal(amount)
 	if gained > 0 then
+		if state.hp >= state.maxHp then
+			regenProgress[player] = 0
+		end
 		send(player)
 		CombatService.Healed:Fire(player, gained)
 	end
@@ -200,11 +207,15 @@ function CombatService.drainPlayer(player: Player, amount: number): number
 	end
 	local state = getVitals(player)
 	applyCharacterRules(player, state)
+	local wasFull = state.hp >= state.maxHp
 	local lost, blocked = state:drain(amount)
 	if blocked then
 		CombatService.Blocked:Fire(player)
 	end
 	if lost > 0 then
+		if wasFull then
+			regenProgress[player] = 0
+		end
 		send(player)
 		CombatService.PlayerDamaged:Fire(player, lost)
 		if state:isDown() then
@@ -383,16 +394,18 @@ function CombatService.init()
 			local state = vitals[player]
 			if state and perSecond > 0 and canBeHurt(player) then
 				applyCharacterRules(player, state)
+				if state.hp >= state.maxHp then
+					regenProgress[player] = 0
+					continue
+				end
 				local progress = (regenProgress[player] or 0) + perSecond * dt
 				local ticks = math.floor(progress / Config.Stats.hpScale + 1e-9)
 				regenProgress[player] = math.max(0, progress - ticks * Config.Stats.hpScale)
 				if not state.noHeal then
 					-- Full-health ticks are consumed too; only effective healing can trigger Lich.
-					for _ = 1, math.min(ticks, math.ceil((state.maxHp - state.hp) / Config.Stats.hpScale)) do
-						local gained = state:heal(Config.Stats.hpScale)
-						if gained > 0 then
-							CombatService.Healed:Fire(player, gained)
-						end
+					local gained = state:heal(ticks * Config.Stats.hpScale)
+					if gained > 0 then
+						CombatService.Healed:Fire(player, gained)
 					end
 				end
 				if math.ceil(state.hp) ~= sentHp[player] then
