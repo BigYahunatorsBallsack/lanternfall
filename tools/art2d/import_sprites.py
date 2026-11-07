@@ -50,10 +50,10 @@ def source_of(group, name):
     return None
 
 
-def problem_of(path, plain):
-    """Why a picture cannot be used, or None. Plain pictures (tiles, raw) keep their framing."""
+def problem_of(path, plain, trimmed=False):
+    """Validate art; approved, tightly cropped originals are padded by prepare before upload."""
     image = Image.open(path)
-    if image.width != image.height:
+    if image.width != image.height and not trimmed:
         return f"not square ({image.width}x{image.height})"
     if plain:
         return None
@@ -63,7 +63,7 @@ def problem_of(path, plain):
     if (alpha < ALPHA_SOLID).mean() < MIN_TRANSPARENT:
         return "background is not transparent"
     edge = np.concatenate([alpha[0], alpha[-1], alpha[:, 0], alpha[:, -1]])
-    if (edge >= ALPHA_SOLID).mean() > 0.02:
+    if (edge >= ALPHA_SOLID).mean() > 0.02 and not trimmed:
         return "figure touches the edge of the picture (cut off?)"
     return None
 
@@ -126,7 +126,7 @@ def check():
             final += 1
         else:
             placeholder += 1
-        problem = problem_of(path, plain)
+        problem = problem_of(path, plain, LIST[group]["items"][name].get("trimmed", False))
         if problem:
             bad.append(f"{path.relative_to(ROOT)}: {problem}")
     print(f"final {final}, placeholder {placeholder}, missing {len(missing)}, unusable {len(bad)}")

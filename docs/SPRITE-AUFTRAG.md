@@ -99,9 +99,9 @@ Kommt die Liste nicht passend hier an, gilt `tools/art2d/sprites.json`.
 
 | Datei | Was |
 | --- | --- |
-| `assets/world2d/final/pickups/Fruit.png` | Grüne Frucht, heilt beim Einsammeln. |
-| `assets/world2d/final/pickups/Crate.png` | Normale Holzkiste mit dunkler Kontur. |
-| `assets/world2d/final/pickups/LegendaryCrate.png` | Besondere Kiste, rot und gold. |
+| `assets/loot/brotato/Fruit.png` | Grüne Frucht, heilt beim Einsammeln. |
+| `assets/loot/brotato/Crate.png` | Normale Holzkiste mit dunkler Kontur. |
+| `assets/loot/brotato/LegendaryCrate.png` | Besondere Kiste, rot und gold. |
 
 ### Bauten und Begleiter
 
@@ -121,7 +121,7 @@ Kommt die Liste nicht passend hier an, gilt `tools/art2d/sprites.json`.
 
 | Datei | Was |
 | --- | --- |
-| `assets/world2d/final/world/Chest.png` | Truhe, die ein Elite-Gegner hinterlässt. Holz und Gold, geschlossen. |
+| `assets/loot/brotato/Crate.png` | Truhe, die ein Elite-Gegner hinterlässt. Holz und Gold, geschlossen. |
 
 ### Lobby
 
@@ -186,6 +186,7 @@ Kommt die Liste nicht passend hier an, gilt `tools/art2d/sprites.json`.
 | `assets/world2d/final/shared/lanternSpireFrame.png` | Laterne Turm: Rahmen. |
 | `assets/world2d/final/shared/lanternSpireGlow.png` | Laterne Turm: Leuchtkern. |
 | `assets/world2d/final/shared/foot.png` | Ein Fuß der Charaktere, dunkel und rund, von vorn. Das Spiel zeichnet ihn zweimal und bewegt ihn im Wechselschritt. |
+| `assets/loot/brotato/Material.png` | Original green main-game material; used by ground drops and currency counters. |
 
 ### Item-Icons (fehlt ein Bild, bleibt das heutige). Name und Wirkung: src/shared/Config/Items.luau
 

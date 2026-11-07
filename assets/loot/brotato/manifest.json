@@ -1,0 +1,42 @@
+[
+  {
+    "id": "Fruit",
+    "file": "Fruit.png",
+    "url": "https://brotato.wiki.spellsandguns.com/images/a/a0/Fruit.png",
+    "size": [
+      57,
+      71
+    ],
+    "sha256": "0e3f0504fc0dbe8bb2ed39d5f3fe32cea9884fb3ecf51e7eca6fece525f9dcda"
+  },
+  {
+    "id": "Crate",
+    "file": "Crate.png",
+    "url": "https://brotato.wiki.spellsandguns.com/images/4/4f/Crate.png",
+    "size": [
+      85,
+      79
+    ],
+    "sha256": "2d97e116c5df261379d15202f8c2ab92d61c5a8add3a51978d4b896bf257aaa9"
+  },
+  {
+    "id": "LegendaryCrate",
+    "file": "LegendaryCrate.png",
+    "url": "https://brotato.wiki.spellsandguns.com/images/d/d8/Legendary_Crate.png",
+    "size": [
+      85,
+      79
+    ],
+    "sha256": "fb3daf49068e34a0dc6574094a14e3dd6f768e6689794c084ce043dee1fa669d"
+  },
+  {
+    "id": "Material",
+    "file": "Material.png",
+    "url": "https://brotato.wiki.spellsandguns.com/images/f/f4/Materials.png",
+    "size": [
+      96,
+      96
+    ],
+    "sha256": "8ba762a3466016b7543a944d7d7ff18c36d958eed1d9f09673183aa56229d7ff"
+  }
+]

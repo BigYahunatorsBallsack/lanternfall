@@ -234,13 +234,19 @@
   "pixels": 512,
   "items": {
    "Fruit": {
-    "text": "Grüne Frucht, heilt beim Einsammeln."
+    "text": "Grüne Frucht, heilt beim Einsammeln.",
+    "source": "assets/loot/brotato/Fruit.png",
+    "trimmed": true
    },
    "Crate": {
-    "text": "Normale Holzkiste mit dunkler Kontur."
+    "text": "Normale Holzkiste mit dunkler Kontur.",
+    "source": "assets/loot/brotato/Crate.png",
+    "trimmed": true
    },
    "LegendaryCrate": {
-    "text": "Besondere Kiste, rot und gold."
+    "text": "Besondere Kiste, rot und gold.",
+    "source": "assets/loot/brotato/LegendaryCrate.png",
+    "trimmed": true
    }
   }
  },
@@ -282,7 +288,9 @@
   "pixels": 512,
   "items": {
    "Chest": {
-    "text": "Truhe, die ein Elite-Gegner hinterlässt. Holz und Gold, geschlossen."
+    "text": "Truhe, die ein Elite-Gegner hinterlässt. Holz und Gold, geschlossen.",
+    "source": "assets/loot/brotato/Crate.png",
+    "trimmed": true
    }
   }
  },
@@ -443,6 +451,10 @@
    },
    "foot": {
     "text": "Ein Fuß der Charaktere, dunkel und rund, von vorn. Das Spiel zeichnet ihn zweimal und bewegt ihn im Wechselschritt."
+   },
+   "material": {
+    "text": "Original green main-game material; used by ground drops and currency counters.",
+    "source": "assets/loot/brotato/Material.png"
    }
   }
  },
