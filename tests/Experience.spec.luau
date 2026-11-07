@@ -10,39 +10,39 @@ local OrbField = require(Services.ExperienceService.OrbField)
 local CURVE = Config.Run.xpCurve
 
 describe("Progression", function()
-	it("uses Brotato's curve (L + 3)^2 solo", function()
-		expect(Progression.xpForLevel(CURVE, 1, 1)).toBe(16)
-		expect(Progression.xpForLevel(CURVE, 2, 1)).toBe(25)
-		expect(Progression.xpForLevel(CURVE, 10, 1)).toBe(169)
+	it("starts at native level zero with curve (L + 4)^2", function()
+		expect(Progression.xpForLevel(CURVE, 0, 1)).toBe(16)
+		expect(Progression.xpForLevel(CURVE, 1, 1)).toBe(25)
+		expect(Progression.xpForLevel(CURVE, 9, 1)).toBe(169)
 		local total = 0
-		for level = 1, 18 do
+		for level = 0, 17 do
 			total += Progression.xpForLevel(CURVE, level, 1)
 		end
 		expect(total).toBe(3297) -- 4^2 + ... + 21^2: level 19 after about 3.300 XP
 	end)
 
 	it("keeps character threshold multipliers fractional", function()
-		expect(Progression.xpForLevel(CURVE, 1, 1.6)).toBe(25.6)
-		expect(Progression.xpForLevel(CURVE, 1, 2.8)).toBe(44.8)
+		expect(Progression.xpForLevel(CURVE, 0, 1.6)).toBe(25.6)
+		expect(Progression.xpForLevel(CURVE, 0, 2.8)).toBe(44.8)
 	end)
 
 	it("levels up once enough XP is in and keeps the rest", function()
 		local p = Progression.new(CURVE)
 		expect(p:add(15, 1)).toBe(0)
-		expect(p.level).toBe(1)
+		expect(p.level).toBe(0)
 		expect(p:add(2, 1)).toBe(1) -- 17 of 16
-		expect(p.level).toBe(2)
+		expect(p.level).toBe(1)
 		expect(p.xp).toBe(1)
 	end)
 
 	it("gains several levels from one big pickup", function()
 		local p = Progression.new(CURVE)
-		local needed = Progression.xpForLevel(CURVE, 1, 1) + Progression.xpForLevel(CURVE, 2, 1)
+		local needed = Progression.xpForLevel(CURVE, 0, 1) + Progression.xpForLevel(CURVE, 1, 1)
 		expect(p:add(needed + 3, 1)).toBe(2)
-		expect(p.level).toBe(3)
+		expect(p.level).toBe(2)
 		expect(p.xp).toBe(3)
 		p:reset()
-		expect(p.level).toBe(1)
+		expect(p.level).toBe(0)
 		expect(p.xp).toBe(0)
 	end)
 end)

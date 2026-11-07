@@ -47,6 +47,7 @@ describe("Stable original character catalog", function()
 		expect(#Catalog.BeastMaster.startItems).toBe(2)
 		expect(Catalog.BeastMaster.maxWeapons).toBe(0)
 		expect(Catalog.Baby.baseWeaponSlots).toBe(1)
+		expect(Catalog.Baby.slotUpgradeAmount).toBe(1)
 		expect(Catalog.Baby.maxWeaponSlots).toBe(24)
 	end)
 

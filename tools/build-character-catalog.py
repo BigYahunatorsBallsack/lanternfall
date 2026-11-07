@@ -140,7 +140,7 @@ export type CatalogCharacter = {
 \tmaxWeaponTier: number?,
 \tnoDuplicateWeapons: boolean?,
 \tbaseWeaponSlots: number?,
-\tslotsPerLevel: number?,
+\tslotUpgradeAmount: number?,
 \tmaxWeaponSlots: number?,
 \tnoHeal: boolean?,
 \toneHit: boolean?,
@@ -330,7 +330,7 @@ def compile_catalog(source, weapons, items):
             elif kind == "effect.gd" and key == "weapon_set_bonus":
                 row["setCountBonus"] = amount
             elif kind == "effect.gd" and key == "weapon_slot_upgrades":
-                row["baseWeaponSlots"], row["slotsPerLevel"], row["maxWeaponSlots"] = 1, 1, amount
+                row["baseWeaponSlots"], row["slotUpgradeAmount"], row["maxWeaponSlots"] = 1, 1, amount
             else:
                 handled = False
             if not handled:

@@ -174,7 +174,7 @@ end
 local function xpText(): string
 	local team = ProgressController.getTeam()
 	local waiting = LevelUpController.getWaiting()
-	local level = `LV {if team then team.level else 1}`
+	local level = `LV.{if team then team.level else 0}`
 	return if waiting > 0 then `{level} · +{waiting} at wave end` else level
 end
 

@@ -4,6 +4,10 @@ return table.freeze({
 	periodSeconds = 1,
 	lowHealthShare = 0.5,
 	minimumStatStrike = 1,
+	weaponSlotUpgrade = table.freeze({
+		amount = 1,
+		source = "res://items/upgrades/weapon_slot/weapon_slot_effect.tres",
+	}),
 	movementIntent = table.freeze({
 		minSendSeconds = 0.05,
 		heartbeatSeconds = 0.5,

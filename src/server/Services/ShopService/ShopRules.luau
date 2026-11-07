@@ -15,13 +15,15 @@ local Types = require(Shared.Net.Types)
 local StatMath = require(Shared.Util.StatMath)
 local CharacterRules = require(Shared.Util.CharacterRules)
 local Classes = require(Shared.Config.Classes)
+local NativeItems = require(Shared.Config.CharacterItemRules)
+local Run = require(Shared.Config.Run)
 
 -- One weapon the player carries.
 export type OwnedWeapon = { id: string, tier: number, evolution: string? }
 
 export type Params = {
 	classId: string?, -- B10 frozen participant character
-	level: number?,
+	weaponSlots: number?,
 	wave: number, -- the wave that just ended
 	luck: number, -- the player's Luck stat
 	weapons: { string }, -- weapon ids that can be sold (WeaponService.getImplemented), sorted
@@ -108,6 +110,33 @@ local function canTakeItem(itemId: string, ownedItems: { [string]: number }): bo
 	return item ~= nil and (item.limit == nil or (ownedItems[itemId] or 0) < item.limit)
 end
 
+-- Normal native pools exclude explicit item identities/groups, never every item with a matching stat.
+function ShopRules.itemAllowed(classId: string?, itemId: string, wave: number): boolean
+	local class = classId and Classes[classId]
+	local native = class and class.native
+	if not native then
+		return true
+	end
+	local original = NativeItems.nativeIds[itemId]
+	if not original then
+		return false
+	end
+	if wave >= #Run.spawn.waves.lengthsSeconds then
+		return table.find(NativeItems.endlessBannedItems, original) == nil
+	end
+	if table.find(native.bannedItems, original) then
+		return false
+	end
+	for _, group in native.bannedItemGroups do
+		local ids = NativeItems.groups[group]
+		assert(ids, `Unknown native item group {group}`)
+		if table.find(ids, original) then
+			return false
+		end
+	end
+	return true
+end
+
 -- A random item of `tier` that is not taken and not at its limit; tries the tiers below, then above, if a tier has
 -- nothing left. nil if no item is left at all.
 function ShopRules.pickItem(
@@ -115,9 +144,15 @@ function ShopRules.pickItem(
 	ownedItems: { [string]: number },
 	taken: { [string]: boolean },
 	random: () -> number,
-	wantedTags: { string }?
+	wantedTags: { string }?,
+	classId: string?,
+	wave: number?,
+	backupTaken: { [string]: boolean }?
 ): string?
 	local function matches(itemId: string): boolean
+		if not ShopRules.itemAllowed(classId, itemId, wave or 1) then
+			return false
+		end
 		if not wantedTags then
 			return true
 		end
@@ -147,6 +182,19 @@ function ShopRules.pickItem(
 		if #ids > 0 then
 			return ids[math.min(#ids, math.floor(random() * #ids) + 1)]
 		end
+		-- The native same-tier backup removes limits/unavailable items, but not character bans or offer history.
+		-- Keep this source exception: normal character exclusions do not become a new hard ban in an empty pool.
+		if candidateTier == tier and not wantedTags and classId and Classes[classId] and Classes[classId].native then
+			local blocked = backupTaken or taken
+			for _, itemId in itemsByTier[candidateTier] or {} do
+				if NativeItems.nativeIds[itemId] and not blocked[itemId] and canTakeItem(itemId, ownedItems) then
+					table.insert(ids, itemId)
+				end
+			end
+			if #ids > 0 then
+				return ids[math.min(#ids, math.floor(random() * #ids) + 1)]
+			end
+		end
 	end
 	return nil
 end
@@ -158,10 +206,19 @@ function ShopRules.chestItem(
 	luck: number,
 	ownedItems: { [string]: number },
 	random: () -> number,
-	unavailable: { [string]: boolean }?
+	unavailable: { [string]: boolean }?,
+	classId: string?
 ): string?
 	local tier = math.max(Items.chestMinTier, StatMath.rollTier(wave, luck, random()))
-	return ShopRules.pickItem(tier, ownedItems, if unavailable then table.clone(unavailable) else {}, random)
+	return ShopRules.pickItem(
+		tier,
+		ownedItems,
+		if unavailable then table.clone(unavailable) else {},
+		random,
+		nil,
+		classId,
+		wave
+	)
 end
 
 -- Whether buying a weapon of `tier` merges into an owned copy (every slot full, a copy of the same tier below the max
@@ -173,14 +230,14 @@ function ShopRules.weaponStatus(
 	maxWeapons: number,
 	maxTier: number,
 	classId: string?,
-	level: number?
+	weaponSlots: number?
 ): (boolean, boolean)
 	if not CharacterRules.weaponAllowed(classId, weaponId, tier) then
 		return false, true
 	end
 	if
 		#ownedWeapons < maxWeapons
-		and (not classId or CharacterRules.hasSlot(classId, weaponId, ownedWeapons, level, tier))
+		and (not classId or CharacterRules.hasSlot(classId, weaponId, ownedWeapons, weaponSlots, tier))
 	then
 		return false, false
 	end
@@ -307,7 +364,7 @@ local function weaponOffer(weaponId: string, params: Params, tier: number): Type
 		params.maxWeapons,
 		params.maxTier,
 		params.classId,
-		params.level
+		params.weaponSlots
 	)
 	local copies = copiesOf(weaponId, params.ownedWeapons)
 	return {
@@ -390,12 +447,45 @@ function ShopRules.roll(params: Params): { Types.ShopOffer }
 			local tags = class and class.wantedTags
 			local itemId: string? = nil
 			if tags and #tags > 0 and params.random() < Shop.wantedTagChance then
-				itemId = ShopRules.pickItem(tier, params.ownedItems, avoid, params.random, tags)
-					or ShopRules.pickItem(tier, params.ownedItems, taken, params.random, tags)
+				itemId = ShopRules.pickItem(
+					tier,
+					params.ownedItems,
+					avoid,
+					params.random,
+					tags,
+					params.classId,
+					params.wave
+				) or ShopRules.pickItem(
+					tier,
+					params.ownedItems,
+					taken,
+					params.random,
+					tags,
+					params.classId,
+					params.wave
+				)
 			end
 			itemId = itemId
-				or ShopRules.pickItem(tier, params.ownedItems, avoid, params.random)
-				or ShopRules.pickItem(tier, params.ownedItems, taken, params.random)
+				or ShopRules.pickItem(
+					tier,
+					params.ownedItems,
+					avoid,
+					params.random,
+					nil,
+					params.classId,
+					params.wave,
+					params.unavailable or {}
+				)
+				or ShopRules.pickItem(
+					tier,
+					params.ownedItems,
+					taken,
+					params.random,
+					nil,
+					params.classId,
+					params.wave,
+					params.unavailable or {}
+				)
 			if itemId then
 				offer = itemOffer(itemId, params)
 			else

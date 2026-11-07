@@ -399,6 +399,7 @@ export type ProfileInfo = {
 	progress: { [string]: number }?, -- achievement id -> current value (Util/ProgressRules.progress)
 	characterDanger: { [string]: number }?, -- class id -> highest danger level open for it
 	ownedClasses: { string }?, -- characters bought with Embers (unlocked without the achievement)
+	nativeWeaponUnlocks: { [string]: boolean }?, -- native family access for starting weapon choices
 	settings: Settings?, -- Paket 14
 	cosmetics: { owned: { string }, equipped: { [string]: string } }?, -- Paket 17: bought and picked cosmetics
 }

@@ -2,6 +2,8 @@
 -- B10 character packages read by CharacterRules, services and lobby. References: docs/B10-CHARAKTERE.md.
 -- HP uses the original Brotato scale. Legacy ids remain valid; unlock progression belongs to package 13.
 local Catalog = require(script.Parent.CharacterCatalog)
+type CharacterArtwork = { image: string?, height: number?, ground: number?, center: number? }
+local SpriteImages: { characters: { [string]: CharacterArtwork } } = require(script.Parent.SpriteImages)
 export type Class = {
 	id: string,
 	displayName: string,
@@ -33,7 +35,7 @@ export type Class = {
 	maxWeaponTier: number?,
 	noDuplicateWeapons: boolean?,
 	baseWeaponSlots: number?,
-	slotsPerLevel: number?,
+	slotUpgradeAmount: number?,
 	maxWeaponSlots: number?,
 	weaponClassStats: { [string]: { [string]: number } }?,
 	weaponKindStats: { [string]: { [string]: number } }?,
@@ -41,6 +43,8 @@ export type Class = {
 	setCountBonus: number?,
 	allWeaponsForSets: boolean?,
 	native: Catalog.CatalogCharacter?,
+	nativeStartSelection: boolean?,
+	nativeCodeReady: boolean?,
 }
 local Classes: { [string]: Class } = {
 	SparkMage = {
@@ -226,7 +230,7 @@ for id, source in Catalog do
 		minWeaponTier = source.minWeaponTier,
 		maxWeaponTier = source.maxWeaponTier,
 		baseWeaponSlots = source.baseWeaponSlots,
-		slotsPerLevel = source.slotsPerLevel,
+		slotUpgradeAmount = source.slotUpgradeAmount,
 		maxWeaponSlots = source.maxWeaponSlots,
 		noDuplicateWeapons = source.noDuplicateWeapons,
 		noHeal = source.noHeal,
@@ -240,6 +244,33 @@ for id, source in Catalog do
 		available = false,
 		description = source.displayName,
 		native = source,
+		nativeStartSelection = true,
 	}
+end
+-- Native free character with complete existing equipment and no outstanding behavior dependencies.
+-- Text follows the stable English translation keys recorded in docs/characters/README.md.
+Classes.Crazy.nativeCodeReady = true
+Classes.Crazy.description =
+	"+100 Range with Precise weapons\n+25 % Attack Speed\nYou start with 1 Knife\n-30 % Dodge\n-10 Engineering\n-10 Ranged Damage"
+Classes.Brawler.nativeCodeReady = true
+Classes.Brawler.description =
+	"+50 % Attack Speed with Unarmed weapons\nYou start with 1 Fist\n+15 % Dodge\n-50 Range\n-50 Ranged Damage"
+-- Original art is delivered independently; ready code never bypasses the approved-sprite requirement.
+for id, class in Classes do
+	if not class.nativeCodeReady then
+		continue
+	end
+	local art = SpriteImages.characters[id]
+	local imageId = if art and art.image then tonumber(art.image:match("^rbxassetid://(%d+)$")) else nil
+	class.available = art ~= nil
+		and type(art.image) == "string"
+		and imageId ~= nil
+		and imageId > 0
+		and type(art.height) == "number"
+		and art.height > 0
+		and type(art.ground) == "number"
+		and art.ground >= 0
+		and type(art.center) == "number"
+		and art.center > 0
 end
 return table.freeze(Classes)

@@ -31,14 +31,14 @@ export type Tally = typeof(setmetatable(
 	{} :: {
 		kills: number,
 		killsByType: { [string]: number },
-		levelTimes: { number }, -- levelTimes[n] = run seconds when the team reached level n (level 1 at 0)
+		levelTimes: { number }, -- time the highest participant first reached native level n; runs start at LV.0
 		players: { PlayerTally },
 	},
 	Tally
 ))
 
 function Tally.new(): Tally
-	return setmetatable({ kills = 0, killsByType = {}, levelTimes = { 0 }, players = {} }, Tally)
+	return setmetatable({ kills = 0, killsByType = {}, levelTimes = {}, players = {} }, Tally)
 end
 
 function Tally.addPlayer(self: Tally, userId: number, name: string, classId: string)
@@ -83,7 +83,7 @@ end
 
 -- Team level after `seconds` of the run.
 function Tally.levelAt(self: Tally, seconds: number): number
-	local level = 1
+	local level = 0
 	for n, at in self.levelTimes do
 		if at <= seconds then
 			level = n

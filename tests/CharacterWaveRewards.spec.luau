@@ -54,7 +54,7 @@ describe("Native survivor rewards", function()
 		expect(Shop.getShards(me)).toBe(7)
 		expect(Shop.getShards(peer)).toBe(24)
 		expect(XP.getProgress(me).xp).toBe(7)
-		expect(XP.getLevel(peer)).toBe(2)
+		expect(XP.getLevel(peer)).toBe(1)
 		expect(XP.getProgress(peer).xp).toBe(8)
 	end)
 

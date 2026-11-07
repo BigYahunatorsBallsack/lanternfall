@@ -11,6 +11,8 @@ local RunSchedule = require(Shared.Util.RunSchedule) -- WP10 part 2
 local EmberShopRules = require(Shared.Util.EmberShopRules) -- Paket 17
 local ProgressRules = require(Shared.Util.ProgressRules) -- Paket 17
 local DebugCommands = require(Shared.Net.DebugCommands) -- Paket 23
+local NativeWeaponAccess = require(Shared.Config.CharacterWeaponAccess)
+local NativeItemRules = require(Shared.Config.CharacterItemRules)
 
 local ConfigCheck = {}
 
@@ -732,12 +734,22 @@ function ConfigCheck.run(): { string }
 				problem(`Character {id}: default missing from choices`)
 			end
 			for _, weaponId in class.startWeapons do
+				if class.nativeStartSelection and not NativeWeaponAccess[weaponId] then
+					problem(`Character {id}: missing native starting access for {weaponId}`)
+				end
 				local weapon = Config.Weapons[weaponId]
 				local tier = (class.startWeaponTiers and class.startWeaponTiers[weaponId]) or 1
 				if not weapon or not hasBehavior(weapon.behavior) or (weapon.minTier or 1) > tier then
 					problem(`Character {id}: invalid starting weapon {weaponId}`)
 				elseif class.weaponKind and weapon.kind ~= class.weaponKind then
 					problem(`Character {id}: forbidden starting weapon`)
+				end
+			end
+			if class.native then
+				for _, group in class.native.bannedItemGroups do
+					if not NativeItemRules.groups[group] then
+						problem(`Character {id}: unknown native item group {group}`)
+					end
 				end
 			end
 			for _, itemId in class.startItems or {} do
@@ -789,6 +801,7 @@ function ConfigCheck.run(): { string }
 			for classId, class in Config.Classes do
 				if
 					class.available
+					and not class.nativeStartSelection -- native alternatives may be locked; selection checks the saved unlock
 					and (table.find(class.startWeapons, weaponId) or table.find(class.extraWeapons or {}, weaponId))
 				then
 					problem(`{owner} locks {weaponId}, a starting weapon of {classId}`)

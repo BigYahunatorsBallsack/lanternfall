@@ -12,9 +12,14 @@ local Run = require(Shared.Config.Run)
 local Stats = require(Shared.Config.Stats)
 local Types = require(Shared.Net.Types)
 local StatMath = require(Shared.Util.StatMath)
+local CharacterRules = require(script.Parent.Parent.ExperienceService.CharacterRules)
+local NativeUpgrade = require(Shared.Config.CharacterMechanics).weaponSlotUpgrade
 
 export type Params = {
-	level: number, -- the team level this choice belongs to
+	level: number, -- the individual level this choice belongs to
+	classId: string?,
+	weaponSlots: number?, -- actual available slots, including already chosen upgrades
+	wave: number?,
 	luck: number, -- the player's Luck stat
 	cardCount: number,
 	avoid: { [string]: boolean }?, -- stat ids to leave out while enough others are left (reroll)
@@ -46,16 +51,27 @@ function UpgradePool.guaranteedTier(level: number): number?
 end
 
 -- One card for `statId` at `tier`.
-function UpgradePool.card(statId: string, tier: number): Types.UpgradeCard
+function UpgradePool.card(statId: string, tier: number, classId: string?): Types.UpgradeCard
 	local values = Stats.byId[statId].upgrade :: { number }
 	local clamped = math.clamp(tier, 1, #values)
-	return { id = UpgradePool.cardId(statId, clamped), stat = statId, tier = clamped, amount = values[clamped] }
+	local amount = math.modf(values[clamped] * CharacterRules.forClass(classId).cardAmountMultiplier)
+	return { id = UpgradePool.cardId(statId, clamped), stat = statId, tier = clamped, amount = amount }
 end
 
 function UpgradePool.roll(params: Params): { Types.UpgradeCard }
+	local rules = CharacterRules.forClass(params.classId)
+	if not rules.cardsAllowed then
+		return {}
+	end
+	if rules.slotUpgradeLimit > 0 and (params.weaponSlots or 0) < rules.slotUpgradeLimit then
+		return { { id = "WeaponSlot", stat = "weaponSlots", tier = 1, amount = NativeUpgrade.amount } }
+	end
 	local fresh: { string } = {}
 	local avoided: { string } = {}
 	for _, statId in upgradeStats do
+		if (params.wave or 1) < #Run.spawn.waves.lengthsSeconds and rules.bannedStats[statId] then
+			continue
+		end
 		table.insert(if params.avoid and params.avoid[statId] then avoided else fresh, statId)
 	end
 	local fixedTier = UpgradePool.guaranteedTier(params.level)
@@ -65,7 +81,7 @@ function UpgradePool.roll(params: Params): { Types.UpgradeCard }
 			local index = math.min(#pool, math.floor(params.random() * #pool) + 1)
 			local statId = table.remove(pool, index) :: string
 			local tier = fixedTier or StatMath.rollTier(params.level, params.luck, params.random())
-			table.insert(cards, UpgradePool.card(statId, tier))
+			table.insert(cards, UpgradePool.card(statId, tier, params.classId))
 		end
 	end
 	return cards

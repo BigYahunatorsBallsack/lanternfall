@@ -16,3 +16,34 @@ Checks:
 - Source tiers and modifier lists must be used exactly: Ghost's +10 is flat weapon damage, Crazy's weapon range is not halved as an ordinary melee Range modifier, and One Armed's damage-gain multiplier applies to every stat listed by its source effect.
 
 The 1.2.0.1 native resources differ from older Wiki entries and sometimes from prose release notes; the serialized stable build is the deciding reference. The source compiler currently reports required weapon/item families missing from the older project catalog. They remain implementation work, alongside the explicit policy rules. Sprite creation remains assigned to the other agent.
+
+Crazy and Brawler are the first two code-ready native packages. Their original starting alternatives, guaranteed
+extra weapons and remaining policies are connected. `nativeCodeReady` is separate from `available`: original sprites
+with measured bounds remain a dependency assigned to the other agent. When those records arrive in `SpriteImages`,
+the packages become available on the next server start. No placeholder image or weaker artwork check is introduced.
+The sprite integration must also update the old fixed nine-character roster assertions in its artwork tests.
+
+`crazy-text.json` records only the English wording needed by both packages, with the installed language-resource
+hash and native text-formatting rule. The full recovered language catalog stays ignored. A shared
+`CharacterRules.weaponBonuses` helper applies class/kind modifiers identically in combat and the shop preview.
+Server-sent stat metadata includes native level and weapon-local modifiers for that read-only preview, including
+full synchronization; these modifiers do not enter item/structure stats.
+
+Native level starts at LV.0. Required XP uses `(L + 4)^2` and retains fractional character multipliers. The actual
+source `weapon_slot_upgrade` adds one slot only when chosen; Baby does not gain capacity immediately upon receiving
+XP. Its single slot card is replaced by ordinary stat cards at 24 slots. Captain modifies card amounts before stat
+gain multipliers, and character-banned stat cards are excluded before wave 20. New stat/card artwork is still an
+integration dependency of the packages which remain unavailable.
+
+`item-groups.json` records the 13 native item ban groups and the exact original identity of every current item.
+`weapon-access.json` records default access and original unlock requirements for all 91 current/required weapon
+families. The corresponding generators accept `--check`. Native weapon access overrides the older invented weapon
+locks: Hand is free, Claw requires a Cryptid win, and Vorpal Sword requires 100 Crit Chance. Stat challenge flags use
+the existing string-keyed achievement map; existing data is retained without a profile schema change. The two event
+challenges for Shovel and Flail remain tied to their outstanding DLC mechanic implementations.
+
+Native starting selection respects weapon access on both client and server. Locked alternatives remain visible but
+cannot be chosen. The shop/crate normal pools apply the source's explicit groups and item exclusions before wave 20;
+character exclusions lift at wave 20 while Crown/Piggy Bank are removed. The same-tier backup keeps the original
+exception which can reintroduce an excluded item if its normal pool is empty. General shop distribution, all item
+unlock rules and the other character economy policies still require their separate parity work.

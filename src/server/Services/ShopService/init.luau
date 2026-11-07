@@ -145,7 +145,8 @@ local function refresh(player: Player, state: State)
 					weapons,
 					WeaponService.getMaxWeapons(player),
 					Config.Player.maxWeaponTier,
-					RunDirector.getParticipantClassId(player)
+					RunDirector.getParticipantClassId(player),
+					StatService.getStat(player, "weaponSlots")
 				)
 			else
 				local owned = items[offer.itemId] or 0
@@ -187,7 +188,7 @@ local function roll(player: Player, state: State, keep: { Types.ShopOffer }, pre
 	local class = classId and Config.Classes[classId]
 	state.offers = ShopRules.roll({
 		classId = classId,
-		level = StatService.getLevel(player),
+		weaponSlots = StatService.getStat(player, "weaponSlots"),
 		wave = state.wave,
 		luck = StatService.getStat(player, "luck"),
 		priceFactor = priceFactor(player),
@@ -279,7 +280,8 @@ local function grant(player: Player, offer: Types.ShopOffer): boolean
 		weapons,
 		WeaponService.getMaxWeapons(player),
 		Config.Player.maxWeaponTier,
-		RunDirector.getParticipantClassId(player)
+		RunDirector.getParticipantClassId(player),
+		StatService.getStat(player, "weaponSlots")
 	)
 	if blocked then
 		return false

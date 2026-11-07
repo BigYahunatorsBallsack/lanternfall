@@ -15,11 +15,11 @@ function Progression.xpForLevel(curve: Curve, level: number, requiredMultiplier:
 end
 
 function Progression.new(curve: Curve): Progression
-	return setmetatable({ curve = curve, level = 1, xp = 0 }, Progression)
+	return setmetatable({ curve = curve, level = 0, xp = 0 }, Progression)
 end
 
 function Progression.reset(self: Progression)
-	self.level = 1
+	self.level = 0
 	self.xp = 0
 end
 

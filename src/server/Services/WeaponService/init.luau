@@ -29,6 +29,7 @@ local EnemySim = require(script.Parent.EnemySim)
 local MapService = require(script.Parent.MapService)
 local RandomService = require(script.Parent.RandomService)
 local RunDirector = require(script.Parent.RunDirector)
+local PlayerDataService = require(script.Parent.PlayerDataService)
 local Arsenal = require(script.Arsenal)
 local Afflictions = require(script.Afflictions)
 local StatMath = require(Shared.Util.StatMath)
@@ -311,6 +312,14 @@ local function onRunStarted(participants: { Player })
 		if class and class.maxWeapons ~= 0 then
 			local choices = selections[player]
 			local chosen = (choices and choices[classId]) or class.startWeapon
+			if class.nativeStartSelection and not PlayerDataService.isUnlocked(player, "weapons", chosen) then
+				for _, alternative in class.startWeapons do
+					if PlayerDataService.isUnlocked(player, "weapons", alternative) then
+						chosen = alternative
+						break
+					end
+				end
+			end
 			local tier = (class.startWeaponTiers and class.startWeaponTiers[chosen]) or Config.Weapons[chosen].minTier
 			local ok, reason = arsenal:addWeapon(player.UserId, chosen, now(), tier)
 			for _, extra in class.extraWeapons or {} do
@@ -414,6 +423,9 @@ function WeaponService.selectStartWeapon(player: Player, classId: string, weapon
 		return false
 	end
 	if not table.find(class.startWeapons, weaponId) then
+		return false
+	end
+	if class.nativeStartSelection and not PlayerDataService.isUnlocked(player, "weapons", weaponId) then
 		return false
 	end
 	local choices = selections[player] or {}
@@ -546,11 +558,11 @@ function WeaponService.addWeapon(player: Player, weaponId: string, tier: number?
 	local config = Config.Weapons[weaponId]
 	local requestedTier = tier or (config and config.minTier) or 1
 	local classId = RunDirector.getParticipantClassId(player)
-	local level = (ownerStats[player] and ownerStats[player].level) or 1
+	local slots = (ownerStats[player] and ownerStats[player].weaponSlots) or 0
 	if not CharacterRules.weaponAllowed(classId, weaponId, requestedTier) then
 		return false, "CharacterRestriction", nil
 	end
-	if not CharacterRules.hasSlot(classId, weaponId, WeaponService.getWeapons(player), level, requestedTier) then
+	if not CharacterRules.hasSlot(classId, weaponId, WeaponService.getWeapons(player), slots, requestedTier) then
 		return false, "SlotsFull", nil
 	end
 	if config and requestedTier < (config.minTier or 1) then
@@ -721,7 +733,7 @@ end
 function WeaponService.getMaxWeapons(player: Player): number
 	return CharacterRules.maxWeapons(
 		RunDirector.getParticipantClassId(player),
-		(ownerStats[player] and ownerStats[player].level) or 1
+		(ownerStats[player] and ownerStats[player].weaponSlots) or 0
 	)
 end
 

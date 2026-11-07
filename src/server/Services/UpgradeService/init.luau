@@ -108,7 +108,10 @@ local function rollCrate(player: Player, minTier: number): Crate?
 		tier,
 		StatService.getItemCounts(player),
 		PlayerDataService.lockedSet(player, "items"),
-		random
+		random,
+		nil,
+		RunDirector.getParticipantClassId(player),
+		wave
 	)
 	local item = itemId and Config.Items.byId[itemId]
 	if not (itemId and item) then
@@ -125,6 +128,9 @@ end
 
 local function roll(player: Player, state: State, avoid: { [string]: boolean }?): { Types.UpgradeCard }
 	return UpgradePool.roll({
+		classId = RunDirector.getParticipantClassId(player),
+		weaponSlots = WeaponService.getMaxWeapons(player),
+		wave = RunDirector.getWave(),
 		level = state.levels[1] or 1,
 		luck = StatService.getStat(player, "luck"),
 		cardCount = LevelUp.cardCount,
@@ -382,7 +388,8 @@ function UpgradeService.grantChest(player: Player): Types.ChestReward?
 		function(): number
 			return RandomService.number("Loot", player)
 		end,
-		PlayerDataService.lockedSet(player, "items") -- Paket 13
+		PlayerDataService.lockedSet(player, "items"), -- Paket 13
+		RunDirector.getParticipantClassId(player)
 	)
 	if itemId and StatService.addItem(player, itemId) then
 		return { kind = "Item", itemId = itemId, level = StatService.getItemCounts(player)[itemId] or 1 }

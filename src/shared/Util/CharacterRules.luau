@@ -4,11 +4,10 @@ local Config = require(script.Parent.Parent.Config)
 local StatMath = require(script.Parent.StatMath)
 local CharacterRules = {}
 
-function CharacterRules.maxWeapons(classId: string?, level: number?): number
+function CharacterRules.maxWeapons(classId: string?, grantedSlots: number?): number
 	local class = classId and Config.Classes[classId]
 	if class and class.baseWeaponSlots then
-		local gainedLevels = math.max(0, math.floor(level or 1) - 1)
-		local slots = class.baseWeaponSlots + gainedLevels * (class.slotsPerLevel or 0)
+		local slots = class.baseWeaponSlots + math.max(0, math.floor(grantedSlots or 0))
 		return math.min(slots, class.maxWeaponSlots or math.huge)
 	end
 	return if class then class.maxWeapons or Config.Player.maxWeapons else Config.Player.maxWeapons
@@ -36,12 +35,12 @@ function CharacterRules.hasSlot(
 	classId: string?,
 	weaponId: string,
 	weapons: { { id: string, tier: number? } },
-	level: number?,
+	grantedSlots: number?,
 	tier: number?
 ): boolean
 	if
 		not CharacterRules.weaponAllowed(classId, weaponId, tier)
-		or #weapons >= CharacterRules.maxWeapons(classId, level)
+		or #weapons >= CharacterRules.maxWeapons(classId, grantedSlots)
 	then
 		return false
 	end
@@ -109,6 +108,47 @@ function CharacterRules.weaponSheet(classId: string?, sheet: StatMath.Sheet): St
 			for statId, amount in stats do
 				result[`kind.{kind}.{statId}`] = amount
 			end
+		end
+	end
+	return result
+end
+
+-- Character class/kind modifiers are weapon-local; they never enter the owner's shared item/structure sheet.
+local LOCAL_STATS = {
+	"damage",
+	"meleeDamage",
+	"rangedDamage",
+	"elementalDamage",
+	"engineering",
+	"attackSpeed",
+	"range",
+	"lifeSteal",
+	"critChance",
+	"critDamage",
+	"baseDamage",
+	"weaponRange",
+	"knockback",
+	"explosionDamage",
+	"explosionSize",
+	"piercing",
+	"piercingDamage",
+	"bounce",
+	"burnSpeed",
+	"burnSpread",
+}
+
+function CharacterRules.weaponBonuses(
+	weapon: { kind: string, classes: { string } },
+	bonuses: StatMath.Sheet
+): StatMath.Sheet
+	local result = table.clone(bonuses)
+	for _, statId in LOCAL_STATS do
+		local amount = bonuses[`kind.{weapon.kind}.{statId}`] or 0
+		for _, classId in weapon.classes do
+			amount += bonuses[`class.{classId}.{statId}`] or 0
+		end
+		if amount ~= 0 then
+			result[statId] = (result[statId] or 0) + amount
 		end
 	end
 	return result

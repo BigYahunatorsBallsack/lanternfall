@@ -63,11 +63,11 @@ end
 local function progressPayload(player: Player): Types.TeamProgress
 	local personal = progress[player]
 	return {
-		level = if personal then personal.level else 1,
+		level = if personal then personal.level else 0,
 		xp = if personal then personal.xp else 0,
 		needed = if personal
 			then personal:needed(requiredMultiplier(player))
-			else Progression.xpForLevel(Config.Run.xpCurve, 1, 1),
+			else Progression.xpForLevel(Config.Run.xpCurve, 0, 1),
 	}
 end
 
@@ -355,9 +355,9 @@ end
 
 function ExperienceService.getLevel(player: Player?): number
 	if player then
-		return if progress[player] then progress[player].level else 1
+		return if progress[player] then progress[player].level else 0
 	end
-	local highest = 1
+	local highest = 0
 	for _, personal in progress do
 		highest = math.max(highest, personal.level)
 	end
@@ -381,7 +381,7 @@ function ExperienceService.getProgress(player: Player?): Types.TeamProgress
 	end
 	return if leader
 		then progressPayload(leader)
-		else { level = 1, xp = 0, needed = Progression.xpForLevel(Config.Run.xpCurve, 1, 1) }
+		else { level = 0, xp = 0, needed = Progression.xpForLevel(Config.Run.xpCurve, 0, 1) }
 end
 
 function ExperienceService.getOrbCount(): number

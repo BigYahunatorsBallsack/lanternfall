@@ -20,6 +20,7 @@ local Player = require(Shared.Config.Player)
 local Stats = require(Shared.Config.Stats)
 local Weapons = require(Shared.Config.Weapons)
 local StatMath = require(Shared.Util.StatMath)
+local CharacterRules = require(Shared.Util.CharacterRules)
 
 -- The owner's stats by id (Util/StatMath.Sheet); missing stats count as 0.
 export type Bonuses = { [string]: number }
@@ -32,44 +33,6 @@ local WeaponStats = {}
 local TIME_STATS = { "cooldown", "tickInterval", "hitCooldownPerEnemy", "reloadSeconds" }
 -- Turning speeds: faster with Attack Speed.
 local RATE_STATS = { "rotationSpeed" }
-
--- Character class/kind modifiers are weapon-local; they never enter the owner's shared item/structure sheet.
-local LOCAL_STATS = {
-	"damage",
-	"meleeDamage",
-	"rangedDamage",
-	"elementalDamage",
-	"engineering",
-	"attackSpeed",
-	"range",
-	"lifeSteal",
-	"critChance",
-	"critDamage",
-	"baseDamage",
-	"weaponRange",
-	"knockback",
-	"explosionDamage",
-	"explosionSize",
-	"piercing",
-	"piercingDamage",
-	"bounce",
-	"burnSpeed",
-	"burnSpread",
-}
-
-local function weaponBonuses(weapon: Weapons.Weapon, bonuses: Bonuses): Bonuses
-	local result = table.clone(bonuses)
-	for _, statId in LOCAL_STATS do
-		local amount = bonuses[`kind.{weapon.kind}.{statId}`] or 0
-		for _, classId in weapon.classes do
-			amount += bonuses[`class.{classId}.{statId}`] or 0
-		end
-		if amount ~= 0 then
-			result[statId] = (result[statId] or 0) + amount
-		end
-	end
-	return result
-end
 
 -- Factor of every damage the owner deals: 1 + Damage / 100, never below 0.
 function WeaponStats.damageFactor(bonuses: Bonuses): number
@@ -98,7 +61,7 @@ function WeaponStats.compute(
 	evolution: Evolutions.Evolution?,
 	minCooldown: number
 ): Stats
-	bonuses = weaponBonuses(weapon, bonuses)
+	bonuses = CharacterRules.weaponBonuses(weapon, bonuses)
 	local stats: Stats = table.clone(weapon.base)
 	local damageBonus = 0
 	for n = 1, math.min(tier, #weapon.tiers) do
@@ -127,7 +90,7 @@ function WeaponStats.compute(
 	end
 	local damageFactor = WeaponStats.damageFactor(bonuses)
 	damage += bonuses.baseDamage or 0
-	damage += (stats.levelScaling or 0) * (bonuses.level or 1)
+	damage += (stats.levelScaling or 0) * (bonuses.level or 0)
 	stats.damage = math.max(1, damage * damageFactor)
 
 	local timing = StatMath.cooldownFactor(bonuses.attackSpeed or 0)

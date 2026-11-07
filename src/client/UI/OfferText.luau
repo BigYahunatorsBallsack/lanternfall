@@ -4,6 +4,7 @@
 local Shared = game:GetService("ReplicatedStorage").Shared
 local Config = require(Shared.Config)
 local StatMath = require(Shared.Util.StatMath)
+local CharacterRules = require(Shared.Util.CharacterRules)
 local UpgradeText = require(Shared.Util.UpgradeText)
 local WeaponClasses = require(Shared.Util.WeaponClasses)
 local Theme = require(script.Parent.Theme)
@@ -28,6 +29,7 @@ function OfferText.stats(id: string, tier: number, sheet: { [string]: number }):
 	if not weapon then
 		return {}
 	end
+	sheet = CharacterRules.weaponBonuses(weapon, sheet)
 	local result = table.clone(weapon.base)
 	local damageBonus = 0
 	for n = 1, math.min(tier, #weapon.tiers) do
@@ -43,7 +45,8 @@ function OfferText.stats(id: string, tier: number, sheet: { [string]: number }):
 	for stat, share in (if weapon.tierScaling then weapon.tierScaling[tier] else weapon.scaling) do
 		damage += share * (sheet[stat] or 0)
 	end
-	damage += (result.levelScaling or 0) * (sheet.level or 1)
+	damage += (result.levelScaling or 0) * (sheet.level or 0)
+	damage += sheet.baseDamage or 0
 	result.damage = math.max(1, damage * math.max(0, 1 + (sheet.damage or 0) / 100))
 	if result.cooldown then
 		local minimum = math.max(
@@ -57,14 +60,15 @@ function OfferText.stats(id: string, tier: number, sheet: { [string]: number }):
 			result[key] = math.max(
 				Config.Stats.range.minStuds,
 				result[key]
-					+ (sheet.range or 0)
-						* Config.Stats.range.studsPerPoint
-						* (if weapon.kind == "Melee" then Config.Stats.range.meleeFactor else 1)
+					+ (sheet.range or 0) * Config.Stats.range.studsPerPoint * (if weapon.kind == "Melee"
+						then Config.Stats.range.meleeFactor
+						else 1)
+					+ (sheet.weaponRange or 0) * Config.Stats.range.studsPerPoint
 			)
 		end
 	end
 	result.critChance = StatMath.critChance(result.critChance or Config.Player.critChance, sheet.critChance or 0)
-	result.critDamage = result.critDamage or Config.Player.critMultiplier
+	result.critDamage = (result.critDamage or Config.Player.critMultiplier) + (sheet.critDamage or 0) / 100
 	result.lifeSteal = math.clamp((result.lifeSteal or 0) + (sheet.lifeSteal or 0) / 100, 0, 1)
 	result.knockback = math.max(0, (result.knockback or 0) + (sheet.knockback or 0))
 		* Config.Combat.knockback.studsPerPoint

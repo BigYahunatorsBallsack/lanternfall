@@ -4,15 +4,17 @@
 - [x] Record stable 1.2.0.1/all-DLC target and explicit Strang A exception.
 - [x] Integrate subsequent GitHub-main e38a762, preserving both STATUS appendices.
 - [x] Verify installed stable build 26406319/1.2.0.1 and extract all 74 character facts.
-- [ ] Deliver catalog/contracts and simple character slice with source/behavior tests.
+- [x] Deliver catalog/contracts and the first simple code packages (Crazy/Brawler); artwork remains independently gated.
 - [ ] Deliver healing, damage and live effects with regression tests.
   - [x] Healing/no-heal/one-hit policies, fractional regeneration clock, native stat strikes and movement conditions.
   - [x] Real-server Golem, Lich, Sick, Masochist, Soldier and Farmer scenarios; new packages remain gated on full dependencies.
 - [ ] Deliver XP, cards, survivor counts and wave rewards with retry tests.
   - [x] Personal co-op XP/levels, native fractional thresholds, rotating gold/XP and retry cursor.
   - [x] Pacifist/Cryptid capture before cleanup, combined harvesting sign and personal XP payout.
-  - [ ] Captain cards, Baby slot-choice timing, character exclusions and final victory-wave payout.
+  - [x] Captain cards, Baby slot-choice timing, character exclusions and native LV.0 counter/card boundaries.
+  - [ ] Final victory-wave payout.
 - [ ] Deliver character shop/economy rules with validated client intents.
+  - [x] Native weapon access, locked starting alternatives, explicit item groups/exclusions and same-tier backup.
 - [ ] Deliver map, enemy/wave, structures and pets with two-player isolation tests.
 - [ ] Deliver curse and Abyssal character behavior.
 - [ ] Deliver Primal Dread character dependencies and behavior.

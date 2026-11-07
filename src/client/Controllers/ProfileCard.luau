@@ -41,8 +41,10 @@ function ProfileCard.render()
 		.. `{info.kills} kills · {info.bossKills} bosses`
 	if achievementsButton then
 		local done = 0
-		for _ in info.achievements or {} do
-			done += 1
+		for _, achievement in Config.Progress.achievements do
+			if info.achievements and info.achievements[achievement.id] then
+				done += 1
+			end
 		end
 		achievementsButton.Text = `ACHIEVEMENTS {done}/{#Config.Progress.achievements}`
 	end
