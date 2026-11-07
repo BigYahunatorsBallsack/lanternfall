@@ -21,9 +21,9 @@ describe("Progression", function()
 		expect(total).toBe(3297) -- 4^2 + ... + 21^2: level 19 after about 3.300 XP
 	end)
 
-	it("scales the XP needed with the player factor", function()
-		expect(Progression.xpForLevel(CURVE, 1, 1.6)).toBe(26) -- 16 * 1.6 = 25.6
-		expect(Progression.xpForLevel(CURVE, 1, 2.8)).toBe(45) -- 44.8
+	it("keeps character threshold multipliers fractional", function()
+		expect(Progression.xpForLevel(CURVE, 1, 1.6)).toBe(25.6)
+		expect(Progression.xpForLevel(CURVE, 1, 2.8)).toBe(44.8)
 	end)
 
 	it("levels up once enough XP is in and keeps the rest", function()

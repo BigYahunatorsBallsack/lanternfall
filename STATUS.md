@@ -72,7 +72,7 @@ Jeder Strang ändert nur **seine** Zeile (Regeln: `docs/PARALLEL.md`).
 | Strang | KI | Aktuelles Paket | Branch / PR | Stand | Danach |
 | --- | --- | --- | --- | --- | --- |
 | A – Engine und Ablauf | Claude | Paket 24 Launch-Paket (Medium) | `wp-24-launch` | fertig, selbst gemerged | Plan bis zum Launch abgeschlossen; als Nächstes IDs des Owners eintragen (Live-Experience, Badges, Musik), dann Live-Ops |
-| B - Inhalte und Spieler-Regeln | ChatGPT | B10: Brotato-1:1-Vorgabe und fehlende Charaktere | `wp-b10-brotato-characters` | Regeln aktualisiert; Vorpruefung: HP x1, 295 gezielte Tests gruen, Gesamtspiel noch nicht 1:1 | Charakterregeln anhand der Originalquellen; Sprites durch anderen Agenten |
+| B - Inhalte und Spieler-Regeln | ChatGPT | B10: alle stabilen Brotato-Charaktere | `wp-b10-brotato-characters` | 74 Quellen verifiziert; Kampf-/Bewegungsregeln, persoenliche Koop-XP und Survivor-Belohnungen in Arbeit; neue Pakete noch gesperrt | Fehlende Ausruestung, Karten-/Shop-/DLC-Regeln und Freischaltungen; Sprites durch anderen Agenten |
 
 ## Feste Entscheidungen des Owners
 
@@ -490,3 +490,11 @@ Branch `wp-25-2d-presentation`. **Owner-Entscheidungen dieses Pakets:** Das Spie
   - Spieler (`character`): `walkCycleSeconds` 0.6 → 0.75, `walkTiltDegrees` 7 → 4, `walkSquash` 0.09 → 0.045, `walkHopStuds` 0.25 → 0.1, `foot.lift` 0.45 → 0.3.
   - Gegner (`enemy`): `gait.stride` 6 → 7.5 (weniger Schritte pro Strecke), `gait.bob` 0.1 → 0.04, `gait.roll` 0.1 → 0.05, `squash` 0.08 → 0.04.
 - Feinjustieren: dieselben Felder; kleinere Zahl = ruhiger (bei `walkCycleSeconds`/`stride`: größere Zahl = ruhiger).
+
+## B10 native character integration (07.11.2026)
+
+- Stable installed PC build 26406319/1.2.0.1 verified; neutral source facts for all 74 characters committed. No game scripts/art committed. Catalog availability is not implementation completion. See docs/characters/README.md and docs/BROTATO-REQUIREMENTS.md.
+- Integrated native healing/damage events, live conditions and character stat strikes; movement intent stays validated/rate-limited and cannot hide physical movement. Soldier reload/projectile/catch-up boundaries and Streamer timer resets tested.
+- Co-op XP and material allocation now individual/round-robin, including recipient-specific XP Gain, HP/card events and retry cursor restoration. Added pre-cleanup survivor accounting for Pacifist/Cryptid, combined with own harvesting before deciding positive XP or negative materials.
+- GitHub-main e38a762 baseline: 982 passed / 26 failed in 81 specs with deterministic seed 1234. Existing failures are 25 Smoke plus one RunStats. Character work adds focused behavior tests; no Studio/two-client/mobile acceptance claimed. Original DLC stat symbols and final victory-wave reward handling remain open, alongside gear/shop/DLC dependencies. Sprites untouched.
+- Full branch comparison after the live/XP/survivor slice: 1049 passed / 26 failed in 93 specs, deterministic seed 1234; exact same 26 failure names as main. StyLua, Selene on changed production files (0 errors/0 warnings using cached Roblox API), source regeneration and Rojo build passed.

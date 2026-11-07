@@ -126,6 +126,22 @@ describe("Character stat bonuses", function()
 		end)
 	end)
 
+	it("truncates the complete linked amount toward zero before applying target gain modifiers", function()
+		withClass({
+			perWeapon = {},
+			perDistinctWeapon = {},
+			gainMultipliers = { meleeDamage = 2, rangedDamage = 0.5 },
+			conversions = {
+				{ source = "rangedDamage", target = "meleeDamage", per = 1, amount = 2 },
+				{ source = "meleeDamage", target = "rangedDamage", per = 2, amount = 1 },
+			},
+		}, function()
+			local result = Rules.bonuses("ManyHands", { rangedDamage = 2.5, meleeDamage = -3 }, {})
+			expect(result.meleeDamage).toBe(10)
+			expect(result.rangedDamage).toBe(-0.5)
+		end)
+	end)
+
 	it("encodes class and kind modifiers only in a separate weapon sheet", function()
 		withClass({
 			weaponClassStats = { Keen = { range = 100, critDamage = 200 }, Remedy = { attackSpeed = 200 } },

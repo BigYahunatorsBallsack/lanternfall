@@ -353,9 +353,9 @@ function AnalyticsService.init()
 	EnemySim.ShotHit:Connect(function(player: Player)
 		noteHit(player, "Shot")
 	end)
-	ExperienceService.LevelGained:Connect(function()
+	ExperienceService.LevelGained:Connect(function(_level, player)
 		if RunDirector.isActive() then
-			reachAll(RunDirector.getParticipants(), "FirstLevelUp")
+			reachAll({ player }, "FirstLevelUp")
 		end
 	end)
 	ReviveService.Revived:Connect(function(reviver: Player)

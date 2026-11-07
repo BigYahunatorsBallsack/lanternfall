@@ -40,6 +40,7 @@ type State = {
 	levels: number, -- team levels gained in this run (Max HP each)
 	classBonus: StatMath.Sheet, -- weapon class bonuses of the weapons carried (B5)
 	dynamic: StatMath.Sheet, -- item effect bonuses right now (EffectService)
+	characterDynamic: StatMath.Sheet, -- native character conditions and wave-only gains
 	permanent: StatMath.Sheet, -- base plus every permanent gain
 	sheet: StatMath.Sheet, -- permanent plus dynamic: what the game uses
 }
@@ -117,6 +118,7 @@ local function update(player: Player, state: State, permanent: boolean)
 		)
 	end
 	state.sheet = StatMath.addGains(table.clone(state.rawPermanent), state.dynamic, multipliersOf(player))
+	StatMath.addGains(state.sheet, state.characterDynamic, multipliersOf(player))
 	StatMath.add(
 		state.sheet,
 		CharacterRules.bonuses(
@@ -230,6 +232,7 @@ local function onRunStarted(participants: { Player })
 				levels = 0,
 				classBonus = classBonusOf(player),
 				dynamic = {},
+				characterDynamic = {},
 				permanent = {},
 				sheet = {},
 			}
@@ -263,12 +266,11 @@ function StatService.init()
 	end)
 	WeaponService.Changed:Connect(onWeaponsChanged)
 	RunDirector.addCheckpoint("Stats", saveCheckpoint, restoreCheckpoint)
-	ExperienceService.LevelGained:Connect(function()
-		for player, state in states do
-			if RunDirector.getParticipantState(player) ~= "Out" then
-				state.levels += 1
-				update(player, state, true)
-			end
+	ExperienceService.LevelGained:Connect(function(_level, player)
+		local state = states[player]
+		if state then
+			state.levels += 1
+			update(player, state, true)
 		end
 	end)
 	Players.PlayerAdded:Connect(function(player)
@@ -358,6 +360,28 @@ function StatService.setDynamic(player: Player, bonuses: StatMath.Sheet)
 	if state then
 		state.dynamic = table.clone(bonuses)
 		update(player, state, false)
+	end
+end
+
+-- Character conditions have a separate layer so item effects cannot replace them (or vice versa).
+function StatService.setCharacterDynamic(player: Player, bonuses: StatMath.Sheet)
+	local state = states[player]
+	if not state then
+		return
+	end
+	for stat, amount in state.characterDynamic do
+		if amount ~= (bonuses[stat] or 0) then
+			state.characterDynamic = table.clone(bonuses)
+			update(player, state, false)
+			return
+		end
+	end
+	for stat, amount in bonuses do
+		if amount ~= (state.characterDynamic[stat] or 0) then
+			state.characterDynamic = table.clone(bonuses)
+			update(player, state, false)
+			return
+		end
 	end
 end
 

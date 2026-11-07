@@ -159,11 +159,12 @@ export type ChestOpened = {
 	rewards: { { userId: number, reward: ChestReward } }, -- every living participant close enough
 }
 
--- Team level and XP towards the next level (ExperienceService -> ProgressController), to everyone on change.
+-- Individual level and XP (ExperienceService -> ProgressController), sent only to that participant.
+-- TeamProgress is the historical protocol name; levels are independent in native co-op.
 export type TeamProgress = {
 	level: number,
 	xp: number,
-	needed: number, -- XP for the next level with the current player count
+	needed: number, -- fractional native XP requirement with the character's multiplier
 }
 
 -- XP orb changes (ExperienceService -> XpOrbRenderer), batched per simulation step and sent to the participants.
@@ -185,7 +186,7 @@ export type UpgradeCard = {
 -- The local player's level-up choice, sent when it opens, changes (reroll) or closes.
 export type LevelUpOffer = {
 	open: boolean,
-	level: number, -- team level this choice belongs to
+	level: number, -- individual level this choice belongs to
 	cards: { UpgradeCard },
 	expiresAt: number, -- server time; the first card is picked automatically then
 	rerollPrice: number, -- Shards for new cards

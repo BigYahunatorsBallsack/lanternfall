@@ -1,8 +1,6 @@
 --!strict
--- Team level and XP (DESIGN.md section 9): XP for level L -> L+1 = round((L + offset)^exponent * fPlayers), Brotato's
--- (L + 3)^2 since B2.
--- Pure and unit tested (tests/Experience.spec.luau); owned by ExperienceService, which passes the current player
--- factor on every call, so the next level gets cheaper as soon as a player leaves.
+-- Individual native XP curve; ExperienceService passes the character's required-XP multiplier, never team size.
+-- Thresholds retain fractional precision, including Mutant's first level at 5.44 XP.
 
 export type Curve = { offset: number, exponent: number }
 
@@ -12,8 +10,8 @@ Progression.__index = Progression
 export type Progression = typeof(setmetatable({} :: { curve: Curve, level: number, xp: number }, Progression))
 
 -- XP needed to go from `level` to `level + 1`, at least 1.
-function Progression.xpForLevel(curve: Curve, level: number, playerFactor: number): number
-	return math.max(1, math.round((level + curve.offset) ^ curve.exponent * playerFactor))
+function Progression.xpForLevel(curve: Curve, level: number, requiredMultiplier: number): number
+	return math.max(1, (level + curve.offset) ^ curve.exponent * requiredMultiplier)
 end
 
 function Progression.new(curve: Curve): Progression

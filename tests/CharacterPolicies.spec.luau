@@ -1,0 +1,66 @@
+--!strict
+-- Actual source-derived character policies, including integer boundaries and independent dynamic layers.
+local Rules = require(game:GetService("ServerScriptService").Server.Services.CharacterService.Rules)
+
+describe("Native character live policies", function()
+	it("rounds Pacifist before halving horde rewards and includes performance removals", function()
+		local policy = assert(Rules.compile("Pacifist"))
+		local context = { enemies = 9, trees = 3, removedForPerformance = 1, horde = false }
+		expect(Rules.waveReward(policy, 0, context)).toBe(7)
+		context.horde = true
+		expect(Rules.waveReward(policy, 0, context)).toBe(3)
+		context.enemies = 11
+		expect(Rules.waveReward(policy, -5, context)).toBe(-1)
+	end)
+	it("counts Cryptid trees separately and sums harvesting before the payout", function()
+		local policy = assert(Rules.compile("Cryptid"))
+		local context = { enemies = 90, trees = 3, removedForPerformance = 9, horde = true }
+		expect(Rules.waveReward(policy, 4, context)).toBe(40)
+		expect(Rules.waveReward(policy, -40, context)).toBe(-4)
+	end)
+	it("distinguishes Golem's strict half-health threshold", function()
+		local p = assert(Rules.compile("Golem"))
+		local c = { hp = 15, maxHp = 30, moving = true, counts = {}, items = {} }
+		expect(Rules.dynamic(p, c).attackSpeed).toBe(nil)
+		c.hp = 14
+		expect(Rules.dynamic(p, c).attackSpeed).toBe(40)
+		expect(Rules.dynamic(p, c).speed).toBe(20)
+	end)
+	it("uses stationary Soldier bonuses and moving Streamer bonuses", function()
+		local c = { hp = 10, maxHp = 10, moving = false, counts = {}, items = {} }
+		local soldier = assert(Rules.compile("Soldier"))
+		expect(soldier.canAttackMoving).toBe(false)
+		expect(Rules.dynamic(soldier, c).damage).toBe(50)
+		c.moving = true
+		expect(Rules.dynamic(soldier, c).damage).toBe(nil)
+		expect(Rules.dynamic(assert(Rules.compile("Streamer")), c).attackSpeed).toBe(40)
+	end)
+	it("adds current missing-health and inventory conversions without feeding them back", function()
+		local c = { hp = 7, maxHp = 10, moving = false, counts = { missingHealthPercent = 30 }, items = {} }
+		local p = assert(Rules.compile("Vampire"))
+		local result = Rules.dynamic(p, c)
+		expect(result.damage).toBe(60)
+		expect(result.lifeSteal).toBe(10)
+		expect(result.armor).toBe(6)
+	end)
+	it("uses original Lich and Lucky stat strikes including zero damage", function()
+		local lich = assert(assert(Rules.compile("Lich")).healStrike)
+		local lucky = assert(assert(Rules.compile("Lucky")).pickupStrike)
+		expect(Rules.statStrike(lich, { maxHp = 37, damage = 50 })).toBe(56)
+		expect(Rules.statStrike(lich, { maxHp = 37, damage = -100 })).toBe(0)
+		expect(Rules.statStrike(lucky, { luck = 101, damage = 0 })).toBe(15)
+		expect(lucky.chance).toBe(0.75)
+	end)
+	it("retains full-consumable, dodge, hurt and periodic source amounts", function()
+		expect(assert(Rules.compile("Farmer")).onFullConsumable.harvesting).toBe(1)
+		expect(assert(Rules.compile("Glutton")).onFullConsumable.explosionDamage).toBe(1)
+		expect(assert(Rules.compile("Cryptid")).onDodge.attackSpeed).toBe(3)
+		expect(assert(Rules.compile("Masochist")).onHurt.damage).toBe(5)
+		expect(assert(Rules.compile("Sick")).selfDamage).toBe(1)
+		local streamer = assert(Rules.compile("Streamer"))
+		expect(Rules.periodicMaterials(streamer, 0)).toBe(1)
+		expect(Rules.periodicMaterials(streamer, 100)).toBe(3)
+		expect(Rules.periodicMaterials(streamer, 51)).toBe(1)
+		expect(Rules.periodicMaterials(streamer, 10000)).toBe(25)
+	end)
+end)

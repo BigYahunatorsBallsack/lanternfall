@@ -682,11 +682,9 @@ function EffectService.init()
 		fireFor(player, "Sell")
 	end)
 
-	ExperienceService.LevelGained:Connect(function()
-		for player in states do
-			if RunDirector.getParticipantState(player) ~= "Out" then
-				fireFor(player, "LevelUp")
-			end
+	ExperienceService.LevelGained:Connect(function(_level, player)
+		if states[player] then
+			fireFor(player, "LevelUp")
 		end
 	end)
 	ExperienceService.OrbsPickedUp:Connect(onPickup)

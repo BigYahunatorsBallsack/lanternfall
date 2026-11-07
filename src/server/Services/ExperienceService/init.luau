@@ -1,6 +1,6 @@
 --!strict
--- Team XP (DESIGN.md sections 8 and 9): killed enemies drop XP orbs (OrbField), living participants pick up every
--- orb within their pickup radius right after each enemy step, and the XP goes to one team level (Progression).
+-- Native individual XP: killed enemies drop material orbs, collectors trigger pickup effects, and integer
+-- materials/XP rotate across participants. Each recipient has their own XP Gain, threshold and level.
 -- Sends TeamProgress to everyone and XpOrbs to the participants, and fires LevelGained, which UpgradeService turns
 -- into level-up cards, and OrbsCollected, which ShopService turns into Shards, and OrbsPickedUp for item effects
 -- (EffectService). Since B6 like Brotato (Config.Loot, Util/LootRules): from wave 5 normal enemies drop their orb
@@ -25,13 +25,13 @@ local DangerService = require(script.Parent.DangerService)
 local EnemySim = require(script.Parent.EnemySim)
 local RandomService = require(script.Parent.RandomService)
 local RunDirector = require(script.Parent.RunDirector)
-local SpawnRules = require(script.Parent.SpawnDirector.SpawnRules)
 local OrbField = require(script.OrbField)
 local Progression = require(script.Progression)
+local CharacterRules = require(script.CharacterRules)
 
 local ExperienceService = {}
 
--- (level: number): the team reached this level; fired once per level, in order
+-- (level: number, player: Player): this participant reached the level; fired once per level, in order.
 ExperienceService.LevelGained = Signal.new()
 -- (player: Player, xp: number): XP of the orbs this player picked up, doubled ones twice
 ExperienceService.OrbsCollected = Signal.new()
@@ -39,7 +39,8 @@ ExperienceService.OrbsCollected = Signal.new()
 ExperienceService.OrbsPickedUp = Signal.new()
 
 local field = OrbField.new(Config.Run.xpOrbs.maxOrbs)
-local progress = Progression.new(Config.Run.xpCurve)
+local progress: { [Player]: Progression.Progression } = {}
+local nextMaterialPlayer = 1
 local pickupBonus: { [Player]: number } = {} -- Pickup Range as a fraction
 local xpBonus: { [Player]: number } = {} -- XP Gain as a fraction
 local doubleChance: { [Player]: number } = {} -- Double Orbs as a chance 0..1
@@ -55,16 +56,25 @@ local collectedOrbs: { number } = {}
 local collectedIds: { number } = {}
 local collectedValues: { number } = {}
 
-local function playerFactor(): number
-	return SpawnRules.playerFactor(#RunDirector.getParticipants())
+local function requiredMultiplier(player: Player): number
+	return CharacterRules.forClass(RunDirector.getParticipantClassId(player)).xpNeededMultiplier
 end
 
-local function progressPayload(): Types.TeamProgress
-	return { level = progress.level, xp = progress.xp, needed = progress:needed(playerFactor()) }
+local function progressPayload(player: Player): Types.TeamProgress
+	local personal = progress[player]
+	return {
+		level = if personal then personal.level else 1,
+		xp = if personal then personal.xp else 0,
+		needed = if personal
+			then personal:needed(requiredMultiplier(player))
+			else Progression.xpForLevel(Config.Run.xpCurve, 1, 1),
+	}
 end
 
 local function sendProgress()
-	Net.fireAllClients("TeamProgress", progressPayload())
+	for _, player in Players:GetPlayers() do
+		Net.fireClient("TeamProgress", player, progressPayload(player))
+	end
 end
 
 local function sendBag()
@@ -95,12 +105,35 @@ local function clearOrbs()
 	Net.fireAllClients("XpOrbs", { reset = true, orbs = {}, collected = {} } :: Types.XpOrbEvents)
 end
 
-local function gain(amount: number)
-	local before = progress.level
-	local gained = progress:add(amount, playerFactor())
-	sendProgress()
+local function gain(player: Player, amount: number, applyGain: boolean?)
+	local personal = progress[player]
+	if not personal then
+		return
+	end
+	local before = personal.level
+	local gained = personal:add(
+		amount * (if applyGain == false then 1 else math.max(0, 1 + (xpBonus[player] or 0))),
+		requiredMultiplier(player)
+	)
+	Net.fireClient("TeamProgress", player, progressPayload(player))
 	for level = before + 1, before + gained do
-		ExperienceService.LevelGained:Fire(level)
+		ExperienceService.LevelGained:Fire(level, player)
+	end
+end
+
+local function distributeMaterials(value: number)
+	local participants = RunDirector.getParticipants()
+	if #participants == 0 then
+		return
+	end
+	local shares
+	shares, nextMaterialPlayer = CharacterRules.distributeMaterials(value, #participants, nextMaterialPlayer)
+	for index, recipient in participants do
+		local amount = shares[index]
+		if amount > 0 then
+			ExperienceService.OrbsCollected:Fire(recipient, amount)
+			gain(recipient, amount)
+		end
 	end
 end
 
@@ -171,36 +204,26 @@ local function onStepped()
 		feedEaters()
 	end
 	if not paused and field:count() > 0 then
-		local total = 0
 		for _, player in RunDirector.getParticipants() do
 			local position = EnemySim.getPlayerPosition(player) -- nil while down
 			if position then
 				local radius = Config.Player.pickupRadius * math.max(0, 1 + (pickupBonus[player] or 0))
 				table.clear(collectedIds)
 				table.clear(collectedValues)
-				local collected = field:collect(position.X, position.Z, radius, collectedIds, collectedValues)
+				field:collect(position.X, position.Z, radius, collectedIds, collectedValues)
 				local chance = doubleChance[player] or 0
-				if chance > 0 then
-					local random = RandomService.stream("Loot", player)
-					for _, value in collectedValues do
-						if random:NextNumber() < chance then
-							collected += value
-						end
-					end
-				end
-				total += collected * math.max(0, 1 + (xpBonus[player] or 0))
-				if collected > 0 then
-					ExperienceService.OrbsCollected:Fire(player, collected)
+				if #collectedValues > 0 then
 					ExperienceService.OrbsPickedUp:Fire(player, #collectedValues)
+				end
+				for _, value in collectedValues do
+					local doubled = chance > 0 and RandomService.number("Loot", player) < chance
+					distributeMaterials(value * (if doubled then 2 else 1))
 				end
 				for _, id in collectedIds do
 					table.insert(collectedOrbs, id)
 					table.insert(collectedOrbs, player.UserId)
 				end
 			end
-		end
-		if total > 0 then
-			gain(total)
 		end
 	end
 	flush()
@@ -221,8 +244,12 @@ end
 function ExperienceService.init()
 	EnemySim.EnemyKilled:Connect(onEnemyKilled)
 	EnemySim.Stepped:Connect(onStepped)
-	RunDirector.RunStarted:Connect(function()
-		progress:reset()
+	RunDirector.RunStarted:Connect(function(participants)
+		table.clear(progress)
+		for _, player in participants do
+			progress[player] = Progression.new(Config.Run.xpCurve)
+		end
+		nextMaterialPlayer = 1
 		clearOrbs()
 		table.clear(eaten)
 		bag = 0
@@ -237,26 +264,42 @@ function ExperienceService.init()
 			table.clear(eaten) -- Gobblers alive at the wave end take what they ate with them
 		end
 	end)
-	RunDirector.addCheckpoint("Experience", function()
-		return { level = progress.level, xp = progress.xp, bag = bag }
-	end, function(saved: { level: number, xp: number, bag: number })
-		progress.level = saved.level
-		progress.xp = saved.xp
-		bag = saved.bag
-		table.clear(eaten)
-		clearOrbs()
-		sendBag()
-		sendProgress()
-	end)
+	RunDirector.addCheckpoint(
+		"Experience",
+		function()
+			local players: { [Player]: { level: number, xp: number } } = {}
+			for player, personal in progress do
+				players[player] = { level = personal.level, xp = personal.xp }
+			end
+			return { players = players, nextMaterialPlayer = nextMaterialPlayer, bag = bag }
+		end,
+		function(
+			saved: { players: { [Player]: { level: number, xp: number } }, nextMaterialPlayer: number, bag: number }
+		)
+			for player, data in saved.players do
+				local personal = progress[player]
+				if personal then
+					personal.level, personal.xp = data.level, data.xp
+				end
+			end
+			nextMaterialPlayer = saved.nextMaterialPlayer
+			bag = saved.bag
+			table.clear(eaten)
+			clearOrbs()
+			sendBag()
+			sendProgress()
+		end
+	)
 	RunDirector.ParticipantStateChanged:Connect(sendProgress) -- a player who is out no longer counts
 	Players.PlayerRemoving:Connect(function(player)
+		progress[player] = nil
 		pickupBonus[player] = nil
 		xpBonus[player] = nil
 		doubleChance[player] = nil
 		task.defer(sendProgress) -- after RunDirector dropped the player from the participants
 	end)
 	RunDirector.SyncRequested:Connect(function(requester)
-		Net.fireClient("TeamProgress", requester, progressPayload())
+		Net.fireClient("TeamProgress", requester, progressPayload(requester))
 		Net.fireClient(
 			"XpOrbs",
 			requester,
@@ -277,11 +320,18 @@ function ExperienceService.setStats(player: Player, stats: { [string]: number })
 end
 
 -- Adds XP to the team while a run is going on (Harvesting at the end of a wave). False otherwise.
-function ExperienceService.addXp(amount: number): boolean
+function ExperienceService.addXp(amount: number, player: Player?): boolean
 	if not RunDirector.isOngoing() or amount <= 0 then
 		return false
 	end
-	gain(amount)
+	if player then
+		gain(player, amount)
+	else
+		-- Explicit administrative team grant; gameplay rewards always supply their individual recipient.
+		for recipient in progress do
+			gain(recipient, amount)
+		end
+	end
 	return true
 end
 
@@ -290,7 +340,9 @@ function ExperienceService.grantLevel(): boolean
 	if not RunDirector.isOngoing() then
 		return false
 	end
-	gain(progress:needed(playerFactor()) - progress.xp)
+	for player, personal in progress do
+		gain(player, personal:needed(requiredMultiplier(player)) - personal.xp, false)
+	end
 	return true
 end
 
@@ -301,12 +353,35 @@ end
 
 -- Queries ---------------------------------------------------------------------------
 
-function ExperienceService.getLevel(): number
-	return progress.level
+function ExperienceService.getLevel(player: Player?): number
+	if player then
+		return if progress[player] then progress[player].level else 1
+	end
+	local highest = 1
+	for _, personal in progress do
+		highest = math.max(highest, personal.level)
+	end
+	return highest
 end
 
-function ExperienceService.getProgress(): Types.TeamProgress
-	return progressPayload()
+function ExperienceService.getProgress(player: Player?): Types.TeamProgress
+	if player then
+		return progressPayload(player)
+	end
+	-- Legacy report/admin query: the most advanced participant. Clients always receive their own state.
+	local leader: Player? = nil
+	for candidate, personal in progress do
+		if
+			not leader
+			or personal.level > progress[leader].level
+			or (personal.level == progress[leader].level and personal.xp > progress[leader].xp)
+		then
+			leader = candidate
+		end
+	end
+	return if leader
+		then progressPayload(leader)
+		else { level = 1, xp = 0, needed = Progression.xpForLevel(Config.Run.xpCurve, 1, 1) }
 end
 
 function ExperienceService.getOrbCount(): number

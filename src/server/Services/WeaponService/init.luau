@@ -36,6 +36,7 @@ local CharacterRules = require(Shared.Util.CharacterRules)
 local BrotatoCombat = require(script.BrotatoCombat)
 local BrotatoRuntime = require(script.BrotatoRuntime)
 local EnemyKinds = require(Shared.Util.EnemyKinds)
+local CharacterMovement = require(script.Parent.CharacterService.Movement)
 local waveBonuses: { [Player]: { [string]: number } } = {}
 local selections: { [Player]: { [string]: string } } = {}
 
@@ -58,12 +59,45 @@ export type HitListener = (
 	source: Arsenal.HitSource
 ) -> ()
 local hitListener: HitListener? = nil
+type CharacterHit = { player: Player, enemyId: number, amount: number }
+local characterHits: { CharacterHit } = {}
+
+local function characterCanAttack(weapon: Arsenal.Weapon): boolean
+	local player = Players:GetPlayerByUserId(weapon.ownerId)
+	local classId = player and RunDirector.getParticipantClassId(player)
+	local class = classId and Config.Classes[classId]
+	return not (player and class and class.canAttackWhileMoving == false and CharacterMovement.isMoving(player))
+end
 
 local function loadBehaviors(): { [string]: Arsenal.Behavior }
 	local behaviors = {}
 	for _, child in script.Behaviors:GetChildren() do
 		if child:IsA("ModuleScript") then
-			behaviors[child.Name] = require(child) :: any
+			local behavior = table.clone(require(child)) :: Arsenal.Behavior
+			local fire = behavior.fire
+			if fire then
+				behavior.fire = function(weapon, context)
+					if not characterCanAttack(weapon) then
+						weapon.cooldownLeft = math.max(0, weapon.cooldownLeft)
+						return false
+					end
+					return fire(weapon, context)
+				end
+			end
+			local step = behavior.step
+			if step then
+				behavior.step = function(weapon, context, dt)
+					local active = context.active
+					-- Catch-up attacks also run in step; inactive still simulates existing projectiles.
+					if active and not characterCanAttack(weapon) then
+						context.active = false
+						weapon.cooldownLeft = math.max(0, weapon.cooldownLeft)
+					end
+					step(weapon, context, dt)
+					context.active = active
+				end
+			end
+			behaviors[child.Name] = behavior
 		end
 	end
 	return behaviors
@@ -265,6 +299,7 @@ local function sendAll()
 end
 
 local function onRunStarted(participants: { Player })
+	table.clear(characterHits)
 	arsenal:clear()
 	table.clear(waveBonuses)
 	paused = false
@@ -291,6 +326,7 @@ end
 
 local function onStepped(dt: number, stepNow: number)
 	if paused then
+		table.clear(characterHits)
 		return
 	end
 	local participants = RunDirector.getParticipants()
@@ -311,12 +347,7 @@ local function onStepped(dt: number, stepNow: number)
 					if RunDirector.getParticipantState(player) ~= "Alive" then
 						return
 					end
-					local current = CombatService.getHp(player)
 					CombatService.drainPlayer(player, amount)
-					if current <= amount then
-						RunDirector.setParticipantState(player, "Down")
-					end
-					CombatService.PlayerDamaged:Fire(player, math.min(current, amount))
 				end
 			)
 			local previous = waveBonuses[player] or {}
@@ -341,6 +372,18 @@ local function onStepped(dt: number, stepNow: number)
 		end
 	end
 	arsenal:step(dt, stepNow)
+	-- Character stat strikes are already scaled in the native order; Arsenal's primary-hit formula differs.
+	local pending = characterHits
+	characterHits = {}
+	for _, hit in pending do
+		if
+			RunDirector.isActive()
+			and RunDirector.getParticipantState(hit.player) == "Alive"
+			and EnemySim.isAlive(hit.enemyId)
+		then
+			WeaponService.structureHit(hit.player, hit.enemyId, hit.amount, "Strike")
+		end
+	end
 	local earned = growth
 	growth = {}
 	for ownerId, gains in earned do
@@ -443,6 +486,9 @@ function WeaponService.init()
 	RunDirector.RunStarted:Connect(onRunStarted)
 	EnemySim.Stepped:Connect(onStepped)
 	RunDirector.PhaseChanged:Connect(function(phase)
+		if phase ~= "Running" then
+			table.clear(characterHits)
+		end
 		if phase == "Shop" then
 			table.clear(waveBonuses)
 			for _, player in Players:GetPlayers() do
@@ -467,6 +513,7 @@ function WeaponService.init()
 		end
 		return saved
 	end, function(saved: { [Player]: { Arsenal.SavedWeapon } })
+		table.clear(characterHits)
 		arsenal:clearCombat()
 		growth = {}
 		for player, weapons in saved do
@@ -616,6 +663,16 @@ function WeaponService.strikeEnemy(
 	flat: number
 )
 	arsenal:queueStrike(player.UserId, enemyId, damage, scaling, flat)
+end
+
+-- Lich/Lucky use one already-scaled hit per native event, deferred to the normal combat step.
+function WeaponService.queueCharacterStrike(player: Player, enemyId: number, amount: number)
+	if paused or not RunDirector.isActive() or RunDirector.getParticipantState(player) ~= "Alive" then
+		return
+	end
+	if amount > 0 and amount < math.huge and EnemySim.isAlive(enemyId) then
+		table.insert(characterHits, { player = player, enemyId = enemyId, amount = amount })
+	end
 end
 
 -- Debug: switches every player's weapons off (no hits, no visuals) or back on. Resets at run start.

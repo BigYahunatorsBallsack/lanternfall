@@ -357,6 +357,9 @@ function PlayerDataService.unlockAll(player: Player): boolean
 	end
 	for classId, class in Config.Classes do
 		if class.available then
+			if class.native and not class.free and not table.find(data.classes, classId) then
+				table.insert(data.classes, classId)
+			end
 			local character = data.characterStats[classId] or ProfileTemplate.newCharacterStats()
 			character.bestDanger = #Config.Difficulty.levels - 2 -- opens the highest level
 			data.characterStats[classId] = character

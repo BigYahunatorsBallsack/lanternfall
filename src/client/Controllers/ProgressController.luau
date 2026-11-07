@@ -1,5 +1,5 @@
 --!strict
--- Keeps the team level and XP (TeamProgress remote from ExperienceService) and every player's items (Items remote
+-- Keeps the local player's individual level/XP (historical TeamProgress remote) and every player's items (Items remote
 -- from StatService). Read by HUDController (XP bar, item list).
 
 local Players = game:GetService("Players")

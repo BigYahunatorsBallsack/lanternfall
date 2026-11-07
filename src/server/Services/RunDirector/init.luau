@@ -67,6 +67,8 @@ RunDirector.SyncRequested = Signal.new()
 -- (wave: number): a wave is about to start (from the shop or the countdown); fired before the checkpoint is saved and
 -- before PhaseChanged, e.g. for UpgradeService to pick the cards still open (B11 part 2)
 RunDirector.WaveStarting = Signal.new()
+-- (wave: number): completed combat wave, before PhaseChanged clears enemies and the shop settles harvesting.
+RunDirector.WaveEnding = Signal.new()
 -- (wave: number): the lost wave starts again; every checkpoint was restored, PhaseChanged to Running comes next
 RunDirector.WaveRetried = Signal.new()
 -- (player: Player, classId: string): a player picked a character in the lobby (Paket 15: PartyService resends)
@@ -185,6 +187,9 @@ local function handle(event: RunFlow.Event)
 		print(`[Lanternfall] Run ended: {results.outcome} after {Format.time(results.survivedSeconds)}`)
 		RunDirector.RunEnded:Fire(results)
 	elseif event.kind == "PhaseChanged" then
+		if event.previous == "Running" and event.phase == "Shop" then
+			RunDirector.WaveEnding:Fire(flow.wave)
+		end
 		if event.phase == "Running" and (event.previous == "Shop" or event.previous == "Countdown") then
 			RunDirector.WaveStarting:Fire(flow.wave)
 			saveCheckpoints()

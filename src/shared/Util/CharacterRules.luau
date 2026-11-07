@@ -89,10 +89,10 @@ function CharacterRules.bonuses(
 	StatMath.add(gains, class.perDistinctWeapon or {}, distinct)
 	for _, conversion in class.conversions or {} do
 		local source = if conversion.permanentOnly then permanent or sheet else sheet
-		local value = math.floor((source[conversion.source] or 0) / conversion.per) * conversion.amount
+		local value = math.modf(conversion.amount * (source[conversion.source] or 0) / conversion.per)
 		gains[conversion.target] = (gains[conversion.target] or 0) + value
 	end
-	return gains
+	return StatMath.addGains({}, gains, class.gainMultipliers)
 end
 
 -- Weapon-specific character bonuses travel separately from the owner's ordinary stat sheet.

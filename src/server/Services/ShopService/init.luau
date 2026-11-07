@@ -43,6 +43,7 @@ type State = {
 	buys: number, -- purchases in the current shop
 	freeRerolls: number, -- free rerolls of the current shop (Free Rerolls stat and purchases) not used yet
 	reportedShards: number, -- whole Shards last told to ShardsChanged
+	characterWaveReward: number,
 }
 
 local ShopService = {}
@@ -66,6 +67,7 @@ local offerCounter = 0
 local function newState(): State
 	return {
 		shards = Config.Shop.startShards, -- playtest after Paket 24: something to buy in the first shop
+		characterWaveReward = 0,
 		open = false,
 		wave = 0,
 		offers = {},
@@ -224,11 +226,12 @@ end
 -- grows (StatService.growHarvesting).
 local function harvest(player: Player, state: State)
 	local harvesting = StatService.getStat(player, "harvesting")
-	if harvesting == 0 then
-		return
+	local reward = harvesting + state.characterWaveReward
+	state.characterWaveReward = 0
+	state.shards = math.max(0, state.shards + reward)
+	if reward > 0 then
+		ExperienceService.addXp(reward, player)
 	end
-	state.shards = math.max(0, state.shards + harvesting)
-	ExperienceService.addXp(harvesting)
 	StatService.growHarvesting(player)
 end
 
@@ -450,6 +453,7 @@ function ShopService.init()
 			local data = saved[player]
 			if data then
 				state.shards = data.shards
+				state.characterWaveReward = 0
 				state.carried = Copy.deep(data.carried)
 				state.open = false
 				state.offers = {}
@@ -509,6 +513,14 @@ function ShopService.addShards(player: Player, amount: number): boolean
 	state.shards += amount
 	send(player, state)
 	return true
+end
+
+-- Captured before enemy cleanup; combined with this player's harvesting before deciding gold/XP sign.
+function ShopService.setCharacterWaveReward(player: Player, amount: number)
+	local state = states[player]
+	if state then
+		state.characterWaveReward = amount
+	end
 end
 
 -- Paket 16: whether the player's shop is open right now.

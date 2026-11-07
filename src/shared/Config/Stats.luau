@@ -138,7 +138,11 @@ local ORDER: { Stat } = {
 	extra("enemySpeed", "Enemy Speed", true, true), -- speed of enemies that spawn; team total
 	extra("weaponCooldownMin", "Minimum Weapon Cooldown", false, true), -- Ball and Chain, seconds
 	extra("dodgeCap", "Dodge Limit", true), -- Ghost Outfit; absolute cap, zero uses the default
-	-- DLC and character-specific native modifiers, in original points/percent points.
+}
+
+-- Native DLC fields are registered for source validation and server policies. Their UI integration and original
+-- symbols are still dependencies of the unavailable DLC packages; do not substitute invented artwork in ORDER.
+local nativeFields: { Stat } = {
 	extra("curse", "Curse", false),
 	extra("evolution", "Evolution", false),
 	extra("structureAttackSpeed", "Structure Attack Speed", true),
@@ -152,13 +156,16 @@ local byId: { [string]: Stat } = {}
 for _, entry in ORDER do
 	byId[entry.id] = entry
 end
+for _, entry in nativeFields do
+	byId[entry.id] = entry
+end
 
 return table.freeze({
 	order = table.freeze(ORDER),
 	byId = table.freeze(byId),
 
 	hpScale = 1,
-	maxHpPerLevel = 1, -- every team level (Brotato: +1 Max HP)
+	maxHpPerLevel = 1, -- every individual level (Brotato: +1 Max HP)
 
 	-- HP Regeneration: one tick of hpScale HP every baseSeconds / (1 + (regen - 1) / divisor) seconds (1 regen = 5 s,
 	-- 10 regen = 1 s); nothing below 1.
