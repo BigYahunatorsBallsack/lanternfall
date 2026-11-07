@@ -17,6 +17,7 @@ local Signal = require(Shared.Util.Signal)
 local CharacterChoice = {}
 CharacterChoice.Chosen = Signal.new()
 local step = "Character"
+local requestedClass: string? = nil
 local selected: { [string]: string } = {}
 local details: TextLabel?
 local weaponRow: Frame?
@@ -81,6 +82,10 @@ function CharacterChoice.render()
 	local class = Config.Classes[me.classId]
 	if not class then
 		return
+	end
+	if requestedClass == me.classId then
+		requestedClass = nil
+		CharacterChoice.Chosen:Fire("Weapon")
 	end
 	selectedName.Text = class.displayName
 	metrics.Text = `{CharacterRules.maxWeapons(me.classId)} WEAPONS\nDANGER {CharacterChoice.maxDanger(me.classId)}`
@@ -167,7 +172,12 @@ function CharacterChoice.mount(card: Frame, row: Frame, buttonsByClass: { [strin
 		button.Text = ""
 		button.Activated:Connect(function()
 			if CharacterChoice.isUnlocked(classId) then
-				CharacterChoice.Chosen:Fire("Weapon")
+				requestedClass = classId
+				local me = RunStateController.getLocalPlayer()
+				if me and me.classId == classId then
+					requestedClass = nil
+					CharacterChoice.Chosen:Fire("Weapon")
+				end
 			end
 		end)
 		local art = Icons.holder(button, 96)

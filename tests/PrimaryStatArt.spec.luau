@@ -87,4 +87,11 @@ describe("Original primary-stat artwork", function()
 		local item = Icons.draw(icon, "item", itemId)
 		expect(item.ItemArt.Image).toBe(image)
 	end)
+	it("shows a drawn symbol when an uploaded card illustration cannot be fetched", function()
+		world.assetFetchStatus = Enum.AssetFetchStatus.Failure
+		local card = Icons.draw(holder("LevelUp"), "stat", "attackSpeed")
+		world.advance(0.1)
+		expect(card.Fallback.Visible).toBe(true)
+		world.assetFetchStatus = Enum.AssetFetchStatus.Success
+	end)
 end)

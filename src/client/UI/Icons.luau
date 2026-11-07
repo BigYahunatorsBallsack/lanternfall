@@ -394,6 +394,25 @@ function Icons.draw(parent: GuiObject, kind: string, id: string): Frame
 			art.Image = upgradeImage
 		end
 	end
+	-- A valid asset ID can still fail to load in a local or restricted test place.
+	if kind == "stat" and StatImages[id] then
+		local fallback = root:FindFirstChild("Fallback")
+		local art = root:FindFirstChild("StatArt")
+		if fallback and art then
+			task.spawn(function()
+				local ok, fetched = pcall(function()
+					local success = false
+					ContentProvider:PreloadAsync({ art }, function(_, status)
+						success = status == Enum.AssetFetchStatus.Success
+					end)
+					return success
+				end)
+				if fallback.Parent then
+					fallback.Visible = not (ok and fetched)
+				end
+			end)
+		end
+	end
 	return root
 end
 

@@ -90,7 +90,8 @@ function OfferText.weapon(id: string, tier: number, sheet: { [string]: number })
 	local function line(label: string, value: string)
 		table.insert(lines, color(label .. ": ", Theme.statLabel) .. value)
 	end
-	line("Damage", color(number(stats.damage), Theme.success) .. " | " .. UpgradeText.weaponBase(weapon, tier))
+	local scaling = UpgradeText.weaponBase(weapon, tier):match("%(.+%)")
+	line("Damage", number(stats.damage) .. (if scaling then " " .. scaling else ""))
 	line("Critical", `x{number(stats.critDamage)} ({number(stats.critChance * 100)}% chance)`)
 	if stats.cooldown then
 		line("Cooldown", color(string.format("%.2fs", stats.cooldown), Theme.success))
@@ -98,7 +99,7 @@ function OfferText.weapon(id: string, tier: number, sheet: { [string]: number })
 	line("Knockback", number(stats.knockback / Config.Combat.knockback.studsPerPoint))
 	local rangeKey = weapon.rangeKeys[1]
 	if rangeKey and stats[rangeKey] then
-		line("Range", color(number(stats[rangeKey]), Theme.success) .. ` ({weapon.kind})`)
+		line("Range", number(stats[rangeKey] / Config.Stats.range.studsPerPoint) .. ` ({weapon.kind})`)
 	end
 	if stats.pierce and stats.pierce ~= 0 then
 		line("Pierces", if stats.pierce < 0 then "All enemies" else number(stats.pierce))

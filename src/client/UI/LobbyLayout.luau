@@ -13,6 +13,7 @@ local Shared = game:GetService("ReplicatedStorage").Shared
 local Config = require(Shared.Config)
 local StatMath = require(Shared.Util.StatMath)
 local WeaponClasses = require(Shared.Util.WeaponClasses)
+local RunSchedule = require(Shared.Util.RunSchedule)
 local Layout = {}
 local refresh: (() -> ())? = nil
 
@@ -23,7 +24,13 @@ local function place(object: GuiObject, x: number, y: number, width: number, hei
 end
 
 function Layout.mount(screen: ScreenGui, choose: Frame, players: Frame, record: Frame, status: Frame)
-	Backdrop.mount(screen)
+	local canvas = Widgets.screen("LobbyCanvas", 0)
+	canvas.IgnoreGuiInset = true
+	Backdrop.mount(canvas)
+	canvas.Enabled = screen.Enabled
+	screen:GetPropertyChangedSignal("Enabled"):Connect(function()
+		canvas.Enabled = screen.Enabled
+	end)
 	local root = Widgets.create("Frame", { Name = "LobbyPages", BackgroundTransparency = 1, Parent = screen })
 	local scale = Widgets.create("UIScale", { Parent = root })
 	local storage = Widgets.create("Folder", { Name = "LayoutStorage", Parent = screen })
@@ -49,6 +56,7 @@ function Layout.mount(screen: ScreenGui, choose: Frame, players: Frame, record: 
 	Icons.draw(secondHero, "character", "SparkMage")
 	local function show(value: string)
 		ProfileCard.closeWindows()
+		require(script.Parent.Tooltip).hide()
 		step = value
 		Layout.refresh()
 	end
@@ -189,7 +197,7 @@ function Layout.mount(screen: ScreenGui, choose: Frame, players: Frame, record: 
 		Parent = runOptions,
 	})
 	Widgets.label({
-		Text = "20 waves",
+		Text = `{RunSchedule.waveCount()} waves`,
 		TextSize = 18,
 		Position = UDim2.fromOffset(12, 140),
 		Size = UDim2.new(1, -24, 0, 30),
@@ -253,6 +261,7 @@ function Layout.mount(screen: ScreenGui, choose: Frame, players: Frame, record: 
 		local compact = area.X < 1000 or area.Y < 600
 		local factor = if compact then 1 else math.min(area.X / 1280, area.Y / 720)
 		local width, height = area.X / factor, area.Y / factor
+		local short = compact and height < 500
 		scale.Scale = factor
 		root.Size = UDim2.fromOffset(width, height)
 		main.Visible = step == "Main"
@@ -276,7 +285,7 @@ function Layout.mount(screen: ScreenGui, choose: Frame, players: Frame, record: 
 		place(
 			brand,
 			if compact then 16 else width * 0.4,
-			if compact then 80 else 52,
+			if short then 0 elseif compact then 80 else 52,
 			if compact then width - 32 else width * 0.58,
 			100
 		)
@@ -284,7 +293,7 @@ function Layout.mount(screen: ScreenGui, choose: Frame, players: Frame, record: 
 		place(
 			tagline,
 			if compact then 16 else width * 0.4,
-			if compact then 165 else 152,
+			if short then 72 elseif compact then 165 else 152,
 			if compact then width - 32 else width * 0.58,
 			60
 		)
@@ -296,7 +305,7 @@ function Layout.mount(screen: ScreenGui, choose: Frame, players: Frame, record: 
 			place(
 				button,
 				32,
-				(if compact then 240 else height - 340) + (index - 1) * 50,
+				(if short then 140 elseif compact then 240 else height - 340) + (index - 1) * 50,
 				if compact then width - 64 else 205,
 				44
 			)

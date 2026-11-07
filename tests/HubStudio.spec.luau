@@ -107,7 +107,7 @@ describe("hub lobby (Studio)", function()
 		expect(#PartyService.getMembers(me)).toBe(2)
 		expect(world.gui("Lobby", "Play").Text).toBe("LEADER STARTS")
 		expect(world.gui("Lobby", "QuickJoin").Visible).toBe(false)
-		expect(world.gui("Lobby", "Danger"):FindFirstChild("Title").Text).toBe("DANGER (your leader picks)")
+		expect(world.gui("Lobby", "Danger"):FindFirstChild("Title").Text).toBe("Danger 0\nDifficulty")
 	end)
 
 	it("lets only the leader pick the danger level, capped for the party", function()

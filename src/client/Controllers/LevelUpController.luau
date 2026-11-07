@@ -31,6 +31,7 @@ local ICON_SIZE = 76
 local KEYS = { Enum.KeyCode.One, Enum.KeyCode.Two, Enum.KeyCode.Three, Enum.KeyCode.Four }
 
 local LevelUpController = {}
+LevelUpController.Changed = require(Shared.Util.Signal).new()
 
 local screen: ScreenGui
 local titleLabel: TextLabel
@@ -192,10 +193,10 @@ local function renderCards(current: Types.LevelUpOffer)
 		local card = current.cards[index]
 		view.button.Visible = card ~= nil
 		if card then
-			local title, detail, badge = UpgradeText.card(card)
+			local title, detail = UpgradeText.card(card)
 			local color = Theme.tiers[card.tier] or Theme.accent
-			view.badge.Text = string.upper(badge)
-			view.badge.TextColor3 = color
+			view.badge.Text = "Upgrade"
+			view.badge.TextColor3 = Theme.statLabel
 			view.name.Text = title
 			view.name.TextColor3 = color
 			view.detail.Text = detail
@@ -233,7 +234,11 @@ local function render()
 	if not screen then
 		return -- an offer arrived before start() built the UI; start() renders it
 	end
+	local wasOpen = screen.Enabled
 	screen.Enabled = isOpen()
+	if wasOpen ~= screen.Enabled then
+		LevelUpController.Changed:Fire(screen.Enabled)
+	end
 	local crateOpen = isCrateOpen()
 	cratePanel.Visible = crateOpen
 	levelPanel.Visible = not crateOpen
@@ -246,11 +251,11 @@ local function render()
 	if not (current and screen.Enabled) then
 		return
 	end
-	titleLabel.Text = `LEVEL {current.level}`
+	titleLabel.Text = "Level up!"
 	subtitleLabel.Text = if current.pending > 0 then `Pick one · {current.pending} more waiting` else "Pick one"
 	renderCards(current)
 	local canReroll = shardCount >= current.rerollPrice
-	rerollButton.Text = `Reroll ({current.rerollPrice} Shards)`
+	rerollButton.Text = `REROLL - {current.rerollPrice}    `
 	rerollButton.TextColor3 = if canReroll then Theme.text else Theme.textDim
 	rerollButton.AutoButtonColor = canReroll
 end
@@ -401,7 +406,7 @@ local function build()
 		LayoutOrder = 3,
 		Parent = panel,
 	})
-	local grid = Widgets.create("UIGridLayout", {
+	Widgets.create("UIGridLayout", {
 		CellPadding = UDim2.fromOffset(CARD_GAP, CARD_GAP),
 		SortOrder = Enum.SortOrder.LayoutOrder,
 		Parent = cardRow,
@@ -417,22 +422,31 @@ local function build()
 		Parent = panel,
 	}, reroll)
 	buildCrate()
-	Dialog.wrap(panel, nil, width + 28)
+	require(script.Parent.Parent.UI.LevelComposition).mount({
+		screen = screen,
+		panel = panel,
+		cards = cards,
+		cardRow = cardRow,
+		title = titleLabel,
+		subtitle = subtitleLabel,
+		timer = timerFill.Parent,
+		reroll = rerollButton,
+	})
 	Dialog.wrap(cratePanel, nil, 480)
-	local function resize()
-		local available = panel.Size.X.Offset - 28
-		local columns = if available >= 760 then LevelUp.cardCount elseif available >= 300 then 2 else 1
-		local rows = math.ceil(LevelUp.cardCount / columns)
-		grid.CellSize = UDim2.new(1 / columns, -CARD_GAP * (columns - 1) / columns, 0, CARD_SIZE.Y)
-		grid.FillDirectionMaxCells = columns
-		cardRow.Size = UDim2.new(1, 0, 0, rows * CARD_SIZE.Y + (rows - 1) * CARD_GAP)
-		rerollButton.Size = UDim2.new(1, 0, 0, 48)
-	end
-	panel:GetPropertyChangedSignal("Size"):Connect(resize)
-	resize()
+
+	-- LevelComposition owns card geometry; the crate keeps its existing scrollable dialog.
 end
 
 local function bindKeys()
+	ContextActionService:BindActionAtPriority("LanternfallLevelReroll", function(_: string, state: Enum.UserInputState)
+		if not isOpen() or isCrateOpen() then
+			return Enum.ContextActionResult.Pass
+		end
+		if state == Enum.UserInputState.Begin then
+			reroll()
+		end
+		return Enum.ContextActionResult.Sink
+	end, false, Enum.ContextActionPriority.High.Value + 1, Enum.KeyCode.F)
 	for index, key in KEYS do
 		if index > LevelUp.cardCount then
 			break
