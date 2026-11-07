@@ -22,6 +22,9 @@ export type Class = {
 	perDistinctWeapon: { [string]: number }?,
 	conversions: { { source: string, target: string, per: number, amount: number, permanentOnly: boolean? } }?,
 	perLevel: { [string]: number }?,
+	noHeal: boolean?,
+	oneHit: boolean?,
+	noWaveHeal: boolean?,
 }
 local Classes: { [string]: Class } = {
 	SparkMage = {

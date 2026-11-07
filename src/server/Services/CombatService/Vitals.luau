@@ -21,6 +21,8 @@ export type Vitals = typeof(setmetatable(
 		invulnerableUntil: number, -- hit protection
 		shielded: boolean, -- invulnerable until switched off (level-up choice)
 		hitShields: number, -- hits nullified completely (item effects, since B4)
+		noHeal: boolean,
+		oneHit: boolean,
 	},
 	Vitals
 ))
@@ -35,6 +37,8 @@ function Vitals.new(maxHp: number, settings: Settings): Vitals
 		invulnerableUntil = 0,
 		shielded = false,
 		hitShields = 0,
+		noHeal = false,
+		oneHit = false,
 	}, Vitals)
 end
 
@@ -87,6 +91,12 @@ function Vitals.setHitShields(self: Vitals, count: number)
 	self.hitShields = math.max(0, count)
 end
 
+-- Set by CombatService from the frozen participant character; shields/dodge still precede one-hit death.
+function Vitals.setCharacterRules(self: Vitals, noHeal: boolean, oneHit: boolean)
+	self.noHeal = noHeal
+	self.oneHit = oneHit
+end
+
 -- Applies one hit; `roll` (0 <= roll < 1) below the dodge chance dodges it (no damage, no protection afterwards),
 -- else a hit shield takes it (no damage, no protection afterwards). Returns the HP actually lost (0 while protected,
 -- already down, dodged or blocked), whether it was dodged and whether a hit shield blocked it.
@@ -102,7 +112,9 @@ function Vitals.hit(self: Vitals, damage: number, now: number, roll: number?): (
 		return 0, false, true
 	end
 	local settings = self.settings
-	local taken = math.max(settings.minDamagePerHit, math.round(damage * self.damageFactor)) -- whole HP like Brotato
+	local taken = if self.oneHit
+		then self.hp
+		else math.max(settings.minDamagePerHit, math.round(damage * self.damageFactor)) -- whole HP like Brotato
 	taken = math.min(taken, self.hp)
 	self.hp -= taken
 	self:protect(now, settings.hitInvulnerability)
@@ -111,7 +123,7 @@ end
 
 -- Heals up to the maximum. Returns the HP actually gained (0 while down: only a revive helps then).
 function Vitals.heal(self: Vitals, amount: number): number
-	if amount <= 0 or self:isDown() then
+	if amount <= 0 or self:isDown() or self.noHeal then
 		return 0
 	end
 	local gained = math.min(amount, self.maxHp - self.hp)
@@ -129,7 +141,7 @@ function Vitals.drain(self: Vitals, amount: number): (number, boolean)
 		self.hitShields -= 1
 		return 0, true
 	end
-	local lost = math.min(amount, self.hp)
+	local lost = if self.oneHit then self.hp else math.min(amount, self.hp)
 	self.hp -= lost
 	return lost, false
 end
