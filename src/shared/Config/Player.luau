@@ -2,9 +2,12 @@
 -- Base player values at run start (DESIGN.md section 4). Read by CombatService, WeaponService and HUD.
 -- The stats that grow during a run (Config.Stats) start from maxHp, moveSpeed, pickupRadius and critChance here.
 
+local Stats = require(script.Parent.Stats)
+
 return table.freeze({
 	maxHp = 10,
-	moveSpeed = 16, -- studs/s
+	-- Brotato: 450 units/s. Use the same world scale as weapon ranges (0.1 studs per unit), not Roblox's old 16.
+	moveSpeed = 450 * Stats.range.studsPerPoint,
 	-- studs (XP orbs, healing, embers); 8 until the playtest after Paket 24, now about Brotato's share of the arena
 	-- width (150 of about 2000 px) for the 160-stud arena
 	pickupRadius = 12,

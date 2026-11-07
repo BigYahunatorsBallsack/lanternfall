@@ -17,7 +17,7 @@ return table.freeze({
 	contactLeadMaxPing = 0.3, -- seconds; higher pings count as this
 	contactLeadMaxStuds = 5,
 	separationStiffness = 0.8, -- share of the overlap of two enemies removed per pass, 0-1 (assumption)
-	separationPasses = 3, -- more passes = fewer overlaps in dense crowds, but more server time per step
+	separationPasses = 5, -- settles dense crowds at the original movement scale; still checked against the step budget
 	obstacleSteerMargin = 2, -- studs; enemies start sliding around an obstacle this far from it (assumption)
 	keepDistanceTolerance = 2, -- studs; ranged enemies stand still within +- this of their keepDistance
 	-- Weapons step right after the enemies (WeaponService). A spinning blade is checked in pieces so its tip

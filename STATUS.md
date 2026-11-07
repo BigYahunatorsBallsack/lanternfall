@@ -72,7 +72,7 @@ Jeder Strang ändert nur **seine** Zeile (Regeln: `docs/PARALLEL.md`).
 | Strang | KI | Aktuelles Paket | Branch / PR | Stand | Danach |
 | --- | --- | --- | --- | --- | --- |
 | A – Engine und Ablauf | Claude | Paket 24 Launch-Paket (Medium) | `wp-24-launch` | fertig, selbst gemerged | Plan bis zum Launch abgeschlossen; als Nächstes IDs des Owners eintragen (Live-Experience, Badges, Musik), dann Live-Ops |
-| B - Inhalte und Spieler-Regeln | ChatGPT | Paket 25: 2D mit aktuellem main zusammenfuehren | `wp-25-integrate-2d-main` | 2D, aktuelle Waffen/Items/UI und alle 32 Gegnersprites zusammen; Tests und Bild-Preloads geprueft | Owner-Abnahme und Merge des Integrations-PR |
+| B - Inhalte und Spieler-Regeln | ChatGPT | Paket 25: Tempo, Beutebilder und Kollisionen | `wp-25-2d-followup` | Originale Beutebilder wiederhergestellt, Weltmassstab und schnelle Treffer korrigiert; Spawn-Fix aus aktuellem main erhalten | Owner-Test; Gesamtlauf hat offene Smoke-/RunStats-Fehler |
 
 ## Feste Entscheidungen des Owners
 
@@ -484,3 +484,12 @@ Branch `wp-25-2d-presentation`. **Owner-Entscheidungen dieses Pakets:** Das Spie
   - Spieler (`character`): `walkCycleSeconds` 0.6 → 0.75, `walkTiltDegrees` 7 → 4, `walkSquash` 0.09 → 0.045, `walkHopStuds` 0.25 → 0.1, `foot.lift` 0.45 → 0.3.
   - Gegner (`enemy`): `gait.stride` 6 → 7.5 (weniger Schritte pro Strecke), `gait.bob` 0.1 → 0.04, `gait.roll` 0.1 → 0.05, `squash` 0.08 → 0.04.
 - Feinjustieren: dieselben Felder; kleinere Zahl = ruhiger (bei `walkCycleSeconds`/`stride`: größere Zahl = ruhiger).
+
+## Paket 25: Tempo und Beutebilder (ChatGPT, 07.11.2026)
+
+- Owner meldet zu langsames Grundtempo, fehlende Kisten-/Materialbilder und kurz falsch platzierte Gegner. Vom geprueften GitHub-main begonnen, danach main `e38a762` mit PR #83/#85 aufgenommen. Dessen ruhigere Animationen, 15 Start-Shards und eigener Spawn-Fix bleiben erhalten; zwei neue Spawn-Regressionen pruefen neuen und gepoolten Gegner beim Einhaengen.
+- Vier schon vorhandene Original-PNGs aus dem frueheren unfertigen Auftrag bytegleich mit SHA-256 wiederhergestellt: Fruit, Crate, LegendaryCrate und Material. Aktive Bildzuordnungen fuer Beute, alte Elite-Truhen und gruene Materialbilder in Welt/Shop/HUD. Alle vier nativen Studio-Edit-Preloads waren am 06.11.2026 erfolgreich. Quellen und IDs: `assets/loot/brotato/`.
+- Grundtempo 450 Wiki-Einheiten/s im bestehenden Waffenmassstab 0,1 Stud/Einheit = 45 Studs/s. Prozentwerte erhalten. Feste bisherige Sturm-/Dash-/Geschosswerte proportional mitskaliert; kontinuierliche Trefferwege verhindern Durchlaufen zwischen Simulationspunkten, auch bei Boss-Streiftreffern. Gemeinsamer reiner Helfer `Util/SegmentCircle`; keine neue Remote oder Aenderung am Snapshot-Format. Gedraenge fuenf Aufloesungsdurchlaeufe bei unveraenderter 4-ms-Grenze.
+- Die fuer diese Korrekturen betroffenen A-eigenen Bewegungs-/Kollisionsdateien und Fixtures sind im PR aufgefuehrt. Keine anderen unfertigen Gameplay-Aenderungen des frueheren Chats importiert. Testanleitung: `docs/2D-FOLLOWUP.md`, Bericht: `docs/2d-followup-validation.json`.
+
+- Abschluss: 988 bestanden / 30 fehlgeschlagen in 85 Specs; aktueller unveraenderter main 977/26 in 80 Specs, jeweils Seed 1234 und jede Spec separat. Alle 15 neuen Regressionen sowie Gegner-, Sicherheits-, Gegnerlaufzeit-, Waffen- und Performance-Specs bestehen. Fehlschlaege verbleiben in Smoke und RunStats; Smoke hat bei schnellerem Kampf vier zusaetzliche Netto-Fehlschlaege. Kein gruener Gesamtlauf und keine Behauptung identischer Fehler. StyLua fuer 19 geaenderte/neue Luau-Dateien, Selene 0 Fehler/11 alte Warnungen, Rojo-Build und Diff-Pruefung bestanden. Owner-Abnahme des finalen Branchs in Studio noch offen.

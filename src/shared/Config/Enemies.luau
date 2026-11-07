@@ -281,6 +281,12 @@ local function speed(value: number): number
 	return value / 450 * Player.moveSpeed
 end
 
+-- Existing rush, dash and shot values were authored when the player moved at 16 studs/s.
+-- Keep their relative threat when matching the original movement/world-distance scale.
+local function legacySpeed(value: number): number
+	return value * Player.moveSpeed / 16
+end
+
 local Enemies: { [string]: Enemy } = {
 	Shadeling = {
 		id = "Shadeling",
@@ -319,7 +325,7 @@ local Enemies: { [string]: Enemy } = {
 		charge = {
 			triggerRange = 24,
 			windupSeconds = 0.9,
-			speed = 38,
+			speed = legacySpeed(38),
 			maxDistance = 30,
 			recoverSeconds = 0.2,
 			cooldownSeconds = 3,
@@ -343,7 +349,7 @@ local Enemies: { [string]: Enemy } = {
 			fireInterval = 2.5,
 			fireRange = 34,
 			projectileDamage = 1,
-			projectileSpeed = 18,
+			projectileSpeed = legacySpeed(18),
 			projectileRange = 50,
 			projectileRadius = 0.6,
 			aimLead = 0.3,
@@ -371,7 +377,7 @@ local Enemies: { [string]: Enemy } = {
 		charge = {
 			triggerRange = 24,
 			windupSeconds = 0.9,
-			speed = 38,
+			speed = legacySpeed(38),
 			maxDistance = 30,
 			recoverSeconds = 1.2,
 			cooldownSeconds = 3,
@@ -457,7 +463,7 @@ local Enemies: { [string]: Enemy } = {
 		charge = {
 			triggerRange = 24,
 			windupSeconds = 0.9,
-			speed = 38,
+			speed = legacySpeed(38),
 			maxDistance = 30,
 			recoverSeconds = 0.2,
 			cooldownSeconds = 3,
@@ -549,7 +555,7 @@ local Enemies: { [string]: Enemy } = {
 			fireInterval = 3,
 			fireRange = 40,
 			projectileDamage = 1,
-			projectileSpeed = 20,
+			projectileSpeed = legacySpeed(20),
 			projectileRange = 55,
 			projectileRadius = 0.6,
 			aimLead = 0.5,
@@ -581,7 +587,7 @@ local Enemies: { [string]: Enemy } = {
 			projectileDamage = 1,
 			rangedOnly = true,
 			chance = 0.5,
-			projectileSpeed = 15,
+			projectileSpeed = legacySpeed(15),
 			projectileRange = 26,
 			projectileRadius = 0.6,
 		},
@@ -751,7 +757,7 @@ local Enemies: { [string]: Enemy } = {
 		charge = {
 			triggerRange = 24,
 			windupSeconds = 0.9,
-			speed = 38,
+			speed = legacySpeed(38),
 			maxDistance = 30,
 			recoverSeconds = 0.2,
 			cooldownSeconds = 3,
@@ -800,12 +806,12 @@ local Enemies: { [string]: Enemy } = {
 		charge = {
 			triggerRange = 50,
 			windupSeconds = 0.2,
-			speed = 38,
+			speed = legacySpeed(38),
 			maxDistance = 30,
 			recoverSeconds = 0.2,
 			cooldownSeconds = 1.5,
 			projectileDamage = 1,
-			projectileSpeed = 16,
+			projectileSpeed = legacySpeed(16),
 			projectileRange = 35,
 			projectileRadius = 0.6,
 			trailEvery = 5,
@@ -885,7 +891,7 @@ local Bosses: { [string]: Enemy } = {
 					recoverSeconds = 0.9,
 					range = 40,
 					damage = 30,
-					speed = 40,
+					speed = legacySpeed(40),
 					distance = 38,
 				},
 				Slam = {
@@ -906,7 +912,7 @@ local Bosses: { [string]: Enemy } = {
 					count = 16,
 					bursts = 2,
 					burstGapSeconds = 0.4,
-					projectileSpeed = 16,
+					projectileSpeed = legacySpeed(16),
 					projectileRange = 60,
 					projectileRadius = 0.8,
 				},
@@ -981,7 +987,7 @@ local Bosses: { [string]: Enemy } = {
 					damage = 23,
 					count = 12,
 					spread = 13,
-					projectileSpeed = 14,
+					projectileSpeed = legacySpeed(14),
 					projectileRadius = 0.8,
 				},
 			},
@@ -1011,7 +1017,7 @@ end
 -- wave after wave 1 (Monk 700), 1 contact damage + 1.5 per wave after wave 1
 -- and grown by Run.spawn.growth like every enemy, HP also with the player factor (Run.playerFactor). Their attacks
 -- hit as hard as their contact damage (the wiki gives no projectile damage, assumption) and grow alike. Speeds:
--- Brotato's speeds converted relative to the player (450 = 16 studs/s). Attack timings follow the wiki ("charges every 2 s"); wind-up
+-- Brotato's speeds converted relative to the player (450 = Config.Player.moveSpeed studs/s). Attack timings follow the wiki ("charges every 2 s"); wind-up
 -- times, distances, projectile speeds and counts it does not give are assumptions, counts kept within the
 -- projectile budget (DESIGN.md section 15).
 local CHAMPION_HP_PER_WAVE = 750
@@ -1036,7 +1042,7 @@ local function champion(id: string, typeId: number, displayName: string, speed: 
 end
 
 -- side projectiles of the charges
-local TRAIL_SHOT = { projectileSpeed = 12, projectileRange = 18, projectileRadius = 0.6 }
+local TRAIL_SHOT = { projectileSpeed = legacySpeed(12), projectileRange = 18, projectileRadius = 0.6 }
 
 local function with(base: { [string]: any }, extra: { [string]: any }): BossAttack
 	local attack = table.clone(base)
@@ -1068,7 +1074,7 @@ local Champions: { [string]: Enemy } = {
 				recoverSeconds = 0.6,
 				range = 45,
 				damage = 1,
-				speed = 38,
+				speed = legacySpeed(38),
 				distance = 70, -- room for its bounces
 				trailEvery = 6,
 				bounces = 2,
@@ -1080,7 +1086,7 @@ local Champions: { [string]: Enemy } = {
 				recoverSeconds = 0.3,
 				range = 40,
 				damage = 1,
-				speed = 40,
+				speed = legacySpeed(40),
 				distance = 20,
 				trailEvery = 5,
 				startShots = 2,
@@ -1124,7 +1130,7 @@ local Champions: { [string]: Enemy } = {
 				damage = 1,
 				count = 3,
 				arc = 50,
-				projectileSpeed = 16,
+				projectileSpeed = legacySpeed(16),
 				projectileRange = 26,
 				projectileRadius = 1,
 			},
@@ -1180,7 +1186,7 @@ local Champions: { [string]: Enemy } = {
 					count = 1,
 					bursts = 5,
 					burstGapSeconds = 0.2,
-					projectileSpeed = 18,
+					projectileSpeed = legacySpeed(18),
 					projectileRange = 55,
 					projectileRadius = 0.6,
 				},
@@ -1221,7 +1227,7 @@ local Champions: { [string]: Enemy } = {
 				cooldownSeconds = 1.5,
 				range = 35,
 				damage = 1,
-				speed = 24,
+				speed = legacySpeed(24),
 				distance = 36,
 				turnRate = 90,
 			},
@@ -1232,7 +1238,7 @@ local Champions: { [string]: Enemy } = {
 				cooldownSeconds = 1.2,
 				range = 40,
 				damage = 1,
-				speed = 26,
+				speed = legacySpeed(26),
 				distance = 40,
 				turnRate = 110,
 				poolEvery = 7,
@@ -1287,7 +1293,7 @@ local Champions: { [string]: Enemy } = {
 					moving = true,
 					damage = 1,
 					count = 14,
-					projectileSpeed = 10,
+					projectileSpeed = legacySpeed(10),
 					projectileRange = 40,
 					projectileRadius = 0.7,
 				},
@@ -1300,7 +1306,7 @@ local Champions: { [string]: Enemy } = {
 					damage = 1,
 					count = 10,
 					spread = 14,
-					projectileSpeed = 13,
+					projectileSpeed = legacySpeed(13),
 					projectileRadius = 0.7,
 				},
 			},
@@ -1356,7 +1362,7 @@ local Champions: { [string]: Enemy } = {
 				cooldownSeconds = 1.3,
 				range = 40,
 				damage = 1,
-				speed = 40,
+				speed = legacySpeed(40),
 				distance = 26,
 				trailEvery = 4,
 			}),
@@ -1459,7 +1465,7 @@ local Champions: { [string]: Enemy } = {
 				bursts = 10,
 				burstGapSeconds = 0.15,
 				spinPerBurst = 11,
-				projectileSpeed = 12,
+				projectileSpeed = legacySpeed(12),
 				projectileRange = 45,
 				projectileRadius = 0.7,
 			},
@@ -1472,7 +1478,7 @@ local Champions: { [string]: Enemy } = {
 				damage = 1,
 				radius = 6,
 				count = 10,
-				projectileSpeed = 12,
+				projectileSpeed = legacySpeed(12),
 				projectileRange = 30,
 				projectileRadius = 0.7,
 			},
@@ -1486,7 +1492,7 @@ local Champions: { [string]: Enemy } = {
 				damage = 1,
 				count = 5,
 				arc = 50,
-				projectileSpeed = 15,
+				projectileSpeed = legacySpeed(15),
 				projectileRange = 50,
 				projectileRadius = 0.6,
 			},
@@ -1498,7 +1504,7 @@ local Champions: { [string]: Enemy } = {
 				moving = true,
 				damage = 1,
 				count = 3,
-				projectileSpeed = 13,
+				projectileSpeed = legacySpeed(13),
 				projectileRange = 40,
 				projectileRadius = 0.6,
 			},

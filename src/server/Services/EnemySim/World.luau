@@ -36,6 +36,8 @@
 local Shared = game:GetService("ReplicatedStorage").Shared
 local Enemies = require(Shared.Config.Enemies)
 local SpatialHash = require(Shared.Util.SpatialHash)
+local SegmentCircle = require(Shared.Util.SegmentCircle)
+local circleEntry = SegmentCircle.entry
 
 export type Kind = Enemies.Enemy
 export type Circle = { x: number, z: number, radius: number }
@@ -125,6 +127,7 @@ export type World = typeof(setmetatable(
 		hatches: { number },
 		hatchCount: number,
 		strikers: { number }, -- scratch: indices of slashers that strike in this step
+		rushes: { number }, -- scratch: swept rush paths, flat as enemy index, start x/z and end x/z
 	},
 	World
 ))
@@ -178,6 +181,7 @@ function World.new(params: Params): World
 		hatches = {},
 		hatchCount = 0,
 		strikers = {},
+		rushes = {},
 	}
 	self.columns = {
 		self.ids,
@@ -697,8 +701,8 @@ function World.teleport(self: World, id: number, x: number, z: number)
 	self.xs[i], self.zs[i] = x, z
 end
 
--- One step of a rush along the fixed direction. It ends after maxDistance, in an obstacle, at the arena edge or
--- touching a target; step 4 then puts the charger back outside of what it ran into.
+-- Sweeps the whole rush segment and stops at its first collision. A fast enemy cannot jump through a player
+-- or a thin obstacle between ticks; step 5 checks the travelled path even if crowd separation moves it afterward.
 local function rushStep(
 	self: World,
 	i: number,
@@ -711,27 +715,41 @@ local function rushStep(
 	local p = self.params
 	local radius = self.kinds[i].radius
 	local move = math.min(charge.speed * self.speedFactors[i] * self.slowFactors[i] * dt, self.rushLeft[i])
-	local x, z = self.xs[i] + self.rushXs[i] * move, self.zs[i] + self.rushZs[i] * move
-	local left = self.rushLeft[i] - move
-	local stop = left <= EPSILON
+	local x, z = self.xs[i], self.zs[i]
+	local dx, dz = self.rushXs[i], self.rushZs[i]
+	local stopAt: number? = nil
 	for _, obstacle in p.obstacles do
-		local reach = obstacle.radius + radius
-		if (x - obstacle.x) ^ 2 + (z - obstacle.z) ^ 2 < reach * reach then
-			stop = true
+		local entry = circleEntry(x, z, dx, dz, move, obstacle.x, obstacle.z, obstacle.radius + radius)
+		if entry and entry < (stopAt or math.huge) then
+			stopAt = entry
 		end
 	end
-	if x < p.minX + radius or x > p.maxX - radius or z < p.minZ + radius or z > p.maxZ - radius then
-		stop = true
+	local endX, endZ = x + dx * move, z + dz * move
+	if math.abs(dx) > EPSILON and (endX < p.minX + radius or endX > p.maxX - radius) then
+		local edge = if dx < 0 then p.minX + radius else p.maxX - radius
+		stopAt = math.min(stopAt or move, math.max(0, (edge - x) / dx))
+	end
+	if math.abs(dz) > EPSILON and (endZ < p.minZ + radius or endZ > p.maxZ - radius) then
+		local edge = if dz < 0 then p.minZ + radius else p.maxZ - radius
+		stopAt = math.min(stopAt or move, math.max(0, (edge - z) / dz))
 	end
 	local touch = radius + p.playerRadius + p.contactMargin
 	for t = 1, targetCount do
-		if (targetXs[t] - x) ^ 2 + (targetZs[t] - z) ^ 2 <= touch * touch then
-			stop = true
+		local entry = circleEntry(x, z, dx, dz, move, targetXs[t], targetZs[t], touch)
+		if entry and entry < (stopAt or math.huge) then
+			stopAt = entry
 		end
 	end
-	self.xs[i], self.zs[i] = x, z
+	local travelled = stopAt or move
+	endX, endZ = x + dx * travelled, z + dz * travelled
+	local paths = self.rushes
+	local at = #paths
+	paths[at + 1], paths[at + 2], paths[at + 3] = i, x, z
+	paths[at + 4], paths[at + 5] = endX, endZ
+	self.xs[i], self.zs[i] = endX, endZ
+	local left = self.rushLeft[i] - travelled
 	self.rushLeft[i] = left
-	if stop then
+	if stopAt or left <= EPSILON then
 		self.modes[i] = MODE_RECOVER
 		self.modeTimers[i] = charge.recoverSeconds
 	end
@@ -882,6 +900,7 @@ function World.step(
 	local maxRadius = self.maxRadius
 
 	table.clear(self.strikers)
+	table.clear(self.rushes)
 
 	-- 2. steering
 	if targetCount > 0 then
@@ -1060,6 +1079,24 @@ function World.step(
 				local dx, dz = hitXs[t] - xs[i], hitZs[t] - zs[i]
 				if dx * dx + dz * dz <= reachSquared and hit > contacts[t] then
 					contacts[t] = hit
+				end
+			end
+		end
+	end
+	-- Contacts along fast rushes use the same lag-corrected target positions as ordinary contact damage.
+	for k = 1, #self.rushes, 5 do
+		local paths = self.rushes
+		local i, x, z = paths[k], paths[k + 1], paths[k + 2]
+		local dx, dz = paths[k + 3] - x, paths[k + 4] - z
+		local length = math.sqrt(dx * dx + dz * dz)
+		local reach = kinds[i].radius + playerRadius + margin + EPSILON
+		if length > EPSILON then
+			for t = 1, targetCount do
+				if
+					damage[i] > contacts[t]
+					and circleEntry(x, z, dx / length, dz / length, length, hitXs[t], hitZs[t], reach)
+				then
+					contacts[t] = damage[i]
 				end
 			end
 		end

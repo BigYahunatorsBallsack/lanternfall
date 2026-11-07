@@ -1,0 +1,1435 @@
+{
+  "date": "2026-11-07",
+  "mainRevision": "e38a7628465ae9255bbf00bd0c5d11915d1a57bc",
+  "seed": 1234,
+  "method": "Every spec runs separately under the checked-in Lune adapter. Unchanged main sources came from git archive HEAD after updating this branch to the pinned main.",
+  "main": {
+    "specCount": 80,
+    "passed": 977,
+    "failed": 26,
+    "results": [
+      {
+        "spec": "Analytics.spec.luau",
+        "passed": 14,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "AnalyticsRules.spec.luau",
+        "passed": 6,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "Audio21.spec.luau",
+        "passed": 8,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "Boss.spec.luau",
+        "passed": 10,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "BossBrain.spec.luau",
+        "passed": 6,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "BrotatoWeapons.spec.luau",
+        "passed": 69,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "Champions.spec.luau",
+        "passed": 5,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "CharacterArt.spec.luau",
+        "passed": 9,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "CharactersB10.spec.luau",
+        "passed": 13,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "Config.spec.luau",
+        "passed": 6,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "Danger.spec.luau",
+        "passed": 6,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "DangerRules.spec.luau",
+        "passed": 11,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "EffectRules.spec.luau",
+        "passed": 11,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "EmberShop.spec.luau",
+        "passed": 12,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "EmberShopRules.spec.luau",
+        "passed": 8,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "EnemiesB9.spec.luau",
+        "passed": 7,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "EnemyModels.spec.luau",
+        "passed": 10,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "EnemyWorld.spec.luau",
+        "passed": 44,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "Experience.spec.luau",
+        "passed": 7,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "FirstNight.spec.luau",
+        "passed": 9,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "FirstNightHub.spec.luau",
+        "passed": 2,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "Graphics22.spec.luau",
+        "passed": 6,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "HeldWeapons.spec.luau",
+        "passed": 4,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "HitNumbers.spec.luau",
+        "passed": 3,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "HubStudio.spec.luau",
+        "passed": 10,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "HubTeleport.spec.luau",
+        "passed": 7,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "Hud14.spec.luau",
+        "passed": 6,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "ItemParity.spec.luau",
+        "passed": 136,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "ItemsB8.spec.luau",
+        "passed": 16,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "ItemSprites.spec.luau",
+        "passed": 5,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "Launch24.spec.luau",
+        "passed": 10,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "Loot.spec.luau",
+        "passed": 11,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "LootRules.spec.luau",
+        "passed": 8,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "MainGameEnemyRuntime.spec.luau",
+        "passed": 9,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "MainGameEnemyStats.spec.luau",
+        "passed": 29,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "MovementRules.spec.luau",
+        "passed": 11,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "NetCodecs22.spec.luau",
+        "passed": 7,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "Parties.spec.luau",
+        "passed": 11,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "Perf22.spec.luau",
+        "passed": 1,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "PlaceRules.spec.luau",
+        "passed": 9,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "PlayerData.spec.luau",
+        "passed": 7,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "PlayerDataRules.spec.luau",
+        "passed": 14,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "PrimaryStatArt.spec.luau",
+        "passed": 6,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "Progress.spec.luau",
+        "passed": 6,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "ProgressRules.spec.luau",
+        "passed": 10,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "PurchaseRules.spec.luau",
+        "passed": 10,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "QuestRules.spec.luau",
+        "passed": 18,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "Quests.spec.luau",
+        "passed": 11,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "RandomStreams.spec.luau",
+        "passed": 3,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "RetryWave.spec.luau",
+        "passed": 6,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "Revive.spec.luau",
+        "passed": 8,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "ReviveRules.spec.luau",
+        "passed": 7,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "RunFlow.spec.luau",
+        "passed": 55,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "RunPlace.spec.luau",
+        "passed": 6,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "RunStats.spec.luau",
+        "passed": 4,
+        "failed": 1,
+        "exitCode": 1,
+        "failures": [
+          {
+            "test": "Tally > writes readable log lines with the level per minute and every build",
+            "detail": "tests/RunStats.spec.luau:87: expected \"  Weapons: Orbit Blades II 64 dmg/1 kills\", got \"  Weapons: Circular Saw II 64 dmg/1 kills\""
+          }
+        ]
+      },
+      {
+        "spec": "Security23.spec.luau",
+        "passed": 13,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "Security23Hub.spec.luau",
+        "passed": 3,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "ShopRules.spec.luau",
+        "passed": 14,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "Smoke.spec.luau",
+        "passed": 18,
+        "failed": 25,
+        "exitCode": 1,
+        "failures": [
+          {
+            "test": "smoke > arms the player with the class weapon and switches weapons off for the enemy tests",
+            "detail": "tests/Smoke.spec.luau:196: expected \"Spark Bolt I\", got \"Wand I\""
+          },
+          {
+            "test": "smoke > spawns enemies on a ring around the player and draws them",
+            "detail": "./tests/helpers/RobloxMock.luau:185: attempt to index nil with 'X'"
+          },
+          {
+            "test": "smoke > chases the player until it touches them",
+            "detail": "tests/Smoke.spec.luau:258: expected true, got false"
+          },
+          {
+            "test": "smoke > shows enemy and performance numbers to admins",
+            "detail": "tests/Smoke.spec.luau:314: expected \"Enemies 80 / 80 \u00c2\u00b7 drawn 80 (0 off screen) \u00c2\u00b7 shots 0\", got \"Enemies 80 / 80 \u00c2\u00b7 drawn 79 (0 off screen) \u00c2\u00b7 shots 0\""
+          },
+          {
+            "test": "smoke > shoots Spark Bolts that kill enemies once weapons are on",
+            "detail": "tests/Smoke.spec.luau:340: expected false, got true"
+          },
+          {
+            "test": "smoke > draws the six original weapons, tiers and debug swaps",
+            "detail": "tests/Smoke.spec.luau:360: expected true, got false"
+          },
+          {
+            "test": "smoke > drops XP orbs that the player picks up for the whole team",
+            "detail": "tests/Smoke.spec.luau:442: expected 1, got 0"
+          },
+          {
+            "test": "smoke > keeps level-ups for the end of the wave",
+            "detail": "tests/Smoke.spec.luau:456: expected 2, got 1"
+          },
+          {
+            "test": "smoke > ends the wave: enemies fade, the shop opens and the level-up cards come first",
+            "detail": "tests/Smoke.spec.luau:465: expected true, got false"
+          },
+          {
+            "test": "smoke > opens level-up cards on the screen between waves and applies the pick",
+            "detail": "tests/Smoke.spec.luau:481: expected true, got false"
+          },
+          {
+            "test": "smoke > rerolls the cards for Shards and picks the first card when the time runs out",
+            "detail": "tests/Smoke.spec.luau:519: expected \"Reroll (1 Shards)\", got nil"
+          },
+          {
+            "test": "smoke > sells weapons and items for Shards in the shop, rerolls and starts the next wave on READY",
+            "detail": "tests/Smoke.spec.luau:539: expected true, got false"
+          },
+          {
+            "test": "smoke > lets items change HP, speed and weapon damage, stacking without limit",
+            "detail": "tests/Smoke.spec.luau:741: expected true, got false"
+          },
+          {
+            "test": "smoke > runs item effects: standing still, per X, timers, crit kills, dodges and chests",
+            "detail": "tests/Smoke.spec.luau:794: expected \"Still\", got nil"
+          },
+          {
+            "test": "smoke > runs wave end, shop and next-wave effects and the shop stats",
+            "detail": "tests/Smoke.spec.luau:887: expected \"Shop\", got \"Ended\""
+          },
+          {
+            "test": "smoke > spawns a glowing elite with an HP bar that drops a chest",
+            "detail": "tests/Smoke.spec.luau:938: expected 1, got 0"
+          },
+          {
+            "test": "smoke > opens the chest when walked over and shows the reward",
+            "detail": "tests/Smoke.spec.luau:969: attempt to index nil with 'x'"
+          },
+          {
+            "test": "smoke > gives the evolution from a chest once the build is ready",
+            "detail": "tests/Smoke.spec.luau:1002: expected true, got false"
+          },
+          {
+            "test": "smoke > lets Spitters shoot visible projectiles that hit the player",
+            "detail": "tests/Smoke.spec.luau:1039: expected true, got false"
+          },
+          {
+            "test": "smoke > starts Swarm Rush with a ring of Shadelings and no Gloom Elites",
+            "detail": "tests/Smoke.spec.luau:1059: expected true, got false"
+          },
+          {
+            "test": "smoke > shows a Charger's wind-up, splits Splitters and names elite affixes",
+            "detail": "tests/Smoke.spec.luau:1106: expected 1, got 0"
+          },
+          {
+            "test": "smoke > runs Brotato's combat: weapon class bonuses, burning, exploding items and slowed enemies",
+            "detail": "tests/Smoke.spec.luau:1152: expected 1, got 0"
+          },
+          {
+            "test": "smoke > puts a respawned participant back into the arena",
+            "detail": "tests/Smoke.spec.luau:1220: expected true, got false"
+          },
+          {
+            "test": "smoke > skips to the boss wave, and surviving it wins (WP10)",
+            "detail": "tests/Smoke.spec.luau:1229: expected \"Shop\", got \"Lobby\""
+          },
+          {
+            "test": "smoke > starts the next run with Play again",
+            "detail": "tests/Smoke.spec.luau:1272: expected \"Spark Bolt I\", got \"Wand I\""
+          }
+        ]
+      },
+      {
+        "spec": "Snapshot.spec.luau",
+        "passed": 7,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "SnapshotBuffer.spec.luau",
+        "passed": 7,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "SpatialHash.spec.luau",
+        "passed": 2,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "SpawnGroups.spec.luau",
+        "passed": 6,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "SpawnRules.spec.luau",
+        "passed": 16,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "StatMath.spec.luau",
+        "passed": 8,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "Store.spec.luau",
+        "passed": 14,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "StructuresB12.spec.luau",
+        "passed": 8,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "UiRedesign.spec.luau",
+        "passed": 10,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "UiShop.spec.luau",
+        "passed": 4,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "UpgradePool.spec.luau",
+        "passed": 10,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "UpgradeReference.spec.luau",
+        "passed": 17,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "ViewBounds.spec.luau",
+        "passed": 5,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "Vitals.spec.luau",
+        "passed": 13,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "WeaponBalance.spec.luau",
+        "passed": 1,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "WeaponClasses.spec.luau",
+        "passed": 5,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "Weapons.spec.luau",
+        "passed": 16,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "WeaponsB7.spec.luau",
+        "passed": 10,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "WeaponsB7Integration.spec.luau",
+        "passed": 5,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "WeaponStats.spec.luau",
+        "passed": 10,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "WorldSprites.spec.luau",
+        "passed": 12,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      }
+    ]
+  },
+  "followup": {
+    "specCount": 85,
+    "passed": 988,
+    "failed": 30,
+    "results": [
+      {
+        "spec": "Analytics.spec.luau",
+        "passed": 14,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "AnalyticsRules.spec.luau",
+        "passed": 6,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "Audio21.spec.luau",
+        "passed": 8,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "Boss.spec.luau",
+        "passed": 10,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "BossBrain.spec.luau",
+        "passed": 6,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "BrotatoWeapons.spec.luau",
+        "passed": 69,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "Champions.spec.luau",
+        "passed": 5,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "CharacterArt.spec.luau",
+        "passed": 9,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "CharactersB10.spec.luau",
+        "passed": 13,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "Config.spec.luau",
+        "passed": 6,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "Danger.spec.luau",
+        "passed": 6,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "DangerRules.spec.luau",
+        "passed": 11,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "EffectRules.spec.luau",
+        "passed": 11,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "EmberShop.spec.luau",
+        "passed": 12,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "EmberShopRules.spec.luau",
+        "passed": 8,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "EnemiesB9.spec.luau",
+        "passed": 7,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "EnemyModels.spec.luau",
+        "passed": 10,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "EnemySpawnPlacement25.spec.luau",
+        "passed": 2,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "EnemyWorld.spec.luau",
+        "passed": 44,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "Experience.spec.luau",
+        "passed": 7,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "FastBossDash25.spec.luau",
+        "passed": 2,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "FastRush25.spec.luau",
+        "passed": 4,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "FirstNight.spec.luau",
+        "passed": 9,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "FirstNightHub.spec.luau",
+        "passed": 2,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "Graphics22.spec.luau",
+        "passed": 6,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "HeldWeapons.spec.luau",
+        "passed": 4,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "HitNumbers.spec.luau",
+        "passed": 3,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "HubStudio.spec.luau",
+        "passed": 10,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "HubTeleport.spec.luau",
+        "passed": 7,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "Hud14.spec.luau",
+        "passed": 6,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "ItemParity.spec.luau",
+        "passed": 136,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "ItemsB8.spec.luau",
+        "passed": 16,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "ItemSprites.spec.luau",
+        "passed": 5,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "Launch24.spec.luau",
+        "passed": 10,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "Loot.spec.luau",
+        "passed": 11,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "LootRules.spec.luau",
+        "passed": 8,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "LootSprites25.spec.luau",
+        "passed": 3,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "MainGameEnemyRuntime.spec.luau",
+        "passed": 9,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "MainGameEnemyStats.spec.luau",
+        "passed": 29,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "MovementRules.spec.luau",
+        "passed": 11,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "NetCodecs22.spec.luau",
+        "passed": 7,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "Parties.spec.luau",
+        "passed": 11,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "Perf22.spec.luau",
+        "passed": 1,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "PlaceRules.spec.luau",
+        "passed": 9,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "PlayerData.spec.luau",
+        "passed": 7,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "PlayerDataRules.spec.luau",
+        "passed": 14,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "PlayerSpeed25.spec.luau",
+        "passed": 4,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "PrimaryStatArt.spec.luau",
+        "passed": 6,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "Progress.spec.luau",
+        "passed": 6,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "ProgressRules.spec.luau",
+        "passed": 10,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "PurchaseRules.spec.luau",
+        "passed": 10,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "QuestRules.spec.luau",
+        "passed": 18,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "Quests.spec.luau",
+        "passed": 11,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "RandomStreams.spec.luau",
+        "passed": 3,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "RetryWave.spec.luau",
+        "passed": 6,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "Revive.spec.luau",
+        "passed": 8,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "ReviveRules.spec.luau",
+        "passed": 7,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "RunFlow.spec.luau",
+        "passed": 55,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "RunPlace.spec.luau",
+        "passed": 6,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "RunStats.spec.luau",
+        "passed": 4,
+        "failed": 1,
+        "exitCode": 1,
+        "failures": [
+          {
+            "test": "Tally > writes readable log lines with the level per minute and every build",
+            "detail": "tests/RunStats.spec.luau:87: expected \"  Weapons: Orbit Blades II 64 dmg/1 kills\", got \"  Weapons: Circular Saw II 64 dmg/1 kills\""
+          }
+        ]
+      },
+      {
+        "spec": "Security23.spec.luau",
+        "passed": 13,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "Security23Hub.spec.luau",
+        "passed": 3,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "ShopRules.spec.luau",
+        "passed": 14,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "Smoke.spec.luau",
+        "passed": 14,
+        "failed": 29,
+        "exitCode": 1,
+        "failures": [
+          {
+            "test": "smoke > arms the player with the class weapon and switches weapons off for the enemy tests",
+            "detail": "tests/Smoke.spec.luau:196: expected \"Spark Bolt I\", got \"Wand I\""
+          },
+          {
+            "test": "smoke > spawns enemies on a ring around the player and draws them",
+            "detail": "./tests/helpers/RobloxMock.luau:185: attempt to index nil with 'X'"
+          },
+          {
+            "test": "smoke > shows enemy and performance numbers to admins",
+            "detail": "tests/Smoke.spec.luau:314: expected \"Enemies 80 / 80 \u00c2\u00b7 drawn 80 (0 off screen) \u00c2\u00b7 shots 0\", got \"Enemies 80 / 80 \u00c2\u00b7 drawn 79 (0 off screen) \u00c2\u00b7 shots 0\""
+          },
+          {
+            "test": "smoke > shoots Spark Bolts that kill enemies once weapons are on",
+            "detail": "tests/Smoke.spec.luau:340: expected false, got true"
+          },
+          {
+            "test": "smoke > draws the six original weapons, tiers and debug swaps",
+            "detail": "tests/Smoke.spec.luau:360: expected true, got false"
+          },
+          {
+            "test": "smoke > drops XP orbs that the player picks up for the whole team",
+            "detail": "tests/Smoke.spec.luau:447: expected \"LV 4\", got \"LV 4 \u00c2\u00b7 +3 at wave end\""
+          },
+          {
+            "test": "smoke > keeps level-ups for the end of the wave",
+            "detail": "tests/Smoke.spec.luau:459: expected \"LV 5 \u00c2\u00b7 +1 at wave end\", got \"LV 5 \u00c2\u00b7 +4 at wave end\""
+          },
+          {
+            "test": "smoke > sells weapons and items for Shards in the shop, rerolls and starts the next wave on READY",
+            "detail": "tests/Smoke.spec.luau:613: expected 2, got 3"
+          },
+          {
+            "test": "smoke > lets items change HP, speed and weapon damage, stacking without limit",
+            "detail": "tests/Smoke.spec.luau:734: expected about 49.50000000000001, got 0"
+          },
+          {
+            "test": "smoke > runs item effects: standing still, per X, timers, crit kills, dodges and chests",
+            "detail": "tests/Smoke.spec.luau:794: expected \"Still\", got nil"
+          },
+          {
+            "test": "smoke > runs wave end, shop and next-wave effects and the shop stats",
+            "detail": "tests/Smoke.spec.luau:890: expected true, got false"
+          },
+          {
+            "test": "smoke > spawns a glowing elite with an HP bar that drops a chest",
+            "detail": "tests/Smoke.spec.luau:938: expected 1, got 0"
+          },
+          {
+            "test": "smoke > opens the chest when walked over and shows the reward",
+            "detail": "tests/Smoke.spec.luau:969: attempt to index nil with 'x'"
+          },
+          {
+            "test": "smoke > gives the evolution from a chest once the build is ready",
+            "detail": "tests/Smoke.spec.luau:1002: expected true, got false"
+          },
+          {
+            "test": "smoke > lets Spitters shoot visible projectiles that hit the player",
+            "detail": "tests/Smoke.spec.luau:1039: expected true, got false"
+          },
+          {
+            "test": "smoke > starts Swarm Rush with a ring of Shadelings and no Gloom Elites",
+            "detail": "tests/Smoke.spec.luau:1059: expected true, got false"
+          },
+          {
+            "test": "smoke > shows a Charger's wind-up, splits Splitters and names elite affixes",
+            "detail": "tests/Smoke.spec.luau:1106: expected 1, got 0"
+          },
+          {
+            "test": "smoke > runs Brotato's combat: weapon class bonuses, burning, exploding items and slowed enemies",
+            "detail": "tests/Smoke.spec.luau:1153: expected 9, got 3"
+          },
+          {
+            "test": "smoke > skips to the boss wave, and surviving it wins (WP10)",
+            "detail": "tests/Smoke.spec.luau:1230: expected 19, got 1"
+          },
+          {
+            "test": "smoke > starts the next run with Play again",
+            "detail": "tests/Smoke.spec.luau:1267: expected \"Countdown\", got \"Shop\""
+          },
+          {
+            "test": "smoke > keeps walking but suppresses jumping on Space",
+            "detail": "tests/Smoke.spec.luau:1294: expected 45, got 0"
+          },
+          {
+            "test": "smoke > takes debug damage with hit protection and heals",
+            "detail": "tests/Smoke.spec.luau:1308: expected 8, got 12"
+          },
+          {
+            "test": "smoke > ends in defeat when the only player is knocked down",
+            "detail": "tests/Smoke.spec.luau:1320: expected false, got true"
+          },
+          {
+            "test": "smoke > returns to the lobby after the results",
+            "detail": "tests/Smoke.spec.luau:1332: expected \"Lobby\", got \"Running\""
+          },
+          {
+            "test": "smoke > runs with two players and keeps late joiners in the lobby",
+            "detail": "tests/Smoke.spec.luau:1344: expected \"Countdown\", got \"Running\""
+          },
+          {
+            "test": "smoke > keeps running while one of two is down, and enemies go for the one still standing",
+            "detail": "tests/Smoke.spec.luau:1362: attempt to index nil with 'id'"
+          },
+          {
+            "test": "smoke > stands a downed player up with full HP when the wave ends",
+            "detail": "tests/Smoke.spec.luau:1388: expected \"Shop\", got \"Ended\""
+          },
+          {
+            "test": "smoke > rejects locked classes with a message",
+            "detail": "tests/Smoke.spec.luau:1410: attempt to index nil with 'classId'"
+          },
+          {
+            "test": "smoke > finished without any runtime error",
+            "detail": "tests/Smoke.spec.luau:1422: runtime error: ./src/shared/Net/RateLimiter.luau:30: table index is nil"
+          }
+        ]
+      },
+      {
+        "spec": "Snapshot.spec.luau",
+        "passed": 7,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "SnapshotBuffer.spec.luau",
+        "passed": 7,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "SpatialHash.spec.luau",
+        "passed": 2,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "SpawnGroups.spec.luau",
+        "passed": 6,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "SpawnRules.spec.luau",
+        "passed": 16,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "StatMath.spec.luau",
+        "passed": 8,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "Store.spec.luau",
+        "passed": 14,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "StructuresB12.spec.luau",
+        "passed": 8,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "UiRedesign.spec.luau",
+        "passed": 10,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "UiShop.spec.luau",
+        "passed": 4,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "UpgradePool.spec.luau",
+        "passed": 10,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "UpgradeReference.spec.luau",
+        "passed": 17,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "ViewBounds.spec.luau",
+        "passed": 5,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "Vitals.spec.luau",
+        "passed": 13,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "WeaponBalance.spec.luau",
+        "passed": 1,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "WeaponClasses.spec.luau",
+        "passed": 5,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "Weapons.spec.luau",
+        "passed": 16,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "WeaponsB7.spec.luau",
+        "passed": 10,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "WeaponsB7Integration.spec.luau",
+        "passed": 5,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "WeaponStats.spec.luau",
+        "passed": 10,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      },
+      {
+        "spec": "WorldSprites.spec.luau",
+        "passed": 12,
+        "failed": 0,
+        "exitCode": 0,
+        "failures": []
+      }
+    ]
+  },
+  "fullSuiteGreen": false,
+  "openFailures": "Smoke and RunStats already fail on main. Smoke changes from 25 to 29 failing cases as its broken stateful sequence reacts to faster combat. Four additional net failures remain open; this is not a no-regressions/full-green claim.",
+  "targetedChecks": "All 15 new regression cases pass. Existing enemy world, movement/security, enemy runtime, weapon and performance specs pass.",
+  "benchmarks": [
+    "enemies + 24 max-tier weapons: 3.516 ms, weapons alone 1.011 ms",
+    "crowd: worst overlap 0.32 studs, moved 0.30 studs/s",
+    "step with 140 enemies: 2.712 ms"
+  ],
+  "styLuaFiles": 19,
+  "selene": {
+    "errors": 0,
+    "parseErrors": 0,
+    "existingWarnings": 11,
+    "standard": "cached Roblox API; the online API dump could not be retrieved"
+  },
+  "rojoBuild": true,
+  "review": "Independent review found fixed-speed rush mismatch and swept rush/boss-dash misses. All addressed with red/green regressions; final review found no further concrete issue.",
+  "nativeChecks": {
+    "date": "2026-11-06",
+    "lootImagePreloads": {
+      "success": 4,
+      "failure": 0
+    },
+    "detachedBulkMoveTo": "Success; current main spawn implementation uses direct CFrames before parenting."
+  },
+  "notVerified": [
+    "Full native solo run of final branch",
+    "Two-client run",
+    "Mobile device",
+    "Published run place"
+  ],
+  "scope": "Four recovered original loot images only; other unfinished content-parity changes were not imported."
+}

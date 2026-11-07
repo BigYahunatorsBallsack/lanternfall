@@ -692,12 +692,17 @@ describe("B9 behaviours", function()
 		local pulse = Types.Herald.pulse :: any
 		local world = newWorld()
 		local herald = spawn(world, "Herald", 100, 0) :: number
+		world:setGoal(herald, 100, 0) -- isolate the pulse from movement speed
 		local brutes = {}
 		for k = 1, pulse.buffCount + 2 do
 			local angle = k / (pulse.buffCount + 2) * 2 * math.pi
 			table.insert(brutes, spawn(world, "Brute", 100 + math.cos(angle) * 6, math.sin(angle) * 6))
 		end
 		local far = spawn(world, "Brute", 100, 60) :: number
+		for _, id in brutes do
+			local x, z = world:getPosition(id)
+			world:setGoal(id, x, z)
+		end
 		local function anyBuffed()
 			for _, id in brutes do
 				local _, _, isBuffed = world:getStatus(id)
