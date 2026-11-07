@@ -1,0 +1,68 @@
+--!strict
+-- Real combat service healing events, regeneration ticks and isolated character policies.
+local world = loadHelper("tests/helpers/RobloxMock.luau")
+local Server = game:GetService("ServerScriptService").Server
+local Config = require(game:GetService("ReplicatedStorage").Shared.Config)
+runScript(Server, "init.server.luau")
+local S = Server.Services
+local Run = require(S.RunDirector)
+local Combat = require(S.CombatService)
+local Stats = require(S.StatService)
+local Weapons = require(S.WeaponService)
+local Spawn = require(S.SpawnDirector)
+local me = world.addPlayer("Owner", 1, true)
+local peer = world.addPlayer("Peer", 2, false)
+world.advance(0.5)
+assert(Run.setReady(me, true))
+assert(Run.setReady(peer, true))
+world.advance(3.5)
+Run.setHoldWaves(true)
+Weapons.setPaused(true)
+Spawn.setPaused(true)
+require(S.EnemySim).killAll()
+local heals = {}
+Combat.Healed:Connect(function(player, amount)
+	table.insert(heals, { player = player, amount = amount })
+end)
+
+describe("Character combat integration", function()
+	it("reports actual healing once and ignores full-health/zero heals", function()
+		Stats.addStats(me, { maxHp = 20 })
+		Combat.drainPlayer(me, 8)
+		expect(Combat.healPlayer(me, 3)).toBe(3)
+		expect(#heals).toBe(1)
+		expect(heals[1].player).toBe(me)
+		expect(heals[1].amount).toBe(3)
+		expect(Combat.healPlayer(me, 100)).toBe(5)
+		expect(Combat.healPlayer(me, 100)).toBe(0)
+		expect(Combat.healPlayer(me, 0)).toBe(0)
+		expect(#heals).toBe(2)
+	end)
+
+	it("regenerates in one-HP ticks rather than firing healing effects every frame", function()
+		table.clear(heals)
+		Combat.drainPlayer(me, 8)
+		Stats.addStats(me, { hpRegen = 1 })
+		world.advance(4.9)
+		expect(#heals).toBe(0)
+		world.advance(0.2)
+		expect(#heals).toBe(1)
+		expect(heals[1].amount).toBe(1)
+	end)
+
+	it("blocks direct and regeneration healing only for the character with the policy", function()
+		local class = Config.Classes[Run.getParticipantClassId(me)]
+		local previous = class.noHeal
+		class.noHeal = true
+		table.clear(heals)
+		local before = Combat.getHp(me)
+		expect(Combat.healPlayer(me, 100)).toBe(0)
+		world.advance(5.1)
+		expect(Combat.getHp(me)).toBe(before)
+		expect(#heals).toBe(0)
+		class.noHeal = previous
+		Combat.drainPlayer(peer, 2)
+		expect(Combat.healPlayer(peer, 1)).toBe(1)
+		expect(heals[1].player).toBe(peer)
+	end)
+end)

@@ -52,6 +52,7 @@ local vitals: { [Player]: Vitals.Vitals } = {}
 local sentHp: { [Player]: number } = {} -- whole HP last sent, so regeneration does not send every frame
 local stats: { [Player]: StatMath.Sheet } = {} -- the latest from StatService, kept until the player leaves
 local regen: { [Player]: number } = {} -- HP per second
+local regenProgress: { [Player]: number } = {} -- fractional progress toward the next one-HP regeneration tick
 local lastLifeSteal: { [Player]: number } = {} -- server time of the last life steal heal
 local choosing: { [Player]: boolean } = {} -- picking a level-up card
 
@@ -147,6 +148,7 @@ end
 local function resetAll()
 	table.clear(choosing)
 	table.clear(lastLifeSteal)
+	table.clear(regenProgress)
 	for player, state in vitals do
 		applyCharacterRules(player, state)
 		state:reset(maxHpFor(player))
@@ -236,7 +238,11 @@ end
 -- Dodge and Speed, with Brotato's formulas (Util/StatMath).
 function CombatService.setStats(player: Player, sheet: StatMath.Sheet)
 	stats[player] = sheet
-	regen[player] = StatMath.regenPerSecond(sheet.hpRegen or 0)
+	local perSecond = StatMath.regenPerSecond(sheet.hpRegen or 0)
+	if perSecond <= 0 or (regen[player] or 0) <= 0 then
+		regenProgress[player] = 0
+	end
+	regen[player] = perSecond
 	local state = getVitals(player)
 	applyCharacterRules(player, state)
 	state:setMaxHp(maxHpFor(player))
@@ -286,6 +292,7 @@ end
 function CombatService.init()
 	Players.PlayerAdded:Connect(onPlayerAdded)
 	Players.PlayerRemoving:Connect(function(player)
+		regenProgress[player] = nil
 		vitals[player] = nil
 		sentHp[player] = nil
 		stats[player] = nil
@@ -329,14 +336,15 @@ function CombatService.init()
 			end
 		end
 	end)
-	local waveStartHp: { [Player]: number } = {}
+	type SavedVitals = { hp: number, regeneration: number }
+	local waveStartHp: { [Player]: SavedVitals } = {}
 	RunDirector.addCheckpoint("Combat", function()
 		local saved = {}
 		for _, player in RunDirector.getParticipants() do
-			saved[player] = getVitals(player).hp
+			saved[player] = { hp = getVitals(player).hp, regeneration = regenProgress[player] or 0 }
 		end
 		return saved
-	end, function(saved: { [Player]: number })
+	end, function(saved: { [Player]: SavedVitals })
 		waveStartHp = table.clone(saved)
 	end)
 	RunDirector.WaveRetried:Connect(function()
@@ -344,7 +352,9 @@ function CombatService.init()
 		for _, player in RunDirector.getParticipants() do
 			local state = getVitals(player)
 			state:reset(state.maxHp)
-			state.hp = math.clamp(waveStartHp[player] or state.maxHp, 1, state.maxHp)
+			local saved = waveStartHp[player]
+			state.hp = math.clamp(if saved then saved.hp else state.maxHp, 1, state.maxHp)
+			regenProgress[player] = if saved then saved.regeneration else 0
 			applyWalkSpeed(player)
 			send(player)
 		end
@@ -373,9 +383,17 @@ function CombatService.init()
 			local state = vitals[player]
 			if state and perSecond > 0 and canBeHurt(player) then
 				applyCharacterRules(player, state)
-				local gained = state:heal(perSecond * dt)
-				if gained > 0 then
-					CombatService.Healed:Fire(player, gained)
+				local progress = (regenProgress[player] or 0) + perSecond * dt
+				local ticks = math.floor(progress / Config.Stats.hpScale + 1e-9)
+				regenProgress[player] = math.max(0, progress - ticks * Config.Stats.hpScale)
+				if not state.noHeal then
+					-- Full-health ticks are consumed too; only effective healing can trigger Lich.
+					for _ = 1, math.min(ticks, math.ceil((state.maxHp - state.hp) / Config.Stats.hpScale)) do
+						local gained = state:heal(Config.Stats.hpScale)
+						if gained > 0 then
+							CombatService.Healed:Fire(player, gained)
+						end
+					end
 				end
 				if math.ceil(state.hp) ~= sentHp[player] then
 					send(player)
