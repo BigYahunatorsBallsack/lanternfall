@@ -108,7 +108,7 @@ local function acquire(id: number, typeId: number, hp: number): Drawn
 	else
 		visual = Models.build(typeId)
 	end
-	visual.model.Parent = getFolder()
+	-- not parented yet: render places its parts at the spawn point first (see showAtSpawn)
 	local kind: any = EnemyKinds.byTypeId(typeId)
 	if visual.hpBar then
 		visual.hpBar.Size = UDim2.fromScale(hp, 1)
@@ -132,6 +132,16 @@ local function acquire(id: number, typeId: number, hp: number): Drawn
 	}
 	drawn[id] = entry
 	return entry
+end
+
+-- First frame of a model: its parts still stand where the pooled model last died (or at the origin when new), and a
+-- BillboardGui picture is drawn there for a frame if the model joins the workspace before BulkMoveTo moves it. So the
+-- parts queued for this model (list slots from..to) get their CFrames directly, and only then the model is parented.
+local function showAtSpawn(visual: Models.Visual, from: number, to: number)
+	for k = from, to do
+		partList[k].CFrame = cframeList[k]
+	end
+	visual.model.Parent = getFolder()
 end
 
 local function release(id: number, entry: Drawn)
@@ -322,6 +332,7 @@ local function render(dt: number)
 			if visible then
 				current.posedX, current.posedZ = x, z
 				local base = CFrame.new(x, floorY, z) * CFrame.Angles(0, current.yaw, 0)
+				local first = count + 1
 				count = Models.pose(
 					visual,
 					base,
@@ -333,6 +344,9 @@ local function render(dt: number)
 					cframeList,
 					count
 				)
+				if visual.model.Parent == nil then
+					showAtSpawn(visual, first, count)
+				end
 			else
 				culled += 1
 			end
