@@ -89,6 +89,8 @@ Jeder Strang ändert nur **seine** Zeile (Regeln: `docs/PARALLEL.md`).
 - Annahmen (Wiki schweigt, im Test prüfen): Brennen springt pro Tick auf den nächsten nicht brennenden Gegner in 8 Studs; Abprall-Ziel zufällig in 25 Studs; Rückstoß 0,1 Studs pro Punkt; Elites sind immun gegen Rückstoß.
 - B6 (30.10.2026, Annahmen im Test prüfen): Kisten sind 25 % der Früchte/Kisten-Drops (Brotato nennt keinen Grundwert), Brute/Abyss Brute 3 %, Charger 2 % statt 1 %; Plünderer verschwindet nach 12 s; 1 Baum pro Welle mit 30 HP; Kisten öffnen sich vor den Level-up-Karten, nach 10 s wird genommen; liegengebliebene Kisten gehen an den nächsten Spieler. Elite-Truhen bleiben bis Paket 10/B11 wie sie sind (sonst 13 legendäre Items pro Run).
 
+- Owner (08.11.2026): Bäume haben bewusst doppelt so viel Leben wie in Brotato: 20 + 10 pro Welle statt 10 + 5 (`Config/Enemies.luau` → `Tree`). Gewollte Abweichung von der 1:1-Regel.
+
 - B9 Teil 2 (30.10.2026): Schütze mit Flucht ist erlaubt, wenn `flee.range` gesetzt ist (ConfigCheck). Debug-Liste neuer Gegner in `Config/Admin.luau` → `newEnemies` (wie `newItems`).
 - B9 (30.10.2026): Gegner-Werte wachsen pro Typ wie Brotato (Grundwert + Zuwachs pro Schritt), aber die Schritte pro Welle folgen der alten, getesteten Kurve (Brotatos „Welle − 1" war in der Simulation viel zu schwer: 0 von 12 Siegen). Spawn-Ring näher (32–52 Studs), damit die Marker sichtbar sind; Annahmen im Test prüfen.
 - Owner (30.10.2026): Kamera bleibt bei 50° (nicht wie Brotato von oben), aber weiter herausgezoomt (Abstand 100 statt 70), damit man Spawns früher sieht. Schwierigkeit wird erst später mit mehreren Charakteren feinjustiert. B8 Items übernimmt Claude statt ChatGPT, weil ChatGPT wenig Limit hat.

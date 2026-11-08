@@ -492,15 +492,15 @@ local Enemies: { [string]: Enemy } = {
 		specialSpawn = true,
 	},
 	-- B6: Brotato's Tree. Stands still and does nothing (Config.Loot.trees); killed it drops a fruit (or a crate) and
-	-- an orb of 3.
+	-- an orb of 3. Owner decision (2026-11-08): double Brotato's HP (10 + 5/wave) on purpose, trees felt too fragile.
 	Tree = {
 		id = "Tree",
 		typeId = 11,
 		displayName = "Tree",
-		hp = 10,
+		hp = 20,
 		speed = speed(0),
 		contactDamage = 0,
-		hpPerWave = 5,
+		hpPerWave = 10,
 		damagePerWave = 0,
 		xp = 3, -- Brotato: 3 materials
 		radius = 2.2,
