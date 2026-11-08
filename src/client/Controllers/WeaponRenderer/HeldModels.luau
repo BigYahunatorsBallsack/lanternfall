@@ -88,7 +88,8 @@ local function collectEnemies(frameNumber: number)
 		return
 	end
 	for _, child in folder:GetChildren() do
-		if child:IsA("Model") then
+		-- pooled enemy models stay in the folder while hidden (EnemyRenderer/SpriteModels)
+		if child:IsA("Model") and child:GetAttribute("Hidden") ~= true then
 			local body = child:FindFirstChild("Body", true)
 			if body and body:IsA("BasePart") then
 				enemyCount += 1

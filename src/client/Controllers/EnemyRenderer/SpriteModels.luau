@@ -77,6 +77,7 @@ export type Visual = {
 	buffed: boolean,
 	lowDetail: boolean,
 	poseTick: number,
+	hidden: boolean, -- pooled or not placed yet: pictures invisible (hide/show)
 }
 
 local SpriteModels = {}
@@ -291,6 +292,7 @@ function SpriteModels.build(typeId: number): Visual
 		buffed = false,
 		lowDetail = false,
 		poseTick = 0,
+		hidden = false,
 	}
 	if enemy and enemy.elite then
 		addElite(visual, art, r)
@@ -385,19 +387,85 @@ function SpriteModels.setAffix(visual: Visual, affix: number)
 	local info = Config.Enemies.elite.affixes[affix]
 	local id = if info then info.id else nil
 	local color = if id then AFFIX_COLORS[id] or ELITE_GOLD else ELITE_GOLD
-	label.Visible = info ~= nil
+	label.Visible = info ~= nil and not visual.hidden
 	label.Text = if info then string.upper(info.displayName) else ""
 	label.TextColor3 = color
 	crown.picture.ImageColor3 = color
 	local trail = visual.trail
 	if trail then
-		trail.Enabled = id == "Swift"
+		trail.Enabled = id == "Swift" and not visual.hidden
 		trail:Clear()
 	end
 	for _, wisp in visual.wisps do
 		WorldSprite.setVisible(wisp, id == "Summoner")
 	end
 	paint(visual)
+end
+
+local function hpBarBack(visual: Visual): GuiObject?
+	local fill = visual.hpBar
+	local back = fill and fill.Parent
+	return if back and back:IsA("GuiObject") then back else nil
+end
+
+-- Makes every picture of the model invisible without switching its BillboardGui off. Roblox draws a BillboardGui that
+-- is switched back on (or put back into the workspace) for a few frames at its old spot, so pooled models stay in the
+-- workspace with their billboards on and only their pictures hidden (EnemyRenderer, REVEAL_FRAMES).
+function SpriteModels.hide(visual: Visual)
+	visual.hidden = true
+	-- pooled models stay in the workspace; held weapons (WeaponRenderer/HeldModels) must not aim at them
+	visual.model:SetAttribute("Hidden", true)
+	visual.sprite.picture.Visible = false
+	visual.shadow.Transparency = 1
+	local back = hpBarBack(visual)
+	if back then
+		back.Visible = false
+	end
+	local label = visual.affixLabel
+	if label then
+		label.Visible = false
+	end
+	local crown = visual.crown
+	if crown then
+		crown.picture.Visible = false
+	end
+	local trail = visual.trail
+	if trail then
+		trail.Enabled = false
+		trail:Clear()
+	end
+	for _, wisp in visual.wisps do
+		wisp.picture.Visible = false
+	end
+end
+
+-- Shows the pictures again (call once pose has placed the model where it stands).
+function SpriteModels.show(visual: Visual)
+	visual.hidden = false
+	visual.model:SetAttribute("Hidden", false)
+	visual.sprite.picture.Visible = true
+	visual.shadow.Transparency = SHADOW_TRANSPARENCY
+	local back = hpBarBack(visual)
+	if back then
+		back.Visible = true
+	end
+	local info = Config.Enemies.elite.affixes[visual.affix]
+	local label = visual.affixLabel
+	if label then
+		label.Visible = info ~= nil
+	end
+	local crown = visual.crown
+	if crown then
+		crown.picture.Visible = true
+	end
+	local trail = visual.trail
+	if trail then
+		trail:Clear()
+		trail.Enabled = info ~= nil and info.id == "Swift"
+	end
+	for _, wisp in visual.wisps do
+		wisp.picture.Visible = true
+	end
 end
 
 -- Big crowds pose the picture less often; the sprite itself always stays.
