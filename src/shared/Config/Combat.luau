@@ -9,6 +9,10 @@ return table.freeze({
 		sourceMinimumFrames = 1,
 		minCooldown = 1 / 60, -- server catch-up floor; preserves source cooldowns below the old 1/12 cap
 		maxCatchupAttacks = 4, -- bounds extra attacks within one 15 Hz simulation step
+		-- A weapon keeps aiming at its enemy until it leaves range or another one is closer than this share of its
+		-- distance, so weapons stop flicking between nearly equally near enemies (owner 08.11.2026; not a wiki value).
+		targetSwitchRatio = 0.7,
+		targetCandidates = 8, -- nearest enemies searched for the kept target
 	}),
 	-- Knockback in Brotato points (a crossbow has 8, a hammer 30), pushed directly away from the owner. The Knockback
 	-- stat adds points to every weapon. Enemies keep 1 - knockbackResistance of it (Config.Enemies), elites none.
