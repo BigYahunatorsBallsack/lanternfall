@@ -22,6 +22,7 @@ export type Policy = {
 	stillMaterialsMax: number,
 	healStrike: Strike?,
 	pickupStrike: Strike?,
+	consumableExplosion: { definition: Explosions.Definition, chance: number }?,
 	hurtExplosion: { definition: Explosions.Definition, chance: number }?,
 	canAttackMoving: boolean,
 	waveEnemyPercent: number,
@@ -134,15 +135,23 @@ function Rules.compile(classId: string): Policy?
 		if key == "can_attack_while_moving" then
 			policy.canAttackMoving = amount ~= 0
 		end
-		if key == "explode_on_hit" and effect.effectType == "res://effects/items/item_exploding_effect.gd" then
+		if
+			(key == "explode_on_hit" or key == "explode_on_consumable")
+			and effect.effectType == "res://effects/items/item_exploding_effect.gd"
+		then
 			for _, parameter in effect.parameters do
 				if parameter.name == "stats" and parameter.resource then
 					local definition = Explosions.bySource[parameter.resource]
 					assert(definition, `Unknown native hurt explosion {parameter.resource}`)
-					policy.hurtExplosion = {
+					local explosion = {
 						definition = definition,
 						chance = Rules.numberParameter(effect, "chance", 1),
 					}
+					if key == "explode_on_hit" then
+						policy.hurtExplosion = explosion
+					else
+						policy.consumableExplosion = explosion
+					end
 				end
 			end
 		end

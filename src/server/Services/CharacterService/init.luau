@@ -262,10 +262,16 @@ function Service.init()
 			end
 		end
 	end)
-	Loot.ConsumableCollected:Connect(function(player, _kind, wasFull)
+	Loot.ConsumableCollected:Connect(function(player, _kind, wasFull, position)
 		local state = states[player]
 		if state and wasFull then
 			Stats.addStats(player, state.policy.onFullConsumable)
+		end
+		local explosion = state and state.policy.consumableExplosion
+		if position and explosion and Run.isActive() then
+			if explosion.chance >= 1 or Random.number("Combat", player) < explosion.chance then
+				Weapons.queueConsumableExplosion(player, explosion.definition, position)
+			end
 		end
 	end)
 	Loot.ChestCollected:Connect(function(player)

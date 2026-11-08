@@ -64,6 +64,13 @@ export type HitListener = (
 local hitListener: HitListener? = nil
 type CharacterHit = { player: Player, enemyId: number, amount: number }
 local characterHits: { CharacterHit } = {}
+type ConsumableExplosion = {
+	player: Player,
+	definition: CharacterExplosions.Definition,
+	position: Vector3,
+	sheet: StatMath.Sheet,
+}
+local consumableExplosions: { ConsumableExplosion } = {}
 
 local function characterCanAttack(weapon: Arsenal.Weapon): boolean
 	local player = Players:GetPlayerByUserId(weapon.ownerId)
@@ -303,6 +310,7 @@ end
 
 local function onRunStarted(participants: { Player })
 	table.clear(characterHits)
+	table.clear(consumableExplosions)
 	arsenal:clear()
 	table.clear(waveBonuses)
 	paused = false
@@ -338,6 +346,7 @@ end
 local function onStepped(dt: number, stepNow: number)
 	if paused then
 		table.clear(characterHits)
+		table.clear(consumableExplosions)
 		return
 	end
 	local participants = RunDirector.getParticipants()
@@ -384,6 +393,11 @@ local function onStepped(dt: number, stepNow: number)
 	end
 	arsenal:step(dt, stepNow)
 	-- Character stat strikes are already scaled in the native order; Arsenal's primary-hit formula differs.
+	local explosions = consumableExplosions
+	consumableExplosions = {}
+	for _, explosion in explosions do
+		WeaponService.explodeCharacter(explosion.player, explosion.definition, explosion.position, explosion.sheet)
+	end
 	local pending = characterHits
 	characterHits = {}
 	for _, hit in pending do
@@ -502,6 +516,7 @@ function WeaponService.init()
 	RunDirector.PhaseChanged:Connect(function(phase)
 		if phase ~= "Running" then
 			table.clear(characterHits)
+			table.clear(consumableExplosions)
 		end
 		if phase == "Shop" then
 			table.clear(waveBonuses)
@@ -528,6 +543,7 @@ function WeaponService.init()
 		return saved
 	end, function(saved: { [Player]: { Arsenal.SavedWeapon } })
 		table.clear(characterHits)
+		table.clear(consumableExplosions)
 		arsenal:clearCombat()
 		growth = {}
 		for player, weapons in saved do
@@ -760,17 +776,44 @@ function WeaponService.structureHit(
 	end
 end
 
+-- Snapshot after full-health gains, but defer collision to avoid recursive pickup/kill chains.
+function WeaponService.queueConsumableExplosion(
+	player: Player,
+	definition: CharacterExplosions.Definition,
+	origin: Vector3
+)
+	if paused or not RunDirector.isActive() then
+		return
+	end
+	local maximum = CharacterExplosions.consumableOffsetPoints
+	local function offset(): number
+		return (math.floor(RandomService.number("Combat", player) * (2 * maximum + 1)) - maximum)
+			* Config.Stats.range.studsPerPoint
+	end
+	table.insert(consumableExplosions, {
+		player = player,
+		definition = definition,
+		position = origin + Vector3.new(offset(), 0, offset()),
+		sheet = table.clone(ownerStats[player] or {}),
+	})
+end
+
 -- Native on-hurt explosions resolve before CombatService marks a lethally hurt owner down.
 -- Source stats include their own crit multiplier and add ordinary/explosion damage before rounding.
-function WeaponService.explodeCharacter(player: Player, definition: CharacterExplosions.Definition): boolean
+function WeaponService.explodeCharacter(
+	player: Player,
+	definition: CharacterExplosions.Definition,
+	origin: Vector3?,
+	snapshot: StatMath.Sheet?
+): boolean
 	if paused or not RunDirector.isActive() or RunDirector.getParticipantState(player) ~= "Alive" then
 		return false
 	end
-	local position = MapService.getRootPosition(player)
+	local position = origin or MapService.getRootPosition(player)
 	if not position then
 		return false
 	end
-	local sheet = ownerStats[player] or {}
+	local sheet = snapshot or ownerStats[player] or {}
 	local stats = CharacterExplosion.compute(definition, sheet)
 	local center = position + Vector3.new(0, 0, stats.offsetZ)
 	local ids = {}
