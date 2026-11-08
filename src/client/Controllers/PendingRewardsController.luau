@@ -20,8 +20,10 @@ local Widgets = require(script.Parent.Parent.UI.Widgets)
 
 local RIGHT = 64 -- pixels from the right edge: left of the settings button (SettingsController, 44 + 12 margin + 8)
 local TOP = 12
-local ICON_SIZE = 38 -- pixels at 1280x720, scaled like the HUD
-local ICON_SIZE_PHONE = 30
+-- Pixels at 720 pixels screen height, scaled with the height. Brotato's icons are about 6.5 % of the screen height
+-- (owner's screenshot, 08.11.2026); 38 and 30 before.
+local ICON_SIZE = 48
+local ICON_SIZE_PHONE = 38
 local ROW_GAP = 4
 local ICON_GAP = 2
 local MAX_ICONS = 6 -- per row; more are counted in a "+N" label left of the icons
@@ -170,7 +172,7 @@ local function measure()
 	if area.X < 700 then
 		iconSize = ICON_SIZE_PHONE
 	else
-		iconSize = math.floor(ICON_SIZE * math.clamp(math.min(area.X / 1280, area.Y / 720), 0.8, 1.5))
+		iconSize = math.floor(ICON_SIZE * math.clamp(area.Y / 720, 0.8, 1.6))
 	end
 end
 
