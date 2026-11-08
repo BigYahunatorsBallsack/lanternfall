@@ -13,6 +13,7 @@ local ProgressRules = require(Shared.Util.ProgressRules) -- Paket 17
 local DebugCommands = require(Shared.Net.DebugCommands) -- Paket 23
 local NativeWeaponAccess = require(Shared.Config.CharacterWeaponAccess)
 local NativeItemRules = require(Shared.Config.CharacterItemRules)
+local NativeCharacterAccess = require(Shared.Config.CharacterUnlocks)
 
 local ConfigCheck = {}
 
@@ -287,6 +288,9 @@ function ConfigCheck.run(): { string }
 
 	for id, class in Config.Classes do
 		checkStats(`Class {id}`, class.stats)
+		if class.nativeCodeReady and not class.free and not NativeCharacterAccess[id] then
+			problem(`Character {id}: code-ready locked package needs its native challenge`)
+		end
 		local weapon = Config.Weapons[class.startWeapon]
 		if class.available and class.maxWeapons ~= 0 and not weapon then
 			problem(`Class {id} starts with unknown weapon {class.startWeapon}`)

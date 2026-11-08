@@ -1,11 +1,14 @@
 --!strict
--- Native weapon unlocks from persistent wins/challenge flags; PlayerDataService owns writes, selection reads masks.
+-- Native weapon/character unlocks from persistent wins/challenge flags; PlayerDataService owns writes, selection reads masks.
 local Shared = script.Parent.Parent
 local Access = require(Shared.Config.CharacterWeaponAccess)
+local Characters = require(Shared.Config.CharacterCatalog)
+local Unlocks = require(Shared.Config.CharacterUnlocks)
 local CharacterAccess = {}
 export type Record = {
 	achievements: { [string]: boolean },
 	characterStats: { [string]: { wins: number } },
+	classes: { string }?, -- preserves explicit saved grants, including the trusted owner debug command
 }
 
 function CharacterAccess.challengeKey(id: string): string
@@ -34,6 +37,32 @@ function CharacterAccess.weaponMask(data: Record?): { [string]: boolean }
 	local result = {}
 	for id in Access do
 		result[id] = CharacterAccess.weaponUnlocked(data, id)
+	end
+	return result
+end
+
+function CharacterAccess.characterUnlocked(data: Record?, classId: string): boolean
+	local class = Characters[classId]
+	if not class then
+		return false
+	end
+	if class.free then
+		return true
+	end
+	if not data then
+		return false
+	end
+	if data.classes and table.find(data.classes, classId) then
+		return true
+	end
+	local challenge = Unlocks[classId]
+	return challenge ~= nil and data.achievements[CharacterAccess.challengeKey(challenge.challengeId)] == true
+end
+
+function CharacterAccess.characterMask(data: Record?): { [string]: boolean }
+	local result = {}
+	for id in Characters do
+		result[id] = CharacterAccess.characterUnlocked(data, id)
 	end
 	return result
 end

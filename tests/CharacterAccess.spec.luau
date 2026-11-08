@@ -46,4 +46,16 @@ describe("Native weapon access", function()
 			assert(Access[id], id)
 		end
 	end)
+	it("keeps native character access locked until its challenge or an explicit saved grant", function()
+		expect(Rules.characterUnlocked(nil, "Brawler")).toBe(true)
+		expect(Rules.characterUnlocked(nil, "Crazy")).toBe(true)
+		expect(Rules.characterUnlocked(nil, "Ghost")).toBe(false)
+		expect(Rules.characterUnlocked(nil, "Unknown")).toBe(false)
+		local data = { achievements = {}, characterStats = {}, classes = {} }
+		data.achievements[Rules.challengeKey("chal_hallucination")] = true
+		expect(Rules.characterUnlocked(data, "Ghost")).toBe(true)
+		table.clear(data.achievements)
+		table.insert(data.classes, "Ghost")
+		expect(Rules.characterUnlocked(data, "Ghost")).toBe(true)
+	end)
 end)

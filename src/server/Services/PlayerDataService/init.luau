@@ -21,6 +21,7 @@ local PurchaseRules = require(Shared.Util.PurchaseRules)
 local Signal = require(Shared.Util.Signal)
 local Types = require(Shared.Net.Types)
 local NativeWeaponAccess = require(Shared.Config.CharacterWeaponAccess)
+local NativeCharacterAccess = require(Shared.Config.CharacterUnlocks)
 local CharacterAccess = require(Shared.Util.CharacterAccess)
 
 local MemoryStore = require(script.MemoryStore)
@@ -87,6 +88,7 @@ local function sendInfo(player: Player)
 	if profile then
 		local info = ProfileRecords.info(profile.Data, PlayerDataService.getSaveMode())
 		info.nativeWeaponUnlocks = CharacterAccess.weaponMask(profile.Data)
+		info.nativeCharacterUnlocks = CharacterAccess.characterMask(profile.Data)
 		Net.fireClient("ProfileInfo", player, info)
 	end
 end
@@ -218,6 +220,9 @@ function PlayerDataService.ownsClass(player: Player, classId: string): boolean
 		return false
 	end
 	local data = PlayerDataService.get(player)
+	if class.nativeStartSelection then
+		return CharacterAccess.characterUnlocked(data, classId)
+	end
 	if class.free then
 		if not ProgressRules.isLockable("characters", classId) then
 			return true
@@ -230,6 +235,9 @@ end
 -- Paket 13: whether a weapon or item is unlocked for the player (everything lockable is locked until loaded).
 function PlayerDataService.isUnlocked(player: Player, kind: ProgressRules.Kind, id: string): boolean
 	local data = PlayerDataService.get(player)
+	if kind == "characters" and Config.Classes[id] and Config.Classes[id].nativeStartSelection then
+		return CharacterAccess.characterUnlocked(data, id)
+	end
 	if kind == "weapons" and NativeWeaponAccess[id] then
 		return CharacterAccess.weaponUnlocked(data, id)
 	end
@@ -250,6 +258,12 @@ function PlayerDataService.lockedSet(player: Player, kind: ProgressRules.Kind): 
 		for id in NativeWeaponAccess do
 			result[id] = if CharacterAccess.weaponUnlocked(data, id) then nil else true
 		end
+	elseif kind == "characters" then
+		for id, class in Config.Classes do
+			if class.nativeStartSelection then
+				result[id] = if CharacterAccess.characterUnlocked(data, id) then nil else true
+			end
+		end
 	end
 	return result
 end
@@ -261,14 +275,20 @@ function PlayerDataService.observeNativeStats(player: Player, sheet: { [string]:
 		return
 	end
 	local changed = false
-	for _, rule in NativeWeaponAccess do
-		if rule.stat and rule.threshold and rule.challengeId and (sheet[rule.stat] or 0) >= rule.threshold then
-			local key = CharacterAccess.challengeKey(rule.challengeId)
+	local function observe(stat: string?, threshold: number?, challengeId: string?)
+		if stat and threshold and challengeId and (sheet[stat] or 0) >= threshold then
+			local key = CharacterAccess.challengeKey(challengeId)
 			if not data.achievements[key] then
 				data.achievements[key] = true
 				changed = true
 			end
 		end
+	end
+	for _, rule in NativeWeaponAccess do
+		observe(rule.stat, rule.threshold, rule.challengeId)
+	end
+	for _, rule in NativeCharacterAccess do
+		observe(rule.stat, rule.threshold, rule.challengeId)
 	end
 	if changed then
 		sendInfo(player)

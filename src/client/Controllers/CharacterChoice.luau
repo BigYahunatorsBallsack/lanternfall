@@ -7,6 +7,7 @@ local Config = require(Shared.Config)
 local Net = require(Shared.Net)
 local CharacterRules = require(Shared.Util.CharacterRules)
 local CharacterAccess = require(Shared.Util.CharacterAccess)
+local NativeUnlocks = require(Shared.Config.CharacterUnlocks)
 local ProgressRules = require(Shared.Util.ProgressRules)
 local ProfileCard = require(script.Parent.ProfileCard)
 local RunStateController = require(script.Parent.RunStateController)
@@ -49,6 +50,11 @@ end
 -- Paket 13: whether the local player has unlocked a character (lockable ones count as locked until loaded).
 function CharacterChoice.isUnlocked(classId: string): boolean
 	local info = ProfileCard.get()
+	if Config.Classes[classId] and Config.Classes[classId].nativeStartSelection then
+		return if info and info.nativeCharacterUnlocks
+			then info.nativeCharacterUnlocks[classId] == true
+			else CharacterAccess.characterUnlocked(nil, classId)
+	end
 	return ProgressRules.isUnlocked(
 		"characters",
 		classId,
@@ -250,7 +256,8 @@ function CharacterChoice.mount(card: Frame, row: Frame, buttonsByClass: { [strin
 		})
 		Tooltip.attach(button, function()
 			local class = Config.Classes[classId]
-			local requirement = ProgressRules.requirement("characters", classId)
+			local native = class.nativeStartSelection and NativeUnlocks[classId]
+			local requirement = if native then native.requirement else ProgressRules.requirement("characters", classId)
 			local price = Config.Progress.characterPrices[classId]
 			local locked = (requirement or "Unlock this character in your collection")
 				.. (if price then `\nor {price} Embers (Collection → Ember shop)` else "")

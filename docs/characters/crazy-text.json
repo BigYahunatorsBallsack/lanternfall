@@ -16,12 +16,20 @@
     "WEAPON_CLASS_PRECISE": "Precise",
     "WEAPON_CLASS_UNARMED": "Unarmed",
     "WEAPON_FIST": "Fist",
-    "WEAPON_KNIFE": "Knife"
+    "WEAPON_KNIFE": "Knife",
+    "CHARACTER_GHOST": "Ghost",
+    "CHAL_HALLUCINATION": "Hallucination",
+    "CHAL_STAT_DESC": "Reach {0} {1}",
+    "STAT_ARMOR": "Armor",
+    "STAT_DAMAGE": "Damage",
+    "WEAPON_CLASS_ETHEREAL": "Ethereal",
+    "EFFECT_DODGE_CAP": "Dodge is capped at {0}"
   },
-  "use": "Only native factual wording needed by Crazy and Brawler; the full language catalog remains ignored.",
+  "use": "Only native factual wording needed by Crazy, Brawler and Ghost; the full language catalog remains ignored.",
   "formattingSource": {
     "resource": "res://singletons/text.gdc",
     "sourceMd5": "70c974768c77067fc54fa4f6a45736c9",
-    "rule": "Native stat values prefix translated stat labels with one space; percent stat labels include the percent sign."
+    "rule": "Native stat values prefix translated stat labels with one space; percent stat labels include the percent sign.",
+    "ghostChallenge": "CHAL_STAT_DESC prefixes its numeric argument with an operator; EFFECT_DODGE_CAP appends a percent sign."
   }
 }

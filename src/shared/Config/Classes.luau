@@ -255,6 +255,8 @@ Classes.Crazy.description =
 Classes.Brawler.nativeCodeReady = true
 Classes.Brawler.description =
 	"+50 % Attack Speed with Unarmed weapons\nYou start with 1 Fist\n+15 % Dodge\n-50 Range\n-50 Ranged Damage"
+Classes.Ghost.nativeCodeReady = true
+Classes.Ghost.description = "+10 Damage with Ethereal weapons\n+30 % Dodge\nDodge is capped at 90%\n-100 Armor"
 -- Original art is delivered independently; ready code never bypasses the approved-sprite requirement.
 for id, class in Classes do
 	if not class.nativeCodeReady then

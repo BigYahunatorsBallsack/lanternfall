@@ -400,6 +400,7 @@ export type ProfileInfo = {
 	characterDanger: { [string]: number }?, -- class id -> highest danger level open for it
 	ownedClasses: { string }?, -- characters bought with Embers (unlocked without the achievement)
 	nativeWeaponUnlocks: { [string]: boolean }?, -- native family access for starting weapon choices
+	nativeCharacterUnlocks: { [string]: boolean }?, -- native source access; available new packages consume this mask
 	settings: Settings?, -- Paket 14
 	cosmetics: { owned: { string }, equipped: { [string]: string } }?, -- Paket 17: bought and picked cosmetics
 }

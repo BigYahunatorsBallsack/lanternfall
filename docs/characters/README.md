@@ -17,13 +17,13 @@ Checks:
 
 The 1.2.0.1 native resources differ from older Wiki entries and sometimes from prose release notes; the serialized stable build is the deciding reference. The source compiler currently reports required weapon/item families missing from the older project catalog. They remain implementation work, alongside the explicit policy rules. Sprite creation remains assigned to the other agent.
 
-Crazy and Brawler are the first two code-ready native packages. Their original starting alternatives, guaranteed
-extra weapons and remaining policies are connected. `nativeCodeReady` is separate from `available`: original sprites
+Crazy, Brawler and Ghost are the first three code-ready native packages. Their original starting alternatives,
+guaranteed equipment and character rules are connected. `nativeCodeReady` is separate from `available`: original sprites
 with measured bounds remain a dependency assigned to the other agent. When those records arrive in `SpriteImages`,
 the packages become available on the next server start. No placeholder image or weaker artwork check is introduced.
 The sprite integration must also update the old fixed nine-character roster assertions in its artwork tests.
 
-`crazy-text.json` records only the English wording needed by both packages, with the installed language-resource
+`crazy-text.json` records only the English wording needed by these packages, with the installed language-resource
 hash and native text-formatting rule. The full recovered language catalog stays ignored. A shared
 `CharacterRules.weaponBonuses` helper applies class/kind modifiers identically in combat and the shop preview.
 Server-sent stat metadata includes native level and weapon-local modifiers for that read-only preview, including
@@ -60,3 +60,11 @@ XP grants keep their ongoing-run guard. An endless vote cannot pay a wave twice,
 overall Victory does not count as clearing its failed wave. Retrying a failed wave retains no survivor reward.
 Level gains during settlement enter the result summary before it is published. Real-service scenarios cover the
 different outcomes, but native Roblox Studio acceptance remains outstanding.
+
+Ghost's original Hallucination challenge is in `CharacterUnlocks`: reaching +60 % Dodge permanently sets its
+existing-profile challenge flag. New native character packages consume an authoritative character-access mask;
+legacy packages retain their existing access policy until their separate source adoption. Explicit saved grants
+remain valid. The locked requirement and the Ghost rule text use the installed English formatting, including
+the percent suffix of `EFFECT_DODGE_CAP`. The challenge survives saving/rejoining and does not affect another player.
+Ghost's +10 flat Ethereal damage is weapon-local and agrees with the client preview; its 90% cap is tested through
+actual hit resolution alongside a peer's ordinary cap. Native item preferences use serialized source tags.
