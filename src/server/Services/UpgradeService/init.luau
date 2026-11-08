@@ -92,6 +92,7 @@ local function sendCrate(player: Player, state: State)
 		sellPrice = if crate then crate.sellPrice else 0,
 		expiresAt = if crate then crate.expiresAt else 0,
 		pending = state.crates + state.legendaryCrates,
+		legendaryPending = state.legendaryCrates,
 	}
 	Net.fireClient("CrateOffer", player, payload)
 end
