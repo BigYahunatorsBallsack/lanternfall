@@ -9,7 +9,7 @@
   - [x] Healing/no-heal/one-hit policies, fractional regeneration clock, native stat strikes and movement conditions.
   - [x] Real-server Golem, Lich, Sick, Masochist, Soldier and Farmer scenarios; new packages remain gated on full dependencies.
   - [x] Bull native hurt-explosion runtime, arithmetic, defense and lethal-hit scenarios.
-  - [ ] Complete Bull: Danger-1 win challenge, weaponless selection, original rule display and simultaneous lethal boss interactions.
+  - [x] Complete Bull: Danger-1 win challenge, weaponless selection, original rule display and simultaneous lethal boss interactions.
 - [ ] Deliver XP, cards, survivor counts and wave rewards with retry tests.
   - [x] Personal co-op XP/levels, native fractional thresholds, rotating gold/XP and retry cursor.
   - [x] Pacifist/Cryptid capture before cleanup, combined harvesting sign and personal XP payout.
@@ -23,3 +23,11 @@
 - [ ] Deliver original unlocks/selection and integration of all characters.
   - [ ] Integrate native DLC stat UI order together with original symbols from the sprite work.
 - [ ] Compare full baseline, lint, build, review and open the PR with German owner tests.
+
+## Continuation from GitHub-main b8457fb (08 November 2026)
+- [x] Complete Bull code package and prove native solo/co-op final-death result priority; image upload remains pending.
+- [x] Add seven stable starting-weapon combat paths, source tiers/prices, no-target Machinegun, native reload/spread; gate pending images.
+- [x] Prepare seven exact native RGBA weapon icons locally and connect the import list; do not upload.
+- [x] Connect Farmer growth, character drop modifiers and Entrepreneur recycling/wallet reset with personal/retry tests.
+- [x] Implement Whip's timed geometry before calling the eight-family group complete.
+- [ ] Continue the remaining 21 weapon families, ten item/pet families, original access/legacy character adoption and other Handoff dependencies.

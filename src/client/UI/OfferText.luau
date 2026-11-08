@@ -5,6 +5,7 @@ local Shared = game:GetService("ReplicatedStorage").Shared
 local Config = require(Shared.Config)
 local StatMath = require(Shared.Util.StatMath)
 local CharacterRules = require(Shared.Util.CharacterRules)
+local NativeTiming = require(Shared.Util.NativeWeaponTiming)
 local UpgradeText = require(Shared.Util.UpgradeText)
 local WeaponClasses = require(Shared.Util.WeaponClasses)
 local Theme = require(script.Parent.Theme)
@@ -54,6 +55,7 @@ function OfferText.stats(id: string, tier: number, sheet: { [string]: number }):
 			sheet.weaponCooldownMin or 0
 		)
 		result.cooldown = math.max(minimum, result.cooldown * StatMath.cooldownFactor(sheet.attackSpeed or 0))
+		NativeTiming.apply(result, sheet.attackSpeed or 0, minimum)
 	end
 	for _, key in weapon.rangeKeys do
 		if result[key] then

@@ -9,6 +9,7 @@ export type Record = {
 	achievements: { [string]: boolean },
 	characterStats: { [string]: { wins: number } },
 	classes: { string }?, -- preserves explicit saved grants, including the trusted owner debug command
+	stats: { bestDanger: number }?,
 }
 
 function CharacterAccess.challengeKey(id: string): string
@@ -56,7 +57,13 @@ function CharacterAccess.characterUnlocked(data: Record?, classId: string): bool
 		return true
 	end
 	local challenge = Unlocks[classId]
-	return challenge ~= nil and data.achievements[CharacterAccess.challengeKey(challenge.challengeId)] == true
+	if not challenge then
+		return false
+	end
+	if data.achievements[CharacterAccess.challengeKey(challenge.challengeId)] == true then
+		return true
+	end
+	return challenge.kind == "WinDanger" and data.stats ~= nil and data.stats.bestDanger >= challenge.danger
 end
 
 function CharacterAccess.characterMask(data: Record?): { [string]: boolean }

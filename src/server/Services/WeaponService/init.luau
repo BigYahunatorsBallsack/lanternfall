@@ -719,7 +719,13 @@ end
 
 -- Ids of the weapons that can be given out (config record plus behavior module), sorted.
 function WeaponService.getImplemented(): { string }
-	return arsenal:getImplemented()
+	local result = {}
+	for _, id in arsenal:getImplemented() do
+		if Config.Weapons[id].available ~= false then
+			table.insert(result, id)
+		end
+	end
+	return result
 end
 
 -- Whether an enemy burns right now (B5; smoke test).

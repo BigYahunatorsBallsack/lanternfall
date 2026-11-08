@@ -21,6 +21,7 @@ local Stats = require(Shared.Config.Stats)
 local Weapons = require(Shared.Config.Weapons)
 local StatMath = require(Shared.Util.StatMath)
 local CharacterRules = require(Shared.Util.CharacterRules)
+local NativeTiming = require(Shared.Util.NativeWeaponTiming)
 
 -- The owner's stats by id (Util/StatMath.Sheet); missing stats count as 0.
 export type Bonuses = { [string]: number }
@@ -103,6 +104,7 @@ function WeaponStats.compute(
 			stats[key] = math.max(minimum, stats[key] * timing)
 		end
 	end
+	NativeTiming.apply(stats, bonuses.attackSpeed or 0, minimum)
 	for _, key in RATE_STATS do
 		if stats[key] then
 			stats[key] /= timing

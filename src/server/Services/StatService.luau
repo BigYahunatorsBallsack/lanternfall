@@ -25,6 +25,7 @@ local Types = require(Shared.Net.Types)
 local StatMath = require(Shared.Util.StatMath)
 local WeaponClasses = require(Shared.Util.WeaponClasses)
 local CharacterRules = require(Shared.Util.CharacterRules)
+local CharacterEconomy = require(Shared.Util.CharacterEconomy)
 
 local CombatService = require(script.Parent.CombatService)
 local ExperienceService = require(script.Parent.ExperienceService)
@@ -150,7 +151,7 @@ local function classBonusOf(player: Player): StatMath.Sheet
 	for _, weapon in WeaponService.getWeapons(player) do
 		table.insert(ids, weapon.id)
 	end
-	local bonus = WeaponClasses.bonuses(ids)
+	local bonus = WeaponClasses.bonuses(ids, RunDirector.getParticipantClassId(player))
 	for _, weapon in WeaponService.getWeapons(player) do
 		local config = Config.Weapons[weapon.id]
 		if config and config.heldStats then
@@ -347,8 +348,8 @@ function StatService.addStats(player: Player, stats: { [string]: number }): bool
 	return true
 end
 
--- Harvesting grows by Config.Stats.harvesting.growth (rounded up) after it paid out at the end of a wave; nothing
--- happens while it is 0 or below.
+-- Native harvesting grows after payout with character growth modifiers; endless instead loses twenty percent.
+-- Non-positive harvesting does not grow. Character stat-gain modifiers still apply to the delta.
 function StatService.growHarvesting(player: Player)
 	local state = states[player]
 	local harvesting = if state then state.sheet.harvesting or 0 else 0
@@ -356,7 +357,11 @@ function StatService.growHarvesting(player: Player)
 		return
 	end
 	state.upgrades.harvesting = (state.upgrades.harvesting or 0)
-		+ math.ceil(harvesting * Config.Stats.harvesting.growth)
+		+ CharacterEconomy.harvestingGrowth(
+			RunDirector.getParticipantClassId(player),
+			harvesting,
+			RunDirector.getWave()
+		)
 	update(player, state, true)
 end
 

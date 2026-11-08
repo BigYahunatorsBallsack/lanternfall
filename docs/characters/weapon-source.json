@@ -1,0 +1,1602 @@
+{
+  "version": "1.2.0.1",
+  "steamBuild": 26406319,
+  "weapons": [
+    {
+      "id": "Anchor",
+      "name": "Anchor",
+      "tiers": [
+        {
+          "source": "res://dlcs/dlc_1/weapons/melee/anchor/2/anchor_2_data.tres",
+          "sourceMd5": "b132cf3f7d5555f404ec08ad7df7f3db",
+          "statsSource": "res://dlcs/dlc_1/weapons/melee/anchor/2/anchor_2_stats.tres",
+          "statsMd5": "65cc0567013944ff87f1492259b16906",
+          "tier": 2,
+          "price": 48,
+          "sets": [
+            "set_naval",
+            "set_heavy"
+          ],
+          "kind": "Melee",
+          "stats": {
+            "cooldown": 80,
+            "damage": 45,
+            "accuracy": 1.0,
+            "crit_chance": 0.03,
+            "crit_damage": 1.5,
+            "min_range": 0,
+            "max_range": 175,
+            "knockback": 10,
+            "knockback_piercing": 0.0,
+            "can_have_positive_knockback": true,
+            "can_have_negative_knockback": false,
+            "effect_scale": 1.0,
+            "scaling_stats": [
+              [
+                "stat_melee_damage",
+                1.0
+              ],
+              [
+                "stat_curse",
+                0.75
+              ]
+            ],
+            "lifesteal": 0.0,
+            "sound_db_mod": -5,
+            "is_healing": false,
+            "recoil": 25,
+            "recoil_duration": 0.1,
+            "additional_cooldown_every_x_shots": -1,
+            "additional_cooldown_multiplier": -1.0,
+            "speed_percent_modifier": 0,
+            "deal_dmg_on_return": false,
+            "attack_type": 1,
+            "alternate_attack_type": false
+          },
+          "effects": []
+        },
+        {
+          "source": "res://dlcs/dlc_1/weapons/melee/anchor/3/anchor_3_data.tres",
+          "sourceMd5": "2cc6d34fc19dcaa13db6988fd86396bb",
+          "statsSource": "res://dlcs/dlc_1/weapons/melee/anchor/3/anchor_3_stats.tres",
+          "statsMd5": "c928208b26e8056ea97db2122c4eb189",
+          "tier": 3,
+          "price": 90,
+          "sets": [
+            "set_naval",
+            "set_heavy"
+          ],
+          "kind": "Melee",
+          "stats": {
+            "cooldown": 75,
+            "damage": 70,
+            "accuracy": 1.0,
+            "crit_chance": 0.03,
+            "crit_damage": 1.5,
+            "min_range": 0,
+            "max_range": 200,
+            "knockback": 10,
+            "knockback_piercing": 0.0,
+            "can_have_positive_knockback": true,
+            "can_have_negative_knockback": false,
+            "effect_scale": 1.0,
+            "scaling_stats": [
+              [
+                "stat_melee_damage",
+                1.25
+              ],
+              [
+                "stat_curse",
+                1.0
+              ]
+            ],
+            "lifesteal": 0.0,
+            "sound_db_mod": -5,
+            "is_healing": false,
+            "recoil": 25,
+            "recoil_duration": 0.1,
+            "additional_cooldown_every_x_shots": -1,
+            "additional_cooldown_multiplier": -1.0,
+            "speed_percent_modifier": 0,
+            "deal_dmg_on_return": false,
+            "attack_type": 1,
+            "alternate_attack_type": false
+          },
+          "effects": []
+        },
+        {
+          "source": "res://dlcs/dlc_1/weapons/melee/anchor/4/anchor_4_data.tres",
+          "sourceMd5": "5c20e8a1654cc4da2ff578056aa32f29",
+          "statsSource": "res://dlcs/dlc_1/weapons/melee/anchor/4/anchor_4_stats.tres",
+          "statsMd5": "042f4ab713af36ce50793ad92b31c1df",
+          "tier": 4,
+          "price": 175,
+          "sets": [
+            "set_naval",
+            "set_heavy"
+          ],
+          "kind": "Melee",
+          "stats": {
+            "cooldown": 70,
+            "damage": 110,
+            "accuracy": 1.0,
+            "crit_chance": 0.03,
+            "crit_damage": 1.5,
+            "min_range": 0,
+            "max_range": 225,
+            "knockback": 10,
+            "knockback_piercing": 0.0,
+            "can_have_positive_knockback": true,
+            "can_have_negative_knockback": false,
+            "effect_scale": 1.0,
+            "scaling_stats": [
+              [
+                "stat_melee_damage",
+                1.5
+              ],
+              [
+                "stat_curse",
+                1.25
+              ]
+            ],
+            "lifesteal": 0.0,
+            "sound_db_mod": -5,
+            "is_healing": false,
+            "recoil": 25,
+            "recoil_duration": 0.1,
+            "additional_cooldown_every_x_shots": -1,
+            "additional_cooldown_multiplier": -1.0,
+            "speed_percent_modifier": 0,
+            "deal_dmg_on_return": false,
+            "attack_type": 1,
+            "alternate_attack_type": false
+          },
+          "effects": []
+        }
+      ]
+    },
+    {
+      "id": "Mace",
+      "name": "Mace",
+      "tiers": [
+        {
+          "source": "res://dlcs/dlc_1/weapons/melee/mace/2/mace_2_data.tres",
+          "sourceMd5": "8451cb905c296ec9adaa5f06274ba06a",
+          "statsSource": "res://dlcs/dlc_1/weapons/melee/mace/2/mace_2_stats.tres",
+          "statsMd5": "624bf0731418e0771e18175972c607ee",
+          "tier": 2,
+          "price": 46,
+          "sets": [
+            "set_heavy",
+            "set_medieval"
+          ],
+          "kind": "Melee",
+          "stats": {
+            "cooldown": 50,
+            "damage": 40,
+            "accuracy": 1.0,
+            "crit_chance": 0.04,
+            "crit_damage": 1.5,
+            "min_range": 0,
+            "max_range": 150,
+            "knockback": 5,
+            "knockback_piercing": 0.0,
+            "can_have_positive_knockback": true,
+            "can_have_negative_knockback": false,
+            "effect_scale": 1.0,
+            "scaling_stats": [
+              [
+                "stat_melee_damage",
+                1.0
+              ],
+              [
+                "stat_attack_speed",
+                -0.5
+              ]
+            ],
+            "lifesteal": 0.0,
+            "sound_db_mod": -5,
+            "is_healing": false,
+            "recoil": 25,
+            "recoil_duration": 0.1,
+            "additional_cooldown_every_x_shots": -1,
+            "additional_cooldown_multiplier": -1.0,
+            "speed_percent_modifier": 0,
+            "deal_dmg_on_return": false,
+            "attack_type": 1,
+            "alternate_attack_type": false
+          },
+          "effects": [
+            {
+              "source": "res://dlcs/dlc_1/weapons/melee/mace/2/mace_2_effect_0.tres",
+              "sourceMd5": "fe352b71e566cf3035df137d70a8a727",
+              "key": "stat_attack_speed",
+              "value": -3,
+              "scale": null,
+              "duration": null
+            }
+          ]
+        },
+        {
+          "source": "res://dlcs/dlc_1/weapons/melee/mace/3/mace_3_data.tres",
+          "sourceMd5": "4f84f8eb3829c3f259c53e0937377482",
+          "statsSource": "res://dlcs/dlc_1/weapons/melee/mace/3/mace_3_stats.tres",
+          "statsMd5": "c34b53a5f16e3aad4f9f3a8bf958d6b2",
+          "tier": 3,
+          "price": 92,
+          "sets": [
+            "set_heavy",
+            "set_medieval"
+          ],
+          "kind": "Melee",
+          "stats": {
+            "cooldown": 45,
+            "damage": 60,
+            "accuracy": 1.0,
+            "crit_chance": 0.08,
+            "crit_damage": 1.5,
+            "min_range": 0,
+            "max_range": 150,
+            "knockback": 5,
+            "knockback_piercing": 0.0,
+            "can_have_positive_knockback": true,
+            "can_have_negative_knockback": false,
+            "effect_scale": 1.0,
+            "scaling_stats": [
+              [
+                "stat_melee_damage",
+                1.0
+              ],
+              [
+                "stat_attack_speed",
+                -0.75
+              ]
+            ],
+            "lifesteal": 0.0,
+            "sound_db_mod": -5,
+            "is_healing": false,
+            "recoil": 25,
+            "recoil_duration": 0.1,
+            "additional_cooldown_every_x_shots": -1,
+            "additional_cooldown_multiplier": -1.0,
+            "speed_percent_modifier": 0,
+            "deal_dmg_on_return": false,
+            "attack_type": 1,
+            "alternate_attack_type": false
+          },
+          "effects": [
+            {
+              "source": "res://dlcs/dlc_1/weapons/melee/mace/3/mace_3_effect_0.tres",
+              "sourceMd5": "e563d946a541f80477674f3f5d7f40a0",
+              "key": "stat_attack_speed",
+              "value": -6,
+              "scale": null,
+              "duration": null
+            }
+          ]
+        },
+        {
+          "source": "res://dlcs/dlc_1/weapons/melee/mace/4/mace_4_data.tres",
+          "sourceMd5": "571ebb90a480d312aa413ec41bd09cda",
+          "statsSource": "res://dlcs/dlc_1/weapons/melee/mace/4/mace_4_stats.tres",
+          "statsMd5": "49653024073bc9fa3b299ac2bd1c97fa",
+          "tier": 4,
+          "price": 185,
+          "sets": [
+            "set_heavy",
+            "set_medieval"
+          ],
+          "kind": "Melee",
+          "stats": {
+            "cooldown": 40,
+            "damage": 100,
+            "accuracy": 1.0,
+            "crit_chance": 0.12,
+            "crit_damage": 1.5,
+            "min_range": 0,
+            "max_range": 150,
+            "knockback": 5,
+            "knockback_piercing": 0.0,
+            "can_have_positive_knockback": true,
+            "can_have_negative_knockback": false,
+            "effect_scale": 1.0,
+            "scaling_stats": [
+              [
+                "stat_melee_damage",
+                1.0
+              ],
+              [
+                "stat_attack_speed",
+                -1.0
+              ]
+            ],
+            "lifesteal": 0.0,
+            "sound_db_mod": -5,
+            "is_healing": false,
+            "recoil": 25,
+            "recoil_duration": 0.1,
+            "additional_cooldown_every_x_shots": -1,
+            "additional_cooldown_multiplier": -1.0,
+            "speed_percent_modifier": 0,
+            "deal_dmg_on_return": false,
+            "attack_type": 1,
+            "alternate_attack_type": false
+          },
+          "effects": [
+            {
+              "source": "res://dlcs/dlc_1/weapons/melee/mace/4/mace_4_effect_0.tres",
+              "sourceMd5": "4605c17eb3f83b0ef15ad25c2562f196",
+              "key": "stat_attack_speed",
+              "value": -10,
+              "scale": null,
+              "duration": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "MeatTenderizer",
+      "name": "Meat Tenderizer",
+      "tiers": [
+        {
+          "source": "res://weapons/melee/meat_tenderizer/1/meat_tenderizer_1_data.tres",
+          "sourceMd5": "32ba7b70fcf68d63628afe7a12d88f14",
+          "statsSource": "res://weapons/melee/meat_tenderizer/1/meat_tenderizer_1_stats.tres",
+          "statsMd5": "53e9f4c0cf07472034c88439b9f3e351",
+          "tier": 1,
+          "price": 20,
+          "sets": [
+            "set_blunt",
+            "set_medical"
+          ],
+          "kind": "Melee",
+          "stats": {
+            "cooldown": 55,
+            "damage": 15,
+            "accuracy": 1.0,
+            "crit_chance": 0.03,
+            "crit_damage": 1.75,
+            "min_range": 0,
+            "max_range": 175,
+            "knockback": 15,
+            "knockback_piercing": 0.1,
+            "can_have_positive_knockback": true,
+            "can_have_negative_knockback": false,
+            "effect_scale": 1.0,
+            "scaling_stats": [
+              [
+                "stat_melee_damage",
+                1.0
+              ],
+              [
+                "stat_hp_regeneration",
+                1.0
+              ]
+            ],
+            "lifesteal": 0.0,
+            "sound_db_mod": -5,
+            "is_healing": false,
+            "recoil": 25,
+            "recoil_duration": 0.1,
+            "additional_cooldown_every_x_shots": -1,
+            "additional_cooldown_multiplier": -1.0,
+            "speed_percent_modifier": 0,
+            "can_shoot_without_target": false,
+            "deal_dmg_on_return": false,
+            "attack_type": 1,
+            "alternate_attack_type": false
+          },
+          "effects": []
+        },
+        {
+          "source": "res://weapons/melee/meat_tenderizer/2/meat_tenderizer_2_data.tres",
+          "sourceMd5": "e20e2ed02f9c86a1ad599d2ac261179d",
+          "statsSource": "res://weapons/melee/meat_tenderizer/2/meat_tenderizer_2_stats.tres",
+          "statsMd5": "578aafe425750d67df8e75e8fefaec45",
+          "tier": 2,
+          "price": 39,
+          "sets": [
+            "set_blunt",
+            "set_medical"
+          ],
+          "kind": "Melee",
+          "stats": {
+            "cooldown": 51,
+            "damage": 25,
+            "accuracy": 1.0,
+            "crit_chance": 0.03,
+            "crit_damage": 1.75,
+            "min_range": 0,
+            "max_range": 175,
+            "knockback": 15,
+            "knockback_piercing": 0.1,
+            "can_have_positive_knockback": true,
+            "can_have_negative_knockback": false,
+            "effect_scale": 1.0,
+            "scaling_stats": [
+              [
+                "stat_melee_damage",
+                1.15
+              ],
+              [
+                "stat_hp_regeneration",
+                1.15
+              ]
+            ],
+            "lifesteal": 0.0,
+            "sound_db_mod": -5,
+            "is_healing": false,
+            "recoil": 25,
+            "recoil_duration": 0.1,
+            "additional_cooldown_every_x_shots": -1,
+            "additional_cooldown_multiplier": -1.0,
+            "speed_percent_modifier": 0,
+            "can_shoot_without_target": false,
+            "deal_dmg_on_return": false,
+            "attack_type": 1,
+            "alternate_attack_type": false
+          },
+          "effects": []
+        },
+        {
+          "source": "res://weapons/melee/meat_tenderizer/3/meat_tenderizer_3_data.tres",
+          "sourceMd5": "1cd1f8f21500be932fc7c44993963526",
+          "statsSource": "res://weapons/melee/meat_tenderizer/3/meat_tenderizer_3_stats.tres",
+          "statsMd5": "e152314009a87821b7f1e309e6f29fae",
+          "tier": 3,
+          "price": 74,
+          "sets": [
+            "set_blunt",
+            "set_medical"
+          ],
+          "kind": "Melee",
+          "stats": {
+            "cooldown": 45,
+            "damage": 45,
+            "accuracy": 1.0,
+            "crit_chance": 0.03,
+            "crit_damage": 1.75,
+            "min_range": 0,
+            "max_range": 175,
+            "knockback": 20,
+            "knockback_piercing": 0.15,
+            "can_have_positive_knockback": true,
+            "can_have_negative_knockback": false,
+            "effect_scale": 1.0,
+            "scaling_stats": [
+              [
+                "stat_melee_damage",
+                1.3
+              ],
+              [
+                "stat_hp_regeneration",
+                1.3
+              ]
+            ],
+            "lifesteal": 0.0,
+            "sound_db_mod": -5,
+            "is_healing": false,
+            "recoil": 25,
+            "recoil_duration": 0.1,
+            "additional_cooldown_every_x_shots": -1,
+            "additional_cooldown_multiplier": -1.0,
+            "speed_percent_modifier": 0,
+            "can_shoot_without_target": false,
+            "deal_dmg_on_return": false,
+            "attack_type": 1,
+            "alternate_attack_type": false
+          },
+          "effects": []
+        },
+        {
+          "source": "res://weapons/melee/meat_tenderizer/4/meat_tenderizer_4_data.tres",
+          "sourceMd5": "ae9e77c975fe94b5aa6d94ec33e41a15",
+          "statsSource": "res://weapons/melee/meat_tenderizer/4/meat_tenderizer_4_stats.tres",
+          "statsMd5": "a2d9c4d244ef9d17738002d06ec41b30",
+          "tier": 4,
+          "price": 149,
+          "sets": [
+            "set_blunt",
+            "set_medical"
+          ],
+          "kind": "Melee",
+          "stats": {
+            "cooldown": 40,
+            "damage": 75,
+            "accuracy": 1.0,
+            "crit_chance": 0.03,
+            "crit_damage": 1.75,
+            "min_range": 0,
+            "max_range": 175,
+            "knockback": 25,
+            "knockback_piercing": 0.2,
+            "can_have_positive_knockback": true,
+            "can_have_negative_knockback": false,
+            "effect_scale": 1.0,
+            "scaling_stats": [
+              [
+                "stat_melee_damage",
+                1.5
+              ],
+              [
+                "stat_hp_regeneration",
+                1.5
+              ]
+            ],
+            "lifesteal": 0.0,
+            "sound_db_mod": -5,
+            "is_healing": false,
+            "recoil": 25,
+            "recoil_duration": 0.1,
+            "additional_cooldown_every_x_shots": -1,
+            "additional_cooldown_multiplier": -1.0,
+            "speed_percent_modifier": 0,
+            "can_shoot_without_target": false,
+            "deal_dmg_on_return": false,
+            "attack_type": 1,
+            "alternate_attack_type": false
+          },
+          "effects": []
+        }
+      ]
+    },
+    {
+      "id": "Machinegun",
+      "name": "Machine Gun",
+      "tiers": [
+        {
+          "source": "res://weapons/ranged/machinegun/1/machinegun_data.tres",
+          "sourceMd5": "c29c0181c4899c0302ffb8a613d3f47f",
+          "statsSource": "res://weapons/ranged/machinegun/1/machinegun_stats.tres",
+          "statsMd5": "4fbd95edaed27719e8945b2a7cebac96",
+          "tier": 1,
+          "price": 28,
+          "sets": [
+            "set_heavy",
+            "set_gun"
+          ],
+          "kind": "Ranged",
+          "stats": {
+            "cooldown": 3,
+            "damage": 2,
+            "accuracy": 0.8,
+            "crit_chance": 0.01,
+            "crit_damage": 1.5,
+            "min_range": 0,
+            "max_range": 350,
+            "knockback": 3,
+            "knockback_piercing": 0.0,
+            "can_have_positive_knockback": true,
+            "can_have_negative_knockback": false,
+            "effect_scale": 0.1,
+            "scaling_stats": [
+              [
+                "stat_ranged_damage",
+                0.4
+              ]
+            ],
+            "lifesteal": 0.0,
+            "sound_db_mod": -15,
+            "is_healing": false,
+            "recoil": 10,
+            "recoil_duration": 0.02,
+            "additional_cooldown_every_x_shots": 60,
+            "additional_cooldown_multiplier": 40.0,
+            "speed_percent_modifier": 0,
+            "can_shoot_without_target": true,
+            "nb_projectiles": 1,
+            "projectile_spread": 0.0,
+            "piercing": 0,
+            "piercing_dmg_reduction": 0.5,
+            "bounce": 0,
+            "bounce_dmg_reduction": 0.5,
+            "can_bounce": true,
+            "projectile_speed": 3000,
+            "increase_projectile_speed_with_range": false
+          },
+          "effects": [
+            {
+              "source": "res://weapons/ranged/machinegun/1/machinegun_effect_0.tres",
+              "sourceMd5": "87594b5539b6db3d138483cb265f36c7",
+              "key": "stat_speed",
+              "value": -3,
+              "scale": null,
+              "duration": null
+            }
+          ]
+        },
+        {
+          "source": "res://weapons/ranged/machinegun/2/machinegun_2_data.tres",
+          "sourceMd5": "f6f78c998b6dba1c88ef6eacc90c2494",
+          "statsSource": "res://weapons/ranged/machinegun/2/machinegun_2_stats.tres",
+          "statsMd5": "3c4c49bad1d2a9e6309fcec4522c77f0",
+          "tier": 2,
+          "price": 52,
+          "sets": [
+            "set_heavy",
+            "set_gun"
+          ],
+          "kind": "Ranged",
+          "stats": {
+            "cooldown": 3,
+            "damage": 3,
+            "accuracy": 0.83,
+            "crit_chance": 0.01,
+            "crit_damage": 1.5,
+            "min_range": 0,
+            "max_range": 375,
+            "knockback": 3,
+            "knockback_piercing": 0.0,
+            "can_have_positive_knockback": true,
+            "can_have_negative_knockback": false,
+            "effect_scale": 0.1,
+            "scaling_stats": [
+              [
+                "stat_ranged_damage",
+                0.5
+              ]
+            ],
+            "lifesteal": 0.0,
+            "sound_db_mod": -15,
+            "is_healing": false,
+            "recoil": 10,
+            "recoil_duration": 0.02,
+            "additional_cooldown_every_x_shots": 70,
+            "additional_cooldown_multiplier": 36.0,
+            "speed_percent_modifier": 0,
+            "can_shoot_without_target": true,
+            "nb_projectiles": 1,
+            "projectile_spread": 0.0,
+            "piercing": 1,
+            "piercing_dmg_reduction": 0.5,
+            "bounce": 0,
+            "bounce_dmg_reduction": 0.5,
+            "can_bounce": true,
+            "projectile_speed": 3000,
+            "increase_projectile_speed_with_range": false
+          },
+          "effects": [
+            {
+              "source": "res://weapons/ranged/machinegun/2/machinegun_2_effect_0.tres",
+              "sourceMd5": "87594b5539b6db3d138483cb265f36c7",
+              "key": "stat_speed",
+              "value": -3,
+              "scale": null,
+              "duration": null
+            }
+          ]
+        },
+        {
+          "source": "res://weapons/ranged/machinegun/3/machinegun_3_data.tres",
+          "sourceMd5": "8ec7265fe3570ee68ad1bd05ead67a54",
+          "statsSource": "res://weapons/ranged/machinegun/3/machinegun_3_stats.tres",
+          "statsMd5": "cfd83cfd41da678ab110dfbb40b75b1a",
+          "tier": 3,
+          "price": 120,
+          "sets": [
+            "set_heavy",
+            "set_gun"
+          ],
+          "kind": "Ranged",
+          "stats": {
+            "cooldown": 3,
+            "damage": 4,
+            "accuracy": 0.86,
+            "crit_chance": 0.01,
+            "crit_damage": 1.5,
+            "min_range": 0,
+            "max_range": 400,
+            "knockback": 3,
+            "knockback_piercing": 0.0,
+            "can_have_positive_knockback": true,
+            "can_have_negative_knockback": false,
+            "effect_scale": 0.1,
+            "scaling_stats": [
+              [
+                "stat_ranged_damage",
+                0.65
+              ]
+            ],
+            "lifesteal": 0.0,
+            "sound_db_mod": -15,
+            "is_healing": false,
+            "recoil": 10,
+            "recoil_duration": 0.02,
+            "additional_cooldown_every_x_shots": 80,
+            "additional_cooldown_multiplier": 32.0,
+            "speed_percent_modifier": 0,
+            "can_shoot_without_target": true,
+            "nb_projectiles": 1,
+            "projectile_spread": 0.0,
+            "piercing": 1,
+            "piercing_dmg_reduction": 0.5,
+            "bounce": 0,
+            "bounce_dmg_reduction": 0.5,
+            "can_bounce": true,
+            "projectile_speed": 3000,
+            "increase_projectile_speed_with_range": false
+          },
+          "effects": [
+            {
+              "source": "res://weapons/ranged/machinegun/3/machinegun_3_effect_0.tres",
+              "sourceMd5": "87594b5539b6db3d138483cb265f36c7",
+              "key": "stat_speed",
+              "value": -3,
+              "scale": null,
+              "duration": null
+            }
+          ]
+        },
+        {
+          "source": "res://weapons/ranged/machinegun/4/machinegun_4_data.tres",
+          "sourceMd5": "703ee898be9c44f8433e6128bdc534c9",
+          "statsSource": "res://weapons/ranged/machinegun/4/machinegun_4_stats.tres",
+          "statsMd5": "3a348eebe3b7b87c2ee7c90cdf90a08d",
+          "tier": 4,
+          "price": 245,
+          "sets": [
+            "set_heavy",
+            "set_gun"
+          ],
+          "kind": "Ranged",
+          "stats": {
+            "cooldown": 2,
+            "damage": 6,
+            "accuracy": 0.9,
+            "crit_chance": 0.01,
+            "crit_damage": 1.5,
+            "min_range": 0,
+            "max_range": 450,
+            "knockback": 3,
+            "knockback_piercing": 0.0,
+            "can_have_positive_knockback": true,
+            "can_have_negative_knockback": false,
+            "effect_scale": 0.1,
+            "scaling_stats": [
+              [
+                "stat_ranged_damage",
+                0.8
+              ]
+            ],
+            "lifesteal": 0.0,
+            "sound_db_mod": -15,
+            "is_healing": false,
+            "recoil": 10,
+            "recoil_duration": 0.02,
+            "additional_cooldown_every_x_shots": 90,
+            "additional_cooldown_multiplier": 42.0,
+            "speed_percent_modifier": 0,
+            "can_shoot_without_target": true,
+            "nb_projectiles": 1,
+            "projectile_spread": 0.0,
+            "piercing": 2,
+            "piercing_dmg_reduction": 0.5,
+            "bounce": 0,
+            "bounce_dmg_reduction": 0.5,
+            "can_bounce": true,
+            "projectile_speed": 3000,
+            "increase_projectile_speed_with_range": false
+          },
+          "effects": [
+            {
+              "source": "res://weapons/ranged/machinegun/4/machinegun_4_effect_0.tres",
+              "sourceMd5": "87594b5539b6db3d138483cb265f36c7",
+              "key": "stat_speed",
+              "value": -3,
+              "scale": null,
+              "duration": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "PanFlute",
+      "name": "Pan Flute",
+      "tiers": [
+        {
+          "source": "res://weapons/ranged/pan_flute/1/pan_flute_data.tres",
+          "sourceMd5": "68f7bd516d1f0ce9a3e5164c165c2aeb",
+          "statsSource": "res://weapons/ranged/pan_flute/1/pan_flute_stats.tres",
+          "statsMd5": "e94b200abc66c3b90e6b44561568aae9",
+          "tier": 1,
+          "price": 20,
+          "sets": [
+            "set_musical"
+          ],
+          "kind": "Ranged",
+          "stats": {
+            "cooldown": 65,
+            "damage": 2,
+            "accuracy": 0.9,
+            "crit_chance": 0.03,
+            "crit_damage": 1.5,
+            "min_range": 0,
+            "max_range": 275,
+            "knockback": 0,
+            "knockback_piercing": 0.0,
+            "can_have_positive_knockback": true,
+            "can_have_negative_knockback": false,
+            "effect_scale": 1.0,
+            "scaling_stats": [
+              [
+                "stat_luck",
+                0.12
+              ]
+            ],
+            "lifesteal": 0.0,
+            "sound_db_mod": 0,
+            "is_healing": false,
+            "recoil": 25,
+            "recoil_duration": 0.1,
+            "additional_cooldown_every_x_shots": -1,
+            "additional_cooldown_multiplier": -1.0,
+            "speed_percent_modifier": 0,
+            "can_shoot_without_target": false,
+            "nb_projectiles": 5,
+            "projectile_spread": 0.5,
+            "piercing": 0,
+            "piercing_dmg_reduction": 0.5,
+            "bounce": 0,
+            "bounce_dmg_reduction": 0.5,
+            "can_bounce": true,
+            "projectile_speed": 2000,
+            "increase_projectile_speed_with_range": false
+          },
+          "effects": []
+        },
+        {
+          "source": "res://weapons/ranged/pan_flute/2/pan_flute_2_data.tres",
+          "sourceMd5": "76784e1695dd3a0922439c9e45f20877",
+          "statsSource": "res://weapons/ranged/pan_flute/2/pan_flute_2_stats.tres",
+          "statsMd5": "88a8015411108d1527983770ec04b5b3",
+          "tier": 2,
+          "price": 45,
+          "sets": [
+            "set_musical"
+          ],
+          "kind": "Ranged",
+          "stats": {
+            "cooldown": 60,
+            "damage": 3,
+            "accuracy": 0.9,
+            "crit_chance": 0.03,
+            "crit_damage": 1.5,
+            "min_range": 0,
+            "max_range": 300,
+            "knockback": 0,
+            "knockback_piercing": 0.0,
+            "can_have_positive_knockback": true,
+            "can_have_negative_knockback": false,
+            "effect_scale": 1.0,
+            "scaling_stats": [
+              [
+                "stat_luck",
+                0.16
+              ]
+            ],
+            "lifesteal": 0.0,
+            "sound_db_mod": 0,
+            "is_healing": false,
+            "recoil": 25,
+            "recoil_duration": 0.1,
+            "additional_cooldown_every_x_shots": -1,
+            "additional_cooldown_multiplier": -1.0,
+            "speed_percent_modifier": 0,
+            "can_shoot_without_target": false,
+            "nb_projectiles": 5,
+            "projectile_spread": 0.5,
+            "piercing": 0,
+            "piercing_dmg_reduction": 0.5,
+            "bounce": 0,
+            "bounce_dmg_reduction": 0.5,
+            "can_bounce": true,
+            "projectile_speed": 2000,
+            "increase_projectile_speed_with_range": false
+          },
+          "effects": []
+        },
+        {
+          "source": "res://weapons/ranged/pan_flute/3/pan_flute_3_data.tres",
+          "sourceMd5": "d90b29dde76334a0605e59176d494256",
+          "statsSource": "res://weapons/ranged/pan_flute/3/pan_flute_3_stats.tres",
+          "statsMd5": "4577da033a1d116a6f2745b4a1d8fc94",
+          "tier": 3,
+          "price": 85,
+          "sets": [
+            "set_musical"
+          ],
+          "kind": "Ranged",
+          "stats": {
+            "cooldown": 55,
+            "damage": 4,
+            "accuracy": 0.9,
+            "crit_chance": 0.03,
+            "crit_damage": 1.5,
+            "min_range": 0,
+            "max_range": 325,
+            "knockback": 0,
+            "knockback_piercing": 0.0,
+            "can_have_positive_knockback": true,
+            "can_have_negative_knockback": false,
+            "effect_scale": 1.0,
+            "scaling_stats": [
+              [
+                "stat_luck",
+                0.2
+              ]
+            ],
+            "lifesteal": 0.0,
+            "sound_db_mod": 0,
+            "is_healing": false,
+            "recoil": 25,
+            "recoil_duration": 0.1,
+            "additional_cooldown_every_x_shots": -1,
+            "additional_cooldown_multiplier": -1.0,
+            "speed_percent_modifier": 0,
+            "can_shoot_without_target": false,
+            "nb_projectiles": 5,
+            "projectile_spread": 0.45,
+            "piercing": 0,
+            "piercing_dmg_reduction": 0.5,
+            "bounce": 0,
+            "bounce_dmg_reduction": 0.5,
+            "can_bounce": true,
+            "projectile_speed": 2000,
+            "increase_projectile_speed_with_range": false
+          },
+          "effects": []
+        },
+        {
+          "source": "res://weapons/ranged/pan_flute/4/pan_flute_4_data.tres",
+          "sourceMd5": "3582a5357ab4f76b72b3778c3e8536b8",
+          "statsSource": "res://weapons/ranged/pan_flute/4/pan_flute_4_stats.tres",
+          "statsMd5": "9859b4075efe4fbac54a198ef0de01e3",
+          "tier": 4,
+          "price": 170,
+          "sets": [
+            "set_musical"
+          ],
+          "kind": "Ranged",
+          "stats": {
+            "cooldown": 50,
+            "damage": 6,
+            "accuracy": 0.9,
+            "crit_chance": 0.03,
+            "crit_damage": 1.5,
+            "min_range": 0,
+            "max_range": 350,
+            "knockback": 0,
+            "knockback_piercing": 0.0,
+            "can_have_positive_knockback": true,
+            "can_have_negative_knockback": false,
+            "effect_scale": 1.0,
+            "scaling_stats": [
+              [
+                "stat_luck",
+                0.25
+              ]
+            ],
+            "lifesteal": 0.0,
+            "sound_db_mod": 0,
+            "is_healing": false,
+            "recoil": 25,
+            "recoil_duration": 0.1,
+            "additional_cooldown_every_x_shots": -1,
+            "additional_cooldown_multiplier": -1.0,
+            "speed_percent_modifier": 0,
+            "can_shoot_without_target": false,
+            "nb_projectiles": 5,
+            "projectile_spread": 0.4,
+            "piercing": 0,
+            "piercing_dmg_reduction": 0.5,
+            "bounce": 0,
+            "bounce_dmg_reduction": 0.5,
+            "can_bounce": true,
+            "projectile_speed": 2000,
+            "increase_projectile_speed_with_range": false
+          },
+          "effects": []
+        }
+      ]
+    },
+    {
+      "id": "CombatShotgun",
+      "name": "Combat Shotgun",
+      "tiers": [
+        {
+          "source": "res://weapons/ranged/combat_shotgun/2/combat_shotgun_2_data.tres",
+          "sourceMd5": "c84bdeb547413181b33496c1b0407f17",
+          "statsSource": "res://weapons/ranged/combat_shotgun/2/combat_shotgun_2_stats.tres",
+          "statsMd5": "cb5b7fb7b9976f80471a40869eb4b653",
+          "tier": 2,
+          "price": 46,
+          "sets": [
+            "set_gun"
+          ],
+          "kind": "Ranged",
+          "stats": {
+            "cooldown": 21,
+            "damage": 7,
+            "accuracy": 0.85,
+            "crit_chance": 0.03,
+            "crit_damage": 2.0,
+            "min_range": 0,
+            "max_range": 350,
+            "knockback": 8,
+            "knockback_piercing": 0.0,
+            "can_have_positive_knockback": true,
+            "can_have_negative_knockback": false,
+            "effect_scale": 1.0,
+            "scaling_stats": [
+              [
+                "stat_ranged_damage",
+                0.9
+              ]
+            ],
+            "lifesteal": 0.0,
+            "sound_db_mod": -15,
+            "is_healing": false,
+            "recoil": 25,
+            "recoil_duration": 0.1,
+            "additional_cooldown_every_x_shots": 5,
+            "additional_cooldown_multiplier": 5.2,
+            "speed_percent_modifier": 0,
+            "can_shoot_without_target": false,
+            "nb_projectiles": 6,
+            "projectile_spread": 0.5,
+            "piercing": 1,
+            "piercing_dmg_reduction": 0.3,
+            "bounce": 0,
+            "bounce_dmg_reduction": 0.5,
+            "can_bounce": true,
+            "projectile_speed": 3000,
+            "increase_projectile_speed_with_range": false
+          },
+          "effects": []
+        },
+        {
+          "source": "res://weapons/ranged/combat_shotgun/3/combat_shotgun_3_data.tres",
+          "sourceMd5": "ccd000fbe23f2b01ffc15218c15cfe09",
+          "statsSource": "res://weapons/ranged/combat_shotgun/3/combat_shotgun_3_stats.tres",
+          "statsMd5": "77ca2dec375551aade6b64cf06069a30",
+          "tier": 3,
+          "price": 86,
+          "sets": [
+            "set_gun"
+          ],
+          "kind": "Ranged",
+          "stats": {
+            "cooldown": 20,
+            "damage": 10,
+            "accuracy": 0.85,
+            "crit_chance": 0.03,
+            "crit_damage": 2.0,
+            "min_range": 0,
+            "max_range": 350,
+            "knockback": 8,
+            "knockback_piercing": 0.0,
+            "can_have_positive_knockback": true,
+            "can_have_negative_knockback": false,
+            "effect_scale": 1.0,
+            "scaling_stats": [
+              [
+                "stat_ranged_damage",
+                0.95
+              ]
+            ],
+            "lifesteal": 0.0,
+            "sound_db_mod": -15,
+            "is_healing": false,
+            "recoil": 25,
+            "recoil_duration": 0.1,
+            "additional_cooldown_every_x_shots": 5,
+            "additional_cooldown_multiplier": 5.07,
+            "speed_percent_modifier": 0,
+            "can_shoot_without_target": false,
+            "nb_projectiles": 6,
+            "projectile_spread": 0.5,
+            "piercing": 2,
+            "piercing_dmg_reduction": 0.3,
+            "bounce": 0,
+            "bounce_dmg_reduction": 0.5,
+            "can_bounce": true,
+            "projectile_speed": 3000,
+            "increase_projectile_speed_with_range": false
+          },
+          "effects": []
+        },
+        {
+          "source": "res://weapons/ranged/combat_shotgun/4/combat_shotgun_4_data.tres",
+          "sourceMd5": "dbfafd092c9a07bccbb78e6bf3b3e751",
+          "statsSource": "res://weapons/ranged/combat_shotgun/4/combat_shotgun_4_stats.tres",
+          "statsMd5": "15473848ed89e211bf2f5c52cd1b5c0b",
+          "tier": 4,
+          "price": 172,
+          "sets": [
+            "set_gun"
+          ],
+          "kind": "Ranged",
+          "stats": {
+            "cooldown": 18,
+            "damage": 10,
+            "accuracy": 0.85,
+            "crit_chance": 0.03,
+            "crit_damage": 2.0,
+            "min_range": 0,
+            "max_range": 350,
+            "knockback": 8,
+            "knockback_piercing": 0.0,
+            "can_have_positive_knockback": true,
+            "can_have_negative_knockback": false,
+            "effect_scale": 1.0,
+            "scaling_stats": [
+              [
+                "stat_ranged_damage",
+                1.1
+              ]
+            ],
+            "lifesteal": 0.0,
+            "sound_db_mod": -15,
+            "is_healing": false,
+            "recoil": 25,
+            "recoil_duration": 0.1,
+            "additional_cooldown_every_x_shots": 5,
+            "additional_cooldown_multiplier": 5.2,
+            "speed_percent_modifier": 0,
+            "can_shoot_without_target": false,
+            "nb_projectiles": 8,
+            "projectile_spread": 0.5,
+            "piercing": 2,
+            "piercing_dmg_reduction": 0.3,
+            "bounce": 0,
+            "bounce_dmg_reduction": 0.5,
+            "can_bounce": true,
+            "projectile_speed": 3000,
+            "increase_projectile_speed_with_range": false
+          },
+          "effects": []
+        }
+      ]
+    },
+    {
+      "id": "GrenadeLauncher",
+      "name": "Grenade Launcher",
+      "tiers": [
+        {
+          "source": "res://dlcs/dlc_1/weapons/ranged/grenade_launcher/2/grenade_launcher_2_data.tres",
+          "sourceMd5": "ce0c4e38a3b2598a66de664e84a43447",
+          "statsSource": "res://dlcs/dlc_1/weapons/ranged/grenade_launcher/2/grenade_launcher_2_stats.tres",
+          "statsMd5": "9e72154c91a268e6e0fb421e1d010f3d",
+          "tier": 2,
+          "price": 58,
+          "sets": [
+            "set_heavy",
+            "set_explosive"
+          ],
+          "kind": "Ranged",
+          "stats": {
+            "cooldown": 10,
+            "damage": 12,
+            "accuracy": 0.8,
+            "crit_chance": 0.05,
+            "crit_damage": 2.5,
+            "min_range": 0,
+            "max_range": 350,
+            "knockback": 0,
+            "knockback_piercing": 0.0,
+            "can_have_positive_knockback": true,
+            "can_have_negative_knockback": false,
+            "effect_scale": 1.0,
+            "scaling_stats": [
+              [
+                "stat_ranged_damage",
+                1.0
+              ]
+            ],
+            "lifesteal": 0.0,
+            "sound_db_mod": -10,
+            "is_healing": false,
+            "recoil": 25,
+            "recoil_duration": 0.1,
+            "additional_cooldown_every_x_shots": 2,
+            "additional_cooldown_multiplier": 21.0,
+            "speed_percent_modifier": 0,
+            "can_shoot_without_target": false,
+            "nb_projectiles": 1,
+            "projectile_spread": 0.0,
+            "piercing": 0,
+            "piercing_dmg_reduction": 0.5,
+            "bounce": 1,
+            "bounce_dmg_reduction": 0.0,
+            "can_bounce": true,
+            "projectile_speed": 2000,
+            "increase_projectile_speed_with_range": false
+          },
+          "effects": [
+            {
+              "source": "res://dlcs/dlc_1/weapons/ranged/grenade_launcher/2/grenade_launcher_2_effect_0.tres",
+              "sourceMd5": "7ac8a95675ba5be2d5e76fab6c15c05e",
+              "key": "effect_explode",
+              "value": 0,
+              "scale": 0.75,
+              "duration": null
+            }
+          ]
+        },
+        {
+          "source": "res://dlcs/dlc_1/weapons/ranged/grenade_launcher/3/grenade_launcher_3_data.tres",
+          "sourceMd5": "fe68bba58b3682356c2168e0f6afb4ec",
+          "statsSource": "res://dlcs/dlc_1/weapons/ranged/grenade_launcher/3/grenade_launcher_3_stats.tres",
+          "statsMd5": "419c95135de3fd34677fc01c49913c12",
+          "tier": 3,
+          "price": 108,
+          "sets": [
+            "set_heavy",
+            "set_explosive"
+          ],
+          "kind": "Ranged",
+          "stats": {
+            "cooldown": 10,
+            "damage": 18,
+            "accuracy": 0.8,
+            "crit_chance": 0.1,
+            "crit_damage": 3.0,
+            "min_range": 0,
+            "max_range": 400,
+            "knockback": 0,
+            "knockback_piercing": 0.0,
+            "can_have_positive_knockback": true,
+            "can_have_negative_knockback": false,
+            "effect_scale": 1.0,
+            "scaling_stats": [
+              [
+                "stat_ranged_damage",
+                1.0
+              ]
+            ],
+            "lifesteal": 0.0,
+            "sound_db_mod": -10,
+            "is_healing": false,
+            "recoil": 25,
+            "recoil_duration": 0.1,
+            "additional_cooldown_every_x_shots": 3,
+            "additional_cooldown_multiplier": 18.0,
+            "speed_percent_modifier": 0,
+            "can_shoot_without_target": false,
+            "nb_projectiles": 1,
+            "projectile_spread": 0.0,
+            "piercing": 0,
+            "piercing_dmg_reduction": 0.5,
+            "bounce": 1,
+            "bounce_dmg_reduction": 0.0,
+            "can_bounce": true,
+            "projectile_speed": 2000,
+            "increase_projectile_speed_with_range": false
+          },
+          "effects": [
+            {
+              "source": "res://dlcs/dlc_1/weapons/ranged/grenade_launcher/3/grenade_launcher_3_effect_0.tres",
+              "sourceMd5": "7ac8a95675ba5be2d5e76fab6c15c05e",
+              "key": "effect_explode",
+              "value": 0,
+              "scale": 0.75,
+              "duration": null
+            }
+          ]
+        },
+        {
+          "source": "res://dlcs/dlc_1/weapons/ranged/grenade_launcher/4/grenade_launcher_4_data.tres",
+          "sourceMd5": "ed0e1b28bdab0637e90a13f47d219731",
+          "statsSource": "res://dlcs/dlc_1/weapons/ranged/grenade_launcher/4/grenade_launcher_4_stats.tres",
+          "statsMd5": "6abb883893f0b8e79f21379ba208d5ef",
+          "tier": 4,
+          "price": 212,
+          "sets": [
+            "set_heavy",
+            "set_explosive"
+          ],
+          "kind": "Ranged",
+          "stats": {
+            "cooldown": 10,
+            "damage": 30,
+            "accuracy": 0.8,
+            "crit_chance": 0.2,
+            "crit_damage": 3.5,
+            "min_range": 0,
+            "max_range": 450,
+            "knockback": 0,
+            "knockback_piercing": 0.0,
+            "can_have_positive_knockback": true,
+            "can_have_negative_knockback": false,
+            "effect_scale": 1.0,
+            "scaling_stats": [
+              [
+                "stat_ranged_damage",
+                1.0
+              ]
+            ],
+            "lifesteal": 0.0,
+            "sound_db_mod": -10,
+            "is_healing": false,
+            "recoil": 25,
+            "recoil_duration": 0.1,
+            "additional_cooldown_every_x_shots": 4,
+            "additional_cooldown_multiplier": 15.0,
+            "speed_percent_modifier": 0,
+            "can_shoot_without_target": false,
+            "nb_projectiles": 1,
+            "projectile_spread": 0.0,
+            "piercing": 0,
+            "piercing_dmg_reduction": 0.5,
+            "bounce": 1,
+            "bounce_dmg_reduction": 0.0,
+            "can_bounce": true,
+            "projectile_speed": 2000,
+            "increase_projectile_speed_with_range": false
+          },
+          "effects": [
+            {
+              "source": "res://dlcs/dlc_1/weapons/ranged/grenade_launcher/4/grenade_launcher_4_effect_0.tres",
+              "sourceMd5": "7ac8a95675ba5be2d5e76fab6c15c05e",
+              "key": "effect_explode",
+              "value": 0,
+              "scale": 0.75,
+              "duration": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "Whip",
+      "name": "Whip",
+      "tiers": [
+        {
+          "source": "res://weapons/melee/whip/1/whip_data.tres",
+          "sourceMd5": "72c16f798eddc540de772cc8d49e0c34",
+          "statsSource": "res://weapons/melee/whip/1/whip_stats.tres",
+          "statsMd5": "bc159d39e4af3f758e76f0a1f3e3b2a9",
+          "tier": 1,
+          "price": 11,
+          "sets": [
+            "set_primitive"
+          ],
+          "kind": "Melee",
+          "stats": {
+            "cooldown": 25,
+            "damage": 8,
+            "accuracy": 1.0,
+            "crit_chance": 0.2,
+            "crit_damage": 2.0,
+            "min_range": 0,
+            "max_range": 200,
+            "knockback": 0,
+            "knockback_piercing": 0.0,
+            "can_have_positive_knockback": true,
+            "can_have_negative_knockback": false,
+            "effect_scale": 1.0,
+            "scaling_stats": [
+              [
+                "stat_melee_damage",
+                1.0
+              ]
+            ],
+            "lifesteal": 0.0,
+            "sound_db_mod": -5,
+            "is_healing": false,
+            "recoil": 25,
+            "recoil_duration": 0.1,
+            "additional_cooldown_every_x_shots": -1,
+            "additional_cooldown_multiplier": -1.0,
+            "speed_percent_modifier": 0,
+            "can_shoot_without_target": false,
+            "deal_dmg_on_return": false,
+            "attack_type": 0,
+            "alternate_attack_type": false,
+            "attack_duration": 0.48
+          },
+          "effects": [
+            {
+              "source": "res://weapons/melee/whip/1/whip_1_effect_slow.tres",
+              "sourceMd5": "63cf6e30a0f4cee83c9def93378b57d9",
+              "key": "timed_slow_on_hit",
+              "value": 50,
+              "scale": null,
+              "duration": 0.5
+            }
+          ]
+        },
+        {
+          "source": "res://weapons/melee/whip/2/whip_2_data.tres",
+          "sourceMd5": "3fffa02c67dd89a6e966c3e3ed7faa66",
+          "statsSource": "res://weapons/melee/whip/2/whip_2_stats.tres",
+          "statsMd5": "1bda184b6e43bfc57bb0916c50cba9a7",
+          "tier": 2,
+          "price": 24,
+          "sets": [
+            "set_primitive"
+          ],
+          "kind": "Melee",
+          "stats": {
+            "cooldown": 21,
+            "damage": 11,
+            "accuracy": 1.0,
+            "crit_chance": 0.3,
+            "crit_damage": 2.0,
+            "min_range": 0,
+            "max_range": 220,
+            "knockback": 0,
+            "knockback_piercing": 0.0,
+            "can_have_positive_knockback": true,
+            "can_have_negative_knockback": false,
+            "effect_scale": 1.0,
+            "scaling_stats": [
+              [
+                "stat_melee_damage",
+                1.0
+              ]
+            ],
+            "lifesteal": 0.0,
+            "sound_db_mod": -5,
+            "is_healing": false,
+            "recoil": 25,
+            "recoil_duration": 0.1,
+            "additional_cooldown_every_x_shots": -1,
+            "additional_cooldown_multiplier": -1.0,
+            "speed_percent_modifier": 0,
+            "can_shoot_without_target": false,
+            "deal_dmg_on_return": false,
+            "attack_type": 0,
+            "alternate_attack_type": false,
+            "attack_duration": 0.48
+          },
+          "effects": [
+            {
+              "source": "res://weapons/melee/whip/2/whip_2_effect_slow.tres",
+              "sourceMd5": "7496b18e33734eb5f536903006900d93",
+              "key": "timed_slow_on_hit",
+              "value": 50,
+              "scale": null,
+              "duration": 1.0
+            }
+          ]
+        },
+        {
+          "source": "res://weapons/melee/whip/3/whip_3_data.tres",
+          "sourceMd5": "52a4707e6f64559725ed2c0128b41808",
+          "statsSource": "res://weapons/melee/whip/3/whip_3_stats.tres",
+          "statsMd5": "78e67142cb4bb3ffdf6ca641c9f2c386",
+          "tier": 3,
+          "price": 50,
+          "sets": [
+            "set_primitive"
+          ],
+          "kind": "Melee",
+          "stats": {
+            "cooldown": 17,
+            "damage": 15,
+            "accuracy": 1.0,
+            "crit_chance": 0.4,
+            "crit_damage": 2.0,
+            "min_range": 0,
+            "max_range": 240,
+            "knockback": 0,
+            "knockback_piercing": 0.0,
+            "can_have_positive_knockback": true,
+            "can_have_negative_knockback": false,
+            "effect_scale": 1.0,
+            "scaling_stats": [
+              [
+                "stat_melee_damage",
+                1.0
+              ]
+            ],
+            "lifesteal": 0.0,
+            "sound_db_mod": -5,
+            "is_healing": false,
+            "recoil": 25,
+            "recoil_duration": 0.1,
+            "additional_cooldown_every_x_shots": -1,
+            "additional_cooldown_multiplier": -1.0,
+            "speed_percent_modifier": 0,
+            "can_shoot_without_target": false,
+            "deal_dmg_on_return": false,
+            "attack_type": 0,
+            "alternate_attack_type": false,
+            "attack_duration": 0.48
+          },
+          "effects": [
+            {
+              "source": "res://weapons/melee/whip/3/whip_3_effect_slow.tres",
+              "sourceMd5": "fb715a376ccb77aea4d9f47ccdf67a71",
+              "key": "timed_slow_on_hit",
+              "value": 50,
+              "scale": null,
+              "duration": 1.5
+            }
+          ]
+        },
+        {
+          "source": "res://weapons/melee/whip/4/whip_4_data.tres",
+          "sourceMd5": "e0aeebe720435dc01ba3d760a36646c6",
+          "statsSource": "res://weapons/melee/whip/4/whip_4_stats.tres",
+          "statsMd5": "1522b6a031843284bb2ff8c633783bd5",
+          "tier": 4,
+          "price": 100,
+          "sets": [
+            "set_primitive"
+          ],
+          "kind": "Melee",
+          "stats": {
+            "cooldown": 12,
+            "damage": 21,
+            "accuracy": 1.0,
+            "crit_chance": 0.5,
+            "crit_damage": 2.0,
+            "min_range": 0,
+            "max_range": 260,
+            "knockback": 0,
+            "knockback_piercing": 0.0,
+            "can_have_positive_knockback": true,
+            "can_have_negative_knockback": false,
+            "effect_scale": 1.0,
+            "scaling_stats": [
+              [
+                "stat_melee_damage",
+                1.0
+              ]
+            ],
+            "lifesteal": 0.0,
+            "sound_db_mod": -5,
+            "is_healing": false,
+            "recoil": 25,
+            "recoil_duration": 0.1,
+            "additional_cooldown_every_x_shots": -1,
+            "additional_cooldown_multiplier": -1.0,
+            "speed_percent_modifier": 0,
+            "can_shoot_without_target": false,
+            "deal_dmg_on_return": false,
+            "attack_type": 0,
+            "alternate_attack_type": false,
+            "attack_duration": 0.48
+          },
+          "effects": [
+            {
+              "source": "res://weapons/melee/whip/4/whip_4_effect_slow.tres",
+              "sourceMd5": "a05e3307c628ab381d79c176914176b2",
+              "key": "timed_slow_on_hit",
+              "value": 50,
+              "scale": null,
+              "duration": 2.0
+            }
+          ]
+        }
+      ],
+      "geometry": {
+        "source": "res://weapons/melee/whip/whip.tscn",
+        "sourceMd5": "8cd5f56a083acdc0fb5333381fe5f530",
+        "hitOpenSeconds": 0.24,
+        "hitCloseSeconds": 0.32,
+        "attackLockSeconds": 0.48,
+        "hitStartOffset": 3.4,
+        "halfWidth": 1.6,
+        "spritePositionPoints": [
+          13.885,
+          46,
+          46,
+          3.985
+        ],
+        "spriteRotationDegrees": [
+          -16.4,
+          0,
+          0,
+          15
+        ],
+        "hitboxOffsetPoints": -12,
+        "note": "Lash animation method keys open/close at 0.24/0.32, length 0.48; Sprite x46 plus Hitbox x-12, Rectangle extents.y16, world scale0.1. Whip.init_stats replaces Hitbox y scale with1."
+      }
+    }
+  ]
+}

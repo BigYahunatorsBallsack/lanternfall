@@ -1,0 +1,16 @@
+{
+  "version": "1.2.0.1",
+  "steamBuild": 26406319,
+  "resources": {
+    "res://main.gdc": "903bd37107ab9c164addda2167477fb1",
+    "res://singletons/run_data.gdc": "a94d8eddd9609f413309ce9237297ad2",
+    "res://singletons/item_service.gdc": "2bb86ac67c9576337a664d6c75a66dec",
+    "res://singletons/coop_service.gdc": "c7acffec9f3ec81159811794fd343149"
+  },
+  "rules": {
+    "materialModifiers": "Average gold_drops and entity-type drops independently with integer truncation; apply their sum additively, minimum 0.5 * base, then roll the fractional remainder. Existing cooperative base-value scaling is a separate parity dependency.",
+    "harvesting": "Non-positive does not grow. Normal waves ceil(current * (5 + additive harvesting_growth) / 100). Beyond 20 waves remove ceil(current * 20 / 100). Apply ordinary stat gain modifiers.",
+    "recycling": "floor(price * clamp(0.25 + recycling_gains / 100, 0.01, 1)), minimum 1, capped by shop price. Price-stat affects recycle basis through wave 20, shop-price cap still uses it in endless.",
+    "walletStart": "Apply gain_pct_gold_start_wave at the real wave start, before retry checkpoint. Negative applies in all waves and becomes -100 in endless; positive only through wave 20."
+  }
+}

@@ -2,6 +2,14 @@
 
 Implementiere alle noch fehlenden Brotato-Charaktere in Lanternfall vollständig. Ziel: stabile PC-Version 1.2.0.1 mit allen DLCs, insgesamt 74 Charaktere. Der Owner erwartet funktionierende Charaktere einschließlich ihrer benötigten Ausrüstung und Mechaniken, nicht nur Konfigurationsdatensätze. Sprich Deutsch mit ihm; Code, Kommentare und Spieltexte bleiben Englisch.
 
+## Fortsetzung vom 08.11.2026 (PR #90)
+
+Diese Ergänzung aktualisiert die historischen Restangaben unten: Bull ist jetzt als viertes neues Paket code-vorbereitet (Zugriff, waffenlose Menüfolge und Regeldarstellung getestet). Der gesicherte Patch wurde integriert und darf nicht erneut angewendet werden. Crazy/Brawler/Ghost/Bull benötigen weiterhin echte Bild-Uploads; neun historische Charaktere bleiben öffentlich verfügbar, keine vollständige native Abnahme behauptet.
+
+Acht Startwaffenfamilien sind implementiert und lokal mit Originalbildern vorbereitet: Anchor, Mace, Meat Tenderizer, Whip, Machine Gun, Pan Flute, Combat Shotgun, Grenade Launcher. Bis echte Bilder eingebunden sind, bleiben sie gesperrt. Noch 21 Waffen- und zehn Item-/Petfamilien laut Katalogprüfung. Materialmodifikatoren, Farmer-Ernte, Entrepreneur-Recycling/Wallet-Reset, One-Armed-/Vagabond-Setzählung und Cyborg-Halbzeitumwandlung sind angebunden; diese Einzelmechaniken machen die betreffenden Charakterpakete nicht vollständig. Quellen und Einzelheiten stehen in weapon-source.json, economy-source.json, half-wave-source.json und STATUS.md.
+
+Owner: vorerst nur Code und lokale Bildvorbereitung. Keine Uploads/Veröffentlichung. Künftige Merges brauchen keine zusätzliche Freigabe. Chef-/Glutton-Reproduktionstests sind lokal angefangen und noch nicht Teil dieses geprüften Zwischenstands.
+
 ## Einstieg und Befugnisse
 
 - Prüfe GitHub-main von BigYahunatorsBallsack/lanternfall und beginne davon. Lies AGENTS.md, CLAUDE.md, STATUS.md, docs/PARALLEL.md und docs/BROTATO-REQUIREMENTS.md. Der alte Ordner C:/Users/jonas/Documents/Roblox/lanternfall/lanternfall ist veraltet; dessen Änderungen erhalten.
@@ -37,4 +45,4 @@ Implementiere alle noch fehlenden Brotato-Charaktere in Lanternfall vollständig
 - Letzter vollständiger geprüfter Codestand: 1110 bestanden / 30 fehlgeschlagen in 110 Specs, Seed 1234, jede Spec separat. Main-Vergleich 5f52293: 994/29 in 86 Specs. Zwei zusätzliche Smoke-Fehler erwarten LV mit Leerzeichen statt nativem LV.; weitere Smoke-/RunStats-Fehler bestehen schon auf main. Der 4-ms-Gesamtleistungstest schwankt. Baseline beim neuen Einstieg neu vergleichen; keine Tests schwächen, überspringen oder Fehler verschweigen.
 - Tests mit Lune: C:/Users/jonas/.rokit/tool-storage/lune-org/lune/0.11.1/lune.exe run tools/luau-test-runner/lune-runner.luau tests/NAME.spec.luau. Je Datei ein Prozess. StyLua, Selene und Rojo passend ausführen; bei API-Downloadfehlern vorhandenen Selene-Cache nutzen.
 - Native Studio-/Zwei-Client-/Handy-Abnahme ist nicht erfolgt. Produktionsmodul-Tests im Roblox-Mock als solche bezeichnen.
-- Berichte kurz, welche Charaktere jetzt tatsächlich vollständig angebunden sind und welche Abhängigkeiten verbleiben. Schließe den Auftrag erst ab, wenn alle 74 Regeln samt Ausrüstung funktionieren. PR nach Projektvorlage; zukünftige Merges nur mit erneuter Owner-Freigabe.
+- Berichte kurz, welche Charaktere jetzt tatsächlich vollständig angebunden sind und welche Abhängigkeiten verbleiben. Schließe den Auftrag erst ab, wenn alle 74 Regeln samt Ausrüstung funktionieren. PR nach Projektvorlage; der Owner hat zukünftige Merges ausdrücklich ohne erneute Freigabe autorisiert.

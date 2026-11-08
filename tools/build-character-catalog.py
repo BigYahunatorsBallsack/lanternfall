@@ -383,6 +383,8 @@ def main():
     args = parser.parse_args()
     source = json.loads(args.source.read_text(encoding="utf-8"))
     weapons = json.loads((ROOT / "assets/weapons/brotato-base/catalog.json").read_text(encoding="utf-8"))["weapons"]
+    extra_weapons = json.loads((ROOT / "docs/characters/weapon-source.json").read_text(encoding="utf-8"))["weapons"]
+    weapons.extend({"id": row["id"], "name": row["name"]} for row in extra_weapons)
     items = json.loads((ROOT / "docs/item-parity/catalog.json").read_text(encoding="utf-8"))["items"]
     catalog, unknown_weapons, unknown_items = compile_catalog(source, weapons, items)
     generated = HEADER + luau(catalog) + "\n\nreturn table.freeze(Catalog)\n"
