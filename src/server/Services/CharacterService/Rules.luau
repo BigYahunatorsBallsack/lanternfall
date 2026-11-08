@@ -6,9 +6,11 @@ local C = require(Shared.Config.CharacterMechanics)
 local StatMath = require(Shared.Util.StatMath)
 local Explosions = require(Shared.Config.CharacterExplosions)
 
+export type HalfConversion = { source: string, target: string, per: number, percent: number, targetAmount: number }
 export type Strike = { stat: string, percent: number, chance: number }
 export type Policy = {
 	source: Catalog.CatalogCharacter,
+	halfConversions: { HalfConversion },
 	onHurt: StatMath.Sheet,
 	onDodge: StatMath.Sheet,
 	onFullConsumable: StatMath.Sheet,
@@ -60,6 +62,7 @@ function Rules.compile(classId: string): Policy?
 	end
 	local policy: Policy = {
 		source = source,
+		halfConversions = {},
 		onHurt = {},
 		onDodge = {},
 		onFullConsumable = {},
@@ -94,6 +97,22 @@ function Rules.compile(classId: string): Policy?
 		end
 		if target and stat then
 			target[stat] = (target[stat] or 0) + amount
+		end
+		if custom == "convert_stats_half_wave" then
+			local targetStat: string? = nil
+			for _, parameter in effect.parameters do
+				if parameter.name == "to_stat" and parameter.stringValue then
+					targetStat = C.statIds[parameter.stringValue]
+				end
+			end
+			assert(stat and targetStat and amount > 0, "Invalid native half-wave conversion")
+			table.insert(policy.halfConversions, {
+				source = stat,
+				target = targetStat,
+				per = amount,
+				percent = Rules.numberParameter(effect, "pct_converted", 0),
+				targetAmount = Rules.numberParameter(effect, "to_value", 0),
+			})
 		end
 		if key == "lose_hp_per_second" then
 			policy.selfDamage += amount
@@ -188,6 +207,31 @@ function Rules.periodicMaterials(policy: Policy, held: number): number
 		return 0
 	end
 	return math.floor(math.min(policy.stillMaterialsMax, math.max(1, math.abs(held * policy.stillMaterials / 100))))
+end
+
+-- Stable Utils.convert_stats uses permanent RunData stats, integer chunks and compensation before TempStats gains.
+function Rules.halfWaveConversion(policy: Policy, permanent: StatMath.Sheet): StatMath.Sheet
+	local result: StatMath.Sheet = {}
+	for _, conversion in policy.halfConversions do
+		local value = math.modf(permanent[conversion.source] or 0)
+		local chunks = math.max(0, math.floor(value * conversion.percent / 100 / conversion.per))
+		if chunks == 0 then
+			break
+		end
+		local removed = chunks * conversion.per
+		local added = chunks * conversion.targetAmount
+		local sourceGain = policy.source.gainMultipliers[conversion.source] or 1
+		local targetGain = policy.source.gainMultipliers[conversion.target] or 1
+		if sourceGain > 0 then
+			removed = math.round(removed / sourceGain)
+		end
+		if targetGain > 0 then
+			added = math.round(added / targetGain)
+		end
+		result[conversion.source] = (result[conversion.source] or 0) - removed
+		result[conversion.target] = (result[conversion.target] or 0) + added
+	end
+	return result
 end
 
 return Rules

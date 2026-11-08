@@ -1,0 +1,17 @@
+{
+  "version": "1.2.0.1",
+  "resources": {
+    "res://singletons/utils.gdc": "162d494bbe6f25d79f486906a593cfa3",
+    "res://singletons/temp_stats.gdc": "bf00a1338bcc0feda89ec8ac00b756b6",
+    "res://main.gdc": "903bd37107ab9c164addda2167477fb1",
+    "res://ui/hud/wave_timer.gdc": "c8c1e78cde4b403bfdac689f5bdfbffd"
+  },
+  "rules": [
+    "HalfWaveTimer runs at half the actual wave duration.",
+    "Use integer permanent RunData source stat, not live temporary/linked stat values.",
+    "floor(maximum zero, source * percentage / chunk size) determines chunks.",
+    "Divide removed and added raw deltas by their positive stat-gain multipliers, rounding independently; TempStats then applies normal gains.",
+    "Snapshot the conversion once. Later source-stat gains are not reconverted.",
+    "Native wave-end TempStats reset removes the conversion before shop. Retry restores the pre-conversion checkpoint."
+  ]
+}

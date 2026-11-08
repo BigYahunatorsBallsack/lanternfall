@@ -10,6 +10,7 @@ return table.freeze({
 		endlessHarvestingDecrease = 0.2, -- stable RunData.ENDLESS_HARVESTING_DECREASE = 20
 	}),
 	periodSeconds = 1,
+	halfWaveShare = 0.5, -- stable WaveTimer starts its HalfWaveTimer at wait_time / 2
 	lowHealthShare = 0.5,
 	minimumStatStrike = 1,
 	weaponSlotUpgrade = table.freeze({
