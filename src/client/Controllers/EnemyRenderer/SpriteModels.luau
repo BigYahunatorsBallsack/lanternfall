@@ -413,6 +413,8 @@ end
 -- workspace with their billboards on and only their pictures hidden (EnemyRenderer, REVEAL_FRAMES).
 function SpriteModels.hide(visual: Visual)
 	visual.hidden = true
+	-- pooled models stay in the workspace; held weapons (WeaponRenderer/HeldModels) must not aim at them
+	visual.model:SetAttribute("Hidden", true)
 	visual.sprite.picture.Visible = false
 	visual.shadow.Transparency = 1
 	local back = hpBarBack(visual)
@@ -440,6 +442,7 @@ end
 -- Shows the pictures again (call once pose has placed the model where it stands).
 function SpriteModels.show(visual: Visual)
 	visual.hidden = false
+	visual.model:SetAttribute("Hidden", false)
 	visual.sprite.picture.Visible = true
 	visual.shadow.Transparency = SHADOW_TRANSPARENCY
 	local back = hpBarBack(visual)

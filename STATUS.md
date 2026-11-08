@@ -682,6 +682,14 @@ Branch `wp-25-2d-presentation`. **Owner-Entscheidungen dieses Pakets:** Das Spie
 - Entfernt: `HUD.PendingLevels`-Text („↑ +N“) in `HUDController` und „N crates“ im Chip von `PickupRenderer` (der Beutel bleibt). `HUDController` ist geteilt; die Änderung kam auf direkten Owner-Wunsch und betrifft nur Badge, Team-Panel-Position und Handy-Timer-Position.
 - Tests: `Loot.spec` (Kisten-Symbol), `Boss.spec` (3 legendäre Kisten-Symbole, im Shop aus), `Smoke.spec`/`UiReference.spec` lesen `PendingRewards.PendingLevels` statt `HUD.PendingLevels`. Kein Studio-Test; Abstände und Größen (38 px bei 1280×720, 30 px am Handy) muss der Owner-Test bestätigen.
 
+## Fix: Kugeln geradeaus, Waffen zielen ruhig (Claude, 08.11.2026)
+
+- Owner-Meldung: Kugeln wirken wie Aimbot, Waffen drehen und zucken ständig und wechseln dauernd das Ziel. Ursachen: (1) Der Client zeichnete Waffen eine Figurenhälfte (`Sprites.heldWeapons.lift`) weiter oben als die Server-Flugbahn; jede Kugel startete am sichtbaren Lauf und bog in 0,12 s auf die tiefere Bahn ab, sah also zielsuchend aus. (2) Jede Waffe sprang jedes Bild zum nächsten Gegner, wechselte bei fast gleich weit entfernten Gegnern ständig, und schnappte bei jedem Schuss auf die Server-Richtung und wieder zurück.
+- Jetzt: `B7ProjectileVisual` zeichnet Kugeln mit derselben Höhe wie die Waffen, also gerade aus dem Lauf. Neues `WeaponService/WeaponTarget` (von `BrotatoProjectile`, `BrotatoMelee`, `BrotatoWhip`): Eine Waffe bleibt auf ihrem Gegner, bis er stirbt, die Reichweite verlässt oder ein anderer näher als `Config.Combat.originalWeapons.targetSwitchRatio` (0,7) seiner Entfernung ist. `HeldModels` wählt das Ziel genauso (innerhalb der Waffenreichweite) und dreht die Waffe mit `Config.WeaponVisuals.aimTurnDegreesPerSecond` (720) statt zu springen; nach einem Schuss bleibt sie in Schussrichtung.
+- Server-Kugeln flogen schon vorher geradeaus (keine Zielsuche im Flug). Das Ziel-Halten ist keine Wiki-Regel (Brotato nimmt laut Erinnerung immer den Nächsten), sondern Owner-Wunsch; Werte im Config.
+- Ausnahme Dateibesitz wie beim Ring-Fix: Strang-B-Dateien auf direkten Owner-Auftrag. Tests: neue `tests/WeaponTargeting.spec.luau` 3/3; Weapons, WeaponsB7, HeldWeapons, CharacterWhip, Character*-Waffen grün; Smoke gleiche 29 Fehler wie main. Kein Studio-Test.
+- Nach Merge von main (gepoolte Gegnermodelle bleiben versteckt im Workspace): `SpriteModels.hide/show` setzen das Model-Attribut `Hidden`, `HeldModels` zielt nicht auf versteckte Modelle. `EnemySpawnPlacement25` (2 Fehler) schlägt schon auf main fehl.
+
 ## Charakterwahl: ganze Figur in der Kachel (Claude, 08.11.2026)
 
 - Owner nach Test: Kacheln sollen wie in Brotato die ganze Figur zeigen, nicht nur den Kopf. Kacheln nutzen jetzt `characterFigure` (ganze Figur, enger Rand) statt `characterHead`; Kachelgröße 80/65 px bleibt. `PortraitCrop.head` bleibt für spätere Nutzung erhalten.
