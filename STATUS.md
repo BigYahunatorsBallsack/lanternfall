@@ -586,6 +586,13 @@ Branch `wp-25-2d-presentation`. **Owner-Entscheidungen dieses Pakets:** Das Spie
 - Nicht in Studio gesehen (keine Studio-Verbindung): Fredoka One ist etwas breiter als Arial, lange Texte in festen Feldern können umbrechen oder abgeschnitten werden; das muss der Owner-Test zeigen.
 - Tests: betroffene Specs wie auf `main` (Smoke 29 bekannte Fehler, sonst grün); StyLua, Selene (0 Fehler) sauber.
 
+## Charakterwahl: größere Kopf-Kacheln (Claude, 08.11.2026)
+
+- Owner: Figuren in der Charakterwahl waren kaum erkennbar. Owner-Wahl „Auf den Kopf zoomen“. Neues `UI/PortraitCrop` schneidet aus den Figurmaßen in `Config/SpriteImages` (`center`, `ground`, `height`) quadratische Ausschnitte: `head` (oberste 90 % der Figur) für die Kacheln, `figure` (ganze Figur mit kleinem Rand) für das große Bild. `UI/Icons.draw` kennt dafür die neuen Arten `characterHead` und `characterFigure`; `character` bleibt unverändert (Startmenü).
+- Kachelgröße in `CharacterChoice.resize` wächst mit kleiner Liste: 80 px am PC und 65 px am Handy bei 9 Charakteren, bei voller Liste zurück auf 52 px. `tests/UiRedesign.spec.luau` erwartet deshalb 80/65 statt 52/56.
+- Hinweis für den Einbau weiterer Charakterbilder: Bilder, die schon nur den Kopf zeigen, brauchen Figurmaße, die den Kopf umfassen, sonst schneidet `head` zu stark zu.
+- Checks: StyLua und Selene sauber; `PortraitCrop` (neu), `UiRedesign`, `UiReference`, `CharacterGhost`, `WorldSprites` bestanden. Kein Studio-Test; Ausschnitt nur am Screenshot des Owners nachgemessen.
+
 ## Shop-Chancen für Items geprüft (Claude, 08.11.2026)
 
 - Owner meldete, die Item-Chancen im Shop seien falsch. Geprüft mit 4.000 simulierten Shops pro Welle (echte `ShopRules.roll`) gegen die Wiki-Seite [Shop](https://brotato.wiki.spellsandguns.com/Shop). **Seltenheiten stimmen 1:1** mit der Wiki-Tabelle (z. B. nach Welle 11 bei 0 Luck 40/44/15/1 %), Luck und Obergrenzen ebenfalls; der Shop rechnet mit der gerade beendeten Welle, wie im Wiki.

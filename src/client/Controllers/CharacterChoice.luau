@@ -108,7 +108,7 @@ function CharacterChoice.render()
 	selectedName.Text = class.displayName
 	metrics.Text = `{CharacterRules.maxWeapons(me.classId)} WEAPONS\nDANGER {CharacterChoice.maxDanger(me.classId)}`
 	details.Text = string.gsub(class.description, ", ", "\n")
-	Icons.draw(portrait, "character", me.classId)
+	Icons.draw(portrait, "characterFigure", me.classId)
 
 	if renderedClass ~= me.classId then
 		renderedClass = me.classId
@@ -216,7 +216,7 @@ function CharacterChoice.mount(card: Frame, row: Frame, buttonsByClass: { [strin
 		local art = Icons.holder(button, 96)
 		art.AnchorPoint = Vector2.new(0.5, 0)
 		art.Position = UDim2.new(0.5, 0, 0, 2)
-		Icons.draw(art, "character", classId)
+		Icons.draw(art, "characterHead", classId)
 		Widgets.label({
 			Name = "CharacterName",
 			Text = Config.Classes[classId].displayName,
@@ -368,7 +368,7 @@ function CharacterChoice.resize(width: number, _height: number?)
 	selectedName.TextSize = if compact then 30 else 40
 	selectedName.TextXAlignment = Enum.TextXAlignment.Center
 	portrait.Position = UDim2.fromOffset(16, 62)
-	portrait.Size = UDim2.fromOffset(if compact then 112 else 176, if compact then 140 else 196)
+	portrait.Size = UDim2.fromOffset(if compact then 124 else 184, if compact then 140 else 196)
 	portrait.BackgroundTransparency = 0
 	portrait.BackgroundColor3 = Theme.surface
 	metrics.Visible = false
@@ -380,7 +380,8 @@ function CharacterChoice.resize(width: number, _height: number?)
 	for _ in classButtons do
 		count += 1
 	end
-	local tile = if compact then 56 else 52
+	-- Large head tiles while the roster fits in one or two rows, down to the reference game's size for a full roster.
+	local tile = math.clamp(math.floor(width / math.max(math.ceil(count / 2), 1)) - 6, 52, if compact then 68 else 80)
 	local columns = math.max(1, math.min(count, math.floor(width / (tile + 6))))
 	local rows = math.ceil(count / columns)
 	classRow.Visible = step == "Character"
