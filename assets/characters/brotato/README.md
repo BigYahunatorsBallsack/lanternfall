@@ -52,6 +52,15 @@ The unmodified importer accepted all 74 with `trimmed = true`. An in-memory copy
 
 Native Roblox solo/two-client/mobile tests and moderation/preload checks are pending upload and integration. No gameplay behavior was changed by this asset pack.
 
+## Local integration preparation (2026-11-08)
+
+The character-code branch now includes this delivery and has applied all 74 import records to
+`tools/art2d/sprites.json`, preserving the other groups. The existing importer check passes and all 74 upload images
+are prepared at 1024 x 1024. `local-preparation.json` records their hashes and measured padded-image bounds;
+`build/world2d/characters-upload.txt` lists only the pending character uploads. Rebuild with the existing importer
+if the ignored build directory is absent. The owner requested local preparation first: all 74 Roblox uploads are
+still pending, and current runtime image IDs/availability remain unchanged until real upload results are applied.
+
 ## Owner review
 
 1. Open `contact-sheet.jpg` and compare the characters with the linked Wiki.

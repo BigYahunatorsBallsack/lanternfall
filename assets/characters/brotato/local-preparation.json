@@ -1,0 +1,1271 @@
+{
+  "sourceCommit": "36918d9",
+  "sourceCount": 74,
+  "sourceHashesVerified": 74,
+  "preparedCount": 74,
+  "preparedPixels": 1024,
+  "uploadedCount": 0,
+  "pendingUploadCount": 74,
+  "runtimeChanged": false,
+  "note": "Local preparation only, as requested. Use these prepared bounds after real uploads; original 96px bounds do not fit padded images.",
+  "characters": [
+    {
+      "id": "CandleScholar",
+      "source": "assets/world2d/final/characters/CandleScholar.png",
+      "sourceSha256": "069a3e9021861e91a8c6213dcc216be6f91829ae5b82301165fa70c741cb9c19",
+      "prepared": "build/world2d/characters/CandleScholar.png",
+      "hash": "fcdb0cd2d072fbdad5112ed1bb3259649955b4e51c36fbe8944a21dba79a1011",
+      "pixels": 1024,
+      "center": 0.5,
+      "ground": 0.04,
+      "width": 0.92,
+      "height": 0.898,
+      "color": [
+        115,
+        112,
+        109
+      ]
+    },
+    {
+      "id": "Archaeologist",
+      "source": "assets/world2d/final/characters/Archaeologist.png",
+      "sourceSha256": "f98d61c5c4427fb8e87204375c0e44b550f6208b2e4f01d6355a97d01e335289",
+      "prepared": "build/world2d/characters/Archaeologist.png",
+      "hash": "e3acb83c4373f02720c9264daa5664e5a12bba486f82ac758fc31792fe9a0266",
+      "pixels": 1024,
+      "center": 0.5,
+      "ground": 0.04,
+      "width": 0.777,
+      "height": 0.92,
+      "color": [
+        132,
+        124,
+        126
+      ]
+    },
+    {
+      "id": "ArmsDealer",
+      "source": "assets/world2d/final/characters/ArmsDealer.png",
+      "sourceSha256": "8b4d91f7259d140f1f2aef62e311b063d127371842ae73fd7916c0ea37d963dd",
+      "prepared": "build/world2d/characters/ArmsDealer.png",
+      "hash": "77ee5454c2ec6232b9f63a20aa71b720650a05b942cd00211a8ec3e6338202c1",
+      "pixels": 1024,
+      "center": 0.5,
+      "ground": 0.04,
+      "width": 0.821,
+      "height": 0.92,
+      "color": [
+        114,
+        113,
+        112
+      ]
+    },
+    {
+      "id": "Arsonist",
+      "source": "assets/world2d/final/characters/Arsonist.png",
+      "sourceSha256": "dd61ce6c8606eceedf2d7cd8a2df9689188a708b7b41ea940678383189078697",
+      "prepared": "build/world2d/characters/Arsonist.png",
+      "hash": "133941c6c7b2ee16ff1ba8e912f126b782403767ea772b7dd4dfbc480bc1e3a8",
+      "pixels": 1024,
+      "center": 0.5,
+      "ground": 0.04,
+      "width": 0.92,
+      "height": 0.729,
+      "color": [
+        111,
+        97,
+        96
+      ]
+    },
+    {
+      "id": "Artificer",
+      "source": "assets/world2d/final/characters/Artificer.png",
+      "sourceSha256": "b9b088f732c0a76769448862888bf51fdaa6ba25a161212a082083d6f63bae76",
+      "prepared": "build/world2d/characters/Artificer.png",
+      "hash": "d212aecbc15947d4f6cb5fafe752cc3097ba9b37bc8ae5abee1a49b22e6fe84e",
+      "pixels": 1024,
+      "center": 0.5,
+      "ground": 0.04,
+      "width": 0.8,
+      "height": 0.92,
+      "color": [
+        111,
+        109,
+        109
+      ]
+    },
+    {
+      "id": "Baby",
+      "source": "assets/world2d/final/characters/Baby.png",
+      "sourceSha256": "1228e5a0235626088e08a1b6b51245bb3605d85d574dee848c33049a7400fb45",
+      "prepared": "build/world2d/characters/Baby.png",
+      "hash": "753d816381d398549c43690f26b5064686c6c0f1f9eb91166fa7db79e65f7ce4",
+      "pixels": 1024,
+      "center": 0.5,
+      "ground": 0.04,
+      "width": 0.757,
+      "height": 0.92,
+      "color": [
+        131,
+        129,
+        128
+      ]
+    },
+    {
+      "id": "BeastMaster",
+      "source": "assets/world2d/final/characters/BeastMaster.png",
+      "sourceSha256": "7343b81c3bbd0a1a971c0a251f80752e2376ea7e89ff041294ec794f188fc3ae",
+      "prepared": "build/world2d/characters/BeastMaster.png",
+      "hash": "73d385f0703c2b92e956ca5d6296c354d895932f40cd928dfd820d6115bdeea2",
+      "pixels": 1024,
+      "center": 0.5,
+      "ground": 0.04,
+      "width": 0.92,
+      "height": 0.92,
+      "color": [
+        147,
+        95,
+        78
+      ]
+    },
+    {
+      "id": "Brawler",
+      "source": "assets/world2d/final/characters/Brawler.png",
+      "sourceSha256": "7a3b859cf70516e61759e278f206a851c6d17dfb9fd3aac78f4bda0ade9b03dc",
+      "prepared": "build/world2d/characters/Brawler.png",
+      "hash": "f222041cebe012d47fa728278e0b9587b366c7ae77290977ed74bb1f249d27e6",
+      "pixels": 1024,
+      "center": 0.5,
+      "ground": 0.04,
+      "width": 0.8,
+      "height": 0.92,
+      "color": [
+        138,
+        137,
+        138
+      ]
+    },
+    {
+      "id": "Buccaneer",
+      "source": "assets/world2d/final/characters/Buccaneer.png",
+      "sourceSha256": "7919b827f88c9b2d71e41bb5649001e301e6796050e599a54bcf524769b5e32d",
+      "prepared": "build/world2d/characters/Buccaneer.png",
+      "hash": "de0e2c4b6a595b6425e971a47f4b541ed147d2e9c0a04c68da76cdebca5adaf0",
+      "pixels": 1024,
+      "center": 0.5,
+      "ground": 0.04,
+      "width": 0.92,
+      "height": 0.87,
+      "color": [
+        68,
+        49,
+        37
+      ]
+    },
+    {
+      "id": "Builder",
+      "source": "assets/world2d/final/characters/Builder.png",
+      "sourceSha256": "759026c2a1144f52c42d527b154df0002cbcb6eddfcfd4516472f62e3a8a0e03",
+      "prepared": "build/world2d/characters/Builder.png",
+      "hash": "0d094669b3b8ef14933c43ce12a5291fc74b836d1d195c2006c333e8f3d72816",
+      "pixels": 1024,
+      "center": 0.5,
+      "ground": 0.04,
+      "width": 0.826,
+      "height": 0.92,
+      "color": [
+        123,
+        109,
+        43
+      ]
+    },
+    {
+      "id": "Bull",
+      "source": "assets/world2d/final/characters/Bull.png",
+      "sourceSha256": "b1e80f4e19c1935d5575a2c99e75bbca884cad89c915e35d5e61ef1a5e67edfd",
+      "prepared": "build/world2d/characters/Bull.png",
+      "hash": "9d835392f16929ff9821882c59617d02d502592838e6f4f44a5f82288fa79066",
+      "pixels": 1024,
+      "center": 0.5,
+      "ground": 0.04,
+      "width": 0.92,
+      "height": 0.805,
+      "color": [
+        98,
+        99,
+        100
+      ]
+    },
+    {
+      "id": "Captain",
+      "source": "assets/world2d/final/characters/Captain.png",
+      "sourceSha256": "56bd6c96afab35df1da11ca941e34b8a9e877673da2198810ff67dd566d3847e",
+      "prepared": "build/world2d/characters/Captain.png",
+      "hash": "0e5eff43497a74e489f3663987fb8c0906052736f67f2a9b79794b8e0ff6668d",
+      "pixels": 1024,
+      "center": 0.5,
+      "ground": 0.04,
+      "width": 0.779,
+      "height": 0.92,
+      "color": [
+        127,
+        126,
+        125
+      ]
+    },
+    {
+      "id": "Caveman",
+      "source": "assets/world2d/final/characters/Caveman.png",
+      "sourceSha256": "fcef8886c1dcb7588bf17ea25193675f56b47bc5fa51d2f73739c81f91921254",
+      "prepared": "build/world2d/characters/Caveman.png",
+      "hash": "b607792eb8fba25d6bd72a68c486f420c084d4084020441fd44d09af869e08ee",
+      "pixels": 1024,
+      "center": 0.5,
+      "ground": 0.04,
+      "width": 0.814,
+      "height": 0.92,
+      "color": [
+        121,
+        87,
+        69
+      ]
+    },
+    {
+      "id": "Chef",
+      "source": "assets/world2d/final/characters/Chef.png",
+      "sourceSha256": "30ee7b4b896c0ffc36bedf1cc04b57f4cd3352fced4a975e9fde202f91b176ae",
+      "prepared": "build/world2d/characters/Chef.png",
+      "hash": "6708d7aa4c3b51b7147a8db30eeeb0b6f5385456e7819d04a20fb6e01f8bc251",
+      "pixels": 1024,
+      "center": 0.5,
+      "ground": 0.04,
+      "width": 0.788,
+      "height": 0.92,
+      "color": [
+        149,
+        149,
+        149
+      ]
+    },
+    {
+      "id": "MarbleHost",
+      "source": "assets/world2d/final/characters/MarbleHost.png",
+      "sourceSha256": "4a04266dd94870f6ecfffcc582a1debcfc635807c2ee71ad092991e5adaa35e5",
+      "prepared": "build/world2d/characters/MarbleHost.png",
+      "hash": "bff510e0b7838075658a86cc01e4a3ccc70bd0db8540485db622d10b8bb6a0f6",
+      "pixels": 1024,
+      "center": 0.5,
+      "ground": 0.04,
+      "width": 0.854,
+      "height": 0.92,
+      "color": [
+        153,
+        153,
+        153
+      ]
+    },
+    {
+      "id": "Crazy",
+      "source": "assets/world2d/final/characters/Crazy.png",
+      "sourceSha256": "52ad11a163b9458ec9560bd35797cd58c2a6a94638ee72948777c8d2bddbb120",
+      "prepared": "build/world2d/characters/Crazy.png",
+      "hash": "b1888b3b548aedbd530bca0fbf0e194c0777ffeed26131f9efab197fb62bd270",
+      "pixels": 1024,
+      "center": 0.5,
+      "ground": 0.04,
+      "width": 0.8,
+      "height": 0.92,
+      "color": [
+        151,
+        151,
+        151
+      ]
+    },
+    {
+      "id": "Creature",
+      "source": "assets/world2d/final/characters/Creature.png",
+      "sourceSha256": "74a678140842d100c904eb4c5d6c3e5cd61195e00d671b240ec65e3cdab1b7c2",
+      "prepared": "build/world2d/characters/Creature.png",
+      "hash": "cd6b4597a66df22ce7ac42703499939fa16a3c97b0c85351a3e612b2f45a495f",
+      "pixels": 1024,
+      "center": 0.5,
+      "ground": 0.04,
+      "width": 0.788,
+      "height": 0.92,
+      "color": [
+        120,
+        119,
+        115
+      ]
+    },
+    {
+      "id": "Cryptid",
+      "source": "assets/world2d/final/characters/Cryptid.png",
+      "sourceSha256": "89cc76ac64a0683a056f6715b446ad77ee3eaca66c60037e219e72a9c6887c31",
+      "prepared": "build/world2d/characters/Cryptid.png",
+      "hash": "c213cd0d8fa87d2fef66806e862c01ba56e3aeaadf5285dabb692f45a3cdd0a3",
+      "pixels": 1024,
+      "center": 0.5,
+      "ground": 0.04,
+      "width": 0.898,
+      "height": 0.92,
+      "color": [
+        122,
+        123,
+        121
+      ]
+    },
+    {
+      "id": "Curious",
+      "source": "assets/world2d/final/characters/Curious.png",
+      "sourceSha256": "6e2d2c99f0c7c4038fb7de7b3a3eb550388c024672c53c88f167b9d9d2b6d031",
+      "prepared": "build/world2d/characters/Curious.png",
+      "hash": "d038fc061115d43d98c80d159b8912bd4eafdcacb6234c73a8123ee1891576c7",
+      "pixels": 1024,
+      "center": 0.5,
+      "ground": 0.04,
+      "width": 0.788,
+      "height": 0.92,
+      "color": [
+        136,
+        135,
+        135
+      ]
+    },
+    {
+      "id": "Cyborg",
+      "source": "assets/world2d/final/characters/Cyborg.png",
+      "sourceSha256": "973ed821727ea1eef976af57099e452f20c30e2162b23c349f2347140b8d7d4f",
+      "prepared": "build/world2d/characters/Cyborg.png",
+      "hash": "6e34d8ac2f77adeff179449c8ad773f4c0667df42f8449e5ce489640eaab6a1f",
+      "pixels": 1024,
+      "center": 0.5,
+      "ground": 0.04,
+      "width": 0.734,
+      "height": 0.92,
+      "color": [
+        76,
+        75,
+        71
+      ]
+    },
+    {
+      "id": "Demon",
+      "source": "assets/world2d/final/characters/Demon.png",
+      "sourceSha256": "cbabd9b634d93ec151fc4c672937cc96778809caf9a43d561c32153bd3cb7840",
+      "prepared": "build/world2d/characters/Demon.png",
+      "hash": "031ad26312648d6d9dbc5fda8a8e5dd87eef8bb17ebf58f7e4bf7b89b1335670",
+      "pixels": 1024,
+      "center": 0.5,
+      "ground": 0.04,
+      "width": 0.811,
+      "height": 0.92,
+      "color": [
+        172,
+        164,
+        140
+      ]
+    },
+    {
+      "id": "Diver",
+      "source": "assets/world2d/final/characters/Diver.png",
+      "sourceSha256": "cbb0d1ca31690dcab79060b548a3ad925b32e9fe97d4aa713a545de300f35d08",
+      "prepared": "build/world2d/characters/Diver.png",
+      "hash": "7006deec4a5eaa4317fdee94bea6bda6bcdb491965ee6a1847b6217cfb8eaf9e",
+      "pixels": 1024,
+      "center": 0.5,
+      "ground": 0.04,
+      "width": 0.8,
+      "height": 0.92,
+      "color": [
+        87,
+        94,
+        86
+      ]
+    },
+    {
+      "id": "Doctor",
+      "source": "assets/world2d/final/characters/Doctor.png",
+      "sourceSha256": "28baf9545a59c402b971585562c335d6504534e37c2c2240288278a1ae69bdaa",
+      "prepared": "build/world2d/characters/Doctor.png",
+      "hash": "71aa2a39a9353988a15cd8e968df39b5c3b0bf21692e7a08a1d04e86cfd7a3a2",
+      "pixels": 1024,
+      "center": 0.5,
+      "ground": 0.04,
+      "width": 0.834,
+      "height": 0.92,
+      "color": [
+        107,
+        111,
+        114
+      ]
+    },
+    {
+      "id": "Droid",
+      "source": "assets/world2d/final/characters/Droid.png",
+      "sourceSha256": "dacef3631537dea29b0d13b4868573051f24fe5222c9446ca891cbdc3b8793ec",
+      "prepared": "build/world2d/characters/Droid.png",
+      "hash": "e6394378e5b1e81e1870ce2a0d52b73e8e0e9603f2db681242915b4db83b589d",
+      "pixels": 1024,
+      "center": 0.5,
+      "ground": 0.04,
+      "width": 0.92,
+      "height": 0.804,
+      "color": [
+        93,
+        112,
+        135
+      ]
+    },
+    {
+      "id": "Druid",
+      "source": "assets/world2d/final/characters/Druid.png",
+      "sourceSha256": "91b83355a5455a6283f28c88322f936b3c0790f776772811390d4178b8d2fe56",
+      "prepared": "build/world2d/characters/Druid.png",
+      "hash": "fcd3aa5d3ec2c8246ef1b7ed34cd85a88dbf0639b3061bb06a2a2fa0a43fb323",
+      "pixels": 1024,
+      "center": 0.5,
+      "ground": 0.04,
+      "width": 0.891,
+      "height": 0.92,
+      "color": [
+        35,
+        41,
+        36
+      ]
+    },
+    {
+      "id": "Dwarf",
+      "source": "assets/world2d/final/characters/Dwarf.png",
+      "sourceSha256": "b1aa35a23c3a24d479c5e28cb0f6fcc1050b72a21607f324d612d0a569154b69",
+      "prepared": "build/world2d/characters/Dwarf.png",
+      "hash": "5968ef0edd4967de10a18ff06264d6305126f9010673f8ba8d987d4f9628c86c",
+      "pixels": 1024,
+      "center": 0.5,
+      "ground": 0.04,
+      "width": 0.765,
+      "height": 0.92,
+      "color": [
+        71,
+        52,
+        35
+      ]
+    },
+    {
+      "id": "Engineer",
+      "source": "assets/world2d/final/characters/Engineer.png",
+      "sourceSha256": "f02d0a48a43ff2ce2c3099b76085f3d4d7cdde2c092c97ecd975ed664cde4794",
+      "prepared": "build/world2d/characters/Engineer.png",
+      "hash": "371386671c2d8cf58a883def3b9bfac8bb680196ef92ae6414bf042611910cb2",
+      "pixels": 1024,
+      "center": 0.5,
+      "ground": 0.04,
+      "width": 0.865,
+      "height": 0.92,
+      "color": [
+        98,
+        98,
+        98
+      ]
+    },
+    {
+      "id": "Entrepreneur",
+      "source": "assets/world2d/final/characters/Entrepreneur.png",
+      "sourceSha256": "f6d8438db07436537d63323f6bebec174d6a53b8dd6b04419c583d0d41d6926e",
+      "prepared": "build/world2d/characters/Entrepreneur.png",
+      "hash": "85c9b29983d663cf914b72e00a65d64670fa8138b8f859ccd14aaa1dbb090330",
+      "pixels": 1024,
+      "center": 0.5,
+      "ground": 0.04,
+      "width": 0.781,
+      "height": 0.92,
+      "color": [
+        122,
+        125,
+        129
+      ]
+    },
+    {
+      "id": "Explorer",
+      "source": "assets/world2d/final/characters/Explorer.png",
+      "sourceSha256": "5df00777f4c16b5c0d07ad2895c264234b3d76d7836fd62bd95893c50aeae614",
+      "prepared": "build/world2d/characters/Explorer.png",
+      "hash": "92b3e06c3ae611157fe9c2a4bb267dd4b23bee98c9c3cec79470f098e1fc5749",
+      "pixels": 1024,
+      "center": 0.5,
+      "ground": 0.04,
+      "width": 0.813,
+      "height": 0.92,
+      "color": [
+        110,
+        87,
+        62
+      ]
+    },
+    {
+      "id": "Farmer",
+      "source": "assets/world2d/final/characters/Farmer.png",
+      "sourceSha256": "3a61094cadf09563111677b364b9c5cb84a44e5590b80ff0b908f63ce70f20c2",
+      "prepared": "build/world2d/characters/Farmer.png",
+      "hash": "6c5d8b71e8fc7830ab5e239688a1f0904cc51707405b42c38455c772dc68aa16",
+      "pixels": 1024,
+      "center": 0.5,
+      "ground": 0.04,
+      "width": 0.784,
+      "height": 0.92,
+      "color": [
+        137,
+        136,
+        134
+      ]
+    },
+    {
+      "id": "Fisherman",
+      "source": "assets/world2d/final/characters/Fisherman.png",
+      "sourceSha256": "0fd2c104044b04ab51c116295acfb496faa85c9f8cac913eaf53d1a3419c93bc",
+      "prepared": "build/world2d/characters/Fisherman.png",
+      "hash": "8ca3a825a9b22fb4e3ae0a7f3d072b7fbdd2fc9b25d14acf8e67c266e815b7b9",
+      "pixels": 1024,
+      "center": 0.5,
+      "ground": 0.04,
+      "width": 0.889,
+      "height": 0.92,
+      "color": [
+        113,
+        113,
+        110
+      ]
+    },
+    {
+      "id": "Gangster",
+      "source": "assets/world2d/final/characters/Gangster.png",
+      "sourceSha256": "b1f677308e2e1382d9a1bbea90d3c89f0861e4052e17e2a2c2228ac99f44da75",
+      "prepared": "build/world2d/characters/Gangster.png",
+      "hash": "9feb00a52eac1e261d50bab8b84b034a80ff9997fd1ac5d11b0757d2dade298a",
+      "pixels": 1024,
+      "center": 0.5,
+      "ground": 0.04,
+      "width": 0.797,
+      "height": 0.92,
+      "color": [
+        95,
+        95,
+        95
+      ]
+    },
+    {
+      "id": "TwinLedger",
+      "source": "assets/world2d/final/characters/TwinLedger.png",
+      "sourceSha256": "0e3e9c7a1de7ce58fdf6df408c9f879fd6b9002ee01d3a1d6c198d5f6dce50f1",
+      "prepared": "build/world2d/characters/TwinLedger.png",
+      "hash": "a6576a186ae5ad808c251b9c379f1823ce1a9ca7972c15e619c5ba8152af2075",
+      "pixels": 1024,
+      "center": 0.5,
+      "ground": 0.04,
+      "width": 0.843,
+      "height": 0.92,
+      "color": [
+        132,
+        131,
+        130
+      ]
+    },
+    {
+      "id": "Ghost",
+      "source": "assets/world2d/final/characters/Ghost.png",
+      "sourceSha256": "329ef0e6fda6131c98f78d05761bd9a74692efc1b8b1cdf578ca0f0088036384",
+      "prepared": "build/world2d/characters/Ghost.png",
+      "hash": "20e4930da039077ffcac6f0a4f11b4b8c5a94e74521dc0cd3760bd697b57102d",
+      "pixels": 1024,
+      "center": 0.5,
+      "ground": 0.04,
+      "width": 0.8,
+      "height": 0.92,
+      "color": [
+        134,
+        134,
+        134
+      ]
+    },
+    {
+      "id": "DuelMaestro",
+      "source": "assets/world2d/final/characters/DuelMaestro.png",
+      "sourceSha256": "fc7c7e5e0e3b7b8bbbd61da9bbc4d757e0e7cad62bc01ee53c75345eb8096776",
+      "prepared": "build/world2d/characters/DuelMaestro.png",
+      "hash": "4d857d65cbc6a1af890207a1302aa45bf3234c0ee09aa94d4d2039931d35025e",
+      "pixels": 1024,
+      "center": 0.5,
+      "ground": 0.04,
+      "width": 0.821,
+      "height": 0.92,
+      "color": [
+        126,
+        126,
+        126
+      ]
+    },
+    {
+      "id": "Glutton",
+      "source": "assets/world2d/final/characters/Glutton.png",
+      "sourceSha256": "d1a70e8a57d43a4c7c9349acf6325e26794436cdbc234b65e5d51b99dc5ce06c",
+      "prepared": "build/world2d/characters/Glutton.png",
+      "hash": "76678380e99fbca170606249eaaf9dcc5a745ce5016a597c79c615e7ea512f21",
+      "pixels": 1024,
+      "center": 0.5,
+      "ground": 0.04,
+      "width": 0.8,
+      "height": 0.92,
+      "color": [
+        143,
+        143,
+        142
+      ]
+    },
+    {
+      "id": "Golem",
+      "source": "assets/world2d/final/characters/Golem.png",
+      "sourceSha256": "a485eb8a16b64ede7bba1db232eea2b8c2ba865c6be820efc1e3bdc50256dd06",
+      "prepared": "build/world2d/characters/Golem.png",
+      "hash": "6e8a48c87ddf6eeff194a7be44cbbdb154659df1976420fc0f72e1e204c5d5f0",
+      "pixels": 1024,
+      "center": 0.5,
+      "ground": 0.04,
+      "width": 0.784,
+      "height": 0.92,
+      "color": [
+        185,
+        173,
+        152
+      ]
+    },
+    {
+      "id": "Hiker",
+      "source": "assets/world2d/final/characters/Hiker.png",
+      "sourceSha256": "286c4fefe05b140e2dbdeff0ef0037a928dd638f50d74e33d3c798f411f2f747",
+      "prepared": "build/world2d/characters/Hiker.png",
+      "hash": "57d3787de5035a9581706efa197986d77b792c8ec3d7dc6c76930afeb6350348",
+      "pixels": 1024,
+      "center": 0.5,
+      "ground": 0.04,
+      "width": 0.771,
+      "height": 0.92,
+      "color": [
+        107,
+        110,
+        108
+      ]
+    },
+    {
+      "id": "FarSeer",
+      "source": "assets/world2d/final/characters/FarSeer.png",
+      "sourceSha256": "a221b64f04c25caae9c2728612690e75a02a8007ac0b1d2903b029bd0a104616",
+      "prepared": "build/world2d/characters/FarSeer.png",
+      "hash": "87d5a95f537d450642b2ac3d53375212235fb81322290f9d23723fdcaec8436c",
+      "pixels": 1024,
+      "center": 0.5,
+      "ground": 0.04,
+      "width": 0.92,
+      "height": 0.889,
+      "color": [
+        71,
+        74,
+        50
+      ]
+    },
+    {
+      "id": "Jack",
+      "source": "assets/world2d/final/characters/Jack.png",
+      "sourceSha256": "a053d12d27999dfb8f95d6f2d393442e2e050c61e8084f4cc019a24f2e48f211",
+      "prepared": "build/world2d/characters/Jack.png",
+      "hash": "e7310ff83071d8b69b9a948d35a4bfb945568d75bd2b566f31936d13c80485da",
+      "pixels": 1024,
+      "center": 0.5,
+      "ground": 0.04,
+      "width": 0.8,
+      "height": 0.92,
+      "color": [
+        157,
+        157,
+        157
+      ]
+    },
+    {
+      "id": "King",
+      "source": "assets/world2d/final/characters/King.png",
+      "sourceSha256": "f292ef84d1b785648e785779759b7e6c16842922e7d9929bac8f6276b32999ee",
+      "prepared": "build/world2d/characters/King.png",
+      "hash": "f76d413603fcdb35ed4663b251ef9df0122410f84b5a10cb65cd324b0fd75a26",
+      "pixels": 1024,
+      "center": 0.5,
+      "ground": 0.04,
+      "width": 0.8,
+      "height": 0.92,
+      "color": [
+        125,
+        121,
+        109
+      ]
+    },
+    {
+      "id": "Knight",
+      "source": "assets/world2d/final/characters/Knight.png",
+      "sourceSha256": "b5151817e26f9f6a9c9a62d5c64f7975d461ce38f250dd265aa06b85829f7a5b",
+      "prepared": "build/world2d/characters/Knight.png",
+      "hash": "08c3169bfa11b9292f9f41c6c94c98168b835f1590063fc43ade6b308e034d71",
+      "pixels": 1024,
+      "center": 0.5,
+      "ground": 0.04,
+      "width": 0.8,
+      "height": 0.92,
+      "color": [
+        142,
+        139,
+        137
+      ]
+    },
+    {
+      "id": "Lich",
+      "source": "assets/world2d/final/characters/Lich.png",
+      "sourceSha256": "4e9d8e39021da0cc168921d1acc064c451aa8d4914c38a3fdd3c545e4af340a5",
+      "prepared": "build/world2d/characters/Lich.png",
+      "hash": "9e8a26f9afd8aaeedfed209282f2a5928019301f386a838f5e5d666a7c5fdcb6",
+      "pixels": 1024,
+      "center": 0.5,
+      "ground": 0.04,
+      "width": 0.781,
+      "height": 0.92,
+      "color": [
+        95,
+        89,
+        89
+      ]
+    },
+    {
+      "id": "Loud",
+      "source": "assets/world2d/final/characters/Loud.png",
+      "sourceSha256": "dd15440b132d63a15232b6258e9fd5386719e3710ca1405dfba7a645d986c601",
+      "prepared": "build/world2d/characters/Loud.png",
+      "hash": "396213d424e81fc3f3ccd65941da7a856b8ca6930bb8281221136d2be6803ea8",
+      "pixels": 1024,
+      "center": 0.5,
+      "ground": 0.04,
+      "width": 0.821,
+      "height": 0.92,
+      "color": [
+        126,
+        121,
+        121
+      ]
+    },
+    {
+      "id": "Lucky",
+      "source": "assets/world2d/final/characters/Lucky.png",
+      "sourceSha256": "59d37f26f829815c645dbcfcb0ee3c4bb179e2ee2127040d2905293d6a2e774c",
+      "prepared": "build/world2d/characters/Lucky.png",
+      "hash": "0376315cbbfcb406211608052d88722c4f6703e323e59f470fc0185f1ee46a62",
+      "pixels": 1024,
+      "center": 0.5,
+      "ground": 0.04,
+      "width": 0.843,
+      "height": 0.92,
+      "color": [
+        152,
+        152,
+        152
+      ]
+    },
+    {
+      "id": "MadScientist",
+      "source": "assets/world2d/final/characters/MadScientist.png",
+      "sourceSha256": "db9a8038d4e405f1548a59dd565cb4dc04d05ed70945c23010195024fb17fbc9",
+      "prepared": "build/world2d/characters/MadScientist.png",
+      "hash": "16fa118481ab9a9456f2219d11f26f98c90c5533f7c1b6c9c39d581d91986550",
+      "pixels": 1024,
+      "center": 0.5,
+      "ground": 0.04,
+      "width": 0.865,
+      "height": 0.92,
+      "color": [
+        119,
+        122,
+        121
+      ]
+    },
+    {
+      "id": "SparkMage",
+      "source": "assets/world2d/final/characters/SparkMage.png",
+      "sourceSha256": "900ae1786d4f7dcf4c1c8a47b210f79617c8b8cc6d9b1220d199434252c4d817",
+      "prepared": "build/world2d/characters/SparkMage.png",
+      "hash": "fd9d224db30224af0c83688a1108c6f35404c0c3b8395ceadd94b116e57a1f34",
+      "pixels": 1024,
+      "center": 0.5,
+      "ground": 0.04,
+      "width": 0.858,
+      "height": 0.92,
+      "color": [
+        113,
+        113,
+        113
+      ]
+    },
+    {
+      "id": "Masochist",
+      "source": "assets/world2d/final/characters/Masochist.png",
+      "sourceSha256": "e4bcb644683f3cfa53a375d0cfe042b174e49a8c88c7f63c9dbb1ba7b9490906",
+      "prepared": "build/world2d/characters/Masochist.png",
+      "hash": "329447d7a17eca606b8b11eb439586f45798345d0e59b1142f4b961825cdb151",
+      "pixels": 1024,
+      "center": 0.5,
+      "ground": 0.04,
+      "width": 0.8,
+      "height": 0.92,
+      "color": [
+        148,
+        146,
+        146
+      ]
+    },
+    {
+      "id": "ManyHands",
+      "source": "assets/world2d/final/characters/ManyHands.png",
+      "sourceSha256": "ea187d80cba81275354be1985a63c5d69077c40ca21137d88495bfddb253c940",
+      "prepared": "build/world2d/characters/ManyHands.png",
+      "hash": "b552521d2162ca78179529992ca0d4ee76def29b5585a46a78636d49730a3926",
+      "pixels": 1024,
+      "center": 0.5,
+      "ground": 0.04,
+      "width": 0.8,
+      "height": 0.92,
+      "color": [
+        148,
+        147,
+        147
+      ]
+    },
+    {
+      "id": "Mutant",
+      "source": "assets/world2d/final/characters/Mutant.png",
+      "sourceSha256": "b985792a71670152139d513fbc91f69899990a4f8795707ba6fc882576c5948e",
+      "prepared": "build/world2d/characters/Mutant.png",
+      "hash": "e1c3e2f390c436b1d37bf3ac02745906a50b3a5410d8c1773c30117085d64f60",
+      "pixels": 1024,
+      "center": 0.5,
+      "ground": 0.04,
+      "width": 0.816,
+      "height": 0.92,
+      "color": [
+        112,
+        108,
+        108
+      ]
+    },
+    {
+      "id": "Ogre",
+      "source": "assets/world2d/final/characters/Ogre.png",
+      "sourceSha256": "436d83b39172a091ecc7a6402bad7e46d5c3734f53fe2ee22731a354ae98248c",
+      "prepared": "build/world2d/characters/Ogre.png",
+      "hash": "64c4707f1c381cf11802aa0888517e08f9497bba99989a6abff5f08a3e2a67a3",
+      "pixels": 1024,
+      "center": 0.5,
+      "ground": 0.04,
+      "width": 0.788,
+      "height": 0.92,
+      "color": [
+        141,
+        141,
+        141
+      ]
+    },
+    {
+      "id": "Old",
+      "source": "assets/world2d/final/characters/Old.png",
+      "sourceSha256": "97bcc5db4b944b5e90b7e7228f50c5672d101fc00bd30177909da8bf57d80dbd",
+      "prepared": "build/world2d/characters/Old.png",
+      "hash": "3ec9ceee87822e88de3cf1c6670011c2e2005b2b6878f116276d71554b575381",
+      "pixels": 1024,
+      "center": 0.5,
+      "ground": 0.04,
+      "width": 0.8,
+      "height": 0.92,
+      "color": [
+        153,
+        153,
+        153
+      ]
+    },
+    {
+      "id": "SoleConductor",
+      "source": "assets/world2d/final/characters/SoleConductor.png",
+      "sourceSha256": "4179af038238f9a85ad4db69f7534d05201ae0ae7150d1c7c1b5c05b65ee6f60",
+      "prepared": "build/world2d/characters/SoleConductor.png",
+      "hash": "89126aa5d7821506de7a0f72f15e0c513937715286de7e6ef32029cf0d736555",
+      "pixels": 1024,
+      "center": 0.5,
+      "ground": 0.04,
+      "width": 0.843,
+      "height": 0.92,
+      "color": [
+        158,
+        158,
+        158
+      ]
+    },
+    {
+      "id": "Pacifist",
+      "source": "assets/world2d/final/characters/Pacifist.png",
+      "sourceSha256": "e7ad628b4ab072ef82554594f46609f826b78c3e68506b258c585e066d6dba90",
+      "prepared": "build/world2d/characters/Pacifist.png",
+      "hash": "89bfe9c85adb5dd289c8addc74c9abf6b43ea0d3d66ace95fbd7d07c7a4c1caa",
+      "pixels": 1024,
+      "center": 0.5,
+      "ground": 0.04,
+      "width": 0.8,
+      "height": 0.92,
+      "color": [
+        144,
+        142,
+        144
+      ]
+    },
+    {
+      "id": "Poacher",
+      "source": "assets/world2d/final/characters/Poacher.png",
+      "sourceSha256": "98e6f86dc7bacf09666102c4799df47032b8479f950c8e40c5801e182f7e7901",
+      "prepared": "build/world2d/characters/Poacher.png",
+      "hash": "f390ba22b2d0ba5ac41cde3e58d0076d65636ed8b68ab7394ef8586ec3ba8d61",
+      "pixels": 1024,
+      "center": 0.5,
+      "ground": 0.04,
+      "width": 0.92,
+      "height": 0.857,
+      "color": [
+        94,
+        94,
+        58
+      ]
+    },
+    {
+      "id": "NightWatch",
+      "source": "assets/world2d/final/characters/NightWatch.png",
+      "sourceSha256": "034007515889f6feb410fe3f9fe3b4107c7eb8bd79a471d1facb36191a70b3b9",
+      "prepared": "build/world2d/characters/NightWatch.png",
+      "hash": "58fd96219eee4e2b164c3f5844f3ba175b10a97c1eb878f0bc683a30f9158187",
+      "pixels": 1024,
+      "center": 0.5,
+      "ground": 0.04,
+      "width": 0.811,
+      "height": 0.92,
+      "color": [
+        137,
+        136,
+        132
+      ]
+    },
+    {
+      "id": "Renegade",
+      "source": "assets/world2d/final/characters/Renegade.png",
+      "sourceSha256": "02a9553645e80e509ad911d987d88176ba46c21ca40dff1ee021d1ec431ac51e",
+      "prepared": "build/world2d/characters/Renegade.png",
+      "hash": "b4181a318311c0a1f7374dcacf04f8d0c1c81abeaf6aef1f170f524ec77673be",
+      "pixels": 1024,
+      "center": 0.5,
+      "ground": 0.04,
+      "width": 0.808,
+      "height": 0.92,
+      "color": [
+        120,
+        123,
+        120
+      ]
+    },
+    {
+      "id": "Romantic",
+      "source": "assets/world2d/final/characters/Romantic.png",
+      "sourceSha256": "767b5bd62ccc2a475c4694ce4da18eeef997c8c36108cb08885797dc440953a8",
+      "prepared": "build/world2d/characters/Romantic.png",
+      "hash": "67fb304763439e1c96c71c9b929fd322d89e2f212e9989b2d9d0a04327e29f3f",
+      "pixels": 1024,
+      "center": 0.5,
+      "ground": 0.04,
+      "width": 0.811,
+      "height": 0.92,
+      "color": [
+        128,
+        127,
+        127
+      ]
+    },
+    {
+      "id": "Sailor",
+      "source": "assets/world2d/final/characters/Sailor.png",
+      "sourceSha256": "c140bd476bcfe21469be5ba896f962678c464b6b24711d38d73fb5067ce3c8e4",
+      "prepared": "build/world2d/characters/Sailor.png",
+      "hash": "c062faea9f8e99ab2fa5e2830349bc4d96611d510a1559d16156732f31da9c82",
+      "pixels": 1024,
+      "center": 0.5,
+      "ground": 0.04,
+      "width": 0.781,
+      "height": 0.92,
+      "color": [
+        106,
+        106,
+        107
+      ]
+    },
+    {
+      "id": "Saver",
+      "source": "assets/world2d/final/characters/Saver.png",
+      "sourceSha256": "d44a17389bf84e67f12de4bb87370c10ded0017fca01cf608b0bddec0bbae858",
+      "prepared": "build/world2d/characters/Saver.png",
+      "hash": "3a7d5dcd9f803a013320c0eccd7e49dc06a76e1a70aa851995d3ab6e74ebd9d4",
+      "pixels": 1024,
+      "center": 0.5,
+      "ground": 0.04,
+      "width": 0.8,
+      "height": 0.92,
+      "color": [
+        154,
+        154,
+        154
+      ]
+    },
+    {
+      "id": "Sick",
+      "source": "assets/world2d/final/characters/Sick.png",
+      "sourceSha256": "a7b86aaaca167398146be8429a557c2349eea177aa8194f9416520ce180803bc",
+      "prepared": "build/world2d/characters/Sick.png",
+      "hash": "9f9fbb2211ee9eae24969280fa816a904b9b25f904ba8984888d94ac51a5f776",
+      "pixels": 1024,
+      "center": 0.5,
+      "ground": 0.04,
+      "width": 0.898,
+      "height": 0.92,
+      "color": [
+        136,
+        136,
+        136
+      ]
+    },
+    {
+      "id": "Soldier",
+      "source": "assets/world2d/final/characters/Soldier.png",
+      "sourceSha256": "716141aeb8dfb2f4697840c9189bb8105cd9f357ab3c2fcf9005582f7995cbf8",
+      "prepared": "build/world2d/characters/Soldier.png",
+      "hash": "756677d98c7b72e5bda789291879e55dbe7f6f1e8a980a006cd4374456fbfe8f",
+      "pixels": 1024,
+      "center": 0.5,
+      "ground": 0.04,
+      "width": 0.854,
+      "height": 0.92,
+      "color": [
+        119,
+        119,
+        119
+      ]
+    },
+    {
+      "id": "Speedy",
+      "source": "assets/world2d/final/characters/Speedy.png",
+      "sourceSha256": "4f3bb6e94ffb06469adf7b12402ff3e27c563ab9ff12db75364bc2fcde260314",
+      "prepared": "build/world2d/characters/Speedy.png",
+      "hash": "da191e835836c8ba6453d0d2663c219e4f435678a930b13764a762fc02d206b4",
+      "pixels": 1024,
+      "center": 0.5,
+      "ground": 0.04,
+      "width": 0.8,
+      "height": 0.92,
+      "color": [
+        152,
+        149,
+        145
+      ]
+    },
+    {
+      "id": "Streamer",
+      "source": "assets/world2d/final/characters/Streamer.png",
+      "sourceSha256": "5ae56bba3fdaecd5bc48ee547eb0331f121ed49195455c3e01cbd920e189f78a",
+      "prepared": "build/world2d/characters/Streamer.png",
+      "hash": "291e7eb9a585406d85a7c1020c966db891e5b8b6b5bd45d8084295d7fcf3f479",
+      "pixels": 1024,
+      "center": 0.5,
+      "ground": 0.04,
+      "width": 0.843,
+      "height": 0.92,
+      "color": [
+        104,
+        108,
+        97
+      ]
+    },
+    {
+      "id": "Survivor",
+      "source": "assets/world2d/final/characters/Survivor.png",
+      "sourceSha256": "9482a2dfe549bc39d002afb723092f11c6e429cc256719f59034d8b02ef5e8c6",
+      "prepared": "build/world2d/characters/Survivor.png",
+      "hash": "dd2b61884bd1c582eee20a33b8d1216a4579e92638826a108a500043e767bc48",
+      "pixels": 1024,
+      "center": 0.5,
+      "ground": 0.04,
+      "width": 0.821,
+      "height": 0.92,
+      "color": [
+        131,
+        97,
+        108
+      ]
+    },
+    {
+      "id": "Technomage",
+      "source": "assets/world2d/final/characters/Technomage.png",
+      "sourceSha256": "651709eff66a2bd762eb1c4b863f4d1b3bc3f987b509346f16c86c189f5071b1",
+      "prepared": "build/world2d/characters/Technomage.png",
+      "hash": "5642bc7ea98850160c2155cbbf14235ee73d93e960933e559b956b86cd5aa172",
+      "pixels": 1024,
+      "center": 0.5,
+      "ground": 0.04,
+      "width": 0.811,
+      "height": 0.92,
+      "color": [
+        112,
+        111,
+        111
+      ]
+    },
+    {
+      "id": "TimeShifter",
+      "source": "assets/world2d/final/characters/TimeShifter.png",
+      "sourceSha256": "cd2c6b80e3d2e8100a436ec08ab1900106accfdac13ea6cb2ffe9ae19ddb8e47",
+      "prepared": "build/world2d/characters/TimeShifter.png",
+      "hash": "1a8dba28b2018afb932e5bd259911f0014ec1f85e0d7acc5998b68cb42981985",
+      "pixels": 1024,
+      "center": 0.5,
+      "ground": 0.04,
+      "width": 0.762,
+      "height": 0.92,
+      "color": [
+        105,
+        104,
+        103
+      ]
+    },
+    {
+      "id": "Vagabond",
+      "source": "assets/world2d/final/characters/Vagabond.png",
+      "sourceSha256": "d7000c3d8af193469618d1932ab48fdea9f081fed55215eab2ab41db590a8dfc",
+      "prepared": "build/world2d/characters/Vagabond.png",
+      "hash": "c34c83657dbe915e24d547eda116f1c6d53d1955d68bc13ff3ed7108d1b17cc6",
+      "pixels": 1024,
+      "center": 0.5,
+      "ground": 0.04,
+      "width": 0.898,
+      "height": 0.92,
+      "color": [
+        118,
+        108,
+        109
+      ]
+    },
+    {
+      "id": "Vampire",
+      "source": "assets/world2d/final/characters/Vampire.png",
+      "sourceSha256": "8ce872388051d7a7dda543c87aab2cf6f6d3a724645779f1b7becf1992da5d1b",
+      "prepared": "build/world2d/characters/Vampire.png",
+      "hash": "2a111088517ccaa5a9da73d28f18c129fa7b24d5f6f10fb63b31c34a94d11464",
+      "pixels": 1024,
+      "center": 0.5,
+      "ground": 0.04,
+      "width": 0.832,
+      "height": 0.92,
+      "color": [
+        122,
+        120,
+        120
+      ]
+    },
+    {
+      "id": "Variant",
+      "source": "assets/world2d/final/characters/Variant.png",
+      "sourceSha256": "8b97d153fb7ad10587709c0e3c3f9b49ce173bb587b21790cd5fea1b3ef2773b",
+      "prepared": "build/world2d/characters/Variant.png",
+      "hash": "53cffe437455f07249fb1d3f58520e047e57284ffc0071368972c27ce5676dce",
+      "pixels": 1024,
+      "center": 0.5,
+      "ground": 0.04,
+      "width": 0.909,
+      "height": 0.92,
+      "color": [
+        188,
+        206,
+        99
+      ]
+    },
+    {
+      "id": "Veteran",
+      "source": "assets/world2d/final/characters/Veteran.png",
+      "sourceSha256": "d31a7d1dbe150d0a200039b02bed6a1324fd97bd5f23593f015c2f4c3b3c8b87",
+      "prepared": "build/world2d/characters/Veteran.png",
+      "hash": "5de821a1fcd6440bcb5f7d5d126f6efbe4ae94af4f3028dd305c219cdd724563",
+      "pixels": 1024,
+      "center": 0.5,
+      "ground": 0.04,
+      "width": 0.92,
+      "height": 0.824,
+      "color": [
+        77,
+        33,
+        33
+      ]
+    },
+    {
+      "id": "WellRounded",
+      "source": "assets/world2d/final/characters/WellRounded.png",
+      "sourceSha256": "f618971cd4962176d895e16716c24a61fa48778a603bc97e9542c21f6ee54f2b",
+      "prepared": "build/world2d/characters/WellRounded.png",
+      "hash": "0d36437572432a8a6c64c8610d683e96ce88f0497e78d3e188589500b2361beb",
+      "pixels": 1024,
+      "center": 0.5,
+      "ground": 0.04,
+      "width": 0.8,
+      "height": 0.92,
+      "color": [
+        148,
+        148,
+        148
+      ]
+    },
+    {
+      "id": "Wildling",
+      "source": "assets/world2d/final/characters/Wildling.png",
+      "sourceSha256": "4c25c67bf3f536819d19f6806e40eef49bedd3f41575bb8273564a81375b170f",
+      "prepared": "build/world2d/characters/Wildling.png",
+      "hash": "962b94b278da5c761c0b50d4d56732ac331947439b8e8cac75d97a676eca0af9",
+      "pixels": 1024,
+      "center": 0.5,
+      "ground": 0.04,
+      "width": 0.8,
+      "height": 0.92,
+      "color": [
+        157,
+        157,
+        157
+      ]
+    },
+    {
+      "id": "Wounded",
+      "source": "assets/world2d/final/characters/Wounded.png",
+      "sourceSha256": "239ac4f52fee554009b1f8399ca5995be8e0c38766a18c508c4f80c5e72c7bb6",
+      "prepared": "build/world2d/characters/Wounded.png",
+      "hash": "f855a0f144d49da3c238bdd36cb3401a128e4443a589c8deed7934bf38b348b1",
+      "pixels": 1024,
+      "center": 0.5,
+      "ground": 0.04,
+      "width": 0.804,
+      "height": 0.92,
+      "color": [
+        141,
+        120,
+        102
+      ]
+    }
+  ]
+}
