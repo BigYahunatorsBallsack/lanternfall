@@ -1,5 +1,5 @@
 --!strict
--- Approved shop palette and plain typography. Used by Widgets and all menu/HUD controllers.
+-- Approved shop palette and chunky rounded typography (Fredoka One, owner choice 2026-11-08). Used by Widgets and all menu/HUD controllers.
 -- Used by UI/Widgets and the UI controllers.
 
 return table.freeze({
@@ -34,10 +34,11 @@ return table.freeze({
 		Color3.fromRGB(202, 114, 239),
 		Color3.fromRGB(241, 77, 77),
 	}),
-	font = Enum.Font.Arial,
-	fontBold = Enum.Font.ArialBold,
+	font = Enum.Font.FredokaOne,
+	fontBold = Enum.Font.FredokaOne,
 	corner = UDim.new(0, 6),
 	textSize = 18,
 	titleSize = 34,
 	shopMaxWidth = 1120,
+	hudTextScale = 1.25, -- in-run text (HUD, damage numbers, labels over enemies) is 25 % larger than menu text
 })

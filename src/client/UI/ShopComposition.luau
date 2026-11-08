@@ -160,7 +160,7 @@ function Composition.apply(ctx: any, area: Vector2)
 	saved.shard.Visible = true
 	ctx.shardsLabel.Text = tostring(if ctx.current then ctx.current.shards else 0)
 	ctx.shardsLabel.TextColor3 = Theme.text
-	ctx.shardsLabel.TextSize = if compact then 24 else 29 * scale
+	ctx.shardsLabel.TextSize = (if compact then 24 else 29 * scale) * (if shopping then 1 else Theme.hudTextScale)
 	ctx.shardsLabel.TextStrokeTransparency = 0
 	ctx.shardsLabel.TextXAlignment = Enum.TextXAlignment.Left
 	place(ctx.shardsLabel, 40, 0, 110, 42)
