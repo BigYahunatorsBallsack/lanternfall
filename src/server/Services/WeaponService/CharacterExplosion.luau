@@ -20,11 +20,13 @@ function Explosion.compute(definition: Definitions.Definition, sheet: { [string]
 	-- Native init_base_stats truncates flat scaling, then rounds the sum of Damage and Explosion Damage bonuses.
 	damage = math.floor(math.max(1, damage))
 	damage = math.max(1, math.round(damage * (1 + ((sheet.damage or 0) + (sheet.explosionDamage or 0)) / 100)))
-	local scale = math.max(Definitions.minimumAreaScale, 1 + (sheet.explosionSize or 0) / 100)
+	local scale =
+		math.max(Definitions.minimumAreaScale, (definition.areaScale or 1) * (1 + (sheet.explosionSize or 0) / 100))
 	return {
 		damage = damage,
 		critChance = math.clamp(definition.critChance + (sheet.critChance or 0) / 100, 0, 1),
-		critDamage = definition.critDamage + (sheet.critDamage or 0) / 100,
+		critDamage = definition.critDamage
+			+ (if definition.baseCritDamageOnly then 0 else (sheet.critDamage or 0) / 100),
 		radius = definition.radiusPoints * Stats.range.studsPerPoint * scale,
 		offsetZ = definition.offsetZPoints * Stats.range.studsPerPoint * scale,
 	}

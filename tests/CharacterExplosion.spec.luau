@@ -6,6 +6,14 @@ local Explosion = require(game:GetService("ServerScriptService").Server.Services
 local bull = Definitions.bySource["res://items/characters/bull/bull_explosion_stats.tres"]
 
 describe("Native character explosion calculation", function()
+	it("keeps Glutton's effect scale and raw resource critical multiplier", function()
+		local glutton = Definitions.bySource["res://items/characters/glutton/glutton_explosion_stats.tres"]
+		local stats = Explosion.compute(glutton, { critDamage = 100 })
+		expect(stats.radius).toBeNear(29.468)
+		expect(stats.critDamage).toBeNear(1.5)
+		expect(Explosion.compute(glutton, { explosionSize = -200 }).radius).toBeNear(1.4734)
+	end)
+
 	it("keeps Bull's original base, triple flat scaling and own critical multiplier", function()
 		local base = Explosion.compute(bull, {})
 		expect(base.damage).toBe(30)
