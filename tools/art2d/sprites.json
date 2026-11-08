@@ -380,8 +380,8 @@
   "pixels": 512,
   "items": {
    "Tree": {
-    "text": "Approved base-game enemy: Tree",
-    "source": "assets/enemies/base-game/sprites/bonus/Tree.png"
+    "text": "Own bushy tree with glowing fruit (tools/art2d/own/tree.py)",
+    "source": "assets/world2d/final/enemies/Tree.png"
    },
    "Shadeling": {
     "text": "Approved base-game enemy: BabyAlien",
