@@ -295,30 +295,8 @@ function Composition.apply(ctx: any, area: Vector2)
 						.. (if offer.merges then "\nMerges into " .. tostring(offer.tier + 1) else "")
 					view.detailArea.Visible = not offer.sold
 				end
-				local sold = view.button:FindFirstChild("SoldOverlay") :: Frame?
-				if not sold then
-					local overlay = Widgets.create("Frame", {
-						Name = "SoldOverlay",
-						BackgroundColor3 = Theme.button,
-						BackgroundTransparency = 0.3,
-						BorderSizePixel = 0,
-						Size = UDim2.fromScale(1, 1),
-						ZIndex = 10,
-						Parent = view.button,
-					}, { Widgets.corner() })
-					Widgets.label({
-						Name = "SoldText",
-						Text = "SOLD",
-						Font = Theme.fontBold,
-						TextSize = 44,
-						TextStrokeTransparency = 0,
-						Size = UDim2.fromScale(1, 1),
-						ZIndex = 11,
-						Parent = overlay,
-					})
-					sold = overlay
-				end
-				(sold :: Frame).Visible = offer.sold
+				-- A bought offer leaves an empty slot (reference game).
+				view.button.Visible = not offer.sold
 				view.lock.Visible = not offer.sold
 				view.price.Text = if offer.sold then "SOLD" else tostring(offer.price)
 				priceIcon.Visible = not offer.sold

@@ -402,6 +402,7 @@ local function renderCards(current: Types.ShopState)
 			view.button.AutoButtonColor = not offer.sold and affordable
 			view.button.BackgroundTransparency = if offer.sold then 0.6 else 0
 			view.lock.Visible = not offer.sold
+			view.button.Visible = not offer.sold -- bought: the slot stays empty (reference game)
 			view.lock.Text = if offer.locked then "LOCKED" else "Lock"
 			view.lock.BackgroundColor3 = if offer.locked then LOCKED_COLOR else Theme.button
 			view.lock.TextColor3 = if offer.locked then Theme.accentText else Theme.textDim
