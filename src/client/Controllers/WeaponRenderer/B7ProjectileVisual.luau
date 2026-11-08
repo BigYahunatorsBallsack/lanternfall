@@ -117,8 +117,12 @@ return function(color: Color3)
 			if distance >= stop then
 				if bolt.stopAt and bolt.parts then
 					local parts = bolt.parts :: BoltParts
-					local at =
-						Vector3.new(bolt.x + bolt.dx * stop, frame.floorY + HEIGHT, bolt.z - LIFT + bolt.dz * stop)
+					local share = if bolt.range > 0 and bolt.range < math.huge then stop / bolt.range else 0
+					local at = Vector3.new(
+						bolt.x + bolt.dx * stop + (bolt.startX - bolt.x) * (1 - share),
+						frame.floorY + HEIGHT,
+						bolt.z - LIFT + bolt.dz * stop + (bolt.startZ - (bolt.z - LIFT)) * (1 - share)
+					)
 					Bursts.emit("spark", parts.color, at, HIT_SPARKS)
 				end
 				remove(id, bolt)
@@ -132,14 +136,17 @@ return function(color: Color3)
 				bolt.parts = created
 				parts = created
 			end
-			local position = Vector3.new(
-				bolt.x + (bolt.startX - bolt.x) * (1 - blend) + bolt.dx * distance,
-				frame.floorY + HEIGHT,
-				bolt.z - LIFT + (bolt.startZ - (bolt.z - LIFT)) * (1 - blend) + bolt.dz * distance
-			)
-			local cframe = CFrame.lookAt(position, position + Vector3.new(bolt.dx, 0, bolt.dz))
+			-- One straight line from the barrel on screen to the server path's end at full range: the gap between the
+			-- two starts shrinks in step with the distance flown, so the shot never bends (it used to blend over
+			-- projectileCatchupSeconds, which curved whenever barrel and server start differed).
+			local offsetX, offsetZ = bolt.startX - bolt.x, bolt.startZ - (bolt.z - LIFT)
+			local fade = if bolt.range > 0 and bolt.range < math.huge then 1 / bolt.range else 0
+			local lineX, lineZ = bolt.dx - offsetX * fade, bolt.dz - offsetZ * fade
+			local position =
+				Vector3.new(bolt.startX + lineX * distance, frame.floorY + HEIGHT, bolt.startZ + lineZ * distance)
+			local cframe = CFrame.lookAt(position, position + Vector3.new(lineX, 0, lineZ))
 			local current = parts :: BoltParts
-			current.sprite.picture.Rotation = WorldSprite.screenAngle(bolt.dx, bolt.dz)
+			current.sprite.picture.Rotation = WorldSprite.screenAngle(lineX, lineZ)
 			frame.move(current.core, cframe)
 		end
 	end

@@ -715,3 +715,8 @@ Branch `wp-25-2d-presentation`. **Owner-Entscheidungen dieses Pakets:** Das Spie
 - Owner: Shards am Boden sehen in Brotato verschieden und zufällig aus. Jetzt bekommt jeder liegende Shard aus seiner ID (auf allen Clients gleich) eine Drehung (±180°), eine Spiegelung und ±12 % Größe (`Util/MaterialLook`, Werte in `Config.Sprites.material`). Wirkt sofort mit dem heutigen Bild.
 - Sechs eigene Shard-Formen gezeichnet (`assets/loot/shards/`, erzeugt von `tools/art2d/draw_shards.py`, keine Brotato-Sprites). **Noch nicht hochgeladen**: Nach dem Upload die sechs IDs in `Config.Sprites.material.variants` eintragen, dann wählt jeder Drop zufällig eine Form. Währungsanzeige bleibt beim bisherigen Bild.
 - Tests: `MaterialLook`, `LootSprites25`, `WorldSprites`, `Config` grün. StyLua/Selene sauber. Kein Studio-Test.
+
+## Fix: Schüsse ohne Kurve (Claude, 08.11.2026)
+
+- Owner: Schüsse curven manchmal noch. Restursache: `B7ProjectileVisual` startete die Kugel am Lauf auf dem Bildschirm und blendete sie in `projectileCatchupSeconds` auf die Server-Bahn; wo Lauf und Server-Start auseinanderliegen (Bild-Radius der Waffe größer als `holdRadius`, Client-Figur der Server-Position voraus), entstand ein Knick.
+- Jetzt eine gerade Linie vom Lauf auf dem Bildschirm zum Ende der Server-Bahn bei voller Reichweite: der Abstand schrumpft im Verhältnis zur geflogenen Strecke. Treffer-Funken an derselben Linie. Neue `tests/ShotPath.spec.luau` (schlug vorher fehl, jetzt grün). Strang-B-Datei auf direkten Owner-Auftrag.
