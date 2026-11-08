@@ -5,6 +5,7 @@
 -- StatService and ConfigCheck, and by the client for texts (Util/EffectText) and the bonus line in the HUD.
 --
 -- Trigger + action:
+--   Always    + OneShotTrees kills trees after a valid owner hit, without inflating its damage.
 --   Always    + Stats        stats while the condition holds (`state` "Still" or "Moving", else always), times count
 --   Always    + PerX         stats times floor(source / per) (at most `max` steps), times count; `source` is
 --                            "shards" (held), "distinctWeapons" (different weapons carried) or a stat id (its
@@ -100,7 +101,7 @@ return table.freeze({
 		"Timer",
 		"Consumable",
 	}),
-	passiveActions = set({ "Stats", "PerX" }), -- only with trigger "Always"
+	passiveActions = set({ "Stats", "PerX", "OneShotTrees" }), -- only with trigger "Always"
 	eventActions = set({
 		"Grow",
 		"WaveStats",

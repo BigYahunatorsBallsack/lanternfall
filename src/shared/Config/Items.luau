@@ -8,6 +8,7 @@ local Effects = require(script.Parent.Effects)
 
 export type Item = {
 	description: string?,
+	available: boolean?, -- false while original artwork is only prepared locally
 	structure: string?,
 	id: string,
 	displayName: string,
@@ -639,6 +640,22 @@ table.insert(
 		stats = table.freeze({}),
 		structure = "StormFamiliar",
 		tags = table.freeze({ "engineering", "structure" }),
+	})
+)
+
+-- Pacifist's mandatory native start item; original artwork is locally prepared, with no fabricated upload id.
+table.insert(
+	LIST,
+	table.freeze({
+		id = "LumberjackShirt",
+		displayName = "Lumberjack Shirt",
+		tier = 1,
+		price = 15,
+		limit = 1,
+		available = false,
+		stats = table.freeze({}),
+		tags = table.freeze({ "exploration" }),
+		effects = table.freeze({ table.freeze({ trigger = "Always", action = "OneShotTrees" }) }),
 	})
 )
 

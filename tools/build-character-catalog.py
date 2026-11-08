@@ -386,6 +386,9 @@ def main():
     extra_weapons = json.loads((ROOT / "docs/characters/weapon-source.json").read_text(encoding="utf-8"))["weapons"]
     weapons.extend({"id": row["id"], "name": row["name"]} for row in extra_weapons)
     items = json.loads((ROOT / "docs/item-parity/catalog.json").read_text(encoding="utf-8"))["items"]
+    item_rules = json.loads((ROOT / "docs/characters/item-groups.json").read_text(encoding="utf-8"))["runtimeItems"]
+    known_items = {i["id"] for i in items}
+    items.extend({"id": ident, "name": row["displayName"]} for ident, row in item_rules.items() if ident not in known_items)
     catalog, unknown_weapons, unknown_items = compile_catalog(source, weapons, items)
     generated = HEADER + luau(catalog) + "\n\nreturn table.freeze(Catalog)\n"
     if args.check:

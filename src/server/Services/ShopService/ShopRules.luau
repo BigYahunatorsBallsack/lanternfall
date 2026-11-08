@@ -116,6 +116,9 @@ end
 
 -- Normal native pools exclude explicit item identities/groups, never every item with a matching stat.
 function ShopRules.itemAllowed(classId: string?, itemId: string, wave: number): boolean
+	if not Items.byId[itemId] or Items.byId[itemId].available == false then
+		return false
+	end
 	local class = classId and Classes[classId]
 	local native = class and class.native
 	if not native then

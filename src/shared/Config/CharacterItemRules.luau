@@ -211,6 +211,7 @@ local nativeIds: { [string]: string } = {
 	WispJar = "item_baby_elephant",
 	WitchKettle = "item_lemonade",
 	WitchMortar = "item_gnome",
+	LumberjackShirt = "item_lumberjack_shirt",
 }
 
 local tags: { [string]: { string } } = {
@@ -662,6 +663,9 @@ local tags: { [string]: { string } } = {
 	WitchMortar = {
 		"stat_melee_damage",
 		"stat_elemental_damage",
+	},
+	LumberjackShirt = {
+		"exploration",
 	},
 }
 

@@ -146,6 +146,7 @@ local function clearWave()
 end
 
 function Service.init()
+	Experience.OrbsPickedUp:Connect(require(script.Parent.PlayerDataService).observeNativeMaterials)
 	HealingChallenges.init()
 	Movement.init()
 	Run.RunStarted:Connect(function(participants)

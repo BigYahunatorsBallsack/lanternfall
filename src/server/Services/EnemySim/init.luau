@@ -585,12 +585,36 @@ end
 -- Deals damage to one enemy. Returns true if this hit killed it (and fires EnemyKilled), the HP it took and the
 -- damage after the enemy's own damageTaken multiplier (for damage numbers). A killed Splitter falls apart; a
 -- counter-shooter that survives sprays its ring (B9).
-function EnemySim.damage(id: number, amount: number, source: Player?, bonusPercent: number?): (boolean, number, number)
+-- The effect service owns item policy; valid player-owned hitboxes share neutral tree execution here.
+local treeHitRule: ((Player) -> boolean)? = nil
+function EnemySim.setTreeHitRule(rule: (Player) -> boolean)
+	treeHitRule = rule
+end
+
+function EnemySim.damage(
+	id: number,
+	amount: number,
+	source: Player?,
+	bonusPercent: number?,
+	ownerHitbox: boolean?
+): (boolean, number, number)
 	local totalBonus = (bonusPercent or 0) + weakness:bonus(id)
 	if totalBonus ~= 0 then
 		amount = math.round(amount * (1 + totalBonus / 100))
 	end
 	local killed, dealt, applied, retaliates = world:damage(id, amount)
+	local hitKind = world:getKind(id)
+	if
+		not killed
+		and ownerHitbox
+		and source
+		and treeHitRule
+		and hitKind
+		and hitKind.id == "Tree"
+		and treeHitRule(source)
+	then
+		killed = world:remove(id)
+	end
 	if not killed then
 		if retaliates then
 			fireRing(id)

@@ -21,11 +21,16 @@ describe("Original item sprites", function()
 			assert(string.match(uri, "^rbxassetid://%d+$"))
 			count += 1
 		end
-		expect(count).toBe(#Config.Items.list)
+		expect(count).toBe(#Config.Items.list - 1)
+		expect(Config.Items.byId.LumberjackShirt.available).toBe(false)
+		expect(Images.LumberjackShirt).toBe(nil)
 	end)
 	it("binds each inventory illustration to its original uploaded sprite", function()
 		local holder = Instance.new("Frame")
 		for _, item in Config.Items.list do
+			if item.available == false then
+				continue
+			end
 			local illustration = Icons.draw(holder, "item", item.id)
 			local picture = assert(illustration:FindFirstChild("ItemArt"))
 			expect(picture.Image).toBe(Images[item.id])

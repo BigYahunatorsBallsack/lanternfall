@@ -47,6 +47,7 @@ type State = {
 	watchesMovement: boolean,
 	countsShards: boolean,
 	countsWeapons: boolean,
+	oneShotTrees: boolean,
 	countsEnemies: boolean, -- a PerX counts living enemies (B8)
 	hitTriggers: boolean, -- has Hit, Crit or Kill effects
 	eliteMatters: boolean, -- one of them asks for elites
@@ -175,6 +176,12 @@ local function rebuild(state: State)
 	local itemCounts = StatService.getItemCounts(state.player)
 	local entries = EffectRules.entries(itemCounts)
 	state.entries = entries
+	state.oneShotTrees = false
+	for _, entry in entries do
+		if entry.effect.trigger == "Always" and entry.effect.action == "OneShotTrees" and entry.count > 0 then
+			state.oneShotTrees = true
+		end
+	end
 	state.itemTiers = EffectRules.distinctItemTiers(itemCounts)
 	state.byTrigger = EffectRules.byTrigger(entries)
 	state.watchesMovement = EffectRules.watchesMovement(entries)
@@ -547,6 +554,7 @@ local function newState(player: Player): State
 		countsShards = false,
 		countsWeapons = false,
 		countsEnemies = false,
+		oneShotTrees = false,
 		hitTriggers = false,
 		eliteMatters = false,
 		moveState = nil,
@@ -579,6 +587,10 @@ end
 -- Lifecycle -------------------------------------------------------------------------
 
 function EffectService.init()
+	EnemySim.setTreeHitRule(function(player)
+		local state = states[player]
+		return state ~= nil and state.oneShotTrees
+	end)
 	RunDirector.RunStarted:Connect(function(participants: { Player })
 		clear()
 		for _, player in participants do

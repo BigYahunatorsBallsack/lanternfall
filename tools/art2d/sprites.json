@@ -1166,6 +1166,11 @@
    },
    "CalibratedTools": {
     "text": "Item-Icon."
+   },
+   "LumberjackShirt": {
+    "text": "Original Brotato item: Lumberjack Shirt",
+    "source": "assets/items/character-starts/LumberjackShirt.png",
+    "trimmed": true
    }
   }
  },

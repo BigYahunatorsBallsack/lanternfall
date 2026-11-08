@@ -1333,7 +1333,7 @@
       "nameKey": "ITEM_ESTYS_COUCH",
       "source": "res://items/all/00_base_game/estys_couch/estys_couch_data.tres",
       "sourceMd5": "2712fd1f104fa89666db2c981c7a16ad",
-      "displayName": "Esty’s Couch",
+      "displayName": "Esty\u2019s Couch",
       "tags": [
         "stat_hp_regeneration",
         "stat_max_hp"
@@ -1410,6 +1410,13 @@
       "tags": [
         "stat_melee_damage",
         "stat_elemental_damage"
+      ]
+    },
+    "LumberjackShirt": {
+      "nativeId": "item_lumberjack_shirt",
+      "displayName": "Lumberjack Shirt",
+      "tags": [
+        "exploration"
       ]
     }
   },

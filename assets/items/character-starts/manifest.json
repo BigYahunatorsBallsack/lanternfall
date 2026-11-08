@@ -1,0 +1,26 @@
+{
+  "version": "1.2.0.1",
+  "uploadedCount": 0,
+  "runtimeChanged": false,
+  "items": [
+    {
+      "id": "LumberjackShirt",
+      "source": "res://items/all/00_base_game/lumberjack_shirt/lumberjack_shirt_icon.png",
+      "textureSource": "res://.import/lumberjack_shirt_icon.png-afd9a851bcb62b09a9d5657299b55d61.stex",
+      "textureMd5": "3849d61ec35e4184e085ff0504577084",
+      "output": "assets/items/character-starts/LumberjackShirt.png",
+      "pngSha256": "a1ba2972ff9106141c47ddfd8efbd1837238352f0abd8ca98136bb77d1e570b7",
+      "rgbaSha256": "05d1962a38ae459a5e75ec1599ffa37fa13c36f292c87cad6297c84be1ada75e",
+      "size": [
+        96,
+        96
+      ],
+      "alphaBounds": [
+        5,
+        7,
+        93,
+        88
+      ]
+    }
+  ]
+}
