@@ -47,6 +47,8 @@ CombatService.Dodged = Signal.new()
 CombatService.Blocked = Signal.new()
 -- (player: Player, gained: number): actual healing, including regeneration; zero/full-health heals do not fire.
 CombatService.Healed = Signal.new()
+-- (player, amount): native accepted healing before the HP cap, including overheal, for Medicine challenge tracking.
+CombatService.HealingApplied = Signal.new()
 
 local vitals: { [Player]: Vitals.Vitals } = {}
 local sentHp: { [Player]: number } = {} -- whole HP last sent, so regeneration does not send every frame
@@ -189,7 +191,11 @@ end
 function CombatService.healPlayer(player: Player, amount: number): number
 	local state = getVitals(player)
 	applyCharacterRules(player, state)
+	local accepted = amount > 0 and not state:isDown() and not state.noHeal
 	local gained = state:heal(amount)
+	if accepted then
+		CombatService.HealingApplied:Fire(player, math.floor(amount))
+	end
 	if gained > 0 then
 		if state.hp >= state.maxHp then
 			regenProgress[player] = 0
@@ -403,7 +409,11 @@ function CombatService.init()
 				regenProgress[player] = math.max(0, progress - ticks * Config.Stats.hpScale)
 				if not state.noHeal then
 					-- Full-health ticks are consumed too; only effective healing can trigger Lich.
-					local gained = state:heal(ticks * Config.Stats.hpScale)
+					local amount = ticks * Config.Stats.hpScale
+					local gained = state:heal(amount)
+					if amount > 0 then
+						CombatService.HealingApplied:Fire(player, amount)
+					end
 					if gained > 0 then
 						CombatService.Healed:Fire(player, gained)
 					end

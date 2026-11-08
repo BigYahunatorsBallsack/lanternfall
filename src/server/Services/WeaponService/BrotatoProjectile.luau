@@ -87,19 +87,39 @@ function Projectile.fire(weapon: Arsenal.Weapon, ctx: Arsenal.Context): boolean
 		return false
 	end
 	local count = math.max(1, math.floor(stats.count or 1))
-	local targetCount = ctx:nearestEnemies(ctx.x, ctx.z, stats.range, if stats.fan then 1 else count, targets)
-	if targetCount == 0 then
+	local targetCount = ctx:nearestEnemies(
+		ctx.x,
+		ctx.z,
+		stats.range,
+		if stats.fan or stats.nativeSpread ~= nil then 1 else count,
+		targets
+	)
+	if targetCount == 0 and stats.shootWithoutTarget ~= 1 then
 		return false
 	end
 	local heldX, heldZ = WeaponPose.anchor(ctx.x, ctx.z, ctx.slot, ctx.slotCount, weapon.id)
 	for k = 1, count do
-		local tx, tz = ctx:enemyPosition(targets[math.min(k, targetCount)])
-		local dx, dz = (tx or heldX + 1) - heldX, (tz or heldZ) - heldZ
+		local tx: number?, tz: number? = nil, nil
+		if targetCount > 0 then
+			tx, tz = ctx:enemyPosition(targets[math.min(k, targetCount)])
+		end
+		local dx = if tx then tx - heldX else weapon.state.aimDx or 1
+		local dz = if tz then tz - heldZ else weapon.state.aimDz or 0
 		local length = math.sqrt(dx * dx + dz * dz)
 		if length < 1e-6 then
 			dx, dz, length = 1, 0, 1
 		end
 		dx, dz = dx / length, dz / length
+		weapon.state.aimDx, weapon.state.aimDz = dx, dz
+		if stats.nativeSpread ~= nil then
+			-- Native accuracy rotates the weapon once; each pellet then gets independent random spread in radians.
+			if k == 1 then
+				weapon.state.accuracyAngle = (ctx:random() * 2 - 1) * (1 - stats.nativeAccuracy)
+			end
+			local angle = weapon.state.accuracyAngle + (ctx:random() * 2 - 1) * stats.nativeSpread
+			local c, s = math.cos(angle), math.sin(angle)
+			dx, dz = dx * c - dz * s, dx * s + dz * c
+		end
 		if stats.fan then
 			local angle = math.rad(stats.spreadDegrees) * (k - (count + 1) / 2)
 			local c, s = math.cos(angle), math.sin(angle)

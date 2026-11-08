@@ -11,7 +11,7 @@ local Classes = Config.WeaponClasses
 local WeaponClasses = {}
 
 -- Weapons per class id for a list of weapon ids (copies count, unknown ids do not).
-function WeaponClasses.counts(weaponIds: { string }): { [string]: number }
+function WeaponClasses.counts(weaponIds: { string }, characterId: string?): { [string]: number }
 	local counts: { [string]: number } = {}
 	for _, weaponId in weaponIds do
 		local weapon = Config.Weapons[weaponId]
@@ -19,6 +19,19 @@ function WeaponClasses.counts(weaponIds: { string }): { [string]: number }
 			for _, classId in weapon.classes do
 				counts[classId] = (counts[classId] or 0) + 1
 			end
+		end
+	end
+	local character = characterId and Config.Classes[characterId]
+	local rule = character and (character.native or character)
+	if rule then
+		local total = 0
+		for _, id in weaponIds do
+			if Config.Weapons[id] then
+				total += 1
+			end
+		end
+		for classId, count in counts do
+			counts[classId] = (if rule.allWeaponsForSets then total else count) + (rule.setCountBonus or 0)
 		end
 	end
 	return counts
@@ -34,9 +47,9 @@ function WeaponClasses.bonus(classId: string, count: number): { [string]: number
 end
 
 -- Every class bonus for these weapons added up (stat id -> value); empty without any.
-function WeaponClasses.bonuses(weaponIds: { string }): { [string]: number }
+function WeaponClasses.bonuses(weaponIds: { string }, characterId: string?): { [string]: number }
 	local sheet: { [string]: number } = {}
-	for classId, count in WeaponClasses.counts(weaponIds) do
+	for classId, count in WeaponClasses.counts(weaponIds, characterId) do
 		local stats = WeaponClasses.bonus(classId, count)
 		if stats then
 			for statId, value in stats do
@@ -62,8 +75,8 @@ function WeaponClasses.names(weaponId: string): string
 end
 
 -- The classes a player has at least one weapon of, in the order of Config.WeaponClasses, with their counts.
-function WeaponClasses.carried(weaponIds: { string }): { { id: string, count: number } }
-	local counts = WeaponClasses.counts(weaponIds)
+function WeaponClasses.carried(weaponIds: { string }, characterId: string?): { { id: string, count: number } }
+	local counts = WeaponClasses.counts(weaponIds, characterId)
 	local list = {}
 	for _, class in Classes.order do
 		local count = counts[class.id]

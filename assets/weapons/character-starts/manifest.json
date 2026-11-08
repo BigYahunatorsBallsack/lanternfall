@@ -1,0 +1,168 @@
+{
+  "version": "1.2.0.1",
+  "steamBuild": 26406319,
+  "uploadedCount": 0,
+  "runtimeChanged": false,
+  "weapons": [
+    {
+      "id": "Anchor",
+      "name": "Anchor",
+      "source": "res://dlcs/dlc_1/weapons/melee/anchor/anchor_icon.png",
+      "textureSource": "res://.import/anchor_icon.png-14f6a548365134c874d12c64e9644663.stex",
+      "textureMd5": "89b225487f5f68eea7eb2a633a937070",
+      "output": "assets/weapons/character-starts/Anchor.png",
+      "pngSha256": "5240f82dfc23d535dcf39d03b9d21cdb24d8b2d09eb7f2e330d9d3dcca863406",
+      "rgbaSha256": "9236ff8055db8c54a6a1c53b01a99d2edf62571c86aabffc9f14a26707ed3ee3",
+      "size": [
+        96,
+        96
+      ],
+      "alphaBounds": [
+        3,
+        2,
+        93,
+        94
+      ]
+    },
+    {
+      "id": "Mace",
+      "name": "Mace",
+      "source": "res://dlcs/dlc_1/weapons/melee/mace/mace_icon.png",
+      "textureSource": "res://.import/mace_icon.png-54791cd69dd9bef599dcc07782bb1bd1.stex",
+      "textureMd5": "f83b4c992b3b318e1d4d30a4b58d812d",
+      "output": "assets/weapons/character-starts/Mace.png",
+      "pngSha256": "c00320d25c49a6eef13e7de182c8605eefe3ab21f3972f35bbac5ae5bd2d5632",
+      "rgbaSha256": "ee0f1145530ec5921402c1f8b53540d312f15b1d34e66c271b6ba5b652012982",
+      "size": [
+        96,
+        96
+      ],
+      "alphaBounds": [
+        2,
+        3,
+        93,
+        95
+      ]
+    },
+    {
+      "id": "MeatTenderizer",
+      "name": "Meat Tenderizer",
+      "source": "res://weapons/melee/meat_tenderizer/meat_tenderizer_icon.png",
+      "textureSource": "res://.import/meat_tenderizer_icon.png-c72d7a4d5f6bdf569114a5d77bb35a89.stex",
+      "textureMd5": "556e1bea17ac0095fb60aafca44054af",
+      "output": "assets/weapons/character-starts/MeatTenderizer.png",
+      "pngSha256": "d5da6a32271c6e1dc464bc3a08f8f1d8aac644e68aec03d8ca082d9e289401de",
+      "rgbaSha256": "a99d61ec0f9dabca41792e106c965a033d68059bd502a35ea37acc448a562f9a",
+      "size": [
+        96,
+        96
+      ],
+      "alphaBounds": [
+        11,
+        6,
+        89,
+        89
+      ]
+    },
+    {
+      "id": "Machinegun",
+      "name": "Machine Gun",
+      "source": "res://weapons/ranged/machinegun/machinegun_icon.png",
+      "textureSource": "res://.import/machinegun_icon.png-19297a1e189d9440dd8dfa68a9212163.stex",
+      "textureMd5": "33c3f0b69319cecef48739014814a0c8",
+      "output": "assets/weapons/character-starts/Machinegun.png",
+      "pngSha256": "c2fad585a4ba8d80e5d28fcb2cc41e5f659a93fd6a382bae74d9d60f51925ad6",
+      "rgbaSha256": "50f60249b43b6e88bcdc8014fedcdadcd9537cab484aa942db440e60a111d4ab",
+      "size": [
+        96,
+        96
+      ],
+      "alphaBounds": [
+        5,
+        20,
+        90,
+        84
+      ]
+    },
+    {
+      "id": "PanFlute",
+      "name": "Pan Flute",
+      "source": "res://weapons/ranged/pan_flute/pan_flute_icon.png",
+      "textureSource": "res://.import/pan_flute_icon.png-d5c988cb0d1c72ea19ebb17e38cf5876.stex",
+      "textureMd5": "d6534a3edbe600b9215e914fdd3ab1f5",
+      "output": "assets/weapons/character-starts/PanFlute.png",
+      "pngSha256": "e9dfcd1ab755a79ed7b1cc212b21ae18bfffcd247b9c44edce4a4c2a6cf64e88",
+      "rgbaSha256": "79f05094aa688577e2a150b54e021abd53adbb0a0a4b2d0e182460e28a6dd30f",
+      "size": [
+        96,
+        96
+      ],
+      "alphaBounds": [
+        7,
+        11,
+        88,
+        83
+      ]
+    },
+    {
+      "id": "CombatShotgun",
+      "name": "Combat Shotgun",
+      "source": "res://weapons/ranged/combat_shotgun/combat_shotgun_icon.png",
+      "textureSource": "res://.import/combat_shotgun_icon.png-ff40faae59c46ac1dadb6bb0da3ffd75.stex",
+      "textureMd5": "c4815acb069226f07eeaabc6d9450f93",
+      "output": "assets/weapons/character-starts/CombatShotgun.png",
+      "pngSha256": "e1d853c61c2faa9284541237510816bedeaa4b5fc066bedad87aa013385147e5",
+      "rgbaSha256": "f51e94bb7beef4d97301003b413152ee45d69a1ba059f5b7c5a959c407a5ffa7",
+      "size": [
+        96,
+        96
+      ],
+      "alphaBounds": [
+        5,
+        10,
+        92,
+        86
+      ]
+    },
+    {
+      "id": "GrenadeLauncher",
+      "name": "Grenade Launcher",
+      "source": "res://dlcs/dlc_1/weapons/ranged/grenade_launcher/grenade_launcher_icon.png",
+      "textureSource": "res://.import/grenade_launcher_icon.png-2b70246509cfd198ee3648ba57ae064a.stex",
+      "textureMd5": "f25f1f97c5a9f427b1ba531f1d412256",
+      "output": "assets/weapons/character-starts/GrenadeLauncher.png",
+      "pngSha256": "5137572fde91de3cffb70838032fd6622bd4326c7229d3b7ec246a19b3557f39",
+      "rgbaSha256": "1da42030a3dfd35532e566501a1a8243e5ae53f000b9409e2bf11eb7aec1dd03",
+      "size": [
+        96,
+        96
+      ],
+      "alphaBounds": [
+        1,
+        9,
+        95,
+        90
+      ]
+    },
+    {
+      "id": "Whip",
+      "name": "Whip",
+      "source": "res://weapons/melee/whip/whip_icon.png",
+      "textureSource": "res://.import/whip_icon.png-98c5933d47e8442fc2c9cb164bdc7fe1.stex",
+      "textureMd5": "e89b78772cb3e8a184c7a8f70d079a43",
+      "output": "assets/weapons/character-starts/Whip.png",
+      "pngSha256": "c913a2f2469c114d172ba177c7ed5d1a18937bf6da2727e001c9912cd289b21b",
+      "rgbaSha256": "a770b6d41a5ee9c4971aae881c6349b774d6046d102a89765d888364a193dbb3",
+      "size": [
+        96,
+        96
+      ],
+      "alphaBounds": [
+        8,
+        6,
+        91,
+        89
+      ]
+    }
+  ]
+}

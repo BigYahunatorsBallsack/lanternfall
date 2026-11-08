@@ -46,6 +46,7 @@ local LootService = {}
 LootService.ChestCollected = Signal.new()
 -- (player: Player, kind: string, wasFull: boolean): the player picked up a fruit or a crate ("Fruit", "Crate"; B6),
 -- wasFull: at max HP before its healing (B8)
+-- (player, kind, wasFull, pickupPosition?): trailing origin is absent during wave-end cleanup.
 LootService.ConsumableCollected = Signal.new()
 
 type Pickup = { id: number, x: number, z: number, kind: number }
@@ -187,7 +188,7 @@ local function removePickup(index: number, userId: number): Pickup
 end
 
 -- What a fruit or crate does for the player who takes it: healing, and a crate's item waits for the wave end.
-local function consume(player: Player, kind: number)
+local function consume(player: Player, kind: number, position: Vector3?)
 	local hp, maxHp = CombatService.getHp(player)
 	local wasFull = hp >= maxHp -- before the healing (B8: effects for picking one up at full HP)
 	if kind == LEGENDARY then
@@ -206,9 +207,9 @@ local function consume(player: Player, kind: number)
 			Net.fireClient("Notify", player, `{text} It opens after the wave.`)
 		end
 		LootService.ChestCollected:Fire(player)
-		LootService.ConsumableCollected:Fire(player, "Crate", wasFull)
+		LootService.ConsumableCollected:Fire(player, "Crate", wasFull, position)
 	else
-		LootService.ConsumableCollected:Fire(player, "Fruit", wasFull)
+		LootService.ConsumableCollected:Fire(player, "Fruit", wasFull, position)
 	end
 end
 
@@ -253,7 +254,7 @@ local function pickUp()
 				local pickup = pickups[index]
 				if distance(position, pickup.x, pickup.z) <= radius then
 					removePickup(index, player.UserId)
-					consume(player, pickup.kind)
+					consume(player, pickup.kind, Vector3.new(pickup.x, 0, pickup.z))
 				end
 			end
 		end

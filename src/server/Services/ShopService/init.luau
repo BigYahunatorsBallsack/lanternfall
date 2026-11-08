@@ -23,6 +23,8 @@ local Copy = require(Shared.Util.Copy)
 local Net = require(Shared.Net)
 local Signal = require(Shared.Util.Signal)
 local StatMath = require(Shared.Util.StatMath)
+local CharacterRules = require(Shared.Util.CharacterRules)
+local EconomyRules = require(Shared.Config.CharacterMechanics).economy
 local Types = require(Shared.Net.Types)
 
 local ExperienceService = require(script.Parent.ExperienceService)
@@ -84,7 +86,14 @@ local function priceFactor(player: Player): number
 end
 
 local function sellPrice(player: Player, weaponId: string, tier: number, wave: number): number
-	return ShopRules.sellPrice(weaponId, tier, wave, StatService.getStat(player, "sellValue"))
+	local native = CharacterRules.nativeAmount(RunDirector.getParticipantClassId(player), "recycling_gains")
+	return ShopRules.sellPrice(
+		weaponId,
+		tier,
+		wave,
+		StatService.getStat(player, "sellValue") + native,
+		priceFactor(player)
+	)
 end
 
 local function ownedWeapons(player: Player): { ShopRules.OwnedWeapon }
@@ -422,6 +431,19 @@ end
 -- Lifecycle -------------------------------------------------------------------------
 
 function ShopService.init()
+	RunDirector.WaveStarting:Connect(function(wave)
+		for player, state in states do
+			local percent =
+				CharacterRules.nativeAmount(RunDirector.getParticipantClassId(player), "gain_pct_gold_start_wave")
+			if percent < 0 or (percent > 0 and wave <= #Config.Run.spawn.waves.lengthsSeconds) then
+				if wave > #Config.Run.spawn.waves.lengthsSeconds and percent < 0 then
+					percent = EconomyRules.endlessNegativeWalletPercent
+				end
+				state.shards = math.max(0, state.shards + math.modf(state.shards * percent / 100))
+				send(player, state)
+			end
+		end
+	end)
 	RunDirector.WaveRewards:Connect(function()
 		for _, player in RunDirector.getParticipants() do
 			local state = states[player]

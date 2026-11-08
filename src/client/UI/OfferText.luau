@@ -5,6 +5,7 @@ local Shared = game:GetService("ReplicatedStorage").Shared
 local Config = require(Shared.Config)
 local StatMath = require(Shared.Util.StatMath)
 local CharacterRules = require(Shared.Util.CharacterRules)
+local NativeTiming = require(Shared.Util.NativeWeaponTiming)
 local UpgradeText = require(Shared.Util.UpgradeText)
 local WeaponClasses = require(Shared.Util.WeaponClasses)
 local Theme = require(script.Parent.Theme)
@@ -53,7 +54,11 @@ function OfferText.stats(id: string, tier: number, sheet: { [string]: number }):
 			if weapon.brotato then Config.Combat.originalWeapons.minCooldown else Config.Player.minWeaponCooldown,
 			sheet.weaponCooldownMin or 0
 		)
-		result.cooldown = math.max(minimum, result.cooldown * StatMath.cooldownFactor(sheet.attackSpeed or 0))
+		local timing = if weapon.brotato
+			then NativeTiming.factor(sheet.attackSpeed or 0)
+			else StatMath.cooldownFactor(sheet.attackSpeed or 0)
+		result.cooldown = math.max(minimum, result.cooldown * timing)
+		NativeTiming.apply(result, sheet.attackSpeed or 0, minimum)
 	end
 	for _, key in weapon.rangeKeys do
 		if result[key] then

@@ -1,0 +1,25 @@
+{
+  "referenceMain": "cfbf004eefa337199b897f294e9124900af386a4",
+  "seed": 1234,
+  "runner": "Lune, one process per spec, Roblox mock",
+  "main": {
+    "specs": 111,
+    "passed": 1113,
+    "failed": 31
+  },
+  "continuation": {
+    "specs": 122,
+    "passed": 1155,
+    "failed": 30
+  },
+  "newFailureNames": [],
+  "mainOnlyFailureNames": [
+    "weapon budget > steps 4 players with six max-tier weapons each among 140 enemies within the 4 ms step budget"
+  ],
+  "limitations": [
+    "No Studio, native physics, two-client or mobile acceptance",
+    "Performance timing fluctuates; no performance improvement claimed",
+    "Chef/Glutton drafts excluded",
+    "Full production lint: 0 errors, 11 existing style warnings"
+  ]
+}

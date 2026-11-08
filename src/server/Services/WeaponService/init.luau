@@ -64,6 +64,15 @@ export type HitListener = (
 local hitListener: HitListener? = nil
 type CharacterHit = { player: Player, enemyId: number, amount: number }
 local characterHits: { CharacterHit } = {}
+type ConsumableExplosion = {
+	player: Player,
+	definition: CharacterExplosions.Definition,
+	position: Vector3,
+	sheet: StatMath.Sheet,
+}
+local consumableExplosions: { ConsumableExplosion } = {}
+type ItemExplosion = { player: Player, position: Vector3, damage: number, scaling: { [string]: number }?, size: number }
+local characterItemExplosions: { ItemExplosion } = {}
 
 local function characterCanAttack(weapon: Arsenal.Weapon): boolean
 	local player = Players:GetPlayerByUserId(weapon.ownerId)
@@ -172,7 +181,17 @@ local function sendHitFeeds()
 	end
 end
 
-local arsenal = Arsenal.new({
+local arsenal: Arsenal.Arsenal
+local function burningTargetDamage(ownerId: number, id: number, amount: number, elemental: boolean?): number
+	local player = playerOf(ownerId)
+	local bonus = player and ownerStats[player] and ownerStats[player].nativeBurningTargetBonus or 0
+	if elemental == false and bonus > 0 and arsenal:isBurning(id) then
+		return math.round(amount * (1 + bonus / 100))
+	end
+	return amount
+end
+
+arsenal = Arsenal.new({
 	enemies = {
 		queryCircle = function(x: number, z: number, radius: number, out: { number }): number
 			return EnemySim.queryRadius(Vector3.new(x, floorY, z), radius, out)
@@ -195,6 +214,9 @@ local arsenal = Arsenal.new({
 			return nil, nil
 		end,
 		damage = function(id: number, amount: number, ownerId: number, crit: boolean, burn: boolean): (boolean, number)
+			if not burn then
+				amount = burningTargetDamage(ownerId, id, amount, BrotatoCombat.elementalHit(ownerId))
+			end
 			local killed, dealt, applied = EnemySim.damage(id, amount, playerOf(ownerId))
 			recordHit(ownerId, id, applied, crit, killed, burn)
 			return killed, dealt
@@ -303,6 +325,8 @@ end
 
 local function onRunStarted(participants: { Player })
 	table.clear(characterHits)
+	table.clear(consumableExplosions)
+	table.clear(characterItemExplosions)
 	arsenal:clear()
 	table.clear(waveBonuses)
 	paused = false
@@ -338,6 +362,8 @@ end
 local function onStepped(dt: number, stepNow: number)
 	if paused then
 		table.clear(characterHits)
+		table.clear(consumableExplosions)
+		table.clear(characterItemExplosions)
 		return
 	end
 	local participants = RunDirector.getParticipants()
@@ -382,8 +408,46 @@ local function onStepped(dt: number, stepNow: number)
 			end
 		end
 	end
+	BrotatoCombat.resetHitContext()
 	arsenal:step(dt, stepNow)
 	-- Character stat strikes are already scaled in the native order; Arsenal's primary-hit formula differs.
+	local itemExplosions = characterItemExplosions
+	characterItemExplosions = {}
+	for _, entry in itemExplosions do
+		if not RunDirector.isActive() or not arsenal:hasOwner(entry.player.UserId) then
+			continue
+		end
+		local sheet = ownerStats[entry.player] or {}
+		local stats = CharacterExplosion.computeItemEffect(entry.damage, entry.scaling, entry.size, sheet)
+		local ids = {}
+		local count = EnemySim.queryRadius(entry.position, stats.radius, ids)
+		arsenal:emitShared(
+			entry.player.UserId,
+			{ kind = "Blast", x = entry.position.X, z = entry.position.Z, radius = stats.radius }
+		)
+		for index = 1, count do
+			local id = ids[index]
+			local _, elite = EnemySim.getKind(id)
+			local amount = stats.damage * (if elite then math.max(0, 1 + (sheet.eliteDamage or 0) / 100) else 1)
+			local crit = RandomService.number("Combat") < stats.critChance
+			if crit then
+				amount *= stats.critDamage
+			end
+			WeaponService.structureHit(
+				entry.player,
+				id,
+				amount,
+				"Explosion",
+				crit,
+				entry.scaling ~= nil and entry.scaling.elementalDamage ~= nil
+			)
+		end
+	end
+	local explosions = consumableExplosions
+	consumableExplosions = {}
+	for _, explosion in explosions do
+		WeaponService.explodeCharacter(explosion.player, explosion.definition, explosion.position, explosion.sheet)
+	end
 	local pending = characterHits
 	characterHits = {}
 	for _, hit in pending do
@@ -502,6 +566,8 @@ function WeaponService.init()
 	RunDirector.PhaseChanged:Connect(function(phase)
 		if phase ~= "Running" then
 			table.clear(characterHits)
+			table.clear(consumableExplosions)
+			table.clear(characterItemExplosions)
 		end
 		if phase == "Shop" then
 			table.clear(waveBonuses)
@@ -528,6 +594,8 @@ function WeaponService.init()
 		return saved
 	end, function(saved: { [Player]: { Arsenal.SavedWeapon } })
 		table.clear(characterHits)
+		table.clear(consumableExplosions)
+		table.clear(characterItemExplosions)
 		arsenal:clearCombat()
 		growth = {}
 		for player, weapons in saved do
@@ -664,7 +732,19 @@ function WeaponService.explodeAt(
 	scaling: { [string]: number }?,
 	size: number
 )
-	arsenal:queueExplosion(player.UserId, position.X, position.Z, damage, scaling, size)
+	if (ownerStats[player] and ownerStats[player].nativeBurningTargetBonus or 0) > 0 then
+		if arsenal:hasOwner(player.UserId) then
+			table.insert(characterItemExplosions, {
+				player = player,
+				position = position,
+				damage = damage,
+				scaling = if scaling then table.clone(scaling) else nil,
+				size = size,
+			})
+		end
+	else
+		arsenal:queueExplosion(player.UserId, position.X, position.Z, damage, scaling, size)
+	end
 end
 
 -- Item effects (B8, EffectService): hits enemy `enemyId` for the player at the end of this step, (damage + sum of
@@ -719,7 +799,13 @@ end
 
 -- Ids of the weapons that can be given out (config record plus behavior module), sorted.
 function WeaponService.getImplemented(): { string }
-	return arsenal:getImplemented()
+	local result = {}
+	for _, id in arsenal:getImplemented() do
+		if Config.Weapons[id].available ~= false then
+			table.insert(result, id)
+		end
+	end
+	return result
 end
 
 -- Whether an enemy burns right now (B5; smoke test).
@@ -745,8 +831,10 @@ function WeaponService.structureHit(
 	enemyId: number,
 	amount: number,
 	source: Arsenal.HitSource?,
-	critical: boolean?
+	critical: boolean?,
+	elemental: boolean?
 )
+	amount = burningTargetDamage(player.UserId, enemyId, amount, elemental)
 	local killed, dealt, applied = EnemySim.damage(enemyId, amount, player)
 	recordHit(player.UserId, enemyId, applied, critical == true, killed, false)
 	if hitListener and dealt > 0 then
@@ -754,17 +842,58 @@ function WeaponService.structureHit(
 	end
 end
 
+-- Snapshot after full-health gains, but defer collision to avoid recursive pickup/kill chains.
+function WeaponService.queueConsumableExplosion(
+	player: Player,
+	definition: CharacterExplosions.Definition,
+	origin: Vector3,
+	items: { [string]: number }?
+)
+	if paused or not RunDirector.isActive() then
+		return
+	end
+	local maximum = CharacterExplosions.consumableOffsetPoints
+	local function offset(): number
+		return (math.floor(RandomService.number("Combat", player) * (2 * maximum + 1)) - maximum)
+			* Config.Stats.range.studsPerPoint
+	end
+	local snapshot = table.clone(ownerStats[player] or {})
+	local globalBase = 0
+	if definition.burn then
+		for id, count in items or {} do
+			local item = Config.Items.byId[id]
+			for _, effect in (item and item.effects) or {} do
+				if effect.trigger == "Hit" and effect.action == "Burn" then
+					globalBase += (effect.amount or 0) * count
+				end
+			end
+		end
+	end
+	snapshot.nativeGlobalBurnDamage = globalBase
+	table.insert(consumableExplosions, {
+		player = player,
+		definition = definition,
+		position = origin + Vector3.new(offset(), 0, offset()),
+		sheet = snapshot,
+	})
+end
+
 -- Native on-hurt explosions resolve before CombatService marks a lethally hurt owner down.
 -- Source stats include their own crit multiplier and add ordinary/explosion damage before rounding.
-function WeaponService.explodeCharacter(player: Player, definition: CharacterExplosions.Definition): boolean
+function WeaponService.explodeCharacter(
+	player: Player,
+	definition: CharacterExplosions.Definition,
+	origin: Vector3?,
+	snapshot: StatMath.Sheet?
+): boolean
 	if paused or not RunDirector.isActive() or RunDirector.getParticipantState(player) ~= "Alive" then
 		return false
 	end
-	local position = MapService.getRootPosition(player)
+	local position = origin or MapService.getRootPosition(player)
 	if not position then
 		return false
 	end
-	local sheet = ownerStats[player] or {}
+	local sheet = snapshot or ownerStats[player] or {}
 	local stats = CharacterExplosion.compute(definition, sheet)
 	local center = position + Vector3.new(0, 0, stats.offsetZ)
 	local ids = {}
@@ -776,7 +905,18 @@ function WeaponService.explodeCharacter(player: Player, definition: CharacterExp
 			local _, elite = EnemySim.getKind(id)
 			local critical = RandomService.number("Combat", player) < stats.critChance
 			local damage = CharacterExplosion.hitDamage(stats, critical, if elite then sheet.eliteDamage or 0 else 0)
-			WeaponService.structureHit(player, id, damage, "Explosion", critical)
+			WeaponService.structureHit(
+				player,
+				id,
+				damage,
+				"Explosion",
+				critical,
+				definition.scaling.elementalDamage ~= nil
+			)
+			local burnDamage = CharacterExplosion.burnDamage(definition, sheet, sheet.nativeGlobalBurnDamage or 0)
+			if burnDamage and definition.burn and EnemySim.isAlive(id) then
+				WeaponService.structureBurn(player, id, burnDamage, definition.burn.ticks, sheet)
+			end
 		end
 	end
 	return true

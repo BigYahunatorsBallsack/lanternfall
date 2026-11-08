@@ -24,6 +24,7 @@ export type Weapon = {
 	structureIntervals: { number }?,
 	id: string,
 	brotato: boolean?,
+	available: boolean?, -- false until native pending equipment has real approved artwork
 	originalScaling: { { [string]: number } }?,
 	gardenIntervals: { number }?,
 	armorPerWeapon: number?,
@@ -4976,4 +4977,8 @@ local Weapons: { [string]: Weapon } = {
 	},
 }
 
+-- Character-dependent stable weapons share the same framework and source tier contracts.
+for id, weapon in require(script.Parent.CharacterWeaponData).weapons do
+	Weapons[id] = weapon
+end
 return table.freeze(Weapons)

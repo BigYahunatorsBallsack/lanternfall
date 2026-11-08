@@ -1,0 +1,21 @@
+{
+  "referenceMain": "ec91f9e9e52a43ff9796e240151a1cee697c66e0",
+  "seed": 1234,
+  "runner": "Lune, one spec per process, Roblox mock",
+  "main": {
+    "specs": 123,
+    "passed": 1162,
+    "failed": 30
+  },
+  "chef": {
+    "specs": 126,
+    "passed": 1173,
+    "failed": 30
+  },
+  "newFailureNames": [],
+  "limitations": [
+    "No Studio/two-client/mobile/physics acceptance",
+    "Chef still missing original start weapons, unlock and native rule display",
+    "Existing item-effect damage formula remains a parity gap"
+  ]
+}
