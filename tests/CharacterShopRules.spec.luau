@@ -43,4 +43,14 @@ describe("Native character item pools", function()
 			return 0
 		end, nil, "Brawler", 1)).toBe("FlintShard")
 	end)
+	it("matches native wanted tags using original item tags rather than runtime stat aliases", function()
+		for seed = 0, 20 do
+			local item = Rules.pickItem(1, {}, {}, function()
+				return seed / 21
+			end, { "stat_dodge" }, "Ghost", 1)
+			assert(item, "The native tier-I Dodge preference must have an eligible item")
+			expect(table.find(Ids.tags[item], "stat_dodge") ~= nil).toBe(true)
+			expect(Rules.itemAllowed("Ghost", item, 1)).toBe(true)
+		end
+	end)
 end)

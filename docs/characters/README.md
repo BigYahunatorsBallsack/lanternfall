@@ -48,6 +48,10 @@ character exclusions lift at wave 20 while Crown/Piggy Bank are removed. The sam
 exception which can reintroduce an excluded item if its normal pool is empty. General shop distribution, all item
 unlock rules and the other character economy policies still require their separate parity work.
 
+The original serialized tags of all 125 current items are preserved alongside their identities. Native packages
+match their `wanted_tags` against these source tags (for example `stat_dodge`), rather than the older inferred
+runtime stat aliases. The installed ItemService's ordinary preference chance is 0.05, matching the existing config.
+
 Completed waves now capture survivors and settle effects/harvesting before either cleanup or result observers.
 The installed `res://main.gdc` calls its wave-end effects and `manage_harvesting()` before `clean_up_room()` decides
 the win/loss scene. `RunDirector.WaveRewards` follows `WaveEnding` after capture, including direct final victory;

@@ -17,13 +17,15 @@ def main():
     spec.loader.exec_module(compiler)
     groups = facts["groups"]
     aliases = {runtime: record["nativeId"] for runtime, record in facts["runtimeItems"].items()}
+    tags = {runtime: record["tags"] for runtime, record in facts["runtimeItems"].items()}
     output = (
         "--!strict\n"
         "-- Stable native item identities/ban groups; ShopRules filters shop and crate pools with these facts.\n"
         "-- Generated from docs/characters/item-groups.json; original scripts and artwork are not included.\n"
         "local groups: { [string]: { string } } = " + compiler.luau(groups) + "\n\n"
         "local nativeIds: { [string]: string } = " + compiler.luau(aliases) + "\n\n"
-        "return table.freeze({\n\tgroups = groups,\n\tnativeIds = nativeIds,\n\tendlessBannedItems = "
+        "local tags: { [string]: { string } } = " + compiler.luau(tags) + "\n\n"
+        "return table.freeze({\n\tgroups = groups,\n\tnativeIds = nativeIds,\n\ttags = tags,\n\tendlessBannedItems = "
         + compiler.luau(facts["endlessBannedItems"], 1) + ",\n})\n"
     )
     path = ROOT / "src/shared/Config/CharacterItemRules.luau"

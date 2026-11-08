@@ -213,9 +213,462 @@ local nativeIds: { [string]: string } = {
 	WitchMortar = "item_gnome",
 }
 
+local tags: { [string]: { string } } = {
+	AcidVial = {
+		"stat_max_hp",
+	},
+	AmberResin = {
+		"stat_ranged_damage",
+		"explosive",
+	},
+	Armor = {
+		"stat_armor",
+	},
+	AshBlindfold = {
+		"stat_crit_chance",
+		"stat_dodge",
+	},
+	AshSerpent = {
+		"stat_elemental_damage",
+	},
+	AstralPhilter = {
+		"stat_max_hp",
+		"stat_hp_regeneration",
+	},
+	BeckoningBell = {
+		"stat_max_hp",
+		"stat_percent_damage",
+		"more_enemies",
+	},
+	Bellows = {
+		"stat_elemental_damage",
+	},
+	BitterTonic = {
+		"xp_gain",
+	},
+	BlackPowder = {
+		"explosive",
+	},
+	BloodChalice = {
+		"stat_crit_chance",
+	},
+	BloodLure = {
+		"stat_percent_damage",
+		"number_of_enemies",
+	},
+	BloodOffering = {
+		"stat_harvesting",
+	},
+	BoneCharm = {
+		"stat_max_hp",
+	},
+	BoneKnuckles = {
+		"stat_hp_regeneration",
+	},
+	BrassCarapace = {
+		"stat_armor",
+		"stat_crit_chance",
+		"stat_engineering",
+		"stat_speed",
+	},
+	BrassHarness = {
+		"stat_speed",
+		"stat_dodge",
+	},
+	BrassSentry = {
+		"stat_engineering",
+		"structure",
+	},
+	Brazier = {
+		"stat_elemental_damage",
+		"stat_hp_regeneration",
+	},
+	BurstingSigil = {
+		"stat_melee_damage",
+		"explosive",
+	},
+	CalibratedTools = {
+		"structure",
+		"stat_attack_speed",
+	},
+	CatClaw = {
+		"stat_melee_damage",
+		"stat_crit_chance",
+	},
+	Changeling = {
+		"stat_max_hp",
+	},
+	ChitteringFamiliar = {
+		"pickup",
+	},
+	CinderSentry = {
+		"stat_engineering",
+		"structure",
+	},
+	ClockworkArm = {
+		"stat_melee_damage",
+		"stat_engineering",
+	},
+	ClockworkGears = {
+		"stat_attack_speed",
+		"stat_crit_chance",
+		"stat_range",
+	},
+	ColossusHeart = {
+		"stat_max_hp",
+		"stat_lifesteal",
+		"stat_hp_regeneration",
+	},
+	CrackedLens = {
+		"stat_range",
+	},
+	CrackedSkull = {
+		"stat_percent_damage",
+	},
+	CrimsonHand = {
+		"stat_lifesteal",
+	},
+	DowsingRod = {
+		"stat_luck",
+		"stat_engineering",
+		"pickup",
+		"economy",
+	},
+	EelFin = {
+		"stat_speed",
+		"stat_lifesteal",
+	},
+	EightEyedIdol = {
+		"stat_percent_damage",
+		"stat_attack_speed",
+	},
+	EmberAnvil = {},
+	EternalFlame = {
+		"stat_max_hp",
+		"stat_hp_regeneration",
+		"stat_percent_damage",
+		"stat_speed",
+		"stat_luck",
+	},
+	EvergreenSprig = {
+		"stat_max_hp",
+		"stat_hp_regeneration",
+		"stat_lifesteal",
+	},
+	FieldCenser = {
+		"stat_hp_regeneration",
+	},
+	FlintShard = {
+		"stat_ranged_damage",
+	},
+	Focus = {
+		"stat_attack_speed",
+	},
+	FortuneCoin = {
+		"stat_crit_chance",
+		"stat_luck",
+	},
+	FourLeafCharm = {
+		"stat_luck",
+		"stat_dodge",
+	},
+	FulminateJar = {
+		"explosive",
+	},
+	GalvanicCoil = {
+		"stat_speed",
+		"stat_percent_damage",
+	},
+	GildedPlume = {
+		"xp_gain",
+	},
+	GlassLantern = {
+		"stat_percent_damage",
+	},
+	GourdLantern = {
+		"stat_ranged_damage",
+	},
+	GraveSpade = {
+		"stat_harvesting",
+	},
+	GrubTincture = {
+		"stat_max_hp",
+		"stat_hp_regeneration",
+	},
+	Haste = {
+		"stat_speed",
+	},
+	HearthSprite = {
+		"stat_hp_regeneration",
+	},
+	HeavyRounds = {
+		"stat_ranged_damage",
+		"stat_percent_damage",
+		"stat_range",
+	},
+	HollowNail = {
+		"stat_ranged_damage",
+	},
+	HookedTongue = {
+		"pickup",
+		"knockback",
+	},
+	HuntersTally = {
+		"stat_crit_chance",
+	},
+	HushCandle = {
+		"stat_elemental_damage",
+		"stat_hp_regeneration",
+		"less_enemies",
+	},
+	InkPolyp = {
+		"stat_lifesteal",
+	},
+	IronGauntlet = {
+		"stat_melee_damage",
+		"knockback",
+	},
+	IronShackle = {
+		"stat_percent_damage",
+		"stat_armor",
+		"knockback",
+	},
+	IronVigil = {
+		"stat_armor",
+		"stand_still",
+		"knockback",
+	},
+	JesterBell = {
+		"economy",
+	},
+	Knucklebones = {
+		"stat_crit_chance",
+	},
+	LanternCodex = {
+		"stat_engineering",
+		"xp_gain",
+	},
+	LanternOil = {
+		"stat_luck",
+	},
+	LeechJar = {
+		"stat_lifesteal",
+		"stat_hp_regeneration",
+	},
+	LoadedDice = {
+		"stat_dodge",
+	},
+	LoneFlame = {
+		"stat_percent_damage",
+	},
+	Magnet = {
+		"stat_elemental_damage",
+	},
+	MercySentry = {
+		"stat_engineering",
+		"structure",
+	},
+	Might = {
+		"stat_percent_damage",
+	},
+	MirrorShard = {
+		"stat_ranged_damage",
+	},
+	MoonGarden = {
+		"consumable",
+		"structure",
+	},
+	MossWard = {},
+	MothWing = {
+		"stat_lifesteal",
+	},
+	MourningVeil = {
+		"stat_hp_regeneration",
+	},
+	NarrowScope = {
+		"stat_percent_damage",
+	},
+	NeedleCharm = {
+		"stat_ranged_damage",
+	},
+	OathRing = {
+		"stat_percent_damage",
+	},
+	OilFlask = {
+		"stat_elemental_damage",
+	},
+	OrbitWisp = {
+		"less_enemy_speed",
+		"structure",
+		"pet",
+	},
+	OrderSash = {
+		"stat_melee_damage",
+		"xp_gain",
+		"knockback",
+	},
+	PawnTicket = {
+		"economy",
+	},
+	PlagueRat = {
+		"stat_lifesteal",
+		"more_enemies",
+	},
+	PowderPouch = {
+		"stat_ranged_damage",
+		"stat_attack_speed",
+	},
+	PrismSentry = {
+		"stat_engineering",
+		"structure",
+	},
+	PulseDraught = {
+		"stat_dodge",
+	},
+	PyreAshes = {
+		"stat_armor",
+		"stat_max_hp",
+	},
+	QuiltedCoat = {
+		"stat_max_hp",
+	},
+	RabbleBanner = {
+		"stat_attack_speed",
+	},
+	RecoilSpring = {
+		"stat_percent_damage",
+		"knockback",
+	},
+	RollingEye = {
+		"stat_luck",
+	},
+	RottingHeart = {
+		"stat_lifesteal",
+	},
+	RuneMine = {
+		"stat_engineering",
+		"explosive",
+		"structure",
+	},
+	RustedCoin = {
+		"stat_luck",
+	},
+	SaltCoral = {
+		"stat_hp_regeneration",
+	},
+	Satchel = {
+		"stat_luck",
+		"exploration",
+		"economy",
+	},
+	ScrapAltar = {
+		"economy",
+	},
+	SecondStomach = {
+		"stat_max_hp",
+		"stat_luck",
+	},
+	ShadowCloak = {
+		"stat_lifesteal",
+		"stat_dodge",
+	},
+	SiegeSentry = {
+		"stat_engineering",
+		"structure",
+	},
+	SignalBanner = {
+		"stat_range",
+		"stat_attack_speed",
+	},
+	SilverRounds = {
+		"stat_percent_damage",
+	},
+	SmokeMantle = {
+		"stat_dodge",
+	},
+	SmolderingWick = {
+		"stat_elemental_damage",
+	},
+	StaticBracelet = {
+		"stat_crit_chance",
+		"stat_elemental_damage",
+	},
+	StillVeil = {
+		"stat_dodge",
+		"stand_still",
+	},
+	StoneIdol = {
+		"stat_attack_speed",
+		"stand_still",
+	},
+	StormFamiliar = {
+		"stat_engineering",
+		"stat_elemental_damage",
+		"structure",
+	},
+	SweetReliquary = {},
+	TaintedElixir = {
+		"stat_max_hp",
+		"stat_melee_damage",
+	},
+	TallowCandle = {
+		"stat_elemental_damage",
+		"stat_melee_damage",
+	},
+	ThornCrown = {
+		"stat_melee_damage",
+		"stat_ranged_damage",
+		"stat_harvesting",
+	},
+	ThunderShells = {
+		"explosive",
+	},
+	TitanArms = {
+		"stat_melee_damage",
+		"stat_ranged_damage",
+		"knockback",
+	},
+	TitanGirdle = {
+		"stat_crit_chance",
+	},
+	TitheBox = {},
+	TomeOfEchoes = {
+		"xp_gain",
+	},
+	VelvetDivan = {
+		"stat_hp_regeneration",
+		"stat_max_hp",
+	},
+	Vitality = {
+		"stat_max_hp",
+	},
+	WardRune = {
+		"stat_dodge",
+		"stat_harvesting",
+	},
+	WaxHeart = {
+		"stat_max_hp",
+	},
+	Whetstone = {
+		"stat_melee_damage",
+	},
+	WispJar = {
+		"stat_luck",
+		"pickup",
+	},
+	WitchKettle = {
+		"consumable",
+	},
+	WitchMortar = {
+		"stat_melee_damage",
+		"stat_elemental_damage",
+	},
+}
+
 return table.freeze({
 	groups = groups,
 	nativeIds = nativeIds,
+	tags = tags,
 	endlessBannedItems = {
 		"item_piggy_bank",
 		"item_crown",

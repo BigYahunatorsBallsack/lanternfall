@@ -156,7 +156,9 @@ function ShopRules.pickItem(
 		if not wantedTags then
 			return true
 		end
-		for _, tag in Items.byId[itemId].tags do
+		local native = classId and Classes[classId] and Classes[classId].nativeStartSelection
+		local tags = if native then NativeItems.tags[itemId] else Items.byId[itemId].tags
+		for _, tag in tags do
 			if table.find(wantedTags, tag) then
 				return true
 			end
