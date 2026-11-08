@@ -46,7 +46,8 @@ local XP_BAR_WIDTH = 420
 local XP_COLOR = Theme.xp
 local BANNER_SECONDS = 2.6
 local BANNER_FADE_SECONDS = 0.4
-local BANNER_TITLE_SIZE = 56
+local HUD_TEXT = Theme.hudTextScale
+local BANNER_TITLE_SIZE = 56 * HUD_TEXT
 local ARROW_MARGIN = 36 -- pixels between a teammate arrow and the screen edge
 local ARROW_SIZE = 34
 local CHALLENGE_COLOR = Color3.fromRGB(255, 150, 70) -- elite and horde waves ahead
@@ -151,7 +152,7 @@ local function showWaveBanner(number: number)
 				Name = "WaveEvents",
 				Text = table.concat(events, "  ·  "),
 				Font = Theme.fontBold,
-				TextSize = 22,
+				TextSize = 22 * HUD_TEXT,
 				TextColor3 = Theme.text,
 				TextStrokeTransparency = 0.3,
 				LayoutOrder = 2,
@@ -246,7 +247,9 @@ local function renderTeam(state: Types.RunState)
 				Text = `{info.name} · {STATE_TEXT[stateName] or stateName}{hpText}{pickText}`,
 				TextColor3 = if stateName == "Alive" then Theme.text else Theme.danger,
 				TextXAlignment = Enum.TextXAlignment.Right,
-				TextSize = if workspace.CurrentCamera and workspace.CurrentCamera.ViewportSize.X < 1100 then 14 else 18,
+				TextSize = (if workspace.CurrentCamera and workspace.CurrentCamera.ViewportSize.X < 1100
+					then 14
+					else 18) * HUD_TEXT,
 				AutomaticSize = Enum.AutomaticSize.Y,
 				LayoutOrder = order,
 				Parent = teamRows,
@@ -283,7 +286,7 @@ local function renderItems()
 			Text = `{if item then item.displayName else info.id}{if info.count > 1 then ` x{info.count}` else ""}`,
 			TextColor3 = if item then Theme.tiers[item.tier] or Theme.text else Theme.text,
 			TextXAlignment = Enum.TextXAlignment.Left,
-			TextSize = 17,
+			TextSize = 17 * HUD_TEXT,
 			AutomaticSize = Enum.AutomaticSize.Y,
 			LayoutOrder = index,
 			Parent = itemRows,
@@ -316,7 +319,7 @@ local function renderWeapons()
 			Name = `Weapon{index}`,
 			Text = UpgradeText.weaponName(weapon.id, weapon.tier, weapon.evolution),
 			TextXAlignment = Enum.TextXAlignment.Left,
-			TextSize = 17,
+			TextSize = 17 * HUD_TEXT,
 			AutomaticSize = Enum.AutomaticSize.Y,
 			LayoutOrder = index,
 			Parent = weaponRows,
@@ -493,12 +496,12 @@ local function build()
 	screen = Widgets.screen("HUD", 0)
 	pendingBadge = Widgets.label({
 		Name = "PendingLevels",
-		TextSize = 28,
+		TextSize = 28 * HUD_TEXT,
 		TextColor3 = Theme.success,
 		TextStrokeTransparency = 0,
 		AnchorPoint = Vector2.new(1, 0),
 		Position = UDim2.new(1, -72, 0, 12),
-		Size = UDim2.fromOffset(76, 42),
+		Size = UDim2.fromOffset(76, 42 * HUD_TEXT),
 		Visible = false,
 		Parent = screen,
 	})
@@ -568,7 +571,7 @@ local function build()
 	previewLabel = Widgets.label({
 		Name = "WavePreview",
 		AutomaticSize = Enum.AutomaticSize.Y,
-		TextSize = 16,
+		TextSize = 16 * HUD_TEXT,
 		Font = Theme.fontBold,
 		TextColor3 = CHALLENGE_COLOR,
 		Visible = false,
@@ -700,7 +703,7 @@ local function build()
 	bonusLabel = Widgets.label({
 		Name = "Bonuses",
 		Text = "",
-		TextSize = 15,
+		TextSize = 15 * HUD_TEXT,
 		TextColor3 = Theme.tiers[2],
 		AutomaticSize = Enum.AutomaticSize.Y,
 		Size = UDim2.new(1, 0, 0, 0),
@@ -747,8 +750,8 @@ local function build()
 		hpPadding.PaddingTop, hpPadding.PaddingBottom = zero, zero
 		hpPadding.PaddingLeft, hpPadding.PaddingRight = zero, zero
 		hp:FindFirstChildOfClass("UIListLayout").Padding = UDim.new(0, 7 * factor)
-		track.Size = UDim2.new(1, 0, 0, 24 * factor)
-		xpTrack.Size = UDim2.new(1, 0, 0, 24 * factor)
+		track.Size = UDim2.new(1, 0, 0, 24 * HUD_TEXT * factor)
+		xpTrack.Size = UDim2.new(1, 0, 0, 24 * HUD_TEXT * factor)
 		xpTrack.BackgroundColor3 = Theme.canvas
 		for _, bar in { track, hpFill, xpTrack, xpFill } do
 			local corner = bar:FindFirstChildOfClass("UICorner")
@@ -763,8 +766,8 @@ local function build()
 			end
 			outline.Thickness = 3 * factor
 		end
-		hpLabel.TextSize = 16 * factor
-		xpLabel.TextSize = 16 * factor
+		hpLabel.TextSize = 16 * HUD_TEXT * factor
+		xpLabel.TextSize = 16 * HUD_TEXT * factor
 		xpLabel.TextXAlignment = Enum.TextXAlignment.Right
 		hpLabel.TextStrokeTransparency = 0
 		hpLabel.TextStrokeColor3 = Theme.stroke
@@ -773,10 +776,10 @@ local function build()
 		top.Position = if narrow then UDim2.new(1, -8, 0, 56) else UDim2.new(0.5, 0, 0, 8)
 		local topPadding = top:FindFirstChildOfClass("UIPadding")
 		topPadding.PaddingTop, topPadding.PaddingBottom = zero, zero
-		timerLabel.TextSize = 40 * factor
-		timerLabel.Size = UDim2.new(1, 0, 0, 44 * factor)
-		hintLabel.TextSize = 26 * factor
-		hintLabel.Size = UDim2.new(1, 0, 0, 32 * factor)
+		timerLabel.TextSize = 40 * HUD_TEXT * factor
+		timerLabel.Size = UDim2.new(1, 0, 0, 44 * HUD_TEXT * factor)
+		hintLabel.TextSize = 26 * HUD_TEXT * factor
+		hintLabel.Size = UDim2.new(1, 0, 0, 32 * HUD_TEXT * factor)
 		hp.AnchorPoint = Vector2.new(0, 0)
 		hp.Position = UDim2.fromOffset(12, 12)
 		hp.Size = UDim2.fromOffset(if narrow then math.min(206, math.max(160, area.X - 174)) else 206 * factor, 0)
@@ -784,7 +787,7 @@ local function build()
 		buildButton.Position = UDim2.new(1, -116, 1, -40)
 		buildButton.Size = UDim2.fromOffset(104, 28)
 		buildButton.BackgroundTransparency = 0.4
-		buildButton.TextSize = 13
+		buildButton.TextSize = 13 * HUD_TEXT
 		weapons.Position = UDim2.fromOffset(12, 186)
 		weapons.Size = UDim2.fromOffset(math.min(340, area.X - 24), math.max(120, math.min(360, area.Y - 242)))
 		placeTeamPanel()

@@ -99,6 +99,8 @@ local function buildBar()
 	nameLabel = Widgets.label({
 		Name = "BossName",
 		Font = Theme.fontBold,
+		TextSize = Theme.textSize * Theme.hudTextScale,
+		Size = UDim2.new(1, 0, 0, (Theme.textSize + 6) * Theme.hudTextScale),
 		TextColor3 = Theme.danger,
 		LayoutOrder = 1,
 		Parent = panel,
@@ -120,9 +122,9 @@ local function buildBar()
 	}, { Widgets.corner(UDim.new(0, 6)) })
 	phaseLabel = Widgets.label({
 		Name = "BossPhase",
-		TextSize = 14,
+		TextSize = 14 * Theme.hudTextScale,
 		TextColor3 = Theme.textDim,
-		Size = UDim2.new(1, 0, 0, 18),
+		Size = UDim2.new(1, 0, 0, 18 * Theme.hudTextScale),
 		LayoutOrder = 3,
 		Parent = panel,
 	})
