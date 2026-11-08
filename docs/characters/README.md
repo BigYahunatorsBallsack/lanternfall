@@ -79,3 +79,5 @@ original rule display and simultaneous lethal/boss-death interaction verificatio
 timing remain subject to the overall parity audit.
 The verified Bull access resource is `res://challenges/chal_difficulty_1_data.tres`
 (MD5 `6a20708c5b6432e135b3266c6125a507`), rewarding Bull for the original Danger-1 win challenge.
+
+Bull continuation: original Danger-1 access, no-weapon page navigation and original inline scaling rules are now connected. The package is code-ready and retains the actual-upload availability gate. Native final-wave result priority has been checked against stable main/player scripts: death of the last player loses even when the boss also dies, whereas a surviving co-op peer permits victory. The simulator applies explosion hits synchronously; exact native deferred collision timing remains outside this code-level verification. No Studio acceptance is claimed.

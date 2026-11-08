@@ -15,6 +15,7 @@ export type Class = {
 	available: boolean,
 	emberPrice: number?,
 	description: string,
+	ruleRows: { { { text: string?, stat: string?, coefficient: number? } } }?,
 	maxWeapons: number?,
 	weaponKind: string?,
 	kindLimits: { [string]: number }?,
@@ -257,6 +258,25 @@ Classes.Brawler.description =
 	"+50 % Attack Speed with Unarmed weapons\nYou start with 1 Fist\n+15 % Dodge\n-50 Range\n-50 Ranged Damage"
 Classes.Ghost.nativeCodeReady = true
 Classes.Ghost.description = "+10 Damage with Ethereal weapons\n+30 % Dodge\nDodge is capped at 90%\n-100 Armor"
+Classes.Bull.nativeCodeReady = true
+Classes.Bull.description =
+	"+20 Max HP\n+15 HP Regeneration\n+10 Armor\nHP Regeneration modifications are increased by 50%\nYou explode for 30 (300% Melee Damage 300% Ranged Damage 300% Elemental Damage) damage when you take damage\nYou can’t equip weapons"
+Classes.Bull.ruleRows = {
+	{ { text = "+20 Max HP" } },
+	{ { text = "+15 HP Regeneration" } },
+	{ { text = "+10 Armor" } },
+	{ { text = "HP Regeneration modifications are increased by 50%" } },
+	{
+		{ text = "You explode for 30 (" },
+		{ stat = "meleeDamage", coefficient = 300 },
+		{ text = " " },
+		{ stat = "rangedDamage", coefficient = 300 },
+		{ text = " " },
+		{ stat = "elementalDamage", coefficient = 300 },
+		{ text = ") damage when you take damage" },
+	},
+	{ { text = "You can’t equip weapons" } },
+}
 -- Original art is delivered independently; ready code never bypasses the approved-sprite requirement.
 for id, class in Classes do
 	if not class.nativeCodeReady then

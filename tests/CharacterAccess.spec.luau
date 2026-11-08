@@ -58,4 +58,11 @@ describe("Native weapon access", function()
 		table.insert(data.classes, "Ghost")
 		expect(Rules.characterUnlocked(data, "Ghost")).toBe(true)
 	end)
+	it("unlocks Bull from a saved Danger-1 victory, including earlier profiles", function()
+		local data = { achievements = {}, characterStats = {}, stats = { bestDanger = 0 } }
+		expect(Rules.characterUnlocked(data, "Bull")).toBe(false)
+		data.stats.bestDanger = 1
+		expect(Rules.characterUnlocked(data, "Bull")).toBe(true)
+		expect(Rules.characterUnlocked(nil, "Bull")).toBe(false)
+	end)
 end)

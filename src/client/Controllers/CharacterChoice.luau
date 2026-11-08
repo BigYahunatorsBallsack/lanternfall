@@ -15,6 +15,7 @@ local Theme = require(script.Parent.Parent.UI.Theme)
 local Widgets = require(script.Parent.Parent.UI.Widgets)
 local Icons = require(script.Parent.Parent.UI.Icons)
 local Tooltip = require(script.Parent.Parent.UI.Tooltip)
+local RuleText = require(script.Parent.Parent.UI.CharacterRuleText)
 local Signal = require(Shared.Util.Signal)
 local CharacterChoice = {}
 CharacterChoice.Chosen = Signal.new()
@@ -33,8 +34,14 @@ local portrait: Frame
 local selectedName: TextLabel
 local metrics: TextLabel
 local ruleArea: ScrollingFrame
+local ruleIcons: Frame
 local classButtons: { [string]: TextButton } = {}
 local choiceTitle: TextLabel
+
+-- Weaponless native characters advance directly to difficulty selection.
+function CharacterChoice.startStep(classId: string): string
+	return if Config.Classes[classId].maxWeapons == 0 then "Difficulty" else "Weapon"
+end
 
 local function canChooseWeapon(classId: string, weaponId: string): boolean
 	if not Config.Classes[classId].nativeStartSelection then
@@ -103,11 +110,18 @@ function CharacterChoice.render()
 	end
 	if requestedClass == me.classId then
 		requestedClass = nil
-		CharacterChoice.Chosen:Fire("Weapon")
+		CharacterChoice.Chosen:Fire(CharacterChoice.startStep(me.classId))
 	end
 	selectedName.Text = class.displayName
 	metrics.Text = `{CharacterRules.maxWeapons(me.classId)} WEAPONS\nDANGER {CharacterChoice.maxDanger(me.classId)}`
 	details.Text = string.gsub(class.description, ", ", "\n")
+	details.Visible = class.ruleRows == nil
+	ruleIcons.Visible = class.ruleRows ~= nil
+	if class.ruleRows then
+		RuleText.render(ruleIcons, class.ruleRows, details.TextSize)
+	else
+		RuleText.clear(ruleIcons)
+	end
 	Icons.draw(portrait, "character", me.classId)
 
 	if renderedClass ~= me.classId then
@@ -209,7 +223,7 @@ function CharacterChoice.mount(card: Frame, row: Frame, buttonsByClass: { [strin
 				local me = RunStateController.getLocalPlayer()
 				if me and me.classId == classId then
 					requestedClass = nil
-					CharacterChoice.Chosen:Fire("Weapon")
+					CharacterChoice.Chosen:Fire(CharacterChoice.startStep(classId))
 				end
 			end
 		end)
@@ -311,6 +325,13 @@ function CharacterChoice.mount(card: Frame, row: Frame, buttonsByClass: { [strin
 		Size = UDim2.new(1, -5, 0, 0),
 		Parent = ruleArea,
 	})
+	ruleIcons = Widgets.create("Frame", {
+		Name = "CharacterRuleIcons",
+		BackgroundTransparency = 1,
+		Size = UDim2.new(1, -5, 0, 0),
+		AutomaticSize = Enum.AutomaticSize.Y,
+		Parent = ruleArea,
+	})
 	Widgets.label({
 		Name = "WeaponHeading",
 		Text = "STARTING WEAPON",
@@ -375,6 +396,11 @@ function CharacterChoice.resize(width: number, _height: number?)
 	ruleArea.Position = UDim2.fromOffset(if compact then 140 else 208, 106)
 	ruleArea.Size = UDim2.new(1, if compact then -150 else -220, 0, if compact then 174 else 188)
 	details.TextSize = if compact then 15 else 16
+	local me = RunStateController.getLocalPlayer()
+	local class = me and Config.Classes[me.classId]
+	if class and class.ruleRows then
+		RuleText.render(ruleIcons, class.ruleRows, details.TextSize)
+	end
 	details.Text = string.gsub(details.Text or "", "; ", "\n")
 	local count = 0
 	for _ in classButtons do

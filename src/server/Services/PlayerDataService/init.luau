@@ -288,7 +288,9 @@ function PlayerDataService.observeNativeStats(player: Player, sheet: { [string]:
 		observe(rule.stat, rule.threshold, rule.challengeId)
 	end
 	for _, rule in NativeCharacterAccess do
-		observe(rule.stat, rule.threshold, rule.challengeId)
+		if rule.kind == "Stat" then
+			observe(rule.stat, rule.threshold, rule.challengeId)
+		end
 	end
 	if changed then
 		sendInfo(player)
