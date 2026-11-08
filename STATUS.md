@@ -662,6 +662,18 @@ Branch `wp-25-2d-presentation`. **Owner-Entscheidungen dieses Pakets:** Das Spie
 - Vorhandenen Fehler bei negativer Attack Speed korrigiert: native Waffen und Shop-Vorschau teilen jetzt NativeWeaponTiming.factor, volle native Verlangsamung statt halber Strafe. Der alte Erwartungswert fuer Pistol -100% wurde quellenbasiert 1.8 auf 2.4 Sekunden berichtigt. Keine Tests geschwaecht/uebersprungen.
 - Vollstaendiger Seed-1234-Vergleich plus gezielte Nachpruefung nach Timing/UI-Korrektur: main 1162 bestanden/30 bekannte Fehler (123 Specs), Fortsetzung 1180/30 (128 Specs), keine neuen Fehlernamen. Selene geaenderte Produktionsdateien 0 Fehler/0 Warnungen mit Roblox-Cache, StyLua und Rojo bestanden. Quellen/Grenzen: doctor-source.json, doctor-validation.json. Keine Studio-/Zwei-Client-/Handy-Abnahme.
 
+## Gegner blitzen beim Spawn nicht mehr neben dem Spieler auf (08.11.2026)
+
+- Owner sah neu gespawnte Gegner ein paar Frames neben dem Spieler (dort, wo vorher Gegner gestorben waren). Der Fix aus #85 (Teile vor dem Einhängen setzen) reichte nicht: Roblox zeichnet ein BillboardGui, das wieder in den Workspace kommt oder wieder eingeschaltet wird, noch ein paar Frames an seiner alten Stelle. In Studio gemessen: die Teile standen ab dem ersten Frame richtig.
+- Fix in `EnemyRenderer/init.luau` + `SpriteModels.luau`: Gepoolte Modelle bleiben im Workspace, ihre Billboards bleiben an; `SpriteModels.hide/show` blendet nur die Bilder (`picture.Visible`), Schatten, HP-Leiste, Krone, Wisps und Trail aus. Ein neuer Gegner zeigt seine Bilder erst nach `REVEAL_FRAMES` (2) Frames am Spawnpunkt. Owner hat es am 08.11.2026 in Studio getestet: Aufblitzen weg.
+- **Werkzeug-Trick:** Roblox-Studio-MCP über das verbundene Gerät funktioniert (Playtest starten, UI per `instance_path` klicken, Luau auf Client/Server ausführen). Code lässt sich ohne Rojo zum Testen in die Edit-Skripte einspielen (`Source` setzen); Rojo überschreibt das beim nächsten Verbinden. `CaptureService` liefert in Studio keine Bilder.
+
+## HP-Leiste über dem Spieler (Claude, 08.11.2026)
+
+- Owner-Wunsch mit Brotato-Screenshots: kleine HP-Leiste über dem Kopf. Neuer Client-Controller `Controllers/PlayerHpBarController` (nur Anzeige, keine Remote, kein Server): rote Füllung (`Theme.hp`) auf dunkler Spur mit schwarzem Rand, 3,4 × 0,5 Studs, 0,5 Studs über der Figur (`Config.Sprites.character.bodyStuds`), wächst und schrumpft also mit dem Zoom.
+- Sichtbar nur, wenn der Spieler verletzt ist (wie auf den Screenshots: bei 10/10 keine Leiste, bei 22/23 schon), in Welle oder Boss-Welle und solange er steht; im Shop, in der Lobby, bei voller HP und wenn er am Boden/out ist (dann zeigt `ReviveController` seine eigene Leiste) versteckt. Gilt für jeden Spieler, im Koop sieht man also auch die Leisten der anderen.
+- Annahme ohne Quelle: Brotato blendet die Leiste bei voller HP aus (nur aus den Screenshots abgeleitet); Maße nach Augenmaß. Kein Studio-Test.
+
 ## Treffer-Animation an Gegnern (Strang A, 08.11.2026)
 
 - Owner-Wunsch nach Brotato-Screenshots: getroffene Gegner färben sich 0,1 s rot (`Config/Sprites.luau` → `enemy.flashTint` { 255, 102, 92 }, `flashBrightness` 1; vorher weiß mit Helligkeit 5) und spritzen rote Tropfen in Richtung des nächsten Spielers (`EnemyRenderer/HitBursts.luau`, Werte in `Config/Feedback.luau` → `hitBursts`). Farbe und Richtung aus den Screenshots gemessen (getroffener Gegner: Rot gleich, Grün/Blau ca. 60 % weniger; Tropfen zwischen Gegner und Spieler); Brotato-Quellwerte für Dauer, Anzahl und Größe sind nicht belegt, alles geschätzt. Weiß wieder: `flashTint` { 255, 255, 255 } und `flashBrightness` 5.
