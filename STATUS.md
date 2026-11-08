@@ -668,6 +668,12 @@ Branch `wp-25-2d-presentation`. **Owner-Entscheidungen dieses Pakets:** Das Spie
 - Fix in `EnemyRenderer/init.luau` + `SpriteModels.luau`: Gepoolte Modelle bleiben im Workspace, ihre Billboards bleiben an; `SpriteModels.hide/show` blendet nur die Bilder (`picture.Visible`), Schatten, HP-Leiste, Krone, Wisps und Trail aus. Ein neuer Gegner zeigt seine Bilder erst nach `REVEAL_FRAMES` (2) Frames am Spawnpunkt. Owner hat es am 08.11.2026 in Studio getestet: Aufblitzen weg.
 - **Werkzeug-Trick:** Roblox-Studio-MCP über das verbundene Gerät funktioniert (Playtest starten, UI per `instance_path` klicken, Luau auf Client/Server ausführen). Code lässt sich ohne Rojo zum Testen in die Edit-Skripte einspielen (`Source` setzen); Rojo überschreibt das beim nächsten Verbinden. `CaptureService` liefert in Studio keine Bilder.
 
+## HP-Leiste über dem Spieler (Claude, 08.11.2026)
+
+- Owner-Wunsch mit Brotato-Screenshots: kleine HP-Leiste über dem Kopf. Neuer Client-Controller `Controllers/PlayerHpBarController` (nur Anzeige, keine Remote, kein Server): rote Füllung (`Theme.hp`) auf dunkler Spur mit schwarzem Rand, 3,4 × 0,5 Studs, 0,5 Studs über der Figur (`Config.Sprites.character.bodyStuds`), wächst und schrumpft also mit dem Zoom.
+- Sichtbar nur, wenn der Spieler verletzt ist (wie auf den Screenshots: bei 10/10 keine Leiste, bei 22/23 schon), in Welle oder Boss-Welle und solange er steht; im Shop, in der Lobby, bei voller HP und wenn er am Boden/out ist (dann zeigt `ReviveController` seine eigene Leiste) versteckt. Gilt für jeden Spieler, im Koop sieht man also auch die Leisten der anderen.
+- Annahme ohne Quelle: Brotato blendet die Leiste bei voller HP aus (nur aus den Screenshots abgeleitet); Maße nach Augenmaß. Kein Studio-Test.
+
 ## Level-ups und Kisten oben rechts im HUD (Claude, 08.11.2026)
 
 - Owner-Meldung mit Brotato-Screenshots: Während der Welle zeigt Brotato oben rechts pro wartendem Level-up ein Kopf-Symbol mit grünem Pfeil und darunter pro eingesammelter Kiste ein Kisten-Symbol, Boss-/legendäre Kisten anders als normale. Bei uns gab es nur den Text „↑ +N“ (HUD) und „N crates“ im Beutel-Chip.
