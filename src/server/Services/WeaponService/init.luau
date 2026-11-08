@@ -182,13 +182,13 @@ local function sendHitFeeds()
 end
 
 local arsenal: Arsenal.Arsenal
-local function burningTargetDamage(ownerId: number, id: number, amount: number, elemental: boolean?): number
+local function burningTargetBonus(ownerId: number, id: number, elemental: boolean?): number
 	local player = playerOf(ownerId)
 	local bonus = player and ownerStats[player] and ownerStats[player].nativeBurningTargetBonus or 0
 	if elemental == false and bonus > 0 and arsenal:isBurning(id) then
-		return math.round(amount * (1 + bonus / 100))
+		return bonus
 	end
-	return amount
+	return 0
 end
 
 arsenal = Arsenal.new({
@@ -215,9 +215,15 @@ arsenal = Arsenal.new({
 		end,
 		damage = function(id: number, amount: number, ownerId: number, crit: boolean, burn: boolean): (boolean, number)
 			if not burn then
-				amount = burningTargetDamage(ownerId, id, amount, BrotatoCombat.elementalHit(ownerId))
+				amount = BrotatoCombat.roundHit(ownerId, amount)
 			end
-			local killed, dealt, applied = EnemySim.damage(id, amount, playerOf(ownerId))
+			local bonus = if burn
+				then 0
+				else burningTargetBonus(ownerId, id, BrotatoCombat.elementalHit(ownerId)) + BrotatoCombat.targetBonus(
+					ownerId,
+					id
+				)
+			local killed, dealt, applied = EnemySim.damage(id, amount, playerOf(ownerId), bonus)
 			recordHit(ownerId, id, applied, crit, killed, burn)
 			return killed, dealt
 		end,
@@ -512,6 +518,11 @@ end
 function WeaponService.init()
 	BrotatoCombat.configure({
 		health = EnemySim.getHealth,
+		healthShare = EnemySim.getHealthShare,
+		weakness = EnemySim.applyWeakness,
+		isBurning = function(id)
+			return arsenal:isBurning(id)
+		end,
 		knockbackPiercing = function(id, x, z, amount, piercing)
 			local kindId, elite = EnemySim.getKind(id)
 			local kind = kindId and EnemyKinds.get(kindId, elite)
@@ -834,8 +845,8 @@ function WeaponService.structureHit(
 	critical: boolean?,
 	elemental: boolean?
 )
-	amount = burningTargetDamage(player.UserId, enemyId, amount, elemental)
-	local killed, dealt, applied = EnemySim.damage(enemyId, amount, player)
+	local bonus = burningTargetBonus(player.UserId, enemyId, elemental)
+	local killed, dealt, applied = EnemySim.damage(enemyId, amount, player, bonus)
 	recordHit(player.UserId, enemyId, applied, critical == true, killed, false)
 	if hitListener and dealt > 0 then
 		hitListener(player.UserId, enemyId, dealt, critical == true, killed, source or "Weapon")

@@ -34,6 +34,7 @@ export type Weapon = {
 	killGainStat: string?,
 	displayName: string,
 	description: string,
+	tierDescriptions: { string }?,
 	kind: WeaponKind, -- since B5; before, `class` also named Elemental weapons
 	classes: { string }, -- keys in Config.WeaponClasses (B5)
 	scaling: { [string]: number }, -- stat id -> share added to the damage (1 = 100 %)

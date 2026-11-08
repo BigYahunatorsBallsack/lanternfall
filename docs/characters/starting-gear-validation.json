@@ -1,0 +1,43 @@
+{
+  "referenceMain": "181502ac69256fe78962b654e7a10046615a1a96",
+  "seed": 1234,
+  "runner": "Lune, one process per spec, Roblox mock",
+  "main": {
+    "specs": 132,
+    "passed": 1188,
+    "failed": 34
+  },
+  "startingGear": {
+    "specs": 135,
+    "passed": 1201,
+    "failed": 34
+  },
+  "newFailureNames": [],
+  "verification": "Full suite plus affected-spec rechecks after tier text and burn/crit-rounding assertions",
+  "familiesAdded": [
+    "Spoon",
+    "Cestus",
+    "Sickle",
+    "Trident",
+    "Lute",
+    "Blowgun"
+  ],
+  "pendingWeaponFamilies": 15,
+  "pendingItemPetFamilies": 10,
+  "codePreparedCharacters": 5,
+  "art": {
+    "final": 125,
+    "placeholder": 27,
+    "missing": 0,
+    "unusable": 0,
+    "prepared": 152,
+    "pendingUploads": 88
+  },
+  "limitations": [
+    "No Studio, native physics, real two-client or mobile acceptance",
+    "New weapons remain unavailable without genuine approved runtime art",
+    "Native blue vulnerability outline is still pending; no placeholder outline presented as exact",
+    "Existing general base-weapon, item-formula and armor/physics parity gaps remain",
+    "No additional complete character package certified by adding weapon dependencies"
+  ]
+}
