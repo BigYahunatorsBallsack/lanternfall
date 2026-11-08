@@ -49,6 +49,7 @@ local UPRIGHT = CFrame.Angles(0, 0, math.pi / 2)
 local DEFAULT_GLOW = Color3.fromRGB(200, 125, 255)
 local RUSH_TINT = Color3.fromRGB(table.unpack(Look.rushTint))
 local STEEL_TINT = Color3.fromRGB(table.unpack(Look.steelTint))
+local FLASH_TINT = Color3.fromRGB(table.unpack(Look.flashTint))
 
 type Gait = { stride: number, bob: number, roll: number, lean: number, legSwing: number, armSwing: number }
 
@@ -306,7 +307,7 @@ end
 local function paint(visual: Visual)
 	local sprite = visual.sprite
 	if visual.flashing then
-		WorldSprite.setTint(sprite, WHITE, Look.flashBrightness)
+		WorldSprite.setTint(sprite, FLASH_TINT, Look.flashBrightness)
 		return
 	end
 	local color = WHITE

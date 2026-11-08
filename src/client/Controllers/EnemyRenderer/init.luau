@@ -3,8 +3,8 @@
 -- Draws the server's enemies (DESIGN.md section 15): EnemySnapshot packets go into a SnapshotBuffer, models
 -- are pooled per enemy type (EnemyRenderer/SpriteModels, 2D since Paket 25), positions are interpolated about 100 ms behind the
 -- newest tick and every part moves with one workspace:BulkMoveTo per frame. Models.pose animates the walk: the step
--- cycle advances with the distance an enemy covers, so legs and bobbing match its speed. Hits flash the model
--- white; the snapshot flags show a charger's wind-up and rush (it then faces its rush direction from the flags) and
+-- cycle advances with the distance an enemy covers, so legs and bobbing match its speed. Hits tint the model
+-- (Config.Sprites.enemy.flashTint) and splash red blobs towards the nearest player (HitBursts); the snapshot flags show a charger's wind-up and rush (it then faces its rush direction from the flags) and
 -- an elite's affix (Models.setMode, setAffix), the status byte (B5) burning and slowed enemies (Models.setStatus;
 -- burning ones also give off embers, Config.Feedback.burnEmbers). An enemy that drops out of the snapshots died: it leaves a glowing
 -- puff (DeathBursts), an elite also shakes the camera. Big crowds switch the plain enemies to low detail (Models.setDetail, limits in
@@ -28,6 +28,7 @@ local Bursts = require(script.Parent.Parent.Vfx.Bursts)
 local CameraController = require(script.Parent.CameraController)
 local DeathBursts = require(script.DeathBursts)
 local GraphicsController = require(script.Parent.GraphicsController)
+local HitBursts = require(script.HitBursts)
 local Models = require(script.SpriteModels)
 local RunStateController = require(script.Parent.RunStateController)
 local SnapshotBuffer = require(script.SnapshotBuffer)
@@ -233,6 +234,7 @@ local function render(dt: number)
 	snapshots:advance(dt)
 	local before, after, alpha = snapshots:sample()
 	frameNumber += 1
+	HitBursts.beginFrame()
 	local now = os.clock()
 	local count = 0
 	local culled = 0
@@ -304,6 +306,9 @@ local function render(dt: number)
 			if hp < current.lastHp then
 				current.flashUntil = now + FLASH_SECONDS
 				Models.setFlash(visual, true)
+				if visible then
+					HitBursts.hit(x, floorY, z, visual.radius)
+				end
 				if visual.hpBar then
 					visual.hpBar.Size = UDim2.fromScale(hp, 1)
 				end
