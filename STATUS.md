@@ -725,6 +725,11 @@ Branch `wp-25-2d-presentation`. **Owner-Entscheidungen dieses Pakets:** Das Spie
 - Vollstaendiger Seed-1234-Vergleich mit getrennten Specs plus betroffene Nachpruefungen: main 1188 bestanden/34 Fehler in 132 Specs, Fortsetzung 1201/34 in 135 Specs; keine neuen Fehlernamen. Die 34 Fehler gehoeren bereits zum inzwischen erweiterten Main, einschliesslich bestehender Spawn-/Smoke-Pruefungen. Selene geaenderte Produktionsdateien 0 Fehler/0 Warnungen, StyLua und Rojo bestanden; keine native Studio-/Zwei-Client-/Handy-Abnahme. Details: starting-gear-validation.json.
 - Noch 15 notwendige Waffenfamilien und zehn Startitem-/Petfamilien laut Katalog. Fuenf neue Charakterpakete bleiben code-vorbereitet; diese sechs Waffen sind keine sechs fertigen Charaktere und keine vollstaendige Physik-/Darstellungs-Paritaet.
 
+## Fix: Schüsse ohne Kurve (Claude, 08.11.2026)
+
+- Owner: Schüsse curven manchmal noch. Restursache: `B7ProjectileVisual` startete die Kugel am Lauf auf dem Bildschirm und blendete sie in `projectileCatchupSeconds` auf die Server-Bahn; wo Lauf und Server-Start auseinanderliegen (Bild-Radius der Waffe größer als `holdRadius`, Client-Figur der Server-Position voraus), entstand ein Knick.
+- Jetzt eine gerade Linie vom Lauf auf dem Bildschirm zum Ende der Server-Bahn bei voller Reichweite: der Abstand schrumpft im Verhältnis zur geflogenen Strecke. Treffer-Funken an derselben Linie. Neue `tests/ShotPath.spec.luau` (schlug vorher fehl, jetzt grün). Strang-B-Datei auf direkten Owner-Auftrag.
+
 ## UI-Feinschliff Auswahl und Shop (Claude, 08.11.2026)
 
 - Charakter-, Waffen- und Gefahrenkacheln: 10 px Abstand, graue Kachel mit dunklem Rand, gewählte hell (Brotato-Look). Mit der Maus über einer Kachel zeigt das Panel daneben diesen Charakter, diese Waffe bzw. diese Gefahrenstufe (`CharacterChoice.watchHover`, Signal `CharacterChoice.Hovered`); verlassen zeigt wieder die Auswahl. Der alte Tooltip erscheint nur noch für gesperrte Charaktere.
