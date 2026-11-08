@@ -5,6 +5,8 @@ local Theme = require(script.Parent.Theme)
 local WeaponImages = require(script.Parent.WeaponImages)
 local ContentProvider = game:GetService("ContentProvider")
 local CharacterPortraits = require(script.Parent.CharacterPortraits)
+local PortraitCrop = require(script.Parent.PortraitCrop)
+local SpriteImages = require(game:GetService("ReplicatedStorage").Shared.Config.SpriteImages)
 local ItemImages = require(script.Parent.ItemImages)
 local StatImages = require(script.Parent.StatImages)
 local Config = require(game:GetService("ReplicatedStorage").Shared.Config)
@@ -54,11 +56,17 @@ local function shape(
 	return frame
 end
 
-local function character(root: Frame, id: string)
+-- `crop` "head" zooms on the head (select tiles), "figure" fits the whole figure tightly, nil shows the full picture.
+local function character(root: Frame, id: string, crop: string?)
 	local imageId = CharacterPortraits[id]
 	if imageId then
-		local portraitScale = if id == "MarbleHost" then 0.84 else 1
-		Widgets.create("ImageLabel", {
+		local figure = SpriteImages.characters[id]
+		local rect = if figure and crop == "head"
+			then PortraitCrop.head(figure)
+			elseif figure and crop == "figure" then PortraitCrop.figure(figure)
+			else nil
+		local portraitScale = if id == "MarbleHost" and not rect then 0.84 else 1
+		local image = Widgets.create("ImageLabel", {
 			Name = "CharacterPortrait",
 			BackgroundTransparency = 1,
 			Image = imageId,
@@ -68,6 +76,10 @@ local function character(root: Frame, id: string)
 			Size = UDim2.fromScale(portraitScale, portraitScale),
 			Parent = root,
 		})
+		if rect then
+			image.ImageRectOffset = Vector2.new(rect.x, rect.y)
+			image.ImageRectSize = Vector2.new(rect.side, rect.side)
+		end
 		return
 	end
 	local c = palettes[id] or GOLD
@@ -269,6 +281,10 @@ function Icons.draw(parent: GuiObject, kind: string, id: string): Frame
 	root:SetAttribute("IconKey", key)
 	if kind == "character" then
 		character(root, id)
+	elseif kind == "characterHead" then
+		character(root, id, "head")
+	elseif kind == "characterFigure" then
+		character(root, id, "figure")
 	elseif kind == "weapon" then
 		local fallback = Widgets.create("Frame", {
 			Name = "DrawnWeapon",
