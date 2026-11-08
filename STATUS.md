@@ -577,6 +577,15 @@ Branch `wp-25-2d-presentation`. **Owner-Entscheidungen dieses Pakets:** Das Spie
 - Ausnahme Dateibesitz: berührt Strang-B-Dateien (`WeaponService/Arsenal`, `BrotatoProjectile`, `B7Projectile`, `WeaponRenderer/HeldModels`, `Config/WeaponVisuals`, `Util/WeaponPose`) auf direkten Owner-Auftrag. Neue Schnittstelle: `WeaponPose.direction(slot, count)`, `anchor(x, z, slot, count, id)`, `muzzle(x, z, slot, count, id, dx, dz, distance?)`.
 - Nicht geprüft: genaue Brotato-Positionen pro Waffenanzahl (Wiki nennt sie nicht); umgesetzt ist der sichtbare Brotato-Eindruck „gleichmäßiger Kreis“.
 
+## Neue Schriftart Fredoka One (Claude, 08.11.2026)
+
+- Owner fand Arial langweilig und wollte etwas im Stil von Brotato. Die echte Brotato-Schrift kann Roblox nicht laden (nur Roblox-eigene Schriften); der Owner hat aus drei Vorschauen **Fredoka One** gewählt (`Enum.Font.FredokaOne`, Vorschau `/mnt/project-files/font-preview/schriftarten.png`).
+- Zentral in `UI/Theme.luau` (`font`, `fontBold`); alle Menüs und das HUD lesen dort. Feste Gotham-Schriften in Schadenszahlen, Effekt-Texten, Gegner-Beschriftungen und den Portal-Schildern (`MapService`, Server, direkt `Enum.Font.FredokaOne`) ebenfalls umgestellt.
+- Text im Run ist 25 % größer: neuer Wert `Theme.hudTextScale = 1.25` für HUD (HP/XP-Balken samt Balkenhöhe, Welle, Timer, Banner, Team, Bau-Liste), Schadenszahlen, Effekt-Texte, Gegner-Beschriftungen, Beute-Hinweis, Boss-Leiste und den Shard-Zähler im Kampf. Menü-Schriftgrößen unverändert.
+- Owner hat erlaubt, dafür auch Strang-B-Dateien (DamageNumberController, ProcTextController) und die geteilten `UI/*`-Dateien zu ändern, nur Schriftart und -größe.
+- Nicht in Studio gesehen (keine Studio-Verbindung): Fredoka One ist etwas breiter als Arial, lange Texte in festen Feldern können umbrechen oder abgeschnitten werden; das muss der Owner-Test zeigen.
+- Tests: betroffene Specs wie auf `main` (Smoke 29 bekannte Fehler, sonst grün); StyLua, Selene (0 Fehler) sauber.
+
 ## Charakterwahl: größere Kopf-Kacheln (Claude, 08.11.2026)
 
 - Owner: Figuren in der Charakterwahl waren kaum erkennbar. Owner-Wahl „Auf den Kopf zoomen“. Neues `UI/PortraitCrop` schneidet aus den Figurmaßen in `Config/SpriteImages` (`center`, `ground`, `height`) quadratische Ausschnitte: `head` (oberste 90 % der Figur) für die Kacheln, `figure` (ganze Figur mit kleinem Rand) für das große Bild. `UI/Icons.draw` kennt dafür die neuen Arten `characterHead` und `characterFigure`; `character` bleibt unverändert (Startmenü).

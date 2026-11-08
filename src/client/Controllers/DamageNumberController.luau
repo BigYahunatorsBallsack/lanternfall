@@ -17,12 +17,13 @@ local HitNumbers = require(Shared:WaitForChild("Net"):WaitForChild("HitNumbers")
 local GraphicsController = require(script.Parent.GraphicsController)
 local RunStateController = require(script.Parent.RunStateController)
 local SettingsController = require(script.Parent.SettingsController)
+local Theme = require(script.Parent.Parent.UI.Theme)
 
 local FOLDER_NAME = "LanternfallDamageNumbers"
 local HEIGHT = 3.2 -- studs above the floor where a number starts (the anchor sits on the floor)
 local JITTER = 0.8 -- studs of random sideways offset, so numbers on one spot do not cover each other
-local TEXT_SIZE = 20
-local CRIT_TEXT_SIZE = 32
+local TEXT_SIZE = 20 * Theme.hudTextScale
+local CRIT_TEXT_SIZE = 32 * Theme.hudTextScale
 local CRIT_POP = 0.35 -- a critical number starts this much bigger and shrinks to its size
 local NORMAL_COLOR = Color3.fromRGB(255, 255, 255)
 local CRIT_COLOR = Color3.fromRGB(255, 205, 70)
@@ -76,7 +77,7 @@ local function build(): Shown
 	label.Name = "Amount"
 	label.BackgroundTransparency = 1
 	label.Size = UDim2.fromScale(1, 1)
-	label.Font = Enum.Font.GothamBlack
+	label.Font = Theme.fontBold
 	label.TextStrokeColor3 = STROKE_COLOR
 	label.TextStrokeTransparency = 0.2
 	label.Parent = gui
