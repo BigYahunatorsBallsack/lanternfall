@@ -45,6 +45,7 @@ type Drawn = {
 	lastHp: number,
 	flashUntil: number, -- 0 when not flashing
 	seenFrame: number, -- 0 until it was drawn once
+	revealIn: number, -- frames until its pictures show (a new enemy stays hidden for its first frames)
 	seed: number, -- spreads idle motions of neighbouring ids
 	phase: number, -- step cycle in radians
 	move: number, -- 0 standing to 1 walking at its own speed, smoothed
@@ -67,6 +68,10 @@ local GOLDEN_RATIO = 0.618034 -- spreads the seeds of neighbouring ids
 local EMBER_COLOR = Color3.fromRGB(255, 120, 40)
 local EMBER_HEIGHT = 1.6 -- times the enemy radius above the floor
 local STATS_WINDOW_SECONDS = 1
+-- A pooled model is never taken out of the workspace and its billboards are never switched off: Roblox then drew its
+-- picture for a few frames where it had last died (usually next to the player). Released models only hide their
+-- pictures (SpriteModels.hide), and a new enemy's pictures show only after it stood at its spawn point this many frames.
+local REVEAL_FRAMES = 2
 
 local EnemyRenderer = {}
 
@@ -107,8 +112,9 @@ local function acquire(id: number, typeId: number, hp: number): Drawn
 		visual = table.remove(pool) :: Models.Visual
 	else
 		visual = Models.build(typeId)
+		Models.hide(visual)
+		visual.model.Parent = getFolder()
 	end
-	-- not parented yet: render places its parts at the spawn point first (see showAtSpawn)
 	local kind: any = EnemyKinds.byTypeId(typeId)
 	if visual.hpBar then
 		visual.hpBar.Size = UDim2.fromScale(hp, 1)
@@ -120,6 +126,7 @@ local function acquire(id: number, typeId: number, hp: number): Drawn
 		lastHp = hp,
 		flashUntil = 0,
 		seenFrame = 0,
+		revealIn = REVEAL_FRAMES,
 		seed = (id * GOLDEN_RATIO) % 1 * 2 * math.pi,
 		phase = (id * GOLDEN_RATIO) % 1 * 2 * math.pi,
 		move = 0,
@@ -134,21 +141,11 @@ local function acquire(id: number, typeId: number, hp: number): Drawn
 	return entry
 end
 
--- First frame of a model: its parts still stand where the pooled model last died (or at the origin when new), and a
--- BillboardGui picture is drawn there for a frame if the model joins the workspace before BulkMoveTo moves it. So the
--- parts queued for this model (list slots from..to) get their CFrames directly, and only then the model is parented.
-local function showAtSpawn(visual: Models.Visual, from: number, to: number)
-	for k = from, to do
-		partList[k].CFrame = cframeList[k]
-	end
-	visual.model.Parent = getFolder()
-end
-
 local function release(id: number, entry: Drawn)
 	drawn[id] = nil
 	local visual = entry.visual
 	Models.reset(visual)
-	visual.model.Parent = nil
+	Models.hide(visual) -- stays in the workspace with its pictures hidden (see REVEAL_FRAMES)
 	local pool = pools[entry.typeId]
 	if not pool then
 		pool = {}
@@ -279,7 +276,8 @@ local function render(dt: number)
 			local visual = current.visual
 			-- off the screen (now and where the model stands) a plain enemy keeps its model where it is; new ones,
 			-- elites, bosses and enemies in a wind-up, rush or pulse (their telegraph reaches far) are always placed
-			local visible = current.seenFrame == 0
+			local visible = current.revealIn > 0
+				or current.seenFrame == 0
 				or current.alwaysPosed
 				or mode ~= 0
 				or onScreen(x, z, visual.radius)
@@ -332,7 +330,6 @@ local function render(dt: number)
 			if visible then
 				current.posedX, current.posedZ = x, z
 				local base = CFrame.new(x, floorY, z) * CFrame.Angles(0, current.yaw, 0)
-				local first = count + 1
 				count = Models.pose(
 					visual,
 					base,
@@ -344,8 +341,11 @@ local function render(dt: number)
 					cframeList,
 					count
 				)
-				if visual.model.Parent == nil then
-					showAtSpawn(visual, first, count)
+				if current.revealIn > 0 then
+					current.revealIn -= 1
+					if current.revealIn == 0 then
+						Models.show(visual)
+					end
 				end
 			else
 				culled += 1
