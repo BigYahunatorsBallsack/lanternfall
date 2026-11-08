@@ -4,6 +4,8 @@ Kurzer Projektstand für neue Sessions. **Zuerst lesen**, dann aus `DESIGN.md` n
 
 ## Stand (31.10.2026)
 
+- **Größen wie Brotato (08.11.2026, Owner-Screenshot):** Am Brotato-Bild gemessen, relativ zur Spielfigur: normale Gegner etwa so hoch wie die Figur und breiter (`Sprites.enemy.figureWidth` 2,6 → 3,8, Trefferkreise unverändert), Shards etwa ein Drittel der Figurhöhe (`Sprites.material.tiers` 1,6/2/2,5 → 3,2/3,8/4,6), Kisten am Boden 3/3,6 → 4,6/5,2, Elite-Truhe 3,2 → 5. Kamera näher (`Camera.distance` 115 → 90: Figur ≈ 7,7 % der Bildhöhe wie im Bild statt ≈ 6 %). Level-up-/Kisten-Symbole oben rechts 38 → 48 px bei 720 px Höhe, skaliert nur noch mit der Bildhöhe (Brotato ≈ 6,5 %). Der Debug-Knopf liegt im Testmodus über dem Level-up-Symbol.
+
 - **Fix 06.11.2026 (Owner-Wunsch):** Startgeld 30 → 15 Shards (`Shop.startShards`). Neu gespawnte Gegner blitzten einen Frame lang an der falschen Stelle auf (gepooltes Modell stand noch am letzten Todesort bzw. beim Ursprung, das BillboardGui-Bild wurde dort gezeichnet, bevor `BulkMoveTo` es verschob). `EnemyRenderer` setzt die Teile jetzt erst an den Spawnpunkt und hängt das Modell danach in den Workspace (`showAtSpawn`).
 
 - Fix nach Owner-Test der .rbxl: `EqualizerSoundEffect.MidRange` gibt es in Roblox nicht; der Fehler brach jeden Button-Klick ab (kein Klick, kein Sound). Entfernt, Klick-Sound läuft jetzt in `pcall`. Testpaket (.rbxl via `rojo build`) liegt in Project Files `lanternfall-testpaket/`.
