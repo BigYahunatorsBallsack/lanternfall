@@ -307,7 +307,7 @@ return {
 		},
 		Machinegun = {
 			id = "Machinegun",
-			displayName = "Machinegun",
+			displayName = "Machine Gun",
 			description = "",
 			brotato = true,
 			available = false,
@@ -725,6 +725,118 @@ return {
 				},
 			},
 		},
+		Whip = {
+			id = "Whip",
+			displayName = "Whip",
+			description = "",
+			brotato = true,
+			available = false,
+			kind = "Melee",
+			classes = {
+				"Primal",
+			},
+			minTier = 1,
+			originalScaling = {
+				{
+					meleeDamage = 1,
+				},
+				{
+					meleeDamage = 1,
+				},
+				{
+					meleeDamage = 1,
+				},
+				{
+					meleeDamage = 1,
+				},
+			},
+			scaling = {
+				meleeDamage = 1,
+			},
+			tierScaling = {
+				{
+					meleeDamage = 1,
+				},
+				{
+					meleeDamage = 1,
+				},
+				{
+					meleeDamage = 1,
+				},
+				{
+					meleeDamage = 1,
+				},
+			},
+			heldStats = {
+				{},
+				{},
+				{},
+				{},
+			},
+			rangeKeys = {
+				"range",
+			},
+			behavior = "Whip",
+			targeting = "Nearest",
+			base = {
+				damage = 8,
+				cooldown = 0.416666666666667,
+				nativeCooldownFrames = 25,
+				nativeTiming = 1,
+				range = 20,
+				critChance = 0.2,
+				critDamage = 2,
+				knockback = 0,
+				knockbackPiercing = 0,
+				lifeSteal = 0,
+				width = 1.6,
+				sweepDegrees = 120,
+				attackSeconds = 0.48,
+				meleeMode = 0,
+				slow = 0.5,
+				slowSeconds = 0.5,
+				hitOpenSeconds = 0.24,
+				hitCloseSeconds = 0.32,
+				attackLockSeconds = 0.48,
+				hitStartOffset = 3.4,
+				whipPositionBefore = 1.3885,
+				whipPositionOpen = 4.6,
+				whipPositionClose = 4.6,
+				whipPositionAfter = 0.3985,
+				whipRotationBefore = -16.4,
+				whipRotationOpen = 0,
+				whipRotationClose = 0,
+				whipRotationAfter = 15,
+				whipHitboxOffset = -1.2,
+			},
+			tiers = {
+				{},
+				{
+					damage = 0.375,
+					cooldown = -0.0666666666666667,
+					nativeCooldownFrames = -4,
+					range = 2,
+					critChance = 0.1,
+					slowSeconds = 0.5,
+				},
+				{
+					damage = 0.5,
+					cooldown = -0.0666666666666667,
+					nativeCooldownFrames = -4,
+					range = 2,
+					critChance = 0.1,
+					slowSeconds = 0.5,
+				},
+				{
+					damage = 0.75,
+					cooldown = -0.0833333333333333,
+					nativeCooldownFrames = -5,
+					range = 2,
+					critChance = 0.1,
+					slowSeconds = 0.5,
+				},
+			},
+		},
 	},
 	prices = {
 		Anchor = {
@@ -768,6 +880,12 @@ return {
 			58,
 			108,
 			212,
+		},
+		Whip = {
+			11,
+			24,
+			50,
+			100,
 		},
 	},
 }

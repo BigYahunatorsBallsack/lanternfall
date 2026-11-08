@@ -704,7 +704,7 @@
     "trimmed": true
    },
    "Machinegun": {
-    "text": "Machinegun original stable starting-weapon icon.",
+    "text": "Machine Gun original stable starting-weapon icon.",
     "source": "assets/weapons/character-starts/Machinegun.png",
     "trimmed": true
    },
@@ -721,6 +721,11 @@
    "GrenadeLauncher": {
     "text": "Grenade Launcher original stable starting-weapon icon.",
     "source": "assets/weapons/character-starts/GrenadeLauncher.png",
+    "trimmed": true
+   },
+   "Whip": {
+    "text": "Whip original stable starting-weapon icon.",
+    "source": "assets/weapons/character-starts/Whip.png",
     "trimmed": true
    }
   },

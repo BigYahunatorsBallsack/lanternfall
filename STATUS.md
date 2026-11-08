@@ -587,3 +587,8 @@ Branch `wp-25-2d-presentation`. **Owner-Entscheidungen dieses Pakets:** Das Spie
 
 - Connected native One Armed (+3 contributions to each held set) and Vagabond (all valid held weapons count for each actually represented set) in StatService and the client stat panel. Empty inventories do not create sets; six-weapon bonus cap remains unchanged. Existing One Armed profile alias is preserved; this targeted rule does not certify its incomplete native starts/names.
 - Three pure regressions first exposed missing set contributions, then passed. Three actual service/client scenarios verify personal bonuses, Vagabond's original -5 Armor/-5 Dodge baseline, weapon removal and the displayed 4/6 count; existing B10 13 tests pass. Production lint 0 errors/0 warnings. Stable RunData.update_sets is the source; no network protocol or Arsenal change.
+
+## B10 continuation: Whip (08 November 2026)
+
+- Added Whip's source 0.24–0.32-second hit window, fixed 0.48-second animation lock, one hit per target and 50%/0.5-second slow. Its active geometry follows the original cubic position/rotation tracks and collision-width facts. Uses the existing simulation segment-query adaptation; exact native physics collision acceptance remains open. Arsenal unchanged.
+- Four behavior regressions cover opening/closing, animation lock at extreme Attack Speed, inactive owner and the native cubic midpoint. Local original icon prepared; real upload remains gated, as for the seven preceding families. Corrected native displayed name Machine Gun against the stable English translation. Source compiler now reports 21 missing weapon families; no additional character counted as complete.

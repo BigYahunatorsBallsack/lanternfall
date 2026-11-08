@@ -212,7 +212,8 @@
               "sourceMd5": "fe352b71e566cf3035df137d70a8a727",
               "key": "stat_attack_speed",
               "value": -3,
-              "scale": null
+              "scale": null,
+              "duration": null
             }
           ]
         },
@@ -269,7 +270,8 @@
               "sourceMd5": "e563d946a541f80477674f3f5d7f40a0",
               "key": "stat_attack_speed",
               "value": -6,
-              "scale": null
+              "scale": null,
+              "duration": null
             }
           ]
         },
@@ -326,7 +328,8 @@
               "sourceMd5": "4605c17eb3f83b0ef15ad25c2562f196",
               "key": "stat_attack_speed",
               "value": -10,
-              "scale": null
+              "scale": null,
+              "duration": null
             }
           ]
         }
@@ -540,7 +543,7 @@
     },
     {
       "id": "Machinegun",
-      "name": "Machinegun",
+      "name": "Machine Gun",
       "tiers": [
         {
           "source": "res://weapons/ranged/machinegun/1/machinegun_data.tres",
@@ -598,7 +601,8 @@
               "sourceMd5": "87594b5539b6db3d138483cb265f36c7",
               "key": "stat_speed",
               "value": -3,
-              "scale": null
+              "scale": null,
+              "duration": null
             }
           ]
         },
@@ -658,7 +662,8 @@
               "sourceMd5": "87594b5539b6db3d138483cb265f36c7",
               "key": "stat_speed",
               "value": -3,
-              "scale": null
+              "scale": null,
+              "duration": null
             }
           ]
         },
@@ -718,7 +723,8 @@
               "sourceMd5": "87594b5539b6db3d138483cb265f36c7",
               "key": "stat_speed",
               "value": -3,
-              "scale": null
+              "scale": null,
+              "duration": null
             }
           ]
         },
@@ -778,7 +784,8 @@
               "sourceMd5": "87594b5539b6db3d138483cb265f36c7",
               "key": "stat_speed",
               "value": -3,
-              "scale": null
+              "scale": null,
+              "duration": null
             }
           ]
         }
@@ -1213,7 +1220,8 @@
               "sourceMd5": "7ac8a95675ba5be2d5e76fab6c15c05e",
               "key": "effect_explode",
               "value": 0,
-              "scale": 0.75
+              "scale": 0.75,
+              "duration": null
             }
           ]
         },
@@ -1273,7 +1281,8 @@
               "sourceMd5": "7ac8a95675ba5be2d5e76fab6c15c05e",
               "key": "effect_explode",
               "value": 0,
-              "scale": 0.75
+              "scale": 0.75,
+              "duration": null
             }
           ]
         },
@@ -1333,11 +1342,261 @@
               "sourceMd5": "7ac8a95675ba5be2d5e76fab6c15c05e",
               "key": "effect_explode",
               "value": 0,
-              "scale": 0.75
+              "scale": 0.75,
+              "duration": null
             }
           ]
         }
       ]
+    },
+    {
+      "id": "Whip",
+      "name": "Whip",
+      "tiers": [
+        {
+          "source": "res://weapons/melee/whip/1/whip_data.tres",
+          "sourceMd5": "72c16f798eddc540de772cc8d49e0c34",
+          "statsSource": "res://weapons/melee/whip/1/whip_stats.tres",
+          "statsMd5": "bc159d39e4af3f758e76f0a1f3e3b2a9",
+          "tier": 1,
+          "price": 11,
+          "sets": [
+            "set_primitive"
+          ],
+          "kind": "Melee",
+          "stats": {
+            "cooldown": 25,
+            "damage": 8,
+            "accuracy": 1.0,
+            "crit_chance": 0.2,
+            "crit_damage": 2.0,
+            "min_range": 0,
+            "max_range": 200,
+            "knockback": 0,
+            "knockback_piercing": 0.0,
+            "can_have_positive_knockback": true,
+            "can_have_negative_knockback": false,
+            "effect_scale": 1.0,
+            "scaling_stats": [
+              [
+                "stat_melee_damage",
+                1.0
+              ]
+            ],
+            "lifesteal": 0.0,
+            "sound_db_mod": -5,
+            "is_healing": false,
+            "recoil": 25,
+            "recoil_duration": 0.1,
+            "additional_cooldown_every_x_shots": -1,
+            "additional_cooldown_multiplier": -1.0,
+            "speed_percent_modifier": 0,
+            "can_shoot_without_target": false,
+            "deal_dmg_on_return": false,
+            "attack_type": 0,
+            "alternate_attack_type": false,
+            "attack_duration": 0.48
+          },
+          "effects": [
+            {
+              "source": "res://weapons/melee/whip/1/whip_1_effect_slow.tres",
+              "sourceMd5": "63cf6e30a0f4cee83c9def93378b57d9",
+              "key": "timed_slow_on_hit",
+              "value": 50,
+              "scale": null,
+              "duration": 0.5
+            }
+          ]
+        },
+        {
+          "source": "res://weapons/melee/whip/2/whip_2_data.tres",
+          "sourceMd5": "3fffa02c67dd89a6e966c3e3ed7faa66",
+          "statsSource": "res://weapons/melee/whip/2/whip_2_stats.tres",
+          "statsMd5": "1bda184b6e43bfc57bb0916c50cba9a7",
+          "tier": 2,
+          "price": 24,
+          "sets": [
+            "set_primitive"
+          ],
+          "kind": "Melee",
+          "stats": {
+            "cooldown": 21,
+            "damage": 11,
+            "accuracy": 1.0,
+            "crit_chance": 0.3,
+            "crit_damage": 2.0,
+            "min_range": 0,
+            "max_range": 220,
+            "knockback": 0,
+            "knockback_piercing": 0.0,
+            "can_have_positive_knockback": true,
+            "can_have_negative_knockback": false,
+            "effect_scale": 1.0,
+            "scaling_stats": [
+              [
+                "stat_melee_damage",
+                1.0
+              ]
+            ],
+            "lifesteal": 0.0,
+            "sound_db_mod": -5,
+            "is_healing": false,
+            "recoil": 25,
+            "recoil_duration": 0.1,
+            "additional_cooldown_every_x_shots": -1,
+            "additional_cooldown_multiplier": -1.0,
+            "speed_percent_modifier": 0,
+            "can_shoot_without_target": false,
+            "deal_dmg_on_return": false,
+            "attack_type": 0,
+            "alternate_attack_type": false,
+            "attack_duration": 0.48
+          },
+          "effects": [
+            {
+              "source": "res://weapons/melee/whip/2/whip_2_effect_slow.tres",
+              "sourceMd5": "7496b18e33734eb5f536903006900d93",
+              "key": "timed_slow_on_hit",
+              "value": 50,
+              "scale": null,
+              "duration": 1.0
+            }
+          ]
+        },
+        {
+          "source": "res://weapons/melee/whip/3/whip_3_data.tres",
+          "sourceMd5": "52a4707e6f64559725ed2c0128b41808",
+          "statsSource": "res://weapons/melee/whip/3/whip_3_stats.tres",
+          "statsMd5": "78e67142cb4bb3ffdf6ca641c9f2c386",
+          "tier": 3,
+          "price": 50,
+          "sets": [
+            "set_primitive"
+          ],
+          "kind": "Melee",
+          "stats": {
+            "cooldown": 17,
+            "damage": 15,
+            "accuracy": 1.0,
+            "crit_chance": 0.4,
+            "crit_damage": 2.0,
+            "min_range": 0,
+            "max_range": 240,
+            "knockback": 0,
+            "knockback_piercing": 0.0,
+            "can_have_positive_knockback": true,
+            "can_have_negative_knockback": false,
+            "effect_scale": 1.0,
+            "scaling_stats": [
+              [
+                "stat_melee_damage",
+                1.0
+              ]
+            ],
+            "lifesteal": 0.0,
+            "sound_db_mod": -5,
+            "is_healing": false,
+            "recoil": 25,
+            "recoil_duration": 0.1,
+            "additional_cooldown_every_x_shots": -1,
+            "additional_cooldown_multiplier": -1.0,
+            "speed_percent_modifier": 0,
+            "can_shoot_without_target": false,
+            "deal_dmg_on_return": false,
+            "attack_type": 0,
+            "alternate_attack_type": false,
+            "attack_duration": 0.48
+          },
+          "effects": [
+            {
+              "source": "res://weapons/melee/whip/3/whip_3_effect_slow.tres",
+              "sourceMd5": "fb715a376ccb77aea4d9f47ccdf67a71",
+              "key": "timed_slow_on_hit",
+              "value": 50,
+              "scale": null,
+              "duration": 1.5
+            }
+          ]
+        },
+        {
+          "source": "res://weapons/melee/whip/4/whip_4_data.tres",
+          "sourceMd5": "e0aeebe720435dc01ba3d760a36646c6",
+          "statsSource": "res://weapons/melee/whip/4/whip_4_stats.tres",
+          "statsMd5": "1522b6a031843284bb2ff8c633783bd5",
+          "tier": 4,
+          "price": 100,
+          "sets": [
+            "set_primitive"
+          ],
+          "kind": "Melee",
+          "stats": {
+            "cooldown": 12,
+            "damage": 21,
+            "accuracy": 1.0,
+            "crit_chance": 0.5,
+            "crit_damage": 2.0,
+            "min_range": 0,
+            "max_range": 260,
+            "knockback": 0,
+            "knockback_piercing": 0.0,
+            "can_have_positive_knockback": true,
+            "can_have_negative_knockback": false,
+            "effect_scale": 1.0,
+            "scaling_stats": [
+              [
+                "stat_melee_damage",
+                1.0
+              ]
+            ],
+            "lifesteal": 0.0,
+            "sound_db_mod": -5,
+            "is_healing": false,
+            "recoil": 25,
+            "recoil_duration": 0.1,
+            "additional_cooldown_every_x_shots": -1,
+            "additional_cooldown_multiplier": -1.0,
+            "speed_percent_modifier": 0,
+            "can_shoot_without_target": false,
+            "deal_dmg_on_return": false,
+            "attack_type": 0,
+            "alternate_attack_type": false,
+            "attack_duration": 0.48
+          },
+          "effects": [
+            {
+              "source": "res://weapons/melee/whip/4/whip_4_effect_slow.tres",
+              "sourceMd5": "a05e3307c628ab381d79c176914176b2",
+              "key": "timed_slow_on_hit",
+              "value": 50,
+              "scale": null,
+              "duration": 2.0
+            }
+          ]
+        }
+      ],
+      "geometry": {
+        "source": "res://weapons/melee/whip/whip.tscn",
+        "sourceMd5": "8cd5f56a083acdc0fb5333381fe5f530",
+        "hitOpenSeconds": 0.24,
+        "hitCloseSeconds": 0.32,
+        "attackLockSeconds": 0.48,
+        "hitStartOffset": 3.4,
+        "halfWidth": 1.6,
+        "spritePositionPoints": [
+          13.885,
+          46,
+          46,
+          3.985
+        ],
+        "spriteRotationDegrees": [
+          -16.4,
+          0,
+          0,
+          15
+        ],
+        "hitboxOffsetPoints": -12,
+        "note": "Lash animation method keys open/close at 0.24/0.32, length 0.48; Sprite x46 plus Hitbox x-12, Rectangle extents.y16, world scale0.1. Whip.init_stats replaces Hitbox y scale with1."
+      }
     }
   ]
 }

@@ -36,6 +36,11 @@
       "group": "weapons",
       "name": "GrenadeLauncher",
       "hash": "aa5eda69c710caa2f7d2a30c0c23c3a4079c6747e7bd6dd2a2d8815f9548085d"
+    },
+    "weapons/Whip.png": {
+      "group": "weapons",
+      "name": "Whip",
+      "hash": "2e79fb3d3c6ee51ef603d7b0baeabb6b6de7afb185d32ffff46ed4b21e914d0d"
     }
   }
 }

@@ -29,5 +29,5 @@
 - [x] Add seven stable starting-weapon combat paths, source tiers/prices, no-target Machinegun, native reload/spread; gate pending images.
 - [x] Prepare seven exact native RGBA weapon icons locally and connect the import list; do not upload.
 - [x] Connect Farmer growth, character drop modifiers and Entrepreneur recycling/wallet reset with personal/retry tests.
-- [ ] Implement Whip's timed geometry before calling the eight-family group complete.
-- [ ] Continue the remaining 22 weapon families, ten item/pet families, original access/legacy character adoption and other Handoff dependencies.
+- [x] Implement Whip's timed geometry before calling the eight-family group complete.
+- [ ] Continue the remaining 21 weapon families, ten item/pet families, original access/legacy character adoption and other Handoff dependencies.

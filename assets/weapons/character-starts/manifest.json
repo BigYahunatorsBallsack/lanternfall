@@ -66,7 +66,7 @@
     },
     {
       "id": "Machinegun",
-      "name": "Machinegun",
+      "name": "Machine Gun",
       "source": "res://weapons/ranged/machinegun/machinegun_icon.png",
       "textureSource": "res://.import/machinegun_icon.png-19297a1e189d9440dd8dfa68a9212163.stex",
       "textureMd5": "33c3f0b69319cecef48739014814a0c8",
@@ -142,6 +142,26 @@
         9,
         95,
         90
+      ]
+    },
+    {
+      "id": "Whip",
+      "name": "Whip",
+      "source": "res://weapons/melee/whip/whip_icon.png",
+      "textureSource": "res://.import/whip_icon.png-98c5933d47e8442fc2c9cb164bdc7fe1.stex",
+      "textureMd5": "e89b78772cb3e8a184c7a8f70d079a43",
+      "output": "assets/weapons/character-starts/Whip.png",
+      "pngSha256": "c913a2f2469c114d172ba177c7ed5d1a18937bf6da2727e001c9912cd289b21b",
+      "rgbaSha256": "a770b6d41a5ee9c4971aae881c6349b774d6046d102a89765d888364a193dbb3",
+      "size": [
+        96,
+        96
+      ],
+      "alphaBounds": [
+        8,
+        6,
+        91,
+        89
       ]
     }
   ]

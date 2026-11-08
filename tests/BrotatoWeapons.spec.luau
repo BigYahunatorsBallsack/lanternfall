@@ -49,13 +49,13 @@ describe("Brotato original catalog", function()
 			end
 		end)
 	end
-	it("retains all 62 original records alongside seven stable starting families and no custom evolutions", function()
+	it("retains all 62 original records alongside eight stable starting families and no custom evolutions", function()
 		local actual = 0
 		for id in Config.Weapons do
 			actual += 1
 			expect(Fixture[id] ~= nil or require(Shared.Config.CharacterWeaponData).weapons[id] ~= nil).toBe(true)
 		end
-		expect(actual).toBe(69)
+		expect(actual).toBe(70)
 		expect(count).toBe(62)
 		expect(next(Config.Evolutions)).toBe(nil)
 	end)

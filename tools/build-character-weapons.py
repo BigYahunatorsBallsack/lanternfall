@@ -16,7 +16,7 @@ def module(name, file):
     return result
 source = module('character_source', 'tools/character-source.py')
 catalog = module('character_catalog', 'tools/build-character-catalog.py')
-FAMILIES = ['anchor', 'mace', 'meat_tenderizer', 'machinegun', 'pan_flute', 'combat_shotgun', 'grenade_launcher']
+FAMILIES = ['anchor', 'mace', 'meat_tenderizer', 'machinegun', 'pan_flute', 'combat_shotgun', 'grenade_launcher', 'whip']
 FACTS = ROOT / 'docs/characters/weapon-source.json'
 OUTPUT = ROOT / 'src/shared/Config/CharacterWeaponData.luau'
 
@@ -35,9 +35,12 @@ def refresh():
             for ref in data['effects']:
                 ep = ref['resource']
                 effect = pck.resource(ep)['properties']
-                effects.append({'source': ep, 'sourceMd5': pck.entries[ep]['md5'], 'key': effect['key'], 'value': effect['value'], 'scale': effect.get('scale')})
+                effects.append({'source': ep, 'sourceMd5': pck.entries[ep]['md5'], 'key': effect['key'], 'value': effect['value'], 'scale': effect.get('scale'), 'duration': effect.get('duration')})
             tiers.append({'source': path, 'sourceMd5': pck.entries[path]['md5'], 'statsSource': stats_path, 'statsMd5': pck.entries[stats_path]['md5'], 'tier': data['tier'] + 1, 'price': data['value'], 'sets': [pck.resource(ref['resource'])['properties']['my_id'] for ref in data['sets']], 'kind': 'Melee' if data['type'] == 0 else 'Ranged', 'stats': {k: v for (k, v) in stats.items() if isinstance(v, (int, float, bool)) or k == 'scaling_stats'}, 'effects': effects})
-        rows.append({'id': catalog.pascal(family), 'name': 'Machinegun' if family == 'machinegun' else family.replace('_', ' ').title(), 'tiers': sorted(tiers, key=lambda row: row['tier'])})
+        rows.append({'id': catalog.pascal(family), 'name': 'Machine Gun' if family == 'machinegun' else family.replace('_', ' ').title(), 'tiers': sorted(tiers, key=lambda row: row['tier'])})
+    whip = next(row for row in rows if row['id'] == 'Whip')
+    scene = 'res://weapons/melee/whip/whip.tscn'
+    whip['geometry'] = {'source': scene, 'sourceMd5': pck.entries[scene]['md5'], 'hitOpenSeconds': 0.24, 'hitCloseSeconds': 0.32, 'attackLockSeconds': 0.48, 'hitStartOffset': 3.4, 'halfWidth': 1.6, 'spritePositionPoints': [13.885, 46, 46, 3.985], 'spriteRotationDegrees': [-16.4, 0, 0, 15], 'hitboxOffsetPoints': -12, 'note': 'Lash animation method keys open/close at 0.24/0.32, length 0.48; Sprite x46 plus Hitbox x-12, Rectangle extents.y16, world scale0.1. Whip.init_stats replaces Hitbox y scale with1.'}
     FACTS.write_text(json.dumps({'version': '1.2.0.1', 'steamBuild': 26406319, 'weapons': rows}, indent=2) + '\n', encoding='utf-8')
 
 def generate():
@@ -70,8 +73,18 @@ def generate():
                     bonuses[catalog.STATS[effect['key']]] = effect['value']
                 elif effect['key'] == 'effect_explode':
                     value.update(explosionChance=1, explosionRadius=147.34 * 0.1 * effect['scale'])
+                elif effect['key'] == 'timed_slow_on_hit':
+                    value.update(slow=effect['value'] / 100, slowSeconds=effect['duration'])
                 else:
                     raise ValueError(f'Unhandled effect {ident}: {effect}')
+            if ident == 'Whip':
+                geometry = row['geometry']
+                value.update(hitOpenSeconds=geometry['hitOpenSeconds'], hitCloseSeconds=geometry['hitCloseSeconds'], attackLockSeconds=geometry['attackLockSeconds'], hitStartOffset=geometry['hitStartOffset'], width=geometry['halfWidth'])
+                for prefix, values in [('whipPosition', geometry['spritePositionPoints']), ('whipRotation', geometry['spriteRotationDegrees'])]:
+                    for suffix, number in zip(['Before', 'Open', 'Close', 'After'], values):
+                        value[prefix + suffix] = number * 0.1 if prefix == 'whipPosition' else number
+                value['whipHitboxOffset'] = geometry['hitboxOffsetPoints'] * 0.1
+
             compiled.append(value)
             held.append(bonuses)
         base = compiled[0]

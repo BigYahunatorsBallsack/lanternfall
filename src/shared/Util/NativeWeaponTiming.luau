@@ -12,6 +12,9 @@ function Timing.apply(stats: { [string]: number }, attackSpeed: number, minimum:
 		return math.max(Rules.sourceMinimumFrames, math.floor(frames * factor)) / Rules.sourceFrameRate
 	end
 	stats.cooldown = math.max(minimum, seconds(stats.nativeCooldownFrames))
+	if stats.attackLockSeconds then
+		stats.cooldown = math.max(stats.cooldown, stats.attackLockSeconds)
+	end
 	if stats.nativeReloadFrames then
 		stats.reloadSeconds = math.max(stats.cooldown, minimum, seconds(stats.nativeReloadFrames))
 	end

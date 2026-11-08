@@ -32,7 +32,7 @@ local function frame(folder, number, now)
 end
 
 describe("World weapon sprites", function()
-	it("uses approved images for all 62 public weapons and rejects seven pending-art families", function()
+	it("uses approved images for all 62 public weapons and rejects eight pending-art families", function()
 		local count, pending = 0, 0
 		for id, weapon in Config.Weapons do
 			if weapon.available == false then
@@ -54,7 +54,7 @@ describe("World weapon sprites", function()
 			sprite.anchor:Destroy()
 		end
 		expect(count).toBe(62)
-		expect(pending).toBe(7)
+		expect(pending).toBe(8)
 		expect(Config.WeaponVisuals.spriteStuds.BrassKnuckles < Config.WeaponVisuals.spriteStuds.LamplighterPike).toBe(
 			true
 		)
