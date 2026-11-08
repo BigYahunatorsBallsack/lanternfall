@@ -119,9 +119,29 @@ describe("World weapon sprites", function()
 		HeldModels.clear()
 	end)
 
+	it("spaces held weapons evenly around the figure whatever their uids", function()
+		for count = 1, 6 do
+			local seen = {}
+			for slot = 1, count do
+				local dx, dz = Pose.direction(slot, count)
+				expect(math.abs(dx * dx + dz * dz - 1) < 1e-9).toBe(true)
+				table.insert(seen, math.atan2(dz, dx) % (2 * math.pi))
+			end
+			table.sort(seen)
+			for k = 1, count do
+				local nextAngle = if k == count then seen[1] + 2 * math.pi else seen[k + 1]
+				expect(math.abs(nextAngle - seen[k] - 2 * math.pi / count) < 1e-6).toBe(true)
+			end
+		end
+		local rx, rz = Pose.direction(1, 2)
+		local lx, lz = Pose.direction(2, 2)
+		expect(math.abs(rx - 1) < 1e-9 and math.abs(rz) < 1e-9).toBe(true)
+		expect(math.abs(lx + 1) < 1e-9 and math.abs(lz) < 1e-9).toBe(true)
+	end)
+
 	it("sends the precise copy id and starts shots beyond the held weapon", function()
-		local x, z = Pose.anchor(10, 20, 4, "WatchmanPistol")
-		local mx, mz = Pose.muzzle(10, 20, 4, "WatchmanPistol", 1, 0)
+		local x, z = Pose.anchor(10, 20, 2, 3, "WatchmanPistol")
+		local mx, mz = Pose.muzzle(10, 20, 2, 3, "WatchmanPistol", 1, 0)
 		expect(mx > x).toBe(true)
 		expect(mz).toBe(z)
 		local effects = WeaponFx.decode(WeaponFx.encode({

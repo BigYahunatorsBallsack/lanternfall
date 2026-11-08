@@ -4,6 +4,7 @@
 local Visuals = {
 	movingThreshold = 0.1,
 	holdRadius = 4.5,
+	holdStartDegrees = 0, -- first held weapon at screen right, the rest evenly spaced clockwise around the figure
 	holdHeight = 1.65,
 	spriteStuds = {},
 	holdRadiusById = {},

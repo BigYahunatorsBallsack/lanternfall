@@ -89,6 +89,8 @@ Jeder Strang ändert nur **seine** Zeile (Regeln: `docs/PARALLEL.md`).
 - Annahmen (Wiki schweigt, im Test prüfen): Brennen springt pro Tick auf den nächsten nicht brennenden Gegner in 8 Studs; Abprall-Ziel zufällig in 25 Studs; Rückstoß 0,1 Studs pro Punkt; Elites sind immun gegen Rückstoß.
 - B6 (30.10.2026, Annahmen im Test prüfen): Kisten sind 25 % der Früchte/Kisten-Drops (Brotato nennt keinen Grundwert), Brute/Abyss Brute 3 %, Charger 2 % statt 1 %; Plünderer verschwindet nach 12 s; 1 Baum pro Welle mit 30 HP; Kisten öffnen sich vor den Level-up-Karten, nach 10 s wird genommen; liegengebliebene Kisten gehen an den nächsten Spieler. Elite-Truhen bleiben bis Paket 10/B11 wie sie sind (sonst 13 legendäre Items pro Run).
 
+- Owner (08.11.2026): Bäume haben bewusst doppelt so viel Leben wie in Brotato: 20 + 10 pro Welle statt 10 + 5 (`Config/Enemies.luau` → `Tree`). Gewollte Abweichung von der 1:1-Regel.
+
 - B9 Teil 2 (30.10.2026): Schütze mit Flucht ist erlaubt, wenn `flee.range` gesetzt ist (ConfigCheck). Debug-Liste neuer Gegner in `Config/Admin.luau` → `newEnemies` (wie `newItems`).
 - B9 (30.10.2026): Gegner-Werte wachsen pro Typ wie Brotato (Grundwert + Zuwachs pro Schritt), aber die Schritte pro Welle folgen der alten, getesteten Kurve (Brotatos „Welle − 1" war in der Simulation viel zu schwer: 0 von 12 Siegen). Spawn-Ring näher (32–52 Studs), damit die Marker sichtbar sind; Annahmen im Test prüfen.
 - Owner (30.10.2026): Kamera bleibt bei 50° (nicht wie Brotato von oben), aber weiter herausgezoomt (Abstand 100 statt 70), damit man Spawns früher sieht. Schwierigkeit wird erst später mit mehreren Charakteren feinjustiert. B8 Items übernimmt Claude statt ChatGPT, weil ChatGPT wenig Limit hat.
@@ -567,3 +569,9 @@ Branch `wp-25-2d-presentation`. **Owner-Entscheidungen dieses Pakets:** Das Spie
 ## Hauptmenü zentriert (Claude, 08.11.2026)
 
 - Owner-Wahl „Mittig, Figuren links/rechts": Titel und Untertitel über die volle Breite mittig, die vier Menü-Buttons (260 breit, Text mittig) in der Bildschirmmitte, die beiden Figuren (je 320) spiegelgleich links und rechts neben den Buttons. Nur `src/client/UI/LobbyLayout.luau` (Abschnitt `refresh`). Schriftart unverändert, die macht ein eigener Thread. Kompakte Ansicht (Handy) wie bisher, nur Button-Text mittig.
+## Fix: Waffen gleichmäßig um die Figur (Claude, 08.11.2026)
+
+- Owner-Meldung: gehaltene Waffen standen ungleichmäßig um die Figur (Lücken und Häufungen). Ursache: `Util/WeaponPose` setzte jede Waffe auf `uid × goldener Winkel`; uids sind nach Kauf, Verkauf und Merge nicht fortlaufend, und selbst fortlaufend bleibt der goldene Winkel bei wenigen Waffen ungleich.
+- Jetzt: Platz `slot` von `count` Waffen (Loadout-Reihenfolge des Servers) auf gleichen Abständen, erste Waffe rechts (`Config.WeaponVisuals.holdStartDegrees = 0`), weiter im Uhrzeigersinn; 2 Waffen links/rechts, 6 als Sechseck. Nach Verkauf/Merge rücken die übrigen nach. Server-Schussursprung (`Arsenal.Context.slot`/`slotCount`, gesetzt in `Arsenal.step`) und Client-Bild (`HeldModels.renderWeapon` nutzt jetzt slot/total) rechnen gleich.
+- Ausnahme Dateibesitz: berührt Strang-B-Dateien (`WeaponService/Arsenal`, `BrotatoProjectile`, `B7Projectile`, `WeaponRenderer/HeldModels`, `Config/WeaponVisuals`, `Util/WeaponPose`) auf direkten Owner-Auftrag. Neue Schnittstelle: `WeaponPose.direction(slot, count)`, `anchor(x, z, slot, count, id)`, `muzzle(x, z, slot, count, id, dx, dz, distance?)`.
+- Nicht geprüft: genaue Brotato-Positionen pro Waffenanzahl (Wiki nennt sie nicht); umgesetzt ist der sichtbare Brotato-Eindruck „gleichmäßiger Kreis“.

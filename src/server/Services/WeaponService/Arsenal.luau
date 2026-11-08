@@ -82,6 +82,8 @@ export type Context = {
 	z: number,
 	vx: number, -- owner velocity, studs/s
 	vz: number,
+	slot: number, -- the running weapon's place in its owner's loadout and the loadout size (held pose, Util/WeaponPose)
+	slotCount: number,
 	sweepStep: number, -- see Config.Simulation.weaponSweepStep
 	queryCircle: (self: Context, x: number, z: number, radius: number, out: { number }) -> number,
 	querySegment: (
@@ -201,6 +203,8 @@ local function makeContext(self: Arsenal): Context
 		z = 0,
 		vx = 0,
 		vz = 0,
+		slot = 1,
+		slotCount = 1,
 		sweepStep = params.sweepStep,
 	} :: any
 
@@ -973,7 +977,9 @@ function Arsenal.step(self: Arsenal, dt: number, now: number)
 		local active = owner.placed
 		ctx.active = active
 		ctx.x, ctx.z, ctx.vx, ctx.vz = owner.x, owner.z, owner.vx, owner.vz
-		for _, weapon in owner.weapons do
+		ctx.slotCount = #owner.weapons
+		for slot, weapon in owner.weapons do
+			ctx.slot = slot
 			local behavior = weapon.behavior
 			if behavior.step then
 				behavior.step(weapon, ctx, dt)
