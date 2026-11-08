@@ -6,6 +6,7 @@ local Config = require(Shared.Config)
 local StatMath = require(Shared.Util.StatMath)
 local CharacterRules = require(Shared.Util.CharacterRules)
 local NativeTiming = require(Shared.Util.NativeWeaponTiming)
+local NativeDamage = require(Shared.Util.NativeWeaponDamage)
 local UpgradeText = require(Shared.Util.UpgradeText)
 local WeaponClasses = require(Shared.Util.WeaponClasses)
 local Theme = require(script.Parent.Theme)
@@ -43,12 +44,13 @@ function OfferText.stats(id: string, tier: number, sheet: { [string]: number }):
 		end
 	end
 	local damage = (result.damage or 0) * (1 + damageBonus)
+	damage = NativeDamage.base(damage, result, sheet)
 	for stat, share in (if weapon.tierScaling then weapon.tierScaling[tier] else weapon.scaling) do
 		damage += share * (sheet[stat] or 0)
 	end
 	damage += (result.levelScaling or 0) * (sheet.level or 0)
 	damage += sheet.baseDamage or 0
-	result.damage = math.max(1, damage * math.max(0, 1 + (sheet.damage or 0) / 100))
+	result.damage = NativeDamage.total(damage, math.max(0, 1 + (sheet.damage or 0) / 100), result)
 	if result.cooldown then
 		local minimum = math.max(
 			if weapon.brotato then Config.Combat.originalWeapons.minCooldown else Config.Player.minWeaponCooldown,
@@ -119,8 +121,9 @@ function OfferText.weapon(id: string, tier: number, sheet: { [string]: number })
 	if stats.lifeSteal > 0 then
 		line("Life Steal", color(number(stats.lifeSteal * 100) .. "%", Theme.success))
 	end
-	if weapon.description and weapon.description ~= "" then
-		table.insert(lines, "\n" .. weapon.description)
+	local description = if weapon.tierDescriptions then weapon.tierDescriptions[tier] else weapon.description
+	if description and description ~= "" then
+		table.insert(lines, "\n" .. description)
 	end
 	return WeaponClasses.names(id), table.concat(lines, "\n")
 end

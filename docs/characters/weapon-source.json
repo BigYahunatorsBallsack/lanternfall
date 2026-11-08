@@ -213,7 +213,8 @@
               "key": "stat_attack_speed",
               "value": -3,
               "scale": null,
-              "duration": null
+              "duration": null,
+              "custom_key": ""
             }
           ]
         },
@@ -271,7 +272,8 @@
               "key": "stat_attack_speed",
               "value": -6,
               "scale": null,
-              "duration": null
+              "duration": null,
+              "custom_key": ""
             }
           ]
         },
@@ -329,7 +331,8 @@
               "key": "stat_attack_speed",
               "value": -10,
               "scale": null,
-              "duration": null
+              "duration": null,
+              "custom_key": ""
             }
           ]
         }
@@ -602,7 +605,8 @@
               "key": "stat_speed",
               "value": -3,
               "scale": null,
-              "duration": null
+              "duration": null,
+              "custom_key": ""
             }
           ]
         },
@@ -663,7 +667,8 @@
               "key": "stat_speed",
               "value": -3,
               "scale": null,
-              "duration": null
+              "duration": null,
+              "custom_key": ""
             }
           ]
         },
@@ -724,7 +729,8 @@
               "key": "stat_speed",
               "value": -3,
               "scale": null,
-              "duration": null
+              "duration": null,
+              "custom_key": ""
             }
           ]
         },
@@ -785,7 +791,8 @@
               "key": "stat_speed",
               "value": -3,
               "scale": null,
-              "duration": null
+              "duration": null,
+              "custom_key": ""
             }
           ]
         }
@@ -1221,7 +1228,9 @@
               "key": "effect_explode",
               "value": 0,
               "scale": 0.75,
-              "duration": null
+              "duration": null,
+              "custom_key": "",
+              "chance": 1.0
             }
           ]
         },
@@ -1282,7 +1291,9 @@
               "key": "effect_explode",
               "value": 0,
               "scale": 0.75,
-              "duration": null
+              "duration": null,
+              "custom_key": "",
+              "chance": 1.0
             }
           ]
         },
@@ -1343,7 +1354,9 @@
               "key": "effect_explode",
               "value": 0,
               "scale": 0.75,
-              "duration": null
+              "duration": null,
+              "custom_key": "",
+              "chance": 1.0
             }
           ]
         }
@@ -1404,7 +1417,8 @@
               "key": "timed_slow_on_hit",
               "value": 50,
               "scale": null,
-              "duration": 0.5
+              "duration": 0.5,
+              "custom_key": ""
             }
           ]
         },
@@ -1459,7 +1473,8 @@
               "key": "timed_slow_on_hit",
               "value": 50,
               "scale": null,
-              "duration": 1.0
+              "duration": 1.0,
+              "custom_key": ""
             }
           ]
         },
@@ -1514,7 +1529,8 @@
               "key": "timed_slow_on_hit",
               "value": 50,
               "scale": null,
-              "duration": 1.5
+              "duration": 1.5,
+              "custom_key": ""
             }
           ]
         },
@@ -1569,7 +1585,8 @@
               "key": "timed_slow_on_hit",
               "value": 50,
               "scale": null,
-              "duration": 2.0
+              "duration": 2.0,
+              "custom_key": ""
             }
           ]
         }
@@ -1597,6 +1614,1386 @@
         "hitboxOffsetPoints": -12,
         "note": "Lash animation method keys open/close at 0.24/0.32, length 0.48; Sprite x46 plus Hitbox x-12, Rectangle extents.y16, world scale0.1. Whip.init_stats replaces Hitbox y scale with1."
       }
+    },
+    {
+      "id": "Spoon",
+      "name": "Spoon",
+      "tiers": [
+        {
+          "source": "res://dlcs/dlc_1/weapons/melee/spoon/1/spoon_data.tres",
+          "sourceMd5": "4cc51e739a3569bef1062adae2f5ef83",
+          "statsSource": "res://dlcs/dlc_1/weapons/melee/spoon/1/spoon_stats.tres",
+          "statsMd5": "fab605f0e2dc88651133a76ccd4c39b2",
+          "tier": 1,
+          "price": 15,
+          "sets": [
+            "set_blunt"
+          ],
+          "kind": "Melee",
+          "stats": {
+            "cooldown": 30,
+            "damage": 10,
+            "accuracy": 1.0,
+            "crit_chance": 0.0,
+            "crit_damage": 2.0,
+            "min_range": 0,
+            "max_range": 150,
+            "knockback": 2,
+            "knockback_piercing": 0.0,
+            "can_have_positive_knockback": true,
+            "can_have_negative_knockback": false,
+            "effect_scale": 1.0,
+            "scaling_stats": [
+              [
+                "stat_melee_damage",
+                0.5
+              ],
+              [
+                "stat_max_hp",
+                0.15
+              ]
+            ],
+            "lifesteal": 0.0,
+            "sound_db_mod": -5,
+            "is_healing": false,
+            "recoil": 25,
+            "recoil_duration": 0.1,
+            "additional_cooldown_every_x_shots": -1,
+            "additional_cooldown_multiplier": -1.0,
+            "speed_percent_modifier": 0,
+            "deal_dmg_on_return": false,
+            "attack_type": 1,
+            "alternate_attack_type": false
+          },
+          "effects": [
+            {
+              "source": "res://dlcs/dlc_1/weapons/melee/spoon/spoon_effect.tres",
+              "sourceMd5": "658cabcd580c3edc4af8cd6cfb232a17",
+              "key": "crit_on_hitting_burning_target",
+              "value": 0,
+              "scale": null,
+              "duration": null,
+              "custom_key": ""
+            }
+          ]
+        },
+        {
+          "source": "res://dlcs/dlc_1/weapons/melee/spoon/2/spoon_2_data.tres",
+          "sourceMd5": "5addafa5f83140d921f3b71e1c7520d9",
+          "statsSource": "res://dlcs/dlc_1/weapons/melee/spoon/2/spoon_2_stats.tres",
+          "statsMd5": "b56fe2cd6753e4e6962460213af17da3",
+          "tier": 2,
+          "price": 31,
+          "sets": [
+            "set_blunt"
+          ],
+          "kind": "Melee",
+          "stats": {
+            "cooldown": 25,
+            "damage": 15,
+            "accuracy": 1.0,
+            "crit_chance": 0.0,
+            "crit_damage": 2.25,
+            "min_range": 0,
+            "max_range": 165,
+            "knockback": 2,
+            "knockback_piercing": 0.0,
+            "can_have_positive_knockback": true,
+            "can_have_negative_knockback": false,
+            "effect_scale": 1.0,
+            "scaling_stats": [
+              [
+                "stat_melee_damage",
+                0.5
+              ],
+              [
+                "stat_max_hp",
+                0.2
+              ]
+            ],
+            "lifesteal": 0.0,
+            "sound_db_mod": -5,
+            "is_healing": false,
+            "recoil": 25,
+            "recoil_duration": 0.1,
+            "additional_cooldown_every_x_shots": -1,
+            "additional_cooldown_multiplier": -1.0,
+            "speed_percent_modifier": 0,
+            "deal_dmg_on_return": false,
+            "attack_type": 1,
+            "alternate_attack_type": false
+          },
+          "effects": [
+            {
+              "source": "res://dlcs/dlc_1/weapons/melee/spoon/spoon_effect.tres",
+              "sourceMd5": "658cabcd580c3edc4af8cd6cfb232a17",
+              "key": "crit_on_hitting_burning_target",
+              "value": 0,
+              "scale": null,
+              "duration": null,
+              "custom_key": ""
+            }
+          ]
+        },
+        {
+          "source": "res://dlcs/dlc_1/weapons/melee/spoon/3/spoon_3_data.tres",
+          "sourceMd5": "fe541a23a476c807236f9a40707f5ebc",
+          "statsSource": "res://dlcs/dlc_1/weapons/melee/spoon/3/spoon_3_stats.tres",
+          "statsMd5": "6712399507d0bbbe7eac035e4fb3c932",
+          "tier": 3,
+          "price": 61,
+          "sets": [
+            "set_blunt"
+          ],
+          "kind": "Melee",
+          "stats": {
+            "cooldown": 20,
+            "damage": 20,
+            "accuracy": 1.0,
+            "crit_chance": 0.0,
+            "crit_damage": 2.5,
+            "min_range": 0,
+            "max_range": 180,
+            "knockback": 2,
+            "knockback_piercing": 0.0,
+            "can_have_positive_knockback": true,
+            "can_have_negative_knockback": false,
+            "effect_scale": 1.0,
+            "scaling_stats": [
+              [
+                "stat_melee_damage",
+                0.5
+              ],
+              [
+                "stat_max_hp",
+                0.25
+              ]
+            ],
+            "lifesteal": 0.0,
+            "sound_db_mod": -5,
+            "is_healing": false,
+            "recoil": 25,
+            "recoil_duration": 0.1,
+            "additional_cooldown_every_x_shots": -1,
+            "additional_cooldown_multiplier": -1.0,
+            "speed_percent_modifier": 0,
+            "deal_dmg_on_return": false,
+            "attack_type": 1,
+            "alternate_attack_type": false
+          },
+          "effects": [
+            {
+              "source": "res://dlcs/dlc_1/weapons/melee/spoon/spoon_effect.tres",
+              "sourceMd5": "658cabcd580c3edc4af8cd6cfb232a17",
+              "key": "crit_on_hitting_burning_target",
+              "value": 0,
+              "scale": null,
+              "duration": null,
+              "custom_key": ""
+            }
+          ]
+        },
+        {
+          "source": "res://dlcs/dlc_1/weapons/melee/spoon/4/spoon_4_data.tres",
+          "sourceMd5": "8a582d371503a09f6e546630aa595068",
+          "statsSource": "res://dlcs/dlc_1/weapons/melee/spoon/4/spoon_4_stats.tres",
+          "statsMd5": "c475f6ccbef2d85cd3a12963ff1a1d70",
+          "tier": 4,
+          "price": 122,
+          "sets": [
+            "set_blunt"
+          ],
+          "kind": "Melee",
+          "stats": {
+            "cooldown": 15,
+            "damage": 25,
+            "accuracy": 1.0,
+            "crit_chance": 0.0,
+            "crit_damage": 3.0,
+            "min_range": 0,
+            "max_range": 200,
+            "knockback": 2,
+            "knockback_piercing": 0.0,
+            "can_have_positive_knockback": true,
+            "can_have_negative_knockback": false,
+            "effect_scale": 1.0,
+            "scaling_stats": [
+              [
+                "stat_melee_damage",
+                0.5
+              ],
+              [
+                "stat_max_hp",
+                0.3
+              ]
+            ],
+            "lifesteal": 0.0,
+            "sound_db_mod": -5,
+            "is_healing": false,
+            "recoil": 25,
+            "recoil_duration": 0.1,
+            "additional_cooldown_every_x_shots": -1,
+            "additional_cooldown_multiplier": -1.0,
+            "speed_percent_modifier": 0,
+            "deal_dmg_on_return": false,
+            "attack_type": 1,
+            "alternate_attack_type": false
+          },
+          "effects": [
+            {
+              "source": "res://dlcs/dlc_1/weapons/melee/spoon/spoon_effect.tres",
+              "sourceMd5": "658cabcd580c3edc4af8cd6cfb232a17",
+              "key": "crit_on_hitting_burning_target",
+              "value": 0,
+              "scale": null,
+              "duration": null,
+              "custom_key": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "Cestus",
+      "name": "Cestus",
+      "tiers": [
+        {
+          "source": "res://weapons/melee/cestus/2/cestus_2_data.tres",
+          "sourceMd5": "f5683f05d4256076cd9776af6adc1b2c",
+          "statsSource": "res://weapons/melee/cestus/2/cestus_2_stats.tres",
+          "statsMd5": "db3ce1cb6d4d17e7b9e986599357aaee",
+          "tier": 2,
+          "price": 35,
+          "sets": [
+            "set_unarmed",
+            "set_blunt"
+          ],
+          "kind": "Melee",
+          "stats": {
+            "cooldown": 42,
+            "damage": 25,
+            "accuracy": 1.0,
+            "crit_chance": 0.03,
+            "crit_damage": 1.5,
+            "min_range": 0,
+            "max_range": 175,
+            "knockback": 5,
+            "knockback_piercing": 0.0,
+            "can_have_positive_knockback": true,
+            "can_have_negative_knockback": false,
+            "effect_scale": 1.0,
+            "scaling_stats": [
+              [
+                "stat_melee_damage",
+                1.0
+              ]
+            ],
+            "lifesteal": 0.0,
+            "sound_db_mod": -5,
+            "is_healing": false,
+            "recoil": 25,
+            "recoil_duration": 0.1,
+            "additional_cooldown_every_x_shots": -1,
+            "additional_cooldown_multiplier": -1.0,
+            "speed_percent_modifier": 0,
+            "can_shoot_without_target": false,
+            "deal_dmg_on_return": false,
+            "attack_type": 0,
+            "alternate_attack_type": false,
+            "attack_duration": 0.0,
+            "animation_speed": 1.0
+          },
+          "effects": [
+            {
+              "source": "res://weapons/melee/cestus/2/cestus_2_effect_0.tres",
+              "sourceMd5": "4c794e1b828fa98ab5871249d7f60603",
+              "key": "",
+              "value": 10,
+              "scale": null,
+              "duration": null,
+              "stat_name": "knockback",
+              "damage_multiplier": 2.0,
+              "custom_key": ""
+            }
+          ]
+        },
+        {
+          "source": "res://weapons/melee/cestus/3/cestus_3_data.tres",
+          "sourceMd5": "34810098504c313b714eddf959abeb1e",
+          "statsSource": "res://weapons/melee/cestus/3/cestus_3_stats.tres",
+          "statsMd5": "6b8cd18eb540730cd36ed7d168485912",
+          "tier": 3,
+          "price": 67,
+          "sets": [
+            "set_unarmed",
+            "set_blunt"
+          ],
+          "kind": "Melee",
+          "stats": {
+            "cooldown": 37,
+            "damage": 50,
+            "accuracy": 1.0,
+            "crit_chance": 0.03,
+            "crit_damage": 1.5,
+            "min_range": 0,
+            "max_range": 175,
+            "knockback": 5,
+            "knockback_piercing": 0.0,
+            "can_have_positive_knockback": true,
+            "can_have_negative_knockback": false,
+            "effect_scale": 1.0,
+            "scaling_stats": [
+              [
+                "stat_melee_damage",
+                1.0
+              ]
+            ],
+            "lifesteal": 0.0,
+            "sound_db_mod": -5,
+            "is_healing": false,
+            "recoil": 25,
+            "recoil_duration": 0.1,
+            "additional_cooldown_every_x_shots": -1,
+            "additional_cooldown_multiplier": -1.0,
+            "speed_percent_modifier": 0,
+            "can_shoot_without_target": false,
+            "deal_dmg_on_return": false,
+            "attack_type": 0,
+            "alternate_attack_type": false,
+            "attack_duration": 0.0,
+            "animation_speed": 1.0
+          },
+          "effects": [
+            {
+              "source": "res://weapons/melee/cestus/3/cestus_3_effect_0.tres",
+              "sourceMd5": "4c794e1b828fa98ab5871249d7f60603",
+              "key": "",
+              "value": 10,
+              "scale": null,
+              "duration": null,
+              "stat_name": "knockback",
+              "damage_multiplier": 2.0,
+              "custom_key": ""
+            }
+          ]
+        },
+        {
+          "source": "res://weapons/melee/cestus/4/cestus_4_data.tres",
+          "sourceMd5": "6288ebfabf69019109bc0b860e2bd8a1",
+          "statsSource": "res://weapons/melee/cestus/4/cestus_4_stats.tres",
+          "statsMd5": "1f9ba10fb4bd7dfb5ebe57364d5f8207",
+          "tier": 4,
+          "price": 134,
+          "sets": [
+            "set_unarmed",
+            "set_blunt"
+          ],
+          "kind": "Melee",
+          "stats": {
+            "cooldown": 31,
+            "damage": 100,
+            "accuracy": 1.0,
+            "crit_chance": 0.03,
+            "crit_damage": 1.5,
+            "min_range": 0,
+            "max_range": 175,
+            "knockback": 5,
+            "knockback_piercing": 0.0,
+            "can_have_positive_knockback": true,
+            "can_have_negative_knockback": false,
+            "effect_scale": 1.0,
+            "scaling_stats": [
+              [
+                "stat_melee_damage",
+                1.0
+              ]
+            ],
+            "lifesteal": 0.0,
+            "sound_db_mod": -5,
+            "is_healing": false,
+            "recoil": 25,
+            "recoil_duration": 0.1,
+            "additional_cooldown_every_x_shots": -1,
+            "additional_cooldown_multiplier": -1.0,
+            "speed_percent_modifier": 0,
+            "can_shoot_without_target": false,
+            "deal_dmg_on_return": false,
+            "attack_type": 0,
+            "alternate_attack_type": false,
+            "attack_duration": 0.0,
+            "animation_speed": 1.0
+          },
+          "effects": [
+            {
+              "source": "res://weapons/melee/cestus/4/cestus_4_effect_0.tres",
+              "sourceMd5": "4c794e1b828fa98ab5871249d7f60603",
+              "key": "",
+              "value": 10,
+              "scale": null,
+              "duration": null,
+              "stat_name": "knockback",
+              "damage_multiplier": 2.0,
+              "custom_key": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "Sickle",
+      "name": "Sickle",
+      "tiers": [
+        {
+          "source": "res://dlcs/dlc_1/weapons/melee/sickle/1/sickle_data.tres",
+          "sourceMd5": "29f9187b48c16415ebd3b870150d4ba7",
+          "statsSource": "res://dlcs/dlc_1/weapons/melee/sickle/1/sickle_stats.tres",
+          "statsMd5": "cd0f0da3c3ba84e65b421d420a9b4cc9",
+          "tier": 1,
+          "price": 15,
+          "sets": [
+            "set_support"
+          ],
+          "kind": "Melee",
+          "stats": {
+            "cooldown": 20,
+            "damage": 5,
+            "accuracy": 1.0,
+            "crit_chance": 0.03,
+            "crit_damage": 2.0,
+            "min_range": 0,
+            "max_range": 125,
+            "knockback": 2,
+            "knockback_piercing": 0.0,
+            "can_have_positive_knockback": true,
+            "can_have_negative_knockback": false,
+            "effect_scale": 1.0,
+            "scaling_stats": [
+              [
+                "stat_melee_damage",
+                0.8
+              ],
+              [
+                "stat_harvesting",
+                0.1
+              ]
+            ],
+            "lifesteal": 0.0,
+            "sound_db_mod": -5,
+            "is_healing": false,
+            "recoil": 25,
+            "recoil_duration": 0.1,
+            "additional_cooldown_every_x_shots": -1,
+            "additional_cooldown_multiplier": -1.0,
+            "speed_percent_modifier": 0,
+            "deal_dmg_on_return": false,
+            "attack_type": 1,
+            "alternate_attack_type": false
+          },
+          "effects": [
+            {
+              "source": "res://dlcs/dlc_1/weapons/melee/sickle/1/sickle_effect_0.tres",
+              "sourceMd5": "12cfb444b49eca66f9e8aad5e5be7d0a",
+              "key": "bonus_damage_against_targets_below_hp",
+              "value": 20,
+              "scale": null,
+              "duration": null,
+              "value2": 30,
+              "custom_key": ""
+            }
+          ]
+        },
+        {
+          "source": "res://dlcs/dlc_1/weapons/melee/sickle/2/sickle_2_data.tres",
+          "sourceMd5": "74393e12b82c11e8a839402d57a82429",
+          "statsSource": "res://dlcs/dlc_1/weapons/melee/sickle/2/sickle_2_stats.tres",
+          "statsMd5": "5f5e5d5f253e73adf30bcf5b522a3ab6",
+          "tier": 2,
+          "price": 31,
+          "sets": [
+            "set_support"
+          ],
+          "kind": "Melee",
+          "stats": {
+            "cooldown": 17,
+            "damage": 8,
+            "accuracy": 1.0,
+            "crit_chance": 0.03,
+            "crit_damage": 2.0,
+            "min_range": 0,
+            "max_range": 125,
+            "knockback": 2,
+            "knockback_piercing": 0.0,
+            "can_have_positive_knockback": true,
+            "can_have_negative_knockback": false,
+            "effect_scale": 1.0,
+            "scaling_stats": [
+              [
+                "stat_melee_damage",
+                0.8
+              ],
+              [
+                "stat_harvesting",
+                0.15
+              ]
+            ],
+            "lifesteal": 0.0,
+            "sound_db_mod": -5,
+            "is_healing": false,
+            "recoil": 25,
+            "recoil_duration": 0.1,
+            "additional_cooldown_every_x_shots": -1,
+            "additional_cooldown_multiplier": -1.0,
+            "speed_percent_modifier": 0,
+            "deal_dmg_on_return": false,
+            "attack_type": 1,
+            "alternate_attack_type": false
+          },
+          "effects": [
+            {
+              "source": "res://dlcs/dlc_1/weapons/melee/sickle/2/sickle_2_effect_0.tres",
+              "sourceMd5": "e9cae9173ae2bd9d9e2fa553f9172f3c",
+              "key": "bonus_damage_against_targets_below_hp",
+              "value": 30,
+              "scale": null,
+              "duration": null,
+              "value2": 30,
+              "custom_key": ""
+            }
+          ]
+        },
+        {
+          "source": "res://dlcs/dlc_1/weapons/melee/sickle/3/sickle_3_data.tres",
+          "sourceMd5": "683736d56408c990ef3789079d548a89",
+          "statsSource": "res://dlcs/dlc_1/weapons/melee/sickle/3/sickle_3_stats.tres",
+          "statsMd5": "a4a2383b6863967640e3d239f88f5f48",
+          "tier": 3,
+          "price": 61,
+          "sets": [
+            "set_support"
+          ],
+          "kind": "Melee",
+          "stats": {
+            "cooldown": 14,
+            "damage": 12,
+            "accuracy": 1.0,
+            "crit_chance": 0.03,
+            "crit_damage": 2.0,
+            "min_range": 0,
+            "max_range": 125,
+            "knockback": 2,
+            "knockback_piercing": 0.0,
+            "can_have_positive_knockback": true,
+            "can_have_negative_knockback": false,
+            "effect_scale": 1.0,
+            "scaling_stats": [
+              [
+                "stat_melee_damage",
+                0.8
+              ],
+              [
+                "stat_harvesting",
+                0.2
+              ]
+            ],
+            "lifesteal": 0.0,
+            "sound_db_mod": -5,
+            "is_healing": false,
+            "recoil": 25,
+            "recoil_duration": 0.1,
+            "additional_cooldown_every_x_shots": -1,
+            "additional_cooldown_multiplier": -1.0,
+            "speed_percent_modifier": 0,
+            "deal_dmg_on_return": false,
+            "attack_type": 1,
+            "alternate_attack_type": false
+          },
+          "effects": [
+            {
+              "source": "res://dlcs/dlc_1/weapons/melee/sickle/3/sickle_3_effect_0.tres",
+              "sourceMd5": "3607e849ea3385c9b92ef6ee01ab36c7",
+              "key": "bonus_damage_against_targets_below_hp",
+              "value": 40,
+              "scale": null,
+              "duration": null,
+              "value2": 30,
+              "custom_key": ""
+            }
+          ]
+        },
+        {
+          "source": "res://dlcs/dlc_1/weapons/melee/sickle/4/sickle_4_data.tres",
+          "sourceMd5": "e87de8f3cefadefebab40d0878007af7",
+          "statsSource": "res://dlcs/dlc_1/weapons/melee/sickle/4/sickle_4_stats.tres",
+          "statsMd5": "0cf54e9ada3cf00a47b8ead8732ad32d",
+          "tier": 4,
+          "price": 122,
+          "sets": [
+            "set_support"
+          ],
+          "kind": "Melee",
+          "stats": {
+            "cooldown": 10,
+            "damage": 15,
+            "accuracy": 1.0,
+            "crit_chance": 0.03,
+            "crit_damage": 2.0,
+            "min_range": 0,
+            "max_range": 125,
+            "knockback": 2,
+            "knockback_piercing": 0.0,
+            "can_have_positive_knockback": true,
+            "can_have_negative_knockback": false,
+            "effect_scale": 1.0,
+            "scaling_stats": [
+              [
+                "stat_melee_damage",
+                0.8
+              ],
+              [
+                "stat_harvesting",
+                0.25
+              ]
+            ],
+            "lifesteal": 0.0,
+            "sound_db_mod": -5,
+            "is_healing": false,
+            "recoil": 25,
+            "recoil_duration": 0.1,
+            "additional_cooldown_every_x_shots": -1,
+            "additional_cooldown_multiplier": -1.0,
+            "speed_percent_modifier": 0,
+            "deal_dmg_on_return": false,
+            "attack_type": 1,
+            "alternate_attack_type": false
+          },
+          "effects": [
+            {
+              "source": "res://dlcs/dlc_1/weapons/melee/sickle/4/sickle_4_effect_0.tres",
+              "sourceMd5": "e765194f97642c8cd163042ea5d1890d",
+              "key": "bonus_damage_against_targets_below_hp",
+              "value": 50,
+              "scale": null,
+              "duration": null,
+              "value2": 30,
+              "custom_key": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "Trident",
+      "name": "Trident",
+      "tiers": [
+        {
+          "source": "res://dlcs/dlc_1/weapons/melee/trident/2/trident_2_data.tres",
+          "sourceMd5": "6c294f5482808a5244384fa427632db0",
+          "statsSource": "res://dlcs/dlc_1/weapons/melee/trident/2/trident_2_stats.tres",
+          "statsMd5": "aef9df1072cbfa60bf865968721befa1",
+          "tier": 2,
+          "price": 49,
+          "sets": [
+            "set_naval",
+            "set_medieval"
+          ],
+          "kind": "Melee",
+          "stats": {
+            "cooldown": 50,
+            "damage": 30,
+            "accuracy": 1.0,
+            "crit_chance": 0.03,
+            "crit_damage": 2.0,
+            "min_range": 0,
+            "max_range": 325,
+            "knockback": 0,
+            "knockback_piercing": 0.0,
+            "can_have_positive_knockback": true,
+            "can_have_negative_knockback": false,
+            "effect_scale": 1.0,
+            "scaling_stats": [
+              [
+                "stat_melee_damage",
+                1.0
+              ],
+              [
+                "stat_curse",
+                0.15
+              ]
+            ],
+            "lifesteal": 0.0,
+            "sound_db_mod": -5,
+            "is_healing": false,
+            "recoil": 25,
+            "recoil_duration": 0.1,
+            "additional_cooldown_every_x_shots": -1,
+            "additional_cooldown_multiplier": -1.0,
+            "speed_percent_modifier": 0,
+            "deal_dmg_on_return": false,
+            "attack_type": 0,
+            "alternate_attack_type": false
+          },
+          "effects": [
+            {
+              "source": "res://dlcs/dlc_1/weapons/melee/trident/2/trident_2_effect_0.tres",
+              "sourceMd5": "02036292068ed5dd68def336a75ae09f",
+              "key": "bonus_damage_against_targets_above_hp",
+              "value": 30,
+              "scale": null,
+              "duration": null,
+              "value2": 80,
+              "custom_key": ""
+            }
+          ]
+        },
+        {
+          "source": "res://dlcs/dlc_1/weapons/melee/trident/3/trident_3_data.tres",
+          "sourceMd5": "be250ead73c6bcc7a906cd28fb1744a4",
+          "statsSource": "res://dlcs/dlc_1/weapons/melee/trident/3/trident_3_stats.tres",
+          "statsMd5": "342b3b449f241bd008958c208bce157f",
+          "tier": 3,
+          "price": 96,
+          "sets": [
+            "set_naval",
+            "set_medieval"
+          ],
+          "kind": "Melee",
+          "stats": {
+            "cooldown": 45,
+            "damage": 50,
+            "accuracy": 1.0,
+            "crit_chance": 0.03,
+            "crit_damage": 2.0,
+            "min_range": 0,
+            "max_range": 325,
+            "knockback": 0,
+            "knockback_piercing": 0.0,
+            "can_have_positive_knockback": true,
+            "can_have_negative_knockback": false,
+            "effect_scale": 1.0,
+            "scaling_stats": [
+              [
+                "stat_melee_damage",
+                1.0
+              ],
+              [
+                "stat_curse",
+                0.3
+              ]
+            ],
+            "lifesteal": 0.0,
+            "sound_db_mod": -5,
+            "is_healing": false,
+            "recoil": 25,
+            "recoil_duration": 0.1,
+            "additional_cooldown_every_x_shots": -1,
+            "additional_cooldown_multiplier": -1.0,
+            "speed_percent_modifier": 0,
+            "deal_dmg_on_return": false,
+            "attack_type": 0,
+            "alternate_attack_type": false
+          },
+          "effects": [
+            {
+              "source": "res://dlcs/dlc_1/weapons/melee/trident/3/trident_3_effect_0.tres",
+              "sourceMd5": "3f7c9e209c09c664949b4657c85ad3fe",
+              "key": "bonus_damage_against_targets_above_hp",
+              "value": 40,
+              "scale": null,
+              "duration": null,
+              "value2": 80,
+              "custom_key": ""
+            }
+          ]
+        },
+        {
+          "source": "res://dlcs/dlc_1/weapons/melee/trident/4/trident_4_data.tres",
+          "sourceMd5": "f25d38c21223b0404e85e4df27d7c708",
+          "statsSource": "res://dlcs/dlc_1/weapons/melee/trident/4/trident_4_stats.tres",
+          "statsMd5": "d3e99cc9ed37b908eb76d4a915c2a106",
+          "tier": 4,
+          "price": 200,
+          "sets": [
+            "set_naval",
+            "set_medieval"
+          ],
+          "kind": "Melee",
+          "stats": {
+            "cooldown": 40,
+            "damage": 80,
+            "accuracy": 1.0,
+            "crit_chance": 0.03,
+            "crit_damage": 2.0,
+            "min_range": 0,
+            "max_range": 325,
+            "knockback": 0,
+            "knockback_piercing": 0.0,
+            "can_have_positive_knockback": true,
+            "can_have_negative_knockback": false,
+            "effect_scale": 1.0,
+            "scaling_stats": [
+              [
+                "stat_melee_damage",
+                1.0
+              ],
+              [
+                "stat_curse",
+                0.5
+              ]
+            ],
+            "lifesteal": 0.0,
+            "sound_db_mod": -5,
+            "is_healing": false,
+            "recoil": 25,
+            "recoil_duration": 0.1,
+            "additional_cooldown_every_x_shots": -1,
+            "additional_cooldown_multiplier": -1.0,
+            "speed_percent_modifier": 0,
+            "deal_dmg_on_return": false,
+            "attack_type": 0,
+            "alternate_attack_type": false
+          },
+          "effects": [
+            {
+              "source": "res://dlcs/dlc_1/weapons/melee/trident/4/trident_4_effect_0.tres",
+              "sourceMd5": "1852dafe95530367d95c979ac8423781",
+              "key": "bonus_damage_against_targets_above_hp",
+              "value": 50,
+              "scale": null,
+              "duration": null,
+              "value2": 80,
+              "custom_key": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "Lute",
+      "name": "Lute",
+      "tiers": [
+        {
+          "source": "res://dlcs/dlc_1/weapons/melee/lute/1/lute_data.tres",
+          "sourceMd5": "a5d3066ad547c0b9db5bcc151451385b",
+          "statsSource": "res://dlcs/dlc_1/weapons/melee/lute/1/lute_stats.tres",
+          "statsMd5": "25d6e81acd2f4867e7a55bf8609347cd",
+          "tier": 1,
+          "price": 15,
+          "sets": [
+            "set_musical",
+            "set_support"
+          ],
+          "kind": "Melee",
+          "stats": {
+            "cooldown": 45,
+            "damage": 4,
+            "accuracy": 1.0,
+            "crit_chance": 0.03,
+            "crit_damage": 1.5,
+            "min_range": 0,
+            "max_range": 150,
+            "knockback": 2,
+            "knockback_piercing": 0.0,
+            "can_have_positive_knockback": true,
+            "can_have_negative_knockback": false,
+            "effect_scale": 1.0,
+            "scaling_stats": [
+              [
+                "stat_melee_damage",
+                0.5
+              ],
+              [
+                "stat_luck",
+                0.1
+              ]
+            ],
+            "lifesteal": 0.0,
+            "sound_db_mod": -5,
+            "is_healing": false,
+            "recoil": 25,
+            "recoil_duration": 0.1,
+            "additional_cooldown_every_x_shots": -1,
+            "additional_cooldown_multiplier": -1.0,
+            "speed_percent_modifier": 0,
+            "deal_dmg_on_return": false,
+            "attack_type": 1,
+            "alternate_attack_type": false
+          },
+          "effects": [
+            {
+              "source": "res://dlcs/dlc_1/weapons/melee/lute/1/lute_effect_0.tres",
+              "sourceMd5": "74de7497c2607ef6314687d05628aea4",
+              "key": "stat_all",
+              "value": 10,
+              "scale": null,
+              "duration": null,
+              "source_id": "weapon_lute",
+              "duration_secs": 3,
+              "max_stacks": 3,
+              "custom_key": "enemy_percent_damage_taken",
+              "chance": 100
+            }
+          ]
+        },
+        {
+          "source": "res://dlcs/dlc_1/weapons/melee/lute/2/lute_2_data.tres",
+          "sourceMd5": "3d9c1577d97fb639842e34cbe8aaf91a",
+          "statsSource": "res://dlcs/dlc_1/weapons/melee/lute/2/lute_2_stats.tres",
+          "statsMd5": "54edfd8a0e33792db94e4531a122856f",
+          "tier": 2,
+          "price": 31,
+          "sets": [
+            "set_musical",
+            "set_support"
+          ],
+          "kind": "Melee",
+          "stats": {
+            "cooldown": 40,
+            "damage": 8,
+            "accuracy": 1.0,
+            "crit_chance": 0.03,
+            "crit_damage": 1.5,
+            "min_range": 0,
+            "max_range": 175,
+            "knockback": 2,
+            "knockback_piercing": 0.0,
+            "can_have_positive_knockback": true,
+            "can_have_negative_knockback": false,
+            "effect_scale": 1.0,
+            "scaling_stats": [
+              [
+                "stat_melee_damage",
+                0.5
+              ],
+              [
+                "stat_luck",
+                0.15
+              ]
+            ],
+            "lifesteal": 0.0,
+            "sound_db_mod": -5,
+            "is_healing": false,
+            "recoil": 25,
+            "recoil_duration": 0.1,
+            "additional_cooldown_every_x_shots": -1,
+            "additional_cooldown_multiplier": -1.0,
+            "speed_percent_modifier": 0,
+            "deal_dmg_on_return": false,
+            "attack_type": 1,
+            "alternate_attack_type": false
+          },
+          "effects": [
+            {
+              "source": "res://dlcs/dlc_1/weapons/melee/lute/2/lute_2_effect_0.tres",
+              "sourceMd5": "43e5ab6e02d906b3f157c7c979ff1dfd",
+              "key": "stat_all",
+              "value": 10,
+              "scale": null,
+              "duration": null,
+              "source_id": "weapon_lute",
+              "duration_secs": 3,
+              "max_stacks": 5,
+              "custom_key": "enemy_percent_damage_taken",
+              "chance": 100
+            }
+          ]
+        },
+        {
+          "source": "res://dlcs/dlc_1/weapons/melee/lute/3/lute_3_data.tres",
+          "sourceMd5": "f62f4a4eabe2494400d4e0137aff178c",
+          "statsSource": "res://dlcs/dlc_1/weapons/melee/lute/3/lute_3_stats.tres",
+          "statsMd5": "43b6a6e3f5003eb41f6d88bac9de21b0",
+          "tier": 3,
+          "price": 61,
+          "sets": [
+            "set_musical",
+            "set_support"
+          ],
+          "kind": "Melee",
+          "stats": {
+            "cooldown": 35,
+            "damage": 12,
+            "accuracy": 1.0,
+            "crit_chance": 0.03,
+            "crit_damage": 1.5,
+            "min_range": 0,
+            "max_range": 200,
+            "knockback": 2,
+            "knockback_piercing": 0.0,
+            "can_have_positive_knockback": true,
+            "can_have_negative_knockback": false,
+            "effect_scale": 1.0,
+            "scaling_stats": [
+              [
+                "stat_melee_damage",
+                0.5
+              ],
+              [
+                "stat_luck",
+                0.2
+              ]
+            ],
+            "lifesteal": 0.0,
+            "sound_db_mod": -5,
+            "is_healing": false,
+            "recoil": 25,
+            "recoil_duration": 0.1,
+            "additional_cooldown_every_x_shots": -1,
+            "additional_cooldown_multiplier": -1.0,
+            "speed_percent_modifier": 0,
+            "deal_dmg_on_return": false,
+            "attack_type": 1,
+            "alternate_attack_type": false
+          },
+          "effects": [
+            {
+              "source": "res://dlcs/dlc_1/weapons/melee/lute/3/lute_3_effect_0.tres",
+              "sourceMd5": "0fd401c8dff9422a2705922e81646a8e",
+              "key": "stat_all",
+              "value": 10,
+              "scale": null,
+              "duration": null,
+              "source_id": "weapon_lute",
+              "duration_secs": 3,
+              "max_stacks": 7,
+              "custom_key": "enemy_percent_damage_taken",
+              "chance": 100
+            }
+          ]
+        },
+        {
+          "source": "res://dlcs/dlc_1/weapons/melee/lute/4/lute_4_data.tres",
+          "sourceMd5": "09766f0fae8737b689c14e03db09f30f",
+          "statsSource": "res://dlcs/dlc_1/weapons/melee/lute/4/lute_4_stats.tres",
+          "statsMd5": "90d524c589e067438849b3a51745a4db",
+          "tier": 4,
+          "price": 122,
+          "sets": [
+            "set_musical",
+            "set_support"
+          ],
+          "kind": "Melee",
+          "stats": {
+            "cooldown": 30,
+            "damage": 16,
+            "accuracy": 1.0,
+            "crit_chance": 0.03,
+            "crit_damage": 1.5,
+            "min_range": 0,
+            "max_range": 225,
+            "knockback": 2,
+            "knockback_piercing": 0.0,
+            "can_have_positive_knockback": true,
+            "can_have_negative_knockback": false,
+            "effect_scale": 1.0,
+            "scaling_stats": [
+              [
+                "stat_melee_damage",
+                0.5
+              ],
+              [
+                "stat_luck",
+                0.25
+              ]
+            ],
+            "lifesteal": 0.0,
+            "sound_db_mod": -5,
+            "is_healing": false,
+            "recoil": 25,
+            "recoil_duration": 0.1,
+            "additional_cooldown_every_x_shots": -1,
+            "additional_cooldown_multiplier": -1.0,
+            "speed_percent_modifier": 0,
+            "deal_dmg_on_return": false,
+            "attack_type": 1,
+            "alternate_attack_type": false
+          },
+          "effects": [
+            {
+              "source": "res://dlcs/dlc_1/weapons/melee/lute/4/lute_4_effect_0.tres",
+              "sourceMd5": "a7210582bbf5b6347a20fcf7d4d90852",
+              "key": "stat_all",
+              "value": 10,
+              "scale": null,
+              "duration": null,
+              "source_id": "weapon_lute",
+              "duration_secs": 3,
+              "max_stacks": 10,
+              "custom_key": "enemy_percent_damage_taken",
+              "chance": 100
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "Blowgun",
+      "name": "Blowgun",
+      "tiers": [
+        {
+          "source": "res://weapons/ranged/blowgun/1/blowgun_data.tres",
+          "sourceMd5": "fe21c649c60b2bfeb7afc3b1441ed39c",
+          "statsSource": "res://weapons/ranged/blowgun/1/blowgun_stats.tres",
+          "statsMd5": "f7a3c10eea09d7070b0d6e6c39057475",
+          "tier": 1,
+          "price": 12,
+          "sets": [
+            "set_precise",
+            "set_primitive"
+          ],
+          "kind": "Ranged",
+          "stats": {
+            "cooldown": 31,
+            "damage": 5,
+            "accuracy": 1.0,
+            "crit_chance": 0.1,
+            "crit_damage": 2.25,
+            "min_range": 0,
+            "max_range": 600,
+            "knockback": 0,
+            "knockback_piercing": 0.0,
+            "can_have_positive_knockback": true,
+            "can_have_negative_knockback": false,
+            "effect_scale": 1.0,
+            "scaling_stats": [
+              [
+                "stat_ranged_damage",
+                0.6
+              ]
+            ],
+            "lifesteal": 0.0,
+            "sound_db_mod": -18,
+            "is_healing": false,
+            "recoil": 15,
+            "recoil_duration": 0.05,
+            "additional_cooldown_every_x_shots": -1,
+            "additional_cooldown_multiplier": -1.0,
+            "speed_percent_modifier": 0,
+            "can_shoot_without_target": false,
+            "nb_projectiles": 1,
+            "projectile_spread": 0.0,
+            "piercing": 0,
+            "piercing_dmg_reduction": 0.5,
+            "bounce": 0,
+            "bounce_dmg_reduction": 0.5,
+            "can_bounce": true,
+            "projectile_speed": 2500,
+            "increase_projectile_speed_with_range": false
+          },
+          "effects": [
+            {
+              "source": "res://weapons/ranged/blowgun/1/blowgun_effect_0.tres",
+              "sourceMd5": "a2055d70215ecb0d80e480f1942c74bb",
+              "key": "stat_all",
+              "value": 20,
+              "scale": null,
+              "duration": null,
+              "source_id": "weapon_blowgun",
+              "duration_secs": 3,
+              "max_stacks": 1,
+              "custom_key": "enemy_percent_damage_taken",
+              "chance": 100
+            }
+          ]
+        },
+        {
+          "source": "res://weapons/ranged/blowgun/2/blowgun_2_data.tres",
+          "sourceMd5": "3a1b5a9cd8a8ae2c17f45b9c66945e22",
+          "statsSource": "res://weapons/ranged/blowgun/2/blowgun_2_stats.tres",
+          "statsMd5": "015d6ff918e8a3ef1f863a3e9d3e61d0",
+          "tier": 2,
+          "price": 25,
+          "sets": [
+            "set_precise",
+            "set_primitive"
+          ],
+          "kind": "Ranged",
+          "stats": {
+            "cooldown": 26,
+            "damage": 7,
+            "accuracy": 1.0,
+            "crit_chance": 0.15,
+            "crit_damage": 2.5,
+            "min_range": 0,
+            "max_range": 600,
+            "knockback": 0,
+            "knockback_piercing": 0.0,
+            "can_have_positive_knockback": true,
+            "can_have_negative_knockback": false,
+            "effect_scale": 1.0,
+            "scaling_stats": [
+              [
+                "stat_ranged_damage",
+                0.6
+              ]
+            ],
+            "lifesteal": 0.0,
+            "sound_db_mod": -18,
+            "is_healing": false,
+            "recoil": 15,
+            "recoil_duration": 0.05,
+            "additional_cooldown_every_x_shots": -1,
+            "additional_cooldown_multiplier": -1.0,
+            "speed_percent_modifier": 0,
+            "can_shoot_without_target": false,
+            "nb_projectiles": 1,
+            "projectile_spread": 0.0,
+            "piercing": 0,
+            "piercing_dmg_reduction": 0.5,
+            "bounce": 0,
+            "bounce_dmg_reduction": 0.5,
+            "can_bounce": true,
+            "projectile_speed": 2500,
+            "increase_projectile_speed_with_range": false
+          },
+          "effects": [
+            {
+              "source": "res://weapons/ranged/blowgun/2/blowgun_2_effect_0.tres",
+              "sourceMd5": "e348895c00f9cde07c0b3606c1bf9f0e",
+              "key": "stat_all",
+              "value": 30,
+              "scale": null,
+              "duration": null,
+              "source_id": "weapon_blowgun",
+              "duration_secs": 3,
+              "max_stacks": 1,
+              "custom_key": "enemy_percent_damage_taken",
+              "chance": 100
+            }
+          ]
+        },
+        {
+          "source": "res://weapons/ranged/blowgun/3/blowgun_3_data.tres",
+          "sourceMd5": "7f878bb4eee2e5db97ad73e93943bbde",
+          "statsSource": "res://weapons/ranged/blowgun/3/blowgun_3_stats.tres",
+          "statsMd5": "b5e98a333b6bab6120ed534bbf63dcbb",
+          "tier": 3,
+          "price": 52,
+          "sets": [
+            "set_precise",
+            "set_primitive"
+          ],
+          "kind": "Ranged",
+          "stats": {
+            "cooldown": 21,
+            "damage": 9,
+            "accuracy": 1.0,
+            "crit_chance": 0.2,
+            "crit_damage": 2.75,
+            "min_range": 0,
+            "max_range": 600,
+            "knockback": 0,
+            "knockback_piercing": 0.0,
+            "can_have_positive_knockback": true,
+            "can_have_negative_knockback": false,
+            "effect_scale": 1.0,
+            "scaling_stats": [
+              [
+                "stat_ranged_damage",
+                0.6
+              ]
+            ],
+            "lifesteal": 0.0,
+            "sound_db_mod": -18,
+            "is_healing": false,
+            "recoil": 15,
+            "recoil_duration": 0.05,
+            "additional_cooldown_every_x_shots": -1,
+            "additional_cooldown_multiplier": -1.0,
+            "speed_percent_modifier": 0,
+            "can_shoot_without_target": false,
+            "nb_projectiles": 1,
+            "projectile_spread": 0.0,
+            "piercing": 0,
+            "piercing_dmg_reduction": 0.5,
+            "bounce": 0,
+            "bounce_dmg_reduction": 0.5,
+            "can_bounce": true,
+            "projectile_speed": 2500,
+            "increase_projectile_speed_with_range": false
+          },
+          "effects": [
+            {
+              "source": "res://weapons/ranged/blowgun/3/blowgun_3_effect_0.tres",
+              "sourceMd5": "c5233f7a200824df6dbad6b88b47fad6",
+              "key": "stat_all",
+              "value": 40,
+              "scale": null,
+              "duration": null,
+              "source_id": "weapon_blowgun",
+              "duration_secs": 3,
+              "max_stacks": 1,
+              "custom_key": "enemy_percent_damage_taken",
+              "chance": 100
+            }
+          ]
+        },
+        {
+          "source": "res://weapons/ranged/blowgun/4/blowgun_4_data.tres",
+          "sourceMd5": "69324777e2f07ce419d3d2e21ade82d2",
+          "statsSource": "res://weapons/ranged/blowgun/4/blowgun_4_stats.tres",
+          "statsMd5": "0392ed5ae415b28e3c0b699dfa32daee",
+          "tier": 4,
+          "price": 105,
+          "sets": [
+            "set_precise",
+            "set_primitive"
+          ],
+          "kind": "Ranged",
+          "stats": {
+            "cooldown": 16,
+            "damage": 11,
+            "accuracy": 1.0,
+            "crit_chance": 0.25,
+            "crit_damage": 3.0,
+            "min_range": 0,
+            "max_range": 600,
+            "knockback": 0,
+            "knockback_piercing": 0.0,
+            "can_have_positive_knockback": true,
+            "can_have_negative_knockback": false,
+            "effect_scale": 1.0,
+            "scaling_stats": [
+              [
+                "stat_ranged_damage",
+                0.6
+              ]
+            ],
+            "lifesteal": 0.0,
+            "sound_db_mod": -18,
+            "is_healing": false,
+            "recoil": 15,
+            "recoil_duration": 0.05,
+            "additional_cooldown_every_x_shots": -1,
+            "additional_cooldown_multiplier": -1.0,
+            "speed_percent_modifier": 0,
+            "can_shoot_without_target": false,
+            "nb_projectiles": 1,
+            "projectile_spread": 0.0,
+            "piercing": 0,
+            "piercing_dmg_reduction": 0.5,
+            "bounce": 0,
+            "bounce_dmg_reduction": 0.5,
+            "can_bounce": true,
+            "projectile_speed": 2500,
+            "increase_projectile_speed_with_range": false
+          },
+          "effects": [
+            {
+              "source": "res://weapons/ranged/blowgun/4/blowgun_4_effect_0.tres",
+              "sourceMd5": "85e731fdfd8de35934dbe496aeac17b4",
+              "key": "stat_all",
+              "value": 50,
+              "scale": null,
+              "duration": null,
+              "source_id": "weapon_blowgun",
+              "duration_secs": 3,
+              "max_stacks": 1,
+              "custom_key": "enemy_percent_damage_taken",
+              "chance": 100
+            }
+          ]
+        }
+      ]
     }
   ]
 }

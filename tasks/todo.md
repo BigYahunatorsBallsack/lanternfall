@@ -34,3 +34,6 @@
 
 - [x] Connect Glutton and Chef consumable explosions, Chef burn and per-target hitbox bonus; full character dependencies remain open.
 - [x] Prepare Doctor code package, all three starts, original rules and personal Medicine unlock with retry/wave isolation; real uploads/runtime acceptance pending.
+
+- [x] Add Spoon/Cestus/Sickle/Trident/Lute/Blowgun runtime paths, target conditions, shared timed weakness and local original icons; native outline/runtime acceptance remain pending.
+- [ ] Continue the remaining 15 starting-weapon families and ten item/pet families; no character completion inferred from dependencies.
