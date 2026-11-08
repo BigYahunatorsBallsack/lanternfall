@@ -162,9 +162,15 @@ local Sprites = {
 	material = table.freeze({
 		hover = 0.4,
 		-- Every lying shard gets one of these pictures (own art, assets/loot/shards, tools/art2d/draw_shards.py), turned,
-		-- mirrored and resized a little by its id (Util/MaterialLook). Empty until uploaded: then images.material is used.
-		-- After an upload, paste the ids here as "rbxassetid://<id>".
-		variants = table.freeze({}) :: { string },
+		-- mirrored and resized a little by its id (Util/MaterialLook). Empty would fall back to images.material.
+		variants = table.freeze({
+			"rbxassetid://87489429273732", -- Shard1
+			"rbxassetid://138534309544212", -- Shard2
+			"rbxassetid://122404990704565", -- Shard3
+			"rbxassetid://121436964172051", -- Shard4
+			"rbxassetid://101335597185731", -- Shard5
+			"rbxassetid://94963330299874", -- Shard6
+		}) :: { string },
 		pixels = 256, -- side of every material picture, for mirroring
 		turn = 180, -- degrees either way
 		sizeJitter = 0.12, -- share either way

@@ -28,7 +28,7 @@ describe("Original loot sprite bindings", function()
 		expect(picture.Image).toBe(material)
 		holder:Destroy()
 	end)
-	it("keeps small and accumulated ground materials green and uses the same image as the counter", function()
+	it("keeps small and accumulated ground materials untinted and draws them with the shard variants", function()
 		Net.fireAllClients("XpOrbs", {
 			orbs = { 1, 20, 30, 1, 2, 25, 30, 4, 3, 30, 30, 20 },
 			collected = {},
@@ -37,7 +37,7 @@ describe("Original loot sprite bindings", function()
 		expect(#folder:GetChildren()).toBe(3)
 		for _, anchor in folder:GetChildren() do
 			local picture = anchor.XpOrb.Picture
-			expect(picture.Image).toBe(material)
+			expect(table.find(Config.Sprites.material.variants, picture.Image) ~= nil).toBe(true)
 			expect(picture.ImageColor3.R).toBe(1)
 			expect(picture.ImageColor3.G).toBe(1)
 			expect(picture.ImageColor3.B).toBe(1)
