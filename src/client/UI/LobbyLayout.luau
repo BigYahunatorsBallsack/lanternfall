@@ -223,7 +223,7 @@ function Layout.mount(screen: ScreenGui, choose: Frame, players: Frame, record: 
 	end)
 	local levels = danger:FindFirstChild("Levels") :: Frame
 	levels.Parent = content
-	levels:FindFirstChildOfClass("UIListLayout").Padding = UDim.new(0, 8)
+	levels:FindFirstChildOfClass("UIListLayout").Padding = UDim.new(0, 10)
 	local palette = {
 		Theme.panel,
 		Color3.fromRGB(60, 90, 104),
@@ -268,6 +268,11 @@ function Layout.mount(screen: ScreenGui, choose: Frame, players: Frame, record: 
 		end
 		local compact = area.X < 1000 or area.Y < 600
 		local factor = if compact then 1 else math.min(area.X / 1280, area.Y / 720)
+		-- The selection pages fill more of the screen (owner: text read too small next to the reference game),
+		-- as long as the widest page (difficulty, 1000 px plus margins) still fits.
+		if not compact and (step == "Character" or step == "Weapon" or step == "Difficulty") then
+			factor = math.min(factor * 1.15, area.X / 1040)
+		end
 		local width, height = area.X / factor, area.Y / factor
 		local short = compact and height < 500
 		scale.Scale = factor
@@ -365,8 +370,9 @@ function Layout.mount(screen: ScreenGui, choose: Frame, players: Frame, record: 
 		local state, party = RunState.get(), Party.get()
 		local options = if party and party.role == "Hub" then party.options else state and state.options
 		local selected = if options then options.danger else 0
+		local shownDanger = CharacterChoice.getHoverDanger() or selected
 		local dangerTitle = danger:FindFirstChild("Title") :: TextLabel
-		dangerTitle.Text = `Danger {selected}\nDifficulty`
+		dangerTitle.Text = `Danger {shownDanger}\nDifficulty`
 		dangerTitle.TextColor3, dangerTitle.TextSize = Theme.statLabel, 24
 		place(dangerTitle, 12, 16, 208, 60)
 		local description = danger:FindFirstChild("Description") :: TextLabel
@@ -374,8 +380,8 @@ function Layout.mount(screen: ScreenGui, choose: Frame, players: Frame, record: 
 		description.TextXAlignment, description.TextYAlignment = Enum.TextXAlignment.Left, Enum.TextYAlignment.Top
 		description.TextSize = 17
 		-- Same size as the character tiles.
-		local tile = if compact and innerWidth < 530 then (innerWidth - 40) / 6 else 80
-		local rowWidth = 6 * tile + 40
+		local tile = if compact and innerWidth < 530 then (innerWidth - 50) / 6 else 80
+		local rowWidth = 6 * tile + 50
 		place(levels, (innerWidth - rowWidth) / 2, if compact then 348 else 366, rowWidth, tile)
 		for index, level in Config.Difficulty.levels do
 			local button = levels:FindFirstChild(`Danger{level.level}`) :: TextButton
@@ -399,7 +405,7 @@ function Layout.mount(screen: ScreenGui, choose: Frame, players: Frame, record: 
 		content.AutomaticSize = if players.Visible or record.Visible
 			then Enum.AutomaticSize.Y
 			else Enum.AutomaticSize.None
-		local id, me = CharacterChoice.getStartWeapon(), RunState.getLocalPlayer()
+		local id, me = CharacterChoice.getShownWeapon(), RunState.getLocalPlayer()
 		if id and Config.Weapons[id] then
 			Icons.draw(weaponArt, "weapon", id)
 			weaponName.Text, weaponClass.Text = Config.Weapons[id].displayName, WeaponClasses.names(id)
@@ -413,6 +419,10 @@ function Layout.mount(screen: ScreenGui, choose: Frame, players: Frame, record: 
 		end
 	end
 	screen:GetPropertyChangedSignal("AbsoluteSize"):Connect(Layout.refresh)
+	CharacterChoice.Hovered:Connect(function()
+		CharacterChoice.render()
+		Layout.refresh()
+	end)
 	if workspace.CurrentCamera then
 		workspace.CurrentCamera:GetPropertyChangedSignal("ViewportSize"):Connect(Layout.refresh)
 	end

@@ -10,6 +10,16 @@ local Shared = game:GetService("ReplicatedStorage").Shared
 local Config = require(Shared.Config)
 local WeaponClasses = require(Shared.Util.WeaponClasses)
 local Composition = {}
+-- Inventory tiles (items, weapons, character): grey tile, thin dark outline, tier color only above tier 1.
+local TILE = Color3.fromRGB(42, 42, 42)
+local function inventoryTile(tile: GuiObject, tier: number, selected: boolean?)
+	tile.BackgroundColor3 = if tier > 1 then Theme.tiers[tier]:Lerp(Theme.panel, 0.6) else TILE
+	local edge = tile:FindFirstChild("Outline") or tile:FindFirstChildOfClass("UIStroke")
+	if edge and edge:IsA("UIStroke") then
+		edge.Color = if selected then Theme.accent elseif tier > 1 then Theme.tiers[tier] else Theme.stroke
+		edge.Thickness = 2
+	end
+end
 local plan = {}
 local saved: any = nil
 
@@ -158,12 +168,16 @@ function Composition.apply(ctx: any, area: Vector2)
 	end
 	saved.footerScale.Scale = if compact then 1 else scale
 	saved.shard.Visible = true
+	-- Icon and amount share one middle line.
+	saved.shard.AnchorPoint = Vector2.new(0, 0.5)
+	saved.shard.Position = UDim2.new(0, 2, 0.5, 0)
 	ctx.shardsLabel.Text = tostring(if ctx.current then ctx.current.shards else 0)
 	ctx.shardsLabel.TextColor3 = Theme.text
 	ctx.shardsLabel.TextSize = (if compact then 24 else 29 * scale) * (if shopping then 1 else Theme.hudTextScale)
 	ctx.shardsLabel.TextStrokeTransparency = 0
 	ctx.shardsLabel.TextXAlignment = Enum.TextXAlignment.Left
-	place(ctx.shardsLabel, 40, 0, 110, 42)
+	place(ctx.shardsLabel, 40, 0, 110, 44)
+	ctx.shardsLabel.TextYAlignment = Enum.TextYAlignment.Center
 	ctx.shardsPanel.AutomaticSize = Enum.AutomaticSize.None
 	ctx.shardsPanel.Size = UDim2.fromOffset(150, 44)
 	for _, view in ctx.chips do
@@ -184,12 +198,13 @@ function Composition.apply(ctx: any, area: Vector2)
 			place(view.details, 44, 1, 19, 19)
 			-- The inspect popup (UI/WeaponInspect) shows the stats on desktop.
 			view.details.Visible = false
-			place(view.icon, 3, 3, 58, 58)
-			view.edge.Thickness = 1.5
+			place(view.icon, 6, 6, 52, 52)
 			local weapon = ctx.current and ctx.current.weapons[view.frame.LayoutOrder]
-			view.button.BackgroundColor3 = if weapon and weapon.tier > 1
-				then Theme.tiers[weapon.tier]:Lerp(Theme.panel, 0.6)
-				else Theme.panel
+			inventoryTile(
+				view.button,
+				if weapon then weapon.tier else 1,
+				weapon ~= nil and weapon.uid == ctx.selectedUid
+			)
 		end
 	end
 	for _, view in ctx.cards do
@@ -280,6 +295,9 @@ function Composition.apply(ctx: any, area: Vector2)
 						.. (if offer.merges then "\nMerges into " .. tostring(offer.tier + 1) else "")
 					view.detailArea.Visible = not offer.sold
 				end
+				-- A bought offer leaves an empty slot (reference game).
+				view.button.Visible = not offer.sold
+				view.lock.Visible = not offer.sold
 				view.price.Text = if offer.sold then "SOLD" else tostring(offer.price)
 				priceIcon.Visible = not offer.sold
 				view.price.TextColor3 = if ctx.current.shards >= offer.price then Theme.text else Theme.danger
@@ -300,10 +318,17 @@ function Composition.apply(ctx: any, area: Vector2)
 				count.TextStrokeTransparency = 0
 			end
 			local item = Config.Items.byId[entry.id]
-			tile.BackgroundColor3 = if item and item.tier > 1
-				then Theme.tiers[item.tier]:Lerp(Theme.panel, 0.6)
-				else Theme.panel
+			inventoryTile(tile, if item then item.tier else 1)
+			local art = tile:FindFirstChildWhichIsA("Frame")
+			if art and not compact then
+				place(art, 6, 6, 52, 52)
+			end
 		end
+	end
+	local characterTile = ctx.itemRow:FindFirstChild("CharacterTile")
+	if characterTile then
+		inventoryTile(characterTile, 1)
+		place(characterTile.Art, 6, 6, 52, 52)
 	end
 	if compact then
 		ctx.rerollButton.TextSize = 17

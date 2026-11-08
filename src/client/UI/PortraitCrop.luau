@@ -30,11 +30,23 @@ function PortraitCrop.head(figure: Figure): Rect
 	return square(figure, top - HEAD_MARGIN * figure.height, HEAD_SHARE * figure.height)
 end
 
--- The whole figure with a small margin, centered.
+-- The whole figure with a small margin, centered on the figure (held weapons included).
 function PortraitCrop.figure(figure: Figure): Rect
 	local side = figure.height * (1 + 2 * FIGURE_MARGIN)
 	local middle = 1 - figure.ground - figure.height / 2
 	return square(figure, middle - side / 2, side)
+end
+
+-- Like `figure`, but centered on the middle of the picture, where the body sits, so small tiles look symmetric
+-- even when a held weapon sticks out to one side.
+function PortraitCrop.badge(figure: Figure): Rect
+	local side = figure.height * (1 + 2 * FIGURE_MARGIN)
+	local middle = 1 - figure.ground - figure.height / 2
+	return square(
+		{ pixels = figure.pixels, center = 0.5, ground = figure.ground, height = figure.height },
+		middle - side / 2,
+		side
+	)
 end
 
 return table.freeze(PortraitCrop)

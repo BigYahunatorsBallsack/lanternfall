@@ -23,7 +23,19 @@ describe("Shop inspect and character tile", function()
 		local tile = world.gui("Shop", "CharacterTile")
 		expect(tile.LayoutOrder).toBe(0)
 		local art = tile.Art.Illustration
-		expect(string.sub(art:GetAttribute("IconKey"), 1, 16)).toBe("characterFigure:")
+		expect(string.sub(art:GetAttribute("IconKey"), 1, 15)).toBe("characterBadge:")
+	end)
+
+	it("empties the slot of a bought offer and keeps the other cards in place", function()
+		require(Server.Services.ShopService).addShards(game:GetService("Players"):GetPlayers()[1], 1000)
+		world.advance(0.2)
+		world.click(world.gui("Shop", "Offer1"))
+		world.advance(0.2)
+		local card = world.gui("Shop", "Offer1")
+		expect(require(Client.Controllers.ShopController).get().offers[1].sold).toBe(true)
+		expect(card.Visible).toBe(false)
+		expect(card.Parent.Visible ~= false).toBe(true) -- the slot keeps its place in the row
+		expect(world.gui("Shop", "Lock1").Visible).toBe(false)
 	end)
 
 	it("opens the inspect popup on an owned weapon and closes it with Cancel", function()

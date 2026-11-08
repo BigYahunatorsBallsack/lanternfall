@@ -729,3 +729,10 @@ Branch `wp-25-2d-presentation`. **Owner-Entscheidungen dieses Pakets:** Das Spie
 
 - Owner: Schüsse curven manchmal noch. Restursache: `B7ProjectileVisual` startete die Kugel am Lauf auf dem Bildschirm und blendete sie in `projectileCatchupSeconds` auf die Server-Bahn; wo Lauf und Server-Start auseinanderliegen (Bild-Radius der Waffe größer als `holdRadius`, Client-Figur der Server-Position voraus), entstand ein Knick.
 - Jetzt eine gerade Linie vom Lauf auf dem Bildschirm zum Ende der Server-Bahn bei voller Reichweite: der Abstand schrumpft im Verhältnis zur geflogenen Strecke. Treffer-Funken an derselben Linie. Neue `tests/ShotPath.spec.luau` (schlug vorher fehl, jetzt grün). Strang-B-Datei auf direkten Owner-Auftrag.
+
+## UI-Feinschliff Auswahl und Shop (Claude, 08.11.2026)
+
+- Charakter-, Waffen- und Gefahrenkacheln: 10 px Abstand, graue Kachel mit dunklem Rand, gewählte hell (Brotato-Look). Mit der Maus über einer Kachel zeigt das Panel daneben diesen Charakter, diese Waffe bzw. diese Gefahrenstufe (`CharacterChoice.watchHover`, Signal `CharacterChoice.Hovered`); verlassen zeigt wieder die Auswahl. Der alte Tooltip erscheint nur noch für gesperrte Charaktere.
+- Auswahlseiten am PC 15 % größer (`LobbyLayout`, begrenzt durch die Breite der Gefahrenseite), Regeltext 18 statt 16.
+- Shop: Item-, Waffen- und Charakterkacheln mit gleichem Rahmen (grau, dunkler 2-px-Rand, Stufenfarbe ab Stufe 2), Bild mittig mit 6 px Rand. Charakterkachel nutzt den neuen Zuschnitt `PortraitCrop.badge` (mittig im Bild statt mittig inklusive Waffe). Geldzahl und Symbol auf einer Mittellinie. Gekaufte Angebote verschwinden, ihr Platz bleibt leer (wie Brotato, Owner-Korrektur).
+- Checks: StyLua, Selene (0/0); `SelectionHover` (neu), `ShopInspect` (+leerer Platz nach Kauf), `UiShop`, `UiRedesign`, `UiReference`, `PortraitCrop`, `CharacterGhost`, `CharactersB10` bestanden. Kein Studio-Test.
