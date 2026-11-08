@@ -1,0 +1,55 @@
+--!strict
+-- Desktop shop: the character is the first item tile, owned weapons open the inspect popup with Recycle and Cancel.
+local world = loadHelper("tests/helpers/RobloxMock.luau")
+local Server = game:GetService("ServerScriptService").Server
+runScript(Server, "init.server.luau")
+world.addPlayer("Owner", 1, true)
+world.step()
+local Client = folderProxy("src/client", "Client")
+require(Client.Controllers.WeaponRenderer).start = function() end
+runScript(Client, "init.client.luau")
+world.advance(0.5)
+local Config = require(game:GetService("ReplicatedStorage").Shared.Config)
+local Run = require(Server.Services.RunDirector)
+
+describe("Shop inspect and character tile", function()
+	it("shows the character first in the item row", function()
+		workspace.CurrentCamera.ViewportSize = Vector2.new(1280, 720)
+		world.click(world.gui("Lobby", "Ready"))
+		world.advance(Config.Run.flow.allReadyCountdownSeconds + 0.5)
+		world.click(world.gui("Debug", "SkipWave"))
+		world.advance(0.3)
+		expect(Run.getPhase()).toBe("Shop")
+		local tile = world.gui("Shop", "CharacterTile")
+		expect(tile.LayoutOrder).toBe(0)
+		local art = tile.Art.Illustration
+		expect(string.sub(art:GetAttribute("IconKey"), 1, 16)).toBe("characterFigure:")
+	end)
+
+	it("opens the inspect popup on an owned weapon and closes it with Cancel", function()
+		local inspect = world.gui("Shop", "WeaponInspect")
+		expect(inspect.Visible).toBe(false)
+		world.click(world.gui("Shop", "Weapon1"))
+		world.advance(0.1)
+		expect(inspect.Visible).toBe(true)
+		local panel = inspect.Panel
+		expect(string.find(panel.Recycle.Amount.Text, "Recycle", 1, true) ~= nil).toBe(true)
+		expect(string.find(panel.Stats.Text, "Damage", 1, true) ~= nil).toBe(true)
+		expect(world.gui("Shop", "Actions").Visible).toBe(false)
+		world.click(panel.Cancel)
+		world.advance(0.1)
+		expect(inspect.Visible).toBe(false)
+	end)
+
+	it("recycles the weapon from the popup", function()
+		local Shop = require(Client.Controllers.ShopController)
+		local before = #Shop.get().weapons
+		world.click(world.gui("Shop", "Weapon1"))
+		world.advance(0.1)
+		world.click(world.gui("Shop", "WeaponInspect").Panel.Recycle)
+		world.advance(0.3)
+		expect(#Shop.get().weapons).toBe(before - 1)
+		expect(world.gui("Shop", "WeaponInspect").Visible).toBe(false)
+		assert(#world.errors == 0, table.concat(world.errors, "\n"))
+	end)
+end)

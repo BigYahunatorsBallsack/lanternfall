@@ -230,7 +230,7 @@ function CharacterChoice.mount(card: Frame, row: Frame, buttonsByClass: { [strin
 		local art = Icons.holder(button, 96)
 		art.AnchorPoint = Vector2.new(0.5, 0)
 		art.Position = UDim2.new(0.5, 0, 0, 2)
-		Icons.draw(art, "characterHead", classId)
+		Icons.draw(art, "characterFigure", classId)
 		Widgets.label({
 			Name = "CharacterName",
 			Text = Config.Classes[classId].displayName,
@@ -390,8 +390,13 @@ function CharacterChoice.resize(width: number, _height: number?)
 	selectedName.TextXAlignment = Enum.TextXAlignment.Center
 	portrait.Position = UDim2.fromOffset(16, 62)
 	portrait.Size = UDim2.fromOffset(if compact then 124 else 184, if compact then 140 else 196)
-	portrait.BackgroundTransparency = 0
-	portrait.BackgroundColor3 = Theme.surface
+	-- Dark frame instead of the old blue-grey field (owner, reference game portrait frame).
+	portrait.BackgroundTransparency = 0.3
+	portrait.BackgroundColor3 = Theme.button
+	if not portrait:FindFirstChild("Frame") then
+		Widgets.create("UIStroke", { Name = "Frame", Color = Theme.stroke, Thickness = 3, Parent = portrait })
+		Widgets.corner().Parent = portrait
+	end
 	metrics.Visible = false
 	ruleArea.Position = UDim2.fromOffset(if compact then 140 else 208, 106)
 	ruleArea.Size = UDim2.new(1, if compact then -150 else -220, 0, if compact then 174 else 188)
@@ -436,13 +441,18 @@ function CharacterChoice.resize(width: number, _height: number?)
 	for _ in buttons do
 		weaponCount += 1
 	end
-	local weaponColumns = math.max(1, math.min(weaponCount, math.floor(width / 70)))
-	weaponRow.Size = UDim2.fromOffset(weaponColumns * 70 - 8, math.ceil(weaponCount / weaponColumns) * 70)
+	-- Same size as the character tiles.
+	local weaponTile = if compact then 68 else 80
+	local weaponColumns = math.max(1, math.min(weaponCount, math.floor(width / (weaponTile + 8))))
+	weaponRow.Size = UDim2.fromOffset(
+		weaponColumns * (weaponTile + 8) - 8,
+		math.ceil(weaponCount / weaponColumns) * (weaponTile + 8)
+	)
 	local weaponGrid = weaponRow:FindFirstChildOfClass("UIGridLayout")
-	weaponGrid.CellSize = UDim2.fromOffset(62, 62)
+	weaponGrid.CellSize = UDim2.fromOffset(weaponTile, weaponTile)
 	weaponGrid.CellPadding = UDim2.fromOffset(8, 8)
 	for _, button in buttons do
-		button.Artwork.Size = UDim2.fromOffset(58, 58)
+		button.Artwork.Size = UDim2.fromOffset(weaponTile - 4, weaponTile - 4)
 		button.WeaponName.Visible = false
 	end
 	for _, child in weaponRow.Parent.Parent:GetChildren() do
