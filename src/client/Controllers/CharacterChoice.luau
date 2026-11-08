@@ -19,6 +19,11 @@ local RuleText = require(script.Parent.Parent.UI.CharacterRuleText)
 local Signal = require(Shared.Util.Signal)
 local CharacterChoice = {}
 CharacterChoice.Chosen = Signal.new()
+-- Fires when the pointer moves onto or off a character, weapon or danger tile (LobbyLayout previews it).
+CharacterChoice.Hovered = Signal.new()
+local hoverClass: string? = nil
+local hoverWeapon: string? = nil
+local hoverDanger: number? = nil
 local step = "Character"
 local requestedClass: string? = nil
 local selected: { [string]: string } = {}
@@ -37,6 +42,45 @@ local ruleArea: ScrollingFrame
 local ruleIcons: Frame
 local classButtons: { [string]: TextButton } = {}
 local choiceTitle: TextLabel
+-- Tile look of the reference game: grey tile with a dark outline, light when chosen, gaps between tiles.
+local TILE = Color3.fromRGB(42, 42, 42)
+local TILE_GAP = 10
+
+-- Hovering a tile previews it in the panels (reference game); leaving it shows the chosen one again.
+local function hover(kind: string, value: any, entering: boolean)
+	if kind == "class" then
+		if entering then
+			hoverClass = value
+		elseif hoverClass == value then
+			hoverClass = nil
+		end
+	elseif kind == "weapon" then
+		if entering then
+			hoverWeapon = value
+		elseif hoverWeapon == value then
+			hoverWeapon = nil
+		end
+	elseif entering then
+		hoverDanger = value
+	elseif hoverDanger == value then
+		hoverDanger = nil
+	end
+	CharacterChoice.Hovered:Fire()
+end
+
+function CharacterChoice.watchHover(object: GuiObject, kind: string, value: any)
+	object.MouseEnter:Connect(function()
+		hover(kind, value, true)
+	end)
+	object.MouseLeave:Connect(function()
+		hover(kind, value, false)
+	end)
+end
+
+-- Danger level under the pointer, or nil.
+function CharacterChoice.getHoverDanger(): number?
+	return hoverDanger
+end
 
 -- Weaponless native characters advance directly to difficulty selection.
 function CharacterChoice.startStep(classId: string): string
@@ -90,11 +134,9 @@ local function renderLocks()
 		button.UnlockPrice.Visible = not unlocked and price ~= nil
 		button.UnlockPrice.Text = if price then `{price} EMBERS` else ""
 		button.SelectionMark.Visible = false
-		button.Outline.Color = if chosen then Theme.accent else Theme.stroke
-		button.Outline.Thickness = if chosen then 4 else 3
-		if not unlocked then
-			button.BackgroundColor3 = Theme.panel
-		end
+		button.Outline.Color = Theme.stroke
+		button.Outline.Thickness = 2
+		button.BackgroundColor3 = if chosen then Theme.accent elseif unlocked then TILE else Theme.button
 	end
 end
 
@@ -112,17 +154,20 @@ function CharacterChoice.render()
 		requestedClass = nil
 		CharacterChoice.Chosen:Fire(CharacterChoice.startStep(me.classId))
 	end
-	selectedName.Text = class.displayName
-	metrics.Text = `{CharacterRules.maxWeapons(me.classId)} WEAPONS\nDANGER {CharacterChoice.maxDanger(me.classId)}`
-	details.Text = string.gsub(class.description, ", ", "\n")
-	details.Visible = class.ruleRows == nil
-	ruleIcons.Visible = class.ruleRows ~= nil
-	if class.ruleRows then
-		RuleText.render(ruleIcons, class.ruleRows, details.TextSize)
+	-- The summary shows the hovered character on the character page, otherwise the chosen one.
+	local shownId = if step == "Character" and hoverClass and Config.Classes[hoverClass] then hoverClass else me.classId
+	local shown = Config.Classes[shownId]
+	selectedName.Text = shown.displayName
+	metrics.Text = `{CharacterRules.maxWeapons(shownId)} WEAPONS\nDANGER {CharacterChoice.maxDanger(shownId)}`
+	details.Text = string.gsub(shown.description, ", ", "\n")
+	details.Visible = shown.ruleRows == nil
+	ruleIcons.Visible = shown.ruleRows ~= nil
+	if shown.ruleRows then
+		RuleText.render(ruleIcons, shown.ruleRows, details.TextSize)
 	else
 		RuleText.clear(ruleIcons)
 	end
-	Icons.draw(portrait, "characterFigure", me.classId)
+	Icons.draw(portrait, "characterFigure", shownId)
 
 	if renderedClass ~= me.classId then
 		renderedClass = me.classId
@@ -148,6 +193,7 @@ function CharacterChoice.render()
 				CharacterChoice.Chosen:Fire("Difficulty")
 			end)
 			local tile = buttons[weaponId]
+			CharacterChoice.watchHover(tile, "weapon", weaponId)
 			local art = Icons.holder(tile, 80)
 			art.AnchorPoint = Vector2.new(0.5, 0)
 			art.Position = UDim2.new(0.5, 0, 0, 2)
@@ -176,10 +222,11 @@ function CharacterChoice.render()
 		local chosen = allowed and weaponId == (selected[me.classId] or class.startWeapon)
 		button.Active = allowed
 		button.LockLabel.Visible = not allowed
-		button.BackgroundColor3 = if chosen then Theme.accent elseif allowed then Theme.button else Theme.panel
+		button.BackgroundColor3 = if chosen then Theme.accent elseif allowed then TILE else Theme.button
 		button.TextColor3 = if not allowed then Theme.textDim elseif chosen then Theme.accentText else Theme.text
 		button.WeaponName.TextColor3 = button.TextColor3
-		button.Outline.Color = if chosen then Theme.accent else Theme.stroke
+		button.Outline.Color = Theme.stroke
+		button.Outline.Thickness = 2
 	end
 end
 
@@ -227,6 +274,7 @@ function CharacterChoice.mount(card: Frame, row: Frame, buttonsByClass: { [strin
 				end
 			end
 		end)
+		CharacterChoice.watchHover(button, "class", classId)
 		local art = Icons.holder(button, 96)
 		art.AnchorPoint = Vector2.new(0.5, 0)
 		art.Position = UDim2.new(0.5, 0, 0, 2)
@@ -275,7 +323,10 @@ function CharacterChoice.mount(card: Frame, row: Frame, buttonsByClass: { [strin
 			local price = Config.Progress.characterPrices[classId]
 			local locked = (requirement or "Unlock this character in your collection")
 				.. (if price then `\nor {price} Embers (Collection → Ember shop)` else "")
-			return class.displayName, if CharacterChoice.isUnlocked(classId) then class.description else locked
+			if CharacterChoice.isUnlocked(classId) then
+				return nil, nil -- hovering shows the character in the summary panel instead
+			end
+			return class.displayName, locked
 		end)
 	end
 	summary = Widgets.create("Frame", {
@@ -369,6 +420,9 @@ function CharacterChoice.mount(card: Frame, row: Frame, buttonsByClass: { [strin
 end
 
 function CharacterChoice.setStep(value: string)
+	if step ~= value then
+		hoverClass, hoverWeapon, hoverDanger = nil, nil, nil
+	end
 	step = value
 end
 
@@ -400,7 +454,7 @@ function CharacterChoice.resize(width: number, _height: number?)
 	metrics.Visible = false
 	ruleArea.Position = UDim2.fromOffset(if compact then 140 else 208, 106)
 	ruleArea.Size = UDim2.new(1, if compact then -150 else -220, 0, if compact then 174 else 188)
-	details.TextSize = if compact then 15 else 16
+	details.TextSize = if compact then 15 else 18
 	local me = RunStateController.getLocalPlayer()
 	local class = me and Config.Classes[me.classId]
 	if class and class.ruleRows then
@@ -413,15 +467,15 @@ function CharacterChoice.resize(width: number, _height: number?)
 	end
 	-- Large head tiles while the roster fits in one or two rows, down to the reference game's size for a full roster.
 	local tile = math.clamp(math.floor(width / math.max(math.ceil(count / 2), 1)) - 6, 52, if compact then 68 else 80)
-	local columns = math.max(1, math.min(count, math.floor(width / (tile + 6))))
+	local columns = math.max(1, math.min(count, math.floor(width / (tile + TILE_GAP))))
 	local rows = math.ceil(count / columns)
 	classRow.Visible = step == "Character"
 	classRow.AnchorPoint = Vector2.new(0.5, 0)
 	classRow.Position = UDim2.new(0.5, 0, 0, summaryHeight + 26)
-	classRow.Size = UDim2.fromOffset(columns * (tile + 6) - 6, rows * (tile + 6))
+	classRow.Size = UDim2.fromOffset(columns * (tile + TILE_GAP) - TILE_GAP, rows * (tile + TILE_GAP))
 	local grid = classRow:FindFirstChildOfClass("UIGridLayout")
 	grid.CellSize = UDim2.fromOffset(tile, tile)
-	grid.CellPadding = UDim2.fromOffset(6, 6)
+	grid.CellPadding = UDim2.fromOffset(TILE_GAP, TILE_GAP)
 	grid.HorizontalAlignment = Enum.HorizontalAlignment.Center
 	for _, button in classButtons do
 		button.Artwork.AnchorPoint = Vector2.new(0, 0)
@@ -443,14 +497,14 @@ function CharacterChoice.resize(width: number, _height: number?)
 	end
 	-- Same size as the character tiles.
 	local weaponTile = if compact then 68 else 80
-	local weaponColumns = math.max(1, math.min(weaponCount, math.floor(width / (weaponTile + 8))))
+	local weaponColumns = math.max(1, math.min(weaponCount, math.floor(width / (weaponTile + TILE_GAP))))
 	weaponRow.Size = UDim2.fromOffset(
-		weaponColumns * (weaponTile + 8) - 8,
-		math.ceil(weaponCount / weaponColumns) * (weaponTile + 8)
+		weaponColumns * (weaponTile + TILE_GAP) - TILE_GAP,
+		math.ceil(weaponCount / weaponColumns) * (weaponTile + TILE_GAP)
 	)
 	local weaponGrid = weaponRow:FindFirstChildOfClass("UIGridLayout")
 	weaponGrid.CellSize = UDim2.fromOffset(weaponTile, weaponTile)
-	weaponGrid.CellPadding = UDim2.fromOffset(8, 8)
+	weaponGrid.CellPadding = UDim2.fromOffset(TILE_GAP, TILE_GAP)
 	for _, button in buttons do
 		button.Artwork.Size = UDim2.fromOffset(weaponTile - 4, weaponTile - 4)
 		button.WeaponName.Visible = false
@@ -460,6 +514,16 @@ function CharacterChoice.resize(width: number, _height: number?)
 			child.Visible = false
 		end
 	end
+end
+
+-- The weapon to describe on the weapon and danger pages: the hovered one, otherwise the chosen one.
+function CharacterChoice.getShownWeapon(): string?
+	local me = RunStateController.getLocalPlayer()
+	local class = me and Config.Classes[me.classId]
+	if step == "Weapon" and hoverWeapon and class and table.find(class.startWeapons, hoverWeapon) then
+		return hoverWeapon
+	end
+	return CharacterChoice.getStartWeapon()
 end
 
 function CharacterChoice.getStartWeapon(): string?

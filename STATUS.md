@@ -715,3 +715,10 @@ Branch `wp-25-2d-presentation`. **Owner-Entscheidungen dieses Pakets:** Das Spie
 - Owner: Shards am Boden sehen in Brotato verschieden und zufällig aus. Jetzt bekommt jeder liegende Shard aus seiner ID (auf allen Clients gleich) eine Drehung (±180°), eine Spiegelung und ±12 % Größe (`Util/MaterialLook`, Werte in `Config.Sprites.material`). Wirkt sofort mit dem heutigen Bild.
 - Sechs eigene Shard-Formen gezeichnet (`assets/loot/shards/`, erzeugt von `tools/art2d/draw_shards.py`, keine Brotato-Sprites). **Noch nicht hochgeladen**: Nach dem Upload die sechs IDs in `Config.Sprites.material.variants` eintragen, dann wählt jeder Drop zufällig eine Form. Währungsanzeige bleibt beim bisherigen Bild.
 - Tests: `MaterialLook`, `LootSprites25`, `WorldSprites`, `Config` grün. StyLua/Selene sauber. Kein Studio-Test.
+
+## UI-Feinschliff Auswahl und Shop (Claude, 08.11.2026)
+
+- Charakter-, Waffen- und Gefahrenkacheln: 10 px Abstand, graue Kachel mit dunklem Rand, gewählte hell (Brotato-Look). Mit der Maus über einer Kachel zeigt das Panel daneben diesen Charakter, diese Waffe bzw. diese Gefahrenstufe (`CharacterChoice.watchHover`, Signal `CharacterChoice.Hovered`); verlassen zeigt wieder die Auswahl. Der alte Tooltip erscheint nur noch für gesperrte Charaktere.
+- Auswahlseiten am PC 15 % größer (`LobbyLayout`, begrenzt durch die Breite der Gefahrenseite), Regeltext 18 statt 16.
+- Shop: Item-, Waffen- und Charakterkacheln mit gleichem Rahmen (grau, dunkler 2-px-Rand, Stufenfarbe ab Stufe 2), Bild mittig mit 6 px Rand. Charakterkachel nutzt den neuen Zuschnitt `PortraitCrop.badge` (mittig im Bild statt mittig inklusive Waffe). Geldzahl und Symbol auf einer Mittellinie. Gekaufte Angebote bleiben stehen und zeigen groß „SOLD“.
+- Checks: StyLua, Selene (0/0); `SelectionHover` (neu), `ShopInspect` (+SOLD), `UiShop`, `UiRedesign`, `UiReference`, `PortraitCrop`, `CharacterGhost`, `CharactersB10` bestanden. Kein Studio-Test.

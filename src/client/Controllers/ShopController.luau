@@ -508,7 +508,7 @@ local function renderCharacterTile()
 	end
 	local shown = tile :: Frame
 	shown:SetAttribute("ClassId", classId)
-	Icons.draw(shown:FindFirstChild("Art") :: Frame, "characterFigure", classId)
+	Icons.draw(shown:FindFirstChild("Art") :: Frame, "characterBadge", classId)
 end
 
 local function renderItems()

@@ -64,6 +64,7 @@ function DangerChoice.render()
 		return
 	end
 	local options = current()
+	local shownLevel = CharacterChoice.getHoverDanger() or options.danger
 	local me = RunStateController.getLocalPlayer()
 	local open = if me then CharacterChoice.maxDanger(me.classId) else Config.Progress.startDanger
 	for level, button in levelButtons do
@@ -74,7 +75,7 @@ function DangerChoice.render()
 	local note = if open < #Difficulty.levels - 1
 		then `\nOpen for your character: 0-{open}. Win danger {open} with it to open {open + 1}.`
 		else ""
-	description.Text = DangerRules.level(options.danger).description .. note
+	description.Text = DangerRules.level(shownLevel).description .. note
 	if titleLabel then
 		titleLabel.Text = if not PartyController.isHub()
 			then "DANGER (whole lobby)"
@@ -169,7 +170,9 @@ function DangerChoice.mount(screen: ScreenGui)
 				options.danger = level.level
 			end)
 		end)
+		CharacterChoice.watchHover(levelButtons[level.level], "danger", level.level)
 	end
+	CharacterChoice.Hovered:Connect(DangerChoice.render)
 	description = Widgets.label({
 		Name = "Description",
 		TextSize = 15,

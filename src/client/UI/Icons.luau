@@ -64,6 +64,7 @@ local function character(root: Frame, id: string, crop: string?)
 		local rect = if figure and crop == "head"
 			then PortraitCrop.head(figure)
 			elseif figure and crop == "figure" then PortraitCrop.figure(figure)
+			elseif figure and crop == "badge" then PortraitCrop.badge(figure)
 			else nil
 		local portraitScale = if id == "MarbleHost" and not rect then 0.84 else 1
 		local image = Widgets.create("ImageLabel", {
@@ -285,6 +286,8 @@ function Icons.draw(parent: GuiObject, kind: string, id: string): Frame
 		character(root, id, "head")
 	elseif kind == "characterFigure" then
 		character(root, id, "figure")
+	elseif kind == "characterBadge" then
+		character(root, id, "badge")
 	elseif kind == "weapon" then
 		local fallback = Widgets.create("Frame", {
 			Name = "DrawnWeapon",
