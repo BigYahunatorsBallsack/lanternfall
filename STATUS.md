@@ -689,3 +689,17 @@ Branch `wp-25-2d-presentation`. **Owner-Entscheidungen dieses Pakets:** Das Spie
 - Server-Kugeln flogen schon vorher geradeaus (keine Zielsuche im Flug). Das Ziel-Halten ist keine Wiki-Regel (Brotato nimmt laut Erinnerung immer den Nächsten), sondern Owner-Wunsch; Werte im Config.
 - Ausnahme Dateibesitz wie beim Ring-Fix: Strang-B-Dateien auf direkten Owner-Auftrag. Tests: neue `tests/WeaponTargeting.spec.luau` 3/3; Weapons, WeaponsB7, HeldWeapons, CharacterWhip, Character*-Waffen grün; Smoke gleiche 29 Fehler wie main. Kein Studio-Test.
 - Nach Merge von main (gepoolte Gegnermodelle bleiben versteckt im Workspace): `SpriteModels.hide/show` setzen das Model-Attribut `Hidden`, `HeldModels` zielt nicht auf versteckte Modelle. `EnemySpawnPlacement25` (2 Fehler) schlägt schon auf main fehl.
+
+## Charakterwahl: ganze Figur in der Kachel (Claude, 08.11.2026)
+
+- Owner nach Test: Kacheln sollen wie in Brotato die ganze Figur zeigen, nicht nur den Kopf. Kacheln nutzen jetzt `characterFigure` (ganze Figur, enger Rand) statt `characterHead`; Kachelgröße 80/65 px bleibt. `PortraitCrop.head` bleibt für spätere Nutzung erhalten.
+- Checks: StyLua sauber; `PortraitCrop`, `UiRedesign`, `UiReference` bestanden. Kein Studio-Test.
+
+## Shop und Auswahl nach Owner-Screenshots (Claude, 08.11.2026)
+
+- Shop am PC: Klick auf eine eigene Waffe öffnet das neue Inspect-Fenster `UI/WeaponInspect` (Bild, Name in Stufenfarbe, Klassen, dieselben Werte wie die Angebotskarten, „Recycle +N“, „Combine“ falls möglich, „Cancel“) mit je einem Kasten pro Waffenklasse und deren Set-Bonus. Ersetzt am PC die Aktionszeile und den „i“-Knopf; Handy-Layout unverändert.
+- Der Charakter steht als erste Kachel `CharacterTile` in der Items-Leiste (Bild, Regeln im Tooltip).
+- Volle Waffenplätze färben den Preis nicht mehr rot und zeigen kein „Weapon slots full“ mehr; nur fehlende Shards machen den Preis rot. Der Server lehnt den Kauf weiter ab, wenn die Waffe nicht kombiniert werden kann.
+- Charakterwahl: kein blaugrauer Hintergrund mehr hinter der Figur (dunkler Rahmen). Waffen- und Gefahrenkacheln 80 px wie die Charakterkacheln, Waffenkarte und Gefahrenbeschreibung mit größerer Schrift.
+- Offen: „Schaden in der letzten Welle“ aus dem Brotato-Inspect fehlt, weil der Client pro Waffe nur den Gesamtschaden kennt (bräuchte ein neues Feld vom WeaponService). Gegner-Sprites unten rechts im Shop: wartet auf Screenshot des Owners.
+- Checks: StyLua, Selene (0/0) sauber; `ShopInspect` (neu), `UiShop`, `UiRedesign`, `UiReference`, `PortraitCrop`, `CharacterGhost`, `CharactersB10` bestanden; `Smoke` 14/29 wie auf main. Kein Studio-Test.
