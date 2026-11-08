@@ -82,4 +82,20 @@ function Runtime.recompute(weapons: { Arsenal.Weapon }, bonuses: { [string]: num
 	return changed
 end
 
+-- Stable main.gd resets only the eligible weapon with the greatest remaining cooldown, once per material object.
+function Runtime.reloadFromMaterials(weapons: { Arsenal.Weapon }, count: number, now: number)
+	for _ = 1, count do
+		local selected: Arsenal.Weapon? = nil
+		for _, weapon in weapons do
+			if weapon.stats.reloadOnMaterial and (weapon.state.shootingUntil or 0) <= now then
+				if not selected or weapon.cooldownLeft > selected.cooldownLeft then
+					selected = weapon
+				end
+			end
+		end
+		if selected then
+			selected.cooldownLeft = 0
+		end
+	end
+end
 return Runtime

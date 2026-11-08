@@ -30,6 +30,7 @@ local MapService = require(script.Parent.MapService)
 local RandomService = require(script.Parent.RandomService)
 local RunDirector = require(script.Parent.RunDirector)
 local PlayerDataService = require(script.Parent.PlayerDataService)
+local ExperienceService = require(script.Parent.ExperienceService)
 local CharacterExplosion = require(script.CharacterExplosion)
 local CharacterExplosions = require(Shared.Config.CharacterExplosions)
 local Arsenal = require(script.Arsenal)
@@ -516,9 +517,27 @@ end
 -- Lifecycle -------------------------------------------------------------------------
 
 function WeaponService.init()
+	ExperienceService.OrbsPickedUp:Connect(function(player, count)
+		BrotatoRuntime.reloadFromMaterials(arsenal:getWeapons(player.UserId), count, now())
+	end)
 	BrotatoCombat.configure({
 		health = EnemySim.getHealth,
 		healthShare = EnemySim.getHealthShare,
+		slowArea = function(hitId, x, z, radius, percent, hold)
+			if EnemySim.getKind(hitId) == "Tree" then
+				return
+			end
+			local ids = {}
+			local count = EnemySim.queryRadius(Vector3.new(x, floorY, z), radius, ids)
+			for index = 1, count do
+				local id = ids[index]
+				local kind = EnemySim.getKind(id)
+				local position = EnemySim.getPosition(id)
+				if kind ~= "Tree" and position and (position.X - x) ^ 2 + (position.Z - z) ^ 2 <= radius * radius then
+					EnemySim.nativeSlow(id, -percent, true, hold)
+				end
+			end
+		end,
 		weakness = EnemySim.applyWeakness,
 		isBurning = function(id)
 			return arsenal:isBurning(id)
@@ -535,7 +554,8 @@ function WeaponService.init()
 			if direction.Magnitude < 1e-6 then
 				return
 			end
-			local extra = direction.Unit * (amount * resistance * piercing)
+			local share = if amount < 0 then 1 - resistance + resistance * piercing else resistance * piercing
+			local extra = direction.Unit * (amount * share)
 			if resistance < 1 then
 				EnemySim.push(id, extra / (1 - resistance))
 			else
@@ -550,6 +570,7 @@ function WeaponService.init()
 	CombatService.PlayerDamaged:Connect(function(player)
 		BrotatoRuntime.hurt(arsenal:getWeapons(player.UserId))
 	end)
+	require(script.BrotatoProjectile).setNativeSlow(EnemySim.nativeSlow)
 	require(script.BrotatoProjectile).setSlowAura(function(x, z, radius, factor, seconds)
 		local ids = {}
 		local count = EnemySim.queryRadius(Vector3.new(x, floorY, z), radius, ids)

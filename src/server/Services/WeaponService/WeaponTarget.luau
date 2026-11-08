@@ -5,6 +5,8 @@ local Arsenal = require(script.Parent.Arsenal)
 local Rules = require(game:GetService("ReplicatedStorage").Shared.Config.Combat).originalWeapons
 
 local WeaponTarget = {}
+local minimumCandidates: { number } = {}
+local minimumDistances: { number } = {}
 
 local function squaredDistance(ctx: Arsenal.Context, id: number): number?
 	local x, z = ctx:enemyPosition(id)
@@ -21,9 +23,29 @@ function WeaponTarget.pick(
 	ctx: Arsenal.Context,
 	range: number,
 	maxCount: number,
-	out: { number }
+	out: { number },
+	minimumRange: number?
 ): number
-	local found = ctx:nearestEnemies(ctx.x, ctx.z, range, math.max(maxCount, Rules.targetCandidates), out)
+	local limit = math.max(maxCount, Rules.targetCandidates)
+	local found = 0
+	if minimumRange and minimumRange > 0 then
+		local n = ctx:queryCircle(ctx.x, ctx.z, range, minimumCandidates)
+		for index = 1, n do
+			local id = minimumCandidates[index]
+			local d = squaredDistance(ctx, id)
+			if d and d > minimumRange * minimumRange and (found < limit or d < minimumDistances[found]) then
+				local slot = math.min(found + 1, limit)
+				found = slot
+				while slot > 1 and d < minimumDistances[slot - 1] do
+					out[slot], minimumDistances[slot] = out[slot - 1], minimumDistances[slot - 1]
+					slot -= 1
+				end
+				out[slot], minimumDistances[slot] = id, d
+			end
+		end
+	else
+		found = ctx:nearestEnemies(ctx.x, ctx.z, range, limit, out)
+	end
 	if found == 0 then
 		weapon.state.targetId = nil
 		return 0

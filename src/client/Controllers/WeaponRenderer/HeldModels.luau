@@ -103,14 +103,20 @@ end
 
 -- The enemy this weapon aims at, chosen like the server (WeaponService/WeaponTarget): nearest to the owner within the
 -- weapon's range, but the kept one stays while no other is under targetSwitchRatio of its distance.
-local function aimTarget(aim: Aim, ownerX: number, ownerZ: number, range: number): (number?, number?)
+local function aimTarget(
+	aim: Aim,
+	ownerX: number,
+	ownerZ: number,
+	range: number,
+	minimumRange: number
+): (number?, number?)
 	local best, bestSquared = 0, math.huge
 	local kept, keptSquared = 0, math.huge
 	local rangeSquared = range * range
 	for index = 1, enemyCount do
 		local dx, dz = enemyX[index] - ownerX, enemyZ[index] - ownerZ
 		local squared = dx * dx + dz * dz
-		if squared <= rangeSquared then
+		if squared <= rangeSquared and squared > minimumRange * minimumRange then
 			if squared < bestSquared then
 				best, bestSquared = index, squared
 			end
@@ -207,7 +213,8 @@ function HeldModels.renderWeapon(
 	collectEnemies(frame.number)
 	local stats = weapon.stats
 	local range = if stats and stats.range then stats.range else math.huge
-	local targetX, targetZ = aimTarget(aim, owner.position.X, owner.position.Z, range)
+	local targetX, targetZ =
+		aimTarget(aim, owner.position.X, owner.position.Z, range, if stats then stats.minimumRange or 0 else 0)
 	if targetX and targetZ then
 		-- aimed on the floor like the server (from the anchor to the enemy's feet)
 		local tx, tz = targetX - x, targetZ - z

@@ -283,6 +283,86 @@
         88,
         88
       ]
+    },
+    {
+      "id": "Blunderbuss",
+      "name": "Blunderbuss",
+      "source": "res://dlcs/dlc_1/weapons/ranged/blunderbuss/blunderbuss_icon.png",
+      "textureSource": "res://.import/blunderbuss_icon.png-998016882cf1e3064fd07d5fe9c4c1d6.stex",
+      "textureMd5": "177ada54ab954552e08c45057a848977",
+      "output": "assets/weapons/character-starts/Blunderbuss.png",
+      "pngSha256": "c1fc663643fdac1cc073f9271b93de0d66f0eea2339230356e7052c6ace9b55a",
+      "rgbaSha256": "d815e502db8d1b1a8607d490812a2440c69657a345e3a59ef9193408650ee0f9",
+      "size": [
+        96,
+        96
+      ],
+      "alphaBounds": [
+        1,
+        16,
+        94,
+        79
+      ]
+    },
+    {
+      "id": "Javelin",
+      "name": "Javelin",
+      "source": "res://dlcs/dlc_1/weapons/ranged/javelin/javelin_icon.png",
+      "textureSource": "res://.import/javelin_icon.png-e4d3ccd8ce8dfba9b3b3d59bb4e41bd3.stex",
+      "textureMd5": "db447fa81d35a60a48551a71b6ff5d04",
+      "output": "assets/weapons/character-starts/Javelin.png",
+      "pngSha256": "d8b19738f9b6d1b2fd9517d0cfbe0b4733510213fe476f851fa59efa3da30663",
+      "rgbaSha256": "4f373651f4faa048900ab71f1b9243da8865f381f53e09f7eb37d9da8df54187",
+      "size": [
+        96,
+        96
+      ],
+      "alphaBounds": [
+        6,
+        5,
+        87,
+        92
+      ]
+    },
+    {
+      "id": "TranqRifle",
+      "name": "Tranq Rifle",
+      "source": "res://weapons/ranged/tranq_rifle/tranq_rifle_icon.png",
+      "textureSource": "res://.import/tranq_rifle_icon.png-2a1a4103ee9eadea77ea9fc3e31dbba2.stex",
+      "textureMd5": "3960dd849c2287160e8f6caf169e59b2",
+      "output": "assets/weapons/character-starts/TranqRifle.png",
+      "pngSha256": "7075f614ac89932d38ce5cc8a9ac35877b9e15095a2d07f8cd926f2b9b8eb0a1",
+      "rgbaSha256": "c0f8908b64b3240b56825d82f1229cf5b3e6c0778677b5a230dd15943b0cdda1",
+      "size": [
+        96,
+        96
+      ],
+      "alphaBounds": [
+        3,
+        5,
+        91,
+        90
+      ]
+    },
+    {
+      "id": "HarpoonGun",
+      "name": "Harpoon Gun",
+      "source": "res://dlcs/dlc_1/weapons/ranged/harpoon_gun/harpoon_gun_icon.png",
+      "textureSource": "res://.import/harpoon_gun_icon.png-d0de1934ddae301f7eb77e1c0d26256d.stex",
+      "textureMd5": "39c81c01581bf54d53530495ebf9e6d3",
+      "output": "assets/weapons/character-starts/HarpoonGun.png",
+      "pngSha256": "b83e755625f238b5770400e53c7481dfbfca495363f557e53f889f54da08e734",
+      "rgbaSha256": "8f92a0e12ca1ce7b009e24e8f1eb5fa0276ab98682ee32f1d4c9ffa26e1833f8",
+      "size": [
+        96,
+        96
+      ],
+      "alphaBounds": [
+        2,
+        14,
+        94,
+        87
+      ]
     }
   ]
 }

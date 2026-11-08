@@ -135,13 +135,14 @@ local function measure(weaponId, bonuses, scenario)
 	end
 	local ok, reason = scene.arsenal:addWeapon(OWNER, weaponId, scene.now, W[weaponId].minTier)
 	assert(ok, reason)
+	local minimumRange = scene.arsenal:getWeapons(OWNER)[1].stats.minimumRange or 0
 	local hp = if scenario == "swarm" then 40 else 1e6
 	local count = if scenario == "single" then 1 elseif scenario == "swarm" then 30 else 12
 	local function refill()
 		local alive = world.alive
 		for k = alive + 1, count do
 			local angle = math.random() * math.pi * 2
-			local r = if scenario == "single" then 8 else 14 + math.random() * 16
+			local r = if scenario == "single" then minimumRange + 8 else minimumRange + 14 + math.random() * 16
 			world:spawn(Types.Shadeling, math.cos(angle) * r, math.sin(angle) * r, hp, 0)
 		end
 	end

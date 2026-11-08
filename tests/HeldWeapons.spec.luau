@@ -32,7 +32,7 @@ local function frame(folder, number, now)
 end
 
 describe("World weapon sprites", function()
-	it("uses approved images for all 62 public weapons and rejects fourteen pending-art families", function()
+	it("uses approved images for all 62 public weapons and rejects eighteen pending-art families", function()
 		local count, pending = 0, 0
 		for id, weapon in Config.Weapons do
 			if weapon.available == false then
@@ -54,7 +54,7 @@ describe("World weapon sprites", function()
 			sprite.anchor:Destroy()
 		end
 		expect(count).toBe(62)
-		expect(pending).toBe(14)
+		expect(pending).toBe(18)
 		expect(Config.WeaponVisuals.spriteStuds.BrassKnuckles < Config.WeaponVisuals.spriteStuds.LamplighterPike).toBe(
 			true
 		)
@@ -157,5 +157,32 @@ describe("World weapon sprites", function()
 		}))
 		expect(effects[1].uid).toBe(4)
 		expect(effects[1].targetDistance).toBe(9)
+	end)
+	it("aims beyond a fixed minimum range instead of pointing at an ineligible close enemy", function()
+		workspace.CurrentCamera.CFrame = CFrame.new(0, 100, 0)
+		local enemies = Instance.new("Folder")
+		enemies.Name = "LanternfallEnemies"
+		enemies.Parent = workspace
+		for index, position in { Vector3.new(0, 100, 10), Vector3.new(50, 100, 0) } do
+			local model = Instance.new("Model")
+			model.Name = "MinimumEnemy" .. index
+			model.Parent = enemies
+			local body = Instance.new("Part")
+			body.Name = "Body"
+			body.Position = position
+			body.Parent = model
+		end
+		local folder = Instance.new("Folder")
+		HeldModels.renderWeapon(
+			{ userId = 99, position = Vector3.new(0, 100, 0) },
+			{ uid = 90, id = "WatchmanPistol", stats = { range = 80, minimumRange = 30 } },
+			1,
+			1,
+			frame(folder, 999, workspace:GetServerTimeNow())
+		)
+		local picture = folder:GetChildren()[1].WeaponArtwork.Sprite
+		expect(picture.Rotation).toBeNear(SpriteKit.rotationToward("WatchmanPistol", 1, 0))
+		HeldModels.clear()
+		enemies:Destroy()
 	end)
 end)

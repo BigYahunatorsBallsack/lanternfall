@@ -182,7 +182,8 @@ describe("B7 weapons", function()
 			for tier = config.minTier, 4 do
 				local scene = setup()
 				give(scene, id, tier)
-				local enemy = spawn(scene, "Shadeling", 5, 0, TOUGH)
+				local minimumRange = scene.arsenal:getWeapons(OWNER)[1].stats.minimumRange or 0
+				local enemy = spawn(scene, "Shadeling", minimumRange + 5, 0, TOUGH)
 				run(scene, 0.5)
 				expect(lost(scene, enemy, TOUGH) > 0).toBe(true)
 				expect(#scene.effects > 0).toBe(true)

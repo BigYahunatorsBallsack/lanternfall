@@ -71,6 +71,26 @@
       "group": "weapons",
       "name": "Blowgun",
       "hash": "9395fd4c2ee4afa05025b4234582b132342372eed16fd9da828fa0812bfe9fc1"
+    },
+    "weapons/Blunderbuss.png": {
+      "group": "weapons",
+      "name": "Blunderbuss",
+      "hash": "4a8f3eeace9b4f6720bc6749714cab897de38b45aa696edc0aa77c32f0aac3fb"
+    },
+    "weapons/Javelin.png": {
+      "group": "weapons",
+      "name": "Javelin",
+      "hash": "4cb91a2572adf232e9b53153018ac1f63885ecdf911a851d1a557a96af35c8c1"
+    },
+    "weapons/TranqRifle.png": {
+      "group": "weapons",
+      "name": "TranqRifle",
+      "hash": "4ddb752d1a35cc3d8a7ec680791854b9cd85d8f97acbbc35fdb657ca4ba7740c"
+    },
+    "weapons/HarpoonGun.png": {
+      "group": "weapons",
+      "name": "HarpoonGun",
+      "hash": "fb7136ce1dcbbc3a069a1c00da7538b03adc84b3d2ba932150e5c11989985be3"
     }
   }
 }

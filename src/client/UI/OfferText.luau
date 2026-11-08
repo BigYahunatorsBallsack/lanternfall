@@ -74,10 +74,14 @@ function OfferText.stats(id: string, tier: number, sheet: { [string]: number }):
 			)
 		end
 	end
+	if result.minimumRange then
+		result.range = math.max(result.minimumRange + Config.Stats.range.minStuds, result.range)
+	end
 	result.critChance = StatMath.critChance(result.critChance or Config.Player.critChance, sheet.critChance or 0)
 	result.critDamage = (result.critDamage or Config.Player.critMultiplier) + (sheet.critDamage or 0) / 100
 	result.lifeSteal = math.clamp((result.lifeSteal or 0) + (sheet.lifeSteal or 0) / 100, 0, 1)
-	result.knockback = math.max(0, (result.knockback or 0) + (sheet.knockback or 0))
+	local knockback = (result.knockback or 0) + (sheet.knockback or 0)
+	result.knockback = (if result.negativeKnockbackOnly then math.min(0, knockback) else math.max(0, knockback))
 		* Config.Combat.knockback.studsPerPoint
 	if result.pierce and result.pierce >= 0 then
 		result.pierce = math.max(0, math.floor(result.pierce + (sheet.piercing or 0)))
@@ -110,7 +114,11 @@ function OfferText.weapon(id: string, tier: number, sheet: { [string]: number })
 	line("Knockback", number(stats.knockback / Config.Combat.knockback.studsPerPoint))
 	local rangeKey = weapon.rangeKeys[1]
 	if rangeKey and stats[rangeKey] then
-		line("Range", number(stats[rangeKey] / Config.Stats.range.studsPerPoint) .. ` ({weapon.kind})`)
+		local rangeText = number(stats[rangeKey] / Config.Stats.range.studsPerPoint)
+		if stats.minimumRange then
+			rangeText = number(stats.minimumRange / Config.Stats.range.studsPerPoint) .. " - " .. rangeText
+		end
+		line("Range", rangeText .. ` ({weapon.kind})`)
 	end
 	if stats.pierce and stats.pierce ~= 0 then
 		line("Pierces", if stats.pierce < 0 then "All enemies" else number(stats.pierce))

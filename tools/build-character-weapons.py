@@ -16,7 +16,7 @@ def module(name, file):
     return result
 source = module('character_source', 'tools/character-source.py')
 catalog = module('character_catalog', 'tools/build-character-catalog.py')
-FAMILIES = ['anchor', 'mace', 'meat_tenderizer', 'machinegun', 'pan_flute', 'combat_shotgun', 'grenade_launcher', 'whip', 'spoon', 'cestus', 'sickle', 'trident', 'lute', 'blowgun']
+FAMILIES = ['anchor', 'mace', 'meat_tenderizer', 'machinegun', 'pan_flute', 'combat_shotgun', 'grenade_launcher', 'whip', 'spoon', 'cestus', 'sickle', 'trident', 'lute', 'blowgun', 'blunderbuss', 'javelin', 'tranq_rifle', 'harpoon_gun']
 FACTS = ROOT / 'docs/characters/weapon-source.json'
 OUTPUT = ROOT / 'src/shared/Config/CharacterWeaponData.luau'
 
@@ -36,14 +36,19 @@ def refresh():
                 ep = ref['resource']
                 effect = pck.resource(ep)['properties']
                 effects.append({'source': ep, 'sourceMd5': pck.entries[ep]['md5'], 'key': effect['key'], 'value': effect['value'], 'scale': effect.get('scale'), 'duration': effect.get('duration')})
-                for key in ['value2', 'stat_name', 'damage_multiplier', 'source_id', 'duration_secs', 'max_stacks', 'custom_key', 'chance']:
+                for key in ['value2', 'stat_name', 'damage_multiplier', 'source_id', 'duration_secs', 'max_stacks', 'custom_key', 'chance', 'radius']:
                     if key in effect:
                         effects[-1][key] = effect[key]
+                if 'sub_effects' in effect:
+                    effects[-1]['subEffects'] = [{'source': ref['resource'], 'sourceMd5': pck.entries[ref['resource']]['md5'], **{k:v for k,v in pck.resource(ref['resource'])['properties'].items() if k in ['key','value']}} for ref in effect['sub_effects']]
             tiers.append({'source': path, 'sourceMd5': pck.entries[path]['md5'], 'statsSource': stats_path, 'statsMd5': pck.entries[stats_path]['md5'], 'tier': data['tier'] + 1, 'price': data['value'], 'sets': [pck.resource(ref['resource'])['properties']['my_id'] for ref in data['sets']], 'kind': 'Melee' if data['type'] == 0 else 'Ranged', 'stats': {k: v for (k, v) in stats.items() if isinstance(v, (int, float, bool)) or k == 'scaling_stats'}, 'effects': effects})
         rows.append({'id': catalog.pascal(family), 'name': 'Machine Gun' if family == 'machinegun' else family.replace('_', ' ').title(), 'tiers': sorted(tiers, key=lambda row: row['tier'])})
     whip = next(row for row in rows if row['id'] == 'Whip')
     scene = 'res://weapons/melee/whip/whip.tscn'
     whip['geometry'] = {'source': scene, 'sourceMd5': pck.entries[scene]['md5'], 'hitOpenSeconds': 0.24, 'hitCloseSeconds': 0.32, 'attackLockSeconds': 0.48, 'hitStartOffset': 3.4, 'halfWidth': 1.6, 'spritePositionPoints': [13.885, 46, 46, 3.985], 'spriteRotationDegrees': [-16.4, 0, 0, 15], 'hitboxOffsetPoints': -12, 'note': 'Lash animation method keys open/close at 0.24/0.32, length 0.48; Sprite x46 plus Hitbox x-12, Rectangle extents.y16, world scale0.1. Whip.init_stats replaces Hitbox y scale with1.'}
+    harpoon = next(row for row in rows if row['id'] == 'HarpoonGun')
+    harpoon_scene = 'res://projectiles/bullet_harpoon/bullet_harpoon.tscn'
+    harpoon['geometry'] = {'source': harpoon_scene, 'sourceMd5': pck.entries[harpoon_scene]['md5'], 'slowRadiusPoints': 63.0714, 'slowOffsetPoints': [1,4], 'slowAmountPoints': -400, 'note': 'SlowHitbox x-24/y4 plus Circle collision x25, fixed native additive -400 speed, each target once per projectile.'}
     FACTS.write_text(json.dumps({'version': '1.2.0.1', 'steamBuild': 26406319, 'weapons': rows}, indent=2) + '\n', encoding='utf-8')
 
 def generate():
@@ -67,6 +72,12 @@ def generate():
             if tier['kind'] == 'Melee':
                 value.update(width=1.2, sweepDegrees=120, attackSeconds=st.get('attack_duration', 0.18), meleeMode=st['attack_type'])
             else:
+                if not st.get('can_bounce', True):
+                    value['noBounce'] = 1
+                if st['min_range'] > 0:
+                    value['minimumRange'] = st['min_range'] * 0.1
+                if st['can_have_negative_knockback'] and not st['can_have_positive_knockback']:
+                    value['negativeKnockbackOnly'] = 1
                 value.update(count=st['nb_projectiles'], nativeSpread=st['projectile_spread'], nativeAccuracy=st['accuracy'], projectileSpeed=st['projectile_speed'] * 0.1, projectileRadius=0.6, pierce=st['piercing'], pierceFalloff=st['piercing_dmg_reduction'], bounce=st['bounce'], bounceFalloff=st['bounce_dmg_reduction'], shootWithoutTarget=int(st['can_shoot_without_target']))
                 if st['additional_cooldown_every_x_shots'] > 0:
                     frames = math.floor(st['cooldown'] * st['additional_cooldown_multiplier'] + 0.5)
@@ -80,6 +91,21 @@ def generate():
                     lines.append(f"Enemies hit take {effect['value']}% more damage for {effect['duration_secs']} seconds (max: {effect['value'] * effect['max_stacks']}%)")
                 elif effect['key'] in catalog.STATS:
                     bonuses[catalog.STATS[effect['key']]] = effect['value']
+                elif effect['key'] == 'reload_when_pickup_gold':
+                    value.update(reloadOnMaterial=1,shotAnimationSeconds=st['recoil_duration']*2)
+                    lines.append('Cooldown is reset when you pick up a material')
+                elif effect['key'] == 'modify_every_x_projectile':
+                    sub=effect['subEffects']
+                    assert len(sub)==1 and sub[0]['key']=='stat_crit_chance'
+                    value.update(cycleEvery=effect['value'],cycleCritBonus=sub[0]['value'])
+                    lines.append(f"Every {effect['value']}th attack gains +{sub[0]['value']}% Crit Chance")
+                elif effect['key'] == 'slow_area_on_hit':
+                    value.update(impactSlowRadius=effect['radius']*0.1,impactSlowPercent=effect['value'],impactSlowHold=effect['duration'])
+                    lines.append(f"Hits slow enemies within {effect['radius']:g} range by {effect['value']}% for {effect['duration']:g} seconds")
+                elif effect['key'] == 'effect_slow_in_zone':
+                    geometry=row['geometry']
+                    value.update(slowZoneRadius=geometry['slowRadiusPoints']*0.1,slowZoneOffsetX=geometry['slowOffsetPoints'][0]*0.1,slowZoneOffsetZ=geometry['slowOffsetPoints'][1]*0.1,slowZonePoints=geometry['slowAmountPoints'])
+                    lines.append('Slows nearby enemies')
                 elif effect['key'] == 'effect_explode':
                     value.update(explosionChance=1, explosionRadius=147.34 * 0.1 * effect['scale'])
                 elif effect['key'] == 'crit_on_hitting_burning_target':

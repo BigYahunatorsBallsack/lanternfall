@@ -2994,6 +2994,969 @@
           ]
         }
       ]
+    },
+    {
+      "id": "Blunderbuss",
+      "name": "Blunderbuss",
+      "tiers": [
+        {
+          "source": "res://dlcs/dlc_1/weapons/ranged/blunderbuss/2/blunderbuss_2_data.tres",
+          "sourceMd5": "d00ed56e7e17850e0f91cb04210d34d7",
+          "statsSource": "res://dlcs/dlc_1/weapons/ranged/blunderbuss/2/blunderbuss_2_stats.tres",
+          "statsMd5": "10ebd40ca94ad67da52ab63e4b2e83a3",
+          "tier": 2,
+          "price": 45,
+          "sets": [
+            "set_naval",
+            "set_gun"
+          ],
+          "kind": "Ranged",
+          "stats": {
+            "cooldown": 300,
+            "damage": 22,
+            "accuracy": 0.9,
+            "crit_chance": 0.03,
+            "crit_damage": 2.0,
+            "min_range": 0,
+            "max_range": 325,
+            "knockback": 10,
+            "knockback_piercing": 0.0,
+            "can_have_positive_knockback": true,
+            "can_have_negative_knockback": false,
+            "effect_scale": 1.0,
+            "scaling_stats": [
+              [
+                "stat_ranged_damage",
+                1.1
+              ]
+            ],
+            "lifesteal": 0.0,
+            "sound_db_mod": -15,
+            "is_healing": false,
+            "recoil": 25,
+            "recoil_duration": 0.1,
+            "additional_cooldown_every_x_shots": -1,
+            "additional_cooldown_multiplier": -1.0,
+            "speed_percent_modifier": 0,
+            "can_shoot_without_target": false,
+            "nb_projectiles": 1,
+            "projectile_spread": 0.0,
+            "piercing": 2,
+            "piercing_dmg_reduction": 0.25,
+            "bounce": 0,
+            "bounce_dmg_reduction": 0.5,
+            "can_bounce": true,
+            "projectile_speed": 3000,
+            "increase_projectile_speed_with_range": false
+          },
+          "effects": [
+            {
+              "source": "res://dlcs/dlc_1/weapons/ranged/blunderbuss/blunderbuss_effect.tres",
+              "sourceMd5": "ce9ec9dbd2411edace46a5163a60e764",
+              "key": "reload_when_pickup_gold",
+              "value": 1,
+              "scale": null,
+              "duration": null,
+              "custom_key": ""
+            }
+          ]
+        },
+        {
+          "source": "res://dlcs/dlc_1/weapons/ranged/blunderbuss/3/blunderbuss_3_data.tres",
+          "sourceMd5": "93c18bd60e08b15823c66d908981cb88",
+          "statsSource": "res://dlcs/dlc_1/weapons/ranged/blunderbuss/3/blunderbuss_3_stats.tres",
+          "statsMd5": "2652e7856b6987dc3417076c9764054e",
+          "tier": 3,
+          "price": 95,
+          "sets": [
+            "set_naval",
+            "set_gun"
+          ],
+          "kind": "Ranged",
+          "stats": {
+            "cooldown": 300,
+            "damage": 45,
+            "accuracy": 0.9,
+            "crit_chance": 0.03,
+            "crit_damage": 2.25,
+            "min_range": 0,
+            "max_range": 350,
+            "knockback": 20,
+            "knockback_piercing": 0.0,
+            "can_have_positive_knockback": true,
+            "can_have_negative_knockback": false,
+            "effect_scale": 1.0,
+            "scaling_stats": [
+              [
+                "stat_ranged_damage",
+                1.35
+              ]
+            ],
+            "lifesteal": 0.0,
+            "sound_db_mod": -15,
+            "is_healing": false,
+            "recoil": 25,
+            "recoil_duration": 0.1,
+            "additional_cooldown_every_x_shots": -1,
+            "additional_cooldown_multiplier": -1.0,
+            "speed_percent_modifier": 0,
+            "can_shoot_without_target": false,
+            "nb_projectiles": 1,
+            "projectile_spread": 0.0,
+            "piercing": 2,
+            "piercing_dmg_reduction": 0.25,
+            "bounce": 0,
+            "bounce_dmg_reduction": 0.5,
+            "can_bounce": true,
+            "projectile_speed": 3000,
+            "increase_projectile_speed_with_range": false
+          },
+          "effects": [
+            {
+              "source": "res://dlcs/dlc_1/weapons/ranged/blunderbuss/blunderbuss_effect.tres",
+              "sourceMd5": "ce9ec9dbd2411edace46a5163a60e764",
+              "key": "reload_when_pickup_gold",
+              "value": 1,
+              "scale": null,
+              "duration": null,
+              "custom_key": ""
+            }
+          ]
+        },
+        {
+          "source": "res://dlcs/dlc_1/weapons/ranged/blunderbuss/4/blunderbuss_4_data.tres",
+          "sourceMd5": "afab0c09b2b0ab3430905764dc45a9ae",
+          "statsSource": "res://dlcs/dlc_1/weapons/ranged/blunderbuss/4/blunderbuss_4_stats.tres",
+          "statsMd5": "0116ab37c3fb4e3fc5b47441580aaf6c",
+          "tier": 4,
+          "price": 192,
+          "sets": [
+            "set_naval",
+            "set_gun"
+          ],
+          "kind": "Ranged",
+          "stats": {
+            "cooldown": 300,
+            "damage": 70,
+            "accuracy": 0.9,
+            "crit_chance": 0.03,
+            "crit_damage": 2.5,
+            "min_range": 0,
+            "max_range": 375,
+            "knockback": 30,
+            "knockback_piercing": 0.0,
+            "can_have_positive_knockback": true,
+            "can_have_negative_knockback": false,
+            "effect_scale": 1.0,
+            "scaling_stats": [
+              [
+                "stat_ranged_damage",
+                1.75
+              ]
+            ],
+            "lifesteal": 0.0,
+            "sound_db_mod": -15,
+            "is_healing": false,
+            "recoil": 25,
+            "recoil_duration": 0.1,
+            "additional_cooldown_every_x_shots": -1,
+            "additional_cooldown_multiplier": -1.0,
+            "speed_percent_modifier": 0,
+            "can_shoot_without_target": false,
+            "nb_projectiles": 1,
+            "projectile_spread": 0.0,
+            "piercing": 2,
+            "piercing_dmg_reduction": 0.25,
+            "bounce": 0,
+            "bounce_dmg_reduction": 0.5,
+            "can_bounce": true,
+            "projectile_speed": 3000,
+            "increase_projectile_speed_with_range": false
+          },
+          "effects": [
+            {
+              "source": "res://dlcs/dlc_1/weapons/ranged/blunderbuss/blunderbuss_effect.tres",
+              "sourceMd5": "ce9ec9dbd2411edace46a5163a60e764",
+              "key": "reload_when_pickup_gold",
+              "value": 1,
+              "scale": null,
+              "duration": null,
+              "custom_key": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "Javelin",
+      "name": "Javelin",
+      "tiers": [
+        {
+          "source": "res://dlcs/dlc_1/weapons/ranged/javelin/1/javelin_data.tres",
+          "sourceMd5": "c207c9e722cefe696673a1f6380c9f9b",
+          "statsSource": "res://dlcs/dlc_1/weapons/ranged/javelin/1/javelin_stats.tres",
+          "statsMd5": "23651bc725eda6953ac82f4e6660b769",
+          "tier": 1,
+          "price": 18,
+          "sets": [
+            "set_primitive"
+          ],
+          "kind": "Ranged",
+          "stats": {
+            "cooldown": 60,
+            "damage": 8,
+            "accuracy": 1.0,
+            "crit_chance": 0.0,
+            "crit_damage": 2.5,
+            "min_range": 0,
+            "max_range": 350,
+            "knockback": 0,
+            "knockback_piercing": 0.0,
+            "can_have_positive_knockback": true,
+            "can_have_negative_knockback": false,
+            "effect_scale": 1.0,
+            "scaling_stats": [
+              [
+                "stat_melee_damage",
+                1.0
+              ]
+            ],
+            "lifesteal": 0.0,
+            "sound_db_mod": -5,
+            "is_healing": false,
+            "recoil": 25,
+            "recoil_duration": 0.1,
+            "additional_cooldown_every_x_shots": -1,
+            "additional_cooldown_multiplier": -1.0,
+            "speed_percent_modifier": 0,
+            "can_shoot_without_target": false,
+            "nb_projectiles": 1,
+            "projectile_spread": 0.0,
+            "piercing": 2,
+            "piercing_dmg_reduction": 0.25,
+            "bounce": 0,
+            "bounce_dmg_reduction": 0.5,
+            "can_bounce": true,
+            "projectile_speed": 2000,
+            "increase_projectile_speed_with_range": false
+          },
+          "effects": [
+            {
+              "source": "res://dlcs/dlc_1/weapons/ranged/javelin/1/javelin_effect_0.tres",
+              "sourceMd5": "b10270a3b4104ebbbf38d53e10674faa",
+              "key": "modify_every_x_projectile",
+              "value": 5,
+              "scale": null,
+              "duration": null,
+              "custom_key": "",
+              "subEffects": [
+                {
+                  "source": "res://dlcs/dlc_1/weapons/ranged/javelin/1/javelin_effect_0c.tres",
+                  "sourceMd5": "2edc77cf4c2580e30f0de25cb2ef0489",
+                  "key": "stat_crit_chance",
+                  "value": 100
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "source": "res://dlcs/dlc_1/weapons/ranged/javelin/2/javelin_2_data.tres",
+          "sourceMd5": "febdfa9890a4e410e48d44ab4a2a74c4",
+          "statsSource": "res://dlcs/dlc_1/weapons/ranged/javelin/2/javelin_2_stats.tres",
+          "statsMd5": "e946f550d279659cb3e99da575358200",
+          "tier": 2,
+          "price": 36,
+          "sets": [
+            "set_primitive"
+          ],
+          "kind": "Ranged",
+          "stats": {
+            "cooldown": 55,
+            "damage": 12,
+            "accuracy": 1.0,
+            "crit_chance": 0.0,
+            "crit_damage": 2.75,
+            "min_range": 0,
+            "max_range": 375,
+            "knockback": 0,
+            "knockback_piercing": 0.0,
+            "can_have_positive_knockback": true,
+            "can_have_negative_knockback": false,
+            "effect_scale": 1.0,
+            "scaling_stats": [
+              [
+                "stat_melee_damage",
+                1.0
+              ]
+            ],
+            "lifesteal": 0.0,
+            "sound_db_mod": -5,
+            "is_healing": false,
+            "recoil": 25,
+            "recoil_duration": 0.1,
+            "additional_cooldown_every_x_shots": -1,
+            "additional_cooldown_multiplier": -1.0,
+            "speed_percent_modifier": 0,
+            "can_shoot_without_target": false,
+            "nb_projectiles": 1,
+            "projectile_spread": 0.0,
+            "piercing": 3,
+            "piercing_dmg_reduction": 0.25,
+            "bounce": 0,
+            "bounce_dmg_reduction": 0.5,
+            "can_bounce": true,
+            "projectile_speed": 2000,
+            "increase_projectile_speed_with_range": false
+          },
+          "effects": [
+            {
+              "source": "res://dlcs/dlc_1/weapons/ranged/javelin/2/javelin_2_effect_0.tres",
+              "sourceMd5": "8b8a441d8979a304b3526f50ba11370c",
+              "key": "modify_every_x_projectile",
+              "value": 4,
+              "scale": null,
+              "duration": null,
+              "custom_key": "",
+              "subEffects": [
+                {
+                  "source": "res://dlcs/dlc_1/weapons/ranged/javelin/2/javelin_2_effect_0c.tres",
+                  "sourceMd5": "2edc77cf4c2580e30f0de25cb2ef0489",
+                  "key": "stat_crit_chance",
+                  "value": 100
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "source": "res://dlcs/dlc_1/weapons/ranged/javelin/3/javelin_3_data.tres",
+          "sourceMd5": "b59e2c4767dcab3ead3fbf264cdd7b7c",
+          "statsSource": "res://dlcs/dlc_1/weapons/ranged/javelin/3/javelin_3_stats.tres",
+          "statsMd5": "4e9198b4b4afc3b7f74cc6567cd02975",
+          "tier": 3,
+          "price": 66,
+          "sets": [
+            "set_primitive"
+          ],
+          "kind": "Ranged",
+          "stats": {
+            "cooldown": 50,
+            "damage": 16,
+            "accuracy": 1.0,
+            "crit_chance": 0.0,
+            "crit_damage": 3.0,
+            "min_range": 0,
+            "max_range": 400,
+            "knockback": 0,
+            "knockback_piercing": 0.0,
+            "can_have_positive_knockback": true,
+            "can_have_negative_knockback": false,
+            "effect_scale": 1.0,
+            "scaling_stats": [
+              [
+                "stat_melee_damage",
+                1.0
+              ]
+            ],
+            "lifesteal": 0.0,
+            "sound_db_mod": -5,
+            "is_healing": false,
+            "recoil": 25,
+            "recoil_duration": 0.1,
+            "additional_cooldown_every_x_shots": -1,
+            "additional_cooldown_multiplier": -1.0,
+            "speed_percent_modifier": 0,
+            "can_shoot_without_target": false,
+            "nb_projectiles": 1,
+            "projectile_spread": 0.0,
+            "piercing": 4,
+            "piercing_dmg_reduction": 0.25,
+            "bounce": 0,
+            "bounce_dmg_reduction": 0.5,
+            "can_bounce": true,
+            "projectile_speed": 2000,
+            "increase_projectile_speed_with_range": false
+          },
+          "effects": [
+            {
+              "source": "res://dlcs/dlc_1/weapons/ranged/javelin/3/javelin_3_effect_0.tres",
+              "sourceMd5": "cba393d52a85390173a53acce53f52b5",
+              "key": "modify_every_x_projectile",
+              "value": 3,
+              "scale": null,
+              "duration": null,
+              "custom_key": "",
+              "subEffects": [
+                {
+                  "source": "res://dlcs/dlc_1/weapons/ranged/javelin/3/javelin_3_effect_0c.tres",
+                  "sourceMd5": "2edc77cf4c2580e30f0de25cb2ef0489",
+                  "key": "stat_crit_chance",
+                  "value": 100
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "source": "res://dlcs/dlc_1/weapons/ranged/javelin/4/javelin_4_data.tres",
+          "sourceMd5": "05c2f45493a63794f95e84a6551ebe3d",
+          "statsSource": "res://dlcs/dlc_1/weapons/ranged/javelin/4/javelin_4_stats.tres",
+          "statsMd5": "f2a81b29716a84a438a1d0a2a5c0e1b0",
+          "tier": 4,
+          "price": 140,
+          "sets": [
+            "set_primitive"
+          ],
+          "kind": "Ranged",
+          "stats": {
+            "cooldown": 45,
+            "damage": 20,
+            "accuracy": 1.0,
+            "crit_chance": 0.0,
+            "crit_damage": 3.25,
+            "min_range": 0,
+            "max_range": 425,
+            "knockback": 0,
+            "knockback_piercing": 0.0,
+            "can_have_positive_knockback": true,
+            "can_have_negative_knockback": false,
+            "effect_scale": 1.0,
+            "scaling_stats": [
+              [
+                "stat_melee_damage",
+                1.0
+              ]
+            ],
+            "lifesteal": 0.0,
+            "sound_db_mod": -5,
+            "is_healing": false,
+            "recoil": 25,
+            "recoil_duration": 0.1,
+            "additional_cooldown_every_x_shots": -1,
+            "additional_cooldown_multiplier": -1.0,
+            "speed_percent_modifier": 0,
+            "can_shoot_without_target": false,
+            "nb_projectiles": 1,
+            "projectile_spread": 0.0,
+            "piercing": 5,
+            "piercing_dmg_reduction": 0.25,
+            "bounce": 0,
+            "bounce_dmg_reduction": 0.5,
+            "can_bounce": true,
+            "projectile_speed": 2000,
+            "increase_projectile_speed_with_range": false
+          },
+          "effects": [
+            {
+              "source": "res://dlcs/dlc_1/weapons/ranged/javelin/4/javelin_4_effect_0.tres",
+              "sourceMd5": "be23b943af147f146862e6921533154d",
+              "key": "modify_every_x_projectile",
+              "value": 2,
+              "scale": null,
+              "duration": null,
+              "custom_key": "",
+              "subEffects": [
+                {
+                  "source": "res://dlcs/dlc_1/weapons/ranged/javelin/4/javelin_4_effect_0c.tres",
+                  "sourceMd5": "2edc77cf4c2580e30f0de25cb2ef0489",
+                  "key": "stat_crit_chance",
+                  "value": 100
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "TranqRifle",
+      "name": "Tranq Rifle",
+      "tiers": [
+        {
+          "source": "res://weapons/ranged/tranq_rifle/1/tranq_rifle_data.tres",
+          "sourceMd5": "47fdd0b4ce986f47c8bcfee483ffe7c6",
+          "statsSource": "res://weapons/ranged/tranq_rifle/1/tranq_rifle_stats.tres",
+          "statsMd5": "3cf50747b9589d76287145992eeb5604",
+          "tier": 1,
+          "price": 20,
+          "sets": [
+            "set_precise",
+            "set_gun"
+          ],
+          "kind": "Ranged",
+          "stats": {
+            "cooldown": 115,
+            "damage": 15,
+            "accuracy": 1.0,
+            "crit_chance": 0.12,
+            "crit_damage": 2.5,
+            "min_range": 0,
+            "max_range": 500,
+            "knockback": 10,
+            "knockback_piercing": 0.0,
+            "can_have_positive_knockback": true,
+            "can_have_negative_knockback": false,
+            "effect_scale": 1.0,
+            "scaling_stats": [
+              [
+                "stat_ranged_damage",
+                0.7
+              ],
+              [
+                "stat_range",
+                0.1
+              ]
+            ],
+            "lifesteal": 0.0,
+            "sound_db_mod": -12,
+            "is_healing": false,
+            "recoil": 25,
+            "recoil_duration": 0.1,
+            "additional_cooldown_every_x_shots": -1,
+            "additional_cooldown_multiplier": -1.0,
+            "speed_percent_modifier": 0,
+            "can_shoot_without_target": false,
+            "nb_projectiles": 1,
+            "projectile_spread": 0.0,
+            "piercing": 0,
+            "piercing_dmg_reduction": 0.5,
+            "bounce": 0,
+            "bounce_dmg_reduction": 0.5,
+            "can_bounce": false,
+            "projectile_speed": 3000,
+            "increase_projectile_speed_with_range": false
+          },
+          "effects": [
+            {
+              "source": "res://weapons/ranged/tranq_rifle/1/tranq_rifle_effect_0.tres",
+              "sourceMd5": "56c2a582f3fb5935d1bd94fc55f56db7",
+              "key": "slow_area_on_hit",
+              "value": 50,
+              "scale": null,
+              "duration": 2.0,
+              "custom_key": "",
+              "radius": 125.0
+            }
+          ]
+        },
+        {
+          "source": "res://weapons/ranged/tranq_rifle/2/tranq_rifle_2_data.tres",
+          "sourceMd5": "252f4745e094206542a27a60de750782",
+          "statsSource": "res://weapons/ranged/tranq_rifle/2/tranq_rifle_2_stats.tres",
+          "statsMd5": "e4536affeeeba7aedafd61e3c598a242",
+          "tier": 2,
+          "price": 39,
+          "sets": [
+            "set_precise",
+            "set_gun"
+          ],
+          "kind": "Ranged",
+          "stats": {
+            "cooldown": 113,
+            "damage": 25,
+            "accuracy": 1.0,
+            "crit_chance": 0.15,
+            "crit_damage": 2.5,
+            "min_range": 0,
+            "max_range": 600,
+            "knockback": 10,
+            "knockback_piercing": 0.0,
+            "can_have_positive_knockback": true,
+            "can_have_negative_knockback": false,
+            "effect_scale": 1.0,
+            "scaling_stats": [
+              [
+                "stat_ranged_damage",
+                0.8
+              ],
+              [
+                "stat_range",
+                0.15
+              ]
+            ],
+            "lifesteal": 0.0,
+            "sound_db_mod": -12,
+            "is_healing": false,
+            "recoil": 25,
+            "recoil_duration": 0.1,
+            "additional_cooldown_every_x_shots": -1,
+            "additional_cooldown_multiplier": -1.0,
+            "speed_percent_modifier": 0,
+            "can_shoot_without_target": false,
+            "nb_projectiles": 1,
+            "projectile_spread": 0.0,
+            "piercing": 0,
+            "piercing_dmg_reduction": 0.5,
+            "bounce": 0,
+            "bounce_dmg_reduction": 0.5,
+            "can_bounce": false,
+            "projectile_speed": 3000,
+            "increase_projectile_speed_with_range": false
+          },
+          "effects": [
+            {
+              "source": "res://weapons/ranged/tranq_rifle/2/tranq_rifle_2_effect_0.tres",
+              "sourceMd5": "938ec21e5ed0f1e68e0bc81e63c03099",
+              "key": "slow_area_on_hit",
+              "value": 50,
+              "scale": null,
+              "duration": 2.0,
+              "custom_key": "",
+              "radius": 150.0
+            }
+          ]
+        },
+        {
+          "source": "res://weapons/ranged/tranq_rifle/3/tranq_rifle_3_data.tres",
+          "sourceMd5": "8a443b347ef185105da927dec31ba50b",
+          "statsSource": "res://weapons/ranged/tranq_rifle/3/tranq_rifle_3_stats.tres",
+          "statsMd5": "b0332a4ce996ddab1b3a645de6707e9d",
+          "tier": 3,
+          "price": 74,
+          "sets": [
+            "set_precise",
+            "set_gun"
+          ],
+          "kind": "Ranged",
+          "stats": {
+            "cooldown": 111,
+            "damage": 40,
+            "accuracy": 1.0,
+            "crit_chance": 0.18,
+            "crit_damage": 3.0,
+            "min_range": 0,
+            "max_range": 700,
+            "knockback": 10,
+            "knockback_piercing": 0.0,
+            "can_have_positive_knockback": true,
+            "can_have_negative_knockback": false,
+            "effect_scale": 1.0,
+            "scaling_stats": [
+              [
+                "stat_ranged_damage",
+                0.9
+              ],
+              [
+                "stat_range",
+                0.2
+              ]
+            ],
+            "lifesteal": 0.0,
+            "sound_db_mod": -12,
+            "is_healing": false,
+            "recoil": 25,
+            "recoil_duration": 0.1,
+            "additional_cooldown_every_x_shots": -1,
+            "additional_cooldown_multiplier": -1.0,
+            "speed_percent_modifier": 0,
+            "can_shoot_without_target": false,
+            "nb_projectiles": 1,
+            "projectile_spread": 0.0,
+            "piercing": 0,
+            "piercing_dmg_reduction": 0.5,
+            "bounce": 0,
+            "bounce_dmg_reduction": 0.5,
+            "can_bounce": false,
+            "projectile_speed": 3000,
+            "increase_projectile_speed_with_range": false
+          },
+          "effects": [
+            {
+              "source": "res://weapons/ranged/tranq_rifle/3/tranq_rifle_3_effect_0.tres",
+              "sourceMd5": "4585412fe792890d8b5c5662b527d188",
+              "key": "slow_area_on_hit",
+              "value": 50,
+              "scale": null,
+              "duration": 2.0,
+              "custom_key": "",
+              "radius": 175.0
+            }
+          ]
+        },
+        {
+          "source": "res://weapons/ranged/tranq_rifle/4/tranq_rifle_4_data.tres",
+          "sourceMd5": "ca665570f2027e995f9e3309c3f1f128",
+          "statsSource": "res://weapons/ranged/tranq_rifle/4/tranq_rifle_4_stats.tres",
+          "statsMd5": "2c901d1722b7774cdc4746b0843eeac3",
+          "tier": 4,
+          "price": 149,
+          "sets": [
+            "set_precise",
+            "set_gun"
+          ],
+          "kind": "Ranged",
+          "stats": {
+            "cooldown": 110,
+            "damage": 60,
+            "accuracy": 1.0,
+            "crit_chance": 0.2,
+            "crit_damage": 3.5,
+            "min_range": 0,
+            "max_range": 800,
+            "knockback": 10,
+            "knockback_piercing": 0.0,
+            "can_have_positive_knockback": true,
+            "can_have_negative_knockback": false,
+            "effect_scale": 1.0,
+            "scaling_stats": [
+              [
+                "stat_ranged_damage",
+                1.0
+              ],
+              [
+                "stat_range",
+                0.25
+              ]
+            ],
+            "lifesteal": 0.0,
+            "sound_db_mod": -12,
+            "is_healing": false,
+            "recoil": 25,
+            "recoil_duration": 0.1,
+            "additional_cooldown_every_x_shots": -1,
+            "additional_cooldown_multiplier": -1.0,
+            "speed_percent_modifier": 0,
+            "can_shoot_without_target": false,
+            "nb_projectiles": 1,
+            "projectile_spread": 0.0,
+            "piercing": 0,
+            "piercing_dmg_reduction": 0.5,
+            "bounce": 0,
+            "bounce_dmg_reduction": 0.5,
+            "can_bounce": false,
+            "projectile_speed": 3000,
+            "increase_projectile_speed_with_range": false
+          },
+          "effects": [
+            {
+              "source": "res://weapons/ranged/tranq_rifle/4/tranq_rifle_4_effect_0.tres",
+              "sourceMd5": "dd941a830f2b4e1c9bc90c776e1b0d24",
+              "key": "slow_area_on_hit",
+              "value": 50,
+              "scale": null,
+              "duration": 2.0,
+              "custom_key": "",
+              "radius": 200.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "HarpoonGun",
+      "name": "Harpoon Gun",
+      "tiers": [
+        {
+          "source": "res://dlcs/dlc_1/weapons/ranged/harpoon_gun/2/harpoon_gun_2_data.tres",
+          "sourceMd5": "6fffcb1216906d0208d95261af87dc71",
+          "statsSource": "res://dlcs/dlc_1/weapons/ranged/harpoon_gun/2/harpoon_gun_2_stats.tres",
+          "statsMd5": "f2a50fdb42111d54238f74da31d59cd7",
+          "tier": 2,
+          "price": 50,
+          "sets": [
+            "set_naval",
+            "set_gun"
+          ],
+          "kind": "Ranged",
+          "stats": {
+            "cooldown": 25,
+            "damage": 5,
+            "accuracy": 1.0,
+            "crit_chance": 0.03,
+            "crit_damage": 1.5,
+            "min_range": 300,
+            "max_range": 800,
+            "knockback": -30,
+            "knockback_piercing": 0.9,
+            "can_have_positive_knockback": false,
+            "can_have_negative_knockback": true,
+            "effect_scale": 1.0,
+            "scaling_stats": [
+              [
+                "stat_ranged_damage",
+                1.0
+              ],
+              [
+                "stat_melee_damage",
+                1.0
+              ]
+            ],
+            "lifesteal": 0.0,
+            "sound_db_mod": -12,
+            "is_healing": false,
+            "recoil": 40,
+            "recoil_duration": 0.2,
+            "additional_cooldown_every_x_shots": -1,
+            "additional_cooldown_multiplier": -1.0,
+            "speed_percent_modifier": 0,
+            "can_shoot_without_target": false,
+            "nb_projectiles": 1,
+            "projectile_spread": 0.0,
+            "piercing": 3,
+            "piercing_dmg_reduction": 0.25,
+            "bounce": 0,
+            "bounce_dmg_reduction": 0.5,
+            "can_bounce": true,
+            "projectile_speed": 3000,
+            "increase_projectile_speed_with_range": false
+          },
+          "effects": [
+            {
+              "source": "res://dlcs/dlc_1/weapons/ranged/harpoon_gun/harpoon_gun_effect.tres",
+              "sourceMd5": "9c0a5104328b7b98660b071dfb0367c3",
+              "key": "effect_slow_in_zone",
+              "value": 1,
+              "scale": null,
+              "duration": null,
+              "custom_key": ""
+            }
+          ]
+        },
+        {
+          "source": "res://dlcs/dlc_1/weapons/ranged/harpoon_gun/3/harpoon_gun_3_data.tres",
+          "sourceMd5": "d611a69d79cfa3bfac64f7f7624d20fe",
+          "statsSource": "res://dlcs/dlc_1/weapons/ranged/harpoon_gun/3/harpoon_gun_3_stats.tres",
+          "statsMd5": "522a81397393f1317636fe53f388bba2",
+          "tier": 3,
+          "price": 105,
+          "sets": [
+            "set_naval",
+            "set_gun"
+          ],
+          "kind": "Ranged",
+          "stats": {
+            "cooldown": 20,
+            "damage": 10,
+            "accuracy": 1.0,
+            "crit_chance": 0.03,
+            "crit_damage": 1.5,
+            "min_range": 300,
+            "max_range": 850,
+            "knockback": -30,
+            "knockback_piercing": 0.9,
+            "can_have_positive_knockback": false,
+            "can_have_negative_knockback": true,
+            "effect_scale": 1.0,
+            "scaling_stats": [
+              [
+                "stat_ranged_damage",
+                1.0
+              ],
+              [
+                "stat_melee_damage",
+                1.0
+              ]
+            ],
+            "lifesteal": 0.0,
+            "sound_db_mod": -12,
+            "is_healing": false,
+            "recoil": 40,
+            "recoil_duration": 0.2,
+            "additional_cooldown_every_x_shots": -1,
+            "additional_cooldown_multiplier": -1.0,
+            "speed_percent_modifier": 0,
+            "can_shoot_without_target": false,
+            "nb_projectiles": 1,
+            "projectile_spread": 0.0,
+            "piercing": 4,
+            "piercing_dmg_reduction": 0.25,
+            "bounce": 0,
+            "bounce_dmg_reduction": 0.5,
+            "can_bounce": true,
+            "projectile_speed": 3000,
+            "increase_projectile_speed_with_range": false
+          },
+          "effects": [
+            {
+              "source": "res://dlcs/dlc_1/weapons/ranged/harpoon_gun/harpoon_gun_effect.tres",
+              "sourceMd5": "9c0a5104328b7b98660b071dfb0367c3",
+              "key": "effect_slow_in_zone",
+              "value": 1,
+              "scale": null,
+              "duration": null,
+              "custom_key": ""
+            }
+          ]
+        },
+        {
+          "source": "res://dlcs/dlc_1/weapons/ranged/harpoon_gun/4/harpoon_gun_4_data.tres",
+          "sourceMd5": "1ea4d8dd8918901089b0d980e48fcbc7",
+          "statsSource": "res://dlcs/dlc_1/weapons/ranged/harpoon_gun/4/harpoon_gun_4_stats.tres",
+          "statsMd5": "7b24527f201007b4fd168064a9be0a00",
+          "tier": 4,
+          "price": 220,
+          "sets": [
+            "set_naval",
+            "set_gun"
+          ],
+          "kind": "Ranged",
+          "stats": {
+            "cooldown": 15,
+            "damage": 20,
+            "accuracy": 1.0,
+            "crit_chance": 0.03,
+            "crit_damage": 1.5,
+            "min_range": 300,
+            "max_range": 900,
+            "knockback": -30,
+            "knockback_piercing": 0.9,
+            "can_have_positive_knockback": false,
+            "can_have_negative_knockback": true,
+            "effect_scale": 1.0,
+            "scaling_stats": [
+              [
+                "stat_ranged_damage",
+                1.0
+              ],
+              [
+                "stat_melee_damage",
+                1.0
+              ]
+            ],
+            "lifesteal": 0.0,
+            "sound_db_mod": -12,
+            "is_healing": false,
+            "recoil": 40,
+            "recoil_duration": 0.2,
+            "additional_cooldown_every_x_shots": -1,
+            "additional_cooldown_multiplier": -1.0,
+            "speed_percent_modifier": 0,
+            "can_shoot_without_target": false,
+            "nb_projectiles": 1,
+            "projectile_spread": 0.0,
+            "piercing": 5,
+            "piercing_dmg_reduction": 0.25,
+            "bounce": 0,
+            "bounce_dmg_reduction": 0.5,
+            "can_bounce": true,
+            "projectile_speed": 3000,
+            "increase_projectile_speed_with_range": false
+          },
+          "effects": [
+            {
+              "source": "res://dlcs/dlc_1/weapons/ranged/harpoon_gun/harpoon_gun_effect.tres",
+              "sourceMd5": "9c0a5104328b7b98660b071dfb0367c3",
+              "key": "effect_slow_in_zone",
+              "value": 1,
+              "scale": null,
+              "duration": null,
+              "custom_key": ""
+            }
+          ]
+        }
+      ],
+      "geometry": {
+        "source": "res://projectiles/bullet_harpoon/bullet_harpoon.tscn",
+        "sourceMd5": "84d2ef5379814caad07d13adda94c749",
+        "slowRadiusPoints": 63.0714,
+        "slowOffsetPoints": [
+          1,
+          4
+        ],
+        "slowAmountPoints": -400,
+        "note": "SlowHitbox x-24/y4 plus Circle collision x25, fixed native additive -400 speed, each target once per projectile."
+      }
     }
   ]
 }

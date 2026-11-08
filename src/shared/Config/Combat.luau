@@ -14,6 +14,14 @@ return table.freeze({
 		targetSwitchRatio = 0.7,
 		targetCandidates = 8, -- nearest enemies searched for the kept target
 	}),
+	-- Stable Unit.add_decaying_speed/_process: original point units, not a percentage fade over the hold duration.
+	nativeSlows = table.freeze({
+		stopAddingShare = 0.7,
+		diminishAfterShare = 0.45,
+		diminishDivisor = 20,
+		maximumAdditionShare = 0.9,
+		recoveryPointsPerSecond = 300,
+	}),
 	-- Knockback in Brotato points (a crossbow has 8, a hammer 30), pushed directly away from the owner. The Knockback
 	-- stat adds points to every weapon. Enemies keep 1 - knockbackResistance of it (Config.Enemies), elites none.
 	knockback = table.freeze({

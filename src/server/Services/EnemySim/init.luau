@@ -438,7 +438,7 @@ local function sendSnapshot()
 				if charging then rushZs[i] else nil
 			)
 			columns.statuses[count] = (if burning[i] then Snapshot.STATUS_BURNING else 0)
-				+ (if slowFactors[i] < 1 then Snapshot.STATUS_SLOWED else 0)
+				+ (if slowFactors[i] < 1 or world.nativeSlows:active(ids[i]) then Snapshot.STATUS_SLOWED else 0)
 				+ (if buffed[i] then Snapshot.STATUS_BUFFED else 0)
 		end
 	end
@@ -568,6 +568,11 @@ function EnemySim.spawn(
 		spawnContexts[id] = { hp = hpMultiplier, damage = damageMultiplier, speed = speedMultiplier or 1, wave = wave }
 	end
 	return id
+end
+
+-- Native timed/fixed speed additions for Tranq/Harpoon, preserving the normal snapshot and movement paths.
+function EnemySim.nativeSlow(id: number, amount: number, percent: boolean, hold: number)
+	world:nativeSlow(id, amount, percent, hold)
 end
 
 -- Stable Lute/Blowgun effects apply before their hit, share source stacks across players and expire together.

@@ -55,6 +55,9 @@ function Combat.hit(
 		crit = true
 	end
 	local hitX, hitZ = ctx:enemyPosition(id)
+	if stats.impactSlowRadius and adapter.slowArea and hitX and hitZ then
+		adapter.slowArea(id, hitX, hitZ, stats.impactSlowRadius, stats.impactSlowPercent, stats.impactSlowHold)
+	end
 	stats.critChance = if crit then 1 else 0
 	if stats.executeChance and adapter.health and not adapter.isElite(id) and ctx:random() < stats.executeChance then
 		stats.damage = math.max(stats.damage, adapter.health(id) / math.max(share or 1, 1e-6))
@@ -76,7 +79,12 @@ function Combat.hit(
 		)
 	end
 	local killed = ctx:hit(weapon, id, share, if bounced then "Bounce" else nil)
-	if not killed and not bounced and stats.knockbackPiercing and adapter.knockbackPiercing then
+	if
+		not killed
+		and (not bounced or stats.knockback < 0)
+		and stats.knockbackPiercing
+		and adapter.knockbackPiercing
+	then
 		adapter.knockbackPiercing(id, ctx.x, ctx.z, stats.knockback, stats.knockbackPiercing)
 	end
 	weapon.state.secondaryHit = false
