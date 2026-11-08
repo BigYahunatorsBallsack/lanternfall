@@ -687,6 +687,41 @@
    },
    "RuneAwl": {
     "text": "Runen-Ahle."
+   },
+   "Anchor": {
+    "text": "Anchor original stable starting-weapon icon.",
+    "source": "assets/weapons/character-starts/Anchor.png",
+    "trimmed": true
+   },
+   "Mace": {
+    "text": "Mace original stable starting-weapon icon.",
+    "source": "assets/weapons/character-starts/Mace.png",
+    "trimmed": true
+   },
+   "MeatTenderizer": {
+    "text": "Meat Tenderizer original stable starting-weapon icon.",
+    "source": "assets/weapons/character-starts/MeatTenderizer.png",
+    "trimmed": true
+   },
+   "Machinegun": {
+    "text": "Machinegun original stable starting-weapon icon.",
+    "source": "assets/weapons/character-starts/Machinegun.png",
+    "trimmed": true
+   },
+   "PanFlute": {
+    "text": "Pan Flute original stable starting-weapon icon.",
+    "source": "assets/weapons/character-starts/PanFlute.png",
+    "trimmed": true
+   },
+   "CombatShotgun": {
+    "text": "Combat Shotgun original stable starting-weapon icon.",
+    "source": "assets/weapons/character-starts/CombatShotgun.png",
+    "trimmed": true
+   },
+   "GrenadeLauncher": {
+    "text": "Grenade Launcher original stable starting-weapon icon.",
+    "source": "assets/weapons/character-starts/GrenadeLauncher.png",
+    "trimmed": true
    }
   },
   "raw": true

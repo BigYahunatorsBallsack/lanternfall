@@ -1,0 +1,41 @@
+{
+  "uploadedCount": 0,
+  "runtimeChanged": false,
+  "weapons": {
+    "weapons/Anchor.png": {
+      "group": "weapons",
+      "name": "Anchor",
+      "hash": "91113d9fed45640c1041511cf3096de4b9db7638065d1b1f9c87a8bf73768733"
+    },
+    "weapons/Mace.png": {
+      "group": "weapons",
+      "name": "Mace",
+      "hash": "79e6c1c3ef500ad3007bd8c9d3d0d0e85bfd54df620346657f39dda4ce692e99"
+    },
+    "weapons/MeatTenderizer.png": {
+      "group": "weapons",
+      "name": "MeatTenderizer",
+      "hash": "057b57947b396cf82117e425b3157e59fdac0532c7fe494fd63e5fad4e600dcd"
+    },
+    "weapons/Machinegun.png": {
+      "group": "weapons",
+      "name": "Machinegun",
+      "hash": "9428e5f23910aa0c75cc4d1ffadc4c3380f76a7eaa87b2d695362f81cba2801e"
+    },
+    "weapons/PanFlute.png": {
+      "group": "weapons",
+      "name": "PanFlute",
+      "hash": "07472aa7a39f7b8511c2401b9dcd2729dc00091c7cd546427bac97140a254342"
+    },
+    "weapons/CombatShotgun.png": {
+      "group": "weapons",
+      "name": "CombatShotgun",
+      "hash": "956fe263232cd9dc28e68ee6ef6fb86fe65b3ff414aa68e1a5502b3d76cbca81"
+    },
+    "weapons/GrenadeLauncher.png": {
+      "group": "weapons",
+      "name": "GrenadeLauncher",
+      "hash": "aa5eda69c710caa2f7d2a30c0c23c3a4079c6747e7bd6dd2a2d8815f9548085d"
+    }
+  }
+}

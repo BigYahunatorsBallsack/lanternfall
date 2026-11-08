@@ -150,6 +150,11 @@ table.insert(
 		{ { engineering = 1 }, { engineering = 2 }, { engineering = 3 }, { engineering = 4 }, { engineering = 5 } }
 	)
 )
+-- Stable Naval set: native set_naval resources grant one Curse per additional copy.
+table.insert(
+	ORDER,
+	class("Naval", "Naval", { { curse = 1 }, { curse = 2 }, { curse = 3 }, { curse = 4 }, { curse = 5 } })
+)
 local byId: { [string]: WeaponClass } = {}
 for _, entry in ORDER do
 	byId[entry.id] = entry

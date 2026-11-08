@@ -47,6 +47,10 @@ end
 describe("B7 integration", function()
 	it("loads every new visual and renders attacks without errors", function()
 		for id, config in Config.Weapons do
+			if config.available == false then
+				expect(WeaponService.addWeapon(me, id, config.minTier)).toBe(false)
+				continue
+			end
 			if not config.minTier then
 				continue
 			end

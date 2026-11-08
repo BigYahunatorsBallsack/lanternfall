@@ -16,7 +16,7 @@ end
 function CharacterRules.weaponAllowed(classId: string?, weaponId: string, tier: number?): boolean
 	local weapon = Config.Weapons[weaponId]
 	local class = classId and Config.Classes[classId]
-	if not weapon or (class and class.maxWeapons == 0) then
+	if not weapon or weapon.available == false or (class and class.maxWeapons == 0) then
 		return false
 	end
 	if class and class.weaponKind and weapon.kind ~= class.weaponKind then
