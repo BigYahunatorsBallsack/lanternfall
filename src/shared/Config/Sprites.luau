@@ -157,6 +157,13 @@ local Sprites = {
 	-- Original green materials: the source icon has transparent margins. Value affects size, never its color.
 	material = table.freeze({
 		hover = 0.4,
+		-- Every lying shard gets one of these pictures (own art, assets/loot/shards, tools/art2d/draw_shards.py), turned,
+		-- mirrored and resized a little by its id (Util/MaterialLook). Empty until uploaded: then images.material is used.
+		-- After an upload, paste the ids here as "rbxassetid://<id>".
+		variants = table.freeze({}) :: { string },
+		pixels = 256, -- side of every material picture, for mirroring
+		turn = 180, -- degrees either way
+		sizeJitter = 0.12, -- share either way
 		tiers = table.freeze({
 			{ minValue = 0, size = 1.6 },
 			{ minValue = 4, size = 2 },

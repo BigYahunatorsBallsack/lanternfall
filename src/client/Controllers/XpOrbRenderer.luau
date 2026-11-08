@@ -1,6 +1,6 @@
 --!strict
--- Draws materials from the server's XpOrbs events (ExperienceService): pooled original green sprites
--- on the floor, sized by how much XP they hold, that fly into the player who picked them up. Lying materials
+-- Draws materials from the server's XpOrbs events (ExperienceService): pooled green shard sprites
+-- on the floor, sized by how much XP they hold, each with its own picture, turn and mirror (Util/MaterialLook), that fly into the player who picked them up. Lying materials
 -- are placed once; only flying ones move each frame, together in one workspace:BulkMoveTo. The server decides every
 -- pickup; this only shows it.
 
@@ -14,6 +14,7 @@ local Net = require(Shared:WaitForChild("Net"))
 local Types = require(Shared:WaitForChild("Net"):WaitForChild("Types"))
 
 local VisualKit = require(script.Parent.WeaponRenderer.VisualKit)
+local MaterialLook = require(Shared:WaitForChild("Util"):WaitForChild("MaterialLook"))
 local WorldSprite = require(
 	game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Util"):WaitForChild("WorldSprite")
 )
@@ -23,8 +24,10 @@ local FLY_SECONDS = 0.25
 local HOVER = Config.Sprites.material.hover
 -- Looks by XP value: the last tier with minValue <= value applies.
 local TIERS = Config.Sprites.material.tiers
+local LOOK = Config.Sprites.material
+local VARIANTS: { string } = if #LOOK.variants > 0 then LOOK.variants else { Config.Sprites.images.material }
 
-type Orb = { part: BasePart, x: number, z: number }
+type Orb = { part: BasePart, x: number, z: number, scale: number }
 type Flight = { part: BasePart, from: Vector3, userId: number, startedAt: number }
 
 local XpOrbRenderer = {}
@@ -107,13 +110,22 @@ local function onEvents(events: Types.XpOrbEvents)
 	for i = 1, #list - 3, 4 do
 		local id, x, z, value = list[i], list[i + 1], list[i + 2], list[i + 3]
 		local orb = orbs[id]
+		local sprite
 		if not orb then
-			orb = { part = pool:acquire(getFolder()), x = x, z = z }
+			local look = MaterialLook.of(id, #VARIANTS, LOOK)
+			orb = { part = pool:acquire(getFolder()), x = x, z = z, scale = look.scale }
 			orbs[id] = orb
+			sprite = spriteOf[orb.part]
+			sprite.picture.Image = VARIANTS[look.variant]
+			sprite.pixels = LOOK.pixels
+			WorldSprite.setFlip(sprite, look.flipped)
+			WorldSprite.applyFlip(sprite)
+			WorldSprite.pose(sprite, 1, 1, look.rotation)
+		else
+			sprite = spriteOf[orb.part]
 		end
 		local tier = tierOf(value)
-		local sprite = spriteOf[orb.part]
-		WorldSprite.setStuds(sprite, tier.size * Config.Sprites.orbScale)
+		WorldSprite.setStuds(sprite, tier.size * Config.Sprites.orbScale * orb.scale)
 		sprite.picture.ImageColor3 = Color3.new(1, 1, 1)
 		table.insert(partList, orb.part)
 		table.insert(cframeList, CFrame.new(x, floorY + HOVER + tier.size / 2, z))

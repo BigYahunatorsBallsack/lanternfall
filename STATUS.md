@@ -600,3 +600,9 @@ Branch `wp-25-2d-presentation`. **Owner-Entscheidungen dieses Pakets:** Das Spie
 - **Offen, nicht belegt:** Negatives Luck multipliziert bei uns mit (1 + Luck/100), ab −100 Luck also keine blauen/lila/roten Items mehr. Das Wiki nennt nur „(100% + Luck)“; ob das Original bei negativem Luck stattdessen teilt, ist ohne Quelle offen. Nicht geändert.
 - **Offen (Waffen):** Das Wiki nennt für Shop 1–5 einen Zusatzbonus auf Waffen derselben Klasse (+15/12/9/6/3 %); bei uns konstant 15 % (`Shop.weaponPool.sameClass`). `Shop.fullSlots.mergeChance` (60 %) ist eine eigene Playtest-Regel, kein Brotato-Wert.
 - Nur 125 der 241 Brotato-Items (208 Hauptspiel + 33 DLC) sind im Spiel, deshalb erscheint ein bestimmtes Item etwa doppelt so oft wie im Original. Inhaltsfrage, keine Formelabweichung.
+
+## Shard-Drops abwechslungsreich (Claude, 08.11.2026)
+
+- Owner: Shards am Boden sehen in Brotato verschieden und zufällig aus. Jetzt bekommt jeder liegende Shard aus seiner ID (auf allen Clients gleich) eine Drehung (±180°), eine Spiegelung und ±12 % Größe (`Util/MaterialLook`, Werte in `Config.Sprites.material`). Wirkt sofort mit dem heutigen Bild.
+- Sechs eigene Shard-Formen gezeichnet (`assets/loot/shards/`, erzeugt von `tools/art2d/draw_shards.py`, keine Brotato-Sprites). **Noch nicht hochgeladen**: Nach dem Upload die sechs IDs in `Config.Sprites.material.variants` eintragen, dann wählt jeder Drop zufällig eine Form. Währungsanzeige bleibt beim bisherigen Bild.
+- Tests: `MaterialLook`, `LootSprites25`, `WorldSprites`, `Config` grün. StyLua/Selene sauber. Kein Studio-Test.
