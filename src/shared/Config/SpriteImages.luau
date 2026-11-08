@@ -359,7 +359,7 @@ return table.freeze({
 		}),
 	}),
 	floors = table.freeze({
-		Arena = "rbxassetid://90992237388346",
+		Arena = "rbxassetid://88728106442957",
 		Lobby = "rbxassetid://109379595614614",
 	}),
 	items = table.freeze({}),
