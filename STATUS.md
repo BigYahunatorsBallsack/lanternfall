@@ -744,6 +744,10 @@ Branch `wp-25-2d-presentation`. **Owner-Entscheidungen dieses Pakets:** Das Spie
 - 80 Waffen konfiguriert, davon 62 öffentlich und 18 mit lokal vorbereiteten Originalbildern bis zu echten Uploads gesperrt. Noch elf benötigte Waffenfamilien und zehn Item-/Petfamilien. Weiterhin fünf code-vorbereitete Charakterpakete, keine zusätzliche vollständige Charakterabnahme.
 - 141 Specs: 1220 bestanden, dieselben 34 vorhandenen Main-Fehler; keine neue Fehlerkennung. Universaltests berücksichtigen nun gültigen Harpoon-Zielabstand. StyLua, Selene für geänderte Produktionsmodule, Generatorprüfungen und Rojo-Build bestanden. Nachweis: docs/characters/projectile-starts-validation.json. Native Studio-/Koop-/Handy-Abnahme, Uploads und allgemeine Physik-/Formelparität bleiben offen.
 
+## Gefahrenwahl ohne Scrollen (Claude, 09.11.2026)
+
+- Owner: Die Gefahrenwahl musste in kurzen Fenstern gescrollt werden, Play-KnÃ¶pfe unten abgeschnitten. `LobbyLayout` begrenzt den Zoom der Auswahlseiten jetzt zusÃ¤tzlich nach der HÃ¶he (`PAGE_TOP` + `PAGE_HEIGHT[step]` + FuÃŸzeile), Gefahrenseite 480 statt 500 hoch. Test `SelectionHover` â€žDifficulty page fitâ€œ (1485 Ã— 663) erst rot, dann grÃ¼n.
+
 ## Kampffeld-Boden neu (08.11.2026)
 
 - Owner wollte den Boden wie auf seinem Referenzbild. Eigene Zeichnung: `tools/art2d/draw_world.py` erzeugt die nahtlose Bodenkachel `assets/world2d/final/floors/Arena.png` (staubiges Mauve-Braun 120/99/96 mit Gruppen aus Kieseln und gelben Krumen).
