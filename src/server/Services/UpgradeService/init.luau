@@ -19,10 +19,11 @@ local RunService = game:GetService("RunService")
 
 local Shared = ReplicatedStorage.Shared
 local Config = require(Shared.Config)
-local LootRules = require(Shared.Util.LootRules)
 local Net = require(Shared.Net)
 local Signal = require(Shared.Util.Signal)
 local StatMath = require(Shared.Util.StatMath)
+local CharacterRules = require(Shared.Util.CharacterRules)
+local CharacterEconomy = require(Shared.Util.CharacterEconomy)
 local Types = require(Shared.Net.Types)
 
 local CombatService = require(script.Parent.CombatService)
@@ -117,11 +118,19 @@ local function rollCrate(player: Player, minTier: number): Crate?
 	if not (itemId and item) then
 		return nil
 	end
-	local price = ShopRules.price(item.price, wave)
+	local factor = StatMath.priceFactor(StatService.getStat(player, "itemPrice"))
+	local shopPrice = ShopRules.price(item.price, wave, factor)
+	local recycleBasis =
+		ShopRules.price(item.price, wave, if wave <= #Config.Run.spawn.waves.lengthsSeconds then factor else 1)
+	local native = CharacterRules.nativeAmount(RunDirector.getParticipantClassId(player), "recycling_gains")
 	return {
 		itemId = itemId,
 		tier = item.tier,
-		sellPrice = LootRules.sellPrice(price, Config.Shop.sellShare, StatService.getStat(player, "sellValue")),
+		sellPrice = CharacterEconomy.recyclingPrice(
+			recycleBasis,
+			shopPrice,
+			StatService.getStat(player, "sellValue") + native
+		),
 		expiresAt = now() + LevelUp.autoPickSeconds,
 	}
 end

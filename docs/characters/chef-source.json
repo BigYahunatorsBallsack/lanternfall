@@ -1,0 +1,193 @@
+{
+  "version": "1.2.0.1",
+  "steamBuild": 26406319,
+  "resources": [
+    {
+      "path": "res://dlcs/dlc_1/characters/chef/effects/chef_explosion_stats.tres",
+      "resourceType": "Resource",
+      "properties": {
+        "script": {
+          "resource": "res://weapons/weapon_stats/weapon_stats.gd",
+          "resourceType": "Script"
+        },
+        "cooldown": 60,
+        "damage": 0,
+        "accuracy": 1.0,
+        "crit_chance": 0.03,
+        "crit_damage": 1.5,
+        "min_range": 0,
+        "max_range": 150,
+        "knockback": 0,
+        "knockback_piercing": 0.0,
+        "can_have_positive_knockback": true,
+        "can_have_negative_knockback": false,
+        "effect_scale": 1.0,
+        "scaling_stats": [],
+        "lifesteal": 0.0,
+        "shooting_sounds": [],
+        "sound_db_mod": -5,
+        "is_healing": false,
+        "recoil": 25,
+        "recoil_duration": 0.1,
+        "additional_cooldown_every_x_shots": -1,
+        "additional_cooldown_multiplier": -1.0,
+        "speed_percent_modifier": 0
+      },
+      "subresources": {},
+      "externalResources": [
+        {
+          "path": "res://weapons/weapon_stats/weapon_stats.gd",
+          "type": "Script",
+          "id": 1
+        }
+      ],
+      "sourceMd5": "e392dabe977d5e25542333841ccd1ab3"
+    },
+    {
+      "path": "res://dlcs/dlc_1/characters/chef/effects/chef_burning_data.tres",
+      "resourceType": "Resource",
+      "properties": {
+        "script": {
+          "resource": "res://effects/burning_data.gd",
+          "resourceType": "Script"
+        },
+        "chance": 1.0,
+        "damage": 1,
+        "duration": 5,
+        "spread": 0,
+        "scaling_stats": [
+          [
+            "stat_elemental_damage",
+            1.0
+          ]
+        ],
+        "is_global_burn": false
+      },
+      "subresources": {},
+      "externalResources": [
+        {
+          "path": "res://effects/burning_data.gd",
+          "type": "Script",
+          "id": 1
+        }
+      ],
+      "sourceMd5": "3ae69eaa4b71c9fc99d28fce91cb9637"
+    },
+    {
+      "path": "res://dlcs/dlc_1/characters/chef/effects/chef_effect_2b.tres",
+      "resourceType": "Resource",
+      "properties": {
+        "script": {
+          "resource": "res://effects/items/item_exploding_and_burn_effect.gd",
+          "resourceType": "Script"
+        },
+        "key": "explode_on_consumable_burning",
+        "text_key": "EFFECT_EXPLODE_AND_BURN_ON_CONSUMABLE",
+        "value": 1,
+        "custom_key": "",
+        "storage_method": 0,
+        "effect_sign": 3,
+        "custom_args": [
+          {
+            "resource": "res://dlcs/dlc_1/characters/chef/effects/chef_effect_2b.tres::1",
+            "resourceType": "Resource"
+          }
+        ],
+        "chance": 1.0,
+        "explosion_scene": {
+          "resource": "res://projectiles/explosion.tscn",
+          "resourceType": "PackedScene"
+        },
+        "scale": 2.5,
+        "base_smoke_amount": 20,
+        "sound_db_mod": -13,
+        "stats": {
+          "resource": "res://dlcs/dlc_1/characters/chef/effects/chef_explosion_stats.tres",
+          "resourceType": "Resource"
+        },
+        "tracking_key": "character_chef",
+        "scale_with_missing_health": false,
+        "burning_data": {
+          "resource": "res://dlcs/dlc_1/characters/chef/effects/chef_burning_data.tres",
+          "resourceType": "Resource"
+        }
+      },
+      "subresources": {
+        "1": {
+          "resourceType": "Resource",
+          "properties": {
+            "script": {
+              "resource": "res://items/global/custom_arg.gd",
+              "resourceType": "Script"
+            },
+            "arg_index": 4,
+            "arg_sign": 2,
+            "arg_value": 0,
+            "arg_format": 0,
+            "arg_key": ""
+          }
+        }
+      },
+      "externalResources": [
+        {
+          "path": "res://effects/items/item_exploding_and_burn_effect.gd",
+          "type": "Script",
+          "id": 1
+        },
+        {
+          "path": "res://projectiles/explosion.tscn",
+          "type": "PackedScene",
+          "id": 2
+        },
+        {
+          "path": "res://dlcs/dlc_1/characters/chef/effects/chef_explosion_stats.tres",
+          "type": "Resource",
+          "id": 3
+        },
+        {
+          "path": "res://dlcs/dlc_1/characters/chef/effects/chef_burning_data.tres",
+          "type": "Resource",
+          "id": 4
+        },
+        {
+          "path": "res://items/global/custom_arg.gd",
+          "type": "Script",
+          "id": 5
+        }
+      ],
+      "sourceMd5": "603be0ef6dc8fefeaeb7ed3409ac0840"
+    },
+    {
+      "path": "res://dlcs/dlc_1/characters/chef/effects/chef_effect_0b.tres",
+      "resourceType": "Resource",
+      "properties": {
+        "script": {
+          "resource": "res://items/global/effect.gd",
+          "resourceType": "Script"
+        },
+        "key": "bonus_non_elemental_damage_against_burning_targets",
+        "text_key": "effect_bonus_non_elemental_damage_against_burning_targets",
+        "value": 200,
+        "custom_key": "",
+        "storage_method": 0,
+        "effect_sign": 3,
+        "custom_args": []
+      },
+      "subresources": {},
+      "externalResources": [
+        {
+          "path": "res://items/global/effect.gd",
+          "type": "Script",
+          "id": 1
+        }
+      ],
+      "sourceMd5": "f50651b292a8ad93873b16e6cf2eba13"
+    }
+  ],
+  "behavior": {
+    "burn": "Innate base1 + global burn base damage; Elemental scaling once; truncate then Damage percent/round; five ticks; no crit",
+    "bonus": "200 percent before enemy armor, only if a hitbox exists, target already burns, and scaling list contains no Elemental entry (even zero share excludes)",
+    "scope": "Native regular/secondary weapon hitboxes, consumable explosions, queued item explosions and structure hitboxes; no bonus for burn ticks/stat strikes",
+    "engineLimits": "Existing item-effect damage formula and native weapon simulation/physics remain independent parity gaps. No new complete character certification."
+  }
+}

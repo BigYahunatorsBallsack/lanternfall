@@ -72,7 +72,7 @@ Jeder Strang ändert nur **seine** Zeile (Regeln: `docs/PARALLEL.md`).
 | Strang | KI | Aktuelles Paket | Branch / PR | Stand | Danach |
 | --- | --- | --- | --- | --- | --- |
 | A – Engine und Ablauf | Claude | Paket 24 Launch-Paket (Medium) | `wp-24-launch` | fertig, selbst gemerged | Plan bis zum Launch abgeschlossen; als Nächstes IDs des Owners eintragen (Live-Experience, Badges, Musik), dann Live-Ops |
-| B - Inhalte und Spieler-Regeln | ChatGPT | B10: alle stabilen Brotato-Charaktere | `wp-b10-brotato-characters` / [Entwurf #89](https://github.com/BigYahunatorsBallsack/lanternfall/pull/89) | 74 Quellen verifiziert; Crazy/Brawler/Ghost code-fertig, Originalsprites ausstehend; native XP/Karten und finale Wellenboni integriert | Bull fertig anbinden, fehlende Ausruestung und weitere Charakter-/Shop-/DLC-Regeln; Sprites durch anderen Agenten |
+| B - Inhalte und Spieler-Regeln | ChatGPT | B10: alle stabilen Brotato-Charaktere | `wp-b10-chef` | Crazy/Brawler/Ghost/Bull/Doctor code-vorbereitet; Chef-/Glutton-Mechaniken ergaenzt; echte Uploads offen | Restliche Ausruestung, native Alt-IDs und weitere Charakter-/Shop-/DLC-Regeln |
 
 ## Feste Entscheidungen des Owners
 
@@ -566,6 +566,39 @@ Branch `wp-25-2d-presentation`. **Owner-Entscheidungen dieses Pakets:** Das Spie
 - Alle 74 Charaktereintraege im vorhandenen Importer verbunden, andere Gruppen unveraendert. Art-Check: 111 finale Bilder / 27 bestehende Platzhalter / 0 fehlend / 0 unbrauchbar. Importer baut alle 74 Charakterbilder mit korrekten vorbereiteten Bildgrenzen; Metadaten in assets/characters/brotato/local-preparation.json, reine Charakter-Uploadliste in build/world2d/characters-upload.txt.
 - Kein Studio verbunden; Owner entscheidet „Erst lokal vorbereiten“. Deshalb bleiben alle 74 echten Roblox-Uploads ausstehend und die aktuellen Laufzeit-IDs/Verfuegbarkeiten erhalten. Aktuell drei neue Code-Pakete vorbereitet (Crazy/Brawler/Ghost), neun bisherige oeffentlich auswaehlbar. Bestehende Art-, B10- und Katalog-Specs: 26 bestanden / 0 fehlgeschlagen, Rojo-Build erfolgreich. Kein Upload, kein Publish und kein Merge nach main.
 
+## B10 continuation: Bull package (08 November 2026)
+
+- Started from verified GitHub-main b8457fb in an isolated worktree, preserving the stale local checkout. Owner explicitly authorizes future merges without additional approval; older approval clauses are superseded for this assignment.
+- Completed Bull's native Danger-1 access (including existing profiles), weaponless forward/back menu flow, original rule text and three inline damage-scaling symbols. The saved unfinished patch was checked and tested before integration. Four code-ready new packages now exist: Crazy, Brawler, Ghost, Bull; all still require their real character uploads for public selection.
+- Actual solo/co-op final-boss tests agree with original result precedence: last player dead loses; surviving peer permits victory; no duplicate settlement. Stable main.gdc MD5 903bd37107ab9c164addda2167477fb1 and player.gdc MD5 80ac166ba6b5c71fbf220bcd43ddc90e. Immediate simulated explosion collisions remain a general timing difference from native deferred physics; no exact physics parity or Studio acceptance claimed.
+- Bull/access/rule renderer and three existing native-package/art specs: 44 passed/0 failed; changed production lint 0 errors/0 warnings, StyLua and Rojo build passed. Full immutable main baseline captured separately; final comparison follows later slices. No character upload or publish performed.
+
+## B10 continuation: starting equipment (08 November 2026)
+
+- Added source-driven combat paths and all native tiers/prices/held effects for Anchor, Mace, Meat Tenderizer, Machinegun, Pan Flute, Combat Shotgun and Grenade Launcher, plus the native Naval set (Curse +1 through +5). Source generator reports 22 missing families instead of 29; this reduction is equipment code, not completed character count.
+- Added native integer-frame timing shared by combat and shop preview, independent large-reload rounding, random radian spread and no-target Machinegun fire. Existing Arsenal is unchanged. Exact existing melee/physics geometry is not newly certified. Original icons prepared locally with texture and RGBA hashes; Owner reconfirms code/local preparation only, no uploads. The seven weapons are excluded from public grants/shops/debug cycling until their real art is integrated.
+- Five new source/behavior tests first failed then passed; startup, old nine characters, held art, launch, shop preview, weapon visual integration, sets and all 62 old source records subsequently pass (116 assertions in the eight focused specs). Lint on changed production files 0 errors/0 warnings; generator check and Rojo build pass. Existing failing Smoke/RunStats baseline retained; full final comparison follows.
+
+## B10 continuation: native economy hooks (08 November 2026)
+
+- Connected direct native gold_drops/enemy_gold_drops/neutral_gold_drops modifiers to ExperienceService before material bag/allocation, with independently truncated co-op averages, source minimum and fractional remainder rolls. Swallowed Gobbler materials are not multiplied again. Existing cooperative base-material scaling remains a separate parity dependency.
+- Farmer's additional harvesting growth now applies; normal growth and the native endless 20% decrease use personal stat-gain modifiers. Entrepreneur's recycling bonus enters both weapon and crate sales, with discounted price, native minimum/cap and endless price-stat handling. Its start-wave wallet loss runs before the retry checkpoint, so retry cannot repeat or retain a different reset state.
+- Four pure boundaries and four actual two-player service scenarios pass. Nine relevant existing specs (XP, final/ordinary wave rewards, retry, cards and shop/loot arithmetic) pass, 69 tests; changed production lint 0 errors/0 warnings and Rojo build pass. No additional character was marked complete: start-gear, original access/text and full common-system audits remain dependencies.
+
+## B10 continuation: character weapon sets (08 November 2026)
+
+- Connected native One Armed (+3 contributions to each held set) and Vagabond (all valid held weapons count for each actually represented set) in StatService and the client stat panel. Empty inventories do not create sets; six-weapon bonus cap remains unchanged. Existing One Armed profile alias is preserved; this targeted rule does not certify its incomplete native starts/names.
+- Three pure regressions first exposed missing set contributions, then passed. Three actual service/client scenarios verify personal bonuses, Vagabond's original -5 Armor/-5 Dodge baseline, weapon removal and the displayed 4/6 count; existing B10 13 tests pass. Production lint 0 errors/0 warnings. Stable RunData.update_sets is the source; no network protocol or Arsenal change.
+
+## B10 continuation: Whip (08 November 2026)
+
+- Added Whip's source 0.24–0.32-second hit window, fixed 0.48-second animation lock, one hit per target and 50%/0.5-second slow. Its active geometry follows the original cubic position/rotation tracks and collision-width facts. Uses the existing simulation segment-query adaptation; exact native physics collision acceptance remains open. Arsenal unchanged.
+- Four behavior regressions cover opening/closing, animation lock at extreme Attack Speed, inactive owner and the native cubic midpoint. Local original icon prepared; real upload remains gated, as for the seven preceding families. Corrected native displayed name Machine Gun against the stable English translation. Source compiler now reports 21 missing weapon families; no additional character counted as complete.
+
+## B10 continuation: Cyborg half-wave conversion (08 November 2026)
+
+- Connected the actual fighting-clock midpoint to a one-time snapshot of permanent source stats, matching stable Utils.convert_stats including integer chunking and independent compensation for Ranged Damage x3 / Engineering x0.25. Converted deltas use a separate temporary layer; later permanent gains are not reconverted. Wave end clears only this conversion before shop/harvesting; checkpoints preserve conversion state for retry.
+- Three pure regressions first failed then passed; three actual two-player scenarios verify the precise boundary, personal isolation, later gains, shop reset and repeating the conversion after retry. Source hashes and rules: docs/characters/half-wave-source.json. Cyborg remains incomplete as a package because its remaining original equipment/access/display dependencies are not yet delivered; no additional code-ready character claim.
 ## Hauptmenü zentriert (Claude, 08.11.2026)
 
 - Owner-Wahl „Mittig, Figuren links/rechts": Titel und Untertitel über die volle Breite mittig, die vier Menü-Buttons (260 breit, Text mittig) in der Bildschirmmitte, die beiden Figuren (je 320) spiegelgleich links und rechts neben den Buttons. Nur `src/client/UI/LobbyLayout.luau` (Abschnitt `refresh`). Schriftart unverändert, die macht ein eigener Thread. Kompakte Ansicht (Handy) wie bisher, nur Button-Text mittig.
@@ -601,6 +634,39 @@ Branch `wp-25-2d-presentation`. **Owner-Entscheidungen dieses Pakets:** Das Spie
 - **Offen (Waffen):** Das Wiki nennt für Shop 1–5 einen Zusatzbonus auf Waffen derselben Klasse (+15/12/9/6/3 %); bei uns konstant 15 % (`Shop.weaponPool.sameClass`). `Shop.fullSlots.mergeChance` (60 %) ist eine eigene Playtest-Regel, kein Brotato-Wert.
 - Nur 125 der 241 Brotato-Items (208 Hauptspiel + 33 DLC) sind im Spiel, deshalb erscheint ein bestimmtes Item etwa doppelt so oft wie im Original. Inhaltsfrage, keine Formelabweichung.
 
+## B10 Merge-Pruefung (08.11.2026)
+
+- Aktuellen GitHub-main cfbf004 integriert; Kopfansicht, Schrift, Waffenanordnung und Shopfix erhalten. Whip und isolierte Test-Kontexte auf neue WeaponPose-Schnittstelle mit slot/slotCount angepasst. Arsenal nicht im Charakterzweig bearbeitet.
+- Seed 1234, jede Spec separat: aktueller main 1113 bestanden/31 Fehler in 111 Specs; Fortsetzung 1155 bestanden/30 Fehler in 122 Specs. Keine neuen Fehlernamen; der schwankende Leistungstest scheitert nur im main-Lauf. Details: docs/characters/continuation-validation.json. Kein gruener Gesamtstand behauptet.
+- Rojo und Quellengeneratoren erfolgreich; gesamtes src-Lint 0 Fehler/11 bestehende Stilwarnungen. Keine Studio-, Zwei-Client- oder Handy-Abnahme. Chef/Glutton-Entwuerfe nicht in diesem Merge.
+
+## B10 Glutton-Verbrauchsexplosionen (08.11.2026)
+
+- Fortsetzung von GitHub-main 50b82eb nach autorisiertem Merge von PR #90. Glutton explodiert bei Fruechten und beiden Kistenarten am Pickup-Ort mit nativer ganzzahliger Streuung; volle HP geben zuerst +1 Explosion Damage. Jeder Pickup friert seine eigenen Werte fuer die verzoegerte Kollision ein. Keine Explosion beim Wellenend-Aufraeumen; Queue wird bei Pause/Run/Retry/Phasenwechsel geloescht.
+- Original: 10 Basis, 500% Melee, doppelte Effektflaeche, 3% Crit mit festem x1.5. Bulls initialisierte Crit-Regeln bleiben erhalten. Quellen in docs/characters/consumable-source.json. Neue optionale vierte ConsumableCollected-Angabe: Pickup-Position; fehlend beim Aufraeumen.
+- Gezielte Produktionsmodul-Pruefungen im Roblox-Mock: 50 bestanden/0 fehlgeschlagen (Explosion, Bull, finale Bull-Interaktion, CharacterRuntime/Policies, Glutton, Loot, finale Belohnungen); Selene 0 Fehler/0 Warnungen fuer alle geaenderten Produktionsdateien, Rojo erfolgreich. Keine Studio-/Zwei-Client-/Handy-Abnahme.
+- Glutton noch kein vollstaendiges Paket: originale Startwaffenliste (u.a. Lute/Spoon), native Freischaltung/Regeldarstellung und Bild-Uploads bleiben offen. Chef-Testentwurf unveraendert und ausgeschlossen. Weiterhin vier neue Pakete code-vorbereitet; keine neue oeffentliche Verfuegbarkeit.
+
+## B10 Chef-Mechaniken (08.11.2026)
+
+- Von GitHub-main ec91f9e weitergebaut. Chef-Verbrauchsexplosion: nativer Pickup-Ort, Effektgroesse 2.5, garantierte fuenf Brennticks, Grundschaden 1 plus globale Burn-Basis (Scared Sausage) und einmalige Elemental-Skalierung. Direkter Explosionshit und Brennen getrennt; nur der Hit kann kritisch treffen.
+- +200% gegen bereits brennende Gegner fuer nicht-elementare native Waffen-/Sekundaer-/Explosions-/Strukturtreffer. Vorhandener Elemental-Eintrag, selbst mit Faktor 0, verhindert den Bonus. Brennticks und Stat-Strikes erhalten ihn nicht. Gekapselter Hit-Kontext im BrotatoCombat-Adapter; Reset vor jedem Simulationsschritt. Arsenal unveraendert.
+- Item-Explosionen von Besitzern des nativen Bonus werden ausserhalb Arsenal mit erhaltenen Skalierungsdaten verarbeitet, damit jeder Gegner einzeln geprueft wird; vorhandene Itemformel bleibt dabei erhalten und ist weiterhin eine allgemeine Paritaetsluecke. StructureService uebergibt die Elemental-Klassifikation an structureHit; alle alten Aufrufer bleiben kompatibel.
+- Vollstaendiger Vergleich Seed 1234: main 1162/30 in 123 Specs, Chef-Fortsetzung 1173/30 in 126 Specs; keine neuen Fehlernamen. Quellen/Pruefung: docs/characters/chef-source.json und chef-validation.json. Selene geaenderte Produktionsdateien 0 Fehler/0 Warnungen (Roblox-Cache), StyLua und Rojo bestanden. Keine Studio-/Zwei-Client-/Handy-Abnahme.
+- Chef ist weiterhin kein vollstaendiges Paket: originale Startausruestung (u.a. Spoon, Awl, Blowgun, Flail, Shovel, Molotov), Freischaltung, Regelanzeige und echte Bilder offen. Zahl code-vorbereiteter neuer Pakete bleibt vier.
+
+## B10 Doctor-Codepaket (08.11.2026)
+
+- Doctor als fuenftes neues Codepaket vorbereitet: alle drei originalen Starts (Scissors, Medical Gun, Meat Tenderizer) mit echten Angriffen geprueft; +200% Medical Attack Speed, +5 Regeneration/+5 Harvesting, verdoppelte Regenerationsgewinne, -100% Attack Speed und halbierte Ruestungsgewinne. Originale Regelanzeige und Medicine-Freischaltung verbunden. Charakter-/Meat-Tenderizer-Bilduploads und Studio-Abnahme bleiben offen; oeffentliche Liste bleibt bei neun historischen Paketen.
+- Neue Combat.HealingApplied-Angabe zaehlt akzeptierte ganzzahlige Heilung vor dem HP-Limit wie der Originalcode, einschliesslich Overheal; Healed bleibt fuer tatsaechliche HP/Lich unveraendert. Persoenliche 200-HP-Wellenzaehler im CharacterService/HealingChallenges; Reset bei neuem Run/Welle und Wiederherstellung beim Retry. Challenge wird dauerhaft im vorhandenen Achievement-Feld gespeichert. No-heal und Down erzeugen keinen Fortschritt.
+- Vorhandenen Fehler bei negativer Attack Speed korrigiert: native Waffen und Shop-Vorschau teilen jetzt NativeWeaponTiming.factor, volle native Verlangsamung statt halber Strafe. Der alte Erwartungswert fuer Pistol -100% wurde quellenbasiert 1.8 auf 2.4 Sekunden berichtigt. Keine Tests geschwaecht/uebersprungen.
+- Vollstaendiger Seed-1234-Vergleich plus gezielte Nachpruefung nach Timing/UI-Korrektur: main 1162 bestanden/30 bekannte Fehler (123 Specs), Fortsetzung 1180/30 (128 Specs), keine neuen Fehlernamen. Selene geaenderte Produktionsdateien 0 Fehler/0 Warnungen mit Roblox-Cache, StyLua und Rojo bestanden. Quellen/Grenzen: doctor-source.json, doctor-validation.json. Keine Studio-/Zwei-Client-/Handy-Abnahme.
+
+## Gegner blitzen beim Spawn nicht mehr neben dem Spieler auf (08.11.2026)
+
+- Owner sah neu gespawnte Gegner ein paar Frames neben dem Spieler (dort, wo vorher Gegner gestorben waren). Der Fix aus #85 (Teile vor dem Einhängen setzen) reichte nicht: Roblox zeichnet ein BillboardGui, das wieder in den Workspace kommt oder wieder eingeschaltet wird, noch ein paar Frames an seiner alten Stelle. In Studio gemessen: die Teile standen ab dem ersten Frame richtig.
+- Fix in `EnemyRenderer/init.luau` + `SpriteModels.luau`: Gepoolte Modelle bleiben im Workspace, ihre Billboards bleiben an; `SpriteModels.hide/show` blendet nur die Bilder (`picture.Visible`), Schatten, HP-Leiste, Krone, Wisps und Trail aus. Ein neuer Gegner zeigt seine Bilder erst nach `REVEAL_FRAMES` (2) Frames am Spawnpunkt. Owner hat es am 08.11.2026 in Studio getestet: Aufblitzen weg.
+- **Werkzeug-Trick:** Roblox-Studio-MCP über das verbundene Gerät funktioniert (Playtest starten, UI per `instance_path` klicken, Luau auf Client/Server ausführen). Code lässt sich ohne Rojo zum Testen in die Edit-Skripte einspielen (`Source` setzen); Rojo überschreibt das beim nächsten Verbinden. `CaptureService` liefert in Studio keine Bilder.
 ## Shard-Drops abwechslungsreich (Claude, 08.11.2026)
 
 - Owner: Shards am Boden sehen in Brotato verschieden und zufällig aus. Jetzt bekommt jeder liegende Shard aus seiner ID (auf allen Clients gleich) eine Drehung (±180°), eine Spiegelung und ±12 % Größe (`Util/MaterialLook`, Werte in `Config.Sprites.material`). Wirkt sofort mit dem heutigen Bild.

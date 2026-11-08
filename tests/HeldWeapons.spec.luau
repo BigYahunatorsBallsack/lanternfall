@@ -32,9 +32,16 @@ local function frame(folder, number, now)
 end
 
 describe("World weapon sprites", function()
-	it("uses the approved image for all 62 configured weapons", function()
-		local count = 0
-		for id in Config.Weapons do
+	it("uses approved images for all 62 public weapons and rejects eight pending-art families", function()
+		local count, pending = 0, 0
+		for id, weapon in Config.Weapons do
+			if weapon.available == false then
+				pending += 1
+				expect(HeldModels.has(id)).toBe(false)
+				expect(require(Shared.Util.CharacterRules).weaponAllowed(nil, id)).toBe(false)
+				expect(require(Shared.Config.CharacterWeaponData).weapons[id] ~= nil).toBe(true)
+				continue
+			end
 			count += 1
 			expect(HeldModels.has(id)).toBe(true)
 			if id ~= "OrbitBlades" then
@@ -47,6 +54,7 @@ describe("World weapon sprites", function()
 			sprite.anchor:Destroy()
 		end
 		expect(count).toBe(62)
+		expect(pending).toBe(8)
 		expect(Config.WeaponVisuals.spriteStuds.BrassKnuckles < Config.WeaponVisuals.spriteStuds.LamplighterPike).toBe(
 			true
 		)

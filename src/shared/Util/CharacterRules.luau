@@ -16,7 +16,7 @@ end
 function CharacterRules.weaponAllowed(classId: string?, weaponId: string, tier: number?): boolean
 	local weapon = Config.Weapons[weaponId]
 	local class = classId and Config.Classes[classId]
-	if not weapon or (class and class.maxWeapons == 0) then
+	if not weapon or weapon.available == false or (class and class.maxWeapons == 0) then
 		return false
 	end
 	if class and class.weaponKind and weapon.kind ~= class.weaponKind then
@@ -97,6 +97,8 @@ end
 -- Weapon-specific character bonuses travel separately from the owner's ordinary stat sheet.
 function CharacterRules.weaponSheet(classId: string?, sheet: StatMath.Sheet): StatMath.Sheet
 	local result = table.clone(sheet)
+	result.nativeBurningTargetBonus =
+		CharacterRules.nativeAmount(classId, "bonus_non_elemental_damage_against_burning_targets")
 	local class = classId and Config.Classes[classId]
 	if class then
 		for weaponClass, stats in class.weaponClassStats or {} do
@@ -149,6 +151,21 @@ function CharacterRules.weaponBonuses(
 		end
 		if amount ~= 0 then
 			result[statId] = (result[statId] or 0) + amount
+		end
+	end
+	return result
+end
+
+-- Direct additive native policies; custom triggers and replacement effects are handled by their owning systems.
+function CharacterRules.nativeAmount(classId: string?, key: string): number
+	local class = classId and Config.Classes[classId]
+	local native = class and class.native
+	local result = 0
+	if native then
+		for _, effect in native.sourceEffects do
+			if effect.sourceKey == key and effect.customKey == "" and effect.storageMethod == 0 then
+				result += effect.amount
+			end
 		end
 	end
 	return result

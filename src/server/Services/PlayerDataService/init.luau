@@ -288,7 +288,31 @@ function PlayerDataService.observeNativeStats(player: Player, sheet: { [string]:
 		observe(rule.stat, rule.threshold, rule.challengeId)
 	end
 	for _, rule in NativeCharacterAccess do
-		observe(rule.stat, rule.threshold, rule.challengeId)
+		if rule.kind == "Stat" then
+			observe(rule.stat, rule.threshold, rule.challengeId)
+		end
+	end
+	if changed then
+		sendInfo(player)
+		PlayerDataService.Changed:Fire(player)
+	end
+end
+
+-- Medicine uses the native accepted-healing sum for one wave, separate from capped HP gains/Lich.
+function PlayerDataService.observeNativeHealing(player: Player, total: number)
+	local data = PlayerDataService.get(player)
+	if not data then
+		return
+	end
+	local changed = false
+	for _, rule in NativeCharacterAccess do
+		if rule.kind == "WaveHealing" and total >= rule.threshold then
+			local key = CharacterAccess.challengeKey(rule.challengeId)
+			if not data.achievements[key] then
+				data.achievements[key] = true
+				changed = true
+			end
+		end
 	end
 	if changed then
 		sendInfo(player)

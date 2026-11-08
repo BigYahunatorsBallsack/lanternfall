@@ -1,0 +1,23 @@
+{
+  "referenceMain": "ec91f9e9e52a43ff9796e240151a1cee697c66e0",
+  "seed": 1234,
+  "runner": "Lune, one spec per process, Roblox mock",
+  "main": {
+    "specs": 123,
+    "passed": 1162,
+    "failed": 30
+  },
+  "chefAndDoctor": {
+    "specs": 128,
+    "passed": 1180,
+    "failed": 30
+  },
+  "newFailureNames": [],
+  "verification": "Full suite followed by affected-spec rechecks after shared native timing/UI correction and healing integer boundary check",
+  "limitations": [
+    "No native Studio, two-client, mobile or exact physics acceptance",
+    "Five code-prepared packages; Doctor original character and Meat Tenderizer uploads pending",
+    "Chef remains incomplete; original gear/access/display pending",
+    "Baseline Smoke/RunStats failures remain; no green full suite claimed"
+  ]
+}
