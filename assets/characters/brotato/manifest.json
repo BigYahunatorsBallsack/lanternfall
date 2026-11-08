@@ -1,0 +1,2319 @@
+{
+  "schemaVersion": 1,
+  "originalArt": "Brotato / Blobfish",
+  "retrieved": "2026-11-08",
+  "sourcePage": "https://brotato.wiki.spellsandguns.com/Characters",
+  "usage": "Owner-requested private game prototype; original art, not newly created art.",
+  "sourceBytes": "Original full-resolution PNG response bytes, without resizing, cropping or re-encoding.",
+  "baseMain": "5f52293ba137ab1b08cc0010372fe1ebbfb9e250",
+  "idMapping": "Code agent's stable PC 1.2.0.1 character catalog; nine historical Lanternfall ids retained.",
+  "catalogSnapshotSha256": "df58c8d07d475504d6b49f15033289812c3d63a80cefd393d7b80b8874921e9a",
+  "count": 74,
+  "contentSets": {
+    "mainGame": 50,
+    "primalDread": 10,
+    "abyssalTerrors": 14
+  },
+  "boundsConvention": "alpha >= 40; left/top inclusive, right/bottom exclusive; figureShares describe original canvas, not importer output.",
+  "assets": [
+    {
+      "id": "CandleScholar",
+      "originalId": "character_apprentice",
+      "name": "Apprentice",
+      "contentSet": "mainGame",
+      "source": "https://brotato.wiki.spellsandguns.com/images/6/66/Apprentice.png",
+      "characterPage": "https://brotato.wiki.spellsandguns.com/Apprentice",
+      "file": "assets/world2d/final/characters/CandleScholar.png",
+      "size": [
+        96,
+        96
+      ],
+      "mode": "RGBA",
+      "sha256": "069a3e9021861e91a8c6213dcc216be6f91829ae5b82301165fa70c741cb9c19",
+      "sha1": "708c152799759177bac30d6bce09023c7310159a",
+      "bytes": 7951,
+      "transparent": true,
+      "alphaBounds": [
+        5,
+        6,
+        91,
+        90
+      ],
+      "figureShares": {
+        "center": 0.5,
+        "ground": 0.0625,
+        "width": 0.895833,
+        "height": 0.875
+      },
+      "wikiSha1Verified": true
+    },
+    {
+      "id": "Archaeologist",
+      "originalId": "character_archaeologist",
+      "name": "Archaeologist",
+      "contentSet": "primalDread",
+      "source": "https://brotato.wiki.spellsandguns.com/images/5/5a/Archaeologist.png",
+      "characterPage": "https://brotato.wiki.spellsandguns.com/Archaeologist",
+      "file": "assets/world2d/final/characters/Archaeologist.png",
+      "size": [
+        96,
+        96
+      ],
+      "mode": "RGBA",
+      "sha256": "f98d61c5c4427fb8e87204375c0e44b550f6208b2e4f01d6355a97d01e335289",
+      "sha1": "b2b74af35173fcb37bf075dd6d9c3e833e9634ad",
+      "bytes": 7273,
+      "transparent": true,
+      "alphaBounds": [
+        11,
+        6,
+        82,
+        90
+      ],
+      "figureShares": {
+        "center": 0.484375,
+        "ground": 0.0625,
+        "width": 0.739583,
+        "height": 0.875
+      },
+      "wikiSha1Verified": true
+    },
+    {
+      "id": "ArmsDealer",
+      "originalId": "character_arms_dealer",
+      "name": "Arms Dealer",
+      "contentSet": "mainGame",
+      "source": "https://brotato.wiki.spellsandguns.com/images/9/9e/Arms_Dealer.png",
+      "characterPage": "https://brotato.wiki.spellsandguns.com/Arms_Dealer",
+      "file": "assets/world2d/final/characters/ArmsDealer.png",
+      "size": [
+        96,
+        96
+      ],
+      "mode": "RGBA",
+      "sha256": "8b4d91f7259d140f1f2aef62e311b063d127371842ae73fd7916c0ea37d963dd",
+      "sha1": "912ca55ab51a503cf79e024931cb13ee058a0163",
+      "bytes": 6475,
+      "transparent": true,
+      "alphaBounds": [
+        11,
+        6,
+        86,
+        90
+      ],
+      "figureShares": {
+        "center": 0.505208,
+        "ground": 0.0625,
+        "width": 0.78125,
+        "height": 0.875
+      },
+      "wikiSha1Verified": true
+    },
+    {
+      "id": "Arsonist",
+      "originalId": "character_arsonist",
+      "name": "Arsonist",
+      "contentSet": "primalDread",
+      "source": "https://brotato.wiki.spellsandguns.com/images/c/c3/Arsonist.png",
+      "characterPage": "https://brotato.wiki.spellsandguns.com/Arsonist",
+      "file": "assets/world2d/final/characters/Arsonist.png",
+      "size": [
+        96,
+        96
+      ],
+      "mode": "RGBA",
+      "sha256": "dd61ce6c8606eceedf2d7cd8a2df9689188a708b7b41ea940678383189078697",
+      "sha1": "a7b6af282bf797b2c74f801e516aa9e6f68eee69",
+      "bytes": 10085,
+      "transparent": true,
+      "alphaBounds": [
+        0,
+        10,
+        96,
+        86
+      ],
+      "figureShares": {
+        "center": 0.5,
+        "ground": 0.104167,
+        "width": 1.0,
+        "height": 0.791667
+      },
+      "wikiSha1Verified": true
+    },
+    {
+      "id": "Artificer",
+      "originalId": "character_artificer",
+      "name": "Artificer",
+      "contentSet": "mainGame",
+      "source": "https://brotato.wiki.spellsandguns.com/images/9/98/Artificer.png",
+      "characterPage": "https://brotato.wiki.spellsandguns.com/Artificer",
+      "file": "assets/world2d/final/characters/Artificer.png",
+      "size": [
+        96,
+        96
+      ],
+      "mode": "RGBA",
+      "sha256": "b9b088f732c0a76769448862888bf51fdaa6ba25a161212a082083d6f63bae76",
+      "sha1": "e2929513d1bfef4d5c709b3684e43200adae63c1",
+      "bytes": 7461,
+      "transparent": true,
+      "alphaBounds": [
+        11,
+        6,
+        84,
+        90
+      ],
+      "figureShares": {
+        "center": 0.494792,
+        "ground": 0.0625,
+        "width": 0.760417,
+        "height": 0.875
+      },
+      "wikiSha1Verified": true
+    },
+    {
+      "id": "Baby",
+      "originalId": "character_baby",
+      "name": "Baby",
+      "contentSet": "mainGame",
+      "source": "https://brotato.wiki.spellsandguns.com/images/6/62/Baby.png",
+      "characterPage": "https://brotato.wiki.spellsandguns.com/Baby",
+      "file": "assets/world2d/final/characters/Baby.png",
+      "size": [
+        96,
+        96
+      ],
+      "mode": "RGBA",
+      "sha256": "1228e5a0235626088e08a1b6b51245bb3605d85d574dee848c33049a7400fb45",
+      "sha1": "fb1d968a7b337c5873141501746ac86d477305dc",
+      "bytes": 7837,
+      "transparent": true,
+      "alphaBounds": [
+        12,
+        0,
+        86,
+        90
+      ],
+      "figureShares": {
+        "center": 0.510417,
+        "ground": 0.0625,
+        "width": 0.770833,
+        "height": 0.9375
+      },
+      "wikiSha1Verified": true
+    },
+    {
+      "id": "BeastMaster",
+      "originalId": "character_beast_master",
+      "name": "Beast Master",
+      "contentSet": "mainGame",
+      "source": "https://brotato.wiki.spellsandguns.com/images/0/04/Beast_Master.png",
+      "characterPage": "https://brotato.wiki.spellsandguns.com/Beast_Master",
+      "file": "assets/world2d/final/characters/BeastMaster.png",
+      "size": [
+        96,
+        96
+      ],
+      "mode": "RGBA",
+      "sha256": "7343b81c3bbd0a1a971c0a251f80752e2376ea7e89ff041294ec794f188fc3ae",
+      "sha1": "756125d29a129ef56b3981637de4eb1a686bba0e",
+      "bytes": 11895,
+      "transparent": true,
+      "alphaBounds": [
+        5,
+        2,
+        93,
+        90
+      ],
+      "figureShares": {
+        "center": 0.510417,
+        "ground": 0.0625,
+        "width": 0.916667,
+        "height": 0.916667
+      },
+      "wikiSha1Verified": true
+    },
+    {
+      "id": "Brawler",
+      "originalId": "character_brawler",
+      "name": "Brawler",
+      "contentSet": "mainGame",
+      "source": "https://brotato.wiki.spellsandguns.com/images/f/fa/Brawler.png",
+      "characterPage": "https://brotato.wiki.spellsandguns.com/Brawler",
+      "file": "assets/world2d/final/characters/Brawler.png",
+      "size": [
+        96,
+        96
+      ],
+      "mode": "RGBA",
+      "sha256": "7a3b859cf70516e61759e278f206a851c6d17dfb9fd3aac78f4bda0ade9b03dc",
+      "sha1": "6f0e8133b92b0e2ea1bf5bf8b11f9d4d857e04f9",
+      "bytes": 6673,
+      "transparent": true,
+      "alphaBounds": [
+        11,
+        6,
+        84,
+        90
+      ],
+      "figureShares": {
+        "center": 0.494792,
+        "ground": 0.0625,
+        "width": 0.760417,
+        "height": 0.875
+      },
+      "wikiSha1Verified": true
+    },
+    {
+      "id": "Buccaneer",
+      "originalId": "character_buccaneer",
+      "name": "Buccaneer",
+      "contentSet": "abyssalTerrors",
+      "source": "https://brotato.wiki.spellsandguns.com/images/d/de/Buccaneer.png",
+      "characterPage": "https://brotato.wiki.spellsandguns.com/Buccaneer",
+      "file": "assets/world2d/final/characters/Buccaneer.png",
+      "size": [
+        96,
+        96
+      ],
+      "mode": "RGBA",
+      "sha256": "7919b827f88c9b2d71e41bb5649001e301e6796050e599a54bcf524769b5e32d",
+      "sha1": "44fd431fbc81e40d0a7ae09b3fcf094afb88f4af",
+      "bytes": 11984,
+      "transparent": true,
+      "alphaBounds": [
+        2,
+        4,
+        95,
+        92
+      ],
+      "figureShares": {
+        "center": 0.505208,
+        "ground": 0.041667,
+        "width": 0.96875,
+        "height": 0.916667
+      },
+      "wikiSha1Verified": true
+    },
+    {
+      "id": "Builder",
+      "originalId": "character_builder",
+      "name": "Builder",
+      "contentSet": "abyssalTerrors",
+      "source": "https://brotato.wiki.spellsandguns.com/images/1/14/Builder.png",
+      "characterPage": "https://brotato.wiki.spellsandguns.com/Builder",
+      "file": "assets/world2d/final/characters/Builder.png",
+      "size": [
+        96,
+        96
+      ],
+      "mode": "RGBA",
+      "sha256": "759026c2a1144f52c42d527b154df0002cbcb6eddfcfd4516472f62e3a8a0e03",
+      "sha1": "e9a4c1ce7d115b35dad564580c265f4ee0d58092",
+      "bytes": 9444,
+      "transparent": true,
+      "alphaBounds": [
+        8,
+        2,
+        87,
+        90
+      ],
+      "figureShares": {
+        "center": 0.494792,
+        "ground": 0.0625,
+        "width": 0.822917,
+        "height": 0.916667
+      },
+      "wikiSha1Verified": true
+    },
+    {
+      "id": "Bull",
+      "originalId": "character_bull",
+      "name": "Bull",
+      "contentSet": "mainGame",
+      "source": "https://brotato.wiki.spellsandguns.com/images/7/7a/Bull.png",
+      "characterPage": "https://brotato.wiki.spellsandguns.com/Bull",
+      "file": "assets/world2d/final/characters/Bull.png",
+      "size": [
+        96,
+        96
+      ],
+      "mode": "RGBA",
+      "sha256": "b1e80f4e19c1935d5575a2c99e75bbca884cad89c915e35d5e61ef1a5e67edfd",
+      "sha1": "3ea84a54f76460afed67ac8ce1a766b4c19f33b2",
+      "bytes": 8788,
+      "transparent": true,
+      "alphaBounds": [
+        0,
+        6,
+        96,
+        90
+      ],
+      "figureShares": {
+        "center": 0.5,
+        "ground": 0.0625,
+        "width": 1.0,
+        "height": 0.875
+      },
+      "wikiSha1Verified": true
+    },
+    {
+      "id": "Captain",
+      "originalId": "character_captain",
+      "name": "Captain",
+      "contentSet": "abyssalTerrors",
+      "source": "https://brotato.wiki.spellsandguns.com/images/a/a9/Captain.png",
+      "characterPage": "https://brotato.wiki.spellsandguns.com/Captain",
+      "file": "assets/world2d/final/characters/Captain.png",
+      "size": [
+        96,
+        96
+      ],
+      "mode": "RGBA",
+      "sha256": "56bd6c96afab35df1da11ca941e34b8a9e877673da2198810ff67dd566d3847e",
+      "sha1": "2eeb7c98d36eff913e21a5b4d76468ed701dbebd",
+      "bytes": 7871,
+      "transparent": true,
+      "alphaBounds": [
+        12,
+        6,
+        84,
+        91
+      ],
+      "figureShares": {
+        "center": 0.5,
+        "ground": 0.052083,
+        "width": 0.75,
+        "height": 0.885417
+      },
+      "wikiSha1Verified": true
+    },
+    {
+      "id": "Caveman",
+      "originalId": "character_caveman",
+      "name": "Caveman",
+      "contentSet": "primalDread",
+      "source": "https://brotato.wiki.spellsandguns.com/images/9/9b/Caveman.png",
+      "characterPage": "https://brotato.wiki.spellsandguns.com/Caveman",
+      "file": "assets/world2d/final/characters/Caveman.png",
+      "size": [
+        96,
+        96
+      ],
+      "mode": "RGBA",
+      "sha256": "fcef8886c1dcb7588bf17ea25193675f56b47bc5fa51d2f73739c81f91921254",
+      "sha1": "a0f156fda6776c420aada87e13359ceee0b106f0",
+      "bytes": 11871,
+      "transparent": true,
+      "alphaBounds": [
+        6,
+        0,
+        91,
+        96
+      ],
+      "figureShares": {
+        "center": 0.505208,
+        "ground": 0.0,
+        "width": 0.885417,
+        "height": 1.0
+      },
+      "wikiSha1Verified": true
+    },
+    {
+      "id": "Chef",
+      "originalId": "character_chef",
+      "name": "Chef",
+      "contentSet": "abyssalTerrors",
+      "source": "https://brotato.wiki.spellsandguns.com/images/e/e5/Chef.png",
+      "characterPage": "https://brotato.wiki.spellsandguns.com/Chef",
+      "file": "assets/world2d/final/characters/Chef.png",
+      "size": [
+        96,
+        96
+      ],
+      "mode": "RGBA",
+      "sha256": "30ee7b4b896c0ffc36bedf1cc04b57f4cd3352fced4a975e9fde202f91b176ae",
+      "sha1": "a28d9ddbf338e96e1617630eb04e290b7bd96041",
+      "bytes": 7217,
+      "transparent": true,
+      "alphaBounds": [
+        12,
+        6,
+        84,
+        90
+      ],
+      "figureShares": {
+        "center": 0.5,
+        "ground": 0.0625,
+        "width": 0.75,
+        "height": 0.875
+      },
+      "wikiSha1Verified": true
+    },
+    {
+      "id": "MarbleHost",
+      "originalId": "character_chunky",
+      "name": "Chunky",
+      "contentSet": "mainGame",
+      "source": "https://brotato.wiki.spellsandguns.com/images/8/83/Chunky.png",
+      "characterPage": "https://brotato.wiki.spellsandguns.com/Chunky",
+      "file": "assets/world2d/final/characters/MarbleHost.png",
+      "size": [
+        96,
+        96
+      ],
+      "mode": "RGBA",
+      "sha256": "4a04266dd94870f6ecfffcc582a1debcfc635807c2ee71ad092991e5adaa35e5",
+      "sha1": "653b58de758cd983f9bc899025f72251e12642ae",
+      "bytes": 5308,
+      "transparent": true,
+      "alphaBounds": [
+        11,
+        6,
+        89,
+        90
+      ],
+      "figureShares": {
+        "center": 0.520833,
+        "ground": 0.0625,
+        "width": 0.8125,
+        "height": 0.875
+      },
+      "wikiSha1Verified": true
+    },
+    {
+      "id": "Crazy",
+      "originalId": "character_crazy",
+      "name": "Crazy",
+      "contentSet": "mainGame",
+      "source": "https://brotato.wiki.spellsandguns.com/images/1/10/Crazy.png",
+      "characterPage": "https://brotato.wiki.spellsandguns.com/Crazy",
+      "file": "assets/world2d/final/characters/Crazy.png",
+      "size": [
+        96,
+        96
+      ],
+      "mode": "RGBA",
+      "sha256": "52ad11a163b9458ec9560bd35797cd58c2a6a94638ee72948777c8d2bddbb120",
+      "sha1": "d8b8ebe670bab32d1a9563992ff71e4b434f1591",
+      "bytes": 5461,
+      "transparent": true,
+      "alphaBounds": [
+        11,
+        6,
+        84,
+        90
+      ],
+      "figureShares": {
+        "center": 0.494792,
+        "ground": 0.0625,
+        "width": 0.760417,
+        "height": 0.875
+      },
+      "wikiSha1Verified": true
+    },
+    {
+      "id": "Creature",
+      "originalId": "character_creature",
+      "name": "Creature",
+      "contentSet": "abyssalTerrors",
+      "source": "https://brotato.wiki.spellsandguns.com/images/d/d5/Creature.png",
+      "characterPage": "https://brotato.wiki.spellsandguns.com/Creature",
+      "file": "assets/world2d/final/characters/Creature.png",
+      "size": [
+        96,
+        96
+      ],
+      "mode": "RGBA",
+      "sha256": "74a678140842d100c904eb4c5d6c3e5cd61195e00d671b240ec65e3cdab1b7c2",
+      "sha1": "e438044c1a2dcf375ac6a7506004a6a94870f7aa",
+      "bytes": 8536,
+      "transparent": true,
+      "alphaBounds": [
+        12,
+        6,
+        84,
+        90
+      ],
+      "figureShares": {
+        "center": 0.5,
+        "ground": 0.0625,
+        "width": 0.75,
+        "height": 0.875
+      },
+      "wikiSha1Verified": true
+    },
+    {
+      "id": "Cryptid",
+      "originalId": "character_cryptid",
+      "name": "Cryptid",
+      "contentSet": "mainGame",
+      "source": "https://brotato.wiki.spellsandguns.com/images/5/52/Cryptid.png",
+      "characterPage": "https://brotato.wiki.spellsandguns.com/Cryptid",
+      "file": "assets/world2d/final/characters/Cryptid.png",
+      "size": [
+        96,
+        96
+      ],
+      "mode": "RGBA",
+      "sha256": "89cc76ac64a0683a056f6715b446ad77ee3eaca66c60037e219e72a9c6887c31",
+      "sha1": "00f4ef3b5db7ad9b5cebce25788d2436630f6e66",
+      "bytes": 6999,
+      "transparent": true,
+      "alphaBounds": [
+        11,
+        6,
+        93,
+        90
+      ],
+      "figureShares": {
+        "center": 0.541667,
+        "ground": 0.0625,
+        "width": 0.854167,
+        "height": 0.875
+      },
+      "wikiSha1Verified": true
+    },
+    {
+      "id": "Curious",
+      "originalId": "character_curious",
+      "name": "Curious",
+      "contentSet": "abyssalTerrors",
+      "source": "https://brotato.wiki.spellsandguns.com/images/c/cf/Curious.png",
+      "characterPage": "https://brotato.wiki.spellsandguns.com/Curious",
+      "file": "assets/world2d/final/characters/Curious.png",
+      "size": [
+        96,
+        96
+      ],
+      "mode": "RGBA",
+      "sha256": "6e2d2c99f0c7c4038fb7de7b3a3eb550388c024672c53c88f167b9d9d2b6d031",
+      "sha1": "cad30e635e7fb01a21964e0131e1d02dd2fc13b9",
+      "bytes": 7460,
+      "transparent": true,
+      "alphaBounds": [
+        12,
+        6,
+        84,
+        90
+      ],
+      "figureShares": {
+        "center": 0.5,
+        "ground": 0.0625,
+        "width": 0.75,
+        "height": 0.875
+      },
+      "wikiSha1Verified": true
+    },
+    {
+      "id": "Cyborg",
+      "originalId": "character_cyborg",
+      "name": "Cyborg",
+      "contentSet": "mainGame",
+      "source": "https://brotato.wiki.spellsandguns.com/images/a/a3/Cyborg.png",
+      "characterPage": "https://brotato.wiki.spellsandguns.com/Cyborg",
+      "file": "assets/world2d/final/characters/Cyborg.png",
+      "size": [
+        96,
+        96
+      ],
+      "mode": "RGBA",
+      "sha256": "973ed821727ea1eef976af57099e452f20c30e2162b23c349f2347140b8d7d4f",
+      "sha1": "b52cb9cd2dc6b51167e8b60da217c744d997317e",
+      "bytes": 9132,
+      "transparent": true,
+      "alphaBounds": [
+        11,
+        2,
+        86,
+        96
+      ],
+      "figureShares": {
+        "center": 0.505208,
+        "ground": 0.0,
+        "width": 0.78125,
+        "height": 0.979167
+      },
+      "wikiSha1Verified": true
+    },
+    {
+      "id": "Demon",
+      "originalId": "character_demon",
+      "name": "Demon",
+      "contentSet": "mainGame",
+      "source": "https://brotato.wiki.spellsandguns.com/images/c/c4/Demon.png",
+      "characterPage": "https://brotato.wiki.spellsandguns.com/Demon",
+      "file": "assets/world2d/final/characters/Demon.png",
+      "size": [
+        96,
+        96
+      ],
+      "mode": "RGBA",
+      "sha256": "cbabd9b634d93ec151fc4c672937cc96778809caf9a43d561c32153bd3cb7840",
+      "sha1": "5bef483100ea1b1e0f2049c2d5abc1540a54a7f7",
+      "bytes": 8151,
+      "transparent": true,
+      "alphaBounds": [
+        11,
+        6,
+        85,
+        90
+      ],
+      "figureShares": {
+        "center": 0.5,
+        "ground": 0.0625,
+        "width": 0.770833,
+        "height": 0.875
+      },
+      "wikiSha1Verified": true
+    },
+    {
+      "id": "Diver",
+      "originalId": "character_diver",
+      "name": "Diver",
+      "contentSet": "abyssalTerrors",
+      "source": "https://brotato.wiki.spellsandguns.com/images/a/a2/Diver.png",
+      "characterPage": "https://brotato.wiki.spellsandguns.com/Diver",
+      "file": "assets/world2d/final/characters/Diver.png",
+      "size": [
+        96,
+        96
+      ],
+      "mode": "RGBA",
+      "sha256": "cbb0d1ca31690dcab79060b548a3ad925b32e9fe97d4aa713a545de300f35d08",
+      "sha1": "5fba869022366b36aca661aa8935826e3ebfde60",
+      "bytes": 9946,
+      "transparent": true,
+      "alphaBounds": [
+        11,
+        6,
+        84,
+        90
+      ],
+      "figureShares": {
+        "center": 0.494792,
+        "ground": 0.0625,
+        "width": 0.760417,
+        "height": 0.875
+      },
+      "wikiSha1Verified": true
+    },
+    {
+      "id": "Doctor",
+      "originalId": "character_doctor",
+      "name": "Doctor",
+      "contentSet": "mainGame",
+      "source": "https://brotato.wiki.spellsandguns.com/images/6/6c/Doctor.png",
+      "characterPage": "https://brotato.wiki.spellsandguns.com/Doctor",
+      "file": "assets/world2d/final/characters/Doctor.png",
+      "size": [
+        96,
+        96
+      ],
+      "mode": "RGBA",
+      "sha256": "28baf9545a59c402b971585562c335d6504534e37c2c2240288278a1ae69bdaa",
+      "sha1": "df61aebdb3aaf7b035aabe09f82dda0a20121cb5",
+      "bytes": 8789,
+      "transparent": true,
+      "alphaBounds": [
+        9,
+        6,
+        87,
+        92
+      ],
+      "figureShares": {
+        "center": 0.5,
+        "ground": 0.041667,
+        "width": 0.8125,
+        "height": 0.895833
+      },
+      "wikiSha1Verified": true
+    },
+    {
+      "id": "Droid",
+      "originalId": "character_droid",
+      "name": "Droid",
+      "contentSet": "primalDread",
+      "source": "https://brotato.wiki.spellsandguns.com/images/b/b6/Droid.png",
+      "characterPage": "https://brotato.wiki.spellsandguns.com/Droid",
+      "file": "assets/world2d/final/characters/Droid.png",
+      "size": [
+        96,
+        96
+      ],
+      "mode": "RGBA",
+      "sha256": "dacef3631537dea29b0d13b4868573051f24fe5222c9446ca891cbdc3b8793ec",
+      "sha1": "9a7cbe020d707fd08fef5f0b4d7577b4c0362ee7",
+      "bytes": 10520,
+      "transparent": true,
+      "alphaBounds": [
+        1,
+        6,
+        96,
+        89
+      ],
+      "figureShares": {
+        "center": 0.505208,
+        "ground": 0.072917,
+        "width": 0.989583,
+        "height": 0.864583
+      },
+      "wikiSha1Verified": true
+    },
+    {
+      "id": "Druid",
+      "originalId": "character_druid",
+      "name": "Druid",
+      "contentSet": "abyssalTerrors",
+      "source": "https://brotato.wiki.spellsandguns.com/images/9/9d/Druid.png",
+      "characterPage": "https://brotato.wiki.spellsandguns.com/Druid",
+      "file": "assets/world2d/final/characters/Druid.png",
+      "size": [
+        96,
+        96
+      ],
+      "mode": "RGBA",
+      "sha256": "91b83355a5455a6283f28c88322f936b3c0790f776772811390d4178b8d2fe56",
+      "sha1": "c11a8733260fed30898a0483742e778ef17fbb7b",
+      "bytes": 13118,
+      "transparent": true,
+      "alphaBounds": [
+        2,
+        0,
+        94,
+        95
+      ],
+      "figureShares": {
+        "center": 0.5,
+        "ground": 0.010417,
+        "width": 0.958333,
+        "height": 0.989583
+      },
+      "wikiSha1Verified": true
+    },
+    {
+      "id": "Dwarf",
+      "originalId": "character_dwarf",
+      "name": "Dwarf",
+      "contentSet": "abyssalTerrors",
+      "source": "https://brotato.wiki.spellsandguns.com/images/e/ed/Dwarf.png",
+      "characterPage": "https://brotato.wiki.spellsandguns.com/Dwarf",
+      "file": "assets/world2d/final/characters/Dwarf.png",
+      "size": [
+        96,
+        96
+      ],
+      "mode": "RGBA",
+      "sha256": "b1aa35a23c3a24d479c5e28cb0f6fcc1050b72a21607f324d612d0a569154b69",
+      "sha1": "5619f8d4076578bb300937bffbd9c961d00bd61c",
+      "bytes": 9999,
+      "transparent": true,
+      "alphaBounds": [
+        12,
+        6,
+        86,
+        95
+      ],
+      "figureShares": {
+        "center": 0.510417,
+        "ground": 0.010417,
+        "width": 0.770833,
+        "height": 0.927083
+      },
+      "wikiSha1Verified": true
+    },
+    {
+      "id": "Engineer",
+      "originalId": "character_engineer",
+      "name": "Engineer",
+      "contentSet": "mainGame",
+      "source": "https://brotato.wiki.spellsandguns.com/images/d/d8/Engineer.png",
+      "characterPage": "https://brotato.wiki.spellsandguns.com/Engineer",
+      "file": "assets/world2d/final/characters/Engineer.png",
+      "size": [
+        96,
+        96
+      ],
+      "mode": "RGBA",
+      "sha256": "f02d0a48a43ff2ce2c3099b76085f3d4d7cdde2c092c97ecd975ed664cde4794",
+      "sha1": "8f2e1aa64e4a546fbd88c13bda92923f6a809547",
+      "bytes": 6958,
+      "transparent": true,
+      "alphaBounds": [
+        10,
+        6,
+        89,
+        90
+      ],
+      "figureShares": {
+        "center": 0.515625,
+        "ground": 0.0625,
+        "width": 0.822917,
+        "height": 0.875
+      },
+      "wikiSha1Verified": true
+    },
+    {
+      "id": "Entrepreneur",
+      "originalId": "character_entrepreneur",
+      "name": "Entrepreneur",
+      "contentSet": "mainGame",
+      "source": "https://brotato.wiki.spellsandguns.com/images/4/4d/Entrepreneur.png",
+      "characterPage": "https://brotato.wiki.spellsandguns.com/Entrepreneur",
+      "file": "assets/world2d/final/characters/Entrepreneur.png",
+      "size": [
+        96,
+        96
+      ],
+      "mode": "RGBA",
+      "sha256": "f6d8438db07436537d63323f6bebec174d6a53b8dd6b04419c583d0d41d6926e",
+      "sha1": "4d36266c9accb485657463d4aef0d70f99b16bb6",
+      "bytes": 6578,
+      "transparent": true,
+      "alphaBounds": [
+        11,
+        6,
+        84,
+        92
+      ],
+      "figureShares": {
+        "center": 0.494792,
+        "ground": 0.041667,
+        "width": 0.760417,
+        "height": 0.895833
+      },
+      "wikiSha1Verified": true
+    },
+    {
+      "id": "Explorer",
+      "originalId": "character_explorer",
+      "name": "Explorer",
+      "contentSet": "mainGame",
+      "source": "https://brotato.wiki.spellsandguns.com/images/c/ca/Explorer.png",
+      "characterPage": "https://brotato.wiki.spellsandguns.com/Explorer",
+      "file": "assets/world2d/final/characters/Explorer.png",
+      "size": [
+        96,
+        96
+      ],
+      "mode": "RGBA",
+      "sha256": "5df00777f4c16b5c0d07ad2895c264234b3d76d7836fd62bd95893c50aeae614",
+      "sha1": "e680a03f4ed6877d2f829f77058a31fd03f10054",
+      "bytes": 11719,
+      "transparent": true,
+      "alphaBounds": [
+        6,
+        0,
+        90,
+        95
+      ],
+      "figureShares": {
+        "center": 0.5,
+        "ground": 0.010417,
+        "width": 0.875,
+        "height": 0.989583
+      },
+      "wikiSha1Verified": true
+    },
+    {
+      "id": "Farmer",
+      "originalId": "character_farmer",
+      "name": "Farmer",
+      "contentSet": "mainGame",
+      "source": "https://brotato.wiki.spellsandguns.com/images/3/3d/Farmer.png",
+      "characterPage": "https://brotato.wiki.spellsandguns.com/Farmer",
+      "file": "assets/world2d/final/characters/Farmer.png",
+      "size": [
+        96,
+        96
+      ],
+      "mode": "RGBA",
+      "sha256": "3a61094cadf09563111677b364b9c5cb84a44e5590b80ff0b908f63ce70f20c2",
+      "sha1": "f19d4026c98299ad021bcff4ddb048178b14de9b",
+      "bytes": 6781,
+      "transparent": true,
+      "alphaBounds": [
+        11,
+        6,
+        86,
+        94
+      ],
+      "figureShares": {
+        "center": 0.505208,
+        "ground": 0.020833,
+        "width": 0.78125,
+        "height": 0.916667
+      },
+      "wikiSha1Verified": true
+    },
+    {
+      "id": "Fisherman",
+      "originalId": "character_fisherman",
+      "name": "Fisherman",
+      "contentSet": "mainGame",
+      "source": "https://brotato.wiki.spellsandguns.com/images/f/f0/Fisherman.png",
+      "characterPage": "https://brotato.wiki.spellsandguns.com/Fisherman",
+      "file": "assets/world2d/final/characters/Fisherman.png",
+      "size": [
+        96,
+        96
+      ],
+      "mode": "RGBA",
+      "sha256": "0fd2c104044b04ab51c116295acfb496faa85c9f8cac913eaf53d1a3419c93bc",
+      "sha1": "3925fac0da39ff2f70ff24df40a9fcdd4046251e",
+      "bytes": 7463,
+      "transparent": true,
+      "alphaBounds": [
+        5,
+        1,
+        91,
+        90
+      ],
+      "figureShares": {
+        "center": 0.5,
+        "ground": 0.0625,
+        "width": 0.895833,
+        "height": 0.927083
+      },
+      "wikiSha1Verified": true
+    },
+    {
+      "id": "Gangster",
+      "originalId": "character_gangster",
+      "name": "Gangster",
+      "contentSet": "abyssalTerrors",
+      "source": "https://brotato.wiki.spellsandguns.com/images/4/44/Gangster.png",
+      "characterPage": "https://brotato.wiki.spellsandguns.com/Gangster",
+      "file": "assets/world2d/final/characters/Gangster.png",
+      "size": [
+        96,
+        96
+      ],
+      "mode": "RGBA",
+      "sha256": "b1f677308e2e1382d9a1bbea90d3c89f0861e4052e17e2a2c2228ac99f44da75",
+      "sha1": "19e3c54ce1e99bea47974714cd42f7a061093dcd",
+      "bytes": 8721,
+      "transparent": true,
+      "alphaBounds": [
+        6,
+        0,
+        84,
+        90
+      ],
+      "figureShares": {
+        "center": 0.46875,
+        "ground": 0.0625,
+        "width": 0.8125,
+        "height": 0.9375
+      },
+      "wikiSha1Verified": true
+    },
+    {
+      "id": "TwinLedger",
+      "originalId": "character_generalist",
+      "name": "Generalist",
+      "contentSet": "mainGame",
+      "source": "https://brotato.wiki.spellsandguns.com/images/e/e3/Generalist.png",
+      "characterPage": "https://brotato.wiki.spellsandguns.com/Generalist",
+      "file": "assets/world2d/final/characters/TwinLedger.png",
+      "size": [
+        96,
+        96
+      ],
+      "mode": "RGBA",
+      "sha256": "0e3e9c7a1de7ce58fdf6df408c9f879fd6b9002ee01d3a1d6c198d5f6dce50f1",
+      "sha1": "74509262982feeb8a1b197634307b240301afef1",
+      "bytes": 7307,
+      "transparent": true,
+      "alphaBounds": [
+        11,
+        6,
+        88,
+        90
+      ],
+      "figureShares": {
+        "center": 0.515625,
+        "ground": 0.0625,
+        "width": 0.802083,
+        "height": 0.875
+      },
+      "wikiSha1Verified": true
+    },
+    {
+      "id": "Ghost",
+      "originalId": "character_ghost",
+      "name": "Ghost",
+      "contentSet": "mainGame",
+      "source": "https://brotato.wiki.spellsandguns.com/images/a/ab/Ghost.png",
+      "characterPage": "https://brotato.wiki.spellsandguns.com/Ghost",
+      "file": "assets/world2d/final/characters/Ghost.png",
+      "size": [
+        96,
+        96
+      ],
+      "mode": "RGBA",
+      "sha256": "329ef0e6fda6131c98f78d05761bd9a74692efc1b8b1cdf578ca0f0088036384",
+      "sha1": "4d29c598a0427d271d7b60784abc3a7655048db0",
+      "bytes": 6299,
+      "transparent": true,
+      "alphaBounds": [
+        11,
+        6,
+        84,
+        90
+      ],
+      "figureShares": {
+        "center": 0.494792,
+        "ground": 0.0625,
+        "width": 0.760417,
+        "height": 0.875
+      },
+      "wikiSha1Verified": true
+    },
+    {
+      "id": "DuelMaestro",
+      "originalId": "character_gladiator",
+      "name": "Gladiator",
+      "contentSet": "mainGame",
+      "source": "https://brotato.wiki.spellsandguns.com/images/4/44/Gladiator.png",
+      "characterPage": "https://brotato.wiki.spellsandguns.com/Gladiator",
+      "file": "assets/world2d/final/characters/DuelMaestro.png",
+      "size": [
+        96,
+        96
+      ],
+      "mode": "RGBA",
+      "sha256": "fc7c7e5e0e3b7b8bbbd61da9bbc4d757e0e7cad62bc01ee53c75345eb8096776",
+      "sha1": "5675b99d53586944139fe37908e3975fa363de06",
+      "bytes": 6603,
+      "transparent": true,
+      "alphaBounds": [
+        11,
+        6,
+        86,
+        90
+      ],
+      "figureShares": {
+        "center": 0.505208,
+        "ground": 0.0625,
+        "width": 0.78125,
+        "height": 0.875
+      },
+      "wikiSha1Verified": true
+    },
+    {
+      "id": "Glutton",
+      "originalId": "character_glutton",
+      "name": "Glutton",
+      "contentSet": "mainGame",
+      "source": "https://brotato.wiki.spellsandguns.com/images/3/39/Glutton.png",
+      "characterPage": "https://brotato.wiki.spellsandguns.com/Glutton",
+      "file": "assets/world2d/final/characters/Glutton.png",
+      "size": [
+        96,
+        96
+      ],
+      "mode": "RGBA",
+      "sha256": "d1a70e8a57d43a4c7c9349acf6325e26794436cdbc234b65e5d51b99dc5ce06c",
+      "sha1": "9b3870b1bfcf838f3c0eed0f604caf6e4bb5909e",
+      "bytes": 6141,
+      "transparent": true,
+      "alphaBounds": [
+        11,
+        6,
+        84,
+        90
+      ],
+      "figureShares": {
+        "center": 0.494792,
+        "ground": 0.0625,
+        "width": 0.760417,
+        "height": 0.875
+      },
+      "wikiSha1Verified": true
+    },
+    {
+      "id": "Golem",
+      "originalId": "character_golem",
+      "name": "Golem",
+      "contentSet": "mainGame",
+      "source": "https://brotato.wiki.spellsandguns.com/images/c/ce/Golem.png",
+      "characterPage": "https://brotato.wiki.spellsandguns.com/Golem",
+      "file": "assets/world2d/final/characters/Golem.png",
+      "size": [
+        96,
+        96
+      ],
+      "mode": "RGBA",
+      "sha256": "a485eb8a16b64ede7bba1db232eea2b8c2ba865c6be820efc1e3bdc50256dd06",
+      "sha1": "5fd4aba999d2eabbb39ee601c33b851c066246cc",
+      "bytes": 6799,
+      "transparent": true,
+      "alphaBounds": [
+        10,
+        3,
+        85,
+        91
+      ],
+      "figureShares": {
+        "center": 0.494792,
+        "ground": 0.052083,
+        "width": 0.78125,
+        "height": 0.916667
+      },
+      "wikiSha1Verified": true
+    },
+    {
+      "id": "Hiker",
+      "originalId": "character_hiker",
+      "name": "Hiker",
+      "contentSet": "abyssalTerrors",
+      "source": "https://brotato.wiki.spellsandguns.com/images/a/a9/Hiker.png",
+      "characterPage": "https://brotato.wiki.spellsandguns.com/Hiker",
+      "file": "assets/world2d/final/characters/Hiker.png",
+      "size": [
+        96,
+        96
+      ],
+      "mode": "RGBA",
+      "sha256": "286c4fefe05b140e2dbdeff0ef0037a928dd638f50d74e33d3c798f411f2f747",
+      "sha1": "58621ffe82df1a4a589b3f7994921c140df0f007",
+      "bytes": 8412,
+      "transparent": true,
+      "alphaBounds": [
+        12,
+        4,
+        84,
+        90
+      ],
+      "figureShares": {
+        "center": 0.5,
+        "ground": 0.0625,
+        "width": 0.75,
+        "height": 0.895833
+      },
+      "wikiSha1Verified": true
+    },
+    {
+      "id": "FarSeer",
+      "originalId": "character_hunter",
+      "name": "Hunter",
+      "contentSet": "mainGame",
+      "source": "https://brotato.wiki.spellsandguns.com/images/4/4b/Hunter.png",
+      "characterPage": "https://brotato.wiki.spellsandguns.com/Hunter",
+      "file": "assets/world2d/final/characters/FarSeer.png",
+      "size": [
+        96,
+        96
+      ],
+      "mode": "RGBA",
+      "sha256": "a221b64f04c25caae9c2728612690e75a02a8007ac0b1d2903b029bd0a104616",
+      "sha1": "e0a8687ff81212e2f3d97d4dac6e3e59277fd42a",
+      "bytes": 8195,
+      "transparent": true,
+      "alphaBounds": [
+        0,
+        6,
+        87,
+        90
+      ],
+      "figureShares": {
+        "center": 0.453125,
+        "ground": 0.0625,
+        "width": 0.90625,
+        "height": 0.875
+      },
+      "wikiSha1Verified": true
+    },
+    {
+      "id": "Jack",
+      "originalId": "character_jack",
+      "name": "Jack",
+      "contentSet": "mainGame",
+      "source": "https://brotato.wiki.spellsandguns.com/images/4/46/Jack.png",
+      "characterPage": "https://brotato.wiki.spellsandguns.com/Jack",
+      "file": "assets/world2d/final/characters/Jack.png",
+      "size": [
+        96,
+        96
+      ],
+      "mode": "RGBA",
+      "sha256": "a053d12d27999dfb8f95d6f2d393442e2e050c61e8084f4cc019a24f2e48f211",
+      "sha1": "dba10a42208d35abd674a9ce36ad994c6bc8e049",
+      "bytes": 5655,
+      "transparent": true,
+      "alphaBounds": [
+        11,
+        6,
+        84,
+        90
+      ],
+      "figureShares": {
+        "center": 0.494792,
+        "ground": 0.0625,
+        "width": 0.760417,
+        "height": 0.875
+      },
+      "wikiSha1Verified": true
+    },
+    {
+      "id": "King",
+      "originalId": "character_king",
+      "name": "King",
+      "contentSet": "mainGame",
+      "source": "https://brotato.wiki.spellsandguns.com/images/1/1d/King.png",
+      "characterPage": "https://brotato.wiki.spellsandguns.com/King",
+      "file": "assets/world2d/final/characters/King.png",
+      "size": [
+        96,
+        96
+      ],
+      "mode": "RGBA",
+      "sha256": "f292ef84d1b785648e785779759b7e6c16842922e7d9929bac8f6276b32999ee",
+      "sha1": "1162a553248e2d47f7b509003aaa7e3d912395c2",
+      "bytes": 7141,
+      "transparent": true,
+      "alphaBounds": [
+        11,
+        6,
+        84,
+        90
+      ],
+      "figureShares": {
+        "center": 0.494792,
+        "ground": 0.0625,
+        "width": 0.760417,
+        "height": 0.875
+      },
+      "wikiSha1Verified": true
+    },
+    {
+      "id": "Knight",
+      "originalId": "character_knight",
+      "name": "Knight",
+      "contentSet": "mainGame",
+      "source": "https://brotato.wiki.spellsandguns.com/images/6/6b/Knight.png",
+      "characterPage": "https://brotato.wiki.spellsandguns.com/Knight",
+      "file": "assets/world2d/final/characters/Knight.png",
+      "size": [
+        96,
+        96
+      ],
+      "mode": "RGBA",
+      "sha256": "b5151817e26f9f6a9c9a62d5c64f7975d461ce38f250dd265aa06b85829f7a5b",
+      "sha1": "9f3ffb7b2301cd9327f6219220c4f2a90eabb6ba",
+      "bytes": 6073,
+      "transparent": true,
+      "alphaBounds": [
+        11,
+        6,
+        84,
+        90
+      ],
+      "figureShares": {
+        "center": 0.494792,
+        "ground": 0.0625,
+        "width": 0.760417,
+        "height": 0.875
+      },
+      "wikiSha1Verified": true
+    },
+    {
+      "id": "Lich",
+      "originalId": "character_lich",
+      "name": "Lich",
+      "contentSet": "mainGame",
+      "source": "https://brotato.wiki.spellsandguns.com/images/8/86/Lich.png",
+      "characterPage": "https://brotato.wiki.spellsandguns.com/Lich",
+      "file": "assets/world2d/final/characters/Lich.png",
+      "size": [
+        96,
+        96
+      ],
+      "mode": "RGBA",
+      "sha256": "4e9d8e39021da0cc168921d1acc064c451aa8d4914c38a3fdd3c545e4af340a5",
+      "sha1": "8d92482ab2f8be761109e0e82c25f6c0bdb8179d",
+      "bytes": 8841,
+      "transparent": true,
+      "alphaBounds": [
+        11,
+        4,
+        84,
+        90
+      ],
+      "figureShares": {
+        "center": 0.494792,
+        "ground": 0.0625,
+        "width": 0.760417,
+        "height": 0.895833
+      },
+      "wikiSha1Verified": true
+    },
+    {
+      "id": "Loud",
+      "originalId": "character_loud",
+      "name": "Loud",
+      "contentSet": "mainGame",
+      "source": "https://brotato.wiki.spellsandguns.com/images/0/00/Loud.png",
+      "characterPage": "https://brotato.wiki.spellsandguns.com/Loud",
+      "file": "assets/world2d/final/characters/Loud.png",
+      "size": [
+        96,
+        96
+      ],
+      "mode": "RGBA",
+      "sha256": "dd15440b132d63a15232b6258e9fd5386719e3710ca1405dfba7a645d986c601",
+      "sha1": "84eab0b1adea1e0f3413c8b4045d81c3c97b4eda",
+      "bytes": 7321,
+      "transparent": true,
+      "alphaBounds": [
+        11,
+        6,
+        86,
+        90
+      ],
+      "figureShares": {
+        "center": 0.505208,
+        "ground": 0.0625,
+        "width": 0.78125,
+        "height": 0.875
+      },
+      "wikiSha1Verified": true
+    },
+    {
+      "id": "Lucky",
+      "originalId": "character_lucky",
+      "name": "Lucky",
+      "contentSet": "mainGame",
+      "source": "https://brotato.wiki.spellsandguns.com/images/a/a6/Lucky.png",
+      "characterPage": "https://brotato.wiki.spellsandguns.com/Lucky",
+      "file": "assets/world2d/final/characters/Lucky.png",
+      "size": [
+        96,
+        96
+      ],
+      "mode": "RGBA",
+      "sha256": "59d37f26f829815c645dbcfcb0ee3c4bb179e2ee2127040d2905293d6a2e774c",
+      "sha1": "bd09f46591399d5772751cb9f58634ed202b1632",
+      "bytes": 5205,
+      "transparent": true,
+      "alphaBounds": [
+        11,
+        6,
+        88,
+        90
+      ],
+      "figureShares": {
+        "center": 0.515625,
+        "ground": 0.0625,
+        "width": 0.802083,
+        "height": 0.875
+      },
+      "wikiSha1Verified": true
+    },
+    {
+      "id": "MadScientist",
+      "originalId": "character_mad_scientist",
+      "name": "Mad Scientist",
+      "contentSet": "primalDread",
+      "source": "https://brotato.wiki.spellsandguns.com/images/1/1a/Mad_Scientist.png",
+      "characterPage": "https://brotato.wiki.spellsandguns.com/Mad_Scientist",
+      "file": "assets/world2d/final/characters/MadScientist.png",
+      "size": [
+        96,
+        96
+      ],
+      "mode": "RGBA",
+      "sha256": "db9a8038d4e405f1548a59dd565cb4dc04d05ed70945c23010195024fb17fbc9",
+      "sha1": "255ec6c510b94445004edc8b49037defd2c55ae6",
+      "bytes": 9470,
+      "transparent": true,
+      "alphaBounds": [
+        9,
+        6,
+        88,
+        90
+      ],
+      "figureShares": {
+        "center": 0.505208,
+        "ground": 0.0625,
+        "width": 0.822917,
+        "height": 0.875
+      },
+      "wikiSha1Verified": true
+    },
+    {
+      "id": "SparkMage",
+      "originalId": "character_mage",
+      "name": "Mage",
+      "contentSet": "mainGame",
+      "source": "https://brotato.wiki.spellsandguns.com/images/2/20/Mage.png",
+      "characterPage": "https://brotato.wiki.spellsandguns.com/Mage",
+      "file": "assets/world2d/final/characters/SparkMage.png",
+      "size": [
+        96,
+        96
+      ],
+      "mode": "RGBA",
+      "sha256": "900ae1786d4f7dcf4c1c8a47b210f79617c8b8cc6d9b1220d199434252c4d817",
+      "sha1": "c6c3d91d0f1bdf07e5c8686584eb2b0fb756cc98",
+      "bytes": 7911,
+      "transparent": true,
+      "alphaBounds": [
+        11,
+        6,
+        95,
+        96
+      ],
+      "figureShares": {
+        "center": 0.552083,
+        "ground": 0.0,
+        "width": 0.875,
+        "height": 0.9375
+      },
+      "wikiSha1Verified": true
+    },
+    {
+      "id": "Masochist",
+      "originalId": "character_masochist",
+      "name": "Masochist",
+      "contentSet": "mainGame",
+      "source": "https://brotato.wiki.spellsandguns.com/images/7/7b/Masochist.png",
+      "characterPage": "https://brotato.wiki.spellsandguns.com/Masochist",
+      "file": "assets/world2d/final/characters/Masochist.png",
+      "size": [
+        96,
+        96
+      ],
+      "mode": "RGBA",
+      "sha256": "e4bcb644683f3cfa53a375d0cfe042b174e49a8c88c7f63c9dbb1ba7b9490906",
+      "sha1": "2a17d3a4f229bc587ca4e4f29adb736662dd54e8",
+      "bytes": 5472,
+      "transparent": true,
+      "alphaBounds": [
+        11,
+        6,
+        84,
+        90
+      ],
+      "figureShares": {
+        "center": 0.494792,
+        "ground": 0.0625,
+        "width": 0.760417,
+        "height": 0.875
+      },
+      "wikiSha1Verified": true
+    },
+    {
+      "id": "ManyHands",
+      "originalId": "character_multitasker",
+      "name": "Multitasker",
+      "contentSet": "mainGame",
+      "source": "https://brotato.wiki.spellsandguns.com/images/f/fd/Multitasker.png",
+      "characterPage": "https://brotato.wiki.spellsandguns.com/Multitasker",
+      "file": "assets/world2d/final/characters/ManyHands.png",
+      "size": [
+        96,
+        96
+      ],
+      "mode": "RGBA",
+      "sha256": "ea187d80cba81275354be1985a63c5d69077c40ca21137d88495bfddb253c940",
+      "sha1": "16b9228e4ea05638bf8355bd9f4605d23725b17e",
+      "bytes": 5718,
+      "transparent": true,
+      "alphaBounds": [
+        11,
+        6,
+        84,
+        90
+      ],
+      "figureShares": {
+        "center": 0.494792,
+        "ground": 0.0625,
+        "width": 0.760417,
+        "height": 0.875
+      },
+      "wikiSha1Verified": true
+    },
+    {
+      "id": "Mutant",
+      "originalId": "character_mutant",
+      "name": "Mutant",
+      "contentSet": "mainGame",
+      "source": "https://brotato.wiki.spellsandguns.com/images/5/58/Mutant.png",
+      "characterPage": "https://brotato.wiki.spellsandguns.com/Mutant",
+      "file": "assets/world2d/final/characters/Mutant.png",
+      "size": [
+        96,
+        96
+      ],
+      "mode": "RGBA",
+      "sha256": "b985792a71670152139d513fbc91f69899990a4f8795707ba6fc882576c5948e",
+      "sha1": "1d855095a9381369472c4cfe8581f215d5cb093c",
+      "bytes": 7271,
+      "transparent": true,
+      "alphaBounds": [
+        11,
+        6,
+        90,
+        95
+      ],
+      "figureShares": {
+        "center": 0.526042,
+        "ground": 0.010417,
+        "width": 0.822917,
+        "height": 0.927083
+      },
+      "wikiSha1Verified": true
+    },
+    {
+      "id": "Ogre",
+      "originalId": "character_ogre",
+      "name": "Ogre",
+      "contentSet": "abyssalTerrors",
+      "source": "https://brotato.wiki.spellsandguns.com/images/c/c5/Ogre.png",
+      "characterPage": "https://brotato.wiki.spellsandguns.com/Ogre",
+      "file": "assets/world2d/final/characters/Ogre.png",
+      "size": [
+        96,
+        96
+      ],
+      "mode": "RGBA",
+      "sha256": "436d83b39172a091ecc7a6402bad7e46d5c3734f53fe2ee22731a354ae98248c",
+      "sha1": "0ff020227692c77301f3bc3cca2aa6cb7fe8c7c8",
+      "bytes": 7118,
+      "transparent": true,
+      "alphaBounds": [
+        12,
+        6,
+        84,
+        90
+      ],
+      "figureShares": {
+        "center": 0.5,
+        "ground": 0.0625,
+        "width": 0.75,
+        "height": 0.875
+      },
+      "wikiSha1Verified": true
+    },
+    {
+      "id": "Old",
+      "originalId": "character_old",
+      "name": "Old",
+      "contentSet": "mainGame",
+      "source": "https://brotato.wiki.spellsandguns.com/images/9/9a/Old.png",
+      "characterPage": "https://brotato.wiki.spellsandguns.com/Old",
+      "file": "assets/world2d/final/characters/Old.png",
+      "size": [
+        96,
+        96
+      ],
+      "mode": "RGBA",
+      "sha256": "97bcc5db4b944b5e90b7e7228f50c5672d101fc00bd30177909da8bf57d80dbd",
+      "sha1": "e8a59cee15970f1442c92a3ec6aa0c3c82c60c27",
+      "bytes": 6126,
+      "transparent": true,
+      "alphaBounds": [
+        11,
+        6,
+        84,
+        90
+      ],
+      "figureShares": {
+        "center": 0.494792,
+        "ground": 0.0625,
+        "width": 0.760417,
+        "height": 0.875
+      },
+      "wikiSha1Verified": true
+    },
+    {
+      "id": "SoleConductor",
+      "originalId": "character_one_arm",
+      "name": "One Armed",
+      "contentSet": "mainGame",
+      "source": "https://brotato.wiki.spellsandguns.com/images/7/75/One_Armed.png",
+      "characterPage": "https://brotato.wiki.spellsandguns.com/One_Armed",
+      "file": "assets/world2d/final/characters/SoleConductor.png",
+      "size": [
+        96,
+        96
+      ],
+      "mode": "RGBA",
+      "sha256": "4179af038238f9a85ad4db69f7534d05201ae0ae7150d1c7c1b5c05b65ee6f60",
+      "sha1": "29a4019fa2054f94f1968053af10ee5ae6bbd87c",
+      "bytes": 5136,
+      "transparent": true,
+      "alphaBounds": [
+        11,
+        6,
+        88,
+        90
+      ],
+      "figureShares": {
+        "center": 0.515625,
+        "ground": 0.0625,
+        "width": 0.802083,
+        "height": 0.875
+      },
+      "wikiSha1Verified": true
+    },
+    {
+      "id": "Pacifist",
+      "originalId": "character_pacifist",
+      "name": "Pacifist",
+      "contentSet": "mainGame",
+      "source": "https://brotato.wiki.spellsandguns.com/images/4/4a/Pacifist.png",
+      "characterPage": "https://brotato.wiki.spellsandguns.com/Pacifist",
+      "file": "assets/world2d/final/characters/Pacifist.png",
+      "size": [
+        96,
+        96
+      ],
+      "mode": "RGBA",
+      "sha256": "e7ad628b4ab072ef82554594f46609f826b78c3e68506b258c585e066d6dba90",
+      "sha1": "439101a30beae92a18547e149acbf3c1a2d8627a",
+      "bytes": 6036,
+      "transparent": true,
+      "alphaBounds": [
+        11,
+        6,
+        84,
+        90
+      ],
+      "figureShares": {
+        "center": 0.494792,
+        "ground": 0.0625,
+        "width": 0.760417,
+        "height": 0.875
+      },
+      "wikiSha1Verified": true
+    },
+    {
+      "id": "Poacher",
+      "originalId": "character_poacher",
+      "name": "Poacher",
+      "contentSet": "primalDread",
+      "source": "https://brotato.wiki.spellsandguns.com/images/9/9a/Poacher.png",
+      "characterPage": "https://brotato.wiki.spellsandguns.com/Poacher",
+      "file": "assets/world2d/final/characters/Poacher.png",
+      "size": [
+        96,
+        96
+      ],
+      "mode": "RGBA",
+      "sha256": "98e6f86dc7bacf09666102c4799df47032b8479f950c8e40c5801e182f7e7901",
+      "sha1": "afb05b6f1311626f4a7f367b94c6c0ec2be7081c",
+      "bytes": 8809,
+      "transparent": true,
+      "alphaBounds": [
+        1,
+        6,
+        90,
+        89
+      ],
+      "figureShares": {
+        "center": 0.473958,
+        "ground": 0.072917,
+        "width": 0.927083,
+        "height": 0.864583
+      },
+      "wikiSha1Verified": true
+    },
+    {
+      "id": "NightWatch",
+      "originalId": "character_ranger",
+      "name": "Ranger",
+      "contentSet": "mainGame",
+      "source": "https://brotato.wiki.spellsandguns.com/images/e/e9/Ranger.png",
+      "characterPage": "https://brotato.wiki.spellsandguns.com/Ranger",
+      "file": "assets/world2d/final/characters/NightWatch.png",
+      "size": [
+        96,
+        96
+      ],
+      "mode": "RGBA",
+      "sha256": "034007515889f6feb410fe3f9fe3b4107c7eb8bd79a471d1facb36191a70b3b9",
+      "sha1": "44f8fdeb58a406c5750bb8774d387241e3f5b758",
+      "bytes": 6776,
+      "transparent": true,
+      "alphaBounds": [
+        10,
+        6,
+        84,
+        90
+      ],
+      "figureShares": {
+        "center": 0.489583,
+        "ground": 0.0625,
+        "width": 0.770833,
+        "height": 0.875
+      },
+      "wikiSha1Verified": true
+    },
+    {
+      "id": "Renegade",
+      "originalId": "character_renegade",
+      "name": "Renegade",
+      "contentSet": "mainGame",
+      "source": "https://brotato.wiki.spellsandguns.com/images/1/17/Renegade.png",
+      "characterPage": "https://brotato.wiki.spellsandguns.com/Renegade",
+      "file": "assets/world2d/final/characters/Renegade.png",
+      "size": [
+        96,
+        96
+      ],
+      "mode": "RGBA",
+      "sha256": "02a9553645e80e509ad911d987d88176ba46c21ca40dff1ee021d1ec431ac51e",
+      "sha1": "56d021ded87b825ee94cd8a17683dc80e4c2ef9f",
+      "bytes": 8888,
+      "transparent": true,
+      "alphaBounds": [
+        5,
+        0,
+        84,
+        90
+      ],
+      "figureShares": {
+        "center": 0.463542,
+        "ground": 0.0625,
+        "width": 0.822917,
+        "height": 0.9375
+      },
+      "wikiSha1Verified": true
+    },
+    {
+      "id": "Romantic",
+      "originalId": "character_romantic",
+      "name": "Romantic",
+      "contentSet": "abyssalTerrors",
+      "source": "https://brotato.wiki.spellsandguns.com/images/b/b2/Romantic.png",
+      "characterPage": "https://brotato.wiki.spellsandguns.com/Romantic",
+      "file": "assets/world2d/final/characters/Romantic.png",
+      "size": [
+        96,
+        96
+      ],
+      "mode": "RGBA",
+      "sha256": "767b5bd62ccc2a475c4694ce4da18eeef997c8c36108cb08885797dc440953a8",
+      "sha1": "1de75c44b82fc247a6553b161711d3447ffcdc8d",
+      "bytes": 8184,
+      "transparent": true,
+      "alphaBounds": [
+        12,
+        6,
+        86,
+        90
+      ],
+      "figureShares": {
+        "center": 0.510417,
+        "ground": 0.0625,
+        "width": 0.770833,
+        "height": 0.875
+      },
+      "wikiSha1Verified": true
+    },
+    {
+      "id": "Sailor",
+      "originalId": "character_sailor",
+      "name": "Sailor",
+      "contentSet": "abyssalTerrors",
+      "source": "https://brotato.wiki.spellsandguns.com/images/c/ce/Sailor.png",
+      "characterPage": "https://brotato.wiki.spellsandguns.com/Sailor",
+      "file": "assets/world2d/final/characters/Sailor.png",
+      "size": [
+        96,
+        96
+      ],
+      "mode": "RGBA",
+      "sha256": "c140bd476bcfe21469be5ba896f962678c464b6b24711d38d73fb5067ce3c8e4",
+      "sha1": "0847c4c660fa76f000e8c20a6a9f6680a5911034",
+      "bytes": 9801,
+      "transparent": true,
+      "alphaBounds": [
+        6,
+        2,
+        85,
+        95
+      ],
+      "figureShares": {
+        "center": 0.473958,
+        "ground": 0.010417,
+        "width": 0.822917,
+        "height": 0.96875
+      },
+      "wikiSha1Verified": true
+    },
+    {
+      "id": "Saver",
+      "originalId": "character_saver",
+      "name": "Saver",
+      "contentSet": "mainGame",
+      "source": "https://brotato.wiki.spellsandguns.com/images/8/84/Saver.png",
+      "characterPage": "https://brotato.wiki.spellsandguns.com/Saver",
+      "file": "assets/world2d/final/characters/Saver.png",
+      "size": [
+        96,
+        96
+      ],
+      "mode": "RGBA",
+      "sha256": "d44a17389bf84e67f12de4bb87370c10ded0017fca01cf608b0bddec0bbae858",
+      "sha1": "12175539a3ba644db82d590e5b688d3b6ea0e4e0",
+      "bytes": 5135,
+      "transparent": true,
+      "alphaBounds": [
+        11,
+        6,
+        84,
+        90
+      ],
+      "figureShares": {
+        "center": 0.494792,
+        "ground": 0.0625,
+        "width": 0.760417,
+        "height": 0.875
+      },
+      "wikiSha1Verified": true
+    },
+    {
+      "id": "Sick",
+      "originalId": "character_sick",
+      "name": "Sick",
+      "contentSet": "mainGame",
+      "source": "https://brotato.wiki.spellsandguns.com/images/b/b4/Sick.png",
+      "characterPage": "https://brotato.wiki.spellsandguns.com/Sick",
+      "file": "assets/world2d/final/characters/Sick.png",
+      "size": [
+        96,
+        96
+      ],
+      "mode": "RGBA",
+      "sha256": "a7b86aaaca167398146be8429a557c2349eea177aa8194f9416520ce180803bc",
+      "sha1": "54602dee7fa924cccd18b2319473edc845d00fe7",
+      "bytes": 7400,
+      "transparent": true,
+      "alphaBounds": [
+        11,
+        6,
+        93,
+        90
+      ],
+      "figureShares": {
+        "center": 0.541667,
+        "ground": 0.0625,
+        "width": 0.854167,
+        "height": 0.875
+      },
+      "wikiSha1Verified": true
+    },
+    {
+      "id": "Soldier",
+      "originalId": "character_soldier",
+      "name": "Soldier",
+      "contentSet": "mainGame",
+      "source": "https://brotato.wiki.spellsandguns.com/images/7/7b/Soldier.png",
+      "characterPage": "https://brotato.wiki.spellsandguns.com/Soldier",
+      "file": "assets/world2d/final/characters/Soldier.png",
+      "size": [
+        96,
+        96
+      ],
+      "mode": "RGBA",
+      "sha256": "716141aeb8dfb2f4697840c9189bb8105cd9f357ab3c2fcf9005582f7995cbf8",
+      "sha1": "43508aee67697c72e76f98d3b593beff45136e27",
+      "bytes": 5999,
+      "transparent": true,
+      "alphaBounds": [
+        11,
+        6,
+        89,
+        90
+      ],
+      "figureShares": {
+        "center": 0.520833,
+        "ground": 0.0625,
+        "width": 0.8125,
+        "height": 0.875
+      },
+      "wikiSha1Verified": true
+    },
+    {
+      "id": "Speedy",
+      "originalId": "character_speedy",
+      "name": "Speedy",
+      "contentSet": "mainGame",
+      "source": "https://brotato.wiki.spellsandguns.com/images/a/a5/Speedy.png",
+      "characterPage": "https://brotato.wiki.spellsandguns.com/Speedy",
+      "file": "assets/world2d/final/characters/Speedy.png",
+      "size": [
+        96,
+        96
+      ],
+      "mode": "RGBA",
+      "sha256": "4f3bb6e94ffb06469adf7b12402ff3e27c563ab9ff12db75364bc2fcde260314",
+      "sha1": "04a8b8429b64d3874f4f7d05849c0434a1d2f468",
+      "bytes": 6389,
+      "transparent": true,
+      "alphaBounds": [
+        11,
+        6,
+        84,
+        90
+      ],
+      "figureShares": {
+        "center": 0.494792,
+        "ground": 0.0625,
+        "width": 0.760417,
+        "height": 0.875
+      },
+      "wikiSha1Verified": true
+    },
+    {
+      "id": "Streamer",
+      "originalId": "character_streamer",
+      "name": "Streamer",
+      "contentSet": "mainGame",
+      "source": "https://brotato.wiki.spellsandguns.com/images/0/04/Streamer.png",
+      "characterPage": "https://brotato.wiki.spellsandguns.com/Streamer",
+      "file": "assets/world2d/final/characters/Streamer.png",
+      "size": [
+        96,
+        96
+      ],
+      "mode": "RGBA",
+      "sha256": "5ae56bba3fdaecd5bc48ee547eb0331f121ed49195455c3e01cbd920e189f78a",
+      "sha1": "a463458f3c5080cbe77de2fa12d12572394a9dea",
+      "bytes": 7685,
+      "transparent": true,
+      "alphaBounds": [
+        11,
+        6,
+        88,
+        90
+      ],
+      "figureShares": {
+        "center": 0.515625,
+        "ground": 0.0625,
+        "width": 0.802083,
+        "height": 0.875
+      },
+      "wikiSha1Verified": true
+    },
+    {
+      "id": "Survivor",
+      "originalId": "character_survivor",
+      "name": "Survivor",
+      "contentSet": "primalDread",
+      "source": "https://brotato.wiki.spellsandguns.com/images/f/fa/Survivor.png",
+      "characterPage": "https://brotato.wiki.spellsandguns.com/Survivor",
+      "file": "assets/world2d/final/characters/Survivor.png",
+      "size": [
+        96,
+        96
+      ],
+      "mode": "RGBA",
+      "sha256": "9482a2dfe549bc39d002afb723092f11c6e429cc256719f59034d8b02ef5e8c6",
+      "sha1": "c70c353dba2ef9a66062811a773dc9b0006122d6",
+      "bytes": 10473,
+      "transparent": true,
+      "alphaBounds": [
+        7,
+        6,
+        82,
+        90
+      ],
+      "figureShares": {
+        "center": 0.463542,
+        "ground": 0.0625,
+        "width": 0.78125,
+        "height": 0.875
+      },
+      "wikiSha1Verified": true
+    },
+    {
+      "id": "Technomage",
+      "originalId": "character_technomage",
+      "name": "Technomage",
+      "contentSet": "mainGame",
+      "source": "https://brotato.wiki.spellsandguns.com/images/6/69/Technomage.png",
+      "characterPage": "https://brotato.wiki.spellsandguns.com/Technomage",
+      "file": "assets/world2d/final/characters/Technomage.png",
+      "size": [
+        96,
+        96
+      ],
+      "mode": "RGBA",
+      "sha256": "651709eff66a2bd762eb1c4b863f4d1b3bc3f987b509346f16c86c189f5071b1",
+      "sha1": "c05f7801e7b911c8d0dfd96edc6bc6951aa9872b",
+      "bytes": 8705,
+      "transparent": true,
+      "alphaBounds": [
+        12,
+        6,
+        86,
+        90
+      ],
+      "figureShares": {
+        "center": 0.510417,
+        "ground": 0.0625,
+        "width": 0.770833,
+        "height": 0.875
+      },
+      "wikiSha1Verified": true
+    },
+    {
+      "id": "TimeShifter",
+      "originalId": "character_time_shifter",
+      "name": "Time Shifter",
+      "contentSet": "primalDread",
+      "source": "https://brotato.wiki.spellsandguns.com/images/d/d9/Time_Shifter.png",
+      "characterPage": "https://brotato.wiki.spellsandguns.com/Time_Shifter",
+      "file": "assets/world2d/final/characters/TimeShifter.png",
+      "size": [
+        96,
+        96
+      ],
+      "mode": "RGBA",
+      "sha256": "cd2c6b80e3d2e8100a436ec08ab1900106accfdac13ea6cb2ffe9ae19ddb8e47",
+      "sha1": "138b929cfbfee3d26e8aa0195b50bbec5af3b917",
+      "bytes": 10419,
+      "transparent": true,
+      "alphaBounds": [
+        9,
+        1,
+        86,
+        94
+      ],
+      "figureShares": {
+        "center": 0.494792,
+        "ground": 0.020833,
+        "width": 0.802083,
+        "height": 0.96875
+      },
+      "wikiSha1Verified": true
+    },
+    {
+      "id": "Vagabond",
+      "originalId": "character_vagabond",
+      "name": "Vagabond",
+      "contentSet": "mainGame",
+      "source": "https://brotato.wiki.spellsandguns.com/images/e/e7/Vagabond.png",
+      "characterPage": "https://brotato.wiki.spellsandguns.com/Vagabond",
+      "file": "assets/world2d/final/characters/Vagabond.png",
+      "size": [
+        96,
+        96
+      ],
+      "mode": "RGBA",
+      "sha256": "d7000c3d8af193469618d1932ab48fdea9f081fed55215eab2ab41db590a8dfc",
+      "sha1": "c54027006b90cd672466aac9c06f3c839ee6eff8",
+      "bytes": 8338,
+      "transparent": true,
+      "alphaBounds": [
+        6,
+        6,
+        88,
+        90
+      ],
+      "figureShares": {
+        "center": 0.489583,
+        "ground": 0.0625,
+        "width": 0.854167,
+        "height": 0.875
+      },
+      "wikiSha1Verified": true
+    },
+    {
+      "id": "Vampire",
+      "originalId": "character_vampire",
+      "name": "Vampire",
+      "contentSet": "mainGame",
+      "source": "https://brotato.wiki.spellsandguns.com/images/4/4e/Vampire.png",
+      "characterPage": "https://brotato.wiki.spellsandguns.com/Vampire",
+      "file": "assets/world2d/final/characters/Vampire.png",
+      "size": [
+        96,
+        96
+      ],
+      "mode": "RGBA",
+      "sha256": "8ce872388051d7a7dda543c87aab2cf6f6d3a724645779f1b7becf1992da5d1b",
+      "sha1": "4840b1d44b5b0107b6521cda9eded61e7d1976a3",
+      "bytes": 8174,
+      "transparent": true,
+      "alphaBounds": [
+        11,
+        6,
+        87,
+        90
+      ],
+      "figureShares": {
+        "center": 0.510417,
+        "ground": 0.0625,
+        "width": 0.791667,
+        "height": 0.875
+      },
+      "wikiSha1Verified": true
+    },
+    {
+      "id": "Variant",
+      "originalId": "character_variant",
+      "name": "Variant",
+      "contentSet": "primalDread",
+      "source": "https://brotato.wiki.spellsandguns.com/images/e/e8/Variant.png",
+      "characterPage": "https://brotato.wiki.spellsandguns.com/Variant",
+      "file": "assets/world2d/final/characters/Variant.png",
+      "size": [
+        96,
+        96
+      ],
+      "mode": "RGBA",
+      "sha256": "8b97d153fb7ad10587709c0e3c3f9b49ce173bb587b21790cd5fea1b3ef2773b",
+      "sha1": "b82ac565b8a643e27ffcde20de4126939c3afda5",
+      "bytes": 10544,
+      "transparent": true,
+      "alphaBounds": [
+        6,
+        6,
+        88,
+        89
+      ],
+      "figureShares": {
+        "center": 0.489583,
+        "ground": 0.072917,
+        "width": 0.854167,
+        "height": 0.864583
+      },
+      "wikiSha1Verified": true
+    },
+    {
+      "id": "Veteran",
+      "originalId": "character_veteran",
+      "name": "Veteran",
+      "contentSet": "primalDread",
+      "source": "https://brotato.wiki.spellsandguns.com/images/c/c5/Veteran.png",
+      "characterPage": "https://brotato.wiki.spellsandguns.com/Veteran",
+      "file": "assets/world2d/final/characters/Veteran.png",
+      "size": [
+        96,
+        96
+      ],
+      "mode": "RGBA",
+      "sha256": "d31a7d1dbe150d0a200039b02bed6a1324fd97bd5f23593f015c2f4c3b3c8b87",
+      "sha1": "64ee0cc914046166e4de26664aa9ccbd5ee94a2a",
+      "bytes": 11449,
+      "transparent": true,
+      "alphaBounds": [
+        0,
+        4,
+        96,
+        90
+      ],
+      "figureShares": {
+        "center": 0.5,
+        "ground": 0.0625,
+        "width": 1.0,
+        "height": 0.895833
+      },
+      "wikiSha1Verified": true
+    },
+    {
+      "id": "WellRounded",
+      "originalId": "character_well_rounded",
+      "name": "Well Rounded",
+      "contentSet": "mainGame",
+      "source": "https://brotato.wiki.spellsandguns.com/images/3/32/Well_Rounded.png",
+      "characterPage": "https://brotato.wiki.spellsandguns.com/Well_Rounded",
+      "file": "assets/world2d/final/characters/WellRounded.png",
+      "size": [
+        96,
+        96
+      ],
+      "mode": "RGBA",
+      "sha256": "f618971cd4962176d895e16716c24a61fa48778a603bc97e9542c21f6ee54f2b",
+      "sha1": "6efa94fa12c714db5fd930bd912c6218545ee4d3",
+      "bytes": 5367,
+      "transparent": true,
+      "alphaBounds": [
+        11,
+        6,
+        84,
+        90
+      ],
+      "figureShares": {
+        "center": 0.494792,
+        "ground": 0.0625,
+        "width": 0.760417,
+        "height": 0.875
+      },
+      "wikiSha1Verified": true
+    },
+    {
+      "id": "Wildling",
+      "originalId": "character_wildling",
+      "name": "Wildling",
+      "contentSet": "mainGame",
+      "source": "https://brotato.wiki.spellsandguns.com/images/b/bb/Wildling.png",
+      "characterPage": "https://brotato.wiki.spellsandguns.com/Wildling",
+      "file": "assets/world2d/final/characters/Wildling.png",
+      "size": [
+        96,
+        96
+      ],
+      "mode": "RGBA",
+      "sha256": "4c25c67bf3f536819d19f6806e40eef49bedd3f41575bb8273564a81375b170f",
+      "sha1": "31589d95272ed3bfd30261c796193db24d533df4",
+      "bytes": 5298,
+      "transparent": true,
+      "alphaBounds": [
+        11,
+        6,
+        84,
+        90
+      ],
+      "figureShares": {
+        "center": 0.494792,
+        "ground": 0.0625,
+        "width": 0.760417,
+        "height": 0.875
+      },
+      "wikiSha1Verified": true
+    },
+    {
+      "id": "Wounded",
+      "originalId": "character_wounded",
+      "name": "Wounded",
+      "contentSet": "mainGame",
+      "source": "https://brotato.wiki.spellsandguns.com/images/2/27/Wounded.png",
+      "characterPage": "https://brotato.wiki.spellsandguns.com/Wounded",
+      "file": "assets/world2d/final/characters/Wounded.png",
+      "size": [
+        96,
+        96
+      ],
+      "mode": "RGBA",
+      "sha256": "239ac4f52fee554009b1f8399ca5995be8e0c38766a18c508c4f80c5e72c7bb6",
+      "sha1": "bc94f32d60eb9106ad278ecdc5671755d36ad1ab",
+      "bytes": 8179,
+      "transparent": true,
+      "alphaBounds": [
+        13,
+        5,
+        82,
+        84
+      ],
+      "figureShares": {
+        "center": 0.494792,
+        "ground": 0.125,
+        "width": 0.71875,
+        "height": 0.822917
+      },
+      "wikiSha1Verified": true
+    }
+  ],
+  "wikiVerification": {
+    "method": "MediaWiki imageinfo API: source URL, original SHA-1, byte count, width and height compared for every asset.",
+    "date": "2026-11-08",
+    "verified": 74
+  }
+}

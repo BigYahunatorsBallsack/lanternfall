@@ -1,0 +1,31 @@
+{
+  "date": "2026-11-08",
+  "baseMain": "5f52293ba137ab1b08cc0010372fe1ebbfb9e250",
+  "sourceHashesVerified": 74,
+  "transparentPngs": 74,
+  "uniquePngs": 74,
+  "catalogIdsCovered": 74,
+  "existingAliasesPreserved": 9,
+  "contentSets": {
+    "mainGame": 50,
+    "primalDread": 10,
+    "abyssalTerrors": 14
+  },
+  "originalSize": [
+    96,
+    96
+  ],
+  "existingImporterValidation": "74/74 passed with trimmed=true; no importer source changes.",
+  "existingImporterPreparation": "74/74 prepared at 1024x1024 with transparent margin and valid measured shares; originals unchanged.",
+  "runtimeCodeChanged": false,
+  "uploadedToRoblox": false,
+  "studioTested": false,
+  "selene": {
+    "errors": 0,
+    "warnings": 11,
+    "parseErrors": 0,
+    "exitCode": 1,
+    "note": "Existing unchanged Luau warnings; no Luau files changed."
+  },
+  "stylua": "Not applicable: no Luau files changed."
+}
