@@ -662,6 +662,26 @@ Branch `wp-25-2d-presentation`. **Owner-Entscheidungen dieses Pakets:** Das Spie
 - Vorhandenen Fehler bei negativer Attack Speed korrigiert: native Waffen und Shop-Vorschau teilen jetzt NativeWeaponTiming.factor, volle native Verlangsamung statt halber Strafe. Der alte Erwartungswert fuer Pistol -100% wurde quellenbasiert 1.8 auf 2.4 Sekunden berichtigt. Keine Tests geschwaecht/uebersprungen.
 - Vollstaendiger Seed-1234-Vergleich plus gezielte Nachpruefung nach Timing/UI-Korrektur: main 1162 bestanden/30 bekannte Fehler (123 Specs), Fortsetzung 1180/30 (128 Specs), keine neuen Fehlernamen. Selene geaenderte Produktionsdateien 0 Fehler/0 Warnungen mit Roblox-Cache, StyLua und Rojo bestanden. Quellen/Grenzen: doctor-source.json, doctor-validation.json. Keine Studio-/Zwei-Client-/Handy-Abnahme.
 
+## Gegner blitzen beim Spawn nicht mehr neben dem Spieler auf (08.11.2026)
+
+- Owner sah neu gespawnte Gegner ein paar Frames neben dem Spieler (dort, wo vorher Gegner gestorben waren). Der Fix aus #85 (Teile vor dem Einhängen setzen) reichte nicht: Roblox zeichnet ein BillboardGui, das wieder in den Workspace kommt oder wieder eingeschaltet wird, noch ein paar Frames an seiner alten Stelle. In Studio gemessen: die Teile standen ab dem ersten Frame richtig.
+- Fix in `EnemyRenderer/init.luau` + `SpriteModels.luau`: Gepoolte Modelle bleiben im Workspace, ihre Billboards bleiben an; `SpriteModels.hide/show` blendet nur die Bilder (`picture.Visible`), Schatten, HP-Leiste, Krone, Wisps und Trail aus. Ein neuer Gegner zeigt seine Bilder erst nach `REVEAL_FRAMES` (2) Frames am Spawnpunkt. Owner hat es am 08.11.2026 in Studio getestet: Aufblitzen weg.
+- **Werkzeug-Trick:** Roblox-Studio-MCP über das verbundene Gerät funktioniert (Playtest starten, UI per `instance_path` klicken, Luau auf Client/Server ausführen). Code lässt sich ohne Rojo zum Testen in die Edit-Skripte einspielen (`Source` setzen); Rojo überschreibt das beim nächsten Verbinden. `CaptureService` liefert in Studio keine Bilder.
+
+## HP-Leiste über dem Spieler (Claude, 08.11.2026)
+
+- Owner-Wunsch mit Brotato-Screenshots: kleine HP-Leiste über dem Kopf. Neuer Client-Controller `Controllers/PlayerHpBarController` (nur Anzeige, keine Remote, kein Server): rote Füllung (`Theme.hp`) auf dunkler Spur mit schwarzem Rand, 3,4 × 0,5 Studs, 0,5 Studs über der Figur (`Config.Sprites.character.bodyStuds`), wächst und schrumpft also mit dem Zoom.
+- Sichtbar nur, wenn der Spieler verletzt ist (wie auf den Screenshots: bei 10/10 keine Leiste, bei 22/23 schon), in Welle oder Boss-Welle und solange er steht; im Shop, in der Lobby, bei voller HP und wenn er am Boden/out ist (dann zeigt `ReviveController` seine eigene Leiste) versteckt. Gilt für jeden Spieler, im Koop sieht man also auch die Leisten der anderen.
+- Annahme ohne Quelle: Brotato blendet die Leiste bei voller HP aus (nur aus den Screenshots abgeleitet); Maße nach Augenmaß. Kein Studio-Test.
+
+## Level-ups und Kisten oben rechts im HUD (Claude, 08.11.2026)
+
+- Owner-Meldung mit Brotato-Screenshots: Während der Welle zeigt Brotato oben rechts pro wartendem Level-up ein Kopf-Symbol mit grünem Pfeil und darunter pro eingesammelter Kiste ein Kisten-Symbol, Boss-/legendäre Kisten anders als normale. Bei uns gab es nur den Text „↑ +N“ (HUD) und „N crates“ im Beutel-Chip.
+- Neu: `src/client/Controllers/PendingRewardsController.luau` (ScreenGui `PendingRewards`, links neben dem Zahnrad): obere Reihe `PendingLevels` = Kopf der eigenen Figur (`Icons.draw(..., "characterHead", classId)`) mit selbst gezeichnetem grünem Pfeil aus Frames, untere Reihe `PendingCrates` = die vorhandenen Kisten-Sprites aus `Config.Sprites.pickups` (`Crate`, `LegendaryCrate`; legendäre zuerst, sie öffnen zuerst). Bis 6 Symbole pro Reihe, mehr als „+N“ links daneben. Sichtbar nur in den Phasen `Running`/`Boss`; im Shop öffnen sie wie bisher in `LevelUpController`. Keine Brotato-Sprites übernommen.
+- Schnittstelle: `Types.CrateOffer.legendaryPending` (optional, von `UpgradeService.sendCrate`), Anteil legendärer Kisten an `pending`. `PendingRewardsController.getBottom()` + `Changed`: `HUDController` schiebt Team-Panel und den Handy-Timer darunter. `getShown()` für Tests.
+- Entfernt: `HUD.PendingLevels`-Text („↑ +N“) in `HUDController` und „N crates“ im Chip von `PickupRenderer` (der Beutel bleibt). `HUDController` ist geteilt; die Änderung kam auf direkten Owner-Wunsch und betrifft nur Badge, Team-Panel-Position und Handy-Timer-Position.
+- Tests: `Loot.spec` (Kisten-Symbol), `Boss.spec` (3 legendäre Kisten-Symbole, im Shop aus), `Smoke.spec`/`UiReference.spec` lesen `PendingRewards.PendingLevels` statt `HUD.PendingLevels`. Kein Studio-Test; Abstände und Größen (38 px bei 1280×720, 30 px am Handy) muss der Owner-Test bestätigen.
+
 ## Charakterwahl: ganze Figur in der Kachel (Claude, 08.11.2026)
 
 - Owner nach Test: Kacheln sollen wie in Brotato die ganze Figur zeigen, nicht nur den Kopf. Kacheln nutzen jetzt `characterFigure` (ganze Figur, enger Rand) statt `characterHead`; Kachelgröße 80/65 px bleibt. `PortraitCrop.head` bleibt für spätere Nutzung erhalten.
