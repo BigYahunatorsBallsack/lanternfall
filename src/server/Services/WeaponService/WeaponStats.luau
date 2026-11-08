@@ -124,11 +124,20 @@ function WeaponStats.compute(
 		end
 	end
 
+	if stats.minimumRange then
+		stats.range = math.max(stats.minimumRange + rule.minStuds, stats.range)
+	end
+	if stats.cycleCritBonus then
+		stats.cycleCritChance =
+			StatMath.critChance(stats.critChance or Player.critChance, (bonuses.critChance or 0) + stats.cycleCritBonus)
+	end
 	stats.critChance = StatMath.critChance(stats.critChance or Player.critChance, bonuses.critChance or 0)
 	stats.critDamage = (stats.critDamage or Player.critMultiplier) + (bonuses.critDamage or 0) / 100
 	stats.lifeSteal = math.clamp((stats.lifeSteal or 0) + (bonuses.lifeSteal or 0) / 100, 0, 1)
 	stats.eliteDamage = (bonuses.eliteDamage or 0) / 100
-	stats.knockback = math.max(0, (stats.knockback or 0) + (bonuses.knockback or 0)) * Combat.knockback.studsPerPoint
+	local knockback = (stats.knockback or 0) + (bonuses.knockback or 0)
+	stats.knockback = (if stats.negativeKnockbackOnly then math.min(0, knockback) else math.max(0, knockback))
+		* Combat.knockback.studsPerPoint
 
 	-- projectiles: piercing and bouncing (pierce -1 flies through everything and does not grow)
 	local pierce = stats.pierce

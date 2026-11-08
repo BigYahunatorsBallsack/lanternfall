@@ -21,11 +21,18 @@ type Shot = {
 	secondary: boolean,
 	bounced: boolean?,
 	critical: boolean?,
+	slowHit: { [number]: boolean }?,
 }
 local Projectile = {}
 local targets: { number } = {}
 local found: { number } = {}
 local ordered: { { id: number, distance: number } } = {}
+local zoneFound: { number } = {}
+local nativeSlow: ((number, number, boolean, number) -> ())? = nil
+function Projectile.setNativeSlow(callback: (number, number, boolean, number) -> ())
+	nativeSlow = callback
+end
+
 local slowAura: ((number, number, number, number, number) -> ())? = nil
 
 function Projectile.setSlowAura(callback: (number, number, number, number, number) -> ())
@@ -77,6 +84,7 @@ local function start(
 		bounces = (stats.bounce or 0) + (if critical then stats.critBounce or 0 else 0),
 		share = 1,
 		hit = if skip then { [skip] = true } else {},
+		slowHit = if stats.slowZoneRadius then {} else nil,
 		secondary = secondary,
 		critical = critical,
 	})
@@ -93,10 +101,19 @@ function Projectile.fire(weapon: Arsenal.Weapon, ctx: Arsenal.Context): boolean
 		ctx,
 		stats.range,
 		if stats.fan or stats.nativeSpread ~= nil then 1 else count,
-		targets
+		targets,
+		stats.minimumRange
 	)
 	if targetCount == 0 and stats.shootWithoutTarget ~= 1 then
 		return false
+	end
+	weapon.state.volleyCount = (weapon.state.volleyCount or 0) + 1
+	if stats.cycleEvery and weapon.state.volleyCount % stats.cycleEvery == 0 then
+		stats = table.clone(stats)
+		stats.critChance = stats.cycleCritChance
+	end
+	if stats.shotAnimationSeconds then
+		weapon.state.shootingUntil = ctx.now + stats.shotAnimationSeconds
 	end
 	local heldX, heldZ = WeaponPose.anchor(ctx.x, ctx.z, ctx.slot, ctx.slotCount, weapon.id)
 	for k = 1, count do
@@ -203,6 +220,18 @@ function Projectile.step(weapon: Arsenal.Weapon, ctx: Arsenal.Context, dt: numbe
 		local x1, z1 = shot.x + shot.dx * move, shot.z + shot.dz * move
 		if slowAura and stats.slowRadius then
 			slowAura(x1, z1, stats.slowRadius, 1 - stats.slow, stats.slowSeconds)
+		end
+		if stats.slowZoneRadius and nativeSlow and shot.slowHit then
+			local ox = shot.dx * stats.slowZoneOffsetX - shot.dz * stats.slowZoneOffsetZ
+			local oz = shot.dz * stats.slowZoneOffsetX + shot.dx * stats.slowZoneOffsetZ
+			local count = ctx:querySegment(shot.x + ox, shot.z + oz, x1 + ox, z1 + oz, stats.slowZoneRadius, zoneFound)
+			for index = 1, count do
+				local id = zoneFound[index]
+				if not shot.slowHit[id] then
+					shot.slowHit[id] = true
+					nativeSlow(id, stats.slowZonePoints, false, 0)
+				end
+			end
 		end
 		local n = ctx:querySegment(shot.x, shot.z, x1, z1, stats.projectileRadius, found)
 		table.clear(ordered)

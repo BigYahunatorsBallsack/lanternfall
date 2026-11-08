@@ -37,3 +37,6 @@
 
 - [x] Add Spoon/Cestus/Sickle/Trident/Lute/Blowgun runtime paths, target conditions, shared timed weakness and local original icons; native outline/runtime acceptance remain pending.
 - [ ] Continue the remaining 15 starting-weapon families and ten item/pet families; no character completion inferred from dependencies.
+
+- [x] Add Blunderbuss/Javelin/Tranq Rifle/Harpoon Gun, collector material reload, volley critical cycle, native decaying slows, minimum aiming range and local original icons; keep uploads gated.
+- [ ] Continue the remaining eleven starting-weapon families and ten item/pet families; five character packages remain code-prepared, without native acceptance.

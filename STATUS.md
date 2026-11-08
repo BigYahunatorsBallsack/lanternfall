@@ -72,7 +72,7 @@ Jeder Strang Ã¤ndert nur **seine** Zeile (Regeln: `docs/PARALLEL.md`).
 | Strang | KI | Aktuelles Paket | Branch / PR | Stand | Danach |
 | --- | --- | --- | --- | --- | --- |
 | A â€“ Engine und Ablauf | Claude | Paket 24 Launch-Paket (Medium) | `wp-24-launch` | fertig, selbst gemerged | Plan bis zum Launch abgeschlossen; als NÃ¤chstes IDs des Owners eintragen (Live-Experience, Badges, Musik), dann Live-Ops |
-| B - Inhalte und Spieler-Regeln | ChatGPT | B10: alle stabilen Brotato-Charaktere | `wp-b10-starting-gear` | Crazy/Brawler/Ghost/Bull/Doctor code-vorbereitet; 14 zusaetzliche Startwaffenpfade; echte Uploads offen | Restliche Ausruestung, native Alt-IDs und weitere Charakter-/Shop-/DLC-Regeln |
+| B - Inhalte und Spieler-Regeln | ChatGPT | B10: alle stabilen Brotato-Charaktere | `wp-b10-projectile-starts` | Crazy/Brawler/Ghost/Bull/Doctor code-vorbereitet; 18 zusaetzliche Startwaffenpfade; echte Uploads offen | Restliche Ausruestung, native Alt-IDs und weitere Charakter-/Shop-/DLC-Regeln |
 
 ## Feste Entscheidungen des Owners
 
@@ -737,3 +737,9 @@ Branch `wp-25-2d-presentation`. **Owner-Entscheidungen dieses Pakets:** Das Spie
 - Shop: Item-, Waffen- und Charakterkacheln mit gleichem Rahmen (grau, dunkler 2-px-Rand, Stufenfarbe ab Stufe 2), Bild mittig mit 6 px Rand. Charakterkachel nutzt den neuen Zuschnitt `PortraitCrop.badge` (mittig im Bild statt mittig inklusive Waffe). Geldzahl und Symbol auf einer Mittellinie. Gekaufte Angebote verschwinden, ihr Platz bleibt leer (wie Brotato, Owner-Korrektur).
 - Checks: StyLua, Selene (0/0); `SelectionHover` (neu), `ShopInspect` (+leerer Platz nach Kauf), `UiShop`, `UiRedesign`, `UiReference`, `PortraitCrop`, `CharacterGhost`, `CharactersB10` bestanden. Kein Studio-Test.
 - Nachtrag 08.11.2026: Owner hat die sechs Shard-Bilder in Studio hochgeladen; IDs stehen in `Config.Sprites.material.variants`, alle sechs im Studio-Preload â€žSuccess". Der Upload aus der Cloud scheiterte: `upload_image` lehnt fremde URLs ab (â€žnot trusted"), `AssetService:CreateAssetAsync` ist im Assistant-Kontext gesperrt, Ordnerzugriff auf dem PC braucht Owner-Freigabe. FÃ¼r kÃ¼nftige Bild-Uploads deshalb: Owner per Asset-Manager â†’ Massenimport, IDs schicken lassen.
+
+## Projektil-Startausrüstung (Strang B, 09.11.2026)
+
+- Blunderbuss, Javelin, Tranq Rifle und Harpoon Gun mit Originaltiers, Material-Reload, Salvenkrits, Trefferradius-Verlangsamung, Mindestreichweite/Zug und Projektil-Verlangsamung ergänzt. Additive native Geschwindigkeitsabzüge halten und erholen sich; Server und Client beachten die Mindestreichweite. Arsenal unverändert. Main b518842 einschließlich Auswahl-/Projektilanzeige und Splitterbilder erhalten.
+- 80 Waffen konfiguriert, davon 62 öffentlich und 18 mit lokal vorbereiteten Originalbildern bis zu echten Uploads gesperrt. Noch elf benötigte Waffenfamilien und zehn Item-/Petfamilien. Weiterhin fünf code-vorbereitete Charakterpakete, keine zusätzliche vollständige Charakterabnahme.
+- 141 Specs: 1220 bestanden, dieselben 34 vorhandenen Main-Fehler; keine neue Fehlerkennung. Universaltests berücksichtigen nun gültigen Harpoon-Zielabstand. StyLua, Selene für geänderte Produktionsmodule, Generatorprüfungen und Rojo-Build bestanden. Nachweis: docs/characters/projectile-starts-validation.json. Native Studio-/Koop-/Handy-Abnahme, Uploads und allgemeine Physik-/Formelparität bleiben offen.

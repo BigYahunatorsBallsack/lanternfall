@@ -35,6 +35,8 @@
 
 local Shared = game:GetService("ReplicatedStorage").Shared
 local Enemies = require(Shared.Config.Enemies)
+local PointScale = require(Shared.Config.Stats).range.studsPerPoint
+local DecayingSpeed = require(script.Parent.DecayingSpeed)
 local SpatialHash = require(Shared.Util.SpatialHash)
 local SegmentCircle = require(Shared.Util.SegmentCircle)
 local circleEntry = SegmentCircle.entry
@@ -98,6 +100,7 @@ export type World = typeof(setmetatable(
 		rushZs: { number },
 		rushLeft: { number }, -- studs the rush may still go
 		summonTimers: { number }, -- seconds until a summoner calls again
+		nativeSlows: DecayingSpeed.Slow,
 		slowFactors: { number }, -- share of its speed a slowed enemy keeps, 1 when not slowed (B5)
 		speedFactors: { number }, -- multiplier on its kind's speed from spawning (the team's Enemy Speed stat, B9)
 		boosts: { number }, -- multiplier on its speed from accelerating (kind.accelerate), 1 otherwise (B9)
@@ -136,6 +139,7 @@ function World.new(params: Params): World
 	assert(params.maxEnemies < MAX_ID, "maxEnemies must leave room for free ids")
 	local self = {
 		params = params,
+		nativeSlows = DecayingSpeed.new(),
 		count = 0,
 		alive = 0,
 		ids = {},
@@ -331,12 +335,14 @@ function World.remove(self: World, id: number): boolean
 		return false
 	end
 	self.hp[i] = 0
+	self.nativeSlows:remove(id)
 	self.alive -= 1
 	return true
 end
 
 -- Removes every enemy without reporting kills (run start and end).
 function World.clear(self: World)
+	self.nativeSlows:clear()
 	for _, column in self.columns do
 		table.clear(column)
 	end
@@ -374,6 +380,7 @@ function World.damage(self: World, id: number, amount: number): (boolean, number
 		return false, applied, applied, false
 	end
 	self.hp[i] = 0
+	self.nativeSlows:remove(id)
 	self.alive -= 1
 	return true, hp, applied, false
 end
@@ -633,6 +640,20 @@ function World.push(self: World, id: number, dx: number, dz: number)
 	self.zs[i] = math.clamp(z, p.minZ + radius, p.maxZ - radius)
 end
 
+-- Stable Unit speed penalties are additive in original points, hold independently, then recover at the source rate.
+local function nativeSpeedFactor(self: World, i: number): number
+	local points = self.kinds[i].speed * self.speedFactors[i] * self.boosts[i] / PointScale
+	return self.nativeSlows:factor(self.ids[i], points)
+end
+function World.nativeSlow(self: World, id: number, amount: number, percent: boolean, hold: number)
+	local i = self.indexOf[id]
+	if not i or self.hp[i] <= 0 then
+		return
+	end
+	local points = self.kinds[i].speed * self.speedFactors[i] * self.boosts[i] / PointScale
+	self.nativeSlows:add(id, points, if percent then points * amount / 100 else amount, hold)
+end
+
 -- Slows a living enemy to `factor` (0..1) of its speed for `seconds` (B5). Slows do not stack: the stronger one wins,
 -- an equal one refreshes the time (assumption, DESIGN.md section 6).
 function World.slow(self: World, id: number, factor: number, seconds: number)
@@ -663,7 +684,7 @@ function World.getStatus(self: World, id: number): (boolean, boolean, boolean)
 	if not i or self.hp[i] <= 0 then
 		return false, false, false
 	end
-	return self.slowFactors[i] < 1, self.burning[i], self.buffed[i]
+	return self.slowFactors[i] < 1 or self.nativeSlows:active(id), self.burning[i], self.buffed[i]
 end
 
 -- Makes a living enemy walk to (x, z) instead of the nearest target, or back to the target without x and z (the
@@ -714,7 +735,10 @@ local function rushStep(
 )
 	local p = self.params
 	local radius = self.kinds[i].radius
-	local move = math.min(charge.speed * self.speedFactors[i] * self.slowFactors[i] * dt, self.rushLeft[i])
+	local move = math.min(
+		charge.speed * self.speedFactors[i] * self.slowFactors[i] * nativeSpeedFactor(self, i) * dt,
+		self.rushLeft[i]
+	)
 	local x, z = self.xs[i], self.zs[i]
 	local dx, dz = self.rushXs[i], self.rushZs[i]
 	local stopAt: number? = nil
@@ -946,7 +970,12 @@ function World.step(
 				continue
 			end
 			local radius = kind.radius
-			local maxMove = kind.speed * self.speedFactors[i] * self.boosts[i] * self.slowFactors[i] * dt
+			local maxMove = kind.speed
+				* self.speedFactors[i]
+				* self.boosts[i]
+				* self.slowFactors[i]
+				* nativeSpeedFactor(self, i)
+				* dt
 			local dirX, dirZ = bestDx / distance, bestDz / distance
 			local advance
 			local ranged = kind.ranged
@@ -1224,6 +1253,7 @@ function World.step(
 			end
 		end
 	end
+	self.nativeSlows:step(dt)
 	return contacts
 end
 

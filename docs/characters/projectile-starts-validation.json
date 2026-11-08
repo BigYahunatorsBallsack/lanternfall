@@ -1,0 +1,187 @@
+{
+  "date": "2026-11-09",
+  "baseMain": "b51884296e3b010983dc5a72489e765e864d9f14",
+  "fullSuiteReferenceMain": "39f45cd356f1e2c1ff48f13e00cfa2ec4ed057bf",
+  "families": [
+    "Blunderbuss",
+    "Javelin",
+    "Tranq Rifle",
+    "Harpoon Gun"
+  ],
+  "baseline": {
+    "specs": 137,
+    "passed": 1204,
+    "failed": 34
+  },
+  "result": {
+    "specs": 141,
+    "passed": 1220,
+    "failed": 34
+  },
+  "newFailures": [],
+  "existingFailures": [
+    {
+      "spec": "EnemySpawnPlacement25.spec.luau",
+      "test": "Enemy spawn placement > moves a pooled sprite to its next spawn before reattaching it"
+    },
+    {
+      "spec": "EnemySpawnPlacement25.spec.luau",
+      "test": "Enemy spawn placement > positions a newly built sprite before making it visible"
+    },
+    {
+      "spec": "RunStats.spec.luau",
+      "test": "Tally > writes readable log lines with the level per minute and every build"
+    },
+    {
+      "spec": "Smoke.spec.luau",
+      "test": "smoke > arms the player with the class weapon and switches weapons off for the enemy tests"
+    },
+    {
+      "spec": "Smoke.spec.luau",
+      "test": "smoke > draws the six original weapons, tiers and debug swaps"
+    },
+    {
+      "spec": "Smoke.spec.luau",
+      "test": "smoke > drops XP orbs that the player picks up for the whole team"
+    },
+    {
+      "spec": "Smoke.spec.luau",
+      "test": "smoke > ends in defeat when the only player is knocked down"
+    },
+    {
+      "spec": "Smoke.spec.luau",
+      "test": "smoke > ends the wave: enemies fade, the shop opens and the level-up cards come first"
+    },
+    {
+      "spec": "Smoke.spec.luau",
+      "test": "smoke > finished without any runtime error"
+    },
+    {
+      "spec": "Smoke.spec.luau",
+      "test": "smoke > gives the evolution from a chest once the build is ready"
+    },
+    {
+      "spec": "Smoke.spec.luau",
+      "test": "smoke > hits and kills enemies with the debug buttons"
+    },
+    {
+      "spec": "Smoke.spec.luau",
+      "test": "smoke > keeps level-ups for the end of the wave"
+    },
+    {
+      "spec": "Smoke.spec.luau",
+      "test": "smoke > keeps running while one of two is down, and enemies go for the one still standing"
+    },
+    {
+      "spec": "Smoke.spec.luau",
+      "test": "smoke > keeps walking but suppresses jumping on Space"
+    },
+    {
+      "spec": "Smoke.spec.luau",
+      "test": "smoke > lets Spitters shoot visible projectiles that hit the player"
+    },
+    {
+      "spec": "Smoke.spec.luau",
+      "test": "smoke > lets items change HP, speed and weapon damage, stacking without limit"
+    },
+    {
+      "spec": "Smoke.spec.luau",
+      "test": "smoke > opens the chest when walked over and shows the reward"
+    },
+    {
+      "spec": "Smoke.spec.luau",
+      "test": "smoke > rejects locked classes with a message"
+    },
+    {
+      "spec": "Smoke.spec.luau",
+      "test": "smoke > returns to the lobby after the results"
+    },
+    {
+      "spec": "Smoke.spec.luau",
+      "test": "smoke > runs Brotato's combat: weapon class bonuses, burning, exploding items and slowed enemies"
+    },
+    {
+      "spec": "Smoke.spec.luau",
+      "test": "smoke > runs item effects: standing still, per X, timers, crit kills, dodges and chests"
+    },
+    {
+      "spec": "Smoke.spec.luau",
+      "test": "smoke > runs wave end, shop and next-wave effects and the shop stats"
+    },
+    {
+      "spec": "Smoke.spec.luau",
+      "test": "smoke > runs with two players and keeps late joiners in the lobby"
+    },
+    {
+      "spec": "Smoke.spec.luau",
+      "test": "smoke > sells weapons and items for Shards in the shop, rerolls and starts the next wave on READY"
+    },
+    {
+      "spec": "Smoke.spec.luau",
+      "test": "smoke > shoots Spark Bolts that kill enemies once weapons are on"
+    },
+    {
+      "spec": "Smoke.spec.luau",
+      "test": "smoke > shows a Charger's wind-up, splits Splitters and names elite affixes"
+    },
+    {
+      "spec": "Smoke.spec.luau",
+      "test": "smoke > shows enemy and performance numbers to admins"
+    },
+    {
+      "spec": "Smoke.spec.luau",
+      "test": "smoke > skips to the boss wave, and surviving it wins (WP10)"
+    },
+    {
+      "spec": "Smoke.spec.luau",
+      "test": "smoke > spawns a glowing elite with an HP bar that drops a chest"
+    },
+    {
+      "spec": "Smoke.spec.luau",
+      "test": "smoke > spawns enemies on a ring around the player and draws them"
+    },
+    {
+      "spec": "Smoke.spec.luau",
+      "test": "smoke > stands a downed player up with full HP when the wave ends"
+    },
+    {
+      "spec": "Smoke.spec.luau",
+      "test": "smoke > starts Swarm Rush with a ring of Shadelings and no Gloom Elites"
+    },
+    {
+      "spec": "Smoke.spec.luau",
+      "test": "smoke > starts the next run with Play again"
+    },
+    {
+      "spec": "Smoke.spec.luau",
+      "test": "smoke > takes debug damage with hit protection and heals"
+    }
+  ],
+  "followup": [
+    "Re-ran WeaponBalance and WeaponsB7 after moving targets beyond native minimum range; damage assertions retained.",
+    "Integrated main b518842 shard image update; LootSprites25 passed 3/3."
+  ],
+  "runner": "Lune 0.11.1 Roblox mock, separate process per spec, math.randomseed(1234); no Studio acceptance",
+  "remainingWeaponFamilies": [
+    "awl",
+    "boomerang",
+    "brick",
+    "carbon_bow",
+    "crowbar",
+    "flail",
+    "flute",
+    "hiking_stick",
+    "molotov",
+    "shovel",
+    "sticky_grenade"
+  ],
+  "remainingItemPetFamilies": 10,
+  "codePreparedCharacters": 5,
+  "publicWeapons": 62,
+  "pendingImageWeapons": 18,
+  "limits": [
+    "No uploads, asset IDs, publishing or Studio changes.",
+    "Native physics, exact initial shot jitter/delays, existing generic weapon/item formula gaps and native visual acceptance remain open.",
+    "No additional complete character package inferred from these equipment dependencies."
+  ]
+}

@@ -757,6 +757,26 @@
     "source": "assets/weapons/character-starts/Blowgun.png",
     "text": "Original Brotato icon; prepare locally, upload only with a real returned asset id.",
     "trimmed": true
+   },
+   "Blunderbuss": {
+    "text": "Blunderbuss original stable starting-weapon icon.",
+    "source": "assets/weapons/character-starts/Blunderbuss.png",
+    "trimmed": true
+   },
+   "Javelin": {
+    "text": "Javelin original stable starting-weapon icon.",
+    "source": "assets/weapons/character-starts/Javelin.png",
+    "trimmed": true
+   },
+   "TranqRifle": {
+    "text": "TranqRifle original stable starting-weapon icon.",
+    "source": "assets/weapons/character-starts/TranqRifle.png",
+    "trimmed": true
+   },
+   "HarpoonGun": {
+    "text": "HarpoonGun original stable starting-weapon icon.",
+    "source": "assets/weapons/character-starts/HarpoonGun.png",
+    "trimmed": true
    }
   },
   "raw": true
