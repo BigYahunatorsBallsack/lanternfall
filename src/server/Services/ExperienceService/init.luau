@@ -335,6 +335,16 @@ function ExperienceService.addXp(amount: number, player: Player?): boolean
 	return true
 end
 
+-- Internal completed-wave payout from ShopService, before results observers. RunFlow may already be Ended;
+-- ordinary XP grants still require an ongoing run, and no remote exposes this settlement entry point.
+function ExperienceService.addWaveReward(amount: number, player: Player): boolean
+	if amount <= 0 or not progress[player] then
+		return false
+	end
+	gain(player, amount)
+	return true
+end
+
 -- Gives the team exactly the XP missing for the next level (admin debug command).
 function ExperienceService.grantLevel(): boolean
 	if not RunDirector.isOngoing() then

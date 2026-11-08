@@ -47,3 +47,12 @@ cannot be chosen. The shop/crate normal pools apply the source's explicit groups
 character exclusions lift at wave 20 while Crown/Piggy Bank are removed. The same-tier backup keeps the original
 exception which can reintroduce an excluded item if its normal pool is empty. General shop distribution, all item
 unlock rules and the other character economy policies still require their separate parity work.
+
+Completed waves now capture survivors and settle effects/harvesting before either cleanup or result observers.
+The installed `res://main.gdc` calls its wave-end effects and `manage_harvesting()` before `clean_up_room()` decides
+the win/loss scene. `RunDirector.WaveRewards` follows `WaveEnding` after capture, including direct final victory;
+`ExperienceService.addWaveReward` is a server-only settlement call because the flow may already be Ended. Ordinary
+XP grants keep their ongoing-run guard. An endless vote cannot pay a wave twice, and an endless defeat labelled as
+overall Victory does not count as clearing its failed wave. Retrying a failed wave retains no survivor reward.
+Level gains during settlement enter the result summary before it is published. Real-service scenarios cover the
+different outcomes, but native Roblox Studio acceptance remains outstanding.

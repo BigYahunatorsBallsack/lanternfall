@@ -213,8 +213,9 @@ function RunStatsService.init()
 			end
 		end
 	end)
-	ExperienceService.LevelGained:Connect(function(level)
-		if RunDirector.isActive() then
+	ExperienceService.LevelGained:Connect(function(level, player)
+		-- Harvesting also levels participants between waves and immediately before final result observers.
+		if RunDirector.getParticipantClassId(player) then
 			tally:recordLevel(level, RunDirector.getElapsed())
 		end
 	end)

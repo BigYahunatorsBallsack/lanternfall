@@ -251,6 +251,8 @@ Der Shop verwendet persönliche Waffenlimits und Nah-/Fernkampf-Beschränkungen,
 
 Seit Paket 25 sind alle Charaktere 2D-Bilder (Abschnitt 14, `Config/SpriteImages`); der Avatar darunter bleibt unsichtbar für Bewegung und Kollision. Die 3D-Modelle aus Paket 21f (`assets/characters-r15`) werden nicht mehr geladen.
 
+**Laufende B10-Erweiterung, Owner-Ziel 06.11.2026:** Die obige Tabelle beschreibt den bisherigen Lieferstand, keine erlaubten Abweichungen vom neuen 1:1-Ziel. Der verbindliche Katalog umfasst alle 74 Charaktere der stabilen PC-Version 1.2.0.1 mit DLCs. Native Level beginnen bei LV.0; XP, Karten, Waffenlimits und Freischaltungen folgen den Originalregeln. Crazy und Brawler sind als erste neue Pakete im Code verifiziert und warten auf die getrennt gelieferten Originalsprites. Der Server erfasst Überlebende vor der Weltbereinigung und zahlt Charakter-/Ernteboni einmal pro abgeschlossener Welle aus, auch vor direkten Siegesergebnissen. Verlorene Wellen zahlen nichts aus; die Endlos-Abstimmung zahlt dieselbe Welle nicht doppelt. Quellen, offene Abhängigkeiten und Prüfgrenzen: `docs/characters/README.md` und `docs/BROTATO-REQUIREMENTS.md`.
+
 ## 6. Waffen, Items & Evolutionen
 
 Seit B7 hat v1 24 Waffen, 90 Items (seit B5, vorher 78 bzw. 46) und 2 Evolutionen. Seit B2 trägt jeder Spieler bis zu 6 Waffen (vorher 4). Seit B3 hat jede Waffe wie in Brotato eine Stufe I–IV statt Level 1–5; dieselbe Waffe darf man mehrmals tragen, zwei gleiche gleicher Stufe verschmelzen zur nächsten (Abschnitt 3). Items ersetzen seit B2 die 6 Passive: Man kann sie beliebig oft kaufen, sie stapeln ohne Grenze.

@@ -223,7 +223,7 @@ local function lockedOffers(offers: { Types.ShopOffer }): { Types.ShopOffer }
 	return locked
 end
 
--- End of a wave: Harvesting gives its value in Shards (negative Harvesting takes them, down to 0) and team XP, then
+-- End of a wave: Harvesting gives its value in Shards (negative Harvesting takes them, down to 0) and personal XP, then
 -- grows (StatService.growHarvesting).
 local function harvest(player: Player, state: State)
 	local harvesting = StatService.getStat(player, "harvesting")
@@ -231,7 +231,7 @@ local function harvest(player: Player, state: State)
 	state.characterWaveReward = 0
 	state.shards = math.max(0, state.shards + reward)
 	if reward > 0 then
-		ExperienceService.addXp(reward, player)
+		ExperienceService.addWaveReward(reward, player)
 	end
 	StatService.growHarvesting(player)
 end
@@ -241,8 +241,6 @@ local function openShop()
 	for _, player in RunDirector.getParticipants() do
 		local state = states[player]
 		if state and RunDirector.getParticipantState(player) ~= "Out" then
-			ShopService.WaveEnding:Fire(player) -- wave-end item effects come before Harvesting (Brotato)
-			harvest(player, state)
 			state.open = true
 			state.wave = wave
 			state.rerolls = 0
@@ -424,6 +422,16 @@ end
 -- Lifecycle -------------------------------------------------------------------------
 
 function ShopService.init()
+	RunDirector.WaveRewards:Connect(function()
+		for _, player in RunDirector.getParticipants() do
+			local state = states[player]
+			if state and RunDirector.getParticipantState(player) ~= "Out" then
+				ShopService.WaveEnding:Fire(player) -- native wave effects precede harvesting, also on final victory
+				harvest(player, state)
+				send(player, state)
+			end
+		end
+	end)
 	ExperienceService.OrbsCollected:Connect(function(player: Player, xp: number)
 		local state = states[player]
 		if state then

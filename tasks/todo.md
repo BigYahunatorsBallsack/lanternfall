@@ -12,7 +12,7 @@
   - [x] Personal co-op XP/levels, native fractional thresholds, rotating gold/XP and retry cursor.
   - [x] Pacifist/Cryptid capture before cleanup, combined harvesting sign and personal XP payout.
   - [x] Captain cards, Baby slot-choice timing, character exclusions and native LV.0 counter/card boundaries.
-  - [ ] Final victory-wave payout.
+  - [x] Final victory-wave payout, one-time endless-vote settlement and retry isolation.
 - [ ] Deliver character shop/economy rules with validated client intents.
   - [x] Native weapon access, locked starting alternatives, explicit item groups/exclusions and same-tier backup.
 - [ ] Deliver map, enemy/wave, structures and pets with two-player isolation tests.
