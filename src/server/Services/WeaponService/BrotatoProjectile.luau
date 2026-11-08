@@ -4,6 +4,7 @@ local Arsenal = require(script.Parent.Arsenal)
 local Combat = require(script.Parent.BrotatoCombat)
 local Rules = require(game:GetService("ReplicatedStorage").Shared.Config.Combat).originalWeapons
 local WeaponPose = require(game:GetService("ReplicatedStorage").Shared.Util.WeaponPose)
+local WeaponTarget = require(script.Parent.WeaponTarget)
 
 type Shot = {
 	id: number,
@@ -87,9 +88,9 @@ function Projectile.fire(weapon: Arsenal.Weapon, ctx: Arsenal.Context): boolean
 		return false
 	end
 	local count = math.max(1, math.floor(stats.count or 1))
-	local targetCount = ctx:nearestEnemies(
-		ctx.x,
-		ctx.z,
+	local targetCount = WeaponTarget.pick(
+		weapon,
+		ctx,
 		stats.range,
 		if stats.fan or stats.nativeSpread ~= nil then 1 else count,
 		targets

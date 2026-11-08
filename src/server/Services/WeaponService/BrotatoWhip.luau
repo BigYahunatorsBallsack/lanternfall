@@ -3,6 +3,7 @@
 local Arsenal = require(script.Parent.Arsenal)
 local Combat = require(script.Parent.BrotatoCombat)
 local Pose = require(game:GetService("ReplicatedStorage").Shared.Util.WeaponPose)
+local WeaponTarget = require(script.Parent.WeaponTarget)
 local Whip = {}
 local targets: { number } = {}
 local found: { number } = {}
@@ -11,7 +12,7 @@ function Whip.fire(weapon: Arsenal.Weapon, ctx: Arsenal.Context): boolean
 		return false
 	end
 	local stats = weapon.stats
-	if ctx:nearestEnemies(ctx.x, ctx.z, stats.range, 1, targets) == 0 then
+	if WeaponTarget.pick(weapon, ctx, stats.range, 1, targets) == 0 then
 		return false
 	end
 	local tx, tz = ctx:enemyPosition(targets[1])
