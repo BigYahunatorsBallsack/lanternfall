@@ -55,7 +55,7 @@ describe("Brotato original catalog", function()
 			actual += 1
 			expect(Fixture[id] ~= nil or require(Shared.Config.CharacterWeaponData).weapons[id] ~= nil).toBe(true)
 		end
-		expect(actual).toBe(70)
+		expect(actual).toBe(76)
 		expect(count).toBe(62)
 		expect(next(Config.Evolutions)).toBe(nil)
 	end)

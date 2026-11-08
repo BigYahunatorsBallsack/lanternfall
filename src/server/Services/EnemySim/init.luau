@@ -28,6 +28,7 @@ local RandomService = require(script.Parent.RandomService)
 local RunDirector = require(script.Parent.RunDirector)
 local Volleys = require(script.Volleys)
 local World = require(script.World)
+local weakness = require(script.Weakness).new()
 
 export type KillInfo = {
 	id: number,
@@ -330,6 +331,7 @@ end
 
 local function stepOnce()
 	local startedAt = os.clock()
+	weakness:step(STEP_SECONDS)
 	collectTargets()
 	local contacts = world:step(STEP_SECONDS, targetXs, targetZs, targetCount, contactXs, contactZs)
 	currentTick += 1
@@ -499,6 +501,7 @@ function EnemySim.init()
 		table.clear(spawnContexts)
 		table.clear(chargeTrails)
 		world:clear()
+		weakness:clear()
 		volleys:clear()
 		accumulator = 0
 		firedShots, endedShots = {}, {}
@@ -508,6 +511,7 @@ function EnemySim.init()
 		table.clear(spawnContexts)
 		table.clear(chargeTrails)
 		world:clear()
+		weakness:clear()
 		volleys:clear()
 		currentTick += 1
 		sendSnapshot() -- one empty tick so clients drop their enemies right away
@@ -566,10 +570,21 @@ function EnemySim.spawn(
 	return id
 end
 
+-- Stable Lute/Blowgun effects apply before their hit, share source stacks across players and expire together.
+function EnemySim.applyWeakness(id: number, source: string, percent: number, seconds: number, stacks: number)
+	if world:isAlive(id) then
+		weakness:apply(id, source, percent, seconds, stacks)
+	end
+end
+
 -- Deals damage to one enemy. Returns true if this hit killed it (and fires EnemyKilled), the HP it took and the
 -- damage after the enemy's own damageTaken multiplier (for damage numbers). A killed Splitter falls apart; a
 -- counter-shooter that survives sprays its ring (B9).
-function EnemySim.damage(id: number, amount: number, source: Player?): (boolean, number, number)
+function EnemySim.damage(id: number, amount: number, source: Player?, bonusPercent: number?): (boolean, number, number)
+	local totalBonus = (bonusPercent or 0) + weakness:bonus(id)
+	if totalBonus ~= 0 then
+		amount = math.round(amount * (1 + totalBonus / 100))
+	end
 	local killed, dealt, applied, retaliates = world:damage(id, amount)
 	if not killed then
 		if retaliates then
@@ -577,6 +592,7 @@ function EnemySim.damage(id: number, amount: number, source: Player?): (boolean,
 		end
 		return false, dealt, applied
 	end
+	weakness:remove(id)
 	local kind = world:getKind(id)
 	local x, z = world:getPosition(id)
 	if kind and x and z then
@@ -641,6 +657,7 @@ end
 
 -- Removes a living enemy without a kill: no EnemyKilled, no loot (a Looter escaping, B6). Returns true if it was alive.
 function EnemySim.remove(id: number): boolean
+	weakness:remove(id)
 	return world:remove(id)
 end
 

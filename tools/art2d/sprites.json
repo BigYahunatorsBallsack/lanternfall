@@ -727,6 +727,36 @@
     "text": "Whip original stable starting-weapon icon.",
     "source": "assets/weapons/character-starts/Whip.png",
     "trimmed": true
+   },
+   "Spoon": {
+    "source": "assets/weapons/character-starts/Spoon.png",
+    "text": "Original Brotato icon; prepare locally, upload only with a real returned asset id.",
+    "trimmed": true
+   },
+   "Cestus": {
+    "source": "assets/weapons/character-starts/Cestus.png",
+    "text": "Original Brotato icon; prepare locally, upload only with a real returned asset id.",
+    "trimmed": true
+   },
+   "Sickle": {
+    "source": "assets/weapons/character-starts/Sickle.png",
+    "text": "Original Brotato icon; prepare locally, upload only with a real returned asset id.",
+    "trimmed": true
+   },
+   "Trident": {
+    "source": "assets/weapons/character-starts/Trident.png",
+    "text": "Original Brotato icon; prepare locally, upload only with a real returned asset id.",
+    "trimmed": true
+   },
+   "Lute": {
+    "source": "assets/weapons/character-starts/Lute.png",
+    "text": "Original Brotato icon; prepare locally, upload only with a real returned asset id.",
+    "trimmed": true
+   },
+   "Blowgun": {
+    "source": "assets/weapons/character-starts/Blowgun.png",
+    "text": "Original Brotato icon; prepare locally, upload only with a real returned asset id.",
+    "trimmed": true
    }
   },
   "raw": true

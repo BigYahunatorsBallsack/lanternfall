@@ -41,6 +41,36 @@
       "group": "weapons",
       "name": "Whip",
       "hash": "2e79fb3d3c6ee51ef603d7b0baeabb6b6de7afb185d32ffff46ed4b21e914d0d"
+    },
+    "weapons/Spoon.png": {
+      "group": "weapons",
+      "name": "Spoon",
+      "hash": "620d9aa6a65de167be99dffba51434280c29452beb85f557de828b7d18d1cb20"
+    },
+    "weapons/Cestus.png": {
+      "group": "weapons",
+      "name": "Cestus",
+      "hash": "1d35441f127b7965488efa4bb3354e85ffd7166ed8a83fcf046b7705b2cc6f17"
+    },
+    "weapons/Sickle.png": {
+      "group": "weapons",
+      "name": "Sickle",
+      "hash": "fab5034824a42db381bc1020d668852b895fda853fc40ad71adcfc48bb5f2248"
+    },
+    "weapons/Trident.png": {
+      "group": "weapons",
+      "name": "Trident",
+      "hash": "058e8b9583474343028a213a5499e8181016ceb1f73a9e1f8b17642dea9589be"
+    },
+    "weapons/Lute.png": {
+      "group": "weapons",
+      "name": "Lute",
+      "hash": "78689cf8bc1e6c437beafb37b9331a4bee5ef6ae9766138721bbaae265e9b2b5"
+    },
+    "weapons/Blowgun.png": {
+      "group": "weapons",
+      "name": "Blowgun",
+      "hash": "9395fd4c2ee4afa05025b4234582b132342372eed16fd9da828fa0812bfe9fc1"
     }
   }
 }
