@@ -11,7 +11,9 @@ local SpriteKit = require(script.Parent.SpriteKit)
 local VisualKit = require(script.Parent.VisualKit)
 
 local LOOK = Config.WeaponVisuals
+local TARGETING = Config.Combat.originalWeapons
 local RING = Config.Sprites.heldWeapons
+local TAU = 2 * math.pi
 
 type Attack = {
 	at: number,
@@ -25,12 +27,20 @@ type Attack = {
 	z: number,
 }
 type Model = { sprite: SpriteKit.Sprite, id: string, seen: number, x: number, z: number }
+-- Where a weapon points on screen: it turns toward its kept enemy at LOOK.aimTurnDegreesPerSecond.
+type Aim = { angle: number?, target: Instance? }
 
 local pools: { [string]: VisualKit.ObjectPool<SpriteKit.Sprite> } = {}
 local active: { [string]: Model } = {}
 local attacks: { [string]: Attack } = {}
 local flights: { [string]: number } = {}
-local nearestByOwner: { [number]: { frame: number, x: number, z: number, found: boolean } } = {}
+local aims: { [string]: Aim } = {}
+-- Enemy positions of the current frame, collected once for all weapons.
+local enemyFrame = -1
+local enemyCount = 0
+local enemyModels: { Instance } = {}
+local enemyX: { number } = {}
+local enemyZ: { number } = {}
 
 local HeldModels = {}
 
@@ -67,40 +77,68 @@ local function aimOf(effect: Types.WeaponEffect): (number, number)
 	return 0, 0
 end
 
-local function nearestEnemy(owner: VisualKit.Owner, frameNumber: number): (number?, number?)
-	local cached = nearestByOwner[owner.userId]
-	if cached and cached.frame == frameNumber then
-		return if cached.found then cached.x else nil, if cached.found then cached.z else nil
+local function collectEnemies(frameNumber: number)
+	if enemyFrame == frameNumber then
+		return
 	end
-	local bestX, bestZ = 0, 0
-	local bestSquared = math.huge
+	enemyFrame = frameNumber
+	enemyCount = 0
 	local folder = workspace:FindFirstChild("LanternfallEnemies")
-	if folder then
-		for _, child in folder:GetChildren() do
-			if child:IsA("Model") then
-				local body = child:FindFirstChild("Body", true)
-				if body and body:IsA("BasePart") then
-					local position = body.Position
-					local dx, dz = position.X - owner.position.X, position.Z - owner.position.Z
-					local squared = dx * dx + dz * dz
-					if squared < bestSquared then
-						bestSquared = squared
-						bestX, bestZ = position.X, position.Z
-					end
-				end
+	if not folder then
+		return
+	end
+	for _, child in folder:GetChildren() do
+		-- pooled enemy models stay in the folder while hidden (EnemyRenderer/SpriteModels)
+		if child:IsA("Model") and child:GetAttribute("Hidden") ~= true then
+			local body = child:FindFirstChild("Body", true)
+			if body and body:IsA("BasePart") then
+				enemyCount += 1
+				enemyModels[enemyCount] = child
+				enemyX[enemyCount] = body.Position.X
+				enemyZ[enemyCount] = body.Position.Z
 			end
 		end
 	end
-	nearestByOwner[owner.userId] = { frame = frameNumber, x = bestX, z = bestZ, found = bestSquared < math.huge }
-	return if bestSquared < math.huge then bestX else nil, if bestSquared < math.huge then bestZ else nil
 end
 
--- Where a held weapon floats: evenly spaced around the figure's middle, far enough for its picture to stay off the
--- body. Slot and count follow the server's loadout order, so shots leave from the weapon on screen.
-local function floatingAt(owner: VisualKit.Owner, slot: number, total: number, id: string): (number, number)
-	local dx, dz = WeaponPose.direction(slot, total)
-	local radius = RING.clearance + (LOOK.spriteStuds[id] or 4) * 0.5
-	return owner.position.X + dx * radius, owner.position.Z - RING.lift + dz * radius
+-- The enemy this weapon aims at, chosen like the server (WeaponService/WeaponTarget): nearest to the owner within the
+-- weapon's range, but the kept one stays while no other is under targetSwitchRatio of its distance.
+local function aimTarget(aim: Aim, ownerX: number, ownerZ: number, range: number): (number?, number?)
+	local best, bestSquared = 0, math.huge
+	local kept, keptSquared = 0, math.huge
+	local rangeSquared = range * range
+	for index = 1, enemyCount do
+		local dx, dz = enemyX[index] - ownerX, enemyZ[index] - ownerZ
+		local squared = dx * dx + dz * dz
+		if squared <= rangeSquared then
+			if squared < bestSquared then
+				best, bestSquared = index, squared
+			end
+			if enemyModels[index] == aim.target then
+				kept, keptSquared = index, squared
+			end
+		end
+	end
+	if kept > 0 and bestSquared >= keptSquared * TARGETING.targetSwitchRatio ^ 2 then
+		best = kept
+	end
+	if best == 0 then
+		aim.target = nil
+		return nil, nil
+	end
+	aim.target = enemyModels[best]
+	return enemyX[best], enemyZ[best]
+end
+
+-- Turns the weapon from its current angle toward (dx, dz), at most LOOK.aimTurnDegreesPerSecond.
+local function turnToward(aim: Aim, dx: number, dz: number, dt: number): (number, number)
+	local wanted = math.atan2(dz, dx)
+	local current = aim.angle or wanted
+	local delta = (wanted - current + math.pi) % TAU - math.pi
+	local step = math.rad(LOOK.aimTurnDegreesPerSecond) * dt
+	current += math.clamp(delta, -step, step)
+	aim.angle = current
+	return math.cos(current), math.sin(current)
 end
 
 function HeldModels.effect(effect: Types.WeaponEffect)
@@ -133,7 +171,7 @@ end
 
 function HeldModels.renderWeapon(
 	owner: VisualKit.Owner,
-	weapon: { uid: number, id: string },
+	weapon: { uid: number, id: string, stats: { [string]: number }? },
 	slot: number,
 	total: number,
 	frame: VisualKit.Frame
@@ -155,17 +193,31 @@ function HeldModels.renderWeapon(
 	end
 	model.seen = frame.number
 
+	-- on the floor, far enough out for the picture to stay off the body (the server's anchor is a little closer)
 	local radialX, radialZ = WeaponPose.direction(slot, total)
-	local x, z = floatingAt(owner, slot, total, weapon.id)
+	local radius = RING.clearance + (LOOK.spriteStuds[weapon.id] or 4) * 0.5
+	local x, z = owner.position.X + radialX * radius, owner.position.Z + radialZ * radius
+	-- Idle weapons point away from the figure; with an enemy in range they turn toward it from where they float.
 	local dx, dz = radialX, radialZ
-	local targetX, targetZ = nearestEnemy(owner, frame.number)
+	local aim = aims[key]
+	if not aim then
+		aim = { angle = nil, target = nil }
+		aims[key] = aim
+	end
+	collectEnemies(frame.number)
+	local stats = weapon.stats
+	local range = if stats and stats.range then stats.range else math.huge
+	local targetX, targetZ = aimTarget(aim, owner.position.X, owner.position.Z, range)
 	if targetX and targetZ then
-		local tx, tz = targetX - owner.position.X, targetZ - owner.position.Z
+		-- aimed on the floor like the server (from the anchor to the enemy's feet)
+		local tx, tz = targetX - x, targetZ - z
 		local distance = math.sqrt(tx * tx + tz * tz)
 		if distance > 1e-6 then
 			dx, dz = tx / distance, tz / distance
 		end
 	end
+	dx, dz = turnToward(aim, dx, dz, frame.dt)
+	z -= RING.lift -- drawn at the figure's middle on the screen
 	local attack = attacks[key]
 	if attack then
 		local t = (frame.now - attack.at) / attack.duration
@@ -173,7 +225,9 @@ function HeldModels.renderWeapon(
 			attacks[key] = nil
 		elseif t >= 0 then
 			if attack.dx ~= 0 or attack.dz ~= 0 then
+				-- the server's shot direction wins; the weapon turns on from there afterwards, no snap back
 				dx, dz = attack.dx, attack.dz
+				aim.angle = math.atan2(dz, dx)
 			end
 			if attack.kind == "Strike" then
 				local reach = math.max(0, attack.distance - LOOK.spriteStuds[weapon.id] * LOOK.strikeTipFraction)
@@ -235,6 +289,7 @@ function HeldModels.finish(frame: VisualKit.Frame)
 			poolOf(model.id):release(model.sprite)
 			active[key] = nil
 			attacks[key] = nil
+			aims[key] = nil
 			flights[key] = nil
 		end
 	end
@@ -247,7 +302,9 @@ function HeldModels.clear()
 	end
 	table.clear(attacks)
 	table.clear(flights)
-	table.clear(nearestByOwner)
+	table.clear(aims)
+	table.clear(enemyModels)
+	enemyCount, enemyFrame = 0, -1
 end
 
 return HeldModels

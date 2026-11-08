@@ -19,6 +19,8 @@ function WeaponPose.radius(id: string): number
 	return Visuals.holdRadiusById[id] or Visuals.holdRadius
 end
 
+-- Where the weapon is on the floor; the server starts its shots here. The client draws the weapon and its shots
+-- Sprites.heldWeapons.lift further up the screen (the figure's middle), so bullets leave the visible barrel.
 function WeaponPose.anchor(x: number, z: number, slot: number, count: number, id: string): (number, number)
 	local dx, dz = WeaponPose.direction(slot, count)
 	local radius = WeaponPose.radius(id)
