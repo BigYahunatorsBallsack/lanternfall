@@ -36,7 +36,7 @@ local SPAWN_DROP_HEIGHT = 0.5 -- small gap so the character never spawns inside 
 -- Warm lobby stone and a neutral arena keep combat silhouettes easy to read.
 local LOBBY_FLOOR_COLOR = Color3.fromRGB(122, 108, 92)
 local LOBBY_PAD_COLOR = Color3.fromRGB(255, 196, 87)
-local ARENA_FLOOR_COLOR = Color3.fromRGB(86, 84, 89)
+local ARENA_FLOOR_COLOR = Color3.fromRGB(120, 99, 96) -- under the floor picture: same dusty mauve, shown while it loads
 local ARENA_WALL_COLOR = Color3.fromRGB(54, 51, 59)
 local ARENA_WALL_TRANSPARENCY = 0.55
 local ARENA_MARKER_COLOR = Color3.fromRGB(255, 196, 87)

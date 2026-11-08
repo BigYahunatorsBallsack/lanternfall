@@ -747,3 +747,10 @@ Branch `wp-25-2d-presentation`. **Owner-Entscheidungen dieses Pakets:** Das Spie
 ## Gefahrenwahl ohne Scrollen (Claude, 09.11.2026)
 
 - Owner: Die Gefahrenwahl musste in kurzen Fenstern gescrollt werden, Play-Knöpfe unten abgeschnitten. `LobbyLayout` begrenzt den Zoom der Auswahlseiten jetzt zusätzlich nach der Höhe (`PAGE_TOP` + `PAGE_HEIGHT[step]` + Fußzeile), Gefahrenseite 480 statt 500 hoch. Test `SelectionHover` „Difficulty page fit“ (1485 × 663) erst rot, dann grün.
+
+## Kampffeld-Boden neu (08.11.2026)
+
+- Owner wollte den Boden wie auf seinem Referenzbild. Eigene Zeichnung: `tools/art2d/draw_world.py` erzeugt die nahtlose Bodenkachel `assets/world2d/final/floors/Arena.png` (staubiges Mauve-Braun 120/99/96 mit Gruppen aus Kieseln und gelben Krumen).
+- Boden-Grundfarbe in MapService (sichtbar, solange das Bild lädt) und der Rand außerhalb der Arena (`Config.Map.decor.outskirts.color`, jetzt fast schwarz) passen zum Referenzbild.
+- Ein neu gezeichneter Baum wurde vom Owner abgelehnt und verworfen; der bisherige Baum bleibt.
+- **Bodenbild noch nicht hochgeladen.** Upload-Datei: Projektordner `tree-redesign/upload/ArenaFloor.png`. ID danach in `Config/SpriteImages.luau` → `floors.Arena` eintragen. `import_sprites.py apply` hier nicht nutzen: im Container weichen die Bild-Hashes aller Bilder von `uploaded.json` ab (andere Pillow-Version).

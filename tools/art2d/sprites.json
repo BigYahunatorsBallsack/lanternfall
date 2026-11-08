@@ -598,7 +598,7 @@
   "tile": true,
   "items": {
    "Arena": {
-    "text": "Boden des Kampffelds: ruhig, hell, damit Gegner gut sichtbar bleiben. Nur leichte Flecken, kleine Steine oder Gras."
+    "text": "Boden des Kampffelds, gezeichnet von tools/art2d/draw_world.py: staubiges Mauve-Braun mit kleinen Kiesel- und gelben Krumen-Gruppen."
    },
    "Lobby": {
     "text": "Boden der Lobby, gleiche Machart, etwas anderer Farbton."
