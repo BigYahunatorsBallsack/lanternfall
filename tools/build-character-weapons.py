@@ -16,7 +16,7 @@ def module(name, file):
     return result
 source = module('character_source', 'tools/character-source.py')
 catalog = module('character_catalog', 'tools/build-character-catalog.py')
-FAMILIES = ['anchor', 'mace', 'meat_tenderizer', 'machinegun', 'pan_flute', 'combat_shotgun', 'grenade_launcher', 'whip']
+FAMILIES = ['anchor', 'mace', 'meat_tenderizer', 'machinegun', 'pan_flute', 'combat_shotgun', 'grenade_launcher', 'whip', 'spoon', 'cestus', 'sickle', 'trident', 'lute', 'blowgun']
 FACTS = ROOT / 'docs/characters/weapon-source.json'
 OUTPUT = ROOT / 'src/shared/Config/CharacterWeaponData.luau'
 
@@ -36,6 +36,9 @@ def refresh():
                 ep = ref['resource']
                 effect = pck.resource(ep)['properties']
                 effects.append({'source': ep, 'sourceMd5': pck.entries[ep]['md5'], 'key': effect['key'], 'value': effect['value'], 'scale': effect.get('scale'), 'duration': effect.get('duration')})
+                for key in ['value2', 'stat_name', 'damage_multiplier', 'source_id', 'duration_secs', 'max_stacks', 'custom_key', 'chance']:
+                    if key in effect:
+                        effects[-1][key] = effect[key]
             tiers.append({'source': path, 'sourceMd5': pck.entries[path]['md5'], 'statsSource': stats_path, 'statsMd5': pck.entries[stats_path]['md5'], 'tier': data['tier'] + 1, 'price': data['value'], 'sets': [pck.resource(ref['resource'])['properties']['my_id'] for ref in data['sets']], 'kind': 'Melee' if data['type'] == 0 else 'Ranged', 'stats': {k: v for (k, v) in stats.items() if isinstance(v, (int, float, bool)) or k == 'scaling_stats'}, 'effects': effects})
         rows.append({'id': catalog.pascal(family), 'name': 'Machine Gun' if family == 'machinegun' else family.replace('_', ' ').title(), 'tiers': sorted(tiers, key=lambda row: row['tier'])})
     whip = next(row for row in rows if row['id'] == 'Whip')
@@ -56,6 +59,7 @@ def generate():
         compiled = []
         held = []
         scaling = []
+        descriptions = []
         for tier in resolved:
             st = tier['stats']
             scaling.append({catalog.STATS[key]: value for (key, value) in st['scaling_stats']})
@@ -68,11 +72,28 @@ def generate():
                     frames = math.floor(st['cooldown'] * st['additional_cooldown_multiplier'] + 0.5)
                     value.update(magazine=st['additional_cooldown_every_x_shots'], reloadSeconds=frames / 60, nativeReloadFrames=frames)
             bonuses = {}
+            lines = []
             for effect in tier['effects']:
-                if effect['key'] in catalog.STATS:
+                if effect.get('custom_key') == 'enemy_percent_damage_taken':
+                    assert effect.get('chance', 100) == 100
+                    value.update(vulnerabilityPercent=effect['value'], vulnerabilitySeconds=effect['duration_secs'], vulnerabilityStacks=effect['max_stacks'])
+                    lines.append(f"Enemies hit take {effect['value']}% more damage for {effect['duration_secs']} seconds (max: {effect['value'] * effect['max_stacks']}%)")
+                elif effect['key'] in catalog.STATS:
                     bonuses[catalog.STATS[effect['key']]] = effect['value']
                 elif effect['key'] == 'effect_explode':
                     value.update(explosionChance=1, explosionRadius=147.34 * 0.1 * effect['scale'])
+                elif effect['key'] == 'crit_on_hitting_burning_target':
+                    value['critBurning'] = 1
+                    lines.append('Always crits when hitting burning targets')
+                elif effect.get('damage_multiplier') is not None:
+                    assert effect['stat_name'] == 'knockback'
+                    value.update(baseDamageKnockbackThreshold=effect['value'], baseDamageKnockbackMultiplier=effect['damage_multiplier'])
+                    lines.append(f"If your Knockback is +{effect['value']} or higher, this weapon's base damage is doubled")
+                elif effect['key'] in ['bonus_damage_against_targets_below_hp', 'bonus_damage_against_targets_above_hp']:
+                    prefix = 'below' if 'below' in effect['key'] else 'above'
+                    value[prefix + 'HealthDamagePercent'] = effect['value']
+                    value[prefix + 'HealthThreshold'] = effect['value2'] / 100
+                    lines.append(f"+{effect['value']}% damage against targets {prefix} {effect['value2']}% health")
                 elif effect['key'] == 'timed_slow_on_hit':
                     value.update(slow=effect['value'] / 100, slowSeconds=effect['duration'])
                 else:
@@ -85,6 +106,7 @@ def generate():
                         value[prefix + suffix] = number * 0.1 if prefix == 'whipPosition' else number
                 value['whipHitboxOffset'] = geometry['hitboxOffsetPoints'] * 0.1
 
+            descriptions.append("\n".join(lines))
             compiled.append(value)
             held.append(bonuses)
         base = compiled[0]
@@ -96,7 +118,7 @@ def generate():
                 delta['damage'] = stats['damage'] / base['damage'] - previous['damage'] / base['damage']
             deltas.append(delta)
             previous = stats
-        weapons[ident] = {'id': ident, 'displayName': row['name'], 'description': '', 'brotato': True, 'available': False, 'kind': first['kind'], 'classes': [catalog.SETS[key] for key in first['sets']], 'minTier': first['tier'], 'originalScaling': scaling, 'scaling': scaling[0], 'tierScaling': scaling, 'heldStats': held, 'rangeKeys': ['range'], 'behavior': ident, 'targeting': 'Nearest', 'base': base, 'tiers': deltas}
+        weapons[ident] = {'id': ident, 'displayName': row['name'], 'description': '', 'tierDescriptions': descriptions, 'brotato': True, 'available': False, 'kind': first['kind'], 'classes': [catalog.SETS[key] for key in first['sets']], 'minTier': first['tier'], 'originalScaling': scaling, 'scaling': scaling[0], 'tierScaling': scaling, 'heldStats': held, 'rangeKeys': ['range'], 'behavior': ident, 'targeting': 'Nearest', 'base': base, 'tiers': deltas}
         prices[ident] = [t['price'] for t in resolved]
     text = '--!strict\n-- Stable character starting-weapon facts; Weapons and Shop read this generated extension.\n-- Generated by tools/build-character-weapons.py from docs/characters/weapon-source.json.\nreturn ' + catalog.luau({'weapons': weapons, 'prices': prices}) + '\n'
     return text

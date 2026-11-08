@@ -72,7 +72,7 @@ Jeder Strang ändert nur **seine** Zeile (Regeln: `docs/PARALLEL.md`).
 | Strang | KI | Aktuelles Paket | Branch / PR | Stand | Danach |
 | --- | --- | --- | --- | --- | --- |
 | A – Engine und Ablauf | Claude | Paket 24 Launch-Paket (Medium) | `wp-24-launch` | fertig, selbst gemerged | Plan bis zum Launch abgeschlossen; als Nächstes IDs des Owners eintragen (Live-Experience, Badges, Musik), dann Live-Ops |
-| B - Inhalte und Spieler-Regeln | ChatGPT | B10: alle stabilen Brotato-Charaktere | `wp-b10-chef` | Crazy/Brawler/Ghost/Bull/Doctor code-vorbereitet; Chef-/Glutton-Mechaniken ergaenzt; echte Uploads offen | Restliche Ausruestung, native Alt-IDs und weitere Charakter-/Shop-/DLC-Regeln |
+| B - Inhalte und Spieler-Regeln | ChatGPT | B10: alle stabilen Brotato-Charaktere | `wp-b10-starting-gear` | Crazy/Brawler/Ghost/Bull/Doctor code-vorbereitet; 14 zusaetzliche Startwaffenpfade; echte Uploads offen | Restliche Ausruestung, native Alt-IDs und weitere Charakter-/Shop-/DLC-Regeln |
 
 ## Feste Entscheidungen des Owners
 
@@ -715,6 +715,15 @@ Branch `wp-25-2d-presentation`. **Owner-Entscheidungen dieses Pakets:** Das Spie
 - Owner: Shards am Boden sehen in Brotato verschieden und zufällig aus. Jetzt bekommt jeder liegende Shard aus seiner ID (auf allen Clients gleich) eine Drehung (±180°), eine Spiegelung und ±12 % Größe (`Util/MaterialLook`, Werte in `Config.Sprites.material`). Wirkt sofort mit dem heutigen Bild.
 - Sechs eigene Shard-Formen gezeichnet (`assets/loot/shards/`, erzeugt von `tools/art2d/draw_shards.py`, keine Brotato-Sprites). **Noch nicht hochgeladen**: Nach dem Upload die sechs IDs in `Config.Sprites.material.variants` eintragen, dann wählt jeder Drop zufällig eine Form. Währungsanzeige bleibt beim bisherigen Bild.
 - Tests: `MaterialLook`, `LootSprites25`, `WorldSprites`, `Config` grün. StyLua/Selene sauber. Kein Studio-Test.
+
+## B10 sechs weitere Startwaffen (08.11.2026)
+
+- Von aktuellem GitHub-main 181502a begonnen; neuere Menue-, Ziel-, Waffen- und Trefferanzeige-Aenderungen erhalten. Laufzeitpfade und Original-Tiers fuer Spoon, Cestus, Sickle, Trident, Lute und Blowgun ergaenzt. Cestus verdoppelt bei +10 Spieler-Knockback nur die Basis vor Skalierung; Spoon erzwingt Krit gegen bereits brennende Ziele; Sickle/Trident verwenden inklusive HP-Grenzen. Tierabhaengige englische Regeltexte erscheinen in der Waffeninspektion.
+- Lute/Blowgun nutzen native pro Gegner und Waffenquelle geteilte Verwundbarkeit: gemeinsame Stapel/Timer ueber Spieler hinweg, jeweilige Stufenlimits, staerkere Werte ersetzen schwaechere und Auffrischen setzt den gesamten Quellentimer zurueck. Zusaetzlicher Schaden wird mit Chef-/HP-Zielboni addiert, nicht multipliziert; gilt auch fuer Brennen. Loeschen bei Tod/Entfernung, Run-/Wellenende; Retry startet ohne alte Gegner-Effekte. Native blaue Effektkontur bleibt offen. Arsenal unveraendert.
+- Neue Schnittstellen: EnemySim.applyWeakness und optionale vierte damage-Angabe fuer additive Zielboni; BrotatoCombat scoped Zielwerte; gemeinsame NativeWeaponDamage-Berechnung fuer Kampf/Vorschau; Weapon.tierDescriptions. Neue Quelle-Waffen truncaten flache Skalierung vor Damage-% und runden Krit vor Zielboni.
+- Sechs Original-RGBA-Icons lokal ohne Pixelverlust vorbereitet und Importliste angehaengt. Jetzt 14 vorbereitete neue Waffenbilder; keine Uploads/erfundenen IDs. Importer 125 final/27 Platzhalter/0 fehlend/0 unbrauchbar; 152 vorbereitet, 88 Uploads offen (74 Charaktere + 14 Waffen). Keine Laufzeit-Bild-IDs veraendert.
+- Vollstaendiger Seed-1234-Vergleich mit getrennten Specs plus betroffene Nachpruefungen: main 1188 bestanden/34 Fehler in 132 Specs, Fortsetzung 1201/34 in 135 Specs; keine neuen Fehlernamen. Die 34 Fehler gehoeren bereits zum inzwischen erweiterten Main, einschliesslich bestehender Spawn-/Smoke-Pruefungen. Selene geaenderte Produktionsdateien 0 Fehler/0 Warnungen, StyLua und Rojo bestanden; keine native Studio-/Zwei-Client-/Handy-Abnahme. Details: starting-gear-validation.json.
+- Noch 15 notwendige Waffenfamilien und zehn Startitem-/Petfamilien laut Katalog. Fuenf neue Charakterpakete bleiben code-vorbereitet; diese sechs Waffen sind keine sechs fertigen Charaktere und keine vollstaendige Physik-/Darstellungs-Paritaet.
 
 ## UI-Feinschliff Auswahl und Shop (Claude, 08.11.2026)
 

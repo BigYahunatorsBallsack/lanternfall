@@ -6,11 +6,32 @@ local adapter: { [string]: any } = {}
 -- Only native hitboxes carry this classification; burn ticks and stat strikes have no hitbox.
 local hitOwner: number? = nil
 local hitElemental: boolean? = nil
+local hitStats: { [string]: number }? = nil
 function Combat.resetHitContext()
-	hitOwner, hitElemental = nil, nil
+	hitOwner, hitElemental, hitStats = nil, nil, nil
 end
 function Combat.elementalHit(ownerId: number): boolean?
 	return if hitOwner == ownerId then hitElemental else nil
+end
+
+function Combat.roundHit(ownerId: number, amount: number): number
+	return if hitOwner == ownerId and hitStats and hitStats.nativeTiming then math.round(amount) else amount
+end
+
+function Combat.targetBonus(ownerId: number, id: number): number
+	local stats = if hitOwner == ownerId then hitStats else nil
+	if not stats or not adapter.healthShare or (not stats.belowHealthThreshold and not stats.aboveHealthThreshold) then
+		return 0
+	end
+	local share = adapter.healthShare(id)
+	local bonus = 0
+	if stats.belowHealthThreshold and share <= stats.belowHealthThreshold then
+		bonus += stats.belowHealthDamagePercent
+	end
+	if stats.aboveHealthThreshold and share >= stats.aboveHealthThreshold then
+		bonus += stats.aboveHealthDamagePercent
+	end
+	return bonus
 end
 
 function Combat.configure(callbacks: { [string]: any })
@@ -30,17 +51,30 @@ function Combat.hit(
 	local original = weapon.stats
 	local stats = table.clone(shotStats or original)
 	local crit = if critical ~= nil then critical else ctx:random() < stats.critChance
+	if stats.critBurning and adapter.isBurning and adapter.isBurning(id) then
+		crit = true
+	end
 	local hitX, hitZ = ctx:enemyPosition(id)
 	stats.critChance = if crit then 1 else 0
 	if stats.executeChance and adapter.health and not adapter.isElite(id) and ctx:random() < stats.executeChance then
 		stats.damage = math.max(stats.damage, adapter.health(id) / math.max(share or 1, 1e-6))
 	end
-	local previousOwner, previousElemental = hitOwner, hitElemental
+	local previousOwner, previousElemental, previousStats = hitOwner, hitElemental, hitStats
+	hitStats = stats
 	hitOwner = weapon.ownerId
 	local scaling = if weapon.config.tierScaling then weapon.config.tierScaling[weapon.tier] else weapon.config.scaling
 	hitElemental = if secondary then stats.secondaryElemental ~= nil else scaling.elementalDamage ~= nil
 	weapon.stats = stats
 	weapon.state.secondaryHit = secondary == true
+	if stats.vulnerabilityPercent and adapter.weakness then
+		adapter.weakness(
+			id,
+			weapon.id,
+			stats.vulnerabilityPercent,
+			stats.vulnerabilitySeconds,
+			stats.vulnerabilityStacks
+		)
+	end
 	local killed = ctx:hit(weapon, id, share, if bounced then "Bounce" else nil)
 	if not killed and not bounced and stats.knockbackPiercing and adapter.knockbackPiercing then
 		adapter.knockbackPiercing(id, ctx.x, ctx.z, stats.knockback, stats.knockbackPiercing)
@@ -56,7 +90,7 @@ function Combat.hit(
 			ctx:explode(weapon, x, z, id, share)
 		end
 	end
-	hitOwner, hitElemental = previousOwner, previousElemental
+	hitOwner, hitElemental, hitStats = previousOwner, previousElemental, previousStats
 	weapon.stats = original
 	if not secondary and (stats.secondaryCount or 0) > 0 then
 		local x, z = hitX, hitZ

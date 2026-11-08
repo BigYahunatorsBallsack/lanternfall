@@ -163,6 +163,126 @@
         91,
         89
       ]
+    },
+    {
+      "id": "Spoon",
+      "name": "Spoon",
+      "source": "res://dlcs/dlc_1/weapons/melee/spoon/spoon_icon.png",
+      "textureSource": "res://.import/spoon_icon.png-4661ca447c5d16895fb04c39be63946b.stex",
+      "textureMd5": "ad65acedcddcf8b17208210bb49a1660",
+      "output": "assets/weapons/character-starts/Spoon.png",
+      "pngSha256": "b525b91e53f308ea81fbdadb123fad7095920f0e333ead76cc961596a0f5e543",
+      "rgbaSha256": "bd9b8c96ca089610d48c9c6d8cd3f79b016671dfe5ce873a59862671c1898e77",
+      "size": [
+        96,
+        96
+      ],
+      "alphaBounds": [
+        7,
+        6,
+        89,
+        91
+      ]
+    },
+    {
+      "id": "Cestus",
+      "name": "Cestus",
+      "source": "res://weapons/melee/cestus/cestus_icon.png",
+      "textureSource": "res://.import/cestus_icon.png-e99cf3f57bc342c4203e1b4351266dbf.stex",
+      "textureMd5": "2f9c4b588495dafe838e80fb950091a3",
+      "output": "assets/weapons/character-starts/Cestus.png",
+      "pngSha256": "5f5580331e38310ba17ad378fe5d9622efd617fd4922ab5b3df55a66743795a9",
+      "rgbaSha256": "6f4793dc2761e94869ada872d4bc650aa9ad72ded8ed77f8e4a0facd620115f0",
+      "size": [
+        96,
+        96
+      ],
+      "alphaBounds": [
+        17,
+        5,
+        83,
+        87
+      ]
+    },
+    {
+      "id": "Sickle",
+      "name": "Sickle",
+      "source": "res://dlcs/dlc_1/weapons/melee/sickle/sickle_icon.png",
+      "textureSource": "res://.import/sickle_icon.png-dd979cf24c28d35ea78addcc4a9c6338.stex",
+      "textureMd5": "e3bb914509f8d3cd29f8bdc7742ce1d5",
+      "output": "assets/weapons/character-starts/Sickle.png",
+      "pngSha256": "157ff356d1802ef3fb7c94a26c6afa1c26d4a3c5d311548ed8034baef7fac541",
+      "rgbaSha256": "2446e9433497a6acc5d64df0fd606579c9fe5cd23259ecc25eb3df51a5219ee0",
+      "size": [
+        96,
+        96
+      ],
+      "alphaBounds": [
+        5,
+        3,
+        91,
+        93
+      ]
+    },
+    {
+      "id": "Trident",
+      "name": "Trident",
+      "source": "res://dlcs/dlc_1/weapons/melee/trident/trident_icon.png",
+      "textureSource": "res://.import/trident_icon.png-96608712a87b51b5b5f543791ca49c67.stex",
+      "textureMd5": "dda32e39515484d4e61c93da6762c2ae",
+      "output": "assets/weapons/character-starts/Trident.png",
+      "pngSha256": "bcff292d0cf495ab4e9369eac9dcc3f2e5a2b79555b9aba11b5cdd26346f17e6",
+      "rgbaSha256": "ac00ef7437b405a08c2beb74754b3b0525473f3a79b18ba13d4ead688ccc53c9",
+      "size": [
+        96,
+        96
+      ],
+      "alphaBounds": [
+        4,
+        2,
+        92,
+        93
+      ]
+    },
+    {
+      "id": "Lute",
+      "name": "Lute",
+      "source": "res://dlcs/dlc_1/weapons/melee/lute/lute_icon.png",
+      "textureSource": "res://.import/lute_icon.png-ec2a342f06c9e4a59053ae410f2844c3.stex",
+      "textureMd5": "5e04f61ff61d732f3b86a9cf0260bbe5",
+      "output": "assets/weapons/character-starts/Lute.png",
+      "pngSha256": "840dac4ba15c9b7bff31338b5457289aff498a81107263563c49be0a225753ae",
+      "rgbaSha256": "38a6ac2dbd358185ce270d29a77821ed2b876ee65e15ee23de89730fbbf0a8b3",
+      "size": [
+        96,
+        96
+      ],
+      "alphaBounds": [
+        5,
+        5,
+        90,
+        92
+      ]
+    },
+    {
+      "id": "Blowgun",
+      "name": "Blowgun",
+      "source": "res://weapons/ranged/blowgun/blowgun_icon.png",
+      "textureSource": "res://.import/blowgun_icon.png-238db8d3c85729cfb19ca244e929c88e.stex",
+      "textureMd5": "1fb4d5d058bc1115be072d11febc9eae",
+      "output": "assets/weapons/character-starts/Blowgun.png",
+      "pngSha256": "27820ace83a2478c250e9f5ae2c079cdb722bdd47c13e7887e1201a9321fe507",
+      "rgbaSha256": "e550a177d7799c22b2be7083795630e8c694e27739a43ba96c1296bdbc7d0bab",
+      "size": [
+        96,
+        96
+      ],
+      "alphaBounds": [
+        8,
+        7,
+        88,
+        88
+      ]
     }
   ]
 }

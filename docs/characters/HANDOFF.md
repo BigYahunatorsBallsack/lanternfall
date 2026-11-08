@@ -2,6 +2,10 @@
 
 Implementiere alle noch fehlenden Brotato-Charaktere in Lanternfall vollständig. Ziel: stabile PC-Version 1.2.0.1 mit allen DLCs, insgesamt 74 Charaktere. Der Owner erwartet funktionierende Charaktere einschließlich ihrer benötigten Ausrüstung und Mechaniken, nicht nur Konfigurationsdatensätze. Sprich Deutsch mit ihm; Code, Kommentare und Spieltexte bleiben Englisch.
 
+## Aktuell: weitere Startausrüstung (08.11.2026)
+
+Von GitHub-main 181502a sechs weitere Familien implementiert: Spoon, Cestus, Sickle, Trident, Lute, Blowgun. Alle gültigen Tiers greifen in Produktionsmodultests an; Bedingungsregeln, gemeinsame Verwundbarkeitsstapel/-dauer, Krit-/Zielbonus-Reihenfolge und Tiertexte geprüft. Neue Originalbilder nur lokal vorbereitet. Noch 15 Waffen- und zehn Item-/Petfamilien; Zahl code-vorbereiteter Charakterpakete bleibt fünf. Native blaue Verwundbarkeitskontur und allgemeine Physik-/Waffen-/Itemformel-Abweichungen bleiben offen. Quelle: weapon-source.json; Prüfung: starting-gear-validation.json (1201 bestanden/34 vorhandene Main-Fehler in 135 Specs, Seed 1234).
+
 ## Aktuelle Fortsetzung: Chef und Doctor (08.11.2026)
 
 PR #90 und #98 sind gemergt. Glutton-Verbrauchsexplosionen sind angebunden. Chef hat jetzt Verbrauchsexplosion/Brennen und den Bonus gegen brennende Ziele bei nativen Waffen-, Itemexplosions- und Strukturtreffern; er bleibt wegen fehlender Startausrüstung, Freischaltung und Regelanzeige unvollständig. Quellen: chef-source.json, consumable-source.json.

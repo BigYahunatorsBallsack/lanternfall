@@ -22,6 +22,7 @@ local Weapons = require(Shared.Config.Weapons)
 local StatMath = require(Shared.Util.StatMath)
 local CharacterRules = require(Shared.Util.CharacterRules)
 local NativeTiming = require(Shared.Util.NativeWeaponTiming)
+local NativeDamage = require(Shared.Util.NativeWeaponDamage)
 
 -- The owner's stats by id (Util/StatMath.Sheet); missing stats count as 0.
 export type Bonuses = { [string]: number }
@@ -86,13 +87,14 @@ function WeaponStats.compute(
 		end
 	end
 
+	damage = NativeDamage.base(damage, stats, bonuses)
 	for statId, share in (if weapon.tierScaling then weapon.tierScaling[tier] else weapon.scaling) do
 		damage += share * (bonuses[statId] or 0)
 	end
 	local damageFactor = WeaponStats.damageFactor(bonuses)
 	damage += bonuses.baseDamage or 0
 	damage += (stats.levelScaling or 0) * (bonuses.level or 0)
-	stats.damage = math.max(1, damage * damageFactor)
+	stats.damage = NativeDamage.total(damage, damageFactor, stats)
 
 	local attackSpeed = bonuses.attackSpeed or 0
 	-- Stable native negative Attack Speed uses the full percentage, including Doctor's -100% penalty.
