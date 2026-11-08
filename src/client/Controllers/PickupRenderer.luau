@@ -48,13 +48,15 @@ end
 
 local function pickupSprite(name: string): WorldSprite.Sprite
 	local art = Config.Sprites.pickups[name]
-	return WorldSprite.create({
+	local sprite = WorldSprite.create({
 		name = name,
 		image = if art then art.image else "",
 		studs = if art then art.studs else 2,
 		ground = if art then art.ground or 0 else 0,
 		center = if art then art.center else nil,
 	})
+	WorldSprite.outline(sprite)
+	return sprite
 end
 
 local fruitPool = VisualKit.objectPool(function(): Visual

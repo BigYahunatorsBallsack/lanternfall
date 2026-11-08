@@ -10,6 +10,7 @@ local Look = require(Shared.Config.Sprites).character
 local ShadowLook = require(Shared.Config.Sprites).shadow
 local Foot = Look.foot
 local FootImage = require(Shared.Config.Sprites).images.foot
+local OutlineLook = require(Shared.Config.Sprites).outline
 local WorldSprite = require(
 	game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Util"):WaitForChild("WorldSprite")
 )
@@ -107,6 +108,7 @@ local function makeFoot(sprite: WorldSprite.Sprite, name: string): ImageLabel
 	foot.AnchorPoint = Vector2.new(0.5, 0.5)
 	foot.ZIndex = 1 -- behind the body
 	foot.Parent = sprite.gui
+	WorldSprite.outlinePicture(foot, OutlineLook.studs / Foot.studs)
 	return foot
 end
 
@@ -254,6 +256,7 @@ function Visibility.update()
 				or { name = "CharacterSprite", image = "", studs = Look.bodyStuds }
 			local drop = floorDrop(root, humanoid)
 			local sprite = WorldSprite.attach(root, getHolder(), spec, drop)
+			WorldSprite.outline(sprite)
 			WorldSprite.setVisible(sprite, false)
 			local created: Entry = {
 				character = character,

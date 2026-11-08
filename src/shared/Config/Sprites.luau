@@ -54,6 +54,11 @@ local Sprites = {
 	poseScaleStep = 0.004,
 	poseRotationStep = 0.25,
 
+	-- Thick dark outline around every figure, weapon and drop so it stands out from the floor and the crowd (owner,
+	-- 08.11.2026, after his Brotato screenshots: "um alles im Spiel"). Drawn as dark copies of the picture shifted
+	-- `directions` ways by `studs` behind it (Util/WorldSprite.outline). Glows, beams and shots stay without.
+	outline = table.freeze({ studs = 0.32, directions = 8, color = { 18, 14, 16 } }),
+
 	-- The flat dark disc under figures. Colors are { red, green, blue }.
 	shadow = table.freeze({ color = { 0, 0, 0 }, transparency = 0.6, thickness = 0.05 }),
 
@@ -85,6 +90,29 @@ local Sprites = {
 		downTint = { 166, 166, 180 },
 		outTint = { 96, 96, 112 },
 		classes = Images.characters,
+	}),
+
+	-- The red crosses on the floor where enemies will appear (SpawnMarkerRenderer): a thick brush-like X with a dark
+	-- outline, about as wide as an enemy (owner, 08.11.2026: bigger and in the game's style). Studs unless noted;
+	-- colors are { red, green, blue }. Each cross gets a small random tilt and bar length so a group looks hand drawn.
+	spawnMarker = table.freeze({
+		size = 5.6, -- tip to tip of one bar; the X is then about 4.5 studs wide, a bit wider than a character
+		barStuds = 1.05, -- thickness of the red bar
+		outlineStuds = 0.32, -- dark rim around it
+		color = { 226, 52, 46 },
+		outlineColor = { 30, 14, 14 },
+		tiltDegrees = 10, -- the whole cross turns up to this much either way
+		lengthJitter = 0.1, -- each bar is up to this share shorter or longer
+		popSeconds = 0.18, -- grows in from popScale when it appears
+		popScale = 0.4,
+		-- Blinks between solid and pale until the enemies come. Pale is a lighter color, not see-through: two see-through
+		-- bars would show a dark patch where they cross.
+		pulsesPerSecond = 2.5,
+		paleColor = { 238, 150, 140 },
+		paleOutlineColor = { 128, 96, 90 },
+		paleShare = 0.75, -- how far towards the pale colors the blink goes
+		pixelsPerStud = 40,
+		maxShown = 200, -- more at once are not drawn (performance budget)
 	}),
 
 	-- Weapons float around the middle of the figure, clear of its body. Only what the eye sees: shots keep the server's
