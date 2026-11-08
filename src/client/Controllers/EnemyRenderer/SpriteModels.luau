@@ -8,6 +8,7 @@
 local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
 local Config = require(Shared:WaitForChild("Config"))
 local EnemyKinds = require(Shared:WaitForChild("Util"):WaitForChild("EnemyKinds"))
+local Theme = require(script.Parent.Parent.Parent.UI.Theme)
 
 local WorldSprite = require(
 	game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Util"):WaitForChild("WorldSprite")
@@ -41,7 +42,7 @@ local HP_BAR_COLOR = Color3.fromRGB(236, 96, 96)
 local HP_BAR_BACK_COLOR = Color3.fromRGB(24, 20, 34)
 local HP_BAR_WIDTH = 70 -- pixels
 local HP_BAR_HEIGHT_PIXELS = 8
-local AFFIX_TEXT_SIZE = 16
+local AFFIX_TEXT_SIZE = 16 * Theme.hudTextScale
 local HP_BAR_HEIGHT = 1.4 -- studs above the top of the sprite
 local TRAIL_SECONDS = 0.3
 local UPRIGHT = CFrame.Angles(0, 0, math.pi / 2)
@@ -166,7 +167,7 @@ local function addElite(visual: any, art: SpritesConfig.EnemyArt, r: number)
 	label.Name = "Affix"
 	label.BackgroundTransparency = 1
 	label.Size = UDim2.new(1, 0, 0, AFFIX_TEXT_SIZE)
-	label.Font = Enum.Font.GothamBold
+	label.Font = Theme.fontBold
 	label.TextSize = AFFIX_TEXT_SIZE
 	label.TextStrokeTransparency = 0.4
 	label.Text = ""

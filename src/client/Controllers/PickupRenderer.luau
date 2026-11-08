@@ -249,9 +249,9 @@ local function buildChip()
 	chipLabel = Widgets.label({
 		Name = "LootText",
 		Font = Theme.fontBold,
-		TextSize = 16,
+		TextSize = 16 * Theme.hudTextScale,
 		TextColor3 = Theme.accent,
-		Size = UDim2.new(1, 0, 0, 18),
+		Size = UDim2.new(1, 0, 0, 18 * Theme.hudTextScale),
 		Parent = panel,
 	})
 	chipScreen = screen

@@ -10,9 +10,10 @@ local WeaponStats = require(game:GetService("ServerScriptService").Server.Servic
 local SpawnRules = require(game:GetService("ServerScriptService").Server.Services.SpawnDirector.SpawnRules)
 local World = require(game:GetService("ServerScriptService").Server.Services.EnemySim.World)
 
+-- Tree HP is the owner's deliberate deviation (2026-11-08: double Brotato's 10 + 5/wave).
 -- ID, wiki reference, HP, HP/wave, minimum/maximum speed, contact damage, damage/wave, knockback, materials, fruit %, crate %.
 local fixture = {
-	{ "Tree", "Tree", 10, 5, 0, 0, 0, 0, 1, 3, 100, 20 },
+	{ "Tree", "Tree", 20, 10, 0, 0, 0, 0, 1, 3, 100, 20 },
 	{ "Shadeling", "Baby Alien", 3, 2, 200, 300, 1, 0.6, 0, 1, 1, 1 },
 	{ "AbyssShadeling", "Chaser", 1, 1, 380, 380, 1, 0.6, 0, 1, 2, 3 },
 	{ "Spitter", "Spitter", 8, 1, 200, 200, 1, 0.6, 0.95, 1, 3, 10 },

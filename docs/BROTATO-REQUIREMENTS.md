@@ -26,6 +26,7 @@ Basis: GitHub-main `34df95bf0a11450bccd6d63b99ac19a99843456f`, abgerufen am 06.1
 | Werte und Shopregeln | `tests/StatMath.spec.luau`, `tests/ShopRules.spec.luau` | 8 + 14 bestehende Tests bestanden; kein vollstaendiger Quellenbeweis fuer diese Systeme. |
 | Charaktere | `Config/Classes.luau`, `tests/CharactersB10.spec.luau` | Neun spielbare Pakete, eigene Anzeigenamen; 13 vorhandene Tests bestanden. Fehlende Charaktere sind der anschliessende Auftrag. |
 | Gegnerobergrenze | `Config/Run.spawn.cap`: solo 80, Koop bis 140; Spawn-Gruppen warten bei vollem Budget | Abweichung: Wiki beschreibt 100 und Entfernen eines zufaelligen gewoehnlichen Gegners bei neuem Spawn. |
+| Baum-Leben | `Config/Enemies.Tree`: 20 HP + 10 pro Welle | Gewollte Abweichung (Owner, 08.11.2026): doppelt so viel wie Brotatos 10 + 5. |
 | Elite-Angriffe und Spawn-Gruppen | `docs/B9C-GEGNERWERTE.md`, `Config/EnemyWaves`, `BossService` | Eigene Angriffsmuster und angepasste Gruppendichte sind im Bestand ausdruecklich dokumentiert. Noch keine 1:1-Abnahme. |
 | Angriffstempo | `Config/Stats.attackSpeed.negativeFactor = 0.5`, `StatMath.cooldownFactor`, `Config/Combat.originalWeapons` | Einheitliche Ersatzformel bei negativem Tempo und begrenztes Nachholen; das Original hat waffen-/animationsabhaengige Effekte. |
 | Weitere Systeme | Team-Level, Meta-Embers/Kaeufe, Bauten, Beute, Endlos, Freischaltungen, UI/Animationen | Vollstaendige Originaltreue nicht bewiesen; vorhandene Unterschiede nicht durch die HP-Umstellung als erledigt behandeln. |
