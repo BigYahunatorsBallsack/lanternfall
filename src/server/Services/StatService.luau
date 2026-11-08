@@ -151,7 +151,7 @@ local function classBonusOf(player: Player): StatMath.Sheet
 	for _, weapon in WeaponService.getWeapons(player) do
 		table.insert(ids, weapon.id)
 	end
-	local bonus = WeaponClasses.bonuses(ids)
+	local bonus = WeaponClasses.bonuses(ids, RunDirector.getParticipantClassId(player))
 	for _, weapon in WeaponService.getWeapons(player) do
 		local config = Config.Weapons[weapon.id]
 		if config and config.heldStats then

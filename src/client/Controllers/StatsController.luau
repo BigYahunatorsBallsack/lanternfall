@@ -106,7 +106,8 @@ local function renderClasses()
 	for _, weapon in if loadout then loadout.weapons else {} do
 		table.insert(ids, weapon.id)
 	end
-	local carried = WeaponClasses.carried(ids)
+	local me = RunStateController.getLocalPlayer()
+	local carried = WeaponClasses.carried(ids, if me then me.classId else nil)
 	classTitle.Visible = #carried > 0 and page == "Secondary"
 	classList.Visible = page == "Secondary"
 	for index, entry in carried do
