@@ -176,11 +176,14 @@ function Composition.apply(ctx: any, area: Vector2)
 		if compact then
 			place(view.button, 0, 0, 136, 90)
 			place(view.details, 0, 92, 136, 26)
+			view.details.Visible = true
 			view.icon.Size = UDim2.fromOffset(48, 48)
 			view.icon.Position = UDim2.new()
 		else
 			place(view.button, 0, 0, 64, 64)
 			place(view.details, 44, 1, 19, 19)
+			-- The inspect popup (UI/WeaponInspect) shows the stats on desktop.
+			view.details.Visible = false
 			place(view.icon, 3, 3, 58, 58)
 			view.edge.Thickness = 1.5
 			local weapon = ctx.current and ctx.current.weapons[view.frame.LayoutOrder]
@@ -272,20 +275,14 @@ function Composition.apply(ctx: any, area: Vector2)
 					else "Item"
 				if offer.kind == "Weapon" then
 					local _, text = OfferText.weapon(offer.itemId, offer.tier, ctx.sheet)
+					-- Full slots look like a normal offer (reference game); only the merge hint is added.
 					view.detail.Text = text
-						.. (
-							if offer.blocked
-								then "\nWeapon slots full"
-								elseif offer.merges then "\nMerges into " .. tostring(offer.tier + 1)
-								else ""
-						)
+						.. (if offer.merges then "\nMerges into " .. tostring(offer.tier + 1) else "")
 					view.detailArea.Visible = not offer.sold
 				end
 				view.price.Text = if offer.sold then "SOLD" else tostring(offer.price)
 				priceIcon.Visible = not offer.sold
-				view.price.TextColor3 = if ctx.current.shards >= offer.price and not offer.blocked
-					then Theme.text
-					else Theme.danger
+				view.price.TextColor3 = if ctx.current.shards >= offer.price then Theme.text else Theme.danger
 				amount.Text = view.price.Text
 				amount.TextColor3 = view.price.TextColor3
 				view.price.Text = ""
@@ -361,7 +358,7 @@ function Composition.apply(ctx: any, area: Vector2)
 	local inventoryHeight = math.max(64, layout.height - layout.inventoryY - 58)
 	place(saved.inventory, 14, layout.inventoryY + 44, width - 256, inventoryHeight)
 	place(saved.weapons, width - 224, layout.inventoryY + 44, 224, inventoryHeight)
-	local itemCount = #ctx.items
+	local itemCount = #ctx.items + 1 -- the character tile comes first
 	local itemColumns = math.max(1, math.floor((width - 248) / 72))
 	place(ctx.itemRow, 0, 0, width - 262, math.max(64, math.ceil(itemCount / itemColumns) * 72 - 8))
 	place(
@@ -377,7 +374,7 @@ function Composition.apply(ctx: any, area: Vector2)
 		inventoryGrid.CellPadding = UDim2.fromOffset(8, 8)
 		inventoryGrid.HorizontalAlignment = Enum.HorizontalAlignment.Left
 	end
-	ctx.actionsRow.Visible = ctx.selectedUid ~= nil
+	ctx.actionsRow.Visible = false -- desktop: Recycle and Combine live in the inspect popup
 	place(ctx.actionsRow, 14, layout.inventoryY - 52, width - 28, 44)
 	place(ctx.footer, layout.statsX * scale, (layout.statsHeight + 28) * scale, layout.statsWidth, 44)
 	ctx.footerButtons.Size = UDim2.fromScale(1, 1)

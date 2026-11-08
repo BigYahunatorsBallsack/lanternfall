@@ -153,32 +153,34 @@ function Layout.mount(screen: ScreenGui, choose: Frame, players: Frame, record: 
 		{ Name = "WeaponPreview", BackgroundColor3 = Theme.button, BorderSizePixel = 0, Parent = content },
 		{ Widgets.corner() }
 	)
-	local weaponArt = Icons.holder(weapon, 64)
+	local weaponArt = Icons.holder(weapon, 72)
 	weaponArt.Position = UDim2.fromOffset(12, 12)
 	local weaponName = Widgets.label({
 		Name = "WeaponName",
-		TextSize = 18,
+		TextSize = 22,
 		TextXAlignment = Enum.TextXAlignment.Left,
-		Position = UDim2.fromOffset(84, 12),
-		Size = UDim2.new(1, -96, 0, 26),
+		Position = UDim2.fromOffset(92, 12),
+		Size = UDim2.new(1, -100, 0, 28),
 		Parent = weapon,
 	})
 	local weaponClass = Widgets.label({
-		TextSize = 16,
+		TextSize = 18,
 		TextColor3 = Theme.statLabel,
+		TextWrapped = true,
 		TextXAlignment = Enum.TextXAlignment.Left,
-		Position = UDim2.fromOffset(84, 40),
-		Size = UDim2.new(1, -96, 0, 38),
+		Position = UDim2.fromOffset(92, 42),
+		Size = UDim2.new(1, -100, 0, 40),
 		Parent = weapon,
 	})
 	local weaponStats = Widgets.label({
 		Name = "WeaponStats",
-		TextSize = 14,
+		TextSize = 16,
 		RichText = true,
+		TextWrapped = true,
 		TextXAlignment = Enum.TextXAlignment.Left,
 		TextYAlignment = Enum.TextYAlignment.Top,
-		Position = UDim2.fromOffset(12, 90),
-		Size = UDim2.new(1, -24, 1, -102),
+		Position = UDim2.fromOffset(12, 96),
+		Size = UDim2.new(1, -24, 1, -108),
 		Parent = weapon,
 	})
 	local runOptions = Widgets.create(
@@ -365,12 +367,14 @@ function Layout.mount(screen: ScreenGui, choose: Frame, players: Frame, record: 
 		local selected = if options then options.danger else 0
 		local dangerTitle = danger:FindFirstChild("Title") :: TextLabel
 		dangerTitle.Text = `Danger {selected}\nDifficulty`
-		dangerTitle.TextColor3, dangerTitle.TextSize = Theme.statLabel, 22
+		dangerTitle.TextColor3, dangerTitle.TextSize = Theme.statLabel, 24
 		place(dangerTitle, 12, 16, 208, 60)
 		local description = danger:FindFirstChild("Description") :: TextLabel
 		place(description, 12, 94, if compact then innerWidth - 24 else 208, 190)
 		description.TextXAlignment, description.TextYAlignment = Enum.TextXAlignment.Left, Enum.TextYAlignment.Top
-		local tile = if compact and innerWidth < 430 then (innerWidth - 40) / 6 else 62
+		description.TextSize = 17
+		-- Same size as the character tiles.
+		local tile = if compact and innerWidth < 530 then (innerWidth - 40) / 6 else 80
 		local rowWidth = 6 * tile + 40
 		place(levels, (innerWidth - rowWidth) / 2, if compact then 348 else 366, rowWidth, tile)
 		for index, level in Config.Difficulty.levels do
