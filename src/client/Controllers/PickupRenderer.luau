@@ -3,8 +3,8 @@
 -- (LootService): sprites of the authored green fruit and the two outlined cartoon loot boxes. Picked up they fly
 -- into the player like orbs; left at the wave end they simply vanish. Lying ones are placed once; only flying ones move
 -- each frame, together in one workspace:BulkMoveTo. Also shows a small chip under the timer with the team's bag
--- (OrbBag, ExperienceService) and the crates waiting for the end of the wave (CrateOffer, UpgradeService) while a run
--- is on. Legendary crates use a larger crimson and gold mesh with a glow. The server decides every
+-- (OrbBag, ExperienceService) while a run is on; crates waiting for the end of the wave are icons in the top-right
+-- corner (PendingRewardsController). Legendary crates use a larger crimson and gold mesh with a glow. The server decides every
 -- pickup; this only shows it.
 
 local Players = game:GetService("Players")
@@ -92,7 +92,6 @@ end
 local pickups: { [number]: Pickup } = {}
 local flights: { Flight } = {}
 local bag = 0
-local cratesWaiting = 0
 
 local chipScreen: ScreenGui? = nil
 local chipLabel: TextLabel? = nil
@@ -230,9 +229,6 @@ local function updateChip()
 	if bag > 0 then
 		table.insert(parts, `Bag {math.round(bag)}`)
 	end
-	if cratesWaiting > 0 then
-		table.insert(parts, if cratesWaiting == 1 then "1 crate" else `{cratesWaiting} crates`)
-	end
 	screen.Enabled = inRun and #parts > 0
 	label.Text = table.concat(parts, " · ")
 end
@@ -263,10 +259,6 @@ function PickupRenderer.init()
 	Net.onClient("Pickups", onEvents)
 	Net.onClient("OrbBag", function(value: number)
 		bag = if typeof(value) == "number" then value else 0
-		updateChip()
-	end)
-	Net.onClient("CrateOffer", function(offer: Types.CrateOffer)
-		cratesWaiting = if typeof(offer) == "table" and not offer.open then offer.pending else 0
 		updateChip()
 	end)
 end

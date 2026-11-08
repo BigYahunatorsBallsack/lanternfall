@@ -231,7 +231,15 @@ describe("bosses", function()
 		expect(pickupsOf("Legendary")).toBe(0)
 		local _, waiting = UpgradeService.getCrate(me)
 		expect(waiting).toBe(3) -- one from each test boss and this one
+		-- the HUD shows them as legendary crate icons in the top-right corner until the wave ends
+		local _, crates, legendary = controller("PendingRewardsController").getShown()
+		expect(crates).toBe(0)
+		expect(legendary).toBe(3)
+		local icon = world.gui("PendingRewards", "LegendaryCrate3")
+		assert(icon)
+		expect(icon.Image).toBe(Config.Sprites.pickups.LegendaryCrate.image)
 		click("SkipWave")
+		expect(world.gui("PendingRewards").Enabled).toBe(false) -- the shop phase opens them instead
 		expect(RunDirector.getPhase()).toBe("Shop")
 		local open = UpgradeService.getCrate(me)
 		expect(open ~= nil).toBe(true)

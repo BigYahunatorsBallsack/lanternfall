@@ -458,7 +458,8 @@ describe("smoke", function()
 		expect(world.gui("LevelUp").Enabled).toBe(false)
 		local current = ExperienceService.getProgress()
 		expect(world.gui("HUD", "XpText").Text).toBe(`XP {math.floor(current.xp)}/{current.needed} | LV {level + 1}`)
-		expect(world.gui("HUD", "PendingLevels").Visible).toBe(true)
+		expect(world.gui("PendingRewards", "PendingLevels").Visible).toBe(true)
+		expect(world.gui("PendingRewards", "Level1") ~= nil).toBe(true) -- one head-and-arrow icon per level-up
 	end)
 
 	it("ends the wave: enemies fade, the shop opens and the level-up cards come first", function()

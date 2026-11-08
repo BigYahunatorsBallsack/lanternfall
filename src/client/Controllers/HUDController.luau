@@ -27,6 +27,7 @@ local Types = require(Shared:WaitForChild("Net"):WaitForChild("Types"))
 local UpgradeText = require(Shared:WaitForChild("Util"):WaitForChild("UpgradeText"))
 
 local LevelUpController = require(script.Parent.LevelUpController)
+local PendingRewardsController = require(script.Parent.PendingRewardsController)
 local LoadoutController = require(script.Parent.LoadoutController)
 local PlayerStateController = require(script.Parent.PlayerStateController)
 local ProgressController = require(script.Parent.ProgressController)
@@ -80,8 +81,6 @@ local wavePlan: { Types.WaveChallenge } = {} -- Paket 14: planned elite and hord
 local teamPanel: Frame
 local arrowLayer: Frame
 local arrows: { [number]: Frame } = {}
-local pendingBadge: TextLabel
-
 local function hintText(state: Types.RunState): (string, Color3)
 	if state.phase == "Boss" then
 		return string.upper(Config.Enemies.boss.displayName), Theme.danger
@@ -175,10 +174,7 @@ end
 
 local function xpText(): string
 	local team = ProgressController.getTeam()
-	local waiting = LevelUpController.getWaiting()
 	local level = `LV.{if team then team.level else 0}`
-	pendingBadge.Visible = waiting > 0
-	pendingBadge.Text = `↑ +{waiting}`
 	return `XP {if team then math.floor(team.xp) else 0}/{if team then team.needed else 0} | {level}`
 end
 
@@ -371,11 +367,13 @@ local function onVitalsChanged(userId: number, vitals: Types.PlayerVitals, previ
 	end
 end
 
--- The team panel stays below the settings button, which scales with the screen.
+-- The team panel stays below the settings button, which scales with the screen, and below the pending level-up and
+-- crate icons (PendingRewardsController).
 local function placeTeamPanel()
 	local uiScale = teamPanel:FindFirstChildOfClass("UIScale")
 	local scale = if uiScale then uiScale.Scale else 1
-	teamPanel.Position = UDim2.new(1, -12, 0, 8 + SettingsController.RESERVED_HEIGHT * scale)
+	local below = math.max(8 + SettingsController.RESERVED_HEIGHT * scale, PendingRewardsController.getBottom() + 8)
+	teamPanel.Position = UDim2.new(1, -12, 0, below)
 end
 
 local function newArrow(name: string): Frame
@@ -494,18 +492,6 @@ end
 
 local function build()
 	screen = Widgets.screen("HUD", 0)
-	pendingBadge = Widgets.label({
-		Name = "PendingLevels",
-		TextSize = 28 * HUD_TEXT,
-		TextColor3 = Theme.success,
-		TextStrokeTransparency = 0,
-		AnchorPoint = Vector2.new(1, 0),
-		Position = UDim2.new(1, -72, 0, 12),
-		Size = UDim2.fromOffset(76, 42 * HUD_TEXT),
-		Visible = false,
-		Parent = screen,
-	})
-
 	local top = Widgets.panel({
 		Name = "Timer",
 		BackgroundTransparency = 1,
@@ -773,7 +759,9 @@ local function build()
 		hpLabel.TextStrokeColor3 = Theme.stroke
 		top.Size = UDim2.fromOffset(if narrow then 138 else 240, 0)
 		top.AnchorPoint = Vector2.new(if narrow then 1 else 0.5, 0)
-		top.Position = if narrow then UDim2.new(1, -8, 0, 56) else UDim2.new(0.5, 0, 0, 8)
+		top.Position = if narrow
+			then UDim2.new(1, -8, 0, math.max(56, PendingRewardsController.getBottom() + 4))
+			else UDim2.new(0.5, 0, 0, 8)
 		local topPadding = top:FindFirstChildOfClass("UIPadding")
 		topPadding.PaddingTop, topPadding.PaddingBottom = zero, zero
 		timerLabel.TextSize = 40 * HUD_TEXT * factor
@@ -800,6 +788,7 @@ local function build()
 	if workspace.CurrentCamera then
 		workspace.CurrentCamera:GetPropertyChangedSignal("ViewportSize"):Connect(resizeHud)
 	end
+	PendingRewardsController.Changed:Connect(resizeHud) -- the team panel and phone timer stay below the icons
 	arrowLayer = Widgets.create("Frame", {
 		Name = "TeamArrows",
 		BackgroundTransparency = 1,
