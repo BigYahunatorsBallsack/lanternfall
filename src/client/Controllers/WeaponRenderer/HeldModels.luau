@@ -95,9 +95,10 @@ local function nearestEnemy(owner: VisualKit.Owner, frameNumber: number): (numbe
 	return if bestSquared < math.huge then bestX else nil, if bestSquared < math.huge then bestZ else nil
 end
 
--- Where a held weapon floats: around the figure's middle, far enough for its picture to stay off the body.
-local function floatingAt(owner: VisualKit.Owner, uid: number, id: string): (number, number)
-	local dx, dz = WeaponPose.direction(uid)
+-- Where a held weapon floats: evenly spaced around the figure's middle, far enough for its picture to stay off the
+-- body. Slot and count follow the server's loadout order, so shots leave from the weapon on screen.
+local function floatingAt(owner: VisualKit.Owner, slot: number, total: number, id: string): (number, number)
+	local dx, dz = WeaponPose.direction(slot, total)
 	local radius = RING.clearance + (LOOK.spriteStuds[id] or 4) * 0.5
 	return owner.position.X + dx * radius, owner.position.Z - RING.lift + dz * radius
 end
@@ -133,8 +134,8 @@ end
 function HeldModels.renderWeapon(
 	owner: VisualKit.Owner,
 	weapon: { uid: number, id: string },
-	_slot: number,
-	_total: number,
+	slot: number,
+	total: number,
 	frame: VisualKit.Frame
 )
 	-- Orbit blades are drawn at their actual server hit positions by Visuals/OrbitBlades.
@@ -154,8 +155,8 @@ function HeldModels.renderWeapon(
 	end
 	model.seen = frame.number
 
-	local radialX, radialZ = WeaponPose.direction(weapon.uid)
-	local x, z = floatingAt(owner, weapon.uid, weapon.id)
+	local radialX, radialZ = WeaponPose.direction(slot, total)
+	local x, z = floatingAt(owner, slot, total, weapon.id)
 	local dx, dz = radialX, radialZ
 	local targetX, targetZ = nearestEnemy(owner, frame.number)
 	if targetX and targetZ then
