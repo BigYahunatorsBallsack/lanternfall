@@ -27,6 +27,7 @@ local Types = require(Shared.Net.Types)
 
 local CombatService = require(script.Parent.CombatService)
 local ExperienceService = require(script.Parent.ExperienceService)
+local ExperienceRules = require(script.Parent.ExperienceService.CharacterRules)
 local PlayerDataService = require(script.Parent.PlayerDataService)
 local RandomService = require(script.Parent.RandomService)
 local RunDirector = require(script.Parent.RunDirector)
@@ -107,7 +108,10 @@ local function rollCrate(player: Player, minTier: number): Crate?
 		tier,
 		StatService.getItemCounts(player),
 		PlayerDataService.lockedSet(player, "items"),
-		random
+		random,
+		nil,
+		RunDirector.getParticipantClassId(player),
+		wave
 	)
 	local item = itemId and Config.Items.byId[itemId]
 	if not (itemId and item) then
@@ -124,6 +128,9 @@ end
 
 local function roll(player: Player, state: State, avoid: { [string]: boolean }?): { Types.UpgradeCard }
 	return UpgradePool.roll({
+		classId = RunDirector.getParticipantClassId(player),
+		weaponSlots = WeaponService.getMaxWeapons(player),
+		wave = RunDirector.getWave(),
 		level = state.levels[1] or 1,
 		luck = StatService.getStat(player, "luck"),
 		cardCount = LevelUp.cardCount,
@@ -251,19 +258,20 @@ local function reroll(player: Player)
 	sendOffer(player, state)
 end
 
-local function onLevelGained(level: number)
+local function onLevelGained(level: number, player: Player)
+	if not ExperienceRules.forClass(RunDirector.getParticipantClassId(player)).cardsAllowed then
+		return
+	end
 	local shopOpen = RunDirector.getPhase() == "Shop"
-	for _, player in RunDirector.getParticipants() do
-		local state = states[player]
-		-- players who are out still level up when they come back at the end of the wave (WP11)
-		local out = RunDirector.getParticipantState(player) == "Out" and not Config.Run.coop.outReturnsAtWaveEnd
-		if state and not out then
-			table.insert(state.levels, level)
-			if shopOpen and not (state.offer or state.crate) then
-				openNext(player, state)
-			else
-				sendOffer(player, state) -- shows the new number of choices waiting
-			end
+	local state = states[player]
+	-- players who are out still level up when they come back at the end of the wave (WP11)
+	local out = RunDirector.getParticipantState(player) == "Out" and not Config.Run.coop.outReturnsAtWaveEnd
+	if state and not out then
+		table.insert(state.levels, level)
+		if shopOpen and not (state.offer or state.crate) then
+			openNext(player, state)
+		else
+			sendOffer(player, state) -- shows the new number of choices waiting
 		end
 	end
 end
@@ -380,7 +388,8 @@ function UpgradeService.grantChest(player: Player): Types.ChestReward?
 		function(): number
 			return RandomService.number("Loot", player)
 		end,
-		PlayerDataService.lockedSet(player, "items") -- Paket 13
+		PlayerDataService.lockedSet(player, "items"), -- Paket 13
+		RunDirector.getParticipantClassId(player)
 	)
 	if itemId and StatService.addItem(player, itemId) then
 		return { kind = "Item", itemId = itemId, level = StatService.getItemCounts(player)[itemId] or 1 }

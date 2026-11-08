@@ -21,11 +21,11 @@ describe("Tally", function()
 
 	it("knows the team level at any time of the run, also across skipped levels", function()
 		local tally = Tally.new()
-		expect(tally:levelAt(0)).toBe(1)
+		expect(tally:levelAt(0)).toBe(0)
 		tally:recordLevel(2, 10)
 		tally:recordLevel(3, 50)
 		tally:recordLevel(6, 70) -- admin skip: 4 and 5 count as reached at the same time
-		expect(tally:levelAt(9)).toBe(1)
+		expect(tally:levelAt(9)).toBe(0)
 		expect(tally:levelAt(60)).toBe(3)
 		expect(tally:levelAt(70)).toBe(6)
 		expect(tally:getLevel()).toBe(6)
@@ -60,7 +60,7 @@ describe("Tally", function()
 				items = {},
 			},
 		})
-		expect(summary.teamLevel).toBe(1)
+		expect(summary.teamLevel).toBe(0)
 		expect(summary.kills).toBe(1)
 		expect(summary.players[1].kills).toBe(8)
 		expect(summary.players[1].damageDealt).toBe(120)

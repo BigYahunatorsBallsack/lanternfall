@@ -31,8 +31,8 @@ describe("Brotato original catalog", function()
 			for tier = original.minTier, 4 do
 				local source = original.tiers[tier]
 				local s = WeaponStats.compute(w, tier, {}, nil, Config.Player.minWeaponCooldown)
-				local levelBase = (original.scaling[tier].level or 0)
-				expect(s.damage).toBeNear(source.damage + levelBase)
+				-- Native LV.0 contributes no level scaling; explicit LV.10 is checked below.
+				expect(s.damage).toBeNear(source.damage)
 				expect(s.range).toBeNear(source.range * 0.1)
 				expect(s.cooldown).toBeNear(source.cooldown)
 				expect(s.critChance).toBeNear(source.critChance)

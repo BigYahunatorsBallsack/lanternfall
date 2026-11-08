@@ -1,97 +1,377 @@
 {
  "characters": {
-  "title": "Charaktere (bleiben neun, kein Blade Warden)",
+  "title": "Charaktere (74 originale Brotato-Bilder; Auswahl nach Code-Freigabe)",
   "pixels": 1024,
   "items": {
-   "NightWatch": {
-    "text": "Standard-Figur. Schütze mit dunkler Mütze, schräger misstrauischer Blick. Vorbild-Regeln: Ranger.",
-    "existing": {
-     "image": "rbxassetid://111582119023759",
-     "pixels": 1024,
-     "center": 0.536,
-     "ground": 0.168,
-     "height": 0.638
-    }
+   "CandleScholar": {
+    "text": "Original Brotato character: Apprentice",
+    "source": "assets/world2d/final/characters/CandleScholar.png",
+    "trimmed": true
    },
-   "SparkMage": {
-    "text": "Magier, frech grinsend, kleine gelbe Funken am Körper. Vorbild-Regeln: Mage.",
-    "existing": {
-     "image": "rbxassetid://125236680482622",
-     "pixels": 1024,
-     "center": 0.518,
-     "ground": 0.176,
-     "height": 0.592
-    }
+   "Archaeologist": {
+    "text": "Original Brotato character: Archaeologist",
+    "source": "assets/world2d/final/characters/Archaeologist.png",
+    "trimmed": true
    },
-   "ManyHands": {
-    "text": "Gestresst, Schweißtropfen, viele kleine dunkle Hände rund um den Körper. Vorbild-Regeln: Multitasker.",
-    "existing": {
-     "image": "rbxassetid://136334812450541",
-     "pixels": 1024,
-     "center": 0.493,
-     "ground": 0.163,
-     "height": 0.61
-    }
+   "ArmsDealer": {
+    "text": "Original Brotato character: Arms Dealer",
+    "source": "assets/world2d/final/characters/ArmsDealer.png",
+    "trimmed": true
    },
-   "SoleConductor": {
-    "text": "Lässig, ein Auge fast zu, schiefes Lächeln. Vorbild-Regeln: One Armed.",
-    "existing": {
-     "image": "rbxassetid://121628946000677",
-     "pixels": 1024,
-     "center": 0.543,
-     "ground": 0.174,
-     "height": 0.59
-    }
+   "Arsonist": {
+    "text": "Original Brotato character: Arsonist",
+    "source": "assets/world2d/final/characters/Arsonist.png",
+    "trimmed": true
    },
-   "DuelMaestro": {
-    "text": "Eitler Fechter, hochgezogene Braue, kleines Lächeln. Vorbild-Regeln: Gladiator.",
-    "existing": {
-     "image": "rbxassetid://132151924425438",
-     "pixels": 1024,
-     "center": 0.507,
-     "ground": 0.167,
-     "height": 0.606
-    }
+   "Artificer": {
+    "text": "Original Brotato character: Artificer",
+    "source": "assets/world2d/final/characters/Artificer.png",
+    "trimmed": true
    },
-   "FarSeer": {
-    "text": "Kneift ein Auge zu, hält ein Fernrohr ans andere. Vorbild-Regeln: Hunter.",
-    "existing": {
-     "image": "rbxassetid://135951339807724",
-     "pixels": 1024,
-     "center": 0.555,
-     "ground": 0.159,
-     "height": 0.607
-    }
+   "Baby": {
+    "text": "Original Brotato character: Baby",
+    "source": "assets/world2d/final/characters/Baby.png",
+    "trimmed": true
+   },
+   "BeastMaster": {
+    "text": "Original Brotato character: Beast Master",
+    "source": "assets/world2d/final/characters/BeastMaster.png",
+    "trimmed": true
+   },
+   "Brawler": {
+    "text": "Original Brotato character: Brawler",
+    "source": "assets/world2d/final/characters/Brawler.png",
+    "trimmed": true
+   },
+   "Buccaneer": {
+    "text": "Original Brotato character: Buccaneer",
+    "source": "assets/world2d/final/characters/Buccaneer.png",
+    "trimmed": true
+   },
+   "Builder": {
+    "text": "Original Brotato character: Builder",
+    "source": "assets/world2d/final/characters/Builder.png",
+    "trimmed": true
+   },
+   "Bull": {
+    "text": "Original Brotato character: Bull",
+    "source": "assets/world2d/final/characters/Bull.png",
+    "trimmed": true
+   },
+   "Captain": {
+    "text": "Original Brotato character: Captain",
+    "source": "assets/world2d/final/characters/Captain.png",
+    "trimmed": true
+   },
+   "Caveman": {
+    "text": "Original Brotato character: Caveman",
+    "source": "assets/world2d/final/characters/Caveman.png",
+    "trimmed": true
+   },
+   "Chef": {
+    "text": "Original Brotato character: Chef",
+    "source": "assets/world2d/final/characters/Chef.png",
+    "trimmed": true
    },
    "MarbleHost": {
-    "text": "Breit und schwer, müder Blick, Risse wie Marmor. Vorbild-Regeln: Bull.",
-    "existing": {
-     "image": "rbxassetid://114718404867898",
-     "pixels": 1024,
-     "center": 0.491,
-     "ground": 0.116,
-     "height": 0.691
-    }
+    "text": "Original Brotato character: Chunky",
+    "source": "assets/world2d/final/characters/MarbleHost.png",
+    "trimmed": true
+   },
+   "Crazy": {
+    "text": "Original Brotato character: Crazy",
+    "source": "assets/world2d/final/characters/Crazy.png",
+    "trimmed": true
+   },
+   "Creature": {
+    "text": "Original Brotato character: Creature",
+    "source": "assets/world2d/final/characters/Creature.png",
+    "trimmed": true
+   },
+   "Cryptid": {
+    "text": "Original Brotato character: Cryptid",
+    "source": "assets/world2d/final/characters/Cryptid.png",
+    "trimmed": true
+   },
+   "Curious": {
+    "text": "Original Brotato character: Curious",
+    "source": "assets/world2d/final/characters/Curious.png",
+    "trimmed": true
+   },
+   "Cyborg": {
+    "text": "Original Brotato character: Cyborg",
+    "source": "assets/world2d/final/characters/Cyborg.png",
+    "trimmed": true
+   },
+   "Demon": {
+    "text": "Original Brotato character: Demon",
+    "source": "assets/world2d/final/characters/Demon.png",
+    "trimmed": true
+   },
+   "Diver": {
+    "text": "Original Brotato character: Diver",
+    "source": "assets/world2d/final/characters/Diver.png",
+    "trimmed": true
+   },
+   "Doctor": {
+    "text": "Original Brotato character: Doctor",
+    "source": "assets/world2d/final/characters/Doctor.png",
+    "trimmed": true
+   },
+   "Droid": {
+    "text": "Original Brotato character: Droid",
+    "source": "assets/world2d/final/characters/Droid.png",
+    "trimmed": true
+   },
+   "Druid": {
+    "text": "Original Brotato character: Druid",
+    "source": "assets/world2d/final/characters/Druid.png",
+    "trimmed": true
+   },
+   "Dwarf": {
+    "text": "Original Brotato character: Dwarf",
+    "source": "assets/world2d/final/characters/Dwarf.png",
+    "trimmed": true
+   },
+   "Engineer": {
+    "text": "Original Brotato character: Engineer",
+    "source": "assets/world2d/final/characters/Engineer.png",
+    "trimmed": true
+   },
+   "Entrepreneur": {
+    "text": "Original Brotato character: Entrepreneur",
+    "source": "assets/world2d/final/characters/Entrepreneur.png",
+    "trimmed": true
+   },
+   "Explorer": {
+    "text": "Original Brotato character: Explorer",
+    "source": "assets/world2d/final/characters/Explorer.png",
+    "trimmed": true
+   },
+   "Farmer": {
+    "text": "Original Brotato character: Farmer",
+    "source": "assets/world2d/final/characters/Farmer.png",
+    "trimmed": true
+   },
+   "Fisherman": {
+    "text": "Original Brotato character: Fisherman",
+    "source": "assets/world2d/final/characters/Fisherman.png",
+    "trimmed": true
+   },
+   "Gangster": {
+    "text": "Original Brotato character: Gangster",
+    "source": "assets/world2d/final/characters/Gangster.png",
+    "trimmed": true
    },
    "TwinLedger": {
-    "text": "Listig, zwei unterschiedliche Augen, kleines Lächeln. Vorbild-Regeln: Ambidextrous.",
-    "existing": {
-     "image": "rbxassetid://114087158937283",
-     "pixels": 1024,
-     "center": 0.506,
-     "ground": 0.167,
-     "height": 0.606
-    }
+    "text": "Original Brotato character: Generalist",
+    "source": "assets/world2d/final/characters/TwinLedger.png",
+    "trimmed": true
    },
-   "CandleScholar": {
-    "text": "Traurig-müde, Augenringe, offenes Buch mit brennender Kerze. Vorbild-Regeln: Apprentice.",
-    "existing": {
-     "image": "rbxassetid://94184260896734",
-     "pixels": 1024,
-     "center": 0.486,
-     "ground": 0.166,
-     "height": 0.608
-    }
+   "Ghost": {
+    "text": "Original Brotato character: Ghost",
+    "source": "assets/world2d/final/characters/Ghost.png",
+    "trimmed": true
+   },
+   "DuelMaestro": {
+    "text": "Original Brotato character: Gladiator",
+    "source": "assets/world2d/final/characters/DuelMaestro.png",
+    "trimmed": true
+   },
+   "Glutton": {
+    "text": "Original Brotato character: Glutton",
+    "source": "assets/world2d/final/characters/Glutton.png",
+    "trimmed": true
+   },
+   "Golem": {
+    "text": "Original Brotato character: Golem",
+    "source": "assets/world2d/final/characters/Golem.png",
+    "trimmed": true
+   },
+   "Hiker": {
+    "text": "Original Brotato character: Hiker",
+    "source": "assets/world2d/final/characters/Hiker.png",
+    "trimmed": true
+   },
+   "FarSeer": {
+    "text": "Original Brotato character: Hunter",
+    "source": "assets/world2d/final/characters/FarSeer.png",
+    "trimmed": true
+   },
+   "Jack": {
+    "text": "Original Brotato character: Jack",
+    "source": "assets/world2d/final/characters/Jack.png",
+    "trimmed": true
+   },
+   "King": {
+    "text": "Original Brotato character: King",
+    "source": "assets/world2d/final/characters/King.png",
+    "trimmed": true
+   },
+   "Knight": {
+    "text": "Original Brotato character: Knight",
+    "source": "assets/world2d/final/characters/Knight.png",
+    "trimmed": true
+   },
+   "Lich": {
+    "text": "Original Brotato character: Lich",
+    "source": "assets/world2d/final/characters/Lich.png",
+    "trimmed": true
+   },
+   "Loud": {
+    "text": "Original Brotato character: Loud",
+    "source": "assets/world2d/final/characters/Loud.png",
+    "trimmed": true
+   },
+   "Lucky": {
+    "text": "Original Brotato character: Lucky",
+    "source": "assets/world2d/final/characters/Lucky.png",
+    "trimmed": true
+   },
+   "MadScientist": {
+    "text": "Original Brotato character: Mad Scientist",
+    "source": "assets/world2d/final/characters/MadScientist.png",
+    "trimmed": true
+   },
+   "SparkMage": {
+    "text": "Original Brotato character: Mage",
+    "source": "assets/world2d/final/characters/SparkMage.png",
+    "trimmed": true
+   },
+   "Masochist": {
+    "text": "Original Brotato character: Masochist",
+    "source": "assets/world2d/final/characters/Masochist.png",
+    "trimmed": true
+   },
+   "ManyHands": {
+    "text": "Original Brotato character: Multitasker",
+    "source": "assets/world2d/final/characters/ManyHands.png",
+    "trimmed": true
+   },
+   "Mutant": {
+    "text": "Original Brotato character: Mutant",
+    "source": "assets/world2d/final/characters/Mutant.png",
+    "trimmed": true
+   },
+   "Ogre": {
+    "text": "Original Brotato character: Ogre",
+    "source": "assets/world2d/final/characters/Ogre.png",
+    "trimmed": true
+   },
+   "Old": {
+    "text": "Original Brotato character: Old",
+    "source": "assets/world2d/final/characters/Old.png",
+    "trimmed": true
+   },
+   "SoleConductor": {
+    "text": "Original Brotato character: One Armed",
+    "source": "assets/world2d/final/characters/SoleConductor.png",
+    "trimmed": true
+   },
+   "Pacifist": {
+    "text": "Original Brotato character: Pacifist",
+    "source": "assets/world2d/final/characters/Pacifist.png",
+    "trimmed": true
+   },
+   "Poacher": {
+    "text": "Original Brotato character: Poacher",
+    "source": "assets/world2d/final/characters/Poacher.png",
+    "trimmed": true
+   },
+   "NightWatch": {
+    "text": "Original Brotato character: Ranger",
+    "source": "assets/world2d/final/characters/NightWatch.png",
+    "trimmed": true
+   },
+   "Renegade": {
+    "text": "Original Brotato character: Renegade",
+    "source": "assets/world2d/final/characters/Renegade.png",
+    "trimmed": true
+   },
+   "Romantic": {
+    "text": "Original Brotato character: Romantic",
+    "source": "assets/world2d/final/characters/Romantic.png",
+    "trimmed": true
+   },
+   "Sailor": {
+    "text": "Original Brotato character: Sailor",
+    "source": "assets/world2d/final/characters/Sailor.png",
+    "trimmed": true
+   },
+   "Saver": {
+    "text": "Original Brotato character: Saver",
+    "source": "assets/world2d/final/characters/Saver.png",
+    "trimmed": true
+   },
+   "Sick": {
+    "text": "Original Brotato character: Sick",
+    "source": "assets/world2d/final/characters/Sick.png",
+    "trimmed": true
+   },
+   "Soldier": {
+    "text": "Original Brotato character: Soldier",
+    "source": "assets/world2d/final/characters/Soldier.png",
+    "trimmed": true
+   },
+   "Speedy": {
+    "text": "Original Brotato character: Speedy",
+    "source": "assets/world2d/final/characters/Speedy.png",
+    "trimmed": true
+   },
+   "Streamer": {
+    "text": "Original Brotato character: Streamer",
+    "source": "assets/world2d/final/characters/Streamer.png",
+    "trimmed": true
+   },
+   "Survivor": {
+    "text": "Original Brotato character: Survivor",
+    "source": "assets/world2d/final/characters/Survivor.png",
+    "trimmed": true
+   },
+   "Technomage": {
+    "text": "Original Brotato character: Technomage",
+    "source": "assets/world2d/final/characters/Technomage.png",
+    "trimmed": true
+   },
+   "TimeShifter": {
+    "text": "Original Brotato character: Time Shifter",
+    "source": "assets/world2d/final/characters/TimeShifter.png",
+    "trimmed": true
+   },
+   "Vagabond": {
+    "text": "Original Brotato character: Vagabond",
+    "source": "assets/world2d/final/characters/Vagabond.png",
+    "trimmed": true
+   },
+   "Vampire": {
+    "text": "Original Brotato character: Vampire",
+    "source": "assets/world2d/final/characters/Vampire.png",
+    "trimmed": true
+   },
+   "Variant": {
+    "text": "Original Brotato character: Variant",
+    "source": "assets/world2d/final/characters/Variant.png",
+    "trimmed": true
+   },
+   "Veteran": {
+    "text": "Original Brotato character: Veteran",
+    "source": "assets/world2d/final/characters/Veteran.png",
+    "trimmed": true
+   },
+   "WellRounded": {
+    "text": "Original Brotato character: Well Rounded",
+    "source": "assets/world2d/final/characters/WellRounded.png",
+    "trimmed": true
+   },
+   "Wildling": {
+    "text": "Original Brotato character: Wildling",
+    "source": "assets/world2d/final/characters/Wildling.png",
+    "trimmed": true
+   },
+   "Wounded": {
+    "text": "Original Brotato character: Wounded",
+    "source": "assets/world2d/final/characters/Wounded.png",
+    "trimmed": true
    }
   }
  },

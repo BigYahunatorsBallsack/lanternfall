@@ -102,8 +102,8 @@ local Run = {
 		}),
 	}),
 
-	-- XP for level L -> L+1 = round((L + offset)^exponent * fPlayers); Brotato's (L + 3)^2 since B2
-	xpCurve = table.freeze({ offset = 3, exponent = 2 }),
+	-- Native starts at LV.0; next XP is (3 + (L + 1))^2 times the character's exact required-XP multiplier.
+	xpCurve = table.freeze({ offset = 4, exponent = 2 }),
 
 	-- XP orbs dropped by killed enemies; every orb counts for the whole team (DESIGN.md section 8)
 	xpOrbs = table.freeze({

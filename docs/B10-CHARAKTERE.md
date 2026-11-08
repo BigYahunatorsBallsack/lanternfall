@@ -1,10 +1,10 @@
 # B10 – Charaktere und Testanleitung
 
-Charaktere aus dem Brotato-Basisspiel als eigene Lanternfall-Regelpakete (ursprünglich zehn; Blade Warden ist seit Paket 25 entfernt). Keine DLC-Charaktere, keine neuen Waffen in diesem Paket. HP und HP-Abzüge sind mit 10 skaliert. Die Startauswahl enthält ausschließlich bereits implementierte B7-Waffen aus den jeweiligen Vorbild-Startlisten; noch fehlende Waffen werden nicht durch Platzhalter angeboten.
+Historischer Lieferumfang von B10: neun Charakterpakete (urspruenglich zehn; Blade Warden ist seit Paket 25 entfernt). **Aktuelle Anforderung seit 06.11.2026: alle Charaktere mit Originalnamen und originalen Brotato-Regeln 1:1. HP, Heilung und HP-Abzuege mit Faktor 1.** Der bisherige Katalog erfuellt diesen Gesamtumfang noch nicht. Die folgende Tabelle beschreibt den vorhandenen Code mit seinen internen IDs, keine vollstaendige Brotato-Abnahme. Sprites liefert ein anderer Agent. Die fruehere Beschraenkung dieses Dokuments auf neun Basisspiel-Charaktere ist keine Begrenzung des neuen Auftrags.
 
 ## Zuordnung und Quellen
 
-Abgleich am 30.10.2026; die Wiki-Namen stehen nur in der Entwicklungsdokumentation.
+Urspruenglicher Abgleich am 30.10.2026; HP-Angaben am 06.11.2026 an den aktuellen main angepasst. Die alte Beschraenkung auf eigene Anzeigenamen ist aufgehoben.
 
 | Lanternfall | Referenz | Umsetzung |
 | --- | --- | --- |
@@ -14,9 +14,9 @@ Abgleich am 30.10.2026; die Wiki-Namen stehen nur in der Entwicklungsdokumentati
 | Sole Conductor | [One Armed](https://brotato.wiki.spellsandguns.com/One_Armed) | ein Platz; +200 % Attack Speed, Damage-Gewinne ×2 |
 | Duel Maestro | [Gladiator](https://brotato.wiki.spellsandguns.com/Gladiator) | +5 Melee, −40 % Attack Speed, −30 Luck; +20 % Attack Speed je unterschiedlicher Waffen-ID; keine Fernkampfwaffen |
 | Far Seer | [Hunter](https://brotato.wiki.spellsandguns.com/Hunter) | +100 Range; +1 % Damage je zehn Range; Crit ×1,25, Max HP ×0,67, Harvesting ×0 |
-| Marble Host | [Chunky](https://brotato.wiki.spellsandguns.com/Chunky) | Max HP ×1,25; +1 % Damage je 30 dauerhafte Max HP; +30 Fruit Healing, −100 % Life Steal; Regen/Dodge ×0,5, Speed ×0 |
+| Marble Host | [Chunky](https://brotato.wiki.spellsandguns.com/Chunky) | Max HP ×1,25; +1 % Damage je 3 dauerhafte Max HP; +3 Fruit Healing, −100 % Life Steal; Regen/Dodge ×0,5, Speed ×0 |
 | Twin Ledger | [Generalist](https://brotato.wiki.spellsandguns.com/Generalist) | drei Nah-/drei Fernkampfplätze; +2 Melee je Ranged, +1 Ranged je zwei Melee; Umrechnung ohne Rückkopplung |
-| Candle Scholar | [Apprentice](https://brotato.wiki.spellsandguns.com/Apprentice) | pro Team-Level +2 Melee, +1 Ranged/Elemental/Engineering und −20 Max HP zusätzlich zu normalen +10 Level-HP |
+| Candle Scholar | [Apprentice](https://brotato.wiki.spellsandguns.com/Apprentice) | pro Team-Level +2 Melee, +1 Ranged/Elemental/Engineering und −2 Max HP zusätzlich zu normalen +1 Level-HP |
 
 Die Multiplikatoren gelten für erworbene Werte einschließlich negativer Änderungen, nicht für die festen Startboni. Engineering ist bereits als Wert vorhanden; Bauten folgen in B12. Startitems benutzen die vorhandene B8-Effektverarbeitung und werden bei jedem neuen Run genau einmal vergeben.
 
@@ -30,12 +30,12 @@ Die Multiplikatoren gelten für erworbene Werte einschließlich negativer Änder
 
 ## Test in Studio
 
-1. [Branch als ZIP herunterladen](https://github.com/BigYahunatorsBallsack/lanternfall/archive/refs/heads/wp-b10-characters.zip), entpacken und aus diesem Ordner wie bisher `rojo serve` starten. Studio mit diesem Rojo-Projekt verbinden. Unter **Fenster → Ausgabe** die Ausgabe öffnen.
+1. [Pruefbranch als ZIP herunterladen](https://github.com/BigYahunatorsBallsack/lanternfall/archive/refs/heads/wp-b10-brotato-characters.zip), entpacken und aus diesem Ordner wie bisher `rojo serve` starten. Studio mit diesem Rojo-Projekt verbinden. Unter **Fenster → Ausgabe** die Ausgabe oeffnen. Diese Anleitung beschreibt bis zur Charakter-Erweiterung die neun bestehenden Pakete.
 2. **Play** starten. In der Lobby müssen neun Charakterknöpfe sichtbar sein. Jeden kurz anklicken: Beschreibung und angebotene Startwaffen wechseln. Eine andere Startwaffe auswählen und **READY** drücken; genau diese muss im Run erscheinen.
-3. **Spark Mage**: bei Start Ash Serpent und Smoldering Wick sowie 90 HP prüfen. **Night Watch**: zur gewählten Waffe kommt eine Watchman Pistol dazu; im Shop nur Fernkampfwaffen.
+3. **Spark Mage**: bei Start Snake und Scared Sausage sowie 9 Max HP (= 10 Basis minus 1 durch Snake) pruefen. **Night Watch**: zur gewaehlten Waffe kommt eine Pistol dazu; im Shop nur Fernkampfwaffen.
 4. **Sole Conductor**: im Shop nur ein Waffenplatz. Gleiche Waffenstufe kaufen muss die gehaltene Waffe verbessern. Andere Waffe erst nach Verkauf aufnehmen. **Many Hands**: bis zwölf Waffen aufnehmen; Damage sinkt je zusätzlicher Waffe um fünf Punkte und steigt beim Verkauf wieder.
 5. **Duel Maestro**: unterschiedliche Nahkampfwaffen erhöhen Attack Speed, zusätzliche Kopien nicht. **Twin Ledger**: maximal drei Nah- und drei Fernkampfwaffen; vierte gleiche Art blockiert, andere Art weiterhin erlaubt.
-6. **Far Seer**: Range erhöht Damage; **Marble Host**: dauerhafte Max HP erhöhen Damage, Speed-Items ändern Speed nicht; **Candle Scholar**: Level-up erhöht die vier Angriffswerte, Max HP sinkt netto um zehn.
+6. **Far Seer**: Range erhoeht Damage; **Marble Host**: dauerhafte Max HP erhoehen Damage, Speed-Items aendern Speed nicht; **Candle Scholar**: Level-up erhoeht die vier Angriffswerte, Max HP sinkt netto um eins (Untergrenze 1).
 7. Einen Run beenden und neu starten. Alte Items und Charakterboni dürfen nicht mitgenommen werden. Danach mit **zwei Clients** testen (im selben Studio-Fenster zwischen Clients wechseln): verschiedene Charaktere und Startwaffen wählen, beide READY; Grenzen und Boni müssen pro Spieler getrennt bleiben.
 8. Fenster kleiner ziehen beziehungsweise Handy-Vorschau prüfen: Charakterknöpfe, Beschreibung, Startwaffen und READY müssen bedienbar sein. Ausgabe auf rote Fehler prüfen.
 

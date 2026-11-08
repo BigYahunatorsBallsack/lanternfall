@@ -49,6 +49,14 @@ export type StatId =
 	| "enemySpeed"
 	| "weaponCooldownMin"
 	| "dodgeCap"
+	| "curse"
+	| "evolution"
+	| "structureAttackSpeed"
+	| "structureRange"
+	| "projectiles"
+	| "accuracy"
+	| "bounceDamage"
+	| "weaponSlots"
 
 export type Stat = {
 	id: string,
@@ -133,8 +141,24 @@ local ORDER: { Stat } = {
 	extra("dodgeCap", "Dodge Limit", true), -- Ghost Outfit; absolute cap, zero uses the default
 }
 
+-- Native DLC fields are registered for source validation and server policies. Their UI integration and original
+-- symbols are still dependencies of the unavailable DLC packages; do not substitute invented artwork in ORDER.
+local nativeFields: { Stat } = {
+	extra("weaponSlots", "Weapon Slot", false),
+	extra("curse", "Curse", false),
+	extra("evolution", "Evolution", false),
+	extra("structureAttackSpeed", "Structure Attack Speed", true),
+	extra("structureRange", "Structure Range", false),
+	extra("projectiles", "Projectiles", false),
+	extra("accuracy", "Accuracy", true),
+	extra("bounceDamage", "Bounce Damage", true),
+}
+
 local byId: { [string]: Stat } = {}
 for _, entry in ORDER do
+	byId[entry.id] = entry
+end
+for _, entry in nativeFields do
 	byId[entry.id] = entry
 end
 
@@ -143,7 +167,7 @@ return table.freeze({
 	byId = table.freeze(byId),
 
 	hpScale = 1,
-	maxHpPerLevel = 1, -- every team level (Brotato: +1 Max HP)
+	maxHpPerLevel = 1, -- every individual level (Brotato: +1 Max HP)
 
 	-- HP Regeneration: one tick of hpScale HP every baseSeconds / (1 + (regen - 1) / divisor) seconds (1 regen = 5 s,
 	-- 10 regen = 1 s); nothing below 1.

@@ -30,6 +30,7 @@ local CombatService = require(script.Parent.CombatService)
 local ExperienceService = require(script.Parent.ExperienceService)
 local RunDirector = require(script.Parent.RunDirector)
 local WeaponService = require(script.Parent.WeaponService)
+local PlayerDataService = require(script.Parent.PlayerDataService)
 
 type State = {
 	rawPermanent: StatMath.Sheet,
@@ -37,9 +38,10 @@ type State = {
 	items: { [string]: number }, -- item id -> count
 	itemOrder: { string }, -- in the order they were first taken, for the HUD
 	upgrades: StatMath.Sheet, -- level-up cards, Harvesting growth and Grow effects
-	levels: number, -- team levels gained in this run (Max HP each)
+	levels: number, -- individual levels gained in this run, starting at native LV.0 (Max HP each)
 	classBonus: StatMath.Sheet, -- weapon class bonuses of the weapons carried (B5)
 	dynamic: StatMath.Sheet, -- item effect bonuses right now (EffectService)
+	characterDynamic: StatMath.Sheet, -- native character conditions and wave-only gains
 	permanent: StatMath.Sheet, -- base plus every permanent gain
 	sheet: StatMath.Sheet, -- permanent plus dynamic: what the game uses
 }
@@ -83,12 +85,12 @@ local function computePermanent(player: Player, state: State): StatMath.Sheet
 end
 
 local function push(player: Player, sheet: StatMath.Sheet)
-	local weaponSheet = table.clone(sheet)
-	weaponSheet.level = if states[player] then states[player].levels + 1 else 1
+	local weaponSheet = CharacterRules.weaponSheet(RunDirector.getParticipantClassId(player), sheet)
+	weaponSheet.level = if states[player] then states[player].levels else 0
 	WeaponService.setStats(player, weaponSheet)
 	CombatService.setStats(player, table.clone(sheet))
 	ExperienceService.setStats(player, table.clone(sheet))
-	Net.fireClient("Stats", player, table.clone(sheet) :: Types.StatSheet)
+	Net.fireClient("Stats", player, table.clone(weaponSheet) :: Types.StatSheet)
 end
 
 local function itemLoadout(player: Player): Types.ItemLoadout
@@ -117,6 +119,7 @@ local function update(player: Player, state: State, permanent: boolean)
 		)
 	end
 	state.sheet = StatMath.addGains(table.clone(state.rawPermanent), state.dynamic, multipliersOf(player))
+	StatMath.addGains(state.sheet, state.characterDynamic, multipliersOf(player))
 	StatMath.add(
 		state.sheet,
 		CharacterRules.bonuses(
@@ -126,7 +129,9 @@ local function update(player: Player, state: State, permanent: boolean)
 			state.rawPermanent
 		)
 	)
+	state.sheet.level = state.levels -- native metadata also drives the client's weapon offer preview
 	push(player, state.sheet)
+	PlayerDataService.observeNativeStats(player, state.sheet)
 	if permanent then
 		StatService.PermanentChanged:Fire(player)
 	end
@@ -135,7 +140,7 @@ end
 local function weaponKeyOf(player: Player): string
 	local ids = {}
 	for _, weapon in WeaponService.getWeapons(player) do
-		table.insert(ids, weapon.id)
+		table.insert(ids, `{weapon.id}:{weapon.tier}`)
 	end
 	return table.concat(ids, ":")
 end
@@ -230,6 +235,7 @@ local function onRunStarted(participants: { Player })
 				levels = 0,
 				classBonus = classBonusOf(player),
 				dynamic = {},
+				characterDynamic = {},
 				permanent = {},
 				sheet = {},
 			}
@@ -263,12 +269,11 @@ function StatService.init()
 	end)
 	WeaponService.Changed:Connect(onWeaponsChanged)
 	RunDirector.addCheckpoint("Stats", saveCheckpoint, restoreCheckpoint)
-	ExperienceService.LevelGained:Connect(function()
-		for player, state in states do
-			if RunDirector.getParticipantState(player) ~= "Out" then
-				state.levels += 1
-				update(player, state, true)
-			end
+	ExperienceService.LevelGained:Connect(function(_level, player)
+		local state = states[player]
+		if state then
+			state.levels += 1
+			update(player, state, true)
 		end
 	end)
 	Players.PlayerAdded:Connect(function(player)
@@ -286,7 +291,10 @@ function StatService.init()
 		Net.fireClient(
 			"Stats",
 			requester,
-			(if state then table.clone(state.sheet) else StatMath.baseSheet()) :: Types.StatSheet
+			CharacterRules.weaponSheet(
+				RunDirector.getParticipantClassId(requester),
+				if state then state.sheet else StatMath.baseSheet()
+			) :: Types.StatSheet
 		)
 	end)
 end
@@ -361,7 +369,34 @@ function StatService.setDynamic(player: Player, bonuses: StatMath.Sheet)
 	end
 end
 
+-- Character conditions have a separate layer so item effects cannot replace them (or vice versa).
+function StatService.setCharacterDynamic(player: Player, bonuses: StatMath.Sheet)
+	local state = states[player]
+	if not state then
+		return
+	end
+	for stat, amount in state.characterDynamic do
+		if amount ~= (bonuses[stat] or 0) then
+			state.characterDynamic = table.clone(bonuses)
+			update(player, state, false)
+			return
+		end
+	end
+	for stat, amount in bonuses do
+		if amount ~= (state.characterDynamic[stat] or 0) then
+			state.characterDynamic = table.clone(bonuses)
+			update(player, state, false)
+			return
+		end
+	end
+end
+
 -- Queries ---------------------------------------------------------------------------
+
+function StatService.getLevel(player: Player): number
+	local state = states[player]
+	return if state then state.levels else 0
+end
 
 -- One stat of the player (the base value outside a run).
 function StatService.getStat(player: Player, statId: string): number

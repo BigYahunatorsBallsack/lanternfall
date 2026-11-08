@@ -175,7 +175,7 @@ end
 local function xpText(): string
 	local team = ProgressController.getTeam()
 	local waiting = LevelUpController.getWaiting()
-	local level = `LV {if team then team.level else 1}`
+	local level = `LV.{if team then team.level else 0}`
 	pendingBadge.Visible = waiting > 0
 	pendingBadge.Text = `↑ +{waiting}`
 	return `XP {if team then math.floor(team.xp) else 0}/{if team then team.needed else 0} | {level}`

@@ -1,0 +1,386 @@
+diff --git a/src/client/Controllers/CharacterChoice.luau b/src/client/Controllers/CharacterChoice.luau
+index b14fd26..14218c3 100644
+--- a/src/client/Controllers/CharacterChoice.luau
++++ b/src/client/Controllers/CharacterChoice.luau
+@@ -36,6 +36,11 @@ local ruleArea: ScrollingFrame
+ local classButtons: { [string]: TextButton } = {}
+ local choiceTitle: TextLabel
+ 
++-- Weaponless native characters advance directly to difficulty selection.
++function CharacterChoice.startStep(classId: string): string
++	return if Config.Classes[classId].maxWeapons == 0 then "Difficulty" else "Weapon"
++end
++
+ local function canChooseWeapon(classId: string, weaponId: string): boolean
+ 	if not Config.Classes[classId].nativeStartSelection then
+ 		return true
+@@ -103,7 +108,7 @@ function CharacterChoice.render()
+ 	end
+ 	if requestedClass == me.classId then
+ 		requestedClass = nil
+-		CharacterChoice.Chosen:Fire("Weapon")
++		CharacterChoice.Chosen:Fire(CharacterChoice.startStep(me.classId))
+ 	end
+ 	selectedName.Text = class.displayName
+ 	metrics.Text = `{CharacterRules.maxWeapons(me.classId)} WEAPONS\nDANGER {CharacterChoice.maxDanger(me.classId)}`
+@@ -209,7 +214,7 @@ function CharacterChoice.mount(card: Frame, row: Frame, buttonsByClass: { [strin
+ 				local me = RunStateController.getLocalPlayer()
+ 				if me and me.classId == classId then
+ 					requestedClass = nil
+-					CharacterChoice.Chosen:Fire("Weapon")
++					CharacterChoice.Chosen:Fire(CharacterChoice.startStep(classId))
+ 				end
+ 			end
+ 		end)
+diff --git a/src/client/UI/LobbyLayout.luau b/src/client/UI/LobbyLayout.luau
+index d5df973..c12022f 100644
+--- a/src/client/UI/LobbyLayout.luau
++++ b/src/client/UI/LobbyLayout.luau
+@@ -93,7 +93,9 @@ function Layout.mount(screen: ScreenGui, choose: Frame, players: Frame, record:
+ 		Size = UDim2.fromOffset(158, 34),
+ 		Parent = root,
+ 	}, function()
+-		show(({ Weapon = "Character", Difficulty = "Weapon" })[step] or "Main")
++		local me = RunState.getLocalPlayer()
++		local weaponless = me and Config.Classes[me.classId].maxWeapons == 0
++		show(if step == "Difficulty" and weaponless then "Character" else ({ Weapon = "Character", Difficulty = "Weapon" })[step] or "Main")
+ 	end)
+ 	local scroll = Widgets.create("ScrollingFrame", {
+ 		Name = "LobbyContent",
+diff --git a/src/server/Services/PlayerDataService/init.luau b/src/server/Services/PlayerDataService/init.luau
+index 48becd4..5cee5fe 100644
+--- a/src/server/Services/PlayerDataService/init.luau
++++ b/src/server/Services/PlayerDataService/init.luau
+@@ -288,7 +288,9 @@ function PlayerDataService.observeNativeStats(player: Player, sheet: { [string]:
+ 		observe(rule.stat, rule.threshold, rule.challengeId)
+ 	end
+ 	for _, rule in NativeCharacterAccess do
+-		observe(rule.stat, rule.threshold, rule.challengeId)
++		if rule.kind == "Stat" then
++			observe(rule.stat, rule.threshold, rule.challengeId)
++		end
+ 	end
+ 	if changed then
+ 		sendInfo(player)
+diff --git a/src/shared/Config/CharacterUnlocks.luau b/src/shared/Config/CharacterUnlocks.luau
+index 5cbe244..0c9452c 100644
+--- a/src/shared/Config/CharacterUnlocks.luau
++++ b/src/shared/Config/CharacterUnlocks.luau
+@@ -5,12 +5,11 @@ export type Challenge = {
+ 	challengeId: string,
+ 	source: string,
+ 	sourceMd5: string,
+-	stat: string,
+-	threshold: number,
+ 	requirement: string,
+-}
++} & ({ kind: "Stat", stat: string, threshold: number } | { kind: "WinDanger", danger: number })
+ local rules: { [string]: Challenge } = {
+ 	Ghost = {
++		kind = "Stat",
+ 		challengeId = "chal_hallucination",
+ 		source = "res://challenges/hallucination_data.tres",
+ 		sourceMd5 = "ceb46e5084b26af1de591ec752828310",
+@@ -18,5 +17,13 @@ local rules: { [string]: Challenge } = {
+ 		threshold = 60,
+ 		requirement = "Reach +60 % Dodge",
+ 	},
++	Bull = {
++		kind = "WinDanger",
++		challengeId = "chal_difficulty_1",
++		source = "res://challenges/chal_difficulty_1_data.tres",
++		sourceMd5 = "6a20708c5b6432e135b3266c6125a507",
++		danger = 1,
++		requirement = "Win a run in Danger 1",
++	},
+ }
+ return table.freeze(rules)
+diff --git a/src/shared/Util/CharacterAccess.luau b/src/shared/Util/CharacterAccess.luau
+index a763702..b43fbe6 100644
+--- a/src/shared/Util/CharacterAccess.luau
++++ b/src/shared/Util/CharacterAccess.luau
+@@ -9,6 +9,7 @@ export type Record = {
+ 	achievements: { [string]: boolean },
+ 	characterStats: { [string]: { wins: number } },
+ 	classes: { string }?, -- preserves explicit saved grants, including the trusted owner debug command
++	stats: { bestDanger: number }?,
+ }
+ 
+ function CharacterAccess.challengeKey(id: string): string
+@@ -56,7 +57,13 @@ function CharacterAccess.characterUnlocked(data: Record?, classId: string): bool
+ 		return true
+ 	end
+ 	local challenge = Unlocks[classId]
+-	return challenge ~= nil and data.achievements[CharacterAccess.challengeKey(challenge.challengeId)] == true
++	if not challenge then
++		return false
++	end
++	if data.achievements[CharacterAccess.challengeKey(challenge.challengeId)] == true then
++		return true
++	end
++	return challenge.kind == "WinDanger" and data.stats ~= nil and data.stats.bestDanger >= challenge.danger
+ end
+ 
+ function CharacterAccess.characterMask(data: Record?): { [string]: boolean }
+diff --git a/tests/CharacterAccess.spec.luau b/tests/CharacterAccess.spec.luau
+index 5d56116..26b3b7f 100644
+--- a/tests/CharacterAccess.spec.luau
++++ b/tests/CharacterAccess.spec.luau
+@@ -58,4 +58,11 @@ describe("Native weapon access", function()
+ 		table.insert(data.classes, "Ghost")
+ 		expect(Rules.characterUnlocked(data, "Ghost")).toBe(true)
+ 	end)
++	it("unlocks Bull from a saved Danger-1 victory, including earlier profiles", function()
++		local data = { achievements = {}, characterStats = {}, stats = { bestDanger = 0 } }
++		expect(Rules.characterUnlocked(data, "Bull")).toBe(false)
++		data.stats.bestDanger = 1
++		expect(Rules.characterUnlocked(data, "Bull")).toBe(true)
++		expect(Rules.characterUnlocked(nil, "Bull")).toBe(false)
++	end)
+ end)
+diff --git a/src/client/UI/CharacterRuleText.luau b/src/client/UI/CharacterRuleText.luau
+new file mode 100644
+--- /dev/null
++++ b/src/client/UI/CharacterRuleText.luau
+@@ -0,0 +1,95 @@
++--!strict
++-- CharacterChoice renders native rule words and inline stat artwork with rows that wrap to their parent width.
++local Widgets = require(script.Parent.Widgets)
++local Icons = require(script.Parent.Icons)
++local StatImages = require(script.Parent.StatImages)
++
++export type Token = { text: string?, stat: string?, coefficient: number? }
++local RuleText = {}
++
++function RuleText.clear(parent: Frame)
++	for _, child in parent:GetChildren() do
++		child:Destroy()
++	end
++	parent.AutomaticSize = Enum.AutomaticSize.Y
++	parent.Size = UDim2.new(parent.Size.X.Scale, parent.Size.X.Offset, 0, 0)
++end
++
++local function flow(parent: Frame, direction: Enum.FillDirection, wraps: boolean): UIListLayout
++	return Widgets.create("UIListLayout", {
++		FillDirection = direction,
++		Wraps = wraps,
++		HorizontalAlignment = Enum.HorizontalAlignment.Left,
++		VerticalAlignment = Enum.VerticalAlignment.Top,
++		ItemLineAlignment = Enum.ItemLineAlignment.Center,
++		Padding = UDim.new(0, 0),
++		SortOrder = Enum.SortOrder.LayoutOrder,
++		Parent = parent,
++	})
++end
++
++local function word(parent: Frame, text: string, order: number, textSize: number): TextLabel
++	return Widgets.label({
++		Name = `Word{order}`,
++		Text = text,
++		TextSize = textSize,
++		TextWrapped = false,
++		TextXAlignment = Enum.TextXAlignment.Left,
++		AutomaticSize = Enum.AutomaticSize.X,
++		Size = UDim2.fromOffset(0, textSize + 4),
++		LayoutOrder = order,
++		Parent = parent,
++	})
++end
++
++function RuleText.render(parent: Frame, rows: { { Token } }, textSize: number)
++	RuleText.clear(parent)
++	flow(parent, Enum.FillDirection.Vertical, false).Padding = UDim.new(0, 3)
++	for rowIndex, tokens in rows do
++		local row = Widgets.create("Frame", {
++			Name = `Row{rowIndex}`,
++			BackgroundTransparency = 1,
++			AutomaticSize = Enum.AutomaticSize.Y,
++			Size = UDim2.new(1, 0, 0, textSize + 4),
++			LayoutOrder = rowIndex,
++			Parent = parent,
++		})
++		-- Roblox's native flex wrapping responds to parent resizing without estimated word widths or listeners.
++		flow(row, Enum.FillDirection.Horizontal, true)
++		local order = 0
++		for _, token in tokens do
++			if token.stat then
++				assert(StatImages[token.stat], `No original stat image for character rule {token.stat}`)
++				order += 1
++				local scaling = Widgets.create("Frame", {
++					Name = `Scaling{order}`,
++					BackgroundTransparency = 1,
++					AutomaticSize = Enum.AutomaticSize.X,
++					Size = UDim2.fromOffset(0, textSize + 4),
++					LayoutOrder = order,
++					Parent = row,
++				})
++				flow(scaling, Enum.FillDirection.Horizontal, false)
++				if token.coefficient ~= nil then
++					word(scaling, `{token.coefficient}%`, 1, textSize).Name = "Coefficient"
++				end
++				local holder = Icons.holder(scaling, textSize + 3, 2)
++				holder.Name = "Stat"
++				Icons.draw(holder, "stat", token.stat)
++			elseif token.text then
++				-- Keep punctuation/spacing while breaking sentences at word boundaries for native line wrapping.
++				if token.text ~= "" and not token.text:find("%S") then
++					order += 1
++					word(row, token.text, order, textSize)
++				else
++					for leading, text, trailing in token.text:gmatch("(%s*)(%S+)(%s*)") do
++						order += 1
++						word(row, leading .. text .. trailing, order, textSize)
++					end
++				end
++			end
++		end
++	end
++end
++
++return RuleText
+diff --git a/tests/CharacterRuleText.spec.luau b/tests/CharacterRuleText.spec.luau
+new file mode 100644
+--- /dev/null
++++ b/tests/CharacterRuleText.spec.luau
+@@ -0,0 +1,141 @@
++--!strict
++-- Original character text/icon ordering, native wrapping contracts and safe replacement through the real UI helpers.
++local world = loadHelper("tests/helpers/RobloxMock.luau")
++world.addPlayer("Owner", 1, true)
++local Client = folderProxy("src/client", "Client")
++local RuleText = require(Client.UI.CharacterRuleText)
++local Images = require(Client.UI.StatImages)
++local rows = {
++	{ { text = "+20 Max HP" } },
++	{
++		{ text = "You explode for 30 (" },
++		{ stat = "meleeDamage", coefficient = 300 },
++		{ text = ") damage when you take damage" },
++	},
++}
++
++local function holder()
++	local parent = Instance.new("Frame")
++	parent.Size = UDim2.fromOffset(360, 0)
++	return parent
++end
++
++local function ordered(parent)
++	local result = {}
++	for _, child in parent:GetChildren() do
++		if child:IsA("GuiObject") then
++			table.insert(result, child)
++		end
++	end
++	table.sort(result, function(a, b)
++		return a.LayoutOrder < b.LayoutOrder
++	end)
++	return result
++end
++
++describe("Native character rule display", function()
++	it("preserves original words, line order and atomic coefficient/icon order", function()
++		local parent = holder()
++		RuleText.render(parent, rows, 17)
++		local lines = ordered(parent)
++		expect(#lines).toBe(2)
++		expect(lines[1].LayoutOrder).toBe(1)
++		expect(lines[2].LayoutOrder).toBe(2)
++		local text = ""
++		local stat
++		for _, part in ordered(lines[2]) do
++			if part:IsA("TextLabel") then
++				text ..= part.Text
++			else
++				stat = part
++				text ..= "[scaling]"
++			end
++		end
++		expect(text).toBe("You explode for 30 ([scaling]) damage when you take damage")
++		assert(stat)
++		local scaling = ordered(stat)
++		expect(scaling[1].Text).toBe("300%")
++		expect(scaling[2].Illustration:GetAttribute("IconKey")).toBe("stat:meleeDamage")
++		expect(scaling[2].Illustration.StatArt.Image).toBe(Images.meleeDamage)
++	end)
++
++	it("uses content-sized words and wrapped rows which follow a narrow parent", function()
++		local parent = holder()
++		RuleText.render(parent, rows, 17)
++		expect(parent.AutomaticSize).toBe(Enum.AutomaticSize.Y)
++		expect(parent.Size.X.Offset).toBe(360)
++		expect(parent.Size.Y.Offset).toBe(0)
++		expect(parent:FindFirstChildOfClass("UIListLayout").FillDirection).toBe(Enum.FillDirection.Vertical)
++		for _, row in ordered(parent) do
++			expect(row.AutomaticSize).toBe(Enum.AutomaticSize.Y)
++			expect(row.Size.X.Scale).toBe(1)
++			local flow = row:FindFirstChildOfClass("UIListLayout")
++			expect(flow.FillDirection).toBe(Enum.FillDirection.Horizontal)
++			expect(flow.Wraps).toBe(true)
++			for _, part in ordered(row) do
++				expect(part.AutomaticSize).toBe(Enum.AutomaticSize.X)
++			end
++		end
++		parent.Size = UDim2.fromOffset(128, 0)
++		for _, row in ordered(parent) do
++			expect(row.Size.X.Scale).toBe(1)
++			expect(row:FindFirstChildOfClass("UIListLayout").Wraps).toBe(true)
++		end
++	end)
++
++	it("replaces old rows and icons instead of duplicating them on render", function()
++		local parent = holder()
++		RuleText.render(parent, rows, 17)
++		local old = ordered(parent)[2]
++		RuleText.render(parent, { { { stat = "rangedDamage", coefficient = 50 } } }, 20)
++		expect(old.Parent).toBe(nil)
++		expect(#ordered(parent)).toBe(1)
++		expect(#parent:GetChildren()).toBe(2) -- one layout and one row
++		local stat = ordered(ordered(parent)[1])[1]
++		local scaling = ordered(stat)
++		expect(scaling[1].Text).toBe("50%")
++		expect(scaling[2].Illustration.StatArt.Image).toBe(Images.rangedDamage)
++	end)
++
++	it("clears the dedicated parent and collapses its minimum height", function()
++		local parent = holder()
++		RuleText.render(parent, rows, 17)
++		RuleText.clear(parent)
++		expect(#parent:GetChildren()).toBe(0)
++		expect(parent.Size.X.Offset).toBe(360)
++		expect(parent.Size.Y.Offset).toBe(0)
++		RuleText.clear(parent)
++		expect(#parent:GetChildren()).toBe(0)
++	end)
++
++	it("supports an icon without a coefficient and rejects an unknown original stat image", function()
++		local parent = holder()
++		RuleText.render(parent, { { { stat = "elementalDamage" } } }, 17)
++		local stat = ordered(ordered(parent)[1])[1]
++		local children = ordered(stat)
++		expect(#children).toBe(1)
++		expect(children[1].Illustration.StatArt.Image).toBe(Images.elementalDamage)
++		local ok = pcall(function()
++			RuleText.render(parent, { { { stat = "ForgedStat" } } }, 17)
++		end)
++		expect(ok).toBe(false)
++		world.advance(0.1)
++		expect(#world.errors).toBe(0)
++	end)
++
++	it("retains explicit spacing between adjacent scaling groups", function()
++		local parent = holder()
++		RuleText.render(parent, {
++			{
++				{ stat = "meleeDamage", coefficient = 300 },
++				{ text = " " },
++				{ stat = "rangedDamage", coefficient = 300 },
++			},
++		}, 17)
++		local parts = ordered(ordered(parent)[1])
++		expect(#parts).toBe(3)
++		expect(parts[2].Text).toBe(" ")
++		expect(parts[1].Stat.Illustration.StatArt.Image).toBe(Images.meleeDamage)
++		expect(parts[3].Stat.Illustration.StatArt.Image).toBe(Images.rangedDamage)
++	end)
++end)

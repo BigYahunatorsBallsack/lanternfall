@@ -6,6 +6,8 @@ local Shared = game:GetService("ReplicatedStorage").Shared
 local Config = require(Shared.Config)
 local Net = require(Shared.Net)
 local CharacterRules = require(Shared.Util.CharacterRules)
+local CharacterAccess = require(Shared.Util.CharacterAccess)
+local NativeUnlocks = require(Shared.Config.CharacterUnlocks)
 local ProgressRules = require(Shared.Util.ProgressRules)
 local ProfileCard = require(script.Parent.ProfileCard)
 local RunStateController = require(script.Parent.RunStateController)
@@ -34,9 +36,25 @@ local ruleArea: ScrollingFrame
 local classButtons: { [string]: TextButton } = {}
 local choiceTitle: TextLabel
 
+local function canChooseWeapon(classId: string, weaponId: string): boolean
+	if not Config.Classes[classId].nativeStartSelection then
+		return true
+	end
+	local info = ProfileCard.get()
+	if info and info.nativeWeaponUnlocks then
+		return info.nativeWeaponUnlocks[weaponId] == true
+	end
+	return CharacterAccess.weaponUnlocked(nil, weaponId)
+end
+
 -- Paket 13: whether the local player has unlocked a character (lockable ones count as locked until loaded).
 function CharacterChoice.isUnlocked(classId: string): boolean
 	local info = ProfileCard.get()
+	if Config.Classes[classId] and Config.Classes[classId].nativeStartSelection then
+		return if info and info.nativeCharacterUnlocks
+			then info.nativeCharacterUnlocks[classId] == true
+			else CharacterAccess.characterUnlocked(nil, classId)
+	end
 	return ProgressRules.isUnlocked(
 		"characters",
 		classId,
@@ -105,6 +123,9 @@ function CharacterChoice.render()
 				LayoutOrder = index,
 				Parent = weaponRow,
 			}, function()
+				if not canChooseWeapon(class.id, weaponId) then
+					return
+				end
 				if os.clock() - lastPress < 0.3 then
 					return
 				end
@@ -125,12 +146,24 @@ function CharacterChoice.render()
 				Size = UDim2.new(1, -8, 0, 28),
 				Parent = tile,
 			})
+			Widgets.label({
+				Name = "LockLabel",
+				Text = "LOCKED",
+				TextSize = 12,
+				TextColor3 = Theme.textDim,
+				Position = UDim2.fromOffset(0, 62),
+				Size = UDim2.new(1, 0, 0, 18),
+				Parent = tile,
+			})
 		end
 	end
 	for weaponId, button in buttons do
-		local chosen = weaponId == (selected[me.classId] or class.startWeapon)
-		button.BackgroundColor3 = if chosen then Theme.accent else Theme.button
-		button.TextColor3 = if chosen then Theme.accentText else Theme.text
+		local allowed = canChooseWeapon(me.classId, weaponId)
+		local chosen = allowed and weaponId == (selected[me.classId] or class.startWeapon)
+		button.Active = allowed
+		button.LockLabel.Visible = not allowed
+		button.BackgroundColor3 = if chosen then Theme.accent elseif allowed then Theme.button else Theme.panel
+		button.TextColor3 = if not allowed then Theme.textDim elseif chosen then Theme.accentText else Theme.text
 		button.WeaponName.TextColor3 = button.TextColor3
 		button.Outline.Color = if chosen then Theme.accent else Theme.stroke
 	end
@@ -223,7 +256,8 @@ function CharacterChoice.mount(card: Frame, row: Frame, buttonsByClass: { [strin
 		})
 		Tooltip.attach(button, function()
 			local class = Config.Classes[classId]
-			local requirement = ProgressRules.requirement("characters", classId)
+			local native = class.nativeStartSelection and NativeUnlocks[classId]
+			local requirement = if native then native.requirement else ProgressRules.requirement("characters", classId)
 			local price = Config.Progress.characterPrices[classId]
 			local locked = (requirement or "Unlock this character in your collection")
 				.. (if price then `\nor {price} Embers (Collection → Ember shop)` else "")

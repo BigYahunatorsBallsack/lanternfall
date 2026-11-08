@@ -2,6 +2,8 @@
 
 Stand: 29.10.2026 · Quelle: claude.ai-Doc „Lanternfall – Game Design Document" (Original mit Diagrammen). Diese Datei ist die Arbeitskopie im Repo; Änderungen am Design hier pflegen.
 
+**Verbindliche Anforderung, Owner 06.11.2026: Brotato 1:1.** Charaktere, Waffen, Items, Namen, Texte, Mechaniken, Formeln, Zahlen und Darstellung sollen dem Original entsprechen (Referenz: https://brotato.wiki.spellsandguns.com/). HP, Schaden und Heilung in Originaleinheiten mit Faktor 1, ohne HP-x10-Skalierung und ohne eigenes Ersatz-Balancing. Diese Vorgabe hat Vorrang vor allen aelteren anderslautenden Abschnitten dieses Dokuments, insbesondere „eigene Namen/Look“, „so nah wie moeglich“ und skalierten HP-/Heilungswerten. Bereits vorhandene Abweichungen sind offene Arbeit; technische Grenzen und fehlende Quellenwerte muessen benannt und duerfen nicht als 1:1 umgesetzt behauptet werden. Architektur, Server-Autoritaet, Dateibesitz und Merge-Freigabe bleiben unveraendert verbindlich. Dieser Zielwechsel allein bedeutet nicht, dass der aktuelle Code bereits vollstaendig 1:1 ist.
+
 ## 1. Überblick & Vision
 
 Lanternfall ist ein Koop-Survivors für 1–4 Spieler: Runs aus 12 kurzen Wellen gegen Schattenhorden, Waffen feuern automatisch, nach jeder Welle wählst du deine Level-ups und kaufst im Shop ein, am Ende wartet ein Boss.
@@ -248,6 +250,8 @@ Feste Charakter-Startwerte werden unverändert addiert; `gainMultipliers` wirken
 Der Shop verwendet persönliche Waffenlimits und Nah-/Fernkampf-Beschränkungen, einschließlich Kauf-Verschmelzung bei einem vollen Teil-Limit. Bei 5 % der Item-Ziehungen wird innerhalb der gewürfelten Seltenheit ein passendes Wunsch-Tag bevorzugt; fehlt ein passendes Item, gilt der normale Pool. Item-Tags sind aus positiven Werten/Effekt-Boni des eigenen Katalogs abgeleitete Affinitäten, keine vollständige Kopie der Wiki-Taglisten. Limit, Sperren und Duplikatvermeidung bleiben erhalten.
 
 Seit Paket 25 sind alle Charaktere 2D-Bilder (Abschnitt 14, `Config/SpriteImages`); der Avatar darunter bleibt unsichtbar für Bewegung und Kollision. Die 3D-Modelle aus Paket 21f (`assets/characters-r15`) werden nicht mehr geladen.
+
+**Laufende B10-Erweiterung, Owner-Ziel 06.11.2026:** Die obige Tabelle beschreibt den bisherigen Lieferstand, keine erlaubten Abweichungen vom neuen 1:1-Ziel. Der verbindliche Katalog umfasst alle 74 Charaktere der stabilen PC-Version 1.2.0.1 mit DLCs. Native Level beginnen bei LV.0; XP, Karten, Waffenlimits und Freischaltungen folgen den Originalregeln. Crazy, Brawler und Ghost sind als erste neue Pakete im Code verifiziert und warten auf die getrennt gelieferten Originalsprites. Der Server erfasst Überlebende vor der Weltbereinigung und zahlt Charakter-/Ernteboni einmal pro abgeschlossener Welle aus, auch vor direkten Siegesergebnissen. Verlorene Wellen zahlen nichts aus; die Endlos-Abstimmung zahlt dieselbe Welle nicht doppelt. Quellen, offene Abhängigkeiten und Prüfgrenzen: `docs/characters/README.md` und `docs/BROTATO-REQUIREMENTS.md`.
 
 ## 6. Waffen, Items & Evolutionen
 

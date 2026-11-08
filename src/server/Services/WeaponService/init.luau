@@ -29,6 +29,9 @@ local EnemySim = require(script.Parent.EnemySim)
 local MapService = require(script.Parent.MapService)
 local RandomService = require(script.Parent.RandomService)
 local RunDirector = require(script.Parent.RunDirector)
+local PlayerDataService = require(script.Parent.PlayerDataService)
+local CharacterExplosion = require(script.CharacterExplosion)
+local CharacterExplosions = require(Shared.Config.CharacterExplosions)
 local Arsenal = require(script.Arsenal)
 local Afflictions = require(script.Afflictions)
 local StatMath = require(Shared.Util.StatMath)
@@ -36,6 +39,7 @@ local CharacterRules = require(Shared.Util.CharacterRules)
 local BrotatoCombat = require(script.BrotatoCombat)
 local BrotatoRuntime = require(script.BrotatoRuntime)
 local EnemyKinds = require(Shared.Util.EnemyKinds)
+local CharacterMovement = require(script.Parent.CharacterService.Movement)
 local waveBonuses: { [Player]: { [string]: number } } = {}
 local selections: { [Player]: { [string]: string } } = {}
 
@@ -58,12 +62,45 @@ export type HitListener = (
 	source: Arsenal.HitSource
 ) -> ()
 local hitListener: HitListener? = nil
+type CharacterHit = { player: Player, enemyId: number, amount: number }
+local characterHits: { CharacterHit } = {}
+
+local function characterCanAttack(weapon: Arsenal.Weapon): boolean
+	local player = Players:GetPlayerByUserId(weapon.ownerId)
+	local classId = player and RunDirector.getParticipantClassId(player)
+	local class = classId and Config.Classes[classId]
+	return not (player and class and class.canAttackWhileMoving == false and CharacterMovement.isMoving(player))
+end
 
 local function loadBehaviors(): { [string]: Arsenal.Behavior }
 	local behaviors = {}
 	for _, child in script.Behaviors:GetChildren() do
 		if child:IsA("ModuleScript") then
-			behaviors[child.Name] = require(child) :: any
+			local behavior = table.clone(require(child)) :: Arsenal.Behavior
+			local fire = behavior.fire
+			if fire then
+				behavior.fire = function(weapon, context)
+					if not characterCanAttack(weapon) then
+						weapon.cooldownLeft = math.max(0, weapon.cooldownLeft)
+						return false
+					end
+					return fire(weapon, context)
+				end
+			end
+			local step = behavior.step
+			if step then
+				behavior.step = function(weapon, context, dt)
+					local active = context.active
+					-- Catch-up attacks also run in step; inactive still simulates existing projectiles.
+					if active and not characterCanAttack(weapon) then
+						context.active = false
+						weapon.cooldownLeft = math.max(0, weapon.cooldownLeft)
+					end
+					step(weapon, context, dt)
+					context.active = active
+				end
+			end
+			behaviors[child.Name] = behavior
 		end
 	end
 	return behaviors
@@ -177,7 +214,7 @@ local arsenal = Arsenal.new({
 	maxWeapons = (function()
 		local maximum = Config.Player.maxWeapons
 		for id in Config.Classes do
-			maximum = math.max(maximum, CharacterRules.maxWeapons(id))
+			maximum = math.max(maximum, Config.Classes[id].maxWeaponSlots or CharacterRules.maxWeapons(id))
 		end
 		return maximum
 	end)(),
@@ -265,6 +302,7 @@ local function sendAll()
 end
 
 local function onRunStarted(participants: { Player })
+	table.clear(characterHits)
 	arsenal:clear()
 	table.clear(waveBonuses)
 	paused = false
@@ -273,12 +311,21 @@ local function onRunStarted(participants: { Player })
 		arsenal:addOwner(player.UserId, ownerStats[player] or {})
 		local classId = RunDirector.getParticipantClassId(player)
 		local class = classId and Config.Classes[classId]
-		if class then
+		if class and class.maxWeapons ~= 0 then
 			local choices = selections[player]
 			local chosen = (choices and choices[classId]) or class.startWeapon
-			local ok, reason = arsenal:addWeapon(player.UserId, chosen, now(), Config.Weapons[chosen].minTier)
+			if class.nativeStartSelection and not PlayerDataService.isUnlocked(player, "weapons", chosen) then
+				for _, alternative in class.startWeapons do
+					if PlayerDataService.isUnlocked(player, "weapons", alternative) then
+						chosen = alternative
+						break
+					end
+				end
+			end
+			local tier = (class.startWeaponTiers and class.startWeaponTiers[chosen]) or Config.Weapons[chosen].minTier
+			local ok, reason = arsenal:addWeapon(player.UserId, chosen, now(), tier)
 			for _, extra in class.extraWeapons or {} do
-				arsenal:addWeapon(player.UserId, extra, now())
+				arsenal:addWeapon(player.UserId, extra, now(), class.extraWeaponTiers and class.extraWeaponTiers[extra])
 			end
 			if not ok then
 				warn(`[Lanternfall] {player.Name} gets no start weapon {class.startWeapon}: {reason}`)
@@ -290,6 +337,7 @@ end
 
 local function onStepped(dt: number, stepNow: number)
 	if paused then
+		table.clear(characterHits)
 		return
 	end
 	local participants = RunDirector.getParticipants()
@@ -310,12 +358,7 @@ local function onStepped(dt: number, stepNow: number)
 					if RunDirector.getParticipantState(player) ~= "Alive" then
 						return
 					end
-					local current = CombatService.getHp(player)
 					CombatService.drainPlayer(player, amount)
-					if current <= amount then
-						RunDirector.setParticipantState(player, "Down")
-					end
-					CombatService.PlayerDamaged:Fire(player, math.min(current, amount))
 				end
 			)
 			local previous = waveBonuses[player] or {}
@@ -340,6 +383,18 @@ local function onStepped(dt: number, stepNow: number)
 		end
 	end
 	arsenal:step(dt, stepNow)
+	-- Character stat strikes are already scaled in the native order; Arsenal's primary-hit formula differs.
+	local pending = characterHits
+	characterHits = {}
+	for _, hit in pending do
+		if
+			RunDirector.isActive()
+			and RunDirector.getParticipantState(hit.player) == "Alive"
+			and EnemySim.isAlive(hit.enemyId)
+		then
+			WeaponService.structureHit(hit.player, hit.enemyId, hit.amount, "Strike")
+		end
+	end
 	local earned = growth
 	growth = {}
 	for ownerId, gains in earned do
@@ -370,6 +425,9 @@ function WeaponService.selectStartWeapon(player: Player, classId: string, weapon
 		return false
 	end
 	if not table.find(class.startWeapons, weaponId) then
+		return false
+	end
+	if class.nativeStartSelection and not PlayerDataService.isUnlocked(player, "weapons", weaponId) then
 		return false
 	end
 	local choices = selections[player] or {}
@@ -442,6 +500,9 @@ function WeaponService.init()
 	RunDirector.RunStarted:Connect(onRunStarted)
 	EnemySim.Stepped:Connect(onStepped)
 	RunDirector.PhaseChanged:Connect(function(phase)
+		if phase ~= "Running" then
+			table.clear(characterHits)
+		end
 		if phase == "Shop" then
 			table.clear(waveBonuses)
 			for _, player in Players:GetPlayers() do
@@ -466,6 +527,7 @@ function WeaponService.init()
 		end
 		return saved
 	end, function(saved: { [Player]: { Arsenal.SavedWeapon } })
+		table.clear(characterHits)
 		arsenal:clearCombat()
 		growth = {}
 		for player, weapons in saved do
@@ -495,20 +557,16 @@ end
 
 -- Adds a weapon of `tier` (default I); returns its uid.
 function WeaponService.addWeapon(player: Player, weaponId: string, tier: number?): (boolean, string?, number?)
-	if not CharacterRules.weaponAllowed(RunDirector.getParticipantClassId(player), weaponId) then
-		return false, "CharacterRestriction", nil
-	end
-	if
-		not CharacterRules.hasSlot(
-			RunDirector.getParticipantClassId(player),
-			weaponId,
-			WeaponService.getWeapons(player)
-		)
-	then
-		return false, "SlotsFull", nil
-	end
 	local config = Config.Weapons[weaponId]
 	local requestedTier = tier or (config and config.minTier) or 1
+	local classId = RunDirector.getParticipantClassId(player)
+	local slots = (ownerStats[player] and ownerStats[player].weaponSlots) or 0
+	if not CharacterRules.weaponAllowed(classId, weaponId, requestedTier) then
+		return false, "CharacterRestriction", nil
+	end
+	if not CharacterRules.hasSlot(classId, weaponId, WeaponService.getWeapons(player), slots, requestedTier) then
+		return false, "SlotsFull", nil
+	end
 	if config and requestedTier < (config.minTier or 1) then
 		return false, "BadTier", nil
 	end
@@ -529,6 +587,14 @@ end
 
 -- One tier up without a partner (admin).
 function WeaponService.raiseTier(player: Player, uid: number): (boolean, string?)
+	for _, weapon in arsenal:getWeapons(player.UserId) do
+		if
+			weapon.uid == uid
+			and not CharacterRules.weaponAllowed(RunDirector.getParticipantClassId(player), weapon.id, weapon.tier + 1)
+		then
+			return false, "CharacterRestriction"
+		end
+	end
 	local ok, reason = arsenal:raiseTier(player.UserId, uid)
 	if ok then
 		send(player)
@@ -538,6 +604,14 @@ end
 
 -- Merges the weapon with another copy of the same tier into the next tier (Arsenal.merge).
 function WeaponService.merge(player: Player, uid: number): (boolean, string?)
+	for _, weapon in arsenal:getWeapons(player.UserId) do
+		if
+			weapon.uid == uid
+			and not CharacterRules.weaponAllowed(RunDirector.getParticipantClassId(player), weapon.id, weapon.tier + 1)
+		then
+			return false, "CharacterRestriction"
+		end
+	end
 	local ok, reason = arsenal:merge(player.UserId, uid)
 	if ok then
 		send(player)
@@ -605,6 +679,16 @@ function WeaponService.strikeEnemy(
 	arsenal:queueStrike(player.UserId, enemyId, damage, scaling, flat)
 end
 
+-- Lich/Lucky use one already-scaled hit per native event, deferred to the normal combat step.
+function WeaponService.queueCharacterStrike(player: Player, enemyId: number, amount: number)
+	if paused or not RunDirector.isActive() or RunDirector.getParticipantState(player) ~= "Alive" then
+		return
+	end
+	if amount > 0 and amount < math.huge and EnemySim.isAlive(enemyId) then
+		table.insert(characterHits, { player = player, enemyId = enemyId, amount = amount })
+	end
+end
+
 -- Debug: switches every player's weapons off (no hits, no visuals) or back on. Resets at run start.
 function WeaponService.setPaused(value: boolean)
 	paused = value
@@ -649,16 +733,53 @@ function WeaponService.getDamageStats(player: Player): Arsenal.DamageStats
 end
 
 function WeaponService.getMaxWeapons(player: Player): number
-	return CharacterRules.maxWeapons(RunDirector.getParticipantClassId(player))
+	return CharacterRules.maxWeapons(
+		RunDirector.getParticipantClassId(player),
+		(ownerStats[player] and ownerStats[player].weaponSlots) or 0
+	)
 end
 
 -- B12: already scaled structure damage, no primary weapon scaling or life steal.
-function WeaponService.structureHit(player: Player, enemyId: number, amount: number, source: Arsenal.HitSource?)
+function WeaponService.structureHit(
+	player: Player,
+	enemyId: number,
+	amount: number,
+	source: Arsenal.HitSource?,
+	critical: boolean?
+)
 	local killed, dealt, applied = EnemySim.damage(enemyId, amount, player)
-	recordHit(player.UserId, enemyId, applied, false, killed, false)
+	recordHit(player.UserId, enemyId, applied, critical == true, killed, false)
 	if hitListener and dealt > 0 then
-		hitListener(player.UserId, enemyId, dealt, false, killed, source or "Weapon")
+		hitListener(player.UserId, enemyId, dealt, critical == true, killed, source or "Weapon")
 	end
+end
+
+-- Native on-hurt explosions resolve before CombatService marks a lethally hurt owner down.
+-- Source stats include their own crit multiplier and add ordinary/explosion damage before rounding.
+function WeaponService.explodeCharacter(player: Player, definition: CharacterExplosions.Definition): boolean
+	if paused or not RunDirector.isActive() or RunDirector.getParticipantState(player) ~= "Alive" then
+		return false
+	end
+	local position = MapService.getRootPosition(player)
+	if not position then
+		return false
+	end
+	local sheet = ownerStats[player] or {}
+	local stats = CharacterExplosion.compute(definition, sheet)
+	local center = position + Vector3.new(0, 0, stats.offsetZ)
+	local ids = {}
+	local count = EnemySim.queryRadius(center, stats.radius, ids)
+	arsenal:emitShared(player.UserId, { kind = "Blast", x = center.X, z = center.Z, radius = stats.radius })
+	for index = 1, count do
+		local id = ids[index]
+		if EnemySim.isAlive(id) then
+			local _, elite = EnemySim.getKind(id)
+			local critical = RandomService.number("Combat", player) < stats.critChance
+			local damage = CharacterExplosion.hitDamage(stats, critical, if elite then sheet.eliteDamage or 0 else 0)
+			WeaponService.structureHit(player, id, damage, "Explosion", critical)
+		end
+	end
+	return true
 end
 -- B12 shares the existing burn registry: strongest burn wins, timers survive refreshes, secondary stats apply.
 function WeaponService.structureBurn(

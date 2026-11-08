@@ -139,7 +139,7 @@ local function render()
 		renderClasses()
 	end
 	local progress = ProgressController.getTeam()
-	levelValue.Text = tostring(if progress then progress.level else 1)
+	levelValue.Text = tostring(if progress then progress.level else 0)
 	local anySecondary = false
 	for statId, label in values do
 		local value = sheet[statId] or 0

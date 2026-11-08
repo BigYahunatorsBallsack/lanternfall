@@ -57,7 +57,7 @@ local STAT_COLORS = { plus = Theme.success, minus = Theme.danger }
 
 local MAX_WEAPON_SLOTS = Config.Player.maxWeapons
 for _, class in Config.Classes do
-	MAX_WEAPON_SLOTS = math.max(MAX_WEAPON_SLOTS, class.maxWeapons or 0)
+	MAX_WEAPON_SLOTS = math.max(MAX_WEAPON_SLOTS, class.maxWeaponSlots or class.maxWeapons or 0)
 end
 local ShopController = {}
 

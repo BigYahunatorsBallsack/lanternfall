@@ -1,6 +1,9 @@
 --!strict
 -- B10 character packages read by CharacterRules, services and lobby. References: docs/B10-CHARAKTERE.md.
 -- HP uses the original Brotato scale. Legacy ids remain valid; unlock progression belongs to package 13.
+local Catalog = require(script.Parent.CharacterCatalog)
+type CharacterArtwork = { image: string?, height: number?, ground: number?, center: number? }
+local SpriteImages: { characters: { [string]: CharacterArtwork } } = require(script.Parent.SpriteImages)
 export type Class = {
 	id: string,
 	displayName: string,
@@ -16,12 +19,32 @@ export type Class = {
 	weaponKind: string?,
 	kindLimits: { [string]: number }?,
 	extraWeapons: { string }?,
+	startWeaponTiers: { [string]: number }?,
+	extraWeaponTiers: { [string]: number }?,
 	startItems: { string }?,
 	wantedTags: { string }?,
 	perWeapon: { [string]: number }?,
 	perDistinctWeapon: { [string]: number }?,
 	conversions: { { source: string, target: string, per: number, amount: number, permanentOnly: boolean? } }?,
 	perLevel: { [string]: number }?,
+	noHeal: boolean?,
+	oneHit: boolean?,
+	noWaveHeal: boolean?,
+	canAttackWhileMoving: boolean?,
+	minWeaponTier: number?,
+	maxWeaponTier: number?,
+	noDuplicateWeapons: boolean?,
+	baseWeaponSlots: number?,
+	slotUpgradeAmount: number?,
+	maxWeaponSlots: number?,
+	weaponClassStats: { [string]: { [string]: number } }?,
+	weaponKindStats: { [string]: { [string]: number } }?,
+	perTierWeapon: { [number]: { [string]: number } }?,
+	setCountBonus: number?,
+	allWeaponsForSets: boolean?,
+	native: Catalog.CatalogCharacter?,
+	nativeStartSelection: boolean?,
+	nativeCodeReady: boolean?,
 }
 local Classes: { [string]: Class } = {
 	SparkMage = {
@@ -165,4 +188,91 @@ Classes.Trapper = {
 	available = false,
 	description = "Retired prototype",
 }
+
+-- Source-complete records remain unavailable until their runtime dependencies and selection paths are verified.
+-- Existing profile ids retain the delivered behavior while the complete native packages are integrated.
+for id, source in Catalog do
+	if Classes[id] then
+		Classes[id].native = source
+		continue
+	end
+	local startTiers: { [string]: number } = {}
+	for _, choice in source.startChoices do
+		startTiers[choice.id] = choice.tier
+	end
+	local conversions = {}
+	for _, conversion in source.conversions do
+		if conversion.sourceKind == "Stat" then
+			table.insert(conversions, conversion)
+		end
+	end
+	Classes[id] = {
+		id = id,
+		displayName = source.displayName,
+		startWeapon = source.startWeapon,
+		startWeapons = source.startWeapons,
+		startWeaponTiers = startTiers,
+		extraWeapons = source.extraWeapons,
+		extraWeaponTiers = source.extraWeaponTiers,
+		startItems = source.startItems,
+		stats = source.stats,
+		gainMultipliers = source.gainMultipliers,
+		perLevel = source.perLevel,
+		perWeapon = source.perWeapon,
+		perDistinctWeapon = source.perDistinctWeapon,
+		perTierWeapon = source.perTierWeapon,
+		weaponClassStats = source.weaponClassStats,
+		weaponKindStats = source.weaponKindStats,
+		conversions = conversions,
+		maxWeapons = source.maxWeapons,
+		weaponKind = source.weaponKind,
+		kindLimits = source.kindLimits,
+		minWeaponTier = source.minWeaponTier,
+		maxWeaponTier = source.maxWeaponTier,
+		baseWeaponSlots = source.baseWeaponSlots,
+		slotUpgradeAmount = source.slotUpgradeAmount,
+		maxWeaponSlots = source.maxWeaponSlots,
+		noDuplicateWeapons = source.noDuplicateWeapons,
+		noHeal = source.noHeal,
+		oneHit = source.oneHit,
+		noWaveHeal = source.noWaveHeal,
+		canAttackWhileMoving = source.canAttackWhileMoving,
+		setCountBonus = source.setCountBonus,
+		allWeaponsForSets = source.allWeaponsForSets,
+		wantedTags = source.wantedTags,
+		free = source.free,
+		available = false,
+		description = source.displayName,
+		native = source,
+		nativeStartSelection = true,
+	}
+end
+-- Native free character with complete existing equipment and no outstanding behavior dependencies.
+-- Text follows the stable English translation keys recorded in docs/characters/README.md.
+Classes.Crazy.nativeCodeReady = true
+Classes.Crazy.description =
+	"+100 Range with Precise weapons\n+25 % Attack Speed\nYou start with 1 Knife\n-30 % Dodge\n-10 Engineering\n-10 Ranged Damage"
+Classes.Brawler.nativeCodeReady = true
+Classes.Brawler.description =
+	"+50 % Attack Speed with Unarmed weapons\nYou start with 1 Fist\n+15 % Dodge\n-50 Range\n-50 Ranged Damage"
+Classes.Ghost.nativeCodeReady = true
+Classes.Ghost.description = "+10 Damage with Ethereal weapons\n+30 % Dodge\nDodge is capped at 90%\n-100 Armor"
+-- Original art is delivered independently; ready code never bypasses the approved-sprite requirement.
+for id, class in Classes do
+	if not class.nativeCodeReady then
+		continue
+	end
+	local art = SpriteImages.characters[id]
+	local imageId = if art and art.image then tonumber(art.image:match("^rbxassetid://(%d+)$")) else nil
+	class.available = art ~= nil
+		and type(art.image) == "string"
+		and imageId ~= nil
+		and imageId > 0
+		and type(art.height) == "number"
+		and art.height > 0
+		and type(art.ground) == "number"
+		and art.ground >= 0
+		and type(art.center) == "number"
+		and art.center > 0
+end
 return table.freeze(Classes)

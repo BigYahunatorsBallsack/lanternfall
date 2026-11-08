@@ -93,7 +93,7 @@ local Remotes: { [string]: Definition } = {
 	Loadout = { direction = "toClient" }, -- Net/Types.Loadout of one player, to everyone on change
 	WeaponEffects = { direction = "toClient" }, -- buffer (Net/WeaponFx, since Paket 22) of one simulation step, to participants
 	LevelUpOffer = { direction = "toClient" }, -- Net/Types.LevelUpOffer, to the choosing player
-	TeamProgress = { direction = "toClient" }, -- Net/Types.TeamProgress, to everyone on change
+	TeamProgress = { direction = "toClient" }, -- Net/Types.TeamProgress, personal progression to its owner
 	XpOrbs = { direction = "toClient" }, -- Net/Types.XpOrbEvents of one simulation step, to participants
 	Items = { direction = "toClient" }, -- Net/Types.ItemLoadout of one player, to everyone on change
 	Stats = { direction = "toClient" }, -- Net/Types.StatSheet, to its player on change
@@ -251,4 +251,11 @@ Remotes.SkipFirstNight = {
 	args = {},
 }
 Remotes.FirstNightLobby = { direction = "toClient" } -- Paket 19: show the lobby hint after the First Night (no data)
+-- Native character movement conditions use intent, so pressing against a wall still counts as moving.
+local movementIntent = require(script.Parent.Parent.Config.CharacterMechanics).movementIntent
+Remotes.SetMovementIntent = {
+	direction = "toServer",
+	rateLimit = { count = movementIntent.rateCount, perSeconds = movementIntent.rateSeconds },
+	args = { Validate.boolean() }, -- intent only; service checks participation and observed movement
+}
 return table.freeze(Remotes)

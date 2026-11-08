@@ -43,6 +43,7 @@ type State = {
 	buys: number, -- purchases in the current shop
 	freeRerolls: number, -- free rerolls of the current shop (Free Rerolls stat and purchases) not used yet
 	reportedShards: number, -- whole Shards last told to ShardsChanged
+	characterWaveReward: number,
 }
 
 local ShopService = {}
@@ -66,6 +67,7 @@ local offerCounter = 0
 local function newState(): State
 	return {
 		shards = Config.Shop.startShards, -- playtest after Paket 24: something to buy in the first shop
+		characterWaveReward = 0,
 		open = false,
 		wave = 0,
 		offers = {},
@@ -143,7 +145,8 @@ local function refresh(player: Player, state: State)
 					weapons,
 					WeaponService.getMaxWeapons(player),
 					Config.Player.maxWeaponTier,
-					RunDirector.getParticipantClassId(player)
+					RunDirector.getParticipantClassId(player),
+					StatService.getStat(player, "weaponSlots")
 				)
 			else
 				local owned = items[offer.itemId] or 0
@@ -181,15 +184,21 @@ end
 
 -- New offers; locked unsold ones (`keep`) stay. `previous`: ids of the roll before, not offered again if possible.
 local function roll(player: Player, state: State, keep: { Types.ShopOffer }, previous: { [string]: boolean }?)
+	local classId = RunDirector.getParticipantClassId(player)
+	local class = classId and Config.Classes[classId]
 	state.offers = ShopRules.roll({
-		classId = RunDirector.getParticipantClassId(player),
+		classId = classId,
+		weaponSlots = StatService.getStat(player, "weaponSlots"),
 		wave = state.wave,
 		luck = StatService.getStat(player, "luck"),
 		priceFactor = priceFactor(player),
 		weapons = WeaponService.getImplemented(),
 		ownedWeapons = ownedWeapons(player),
 		maxWeapons = WeaponService.getMaxWeapons(player),
-		maxTier = Config.Player.maxWeaponTier,
+		maxTier = math.min(
+			Config.Player.maxWeaponTier,
+			if class then class.maxWeaponTier or Config.Player.maxWeaponTier else Config.Player.maxWeaponTier
+		),
 		ownedItems = StatService.getItemCounts(player),
 		keep = keep,
 		previous = previous,
@@ -214,15 +223,16 @@ local function lockedOffers(offers: { Types.ShopOffer }): { Types.ShopOffer }
 	return locked
 end
 
--- End of a wave: Harvesting gives its value in Shards (negative Harvesting takes them, down to 0) and team XP, then
+-- End of a wave: Harvesting gives its value in Shards (negative Harvesting takes them, down to 0) and personal XP, then
 -- grows (StatService.growHarvesting).
 local function harvest(player: Player, state: State)
 	local harvesting = StatService.getStat(player, "harvesting")
-	if harvesting == 0 then
-		return
+	local reward = harvesting + state.characterWaveReward
+	state.characterWaveReward = 0
+	state.shards = math.max(0, state.shards + reward)
+	if reward > 0 then
+		ExperienceService.addWaveReward(reward, player)
 	end
-	state.shards = math.max(0, state.shards + harvesting)
-	ExperienceService.addXp(harvesting)
 	StatService.growHarvesting(player)
 end
 
@@ -231,8 +241,6 @@ local function openShop()
 	for _, player in RunDirector.getParticipants() do
 		local state = states[player]
 		if state and RunDirector.getParticipantState(player) ~= "Out" then
-			ShopService.WaveEnding:Fire(player) -- wave-end item effects come before Harvesting (Brotato)
-			harvest(player, state)
 			state.open = true
 			state.wave = wave
 			state.rerolls = 0
@@ -270,7 +278,8 @@ local function grant(player: Player, offer: Types.ShopOffer): boolean
 		weapons,
 		WeaponService.getMaxWeapons(player),
 		Config.Player.maxWeaponTier,
-		RunDirector.getParticipantClassId(player)
+		RunDirector.getParticipantClassId(player),
+		StatService.getStat(player, "weaponSlots")
 	)
 	if blocked then
 		return false
@@ -413,6 +422,16 @@ end
 -- Lifecycle -------------------------------------------------------------------------
 
 function ShopService.init()
+	RunDirector.WaveRewards:Connect(function()
+		for _, player in RunDirector.getParticipants() do
+			local state = states[player]
+			if state and RunDirector.getParticipantState(player) ~= "Out" then
+				ShopService.WaveEnding:Fire(player) -- native wave effects precede harvesting, also on final victory
+				harvest(player, state)
+				send(player, state)
+			end
+		end
+	end)
 	ExperienceService.OrbsCollected:Connect(function(player: Player, xp: number)
 		local state = states[player]
 		if state then
@@ -444,6 +463,7 @@ function ShopService.init()
 			local data = saved[player]
 			if data then
 				state.shards = data.shards
+				state.characterWaveReward = 0
 				state.carried = Copy.deep(data.carried)
 				state.open = false
 				state.offers = {}
@@ -503,6 +523,14 @@ function ShopService.addShards(player: Player, amount: number): boolean
 	state.shards += amount
 	send(player, state)
 	return true
+end
+
+-- Captured before enemy cleanup; combined with this player's harvesting before deciding gold/XP sign.
+function ShopService.setCharacterWaveReward(player: Player, amount: number)
+	local state = states[player]
+	if state then
+		state.characterWaveReward = amount
+	end
 end
 
 -- Paket 16: whether the player's shop is open right now.

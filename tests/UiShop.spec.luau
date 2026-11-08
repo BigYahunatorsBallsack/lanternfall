@@ -95,7 +95,7 @@ describe("Approved shop UI", function()
 				expect(string.find(card.EffectDetails.Detail.Text, "Critical", 1, true) ~= nil).toBe(true)
 			end
 		end
-		expect(world.gui("Stats", "CurrentLevel").Value.Text).toBe("1")
+		expect(world.gui("Stats", "CurrentLevel").Value.Text).toBe("0")
 	end)
 	it("keeps purchases, locks and rerolls working after portrait, landscape and desktop transitions", function()
 		Shop.addShards(me, 1000)

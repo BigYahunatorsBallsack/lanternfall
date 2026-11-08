@@ -64,7 +64,7 @@ local function give(id)
 end
 
 describe("B10 character catalog", function()
-	it("validates all nine packages and real client UI", function()
+	it("validates every available package and real client UI", function()
 		expect(#Check.run()).toBe(0)
 		local count = 0
 		for id, class in Config.Classes do

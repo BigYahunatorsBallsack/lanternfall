@@ -20,6 +20,9 @@ local ProgressRules = require(Shared.Util.ProgressRules)
 local PurchaseRules = require(Shared.Util.PurchaseRules)
 local Signal = require(Shared.Util.Signal)
 local Types = require(Shared.Net.Types)
+local NativeWeaponAccess = require(Shared.Config.CharacterWeaponAccess)
+local NativeCharacterAccess = require(Shared.Config.CharacterUnlocks)
+local CharacterAccess = require(Shared.Util.CharacterAccess)
 
 local MemoryStore = require(script.MemoryStore)
 local Migrations = require(script.Migrations)
@@ -83,7 +86,10 @@ end
 local function sendInfo(player: Player)
 	local profile = profiles[player]
 	if profile then
-		Net.fireClient("ProfileInfo", player, ProfileRecords.info(profile.Data, PlayerDataService.getSaveMode()))
+		local info = ProfileRecords.info(profile.Data, PlayerDataService.getSaveMode())
+		info.nativeWeaponUnlocks = CharacterAccess.weaponMask(profile.Data)
+		info.nativeCharacterUnlocks = CharacterAccess.characterMask(profile.Data)
+		Net.fireClient("ProfileInfo", player, info)
 	end
 end
 
@@ -214,6 +220,9 @@ function PlayerDataService.ownsClass(player: Player, classId: string): boolean
 		return false
 	end
 	local data = PlayerDataService.get(player)
+	if class.nativeStartSelection then
+		return CharacterAccess.characterUnlocked(data, classId)
+	end
 	if class.free then
 		if not ProgressRules.isLockable("characters", classId) then
 			return true
@@ -226,6 +235,12 @@ end
 -- Paket 13: whether a weapon or item is unlocked for the player (everything lockable is locked until loaded).
 function PlayerDataService.isUnlocked(player: Player, kind: ProgressRules.Kind, id: string): boolean
 	local data = PlayerDataService.get(player)
+	if kind == "characters" and Config.Classes[id] and Config.Classes[id].nativeStartSelection then
+		return CharacterAccess.characterUnlocked(data, id)
+	end
+	if kind == "weapons" and NativeWeaponAccess[id] then
+		return CharacterAccess.weaponUnlocked(data, id)
+	end
 	return ProgressRules.isUnlocked(
 		kind,
 		id,
@@ -237,7 +252,48 @@ end
 -- Paket 13: the player's locked ids of a kind as a set (the shop and crates skip them).
 function PlayerDataService.lockedSet(player: Player, kind: ProgressRules.Kind): { [string]: boolean }
 	local data = PlayerDataService.get(player)
-	return ProgressRules.lockedSet(kind, if data then data.achievements else {}, if data then data.classes else nil)
+	local result =
+		ProgressRules.lockedSet(kind, if data then data.achievements else {}, if data then data.classes else nil)
+	if kind == "weapons" then
+		for id in NativeWeaponAccess do
+			result[id] = if CharacterAccess.weaponUnlocked(data, id) then nil else true
+		end
+	elseif kind == "characters" then
+		for id, class in Config.Classes do
+			if class.nativeStartSelection then
+				result[id] = if CharacterAccess.characterUnlocked(data, id) then nil else true
+			end
+		end
+	end
+	return result
+end
+
+-- Native stat challenges persist in the existing string-keyed achievement map; no profile field is replaced.
+function PlayerDataService.observeNativeStats(player: Player, sheet: { [string]: number })
+	local data = PlayerDataService.get(player)
+	if not data then
+		return
+	end
+	local changed = false
+	local function observe(stat: string?, threshold: number?, challengeId: string?)
+		if stat and threshold and challengeId and (sheet[stat] or 0) >= threshold then
+			local key = CharacterAccess.challengeKey(challengeId)
+			if not data.achievements[key] then
+				data.achievements[key] = true
+				changed = true
+			end
+		end
+	end
+	for _, rule in NativeWeaponAccess do
+		observe(rule.stat, rule.threshold, rule.challengeId)
+	end
+	for _, rule in NativeCharacterAccess do
+		observe(rule.stat, rule.threshold, rule.challengeId)
+	end
+	if changed then
+		sendInfo(player)
+		PlayerDataService.Changed:Fire(player)
+	end
 end
 
 -- Paket 13: highest danger level open for the player with this character (start level until loaded).
@@ -355,8 +411,16 @@ function PlayerDataService.unlockAll(player: Player): boolean
 	for _, achievement in Config.Progress.achievements do
 		data.achievements[achievement.id] = true
 	end
+	for _, rule in NativeWeaponAccess do
+		if rule.challengeId then
+			data.achievements[CharacterAccess.challengeKey(rule.challengeId)] = true
+		end
+	end
 	for classId, class in Config.Classes do
 		if class.available then
+			if class.native and not class.free and not table.find(data.classes, classId) then
+				table.insert(data.classes, classId)
+			end
 			local character = data.characterStats[classId] or ProfileTemplate.newCharacterStats()
 			character.bestDanger = #Config.Difficulty.levels - 2 -- opens the highest level
 			data.characterStats[classId] = character

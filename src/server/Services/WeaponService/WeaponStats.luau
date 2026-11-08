@@ -20,6 +20,7 @@ local Player = require(Shared.Config.Player)
 local Stats = require(Shared.Config.Stats)
 local Weapons = require(Shared.Config.Weapons)
 local StatMath = require(Shared.Util.StatMath)
+local CharacterRules = require(Shared.Util.CharacterRules)
 
 -- The owner's stats by id (Util/StatMath.Sheet); missing stats count as 0.
 export type Bonuses = { [string]: number }
@@ -60,6 +61,7 @@ function WeaponStats.compute(
 	evolution: Evolutions.Evolution?,
 	minCooldown: number
 ): Stats
+	bonuses = CharacterRules.weaponBonuses(weapon, bonuses)
 	local stats: Stats = table.clone(weapon.base)
 	local damageBonus = 0
 	for n = 1, math.min(tier, #weapon.tiers) do
@@ -87,7 +89,8 @@ function WeaponStats.compute(
 		damage += share * (bonuses[statId] or 0)
 	end
 	local damageFactor = WeaponStats.damageFactor(bonuses)
-	damage += (stats.levelScaling or 0) * (bonuses.level or 1)
+	damage += bonuses.baseDamage or 0
+	damage += (stats.levelScaling or 0) * (bonuses.level or 0)
 	stats.damage = math.max(1, damage * damageFactor)
 
 	local timing = StatMath.cooldownFactor(bonuses.attackSpeed or 0)
@@ -108,6 +111,7 @@ function WeaponStats.compute(
 
 	local rule = Stats.range
 	local reach = (bonuses.range or 0) * rule.studsPerPoint * (if weapon.kind == "Melee" then rule.meleeFactor else 1)
+		+ (bonuses.weaponRange or 0) * rule.studsPerPoint
 	for _, key in weapon.rangeKeys do
 		if stats[key] then
 			stats[key] = math.max(rule.minStuds, stats[key] + reach)
@@ -115,7 +119,7 @@ function WeaponStats.compute(
 	end
 
 	stats.critChance = StatMath.critChance(stats.critChance or Player.critChance, bonuses.critChance or 0)
-	stats.critDamage = stats.critDamage or Player.critMultiplier
+	stats.critDamage = (stats.critDamage or Player.critMultiplier) + (bonuses.critDamage or 0) / 100
 	stats.lifeSteal = math.clamp((stats.lifeSteal or 0) + (bonuses.lifeSteal or 0) / 100, 0, 1)
 	stats.eliteDamage = (bonuses.eliteDamage or 0) / 100
 	stats.knockback = math.max(0, (stats.knockback or 0) + (bonuses.knockback or 0)) * Combat.knockback.studsPerPoint
