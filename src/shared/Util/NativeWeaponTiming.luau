@@ -2,12 +2,15 @@
 -- Native integer-frame cooldowns shared by WeaponStats and read-only OfferText previews.
 local Rules = require(script.Parent.Parent.Config.Combat).originalWeapons
 local Timing = {}
+function Timing.factor(attackSpeed: number): number
+	local speed = attackSpeed / 100
+	return if speed < 0 then 1 + math.abs(speed) else 1 / (1 + speed)
+end
 function Timing.apply(stats: { [string]: number }, attackSpeed: number, minimum: number)
 	if not stats.nativeTiming then
 		return
 	end
-	local speed = attackSpeed / 100
-	local factor = if speed < 0 then 1 + math.abs(speed) else 1 / (1 + speed)
+	local factor = Timing.factor(attackSpeed)
 	local function seconds(frames: number): number
 		return math.max(Rules.sourceMinimumFrames, math.floor(frames * factor)) / Rules.sourceFrameRate
 	end

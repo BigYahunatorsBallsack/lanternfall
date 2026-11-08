@@ -298,6 +298,28 @@ function PlayerDataService.observeNativeStats(player: Player, sheet: { [string]:
 	end
 end
 
+-- Medicine uses the native accepted-healing sum for one wave, separate from capped HP gains/Lich.
+function PlayerDataService.observeNativeHealing(player: Player, total: number)
+	local data = PlayerDataService.get(player)
+	if not data then
+		return
+	end
+	local changed = false
+	for _, rule in NativeCharacterAccess do
+		if rule.kind == "WaveHealing" and total >= rule.threshold then
+			local key = CharacterAccess.challengeKey(rule.challengeId)
+			if not data.achievements[key] then
+				data.achievements[key] = true
+				changed = true
+			end
+		end
+	end
+	if changed then
+		sendInfo(player)
+		PlayerDataService.Changed:Fire(player)
+	end
+end
+
 -- Paket 13: highest danger level open for the player with this character (start level until loaded).
 function PlayerDataService.maxDanger(player: Player, classId: string?): number
 	local data = PlayerDataService.get(player)

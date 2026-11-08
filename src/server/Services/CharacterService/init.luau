@@ -19,6 +19,7 @@ local Structures = require(script.Parent.StructureService)
 local Danger = require(script.Parent.DangerService)
 local Rules = require(script.Rules)
 local Movement = require(script.Movement)
+local HealingChallenges = require(script.HealingChallenges)
 
 type State = {
 	policy: Rules.Policy,
@@ -145,6 +146,7 @@ local function clearWave()
 end
 
 function Service.init()
+	HealingChallenges.init()
 	Movement.init()
 	Run.RunStarted:Connect(function(participants)
 		table.clear(states)

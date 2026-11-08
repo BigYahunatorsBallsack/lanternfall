@@ -7,9 +7,19 @@ export type Challenge = {
 	sourceMd5: string,
 	requirement: string,
 } & (
-	{ kind: "Stat", stat: string, threshold: number } | { kind: "WinDanger", danger: number }
+	{ kind: "Stat", stat: string, threshold: number }
+	| { kind: "WinDanger", danger: number }
+	| { kind: "WaveHealing", threshold: number }
 )
 local rules: { [string]: Challenge } = {
+	Doctor = {
+		kind = "WaveHealing",
+		challengeId = "chal_medicine",
+		source = "res://challenges/medicine_data.tres",
+		sourceMd5 = "a98aac978b4ff7e7605e179527034075",
+		threshold = 200,
+		requirement = "Heal 200 HP in one wave",
+	},
 	Ghost = {
 		kind = "Stat",
 		challengeId = "chal_hallucination",

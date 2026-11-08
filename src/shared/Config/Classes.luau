@@ -277,6 +277,9 @@ Classes.Bull.ruleRows = {
 	},
 	{ { text = "You can’t equip weapons" } },
 }
+Classes.Doctor.nativeCodeReady = true
+Classes.Doctor.description =
+	"+200 % Attack Speed with Medical weapons\n+5 HP Regeneration\n+5 Harvesting\nHP Regeneration modifications are increased by 100%\n-100 % Attack Speed\nArmor modifications are reduced by 50%"
 -- Original art is delivered independently; ready code never bypasses the approved-sprite requirement.
 for id, class in Classes do
 	if not class.nativeCodeReady then
