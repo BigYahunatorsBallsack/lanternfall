@@ -569,6 +569,7 @@ Branch `wp-25-2d-presentation`. **Owner-Entscheidungen dieses Pakets:** Das Spie
 ## Hauptmenü zentriert (Claude, 08.11.2026)
 
 - Owner-Wahl „Mittig, Figuren links/rechts": Titel und Untertitel über die volle Breite mittig, die vier Menü-Buttons (260 breit, Text mittig) in der Bildschirmmitte, die beiden Figuren (je 320) spiegelgleich links und rechts neben den Buttons. Nur `src/client/UI/LobbyLayout.luau` (Abschnitt `refresh`). Schriftart unverändert, die macht ein eigener Thread. Kompakte Ansicht (Handy) wie bisher, nur Button-Text mittig.
+
 ## Fix: Waffen gleichmäßig um die Figur (Claude, 08.11.2026)
 
 - Owner-Meldung: gehaltene Waffen standen ungleichmäßig um die Figur (Lücken und Häufungen). Ursache: `Util/WeaponPose` setzte jede Waffe auf `uid × goldener Winkel`; uids sind nach Kauf, Verkauf und Merge nicht fortlaufend, und selbst fortlaufend bleibt der goldene Winkel bei wenigen Waffen ungleich.
