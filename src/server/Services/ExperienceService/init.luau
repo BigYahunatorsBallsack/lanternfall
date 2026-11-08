@@ -18,6 +18,7 @@ local Config = require(Shared.Config)
 local Net = require(Shared.Net)
 local EnemyKinds = require(Shared.Util.EnemyKinds)
 local LootRules = require(Shared.Util.LootRules)
+local CharacterEconomy = require(Shared.Util.CharacterEconomy)
 local Signal = require(Shared.Util.Signal)
 local Types = require(Shared.Net.Types)
 
@@ -156,7 +157,19 @@ local function onEnemyKilled(info: EnemySim.KillInfo)
 	then
 		return
 	end
-	local value = info.xp + swallowed
+	local classIds = {}
+	for _, player in RunDirector.getParticipants() do
+		table.insert(classIds, RunDirector.getParticipantClassId(player) or "")
+	end
+	local rawValue = CharacterEconomy.materialValue(info.xp, classIds, info.enemyId ~= "Tree")
+	local baseValue = math.floor(rawValue)
+	if rawValue > baseValue and RandomService.number("Loot") < rawValue - baseValue then
+		baseValue += 1
+	end
+	local value = baseValue + swallowed
+	if value <= 0 then
+		return
+	end
 	local pulled = LootRules.bagPull(bag, value)
 	if pulled > 0 then
 		bag -= pulled

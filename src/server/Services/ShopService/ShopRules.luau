@@ -14,6 +14,7 @@ local Weapons = require(Shared.Config.Weapons)
 local Types = require(Shared.Net.Types)
 local StatMath = require(Shared.Util.StatMath)
 local CharacterRules = require(Shared.Util.CharacterRules)
+local CharacterEconomy = require(Shared.Util.CharacterEconomy)
 local Classes = require(Shared.Config.Classes)
 local NativeItems = require(Shared.Config.CharacterItemRules)
 local Run = require(Shared.Config.Run)
@@ -82,10 +83,12 @@ function ShopRules.offerPrice(offer: Types.ShopOffer, factor: number?): number
 end
 
 -- Shards for selling a weapon of `tier` after wave `wave`: Config.Shop.sellShare plus `sellValue` percent (the Sell
--- Value stat) of its price without discounts, rounded down.
-function ShopRules.sellPrice(weaponId: string, tier: number, wave: number, sellValue: number?): number
-	local share = math.max(0, Shop.sellShare + (sellValue or 0) / 100)
-	return math.floor(ShopRules.weaponPrice(weaponId, tier, wave) * share + 1e-9)
+-- Value stat) of its discounted price; native minimum/cap and endless price-stat rules apply.
+function ShopRules.sellPrice(weaponId: string, tier: number, wave: number, sellValue: number?, factor: number?): number
+	local shopPrice = ShopRules.weaponPrice(weaponId, tier, wave, factor)
+	local recycleBasis =
+		ShopRules.weaponPrice(weaponId, tier, wave, if wave <= #Run.spawn.waves.lengthsSeconds then factor else 1)
+	return CharacterEconomy.recyclingPrice(recycleBasis, shopPrice, sellValue or 0)
 end
 
 -- Price of the next reroll after `rerolls` rerolls in this shop (or level-up choice).
