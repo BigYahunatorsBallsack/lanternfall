@@ -10,6 +10,8 @@ end
 local function context(target)
 	local serial, effects = 0, {}
 	return {
+		slot = 1,
+		slotCount = 1,
 		x = 0,
 		z = 0,
 		vx = 0,
@@ -87,7 +89,7 @@ describe("Native character starting weapons", function()
 		end
 		expect(require(Service.Behaviors.PanFlute).fire(w, ctx)).toBe(true)
 		expect(#w.state.projectiles).toBe(5)
-		local x, z = require(Shared.Util.WeaponPose).anchor(0, 0, 1, "PanFlute")
+		local x, z = require(Shared.Util.WeaponPose).anchor(0, 0, 1, 1, "PanFlute")
 		local dx, dz = 10 - x, -z
 		local length = math.sqrt(dx * dx + dz * dz)
 		for _, shot in w.state.projectiles do

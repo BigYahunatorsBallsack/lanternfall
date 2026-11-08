@@ -72,7 +72,7 @@ Jeder Strang ändert nur **seine** Zeile (Regeln: `docs/PARALLEL.md`).
 | Strang | KI | Aktuelles Paket | Branch / PR | Stand | Danach |
 | --- | --- | --- | --- | --- | --- |
 | A – Engine und Ablauf | Claude | Paket 24 Launch-Paket (Medium) | `wp-24-launch` | fertig, selbst gemerged | Plan bis zum Launch abgeschlossen; als Nächstes IDs des Owners eintragen (Live-Experience, Badges, Musik), dann Live-Ops |
-| B - Inhalte und Spieler-Regeln | ChatGPT | B10: alle stabilen Brotato-Charaktere | `wp-b10-brotato-characters` / [Entwurf #89](https://github.com/BigYahunatorsBallsack/lanternfall/pull/89) | 74 Quellen verifiziert; Crazy/Brawler/Ghost code-fertig, Originalsprites ausstehend; native XP/Karten und finale Wellenboni integriert | Bull fertig anbinden, fehlende Ausruestung und weitere Charakter-/Shop-/DLC-Regeln; Sprites durch anderen Agenten |
+| B - Inhalte und Spieler-Regeln | ChatGPT | B10: alle stabilen Brotato-Charaktere | `wp-b10-remaining-characters` / [PR #90](https://github.com/BigYahunatorsBallsack/lanternfall/pull/90) | Crazy/Brawler/Ghost/Bull code-vorbereitet; acht Startwaffen, Wirtschaft, Sets und Cyborg-Halbzeitregel; echte Uploads offen | Restliche Ausruestung, Chef/Glutton und weitere Charakter-/Shop-/DLC-Regeln |
 
 ## Feste Entscheidungen des Owners
 
@@ -633,3 +633,9 @@ Branch `wp-25-2d-presentation`. **Owner-Entscheidungen dieses Pakets:** Das Spie
 - **Offen, nicht belegt:** Negatives Luck multipliziert bei uns mit (1 + Luck/100), ab −100 Luck also keine blauen/lila/roten Items mehr. Das Wiki nennt nur „(100% + Luck)“; ob das Original bei negativem Luck stattdessen teilt, ist ohne Quelle offen. Nicht geändert.
 - **Offen (Waffen):** Das Wiki nennt für Shop 1–5 einen Zusatzbonus auf Waffen derselben Klasse (+15/12/9/6/3 %); bei uns konstant 15 % (`Shop.weaponPool.sameClass`). `Shop.fullSlots.mergeChance` (60 %) ist eine eigene Playtest-Regel, kein Brotato-Wert.
 - Nur 125 der 241 Brotato-Items (208 Hauptspiel + 33 DLC) sind im Spiel, deshalb erscheint ein bestimmtes Item etwa doppelt so oft wie im Original. Inhaltsfrage, keine Formelabweichung.
+
+## B10 Merge-Pruefung (08.11.2026)
+
+- Aktuellen GitHub-main cfbf004 integriert; Kopfansicht, Schrift, Waffenanordnung und Shopfix erhalten. Whip und isolierte Test-Kontexte auf neue WeaponPose-Schnittstelle mit slot/slotCount angepasst. Arsenal nicht im Charakterzweig bearbeitet.
+- Seed 1234, jede Spec separat: aktueller main 1113 bestanden/31 Fehler in 111 Specs; Fortsetzung 1155 bestanden/30 Fehler in 122 Specs. Keine neuen Fehlernamen; der schwankende Leistungstest scheitert nur im main-Lauf. Details: docs/characters/continuation-validation.json. Kein gruener Gesamtstand behauptet.
+- Rojo und Quellengeneratoren erfolgreich; gesamtes src-Lint 0 Fehler/11 bestehende Stilwarnungen. Keine Studio-, Zwei-Client- oder Handy-Abnahme. Chef/Glutton-Entwuerfe nicht in diesem Merge.

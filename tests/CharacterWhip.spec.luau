@@ -14,6 +14,8 @@ local function setup()
 	}
 	local ctx = {
 		active = true,
+		slot = 1,
+		slotCount = 1,
 		x = 0,
 		z = 0,
 		nearestEnemies = function(_, _, _, _, _, out)
@@ -90,7 +92,7 @@ describe("Native Whip attack", function()
 		local w, ctx = setup()
 		assert(Whip.fire(w, ctx))
 		local dx, dz = w.state.swing.dx, w.state.swing.dz
-		local hx, hz = require(Shared.Util.WeaponPose).anchor(0, 0, 1, "Whip")
+		local hx, hz = require(Shared.Util.WeaponPose).anchor(0, 0, 1, 1, "Whip")
 		Whip.step(w, ctx, 0.28)
 		local segment = ctx.segments[1]
 		local along = (segment.x0 - hx) * dx + (segment.z0 - hz) * dz

@@ -18,7 +18,7 @@ function Whip.fire(weapon: Arsenal.Weapon, ctx: Arsenal.Context): boolean
 	if not tx or not tz then
 		return false
 	end
-	local x, z = Pose.anchor(ctx.x, ctx.z, weapon.uid, weapon.id)
+	local x, z = Pose.anchor(ctx.x, ctx.z, ctx.slot, ctx.slotCount, weapon.id)
 	local dx, dz = tx - x, tz - z
 	local length = math.sqrt(dx * dx + dz * dz)
 	if length < 1e-6 then
@@ -65,7 +65,7 @@ function Whip.step(weapon: Arsenal.Weapon, ctx: Arsenal.Context, dt: number)
 	swing.elapsed += dt
 	local stats = weapon.stats
 	if before < stats.hitCloseSeconds and swing.elapsed >= stats.hitOpenSeconds then
-		local x, z = Pose.anchor(ctx.x, ctx.z, weapon.uid, weapon.id)
+		local x, z = Pose.anchor(ctx.x, ctx.z, ctx.slot, ctx.slotCount, weapon.id)
 		local time =
 			math.clamp((swing.elapsed - stats.hitOpenSeconds) / (stats.hitCloseSeconds - stats.hitOpenSeconds), 0, 1)
 		local forward = cubic(
