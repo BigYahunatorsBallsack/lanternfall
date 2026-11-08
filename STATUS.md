@@ -566,6 +566,10 @@ Branch `wp-25-2d-presentation`. **Owner-Entscheidungen dieses Pakets:** Das Spie
 - Alle 74 Charaktereintraege im vorhandenen Importer verbunden, andere Gruppen unveraendert. Art-Check: 111 finale Bilder / 27 bestehende Platzhalter / 0 fehlend / 0 unbrauchbar. Importer baut alle 74 Charakterbilder mit korrekten vorbereiteten Bildgrenzen; Metadaten in assets/characters/brotato/local-preparation.json, reine Charakter-Uploadliste in build/world2d/characters-upload.txt.
 - Kein Studio verbunden; Owner entscheidet „Erst lokal vorbereiten“. Deshalb bleiben alle 74 echten Roblox-Uploads ausstehend und die aktuellen Laufzeit-IDs/Verfuegbarkeiten erhalten. Aktuell drei neue Code-Pakete vorbereitet (Crazy/Brawler/Ghost), neun bisherige oeffentlich auswaehlbar. Bestehende Art-, B10- und Katalog-Specs: 26 bestanden / 0 fehlgeschlagen, Rojo-Build erfolgreich. Kein Upload, kein Publish und kein Merge nach main.
 
+## Hauptmenü zentriert (Claude, 08.11.2026)
+
+- Owner-Wahl „Mittig, Figuren links/rechts": Titel und Untertitel über die volle Breite mittig, die vier Menü-Buttons (260 breit, Text mittig) in der Bildschirmmitte, die beiden Figuren (je 320) spiegelgleich links und rechts neben den Buttons. Nur `src/client/UI/LobbyLayout.luau` (Abschnitt `refresh`). Schriftart unverändert, die macht ein eigener Thread. Kompakte Ansicht (Handy) wie bisher, nur Button-Text mittig.
+
 ## Fix: Waffen gleichmäßig um die Figur (Claude, 08.11.2026)
 
 - Owner-Meldung: gehaltene Waffen standen ungleichmäßig um die Figur (Lücken und Häufungen). Ursache: `Util/WeaponPose` setzte jede Waffe auf `uid × goldener Winkel`; uids sind nach Kauf, Verkauf und Merge nicht fortlaufend, und selbst fortlaufend bleibt der goldene Winkel bei wenigen Waffen ungleich.
