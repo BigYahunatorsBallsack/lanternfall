@@ -216,7 +216,7 @@ function CharacterChoice.mount(card: Frame, row: Frame, buttonsByClass: { [strin
 		local art = Icons.holder(button, 96)
 		art.AnchorPoint = Vector2.new(0.5, 0)
 		art.Position = UDim2.new(0.5, 0, 0, 2)
-		Icons.draw(art, "characterHead", classId)
+		Icons.draw(art, "characterFigure", classId)
 		Widgets.label({
 			Name = "CharacterName",
 			Text = Config.Classes[classId].displayName,
