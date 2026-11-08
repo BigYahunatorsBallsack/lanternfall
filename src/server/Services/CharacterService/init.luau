@@ -270,7 +270,7 @@ function Service.init()
 		local explosion = state and state.policy.consumableExplosion
 		if position and explosion and Run.isActive() then
 			if explosion.chance >= 1 or Random.number("Combat", player) < explosion.chance then
-				Weapons.queueConsumableExplosion(player, explosion.definition, position)
+				Weapons.queueConsumableExplosion(player, explosion.definition, position, Stats.getItemCounts(player))
 			end
 		end
 	end)

@@ -3,6 +3,15 @@
 local Arsenal = require(script.Parent.Arsenal)
 local Combat = {}
 local adapter: { [string]: any } = {}
+-- Only native hitboxes carry this classification; burn ticks and stat strikes have no hitbox.
+local hitOwner: number? = nil
+local hitElemental: boolean? = nil
+function Combat.resetHitContext()
+	hitOwner, hitElemental = nil, nil
+end
+function Combat.elementalHit(ownerId: number): boolean?
+	return if hitOwner == ownerId then hitElemental else nil
+end
 
 function Combat.configure(callbacks: { [string]: any })
 	adapter = callbacks
@@ -26,6 +35,10 @@ function Combat.hit(
 	if stats.executeChance and adapter.health and not adapter.isElite(id) and ctx:random() < stats.executeChance then
 		stats.damage = math.max(stats.damage, adapter.health(id) / math.max(share or 1, 1e-6))
 	end
+	local previousOwner, previousElemental = hitOwner, hitElemental
+	hitOwner = weapon.ownerId
+	local scaling = if weapon.config.tierScaling then weapon.config.tierScaling[weapon.tier] else weapon.config.scaling
+	hitElemental = if secondary then stats.secondaryElemental ~= nil else scaling.elementalDamage ~= nil
 	weapon.stats = stats
 	weapon.state.secondaryHit = secondary == true
 	local killed = ctx:hit(weapon, id, share, if bounced then "Bounce" else nil)
@@ -43,6 +56,7 @@ function Combat.hit(
 			ctx:explode(weapon, x, z, id, share)
 		end
 	end
+	hitOwner, hitElemental = previousOwner, previousElemental
 	weapon.stats = original
 	if not secondary and (stats.secondaryCount or 0) > 0 then
 		local x, z = hitX, hitZ

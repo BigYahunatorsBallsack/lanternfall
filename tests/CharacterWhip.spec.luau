@@ -8,6 +8,9 @@ local function setup()
 	local hits, available, segments = {}, { 1 }, {}
 	local w = {
 		id = "Whip",
+		ownerId = 1,
+		tier = 1,
+		config = Config.Weapons.Whip,
 		uid = 1,
 		state = {},
 		stats = require(Service.WeaponStats).compute(Config.Weapons.Whip, 1, {}, nil, Config.Player.minWeaponCooldown),
