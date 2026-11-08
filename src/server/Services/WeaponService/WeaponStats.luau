@@ -21,6 +21,7 @@ local Stats = require(Shared.Config.Stats)
 local Weapons = require(Shared.Config.Weapons)
 local StatMath = require(Shared.Util.StatMath)
 local CharacterRules = require(Shared.Util.CharacterRules)
+local NativeTiming = require(Shared.Util.NativeWeaponTiming)
 
 -- The owner's stats by id (Util/StatMath.Sheet); missing stats count as 0.
 export type Bonuses = { [string]: number }
@@ -93,7 +94,9 @@ function WeaponStats.compute(
 	damage += (stats.levelScaling or 0) * (bonuses.level or 0)
 	stats.damage = math.max(1, damage * damageFactor)
 
-	local timing = StatMath.cooldownFactor(bonuses.attackSpeed or 0)
+	local attackSpeed = bonuses.attackSpeed or 0
+	-- Stable native negative Attack Speed uses the full percentage, including Doctor's -100% penalty.
+	local timing = if weapon.brotato then NativeTiming.factor(attackSpeed) else StatMath.cooldownFactor(attackSpeed)
 	if weapon.brotato then
 		minCooldown = Combat.originalWeapons.minCooldown
 	end
@@ -103,6 +106,7 @@ function WeaponStats.compute(
 			stats[key] = math.max(minimum, stats[key] * timing)
 		end
 	end
+	NativeTiming.apply(stats, bonuses.attackSpeed or 0, minimum)
 	for _, key in RATE_STATS do
 		if stats[key] then
 			stats[key] /= timing

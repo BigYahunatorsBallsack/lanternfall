@@ -5,6 +5,8 @@
 
 return table.freeze({
 	originalWeapons = table.freeze({
+		sourceFrameRate = 60, -- native stable weapon cooldown frame rate
+		sourceMinimumFrames = 1,
 		minCooldown = 1 / 60, -- server catch-up floor; preserves source cooldowns below the old 1/12 cap
 		maxCatchupAttacks = 4, -- bounds extra attacks within one 15 Hz simulation step
 	}),

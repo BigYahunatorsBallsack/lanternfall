@@ -5,6 +5,7 @@ local Shared = game:GetService("ReplicatedStorage").Shared
 local Config = require(Shared.Config)
 local C = require(Shared.Config.CharacterMechanics)
 local StatMath = require(Shared.Util.StatMath)
+local Schedule = require(Shared.Util.RunSchedule)
 local Run = require(script.Parent.RunDirector)
 local Stats = require(script.Parent.StatService)
 local Combat = require(script.Parent.CombatService)
@@ -18,16 +19,26 @@ local Structures = require(script.Parent.StructureService)
 local Danger = require(script.Parent.DangerService)
 local Rules = require(script.Rules)
 local Movement = require(script.Movement)
+local HealingChallenges = require(script.HealingChallenges)
 
 type State = {
 	policy: Rules.Policy,
 	wave: StatMath.Sheet,
+	conversion: StatMath.Sheet,
+	halfConverted: boolean,
 	elapsed: number,
 	stillElapsed: number,
 	crates: number,
 	refreshing: boolean,
 }
-type Saved = { wave: StatMath.Sheet, elapsed: number, stillElapsed: number, crates: number }
+type Saved = {
+	wave: StatMath.Sheet,
+	conversion: StatMath.Sheet,
+	halfConverted: boolean,
+	elapsed: number,
+	stillElapsed: number,
+	crates: number,
+}
 local states: { [Player]: State } = {}
 local Service = {}
 
@@ -91,6 +102,7 @@ local function refresh(player: Player)
 		items = Stats.getItemCounts(player),
 	})
 	StatMath.add(dynamic, state.wave)
+	StatMath.add(dynamic, state.conversion)
 	Stats.setCharacterDynamic(player, dynamic)
 	state.refreshing = false
 end
@@ -126,20 +138,31 @@ end
 local function clearWave()
 	for player, state in states do
 		table.clear(state.wave)
+		table.clear(state.conversion)
+		state.halfConverted = false
 		state.elapsed, state.stillElapsed = 0, 0
 		refresh(player)
 	end
 end
 
 function Service.init()
+	HealingChallenges.init()
 	Movement.init()
 	Run.RunStarted:Connect(function(participants)
 		table.clear(states)
 		for _, player in participants do
 			local policy = Rules.compile(Run.getParticipantClassId(player))
 			if policy then
-				states[player] =
-					{ policy = policy, wave = {}, elapsed = 0, stillElapsed = 0, crates = 0, refreshing = false }
+				states[player] = {
+					policy = policy,
+					wave = {},
+					conversion = {},
+					halfConverted = false,
+					elapsed = 0,
+					stillElapsed = 0,
+					crates = 0,
+					refreshing = false,
+				}
 			end
 		end
 	end)
@@ -163,6 +186,8 @@ function Service.init()
 		}
 		for player, state in states do
 			Shop.setCharacterWaveReward(player, Rules.waveReward(state.policy, 0, context))
+			table.clear(state.conversion) -- native wave-end TempStats reset precedes shop/harvesting
+			refresh(player)
 		end
 	end)
 	Run.PhaseChanged:Connect(function(phase)
@@ -181,6 +206,8 @@ function Service.init()
 		for player, state in states do
 			saved[player] = {
 				wave = table.clone(state.wave),
+				conversion = table.clone(state.conversion),
+				halfConverted = state.halfConverted,
 				elapsed = state.elapsed,
 				stillElapsed = state.stillElapsed,
 				crates = state.crates,
@@ -192,6 +219,8 @@ function Service.init()
 			local state = states[player]
 			if state then
 				state.wave = table.clone(data.wave)
+				state.conversion = table.clone(data.conversion)
+				state.halfConverted = data.halfConverted
 				state.elapsed, state.stillElapsed, state.crates = data.elapsed, data.stillElapsed, data.crates
 			end
 		end
@@ -235,10 +264,16 @@ function Service.init()
 			end
 		end
 	end)
-	Loot.ConsumableCollected:Connect(function(player, _kind, wasFull)
+	Loot.ConsumableCollected:Connect(function(player, _kind, wasFull, position)
 		local state = states[player]
 		if state and wasFull then
 			Stats.addStats(player, state.policy.onFullConsumable)
+		end
+		local explosion = state and state.policy.consumableExplosion
+		if position and explosion and Run.isActive() then
+			if explosion.chance >= 1 or Random.number("Combat", player) < explosion.chance then
+				Weapons.queueConsumableExplosion(player, explosion.definition, position, Stats.getItemCounts(player))
+			end
 		end
 	end)
 	Loot.ChestCollected:Connect(function(player)
@@ -258,7 +293,14 @@ function Service.init()
 		if not Run.isActive() then
 			return
 		end
+		local wave = Schedule.wave(Run.getWave())
+		local halfAt = wave.startsAt + (wave.endsAt - wave.startsAt) * C.halfWaveShare
 		for player, state in states do
+			if not state.halfConverted and Run.getElapsed() >= halfAt then
+				state.halfConverted = true
+				state.conversion = Rules.halfWaveConversion(state.policy, Stats.getPermanentSheet(player))
+				refresh(player)
+			end
 			if Run.getParticipantState(player) == "Alive" then
 				refresh(player)
 				state.elapsed += dt

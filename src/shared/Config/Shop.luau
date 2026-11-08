@@ -174,4 +174,10 @@ local Shop = {
 }
 
 Shop.wantedTagChance = 0.05 -- B10: dedicated matching-tag draw; empty pools fall back.
+local weaponPrices = table.clone(Shop.weaponPrices)
+for id, prices in require(script.Parent.CharacterWeaponData).prices do
+	weaponPrices[id] = prices[1]
+	Shop.weaponTierPrices[id] = prices
+end
+Shop.weaponPrices = table.freeze(weaponPrices)
 return table.freeze(Shop)

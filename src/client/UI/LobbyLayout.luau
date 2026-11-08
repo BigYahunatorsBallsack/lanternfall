@@ -93,7 +93,13 @@ function Layout.mount(screen: ScreenGui, choose: Frame, players: Frame, record: 
 		Size = UDim2.fromOffset(158, 34),
 		Parent = root,
 	}, function()
-		show(({ Weapon = "Character", Difficulty = "Weapon" })[step] or "Main")
+		local me = RunState.getLocalPlayer()
+		local weaponless = me and Config.Classes[me.classId].maxWeapons == 0
+		show(
+			if step == "Difficulty" and weaponless
+				then "Character"
+				else ({ Weapon = "Character", Difficulty = "Weapon" })[step] or "Main"
+		)
 	end)
 	local scroll = Widgets.create("ScrollingFrame", {
 		Name = "LobbyContent",
