@@ -25,7 +25,7 @@ local START_HEIGHT = 3.5 -- studs above the character's root
 local STACK_STEP = 0.9 -- studs between texts that start together
 local FADE_FROM = 0.55 -- share of the lifetime after which it fades
 local MAX_VISIBLE = 6
-local TEXT_SIZE = 22
+local TEXT_SIZE = 22 * Theme.hudTextScale
 local STROKE_COLOR = Color3.fromRGB(20, 12, 30)
 local COLORS: { [string]: Color3 } = {
 	Heal = Theme.success,
@@ -52,7 +52,7 @@ local function build(): Shown
 	label.Name = "Text"
 	label.BackgroundTransparency = 1
 	label.Size = UDim2.fromScale(1, 1)
-	label.Font = Enum.Font.GothamBlack
+	label.Font = Theme.fontBold
 	label.TextSize = TEXT_SIZE
 	label.TextStrokeColor3 = STROKE_COLOR
 	label.TextStrokeTransparency = 0.2

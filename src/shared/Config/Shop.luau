@@ -8,10 +8,11 @@ local Shop = {
 	phaseSeconds = 40, -- shop timer between two waves; cut short once every living participant pressed Ready
 	slots = 4, -- offers per shop
 	weaponChance = 0.35, -- share of weapon offers in a freely rolled slot (rest: items)
-	-- minimum number of weapon offers for shops after wave <= untilWave (first matching entry applies)
+	-- minimum number of weapon offers for shops after wave <= untilWave (first matching entry applies); `exact`: that
+	-- many weapons and no more, every other new slot is an item (Brotato's shops 1-2: exactly 2 weapons + 2 items)
 	guaranteedWeapons = table.freeze({
-		table.freeze({ untilWave = 2, count = 2 }),
-		table.freeze({ untilWave = 5, count = 1 }),
+		table.freeze({ untilWave = 2, count = 2, exact = true }),
+		table.freeze({ untilWave = 5, count = 1, exact = false }),
 	}),
 	-- Which weapon a weapon slot offers (Brotato): with `owned` chance one the player already has, else with
 	-- `sameClass` chance one that shares a class with one of theirs, else any weapon (all of them only if nothing fits)

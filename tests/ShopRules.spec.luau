@@ -87,7 +87,40 @@ describe("ShopRules", function()
 			expect(count(ShopRules.roll(params({ wave = 2, random = lcg(seed) })), "Weapon") >= 2).toBe(true)
 			expect(count(ShopRules.roll(params({ wave = 5, random = lcg(seed) })), "Weapon") >= 1).toBe(true)
 		end
-		expect(ShopRules.guaranteedWeapons(6)).toBe(0)
+		expect((ShopRules.guaranteedWeapons(6))).toBe(0)
+	end)
+
+	it("offers exactly two weapons and two items after waves 1-2, like Brotato", function()
+		for seed = 1, 40 do
+			for wave = 1, 2 do
+				local offers = ShopRules.roll(params({ wave = wave, random = lcg(seed) }))
+				expect(count(offers, "Weapon")).toBe(2)
+				expect(count(offers, "Item")).toBe(2)
+			end
+		end
+		-- a locked weapon counts towards the two weapons, a locked item towards the two items
+		local first = ShopRules.roll(params({ wave = 1, random = lcg(3) }))
+		local lockedWeapon, lockedItem
+		for _, offer in first do
+			if offer.kind == "Weapon" and not lockedWeapon then
+				lockedWeapon = offer
+			elseif offer.kind == "Item" and not lockedItem then
+				lockedItem = offer
+			end
+		end
+		for _, keep in { { lockedWeapon }, { lockedItem }, { lockedWeapon, lockedItem } } do
+			local offers = ShopRules.roll(params({ wave = 2, random = lcg(7), keep = keep }))
+			expect(#offers).toBe(4)
+			expect(count(offers, "Weapon")).toBe(2)
+			expect(count(offers, "Item")).toBe(2)
+		end
+		-- from wave 3 on the free slots may be weapons again
+		local extraWeapons = false
+		for seed = 1, 40 do
+			extraWeapons = extraWeapons
+				or count(ShopRules.roll(params({ wave = 3, random = lcg(seed) })), "Weapon") >= 2
+		end
+		expect(extraWeapons).toBe(true)
 	end)
 
 	it("prices weapon tiers from the tier I price and sells for a quarter", function()

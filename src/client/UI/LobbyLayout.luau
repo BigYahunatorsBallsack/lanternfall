@@ -74,7 +74,7 @@ function Layout.mount(screen: ScreenGui, choose: Frame, players: Frame, record: 
 			Text = entry[2],
 			TextSize = 26,
 			Font = Theme.font,
-			TextXAlignment = Enum.TextXAlignment.Left,
+			TextXAlignment = Enum.TextXAlignment.Center,
 			Parent = main,
 		}, function()
 			if entry[3] == "Options" then
@@ -288,33 +288,21 @@ function Layout.mount(screen: ScreenGui, choose: Frame, players: Frame, record: 
 			52
 		)
 		title.TextSize = if compact then 28 else 40
-		place(
-			brand,
-			if compact then 16 else width * 0.4,
-			if short then 0 elseif compact then 80 else 52,
-			if compact then width - 32 else width * 0.58,
-			100
-		)
+		-- Main menu: title, tagline and buttons centred; the two heroes flank the buttons symmetrically.
+		local centerX = width / 2
+		local buttonWidth = if compact then width - 64 else 260
+		local buttonTop = if short then 140 elseif compact then 240 else math.max(240, (height - 194) / 2 + 60)
+		place(brand, 16, if short then 0 elseif compact then 80 else 52, width - 32, 100)
 		brand.TextSize = if compact then math.min(48, width / 9) else 80
-		place(
-			tagline,
-			if compact then 16 else width * 0.4,
-			if short then 72 elseif compact then 165 else 152,
-			if compact then width - 32 else width * 0.58,
-			60
-		)
+		place(tagline, 16, if short then 72 elseif compact then 165 else 152, width - 32, 60)
 		tagline.TextSize = if compact then 22 else 34
-		place(hero, width * 0.2, 255, 390, 390)
-		place(secondHero, width - 360, height - 335, 320, 320)
+		local heroSize = 320
+		local heroTop = buttonTop + 97 - heroSize / 2
+		place(hero, centerX - buttonWidth / 2 - 40 - heroSize, heroTop, heroSize, heroSize)
+		place(secondHero, centerX + buttonWidth / 2 + 40, heroTop, heroSize, heroSize)
 		hero.Visible, secondHero.Visible = not compact, not compact
 		for index, button in menuButtons do
-			place(
-				button,
-				32,
-				(if short then 140 elseif compact then 240 else height - 340) + (index - 1) * 50,
-				if compact then width - 64 else 205,
-				44
-			)
+			place(button, centerX - buttonWidth / 2, buttonTop + (index - 1) * 50, buttonWidth, 44)
 		end
 		choose.Visible = step == "Character" or step == "Weapon" or step == "Difficulty"
 		danger.Visible, players.Visible, record.Visible = step == "Difficulty", step == "Party", step == "Collection"

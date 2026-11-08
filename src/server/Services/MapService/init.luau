@@ -167,7 +167,7 @@ local function buildPortals(parent: Instance, center: Vector3)
 		local text = Instance.new("TextLabel")
 		text.BackgroundTransparency = 1
 		text.Size = UDim2.fromScale(1, 1)
-		text.Font = Enum.Font.GothamBold
+		text.Font = Enum.Font.FredokaOne -- matches the client UI font (client UI/Theme)
 		text.TextScaled = true
 		text.TextColor3 = color
 		text.TextStrokeTransparency = 0.4

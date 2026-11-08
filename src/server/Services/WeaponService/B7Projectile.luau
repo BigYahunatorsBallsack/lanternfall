@@ -106,7 +106,7 @@ function Projectile.fire(weapon: Arsenal.Weapon, ctx: Arsenal.Context): boolean
 		return false
 	end
 	local hitsPerBolt = if stats.pierce < 0 then math.huge else stats.pierce + 1
-	local heldX, heldZ = WeaponPose.anchor(ctx.x, ctx.z, weapon.uid, weapon.id)
+	local heldX, heldZ = WeaponPose.anchor(ctx.x, ctx.z, ctx.slot, ctx.slotCount, weapon.id)
 	for k = 1, count do
 		local tx, tz = ctx:enemyPosition(targets[math.min(k, targetCount)])
 		local dx, dz = (tx or heldX + 1) - heldX, (tz or heldZ) - heldZ
@@ -123,7 +123,7 @@ function Projectile.fire(weapon: Arsenal.Weapon, ctx: Arsenal.Context): boolean
 			local side = if extra % 2 == 1 then 1 else -1
 			dx, dz = rotate(dx, dz, math.rad(stats.spreadDegrees) * side * math.ceil(extra / 2))
 		end
-		local muzzleX, muzzleZ = WeaponPose.muzzle(ctx.x, ctx.z, weapon.uid, weapon.id, dx, dz, length)
+		local muzzleX, muzzleZ = WeaponPose.muzzle(ctx.x, ctx.z, ctx.slot, ctx.slotCount, weapon.id, dx, dz, length)
 		launch(weapon, ctx, muzzleX, muzzleZ, dx, dz, hitsPerBolt, stats.bounce or 0, 1, false, {})
 	end
 	if stats.magazine then

@@ -89,6 +89,8 @@ Jeder Strang ändert nur **seine** Zeile (Regeln: `docs/PARALLEL.md`).
 - Annahmen (Wiki schweigt, im Test prüfen): Brennen springt pro Tick auf den nächsten nicht brennenden Gegner in 8 Studs; Abprall-Ziel zufällig in 25 Studs; Rückstoß 0,1 Studs pro Punkt; Elites sind immun gegen Rückstoß.
 - B6 (30.10.2026, Annahmen im Test prüfen): Kisten sind 25 % der Früchte/Kisten-Drops (Brotato nennt keinen Grundwert), Brute/Abyss Brute 3 %, Charger 2 % statt 1 %; Plünderer verschwindet nach 12 s; 1 Baum pro Welle mit 30 HP; Kisten öffnen sich vor den Level-up-Karten, nach 10 s wird genommen; liegengebliebene Kisten gehen an den nächsten Spieler. Elite-Truhen bleiben bis Paket 10/B11 wie sie sind (sonst 13 legendäre Items pro Run).
 
+- Owner (08.11.2026): Bäume haben bewusst doppelt so viel Leben wie in Brotato: 20 + 10 pro Welle statt 10 + 5 (`Config/Enemies.luau` → `Tree`). Gewollte Abweichung von der 1:1-Regel.
+
 - B9 Teil 2 (30.10.2026): Schütze mit Flucht ist erlaubt, wenn `flee.range` gesetzt ist (ConfigCheck). Debug-Liste neuer Gegner in `Config/Admin.luau` → `newEnemies` (wie `newItems`).
 - B9 (30.10.2026): Gegner-Werte wachsen pro Typ wie Brotato (Grundwert + Zuwachs pro Schritt), aber die Schritte pro Welle folgen der alten, getesteten Kurve (Brotatos „Welle − 1" war in der Simulation viel zu schwer: 0 von 12 Siegen). Spawn-Ring näher (32–52 Studs), damit die Marker sichtbar sind; Annahmen im Test prüfen.
 - Owner (30.10.2026): Kamera bleibt bei 50° (nicht wie Brotato von oben), aber weiter herausgezoomt (Abstand 100 statt 70), damit man Spawns früher sieht. Schwierigkeit wird erst später mit mehreren Charakteren feinjustiert. B8 Items übernimmt Claude statt ChatGPT, weil ChatGPT wenig Limit hat.
@@ -597,3 +599,37 @@ Branch `wp-25-2d-presentation`. **Owner-Entscheidungen dieses Pakets:** Das Spie
 
 - Connected the actual fighting-clock midpoint to a one-time snapshot of permanent source stats, matching stable Utils.convert_stats including integer chunking and independent compensation for Ranged Damage x3 / Engineering x0.25. Converted deltas use a separate temporary layer; later permanent gains are not reconverted. Wave end clears only this conversion before shop/harvesting; checkpoints preserve conversion state for retry.
 - Three pure regressions first failed then passed; three actual two-player scenarios verify the precise boundary, personal isolation, later gains, shop reset and repeating the conversion after retry. Source hashes and rules: docs/characters/half-wave-source.json. Cyborg remains incomplete as a package because its remaining original equipment/access/display dependencies are not yet delivered; no additional code-ready character claim.
+## Hauptmenü zentriert (Claude, 08.11.2026)
+
+- Owner-Wahl „Mittig, Figuren links/rechts": Titel und Untertitel über die volle Breite mittig, die vier Menü-Buttons (260 breit, Text mittig) in der Bildschirmmitte, die beiden Figuren (je 320) spiegelgleich links und rechts neben den Buttons. Nur `src/client/UI/LobbyLayout.luau` (Abschnitt `refresh`). Schriftart unverändert, die macht ein eigener Thread. Kompakte Ansicht (Handy) wie bisher, nur Button-Text mittig.
+
+## Fix: Waffen gleichmäßig um die Figur (Claude, 08.11.2026)
+
+- Owner-Meldung: gehaltene Waffen standen ungleichmäßig um die Figur (Lücken und Häufungen). Ursache: `Util/WeaponPose` setzte jede Waffe auf `uid × goldener Winkel`; uids sind nach Kauf, Verkauf und Merge nicht fortlaufend, und selbst fortlaufend bleibt der goldene Winkel bei wenigen Waffen ungleich.
+- Jetzt: Platz `slot` von `count` Waffen (Loadout-Reihenfolge des Servers) auf gleichen Abständen, erste Waffe rechts (`Config.WeaponVisuals.holdStartDegrees = 0`), weiter im Uhrzeigersinn; 2 Waffen links/rechts, 6 als Sechseck. Nach Verkauf/Merge rücken die übrigen nach. Server-Schussursprung (`Arsenal.Context.slot`/`slotCount`, gesetzt in `Arsenal.step`) und Client-Bild (`HeldModels.renderWeapon` nutzt jetzt slot/total) rechnen gleich.
+- Ausnahme Dateibesitz: berührt Strang-B-Dateien (`WeaponService/Arsenal`, `BrotatoProjectile`, `B7Projectile`, `WeaponRenderer/HeldModels`, `Config/WeaponVisuals`, `Util/WeaponPose`) auf direkten Owner-Auftrag. Neue Schnittstelle: `WeaponPose.direction(slot, count)`, `anchor(x, z, slot, count, id)`, `muzzle(x, z, slot, count, id, dx, dz, distance?)`.
+- Nicht geprüft: genaue Brotato-Positionen pro Waffenanzahl (Wiki nennt sie nicht); umgesetzt ist der sichtbare Brotato-Eindruck „gleichmäßiger Kreis“.
+
+## Neue Schriftart Fredoka One (Claude, 08.11.2026)
+
+- Owner fand Arial langweilig und wollte etwas im Stil von Brotato. Die echte Brotato-Schrift kann Roblox nicht laden (nur Roblox-eigene Schriften); der Owner hat aus drei Vorschauen **Fredoka One** gewählt (`Enum.Font.FredokaOne`, Vorschau `/mnt/project-files/font-preview/schriftarten.png`).
+- Zentral in `UI/Theme.luau` (`font`, `fontBold`); alle Menüs und das HUD lesen dort. Feste Gotham-Schriften in Schadenszahlen, Effekt-Texten, Gegner-Beschriftungen und den Portal-Schildern (`MapService`, Server, direkt `Enum.Font.FredokaOne`) ebenfalls umgestellt.
+- Text im Run ist 25 % größer: neuer Wert `Theme.hudTextScale = 1.25` für HUD (HP/XP-Balken samt Balkenhöhe, Welle, Timer, Banner, Team, Bau-Liste), Schadenszahlen, Effekt-Texte, Gegner-Beschriftungen, Beute-Hinweis, Boss-Leiste und den Shard-Zähler im Kampf. Menü-Schriftgrößen unverändert.
+- Owner hat erlaubt, dafür auch Strang-B-Dateien (DamageNumberController, ProcTextController) und die geteilten `UI/*`-Dateien zu ändern, nur Schriftart und -größe.
+- Nicht in Studio gesehen (keine Studio-Verbindung): Fredoka One ist etwas breiter als Arial, lange Texte in festen Feldern können umbrechen oder abgeschnitten werden; das muss der Owner-Test zeigen.
+- Tests: betroffene Specs wie auf `main` (Smoke 29 bekannte Fehler, sonst grün); StyLua, Selene (0 Fehler) sauber.
+
+## Charakterwahl: größere Kopf-Kacheln (Claude, 08.11.2026)
+
+- Owner: Figuren in der Charakterwahl waren kaum erkennbar. Owner-Wahl „Auf den Kopf zoomen“. Neues `UI/PortraitCrop` schneidet aus den Figurmaßen in `Config/SpriteImages` (`center`, `ground`, `height`) quadratische Ausschnitte: `head` (oberste 90 % der Figur) für die Kacheln, `figure` (ganze Figur mit kleinem Rand) für das große Bild. `UI/Icons.draw` kennt dafür die neuen Arten `characterHead` und `characterFigure`; `character` bleibt unverändert (Startmenü).
+- Kachelgröße in `CharacterChoice.resize` wächst mit kleiner Liste: 80 px am PC und 65 px am Handy bei 9 Charakteren, bei voller Liste zurück auf 52 px. `tests/UiRedesign.spec.luau` erwartet deshalb 80/65 statt 52/56.
+- Hinweis für den Einbau weiterer Charakterbilder: Bilder, die schon nur den Kopf zeigen, brauchen Figurmaße, die den Kopf umfassen, sonst schneidet `head` zu stark zu.
+- Checks: StyLua und Selene sauber; `PortraitCrop` (neu), `UiRedesign`, `UiReference`, `CharacterGhost`, `WorldSprites` bestanden. Kein Studio-Test; Ausschnitt nur am Screenshot des Owners nachgemessen.
+
+## Shop-Chancen für Items geprüft (Claude, 08.11.2026)
+
+- Owner meldete, die Item-Chancen im Shop seien falsch. Geprüft mit 4.000 simulierten Shops pro Welle (echte `ShopRules.roll`) gegen die Wiki-Seite [Shop](https://brotato.wiki.spellsandguns.com/Shop). **Seltenheiten stimmen 1:1** mit der Wiki-Tabelle (z. B. nach Welle 11 bei 0 Luck 40/44/15/1 %), Luck und Obergrenzen ebenfalls; der Shop rechnet mit der gerade beendeten Welle, wie im Wiki.
+- **Behoben:** Nach Welle 1–2 gibt Brotato genau 2 Waffen + 2 Items. Bei uns konnten die zwei freien Plätze ebenfalls Waffen werden (im Schnitt 1,3 Items, 13 % der Shops ohne Item). `Shop.guaranteedWeapons` hat jetzt das Feld `exact` (Welle 1–2 `true`): dann sind alle übrigen neuen Plätze Items; gesperrte Angebote zählen mit. Neuer Test in `tests/ShopRules.spec.luau`. Die Shop-Dateien gehören Strang B; der Owner hat die Änderung ausdrücklich freigegeben.
+- **Offen, nicht belegt:** Negatives Luck multipliziert bei uns mit (1 + Luck/100), ab −100 Luck also keine blauen/lila/roten Items mehr. Das Wiki nennt nur „(100% + Luck)“; ob das Original bei negativem Luck stattdessen teilt, ist ohne Quelle offen. Nicht geändert.
+- **Offen (Waffen):** Das Wiki nennt für Shop 1–5 einen Zusatzbonus auf Waffen derselben Klasse (+15/12/9/6/3 %); bei uns konstant 15 % (`Shop.weaponPool.sameClass`). `Shop.fullSlots.mergeChance` (60 %) ist eine eigene Playtest-Regel, kein Brotato-Wert.
+- Nur 125 der 241 Brotato-Items (208 Hauptspiel + 33 DLC) sind im Spiel, deshalb erscheint ein bestimmtes Item etwa doppelt so oft wie im Original. Inhaltsfrage, keine Formelabweichung.

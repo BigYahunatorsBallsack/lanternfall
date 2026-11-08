@@ -97,7 +97,7 @@ function Projectile.fire(weapon: Arsenal.Weapon, ctx: Arsenal.Context): boolean
 	if targetCount == 0 and stats.shootWithoutTarget ~= 1 then
 		return false
 	end
-	local heldX, heldZ = WeaponPose.anchor(ctx.x, ctx.z, weapon.uid, weapon.id)
+	local heldX, heldZ = WeaponPose.anchor(ctx.x, ctx.z, ctx.slot, ctx.slotCount, weapon.id)
 	for k = 1, count do
 		local tx: number?, tz: number? = nil, nil
 		if targetCount > 0 then
@@ -125,7 +125,7 @@ function Projectile.fire(weapon: Arsenal.Weapon, ctx: Arsenal.Context): boolean
 			local c, s = math.cos(angle), math.sin(angle)
 			dx, dz = dx * c - dz * s, dx * s + dz * c
 		end
-		local x, z = WeaponPose.muzzle(ctx.x, ctx.z, weapon.uid, weapon.id, dx, dz, length)
+		local x, z = WeaponPose.muzzle(ctx.x, ctx.z, ctx.slot, ctx.slotCount, weapon.id, dx, dz, length)
 		start(weapon, ctx, x, z, dx, dz, stats, false, nil)
 	end
 	if stats.magazine then

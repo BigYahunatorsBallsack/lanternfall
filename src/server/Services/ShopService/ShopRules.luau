@@ -98,14 +98,15 @@ function ShopRules.rerollPrice(wave: number, rerolls: number): number
 	return math.floor(rule.firstFactor * wave) + increase * (rerolls + 1)
 end
 
--- Weapon offers a shop after this wave holds at least.
-function ShopRules.guaranteedWeapons(wave: number): number
+-- Weapon offers a shop after this wave holds at least, and whether that is also the most (`exact`: every other new
+-- slot is an item, Brotato's shops 1-2).
+function ShopRules.guaranteedWeapons(wave: number): (number, boolean)
 	for _, entry in Shop.guaranteedWeapons do
 		if wave <= entry.untilWave then
-			return entry.count
+			return entry.count, entry.exact
 		end
 	end
-	return 0
+	return 0, false
 end
 
 local function canTakeItem(itemId: string, ownedItems: { [string]: number }): boolean
@@ -419,7 +420,7 @@ function ShopRules.roll(params: Params): { Types.ShopOffer }
 		taken[id] = true
 		avoid[id] = true
 	end
-	local weaponsLeft = ShopRules.guaranteedWeapons(params.wave)
+	local weaponsLeft, exactWeapons = ShopRules.guaranteedWeapons(params.wave)
 	for _, offer in params.keep or {} do
 		table.insert(offers, offer)
 		taken[offer.itemId] = true
@@ -429,7 +430,7 @@ function ShopRules.roll(params: Params): { Types.ShopOffer }
 		end
 	end
 	while #offers < Shop.slots do
-		local wantWeapon = weaponsLeft > 0 or params.random() < Shop.weaponChance
+		local wantWeapon = weaponsLeft > 0 or (not exactWeapons and params.random() < Shop.weaponChance)
 		local offer: Types.ShopOffer? = nil
 		local weaponTier = math.clamp(StatMath.rollTier(params.wave, params.luck, params.random()), 1, params.maxTier)
 		local class = params.classId and Classes[params.classId]
