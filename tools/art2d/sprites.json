@@ -380,7 +380,8 @@
   "pixels": 512,
   "items": {
    "Tree": {
-    "text": "Own arena tree drawn by tools/art2d/draw_world.py: two slate-blue crowns, glowing lime leaves, thin forked trunk"
+    "text": "Approved base-game enemy: Tree",
+    "source": "assets/enemies/base-game/sprites/bonus/Tree.png"
    },
    "Shadeling": {
     "text": "Approved base-game enemy: BabyAlien",

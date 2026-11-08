@@ -1,8 +1,7 @@
-"""Draws Lanternfall's own arena tree and arena floor tile.
+"""Draws Lanternfall's own arena floor tile.
 
-Original artwork from simple shapes, in the game's look: thick near-black outline, flat colors, one darker and one
-lighter tone. Writes assets/world2d/final/enemies/Tree.png (1024 px, transparent) and
-assets/world2d/final/floors/Arena.png (512 px, seamless tile). tools/art2d/import_sprites.py then prepares both
+Original artwork from simple shapes: dusty mauve ground with small clusters of pebbles and dry yellow bits.
+Writes assets/world2d/final/floors/Arena.png (512 px, seamless tile); tools/art2d/import_sprites.py prepares it
 for upload. Run: python tools/art2d/draw_world.py
 """
 
@@ -10,136 +9,15 @@ import math
 import pathlib
 import random
 
-from PIL import Image, ImageChops, ImageDraw, ImageFilter
+from PIL import Image, ImageDraw, ImageFilter
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 FINAL = ROOT / "assets/world2d/final"
 SUPER = 2  # drawn larger, then scaled down for smooth edges
 
-OUTLINE = (18, 15, 20, 255)
-
-# Tree: two lumpy slate-blue crowns on a thin forked trunk, dotted with glowing lime leaves.
-TREE_SIZE = 1024
-TREE_OUTLINE = 26  # px at 1024
-CROWN = (96, 114, 146, 255)
-CROWN_SHADE = (72, 84, 116, 255)
-CROWN_LIGHT = (132, 152, 178, 255)
-TRUNK = (58, 44, 52, 255)
-LEAF = (118, 236, 92, 255)
-LEAF_EDGE = (34, 118, 44, 255)
-LEAF_SHINE = (214, 255, 190, 255)
-LEAF_GLOW = (120, 255, 100)
-
-# Each crown: (x, y, radius) circles on the 1024 canvas; their union is the crown.
-CROWNS = [
-    [(380, 390, 150), (250, 450, 105), (330, 270, 110), (470, 300, 115), (520, 420, 110), (400, 500, 120)],
-    [(700, 520, 100), (790, 560, 80), (640, 590, 80), (730, 440, 80), (800, 480, 60)],
-]
-# Trunk and branches as (from, to, width) at 1024.
-BRANCHES = [
-    ((520, 940), (512, 720), 34),
-    ((512, 730), (430, 520), 24),
-    ((512, 730), (680, 600), 22),
-    ((470, 610), (360, 560), 14),
-    ((600, 660), (640, 760), 12),
-    ((520, 900), (440, 950), 16),
-    ((520, 900), (610, 950), 16),
-    ((514, 820), (470, 765), 12),
-    ((455, 600), (405, 640), 11),
-]
-# Leaves as (x, y, size) at 1024, mostly on the crown rims like the reference look.
-LEAVES = [
-    (150, 450, 34), (205, 360, 30), (250, 230, 32), (350, 165, 34), (470, 190, 30), (580, 290, 32),
-    (620, 420, 30), (200, 540, 32), (300, 590, 30), (430, 380, 28), (330, 420, 26), (470, 480, 28),
-    (650, 380, 30), (790, 400, 28), (870, 500, 32), (860, 610, 30), (760, 650, 30), (600, 650, 30),
-    (720, 530, 26), (400, 642, 32), (465, 762, 32), (640, 770, 30),
-]
-
 
 def s(value):
     return round(value * SUPER)
-
-
-def union_mask(circles, grow, size):
-    mask = Image.new("L", (size, size), 0)
-    draw = ImageDraw.Draw(mask)
-    for x, y, r in circles:
-        r += grow
-        draw.ellipse((s(x - r), s(y - r), s(x + r), s(y + r)), fill=255)
-    return mask
-
-
-def fill(image, mask, color):
-    image.paste(Image.new("RGBA", image.size, color), (0, 0), mask)
-
-
-def draw_branches(draw, grow, color):
-    for (x0, y0), (x1, y1), width in BRANCHES:
-        w = width + grow * 2
-        draw.line((s(x0), s(y0), s(x1), s(y1)), fill=color, width=s(w))
-        for x, y in ((x0, y0), (x1, y1)):
-            r = w / 2
-            draw.ellipse((s(x - r), s(y - r), s(x + r), s(y + r)), fill=color)
-
-
-def leaf_shape(x, y, size, grow):
-    """A small rounded leaf, a bit wider than tall and tilted by its position."""
-    angle = math.radians((x * 7 + y * 3) % 60 - 30)
-    rx, ry = size * 0.62 + grow, size * 0.46 + grow
-    points = []
-    for step in range(24):
-        t = step / 24 * math.tau
-        px, py = rx * math.cos(t), ry * math.sin(t)
-        points.append((s(x + px * math.cos(angle) - py * math.sin(angle)), s(y + px * math.sin(angle) + py * math.cos(angle))))
-    return points
-
-
-def draw_tree():
-    size = s(TREE_SIZE)
-    image = Image.new("RGBA", (size, size), (0, 0, 0, 0))
-    draw = ImageDraw.Draw(image)
-
-    # Outlines first: trunk, crowns and leaves grown by the outline width, all in one dark silhouette.
-    draw_branches(draw, TREE_OUTLINE / 2, OUTLINE)
-    for crown in CROWNS:
-        fill(image, union_mask(crown, TREE_OUTLINE, size), OUTLINE)
-    for x, y, leaf in LEAVES:
-        draw.polygon(leaf_shape(x, y, leaf, TREE_OUTLINE * 0.55), fill=OUTLINE)
-
-    draw_branches(draw, 0, TRUNK)
-
-    for crown in CROWNS:
-        body = union_mask(crown, 0, size)
-        fill(image, body, CROWN_SHADE)
-        # Lighter upper part: the same circles moved up and shrunk, kept inside the crown.
-        upper = union_mask([(x - r * 0.08, y - r * 0.16, r * 0.82) for x, y, r in crown], 0, size)
-        fill(image, ImageChops.multiply(body, upper), CROWN)
-        # One soft highlight on the two biggest lumps only, so the crown does not look spotted.
-        biggest = sorted(crown, key=lambda c: -c[2])[:2]
-        shine = union_mask([(x - r * 0.25, y - r * 0.4, r * 0.4) for x, y, r in biggest], 0, size)
-        fill(image, ImageChops.multiply(body, shine), CROWN_LIGHT)
-
-    # Soft lime glow behind the leaves.
-    glow = Image.new("L", (size, size), 0)
-    glow_draw = ImageDraw.Draw(glow)
-    for x, y, leaf in LEAVES:
-        glow_draw.polygon(leaf_shape(x, y, leaf, 10), fill=150)
-    glow = glow.filter(ImageFilter.GaussianBlur(s(10)))
-    silhouette = image.getchannel("A")
-    glow = ImageChops.multiply(glow, silhouette)  # stays on the tree, no halo past the outline
-    glow_layer = Image.new("RGBA", (size, size), LEAF_GLOW + (0,))
-    glow_layer.putalpha(glow)
-    image = Image.alpha_composite(image, glow_layer)
-    draw = ImageDraw.Draw(image)
-
-    for x, y, leaf in LEAVES:
-        draw.polygon(leaf_shape(x, y, leaf, 4), fill=LEAF_EDGE)
-        draw.polygon(leaf_shape(x, y, leaf, -2), fill=LEAF)
-        r = leaf * 0.16
-        cx, cy = x - leaf * 0.18, y - leaf * 0.14
-        draw.ellipse((s(cx - r), s(cy - r * 0.8), s(cx + r), s(cy + r * 0.8)), fill=LEAF_SHINE)
-
-    return image.resize((TREE_SIZE, TREE_SIZE), Image.LANCZOS)
 
 
 # Arena floor: dusty mauve ground with small clusters of pebbles and dry yellow bits, seamless at 512 px.
@@ -225,7 +103,7 @@ def draw_floor():
 
 
 def main():
-    for group, name, image in (("enemies", "Tree", draw_tree()), ("floors", "Arena", draw_floor())):
+    for group, name, image in (("floors", "Arena", draw_floor()),):
         target = FINAL / group / f"{name}.png"
         target.parent.mkdir(parents=True, exist_ok=True)
         image.save(target)
