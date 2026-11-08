@@ -6,7 +6,7 @@ Provenance includes Steam build 26406319, update date 2026-11-03, the installed 
 
 `startingWeapons` and `startingItems` are **selection alternatives**; `guaranteedEquipment` contains additional fixed grants. For example, Beast Master chooses a starting pet and separately receives Lootworm and Ratzilla. Treating all selectable pets as fixed grants would be incorrect.
 
-`tools/build-character-catalog.py` compiles the neutral facts into typed Luau configuration. The catalog preserves every effect, separates plain stats and supported conversions, and explicitly lists rules awaiting runtime integration. A complete source record is **not** a claim that the character is playable or implemented. `Classes.luau` keeps new characters unavailable until their dependencies, server rules and selection paths are verified. Existing active packages keep their delivered behavior during the incremental integration.
+`tools/build-character-catalog.py` compiles the neutral facts into typed Luau configuration. The catalog preserves every effect, separates plain stats and supported conversions, and keeps other policy inputs explicit in `remainingRules`. Some of those inputs now have runtime handlers; that field is not a count of outstanding work. A complete source record is **not** a claim that the character is playable or implemented. `Classes.luau` keeps new characters unavailable until their dependencies, server rules and selection paths are verified. Existing active packages keep their delivered behavior during the incremental integration.
 
 Checks:
 
@@ -68,3 +68,12 @@ remain valid. The locked requirement and the Ghost rule text use the installed E
 the percent suffix of `EFFECT_DODGE_CAP`. The challenge survives saving/rejoining and does not affect another player.
 Ghost's +10 flat Ethereal damage is weapon-local and agrees with the client preview; its 90% cap is tested through
 actual hit resolution alongside a peer's ordinary cap. Native item preferences use serialized source tags.
+
+Bull's hurt-explosion runtime is connected, while the package remains unavailable and is not `nativeCodeReady`.
+`CharacterExplosions` records the original 30 base damage, triple Melee/Ranged/Elemental scaling, 3% base critical
+chance, x1.5 critical multiplier and source collision geometry/hashes. The native calculation truncates flat
+scaling and then rounds additive Damage/Explosion Damage bonuses. An actual lost-HP event resolves the blast
+before the owner is marked down; dodges and absorbed hits do not emit it, and it does not life steal. Existing
+Arsenal code is unchanged. The full package still needs the original Danger-1 win access, weaponless menu flow,
+original rule display and simultaneous lethal/boss-death interaction verification. Common DLC effects and physics
+timing remain subject to the overall parity audit.

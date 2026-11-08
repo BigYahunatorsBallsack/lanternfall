@@ -213,6 +213,11 @@ function Service.init()
 	end)
 	Combat.PlayerDamaged:Connect(function(player)
 		waveGain(player, "onHurt")
+		local state = states[player]
+		local explosion = state and state.policy.hurtExplosion
+		if explosion and (explosion.chance >= 1 or Random.number("Combat", player) < explosion.chance) then
+			Weapons.explodeCharacter(player, explosion.definition)
+		end
 	end)
 	Combat.Dodged:Connect(function(player)
 		waveGain(player, "onDodge")

@@ -4,6 +4,7 @@ local Shared = game:GetService("ReplicatedStorage").Shared
 local Catalog = require(Shared.Config.CharacterCatalog)
 local C = require(Shared.Config.CharacterMechanics)
 local StatMath = require(Shared.Util.StatMath)
+local Explosions = require(Shared.Config.CharacterExplosions)
 
 export type Strike = { stat: string, percent: number, chance: number }
 export type Policy = {
@@ -19,6 +20,7 @@ export type Policy = {
 	stillMaterialsMax: number,
 	healStrike: Strike?,
 	pickupStrike: Strike?,
+	hurtExplosion: { definition: Explosions.Definition, chance: number }?,
 	canAttackMoving: boolean,
 	waveEnemyPercent: number,
 	waveTreeMaterials: number,
@@ -112,6 +114,18 @@ function Rules.compile(classId: string): Policy?
 		end
 		if key == "can_attack_while_moving" then
 			policy.canAttackMoving = amount ~= 0
+		end
+		if key == "explode_on_hit" and effect.effectType == "res://effects/items/item_exploding_effect.gd" then
+			for _, parameter in effect.parameters do
+				if parameter.name == "stats" and parameter.resource then
+					local definition = Explosions.bySource[parameter.resource]
+					assert(definition, `Unknown native hurt explosion {parameter.resource}`)
+					policy.hurtExplosion = {
+						definition = definition,
+						chance = Rules.numberParameter(effect, "chance", 1),
+					}
+				end
+			end
 		end
 		if effect.effectType == "res://items/global/effect.gd" and custom == "" and effect.storageMethod == 0 then
 			if key == "pacifist" then

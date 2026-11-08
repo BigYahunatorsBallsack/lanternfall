@@ -8,6 +8,8 @@
 - [ ] Deliver healing, damage and live effects with regression tests.
   - [x] Healing/no-heal/one-hit policies, fractional regeneration clock, native stat strikes and movement conditions.
   - [x] Real-server Golem, Lich, Sick, Masochist, Soldier and Farmer scenarios; new packages remain gated on full dependencies.
+  - [x] Bull native hurt-explosion runtime, arithmetic, defense and lethal-hit scenarios.
+  - [ ] Complete Bull: Danger-1 win challenge, weaponless selection, original rule display and simultaneous lethal boss interactions.
 - [ ] Deliver XP, cards, survivor counts and wave rewards with retry tests.
   - [x] Personal co-op XP/levels, native fractional thresholds, rotating gold/XP and retry cursor.
   - [x] Pacifist/Cryptid capture before cleanup, combined harvesting sign and personal XP payout.

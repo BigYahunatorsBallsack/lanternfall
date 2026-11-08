@@ -30,6 +30,8 @@ local MapService = require(script.Parent.MapService)
 local RandomService = require(script.Parent.RandomService)
 local RunDirector = require(script.Parent.RunDirector)
 local PlayerDataService = require(script.Parent.PlayerDataService)
+local CharacterExplosion = require(script.CharacterExplosion)
+local CharacterExplosions = require(Shared.Config.CharacterExplosions)
 local Arsenal = require(script.Arsenal)
 local Afflictions = require(script.Afflictions)
 local StatMath = require(Shared.Util.StatMath)
@@ -738,12 +740,46 @@ function WeaponService.getMaxWeapons(player: Player): number
 end
 
 -- B12: already scaled structure damage, no primary weapon scaling or life steal.
-function WeaponService.structureHit(player: Player, enemyId: number, amount: number, source: Arsenal.HitSource?)
+function WeaponService.structureHit(
+	player: Player,
+	enemyId: number,
+	amount: number,
+	source: Arsenal.HitSource?,
+	critical: boolean?
+)
 	local killed, dealt, applied = EnemySim.damage(enemyId, amount, player)
-	recordHit(player.UserId, enemyId, applied, false, killed, false)
+	recordHit(player.UserId, enemyId, applied, critical == true, killed, false)
 	if hitListener and dealt > 0 then
-		hitListener(player.UserId, enemyId, dealt, false, killed, source or "Weapon")
+		hitListener(player.UserId, enemyId, dealt, critical == true, killed, source or "Weapon")
 	end
+end
+
+-- Native on-hurt explosions resolve before CombatService marks a lethally hurt owner down.
+-- Source stats include their own crit multiplier and add ordinary/explosion damage before rounding.
+function WeaponService.explodeCharacter(player: Player, definition: CharacterExplosions.Definition): boolean
+	if paused or not RunDirector.isActive() or RunDirector.getParticipantState(player) ~= "Alive" then
+		return false
+	end
+	local position = MapService.getRootPosition(player)
+	if not position then
+		return false
+	end
+	local sheet = ownerStats[player] or {}
+	local stats = CharacterExplosion.compute(definition, sheet)
+	local center = position + Vector3.new(0, 0, stats.offsetZ)
+	local ids = {}
+	local count = EnemySim.queryRadius(center, stats.radius, ids)
+	arsenal:emitShared(player.UserId, { kind = "Blast", x = center.X, z = center.Z, radius = stats.radius })
+	for index = 1, count do
+		local id = ids[index]
+		if EnemySim.isAlive(id) then
+			local _, elite = EnemySim.getKind(id)
+			local critical = RandomService.number("Combat", player) < stats.critChance
+			local damage = CharacterExplosion.hitDamage(stats, critical, if elite then sheet.eliteDamage or 0 else 0)
+			WeaponService.structureHit(player, id, damage, "Explosion", critical)
+		end
+	end
+	return true
 end
 -- B12 shares the existing burn registry: strongest burn wins, timers survive refreshes, secondary stats apply.
 function WeaponService.structureBurn(

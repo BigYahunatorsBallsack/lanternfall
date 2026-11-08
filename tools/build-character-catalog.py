@@ -392,7 +392,7 @@ def main():
         args.output.write_text(generated, encoding="utf-8", newline="\n")
     counts = Counter(c["contentSet"] for c in catalog.values())
     remaining = sum(len(c["remainingRules"]) for c in catalog.values())
-    print(f"74 characters compiled; sets={dict(counts)}; {remaining} explicit remaining policy rules")
+    print(f"74 characters compiled; sets={dict(counts)}; {remaining} explicit runtime policy inputs")
     print("Missing weapons (native slugs): " + ", ".join(sorted(unknown_weapons)))
     print("Missing items (native slugs): " + ", ".join(sorted(unknown_items)))
 
