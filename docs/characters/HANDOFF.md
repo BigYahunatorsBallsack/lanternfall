@@ -2,6 +2,12 @@
 
 Implementiere alle noch fehlenden Brotato-Charaktere in Lanternfall vollständig. Ziel: stabile PC-Version 1.2.0.1 mit allen DLCs, insgesamt 74 Charaktere. Der Owner erwartet funktionierende Charaktere einschließlich ihrer benötigten Ausrüstung und Mechaniken, nicht nur Konfigurationsdatensätze. Sprich Deutsch mit ihm; Code, Kommentare und Spieltexte bleiben Englisch.
 
+## Aktuelle Fortsetzung: Chef und Doctor (08.11.2026)
+
+PR #90 und #98 sind gemergt. Glutton-Verbrauchsexplosionen sind angebunden. Chef hat jetzt Verbrauchsexplosion/Brennen und den Bonus gegen brennende Ziele bei nativen Waffen-, Itemexplosions- und Strukturtreffern; er bleibt wegen fehlender Startausrüstung, Freischaltung und Regelanzeige unvollständig. Quellen: chef-source.json, consumable-source.json.
+
+Doctor ist als fünftes neues Codepaket vorbereitet: alle drei Startwaffen, originale Stats/Modifikatoren und Texte, persönliche 200-HP-Heilungsfreischaltung mit Wellen-/Retry-Reset. Quelle: doctor-source.json. Heilungszählung verwendet native akzeptierte Heilung vor dem HP-Limit; Lich bleibt beim getrennten Ereignis für tatsächlich gewonnene HP. Negative Attack Speed bei nativen Waffen verwendet die volle Originalverlangsamung. Echte Charakter-/Meat-Tenderizer-Uploads sowie native Studio-/Zwei-Client-/Handy-Abnahme fehlen. Code-vorbereitet ist keine vollständige 1:1-Abnahme.
+
 ## Fortsetzung vom 08.11.2026 (PR #90)
 
 Diese Ergänzung aktualisiert die historischen Restangaben unten: Bull ist jetzt als viertes neues Paket code-vorbereitet (Zugriff, waffenlose Menüfolge und Regeldarstellung getestet). Der gesicherte Patch wurde integriert und darf nicht erneut angewendet werden. Crazy/Brawler/Ghost/Bull benötigen weiterhin echte Bild-Uploads; neun historische Charaktere bleiben öffentlich verfügbar, keine vollständige native Abnahme behauptet.

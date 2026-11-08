@@ -54,7 +54,10 @@ function OfferText.stats(id: string, tier: number, sheet: { [string]: number }):
 			if weapon.brotato then Config.Combat.originalWeapons.minCooldown else Config.Player.minWeaponCooldown,
 			sheet.weaponCooldownMin or 0
 		)
-		result.cooldown = math.max(minimum, result.cooldown * StatMath.cooldownFactor(sheet.attackSpeed or 0))
+		local timing = if weapon.brotato
+			then NativeTiming.factor(sheet.attackSpeed or 0)
+			else StatMath.cooldownFactor(sheet.attackSpeed or 0)
+		result.cooldown = math.max(minimum, result.cooldown * timing)
 		NativeTiming.apply(result, sheet.attackSpeed or 0, minimum)
 	end
 	for _, key in weapon.rangeKeys do

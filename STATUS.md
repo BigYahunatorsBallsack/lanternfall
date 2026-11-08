@@ -72,7 +72,7 @@ Jeder Strang ändert nur **seine** Zeile (Regeln: `docs/PARALLEL.md`).
 | Strang | KI | Aktuelles Paket | Branch / PR | Stand | Danach |
 | --- | --- | --- | --- | --- | --- |
 | A – Engine und Ablauf | Claude | Paket 24 Launch-Paket (Medium) | `wp-24-launch` | fertig, selbst gemerged | Plan bis zum Launch abgeschlossen; als Nächstes IDs des Owners eintragen (Live-Experience, Badges, Musik), dann Live-Ops |
-| B - Inhalte und Spieler-Regeln | ChatGPT | B10: alle stabilen Brotato-Charaktere | `wp-b10-remaining-characters` / [PR #90](https://github.com/BigYahunatorsBallsack/lanternfall/pull/90) | Crazy/Brawler/Ghost/Bull code-vorbereitet; acht Startwaffen, Wirtschaft, Sets und Cyborg-Halbzeitregel; echte Uploads offen | Restliche Ausruestung, Chef/Glutton und weitere Charakter-/Shop-/DLC-Regeln |
+| B - Inhalte und Spieler-Regeln | ChatGPT | B10: alle stabilen Brotato-Charaktere | `wp-b10-chef` | Crazy/Brawler/Ghost/Bull/Doctor code-vorbereitet; Chef-/Glutton-Mechaniken ergaenzt; echte Uploads offen | Restliche Ausruestung, native Alt-IDs und weitere Charakter-/Shop-/DLC-Regeln |
 
 ## Feste Entscheidungen des Owners
 
@@ -646,3 +646,18 @@ Branch `wp-25-2d-presentation`. **Owner-Entscheidungen dieses Pakets:** Das Spie
 - Original: 10 Basis, 500% Melee, doppelte Effektflaeche, 3% Crit mit festem x1.5. Bulls initialisierte Crit-Regeln bleiben erhalten. Quellen in docs/characters/consumable-source.json. Neue optionale vierte ConsumableCollected-Angabe: Pickup-Position; fehlend beim Aufraeumen.
 - Gezielte Produktionsmodul-Pruefungen im Roblox-Mock: 50 bestanden/0 fehlgeschlagen (Explosion, Bull, finale Bull-Interaktion, CharacterRuntime/Policies, Glutton, Loot, finale Belohnungen); Selene 0 Fehler/0 Warnungen fuer alle geaenderten Produktionsdateien, Rojo erfolgreich. Keine Studio-/Zwei-Client-/Handy-Abnahme.
 - Glutton noch kein vollstaendiges Paket: originale Startwaffenliste (u.a. Lute/Spoon), native Freischaltung/Regeldarstellung und Bild-Uploads bleiben offen. Chef-Testentwurf unveraendert und ausgeschlossen. Weiterhin vier neue Pakete code-vorbereitet; keine neue oeffentliche Verfuegbarkeit.
+
+## B10 Chef-Mechaniken (08.11.2026)
+
+- Von GitHub-main ec91f9e weitergebaut. Chef-Verbrauchsexplosion: nativer Pickup-Ort, Effektgroesse 2.5, garantierte fuenf Brennticks, Grundschaden 1 plus globale Burn-Basis (Scared Sausage) und einmalige Elemental-Skalierung. Direkter Explosionshit und Brennen getrennt; nur der Hit kann kritisch treffen.
+- +200% gegen bereits brennende Gegner fuer nicht-elementare native Waffen-/Sekundaer-/Explosions-/Strukturtreffer. Vorhandener Elemental-Eintrag, selbst mit Faktor 0, verhindert den Bonus. Brennticks und Stat-Strikes erhalten ihn nicht. Gekapselter Hit-Kontext im BrotatoCombat-Adapter; Reset vor jedem Simulationsschritt. Arsenal unveraendert.
+- Item-Explosionen von Besitzern des nativen Bonus werden ausserhalb Arsenal mit erhaltenen Skalierungsdaten verarbeitet, damit jeder Gegner einzeln geprueft wird; vorhandene Itemformel bleibt dabei erhalten und ist weiterhin eine allgemeine Paritaetsluecke. StructureService uebergibt die Elemental-Klassifikation an structureHit; alle alten Aufrufer bleiben kompatibel.
+- Vollstaendiger Vergleich Seed 1234: main 1162/30 in 123 Specs, Chef-Fortsetzung 1173/30 in 126 Specs; keine neuen Fehlernamen. Quellen/Pruefung: docs/characters/chef-source.json und chef-validation.json. Selene geaenderte Produktionsdateien 0 Fehler/0 Warnungen (Roblox-Cache), StyLua und Rojo bestanden. Keine Studio-/Zwei-Client-/Handy-Abnahme.
+- Chef ist weiterhin kein vollstaendiges Paket: originale Startausruestung (u.a. Spoon, Awl, Blowgun, Flail, Shovel, Molotov), Freischaltung, Regelanzeige und echte Bilder offen. Zahl code-vorbereiteter neuer Pakete bleibt vier.
+
+## B10 Doctor-Codepaket (08.11.2026)
+
+- Doctor als fuenftes neues Codepaket vorbereitet: alle drei originalen Starts (Scissors, Medical Gun, Meat Tenderizer) mit echten Angriffen geprueft; +200% Medical Attack Speed, +5 Regeneration/+5 Harvesting, verdoppelte Regenerationsgewinne, -100% Attack Speed und halbierte Ruestungsgewinne. Originale Regelanzeige und Medicine-Freischaltung verbunden. Charakter-/Meat-Tenderizer-Bilduploads und Studio-Abnahme bleiben offen; oeffentliche Liste bleibt bei neun historischen Paketen.
+- Neue Combat.HealingApplied-Angabe zaehlt akzeptierte ganzzahlige Heilung vor dem HP-Limit wie der Originalcode, einschliesslich Overheal; Healed bleibt fuer tatsaechliche HP/Lich unveraendert. Persoenliche 200-HP-Wellenzaehler im CharacterService/HealingChallenges; Reset bei neuem Run/Welle und Wiederherstellung beim Retry. Challenge wird dauerhaft im vorhandenen Achievement-Feld gespeichert. No-heal und Down erzeugen keinen Fortschritt.
+- Vorhandenen Fehler bei negativer Attack Speed korrigiert: native Waffen und Shop-Vorschau teilen jetzt NativeWeaponTiming.factor, volle native Verlangsamung statt halber Strafe. Der alte Erwartungswert fuer Pistol -100% wurde quellenbasiert 1.8 auf 2.4 Sekunden berichtigt. Keine Tests geschwaecht/uebersprungen.
+- Vollstaendiger Seed-1234-Vergleich plus gezielte Nachpruefung nach Timing/UI-Korrektur: main 1162 bestanden/30 bekannte Fehler (123 Specs), Fortsetzung 1180/30 (128 Specs), keine neuen Fehlernamen. Selene geaenderte Produktionsdateien 0 Fehler/0 Warnungen mit Roblox-Cache, StyLua und Rojo bestanden. Quellen/Grenzen: doctor-source.json, doctor-validation.json. Keine Studio-/Zwei-Client-/Handy-Abnahme.

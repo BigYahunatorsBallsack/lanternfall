@@ -94,7 +94,9 @@ function WeaponStats.compute(
 	damage += (stats.levelScaling or 0) * (bonuses.level or 0)
 	stats.damage = math.max(1, damage * damageFactor)
 
-	local timing = StatMath.cooldownFactor(bonuses.attackSpeed or 0)
+	local attackSpeed = bonuses.attackSpeed or 0
+	-- Stable native negative Attack Speed uses the full percentage, including Doctor's -100% penalty.
+	local timing = if weapon.brotato then NativeTiming.factor(attackSpeed) else StatMath.cooldownFactor(attackSpeed)
 	if weapon.brotato then
 		minCooldown = Combat.originalWeapons.minCooldown
 	end

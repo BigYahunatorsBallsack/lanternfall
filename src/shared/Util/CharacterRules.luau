@@ -97,6 +97,8 @@ end
 -- Weapon-specific character bonuses travel separately from the owner's ordinary stat sheet.
 function CharacterRules.weaponSheet(classId: string?, sheet: StatMath.Sheet): StatMath.Sheet
 	local result = table.clone(sheet)
+	result.nativeBurningTargetBonus =
+		CharacterRules.nativeAmount(classId, "bonus_non_elemental_damage_against_burning_targets")
 	local class = classId and Config.Classes[classId]
 	if class then
 		for weaponClass, stats in class.weaponClassStats or {} do

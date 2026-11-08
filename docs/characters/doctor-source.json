@@ -1,0 +1,235 @@
+{
+  "version": "1.2.0.1",
+  "steamBuild": 26406319,
+  "resources": [
+    {
+      "path": "res://challenges/medicine_data.tres",
+      "resourceType": "Resource",
+      "properties": {
+        "script": {
+          "resource": "res://challenges/global/challenge_data.gd",
+          "resourceType": "Script"
+        },
+        "my_id": "chal_medicine",
+        "unlocked_by_default": false,
+        "icon": {
+          "resource": "res://items/all/00_base_game/acid/acid_icon.png",
+          "resourceType": "Texture"
+        },
+        "name": "CHAL_MEDICINE",
+        "tier": 0,
+        "value": 200,
+        "effects": [],
+        "tracking_text": "",
+        "is_lockable": true,
+        "is_cursed": false,
+        "curse_factor": 0.0,
+        "description": "CHAL_MEDICINE_DESC",
+        "reward_type": 6,
+        "reward": {
+          "resource": "res://items/characters/doctor/doctor_data.tres",
+          "resourceType": "Resource"
+        },
+        "number": 0,
+        "stat": "",
+        "additional_args": []
+      },
+      "subresources": {},
+      "externalResources": [
+        {
+          "path": "res://items/all/00_base_game/acid/acid_icon.png",
+          "type": "Texture",
+          "id": 1
+        },
+        {
+          "path": "res://items/characters/doctor/doctor_data.tres",
+          "type": "Resource",
+          "id": 2
+        },
+        {
+          "path": "res://challenges/global/challenge_data.gd",
+          "type": "Script",
+          "id": 3
+        }
+      ],
+      "sourceMd5": "a98aac978b4ff7e7605e179527034075"
+    },
+    {
+      "path": "res://items/characters/doctor/doctor_effect_1.tres",
+      "resourceType": "Resource",
+      "properties": {
+        "script": {
+          "resource": "res://effects/items/class_bonus_effect.gd",
+          "resourceType": "Script"
+        },
+        "key": "EFFECT_WEAPON_CLASS_BONUS",
+        "text_key": "",
+        "value": 200,
+        "custom_key": "",
+        "storage_method": 0,
+        "effect_sign": 3,
+        "custom_args": [],
+        "set_id": "set_medical",
+        "stat_displayed_name": "stat_attack_speed",
+        "stat_name": "attack_speed_mod"
+      },
+      "subresources": {},
+      "externalResources": [
+        {
+          "path": "res://effects/items/class_bonus_effect.gd",
+          "type": "Script",
+          "id": 1
+        }
+      ],
+      "sourceMd5": "8acf32e27ecc5aea004b2ed7eb670768"
+    },
+    {
+      "path": "res://items/characters/doctor/doctor_effect_2.tres",
+      "resourceType": "Resource",
+      "properties": {
+        "script": {
+          "resource": "res://items/global/effect.gd",
+          "resourceType": "Script"
+        },
+        "key": "stat_hp_regeneration",
+        "text_key": "",
+        "value": 5,
+        "custom_key": "",
+        "storage_method": 0,
+        "effect_sign": 3,
+        "custom_args": []
+      },
+      "subresources": {},
+      "externalResources": [
+        {
+          "path": "res://items/global/effect.gd",
+          "type": "Script",
+          "id": 1
+        }
+      ],
+      "sourceMd5": "ad99f192fb358138fb84aeae26a86aeb"
+    },
+    {
+      "path": "res://items/characters/doctor/doctor_effect_4.tres",
+      "resourceType": "Resource",
+      "properties": {
+        "script": {
+          "resource": "res://items/global/effect.gd",
+          "resourceType": "Script"
+        },
+        "key": "stat_harvesting",
+        "text_key": "",
+        "value": 5,
+        "custom_key": "",
+        "storage_method": 0,
+        "effect_sign": 3,
+        "custom_args": []
+      },
+      "subresources": {},
+      "externalResources": [
+        {
+          "path": "res://items/global/effect.gd",
+          "type": "Script",
+          "id": 1
+        }
+      ],
+      "sourceMd5": "859d7374638bde9e18895c23e9577d71"
+    },
+    {
+      "path": "res://items/characters/doctor/doctor_effect_4b.tres",
+      "resourceType": "Resource",
+      "properties": {
+        "script": {
+          "resource": "res://effects/items/stat_gains_modification_effect.gd",
+          "resourceType": "Script"
+        },
+        "key": "effect_increase_stat_gains",
+        "text_key": "",
+        "value": 100,
+        "custom_key": "",
+        "storage_method": 0,
+        "effect_sign": 0,
+        "custom_args": [],
+        "stat_displayed": "stat_hp_regeneration",
+        "stats_modified": [
+          "stat_hp_regeneration"
+        ]
+      },
+      "subresources": {},
+      "externalResources": [
+        {
+          "path": "res://effects/items/stat_gains_modification_effect.gd",
+          "type": "Script",
+          "id": 1
+        }
+      ],
+      "sourceMd5": "4fbb056376a55fcfd144c48aefcd08a0"
+    },
+    {
+      "path": "res://items/characters/doctor/doctor_effect_5.tres",
+      "resourceType": "Resource",
+      "properties": {
+        "script": {
+          "resource": "res://items/global/effect.gd",
+          "resourceType": "Script"
+        },
+        "key": "stat_attack_speed",
+        "text_key": "",
+        "value": -100,
+        "custom_key": "",
+        "storage_method": 0,
+        "effect_sign": 3,
+        "custom_args": []
+      },
+      "subresources": {},
+      "externalResources": [
+        {
+          "path": "res://items/global/effect.gd",
+          "type": "Script",
+          "id": 1
+        }
+      ],
+      "sourceMd5": "28d8442d3c5100e74aa6d72790e3a82b"
+    },
+    {
+      "path": "res://items/characters/doctor/doctor_effect_6.tres",
+      "resourceType": "Resource",
+      "properties": {
+        "script": {
+          "resource": "res://effects/items/stat_gains_modification_effect.gd",
+          "resourceType": "Script"
+        },
+        "key": "effect_reduce_stat_gains",
+        "text_key": "",
+        "value": -50,
+        "custom_key": "",
+        "storage_method": 0,
+        "effect_sign": 3,
+        "custom_args": [],
+        "stat_displayed": "stat_armor",
+        "stats_modified": [
+          "stat_armor"
+        ]
+      },
+      "subresources": {},
+      "externalResources": [
+        {
+          "path": "res://effects/items/stat_gains_modification_effect.gd",
+          "type": "Script",
+          "id": 1
+        }
+      ],
+      "sourceMd5": "d80747d166ff70f7986f0eafc069c8f1"
+    }
+  ],
+  "behavior": {
+    "challenge": "Accepted healing before the HP cap reaches 200 in a single wave, personal to the healer; no-heal/down blocks; retry restores counters but keeps permanent achievements",
+    "startChoices": [
+      "Scissors",
+      "Medical Gun",
+      "Meat Tenderizer"
+    ],
+    "attackSpeed": "Stable WeaponService.init_base_stats multiplies cooldown by 1 + abs(AS)/100 for negative AS. Existing original weapon regression corrected from 1.8 to 2.4 seconds at -100%.",
+    "readiness": "Fifth code-prepared package; original character and Meat Tenderizer uploads plus Studio/two-client/mobile acceptance remain pending"
+  }
+}

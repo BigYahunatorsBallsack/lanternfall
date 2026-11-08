@@ -136,13 +136,16 @@ function Rules.compile(classId: string): Policy?
 			policy.canAttackMoving = amount ~= 0
 		end
 		if
-			(key == "explode_on_hit" or key == "explode_on_consumable")
-			and effect.effectType == "res://effects/items/item_exploding_effect.gd"
+			(key == "explode_on_hit" or key == "explode_on_consumable" or key == "explode_on_consumable_burning")
+			and (
+				effect.effectType == "res://effects/items/item_exploding_effect.gd"
+				or effect.effectType == "res://effects/items/item_exploding_and_burn_effect.gd"
+			)
 		then
 			for _, parameter in effect.parameters do
 				if parameter.name == "stats" and parameter.resource then
 					local definition = Explosions.bySource[parameter.resource]
-					assert(definition, `Unknown native hurt explosion {parameter.resource}`)
+					assert(definition, `Unknown native character explosion {parameter.resource}`)
 					local explosion = {
 						definition = definition,
 						chance = Rules.numberParameter(effect, "chance", 1),

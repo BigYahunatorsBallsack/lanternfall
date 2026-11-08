@@ -5,6 +5,7 @@ export type Definition = {
 	sourceMd5: string,
 	areaScale: number?,
 	baseCritDamageOnly: boolean?,
+	burn: { damage: number, ticks: number, scaling: { [string]: number } }?,
 	damage: number,
 	scaling: { [string]: number },
 	critChance: number,
@@ -13,6 +14,20 @@ export type Definition = {
 	offsetZPoints: number,
 }
 local bySource: { [string]: Definition } = {
+	["res://dlcs/dlc_1/characters/chef/effects/chef_explosion_stats.tres"] = {
+		source = "res://dlcs/dlc_1/characters/chef/effects/chef_explosion_stats.tres",
+		sourceMd5 = "e392dabe977d5e25542333841ccd1ab3",
+		areaScale = 2.5,
+		baseCritDamageOnly = true,
+		damage = 0,
+		scaling = {},
+		critChance = 0.03,
+		critDamage = 1.5,
+		radiusPoints = 147.34,
+		offsetZPoints = 3,
+		-- chef_burning_data.tres MD5 3ae69eaa4b71c9fc99d28fce91cb9637: guaranteed innate burn.
+		burn = { damage = 1, ticks = 5, scaling = { elementalDamage = 1 } },
+	},
 	["res://items/characters/glutton/glutton_explosion_stats.tres"] = {
 		source = "res://items/characters/glutton/glutton_explosion_stats.tres",
 		sourceMd5 = "903aec349462891b556c4a5270294131",

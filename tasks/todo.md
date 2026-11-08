@@ -31,3 +31,6 @@
 - [x] Connect Farmer growth, character drop modifiers and Entrepreneur recycling/wallet reset with personal/retry tests.
 - [x] Implement Whip's timed geometry before calling the eight-family group complete.
 - [ ] Continue the remaining 21 weapon families, ten item/pet families, original access/legacy character adoption and other Handoff dependencies.
+
+- [x] Connect Glutton and Chef consumable explosions, Chef burn and per-target hitbox bonus; full character dependencies remain open.
+- [x] Prepare Doctor code package, all three starts, original rules and personal Medicine unlock with retry/wave isolation; real uploads/runtime acceptance pending.

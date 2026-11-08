@@ -18,7 +18,7 @@ describe("WeaponStats", function()
 	end)
 	it("scales cooldowns and enforces the engine attack cap", function()
 		expect(compute("WatchmanPistol", 1, { attackSpeed = 100 }).cooldown).toBeNear(0.6)
-		expect(compute("WatchmanPistol", 1, { attackSpeed = -100 }).cooldown).toBeNear(1.8)
+		expect(compute("WatchmanPistol", 1, { attackSpeed = -100 }).cooldown).toBeNear(2.4)
 		expect(compute("WatchmanPistol", 1, { attackSpeed = 100000 }).cooldown).toBe(
 			Config.Combat.originalWeapons.minCooldown
 		)

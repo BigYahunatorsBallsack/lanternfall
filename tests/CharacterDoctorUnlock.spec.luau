@@ -1,0 +1,73 @@
+--!strict
+-- Native Medicine challenge through actual healing, personal wave resets and retry persistence.
+local world = loadHelper("tests/helpers/RobloxMock.luau")
+local Shared = game:GetService("ReplicatedStorage").Shared
+local Config = require(Shared.Config)
+local Server = game:GetService("ServerScriptService").Server
+runScript(Server, "init.server.luau")
+local S = Server.Services
+local Run, Data, Combat = require(S.RunDirector), require(S.PlayerDataService), require(S.CombatService)
+local me, peer, third =
+	world.addPlayer("Owner", 1, true), world.addPlayer("Peer", 2, false), world.addPlayer("Third", 3, false)
+world.advance(0.5)
+Run.setHoldWaves(true)
+for _, p in { me, peer, third } do
+	assert(Run.setReady(p, true))
+end
+world.advance(3.5)
+require(S.SpawnDirector).setPaused(true)
+require(S.WeaponService).setPaused(true)
+require(S.EnemySim).killAll()
+describe("Native Doctor healing challenge", function()
+	it("counts accepted full-health healing and grants only the healer's profile at 200", function()
+		expect(Data.isUnlocked(me, "characters", "Doctor")).toBe(false)
+		expect(Combat.healPlayer(me, 199.75)).toBe(0)
+		expect(Data.isUnlocked(me, "characters", "Doctor")).toBe(false)
+		Combat.healPlayer(me, 0.25) -- native heal(value: int) truncates each call, not their sum
+		expect(Data.isUnlocked(me, "characters", "Doctor")).toBe(false)
+		Combat.healPlayer(peer, 199)
+		Combat.healPlayer(me, 1)
+		expect(Data.isUnlocked(me, "characters", "Doctor")).toBe(true)
+		expect(Data.isUnlocked(peer, "characters", "Doctor")).toBe(false)
+	end)
+	it("resets the personal counter at the next wave", function()
+		assert(Run.skipTo(require(Shared.Util.RunSchedule).wave(Run.getWave()).endsAt))
+		for _, p in { me, peer, third } do
+			world.fireServerAs(p, "SetShopReady", true)
+		end
+		world.advance(1)
+		Combat.healPlayer(peer, 1)
+		expect(Data.isUnlocked(peer, "characters", "Doctor")).toBe(false)
+		Combat.healPlayer(peer, 199)
+		expect(Data.isUnlocked(peer, "characters", "Doctor")).toBe(true)
+	end)
+	it("restores the counter on retry and preserves an already-earned challenge", function()
+		Combat.healPlayer(third, 199)
+		Run.endRun("Defeat")
+		assert(Run.retryWave(me))
+		Combat.healPlayer(third, 1)
+		expect(Data.isUnlocked(third, "characters", "Doctor")).toBe(false)
+		Combat.healPlayer(third, 199)
+		expect(Data.isUnlocked(third, "characters", "Doctor")).toBe(true)
+		expect(Data.isUnlocked(me, "characters", "Doctor")).toBe(true)
+		expect(#world.errors).toBe(0)
+	end)
+	it("rejects healing while no-heal is active or the participant is down", function()
+		Run.endRun("Abandoned")
+		world.advance(Config.Run.flow.resultsSeconds + 0.1)
+		local blocked = world.addPlayer("Blocked", 4, false)
+		world.advance(0.5)
+		Config.Classes.Golem.available = true
+		table.insert(Data.get(blocked).classes, "Golem") -- fixture grants only Golem, not Doctor
+		assert(Run.selectClass(blocked, "Golem"))
+		assert(Run.launch({ blocked }, require(Shared.Util.DangerRules).defaultOptions()))
+		world.advance(Config.Run.flow.allReadyCountdownSeconds + 0.5)
+		require(S.SpawnDirector).setPaused(true)
+		require(S.EnemySim).killAll()
+		expect(Combat.healPlayer(blocked, 1000)).toBe(0)
+		expect(Data.isUnlocked(blocked, "characters", "Doctor")).toBe(false)
+		Combat.drainPlayer(blocked, 1000)
+		expect(Combat.healPlayer(blocked, 1000)).toBe(0)
+		expect(Data.isUnlocked(blocked, "characters", "Doctor")).toBe(false)
+	end)
+end)
