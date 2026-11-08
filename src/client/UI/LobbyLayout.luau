@@ -15,6 +15,9 @@ local StatMath = require(Shared.Util.StatMath)
 local WeaponClasses = require(Shared.Util.WeaponClasses)
 local RunSchedule = require(Shared.Util.RunSchedule)
 local Layout = {}
+-- Desktop selection pages: where the page starts and how tall it is (summary panels, tiles, enemy settings button).
+local PAGE_TOP = 116
+local PAGE_HEIGHT = { Character = 460, Weapon = 460, Difficulty = 480 }
 local refresh: (() -> ())? = nil
 
 local function place(object: GuiObject, x: number, y: number, width: number, height: number)
@@ -272,6 +275,17 @@ function Layout.mount(screen: ScreenGui, choose: Frame, players: Frame, record: 
 		-- as long as the widest page (difficulty, 1000 px plus margins) still fits.
 		if not compact and (step == "Character" or step == "Weapon" or step == "Difficulty") then
 			factor = math.min(factor * 1.15, area.X / 1040)
+			-- ...and the whole page, with the play buttons below it, fits without scrolling (owner).
+			local footerHeight = 0
+			if step == "Difficulty" then
+				for _, action in footer:GetChildren() do
+					if action:IsA("GuiObject") and action.Visible then
+						footerHeight += action.Size.Y.Offset + 6
+					end
+				end
+				footerHeight += 12
+			end
+			factor = math.min(factor, area.Y / (PAGE_TOP + PAGE_HEIGHT[step] + 12 + footerHeight + 12))
 		end
 		local width, height = area.X / factor, area.Y / factor
 		local short = compact and height < 500
@@ -336,11 +350,17 @@ function Layout.mount(screen: ScreenGui, choose: Frame, players: Frame, record: 
 		)
 		status.Visible = step == "Difficulty" and not compact
 		place(status, 16, height - 42, width - 330, 30)
-		local top = if compact then 108 else 116
+		local top = if compact then 108 else PAGE_TOP
 		place(scroll, 16, top, width - 32, height - top - 12 - (if footer.Visible then footerHeight + 12 else 0))
 		local innerWidth = width - 32
-		place(content, 0, 0, innerWidth, if compact and choose.Visible then 810 else 500)
-		place(choose, 0, 0, innerWidth, 500)
+		place(
+			content,
+			0,
+			0,
+			innerWidth,
+			if compact and choose.Visible then 810 elseif step == "Difficulty" then PAGE_HEIGHT.Difficulty else 500
+		)
+		place(choose, 0, 0, innerWidth, if step == "Difficulty" and not compact then PAGE_HEIGHT.Difficulty else 500)
 		CharacterChoice.setStep(step)
 		CharacterChoice.resize(innerWidth, height)
 		local startX = math.max(0, (innerWidth - (if step == "Difficulty" then 1000 else 730)) / 2)
