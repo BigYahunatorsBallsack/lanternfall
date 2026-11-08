@@ -28,6 +28,7 @@ local RunStateController = require(script.Parent.RunStateController)
 local StatsController = require(script.Parent.StatsController)
 local StoreController = require(script.Parent.StoreController)
 local Icons = require(script.Parent.Parent.UI.Icons)
+local WeaponInspect = require(script.Parent.Parent.UI.WeaponInspect)
 local ProgressController = require(script.Parent.ProgressController)
 local Theme = require(script.Parent.Parent.UI.Theme)
 local Tooltip = require(script.Parent.Parent.UI.Tooltip)
@@ -376,7 +377,7 @@ local function renderCards(current: Types.ShopState)
 		if offer then
 			local title, detail, badge = UpgradeText.offer(offer, STAT_COLORS)
 			local color = Theme.tiers[offer.tier] or Theme.accent
-			local affordable = current.shards >= offer.price and not offer.blocked
+			local affordable = current.shards >= offer.price
 			view.badge.Text = if offer.sold then "SOLD" else string.upper(badge)
 			view.badge.TextColor3 = Theme.stroke
 			view.badge.BackgroundColor3 = color
@@ -472,12 +473,51 @@ local function renderDetails(current: Types.ShopState, shopping: boolean)
 	end
 end
 
+-- The character is the first "item" (reference game): its picture, and its rules on hover.
+local function renderCharacterTile()
+	local me = RunStateController.getLocalPlayer()
+	local classId = me and me.classId
+	local tile = itemRow:FindFirstChild("CharacterTile") :: Frame?
+	if not classId or not Config.Classes[classId] then
+		if tile then
+			tile:Destroy()
+		end
+		return
+	end
+	if not tile then
+		local created = Widgets.create("Frame", {
+			Name = "CharacterTile",
+			BackgroundColor3 = Theme.panel,
+			BorderSizePixel = 0,
+			LayoutOrder = 0,
+			Parent = itemRow,
+		}, { Widgets.corner(), Widgets.create("UIStroke", { Color = Theme.stroke, Thickness = 2 }) })
+		Widgets.create("Frame", {
+			Name = "Art",
+			BackgroundTransparency = 1,
+			Position = UDim2.fromOffset(3, 3),
+			Size = UDim2.new(1, -6, 1, -6),
+			Parent = created,
+		})
+		Tooltip.attach(created, function()
+			local id = created:GetAttribute("ClassId")
+			local class = id and Config.Classes[id]
+			return if class then class.displayName else "Character", if class then class.description else ""
+		end)
+		tile = created
+	end
+	local shown = tile :: Frame
+	shown:SetAttribute("ClassId", classId)
+	Icons.draw(shown:FindFirstChild("Art") :: Frame, "characterFigure", classId)
+end
+
 local function renderItems()
 	local owned = ProgressController.getLocalItems()
 	local seen = {}
 	itemTitle.Text = `ITEMS  {#owned}`
 	itemTitle.Visible = #owned > 0
 	itemRow.Visible = #owned > 0
+	renderCharacterTile()
 	for index, entry in owned do
 		seen[entry.id] = true
 		local view = itemViews[entry.id]
@@ -530,6 +570,32 @@ local function renderButtons(current: Types.ShopState)
 	readyButton.Text = if ready then "WAITING… (tap to shop)" else "GO  →"
 	readyButton.BackgroundColor3 = if ready then Theme.button else Theme.accent
 	readyButton.TextColor3 = if ready then Theme.text else Theme.accentText
+end
+
+-- Desktop: tapping an owned weapon opens the inspect popup (stats, Recycle, Combine, Cancel) instead of the action row.
+local function renderInspect(current: Types.ShopState)
+	local weapon = selectedWeapon(current)
+	if compact or not weapon then
+		WeaponInspect.hide()
+		return
+	end
+	local index = table.find(current.weapons, weapon) or 1
+	local ids = {}
+	for _, owned in current.weapons do
+		table.insert(ids, owned.id)
+	end
+	local me = RunStateController.getLocalPlayer()
+	WeaponInspect.show({
+		anchor = chips[index].button,
+		id = weapon.id,
+		tier = weapon.tier,
+		evolution = weapon.evolution,
+		sellPrice = weapon.sellPrice,
+		canMerge = weapon.canMerge,
+		sheet = StatsController.get(),
+		weaponIds = ids,
+		characterId = me and me.classId,
+	})
 end
 
 local function applyComposition(current: Types.ShopState?)
@@ -591,6 +657,7 @@ function render()
 	StatsController.setSuppressed(compact and (LevelUpController.isOpen() or (shopping and not showingStats)))
 	if not (current and shopping) then
 		applyComposition(current)
+		WeaponInspect.hide()
 		detailOverlay.Visible = false
 		detailOfferId = nil
 		detailWeaponUid = nil
@@ -602,6 +669,7 @@ function render()
 	renderButtons(current)
 	renderDetails(current, shopping)
 	applyComposition(current)
+	renderInspect(current)
 end
 
 local function updateSubtitle()
@@ -832,6 +900,14 @@ local function build()
 	backdropHint = Widgets.label({ Name = "Hint", TextColor3 = Theme.textDim, LayoutOrder = 2, Parent = banner })
 
 	screen = Widgets.screen("Shop", 4)
+	WeaponInspect.mount(screen, {
+		recycle = sell,
+		combine = merge,
+		cancel = function()
+			selectedUid = nil
+			render()
+		end,
+	})
 	detailOverlay = Widgets.create("Frame", {
 		Name = "WeaponDetailsOverlay",
 		BackgroundColor3 = Theme.canvas,

@@ -45,4 +45,22 @@ return table.freeze({
 		eliteKill = 0.8,
 		chestOpen = 0.5,
 	}),
+	-- red blobs splashing from a hit enemy towards the nearest player (EnemyRenderer/HitBursts), as in the owner's Brotato
+	-- screenshots (08.11.2026); color, count, size and speed estimated from them. At most `maxPerFrame` enemies splash in
+	-- one frame; enemies off the screen never do.
+	hitBursts = table.freeze({
+		enabled = true,
+		color = { 190, 30, 40 }, -- { red, green, blue }
+		particles = 3, -- per hit
+		particlesTouch = 2, -- with Low graphics
+		maxPerFrame = 12,
+		maxPerFrameTouch = 5,
+		spreadDegrees = 35,
+		speed = { 5, 12 }, -- studs/s, min and max
+		lifetime = { 0.35, 0.6 }, -- seconds, min and max
+		size = 0.8, -- studs
+		drag = 6,
+		height = 0.8, -- times the enemy radius above the floor
+		zOffset = 2, -- studs towards the camera, so blobs show in front of the figures
+	}),
 })

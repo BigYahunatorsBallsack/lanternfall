@@ -1,7 +1,7 @@
 --!strict
 -- Draws materials from the server's XpOrbs events (ExperienceService): pooled green shard sprites
--- on the floor, sized by how much XP they hold, each with its own picture, turn and mirror (Util/MaterialLook), that fly into the player who picked them up. Lying materials
--- are placed once; only flying ones move each frame, together in one workspace:BulkMoveTo. The server decides every
+-- on the floor, sized by how much XP they hold, each with its own picture, turn and mirror (Util/MaterialLook),
+-- that fly into the player who picked them up. Lying materials are placed once; only flying ones move each frame, together in one workspace:BulkMoveTo. The server decides every
 -- pickup; this only shows it.
 
 local Players = game:GetService("Players")

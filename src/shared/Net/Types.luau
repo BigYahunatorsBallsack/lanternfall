@@ -320,6 +320,7 @@ export type CrateOffer = {
 	sellPrice: number, -- Shards for selling it instead
 	expiresAt: number, -- server time; taken automatically then
 	pending: number, -- further crates after this one (closed: crates waiting for the end of the wave)
+	legendaryPending: number?, -- how many of `pending` are legendary crates (PendingRewardsController HUD icons)
 }
 
 -- Where a spawn group will appear (SpawnDirector -> SpawnMarkerRenderer, B9): red crosses on the floor until the

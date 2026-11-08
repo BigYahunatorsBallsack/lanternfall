@@ -1,5 +1,5 @@
 --!strict
--- Character select tiles zoom on the head and the summary card fits the whole figure, inside the picture bounds.
+-- Character select tiles and the summary card fit the whole figure tightly, inside the picture bounds.
 local world = loadHelper("tests/helpers/RobloxMock.luau")
 local Images = require(game:GetService("ReplicatedStorage").Shared.Config.SpriteImages)
 local Server = game:GetService("ServerScriptService").Server
@@ -32,13 +32,13 @@ describe("Portrait crop", function()
 		end
 	end)
 
-	it("shows head tiles in the character row and a cut portrait in the summary", function()
+	it("shows the whole figure, tightly cut, in the character tiles", function()
 		local Lobby = world.gui("Lobby", "Choose")
 		local found = 0
 		for _, item in Lobby:GetDescendants() do
 			if item.Name == "Illustration" and item:GetAttribute("IconKey") then
 				local key = item:GetAttribute("IconKey")
-				if string.sub(key, 1, 14) == "characterHead:" then
+				if string.sub(key, 1, 16) == "characterFigure:" then
 					found += 1
 					local image = item:FindFirstChild("CharacterPortrait")
 					expect(image ~= nil and image.ImageRectSize.X > 0).toBe(true)

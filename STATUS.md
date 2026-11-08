@@ -667,6 +667,49 @@ Branch `wp-25-2d-presentation`. **Owner-Entscheidungen dieses Pakets:** Das Spie
 - Owner sah neu gespawnte Gegner ein paar Frames neben dem Spieler (dort, wo vorher Gegner gestorben waren). Der Fix aus #85 (Teile vor dem Einhängen setzen) reichte nicht: Roblox zeichnet ein BillboardGui, das wieder in den Workspace kommt oder wieder eingeschaltet wird, noch ein paar Frames an seiner alten Stelle. In Studio gemessen: die Teile standen ab dem ersten Frame richtig.
 - Fix in `EnemyRenderer/init.luau` + `SpriteModels.luau`: Gepoolte Modelle bleiben im Workspace, ihre Billboards bleiben an; `SpriteModels.hide/show` blendet nur die Bilder (`picture.Visible`), Schatten, HP-Leiste, Krone, Wisps und Trail aus. Ein neuer Gegner zeigt seine Bilder erst nach `REVEAL_FRAMES` (2) Frames am Spawnpunkt. Owner hat es am 08.11.2026 in Studio getestet: Aufblitzen weg.
 - **Werkzeug-Trick:** Roblox-Studio-MCP über das verbundene Gerät funktioniert (Playtest starten, UI per `instance_path` klicken, Luau auf Client/Server ausführen). Code lässt sich ohne Rojo zum Testen in die Edit-Skripte einspielen (`Source` setzen); Rojo überschreibt das beim nächsten Verbinden. `CaptureService` liefert in Studio keine Bilder.
+
+## HP-Leiste über dem Spieler (Claude, 08.11.2026)
+
+- Owner-Wunsch mit Brotato-Screenshots: kleine HP-Leiste über dem Kopf. Neuer Client-Controller `Controllers/PlayerHpBarController` (nur Anzeige, keine Remote, kein Server): rote Füllung (`Theme.hp`) auf dunkler Spur mit schwarzem Rand, 3,4 × 0,5 Studs, 0,5 Studs über der Figur (`Config.Sprites.character.bodyStuds`), wächst und schrumpft also mit dem Zoom.
+- Sichtbar nur, wenn der Spieler verletzt ist (wie auf den Screenshots: bei 10/10 keine Leiste, bei 22/23 schon), in Welle oder Boss-Welle und solange er steht; im Shop, in der Lobby, bei voller HP und wenn er am Boden/out ist (dann zeigt `ReviveController` seine eigene Leiste) versteckt. Gilt für jeden Spieler, im Koop sieht man also auch die Leisten der anderen.
+- Annahme ohne Quelle: Brotato blendet die Leiste bei voller HP aus (nur aus den Screenshots abgeleitet); Maße nach Augenmaß. Kein Studio-Test.
+
+## Level-ups und Kisten oben rechts im HUD (Claude, 08.11.2026)
+
+- Owner-Meldung mit Brotato-Screenshots: Während der Welle zeigt Brotato oben rechts pro wartendem Level-up ein Kopf-Symbol mit grünem Pfeil und darunter pro eingesammelter Kiste ein Kisten-Symbol, Boss-/legendäre Kisten anders als normale. Bei uns gab es nur den Text „↑ +N“ (HUD) und „N crates“ im Beutel-Chip.
+- Neu: `src/client/Controllers/PendingRewardsController.luau` (ScreenGui `PendingRewards`, links neben dem Zahnrad): obere Reihe `PendingLevels` = Kopf der eigenen Figur (`Icons.draw(..., "characterHead", classId)`) mit selbst gezeichnetem grünem Pfeil aus Frames, untere Reihe `PendingCrates` = die vorhandenen Kisten-Sprites aus `Config.Sprites.pickups` (`Crate`, `LegendaryCrate`; legendäre zuerst, sie öffnen zuerst). Bis 6 Symbole pro Reihe, mehr als „+N“ links daneben. Sichtbar nur in den Phasen `Running`/`Boss`; im Shop öffnen sie wie bisher in `LevelUpController`. Keine Brotato-Sprites übernommen.
+- Schnittstelle: `Types.CrateOffer.legendaryPending` (optional, von `UpgradeService.sendCrate`), Anteil legendärer Kisten an `pending`. `PendingRewardsController.getBottom()` + `Changed`: `HUDController` schiebt Team-Panel und den Handy-Timer darunter. `getShown()` für Tests.
+- Entfernt: `HUD.PendingLevels`-Text („↑ +N“) in `HUDController` und „N crates“ im Chip von `PickupRenderer` (der Beutel bleibt). `HUDController` ist geteilt; die Änderung kam auf direkten Owner-Wunsch und betrifft nur Badge, Team-Panel-Position und Handy-Timer-Position.
+- Tests: `Loot.spec` (Kisten-Symbol), `Boss.spec` (3 legendäre Kisten-Symbole, im Shop aus), `Smoke.spec`/`UiReference.spec` lesen `PendingRewards.PendingLevels` statt `HUD.PendingLevels`. Kein Studio-Test; Abstände und Größen (38 px bei 1280×720, 30 px am Handy) muss der Owner-Test bestätigen.
+
+## Fix: Kugeln geradeaus, Waffen zielen ruhig (Claude, 08.11.2026)
+
+- Owner-Meldung: Kugeln wirken wie Aimbot, Waffen drehen und zucken ständig und wechseln dauernd das Ziel. Ursachen: (1) Der Client zeichnete Waffen eine Figurenhälfte (`Sprites.heldWeapons.lift`) weiter oben als die Server-Flugbahn; jede Kugel startete am sichtbaren Lauf und bog in 0,12 s auf die tiefere Bahn ab, sah also zielsuchend aus. (2) Jede Waffe sprang jedes Bild zum nächsten Gegner, wechselte bei fast gleich weit entfernten Gegnern ständig, und schnappte bei jedem Schuss auf die Server-Richtung und wieder zurück.
+- Jetzt: `B7ProjectileVisual` zeichnet Kugeln mit derselben Höhe wie die Waffen, also gerade aus dem Lauf. Neues `WeaponService/WeaponTarget` (von `BrotatoProjectile`, `BrotatoMelee`, `BrotatoWhip`): Eine Waffe bleibt auf ihrem Gegner, bis er stirbt, die Reichweite verlässt oder ein anderer näher als `Config.Combat.originalWeapons.targetSwitchRatio` (0,7) seiner Entfernung ist. `HeldModels` wählt das Ziel genauso (innerhalb der Waffenreichweite) und dreht die Waffe mit `Config.WeaponVisuals.aimTurnDegreesPerSecond` (720) statt zu springen; nach einem Schuss bleibt sie in Schussrichtung.
+- Server-Kugeln flogen schon vorher geradeaus (keine Zielsuche im Flug). Das Ziel-Halten ist keine Wiki-Regel (Brotato nimmt laut Erinnerung immer den Nächsten), sondern Owner-Wunsch; Werte im Config.
+- Ausnahme Dateibesitz wie beim Ring-Fix: Strang-B-Dateien auf direkten Owner-Auftrag. Tests: neue `tests/WeaponTargeting.spec.luau` 3/3; Weapons, WeaponsB7, HeldWeapons, CharacterWhip, Character*-Waffen grün; Smoke gleiche 29 Fehler wie main. Kein Studio-Test.
+- Nach Merge von main (gepoolte Gegnermodelle bleiben versteckt im Workspace): `SpriteModels.hide/show` setzen das Model-Attribut `Hidden`, `HeldModels` zielt nicht auf versteckte Modelle. `EnemySpawnPlacement25` (2 Fehler) schlägt schon auf main fehl.
+
+## Charakterwahl: ganze Figur in der Kachel (Claude, 08.11.2026)
+
+- Owner nach Test: Kacheln sollen wie in Brotato die ganze Figur zeigen, nicht nur den Kopf. Kacheln nutzen jetzt `characterFigure` (ganze Figur, enger Rand) statt `characterHead`; Kachelgröße 80/65 px bleibt. `PortraitCrop.head` bleibt für spätere Nutzung erhalten.
+- Checks: StyLua sauber; `PortraitCrop`, `UiRedesign`, `UiReference` bestanden. Kein Studio-Test.
+
+## Shop und Auswahl nach Owner-Screenshots (Claude, 08.11.2026)
+
+- Shop am PC: Klick auf eine eigene Waffe öffnet das neue Inspect-Fenster `UI/WeaponInspect` (Bild, Name in Stufenfarbe, Klassen, dieselben Werte wie die Angebotskarten, „Recycle +N“, „Combine“ falls möglich, „Cancel“) mit je einem Kasten pro Waffenklasse und deren Set-Bonus. Ersetzt am PC die Aktionszeile und den „i“-Knopf; Handy-Layout unverändert.
+- Der Charakter steht als erste Kachel `CharacterTile` in der Items-Leiste (Bild, Regeln im Tooltip).
+- Volle Waffenplätze färben den Preis nicht mehr rot und zeigen kein „Weapon slots full“ mehr; nur fehlende Shards machen den Preis rot. Der Server lehnt den Kauf weiter ab, wenn die Waffe nicht kombiniert werden kann.
+- Charakterwahl: kein blaugrauer Hintergrund mehr hinter der Figur (dunkler Rahmen). Waffen- und Gefahrenkacheln 80 px wie die Charakterkacheln, Waffenkarte und Gefahrenbeschreibung mit größerer Schrift.
+- Offen: „Schaden in der letzten Welle“ aus dem Brotato-Inspect fehlt, weil der Client pro Waffe nur den Gesamtschaden kennt (bräuchte ein neues Feld vom WeaponService). Gegner-Sprites unten rechts im Shop: wartet auf Screenshot des Owners.
+- Checks: StyLua, Selene (0/0) sauber; `ShopInspect` (neu), `UiShop`, `UiRedesign`, `UiReference`, `PortraitCrop`, `CharacterGhost`, `CharactersB10` bestanden; `Smoke` 14/29 wie auf main. Kein Studio-Test.
+
+## Treffer-Animation an Gegnern (Strang A, 08.11.2026)
+
+- Owner-Wunsch nach Brotato-Screenshots: getroffene Gegner färben sich 0,1 s rot (`Config/Sprites.luau` → `enemy.flashTint` { 255, 102, 92 }, `flashBrightness` 1; vorher weiß mit Helligkeit 5) und spritzen rote Tropfen in Richtung des nächsten Spielers (`EnemyRenderer/HitBursts.luau`, Werte in `Config/Feedback.luau` → `hitBursts`). Farbe und Richtung aus den Screenshots gemessen (getroffener Gegner: Rot gleich, Grün/Blau ca. 60 % weniger; Tropfen zwischen Gegner und Spieler); Brotato-Quellwerte für Dauer, Anzahl und Größe sind nicht belegt, alles geschätzt. Owner hat Rot am 08.11.2026 bestätigt. Weiß wieder: `flashTint` { 255, 255, 255 } und `flashBrightness` 5.
+- Grenzen: Tropfen sind weiche runde Punkte (Textur `glow`), Brotatos Tropfen haben einen dunklen Rand; dafür bräuchte es ein eigenes hochgeladenes Bild. Der Client weiß nicht, wer getroffen hat, deshalb zeigen die Tropfen zum nächsten Spieler. Brennschaden löst die Tropfen auch aus. Budget: höchstens 12 Gegner pro Bild (Low-Grafik 5) mit je 3 (2) Tropfen, nur auf dem Bildschirm.
+- Kein Studio-Test im Container; Owner-Test steht aus. Neuer Test `tests/EnemyHitBursts.spec.luau`.
+
 ## Shard-Drops abwechslungsreich (Claude, 08.11.2026)
 
 - Owner: Shards am Boden sehen in Brotato verschieden und zufällig aus. Jetzt bekommt jeder liegende Shard aus seiner ID (auf allen Clients gleich) eine Drehung (±180°), eine Spiegelung und ±12 % Größe (`Util/MaterialLook`, Werte in `Config.Sprites.material`). Wirkt sofort mit dem heutigen Bild.

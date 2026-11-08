@@ -23,6 +23,9 @@ return function(color: Color3)
 	local TRAIL_SECONDS = 0.16
 	local HEIGHT = 2 -- studs above the floor
 	local HIT_SPARKS = 5
+	-- Shots fly on the server's floor path, drawn as far up the screen as the held weapons (HeldModels), so they leave
+	-- the visible barrel and keep a straight line instead of bending onto the path.
+	local LIFT = SPRITES.heldWeapons.lift
 
 	type BoltParts = { sprite: WorldSprite.Sprite, core: BasePart, color: Color3, trail: Trail, starfire: boolean }
 
@@ -114,7 +117,8 @@ return function(color: Color3)
 			if distance >= stop then
 				if bolt.stopAt and bolt.parts then
 					local parts = bolt.parts :: BoltParts
-					local at = Vector3.new(bolt.x + bolt.dx * stop, frame.floorY + HEIGHT, bolt.z + bolt.dz * stop)
+					local at =
+						Vector3.new(bolt.x + bolt.dx * stop, frame.floorY + HEIGHT, bolt.z - LIFT + bolt.dz * stop)
 					Bursts.emit("spark", parts.color, at, HIT_SPARKS)
 				end
 				remove(id, bolt)
@@ -131,7 +135,7 @@ return function(color: Color3)
 			local position = Vector3.new(
 				bolt.x + (bolt.startX - bolt.x) * (1 - blend) + bolt.dx * distance,
 				frame.floorY + HEIGHT,
-				bolt.z + (bolt.startZ - bolt.z) * (1 - blend) + bolt.dz * distance
+				bolt.z - LIFT + (bolt.startZ - (bolt.z - LIFT)) * (1 - blend) + bolt.dz * distance
 			)
 			local cframe = CFrame.lookAt(position, position + Vector3.new(bolt.dx, 0, bolt.dz))
 			local current = parts :: BoltParts

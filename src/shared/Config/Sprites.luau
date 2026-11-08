@@ -103,7 +103,11 @@ local Sprites = {
 		figureWidths = table.freeze({}) :: { [string]: number }, -- other widths by enemy id
 		-- One step cycle: studs walked, hop (share of the radius), sway and lean (radians).
 		gait = table.freeze({ stride = 7.5, bob = 0.04, roll = 0.05, lean = 0.065 }), -- was stride 6, bob 0.1, roll 0.1
-		flashBrightness = 5,
+		-- Hit flash: the picture is multiplied with flashTint and brightened by flashBrightness. Red as in the owner's
+		-- Brotato screenshot (08.11.2026): a hit enemy keeps its red and loses about 60 % of green and blue. Was white
+		-- with brightness 5 before.
+		flashTint = { 255, 102, 92 },
+		flashBrightness = 1,
 		statusTint = 0.55,
 		rushTint = { 255, 120, 110 },
 		steelTint = { 190, 200, 216 },
