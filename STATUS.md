@@ -592,3 +592,11 @@ Branch `wp-25-2d-presentation`. **Owner-Entscheidungen dieses Pakets:** Das Spie
 - Kachelgröße in `CharacterChoice.resize` wächst mit kleiner Liste: 80 px am PC und 65 px am Handy bei 9 Charakteren, bei voller Liste zurück auf 52 px. `tests/UiRedesign.spec.luau` erwartet deshalb 80/65 statt 52/56.
 - Hinweis für den Einbau weiterer Charakterbilder: Bilder, die schon nur den Kopf zeigen, brauchen Figurmaße, die den Kopf umfassen, sonst schneidet `head` zu stark zu.
 - Checks: StyLua und Selene sauber; `PortraitCrop` (neu), `UiRedesign`, `UiReference`, `CharacterGhost`, `WorldSprites` bestanden. Kein Studio-Test; Ausschnitt nur am Screenshot des Owners nachgemessen.
+
+## Shop-Chancen für Items geprüft (Claude, 08.11.2026)
+
+- Owner meldete, die Item-Chancen im Shop seien falsch. Geprüft mit 4.000 simulierten Shops pro Welle (echte `ShopRules.roll`) gegen die Wiki-Seite [Shop](https://brotato.wiki.spellsandguns.com/Shop). **Seltenheiten stimmen 1:1** mit der Wiki-Tabelle (z. B. nach Welle 11 bei 0 Luck 40/44/15/1 %), Luck und Obergrenzen ebenfalls; der Shop rechnet mit der gerade beendeten Welle, wie im Wiki.
+- **Behoben:** Nach Welle 1–2 gibt Brotato genau 2 Waffen + 2 Items. Bei uns konnten die zwei freien Plätze ebenfalls Waffen werden (im Schnitt 1,3 Items, 13 % der Shops ohne Item). `Shop.guaranteedWeapons` hat jetzt das Feld `exact` (Welle 1–2 `true`): dann sind alle übrigen neuen Plätze Items; gesperrte Angebote zählen mit. Neuer Test in `tests/ShopRules.spec.luau`. Die Shop-Dateien gehören Strang B; der Owner hat die Änderung ausdrücklich freigegeben.
+- **Offen, nicht belegt:** Negatives Luck multipliziert bei uns mit (1 + Luck/100), ab −100 Luck also keine blauen/lila/roten Items mehr. Das Wiki nennt nur „(100% + Luck)“; ob das Original bei negativem Luck stattdessen teilt, ist ohne Quelle offen. Nicht geändert.
+- **Offen (Waffen):** Das Wiki nennt für Shop 1–5 einen Zusatzbonus auf Waffen derselben Klasse (+15/12/9/6/3 %); bei uns konstant 15 % (`Shop.weaponPool.sameClass`). `Shop.fullSlots.mergeChance` (60 %) ist eine eigene Playtest-Regel, kein Brotato-Wert.
+- Nur 125 der 241 Brotato-Items (208 Hauptspiel + 33 DLC) sind im Spiel, deshalb erscheint ein bestimmtes Item etwa doppelt so oft wie im Original. Inhaltsfrage, keine Formelabweichung.
