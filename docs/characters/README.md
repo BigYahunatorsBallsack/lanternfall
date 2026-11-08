@@ -77,3 +77,5 @@ before the owner is marked down; dodges and absorbed hits do not emit it, and it
 Arsenal code is unchanged. The full package still needs the original Danger-1 win access, weaponless menu flow,
 original rule display and simultaneous lethal/boss-death interaction verification. Common DLC effects and physics
 timing remain subject to the overall parity audit.
+The verified Bull access resource is `res://challenges/chal_difficulty_1_data.tres`
+(MD5 `6a20708c5b6432e135b3266c6125a507`), rewarding Bull for the original Danger-1 win challenge.
