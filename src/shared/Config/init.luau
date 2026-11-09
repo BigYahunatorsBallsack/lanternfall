@@ -43,4 +43,5 @@ return {
 	WeaponVisuals = require(script.WeaponVisuals),
 	SpriteImages = require(script.SpriteImages), -- Paket 25, generated
 	Sprites = require(script.Sprites), -- Paket 25
+	ShotLooks = require(script.ShotLooks), -- weapon shot looks
 }
