@@ -1,0 +1,298 @@
+{
+  "version": "1.2.0.1",
+  "steamBuild": 26406319,
+  "resources": [
+    {
+      "source": "res://challenges/recycling_data.tres",
+      "sourceMd5": "3c3885a6022db105e0991b10a0bb926a",
+      "properties": {
+        "script": {
+          "resource": "res://challenges/global/challenge_data.gd",
+          "resourceType": "Script"
+        },
+        "my_id": "chal_recycling",
+        "unlocked_by_default": false,
+        "icon": {
+          "resource": "res://items/all/00_base_game/recycling_machine/recycling_machine_icon.png",
+          "resourceType": "Texture"
+        },
+        "name": "CHAL_RECYCLING",
+        "tier": 0,
+        "value": 12,
+        "effects": [],
+        "tracking_text": "",
+        "is_lockable": true,
+        "is_cursed": false,
+        "curse_factor": 0.0,
+        "description": "CHAL_RECYCLING_DESC",
+        "reward_type": 6,
+        "reward": {
+          "resource": "res://items/characters/arms_dealer/arms_dealer_data.tres",
+          "resourceType": "Resource"
+        },
+        "number": 0,
+        "stat": "",
+        "additional_args": []
+      }
+    },
+    {
+      "source": "res://items/characters/arms_dealer/arms_dealer_data.tres",
+      "sourceMd5": "4b4b80e2dfbf4ac48b203fa87fe5015d",
+      "properties": {
+        "script": {
+          "resource": "res://items/characters/character_data.gd",
+          "resourceType": "Script"
+        },
+        "my_id": "character_arms_dealer",
+        "unlocked_by_default": false,
+        "can_be_looted": true,
+        "icon": {
+          "resource": "res://items/characters/arms_dealer/arms_dealer_icon.png",
+          "resourceType": "Texture"
+        },
+        "name": "CHARACTER_ARMS_DEALER",
+        "tier": 0,
+        "value": 1,
+        "effects": [
+          {
+            "resource": "res://items/characters/arms_dealer/arms_dealer_effect_1.tres",
+            "resourceType": "Resource"
+          },
+          {
+            "resource": "res://items/characters/arms_dealer/arms_dealer_effect_1a.tres",
+            "resourceType": "Resource"
+          },
+          {
+            "resource": "res://items/characters/arms_dealer/arms_dealer_effect_1b.tres",
+            "resourceType": "Resource"
+          },
+          {
+            "resource": "res://items/characters/arms_dealer/arms_dealer_effect_1c.tres",
+            "resourceType": "Resource"
+          },
+          {
+            "resource": "res://items/characters/arms_dealer/arms_dealer_effect_2.tres",
+            "resourceType": "Resource"
+          },
+          {
+            "resource": "res://items/characters/arms_dealer/arms_dealer_effect_3.tres",
+            "resourceType": "Resource"
+          }
+        ],
+        "tracking_text": "",
+        "is_lockable": true,
+        "unlock_codex_descr_after_get_it": 1,
+        "is_cursed": false,
+        "curse_factor": 0.0,
+        "is_meca": false,
+        "is_mutant": false,
+        "max_nb": -1,
+        "item_appearances": [
+          {
+            "resource": "res://items/characters/arms_dealer/arms_dealer_eyes_appearance.tres",
+            "resourceType": "Resource"
+          },
+          {
+            "resource": "res://items/characters/arms_dealer/arms_dealer_mouth_appearance.tres",
+            "resourceType": "Resource"
+          }
+        ],
+        "tags": [],
+        "minimum_difficulty": 0,
+        "wanted_tags": [],
+        "banned_item_groups": [],
+        "banned_items": [],
+        "banned_upgrades": [],
+        "banned_meca_stats": [],
+        "starting_weapons": [
+          {
+            "resource": "res://weapons/ranged/pistol/1/pistol_data.tres",
+            "resourceType": "Resource"
+          }
+        ],
+        "starting_items": [],
+        "required_item_set": ""
+      }
+    },
+    {
+      "source": "res://items/characters/arms_dealer/arms_dealer_effect_1.tres",
+      "sourceMd5": "47b831ec818a8aa69aaddbccb0ae3f2d",
+      "properties": {
+        "script": {
+          "resource": "res://items/global/effect.gd",
+          "resourceType": "Script"
+        },
+        "key": "weapons_price",
+        "text_key": "",
+        "value": -95,
+        "custom_key": "",
+        "storage_method": 0,
+        "effect_sign": 0,
+        "custom_args": []
+      }
+    },
+    {
+      "source": "res://items/characters/arms_dealer/arms_dealer_effect_1a.tres",
+      "sourceMd5": "a0903fe79c4caa29d9a3529318b6ea63",
+      "properties": {
+        "script": {
+          "resource": "res://items/global/effect.gd",
+          "resourceType": "Script"
+        },
+        "key": "stat_harvesting",
+        "text_key": "",
+        "value": 30,
+        "custom_key": "",
+        "storage_method": 0,
+        "effect_sign": 3,
+        "custom_args": []
+      }
+    },
+    {
+      "source": "res://items/characters/arms_dealer/arms_dealer_effect_1b.tres",
+      "sourceMd5": "93803f04ca649e5b6f008e7fc8d3cbef",
+      "properties": {
+        "script": {
+          "resource": "res://effects/items/stat_gains_modification_effect.gd",
+          "resourceType": "Script"
+        },
+        "key": "effect_increase_stat_gains",
+        "text_key": "",
+        "value": 33,
+        "custom_key": "",
+        "storage_method": 0,
+        "effect_sign": 3,
+        "custom_args": [],
+        "stat_displayed": "stat_damage",
+        "stats_modified": [
+          "stat_percent_damage",
+          "stat_ranged_damage",
+          "stat_melee_damage",
+          "stat_elemental_damage",
+          "explosion_damage",
+          "piercing_damage",
+          "bounce_damage",
+          "damage_against_bosses"
+        ]
+      }
+    },
+    {
+      "source": "res://items/characters/arms_dealer/arms_dealer_effect_1c.tres",
+      "sourceMd5": "2ca5f6b080d778385143a76f46b8a9d5",
+      "properties": {
+        "script": {
+          "resource": "res://items/global/effect.gd",
+          "resourceType": "Script"
+        },
+        "key": "item_dangerous_bunny",
+        "text_key": "effect_starting_item",
+        "value": 1,
+        "custom_key": "starting_item",
+        "storage_method": 1,
+        "effect_sign": 3,
+        "custom_args": []
+      }
+    },
+    {
+      "source": "res://items/characters/arms_dealer/arms_dealer_effect_2.tres",
+      "sourceMd5": "f44b6f4098398fe17a4cd74b69a3da40",
+      "properties": {
+        "script": {
+          "resource": "res://items/global/effect.gd",
+          "resourceType": "Script"
+        },
+        "key": "minimum_weapons_in_shop",
+        "text_key": "effect_minimum_weapon_in_shop",
+        "value": 1,
+        "custom_key": "",
+        "storage_method": 2,
+        "effect_sign": 3,
+        "custom_args": []
+      }
+    },
+    {
+      "source": "res://items/characters/arms_dealer/arms_dealer_effect_3.tres",
+      "sourceMd5": "fa09f48b9c8cca44a6ed3e74ea0096e1",
+      "properties": {
+        "script": {
+          "resource": "res://items/global/effect.gd",
+          "resourceType": "Script"
+        },
+        "key": "destroy_weapons",
+        "text_key": "effect_destroy_weapons",
+        "value": 1,
+        "custom_key": "",
+        "storage_method": 2,
+        "effect_sign": 3,
+        "custom_args": []
+      }
+    },
+    {
+      "source": "res://items/characters/arms_dealer/arms_dealer_eyes_appearance.tres",
+      "sourceMd5": "92c5255b99c0b4dac72e9a4bc02ab60e",
+      "properties": {
+        "script": {
+          "resource": "res://items/global/item_appearance_data.gd",
+          "resourceType": "Script"
+        },
+        "sprite": {
+          "resource": "res://items/characters/arms_dealer/arms_dealer_eyes.png",
+          "resourceType": "Texture"
+        },
+        "position": 6,
+        "display_priority": 2,
+        "depth": 1300.0,
+        "is_character_appearance": true
+      }
+    },
+    {
+      "source": "res://items/characters/arms_dealer/arms_dealer_mouth_appearance.tres",
+      "sourceMd5": "09deb128c1b6d06024645b728dea9ebd",
+      "properties": {
+        "script": {
+          "resource": "res://items/global/item_appearance_data.gd",
+          "resourceType": "Script"
+        },
+        "sprite": {
+          "resource": "res://items/characters/arms_dealer/arms_dealer_mouth.png",
+          "resourceType": "Texture"
+        },
+        "position": 8,
+        "display_priority": 2,
+        "depth": 250.0,
+        "is_character_appearance": true
+      }
+    }
+  ],
+  "english": {
+    "EFFECT_STARTING_ITEM": "You start with {0} {1}",
+    "CHAL_RECYCLING_DESC": "Recycle {0} weapons during a run",
+    "EFFECT_MINIMUM_WEAPON_IN_SHOP": "Shops always sell at least one weapon",
+    "EFFECT_DESTROY_WEAPONS": "All of your weapons are destroyed when entering a shop"
+  },
+  "scripts": [
+    {
+      "source": "res://singletons/item_service.gdc",
+      "sourceMd5": "2bb86ac67c9576337a664d6c75a66dec"
+    },
+    {
+      "source": "res://singletons/run_data.gdc",
+      "sourceMd5": "a94d8eddd9609f413309ce9237297ad2"
+    },
+    {
+      "source": "res://ui/menus/shop/base_shop.gdc",
+      "sourceMd5": "7af5c00b2c5f7e36c8fb62cc5f8864b3"
+    }
+  ],
+  "rules": [
+    "Weapon Price modifies only the base value before wave additions and inflation; Item Prices applies afterwards. Final price, not its factor, is clamped to1.",
+    "Affected shop prices include 1 + native endless_factor(wave)/5. The endless recycling basis ignores Item Prices, Weapon Price and endless inflation, but remains capped by the affected shop price.",
+    "At shop entry the native destroy_weapons effect removes all owned weapons before upgrade effects and stock generation. Reroll, sync and purchases do not repeat destruction.",
+    "Minimum weapons equals max(normal wave guarantee, minimum_weapons_in_shop); locked weapons count against it.",
+    "RunData.recycle_weapon increments the personal run-wide challenge once per weapon. Merging and forced removal do not count; existing achievement flags persist."
+  ],
+  "limits": [
+    "The complete stable shop/equipment catalog and remaining generic shop pool/reroll rules are shared open work; this package does not certify all shop parity.",
+    "No uploads, Studio, two-client native runtime or mobile acceptance."
+  ]
+}

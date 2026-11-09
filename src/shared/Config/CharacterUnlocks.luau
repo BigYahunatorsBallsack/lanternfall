@@ -12,8 +12,17 @@ export type Challenge = {
 	| { kind: "WaveHealing", threshold: number }
 	| { kind: "MaterialsCollected", threshold: number }
 	| { kind: "ExplosionKills", threshold: number }
+	| { kind: "RunRecycledWeapons", threshold: number }
 )
 local rules: { [string]: Challenge } = {
+	ArmsDealer = {
+		kind = "RunRecycledWeapons",
+		challengeId = "chal_recycling",
+		threshold = 12,
+		source = "res://challenges/recycling_data.tres",
+		sourceMd5 = "3c3885a6022db105e0991b10a0bb926a",
+		requirement = "Recycle 12 weapons during a run",
+	},
 	Artificer = {
 		kind = "ExplosionKills",
 		challengeId = "chal_fireworks",

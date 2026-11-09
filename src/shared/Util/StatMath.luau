@@ -42,9 +42,9 @@ function StatMath.addGains(sheet: Sheet, gains: { [string]: number }, multiplier
 	return sheet
 end
 
--- Factor for shop prices from Item Prices (-5 = 5 % cheaper), never below Config.Stats.minPriceFactor.
+-- Native Item Prices factor; the final price is clamped to one after all modifiers.
 function StatMath.priceFactor(itemPrice: number): number
-	return math.max(Stats.minPriceFactor, 1 + itemPrice / 100)
+	return 1 + itemPrice / 100
 end
 
 -- Factor for an enemy value (count, HP, damage) from the team's total of its stat (+10 = 10 % more), never below

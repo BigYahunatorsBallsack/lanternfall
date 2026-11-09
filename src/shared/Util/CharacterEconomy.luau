@@ -6,7 +6,11 @@ local Stats = require(Shared.Config.Stats)
 local Shop = require(Shared.Config.Shop)
 local Run = require(Shared.Config.Run)
 local Rules = require(script.Parent.CharacterRules)
+local Danger = require(script.Parent.DangerRules)
 local Economy = {}
+function Economy.priceInflation(wave: number): number
+	return 1 + Danger.endlessFactor(wave) / Mechanics.priceEndlessDivisor
+end
 function Economy.materialValue(base: number, classIds: { string }, isEnemy: boolean): number
 	if #classIds == 0 then
 		return base
