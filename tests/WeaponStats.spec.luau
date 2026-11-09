@@ -51,7 +51,7 @@ describe("WeaponStats", function()
 	end)
 	it("grows explosions with size and damage", function()
 		local s = compute("MortarLantern", 4, { explosionSize = 50, explosionDamage = 20 })
-		expect(s.explosionRadius).toBeNear(7.2 * 1.5)
+		expect(s.explosionRadius).toBeNear(1.2 * Config.Combat.explosion.baseRadius * 1.5)
 		expect(s.damage).toBe(96) -- native 80 * (1 + 0.20), applied once
 		expect(s.explosionDamage).toBe(1)
 		expect(compute("MortarLantern", 4, { damage = 50, explosionDamage = 20 }).damage).toBe(136)
