@@ -260,17 +260,9 @@ function ConfigCheck.run(): { string }
 	end
 	local pool = Config.Shop.weaponPool
 	if
-		not (
-			Config.Shop.sellShare >= 0
-			and pool.owned >= 0
-			and pool.sameClass >= 0
-			and pool.owned + pool.sameClass <= 1
-		)
+		not (Config.Shop.sellShare >= 0 and pool.owned >= 0 and pool.sameClass >= pool.owned and pool.bonusWaves > 0)
 	then
-		problem("Shop.sellShare and weaponPool chances must not be negative, weaponPool at most 1 together")
-	end
-	if Config.Shop.freeRerollAfterBuys < 1 then
-		problem("Shop.freeRerollAfterBuys must be at least 1")
+		problem("Shop.sellShare and weaponPool chances must not be negative, sameClass at least owned")
 	end
 
 	for id, evolution in Config.Evolutions do

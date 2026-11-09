@@ -7,21 +7,32 @@ local Shop = require(Shared.Config.Shop)
 local Run = require(Shared.Config.Run)
 local Rules = require(script.Parent.CharacterRules)
 local Danger = require(script.Parent.DangerRules)
+local Coop = require(Shared.Config.EnemyWaves).coop
 local Economy = {}
 function Economy.priceInflation(wave: number): number
 	return 1 + Danger.endlessFactor(wave) / Mechanics.priceEndlessDivisor
+end
+-- Brotato CoopService.get_coop_materials_factor: the extra share of material value for `players` players, so the
+-- team gets back about what the extra co-op enemies cost.
+function Economy.coopMaterials(players: number): number
+	if players <= 1 then
+		return 0
+	end
+	local enemies = 1 + Coop.enemiesPerPlayer * (players - 1)
+	return (players / enemies - 1) * Mechanics.coopMaterialsFactor
 end
 function Economy.materialValue(base: number, classIds: { string }, isEnemy: boolean): number
 	if #classIds == 0 then
 		return base
 	end
+	local value = base + base * Economy.coopMaterials(#classIds)
 	local all, typed = 0, 0
 	for _, classId in classIds do
 		all += Rules.nativeAmount(classId, "gold_drops")
 		typed += Rules.nativeAmount(classId, if isEnemy then "enemy_gold_drops" else "neutral_gold_drops")
 	end
 	local total = math.modf(all / #classIds) + math.modf(typed / #classIds)
-	return math.max(base * Mechanics.minimumMaterialFactor, base * (1 + total / 100))
+	return math.max(base * Mechanics.minimumMaterialFactor, value + value * total / 100)
 end
 function Economy.materialCount(base: number, classIds: { string }, isEnemy: boolean, roll: number): number
 	local value = Economy.materialValue(base, classIds, isEnemy)

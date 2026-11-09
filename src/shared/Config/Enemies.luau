@@ -561,7 +561,7 @@ local Enemies: { [string]: Enemy } = {
 			aimLead = 0.5,
 			retreatSpeedFactor = 0.3, -- playtest after Paket 24: no more running off (was flee within 22 studs)
 		},
-		loot = { consumableChance = 0.01, crateShare = 0.01 },
+		loot = { consumableChance = 0, crateShare = 0 }, -- Brotato junkie: can_drop_consumables false
 		firstWave = 14,
 		minDanger = 0,
 		shotDamagePerWave = 1,
@@ -675,7 +675,7 @@ local Enemies: { [string]: Enemy } = {
 		contactDamage = 1,
 		hpPerWave = 25,
 		damagePerWave = 1.15,
-		xp = 3,
+		xp = 5, -- Brotato slasher_stats value 5
 		radius = 1.8,
 		mass = 3,
 		knockbackResistance = 0.9,
@@ -688,7 +688,7 @@ local Enemies: { [string]: Enemy } = {
 			recoverSeconds = 0.6,
 			cooldownSeconds = 1.6,
 		},
-		loot = { consumableChance = 0.01, crateShare = 0.01 },
+		loot = { consumableChance = 0.03, crateShare = 0.03 },
 		firstWave = 4,
 		minDanger = 1,
 		speedMax = speed(300),
@@ -710,7 +710,7 @@ local Enemies: { [string]: Enemy } = {
 		knockbackResistance = 0,
 		look = "Looter",
 		eat = { seekRange = 45, reach = 0.8 },
-		loot = { consumableChance = 1, crateShare = 1, alwaysOrbs = true, crate = true },
+		loot = { consumableChance = 0, crateShare = 0, alwaysOrbs = true }, -- Brotato evil_mob: no consumables
 		firstWave = 1,
 		minDanger = 0,
 		speedMax = speed(400),
@@ -772,7 +772,7 @@ local Enemies: { [string]: Enemy } = {
 		speed = speed(175),
 		contactDamage = 1,
 		damagePerWave = 1,
-		xp = 3,
+		xp = 4, -- Brotato tentacle_stats value 4
 		radius = 2,
 		mass = 3,
 		look = "Charger",

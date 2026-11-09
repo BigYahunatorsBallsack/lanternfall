@@ -115,8 +115,10 @@ function StatMath.tierChance(tier: number, wave: number, luck: number): number
 	if not rule or wave < rule.minWave then
 		return 0
 	end
-	local chance = (rule.perWave * (wave - rule.minWave + 1) + rule.base) * (1 + luck / 100)
-	return math.clamp(chance, 0, rule.max)
+	-- Brotato ItemService.get_tier_from_wave: Luck scales only the wave part; negative Luck divides
+	local waveChance = rule.perWave * (wave - rule.minWave + 1)
+	waveChance = if luck >= 0 then waveChance * (1 + luck / 100) else waveChance / (1 + math.abs(luck) / 100)
+	return math.clamp(rule.base + waveChance, 0, rule.max)
 end
 
 -- Rolls a rarity tier with one number 0 <= roll < 1, rarest first (Brotato): roll < chance(4) gives 4, else

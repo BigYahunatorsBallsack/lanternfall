@@ -150,7 +150,14 @@ describe("ShopRules", function()
 		expect(higher).toBe(true)
 	end)
 
-	it("picks weapons from the pool: owned ones, then the same class, then any", function()
+	it("picks weapons from Brotato's pool: owned ones, new ones of the same class, or any new one", function()
+		-- wave 1 with one weapon: owned 0.23 + 0.07 + 0.02 = 32 %, same class up to 0.35 + 0.2 + 0.01 = 56 %
+		local ownedChance, classChance = ShopRules.weaponPoolChances(1, 1)
+		expect(ownedChance).toBeNear(0.32)
+		expect(classChance).toBeNear(0.56)
+		local late, lateClass = ShopRules.weaponPoolChances(10, 9) -- no early bonus, at most 6 weapons count
+		expect(late).toBeNear(0.35)
+		expect(lateClass).toBeNear(0.41)
 		local owned = { { id = "RitualDirk", tier = 1 } }
 		local function first(roll)
 			local offers = ShopRules.roll(params({
@@ -161,16 +168,17 @@ describe("ShopRules", function()
 			}))
 			return offers[1]
 		end
-		expect(first(0.1).itemId).toBe("RitualDirk") -- below 20 %: an owned weapon
-		expect(first(0.1).isNew).toBe(false)
-		expect(first(0.1).count).toBe(1)
-		local sameClass = first(0.3).itemId -- 20-35 %: a weapon sharing a weapon class with the owned one (B5)
+		expect(first(0.3).itemId).toBe("RitualDirk") -- below 32 %: an owned weapon
+		expect(first(0.3).isNew).toBe(false)
+		expect(first(0.3).count).toBe(1)
+		local sameClass = first(0.5) -- 32-56 %: a new weapon sharing a weapon class with the owned one
+		expect(sameClass.isNew).toBe(true)
 		local shares = false
-		for _, classId in Config.Weapons[sameClass].classes do
+		for _, classId in Config.Weapons[sameClass.itemId].classes do
 			shares = shares or table.find(Config.Weapons.RitualDirk.classes, classId) ~= nil
 		end
 		expect(shares).toBe(true)
-		expect(first(0.9).isNew).toBe(true) -- otherwise any weapon; 0.9 picks one near the end of the list
+		expect(first(0.9).isNew).toBe(true) -- otherwise any weapon the player does not own
 	end)
 
 	it("merges a weapon bought with full slots into a copy of the same tier, else blocks it", function()
@@ -265,35 +273,5 @@ describe("ShopRules", function()
 			expect(itemId ~= nil).toBe(true)
 			expect(Config.Items.byId[itemId :: string].tier >= Config.Items.chestMinTier).toBe(true)
 		end
-	end)
-	it("offers own weapons to merge more often once every slot is full (playtest after Paket 24)", function()
-		local full = {}
-		for _ = 1, 6 do
-			table.insert(full, { id = "SparkBolt", tier = 1 })
-		end
-		local function buyable(owned)
-			local n = 0
-			for seed = 1, 300 do
-				for _, offer in ShopRules.roll(params({ wave = 10, ownedWeapons = owned, random = lcg(seed) })) do
-					if offer.kind == "Weapon" and not offer.blocked then
-						n += 1
-						if #owned == 6 then
-							expect(offer.itemId).toBe("SparkBolt")
-							expect(offer.tier).toBe(1)
-							expect(offer.merges).toBe(true)
-						end
-					end
-				end
-			end
-			return n / 300
-		end
-		-- with chance mergeChance a weapon slot brings the own weapon at its tier, so about half of the weapon offers
-		-- (one per shop at most for a single weapon id) can still be bought
-		expect(buyable(full) > 0.4).toBe(true)
-		local maxed = {}
-		for _ = 1, 6 do
-			table.insert(maxed, { id = "SparkBolt", tier = 4 })
-		end
-		expect(buyable(maxed)).toBe(0) -- tier IV merges with nothing
 	end)
 end)

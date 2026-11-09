@@ -631,26 +631,31 @@ describe("smoke", function()
 		expect(string.find(toastTexts(), "last weapon", 1, true) ~= nil).toBe(true)
 		world.advance(1)
 
-		-- every Config.Shop.freeRerollAfterBuys purchases earn a free reroll
+		-- Brotato: once every offer of a shop is bought, the next reroll is free
 		ShopService.addShards(me, 5000)
 		world.advance(0.2)
-		local bought = 0
-		for _ = 1, 3 do
-			for index, offer in ShopService.getOffers(me) do
-				if not offer.sold and not offer.blocked and bought < Config.Shop.freeRerollAfterBuys then
-					world.click(world.gui("Shop", `Offer{index}`))
-					world.advance(0.3)
-					if offer.sold then
-						bought += 1
-					end
+		local function allSold(): boolean
+			for _, offer in ShopService.getOffers(me) do
+				if not offer.sold then
+					return false
 				end
 			end
-			if bought < Config.Shop.freeRerollAfterBuys then
-				world.click(world.gui("Shop", "Reroll"))
-				world.advance(0.3)
-			end
+			return true
 		end
-		expect(bought).toBe(Config.Shop.freeRerollAfterBuys)
+		for _ = 1, 5 do
+			for index, offer in ShopService.getOffers(me) do
+				if not offer.sold and not offer.blocked then
+					world.click(world.gui("Shop", `Offer{index}`))
+					world.advance(0.3)
+				end
+			end
+			if allSold() then
+				break
+			end
+			world.click(world.gui("Shop", "Reroll"))
+			world.advance(0.3)
+		end
+		expect(allSold()).toBe(true)
 		expect(shop.get().freeRerolls).toBe(1)
 		expect(shop.get().rerollPrice).toBe(0)
 		expect(string.match(world.gui("Shop", "Reroll").Text, "^REROLL %- 0") ~= nil).toBe(true)

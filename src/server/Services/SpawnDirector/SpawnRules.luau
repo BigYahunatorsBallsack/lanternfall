@@ -320,6 +320,14 @@ end
 
 local mixes: { [any]: { [string]: number } } = {}
 
+-- Brotato's every-wave and horde groups (trees, Looter, Gobbler, horde crowds) stay out of the debug mix.
+local special: { [any]: boolean } = {}
+for _, list in { Waves.allWaves, Waves.horde } do
+	for _, group in list do
+		special[group] = true
+	end
+end
+
 -- The kinds of the groups running at this minute, weighted by enemies per second (Gloom Elites, debug waves).
 function SpawnRules.mixAt(minutes: number, danger: number?): { [string]: number }
 	local groups = SpawnRules.groupsAt(minutes, danger)
@@ -327,7 +335,7 @@ function SpawnRules.mixAt(minutes: number, danger: number?): { [string]: number 
 	if not weights then
 		weights = {}
 		for _, group in groups do
-			if group.neutral or group.loot then
+			if group.neutral or group.loot or special[group] then
 				continue
 			end
 			for _, unit in group.units do

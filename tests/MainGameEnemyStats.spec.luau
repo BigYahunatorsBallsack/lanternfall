@@ -27,14 +27,14 @@ local fixture = {
 	{ "IronHusk", "Helmet Alien", 8, 4, 225, 275, 1, 1, 0.5, 1, 1, 1 },
 	{ "Splitling", "Fin Alien", 12, 2, 400, 400, 1, 1, 0, 1, 2, 3 },
 	{ "Splitter", "Spawner", 10, 1, 120, 120, 1, 0.85, 0.7, 1, 1, 1 },
-	{ "Skulker", "Junkie", 5, 5, 350, 350, 1, 1, 0.5, 1, 1, 1 },
+	{ "Skulker", "Junkie", 5, 5, 350, 350, 1, 1, 0.5, 1, 0, 0 }, -- can_drop_consumables false (1.2.0.1)
 	{ "AbyssBrute", "Horned Bruiser", 30, 22, 300, 300, 1, 1.15, 0.9, 3, 3, 3 },
 	{ "HornedRusher", "Horned Charger", 12, 5, 425, 425, 1, 1.1, 0.8, 1, 1, 1 },
 	{ "BroodEgg", "Slasher Egg", 5, 3, 0, 0, 1, 0.6, 1, 1, 0, 0 },
-	{ "Reaper", "Slasher", 50, 25, 250, 300, 1, 1.15, 0.9, 3, 1, 1 },
-	{ "DreadTendril", "Tentacle", 100, 20, 175, 175, 1, 1, 0.7, 3, 2, 2 },
+	{ "Reaper", "Slasher", 50, 25, 250, 300, 1, 1.15, 0.9, 5, 3, 3 }, -- slasher_stats (1.2.0.1)
+	{ "DreadTendril", "Tentacle", 100, 20, 175, 175, 1, 1, 0.7, 4, 2, 2 }, -- tentacle_stats (1.2.0.1)
 	{ "Hookfang", "Lamprey", 30, 15, 350, 350, 1, 0.75, 0.95, 1, 1, 1 },
-	{ "Gobbler", "Gobbler", 5, 30, 300, 400, 1, 0.85, 0, 8, 100, 100 },
+	{ "Gobbler", "Gobbler", 5, 30, 300, 400, 1, 0.85, 0, 8, 0, 0 }, -- evil_mob: no consumables (1.2.0.1)
 }
 
 describe("main-game wiki enemy stats", function()
