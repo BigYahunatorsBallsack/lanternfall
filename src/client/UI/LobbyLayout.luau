@@ -53,6 +53,10 @@ function Layout.mount(screen: ScreenGui, choose: Frame, players: Frame, record: 
 	})
 	local tagline =
 		Widgets.label({ Text = "SURVIVE THE NIGHT", TextSize = 34, TextStrokeTransparency = 0, Parent = main })
+	-- Thick dark outlines on the big menu text (owner, 09.11.2026).
+	Widgets.outlineText(title)
+	Widgets.outlineText(brand, 5)
+	Widgets.outlineText(tagline)
 	local hero = Icons.holder(main, 390)
 	Icons.draw(hero, "character", "NightWatch")
 	local secondHero = Icons.holder(main, 320)
@@ -86,6 +90,7 @@ function Layout.mount(screen: ScreenGui, choose: Frame, players: Frame, record: 
 				show(entry[3])
 			end
 		end)
+		Widgets.outlineText(menuButtons[index])
 	end
 	local back = Widgets.button({
 		Name = "LobbyBack",
@@ -394,6 +399,7 @@ function Layout.mount(screen: ScreenGui, choose: Frame, players: Frame, record: 
 		local dangerTitle = danger:FindFirstChild("Title") :: TextLabel
 		dangerTitle.Text = `Danger {shownDanger}\nDifficulty`
 		dangerTitle.TextColor3, dangerTitle.TextSize = Theme.statLabel, 24
+		Widgets.outlineText(dangerTitle)
 		place(dangerTitle, 12, 16, 208, 60)
 		local description = danger:FindFirstChild("Description") :: TextLabel
 		place(description, 12, 94, if compact then innerWidth - 24 else 208, 190)
@@ -407,7 +413,7 @@ function Layout.mount(screen: ScreenGui, choose: Frame, players: Frame, record: 
 			local button = levels:FindFirstChild(`Danger{level.level}`) :: TextButton
 			button.Size, button.TextSize = UDim2.fromOffset(tile, tile), tile - 10
 			button.TextColor3 = Color3.fromRGB(236, 206, 86)
-			button.TextStrokeTransparency = 0
+			Widgets.outlineText(button, 4)
 			button.BackgroundColor3 = if level.level == selected then Theme.accent else palette[index]
 		end
 		place(

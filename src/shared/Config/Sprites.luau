@@ -57,7 +57,8 @@ local Sprites = {
 	-- Thick dark outline around every figure, weapon and drop so it stands out from the floor and the crowd (owner,
 	-- 08.11.2026, after his Brotato screenshots: "um alles im Spiel"). Drawn as dark copies of the picture shifted
 	-- `directions` ways by `studs` behind it (Util/WorldSprite.outline). Glows, beams and shots stay without.
-	outline = table.freeze({ studs = 0.32, directions = 8, color = { 18, 14, 16 } }),
+	-- `uiShare`: the same outline on pictures in menus and the HUD, as a share of the picture's box (09.11.2026).
+	outline = table.freeze({ studs = 0.32, directions = 8, color = { 18, 14, 16 }, uiShare = 0.025 }),
 
 	-- The flat dark disc under figures. Colors are { red, green, blue }.
 	shadow = table.freeze({ color = { 0, 0, 0 }, transparency = 0.6, thickness = 0.05 }),
