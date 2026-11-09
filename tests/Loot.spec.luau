@@ -213,15 +213,24 @@ describe("loot", function()
 	it("lets new orbs take as much again from the bag in the next wave", function()
 		nextWave()
 		local bag = ExperienceService.getBag()
-		expect(controller("PickupRenderer").getChipText()).toBe(`Bag {bag}`)
+		expect(bag > 0).toBe(true)
+		expect(world.gui("Loot")).toBe(nil) -- no bag counter in the HUD (owner, 09.11.2026)
 		click("SpawnWave")
 		local ids, value = {}, 0
+		local spots: { Vector3 } = {}
 		for i = 1, EnemySim.collectIds(ids) do
 			local id = EnemySim.getKind(ids[i])
 			value += Config.Enemies.types[id].xp
+			table.insert(spots, EnemySim.getPosition(ids[i]) :: Vector3)
 		end
 		click("KillEnemies")
 		expect(ExperienceService.getBag()).toBe(math.max(0, bag - value))
+		expect(controller("XpOrbRenderer").getBagOrbCount() > 0).toBe(true) -- drawn 1.25 times bigger
+		-- picking up a material that took Shards from the bag shows "X2" at the player (Brotato)
+		local spot = spots[1]
+		standAt(spot.X, spot.Z)
+		world.advance(0.6)
+		expect(table.find(controller("XpOrbRenderer").getBoostTexts(), "X2") ~= nil).toBe(true)
 	end)
 
 	it("spawns a Looter that runs away and escapes without dropping anything", function()

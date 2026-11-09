@@ -108,11 +108,11 @@ describe("main-game enemy runtime", function()
 		clear()
 	end)
 
-	it("counter-fires only for surviving ranged weapon hits at 50% chance", function()
+	it("counter-fires only for surviving ranged weapon hits at 25% chance", function()
 		local id = EnemySim.spawn("Thornback", 60, 60, 1, 1, nil, nil, 1, 11)
 		local original = RandomService.number
 		RandomService.number = function()
-			return 0.49
+			return 0.24
 		end
 		local before = EnemySim.getShotCount()
 		EnemySim.damage(id, 1)
@@ -121,7 +121,7 @@ describe("main-game enemy runtime", function()
 		EnemySim.retaliate(id, "Ranged")
 		expect(EnemySim.getShotCount()).toBe(before + Config.Enemies.types.Thornback.retaliate.count)
 		RandomService.number = function()
-			return 0.5
+			return 0.25
 		end
 		EnemySim.retaliate(id, "Ranged")
 		expect(EnemySim.getShotCount()).toBe(before + Config.Enemies.types.Thornback.retaliate.count)

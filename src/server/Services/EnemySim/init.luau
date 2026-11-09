@@ -164,7 +164,8 @@ local function collectTargets()
 end
 
 -- Turns the shots World reported this step into projectiles aimed ahead of their target: at the point a target
--- walking straight on would reach while the shot flies there, times the kind's aimLead.
+-- walking straight on would reach while the shot flies there, times the kind's aimLead, then turned by a random
+-- angle within the kind's spreadRadians.
 local function fireShots(stepNow: number)
 	local shots = world.shots
 	for s = 0, world.shotCount - 1 do
@@ -185,6 +186,12 @@ local function fireShots(stepNow: number)
 			continue
 		end
 		dx, dz = dx / distance, dz / distance
+		local spread = ranged.spreadRadians or 0
+		if spread > 0 then
+			local turn = (RandomService.number("Combat") * 2 - 1) * spread
+			local c, s = math.cos(turn), math.sin(turn)
+			dx, dz = dx * c - dz * s, dx * s + dz * c
+		end
 		local startX, startZ = x + dx * kind.radius, z + dz * kind.radius
 		local id = volleys:fire(
 			startX,
@@ -356,12 +363,15 @@ local function stepOnce()
 			trail.x, trail.z = x, z
 			if trail.distance >= (charge.trailEvery or 1) then
 				trail.distance %= charge.trailEvery or 1
+				local angle = charge.trailAngle or math.pi / 2
+				local c, s = math.cos(angle), math.sin(angle)
+				local rx, rz = world.rushXs[i], world.rushZs[i]
 				for _, side in { -1, 1 } do
 					EnemySim.fireShot(
 						x,
 						z,
-						-world.rushZs[i] * side,
-						world.rushXs[i] * side,
+						rx * c - rz * s * side,
+						rx * s * side + rz * c,
 						charge.projectileSpeed or 1,
 						charge.projectileRange or 1,
 						charge.projectileRadius or 0,

@@ -1152,7 +1152,8 @@ function World.step(
 	end
 	rebuildHash(self)
 
-	-- 6. ranged enemies count down while a target is in fire range and report a shot at the nearest one
+	-- 6. ranged enemies count down while a target is in fire range and report a shot at the nearest one (not closer
+	-- than minFireRange)
 	local shots, shotCount = self.shots, 0
 	local shotDamage, shotCooldown = self.shotDamage, self.shotCooldown
 	for i = 1, count do
@@ -1169,7 +1170,10 @@ function World.step(
 			end
 			if best > 0 then
 				local cooldown = shotCooldown[i] - dt
-				if cooldown <= 0 then
+				local minRange = ranged.minFireRange or 0
+				if cooldown <= 0 and bestSquared < minRange * minRange then
+					cooldown = 0 -- ready, but the target is too close (Brotato's Junkie min_range)
+				elseif cooldown <= 0 then
 					cooldown += ranged.fireInterval
 					local k = shotCount * 5
 					shots[k + 1], shots[k + 2], shots[k + 3] = ids[i], x, z
