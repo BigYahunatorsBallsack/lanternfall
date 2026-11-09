@@ -803,3 +803,9 @@ Branch `wp-25-2d-presentation`. **Owner-Entscheidungen dieses Pakets:** Das Spie
 - Owner wollte die Unverwundbarkeit nach Treffern entfernen; Brotato hat aber 0,2–0,4 s (Wiki: „Bloody Hand"/„Sick" geben ausdrücklich *keine* Unverwundbarkeitszeit, normale Treffer also schon). Ganz ohne würde ein klebender Gegner 15-mal pro Sekunde treffen. Owner-Entscheidung: wie Brotato.
 - Umsetzung: `Config/Player.luau` `hitInvulnerabilityMin = 0.2` / `hitInvulnerabilityMax = 0.4`, `Vitals.protectionAfterHit` linear nach Anteil der Max-HP. Offen: die genaue Kurve steht nicht im Wiki (Annahme linear).
 - Nächstes Paket: unverändert laut Plan.
+
+## Debug-Schalter „Invincible" (Claude, 09.11.2026)
+
+- Owner-Wunsch zum leichteren Testen: neuer Debug-Knopf „Invincible on/off" (`ToggleInvincible`, direkt nach „Heal me"). Solange an, verliert dieser Spieler keine HP: Gegner-Kontakt, Geschosse, Bosse und Selbstschaden von Items/Charakteren (`CombatService.setInvincible`, geprüft in `damagePlayer` und `drainPlayer`). „Knock me down" wirkt weiterhin. Gilt pro Spieler, bleibt über Runs an, bis man ihn ausschaltet oder das Spiel verlässt.
+- Ein Run, der mit eingeschaltetem Schalter läuft oder in dem er benutzt wird, kommt nicht auf die Ranglisten (wie die anderen Debug-Schalter). Test in `Smoke.spec` (Smoke hat dieselben 26 roten Tests wie main).
+- Nächstes Paket: unverändert laut Plan.
