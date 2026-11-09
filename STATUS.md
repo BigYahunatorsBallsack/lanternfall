@@ -76,7 +76,7 @@ Jeder Strang ändert nur **seine** Zeile (Regeln: `docs/PARALLEL.md`).
 | Strang | KI | Aktuelles Paket | Branch / PR | Stand | Danach |
 | --- | --- | --- | --- | --- | --- |
 | A – Engine und Ablauf | Claude | Paket 24 Launch-Paket (Medium) | `wp-24-launch` | fertig, selbst gemerged | Plan bis zum Launch abgeschlossen; als Nächstes IDs des Owners eintragen (Live-Experience, Badges, Musik), dann Live-Ops |
-| B - Inhalte und Spieler-Regeln | ChatGPT | B10: alle stabilen Brotato-Charaktere | `wp-b10-artificer` | Crazy/Brawler/Ghost/Bull/Doctor/Pacifist/Artificer code-vorbereitet; 19 zusaetzliche Startwaffenpfade; echte Uploads offen | Restliche Ausruestung, native Alt-IDs und weitere Charakter-/Shop-/DLC-Regeln |
+| B - Inhalte und Spieler-Regeln | ChatGPT | B10: alle stabilen Brotato-Charaktere | `wp-b10-arms-dealer` | Crazy/Brawler/Ghost/Bull/Doctor/Pacifist/Artificer/ArmsDealer code-vorbereitet; echte Uploads offen | Restliche Ausruestung, native Alt-IDs und weitere Charakter-/Shop-/DLC-Regeln |
 
 ## Feste Entscheidungen des Owners
 
@@ -787,3 +787,11 @@ Branch `wp-25-2d-presentation`. **Owner-Entscheidungen dieses Pakets:** Das Spie
 - DEBUG-Panel startet links unter der Lebensleiste statt oben rechts und lässt sich am Kopf "DEBUG" mit Maus/Finger verschieben (ab 6 px Weg; ein kurzer Klick klappt weiterhin auf/zu). Die gezogene Position bleibt für die Sitzung, auch im Shop.
 - Test-Mock: `InputChanged`/`InputEnded` als Events ergänzt (nur angehängt). UI-Specs grün; Smoke/RunStats/EnemySpawnPlacement25 haben dieselben Fehler wie main. Studio-/Handy-Abnahme offen.
 - Nachtrag 09.11.2026 (Owner): Shards liegen jetzt hinter Gegnern und Figuren (eigener Tiefenwert `Config.Sprites.material.depthBias = 0.1` statt 1,5; neues optionales `depth` in `WorldSprite`). Formen werden wie ein gemischtes Kartendeck verteilt: je 6 Drops hintereinander kommt jede Form genau einmal, nie dieselbe zweimal direkt hintereinander (`Util/MaterialLook`).
+
+## Arms-Dealer-Paket (Strang B, 09.11.2026)
+
+- Arms Dealer als achtes Codepaket vorbereitet: Pistol, Dangerous Bunny, +30 Harvesting, +33 % Damage-Modifikationen und Originaltexte. Persönliche Freischaltung nach zwölf tatsächlich recycelten Waffen eines Runs; Zusammenlegen, ungültige Anfragen und automatische Zerstörung zählen nicht. Ein neuer Run setzt den unverdienten Zähler zurück; Retry stellt den Run-Zähler wieder her, verdiente Flags bleiben gespeichert. Kein neues Profilfeld/Remote.
+- Beim tatsächlichen Shop-Eintritt werden nur seine Waffen vor der Angebotsauswahl zerstört. Käufe, Synchronisieren und Neuwürfeln zerstören nicht erneut; die nächste Welle und Retry behalten gekaufte Ausrüstung. Native Charakterpakete können auch die letzte Waffe recyceln. Mindestens eine Waffenofferte pro Neuwurf, vorhandene Wellen-Garantien und gesperrte Waffenangebote werden angerechnet.
+- Der -95-%-Waffenrabatt reduziert den Grundpreis vor Wellenaufschlägen; Item Prices wirkt danach. Originale Endlos-Preisinflation ergänzt; beim Endlos-Recycling ignoriert die Berechnungsbasis Preis-Modifikationen und bleibt durch den tatsächlichen Shoppreis gedeckelt. Der Preisfaktor wird nicht bei 10 % abgeschnitten; erst der Endpreis erhält die native Untergrenze1. Angebot, Kauf, gesperrte Offerten und Recycling verwenden dieselben Regeln.
+- Quellen/Prüfung: docs/characters/arms-dealer-source.json und arms-dealer-validation.json. 149 Specs: 1257 bestanden, dieselben 34 vorhandenen Main-Fehler; Vollvergleich plus betroffene Nachprüfung nach Main fd77a50. StyLua, Selene (gecachte API), Generatorchecks und Rojo-Build bestanden. Arsenal unverändert. Keine Uploads oder Studio-Änderungen. Noch zehn Waffen- und neun Item-/Petfamilien; vollständiger nativer Shopkatalog, weitere Pool-/Neuwurfregeln sowie allgemeine Darstellung/Physik und Studio/Koop/Handy-Abnahme bleiben offen.
+

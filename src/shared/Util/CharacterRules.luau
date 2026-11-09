@@ -171,4 +171,19 @@ function CharacterRules.nativeAmount(classId: string?, key: string): number
 	return result
 end
 
+-- Native SET_VALUE effects replace the initial value instead of adding to it.
+function CharacterRules.nativeOverride(classId: string?, key: string, initial: number): number
+	local class = classId and Config.Classes[classId]
+	local native = class and class.native
+	local value = initial
+	if native then
+		for _, effect in native.sourceEffects do
+			if effect.sourceKey == key and effect.customKey == "" and effect.storageMethod == 2 then
+				value = effect.amount
+			end
+		end
+	end
+	return value
+end
+
 return CharacterRules

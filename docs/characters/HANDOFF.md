@@ -2,6 +2,14 @@
 
 Implementiere alle noch fehlenden Brotato-Charaktere in Lanternfall vollständig. Ziel: stabile PC-Version 1.2.0.1 mit allen DLCs, insgesamt 74 Charaktere. Der Owner erwartet funktionierende Charaktere einschließlich ihrer benötigten Ausrüstung und Mechaniken, nicht nur Konfigurationsdatensätze. Sprich Deutsch mit ihm; Code, Kommentare und Spieltexte bleiben Englisch.
 
+## Aktuell: Arms Dealer (09.11.2026)
+
+Arms Dealer ist als achtes Codepaket vorbereitet: Pistol, Dangerous Bunny, +30 Harvesting, +33-%-Damage-Modifikationen, Originaltexte und Freischaltung durch zwölf echte Waffen-Recyclings eines Runs. Persönlicher Zähler wird beim neuen Run geleert und für Retry gesichert; Merges, ungültige Verkäufe und Zerstörung zählen nicht. Native Charakterpakete können die letzte Waffe recyceln.
+
+Seine Waffen werden einmal beim Shop-Eintritt vor dem Rollen zerstört, ohne Geld/Erfolgsfortschritt. Käufe/Rerolls/Sync zerstören nicht; Wellenstart und Retry behalten gekaufte Waffen. Mindest-Waffenauswahl berücksichtigt normale Garantien und gesperrte Waffenofferten. -95 % Weapons Price wirkt auf den Grundwert vor Wellenaufschlägen; Item Prices danach. Endlos-Preisinflation und unmodifizierte Endlos-Recyclingbasis ergänzt, Endpreis erst ganz am Schluss mindestens1. Quellen/Prüfung: arms-dealer-source.json und arms-dealer-validation.json.
+
+Acht Codepakete sind keine vollständige native 1:1-Abnahme. Keine neuen Waffen oder Bilder nötig; echte Charakter-Uploads und Studio/Koop/Handy fehlen weiter. Allgemeiner stabiler Shop-/Ausrüstungskatalog, Pool-/Neuwurfdetails und andere gemeinsame Formel-/Physik-/Darstellungslücken bleiben offen. Noch zehn Waffenfamilien und neun Item-/Petfamilien. Vergleich main fd77a50: 1257 bestanden, dieselben 34 vorhandenen Fehler in 149 Specs; Vollvergleich plus betroffene Main-Nachprüfungen. Arsenal unverändert; nichts hochgeladen/veröffentlicht.
+
 ## Aktuell: Artificer (09.11.2026)
 
 Artificer ist als siebtes Codepaket vorbereitet: alle fünf Starts, originale Stats/Modifikatoren, Tool-Bonus und persönliche Freischaltung durch 15 Kills einer einzigen Explosion. Sticky Grenade hat alle vier Tiers, 0,75-s-Zündzeit, 40-Punkte-Kleberadius, folgt dem Ziel und behält nach dessen Tod die letzte Position. Kein Kontaktschaden, Reichweitenende startet die volle Zündzeit. Gesweepte Mittelpunktprüfung nutzt den bestehenden 15-Hz-Simulator; keine native Physik-Abnahme.
