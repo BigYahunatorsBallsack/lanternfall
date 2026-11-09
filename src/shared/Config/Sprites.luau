@@ -205,6 +205,9 @@ local Sprites = {
 		}) :: { string },
 		pixels = 256, -- side of every material picture, for mirroring
 		turn = 180, -- degrees either way
+		-- Studs towards the camera instead of depthBias: lying shards draw behind enemies, players and other figures
+		-- (owner, 09.11.2026). Above zero, so they stay above floor marks.
+		depthBias = 0.1,
 		sizeJitter = 0.12, -- share either way
 		tiers = table.freeze({
 			-- Picture side in studs; the shard fills about 0.6 of it. Owner's Brotato screenshot (08.11.2026): a shard is

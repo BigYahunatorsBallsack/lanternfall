@@ -24,10 +24,38 @@ local function unit(id: number, salt: number): number
 	return h / 2147483648
 end
 
+-- The picture of an id. Ids come one after another from the server, so they are dealt like a shuffled deck: every
+-- `count` ids in a row hold each picture exactly once, in a new random order each time, and the same picture never
+-- lies twice in a row across the edge of two decks.
+local function deck(block: number, count: number): { number }
+	local order = table.create(count, 0)
+	for i = 1, count do
+		order[i] = i
+	end
+	for i = count, 2, -1 do
+		local j = 1 + math.min(i - 1, math.floor(unit(block, 10 + i) * i))
+		order[i], order[j] = order[j], order[i]
+	end
+	return order
+end
+
+local function variantOf(id: number, count: number): number
+	if count <= 1 then
+		return 1
+	end
+	local index = math.floor(math.abs(id))
+	local block, slot = index // count, index % count + 1
+	local order = deck(block, count)
+	if block > 0 and order[1] == deck(block - 1, count)[count] then
+		order[1], order[2] = order[2], order[1]
+	end
+	return order[slot]
+end
+
 function MaterialLook.of(id: number, variantCount: number, settings: Settings): Look
 	local count = math.max(1, math.floor(variantCount))
 	return {
-		variant = 1 + math.min(count - 1, math.floor(unit(id, 1) * count)),
+		variant = variantOf(id, count),
 		rotation = (unit(id, 2) * 2 - 1) * settings.turn,
 		scale = 1 + (unit(id, 3) * 2 - 1) * settings.sizeJitter,
 		flipped = unit(id, 4) >= 0.5,

@@ -36,7 +36,12 @@ local floorY = Config.Map.arena.center.Y
 local folder: Folder? = nil
 local spriteOf: { [BasePart]: WorldSprite.Sprite } = {}
 local pool = VisualKit.pool(function(): BasePart
-	local sprite = WorldSprite.create({ name = "XpOrb", image = Config.Sprites.images.material, studs = TIERS[1].size })
+	local sprite = WorldSprite.create({
+		name = "XpOrb",
+		image = Config.Sprites.images.material,
+		studs = TIERS[1].size,
+		depth = LOOK.depthBias,
+	})
 	WorldSprite.outline(sprite)
 	local anchor = sprite.anchor :: BasePart
 	spriteOf[anchor] = sprite
