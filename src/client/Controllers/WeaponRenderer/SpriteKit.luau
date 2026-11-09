@@ -5,6 +5,7 @@ local Images = require(script.Parent.Parent.Parent.UI.WeaponImages)
 local VisualKit = require(script.Parent.VisualKit)
 local Look = require(game:GetService("ReplicatedStorage").Shared.Config.WeaponVisuals)
 local Sprites = require(game:GetService("ReplicatedStorage").Shared.Config.Sprites)
+local WorldSprite = require(game:GetService("ReplicatedStorage").Shared.Util.WorldSprite)
 
 export type Sprite = { anchor: BasePart, picture: ImageLabel }
 
@@ -41,6 +42,7 @@ function SpriteKit.create(id: string, size: number, name: string): Sprite
 	picture.Image = Images[id] or ""
 	picture.ScaleType = Enum.ScaleType.Fit
 	picture.Parent = billboard
+	WorldSprite.outlinePicture(picture, Sprites.outline.studs / size) -- owner 08.11.2026: dark outline on everything
 	return { anchor = anchor, picture = picture }
 end
 

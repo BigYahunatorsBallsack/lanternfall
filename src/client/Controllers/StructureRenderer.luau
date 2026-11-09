@@ -24,6 +24,7 @@ local FLOOR_Y = Config.Map.arena.center.Y
 local Sprites = Config.Sprites
 local pool = Kit.objectPool(function()
 	local sprite = WorldSprite.create({ name = "Structure", image = "", studs = 4, ground = 0 })
+	WorldSprite.outline(sprite)
 	return { sprite = sprite, anchor = sprite.anchor :: BasePart, hover = 0 }
 end, function(parts)
 	return { parts.anchor }

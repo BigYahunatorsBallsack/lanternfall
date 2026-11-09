@@ -7,6 +7,17 @@
 
 local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
 local Look = require(Shared:WaitForChild("Config"):WaitForChild("Sprites"))
+local Outline = Look.outline
+local OUTLINE_COLOR = Color3.fromRGB(table.unpack(Outline.color))
+local OUTLINE_ORDER = 0 -- behind every picture (feet 1, bodies and items 2)
+local OUTLINE_COPIED = { "Image", "ImageRectOffset", "ImageRectSize", "ImageTransparency", "ScaleType" }
+
+-- Unit steps around a circle, one per dark copy of an outline.
+local outlineSteps: { Vector2 } = {}
+for index = 1, Outline.directions do
+	local angle = (index - 1) / Outline.directions * 2 * math.pi
+	table.insert(outlineSteps, Vector2.new(math.cos(angle), math.sin(angle)))
+end
 
 export type Spec = {
 	name: string,
@@ -31,6 +42,7 @@ export type Sprite = {
 	rotation: number,
 	lift: number, -- studs up the screen, a hop
 	layers: { ImageLabel },
+	outline: { ImageLabel }?, -- dark copies behind the picture, see WorldSprite.outline
 }
 
 local WorldSprite = {}
@@ -97,6 +109,7 @@ local function build(adornee: BasePart, spec: Spec): Sprite
 		rotation = 0,
 		lift = 0,
 		layers = {},
+		outline = nil,
 	}
 	picture.AnchorPoint = anchorPoint(sprite)
 	layout(sprite)
@@ -154,6 +167,7 @@ function WorldSprite.setImage(sprite: Sprite, spec: Spec)
 	sprite.picture.AnchorPoint = anchorPoint(sprite)
 	layout(sprite)
 	WorldSprite.applyFlip(sprite)
+	WorldSprite.spreadOutline(sprite.outline, Outline.studs / sprite.studs)
 end
 
 -- A new size in studs at runtime (growing blasts, XP orbs of different value).
@@ -161,6 +175,7 @@ function WorldSprite.setStuds(sprite: Sprite, studs: number)
 	if sprite.studs ~= studs then
 		sprite.studs = studs
 		layout(sprite)
+		WorldSprite.spreadOutline(sprite.outline, Outline.studs / studs)
 	end
 end
 
@@ -261,6 +276,60 @@ function WorldSprite.setFade(sprite: Sprite, transparency: number)
 	sprite.picture.ImageTransparency = transparency
 	for _, layer in sprite.layers do
 		layer.ImageTransparency = transparency
+	end
+end
+
+-- Places the dark copies of an outline `share` of the picture's size away from it.
+function WorldSprite.spreadOutline(labels: { ImageLabel }?, share: number)
+	if not labels then
+		return
+	end
+	for index, label in labels do
+		local step = outlineSteps[index]
+		label.Position = UDim2.fromScale(0.5 + step.X * share, 0.5 + step.Y * share)
+	end
+end
+
+-- Thick dark outline behind any picture: dark copies of it shifted in a ring, `share` of its size away. The copies are
+-- its children, so they move, scale and turn with it wherever it is posed; image, mirroring and fade are copied
+-- whenever they change. Its billboard switches to global ZIndex so the copies draw behind every picture on it.
+function WorldSprite.outlinePicture(picture: ImageLabel, share: number): { ImageLabel }
+	local gui = picture:FindFirstAncestorWhichIsA("LayerCollector")
+	if gui then
+		gui.ZIndexBehavior = Enum.ZIndexBehavior.Global
+	end
+	local labels: { ImageLabel } = {}
+	for _ = 1, #outlineSteps do
+		local label = Instance.new("ImageLabel")
+		label.Name = "Outline"
+		label.BackgroundTransparency = 1
+		label.ImageColor3 = OUTLINE_COLOR
+		label.AnchorPoint = Vector2.new(0.5, 0.5)
+		label.Size = UDim2.fromScale(1, 1)
+		label.ZIndex = OUTLINE_ORDER
+		label.Parent = picture
+		table.insert(labels, label)
+	end
+	WorldSprite.spreadOutline(labels, share)
+	local function copy(property: string)
+		local value = (picture :: any)[property]
+		for _, label in labels do
+			(label :: any)[property] = value
+		end
+	end
+	for _, property in OUTLINE_COPIED do
+		copy(property)
+		picture:GetPropertyChangedSignal(property):Connect(function()
+			copy(property)
+		end)
+	end
+	return labels
+end
+
+-- Gives a sprite the thick dark outline (Config/Sprites outline); sizes and images set later keep it right.
+function WorldSprite.outline(sprite: Sprite)
+	if not sprite.outline then
+		sprite.outline = WorldSprite.outlinePicture(sprite.picture, Outline.studs / sprite.studs)
 	end
 end
 

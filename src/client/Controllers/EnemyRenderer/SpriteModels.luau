@@ -195,6 +195,7 @@ local function addElite(visual: any, art: SpritesConfig.EnemyArt, r: number)
 		studs = Look.crownStuds * r,
 	})
 	crown.picture.ImageColor3 = ELITE_GOLD
+	WorldSprite.outline(crown)
 	crown.gui.StudsOffset += Vector3.new(0, figureTop, 0) -- along the sprite, which leans back with the camera
 	local crownAnchor = crown.anchor :: BasePart
 	crownAnchor.Parent = visual.model
@@ -227,6 +228,7 @@ function SpriteModels.build(typeId: number): Visual
 		center = art.center or 0.5,
 		pixels = art.pixels,
 	})
+	WorldSprite.outline(sprite)
 	local body = sprite.anchor :: BasePart
 	body.Parent = model
 

@@ -61,7 +61,7 @@ describe("spawn groups", function()
 		end
 		expect(markers() > 0).toBe(true)
 		expect(EnemySim.getCount()).toBe(0) -- the enemies only come when the markers run out
-		expect(#workspace:FindFirstChild("LanternfallSpawnMarkers"):GetChildren()).toBe(markers() * 2) -- two bars each
+		expect(#workspace:FindFirstChild("LanternfallSpawnMarkers"):GetChildren()).toBe(markers()) -- one floor canvas each
 	end)
 
 	it("brings the whole group together at one spot when the markers run out", function()
