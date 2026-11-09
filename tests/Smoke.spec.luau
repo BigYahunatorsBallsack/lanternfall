@@ -253,7 +253,7 @@ describe("smoke", function()
 			)
 			contacts += 1
 		end)
-		world.advance(2) -- since the playtest after Paket 24 a crowd kills a still player within a few seconds
+		world.advance(4) -- Brotato spawns anywhere at least 30 studs away; a crowd kills a still player within seconds
 		connection:Disconnect()
 		expect(contacts > 0).toBe(true)
 		-- every touch hurts, at most once per hit protection window
@@ -294,12 +294,12 @@ describe("smoke", function()
 		world.click(world.gui("Debug", "KillEnemies"))
 		world.advance(3)
 		expect(EnemySim.getCount()).toBe(0)
-		world.click(world.gui("Debug", "SpawnWave"))
-		world.click(world.gui("Debug", "SpawnWave"))
-		world.click(world.gui("Debug", "SpawnWave"))
+		for _ = 1, math.ceil(SpawnDirector.getCap() / Config.Admin.spawnWaveCount) + 1 do -- the last one hits the limit
+			world.click(world.gui("Debug", "SpawnWave"))
+		end
 		world.advance(0.5)
-		expect(EnemySim.getCount()).toBe(Config.Run.spawn.cap.base)
-		expect(#drawnModels()).toBe(Config.Run.spawn.cap.base)
+		expect(EnemySim.getCount()).toBe(SpawnDirector.getCap())
+		expect(#drawnModels()).toBe(SpawnDirector.getCap())
 		expect(string.find(toastTexts(), "The enemy limit is reached", 1, true) ~= nil).toBe(true)
 		world.click(world.gui("Debug", "ToggleSpawning"))
 		world.advance(0.2)
@@ -309,7 +309,7 @@ describe("smoke", function()
 		world.advance(1.2)
 		local stats = world.gui("Debug", "Stats")
 		expect(stats ~= nil).toBe(true)
-		local cap = Config.Run.spawn.cap.base
+		local cap = SpawnDirector.getCap()
 		local culled = enemyRenderer().getStats().culled
 		expect(stats.Enemies.Text).toBe(`Enemies {cap} / {cap} · drawn {cap} ({culled} off screen) · shots 0`)
 		expect(string.find(stats.Server.Text, "Server step", 1, true) ~= nil).toBe(true)
@@ -1050,25 +1050,12 @@ describe("smoke", function()
 		world.advance(0.3)
 	end)
 
-	it("starts Swarm Rush with a ring of Shadelings and no Gloom Elites", function()
+	it("skips minutes without Gloom Elites", function()
 		SpawnDirector.setPaused(false)
-		-- an enemy left far behind comes back on the spawn ring
-		local center = Config.Map.arena.center
-		standAt(center.X - 60, center.Z)
-		local straggler = EnemySim.spawn("Brute", center.X + 60, center.Z, 1, 1)
-		world.advance(Config.Run.spawn.recycle.intervalSeconds + 0.3)
-		local position = EnemySim.getPosition(straggler)
-		local root = me.Character.HumanoidRootPart.Position
-		expect(position ~= nil and (position - root).Magnitude <= Config.Run.spawn.ringMax + 2).toBe(true)
-		RunDirector.skipTo(RunSchedule.wave(Config.Run.spawn.swarmRush.atMinutes[1] + 1).startsAt + 0.1)
+		RunDirector.skipTo(RunSchedule.wave(7).startsAt + 0.1)
 		world.advance(1)
-		expect(SpawnDirector.isSwarmRush()).toBe(true)
 		-- B11: the Gloom Elites of the skipped minutes are off on every danger level
 		expect(string.find(toastTexts(), "appeared! Kill it for a chest.", 1, true)).toBe(nil)
-		-- the HUD's wave banner announces it
-		expect(world.gui("HUD", "WaveTitle").Text).toBe(`WAVE {Config.Run.spawn.swarmRush.atMinutes[1] + 1}`)
-		expect(string.find(world.gui("HUD", "WaveEvents").Text, "Swarm Rush", 1, true) ~= nil).toBe(true)
-		expect(EnemySim.getCount() >= Config.Run.spawn.swarmRush.ringCount / 2).toBe(true)
 		SpawnDirector.setPaused(spawningWasPaused)
 		world.click(world.gui("Debug", "KillEnemies"))
 		world.advance(0.3)

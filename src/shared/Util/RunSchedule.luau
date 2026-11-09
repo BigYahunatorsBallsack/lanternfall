@@ -6,7 +6,7 @@
 local Run = require(script.Parent.Parent.Config.Run)
 local Difficulty = require(script.Parent.Parent.Config.Difficulty)
 local Enemies = require(script.Parent.Parent.Config.Enemies)
-local EnemyStats = require(script.Parent.EnemyStats)
+local EnemyWaves = require(script.Parent.Parent.Config.EnemyWaves)
 
 local Spawn = Run.spawn
 local Waves = Spawn.waves
@@ -127,14 +127,6 @@ function RunSchedule.minutesAt(seconds: number): number
 	return wave.number - 1 + math.clamp((seconds - wave.startsAt) / length, 0, 1)
 end
 
--- Multiplier on the spawn rate at schedule minute `minutes`: ramps through the wave, higher in the final wave.
-function RunSchedule.intensity(minutes: number): number
-	local number = math.clamp(math.floor(minutes) + 1, 1, WAVE_COUNT)
-	local t = math.clamp(minutes - (number - 1), 0, 1)
-	local ramp = Waves.rampFrom + (Waves.rampTo - Waves.rampFrom) * t
-	return if number == WAVE_COUNT then ramp * Waves.finalRate else ramp
-end
-
 -- Elites called at run time in (fromMinutes, toMinutes].
 function RunSchedule.elitesDue(fromMinutes: number, toMinutes: number): number
 	local count = 0
@@ -146,30 +138,62 @@ function RunSchedule.elitesDue(fromMinutes: number, toMinutes: number): number
 	return count
 end
 
--- What the wave with this number brings, for its banner: new enemies, Swarm Rush, elites. Empty for none.
+-- Kinds of the regular spawn groups (not hordes, Looters, Gobblers or trees) of run wave `number` on danger
+-- `danger`.
+local function kindsOf(number: number, danger: number): { [string]: boolean }
+	local kinds = {}
+	local data = EnemyWaves.waves[number]
+	if not data then
+		return kinds
+	end
+	for _, group in data.groups do
+		if not group.boss and danger >= group.minDanger and danger <= group.maxDanger then
+			for _, unit in group.units do
+				if unit.enemy and not unit.neutral then
+					kinds[unit.enemy] = true
+				end
+			end
+		end
+	end
+	return kinds
+end
+
+-- Kinds the regular spawn groups of wave `number` bring for the first time on danger `danger` (Brotato's spawn
+-- data, Config.EnemyWaves), sorted. Empty for wave 1 and past the run's waves.
+function RunSchedule.newEnemies(number: number, danger: number): { string }
+	local list = {}
+	if number <= 1 or number > #EnemyWaves.waves then
+		return list
+	end
+	local seen = {}
+	for earlier = 1, number - 1 do
+		for enemyId in kindsOf(earlier, danger) do
+			seen[enemyId] = true
+		end
+	end
+	for enemyId in kindsOf(number, danger) do
+		if not seen[enemyId] then
+			table.insert(list, enemyId)
+		end
+	end
+	table.sort(list)
+	return list
+end
+
+-- What the wave with this number brings, for its banner: new enemies, elites. Empty for none.
 -- `danger` (B11, default 5) leaves out the kinds that come from danger 1 and the Gloom Elites where they are off.
 function RunSchedule.eventsOf(number: number, danger: number?): { string }
 	local minute = number - 1
 	local events = {}
 	local level = Difficulty.levels[math.clamp(danger or #Difficulty.levels - 1, 0, #Difficulty.levels - 1) + 1]
 	local names = {}
-	for _, kind in Enemies.types do
-		if
-			number > 1
-			and EnemyStats.canSpawn(kind, number, level.level)
-			and EnemyStats.firstWave(kind, level.level) == number
-		then
-			table.insert(names, kind.displayName)
-		end
+	for _, enemyId in RunSchedule.newEnemies(number, level.level) do
+		local kind = Enemies.types[enemyId]
+		table.insert(names, if kind then kind.displayName else enemyId)
 	end
 	table.sort(names)
 	if #names > 0 then
 		table.insert(events, `New: {table.concat(names, ", ")}`)
-	end
-	for _, start in Spawn.swarmRush.atMinutes do
-		if start == minute then
-			table.insert(events, "Swarm Rush!")
-		end
 	end
 	local elites = if level.gloomElites then RunSchedule.elitesDue(minute - 1e-6, minute) else 0
 	if elites > 1 then

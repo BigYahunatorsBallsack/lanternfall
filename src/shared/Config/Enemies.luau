@@ -851,7 +851,7 @@ local Elite = table.freeze({
 -- them comes, picked at random (B11: both on the highest danger level). The wave ends with a victory when every
 -- boss is dead or when its time runs out (Brotato). Values from Brotato's Predator and Invoker, scaled like our other
 -- enemies in original HP/damage units; attack geometry not supplied by the wiki remains an adaptation. HP and damage then get the difficulty and the team's enemy stats, HP also the player factor
--- (Run.playerFactor). Bosses count as elites for Damage vs Elites and ignore knockback; Heralds and Menders skip them.
+-- (EnemyWaves.coop, SpawnRules.coopHealth). Bosses count as elites for Damage vs Elites and ignore knockback; Heralds and Menders skip them.
 local Bosses: { [string]: Enemy } = {
 	-- like Brotato's Predator: chases you and dashes, ringed by circling embers; from half HP (or after 45 s) no more
 	-- dashes but slams and rings of shots in every direction
@@ -1015,7 +1015,7 @@ end
 -- Mantis, Mother, Gargoyle), with our own names and looks. Like the bosses they run phases of attacks (BossService),
 -- show an HP bar at the top, count as elites, ignore knockback and drop a legendary crate. Brotato: 1 HP + 750 per
 -- wave after wave 1 (Monk 700), 1 contact damage + 1.5 per wave after wave 1
--- and grown by Run.spawn.growth like every enemy, HP also with the player factor (Run.playerFactor). Their attacks
+-- and grown by Run.spawn.growth like every enemy, HP also with the player factor (EnemyWaves.coop, SpawnRules.coopHealth). Their attacks
 -- hit as hard as their contact damage (the wiki gives no projectile damage, assumption) and grow alike. Speeds:
 -- Brotato's speeds converted relative to the player (450 = Config.Player.moveSpeed studs/s). Attack timings follow the wiki ("charges every 2 s"); wind-up
 -- times, distances, projectile speeds and counts it does not give are assumptions, counts kept within the

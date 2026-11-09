@@ -80,7 +80,8 @@ end
 
 return table.freeze({
 	-- Bait's acquisition effect is executed by SpawnDirector and checkpointed for wave retries.
-	lure = table.freeze({ item = "BloodLure", enemy = "Hookfang", minCount = 7, maxCount = 8 }),
+	-- Brotato group_bait: 7-8 Lampreys, 2 s into the next wave, anywhere in the arena.
+	lure = table.freeze({ item = "BloodLure", enemy = "Hookfang", minCount = 7, maxCount = 8, timing = 2 }),
 	triggers = set({
 		"Always",
 		"Acquire",

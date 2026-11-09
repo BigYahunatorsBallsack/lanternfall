@@ -33,31 +33,19 @@ return table.freeze({
 	-- Legendary crate (Brotato's elite crate, since WP10): from bosses (later also rare elites, B11). Heals 100 HP and holds an item of at least minTier (4 = Legendary); it opens like a crate, before the other crates.
 	legendaryCrate = table.freeze({ heal = 100, minTier = 4 }),
 
-	-- Looters (Brotato's Loot Alien): from wave fromWave, after firstSeconds in a wave and every everySeconds after
-	-- that, one appears with `chance` (all at once: count) near a random living player. It runs away from the
-	-- players and escapes after lifetimeSeconds; killed it drops a crate and its orb (Config.Enemies.Looter).
+	-- Looters (Brotato's Loot Alien): when and how many come is Brotato's own every-wave group (Config.EnemyWaves:
+	-- first roll 25 s into a wave, then every 15 s, 10 % each). It runs away from the players and escapes after
+	-- lifetimeSeconds; killed it drops a crate and its orb (Config.Enemies.Looter). spawnDistance: debug spawns only.
 	looter = table.freeze({
 		enemy = "Looter",
-		fromWave = 3,
-		firstSeconds = 25,
-		everySeconds = 15,
-		chance = 0.1,
-		count = 1,
 		lifetimeSeconds = 12, -- assumption
-		spawnDistance = 30, -- studs from the player it appears near (assumption)
+		spawnDistance = 30, -- studs from the player a debug Looter appears near
 	}),
-	-- Main-game Gobbler: one 3% roll ten seconds into each wave.
-	gobbler = table.freeze({ enemy = "Gobbler", fromWave = 1, firstSeconds = 10, chance = 0.03 }),
 
-	-- Trees: neutral, they stand still and do nothing; weapons hit them like enemies. Every wave brings perWave trees
-	-- plus the team's Trees stat (whole trees; the rest as a chance), spread over the first spawnShare of the wave, at
-	-- a free spot at least minPlayerDistance from every player; at most maxAlive at once. Killed they drop a fruit or
-	-- crate and an orb of 3 (Config.Enemies.Tree). Gone at the wave end like every enemy.
+	-- Trees: neutral, they stand still and do nothing; weapons hit them like enemies. When and how many grow is
+	-- Brotato's own every-wave group (Config.EnemyWaves: every 10 s from 10 s, 1-2 plus the Trees stat, 33 % each).
+	-- Killed they drop a fruit or crate and an orb of 3 (Config.Enemies.Tree). Gone at the wave end like every enemy.
 	trees = table.freeze({
 		enemy = "Tree",
-		perWave = 1, -- assumption: Brotato gives no base number
-		spawnShare = 0.7,
-		minPlayerDistance = 25, -- studs (assumption)
-		maxAlive = 6,
 	}),
 })
