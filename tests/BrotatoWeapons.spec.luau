@@ -44,6 +44,9 @@ describe("Brotato original catalog", function()
 					local bonus = { [stat] = 10 }
 					local effective = WeaponStats.compute(w, tier, bonus, nil, Config.Player.minWeaponCooldown)
 					local scaled = if stat == "level" then source.damage + share * 10 else s.damage + share * 10
+					if w.base.explosionRadius then
+						scaled = math.floor(math.max(1, scaled))
+					end -- stable explosive flat scaling truncates before percent
 					expect(effective.damage).toBeNear(scaled)
 				end
 			end
@@ -55,7 +58,7 @@ describe("Brotato original catalog", function()
 			actual += 1
 			expect(Fixture[id] ~= nil or require(Shared.Config.CharacterWeaponData).weapons[id] ~= nil).toBe(true)
 		end
-		expect(actual).toBe(80)
+		expect(actual).toBe(81)
 		expect(count).toBe(62)
 		expect(next(Config.Evolutions)).toBe(nil)
 	end)

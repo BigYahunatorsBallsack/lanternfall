@@ -283,6 +283,9 @@ Classes.Doctor.description =
 Classes.Pacifist.nativeCodeReady = true
 Classes.Pacifist.description =
 	"Gain 0.65 material and XP for every living enemy at the end of a wave\nYou start with 1 Lumberjack Shirt\n-100 % Damage\n-100 Engineering"
+Classes.Artificer.nativeCodeReady = true
+Classes.Artificer.description =
+	"+175 % Explosion Damage\n+4 % Explosion Size for every 1 Elemental Damage you have\n+100 % Damage with Tools\n-100 % Damage\nArmor modifications are reduced by 50%"
 -- Original art is delivered independently; ready code never bypasses the approved-sprite requirement.
 for id, class in Classes do
 	if not class.nativeCodeReady then

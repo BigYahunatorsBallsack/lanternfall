@@ -743,6 +743,7 @@ return {
 				nativeReloadFrames = 210,
 				explosionChance = 1,
 				explosionRadius = 11.0505,
+				explosionOffsetZ = 0.225,
 			},
 			tiers = {
 				{},
@@ -1982,6 +1983,123 @@ return {
 				},
 			},
 		},
+		StickyGrenade = {
+			id = "StickyGrenade",
+			displayName = "Sticky Grenade",
+			description = "",
+			tierDescriptions = {
+				"Sticks to the targeted enemy and explodes after 0.75 seconds",
+				"Sticks to the targeted enemy and explodes after 0.75 seconds",
+				"Sticks to the targeted enemy and explodes after 0.75 seconds",
+				"Sticks to the targeted enemy and explodes after 0.75 seconds",
+			},
+			brotato = true,
+			available = false,
+			kind = "Ranged",
+			classes = {
+				"Volatile",
+			},
+			minTier = 1,
+			originalScaling = {
+				{
+					rangedDamage = 0.8,
+				},
+				{
+					rangedDamage = 1,
+				},
+				{
+					rangedDamage = 1.2,
+				},
+				{
+					rangedDamage = 1.5,
+				},
+			},
+			scaling = {
+				rangedDamage = 0.8,
+			},
+			tierScaling = {
+				{
+					rangedDamage = 0.8,
+				},
+				{
+					rangedDamage = 1,
+				},
+				{
+					rangedDamage = 1.2,
+				},
+				{
+					rangedDamage = 1.5,
+				},
+			},
+			heldStats = {
+				{},
+				{},
+				{},
+				{},
+			},
+			rangeKeys = {
+				"range",
+			},
+			behavior = "StickyGrenade",
+			targeting = "Nearest",
+			base = {
+				damage = 8,
+				cooldown = 1.5,
+				nativeCooldownFrames = 90,
+				nativeTiming = 1,
+				range = 30,
+				critChance = 0.03,
+				critDamage = 2,
+				knockback = 0,
+				knockbackPiercing = 0,
+				lifeSteal = 0,
+				noBounce = 1,
+				count = 1,
+				nativeSpread = 0,
+				nativeAccuracy = 0.9,
+				projectileSpeed = 90,
+				projectileRadius = 0.6,
+				pierce = 0,
+				pierceFalloff = 0.5,
+				bounce = 0,
+				bounceFalloff = 0.5,
+				shootWithoutTarget = 0,
+				explosionChance = 1,
+				explosionRadius = 16.2074,
+				explosionOffsetZ = 0.33,
+				stickyFuse = 0.75,
+				stickyDistance = 4,
+			},
+			tiers = {
+				{},
+				{
+					damage = 0.625,
+					cooldown = -0.0833333333333333,
+					nativeCooldownFrames = -5,
+					range = 2.5,
+					explosionRadius = 1.4734,
+					explosionOffsetZ = 0.03,
+				},
+				{
+					damage = 0.75,
+					cooldown = -0.0833333333333335,
+					nativeCooldownFrames = -5,
+					range = 2.5,
+					critDamage = 0.25,
+					explosionRadius = 2.2101,
+					explosionOffsetZ = 0.045,
+				},
+				{
+					damage = 1.125,
+					cooldown = -0.0833333333333333,
+					nativeCooldownFrames = -5,
+					range = 2.5,
+					critDamage = 0.25,
+					explosionRadius = 2.2101,
+					explosionOffsetZ = 0.045,
+				},
+			},
+		},
 	},
 	prices = {
 		Anchor = {
@@ -2091,6 +2209,12 @@ return {
 			50,
 			105,
 			220,
+		},
+		StickyGrenade = {
+			15,
+			31,
+			61,
+			122,
 		},
 	},
 }

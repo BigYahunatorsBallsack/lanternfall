@@ -50,7 +50,10 @@ function OfferText.stats(id: string, tier: number, sheet: { [string]: number }):
 	end
 	damage += (result.levelScaling or 0) * (sheet.level or 0)
 	damage += sheet.baseDamage or 0
-	result.damage = NativeDamage.total(damage, math.max(0, 1 + (sheet.damage or 0) / 100), result)
+	if weapon.brotato and result.explosionRadius then
+		result.nativeExplosive = 1
+	end
+	result.damage = NativeDamage.total(damage, NativeDamage.factor(sheet, result.nativeExplosive ~= nil), result)
 	if result.cooldown then
 		local minimum = math.max(
 			if weapon.brotato then Config.Combat.originalWeapons.minCooldown else Config.Player.minWeaponCooldown,
@@ -73,6 +76,21 @@ function OfferText.stats(id: string, tier: number, sheet: { [string]: number }):
 					+ (sheet.weaponRange or 0) * Config.Stats.range.studsPerPoint
 			)
 		end
+	end
+	if result.explosionRadius then
+		result.explosionRadius *= math.max(
+			if weapon.brotato then Config.Combat.explosion.minimumSizeFactor else 0,
+			1 + (sheet.explosionSize or 0) / 100
+		)
+		if result.explosionOffsetZ then
+			result.explosionOffsetZ *= math.max(
+				Config.Combat.explosion.minimumSizeFactor,
+				1 + (sheet.explosionSize or 0) / 100
+			)
+		end
+		result.explosionDamage = if weapon.brotato
+			then 1
+			else (result.explosionDamage or 1) * math.max(0, 1 + (sheet.explosionDamage or 0) / 100)
 	end
 	if result.minimumRange then
 		result.range = math.max(result.minimumRange + Config.Stats.range.minStuds, result.range)

@@ -75,7 +75,7 @@ Jeder Strang ändert nur **seine** Zeile (Regeln: `docs/PARALLEL.md`).
 | Strang | KI | Aktuelles Paket | Branch / PR | Stand | Danach |
 | --- | --- | --- | --- | --- | --- |
 | A – Engine und Ablauf | Claude | Paket 24 Launch-Paket (Medium) | `wp-24-launch` | fertig, selbst gemerged | Plan bis zum Launch abgeschlossen; als Nächstes IDs des Owners eintragen (Live-Experience, Badges, Musik), dann Live-Ops |
-| B - Inhalte und Spieler-Regeln | ChatGPT | B10: alle stabilen Brotato-Charaktere | `wp-b10-pacifist` | Crazy/Brawler/Ghost/Bull/Doctor/Pacifist code-vorbereitet; 18 zusaetzliche Startwaffenpfade; Lumberjack Shirt ergaenzt; echte Uploads offen | Restliche Ausruestung, native Alt-IDs und weitere Charakter-/Shop-/DLC-Regeln |
+| B - Inhalte und Spieler-Regeln | ChatGPT | B10: alle stabilen Brotato-Charaktere | `wp-b10-artificer` | Crazy/Brawler/Ghost/Bull/Doctor/Pacifist/Artificer code-vorbereitet; 19 zusaetzliche Startwaffenpfade; echte Uploads offen | Restliche Ausruestung, native Alt-IDs und weitere Charakter-/Shop-/DLC-Regeln |
 
 ## Feste Entscheidungen des Owners
 
@@ -765,3 +765,11 @@ Branch `wp-25-2d-presentation`. **Owner-Entscheidungen dieses Pakets:** Das Spie
 - Originales Shirt-Bild lokal vorbereitet, ohne Upload. 125 öffentliche Items und ein bis zum echten Bild-Upload für Zufallspools gesperrtes Startitem; elf Waffen- und neun Item-/Petfamilien fehlen noch. Charakterauswahl bleibt ohne echtes Pacifist-Bild gesperrt. Keine zusätzliche native Studio-Abnahme behauptet.
 - Vergleich mit main d873a05: 143 Specs, 1230 bestanden, dieselben 34 vorhandenen Fehler, keine neuen Fehlerkennungen. Vollvergleich plus gezielte Nachprüfung der parallel gemergten Menü-/Bodenänderungen; Methodik und Grenzen in docs/characters/pacifist-validation.json. StyLua, Selene (gecachte Roblox-API), Generatorchecks und Rojo-Build bestanden. Studio/Koop/Handy offen.
 
+
+## Artificer-Paket (Strang B, 09.11.2026)
+
+- Artificer als siebtes Codepaket vorbereitet: alle fünf Originalstarts, +175 % Explosion Damage, Elemental-abhängige Explosion Size, waffenlokaler Tool-Bonus, Damage-Nachteil, halbe Armor-Gewinne und originale Fireworks-Freischaltung (15 Kills einer einzelnen Explosion). Persönliche Isolation, mehrere getrennte Explosionen und Retry geprüft. Kills aus Waffen-, Item-, Charakter- und Struktur-Explosionen werden je Explosion gemeldet; kein neuer Remote, Arsenal unverändert.
+- Sticky Grenade in allen vier Tiers: kein Kontaktschaden, Zündzeit 0,75 s, Kleberadius 40 Originalpunkte, folgt dem Ziel mit Versatz und bleibt bei dessen Tod liegen. Reichweitenende startet ebenfalls die Zündzeit. Kollisionsprüfung verwendet den bestehenden 15-Hz-Simulator mit gesweeptem Mittelpunktabstand. Originale Größen-/Schadensformeln und Explosionsversatz aus neutralen Quellen; Radius bleibt mindestens 10 % der normalen Größe.
+- Bestehende Waffen-Explosionsboni korrigiert: Damage und Explosion Damage addieren sich vor Mindestschaden/Rundung und werden nicht nochmals multipliziert. Krits werden pro Explosionsziel gewürfelt. Vorschau folgt derselben Berechnung; Brennen behält seinen getrennten Damage-Faktor. Quellen: docs/characters/artificer-source.json und weapon-source.json.
+- 81 Waffen konfiguriert: 62 öffentlich, 19 ohne echte Bilder gesperrt. Sticky-Grenade-Icon und beide Originalprojektilbilder lokal vorbereitet; keine Uploads oder Asset-IDs geändert. Originale Flugrotation und Boden-Verformungsanimation bleiben Darstellungsarbeit; aktuelle gesperrte Testdarstellung nutzt gemeinsame Fluganzeige und gepoolte Zündmarker. Charaktere weiterhin ohne echte Bilder gesperrt. Noch zehn Waffen- und neun Item-/Petfamilien.
+- Vergleich mit main 1017469: 147 Specs, 1245 bestanden, dieselben 34 vorhandenen Fehler, keine neuen Fehlerkennungen. Vollvergleich plus gezielte Nachprüfung der parallelen Weltbild-/Symboländerungen. StyLua, Selene (gecachte API), Generatorchecks und Rojo-Build bestanden. Einzelheiten: docs/characters/artificer-validation.json. Native Studio-/Koop-/Handy- sowie allgemeine Originaltreue-Abnahme offen.

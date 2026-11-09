@@ -320,6 +320,24 @@ function PlayerDataService.observeNativeHealing(player: Player, total: number)
 	end
 end
 
+-- Fireworks observes a single completed blast; independent explosions never add together.
+function PlayerDataService.observeNativeExplosion(player: Player, kills: number)
+	local data = PlayerDataService.get(player)
+	if not data then
+		return
+	end
+	for _, rule in NativeCharacterAccess do
+		if rule.kind == "ExplosionKills" and kills >= rule.threshold then
+			local key = CharacterAccess.challengeKey(rule.challengeId)
+			if not data.achievements[key] then
+				data.achievements[key] = true
+				sendInfo(player)
+				PlayerDataService.Changed:Fire(player)
+			end
+		end
+	end
+end
+
 -- Native Gatherer counts physical pickups once, even when their material value is doubled or shared.
 function PlayerDataService.observeNativeMaterials(player: Player, count: number)
 	local data = PlayerDataService.get(player)

@@ -15,7 +15,11 @@ function Combat.elementalHit(ownerId: number): boolean?
 end
 
 function Combat.roundHit(ownerId: number, amount: number): number
-	return if hitOwner == ownerId and hitStats and hitStats.nativeTiming then math.round(amount) else amount
+	return if hitOwner == ownerId
+			and hitStats
+			and (hitStats.nativeTiming or hitStats.nativeExplosive)
+		then math.round(amount)
+		else amount
 end
 
 function Combat.targetBonus(ownerId: number, id: number): number
@@ -36,6 +40,44 @@ end
 
 function Combat.configure(callbacks: { [string]: any })
 	adapter = callbacks
+end
+
+-- A native explosion is one distinct attack, with per-target crits and a single aggregate unlock observation.
+function Combat.explode(
+	weapon: Arsenal.Weapon,
+	ctx: Arsenal.Context,
+	x: number,
+	z: number,
+	skip: number?,
+	share: number?,
+	snapshot: { [string]: number }?
+)
+	local original = weapon.stats
+	local stats = table.clone(snapshot or original)
+	local ids: { number } = {}
+	local count = ctx:queryCircle(x, z + (stats.explosionOffsetZ or 0), stats.explosionRadius, ids)
+	if adapter.emitExplosion then
+		adapter.emitExplosion(weapon.ownerId, x, z, stats.explosionRadius)
+	else
+		ctx:emit(weapon, { kind = "Blast", x = x, z = z, radius = stats.explosionRadius })
+	end
+	local previousOwner, previousElemental, previousStats = hitOwner, hitElemental, hitStats
+	hitOwner, hitStats = weapon.ownerId, stats
+	local scaling = if weapon.config.tierScaling then weapon.config.tierScaling[weapon.tier] else weapon.config.scaling
+	hitElemental = scaling.elementalDamage ~= nil
+	weapon.stats = stats
+	local kills = 0
+	for index = 1, count do
+		local id = ids[index]
+		if id ~= skip and ctx:hit(weapon, id, share, "Explosion") then
+			kills += 1
+		end
+	end
+	weapon.stats = original
+	hitOwner, hitElemental, hitStats = previousOwner, previousElemental, previousStats
+	if adapter.explosionResolved then
+		adapter.explosionResolved(weapon.ownerId, kills)
+	end
 end
 
 function Combat.hit(
@@ -95,7 +137,7 @@ function Combat.hit(
 	then
 		local x, z = hitX, hitZ
 		if x and z then
-			ctx:explode(weapon, x, z, id, share)
+			Combat.explode(weapon, ctx, x, z, id, share, shotStats or original)
 		end
 	end
 	hitOwner, hitElemental, hitStats = previousOwner, previousElemental, previousStats

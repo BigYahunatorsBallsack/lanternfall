@@ -2,95 +2,132 @@
   "uploadedCount": 0,
   "runtimeChanged": false,
   "weapons": {
-    "weapons/Anchor.png": {
+    "Anchor": {
       "group": "weapons",
       "name": "Anchor",
       "hash": "91113d9fed45640c1041511cf3096de4b9db7638065d1b1f9c87a8bf73768733"
     },
-    "weapons/Mace.png": {
+    "Mace": {
       "group": "weapons",
       "name": "Mace",
       "hash": "79e6c1c3ef500ad3007bd8c9d3d0d0e85bfd54df620346657f39dda4ce692e99"
     },
-    "weapons/MeatTenderizer.png": {
+    "MeatTenderizer": {
       "group": "weapons",
       "name": "MeatTenderizer",
       "hash": "057b57947b396cf82117e425b3157e59fdac0532c7fe494fd63e5fad4e600dcd"
     },
-    "weapons/Machinegun.png": {
+    "Machinegun": {
       "group": "weapons",
       "name": "Machinegun",
       "hash": "9428e5f23910aa0c75cc4d1ffadc4c3380f76a7eaa87b2d695362f81cba2801e"
     },
-    "weapons/PanFlute.png": {
+    "PanFlute": {
       "group": "weapons",
       "name": "PanFlute",
       "hash": "07472aa7a39f7b8511c2401b9dcd2729dc00091c7cd546427bac97140a254342"
     },
-    "weapons/CombatShotgun.png": {
+    "CombatShotgun": {
       "group": "weapons",
       "name": "CombatShotgun",
       "hash": "956fe263232cd9dc28e68ee6ef6fb86fe65b3ff414aa68e1a5502b3d76cbca81"
     },
-    "weapons/GrenadeLauncher.png": {
+    "GrenadeLauncher": {
       "group": "weapons",
       "name": "GrenadeLauncher",
       "hash": "aa5eda69c710caa2f7d2a30c0c23c3a4079c6747e7bd6dd2a2d8815f9548085d"
     },
-    "weapons/Whip.png": {
+    "Whip": {
       "group": "weapons",
       "name": "Whip",
       "hash": "2e79fb3d3c6ee51ef603d7b0baeabb6b6de7afb185d32ffff46ed4b21e914d0d"
     },
-    "weapons/Spoon.png": {
+    "Spoon": {
       "group": "weapons",
       "name": "Spoon",
       "hash": "620d9aa6a65de167be99dffba51434280c29452beb85f557de828b7d18d1cb20"
     },
-    "weapons/Cestus.png": {
+    "Cestus": {
       "group": "weapons",
       "name": "Cestus",
       "hash": "1d35441f127b7965488efa4bb3354e85ffd7166ed8a83fcf046b7705b2cc6f17"
     },
-    "weapons/Sickle.png": {
+    "Sickle": {
       "group": "weapons",
       "name": "Sickle",
       "hash": "fab5034824a42db381bc1020d668852b895fda853fc40ad71adcfc48bb5f2248"
     },
-    "weapons/Trident.png": {
+    "Trident": {
       "group": "weapons",
       "name": "Trident",
       "hash": "058e8b9583474343028a213a5499e8181016ceb1f73a9e1f8b17642dea9589be"
     },
-    "weapons/Lute.png": {
+    "Lute": {
       "group": "weapons",
       "name": "Lute",
       "hash": "78689cf8bc1e6c437beafb37b9331a4bee5ef6ae9766138721bbaae265e9b2b5"
     },
-    "weapons/Blowgun.png": {
+    "Blowgun": {
       "group": "weapons",
       "name": "Blowgun",
       "hash": "9395fd4c2ee4afa05025b4234582b132342372eed16fd9da828fa0812bfe9fc1"
     },
-    "weapons/Blunderbuss.png": {
+    "Blunderbuss": {
       "group": "weapons",
       "name": "Blunderbuss",
       "hash": "4a8f3eeace9b4f6720bc6749714cab897de38b45aa696edc0aa77c32f0aac3fb"
     },
-    "weapons/Javelin.png": {
+    "Javelin": {
       "group": "weapons",
       "name": "Javelin",
       "hash": "4cb91a2572adf232e9b53153018ac1f63885ecdf911a851d1a557a96af35c8c1"
     },
-    "weapons/TranqRifle.png": {
+    "TranqRifle": {
       "group": "weapons",
       "name": "TranqRifle",
       "hash": "4ddb752d1a35cc3d8a7ec680791854b9cd85d8f97acbbc35fdb657ca4ba7740c"
     },
-    "weapons/HarpoonGun.png": {
+    "HarpoonGun": {
       "group": "weapons",
       "name": "HarpoonGun",
       "hash": "fb7136ce1dcbbc3a069a1c00da7538b03adc84b3d2ba932150e5c11989985be3"
+    },
+    "StickyGrenade": {
+      "group": "weapons",
+      "name": "StickyGrenade",
+      "hash": "96e536f8b691dc42fef04c0f1e606894cdf88b5c15417db464eb6d3ff2dce910"
+    }
+  },
+  "projectiles": {
+    "StickyGrenadeThrown": {
+      "group": "world",
+      "name": "StickyGrenadeThrown",
+      "hash": "9258c8af1b69af290ead65ce2d21c72cfa1340bea497d837de5f8f737dfe19c7",
+      "pixels": 512,
+      "center": 0.5,
+      "ground": 0.039,
+      "width": 0.92,
+      "height": 0.781,
+      "color": [
+        87,
+        116,
+        82
+      ]
+    },
+    "StickyGrenadeGround": {
+      "group": "world",
+      "name": "StickyGrenadeGround",
+      "hash": "3d2e749e8bc5de53a3a7d54a30568ce0dd161ef6211bf1afb03f75eaab0631ab",
+      "pixels": 512,
+      "center": 0.5,
+      "ground": 0.039,
+      "width": 0.92,
+      "height": 0.781,
+      "color": [
+        80,
+        106,
+        75
+      ]
     }
   }
 }
