@@ -47,3 +47,6 @@
 - [x] Prepare Artificer code package with all five starts, delayed attached Sticky Grenade, additive native weapon explosion bonuses, per-target crits and per-explosion Fireworks unlock; keep art gates.
 - [ ] Complete native Sticky Grenade flight sprite/rotation and ground squash presentation alongside real uploads and native runtime acceptance.
 - [ ] Continue ten missing starting-weapon families and nine item/pet families plus remaining character dependencies; seven code-prepared packages are not full native acceptance.
+
+- [x] Prepare Arms Dealer code package: Pistol/Bunny, original gains, personal run recycling unlock, one-time shop-entry weapon destruction, minimum weapon stock and native price/recycling ordering; keep image gate.
+- [ ] Continue ten missing starting-weapon families and nine item/pet families plus remaining character/shared shop/physics/presentation dependencies. Eight code-prepared packages are not full native acceptance.

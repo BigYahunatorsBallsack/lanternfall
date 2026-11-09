@@ -227,6 +227,8 @@ Seit Paket 4 umgesetzt (Werte in `Config/Player.luau` und `Config/Camera.luau`):
 
 Alle Werte stehen in Config-Modulen, nicht im Code.
 
+**Native Shopkorrektur B10 (Arms Dealer, 09.11.2026):** Weapons Price verändert den Grundwert vor Wellenaufschlägen. Item Prices wirkt danach; erst der fertige Preis wird auf mindestens1 begrenzt, ohne 10-%-Untergrenze des Faktors. Beeinflusste Preise erhalten den originalen Endlosfaktor `1 + endlessFactor / 5`. Die Recyclingbasis ignoriert im Endlosmodus Preis-Modifikationen und bleibt vom tatsächlichen Shoppreis gedeckelt. Arms Dealers Mindest-Waffenauswahl zählt gesperrte Waffenangebote mit; sein Waffenverlust geschieht einmal beim tatsächlichen Shop-Eintritt vor neuen Angeboten. Kein eigener Rabatt oder Ersatzwert.
+
 ## 5. Charaktere (B10)
 
 Neun auswählbare Regelpakete ersetzen die beiden Prototyp-Klassen; ihre Regeln und Zahlen folgen Charakteren des Brotato-Basisspiels. Blade Warden ist seit Paket 25 auf Owner-Wunsch entfernt, Standard-Charakter ist jetzt Night Watch. Vollständige Zuordnung, Quellen und Studio-Test: `docs/B10-CHARAKTERE.md`.

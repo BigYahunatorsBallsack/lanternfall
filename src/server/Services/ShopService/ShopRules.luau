@@ -56,27 +56,35 @@ end
 
 -- Price of something with base price `base` after wave `wave`: floor((base + wave * waveAdd + base * waveFactor *
 -- wave) * multiplier * factor), at least 1; `factor` from the Item Prices stat (Brotato's items_price_mult).
-function ShopRules.price(base: number, wave: number, factor: number?): number
+function ShopRules.price(base: number, wave: number, factor: number?, affected: boolean?): number
 	local rule = Shop.price
-	local raw = (base + wave * rule.waveAdd + base * rule.waveFactor * wave) * rule.multiplier * (factor or 1)
+	local modifiers = if affected == false then 1 else (factor or 1) * CharacterEconomy.priceInflation(wave)
+	local raw = (base + wave * rule.waveAdd + base * rule.waveFactor * wave) * rule.multiplier * modifiers
 	return math.max(1, math.floor(raw + 1e-9))
 end
 
--- Price of a weapon of `tier` after wave `wave`: its tier I base price times Config.Shop.tierPriceFactors[tier].
-function ShopRules.weaponPrice(weaponId: string, tier: number, wave: number, factor: number?): number
+-- Weapon Price modifies only the tier base before wave additions; Item Prices and endless inflation apply afterwards.
+function ShopRules.weaponPrice(
+	weaponId: string,
+	tier: number,
+	wave: number,
+	factor: number?,
+	classId: string?,
+	affected: boolean?
+): number
 	local exact = Shop.weaponTierPrices[weaponId]
-	if exact then
-		return ShopRules.price(exact[tier], wave, factor)
+	local base = if exact then exact[tier] else (Shop.weaponPrices[weaponId] or 0) * (Shop.tierPriceFactors[tier] or 1)
+	if affected ~= false then
+		base *= 1 + CharacterRules.nativeAmount(classId, "weapons_price") / 100
 	end
-	local base = Shop.weaponPrices[weaponId] or 0
-	return ShopRules.price(base * (Shop.tierPriceFactors[tier] or 1), wave, factor)
+	return ShopRules.price(base, wave, factor, affected)
 end
 
 -- Price of an offer with the Item Prices factor: weapons by tier, items by their base price, both from the wave the
 -- offer's price is based on (a locked offer keeps its wave).
-function ShopRules.offerPrice(offer: Types.ShopOffer, factor: number?): number
+function ShopRules.offerPrice(offer: Types.ShopOffer, factor: number?, classId: string?): number
 	if offer.kind == "Weapon" then
-		return ShopRules.weaponPrice(offer.itemId, offer.tier, offer.priceWave, factor)
+		return ShopRules.weaponPrice(offer.itemId, offer.tier, offer.priceWave, factor, classId)
 	end
 	local item = Items.byId[offer.itemId]
 	return ShopRules.price(if item then item.price else 0, offer.priceWave, factor)
@@ -84,10 +92,17 @@ end
 
 -- Shards for selling a weapon of `tier` after wave `wave`: Config.Shop.sellShare plus `sellValue` percent (the Sell
 -- Value stat) of its discounted price; native minimum/cap and endless price-stat rules apply.
-function ShopRules.sellPrice(weaponId: string, tier: number, wave: number, sellValue: number?, factor: number?): number
-	local shopPrice = ShopRules.weaponPrice(weaponId, tier, wave, factor)
+function ShopRules.sellPrice(
+	weaponId: string,
+	tier: number,
+	wave: number,
+	sellValue: number?,
+	factor: number?,
+	classId: string?
+): number
+	local shopPrice = ShopRules.weaponPrice(weaponId, tier, wave, factor, classId)
 	local recycleBasis =
-		ShopRules.weaponPrice(weaponId, tier, wave, if wave <= #Run.spawn.waves.lengthsSeconds then factor else 1)
+		ShopRules.weaponPrice(weaponId, tier, wave, factor, classId, wave <= #Run.spawn.waves.lengthsSeconds)
 	return CharacterEconomy.recyclingPrice(recycleBasis, shopPrice, sellValue or 0)
 end
 
@@ -383,7 +398,7 @@ local function weaponOffer(weaponId: string, params: Params, tier: number): Type
 		tier = tier,
 		count = copies,
 		isNew = copies == 0,
-		price = ShopRules.weaponPrice(weaponId, tier, params.wave, params.priceFactor),
+		price = ShopRules.weaponPrice(weaponId, tier, params.wave, params.priceFactor, params.classId),
 		priceWave = params.wave,
 		sold = false,
 		locked = false,
@@ -424,6 +439,7 @@ function ShopRules.roll(params: Params): { Types.ShopOffer }
 		avoid[id] = true
 	end
 	local weaponsLeft, exactWeapons = ShopRules.guaranteedWeapons(params.wave)
+	weaponsLeft = math.max(weaponsLeft, CharacterRules.nativeOverride(params.classId, "minimum_weapons_in_shop", 0))
 	for _, offer in params.keep or {} do
 		table.insert(offers, offer)
 		taken[offer.itemId] = true

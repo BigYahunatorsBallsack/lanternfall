@@ -286,6 +286,9 @@ Classes.Pacifist.description =
 Classes.Artificer.nativeCodeReady = true
 Classes.Artificer.description =
 	"+175 % Explosion Damage\n+4 % Explosion Size for every 1 Elemental Damage you have\n+100 % Damage with Tools\n-100 % Damage\nArmor modifications are reduced by 50%"
+Classes.ArmsDealer.nativeCodeReady = true
+Classes.ArmsDealer.description =
+	"-95 % Weapons Price\n+30 Harvesting\nDamage modifications are increased by 33%\nYou start with 1 Dangerous Bunny\nShops always sell at least one weapon\nAll of your weapons are destroyed when entering a shop"
 -- Original art is delivered independently; ready code never bypasses the approved-sprite requirement.
 for id, class in Classes do
 	if not class.nativeCodeReady then

@@ -92,7 +92,8 @@ local function sellPrice(player: Player, weaponId: string, tier: number, wave: n
 		tier,
 		wave,
 		StatService.getStat(player, "sellValue") + native,
-		priceFactor(player)
+		priceFactor(player),
+		RunDirector.getParticipantClassId(player)
 	)
 end
 
@@ -138,7 +139,7 @@ local function refresh(player: Player, state: State)
 	for index = #state.offers, 1, -1 do
 		local offer = state.offers[index]
 		if not offer.sold then
-			offer.price = ShopRules.offerPrice(offer, factor)
+			offer.price = ShopRules.offerPrice(offer, factor, RunDirector.getParticipantClassId(player))
 			if offer.kind == "Weapon" then
 				local copies = 0
 				for _, weapon in weapons do
@@ -255,6 +256,11 @@ local function openShop()
 			state.rerolls = 0
 			state.buys = 0
 			state.freeRerolls = math.max(0, math.floor(StatService.getStat(player, "freeRerolls")))
+			if CharacterRules.nativeOverride(RunDirector.getParticipantClassId(player), "destroy_weapons", 0) > 0 then
+				for _, weapon in WeaponService.getWeapons(player) do
+					WeaponService.removeWeapon(player, weapon.uid)
+				end
+			end
 			roll(player, state, state.carried, nil)
 			state.carried = {}
 			ShopService.Opened:Fire(player)
@@ -402,7 +408,9 @@ local function sell(player: Player, uid: number)
 	local weapons = WeaponService.getWeapons(player)
 	for _, weapon in weapons do
 		if weapon.uid == uid then
-			if #weapons <= 1 then
+			local classId = RunDirector.getParticipantClassId(player)
+			local class = classId and Config.Classes[classId]
+			if #weapons <= 1 and not (class and class.nativeStartSelection) then
 				Net.fireClient("Notify", player, "You can't sell your last weapon")
 				return
 			end

@@ -66,7 +66,7 @@ describe("StatMath", function()
 		expect(sheet.armor).toBe(3)
 		expect(StatMath.addGains({}, { luck = 4 }).luck).toBe(4)
 		expect(StatMath.priceFactor(-25)).toBeNear(0.75)
-		expect(StatMath.priceFactor(-150)).toBe(Config.Stats.minPriceFactor)
+		expect(StatMath.priceFactor(-150)).toBe(-0.5) -- the native final price, rather than its factor, is clamped
 		expect(StatMath.enemyFactor(10)).toBeNear(1.1)
 		expect(StatMath.enemyFactor(-200)).toBe(Config.Stats.minEnemyFactor)
 	end)

@@ -2,6 +2,7 @@
 -- Shared native character rule constants and source stat names; read by CharacterService rules and runtime.
 return table.freeze({
 	economy = table.freeze({
+		priceEndlessDivisor = 5, -- stable ItemService.get_value
 		endlessNegativeWalletPercent = -100, -- stable main.gdc negative start-wave effects in endless
 		minimumMaterialFactor = 0.5, -- stable main.gdc MIN_GOLD_CHANCE
 		minimumRecycleShare = 0.01, -- stable ItemService.get_recycling_value
