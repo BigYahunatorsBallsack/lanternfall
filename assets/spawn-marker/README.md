@@ -12,7 +12,7 @@ No Roblox upload or production code changes are included. On main, `src/client/C
 
 ## Final edit prompt
 
-Edit target: the isolated red cross sprite. Reference: the owner's small original screenshot. Keep the silhouette, tilt, red palette and thick black outer outline. Add thin, irregular near-black hand drawn interior ink strokes: a long slightly broken line down the vertical red arm, thin strokes along the horizontal red arm, a small rough intersecting junction near the middle and a few short parallel inner edge marks. Tone down large glossy highlight streaks so the interior reads flat cartoon red with dark sketchy contours. One isolated sprite, square PNG, real alpha transparency with margin. No ground, text, checkerboard, glow, shadow or extra symbols.
+Edit target: the isolated red cross sprite. Reference: the owner's small original screenshot. Keep the silhouette, tilt, red palette and thick black outer outline. Keep only four tiny thin detached black dashes, one per arm, each roughly one seventh of that arm length. Leave a wide clear red gap around the center. No central junction, continuous cross-shaped inner lines or additional edge marks. All four dashes remain separate from each other and the outer contour. Tone down large glossy highlight streaks so the interior reads flat cartoon red with dark sketchy contours. One isolated sprite, square PNG, real alpha transparency with margin. No ground, text, checkerboard, glow, shadow or extra symbols.
 
 ## Validation
 
