@@ -429,6 +429,9 @@ local EVENTS = {
 	PromptGamePassPurchaseFinished = true,
 	-- Paket 22: fired when an instance is parented to this one
 	ChildAdded = true,
+	-- Draggable debug panel
+	InputChanged = true,
+	InputEnded = true,
 }
 
 local function isA(className, target)
