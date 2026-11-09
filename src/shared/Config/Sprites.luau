@@ -127,7 +127,10 @@ local Sprites = {
 
 	-- Looks of enemy sprites that are not in the images themselves.
 	enemy = table.freeze({
-		figureWidth = 2.6, -- width of the figure, times the enemy's radius
+		-- Width of the figure, times the enemy's radius (only the picture; hit circles stay). Measured on the owner's Brotato
+		-- screenshot (08.11.2026): a basic enemy is about as tall as the character and wider, a bruiser about 1.75 times
+		-- as tall. 3.8 gives a Shadeling (radius 1.5) a 5.7-stud figure next to the 5.4-stud character. Was 2.6.
+		figureWidth = 3.8,
 		figureWidths = table.freeze({}) :: { [string]: number }, -- other widths by enemy id
 		-- One step cycle: studs walked, hop (share of the radius), sway and lean (radians).
 		gait = table.freeze({ stride = 7.5, bob = 0.04, roll = 0.05, lean = 0.065 }), -- was stride 6, bob 0.1, roll 0.1
@@ -159,7 +162,8 @@ local Sprites = {
 	enemyImages = Images.enemies,
 
 	-- Fruit and crates (PickupRenderer): figure heights in studs.
-	pickups = fitAll(Images.pickups, { default = 2.6, Fruit = 2.2, Crate = 3, LegendaryCrate = 3.6 }),
+	-- Crates nearly as tall as the character like in Brotato (owner, 08.11.2026; were 3 and 3.6).
+	pickups = fitAll(Images.pickups, { default = 2.6, Fruit = 2.2, Crate = 4.6, LegendaryCrate = 5.2 }),
 
 	-- Hub lobby props (LobbyArtService).
 	lobby = fitAll(Images.lobby, { default = 10, Arch = 20, Beacon = 14, Lamp = 10, CornerRuin = 12 }),
@@ -174,7 +178,7 @@ local Sprites = {
 	-- Cosmetic lanterns float beside the character (CosmeticService).
 	lantern = table.freeze({ studs = 2.2 }),
 	-- Elite chests.
-	chest = table.freeze({ art = fit(Images.world.Chest, 3.2) }),
+	chest = table.freeze({ art = fit(Images.world.Chest, 5) }), -- was 3.2 (owner, 08.11.2026)
 	-- Sentries and companions (StructureRenderer): one picture per kind, figure heights in studs, some float.
 	structures = fitAll(Images.structures, {
 		default = 4.5,
@@ -203,9 +207,11 @@ local Sprites = {
 		turn = 180, -- degrees either way
 		sizeJitter = 0.12, -- share either way
 		tiers = table.freeze({
-			{ minValue = 0, size = 1.6 },
-			{ minValue = 4, size = 2 },
-			{ minValue = 20, size = 2.5 },
+			-- Picture side in studs; the shard fills about 0.6 of it. Owner's Brotato screenshot (08.11.2026): a shard is
+			-- about a third of the character's height, so the basic one shows about 1.9 studs. Were 1.6, 2 and 2.5.
+			{ minValue = 0, size = 3.2 },
+			{ minValue = 4, size = 3.8 },
+			{ minValue = 20, size = 4.6 },
 		}),
 	}),
 	-- Bolts and shots: picture size against the former halo.
