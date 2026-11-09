@@ -48,6 +48,7 @@ type Drawn = {
 	flashUntil: number, -- 0 when not flashing
 	seenFrame: number, -- 0 until it was drawn once
 	revealIn: number, -- frames until its pictures show (a new enemy stays hidden for its first frames)
+	revealAt: number, -- os.clock() before which its pictures stay hidden, too
 	seed: number, -- spreads idle motions of neighbouring ids
 	phase: number, -- step cycle in radians
 	move: number, -- 0 standing to 1 walking at its own speed, smoothed
@@ -72,8 +73,10 @@ local EMBER_HEIGHT = 1.6 -- times the enemy radius above the floor
 local STATS_WINDOW_SECONDS = 1
 -- A pooled model is never taken out of the workspace and its billboards are never switched off: Roblox then drew its
 -- picture for a few frames where it had last died (usually next to the player). Released models only hide their
--- pictures (SpriteModels.hide), and a new enemy's pictures show only after it stood at its spawn point this many frames.
-local REVEAL_FRAMES = 2
+-- pictures (SpriteModels.hide), and a new enemy's pictures show only after it stood at its spawn point this many frames
+-- and this long. Two frames alone were not enough in busy waves (Owner, 09.11.2026): Roblox then lagged further behind.
+local REVEAL_FRAMES = 3
+local REVEAL_SECONDS = 0.15
 
 local EnemyRenderer = {}
 
@@ -129,6 +132,7 @@ local function acquire(id: number, typeId: number, hp: number): Drawn
 		flashUntil = 0,
 		seenFrame = 0,
 		revealIn = REVEAL_FRAMES,
+		revealAt = os.clock() + REVEAL_SECONDS,
 		seed = (id * GOLDEN_RATIO) % 1 * 2 * math.pi,
 		phase = (id * GOLDEN_RATIO) % 1 * 2 * math.pi,
 		move = 0,
@@ -348,7 +352,7 @@ local function render(dt: number)
 					count
 				)
 				if current.revealIn > 0 then
-					current.revealIn -= 1
+					current.revealIn = math.max(current.revealIn - 1, if now < current.revealAt then 1 else 0)
 					if current.revealIn == 0 then
 						Models.show(visual)
 					end
