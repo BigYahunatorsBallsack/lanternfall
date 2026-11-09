@@ -1,16 +1,16 @@
 {
   "date": "2026-11-09",
-  "baseMain": "de6fffceb62353ec9b6e0f8c1980d463b1459c4d",
+  "baseMain": "fd77a50726362925545cfe08e07329fbadda8649",
   "fullSuiteReferenceMain": "26a3fa31d5991902b20ff340367c1012e9bfc2a3",
   "runner": "Lune 0.11.1 Roblox mock; seed1234; one spec per process",
   "main": {
     "specs": 147,
-    "passed": 1245,
+    "passed": 1247,
     "failed": 34
   },
   "branch": {
     "specs": 149,
-    "passed": 1255,
+    "passed": 1257,
     "failed": 34
   },
   "newFailures": [],
@@ -152,7 +152,7 @@
       "test": "smoke > takes debug damage with hit protection and heals"
     }
   ],
-  "method": "Full isolated main and branch suites; after main de6fffc UI integration, re-ran SelectionHover, UiReference, Smoke and FirstNightHub on both, plus both final Arms Dealer specs.",
+  "method": "Full isolated main and branch suites; after main de6fffc UI integration, re-ran SelectionHover, UiReference, Smoke and FirstNightHub on both, plus both final Arms Dealer specs. Integrated main fd77a50 and re-ran MaterialLook, SelectionHover, UiReference, Smoke, FirstNightHub, EnemySpawnPlacement25, WorldSprites, HeldWeapons, ItemSprites and UiShop on both; both Arms Dealer specs rechecked.",
   "codePreparedCharacters": [
     "Crazy",
     "Brawler",

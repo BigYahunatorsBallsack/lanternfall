@@ -8,7 +8,7 @@ Arms Dealer ist als achtes Codepaket vorbereitet: Pistol, Dangerous Bunny, +30 H
 
 Seine Waffen werden einmal beim Shop-Eintritt vor dem Rollen zerstört, ohne Geld/Erfolgsfortschritt. Käufe/Rerolls/Sync zerstören nicht; Wellenstart und Retry behalten gekaufte Waffen. Mindest-Waffenauswahl berücksichtigt normale Garantien und gesperrte Waffenofferten. -95 % Weapons Price wirkt auf den Grundwert vor Wellenaufschlägen; Item Prices danach. Endlos-Preisinflation und unmodifizierte Endlos-Recyclingbasis ergänzt, Endpreis erst ganz am Schluss mindestens1. Quellen/Prüfung: arms-dealer-source.json und arms-dealer-validation.json.
 
-Acht Codepakete sind keine vollständige native 1:1-Abnahme. Keine neuen Waffen oder Bilder nötig; echte Charakter-Uploads und Studio/Koop/Handy fehlen weiter. Allgemeiner stabiler Shop-/Ausrüstungskatalog, Pool-/Neuwurfdetails und andere gemeinsame Formel-/Physik-/Darstellungslücken bleiben offen. Noch zehn Waffenfamilien und neun Item-/Petfamilien. Vergleich main de6fffc: 1255 bestanden, dieselben 34 vorhandenen Fehler in 149 Specs; Vollvergleich plus betroffene Main-Nachprüfungen. Arsenal unverändert; nichts hochgeladen/veröffentlicht.
+Acht Codepakete sind keine vollständige native 1:1-Abnahme. Keine neuen Waffen oder Bilder nötig; echte Charakter-Uploads und Studio/Koop/Handy fehlen weiter. Allgemeiner stabiler Shop-/Ausrüstungskatalog, Pool-/Neuwurfdetails und andere gemeinsame Formel-/Physik-/Darstellungslücken bleiben offen. Noch zehn Waffenfamilien und neun Item-/Petfamilien. Vergleich main fd77a50: 1257 bestanden, dieselben 34 vorhandenen Fehler in 149 Specs; Vollvergleich plus betroffene Main-Nachprüfungen. Arsenal unverändert; nichts hochgeladen/veröffentlicht.
 
 ## Aktuell: Artificer (09.11.2026)
 
