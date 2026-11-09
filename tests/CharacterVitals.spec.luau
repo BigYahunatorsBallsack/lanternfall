@@ -1,7 +1,7 @@
 --!strict
 -- Character damage/healing policies exercised by CombatService through the real Vitals implementation.
 local Vitals = require(game:GetService("ServerScriptService").Server.Services.CombatService.Vitals)
-local settings = { minDamagePerHit = 1, hitInvulnerability = 0.4 }
+local settings = { minDamagePerHit = 1, hitInvulnerabilityMin = 0.4, hitInvulnerabilityMax = 0.4 }
 
 describe("Character vital policies", function()
 	it("prevents all ordinary healing without changing maximum HP", function()

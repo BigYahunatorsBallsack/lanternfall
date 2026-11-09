@@ -34,7 +34,8 @@ local PlayerConfig = Config.Player
 
 local SETTINGS: Vitals.Settings = {
 	minDamagePerHit = PlayerConfig.minDamagePerHit,
-	hitInvulnerability = PlayerConfig.hitInvulnerability,
+	hitInvulnerabilityMin = PlayerConfig.hitInvulnerabilityMin,
+	hitInvulnerabilityMax = PlayerConfig.hitInvulnerabilityMax,
 }
 
 local CombatService = {}

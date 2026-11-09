@@ -168,7 +168,7 @@ Spieler steuern nur Bewegung; Angreifen, Zielen und Aufsammeln passiert automati
 | Aufsammelradius | 12 Studs (8 bis zum Playtest nach Paket 24, angepasst an die kleinere Arena) | XP-Orbs, Heilung, Embers; „Pickup Range" in Prozent |
 | Rüstung | 0 | seit B2 prozentual wie Brotato (Tabelle unten) |
 | Regeneration | 0 | seit B2 der Wert „HP Regeneration" |
-| Schutz nach Treffer | 0,4 s | verhindert Sofort-Tod im Pulk (seit B5, Brotato-Spanne 0,2–0,4 s; vorher 0,5 s) |
+| Schutz nach Treffer | 0,2–0,4 s | wie Brotato: je größer der Anteil der Max-HP, den der Treffer kostet, desto länger (linear, Kurve ist Annahme). Verhindert, dass ein klebender Gegner 15-mal pro Sekunde trifft (seit 09.11.2026; B5: fest 0,4 s, davor 0,5 s) |
 | Krit-Chance | pro Waffe (meist 3 %) | seit B5 hat jede Waffe eigene Krit-Chance und eigenen Krit-Faktor (×1,5 bis ×2,5, Abschnitt 6); „Crit Chance" kommt dazu. Vorher 5 % und ×2 für alle |
 
 **Werte wie in Brotato (seit Paket B2, Zahlen in `Config/Stats.luau`, Formeln in `Util/StatMath.luau`):** Jeder Spieler hat im Run 17 Werte. Sie starten bei 0 (außer Max HP) und kommen aus Klasse, Items, Werte-Karten und Team-Level zusammen. Es gibt keine Obergrenze außer bei Ausweichen (60 %) und Krit-Chance (100 %); Items stapeln unbegrenzt (Owner-Entscheidung „Unbegrenzt wie Brotato"). Negative Werte sind möglich und schaden.
@@ -427,7 +427,7 @@ Allgemein: Krit-Chance pro Treffer = Krit der Waffe + Crit Chance (bis 100 %), K
 | Durchschlag | Jeder weitere durchschlagene Gegner bekommt 50 % weniger als der vorige (Brotato), außer die Waffe hat einen eigenen Abzug (Boomerang Axe 0 %). Piercing gibt mehr Durchschläge, Piercing Damage gibt vom Abzug zurück (nie über vollen Schaden). |
 | Abprall | Ein Geschoss mit Bounce fliegt vom getroffenen Gegner zu einem zufälligen anderen in 25 Studs (Brotato: unbegrenzt; Annahme), jeder Abprall 50 % weniger, ohne Rückstoß. Abprallen kommt vor Durchschlagen. Chain Lightning ist ein Abpraller ohne Abzug: Bounce gibt ihr Sprünge. |
 | Angriffstempo | höchstens 12 Angriffe pro Sekunde (kürzester Cooldown 1/12 s). |
-| Schutz nach Treffer | 0,4 s (Abschnitt 4). |
+| Schutz nach Treffer | 0,2–0,4 s je nach Schaden (Abschnitt 4). |
 
 **Waffenklassen (seit B5, Brotatos „Sets", `Config/WeaponClasses.luau`, `Util/WeaponClasses.luau`):** Jede Waffe gehört zu 1–2 Klassen. Wer 2–6 Waffen einer Klasse trägt (Kopien zählen mit), bekommt den Bonus dieser Anzahl (die Stufen ersetzen sich, sie addieren sich nicht); mehr als 6 zählen wie 6. Die Boni kommen zu den dauerhaften Werten (Abschnitt 4) und ändern sich sofort, wenn man eine Waffe kauft, verkauft oder verschmilzt. Zahlen von Brotato (Max HP mal 10), Namen eigene. Brotatos Tool-Klasse heißt seit B12 Artisan (+1 bis +5 Engineering); Legendary heißt seit B7 Dread. Der Shop bevorzugt mit 15 % Waffen, die eine Klasse mit einer getragenen Waffe teilen (seit B3, jetzt nach Waffenklassen statt Melee/Ranged/Elemental).
 
@@ -1128,7 +1128,7 @@ tests/               Unit-Tests für reine Module (Runner in tools/luau-test-run
 - `EnemySim.getPlayerPosition(player)` – wo der letzte Schritt einen lebenden Teilnehmer gesehen hat, mit demselben Vorlauf wie bei Kontakten; Waffen zielen von dort.
 - Signal `EnemySim.Stepped(dt, now)` – direkt nach jedem Schritt, noch innerhalb der gemessenen Schrittzeit; hier laufen die Waffen (seit Paket 5).
 - Signal `EnemySim.EnemyKilled(info)` mit Typ, Position, XP und Killer – XP-Orbs (Paket 6), Truhen (Paket 9), Statistik.
-- Signal `EnemySim.Contact(player, damage)` – Spieler-HP mit 0,5 s Schutz nach Treffer (seit Paket 4 über CombatService).
+- Signal `EnemySim.Contact(player, damage)` – Spieler-HP mit 0,2–0,4 s Schutz nach Treffer (seit Paket 4 über CombatService).
 - Signal `EnemySim.ShotHit(player, damage)` – ein Gegner-Geschoss traf (seit Paket 9, auch über CombatService).
 - **Gegner-Geschosse** (seit Paket 9): `World` meldet pro Schritt, welcher Spitter schießt (Abklingzeit als eigene Spalte); `EnemySim/Volleys.luau` (rein, mit Unit-Tests) fliegt die Kugeln gegen die Spielerpositionen mit Vorlauf, Ruinen und Arenarand. `EnemyShots` geht nach jedem Snapshot mit Änderungen an die Teilnehmer (abgefeuert: Ort, Richtung, Tempo, Reichweite, Serverzeit; beendet: ID und Strecke); `EnemyShotRenderer` zeichnet gepoolte Kugeln in Serverzeit.
 - **Truhen** (seit Paket 9): `LootService` legt bei `EnemyKilled` einer Elite eine Truhe ab, öffnet sie nach jedem Schritt, wenn ein lebender Spieler nah genug ist, und vergibt über `UpgradeService.grantChest(player)` (Evolution, sonst Upgrade, sonst Heilung; Auswahl rein in `UpgradePool.chestUpgrade`). `Chests` (Liste am Boden) und `ChestOpened` (wer was bekam) gehen an die Teilnehmer; Seit Paket 10 lässt ein Boss statt einer Truhe eine legendäre Kiste fallen (`KillInfo.boss`). `ChestController` zeichnet Truhen, Pfeile und das Belohnungs-Banner.

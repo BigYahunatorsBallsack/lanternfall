@@ -50,7 +50,7 @@ Alle Zahlen stehen in `src/shared/Config/`. Datei in VS Code öffnen, Zahl ände
 | Insgesamt zu schwer/zu leicht | `Run.luau` → `spawn.baseRate` | 1.5 | kleiner = weniger Gegner |
 | Wird später zu schnell zu voll | `Run.luau` → `spawn.ratePerMinute` | 0.55 | kleiner = langsamer steigend |
 | Gegner halten später zu viel aus | `Run.luau` → `spawn.hpPerMinute` | 0.15 | kleiner = weniger HP |
-| Man stirbt zu schnell im Pulk | `Player.luau` → `hitInvulnerability` | 0.5 | größer = mehr Schutz nach Treffer |
+| Man stirbt zu schnell im Pulk | `Player.luau` → `hitInvulnerabilityMin` / `hitInvulnerabilityMax` | 0.2 / 0.4 | größer = mehr Schutz nach Treffer (Brotato: 0,2–0,4 s je nach Schaden) |
 | Level-ups zu selten | `Run.luau` → `xpCurve.coefficient` | 2.4 | kleiner = schneller Level |
 | XP einsammeln nervt | `Player.luau` → `pickupRadius` | 8 | größer = weiter einsammeln |
 | Klingen zu kurz | `Weapons.luau` → Orbit Blades `radius` | 7 | größer = längere Klingen |
