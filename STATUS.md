@@ -4,6 +4,8 @@ Kurzer Projektstand für neue Sessions. **Zuerst lesen**, dann aus `DESIGN.md` n
 
 ## Stand (31.10.2026)
 
+- **Größen wie Brotato (08.11.2026, Owner-Screenshot):** Am Brotato-Bild gemessen, relativ zur Spielfigur: normale Gegner etwa so hoch wie die Figur und breiter (`Sprites.enemy.figureWidth` 2,6 → 3,8, Trefferkreise unverändert), Shards etwa ein Drittel der Figurhöhe (`Sprites.material.tiers` 1,6/2/2,5 → 3,2/3,8/4,6), Kisten am Boden 3/3,6 → 4,6/5,2, Elite-Truhe 3,2 → 5. Kamera näher (`Camera.distance` 115 → 90: Figur ≈ 7,7 % der Bildhöhe wie im Bild statt ≈ 6 %). Level-up-/Kisten-Symbole oben rechts 38 → 48 px bei 720 px Höhe, skaliert nur noch mit der Bildhöhe (Brotato ≈ 6,5 %). Der Debug-Knopf liegt im Testmodus über dem Level-up-Symbol.
+
 - **Fix 06.11.2026 (Owner-Wunsch):** Startgeld 30 → 15 Shards (`Shop.startShards`). Neu gespawnte Gegner blitzten einen Frame lang an der falschen Stelle auf (gepooltes Modell stand noch am letzten Todesort bzw. beim Ursprung, das BillboardGui-Bild wurde dort gezeichnet, bevor `BulkMoveTo` es verschob). `EnemyRenderer` setzt die Teile jetzt erst an den Spawnpunkt und hängt das Modell danach in den Workspace (`showAtSpawn`).
 
 - Fix nach Owner-Test der .rbxl: `EqualizerSoundEffect.MidRange` gibt es in Roblox nicht; der Fehler brach jeden Button-Klick ab (kein Klick, kein Sound). Entfernt, Klick-Sound läuft jetzt in `pcall`. Testpaket (.rbxl via `rojo build`) liegt in Project Files `lanternfall-testpaket/`.
@@ -753,7 +755,7 @@ Branch `wp-25-2d-presentation`. **Owner-Entscheidungen dieses Pakets:** Das Spie
 - Owner wollte den Boden wie auf seinem Referenzbild. Eigene Zeichnung: `tools/art2d/draw_world.py` erzeugt die nahtlose Bodenkachel `assets/world2d/final/floors/Arena.png` (staubiges Mauve-Braun 120/99/96 mit Gruppen aus Kieseln und gelben Krumen).
 - Boden-Grundfarbe in MapService (sichtbar, solange das Bild lädt) und der Rand außerhalb der Arena (`Config.Map.decor.outskirts.color`, jetzt fast schwarz) passen zum Referenzbild.
 - Ein neu gezeichneter Baum wurde vom Owner abgelehnt und verworfen; der bisherige Baum bleibt.
-- **Bodenbild noch nicht hochgeladen.** Upload-Datei: Projektordner `tree-redesign/upload/ArenaFloor.png`. ID danach in `Config/SpriteImages.luau` → `floors.Arena` eintragen. `import_sprites.py apply` hier nicht nutzen: im Container weichen die Bild-Hashes aller Bilder von `uploaded.json` ab (andere Pillow-Version).
+- Nachtrag: Owner hat das Bodenbild hochgeladen, ID `rbxassetid://88728106442957` steht in `Config/SpriteImages.luau` → `floors.Arena`. Früher: Upload-Datei: Projektordner `tree-redesign/upload/ArenaFloor.png`. ID danach in `Config/SpriteImages.luau` → `floors.Arena` eintragen. `import_sprites.py apply` hier nicht nutzen: im Container weichen die Bild-Hashes aller Bilder von `uploaded.json` ab (andere Pillow-Version).
 
 ## Pacifist-Paket (Strang B, 09.11.2026)
 
@@ -761,3 +763,4 @@ Branch `wp-25-2d-presentation`. **Owner-Entscheidungen dieses Pakets:** Das Spie
 - Freischaltung nach 10.000 aufgesammelten Materialobjekten: Wertverdopplung und Koop-Währungsrotation verändern den persönlichen Sammlerzähler nicht. Schema v10 ergänzt nativeCounts.materialsCollected mit Migration v9 -> v10; alte Daten bleiben erhalten, historisch nicht erfasste Pickups beginnen bei 0. Fortschritt und Flag bleiben über Run/Retry/Profil-Neuladen erhalten. Keine Live-Daten verändert.
 - Originales Shirt-Bild lokal vorbereitet, ohne Upload. 125 öffentliche Items und ein bis zum echten Bild-Upload für Zufallspools gesperrtes Startitem; elf Waffen- und neun Item-/Petfamilien fehlen noch. Charakterauswahl bleibt ohne echtes Pacifist-Bild gesperrt. Keine zusätzliche native Studio-Abnahme behauptet.
 - Vergleich mit main 607524e: 143 Specs, 1230 bestanden, dieselben 34 vorhandenen Fehler, keine neuen Fehlerkennungen. Vollvergleich plus gezielte Nachprüfung der parallel gemergten Menü-/Bodenänderungen; Methodik und Grenzen in docs/characters/pacifist-validation.json. StyLua, Selene (gecachte Roblox-API), Generatorchecks und Rojo-Build bestanden. Studio/Koop/Handy offen.
+
