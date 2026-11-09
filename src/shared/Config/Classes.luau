@@ -290,6 +290,8 @@ Classes.ArmsDealer.nativeCodeReady = true
 Classes.ArmsDealer.description =
 	"-95 % Weapons Price\n+30 Harvesting\nDamage modifications are increased by 33%\nYou start with 1 Dangerous Bunny\nShops always sell at least one weapon\nAll of your weapons are destroyed when entering a shop"
 -- Original art is delivered independently; ready code never bypasses the approved-sprite requirement.
+Classes.Wildling.description =
+	"+30 % Life Steal with Primitive weapons\nYou start with 1 Stick\nYou can’t equip weapons above tier II"
 for id, class in Classes do
 	if not class.nativeCodeReady then
 		continue

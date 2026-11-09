@@ -13,8 +13,17 @@ export type Challenge = {
 	| { kind: "MaterialsCollected", threshold: number }
 	| { kind: "ExplosionKills", threshold: number }
 	| { kind: "RunRecycledWeapons", threshold: number }
+	| { kind: "EnemiesKilled", threshold: number }
 )
 local rules: { [string]: Challenge } = {
+	Wildling = {
+		kind = "EnemiesKilled",
+		challengeId = "chal_survivor_4",
+		threshold = 10000,
+		source = "res://challenges/survivor_4_data.tres",
+		sourceMd5 = "c74b21a1bf0a5e008aeb7a7f9f21da6c",
+		requirement = "Kill 10000 enemies",
+	},
 	ArmsDealer = {
 		kind = "RunRecycledWeapons",
 		challengeId = "chal_recycling",

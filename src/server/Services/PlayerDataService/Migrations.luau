@@ -121,6 +121,10 @@ local steps: { [number]: (data: any) -> () } = {
 			data.nativeCounts = { materialsCollected = 0 }
 		end
 	end,
+	-- v10 -> v11: legacy team run kills cannot reconstruct personally credited lifetime kills.
+	[10] = function(data)
+		data.nativeCounts.enemiesKilled = 0
+	end,
 }
 
 Migrations.steps = steps

@@ -383,6 +383,26 @@
         86,
         89
       ]
+    },
+    {
+      "id": "Flail",
+      "name": "Flail",
+      "source": "res://weapons/melee/flail/flail_icon.png",
+      "textureSource": "res://.import/flail_icon.png-8a383bc2cdfbea94a289c4e9c81bcb3d.stex",
+      "textureMd5": "657275587c4e174a05310be8f2135966",
+      "output": "assets/weapons/character-starts/Flail.png",
+      "pngSha256": "2364c40f0916b4db39461856d7812e725ab4708ca2e901013a183b25b5a9a7cf",
+      "rgbaSha256": "dd0ea10c4f20cad22818e07c4d5eb42832d8d81829f2d811c7660227cc253f46",
+      "size": [
+        96,
+        96
+      ],
+      "alphaBounds": [
+        5,
+        8,
+        90,
+        92
+      ]
     }
   ],
   "projectiles": [

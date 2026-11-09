@@ -1,5 +1,5 @@
 --!strict
--- Default player data, schema v10 (DESIGN.md section 16). Used by PlayerDataService (ProfileStore template) and
+-- Default player data, schema v11 (DESIGN.md section 16). Used by PlayerDataService (ProfileStore template) and
 -- Migrations. Schema change = SCHEMA_VERSION + 1 and a step in Migrations; never drop a field without a step.
 
 -- One character's record (Paket 12; since Paket 13 it opens the danger levels per character, Util/ProgressRules).
@@ -31,7 +31,7 @@ export type Data = {
 		embersBought: number, -- v5: Embers from Robux packs (not in embersEarned)
 		purchases: number, -- v5: developer products granted
 	},
-	nativeCounts: { materialsCollected: number }, -- v10: physical pickups, independent of material values
+	nativeCounts: { materialsCollected: number, enemiesKilled: number }, -- v10 pickups; v11 credited enemy kills
 	achievements: { [string]: boolean }, -- v3: Config.Progress achievement ids that are done
 	characterStats: { [string]: CharacterStats }, -- v2, by Config.Classes id
 	-- v6 (Paket 18): the UTC day of the list (Util/QuestRules.day as text, "" = none yet), the day's quests
@@ -56,7 +56,7 @@ local Config = require(game:GetService("ReplicatedStorage").Shared.Config)
 
 local ProfileTemplate = {}
 
-ProfileTemplate.SCHEMA_VERSION = 10
+ProfileTemplate.SCHEMA_VERSION = 11
 
 -- Default settings (Config.Settings.defaults) as a new table (v4, graphics since v8).
 function ProfileTemplate.newSettings(): {
@@ -99,7 +99,7 @@ function ProfileTemplate.new(): Data
 			embersBought = 0,
 			purchases = 0,
 		},
-		nativeCounts = { materialsCollected = 0 },
+		nativeCounts = { materialsCollected = 0, enemiesKilled = 0 },
 		achievements = {},
 		characterStats = {},
 		quests = { day = "", list = {}, swaps = 0 },

@@ -16,7 +16,7 @@ def module(name, file):
     return result
 source = module('character_source', 'tools/character-source.py')
 catalog = module('character_catalog', 'tools/build-character-catalog.py')
-FAMILIES = ['anchor', 'mace', 'meat_tenderizer', 'machinegun', 'pan_flute', 'combat_shotgun', 'grenade_launcher', 'whip', 'spoon', 'cestus', 'sickle', 'trident', 'lute', 'blowgun', 'blunderbuss', 'javelin', 'tranq_rifle', 'harpoon_gun', 'sticky_grenade']
+FAMILIES = ['anchor', 'mace', 'meat_tenderizer', 'machinegun', 'pan_flute', 'combat_shotgun', 'grenade_launcher', 'whip', 'spoon', 'cestus', 'sickle', 'trident', 'lute', 'blowgun', 'blunderbuss', 'javelin', 'tranq_rifle', 'harpoon_gun', 'sticky_grenade', 'flail']
 FACTS = ROOT / 'docs/characters/weapon-source.json'
 OUTPUT = ROOT / 'src/shared/Config/CharacterWeaponData.luau'
 
@@ -29,6 +29,8 @@ def refresh():
             if f'/{family}/' not in path or not path.endswith('_data.tres'):
                 continue
             data = pck.resource(path)['properties']
+            if 'weapon_id' not in data:
+                continue
             stats_path = data['stats']['resource']
             stats = pck.resource(stats_path)['properties']
             effects = []
@@ -46,6 +48,9 @@ def refresh():
     whip = next(row for row in rows if row['id'] == 'Whip')
     scene = 'res://weapons/melee/whip/whip.tscn'
     whip['geometry'] = {'source': scene, 'sourceMd5': pck.entries[scene]['md5'], 'hitOpenSeconds': 0.24, 'hitCloseSeconds': 0.32, 'attackLockSeconds': 0.48, 'hitStartOffset': 3.4, 'halfWidth': 1.6, 'spritePositionPoints': [13.885, 46, 46, 3.985], 'spriteRotationDegrees': [-16.4, 0, 0, 15], 'hitboxOffsetPoints': -12, 'note': 'Lash animation method keys open/close at 0.24/0.32, length 0.48; Sprite x46 plus Hitbox x-12, Rectangle extents.y16, world scale0.1. Whip.init_stats replaces Hitbox y scale with1.'}
+    flail = next(row for row in rows if row['id'] == 'Flail')
+    scene = 'res://weapons/melee/flail/flail.tscn'
+    flail['geometry'] = {**whip['geometry'], 'source': scene, 'sourceMd5': pck.entries[scene]['md5'], 'hitLengthPoints': 273.128, 'note': 'Same lash animation keys as Whip. Collision center136.564/extents.x136.564; init_stats sets x scale to range/273.128 and y scale1. Tip crit uses native closest aim-shape position within40 points.'}
     harpoon = next(row for row in rows if row['id'] == 'HarpoonGun')
     harpoon_scene = 'res://projectiles/bullet_harpoon/bullet_harpoon.tscn'
     harpoon['geometry'] = {'source': harpoon_scene, 'sourceMd5': pck.entries[harpoon_scene]['md5'], 'slowRadiusPoints': 63.0714, 'slowOffsetPoints': [1,4], 'slowAmountPoints': -400, 'note': 'SlowHitbox x-24/y4 plus Circle collision x25, fixed native additive -400 speed, each target once per projectile.'}
@@ -118,6 +123,9 @@ def generate():
                 elif effect['key'] == 'crit_on_hitting_burning_target':
                     value['critBurning'] = 1
                     lines.append('Always crits when hitting burning targets')
+                elif effect['key'] == 'crit_on_whip_tip':
+                    value['tipCritRadius'] = effect['value'] * 0.1
+                    lines.append('Enemies hit by the tip of the flail are always critically hit')
                 elif effect.get('damage_multiplier') is not None:
                     assert effect['stat_name'] == 'knockback'
                     value.update(baseDamageKnockbackThreshold=effect['value'], baseDamageKnockbackMultiplier=effect['damage_multiplier'])
@@ -131,7 +139,7 @@ def generate():
                     value.update(slow=effect['value'] / 100, slowSeconds=effect['duration'])
                 else:
                     raise ValueError(f'Unhandled effect {ident}: {effect}')
-            if ident == 'Whip':
+            if ident in ['Whip', 'Flail']:
                 geometry = row['geometry']
                 value.update(hitOpenSeconds=geometry['hitOpenSeconds'], hitCloseSeconds=geometry['hitCloseSeconds'], attackLockSeconds=geometry['attackLockSeconds'], hitStartOffset=geometry['hitStartOffset'], width=geometry['halfWidth'])
                 for prefix, values in [('whipPosition', geometry['spritePositionPoints']), ('whipRotation', geometry['spriteRotationDegrees'])]:

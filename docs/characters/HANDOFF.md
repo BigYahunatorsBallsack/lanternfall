@@ -2,6 +2,14 @@
 
 Implementiere alle noch fehlenden Brotato-Charaktere in Lanternfall vollständig. Ziel: stabile PC-Version 1.2.0.1 mit allen DLCs, insgesamt 74 Charaktere. Der Owner erwartet funktionierende Charaktere einschließlich ihrer benötigten Ausrüstung und Mechaniken, nicht nur Konfigurationsdatensätze. Sprich Deutsch mit ihm; Code, Kommentare und Spieltexte bleiben Englisch.
 
+## Laufendes Fünferpaket (09.11.2026, noch nicht gemergt)
+
+Owner-Vorgabe: ab jetzt immer fünf fertig implementierte und geprüfte Charakterpakete vor einem Merge; Waffen oder Teilpakete zählen nicht. Branch `wp-b10-five-characters` beginnt von GitHub-main cba2334. Geplante Gruppe: Wildling, Cryptid, Renegade, Diver, Technomage. Keine Uploads, Veröffentlichung oder Studio-Änderungen.
+
+Erster lokaler Baustein: Wildlings zwölf Starts plus Stick, Primitive-Life-Steal und Tier-II-Limit geprüft. Flail mit vier Originaltiers, festem Trefferfenster und Spitzen-Krit implementiert; Originalicon lokal vorbereitet. Schema v11 ergänzt persönliche lebenslange Gegnerkills und migriert vorhandene Materialzähler unverändert. Trees, Cleanup und fremde Kills zählen nicht. Nicht aus alten Team-Run-Kills rekonstruieren.
+
+**Wildling ist weiterhin kein fertiges Paket und hat kein nativeCodeReady-Flag:** Flails Originalfreischaltung braucht 200 Whip-Kills im Dschungel (zone2); die native Gebietsanbindung fehlt. Native Schlagbilder/Animation und reale Uploads/Studio-Abnahme bleiben ebenfalls offen. Auch die anderen vier Kandidaten bleiben unvollständig. Zahl der zuvor gelieferten Codepakete unverändert acht. Nicht bloß freigeben, um die Fünferzahl zu erreichen. Quelle: wildling-source.json, Flail-Tiers in weapon-source.json. Auf diesem Branch sind 82 Waffen konfiguriert, davon20 wegen echter Originalbilder gesperrt.
+
 ## Aktuell: Arms Dealer (09.11.2026)
 
 Arms Dealer ist als achtes Codepaket vorbereitet: Pistol, Dangerous Bunny, +30 Harvesting, +33-%-Damage-Modifikationen, Originaltexte und Freischaltung durch zwölf echte Waffen-Recyclings eines Runs. Persönlicher Zähler wird beim neuen Run geleert und für Retry gesichert; Merges, ungültige Verkäufe und Zerstörung zählen nicht. Native Charakterpakete können die letzte Waffe recyceln.
@@ -84,3 +92,5 @@ Owner: vorerst nur Code und lokale Bildvorbereitung. Keine Uploads/Veröffentlic
 - Tests mit Lune: C:/Users/jonas/.rokit/tool-storage/lune-org/lune/0.11.1/lune.exe run tools/luau-test-runner/lune-runner.luau tests/NAME.spec.luau. Je Datei ein Prozess. StyLua, Selene und Rojo passend ausführen; bei API-Downloadfehlern vorhandenen Selene-Cache nutzen.
 - Native Studio-/Zwei-Client-/Handy-Abnahme ist nicht erfolgt. Produktionsmodul-Tests im Roblox-Mock als solche bezeichnen.
 - Berichte kurz, welche Charaktere jetzt tatsächlich vollständig angebunden sind und welche Abhängigkeiten verbleiben. Schließe den Auftrag erst ab, wenn alle 74 Regeln samt Ausrüstung funktionieren. PR nach Projektvorlage; der Owner hat zukünftige Merges ausdrücklich ohne erneute Freigabe autorisiert.
+
+Vollvergleich des lokalen ersten Fünfer-Bausteins gegen GitHub-main cba2334: 1262 bestanden, dieselben 37 vorhandenen Fehler, 151 Specs; keine neuen Fehlernamen oder Prozessabbrüche. StyLua/Selene/Quellgeneratoren/Rojo geprüft. Nachweis: docs/characters/five-character-validation.json. Kein Merge.

@@ -76,7 +76,7 @@ Jeder Strang ändert nur **seine** Zeile (Regeln: `docs/PARALLEL.md`).
 | Strang | KI | Aktuelles Paket | Branch / PR | Stand | Danach |
 | --- | --- | --- | --- | --- | --- |
 | A – Engine und Ablauf | Claude | Paket 24 Launch-Paket (Medium) | `wp-24-launch` | fertig, selbst gemerged | Plan bis zum Launch abgeschlossen; als Nächstes IDs des Owners eintragen (Live-Experience, Badges, Musik), dann Live-Ops |
-| B - Inhalte und Spieler-Regeln | ChatGPT | B10: alle stabilen Brotato-Charaktere | `wp-b10-arms-dealer` | Crazy/Brawler/Ghost/Bull/Doctor/Pacifist/Artificer/ArmsDealer code-vorbereitet; echte Uploads offen | Restliche Ausruestung, native Alt-IDs und weitere Charakter-/Shop-/DLC-Regeln |
+| B - Inhalte und Spieler-Regeln | ChatGPT | B10: Fünferpaket Charaktere | `wp-b10-five-characters` | Acht gelieferte Codepakete; Wildling-Regeln/Flail lokal geprüft, noch unvollständig | Fünf vollständige Pakete vor Merge; Flail-Dschungelfreischaltung, vier weitere Kandidaten, echte Uploads |
 
 ## Feste Entscheidungen des Owners
 
@@ -800,3 +800,7 @@ Branch `wp-25-2d-presentation`. **Owner-Entscheidungen dieses Pakets:** Das Spie
 - Owner wollte die Unverwundbarkeit nach Treffern entfernen; Brotato hat aber 0,2–0,4 s (Wiki: „Bloody Hand"/„Sick" geben ausdrücklich *keine* Unverwundbarkeitszeit, normale Treffer also schon). Ganz ohne würde ein klebender Gegner 15-mal pro Sekunde treffen. Owner-Entscheidung: wie Brotato.
 - Umsetzung: `Config/Player.luau` `hitInvulnerabilityMin = 0.2` / `hitInvulnerabilityMax = 0.4`, `Vitals.protectionAfterHit` linear nach Anteil der Max-HP. Offen: die genaue Kurve steht nicht im Wiki (Annahme linear).
 - Nächstes Paket: unverändert laut Plan.
+
+- **B10 Fünferpaket, lokaler Baustein (09.11.2026):** Owner verlangt fünf fertige Charakterpakete pro Merge. Branch `wp-b10-five-characters` von GitHub-main cba2334. Wildlings zwölf Starts/Extra-Stick, Primitive-Life-Steal und Tier-II-Grenze sowie Flail-Spitzen-Krit/Trefferfenster geprüft. Schema v11 für persönliche lebenslange Gegnerkills, Migration erhält vorhandene Materialzähler. Wildling bleibt ohne CodeReady: Flail-Dschungelfreischaltung (200 Whip-Kills in zone2) und native Gebietsanbindung fehlen. Gruppe Wildling/Cryptid/Renegade/Diver/Technomage ist unvollständig; keine neue Fertigzählung und kein Merge. Flail-Originalbild lokal vorbereitet; kein Upload/Studio/Publish. Arsenal unverändert.
+
+Vollvergleich des lokalen ersten Fünfer-Bausteins gegen GitHub-main cba2334: 1262 bestanden, dieselben 37 vorhandenen Fehler, 151 Specs; keine neuen Fehlernamen oder Prozessabbrüche. StyLua/Selene/Quellgeneratoren/Rojo geprüft. Nachweis: docs/characters/five-character-validation.json. Kein Merge.

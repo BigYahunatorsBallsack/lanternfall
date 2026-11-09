@@ -2100,6 +2100,121 @@ return {
 				},
 			},
 		},
+		Flail = {
+			id = "Flail",
+			displayName = "Flail",
+			description = "",
+			tierDescriptions = {
+				"Enemies hit by the tip of the flail are always critically hit",
+				"Enemies hit by the tip of the flail are always critically hit",
+				"Enemies hit by the tip of the flail are always critically hit",
+				"Enemies hit by the tip of the flail are always critically hit",
+			},
+			brotato = true,
+			available = false,
+			kind = "Melee",
+			classes = {
+				"Knightly",
+				"Primal",
+			},
+			minTier = 1,
+			originalScaling = {
+				{
+					meleeDamage = 1,
+				},
+				{
+					meleeDamage = 1.1,
+				},
+				{
+					meleeDamage = 1.3,
+				},
+				{
+					meleeDamage = 1.5,
+				},
+			},
+			scaling = {
+				meleeDamage = 1,
+			},
+			tierScaling = {
+				{
+					meleeDamage = 1,
+				},
+				{
+					meleeDamage = 1.1,
+				},
+				{
+					meleeDamage = 1.3,
+				},
+				{
+					meleeDamage = 1.5,
+				},
+			},
+			heldStats = {
+				{},
+				{},
+				{},
+				{},
+			},
+			rangeKeys = {
+				"range",
+			},
+			behavior = "Flail",
+			targeting = "Nearest",
+			base = {
+				damage = 11,
+				cooldown = 0.75,
+				nativeCooldownFrames = 45,
+				nativeTiming = 1,
+				range = 20,
+				critChance = 0.05,
+				critDamage = 2.5,
+				knockback = 0,
+				knockbackPiercing = 0,
+				lifeSteal = 0,
+				width = 1.6,
+				sweepDegrees = 120,
+				attackSeconds = 0.48,
+				meleeMode = 0,
+				tipCritRadius = 4,
+				hitOpenSeconds = 0.24,
+				hitCloseSeconds = 0.32,
+				attackLockSeconds = 0.48,
+				hitStartOffset = 3.4,
+				whipPositionBefore = 1.3885,
+				whipPositionOpen = 4.6,
+				whipPositionClose = 4.6,
+				whipPositionAfter = 0.3985,
+				whipRotationBefore = -16.4,
+				whipRotationOpen = 0,
+				whipRotationClose = 0,
+				whipRotationAfter = 15,
+				whipHitboxOffset = -1.2,
+			},
+			tiers = {
+				{},
+				{
+					damage = 0.363636363636364,
+					cooldown = -0.0666666666666667,
+					nativeCooldownFrames = -4,
+					range = 2,
+					critDamage = 0.5,
+				},
+				{
+					damage = 0.454545454545455,
+					cooldown = -0.0666666666666667,
+					nativeCooldownFrames = -4,
+					range = 2,
+					critDamage = 0.5,
+				},
+				{
+					damage = 0.636363636363636,
+					cooldown = -0.0833333333333334,
+					nativeCooldownFrames = -5,
+					range = 2,
+					critDamage = 0.5,
+				},
+			},
+		},
 	},
 	prices = {
 		Anchor = {
@@ -2215,6 +2330,12 @@ return {
 			31,
 			61,
 			122,
+		},
+		Flail = {
+			15,
+			28,
+			54,
+			110,
 		},
 	},
 }

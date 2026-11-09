@@ -1,0 +1,44 @@
+{
+  "version": "1.2.0.1",
+  "steamBuild": 26406319,
+  "resources": [
+    {
+      "source": "res://challenges/survivor_4_data.tres",
+      "sourceMd5": "c74b21a1bf0a5e008aeb7a7f9f21da6c",
+      "properties": {
+        "my_id": "chal_survivor_4",
+        "value": 10000,
+        "description": "CHAL_SURVIVOR_DESC",
+        "additional_args": []
+      }
+    },
+    {
+      "source": "res://items/characters/wildling/wildling_data.tres",
+      "sourceMd5": "8e057c9db45535489ac157edbef55c74",
+      "properties": {
+        "my_id": "character_wildling",
+        "value": 1
+      }
+    },
+    {
+      "source": "res://dlcs/dlc_2/challenges/whip_it_data.tres",
+      "sourceMd5": "beeae0a9c1b06923f6aee36d551c05bc",
+      "properties": {
+        "my_id": "chal_whip_it",
+        "value": 200,
+        "description": "CHAL_WHIP_IT_DESC",
+        "additional_args": []
+      }
+    }
+  ],
+  "runtimeEvidence": {
+    "countedChallenge": "chal_survivor_4 compares persistent enemies_killed to10000; it is not a damage-received challenge.",
+    "flailUnlock": "chal_whip_it requires200 Whip kills in Jungle (zone2); current game has no native zone selection, so this route remains open.",
+    "flailTip": "Closest native aim-shape point within40points of animated hitbox endpoint forces critical; current simulator uses its existing circle shapes."
+  },
+  "limits": [
+    "No native Studio, two-client or mobile validation.",
+    "No original images uploaded; static shared attack feedback remains pending native animation artwork.",
+    "Wildling remains without nativeCodeReady until batch acceptance and remaining dependency audit."
+  ]
+}

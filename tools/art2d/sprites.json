@@ -792,6 +792,11 @@
     "text": "Original Brotato weapon: Sticky Grenade",
     "source": "assets/weapons/character-starts/StickyGrenade.png",
     "trimmed": true
+   },
+   "Flail": {
+    "text": "Original Brotato weapon: Flail",
+    "source": "assets/weapons/character-starts/Flail.png",
+    "trimmed": true
    }
   },
   "raw": true
