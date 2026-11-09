@@ -8,8 +8,9 @@ return table.freeze({
 	maxHp = 10,
 	-- Brotato: 450 units/s. Use the same world scale as weapon ranges (0.1 studs per unit), not Roblox's old 16.
 	moveSpeed = 450 * Stats.range.studsPerPoint,
-	-- studs (XP orbs, healing, embers); 8 until the playtest after Paket 24, now about Brotato's share of the arena
-	-- width (150 of about 2000 px) for the 160-stud arena
+	-- studs (XP orbs, healing, embers); 8 until the playtest after Paket 24, then about Brotato's share of the arena
+	-- width (150 of about 2000 px) for the former 160-stud arena. Open: check against Brotato's own pickup range now
+	-- that the arena has Brotato's size (09.11.2026).
 	pickupRadius = 12,
 	minDamagePerHit = 1,
 	-- seconds of protection after taking a hit, like Brotato: from min (tiny hit) to max (a hit worth all max HP),

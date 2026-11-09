@@ -9,7 +9,8 @@ local EnemyKinds = require(Shared.Util.EnemyKinds)
 
 local Sim = Config.Simulation
 local STEP = 1 / Sim.tickRate
-local HALF = Config.Map.arena.size / 2
+local HALF_X = Config.Map.arena.width / 2
+local HALF_Z = Config.Map.arena.depth / 2
 local Types = Config.Enemies.types
 local W = Config.Weapons
 local OWNER = 1
@@ -30,10 +31,10 @@ local function newWorld()
 		separationPasses = Sim.separationPasses,
 		obstacleSteerMargin = Sim.obstacleSteerMargin,
 		keepDistanceTolerance = Sim.keepDistanceTolerance,
-		minX = -HALF,
-		maxX = HALF,
-		minZ = -HALF,
-		maxZ = HALF,
+		minX = -HALF_X,
+		maxX = HALF_X,
+		minZ = -HALF_Z,
+		maxZ = HALF_Z,
 		obstacles = {},
 	})
 end

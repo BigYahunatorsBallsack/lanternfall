@@ -11,6 +11,7 @@ return table.freeze({
 	"ReviveSelf", -- stand up again
 	"HurtSelf", -- take a hit as if an enemy touched you
 	"HealSelf", -- back to full HP
+	"ToggleInvincible", -- you lose no HP at all (enemies, projectiles, self-damage) until switched off again
 	"WinRun", -- end the run as a victory
 	"SpawnWave", -- spawn a group of enemies around yourself
 	"SpawnElite", -- spawn a Gloom Elite (drops a chest) near yourself

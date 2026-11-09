@@ -54,8 +54,8 @@ local Run = {
 		ringMax = 52,
 		-- Brotato's spawn geometry in its pixels (SpawnRules turns them into studs, 450 px/s = the player's speed):
 		-- groups and enemies keep minPlayerDistance from every player (shrinking by distanceStep per retry, down to
-		-- minDistanceFloor), edge spawns stand edgeDistance in from the arena wall. Lanternfall's arena is a 160-stud
-		-- square; Brotato's Crash Zone is 2048 x 1536 px (204.8 x 153.6 studs).
+		-- minDistanceFloor), edge spawns stand edgeDistance in from the arena wall. The arena is Brotato's zone,
+		-- 2048 x 1536 px (204.8 x 153.6 studs, Config.Map.arena).
 		layout = table.freeze({
 			studsPerPixel = Stats.range.studsPerPoint,
 			minPlayerDistance = 300,

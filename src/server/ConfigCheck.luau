@@ -556,19 +556,23 @@ function ConfigCheck.run(): { string }
 		problem("Admin.skipToBossLeadSeconds must be shorter than the run")
 	end
 
-	for name, area in { arena = Config.Map.arena, lobby = Config.Map.lobby } do
-		if area.spawnRadius * 2 >= area.size then
-			problem(`Map.{name}.spawnRadius does not fit into its size`)
-		end
-	end
 	local arena = Config.Map.arena
-	local reach = math.max(math.abs(arena.center.X), math.abs(arena.center.Z)) + arena.size / 2
+	local lobby = Config.Map.lobby
+	if arena.spawnRadius * 2 >= math.min(arena.width, arena.depth) then
+		problem("Map.arena.spawnRadius does not fit into its width and depth")
+	end
+	if lobby.spawnRadius * 2 >= lobby.size then
+		problem("Map.lobby.spawnRadius does not fit into its size")
+	end
+	local reach = math.max(math.abs(arena.center.X) + arena.width / 2, math.abs(arena.center.Z) + arena.depth / 2)
 	if reach > Snapshot.MAX_COORDINATE then
 		problem(`Map.arena reaches beyond +-{Snapshot.MAX_COORDINATE} studs, which enemy snapshots cannot encode`)
 	end
 	for index, obstacle in arena.obstacles do
-		local half = arena.size / 2
-		if math.abs(obstacle.x) + obstacle.radius > half or math.abs(obstacle.z) + obstacle.radius > half then
+		if
+			math.abs(obstacle.x) + obstacle.radius > arena.width / 2
+			or math.abs(obstacle.z) + obstacle.radius > arena.depth / 2
+		then
 			problem(`Map.arena.obstacles[{index}] does not fit into the arena`)
 		end
 		local fromCenter = math.sqrt(obstacle.x ^ 2 + obstacle.z ^ 2)

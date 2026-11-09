@@ -11,6 +11,7 @@
 -- shop. B11 part 2: a RunDirector checkpoint keeps each participant's HP from the start of the wave; after a "Retry
 -- wave" (RunDirector.WaveRetried, once StatService restored the stats) they stand there with that HP again.
 -- Paket 23: every walk speed it sets also goes to MapService's movement check.
+-- AdminService "ToggleInvincible" (debug) switches setInvincible: that player loses no HP at all until switched off.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -58,6 +59,7 @@ local regen: { [Player]: number } = {} -- HP per second
 local regenProgress: { [Player]: number } = {} -- fractional progress toward the next one-HP regeneration tick
 local lastLifeSteal: { [Player]: number } = {} -- server time of the last life steal heal
 local choosing: { [Player]: boolean } = {} -- picking a level-up card
+local invincible: { [Player]: boolean } = {} -- debug switch (AdminService): no HP loss at all, kept across runs
 
 local function now(): number
 	return workspace:GetServerTimeNow()
@@ -97,6 +99,11 @@ end
 
 local function canBeHurt(player: Player): boolean
 	return RunDirector.isActive() and RunDirector.getParticipantState(player) == "Alive"
+end
+
+-- Whether damage and self-damage may take HP from the player (not while the debug switch is on).
+local function canLoseHp(player: Player): boolean
+	return canBeHurt(player) and not invincible[player]
 end
 
 local function characterOf(player: Player): Classes.Class?
@@ -163,7 +170,7 @@ end
 -- Damage to a living participant, e.g. from enemy contact or projectiles. Returns the HP lost, whether the hit
 -- was dodged and whether a hit shield (item effect, since B4) took it.
 function CombatService.damagePlayer(player: Player, damage: number): (number, boolean, boolean)
-	if not canBeHurt(player) then
+	if not canLoseHp(player) then
 		return 0, false, false
 	end
 	local state = getVitals(player)
@@ -209,7 +216,7 @@ end
 
 -- Item self-damage can down its owner and trigger Hurt effects. Armor, dodge and timed protection do not stop it.
 function CombatService.drainPlayer(player: Player, amount: number): number
-	if not canBeHurt(player) then
+	if not canLoseHp(player) then
 		return 0
 	end
 	local state = getVitals(player)
@@ -244,6 +251,16 @@ function CombatService.setHpFraction(player: Player, fraction: number)
 		state:setFraction(fraction)
 		send(player)
 	end
+end
+
+-- Debug switch (AdminService "ToggleInvincible"): while on, enemy hits, projectiles and self-damage take no HP.
+-- Only a debug command ("Knock me down") can still knock the player down. Kept until switched off or the player leaves.
+function CombatService.setInvincible(player: Player, on: boolean)
+	invincible[player] = if on then true else nil
+end
+
+function CombatService.isInvincible(player: Player): boolean
+	return invincible[player] == true
 end
 
 -- Makes the player invulnerable for `seconds` (e.g. while choosing a level-up card, WP6).
@@ -316,6 +333,7 @@ function CombatService.init()
 		stats[player] = nil
 		regen[player] = nil
 		lastLifeSteal[player] = nil
+		invincible[player] = nil
 		choosing[player] = nil
 	end)
 	for _, player in Players:GetPlayers() do
