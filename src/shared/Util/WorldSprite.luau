@@ -26,6 +26,7 @@ export type Spec = {
 	ground: number?, -- default 0.5: the anchor is the middle of the picture
 	center: number?, -- default 0.5
 	pixels: number?, -- image side in pixels, needed by setFlip
+	depth: number?, -- studs towards the camera, default Config/Sprites depthBias; less draws it behind other sprites
 }
 
 export type Sprite = {
@@ -43,6 +44,7 @@ export type Sprite = {
 	lift: number, -- studs up the screen, a hop
 	layers: { ImageLabel },
 	outline: { ImageLabel }?, -- dark copies behind the picture, see WorldSprite.outline
+	depth: number, -- studs towards the camera
 }
 
 local WorldSprite = {}
@@ -69,7 +71,7 @@ end
 local function layout(sprite: Sprite)
 	local side, groundFromBottom = canvas(sprite)
 	sprite.gui.Size = UDim2.fromScale(side, side)
-	sprite.gui.StudsOffset = Vector3.new(0, side / 2 - groundFromBottom, Look.depthBias)
+	sprite.gui.StudsOffset = Vector3.new(0, side / 2 - groundFromBottom, sprite.depth)
 	place(sprite)
 end
 
@@ -110,6 +112,7 @@ local function build(adornee: BasePart, spec: Spec): Sprite
 		lift = 0,
 		layers = {},
 		outline = nil,
+		depth = spec.depth or Look.depthBias,
 	}
 	picture.AnchorPoint = anchorPoint(sprite)
 	layout(sprite)
