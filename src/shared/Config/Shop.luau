@@ -14,12 +14,22 @@ local Shop = {
 		table.freeze({ untilWave = 2, count = 2, exact = true }),
 		table.freeze({ untilWave = 5, count = 1, exact = false }),
 	}),
-	-- Which weapon a weapon slot offers (Brotato): with `owned` chance one the player already has, else with
-	-- `sameClass` chance one that shares a class with one of theirs, else any weapon (all of them only if nothing fits)
-	weaponPool = table.freeze({ owned = 0.2, sameClass = 0.15 }),
-	-- Playtest after Paket 24: with every weapon slot full a weapon slot offers one of the player's own weapons at a
-	-- tier it merges with this often (before, only about 1 in 7 weapon offers could still be bought then)
-	fullSlots = table.freeze({ mergeChance = 0.6 }),
+	-- Which weapon a weapon slot offers (Brotato ItemService._get_rand_item_for_wave), from one roll r:
+	--   owned chance = owned + max(0, (bonusWaves + 1 - wave) * ownedWaveBonus / bonusWaves) + n * ownedPerWeapon
+	--   class chance = sameClass + max(0, (bonusWaves + 1 - wave) * classWaveBonus / bonusWaves) + n * classPerWeapon
+	-- (n = different weapons owned, at most maxWeapons). r < owned chance: one of the player's weapons; else r < class
+	-- chance: a weapon they do not own that shares a class with theirs; else any weapon they do not own. An empty pool
+	-- falls back to every weapon of the tier.
+	weaponPool = table.freeze({
+		owned = 0.23,
+		ownedWaveBonus = 0.07,
+		ownedPerWeapon = 0.02,
+		sameClass = 0.35,
+		classWaveBonus = 0.2,
+		classPerWeapon = 0.01,
+		bonusWaves = 5,
+		maxWeapons = 6,
+	}),
 
 	-- price = floor((base + wave * waveAdd + base * waveFactor * wave) * multiplier), at least 1; wave = the wave
 	-- that just ended
@@ -158,14 +168,14 @@ local Shop = {
 	tierPriceFactors = table.freeze({ 1, 1.9, 3.7, 7.4 }),
 	-- Selling a weapon (Brotato's recycling) gives this share of its current shop price (wave and tier), rounded down
 	sellShare = 0.25,
-	-- Every this many purchases in one shop earn one free reroll (it does not raise the reroll price)
-	freeRerollAfterBuys = 4,
-	-- reroll: increase = max(1, floor(increaseFactor * wave)); first = floor(firstFactor * wave) + increase;
+	-- reroll: increase = max(1, floor(increaseFactor * wave * sqrt(1 + endless factor))); first = floor(firstFactor *
+	-- wave) + increase;
 	-- every further reroll in the same shop adds the increase again. Level-up cards reroll at the same prices.
 	reroll = table.freeze({ increaseFactor = 0.4, firstFactor = 0.75 }),
 
-	-- Native runs start with no materials; character-specific starting grants are applied separately.
-	startShards = 0,
+	-- Brotato 1.2.0.1: RunData.set_player_count gives every player DebugService.starting_gold = 30 materials (not a
+	-- debug-only value; reset() keeps it at 30). Character-specific starting grants are applied separately.
+	startShards = 30,
 	shardsPerXp = 1, -- Shards a player gets per XP of an orb they pick up (orbs are Brotato's materials)
 	waveEnd = table.freeze({
 		healFraction = 1, -- every participant heals to this share of max HP when a wave ends

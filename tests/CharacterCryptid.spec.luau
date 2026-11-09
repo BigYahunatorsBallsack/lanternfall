@@ -148,17 +148,30 @@ describe("Native Cryptid package", function()
 		local original = random.number
 		local xp = require(S.ExperienceService)
 		xp.setPaused(false)
+		expect(require(Shared.Util.CharacterEconomy).materialValue(1, { "Cryptid", "NightWatch" }, true)).toBeNear(
+			1.073076923076923
+		) -- native two-player material factor before the averaged -25% penalty
+		local lastValue
+		local connection = world.getRemote("XpOrbs").OnClientEvent:Connect(function(events)
+			for index = 4, #events.orbs, 4 do
+				lastValue = events.orbs[index]
+			end
+		end)
 		local ok, err = pcall(function()
-			for _, roll in { 0.9, 0.1 } do
+			for _, roll in { 0.99, 0.01 } do
 				random.number = function(channel, player)
 					return if channel == "Loot" then roll else original(channel, player)
 				end
+				lastValue = nil
 				local before = xp.getOrbCount()
 				local id = assert(Enemy.spawn("Shadeling", 40, 40, 1, 1))
 				Enemy.damage(id, 1000, me)
-				expect(xp.getOrbCount() - before).toBe(if roll == 0.9 then 0 else 1)
+				expect(xp.getOrbCount() - before).toBe(1)
+				world.advance(0.2)
+				expect(lastValue).toBe(if roll == 0.99 then 1 else 2)
 			end
 		end)
+		connection:Disconnect()
 		random.number = original
 		xp.setPaused(true)
 		assert(ok, err)

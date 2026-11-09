@@ -26,6 +26,14 @@ Run.setReady(peer, true)
 world.advance(3.5)
 Enemy.killAll()
 
+-- Two players get Brotato's co-op material bonus (+43 %, a 1-orb is worth 1 or 2 by chance); a high Loot roll keeps
+-- every orb at 1 so the round-robin counts stay exact (orbs still drop: wave 1 drops 100 %).
+local RandomService = require(S.RandomService)
+local originalNumber = RandomService.number
+RandomService.number = function(stream: string, ...)
+	return if stream == "Loot" then 0.99 else originalNumber(stream, ...)
+end
+
 local function pickup(count)
 	local here = me.Character.HumanoidRootPart.Position
 	for _ = 1, count do

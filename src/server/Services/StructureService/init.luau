@@ -80,13 +80,13 @@ local function position(player)
 		local radius = math.sqrt(rng:NextNumber()) * C.spawnRadius
 		local x = math.clamp(
 			root.X + math.cos(angle) * radius,
-			bounds.center.X - bounds.halfSize + C.margin,
-			bounds.center.X + bounds.halfSize - C.margin
+			bounds.center.X - bounds.halfX + C.margin,
+			bounds.center.X + bounds.halfX - C.margin
 		)
 		local z = math.clamp(
 			root.Z + math.sin(angle) * radius,
-			bounds.center.Z - bounds.halfSize + C.margin,
-			bounds.center.Z + bounds.halfSize - C.margin
+			bounds.center.Z - bounds.halfZ + C.margin,
+			bounds.center.Z + bounds.halfZ - C.margin
 		)
 		local valid = true
 		for _, obstacle in Map.getObstacles() do

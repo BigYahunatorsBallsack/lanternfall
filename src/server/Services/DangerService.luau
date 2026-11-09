@@ -118,10 +118,10 @@ function DangerService.isHorde(): boolean
 	return challenge ~= nil and challenge.kind == "Horde"
 end
 
--- Multiplier on the spawn groups' enemies right now: base tuning, the Enemy count slider and hordes.
+-- Multiplier on the spawn groups' enemies right now: base tuning and the Enemy count slider. Horde waves add
+-- Brotato's horde groups instead of multiplying (SpawnRules.groupsFor).
 function DangerService.spawnMultiplier(): number
-	local horde = if DangerService.isHorde() then Config.Difficulty.horde.spawnMultiplier else 1
-	return horde * DangerRules.countMultiplier(RunDirector.getRunOptions())
+	return DangerRules.countMultiplier(RunDirector.getRunOptions())
 end
 
 -- Multiplier on the chance that a killed enemy drops its orb right now (hordes drop fewer).

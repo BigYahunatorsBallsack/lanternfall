@@ -36,67 +36,42 @@ function LootRules.bagPull(bag: number, value: number): number
 	return math.min(bag, value * Loot.bag.pullPerValue)
 end
 
--- What a killed enemy of this kind drops besides its orb: "Fruit", "Crate" or nil. `luck` is the team's Luck,
--- `crates` the crates dropped this wave, `roll` and `crateRoll` random numbers 0 <= x < 1. Elites drop chests instead.
+-- What a killed enemy of this kind drops besides its orb: "Fruit", "Crate" or nil (Brotato ItemService.
+-- get_consumable_to_drop and main.spawn_consumables). `luck` is the team's Luck (summed over the players like
+-- Brotato), `crates` the crates dropped this wave, `roll` and `crateRoll` random numbers 0 <= x < 1, `crateBonus` the
+-- team's Crate chance percent, `endlessFactor` the endless factor of the wave (0 in the first 20 waves). Elites drop
+-- chests instead.
 function LootRules.consumable(
 	kind: Enemies.Enemy,
 	luck: number,
 	crates: number,
 	roll: number,
-	crateRoll: number
+	crateRoll: number,
+	crateBonus: number?,
+	endlessFactor: number?
 ): string?
 	if kind.elite then
 		return nil
 	end
 	local loot = kind.loot
-	if loot and loot.crate then
-		return "Crate" -- guaranteed loot encounters are exempt from Luck, including -100 Luck
-	end
-	local factor = math.max(0, 1 + luck / 100)
+	local endless = endlessFactor or 0
+	local factor = 1 + luck / 100
+	local always = loot ~= nil and loot.crate == true -- Brotato always_drop_consumables (Looters)
 	local chance = if loot and loot.consumableChance then loot.consumableChance else Loot.consumables.chance
-	if not (roll < chance * factor) then
+	chance = math.min(1, chance * factor)
+	if endless > 0 then
+		chance /= 1 + endless
+	end
+	if not always and not (roll < chance) then
 		return nil
 	end
 	local share = if loot and loot.crateShare then loot.crateShare else Loot.consumables.crateShare
-	return if crateRoll < share * factor / (1 + math.max(0, crates)) then "Crate" else "Fruit"
-end
-
--- Trees a wave brings: perWave plus the team's Trees stat; a fractional rest is a chance (`roll` 0 <= x < 1).
-function LootRules.treesInGroup(treesStat: number, numberRoll: number, residualRoll: number): number
-	local rule = Loot.trees
-	local base = rule.minNumber
-		+ math.min(rule.maxNumber - rule.minNumber, math.floor(numberRoll * (rule.maxNumber - rule.minNumber + 1)))
-	local total = math.max(0, (base + treesStat) * rule.unitChance)
-	local whole = math.floor(total)
-	return whole + (if residualRoll < total - whole then 1 else 0)
-end
-
--- Native all-wave neutral group repeats from ten seconds; max_wave99 includes wave99.
-function LootRules.treeRollsDue(wave: number, previous: number, seconds: number): number
-	local rule = Loot.trees
-	if wave < rule.firstWave or wave > rule.lastWave then
-		return 0
+	local crateChance = share * factor / (1 + math.max(0, crates))
+	crateChance += crateChance * (crateBonus or 0) / 100
+	if always and share >= 1 and endless <= 0 then
+		crateChance = 1 -- guaranteed loot encounters are exempt from Luck, including -100 Luck
 	end
-	local function passed(at: number): number
-		return if at < rule.firstSeconds then 0 else math.floor((at - rule.firstSeconds) / rule.everySeconds) + 1
-	end
-	return math.max(0, passed(seconds) - passed(previous))
-end
-
--- How many Looter rolls are due at `seconds` into wave `wave` since the last check at `previous` seconds: at
--- firstSeconds and every everySeconds after that, from fromWave.
-function LootRules.looterRollsDue(wave: number, previous: number, seconds: number): number
-	local rule = Loot.looter
-	if wave < rule.fromWave or seconds < rule.firstSeconds then
-		return 0
-	end
-	local function passed(at: number): number
-		if at < rule.firstSeconds then
-			return 0
-		end
-		return math.floor((at - rule.firstSeconds) / rule.everySeconds) + 1
-	end
-	return math.max(0, passed(seconds) - passed(previous))
+	return if crateRoll < crateChance then "Crate" else "Fruit"
 end
 
 -- Shards for selling a crate's item worth `price` Shards in the shop: `share` (Config.Shop.sellShare) plus

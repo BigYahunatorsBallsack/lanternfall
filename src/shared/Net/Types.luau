@@ -226,7 +226,7 @@ export type ShopState = {
 	wave: number, -- the wave that just ended (prices are based on it)
 	offers: { ShopOffer },
 	rerollPrice: number, -- 0 while a free reroll is waiting
-	freeRerolls: number, -- free rerolls earned by purchases (Config.Shop.freeRerollAfterBuys)
+	freeRerolls: number, -- free rerolls left (Free Rerolls stat, plus one once every offer is bought)
 	weapons: { ShopWeapon }, -- in slot order
 	maxWeapons: number,
 }

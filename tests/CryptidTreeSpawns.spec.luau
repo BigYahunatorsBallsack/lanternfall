@@ -42,6 +42,8 @@ describe("Cryptid native tree production", function()
 			expect(trees()).toBe(0)
 			Run.skipTo(10)
 			world.advance(0.1)
+			expect(trees()).toBe(0) -- the consolidated spawner queues the native one-second birth marker
+			world.advance(Config.Run.spawn.markerSeconds + 0.5)
 			expect(trees()).toBe(3)
 		end)
 		random.number = original

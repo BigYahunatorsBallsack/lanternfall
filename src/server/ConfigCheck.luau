@@ -260,17 +260,9 @@ function ConfigCheck.run(): { string }
 	end
 	local pool = Config.Shop.weaponPool
 	if
-		not (
-			Config.Shop.sellShare >= 0
-			and pool.owned >= 0
-			and pool.sameClass >= 0
-			and pool.owned + pool.sameClass <= 1
-		)
+		not (Config.Shop.sellShare >= 0 and pool.owned >= 0 and pool.sameClass >= pool.owned and pool.bonusWaves > 0)
 	then
-		problem("Shop.sellShare and weaponPool chances must not be negative, weaponPool at most 1 together")
-	end
-	if Config.Shop.freeRerollAfterBuys < 1 then
-		problem("Shop.freeRerollAfterBuys must be at least 1")
+		problem("Shop.sellShare and weaponPool chances must not be negative, sameClass at least owned")
 	end
 
 	for id, evolution in Config.Evolutions do
@@ -428,39 +420,61 @@ function ConfigCheck.run(): { string }
 	if cap.max > Snapshot.MAX_PER_PACKET * Snapshot.MAX_PARTS or cap.max >= Snapshot.MAX_ID then
 		problem("Run.spawn.cap.max is more than enemy snapshots can carry")
 	end
-	if cap.base > cap.max then
-		problem("Run.spawn.cap.base must not exceed cap.max")
-	end
 	if not (Config.Run.spawn.ringMin > 0 and Config.Run.spawn.ringMin <= Config.Run.spawn.ringMax) then
 		problem("Run.spawn.ringMin must be above 0 and at most ringMax")
 	end
 
 	local spawn = Config.Run.spawn
-	-- B9: spawn groups of every wave and HP and damage growth per kind
-	if #spawn.groups ~= #spawn.waves.lengthsSeconds then
-		problem("Run.spawn.groups needs one entry per wave in Run.spawn.waves")
+	-- Brotato spawn data (generated Config.EnemyWaves): one entry per wave, known enemies, sane timers
+	local data = spawn.groups
+	if #data.waves ~= #spawn.waves.lengthsSeconds then
+		problem("EnemyWaves needs one entry per wave in Run.spawn.waves")
 	end
-	for index, entry in spawn.groups do
-		for _, group in entry.groups do
-			if not Config.Enemies.types[group.enemy] then
-				problem(`Run.spawn.groups wave {index} uses unknown enemy {group.enemy}`)
+	local function checkGroups(label: string, groups: { any })
+		for _, group in groups do
+			if not (group.timing >= 0 and group.chance >= 0 and group.chance <= 1) then
+				problem(`EnemyWaves {label} needs timings of at least 0 and chances in [0, 1]`)
 			end
-			if not (group.size > 0 and group.every > 0) then
-				problem(`Run.spawn.groups wave {index} needs sizes and intervals above 0`)
+			if group.repeating > 0 and not (group.interval > 0 and group.minInterval > 0) then
+				problem(`EnemyWaves {label} needs repeat intervals above 0`)
+			end
+			for _, unit in group.units do
+				if unit.enemy ~= nil and not Config.Enemies.types[unit.enemy] then
+					problem(`EnemyWaves {label} uses unknown enemy {unit.enemy}`)
+				end
+				if unit.enemy == nil and group.minDanger <= 5 then
+					problem(`EnemyWaves {label} has a unit without enemy below Nightmare`)
+				end
+				if not (unit.min >= 0 and unit.max >= unit.min) then
+					problem(`EnemyWaves {label} needs unit counts with max at least min`)
+				end
 			end
 		end
 	end
-	if not (spawn.maxOwedFirings >= 1) then
-		problem("Run.spawn.maxOwedFirings must be at least 1")
+	for index, wave in data.waves do
+		if not (wave.maxEnemies >= 1) then
+			problem(`EnemyWaves wave {index} needs a maximum of at least 1`)
+		end
+		if math.floor(wave.maxEnemies * (1 + 3 * cap.perExtraPlayerShare)) > cap.max then
+			problem(`EnemyWaves wave {index}: the 4-player maximum exceeds Run.spawn.cap.max`)
+		end
+		checkGroups(`wave {index}`, wave.groups)
 	end
-	if not (spawn.firstShare >= 0 and spawn.groupSpread >= 0 and spawn.markerSeconds >= 0) then
-		problem("Run.spawn.firstShare, groupSpread and markerSeconds must not be negative")
+	checkGroups("allWaves", data.allWaves)
+	checkGroups("horde", data.horde)
+	local queue = spawn.queue
+	if not (queue.secondsPerSpawn > 0 and queue.limit >= 0 and queue.burstDivisor > 0 and queue.burstMax >= 1) then
+		problem("Run.spawn.queue needs positive timing, divisor and burst")
 	end
-	if #spawn.growth.hpSteps < #spawn.groups or #spawn.growth.damageSteps < #spawn.groups then
+	local layout = spawn.layout
+	if not (layout.studsPerPixel > 0 and layout.distanceStep > 0 and layout.minDistanceFloor >= 0) then
+		problem("Run.spawn.layout needs positive scale and distance step")
+	end
+	if not (spawn.markerSeconds >= 0) then
+		problem("Run.spawn.markerSeconds must not be negative")
+	end
+	if #spawn.growth.hpSteps < #data.waves or #spawn.growth.damageSteps < #data.waves then
 		problem("Run.spawn.growth needs hpSteps and damageSteps for every wave")
-	end
-	if not (spawn.swarmRush.every > 0) then
-		problem("Run.spawn.swarmRush.every must be above 0")
 	end
 	for enemyId, kind in Config.Enemies.types do
 		if not (kind.hpPerWave >= 0 and kind.damagePerWave >= 0) then
@@ -475,12 +489,6 @@ function ConfigCheck.run(): { string }
 		if not (length > 0) then
 			problem(`Run.spawn.waves wave {index} needs a length above 0`)
 		end
-	end
-	if not (spawn.swarmRush.durationShare > 0 and spawn.swarmRush.durationShare <= 1) then
-		problem("Run.spawn.swarmRush.durationShare must be above 0 and at most 1")
-	end
-	if not (waves.rampFrom >= 0 and waves.rampTo >= 0 and waves.finalRate > 0) then
-		problem("Run.spawn.waves rates must not be negative")
 	end
 	for _, entry in spawn.elites.waves do
 		if entry.count < 1 then
@@ -548,19 +556,23 @@ function ConfigCheck.run(): { string }
 		problem("Admin.skipToBossLeadSeconds must be shorter than the run")
 	end
 
-	for name, area in { arena = Config.Map.arena, lobby = Config.Map.lobby } do
-		if area.spawnRadius * 2 >= area.size then
-			problem(`Map.{name}.spawnRadius does not fit into its size`)
-		end
-	end
 	local arena = Config.Map.arena
-	local reach = math.max(math.abs(arena.center.X), math.abs(arena.center.Z)) + arena.size / 2
+	local lobby = Config.Map.lobby
+	if arena.spawnRadius * 2 >= math.min(arena.width, arena.depth) then
+		problem("Map.arena.spawnRadius does not fit into its width and depth")
+	end
+	if lobby.spawnRadius * 2 >= lobby.size then
+		problem("Map.lobby.spawnRadius does not fit into its size")
+	end
+	local reach = math.max(math.abs(arena.center.X) + arena.width / 2, math.abs(arena.center.Z) + arena.depth / 2)
 	if reach > Snapshot.MAX_COORDINATE then
 		problem(`Map.arena reaches beyond +-{Snapshot.MAX_COORDINATE} studs, which enemy snapshots cannot encode`)
 	end
 	for index, obstacle in arena.obstacles do
-		local half = arena.size / 2
-		if math.abs(obstacle.x) + obstacle.radius > half or math.abs(obstacle.z) + obstacle.radius > half then
+		if
+			math.abs(obstacle.x) + obstacle.radius > arena.width / 2
+			or math.abs(obstacle.z) + obstacle.radius > arena.depth / 2
+		then
 			problem(`Map.arena.obstacles[{index}] does not fit into the arena`)
 		end
 		local fromCenter = math.sqrt(obstacle.x ^ 2 + obstacle.z ^ 2)
@@ -579,7 +591,7 @@ function ConfigCheck.run(): { string }
 	if not (tree and tree.anchored and tree.speed == 0 and tree.contactDamage == 0) then
 		problem(`Loot.trees.enemy {loot.trees.enemy} must be a known anchored enemy with speed and contact damage 0`)
 	end
-	for _, value in { loot.consumables.chance, loot.consumables.crateShare, loot.looter.chance, loot.orbDrop.minChance } do
+	for _, value in { loot.consumables.chance, loot.consumables.crateShare, loot.orbDrop.minChance } do
 		if value < 0 or value > 1 then
 			problem("Loot chances must lie between 0 and 1")
 		end

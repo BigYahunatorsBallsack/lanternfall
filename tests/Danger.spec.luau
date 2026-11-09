@@ -94,14 +94,20 @@ describe("danger levels", function()
 	end)
 
 	it("leaves the new enemies out below danger 1", function()
-		for _, group in SpawnRules.groupsAt(10.5, 0) do
-			expect(DangerRules.isNewEnemy(group.enemy)).toBe(false)
+		local function hasNew(danger: number): boolean
+			for wave = 1, 20 do
+				for _, group in SpawnRules.groupsFor(wave, danger) do
+					for _, unit in group.units do
+						if unit.enemy and DangerRules.isNewEnemy(unit.enemy) then
+							return true
+						end
+					end
+				end
+			end
+			return false
 		end
-		local any = false
-		for _, group in SpawnRules.groupsAt(10.5, 1) do
-			any = any or DangerRules.isNewEnemy(group.enemy)
-		end
-		expect(any).toBe(true)
+		expect(hasNew(0)).toBe(false)
+		expect(hasNew(1)).toBe(true)
 	end)
 
 	it("makes enemies 40 % stronger on danger 5", function()

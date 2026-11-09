@@ -56,7 +56,8 @@ describe("Native character economy in services", function()
 				end
 				local id = assert(Enemy.spawn("Shadeling", 40, 40, 1, 1))
 				Enemy.damage(id, 1000, peer)
-				expect(XP.getOrbCount()).toBe(if roll == 0.9 then 0 else 1)
+				-- 2 players: 1 * (1 + co-op 43 %) * (1 - 25 % averaged Farmer) = 1.08, so every kill drops an orb now
+				expect(XP.getOrbCount()).toBe(if roll == 0.9 then 1 else 2)
 			end
 		end)
 		Random.number = original
@@ -71,7 +72,7 @@ describe("Native character economy in services", function()
 			Shop.addShards(me, 1000)
 			Shop.addShards(peer, 1000)
 			finishWave()
-			expect(Shop.getShards(me)).toBe(1101)
+			expect(Shop.getShards(me)).toBe(1101 + Config.Shop.startShards)
 			expect(Stats.getStat(me, "harvesting")).toBe(110)
 			expect(Shop.getShards(peer)).toBe(1000)
 			expect(Stats.getStat(peer, "harvesting")).toBe(0)

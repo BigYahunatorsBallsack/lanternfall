@@ -8,7 +8,7 @@
 -- UpgradeService, WeaponService and MapService. Sets the player
 -- attribute "LanternfallAdmin" so the client shows the debug panel.
 -- Paket 23: a run changed by debug commands is marked (RunStatsService.markDebugged) and gets no leaderboard score;
--- "MovementCheck" switches the movement check (MapService).
+-- "MovementCheck" switches the movement check (MapService). "ToggleInvincible" switches CombatService.setInvincible.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -175,9 +175,17 @@ local handlers: { [string]: (player: Player) -> (boolean, string?) } = {
 	ReviveSelf = function(player)
 		return RunDirector.setParticipantState(player, "Alive")
 	end,
+	ToggleInvincible = function(player)
+		local on = not CombatService.isInvincible(player)
+		CombatService.setInvincible(player, on)
+		return true, if on then "Invincible: ON (you lose no HP)" else "Invincible: OFF"
+	end,
 	HurtSelf = function(player)
 		if RunDirector.getParticipantState(player) ~= "Alive" or not RunDirector.isActive() then
 			return false, "NotRunning"
+		end
+		if CombatService.isInvincible(player) then
+			return true, "No damage: Invincible is on"
 		end
 		local taken, dodged, blocked = CombatService.damagePlayer(player, Config.Admin.hurtSelfDamage)
 		if dodged then
@@ -447,12 +455,12 @@ local handlers: { [string]: (player: Player) -> (boolean, string?) } = {
 
 local function collectStats(): Types.DebugStats
 	local sim = EnemySim.getStats()
-	local rate = SpawnDirector.getRate()
+	local queued = SpawnDirector.getQueued()
 	return {
 		enemies = EnemySim.getCount(),
 		cap = SpawnDirector.getCap(),
-		spawnRate = rate,
-		spawning = rate > 0,
+		spawnRate = queued, -- enemies waiting in the spawn queue (Brotato spawns from a queue, not at a rate)
+		spawning = queued > 0,
 		paused = SpawnDirector.isPaused(),
 		stepMilliseconds = sim.stepMilliseconds,
 		stepMaxMilliseconds = sim.stepMaxMilliseconds,
@@ -600,7 +608,7 @@ function AdminService.init()
 				or WeaponService.isPaused()
 				or (movementCheckDefault and not MapService.isMovementCheckOn())
 			for _, player in participants do
-				changed = changed or MonetizationService.hasFakePasses(player)
+				changed = changed or MonetizationService.hasFakePasses(player) or CombatService.isInvincible(player)
 			end
 			if changed then
 				RunStatsService.markDebugged()

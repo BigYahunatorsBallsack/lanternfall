@@ -5,6 +5,8 @@ return table.freeze({
 		priceEndlessDivisor = 5, -- stable ItemService.get_value
 		endlessNegativeWalletPercent = -100, -- stable main.gdc negative start-wave effects in endless
 		minimumMaterialFactor = 0.5, -- stable main.gdc MIN_GOLD_CHANCE
+		-- stable CoopService.ADDITIONAL_MATERIALS_FACTOR: materials +(n / (1 + 0.3 (n - 1)) - 1) * 0.8 for n players
+		coopMaterialsFactor = 0.8,
 		minimumRecycleShare = 0.01, -- stable ItemService.get_recycling_value
 		maximumRecycleShare = 1,
 		minimumRecycleValue = 1,

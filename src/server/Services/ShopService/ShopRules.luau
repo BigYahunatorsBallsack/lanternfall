@@ -13,6 +13,7 @@ local Shop = require(Shared.Config.Shop)
 local Weapons = require(Shared.Config.Weapons)
 local Types = require(Shared.Net.Types)
 local StatMath = require(Shared.Util.StatMath)
+local DangerRules = require(Shared.Util.DangerRules)
 local CharacterRules = require(Shared.Util.CharacterRules)
 local CharacterEconomy = require(Shared.Util.CharacterEconomy)
 local Classes = require(Shared.Config.Classes)
@@ -109,7 +110,9 @@ end
 -- Price of the next reroll after `rerolls` rerolls in this shop (or level-up choice).
 function ShopRules.rerollPrice(wave: number, rerolls: number): number
 	local rule = Shop.reroll
-	local increase = math.max(1, math.floor(rule.increaseFactor * wave))
+	-- Brotato ItemService.get_reroll_price: in endless the increase grows with sqrt(1 + endless factor)
+	local endless = math.sqrt(1 + DangerRules.endlessFactor(wave))
+	local increase = math.max(1, math.floor(rule.increaseFactor * wave * endless))
 	return math.floor(rule.firstFactor * wave) + increase * (rerolls + 1)
 end
 
@@ -283,10 +286,20 @@ local function copiesOf(weaponId: string, ownedWeapons: { OwnedWeapon }): number
 	return count
 end
 
--- Picks the weapon of one weapon slot from Brotato's pool: owned ones, else ones sharing a weapon class
--- (Config.WeaponClasses, since B5; before Melee/Ranged/Elemental) with an owned one,
--- else any; a pool with nothing left falls through to the next. `avoid` holds ids already in this shop or (while
--- others are left) in the previous roll. nil if every weapon is avoided.
+-- Chances of Brotato's weapon pool after `wave` with `distinct` different weapons owned: (owned, sameClass), the
+-- second one cumulative (Config.Shop.weaponPool).
+function ShopRules.weaponPoolChances(wave: number, distinct: number): (number, number)
+	local rule = Shop.weaponPool
+	local early = math.max(0, rule.bonusWaves + 1 - wave) / rule.bonusWaves
+	local n = math.min(distinct, rule.maxWeapons)
+	return rule.owned + early * rule.ownedWaveBonus + n * rule.ownedPerWeapon,
+		rule.sameClass + early * rule.classWaveBonus + n * rule.classPerWeapon
+end
+
+-- Picks the weapon of one weapon slot from Brotato's pool: by one roll an owned weapon, a new one sharing a weapon
+-- class (Config.WeaponClasses) with an owned one, or any new one; an empty pool falls back to any weapon of the tier.
+-- `avoid` holds ids already in this shop or (while others are left) in the previous roll. nil if every weapon is
+-- avoided.
 local function pickWeapon(
 	params: Params,
 	avoid: { [string]: boolean },
@@ -295,7 +308,11 @@ local function pickWeapon(
 ): string?
 	local ownedIds: { [string]: boolean } = {}
 	local ownedClasses: { [string]: boolean } = {}
+	local distinct = 0
 	for _, owned in params.ownedWeapons do
+		if not ownedIds[owned.id] then
+			distinct += 1
+		end
 		ownedIds[owned.id] = true
 		local config = Weapons[owned.id]
 		if config then
@@ -320,29 +337,36 @@ local function pickWeapon(
 		return ids
 	end
 	local roll = params.random()
-	local rule = Shop.weaponPool
-	local filters: { (string) -> boolean } = {}
-	if roll < rule.owned then
-		table.insert(filters, function(weaponId)
+	local ownedChance, classChance = ShopRules.weaponPoolChances(params.wave, distinct)
+	local wanted: (string) -> boolean
+	if roll < ownedChance then
+		wanted = function(weaponId)
 			return ownedIds[weaponId] == true
-		end)
-	end
-	if roll < rule.owned + rule.sameClass then
-		table.insert(filters, function(weaponId)
+		end
+	elseif roll < classChance then
+		wanted = function(weaponId)
 			local config = Weapons[weaponId]
-			if config then
-				for _, classId in config.classes do
-					if ownedClasses[classId] then
-						return true
-					end
+			if ownedIds[weaponId] or not config then
+				return false
+			end
+			for _, classId in config.classes do
+				if ownedClasses[classId] then
+					return true
 				end
 			end
 			return false
-		end)
+		end
+	else
+		wanted = function(weaponId)
+			return not ownedIds[weaponId]
+		end
 	end
-	table.insert(filters, function()
-		return true
-	end)
+	local filters: { (string) -> boolean } = {
+		wanted,
+		function()
+			return true
+		end,
+	}
 	for _, skip in { avoid, strict } do
 		for _, filter in filters do
 			local ids = pool(filter, skip)
@@ -352,32 +376,6 @@ local function pickWeapon(
 		end
 	end
 	return nil
-end
-
--- Playtest after Paket 24: with every weapon slot full, most weapon offers could not be bought (only the same weapon
--- at the same tier merges), which felt like "fewer weapons in the shop". So a weapon slot then offers one of the
--- player's own weapons at a tier it merges with, with Shop.fullSlots.mergeChance. Returns id and tier, or nil.
-local function pickMergeable(params: Params, taken: { [string]: boolean }): (string?, number?)
-	if #params.ownedWeapons < params.maxWeapons or params.random() >= Shop.fullSlots.mergeChance then
-		return nil, nil
-	end
-	local choices: { OwnedWeapon } = {}
-	for _, owned in params.ownedWeapons do
-		if
-			not taken[owned.id]
-			and not owned.evolution
-			and owned.tier < params.maxTier
-			and Shop.weaponPrices[owned.id]
-			and CharacterRules.weaponAllowed(params.classId, owned.id, owned.tier + 1)
-		then
-			table.insert(choices, owned)
-		end
-	end
-	if #choices == 0 then
-		return nil, nil
-	end
-	local choice = choices[math.min(#choices, math.floor(params.random() * #choices) + 1)]
-	return choice.id, choice.tier
 end
 
 local function weaponOffer(weaponId: string, params: Params, tier: number): Types.ShopOffer
@@ -456,12 +454,7 @@ function ShopRules.roll(params: Params): { Types.ShopOffer }
 		weaponTier = math.clamp(weaponTier, if class then class.minWeaponTier or 1 else 1, params.maxTier)
 		local weaponId: string? = nil
 		if wantWeapon then
-			local mergeId, mergeTier = pickMergeable(params, taken)
-			if mergeId and mergeTier then
-				weaponId, weaponTier = mergeId, mergeTier
-			else
-				weaponId = pickWeapon(params, avoid, taken, weaponTier)
-			end
+			weaponId = pickWeapon(params, avoid, taken, weaponTier)
 		end
 		if weaponId then
 			offer = weaponOffer(weaponId, params, weaponTier)

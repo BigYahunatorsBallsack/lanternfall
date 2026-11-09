@@ -253,7 +253,7 @@ describe("smoke", function()
 			)
 			contacts += 1
 		end)
-		world.advance(2) -- since the playtest after Paket 24 a crowd kills a still player within a few seconds
+		world.advance(4) -- Brotato spawns anywhere at least 30 studs away; a crowd kills a still player within seconds
 		connection:Disconnect()
 		expect(contacts > 0).toBe(true)
 		-- every touch hurts, at most once per hit protection window
@@ -294,12 +294,12 @@ describe("smoke", function()
 		world.click(world.gui("Debug", "KillEnemies"))
 		world.advance(3)
 		expect(EnemySim.getCount()).toBe(0)
-		world.click(world.gui("Debug", "SpawnWave"))
-		world.click(world.gui("Debug", "SpawnWave"))
-		world.click(world.gui("Debug", "SpawnWave"))
+		for _ = 1, math.ceil(SpawnDirector.getCap() / Config.Admin.spawnWaveCount) + 1 do -- the last one hits the limit
+			world.click(world.gui("Debug", "SpawnWave"))
+		end
 		world.advance(0.5)
-		expect(EnemySim.getCount()).toBe(Config.Run.spawn.cap.base)
-		expect(#drawnModels()).toBe(Config.Run.spawn.cap.base)
+		expect(EnemySim.getCount()).toBe(SpawnDirector.getCap())
+		expect(#drawnModels()).toBe(SpawnDirector.getCap())
 		expect(string.find(toastTexts(), "The enemy limit is reached", 1, true) ~= nil).toBe(true)
 		world.click(world.gui("Debug", "ToggleSpawning"))
 		world.advance(0.2)
@@ -309,7 +309,7 @@ describe("smoke", function()
 		world.advance(1.2)
 		local stats = world.gui("Debug", "Stats")
 		expect(stats ~= nil).toBe(true)
-		local cap = Config.Run.spawn.cap.base
+		local cap = SpawnDirector.getCap()
 		local culled = enemyRenderer().getStats().culled
 		expect(stats.Enemies.Text).toBe(`Enemies {cap} / {cap} · drawn {cap} ({culled} off screen) · shots 0`)
 		expect(string.find(stats.Server.Text, "Server step", 1, true) ~= nil).toBe(true)
@@ -631,26 +631,31 @@ describe("smoke", function()
 		expect(string.find(toastTexts(), "last weapon", 1, true) ~= nil).toBe(true)
 		world.advance(1)
 
-		-- every Config.Shop.freeRerollAfterBuys purchases earn a free reroll
+		-- Brotato: once every offer of a shop is bought, the next reroll is free
 		ShopService.addShards(me, 5000)
 		world.advance(0.2)
-		local bought = 0
-		for _ = 1, 3 do
-			for index, offer in ShopService.getOffers(me) do
-				if not offer.sold and not offer.blocked and bought < Config.Shop.freeRerollAfterBuys then
-					world.click(world.gui("Shop", `Offer{index}`))
-					world.advance(0.3)
-					if offer.sold then
-						bought += 1
-					end
+		local function allSold(): boolean
+			for _, offer in ShopService.getOffers(me) do
+				if not offer.sold then
+					return false
 				end
 			end
-			if bought < Config.Shop.freeRerollAfterBuys then
-				world.click(world.gui("Shop", "Reroll"))
-				world.advance(0.3)
-			end
+			return true
 		end
-		expect(bought).toBe(Config.Shop.freeRerollAfterBuys)
+		for _ = 1, 5 do
+			for index, offer in ShopService.getOffers(me) do
+				if not offer.sold and not offer.blocked then
+					world.click(world.gui("Shop", `Offer{index}`))
+					world.advance(0.3)
+				end
+			end
+			if allSold() then
+				break
+			end
+			world.click(world.gui("Shop", "Reroll"))
+			world.advance(0.3)
+		end
+		expect(allSold()).toBe(true)
 		expect(shop.get().freeRerolls).toBe(1)
 		expect(shop.get().rerollPrice).toBe(0)
 		expect(string.match(world.gui("Shop", "Reroll").Text, "^REROLL %- 0") ~= nil).toBe(true)
@@ -1050,25 +1055,12 @@ describe("smoke", function()
 		world.advance(0.3)
 	end)
 
-	it("starts Swarm Rush with a ring of Shadelings and no Gloom Elites", function()
+	it("skips minutes without Gloom Elites", function()
 		SpawnDirector.setPaused(false)
-		-- an enemy left far behind comes back on the spawn ring
-		local center = Config.Map.arena.center
-		standAt(center.X - 60, center.Z)
-		local straggler = EnemySim.spawn("Brute", center.X + 60, center.Z, 1, 1)
-		world.advance(Config.Run.spawn.recycle.intervalSeconds + 0.3)
-		local position = EnemySim.getPosition(straggler)
-		local root = me.Character.HumanoidRootPart.Position
-		expect(position ~= nil and (position - root).Magnitude <= Config.Run.spawn.ringMax + 2).toBe(true)
-		RunDirector.skipTo(RunSchedule.wave(Config.Run.spawn.swarmRush.atMinutes[1] + 1).startsAt + 0.1)
+		RunDirector.skipTo(RunSchedule.wave(7).startsAt + 0.1)
 		world.advance(1)
-		expect(SpawnDirector.isSwarmRush()).toBe(true)
 		-- B11: the Gloom Elites of the skipped minutes are off on every danger level
 		expect(string.find(toastTexts(), "appeared! Kill it for a chest.", 1, true)).toBe(nil)
-		-- the HUD's wave banner announces it
-		expect(world.gui("HUD", "WaveTitle").Text).toBe(`WAVE {Config.Run.spawn.swarmRush.atMinutes[1] + 1}`)
-		expect(string.find(world.gui("HUD", "WaveEvents").Text, "Swarm Rush", 1, true) ~= nil).toBe(true)
-		expect(EnemySim.getCount() >= Config.Run.spawn.swarmRush.ringCount / 2).toBe(true)
 		SpawnDirector.setPaused(spawningWasPaused)
 		world.click(world.gui("Debug", "KillEnemies"))
 		world.advance(0.3)
@@ -1316,6 +1308,18 @@ describe("smoke", function()
 		world.click(world.gui("Debug", "HealSelf"))
 		world.advance(0.6)
 		expect(CombatService.getHp(me)).toBe(Config.Player.maxHp)
+	end)
+
+	it("loses no HP while the debug Invincible switch is on", function()
+		world.click(world.gui("Debug", "ToggleInvincible"))
+		world.advance(0.6)
+		expect(CombatService.isInvincible(me)).toBe(true)
+		expect(select(1, CombatService.damagePlayer(me, 9999))).toBe(0)
+		expect(CombatService.drainPlayer(me, 9999)).toBe(0)
+		expect(CombatService.getHp(me)).toBe(Config.Player.maxHp)
+		world.click(world.gui("Debug", "ToggleInvincible"))
+		world.advance(0.6)
+		expect(CombatService.isInvincible(me)).toBe(false)
 	end)
 
 	it("ends in defeat when the only player is knocked down", function()

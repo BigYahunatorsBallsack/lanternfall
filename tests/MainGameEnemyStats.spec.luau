@@ -27,14 +27,14 @@ local fixture = {
 	{ "IronHusk", "Helmet Alien", 8, 4, 225, 275, 1, 1, 0.5, 1, 1, 1 },
 	{ "Splitling", "Fin Alien", 12, 2, 400, 400, 1, 1, 0, 1, 2, 3 },
 	{ "Splitter", "Spawner", 10, 1, 120, 120, 1, 0.85, 0.7, 1, 1, 1 },
-	{ "Skulker", "Junkie", 5, 5, 350, 350, 1, 1, 0.5, 1, 1, 1 },
+	{ "Skulker", "Junkie", 5, 5, 350, 350, 1, 1, 0.5, 1, 0, 0 }, -- can_drop_consumables false (1.2.0.1)
 	{ "AbyssBrute", "Horned Bruiser", 30, 22, 300, 300, 1, 1.15, 0.9, 3, 3, 3 },
 	{ "HornedRusher", "Horned Charger", 12, 5, 425, 425, 1, 1.1, 0.8, 1, 1, 1 },
 	{ "BroodEgg", "Slasher Egg", 5, 3, 0, 0, 1, 0.6, 1, 1, 0, 0 },
-	{ "Reaper", "Slasher", 50, 25, 250, 300, 1, 1.15, 0.9, 3, 1, 1 },
-	{ "DreadTendril", "Tentacle", 100, 20, 175, 175, 1, 1, 0.7, 3, 2, 2 },
+	{ "Reaper", "Slasher", 50, 25, 250, 300, 1, 1.15, 0.9, 5, 3, 3 }, -- slasher_stats (1.2.0.1)
+	{ "DreadTendril", "Tentacle", 100, 20, 175, 175, 1, 1, 0.7, 4, 2, 2 }, -- tentacle_stats (1.2.0.1)
 	{ "Hookfang", "Lamprey", 30, 15, 350, 350, 1, 0.75, 0.95, 1, 1, 1 },
-	{ "Gobbler", "Gobbler", 5, 30, 300, 400, 1, 0.85, 0, 8, 100, 100 },
+	{ "Gobbler", "Gobbler", 5, 30, 300, 400, 1, 0.85, 0, 8, 0, 0 }, -- evil_mob: no consumables (1.2.0.1)
 }
 
 describe("main-game wiki enemy stats", function()
@@ -113,53 +113,67 @@ describe("main-game wiki enemy stats", function()
 		expect(world:getHealth(healer)).toBe(9)
 	end)
 
-	it("uses the wiki first waves for every danger tier", function()
+	it("uses the first waves of Brotato's own wave data for every danger tier", function()
+		-- danger 0..5; 99 = never in a spawn group (Reaper only hatches from Brood Eggs). Read from the 1.2.0.1
+		-- wave files; on danger 0 Charger comes in wave 6, on danger 1 in wave 3 (the wiki lists only wave 3).
 		local expected = {
 			Shadeling = { 1, 1, 1, 1, 1, 1 },
 			AbyssShadeling = { 2, 2, 2, 2, 2, 2 },
-			Charger = { 3, 3, 3, 3, 3, 3 },
+			Charger = { 6, 3, 3, 3, 3, 3 },
 			Spitter = { 4, 4, 4, 4, 4, 4 },
 			Stalker = { 11, 11, 11, 11, 11, 11 },
 			Brute = { 8, 8, 8, 8, 8, 8 },
 			Herald = { 16, 16, 16, 16, 16, 16 },
-			Thornback = { 99, 4, 4, 4, 4, 4 },
+			Thornback = { 99, 4, 3, 3, 3, 3 },
 			Mender = { 99, 7, 7, 7, 7, 7 },
-			IronHusk = { 13, 10, 10, 10, 4, 4 },
+			IronHusk = { 13, 10, 10, 10, 10, 4 },
 			Splitling = { 15, 9, 9, 9, 9, 9 },
 			Splitter = { 14, 14, 14, 14, 14, 14 },
 			Skulker = { 14, 14, 14, 14, 14, 14 },
 			AbyssBrute = { 13, 8, 8, 8, 8, 8 },
 			HornedRusher = { 18, 18, 18, 18, 5, 5 },
-			BroodEgg = { 99, 7, 7, 7, 7, 7 },
-			Reaper = { 99, 4, 4, 4, 4, 4 },
-			DreadTendril = { 99, 99, 99, 13, 13, 13 },
+			BroodEgg = { 99, 99, 99, 99, 15, 7 },
+			Reaper = { 99, 99, 99, 99, 99, 99 },
+			DreadTendril = { 99, 15, 15, 13, 13, 13 },
 		}
-		for id, firsts in expected do
-			for danger = 0, 5 do
-				for wave = 1, 20 do
-					local found = false
-					-- Use a time outside the adapted Swarm Rush interval.
-					for _, group in SpawnRules.groupsAt(wave - 0.25, danger) do
-						if group.enemy == id then
-							found = true
+		local function firstWave(id: string, danger: number): number
+			for wave = 1, 20 do
+				for _, group in SpawnRules.groupsFor(wave, danger) do
+					for _, unit in group.units do
+						if unit.enemy == id and not group.loot and not group.neutral then
+							return wave
 						end
 					end
-					expect(found).toBe(wave >= firsts[danger + 1])
 				end
+			end
+			return 99
+		end
+		for id, firsts in expected do
+			for danger = 0, 5 do
+				expect(`{id} d{danger}: {firstWave(id, danger)}`).toBe(`{id} d{danger}: {firsts[danger + 1]}`)
 			end
 		end
 	end)
 
-	it("reserves trees, loot encounters and lure enemies for their special spawners", function()
+	it("reserves trees, loot encounters and lure enemies for their special groups", function()
 		for _, id in { "Tree", "Looter", "Gobbler", "Hookfang" } do
 			for wave = 1, 20 do
-				for _, group in Config.Run.spawn.groups[wave].groups do
-					expect(group.enemy == id).toBe(false)
+				for _, group in Config.EnemyWaves.waves[wave].groups do
+					for _, unit in group.units do
+						expect(unit.enemy == id).toBe(false)
+					end
 				end
 			end
 		end
-		expect(Config.Loot.gobbler.firstSeconds).toBe(10)
-		expect(Config.Loot.gobbler.chance).toBe(0.03)
+		local gobbler
+		for _, group in Config.EnemyWaves.allWaves do
+			if group.units[1].enemy == "Gobbler" then
+				gobbler = group
+			end
+		end
+		expect(gobbler.timing).toBe(10)
+		expect(gobbler.units[1].chance).toBe(0.03)
+		expect(gobbler.repeating).toBe(0)
 		expect(Config.Effects.lure.minCount).toBe(7)
 		expect(Config.Effects.lure.maxCount).toBe(8)
 	end)

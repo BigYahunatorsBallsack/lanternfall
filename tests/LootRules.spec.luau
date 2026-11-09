@@ -56,29 +56,12 @@ describe("LootRules", function()
 		expect(LootRules.consumable(Types.Tree, 0, 1, 0.99, 0.11)).toBe("Fruit") -- 20 % / 2 after a crate
 	end)
 
-	it("rolls native tree groups every ten seconds and applies Trees before the unit chance", function()
-		expect(LootRules.treesInGroup(0, 0, 0.3)).toBe(1)
-		expect(LootRules.treesInGroup(0, 0, 0.4)).toBe(0)
-		expect(LootRules.treesInGroup(6, 0, 0.3)).toBe(3)
-		expect(LootRules.treesInGroup(6, 0, 0.4)).toBe(2)
-		expect(LootRules.treesInGroup(6, 0.9, 0.6)).toBe(3)
-		expect(LootRules.treesInGroup(-5, 0, 0)).toBe(0)
-		expect(LootRules.treeRollsDue(1, 0, 9.99)).toBe(0)
-		expect(LootRules.treeRollsDue(1, 0, 10)).toBe(1)
-		expect(LootRules.treeRollsDue(1, 10, 30)).toBe(2)
-		expect(LootRules.treeRollsDue(99, 0, 10)).toBe(1)
-		expect(LootRules.treeRollsDue(100, 0, 60)).toBe(0)
-		expect(LootRules.treeRollsDue(101, 0, 60)).toBe(0)
-	end)
-
-	it("rolls for Looters at 25 s into a wave and every 15 s after, from wave 3", function()
-		local rule = Config.Loot.looter
-		expect(LootRules.looterRollsDue(rule.fromWave - 1, 0, 60)).toBe(0)
-		expect(LootRules.looterRollsDue(rule.fromWave, 0, rule.firstSeconds - 0.1)).toBe(0)
-		expect(LootRules.looterRollsDue(rule.fromWave, rule.firstSeconds - 0.1, rule.firstSeconds)).toBe(1)
-		expect(LootRules.looterRollsDue(rule.fromWave, rule.firstSeconds, rule.firstSeconds + 1)).toBe(0)
-		expect(LootRules.looterRollsDue(10, 0, 60)).toBe(3) -- 25, 40, 55
-		expect(LootRules.looterRollsDue(10, 40, 56)).toBe(1)
+	it("keeps main's crate bonus and endless-consumable rules active after integration", function()
+		-- A guaranteed tree consumable falls to 50% at endless factor one.
+		expect(LootRules.consumable(Types.Tree, 0, 0, 0.75, 0, 0, 1)).toBe(nil)
+		-- Trees have a 20% crate share; +100% crate chance changes a .3 roll from Fruit to Crate.
+		expect(LootRules.consumable(Types.Tree, 0, 0, 0, 0.3, 0, 0)).toBe("Fruit")
+		expect(LootRules.consumable(Types.Tree, 0, 0, 0, 0.3, 100, 0)).toBe("Crate")
 	end)
 
 	it("sells a crate's item for a quarter of its price plus Sell Value", function()
