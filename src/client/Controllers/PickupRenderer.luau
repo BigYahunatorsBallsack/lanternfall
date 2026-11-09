@@ -2,8 +2,8 @@
 -- Draws fruits and crates on the arena floor (DESIGN.md section 3, since B6) from the server's Pickups events
 -- (LootService): sprites of the authored green fruit and the two outlined cartoon loot boxes. Picked up they fly
 -- into the player like orbs; left at the wave end they simply vanish. Lying ones are placed once; only flying ones move
--- each frame, together in one workspace:BulkMoveTo. Also shows a small chip under the timer with the team's bag
--- (OrbBag, ExperienceService) while a run is on; crates waiting for the end of the wave are icons in the top-right
+-- each frame, together in one workspace:BulkMoveTo. The bag is not shown in the HUD (owner, 09.11.2026); a material that took
+-- from it shows "X2" when picked up (XpOrbRenderer). Crates waiting for the end of the wave are icons in the top-right
 -- corner (PendingRewardsController). Legendary crates use a larger crimson and gold mesh with a glow. The server decides every
 -- pickup; this only shows it.
 
@@ -17,20 +17,16 @@ local Config = require(Shared:WaitForChild("Config"))
 local Net = require(Shared:WaitForChild("Net"))
 local Types = require(Shared:WaitForChild("Net"):WaitForChild("Types"))
 
-local RunStateController = require(script.Parent.RunStateController)
-local Theme = require(script.Parent.Parent.UI.Theme)
 local VisualKit = require(script.Parent.WeaponRenderer.VisualKit)
 local WorldSprite = require(
 	game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Util"):WaitForChild("WorldSprite")
 )
-local Widgets = require(script.Parent.Parent.UI.Widgets)
 
 local FOLDER_NAME = "LanternfallPickups"
 local FLY_SECONDS = 0.3
 local CRATE, LEGENDARY = 2, 3 -- kinds in Net/Types.PickupEvents (1 = fruit)
 local LEGENDARY_GLOW = Color3.fromRGB(255, 80, 80)
 local LEGENDARY_GLOW_STUDS = 5.4
-local CHIP_Y = 126 -- pixels from the top, under the HUD's timer panel
 
 -- One pickup's parts and where each sits relative to the pickup's floor point.
 type Visual = { parts: { BasePart }, offsets: { CFrame } }
@@ -93,10 +89,6 @@ end
 
 local pickups: { [number]: Pickup } = {}
 local flights: { Flight } = {}
-local bag = 0
-
-local chipScreen: ScreenGui? = nil
-local chipLabel: TextLabel? = nil
 
 -- Reused lists for workspace:BulkMoveTo.
 local partList: { BasePart } = {}
@@ -220,56 +212,14 @@ local function render()
 	flushMoves()
 end
 
-local function updateChip()
-	local screen, label = chipScreen, chipLabel
-	if not (screen and label) then
-		return
-	end
-	local state = RunStateController.get()
-	local inRun = RunStateController.getView() == "Run" and state ~= nil and state.phase == "Running"
-	local parts = {}
-	if bag > 0 then
-		table.insert(parts, `Bag {math.round(bag)}`)
-	end
-	screen.Enabled = inRun and #parts > 0
-	label.Text = table.concat(parts, " · ")
-end
-
-local function buildChip()
-	local screen = Widgets.screen("Loot", 0)
-	local panel = Widgets.panel({
-		Name = "LootChip",
-		AnchorPoint = Vector2.new(0.5, 0),
-		Position = UDim2.new(0.5, 0, 0, CHIP_Y),
-		Size = UDim2.fromOffset(200, 0),
-		Parent = screen,
-	})
-	chipLabel = Widgets.label({
-		Name = "LootText",
-		Font = Theme.fontBold,
-		TextSize = 16 * Theme.hudTextScale,
-		TextColor3 = Theme.accent,
-		Size = UDim2.new(1, 0, 0, 18 * Theme.hudTextScale),
-		Parent = panel,
-	})
-	chipScreen = screen
-end
-
 -- Lifecycle -------------------------------------------------------------------------
 
 function PickupRenderer.init()
 	Net.onClient("Pickups", onEvents)
-	Net.onClient("OrbBag", function(value: number)
-		bag = if typeof(value) == "number" then value else 0
-		updateChip()
-	end)
 end
 
 function PickupRenderer.start()
-	buildChip()
 	task.spawn(preloadImages)
-	RunStateController.Changed:Connect(updateChip)
-	updateChip()
 	RunService.RenderStepped:Connect(render)
 end
 
@@ -282,12 +232,6 @@ function PickupRenderer.getCounts(): (number, number)
 		lying += 1
 	end
 	return lying, #flights
-end
-
--- The text of the bag chip, "" while it is hidden (tests).
-function PickupRenderer.getChipText(): string
-	local screen, label = chipScreen, chipLabel
-	return if screen and label and screen.Enabled then label.Text else ""
 end
 
 return PickupRenderer
