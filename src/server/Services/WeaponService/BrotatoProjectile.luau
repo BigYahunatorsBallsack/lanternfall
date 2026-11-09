@@ -5,6 +5,7 @@ local Combat = require(script.Parent.BrotatoCombat)
 local Rules = require(game:GetService("ReplicatedStorage").Shared.Config.Combat).originalWeapons
 local WeaponPose = require(game:GetService("ReplicatedStorage").Shared.Util.WeaponPose)
 local WeaponTarget = require(script.Parent.WeaponTarget)
+local Sticky = require(script.Parent.StickyGrenadeShot)
 
 type Shot = {
 	id: number,
@@ -22,6 +23,10 @@ type Shot = {
 	bounced: boolean?,
 	critical: boolean?,
 	slowHit: { [number]: boolean }?,
+	fuseUntil: number?,
+	targetId: number?,
+	offsetX: number?,
+	offsetZ: number?,
 }
 local Projectile = {}
 local targets: { number } = {}
@@ -216,6 +221,12 @@ function Projectile.step(weapon: Arsenal.Weapon, ctx: Arsenal.Context, dt: numbe
 	for index = #shots, 1, -1 do
 		local shot = shots[index]
 		local stats = shot.stats
+		if stats.stickyFuse then
+			if Sticky.step(weapon, ctx, shot, dt) then
+				table.remove(shots, index)
+			end
+			continue
+		end
 		local move = math.min(stats.projectileSpeed * dt, stats.range - shot.flown)
 		local x1, z1 = shot.x + shot.dx * move, shot.z + shot.dz * move
 		if slowAura and stats.slowRadius then

@@ -2,6 +2,14 @@
 
 Implementiere alle noch fehlenden Brotato-Charaktere in Lanternfall vollständig. Ziel: stabile PC-Version 1.2.0.1 mit allen DLCs, insgesamt 74 Charaktere. Der Owner erwartet funktionierende Charaktere einschließlich ihrer benötigten Ausrüstung und Mechaniken, nicht nur Konfigurationsdatensätze. Sprich Deutsch mit ihm; Code, Kommentare und Spieltexte bleiben Englisch.
 
+## Aktuell: Artificer (09.11.2026)
+
+Artificer ist als siebtes Codepaket vorbereitet: alle fünf Starts, originale Stats/Modifikatoren, Tool-Bonus und persönliche Freischaltung durch 15 Kills einer einzigen Explosion. Sticky Grenade hat alle vier Tiers, 0,75-s-Zündzeit, 40-Punkte-Kleberadius, folgt dem Ziel und behält nach dessen Tod die letzte Position. Kein Kontaktschaden, Reichweitenende startet die volle Zündzeit. Gesweepte Mittelpunktprüfung nutzt den bestehenden 15-Hz-Simulator; keine native Physik-Abnahme.
+
+Waffenexplosionen verwenden jetzt additive Damage-/Explosion-Damage-Boni vor Mindestschaden und Rundung; keine doppelte Multiplikation. Explosionen würfeln Krits je Ziel und melden je Angriff ihre Kills (auch Item-, Charakter- und Strukturpfade). Arsenal unverändert. Code-/Quellnachweise: artificer-source.json, artificer-validation.json und weapon-source.json.
+
+81 konfigurierte Waffen, davon 62 öffentlich und 19 bis zum echten Bild-Upload gesperrt. Originalicon sowie getrennte Flug-/Bodenbilder lokal vorbereitet. Originale Flugrotation und Boden-Verformungsanimation sind weiter Darstellungsarbeit; gesperrte aktuelle Testanzeige nutzt gemeinsamen Flugrenderer und gepoolte Zündmarker mit nativen Farbzeiten. Sieben Codepakete sind keine vollständige native 1:1-Abnahme. Noch zehn Waffen- und neun Item-/Petfamilien; allgemeine Formel-/Physik-/Bildlücken und Studio/Koop/Handy bleiben offen. Vergleich main1017469: 1245 bestanden, dieselben 34 vorhandenen Fehler in 147 Specs, Vollvergleich plus betroffene Main-Nachprüfungen. Keine Uploads/Veröffentlichung.
+
 ## Aktuell: Pacifist (09.11.2026)
 
 Pacifist ist als sechstes neues Codepaket vorbereitet: alle drei Originalstarts, garantierter Lumberjack Shirt, Originalstats/-texte und Freischaltung durch insgesamt 10.000 physisch aufgesammelte Materialobjekte. Schema v10 ergänzt einen persönlichen, gespeicherten Zähler samt Migration; Verdopplung/Währungsrotation beeinflussen ihn nicht. Shirt tötet Bäume nach gültigen Besitzer-Hitboxen, ohne den gemeldeten Schaden zu erhöhen; Brennen/Stat-Strikes bleiben getrennt. Auswahl und Zufallspools bleiben ohne echte Bilder gesperrt. Shirt-Originalbild lokal vorbereitet; nichts hochgeladen.

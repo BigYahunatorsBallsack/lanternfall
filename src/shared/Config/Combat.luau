@@ -41,6 +41,7 @@ return table.freeze({
 	-- of it. Explosion Size scales every radius, Explosion Damage every explosion's damage. Explosions crit like the
 	-- weapon, never life steal and never knock back.
 	explosion = table.freeze({
+		minimumSizeFactor = 0.1, -- stable PlayerExplosion.set_area minimum
 		baseRadius = 6, -- studs; Starfire's blast
 	}),
 	-- Piercing (Brotato): every enemy after the first takes `falloff` less than the one before, unless the weapon sets

@@ -38,5 +38,17 @@ for weapon in facts["weapons"]:
     checked = Image.open(output).convert("RGBA")
     assert checked.tobytes() == image.tobytes(), output
     manifest["weapons"].append({"id": weapon["id"], "name": weapon["name"], "source": icon, "textureSource": texture, "textureMd5": pck.entries[texture]["md5"], "output": output.relative_to(ROOT).as_posix(), "pngSha256": hashlib.sha256(output.read_bytes()).hexdigest(), "rgbaSha256": hashlib.sha256(image.tobytes()).hexdigest(), "size": list(image.size), "alphaBounds": list(image.getbbox())})
+# Distinct flying and grounded grenade pictures, separate from held weapon identities.
+if any(w["id"] == "StickyGrenade" for w in facts["weapons"]):
+    manifest["projectiles"] = []
+    for ident, icon in [("StickyGrenadeThrown","res://projectiles/grenade_mine/grenade.png"),("StickyGrenadeGround","res://projectiles/grenade_mine/grenade_on_ground.png")]:
+        imported = pck.read(icon + ".import").decode("utf-8")
+        texture = re.search(r'path="([^"]+\.stex)"', imported)[1]
+        raw = pck.read(texture)
+        image = Image.open(io.BytesIO(raw[raw.index(b"RIFF"):])).convert("RGBA")
+        output = folder / (ident + ".png")
+        image.save(output)
+        assert Image.open(output).convert("RGBA").tobytes() == image.tobytes()
+        manifest["projectiles"].append({"id":ident, "source":icon, "textureSource":texture, "textureMd5":pck.entries[texture]["md5"], "output":output.relative_to(ROOT).as_posix(), "pngSha256":hashlib.sha256(output.read_bytes()).hexdigest(), "rgbaSha256":hashlib.sha256(image.tobytes()).hexdigest(), "size":list(image.size), "alphaBounds":list(image.getbbox())})
 (folder / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
 print(f"{len(manifest['weapons'])} native icons prepared; no uploads or runtime ID changes")
