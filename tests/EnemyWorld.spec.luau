@@ -119,20 +119,33 @@ describe("EnemyWorld", function()
 		local spitter = Types.Spitter
 		expect((spitter.ranged :: any).retreatSpeedFactor).toBe(nil)
 		local id = spawn(world, "Spitter", 0, -8)
-		run(world, 1, { 0 }, { 0 })
+		run(world, 0.25, { 0 }, { 0 }) -- its distance is at least 20 studs, so it is still backing off
 		local backed = distance(world, id, 0, 0) - 8
-		expect(backed).toBeNear(spitter.speed, 0.5)
+		expect(backed).toBeNear(spitter.speed * 0.25, 0.5)
 		expect(spitter.speed < Config.Player.moveSpeed).toBe(true) -- a player still catches it
 	end)
 
-	it("keeps ranged enemies at their distance", function()
+	it("keeps ranged enemies at their own distance, rolled within keepDistanceJitter", function()
 		local world = newWorld()
-		local keep = Types.Spitter.ranged.keepDistance
-		local far = spawn(world, "Spitter", 0, 60)
-		local near = spawn(world, "Spitter", 0, -8)
+		local ranged = Types.Spitter.ranged :: any
+		local far = spawn(world, "Spitter", 0, 60) :: number
+		local near = spawn(world, "Spitter", 0, -8) :: number
 		run(world, 10, { 0 }, { 0 })
-		expect(math.abs(distance(world, far, 0, 0) - keep) <= Sim.keepDistanceTolerance + 0.01).toBe(true)
-		expect(math.abs(distance(world, near, 0, 0) - keep) <= Sim.keepDistanceTolerance + 0.01).toBe(true)
+		for _, id in { far, near } do
+			local keep = world.keeps[world.indexOf[id]]
+			expect(math.abs(keep - ranged.keepDistance) <= ranged.keepDistanceJitter).toBe(true)
+			expect(math.abs(distance(world, id, 0, 0) - keep) <= Sim.keepDistanceTolerance + 0.01).toBe(true)
+		end
+		local keeps = {}
+		for k = 1, 20 do
+			local id = spawn(world, "Spitter", 0, 10 + k) :: number
+			keeps[world.keeps[world.indexOf[id]]] = true
+		end
+		local different = 0
+		for _ in keeps do
+			different += 1
+		end
+		expect(different > 10).toBe(true) -- every Spitter rolls its own distance
 	end)
 
 	it("forms a calm crowd of 140 without overlaps or enemies inside the player", function()
@@ -667,21 +680,39 @@ describe("B9 behaviours", function()
 		)
 	end)
 
-	it("lets a Skulker back off slowly from a close player and walk up to its shooting distance", function()
-		local skulker = Types.Skulker
-		expect(skulker.flee).toBe(nil) -- playtest after Paket 24: it no longer runs off
+	it("lets a Skulker wander to random spots in the arena instead of following the player", function()
+		local wander = Types.Skulker.wander :: any
+		expect(wander.around).toBe("Arena")
 		local world = newWorld()
-		local near = spawn(world, "Skulker", 16, 0) :: number
-		local far = spawn(world, "Skulker", 0, 70) :: number
-		run(world, 0.5, { 0 }, { 0 })
-		local backed = distance(world, near, 0, 0) - 16
-		expect(backed > 0 and backed < skulker.speed * 0.5 * 0.5).toBe(true)
-		expect(distance(world, far, 0, 0) < 70 - 2).toBe(true)
-		run(world, 6, { 0 }, { 0 })
-		expect(distance(world, far, 0, 0)).toBeNear(
-			(skulker.ranged :: any).keepDistance,
-			Sim.keepDistanceTolerance + 0.5
-		)
+		local id = spawn(world, "Skulker", 0, 0) :: number
+		local spots, lastX = 0, nil
+		for _ = 1, 60 do
+			run(world, 0.5, { 0 }, { 0 })
+			local i = world.indexOf[id]
+			if world.wanderXs[i] ~= lastX then
+				spots += 1
+				lastX = world.wanderXs[i]
+			end
+			local x, z = world:getPosition(id)
+			expect(math.abs(x) <= HALF and math.abs(z) <= HALF_Z).toBe(true)
+		end
+		expect(spots >= 3).toBe(true) -- it reaches a spot and picks the next one
+	end)
+
+	it("lets a Thornback wander around the nearest player within its range", function()
+		local wander = Types.Thornback.wander :: any
+		expect(wander.around).toBe("Target")
+		local world = newWorld()
+		local id = spawn(world, "Thornback", 60, 0) :: number
+		local reach = (wander.range + wander.rangeJitter) * math.sqrt(2)
+		run(world, 8, { 0 }, { 0 })
+		for _ = 1, 20 do
+			run(world, 0.5, { 0 }, { 0 })
+			local i = world.indexOf[id]
+			local spotDistance = math.sqrt(world.wanderXs[i] ^ 2 + world.wanderZs[i] ^ 2)
+			expect(spotDistance <= reach + 0.01).toBe(true)
+		end
+		expect(distance(world, id, 0, 0) < reach + 5).toBe(true)
 	end)
 
 	it("defers ranged-only counter-shots to the weapon hit handler", function()
