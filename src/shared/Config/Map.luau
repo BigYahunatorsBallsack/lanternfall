@@ -74,7 +74,7 @@ return table.freeze({
 		lampHeight = 12,
 		-- Dark ground around arena and lobby, wide enough that the camera never sees past it; `margin` extends past the wall
 		-- and `drop` lowers its top. Colors are { red, green, blue }.
-		outskirts = table.freeze({ margin = 110, lobbyMargin = 60, thickness = 4, drop = 0.3, color = { 20, 18, 18 } }),
+		outskirts = table.freeze({ margin = 110, lobbyMargin = 90, thickness = 4, drop = 0.3, color = { 20, 18, 18 } }),
 		motes = table.freeze({ rate = 6, lifetime = { 6, 10 } }), -- graphics setting compatibility
 		lobbyLamps = 6, -- around the lobby
 	}),
