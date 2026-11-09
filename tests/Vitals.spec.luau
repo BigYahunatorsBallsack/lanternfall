@@ -6,7 +6,8 @@ local Vitals = require(ServerScriptService.Server.Services.CombatService.Vitals)
 
 local SETTINGS = {
 	minDamagePerHit = 1,
-	hitInvulnerability = 0.5,
+	hitInvulnerabilityMin = 0.5,
+	hitInvulnerabilityMax = 0.5,
 }
 
 describe("Vitals", function()
@@ -23,6 +24,18 @@ describe("Vitals", function()
 		expect(v.hp).toBe(95)
 		expect(v:hit(5, 10.5)).toBe(5)
 		expect(v.hp).toBe(90)
+	end)
+
+	it("protects 0.2-0.4 s after a hit, longer for a bigger share of max HP (Brotato)", function()
+		local settings = { minDamagePerHit = 1, hitInvulnerabilityMin = 0.2, hitInvulnerabilityMax = 0.4 }
+		expect(Vitals.protectionAfterHit(settings, 0, 10)).toBeNear(0.2, 1e-9)
+		expect(Vitals.protectionAfterHit(settings, 5, 10)).toBeNear(0.3, 1e-9)
+		expect(Vitals.protectionAfterHit(settings, 20, 10)).toBeNear(0.4, 1e-9)
+		local v = Vitals.new(10, settings)
+		expect(v:hit(1, 0)).toBe(1) -- 10 % of max HP: 0.22 s
+		expect(v.invulnerableUntil).toBeNear(0.22, 1e-9)
+		expect(v:hit(1, 0.21)).toBe(0)
+		expect(v:hit(1, 0.23)).toBe(1)
 	end)
 
 	it("takes the armor share of the damage but always at least 1", function()

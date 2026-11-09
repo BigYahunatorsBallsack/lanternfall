@@ -258,7 +258,7 @@ describe("smoke", function()
 		expect(contacts > 0).toBe(true)
 		-- every touch hurts, at most once per hit protection window
 		local lost = hpBefore - CombatService.getHp(me)
-		local hitsAllowed = math.ceil(2 / Config.Player.hitInvulnerability) + 1
+		local hitsAllowed = math.ceil(2 / Config.Player.hitInvulnerabilityMin) + 1
 		expect(lost > 0).toBe(true)
 		local hit = Config.Enemies.types.Shadeling.contactDamage * (Config.Run.spawn.growth.damageScale or 1)
 		expect(lost <= hitsAllowed * hit * 1.1).toBe(true)

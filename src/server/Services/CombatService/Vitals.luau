@@ -5,7 +5,8 @@
 
 export type Settings = {
 	minDamagePerHit: number,
-	hitInvulnerability: number, -- seconds of protection after a hit
+	hitInvulnerabilityMin: number, -- seconds of protection after a tiny hit
+	hitInvulnerabilityMax: number, -- seconds of protection after a hit worth all max HP
 }
 
 local Vitals = {}
@@ -117,8 +118,14 @@ function Vitals.hit(self: Vitals, damage: number, now: number, roll: number?): (
 		else math.max(settings.minDamagePerHit, math.round(damage * self.damageFactor)) -- whole HP like Brotato
 	taken = math.min(taken, self.hp)
 	self.hp -= taken
-	self:protect(now, settings.hitInvulnerability)
+	self:protect(now, Vitals.protectionAfterHit(settings, taken, self.maxHp))
 	return taken, false, false
+end
+
+-- Seconds of protection after losing `taken` HP (Brotato: 0.2-0.4 s, longer the bigger the share of max HP).
+function Vitals.protectionAfterHit(settings: Settings, taken: number, maxHp: number): number
+	local share = if maxHp > 0 then math.clamp(taken / maxHp, 0, 1) else 1
+	return settings.hitInvulnerabilityMin + (settings.hitInvulnerabilityMax - settings.hitInvulnerabilityMin) * share
 end
 
 -- Heals up to the maximum. Returns the HP actually gained (0 while down: only a revive helps then).

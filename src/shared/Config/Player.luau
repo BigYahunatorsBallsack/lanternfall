@@ -12,7 +12,11 @@ return table.freeze({
 	-- width (150 of about 2000 px) for the 160-stud arena
 	pickupRadius = 12,
 	minDamagePerHit = 1,
-	hitInvulnerability = 0.4, -- seconds of protection after taking a hit (B5: Brotato range 0.2-0.4, before 0.5)
+	-- seconds of protection after taking a hit, like Brotato: from min (tiny hit) to max (a hit worth all max HP),
+	-- linear in the share of max HP lost. The 0.2-0.4 s range is Brotato's; the linear curve is an assumption
+	-- (the wiki gives no formula). Since 09.11.2026, before always 0.4 s (B5) and 0.5 s.
+	hitInvulnerabilityMin = 0.2,
+	hitInvulnerabilityMax = 0.4,
 	-- crits of weapons that set no critChance / critDamage of their own (Brotato: most weapons x2 at 3 %; since B5,
 	-- before 5 % for every weapon), also of item explosions
 	critChance = 0.03, -- per hit, before the Crit Chance stat
