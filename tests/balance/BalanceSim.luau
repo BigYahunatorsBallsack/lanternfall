@@ -138,7 +138,8 @@ world.advance(0.5, DT)
 
 local center = Config.Map.arena.center
 -- the mock has no physics: keep the bot inside the arena walls (MapService) like a real character
-local wallLimit = Config.Map.arena.size / 2 - Config.Simulation.playerRadius
+local wallLimitX = Config.Map.arena.width / 2 - Config.Simulation.playerRadius
+local wallLimitZ = Config.Map.arena.depth / 2 - Config.Simulation.playerRadius
 
 -- Damage the bot took this run by source (before hit protection and armor).
 local damageTaken = { contact = 0, shot = 0 }
@@ -590,9 +591,9 @@ local function playRun(scenario, seed)
 		if speed > 0 and (dx ~= 0 or dz ~= 0) then
 			local moved = position + Vector3.new(dx, 0, dz) * speed * DT
 			root.Position = Vector3.new(
-				math.clamp(moved.X, center.X - wallLimit, center.X + wallLimit),
+				math.clamp(moved.X, center.X - wallLimitX, center.X + wallLimitX),
 				moved.Y,
-				math.clamp(moved.Z, center.Z - wallLimit, center.Z + wallLimit)
+				math.clamp(moved.Z, center.Z - wallLimitZ, center.Z + wallLimitZ)
 			)
 			root.AssemblyLinearVelocity = Vector3.new(dx, 0, dz) * speed
 			angle += speed * DT / KITE_RADIUS

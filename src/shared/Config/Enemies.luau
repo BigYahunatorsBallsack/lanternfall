@@ -294,7 +294,7 @@ end
 -- zone, here until the arena edge or an obstacle stops them (SHOT_RANGE is longer than the arena is wide).
 local PIXEL = Player.moveSpeed / 450 -- studs per Brotato pixel
 local SHOT_RADIUS = 17 * PIXEL
-local SHOT_RANGE = 250
+local SHOT_RANGE = 300
 
 local Enemies: { [string]: Enemy } = {
 	Shadeling = {

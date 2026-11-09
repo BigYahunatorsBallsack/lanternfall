@@ -68,7 +68,7 @@ EnemySim.Stepped = Signal.new()
 
 local function newWorld(): World.World
 	local bounds = MapService.getArenaBounds()
-	local center, half = bounds.center, bounds.halfSize
+	local center, halfX, halfZ = bounds.center, bounds.halfX, bounds.halfZ
 	return World.new({
 		cellSize = Sim.spatialHashCellSize,
 		maxEnemies = Config.Run.spawn.cap.max,
@@ -78,10 +78,10 @@ local function newWorld(): World.World
 		separationPasses = Sim.separationPasses,
 		obstacleSteerMargin = Sim.obstacleSteerMargin,
 		keepDistanceTolerance = Sim.keepDistanceTolerance,
-		minX = center.X - half,
-		maxX = center.X + half,
-		minZ = center.Z - half,
-		maxZ = center.Z + half,
+		minX = center.X - halfX,
+		maxX = center.X + halfX,
+		minZ = center.Z - halfZ,
+		maxZ = center.Z + halfZ,
 		obstacles = MapService.getObstacles(),
 	})
 end
@@ -92,13 +92,13 @@ local spawnContexts: { [number]: SpawnContext } = {}
 local chargeTrails: { [number]: { x: number, z: number, distance: number } } = {}
 local volleys = (function()
 	local bounds = MapService.getArenaBounds()
-	local center, half = bounds.center, bounds.halfSize
+	local center, halfX, halfZ = bounds.center, bounds.halfX, bounds.halfZ
 	return Volleys.new({
 		playerRadius = Sim.playerRadius,
-		minX = center.X - half,
-		maxX = center.X + half,
-		minZ = center.Z - half,
-		maxZ = center.Z + half,
+		minX = center.X - halfX,
+		maxX = center.X + halfX,
+		minZ = center.Z - halfZ,
+		maxZ = center.Z + halfZ,
 		obstacles = MapService.getObstacles(),
 	})
 end)()

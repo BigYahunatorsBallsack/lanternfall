@@ -12,7 +12,8 @@ local World = require(game:GetService("ServerScriptService").Server.Services.Ene
 local Sim = Config.Simulation
 local Types = Config.Enemies.types
 local STEP = 1 / Sim.tickRate
-local HALF = Config.Map.arena.size / 2
+local HALF = Config.Map.arena.width / 2 -- along x; the walls in these tests are east and west
+local HALF_Z = Config.Map.arena.depth / 2
 
 local function newWorld(obstacles)
 	return World.new({
@@ -26,8 +27,8 @@ local function newWorld(obstacles)
 		keepDistanceTolerance = Sim.keepDistanceTolerance,
 		minX = -HALF,
 		maxX = HALF,
-		minZ = -HALF,
-		maxZ = HALF,
+		minZ = -HALF_Z,
+		maxZ = HALF_Z,
 		obstacles = obstacles or {},
 	})
 end
@@ -855,8 +856,8 @@ describe("Volleys", function()
 			playerRadius = Sim.playerRadius,
 			minX = -HALF,
 			maxX = HALF,
-			minZ = -HALF,
-			maxZ = HALF,
+			minZ = -HALF_Z,
+			maxZ = HALF_Z,
 			obstacles = obstacles or {},
 		})
 	end
