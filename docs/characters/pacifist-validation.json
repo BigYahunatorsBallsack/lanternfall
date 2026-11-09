@@ -1,6 +1,6 @@
 {
   "date": "2026-11-09",
-  "baseMain": "607524e19c5efc86b0a695dd34b9cff4792179b9",
+  "baseMain": "d873a05b1055a42229d81464a504ab0c25a9bc4b",
   "fullSuiteReferenceMain": "b07915bf2207a2f8c0fbd266faf1bd569439be64",
   "runner": "Lune 0.11.1 Roblox mock; seed 1234; each spec in its own process",
   "main": {
@@ -13,7 +13,7 @@
     "passed": 1230,
     "failed": 34
   },
-  "comparisonMethod": "Full suites on b07915b plus reruns of SelectionHover, WorldSprites, FirstNightHub and Smoke after integrating main 607524e. Re-ran both final Pacifist specs after adding persistence coverage.",
+  "comparisonMethod": "Full suites on b07915b plus reruns of SelectionHover, WorldSprites, FirstNightHub and Smoke after integrating main 607524e. Re-ran both final Pacifist specs after adding persistence coverage. Also integrated main d873a05 size/camera/floor-art changes and re-ran SelectionHover, WorldSprites, FirstNightHub, Smoke, HeldWeapons, ItemSprites, UiReference and EnemySpawnPlacement25 on main and branch.",
   "newFailures": [],
   "existingFailures": [
     {
