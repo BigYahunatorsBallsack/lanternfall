@@ -56,29 +56,6 @@ describe("LootRules", function()
 		expect(LootRules.consumable(Types.Tree, 0, 1, 0.99, 0.11)).toBe("Fruit") -- 20 % / 2 after a crate
 	end)
 
-	it("plans the trees of a wave", function()
-		local base = Config.Loot.trees.perWave
-		expect(LootRules.treesForWave(0, 0.5)).toBe(base)
-		expect(LootRules.treesForWave(2, 0.5)).toBe(base + 2)
-		expect(LootRules.treesForWave(0.5, 0.4)).toBe(base + 1)
-		expect(LootRules.treesForWave(0.5, 0.6)).toBe(base)
-		expect(LootRules.treesForWave(-5, 0)).toBe(0)
-		local times = LootRules.treeTimes(2, 40)
-		expect(#times).toBe(2)
-		expect(times[1]).toBeNear(40 * Config.Loot.trees.spawnShare / 4)
-		expect(times[2]).toBeNear(40 * Config.Loot.trees.spawnShare * 3 / 4)
-	end)
-
-	it("rolls for Looters at 25 s into a wave and every 15 s after, from wave 3", function()
-		local rule = Config.Loot.looter
-		expect(LootRules.looterRollsDue(rule.fromWave - 1, 0, 60)).toBe(0)
-		expect(LootRules.looterRollsDue(rule.fromWave, 0, rule.firstSeconds - 0.1)).toBe(0)
-		expect(LootRules.looterRollsDue(rule.fromWave, rule.firstSeconds - 0.1, rule.firstSeconds)).toBe(1)
-		expect(LootRules.looterRollsDue(rule.fromWave, rule.firstSeconds, rule.firstSeconds + 1)).toBe(0)
-		expect(LootRules.looterRollsDue(10, 0, 60)).toBe(3) -- 25, 40, 55
-		expect(LootRules.looterRollsDue(10, 40, 56)).toBe(1)
-	end)
-
 	it("sells a crate's item for a quarter of its price plus Sell Value", function()
 		expect(LootRules.sellPrice(40, 0.25, 0)).toBe(10)
 		expect(LootRules.sellPrice(41, 0.25, 0)).toBe(10)

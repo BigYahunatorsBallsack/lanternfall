@@ -20,6 +20,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Shared = ReplicatedStorage.Shared
 local Config = require(Shared.Config)
 local DangerRules = require(Shared.Util.DangerRules)
+local CharacterRules = require(Shared.Util.CharacterRules)
 local EnemyKinds = require(Shared.Util.EnemyKinds)
 local LootRules = require(Shared.Util.LootRules)
 local Net = require(Shared.Net)
@@ -143,16 +144,22 @@ local function open(index: number, everyone: boolean?)
 	sendChests()
 end
 
--- Average Luck of the participants who are not out (Brotato averages it over the players in co-op).
+-- Luck of all participants together (Brotato sums it over the players for fruits and crates).
 local function teamLuck(): number
-	local total, count = 0, 0
+	local total = 0
 	for _, player in RunDirector.getParticipants() do
-		if RunDirector.getParticipantState(player) ~= "Out" then
-			total += StatService.getStat(player, "luck")
-			count += 1
-		end
+		total += StatService.getStat(player, "luck")
 	end
-	return if count > 0 then total / count else 0
+	return total
+end
+
+-- Crate chance percent of all participants together (Brotato crate_chance effect, e.g. character traits).
+local function teamCrateBonus(): number
+	local total = 0
+	for _, player in RunDirector.getParticipants() do
+		total += CharacterRules.nativeAmount(RunDirector.getParticipantClassId(player), "crate_chance")
+	end
+	return total
 end
 
 local function round(value: number): number
@@ -235,7 +242,15 @@ local function onEnemyKilled(info: EnemySim.KillInfo)
 		return
 	end
 	local random = RandomService.stream("Loot")
-	local dropped = LootRules.consumable(kind, teamLuck(), cratesThisWave, random:NextNumber(), random:NextNumber())
+	local dropped = LootRules.consumable(
+		kind,
+		teamLuck(),
+		cratesThisWave,
+		random:NextNumber(),
+		random:NextNumber(),
+		teamCrateBonus(),
+		DangerRules.endlessFactor(RunDirector.getWave())
+	)
 	if dropped == "Crate" then
 		cratesThisWave += 1
 		dropPickup(info.position.X, info.position.Z, CRATE)

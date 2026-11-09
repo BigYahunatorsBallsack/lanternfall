@@ -112,7 +112,7 @@ describe("Native Arms Dealer package", function()
 		endWave()
 		expect(#Weapons.getWeapons(me)).toBe(0)
 		expect(#Weapons.getWeapons(peer)).toBe(peerCount)
-		expect(Shop.getShards(me)).toBe(30)
+		expect(Shop.getShards(me)).toBe(30 + Config.Shop.startShards)
 		for _, offer in Shop.getOffers(peer) do
 			if offer.kind == "Weapon" then
 				expect(offer.price).toBe(Rules.weaponPrice(offer.itemId, offer.tier, 1, 1))

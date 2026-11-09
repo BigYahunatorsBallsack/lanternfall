@@ -3,6 +3,7 @@
 -- Read by RunDirector, SpawnDirector, UpgradeService and ReviveService; `flow` also by the lobby UI.
 
 local EnemyWaves = require(script.Parent.EnemyWaves)
+local Stats = require(script.Parent.Stats)
 
 -- Brotato's 20 waves (since B3, before 12): 20 s, +5 s per wave up to 60 s from wave 9, the final wave 90 s
 local WAVE_LENGTHS = { 20, 25, 30, 35, 40, 45, 50, 55, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 90 }
@@ -36,33 +37,37 @@ local Run = {
 		endlessChoiceSeconds = 20,
 	}),
 
-	-- fPlayers = 1 + perExtraPlayer * (n - 1)
-	playerFactor = table.freeze({ perExtraPlayer = 0.6 }),
-
 	spawn = table.freeze({
 		-- Waves (Brotato direction since B1): wave n lasts lengthsSeconds[n], then the shop opens (Config.Shop) and the
-		-- clock stops until the next wave. The rate ramps from rampFrom to rampTo through each wave; the final wave runs
-		-- at finalRate times that. Wave 1 = 20 s, +5 s per wave, at most 60 s, the final one 90 s, like Brotato.
+		-- clock stops until the next wave. Wave 1 = 20 s, +5 s per wave, at most 60 s, the final one 90 s, like Brotato
+		-- (the same lengths as Config.EnemyWaves).
 		waves = table.freeze({
 			lengthsSeconds = table.freeze(WAVE_LENGTHS),
-			rampFrom = 0.7,
-			rampTo = 1.2,
-			finalRate = 1.4,
 		}),
-		-- alive cap = base + perExtraPlayer * (n - 1), at most max
-		cap = table.freeze({ base = 80, perExtraPlayer = 20, max = 140 }),
-		-- studs around a random player; since B9 closer (before 45-60, just out of sight), so the spawn markers are
-		-- seen (assumption)
+		-- Brotato's enemy maximum: the wave's maxEnemies (100) plus perExtraPlayerShare of it per extra player
+		-- (4 players: 137). When a spawn group fires with more regular enemies alive, random ones are removed without
+		-- loot (bosses, champions and trees do not count). `max` is EnemySim's technical ceiling for everything alive at
+		-- once (births still arrive between group firings, plus bosses, champions, summons and trees).
+		cap = table.freeze({ perExtraPlayerShare = 1 / 8, max = 200 }),
+		-- studs around a player for debug spawns (AdminService) and Gloom Elites; wave spawns use `layout`
 		ringMin = 32,
 		ringMax = 52,
-		-- against running away (WP9): this share of spawns lands in a cone in front of a walking player (assumption)
-		ahead = table.freeze({ share = 0.35, halfAngleDegrees = 60, minSpeed = 4 }),
-		-- enemies farther than `distance` from every living player move to a new spawn point (like a fresh spawn),
-		-- so a crowd trailing behind a runner comes back in front of them; at the alive cap also the `atCapCount`
-		-- farthest ones beyond `atCapDistance`, so running in circles with a full trailing crowd does not stop new
-		-- enemies from coming (assumption)
-		recycle = table.freeze({ distance = 80, intervalSeconds = 1, atCapDistance = 40, atCapCount = 5 }),
-		-- Wiki first appearances are enforced per danger by SpawnRules. Density remains a Roblox adaptation.
+		-- Brotato's spawn geometry in its pixels (SpawnRules turns them into studs, 450 px/s = the player's speed):
+		-- groups and enemies keep minPlayerDistance from every player (shrinking by distanceStep per retry, down to
+		-- minDistanceFloor), edge spawns stand edgeDistance in from the arena wall. Lanternfall's arena is a 160-stud
+		-- square; Brotato's Crash Zone is 2048 x 1536 px (204.8 x 153.6 studs).
+		layout = table.freeze({
+			studsPerPixel = Stats.range.studsPerPoint,
+			minPlayerDistance = 300,
+			minDistanceFloor = 25,
+			distanceStep = 5,
+			edgeDistance = 64,
+		}),
+		-- Brotato's spawn queue: one queued enemy every secondsPerSpawn (3 frames at 60 fps); from `limit` queued on,
+		-- (queued - limit) / burstDivisor of them per step, at most burstMax. Each one shows its red cross for
+		-- markerSeconds, then appears.
+		queue = table.freeze({ secondsPerSpawn = 3 / 60, limit = 100, burstDivisor = 10, burstMax = 2 }),
+		-- Brotato 1.2.0.1's own spawn groups (generated, tools/build-enemy-waves.py)
 		groups = EnemyWaves,
 		-- Wiki: base + increment * (wave - 1), no extra normal-enemy damage multiplier.
 		growth = table.freeze({
@@ -70,21 +75,9 @@ local Run = {
 			damageSteps = table.freeze({ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19 }),
 			damageScale = 1,
 		}),
-		firstShare = 0.3, -- a group fires the first time after this share of its interval (assumption)
-		-- at the alive cap a group waits for room instead of being dropped; it saves up at most this many firings
-		maxOwedFirings = 2,
-		groupSpread = 1.6, -- studs * sqrt(enemies in the group) (assumption)
-		-- red crosses on the floor show where enemies will appear, this long before they do (Brotato; assumption)
+		-- red crosses on the floor show where enemies will appear, this long before they do (Brotato's entity birth:
+		-- 60 frames)
 		markerSeconds = 1,
-		swarmRush = table.freeze({
-			atMinutes = table.freeze({ 6, 11, 16 }),
-			durationShare = 0.6, -- of its wave
-			rateMultiplier = 2, -- of the wave's groups, which pause meanwhile
-			enemy = "Shadeling",
-			every = 2, -- seconds between the Shadeling groups of a Swarm Rush (B9)
-			ringCount = 24, -- extra Shadelings in a closed ring around every player when it starts (assumption)
-			ringDistance = 45, -- studs; the old ringMin, so the ring did not come closer with B9
-		}),
 		-- Gloom Elites of the wave's groups (weighted by enemies per second) (Config.Enemies.elite) at these minutes, also above the alive cap; from
 		-- affixFromMinute each gets a random affix (Swift, Armored, Summoning)
 		elites = table.freeze({

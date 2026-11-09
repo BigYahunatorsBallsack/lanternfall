@@ -64,7 +64,6 @@ local Difficulty = {
 	-- always an elite wave. Hordes only in the first 20 waves.
 	hordeChance = 0.4,
 	horde = table.freeze({
-		spawnMultiplier = 2, -- enemies of the wave's spawn groups (Brotato gives no number, assumption)
 		orbShare = 0.65, -- Brotato: enemies drop 35 % fewer materials during a horde
 	}),
 

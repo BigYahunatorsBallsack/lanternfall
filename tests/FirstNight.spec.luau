@@ -24,6 +24,10 @@ local LootService = require(Services.LootService)
 local RunDirector = require(Services.RunDirector)
 
 local FirstNight = Config.FirstNight
+-- God mode: the test player stands still, and Brotato's wave 1 stream overruns a player who never moves
+require(Services.CombatService.Vitals).hit = function()
+	return 0, false, false
+end
 
 local me = world.addPlayer("Owner", 1, true)
 local peer

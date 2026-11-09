@@ -1,6 +1,6 @@
--- End-to-end test of the spawn groups (B9 part 1): a wave's groups fire on their own, red markers show on the
--- client where a group will appear, the enemies come together once the markers run out, and pausing the spawning
--- drops groups that are still announced. Real server and client bootstraps in a simulated Roblox
+-- End-to-end test of Brotato's spawn groups: a wave's groups fire on their own, red markers show on the client
+-- where each enemy will appear, the enemies come once the markers run out, away from the player, and pausing the
+-- spawning drops enemies that are still announced. Real server and client bootstraps in a simulated Roblox
 -- (tests/helpers/RobloxMock), like tests/Loot.spec.luau. Look and feel: Studio.
 
 local world = loadHelper("tests/helpers/RobloxMock.luau")
@@ -39,7 +39,7 @@ local function positions(): { Vector3 }
 end
 
 local spawn = Config.Run.spawn
-local firstGroup = spawn.groups[1].groups[1]
+local firstGroup = Config.EnemyWaves.waves[1].groups[1] -- 4-5 Shadelings at 1 s, then every 3 s
 
 describe("spawn groups", function()
 	it("starts a run with weapons off", function()
@@ -55,7 +55,7 @@ describe("spawn groups", function()
 
 	it("shows red markers before the first group appears", function()
 		local waited = 0
-		while markers() == 0 and waited < firstGroup.every do
+		while markers() == 0 and waited < firstGroup.timing + 1 do
 			world.advance(0.1)
 			waited += 0.1
 		end
@@ -64,28 +64,27 @@ describe("spawn groups", function()
 		expect(#workspace:FindFirstChild("LanternfallSpawnMarkers"):GetChildren()).toBe(markers()) -- one floor canvas each
 	end)
 
-	it("brings the whole group together at one spot when the markers run out", function()
-		local shown = markers()
-		world.advance(spawn.markerSeconds + 0.1)
-		expect(EnemySim.getCount()).toBe(shown)
-		local spots = positions()
-		local reach = spawn.groupSpread * math.sqrt(#spots) * 2 + 1 -- two offsets apart, plus a push
-		for _, a in spots do
-			for _, b in spots do
-				expect((a - b).Magnitude <= reach).toBe(true)
-			end
+	it("brings the marked enemies when the markers run out, away from the player", function()
+		world.advance(spawn.markerSeconds + 0.5)
+		expect(EnemySim.getCount() >= firstGroup.units[1].min).toBe(true)
+		local root = me.Character.HumanoidRootPart.Position
+		local away = spawn.layout.minPlayerDistance * spawn.layout.studsPerPixel
+		for _, spot in positions() do
+			local flat = Vector3.new(spot.X - root.X, 0, spot.Z - root.Z)
+			-- born at least `away` from the player; the first ones have walked towards them for up to a second since
+			expect(flat.Magnitude >= away / 2).toBe(true)
 		end
 		expect(markers()).toBe(0)
 	end)
 
 	it("keeps firing groups of the same kind through the wave", function()
-		world.advance(firstGroup.every * 2)
-		expect(EnemySim.getCount() > firstGroup.size).toBe(true)
+		world.advance(firstGroup.interval * 2)
+		expect(EnemySim.getCount() > firstGroup.units[1].max).toBe(true)
 	end)
 
 	it("drops announced groups when spawning is paused", function()
 		local waited = 0
-		while markers() == 0 and waited < firstGroup.every + 0.5 do
+		while markers() == 0 and waited < firstGroup.interval + 0.5 do
 			world.advance(0.1)
 			waited += 0.1
 		end

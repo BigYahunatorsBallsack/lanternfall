@@ -184,7 +184,8 @@ function Service.init()
 		local context: Rules.WaveContext = {
 			enemies = enemies,
 			trees = trees,
-			removedForPerformance = 0, -- the current simulator recycles by teleporting, without removing enemies
+			-- regular enemies removed at the enemy maximum this wave (lazy require: SpawnDirector loads after us)
+			removedForPerformance = require(script.Parent.SpawnDirector).getRemovedForPerformance(),
 			horde = challenge ~= nil and challenge.kind == "Horde",
 		}
 		for player, state in states do

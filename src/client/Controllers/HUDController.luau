@@ -107,7 +107,7 @@ local function hintText(state: Types.RunState): (string, Color3)
 	return `Wave {wave.number} / {wave.count}`, Theme.textDim
 end
 
--- Big "WAVE n" banner with what the wave brings (new enemies, Swarm Rush, elites).
+-- Big "WAVE n" banner with what the wave brings (new enemies, elites).
 local function showWaveBanner(number: number)
 	local old = screen:FindFirstChild("WaveBanner")
 	if old then

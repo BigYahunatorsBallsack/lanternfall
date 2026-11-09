@@ -315,8 +315,11 @@ local function spawnUnit(
 		* hpGrowth
 		* dangerHp
 		* StatMath.enemyFactor(StatService.getTeamStat("enemyHp"))
-		* SpawnRules.playerFactor(players)
-	local damageMultiplier = damageGrowth * dangerDamage * StatMath.enemyFactor(StatService.getTeamStat("enemyDamage"))
+		* SpawnRules.coopHealth(players)
+	local damageMultiplier = damageGrowth
+		* dangerDamage
+		* StatMath.enemyFactor(StatService.getTeamStat("enemyDamage"))
+		* SpawnRules.coopDamage(players)
 	local speedFactor = dangerSpeed * StatMath.enemyFactor(StatService.getTeamStat("enemySpeed"))
 	local id = EnemySim.spawn(bossId, x, z, hpMultiplier, damageMultiplier, nil, nil, speedFactor)
 	if not id then

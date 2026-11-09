@@ -42,8 +42,8 @@ type State = {
 	offers: { Types.ShopOffer },
 	carried: { Types.ShopOffer }, -- locked offers kept for the next shop while no shop is open
 	rerolls: number, -- paid rerolls in the current shop
-	buys: number, -- purchases in the current shop
-	freeRerolls: number, -- free rerolls of the current shop (Free Rerolls stat and purchases) not used yet
+	bonusReroll: boolean, -- Brotato: once every offer is bought, the next reroll is free
+	freeRerolls: number, -- free rerolls of the current shop (Free Rerolls stat) not used yet
 	reportedShards: number, -- whole Shards last told to ShardsChanged
 	characterWaveReward: number,
 }
@@ -75,7 +75,7 @@ local function newState(): State
 		offers = {},
 		carried = {},
 		rerolls = 0,
-		buys = 0,
+		bonusReroll = false,
 		freeRerolls = 0,
 		reportedShards = 0,
 	}
@@ -122,8 +122,10 @@ local function payload(player: Player, state: State): Types.ShopState
 		open = state.open,
 		wave = state.wave,
 		offers = state.offers,
-		rerollPrice = if state.freeRerolls > 0 then 0 else ShopRules.rerollPrice(state.wave, state.rerolls),
-		freeRerolls = state.freeRerolls,
+		rerollPrice = if state.freeRerolls > 0 or state.bonusReroll
+			then 0
+			else ShopRules.rerollPrice(state.wave, state.rerolls),
+		freeRerolls = state.freeRerolls + (if state.bonusReroll then 1 else 0),
 		weapons = weapons,
 		maxWeapons = WeaponService.getMaxWeapons(player),
 	}
@@ -254,7 +256,7 @@ local function openShop()
 			state.open = true
 			state.wave = wave
 			state.rerolls = 0
-			state.buys = 0
+			state.bonusReroll = false
 			state.freeRerolls = math.max(0, math.floor(StatService.getStat(player, "freeRerolls")))
 			if CharacterRules.nativeOverride(RunDirector.getParticipantClassId(player), "destroy_weapons", 0) > 0 then
 				for _, weapon in WeaponService.getWeapons(player) do
@@ -351,10 +353,11 @@ local function buy(player: Player, offerId: string)
 	state.shards -= offer.price
 	offer.sold = true
 	offer.locked = false
-	state.buys += 1
-	if state.buys % Config.Shop.freeRerollAfterBuys == 0 then
-		state.freeRerolls += 1
+	local left = false
+	for _, other in state.offers do
+		left = left or not other.sold
 	end
+	state.bonusReroll = not left -- Brotato base_shop._refresh_bonus_free_reroll: an emptied shop rerolls for free
 	ShopService.Bought:Fire(player, offer.kind, offer.itemId)
 	send(player, state)
 end
@@ -377,8 +380,10 @@ local function reroll(player: Player)
 	if not state then
 		return
 	end
-	if state.freeRerolls > 0 then
+	if state.freeRerolls > 0 and not state.bonusReroll then
 		state.freeRerolls -= 1
+	elseif state.bonusReroll then
+		state.bonusReroll = false
 	else
 		local price = ShopRules.rerollPrice(state.wave, state.rerolls)
 		if state.shards < price then

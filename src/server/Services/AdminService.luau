@@ -447,12 +447,12 @@ local handlers: { [string]: (player: Player) -> (boolean, string?) } = {
 
 local function collectStats(): Types.DebugStats
 	local sim = EnemySim.getStats()
-	local rate = SpawnDirector.getRate()
+	local queued = SpawnDirector.getQueued()
 	return {
 		enemies = EnemySim.getCount(),
 		cap = SpawnDirector.getCap(),
-		spawnRate = rate,
-		spawning = rate > 0,
+		spawnRate = queued, -- enemies waiting in the spawn queue (Brotato spawns from a queue, not at a rate)
+		spawning = queued > 0,
 		paused = SpawnDirector.isPaused(),
 		stepMilliseconds = sim.stepMilliseconds,
 		stepMaxMilliseconds = sim.stepMaxMilliseconds,

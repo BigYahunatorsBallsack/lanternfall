@@ -20,8 +20,8 @@ export type Item = {
 	tags: { string }, -- B10: positive stat/effect affinities used by character shops
 }
 
--- Chance of a tier at wave (or level) w, Brotato's shop table: (perWave * (w - minWave + 1) + base) * (1 + luck / 100),
--- at most `max`, 0 before minWave. Rolled from the rarest down with one number (Util/StatMath.rollTier).
+-- Chance of a tier at wave (or level) w, Brotato's ItemService.get_tier_from_wave: base + perWave * (w - minWave + 1)
+-- times (1 + luck / 100), or divided by (1 + |luck| / 100) for negative Luck, at most `max`, 0 before minWave. Rolled from the rarest down with one number (Util/StatMath.rollTier).
 export type Tier = {
 	name: string,
 	minWave: number,

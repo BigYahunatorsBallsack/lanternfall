@@ -87,18 +87,16 @@ Wellenlängen wie in Brotato: Welle 1 dauert 20 s, jede weitere 5 s mehr, Wellen
 | Welle | Was passiert |
 | --- | --- |
 | 1 | ruhiger Start mit der Klassen-Waffe, wenige Shadelings |
-| jede | Banner „WAVE n"; die Spawnrate steigt in der Welle von 0,7× auf 1,2×; danach Shop |
+| jede | Banner „WAVE n"; Spawns nach Brotatos eigenen Wellendaten (Abschnitt 7, seit 09.11.2026); danach Shop |
 | 3 | Brutes kommen dazu, erste Gloom Elite mit Truhe |
 | 5 | Charger (laden auf und stürmen geradeaus) |
 | 6 | Spitter, zweite Elite |
-| 7 | Swarm Rush: 60 % der Welle doppelte Spawnrate |
 | 9 | Abyss Shadelings, Elite, ab jetzt mit Eigenschaft (Swift, Armored, Summoning) |
 | 11 | Splitter (zerfallen in 3 Splitlings), 2 Elites; seit Paket 10 Teil 2 in Welle 11 oder 12 die Elite-Welle mit einem Champion (Abschnitt 7) |
-| 12 | zweiter Swarm Rush |
 | 13 | Abyss Brutes, Elite |
 | 15 | 2 Elites; ab hier erste Evolutionen aus Elite-Truhen realistisch (Waffe auf Stufe IV) |
 | 16 | nur noch die starken Gegnerarten |
-| 17 | dritter Swarm Rush, 2 Elites |
+| 17 | 2 Elites |
 | 19 | 2 Elites |
 | 20 | letzte Welle (90 s), 1,4-fache Spawnrate; seit Paket 10 Boss-Welle (Abschnitt 7) |
 | ≈ 25–30 Min | Run-Ende: Statistik, Embers, „Nochmal" |
@@ -112,14 +110,14 @@ Wellenlängen wie in Brotato: Welle 1 dauert 20 s, jede weitere 5 s mehr, Wellen
 | Level-ups | XP sammelt sich in der Welle; die Kartenwahl (seit B2 1 aus 4 Werte-Karten, Abschnitt 9) kommt erst am Wellenende, eine pro gewonnenem Level. Im HUD steht so lange „LV 5 · +2 at wave end". Was beim Start der nächsten Welle noch offen ist, wird automatisch gewählt. |
 | Shards | Geld im Run (Brotatos „Materialien"): jeder XP-Punkt eines Orbs, den man selbst aufsammelt, gibt 1 Shard. Getrennt von den Embers (Meta-Währung). |
 | Angebote | Pro Spieler 4 eigene Angebote, nie zweimal dasselbe: eine Waffe einer Stufe I–IV oder ein Item (Abschnitt 6). Nach Welle 1–2 genau 2 Waffen und 2 Items (wie Brotato, seit 08.11.2026; gesperrte Angebote zählen mit), nach Welle 3–5 mindestens 1 Waffe, sonst je Platz 35 % Waffe, 65 % Item. Items kann man unbegrenzt oft kaufen und stapeln (einzelne mit Obergrenze, z. B. Iron Shackle 1×); die Karte zeigt „x3" = so viele hat man nach dem Kauf. Nach einem Neuwurf kommt nichts aus dem vorigen Wurf wieder, solange es anderes gibt (seit B3). |
-| Waffen-Pool (seit B3) | Wie Brotato: Pro Waffen-Platz mit 20 % eine Waffe, die man schon hat, sonst mit 15 % eine der gleichen Klasse (Melee, Ranged, Elemental) wie eine eigene, sonst irgendeine. Die Stufe wird gewürfelt wie die Seltenheit der Items (Welle und Luck), Farbe wie bei Items. Die Karte zeigt „Spark Bolt II", die Stufe mit „NEW" oder „own 2" und was die Stufe bringt. **Seit dem Playtest nach Paket 24:** Sind alle Waffen-Plätze voll, bringt ein Waffen-Platz mit 60 % eine eigene Waffe in der Stufe, mit der sie verschmilzt (`Shop.fullSlots.mergeChance`); vorher war bei vollen Plätzen nur etwa jedes siebte Waffen-Angebot kaufbar. |
-| Startgeld (seit dem Playtest nach Paket 24) | Jeder Teilnehmer beginnt den Run mit 15 Shards (`Shop.startShards`; bis 06.11.2026 waren es 30, dem Owner zu viel). Grund: nach Welle 1 war manchmal nichts bezahlbar (Fernkämpfer sammeln wenige Orbs; Sim: 2–28 Shards nach Welle 1, billigste Angebote 12–23). Die Preise steigen weiter wie bei Brotato pro Welle: Grundpreis + Welle + 10 % des Grundpreises pro Welle. |
+| Waffen-Pool (seit B3, Brotato-Formel seit 09.11.2026) | Wie Brotato (`ItemService._get_rand_item_for_wave`): ein Wurf pro Waffen-Platz. Darunter liegt „eigene Waffe" mit 23 % + (6 − Welle) · 1,4 % (nur Welle 1–5) + 2 % pro verschiedener eigener Waffe (höchstens 6); bis „gleiche Klasse" mit 35 % + (6 − Welle) · 4 % + 1 % pro Waffe gibt es eine neue Waffe, die eine Klasse mit einer eigenen teilt; sonst irgendeine neue (nicht eigene). Leerer Pool: irgendeine Waffe der Stufe. Die Stufe wird gewürfelt wie die Seltenheit der Items (Welle und Luck), Farbe wie bei Items. Die Karte zeigt „Spark Bolt II", die Stufe mit „NEW" oder „own 2" und was die Stufe bringt. Die eigene Regel „volle Plätze: 60 % eigene Waffe zum Verschmelzen" (Playtest nach Paket 24) ist seit 09.11.2026 entfernt, Brotato kennt sie nicht. |
+| Startgeld | Jeder Teilnehmer beginnt den Run mit 30 Shards (`Shop.startShards`), wie Brotato 1.2.0.1 (`RunData.set_player_count` setzt `DebugService.starting_gold` = 30; kein reiner Debug-Wert). Vorher 15, dann 0. Charakter-Startboni kommen dazu. |
 | Waffen-Stufen und Verschmelzen (seit B3) | Statt Level 1–5 hat jede Waffe eine Stufe I–IV (Abschnitt 6). Man kann dieselbe Waffe mehrmals tragen. Zwei gleiche Waffen gleicher Stufe (I–III, nicht entwickelt) verschmelzen zu einer der nächsten Stufe: im Shop die Waffe antippen und „Merge → III" drücken. Sind alle 6 Plätze voll, verschmilzt eine gekaufte Waffe sofort mit der gleichen eigenen (Karte: „Merges into III"); ohne passende eigene ist sie gesperrt („Weapon slots full"). |
 | Sperren (seit B3) | „Lock" unter jeder Karte, kostenlos: Die Karte bleibt beim Neuwürfeln und kommt in den nächsten Shop mit, zum alten Preis (blauer Rahmen, „LOCKED"). Nochmal tippen hebt die Sperre auf. |
 | Verkaufen (seit B3) | Waffe antippen, „Sell (+7)": gibt 25 % ihres aktuellen Shop-Preises (Welle und Stufe), abgerundet (Brotatos Recycling). Die letzte Waffe kann man nicht verkaufen (Annahme, sonst ist man wehrlos). Items kann man nicht verkaufen, wie in Brotato. |
-| Seltenheit (seit B2) | Jedes Item hat eine Stufe: Common (grau), Uncommon (blau), Rare (violett), Legendary (rot). Pro Item-Platz wird die Stufe gewürfelt wie in Brotato: Chance = (pro Welle · (Welle − Startwelle + 1) + Grundwert) · (1 + Luck/100), höchstens Obergrenze; seltenste zuerst. Uncommon ab Welle 2 (6 %/Welle, max. 60 %), Rare ab Welle 4 (2 %/Welle, max. 25 %), Legendary ab Welle 8 (0,23 %/Welle, max. 8 %). Ist eine Stufe leer (alles an der Obergrenze), kommt eine niedrigere, sonst eine höhere. |
+| Seltenheit (seit B2) | Jedes Item hat eine Stufe: Common (grau), Uncommon (blau), Rare (violett), Legendary (rot). Pro Item-Platz wird die Stufe gewürfelt wie in Brotato: Chance = Grundwert + pro Welle · (Welle − Startwelle + 1) · (1 + Luck/100), bei negativem Luck geteilt durch (1 + |Luck|/100) (seit 09.11.2026, `ItemService.get_tier_from_wave`), höchstens Obergrenze; seltenste zuerst. Uncommon ab Welle 2 (6 %/Welle, max. 60 %), Rare ab Welle 4 (2 %/Welle, max. 25 %), Legendary ab Welle 8 (0,23 %/Welle, max. 8 %). Ist eine Stufe leer (alles an der Obergrenze), kommt eine niedrigere, sonst eine höhere. |
 | Preise | wie Brotato: Preis = ⌊Grundpreis + Welle + 10 % · Grundpreis · Welle⌋, mindestens 1 (Welle = die gerade beendete); seit B4 mal (1 + Item Prices/100), siehe unten. Grundpreise: Waffen 18–25 auf Stufe I, mal 1,9 / 3,7 / 7,4 für Stufe II / III / IV (Brotatos Tabellen verdoppeln den Preis etwa je Stufe, seit B3), Items 15–30 (Common), 35–65 (Uncommon), 55–80 (Rare), 90–120 (Legendary). |
-| Neu würfeln | erster Wurf ⌊0,75 · Welle⌋ + Aufschlag, jeder weitere + Aufschlag, Aufschlag = max(1, ⌊0,4 · Welle⌋) (nach Welle 5: 5, 7, 9 …). Seit B2 kostet auch das Neu-Würfeln der Werte-Karten so viele Shards (eigener Zähler pro Kartenwahl). Seit B3: Je 4 Käufe in einem Shop gibt es einen Gratis-Neuwurf („Reroll (free)"), der den Preis nicht erhöht. |
+| Neu würfeln | erster Wurf ⌊0,75 · Welle⌋ + Aufschlag, jeder weitere + Aufschlag, Aufschlag = max(1, ⌊0,4 · Welle · √(1 + Endlos-Faktor)⌋) (nach Welle 5: 5, 7, 9 …). Seit B2 kostet auch das Neu-Würfeln der Werte-Karten so viele Shards (eigener Zähler pro Kartenwahl). Seit 09.11.2026 wie Brotato: Ist jedes Angebot gekauft, ist der nächste Neuwurf gratis und erhöht den Preis nicht (vorher: je 4 Käufe). |
 | Werte-Anzeige (seit B2) | Während Kartenwahl und Shop steht rechts eine Liste aller Werte (grün = besser als am Start, rot = schlechter); Ausweichen zeigt „(max 60%)". Seit B4 stehen Neben-Werte (Abschnitt 4) nur darin, solange sie nicht 0 sind; bei Werten, wo weniger besser ist (Item Prices, Enemies, Enemy HP, Enemy Damage), sind die Farben umgekehrt. |
 | Neben-Werte im Shop (seit B4) | Wie Brotato: „Item Prices" ändert alle Item- und Waffenpreise in Prozent (Pawn Ticket −5 %); offene Angebote bekommen den neuen Preis sofort, gesperrte behalten den Preis ihrer alten Welle, mit dem aktuellen Rabatt. Neuwürfe kosten weiter gleich. „Free Rerolls" gibt pro Shop so viele kostenlose Neuwürfe. „Sell Value" kommt beim Verkaufen zu den 25 % dazu (Scrap Altar: 60 %), gerechnet vom Preis ohne Rabatt. |
 | Ready | Der Shop schließt nach 40 s oder sobald alle, die nicht „Out" sind, „Ready" gedrückt haben. In der Team-Liste steht „shopping" bzw. „ready". Im Shop gibt es keine Gegner. |
@@ -133,7 +131,7 @@ Wellenlängen wie in Brotato: Welle 1 dauert 20 s, jede weitere 5 s mehr, Wellen
 | Drop-Chance | Bis Welle 4 lässt jeder Gegner sein Orb fallen, danach mit 100 % − 1,5 % × Welle, mindestens 50 % (Welle 5: 92,5 %, Welle 10: 85 %, Welle 20: 70 %). Elites, Plünderer und Bäume immer. |
 | Beutel | Orbs, die am Wellenende noch liegen, kommen in den Beutel des Teams statt ausgezahlt zu werden. In den nächsten Wellen nimmt jedes neue Orb seinen eigenen Wert noch einmal aus dem Beutel mit (Aufheben zählt doppelt), bis er leer ist. Unter dem Timer steht dann „Bag 34". Am Run-Ende ist er verloren. |
 | Obergrenze | Höchstens 50 Orbs liegen gleichzeitig (Brotato); darüber wandert der Wert eines neuen Orbs ins nächste liegende (vorher 300). Früchte höchstens 40 (Annahme), Kisten immer. |
-| Früchte und Kisten | Ein getöteter Gegner lässt mit 1 % (Brute, Abyss Brute 3 %, Charger 2 %, Annahme) × (1 + Luck/100) eine Frucht oder Kiste fallen; Luck ist der Schnitt des Teams, −100 Luck = nichts. Eine Kiste ist es mit 25 % (Annahme, Brotato nennt keinen Grundwert) × (1 + Luck/100) / (1 + Kisten dieser Welle), sonst eine Frucht. Elites lassen weiter ihre Truhe fallen. Aufgesammelt wird im Orb-Radius (mal Pickup Range). |
+| Früchte und Kisten | Seit 09.11.2026 wie Brotato 1.2.0.1 (`ItemService.get_consumable_to_drop`, `main.spawn_consumables`): Ein getöteter Gegner lässt mit seiner eigenen Chance (Gegnerdaten `base_drop_chance`, z. B. Baby Alien 1 %, Bruiser 3 %) × (1 + Luck/100), höchstens 100 %, eine Frucht oder Kiste fallen; im Endlos-Modus geteilt durch (1 + Endlos-Faktor). Luck ist die Summe aller Spieler. Eine Kiste ist es mit der Kisten-Chance des Gegners (`item_drop_chance`, z. B. Spitter 10 %) × (1 + Luck/100) / (1 + Kisten dieser Welle), plus Crate-Chance-Effekte, sonst eine Frucht. Junkie (Skulker), Gobbler und Eier lassen nichts fallen. Elites lassen weiter ihre Truhe fallen. Aufgesammelt wird im Orb-Radius (mal Pickup Range). |
 | Frucht | Heilt 30 HP (Brotato 3 × 10) plus den neuen Neben-Wert „Fruit Healing". Hellgrüne, runde Frucht mit Stiel, zwei Blättern und Lichtreflex. |
 | Kiste | Heilt wie eine Frucht und enthält ein Item (Seltenheit wie im Shop nach Welle und Luck). Meldung „Crate! It opens after the wave." Am Wellenende öffnen sich die Kisten einzeln **vor** den Level-up-Karten: Karte mit dem Item, „Take [1]" oder „Sell (+N Shards) [2]" (25 % des Shop-Preises + Sell Value, wie Waffen). Nach 10 s oder wenn der Shop schließt wird genommen. Kisten zählen für Items mit Truhen-Effekt (Satchel). Unter dem Timer steht „2 crates", solange welche warten. |
 | Plünderer (Looter) | Ab Welle 3, 25 s nach Wellenbeginn und danach alle 15 s mit 10 % Chance (Brotato), 30 Studs neben einem Spieler. Läuft weg (am Rand an der Wand entlang), greift nicht an, verschwindet nach 12 s (Annahme). Getötet: eine Kiste und ein Orb mit 8. Gold-ockerfarbener Dieb mit Münzsack. |
@@ -599,6 +597,21 @@ Owner-Feedback nach dem ersten Test: Die Angriffe waren sich zu ähnlich („Res
 Geschoss-Zahlen sind wegen des Performance-Budgets (Abschnitt 15) kleiner als in Brotato; Wind-ups, Distanzen und Geschoss-Tempo nennt das Wiki nicht (Annahmen, im Test prüfen). Debug-Knopf „Spawn next champion" ruft sie der Reihe nach, in jeder Welle, mit dem Wachstum von mindestens Welle 11.
 
 **Spawn-Director**
+
+**Stand im Code (seit 09.11.2026, ersetzt alles Ältere in diesem Abschnitt zu Rate, Gruppen, Obergrenze, Swarm Rush und Weglaufen):** Spawns 1:1 aus Brotato 1.2.0.1. Die Wellendaten (Crash Zone, alle 20 Wellen, alle Gefahrenstufen) stehen generiert in `Config/EnemyWaves.luau` (`tools/build-enemy-waves.py --refresh --pck <Brotato.pck>` liest die eigene Spielinstallation; neutrale Fakten in `docs/enemy-waves/source.json`, `--check` prüft). Regeln in `SpawnDirector/SpawnRules.luau`, Abstände in `Config/Run.luau` → `spawn`.
+
+| Was | Umsetzung (Brotato-Quelle) |
+| --- | --- |
+| Gruppen | Jede Sekunde der Welle werden die Gruppen geprüft (`wave_manager`): Startzeit erreicht → einmal mit `spawn_chance` würfeln; Wiederholungen (`repeating`) kommen danach sicher, alle `repeating_interval` s, der Abstand schrumpft pro Wiederholung um `reduce_repeating_interval` bis `min_repeating_interval`. Gruppen gelten nur auf ihren Gefahrenstufen und Wellen; Elite-/Horde-Wellen lassen markierte Gruppen weg. In jeder Welle zusätzlich Bäume (ab 10 s alle 10 s, 1–2 + Trees, je 33 %), Looter (ab 25 s alle 15 s, 10 %) und Gobbler (10 s, 3 %). Horde-Wellen bringen Brotatos Horden-Gruppen dazu (statt doppelter Anzahl). |
+| Anzahl | Zufällig min–max, + 30 % pro weiterem Spieler, mal (1 + Enemies/100), mindestens 1 (nicht bei Looter-Gruppen); Bäume + Trees-Wert; dann mal Chance der Einheit, der Rest als Zufall. Der Enemy-count-Regler ist unser eigener. |
+| Orte | Gruppen-Punkt irgendwo in der Arena, mindestens 300 px + Fläche/2 von allen Spielern; die Gegner im Quadrat `area` darum, am Rand (`edge`) oder überall (`area` −1), je mindestens 300 px (+ Zusatz) von Spielern, sonst neu würfeln mit 5 px weniger bis 25 px. 0,1 Studs pro px. |
+| Warteschlange | Alle 3 Frames (1/20 s) kommt ein Gegner aus der Schlange, ab 100 wartenden 1–2; rotes Kreuz 1 s, dann erscheint er. Bäume haben eine eigene Schlange. |
+| Obergrenze | `int(100 + (n − 1) · 100/8)`, nur geprüft, wenn eine Gruppe feuert: darüber werden zufällige normale Gegner ohne Beute entfernt (Bosse, Elites, Bäume zählen nicht; Pacifist zählt sie mit). |
+| Koop | Gegner +30 %, HP +30 %, Schaden +8 % pro weiterem Spieler (auch Bosse); Material +((n / (1 + 0,3 (n − 1))) − 1) · 0,8. |
+| Entfernt | Swarm Rush, Raten-/Wellenstärke-Kurven, Spawns in Laufrichtung, Zurückholen ferner Gegner, Spawn-Ring (nur noch für Debug-Spawns), eigene Gruppen-Tabellen. |
+| Offen / bewusst anders | Arena 160 × 160 Studs statt 204,8 × 153,6; Endlos-Wellen nutzen die Gruppen von Welle 20 (Brotato: eigene Endlos-Gruppen); Bäume ohne grünes Geburts-Zeichen; Brotatos Vorrangliste beim Entfernen und der Looter-Chance-Effekt fehlen; die Debug-Taste „Wellen-Uhr anhalten" lässt die Gruppen-Uhr weiterlaufen. |
+
+Alter Stand (bis 08.11.2026, nur noch zur Geschichte):
 
 ```text
 Spawnrate (Gegner/s)  = Ratenkurve(t) · Wellenstärke · fSpieler (· 2 im Swarm Rush)   t = Plan-Minute (1 pro Welle)
@@ -1186,7 +1199,7 @@ tests/               Unit-Tests für reine Module (Runner in tools/luau-test-run
 
 | Budget | Ziel |
 | --- | --- |
-| Gegner gleichzeitig | 80 + 20 pro weiterem Spieler, max. 140 |
+| Gegner gleichzeitig | Brotato: 100 + 1/8 davon pro weiterem Spieler (4 Spieler: 137); darüber werden zufällige normale Gegner ohne Beute entfernt. Technische Obergrenze `Run.spawn.cap.max` = 200 (Splitter, Beschwörungen, Bosse). Handy-Test mit 137 Gegnern steht aus. |
 | Server-Simulation | 15 Hz, unter 4 ms pro Schritt |
 | Client-FPS Mittelklasse-Handy | ≥ 30 |
 | Netzwerk pro Client | < 50 KB/s |

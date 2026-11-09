@@ -97,7 +97,10 @@ describe("Native Pacifist package", function()
 		Enemy.damage(id, math.huge, peer)
 		world.advance(0.3)
 		expect(Data.get(me).nativeCounts.materialsCollected).toBe(before + 1)
-		expect(shop.getShards(me) + shop.getShards(peer) - money).toBe(2 * Config.Enemies.types.Shadeling.xp)
+		-- two players: the orb is worth 1 * (1 + 43 % co-op materials), so 1 or 2, doubled by doubleShards
+		local gained = shop.getShards(me) + shop.getShards(peer) - money
+		local xp = Config.Enemies.types.Shadeling.xp
+		expect(gained == 2 * xp or gained == 4 * xp).toBe(true)
 		expect(Data.get(peer).nativeCounts.materialsCollected).toBe(theirs)
 		start("TithePalm")
 		expect(Data.get(me).nativeCounts.materialsCollected).toBe(before + 1)
