@@ -15,6 +15,7 @@ local Net = require(Shared:WaitForChild("Net"))
 local Types = require(Shared:WaitForChild("Net"):WaitForChild("Types"))
 
 local EnemyRenderer = require(script.Parent.EnemyRenderer)
+local EnemyShotRenderer = require(script.Parent.EnemyShotRenderer)
 local RunStateController = require(script.Parent.RunStateController)
 local Theme = require(script.Parent.Parent.UI.Theme)
 local VisualKit = require(script.Parent.WeaponRenderer.VisualKit)
@@ -26,7 +27,6 @@ local Widgets = require(script.Parent.Parent.UI.Widgets)
 local FOLDER_NAME = "LanternfallBoss"
 local WARN_COLOR = Color3.fromRGB(230, 40, 48)
 local FLASH_COLOR = Color3.fromRGB(255, 220, 200)
-local EMBER_COLOR = Color3.fromRGB(255, 140, 50)
 local DISC_HEIGHT = 0.1 -- studs
 local EDGE_TRANSPARENCY = 0.55 -- the outline of a warning
 local FILL_TRANSPARENCY = 0.35 -- the inner disc that grows until it strikes
@@ -78,7 +78,7 @@ local stripPool = VisualKit.pool(function(): BasePart
 	return VisualKit.halo("BossWarningLine", Enum.PartType.Block, Vector3.new(1, DISC_HEIGHT, 1), WARN_COLOR, 1)
 end)
 local emberPool = VisualKit.pool(function(): BasePart
-	local sprite = WorldSprite.glow("BossEmber", 1, EMBER_COLOR, 0.5)
+	local sprite = EnemyShotRenderer.bullet("BossEmber", 1).sprite -- the same red enemy bullet as every shot
 	local anchor = sprite.anchor :: BasePart
 	emberSprites[anchor] = sprite
 	return anchor
@@ -266,7 +266,7 @@ local function placeEmbers(now: number)
 				embers[used] = ember
 			end
 			local angle = turn + (k - 1) / orbit.count * 2 * math.pi
-			WorldSprite.setStuds(emberSprites[ember], orbit.hitRadius * 2 * Config.Sprites.glowScale)
+			WorldSprite.setStuds(emberSprites[ember], EnemyShotRenderer.pictureStuds(orbit.hitRadius))
 			ember.CFrame = CFrame.new(
 				position.X + math.cos(angle) * orbit.radius,
 				floorY + kind.radius * 0.6,
