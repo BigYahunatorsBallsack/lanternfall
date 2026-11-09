@@ -14,8 +14,17 @@ export type Challenge = {
 	| { kind: "ExplosionKills", threshold: number }
 	| { kind: "RunRecycledWeapons", threshold: number }
 	| { kind: "EnemiesKilled", threshold: number }
+	| { kind: "WaveLivingTrees", threshold: number }
 )
 local rules: { [string]: Challenge } = {
+	Cryptid = {
+		kind = "WaveLivingTrees",
+		challengeId = "chal_forest",
+		threshold = 10,
+		source = "res://challenges/forest_data.tres",
+		sourceMd5 = "8ba3b54e7327462d38d5fae9abd0da7d",
+		requirement = "Finish a wave with 10 or more living trees",
+	},
 	Wildling = {
 		kind = "EnemiesKilled",
 		challengeId = "chal_survivor_4",

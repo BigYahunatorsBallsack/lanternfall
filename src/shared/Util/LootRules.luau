@@ -62,20 +62,25 @@ function LootRules.consumable(
 end
 
 -- Trees a wave brings: perWave plus the team's Trees stat; a fractional rest is a chance (`roll` 0 <= x < 1).
-function LootRules.treesForWave(treesStat: number, roll: number): number
-	local total = math.max(0, Loot.trees.perWave + treesStat)
+function LootRules.treesInGroup(treesStat: number, numberRoll: number, residualRoll: number): number
+	local rule = Loot.trees
+	local base = rule.minNumber
+		+ math.min(rule.maxNumber - rule.minNumber, math.floor(numberRoll * (rule.maxNumber - rule.minNumber + 1)))
+	local total = math.max(0, (base + treesStat) * rule.unitChance)
 	local whole = math.floor(total)
-	return whole + (if roll < total - whole then 1 else 0)
+	return whole + (if residualRoll < total - whole then 1 else 0)
 end
 
--- Fighting seconds into a wave at which its trees appear: evenly over the first spawnShare of `length` seconds.
-function LootRules.treeTimes(count: number, length: number): { number }
-	local times = {}
-	local span = length * Loot.trees.spawnShare
-	for index = 1, count do
-		table.insert(times, span * (index - 0.5) / count)
+-- Native all-wave neutral group repeats from ten seconds; max_wave99 includes wave99.
+function LootRules.treeRollsDue(wave: number, previous: number, seconds: number): number
+	local rule = Loot.trees
+	if wave < rule.firstWave or wave > rule.lastWave then
+		return 0
 	end
-	return times
+	local function passed(at: number): number
+		return if at < rule.firstSeconds then 0 else math.floor((at - rule.firstSeconds) / rule.everySeconds) + 1
+	end
+	return math.max(0, passed(seconds) - passed(previous))
 end
 
 -- How many Looter rolls are due at `seconds` into wave `wave` since the last check at `previous` seconds: at

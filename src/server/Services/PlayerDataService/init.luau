@@ -356,6 +356,24 @@ function PlayerDataService.observeNativeRecycling(player: Player, total: number)
 	end
 end
 
+-- Forest is observed only after a successful wave and before its surviving trees are cleaned up.
+function PlayerDataService.observeNativeWaveTrees(player: Player, trees: number)
+	local data = PlayerDataService.get(player)
+	if not data then
+		return
+	end
+	for _, rule in NativeCharacterAccess do
+		if rule.kind == "WaveLivingTrees" and trees >= rule.threshold then
+			local key = CharacterAccess.challengeKey(rule.challengeId)
+			if not data.achievements[key] then
+				data.achievements[key] = true
+				sendInfo(player)
+				PlayerDataService.Changed:Fire(player)
+			end
+		end
+	end
+end
+
 -- Native Survivor counts personally credited enemies, excluding trees and despawn/cleanup.
 function PlayerDataService.observeNativeEnemyKill(player: Player)
 	local data = PlayerDataService.get(player)

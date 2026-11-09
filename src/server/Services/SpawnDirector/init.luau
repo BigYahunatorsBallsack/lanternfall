@@ -57,7 +57,7 @@ local recycleIds: { number } = {}
 -- B6: Looters and Trees of the current wave
 local plannedWave = 0 -- the wave whose trees are planned
 local lootSeconds = 0 -- seconds into the wave at the last update (Looter rolls)
-local treeTimes: { number } = {} -- seconds into the wave at which the next trees appear
+local treeSeconds = 0 -- native repeating tree-group rolls processed in this wave
 local looters: { [number]: number } = {} -- enemy id -> server time at which it escapes
 local trees: { [number]: boolean } = {} -- enemy ids
 local luresSeen: { [number]: number } = {} -- acquired copies already paid for with a special encounter
@@ -235,15 +235,18 @@ local function spawnLooter(anchor: Anchor, atMinutes: number): number?
 end
 
 -- A Tree at a random free spot of the arena at least Config.Loot.trees.minPlayerDistance from every living player
--- (`near`: close to that point instead, debug). Returns its id, or nil without a spot or at maxAlive trees.
+-- (`near`: close to that point instead, debug). Returns its id, or nil without a spot/capacity in EnemySim.
 local function spawnTree(anchors: { Anchor }, atMinutes: number, near: Vector3?): number?
 	local rule = Config.Loot.trees
 	local kind = EnemyKinds.get(rule.enemy)
-	if not kind or prune(trees) >= rule.maxAlive then
+	if not kind then
 		return nil
 	end
-	local minSquared = rule.minPlayerDistance * rule.minPlayerDistance
-	for _ = 1, SPAWN_TRIES do
+	prune(trees) -- native neutrals have no separate six-tree limit
+	for attempt = 1, rule.placementAttempts do
+		local minimum =
+			math.max(rule.minimumPlayerDistance, rule.minPlayerDistance - (attempt - 1) * rule.placementDistanceStep)
+		local minSquared = minimum * minimum
 		local x, z
 		if near then
 			local angle = roll() * 2 * math.pi
@@ -252,7 +255,7 @@ local function spawnTree(anchors: { Anchor }, atMinutes: number, near: Vector3?)
 			x = bounds.minX + kind.radius + roll() * (bounds.maxX - bounds.minX - 2 * kind.radius)
 			z = bounds.minZ + kind.radius + roll() * (bounds.maxZ - bounds.minZ - 2 * kind.radius)
 		end
-		local clear = near ~= nil
+		local clear = near ~= nil or attempt == rule.placementAttempts
 		if not clear then
 			clear = true
 			for _, anchor in anchors do
@@ -284,8 +287,7 @@ local function updateLoot(atMinutes: number, anchors: { Anchor })
 		lootSeconds = 0
 		table.clear(looters)
 		table.clear(trees)
-		local count = LootRules.treesForWave(StatService.getTeamStat("trees"), roll())
-		treeTimes = LootRules.treeTimes(count, schedule.endsAt - schedule.startsAt)
+		treeSeconds = 0
 		local lure = Config.Effects.lure
 		for _, player in RunDirector.getParticipants() do
 			local copies = 0
@@ -306,10 +308,13 @@ local function updateLoot(atMinutes: number, anchors: { Anchor })
 		end
 	end
 	if #anchors > 0 then
-		while treeTimes[1] and seconds >= treeTimes[1] do
-			table.remove(treeTimes, 1)
-			spawnTree(anchors, atMinutes)
+		for _ = 1, LootRules.treeRollsDue(wave, treeSeconds, seconds) do
+			local count = LootRules.treesInGroup(StatService.getTeamStat("trees"), roll(), roll())
+			for _ = 1, count do
+				spawnTree(anchors, atMinutes)
+			end
 		end
+		treeSeconds = seconds
 		local rule = Config.Loot.looter
 		for _ = 1, LootRules.looterRollsDue(wave, lootSeconds, seconds) do
 			if roll() < rule.chance then

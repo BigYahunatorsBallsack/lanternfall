@@ -292,6 +292,9 @@ Classes.ArmsDealer.description =
 -- Original art is delivered independently; ready code never bypasses the approved-sprite requirement.
 Classes.Wildling.description =
 	"+30 % Life Steal with Primitive weapons\nYou start with 1 Stick\nYou can’t equip weapons above tier II"
+Classes.Cryptid.description =
+	"+6 Trees\nGain 12 material and XP for every living tree at the end of a wave\n+3 HP Regeneration for every current living tree [0]\nDodge is capped at 70%\n+3 % Attack Speed until the end of the wave when you dodge an attack\n-100 % Life Steal\n-100 Range\n-50 % materials dropped from enemies"
+Classes.Cryptid.nativeCodeReady = true
 for id, class in Classes do
 	if not class.nativeCodeReady then
 		continue

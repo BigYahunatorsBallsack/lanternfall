@@ -55,9 +55,17 @@ return table.freeze({
 	-- crate and an orb of 3 (Config.Enemies.Tree). Gone at the wave end like every enemy.
 	trees = table.freeze({
 		enemy = "Tree",
-		perWave = 1, -- assumption: Brotato gives no base number
-		spawnShare = 0.7,
-		minPlayerDistance = 25, -- studs (assumption)
-		maxAlive = 6,
+		-- Stable crash-zone all-wave group1/unit1: +Trees applies to each ten-second roll before its33% chance.
+		firstSeconds = 10,
+		everySeconds = 10,
+		minNumber = 1,
+		maxNumber = 2,
+		unitChance = 0.33,
+		firstWave = 1,
+		lastWave = 99, -- native group max_wave; native current_wave also starts at1
+		minPlayerDistance = 30, -- native INITIAL_MIN_DIST_FROM_PLAYER300 points
+		minimumPlayerDistance = 2.5,
+		placementDistanceStep = 0.5,
+		placementAttempts = 56, -- initial point plus55 reductions from300 to25 source points
 	}),
 })

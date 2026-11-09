@@ -4,8 +4,8 @@
   "suite": {
     "main": {
       "specFiles": 149,
-      "passed": 1255,
-      "failed": 37,
+      "passed": 1258,
+      "failed": 34,
       "crashes": []
     },
     "branch": {
@@ -15,12 +15,14 @@
       "crashes": []
     }
   },
-  "newFailureNames": [],
-  "existingFailureNames": [
+  "newFailureNames": [
     "BrotatoWeapons.spec.luau: Brotato original catalog > retains all 62 original records alongside eight stable starting families and no custom evolutions",
+    "HeldWeapons.spec.luau: World weapon sprites > uses approved images for all 62 public weapons and rejects eighteen pending-art families",
+    "Weapons.spec.luau: Arsenal > lists the weapons that have a behavior"
+  ],
+  "existingFailureNames": [
     "EnemySpawnPlacement25.spec.luau: Enemy spawn placement > moves a pooled sprite to its next spawn before reattaching it",
     "EnemySpawnPlacement25.spec.luau: Enemy spawn placement > positions a newly built sprite before making it visible",
-    "HeldWeapons.spec.luau: World weapon sprites > uses approved images for all 62 public weapons and rejects eighteen pending-art families",
     "RunStats.spec.luau: Tally > writes readable log lines with the level per minute and every build",
     "Smoke.spec.luau: smoke > arms the player with the class weapon and switches weapons off for the enemy tests",
     "Smoke.spec.luau: smoke > draws the six original weapons, tiers and debug swaps",
@@ -52,8 +54,7 @@
     "Smoke.spec.luau: smoke > stands a downed player up with full HP when the wave ends",
     "Smoke.spec.luau: smoke > starts Swarm Rush with a ring of Shadelings and no Gloom Elites",
     "Smoke.spec.luau: smoke > starts the next run with Play again",
-    "Smoke.spec.luau: smoke > takes debug damage with hit protection and heals",
-    "Weapons.spec.luau: Arsenal > lists the weapons that have a behavior"
+    "Smoke.spec.luau: smoke > takes debug damage with hit protection and heals"
   ],
   "checks": {
     "stylua": "pass",
@@ -68,5 +69,6 @@
     "Original attack animation artwork, image uploads and native physics differences",
     "Four other character candidates incomplete",
     "Studio, two-client and mobile acceptance not run"
-  ]
+  ],
+  "correction": "Previous main result was invalid: the Lune runner ignores a root argument and reads from cwd. Corrected main run uses cwd=build/five-character-main from git archive cba2334. First checkpoint really introduced three stale weapon-count assertion failures; all three are fixed by the Cryptid checkpoint."
 }
