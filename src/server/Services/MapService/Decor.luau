@@ -195,6 +195,16 @@ function Decor.buildArena(arenaModel: Model)
 	model.Parent = arenaModel
 end
 
+-- The arena got a new size (MapService.setArenaMapSize): the dark ground follows.
+function Decor.resizeArena(arenaModel: Model, width: number, depth: number)
+	local decor = arenaModel:FindFirstChild("Decor")
+	local ground = decor and decor:FindFirstChild("Outskirts")
+	if ground and ground:IsA("BasePart") then
+		local border = 2 * (Config.Map.wallThickness + Config.Map.decor.outskirts.margin)
+		ground.Size = Vector3.new(width + border, ground.Size.Y, depth + border)
+	end
+end
+
 -- Lamp posts on an arc just inside the lobby's edge.
 function Decor.buildLobby(lobbyModel: Model)
 	local lobby = Config.Map.lobby

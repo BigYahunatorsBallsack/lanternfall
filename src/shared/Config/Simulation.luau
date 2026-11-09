@@ -2,13 +2,23 @@
 -- Enemy engine settings and performance budgets (DESIGN.md section 15). Read by EnemySim, SpawnDirector,
 -- WeaponService, EnemyRenderer and the debug stats panel. Values marked "assumption" get tuned in playtests (WP7, WP9).
 
+local Stats = require(script.Parent.Stats)
+
+-- Brotato 1.2.0.1 measured at 0.1 studs per pixel: the potato is 75 px tall (body 69 px with its feet,
+-- entities/units/player), our figures were drawn 5.4 studs tall. Bodies (figures, hit circles, drops) grow by this so they
+-- have Brotato's size next to the arena, speeds and ranges (09.11.2026).
+local BROTATO_FIGURE_PIXELS = 75
+local OLD_FIGURE_STUDS = 5.4
+
 return table.freeze({
+	bodyScale = BROTATO_FIGURE_PIXELS * Stats.range.studsPerPoint / OLD_FIGURE_STUDS,
 	tickRate = 15, -- server simulation steps per second
 	maxCatchUpSteps = 3, -- after a server hitch at most this many steps run in one frame, the rest is dropped
 	spatialHashCellSize = 8, -- studs
 	interpolationDelay = 0.1, -- seconds the client renders behind the newest snapshot
 
-	playerRadius = 1.2, -- studs; enemies stop at their own radius + this (about an R15 torso)
+	-- studs; enemies stop at their own radius + this. Brotato's player hurtbox: 21 px (1.2 until 09.11.2026)
+	playerRadius = 21 * Stats.range.studsPerPoint,
 	contactMargin = 0.3, -- studs; enemies this close to a player's circle touch them
 	-- Players see enemies a little in the past (interpolationDelay + travel time) while the server sees the
 	-- player a little in the past too. Contacts are therefore checked where the player is moving to:

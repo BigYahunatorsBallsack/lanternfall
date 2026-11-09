@@ -294,6 +294,7 @@ export type Affix = {
 -- Source: https://brotato.wiki.spellsandguns.com/Enemies (Crash Zone, 2026-11-06).
 -- Only distances/speeds are converted to Roblox world units; HP and damage use the original units.
 local Player = require(script.Parent.Player)
+local Simulation = require(script.Parent.Simulation)
 local function speed(value: number): number
 	return value / 450 * Player.moveSpeed
 end
@@ -1049,6 +1050,15 @@ local BossWave = table.freeze({
 	legendaryCrate = true, -- a killed boss drops a legendary crate (matters once a run goes on after it, B11)
 })
 
+-- Hit circles were drawn for 5.4-stud figures; Brotato's bodies are Simulation.bodyScale larger (09.11.2026).
+local function scaleBodies(list: { [string]: Enemy })
+	for _, enemy in list do
+		enemy.radius *= Simulation.bodyScale
+	end
+end
+scaleBodies(Enemies)
+scaleBodies(Bosses)
+
 for _, boss in Bosses do
 	table.freeze(boss)
 end
@@ -1579,6 +1589,7 @@ local EliteWaves = table.freeze({
 	legendaryCrate = true, -- a killed champion drops a legendary crate (Brotato)
 })
 
+scaleBodies(Champions)
 for _, champion in Champions do
 	table.freeze(champion)
 end

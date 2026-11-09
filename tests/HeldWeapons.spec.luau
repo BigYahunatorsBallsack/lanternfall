@@ -80,7 +80,7 @@ describe("World weapon sprites", function()
 			duration = 0.2,
 			dx = 1,
 			dz = 0,
-			targetDistance = 9,
+			targetDistance = 9 * Config.Simulation.bodyScale, -- held weapons grow with the figures
 		})
 		HeldModels.renderWeapon(owner, one, 1, 2, frame(folder, 2, workspace:GetServerTimeNow() + 0.1))
 		HeldModels.renderWeapon(owner, two, 2, 2, frame(folder, 2, workspace:GetServerTimeNow() + 0.1))

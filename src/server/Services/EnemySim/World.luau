@@ -359,6 +359,12 @@ local function compact(self: World): boolean
 end
 
 -- Removes a living enemy without a kill (a Looter escaping, B6). Returns true if it was alive.
+-- The arena's walls moved (map-size effect at run start); enemies are pushed inside on their next step.
+function World.setBounds(self: World, minX: number, maxX: number, minZ: number, maxZ: number)
+	local p = self.params
+	p.minX, p.maxX, p.minZ, p.maxZ = minX, maxX, minZ, maxZ
+end
+
 function World.remove(self: World, id: number): boolean
 	local i = self.indexOf[id]
 	if not i or self.hp[i] <= 0 then

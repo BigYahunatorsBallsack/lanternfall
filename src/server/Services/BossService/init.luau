@@ -1110,6 +1110,12 @@ end
 -- Lifecycle -------------------------------------------------------------------------
 
 function BossService.init()
+	MapService.ArenaResized:Connect(function(arena: MapService.Bounds)
+		bounds.minX = arena.center.X - arena.halfX
+		bounds.maxX = arena.center.X + arena.halfX
+		bounds.minZ = arena.center.Z - arena.halfZ
+		bounds.maxZ = arena.center.Z + arena.halfZ
+	end)
 	RunDirector.RunStarted:Connect(clear)
 	RunDirector.RunEnded:Connect(clear)
 	RunDirector.PhaseChanged:Connect(function(phase)

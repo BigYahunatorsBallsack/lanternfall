@@ -16,9 +16,17 @@ return table.freeze({
 	arena = table.freeze({
 		center = Vector3.new(0, 100, 0), -- center of the floor surface
 		-- Brotato's zone (since 09.11.2026; 160 x 160 from the playtest after Paket 24, 300 before): x is Brotato's
-		-- width, z its height. Brotato's map-size effect (main.gd, at least 12 tiles) is not built yet.
+		-- width, z its height. This is the size without map-size effects; a run uses Util/MapRules.size.
 		width = BROTATO_ZONE_TILES.width * BROTATO_TILE_PIXELS * Stats.range.studsPerPoint, -- along x
 		depth = BROTATO_ZONE_TILES.height * BROTATO_TILE_PIXELS * Stats.range.studsPerPoint, -- along z
+		-- Brotato's map-size effect (main.gd): the run's tiles are the zone's tiles x (1 + the sum of every player's
+		-- map_size effect / 100), at least minTiles, cut to whole tiles. Explorer +33 %, Old -33 % (character data).
+		tiles = table.freeze({
+			width = BROTATO_ZONE_TILES.width,
+			height = BROTATO_ZONE_TILES.height,
+			studs = BROTATO_TILE_PIXELS * Stats.range.studsPerPoint,
+			minTiles = 12,
+		}),
 		wallHeight = 40,
 		spawnRadius = 8, -- participants start on a circle of this radius
 		-- The open arena leaves room to dodge in every direction.
@@ -66,7 +74,7 @@ return table.freeze({
 		lampHeight = 12,
 		-- Dark ground around arena and lobby, wide enough that the camera never sees past it; `margin` extends past the wall
 		-- and `drop` lowers its top. Colors are { red, green, blue }.
-		outskirts = table.freeze({ margin = 110, lobbyMargin = 60, thickness = 4, drop = 0.3, color = { 20, 18, 18 } }),
+		outskirts = table.freeze({ margin = 110, lobbyMargin = 90, thickness = 4, drop = 0.3, color = { 20, 18, 18 } }),
 		motes = table.freeze({ rate = 6, lifetime = { 6, 10 } }), -- graphics setting compatibility
 		lobbyLamps = 6, -- around the lobby
 	}),
