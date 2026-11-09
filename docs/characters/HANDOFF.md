@@ -4,7 +4,7 @@ Implementiere alle noch fehlenden Brotato-Charaktere in Lanternfall vollständig
 
 ## Laufendes Fünferpaket (09.11.2026, noch nicht gemergt)
 
-Owner-Vorgabe: ab jetzt immer fünf fertig implementierte und geprüfte Charakterpakete vor einem Merge; Waffen oder Teilpakete zählen nicht. Branch `wp-b10-five-characters` beginnt von GitHub-main cba2334. Geplante Gruppe: Wildling, Cryptid, Renegade, Diver, Technomage. Keine Uploads, Veröffentlichung oder Studio-Änderungen.
+Owner-Vorgabe: ab jetzt immer fünf fertig implementierte und geprüfte Charakterpakete vor einem Merge; Waffen oder Teilpakete zählen nicht. Branch `wp-b10-five-characters` beginnt von GitHub-main cba2334. Owner-Reihenfolge seit 09.11.2026: zuerst alle50 Main-Game-Charaktere, dann alle14 Abyssal-Terrors-Charaktere, zuletzt die10 Primal-Dread-Charaktere. Benötigte DLC-Ausrüstung für Main-Game-Pakete bleibt Teil der jeweiligen Abhängigkeiten. Aktuelle Gruppe deshalb: Wildling, Cryptid, Renegade, Technomage, Soldier; Diver wartet auf die Abyssal-Terrors-Phase. Keine Uploads, Veröffentlichung oder Studio-Änderungen.
 
 Erster lokaler Baustein: Wildlings zwölf Starts plus Stick, Primitive-Life-Steal und Tier-II-Limit geprüft. Flail mit vier Originaltiers, festem Trefferfenster und Spitzen-Krit implementiert; Originalicon lokal vorbereitet. Schema v11 ergänzt persönliche lebenslange Gegnerkills und migriert vorhandene Materialzähler unverändert. Trees, Cleanup und fremde Kills zählen nicht. Nicht aus alten Team-Run-Kills rekonstruieren.
 
