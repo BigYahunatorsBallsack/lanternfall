@@ -185,16 +185,20 @@ local function deploy()
 end
 local function hit(player, id, amount, source, elemental)
 	-- EnemySim credits owner kills/loot. Structure damage deliberately bypasses primary weapon stats.
-	Weapons.structureHit(player, id, amount, source, nil, elemental == true)
+	return Weapons.structureHit(player, id, amount, source, nil, elemental == true)
 end
 local function burst(player, at, def, sheet, factor)
 	local ids = {}
 	local radius = def.radius * math.max(0, 1 + (sheet.explosionSize or 0) / 100)
 	Enemy.queryRadius(at, radius, ids)
 	local damage = Rules.damage(def, sheet) * math.max(0, 1 + (sheet.explosionDamage or 0) / 100) * (factor or 1)
+	local kills = 0
 	for _, id in ids do
-		hit(player, id, damage, "Explosion", def.elemental ~= nil)
+		if hit(player, id, damage, "Explosion", def.elemental ~= nil) then
+			kills += 1
+		end
 	end
+	Weapons.reportExplosion(player, kills)
 end
 local function impact(o, def, sheet, id, at, factor)
 	if def.mode == "Burn" then

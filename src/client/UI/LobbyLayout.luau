@@ -17,7 +17,7 @@ local RunSchedule = require(Shared.Util.RunSchedule)
 local Layout = {}
 -- Desktop selection pages: where the page starts and how tall it is (summary panels, tiles, enemy settings button).
 local PAGE_TOP = 116
-local PAGE_HEIGHT = { Character = 460, Weapon = 460, Difficulty = 480 }
+local PAGE_HEIGHT = { Character = 460, Weapon = 460, Difficulty = 460 }
 local refresh: (() -> ())? = nil
 
 local function place(object: GuiObject, x: number, y: number, width: number, height: number)
@@ -396,7 +396,7 @@ function Layout.mount(screen: ScreenGui, choose: Frame, players: Frame, record: 
 		dangerTitle.TextColor3, dangerTitle.TextSize = Theme.statLabel, 24
 		place(dangerTitle, 12, 16, 208, 60)
 		local description = danger:FindFirstChild("Description") :: TextLabel
-		place(description, 12, 94, if compact then innerWidth - 24 else 208, 190)
+		place(description, 12, 94, if compact then innerWidth - 24 else 208, if compact then 190 else 180)
 		description.TextXAlignment, description.TextYAlignment = Enum.TextXAlignment.Left, Enum.TextYAlignment.Top
 		description.TextSize = 17
 		-- Same size as the character tiles.
@@ -410,13 +410,17 @@ function Layout.mount(screen: ScreenGui, choose: Frame, players: Frame, record: 
 			button.TextStrokeTransparency = 0
 			button.BackgroundColor3 = if level.level == selected then Theme.accent else palette[index]
 		end
+		-- Desktop: the enemy settings belong to the danger choice, so the button sits at the bottom of its panel.
+		adjustments.Parent = if compact then content else danger
 		place(
 			adjustments,
-			if compact then 0 else startX + 764,
-			if compact then 690 else 442,
-			if compact then innerWidth else 232,
-			34
+			if compact then 0 else 12,
+			if compact then 690 else 334 - 12 - 38,
+			if compact then innerWidth else 208,
+			if compact then 34 else 38
 		)
+		adjustments.TextSize = if compact then 14 else 18
+		adjustments.BackgroundColor3 = Theme.panel
 		for _, page in { players, record } do
 			page.AnchorPoint = Vector2.new(0.5, 0)
 			page.Position, page.Size = UDim2.fromScale(0.5, 0), UDim2.fromOffset(math.min(680, innerWidth), 0)

@@ -92,9 +92,12 @@ function WeaponStats.compute(
 		damage += share * (bonuses[statId] or 0)
 	end
 	local damageFactor = WeaponStats.damageFactor(bonuses)
+	if weapon.brotato and stats.explosionRadius then
+		stats.nativeExplosive = 1
+	end
 	damage += bonuses.baseDamage or 0
 	damage += (stats.levelScaling or 0) * (bonuses.level or 0)
-	stats.damage = NativeDamage.total(damage, damageFactor, stats)
+	stats.damage = NativeDamage.total(damage, NativeDamage.factor(bonuses, stats.nativeExplosive ~= nil), stats)
 
 	local attackSpeed = bonuses.attackSpeed or 0
 	-- Stable native negative Attack Speed uses the full percentage, including Doctor's -100% penalty.
@@ -158,8 +161,19 @@ function WeaponStats.compute(
 	end
 
 	if stats.explosionRadius then
-		stats.explosionRadius *= math.max(0, 1 + (bonuses.explosionSize or 0) / 100)
-		stats.explosionDamage = (stats.explosionDamage or 1) * math.max(0, 1 + (bonuses.explosionDamage or 0) / 100)
+		stats.explosionRadius *= math.max(
+			if weapon.brotato then Combat.explosion.minimumSizeFactor else 0,
+			1 + (bonuses.explosionSize or 0) / 100
+		)
+		if stats.explosionOffsetZ then
+			stats.explosionOffsetZ *= math.max(
+				Combat.explosion.minimumSizeFactor,
+				1 + (bonuses.explosionSize or 0) / 100
+			)
+		end
+		stats.explosionDamage = if weapon.brotato
+			then 1
+			else (stats.explosionDamage or 1) * math.max(0, 1 + (bonuses.explosionDamage or 0) / 100)
 	end
 
 	if stats.burnDamage then

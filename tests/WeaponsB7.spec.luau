@@ -184,7 +184,7 @@ describe("B7 weapons", function()
 				give(scene, id, tier)
 				local minimumRange = scene.arsenal:getWeapons(OWNER)[1].stats.minimumRange or 0
 				local enemy = spawn(scene, "Shadeling", minimumRange + 5, 0, TOUGH)
-				run(scene, 0.5)
+				run(scene, 0.5 + (scene.arsenal:getWeapons(OWNER)[1].stats.stickyFuse or 0))
 				expect(lost(scene, enemy, TOUGH) > 0).toBe(true)
 				expect(#scene.effects > 0).toBe(true)
 			end

@@ -43,3 +43,7 @@
 
 - [x] Prepare Pacifist code package: original starts/rules, mandatory Lumberjack Shirt with native owned-hitbox tree execution, cumulative physical pickup unlock, v10 migration, retry and profile reload proof; real uploads/Studio acceptance pending.
 - [ ] Continue eleven missing starting-weapon families and nine item/pet families, remaining original unlocks, legacy adoption and DLC dependencies. Six code-prepared characters do not constitute native acceptance.
+
+- [x] Prepare Artificer code package with all five starts, delayed attached Sticky Grenade, additive native weapon explosion bonuses, per-target crits and per-explosion Fireworks unlock; keep art gates.
+- [ ] Complete native Sticky Grenade flight sprite/rotation and ground squash presentation alongside real uploads and native runtime acceptance.
+- [ ] Continue ten missing starting-weapon families and nine item/pet families plus remaining character dependencies; seven code-prepared packages are not full native acceptance.

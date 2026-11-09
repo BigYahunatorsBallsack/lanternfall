@@ -11,8 +11,17 @@ export type Challenge = {
 	| { kind: "WinDanger", danger: number }
 	| { kind: "WaveHealing", threshold: number }
 	| { kind: "MaterialsCollected", threshold: number }
+	| { kind: "ExplosionKills", threshold: number }
 )
 local rules: { [string]: Challenge } = {
+	Artificer = {
+		kind = "ExplosionKills",
+		challengeId = "chal_fireworks",
+		threshold = 15,
+		source = "res://challenges/starship_beam_data.tres",
+		sourceMd5 = "e2b05687c302bd9517bf957939a85336",
+		requirement = "Kill 15 enemies with a single explosion",
+	},
 	Pacifist = {
 		kind = "MaterialsCollected",
 		challengeId = "chal_gatherer_4",

@@ -363,6 +363,66 @@
         94,
         87
       ]
+    },
+    {
+      "id": "StickyGrenade",
+      "name": "Sticky Grenade",
+      "source": "res://weapons/ranged/sticky_grenade/sticky_grenade_icon.png",
+      "textureSource": "res://.import/sticky_grenade_icon.png-f07d7c9271a35dc67ba008a70e6d7af1.stex",
+      "textureMd5": "f93607da5448d96b340040e7adf16200",
+      "output": "assets/weapons/character-starts/StickyGrenade.png",
+      "pngSha256": "c985b0a0ad16a5b530d1dcf9537a0f54fe4d85f0839548262721ab1602b3a0e6",
+      "rgbaSha256": "3b173b2195c8aed103bb0edaf4d001e5e1d9d66c370dade469750eab90ba8432",
+      "size": [
+        96,
+        96
+      ],
+      "alphaBounds": [
+        18,
+        9,
+        86,
+        89
+      ]
+    }
+  ],
+  "projectiles": [
+    {
+      "id": "StickyGrenadeThrown",
+      "source": "res://projectiles/grenade_mine/grenade.png",
+      "textureSource": "res://.import/grenade.png-e6eee23843460924befb6032899a78f4.stex",
+      "textureMd5": "bae94ecd4884ee7cc10615d355581f9d",
+      "output": "assets/weapons/character-starts/StickyGrenadeThrown.png",
+      "pngSha256": "0ecc5c9b0690e3dc64ccee3f977957051774ce4ab3487bba858a1caf3ece1f9a",
+      "rgbaSha256": "17d55379209a8d77c2f24f7830f3065e9469f1e0319f958c305463335628b64a",
+      "size": [
+        80,
+        80
+      ],
+      "alphaBounds": [
+        8,
+        16,
+        75,
+        73
+      ]
+    },
+    {
+      "id": "StickyGrenadeGround",
+      "source": "res://projectiles/grenade_mine/grenade_on_ground.png",
+      "textureSource": "res://.import/grenade_on_ground.png-c14ca38eba19008f2e477b9fd6c0c550.stex",
+      "textureMd5": "d7715d89977747423228f194c05b82be",
+      "output": "assets/weapons/character-starts/StickyGrenadeGround.png",
+      "pngSha256": "1a21711d2a8f0211fb1670d40876577a71211f9dfffb6613624d3e83a58525a7",
+      "rgbaSha256": "4d031c7937cb96ee778c975ead6ad76abaa12bf2191ec6f54be9ffac8ba08e3c",
+      "size": [
+        80,
+        80
+      ],
+      "alphaBounds": [
+        8,
+        16,
+        75,
+        73
+      ]
     }
   ]
 }

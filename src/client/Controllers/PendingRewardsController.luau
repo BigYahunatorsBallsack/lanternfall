@@ -24,6 +24,7 @@ local TOP = 12
 -- (owner's screenshot, 08.11.2026); 38 and 30 before.
 local ICON_SIZE = 48
 local ICON_SIZE_PHONE = 38
+local CRATE_SCALE = 1.35 -- crate icons are this much larger than the level-up heads (owner, 09.11.2026)
 local ROW_GAP = 4
 local ICON_GAP = 2
 local MAX_ICONS = 6 -- per row; more are counted in a "+N" label left of the icons
@@ -94,10 +95,15 @@ local function levelIcon(order: number, classId: string): Frame
 		LayoutOrder = order,
 	})
 	if classId ~= "" then
-		Icons.draw(frame, "characterHead", classId)
+		-- the whole figure, like Brotato's icon; the head crop cut the body off at the bottom (owner, 09.11.2026)
+		Icons.draw(frame, "characterBadge", classId)
 	end
 	drawArrow(frame)
 	return frame
+end
+
+local function crateSize(): number
+	return math.floor(iconSize * CRATE_SCALE)
 end
 
 local function crateIcon(order: number, legendary: boolean): ImageLabel
@@ -107,12 +113,12 @@ local function crateIcon(order: number, legendary: boolean): ImageLabel
 		BackgroundTransparency = 1,
 		Image = if art then art.image else "",
 		ScaleType = Enum.ScaleType.Fit,
-		Size = UDim2.fromOffset(iconSize, iconSize),
+		Size = UDim2.fromOffset(crateSize(), crateSize()),
 		LayoutOrder = order,
 	})
 end
 
-local function moreLabel(extra: number): TextLabel
+local function moreLabel(extra: number, height: number): TextLabel
 	return Widgets.label({
 		Name = "More",
 		Text = `+{extra}`,
@@ -122,7 +128,7 @@ local function moreLabel(extra: number): TextLabel
 		TextStrokeTransparency = 0,
 		TextStrokeColor3 = Theme.stroke,
 		AutomaticSize = Enum.AutomaticSize.X,
-		Size = UDim2.fromOffset(0, iconSize),
+		Size = UDim2.fromOffset(0, height),
 		LayoutOrder = 0,
 	})
 end
@@ -140,7 +146,7 @@ local function fillLevels(row: Frame)
 	local classId = localClassId()
 	local shown = math.min(levels, MAX_ICONS)
 	if levels > shown then
-		moreLabel(levels - shown).Parent = row
+		moreLabel(levels - shown, iconSize).Parent = row
 	end
 	for i = 1, shown do
 		levelIcon(i, classId).Parent = row
@@ -152,7 +158,7 @@ local function fillCrates(row: Frame)
 	local total = crates + legendaryCrates
 	local shown = math.min(total, MAX_ICONS)
 	if total > shown then
-		moreLabel(total - shown).Parent = row
+		moreLabel(total - shown, crateSize()).Parent = row
 	end
 	for i = 1, shown do
 		crateIcon(i, i <= legendaryCrates).Parent = row -- legendary crates open first, so they come first
@@ -191,9 +197,8 @@ local function refresh()
 	gui.Enabled = visible and levels + crates + legendaryCrates > 0
 	top.Visible = levels > 0
 	bottom.Visible = crates + legendaryCrates > 0
-	for _, row in { top, bottom } do
-		row.Size = UDim2.fromOffset(0, iconSize)
-	end
+	top.Size = UDim2.fromOffset(0, iconSize)
+	bottom.Size = UDim2.fromOffset(0, crateSize())
 	-- the crate row moves up when no level-up waits
 	bottom.Position = UDim2.fromOffset(0, if levels > 0 then iconSize + ROW_GAP else 0)
 	fillLevels(top)
@@ -271,7 +276,8 @@ function PendingRewardsController.getBottom(): number
 	if rows == 0 then
 		return 0
 	end
-	return TOP + rows * iconSize + (rows - 1) * ROW_GAP
+	local height = (if levels > 0 then iconSize else 0) + (if crates + legendaryCrates > 0 then crateSize() else 0)
+	return TOP + height + (rows - 1) * ROW_GAP
 end
 
 -- Level-ups, crates and legendary crates shown right now (tests).

@@ -50,6 +50,8 @@ local WeaponService = {}
 WeaponService.Changed = Signal.new()
 -- B7: permanent weapon-kill gains, delivered after the simulation step.
 WeaponService.KillGrowth = Signal.new()
+-- (player, kills): one distinct completed explosion, never a sum across attacks.
+WeaponService.ExplosionResolved = Signal.new()
 local growth: { [number]: { [string]: number } } = {}
 
 -- Hit listener: (ownerId, enemyId, dealt, crit, killed, source), set by EffectService. A plain callback, not a
@@ -438,6 +440,7 @@ local function onStepped(dt: number, stepNow: number)
 			entry.player.UserId,
 			{ kind = "Blast", x = entry.position.X, z = entry.position.Z, radius = stats.radius }
 		)
+		local kills = 0
 		for index = 1, count do
 			local id = ids[index]
 			local _, elite = EnemySim.getKind(id)
@@ -446,7 +449,7 @@ local function onStepped(dt: number, stepNow: number)
 			if crit then
 				amount *= stats.critDamage
 			end
-			WeaponService.structureHit(
+			local killed = WeaponService.structureHit(
 				entry.player,
 				id,
 				amount,
@@ -454,7 +457,11 @@ local function onStepped(dt: number, stepNow: number)
 				crit,
 				entry.scaling ~= nil and entry.scaling.elementalDamage ~= nil
 			)
+			if killed then
+				kills += 1
+			end
 		end
+		WeaponService.reportExplosion(entry.player, kills)
 	end
 	local explosions = consumableExplosions
 	consumableExplosions = {}
@@ -527,6 +534,15 @@ function WeaponService.init()
 		BrotatoRuntime.reloadFromMaterials(arsenal:getWeapons(player.UserId), count, now())
 	end)
 	BrotatoCombat.configure({
+		explosionResolved = function(ownerId, kills)
+			local player = playerOf(ownerId)
+			if player then
+				WeaponService.reportExplosion(player, kills)
+			end
+		end,
+		emitExplosion = function(ownerId, x, z, radius)
+			arsenal:emitShared(ownerId, { kind = "Blast", x = x, z = z, radius = radius })
+		end,
 		health = EnemySim.getHealth,
 		healthShare = EnemySim.getHealthShare,
 		slowArea = function(hitId, x, z, radius, percent, hold)
@@ -863,6 +879,10 @@ function WeaponService.getMaxWeapons(player: Player): number
 	)
 end
 
+function WeaponService.reportExplosion(player: Player, kills: number)
+	WeaponService.ExplosionResolved:Fire(player, kills)
+end
+
 -- B12: already scaled structure damage, no primary weapon scaling or life steal.
 function WeaponService.structureHit(
 	player: Player,
@@ -879,6 +899,7 @@ function WeaponService.structureHit(
 	if hitListener and dealt > 0 then
 		hitListener(player.UserId, enemyId, dealt, critical == true, killed, source or "Weapon")
 	end
+	return killed
 end
 
 -- Snapshot after full-health gains, but defer collision to avoid recursive pickup/kill chains.
@@ -938,13 +959,14 @@ function WeaponService.explodeCharacter(
 	local ids = {}
 	local count = EnemySim.queryRadius(center, stats.radius, ids)
 	arsenal:emitShared(player.UserId, { kind = "Blast", x = center.X, z = center.Z, radius = stats.radius })
+	local kills = 0
 	for index = 1, count do
 		local id = ids[index]
 		if EnemySim.isAlive(id) then
 			local _, elite = EnemySim.getKind(id)
 			local critical = RandomService.number("Combat", player) < stats.critChance
 			local damage = CharacterExplosion.hitDamage(stats, critical, if elite then sheet.eliteDamage or 0 else 0)
-			WeaponService.structureHit(
+			local killed = WeaponService.structureHit(
 				player,
 				id,
 				damage,
@@ -952,12 +974,16 @@ function WeaponService.explodeCharacter(
 				critical,
 				definition.scaling.elementalDamage ~= nil
 			)
+			if killed then
+				kills += 1
+			end
 			local burnDamage = CharacterExplosion.burnDamage(definition, sheet, sheet.nativeGlobalBurnDamage or 0)
 			if burnDamage and definition.burn and EnemySim.isAlive(id) then
 				WeaponService.structureBurn(player, id, burnDamage, definition.burn.ticks, sheet)
 			end
 		end
 	end
+	WeaponService.reportExplosion(player, kills)
 	return true
 end
 -- B12 shares the existing burn registry: strongest burn wins, timers survive refreshes, secondary stats apply.

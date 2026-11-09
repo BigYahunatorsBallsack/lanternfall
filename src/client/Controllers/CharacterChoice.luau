@@ -435,7 +435,7 @@ function CharacterChoice.resize(width: number, _height: number?)
 	local summaryHeight = if compact then 300 else 334
 	local x = if compact then 0 else math.max(0, (width - (if step == "Difficulty" then 1000 else 730)) / 2)
 	choiceTitle.Visible = false
-	stage.Size = UDim2.new(1, 0, 0, if compact then 490 elseif step == "Difficulty" then 480 else 500)
+	stage.Size = UDim2.new(1, 0, 0, if compact then 490 elseif step == "Difficulty" then 460 else 500)
 	summary.Position = UDim2.fromOffset(x, 0)
 	summary.Size = UDim2.fromOffset(summaryWidth, summaryHeight)
 	selectedName.Position = UDim2.fromOffset(8, 4)
