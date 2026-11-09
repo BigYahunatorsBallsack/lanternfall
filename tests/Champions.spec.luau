@@ -143,7 +143,8 @@ describe("champions", function()
 			local shotsBefore = EnemySim.getShotCount()
 			local attacked = waitFor(10, function()
 				local warnings = controller("BossController").getCounts()
-				return warnings > 0 or EnemySim.getShotCount() > shotsBefore
+				-- pillars or slashes on the floor, bullets, or the red wind-up of a charge or summon
+				return warnings > 0 or EnemySim.getShotCount() > shotsBefore or EnemySim.getMode(champions[1].id) ~= 0
 			end)
 			if not attacked then
 				error(`{championId} never attacked`)
@@ -187,7 +188,7 @@ describe("champions", function()
 		expect(#BossService.getBosses()).toBe(0)
 	end)
 
-	it("gives each champion its own move: the Brood Matron's acid pools stay on the floor", function()
+	it("lets the Brood Matron throw slashes that fly along their strip", function()
 		click("KillEnemies")
 		for _ = 1, #EliteWaves.order do
 			click("SpawnChampion")
@@ -197,14 +198,21 @@ describe("champions", function()
 			click("KillEnemies")
 		end
 		expect(BossService.getBosses()[1].bossId).toBe("BroodMatron")
-		local pooled = waitFor(8, function()
-			return controller("BossController").getPoolCount() > 0
+		local moving = 0
+		world.netWatch = function(name, _player, list)
+			if name == "BossTelegraphs" then
+				for _, info in list do
+					if info.shape == "Line" and info.vx ~= nil then
+						moving += 1
+					end
+				end
+			end
+		end
+		local thrown = waitFor(8, function()
+			return moving > 0
 		end)
-		expect(pooled).toBe(true)
-		waitFor(1.5, function()
-			return false
-		end)
-		expect(controller("BossController").getPoolCount() > 0).toBe(true) -- still there after its strike
+		world.netWatch = nil
+		expect(thrown).toBe(true)
 		click("KillEnemies")
 	end)
 
@@ -237,7 +245,7 @@ describe("champions", function()
 		local kind = Config.Enemies.champions[championId]
 		local steps = Config.Run.spawn.growth.hpSteps[eliteWave]
 		local dangerHp = DangerRules.multipliers(OPTIONS, eliteWave)
-		local expected = (kind.hp + kind.hpPerWave * steps) * DangerRules.championShare(eliteWave) * dangerHp
+		local expected = (kind.hp + kind.hpPerWave * steps) * (DangerRules.bossEarlyShares(eliteWave)) * dangerHp
 		local maxHp = EnemySim.getMaxHealth(champions[1].id)
 		expect(math.abs(maxHp / expected - 1) < 0.01).toBe(true)
 		local before = pickupsOf("Legendary")
