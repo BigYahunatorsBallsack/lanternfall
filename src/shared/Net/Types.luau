@@ -343,7 +343,12 @@ export type BossInfo = {
 	hpFraction: number,
 	phase: number,
 	phaseCount: number,
-	orbitStartedAt: number?, -- server time; set while the phase has projectiles circling it (Config orbit)
+	-- a boss with an orbit (Config.Enemies BossOrbit): when it appeared, and the arm's angle (radians) at orbitAt,
+	-- turning orbitRate radians a second (server times)
+	orbitStartedAt: number?,
+	orbitAt: number?,
+	orbitAngle: number?,
+	orbitRate: number?,
 }
 
 export type BossState = {
@@ -364,6 +369,8 @@ export type BossTelegraph = {
 	startsAt: number,
 	hitsAt: number,
 	endsAt: number?, -- WP10 part 2: a pool stays on the floor (and hurts) until then
+	vx: number?, -- studs/s: the warning moves with its projectile from startsAt on (Brotato's moving pillars, slashes)
+	vz: number?,
 }
 
 -- B12 server-only deployments and bounded cosmetic batches.

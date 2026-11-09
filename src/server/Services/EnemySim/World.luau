@@ -441,6 +441,19 @@ function World.getMultipliers(self: World, id: number): (number, number, number)
 	return hpMultiplier, damageMultiplier, self.speedFactors[i]
 end
 
+-- Sets a living enemy's mode and rush direction (a boss's attack, WP10: it glows during the wind-up like a charger).
+-- Only for kinds whose mode World.step does not drive (no charge, slash, pulse or hatch).
+function World.setMode(self: World, id: number, mode: number, rushX: number?, rushZ: number?)
+	local i = self.indexOf[id]
+	if not i or self.hp[i] <= 0 then
+		return
+	end
+	self.modes[i] = mode
+	if rushX and rushZ then
+		self.rushXs[i], self.rushZs[i] = rushX, rushZ
+	end
+end
+
 -- The enemy's mode (World.MODE_*) and its rush direction (only meaningful from the wind-up on).
 function World.getMode(self: World, id: number): (number, number, number)
 	local i = self.indexOf[id]

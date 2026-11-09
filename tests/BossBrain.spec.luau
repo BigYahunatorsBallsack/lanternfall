@@ -1,160 +1,171 @@
--- Unit tests for the boss state machine (BossService/BossBrain, WP10): phases switch at an HP share or after some
--- seconds, attacks go wind-up -> strike -> recover in list order, cooldowns and ranges skip attacks.
+-- Unit tests for the boss state machine (BossService/BossBrain, WP10, Brotato 1.2.0.1 boss.gd and attack
+-- behaviors): states switch once a second at an HP share or time, attacks wind up and strike when their cooldown ran
+-- out and the player is in range, charges rush, fire their charge shots and recover.
 
 local BossBrain = require(game:GetService("ServerScriptService").Server.Services.BossService.BossBrain)
 local Config = require(game:GetService("ReplicatedStorage").Shared.Config)
 
 local DT = 1 / 15
 
+local SHOOT = {
+	kind = "Shoot",
+	windupSeconds = 0.4,
+	cooldownSeconds = 1,
+	initialSeconds = 0.5,
+	maxRange = 50,
+	projectile = "Bullet",
+	count = 3,
+	projectileSpeed = 30,
+}
+local CHARGE = {
+	kind = "Charge",
+	windupSeconds = 0.2,
+	cooldownSeconds = 1,
+	maxRange = 40,
+	chargeSeconds = 0.5,
+	chargeSpeed = 50,
+	recoverSeconds = 0.05,
+}
+local SPAWN = { kind = "Spawn", windupSeconds = 0.4, cooldownSeconds = 2, enemy = "BroodEgg", spawnCount = 2 }
+local SHOTS = { kind = "Shoot", windupSeconds = 0, cooldownSeconds = 0, projectile = "Bullet", count = 2 }
+
 local PLAN = {
-	phases = {
-		{ attacks = { "Dash", "Slam" }, pauseSeconds = 1 },
-		{ fromHp = 0.5, afterSeconds = 45, attacks = { "Ring" }, pauseSeconds = 0.5 },
-		{ fromHp = 0.2, attacks = { "Rain" }, pauseSeconds = 0 },
-	},
-	attacks = {
-		Dash = {
-			kind = "Dash",
-			windupSeconds = 0.8,
-			recoverSeconds = 0.5,
-			range = 30,
-			damage = 10,
-			speed = 40,
-			distance = 20,
+	states = {
+		{ movement = "Follow", attack = SHOOT },
+		{
+			hpStart = 0.6,
+			timerStart = 20,
+			movement = "Follow",
+			attack = CHARGE,
+			chargeShots = SHOTS,
+			chargeShotEvery = 0.25,
 		},
-		Slam = {
-			kind = "Slam",
-			windupSeconds = 1,
-			recoverSeconds = 0.5,
-			cooldownSeconds = 6,
-			range = 10,
-			damage = 10,
-			radius = 8,
-		},
-		Ring = {
-			kind = "Ring",
-			windupSeconds = 0.6,
-			recoverSeconds = 0.4,
-			damage = 5,
-			count = 8,
-			bursts = 3,
-			burstGapSeconds = 0.3,
-			projectileSpeed = 10,
-			projectileRange = 30,
-			projectileRadius = 0.5,
-		},
-		Rain = {
-			kind = "Rain",
-			windupSeconds = 1,
-			recoverSeconds = 0,
-			cooldownSeconds = 2,
-			moving = true,
-			damage = 5,
-			count = 3,
-			spread = 8,
-			radius = 2,
-		},
+		{ hpStart = 0.3, timerStart = 40, movement = "Roam", attack = SPAWN },
 	},
 }
 
--- Steps the brain for `seconds` and returns every event as "kind:attackId" / "Phase:n".
-local function run(brain, seconds, hp, distance)
-	local log = {}
-	for _ = 1, math.round(seconds / DT) do
+local function fixed()
+	return 0.5
+end
+
+-- Steps until an event of `kind` happens (or `limit` seconds pass); returns it and the seconds it took.
+local function runUntil(brain, kind: string, limit: number, hp: number?, distance: number?)
+	local waited = 0
+	while waited < limit do
+		waited += DT
 		for _, event in BossBrain.step(brain, DT, hp or 1, distance or 5) do
-			table.insert(log, if event.kind == "Phase" then `Phase:{event.phase}` else `{event.kind}:{event.attackId}`)
+			if event.kind == kind then
+				return event, waited
+			end
 		end
 	end
-	return log
+	return nil, waited
 end
 
 describe("BossBrain", function()
-	it("picks the phase by HP or time, whichever comes first, never back", function()
-		expect(BossBrain.phaseFor(PLAN, 1, 1, 0)).toBe(1)
-		expect(BossBrain.phaseFor(PLAN, 1, 0.5, 0)).toBe(2)
-		expect(BossBrain.phaseFor(PLAN, 1, 0.9, 45)).toBe(2)
-		expect(BossBrain.phaseFor(PLAN, 1, 0.1, 0)).toBe(3)
-		expect(BossBrain.phaseFor(PLAN, 3, 1, 0)).toBe(3)
+	it("picks the last state whose HP share or time is reached", function()
+		expect(BossBrain.stateFor(PLAN, 1, 1, 0)).toBe(1)
+		expect(BossBrain.stateFor(PLAN, 1, 0.5, 0)).toBe(2)
+		expect(BossBrain.stateFor(PLAN, 1, 0.9, 20)).toBe(2)
+		expect(BossBrain.stateFor(PLAN, 1, 0.1, 0)).toBe(3)
+		expect(BossBrain.stateFor(PLAN, 3, 1, 0)).toBe(3)
 	end)
 
-	it("walks, winds up, strikes, rushes and recovers, then takes the next attack", function()
-		local brain = BossBrain.new(PLAN)
-		expect(table.concat(run(brain, 0.9), ",")).toBe("") -- still pausing
-		expect(table.concat(run(brain, 0.2), ",")).toBe("Windup:Dash")
-		expect(brain.state).toBe("Windup")
+	it("rolls cooldowns within their randomization, never below one frame", function()
+		local attack = { kind = "Shoot", windupSeconds = 0, cooldownSeconds = 1 / 60, cooldownRandomSeconds = 10 / 60 }
+		expect(BossBrain.rollCooldown(attack :: any, function()
+			return 0
+		end)).toBeNear(1 / 60)
+		expect(BossBrain.rollCooldown(attack :: any, function()
+			return 0.999999
+		end)).toBeNear(11 / 60, 1e-3)
+	end)
+
+	it("winds up after the first cooldown plus the initial wait, keeps walking and strikes", function()
+		local brain = BossBrain.new(PLAN :: any, fixed)
+		local event, waited = runUntil(brain, "Windup", 5)
+		expect(event ~= nil).toBe(true)
+		expect(waited).toBeNear(1.5, DT * 1.5)
+		expect(BossBrain.isHolding(brain)).toBe(false) -- a Shoot wind-up keeps it walking
+		local strike, strikeWait = runUntil(brain, "Strike", 5)
+		expect(strike ~= nil and (strike :: any).attack.kind).toBe("Shoot")
+		expect(strikeWait).toBeNear(0.4, DT * 1.5)
+		local _, next = runUntil(brain, "Windup", 5)
+		expect(next).toBeNear(1, DT * 1.5) -- its cooldown runs from the strike
+	end)
+
+	it("waits while the player is out of range", function()
+		local brain = BossBrain.new(PLAN :: any, fixed)
+		local event = runUntil(brain, "Windup", 4, 1, 80)
+		expect(event).toBe(nil)
+		local none = BossBrain.new(PLAN :: any, fixed)
+		expect((runUntil(none, "Windup", 4, 1, math.huge))).toBe(nil)
+	end)
+
+	it("switches state only at the once-a-second check", function()
+		local brain = BossBrain.new(PLAN :: any, fixed)
+		BossBrain.step(brain, 0.5, 0.5, 5)
+		expect(brain.state).toBe(1)
+		local event = runUntil(brain, "State", 1, 0.5)
+		expect(event ~= nil and (event :: any).state).toBe(2)
+	end)
+
+	it("charges: holds during the wind-up, rushes with its shots, recovers", function()
+		local brain = BossBrain.new(PLAN :: any, fixed)
+		runUntil(brain, "State", 2, 0.5)
+		expect(brain.state).toBe(2)
+		local windup = runUntil(brain, "Windup", 3, 0.5)
+		expect(windup ~= nil).toBe(true)
 		expect(BossBrain.isHolding(brain)).toBe(true)
-		expect(table.concat(run(brain, 0.8), ",")).toBe("Strike:Dash")
-		expect(brain.state).toBe("Act") -- rushing for distance / speed = 0.5 s
-		run(brain, 0.5)
-		expect(brain.state).toBe("Recover")
-		expect(table.concat(run(brain, 0.6), ",")).toBe("Done:Dash")
-		expect(table.concat(run(brain, 1.1), ",")).toBe("Windup:Slam")
-	end)
-
-	it("skips attacks that are on cooldown or out of range", function()
-		local brain = BossBrain.new(PLAN)
-		local log = run(brain, 14, 1, 5)
-		local slams = 0
-		for _, entry in log do
-			if entry == "Windup:Slam" then
-				slams += 1
+		local shots = 0
+		local ended = false
+		local waited = 0
+		while not ended and waited < 3 do
+			waited += DT
+			for _, event in BossBrain.step(brain, DT, 0.5, 5) do
+				if event.kind == "ChargeShot" then
+					shots += 1
+				elseif event.kind == "ChargeEnd" then
+					ended = true
+				end
 			end
 		end
-		expect(slams).toBe(2) -- every 6 s at most; Dashes fill the gaps
-		local far = BossBrain.new(PLAN)
-		local farLog = table.concat(run(far, 6, 1, 20), ",")
-		expect(string.find(farLog, "Slam", 1, true)).toBe(nil) -- 20 studs: only the Dash reaches
-		local none = BossBrain.new(PLAN)
-		expect(#run(none, 5, 1, math.huge)).toBe(0) -- nobody alive: no attack
+		expect(ended).toBe(true)
+		expect(shots).toBe(2) -- at 0 and 0.25 s of a 0.5 s charge
+		expect(brain.mode).toBe("Recover")
+		expect(BossBrain.isHolding(brain)).toBe(true)
+		BossBrain.step(brain, DT, 0.5, 5)
+		expect(brain.mode).toBe("Ready")
 	end)
 
-	it("changes phase between attacks and fires every burst of a ring", function()
-		local brain = BossBrain.new(PLAN)
-		run(brain, 1.1) -- Dash winds up
-		local log = run(brain, 3, 0.4)
-		expect(log[1]).toBe("Strike:Dash") -- the attack in progress finishes first
-		expect(table.find(log, "Phase:2") ~= nil).toBe(true)
-		local ring = run(brain, 3, 0.4)
-		local strikes = 0
-		for _, entry in ring do
-			if entry == "Strike:Ring" then
-				strikes += 1
-			end
+	it("summons whatever the distance", function()
+		local brain = BossBrain.new(PLAN :: any, fixed)
+		runUntil(brain, "State", 2, 0.1, math.huge)
+		expect(brain.state).toBe(3)
+		local strike = runUntil(brain, "Strike", 4, 0.1, math.huge)
+		expect(strike ~= nil and (strike :: any).attack.kind).toBe("Spawn")
+	end)
+
+	it("runs every real boss and champion through all its states", function()
+		local plans = {}
+		for _, kind in Config.Enemies.bosses do
+			table.insert(plans, kind.boss)
 		end
-		expect(strikes >= 3).toBe(true)
-		expect(brain.phase).toBe(2)
-	end)
-
-	it("keeps walking during moving attacks and switches by time", function()
-		local brain = BossBrain.new(PLAN)
-		run(brain, 48, 0.9)
-		expect(brain.phase).toBe(2)
-		run(brain, 2, 0.1)
-		expect(brain.phase).toBe(3)
-		local guard = 100
-		while brain.state ~= "Windup" and guard > 0 do
-			guard -= 1
-			run(brain, DT, 0.1)
+		for _, kind in Config.Enemies.champions do
+			table.insert(plans, kind.boss)
 		end
-		expect(brain.attackId).toBe("Rain")
-		expect(BossBrain.isHolding(brain)).toBe(false)
-	end)
-
-	it("runs both real bosses through all their phases", function()
-		for id, boss in Config.Enemies.bosses do
-			local brain = BossBrain.new(boss.boss)
+		for _, plan in plans do
+			local brain = BossBrain.new(plan, math.random)
 			local strikes = 0
-			for second = 1, 90 do
-				local hp = 1 - second / 90
-				for _, event in run(brain, 1, hp, 3) do
-					if string.sub(event, 1, 7) == "Strike:" then
+			for _ = 1, math.round(90 / DT) do
+				for _, event in BossBrain.step(brain, DT, 1, 10) do
+					if event.kind == "Strike" then
 						strikes += 1
 					end
 				end
 			end
-			expect(brain.phase).toBe(#boss.boss.phases)
-			expect(strikes > 20).toBe(true)
-			expect(id ~= "").toBe(true)
+			expect(brain.state).toBe(#plan.states)
+			expect(strikes > 0).toBe(true)
 		end
 	end)
 end)

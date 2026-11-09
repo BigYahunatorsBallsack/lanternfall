@@ -202,7 +202,7 @@ describe("main-game wiki enemy stats", function()
 			expect(kind.contactDamage).toBe(30)
 			expect(kind.hp * 0.75 * 1.4).toBeNear(30712.5)
 		end
-		expect(Config.Enemies.bosses.HollowSeer.boss.phases[2].fromHp).toBe(0.75)
+		expect(Config.Enemies.bosses.HollowSeer.boss.states[2].hpStart).toBe(0.75)
 	end)
 
 	it("uses original player HP and healing without dividing weapon damage by ten", function()

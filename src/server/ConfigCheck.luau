@@ -607,22 +607,34 @@ function ConfigCheck.run(): { string }
 	for id, enemy in Config.Enemies.types do
 		bossTypeIds[enemy.typeId] = id
 	end
-	local attackKinds = {
-		Dash = true,
-		Slam = true,
-		Ring = true,
-		Rain = true,
-		Circle = true,
-		Cleave = true,
-		Volley = true,
-		Scatter = true,
-		Summon = true,
-		Boomerang = true,
-		Pools = true,
-		March = true,
-		Cross = true,
-		Leap = true,
-	}
+	local movements = { Follow = true, Roam = true, AroundPlayer = true, KeepDistance = true }
+	local projectileKinds = { Bullet = true, Pillar = true, Slash = true, SlashAhead = true }
+	local function checkAttack(id: string, label: string, attack: Enemies.BossAttack, shootOnly: boolean)
+		if not (attack.windupSeconds >= 0 and attack.cooldownSeconds >= 0) then
+			problem(`Boss {id} {label} needs a wind-up and cooldown of at least 0`)
+		end
+		if shootOnly and attack.kind ~= "Shoot" then
+			problem(`Boss {id} {label} must be a Shoot`)
+		end
+		if attack.kind == "Shoot" then
+			if not (projectileKinds[attack.projectile or ""] and (attack.count or 0) >= 1) then
+				problem(`Boss {id} {label} needs a known projectile and a count of at least 1`)
+			end
+			if attack.projectile == "Bullet" and not ((attack.projectileSpeed or 0) > 0) then
+				problem(`Boss {id} {label} fires bullets without a speed`)
+			end
+		elseif attack.kind == "Charge" then
+			if not ((attack.chargeSeconds or 0) > 0 and (attack.chargeSpeed or 0) > 0) then
+				problem(`Boss {id} {label} charges without a time and speed`)
+			end
+		elseif attack.kind == "Spawn" then
+			if not (attack.enemy and Config.Enemies.types[attack.enemy] and (attack.spawnCount or 0) >= 1) then
+				problem(`Boss {id} {label} spawns an unknown enemy or none`)
+			end
+		else
+			problem(`Boss {id} {label} has unknown kind {attack.kind}`)
+		end
+	end
 	local withPlans: { [string]: Enemies.Enemy } = table.clone(Config.Enemies.bosses)
 	for id, champion in Config.Enemies.champions do
 		if withPlans[id] then
@@ -645,68 +657,31 @@ function ConfigCheck.run(): { string }
 			problem(`Boss {id} needs hp, radius and mass above 0 and a speed of at least 0`)
 		end
 		local plan = boss.boss
-		if not (plan and #plan.phases >= 1) then
-			problem(`Boss {id} needs a boss plan with at least one phase`)
+		if not (plan and #plan.states >= 1) then
+			problem(`Boss {id} needs a boss plan with at least one state`)
 			continue
 		end
-		for index, phase in plan.phases do
-			if index > 1 and not (phase.fromHp or phase.afterSeconds) then
-				problem(`Boss {id} phase {index} needs fromHp or afterSeconds`)
+		for index, state in plan.states do
+			if index > 1 and not (state.hpStart or state.timerStart) then
+				problem(`Boss {id} state {index} needs hpStart or timerStart`)
 			end
-			if #phase.attacks == 0 or phase.pauseSeconds < 0 then
-				problem(`Boss {id} phase {index} needs attacks and a pause of at least 0`)
+			if not movements[state.movement] then
+				problem(`Boss {id} state {index} has unknown movement {state.movement}`)
 			end
-			for _, attackId in phase.attacks do
-				if not plan.attacks[attackId] then
-					problem(`Boss {id} phase {index} uses unknown attack {attackId}`)
+			checkAttack(id, `state {index} attack`, state.attack, false)
+			if state.chargeShots then
+				checkAttack(id, `state {index} chargeShots`, state.chargeShots, true)
+				if not ((state.chargeShotEvery or 0) > 0) then
+					problem(`Boss {id} state {index} needs chargeShotEvery above 0`)
 				end
 			end
-			local orbit = phase.orbit
-			if orbit and not (orbit.count >= 1 and orbit.radius > 0 and orbit.hitRadius > 0) then
-				problem(`Boss {id} phase {index} needs a positive orbit`)
+			if state.extraShot then
+				checkAttack(id, `state {index} extraShot`, state.extraShot, true)
 			end
 		end
-		for attackId, attack in plan.attacks do
-			if not attackKinds[attack.kind] then
-				problem(`Boss {id} attack {attackId} has unknown kind {attack.kind}`)
-			end
-			if not (attack.windupSeconds > 0 and attack.recoverSeconds >= 0 and attack.damage >= 0) then
-				problem(`Boss {id} attack {attackId} needs a wind-up above 0`)
-			end
-			local needs = {
-				Dash = { attack.speed, attack.distance },
-				Slam = { attack.radius },
-				Ring = { attack.count, attack.projectileSpeed, attack.projectileRange, attack.projectileRadius },
-				Rain = { attack.count, attack.spread, attack.radius },
-				Circle = { attack.count, attack.spread, attack.projectileSpeed, attack.projectileRadius },
-				Cleave = { attack.count, attack.distance, attack.radius },
-				Volley = { attack.count, attack.projectileSpeed, attack.projectileRange, attack.projectileRadius },
-				Scatter = { attack.count, attack.projectileSpeed, attack.projectileRange, attack.projectileRadius },
-				Summon = { attack.count },
-				Boomerang = { attack.count, attack.projectileSpeed, attack.projectileRange, attack.projectileRadius },
-				Pools = { attack.count, attack.poolRadius, attack.poolSeconds },
-				March = { attack.count, attack.spacing, attack.radius },
-				Cross = { attack.count, attack.distance, attack.radius },
-				Leap = { attack.radius },
-			}
-			if attack.poolEvery and not (attack.poolRadius and attack.poolSeconds) then
-				problem(`Boss {id} attack {attackId} leaves pools without their radius and time`)
-			end
-			if attack.kind == "Leap" and (attack.count or 0) > 0 and not attack.projectileSpeed then
-				problem(`Boss {id} attack {attackId} fires a ring without projectile values`)
-			end
-			if (attack.trailEvery or attack.startShots) and not (attack.projectileSpeed and attack.projectileRange) then
-				problem(`Boss {id} attack {attackId} fires projectiles without their speed and range`)
-			end
-			if attack.kind == "Summon" and not (attack.enemy and Config.Enemies.types[attack.enemy]) then
-				problem(`Boss {id} attack {attackId} summons an unknown enemy`)
-			end
-			for _, value in needs[attack.kind] or {} do
-				if not (value and value > 0) then
-					problem(`Boss {id} attack {attackId} misses a value its kind {attack.kind} needs`)
-					break
-				end
-			end
+		local orbit = plan.orbit
+		if orbit and not (#orbit.distances >= 1 and orbit.growSpeed > 0 and orbit.hitRadius > 0) then
+			problem(`Boss {id} needs a positive orbit`)
 		end
 	end
 	local bossWave = Config.Enemies.bossWave
@@ -731,8 +706,13 @@ function ConfigCheck.run(): { string }
 			end
 		end
 	end
-	if not (eliteWaves.count >= 1 and eliteWaves.reducedHpShare > 0 and eliteWaves.reducedHpShare <= 1) then
-		problem("Enemies.eliteWaves needs count and a reducedHpShare of 0-1")
+	if eliteWaves.count < 1 then
+		problem("Enemies.eliteWaves needs a count of at least 1")
+	end
+	for _, entry in eliteWaves.early do
+		if not (entry.hpShare > 0 and entry.hpShare <= 1 and entry.damageShare > 0 and entry.damageShare <= 1) then
+			problem("Enemies.eliteWaves.early needs HP and damage shares of 0-1")
+		end
 	end
 	local lengths = Config.Run.spawn.waves.lengthsSeconds
 	if Config.Admin.skipToBossLeadSeconds ~= lengths[#lengths] then

@@ -51,96 +51,93 @@ export type Enemy = {
 	boss: BossPlan?,
 }
 
--- WP10, Brotato's bosses: phases ("mutations") that switch at an HP share or after some seconds, whichever comes
--- first; each phase runs its attacks in turn with a pause in between. Every attack warns first (a red circle or
--- line on the floor, BossTelegraphs), strikes and recovers. BossService/BossBrain is the state machine.
+-- Bosses and champions (Brotato 1.2.0.1 entities/units/enemies/bosses: boss.gd, boss_state.gd and the attack and
+-- movement behaviors): a list of states. The first runs from the spawn; every second (CheckStateTimer) the boss
+-- switches to the last later state whose HP share (hpStart) or seconds since its spawn (timerStart) is reached. Each
+-- state has one movement and one attack; BossService/BossBrain carries them out.
 export type BossPlan = {
-	phases: { BossPhase }, -- in order; phase 1 starts at spawn
-	attacks: { [string]: BossAttack },
+	states: { BossState },
+	orbit: BossOrbit?, -- projectiles on a turning arm around it (Predator)
 }
 
-export type BossPhase = {
-	fromHp: number?, -- starts once the boss is at or below this share of its max HP ...
-	afterSeconds: number?, -- ... or this many seconds after it appeared, whichever comes first (not for phase 1)
-	attacks: { string }, -- keys in BossPlan.attacks, tried in this order (one on cooldown or out of range is skipped)
-	pauseSeconds: number, -- walking between two attacks
-	speedMultiplier: number?, -- on its walking speed in this phase (default 1)
-	roam: boolean?, -- runs all over the arena instead of after the nearest player
-	flee: boolean?, -- runs away from the nearest player (WP10 part 2, Brotato's Monk)
-	orbit: BossOrbit?, -- projectiles circling it during this phase
-	announce: string?, -- message to everyone when the phase starts
+export type BossState = {
+	hpStart: number?, -- not for the first state
+	timerStart: number?,
+	-- "Follow" walks at the nearest player, "Roam" to random spots of the arena, "AroundPlayer" to random spots
+	-- within `range` (+- rangeRandom, rolled once) of the nearest player, "KeepDistance" stays `range` away from it
+	movement: string,
+	range: number?, -- studs
+	rangeRandom: number?,
+	speedPercent: number?, -- on its base speed in this state (Brotato reset_speed_stat)
+	attack: BossAttack,
+	chargeShots: BossAttack?, -- a Shoot fired while it charges (Rhino, Croc, Mantis) ...
+	chargeShotEvery: number?, -- ... every this many seconds, the first one when the charge starts
+	extraShot: BossAttack?, -- a Shoot fired with every strike of `attack` (Mom)
+	orbitTurnMultiplier: number?, -- the orbit turns this much faster from this state on
 }
 
--- Projectiles that circle the boss and hurt players they touch (Brotato's Predator).
+-- Brotato's Predator: projectiles on one arm that turns around the boss (Pivot); each slides out from its centre at
+-- growSpeed until it reaches its distance. They stay when they hit.
 export type BossOrbit = {
-	count: number,
-	radius: number, -- studs from its centre
-	turnsPerSecond: number,
-	hitRadius: number, -- studs, size of each projectile
-	damage: number, -- grows with the boss's damage like its contact damage
+	distances: { number }, -- studs
+	growSpeed: number, -- studs/s
+	turnSpeed: number, -- radians/s, direction picked at random at spawn
+	hitRadius: number,
+	damage: number, -- plus damagePerWave for every wave after the first
+	damagePerWave: number,
 }
 
--- One attack. `kind` decides which fields it uses:
---   Dash: rushes `distance` studs at `speed` along the line it showed; hurts every player it runs into once.
---   Slam: hits everyone within `radius` of where it stands.
---   Ring: `count` projectiles in every direction, `bursts` times `burstGapSeconds` apart.
---   Rain: `count` red circles (`radius`) at random spots within `spread` of every living player; they hit when the
---     wind-up ends (Brotato's Invoker: projectiles that "spawn after a second of priming").
---   Circle: `count` spots on a circle of `spread` studs around every living player; each fires a projectile at the
---     centre when the wind-up ends.
--- Since WP10 part 2 (the champions, Brotato's elites):
---   Cleave: `count` slashes from where it stands (red strips `distance` long, `radius` half wide): a fan of `arc`
---     degrees aimed at the nearest player, or with `around` evenly in every direction; hits each player once.
---   Volley: `count` projectiles in a fan of `arc` degrees at the nearest player, `bursts` times.
---   Scatter: `count` projectiles in random directions.
---   Summon: `count` enemies of `enemy` (with this wave's growth) within `spread` studs of it.
---   A Dash can also fire a pair of projectiles to its sides every `trailEvery` studs and `startShots` projectiles
---   (fan of `arc`) at the nearest player when it starts.
--- Each champion also has a signature move (owner feedback: attacks should not feel like reskins):
---   Dash `bounces` off walls and pillars (`bounceShots` in a ring each time), steers after the nearest player with
---     `turnRate` (degrees/s) and leaves a pool every `poolEvery` studs.
---   Boomerang: `count` projectiles in a fan of `arc` that fly `projectileRange` studs and come back to it.
---   Pools: `count` pools (`poolRadius`) within `spread` studs of it that hurt every `poolTick` s for `poolSeconds`.
---   March: `count` circles (`radius`) `spacing` studs apart from it towards the nearest player, `stepSeconds` apart.
---   Cross: an X of two strips `distance` long (`radius` half wide) on the nearest player; `count` of them,
---     `stepSeconds` apart, the later ones within `spread` studs.
---   Leap: jumps onto where the nearest player stood when the warning showed; hits within `radius`, then a ring of
---     `count` projectiles.
---   A Ring with `spinPerBurst` (degrees) turns with every burst: a spiral.
+-- One attack. Every attack first plays the boss's "shoot" animation for windupSeconds (it flashes red), then:
+--   Shoot: `count` projectiles (Brotato shooting_attack_behavior): each spawns at the boss or, with onTarget, at the
+--     nearest player; onBorders puts them on a circle of spawnSpread/2 (evenly with constantSpread, else at random),
+--     otherwise at random in a square spawnSpread wide (the first one in the middle with oneOnTarget). Each flies
+--     from its spot towards the player (aim "Movement": along the boss's walk, "Away": away from the boss), turned by
+--     a random angle up to `spread` (constantSpread: evenly over -spread..spread), or in a random direction.
+--     `projectile`: "Bullet" (enemy bullet), "Pillar" (a circle that strikes once after a moment), "Slash" (a strip
+--     through its spot that strikes once), "SlashAhead" (the same strip in front of its spot).
+--   Charge: rushes at the player's position of the wind-up start for chargeSeconds at its speed + chargeSpeed, then
+--     stands still for recoverSeconds. Contact hurts like touching it.
+--   Spawn: `spawnCount` enemies of `enemy` at random spots in a square spawnArea wide around it.
+-- A Shoot or Charge starts only while the nearest player is minRange..maxRange from its centre. Its cooldown runs
+-- after the strike (a Charge's from the rush start, plus chargeSeconds).
 export type BossAttack = {
 	kind: string,
-	windupSeconds: number, -- the warning on the floor
-	recoverSeconds: number,
-	cooldownSeconds: number?, -- from the start of its wind-up until it may come again
-	range: number?, -- only starts when the nearest player is at most this far from the boss's edge
-	moving: boolean?, -- keeps walking during wind-up and strike (else it stands still)
-	damage: number, -- per hit or projectile; grows with the boss's damage like its contact damage
-	speed: number?, -- Dash
-	distance: number?, -- Dash
-	radius: number?, -- Slam, Rain: hit circle
-	count: number?, -- Ring, Rain, Circle
-	bursts: number?, -- Ring
-	burstGapSeconds: number?, -- Ring
-	spread: number?, -- Rain, Circle
-	projectileSpeed: number?, -- Ring, Circle
-	projectileRange: number?, -- Ring (Circle: twice its spread)
-	projectileRadius: number?, -- Ring, Circle
-	-- since WP10 part 2
-	arc: number?, -- Cleave, Volley, Dash startShots: degrees of the fan
-	around: boolean?, -- Cleave: in every direction instead of at the nearest player
-	enemy: string?, -- Summon: key in Config.Enemies.types
-	trailEvery: number?, -- Dash: studs between two pairs of side projectiles
-	startShots: number?, -- Dash
-	bounces: number?, -- Dash
-	bounceShots: number?, -- Dash
-	turnRate: number?, -- Dash
-	poolEvery: number?, -- Dash
-	poolRadius: number?, -- Dash, Pools
-	poolSeconds: number?, -- Dash, Pools
-	poolTick: number?, -- Dash, Pools (default 0.5)
-	spacing: number?, -- March
-	stepSeconds: number?, -- March, Cross
-	spinPerBurst: number?, -- Ring
+	windupSeconds: number,
+	cooldownSeconds: number,
+	cooldownRandomSeconds: number?, -- the cooldown is rolled in cooldownSeconds +- this (at least one frame)
+	initialSeconds: number?, -- extra wait before its first strike in the state
+	minRange: number?,
+	maxRange: number?,
+	-- Shoot
+	projectile: string?,
+	count: number?,
+	projectileSpeed: number?, -- studs/s
+	spread: number?, -- radians
+	constantSpread: boolean?,
+	randomDirection: boolean?,
+	onTarget: boolean?,
+	spawnSpread: number?, -- studs
+	onBorders: boolean?,
+	oneOnTarget: boolean?,
+	aim: string?,
+	damage: number?, -- per projectile, plus damagePerWave for every wave after the first
+	damagePerWave: number?,
+	-- Charge
+	chargeSeconds: number?,
+	chargeSpeed: number?, -- studs/s on top of its walking speed
+	recoverSeconds: number?,
+	-- Spawn
+	enemy: string?, -- key in Config.Enemies.types
+	spawnCount: number?,
+	spawnArea: number?, -- studs
+}
+
+-- Boss projectiles: the enemy bullet, and pillars and slashes (Brotato projectiles/pillar_enemy and projectiles/slash),
+-- which show on the floor from the strike and hurt each player once while their hitbox is on (hitFrom..hitUntil s).
+export type BossProjectiles = {
+	bullet: { radius: number, range: number },
+	pillar: { radius: number, hitFrom: number, hitUntil: number },
+	slash: { from: number, to: number, halfWidth: number, hitFrom: number, hitUntil: number, aheadOffset: number },
 }
 
 -- Enemies that get faster the longer they live (Stalker, B9).
@@ -867,14 +864,47 @@ local Elite = table.freeze({
 	}) :: { Affix },
 })
 
+-- Boss attacks in Brotato's units: distances and speeds in pixels (PIXEL studs each), times in frames at 60 fps.
+local function px(value: number): number
+	return value * PIXEL
+end
+local function frames(value: number): number
+	return value / 60
+end
+-- every boss and elite plays the 0.4 s "enemy_charge_prep" animation, at attack_anim_speed, before it strikes
+local function windup(animSpeed: number): number
+	return 0.4 / animSpeed
+end
+
+local BossProjectiles: BossProjectiles = table.freeze({
+	bullet = table.freeze({ radius = SHOT_RADIUS, range = SHOT_RANGE }), -- like every enemy bullet
+	-- pillar_projectile: a 23 px circle whose hitbox is on 0.54-0.68 s after it appears
+	pillar = table.freeze({ radius = px(23), hitFrom = 0.54, hitUntil = 0.68 }),
+	-- slash_projectile: the hitbox sweeps along the slash from -152 to 154 px (12-17 px half wide) 0.48-0.6 s after it
+	-- appears; drawn and checked here as the whole strip during that time. slash_projectile_2 sits 165 px further on.
+	slash = table.freeze({
+		from = px(-152),
+		to = px(154),
+		halfWidth = px(15),
+		hitFrom = 0.48,
+		hitUntil = 0.6,
+		aheadOffset = px(165),
+	}),
+})
+
+local function attack(fields: { [string]: any }): BossAttack
+	return table.freeze(fields) :: any
+end
+
 -- WP10: the bosses of the boss wave (the last wave, Run.spawn.waves), after Brotato's two (wave 20, 90 s). One of
 -- them comes, picked at random (B11: both on the highest danger level). The wave ends with a victory when every
--- boss is dead or when its time runs out (Brotato). Values from Brotato's Predator and Invoker, scaled like our other
--- enemies in original HP/damage units; attack geometry not supplied by the wiki remains an adaptation. HP and damage then get the difficulty and the team's enemy stats, HP also the player factor
--- (EnemyWaves.coop, SpawnRules.coopHealth). Bosses count as elites for Damage vs Elites and ignore knockback; Heralds and Menders skip them.
+-- boss is dead or when its time runs out (Brotato). HP and contact damage are Brotato's at wave 20 (15000 + 750 and
+-- 1 + 1.5 per wave); they then get the difficulty and the team's enemy stats, HP also the player factor
+-- (EnemyWaves.coop, SpawnRules.coopHealth). Bosses count as elites for Damage vs Elites and ignore knockback; Heralds
+-- and Menders skip them. States and attacks: Brotato 1.2.0.1 bosses/predator and bosses/invoker (.tscn).
 local Bosses: { [string]: Enemy } = {
-	-- like Brotato's Predator: chases you and dashes, ringed by circling embers; from half HP (or after 45 s) no more
-	-- dashes but slams and rings of shots in every direction
+	-- Predator: chases you and charges (0.5 s at +750 px/s) about every 3.3 s, an arm of 9 projectiles turning around it; from half HP (or 45 s)
+	-- it walks to random spots near you and shoots 16 bullets in random directions, the arm turning faster
 	LanternEater = {
 		id = "LanternEater",
 		typeId = 4,
@@ -889,59 +919,52 @@ local Bosses: { [string]: Enemy } = {
 		mass = 60,
 		knockbackResistance = 1,
 		boss = {
-			phases = {
-				{
-					attacks = { "Dash" },
-					pauseSeconds = 1.2,
-					orbit = { count = 4, radius = 9, turnsPerSecond = 0.35, hitRadius = 1.3, damage = 23 },
-				},
-				{
-					fromHp = 0.5,
-					afterSeconds = 45,
-					attacks = { "Slam", "Ring" },
-					pauseSeconds = 0.8,
-					speedMultiplier = 1,
-					announce = "The Lantern Eater flares up!",
-				},
+			orbit = {
+				distances = { px(250), px(300), px(350), px(600), px(650), px(700), px(950), px(1000), px(1050) },
+				growSpeed = px(100),
+				turnSpeed = 1.2,
+				hitRadius = SHOT_RADIUS,
+				damage = 1,
+				damagePerWave = 1.15,
 			},
-			attacks = {
-				Dash = {
-					kind = "Dash",
-					windupSeconds = 0.8,
-					recoverSeconds = 0.9,
-					range = 40,
-					damage = 30,
-					speed = legacySpeed(40),
-					distance = 38,
+			states = {
+				{
+					movement = "Follow",
+					attack = attack({
+						kind = "Charge",
+						windupSeconds = windup(0.5),
+						cooldownSeconds = frames(120),
+						maxRange = px(500),
+						chargeSeconds = 0.5,
+						chargeSpeed = px(750),
+						recoverSeconds = 0.05,
+					}),
 				},
-				Slam = {
-					kind = "Slam",
-					windupSeconds = 1.2,
-					recoverSeconds = 0.6,
-					cooldownSeconds = 4,
-					range = 10,
-					damage = 30,
-					radius = 14,
-				},
-				Ring = {
-					kind = "Ring",
-					windupSeconds = 0.6,
-					recoverSeconds = 0.6,
-					cooldownSeconds = 3,
-					damage = 23,
-					count = 16,
-					bursts = 2,
-					burstGapSeconds = 0.4,
-					projectileSpeed = legacySpeed(16),
-					projectileRange = 60,
-					projectileRadius = SHOT_RADIUS,
+				{
+					hpStart = 0.5,
+					timerStart = 45,
+					movement = "AroundPlayer",
+					range = px(300),
+					orbitTurnMultiplier = 1.25,
+					attack = attack({
+						kind = "Shoot",
+						windupSeconds = windup(0.5),
+						cooldownSeconds = frames(90),
+						cooldownRandomSeconds = frames(10),
+						maxRange = px(2000),
+						projectile = "Bullet",
+						count = 16,
+						randomDirection = true,
+						projectileSpeed = px(500),
+						damage = 1,
+						damagePerWave = 1.15,
+					}),
 				},
 			},
 		},
 	},
-	-- like Brotato's Invoker: slow, calls red circles around every player that strike after a second; at 60 % HP (or
-	-- after 30 s) more of them over a wider area; at 40 % (or after 60 s) it runs all over the arena and rings every
-	-- player with shots that fly inwards
+	-- Invoker: follows you; 10 pillars around you (one on you); from 75 % HP (or 30 s) 30 in a wider square; from 40 %
+	-- (or 60 s) it runs to random spots 150 % faster and rings you with 24 pillars
 	HollowSeer = {
 		id = "HollowSeer",
 		typeId = 20,
@@ -956,59 +979,64 @@ local Bosses: { [string]: Enemy } = {
 		mass = 60,
 		knockbackResistance = 1,
 		boss = {
-			phases = {
-				{ attacks = { "Rain" }, pauseSeconds = 0 },
+			states = {
 				{
-					fromHp = 0.75,
-					afterSeconds = 30,
-					attacks = { "WideRain" },
-					pauseSeconds = 0,
-					announce = "The Hollow Seer's veil tears!",
+					movement = "Follow",
+					attack = attack({
+						kind = "Shoot",
+						windupSeconds = windup(1),
+						cooldownSeconds = frames(50),
+						cooldownRandomSeconds = frames(10),
+						initialSeconds = frames(120),
+						maxRange = px(2000),
+						projectile = "Pillar",
+						count = 10,
+						onTarget = true,
+						spawnSpread = px(500),
+						oneOnTarget = true,
+						damage = 1,
+						damagePerWave = 1.15,
+					}),
 				},
 				{
-					fromHp = 0.4,
-					afterSeconds = 60,
-					attacks = { "Circle" },
-					pauseSeconds = 0,
-					speedMultiplier = 2.5, -- Brotato: from 200 to 500
-					roam = true,
-					announce = "The Hollow Seer runs wild!",
+					hpStart = 0.75,
+					timerStart = 30,
+					movement = "Follow",
+					attack = attack({
+						kind = "Shoot",
+						windupSeconds = windup(1),
+						cooldownSeconds = frames(60),
+						cooldownRandomSeconds = frames(10),
+						maxRange = px(2000),
+						projectile = "Pillar",
+						count = 30,
+						onTarget = true,
+						spawnSpread = px(800),
+						oneOnTarget = true,
+						damage = 1,
+						damagePerWave = 1.15,
+					}),
 				},
-			},
-			attacks = {
-				Rain = {
-					kind = "Rain",
-					windupSeconds = 1,
-					recoverSeconds = 0,
-					cooldownSeconds = 2, -- Brotato: every two seconds
-					moving = true,
-					damage = 23,
-					count = 5,
-					spread = 10,
-					radius = 3,
-				},
-				WideRain = {
-					kind = "Rain",
-					windupSeconds = 1,
-					recoverSeconds = 0,
-					cooldownSeconds = 2,
-					moving = true,
-					damage = 23,
-					count = 10,
-					spread = 18,
-					radius = 3,
-				},
-				Circle = {
-					kind = "Circle",
-					windupSeconds = 1,
-					recoverSeconds = 0,
-					cooldownSeconds = 2.5,
-					moving = true,
-					damage = 23,
-					count = 12,
-					spread = 13,
-					projectileSpeed = legacySpeed(14),
-					projectileRadius = SHOT_RADIUS,
+				{
+					hpStart = 0.4,
+					timerStart = 60,
+					movement = "Roam",
+					speedPercent = 150,
+					attack = attack({
+						kind = "Shoot",
+						windupSeconds = windup(1),
+						cooldownSeconds = frames(60),
+						cooldownRandomSeconds = frames(10),
+						maxRange = px(2000),
+						projectile = "Pillar",
+						count = 24,
+						onTarget = true,
+						spawnSpread = px(600),
+						onBorders = true,
+						constantSpread = true,
+						damage = 1,
+						damagePerWave = 1.15,
+					}),
 				},
 			},
 		},
@@ -1032,14 +1060,11 @@ for _, boss in Bosses do
 end
 
 -- WP10 part 2: the champions of the elite waves, after Brotato's eight elites (Rhino, Butcher, Monk, Croc, Colossus,
--- Mantis, Mother, Gargoyle), with our own names and looks. Like the bosses they run phases of attacks (BossService),
--- show an HP bar at the top, count as elites, ignore knockback and drop a legendary crate. Brotato: 1 HP + 750 per
--- wave after wave 1 (Monk 700), 1 contact damage + 1.5 per wave after wave 1
--- and grown by Run.spawn.growth like every enemy, HP also with the player factor (EnemyWaves.coop, SpawnRules.coopHealth). Their attacks
--- hit as hard as their contact damage (the wiki gives no projectile damage, assumption) and grow alike. Speeds:
--- Brotato's speeds converted relative to the player (450 = Config.Player.moveSpeed studs/s). Attack timings follow the wiki ("charges every 2 s"); wind-up
--- times, distances, projectile speeds and counts it does not give are assumptions, counts kept within the
--- projectile budget (DESIGN.md section 15).
+-- Mantis, Mom, Gargoyle), with our own names and looks. Like the bosses they switch states (BossService), show an HP
+-- bar at the top, count as elites, ignore knockback and drop a legendary crate. Brotato: 1 HP + 750 per wave after
+-- wave 1 (Monk 700), 1 contact damage + 1.5 per wave after wave 1, grown by Run.spawn.growth like every enemy, HP
+-- also with the player factor (EnemyWaves.coop, SpawnRules.coopHealth). States and attacks: Brotato 1.2.0.1
+-- crash_zone/elites/<name>/<name>.tscn and .gd; their projectiles grow by their own damagePerWave.
 local CHAMPION_HP_PER_WAVE = 750
 local CHAMPION_DAMAGE_PER_WAVE = 1.5
 
@@ -1061,273 +1086,317 @@ local function champion(id: string, typeId: number, displayName: string, speed: 
 	}
 end
 
--- side projectiles of the charges
-local TRAIL_SHOT = { projectileSpeed = legacySpeed(12), projectileRange = 18, projectileRadius = SHOT_RADIUS }
-
-local function with(base: { [string]: any }, extra: { [string]: any }): BossAttack
-	local attack = table.clone(base)
-	for key, value in extra do
-		attack[key] = value
-	end
-	return attack :: any
-end
-
 local Champions: { [string]: Enemy } = {
-	-- Rhino: charges every 2 s, throwing projectiles to its sides; at 60 % HP (or after 25 s) every 1.3 s, shorter,
-	-- with 2 more projectiles at you when it starts. Signature: its first charges bounce off walls and pillars twice,
-	-- bursting a ring of projectiles at each bounce.
+	-- Rhino: charges you (1 s at +900 px/s) about every 3 s, firing a bullet to each side every 0.25 s; from 60 % HP
+	-- (or 25 s) shorter charges (0.4 s at +1000, only from 300 px) about every 1.8 s with 4 bullets every 0.25 s
 	BrassRam = champion("BrassRam", 21, "The Brass Ram", speed(250), {
-		phases = {
-			{ attacks = { "Charge" }, pauseSeconds = 0.6 },
+		states = {
 			{
-				fromHp = 0.6,
-				afterSeconds = 25,
-				attacks = { "QuickCharge" },
-				pauseSeconds = 0.3,
-				announce = "The Brass Ram is enraged!",
+				movement = "Follow",
+				attack = attack({
+					kind = "Charge",
+					windupSeconds = windup(1),
+					cooldownSeconds = frames(100),
+					maxRange = px(800),
+					chargeSeconds = 1,
+					chargeSpeed = px(900),
+					recoverSeconds = 0.05,
+				}),
+				chargeShotEvery = frames(15),
+				chargeShots = attack({
+					kind = "Shoot",
+					windupSeconds = 0,
+					cooldownSeconds = 0,
+					projectile = "Bullet",
+					count = 2,
+					spread = 1,
+					constantSpread = true,
+					aim = "Movement",
+					projectileSpeed = px(600),
+					damage = 1,
+					damagePerWave = 1.15,
+				}),
+			},
+			{
+				hpStart = 0.6,
+				timerStart = 25,
+				movement = "Follow",
+				attack = attack({
+					kind = "Charge",
+					windupSeconds = windup(1),
+					cooldownSeconds = frames(60),
+					maxRange = px(300),
+					chargeSeconds = 0.4,
+					chargeSpeed = px(1000),
+					recoverSeconds = 0.05,
+				}),
+				chargeShotEvery = frames(15),
+				chargeShots = attack({
+					kind = "Shoot",
+					windupSeconds = 0,
+					cooldownSeconds = 0,
+					projectile = "Bullet",
+					count = 4,
+					spread = 2,
+					constantSpread = true,
+					aim = "Movement",
+					projectileSpeed = px(600),
+					damage = 1,
+					damagePerWave = 1.15,
+				}),
 			},
 		},
-		attacks = {
-			Charge = with(TRAIL_SHOT, {
-				kind = "Dash",
-				windupSeconds = 0.8,
-				recoverSeconds = 0.6,
-				range = 45,
-				damage = 1,
-				speed = legacySpeed(38),
-				distance = 70, -- room for its bounces
-				trailEvery = 6,
-				bounces = 2,
-				bounceShots = 8,
-			}),
-			QuickCharge = with(TRAIL_SHOT, {
-				kind = "Dash",
-				windupSeconds = 0.5,
-				recoverSeconds = 0.3,
-				range = 40,
-				damage = 1,
-				speed = legacySpeed(40),
-				distance = 20,
-				trailEvery = 5,
-				startShots = 2,
-				arc = 20,
-			}),
-		},
 	}),
-	-- Butcher: 4 slashes at you every 1.25 s; at 70 % HP (or 25 s) it throws (Brotato: 8 slashes all around); at 40 %
-	-- (or 40 s) 3 quick slashes every 0.75 s that hurt a third less. Signature: 3 cleavers that fly out and come back.
+	-- Butcher: 4 slashes through you from 4 sides; from 70 % HP (or 20 s) 9 slashes in random directions around you
+	-- (one on you); from 40 % (or 40 s) it walks to spots near you and slashes 3 times in quick succession
 	Flayer = champion("Flayer", 22, "The Flayer", speed(200), {
-		phases = {
-			{ attacks = { "Cleave" }, pauseSeconds = 0.3 },
+		states = {
 			{
-				fromHp = 0.7,
-				afterSeconds = 25,
-				attacks = { "Cleavers", "Cleave" },
-				pauseSeconds = 0.3,
-				announce = "The Flayer throws its cleavers!",
+				movement = "Follow",
+				attack = attack({
+					kind = "Shoot",
+					windupSeconds = windup(1),
+					cooldownSeconds = frames(60),
+					initialSeconds = frames(45),
+					maxRange = px(1000),
+					projectile = "Slash",
+					count = 4,
+					onTarget = true,
+					spawnSpread = px(350),
+					onBorders = true,
+					constantSpread = true,
+					damage = 1,
+					damagePerWave = 1.15,
+				}),
 			},
-			{ fromHp = 0.4, afterSeconds = 40, attacks = { "Cleavers", "QuickCleave" }, pauseSeconds = 0.1 },
-		},
-		attacks = {
-			Cleave = {
-				kind = "Cleave",
-				windupSeconds = 0.6,
-				recoverSeconds = 0.3,
-				cooldownSeconds = 1.25,
-				range = 18,
-				damage = 1,
-				count = 4,
-				arc = 60,
-				distance = 16,
-				radius = 1.2,
+			{
+				hpStart = 0.7,
+				timerStart = 20,
+				movement = "Follow",
+				attack = attack({
+					kind = "Shoot",
+					windupSeconds = windup(1),
+					cooldownSeconds = frames(60),
+					maxRange = px(1200),
+					projectile = "Slash",
+					count = 9,
+					randomDirection = true,
+					onTarget = true,
+					spawnSpread = px(1000),
+					oneOnTarget = true,
+					damage = 1,
+					damagePerWave = 1.15,
+				}),
 			},
-			Cleavers = {
-				kind = "Boomerang",
-				windupSeconds = 0.5,
-				recoverSeconds = 0.4,
-				cooldownSeconds = 2.5,
-				range = 40,
-				damage = 1,
-				count = 3,
-				arc = 50,
-				projectileSpeed = legacySpeed(16),
-				projectileRange = 26,
-				projectileRadius = SHOT_RADIUS,
-			},
-			QuickCleave = {
-				kind = "Cleave",
-				windupSeconds = 0.45,
-				recoverSeconds = 0.15,
-				cooldownSeconds = 0.75,
-				range = 18,
-				damage = 0.67,
-				count = 3,
-				arc = 40,
-				distance = 16,
-				radius = 1.2,
+			{
+				hpStart = 0.4,
+				timerStart = 40,
+				movement = "AroundPlayer",
+				range = px(300),
+				attack = attack({
+					kind = "Shoot",
+					windupSeconds = windup(3),
+					cooldownSeconds = frames(35),
+					cooldownRandomSeconds = frames(10),
+					maxRange = px(2000),
+					projectile = "Slash",
+					count = 3,
+					randomDirection = true,
+					onTarget = true,
+					spawnSpread = px(500),
+					damage = 1,
+					damagePerWave = 0.75,
+				}),
 			},
 		},
 	}),
-	-- Monk: lays eggs, then (10 s) fires 5 projectiles a second at you; at 30 s it runs away for 10 s calling helpers,
-	-- then shoots again. Brotato switches by time only; the HP shares are ours (assumption), so damage moves it on too.
+	-- Monk: walks to random spots laying 3 eggs every 1.8 s; from 75 % HP (or 10 s) half as fast, 6 bullets at you;
+	-- from 50 % (or 30 s) 25 % faster, 2 tentacles every 2.4 s; from 30 % (or 40 s) half as fast, rings you with 10
+	-- pillars
 	Abbot = (function()
 		local abbot = champion("Abbot", 23, "The Abbot", speed(350), {
-			phases = {
-				{ attacks = { "Eggs" }, pauseSeconds = 1.5 },
-				{ fromHp = 0.85, afterSeconds = 10, attacks = { "Bolts" }, pauseSeconds = 0 },
+			states = {
 				{
-					fromHp = 0.5,
-					afterSeconds = 30,
-					attacks = { "Helpers" },
-					pauseSeconds = 1,
-					speedMultiplier = 1.1,
-					flee = true,
-					announce = "The Abbot flees and calls for help!",
+					movement = "Roam",
+					attack = attack({
+						kind = "Spawn",
+						windupSeconds = windup(0.5),
+						cooldownSeconds = frames(60),
+						cooldownRandomSeconds = frames(5),
+						enemy = "BroodEgg", -- Slasher Egg
+						spawnCount = 3,
+						spawnArea = px(300),
+					}),
 				},
-				{ fromHp = 0.3, afterSeconds = 40, attacks = { "Bolts" }, pauseSeconds = 0 },
-			},
-			attacks = {
-				Eggs = {
-					kind = "Summon",
-					windupSeconds = 1,
-					recoverSeconds = 0.5,
-					cooldownSeconds = 30, -- once in this phase
-					damage = 0,
-					enemy = "BroodEgg", -- Brotato: 15 Slasher Eggs
-					count = 6,
-					spread = 8,
+				{
+					hpStart = 0.75,
+					timerStart = 10,
+					movement = "Roam",
+					speedPercent = -50,
+					attack = attack({
+						kind = "Shoot",
+						windupSeconds = windup(1),
+						cooldownSeconds = frames(75),
+						cooldownRandomSeconds = frames(10),
+						maxRange = px(2000),
+						projectile = "Bullet",
+						count = 6,
+						spread = 1,
+						projectileSpeed = px(400),
+						damage = 1,
+						damagePerWave = 1.15,
+					}),
 				},
-				Bolts = {
-					kind = "Volley",
-					windupSeconds = 0.4,
-					recoverSeconds = 0.2,
-					range = 60,
-					damage = 1,
-					count = 1,
-					bursts = 5,
-					burstGapSeconds = 0.2,
-					projectileSpeed = legacySpeed(18),
-					projectileRange = 55,
-					projectileRadius = SHOT_RADIUS,
+				{
+					hpStart = 0.5,
+					timerStart = 30,
+					movement = "Roam",
+					speedPercent = 25,
+					attack = attack({
+						kind = "Spawn",
+						windupSeconds = windup(1),
+						cooldownSeconds = frames(120),
+						enemy = "DreadTendril", -- Tentacle
+						spawnCount = 2,
+						spawnArea = px(500),
+					}),
 				},
-				Helpers = {
-					kind = "Summon",
-					windupSeconds = 0.6,
-					recoverSeconds = 0.3,
-					cooldownSeconds = 3,
-					moving = true,
-					damage = 0,
-					enemy = "DreadTendril", -- Tentacle reference
-					count = 2,
-					spread = 6,
+				{
+					hpStart = 0.3,
+					timerStart = 40,
+					movement = "Roam",
+					speedPercent = -50,
+					attack = attack({
+						kind = "Shoot",
+						windupSeconds = windup(1),
+						cooldownSeconds = frames(60),
+						cooldownRandomSeconds = frames(10),
+						maxRange = px(2000),
+						projectile = "Pillar",
+						count = 10,
+						spread = 1,
+						onTarget = true,
+						spawnSpread = px(500),
+						onBorders = true,
+						constantSpread = true,
+						damage = 1,
+						damagePerWave = 1.15,
+					}),
 				},
 			},
 		})
 		abbot.hpPerWave = 700
 		return abbot
 	end)(),
-	-- Croc: lunges every second and bites around itself; at 60 % HP (or 25 s) more (Brotato: a circle of projectiles
-	-- around you). Signature: a death roll that steers after you, from phase 2 leaving pools of mud behind.
+	-- Croc: charges you about every second (0.6 s at +600 px/s), 2 slashes ahead at you every 0.75 s of charging;
+	-- from 60 % HP (or 25 s) it keeps 200 px away and charges about every 1.65 s (0.5 s at +1000), ringing you with
+	-- 10 pillars
 	MireJaw = champion("MireJaw", 24, "The Mire Jaw", speed(350), {
-		phases = {
-			{ attacks = { "Snap", "Roll" }, pauseSeconds = 0.3 },
+		states = {
 			{
-				fromHp = 0.6,
-				afterSeconds = 25,
-				attacks = { "Snap", "MudRoll" },
-				pauseSeconds = 0.2,
-				announce = "The Mire Jaw churns the mud!",
+				movement = "Follow",
+				attack = attack({
+					kind = "Charge",
+					windupSeconds = windup(2),
+					cooldownSeconds = frames(15),
+					cooldownRandomSeconds = frames(3),
+					maxRange = px(500),
+					chargeSeconds = 0.6,
+					chargeSpeed = px(600),
+					recoverSeconds = 0.05,
+				}),
+				chargeShotEvery = frames(45),
+				chargeShots = attack({
+					kind = "Shoot",
+					windupSeconds = 0,
+					cooldownSeconds = 0,
+					projectile = "SlashAhead",
+					count = 2,
+					spread = 0.6,
+					constantSpread = true,
+					projectileSpeed = px(700),
+					damage = 1,
+					damagePerWave = 1.15,
+				}),
 			},
-		},
-		attacks = {
-			Roll = {
-				kind = "Dash",
-				windupSeconds = 0.6,
-				recoverSeconds = 0.5,
-				cooldownSeconds = 1.5,
-				range = 35,
-				damage = 1,
-				speed = legacySpeed(24),
-				distance = 36,
-				turnRate = 90,
-			},
-			MudRoll = {
-				kind = "Dash",
-				windupSeconds = 0.5,
-				recoverSeconds = 0.4,
-				cooldownSeconds = 1.2,
-				range = 40,
-				damage = 1,
-				speed = legacySpeed(26),
-				distance = 40,
-				turnRate = 110,
-				poolEvery = 7,
-				poolRadius = 3,
-				poolSeconds = 4,
-			},
-			Snap = {
-				kind = "Slam",
-				windupSeconds = 0.5,
-				recoverSeconds = 0.2,
-				cooldownSeconds = 2,
-				range = 6,
-				damage = 1,
-				radius = 7,
+			{
+				hpStart = 0.6,
+				timerStart = 25,
+				movement = "KeepDistance",
+				range = px(200),
+				attack = attack({
+					kind = "Charge",
+					windupSeconds = windup(1),
+					cooldownSeconds = frames(45),
+					cooldownRandomSeconds = frames(15),
+					maxRange = px(800),
+					chargeSeconds = 0.5,
+					chargeSpeed = px(1000),
+					recoverSeconds = 0.05,
+				}),
+				chargeShotEvery = frames(45),
+				chargeShots = attack({
+					kind = "Shoot",
+					windupSeconds = 0,
+					cooldownSeconds = 0,
+					projectile = "Pillar",
+					count = 10,
+					randomDirection = true,
+					onTarget = true,
+					spawnSpread = px(500),
+					onBorders = true,
+					constantSpread = true,
+					damage = 1,
+					damagePerWave = 1.15,
+				}),
 			},
 		},
 	}),
-	-- Colossus: chases you under a hail of projectiles every second (Brotato: 50 in a big area); at 60 % HP (or 25 s)
-	-- wanders the arena and rings you with projectiles. Signature: a quake line, a row of circles that runs from it
-	-- over you and beyond.
+	-- Colossus: chases you, every second 50 drifting pillars in a big square around it; from 60 % HP (or 25 s) it
+	-- walks to random spots and closes a ring of 18 pillars on you every 0.5 s
 	Monolith = (function()
 		local monolith = champion("Monolith", 25, "The Monolith", speed(300), {
-			phases = {
-				{ attacks = { "Quake", "Hail" }, pauseSeconds = 0.4 },
+			states = {
 				{
-					fromHp = 0.6,
-					afterSeconds = 25,
-					attacks = { "Quake", "Encircle" },
-					pauseSeconds = 0.2,
-					roam = true,
-					announce = "The Monolith wanders off!",
+					movement = "Follow",
+					attack = attack({
+						kind = "Shoot",
+						windupSeconds = windup(1),
+						cooldownSeconds = frames(60),
+						cooldownRandomSeconds = frames(10),
+						initialSeconds = frames(120),
+						maxRange = px(3000),
+						projectile = "Pillar",
+						count = 50,
+						randomDirection = true,
+						spawnSpread = px(1000),
+						oneOnTarget = true,
+						aim = "Movement",
+						projectileSpeed = px(150),
+						damage = 1,
+						damagePerWave = 1,
+					}),
 				},
-			},
-			attacks = {
-				Quake = {
-					kind = "March",
-					windupSeconds = 0.7,
-					recoverSeconds = 0.3,
-					cooldownSeconds = 2.5,
-					range = 45,
-					damage = 1,
-					count = 12,
-					spacing = 4,
-					radius = 2.5,
-					stepSeconds = 0.08,
-				},
-				Hail = {
-					kind = "Scatter",
-					windupSeconds = 0.4,
-					recoverSeconds = 0,
-					cooldownSeconds = 1.5,
-					moving = true,
-					damage = 1,
-					count = 14,
-					projectileSpeed = legacySpeed(10),
-					projectileRange = 40,
-					projectileRadius = SHOT_RADIUS,
-				},
-				Encircle = {
-					kind = "Circle",
-					windupSeconds = 1,
-					recoverSeconds = 0,
-					cooldownSeconds = 1.5, -- Brotato 0.5
-					moving = true,
-					damage = 1,
-					count = 10,
-					spread = 14,
-					projectileSpeed = legacySpeed(13),
-					projectileRadius = SHOT_RADIUS,
+				{
+					hpStart = 0.6,
+					timerStart = 25,
+					movement = "Roam",
+					attack = attack({
+						kind = "Shoot",
+						windupSeconds = windup(1),
+						cooldownSeconds = frames(30),
+						initialSeconds = frames(30),
+						maxRange = px(3000),
+						projectile = "Pillar",
+						count = 18,
+						onTarget = true,
+						spawnSpread = px(400),
+						onBorders = true,
+						constantSpread = true,
+						projectileSpeed = px(300),
+						damage = 1,
+						damagePerWave = 1,
+					}),
 				},
 			},
 		})
@@ -1335,198 +1404,176 @@ local Champions: { [string]: Enemy } = {
 		monolith.mass = 50
 		return monolith
 	end)(),
-	-- Mantis: chases you and slashes every 1.25 s; at 60 % HP (or 25 s) charges every 1.3 s, leaving slashes behind.
-	-- Signature: a big X of two cuts right on you (step out diagonally); from phase 2 three in a row around you,
-	-- between its pounces.
+	-- Mantis: chases you, 6 slashes flying out from a ring around it in random directions; from 60 % HP (or 25 s)
+	-- charges you about every 2.4 s (0.7 s at +800 px/s), 3 slashes at you every 0.25 s of charging
 	SickleWraith = champion("SickleWraith", 26, "The Sickle Wraith", speed(250), {
-		phases = {
-			{ attacks = { "Cross" }, pauseSeconds = 0.4 },
+		states = {
 			{
-				fromHp = 0.6,
-				afterSeconds = 25,
-				attacks = { "TripleCross", "Pounce" },
-				pauseSeconds = 0.2,
-				announce = "The Sickle Wraith pounces!",
+				movement = "Follow",
+				attack = attack({
+					kind = "Shoot",
+					windupSeconds = windup(1),
+					cooldownSeconds = frames(75),
+					cooldownRandomSeconds = frames(10),
+					initialSeconds = frames(45),
+					maxRange = px(1000),
+					projectile = "Slash",
+					count = 6,
+					spread = 1.1,
+					randomDirection = true,
+					spawnSpread = px(500),
+					onBorders = true,
+					constantSpread = true,
+					projectileSpeed = px(600),
+					damage = 1,
+					damagePerWave = 1.15,
+				}),
 			},
-		},
-		attacks = {
-			Cross = {
-				kind = "Cross",
-				windupSeconds = 0.8,
-				recoverSeconds = 0.3,
-				cooldownSeconds = 1.25,
-				range = 40,
-				moving = true,
-				damage = 1,
-				count = 1,
-				distance = 22,
-				radius = 1.1,
+			{
+				hpStart = 0.6,
+				timerStart = 25,
+				movement = "Follow",
+				attack = attack({
+					kind = "Charge",
+					windupSeconds = windup(1),
+					cooldownSeconds = frames(80),
+					maxRange = px(2000),
+					chargeSeconds = 0.7,
+					chargeSpeed = px(800),
+					recoverSeconds = 0.05,
+				}),
+				chargeShotEvery = frames(15),
+				chargeShots = attack({
+					kind = "Shoot",
+					windupSeconds = 0,
+					cooldownSeconds = 0,
+					projectile = "Slash",
+					count = 3,
+					spread = 1.5,
+					constantSpread = true,
+					spawnSpread = px(300),
+					onBorders = true,
+					projectileSpeed = px(600),
+					damage = 1,
+					damagePerWave = 1.15,
+				}),
 			},
-			TripleCross = {
-				kind = "Cross",
-				windupSeconds = 0.7,
-				recoverSeconds = 0.3,
-				cooldownSeconds = 2.5,
-				range = 40,
-				damage = 1,
-				count = 3,
-				distance = 18,
-				radius = 1,
-				spread = 8,
-				stepSeconds = 0.35,
-			},
-			Pounce = with(TRAIL_SHOT, {
-				kind = "Dash",
-				windupSeconds = 0.6,
-				recoverSeconds = 0.3,
-				cooldownSeconds = 1.3,
-				range = 40,
-				damage = 1,
-				speed = legacySpeed(40),
-				distance = 26,
-				trailEvery = 4,
-			}),
 		},
 	}),
-	-- Mother: a four-pronged slash every 1.4 s; at 60 % HP (or 25 s) double slashes every 0.65 s and a stream of
-	-- small enemies (Brotato: about 9 Fin Aliens a second; fewer here, the alive cap would stop them anyway).
-	-- Signature: acid sacs it drops around itself, pools that stay and hurt; it is the only one slashing all around.
+	-- Mom: chases you, 4 slashes flying at you; from 60 % HP (or 25 s) it keeps 500 px away and every 0.73 s calls 5
+	-- small enemies around it and drops a slash next to you
 	BroodMatron = champion("BroodMatron", 27, "The Brood Matron", speed(250), {
-		phases = {
-			{ attacks = { "Prongs", "Acid" }, pauseSeconds = 0.3 },
+		states = {
 			{
-				fromHp = 0.6,
-				afterSeconds = 25,
-				attacks = { "Brood", "Acid", "DoubleProngs" },
-				pauseSeconds = 0.1,
-				announce = "The Brood Matron's young hatch!",
+				movement = "Follow",
+				attack = attack({
+					kind = "Shoot",
+					windupSeconds = windup(1),
+					cooldownSeconds = frames(60),
+					cooldownRandomSeconds = frames(10),
+					initialSeconds = frames(120),
+					maxRange = px(1000),
+					projectile = "SlashAhead",
+					count = 4,
+					spread = 0.9,
+					projectileSpeed = px(650),
+					damage = 1,
+					damagePerWave = 1.15,
+				}),
 			},
-		},
-		attacks = {
-			Prongs = {
-				kind = "Cleave",
-				windupSeconds = 0.6,
-				recoverSeconds = 0.2,
-				cooldownSeconds = 1.4,
-				range = 16,
-				damage = 1,
-				count = 4,
-				around = true,
-				distance = 14,
-				radius = 1.2,
-			},
-			DoubleProngs = {
-				kind = "Cleave",
-				windupSeconds = 0.4,
-				recoverSeconds = 0.1,
-				cooldownSeconds = 0.65,
-				range = 16,
-				damage = 1,
-				count = 8,
-				around = true,
-				distance = 14,
-				radius = 1.2,
-			},
-			Acid = {
-				kind = "Pools",
-				windupSeconds = 0.4,
-				recoverSeconds = 0.2,
-				cooldownSeconds = 3,
-				moving = true,
-				damage = 1,
-				count = 3,
-				spread = 10,
-				poolRadius = 3.5,
-				poolSeconds = 5,
-			},
-			Brood = {
-				kind = "Summon",
-				windupSeconds = 0.3,
-				recoverSeconds = 0,
-				cooldownSeconds = 2,
-				moving = true,
-				damage = 0,
-				enemy = "Splitling",
-				count = 4,
-				spread = 5,
+			{
+				hpStart = 0.6,
+				timerStart = 25,
+				movement = "KeepDistance",
+				range = px(500),
+				attack = attack({
+					kind = "Spawn",
+					windupSeconds = windup(1),
+					cooldownSeconds = frames(20),
+					enemy = "Splitling", -- Fin Alien
+					spawnCount = 5,
+					spawnArea = px(800),
+				}),
+				extraShot = attack({
+					kind = "Shoot",
+					windupSeconds = 0,
+					cooldownSeconds = 0,
+					projectile = "SlashAhead",
+					count = 1,
+					randomDirection = true,
+					onTarget = true,
+					spawnSpread = px(75),
+					damage = 1,
+					damagePerWave = 1,
+				}),
 			},
 		},
 	}),
-	-- Gargoyle: wanders, a big ring of projectiles again and again; at 60 % HP (or 30 s) chases you; at 30 % (or 45 s)
-	-- sprays projectiles in random directions. Signature: its rings turn into a spiral, and in phase 2 it dives onto
-	-- your spot (a shadow on the floor) and bursts a ring where it lands.
+	-- Gargoyle: walks to random spots, every 0.75 s a ring of 20 pillars rushing outwards; from 60 % HP (or 30 s)
+	-- 25 % slower, follows you, 25 pillars in a square around it; from 30 % (or 45 s) 40 % slower, walks to spots near
+	-- you and sprays 5 bullets in random directions every 0.4-0.6 s
 	StoneSeraph = champion("StoneSeraph", 28, "The Stone Seraph", speed(350), {
-		phases = {
-			{ attacks = { "Spiral" }, pauseSeconds = 0.3, roam = true },
+		states = {
 			{
-				fromHp = 0.6,
-				afterSeconds = 30,
-				attacks = { "Dive", "Barrage" },
-				pauseSeconds = 0.2,
-				announce = "The Stone Seraph takes to the air!",
+				movement = "Roam",
+				attack = attack({
+					kind = "Shoot",
+					windupSeconds = windup(1),
+					cooldownSeconds = frames(25),
+					cooldownRandomSeconds = frames(10),
+					initialSeconds = frames(120),
+					maxRange = px(2000),
+					projectile = "Pillar",
+					count = 20,
+					spawnSpread = px(300),
+					onBorders = true,
+					constantSpread = true,
+					aim = "Away",
+					projectileSpeed = px(375),
+					damage = 1,
+					damagePerWave = 1.15,
+				}),
 			},
 			{
-				fromHp = 0.3,
-				afterSeconds = 45,
-				attacks = { "Spray" },
-				pauseSeconds = 0,
-				announce = "The Stone Seraph cracks!",
+				hpStart = 0.6,
+				timerStart = 30,
+				movement = "Follow",
+				speedPercent = -25,
+				attack = attack({
+					kind = "Shoot",
+					windupSeconds = windup(1),
+					cooldownSeconds = frames(25),
+					cooldownRandomSeconds = frames(10),
+					maxRange = px(2000),
+					projectile = "Pillar",
+					count = 25,
+					spawnSpread = px(700),
+					constantSpread = true,
+					damage = 1,
+					damagePerWave = 1.15,
+				}),
 			},
-		},
-		attacks = {
-			Spiral = {
-				kind = "Ring",
-				windupSeconds = 0.3,
-				recoverSeconds = 0.2,
-				cooldownSeconds = 2.5, -- Brotato: a ring every 0.3 s
-				moving = true,
-				damage = 1,
-				count = 6,
-				bursts = 10,
-				burstGapSeconds = 0.15,
-				spinPerBurst = 11,
-				projectileSpeed = legacySpeed(12),
-				projectileRange = 45,
-				projectileRadius = SHOT_RADIUS,
-			},
-			Dive = {
-				kind = "Leap",
-				windupSeconds = 1.1,
-				recoverSeconds = 0.5,
-				cooldownSeconds = 3,
-				range = 50,
-				damage = 1,
-				radius = 6,
-				count = 10,
-				projectileSpeed = legacySpeed(12),
-				projectileRange = 30,
-				projectileRadius = SHOT_RADIUS,
-			},
-			Barrage = {
-				kind = "Volley",
-				windupSeconds = 0.3,
-				recoverSeconds = 0,
-				cooldownSeconds = 0.8, -- Brotato: 12 every 0.4 s
-				moving = true,
-				range = 60,
-				damage = 1,
-				count = 5,
-				arc = 50,
-				projectileSpeed = legacySpeed(15),
-				projectileRange = 50,
-				projectileRadius = SHOT_RADIUS,
-			},
-			Spray = {
-				kind = "Scatter",
-				windupSeconds = 0.05,
-				recoverSeconds = 0,
-				cooldownSeconds = 0.15, -- Brotato 0.01-0.15
-				moving = true,
-				damage = 1,
-				count = 3,
-				projectileSpeed = legacySpeed(13),
-				projectileRange = 40,
-				projectileRadius = SHOT_RADIUS,
+			{
+				hpStart = 0.3,
+				timerStart = 45,
+				movement = "AroundPlayer",
+				range = px(300),
+				rangeRandom = px(100),
+				speedPercent = -40,
+				attack = attack({
+					kind = "Shoot",
+					windupSeconds = windup(1),
+					cooldownSeconds = frames(1),
+					cooldownRandomSeconds = frames(10),
+					maxRange = px(2000),
+					projectile = "Bullet",
+					count = 5,
+					spread = 0.8,
+					randomDirection = true,
+					projectileSpeed = px(350),
+					damage = 1,
+					damagePerWave = 1.15,
+				}),
 			},
 		},
 	}),
@@ -1550,8 +1597,12 @@ local EliteWaves = table.freeze({
 		"BroodMatron",
 		"StoneSeraph",
 	}),
-	reducedHpWaves = table.freeze({ 11, 12 }), -- Brotato: elites come with 75 % HP in waves 11 and 12
-	reducedHpShare = 0.75,
+	-- Brotato boss.gd: a boss or elite spawned up to wave 8 has half its HP, up to wave 12 75 % HP and 25 % less
+	-- damage (contact and projectiles); first matching entry
+	early = table.freeze({
+		table.freeze({ untilWave = 8, hpShare = 0.5, damageShare = 1 }),
+		table.freeze({ untilWave = 12, hpShare = 0.75, damageShare = 0.75 }),
+	}),
 	introSeconds = 2.5, -- after the wave starts: red crosses show where it comes
 	debugMinWave = 11, -- "SpawnChampion" in an earlier wave grows it like this wave (else it has 3 HP in wave 1)
 	legendaryCrate = true, -- a killed champion drops a legendary crate (Brotato)
@@ -1568,5 +1619,6 @@ return table.freeze({
 	bossWave = BossWave,
 	champions = table.freeze(Champions), -- WP10 part 2
 	eliteWaves = EliteWaves,
+	bossProjectiles = BossProjectiles,
 	boss = Bosses.LanternEater, -- the HUD's label for the old boss phase (unused since WP10)
 })

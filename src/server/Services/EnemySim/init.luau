@@ -801,6 +801,12 @@ function EnemySim.getKind(id: number): (string?, boolean)
 	return kind.id, kind.elite == true or kind.boss ~= nil
 end
 
+-- Sets the mode of a living boss or champion (World.MODE_*: walk, wind-up, rush, recover) and its rush direction x/z,
+-- which the snapshots carry to the clients (BossService, WP10).
+function EnemySim.setMode(id: number, mode: number, rushX: number?, rushZ: number?)
+	world:setMode(id, mode, rushX, rushZ)
+end
+
 -- Mode of a living enemy (EnemySim/World.MODE_*: walk, wind-up, rush, recover) and its rush direction x/z.
 function EnemySim.getMode(id: number): (number, number, number)
 	return world:getMode(id)

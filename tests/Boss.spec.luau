@@ -113,7 +113,7 @@ describe("bosses", function()
 		local kind = Config.Enemies.bosses[bosses[1].bossId]
 		local text = controller("BossController").getBarText()
 		expect(string.find(text, kind.displayName, 1, true) ~= nil).toBe(true)
-		expect(string.find(text, `Phase 1 of {#kind.boss.phases}`, 1, true) ~= nil).toBe(true)
+		expect(string.find(text, `Phase 1 of {#kind.boss.states}`, 1, true) ~= nil).toBe(true)
 		local model = workspace:FindFirstChild("LanternfallEnemies"):FindFirstChild(kind.id)
 		expect(model ~= nil).toBe(true)
 		local drawn = false
@@ -133,14 +133,14 @@ describe("bosses", function()
 		expect((after - before).Magnitude).toBeNear(0)
 	end)
 
-	it("warns on the floor before it strikes, and the circling embers show", function()
-		local sawWarning = waitFor(8, function()
-			local warnings = controller("BossController").getCounts()
-			return warnings > 0
-		end)
-		expect(sawWarning).toBe(true)
+	it("shows its turning arm of projectiles and flashes before it charges", function()
 		local _, embers = controller("BossController").getCounts()
-		expect(embers).toBe(Config.Enemies.bosses.LanternEater.boss.phases[1].orbit.count)
+		expect(embers).toBe(#(Config.Enemies.bosses.LanternEater.boss.orbit :: any).distances)
+		local id = BossService.getBosses()[1].id
+		local flashed = waitFor(8, function()
+			return EnemySim.getMode(id) == 1 -- World.MODE_WINDUP: red like Brotato's charge animation
+		end)
+		expect(flashed).toBe(true)
 	end)
 
 	it("hurts the player with its attacks", function()
@@ -160,7 +160,7 @@ describe("bosses", function()
 		heal()
 	end)
 
-	it("changes phase at half HP and says so", function()
+	it("changes state at half HP and keeps its arm turning", function()
 		click("HurtBoss")
 		click("HurtBoss")
 		local changed = waitFor(5, function()
@@ -171,7 +171,8 @@ describe("bosses", function()
 		advanceHealing(0.5)
 		expect(string.find(controller("BossController").getBarText(), "Phase 2", 1, true) ~= nil).toBe(true)
 		local _, embers = controller("BossController").getCounts()
-		expect(embers).toBe(0) -- the second phase has no embers
+		expect(embers).toBe(#(Config.Enemies.bosses.LanternEater.boss.orbit :: any).distances)
+		expect(BossService.getBosses()[1].bossId).toBe("LanternEater")
 	end)
 
 	it("drops a legendary crate when killed outside the boss wave, and the run goes on", function()
@@ -185,14 +186,14 @@ describe("bosses", function()
 		expect(controller("BossController").getBarText()).toBe("")
 	end)
 
-	it("the second boss rains red circles around the player and runs wild in its last phase", function()
+	it("the second boss calls pillars around the player and runs wild in its last state", function()
 		click("SpawnBoss")
 		local bosses = BossService.getBosses()
 		expect(bosses[1].bossId).toBe(Config.Enemies.bossWave.order[2])
-		local rain = Config.Enemies.bosses.HollowSeer.boss.attacks.Rain
-		local sawRain = waitFor(4, function()
+		local pillars = Config.Enemies.bosses.HollowSeer.boss.states[1].attack
+		local sawRain = waitFor(6, function()
 			local warnings = controller("BossController").getCounts()
-			return warnings >= rain.count
+			return warnings >= (pillars.count or 0)
 		end)
 		expect(sawRain).toBe(true)
 		click("HurtBoss")
@@ -204,7 +205,7 @@ describe("bosses", function()
 		expect(wild).toBe(true)
 		local id = BossService.getBosses()[1].id
 		local _, _, speed = EnemySim.getMultipliers(id)
-		expect(speed).toBeNear(Config.Enemies.bosses.HollowSeer.boss.phases[3].speedMultiplier or 1)
+		expect(speed).toBeNear(1 + (Config.Enemies.bosses.HollowSeer.boss.states[3].speedPercent or 0) / 100)
 		click("HurtBoss")
 		expect(#BossService.getBosses()).toBe(0)
 		advanceHealing(0.3)
