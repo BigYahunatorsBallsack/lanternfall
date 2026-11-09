@@ -41,7 +41,7 @@ local watches: { [Player]: Watch } = {}
 local speeds: { [Player]: number } = {} -- latest walk speed from CombatService, kept across characters
 local area: MovementRules.Area = (function()
 	local arena = Config.Map.arena
-	local half = arena.size / 2
+	local halfX, halfZ = arena.width / 2, arena.depth / 2
 	local pillars = {}
 	for _, obstacle in arena.obstacles do
 		table.insert(
@@ -50,10 +50,10 @@ local area: MovementRules.Area = (function()
 		)
 	end
 	return {
-		minX = arena.center.X - half,
-		maxX = arena.center.X + half,
-		minZ = arena.center.Z - half,
-		maxZ = arena.center.Z + half,
+		minX = arena.center.X - halfX,
+		maxX = arena.center.X + halfX,
+		minZ = arena.center.Z - halfZ,
+		maxZ = arena.center.Z + halfZ,
 		pillars = pillars,
 	}
 end)()

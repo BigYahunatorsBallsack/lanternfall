@@ -4,12 +4,21 @@
 -- `lighting` sets the daylight mood and `decor` the dressing (MapService/Decor): only looks, nothing
 -- in it changes where players or enemies can walk.
 
+local Stats = require(script.Parent.Stats)
+
+-- Brotato 1.2.0.1 (zones/*/zone_*_data.tres, singletons/utils TILE_SIZE): every zone is 32 x 24 tiles of 64 pixels,
+-- 2048 x 1536 pixels. Turned into studs with the same scale as speed, ranges and spawn distances (0.1 studs per
+-- pixel, Config.Stats.range.studsPerPoint): 204.8 x 153.6 studs.
+local BROTATO_TILE_PIXELS = 64
+local BROTATO_ZONE_TILES = { width = 32, height = 24 }
+
 return table.freeze({
 	arena = table.freeze({
 		center = Vector3.new(0, 100, 0), -- center of the floor surface
-		-- 300 until the playtest after Paket 24; now about Brotato's arena: a bit more than one screen wide (the camera
-		-- shows about 130 x 95 studs), so enemies stay close and walking away does not solve every wave
-		size = 160, -- side length of the square arena
+		-- Brotato's zone (since 09.11.2026; 160 x 160 from the playtest after Paket 24, 300 before): x is Brotato's
+		-- width, z its height. Brotato's map-size effect (main.gd, at least 12 tiles) is not built yet.
+		width = BROTATO_ZONE_TILES.width * BROTATO_TILE_PIXELS * Stats.range.studsPerPoint, -- along x
+		depth = BROTATO_ZONE_TILES.height * BROTATO_TILE_PIXELS * Stats.range.studsPerPoint, -- along z
 		wallHeight = 40,
 		spawnRadius = 8, -- participants start on a circle of this radius
 		-- The open arena leaves room to dodge in every direction.

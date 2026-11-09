@@ -117,8 +117,13 @@ local returns: { { id: number, x: number, z: number, at: number, attack: Enemies
 
 local bounds = (function()
 	local arena = MapService.getArenaBounds()
-	local center, half = arena.center, arena.halfSize
-	return { minX = center.X - half, maxX = center.X + half, minZ = center.Z - half, maxZ = center.Z + half }
+	local center = arena.center
+	return {
+		minX = center.X - arena.halfX,
+		maxX = center.X + arena.halfX,
+		minZ = center.Z - arena.halfZ,
+		maxZ = center.Z + arena.halfZ,
+	}
 end)()
 local obstacles = MapService.getObstacles()
 

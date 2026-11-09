@@ -103,10 +103,11 @@ end
 -- Pebbles add texture without blocking movement.
 local function floorSlabs(model: Model, center: Vector3, random: Random)
 	local decor = Config.Map.decor
-	local half = Config.Map.arena.size / 2 - 6
+	local halfX = Config.Map.arena.width / 2 - 6
+	local halfZ = Config.Map.arena.depth / 2 - 6
 	for index = 1, decor.floorSlabs do
-		local x = random:NextNumber(-half, half)
-		local z = random:NextNumber(-half, half)
+		local x = random:NextNumber(-halfX, halfX)
+		local z = random:NextNumber(-halfZ, halfZ)
 		local size = Vector3.new(random:NextNumber(0.7, 2.8), 0.06, random:NextNumber(0.5, 2.2))
 		local slab = part(
 			model,
@@ -168,14 +169,14 @@ local function lampPost(model: Model, name: string, base: Vector3, height: numbe
 	end
 end
 
--- A dark ground skirt hides everything beyond the wall of an area of side `area`.
-local function outskirts(parent: Model, center: Vector3, area: number, margin: number)
+-- A dark ground skirt hides everything beyond the wall of an area `width` x `depth` studs.
+local function outskirts(parent: Model, center: Vector3, width: number, depth: number, margin: number)
 	local settings = Config.Map.decor.outskirts
-	local size = area + 2 * (Config.Map.wallThickness + margin)
+	local border = 2 * (Config.Map.wallThickness + margin)
 	local ground = part(
 		parent,
 		"Outskirts",
-		Vector3.new(size, settings.thickness, size),
+		Vector3.new(width + border, settings.thickness, depth + border),
 		CFrame.new(center - Vector3.new(0, settings.drop + settings.thickness / 2, 0)),
 		rgb(settings.color),
 		Enum.Material.SmoothPlastic
@@ -190,7 +191,7 @@ function Decor.buildArena(arenaModel: Model)
 	local model = Instance.new("Model")
 	model.Name = "Decor"
 	floorSlabs(model, center, random)
-	outskirts(model, center, Config.Map.arena.size, Config.Map.decor.outskirts.margin)
+	outskirts(model, center, Config.Map.arena.width, Config.Map.arena.depth, Config.Map.decor.outskirts.margin)
 	model.Parent = arenaModel
 end
 
@@ -208,7 +209,7 @@ function Decor.buildLobby(lobbyModel: Model)
 		local base = lobby.center + Vector3.new(math.cos(angle), 0, math.sin(angle)) * radius
 		lampPost(model, `Lamp{index}`, base, Config.Map.decor.lampHeight * 0.7)
 	end
-	outskirts(lobbyModel, lobby.center, lobby.size, Config.Map.decor.outskirts.lobbyMargin)
+	outskirts(lobbyModel, lobby.center, lobby.size, lobby.size, Config.Map.decor.outskirts.lobbyMargin)
 	model.Parent = lobbyModel
 end
 
