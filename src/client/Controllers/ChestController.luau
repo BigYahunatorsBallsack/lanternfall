@@ -69,6 +69,7 @@ local function build(): Drawn
 		ground = art.ground,
 		center = art.center,
 	})
+	WorldSprite.outline(sprite)
 	local box = sprite.anchor :: BasePart
 	box.Parent = model
 	local beamSprite = WorldSprite.create({

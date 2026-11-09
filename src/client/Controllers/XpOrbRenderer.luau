@@ -37,6 +37,7 @@ local folder: Folder? = nil
 local spriteOf: { [BasePart]: WorldSprite.Sprite } = {}
 local pool = VisualKit.pool(function(): BasePart
 	local sprite = WorldSprite.create({ name = "XpOrb", image = Config.Sprites.images.material, studs = TIERS[1].size })
+	WorldSprite.outline(sprite)
 	local anchor = sprite.anchor :: BasePart
 	spriteOf[anchor] = sprite
 	return anchor
