@@ -2,7 +2,8 @@
 -- Draws materials from the server's XpOrbs events (ExperienceService): pooled green shard sprites
 -- on the floor, sized by how much XP they hold, each with its own picture, turn and mirror (Util/MaterialLook),
 -- that fly into the player who picked them up. Lying materials are placed once; only flying ones move each frame, together in one workspace:BulkMoveTo. A material that
--- counted more than once (bag or Double Orbs, XpOrbEvents.boosted) shows a small green "X2" where it reaches the
+-- took from the bag lies 1.25 times bigger (XpOrbEvents.bagOrbs); one that counted more than once (bag or Double Orbs,
+-- XpOrbEvents.boosted) shows a small green "X2" where it reaches the
 -- player, like Brotato (Config.Feedback.materialBoost). The server decides every pickup; this only shows it.
 
 local Players = game:GetService("Players")
@@ -32,7 +33,7 @@ local VARIANTS: { string } = if #LOOK.variants > 0 then LOOK.variants else { Con
 local BOOST = Config.Feedback.materialBoost
 local BOOST_COLOR = Color3.fromRGB(BOOST.color[1], BOOST.color[2], BOOST.color[3])
 
-type Orb = { part: BasePart, x: number, z: number, scale: number }
+type Orb = { part: BasePart, x: number, z: number, scale: number, bag: boolean }
 type Flight = { part: BasePart, from: Vector3, userId: number, startedAt: number, factor: number }
 type Popup = {
 	gui: BillboardGui,
@@ -64,6 +65,7 @@ end)
 local orbs: { [number]: Orb } = {}
 local flights: { Flight } = {}
 local factorOf: { [number]: number } = {} -- reused: orb id -> how often it counted (XpOrbEvents.boosted)
+local bagIds: { [number]: boolean } = {} -- reused: ids in XpOrbEvents.bagOrbs
 local popups: { Popup } = {} -- oldest first
 local popupPool: { Popup } = {}
 local popupAnchor: BasePart? = nil
@@ -266,6 +268,13 @@ local function onEvents(events: Types.XpOrbEvents)
 	if events.reset then
 		clear()
 	end
+	table.clear(bagIds)
+	local bagOrbs = events.bagOrbs
+	if typeof(bagOrbs) == "table" then
+		for _, id in bagOrbs do
+			bagIds[id] = true
+		end
+	end
 	local list = events.orbs
 	for i = 1, #list - 3, 4 do
 		local id, x, z, value = list[i], list[i + 1], list[i + 2], list[i + 3]
@@ -273,7 +282,7 @@ local function onEvents(events: Types.XpOrbEvents)
 		local sprite
 		if not orb then
 			local look = MaterialLook.of(id, #VARIANTS, LOOK)
-			orb = { part = pool:acquire(getFolder()), x = x, z = z, scale = look.scale }
+			orb = { part = pool:acquire(getFolder()), x = x, z = z, scale = look.scale, bag = false }
 			orbs[id] = orb
 			sprite = spriteOf[orb.part]
 			sprite.picture.Image = VARIANTS[look.variant]
@@ -284,8 +293,12 @@ local function onEvents(events: Types.XpOrbEvents)
 		else
 			sprite = spriteOf[orb.part]
 		end
+		if bagIds[id] then
+			orb.bag = true
+		end
 		local tier = tierOf(value)
-		WorldSprite.setStuds(sprite, tier.size * Config.Sprites.orbScale * orb.scale)
+		local bagScale = if orb.bag then BOOST.bagOrbScale else 1
+		WorldSprite.setStuds(sprite, tier.size * Config.Sprites.orbScale * orb.scale * bagScale)
 		sprite.picture.ImageColor3 = Color3.new(1, 1, 1)
 		table.insert(partList, orb.part)
 		table.insert(cframeList, CFrame.new(x, floorY + HOVER + tier.size / 2, z))
@@ -348,6 +361,17 @@ end
 
 function XpOrbRenderer.start()
 	RunService.RenderStepped:Connect(render)
+end
+
+-- How many lying materials are drawn bigger because they took from the bag (tests).
+function XpOrbRenderer.getBagOrbCount(): number
+	local count = 0
+	for _, orb in orbs do
+		if orb.bag then
+			count += 1
+		end
+	end
+	return count
 end
 
 -- Texts of the "X2" popups showing right now (tests).

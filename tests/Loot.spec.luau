@@ -225,6 +225,7 @@ describe("loot", function()
 		end
 		click("KillEnemies")
 		expect(ExperienceService.getBag()).toBe(math.max(0, bag - value))
+		expect(controller("XpOrbRenderer").getBagOrbCount() > 0).toBe(true) -- drawn 1.25 times bigger
 		-- picking up a material that took Shards from the bag shows "X2" at the player (Brotato)
 		local spot = spots[1]
 		standAt(spot.X, spot.Z)

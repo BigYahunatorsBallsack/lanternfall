@@ -60,6 +60,7 @@ local collectedValues: { number } = {}
 -- Orbs that took Shards from the bag when they dropped (Brotato's gold.boosted = 2), by orb id.
 local bagBoosted: { [number]: boolean } = {}
 local boostedPickups: { number } = {} -- flat id, factor (Net/Types.XpOrbEvents.boosted)
+local newBagOrbs: { number } = {} -- ids of new orbs that took from the bag (Net/Types.XpOrbEvents.bagOrbs)
 
 local function requiredMultiplier(player: Player): number
 	return CharacterRules.forClass(RunDirector.getParticipantClassId(player)).xpNeededMultiplier
@@ -86,6 +87,14 @@ local function sendBag()
 	Net.fireAllClients("OrbBag", bag)
 end
 
+local function bagOrbIds(): { number }
+	local ids = {}
+	for id in bagBoosted do
+		table.insert(ids, id)
+	end
+	return ids
+end
+
 local function round(value: number): number
 	return math.round(value * 10) / 10
 end
@@ -98,6 +107,7 @@ local function flush()
 		orbs = changedOrbs,
 		collected = collectedOrbs,
 		boosted = if #boostedPickups > 0 then boostedPickups else nil,
+		bagOrbs = if #newBagOrbs > 0 then newBagOrbs else nil,
 	}
 	for _, player in RunDirector.getParticipants() do
 		Net.fireClient("XpOrbs", player, events)
@@ -105,6 +115,7 @@ local function flush()
 	changedOrbs = {}
 	collectedOrbs = {}
 	boostedPickups = {}
+	newBagOrbs = {}
 end
 
 -- Drops every orb on every client and starts the team at level 1 (run start) or keeps the level (run end).
@@ -114,6 +125,7 @@ local function clearOrbs()
 	changedOrbs = {}
 	collectedOrbs = {}
 	boostedPickups = {}
+	newBagOrbs = {}
 	Net.fireAllClients("XpOrbs", { reset = true, orbs = {}, collected = {} } :: Types.XpOrbEvents)
 end
 
@@ -190,6 +202,9 @@ local function onEnemyKilled(info: EnemySim.KillInfo)
 	local x, z = round(info.position.X), round(info.position.Z)
 	local id = field:spawn(x, z, value)
 	if pulled > 0 then
+		if not bagBoosted[id] then
+			table.insert(newBagOrbs, id)
+		end
 		bagBoosted[id] = true
 	end
 	local orbX, orbZ, orbValue = field:get(id)
@@ -338,7 +353,7 @@ function ExperienceService.init()
 		Net.fireClient(
 			"XpOrbs",
 			requester,
-			{ reset = true, orbs = field:flatten(), collected = {} } :: Types.XpOrbEvents
+			{ reset = true, orbs = field:flatten(), collected = {}, bagOrbs = bagOrbIds() } :: Types.XpOrbEvents
 		)
 		Net.fireClient("OrbBag", requester, bag)
 	end)
