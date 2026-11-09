@@ -324,7 +324,7 @@ function World.spawn(
 		elseif kind.hatch then kind.hatch.seconds
 		else 0
 	self.indexOf[id] = i
-	self.maxRadius = math.max(self.maxRadius, kind.radius)
+	self.maxRadius = math.max(self.maxRadius, kind.radius, kind.hurtRadius or 0, kind.hitRadius or 0)
 	self.maxSpeed = math.max(self.maxSpeed, kind.speed * speed)
 	self.hash:insert(i, x, z) -- visible to queries right away
 	return id
@@ -495,7 +495,7 @@ function World.queryRadius(self: World, x: number, z: number, radius: number, ou
 	for s = 1, found do
 		local i = scratch[s]
 		if hp[i] > 0 then
-			local reach = radius + kinds[i].radius
+			local reach = radius + (kinds[i].hurtRadius or kinds[i].radius) -- Brotato's Hurtbox
 			local dx, dz = xs[i] - x, zs[i] - z
 			if dx * dx + dz * dz <= reach * reach then
 				count += 1
@@ -530,7 +530,7 @@ function World.querySegment(
 			local px, pz = xs[i] - x0, zs[i] - z0
 			local t = if lengthSquared > EPSILON then math.clamp((px * sx + pz * sz) / lengthSquared, 0, 1) else 0
 			local dx, dz = px - sx * t, pz - sz * t
-			local reach = radius + kinds[i].radius
+			local reach = radius + (kinds[i].hurtRadius or kinds[i].radius) -- Brotato's Hurtbox
 			if dx * dx + dz * dz <= reach * reach then
 				count += 1
 				out[count] = ids[i]
@@ -793,7 +793,8 @@ local function rushStep(
 		local edge = if dz < 0 then p.minZ + radius else p.maxZ - radius
 		stopAt = math.min(stopAt or move, math.max(0, (edge - z) / dz))
 	end
-	local touch = radius + p.playerRadius + p.contactMargin
+	-- Rushes stop when Brotato's Hitbox touches the player, not the body.
+	local touch = (self.kinds[i].hitRadius or radius) + p.playerRadius + p.contactMargin
 	for t = 1, targetCount do
 		local entry = circleEntry(x, z, dx, dz, move, targetXs[t], targetZs[t], touch)
 		if entry and entry < (stopAt or math.huge) then
@@ -1083,7 +1084,9 @@ function World.step(
 					advance = 0
 				end
 			else
-				advance = math.min(maxMove, math.max(0, distance - radius - playerRadius))
+				-- Walk until Brotato's Hitbox reaches the player; bodies may overlap like in Brotato.
+				local stop = (kind.hitRadius or radius) + playerRadius
+				advance = math.min(maxMove, math.max(0, distance - stop))
 			end
 			if advance == 0 then
 				continue
@@ -1172,7 +1175,7 @@ function World.step(
 			x, z = pushOut(x, z, obstacle.x, obstacle.z, obstacle.radius + radius, ids[i])
 		end
 		for t = 1, targetCount do
-			x, z = pushOut(x, z, targetXs[t], targetZs[t], radius + playerRadius, ids[i])
+			x, z = pushOut(x, z, targetXs[t], targetZs[t], (kind.hitRadius or radius) + playerRadius, ids[i])
 		end
 		xs[i] = math.clamp(x, minX + radius, maxX - radius)
 		zs[i] = math.clamp(z, minZ + radius, maxZ - radius)
@@ -1190,7 +1193,7 @@ function World.step(
 	for i = 1, count do
 		local hit = damage[i]
 		if hit > 0 then
-			local reach = kinds[i].radius + playerRadius + margin
+			local reach = (kinds[i].hitRadius or kinds[i].radius) + playerRadius + margin -- Brotato's Hitbox
 			local reachSquared = reach * reach
 			for t = 1, targetCount do
 				local dx, dz = hitXs[t] - xs[i], hitZs[t] - zs[i]
@@ -1206,7 +1209,7 @@ function World.step(
 		local i, x, z = paths[k], paths[k + 1], paths[k + 2]
 		local dx, dz = paths[k + 3] - x, paths[k + 4] - z
 		local length = math.sqrt(dx * dx + dz * dz)
-		local reach = kinds[i].radius + playerRadius + margin + EPSILON
+		local reach = (kinds[i].hitRadius or kinds[i].radius) + playerRadius + margin + EPSILON
 		if length > EPSILON then
 			for t = 1, targetCount do
 				if

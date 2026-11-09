@@ -85,7 +85,7 @@ describe("EnemyWorld", function()
 		run(world, 1, { 0 }, { 0 })
 		expect(distance(world, id, 0, 0)).toBeNear(50 - Types.Shadeling.speed, 0.01)
 		run(world, 50 / Types.Shadeling.speed + 1, { 0 }, { 0 })
-		expect(distance(world, id, 0, 0)).toBeNear(Types.Shadeling.radius + Sim.playerRadius, 0.01)
+		expect(distance(world, id, 0, 0)).toBeNear(Types.Shadeling.hitRadius + Sim.playerRadius, 0.01)
 	end)
 
 	it("walks faster with a speed factor and passes it on (Enemy Speed, B9)", function()
@@ -102,7 +102,7 @@ describe("EnemyWorld", function()
 		local world = newWorld()
 		local id = spawn(world, "Shadeling", 20, 0)
 		run(world, 3, { -40, 40 }, { 0, 0 })
-		expect(distance(world, id, 40, 0)).toBeNear(Types.Shadeling.radius + Sim.playerRadius, 0.01)
+		expect(distance(world, id, 40, 0)).toBeNear(Types.Shadeling.hitRadius + Sim.playerRadius, 0.01)
 	end)
 
 	it("stands still without players", function()
@@ -162,7 +162,7 @@ describe("EnemyWorld", function()
 		for i = 1, world.count do
 			moved += math.sqrt((world.xs[i] - before[i][1]) ^ 2 + (world.zs[i] - before[i][2]) ^ 2)
 			local fromPlayer = math.sqrt(world.xs[i] ^ 2 + world.zs[i] ^ 2)
-			if fromPlayer < radius + Sim.playerRadius - 0.01 then
+			if fromPlayer < Types.Shadeling.hitRadius + Sim.playerRadius - 0.01 then
 				insidePlayer += 1
 			end
 			for j = i + 1, world.count do
@@ -201,7 +201,7 @@ describe("EnemyWorld", function()
 			local x, z = world:getPosition(id)
 			closest = math.min(closest, math.sqrt(x * x + (z - 20) ^ 2))
 		end
-		expect(distance(world, id, 0, 0)).toBeNear(Types.Shadeling.radius + Sim.playerRadius, 0.01)
+		expect(distance(world, id, 0, 0)).toBeNear(Types.Shadeling.hitRadius + Sim.playerRadius, 0.01)
 		expect(closest >= 6 + Types.Shadeling.radius - 0.01).toBe(true)
 	end)
 
@@ -261,7 +261,7 @@ describe("EnemyWorld", function()
 			local found = world:queryRadius(x, z, radius, out)
 			local expected = 0
 			for i = 1, world.count do
-				local reach = radius + world.kinds[i].radius
+				local reach = radius + (world.kinds[i].hurtRadius or world.kinds[i].radius)
 				if (world.xs[i] - x) ^ 2 + (world.zs[i] - z) ^ 2 <= reach * reach then
 					expected += 1
 				end
@@ -291,7 +291,7 @@ describe("EnemyWorld", function()
 			local sx, sz = x1 - x0, z1 - z0
 			for i = 1, world.count do
 				local t = math.clamp(((world.xs[i] - x0) * sx + (world.zs[i] - z0) * sz) / (sx * sx + sz * sz), 0, 1)
-				local reach = radius + world.kinds[i].radius
+				local reach = radius + (world.kinds[i].hurtRadius or world.kinds[i].radius)
 				if (world.xs[i] - x0 - sx * t) ^ 2 + (world.zs[i] - z0 - sz * t) ^ 2 <= reach * reach then
 					expected += 1
 				end
@@ -438,7 +438,7 @@ end)
 describe("lag-corrected contacts", function()
 	it("checks contacts at the given contact positions instead of the targets", function()
 		local world = newWorld()
-		local touchAt = Types.Shadeling.radius + Sim.playerRadius
+		local touchAt = Types.Shadeling.hitRadius + Sim.playerRadius
 		spawn(world, "Shadeling", touchAt, 0)
 		-- player standing still: contact
 		local contacts = world:step(STEP, { 0 }, { 0 }, 1, { 0 }, { 0 })
@@ -504,6 +504,7 @@ describe("lag-corrected contacts", function()
 				expect(kind.hp).toBeNear(base.hp * elite.hpMultiplier)
 				expect(kind.speed).toBeNear(base.speed * elite.speedMultiplier)
 				expect(kind.radius).toBeNear(base.radius * elite.sizeMultiplier)
+				expect(kind.hitRadius).toBeNear((base.hitRadius or base.radius) * elite.sizeMultiplier)
 				expect(kind.contactDamage).toBeNear(base.contactDamage * elite.damageMultiplier)
 				expect(kind.xp).toBe(elite.xp)
 				expect(EnemyKinds.byTypeId(kind.typeId)).toBe(kind)
@@ -601,7 +602,7 @@ describe("lag-corrected contacts", function()
 			hit = math.max(hit, contacts[1])
 		end
 		expect(hit).toBe(Types.Charger.contactDamage)
-		expect(distance(world, id, 0, 0) >= Types.Charger.radius + Sim.playerRadius - 1e-3).toBe(true)
+		expect(distance(world, id, 0, 0) >= Types.Charger.hitRadius + Sim.playerRadius - 1e-3).toBe(true)
 	end)
 
 	it("ends a rush at an obstacle", function()
