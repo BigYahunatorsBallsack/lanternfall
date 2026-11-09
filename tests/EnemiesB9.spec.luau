@@ -133,6 +133,14 @@ describe("new enemies (B9)", function()
 		world.advance(3) -- walks to the nearest orbs and eats them (also ones left from earlier tests)
 		local left = ExperienceService.getOrbCount()
 		expect(left < orbs + 3).toBe(true)
+		-- step away so the dropped orb is not picked up at once (the Gobbler may have walked up to the player)
+		local spot = EnemySim.getPosition(gobbler) :: Vector3
+		local root = me.Character.HumanoidRootPart
+		local away = Vector3.new(root.Position.X - spot.X, 0, root.Position.Z - spot.Z)
+		away = if away.Magnitude > 0.1 then away.Unit else Vector3.new(1, 0, 0)
+		root.Position = Vector3.new(spot.X, root.Position.Y, spot.Z) + away * 40
+		world.step()
+		left = ExperienceService.getOrbCount()
 		EnemySim.damage(gobbler, 1e6)
 		world.step()
 		expect(ExperienceService.getOrbCount()).toBe(left + 1) -- one orb with everything it ate
