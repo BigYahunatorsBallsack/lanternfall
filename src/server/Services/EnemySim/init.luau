@@ -83,6 +83,7 @@ local function newWorld(): World.World
 		minZ = center.Z - halfZ,
 		maxZ = center.Z + halfZ,
 		obstacles = MapService.getObstacles(),
+		seed = math.floor(RandomService.number("Combat") * 2147483646) + 1, -- wander spots, keep-distance jitter
 	})
 end
 

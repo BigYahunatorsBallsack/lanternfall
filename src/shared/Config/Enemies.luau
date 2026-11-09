@@ -39,6 +39,7 @@ export type Enemy = {
 	loot: Loot?,
 	flee: Flee?,
 	anchored: boolean?, -- never moves, nothing pushes it (Trees); players walk through it
+	wander: Wander?, -- walks to random spots instead of the nearest player (also instead of keepDistance)
 	-- since B9 part 2 (Brotato's enemy behaviours, DESIGN.md section 7)
 	accelerate: Accelerate?,
 	retaliate: Retaliate?,
@@ -217,10 +218,23 @@ export type Flee = {
 	range: number?, -- B9: flees only from a player closer than this, otherwise acts normally (nil: always)
 }
 
+-- Enemies that walk to random spots (Brotato's TargetRandPos / TargetRandPosAroundPlayer movement): a new spot once
+-- they are within arriveStuds of the last one (Brotato: 10 px) or after maxSeconds (ours, so nothing gets stuck at an
+-- obstacle). "Arena": anywhere in the arena. "Target": up to `range` (+- rangeJitter, rolled once per enemy) from the
+-- nearest player on each axis.
+export type Wander = {
+	around: "Arena" | "Target",
+	range: number?,
+	rangeJitter: number?,
+	arriveStuds: number,
+	maxSeconds: number,
+}
+
 -- Enemies that hold their distance and shoot (Spitter). Projectiles fly straight, are stopped by obstacles and
 -- hurt the first player they touch (EnemySim/Volleys).
 export type Ranged = {
 	keepDistance: number, -- studs; EnemySim keeps it there
+	keepDistanceJitter: number?, -- studs either way, rolled once per enemy (Brotato's target_range_randomization)
 	fireInterval: number, -- seconds between shots
 	fireRange: number, -- studs; shoots only at a player this close (assumption)
 	projectileDamage: number,
@@ -358,6 +372,7 @@ local Enemies: { [string]: Enemy } = {
 		-- the player, 600 px/s; a shot comes 0.8 s into a 1 s animation, then 120 (+-10) frames cooldown.
 		ranged = {
 			keepDistance = 300 * PIXEL,
+			keepDistanceJitter = 100 * PIXEL,
 			fireInterval = 3,
 			fireRange = 700 * PIXEL,
 			projectileDamage = 1,
@@ -562,8 +577,9 @@ local Enemies: { [string]: Enemy } = {
 		knockbackResistance = 0.5,
 		look = "Spitter",
 		-- Brotato 1.2.0.1 junkie.tscn: shoots from any distance but not closer than 200 px, 500 px/s, each shot up to
-		-- 1.2 rad off; 0.5 s animation (speed 2), then 120 (+-10) frames cooldown. Brotato's junkie walks to random
-		-- spots instead of holding a distance; here it still holds one and backs off slowly (open).
+		-- 1.2 rad off; 0.5 s animation (speed 2), then 120 (+-10) frames cooldown. It walks to random spots in the
+		-- arena (target_rand_pos_movement_behavior), so keepDistance is not used.
+		wander = { around = "Arena", arriveStuds = 10 * PIXEL, maxSeconds = 8 },
 		ranged = {
 			keepDistance = 36,
 			fireInterval = 2.5,
@@ -575,7 +591,6 @@ local Enemies: { [string]: Enemy } = {
 			projectileRange = SHOT_RANGE,
 			projectileRadius = SHOT_RADIUS,
 			aimLead = 0,
-			retreatSpeedFactor = 0.3, -- stand-in for the random walk: it does not run from the player
 		},
 		loot = { consumableChance = 0, crateShare = 0 }, -- Brotato junkie: can_drop_consumables false
 		firstWave = 14,
@@ -598,7 +613,14 @@ local Enemies: { [string]: Enemy } = {
 		knockbackResistance = 0,
 		look = "Brute",
 		-- Brotato 1.2.0.1 fly.gd/fly.tscn: a hit by a ranged weapon makes it shoot one projectile in a random direction
-		-- with 25 % chance, 200 px/s.
+		-- with 25 % chance, 200 px/s. It walks to random spots up to 150 (+-50) px from the player on each axis.
+		wander = {
+			around = "Target",
+			range = 150 * PIXEL,
+			rangeJitter = 50 * PIXEL,
+			arriveStuds = 10 * PIXEL,
+			maxSeconds = 4,
+		},
 		retaliate = {
 			count = 1,
 			cooldownSeconds = 0,
