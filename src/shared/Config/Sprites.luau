@@ -108,7 +108,7 @@ local Sprites = {
 		popScale = 0.4,
 		-- The drawn cross (assets/spawn-marker/SpawnCross.png, Strang B 09.11.2026) once the owner has uploaded it; while
 		-- empty the cross is built from the bars above. Its own red and dark outline are in the picture.
-		image = "",
+		image = "rbxassetid://84769106793216",
 		imageStuds = 5, -- side of the square picture
 		-- Blinks slowly at first and ever faster until the enemies come (owner, 09.11.2026), blinks per second at the
 		-- start and at the end. The picture fades to `imageFade` transparency; the bars fade towards the pale colors
