@@ -9,6 +9,8 @@ return table.freeze({
 	panel = Color3.fromRGB(29, 29, 29),
 	panelTransparency = 0,
 	stroke = Color3.fromRGB(7, 7, 7),
+	textOutline = Color3.fromRGB(18, 14, 16), -- thick outline around big menu text (owner, 09.11.2026)
+	textOutlineThickness = 3,
 	text = Color3.fromRGB(250, 250, 250),
 	textDim = Color3.fromRGB(212, 212, 212),
 	accent = Color3.fromRGB(242, 242, 242),

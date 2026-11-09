@@ -150,6 +150,58 @@ function Widgets.label(props: { [string]: any }): TextLabel
 	return Widgets.create("TextLabel", defaults)
 end
 
+-- Thick dark outline around a text, like the outlines in the world (owner, 09.11.2026). A UIStroke draws either the
+-- text or the border, so a button that already has its border stroke gets an outlined copy of its text on top.
+function Widgets.outlineText(object: TextLabel | TextButton, thickness: number?)
+	if object:GetAttribute("TextOutlined") then
+		return
+	end
+	object:SetAttribute("TextOutlined", true)
+	object.TextStrokeTransparency = 1
+	local function stroke(parent: Instance)
+		Widgets.create("UIStroke", {
+			Name = "TextOutline",
+			ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual,
+			LineJoinMode = Enum.LineJoinMode.Round,
+			Color = Theme.textOutline,
+			Thickness = thickness or Theme.textOutlineThickness,
+			Parent = parent,
+		})
+	end
+	if not object:FindFirstChildOfClass("UIStroke") then
+		stroke(object)
+		return
+	end
+	local copy = Widgets.create("TextLabel", {
+		Name = "OutlinedText",
+		BackgroundTransparency = 1,
+		Size = UDim2.fromScale(1, 1),
+		Active = false,
+		Parent = object,
+	}) :: TextLabel
+	stroke(copy)
+	for _, property in
+		{
+			"Text",
+			"Font",
+			"TextSize",
+			"TextColor3",
+			"TextScaled",
+			"TextWrapped",
+			"TextXAlignment",
+			"TextYAlignment",
+			"RichText",
+		}
+	do
+		local function sync()
+			(copy :: any)[property] = (object :: any)[property]
+		end
+		sync()
+		object:GetPropertyChangedSignal(property):Connect(sync)
+	end
+	object.TextTransparency = 1
+end
+
 function Widgets.button(props: { [string]: any }, onClick: () -> ()): TextButton
 	local defaults = {
 		BackgroundColor3 = Theme.button,

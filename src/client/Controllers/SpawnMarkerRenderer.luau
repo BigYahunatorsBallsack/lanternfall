@@ -1,8 +1,8 @@
 --!strict
 -- Draws red crosses on the arena floor where a spawn group will appear (DESIGN.md section 7, since B9), from the
--- server's SpawnMarkers events (SpawnDirector). Each cross is a thick brush-like X with a dark rim on a flat floor
--- canvas (Config/Sprites spawnMarker): it pops in, blinks pale until the enemies come, then goes back to its pool. The
--- server decides every spawn; this only shows it.
+-- server's SpawnMarkers events (SpawnDirector). Each cross lies on a flat floor canvas (Config/Sprites spawnMarker):
+-- the drawn cross picture once it is uploaded, until then a thick X built from bars. It pops in, blinks slowly and then
+-- ever faster until the enemies come, then goes back to its pool. The server decides every spawn; this only shows it.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
@@ -20,7 +20,8 @@ local COLOR = Color3.fromRGB(table.unpack(Look.color))
 local OUTLINE_COLOR = Color3.fromRGB(table.unpack(Look.outlineColor))
 local PALE_COLOR = Color3.fromRGB(table.unpack(Look.paleColor))
 local PALE_OUTLINE_COLOR = Color3.fromRGB(table.unpack(Look.paleOutlineColor))
-local CANVAS_STUDS = Look.size * 1.2 -- room for tilt, longer bars and the rim
+local USE_IMAGE = Look.image ~= ""
+local CANVAS_STUDS = math.max(Look.size, Look.imageStuds) * 1.2 -- room for tilt, longer bars and the rim
 local THICKNESS = 0.05 -- studs of the invisible floor part
 local LIFT = 0.04 -- studs above the floor, clear of floor tiles
 local PILL = UDim.new(0.5, 0) -- round bar ends
@@ -28,7 +29,8 @@ local PILL = UDim.new(0.5, 0) -- round bar ends
 type Cross = {
 	part: Part,
 	scale: UIScale,
-	bars: { Frame }, -- outline frames first, then the red ones
+	bars: { Frame }, -- outline frames first, then the red ones; empty with the picture
+	picture: ImageLabel?,
 }
 
 type Marker = { cross: Cross, spawnsAt: number, shownAt: number }
@@ -83,13 +85,24 @@ local function build(): Cross
 	local scale = Instance.new("UIScale")
 	scale.Parent = holder
 
+	if USE_IMAGE then
+		local picture = Instance.new("ImageLabel")
+		picture.Name = "Picture"
+		picture.BackgroundTransparency = 1
+		picture.Image = Look.image
+		picture.AnchorPoint = Vector2.new(0.5, 0.5)
+		picture.Position = UDim2.fromScale(0.5, 0.5)
+		picture.Size = UDim2.fromScale(Look.imageStuds / CANVAS_STUDS, Look.imageStuds / CANVAS_STUDS)
+		picture.Parent = holder
+		return { part = part, scale = scale, bars = {}, picture = picture }
+	end
 	local bars = {
 		bar(holder, OUTLINE_COLOR, 1),
 		bar(holder, OUTLINE_COLOR, 1),
 		bar(holder, COLOR, 2),
 		bar(holder, COLOR, 2),
 	}
-	return { part = part, scale = scale, bars = bars }
+	return { part = part, scale = scale, bars = bars, picture = nil }
 end
 
 local pool = VisualKit.objectPool(build, function(cross: Cross): { BasePart }
@@ -111,6 +124,12 @@ end
 -- A fresh look for a reused cross: its own small tilt and bar lengths, so a group does not look stamped.
 local function shape(cross: Cross)
 	local tilt = random:NextNumber(-Look.tiltDegrees, Look.tiltDegrees)
+	cross.scale.Scale = Look.popScale
+	local picture = cross.picture
+	if picture then
+		picture.Rotation = tilt
+		return
+	end
 	local rim = Look.outlineStuds * 2
 	for index = 1, 2 do
 		local length = Look.size * (1 + random:NextNumber(-Look.lengthJitter, Look.lengthJitter))
@@ -121,7 +140,15 @@ local function shape(cross: Cross)
 		outline.Rotation = rotation
 		red.Rotation = rotation
 	end
-	cross.scale.Scale = Look.popScale
+end
+
+-- 1 when the cross is solid, 0 when it is faded. The blink speeds up evenly from blinkStartHz to blinkEndHz over the
+-- marker's life, so the count of blinks so far is the integral of that speed.
+local function blink(marker: Marker, now: number): number
+	local life = math.max(marker.spawnsAt - marker.shownAt, 0.01)
+	local share = math.clamp((now - marker.shownAt) / life, 0, 1)
+	local blinks = life * (Look.blinkStartHz * share + (Look.blinkEndHz - Look.blinkStartHz) * share * share / 2)
+	return 0.5 + 0.5 * math.cos(blinks * 2 * math.pi)
 end
 
 local function onMarkers(event: Types.SpawnMarkers)
@@ -149,10 +176,6 @@ local function render()
 		return
 	end
 	local now = workspace:GetServerTimeNow()
-	local wave = 0.5 + 0.5 * math.sin(now * Look.pulsesPerSecond * 2 * math.pi)
-	local pale = wave * Look.paleShare
-	local color = COLOR:Lerp(PALE_COLOR, pale)
-	local outlineColor = OUTLINE_COLOR:Lerp(PALE_OUTLINE_COLOR, pale)
 	for index = #markers, 1, -1 do
 		local marker = markers[index]
 		local cross = marker.cross
@@ -166,11 +189,20 @@ local function render()
 				local eased = 1 - (1 - grow) ^ 3
 				cross.scale.Scale = Look.popScale + (1 - Look.popScale) * eased
 			end
-			local bars = cross.bars
-			bars[1].BackgroundColor3 = outlineColor
-			bars[2].BackgroundColor3 = outlineColor
-			bars[3].BackgroundColor3 = color
-			bars[4].BackgroundColor3 = color
+			local faded = 1 - blink(marker, now)
+			local picture = cross.picture
+			if picture then
+				picture.ImageTransparency = faded * Look.imageFade
+			else
+				local pale = faded * Look.paleShare
+				local color = COLOR:Lerp(PALE_COLOR, pale)
+				local outlineColor = OUTLINE_COLOR:Lerp(PALE_OUTLINE_COLOR, pale)
+				local bars = cross.bars
+				bars[1].BackgroundColor3 = outlineColor
+				bars[2].BackgroundColor3 = outlineColor
+				bars[3].BackgroundColor3 = color
+				bars[4].BackgroundColor3 = color
+			end
 		end
 	end
 end

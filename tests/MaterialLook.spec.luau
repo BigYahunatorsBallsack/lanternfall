@@ -39,6 +39,23 @@ describe("MaterialLook", function()
 		expect(flips > 200 and flips < 400).toBe(true)
 		expect(minTurn < -settings.turn * 0.8 and maxTurn > settings.turn * 0.8).toBe(true)
 	end)
+	it("deals every picture once per six drops in a row, never the same one twice in a row", function()
+		local last = 0
+		for block = 0, 199 do
+			local seen = {}
+			for slot = 1, 6 do
+				local variant = MaterialLook.of(block * 6 + slot - 1, 6, settings).variant
+				expect(seen[variant]).toBe(nil)
+				seen[variant] = true
+				expect(variant ~= last).toBe(true)
+				last = variant
+			end
+		end
+	end)
+	it("draws lying shards behind figures", function()
+		expect(settings.depthBias < Config.Sprites.depthBias).toBe(true)
+		expect(settings.depthBias > 0).toBe(true)
+	end)
 	it("works with a single picture", function()
 		expect(MaterialLook.of(7, 1, settings).variant).toBe(1)
 		expect(MaterialLook.of(7, 0, settings).variant).toBe(1)

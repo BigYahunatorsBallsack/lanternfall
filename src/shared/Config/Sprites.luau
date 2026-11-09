@@ -57,7 +57,8 @@ local Sprites = {
 	-- Thick dark outline around every figure, weapon and drop so it stands out from the floor and the crowd (owner,
 	-- 08.11.2026, after his Brotato screenshots: "um alles im Spiel"). Drawn as dark copies of the picture shifted
 	-- `directions` ways by `studs` behind it (Util/WorldSprite.outline). Glows, beams and shots stay without.
-	outline = table.freeze({ studs = 0.32, directions = 8, color = { 18, 14, 16 } }),
+	-- `uiShare`: the same outline on pictures in menus and the HUD, as a share of the picture's box (09.11.2026).
+	outline = table.freeze({ studs = 0.32, directions = 8, color = { 18, 14, 16 }, uiShare = 0.025 }),
 
 	-- The flat dark disc under figures. Colors are { red, green, blue }.
 	shadow = table.freeze({ color = { 0, 0, 0 }, transparency = 0.6, thickness = 0.05 }),
@@ -105,9 +106,16 @@ local Sprites = {
 		lengthJitter = 0.1, -- each bar is up to this share shorter or longer
 		popSeconds = 0.18, -- grows in from popScale when it appears
 		popScale = 0.4,
-		-- Blinks between solid and pale until the enemies come. Pale is a lighter color, not see-through: two see-through
-		-- bars would show a dark patch where they cross.
-		pulsesPerSecond = 2.5,
+		-- The drawn cross (assets/spawn-marker/SpawnCross.png, Strang B 09.11.2026) once the owner has uploaded it; while
+		-- empty the cross is built from the bars above. Its own red and dark outline are in the picture.
+		image = "rbxassetid://84769106793216",
+		imageStuds = 5, -- side of the square picture
+		-- Blinks slowly at first and ever faster until the enemies come (owner, 09.11.2026), blinks per second at the
+		-- start and at the end. The picture fades to `imageFade` transparency; the bars fade towards the pale colors
+		-- (not see-through: two see-through bars would show a dark patch where they cross).
+		blinkStartHz = 1.5,
+		blinkEndHz = 9,
+		imageFade = 0.85,
 		paleColor = { 238, 150, 140 },
 		paleOutlineColor = { 128, 96, 90 },
 		paleShare = 0.75, -- how far towards the pale colors the blink goes
@@ -205,6 +213,9 @@ local Sprites = {
 		}) :: { string },
 		pixels = 256, -- side of every material picture, for mirroring
 		turn = 180, -- degrees either way
+		-- Studs towards the camera instead of depthBias: lying shards draw behind enemies, players and other figures
+		-- (owner, 09.11.2026). Above zero, so they stay above floor marks.
+		depthBias = 0.1,
 		sizeJitter = 0.12, -- share either way
 		tiers = table.freeze({
 			-- Picture side in studs; the shard fills about 0.6 of it. Owner's Brotato screenshot (08.11.2026): a shard is
