@@ -1,0 +1,125 @@
+{
+  "version": "1.2.0.1",
+  "steamBuild": 26406319,
+  "resources": [
+    {
+      "source": "res://challenges/gatherer_4_data.tres",
+      "md5": "bbfb8c62a6cc4d4fa92b05fc9e0f9cd1",
+      "properties": {
+        "script": {
+          "resource": "res://challenges/global/challenge_data.gd",
+          "resourceType": "Script"
+        },
+        "my_id": "chal_gatherer_4",
+        "unlocked_by_default": false,
+        "icon": {
+          "resource": "res://items/all/00_base_game/alien_tongue/alien_tongue_icon.png",
+          "resourceType": "Texture"
+        },
+        "name": "CHAL_GATHERER",
+        "tier": 0,
+        "value": 10000,
+        "effects": [],
+        "tracking_text": "",
+        "is_lockable": true,
+        "is_cursed": false,
+        "curse_factor": 0.0,
+        "description": "CHAL_GATHERER_DESC",
+        "reward_type": 6,
+        "reward": {
+          "resource": "res://items/characters/pacifist/pacifist_data.tres",
+          "resourceType": "Resource"
+        },
+        "number": 4,
+        "stat": "",
+        "additional_args": []
+      }
+    },
+    {
+      "source": "res://items/all/00_base_game/lumberjack_shirt/lumberjack_shirt_data.tres",
+      "md5": "bca52b17b0c7f150c081a8de15fb0d46",
+      "properties": {
+        "script": {
+          "resource": "res://items/global/item_data.gd",
+          "resourceType": "Script"
+        },
+        "my_id": "item_lumberjack_shirt",
+        "unlocked_by_default": true,
+        "can_be_looted": true,
+        "icon": {
+          "resource": "res://items/all/00_base_game/lumberjack_shirt/lumberjack_shirt_icon.png",
+          "resourceType": "Texture"
+        },
+        "name": "ITEM_LUMBERJACK_SHIRT",
+        "tier": 0,
+        "value": 15,
+        "effects": [
+          {
+            "resource": "res://items/all/00_base_game/lumberjack_shirt/lumberjack_shirt_effect_1.tres",
+            "resourceType": "Resource"
+          }
+        ],
+        "tracking_text": "",
+        "is_lockable": true,
+        "unlock_codex_descr_after_get_it": 1,
+        "is_cursed": false,
+        "curse_factor": 0.0,
+        "is_meca": false,
+        "is_mutant": false,
+        "max_nb": 1,
+        "item_appearances": [
+          {
+            "resource": "res://items/all/00_base_game/lumberjack_shirt/lumberjack_shirt_appearance.tres",
+            "resourceType": "Resource"
+          }
+        ],
+        "tags": [
+          "exploration"
+        ],
+        "minimum_difficulty": 0
+      }
+    },
+    {
+      "source": "res://items/all/00_base_game/lumberjack_shirt/lumberjack_shirt_effect_1.tres",
+      "md5": "9314a801c806bdf3f1e09b8f6021987c",
+      "properties": {
+        "script": {
+          "resource": "res://items/global/effect.gd",
+          "resourceType": "Script"
+        },
+        "key": "one_shot_trees",
+        "text_key": "effect_one_shot_trees",
+        "value": 1,
+        "custom_key": "",
+        "storage_method": 0,
+        "effect_sign": 3,
+        "custom_args": []
+      }
+    }
+  ],
+  "english": {
+    "EFFECT_ONE_SHOT_TREES": "Trees die in one hit",
+    "ITEM_LUMBERJACK_SHIRT": "Lumberjack Shirt",
+    "CHAL_GATHERER_DESC": "Collect {0} materials",
+    "EFFECT_PACIFIST": "Gain {0} material and XP for every living enemy at the end of a wave"
+  },
+  "rules": [
+    "The native main increments materials_collected once after processing each collected material object, independently of value and double-material rolls.",
+    "Roblox profiles count objects picked up by that player; recipients of rotated currency do not receive the collector challenge.",
+    "Neutral.take_damage applies ordinary damage first; a valid owner one_shot_trees hit then kills the surviving tree without inflating reported damage."
+  ],
+  "scriptProvenance": [
+    {
+      "source": "res://main.gdc",
+      "md5": "903bd37107ab9c164addda2167477fb1"
+    },
+    {
+      "source": "res://singletons/challenge_service.gdc",
+      "md5": "6d6b42bb03a602222287ec8e7b2a14bf"
+    },
+    {
+      "source": "res://entities/units/neutral/neutral.gdc",
+      "md5": "1e38d4f03af56046f66c85dbb304692f"
+    }
+  ]
+}

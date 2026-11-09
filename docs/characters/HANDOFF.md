@@ -2,11 +2,17 @@
 
 Implementiere alle noch fehlenden Brotato-Charaktere in Lanternfall vollständig. Ziel: stabile PC-Version 1.2.0.1 mit allen DLCs, insgesamt 74 Charaktere. Der Owner erwartet funktionierende Charaktere einschließlich ihrer benötigten Ausrüstung und Mechaniken, nicht nur Konfigurationsdatensätze. Sprich Deutsch mit ihm; Code, Kommentare und Spieltexte bleiben Englisch.
 
-## Aktuell: Projektil-Startausr�stung (09.11.2026)
+## Aktuell: Pacifist (09.11.2026)
 
-Von GitHub-main b518842 vier weitere Originalfamilien erg�nzt: Blunderbuss, Javelin, Tranq Rifle, Harpoon Gun. Materialaufnahme setzt die l�ngste nicht schie�ende Blunderbuss-Abklingzeit des Sammlers zur�ck; Javelin z�hlt Salven; Tranq verlangsamt im Trefferbereich; Harpoon besitzt feste Mindestreichweite, Zug und einmalige Verlangsamung pro Projektil/Ziel. Native additive Geschwindigkeitsabz�ge besitzen Haltezeit und Erholung. Client-Zielwahl und Reichweitentext ber�cksichtigen die Mindestreichweite. Arsenal unver�ndert.
+Pacifist ist als sechstes neues Codepaket vorbereitet: alle drei Originalstarts, garantierter Lumberjack Shirt, Originalstats/-texte und Freischaltung durch insgesamt 10.000 physisch aufgesammelte Materialobjekte. Schema v10 ergänzt einen persönlichen, gespeicherten Zähler samt Migration; Verdopplung/Währungsrotation beeinflussen ihn nicht. Shirt tötet Bäume nach gültigen Besitzer-Hitboxen, ohne den gemeldeten Schaden zu erhöhen; Brennen/Stat-Strikes bleiben getrennt. Auswahl und Zufallspools bleiben ohne echte Bilder gesperrt. Shirt-Originalbild lokal vorbereitet; nichts hochgeladen.
 
-80 konfigurierte Waffen: 62 �ffentlich, 18 wegen echter Bild-Uploads gesperrt. Die 18 Originalbilder sind lokal vorbereitet. Noch elf Startwaffenfamilien und zehn Item-/Petfamilien; weiterhin f�nf code-vorbereitete Charakterpakete, keine neue vollst�ndige Charakterabnahme. Gesamtvergleich: 1220 bestanden, dieselben 34 vorhandenen Main-Fehler, 141 Specs. Zwei �ltere Universaltests ben�tigten g�ltigen Zielabstand f�r Harpoon; Schadenspr�fungen bleiben erhalten. Quelle: weapon-source.json; Grenzen und Pr�fnachweis: projectile-starts-validation.json. Keine Studio-/Zwei-Client-/Handy-Abnahme, keine Uploads. Allgemeine native Physik-/Formel-/Darstellungsabweichungen bleiben offen.
+Noch elf Waffenfamilien und neun Item-/Petfamilien. Sechs code-vorbereitete Pakete (Crazy/Brawler/Ghost/Bull/Doctor/Pacifist) sind keine native 1:1-Abnahme; allgemeine Formel-/Physik-/Grafiklücken sowie Studio/Koop/Handy bleiben offen. Vergleich main d873a05: 1230 bestanden, unverändert 34 vorhandene Fehler in 143 Specs; Vollvergleich plus betroffene Nachprüfungen nach Main-Integration. Quellen/Prüfung: pacifist-source.json und pacifist-validation.json. Der bereits integrierte Patch weiter unten darf nicht erneut angewendet werden.
+
+## Aktuell: Projektil-Startausrüstung (09.11.2026)
+
+Von GitHub-main b518842 vier weitere Originalfamilien ergänzt: Blunderbuss, Javelin, Tranq Rifle, Harpoon Gun. Materialaufnahme setzt die längste nicht schießende Blunderbuss-Abklingzeit des Sammlers zurück; Javelin zählt Salven; Tranq verlangsamt im Trefferbereich; Harpoon besitzt feste Mindestreichweite, Zug und einmalige Verlangsamung pro Projektil/Ziel. Native additive Geschwindigkeitsabzüge besitzen Haltezeit und Erholung. Client-Zielwahl und Reichweitentext berücksichtigen die Mindestreichweite. Arsenal unverändert.
+
+80 konfigurierte Waffen: 62 öffentlich, 18 wegen echter Bild-Uploads gesperrt. Die 18 Originalbilder sind lokal vorbereitet. Noch elf Startwaffenfamilien und zehn Item-/Petfamilien; weiterhin fünf code-vorbereitete Charakterpakete, keine neue vollständige Charakterabnahme. Gesamtvergleich: 1220 bestanden, dieselben 34 vorhandenen Main-Fehler, 141 Specs. Zwei ältere Universaltests benötigten gültigen Zielabstand für Harpoon; Schadensprüfungen bleiben erhalten. Quelle: weapon-source.json; Grenzen und Prüfnachweis: projectile-starts-validation.json. Keine Studio-/Zwei-Client-/Handy-Abnahme, keine Uploads. Allgemeine native Physik-/Formel-/Darstellungsabweichungen bleiben offen.
 
 ## Aktuell: weitere Startausrüstung (08.11.2026)
 

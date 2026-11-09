@@ -280,6 +280,9 @@ Classes.Bull.ruleRows = {
 Classes.Doctor.nativeCodeReady = true
 Classes.Doctor.description =
 	"+200 % Attack Speed with Medical weapons\n+5 HP Regeneration\n+5 Harvesting\nHP Regeneration modifications are increased by 100%\n-100 % Attack Speed\nArmor modifications are reduced by 50%"
+Classes.Pacifist.nativeCodeReady = true
+Classes.Pacifist.description =
+	"Gain 0.65 material and XP for every living enemy at the end of a wave\nYou start with 1 Lumberjack Shirt\n-100 % Damage\n-100 Engineering"
 -- Original art is delivered independently; ready code never bypasses the approved-sprite requirement.
 for id, class in Classes do
 	if not class.nativeCodeReady then

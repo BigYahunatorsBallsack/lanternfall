@@ -156,6 +156,9 @@ end
 
 -- One line for an effect record, e.g. "Wave end: +3% Damage" or "+8 Armor while standing still".
 function EffectText.line(effect: Effects.Effect): string
+	if effect.action == "OneShotTrees" then
+		return "Trees die in one hit"
+	end
 	if effect.trigger == "Always" then
 		local stats = EffectText.stats(effect.stats)
 		if effect.action == "PerX" then

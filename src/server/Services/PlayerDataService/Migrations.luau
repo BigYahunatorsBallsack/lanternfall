@@ -115,6 +115,12 @@ local steps: { [number]: (data: any) -> () } = {
 			end
 		end
 	end,
+	-- v9 -> v10: native cumulative material objects; old records never tracked this quantity.
+	[9] = function(data)
+		if type(data.nativeCounts) ~= "table" then
+			data.nativeCounts = { materialsCollected = 0 }
+		end
+	end,
 }
 
 Migrations.steps = steps

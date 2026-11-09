@@ -10,8 +10,17 @@ export type Challenge = {
 	{ kind: "Stat", stat: string, threshold: number }
 	| { kind: "WinDanger", danger: number }
 	| { kind: "WaveHealing", threshold: number }
+	| { kind: "MaterialsCollected", threshold: number }
 )
 local rules: { [string]: Challenge } = {
+	Pacifist = {
+		kind = "MaterialsCollected",
+		challengeId = "chal_gatherer_4",
+		source = "res://challenges/gatherer_4_data.tres",
+		sourceMd5 = "bbfb8c62a6cc4d4fa92b05fc9e0f9cd1",
+		threshold = 10000,
+		requirement = "Collect 10000 materials",
+	},
 	Doctor = {
 		kind = "WaveHealing",
 		challengeId = "chal_medicine",

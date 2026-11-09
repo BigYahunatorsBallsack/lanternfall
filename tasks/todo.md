@@ -40,3 +40,6 @@
 
 - [x] Add Blunderbuss/Javelin/Tranq Rifle/Harpoon Gun, collector material reload, volley critical cycle, native decaying slows, minimum aiming range and local original icons; keep uploads gated.
 - [ ] Continue the remaining eleven starting-weapon families and ten item/pet families; five character packages remain code-prepared, without native acceptance.
+
+- [x] Prepare Pacifist code package: original starts/rules, mandatory Lumberjack Shirt with native owned-hitbox tree execution, cumulative physical pickup unlock, v10 migration, retry and profile reload proof; real uploads/Studio acceptance pending.
+- [ ] Continue eleven missing starting-weapon families and nine item/pet families, remaining original unlocks, legacy adoption and DLC dependencies. Six code-prepared characters do not constitute native acceptance.
