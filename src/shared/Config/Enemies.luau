@@ -22,7 +22,9 @@ export type Enemy = {
 	hpPerWave: number,
 	damagePerWave: number,
 	xp: number,
-	radius: number, -- collision circle, studs (assumption)
+	radius: number, -- body circle, studs (assumption; walls, crowding and the picture's size)
+	hurtRadius: number?, -- studs; the player's weapons hit within it (Brotato's Hurtbox; filled in below)
+	hitRadius: number?, -- studs; touches the player within it (Brotato's Hitbox; 0 never touches; filled in below)
 	mass: number, -- crowd weight: heavier enemies push lighter ones aside (assumption)
 	-- share of a knockback the enemy ignores (0..1, Brotato's knockback resistance, B5); default 1 - 1 / mass above 1
 	knockbackResistance: number?,
@@ -39,6 +41,7 @@ export type Enemy = {
 	loot: Loot?,
 	flee: Flee?,
 	anchored: boolean?, -- never moves, nothing pushes it (Trees); players walk through it
+	wander: Wander?, -- walks to random spots instead of the nearest player (also instead of keepDistance)
 	-- since B9 part 2 (Brotato's enemy behaviours, DESIGN.md section 7)
 	accelerate: Accelerate?,
 	retaliate: Retaliate?,
@@ -214,10 +217,23 @@ export type Flee = {
 	range: number?, -- B9: flees only from a player closer than this, otherwise acts normally (nil: always)
 }
 
+-- Enemies that walk to random spots (Brotato's TargetRandPos / TargetRandPosAroundPlayer movement): a new spot once
+-- they are within arriveStuds of the last one (Brotato: 10 px) or after maxSeconds (ours, so nothing gets stuck at an
+-- obstacle). "Arena": anywhere in the arena. "Target": up to `range` (+- rangeJitter, rolled once per enemy) from the
+-- nearest player on each axis.
+export type Wander = {
+	around: "Arena" | "Target",
+	range: number?,
+	rangeJitter: number?,
+	arriveStuds: number,
+	maxSeconds: number,
+}
+
 -- Enemies that hold their distance and shoot (Spitter). Projectiles fly straight, are stopped by obstacles and
 -- hurt the first player they touch (EnemySim/Volleys).
 export type Ranged = {
 	keepDistance: number, -- studs; EnemySim keeps it there
+	keepDistanceJitter: number?, -- studs either way, rolled once per enemy (Brotato's target_range_randomization)
 	fireInterval: number, -- seconds between shots
 	fireRange: number, -- studs; shoots only at a player this close (assumption)
 	projectileDamage: number,
@@ -277,6 +293,7 @@ export type Affix = {
 -- Source: https://brotato.wiki.spellsandguns.com/Enemies (Crash Zone, 2026-11-06).
 -- Only distances/speeds are converted to Roblox world units; HP and damage use the original units.
 local Player = require(script.Parent.Player)
+local Simulation = require(script.Parent.Simulation)
 local function speed(value: number): number
 	return value / 450 * Player.moveSpeed
 end
@@ -354,6 +371,7 @@ local Enemies: { [string]: Enemy } = {
 		-- the player, 600 px/s; a shot comes 0.8 s into a 1 s animation, then 120 (+-10) frames cooldown.
 		ranged = {
 			keepDistance = 300 * PIXEL,
+			keepDistanceJitter = 100 * PIXEL,
 			fireInterval = 3,
 			fireRange = 700 * PIXEL,
 			projectileDamage = 1,
@@ -558,8 +576,9 @@ local Enemies: { [string]: Enemy } = {
 		knockbackResistance = 0.5,
 		look = "Spitter",
 		-- Brotato 1.2.0.1 junkie.tscn: shoots from any distance but not closer than 200 px, 500 px/s, each shot up to
-		-- 1.2 rad off; 0.5 s animation (speed 2), then 120 (+-10) frames cooldown. Brotato's junkie walks to random
-		-- spots instead of holding a distance; here it still holds one and backs off slowly (open).
+		-- 1.2 rad off; 0.5 s animation (speed 2), then 120 (+-10) frames cooldown. It walks to random spots in the
+		-- arena (target_rand_pos_movement_behavior), so keepDistance is not used.
+		wander = { around = "Arena", arriveStuds = 10 * PIXEL, maxSeconds = 8 },
 		ranged = {
 			keepDistance = 36,
 			fireInterval = 2.5,
@@ -571,7 +590,6 @@ local Enemies: { [string]: Enemy } = {
 			projectileRange = SHOT_RANGE,
 			projectileRadius = SHOT_RADIUS,
 			aimLead = 0,
-			retreatSpeedFactor = 0.3, -- stand-in for the random walk: it does not run from the player
 		},
 		loot = { consumableChance = 0, crateShare = 0 }, -- Brotato junkie: can_drop_consumables false
 		firstWave = 14,
@@ -594,7 +612,14 @@ local Enemies: { [string]: Enemy } = {
 		knockbackResistance = 0,
 		look = "Brute",
 		-- Brotato 1.2.0.1 fly.gd/fly.tscn: a hit by a ranged weapon makes it shoot one projectile in a random direction
-		-- with 25 % chance, 200 px/s.
+		-- with 25 % chance, 200 px/s. It walks to random spots up to 150 (+-50) px from the player on each axis.
+		wander = {
+			around = "Target",
+			range = 150 * PIXEL,
+			rangeJitter = 50 * PIXEL,
+			arriveStuds = 10 * PIXEL,
+			maxSeconds = 4,
+		},
 		retaliate = {
 			count = 1,
 			cooldownSeconds = 0,
@@ -1054,6 +1079,47 @@ local BossWave = table.freeze({
 	stateInterval = 0.2, -- seconds between BossState updates (HP bar)
 	legendaryCrate = true, -- a killed boss drops a legendary crate (matters once a run goes on after it, B11)
 })
+
+-- Brotato 1.2.0.1's own circles in pixels (entities/units/enemies/**/<scene>.tscn on top of enemy.tscn): `hurt` is the
+-- Hurtbox the player's weapons hit, `hit` the Hitbox that touches the player (0: it never touches). Mapping of the
+-- scenes as in tools/build-enemy-waves.py. Kinds without an entry use their radius for both.
+local BROTATO_CIRCLES: { [string]: { hurt: number, hit: number } } = {
+	AbyssBrute = { hurt = 40.01, hit = 27.0 },
+	AbyssShadeling = { hurt = 32.0, hit = 16.0 },
+	BroodEgg = { hurt = 32.0, hit = 18.0 },
+	Brute = { hurt = 40.01, hit = 27.02 },
+	Charger = { hurt = 48.01, hit = 25.0 },
+	DreadTendril = { hurt = 24.0, hit = 21.02 },
+	Gobbler = { hurt = 32.0, hit = 21.02 },
+	Herald = { hurt = 32.0, hit = 22.0 },
+	Hookfang = { hurt = 48.01, hit = 29.02 },
+	HornedRusher = { hurt = 48.01, hit = 25.0 },
+	IronHusk = { hurt = 32.0, hit = 21.0 },
+	Looter = { hurt = 32.0, hit = 21.02 },
+	Mender = { hurt = 32.0, hit = 20.02 },
+	Reaper = { hurt = 40.01, hit = 31.0 },
+	Shadeling = { hurt = 32.0, hit = 16.03 },
+	Skulker = { hurt = 32.0, hit = 20.0 },
+	Spitter = { hurt = 32.0, hit = 22.0 },
+	Splitling = { hurt = 32.0, hit = 16.0 },
+	Splitter = { hurt = 48.51, hit = 34.0 },
+	Stalker = { hurt = 64.38, hit = 26.0 },
+	Thornback = { hurt = 70.06, hit = 14.0 },
+	Tree = { hurt = 48.66, hit = 0 },
+}
+
+-- Bodies were drawn for 5.4-stud figures; Brotato's bodies are Simulation.bodyScale larger (09.11.2026). `radius` stays
+-- the body (walls, crowding, picture size); hurtRadius and hitRadius come from Brotato where known (09.11.2026).
+local function scaleBodies(list: { [string]: Enemy })
+	for id, enemy in list do
+		enemy.radius *= Simulation.bodyScale
+		local circles = BROTATO_CIRCLES[id]
+		enemy.hurtRadius = if circles then circles.hurt * PIXEL else enemy.radius
+		enemy.hitRadius = if circles then circles.hit * PIXEL else enemy.radius
+	end
+end
+scaleBodies(Enemies)
+scaleBodies(Bosses)
 
 for _, boss in Bosses do
 	table.freeze(boss)
@@ -1608,6 +1674,7 @@ local EliteWaves = table.freeze({
 	legendaryCrate = true, -- a killed champion drops a legendary crate (Brotato)
 })
 
+scaleBodies(Champions)
 for _, champion in Champions do
 	table.freeze(champion)
 end

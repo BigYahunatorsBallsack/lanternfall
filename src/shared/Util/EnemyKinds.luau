@@ -35,6 +35,8 @@ for id, base in Enemies.types do
 	elite.contactDamage = base.contactDamage * Elite.damageMultiplier
 	elite.speed = base.speed * Elite.speedMultiplier
 	elite.radius = base.radius * Elite.sizeMultiplier
+	elite.hurtRadius = (base.hurtRadius or base.radius) * Elite.sizeMultiplier
+	elite.hitRadius = (base.hitRadius or base.radius) * Elite.sizeMultiplier
 	elite.mass = base.mass * Elite.massMultiplier
 	elite.knockbackResistance = Elite.knockbackResistance
 	elite.xp = Elite.xp

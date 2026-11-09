@@ -23,6 +23,7 @@ local RunService = game:GetService("RunService")
 
 local Shared = ReplicatedStorage.Shared
 local Config = require(Shared.Config)
+local CharacterRules = require(Shared.Util.CharacterRules)
 local DangerRules = require(Shared.Util.DangerRules)
 local Format = require(Shared.Util.Format)
 local Net = require(Shared.Net)
@@ -132,6 +133,15 @@ local function notifyParticipants(text: string)
 	end
 end
 
+-- Brotato's map-size effect: the sum of every participant's map_size (Explorer +33, Old -33), in percent.
+local function mapSizePercent(players: { Player }): number
+	local sum = 0
+	for _, player in players do
+		sum += CharacterRules.nativeAmount(flow:getParticipantClassId(player.UserId), "map_size")
+	end
+	return sum
+end
+
 local function sendToArena(players: { Player })
 	for index, player in players do
 		inArena[player] = true
@@ -189,6 +199,7 @@ local function handle(event: RunFlow.Event)
 		completedWave = 0
 		local players = toPlayers(event.userIds)
 		print(`[Lanternfall] Run started with {#players} player(s), {DangerRules.label(flow:getRunOptions())}`)
+		MapService.setArenaMapSize(mapSizePercent(players))
 		sendToArena(players)
 		notifyParticipants("Survive until dawn!")
 		if lobbyOptions and flow.options.firstNight then -- Paket 19: the next run is a normal one again
@@ -220,6 +231,7 @@ local function handle(event: RunFlow.Event)
 		RunDirector.PhaseChanged:Fire(event.phase, event.previous)
 		if event.phase == "Lobby" then
 			returnToLobby()
+			MapService.setArenaMapSize(0)
 		end
 	elseif event.kind == "ParticipantStateChanged" then
 		local player = Players:GetPlayerByUserId(event.userId)

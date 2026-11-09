@@ -229,4 +229,24 @@ Visuals.forwardDegrees = {
 	SharpTooth = -45,
 	VorpalSword = -45,
 }
+-- Sizes and distances were tuned next to a 5.4-stud figure; figures have Brotato's size since 09.11.2026
+-- (Config.Simulation.bodyScale), so the held weapons and their pictures grow with them.
+do
+	local scale = require(script.Parent.Simulation).bodyScale
+	for _, key in { "holdRadius", "holdHeight", "orbitBladeStuds", "thrownSpriteStuds", "projectileHeight" } do
+		Visuals[key] *= scale
+	end
+	for _, key in { "muzzleClearance", "recoilDistance", "thrustDistance", "idleBob" } do
+		Visuals[key] *= scale
+	end
+	Visuals.stickyGrenade.studs *= scale
+	Visuals.stickyGrenade.height *= scale
+	for id, studs in Visuals.spriteStuds do
+		Visuals.spriteStuds[id] = studs * scale
+	end
+	for id, radius in Visuals.holdRadiusById do
+		Visuals.holdRadiusById[id] = radius * scale
+	end
+end
+
 return table.freeze(Visuals)

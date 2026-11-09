@@ -24,6 +24,13 @@ export type EnemyArt = Art & {
 }
 
 local Images: any = require(script.Parent.SpriteImages)
+local Simulation = require(script.Parent.Simulation)
+
+-- Every size below was tuned next to a 5.4-stud figure; Brotato's figures are Simulation.bodyScale larger next to its
+-- arena (09.11.2026), so studs values are written as body(old value).
+local function body(studs: number): number
+	return studs * Simulation.bodyScale
+end
 
 -- The world values of a picture whose figure is `height` studs tall.
 local function fit(entry: any, height: number): Art
@@ -58,15 +65,16 @@ local Sprites = {
 	-- 08.11.2026, after his Brotato screenshots: "um alles im Spiel"). Drawn as dark copies of the picture shifted
 	-- `directions` ways by `studs` behind it (Util/WorldSprite.outline). Glows, beams and shots stay without.
 	-- `uiShare`: the same outline on pictures in menus and the HUD, as a share of the picture's box (09.11.2026).
-	outline = table.freeze({ studs = 0.32, directions = 8, color = { 18, 14, 16 }, uiShare = 0.025 }),
+	outline = table.freeze({ studs = body(0.32), directions = 8, color = { 18, 14, 16 }, uiShare = 0.025 }),
 
 	-- The flat dark disc under figures. Colors are { red, green, blue }.
 	shadow = table.freeze({ color = { 0, 0, 0 }, transparency = 0.6, thickness = 0.05 }),
 
 	-- Player characters.
 	character = table.freeze({
-		bodyStuds = 5.4, -- height of the figure (the character's collision stays the same)
-		shadowStuds = 3.6, -- width of its shadow
+		-- height of the figure: Brotato's potato is 75 px with its feet = 7.5 studs (5.4 until 09.11.2026)
+		bodyStuds = body(5.4),
+		shadowStuds = body(3.6), -- width of its shadow
 		retrySeconds = 5,
 		loadAttempts = 3,
 		idleSpeed = 2.4, -- radians/s
@@ -78,9 +86,9 @@ local Sprites = {
 		walkCycleSeconds = 0.75, -- one step left and right (calmed from 0.6 on 06.11.2026)
 		walkTiltDegrees = 4, -- was 7
 		walkSquash = 0.045, -- was 0.09
-		walkHopStuds = 0.1, -- was 0.25
+		walkHopStuds = body(0.1), -- was 0.25
 		-- Two feet in alternating steps; `image` is drawn behind the body.
-		foot = table.freeze({ studs = 1.5, spread = 0.95, lift = 0.3, stride = 0.3 }), -- lift was 0.45
+		foot = table.freeze({ studs = body(1.5), spread = body(0.95), lift = body(0.3), stride = body(0.3) }), -- lift was 0.45
 		movingThreshold = 0.2, -- studs/s
 		blendSharpness = 8, -- how softly the walk starts and ends
 		attackSeconds = 0.16,
@@ -97,9 +105,9 @@ local Sprites = {
 	-- outline, about as wide as an enemy (owner, 08.11.2026: bigger and in the game's style). Studs unless noted;
 	-- colors are { red, green, blue }. Each cross gets a small random tilt and bar length so a group looks hand drawn.
 	spawnMarker = table.freeze({
-		size = 5.6, -- tip to tip of one bar; the X is then about 4.5 studs wide, a bit wider than a character
-		barStuds = 1.05, -- thickness of the red bar
-		outlineStuds = 0.32, -- dark rim around it
+		size = body(5.6), -- tip to tip of one bar; the X is then about 4.5 studs wide, a bit wider than a character
+		barStuds = body(1.05), -- thickness of the red bar
+		outlineStuds = body(0.32), -- dark rim around it
 		color = { 226, 52, 46 },
 		outlineColor = { 30, 14, 14 },
 		tiltDegrees = 10, -- the whole cross turns up to this much either way
@@ -109,7 +117,7 @@ local Sprites = {
 		-- The drawn cross (assets/spawn-marker/SpawnCross.png, Strang B 09.11.2026) once the owner has uploaded it; while
 		-- empty the cross is built from the bars above. Its own red and dark outline are in the picture.
 		image = "rbxassetid://84769106793216",
-		imageStuds = 5, -- side of the square picture
+		imageStuds = body(5), -- side of the square picture
 		-- Blinks slowly at first and ever faster until the enemies come (owner, 09.11.2026), blinks per second at the
 		-- start and at the end. The picture fades to `imageFade` transparency; the bars fade towards the pale colors
 		-- (not see-through: two see-through bars would show a dark patch where they cross).
@@ -126,8 +134,8 @@ local Sprites = {
 	-- Weapons float around the middle of the figure, clear of its body. Only what the eye sees: shots keep the server's
 	-- path (Util/WeaponPose) and start at the barrel on the screen.
 	heldWeapons = table.freeze({
-		lift = 2.7, -- studs north of the feet: the figure's middle on the screen
-		clearance = 3.2, -- studs from that middle to the inner end of a weapon
+		lift = body(2.7), -- studs north of the feet: the figure's middle on the screen
+		clearance = body(3.2), -- studs from that middle to the inner end of a weapon
 	}),
 
 	-- Shared pictures; their white parts take the color of the object.
@@ -137,11 +145,12 @@ local Sprites = {
 	enemy = table.freeze({
 		-- Width of the figure, times the enemy's radius (only the picture; hit circles stay). Measured on the owner's Brotato
 		-- screenshot (08.11.2026): a basic enemy is about as tall as the character and wider, a bruiser about 1.75 times
-		-- as tall. 3.8 gives a Shadeling (radius 1.5) a 5.7-stud figure next to the 5.4-stud character. Was 2.6.
+		-- as tall. 3.8 gives a Shadeling (radius 1.5) a 5.7-stud figure next to the 5.4-stud character. Was 2.6. The
+		-- radii grow with Simulation.bodyScale since 09.11.2026, so the figures grow with them.
 		figureWidth = 3.8,
 		figureWidths = table.freeze({}) :: { [string]: number }, -- other widths by enemy id
 		-- One step cycle: studs walked, hop (share of the radius), sway and lean (radians).
-		gait = table.freeze({ stride = 7.5, bob = 0.04, roll = 0.05, lean = 0.065 }), -- was stride 6, bob 0.1, roll 0.1
+		gait = table.freeze({ stride = body(7.5), bob = 0.04, roll = 0.05, lean = 0.065 }), -- was stride 6, bob 0.1, roll 0.1
 		-- Hit flash: the picture is multiplied with flashTint and brightened by flashBrightness. Red as in the owner's
 		-- Brotato screenshot (08.11.2026): a hit enemy keeps its red and loses about 60 % of green and blue. Was white
 		-- with brightness 5 before.
@@ -171,7 +180,10 @@ local Sprites = {
 
 	-- Fruit and crates (PickupRenderer): figure heights in studs.
 	-- Crates nearly as tall as the character like in Brotato (owner, 08.11.2026; were 3 and 3.6).
-	pickups = fitAll(Images.pickups, { default = 2.6, Fruit = 2.2, Crate = 4.6, LegendaryCrate = 5.2 }),
+	pickups = fitAll(
+		Images.pickups,
+		{ default = body(2.6), Fruit = body(2.2), Crate = body(4.6), LegendaryCrate = body(5.2) }
+	),
 
 	-- Hub lobby props (LobbyArtService).
 	lobby = fitAll(Images.lobby, { default = 10, Arch = 20, Beacon = 14, Lamp = 10, CornerRuin = 12 }),
@@ -184,23 +196,23 @@ local Sprites = {
 	}),
 
 	-- Cosmetic lanterns float beside the character (CosmeticService).
-	lantern = table.freeze({ studs = 2.2 }),
+	lantern = table.freeze({ studs = body(2.2) }),
 	-- Elite chests.
-	chest = table.freeze({ art = fit(Images.world.Chest, 5) }), -- was 3.2 (owner, 08.11.2026)
+	chest = table.freeze({ art = fit(Images.world.Chest, body(5)) }), -- was 3.2 (owner, 08.11.2026)
 	-- Sentries and companions (StructureRenderer): one picture per kind, figure heights in studs, some float.
 	structures = fitAll(Images.structures, {
-		default = 4.5,
-		RuneMine = 1.8,
-		MoonGarden = 2.8,
-		OrbitWisp = 1.8,
-		StormFamiliar = 2.4,
+		default = body(4.5),
+		RuneMine = body(1.8),
+		MoonGarden = body(2.8),
+		OrbitWisp = body(1.8),
+		StormFamiliar = body(2.4),
 	}),
-	structureHover = table.freeze({ Orbit = 2, Radial = 2 }) :: { [string]: number },
+	structureHover = table.freeze({ Orbit = body(2), Radial = body(2) }) :: { [string]: number },
 	-- XP orbs are this much larger than their former balls, because a soft edge reads smaller.
 	orbScale = 1.2,
 	-- Original green materials: the source icon has transparent margins. Value affects size, never its color.
 	material = table.freeze({
-		hover = 0.4,
+		hover = body(0.4),
 		-- Every lying shard gets one of these pictures (own art, assets/loot/shards, tools/art2d/draw_shards.py), turned,
 		-- mirrored and resized a little by its id (Util/MaterialLook). Empty would fall back to images.material.
 		variants = table.freeze({
@@ -220,9 +232,9 @@ local Sprites = {
 		tiers = table.freeze({
 			-- Picture side in studs; the shard fills about 0.6 of it. Owner's Brotato screenshot (08.11.2026): a shard is
 			-- about a third of the character's height, so the basic one shows about 1.9 studs. Were 1.6, 2 and 2.5.
-			{ minValue = 0, size = 3.2 },
-			{ minValue = 4, size = 3.8 },
-			{ minValue = 20, size = 4.6 },
+			{ minValue = 0, size = body(3.2) },
+			{ minValue = 4, size = body(3.8) },
+			{ minValue = 20, size = body(4.6) },
 		}),
 	}),
 	-- Bolts and shots: picture size against the former halo.
