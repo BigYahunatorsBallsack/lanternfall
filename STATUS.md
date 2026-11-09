@@ -803,3 +803,12 @@ Branch `wp-25-2d-presentation`. **Owner-Entscheidungen dieses Pakets:** Das Spie
 - Owner wollte die Unverwundbarkeit nach Treffern entfernen; Brotato hat aber 0,2–0,4 s (Wiki: „Bloody Hand"/„Sick" geben ausdrücklich *keine* Unverwundbarkeitszeit, normale Treffer also schon). Ganz ohne würde ein klebender Gegner 15-mal pro Sekunde treffen. Owner-Entscheidung: wie Brotato.
 - Umsetzung: `Config/Player.luau` `hitInvulnerabilityMin = 0.2` / `hitInvulnerabilityMax = 0.4`, `Vitals.protectionAfterHit` linear nach Anteil der Max-HP. Offen: die genaue Kurve steht nicht im Wiki (Annahme linear).
 - Nächstes Paket: unverändert laut Plan.
+
+## X2-Anzeige und Level-up-Symbol wie Brotato (Claude, 09.11.2026)
+
+- Quelle: Brotato-1.2.0.1-Spieldateien vom Owner-PC (Wiki sagt zu beidem nichts). Leser-Skripte für die `.pck` (GDScript-Bytecode, Szenen): `/mnt/project-files/brotato-tools/` (README dort), Anleitung in der Projekt-Erinnerung `lanternfall-brotato-pck-source`.
+- Beutel-Chip „Bag N" unter dem Timer entfernt (Owner). Server: `ExperienceService` merkt sich Orbs, die beim Fallen aus dem Beutel genommen haben; beim Aufheben (mal Double Orbs) steht der Faktor in `XpOrbEvents.boosted` (neu, optional, flach id, Faktor). `XpOrbRenderer` zeigt am Ende des Fluges „X2"/„X4" wie Brotatos FloatingText: reines Grün, Schrift 40 mit 3 px Kontur bei 1080 px Höhe, 80 px Sprung nach oben (±22,5°) mit Elastic-Kurve in 0,5 s, dann 0,5 s schrumpfen und ausblenden (`Config.Feedback.materialBoost`). Brotato zeichnet solche Materialien zusätzlich 1,25× größer; das fehlt noch.
+- Level-up-Reihe oben rechts (`PendingRewardsController`): eigenes gezeichnetes Symbol (weißer Kopf vor großem grünem Pfeil mit schwarzer Kontur, keine Brotato-Grafik) als CanvasGroup mit 50 % Deckkraft, 80 px bei 1080 px Höhe, 24 px vom oberen Rand; bis 4 Symbole, ab 5 nur eines mit der Zahl unten rechts (wie Brotato). Kisten-Reihe unverändert (Owner: passt); in Brotato wäre auch sie halb transparent und hätte dieselbe 4er-Regel.
+- Tests: `Loot.spec` prüft kein Beutel-HUD und das „X2" beim Aufheben. Loot/UiReference/Boss/Experience/CharacterExperience grün, Smoke dieselben 26 Fehler wie main. StyLua, Selene (Scratch-Konfiguration) sauber. Studio-Abnahme offen.
+- Nächstes Paket: unverändert laut Plan.
+

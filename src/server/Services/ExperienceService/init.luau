@@ -5,7 +5,8 @@
 -- into level-up cards, and OrbsCollected, which ShopService turns into Shards, and OrbsPickedUp for item effects
 -- (EffectService). Since B6 like Brotato (Config.Loot, Util/LootRules): from wave 5 normal enemies drop their orb
 -- only by chance, and orbs still on the floor when a wave ends go into the team's bag; in the next waves every new orb
--- takes as much again from the bag. Sends OrbBag (what is in the bag) to everyone. StatService sets each player's Pickup Range, XP Gain and Double Orbs
+-- takes as much again from the bag. Sends OrbBag (what is in the bag) to everyone; picked-up orbs that counted twice
+-- (bag, Double Orbs) are listed in XpOrbEvents.boosted for the client's "X2" text. StatService sets each player's Pickup Range, XP Gain and Double Orbs
 -- (setStats; a doubled orb gives twice its Shards and XP like Brotato's Metal Detector, rolled on RandomService's
 -- Loot stream); ShopService adds Harvesting XP with addXp; AdminService calls grantLevel.
 -- B11 part 2: a RunDirector checkpoint keeps the team level, XP and bag from the start of each wave ("Retry wave").
@@ -56,6 +57,9 @@ local changedOrbs: { number } = {}
 local collectedOrbs: { number } = {}
 local collectedIds: { number } = {}
 local collectedValues: { number } = {}
+-- Orbs that took Shards from the bag when they dropped (Brotato's gold.boosted = 2), by orb id.
+local bagBoosted: { [number]: boolean } = {}
+local boostedPickups: { number } = {} -- flat id, factor (Net/Types.XpOrbEvents.boosted)
 
 local function requiredMultiplier(player: Player): number
 	return CharacterRules.forClass(RunDirector.getParticipantClassId(player)).xpNeededMultiplier
@@ -90,19 +94,26 @@ local function flush()
 	if #changedOrbs == 0 and #collectedOrbs == 0 then
 		return
 	end
-	local events: Types.XpOrbEvents = { orbs = changedOrbs, collected = collectedOrbs }
+	local events: Types.XpOrbEvents = {
+		orbs = changedOrbs,
+		collected = collectedOrbs,
+		boosted = if #boostedPickups > 0 then boostedPickups else nil,
+	}
 	for _, player in RunDirector.getParticipants() do
 		Net.fireClient("XpOrbs", player, events)
 	end
 	changedOrbs = {}
 	collectedOrbs = {}
+	boostedPickups = {}
 end
 
 -- Drops every orb on every client and starts the team at level 1 (run start) or keeps the level (run end).
 local function clearOrbs()
 	field:clear()
+	table.clear(bagBoosted)
 	changedOrbs = {}
 	collectedOrbs = {}
+	boostedPickups = {}
 	Net.fireAllClients("XpOrbs", { reset = true, orbs = {}, collected = {} } :: Types.XpOrbEvents)
 end
 
@@ -178,6 +189,9 @@ local function onEnemyKilled(info: EnemySim.KillInfo)
 	end
 	local x, z = round(info.position.X), round(info.position.Z)
 	local id = field:spawn(x, z, value)
+	if pulled > 0 then
+		bagBoosted[id] = true
+	end
 	local orbX, orbZ, orbValue = field:get(id)
 	table.insert(changedOrbs, id)
 	table.insert(changedOrbs, orbX or x)
@@ -199,6 +213,7 @@ local function feedEaters()
 			if swallowed > 0 then
 				eaten[id] = (eaten[id] or 0) + swallowed
 				for _, orbId in eatenIds do
+					bagBoosted[orbId] = nil
 					table.insert(collectedOrbs, orbId)
 					table.insert(collectedOrbs, 0) -- no player: the orb just vanishes
 				end
@@ -228,9 +243,16 @@ local function onStepped()
 				if #collectedValues > 0 then
 					ExperienceService.OrbsPickedUp:Fire(player, #collectedValues)
 				end
-				for _, value in collectedValues do
+				for index, value in collectedValues do
 					local doubled = chance > 0 and RandomService.number("Loot", player) < chance
 					distributeMaterials(value * (if doubled then 2 else 1))
+					local orbId = collectedIds[index]
+					local factor = (if bagBoosted[orbId] then 2 else 1) * (if doubled then 2 else 1)
+					bagBoosted[orbId] = nil
+					if factor > 1 then
+						table.insert(boostedPickups, orbId)
+						table.insert(boostedPickups, factor)
+					end
 				end
 				for _, id in collectedIds do
 					table.insert(collectedOrbs, id)

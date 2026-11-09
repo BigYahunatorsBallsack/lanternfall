@@ -63,4 +63,20 @@ return table.freeze({
 		height = 0.8, -- times the enemy radius above the floor
 		zOffset = 2, -- studs towards the camera, so blobs show in front of the figures
 	}),
+	-- "X2" over a player who picks up a material that counts more than once (bag or Double Orbs, XpOrbRenderer).
+	-- Brotato 1.2.0.1 game files (FloatingTextManager.on_gold_picked_up, FloatingTextManagerBase, FloatingText):
+	-- text "x" .. factor in capitals, pure green (default color_positive), font 40 with a 3 pixel black outline at
+	-- 1080 pixels screen height; it jumps 80 pixels up, turned by a random angle within spread, with an elastic ease
+	-- in `seconds`, then shrinks to nothing and fades in `seconds` again. At most 100 texts at once.
+	materialBoost = table.freeze({
+		enabled = true,
+		color = { 0, 255, 0 }, -- { red, green, blue }
+		textSize = 40, -- pixels at referenceHeight
+		outline = 3, -- pixels at referenceHeight
+		risePixels = 80, -- at referenceHeight
+		spreadDegrees = 45, -- PI / 4, split evenly to both sides
+		seconds = 0.5,
+		referenceHeight = 1080,
+		maxVisible = 100,
+	}),
 })

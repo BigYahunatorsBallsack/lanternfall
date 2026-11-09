@@ -172,6 +172,9 @@ export type XpOrbEvents = {
 	reset: boolean?, -- drop every orb first (run start and end, full sync)
 	orbs: { number }, -- flat: id, x, z, value for every orb that appeared or grew
 	collected: { number }, -- flat: id, userId for every orb a player picked up
+	-- flat: id, factor for every picked-up orb (in `collected`) that counted more than once (bag x2, Double Orbs x2,
+	-- both x4); the client shows a small "X2" where it reaches the player, like Brotato's on_gold_picked_up
+	boosted: { number }?,
 }
 
 -- One level-up card (UpgradeService -> LevelUpController): a stat upgrade of one rarity tier (Brotato direction
