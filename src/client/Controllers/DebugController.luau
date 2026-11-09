@@ -41,6 +41,7 @@ local BUTTON_TEXT: { [string]: string } = {
 	ReviveSelf = "Stand up again",
 	HurtSelf = `Hurt me ({Config.Admin.hurtSelfDamage})`,
 	HealSelf = "Heal me",
+	ToggleInvincible = "Invincible on/off",
 	WinRun = "Win the run",
 	SpawnWave = `Spawn {Config.Admin.spawnWaveCount} enemies`,
 	SpawnElite = "Spawn an elite",
