@@ -58,6 +58,7 @@ export type Params = {
 	minZ: number,
 	maxZ: number,
 	obstacles: { Circle },
+	seed: number?, -- for the wander points (kind.wander) and keep-distance jitter; tests pass one
 }
 
 local MAX_ID = 65535 -- ids are u16 in snapshots
@@ -109,6 +110,11 @@ export type World = typeof(setmetatable(
 		goalXs: { number }, -- where it walks instead of the nearest target while hasGoal (World.setGoal, B9)
 		goalZs: { number },
 		hasGoal: { boolean },
+		keeps: { number }, -- its own keepDistance (ranged.keepDistanceJitter) or wander range (wander.rangeJitter)
+		wanderXs: { number }, -- the spot a wandering enemy walks to (kind.wander), valid while wanderLeft > 0
+		wanderZs: { number },
+		wanderLeft: { number }, -- seconds until it picks a new spot even if it has not arrived
+		randomState: number, -- xorshift32 state for nextRandom (no Roblox Random, so the spec runs without a mock)
 		slowLeft: { number }, -- seconds the slow lasts
 		burning: { boolean }, -- shown in snapshots; the weapons (WeaponService/Afflictions) run the burn itself
 		columns: { { any } }, -- every per-enemy array above, for compacting and clearing
@@ -134,6 +140,16 @@ export type World = typeof(setmetatable(
 	},
 	World
 ))
+
+-- A number in [0, 1) from the world's own xorshift32 stream.
+local function nextRandom(self: World): number
+	local x = self.randomState
+	x = bit32.bxor(x, bit32.lshift(x, 13))
+	x = bit32.bxor(x, bit32.rshift(x, 17))
+	x = bit32.bxor(x, bit32.lshift(x, 5))
+	self.randomState = x
+	return x / 4294967296
+end
 
 function World.new(params: Params): World
 	assert(params.maxEnemies < MAX_ID, "maxEnemies must leave room for free ids")
@@ -167,6 +183,11 @@ function World.new(params: Params): World
 		goalXs = {},
 		goalZs = {},
 		hasGoal = {},
+		keeps = {},
+		wanderXs = {},
+		wanderZs = {},
+		wanderLeft = {},
+		randomState = math.max(1, math.floor(params.seed or 1) % 4294967296),
 		slowLeft = {},
 		burning = {},
 		columns = {},
@@ -213,6 +234,10 @@ function World.new(params: Params): World
 		self.goalXs,
 		self.goalZs,
 		self.hasGoal,
+		self.keeps,
+		self.wanderXs,
+		self.wanderZs,
+		self.wanderLeft,
 		self.slowLeft,
 		self.burning,
 	} :: { { any } }
@@ -289,6 +314,11 @@ function World.spawn(
 	self.speedFactors[i] = speed
 	self.boosts[i], self.buffed[i], self.hasGoal[i] = 1, false, false
 	self.goalXs[i], self.goalZs[i] = 0, 0
+	local wander = kind.wander
+	local jitter = if wander then wander.rangeJitter or 0 elseif ranged then ranged.keepDistanceJitter or 0 else 0
+	local keep = if wander then wander.range or 0 elseif ranged then ranged.keepDistance else 0
+	self.keeps[i] = keep + (nextRandom(self) * 2 - 1) * jitter
+	self.wanderXs[i], self.wanderZs[i], self.wanderLeft[i] = x, z, 0
 	self.abilityTimers[i] = if kind.pulse
 		then kind.pulse.intervalSeconds * (0.5 + 0.5 * spread)
 		elseif kind.hatch then kind.hatch.seconds
@@ -899,6 +929,54 @@ local function rebuildHash(self: World)
 	end
 end
 
+-- Where a wandering enemy (kind.wander, Brotato's random-position movement) walks: the spot it picked, or a new one
+-- once it is within arriveStuds of it or wander.maxSeconds ran out. "Arena" picks anywhere in the arena (Junkie),
+-- "Target" within its range of the nearest target on both axes (Fly). Spots inside an obstacle are re-rolled up to
+-- 8 times like Brotato's forbidden zones. Returns the offset from the enemy to the spot.
+local function wanderStep(
+	self: World,
+	i: number,
+	wander: Enemies.Wander,
+	dt: number,
+	tx: number,
+	tz: number
+): (number, number)
+	local p = self.params
+	local x, z = self.xs[i], self.zs[i]
+	local wx, wz = self.wanderXs[i], self.wanderZs[i]
+	local left = self.wanderLeft[i] - dt
+	local arrive = wander.arriveStuds
+	if left <= 0 or (wx - x) ^ 2 + (wz - z) ^ 2 <= arrive * arrive then
+		local radius = self.kinds[i].radius
+		for _ = 1, 8 do
+			if wander.around == "Target" then
+				local range = self.keeps[i]
+				wx = tx + (nextRandom(self) * 2 - 1) * range
+				wz = tz + (nextRandom(self) * 2 - 1) * range
+			else
+				wx = p.minX + nextRandom(self) * (p.maxX - p.minX)
+				wz = p.minZ + nextRandom(self) * (p.maxZ - p.minZ)
+			end
+			wx = math.clamp(wx, p.minX + radius, p.maxX - radius)
+			wz = math.clamp(wz, p.minZ + radius, p.maxZ - radius)
+			local blocked = false
+			for _, circle in p.obstacles do
+				if (wx - circle.x) ^ 2 + (wz - circle.z) ^ 2 < (circle.radius + radius) ^ 2 then
+					blocked = true
+					break
+				end
+			end
+			if not blocked then
+				break
+			end
+		end
+		self.wanderXs[i], self.wanderZs[i] = wx, wz
+		left = wander.maxSeconds
+	end
+	self.wanderLeft[i] = left
+	return wx - x, wz - z
+end
+
 -- Advances every enemy by dt seconds towards the targets (x/z of living players, targetCount of them).
 -- Returns contacts[t] = the highest contact damage touching target t, 0 if none (reused table).
 -- Contacts are checked against contactXs/contactZs if given (e.g. positions corrected for network lag),
@@ -962,8 +1040,12 @@ function World.step(
 				self.maxSpeed = math.max(self.maxSpeed, kind.speed * self.speedFactors[i] * boost)
 			end
 			local toGoal = self.hasGoal[i]
+			local wander = kind.wander
 			if toGoal then
 				bestDx, bestDz = self.goalXs[i] - x, self.goalZs[i] - z
+				distance = math.sqrt(bestDx * bestDx + bestDz * bestDz)
+			elseif wander then
+				bestDx, bestDz = wanderStep(self, i, wander, dt, x + bestDx, z + bestDz)
 				distance = math.sqrt(bestDx * bestDx + bestDz * bestDz)
 			end
 			if distance <= EPSILON or kind.anchored then
@@ -980,13 +1062,13 @@ function World.step(
 			local advance
 			local ranged = kind.ranged
 			local flee = kind.flee
-			if toGoal then
+			if toGoal or wander then
 				advance = math.min(maxMove, distance)
 			elseif flee and (flee.range == nil or distance < flee.range) then
 				dirX, dirZ = fleeDirection(p, x, z, bestDx, bestDz, distance, flee.edgeMargin)
 				advance = maxMove
 			elseif ranged then
-				local keep = ranged.keepDistance
+				local keep = self.keeps[i]
 				if distance > keep + tolerance then
 					advance = math.min(maxMove, distance - keep)
 				elseif distance < keep - tolerance then
