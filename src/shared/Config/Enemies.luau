@@ -224,10 +224,12 @@ export type Ranged = {
 	fireInterval: number, -- seconds between shots
 	fireRange: number, -- studs; shoots only at a player this close (assumption)
 	projectileDamage: number,
-	projectileSpeed: number, -- studs/s (assumption)
-	projectileRange: number, -- studs a shot flies before it fades (assumption)
-	projectileRadius: number, -- studs, hit circle of a shot (assumption)
-	aimLead: number, -- 0 = aims where the player is, 1 = where a player walking straight on will be (assumption)
+	projectileSpeed: number, -- studs/s
+	projectileRange: number, -- studs a shot flies before it fades
+	projectileRadius: number, -- studs, hit circle of a shot (Brotato: 17 px)
+	aimLead: number, -- 0 = aims where the player is, 1 = where a player walking straight on will be (Brotato: 0)
+	minFireRange: number?, -- studs; holds its shot while the target is closer (Brotato's Junkie: 200 px)
+	spreadRadians: number?, -- each shot turns by a random angle within +- this (Brotato's projectile_spread)
 	-- share of its speed it backs off with when a player comes closer than keepDistance (default 1). Playtest after
 	-- Paket 24: shooters that ran off at full speed were impossible to catch, so they now back off slowly.
 	retreatSpeedFactor: number?,
@@ -244,6 +246,7 @@ export type Charge = {
 	projectileRange: number?,
 	projectileRadius: number?,
 	trailEvery: number?,
+	trailAngle: number?, -- radians between the rush direction and each side shot (default a right angle)
 	maxDistance: number, -- studs; the rush ends here, at an obstacle, the arena edge or a player
 	recoverSeconds: number, -- standing still after the rush
 	cooldownSeconds: number, -- walking normally before the next wind-up can start
@@ -286,6 +289,12 @@ end
 local function legacySpeed(value: number): number
 	return value * Player.moveSpeed / 16
 end
+
+-- Enemy projectiles (Brotato 1.2.0.1 projectiles/bullet_enemy): hit circle 17 px; they fly until they leave the
+-- zone, here until the arena edge or an obstacle stops them (SHOT_RANGE is longer than the arena is wide).
+local PIXEL = Player.moveSpeed / 450 -- studs per Brotato pixel
+local SHOT_RADIUS = 17 * PIXEL
+local SHOT_RANGE = 300
 
 local Enemies: { [string]: Enemy } = {
 	Shadeling = {
@@ -344,16 +353,17 @@ local Enemies: { [string]: Enemy } = {
 		radius = 1.5,
 		mass = 1,
 		knockbackResistance = 0.95, -- B5, like Spitter
+		-- Brotato 1.2.0.1 spitter.tscn: stays 300 px (+-100) away at full speed, shoots at most 700 px away straight at
+		-- the player, 600 px/s; a shot comes 0.8 s into a 1 s animation, then 120 (+-10) frames cooldown.
 		ranged = {
-			keepDistance = 30,
-			fireInterval = 2.5,
-			fireRange = 34,
+			keepDistance = 300 * PIXEL,
+			fireInterval = 3,
+			fireRange = 700 * PIXEL,
 			projectileDamage = 1,
-			projectileSpeed = legacySpeed(18),
-			projectileRange = 50,
-			projectileRadius = 0.6,
-			aimLead = 0.3,
-			retreatSpeedFactor = 0.3, -- playtest after Paket 24: backs off slowly, so it can be caught
+			projectileSpeed = 600 * PIXEL,
+			projectileRange = SHOT_RANGE,
+			projectileRadius = SHOT_RADIUS,
+			aimLead = 0,
 		},
 		loot = { consumableChance = 0.03, crateShare = 0.1 },
 		firstWave = 4,
@@ -550,16 +560,21 @@ local Enemies: { [string]: Enemy } = {
 		mass = 1,
 		knockbackResistance = 0.5,
 		look = "Spitter",
+		-- Brotato 1.2.0.1 junkie.tscn: shoots from any distance but not closer than 200 px, 500 px/s, each shot up to
+		-- 1.2 rad off; 0.5 s animation (speed 2), then 120 (+-10) frames cooldown. Brotato's junkie walks to random
+		-- spots instead of holding a distance; here it still holds one and backs off slowly (open).
 		ranged = {
 			keepDistance = 36,
-			fireInterval = 3,
-			fireRange = 40,
+			fireInterval = 2.5,
+			fireRange = SHOT_RANGE,
+			minFireRange = 200 * PIXEL,
+			spreadRadians = 1.2,
 			projectileDamage = 1,
-			projectileSpeed = legacySpeed(20),
-			projectileRange = 55,
-			projectileRadius = 0.6,
-			aimLead = 0.5,
-			retreatSpeedFactor = 0.3, -- playtest after Paket 24: no more running off (was flee within 22 studs)
+			projectileSpeed = 500 * PIXEL,
+			projectileRange = SHOT_RANGE,
+			projectileRadius = SHOT_RADIUS,
+			aimLead = 0,
+			retreatSpeedFactor = 0.3, -- stand-in for the random walk: it does not run from the player
 		},
 		loot = { consumableChance = 0, crateShare = 0 }, -- Brotato junkie: can_drop_consumables false
 		firstWave = 14,
@@ -581,15 +596,17 @@ local Enemies: { [string]: Enemy } = {
 		mass = 5,
 		knockbackResistance = 0,
 		look = "Brute",
+		-- Brotato 1.2.0.1 fly.gd/fly.tscn: a hit by a ranged weapon makes it shoot one projectile in a random direction
+		-- with 25 % chance, 200 px/s.
 		retaliate = {
-			count = 8,
+			count = 1,
 			cooldownSeconds = 0,
 			projectileDamage = 1,
 			rangedOnly = true,
-			chance = 0.5,
-			projectileSpeed = legacySpeed(15),
-			projectileRange = 26,
-			projectileRadius = 0.6,
+			chance = 0.25,
+			projectileSpeed = 200 * PIXEL,
+			projectileRange = SHOT_RANGE,
+			projectileRadius = SHOT_RADIUS,
 		},
 		loot = { consumableChance = 0.01, crateShare = 0.01 },
 		firstWave = 4,
@@ -803,18 +820,21 @@ local Enemies: { [string]: Enemy } = {
 		radius = 1.6,
 		mass = 3,
 		look = "Charger",
+		-- Brotato 1.2.0.1 lamprey.tscn: charges within 400 px at 500 px/s for 0.75 s, 90 (+-15) frames cooldown; while
+		-- charging it shoots 2 projectiles 1 rad to either side of its way every 30 frames, 600 px/s.
 		charge = {
-			triggerRange = 50,
+			triggerRange = 400 * PIXEL,
 			windupSeconds = 0.2,
-			speed = legacySpeed(38),
-			maxDistance = 30,
+			speed = 500 * PIXEL,
+			maxDistance = 500 * PIXEL * 0.75,
 			recoverSeconds = 0.2,
 			cooldownSeconds = 1.5,
 			projectileDamage = 1,
-			projectileSpeed = legacySpeed(16),
-			projectileRange = 35,
-			projectileRadius = 0.6,
-			trailEvery = 5,
+			projectileSpeed = 600 * PIXEL,
+			projectileRange = SHOT_RANGE,
+			projectileRadius = SHOT_RADIUS,
+			trailEvery = 500 * PIXEL * 0.5,
+			trailAngle = 1,
 		},
 		knockbackResistance = 0.95,
 		loot = { consumableChance = 0.01, crateShare = 0.01 },
@@ -914,7 +934,7 @@ local Bosses: { [string]: Enemy } = {
 					burstGapSeconds = 0.4,
 					projectileSpeed = legacySpeed(16),
 					projectileRange = 60,
-					projectileRadius = 0.8,
+					projectileRadius = SHOT_RADIUS,
 				},
 			},
 		},
@@ -988,7 +1008,7 @@ local Bosses: { [string]: Enemy } = {
 					count = 12,
 					spread = 13,
 					projectileSpeed = legacySpeed(14),
-					projectileRadius = 0.8,
+					projectileRadius = SHOT_RADIUS,
 				},
 			},
 		},
@@ -1042,7 +1062,7 @@ local function champion(id: string, typeId: number, displayName: string, speed: 
 end
 
 -- side projectiles of the charges
-local TRAIL_SHOT = { projectileSpeed = legacySpeed(12), projectileRange = 18, projectileRadius = 0.6 }
+local TRAIL_SHOT = { projectileSpeed = legacySpeed(12), projectileRange = 18, projectileRadius = SHOT_RADIUS }
 
 local function with(base: { [string]: any }, extra: { [string]: any }): BossAttack
 	local attack = table.clone(base)
@@ -1132,7 +1152,7 @@ local Champions: { [string]: Enemy } = {
 				arc = 50,
 				projectileSpeed = legacySpeed(16),
 				projectileRange = 26,
-				projectileRadius = 1,
+				projectileRadius = SHOT_RADIUS,
 			},
 			QuickCleave = {
 				kind = "Cleave",
@@ -1188,7 +1208,7 @@ local Champions: { [string]: Enemy } = {
 					burstGapSeconds = 0.2,
 					projectileSpeed = legacySpeed(18),
 					projectileRange = 55,
-					projectileRadius = 0.6,
+					projectileRadius = SHOT_RADIUS,
 				},
 				Helpers = {
 					kind = "Summon",
@@ -1295,7 +1315,7 @@ local Champions: { [string]: Enemy } = {
 					count = 14,
 					projectileSpeed = legacySpeed(10),
 					projectileRange = 40,
-					projectileRadius = 0.7,
+					projectileRadius = SHOT_RADIUS,
 				},
 				Encircle = {
 					kind = "Circle",
@@ -1307,7 +1327,7 @@ local Champions: { [string]: Enemy } = {
 					count = 10,
 					spread = 14,
 					projectileSpeed = legacySpeed(13),
-					projectileRadius = 0.7,
+					projectileRadius = SHOT_RADIUS,
 				},
 			},
 		})
@@ -1467,7 +1487,7 @@ local Champions: { [string]: Enemy } = {
 				spinPerBurst = 11,
 				projectileSpeed = legacySpeed(12),
 				projectileRange = 45,
-				projectileRadius = 0.7,
+				projectileRadius = SHOT_RADIUS,
 			},
 			Dive = {
 				kind = "Leap",
@@ -1480,7 +1500,7 @@ local Champions: { [string]: Enemy } = {
 				count = 10,
 				projectileSpeed = legacySpeed(12),
 				projectileRange = 30,
-				projectileRadius = 0.7,
+				projectileRadius = SHOT_RADIUS,
 			},
 			Barrage = {
 				kind = "Volley",
@@ -1494,7 +1514,7 @@ local Champions: { [string]: Enemy } = {
 				arc = 50,
 				projectileSpeed = legacySpeed(15),
 				projectileRange = 50,
-				projectileRadius = 0.6,
+				projectileRadius = SHOT_RADIUS,
 			},
 			Spray = {
 				kind = "Scatter",
@@ -1506,7 +1526,7 @@ local Champions: { [string]: Enemy } = {
 				count = 3,
 				projectileSpeed = legacySpeed(13),
 				projectileRange = 40,
-				projectileRadius = 0.6,
+				projectileRadius = SHOT_RADIUS,
 			},
 		},
 	}),
