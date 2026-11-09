@@ -4485,6 +4485,442 @@
         "note": "Same lash animation keys as Whip. Collision center136.564/extents.x136.564; init_stats sets x scale to range/273.128 and y scale1. Tip crit uses native closest aim-shape position within40 points.",
         "hitLengthPoints": 273.128
       }
+    },
+    {
+      "id": "Molotov",
+      "name": "Molotov",
+      "tiers": [
+        {
+          "source": "res://weapons/ranged/molotov/1/molotov_data.tres",
+          "sourceMd5": "b7a1bb1a72a7dc285b9d64d07cdd641a",
+          "statsSource": "res://weapons/ranged/molotov/1/molotov_stats.tres",
+          "statsMd5": "4875b43fb5b1a09437d74f5b61aed925",
+          "tier": 1,
+          "price": 12,
+          "sets": [
+            "set_elemental"
+          ],
+          "kind": "Ranged",
+          "stats": {
+            "cooldown": 90,
+            "damage": 4,
+            "accuracy": 0.9,
+            "crit_chance": 0.03,
+            "crit_damage": 1.5,
+            "min_range": 0,
+            "max_range": 300,
+            "knockback": 0,
+            "knockback_piercing": 0.0,
+            "can_have_positive_knockback": true,
+            "can_have_negative_knockback": false,
+            "effect_scale": 1.0,
+            "scaling_stats": [
+              [
+                "stat_elemental_damage",
+                0.3
+              ]
+            ],
+            "lifesteal": 0.0,
+            "sound_db_mod": 0,
+            "is_healing": false,
+            "recoil": 25,
+            "recoil_duration": 0.1,
+            "additional_cooldown_every_x_shots": -1,
+            "additional_cooldown_multiplier": -1.0,
+            "speed_percent_modifier": 0,
+            "can_shoot_without_target": false,
+            "nb_projectiles": 1,
+            "projectile_spread": 0.0,
+            "piercing": 0,
+            "piercing_dmg_reduction": 0.5,
+            "bounce": 0,
+            "bounce_dmg_reduction": 0.5,
+            "can_bounce": false,
+            "projectile_speed": 1200,
+            "increase_projectile_speed_with_range": false
+          },
+          "effects": [
+            {
+              "source": "res://weapons/ranged/molotov/1/molotov_effect_0.tres",
+              "sourceMd5": "77c3f841a87a2a5d8502a004fc410f6e",
+              "key": "fire_puddle_on_hit",
+              "value": 0,
+              "scale": null,
+              "duration": null,
+              "custom_key": "",
+              "burn": {
+                "source": "res://weapons/ranged/molotov/1/molotov_burning_data.tres",
+                "sourceMd5": "4e909e96e63a66b2256d6162056e9120",
+                "chance": 1.0,
+                "damage": 3,
+                "duration": 4,
+                "spread": 0,
+                "scaling_stats": [
+                  [
+                    "stat_elemental_damage",
+                    1.0
+                  ]
+                ]
+              },
+              "puddle_scale": {
+                "variantType": "Vector2",
+                "values": [
+                  1.4,
+                  1.4
+                ]
+              },
+              "puddle_lifetime": 3.0
+            },
+            {
+              "source": "res://weapons/ranged/molotov/1/molotov_1_effect_1.tres",
+              "sourceMd5": "9ac14d721318e223fac9d034254bcdfc",
+              "key": "effect_burning",
+              "value": 0,
+              "scale": null,
+              "duration": null,
+              "custom_key": "",
+              "burn": {
+                "source": "res://weapons/ranged/molotov/1/molotov_burning_data.tres",
+                "sourceMd5": "4e909e96e63a66b2256d6162056e9120",
+                "chance": 1.0,
+                "damage": 3,
+                "duration": 4,
+                "spread": 0,
+                "scaling_stats": [
+                  [
+                    "stat_elemental_damage",
+                    1.0
+                  ]
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "source": "res://weapons/ranged/molotov/2/molotov_2_data.tres",
+          "sourceMd5": "3846f7eaaeac4198dc8515d43e3f5ac8",
+          "statsSource": "res://weapons/ranged/molotov/2/molotov_2_stats.tres",
+          "statsMd5": "1180dd223ee600627e673646d25c14fb",
+          "tier": 2,
+          "price": 26,
+          "sets": [
+            "set_elemental"
+          ],
+          "kind": "Ranged",
+          "stats": {
+            "cooldown": 85,
+            "damage": 6,
+            "accuracy": 0.9,
+            "crit_chance": 0.03,
+            "crit_damage": 1.5,
+            "min_range": 0,
+            "max_range": 325,
+            "knockback": 0,
+            "knockback_piercing": 0.0,
+            "can_have_positive_knockback": true,
+            "can_have_negative_knockback": false,
+            "effect_scale": 1.0,
+            "scaling_stats": [
+              [
+                "stat_elemental_damage",
+                0.45
+              ]
+            ],
+            "lifesteal": 0.0,
+            "sound_db_mod": 0,
+            "is_healing": false,
+            "recoil": 25,
+            "recoil_duration": 0.1,
+            "additional_cooldown_every_x_shots": -1,
+            "additional_cooldown_multiplier": -1.0,
+            "speed_percent_modifier": 0,
+            "can_shoot_without_target": false,
+            "nb_projectiles": 1,
+            "projectile_spread": 0.0,
+            "piercing": 0,
+            "piercing_dmg_reduction": 0.5,
+            "bounce": 0,
+            "bounce_dmg_reduction": 0.5,
+            "can_bounce": false,
+            "projectile_speed": 1200,
+            "increase_projectile_speed_with_range": false
+          },
+          "effects": [
+            {
+              "source": "res://weapons/ranged/molotov/2/molotov_2_effect_0.tres",
+              "sourceMd5": "b6f3c846fbe3a91956bdcf62a2c0ccfb",
+              "key": "fire_puddle_on_hit",
+              "value": 0,
+              "scale": null,
+              "duration": null,
+              "custom_key": "",
+              "burn": {
+                "source": "res://weapons/ranged/molotov/2/molotov_2_burning_data.tres",
+                "sourceMd5": "7193fd156eaaa65b00acafb58830401c",
+                "chance": 1.0,
+                "damage": 4,
+                "duration": 4,
+                "spread": 0,
+                "scaling_stats": [
+                  [
+                    "stat_elemental_damage",
+                    1.0
+                  ]
+                ]
+              },
+              "puddle_scale": {
+                "variantType": "Vector2",
+                "values": [
+                  1.5,
+                  1.5
+                ]
+              },
+              "puddle_lifetime": 3.5
+            },
+            {
+              "source": "res://weapons/ranged/molotov/2/molotov_2_effect_1.tres",
+              "sourceMd5": "17bf4f005896090b8e9e95991c407a31",
+              "key": "effect_burning",
+              "value": 0,
+              "scale": null,
+              "duration": null,
+              "custom_key": "",
+              "burn": {
+                "source": "res://weapons/ranged/molotov/2/molotov_2_burning_data.tres",
+                "sourceMd5": "7193fd156eaaa65b00acafb58830401c",
+                "chance": 1.0,
+                "damage": 4,
+                "duration": 4,
+                "spread": 0,
+                "scaling_stats": [
+                  [
+                    "stat_elemental_damage",
+                    1.0
+                  ]
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "source": "res://weapons/ranged/molotov/3/molotov_3_data.tres",
+          "sourceMd5": "5d8285c054cb3189de2c9687048ba912",
+          "statsSource": "res://weapons/ranged/molotov/3/molotov_3_stats.tres",
+          "statsMd5": "0a883dae018a4f4d6735bda7a5c99ec5",
+          "tier": 3,
+          "price": 52,
+          "sets": [
+            "set_elemental"
+          ],
+          "kind": "Ranged",
+          "stats": {
+            "cooldown": 80,
+            "damage": 8,
+            "accuracy": 0.9,
+            "crit_chance": 0.03,
+            "crit_damage": 1.5,
+            "min_range": 0,
+            "max_range": 350,
+            "knockback": 0,
+            "knockback_piercing": 0.0,
+            "can_have_positive_knockback": true,
+            "can_have_negative_knockback": false,
+            "effect_scale": 1.0,
+            "scaling_stats": [
+              [
+                "stat_elemental_damage",
+                0.6
+              ]
+            ],
+            "lifesteal": 0.0,
+            "sound_db_mod": 0,
+            "is_healing": false,
+            "recoil": 25,
+            "recoil_duration": 0.1,
+            "additional_cooldown_every_x_shots": -1,
+            "additional_cooldown_multiplier": -1.0,
+            "speed_percent_modifier": 0,
+            "can_shoot_without_target": false,
+            "nb_projectiles": 1,
+            "projectile_spread": 0.0,
+            "piercing": 0,
+            "piercing_dmg_reduction": 0.5,
+            "bounce": 0,
+            "bounce_dmg_reduction": 0.5,
+            "can_bounce": false,
+            "projectile_speed": 1200,
+            "increase_projectile_speed_with_range": false
+          },
+          "effects": [
+            {
+              "source": "res://weapons/ranged/molotov/3/molotov_3_effect_0.tres",
+              "sourceMd5": "52618384001cddb8c900b6c80726f29b",
+              "key": "fire_puddle_on_hit",
+              "value": 0,
+              "scale": null,
+              "duration": null,
+              "custom_key": "",
+              "burn": {
+                "source": "res://weapons/ranged/molotov/3/molotov_3_burning_data.tres",
+                "sourceMd5": "19715779f9cf7535834481ef31f6e30c",
+                "chance": 1.0,
+                "damage": 5,
+                "duration": 5,
+                "spread": 0,
+                "scaling_stats": [
+                  [
+                    "stat_elemental_damage",
+                    1.0
+                  ]
+                ]
+              },
+              "puddle_scale": {
+                "variantType": "Vector2",
+                "values": [
+                  1.6,
+                  1.6
+                ]
+              },
+              "puddle_lifetime": 4.0
+            },
+            {
+              "source": "res://weapons/ranged/molotov/3/molotov_3_effect_1.tres",
+              "sourceMd5": "234b89ea96ea3638b0fd95645e4ac52b",
+              "key": "effect_burning",
+              "value": 0,
+              "scale": null,
+              "duration": null,
+              "custom_key": "",
+              "burn": {
+                "source": "res://weapons/ranged/molotov/3/molotov_3_burning_data.tres",
+                "sourceMd5": "19715779f9cf7535834481ef31f6e30c",
+                "chance": 1.0,
+                "damage": 5,
+                "duration": 5,
+                "spread": 0,
+                "scaling_stats": [
+                  [
+                    "stat_elemental_damage",
+                    1.0
+                  ]
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "source": "res://weapons/ranged/molotov/4/molotov_4_data.tres",
+          "sourceMd5": "285f25e84889514d9dc2ce35f0a84dd4",
+          "statsSource": "res://weapons/ranged/molotov/4/molotov_4_stats.tres",
+          "statsMd5": "e3ea98651c4fe4a414e04b5868c9dbe3",
+          "tier": 4,
+          "price": 105,
+          "sets": [
+            "set_elemental"
+          ],
+          "kind": "Ranged",
+          "stats": {
+            "cooldown": 75,
+            "damage": 12,
+            "accuracy": 0.9,
+            "crit_chance": 0.03,
+            "crit_damage": 1.5,
+            "min_range": 0,
+            "max_range": 375,
+            "knockback": 0,
+            "knockback_piercing": 0.0,
+            "can_have_positive_knockback": true,
+            "can_have_negative_knockback": false,
+            "effect_scale": 1.0,
+            "scaling_stats": [
+              [
+                "stat_elemental_damage",
+                0.8
+              ]
+            ],
+            "lifesteal": 0.0,
+            "sound_db_mod": 0,
+            "is_healing": false,
+            "recoil": 25,
+            "recoil_duration": 0.1,
+            "additional_cooldown_every_x_shots": -1,
+            "additional_cooldown_multiplier": -1.0,
+            "speed_percent_modifier": 0,
+            "can_shoot_without_target": false,
+            "nb_projectiles": 1,
+            "projectile_spread": 0.0,
+            "piercing": 0,
+            "piercing_dmg_reduction": 0.5,
+            "bounce": 0,
+            "bounce_dmg_reduction": 0.5,
+            "can_bounce": false,
+            "projectile_speed": 1200,
+            "increase_projectile_speed_with_range": false
+          },
+          "effects": [
+            {
+              "source": "res://weapons/ranged/molotov/4/molotov_4_effect_0.tres",
+              "sourceMd5": "4149059fa24f8c746868c5bff4b3712c",
+              "key": "fire_puddle_on_hit",
+              "value": 0,
+              "scale": null,
+              "duration": null,
+              "custom_key": "",
+              "burn": {
+                "source": "res://weapons/ranged/molotov/4/molotov_4_burning_data.tres",
+                "sourceMd5": "ff31499879b60ae418e841abfd272122",
+                "chance": 1.0,
+                "damage": 7,
+                "duration": 5,
+                "spread": 0,
+                "scaling_stats": [
+                  [
+                    "stat_elemental_damage",
+                    1.0
+                  ]
+                ]
+              },
+              "puddle_scale": {
+                "variantType": "Vector2",
+                "values": [
+                  1.8,
+                  1.8
+                ]
+              },
+              "puddle_lifetime": 4.5
+            },
+            {
+              "source": "res://weapons/ranged/molotov/4/molotov_4_effect_1.tres",
+              "sourceMd5": "c2d054d7eb8d06104a277241972456cd",
+              "key": "effect_burning",
+              "value": 0,
+              "scale": null,
+              "duration": null,
+              "custom_key": "",
+              "burn": {
+                "source": "res://weapons/ranged/molotov/4/molotov_4_burning_data.tres",
+                "sourceMd5": "ff31499879b60ae418e841abfd272122",
+                "chance": 1.0,
+                "damage": 7,
+                "duration": 5,
+                "spread": 0,
+                "scaling_stats": [
+                  [
+                    "stat_elemental_damage",
+                    1.0
+                  ]
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "geometry": {
+        "source": "res://entities/gpe/fire_puddle/fire_puddle.tscn",
+        "sourceMd5": "41863805041e2fbfba83f0ad704bc538",
+        "radiusPoints": 40,
+        "note": "Circle collision radius40; tier scale is uniform. Sprite-only y scale0.7 does not squash collision. FirePuddle uses0.2s TRANS_BACK/EASE_OUT spawn, disables collision at lifetime expiry."
+      }
     }
   ]
 }

@@ -85,9 +85,23 @@ local function computePermanent(player: Player, state: State): StatMath.Sheet
 	return sheet
 end
 
-local function push(player: Player, sheet: StatMath.Sheet)
+local function weaponSheetOf(player: Player, sheet: StatMath.Sheet): StatMath.Sheet
 	local weaponSheet = CharacterRules.weaponSheet(RunDirector.getParticipantClassId(player), sheet)
 	weaponSheet.level = if states[player] then states[player].levels else 0
+	local burn = 0
+	for id, count in (if states[player] then states[player].items else {}) do
+		local item = Config.Items.byId[id]
+		for _, effect in (item and item.effects) or {} do
+			if effect.trigger == "Hit" and effect.action == "Burn" then
+				burn += (effect.amount or 0) * count
+			end
+		end
+	end
+	weaponSheet.nativeGlobalBurnDamage = burn
+	return weaponSheet
+end
+local function push(player: Player, sheet: StatMath.Sheet)
+	local weaponSheet = weaponSheetOf(player, sheet)
 	WeaponService.setStats(player, weaponSheet)
 	CombatService.setStats(player, table.clone(sheet))
 	ExperienceService.setStats(player, table.clone(sheet))
@@ -292,10 +306,7 @@ function StatService.init()
 		Net.fireClient(
 			"Stats",
 			requester,
-			CharacterRules.weaponSheet(
-				RunDirector.getParticipantClassId(requester),
-				if state then state.sheet else StatMath.baseSheet()
-			) :: Types.StatSheet
+			weaponSheetOf(requester, if state then state.sheet else StatMath.baseSheet()) :: Types.StatSheet
 		)
 	end)
 end

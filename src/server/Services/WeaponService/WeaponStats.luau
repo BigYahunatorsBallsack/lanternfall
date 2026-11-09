@@ -23,6 +23,7 @@ local StatMath = require(Shared.Util.StatMath)
 local CharacterRules = require(Shared.Util.CharacterRules)
 local NativeTiming = require(Shared.Util.NativeWeaponTiming)
 local NativeDamage = require(Shared.Util.NativeWeaponDamage)
+local NativeBurn = require(Shared.Util.NativeWeaponBurn)
 
 -- The owner's stats by id (Util/StatMath.Sheet); missing stats count as 0.
 export type Bonuses = { [string]: number }
@@ -177,10 +178,20 @@ function WeaponStats.compute(
 	end
 
 	if stats.burnDamage then
-		stats.burnDamage = math.max(1, (stats.burnDamage + (bonuses.elementalDamage or 0)) * damageFactor)
+		stats.burnDamage = if stats.nativeBurn
+			then NativeBurn.damage(stats.burnDamage, bonuses)
+			else math.max(1, (stats.burnDamage + (bonuses.elementalDamage or 0)) * damageFactor)
 		stats.burnSpread = math.max(0, math.floor((stats.burnSpread or 0) + (bonuses.burnSpread or 0)))
-		stats.burnInterval = StatMath.burnInterval(bonuses.burnSpeed or 0)
+		stats.burnInterval = if stats.nativeBurn
+			then NativeBurn.interval(bonuses.burnSpeed or 0)
+			else StatMath.burnInterval(bonuses.burnSpeed or 0)
 		stats.burnChance = stats.burnChance or 1
+	end
+	if stats.puddleRadius then
+		stats.puddleRadius *= math.max(
+			Combat.nativeFirePuddles.minimumSizeFactor,
+			1 + (bonuses.firePuddleSize or 0) / 100
+		)
 	end
 	if weapon.brotato then
 		if stats.noBounce then

@@ -16,7 +16,7 @@ def module(name, file):
     return result
 source = module('character_source', 'tools/character-source.py')
 catalog = module('character_catalog', 'tools/build-character-catalog.py')
-FAMILIES = ['anchor', 'mace', 'meat_tenderizer', 'machinegun', 'pan_flute', 'combat_shotgun', 'grenade_launcher', 'whip', 'spoon', 'cestus', 'sickle', 'trident', 'lute', 'blowgun', 'blunderbuss', 'javelin', 'tranq_rifle', 'harpoon_gun', 'sticky_grenade', 'flail']
+FAMILIES = ['anchor', 'mace', 'meat_tenderizer', 'machinegun', 'pan_flute', 'combat_shotgun', 'grenade_launcher', 'whip', 'spoon', 'cestus', 'sickle', 'trident', 'lute', 'blowgun', 'blunderbuss', 'javelin', 'tranq_rifle', 'harpoon_gun', 'sticky_grenade', 'flail', 'molotov']
 FACTS = ROOT / 'docs/characters/weapon-source.json'
 OUTPUT = ROOT / 'src/shared/Config/CharacterWeaponData.luau'
 
@@ -43,6 +43,13 @@ def refresh():
                         effects[-1][key] = effect[key]
                 if 'sub_effects' in effect:
                     effects[-1]['subEffects'] = [{'source': ref['resource'], 'sourceMd5': pck.entries[ref['resource']]['md5'], **{k:v for k,v in pck.resource(ref['resource'])['properties'].items() if k in ['key','value']}} for ref in effect['sub_effects']]
+                if 'burning_data' in effect:
+                    bp = effect['burning_data']['resource']
+                    bd = pck.resource(bp)['properties']
+                    effects[-1]['burn'] = {'source': bp, 'sourceMd5': pck.entries[bp]['md5'], **{k: bd[k] for k in ['chance', 'damage', 'duration', 'spread', 'scaling_stats']}}
+                for key in ['puddle_scale', 'puddle_lifetime']:
+                    if key in effect:
+                        effects[-1][key] = effect[key]
             tiers.append({'source': path, 'sourceMd5': pck.entries[path]['md5'], 'statsSource': stats_path, 'statsMd5': pck.entries[stats_path]['md5'], 'tier': data['tier'] + 1, 'price': data['value'], 'sets': [pck.resource(ref['resource'])['properties']['my_id'] for ref in data['sets']], 'kind': 'Melee' if data['type'] == 0 else 'Ranged', 'stats': {k: v for (k, v) in stats.items() if isinstance(v, (int, float, bool)) or k == 'scaling_stats'}, 'effects': effects})
         rows.append({'id': catalog.pascal(family), 'name': 'Machine Gun' if family == 'machinegun' else family.replace('_', ' ').title(), 'tiers': sorted(tiers, key=lambda row: row['tier'])})
     whip = next(row for row in rows if row['id'] == 'Whip')
@@ -57,6 +64,9 @@ def refresh():
     sticky = next(row for row in rows if row['id'] == 'StickyGrenade')
     sticky_source = 'res://projectiles/grenade_mine/grenade_mine_projectile.gdc'
     sticky['geometry'] = {'source': sticky_source, 'sourceMd5': pck.entries[sticky_source]['md5'], 'stickDistancePoints': 40, 'note': 'Native hitbox is disabled; attach to the nearest enemy/neutral center within40, follow its offset, retain last position on death; range end starts fuse.'}
+    molotov = next(row for row in rows if row['id'] == 'Molotov')
+    scene = 'res://entities/gpe/fire_puddle/fire_puddle.tscn'
+    molotov['geometry'] = {'source': scene, 'sourceMd5': pck.entries[scene]['md5'], 'radiusPoints': 40, 'note': 'Circle collision radius40; tier scale is uniform. Sprite-only y scale0.7 does not squash collision. FirePuddle uses0.2s TRANS_BACK/EASE_OUT spawn, disables collision at lifetime expiry.'}
     FACTS.write_text(json.dumps({'version': '1.2.0.1', 'steamBuild': 26406319, 'explosionGeometry': {'source':'res://projectiles/explosion.tscn','sourceMd5':pck.entries['res://projectiles/explosion.tscn']['md5'],'radiusPoints':147.34,'offsetZPoints':3}, 'weapons': rows}, indent=2) + '\n', encoding='utf-8')
 
 def generate():
@@ -126,6 +136,16 @@ def generate():
                 elif effect['key'] == 'crit_on_whip_tip':
                     value['tipCritRadius'] = effect['value'] * 0.1
                     lines.append('Enemies hit by the tip of the flail are always critically hit')
+                elif effect['key'] == 'effect_burning':
+                    burn = effect['burn']
+                    assert burn['scaling_stats'] == [['stat_elemental_damage', 1.0]]
+                    value.update(nativeBurn=1, burnDamage=burn['damage'], burnTicks=burn['duration'], burnSpread=burn['spread'], burnChance=burn['chance'])
+                elif effect['key'] == 'fire_puddle_on_hit':
+                    size = effect['puddle_scale']['values']
+                    assert size[0] == size[1]
+                    value.update(puddleRadius=row['geometry']['radiusPoints']*0.1*size[0], puddleSeconds=effect['puddle_lifetime'])
+                    burn = effect['burn']
+                    lines.append(f"Creates a pool of fire on impact for {effect['puddle_lifetime']:g} seconds, dealing {burn['duration']}x{burn['damage']} (100% Elemental Damage) burning damage")
                 elif effect.get('damage_multiplier') is not None:
                     assert effect['stat_name'] == 'knockback'
                     value.update(baseDamageKnockbackThreshold=effect['value'], baseDamageKnockbackMultiplier=effect['damage_multiplier'])

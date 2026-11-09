@@ -39,6 +39,7 @@ local StatMath = require(Shared.Util.StatMath)
 local CharacterRules = require(Shared.Util.CharacterRules)
 local BrotatoCombat = require(script.BrotatoCombat)
 local BrotatoRuntime = require(script.BrotatoRuntime)
+local FirePuddles = require(script.FirePuddles)
 local EnemyKinds = require(Shared.Util.EnemyKinds)
 local CharacterMovement = require(script.Parent.CharacterService.Movement)
 local waveBonuses: { [Player]: { [string]: number } } = {}
@@ -307,6 +308,31 @@ arsenal = Arsenal.new({
 	end,
 })
 
+local firePuddles = FirePuddles.new({
+	query = function(x, z, radius, out)
+		return EnemySim.queryRadius(Vector3.new(x, floorY, z), radius, out)
+	end,
+	ignite = function(weapon, id, stats)
+		arsenal.afflictions:ignite(
+			id,
+			Afflictions.newBurn(
+				weapon.ownerId,
+				weapon,
+				stats.burnDamage,
+				stats.burnTicks,
+				stats.burnInterval,
+				stats.burnSpread
+			)
+		)
+	end,
+	emit = function(weapon, effect)
+		arsenal:emitShared(weapon.ownerId, effect, "FirePuddle")
+	end,
+})
+require(script.BrotatoProjectile).setFirePuddle(function(weapon, x, z)
+	firePuddles:spawn(weapon, x, z, weapon.stats)
+end)
+
 local function now(): number
 	return workspace:GetServerTimeNow()
 end
@@ -339,6 +365,7 @@ local function sendAll()
 end
 
 local function onRunStarted(participants: { Player })
+	firePuddles:clear()
 	table.clear(characterHits)
 	table.clear(consumableExplosions)
 	table.clear(characterItemExplosions)
@@ -424,6 +451,10 @@ local function onStepped(dt: number, stepNow: number)
 		end
 	end
 	BrotatoCombat.resetHitContext()
+	-- Existing patches of fire enter the shared burn registry before its next tick.
+	if RunDirector.isActive() then
+		firePuddles:step(dt)
+	end
 	arsenal:step(dt, stepNow)
 	-- Character stat strikes are already scaled in the native order; Arsenal's primary-hit formula differs.
 	local itemExplosions = characterItemExplosions
@@ -619,6 +650,7 @@ function WeaponService.init()
 	EnemySim.Stepped:Connect(onStepped)
 	RunDirector.PhaseChanged:Connect(function(phase)
 		if phase ~= "Running" then
+			firePuddles:clear()
 			table.clear(characterHits)
 			table.clear(consumableExplosions)
 			table.clear(characterItemExplosions)
@@ -647,6 +679,7 @@ function WeaponService.init()
 		end
 		return saved
 	end, function(saved: { [Player]: { Arsenal.SavedWeapon } })
+		firePuddles:clear()
 		table.clear(characterHits)
 		table.clear(consumableExplosions)
 		table.clear(characterItemExplosions)

@@ -27,6 +27,7 @@ type Shot = {
 	targetId: number?,
 	offsetX: number?,
 	offsetZ: number?,
+	puddleSpawned: boolean?,
 }
 local Projectile = {}
 local targets: { number } = {}
@@ -34,6 +35,16 @@ local found: { number } = {}
 local ordered: { { id: number, distance: number } } = {}
 local zoneFound: { number } = {}
 local nativeSlow: ((number, number, boolean, number) -> ())? = nil
+local firePuddle: ((Arsenal.Weapon, number, number) -> ())? = nil
+function Projectile.setFirePuddle(callback: (Arsenal.Weapon, number, number) -> ())
+	firePuddle = callback
+end
+local function spawnPuddle(weapon: Arsenal.Weapon, shot: Shot, x: number, z: number)
+	if firePuddle and shot.stats.puddleRadius and not shot.puddleSpawned then
+		shot.puddleSpawned = true
+		firePuddle(weapon, x, z)
+	end
+end
 function Projectile.setNativeSlow(callback: (number, number, boolean, number) -> ())
 	nativeSlow = callback
 end
@@ -266,6 +277,7 @@ function Projectile.step(weapon: Arsenal.Weapon, ctx: Arsenal.Context, dt: numbe
 			local id = entry.id
 			shot.hit[id] = true
 			Combat.hit(weapon, ctx, id, shot.share, stats, shot.critical, shot.secondary, shot.bounced)
+			spawnPuddle(weapon, shot, shot.x + shot.dx * entry.distance, shot.z + shot.dz * entry.distance)
 			local x, z = ctx:enemyPosition(id)
 			local bounce = if x and z and shot.bounces > 0 then ctx:bounceTarget(x, z, shot.hit) else nil
 			if bounce and x and z then
@@ -316,6 +328,7 @@ function Projectile.step(weapon: Arsenal.Weapon, ctx: Arsenal.Context, dt: numbe
 			shot.x, shot.z = x1, z1
 			shot.flown += move
 			if shot.flown >= stats.range - 1e-6 then
+				spawnPuddle(weapon, shot, shot.x, shot.z)
 				table.remove(shots, index)
 			end
 		end

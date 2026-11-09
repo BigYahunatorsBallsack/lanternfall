@@ -168,7 +168,7 @@ describe("Arsenal", function()
 
 	it("lists the weapons that have a behavior", function()
 		local implemented = setup().arsenal:getImplemented()
-		expect(#implemented).toBe(81)
+		expect(#implemented).toBe(83)
 		for _, id in implemented do
 			expect(Config.Weapons[id] ~= nil).toBe(true)
 		end

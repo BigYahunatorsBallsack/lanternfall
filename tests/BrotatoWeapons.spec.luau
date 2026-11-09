@@ -52,16 +52,19 @@ describe("Brotato original catalog", function()
 			end
 		end)
 	end
-	it("retains all 62 original records alongside eight stable starting families and no custom evolutions", function()
-		local actual = 0
-		for id in Config.Weapons do
-			actual += 1
-			expect(Fixture[id] ~= nil or require(Shared.Config.CharacterWeaponData).weapons[id] ~= nil).toBe(true)
+	it(
+		"retains all 62 original records alongside twenty-one stable starting families and no custom evolutions",
+		function()
+			local actual = 0
+			for id in Config.Weapons do
+				actual += 1
+				expect(Fixture[id] ~= nil or require(Shared.Config.CharacterWeaponData).weapons[id] ~= nil).toBe(true)
+			end
+			expect(actual).toBe(83)
+			expect(count).toBe(62)
+			expect(next(Config.Evolutions)).toBe(nil)
 		end
-		expect(actual).toBe(81)
-		expect(count).toBe(62)
-		expect(next(Config.Evolutions)).toBe(nil)
-	end)
+	)
 	it("converts HP scaling once and includes player level", function()
 		expect(weapon("Chopper", 1, { maxHp = 100 }).stats.damage).toBeNear(21)
 		expect(weapon("Excalibur", 4, { maxHp = 100, meleeDamage = 10 }).stats.damage).toBeNear(420)

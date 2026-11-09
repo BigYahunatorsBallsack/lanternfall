@@ -403,6 +403,26 @@
         90,
         92
       ]
+    },
+    {
+      "id": "Molotov",
+      "name": "Molotov",
+      "source": "res://weapons/ranged/molotov/molotov_icon.png",
+      "textureSource": "res://.import/molotov_icon.png-6811ead6493dc02447a2ca04f54e55dd.stex",
+      "textureMd5": "9e84337929d56e035ff795f61d44292a",
+      "output": "assets/weapons/character-starts/Molotov.png",
+      "pngSha256": "03623ffdb778549d5d020769c8c09950a81b317126961c9275c660fe09ca465b",
+      "rgbaSha256": "1250f083690f2fa2392914b934929c9abab880fe492f78e9e943748980193801",
+      "size": [
+        96,
+        96
+      ],
+      "alphaBounds": [
+        12,
+        9,
+        87,
+        87
+      ]
     }
   ],
   "projectiles": [
@@ -442,6 +462,139 @@
         16,
         75,
         73
+      ]
+    },
+    {
+      "id": "MolotovThrown",
+      "source": "res://projectiles/molotov/molotov.png",
+      "textureSource": "res://.import/molotov.png-c41f07469a1ca6907cc498be23c63f4a.stex",
+      "textureMd5": "10c90b495971b145837a3179428ef151",
+      "output": "assets/weapons/character-starts/MolotovThrown.png",
+      "pngSha256": "6c3ac7d22aa4d4270b2b2dabbc8b1ec71258d7691665db5e268101dcf321f95a",
+      "rgbaSha256": "25251d9a286097df6e6bc6f53d5241f676ced8a4682a6699d75f3a3550cca5c5",
+      "size": [
+        100,
+        100
+      ],
+      "alphaBounds": [
+        9,
+        31,
+        93,
+        82
+      ]
+    },
+    {
+      "id": "FirePuddle0",
+      "source": "res://entities/gpe/puddle/puddle_0.png",
+      "textureSource": "res://.import/puddle_0.png-289c84315512bd9d6697dafb86966ce4.stex",
+      "textureMd5": "726eadd77d6d8e112efc429a2e53ca56",
+      "output": "assets/weapons/character-starts/FirePuddle0.png",
+      "pngSha256": "e5d8fde8a5691d4919898d0729915915a62c333a9f6208a59a4406f954c7ab9c",
+      "rgbaSha256": "622611628d90545aea791bd6762264a69aabb229002fedb4d1e2b2bf2bb0a75d",
+      "size": [
+        120,
+        120
+      ],
+      "alphaBounds": [
+        11,
+        12,
+        110,
+        112
+      ]
+    },
+    {
+      "id": "FirePuddleOutline0",
+      "source": "res://entities/gpe/puddle/puddle_outline_0.png",
+      "textureSource": "res://.import/puddle_outline_0.png-1f5bdb073950e710cfcfab9a647323f4.stex",
+      "textureMd5": "f68a453e46144c4ee063a3bf2be601ef",
+      "output": "assets/weapons/character-starts/FirePuddleOutline0.png",
+      "pngSha256": "6f4badf2c2bcbf2beaad368584e825fb78bf90dc1fb2e57d43b494aaf2811431",
+      "rgbaSha256": "d653f68b24ccf3739442228ad60593f0f8fe91f1618b021b43523c727fc5e8f8",
+      "size": [
+        120,
+        120
+      ],
+      "alphaBounds": [
+        9,
+        11,
+        111,
+        114
+      ]
+    },
+    {
+      "id": "FirePuddle1",
+      "source": "res://entities/gpe/puddle/puddle_1.png",
+      "textureSource": "res://.import/puddle_1.png-cb0600c8836665e8e856e8ad72325355.stex",
+      "textureMd5": "f892e92f211940725c0f48d403581239",
+      "output": "assets/weapons/character-starts/FirePuddle1.png",
+      "pngSha256": "ffd3e99582071f7dbdfb09576c08f93594476ad2675c19c7abc164e2a92ef2fb",
+      "rgbaSha256": "69f55b10ad35d333a521422167fc2a5ae57a8b841768bfc07a265eed93a321a2",
+      "size": [
+        120,
+        120
+      ],
+      "alphaBounds": [
+        11,
+        10,
+        113,
+        112
+      ]
+    },
+    {
+      "id": "FirePuddleOutline1",
+      "source": "res://entities/gpe/puddle/puddle_outline_1.png",
+      "textureSource": "res://.import/puddle_outline_1.png-59c52b948b95d2062343a68f7ac6b07e.stex",
+      "textureMd5": "5a4e1c116820eab1db988f159170c46d",
+      "output": "assets/weapons/character-starts/FirePuddleOutline1.png",
+      "pngSha256": "d0b32a23ac285fa2358677f325464f1fa25d16124e2468f0f3ed395a024994b0",
+      "rgbaSha256": "d8a767a9d3fd5edff110a0faf35b7b25f81a8b934f5de1843990f1202d31f5aa",
+      "size": [
+        120,
+        120
+      ],
+      "alphaBounds": [
+        9,
+        9,
+        114,
+        113
+      ]
+    },
+    {
+      "id": "FirePuddle2",
+      "source": "res://entities/gpe/puddle/puddle_2.png",
+      "textureSource": "res://.import/puddle_2.png-8fdcd9e71094bdb4a6cd1d958687e449.stex",
+      "textureMd5": "4c79dff184000d753e1649e1666dcd99",
+      "output": "assets/weapons/character-starts/FirePuddle2.png",
+      "pngSha256": "d1b968f30ac576e477869498316606fa1fd05a5b21b0657a1b2bf80b30eda057",
+      "rgbaSha256": "a3374346b1408856d32f4d97b1a4be22880da82816fdf04605002f6b3c07ee4b",
+      "size": [
+        120,
+        120
+      ],
+      "alphaBounds": [
+        11,
+        12,
+        108,
+        112
+      ]
+    },
+    {
+      "id": "FirePuddleOutline2",
+      "source": "res://entities/gpe/puddle/puddle_outline_2.png",
+      "textureSource": "res://.import/puddle_outline_2.png-3c34c134812256f6dc9fae60d1af6db9.stex",
+      "textureMd5": "3ab3c624a9f210910c686c73f8945279",
+      "output": "assets/weapons/character-starts/FirePuddleOutline2.png",
+      "pngSha256": "bc924c28c9083be7a673fd9327b80662a79944cee92a2726ef147066279e6d3d",
+      "rgbaSha256": "115b934a31cc6f08f168bd6707c47770c3a8c591ea575875d3fcb78eda3d327e",
+      "size": [
+        120,
+        120
+      ],
+      "alphaBounds": [
+        9,
+        11,
+        109,
+        113
       ]
     }
   ]

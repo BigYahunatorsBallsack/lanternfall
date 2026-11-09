@@ -4,6 +4,15 @@
 -- effect shares. Read by WeaponService (WeaponStats, Arsenal, Afflictions), Util/StatMath and the client texts.
 
 return table.freeze({
+	nativeBurn = table.freeze({
+		minimumTickSeconds = 0.1, -- stable Unit.init BurningTimer minimum
+	}),
+	nativeFirePuddles = table.freeze({
+		spawnSeconds = 0.2, -- stable FirePuddle spawn_duration
+		despawnSeconds = 0.3,
+		backOvershoot = 1.70158, -- Godot3.5 TRANS_BACK / EASE_OUT
+		minimumSizeFactor = 0.1,
+	}),
 	originalWeapons = table.freeze({
 		sourceFrameRate = 60, -- native stable weapon cooldown frame rate
 		sourceMinimumFrames = 1,

@@ -2,6 +2,13 @@
 -- World-space weapon presentation and muzzle placement, shared by WeaponRenderer and weapon behaviors.
 
 local Visuals = {
+	firePuddle = {
+		color = { 1, 0.35, 0.08 },
+		height = 0.15,
+		thickness = 0.08,
+		transparency = 0.3,
+		despawnSizeShare = 0.3, -- stable FirePuddle despawn tween
+	},
 	stickyGrenade = {
 		studs = 1.2,
 		height = 0.4,
