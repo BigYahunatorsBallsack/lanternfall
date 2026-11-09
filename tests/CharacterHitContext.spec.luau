@@ -25,9 +25,11 @@ local function hit(scaling, secondary)
 			expect(Combat.elementalHit(2)).toBe(nil)
 			return false
 		end,
-		explode = function()
-			table.insert(seen, Combat.elementalHit(1))
+		queryCircle = function(_, _, _, _, out)
+			out[1] = 2
+			return 1
 		end,
+		emit = function() end,
 	}
 	Combat.hit(weapon, context, 1, nil, nil, nil, secondary)
 	expect(Combat.elementalHit(1)).toBe(nil)

@@ -571,6 +571,16 @@
     "text": "Truhe, die ein Elite-Gegner hinterlässt. Holz und Gold, geschlossen.",
     "source": "assets/loot/brotato/Crate.png",
     "trimmed": true
+   },
+   "StickyGrenadeThrown": {
+    "text": "Native Sticky Grenade projectile; local preparation only",
+    "source": "assets/weapons/character-starts/StickyGrenadeThrown.png",
+    "trimmed": true
+   },
+   "StickyGrenadeGround": {
+    "text": "Native grounded Sticky Grenade; local preparation only",
+    "source": "assets/weapons/character-starts/StickyGrenadeGround.png",
+    "trimmed": true
    }
   }
  },
@@ -776,6 +786,11 @@
    "HarpoonGun": {
     "text": "HarpoonGun original stable starting-weapon icon.",
     "source": "assets/weapons/character-starts/HarpoonGun.png",
+    "trimmed": true
+   },
+   "StickyGrenade": {
+    "text": "Original Brotato weapon: Sticky Grenade",
+    "source": "assets/weapons/character-starts/StickyGrenade.png",
     "trimmed": true
    }
   },

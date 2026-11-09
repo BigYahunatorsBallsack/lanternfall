@@ -1,0 +1,369 @@
+{
+  "version": "1.2.0.1",
+  "steamBuild": 26406319,
+  "resources": [
+    {
+      "source": "res://challenges/starship_beam_data.tres",
+      "sourceMd5": "e2b05687c302bd9517bf957939a85336",
+      "properties": {
+        "script": {
+          "resource": "res://challenges/global/challenge_data.gd",
+          "resourceType": "Script"
+        },
+        "my_id": "chal_fireworks",
+        "unlocked_by_default": false,
+        "icon": {
+          "resource": "res://items/all/00_base_game/dynamite/dynamite_icon.png",
+          "resourceType": "Texture"
+        },
+        "name": "CHAL_FIREWORKS",
+        "tier": 0,
+        "value": 15,
+        "effects": [],
+        "tracking_text": "",
+        "is_lockable": true,
+        "unlock_codex_descr_after_get_it": 5,
+        "is_cursed": false,
+        "curse_factor": 0.0,
+        "description": "CHAL_FIREWORKS_DESC",
+        "reward_type": 6,
+        "reward": {
+          "resource": "res://items/characters/artificer/artificer_data.tres",
+          "resourceType": "Resource"
+        },
+        "number": 0,
+        "stat": "",
+        "additional_args": []
+      }
+    },
+    {
+      "source": "res://items/characters/artificer/artificer_data.tres",
+      "sourceMd5": "8315b9140c6c397b87493e0ec209936f",
+      "properties": {
+        "script": {
+          "resource": "res://items/characters/character_data.gd",
+          "resourceType": "Script"
+        },
+        "my_id": "character_artificer",
+        "unlocked_by_default": false,
+        "can_be_looted": true,
+        "icon": {
+          "resource": "res://items/characters/artificer/artificer_icon.png",
+          "resourceType": "Texture"
+        },
+        "name": "CHARACTER_ARTIFICER",
+        "tier": 0,
+        "value": 1,
+        "effects": [
+          {
+            "resource": "res://items/characters/artificer/artificer_effect_1.tres",
+            "resourceType": "Resource"
+          },
+          {
+            "resource": "res://items/characters/artificer/artificer_effect_1b.tres",
+            "resourceType": "Resource"
+          },
+          {
+            "resource": "res://items/characters/artificer/artificer_effect_1c.tres",
+            "resourceType": "Resource"
+          },
+          {
+            "resource": "res://items/characters/artificer/artificer_effect_2.tres",
+            "resourceType": "Resource"
+          },
+          {
+            "resource": "res://items/characters/artificer/artificer_effect_3.tres",
+            "resourceType": "Resource"
+          }
+        ],
+        "tracking_text": "",
+        "is_lockable": true,
+        "unlock_codex_descr_after_get_it": 1,
+        "is_cursed": false,
+        "curse_factor": 0.0,
+        "is_meca": false,
+        "is_mutant": false,
+        "max_nb": -1,
+        "item_appearances": [
+          {
+            "resource": "res://items/characters/artificer/artificer_eyes_appearance.tres",
+            "resourceType": "Resource"
+          },
+          {
+            "resource": "res://items/characters/artificer/artificer_mouth_appearance.tres",
+            "resourceType": "Resource"
+          }
+        ],
+        "tags": [],
+        "minimum_difficulty": 0,
+        "wanted_tags": [
+          "explosive"
+        ],
+        "banned_item_groups": [],
+        "banned_items": [],
+        "banned_upgrades": [],
+        "banned_meca_stats": [],
+        "starting_weapons": [
+          {
+            "resource": "res://weapons/melee/plank/1/plank_data.tres",
+            "resourceType": "Resource"
+          },
+          {
+            "resource": "res://weapons/melee/screwdriver/1/screwdriver_data.tres",
+            "resourceType": "Resource"
+          },
+          {
+            "resource": "res://weapons/melee/wrench/1/wrench_data.tres",
+            "resourceType": "Resource"
+          },
+          {
+            "resource": "res://weapons/ranged/shredder/1/shredder_data.tres",
+            "resourceType": "Resource"
+          },
+          {
+            "resource": "res://weapons/ranged/sticky_grenade/1/sticky_grenade_data.tres",
+            "resourceType": "Resource"
+          }
+        ],
+        "starting_items": [],
+        "required_item_set": ""
+      }
+    },
+    {
+      "source": "res://items/characters/artificer/artificer_effect_1.tres",
+      "sourceMd5": "f42d72f817d18b58fb60cd715718f5d3",
+      "properties": {
+        "script": {
+          "resource": "res://items/global/effect.gd",
+          "resourceType": "Script"
+        },
+        "key": "explosion_damage",
+        "text_key": "",
+        "value": 175,
+        "custom_key": "",
+        "storage_method": 0,
+        "effect_sign": 3,
+        "custom_args": []
+      }
+    },
+    {
+      "source": "res://items/characters/artificer/artificer_effect_1b.tres",
+      "sourceMd5": "1630d6740e49ae5ee9b34caf9ef7e46c",
+      "properties": {
+        "script": {
+          "resource": "res://effects/items/gain_stat_for_every_stat_effect.gd",
+          "resourceType": "Script"
+        },
+        "key": "explosion_size",
+        "text_key": "EFFECT_GAIN_STAT_FOR_EVERY_STAT",
+        "value": 4,
+        "custom_key": "",
+        "storage_method": 0,
+        "effect_sign": 0,
+        "custom_args": [
+          {
+            "resource": "res://items/characters/artificer/artificer_effect_1b.tres::1",
+            "resourceType": "Resource"
+          }
+        ],
+        "nb_stat_scaled": 1,
+        "stat_scaled": "stat_elemental_damage",
+        "perm_stats_only": false
+      }
+    },
+    {
+      "source": "res://items/characters/artificer/artificer_effect_1c.tres",
+      "sourceMd5": "05a09a4902eeb94139634b6de06f66f7",
+      "properties": {
+        "script": {
+          "resource": "res://effects/items/class_bonus_effect.gd",
+          "resourceType": "Script"
+        },
+        "key": "effect_weapon_class_bonus",
+        "text_key": "",
+        "value": 100,
+        "custom_key": "",
+        "storage_method": 0,
+        "effect_sign": 3,
+        "custom_args": [],
+        "set_id": "set_tool",
+        "stat_displayed_name": "stat_percent_damage",
+        "stat_name": "stat_percent_damage"
+      }
+    },
+    {
+      "source": "res://items/characters/artificer/artificer_effect_2.tres",
+      "sourceMd5": "daadb1f8e1a0551a5f9e932cabdeed69",
+      "properties": {
+        "script": {
+          "resource": "res://items/global/effect.gd",
+          "resourceType": "Script"
+        },
+        "key": "stat_percent_damage",
+        "text_key": "",
+        "value": -100,
+        "custom_key": "",
+        "storage_method": 0,
+        "effect_sign": 3,
+        "custom_args": []
+      }
+    },
+    {
+      "source": "res://items/characters/artificer/artificer_effect_3.tres",
+      "sourceMd5": "d80747d166ff70f7986f0eafc069c8f1",
+      "properties": {
+        "script": {
+          "resource": "res://effects/items/stat_gains_modification_effect.gd",
+          "resourceType": "Script"
+        },
+        "key": "effect_reduce_stat_gains",
+        "text_key": "",
+        "value": -50,
+        "custom_key": "",
+        "storage_method": 0,
+        "effect_sign": 3,
+        "custom_args": [],
+        "stat_displayed": "stat_armor",
+        "stats_modified": [
+          "stat_armor"
+        ]
+      }
+    },
+    {
+      "source": "res://items/characters/artificer/artificer_explosion_stats.tres",
+      "sourceMd5": "ceb405fa6c2c4089bd6d8ae089e5730d",
+      "properties": {
+        "script": {
+          "resource": "res://weapons/weapon_stats/ranged_weapon_stats.gd",
+          "resourceType": "Script"
+        },
+        "cooldown": 60,
+        "damage": 5,
+        "accuracy": 1.0,
+        "crit_chance": 0.0,
+        "crit_damage": 1.5,
+        "min_range": 0,
+        "max_range": 150,
+        "knockback": 0,
+        "effect_scale": 1.0,
+        "scaling_stats": [
+          [
+            "stat_melee_damage",
+            0.5
+          ],
+          [
+            "stat_ranged_damage",
+            0.5
+          ],
+          [
+            "stat_elemental_damage",
+            0.5
+          ]
+        ],
+        "lifesteal": 0.0,
+        "shooting_sounds": [],
+        "sound_db_mod": -5,
+        "is_healing": false,
+        "recoil": 25,
+        "recoil_duration": 0.1,
+        "nb_projectiles": 1,
+        "projectile_spread": 0.0,
+        "piercing": 0,
+        "piercing_dmg_reduction": 0.5,
+        "bounce": 0,
+        "bounce_dmg_reduction": 0.5,
+        "projectile_speed": 3000,
+        "increase_projectile_speed_with_range": false
+      }
+    },
+    {
+      "source": "res://items/characters/artificer/artificer_eyes_appearance.tres",
+      "sourceMd5": "e41970ed01c8175e34638ad130633973",
+      "properties": {
+        "script": {
+          "resource": "res://items/global/item_appearance_data.gd",
+          "resourceType": "Script"
+        },
+        "sprite": {
+          "resource": "res://items/characters/artificer/artificer_eyes.png",
+          "resourceType": "Texture"
+        },
+        "position": 6,
+        "display_priority": 3,
+        "depth": 1300.0,
+        "is_character_appearance": true
+      }
+    },
+    {
+      "source": "res://items/characters/artificer/artificer_mouth_appearance.tres",
+      "sourceMd5": "dcd7ea76b595e0c025c67ba220ad24f8",
+      "properties": {
+        "script": {
+          "resource": "res://items/global/item_appearance_data.gd",
+          "resourceType": "Script"
+        },
+        "sprite": {
+          "resource": "res://items/characters/artificer/artificer_mouth.png",
+          "resourceType": "Texture"
+        },
+        "position": 8,
+        "display_priority": 3,
+        "depth": 250.0,
+        "is_character_appearance": true
+      }
+    }
+  ],
+  "english": {
+    "EFFECT_STICKY_GRENADE_EXPLODE": "Sticks to the targeted enemy and explodes after {0} seconds",
+    "EFFECT_GAIN_STAT_FOR_EVERY_STAT": "{0} {1} for every {2} {3} you have [{4}]",
+    "CHAL_FIREWORKS_DESC": "Kill {0} enemies with a single explosion"
+  },
+  "scriptProvenance": [
+    {
+      "source": "res://singletons/weapon_service.gdc",
+      "sourceMd5": "e165d91ac24a7e0eff33a26bb09006c5"
+    },
+    {
+      "source": "res://projectiles/player_explosion.gdc",
+      "sourceMd5": "751c6b7984ae3f1e435da8cb0ad34a34"
+    },
+    {
+      "source": "res://projectiles/grenade_mine/grenade_mine_projectile.gdc",
+      "sourceMd5": "9a693ce0a3c8d00930ba7ada07c6d638"
+    }
+  ],
+  "rules": [
+    "Exploding weapon effects add Explosion Damage to the Damage and weapon-set damage percentages before the native minimum and rounded final hit.",
+    "Explosion targets roll their own critical hits; a projectile critical hit does not force every explosion target critical.",
+    "Fireworks counts kills in a single explosion instance, including neutral objects signaled as killed, and never combines attacks.",
+    "Sticky Grenade disables its contact hitbox; original fuse0.75, stick radius40 points, follows the target offset and retains the last position on target death.",
+    "The 15Hz server uses swept center-distance attachment checks to avoid tunneling; native frame/physics, projectile artwork upload and animation acceptance remain open."
+  ],
+  "presentation": {
+    "source": "res://projectiles/grenade_mine/grenade_mine_projectile.tscn",
+    "onGroundFlashTimes": [
+      0.1,
+      0.2,
+      0.3,
+      0.4,
+      0.5,
+      0.575,
+      0.625,
+      0.675,
+      0.725
+    ],
+    "onGroundWhite": [
+      1,
+      1,
+      1
+    ],
+    "onGroundRed": [
+      2,
+      0.78,
+      0.78
+    ],
+    "flyingTexture": "res://projectiles/grenade_mine/grenade.png",
+    "groundTexture": "res://projectiles/grenade_mine/grenade_on_ground.png",
+    "limits": "Original flight sprite/rotation and ground squash animation still require final renderer/artwork acceptance; the gated preparation currently uses shared flight feedback and a pooled fusing marker."
+  }
+}

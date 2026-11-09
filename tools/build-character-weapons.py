@@ -16,7 +16,7 @@ def module(name, file):
     return result
 source = module('character_source', 'tools/character-source.py')
 catalog = module('character_catalog', 'tools/build-character-catalog.py')
-FAMILIES = ['anchor', 'mace', 'meat_tenderizer', 'machinegun', 'pan_flute', 'combat_shotgun', 'grenade_launcher', 'whip', 'spoon', 'cestus', 'sickle', 'trident', 'lute', 'blowgun', 'blunderbuss', 'javelin', 'tranq_rifle', 'harpoon_gun']
+FAMILIES = ['anchor', 'mace', 'meat_tenderizer', 'machinegun', 'pan_flute', 'combat_shotgun', 'grenade_launcher', 'whip', 'spoon', 'cestus', 'sickle', 'trident', 'lute', 'blowgun', 'blunderbuss', 'javelin', 'tranq_rifle', 'harpoon_gun', 'sticky_grenade']
 FACTS = ROOT / 'docs/characters/weapon-source.json'
 OUTPUT = ROOT / 'src/shared/Config/CharacterWeaponData.luau'
 
@@ -36,7 +36,7 @@ def refresh():
                 ep = ref['resource']
                 effect = pck.resource(ep)['properties']
                 effects.append({'source': ep, 'sourceMd5': pck.entries[ep]['md5'], 'key': effect['key'], 'value': effect['value'], 'scale': effect.get('scale'), 'duration': effect.get('duration')})
-                for key in ['value2', 'stat_name', 'damage_multiplier', 'source_id', 'duration_secs', 'max_stacks', 'custom_key', 'chance', 'radius']:
+                for key in ['value2', 'stat_name', 'damage_multiplier', 'source_id', 'duration_secs', 'max_stacks', 'custom_key', 'chance', 'radius', 'fuse_duration']:
                     if key in effect:
                         effects[-1][key] = effect[key]
                 if 'sub_effects' in effect:
@@ -49,7 +49,10 @@ def refresh():
     harpoon = next(row for row in rows if row['id'] == 'HarpoonGun')
     harpoon_scene = 'res://projectiles/bullet_harpoon/bullet_harpoon.tscn'
     harpoon['geometry'] = {'source': harpoon_scene, 'sourceMd5': pck.entries[harpoon_scene]['md5'], 'slowRadiusPoints': 63.0714, 'slowOffsetPoints': [1,4], 'slowAmountPoints': -400, 'note': 'SlowHitbox x-24/y4 plus Circle collision x25, fixed native additive -400 speed, each target once per projectile.'}
-    FACTS.write_text(json.dumps({'version': '1.2.0.1', 'steamBuild': 26406319, 'weapons': rows}, indent=2) + '\n', encoding='utf-8')
+    sticky = next(row for row in rows if row['id'] == 'StickyGrenade')
+    sticky_source = 'res://projectiles/grenade_mine/grenade_mine_projectile.gdc'
+    sticky['geometry'] = {'source': sticky_source, 'sourceMd5': pck.entries[sticky_source]['md5'], 'stickDistancePoints': 40, 'note': 'Native hitbox is disabled; attach to the nearest enemy/neutral center within40, follow its offset, retain last position on death; range end starts fuse.'}
+    FACTS.write_text(json.dumps({'version': '1.2.0.1', 'steamBuild': 26406319, 'explosionGeometry': {'source':'res://projectiles/explosion.tscn','sourceMd5':pck.entries['res://projectiles/explosion.tscn']['md5'],'radiusPoints':147.34,'offsetZPoints':3}, 'weapons': rows}, indent=2) + '\n', encoding='utf-8')
 
 def generate():
     facts = json.loads(FACTS.read_text(encoding='utf-8'))
@@ -107,7 +110,11 @@ def generate():
                     value.update(slowZoneRadius=geometry['slowRadiusPoints']*0.1,slowZoneOffsetX=geometry['slowOffsetPoints'][0]*0.1,slowZoneOffsetZ=geometry['slowOffsetPoints'][1]*0.1,slowZonePoints=geometry['slowAmountPoints'])
                     lines.append('Slows nearby enemies')
                 elif effect['key'] == 'effect_explode':
-                    value.update(explosionChance=1, explosionRadius=147.34 * 0.1 * effect['scale'])
+                    geometry = facts['explosionGeometry']
+                    value.update(explosionChance=1, explosionRadius=geometry['radiusPoints'] * 0.1 * effect['scale'], explosionOffsetZ=geometry['offsetZPoints']*0.1*effect['scale'])
+                    if 'fuse_duration' in effect:
+                        value.update(stickyFuse=effect['fuse_duration'], stickyDistance=row['geometry']['stickDistancePoints']*0.1)
+                        lines.append(f"Sticks to the targeted enemy and explodes after {effect['fuse_duration']} seconds")
                 elif effect['key'] == 'crit_on_hitting_burning_target':
                     value['critBurning'] = 1
                     lines.append('Always crits when hitting burning targets')
