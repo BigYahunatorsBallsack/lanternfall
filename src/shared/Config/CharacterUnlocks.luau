@@ -15,8 +15,29 @@ export type Challenge = {
 	| { kind: "RunRecycledWeapons", threshold: number }
 	| { kind: "EnemiesKilled", threshold: number }
 	| { kind: "WaveLivingTrees", threshold: number }
+	| { kind: "Inventory", count: string, threshold: number, stat: string?, statThreshold: number? }
 )
 local rules: { [string]: Challenge } = {
+	Technomage = {
+		kind = "Inventory",
+		count = "structures",
+		threshold = 3,
+		stat = "elementalDamage",
+		statThreshold = 10,
+		challengeId = "chal_magic_and_machinery",
+		source = "res://challenges/magic_and_machinery_data.tres",
+		sourceMd5 = "006ba18830e853f72908971b34983e7f",
+		requirement = "Have 10 Elemental Damage and 3 structures at the same time",
+	},
+	Renegade = {
+		kind = "Inventory",
+		count = "distinctItemsTier1",
+		threshold = 10,
+		challengeId = "chal_scavenger",
+		source = "res://challenges/scavenger_data.tres",
+		sourceMd5 = "b1e0f226f4b75ae47c1a33c02e4e5f9d",
+		requirement = "Have 10 different tier I items during a run",
+	},
 	Cryptid = {
 		kind = "WaveLivingTrees",
 		challengeId = "chal_forest",

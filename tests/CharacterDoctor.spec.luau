@@ -44,7 +44,7 @@ describe("Native Doctor package", function()
 		for _, id in { "Scissors", "LeechCarbine", "MeatTenderizer" } do
 			start(id)
 			expect(Weapons.getWeapons(me)[1].id).toBe(id)
-			expect(Stats.getStat(me, "hpRegen")).toBe(5)
+			expect(Stats.getStat(me, "hpRegen")).toBe(10)
 			expect(Stats.getStat(me, "harvesting")).toBe(5)
 			expect(Stats.getStat(me, "attackSpeed")).toBe(-100)
 			local position = me.Character.HumanoidRootPart.Position
@@ -57,7 +57,7 @@ describe("Native Doctor package", function()
 	end)
 	it("doubles regeneration gains, halves Armor gains and keeps medical Attack Speed local", function()
 		assert(Stats.addStats(me, { hpRegen = 3, armor = 4 }))
-		expect(Stats.getStat(me, "hpRegen")).toBe(11)
+		expect(Stats.getStat(me, "hpRegen")).toBe(16)
 		expect(Stats.getStat(me, "armor")).toBe(2)
 		expect(Stats.getStat(peer, "hpRegen")).toBe(0)
 		local Compute = require(S.WeaponService.WeaponStats).compute

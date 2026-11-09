@@ -14,6 +14,7 @@ return table.freeze({
 		minimumSizeFactor = 0.1,
 	}),
 	originalWeapons = table.freeze({
+		spreadPerProjectile = 0.1, -- stable WeaponService._set_common_ranged_stats, radians
 		sourceFrameRate = 60, -- native stable weapon cooldown frame rate
 		sourceMinimumFrames = 1,
 		minCooldown = 1 / 60, -- server catch-up floor; preserves source cooldowns below the old 1/12 cap

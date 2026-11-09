@@ -1,5 +1,5 @@
 --!strict
--- B10: fixed starting stats bypass gain multipliers; item/card/level gains are scaled. Character conversions
+-- B10: native initial stats and all gains use original gain multipliers; legacy packages keep their old initial layer. Conversions
 -- read unconverted permanent + dynamic stats once, and weapon-dependent bonuses refresh on every loadout change.
 -- Player stats and items in a run (DESIGN.md sections 4 and 6, Brotato direction since B2). Since B4 in layers like
 -- Brotato's modifier pipeline: the base values, then the permanent gains (items stacking, level-up cards,
@@ -78,6 +78,11 @@ local function computePermanent(player: Player, state: State): StatMath.Sheet
 	StatMath.add(gains, state.upgrades)
 	StatMath.add(gains, state.classBonus)
 	gains.maxHp = (gains.maxHp or 0) + state.levels * Config.Stats.maxHpPerLevel
+	if class and class.nativeStartSelection then
+		-- RunData.get_stat scales the complete raw effect sum, including initial effects and base HP.
+		StatMath.add(gains, class.stats)
+		return StatMath.addGains({}, StatMath.add(StatMath.baseSheet(), gains), multipliersOf(player))
+	end
 	local sheet = StatMath.addGains(StatMath.baseSheet(), gains, multipliersOf(player))
 	if class then
 		StatMath.add(sheet, class.stats)

@@ -6,6 +6,7 @@ local Rules = require(game:GetService("ReplicatedStorage").Shared.Config.Combat)
 local WeaponPose = require(game:GetService("ReplicatedStorage").Shared.Util.WeaponPose)
 local WeaponTarget = require(script.Parent.WeaponTarget)
 local Sticky = require(script.Parent.StickyGrenadeShot)
+local Carbon = require(script.Parent.CarbonArrows)
 
 type Shot = {
 	id: number,
@@ -83,6 +84,11 @@ local function start(
 	secondary: boolean,
 	skip: number?
 )
+	if stats.carbonBow then
+		stats = Carbon.take(weapon, stats, function()
+			return ctx:random()
+		end)
+	end
 	local critical = if stats.critPierce or stats.critBounce then ctx:random() < stats.critChance else nil
 	local piercing = stats.pierce or 0
 	if critical then
@@ -106,6 +112,17 @@ local function start(
 	})
 end
 
+function Projectile.launch(
+	weapon: Arsenal.Weapon,
+	ctx: Arsenal.Context,
+	x: number,
+	z: number,
+	dx: number,
+	dz: number,
+	stats: { [string]: number }
+)
+	start(weapon, ctx, x, z, dx, dz, stats, false, nil)
+end
 function Projectile.fire(weapon: Arsenal.Weapon, ctx: Arsenal.Context): boolean
 	local stats = weapon.stats
 	if (weapon.state.reloadLeft or 0) > 0 then

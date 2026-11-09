@@ -298,6 +298,36 @@ function PlayerDataService.observeNativeStats(player: Player, sheet: { [string]:
 	end
 end
 
+-- Inventory challenges observe simultaneous personal equipment and stats, never spawned-object snapshots.
+function PlayerDataService.observeNativeInventory(
+	player: Player,
+	counts: { [string]: number },
+	sheet: { [string]: number }
+)
+	local data = PlayerDataService.get(player)
+	if not data then
+		return
+	end
+	local changed = false
+	for _, rule in NativeCharacterAccess do
+		if
+			rule.kind == "Inventory"
+			and (counts[rule.count] or 0) >= rule.threshold
+			and (not rule.stat or (sheet[rule.stat] or 0) >= (rule.statThreshold or 0))
+		then
+			local key = CharacterAccess.challengeKey(rule.challengeId)
+			if not data.achievements[key] then
+				data.achievements[key] = true
+				changed = true
+			end
+		end
+	end
+	if changed then
+		sendInfo(player)
+		PlayerDataService.Changed:Fire(player)
+	end
+end
+
 -- Medicine uses the native accepted-healing sum for one wave, separate from capped HP gains/Lich.
 function PlayerDataService.observeNativeHealing(player: Player, total: number)
 	local data = PlayerDataService.get(player)

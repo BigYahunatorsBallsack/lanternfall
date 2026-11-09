@@ -39,7 +39,10 @@ describe("Original item sprites", function()
 	end)
 	it("uses original sprites for all nine deployed structures and reuses their pooled anchors", function()
 		local rows = {}
-		for id in Config.Structures.kinds do
+		for id, definition in Config.Structures.kinds do
+			if definition.weaponOnly then
+				continue
+			end
 			table.insert(rows, { id = #rows + 1, ownerId = player.UserId, kind = id, x = #rows * 5, z = 0 })
 		end
 		Net.fireAllClients("Structures", Feed.encodeStructures(rows))
@@ -56,7 +59,10 @@ describe("Original item sprites", function()
 				seen[board.Picture.Image] = true
 			end
 		end
-		for id in Config.Structures.kinds do
+		for id, definition in Config.Structures.kinds do
+			if definition.weaponOnly then
+				continue
+			end
 			assert(seen[Images[id]], id)
 		end
 		Net.fireAllClients("Structures", Feed.encodeStructures({}))

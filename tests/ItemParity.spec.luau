@@ -74,11 +74,14 @@ describe("Main-game item catalog", function()
 end)
 
 describe("Original item combat rules", function()
-	it("limits weapons and attacking structures to 0.75 seconds with Ball and Chain", function()
+	it("applies Ball and Chain before the separate native structure-speed modifier", function()
 		local sheet = { attackSpeed = 1000, weaponCooldownMin = Config.Items.byId.IronShackle.stats.weaponCooldownMin }
 		local result = WeaponStats.compute(Config.Weapons.SparkBolt, 4, sheet, nil, Config.Player.minWeaponCooldown)
 		expect(result.cooldown).toBe(0.75)
-		expect(StructureRules.interval(Config.Structures.kinds.BrassSentry, sheet, true)).toBe(0.75)
+		expect(StructureRules.interval(Config.Structures.kinds.BrassSentry, sheet, true)).toBeNear(7 / 60) -- floor(45/(1+5)) frames
+		expect(StructureRules.interval(Config.Structures.kinds.BrassSentry, { weaponCooldownMin = 0.75 }, false)).toBe(
+			0.75
+		)
 		assert(string.find(UpgradeText.itemLines("IronShackle"), "0.75s", 1, true))
 	end)
 	it("allows 70% dodge only for the Ghost Outfit owner", function()

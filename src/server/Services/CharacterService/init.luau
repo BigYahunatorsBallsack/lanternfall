@@ -79,11 +79,8 @@ local function countsOf(player: Player, state: State, hp: number, maxHp: number)
 			counts.livingTrees += 1
 		end
 	end
-	for _, structure in Structures.getSnapshot() do
-		if structure.ownerId == player.UserId then
-			counts.structures += 1
-		end
-	end
+	counts.structures = Structures.sourceCount(player)
+
 	return counts
 end
 
@@ -94,16 +91,18 @@ local function refresh(player: Player)
 	end
 	state.refreshing = true
 	local hp, maxHp = Combat.getHp(player)
+	local counts = countsOf(player, state, hp, maxHp)
 	local dynamic = Rules.dynamic(state.policy, {
 		hp = hp,
 		maxHp = maxHp,
 		moving = if Run.isActive() then Movement.isMoving(player) else nil,
-		counts = countsOf(player, state, hp, maxHp),
+		counts = counts,
 		items = Stats.getItemCounts(player),
 	})
 	StatMath.add(dynamic, state.wave)
 	StatMath.add(dynamic, state.conversion)
 	Stats.setCharacterDynamic(player, dynamic)
+	require(script.Parent.PlayerDataService).observeNativeInventory(player, counts, Stats.getSheet(player))
 	state.refreshing = false
 end
 

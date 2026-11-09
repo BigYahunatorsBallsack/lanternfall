@@ -40,6 +40,7 @@ local CharacterRules = require(Shared.Util.CharacterRules)
 local BrotatoCombat = require(script.BrotatoCombat)
 local BrotatoRuntime = require(script.BrotatoRuntime)
 local FirePuddles = require(script.FirePuddles)
+local Carbon = require(script.CarbonArrows)
 local EnemyKinds = require(Shared.Util.EnemyKinds)
 local CharacterMovement = require(script.Parent.CharacterService.Movement)
 local waveBonuses: { [Player]: { [string]: number } } = {}
@@ -53,6 +54,7 @@ WeaponService.Changed = Signal.new()
 WeaponService.KillGrowth = Signal.new()
 -- (player, kills): one distinct completed explosion, never a sum across attacks.
 WeaponService.ExplosionResolved = Signal.new()
+WeaponService.NativeMineRequested = Signal.new()
 local growth: { [number]: { [string]: number } } = {}
 
 -- Hit listener: (ownerId, enemyId, dealt, crit, killed, source), set by EffectService. A plain callback, not a
@@ -336,6 +338,18 @@ end)
 local function now(): number
 	return workspace:GetServerTimeNow()
 end
+function WeaponService.getStructureStats(player: Player): { [string]: number }
+	return table.clone(ownerStats[player] or {})
+end
+function WeaponService.nextEffectId(): number
+	return arsenal.context:nextId()
+end
+function WeaponService.emitStructureEffect(player: Player, effect: { [string]: any })
+	if effect.kind == "Fire" then
+		effect.kind = "StructureFire"
+	end
+	arsenal:emitShared(player.UserId, effect, "StructureShot")
+end
 
 local function loadoutOf(player: Player): Types.Loadout
 	local weapons: { Types.WeaponInfo } = {}
@@ -353,6 +367,11 @@ local function loadoutOf(player: Player): Types.Loadout
 end
 
 local function send(player: Player)
+	for _, weapon in arsenal:getWeapons(player.UserId) do
+		Carbon.initialise(weapon, function()
+			return RandomService.number("Combat", player)
+		end)
+	end
 	BrotatoRuntime.recompute(arsenal:getWeapons(player.UserId), ownerStats[player] or {})
 	Net.fireAllClients("Loadout", loadoutOf(player))
 	WeaponService.Changed:Fire(player)
@@ -565,6 +584,13 @@ function WeaponService.init()
 		BrotatoRuntime.reloadFromMaterials(arsenal:getWeapons(player.UserId), count, now())
 	end)
 	BrotatoCombat.configure({
+		nativeSlow = EnemySim.nativeSlow,
+		spawnMine = function(ownerId, x, z)
+			local player = playerOf(ownerId)
+			if player then
+				WeaponService.NativeMineRequested:Fire(player, Vector3.new(x, floorY, z))
+			end
+		end,
 		explosionResolved = function(ownerId, kills)
 			local player = playerOf(ownerId)
 			if player then

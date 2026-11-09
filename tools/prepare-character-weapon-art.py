@@ -46,6 +46,11 @@ if any(w["id"] == "Molotov" for w in facts["weapons"]):
     projectiles.append(("MolotovThrown", "res://projectiles/molotov/molotov.png"))
     for n in range(3):
         projectiles.extend([(f"FirePuddle{n}",f"res://entities/gpe/puddle/puddle_{n}.png"),(f"FirePuddleOutline{n}",f"res://entities/gpe/puddle/puddle_outline_{n}.png")])
+if any(w["id"] == "Awl" for w in facts["weapons"]):
+    projectiles.extend([("DartTrap", "res://entities/structures/dart_trap/dart_trap.png"), ("DartTrapActivated", "res://entities/structures/dart_trap/dart_trap_activated.png")])
+if any(w["id"] == "CarbonBow" for w in facts["weapons"]):
+    for suffix in ["melee", "range", "elemental", "enginering"]:
+        projectiles.extend([("CarbonBowArrow"+suffix.title(), "res://weapons/ranged/carbon_bow/carbon_bow_arrow_"+suffix+".png"), ("CarbonBowProjectile"+suffix.title(), "res://weapons/ranged/carbon_bow/carbon_bow_projectile_"+suffix+".png")])
 if projectiles:
     manifest["projectiles"] = []
     for ident, icon in projectiles:

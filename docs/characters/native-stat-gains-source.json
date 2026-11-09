@@ -1,0 +1,29 @@
+{
+  "version": "1.2.0.1",
+  "steamBuild": 26406319,
+  "rules": {
+    "initialStats": "The complete raw stat effect sum, including base Max HP and character starting effects, uses the character gain multiplier.",
+    "integerMaxHp": "Player maximum health truncates the final capped stat to an integer.",
+    "examples": {
+      "DoctorInitialHpRegeneration": 10,
+      "BullInitialHpRegeneration": 22.5,
+      "RangerInitialMaxHpStat": 7.5,
+      "RangerInitialCombatMaxHp": 7,
+      "RenegadeInitialPercentDamage": -80
+    }
+  },
+  "sources": [
+    {
+      "path": "res://effects/items/stat_gains_modification_effect.gd",
+      "md5": "f8af456befab854f151d3af0d9899ef8"
+    },
+    {
+      "path": "res://singletons/run_data.gdc",
+      "md5": "a94d8eddd9609f413309ce9237297ad2"
+    },
+    {
+      "path": "res://singletons/player_run_data.gdc",
+      "md5": "6035fe242258782d60b91073d09d7215"
+    }
+  ]
+}

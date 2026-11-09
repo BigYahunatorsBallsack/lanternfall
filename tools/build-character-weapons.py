@@ -16,7 +16,7 @@ def module(name, file):
     return result
 source = module('character_source', 'tools/character-source.py')
 catalog = module('character_catalog', 'tools/build-character-catalog.py')
-FAMILIES = ['anchor', 'mace', 'meat_tenderizer', 'machinegun', 'pan_flute', 'combat_shotgun', 'grenade_launcher', 'whip', 'spoon', 'cestus', 'sickle', 'trident', 'lute', 'blowgun', 'blunderbuss', 'javelin', 'tranq_rifle', 'harpoon_gun', 'sticky_grenade', 'flail', 'molotov']
+FAMILIES = ['anchor', 'mace', 'meat_tenderizer', 'machinegun', 'pan_flute', 'combat_shotgun', 'grenade_launcher', 'whip', 'spoon', 'cestus', 'sickle', 'trident', 'lute', 'blowgun', 'blunderbuss', 'javelin', 'tranq_rifle', 'harpoon_gun', 'sticky_grenade', 'flail', 'molotov', 'awl', 'carbon_bow', 'flute']
 FACTS = ROOT / 'docs/characters/weapon-source.json'
 OUTPUT = ROOT / 'src/shared/Config/CharacterWeaponData.luau'
 
@@ -37,7 +37,7 @@ def refresh():
             for ref in data['effects']:
                 ep = ref['resource']
                 effect = pck.resource(ep)['properties']
-                effects.append({'source': ep, 'sourceMd5': pck.entries[ep]['md5'], 'key': effect['key'], 'value': effect['value'], 'scale': effect.get('scale'), 'duration': effect.get('duration')})
+                effects.append({'source': ep, 'sourceMd5': pck.entries[ep]['md5'], 'effectType': effect['script']['resource'], 'key': effect['key'], 'value': effect['value'], 'scale': effect.get('scale'), 'duration': effect.get('duration')})
                 for key in ['value2', 'stat_name', 'damage_multiplier', 'source_id', 'duration_secs', 'max_stacks', 'custom_key', 'chance', 'radius', 'fuse_duration']:
                     if key in effect:
                         effects[-1][key] = effect[key]
@@ -50,6 +50,8 @@ def refresh():
                 for key in ['puddle_scale', 'puddle_lifetime']:
                     if key in effect:
                         effects[-1][key] = effect[key]
+                if 'spawn_cooldown' in effect:
+                    effects[-1]['spawnCooldown'] = effect['spawn_cooldown']
             tiers.append({'source': path, 'sourceMd5': pck.entries[path]['md5'], 'statsSource': stats_path, 'statsMd5': pck.entries[stats_path]['md5'], 'tier': data['tier'] + 1, 'price': data['value'], 'sets': [pck.resource(ref['resource'])['properties']['my_id'] for ref in data['sets']], 'kind': 'Melee' if data['type'] == 0 else 'Ranged', 'stats': {k: v for (k, v) in stats.items() if isinstance(v, (int, float, bool)) or k == 'scaling_stats'}, 'effects': effects})
         rows.append({'id': catalog.pascal(family), 'name': 'Machine Gun' if family == 'machinegun' else family.replace('_', ' ').title(), 'tiers': sorted(tiers, key=lambda row: row['tier'])})
     whip = next(row for row in rows if row['id'] == 'Whip')
@@ -103,7 +105,28 @@ def generate():
             bonuses = {}
             lines = []
             for effect in tier['effects']:
-                if effect.get('custom_key') == 'enemy_percent_damage_taken':
+                if ident == 'CarbonBow':
+                    value['carbonBow'] = 1
+                    stat = effect.get('stat_name','')
+                    if stat == 'stat_melee_damage':
+                        value.update(carbonSlow=effect['value'],carbonSlowSeconds=effect['duration'])
+                    elif stat == 'stat_ranged_damage':
+                        value['carbonPierce'] = effect['value']
+                    elif stat == 'stat_elemental_damage':
+                        burn=effect['burn']
+                        value.update(carbonBurnBase=burn['damage'],carbonBurnTicks=burn['duration'],carbonBurnSpread=burn['spread'])
+                    elif stat == 'stat_engineering':
+                        value['carbonMineChance'] = effect['value']/100
+                    if not stat:
+                        lines.append('Fires arrows that randomly scale with Melee Damage, Ranged Damage, Elemental Damage or Engineering, weighted by your stats')
+                elif ident == 'Awl':
+                    assert 'spawnCooldown' in effect
+                    value['trapSpawnSeconds'] = effect['spawnCooldown']
+                    lines.append(f"Spawns a Dart Trap every {effect['spawnCooldown']} seconds")
+                elif effect.get('custom_key') == 'charm_on_hit':
+                    value.update(charmChance=effect['value']/100,charmThreshold=effect['value2']/100)
+                    lines.append(f"{effect['value']}% chance to charm an enemy with less than {effect['value2']}% health")
+                elif effect.get('custom_key') == 'enemy_percent_damage_taken':
                     assert effect.get('chance', 100) == 100
                     value.update(vulnerabilityPercent=effect['value'], vulnerabilitySeconds=effect['duration_secs'], vulnerabilityStacks=effect['max_stacks'])
                     lines.append(f"Enemies hit take {effect['value']}% more damage for {effect['duration_secs']} seconds (max: {effect['value'] * effect['max_stacks']}%)")
@@ -180,6 +203,8 @@ def generate():
             deltas.append(delta)
             previous = stats
         weapons[ident] = {'id': ident, 'displayName': row['name'], 'description': '', 'tierDescriptions': descriptions, 'brotato': True, 'available': False, 'kind': first['kind'], 'classes': [catalog.SETS[key] for key in first['sets']], 'minTier': first['tier'], 'originalScaling': scaling, 'scaling': scaling[0], 'tierScaling': scaling, 'heldStats': held, 'rangeKeys': ['range'], 'behavior': ident, 'targeting': 'Nearest', 'base': base, 'tiers': deltas}
+        if ident == 'Awl':
+            weapons[ident].update(structureKinds=['DartTrap']*4,structureIntervals=[t['effects'][0]['spawnCooldown'] for t in resolved])
         prices[ident] = [t['price'] for t in resolved]
     text = '--!strict\n-- Stable character starting-weapon facts; Weapons and Shop read this generated extension.\n-- Generated by tools/build-character-weapons.py from docs/characters/weapon-source.json.\nreturn ' + catalog.luau({'weapons': weapons, 'prices': prices}) + '\n'
     return text

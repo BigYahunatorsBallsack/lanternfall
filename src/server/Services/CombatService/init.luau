@@ -65,7 +65,13 @@ end
 
 local function maxHpFor(player: Player): number
 	local sheet = stats[player]
-	return if sheet then StatMath.maxHp(sheet) else PlayerConfig.maxHp
+	local hp = if sheet then StatMath.maxHp(sheet) else PlayerConfig.maxHp
+	local id = RunDirector.getParticipantClassId(player)
+	return if id
+			and Config.Classes[id]
+			and Config.Classes[id].nativeStartSelection
+		then math.max(1, math.floor(if sheet then sheet.maxHp or PlayerConfig.maxHp else PlayerConfig.maxHp))
+		else hp
 end
 
 local function payload(player: Player, state: Vitals.Vitals): Types.PlayerVitals
