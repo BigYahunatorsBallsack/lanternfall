@@ -78,5 +78,7 @@ return table.freeze({
 		seconds = 0.5,
 		referenceHeight = 1080,
 		maxVisible = 100,
+		-- a material that took from the bag is drawn this much bigger while it lies (Brotato main.gd: scale 1.25)
+		bagOrbScale = 1.25,
 	}),
 })
