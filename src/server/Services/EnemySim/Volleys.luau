@@ -88,6 +88,12 @@ function Volleys.fire(
 	return self.nextId
 end
 
+-- The arena's walls moved (map-size effect at run start).
+function Volleys.setBounds(self: Volleys, minX: number, maxX: number, minZ: number, maxZ: number)
+	local p = self.params
+	p.minX, p.maxX, p.minZ, p.maxZ = minX, maxX, minZ, maxZ
+end
+
 function Volleys.clear(self: Volleys)
 	table.clear(self.shots)
 	table.clear(self.hits)

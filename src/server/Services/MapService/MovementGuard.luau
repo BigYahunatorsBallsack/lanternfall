@@ -58,6 +58,15 @@ local area: MovementRules.Area = (function()
 	}
 end)()
 
+-- The arena got a new size for a run (MapService.setArenaMapSize); the center stays.
+function MovementGuard.setArenaSize(width: number, depth: number)
+	local center = Config.Map.arena.center
+	area.minX = center.X - width / 2
+	area.maxX = center.X + width / 2
+	area.minZ = center.Z - depth / 2
+	area.maxZ = center.Z + depth / 2
+end
+
 local function now(): number
 	return os.clock()
 end

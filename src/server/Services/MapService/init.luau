@@ -14,6 +14,8 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Config = require(ReplicatedStorage.Shared.Config)
 local Signal = require(ReplicatedStorage.Shared.Util.Signal)
 
+local MapRules = require(ReplicatedStorage.Shared.Util.MapRules)
+
 local Decor = require(script.Decor)
 local MovementGuard = require(script.MovementGuard)
 local PlaceService = require(script.Parent.PlaceService)
@@ -57,8 +59,13 @@ MapService.PortalTriggered = Signal.new()
 -- (player: Player, reason: "Speed" | "Outside" | "Pillar", distance: number): the movement check moved a character
 -- back (Paket 23)
 MapService.MovementCorrected = MovementGuard.Corrected
+-- (bounds: Bounds): the arena got a new size for a run (setArenaMapSize)
+MapService.ArenaResized = Signal.new()
 
 local lobbySpawn: SpawnLocation? = nil
+local arenaModel: Model? = nil
+-- The arena's current size: Config.Map.arena until a run's map-size effect changes it (setArenaMapSize).
+local arenaWidth, arenaDepth = Config.Map.arena.width, Config.Map.arena.depth
 local random = Random.new()
 
 local function layoutFor(zone: Zone)
@@ -76,6 +83,32 @@ local function makePart(parent: Instance, name: string, size: Vector3, cframe: C
 	part.BottomSurface = Enum.SurfaceType.Smooth
 	part.Parent = parent
 	return part
+end
+
+local WALL_NAMES = { "WallNorth", "WallSouth", "WallWest", "WallEast" }
+
+-- Sizes and places the floor and the four walls of an area built by buildArea (x = width, z = depth).
+local function layoutArea(model: Model, center: Vector3, width: number, depth: number, wallHeight: number)
+	local thickness = Config.Map.floorThickness
+	local floor = model:FindFirstChild("Floor") :: BasePart
+	floor.Size = Vector3.new(width, thickness, depth)
+	floor.CFrame = CFrame.new(center - Vector3.new(0, thickness / 2, 0))
+
+	local wall = Config.Map.wallThickness
+	local offsetX = width / 2 + wall / 2
+	local offsetZ = depth / 2 + wall / 2
+	local y = wallHeight / 2
+	local sides = {
+		WallNorth = { Vector3.new(width + 2 * wall, wallHeight, wall), Vector3.new(0, y, -offsetZ) },
+		WallSouth = { Vector3.new(width + 2 * wall, wallHeight, wall), Vector3.new(0, y, offsetZ) },
+		WallWest = { Vector3.new(wall, wallHeight, depth), Vector3.new(-offsetX, y, 0) },
+		WallEast = { Vector3.new(wall, wallHeight, depth), Vector3.new(offsetX, y, 0) },
+	}
+	for name, side in sides do
+		local part = model:FindFirstChild(name) :: BasePart
+		part.Size = side[1]
+		part.CFrame = CFrame.new(center + side[2])
+	end
 end
 
 -- Floor plus four walls around a rectangular area (x = width, z = depth).
@@ -113,24 +146,15 @@ local function buildArea(
 		texture.Parent = floor
 	end
 
-	local wall = Config.Map.wallThickness
-	local offsetX = width / 2 + wall / 2
-	local offsetZ = depth / 2 + wall / 2
-	local y = wallHeight / 2
-	local sides = {
-		{ "WallNorth", Vector3.new(width + 2 * wall, wallHeight, wall), Vector3.new(0, y, -offsetZ) },
-		{ "WallSouth", Vector3.new(width + 2 * wall, wallHeight, wall), Vector3.new(0, y, offsetZ) },
-		{ "WallWest", Vector3.new(wall, wallHeight, depth), Vector3.new(-offsetX, y, 0) },
-		{ "WallEast", Vector3.new(wall, wallHeight, depth), Vector3.new(offsetX, y, 0) },
-	}
-	for _, side in sides do
-		local part = makePart(model, side[1], side[2], CFrame.new(center + side[3]), wallColor)
+	for _, side in WALL_NAMES do
+		local part = makePart(model, side, Vector3.one, CFrame.new(center), wallColor)
 		part.Transparency = wallTransparency
 		part.CastShadow = false
 		if wallTransparency < 1 then
 			part.Material = Enum.Material.ForceField
 		end
 	end
+	layoutArea(model, center, width, depth, wallHeight)
 
 	model.Parent = parent
 	return model
@@ -229,7 +253,7 @@ local function buildMap(): Folder
 	Decor.buildLobby(lobbyModel)
 
 	local arena = Config.Map.arena
-	local arenaModel = buildArea(
+	local built = buildArea(
 		folder,
 		"Arena",
 		arena.center,
@@ -240,8 +264,9 @@ local function buildMap(): Folder
 		ARENA_WALL_COLOR,
 		ARENA_WALL_TRANSPARENCY
 	)
+	arenaModel = built
 	local marker = makePart(
-		arenaModel,
+		built,
 		"StartMarker",
 		Vector3.new(arena.spawnRadius * 2, 0.2, arena.spawnRadius * 2),
 		CFrame.new(arena.center + Vector3.new(0, 0.1, 0)),
@@ -256,7 +281,7 @@ local function buildMap(): Folder
 	local height = arena.obstacleHeight
 	for index, obstacle in arena.obstacles do
 		local pillar = makePart(
-			arenaModel,
+			built,
 			`Ruin{index}`,
 			Vector3.new(height, obstacle.radius * 2, obstacle.radius * 2),
 			CFrame.new(arena.center + Vector3.new(obstacle.x, height / 2, obstacle.z))
@@ -266,7 +291,7 @@ local function buildMap(): Folder
 		pillar.Shape = Enum.PartType.Cylinder
 		pillar.Material = Enum.Material.Cobblestone
 	end
-	Decor.buildArena(arenaModel)
+	Decor.buildArena(built)
 
 	folder.Parent = workspace
 	return folder
@@ -310,8 +335,26 @@ function MapService.init()
 end
 
 function MapService.getArenaBounds(): Bounds
+	return { center = Config.Map.arena.center, halfX = arenaWidth / 2, halfZ = arenaDepth / 2 }
+end
+
+-- Resizes the arena for a run like Brotato's map-size effect (Util/MapRules): `percent` is the sum of every player's
+-- map_size effect (0 = the normal zone). Walls, floor, the dark ground around it and the movement check follow;
+-- ArenaResized tells EnemySim, SpawnDirector and BossService. Call it while no enemies are alive (run start/end).
+function MapService.setArenaMapSize(percent: number)
+	local width, depth = MapRules.size(percent)
+	if width == arenaWidth and depth == arenaDepth then
+		return
+	end
+	arenaWidth, arenaDepth = width, depth
 	local arena = Config.Map.arena
-	return { center = arena.center, halfX = arena.width / 2, halfZ = arena.depth / 2 }
+	local model = arenaModel
+	if model then
+		layoutArea(model, arena.center, width, depth, arena.wallHeight)
+		Decor.resizeArena(model, width, depth)
+	end
+	MovementGuard.setArenaSize(width, depth)
+	MapService.ArenaResized:Fire(MapService.getArenaBounds())
 end
 
 -- Arena obstacles as circles in world x/z (EnemySim steers around them, SpawnDirector avoids them).
@@ -372,10 +415,9 @@ end
 function MapService.isInZone(position: Vector3, zone: Zone): boolean
 	local layout = layoutFor(zone)
 	local offset = position - layout.center
-	local arena = Config.Map.arena
 	local lobby = Config.Map.lobby
-	local halfX = if zone == "Arena" then arena.width / 2 else lobby.size / 2
-	local halfZ = if zone == "Arena" then arena.depth / 2 else lobby.size / 2
+	local halfX = if zone == "Arena" then arenaWidth / 2 else lobby.size / 2
+	local halfZ = if zone == "Arena" then arenaDepth / 2 else lobby.size / 2
 	return math.abs(offset.X) <= halfX
 		and math.abs(offset.Z) <= halfZ
 		and offset.Y >= 0

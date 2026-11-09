@@ -16,9 +16,17 @@ return table.freeze({
 	arena = table.freeze({
 		center = Vector3.new(0, 100, 0), -- center of the floor surface
 		-- Brotato's zone (since 09.11.2026; 160 x 160 from the playtest after Paket 24, 300 before): x is Brotato's
-		-- width, z its height. Brotato's map-size effect (main.gd, at least 12 tiles) is not built yet.
+		-- width, z its height. This is the size without map-size effects; a run uses Util/MapRules.size.
 		width = BROTATO_ZONE_TILES.width * BROTATO_TILE_PIXELS * Stats.range.studsPerPoint, -- along x
 		depth = BROTATO_ZONE_TILES.height * BROTATO_TILE_PIXELS * Stats.range.studsPerPoint, -- along z
+		-- Brotato's map-size effect (main.gd): the run's tiles are the zone's tiles x (1 + the sum of every player's
+		-- map_size effect / 100), at least minTiles, cut to whole tiles. Explorer +33 %, Old -33 % (character data).
+		tiles = table.freeze({
+			width = BROTATO_ZONE_TILES.width,
+			height = BROTATO_ZONE_TILES.height,
+			studs = BROTATO_TILE_PIXELS * Stats.range.studsPerPoint,
+			minTiles = 12,
+		}),
 		wallHeight = 40,
 		spawnRadius = 8, -- participants start on a circle of this radius
 		-- The open arena leaves room to dodge in every direction.

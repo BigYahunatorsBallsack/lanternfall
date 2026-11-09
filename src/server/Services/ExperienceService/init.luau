@@ -220,7 +220,10 @@ local function onStepped()
 		for _, player in RunDirector.getParticipants() do
 			local position = EnemySim.getPlayerPosition(player) -- nil while down
 			if position then
-				local radius = Config.Player.pickupRadius * math.max(0, 1 + (pickupBonus[player] or 0))
+				local radius = math.max(
+					Config.Player.pickupRadiusMin,
+					Config.Player.pickupRadius * (1 + (pickupBonus[player] or 0))
+				)
 				table.clear(collectedIds)
 				table.clear(collectedValues)
 				field:collect(position.X, position.Z, radius, collectedIds, collectedValues)

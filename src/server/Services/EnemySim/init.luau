@@ -497,6 +497,13 @@ end
 -- Lifecycle -------------------------------------------------------------------------
 
 function EnemySim.init()
+	MapService.ArenaResized:Connect(function(bounds: MapService.Bounds)
+		local center = bounds.center
+		local minX, maxX = center.X - bounds.halfX, center.X + bounds.halfX
+		local minZ, maxZ = center.Z - bounds.halfZ, center.Z + bounds.halfZ
+		world:setBounds(minX, maxX, minZ, maxZ)
+		volleys:setBounds(minX, maxX, minZ, maxZ)
+	end)
 	RunDirector.RunStarted:Connect(function()
 		table.clear(spawnContexts)
 		table.clear(chargeTrails)

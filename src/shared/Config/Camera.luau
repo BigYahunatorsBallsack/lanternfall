@@ -1,6 +1,8 @@
 --!strict
 -- Fixed top-down camera (DESIGN.md section 4). Read by CameraController.
 
+local Stats = require(script.Parent.Stats)
+
 return table.freeze({
 	-- Looks almost straight down, like Brotato (Paket 25, Owner). Not exactly 90: sprites further south must stay a little
 	-- nearer to the camera, that keeps them in front of what stands north of them.
@@ -11,4 +13,12 @@ return table.freeze({
 	fieldOfView = 40, -- vertical, degrees
 	followSharpness = 12, -- how quickly the camera catches up with the character (higher = tighter)
 	targetHeightOffset = 0, -- studs above the HumanoidRootPart the camera looks at
+	-- Brotato's camera (main.gd EDGE_SIZE 96, my_camera.gd): it stops where its view would leave the zone grown by
+	-- 96 px left, right and south and 192 px north, and stays centered on an axis the view already shows whole.
+	edgeStuds = table.freeze({
+		west = 96 * Stats.range.studsPerPoint,
+		east = 96 * Stats.range.studsPerPoint,
+		north = 192 * Stats.range.studsPerPoint,
+		south = 96 * Stats.range.studsPerPoint,
+	}),
 })
