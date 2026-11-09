@@ -106,9 +106,16 @@ local Sprites = {
 		lengthJitter = 0.1, -- each bar is up to this share shorter or longer
 		popSeconds = 0.18, -- grows in from popScale when it appears
 		popScale = 0.4,
-		-- Blinks between solid and pale until the enemies come. Pale is a lighter color, not see-through: two see-through
-		-- bars would show a dark patch where they cross.
-		pulsesPerSecond = 2.5,
+		-- The drawn cross (assets/spawn-marker/SpawnCross.png, Strang B 09.11.2026) once the owner has uploaded it; while
+		-- empty the cross is built from the bars above. Its own red and dark outline are in the picture.
+		image = "",
+		imageStuds = 5, -- side of the square picture
+		-- Blinks slowly at first and ever faster until the enemies come (owner, 09.11.2026), blinks per second at the
+		-- start and at the end. The picture fades to `imageFade` transparency; the bars fade towards the pale colors
+		-- (not see-through: two see-through bars would show a dark patch where they cross).
+		blinkStartHz = 1.5,
+		blinkEndHz = 9,
+		imageFade = 0.85,
 		paleColor = { 238, 150, 140 },
 		paleOutlineColor = { 128, 96, 90 },
 		paleShare = 0.75, -- how far towards the pale colors the blink goes
