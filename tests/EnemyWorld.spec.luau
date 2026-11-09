@@ -113,15 +113,15 @@ describe("EnemyWorld", function()
 		expect(z).toBe(10)
 	end)
 
-	it("backs ranged enemies off slowly when a player comes close", function()
+	it("backs ranged enemies off at full speed when a player comes close, like Brotato's Spitter", function()
 		local world = newWorld()
 		local spitter = Types.Spitter
+		expect((spitter.ranged :: any).retreatSpeedFactor).toBe(nil)
 		local id = spawn(world, "Spitter", 0, -8)
 		run(world, 1, { 0 }, { 0 })
 		local backed = distance(world, id, 0, 0) - 8
-		expect(backed > 0).toBe(true)
-		expect(backed).toBeNear(spitter.speed * (spitter.ranged :: any).retreatSpeedFactor, 0.5)
-		expect(backed < spitter.speed * 0.5).toBe(true) -- a player (16 studs/s) catches it
+		expect(backed).toBeNear(spitter.speed, 0.5)
+		expect(spitter.speed < Config.Player.moveSpeed).toBe(true) -- a player still catches it
 	end)
 
 	it("keeps ranged enemies at their distance", function()
@@ -129,7 +129,7 @@ describe("EnemyWorld", function()
 		local keep = Types.Spitter.ranged.keepDistance
 		local far = spawn(world, "Spitter", 0, 60)
 		local near = spawn(world, "Spitter", 0, -8)
-		run(world, 10, { 0 }, { 0 }) -- it backs off at retreatSpeedFactor of its speed (playtest after Paket 24)
+		run(world, 10, { 0 }, { 0 })
 		expect(math.abs(distance(world, far, 0, 0) - keep) <= Sim.keepDistanceTolerance + 0.01).toBe(true)
 		expect(math.abs(distance(world, near, 0, 0) - keep) <= Sim.keepDistanceTolerance + 0.01).toBe(true)
 	end)
@@ -463,6 +463,20 @@ describe("lag-corrected contacts", function()
 		spawn(melee, "Brute", 10, 0)
 		run(melee, 5, { 0 }, { 0 })
 		expect(melee.shotCount).toBe(0)
+	end)
+
+	it("holds a Skulker's shot while the player is closer than its minimum fire range", function()
+		local ranged = Types.Skulker.ranged :: any
+		expect(ranged.minFireRange > 0).toBe(true)
+		local function shotsAt(x: number): number
+			local world = newWorld()
+			spawn(world, "Skulker", x, 0)
+			world.shotCooldown[1] = 0 -- ready to fire
+			world:step(STEP, { 0 }, { 0 }, 1)
+			return world.shotCount
+		end
+		expect(shotsAt(ranged.minFireRange * 0.5)).toBe(0)
+		expect(shotsAt(ranged.minFireRange + 10)).toBe(1)
 	end)
 
 	it("builds bigger, slower and tougher elite kinds with their own typeId", function()
