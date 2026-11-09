@@ -1,0 +1,188 @@
+{
+  "date": "2026-11-09",
+  "baseMain": "607524e19c5efc86b0a695dd34b9cff4792179b9",
+  "fullSuiteReferenceMain": "b07915bf2207a2f8c0fbd266faf1bd569439be64",
+  "runner": "Lune 0.11.1 Roblox mock; seed 1234; each spec in its own process",
+  "main": {
+    "specs": 141,
+    "passed": 1221,
+    "failed": 34
+  },
+  "branch": {
+    "specs": 143,
+    "passed": 1230,
+    "failed": 34
+  },
+  "comparisonMethod": "Full suites on b07915b plus reruns of SelectionHover, WorldSprites, FirstNightHub and Smoke after integrating main 607524e. Re-ran both final Pacifist specs after adding persistence coverage.",
+  "newFailures": [],
+  "existingFailures": [
+    {
+      "spec": "EnemySpawnPlacement25.spec.luau",
+      "test": "Enemy spawn placement > moves a pooled sprite to its next spawn before reattaching it"
+    },
+    {
+      "spec": "EnemySpawnPlacement25.spec.luau",
+      "test": "Enemy spawn placement > positions a newly built sprite before making it visible"
+    },
+    {
+      "spec": "RunStats.spec.luau",
+      "test": "Tally > writes readable log lines with the level per minute and every build"
+    },
+    {
+      "spec": "Smoke.spec.luau",
+      "test": "smoke > arms the player with the class weapon and switches weapons off for the enemy tests"
+    },
+    {
+      "spec": "Smoke.spec.luau",
+      "test": "smoke > draws the six original weapons, tiers and debug swaps"
+    },
+    {
+      "spec": "Smoke.spec.luau",
+      "test": "smoke > drops XP orbs that the player picks up for the whole team"
+    },
+    {
+      "spec": "Smoke.spec.luau",
+      "test": "smoke > ends in defeat when the only player is knocked down"
+    },
+    {
+      "spec": "Smoke.spec.luau",
+      "test": "smoke > ends the wave: enemies fade, the shop opens and the level-up cards come first"
+    },
+    {
+      "spec": "Smoke.spec.luau",
+      "test": "smoke > finished without any runtime error"
+    },
+    {
+      "spec": "Smoke.spec.luau",
+      "test": "smoke > gives the evolution from a chest once the build is ready"
+    },
+    {
+      "spec": "Smoke.spec.luau",
+      "test": "smoke > hits and kills enemies with the debug buttons"
+    },
+    {
+      "spec": "Smoke.spec.luau",
+      "test": "smoke > keeps level-ups for the end of the wave"
+    },
+    {
+      "spec": "Smoke.spec.luau",
+      "test": "smoke > keeps running while one of two is down, and enemies go for the one still standing"
+    },
+    {
+      "spec": "Smoke.spec.luau",
+      "test": "smoke > keeps walking but suppresses jumping on Space"
+    },
+    {
+      "spec": "Smoke.spec.luau",
+      "test": "smoke > lets Spitters shoot visible projectiles that hit the player"
+    },
+    {
+      "spec": "Smoke.spec.luau",
+      "test": "smoke > lets items change HP, speed and weapon damage, stacking without limit"
+    },
+    {
+      "spec": "Smoke.spec.luau",
+      "test": "smoke > opens the chest when walked over and shows the reward"
+    },
+    {
+      "spec": "Smoke.spec.luau",
+      "test": "smoke > rejects locked classes with a message"
+    },
+    {
+      "spec": "Smoke.spec.luau",
+      "test": "smoke > returns to the lobby after the results"
+    },
+    {
+      "spec": "Smoke.spec.luau",
+      "test": "smoke > runs Brotato's combat: weapon class bonuses, burning, exploding items and slowed enemies"
+    },
+    {
+      "spec": "Smoke.spec.luau",
+      "test": "smoke > runs item effects: standing still, per X, timers, crit kills, dodges and chests"
+    },
+    {
+      "spec": "Smoke.spec.luau",
+      "test": "smoke > runs wave end, shop and next-wave effects and the shop stats"
+    },
+    {
+      "spec": "Smoke.spec.luau",
+      "test": "smoke > runs with two players and keeps late joiners in the lobby"
+    },
+    {
+      "spec": "Smoke.spec.luau",
+      "test": "smoke > sells weapons and items for Shards in the shop, rerolls and starts the next wave on READY"
+    },
+    {
+      "spec": "Smoke.spec.luau",
+      "test": "smoke > shoots Spark Bolts that kill enemies once weapons are on"
+    },
+    {
+      "spec": "Smoke.spec.luau",
+      "test": "smoke > shows a Charger's wind-up, splits Splitters and names elite affixes"
+    },
+    {
+      "spec": "Smoke.spec.luau",
+      "test": "smoke > shows enemy and performance numbers to admins"
+    },
+    {
+      "spec": "Smoke.spec.luau",
+      "test": "smoke > skips to the boss wave, and surviving it wins (WP10)"
+    },
+    {
+      "spec": "Smoke.spec.luau",
+      "test": "smoke > spawns a glowing elite with an HP bar that drops a chest"
+    },
+    {
+      "spec": "Smoke.spec.luau",
+      "test": "smoke > spawns enemies on a ring around the player and draws them"
+    },
+    {
+      "spec": "Smoke.spec.luau",
+      "test": "smoke > stands a downed player up with full HP when the wave ends"
+    },
+    {
+      "spec": "Smoke.spec.luau",
+      "test": "smoke > starts Swarm Rush with a ring of Shadelings and no Gloom Elites"
+    },
+    {
+      "spec": "Smoke.spec.luau",
+      "test": "smoke > starts the next run with Play again"
+    },
+    {
+      "spec": "Smoke.spec.luau",
+      "test": "smoke > takes debug damage with hit protection and heals"
+    }
+  ],
+  "characterCodePrepared": [
+    "Crazy",
+    "Brawler",
+    "Ghost",
+    "Bull",
+    "Doctor",
+    "Pacifist"
+  ],
+  "pendingArt": {
+    "characters": 74,
+    "weapons": 18,
+    "items": [
+      "LumberjackShirt"
+    ]
+  },
+  "remainingRequiredEquipment": {
+    "weaponFamilies": 11,
+    "itemPetFamilies": 9
+  },
+  "checks": [
+    "StyLua on changed Luau files",
+    "Selene on changed production modules: 0 errors / 0 warnings using cached Roblox API",
+    "Character/item generator checks",
+    "Rojo build",
+    "Local art import preparation: no missing/unusable pictures"
+  ],
+  "limits": [
+    "No Studio, two-client native runtime or mobile acceptance. No uploads or publication.",
+    "Generic original weapon/item formula and physics gaps remain open; six code-prepared packages are not six complete native acceptance results.",
+    "Native cumulative material progress is shared by local players in the source game; Roblox persists physical pickups for the collector profile, independent of currency recipients.",
+    "Existing owner-approved tree health differences remain unchanged."
+  ]
+}

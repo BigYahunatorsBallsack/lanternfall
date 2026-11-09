@@ -72,7 +72,7 @@ Jeder Strang ändert nur **seine** Zeile (Regeln: `docs/PARALLEL.md`).
 | Strang | KI | Aktuelles Paket | Branch / PR | Stand | Danach |
 | --- | --- | --- | --- | --- | --- |
 | A – Engine und Ablauf | Claude | Paket 24 Launch-Paket (Medium) | `wp-24-launch` | fertig, selbst gemerged | Plan bis zum Launch abgeschlossen; als Nächstes IDs des Owners eintragen (Live-Experience, Badges, Musik), dann Live-Ops |
-| B - Inhalte und Spieler-Regeln | ChatGPT | B10: alle stabilen Brotato-Charaktere | `wp-b10-projectile-starts` | Crazy/Brawler/Ghost/Bull/Doctor code-vorbereitet; 18 zusaetzliche Startwaffenpfade; echte Uploads offen | Restliche Ausruestung, native Alt-IDs und weitere Charakter-/Shop-/DLC-Regeln |
+| B - Inhalte und Spieler-Regeln | ChatGPT | B10: alle stabilen Brotato-Charaktere | `wp-b10-pacifist` | Crazy/Brawler/Ghost/Bull/Doctor/Pacifist code-vorbereitet; 18 zusaetzliche Startwaffenpfade; Lumberjack Shirt ergaenzt; echte Uploads offen | Restliche Ausruestung, native Alt-IDs und weitere Charakter-/Shop-/DLC-Regeln |
 
 ## Feste Entscheidungen des Owners
 
@@ -754,3 +754,10 @@ Branch `wp-25-2d-presentation`. **Owner-Entscheidungen dieses Pakets:** Das Spie
 - Boden-Grundfarbe in MapService (sichtbar, solange das Bild lädt) und der Rand außerhalb der Arena (`Config.Map.decor.outskirts.color`, jetzt fast schwarz) passen zum Referenzbild.
 - Ein neu gezeichneter Baum wurde vom Owner abgelehnt und verworfen; der bisherige Baum bleibt.
 - **Bodenbild noch nicht hochgeladen.** Upload-Datei: Projektordner `tree-redesign/upload/ArenaFloor.png`. ID danach in `Config/SpriteImages.luau` → `floors.Arena` eintragen. `import_sprites.py apply` hier nicht nutzen: im Container weichen die Bild-Hashes aller Bilder von `uploaded.json` ab (andere Pillow-Version).
+
+## Pacifist-Paket (Strang B, 09.11.2026)
+
+- Pacifist als sechstes Codepaket vorbereitet: alle drei originalen Starts, garantierter Lumberjack Shirt, -100 Damage/Engineering und originale Regeldarstellung. Bestehende persönliche Überlebenden-Belohnungen einschließlich Horde, finaler Welle und Retry weiterhin geprüft. Shirt zerstört Bäume durch gültige Besitzer-Hitboxen nach normaler Schadensabrechnung; Brennen und Stat-Strikes lösen diese Sonderregel nicht aus. Arsenal unverändert.
+- Freischaltung nach 10.000 aufgesammelten Materialobjekten: Wertverdopplung und Koop-Währungsrotation verändern den persönlichen Sammlerzähler nicht. Schema v10 ergänzt nativeCounts.materialsCollected mit Migration v9 -> v10; alte Daten bleiben erhalten, historisch nicht erfasste Pickups beginnen bei 0. Fortschritt und Flag bleiben über Run/Retry/Profil-Neuladen erhalten. Keine Live-Daten verändert.
+- Originales Shirt-Bild lokal vorbereitet, ohne Upload. 125 öffentliche Items und ein bis zum echten Bild-Upload für Zufallspools gesperrtes Startitem; elf Waffen- und neun Item-/Petfamilien fehlen noch. Charakterauswahl bleibt ohne echtes Pacifist-Bild gesperrt. Keine zusätzliche native Studio-Abnahme behauptet.
+- Vergleich mit main 607524e: 143 Specs, 1230 bestanden, dieselben 34 vorhandenen Fehler, keine neuen Fehlerkennungen. Vollvergleich plus gezielte Nachprüfung der parallel gemergten Menü-/Bodenänderungen; Methodik und Grenzen in docs/characters/pacifist-validation.json. StyLua, Selene (gecachte Roblox-API), Generatorchecks und Rojo-Build bestanden. Studio/Koop/Handy offen.
