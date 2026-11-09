@@ -3,6 +3,9 @@
 -- Generated from the factual catalog in assets/weapons/brotato-base; no DLC or custom weapons.
 -- Range uses 0.1 studs per wiki unit; HP uses original Brotato units, as in current main.
 
+-- Explosion radii below are Brotato's exploding-effect `scale` times its base explosion circle.
+local BLAST = require(script.Parent.Combat).explosion.baseRadius
+
 export type TierDelta = {
 	[string]: number,
 	damage: number?,
@@ -1517,7 +1520,7 @@ local Weapons: { [string]: Weapon } = {
 			attackSeconds = 0.18,
 			meleeMode = 1,
 			explosionChance = 0.25,
-			explosionRadius = 4.5,
+			explosionRadius = 0.75 * BLAST,
 			levelScaling = 0,
 		},
 		tiers = {
@@ -1603,7 +1606,7 @@ local Weapons: { [string]: Weapon } = {
 			attackSeconds = 0.18,
 			meleeMode = 1,
 			explosionChance = 0.25,
-			explosionRadius = 6,
+			explosionRadius = 1 * BLAST,
 			levelScaling = 0,
 		},
 		tiers = {
@@ -1614,7 +1617,7 @@ local Weapons: { [string]: Weapon } = {
 				damage = 0.5,
 				cooldown = -0.06,
 				explosionChance = 0.25,
-				explosionRadius = 1.5,
+				explosionRadius = 0.25 * BLAST,
 			},
 		},
 	},
@@ -1673,7 +1676,7 @@ local Weapons: { [string]: Weapon } = {
 			attackSeconds = 0.18,
 			meleeMode = 0,
 			explosionChance = 0.25,
-			explosionRadius = 4.5,
+			explosionRadius = 1 * BLAST, -- Brotato power_fist_3 scale 1.0, power_fist_4 1.25
 			levelScaling = 0,
 		},
 		tiers = {
@@ -1684,7 +1687,7 @@ local Weapons: { [string]: Weapon } = {
 				damage = 1,
 				cooldown = -0.1,
 				explosionChance = 0.25,
-				explosionRadius = 1.5,
+				explosionRadius = 0.25 * BLAST,
 			},
 		},
 	},
@@ -3454,12 +3457,12 @@ local Weapons: { [string]: Weapon } = {
 			projectileSpeed = 60,
 			projectileRadius = 0.5,
 			spreadDegrees = 8,
-			explosionRadius = 12,
+			explosionRadius = 2 * BLAST,
 			levelScaling = 0,
 		},
 		tiers = { {}, {}, {}, {
 			damage = 1,
-			explosionRadius = 1.5,
+			explosionRadius = 0.25 * BLAST,
 		} },
 	},
 	Obliterator = {
@@ -3913,7 +3916,7 @@ local Weapons: { [string]: Weapon } = {
 			projectileSpeed = 60,
 			projectileRadius = 0.5,
 			spreadDegrees = 8,
-			explosionRadius = 7.2,
+			explosionRadius = 1.2 * BLAST,
 			levelScaling = 0,
 		},
 		tiers = {
@@ -3988,7 +3991,7 @@ local Weapons: { [string]: Weapon } = {
 			projectileRadius = 0.5,
 			spreadDegrees = 8,
 			explosionChance = 0.5,
-			explosionRadius = 4.5,
+			explosionRadius = 0.75 * BLAST,
 			pierceFalloff = 0,
 			levelScaling = 0,
 		},
@@ -3998,19 +4001,19 @@ local Weapons: { [string]: Weapon } = {
 				damage = 1,
 				cooldown = -0.08,
 				explosionChance = 0.15,
-				explosionRadius = 0.3,
+				explosionRadius = 0.05 * BLAST,
 			},
 			{
 				damage = 1,
 				cooldown = -0.09,
 				explosionChance = 0.15,
-				explosionRadius = 0.3,
+				explosionRadius = 0.05 * BLAST,
 			},
 			{
 				damage = 2,
 				cooldown = -0.08,
 				explosionChance = 0.2,
-				explosionRadius = 0.3,
+				explosionRadius = 0.05 * BLAST,
 			},
 		},
 	},
@@ -4551,7 +4554,7 @@ local Weapons: { [string]: Weapon } = {
 			attackSeconds = 0.18,
 			meleeMode = 0,
 			explosionChance = 0.5,
-			explosionRadius = 7.5,
+			explosionRadius = 1.25 * BLAST,
 			secondaryCount = 1,
 			secondaryBase = 30,
 			secondaryScaling = 1,
@@ -4621,7 +4624,7 @@ local Weapons: { [string]: Weapon } = {
 			projectileSpeed = 60,
 			projectileRadius = 0.5,
 			spreadDegrees = 8,
-			explosionRadius = 6,
+			explosionRadius = 1 * BLAST,
 			burnDamage = 5,
 			burnTicks = 3,
 			levelScaling = 0,

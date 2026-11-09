@@ -74,4 +74,13 @@ describe("arena size", function()
 		expect(arenaPart("Floor").Size.X).toBeNear(204.8, 1e-6)
 		connection:Disconnect()
 	end)
+
+	it("uses Brotato's boss, champion and explosion circles", function()
+		local px = Config.Stats.range.studsPerPoint
+		expect(Config.Enemies.bosses.LanternEater.hitRadius).toBeNear(40 * px, 1e-6)
+		expect(Config.Enemies.champions.BroodMatron.hurtRadius).toBeNear(64 * px, 1e-6)
+		expect(Config.Enemies.champions.BroodMatron.hitRadius).toBeNear(56 * px, 1e-6)
+		expect(Config.Combat.explosion.baseRadius).toBeNear(14.734, 1e-6)
+		expect(Config.Weapons.MortarLantern.base.explosionRadius).toBeNear(1.2 * 14.734, 1e-6) -- Rocket Launcher
+	end)
 end)

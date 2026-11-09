@@ -1085,6 +1085,17 @@ local BossWave = table.freeze({
 -- scenes as in tools/build-enemy-waves.py. Kinds without an entry use their radius for both.
 local BROTATO_CIRCLES: { [string]: { hurt: number, hit: number } } = {
 	AbyssBrute = { hurt = 40.01, hit = 27.0 },
+	-- Bosses (crash_zone/bosses/<scene>.tscn) and champions (crash_zone/elites/<scene>.tscn)
+	LanternEater = { hurt = 40.0, hit = 40.0 }, -- predator
+	HollowSeer = { hurt = 40.0, hit = 40.0 }, -- invoker
+	BrassRam = { hurt = 40.0, hit = 40.0 }, -- rhino
+	Flayer = { hurt = 40.0, hit = 40.0 }, -- butcher
+	Abbot = { hurt = 40.0, hit = 40.0 }, -- monk
+	MireJaw = { hurt = 40.0, hit = 40.0 }, -- croc
+	Monolith = { hurt = 48.0, hit = 48.0 }, -- colossus
+	SickleWraith = { hurt = 40.0, hit = 40.0 }, -- mantis
+	BroodMatron = { hurt = 64.0, hit = 56.0 }, -- mom
+	StoneSeraph = { hurt = 40.0, hit = 40.0 }, -- gargoyle
 	AbyssShadeling = { hurt = 32.0, hit = 16.0 },
 	BroodEgg = { hurt = 32.0, hit = 18.0 },
 	Brute = { hurt = 40.01, hit = 27.02 },

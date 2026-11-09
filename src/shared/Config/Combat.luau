@@ -37,12 +37,12 @@ return table.freeze({
 		minTickSeconds = 0.2,
 		spreadRadius = 8, -- studs
 	}),
-	-- Explosions: a radius at 100 % size (Brotato's base size; assumption), for item effects whose `size` is a share
-	-- of it. Explosion Size scales every radius, Explosion Damage every explosion's damage. Explosions crit like the
+	-- Explosions: a radius at 100 % size, Brotato's res://projectiles/explosion.tscn circle (147.34 px x 0.1 studs per
+	-- px, file 1.2.0.1); a weapon's or item's explosion `scale` is a share of it. Explosion Size scales every radius, Explosion Damage every explosion's damage. Explosions crit like the
 	-- weapon, never life steal and never knock back.
 	explosion = table.freeze({
 		minimumSizeFactor = 0.1, -- stable PlayerExplosion.set_area minimum
-		baseRadius = 6, -- studs; Starfire's blast
+		baseRadius = 147.34 * 0.1, -- studs (Config.Stats.range.studsPerPoint)
 	}),
 	-- Piercing (Brotato): every enemy after the first takes `falloff` less than the one before, unless the weapon sets
 	-- its own pierceFalloff; Piercing Damage gives some of it back, never above full damage.
