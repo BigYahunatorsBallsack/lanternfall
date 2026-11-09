@@ -779,3 +779,9 @@ Branch `wp-25-2d-presentation`. **Owner-Entscheidungen dieses Pakets:** Das Spie
 - Owner-Referenz als transparentes rotes Plus-Kreuz neu erstellt, mit dunkler Aussenkontur; Owner waehlte abschliessend die erste Version ohne schwarze Innenstriche: `assets/spawn-marker/SpawnCross.png`. Built-in Imagegen; keine pixelgenaue Gleichheit behauptet.
 - Reiner Sprite-Auftrag: keine Produktionsmodule oder Asset-IDs geaendert, nichts zu Roblox hochgeladen. Claude integriert das Bild nach Upload in `SpawnMarkerRenderer`; derzeit zeichnet main weiterhin Balken. Uebergabe und Testanleitung: `assets/spawn-marker/README.md`.
 - PNG visuell sowie auf quadratisches RGBA-Format, echte Alpha-Transparenz und transparente Ecken geprueft. Studio/Koop/Handy nach Upload und Einbau offen. StyLua/Selene/Luau-Tests fuer reine PNG-/Dokuaenderung nicht anwendbar.
+
+## Enemy-Settings und verschiebbares DEBUG (Strang A, 09.11.2026)
+
+- Lobby: Knopf "Enemy Settings" sitzt auf dem Desktop jetzt unten im Gefahren-Panel der Difficulty-Seite (Handy: unverändert unter dem Inhalt). Beschreibung dort auf 180 px gekürzt, Seite bleibt ohne Scrollen.
+- DEBUG-Panel startet links unter der Lebensleiste statt oben rechts und lässt sich am Kopf "DEBUG" mit Maus/Finger verschieben (ab 6 px Weg; ein kurzer Klick klappt weiterhin auf/zu). Die gezogene Position bleibt für die Sitzung, auch im Shop.
+- Test-Mock: `InputChanged`/`InputEnded` als Events ergänzt (nur angehängt). UI-Specs grün; Smoke/RunStats/EnemySpawnPlacement25 haben dieselben Fehler wie main. Studio-/Handy-Abnahme offen.
