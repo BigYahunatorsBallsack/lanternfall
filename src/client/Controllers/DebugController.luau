@@ -7,6 +7,7 @@
 -- graphics level (GraphicsController).
 
 local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 
@@ -26,6 +27,9 @@ local RunStateController = require(script.Parent.RunStateController)
 local ShopLayout = require(script.Parent.Parent.UI.ShopLayout)
 
 local ADMIN_ATTRIBUTE = "LanternfallAdmin"
+-- Where the owner dragged the panel to (top left corner, pixels); nil keeps the default place. Kept for the session.
+local draggedTo: Vector2? = nil
+local DRAG_THRESHOLD = 6 -- pixels the pointer moves before a press counts as a drag instead of a click
 local STATS_REFRESH_SECONDS = 0.5
 
 local BUTTON_TEXT: { [string]: string } = {
@@ -108,8 +112,7 @@ local function build(): ScreenGui
 	local gridWidth = 2 * BUTTON_SIZE.X + BUTTON_GAP
 	local panel = Widgets.panel({
 		Name = "Debug",
-		AnchorPoint = Vector2.new(1, 0),
-		Position = UDim2.new(1, -72, 0, 8),
+		Position = UDim2.new(0, 12, 0, 180),
 		Size = UDim2.fromOffset(104, 0),
 		Parent = screen,
 	})
@@ -155,6 +158,10 @@ local function build(): ScreenGui
 		LayoutOrder = 0,
 		Parent = panel,
 	}, function()
+		if header:GetAttribute("Dragged") then
+			header:SetAttribute("Dragged", nil)
+			return -- the press moved the panel; do not toggle
+		end
 		open = not open
 		panel.Size = UDim2.fromOffset(if open then gridWidth + 28 else 104, 0)
 		local pad = UDim.new(0, if open then 14 else 4)
@@ -166,6 +173,38 @@ local function build(): ScreenGui
 		header.Text = if open then "DEBUG (hide)" else "DEBUG"
 		grid.Visible = open
 		statsPanel.Visible = open
+	end)
+
+	-- Drag the panel by its DEBUG button (owner: keep it off the level-up and crate icons).
+	local pressAt: Vector2? = nil
+	local startCorner = Vector2.new(0, 0)
+	header.InputBegan:Connect(function(input: InputObject)
+		local kind = input.UserInputType
+		if kind == Enum.UserInputType.MouseButton1 or kind == Enum.UserInputType.Touch then
+			pressAt = Vector2.new(input.Position.X, input.Position.Y)
+			startCorner = panel.AbsolutePosition
+		end
+	end)
+	UserInputService.InputChanged:Connect(function(input: InputObject)
+		local kind = input.UserInputType
+		if not pressAt or (kind ~= Enum.UserInputType.MouseMovement and kind ~= Enum.UserInputType.Touch) then
+			return
+		end
+		local delta = Vector2.new(input.Position.X, input.Position.Y) - pressAt
+		if not header:GetAttribute("Dragged") and delta.Magnitude < DRAG_THRESHOLD then
+			return
+		end
+		header:SetAttribute("Dragged", true)
+		local corner = startCorner + delta
+		draggedTo = corner
+		panel.AnchorPoint = Vector2.new(0, 0)
+		panel.Position = UDim2.fromOffset(corner.X, corner.Y)
+	end)
+	UserInputService.InputEnded:Connect(function(input: InputObject)
+		local kind = input.UserInputType
+		if kind == Enum.UserInputType.MouseButton1 or kind == Enum.UserInputType.Touch then
+			pressAt = nil
+		end
 	end)
 
 	for index, command in DebugCommands do
@@ -325,10 +364,12 @@ function DebugController.start()
 			local scale = panel:FindFirstChild("ShopScale")
 				or Widgets.create("UIScale", { Name = "ShopScale", Parent = panel })
 			scale.Scale = if shopping then layout.scale else 1
-			panel.AnchorPoint = Vector2.new(if shopping then 0 else 1, 0)
-			panel.Position = if shopping
-				then UDim2.fromOffset((layout.leftWidth - 374) * layout.scale, 24 * layout.scale)
-				else UDim2.new(1, -72, 0, 8)
+			-- Default: left side below the health and XP bars, away from the level-up and crate icons top right.
+			panel.AnchorPoint = Vector2.new(0, 0)
+			panel.Position = if draggedTo
+				then UDim2.fromOffset(draggedTo.X, draggedTo.Y)
+				elseif shopping then UDim2.fromOffset((layout.leftWidth - 374) * layout.scale, 24 * layout.scale)
+				else UDim2.new(0, 12, 0, 180)
 		end
 	end
 	player:GetAttributeChangedSignal(ADMIN_ATTRIBUTE):Connect(update)
