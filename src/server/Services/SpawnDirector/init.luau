@@ -56,10 +56,10 @@ local obstacles: { SpawnRules.Circle } = MapService.getObstacles()
 local bounds: SpawnRules.Rect = (function()
 	local arena = MapService.getArenaBounds()
 	return {
-		minX = arena.center.X - arena.halfSize,
-		maxX = arena.center.X + arena.halfSize,
-		minZ = arena.center.Z - arena.halfSize,
-		maxZ = arena.center.Z + arena.halfSize,
+		minX = arena.center.X - arena.halfX,
+		maxX = arena.center.X + arena.halfX,
+		minZ = arena.center.Z - arena.halfZ,
+		maxZ = arena.center.Z + arena.halfZ,
 	}
 end)()
 

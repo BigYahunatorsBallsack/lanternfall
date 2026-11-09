@@ -22,7 +22,8 @@ export type Zone = "Lobby" | "Arena"
 
 export type Bounds = {
 	center: Vector3, -- center of the floor surface
-	halfSize: number,
+	halfX: number, -- half the width (x)
+	halfZ: number, -- half the depth (z)
 }
 
 -- An obstacle as enemies see it: a circle on the floor, in world x/z.
@@ -77,12 +78,13 @@ local function makePart(parent: Instance, name: string, size: Vector3, cframe: C
 	return part
 end
 
--- Floor plus four walls around a square area.
+-- Floor plus four walls around a rectangular area (x = width, z = depth).
 local function buildArea(
 	parent: Instance,
 	name: string,
 	center: Vector3,
-	size: number,
+	width: number,
+	depth: number,
 	wallHeight: number,
 	floorColor: Color3,
 	wallColor: Color3,
@@ -95,7 +97,7 @@ local function buildArea(
 	local floor = makePart(
 		model,
 		"Floor",
-		Vector3.new(size, thickness, size),
+		Vector3.new(width, thickness, depth),
 		CFrame.new(center - Vector3.new(0, thickness / 2, 0)),
 		floorColor
 	)
@@ -112,13 +114,14 @@ local function buildArea(
 	end
 
 	local wall = Config.Map.wallThickness
-	local offset = size / 2 + wall / 2
+	local offsetX = width / 2 + wall / 2
+	local offsetZ = depth / 2 + wall / 2
 	local y = wallHeight / 2
 	local sides = {
-		{ "WallNorth", Vector3.new(size + 2 * wall, wallHeight, wall), Vector3.new(0, y, -offset) },
-		{ "WallSouth", Vector3.new(size + 2 * wall, wallHeight, wall), Vector3.new(0, y, offset) },
-		{ "WallWest", Vector3.new(wall, wallHeight, size), Vector3.new(-offset, y, 0) },
-		{ "WallEast", Vector3.new(wall, wallHeight, size), Vector3.new(offset, y, 0) },
+		{ "WallNorth", Vector3.new(width + 2 * wall, wallHeight, wall), Vector3.new(0, y, -offsetZ) },
+		{ "WallSouth", Vector3.new(width + 2 * wall, wallHeight, wall), Vector3.new(0, y, offsetZ) },
+		{ "WallWest", Vector3.new(wall, wallHeight, depth), Vector3.new(-offsetX, y, 0) },
+		{ "WallEast", Vector3.new(wall, wallHeight, depth), Vector3.new(offsetX, y, 0) },
 	}
 	for _, side in sides do
 		local part = makePart(model, side[1], side[2], CFrame.new(center + side[3]), wallColor)
@@ -195,8 +198,17 @@ local function buildMap(): Folder
 	folder.Name = MAP_NAME
 
 	local lobby = Config.Map.lobby
-	local lobbyModel =
-		buildArea(folder, "Lobby", lobby.center, lobby.size, lobby.wallHeight, LOBBY_FLOOR_COLOR, LOBBY_FLOOR_COLOR, 1)
+	local lobbyModel = buildArea(
+		folder,
+		"Lobby",
+		lobby.center,
+		lobby.size,
+		lobby.size,
+		lobby.wallHeight,
+		LOBBY_FLOOR_COLOR,
+		LOBBY_FLOOR_COLOR,
+		1
+	)
 
 	local pad = Instance.new("SpawnLocation")
 	pad.Name = "LobbySpawn"
@@ -221,7 +233,8 @@ local function buildMap(): Folder
 		folder,
 		"Arena",
 		arena.center,
-		arena.size,
+		arena.width,
+		arena.depth,
 		arena.wallHeight,
 		ARENA_FLOOR_COLOR,
 		ARENA_WALL_COLOR,
@@ -298,7 +311,7 @@ end
 
 function MapService.getArenaBounds(): Bounds
 	local arena = Config.Map.arena
-	return { center = arena.center, halfSize = arena.size / 2 }
+	return { center = arena.center, halfX = arena.width / 2, halfZ = arena.depth / 2 }
 end
 
 -- Arena obstacles as circles in world x/z (EnemySim steers around them, SpawnDirector avoids them).
@@ -359,8 +372,14 @@ end
 function MapService.isInZone(position: Vector3, zone: Zone): boolean
 	local layout = layoutFor(zone)
 	local offset = position - layout.center
-	local half = layout.size / 2
-	return math.abs(offset.X) <= half and math.abs(offset.Z) <= half and offset.Y >= 0 and offset.Y <= layout.wallHeight
+	local arena = Config.Map.arena
+	local lobby = Config.Map.lobby
+	local halfX = if zone == "Arena" then arena.width / 2 else lobby.size / 2
+	local halfZ = if zone == "Arena" then arena.depth / 2 else lobby.size / 2
+	return math.abs(offset.X) <= halfX
+		and math.abs(offset.Z) <= halfZ
+		and offset.Y >= 0
+		and offset.Y <= layout.wallHeight
 end
 
 -- Moves the player's character to a zone. `slot` of `count` spreads participants around the arena start.

@@ -123,7 +123,7 @@ describe("movement check", function()
 
 	it("moves a teleporting player back and keeps the old spot for the services", function()
 		local before = root().Position
-		moveBy(80, 0)
+		moveBy(Config.Map.arena.width, 0) -- a jump across the whole arena
 		local seen = MapService.getRootPosition(me) :: Vector3
 		expect(seen.X).toBeNear(before.X, 0.01)
 		expect(root().Position.X).toBeNear(before.X, 0.01) -- the character itself went back
@@ -155,7 +155,7 @@ describe("movement check", function()
 		world.advance(3)
 		local before = root().Position
 		local arena = Config.Map.arena
-		root().Position = Vector3.new(arena.center.X + arena.size / 2 + 6, before.Y, before.Z)
+		root().Position = Vector3.new(arena.center.X + arena.width / 2 + 6, before.Y, before.Z)
 		world.step(0.1)
 		expect(root().Position.X).toBeNear(before.X, 0.01)
 	end)
