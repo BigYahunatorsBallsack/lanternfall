@@ -2,6 +2,7 @@
 -- World-space weapon presentation and muzzle placement, shared by WeaponRenderer and weapon behaviors.
 
 local Visuals = {
+	boomerang = { studs = 10, height = 0, rotationDegreesPerSecond = 2700 },
 	firePuddle = {
 		color = { 1, 0.35, 0.08 },
 		height = 0.15,

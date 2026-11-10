@@ -852,6 +852,11 @@
     "text": "Original Brotato: Shovel",
     "source": "assets/weapons/character-starts/Shovel.png",
     "trimmed": true
+   },
+   "Boomerang": {
+    "text": "Original Brotato: Boomerang",
+    "source": "assets/weapons/character-starts/Boomerang.png",
+    "trimmed": true
    }
   },
   "raw": true
@@ -1404,6 +1409,18 @@
    "DigSite4": {
     "text": "Original Brotato: DigSite4",
     "source": "assets/world2d/final/digging/DigSite4.png",
+    "trimmed": true
+   }
+  }
+ },
+ "boomerang": {
+  "title": "Original Boomerang flight",
+  "pixels": 512,
+  "raw": true,
+  "items": {
+   "BoomerangThrown": {
+    "text": "Original Brotato: Boomerang projectile",
+    "source": "assets/weapons/character-starts/BoomerangThrown.png",
     "trimmed": true
    }
   }

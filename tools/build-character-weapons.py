@@ -16,7 +16,7 @@ def module(name, file):
     return result
 source = module('character_source', 'tools/character-source.py')
 catalog = module('character_catalog', 'tools/build-character-catalog.py')
-FAMILIES = ['anchor', 'mace', 'meat_tenderizer', 'machinegun', 'pan_flute', 'combat_shotgun', 'grenade_launcher', 'whip', 'spoon', 'cestus', 'sickle', 'trident', 'lute', 'blowgun', 'blunderbuss', 'javelin', 'tranq_rifle', 'harpoon_gun', 'sticky_grenade', 'flail', 'molotov', 'awl', 'carbon_bow', 'flute', 'crowbar', 'shovel']
+FAMILIES = ['anchor', 'mace', 'meat_tenderizer', 'machinegun', 'pan_flute', 'combat_shotgun', 'grenade_launcher', 'whip', 'spoon', 'cestus', 'sickle', 'trident', 'lute', 'blowgun', 'blunderbuss', 'javelin', 'tranq_rifle', 'harpoon_gun', 'sticky_grenade', 'flail', 'molotov', 'awl', 'carbon_bow', 'flute', 'crowbar', 'shovel', 'boomerang']
 FACTS = ROOT / 'docs/characters/weapon-source.json'
 OUTPUT = ROOT / 'src/shared/Config/CharacterWeaponData.luau'
 
@@ -108,6 +108,9 @@ def generate():
             bonuses = {}
             lines = []
             for effect in tier['effects']:
+                if ident == 'Boomerang':
+                    lines.append('Flies back to you, hitting enemies again on the way back')
+                    continue
                 if ident == 'CarbonBow':
                     value['carbonBow'] = 1
                     stat = effect.get('stat_name','')

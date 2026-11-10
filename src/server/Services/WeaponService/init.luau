@@ -600,6 +600,10 @@ function WeaponService.init()
 		BrotatoRuntime.reloadFromMaterials(arsenal:getWeapons(player.UserId), count, now())
 	end)
 	BrotatoCombat.configure({
+		ownerAlive = function(ownerId)
+			local player = playerOf(ownerId)
+			return player ~= nil and RunDirector.getParticipantState(player) == "Alive"
+		end,
 		tryCharm = function(ownerId, id, stats, random)
 			local player = playerOf(ownerId)
 			return player ~= nil and EnemySim.tryCharm(player, id, stats, random)

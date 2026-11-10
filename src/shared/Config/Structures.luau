@@ -20,6 +20,8 @@ export type Definition = {
 	rays: number?,
 	native: boolean?,
 	nativeProjectile: boolean?,
+	canBeGrouped: boolean?,
+	countsAsTurret: boolean?,
 	cooldownFrames: number?,
 	shotRange: number?,
 	projectileSpeed: number?,
@@ -197,6 +199,16 @@ end
 return table.freeze({
 	kinds = kinds,
 	maxActive = 100,
+	nativeGrouping = table.freeze({
+		baseAreaDivisor = 3,
+		maximumArea = 60,
+		baseArea = 40,
+		perSourceArea = 1,
+		edge = 6.4,
+		edgeLimitShare = 0.2,
+		placementTries = 5,
+		forbiddenPush = 0.8,
+	}),
 	boostBodyRadius = 4, -- inherited Entity Collision:40 source points
 	boostBodyOffsetZ = -0.8, -- inherited native structure Collision position:-8 source points
 	spriteSize = 7, -- world studs; original item artwork for all deployed structures

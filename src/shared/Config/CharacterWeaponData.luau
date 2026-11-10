@@ -2918,6 +2918,122 @@ return {
 				},
 			},
 		},
+		Boomerang = {
+			id = "Boomerang",
+			displayName = "Boomerang",
+			description = "",
+			tierDescriptions = {
+				"Flies back to you, hitting enemies again on the way back",
+				"Flies back to you, hitting enemies again on the way back",
+				"Flies back to you, hitting enemies again on the way back",
+				"Flies back to you, hitting enemies again on the way back",
+			},
+			brotato = true,
+			available = false,
+			kind = "Ranged",
+			classes = {
+				"Primal",
+			},
+			minTier = 1,
+			originalScaling = {
+				{
+					meleeDamage = 0.5,
+					speed = 0.05,
+				},
+				{
+					meleeDamage = 0.6,
+					speed = 0.1,
+				},
+				{
+					meleeDamage = 0.7,
+					speed = 0.15,
+				},
+				{
+					meleeDamage = 0.8,
+					speed = 0.2,
+				},
+			},
+			scaling = {
+				meleeDamage = 0.5,
+				speed = 0.05,
+			},
+			tierScaling = {
+				{
+					meleeDamage = 0.5,
+					speed = 0.05,
+				},
+				{
+					meleeDamage = 0.6,
+					speed = 0.1,
+				},
+				{
+					meleeDamage = 0.7,
+					speed = 0.15,
+				},
+				{
+					meleeDamage = 0.8,
+					speed = 0.2,
+				},
+			},
+			heldStats = {
+				{},
+				{},
+				{},
+				{},
+			},
+			rangeKeys = {
+				"range",
+			},
+			behavior = "Boomerang",
+			targeting = "Nearest",
+			base = {
+				damage = 6,
+				cooldown = 0.5,
+				nativeCooldownFrames = 30,
+				nativeTiming = 1,
+				range = 30,
+				critChance = 0.05,
+				critDamage = 2,
+				knockback = 0,
+				knockbackPiercing = 0,
+				lifeSteal = 0,
+				noBounce = 1,
+				count = 1,
+				nativeSpread = 0,
+				nativeAccuracy = 1,
+				projectileSpeed = 90,
+				projectileRadius = 0.6,
+				pierce = 0,
+				pierceFalloff = 0,
+				bounce = 0,
+				bounceFalloff = 0,
+				shootWithoutTarget = 0,
+			},
+			tiers = {
+				{},
+				{
+					damage = 0.5,
+					cooldown = -0.0333333333333333,
+					nativeCooldownFrames = -2,
+					range = 2.5,
+					projectileSpeed = 5,
+				},
+				{
+					damage = 0.5,
+					cooldown = -0.0333333333333333,
+					nativeCooldownFrames = -2,
+					range = 2.5,
+					projectileSpeed = 5,
+				},
+				{
+					damage = 0.833333333333333,
+					cooldown = -0.0333333333333333,
+					nativeCooldownFrames = -2,
+					range = 2.5,
+					projectileSpeed = 5,
+				},
+			},
+		},
 	},
 	prices = {
 		Anchor = {
@@ -3075,6 +3191,12 @@ return {
 			38,
 			72,
 			135,
+		},
+		Boomerang = {
+			14,
+			30,
+			58,
+			115,
 		},
 	},
 }
