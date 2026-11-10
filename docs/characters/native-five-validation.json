@@ -1,0 +1,101 @@
+{
+  "scope": "Five code-prepared character packages; original uploads and native Studio acceptance remain pending",
+  "packages": [
+    "Cryptid",
+    "Mage (SparkMage saved id)",
+    "Ranger (NightWatch saved id)",
+    "Technomage",
+    "Renegade"
+  ],
+  "startSelections": {
+    "Cryptid": 28,
+    "Mage": 12,
+    "Ranger": 14,
+    "Technomage": 12,
+    "Renegade": 23
+  },
+  "baseCommit": "48ea1b25db2dd7cec189465efa3d35dd9095ff3a",
+  "candidateCodeCommit": "495b47b1379054dbd6938d81a7b48570d2c54b44",
+  "seed": 1234,
+  "runner": "One spec per Lune process; absolute seeded runner, actual archive/repository cwd; baseline completed before candidate suite",
+  "baseline": {
+    "specs": 150,
+    "passed": 1269,
+    "failed": 37
+  },
+  "branch": {
+    "specs": 175,
+    "passed": 1350,
+    "failed": 37
+  },
+  "newFailures": [],
+  "baselineFailures": [
+    "FAIL Enemy spawn placement > moves a pooled sprite to its next spawn before reattaching it",
+    "FAIL Enemy spawn placement > positions a newly built sprite before making it visible",
+    "FAIL Tally > writes readable log lines with the level per minute and every build",
+    "FAIL new enemies (B9) > lets a Gobbler eat the orbs on the floor and drop them all when killed",
+    "FAIL smoke > arms the player with the class weapon and switches weapons off for the enemy tests",
+    "FAIL smoke > chases the player until it touches them",
+    "FAIL smoke > draws the six original weapons, tiers and debug swaps",
+    "FAIL smoke > drops XP orbs that the player picks up for the whole team",
+    "FAIL smoke > ends in defeat when the only player is knocked down",
+    "FAIL smoke > ends the wave: enemies fade, the shop opens and the level-up cards come first",
+    "FAIL smoke > finished without any runtime error",
+    "FAIL smoke > gives the evolution from a chest once the build is ready",
+    "FAIL smoke > hits and kills enemies with the debug buttons",
+    "FAIL smoke > keeps level-ups for the end of the wave",
+    "FAIL smoke > keeps running while one of two is down, and enemies go for the one still standing",
+    "FAIL smoke > keeps walking but suppresses jumping on Space",
+    "FAIL smoke > lets Spitters shoot visible projectiles that hit the player",
+    "FAIL smoke > lets items change HP, speed and weapon damage, stacking without limit",
+    "FAIL smoke > loses no HP while the debug Invincible switch is on",
+    "FAIL smoke > opens the chest when walked over and shows the reward",
+    "FAIL smoke > pauses spawning and spawns a test wave up to the cap",
+    "FAIL smoke > rejects locked classes with a message",
+    "FAIL smoke > returns to the lobby after the results",
+    "FAIL smoke > runs Brotato's combat: weapon class bonuses, burning, exploding items and slowed enemies",
+    "FAIL smoke > runs item effects: standing still, per X, timers, crit kills, dodges and chests",
+    "FAIL smoke > runs wave end, shop and next-wave effects and the shop stats",
+    "FAIL smoke > runs with two players and keeps late joiners in the lobby",
+    "FAIL smoke > sells weapons and items for Shards in the shop, rerolls and starts the next wave on READY",
+    "FAIL smoke > shoots Spark Bolts that kill enemies once weapons are on",
+    "FAIL smoke > shows a Charger's wind-up, splits Splitters and names elite affixes",
+    "FAIL smoke > shows enemy and performance numbers to admins",
+    "FAIL smoke > skips to the boss wave, and surviving it wins (WP10)",
+    "FAIL smoke > spawns a glowing elite with an HP bar that drops a chest",
+    "FAIL smoke > spawns enemies on a ring around the player and draws them",
+    "FAIL smoke > stands a downed player up with full HP when the wave ends",
+    "FAIL smoke > starts the next run with Play again",
+    "FAIL smoke > takes debug damage with hit protection and heals"
+  ],
+  "abortedSpecs": [],
+  "checks": {
+    "stylua": "All changed Luau files pass --check",
+    "selene": "0 errors; 18 warnings in unchanged UI files; existing Roblox API cache used",
+    "sourceGenerators": "Character catalog,24 weapon families and ranged facts checked;5 weapon families and9 item/pet families remain absent from the total source catalog",
+    "rojo": "build/character-five-native.rbxl built locally",
+    "localArt": "169 pictures prepared;106 uploads pending; no upload/apply performed"
+  },
+  "performance": {
+    "contractActors": 140,
+    "mixedMilliseconds": 3.218,
+    "budgetMilliseconds": 4,
+    "clock": "RobloxMock.realClock, not simulated os.clock",
+    "currentMainSharedActorCap": 200,
+    "at200": "Diagnostic approximately5.9ms after native pet body-mask correction;4ms not proven at this size"
+  },
+  "review": {
+    "correctness": "Reviewed starts, formulas, owner isolation, challenge thresholds, pre-hit Charm, descendants, lifecycle/reset, render pool reset and current-main integration",
+    "architecture": "Existing weapon/structure/projectile paths reused; Arsenal diff against current main is empty; targeted EnemySim/Combat extensions within B10 authorization",
+    "security": "Server-owned effects; no new client intent, upload, publishing, credentials or original extracted scripts committed",
+    "limitations": [
+      "Real Roblox asset IDs for original characters and pending equipment still absent; source records alone do not unlock packages",
+      "No Studio, actual Roblox co-op, mobile or running-original parity acceptance",
+      "Shared physics/geometry/projectile/shader and some general structure parity gaps remain",
+      "Native Charm maximum999 is constrained by the shared main actor cap200",
+      "Player Buffer HP expiry with gain multipliers follows a script-derived arithmetic interpretation, not a running-original measurement",
+      "Wildling and Soldier remain incomplete and are excluded from these five packages"
+    ]
+  },
+  "artifactSha256": "82d129ee2c3c58ef7a35b6f3e8d8e9263d89474ce93df9497b01035c81534122"
+}

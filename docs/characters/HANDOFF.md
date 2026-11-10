@@ -6,7 +6,7 @@ Flute hat jetzt echtes Charm: Pre-Hit-Absorption, getrennte freundliche Akteure 
 
 Main `48ea1b2` ist integriert, einschließlich neuer Gegner-/Kontakt-/Knockbackregeln. Die gemeinsame technische Obergrenze 200 aus aktuellem main zählt freundliche Gegner mit und begrenzt damit die native Charm-Obergrenze 999. Der bestehende 4-ms-Budgetvertrag wird mit 140 gemischten Akteuren geprüft; für 200 ist er noch nicht erfüllt (lokale Messung vor abschließendem Budgetlauf ca. 5,9 ms). Freundliche Körper kollidieren wie native PETS_BIT nur untereinander/mit Hindernissen, nicht mit feindlichen Körpern. Spieler-Buffer-Ablauf folgt der aus den Originalskripten abgeleiteten Rohstat-Arithmetik; mit HP-Gain-Modifikatoren kann ein Rest entstehen (Golem-Test). Diese Ableitung ist nicht im laufenden Originalspiel gegengeprüft. Gemeinsame Physik-/Projektil-/Struktur-/Grafiklücken bleiben offen, keine vollständige native1:1-Abnahme. Wildling bleibt mangels Flail-Dschungelfreischaltung unvollständig; Soldier mangels restlicher Startausrüstung. Keines dieser Teilpakete zählt zum Fünferblock.
 
-Gesamtvergleich und Merge-Nachweis stehen in native-five-validation.json. Ältere Prüfergebnisse darunter sind historisch; ihr Main-Bezug und die jeweiligen offenen Punkte gelten nicht automatisch für diesen Stand.
+Vollvergleich gegen main48ea1b2:1269 bestanden/37 Fehler in150 Specs; dieser Branch1350 bestanden/dieselben37 Fehler in175 Specs, keine neuen Fehler/Abbrüche. StyLua/geänderte Selene-Dateien sauber, ganzes src0 Fehler/18 vorhandene UI-Warnungen, Rojo gebaut. Details: native-five-validation.json. Der PR ist der Merge-Nachweis. Ältere Prüfergebnisse darunter sind historisch; ihr Main-Bezug und die jeweiligen offenen Punkte gelten nicht automatisch für diesen Stand.
 
 ---
 

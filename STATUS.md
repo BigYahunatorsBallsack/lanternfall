@@ -868,3 +868,6 @@ Cryptid, Mage, Ranger und Technomage als vier Codepakete vorbereitet; Renegade w
 - StyLua, Selene sauber. Studio-Abnahme offen.
 - Nächstes Paket: unverändert laut Plan.
 
+
+
+**B10 Fünfer-Abschluss (10.11.2026):** Cryptid, native Mage/Ranger-Übernahme, Technomage und Renegade als fünf Codepakete vorbereitet; Starts28/12/14/12/23 über Produktionsdienste geprüft. Flute-Charm einschließlich Heiler/Buffer, Nachkommen, Kontaktbremsung und Pool-Reset; native Fernkampf-Zahl/Genauigkeit/Spread aus installierter1.2.0.1 für vorhandene Waffen. Main48ea1b2 inklusive Angriffsrichtung/Brenngeschwindigkeit integriert; Arsenal-Diff gegen main leer. Echter Vollvergleich (eigenes cwd, Seed1234, je Spec eigener Prozess): main150 Specs/1269 bestanden/37 Fehler; Branch175 Specs/1350 bestanden/dieselben37 Fehler, keine neuen Namen/Abbrüche. StyLua sauber; Selene0 Fehler/18 bestehende UI-Warnungen; Rojo gebaut und169 Bilder lokal vorbereitet,106 Uploads ausstehend.140 gemischte Akteure rund3,2ms unter4ms; aktuelle main-Grenze200 bleibt über dem bewiesenen Budget (Diagnose rund5,9ms). Echte Originalbilder/Studio/Koop/Handy und allgemeine1:1-Lücken bleiben offen; Wildling/Soldier zählen nicht. Nachweis: docs/characters/native-five-validation.json.
