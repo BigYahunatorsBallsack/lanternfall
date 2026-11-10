@@ -167,7 +167,7 @@ def generate():
                         lines.append(f"Sticks to the targeted enemy and explodes after {effect['fuse_duration']} seconds")
                 elif effect['key'] == 'break_on_hit':
                     value.update(breakChance=effect['value']/100,breakMaterials=effect['value2'])
-                    lines.append(f"{effect['value']}% chance to break on hit and drop {effect['value2']:g} materials")
+                    lines.append(f"Has a {effect['value']}% chance to break and drop {effect['value2']:g} materials on hit")
                 elif effect['key'] == 'crit_on_hitting_burning_target':
                     value['critBurning'] = 1
                     lines.append('Always crits when hitting burning targets')
