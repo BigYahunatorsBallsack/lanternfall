@@ -227,6 +227,8 @@ export type ShopWeapon = {
 -- The local player's Shards and shop (ShopService -> ShopController, HUD), sent on every change.
 export type ShopState = {
 	shards: number,
+	currencyAmount: number?,
+	currencyKind: string?,
 	open: boolean, -- shop phase between two waves
 	wave: number, -- the wave that just ended (prices are based on it)
 	offers: { ShopOffer },

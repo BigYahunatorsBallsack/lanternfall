@@ -1,0 +1,76 @@
+{
+  "version": "1.2.0.1",
+  "steamBuild": 26406319,
+  "baseMain": "d60a7fd33ebcee46fef0d5cc014fa2a0dda8cab3",
+  "characters": [
+    {
+      "slug": "entrepreneur",
+      "source": "res://items/characters/entrepreneur/entrepreneur_data.tres",
+      "sourceMd5": "35f51f28a53323008d74f29498e51b1f",
+      "startChoices": 31
+    },
+    {
+      "slug": "explorer",
+      "source": "res://items/characters/explorer/explorer_data.tres",
+      "sourceMd5": "d22e9dd9b9cee5d2146fba6060ee915b",
+      "startChoices": 28
+    },
+    {
+      "slug": "multitasker",
+      "source": "res://items/characters/multitasker/multitasker_data.tres",
+      "sourceMd5": "aebc8403b0ee51fcbca95475f538285c",
+      "startChoices": 44
+    },
+    {
+      "slug": "demon",
+      "source": "res://items/characters/demon/demon_data.tres",
+      "sourceMd5": "259d51ac115649e332c0d74f5342dd98",
+      "startChoices": 20
+    },
+    {
+      "slug": "fisherman",
+      "source": "res://items/characters/fisherman/fisherman_data.tres",
+      "sourceMd5": "6fc0fd17ad667e79cd4285a76f61bbf0",
+      "startChoices": 30
+    }
+  ],
+  "resources": {
+    "res://main.gdc": "903bd37107ab9c164addda2167477fb1",
+    "res://singletons/zone_service.gdc": "d16899aba618beb55e980f67a0bf10b0",
+    "res://singletons/zone_service.tscn": "28e463e8017505b7fc86afdc05a226aa",
+    "res://singletons/item_service.gdc": "2bb86ac67c9576337a664d6c75a66dec",
+    "res://singletons/run_data.gdc": "a94d8eddd9609f413309ce9237297ad2",
+    "res://zones/wave_manager.gdc": "37639a8d7aeffdc7e9990dcdd6acb3b2",
+    "res://entities/units/player/player.gdc": "80ac166ba6b5c71fbf220bcd43ddc90e",
+    "res://effect_behaviors/player/for_every_step_effect_behavior.gd.remap": "fe2413ca1720eb621e16e2300458b195",
+    "res://effect_behaviors/player/for_every_step_effect_behavior.gdc": "cbf1cf43ffd317e5905fe73e0fbd52e4",
+    "res://effect_behaviors/player/for_every_step_effect_behavior.tres": "b91d0cbddd124e3461c3e59001eac7b4",
+    "res://effect_behaviors/player/for_every_step_effect_behavior.tscn": "35ada1d15381afb809ac77b59303794c",
+    "res://entities/units/player/player_move.tres": "8526efa2cb605e9d3bbc1a335e9060ca"
+  },
+  "wording": {
+    "EFFECT_STAT_ON_EVERY_STEP": "{0} {1} for every {2} steps you take during a wave",
+    "EFFECT_HP_SHOP": "You buy items using Max HP instead of materials",
+    "EFFECT_CONVERT_STAT_END_OF_WAVE": "{0} of your {1} are converted into {2} at the end of a wave ({3} {1} = {4} {2})",
+    "EFFECT_UPGRADED_BAITS": "Baits make some special enemies spawn throughout all future waves",
+    "EFFECT_GUARANTEED_SHOP_ITEM": "Shops always sell a {0}",
+    "EFFECT_SPECIFIC_ITEM_PRICE": "{0} {1} price",
+    "EFFECT_ADDITIONAL_WEAPON_BONUS": "{0} {1} for every weapon you have [{2}]",
+    "EFFECT_RECYCLING_GAINS": "Gain {0} more materials from recycling items"
+  },
+  "rules": {
+    "entrepreneur": "-25 ItemPrices; Harvesting gains x1.5; recycling +25 percentage points; remove held materials at wave start (-100%); all source damage-category gains x0.5. Hoarder requires3000 held materials personally.",
+    "explorer": "12Trees,1LumberjackShirt,10Speed,50PickupRange,33MapSize,25Enemies,-50enemyGold,10EnemySpeed,-40Damage. Native32x24tile map becomes42x31 at6.4stud. Unstarted neutral groups fire within first5seconds; repeats keep original timing. Opening Tree unit uses (1..2 + Trees)*.33 with fractional rest roll, not a guaranteed13trees. Personal lifetime50Tree kills; Schema13 initializes new counter0 and preserves older counters.",
+    "multitasker": "Saved ManyHands id retains public legacy profile until actual original art promotion; pending native package20Damage,12weapon slots,-5Damage per equipped weapon. Personal lifetime5000material objects, not material wallet/value.",
+    "demon": "Convert before Harvesting: floor(heldMaterials*.5/13) whole chunks, remove13perchunk, gain1MaxHP perchunk with native gain compensation. Shop currency ceil(original ordinary material price/20) MaxHP, affordability checked server-side, pay before granting and refund failed grants. Rerolls and recycling remain materials. MaxHP currency snapshots refresh on permanent stat changes, HUD outside shop remains material wallet. Saved Danger5victory unlock.",
+    "fisherman": "5HP,20Harvesting,2Harvesting per permanently owned Bait,-40enemyGold. Every roll guarantees a Bait after exact early-wave weapons; specific item price -100 percentage points still observes minimum1material. Existing new-copy acquisition encounter7..8Lampreys at2s remains. Each wave adds max(1,floor(Baits/10)) recurring groups: bonus=floor(Baits/15), minimum=1+bonus, maximum=round(minimum+rand)+bonus; timing=max(15,floor(i*50/groupCount+1)), interval=round(6+2rand),999repeats. Native Lamprey maps existing Hookfang; only one extra enemy scene. Original edge/area coinflips and20..30stud areas. Personal same-run inventory2Baits unlock.",
+    "hikingStick": "Four melee Support tiers;12/18/24/30damage;50/45/40/35frames;MeleeDamage*.5 plus Range*.1/.12/.15/.2. Each1Range per70/60/50/40steps; native animation.6s,2steps,450points/s means13.5stud actual planar displacement per step. Shared wave counter applies milestones to every currently equipped copy, including newly equipped weapons; no per-copy fresh counter. Range gains survive later waves, checkpoint rollback restores them. Validated movement only; explicit Map placements and rejected moves do not earn steps."
+  },
+  "limits": [
+    "Code-prepared packages are not native graphics/Studio acceptance.",
+    "No uploads, asset-ID changes, Studio mutations or publishing. New native packages/weapons remain original-art gated.",
+    "Native15Hz/common physics, item catalog, map/obstacle/visual parity and200actor4ms budget remain open.",
+    "Steam profile-wide progress is explicitly mapped to personal online players.",
+    "HP currency uses an existing uploaded HP illustration; original UI visual parity remains open."
+  ]
+}

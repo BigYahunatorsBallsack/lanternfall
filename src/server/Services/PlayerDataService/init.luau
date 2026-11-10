@@ -474,6 +474,24 @@ function PlayerDataService.observeNativeWaveHp(player: Player, hp: number)
 	end
 end
 
+function PlayerDataService.observeNativeTreeKill(player: Player)
+	local data = PlayerDataService.get(player)
+	if not data then
+		return
+	end
+	data.nativeCounts.treesKilled += 1
+	for _, rule in NativeCharacterAccess do
+		if rule.kind == "TreesKilled" and data.nativeCounts.treesKilled >= rule.threshold then
+			local key = CharacterAccess.challengeKey(rule.challengeId)
+			if not data.achievements[key] then
+				data.achievements[key] = true
+				sendInfo(player)
+				PlayerDataService.Changed:Fire(player)
+			end
+		end
+	end
+end
+
 -- Native Gatherer counts physical pickups once, even when their material value is doubled or shared.
 function PlayerDataService.observeNativeMaterials(player: Player, count: number)
 	local data = PlayerDataService.get(player)

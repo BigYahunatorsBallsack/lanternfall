@@ -147,6 +147,7 @@ end
 function Service.init()
 	require(script.CharmSupport).init()
 	require(script.KillChallenges).init()
+	require(script.Steps).init()
 	require(script.RecyclingChallenges).init()
 	require(script.ConsumptionChallenges).init()
 	Weapons.ExplosionResolved:Connect(require(script.Parent.PlayerDataService).observeNativeExplosion)
@@ -194,6 +195,28 @@ function Service.init()
 			require(script.Parent.PlayerDataService).observeNativeWaveTrees(player, trees)
 			if Run.getParticipantState(player) == "Alive" then
 				require(script.Parent.PlayerDataService).observeNativeWaveHp(player, Combat.getHp(player))
+			end
+			for _, effect in state.policy.source.remainingRules do
+				if effect.customKey == "convert_stats_end_of_wave" and effect.sourceKey == "materials" then
+					local chunks = math.max(
+						0,
+						math.floor(
+							Shop.getShards(player)
+								* Rules.numberParameter(effect, "pct_converted", 0)
+								/ 100
+								/ effect.amount
+						)
+					)
+					if chunks > 0 then
+						Shop.spendShards(player, chunks * effect.amount)
+						local gain = state.policy.source.gainMultipliers.maxHp or 1
+						Stats.addStats(player, {
+							maxHp = math.round(
+								chunks * Rules.numberParameter(effect, "to_value", 0) / (if gain > 0 then gain else 1)
+							),
+						})
+					end
+				end
 			end
 			Shop.setCharacterWaveReward(player, Rules.waveReward(state.policy, 0, context))
 			table.clear(state.conversion) -- native wave-end TempStats reset precedes shop/harvesting

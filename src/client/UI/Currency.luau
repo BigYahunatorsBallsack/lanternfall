@@ -22,4 +22,15 @@ function Currency.mount(parent: Instance, size: number): Frame
 	return root
 end
 
+function Currency.setKind(root: Instance?, kind: string?)
+	if not root then
+		return
+	end
+	local image = root:FindFirstChild("Material")
+	if image and image:IsA("ImageLabel") then
+		image.Image = if kind == "MaxHp"
+			then require(script.Parent.StatImages).maxHp
+			else Config.Sprites.images.material
+	end
+end
 return Currency

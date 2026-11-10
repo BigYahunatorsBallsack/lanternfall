@@ -84,11 +84,18 @@ end
 -- Price of an offer with the Item Prices factor: weapons by tier, items by their base price, both from the wave the
 -- offer's price is based on (a locked offer keeps its wave).
 function ShopRules.offerPrice(offer: Types.ShopOffer, factor: number?, classId: string?): number
+	local value
 	if offer.kind == "Weapon" then
-		return ShopRules.weaponPrice(offer.itemId, offer.tier, offer.priceWave, factor, classId)
+		value = ShopRules.weaponPrice(offer.itemId, offer.tier, offer.priceWave, factor, classId)
+	else
+		local item = Items.byId[offer.itemId]
+		local specific = if CharacterRules.nativeOverride(classId, "upgraded_baits", 0) > 0
+				and offer.itemId == "BloodLure"
+			then -1
+			else 0
+		value = ShopRules.price(if item then item.price else 0, offer.priceWave, (factor or 1) + specific)
 	end
-	local item = Items.byId[offer.itemId]
-	return ShopRules.price(if item then item.price else 0, offer.priceWave, factor)
+	return if CharacterRules.nativeOverride(classId, "hp_shop", 0) > 0 then CharacterEconomy.hpPrice(value) else value
 end
 
 -- Shards for selling a weapon of `tier` after wave `wave`: Config.Shop.sellShare plus `sellValue` percent (the Sell
@@ -437,6 +444,7 @@ function ShopRules.roll(params: Params): { Types.ShopOffer }
 		avoid[id] = true
 	end
 	local weaponsLeft, exactWeapons = ShopRules.guaranteedWeapons(params.wave)
+	local guaranteedBait = CharacterRules.nativeOverride(params.classId, "upgraded_baits", 0) > 0
 	weaponsLeft = math.max(weaponsLeft, CharacterRules.nativeOverride(params.classId, "minimum_weapons_in_shop", 0))
 	for _, offer in params.keep or {} do
 		table.insert(offers, offer)
@@ -447,7 +455,9 @@ function ShopRules.roll(params: Params): { Types.ShopOffer }
 		end
 	end
 	while #offers < Shop.slots do
-		local wantWeapon = weaponsLeft > 0 or (not exactWeapons and params.random() < Shop.weaponChance)
+		local forcedBait = guaranteedBait and (not exactWeapons or weaponsLeft <= 0)
+		local wantWeapon = not forcedBait
+			and (weaponsLeft > 0 or (not exactWeapons and params.random() < Shop.weaponChance))
 		local offer: Types.ShopOffer? = nil
 		local weaponTier = math.clamp(StatMath.rollTier(params.wave, params.luck, params.random()), 1, params.maxTier)
 		local class = params.classId and Classes[params.classId]
@@ -456,7 +466,10 @@ function ShopRules.roll(params: Params): { Types.ShopOffer }
 		if wantWeapon then
 			weaponId = pickWeapon(params, avoid, taken, weaponTier)
 		end
-		if weaponId then
+		if forcedBait then
+			offer = itemOffer("BloodLure", params)
+			guaranteedBait = false
+		elseif weaponId then
 			offer = weaponOffer(weaponId, params, weaponTier)
 			weaponsLeft -= 1
 		else
@@ -518,6 +531,7 @@ function ShopRules.roll(params: Params): { Types.ShopOffer }
 		end
 		taken[offer.itemId] = true
 		avoid[offer.itemId] = true
+		offer.price = ShopRules.offerPrice(offer, params.priceFactor, params.classId)
 		offer.id = `{params.nextId()}:{offer.kind}:{offer.itemId}`
 		table.insert(offers, offer)
 	end

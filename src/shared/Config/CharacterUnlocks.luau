@@ -14,12 +14,56 @@ export type Challenge = {
 	| { kind: "ExplosionKills", threshold: number }
 	| { kind: "RunRecycledWeapons", threshold: number }
 	| { kind: "EnemiesKilled", threshold: number }
+	| { kind: "TreesKilled", threshold: number }
 	| { kind: "WaveLivingTrees", threshold: number }
 	| { kind: "WaveHp", threshold: number }
 	| { kind: "Inventory", count: string, threshold: number, stat: string?, statThreshold: number?, waveStart: boolean? }
 	| { kind: "RunConsumables", threshold: number }
 )
 local rules: { [string]: Challenge } = {
+	Entrepreneur = {
+		kind = "Inventory",
+		count = "shards",
+		threshold = 3000,
+		challengeId = "chal_hoarder",
+		source = "res://challenges/hoarder_data.tres",
+		sourceMd5 = "dc10d7acc49f9846c9f41947e8dcd765",
+		requirement = "Hold 3000 materials",
+	},
+	Explorer = {
+		kind = "TreesKilled",
+		threshold = 50,
+		challengeId = "chal_lumberjack",
+		source = "res://challenges/lumberjack_data.tres",
+		sourceMd5 = "cef710621804845f524dd905f7b5ec04",
+		requirement = "Kill 50 trees",
+	},
+	ManyHands = {
+		kind = "MaterialsCollected",
+		threshold = 5000,
+		challengeId = "chal_gatherer_3",
+		source = "res://challenges/gatherer_3_data.tres",
+		sourceMd5 = "b8e7c67e51b8375a56954b0bbd88e2e4",
+		requirement = "Collect 5000 materials",
+	},
+	Demon = {
+		kind = "WinDanger",
+		danger = 5,
+		challengeId = "chal_difficulty_5",
+		source = "res://challenges/chal_difficulty_5_data.tres",
+		sourceMd5 = "ade98353c690bd16a11b148284ee8ba7",
+		requirement = "Win a run in Danger 5",
+	},
+	Fisherman = {
+		kind = "Inventory",
+		count = "item:BloodLure",
+		threshold = 2,
+		challengeId = "chal_baited",
+		source = "res://challenges/baited_data.tres",
+		sourceMd5 = "6e6ece1e3fc2d83f47bf0f162e5a00f4",
+		requirement = "Have 2 Baits during a run",
+	},
+
 	Old = {
 		kind = "EnemiesKilled",
 		threshold = 300,

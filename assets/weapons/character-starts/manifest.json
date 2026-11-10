@@ -563,6 +563,26 @@
         90,
         92
       ]
+    },
+    {
+      "id": "HikingStick",
+      "name": "Hiking Stick",
+      "source": "res://dlcs/dlc_1/weapons/melee/hiking_stick/hiking_stick_icon.png",
+      "textureSource": "res://.import/hiking_stick_icon.png-2bc3cd6146f3231d04fdf7e45fed1bde.stex",
+      "textureMd5": "79fb81e640a836d60e484fb4153990d7",
+      "output": "assets/weapons/character-starts/HikingStick.png",
+      "pngSha256": "e9ea54590d6c9c2db5b7ac1a78b292e250ec82d37d27ef8e5699d1edb5c371de",
+      "rgbaSha256": "5e53d68e0a84df96db6d98cc8854f59af6444be96ff297b9cd29075a65e1dc80",
+      "size": [
+        96,
+        96
+      ],
+      "alphaBounds": [
+        3,
+        3,
+        94,
+        94
+      ]
     }
   ],
   "projectiles": [

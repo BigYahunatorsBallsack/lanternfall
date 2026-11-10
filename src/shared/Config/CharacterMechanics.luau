@@ -1,8 +1,27 @@
 --!strict
 -- Shared native character rule constants and source stat names; read by CharacterService rules and runtime.
 return table.freeze({
+	fisherman = table.freeze({
+		groupEvery = 10,
+		baseCount = 1,
+		randomSplit = 0.5,
+		maximumDanger = 9999,
+		maximumWave = 99999,
+		bonusEvery = 15,
+		timingSpan = 50,
+		minimumTiming = 15,
+		areaMinimum = 20,
+		areaMaximum = 30,
+		repeatMinimum = 6,
+		repeatMaximum = 8,
+		repeats = 999,
+		enemy = "Hookfang",
+	}),
+	explorerTreesStartSeconds = 5,
+	steps = table.freeze({ animationSeconds = 0.6, perAnimation = 2, baseSpeed = 45 }),
 	economy = table.freeze({
-		priceEndlessDivisor = 5, -- stable ItemService.get_value
+		priceEndlessDivisor = 5,
+		demonPriceDivisor = 20, -- stable ItemService.get_value
 		endlessNegativeWalletPercent = -100, -- stable main.gdc negative start-wave effects in endless
 		minimumMaterialFactor = 0.5, -- stable main.gdc MIN_GOLD_CHANCE
 		-- stable CoopService.ADDITIONAL_MATERIALS_FACTOR: materials +(n / (1 + 0.3 (n - 1)) - 1) * 0.8 for n players

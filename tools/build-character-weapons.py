@@ -16,7 +16,7 @@ def module(name, file):
     return result
 source = module('character_source', 'tools/character-source.py')
 catalog = module('character_catalog', 'tools/build-character-catalog.py')
-FAMILIES = ['anchor', 'mace', 'meat_tenderizer', 'machinegun', 'pan_flute', 'combat_shotgun', 'grenade_launcher', 'whip', 'spoon', 'cestus', 'sickle', 'trident', 'lute', 'blowgun', 'blunderbuss', 'javelin', 'tranq_rifle', 'harpoon_gun', 'sticky_grenade', 'flail', 'molotov', 'awl', 'carbon_bow', 'flute', 'crowbar', 'shovel', 'boomerang', 'brick']
+FAMILIES = ['anchor', 'mace', 'meat_tenderizer', 'machinegun', 'pan_flute', 'combat_shotgun', 'grenade_launcher', 'whip', 'spoon', 'cestus', 'sickle', 'trident', 'lute', 'blowgun', 'blunderbuss', 'javelin', 'tranq_rifle', 'harpoon_gun', 'sticky_grenade', 'flail', 'molotov', 'awl', 'carbon_bow', 'flute', 'crowbar', 'shovel', 'boomerang', 'brick', 'hiking_stick']
 FACTS = ROOT / 'docs/characters/weapon-source.json'
 OUTPUT = ROOT / 'src/shared/Config/CharacterWeaponData.luau'
 
@@ -142,6 +142,9 @@ def generate():
                     assert effect.get('chance', 100) == 100
                     value.update(vulnerabilityPercent=effect['value'], vulnerabilitySeconds=effect['duration_secs'], vulnerabilityStacks=effect['max_stacks'])
                     lines.append(f"Enemies hit take {effect['value']}% more damage for {effect['duration_secs']} seconds (max: {effect['value'] * effect['max_stacks']}%)")
+                elif effect.get('custom_key') == 'gain_stat_for_every_step_after_equip':
+                    value.update(stepRangeGain=effect['value'],stepEvery=effect['value2'])
+                    lines.append(f"+{effect['value']} Range for every {effect['value2']:g} steps you take during a wave")
                 elif effect['key'] in catalog.STATS:
                     bonuses[catalog.STATS[effect['key']]] = effect['value']
                 elif effect['key'] == 'reload_when_pickup_gold':
