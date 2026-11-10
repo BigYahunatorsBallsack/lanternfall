@@ -25,14 +25,15 @@ local WorldSprite = require(
 local FOLDER_NAME = "LanternfallXpOrbs"
 local FLY_SECONDS = 0.25
 -- Looks by XP value: the last tier with minValue <= value applies.
-local TIERS = Config.Sprites.material.tiers
+local MATERIAL = Config.Sprites.material
+local TIERS = MATERIAL.tiers
 local LOOK = Config.Sprites.material
 local VARIANTS: { string } = if #LOOK.variants > 0 then LOOK.variants else { Config.Sprites.images.material }
 
 local BOOST = Config.Feedback.materialBoost
 local BOOST_COLOR = Color3.fromRGB(BOOST.color[1], BOOST.color[2], BOOST.color[3])
 
-type Orb = { part: BasePart, x: number, z: number, scale: number, bag: boolean }
+type Orb = { part: BasePart, x: number, z: number, scale: number, bag: boolean, firstValue: number }
 type Flight = { part: BasePart, from: Vector3, userId: number, startedAt: number, factor: number }
 type Popup = {
 	gui: BillboardGui,
@@ -281,7 +282,14 @@ local function onEvents(events: Types.XpOrbEvents)
 		local sprite
 		if not orb then
 			local look = MaterialLook.of(id, #VARIANTS, LOOK)
-			orb = { part = pool:acquire(getFolder()), x = x, z = z, scale = look.scale, bag = false }
+			orb = {
+				part = pool:acquire(getFolder()),
+				x = x,
+				z = z,
+				scale = look.scale,
+				bag = false,
+				firstValue = value,
+			}
 			orbs[id] = orb
 			sprite = spriteOf[orb.part]
 			sprite.picture.Image = VARIANTS[look.variant]
@@ -295,9 +303,11 @@ local function onEvents(events: Types.XpOrbEvents)
 		if bagIds[id] then
 			orb.bag = true
 		end
-		local tier = tierOf(value)
+		local tier = tierOf(orb.firstValue)
 		local bagScale = if orb.bag then BOOST.bagOrbScale else 1
-		WorldSprite.setStuds(sprite, tier.size * Config.Sprites.orbScale * orb.scale * bagScale)
+		-- grown by merges at the shard cap (Config.Sprites.material.mergeGrowth)
+		local merged = math.min(MATERIAL.mergeMaxScale, 1 + math.max(0, value - orb.firstValue) * MATERIAL.mergeGrowth)
+		WorldSprite.setStuds(sprite, tier.size * Config.Sprites.orbScale * orb.scale * bagScale * merged)
 		sprite.picture.ImageColor3 = Color3.new(1, 1, 1)
 		table.insert(partList, orb.part)
 		-- On the floor: the camera looks straight down, so height is nearness to the camera. Lifted by its size, a
