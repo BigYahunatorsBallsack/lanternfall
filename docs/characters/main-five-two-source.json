@@ -1,0 +1,56 @@
+{
+  "version": "1.2.0.1",
+  "steamBuild": 26406319,
+  "characters": [
+    {
+      "id": "character_well_rounded",
+      "slug": "well_rounded",
+      "source": "res://items/characters/well_rounded/well_rounded_data.tres",
+      "sourceMd5": "005d4378e314dc6304a2ce4cda39cf3e",
+      "startingWeaponChoices": 26
+    },
+    {
+      "id": "character_generalist",
+      "slug": "generalist",
+      "source": "res://items/characters/generalist/generalist_data.tres",
+      "sourceMd5": "d62f7d6bf00e85ac50c6ef78b152e2fd",
+      "startingWeaponChoices": 28
+    },
+    {
+      "id": "character_farmer",
+      "slug": "farmer",
+      "source": "res://items/characters/farmer/farmer_data.tres",
+      "sourceMd5": "a2d5b15d5ed8c1bcbb18c2a9143b5bf4",
+      "startingWeaponChoices": 22
+    },
+    {
+      "id": "character_saver",
+      "slug": "saver",
+      "source": "res://items/characters/saver/saver_data.tres",
+      "sourceMd5": "bd91ea75d4765023357332950da1e644",
+      "startingWeaponChoices": 27
+    },
+    {
+      "id": "character_glutton",
+      "slug": "glutton",
+      "source": "res://items/characters/glutton/glutton_data.tres",
+      "sourceMd5": "3f23b601640649699cf67e39bc2e7dcb",
+      "startingWeaponChoices": 17
+    }
+  ],
+  "rules": {
+    "generalist": "Simultaneous conversion from preconversion Melee/Ranged values; no iterative feedback. Three slots per kind. Preserves TwinLedger profile id until original artwork promotion.",
+    "farmer": "20 Harvesting, extra3% growth at wave end, +1 Harvesting on consumable collected at full HP, Garden, -50% enemy material drops.",
+    "saver": "15 Harvesting, Piggy Bank, floor(heldMaterials/25) Damage, +50% item prices. Native main.gd applies Piggy Bank at starts through current_wave<=20, stops21; rollback restores wave-start wallet.",
+    "glutton": "Hungry counts20 physical consumables across a single run, not a single wave. Separate collector counts; reset on new run and restore unfinished count on retry. Explosion details in consumable-source.json.",
+    "garden": "Native900frame cooldown, animation speed.5 with shoot key.2 seconds; no target needed. Fruit at structure position.",
+    "crowbar": "Independent kills per weapon per wave:18/16/14/12. Blood Turret at killed actor position;8+100% Engineering damage,10% damage taken for5seconds,3shared stacks.",
+    "shovel": "Native.5/1/1.5/2% per killed hitbox, divided by1+cratesThisWave; no Luck. Dig Sites and lifetime10-site unlock described in digging-source.json."
+  },
+  "limits": [
+    "Code preparation only; native original assets require real uploads before public promotion.",
+    "No Studio, two-client or mobile acceptance.",
+    "Online Dig Site achievement attribution is an explicit adaptation; see digging-source.json.",
+    "Shared physics, visual and complete item/catalog parity remain open."
+  ]
+}

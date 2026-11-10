@@ -1,0 +1,32 @@
+--!strict
+-- Farmer's22 starts, guaranteed Garden, full-health harvesting, eight-percent growth and personal Agriculture challenge.
+local f = loadHelper("tests/helpers/NativeCharacterFixture.luau")("Farmer")
+local Loot, Shop = require(f.S.LootService), require(f.S.ShopService)
+describe("Native Farmer package", function()
+	it("runs all22 original starts with exactly one guaranteed Garden item", function()
+		f.starts(22, { MoonGarden = 1 })
+	end)
+	it(
+		"adds harvesting only for its own full-health consumption, pays before growing and leaves peers unchanged",
+		function()
+			f.start("LamplighterPike")
+			expect(f.Stats.getStat(f.me, "harvesting")).toBe(20)
+			Loot.dropPickup(f.me.Character.HumanoidRootPart.Position, "Fruit")
+			f.world.advance(0.2)
+			expect(f.Stats.getStat(f.me, "harvesting")).toBe(21)
+			expect(f.Stats.getStat(f.peer, "harvesting")).toBe(0)
+			local before = Shop.getShards(f.me)
+			f.Run.skipTo(require(f.Shared.Util.RunSchedule).wave(f.Run.getWave()).endsAt)
+			expect(Shop.getShards(f.me)).toBe(before + 21)
+			expect(f.Stats.getStat(f.me, "harvesting")).toBe(23)
+		end
+	)
+	it("unlocks through200 personal Harvesting without granting it to another profile", function()
+		local Access = require(f.Shared.Util.CharacterAccess)
+		assert(f.Stats.addStats(f.peer, { harvesting = 199 }))
+		expect(Access.characterUnlocked(f.Data.get(f.peer), "Farmer")).toBe(false)
+		assert(f.Stats.addStats(f.peer, { harvesting = 1 }))
+		expect(Access.characterUnlocked(f.Data.get(f.peer), "Farmer")).toBe(true)
+		expect(#f.world.errors).toBe(0)
+	end)
+end)

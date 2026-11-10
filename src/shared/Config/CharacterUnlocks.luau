@@ -16,8 +16,42 @@ export type Challenge = {
 	| { kind: "EnemiesKilled", threshold: number }
 	| { kind: "WaveLivingTrees", threshold: number }
 	| { kind: "Inventory", count: string, threshold: number, stat: string?, statThreshold: number? }
+	| { kind: "RunConsumables", threshold: number }
 )
 local rules: { [string]: Challenge } = {
+	TwinLedger = {
+		kind = "MaterialsCollected",
+		threshold = 2000,
+		challengeId = "chal_gatherer_2",
+		source = "res://challenges/gatherer_2_data.tres",
+		sourceMd5 = "f519b2d5eda82fc4c6ca18ef38090cad",
+		requirement = "Collect 2000 materials",
+	},
+	Farmer = {
+		kind = "Stat",
+		stat = "harvesting",
+		threshold = 200,
+		challengeId = "chal_agriculture",
+		source = "res://challenges/agriculture_data.tres",
+		sourceMd5 = "2b22e9d2623a1203fd4991db4cc4c405",
+		requirement = "Reach +200 Harvesting",
+	},
+	Saver = {
+		kind = "MaterialsCollected",
+		threshold = 20000,
+		challengeId = "chal_gatherer_5",
+		source = "res://challenges/gatherer_5_data.tres",
+		sourceMd5 = "8edfd66dec592078aaf791b1c13a9540",
+		requirement = "Collect 20000 materials",
+	},
+	Glutton = {
+		kind = "RunConsumables",
+		threshold = 20,
+		challengeId = "chal_hungry",
+		source = "res://challenges/hungry_data.tres",
+		sourceMd5 = "aac07fbeffc27b341495cbb52d256afa",
+		requirement = "Pick up 20 consumables during a run",
+	},
 	Technomage = {
 		kind = "Inventory",
 		count = "structures",
