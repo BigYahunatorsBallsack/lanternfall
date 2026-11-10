@@ -7,9 +7,9 @@
 -- for every participant who is not out. Sends Chests (what lies on the floor) and ChestOpened to the participants.
 -- Fruits and crates (since B6, Brotato's consumables; Config.Loot, Util/LootRules): killed enemies drop one by chance
 -- (Luck raises it, crates get rarer with every crate of the wave); a living participant picks it up within their orb
--- pickup radius. A fruit heals, a crate heals and holds an item that UpgradeService offers at the end of the wave
--- (take or sell). Fruits left at the wave end vanish (everyone heals then anyway), crates left go to the nearest
--- participant who is not out. Sends Pickups to the participants.
+-- pickup radius while missing HP, at full HP only when walking over it (Brotato). A fruit heals, a crate heals and
+-- holds an item that UpgradeService offers at the end of the wave (take or sell). Fruits and crates left at the wave
+-- end go to the living participants in turn and are taken. Sends Pickups to the participants.
 -- Everything vanishes when a run starts or ends. Fires ChestCollected per player for chests and crates and
 -- ConsumableCollected for fruits and crates (item effects, EffectService). Since WP10 a killed boss (since part 2
 -- also a champion) drops a legendary crate (Config.Loot.legendaryCrate): it heals fully and its item is at least
@@ -263,10 +263,15 @@ local function pickUp()
 	for _, player in RunDirector.getParticipants() do
 		local position = EnemySim.getPlayerPosition(player) -- nil unless alive
 		if position then
-			local radius = math.max(
-				Config.Player.pickupRadiusMin,
-				Config.Player.pickupRadius * (1 + StatService.getStat(player, "pickupRange") / 100)
-			)
+			-- Brotato Player._on_ItemAttractArea_area_entered: healing consumables (fruits and crates) are only drawn
+			-- in while the player misses HP; at full HP they are taken only when walked over (ItemPickupArea).
+			local hp, maxHp = CombatService.getHp(player)
+			local radius = if hp < maxHp
+				then math.max(
+					Config.Player.pickupRadiusMin,
+					Config.Player.pickupRadius * (1 + StatService.getStat(player, "pickupRange") / 100)
+				)
+				else Config.Player.touchPickupRadius
 			for index = #pickups, 1, -1 do
 				local pickup = pickups[index]
 				if distance(position, pickup.x, pickup.z) <= radius then
@@ -297,35 +302,31 @@ local function onStepped()
 	flushPickups()
 end
 
--- The participant who is not out closest to x/z (last known positions); else the first one not out.
-local function nearestSharer(x: number, z: number): Player?
-	local best: Player? = nil
-	local bestDistance = math.huge
-	local fallback: Player? = nil
-	for _, player in RunDirector.getParticipants() do
-		if RunDirector.getParticipantState(player) ~= "Out" then
-			fallback = fallback or player
-			local position = EnemySim.getPlayerPosition(player)
-			if position then
-				local d = distance(position, x, z)
-				if d < bestDistance then
-					best, bestDistance = player, d
-				end
-			end
-		end
-	end
-	return best or fallback
-end
-
--- End of a wave: chests open for everyone, crates go to the nearest participant, fruits vanish.
+-- End of a wave: chests open for everyone; like Brotato's Main.clean_up_room every fruit and crate still on the
+-- floor flies to the living participants in turn (shuffled order) and is taken, so full-HP effects still trigger.
 local function onWaveEnd()
 	for index = #chests, 1, -1 do
 		open(index, true)
 	end
-	for index = #pickups, 1, -1 do
-		local pickup = pickups[index]
-		local taker = if pickup.kind ~= FRUIT then nearestSharer(pickup.x, pickup.z) else nil
-		removePickup(index, if taker then taker.UserId else 0)
+	if #pickups == 0 then
+		flushPickups()
+		return
+	end
+	local takers: { Player } = {}
+	for _, player in RunDirector.getParticipants() do
+		if RunDirector.getParticipantState(player) == "Alive" then
+			table.insert(takers, player)
+		end
+	end
+	local random = RandomService.stream("Loot")
+	for i = #takers, 2, -1 do
+		local j = random:NextInteger(1, i)
+		takers[i], takers[j] = takers[j], takers[i]
+	end
+	for index = 1, #pickups do
+		local pickup = pickups[1]
+		local taker = if #takers > 0 then takers[(index - 1) % #takers + 1] else nil
+		removePickup(1, if taker then taker.UserId else 0)
 		if taker then
 			consume(taker, pickup.kind)
 		end

@@ -1,8 +1,9 @@
 --!strict
 -- XP orbs on the arena floor as plain arrays (DESIGN.md section 8): killed enemies drop one, living players pick up
 -- every orb within their pickup radius. Pure and unit tested (tests/Experience.spec.luau); owned by
--- ExperienceService. With `maxOrbs` orbs on the floor, a new orb's XP joins the nearest orb instead, so a long
--- run never piles up thousands of parts on the clients.
+-- ExperienceService. With `maxOrbs` orbs on the floor, a new orb's XP joins a random orb instead (Brotato 1.2.0.1
+-- Main.spawn_gold, MAX_GOLDS 50), so a long run never piles up thousands of parts on the clients. Without a random
+-- source (tests) it joins the nearest one.
 
 local OrbField = {}
 OrbField.__index = OrbField
@@ -10,6 +11,7 @@ OrbField.__index = OrbField
 export type OrbField = typeof(setmetatable(
 	{} :: {
 		maxOrbs: number,
+		random: (() -> number)?, -- 0 <= x < 1
 		nextId: number,
 		ids: { number },
 		xs: { number },
@@ -20,9 +22,10 @@ export type OrbField = typeof(setmetatable(
 	OrbField
 ))
 
-function OrbField.new(maxOrbs: number): OrbField
+function OrbField.new(maxOrbs: number, random: (() -> number)?): OrbField
 	return setmetatable({
 		maxOrbs = maxOrbs,
+		random = random,
 		nextId = 0,
 		ids = {},
 		xs = {},
@@ -44,11 +47,17 @@ function OrbField.count(self: OrbField): number
 	return #self.ids
 end
 
--- Drops an orb worth `value` XP. Returns its id; when the field is full that is the id of the nearest orb, which
--- now holds the XP of both (merged = true).
+-- Drops an orb worth `value` XP. Returns its id; when the field is full that is the id of a random (without a random
+-- source: the nearest) orb, which now holds the XP of both (merged = true).
 function OrbField.spawn(self: OrbField, x: number, z: number, value: number): (number, boolean)
 	local count = #self.ids
 	if count >= self.maxOrbs and count > 0 then
+		local random = self.random
+		if random then
+			local pick = math.clamp(math.floor(random() * count) + 1, 1, count)
+			self.values[pick] += value
+			return self.ids[pick], true
+		end
 		local best, bestDistance = 1, math.huge
 		for i = 1, count do
 			local dx, dz = self.xs[i] - x, self.zs[i] - z

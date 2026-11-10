@@ -57,8 +57,9 @@ local EnemySim = {}
 
 -- (info: KillInfo)
 EnemySim.EnemyKilled = Signal.new()
--- (player: Player, damage: number): an enemy touches the player; at most once per step and player,
--- with the highest contact damage among the enemies touching them. Hit protection is up to the listener.
+-- (player: Player, damage: number, enemyId: number): an enemy touches the player; at most once per step and player,
+-- with the highest contact damage among the enemies touching them (enemyId: that enemy, 0 for a rush or slash).
+-- Hit protection is up to the listener, which calls EnemySim.contactRecoil(enemyId) when the touch landed.
 EnemySim.Contact = Signal.new()
 -- (player: Player, damage: number): an enemy projectile hit the player. Hit protection is up to the listener.
 EnemySim.ShotHit = Signal.new()
@@ -408,7 +409,7 @@ local function stepOnce()
 	for t = 1, targetCount do
 		local damage = contacts[t]
 		if damage > 0 then
-			EnemySim.Contact:Fire(targetPlayers[t], damage)
+			EnemySim.Contact:Fire(targetPlayers[t], damage, world.contactSources[t] or 0)
 		end
 	end
 	local hits = volleys.hits
@@ -698,6 +699,25 @@ end
 -- Pushes a living enemy along the floor by `offset` (x/z), less the more it resists knockback (World.push).
 function EnemySim.push(id: number, offset: Vector3)
 	world:push(id, offset.X, offset.Z)
+end
+
+-- Knocks a living enemy back like Brotato (World.knock): (dx, dz) is direction x knockback in weapon units; `add`
+-- adds to the current knockback instead of replacing it.
+function EnemySim.knock(id: number, dx: number, dz: number, add: boolean?)
+	world:knock(id, dx, dz, add)
+end
+
+-- Brotato Enemy._on_hit_something: an enemy whose touch landed (hit, dodged or blocked) brakes by
+-- max(recoilMinPoints, recoilShare x its speed) speed points, recovering like every native slow.
+function EnemySim.contactRecoil(id: number)
+	local kind = world:isAlive(id) and world:getKind(id)
+	if not kind then
+		return
+	end
+	local rule = Config.Simulation.contactRecoil
+	local i = world.indexOf[id]
+	local points = kind.speed * world.speedFactors[i] * world.boosts[i] / Config.Stats.range.studsPerPoint
+	world:nativeSlow(id, -math.max(rule.minPoints, points * rule.speedShare), false, 0)
 end
 
 -- Slows a living enemy to `factor` of its speed for `seconds`; the stronger slow wins (B5, World.slow).

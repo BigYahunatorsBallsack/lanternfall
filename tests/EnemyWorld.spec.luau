@@ -332,6 +332,26 @@ describe("EnemyWorld", function()
 		expect(select(2, world:getStatus(free))).toBe(false) -- dead enemies show nothing
 	end)
 
+	it("glides off Brotato's knockback (about 15 px per point) without touching damage while pushed", function()
+		local world = newWorld()
+		local id = spawn(world, "Shadeling", 0, 0)
+		local points = 15 -- a pistol
+		world:knock(id, points * 0.1, 0) -- weapon units: points x 0.1 studs
+		local contacts = world:step(STEP, { 0 }, { 0 }, 1)
+		expect(contacts[1]).toBe(0) -- the hitbox is off while the push is faster than it walks
+		expect(world.contactSources[1]).toBe(0)
+		for _ = 1, 30 do
+			world:step(STEP, {}, {}, 0)
+		end
+		-- 15 px = 1.5 studs per point, less the one step it walked back towards the target
+		local x = world:getPosition(id)
+		expect(x).toBeNear(points * 1.5 - Types.Shadeling.speed * STEP, 0.3)
+		expect(world:getKnockback(id)).toBe(0)
+		local contactsAfter = world:step(STEP, { world:getPosition(id) }, { 0 }, 1)
+		expect(contactsAfter[1]).toBe(Types.Shadeling.contactDamage)
+		expect(world.contactSources[1]).toBe(id)
+	end)
+
 	it("pushes enemies less the more they resist knockback, never into obstacles or out of the arena", function()
 		local world = newWorld({ { x = 20, z = 0, radius = 4 } })
 		local light = spawn(world, "Shadeling", 0, 0)

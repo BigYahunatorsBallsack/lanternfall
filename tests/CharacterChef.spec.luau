@@ -88,13 +88,14 @@ end
 describe("Native Chef consumption and burning targets", function()
 	it("uses the pickup origin and burns fresh targets even when the pickup heals nothing", function()
 		clear()
-		local near, far = target(43), target(60)
+		-- at full HP a fruit is only taken when walked over (Brotato ItemPickupArea), so it lies 3 studs away
+		local near, far = target(36), target(53)
 		local hp, farHp = Enemy.getHealth(near), Enemy.getHealth(far)
-		collect("Fruit", 10)
+		collect("Fruit", 3)
 		expect(Enemy.getHealth(near)).toBe(hp - 1) -- native zero base clamps to one
 		expect(Enemy.getHealth(far)).toBe(farHp)
 		expect(Weapons.isBurning(near)).toBe(true)
-		world.advance(1)
+		world.advance(0.5) -- one burn tick (Brotato: every 0.5 s)
 		-- Mandatory Scared Sausage contributes +1 to the innate base-1 burn; five ticks, no crit.
 		expect(Enemy.getHealth(near)).toBe(hp - 1 - 2)
 	end)
@@ -118,7 +119,7 @@ describe("Native Chef consumption and burning targets", function()
 		local hp = Enemy.getHealth(id)
 		collect("Fruit")
 		expect(Enemy.getHealth(id)).toBe(hp - 3) -- round(round(1 * 1.5) * 1.5)
-		world.advance(1)
+		world.advance(0.5)
 		expect(Enemy.getHealth(id)).toBe(hp - 3 - 6) -- (1 + sausage 1 + Elemental 2) * 1.5
 	end)
 

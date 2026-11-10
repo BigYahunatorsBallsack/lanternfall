@@ -20,6 +20,9 @@ return table.freeze({
 	-- studs; enemies stop at their own radius + this. Brotato's player hurtbox: 21 px (1.2 until 09.11.2026)
 	playerRadius = 21 * Stats.range.studsPerPoint,
 	contactMargin = 0.3, -- studs; enemies this close to a player's circle touch them
+	-- Brotato 1.2.0.1 Enemy._on_hit_something: after its touch lands, an enemy loses max(200, 0.8 x its speed) speed
+	-- points (px/s) as a decaying slow (EnemySim.contactRecoil), so it stops for a moment
+	contactRecoil = table.freeze({ minPoints = 200, speedShare = 0.8 }),
 	-- Players see enemies a little in the past (interpolationDelay + travel time) while the server sees the
 	-- player a little in the past too. Contacts are therefore checked where the player is moving to:
 	-- position + velocity * (contactLeadSeconds + ping), at most contactLeadMaxStuds ahead.

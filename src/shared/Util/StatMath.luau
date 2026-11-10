@@ -83,12 +83,13 @@ function StatMath.regenPerSecond(regen: number): number
 	return Stats.hpScale / seconds
 end
 
--- Factor for weapon cooldowns from Attack Speed: halved at +100 %, slower (but less) with negative values.
+-- Factor for weapon cooldowns from Attack Speed (Brotato WeaponService.apply_attack_speed_mod_to_cooldown): halved at
+-- +100 %, doubled at -100 %.
 function StatMath.cooldownFactor(attackSpeed: number): number
 	if attackSpeed >= 0 then
 		return 1 / (1 + attackSpeed / 100)
 	end
-	return 1 + (-attackSpeed / 100) * Stats.attackSpeed.negativeFactor
+	return 1 + math.abs(attackSpeed) / 100
 end
 
 -- Factor for move speed from Speed (+10 = 10 % faster), never below Config.Stats.minSpeedFactor.

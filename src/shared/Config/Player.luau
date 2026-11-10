@@ -12,12 +12,15 @@ return table.freeze({
 	-- least 30 px, at 0.1 studs per pixel (since 09.11.2026; 12 before, 8 until the playtest after Paket 24)
 	pickupRadius = 150 * Stats.range.studsPerPoint,
 	pickupRadiusMin = 30 * Stats.range.studsPerPoint,
+	-- studs: Brotato's ItemPickupArea (32 px); fruits and crates at full HP are only taken within it
+	touchPickupRadius = 32 * Stats.range.studsPerPoint,
 	minDamagePerHit = 1,
-	-- seconds of protection after taking a hit, like Brotato: from min (tiny hit) to max (a hit worth all max HP),
-	-- linear in the share of max HP lost. The 0.2-0.4 s range is Brotato's; the linear curve is an assumption
-	-- (the wiki gives no formula). Since 09.11.2026, before always 0.4 s (B5) and 0.5 s.
+	-- seconds of protection after a hit, like Brotato 1.2.0.1 Player.get_iframes: clamp(share of max HP lost x max /
+	-- fullShare, min, max), so the maximum comes at 15 % of max HP; dodged and blocked hits give the minimum. Endless
+	-- waves divide both by the endless factor (CombatService). File-only; the wiki gives no formula (10.11.2026).
 	hitInvulnerabilityMin = 0.2,
 	hitInvulnerabilityMax = 0.4,
+	hitInvulnerabilityFullShare = 0.15,
 	-- crits of weapons that set no critChance / critDamage of their own (Brotato: most weapons x2 at 3 %; since B5,
 	-- before 5 % for every weapon), also of item explosions
 	critChance = 0.03, -- per hit, before the Crit Chance stat

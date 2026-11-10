@@ -35,6 +35,7 @@
 
 local Shared = game:GetService("ReplicatedStorage").Shared
 local Enemies = require(Shared.Config.Enemies)
+local Combat = require(Shared.Config.Combat)
 local PointScale = require(Shared.Config.Stats).range.studsPerPoint
 local DecayingSpeed = require(script.Parent.DecayingSpeed)
 local SpatialHash = require(Shared.Util.SpatialHash)
@@ -118,6 +119,10 @@ export type World = typeof(setmetatable(
 		wanderLeft: { number }, -- seconds until it picks a new spot even if it has not arrived
 		randomState: number, -- xorshift32 state for nextRandom (no Roblox Random, so the spec runs without a mock)
 		slowLeft: { number }, -- seconds the slow lasts
+		knockXs: { number }, -- Brotato's knockback vector in studs-scaled points (Config.Combat.knockback), 0 when none
+		knockZs: { number },
+		knocked: { boolean }, -- the knockback moved it faster than it walks this step: no contact damage
+		contactSources: { number }, -- by target index: id of the enemy behind contacts[t] (0 for none)
 		burning: { boolean }, -- shown in snapshots; the weapons (WeaponService/Afflictions) run the burn itself
 		columns: { { any } }, -- every per-enemy array above, for compacting and clearing
 		indexOf: { [number]: number }, -- id -> array index
@@ -199,6 +204,10 @@ function World.new(params: Params): World
 		wanderLeft = {},
 		randomState = math.max(1, math.floor(params.seed or 1) % 4294967296),
 		slowLeft = {},
+		knockXs = {},
+		knockZs = {},
+		knocked = {},
+		contactSources = {},
 		burning = {},
 		columns = {},
 		indexOf = {},
@@ -250,6 +259,9 @@ function World.new(params: Params): World
 		self.wanderZs,
 		self.wanderLeft,
 		self.slowLeft,
+		self.knockXs,
+		self.knockZs,
+		self.knocked,
 		self.burning,
 	} :: { { any } }
 	return setmetatable(self, World)
@@ -321,6 +333,7 @@ function World.spawn(
 	self.rushXs[i], self.rushZs[i], self.rushLeft[i] = 0, 0, 0
 	self.summonTimers[i] = if kind.summon then kind.summon.intervalSeconds * (0.5 + 0.5 * spread) else 0
 	self.slowFactors[i], self.slowLeft[i], self.burning[i] = 1, 0, false
+	self.knockXs[i], self.knockZs[i], self.knocked[i] = 0, 0, false
 	local speed = math.max(0, speedFactor or 1)
 	self.speedFactors[i] = speed
 	self.boosts[i], self.buffed[i], self.hasGoal[i] = 1, false, false
@@ -725,6 +738,31 @@ function World.push(self: World, id: number, dx: number, dz: number)
 	self.zs[i] = math.clamp(z, p.minZ + radius, p.maxZ - radius)
 end
 
+-- Knockback like Brotato (Unit.take_damage, Config.Combat.knockback): sets the enemy's knockback vector to (dx, dz),
+-- in weapon units (points x studsPerPoint); with `add` it adds to the current vector instead (extra piercing
+-- knockback). The enemy then glides over the next steps (World.step); resistance scales the movement, not the vector.
+function World.knock(self: World, id: number, dx: number, dz: number, add: boolean?)
+	local i = self.indexOf[id]
+	if not i or self.hp[i] <= 0 or self.kinds[i].anchored then
+		return
+	end
+	if add then
+		self.knockXs[i] += dx
+		self.knockZs[i] += dz
+	else
+		self.knockXs[i], self.knockZs[i] = dx, dz
+	end
+end
+
+-- Current knockback vector of a living enemy (weapon units), 0, 0 when none.
+function World.getKnockback(self: World, id: number): (number, number)
+	local i = self.indexOf[id]
+	if not i then
+		return 0, 0
+	end
+	return self.knockXs[i], self.knockZs[i]
+end
+
 -- Stable Unit speed penalties are additive in original points, hold independently, then recover at the source rate.
 local function nativeSpeedFactor(self: World, i: number): number
 	local points = self.kinds[i].speed * self.speedFactors[i] * self.boosts[i] / PointScale
@@ -1073,6 +1111,37 @@ function World.step(
 	table.clear(self.strikers)
 	table.clear(self.rushes)
 
+	-- 1b. knockback glide (Brotato: each 60 Hz frame the vector shrinks to `decay` of itself, then moves the enemy by
+	-- vector x speedPerPoint x share px/s); frames = dt x frameRate, summed as a geometric series
+	local knock = Combat.knockback
+	local frames = dt * knock.frameRate
+	local decay = knock.decayPerFrame
+	local decayed = decay ^ frames
+	local frameSum = decay * (1 - decayed) / (1 - decay) -- sum of decay^k for k = 1..frames
+	local moveScale = frameSum * knock.speedPerPoint / knock.frameRate
+	local stopBelow = knock.stopBelow * knock.studsPerPoint
+	local knockXs, knockZs, knocked = self.knockXs, self.knockZs, self.knocked
+	for i = 1, count do
+		local kx, kz = knockXs[i], knockZs[i]
+		if kx == 0 and kz == 0 then
+			knocked[i] = false
+			continue
+		end
+		local kind = kinds[i]
+		local share = World.knockbackShare(kind)
+		xs[i] += kx * moveScale * share
+		zs[i] += kz * moveScale * share
+		kx, kz = kx * decayed, kz * decayed
+		local length = math.sqrt(kx * kx + kz * kz)
+		-- the hitbox stays off while the push is faster than the enemy walks (Enemy._physics_process)
+		local walk = kind.speed * self.speedFactors[i] * self.boosts[i] * self.slowFactors[i]
+		knocked[i] = share > 0 and length * knock.speedPerPoint * share > walk
+		if length < stopBelow then
+			kx, kz = 0, 0
+		end
+		knockXs[i], knockZs[i] = kx, kz
+	end
+
 	-- 2. steering
 	if targetCount > 0 then
 		local tolerance = p.keepDistanceTolerance
@@ -1255,16 +1324,19 @@ function World.step(
 
 	-- 5. contacts and the hash for queries until the next step
 	local contacts = self.contacts
+	local sources = self.contactSources
 	table.clear(contacts)
+	table.clear(sources)
 	for t = 1, targetCount do
 		contacts[t] = 0
+		sources[t] = 0
 	end
 	local margin = p.contactMargin
 	local damage = self.contactDamage
 	local hitXs, hitZs = contactXs or targetXs, contactZs or targetZs
 	for i = 1, count do
 		local hit = damage[i]
-		if hit > 0 then
+		if hit > 0 and not knocked[i] then
 			local reach = (kinds[i].hitRadius or kinds[i].radius) + playerRadius + margin -- Brotato's Hitbox
 			local reachSquared = reach * reach
 			for t = 1, targetCount do
@@ -1272,6 +1344,7 @@ function World.step(
 				if dx * dx + dz * dz <= reachSquared then
 					if hit > contacts[t] then
 						contacts[t] = hit
+						sources[t] = ids[i]
 					end
 					local accelerate = kinds[i].accelerate
 					if accelerate and accelerate.resetOnHit then
