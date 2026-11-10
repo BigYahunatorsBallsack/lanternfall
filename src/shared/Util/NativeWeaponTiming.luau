@@ -12,7 +12,9 @@ function Timing.apply(stats: { [string]: number }, attackSpeed: number, minimum:
 	end
 	local factor = Timing.factor(attackSpeed)
 	local function seconds(frames: number): number
-		return math.max(Rules.sourceMinimumFrames, math.floor(frames * factor)) / Rules.sourceFrameRate
+		-- WeaponService.apply_attack_speed_mod_to_cooldown: the base is raised to the minimum first, then truncated
+		local base = math.max(Rules.sourceMinimumFrames, frames)
+		return math.max(Rules.sourceMinimumFrames, math.floor(base * factor)) / Rules.sourceFrameRate
 	end
 	stats.cooldown = math.max(minimum, seconds(stats.nativeCooldownFrames))
 	if stats.attackLockSeconds then

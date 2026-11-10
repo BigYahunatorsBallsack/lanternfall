@@ -67,6 +67,15 @@ describe("Native character economy in services", function()
 		"pays Farmer harvesting before growing it by eight percent and keeps the peer's gain multiplier personal",
 		function()
 			XP.setPaused(true)
+			-- Since Brotato's wave-end clean-up, leftover fruits fly to a random living player and count as picked up
+			-- (Farmer: +harvesting at full HP), so walk over the earlier kills' fruits first to keep the wave end clean.
+			local Loot = require(S.LootService)
+			for _, pickup in Loot.getPickups() do
+				local root = me.Character.HumanoidRootPart
+				root.Position = Vector3.new(pickup.x, root.Position.Y, pickup.z)
+				world.advance(0.2)
+			end
+			expect(#Loot.getPickups()).toBe(0)
 			Stats.addStats(me, { harvesting = 101 - Stats.getStat(me, "harvesting") })
 			Stats.addStats(peer, { harvesting = -Stats.getStat(peer, "harvesting") / 1.5 })
 			Shop.addShards(me, 1000)

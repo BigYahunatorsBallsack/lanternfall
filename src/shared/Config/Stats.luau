@@ -178,9 +178,7 @@ return table.freeze({
 	armor = table.freeze({ divisor = 15 }),
 	dodge = table.freeze({ max = 60 }), -- percent; more Dodge than this does nothing
 	critChanceMax = 100, -- percent, base crit of the weapons (Config.Player.critChance) included
-	-- Attack Speed: cooldowns / (1 + AS); negative AS: cooldowns x (1 + |AS| x negativeFactor), so it hurts less than
-	-- the same plus helps (Brotato does not publish its formula; assumption).
-	attackSpeed = table.freeze({ negativeFactor = 0.5 }),
+	-- Attack Speed: cooldowns / (1 + AS); negative AS: cooldowns x (1 + |AS|) (Brotato 1.2.0.1 weapon_service.gd).
 	-- Range: points like Brotato's (a pistol has 400); studsPerPoint turns them into studs. Melee weapons get
 	-- meleeFactor of it, and no weapon range drops below minStuds.
 	range = table.freeze({ studsPerPoint = 0.1, meleeFactor = 0.5, minStuds = 2.5 }),

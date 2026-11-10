@@ -5,8 +5,9 @@
 
 export type Settings = {
 	minDamagePerHit: number,
-	hitInvulnerabilityMin: number, -- seconds of protection after a tiny hit
-	hitInvulnerabilityMax: number, -- seconds of protection after a hit worth all max HP
+	hitInvulnerabilityMin: number, -- seconds of protection after a tiny hit, a dodge or a blocked hit
+	hitInvulnerabilityMax: number, -- seconds of protection after a hit worth hitInvulnerabilityFullShare of max HP
+	hitInvulnerabilityFullShare: number?, -- share of max HP lost that gives the maximum (default 1)
 }
 
 local Vitals = {}
@@ -24,6 +25,7 @@ export type Vitals = typeof(setmetatable(
 		hitShields: number, -- hits nullified completely (item effects, since B4)
 		noHeal: boolean,
 		oneHit: boolean,
+		protectionDivisor: number, -- divides the protection after hits (Brotato's endless factor, at least 1)
 	},
 	Vitals
 ))
@@ -40,6 +42,7 @@ function Vitals.new(maxHp: number, settings: Settings): Vitals
 		hitShields = 0,
 		noHeal = false,
 		oneHit = false,
+		protectionDivisor = 1,
 	}, Vitals)
 end
 
@@ -98,34 +101,43 @@ function Vitals.setCharacterRules(self: Vitals, noHeal: boolean, oneHit: boolean
 	self.oneHit = oneHit
 end
 
--- Applies one hit; `roll` (0 <= roll < 1) below the dodge chance dodges it (no damage, no protection afterwards),
--- else a hit shield takes it (no damage, no protection afterwards). Returns the HP actually lost (0 while protected,
--- already down, dodged or blocked), whether it was dodged and whether a hit shield blocked it.
+-- Applies one hit; `roll` (0 <= roll < 1) below the dodge chance dodges it (no damage), else a hit shield takes it
+-- (no damage). Like Brotato's Player.take_damage every hit that gets through the protection starts it again, a dodged
+-- or blocked one with the minimum. Returns the HP actually lost (0 while protected, already down, dodged or blocked),
+-- whether it was dodged and whether a hit shield blocked it.
 function Vitals.hit(self: Vitals, damage: number, now: number, roll: number?): (number, boolean, boolean)
 	if damage <= 0 or self:isDown() or self:isInvulnerable(now) then
 		return 0, false, false
 	end
+	local settings = self.settings
 	if (roll or 1) < self.dodgeChance then
+		self:protect(now, Vitals.protectionAfterHit(settings, 0, self.maxHp) / self.protectionDivisor)
 		return 0, true, false
 	end
 	if self.hitShields > 0 then
 		self.hitShields -= 1
+		self:protect(now, Vitals.protectionAfterHit(settings, 0, self.maxHp) / self.protectionDivisor)
 		return 0, false, true
 	end
-	local settings = self.settings
 	local taken = if self.oneHit
 		then self.hp
 		else math.max(settings.minDamagePerHit, math.round(damage * self.damageFactor)) -- whole HP like Brotato
 	taken = math.min(taken, self.hp)
 	self.hp -= taken
-	self:protect(now, Vitals.protectionAfterHit(settings, taken, self.maxHp))
+	self:protect(now, Vitals.protectionAfterHit(settings, taken, self.maxHp) / self.protectionDivisor)
 	return taken, false, false
 end
 
--- Seconds of protection after losing `taken` HP (Brotato: 0.2-0.4 s, longer the bigger the share of max HP).
+-- Seconds of protection after losing `taken` HP (Brotato Player.get_iframes: share of max HP lost x max / fullShare,
+-- clamped to min..max, so the maximum comes at 15 % of max HP).
 function Vitals.protectionAfterHit(settings: Settings, taken: number, maxHp: number): number
-	local share = if maxHp > 0 then math.clamp(taken / maxHp, 0, 1) else 1
-	return settings.hitInvulnerabilityMin + (settings.hitInvulnerabilityMax - settings.hitInvulnerabilityMin) * share
+	local share = if maxHp > 0 then math.max(0, taken / maxHp) else 1
+	local full = settings.hitInvulnerabilityFullShare or 1
+	return math.clamp(
+		share * settings.hitInvulnerabilityMax / full,
+		settings.hitInvulnerabilityMin,
+		settings.hitInvulnerabilityMax
+	)
 end
 
 -- Heals up to the maximum. Returns the HP actually gained (0 while down: only a revive helps then).

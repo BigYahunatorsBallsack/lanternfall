@@ -40,6 +40,8 @@ export type Enemies = {
 	-- returns whether the hit killed the enemy, and the HP it took; `crit` and `burn` only tell (damage numbers)
 	damage: (id: number, amount: number, ownerId: number, crit: boolean, burn: boolean) -> (boolean, number),
 	push: (id: number, dx: number, dz: number) -> (),
+	-- Brotato knockback (EnemySim.knock): sets the enemy's gliding knockback vector; without it hits push instantly
+	knock: ((id: number, dx: number, dz: number, add: boolean?) -> ())?,
 	isAlive: (id: number) -> boolean,
 	isElite: ((id: number) -> boolean)?, -- Damage vs Elites; without it no enemy counts as elite
 	slow: ((id: number, factor: number, seconds: number) -> ())?, -- keeps `factor` of its speed (B5)
@@ -273,7 +275,11 @@ local function makeContext(self: Arsenal): Context
 					local angle = params.random() * 2 * math.pi
 					dx, dz, length = math.cos(angle), math.sin(angle), 1
 				end
-				enemies.push(id, dx / length * knockback, dz / length * knockback)
+				if enemies.knock then
+					enemies.knock(id, dx / length * knockback, dz / length * knockback)
+				else
+					enemies.push(id, dx / length * knockback, dz / length * knockback)
+				end
 			end
 		end
 		local slow = stats.slow

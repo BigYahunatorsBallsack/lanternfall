@@ -65,6 +65,9 @@ local function setup(options)
 			push = function(id, dx, dz)
 				world:push(id, dx, dz)
 			end,
+			knock = function(id, dx, dz, add)
+				world:knock(id, dx, dz, add)
+			end,
 			isAlive = function(id)
 				return world:isAlive(id)
 			end,
@@ -291,9 +294,18 @@ describe("Arsenal", function()
 			give(scene, "ThornTrail")
 			local id = spawn(scene, kindId, 10, 0, TOUGH)
 			run(scene, STEP)
-			local x = scene.world:getPosition(id)
+			-- Brotato: the hit sets a knockback vector (points x 0.1 studs) that the world glides off over the next steps
+			local kx, kz = scene.world:getKnockback(id)
+			expect(kx).toBeNear(22 * Config.Combat.knockback.studsPerPoint)
+			expect(kz).toBeNear(0)
+			local before = scene.world:getPosition(id)
+			scene.world:step(STEP, {}, {}, 0)
 			local share = World.knockbackShare(Types[kindId])
-			expect(x).toBeNear(10 + 22 * Config.Combat.knockback.studsPerPoint * share)
+			local moved = scene.world:getPosition(id) - before
+			local k = Config.Combat.knockback
+			local frames = STEP * k.frameRate
+			local sum = k.decayPerFrame * (1 - k.decayPerFrame ^ frames) / (1 - k.decayPerFrame)
+			expect(moved).toBeNear(22 * k.studsPerPoint * share * sum * k.speedPerPoint / k.frameRate, 1e-6)
 		end
 	end)
 
@@ -303,7 +315,7 @@ describe("Arsenal", function()
 		spawn(scene, "Brute", 10, 0, TOUGH)
 		run(scene, 1)
 		local fired = #effectsOf(scene, "Fire")
-		expect(fired >= 50 and fired <= 65).toBe(true)
+		expect(fired >= 25 and fired <= 35).toBe(true) -- Brotato MIN_COOLDOWN: 2 frames, at most 30 per second
 	end)
 end)
 
@@ -339,11 +351,11 @@ describe("afflictions", function()
 		local far = spawn(scene, "Brute", 30, 30, TOUGH)
 		scene.arsenal:queueBurn(OWNER, enemy, 4, nil, 2)
 		run(scene, STEP)
-		run(scene, 0.5)
-		expect(lost(scene, enemy, TOUGH)).toBeNear(4) -- first tick after 0.5 s instead of 1 s
+		run(scene, 0.3)
+		expect(lost(scene, enemy, TOUGH)).toBeNear(4) -- first tick after 0.25 s instead of 0.5 s
 		expect(scene.arsenal:isBurning(near)).toBe(true)
 		expect(scene.arsenal:isBurning(far)).toBe(false)
-		run(scene, 2)
+		run(scene, 0.6) -- the copy's two ticks (copies spread on, so later it could catch fire again)
 		expect(lost(scene, near, TOUGH)).toBeNear(8)
 	end)
 
