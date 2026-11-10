@@ -1,0 +1,161 @@
+{
+  "schema": 1,
+  "base": "5eedefa72911f91414992177539278e9cf40c7b4",
+  "reviewedCodeHead": "aa8ef4630377697d58edcf23d8561a01ee8f7d07",
+  "runner": "Lune0.11.1; seeded math.random1234; one spec per process; correct actual cwd per checkout",
+  "baseline": {
+    "specs": 175,
+    "passed": 1351,
+    "failed": 36
+  },
+  "reviewedBranch": {
+    "specs": 187,
+    "passed": 1385,
+    "failed": 36
+  },
+  "sameFailureNames": true,
+  "newAborts": 0,
+  "failures": {
+    "tests/EnemySpawnPlacement25.spec.luau": [
+      "FAIL Enemy spawn placement > positions a newly built sprite before making it visible",
+      "FAIL Enemy spawn placement > moves a pooled sprite to its next spawn before reattaching it"
+    ],
+    "tests/RunStats.spec.luau": [
+      "FAIL Tally > writes readable log lines with the level per minute and every build"
+    ],
+    "tests/Smoke.spec.luau": [
+      "FAIL smoke > arms the player with the class weapon and switches weapons off for the enemy tests",
+      "FAIL smoke > spawns enemies on a ring around the player and draws them",
+      "FAIL smoke > chases the player until it touches them",
+      "FAIL smoke > hits and kills enemies with the debug buttons",
+      "FAIL smoke > pauses spawning and spawns a test wave up to the cap",
+      "FAIL smoke > shows enemy and performance numbers to admins",
+      "FAIL smoke > shoots Spark Bolts that kill enemies once weapons are on",
+      "FAIL smoke > draws the six original weapons, tiers and debug swaps",
+      "FAIL smoke > drops XP orbs that the player picks up for the whole team",
+      "FAIL smoke > keeps level-ups for the end of the wave",
+      "FAIL smoke > ends the wave: enemies fade, the shop opens and the level-up cards come first",
+      "FAIL smoke > sells weapons and items for Shards in the shop, rerolls and starts the next wave on READY",
+      "FAIL smoke > lets items change HP, speed and weapon damage, stacking without limit",
+      "FAIL smoke > runs item effects: standing still, per X, timers, crit kills, dodges and chests",
+      "FAIL smoke > runs wave end, shop and next-wave effects and the shop stats",
+      "FAIL smoke > spawns a glowing elite with an HP bar that drops a chest",
+      "FAIL smoke > opens the chest when walked over and shows the reward",
+      "FAIL smoke > gives the evolution from a chest once the build is ready",
+      "FAIL smoke > lets Spitters shoot visible projectiles that hit the player",
+      "FAIL smoke > shows a Charger's wind-up, splits Splitters and names elite affixes",
+      "FAIL smoke > runs Brotato's combat: weapon class bonuses, burning, exploding items and slowed enemies",
+      "FAIL smoke > skips to the boss wave, and surviving it wins (WP10)",
+      "FAIL smoke > starts the next run with Play again",
+      "FAIL smoke > keeps walking but suppresses jumping on Space",
+      "FAIL smoke > takes debug damage with hit protection and heals",
+      "FAIL smoke > loses no HP while the debug Invincible switch is on",
+      "FAIL smoke > ends in defeat when the only player is knocked down",
+      "FAIL smoke > returns to the lobby after the results",
+      "FAIL smoke > runs with two players and keeps late joiners in the lobby",
+      "FAIL smoke > keeps running while one of two is down, and enemies go for the one still standing",
+      "FAIL smoke > stands a downed player up with full HP when the wave ends",
+      "FAIL smoke > rejects locked classes with a message",
+      "FAIL smoke > finished without any runtime error"
+    ]
+  },
+  "intermittentGobblerRepeats": [
+    {
+      "label": "main",
+      "attempt": 1,
+      "exit": 0,
+      "summary": "7 passed, 0 failed"
+    },
+    {
+      "label": "main",
+      "attempt": 2,
+      "exit": 0,
+      "summary": "7 passed, 0 failed"
+    },
+    {
+      "label": "main",
+      "attempt": 3,
+      "exit": 1,
+      "summary": "6 passed, 1 failed"
+    },
+    {
+      "label": "main",
+      "attempt": 4,
+      "exit": 1,
+      "summary": "6 passed, 1 failed"
+    },
+    {
+      "label": "main",
+      "attempt": 5,
+      "exit": 0,
+      "summary": "7 passed, 0 failed"
+    },
+    {
+      "label": "branch",
+      "attempt": 1,
+      "exit": 0,
+      "summary": "7 passed, 0 failed"
+    },
+    {
+      "label": "branch",
+      "attempt": 2,
+      "exit": 1,
+      "summary": "6 passed, 1 failed"
+    },
+    {
+      "label": "branch",
+      "attempt": 3,
+      "exit": 0,
+      "summary": "7 passed, 0 failed"
+    },
+    {
+      "label": "branch",
+      "attempt": 4,
+      "exit": 1,
+      "summary": "6 passed, 1 failed"
+    },
+    {
+      "label": "branch",
+      "attempt": 5,
+      "exit": 1,
+      "summary": "6 passed, 1 failed"
+    }
+  ],
+  "checks": {
+    "stylua": "changed files formatted",
+    "selene": "0 errors;18 existing warnings; cached Roblox API",
+    "rojo": "build passed",
+    "sourceCompilers": "catalog74;weapons26;structures;item rules127",
+    "localArt": "178 prepared;0 missing/invalid; no apply or upload",
+    "arsenal": "unchanged against base"
+  },
+  "review": {
+    "correctness": "All native starting choices, stat rules, unlocks, personal isolation and retry paths checked; Crowbar all tiers, damage/weakness and wave reset, Shovel actual kills and loot isolation, Dig Sites collision/progress/persistence/migration checked. Completion snapshot forced immediately.",
+    "architecture": "Targeted B10 service additions; config-owned values, server authority, unchanged Arsenal.",
+    "security": "Server-only DigSites snapshot, no new client progress intent.",
+    "performance": "Bounded100 sites, at most4 participant checks each,0.2s changed snapshots, immediate completion; existing4ms spec passes. Existing200-actor total budget not established.",
+    "graphics": "All new originals only local. Existing pool image cleared if real art missing; public gates maintained."
+  },
+  "codePreparedCharacters": [
+    "Well-Rounded",
+    "Generalist",
+    "Farmer",
+    "Saver",
+    "Glutton"
+  ],
+  "codePreparedTotal": 18,
+  "nativeAcceptance": false,
+  "limitations": [
+    "Real native uploads and Studio/2-client/mobile testing remain absent.",
+    "Online Dig Site completion credit is a documented adaptation.",
+    "Shared physics, visual, full catalog parity and200-actor budget remain open.",
+    "Gobbler test intermittent on baseline and branch; not silently counted as fixed."
+  ],
+  "supplementalAfterFullSuite": {
+    "tests/ItemSprites.spec.luau": {
+      "passed": 6,
+      "failed": 0,
+      "reason": "Added pooled Blood Turret missing-image regression; final full-suite run contained the original5 checks."
+    }
+  }
+}

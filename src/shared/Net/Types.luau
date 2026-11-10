@@ -419,6 +419,8 @@ export type ProfileInfo = {
 }
 
 -- Paket 14: a player's settings (Config.Settings.defaults), saved in the profile.
+export type DigSite = { id: number, x: number, z: number, progress: number, dug: boolean }
+
 export type Settings = {
 	shake: boolean,
 	damageNumbers: boolean,

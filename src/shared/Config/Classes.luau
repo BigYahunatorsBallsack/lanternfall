@@ -194,7 +194,7 @@ Classes.Trapper = {
 
 -- Source-complete records remain unavailable until their runtime dependencies and selection paths are verified.
 -- Existing profile ids retain the delivered behavior while the complete native packages are integrated.
-local preparedLegacy = { SparkMage = true, NightWatch = true }
+local preparedLegacy = { SparkMage = true, NightWatch = true, TwinLedger = true }
 for id, source in Catalog do
 	if Classes[id] and not preparedLegacy[id] then
 		Classes[id].native = source
@@ -320,6 +320,21 @@ ranger.description =
 Classes.Renegade.nativeCodeReady = true
 Classes.Renegade.description =
 	"+2 Projectiles\nProjectiles pierce through 1 additional target\n+10 % Damage for every different tier I item you have [0]\n-400 % Damage\n-50 % Accuracy\nDamage modifications are reduced by 80%"
+Classes.WellRounded.nativeCodeReady = true
+Classes.WellRounded.description = "+5 Max HP\n+5 % Speed\n+8 Harvesting"
+local generalist = Classes.TwinLedger.pendingNative or Classes.TwinLedger
+generalist.nativeCodeReady = true
+generalist.description =
+	"+2 Melee Damage for every 1 Ranged Damage you have [0]\n+1 Ranged Damage for every 2 Melee Damage you have [0]\nYou can only equip 3 melee weapons and 3 ranged weapons at a time"
+Classes.Farmer.nativeCodeReady = true
+Classes.Farmer.description =
+	"+20 Harvesting\nHarvesting increases by an additional 3% at the end of a wave\n+1 Harvesting when picking up a consumable while at maximum health\nYou start with 1 Garden\n-50 % materials dropped from enemies"
+Classes.Saver.nativeCodeReady = true
+Classes.Saver.description =
+	"+15 Harvesting\nYou start with 1 Piggy Bank\n+1 % Damage for every 25 materials you have [0]\n+50 % Item Prices"
+Classes.Glutton.nativeCodeReady = true
+Classes.Glutton.description =
+	"+50 Luck\n+1 % Explosion Damage when picking up a consumable while at maximum health\nConsumables have a 100% chance to explode for 10 (500% Melee Damage) damage when picked up\n+25 % Item Prices\n-25 % XP Gain"
 for id, class in Classes do
 	if not class.nativeCodeReady then
 		continue

@@ -560,6 +560,11 @@
    },
    "StormFamiliar": {
     "text": "Kleines Sturm-Tier, schwebt, schießt Blitze; violett."
+   },
+   "BloodTurret": {
+    "text": "Original Brotato: BloodTurret",
+    "source": "assets/world2d/final/structures/BloodTurret.png",
+    "trimmed": true
    }
   }
  },
@@ -836,6 +841,16 @@
    "Molotov": {
     "text": "Original Brotato weapon: Molotov",
     "source": "assets/weapons/character-starts/Molotov.png",
+    "trimmed": true
+   },
+   "Crowbar": {
+    "text": "Original Brotato: Crowbar",
+    "source": "assets/weapons/character-starts/Crowbar.png",
+    "trimmed": true
+   },
+   "Shovel": {
+    "text": "Original Brotato: Shovel",
+    "source": "assets/weapons/character-starts/Shovel.png",
     "trimmed": true
    }
   },
@@ -1231,6 +1246,11 @@
     "text": "Original Brotato item: Lumberjack Shirt",
     "source": "assets/items/character-starts/LumberjackShirt.png",
     "trimmed": true
+   },
+   "DigSite": {
+    "text": "Original Brotato: DigSite",
+    "source": "assets/world2d/final/items/DigSite.png",
+    "trimmed": true
    }
   }
  },
@@ -1353,6 +1373,38 @@
    },
    "enemySpeed": {
     "text": "Icon für den Wert."
+   }
+  }
+ },
+ "digging": {
+  "title": "Originale Dig-Site-Phasen",
+  "pixels": 512,
+  "raw": true,
+  "items": {
+   "DigSite0": {
+    "text": "Original Brotato: DigSite0",
+    "source": "assets/world2d/final/digging/DigSite0.png",
+    "trimmed": true
+   },
+   "DigSite1": {
+    "text": "Original Brotato: DigSite1",
+    "source": "assets/world2d/final/digging/DigSite1.png",
+    "trimmed": true
+   },
+   "DigSite2": {
+    "text": "Original Brotato: DigSite2",
+    "source": "assets/world2d/final/digging/DigSite2.png",
+    "trimmed": true
+   },
+   "DigSite3": {
+    "text": "Original Brotato: DigSite3",
+    "source": "assets/world2d/final/digging/DigSite3.png",
+    "trimmed": true
+   },
+   "DigSite4": {
+    "text": "Original Brotato: DigSite4",
+    "source": "assets/world2d/final/digging/DigSite4.png",
+    "trimmed": true
    }
   }
  }

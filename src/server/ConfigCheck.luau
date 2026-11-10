@@ -126,6 +126,20 @@ function ConfigCheck.run(): { string }
 		if effect.state and not Effects.states[effect.state] then
 			problem(`{owner} has unknown state {effect.state}`)
 		end
+		if effect.action == "DigSites" then
+			if
+				not (
+					effect.amount
+					and effect.amount > 0
+					and effect.amount % 1 == 0
+					and effect.per
+					and effect.per > 0
+					and effect.per % 1 == 0
+				)
+			then
+				problem(`{owner}: DigSites needs positive integer amount and per`)
+			end
+		end
 		if effect.action == "PerX" then
 			local source = effect.source or ""
 			if not (Effects.perXSources[source] or Config.Stats.byId[source]) then

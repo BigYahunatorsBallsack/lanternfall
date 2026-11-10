@@ -2706,6 +2706,218 @@ return {
 				},
 			},
 		},
+		Crowbar = {
+			id = "Crowbar",
+			displayName = "Crowbar",
+			description = "",
+			tierDescriptions = {
+				"For every 18 enemies you kill during a wave with this weapon, spawns a turret that deals 8 (100% Engineering) damage and makes enemies take 10% more damage for 5 seconds (max 30%)",
+				"For every 16 enemies you kill during a wave with this weapon, spawns a turret that deals 8 (100% Engineering) damage and makes enemies take 10% more damage for 5 seconds (max 30%)",
+				"For every 14 enemies you kill during a wave with this weapon, spawns a turret that deals 8 (100% Engineering) damage and makes enemies take 10% more damage for 5 seconds (max 30%)",
+				"For every 12 enemies you kill during a wave with this weapon, spawns a turret that deals 8 (100% Engineering) damage and makes enemies take 10% more damage for 5 seconds (max 30%)",
+			},
+			brotato = true,
+			available = false,
+			kind = "Melee",
+			classes = {
+				"Artisan",
+			},
+			minTier = 1,
+			originalScaling = {
+				{
+					meleeDamage = 1,
+				},
+				{
+					meleeDamage = 1,
+				},
+				{
+					meleeDamage = 1,
+				},
+				{
+					meleeDamage = 1,
+				},
+			},
+			scaling = {
+				meleeDamage = 1,
+			},
+			tierScaling = {
+				{
+					meleeDamage = 1,
+				},
+				{
+					meleeDamage = 1,
+				},
+				{
+					meleeDamage = 1,
+				},
+				{
+					meleeDamage = 1,
+				},
+			},
+			heldStats = {
+				{},
+				{},
+				{},
+				{},
+			},
+			rangeKeys = {
+				"range",
+			},
+			behavior = "Crowbar",
+			targeting = "Nearest",
+			base = {
+				damage = 14,
+				cooldown = 1.2,
+				nativeCooldownFrames = 72,
+				nativeTiming = 1,
+				range = 19,
+				critChance = 0.03,
+				critDamage = 2,
+				knockback = 0,
+				knockbackPiercing = 0,
+				lifeSteal = 0,
+				width = 1.2,
+				sweepDegrees = 120,
+				attackSeconds = 0,
+				meleeMode = 1,
+				structureEveryKills = 18,
+			},
+			tiers = {
+				{},
+				{
+					damage = 0.285714285714286,
+					cooldown = -0.0666666666666667,
+					nativeCooldownFrames = -4,
+					structureEveryKills = -2,
+				},
+				{
+					damage = 0.357142857142857,
+					cooldown = -0.0833333333333333,
+					nativeCooldownFrames = -5,
+					structureEveryKills = -2,
+				},
+				{
+					damage = 0.357142857142857,
+					cooldown = -0.0666666666666668,
+					nativeCooldownFrames = -4,
+					structureEveryKills = -2,
+				},
+			},
+		},
+		Shovel = {
+			id = "Shovel",
+			displayName = "Shovel",
+			description = "",
+			tierDescriptions = {
+				"0.5% chance to dig up a crate when it kills an enemy",
+				"1% chance to dig up a crate when it kills an enemy",
+				"1.5% chance to dig up a crate when it kills an enemy",
+				"2% chance to dig up a crate when it kills an enemy",
+			},
+			brotato = true,
+			available = false,
+			kind = "Melee",
+			classes = {
+				"Bludgeon",
+				"Artisan",
+			},
+			minTier = 1,
+			originalScaling = {
+				{
+					meleeDamage = 0.7,
+					luck = 0.1,
+				},
+				{
+					meleeDamage = 0.85,
+					luck = 0.15,
+				},
+				{
+					meleeDamage = 1,
+					luck = 0.2,
+				},
+				{
+					meleeDamage = 1.15,
+					luck = 0.25,
+				},
+			},
+			scaling = {
+				meleeDamage = 0.7,
+				luck = 0.1,
+			},
+			tierScaling = {
+				{
+					meleeDamage = 0.7,
+					luck = 0.1,
+				},
+				{
+					meleeDamage = 0.85,
+					luck = 0.15,
+				},
+				{
+					meleeDamage = 1,
+					luck = 0.2,
+				},
+				{
+					meleeDamage = 1.15,
+					luck = 0.25,
+				},
+			},
+			heldStats = {
+				{},
+				{},
+				{},
+				{},
+			},
+			rangeKeys = {
+				"range",
+			},
+			behavior = "Shovel",
+			targeting = "Nearest",
+			base = {
+				damage = 12,
+				cooldown = 0.8,
+				nativeCooldownFrames = 48,
+				nativeTiming = 1,
+				range = 15,
+				critChance = 0.05,
+				critDamage = 1.5,
+				knockback = 15,
+				knockbackPiercing = 0.05,
+				lifeSteal = 0,
+				width = 1.2,
+				sweepDegrees = 120,
+				attackSeconds = 0.18,
+				meleeMode = 1,
+				digCrateChance = 0.005,
+			},
+			tiers = {
+				{},
+				{
+					damage = 0.833333333333333,
+					cooldown = -0.05,
+					nativeCooldownFrames = -3,
+					knockback = 5,
+					knockbackPiercing = 0.05,
+					digCrateChance = 0.005,
+				},
+				{
+					damage = 1.66666666666667,
+					cooldown = -0.05,
+					nativeCooldownFrames = -3,
+					knockback = 5,
+					knockbackPiercing = 0.05,
+					digCrateChance = 0.005,
+				},
+				{
+					damage = 2.16666666666667,
+					cooldown = -0.0499999999999999,
+					nativeCooldownFrames = -3,
+					knockback = 5,
+					knockbackPiercing = 0.05,
+					digCrateChance = 0.005,
+				},
+			},
+		},
 	},
 	prices = {
 		Anchor = {
@@ -2851,6 +3063,18 @@ return {
 			45,
 			80,
 			165,
+		},
+		Crowbar = {
+			20,
+			39,
+			74,
+			149,
+		},
+		Shovel = {
+			18,
+			38,
+			72,
+			135,
 		},
 	},
 }

@@ -74,8 +74,12 @@ function LootRules.consumable(
 	return if crateRoll < crateChance then "Crate" else "Fruit"
 end
 
--- Shards for selling a crate's item worth `price` Shards in the shop: `share` (Config.Shop.sellShare) plus
--- `sellValue` percent (the Sell Value stat), rounded down.
+-- Shovel kills roll independently of Luck, except neutral trees and guaranteed consumable drops.
+function LootRules.dugCrate(kind: Enemies.Enemy, chance: number, crates: number, roll: number): boolean
+	return chance > 0 and kind.id ~= "Tree" and not (kind.loot and kind.loot.crate) and roll <= chance / (1 + crates)
+end
+
+-- Shards for recycling a crate item, including the Sell Value stat, rounded down.
 function LootRules.sellPrice(price: number, share: number, sellValue: number): number
 	return math.floor(price * math.max(0, share + sellValue / 100) + 1e-9)
 end

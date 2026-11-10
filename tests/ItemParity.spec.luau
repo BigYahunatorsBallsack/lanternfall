@@ -40,7 +40,8 @@ Enemy.killAll()
 
 describe("Main-game item catalog", function()
 	it("replaces every old entry with one unique original", function()
-		expect(#Config.Items.list).toBe(#Source + 1)
+		expect(#Config.Items.list).toBe(#Source + 2)
+		expect(Config.Items.byId.DigSite.available).toBe(false)
 		expect(Config.Items.byId.LumberjackShirt.available).toBe(false)
 		local seen = {}
 		for _, item in Config.Items.list do

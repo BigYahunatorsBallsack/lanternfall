@@ -1,0 +1,184 @@
+{
+  "version": "1.2.0.1",
+  "uploadedCount": 0,
+  "images": [
+    {
+      "id": "DigSite0",
+      "source": "res://entities/gpe/dig_site/dig_site_0.png",
+      "textureSource": "res://.import/dig_site.png-b2867f7778a9c76c3d0a53ddf2952ac9.stex",
+      "textureMd5": "21690e0a7108e11a0ace7670df5aa8e3",
+      "output": "assets/world2d/final/digging/DigSite0.png",
+      "sourceSize": [
+        256,
+        256
+      ],
+      "canvasSize": 256,
+      "pngSha256": "f87856397525d639b83d2c8e238bb14b4dc68645b7e3174a240cd02e1c7680bd",
+      "sourceRgbaSha256": "c65e6fe5fc1c38c073fe867e3434fea7d43de530365a6e911949ed566cf7d420",
+      "atlas": {
+        "resource": "res://.import/dig_site_0.png-6d61e5331f82c5e1de03f51756bdf267.res",
+        "resourceMd5": "b18ab8ad4bb478de7a878fb5cbd89a17",
+        "region": [
+          264,
+          4,
+          229,
+          226
+        ],
+        "margin": [
+          14,
+          14,
+          27,
+          30
+        ]
+      }
+    },
+    {
+      "id": "DigSite1",
+      "source": "res://entities/gpe/dig_site/dig_site_1.png",
+      "textureSource": "res://.import/dig_site.png-b2867f7778a9c76c3d0a53ddf2952ac9.stex",
+      "textureMd5": "21690e0a7108e11a0ace7670df5aa8e3",
+      "output": "assets/world2d/final/digging/DigSite1.png",
+      "sourceSize": [
+        256,
+        256
+      ],
+      "canvasSize": 256,
+      "pngSha256": "d6b002e7c5b848821249dd47539eac00cb27c5f1bf48e7016c351d8e404a3adc",
+      "sourceRgbaSha256": "21f74c39dbef8d5df5616ede11aab32916bb9af58e23bc6f8fc04d1707c52043",
+      "atlas": {
+        "resource": "res://.import/dig_site_1.png-89e8e410778046c6610b56a8c52bdac1.res",
+        "resourceMd5": "359447e48a9a22026822cac323993b7a",
+        "region": [
+          264,
+          240,
+          229,
+          226
+        ],
+        "margin": [
+          14,
+          14,
+          27,
+          30
+        ]
+      }
+    },
+    {
+      "id": "DigSite2",
+      "source": "res://entities/gpe/dig_site/dig_site_2.png",
+      "textureSource": "res://.import/dig_site.png-b2867f7778a9c76c3d0a53ddf2952ac9.stex",
+      "textureMd5": "21690e0a7108e11a0ace7670df5aa8e3",
+      "output": "assets/world2d/final/digging/DigSite2.png",
+      "sourceSize": [
+        256,
+        256
+      ],
+      "canvasSize": 256,
+      "pngSha256": "d5cfa0ec93178b84ae725ab71725554b5af576e886fa2a4972a469f2d916c516",
+      "sourceRgbaSha256": "1523f399066e99ddeb5585210bb34835026e2caad34531244ad1ab8b3ed4ac58",
+      "atlas": {
+        "resource": "res://.import/dig_site_2.png-80fec23b707fc5db51b6904d8f98856b.res",
+        "resourceMd5": "0a0821bb6c6d0cb3b819d47452f9bccb",
+        "region": [
+          4,
+          260,
+          229,
+          226
+        ],
+        "margin": [
+          14,
+          14,
+          27,
+          30
+        ]
+      }
+    },
+    {
+      "id": "DigSite3",
+      "source": "res://entities/gpe/dig_site/dig_site_3.png",
+      "textureSource": "res://.import/dig_site.png-b2867f7778a9c76c3d0a53ddf2952ac9.stex",
+      "textureMd5": "21690e0a7108e11a0ace7670df5aa8e3",
+      "output": "assets/world2d/final/digging/DigSite3.png",
+      "sourceSize": [
+        256,
+        256
+      ],
+      "canvasSize": 256,
+      "pngSha256": "e5fae2ddb9c6c2b6a4268ab17b85815b77a2816eed2776513d683a837c688358",
+      "sourceRgbaSha256": "110ddc0012d6aa59f3e70256f4f505489789b966bce992cd000ac8fd4deebab4",
+      "atlas": {
+        "resource": "res://.import/dig_site_3.png-b9f21f5d9df7ad83f06b10a287a4733c.res",
+        "resourceMd5": "236f67cec2e35ba681774764612abacc",
+        "region": [
+          244,
+          476,
+          229,
+          226
+        ],
+        "margin": [
+          14,
+          14,
+          27,
+          30
+        ]
+      }
+    },
+    {
+      "id": "DigSite4",
+      "source": "res://entities/gpe/dig_site/dig_site_4.png",
+      "textureSource": "res://.import/dig_site.png-b2867f7778a9c76c3d0a53ddf2952ac9.stex",
+      "textureMd5": "21690e0a7108e11a0ace7670df5aa8e3",
+      "output": "assets/world2d/final/digging/DigSite4.png",
+      "sourceSize": [
+        256,
+        256
+      ],
+      "canvasSize": 256,
+      "pngSha256": "e281db78849514cecceba9b8d93a95d6739b9ec1401b29fb198bf521856c1104",
+      "sourceRgbaSha256": "071e8b9676fabc3410e1eed7257ba168782e444973759e257254459a37a60f8c",
+      "atlas": {
+        "resource": "res://.import/dig_site_4.png-a191b6a204838fc901558726aeb97647.res",
+        "resourceMd5": "aae2a5abb377e8342694a1b1f8edffcb",
+        "region": [
+          4,
+          4,
+          251,
+          247
+        ],
+        "margin": [
+          3,
+          2,
+          5,
+          9
+        ]
+      }
+    },
+    {
+      "id": "DigSite",
+      "source": "res://items/all/04_primal_dread/dig_site/dig_site_icon.png",
+      "textureSource": "res://.import/dig_site_icon.png-f5555fa0a5d65eabbc620bf5b2990f3a.stex",
+      "textureMd5": "77628277a819195945dc1d6fe74a7d55",
+      "output": "assets/world2d/final/items/DigSite.png",
+      "sourceSize": [
+        96,
+        96
+      ],
+      "canvasSize": 96,
+      "pngSha256": "f2afedbc670327a9226fb4564671df255a62dee65fdcfb3185968339704a2fc6",
+      "sourceRgbaSha256": "c0cdeeb6b2f1d8acc8bd97bfadc4a12d5331f604199bc4c71c6803fb1c50306b"
+    },
+    {
+      "id": "BloodTurret",
+      "source": "res://entities/structures/turret/bleeding_turret/blood_turret.png",
+      "textureSource": "res://.import/blood_turret.png-362d5081e4b2acbef3b3be355e8e2178.stex",
+      "textureMd5": "f9dc7acf7c366cd9e58eaa6af7691c6c",
+      "output": "assets/world2d/final/structures/BloodTurret.png",
+      "sourceSize": [
+        100,
+        100
+      ],
+      "canvasSize": 100,
+      "pngSha256": "488d9ef56a1dc55c8763028a2fa7b8eb363d6b099b629b939f28cf4051c4cf1e",
+      "sourceRgbaSha256": "46117431ef2fe05cd17d2781649135fb058c028b45567c80bd6325850829b9ed"
+    }
+  ]
+}

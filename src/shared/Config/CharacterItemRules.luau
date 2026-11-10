@@ -212,6 +212,7 @@ local nativeIds: { [string]: string } = {
 	WitchKettle = "item_lemonade",
 	WitchMortar = "item_gnome",
 	LumberjackShirt = "item_lumberjack_shirt",
+	DigSite = "item_dig_site",
 }
 
 local tags: { [string]: { string } } = {
@@ -666,6 +667,9 @@ local tags: { [string]: { string } } = {
 	},
 	LumberjackShirt = {
 		"exploration",
+	},
+	DigSite = {
+		"stat_luck",
 	},
 }
 

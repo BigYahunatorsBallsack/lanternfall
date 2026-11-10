@@ -258,4 +258,5 @@ Remotes.SetMovementIntent = {
 	rateLimit = { count = movementIntent.rateCount, perSeconds = movementIntent.rateSeconds },
 	args = { Validate.boolean() }, -- intent only; service checks participation and observed movement
 }
+Remotes.DigSites = { direction = "toClient" } -- server snapshot: Net/Types.DigSite rows, no client commands
 return table.freeze(Remotes)

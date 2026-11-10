@@ -242,15 +242,21 @@ local function onEnemyKilled(info: EnemySim.KillInfo)
 		return
 	end
 	local random = RandomService.stream("Loot")
-	local dropped = LootRules.consumable(
-		kind,
-		teamLuck(),
-		cratesThisWave,
-		random:NextNumber(),
-		random:NextNumber(),
-		teamCrateBonus(),
-		DangerRules.endlessFactor(RunDirector.getWave())
-	)
+	local dug = (info.digCrateChance or 0) > 0
+		and kind.id ~= "Tree"
+		and not (kind.loot and kind.loot.crate)
+		and LootRules.dugCrate(kind, info.digCrateChance :: number, cratesThisWave, random:NextNumber())
+	local dropped = if dug
+		then "Crate"
+		else LootRules.consumable(
+			kind,
+			teamLuck(),
+			cratesThisWave,
+			random:NextNumber(),
+			random:NextNumber(),
+			teamCrateBonus(),
+			DangerRules.endlessFactor(RunDirector.getWave())
+		)
 	if dropped == "Crate" then
 		cratesThisWave += 1
 		dropPickup(info.position.X, info.position.Z, CRATE)

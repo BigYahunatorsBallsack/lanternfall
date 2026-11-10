@@ -41,6 +41,7 @@ export type KillInfo = {
 	elite: boolean, -- a Gloom Elite: drops a chest (LootService)
 	boss: boolean, -- a boss (WP10, BossService)
 	killer: Player?,
+	digCrateChance: number?, -- Shovel's killing hitbox; LootService rolls before ordinary consumables
 }
 
 export type Stats = {
@@ -759,7 +760,8 @@ function EnemySim.damage(
 	amount: number,
 	source: Player?,
 	bonusPercent: number?,
-	ownerHitbox: boolean?
+	ownerHitbox: boolean?,
+	digCrateChance: number?
 ): (boolean, number, number)
 	local totalBonus = (bonusPercent or 0) + weakness:bonus(id)
 	if totalBonus ~= 0 then
@@ -813,6 +815,7 @@ function EnemySim.damage(
 			elite = kind.elite == true,
 			boss = kind.boss ~= nil,
 			killer = source,
+			digCrateChance = if ownerHitbox then digCrateChance else nil,
 		} :: KillInfo)
 	end
 	return true, dealt, applied

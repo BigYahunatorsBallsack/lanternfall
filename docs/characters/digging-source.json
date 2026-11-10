@@ -1,0 +1,43 @@
+{
+  "version": "1.2.0.1",
+  "steamBuild": 26406319,
+  "resources": {
+    "res://weapons/melee/shovel/shovel.gdc": "f89cd7ec61087e774744ff7c51e31e31",
+    "res://weapons/weapon.gdc": "459365711e583c5182403866b79e7305",
+    "res://main.gdc": "903bd37107ab9c164addda2167477fb1",
+    "res://effect_behaviors/scenes/dig_site_scene_effect_behavior.gdc": "19f87a9e923c7b74c9734aff7500cdc0",
+    "res://entities/gpe/dig_site/dig_site.gdc": "1d5705a5a9f7e725e956741dfce0272c",
+    "res://entities/gpe/dig_site/dig_site.tscn": "6fcd2afc249c2dc61f3adb069d45a514",
+    "res://items/all/04_primal_dread/dig_site/dig_site.tres": "74022d12d242a064d5843ed4199c0fe7",
+    "res://dlcs/dlc_2/challenges/dig_site_data.tres": "225bf08fa0fa5d9e4b05548aeadc5cc8",
+    "res://dlcs/dlc_2/challenges/archaeologist_data.tres": "da02d732e6a74fc1d305a0aaa84ca5a3"
+  },
+  "rules": {
+    "shovel": "CrateDigChanceEffect.value/10000; killing hitbox sets max chance, main rolls chance/(1+itemsSpawnedThisWave) before normal loot; excludes always_drop_consumables. No Luck or crate-chance modifier. This is a regular crate, not a new excavation site.",
+    "sites": "Sum all periodic item effects when wave%period==0 plus native character dig_sites and periodic dig_sites_every_x_waves. One progress delta per tick whenever any live player intersects. Progress pauses when empty and survives reentry. Uniform random5..6seconds, then one ordinary crate; retain completed scene until room cleanup.",
+    "placement": "Initial clamped random position, then up to30 better-score attempts; score=min(distanceToCenter/400,eachDistance/350). Edge margin150sourcepoints.",
+    "unlock": "Lifetime dig_sites_dug_up >=10 unlocks Shovel. Dig Site item unlocked by Archaeologist win.",
+    "coopAdaptation": "The original uses a Steam-profile-wide completion counter. Online profiles credit each alive participant digging at completion once; spectators and distant peers receive no credit. This mapping is an explicit online-coop adaptation, not a measured native per-player rule."
+  },
+  "item": {
+    "id": "DigSite",
+    "tier": 2,
+    "price": 45,
+    "limit": 2,
+    "luck": -3,
+    "amount": 1,
+    "period": 3,
+    "winWith": "Archaeologist"
+  },
+  "geometry": {
+    "halfSizePoints": 90,
+    "minSeconds": 5,
+    "maxSeconds": 6,
+    "playerBodyRadiusPoints": 24,
+    "playerBodyOffsetZPoints": -12
+  },
+  "technicalLimits": {
+    "maxSites": 100,
+    "snapshotSeconds": 0.2
+  }
+}

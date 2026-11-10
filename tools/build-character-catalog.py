@@ -58,7 +58,7 @@ CLASS_STATS = {
     "damage": "baseDamage", "crit_damage": "critDamage", "stat_percent_damage": "damage",
 }
 WEAPON_ALIASES = {"fighting_stick": "Quarterstaff", "dagger": "ThiefDagger"}
-DISPLAY_NAMES = {"one_arm": "One Armed"}
+DISPLAY_NAMES = {"one_arm": "One Armed", "well_rounded": "Well-Rounded"}
 
 HEADER = '''--!strict
 -- Original character data compiled from docs/characters/source.json; read by Classes and character policies.
