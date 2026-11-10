@@ -185,6 +185,11 @@ local Sprites = {
 		{ default = body(2.6), Fruit = body(2.2), Crate = body(4.6), LegendaryCrate = body(5.2) }
 	),
 
+	-- Studs towards the camera instead of depthBias for fruit and crates (PickupRenderer). Brotato draws its Consumables
+	-- node after Materials and before Entities (main.tscn, no z_index), so they lie over shards and under every enemy and
+	-- player. Between material.depthBias and depthBias; the legendary glow sits just under its crate.
+	pickupDepth = table.freeze({ item = 0.2, glow = 0.15 }),
+
 	-- Hub lobby props (LobbyArtService).
 	lobby = fitAll(Images.lobby, { default = 10, Arch = 20, Beacon = 14, Lamp = 10, CornerRuin = 12 }),
 	lobbyParapetHeight = 0.12, -- the old low wall, now a flat band
@@ -212,7 +217,6 @@ local Sprites = {
 	orbScale = 1.2,
 	-- Original green materials: the source icon has transparent margins. Value affects size, never its color.
 	material = table.freeze({
-		hover = body(0.4),
 		-- Every lying shard gets one of these pictures (own art, assets/loot/shards, tools/art2d/draw_shards.py), turned,
 		-- mirrored and resized a little by its id (Util/MaterialLook). Empty would fall back to images.material.
 		variants = table.freeze({
@@ -226,7 +230,8 @@ local Sprites = {
 		pixels = 256, -- side of every material picture, for mirroring
 		turn = 180, -- degrees either way
 		-- Studs towards the camera instead of depthBias: lying shards draw behind enemies, players and other figures
-		-- (owner, 09.11.2026). Above zero, so they stay above floor marks.
+		-- (owner, 09.11.2026), like Brotato. Their anchor lies on the floor (XpOrbRenderer), so this alone sets how
+		-- near they are. Above zero, so they stay above floor marks.
 		depthBias = 0.1,
 		sizeJitter = 0.12, -- share either way
 		tiers = table.freeze({

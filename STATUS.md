@@ -829,3 +829,11 @@ Branch `wp-25-2d-presentation`. **Owner-Entscheidungen dieses Pakets:** Das Spie
 - Tests: `Loot.spec` prüft kein Beutel-HUD und das „X2" beim Aufheben. Loot/UiReference/Boss/Experience/CharacterExperience grün, Smoke dieselben 26 Fehler wie main. StyLua, Selene (Scratch-Konfiguration) sauber. Studio-Abnahme offen.
 - Nächstes Paket: unverändert laut Plan.
 
+
+## Gegner über Shards und Kisten (Claude, 10.11.2026)
+
+- Owner: Gegner waren beim Drüberlaufen weiter hinter den Shards. Brotato 1.2.0.1 (`main.tscn` vom Owner-PC, Wiki sagt nichts): die Knoten `Materials` und `Consumables` kommen vor `Entities`, ohne `z_index` – Materialien und Früchte/Kisten liegen also immer unter allen Gegnern und Spielern, auch im Flug zum Spieler; Früchte/Kisten über Materialien.
+- Ursache bei uns: Die Kamera schaut fast senkrecht nach unten, Höhe über dem Boden heißt also „näher an der Kamera". Der Shard-Anker schwebte `hover` + halbe Bildgröße (≈ 2,8 Studs) über dem Boden und lag damit trotz `depthBias = 0.1` vor den Gegnern (1,5). Jetzt liegt er auf dem Boden (`Config.Sprites.material.hover` entfernt). Shards wirken dadurch ≈ 1,5 % kleiner (Perspektive), sonst gleich.
+- Früchte/Kisten bekommen eigene Tiefe `Config.Sprites.pickupDepth` (0,2; Glow der legendären Kiste 0,15, jetzt auf dem Boden statt 1 Stud hoch) statt 1,5 wie die Figuren. Fliegende Shards und Kisten fliegen am Boden zum Punkt unter dem Spieler statt zur Hüfte hoch. `WorldSprite.glow` hat optional `depth`.
+- StyLua, Selene sauber. Studio-Abnahme offen.
+- Nächstes Paket: unverändert laut Plan.
