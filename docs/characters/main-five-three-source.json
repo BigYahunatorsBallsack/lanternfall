@@ -1,0 +1,81 @@
+{
+  "version": "1.2.0.1",
+  "steamBuild": 26406319,
+  "characters": [
+    {
+      "id": "character_lucky",
+      "slug": "lucky",
+      "source": "res://items/characters/lucky/lucky_data.tres",
+      "sourceMd5": "65df47593dd69ac42d05f712a969bea7",
+      "startChoices": 25
+    },
+    {
+      "id": "character_sick",
+      "slug": "sick",
+      "source": "res://items/characters/sick/sick_data.tres",
+      "sourceMd5": "1b86a50131c935f4f3a4d0a7436bfb60",
+      "startChoices": 24
+    },
+    {
+      "id": "character_engineer",
+      "slug": "engineer",
+      "source": "res://items/characters/engineer/engineer_data.tres",
+      "sourceMd5": "cad8772c1c0b74591f797931e62b017e",
+      "startChoices": 7
+    },
+    {
+      "id": "character_streamer",
+      "slug": "streamer",
+      "source": "res://items/characters/streamer/streamer_data.tres",
+      "sourceMd5": "6e1078df84997cba695cd9bcdcea6f57",
+      "startChoices": 36
+    },
+    {
+      "id": "character_lich",
+      "slug": "lich",
+      "source": "res://items/characters/lich/lich_data.tres",
+      "sourceMd5": "0cdbd134b243a87eb43069841804dbfb",
+      "startChoices": 29
+    }
+  ],
+  "resources": {
+    "res://projectiles/boomerang/boomerang_projectile.gdc": "de240ac1e8b9d154e8a601e207678ef7",
+    "res://projectiles/boomerang/boomerang_projectile.tscn": "4fb2750409c37643d51aea48f8275193",
+    "res://projectiles/projectile.tscn": "812858f38125afcd1b80afb57cffed70",
+    "res://weapons/ranged/boomerang/boomerang_shooting_behavior.gdc": "f71ef63bc96beaedaabc99c7b66f8974",
+    "res://weapons/weapon.gdc": "459365711e583c5182403866b79e7305",
+    "res://global/entity_spawner.gdc": "ba0576c27ac5b889c5688decda3dd838",
+    "res://singletons/zone_service.gdc": "d16899aba618beb55e980f67a0bf10b0",
+    "res://singletons/entity_service.gdc": "f1a861f576858bbaa3e913d83c7b1807",
+    "res://singletons/challenge_service.gdc": "6d6b42bb03a602222287ec8e7b2a14bf",
+    "res://singletons/run_data.gdc": "a94d8eddd9609f413309ce9237297ad2",
+    "res://entities/units/player/player.gdc": "80ac166ba6b5c71fbf220bcd43ddc90e"
+  },
+  "wording": {
+    "source": "res://resources/translations/translations.en.translation",
+    "sourceMd5": "701f69b83d82866afc0d55321cceea7c",
+    "keys": {
+      "EFFECT_GROUP_STRUCTURES": "Structures spawn close to each other",
+      "EFFECT_BOOMERANG_RETURN": "Flies back to you, hitting enemies again on the way back",
+      "EFFECT_LOSE_HP_PER_SECOND": "You take {0} damage per second (does not give invulnerability time)",
+      "EFFECT_STAT_WHILE_MOVING": "{0} {1} while moving",
+      "EFFECT_DEAL_DMG_WHEN_PICKUP_GOLD": "{0} chance to deal {1} ({2}) damage to a random enemy when you pick up a material",
+      "EFFECT_GOLD_WHILE_NOT_MOVING": "{0} of your materials ({2} max) per second while standing still",
+      "EFFECT_DEAL_DMG_WHEN_HEAL": "{0} chance to deal {1} ({2}) damage to a random enemy when you heal"
+    }
+  },
+  "rules": {
+    "lucky": "Initial100Luck is scaled by1.25 gain multiplier to125; subsequent raw gains similarly scaled. -60AS,-50XP. Each personally collected material object rolls75%; base=max(1,floor(15%Luck)), ordinary Damage rounding follows. Multiple value in one orb is one object, no teammate trigger.",
+    "sick": "12MaxHP,25LifeSteal,-100Regen. One self damage per second with armor/dodge/invulnerability bypass; can down owner and triggers Hurt. Timer reset on new wave/retry.",
+    "streamer": "Every uninterrupted stationary second:floor(min(25,max(1,abs(materials*.03)))) personal materials. Movement applies40Damage/40AS, stops/reset stationary timer.2Armor per equipped structure source. -50% material drops; -1Damage/15held, -1Speed/30held.",
+    "lich": "10Regen,10LifeSteal, Damage-family gain reductions50%. A successful actual heal triggers one maxHP-base random target strike, no strike on full-HP no-op.100MaxHP challenge is personal.",
+    "engineer": "10Engineering with25% gain increase; damage-family gains reduced50%. Select one of7starts and grant additional Wrench. Group eligible structure sources in a shared square each player/second: base square side=floor(zoneWidthPoints/3), child side=min(600,400+10sourceCount)points. Native 64point edge constrained20%smallerSide, five forbidden-circle tries then push+.8stud. Mines/traps cannot group. chal_turrets counts TurretEffect sources excluding garden/wandering_bot at wave initialization, before cap, not during shop purchase; loose kill-spawned turrets are not equipped sources.",
+    "statChallenges": "challenge_service.check_stat_challenges:negative threshold uses<=, positive>=, zero==. CurrentSick-5Regen/Streamer-20Speed use AtMost; existing positive challenges retain>=.",
+    "boomerang": "Four tiers6/9/12/17damage,30/28/26/24frames,300/325/350/375rangePoints,900/950/1000/1050speedPoints. Primitive,Ranged;50/60/70/80%Melee+5/10/15/20%Speed. Survivor victory unlock (chal_survivor; no special zone dependency). Quadratic ease-out over1.6*reach/speed, apex.15s at.25speed; clear ignored targets at back transition, homing back with min(1.2speed,speed*(.25+2*phaseSeconds)),catch30points. Stop4seconds/deadcarrier; attack cooldown frozen until every projectile returns. Custom hit callback never consumes pierces/bounces, full damage once each outbound/back leg. Zero projectiles launches none. InheritedCircle44points, combined collision offset(1,-1)points; parent25degrees per60Hz physics frame plus Sprite360degrees/.3s. Movement/physics still runs in existing15Hz shared simulation."
+  },
+  "limitations": [
+    "No original uploads or Studio/two-client/mobile acceptance. Native held empty sprite/audio and exact Godot60Hz physics remain visual/engine parity work.",
+    "Grouping uses current MapService obstacle circles; full native zone/forbidden-shape parity is not claimed.",
+    "The five native packages retain shared physics/visual/item-catalog limitations as documented in HANDOFF; code preparation is not full native acceptance."
+  ]
+}

@@ -335,6 +335,22 @@ Classes.Saver.description =
 Classes.Glutton.nativeCodeReady = true
 Classes.Glutton.description =
 	"+50 Luck\n+1 % Explosion Damage when picking up a consumable while at maximum health\nConsumables have a 100% chance to explode for 10 (500% Melee Damage) damage when picked up\n+25 % Item Prices\n-25 % XP Gain"
+Classes.Lucky.nativeCodeReady = true
+Classes.Lucky.description =
+	"+100 Luck\nLuck modifications are increased by 25%\n75% chance to deal 1 (15% Luck) damage to a random enemy when you pick up a material\n-60 % Attack Speed\n-50 % XP Gain"
+Classes.Sick.nativeCodeReady = true
+Classes.Sick.description =
+	"+12 Max HP\n+25 % Life Steal\nYou take 1 damage per second (does not give invulnerability time)\n-100 HP Regeneration"
+Classes.Engineer.nativeCodeReady = true
+Classes.Engineer.description =
+	"+10 Engineering\nEngineering modifications are increased by 25%\nYou start with 1 Wrench\nStructures spawn close to each other\nDamage modifications are reduced by 50%"
+Classes.Streamer.nativeCodeReady = true
+Classes.Streamer.description =
+	"+3% of your materials (25 max) per second while standing still\n+40 % Damage while moving\n+40 % Attack Speed while moving\n+2 Armor for every 1 structure you have [0]\n-50 % materials dropped\n-1 % Damage for every 15 materials you have [0]\n-1 % Speed for every 30 materials you have [0]"
+Classes.Lich.nativeCodeReady = true
+Classes.Lich.description =
+	"+10 HP Regeneration\n+10 % Life Steal\n100% chance to deal 1 (100% Max HP) damage to a random enemy when you heal\nDamage modifications are reduced by 50%"
+
 for id, class in Classes do
 	if not class.nativeCodeReady then
 		continue

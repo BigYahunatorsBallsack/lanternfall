@@ -7,7 +7,7 @@ export type Challenge = {
 	sourceMd5: string,
 	requirement: string,
 } & (
-	{ kind: "Stat", stat: string, threshold: number }
+	{ kind: "Stat", stat: string, threshold: number, comparison: string? }
 	| { kind: "WinDanger", danger: number }
 	| { kind: "WaveHealing", threshold: number }
 	| { kind: "MaterialsCollected", threshold: number }
@@ -15,10 +15,58 @@ export type Challenge = {
 	| { kind: "RunRecycledWeapons", threshold: number }
 	| { kind: "EnemiesKilled", threshold: number }
 	| { kind: "WaveLivingTrees", threshold: number }
-	| { kind: "Inventory", count: string, threshold: number, stat: string?, statThreshold: number? }
+	| { kind: "Inventory", count: string, threshold: number, stat: string?, statThreshold: number?, waveStart: boolean? }
 	| { kind: "RunConsumables", threshold: number }
 )
 local rules: { [string]: Challenge } = {
+	Lucky = {
+		kind = "MaterialsCollected",
+		threshold = 300,
+		challengeId = "chal_gatherer_1",
+		source = "res://challenges/gatherer_1_data.tres",
+		sourceMd5 = "30f87a8c386466088060b9b866ade6b8",
+		requirement = "Collect 300 materials",
+	},
+	Sick = {
+		kind = "Stat",
+		stat = "hpRegen",
+		threshold = -5,
+		comparison = "AtMost",
+		challengeId = "chal_dying",
+		source = "res://challenges/dying_data.tres",
+		sourceMd5 = "a49a5b742381caad8690f7e2e54431c9",
+		requirement = "Reach -5 HP Regeneration",
+	},
+	Streamer = {
+		kind = "Stat",
+		stat = "speed",
+		threshold = -20,
+		comparison = "AtMost",
+		challengeId = "chal_slow",
+		source = "res://challenges/slow_data.tres",
+		sourceMd5 = "68ad38b0b5f387a45dcd6f210609d642",
+		requirement = "Reach -20% Speed",
+	},
+	Lich = {
+		kind = "Stat",
+		stat = "maxHp",
+		threshold = 100,
+		challengeId = "chal_robust",
+		source = "res://challenges/robust_data.tres",
+		sourceMd5 = "4ceb27d851993c500839c27f5f03e14b",
+		requirement = "Reach 100 Max HP",
+	},
+	Engineer = {
+		kind = "Inventory",
+		count = "turrets",
+		waveStart = true,
+		threshold = 5,
+		challengeId = "chal_turrets",
+		source = "res://challenges/turrets_data.tres",
+		sourceMd5 = "321df5978c38cacdca3258506280732c",
+		requirement = "Have 5 turrets on the map at the same time",
+	},
+
 	TwinLedger = {
 		kind = "MaterialsCollected",
 		threshold = 2000,

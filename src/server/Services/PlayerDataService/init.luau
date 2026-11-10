@@ -300,8 +300,14 @@ function PlayerDataService.observeNativeStats(player: Player, sheet: { [string]:
 		return
 	end
 	local changed = false
-	local function observe(stat: string?, threshold: number?, challengeId: string?)
-		if stat and threshold and challengeId and (sheet[stat] or 0) >= threshold then
+	local function observe(stat: string?, threshold: number?, challengeId: string?, comparison: string?)
+		local value = if stat then sheet[stat] or 0 else 0
+		if
+			stat
+			and threshold
+			and challengeId
+			and (if comparison == "AtMost" then value <= threshold else value >= threshold)
+		then
 			local key = CharacterAccess.challengeKey(challengeId)
 			if not data.achievements[key] then
 				data.achievements[key] = true
@@ -314,7 +320,7 @@ function PlayerDataService.observeNativeStats(player: Player, sheet: { [string]:
 	end
 	for _, rule in NativeCharacterAccess do
 		if rule.kind == "Stat" then
-			observe(rule.stat, rule.threshold, rule.challengeId)
+			observe(rule.stat, rule.threshold, rule.challengeId, rule.comparison)
 		end
 	end
 	if changed then
@@ -327,7 +333,8 @@ end
 function PlayerDataService.observeNativeInventory(
 	player: Player,
 	counts: { [string]: number },
-	sheet: { [string]: number }
+	sheet: { [string]: number },
+	atWaveStart: boolean?
 )
 	local data = PlayerDataService.get(player)
 	if not data then
@@ -337,6 +344,7 @@ function PlayerDataService.observeNativeInventory(
 	for _, rule in NativeCharacterAccess do
 		if
 			rule.kind == "Inventory"
+			and (not rule.waveStart or atWaveStart == true)
 			and (counts[rule.count] or 0) >= rule.threshold
 			and (not rule.stat or (sheet[rule.stat] or 0) >= (rule.statThreshold or 0))
 		then
