@@ -87,6 +87,11 @@ export type Context = {
 	slot: number, -- the running weapon's place in its owner's loadout and the loadout size (held pose, Util/WeaponPose)
 	slotCount: number,
 	sweepStep: number, -- see Config.Simulation.weaponSweepStep
+	-- Brotato hitbox knockback_direction: the attack's own direction (melee thrust/whip swing, projectile flight),
+	-- set by the behavior around its hits (setHitDirection); nil = straight away from the owner
+	hitDirX: number?,
+	hitDirZ: number?,
+	setHitDirection: (self: Context, dx: number?, dz: number?) -> (),
 	queryCircle: (self: Context, x: number, z: number, radius: number, out: { number }) -> number,
 	querySegment: (
 		self: Context,
@@ -175,6 +180,17 @@ type Queued = {
 local MAX_PROJECTILE_ID = 2 ^ 31
 
 local Arsenal = {}
+
+-- Brotato 1.2.0.1 Unit.take_damage: knockback_direction = share x the hitbox's direction + (1 - share) x the unit
+-- direction from the owner to the enemy, not normalized again (a hit against its own flight pushes less). Without a
+-- hit direction the push goes straight away from the owner. (awayX, awayZ) and (hitX, hitZ) are unit vectors.
+function Arsenal.knockDirection(awayX: number, awayZ: number, hitX: number?, hitZ: number?): (number, number)
+	if not hitX or not hitZ then
+		return awayX, awayZ
+	end
+	local share = Combat.knockback.hitDirectionShare
+	return share * hitX + (1 - share) * awayX, share * hitZ + (1 - share) * awayZ
+end
 Arsenal.__index = Arsenal
 
 export type Arsenal = typeof(setmetatable(
@@ -208,7 +224,13 @@ local function makeContext(self: Arsenal): Context
 		slot = 1,
 		slotCount = 1,
 		sweepStep = params.sweepStep,
+		hitDirX = nil,
+		hitDirZ = nil,
 	} :: any
+
+	function ctx.setHitDirection(_, dx: number?, dz: number?)
+		ctx.hitDirX, ctx.hitDirZ = dx, dz
+	end
 
 	function ctx.queryCircle(_, x: number, z: number, radius: number, out: { number }): number
 		return enemies.queryCircle(x, z, radius, out)
@@ -258,8 +280,8 @@ local function makeContext(self: Arsenal): Context
 		return enemies.getPosition(id)
 	end
 
-	-- B5: what a hit does to an enemy that survived it besides the damage: knockback straight away from the owner (not
-	-- for explosions and bounces), the weapon's slow and its burn (with its chance).
+	-- B5: what a hit does to an enemy that survived it besides the damage: knockback mostly away from the owner (not
+	-- for explosions and bounces, Arsenal.knockDirection), the weapon's slow and its burn (with its chance).
 	local function afflict(weapon: Weapon, id: number, killed: boolean, mode: HitMode?)
 		local stats = weapon.stats
 		if killed then
@@ -275,10 +297,11 @@ local function makeContext(self: Arsenal): Context
 					local angle = params.random() * 2 * math.pi
 					dx, dz, length = math.cos(angle), math.sin(angle), 1
 				end
+				dx, dz = Arsenal.knockDirection(dx / length, dz / length, ctx.hitDirX, ctx.hitDirZ)
 				if enemies.knock then
-					enemies.knock(id, dx / length * knockback, dz / length * knockback)
+					enemies.knock(id, dx * knockback, dz * knockback)
 				else
-					enemies.push(id, dx / length * knockback, dz / length * knockback)
+					enemies.push(id, dx * knockback, dz * knockback)
 				end
 			end
 		end
@@ -295,7 +318,7 @@ local function makeContext(self: Arsenal): Context
 					weapon,
 					burnDamage,
 					stats.burnTicks or 0,
-					stats.burnInterval,
+					self:burnInterval(),
 					stats.burnSpread or 0
 				)
 			)
@@ -464,6 +487,16 @@ function Arsenal.addOwner(self: Arsenal, ownerId: number, bonuses: Bonuses?)
 	end
 	self.owners[ownerId] = { weapons = {}, bonuses = bonuses or {}, placed = false, x = 0, z = 0, vx = 0, vz = 0 }
 	table.insert(self.order, ownerId)
+end
+
+-- Brotato 1.2.0.1 Unit.init: an enemy's BurningTimer uses the Burning Speed of ALL players summed
+-- (RunData.sum_all_player_effects), so every burn ticks at the team's interval, whoever lit it.
+function Arsenal.burnInterval(self: Arsenal): number
+	local total = 0
+	for _, owner in self.owners do
+		total += owner.bonuses.burnSpeed or 0
+	end
+	return StatMath.burnInterval(total)
 end
 
 function Arsenal.removeOwner(self: Arsenal, ownerId: number)
@@ -955,7 +988,7 @@ local function runQueue(self: Arsenal)
 					nil,
 					WeaponStats.ownerDamage(entry.damage, entry.scaling, bonuses),
 					entry.ticks,
-					StatMath.burnInterval(bonuses.burnSpeed or 0),
+					self:burnInterval(),
 					math.max(0, math.floor(bonuses.burnSpread or 0))
 				)
 			)

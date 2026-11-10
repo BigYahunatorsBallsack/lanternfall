@@ -145,7 +145,7 @@ function Combat.hit(
 		and stats.knockbackPiercing
 		and adapter.knockbackPiercing
 	then
-		adapter.knockbackPiercing(id, ctx.x, ctx.z, stats.knockback, stats.knockbackPiercing)
+		adapter.knockbackPiercing(id, ctx.x, ctx.z, stats.knockback, stats.knockbackPiercing, ctx.hitDirX, ctx.hitDirZ)
 	end
 	weapon.state.secondaryHit = false
 	if

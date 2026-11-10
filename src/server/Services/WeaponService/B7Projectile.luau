@@ -173,7 +173,9 @@ local function hitAlong(
 	for i = 1, n do
 		local id = order[i]
 		bolt.hit[id] = true
+		ctx:setHitDirection(bolt.dx, bolt.dz) -- Brotato: a projectile knocks along its flight
 		ctx:hit(weapon, id, bolt.share, if bolt.bounced then "Bounce" else nil)
+		ctx:setHitDirection(nil, nil)
 		if stats.explosionRadius and (not stats.explosionChance or ctx:random() < stats.explosionChance) then
 			ctx:explode(weapon, hitX[id], hitZ[id], id, bolt.share)
 		end

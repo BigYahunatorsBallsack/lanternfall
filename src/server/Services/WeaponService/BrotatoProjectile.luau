@@ -293,8 +293,11 @@ function Projectile.step(weapon: Arsenal.Weapon, ctx: Arsenal.Context, dt: numbe
 		for _, entry in ordered do
 			local id = entry.id
 			shot.hit[id] = true
+			ctx:setHitDirection(shot.dx, shot.dz) -- Brotato: a projectile knocks along its flight
 			Combat.hit(weapon, ctx, id, shot.share, stats, shot.critical, shot.secondary, shot.bounced)
+			ctx:setHitDirection(nil, nil)
 			spawnPuddle(weapon, shot, shot.x + shot.dx * entry.distance, shot.z + shot.dz * entry.distance)
+
 			local x, z = ctx:enemyPosition(id)
 			local bounce = if x and z and shot.bounces > 0 then ctx:bounceTarget(x, z, shot.hit) else nil
 			if bounce and x and z then

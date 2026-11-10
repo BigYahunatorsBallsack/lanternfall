@@ -6,6 +6,7 @@ local Enemy = require(script.Parent.Parent.EnemySim)
 local Weapons = require(script.Parent.Parent.WeaponService)
 local Random = require(script.Parent.Parent.RandomService)
 local Projectile = require(script.Parent.Parent.WeaponService.BrotatoProjectile)
+local Arsenal = require(script.Parent.Parent.WeaponService.Arsenal)
 local Rules = require(script.Parent.Rules)
 local Sim = {}
 local volleys: { any } = {}
@@ -45,6 +46,9 @@ function Sim.launch(player: Player, at: Vector3, def: any, sheet: { [string]: nu
 		config = { kind = "Structure", scaling = { engineering = def.engineering or 0 } },
 	}
 	local ctx: any = { x = at.X, z = at.Z, active = false, now = workspace:GetServerTimeNow(), slot = 1, slotCount = 1 }
+	function ctx.setHitDirection(_, dx, dz)
+		ctx.hitDirX, ctx.hitDirZ = dx, dz
+	end
 	function ctx.random()
 		return Random.number("Combat", player)
 	end
@@ -105,7 +109,9 @@ function Sim.launch(player: Player, at: Vector3, def: any, sheet: { [string]: nu
 		if not killed and s.knockback > 0 then
 			local pos = Enemy.getPosition(id)
 			if pos and (pos - at).Magnitude > 0 then
-				Enemy.push(id, (pos - at).Unit * s.knockback)
+				local away = (pos - at).Unit
+				local dx, dz = Arsenal.knockDirection(away.X, away.Z, ctx.hitDirX, ctx.hitDirZ)
+				Enemy.knock(id, dx * s.knockback, dz * s.knockback)
 			end
 		end
 		return killed

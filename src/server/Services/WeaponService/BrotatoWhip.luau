@@ -102,11 +102,13 @@ function Whip.step(weapon: Arsenal.Weapon, ctx: Arsenal.Context, dt: number)
 			local id = found[i]
 			if not swing.hit[id] then
 				swing.hit[id] = true
+				ctx:setHitDirection(swing.dx, swing.dz)
 				local critical: boolean? = nil
 				if atTip[id] then
 					critical = true
 				end
 				Combat.hit(weapon, ctx, id, nil, nil, critical)
+				ctx:setHitDirection(nil, nil)
 			end
 		end
 	end

@@ -15,6 +15,9 @@ local function setup(collisions)
 	end)
 	local serial = 0
 	local ctx = {
+		setHitDirection = function(self, dx, dz)
+			self.hitDirX, self.hitDirZ = dx, dz
+		end,
 		x = 0,
 		z = 0,
 		slot = 1,

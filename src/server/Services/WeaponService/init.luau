@@ -629,7 +629,7 @@ function WeaponService.init()
 		isBurning = function(id)
 			return arsenal:isBurning(id)
 		end,
-		knockbackPiercing = function(id, x, z, amount, piercing)
+		knockbackPiercing = function(id, x, z, amount, piercing, hitX, hitZ)
 			local kindId, elite = EnemySim.getKind(id)
 			local kind = kindId and EnemyKinds.get(kindId, elite)
 			local position = EnemySim.getPosition(id)
@@ -642,7 +642,9 @@ function WeaponService.init()
 				return
 			end
 			local share = if amount < 0 then 1 - resistance + resistance * piercing else resistance * piercing
-			local extra = direction.Unit * (amount * share)
+			local away = direction.Unit
+			local kx, kz = Arsenal.knockDirection(away.X, away.Z, hitX, hitZ)
+			local extra = Vector3.new(kx, 0, kz) * (amount * share)
 			if resistance < 1 and amount > 0 then
 				-- Brotato get_increased_piercing_knockback_amount: a bigger vector that glides like the hit's own
 				local more = extra / (1 - resistance)
@@ -1072,7 +1074,7 @@ function WeaponService.structureBurn(
 			nil,
 			damage,
 			ticks,
-			StatMath.burnInterval(sheet.burnSpeed or 0),
+			arsenal:burnInterval(),
 			math.max(0, math.floor(sheet.burnSpread or 0))
 		)
 	)

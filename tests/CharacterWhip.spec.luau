@@ -36,6 +36,9 @@ local function setup()
 			end
 			return #available
 		end,
+		setHitDirection = function(self, dx, dz)
+			self.hitDirX, self.hitDirZ = dx, dz
+		end,
 		hit = function(_, weapon, id)
 			table.insert(hits, { id = id, slow = weapon.stats.slow, duration = weapon.stats.slowSeconds })
 			return false
