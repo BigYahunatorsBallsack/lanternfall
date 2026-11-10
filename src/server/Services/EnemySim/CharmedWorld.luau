@@ -10,6 +10,7 @@ Friends.__index = Friends
 function Friends.new(params: any, callbacks: any): any
 	local options = table.clone(params)
 	options.goalsWithoutTargets = true
+	options.collideTargets = false -- native PETS_BIT + OBSTACLES_BIT mask excludes enemy/player bodies
 	return setmetatable({
 		world = World.new(options),
 		members = {},

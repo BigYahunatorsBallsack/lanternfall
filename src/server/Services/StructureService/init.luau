@@ -474,7 +474,8 @@ function Service.boostCandidates(at: Vector3, radius: number): { number }
 		if
 			definition.boostMode
 			and not object.boostLeft
-			and (object.position + Vector3.new(0, 0, C.boostBodyOffsetZ) - at).Magnitude <= radius + C.boostBodyRadius
+			and (object.position + Vector3.new(0, 0, C.boostBodyOffsetZ) - at).Magnitude
+				<= radius + C.boostBodyRadius
 		then
 			table.insert(ids, object.id)
 		end

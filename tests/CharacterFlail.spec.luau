@@ -25,6 +25,9 @@ local function setup()
 	local hits = {}
 	local segment
 	local ctx = {
+		setHitDirection = function(self, dx, dz)
+			self.hitDirX, self.hitDirZ = dx, dz
+		end,
 		active = true,
 		slot = 1,
 		slotCount = 1,

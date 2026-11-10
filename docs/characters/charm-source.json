@@ -75,7 +75,8 @@
     "healer": "Heal players on entering its area, int(1+(wave-1)*0.5); structures are excluded",
     "buffer": "One random unboosted player or boostable structure; first timer .25s after spawn (conversion does not reset it), then4s. Player/Turret boosts5s; Mine/Trap marks persist until death.",
     "playerBoostExpiry": "Derived from native Player.boost and boost_ended: raw maxHp grant floor(maximum*.2), expiry subtracts current maximum minus before-boost maximum as raw stat. Gain multipliers can leave residual HP stats. Production-module arithmetic tested; not compared in a running Brotato process.",
-    "structureBoost": "Turret base damage/range/cooldown change before Engineering/Structure stats; Mine already-scaled damage/explosion scale change; DartTrap only marks boosted with no stat change."
+    "structureBoost": "Turret base damage/range/cooldown change before Engineering/Structure stats; Mine already-scaled damage/explosion scale change; DartTrap only marks boosted with no stat change.",
+    "bodyCollision": "Native PETS_BIT+OBSTACLES_BIT: friendly bodies separate from other pets and obstacles, never from hostile/player bodies; hitboxes still attack hostile hurt circles."
   },
   "supportValues": {
     "healerRadiusPoints": 200.639,
@@ -97,5 +98,6 @@
     "ThornbackRangePoints": 150,
     "ThornbackRandomizationPoints": 50
   },
-  "state": "Local production-module tests cover rules, transfer, ordinary/ranged/charge-trail combat, native random movement, hatching and ally support. Studio/coop/native visual acceptance remains open. Shared actor hard cap140 is a documented technical limitation vs native Charm maximum999."
+  "state": "Local production-module tests cover rules, transfer, ordinary/ranged/charge-trail combat, native random movement, hatching and ally support. Studio/coop/native visual acceptance remains open. Shared actor hard cap200 from current main is a documented technical limitation vs native Charm maximum999.",
+  "performance": "Existing 4ms contract is tested with140 mixed actors. Current main permits a shared technical cap200; that size remains outside the proven4ms envelope."
 }

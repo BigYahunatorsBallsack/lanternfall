@@ -61,6 +61,7 @@ export type Params = {
 	obstacles: { Circle },
 	allocateId: (() -> number)?,
 	goalsWithoutTargets: boolean?,
+	collideTargets: boolean?, -- false for native pet bodies, which collide only with pets and obstacles
 	seed: number?, -- for the wander points (kind.wander) and keep-distance jitter; tests pass one
 }
 
@@ -1277,15 +1278,12 @@ function World.step(
 					advance = 0
 				end
 			else
-				advance = math.min(
-					maxMove,
-					math.max(
-						0,
-						distance
-							- (kind.hitRadius or radius)
-							- (if targetRadii then targetRadii[bestTarget] else playerRadius)
-					)
-				)
+				local stopAt = if p.collideTargets == false
+					then 0
+					else (kind.hitRadius or radius) + (if targetRadii
+						then targetRadii[bestTarget]
+						else playerRadius)
+				advance = math.min(maxMove, math.max(0, distance - stopAt))
 			end
 			if advance == 0 then
 				continue
@@ -1373,15 +1371,17 @@ function World.step(
 		for _, obstacle in obstacles do
 			x, z = pushOut(x, z, obstacle.x, obstacle.z, obstacle.radius + radius, ids[i])
 		end
-		for t = 1, targetCount do
-			x, z = pushOut(
-				x,
-				z,
-				targetXs[t],
-				targetZs[t],
-				(kind.hitRadius or radius) + (if targetRadii then targetRadii[t] else playerRadius),
-				ids[i]
-			)
+		if p.collideTargets ~= false then
+			for t = 1, targetCount do
+				x, z = pushOut(
+					x,
+					z,
+					targetXs[t],
+					targetZs[t],
+					(kind.hitRadius or radius) + (if targetRadii then targetRadii[t] else playerRadius),
+					ids[i]
+				)
+			end
 		end
 		xs[i] = math.clamp(x, minX + radius, maxX - radius)
 		zs[i] = math.clamp(z, minZ + radius, maxZ - radius)

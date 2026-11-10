@@ -1,6 +1,6 @@
 --!strict
 -- Charmed actors move and attack hostiles without entering hostile queries, preserve timers, stop burning and expire once.
-loadHelper("tests/helpers/RobloxMock.luau")
+local mock = loadHelper("tests/helpers/RobloxMock.luau")
 local Config = require(game:GetService("ReplicatedStorage").Shared.Config)
 local S = game:GetService("ServerScriptService").Server.Services.EnemySim
 local World, Friends = require(S.World), require(S.CharmedWorld)
@@ -70,6 +70,7 @@ describe("Charmed faction runtime", function()
 		expect(hits[1].source).toBe(id)
 		expect(hits[1].amount).toBe(12)
 		expect(friends.world.nativeSlows:active(id)).toBe(true)
+		assert(friends.world.xs[friends.world.indexOf[id]] > 0, "native pet bodies pass through hostile bodies")
 	end)
 	it("expires at eight seconds without reverting and clears without deaths on wave reset", function()
 		local hostile, friends, _, expired = setup()
@@ -113,5 +114,32 @@ describe("Charmed faction runtime", function()
 			expect(math.abs(shot.dz)).toBeNear(math.sin(1))
 			expect(shot.damage).toBe(6)
 		end
+	end)
+	it("steps a mixed hostile and friendly crowd within the shared simulation budget", function()
+		local hostile, friends = setup()
+		for index = 1, 140 do
+			local angle = index * math.pi * (3 - math.sqrt(5))
+			local radius = 45 + index % 15
+			local kind = if index % 5 == 0 then Config.Enemies.types.Spitter else Config.Enemies.types.Shadeling
+			local id = assert(hostile:spawn(kind, math.cos(angle) * radius, math.sin(angle) * radius, 10000, 1, 1))
+			if index % 2 == 0 then
+				assert(friends:convert(hostile, id, 17, 0, { contact = 1, shot = 1 }))
+			end
+		end
+		local dt = 1 / Config.Simulation.tickRate
+		local function step(tick)
+			hostile:step(dt, { -10, 10, 0, 30 }, { 0, 0, 15, -20 }, 4)
+			friends:step(dt, tick * dt, hostile)
+		end
+		for tick = 1, 30 do
+			step(tick)
+		end
+		local started = mock.realClock()
+		for tick = 31, 90 do
+			step(tick)
+		end
+		local milliseconds = (mock.realClock() - started) * 1000 / 60
+		print(`  mixed 140-actor step: {string.format("%.3f", milliseconds)} ms`)
+		expect(milliseconds < Config.Simulation.budget.stepMilliseconds).toBe(true)
 	end)
 end)
