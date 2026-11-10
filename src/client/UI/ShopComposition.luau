@@ -171,7 +171,15 @@ function Composition.apply(ctx: any, area: Vector2)
 	-- Icon and amount share one middle line.
 	saved.shard.AnchorPoint = Vector2.new(0, 0.5)
 	saved.shard.Position = UDim2.new(0, 2, 0.5, 0)
-	ctx.shardsLabel.Text = tostring(if ctx.current then ctx.current.shards else 0)
+	ctx.shardsLabel.Text = tostring(
+		if ctx.current
+			then (if shopping then ctx.current.currencyAmount or ctx.current.shards else ctx.current.shards)
+			else 0
+	)
+	Currency.setKind(
+		ctx.shardsPanel:FindFirstChild("ShardIcon"),
+		if shopping and ctx.current then ctx.current.currencyKind else nil
+	)
 	ctx.shardsLabel.TextColor3 = Theme.text
 	ctx.shardsLabel.TextSize = (if compact then 24 else 29 * scale) * (if shopping then 1 else Theme.hudTextScale)
 	ctx.shardsLabel.TextStrokeTransparency = 0
@@ -220,6 +228,7 @@ function Composition.apply(ctx: any, area: Vector2)
 			priceIcon.AnchorPoint = Vector2.new(1, 0.5)
 			priceIcon.Position = UDim2.new(1, -6, 0.5, 0)
 		end
+		Currency.setKind(priceIcon, if ctx.current then ctx.current.currencyKind else nil)
 		local amount = view.price:FindFirstChild("Amount")
 		if not amount then
 			amount = Widgets.label({
@@ -300,7 +309,9 @@ function Composition.apply(ctx: any, area: Vector2)
 				view.lock.Visible = not offer.sold
 				view.price.Text = if offer.sold then "SOLD" else tostring(offer.price)
 				priceIcon.Visible = not offer.sold
-				view.price.TextColor3 = if ctx.current.shards >= offer.price then Theme.text else Theme.danger
+				view.price.TextColor3 = if (ctx.current.currencyAmount or ctx.current.shards) >= offer.price
+					then Theme.text
+					else Theme.danger
 				amount.Text = view.price.Text
 				amount.TextColor3 = view.price.TextColor3
 				view.price.Text = ""

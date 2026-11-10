@@ -3136,6 +3136,114 @@ return {
 				},
 			},
 		},
+		HikingStick = {
+			id = "HikingStick",
+			displayName = "Hiking Stick",
+			description = "",
+			tierDescriptions = {
+				"+1 Range for every 70 steps you take during a wave",
+				"+1 Range for every 60 steps you take during a wave",
+				"+1 Range for every 50 steps you take during a wave",
+				"+1 Range for every 40 steps you take during a wave",
+			},
+			brotato = true,
+			available = false,
+			kind = "Melee",
+			classes = {
+				"Steward",
+			},
+			minTier = 1,
+			originalScaling = {
+				{
+					meleeDamage = 0.5,
+					range = 0.1,
+				},
+				{
+					meleeDamage = 0.5,
+					range = 0.12,
+				},
+				{
+					meleeDamage = 0.5,
+					range = 0.15,
+				},
+				{
+					meleeDamage = 0.5,
+					range = 0.2,
+				},
+			},
+			scaling = {
+				meleeDamage = 0.5,
+				range = 0.1,
+			},
+			tierScaling = {
+				{
+					meleeDamage = 0.5,
+					range = 0.1,
+				},
+				{
+					meleeDamage = 0.5,
+					range = 0.12,
+				},
+				{
+					meleeDamage = 0.5,
+					range = 0.15,
+				},
+				{
+					meleeDamage = 0.5,
+					range = 0.2,
+				},
+			},
+			heldStats = {
+				{},
+				{},
+				{},
+				{},
+			},
+			rangeKeys = {
+				"range",
+			},
+			behavior = "HikingStick",
+			targeting = "Nearest",
+			base = {
+				damage = 12,
+				cooldown = 0.833333333333333,
+				nativeCooldownFrames = 50,
+				nativeTiming = 1,
+				range = 17.5,
+				critChance = 0.03,
+				critDamage = 1.5,
+				knockback = 0,
+				knockbackPiercing = 0,
+				lifeSteal = 0,
+				width = 1.2,
+				sweepDegrees = 120,
+				attackSeconds = 0.18,
+				meleeMode = 0,
+				stepRangeGain = 1,
+				stepEvery = 70,
+			},
+			tiers = {
+				{},
+				{
+					damage = 0.5,
+					cooldown = -0.0833333333333334,
+					nativeCooldownFrames = -5,
+					stepEvery = -10,
+				},
+				{
+					damage = 0.5,
+					cooldown = -0.0833333333333334,
+					nativeCooldownFrames = -5,
+					stepEvery = -10,
+				},
+				{
+					damage = 0.5,
+					cooldown = -0.0833333333333333,
+					nativeCooldownFrames = -5,
+					stepEvery = -10,
+				},
+			},
+		},
 	},
 	prices = {
 		Anchor = {
@@ -3305,6 +3413,12 @@ return {
 			14,
 			22,
 			40,
+		},
+		HikingStick = {
+			17,
+			34,
+			66,
+			130,
 		},
 	},
 }

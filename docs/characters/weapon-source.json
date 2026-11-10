@@ -7025,6 +7025,252 @@
           ]
         }
       ]
+    },
+    {
+      "id": "HikingStick",
+      "name": "Hiking Stick",
+      "tiers": [
+        {
+          "source": "res://dlcs/dlc_1/weapons/melee/hiking_stick/1/hiking_stick_data.tres",
+          "sourceMd5": "0933a4c057a4c68618d4f1343ad59da6",
+          "statsSource": "res://dlcs/dlc_1/weapons/melee/hiking_stick/1/hiking_stick_stats.tres",
+          "statsMd5": "20c02d092f442683c8ec739257d9e84e",
+          "tier": 1,
+          "price": 17,
+          "sets": [
+            "set_support"
+          ],
+          "kind": "Melee",
+          "stats": {
+            "cooldown": 50,
+            "damage": 12,
+            "accuracy": 1.0,
+            "crit_chance": 0.03,
+            "crit_damage": 1.5,
+            "min_range": 0,
+            "max_range": 175,
+            "knockback": 0,
+            "knockback_piercing": 0.0,
+            "can_have_positive_knockback": true,
+            "can_have_negative_knockback": false,
+            "effect_scale": 1.0,
+            "scaling_stats": [
+              [
+                "stat_melee_damage",
+                0.5
+              ],
+              [
+                "stat_range",
+                0.1
+              ]
+            ],
+            "lifesteal": 0.0,
+            "sound_db_mod": -5,
+            "is_healing": false,
+            "recoil": 25,
+            "recoil_duration": 0.1,
+            "additional_cooldown_every_x_shots": -1,
+            "additional_cooldown_multiplier": -1.0,
+            "speed_percent_modifier": 0,
+            "deal_dmg_on_return": false,
+            "attack_type": 0,
+            "alternate_attack_type": false
+          },
+          "effects": [
+            {
+              "source": "res://dlcs/dlc_1/weapons/melee/hiking_stick/1/hiking_stick_effect_0.tres",
+              "sourceMd5": "131760280ac2a3e5abc93dd33a28b4f8",
+              "effectType": "res://effects/weapons/null_double_value_effect.gd",
+              "key": "stat_range",
+              "value": 1,
+              "scale": null,
+              "duration": null,
+              "value2": 70.0,
+              "custom_key": "gain_stat_for_every_step_after_equip"
+            }
+          ]
+        },
+        {
+          "source": "res://dlcs/dlc_1/weapons/melee/hiking_stick/2/hiking_stick_2_data.tres",
+          "sourceMd5": "4444fbc66aa6ac54a905f80a1942fb7c",
+          "statsSource": "res://dlcs/dlc_1/weapons/melee/hiking_stick/2/hiking_stick_2_stats.tres",
+          "statsMd5": "75e5ab5155079f6dcb09fd06bc11ba20",
+          "tier": 2,
+          "price": 34,
+          "sets": [
+            "set_support"
+          ],
+          "kind": "Melee",
+          "stats": {
+            "cooldown": 45,
+            "damage": 18,
+            "accuracy": 1.0,
+            "crit_chance": 0.03,
+            "crit_damage": 1.5,
+            "min_range": 0,
+            "max_range": 175,
+            "knockback": 0,
+            "knockback_piercing": 0.0,
+            "can_have_positive_knockback": true,
+            "can_have_negative_knockback": false,
+            "effect_scale": 1.0,
+            "scaling_stats": [
+              [
+                "stat_melee_damage",
+                0.5
+              ],
+              [
+                "stat_range",
+                0.12
+              ]
+            ],
+            "lifesteal": 0.0,
+            "sound_db_mod": -5,
+            "is_healing": false,
+            "recoil": 25,
+            "recoil_duration": 0.1,
+            "additional_cooldown_every_x_shots": -1,
+            "additional_cooldown_multiplier": -1.0,
+            "speed_percent_modifier": 0,
+            "deal_dmg_on_return": false,
+            "attack_type": 0,
+            "alternate_attack_type": false
+          },
+          "effects": [
+            {
+              "source": "res://dlcs/dlc_1/weapons/melee/hiking_stick/2/hiking_stick_2_effect_0.tres",
+              "sourceMd5": "eb038543266f9e227eed42b309ccc74f",
+              "effectType": "res://effects/weapons/null_double_value_effect.gd",
+              "key": "stat_range",
+              "value": 1,
+              "scale": null,
+              "duration": null,
+              "value2": 60.0,
+              "custom_key": "gain_stat_for_every_step_after_equip"
+            }
+          ]
+        },
+        {
+          "source": "res://dlcs/dlc_1/weapons/melee/hiking_stick/3/hiking_stick_3_data.tres",
+          "sourceMd5": "6afd2938cbc23a06d0229d52565558c3",
+          "statsSource": "res://dlcs/dlc_1/weapons/melee/hiking_stick/3/hiking_stick_3_stats.tres",
+          "statsMd5": "9d6074ce91d861f3104510b02ed1dd95",
+          "tier": 3,
+          "price": 66,
+          "sets": [
+            "set_support"
+          ],
+          "kind": "Melee",
+          "stats": {
+            "cooldown": 40,
+            "damage": 24,
+            "accuracy": 1.0,
+            "crit_chance": 0.03,
+            "crit_damage": 1.5,
+            "min_range": 0,
+            "max_range": 175,
+            "knockback": 0,
+            "knockback_piercing": 0.0,
+            "can_have_positive_knockback": true,
+            "can_have_negative_knockback": false,
+            "effect_scale": 1.0,
+            "scaling_stats": [
+              [
+                "stat_melee_damage",
+                0.5
+              ],
+              [
+                "stat_range",
+                0.15
+              ]
+            ],
+            "lifesteal": 0.0,
+            "sound_db_mod": -5,
+            "is_healing": false,
+            "recoil": 25,
+            "recoil_duration": 0.1,
+            "additional_cooldown_every_x_shots": -1,
+            "additional_cooldown_multiplier": -1.0,
+            "speed_percent_modifier": 0,
+            "deal_dmg_on_return": false,
+            "attack_type": 0,
+            "alternate_attack_type": false
+          },
+          "effects": [
+            {
+              "source": "res://dlcs/dlc_1/weapons/melee/hiking_stick/3/hiking_stick_3_effect_0.tres",
+              "sourceMd5": "7e2c299904d10ba90bcee808ae7dd78a",
+              "effectType": "res://effects/weapons/null_double_value_effect.gd",
+              "key": "stat_range",
+              "value": 1,
+              "scale": null,
+              "duration": null,
+              "value2": 50.0,
+              "custom_key": "gain_stat_for_every_step_after_equip"
+            }
+          ]
+        },
+        {
+          "source": "res://dlcs/dlc_1/weapons/melee/hiking_stick/4/hiking_stick_4_data.tres",
+          "sourceMd5": "98357245b3dc807584047c751317eceb",
+          "statsSource": "res://dlcs/dlc_1/weapons/melee/hiking_stick/4/hiking_stick_4_stats.tres",
+          "statsMd5": "d5b0edf7d4439dcfe224a435852cd04f",
+          "tier": 4,
+          "price": 130,
+          "sets": [
+            "set_support"
+          ],
+          "kind": "Melee",
+          "stats": {
+            "cooldown": 35,
+            "damage": 30,
+            "accuracy": 1.0,
+            "crit_chance": 0.03,
+            "crit_damage": 1.5,
+            "min_range": 0,
+            "max_range": 175,
+            "knockback": 0,
+            "knockback_piercing": 0.0,
+            "can_have_positive_knockback": true,
+            "can_have_negative_knockback": false,
+            "effect_scale": 1.0,
+            "scaling_stats": [
+              [
+                "stat_melee_damage",
+                0.5
+              ],
+              [
+                "stat_range",
+                0.2
+              ]
+            ],
+            "lifesteal": 0.0,
+            "sound_db_mod": -5,
+            "is_healing": false,
+            "recoil": 25,
+            "recoil_duration": 0.1,
+            "additional_cooldown_every_x_shots": -1,
+            "additional_cooldown_multiplier": -1.0,
+            "speed_percent_modifier": 0,
+            "deal_dmg_on_return": false,
+            "attack_type": 0,
+            "alternate_attack_type": false
+          },
+          "effects": [
+            {
+              "source": "res://dlcs/dlc_1/weapons/melee/hiking_stick/4/hiking_stick_4_effect_0.tres",
+              "sourceMd5": "06eb715b270b817449d99b5fe5e7216d",
+              "effectType": "res://effects/weapons/null_double_value_effect.gd",
+              "key": "stat_range",
+              "value": 1,
+              "scale": null,
+              "duration": null,
+              "value2": 40.0,
+              "custom_key": "gain_stat_for_every_step_after_equip"
+            }
+          ]
+        }
+      ]
     }
   ]
 }

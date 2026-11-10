@@ -862,6 +862,11 @@
     "text": "Original Brotato: Brick",
     "source": "assets/weapons/character-starts/Brick.png",
     "trimmed": true
+   },
+   "HikingStick": {
+    "text": "Original Brotato: Hiking Stick",
+    "source": "assets/weapons/character-starts/HikingStick.png",
+    "trimmed": true
    }
   },
   "raw": true

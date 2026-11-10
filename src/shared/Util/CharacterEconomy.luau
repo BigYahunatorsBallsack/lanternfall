@@ -9,6 +9,9 @@ local Rules = require(script.Parent.CharacterRules)
 local Danger = require(script.Parent.DangerRules)
 local Coop = require(Shared.Config.EnemyWaves).coop
 local Economy = {}
+function Economy.hpPrice(price: number): number
+	return math.ceil(price / Mechanics.demonPriceDivisor)
+end
 function Economy.priceInflation(wave: number): number
 	return 1 + Danger.endlessFactor(wave) / Mechanics.priceEndlessDivisor
 end

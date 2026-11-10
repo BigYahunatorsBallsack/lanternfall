@@ -128,6 +128,9 @@ local steps: { [number]: (data: any) -> () } = {
 	[11] = function(data)
 		data.nativeCounts.digSitesDug = 0
 	end,
+	[12] = function(data)
+		data.nativeCounts.treesKilled = 0
+	end,
 }
 
 Migrations.steps = steps

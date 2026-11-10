@@ -6,8 +6,12 @@ local Data = require(script.Parent.Parent.PlayerDataService)
 local Challenges = {}
 function Challenges.init()
 	Enemy.EnemyKilled:Connect(function(info)
-		if Run.isActive() and info.killer and info.enemyId ~= "Tree" then
-			Data.observeNativeEnemyKill(info.killer)
+		if Run.isActive() and info.killer then
+			if info.enemyId == "Tree" then
+				Data.observeNativeTreeKill(info.killer)
+			else
+				Data.observeNativeEnemyKill(info.killer)
+			end
 		end
 	end)
 end

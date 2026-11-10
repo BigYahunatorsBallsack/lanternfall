@@ -105,6 +105,13 @@ local function ownedWeapons(player: Player): { ShopRules.OwnedWeapon }
 	return owned
 end
 
+local function usesHp(player: Player): boolean
+	return CharacterRules.nativeOverride(RunDirector.getParticipantClassId(player), "hp_shop", 0) > 0
+end
+local function currency(player: Player, state: State): number
+	return if usesHp(player) then math.floor(StatService.getStat(player, "maxHp")) else math.floor(state.shards)
+end
+
 local function payload(player: Player, state: State): Types.ShopState
 	local weapons: { Types.ShopWeapon } = {}
 	for _, weapon in WeaponService.getWeapons(player) do
@@ -119,6 +126,8 @@ local function payload(player: Player, state: State): Types.ShopState
 	end
 	return {
 		shards = math.floor(state.shards),
+		currencyAmount = currency(player, state),
+		currencyKind = if usesHp(player) then "MaxHp" else "Materials",
 		open = state.open,
 		wave = state.wave,
 		offers = state.offers,
@@ -335,11 +344,18 @@ local function buy(player: Player, offerId: string)
 	if not (state and offer) or offer.sold then
 		return
 	end
-	if state.shards < offer.price then
-		Net.fireClient("Notify", player, "Not enough Shards")
+	if currency(player, state) < offer.price then
+		Net.fireClient("Notify", player, if usesHp(player) then "Not enough Max HP" else "Not enough Shards")
 		return
 	end
+	local hpPaid = usesHp(player) and not offer.blocked
+	if hpPaid then
+		StatService.addStats(player, { maxHp = -offer.price })
+	end
 	if offer.blocked or not grant(player, offer) then
+		if hpPaid then
+			StatService.addStats(player, { maxHp = offer.price })
+		end
 		Net.fireClient(
 			"Notify",
 			player,
@@ -350,7 +366,9 @@ local function buy(player: Player, offerId: string)
 		send(player, state)
 		return
 	end
-	state.shards -= offer.price
+	if not hpPaid then
+		state.shards -= offer.price
+	end
 	offer.sold = true
 	offer.locked = false
 	local left = false
@@ -444,6 +462,12 @@ end
 -- Lifecycle -------------------------------------------------------------------------
 
 function ShopService.init()
+	StatService.PermanentChanged:Connect(function(player)
+		local state = states[player]
+		if state and state.open and usesHp(player) then
+			send(player, state)
+		end
+	end)
 	RunDirector.WaveStarting:Connect(function(wave)
 		for player, state in states do
 			local percent =

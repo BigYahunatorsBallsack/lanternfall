@@ -144,12 +144,19 @@ end
 -- second >= timing (it fires if `roll()` < its chance; with repeats it is due again at timing + interval either
 -- way); a repeating group fires once its time is reached, then its interval shrinks by reduceInterval (at least
 -- minInterval) and the next time moves on by the new interval. Returns the groups firing, in timer order.
-function SpawnRules.due(timers: { Timer }, second: number, roll: () -> number): { Group }
+function SpawnRules.due(timers: { Timer }, second: number, roll: () -> number, treesAtStart: boolean?): { Group }
 	local firing = {}
 	for _, timer in timers do
 		local group = timer.group
 		if not timer.started then
-			if group.timing <= second then
+			if
+				group.timing <= second
+				or (
+					treesAtStart
+					and group.neutral
+					and second <= require(Shared.Config.CharacterMechanics).explorerTreesStartSeconds
+				)
+			then
 				timer.started = true
 				if roll() < group.chance then
 					table.insert(firing, group)

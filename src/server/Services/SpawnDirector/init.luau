@@ -359,6 +359,17 @@ local function startWave(wave: number)
 			table.insert(groups, lureGroup(count))
 		end
 		luresSeen[player.UserId] = copies
+		if
+			require(ReplicatedStorage.Shared.Util.CharacterRules).nativeOverride(
+				RunDirector.getParticipantClassId(player),
+				"upgraded_baits",
+				0
+			) > 0
+		then
+			for _, group in require(script.FishingGroups).groups(copies, roll) do
+				table.insert(groups, group)
+			end
+		end
 	end
 	timers = SpawnRules.newTimers(groups)
 end
@@ -373,7 +384,20 @@ local function updateGroups(anchors: { Anchor }, dt: number)
 	waveSeconds = math.max(waveSeconds + dt, RunDirector.getElapsed() - schedule.startsAt) -- skips jump ahead
 	local seconds = waveSeconds
 	while nextSecond <= seconds do
-		local firing = SpawnRules.due(timers, nextSecond, roll)
+		local treesAtStart = false
+		for _, player in RunDirector.getParticipants() do
+			if
+				require(ReplicatedStorage.Shared.Util.CharacterRules).nativeOverride(
+					RunDirector.getParticipantClassId(player),
+					"trees_start_wave",
+					0
+				) > 0
+			then
+				treesAtStart = true
+				break
+			end
+		end
+		local firing = SpawnRules.due(timers, nextSecond, roll, treesAtStart)
 		nextSecond += 1
 		if #anchors == 0 then
 			continue

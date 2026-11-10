@@ -194,7 +194,7 @@ Classes.Trapper = {
 
 -- Source-complete records remain unavailable until their runtime dependencies and selection paths are verified.
 -- Existing profile ids retain the delivered behavior while the complete native packages are integrated.
-local preparedLegacy = { SparkMage = true, NightWatch = true, TwinLedger = true }
+local preparedLegacy = { SparkMage = true, NightWatch = true, TwinLedger = true, ManyHands = true }
 for id, source in Catalog do
 	if Classes[id] and not preparedLegacy[id] then
 		Classes[id].native = source
@@ -364,6 +364,23 @@ Classes.Golem.description =
 Classes.Cyborg.nativeCodeReady = true
 Classes.Cyborg.description =
 	"You start with 1 Minigun III\nRanged Damage modifications are increased by 200%\n100% of your Ranged Damage is temporarily converted into Engineering (1 Ranged Damage = 2 Engineering) halfway through a wave\nEngineering modifications are reduced by 75%\nMelee Damage modifications are reduced by 100%\nElemental Damage modifications are reduced by 100%"
+
+Classes.Entrepreneur.nativeCodeReady = true
+Classes.Entrepreneur.description =
+	"-25 % Item Prices\nHarvesting modifications are increased by 50%\nGain +25% more materials from recycling items\n-100% of your materials at the start of waves\nDamage modifications are reduced by 50%"
+Classes.Explorer.nativeCodeReady = true
+Classes.Explorer.description =
+	"More trees spawn\nYou start with 1 Lumberjack Shirt\n+10 % Speed\n+50% pickup range\n+33 % Map Size\n+25 % Enemies\n-50% materials dropped from enemies\n+10 % Enemy Speed\n-40 % Damage"
+local multitasker = Classes.ManyHands.pendingNative or Classes.ManyHands
+multitasker.nativeCodeReady = true
+multitasker.description =
+	"+20 % Damage\nYou can equip up to 12 weapons at a time\n-5 % Damage for every weapon you have [0]"
+Classes.Demon.nativeCodeReady = true
+Classes.Demon.description =
+	"50% of your materials are converted into Max HP at the end of a wave (13 materials = 1 Max HP)\nYou buy items using Max HP instead of materials"
+Classes.Fisherman.nativeCodeReady = true
+Classes.Fisherman.description =
+	"+5 Max HP\n+20 Harvesting\nShops always sell a Bait\n-100% Bait price\n+2 Harvesting for every 1 Bait you have [0]\nBaits make some special enemies spawn throughout all future waves\n-40% materials dropped from enemies"
 
 for id, class in Classes do
 	if not class.nativeCodeReady then

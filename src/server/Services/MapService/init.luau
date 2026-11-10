@@ -61,6 +61,8 @@ MapService.PortalTriggered = Signal.new()
 MapService.MovementCorrected = MovementGuard.Corrected
 -- (bounds: Bounds): the arena got a new size for a run (setArenaMapSize)
 MapService.ArenaResized = Signal.new()
+-- Explicit placements are teleports, not physical walking; step effects discard their displacement.
+MapService.CharacterPlaced = Signal.new()
 
 local lobbySpawn: SpawnLocation? = nil
 local arenaModel: Model? = nil
@@ -454,6 +456,7 @@ function MapService.placeCharacter(player: Player, zone: Zone, slot: number, cou
 	else
 		MovementGuard.unwatch(player)
 	end
+	MapService.CharacterPlaced:Fire(player, zone, root.Position)
 end
 
 -- Places the character in the zone only if it is not already standing there (e.g. after a normal spawn).
