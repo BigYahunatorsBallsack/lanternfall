@@ -160,6 +160,9 @@ local function addWeaponSources(player)
 			local definition = if config.gardenIntervals then table.clone(C.kinds[kind]) else nil
 			if definition then
 				definition.interval = config.gardenIntervals[weapon.tier]
+				if definition.native then
+					definition.cooldownFrames = definition.interval * C.nativeFrameRate
+				end
 			end
 			add(player, kind, definition)
 			if config.structureIntervals and #generators < C.maxActive then
@@ -332,20 +335,33 @@ local function step(dt)
 				o.position = root + Vector3.new(math.cos(angle) * C.orbitRadius, 0, math.sin(angle) * C.orbitRadius)
 			end
 		end
-		if def.nativeProjectile and def.animationSpeed then
+		if (def.nativeProjectile or def.mode == "Garden") and def.animationSpeed then
 			local sheet = sheetOf(o.owner)
 			local function target()
 				local id = Enemy.nearest(o.position, Rules.range(def, sheet))
 				return id and Enemy.getPosition(id)
 			end
-			TurretTiming.step(o, dt, def, sheet, improvedOf(o.owner), target() ~= nil, function()
-				return RandomService.number("Combat", o.owner)
-			end, function()
-				local at = target()
-				if at and (at - o.position).Magnitude > 0 then
-					Projectiles.launch(o.owner, o.position, def, sheet, { (at - o.position).Unit })
+			TurretTiming.step(
+				o,
+				dt,
+				def,
+				sheet,
+				improvedOf(o.owner),
+				def.mode == "Garden" or target() ~= nil,
+				function()
+					return RandomService.number("Combat", o.owner)
+				end,
+				function()
+					if def.mode == "Garden" then
+						Loot.dropPickup(o.position, "Fruit")
+						return
+					end
+					local at = target()
+					if at and (at - o.position).Magnitude > 0 then
+						Projectiles.launch(o.owner, o.position, def, sheet, { (at - o.position).Unit })
+					end
 				end
-			end)
+			)
 			continue
 		end
 		o.remaining -= dt
@@ -439,6 +455,9 @@ end
 function Service.init()
 	Weapons.NativeMineRequested:Connect(function(player, at)
 		add(player, "RuneMine", nil, at)
+	end)
+	Weapons.NativeStructureRequested:Connect(function(player, kind, at)
+		add(player, kind, nil, at)
 	end)
 	Run.RunStarted:Connect(reset)
 	Run.PhaseChanged:Connect(function(phase, previous)

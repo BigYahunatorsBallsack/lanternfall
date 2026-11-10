@@ -1333,7 +1333,7 @@
       "nameKey": "ITEM_ESTYS_COUCH",
       "source": "res://items/all/00_base_game/estys_couch/estys_couch_data.tres",
       "sourceMd5": "2712fd1f104fa89666db2c981c7a16ad",
-      "displayName": "Esty\u2019s Couch",
+      "displayName": "Esty’s Couch",
       "tags": [
         "stat_hp_regeneration",
         "stat_max_hp"
@@ -1417,6 +1417,16 @@
       "displayName": "Lumberjack Shirt",
       "tags": [
         "exploration"
+      ]
+    },
+    "DigSite": {
+      "nativeId": "item_dig_site",
+      "nameKey": "ITEM_DIG_SITE",
+      "source": "res://items/all/04_primal_dread/dig_site/dig_site.tres",
+      "sourceMd5": "74022d12d242a064d5843ed4199c0fe7",
+      "displayName": "Dig Site",
+      "tags": [
+        "stat_luck"
       ]
     }
   },

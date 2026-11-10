@@ -193,7 +193,7 @@ describe("EffectText", function()
 		)
 		expect(EffectText.line(Config.Items.byId.RecoilSpring.effects[1])).toBe("+1% Damage per 1 Knockback")
 		expect(EffectText.line(Config.Items.byId.TitheBox.effects[1])).toBe(
-			"Wave start: +20% of your Shards (until wave 19)"
+			"Wave start: +20% of your Shards (until wave 20)"
 		)
 		expect(EffectText.line(Config.Items.byId.MossWard.effects[1])).toBe(
 			"Wave start: the first hit taken deals no damage"

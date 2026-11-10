@@ -10,6 +10,8 @@ export type Item = {
 	description: string?,
 	available: boolean?, -- false while original artwork is only prepared locally
 	structure: string?,
+	nativeWinWith: string?,
+	nativeChallenge: string?,
 	id: string,
 	displayName: string,
 	tier: number, -- 1 Common, 2 Uncommon, 3 Rare, 4 Legendary
@@ -157,7 +159,7 @@ local LIST: { Item } = {
 		40,
 		{},
 		1,
-		{ { trigger = "WaveStart", action = "ShardShare", amount = 20, untilWave = 19 } }
+		{ { trigger = "WaveStart", action = "ShardShare", amount = 20, untilWave = 20 } }
 	),
 	item(
 		"RottingHeart",
@@ -659,6 +661,24 @@ table.insert(
 	})
 )
 
+-- Dig Site supplies Shovel's original lifetime digging challenge; local artwork remains gated.
+table.insert(
+	LIST,
+	table.freeze({
+		id = "DigSite",
+		displayName = "Dig Site",
+		tier = 2,
+		price = 45,
+		limit = 2,
+		available = false,
+		nativeWinWith = "Archaeologist",
+		nativeChallenge = "chal_archaeologist",
+		stats = table.freeze({ luck = -3 }),
+		tags = table.freeze({ "luck" }),
+		description = "1 dig site appears every 3 waves, stay on it for 5 to 6 seconds to dig up a crate",
+		effects = table.freeze({ table.freeze({ trigger = "Always", action = "DigSites", amount = 1, per = 3 }) }),
+	})
+)
 local byId: { [string]: Item } = {}
 for _, entry in LIST do
 	byId[entry.id] = entry

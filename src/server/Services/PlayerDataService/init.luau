@@ -264,8 +264,33 @@ function PlayerDataService.lockedSet(player: Player, kind: ProgressRules.Kind): 
 				result[id] = if CharacterAccess.characterUnlocked(data, id) then nil else true
 			end
 		end
+	elseif kind == "items" then
+		for _, item in Config.Items.list do
+			if item.nativeWinWith then
+				local record = data and data.characterStats[item.nativeWinWith]
+				local challenge = data
+					and item.nativeChallenge
+					and data.achievements[CharacterAccess.challengeKey(item.nativeChallenge)]
+				result[item.id] = if challenge or (record and record.wins > 0) then nil else true
+			end
+		end
 	end
 	return result
+end
+
+-- The original lifetime challenge counts completed sites; online credit is restricted to live completion participants.
+function PlayerDataService.observeNativeDigSite(player: Player)
+	local data = PlayerDataService.get(player)
+	if not data then
+		return
+	end
+	local rule = require(Shared.Config.Digging)
+	data.nativeCounts.digSitesDug += 1
+	if data.nativeCounts.digSitesDug >= rule.unlockCount then
+		data.achievements[CharacterAccess.challengeKey(rule.challengeId)] = true
+	end
+	sendInfo(player)
+	PlayerDataService.Changed:Fire(player)
 end
 
 -- Native stat challenges persist in the existing string-keyed achievement map; no profile field is replaced.
@@ -442,7 +467,25 @@ function PlayerDataService.observeNativeMaterials(player: Player, count: number)
 	end
 end
 
--- Paket 13: highest danger level open for the player with this character (start level until loaded).
+-- Native Hungry challenge receives the authoritative per-run count from CharacterService.
+function PlayerDataService.observeNativeConsumption(player: Player, count: number)
+	local data = PlayerDataService.get(player)
+	if not data then
+		return
+	end
+	for _, rule in NativeCharacterAccess do
+		if rule.kind == "RunConsumables" and count >= rule.threshold then
+			local key = CharacterAccess.challengeKey(rule.challengeId)
+			if not data.achievements[key] then
+				data.achievements[key] = true
+				sendInfo(player)
+				PlayerDataService.Changed:Fire(player)
+			end
+		end
+	end
+end
+
+-- Paket 13: highest danger level open for this character (start level until loaded).
 function PlayerDataService.maxDanger(player: Player, classId: string?): number
 	local data = PlayerDataService.get(player)
 	if not data then

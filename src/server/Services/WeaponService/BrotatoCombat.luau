@@ -13,6 +13,9 @@ end
 function Combat.elementalHit(ownerId: number): boolean?
 	return if hitOwner == ownerId then hitElemental else nil
 end
+function Combat.digChance(ownerId: number): number
+	return if hitOwner == ownerId and hitStats then hitStats.digCrateChance or 0 else 0
+end
 
 function Combat.roundHit(ownerId: number, amount: number): number
 	return if hitOwner == ownerId

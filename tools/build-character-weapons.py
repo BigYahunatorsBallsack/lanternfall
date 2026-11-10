@@ -16,7 +16,7 @@ def module(name, file):
     return result
 source = module('character_source', 'tools/character-source.py')
 catalog = module('character_catalog', 'tools/build-character-catalog.py')
-FAMILIES = ['anchor', 'mace', 'meat_tenderizer', 'machinegun', 'pan_flute', 'combat_shotgun', 'grenade_launcher', 'whip', 'spoon', 'cestus', 'sickle', 'trident', 'lute', 'blowgun', 'blunderbuss', 'javelin', 'tranq_rifle', 'harpoon_gun', 'sticky_grenade', 'flail', 'molotov', 'awl', 'carbon_bow', 'flute']
+FAMILIES = ['anchor', 'mace', 'meat_tenderizer', 'machinegun', 'pan_flute', 'combat_shotgun', 'grenade_launcher', 'whip', 'spoon', 'cestus', 'sickle', 'trident', 'lute', 'blowgun', 'blunderbuss', 'javelin', 'tranq_rifle', 'harpoon_gun', 'sticky_grenade', 'flail', 'molotov', 'awl', 'carbon_bow', 'flute', 'crowbar', 'shovel']
 FACTS = ROOT / 'docs/characters/weapon-source.json'
 OUTPUT = ROOT / 'src/shared/Config/CharacterWeaponData.luau'
 
@@ -52,6 +52,9 @@ def refresh():
                         effects[-1][key] = effect[key]
                 if 'spawn_cooldown' in effect:
                     effects[-1]['spawnCooldown'] = effect['spawn_cooldown']
+                if 'structure_effect' in effect:
+                    ref = effect['structure_effect']['resource']
+                    effects[-1]['structureEffect'] = {'source': ref, 'sourceMd5': pck.entries[ref]['md5']}
             tiers.append({'source': path, 'sourceMd5': pck.entries[path]['md5'], 'statsSource': stats_path, 'statsMd5': pck.entries[stats_path]['md5'], 'tier': data['tier'] + 1, 'price': data['value'], 'sets': [pck.resource(ref['resource'])['properties']['my_id'] for ref in data['sets']], 'kind': 'Melee' if data['type'] == 0 else 'Ranged', 'stats': {k: v for (k, v) in stats.items() if isinstance(v, (int, float, bool)) or k == 'scaling_stats'}, 'effects': effects})
         rows.append({'id': catalog.pascal(family), 'name': 'Machine Gun' if family == 'machinegun' else family.replace('_', ' ').title(), 'tiers': sorted(tiers, key=lambda row: row['tier'])})
     whip = next(row for row in rows if row['id'] == 'Whip')
@@ -123,6 +126,12 @@ def generate():
                     assert 'spawnCooldown' in effect
                     value['trapSpawnSeconds'] = effect['spawnCooldown']
                     lines.append(f"Spawns a Dart Trap every {effect['spawnCooldown']} seconds")
+                elif ident == 'Crowbar':
+                    value['structureEveryKills'] = effect['value']
+                    lines.append(f"For every {effect['value']} enemies you kill during a wave with this weapon, spawns a turret that deals 8 (100% Engineering) damage and makes enemies take 10% more damage for 5 seconds (max 30%)")
+                elif ident == 'Shovel':
+                    value['digCrateChance'] = effect['value'] / 10000
+                    lines.append(f"{effect['value'] / 100:g}% chance to dig up a crate when it kills an enemy")
                 elif effect.get('custom_key') == 'charm_on_hit':
                     value.update(charmChance=effect['value']/100,charmThreshold=effect['value2']/100)
                     lines.append(f"{effect['value']}% chance to charm an enemy with less than {effect['value2']}% health")

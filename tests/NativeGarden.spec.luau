@@ -1,0 +1,52 @@
+--!strict
+-- Garden uses its native animation and randomized structure cooldown even without an enemy target.
+local world = loadHelper("tests/helpers/RobloxMock.luau")
+local Shared = game:GetService("ReplicatedStorage").Shared
+local Config = require(Shared.Config)
+local Server = game:GetService("ServerScriptService").Server
+runScript(Server, "init.server.luau")
+local S = Server.Services
+local Run, Structures, Loot = require(S.RunDirector), require(S.StructureService), require(S.LootService)
+local me = world.addPlayer("Owner", 1, true)
+world.advance(0.5)
+Structures.setPaused(true)
+Run.setHoldWaves(true)
+Run.setReady(me, true)
+world.advance(3.5)
+require(S.SpawnDirector).setPaused(true)
+require(S.WeaponService).setPaused(true)
+require(S.EnemySim).killAll()
+require(S.CombatService).protect(me, 10000)
+assert(require(S.StatService).addItem(me, "MoonGarden"))
+Run.skipTo(require(Shared.Util.RunSchedule).wave(Run.getWave()).endsAt)
+world.advance(0.1)
+world.fireServerAs(me, "SetShopReady", true)
+world.advance(1)
+require(S.SpawnDirector).setPaused(true)
+require(S.EnemySim).killAll()
+local Random = require(S.RandomService)
+local original = Random.number
+Random.number = function(channel, player)
+	return if channel == "Combat" then 0.5 else original(channel, player)
+end
+describe("Native Garden timing", function()
+	it("waits for the 0.2s animation key at half speed instead of immediately spawning a fruit", function()
+		expect(#Loot.getPickups()).toBe(0)
+		Structures.setPaused(false)
+		world.advance(0.2)
+		expect(#Loot.getPickups()).toBe(0)
+		world.advance(0.4)
+		expect(#Loot.getPickups()).toBe(1)
+		local site = Structures.getSnapshot()[1]
+		local fruit = Loot.getPickups()[1]
+		expect(fruit.x).toBeNear(site.x, 0.11)
+		expect(fruit.z).toBeNear(site.z, 0.11)
+	end)
+	it("starts the next native cooldown after the animation and shoots without a target", function()
+		world.advance(14.9)
+		expect(#Loot.getPickups()).toBe(1)
+		world.advance(1)
+		expect(#Loot.getPickups()).toBe(2)
+		expect(#world.errors).toBe(0)
+	end)
+end)

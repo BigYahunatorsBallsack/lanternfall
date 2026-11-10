@@ -15,6 +15,7 @@ for row in facts['structures']:
  if 'animationSpeed' in row:d.update(animationSpeed=row['animationSpeed'])
  if ident=='DartTrap':d.update(rays=facts['geometry']['dartCount'],shotRange=st['max_range']*.1)
  for e in row['effects']:
+  if e.get('custom_key')=='enemy_percent_damage_taken':d.update(vulnerabilityPercent=e['value'],vulnerabilitySeconds=e['duration_secs'],vulnerabilityStacks=e['max_stacks'],vulnerabilitySource=e['source_id'])
   if e.get('scale'):d['radius']=facts['geometry']['explosionRadiusPoints']*.1*e['scale']
   if 'burn' in e:
    b=e['burn'];bs={cat.STATS[k]:v for k,v in b['scaling_stats']};d.update(burnBase=b['damage'],ticks=b['duration'],burnEngineering=bs.get('engineering',0),burnElemental=bs.get('elementalDamage',0))

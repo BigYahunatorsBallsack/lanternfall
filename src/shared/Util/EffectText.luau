@@ -156,6 +156,9 @@ end
 
 -- One line for an effect record, e.g. "Wave end: +3% Damage" or "+8 Armor while standing still".
 function EffectText.line(effect: Effects.Effect): string
+	if effect.action == "DigSites" then
+		return `{number(effect.amount or 0)} dig site appears every {number(effect.per or 0)} waves`
+	end
 	if effect.action == "OneShotTrees" then
 		return "Trees die in one hit"
 	end

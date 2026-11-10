@@ -483,6 +483,46 @@
         86,
         88
       ]
+    },
+    {
+      "id": "Crowbar",
+      "name": "Crowbar",
+      "source": "res://weapons/melee/crowbar/crowbar_icon.png",
+      "textureSource": "res://.import/crowbar_icon.png-ed238efd343e612deaf94ead62b19ab7.stex",
+      "textureMd5": "6a22ca1abb6b4c2ab9b632cd47de9625",
+      "output": "assets/weapons/character-starts/Crowbar.png",
+      "pngSha256": "c3ebbe3074ae76a1520d58754eee1ba6c4b328db72d9429857827d734f75f43f",
+      "rgbaSha256": "353a2febafd8c27aa95757c333942501ab026a34f6a50403d20fa1004c13eb6d",
+      "size": [
+        96,
+        96
+      ],
+      "alphaBounds": [
+        9,
+        6,
+        90,
+        93
+      ]
+    },
+    {
+      "id": "Shovel",
+      "name": "Shovel",
+      "source": "res://weapons/melee/shovel/shovel_icon.png",
+      "textureSource": "res://.import/shovel_icon.png-7dbfd97440bc56ca0bef4fa903ee3b75.stex",
+      "textureMd5": "785ab0e72b7c7a92109d72a97077a139",
+      "output": "assets/weapons/character-starts/Shovel.png",
+      "pngSha256": "b7e5404008a9e358b9334affec0813b6a6d5a065fba85b7db6f4250aa114c7c3",
+      "rgbaSha256": "deb403d1ca9f8b5f8ab3a4f7ba990849e7d4c0edda74b4c69d021497357a0bb4",
+      "size": [
+        96,
+        96
+      ],
+      "alphaBounds": [
+        7,
+        10,
+        88,
+        91
+      ]
     }
   ],
   "projectiles": [

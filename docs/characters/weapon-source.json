@@ -5359,7 +5359,11 @@
               "scale": null,
               "duration": 0.0,
               "stat_name": "stat_engineering",
-              "custom_key": ""
+              "custom_key": "",
+              "structureEffect": {
+                "source": "res://items/all/00_base_game/landmines/landmines_effect_1.tres",
+                "sourceMd5": "2d84af012ec18a64b166b2a569dc39c5"
+              }
             }
           ]
         },
@@ -5480,7 +5484,11 @@
               "scale": null,
               "duration": 0.0,
               "stat_name": "stat_engineering",
-              "custom_key": ""
+              "custom_key": "",
+              "structureEffect": {
+                "source": "res://items/all/00_base_game/landmines/landmines_effect_1.tres",
+                "sourceMd5": "2d84af012ec18a64b166b2a569dc39c5"
+              }
             }
           ]
         },
@@ -5601,7 +5609,11 @@
               "scale": null,
               "duration": 0.0,
               "stat_name": "stat_engineering",
-              "custom_key": ""
+              "custom_key": "",
+              "structureEffect": {
+                "source": "res://items/all/00_base_game/landmines/landmines_effect_1.tres",
+                "sourceMd5": "2d84af012ec18a64b166b2a569dc39c5"
+              }
             }
           ]
         },
@@ -5722,7 +5734,11 @@
               "scale": null,
               "duration": 0.0,
               "stat_name": "stat_engineering",
-              "custom_key": ""
+              "custom_key": "",
+              "structureEffect": {
+                "source": "res://items/all/00_base_game/landmines/landmines_effect_1.tres",
+                "sourceMd5": "2d84af012ec18a64b166b2a569dc39c5"
+              }
             }
           ]
         }
@@ -5997,6 +6013,498 @@
               "duration": null,
               "value2": 75,
               "custom_key": "charm_on_hit"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "Crowbar",
+      "name": "Crowbar",
+      "tiers": [
+        {
+          "source": "res://weapons/melee/crowbar/1/crowbar_data.tres",
+          "sourceMd5": "485f6a5d8fa2f4cb56e5294903c0f33a",
+          "statsSource": "res://weapons/melee/crowbar/1/crowbar_stats.tres",
+          "statsMd5": "0c918aa1b37f55eb4d37bf2673186ed2",
+          "tier": 1,
+          "price": 20,
+          "sets": [
+            "set_tool"
+          ],
+          "kind": "Melee",
+          "stats": {
+            "cooldown": 72,
+            "damage": 14,
+            "accuracy": 1.0,
+            "crit_chance": 0.03,
+            "crit_damage": 2.0,
+            "min_range": 0,
+            "max_range": 190,
+            "knockback": 0,
+            "knockback_piercing": 0.0,
+            "can_have_positive_knockback": true,
+            "can_have_negative_knockback": false,
+            "effect_scale": 1.0,
+            "scaling_stats": [
+              [
+                "stat_melee_damage",
+                1.0
+              ]
+            ],
+            "lifesteal": 0.0,
+            "sound_db_mod": -5,
+            "is_healing": false,
+            "recoil": 25,
+            "recoil_duration": 0.1,
+            "additional_cooldown_every_x_shots": -1,
+            "additional_cooldown_multiplier": -1.0,
+            "speed_percent_modifier": 0,
+            "deal_dmg_on_return": false,
+            "attack_type": 1,
+            "alternate_attack_type": false,
+            "attack_duration": 0.0
+          },
+          "effects": [
+            {
+              "source": "res://weapons/melee/crowbar/1/crowbar_effect_0.tres",
+              "sourceMd5": "6f2766732af2b35c8364b7bc1dfc211c",
+              "effectType": "res://effects/weapons/spawn_structure_every_killed_enemies_effect.gd",
+              "key": "spawn_structure_every_killed_enemies",
+              "value": 18,
+              "scale": null,
+              "duration": null,
+              "custom_key": "",
+              "structureEffect": {
+                "source": "res://items/all/04_primal_dread/blood_turret/bleeding_turret_effect_1.tres",
+                "sourceMd5": "14556b9c97b076395aed3fdcd656f7ae"
+              }
+            }
+          ]
+        },
+        {
+          "source": "res://weapons/melee/crowbar/2/crowbar_2_data.tres",
+          "sourceMd5": "d637fce155830e76717dbb5083993401",
+          "statsSource": "res://weapons/melee/crowbar/2/crowbar_2_stats.tres",
+          "statsMd5": "c4922173d0bb0952faf0db26efa4d923",
+          "tier": 2,
+          "price": 39,
+          "sets": [
+            "set_tool"
+          ],
+          "kind": "Melee",
+          "stats": {
+            "cooldown": 68,
+            "damage": 18,
+            "accuracy": 1.0,
+            "crit_chance": 0.03,
+            "crit_damage": 2.0,
+            "min_range": 0,
+            "max_range": 190,
+            "knockback": 0,
+            "knockback_piercing": 0.0,
+            "can_have_positive_knockback": true,
+            "can_have_negative_knockback": false,
+            "effect_scale": 1.0,
+            "scaling_stats": [
+              [
+                "stat_melee_damage",
+                1.0
+              ]
+            ],
+            "lifesteal": 0.0,
+            "sound_db_mod": -5,
+            "is_healing": false,
+            "recoil": 25,
+            "recoil_duration": 0.1,
+            "additional_cooldown_every_x_shots": -1,
+            "additional_cooldown_multiplier": -1.0,
+            "speed_percent_modifier": 0,
+            "deal_dmg_on_return": false,
+            "attack_type": 1,
+            "alternate_attack_type": false,
+            "attack_duration": 0.0
+          },
+          "effects": [
+            {
+              "source": "res://weapons/melee/crowbar/2/crowbar_2_effect_0.tres",
+              "sourceMd5": "9ed7e7fab2d92f1facf3d3677be94d03",
+              "effectType": "res://effects/weapons/spawn_structure_every_killed_enemies_effect.gd",
+              "key": "spawn_structure_every_killed_enemies",
+              "value": 16,
+              "scale": null,
+              "duration": null,
+              "custom_key": "",
+              "structureEffect": {
+                "source": "res://items/all/04_primal_dread/blood_turret/bleeding_turret_effect_1.tres",
+                "sourceMd5": "14556b9c97b076395aed3fdcd656f7ae"
+              }
+            }
+          ]
+        },
+        {
+          "source": "res://weapons/melee/crowbar/3/crowbar_3_data.tres",
+          "sourceMd5": "2eaba519c937da4465b33f16281d4f83",
+          "statsSource": "res://weapons/melee/crowbar/3/crowbar_3_stats.tres",
+          "statsMd5": "5a6dea04af88eaa1db0b8b272746793b",
+          "tier": 3,
+          "price": 74,
+          "sets": [
+            "set_tool"
+          ],
+          "kind": "Melee",
+          "stats": {
+            "cooldown": 63,
+            "damage": 23,
+            "accuracy": 1.0,
+            "crit_chance": 0.03,
+            "crit_damage": 2.0,
+            "min_range": 0,
+            "max_range": 190,
+            "knockback": 0,
+            "knockback_piercing": 0.0,
+            "can_have_positive_knockback": true,
+            "can_have_negative_knockback": false,
+            "effect_scale": 1.0,
+            "scaling_stats": [
+              [
+                "stat_melee_damage",
+                1.0
+              ]
+            ],
+            "lifesteal": 0.0,
+            "sound_db_mod": -5,
+            "is_healing": false,
+            "recoil": 25,
+            "recoil_duration": 0.1,
+            "additional_cooldown_every_x_shots": -1,
+            "additional_cooldown_multiplier": -1.0,
+            "speed_percent_modifier": 0,
+            "deal_dmg_on_return": false,
+            "attack_type": 1,
+            "alternate_attack_type": false,
+            "attack_duration": 0.0
+          },
+          "effects": [
+            {
+              "source": "res://weapons/melee/crowbar/3/crowbar_3_effect_0.tres",
+              "sourceMd5": "4c079017352f3729237639db3ba6be33",
+              "effectType": "res://effects/weapons/spawn_structure_every_killed_enemies_effect.gd",
+              "key": "spawn_structure_every_killed_enemies",
+              "value": 14,
+              "scale": null,
+              "duration": null,
+              "custom_key": "",
+              "structureEffect": {
+                "source": "res://items/all/04_primal_dread/blood_turret/bleeding_turret_effect_1.tres",
+                "sourceMd5": "14556b9c97b076395aed3fdcd656f7ae"
+              }
+            }
+          ]
+        },
+        {
+          "source": "res://weapons/melee/crowbar/4/crowbar_4_data.tres",
+          "sourceMd5": "8ce1cffb4304c69f9eed9f910b2ab741",
+          "statsSource": "res://weapons/melee/crowbar/4/crowbar_4_stats.tres",
+          "statsMd5": "d50e7b304207cd687faeeaf51b93cfb0",
+          "tier": 4,
+          "price": 149,
+          "sets": [
+            "set_tool"
+          ],
+          "kind": "Melee",
+          "stats": {
+            "cooldown": 59,
+            "damage": 28,
+            "accuracy": 1.0,
+            "crit_chance": 0.03,
+            "crit_damage": 2.0,
+            "min_range": 0,
+            "max_range": 190,
+            "knockback": 0,
+            "knockback_piercing": 0.0,
+            "can_have_positive_knockback": true,
+            "can_have_negative_knockback": false,
+            "effect_scale": 1.0,
+            "scaling_stats": [
+              [
+                "stat_melee_damage",
+                1.0
+              ]
+            ],
+            "lifesteal": 0.0,
+            "sound_db_mod": -5,
+            "is_healing": false,
+            "recoil": 25,
+            "recoil_duration": 0.1,
+            "additional_cooldown_every_x_shots": -1,
+            "additional_cooldown_multiplier": -1.0,
+            "speed_percent_modifier": 0,
+            "deal_dmg_on_return": false,
+            "attack_type": 1,
+            "alternate_attack_type": false,
+            "attack_duration": 0.0
+          },
+          "effects": [
+            {
+              "source": "res://weapons/melee/crowbar/4/crowbar_4_effect_0.tres",
+              "sourceMd5": "63cec9568dcf988cf96e920ed3e221ee",
+              "effectType": "res://effects/weapons/spawn_structure_every_killed_enemies_effect.gd",
+              "key": "spawn_structure_every_killed_enemies",
+              "value": 12,
+              "scale": null,
+              "duration": null,
+              "custom_key": "",
+              "structureEffect": {
+                "source": "res://items/all/04_primal_dread/blood_turret/bleeding_turret_effect_1.tres",
+                "sourceMd5": "14556b9c97b076395aed3fdcd656f7ae"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "Shovel",
+      "name": "Shovel",
+      "tiers": [
+        {
+          "source": "res://weapons/melee/shovel/1/shovel_data.tres",
+          "sourceMd5": "f274c7e2c45228705f89a883e999defb",
+          "statsSource": "res://weapons/melee/shovel/1/shovel_stats.tres",
+          "statsMd5": "32cabd9b9467ced3d1cbbd9f3ec067ff",
+          "tier": 1,
+          "price": 18,
+          "sets": [
+            "set_blunt",
+            "set_tool"
+          ],
+          "kind": "Melee",
+          "stats": {
+            "cooldown": 48,
+            "damage": 12,
+            "accuracy": 1.0,
+            "crit_chance": 0.05,
+            "crit_damage": 1.5,
+            "min_range": 0,
+            "max_range": 150,
+            "knockback": 15,
+            "knockback_piercing": 0.05,
+            "can_have_positive_knockback": true,
+            "can_have_negative_knockback": false,
+            "effect_scale": 1.0,
+            "scaling_stats": [
+              [
+                "stat_melee_damage",
+                0.7
+              ],
+              [
+                "stat_luck",
+                0.1
+              ]
+            ],
+            "lifesteal": 0.0,
+            "sound_db_mod": -5,
+            "is_healing": false,
+            "recoil": 25,
+            "recoil_duration": 0.1,
+            "additional_cooldown_every_x_shots": -1,
+            "additional_cooldown_multiplier": -1.0,
+            "speed_percent_modifier": 0,
+            "deal_dmg_on_return": false,
+            "attack_type": 1,
+            "alternate_attack_type": false
+          },
+          "effects": [
+            {
+              "source": "res://weapons/melee/shovel/1/shovel_1_effect_dig.tres",
+              "sourceMd5": "2b1d9b3f9fbb0d2f92537b87e9ea9b31",
+              "effectType": "res://effects/weapons/crate_dig_chance_effect.gd",
+              "key": "",
+              "value": 50,
+              "scale": null,
+              "duration": null,
+              "custom_key": ""
+            }
+          ]
+        },
+        {
+          "source": "res://weapons/melee/shovel/2/shovel_2_data.tres",
+          "sourceMd5": "55470ac56d1b630264940a817d8d1d18",
+          "statsSource": "res://weapons/melee/shovel/2/shovel_2_stats.tres",
+          "statsMd5": "4335362583dda44310e9f84a8b84b986",
+          "tier": 2,
+          "price": 38,
+          "sets": [
+            "set_blunt",
+            "set_tool"
+          ],
+          "kind": "Melee",
+          "stats": {
+            "cooldown": 45,
+            "damage": 22,
+            "accuracy": 1.0,
+            "crit_chance": 0.05,
+            "crit_damage": 1.5,
+            "min_range": 0,
+            "max_range": 150,
+            "knockback": 20,
+            "knockback_piercing": 0.1,
+            "can_have_positive_knockback": true,
+            "can_have_negative_knockback": false,
+            "effect_scale": 1.0,
+            "scaling_stats": [
+              [
+                "stat_melee_damage",
+                0.85
+              ],
+              [
+                "stat_luck",
+                0.15
+              ]
+            ],
+            "lifesteal": 0.0,
+            "sound_db_mod": -5,
+            "is_healing": false,
+            "recoil": 25,
+            "recoil_duration": 0.1,
+            "additional_cooldown_every_x_shots": -1,
+            "additional_cooldown_multiplier": -1.0,
+            "speed_percent_modifier": 0,
+            "deal_dmg_on_return": false,
+            "attack_type": 1,
+            "alternate_attack_type": false
+          },
+          "effects": [
+            {
+              "source": "res://weapons/melee/shovel/2/shovel_2_effect_dig.tres",
+              "sourceMd5": "a2caaf1dbdd65591420acc6763036d68",
+              "effectType": "res://effects/weapons/crate_dig_chance_effect.gd",
+              "key": "",
+              "value": 100,
+              "scale": null,
+              "duration": null,
+              "custom_key": ""
+            }
+          ]
+        },
+        {
+          "source": "res://weapons/melee/shovel/3/shovel_3_data.tres",
+          "sourceMd5": "93e9dfe0a51bd265f78c849bccb07670",
+          "statsSource": "res://weapons/melee/shovel/3/shovel_3_stats.tres",
+          "statsMd5": "373b740a0ef40ecc9c9efe43f5c04ebe",
+          "tier": 3,
+          "price": 72,
+          "sets": [
+            "set_blunt",
+            "set_tool"
+          ],
+          "kind": "Melee",
+          "stats": {
+            "cooldown": 42,
+            "damage": 42,
+            "accuracy": 1.0,
+            "crit_chance": 0.05,
+            "crit_damage": 1.5,
+            "min_range": 0,
+            "max_range": 150,
+            "knockback": 25,
+            "knockback_piercing": 0.15,
+            "can_have_positive_knockback": true,
+            "can_have_negative_knockback": false,
+            "effect_scale": 1.0,
+            "scaling_stats": [
+              [
+                "stat_melee_damage",
+                1.0
+              ],
+              [
+                "stat_luck",
+                0.2
+              ]
+            ],
+            "lifesteal": 0.0,
+            "sound_db_mod": -5,
+            "is_healing": false,
+            "recoil": 25,
+            "recoil_duration": 0.1,
+            "additional_cooldown_every_x_shots": -1,
+            "additional_cooldown_multiplier": -1.0,
+            "speed_percent_modifier": 0,
+            "deal_dmg_on_return": false,
+            "attack_type": 1,
+            "alternate_attack_type": false
+          },
+          "effects": [
+            {
+              "source": "res://weapons/melee/shovel/3/shovel_3_effect_dig.tres",
+              "sourceMd5": "a0b3fd4d5a99d4202ff0ba3201409652",
+              "effectType": "res://effects/weapons/crate_dig_chance_effect.gd",
+              "key": "",
+              "value": 150,
+              "scale": null,
+              "duration": null,
+              "custom_key": ""
+            }
+          ]
+        },
+        {
+          "source": "res://weapons/melee/shovel/4/shovel_4_data.tres",
+          "sourceMd5": "d04fce8671c847a1ba57cc32e2be16b4",
+          "statsSource": "res://weapons/melee/shovel/4/shovel_4_stats.tres",
+          "statsMd5": "714f38dbf75103118b1fbff82365bb6d",
+          "tier": 4,
+          "price": 135,
+          "sets": [
+            "set_blunt",
+            "set_tool"
+          ],
+          "kind": "Melee",
+          "stats": {
+            "cooldown": 39,
+            "damage": 68,
+            "accuracy": 1.0,
+            "crit_chance": 0.05,
+            "crit_damage": 1.5,
+            "min_range": 0,
+            "max_range": 150,
+            "knockback": 30,
+            "knockback_piercing": 0.2,
+            "can_have_positive_knockback": true,
+            "can_have_negative_knockback": false,
+            "effect_scale": 1.0,
+            "scaling_stats": [
+              [
+                "stat_melee_damage",
+                1.15
+              ],
+              [
+                "stat_luck",
+                0.25
+              ]
+            ],
+            "lifesteal": 0.0,
+            "sound_db_mod": -5,
+            "is_healing": false,
+            "recoil": 25,
+            "recoil_duration": 0.1,
+            "additional_cooldown_every_x_shots": -1,
+            "additional_cooldown_multiplier": -1.0,
+            "speed_percent_modifier": 0,
+            "deal_dmg_on_return": false,
+            "attack_type": 1,
+            "alternate_attack_type": false
+          },
+          "effects": [
+            {
+              "source": "res://weapons/melee/shovel/4/shovel_4_effect_dig.tres",
+              "sourceMd5": "ee4f5aee6d567cf7c7855dc3780abe9d",
+              "effectType": "res://effects/weapons/crate_dig_chance_effect.gd",
+              "key": "",
+              "value": 200,
+              "scale": null,
+              "duration": null,
+              "custom_key": ""
             }
           ]
         }

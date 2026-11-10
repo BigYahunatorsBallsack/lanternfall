@@ -55,6 +55,7 @@ WeaponService.KillGrowth = Signal.new()
 -- (player, kills): one distinct completed explosion, never a sum across attacks.
 WeaponService.ExplosionResolved = Signal.new()
 WeaponService.NativeMineRequested = Signal.new()
+WeaponService.NativeStructureRequested = Signal.new()
 local growth: { [number]: { [string]: number } } = {}
 
 -- Hit listener: (ownerId, enemyId, dealt, crit, killed, source), set by EffectService. A plain callback, not a
@@ -234,7 +235,8 @@ arsenal = Arsenal.new({
 				amount,
 				playerOf(ownerId),
 				bonus,
-				not burn and BrotatoCombat.elementalHit(ownerId) ~= nil
+				not burn and BrotatoCombat.elementalHit(ownerId) ~= nil,
+				if burn then 0 else BrotatoCombat.digChance(ownerId)
 			)
 			recordHit(ownerId, id, applied, crit, killed, burn)
 			return killed, dealt
@@ -290,6 +292,16 @@ arsenal = Arsenal.new({
 				local gains = growth[ownerId] or {}
 				growth[ownerId] = gains
 				gains[stat] = (gains[stat] or 0) + (if stat == "maxHp" then Config.Stats.hpScale else 1)
+			end
+		end
+		if killed and _weapon and _weapon.stats.structureEveryKills then
+			local state = _weapon.state
+			state.structureKills = (state.structureKills or 0) + 1
+			if state.structureKills % _weapon.stats.structureEveryKills == 0 then
+				local player, at = playerOf(ownerId), EnemySim.getPosition(id)
+				if player and at then
+					WeaponService.NativeStructureRequested:Fire(player, "BloodTurret", at)
+				end
 			end
 		end
 		if killed and crit and _weapon and source == "Weapon" and _weapon.stats.critMaterialChance then

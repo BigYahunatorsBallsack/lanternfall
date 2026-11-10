@@ -37,6 +37,10 @@ export type Definition = {
 	nativeSpread: number?,
 	count: number?,
 	animationSpeed: number?,
+	vulnerabilityPercent: number?,
+	vulnerabilitySeconds: number?,
+	vulnerabilityStacks: number?,
+	vulnerabilitySource: string?,
 }
 local kinds: { [string]: Definition } = {
 	BrassSentry = {
@@ -170,6 +174,19 @@ kinds.DartTrap = {
 	weaponOnly = true,
 	color = { 170, 190, 110 },
 	description = "Spawns a trap that shoots six darts when an enemy leaves it.",
+}
+kinds.BloodTurret = {
+	displayName = "Blood Turret",
+	mode = "Shot",
+	damage = 8,
+	engineering = 1,
+	interval = 32 / 60,
+	range = 30,
+	tier = 4,
+	price = 0,
+	weaponOnly = true,
+	color = { 190, 65, 65 },
+	description = "Shoots bullets that increase damage taken by 10% for 5 seconds (max 30%).",
 }
 kinds.MoonGarden.boostMode = "Turret" -- Garden inherits native Turret.boost and its five-second timer
 for id, values in require(script.Parent.CharacterStructureData) do

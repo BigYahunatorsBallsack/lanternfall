@@ -73,6 +73,8 @@ local function onStructures(packet: any)
 					center = if image then 0.5 else art.center,
 					pixels = if image then 96 else art.pixels,
 				})
+			else
+				WorldSprite.setImage(parts.sprite, { name = "Structure", image = "", studs = C.spriteSize, ground = 0 })
 			end
 		end
 		place(parts, row.x, row.z)

@@ -83,6 +83,15 @@ function Sim.launch(player: Player, at: Vector3, def: any, sheet: { [string]: nu
 	end
 	function ctx.hit(_, weapon, id, share, mode)
 		local s = weapon.stats
+		if def.vulnerabilityPercent then
+			Enemy.applyWeakness(
+				id,
+				def.vulnerabilitySource,
+				def.vulnerabilityPercent,
+				def.vulnerabilitySeconds,
+				def.vulnerabilityStacks
+			)
+		end
 		local critical = s.critChance >= 1
 		local amount = s.damage * (share or 1) * (if critical then s.critDamage else 1)
 		local killed = Weapons.structureHit(
