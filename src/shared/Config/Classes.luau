@@ -317,6 +317,9 @@ local ranger = Classes.NightWatch.pendingNative or Classes.NightWatch
 ranger.nativeCodeReady = true
 ranger.description =
 	"+50 Range\nYou start with 1 Pistol\nRanged Damage modifications are increased by 50%\nYou can’t equip melee weapons\nMax HP modifications are reduced by 25%"
+Classes.Renegade.nativeCodeReady = true
+Classes.Renegade.description =
+	"+2 Projectiles\nProjectiles pierce through 1 additional target\n+10 % Damage for every different tier I item you have [0]\n-400 % Damage\n-50 % Accuracy\nDamage modifications are reduced by 80%"
 for id, class in Classes do
 	if not class.nativeCodeReady then
 		continue

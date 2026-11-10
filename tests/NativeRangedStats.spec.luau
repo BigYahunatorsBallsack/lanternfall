@@ -32,4 +32,52 @@ describe("Native existing ranged weapons", function()
 		expect(stats.nativeAccuracy).toBe(nil)
 		expect(stats.count).toBe(1)
 	end)
+	it("fires every bonus projectile with native spread without adding the old fixed shotgun fan", function()
+		local W = game:GetService("ServerScriptService").Server.Services.WeaponService
+		for _, id in { "WatchmanPistol", "ScatterBell" } do
+			local stats = Stats.compute(
+				Config.Weapons[id],
+				1,
+				{ nativePackage = 1, accuracy = -50, projectiles = 2, piercing = 1 },
+				nil,
+				0
+			)
+			local weapon =
+				{ id = id, uid = 1, ownerId = 1, config = Config.Weapons[id], tier = 1, stats = stats, state = {} }
+			local events, serial = {}, 0
+			local ctx = {
+				x = 0,
+				z = 0,
+				now = 0,
+				slot = 1,
+				slotCount = 1,
+				random = function()
+					return 0.25
+				end,
+				nextId = function()
+					serial += 1
+					return serial
+				end,
+				emit = function(_, _, event)
+					table.insert(events, event)
+				end,
+				nearestEnemies = function(_, _, _, _, _, out)
+					out[1] = 1
+					return 1
+				end,
+				enemyPosition = function()
+					return 20, 0
+				end,
+			}
+			assert(require(W.BrotatoProjectile).fire(weapon, ctx))
+			expect(#events).toBe(stats.count)
+			for _, event in events do
+				expect(event.dx).toBeNear(events[1].dx)
+				expect(event.dz).toBeNear(events[1].dz)
+			end
+			for _, shot in weapon.state.projectiles do
+				expect(shot.left).toBe(stats.pierce + 1)
+			end
+		end
+	end)
 end)

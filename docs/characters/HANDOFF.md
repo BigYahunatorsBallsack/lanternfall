@@ -1,3 +1,15 @@
+# Aktueller Stand: fünf Codepakete vorbereitet (10.11.2026)
+
+Dieser Abschnitt ersetzt die älteren Zwischenstände darunter. Branch `wp-b10-five-characters` enthält Cryptid, Mage (bisherige ID SparkMage), Ranger (NightWatch), Technomage und Renegade. Alle vorgesehenen Startauswahlen sind über Produktionsdienste lokal geprüft:28/12/14/12/23. Ranger erhält zusätzlich seine garantierte Pistol. Originalbilder bleiben bis zu echten Uploads gesperrt; die zwei alten öffentlichen Profile wechseln erst mit belegtem Originalbild atomar auf ihre nativen Regeln. Kein Upload und keine Studio-Änderung.
+
+Flute hat jetzt echtes Charm: Pre-Hit-Absorption, getrennte freundliche Akteure mit originalen IDs/AI, acht Sekunden Lebensdauer, Schaden×3, Tempo+100 Originalpunkte, Schüsse/Charge-Trails, Hatching/Splitter-Vererbung, Heiler-Eintrittsheilung und Buffer-Boni für Spieler/boostbare Bauten. Persönliche Killzuordnung bleibt wie im Original unbesetzt. Native aim/count/spread-Daten ergänzen die bestehenden Fernkampfwaffen, damit Renegades+2 Projektile/-50 Accuracy wirken; keine weiteren Waffen dafür angelegt. Arsenal-Änderungen stammen ausschließlich aus aktuellem main.
+
+Main `d7164d0` ist integriert, einschließlich neuer Gegner-/Kontakt-/Knockbackregeln. Die gemeinsame technische Obergrenze140 zählt freundliche Gegner mit und begrenzt damit die native Charm-Obergrenze999. Spieler-Buffer-Ablauf folgt der aus den Originalskripten abgeleiteten Rohstat-Arithmetik; mit HP-Gain-Modifikatoren kann ein Rest entstehen (Golem-Test). Diese Ableitung ist nicht im laufenden Originalspiel gegengeprüft. Gemeinsame Physik-/Projektil-/Struktur-/Grafiklücken bleiben offen, keine vollständige native1:1-Abnahme. Wildling bleibt mangels Flail-Dschungelfreischaltung unvollständig; Soldier mangels restlicher Startausrüstung. Keines dieser Teilpakete zählt zum Fünferblock.
+
+Gesamtvergleich und abschließender Merge-Nachweis folgen in native-five-validation.json. Ältere Prüfergebnisse darunter sind historisch; ihr Main-Bezug und die jeweiligen offenen Punkte gelten nicht automatisch für diesen Stand.
+
+---
+
 # Laufende Fortsetzung: vier Codepakete, kein Merge (09.11.2026)
 
 **10.11., Integration ba7e079:** Neuer main ist nun im Arbeitsstand aufgelöst. Friendly World/Volleys folgen ArenaResized, Kontakte nutzen native Angreifer-Hitbox und Ziel-Hurtbox, und Charm verwendet die neue kanonische World-Wanderlogik. Der kurzlebige eigene CharmMotion-Helfer wurde dadurch entfernt. Gezielt danach: EnemyWorld46, EnemyFactions2, CharmedWorld4, FluteCharmRuntime4 bestanden. Noch kein Vollvergleich gegen ba7e079. Healer/Buffer und Dash-Trails/Renegade-Paket bleiben offen, weiterhin vier Codepakete und kein Merge nach main.

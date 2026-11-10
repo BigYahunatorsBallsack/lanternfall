@@ -492,7 +492,7 @@ end
 
 function SpriteModels.reset(visual: Visual)
 	visual.flashing = false
-	visual.burning, visual.slowed, visual.buffed = false, false, false
+	SpriteModels.setStatus(visual, false, false, false, false)
 	SpriteModels.setMode(visual, 0)
 	paint(visual)
 	local trail = visual.trail

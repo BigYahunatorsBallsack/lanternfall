@@ -232,7 +232,16 @@ function Friends.step(self: any, dt: number, now: number, hostile: any)
 	fireChargeTrails(self)
 	for index, id in ids do
 		if contacts[index] > 0 then
-			self.callbacks.damage(id, contacts[index], self.world.contactSources[index])
+			local source = self.world.contactSources[index]
+			self.callbacks.damage(id, contacts[index], source)
+			local actor = self.world.indexOf[source]
+			if actor then
+				local rule = Config.Simulation.contactRecoil
+				local speed = self.world.kinds[actor].speed * self.world.speedFactors[actor] * self.world.boosts[actor]
+					+ self.world.speedBonuses[actor]
+				local points = speed / Config.Stats.range.studsPerPoint
+				self.world:nativeSlow(source, -math.floor(math.max(rule.minPoints, points * rule.speedShare)), false, 0)
+			end
 		end
 	end
 	for index = 1, self.world.summonCount do

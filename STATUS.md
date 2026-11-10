@@ -91,7 +91,7 @@ Jeder Strang ändert nur **seine** Zeile (Regeln: `docs/PARALLEL.md`).
 | Strang | KI | Aktuelles Paket | Branch / PR | Stand | Danach |
 | --- | --- | --- | --- | --- | --- |
 | A – Engine und Ablauf | Claude | Paket 24 Launch-Paket (Medium) | `wp-24-launch` | fertig, selbst gemerged | Plan bis zum Launch abgeschlossen; als Nächstes IDs des Owners eintragen (Live-Experience, Badges, Musik), dann Live-Ops |
-| B - Inhalte und Spieler-Regeln | ChatGPT | B10: Main-Game-Fünferpaket | `wp-b10-five-characters` | Cryptid als erstes neues Codepaket vorbereitet; acht frühere Pakete auf main; Wildling unvollständig | Renegade/Technomage/Soldier, Flail-Dschungelfreischaltung; fünf fertige Codepakete vor Merge |
+| B - Inhalte und Spieler-Regeln | ChatGPT | B10: Main-Game-Fünferpaket | `wp-b10-five-characters` | Cryptid, Mage, Ranger, Technomage, Renegade code-vorbereitet; Originalbilder weiter gesperrt | Gesamtvergleich/Review und Fünfer-Merge, danach weitere Main-Game-Pakete |
 
 ## Feste Entscheidungen des Owners
 

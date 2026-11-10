@@ -26,6 +26,7 @@ for _, weapon in Weapons.getWeapons(me) do
 end
 assert(Weapons.addWeapon(me, "ChainGun", 4))
 require(S.StatService).addStats(me, { attackSpeed = 1000 })
+local pelletsPerAttack = Weapons.getWeapons(me)[1].stats.count
 local fires = 0
 world.getRemote("WeaponEffects").OnClientEvent:Connect(function(packet)
 	for _, effect in Fx.decode(packet) do
@@ -42,7 +43,7 @@ describe("Soldier attack conditions", function()
 	it("blocks new fast catch-up shots while allowing already fired projectiles to hit", function()
 		Weapons.setPaused(false)
 		world.advance(0.14, 1 / 60)
-		expect(fires > 1).toBe(true)
+		expect(fires > pelletsPerAttack).toBe(true)
 		local before = Enemy.getHealth(id)
 		world.fireServerAs(me, "SetMovementIntent", true)
 		fires = 0
@@ -56,6 +57,6 @@ describe("Soldier attack conditions", function()
 		fires = 0
 		world.advance(1 / Config.Simulation.tickRate, 1 / Config.Simulation.tickRate)
 		expect(fires > 0).toBe(true)
-		expect(fires <= Config.Combat.originalWeapons.maxCatchupAttacks + 1).toBe(true)
+		expect(fires <= (Config.Combat.originalWeapons.maxCatchupAttacks + 1) * pelletsPerAttack).toBe(true)
 	end)
 end)

@@ -136,7 +136,6 @@ export type World = typeof(setmetatable(
 		scratch: { number }, -- query results inside step()
 		queryScratch: { number }, -- query results for callers between steps
 		contacts: { number },
-		contactSources: { number },
 		-- shots of the last step, flat: enemy id, x, z, target index, damage per shot
 		shots: { number },
 		shotCount: number,
@@ -223,7 +222,6 @@ function World.new(params: Params): World
 		scratch = {},
 		queryScratch = {},
 		contacts = {},
-		contactSources = {},
 		shots = {},
 		shotCount = 0,
 		summons = {},
