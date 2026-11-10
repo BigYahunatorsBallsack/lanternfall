@@ -171,7 +171,7 @@ function Projectile.fire(weapon: Arsenal.Weapon, ctx: Arsenal.Context): boolean
 			local c, s = math.cos(angle), math.sin(angle)
 			dx, dz = dx * c - dz * s, dx * s + dz * c
 		end
-		if stats.fan then
+		if stats.fan and stats.nativeSpread == nil then
 			local angle = math.rad(stats.spreadDegrees) * (k - (count + 1) / 2)
 			local c, s = math.cos(angle), math.sin(angle)
 			dx, dz = dx * c - dz * s, dx * s + dz * c

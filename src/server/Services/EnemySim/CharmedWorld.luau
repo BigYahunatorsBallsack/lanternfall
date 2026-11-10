@@ -56,7 +56,7 @@ function Friends.convert(self: any, source: any, id: number, owner: number, now:
 	self.world.burning[actor] = false
 	self.world.contactDamage[actor] = math.round(base.contact * C.damageMultiplier)
 	self.world.shotDamage[actor] = math.round(base.shot * C.damageMultiplier)
-	if kind.speed > 0 then
+	if kind.speed * self.world.speedFactors[actor] * self.world.boosts[actor] > 0 then
 		self.world.speedBonuses[actor] += C.bonusSpeedPoints * Config.Stats.range.studsPerPoint
 	end
 	self.world.maxSpeed = math.max(
@@ -166,6 +166,40 @@ local function fireShots(self: any, dt: number)
 		end
 	end
 end
+local function fireChargeTrails(self: any)
+	local world = self.world
+	for id, member in self.members do
+		local index = world.indexOf[id]
+		local charge = member.kind.charge
+		if not charge or not charge.projectileDamage or world.modes[index] ~= World.MODE_RUSH then
+			member.trail = nil
+			continue
+		end
+		local x, z = world.xs[index], world.zs[index]
+		local trail = member.trail or { x = x, z = z, distance = charge.trailEvery }
+		member.trail = trail
+		trail.distance += math.sqrt((x - trail.x) ^ 2 + (z - trail.z) ^ 2)
+		trail.x, trail.z = x, z
+		if trail.distance >= charge.trailEvery then
+			trail.distance %= charge.trailEvery
+			local c, s = math.cos(charge.trailAngle), math.sin(charge.trailAngle)
+			local rx, rz = world.rushXs[index], world.rushZs[index]
+			for _, side in { -1, 1 } do
+				self:fire(
+					member,
+					x,
+					z,
+					rx * c - rz * s * side,
+					rx * s * side + rz * c,
+					charge.projectileSpeed,
+					charge.projectileRange,
+					charge.projectileRadius,
+					world:getShotDamage(id)
+				)
+			end
+		end
+	end
+end
 function Friends.step(self: any, dt: number, now: number, hostile: any)
 	if next(self.members) == nil and self.shots:getCount() == 0 then
 		return
@@ -195,6 +229,7 @@ function Friends.step(self: any, dt: number, now: number, hostile: any)
 	local contacts = self.world:step(dt, xs, zs, #ids, nil, nil, radii)
 	stepShots(self, dt)
 	fireShots(self, dt)
+	fireChargeTrails(self)
 	for index, id in ids do
 		if contacts[index] > 0 then
 			self.callbacks.damage(id, contacts[index], self.world.contactSources[index])

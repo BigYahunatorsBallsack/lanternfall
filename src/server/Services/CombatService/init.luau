@@ -259,6 +259,15 @@ function CombatService.setHpFraction(player: Player, fraction: number)
 	end
 end
 
+-- Native Buffer changes current HP directly, without a healing event or a second automatic max-HP gain.
+function CombatService.setBoostHealth(player: Player, hp: number)
+	local state = getVitals(player)
+	if canBeHurt(player) and not state:isDown() then
+		state.hp = math.clamp(hp, 1, state.maxHp)
+		send(player)
+	end
+end
+
 -- Debug switch (AdminService "ToggleInvincible"): while on, enemy hits, projectiles and self-damage take no HP.
 -- Only a debug command ("Knock me down") can still knock the player down. Kept until switched off or the player leaves.
 function CombatService.setInvincible(player: Player, on: boolean)

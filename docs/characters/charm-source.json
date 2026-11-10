@@ -73,7 +73,9 @@
     "descendants": "Spawned descendants inherit the owner and receive a fresh Charm lifetime",
     "killAttribution": "Enemy.player_index remains -1. Friendly hits and timeout deaths have no personal player kill credit; normal non-cleanup death/loot signals still run",
     "healer": "Heal players on entering its area, int(1+(wave-1)*0.5); structures are excluded",
-    "buffer": "One randomly selected unboosted ally, player or boostable structure; initial timer .25s then 4s; boosts last 5s"
+    "buffer": "One random unboosted player or boostable structure; first timer .25s after spawn (conversion does not reset it), then4s. Player/Turret boosts5s; Mine/Trap marks persist until death.",
+    "playerBoostExpiry": "Derived from native Player.boost and boost_ended: raw maxHp grant floor(maximum*.2), expiry subtracts current maximum minus before-boost maximum as raw stat. Gain multipliers can leave residual HP stats. Production-module arithmetic tested; not compared in a running Brotato process.",
+    "structureBoost": "Turret base damage/range/cooldown change before Engineering/Structure stats; Mine already-scaled damage/explosion scale change; DartTrap only marks boosted with no stat change."
   },
   "supportValues": {
     "healerRadiusPoints": 200.639,
@@ -83,7 +85,11 @@
     "playerAttackSpeed": 20,
     "structureDamagePercent": 20,
     "structureRangePercent": 20,
-    "structureAttackSpeedPercent": 20
+    "structureAttackSpeedPercent": 20,
+    "playerBodyRadiusPoints": 24,
+    "playerBodyOffsetZPoints": -12,
+    "structureBodyRadiusPoints": 40,
+    "structureBodyOffsetZPoints": -8
   },
   "movement": {
     "randomTargetPrecisionPoints": 10,
@@ -91,5 +97,5 @@
     "ThornbackRangePoints": 150,
     "ThornbackRandomizationPoints": 50
   },
-  "state": "Charm rules, transfer, ordinary/ranged combat, random movement and hatching implemented locally; support and full completion still pending"
+  "state": "Local production-module tests cover rules, transfer, ordinary/ranged/charge-trail combat, native random movement, hatching and ally support. Studio/coop/native visual acceptance remains open. Shared actor hard cap140 is a documented technical limitation vs native Charm maximum999."
 }

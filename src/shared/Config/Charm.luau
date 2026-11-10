@@ -3,6 +3,8 @@
 -- Source: docs/characters/charm-source.json, installed stable PC 1.2.0.1.
 return table.freeze({
 	duration = 8,
+	playerBodyRadius = 2.4, -- native Player Collision circle24 points
+	playerBodyOffsetZ = -1.2, -- native Player Collision offset-12 points
 	summonPadding = 2, -- shared EnemySim spawn-around spacing, technical existing simulation convention
 	goalPrecision = 1,
 	goalAttempts = 8,

@@ -106,4 +106,18 @@ describe("Flute Charm through production services", function()
 		expect(Enemy.isCharmed(child)).toBe(false)
 		expect(#world.errors).toBe(0)
 	end)
+	it("shares the configured actor budget between hostile and charmed actors", function()
+		Enemy.killAll()
+		local ally = assert(Enemy.spawn("Shadeling", 20, 20, 100, 1, nil, nil, 0))
+		Enemy.damage(ally, Enemy.getHealth(ally) * 0.9, nil)
+		assert(Enemy.tryCharm(me, ally, { charmChance = 1, charmThreshold = 1 }, function()
+			return 0
+		end))
+		for _ = 2, Config.Run.spawn.cap.max do
+			assert(Enemy.spawn("Shadeling", 20, 20, 1, 1, nil, nil, 0))
+		end
+		expect(Enemy.spawn("Shadeling", 20, 20, 1, 1)).toBe(nil)
+		expect(Enemy.getCount()).toBe(Config.Run.spawn.cap.max)
+		Enemy.killAll()
+	end)
 end)

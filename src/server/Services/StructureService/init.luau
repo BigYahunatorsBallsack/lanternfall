@@ -17,6 +17,7 @@ local Loot = require(script.Parent.LootService)
 local Map = require(script.Parent.MapService)
 local RandomService = require(script.Parent.RandomService)
 local Rules = require(script.Rules)
+local Boost = require(script.BoostRules)
 local Weapons = require(script.Parent.WeaponService)
 local Projectiles = require(script.Projectiles)
 local TurretTiming = require(script.TurretTiming)
@@ -314,6 +315,14 @@ local function step(dt)
 		if Run.getParticipantState(o.owner) ~= "Alive" then
 			continue
 		end
+		if o.boostLeft then
+			o.boostLeft -= dt
+			if o.boostLeft <= 0 then
+				o.definition = o.beforeBoost
+				o.beforeBoost = nil
+				o.boostLeft = nil
+			end
+		end
 		local def = o.definition or C.kinds[o.kind]
 		if def.mode == "Orbit" then
 			local root = Map.getRootPosition(o.owner)
@@ -457,6 +466,51 @@ function Service.init()
 		dirty = true
 	end)
 end
+-- The native Buffer's collision area sees only boostable, currently unboosted structure bodies.
+function Service.boostCandidates(at: Vector3, radius: number): { number }
+	local ids = {}
+	for _, object in objects do
+		local definition = object.definition or C.kinds[object.kind]
+		if
+			definition.boostMode
+			and not object.boostLeft
+			and (object.position + Vector3.new(0, 0, C.boostBodyOffsetZ) - at).Magnitude <= radius + C.boostBodyRadius
+		then
+			table.insert(ids, object.id)
+		end
+	end
+	return ids
+end
+function Service.applyBoost(id: number, damage: number, range: number, speed: number, duration: number): boolean
+	for _, object in objects do
+		if object.id ~= id then
+			continue
+		end
+		local definition = object.definition or C.kinds[object.kind]
+		if not definition.boostMode or object.boostLeft then
+			return false
+		end
+		object.beforeBoost = object.definition
+		object.definition = Boost.definition(definition, Weapons.getStructureStats(object.owner), damage, range, speed)
+		object.boostLeft = if definition.boostMode == "Turret" then duration else math.huge
+		if definition.boostMode == "Turret" then
+			object.remaining = math.max(
+				0,
+				object.remaining
+					- Rules.interval(
+							object.definition,
+							Weapons.getStructureStats(object.owner),
+							improvedOf(object.owner)
+						)
+						* speed
+						/ 100
+			)
+		end
+		return true
+	end
+	return false
+end
+
 -- Count equipped native structure effects, including duplicate item copies; deployed mines are not sources.
 function Service.sourceCount(player: Player): number
 	local total = 0

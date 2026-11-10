@@ -11,6 +11,7 @@ for row in facts['structures']:
  d={'native':True,'nativeProjectile':not st['is_healing'] and ident!='RuneMine','damage':st['damage'],'engineering':scale.get('engineering',0),'interval':st['cooldown']/60,'cooldownFrames':st['cooldown'],'range':st['max_range']*.1,'projectileSpeed':st['projectile_speed']*.1,'pierce':st['piercing'],'pierceFalloff':st['piercing_dmg_reduction'],'critChance':st['crit_chance'],'critDamage':st['crit_damage'],'spawnCooldown':row['spawnCooldown'],'nativeAccuracy':st['accuracy'],'nativeSpread':st['projectile_spread'],'count':st['nb_projectiles']}
  if ident in ['RuneMine','DartTrap']:
   d.update(mode='Mine' if ident=='RuneMine' else 'Trap',range=facts['geometry']['mineTriggerRadiusPoints' if ident=='RuneMine' else 'trapTriggerRadiusPoints']*.1,triggerOffsetZ=facts['geometry']['triggerOffsetPoints']*.1)
+ if 'boostMode' in row:d.update(boostMode=row['boostMode'])
  if 'animationSpeed' in row:d.update(animationSpeed=row['animationSpeed'])
  if ident=='DartTrap':d.update(rays=facts['geometry']['dartCount'],shotRange=st['max_range']*.1)
  for e in row['effects']:

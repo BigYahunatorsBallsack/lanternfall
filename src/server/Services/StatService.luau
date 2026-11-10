@@ -42,6 +42,7 @@ type State = {
 	levels: number, -- individual levels gained in this run, starting at native LV.0 (Max HP each)
 	classBonus: StatMath.Sheet, -- weapon class bonuses of the weapons carried (B5)
 	dynamic: StatMath.Sheet, -- item effect bonuses right now (EffectService)
+	charmBoost: StatMath.Sheet, -- native Buffer TempStats, isolated from character and item effects
 	characterDynamic: StatMath.Sheet, -- native character conditions and wave-only gains
 	permanent: StatMath.Sheet, -- base plus every permanent gain
 	sheet: StatMath.Sheet, -- permanent plus dynamic: what the game uses
@@ -140,6 +141,7 @@ local function update(player: Player, state: State, permanent: boolean)
 	end
 	state.sheet = StatMath.addGains(table.clone(state.rawPermanent), state.dynamic, multipliersOf(player))
 	StatMath.addGains(state.sheet, state.characterDynamic, multipliersOf(player))
+	StatMath.addGains(state.sheet, state.charmBoost, multipliersOf(player))
 	StatMath.add(
 		state.sheet,
 		CharacterRules.bonuses(
@@ -256,6 +258,7 @@ local function onRunStarted(participants: { Player })
 				classBonus = classBonusOf(player),
 				dynamic = {},
 				characterDynamic = {},
+				charmBoost = {},
 				permanent = {},
 				sheet = {},
 			}
@@ -386,6 +389,15 @@ function StatService.setDynamic(player: Player, bonuses: StatMath.Sheet)
 	local state = states[player]
 	if state then
 		state.dynamic = table.clone(bonuses)
+		update(player, state, false)
+	end
+end
+
+-- Native allied Buffer gains share TempStats gain multipliers but cannot overwrite other temporary effects.
+function StatService.setCharmBoost(player: Player, gains: StatMath.Sheet)
+	local state = states[player]
+	if state then
+		state.charmBoost = table.clone(gains)
 		update(player, state, false)
 	end
 end

@@ -123,7 +123,7 @@ function WeaponStats.compute(
 		stats.carbonBurnSpread += bonuses.burnSpread or 0
 	end
 
-	require(Shared.Util.NativeRangedStats).apply(stats, bonuses)
+	require(Shared.Util.NativeRangedStats).apply(stats, bonuses, weapon.id, tier)
 	local attackSpeed = bonuses.attackSpeed or 0
 	-- Stable native negative Attack Speed uses the full percentage, including Doctor's -100% penalty.
 	local timing = if weapon.brotato then NativeTiming.factor(attackSpeed) else StatMath.cooldownFactor(attackSpeed)

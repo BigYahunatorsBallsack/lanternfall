@@ -145,6 +145,7 @@ local function clearWave()
 end
 
 function Service.init()
+	require(script.CharmSupport).init()
 	require(script.KillChallenges).init()
 	require(script.RecyclingChallenges).init()
 	Weapons.ExplosionResolved:Connect(require(script.Parent.PlayerDataService).observeNativeExplosion)

@@ -5,6 +5,9 @@ local StatMath = require(game:GetService("ReplicatedStorage").Shared.Util.StatMa
 local Timing = require(game:GetService("ReplicatedStorage").Shared.Util.NativeWeaponTiming)
 local Rules = {}
 function Rules.damage(def, sheet)
+	if def.finalDamageOverride then
+		return def.finalDamageOverride
+	end
 	local flat = math.floor(
 		def.damage + def.engineering * (sheet.engineering or 0) + (def.elemental or 0) * (sheet.elementalDamage or 0)
 	)

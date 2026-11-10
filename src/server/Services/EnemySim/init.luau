@@ -69,6 +69,7 @@ EnemySim.ShotHit = Signal.new()
 EnemySim.Stepped = Signal.new()
 -- Server-only cosmetic events for friendly projectiles.
 EnemySim.CharmShot = Signal.new()
+EnemySim.CharmSupport = Signal.new()
 
 local world: World.World
 local friends: any
@@ -120,6 +121,9 @@ local volleys = (function()
 end)()
 local floorY = Config.Map.arena.center.Y
 friends = CharmedWorld.new(world.params, {
+	support = function(member, x, z)
+		EnemySim.CharmSupport:Fire(member, x, z)
+	end,
 	damage = function(id, amount)
 		EnemySim.damage(id, amount, nil)
 	end,
@@ -616,6 +620,9 @@ function EnemySim.spawn(
 ): number?
 	local kind = EnemyKinds.get(enemyId, elite, affix)
 	assert(kind, `Unknown enemy {enemyId}`)
+	if EnemySim.getCount() >= Config.Run.spawn.cap.max then
+		return nil
+	end
 	local baseShot = World.baseShotDamage(kind)
 	local hpGrowth, contactGrowth, shotGrowth = 1, 1, 1
 	if wave then
@@ -636,6 +643,7 @@ function EnemySim.spawn(
 	if id then
 		local index = world.indexOf[id]
 		nativeBases[id] = {
+			spawnedAt = workspace:GetServerTimeNow(),
 			contact = world.contactDamage[index],
 			shot = world.shotDamage[index],
 			spawn = { hp = hpMultiplier, damage = damageMultiplier, speed = speedMultiplier or 1, wave = wave },

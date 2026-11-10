@@ -19,6 +19,7 @@ return {
 		nativeAccuracy = 1,
 		nativeSpread = 0,
 		count = 1,
+		boostMode = "Turret",
 		animationSpeed = 1,
 	},
 	CinderSentry = {
@@ -38,6 +39,7 @@ return {
 		nativeAccuracy = 0.6,
 		nativeSpread = 0,
 		count = 1,
+		boostMode = "Turret",
 		animationSpeed = 1.5,
 		burnBase = 5,
 		ticks = 8,
@@ -61,6 +63,7 @@ return {
 		nativeAccuracy = 1,
 		nativeSpread = 0,
 		count = 1,
+		boostMode = "Turret",
 		animationSpeed = 1,
 	},
 	SiegeSentry = {
@@ -80,6 +83,7 @@ return {
 		nativeAccuracy = 0.6,
 		nativeSpread = 0,
 		count = 1,
+		boostMode = "Turret",
 		animationSpeed = 1,
 		radius = 14.734,
 	},
@@ -100,6 +104,7 @@ return {
 		nativeAccuracy = 1,
 		nativeSpread = 0,
 		count = 1,
+		boostMode = "Turret",
 		animationSpeed = 1,
 	},
 	RuneMine = {
@@ -121,6 +126,7 @@ return {
 		count = 1,
 		mode = "Mine",
 		triggerOffsetZ = 1.6,
+		boostMode = "Mine",
 		radius = 25.7845,
 	},
 	DartTrap = {
@@ -142,6 +148,7 @@ return {
 		count = 1,
 		mode = "Trap",
 		triggerOffsetZ = 1.6,
+		boostMode = "Trap",
 		rays = 6,
 		shotRange = 1000,
 	},

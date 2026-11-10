@@ -100,6 +100,9 @@ function CharacterRules.weaponSheet(classId: string?, sheet: StatMath.Sheet): St
 	result.nativeBurningTargetBonus =
 		CharacterRules.nativeAmount(classId, "bonus_non_elemental_damage_against_burning_targets")
 	local class = classId and Config.Classes[classId]
+	if class and class.nativeStartSelection then
+		result.nativePackage = 1
+	end
 	if class then
 		for weaponClass, stats in class.weaponClassStats or {} do
 			for statId, amount in stats do

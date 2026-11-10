@@ -97,4 +97,20 @@ describe("Charmed faction runtime", function()
 		expect(hits[1].id).toBe(target)
 		expect(hits[1].amount).toBe(6)
 	end)
+	it("keeps charge-side projectiles friendly with the source angle and boosted enemy damage", function()
+		local hostile, friends = setup()
+		local id = assert(hostile:spawn(Config.Enemies.types.Hookfang, 0, 0, 100, 1, 2))
+		assert(friends:convert(hostile, id, 17, 0, { contact = 1, shot = 2 }))
+		assert(hostile:spawn(Config.Enemies.types.Brute, 40, 0, 100, 1))
+		local index = friends.world.indexOf[id]
+		friends.world.modes[index] = World.MODE_RUSH
+		friends.world.rushXs[index], friends.world.rushZs[index], friends.world.rushLeft[index] = 1, 0, 37.5
+		friends:step(0.1, 0.1, hostile)
+		expect(friends.shots:getCount()).toBe(2)
+		for _, shot in friends.shots.shots do
+			expect(shot.dx).toBeNear(math.cos(1))
+			expect(math.abs(shot.dz)).toBeNear(math.sin(1))
+			expect(shot.damage).toBe(6)
+		end
+	end)
 end)

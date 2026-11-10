@@ -31,6 +31,8 @@ export type Definition = {
 	burnEngineering: number?,
 	burnElemental: number?,
 	weaponOnly: boolean?,
+	boostMode: string?,
+	finalDamageOverride: number?,
 	nativeAccuracy: number?,
 	nativeSpread: number?,
 	count: number?,
@@ -169,6 +171,7 @@ kinds.DartTrap = {
 	color = { 170, 190, 110 },
 	description = "Spawns a trap that shoots six darts when an enemy leaves it.",
 }
+kinds.MoonGarden.boostMode = "Turret" -- Garden inherits native Turret.boost and its five-second timer
 for id, values in require(script.Parent.CharacterStructureData) do
 	for key, value in values do
 		(kinds[id] :: any)[key] = value
@@ -177,6 +180,8 @@ end
 return table.freeze({
 	kinds = kinds,
 	maxActive = 100,
+	boostBodyRadius = 4, -- inherited Entity Collision:40 source points
+	boostBodyOffsetZ = -0.8, -- inherited native structure Collision position:-8 source points
 	spriteSize = 7, -- world studs; original item artwork for all deployed structures
 	maxBeams = 32,
 	bounceRange = 25,
