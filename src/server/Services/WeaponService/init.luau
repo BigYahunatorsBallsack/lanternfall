@@ -580,10 +580,17 @@ end
 -- Lifecycle -------------------------------------------------------------------------
 
 function WeaponService.init()
+	EnemySim.CharmShot:Connect(function(ownerId, event)
+		arsenal:emitShared(ownerId, event, "CharmShot")
+	end)
 	ExperienceService.OrbsPickedUp:Connect(function(player, count)
 		BrotatoRuntime.reloadFromMaterials(arsenal:getWeapons(player.UserId), count, now())
 	end)
 	BrotatoCombat.configure({
+		tryCharm = function(ownerId, id, stats, random)
+			local player = playerOf(ownerId)
+			return player ~= nil and EnemySim.tryCharm(player, id, stats, random)
+		end,
 		nativeSlow = EnemySim.nativeSlow,
 		spawnMine = function(ownerId, x, z)
 			local player = playerOf(ownerId)

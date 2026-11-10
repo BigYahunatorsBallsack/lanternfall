@@ -35,6 +35,7 @@ Snapshot.POSITION_SCALE = POSITION_SCALE
 Snapshot.STATUS_BURNING = 1
 Snapshot.STATUS_SLOWED = 2
 Snapshot.STATUS_BUFFED = 4
+Snapshot.STATUS_CHARMED = 8 -- native friendly actor; remaining byte layout is unchanged
 Snapshot.MAX_COORDINATE = INT16_MAX / POSITION_SCALE -- largest |x| or |z| that survives encoding
 
 -- One entry per enemy at the same index in every array.

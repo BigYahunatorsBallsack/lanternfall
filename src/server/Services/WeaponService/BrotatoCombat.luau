@@ -92,6 +92,15 @@ function Combat.hit(
 ): (boolean, boolean)
 	local original = weapon.stats
 	local stats = table.clone(shotStats or original)
+	if
+		stats.charmChance
+		and adapter.tryCharm
+		and adapter.tryCharm(weapon.ownerId, id, stats, function()
+			return ctx:random()
+		end)
+	then
+		return false, false
+	end
 	local crit = if critical ~= nil then critical else ctx:random() < stats.critChance
 	if stats.critBurning and adapter.isBurning and adapter.isBurning(id) then
 		crit = true

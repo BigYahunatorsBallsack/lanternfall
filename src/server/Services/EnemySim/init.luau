@@ -28,6 +28,8 @@ local RandomService = require(script.Parent.RandomService)
 local RunDirector = require(script.Parent.RunDirector)
 local Volleys = require(script.Volleys)
 local World = require(script.World)
+local CharmedWorld = require(script.CharmedWorld)
+local CharmRules = require(script.CharmRules)
 local weakness = require(script.Weakness).new()
 
 export type KillInfo = {
@@ -65,11 +67,24 @@ EnemySim.ShotHit = Signal.new()
 -- (dt: number, now: number): right after every step and still inside its measured time. WeaponService steps the
 -- weapons here, so hits see this step's positions and the snapshot that follows already shows them.
 EnemySim.Stepped = Signal.new()
+-- Server-only cosmetic events for friendly projectiles.
+EnemySim.CharmShot = Signal.new()
 
-local function newWorld(): World.World
+local world: World.World
+local friends: any
+local nativeBases: { [number]: any } = {}
+local sharedSerial = 0
+local function allocateActorId(): number
+	repeat
+		sharedSerial = sharedSerial % Snapshot.MAX_ID + 1
+	until (not world or not world.indexOf[sharedSerial]) and (not friends or not friends.world.indexOf[sharedSerial])
+	return sharedSerial
+end
+local function newWorldParams(): World.Params
 	local bounds = MapService.getArenaBounds()
 	local center, halfX, halfZ = bounds.center, bounds.halfX, bounds.halfZ
-	return World.new({
+	return {
+		allocateId = allocateActorId,
 		cellSize = Sim.spatialHashCellSize,
 		maxEnemies = Config.Run.spawn.cap.max,
 		playerRadius = Sim.playerRadius,
@@ -83,10 +98,10 @@ local function newWorld(): World.World
 		minZ = center.Z - halfZ,
 		maxZ = center.Z + halfZ,
 		obstacles = MapService.getObstacles(),
-	})
+	}
 end
 
-local world = newWorld()
+world = World.new(newWorldParams())
 type SpawnContext = { hp: number, damage: number, speed: number, wave: number }
 local spawnContexts: { [number]: SpawnContext } = {}
 local chargeTrails: { [number]: { x: number, z: number, distance: number } } = {}
@@ -103,6 +118,24 @@ local volleys = (function()
 	})
 end)()
 local floorY = Config.Map.arena.center.Y
+friends = CharmedWorld.new(newWorldParams(), {
+	damage = function(id, amount)
+		EnemySim.damage(id, amount, nil)
+	end,
+	emitShot = function(owner, event)
+		EnemySim.CharmShot:Fire(owner, event)
+	end,
+	expired = function(member, x, z)
+		EnemySim.resolveCharmDeath(member, x, z)
+	end,
+	spawn = function(member, kind, x, z, count, spread)
+		EnemySim.spawnCharmChildren(member, kind, x, z, count, spread)
+	end,
+	random = function(owner)
+		return RandomService.number("Combat", game:GetService("Players"):GetPlayerByUserId(owner))
+	end,
+})
+
 local currentTick = 0
 local accumulator = 0
 
@@ -381,6 +414,12 @@ local function stepOnce()
 	end
 	callSummons()
 	hatchEggs()
+	for id in nativeBases do
+		if not world:isAlive(id) and not friends.world:isAlive(id) then
+			nativeBases[id] = nil
+		end
+	end
+	friends:step(STEP_SECONDS, stepNow, world)
 	EnemySim.Stepped:Fire(STEP_SECONDS, stepNow)
 	local seconds = os.clock() - startedAt
 	window.steps += 1
@@ -419,29 +458,35 @@ end
 -- Sends the current enemies of `currentTick` to every participant still in the server.
 local function sendSnapshot()
 	local count = 0
-	local ids, xs, zs, typeIds, hp, maxHp = world.ids, world.xs, world.zs, world.typeIds, world.hp, world.maxHp
-	local kinds, modes, rushXs, rushZs = world.kinds, world.modes, world.rushXs, world.rushZs
-	local slowFactors, burning, buffed = world.slowFactors, world.burning, world.buffed
-	for i = 1, world.count do
-		if hp[i] > 0 then
-			count += 1
-			columns.ids[count] = ids[i]
-			columns.xs[count] = xs[i]
-			columns.zs[count] = zs[i]
-			columns.typeIds[count] = typeIds[i]
-			columns.hpFractions[count] = hp[i] / maxHp[i]
-			local charging = modes[i] ~= 0 -- the rush direction is fixed from the wind-up on
-			columns.flags[count] = Snapshot.packFlags(
-				modes[i],
-				kinds[i].affix or 0,
-				if charging then rushXs[i] else nil,
-				if charging then rushZs[i] else nil
-			)
-			columns.statuses[count] = (if burning[i] then Snapshot.STATUS_BURNING else 0)
-				+ (if slowFactors[i] < 1 or world.nativeSlows:active(ids[i]) then Snapshot.STATUS_SLOWED else 0)
-				+ (if buffed[i] then Snapshot.STATUS_BUFFED else 0)
+	local function append(actors: World.World, charmed: boolean)
+		local ids, xs, zs, typeIds, hp, maxHp =
+			actors.ids, actors.xs, actors.zs, actors.typeIds, actors.hp, actors.maxHp
+		local kinds, modes, rushXs, rushZs = actors.kinds, actors.modes, actors.rushXs, actors.rushZs
+		local slowFactors, burning, buffed = actors.slowFactors, actors.burning, actors.buffed
+		for i = 1, actors.count do
+			if hp[i] > 0 then
+				count += 1
+				columns.ids[count] = ids[i]
+				columns.xs[count] = xs[i]
+				columns.zs[count] = zs[i]
+				columns.typeIds[count] = typeIds[i]
+				columns.hpFractions[count] = hp[i] / maxHp[i]
+				local charging = modes[i] ~= 0 -- the rush direction is fixed from the wind-up on
+				columns.flags[count] = Snapshot.packFlags(
+					modes[i],
+					kinds[i].affix or 0,
+					if charging then rushXs[i] else nil,
+					if charging then rushZs[i] else nil
+				)
+				columns.statuses[count] = (if charmed then Snapshot.STATUS_CHARMED else 0)
+					+ (if burning[i] then Snapshot.STATUS_BURNING else 0)
+					+ (if slowFactors[i] < 1 or actors.nativeSlows:active(ids[i]) then Snapshot.STATUS_SLOWED else 0)
+					+ (if buffed[i] then Snapshot.STATUS_BUFFED else 0)
+			end
 		end
 	end
+	append(world, false)
+	append(friends.world, true)
 	local packets = Snapshot.encode(currentTick, columns, count)
 	for _, packet in packets do
 		window.bytes += buffer.len(packet)
@@ -501,6 +546,8 @@ function EnemySim.init()
 		table.clear(spawnContexts)
 		table.clear(chargeTrails)
 		world:clear()
+		friends:clear()
+		table.clear(nativeBases)
 		weakness:clear()
 		volleys:clear()
 		accumulator = 0
@@ -511,6 +558,8 @@ function EnemySim.init()
 		table.clear(spawnContexts)
 		table.clear(chargeTrails)
 		world:clear()
+		friends:clear()
+		table.clear(nativeBases)
 		weakness:clear()
 		volleys:clear()
 		currentTick += 1
@@ -564,10 +613,85 @@ function EnemySim.spawn(
 		speed,
 		wave
 	)
+	if id then
+		local index = world.indexOf[id]
+		nativeBases[id] = {
+			contact = world.contactDamage[index],
+			shot = world.shotDamage[index],
+			spawn = { hp = hpMultiplier, damage = damageMultiplier, speed = speedMultiplier or 1, wave = wave },
+		}
+	end
 	if id and wave then
 		spawnContexts[id] = { hp = hpMultiplier, damage = damageMultiplier, speed = speedMultiplier or 1, wave = wave }
 	end
 	return id
+end
+
+-- Descendants of charmed summoners/splitters/eggs inherit Charm and a fresh native lifetime.
+function EnemySim.spawnCharmChildren(member: any, kind: string, x: number, z: number, count: number, spread: number)
+	local context = member.base.spawn
+	local turn = RandomService.number("Spawns") * math.pi * 2
+	for index = 1, count do
+		local angle = turn + (index - 1) / count * math.pi * 2
+		local id = EnemySim.spawn(
+			kind,
+			x + math.cos(angle) * spread,
+			z + math.sin(angle) * spread,
+			context.hp,
+			context.damage,
+			nil,
+			nil,
+			context.speed,
+			context.wave
+		)
+		if id then
+			friends:convert(world, id, member.owner, workspace:GetServerTimeNow(), nativeBases[id])
+		end
+	end
+end
+function EnemySim.resolveCharmDeath(member: any, x: number, z: number)
+	local split = member.kind.split
+	if split then
+		EnemySim.spawnCharmChildren(member, split.enemy, x, z, split.count, split.spread)
+	end
+	EnemySim.EnemyKilled:Fire({
+		id = member.id,
+		enemyId = member.kind.id,
+		typeId = member.kind.typeId,
+		position = Vector3.new(x, floorY, z),
+		xp = member.kind.xp,
+		elite = false,
+		boss = false,
+		killer = nil,
+	})
+end
+
+-- Charm is a pre-hit server decision; successful conversion absorbs the triggering hit completely.
+function EnemySim.tryCharm(player: Player, id: number, stats: { [string]: number }, random: () -> number): boolean
+	if not world:isAlive(id) then
+		return false
+	end
+	local kind = world:getKind(id)
+	if not kind then
+		return false
+	end
+	local hp, maxHp = world:getHealth(id)
+	local chance = CharmRules.chance(
+		stats,
+		{ kind = kind.id, hp = hp, maxHp = maxHp, elite = kind.elite, boss = kind.boss ~= nil },
+		friends:count(player.UserId),
+		require(Shared.Util.DangerRules).endlessFactor(RunDirector.getWave())
+	)
+	if not CharmRules.success(chance, random) then
+		return false
+	end
+	return friends:convert(world, id, player.UserId, workspace:GetServerTimeNow(), nativeBases[id])
+end
+function EnemySim.isCharmed(id: number): boolean
+	return friends.world:isAlive(id)
+end
+function EnemySim.getCharmedCount(owner: number): number
+	return friends:count(owner)
 end
 
 -- Native timed/fixed speed additions for Tranq/Harpoon, preserving the normal snapshot and movement paths.
@@ -765,6 +889,9 @@ end
 -- Floor position of an enemy (also of one killed since the last step), nil for unknown ids.
 function EnemySim.getPosition(id: number): Vector3?
 	local x, z = world:getPosition(id)
+	if friends.world:isAlive(id) then
+		x, z = friends.world:getPosition(id)
+	end
 	if not (x and z) then
 		return nil
 	end
@@ -784,7 +911,7 @@ end
 -- Enemy id (key in Config.Enemies.types or .bosses) and whether it is an elite, nil for unknown ids. Bosses count as
 -- elites (Damage vs Elites, item effects on elites; WP10).
 function EnemySim.getKind(id: number): (string?, boolean)
-	local kind = world:getKind(id)
+	local kind = if friends.world:isAlive(id) then friends.world:getKind(id) else world:getKind(id)
 	if not kind then
 		return nil, false
 	end
@@ -793,7 +920,7 @@ end
 
 -- Mode of a living enemy (EnemySim/World.MODE_*: walk, wind-up, rush, recover) and its rush direction x/z.
 function EnemySim.getMode(id: number): (number, number, number)
-	return world:getMode(id)
+	return (if friends.world:isAlive(id) then friends.world else world):getMode(id)
 end
 
 function EnemySim.isAlive(id: number): boolean
@@ -813,6 +940,18 @@ function EnemySim.collectIds(out: { number }): number
 	return count
 end
 
+-- Wave-wide living counts include friendly charmed actors; hostile targeting continues to use collectIds.
+function EnemySim.collectAllIds(out: { number }): number
+	local count = EnemySim.collectIds(out)
+	for index = 1, friends.world.count do
+		if friends.world.hp[index] > 0 then
+			count += 1
+			out[count] = friends.world.ids[index]
+		end
+	end
+	return count
+end
+
 -- Ids of the living enemies that eat orbs (kind.eat, the Gobbler, B9), written to out[1 .. n]; returns n.
 function EnemySim.collectEaters(out: { number }): number
 	local count = 0
@@ -823,15 +962,22 @@ function EnemySim.collectEaters(out: { number }): number
 			out[count] = ids[i]
 		end
 	end
+	for index = 1, friends.world.count do
+		if friends.world.hp[index] > 0 and friends.world.kinds[index].eat then
+			count += 1
+			out[count] = friends.world.ids[index]
+		end
+	end
 	return count
 end
 
 -- Makes an enemy walk to `position` instead of the nearest player, or back to the players with nil (B9).
 function EnemySim.setGoal(id: number, position: Vector3?)
+	local actors = if friends.world:isAlive(id) then friends.world else world
 	if position then
-		world:setGoal(id, position.X, position.Z)
+		actors:setGoal(id, position.X, position.Z)
 	else
-		world:setGoal(id)
+		actors:setGoal(id)
 	end
 end
 
@@ -842,18 +988,19 @@ end
 
 -- Current HP of an enemy, 0 for dead or unknown ids (item effects since B8: damage by a share of the enemy's HP).
 function EnemySim.getHealth(id: number): number
-	return (world:getHealth(id))
+	local actors = if friends.world:isAlive(id) then friends.world else world
+	return (actors:getHealth(id))
 end
 
 -- Current HP of an enemy as a share of its max HP, 0 for dead or unknown ids (BossService, WP10).
 function EnemySim.getHealthShare(id: number): number
-	local hp, maxHp = world:getHealth(id)
+	local hp, maxHp = (if friends.world:isAlive(id) then friends.world else world):getHealth(id)
 	return if maxHp > 0 then math.max(0, hp) / maxHp else 0
 end
 
 -- Max HP of an enemy, 0 for unknown ids.
 function EnemySim.getMaxHealth(id: number): number
-	local _, maxHp = world:getHealth(id)
+	local _, maxHp = (if friends.world:isAlive(id) then friends.world else world):getHealth(id)
 	return maxHp
 end
 
@@ -864,7 +1011,7 @@ end
 
 -- Number of living enemies.
 function EnemySim.getCount(): number
-	return world:getAliveCount()
+	return world:getAliveCount() + friends.world:getAliveCount()
 end
 
 function EnemySim.getStats(): Stats

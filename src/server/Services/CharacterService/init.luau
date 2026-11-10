@@ -172,7 +172,7 @@ function Service.init()
 	Run.WaveStarting:Connect(clearWave)
 	Run.WaveEnding:Connect(function(wave)
 		local ids, enemies, trees = {}, 0, 0
-		Enemy.collectIds(ids)
+		Enemy.collectAllIds(ids)
 		for _, id in ids do
 			if Enemy.getKind(id) == "Tree" then
 				trees += 1
