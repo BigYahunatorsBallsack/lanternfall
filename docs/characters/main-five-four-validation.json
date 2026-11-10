@@ -1,0 +1,138 @@
+{
+  "base": "2df769a880f967f49b4c3a7c2b2db40899404154",
+  "reviewedCodeHead": "3fff9338b9c99ed25d1614661c8d1d379151500e",
+  "runner": "Lune0.11.1; math.randomseed1234; one spec per process; actual cwd isolated for main archive",
+  "baseline": {
+    "specs": 195,
+    "passed": 1412,
+    "failed": 37
+  },
+  "reviewedBranch": {
+    "specs": 203,
+    "passed": 1434,
+    "failed": 36
+  },
+  "newFailureNames": [],
+  "newAborts": 0,
+  "failureNamesAbsentInFinal": [
+    "FAIL new enemies (B9) > lets a Gobbler eat the orbs on the floor and drop them all when killed"
+  ],
+  "gobblerNote": "The known intermittent Gobbler failure occurred in baseline, passed in final; not claimed fixed (repeat proof from PR144 remains relevant).",
+  "failures": {
+    "tests/EnemySpawnPlacement25.spec.luau": [
+      "FAIL Enemy spawn placement > positions a newly built sprite before making it visible",
+      "FAIL Enemy spawn placement > moves a pooled sprite to its next spawn before reattaching it"
+    ],
+    "tests/RunStats.spec.luau": [
+      "FAIL Tally > writes readable log lines with the level per minute and every build"
+    ],
+    "tests/Smoke.spec.luau": [
+      "FAIL smoke > arms the player with the class weapon and switches weapons off for the enemy tests",
+      "FAIL smoke > spawns enemies on a ring around the player and draws them",
+      "FAIL smoke > chases the player until it touches them",
+      "FAIL smoke > hits and kills enemies with the debug buttons",
+      "FAIL smoke > pauses spawning and spawns a test wave up to the cap",
+      "FAIL smoke > shows enemy and performance numbers to admins",
+      "FAIL smoke > shoots Spark Bolts that kill enemies once weapons are on",
+      "FAIL smoke > draws the six original weapons, tiers and debug swaps",
+      "FAIL smoke > drops XP orbs that the player picks up for the whole team",
+      "FAIL smoke > keeps level-ups for the end of the wave",
+      "FAIL smoke > ends the wave: enemies fade, the shop opens and the level-up cards come first",
+      "FAIL smoke > sells weapons and items for Shards in the shop, rerolls and starts the next wave on READY",
+      "FAIL smoke > lets items change HP, speed and weapon damage, stacking without limit",
+      "FAIL smoke > runs item effects: standing still, per X, timers, crit kills, dodges and chests",
+      "FAIL smoke > runs wave end, shop and next-wave effects and the shop stats",
+      "FAIL smoke > spawns a glowing elite with an HP bar that drops a chest",
+      "FAIL smoke > opens the chest when walked over and shows the reward",
+      "FAIL smoke > gives the evolution from a chest once the build is ready",
+      "FAIL smoke > lets Spitters shoot visible projectiles that hit the player",
+      "FAIL smoke > shows a Charger's wind-up, splits Splitters and names elite affixes",
+      "FAIL smoke > runs Brotato's combat: weapon class bonuses, burning, exploding items and slowed enemies",
+      "FAIL smoke > skips to the boss wave, and surviving it wins (WP10)",
+      "FAIL smoke > starts the next run with Play again",
+      "FAIL smoke > keeps walking but suppresses jumping on Space",
+      "FAIL smoke > takes debug damage with hit protection and heals",
+      "FAIL smoke > loses no HP while the debug Invincible switch is on",
+      "FAIL smoke > ends in defeat when the only player is knocked down",
+      "FAIL smoke > returns to the lobby after the results",
+      "FAIL smoke > runs with two players and keeps late joiners in the lobby",
+      "FAIL smoke > keeps running while one of two is down, and enemies go for the one still standing",
+      "FAIL smoke > stands a downed player up with full HP when the wave ends",
+      "FAIL smoke > rejects locked classes with a message",
+      "FAIL smoke > finished without any runtime error"
+    ]
+  },
+  "newSpecs": {
+    "tests/Brick.spec.luau": {
+      "passed": 3,
+      "failed": 0
+    },
+    "tests/BrickRetry.spec.luau": {
+      "passed": 1,
+      "failed": 0
+    },
+    "tests/BrickRuntime.spec.luau": {
+      "passed": 2,
+      "failed": 0
+    },
+    "tests/CharacterCyborgPackage.spec.luau": {
+      "passed": 3,
+      "failed": 0
+    },
+    "tests/CharacterGolemPackage.spec.luau": {
+      "passed": 3,
+      "failed": 0
+    },
+    "tests/CharacterMasochistPackage.spec.luau": {
+      "passed": 3,
+      "failed": 0
+    },
+    "tests/CharacterMutantPackage.spec.luau": {
+      "passed": 3,
+      "failed": 0
+    },
+    "tests/CharacterOldPackage.spec.luau": {
+      "passed": 3,
+      "failed": 0
+    }
+  },
+  "mutationProof": {
+    "mutated": "Change inclusive Brick break roll to exclusive",
+    "exit": 1,
+    "failures": [
+      "FAIL Native Brick > rolls break after damage, stops later hits and issues one break request"
+    ],
+    "restoredExit": 0,
+    "restoredSummary": "3 passed, 0 failed"
+  },
+  "checks": {
+    "stylua": "All changed Luau files formatted; check passed",
+    "selene": "0 errors/18 existing warnings; cached Roblox API",
+    "rojo": "build passed",
+    "sourceCompilers": "74characters,28additional weapon families; only hiking_stick missing",
+    "localArt": "181prepared images;0missing/unusable; no uploads or apply",
+    "arsenal": "unchanged against base"
+  },
+  "review": {
+    "correctness": "All25/26/22/24/15 native starts, guaranteed MinigunIII, original core stats/gains, lifetime unlocks, exact living wave-end1HP, Danger3 and simultaneous Cyborg inventory challenge tested. Native Brick inclusive chance, single break, no subsequent hits, zero/no-break boundaries, exact tier stats, physical drop values, bag/cap order, no direct currency or recycling event, original weapon restore and drop reset on retry tested.",
+    "architecture": "Targeted B10 service hooks, Config owns source values, frame-end weapon removal preserves Arsenal iteration. Existing neutral material and OrbField rules reused.",
+    "security": "Server-only combat/progress; no remotes or schema added.",
+    "performance": "New drop uses existing50orb field, merges extra values; normal tierIV base200 iterations. No extra per-tick character inventory scan introduced. Existing4ms check passes;200actor total budget remains unproven.",
+    "testReview": "Inclusive-to-exclusive break comparison mutation was rejected by boundary test, restored exact bytes and test passed. Existing damage expectations retained; only catalog counts advanced to90/28."
+  },
+  "codePreparedCharacters": [
+    "Old",
+    "Mutant",
+    "Masochist",
+    "Golem",
+    "Cyborg"
+  ],
+  "codePreparedTotal": 28,
+  "nativeAcceptance": false,
+  "limits": [
+    "Original uploads and Studio/two-client/mobile testing still absent.",
+    "Static Brick scatter differs from native gold launch/tween/physics; documented common engine gap.",
+    "Reckless shared Steam achievement maps to personally qualifying online participants.",
+    "Shared native graphics/physics/item/zone parity and200actor4ms-budget remain open."
+  ]
+}
