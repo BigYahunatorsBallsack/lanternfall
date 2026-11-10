@@ -93,7 +93,7 @@ Jeder Strang ändert nur **seine** Zeile (Regeln: `docs/PARALLEL.md`).
 | Strang | KI | Aktuelles Paket | Branch / PR | Stand | Danach |
 | --- | --- | --- | --- | --- | --- |
 | A – Engine und Ablauf | Claude | Paket 24 Launch-Paket (Medium) | `wp-24-launch` | fertig, selbst gemerged | Plan bis zum Launch abgeschlossen; als Nächstes IDs des Owners eintragen (Live-Experience, Badges, Musik), dann Live-Ops |
-| B - Inhalte und Spieler-Regeln | ChatGPT | B10: viertes Main-Game-Fünferpaket | `wp-b10-main-five-four` | Old, Mutant, Masochist, Golem und Cyborg code-vorbereitet; echte Bilder/Studio offen | Weitere Main-Game-Pakete (High) |
+| B - Inhalte und Spieler-Regeln | ChatGPT | B10: fünftes Main-Game-Fünferpaket | `wp-b10-main-five-five` | Entrepreneur, Explorer, Multitasker, Demon und Fisherman code-vorbereitet;33/74, echte Bilder/Studio offen | Weitere Main-Game-Pakete (High) |
 
 ## Feste Entscheidungen des Owners
 
@@ -906,3 +906,10 @@ Benötigter Brick ergänzt: vier Tiers30/60/90/120Basis,1%inklusive Break-Chance
 90konfigurierte Waffen:62öffentlich/28bildgesperrt. Brick-Originalicon ausschließlich lokal vorbereitet; nur hiking_stick sowie9Item-/Petfamilien fehlen noch als Startausrüstung laut Compiler. Charakter-/Waffenbilder bleiben ohne echte Originalupload-IDs gesperrt. Keine Uploads, Studio-Änderungen oder Veröffentlichung. Quellen: main-five-four-source.json und weapon-source.json; native Grafik-/Physik-/Katalog-/Gebietsparität, Studio/Zwei-Client/Handy und200Actor4ms-Budget bleiben offen. Erst Main abschließen, dann Abyssal Terrors, zuletzt Primal Dread. Chunky/Wildling wegen der Flail-Dschungelfreischaltung weiter unvollständig. Prüfung folgt in main-five-four-validation.json.
 
 Abschlussprüfung des vierten Fünferblocks: echter GitHub-main2df769a195Specs/1412bestanden/37Fehler; finaler Branch203Specs/1434bestanden/36Fehler. Alle21neuen Prüfungen in8Specs bestanden; keine neuen Fehlernamen/Abbrüche. Der bekannte schwankende Gobbler-Test war diesmal nur auf main rot, nicht als behoben ausgegeben. Brick-Grenztest erkennt gezielte Mutation von<=zu<; Originaldatei bytegenau wiederhergestellt und Test bestanden. StyLua, Selene0Fehler/18bestehende Warnungen, Rojo, Quellencompiler und lokale Bildvorbereitung bestanden. Prüfnachweis: main-five-four-validation.json.
+
+
+### B10 – fünftes Main-Game-Fünferpaket (10.11.2026)
+
+Entrepreneur, Explorer, Multitasker (ManyHands), Demon und Fisherman mit allen31/28/44/20/30 Starts, Originalregeln und persönlichen Freischaltungen vorbereitet. Hiking Stick mit vier Tiers und echten Weg-Schritten; Explorer-Baumstart, Schema13-Baumzähler, Demon-MaxHP-Shop/Materialumwandlung und Fisherman-Garantiepreis1 samt wiederkehrenden Originalgruppen implementiert. 33/74 Codepakete vorbereitet,41 verbleibend; keine native Grafik-/Studioabnahme. 91 Waffen (62 öffentlich/29 bildgesperrt), keine fehlenden Startwaffenslugs, neun offene Item-/Petfamilien. Keine Uploads/IDs/Studio/Veröffentlichung, Arsenal unverändert.
+
+Vollvergleich gegen GitHub-main d60a7fd:203 Specs/1434 bestanden/36 Fehler; Branch212 Specs/1458 bestanden/dieselben36 Fehler, keine neuen Fehlernamen oder Abbrüche. Alle24 neuen Prüfungen in9 Specs bestanden; Demon-Mutation erkannt und Original bytegenau wiederhergestellt. StyLua, Selene0Fehler/18bestehende Warnungen, Rojo, Quellencompiler und lokale Bildvorbereitung geprüft. Einzelheiten/Quellen/Anleitungen: docs/characters/HANDOFF.md und main-five-five-{source,validation}.json. Geteilte native Physik-/Grafik-/Gebiets-/Kataloglücken, reale Originalbilder, Studio/Zwei-Client/Handy und200Actor4ms-Budget bleiben offen. Reihenfolge Main50, Abyssal14, Primal10; weiterhin fünf Charakter-Codepakete je Merge ohne erneute Freigabe.
