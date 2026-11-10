@@ -42,8 +42,9 @@ root.Position = Vector3.new(0, Config.Map.arena.center.Y, 5.5)
 Enemies.teleport(boss.id, Vector3.new(-distance / 2, Config.Map.arena.center.Y, 5.5))
 local originalDamage = Combat.damagePlayer
 local dashHits = 0
-Combat.damagePlayer = function(target, amount)
-	if target == player and amount == kind.contactDamage then
+Combat.damagePlayer = function(target, _amount)
+	-- in wave 1 the charge and the orbit projectiles both hit for 1 (Brotato's base values), so count charge hits only
+	if target == player and string.find(debug.traceback(), "chargeStep", 1, true) then
 		dashHits += 1
 	end
 end

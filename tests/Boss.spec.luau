@@ -264,9 +264,9 @@ describe("bosses", function()
 		local bosses = BossService.getBosses()
 		expect(#bosses).toBe(1)
 		expect(bosses[1].wave).toBe(true)
-		-- HP grows with the player factor like every enemy: solo the config value
+		-- HP grows with the wave and the player factor like every enemy: solo 15000 + 750 per wave = 29,250
 		local kind = Config.Enemies.bosses[bosses[1].bossId]
-		expect(EnemySim.getMaxHealth(bosses[1].id)).toBeNear(kind.hp)
+		expect(EnemySim.getMaxHealth(bosses[1].id)).toBeNear(kind.hp + kind.hpPerWave * (RunSchedule.waveCount() - 1))
 		heal()
 		for _ = 1, 4 do
 			click("HurtBoss")
