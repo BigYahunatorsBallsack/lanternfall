@@ -543,6 +543,26 @@
         89,
         84
       ]
+    },
+    {
+      "id": "Brick",
+      "name": "Brick",
+      "source": "res://dlcs/dlc_1/weapons/melee/brick/brick_icon.png",
+      "textureSource": "res://.import/brick_icon.png-0da191064707229fe6461514b46c64d4.stex",
+      "textureMd5": "3ff222decf06061db34f4ca2579d439e",
+      "output": "assets/weapons/character-starts/Brick.png",
+      "pngSha256": "5763e3382545792c3b00d79d89f63c47cd706f00d30e96a7dfe0a54f5ed11f71",
+      "rgbaSha256": "0cb5ad0b6fd996f04b426cc1a97b43f5851176842d1bb11507b9c357a9f6f47a",
+      "size": [
+        96,
+        96
+      ],
+      "alphaBounds": [
+        5,
+        8,
+        90,
+        92
+      ]
     }
   ],
   "projectiles": [

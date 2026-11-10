@@ -216,6 +216,48 @@ local function onEnemyKilled(info: EnemySim.KillInfo)
 	table.insert(changedOrbs, orbValue or value)
 end
 
+-- Native weapon-break gold follows neutral/team material modifiers and remains physical loot, never direct currency.
+function ExperienceService.dropMaterials(at: Vector3, amount: number, spread: number)
+	if not RunDirector.isActive() or paused then
+		return
+	end
+	local classIds = {}
+	for _, player in RunDirector.getParticipants() do
+		table.insert(classIds, RunDirector.getParticipantClassId(player) or "")
+	end
+	local raw = CharacterEconomy.materialValue(amount, classIds, false)
+	local value = math.floor(raw)
+	if raw > value and RandomService.number("Loot") <= raw - value then
+		value += 1
+	end
+	local rule = Config.Combat.nativeBrick
+	for _ = 1, value do
+		local worth = 1
+		local pulled = if field:count() < Config.Run.xpOrbs.maxOrbs then LootRules.bagPull(bag, worth) else 0
+		bag -= pulled
+		worth += pulled
+		local angle = RandomService.number("Loot") * math.pi * 2
+		local radius = rule.minimumSpread
+			+ RandomService.number("Loot") * (rule.baseMaximumSpread + spread - rule.minimumSpread)
+		local x, z = round(at.X + math.cos(angle) * radius), round(at.Z + math.sin(angle) * radius)
+		local id = field:spawn(x, z, worth)
+		if pulled > 0 then
+			if not bagBoosted[id] then
+				table.insert(newBagOrbs, id)
+			end
+			bagBoosted[id] = true
+		end
+		local ox, oz, ov = field:get(id)
+		table.insert(changedOrbs, id)
+		table.insert(changedOrbs, ox)
+		table.insert(changedOrbs, oz)
+		table.insert(changedOrbs, ov)
+	end
+	if value > 0 then
+		sendBag()
+	end
+end
+
 -- Gobblers (kind.eat, B9) swallow the orbs they touch and walk to the nearest orb within their seek range.
 local function feedEaters()
 	for e = 1, EnemySim.collectEaters(eaterIds) do

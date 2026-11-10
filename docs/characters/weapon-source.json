@@ -6779,6 +6779,252 @@
           ]
         }
       ]
+    },
+    {
+      "id": "Brick",
+      "name": "Brick",
+      "tiers": [
+        {
+          "source": "res://dlcs/dlc_1/weapons/melee/brick/1/brick_data.tres",
+          "sourceMd5": "a5037f8efafcf91dac0c06ef85e16121",
+          "statsSource": "res://dlcs/dlc_1/weapons/melee/brick/1/brick_stats.tres",
+          "statsMd5": "37987a2648180d45d00277f57956f90b",
+          "tier": 1,
+          "price": 6,
+          "sets": [
+            "set_blunt"
+          ],
+          "kind": "Melee",
+          "stats": {
+            "cooldown": 50,
+            "damage": 30,
+            "accuracy": 1.0,
+            "crit_chance": 0.03,
+            "crit_damage": 1.5,
+            "min_range": 0,
+            "max_range": 150,
+            "knockback": 5,
+            "knockback_piercing": 0.0,
+            "can_have_positive_knockback": true,
+            "can_have_negative_knockback": false,
+            "effect_scale": 1.0,
+            "scaling_stats": [
+              [
+                "stat_melee_damage",
+                0.5
+              ],
+              [
+                "stat_engineering",
+                0.5
+              ]
+            ],
+            "lifesteal": 0.0,
+            "sound_db_mod": -5,
+            "is_healing": false,
+            "recoil": 25,
+            "recoil_duration": 0.1,
+            "additional_cooldown_every_x_shots": -1,
+            "additional_cooldown_multiplier": -1.0,
+            "speed_percent_modifier": 0,
+            "deal_dmg_on_return": false,
+            "attack_type": 1,
+            "alternate_attack_type": false
+          },
+          "effects": [
+            {
+              "source": "res://dlcs/dlc_1/weapons/melee/brick/1/brick_effect_0.tres",
+              "sourceMd5": "e495ca896c871e7cbc8c66c883cc6de4",
+              "effectType": "res://effects/weapons/null_double_value_effect.gd",
+              "key": "break_on_hit",
+              "value": 1,
+              "scale": null,
+              "duration": null,
+              "value2": 10.0,
+              "custom_key": ""
+            }
+          ]
+        },
+        {
+          "source": "res://dlcs/dlc_1/weapons/melee/brick/2/brick_2_data.tres",
+          "sourceMd5": "d1d8caa31ad985843147ea6d8ada740d",
+          "statsSource": "res://dlcs/dlc_1/weapons/melee/brick/2/brick_2_stats.tres",
+          "statsMd5": "2881261faf3ecb7a2f3876bfb32e08e3",
+          "tier": 2,
+          "price": 14,
+          "sets": [
+            "set_blunt"
+          ],
+          "kind": "Melee",
+          "stats": {
+            "cooldown": 50,
+            "damage": 60,
+            "accuracy": 1.0,
+            "crit_chance": 0.03,
+            "crit_damage": 1.5,
+            "min_range": 0,
+            "max_range": 150,
+            "knockback": 5,
+            "knockback_piercing": 0.0,
+            "can_have_positive_knockback": true,
+            "can_have_negative_knockback": false,
+            "effect_scale": 1.0,
+            "scaling_stats": [
+              [
+                "stat_melee_damage",
+                0.65
+              ],
+              [
+                "stat_engineering",
+                0.65
+              ]
+            ],
+            "lifesteal": 0.0,
+            "sound_db_mod": -5,
+            "is_healing": false,
+            "recoil": 25,
+            "recoil_duration": 0.1,
+            "additional_cooldown_every_x_shots": -1,
+            "additional_cooldown_multiplier": -1.0,
+            "speed_percent_modifier": 0,
+            "deal_dmg_on_return": false,
+            "attack_type": 1,
+            "alternate_attack_type": false
+          },
+          "effects": [
+            {
+              "source": "res://dlcs/dlc_1/weapons/melee/brick/2/brick_2_effect_0.tres",
+              "sourceMd5": "64b381e27903468b17ead8618d8df87a",
+              "effectType": "res://effects/weapons/null_double_value_effect.gd",
+              "key": "break_on_hit",
+              "value": 1,
+              "scale": null,
+              "duration": null,
+              "value2": 30.0,
+              "custom_key": ""
+            }
+          ]
+        },
+        {
+          "source": "res://dlcs/dlc_1/weapons/melee/brick/3/brick_3_data.tres",
+          "sourceMd5": "f86bc9a06697b004128967b54f6a8c05",
+          "statsSource": "res://dlcs/dlc_1/weapons/melee/brick/3/brick_3_stats.tres",
+          "statsMd5": "793cdd79a83f85dce57482bb6ef5a2b3",
+          "tier": 3,
+          "price": 22,
+          "sets": [
+            "set_blunt"
+          ],
+          "kind": "Melee",
+          "stats": {
+            "cooldown": 50,
+            "damage": 90,
+            "accuracy": 1.0,
+            "crit_chance": 0.03,
+            "crit_damage": 1.5,
+            "min_range": 0,
+            "max_range": 150,
+            "knockback": 5,
+            "knockback_piercing": 0.0,
+            "can_have_positive_knockback": true,
+            "can_have_negative_knockback": false,
+            "effect_scale": 1.0,
+            "scaling_stats": [
+              [
+                "stat_melee_damage",
+                0.8
+              ],
+              [
+                "stat_engineering",
+                0.8
+              ]
+            ],
+            "lifesteal": 0.0,
+            "sound_db_mod": -5,
+            "is_healing": false,
+            "recoil": 25,
+            "recoil_duration": 0.1,
+            "additional_cooldown_every_x_shots": -1,
+            "additional_cooldown_multiplier": -1.0,
+            "speed_percent_modifier": 0,
+            "deal_dmg_on_return": false,
+            "attack_type": 1,
+            "alternate_attack_type": false
+          },
+          "effects": [
+            {
+              "source": "res://dlcs/dlc_1/weapons/melee/brick/3/brick_3_effect_0.tres",
+              "sourceMd5": "fae684954d3a20311f7309c6402d4dd5",
+              "effectType": "res://effects/weapons/null_double_value_effect.gd",
+              "key": "break_on_hit",
+              "value": 1,
+              "scale": null,
+              "duration": null,
+              "value2": 75.0,
+              "custom_key": ""
+            }
+          ]
+        },
+        {
+          "source": "res://dlcs/dlc_1/weapons/melee/brick/4/brick_4_data.tres",
+          "sourceMd5": "c56fc66accf3243dcc49b5a412edbe9c",
+          "statsSource": "res://dlcs/dlc_1/weapons/melee/brick/4/brick_4_stats.tres",
+          "statsMd5": "b5eed664d49049fac82922b8bf4bdea3",
+          "tier": 4,
+          "price": 40,
+          "sets": [
+            "set_blunt"
+          ],
+          "kind": "Melee",
+          "stats": {
+            "cooldown": 50,
+            "damage": 120,
+            "accuracy": 1.0,
+            "crit_chance": 0.03,
+            "crit_damage": 1.5,
+            "min_range": 0,
+            "max_range": 150,
+            "knockback": 5,
+            "knockback_piercing": 0.0,
+            "can_have_positive_knockback": true,
+            "can_have_negative_knockback": false,
+            "effect_scale": 1.0,
+            "scaling_stats": [
+              [
+                "stat_melee_damage",
+                1.0
+              ],
+              [
+                "stat_engineering",
+                1.0
+              ]
+            ],
+            "lifesteal": 0.0,
+            "sound_db_mod": -5,
+            "is_healing": false,
+            "recoil": 25,
+            "recoil_duration": 0.1,
+            "additional_cooldown_every_x_shots": -1,
+            "additional_cooldown_multiplier": -1.0,
+            "speed_percent_modifier": 0,
+            "deal_dmg_on_return": false,
+            "attack_type": 1,
+            "alternate_attack_type": false
+          },
+          "effects": [
+            {
+              "source": "res://dlcs/dlc_1/weapons/melee/brick/4/brick_4_effect_0.tres",
+              "sourceMd5": "1c1fe7a15218c19cb8c1dc7204388022",
+              "effectType": "res://effects/weapons/null_double_value_effect.gd",
+              "key": "break_on_hit",
+              "value": 1,
+              "scale": null,
+              "duration": null,
+              "value2": 200.0,
+              "custom_key": ""
+            }
+          ]
+        }
+      ]
     }
   ]
 }

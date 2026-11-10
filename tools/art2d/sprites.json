@@ -857,6 +857,11 @@
     "text": "Original Brotato: Boomerang",
     "source": "assets/weapons/character-starts/Boomerang.png",
     "trimmed": true
+   },
+   "Brick": {
+    "text": "Original Brotato: Brick",
+    "source": "assets/weapons/character-starts/Brick.png",
+    "trimmed": true
    }
   },
   "raw": true
