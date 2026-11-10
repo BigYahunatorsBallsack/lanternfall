@@ -1,0 +1,96 @@
+{
+  "version": "1.2.0.1",
+  "steamBuild": 26406319,
+  "resources": [
+    {
+      "source": "res://challenges/forest_data.tres",
+      "sourceMd5": "8ba3b54e7327462d38d5fae9abd0da7d",
+      "properties": {
+        "my_id": "chal_forest",
+        "value": 10,
+        "description": "CHAL_FOREST_DESC",
+        "additional_args": [],
+        "effects": []
+      }
+    },
+    {
+      "source": "res://items/characters/cryptid/cryptid_data.tres",
+      "sourceMd5": "e9e873d6c07e744c254a5c006f31e0d0",
+      "properties": {
+        "my_id": "character_cryptid",
+        "value": 1,
+        "effects": [
+          {
+            "resource": "res://items/characters/cryptid/cryptid_effect_0.tres",
+            "resourceType": "Resource"
+          },
+          {
+            "resource": "res://items/characters/cryptid/cryptid_effect_1.tres",
+            "resourceType": "Resource"
+          },
+          {
+            "resource": "res://items/characters/cryptid/cryptid_effect_2.tres",
+            "resourceType": "Resource"
+          },
+          {
+            "resource": "res://items/characters/cryptid/cryptid_effect_2b.tres",
+            "resourceType": "Resource"
+          },
+          {
+            "resource": "res://items/characters/cryptid/cryptid_effect_3.tres",
+            "resourceType": "Resource"
+          },
+          {
+            "resource": "res://items/characters/cryptid/cryptid_effect_4.tres",
+            "resourceType": "Resource"
+          },
+          {
+            "resource": "res://items/characters/cryptid/cryptid_effect_5.tres",
+            "resourceType": "Resource"
+          },
+          {
+            "resource": "res://items/characters/cryptid/cryptid_effect_6.tres",
+            "resourceType": "Resource"
+          }
+        ]
+      }
+    }
+  ],
+  "existingNeutralCatalog": "source.json",
+  "weaponFacts": "weapon-source.json / Molotov",
+  "runtimeSources": [
+    {
+      "source": "res://projectiles/molotov/molotov_projectile.gdc",
+      "sourceMd5": "d11b572e4f8f8f1b89819e7936a24de0"
+    },
+    {
+      "source": "res://entities/gpe/fire_puddle/fire_puddle.gdc",
+      "sourceMd5": "a31c18617860b08b845c0c5d82430604"
+    },
+    {
+      "source": "res://singletons/weapon_service.gdc",
+      "sourceMd5": "e165d91ac24a7e0eff33a26bb09006c5"
+    },
+    {
+      "source": "res://entities/units/unit/unit.gdc",
+      "sourceMd5": "aa94391f2d9681ac36b7f8617b82ff13"
+    }
+  ],
+  "verifiedRules": [
+    "Forest requires successful wave completion with at least10 living trees, before cleanup. No unlock merely from a mid-wave count or a lost wave.",
+    "All28 stable starts resolve; no starting items.",
+    "Cryptid: +6 trees, +3 regen/current living tree, +12 materials and XP/surviving tree,70% dodge cap, +3 attack speed/dodge until wave end, -100 lifesteal, -100 range, -50% enemy materials.",
+    "Molotov spawns one puddle on first hit or stop, even with piercing; native puddle lifetime3/3.5/4/4.5s and radius40 points times1.4/1.5/1.6/1.8.",
+    "Puddle collision grows for0.2s with TRANS_BACK/EASE_OUT, ignites on entry and re-entry, disables collision at expiry, burn remains independently.",
+    "Burn adds global base damage to intrinsic base, truncates flat elemental scaling, then rounds percent damage with minimum1.",
+    "Real crash-zone neutral groups roll from10s every10s through wave99; uniform1..2 plus Trees before0.33 chance; no six-tree cap. Native initial player distance300points reduces by5 to25."
+  ],
+  "engineEasingSource": "https://raw.githubusercontent.com/godotengine/godot/3.5/scene/animation/easing_equations.h",
+  "limits": [
+    "Code prepared is not full native1:1 acceptance. No Studio/two-client/mobile test or uploads.",
+    "The15Hz simulator retains existing circular collision shapes and discrete contacts.",
+    "Molotov flight and fire-puddle shader/art animation remain pending; current gated feedback is the shared projectile and pooled ground marker. Original pictures prepared locally.",
+    "Existing shared item/catalog, burn/coop timer and general formula/physics gaps remain open."
+  ],
+  "treeFacts": "tree-source.json"
+}

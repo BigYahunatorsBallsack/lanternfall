@@ -18,6 +18,25 @@ export type Definition = {
 	ticks: number?,
 	elemental: number?,
 	rays: number?,
+	native: boolean?,
+	nativeProjectile: boolean?,
+	cooldownFrames: number?,
+	shotRange: number?,
+	projectileSpeed: number?,
+	critChance: number?,
+	critDamage: number?,
+	spawnCooldown: number?,
+	triggerOffsetZ: number?,
+	burnBase: number?,
+	burnEngineering: number?,
+	burnElemental: number?,
+	weaponOnly: boolean?,
+	boostMode: string?,
+	finalDamageOverride: number?,
+	nativeAccuracy: number?,
+	nativeSpread: number?,
+	count: number?,
+	animationSpeed: number?,
 }
 local kinds: { [string]: Definition } = {
 	BrassSentry = {
@@ -139,9 +158,30 @@ local kinds: { [string]: Definition } = {
 		description = "Deploys a familiar: 10 piercing rays, each 12 (+90% Engineering +90% Elemental) damage.",
 	},
 }
+kinds.DartTrap = {
+	displayName = "Dart Trap",
+	mode = "Trap",
+	damage = 8,
+	engineering = 1,
+	interval = 12,
+	range = 1.6,
+	tier = 1,
+	price = 0,
+	weaponOnly = true,
+	color = { 170, 190, 110 },
+	description = "Spawns a trap that shoots six darts when an enemy leaves it.",
+}
+kinds.MoonGarden.boostMode = "Turret" -- Garden inherits native Turret.boost and its five-second timer
+for id, values in require(script.Parent.CharacterStructureData) do
+	for key, value in values do
+		(kinds[id] :: any)[key] = value
+	end
+end
 return table.freeze({
 	kinds = kinds,
 	maxActive = 100,
+	boostBodyRadius = 4, -- inherited Entity Collision:40 source points
+	boostBodyOffsetZ = -0.8, -- inherited native structure Collision position:-8 source points
 	spriteSize = 7, -- world studs; original item artwork for all deployed structures
 	maxBeams = 32,
 	bounceRange = 25,
@@ -160,4 +200,15 @@ return table.freeze({
 	fruitOffset = 2,
 	beamSeconds = 0.12,
 	improvedToolsShare = 0.5,
+	nativeTurret = table.freeze({
+		animationSeconds = 0.3,
+		shootAtSeconds = 0.2,
+		maximumAnimationSpeed = 3,
+		cooldownRandomMinimum = 0.7,
+		cooldownRandomMaximum = 1.3,
+		minimumRandomFrames = 1,
+	}),
+	nativeMinimumCooldown = 2,
+	nativeFrameRate = 60,
+	trapShotRadius = 0.6,
 })

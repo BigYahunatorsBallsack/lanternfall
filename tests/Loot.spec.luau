@@ -288,22 +288,26 @@ describe("loot", function()
 	end)
 
 	it("plants the wave's trees by itself while the wave runs", function()
-		click("HoldWaves") -- the wave timer runs again
-		click("ToggleSpawning")
-		CombatService.protect(me, 30)
-		-- Brotato's tree group rolls 33 % per tree every 10 s; low spawn rolls make this test certain
-		local RandomService = require(game:GetService("ServerScriptService").Server.Services.RandomService)
-		local original = RandomService.number
-		RandomService.number = function(stream: string)
-			return if stream == "Spawns" then 0.1 else original(stream)
-		end
-		local seconds = 0
-		while countKind("Tree") == 0 and seconds < 30 do
-			world.advance(0.5)
-			seconds += 0.5
-		end
-		RandomService.number = original
-		expect(countKind("Tree") >= 1).toBe(true)
+		local random = require(Services.RandomService)
+		local original = random.number
+		local ok, err = pcall(function()
+			-- Native tree groups have a33% unit chance; this integration case exercises the successful roll.
+			random.number = function(channel, player)
+				return if channel == "Spawns" then 0 else original(channel, player)
+			end
+			click("HoldWaves") -- the wave timer runs again
+			click("ToggleSpawning")
+			CombatService.protect(me, 30)
+			local wave = RunDirector.getWave()
+			local seconds = 0
+			while countKind("Tree") == 0 and seconds < 30 and RunDirector.getWave() == wave do
+				world.advance(0.5)
+				seconds += 0.5
+			end
+			expect(countKind("Tree") >= 1).toBe(true)
+		end)
+		random.number = original
+		assert(ok, err)
 	end)
 
 	it("finished without any runtime error", function()

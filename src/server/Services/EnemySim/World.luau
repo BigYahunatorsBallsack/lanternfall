@@ -59,6 +59,9 @@ export type Params = {
 	minZ: number,
 	maxZ: number,
 	obstacles: { Circle },
+	allocateId: (() -> number)?,
+	goalsWithoutTargets: boolean?,
+	collideTargets: boolean?, -- false for native pet bodies, which collide only with pets and obstacles
 	seed: number?, -- for the wander points (kind.wander) and keep-distance jitter; tests pass one
 }
 
@@ -104,6 +107,7 @@ export type World = typeof(setmetatable(
 		summonTimers: { number }, -- seconds until a summoner calls again
 		nativeSlows: DecayingSpeed.Slow,
 		slowFactors: { number }, -- share of its speed a slowed enemy keeps, 1 when not slowed (B5)
+		speedBonuses: { number },
 		speedFactors: { number }, -- multiplier on its kind's speed from spawning (the team's Enemy Speed stat, B9)
 		boosts: { number }, -- multiplier on its speed from accelerating (kind.accelerate), 1 otherwise (B9)
 		boostClocks: { number }, -- seconds towards its next accelerate step
@@ -190,6 +194,7 @@ function World.new(params: Params): World
 		summonTimers = {},
 		slowFactors = {},
 		speedFactors = {},
+		speedBonuses = {},
 		boosts = {},
 		boostClocks = {},
 		zoneMembers = {},
@@ -247,6 +252,7 @@ function World.new(params: Params): World
 		self.summonTimers,
 		self.slowFactors,
 		self.speedFactors,
+		self.speedBonuses,
 		self.boosts,
 		self.boostClocks,
 		self.buffed,
@@ -307,7 +313,7 @@ function World.spawn(
 	if self.alive >= self.params.maxEnemies then
 		return nil
 	end
-	local id = allocateId(self)
+	local id = if self.params.allocateId then self.params.allocateId() else allocateId(self)
 	local i = self.count + 1
 	self.count = i
 	self.alive += 1
@@ -336,6 +342,7 @@ function World.spawn(
 	self.knockXs[i], self.knockZs[i], self.knocked[i] = 0, 0, false
 	local speed = math.max(0, speedFactor or 1)
 	self.speedFactors[i] = speed
+	self.speedBonuses[i] = 0
 	self.boosts[i], self.buffed[i], self.hasGoal[i] = 1, false, false
 	self.boostClocks[i] = 0
 	self.zoneMembers[id] = nil
@@ -422,6 +429,43 @@ function World.remove(self: World, id: number): boolean
 	self.hp[i] = 0
 	self.nativeSlows:remove(id)
 	self.alive -= 1
+	return true
+end
+
+-- Move a live actor to a disjoint faction world, retaining every AI timer and the network identity.
+function World.transferTo(self: World, destination: World, id: number): boolean
+	local index = self.indexOf[id]
+	if
+		not index
+		or self.hp[index] <= 0
+		or destination.indexOf[id]
+		or destination.alive >= destination.params.maxEnemies
+	then
+		return false
+	end
+	local temporary = destination:spawn(
+		self.kinds[index],
+		self.xs[index],
+		self.zs[index],
+		self.maxHp[index],
+		self.contactDamage[index]
+	)
+	if not temporary then
+		return false
+	end
+	local target = destination.indexOf[temporary]
+	for column, values in self.columns do
+		destination.columns[column][target] = values[index]
+	end
+	destination.indexOf[temporary] = nil
+	destination.indexOf[id] = target
+	local slow = self.nativeSlows.targets[id]
+	if slow then
+		destination.nativeSlows.targets[id] = table.clone(slow)
+	end
+	destination.maxSpeed =
+		math.max(destination.maxSpeed, self.kinds[index].speed * self.speedFactors[index] * self.boosts[index])
+	self:remove(id)
 	return true
 end
 
@@ -765,7 +809,7 @@ end
 
 -- Stable Unit speed penalties are additive in original points, hold independently, then recover at the source rate.
 local function nativeSpeedFactor(self: World, i: number): number
-	local points = self.kinds[i].speed * self.speedFactors[i] * self.boosts[i] / PointScale
+	local points = (self.kinds[i].speed * self.speedFactors[i] * self.boosts[i] + self.speedBonuses[i]) / PointScale
 	return self.nativeSlows:factor(self.ids[i], points)
 end
 function World.nativeSlow(self: World, id: number, amount: number, percent: boolean, hold: number)
@@ -851,7 +895,10 @@ local function rushStep(self: World, i: number, charge: Enemies.Charge, dt: numb
 	local p = self.params
 	local radius = self.kinds[i].radius
 	local move = math.min(
-		charge.speed * self.speedFactors[i] * self.slowFactors[i] * nativeSpeedFactor(self, i) * dt,
+		(charge.speed * self.speedFactors[i] + self.speedBonuses[i])
+			* self.slowFactors[i]
+			* nativeSpeedFactor(self, i)
+			* dt,
 		self.rushLeft[i]
 	)
 	local x, z = self.xs[i], self.zs[i]
@@ -873,6 +920,7 @@ local function rushStep(self: World, i: number, charge: Enemies.Charge, dt: numb
 		stopAt = math.min(stopAt or move, math.max(0, (edge - z) / dz))
 	end
 	-- Players do not stop a rush (Brotato: enemies do not collide with players); step 5 hurts everyone along the path.
+
 	local travelled = stopAt or move
 	endX, endZ = x + dx * travelled, z + dz * travelled
 	local paths = self.rushes
@@ -903,6 +951,7 @@ local function chargeStep(
 	local mode = modes[i]
 	if mode == MODE_RUSH then
 		rushStep(self, i, charge, dt)
+
 		return true
 	end
 	local timer = timers[i] - dt
@@ -1095,7 +1144,8 @@ function World.step(
 	targetZs: { number },
 	targetCount: number,
 	contactXs: { number }?,
-	contactZs: { number }?
+	contactZs: { number }?,
+	targetRadii: { number }?
 ): { number }
 	if compact(self) then
 		rebuildHash(self)
@@ -1143,20 +1193,25 @@ function World.step(
 	end
 
 	-- 2. steering
-	if targetCount > 0 then
+	if targetCount > 0 or p.goalsWithoutTargets then
 		local tolerance = p.keepDistanceTolerance
 		local steerMargin = p.obstacleSteerMargin
 		-- neighbours may have moved up to one step since the hash was built
 		local queryPadding = maxRadius + self.maxSpeed * dt
 		for i = 1, count do
 			local kind = kinds[i]
+			if targetCount == 0 and not self.hasGoal[i] and not kind.wander then
+				continue
+			end
 			local x, z = xs[i], zs[i]
 			local bestDx, bestDz, bestSquared = 0, 0, math.huge
+			local bestTarget = 1
 			for t = 1, targetCount do
 				local dx, dz = targetXs[t] - x, targetZs[t] - z
 				local squared = dx * dx + dz * dz
 				if squared < bestSquared then
 					bestDx, bestDz, bestSquared = dx, dz, squared
+					bestTarget = t
 				end
 			end
 			local distance = math.sqrt(bestSquared)
@@ -1197,9 +1252,7 @@ function World.step(
 				continue
 			end
 			local radius = kind.radius
-			local maxMove = kind.speed
-				* self.speedFactors[i]
-				* self.boosts[i]
+			local maxMove = (kind.speed * self.speedFactors[i] * self.boosts[i] + self.speedBonuses[i])
 				* self.slowFactors[i]
 				* nativeSpeedFactor(self, i)
 				* dt
@@ -1225,9 +1278,12 @@ function World.step(
 					advance = 0
 				end
 			else
-				-- Walk until Brotato's Hitbox reaches the player; bodies may overlap like in Brotato.
-				local stop = (kind.hitRadius or radius) + playerRadius
-				advance = math.min(maxMove, math.max(0, distance - stop))
+				local stopAt = if p.collideTargets == false
+					then 0
+					else (kind.hitRadius or radius) + (if targetRadii
+						then targetRadii[bestTarget]
+						else playerRadius)
+				advance = math.min(maxMove, math.max(0, distance - stopAt))
 			end
 			if advance == 0 then
 				continue
@@ -1315,8 +1371,17 @@ function World.step(
 		for _, obstacle in obstacles do
 			x, z = pushOut(x, z, obstacle.x, obstacle.z, obstacle.radius + radius, ids[i])
 		end
-		for t = 1, targetCount do
-			x, z = pushOut(x, z, targetXs[t], targetZs[t], (kind.hitRadius or radius) + playerRadius, ids[i])
+		if p.collideTargets ~= false then
+			for t = 1, targetCount do
+				x, z = pushOut(
+					x,
+					z,
+					targetXs[t],
+					targetZs[t],
+					(kind.hitRadius or radius) + (if targetRadii then targetRadii[t] else playerRadius),
+					ids[i]
+				)
+			end
 		end
 		xs[i] = math.clamp(x, minX + radius, maxX - radius)
 		zs[i] = math.clamp(z, minZ + radius, maxZ - radius)
@@ -1327,6 +1392,7 @@ function World.step(
 	local sources = self.contactSources
 	table.clear(contacts)
 	table.clear(sources)
+
 	for t = 1, targetCount do
 		contacts[t] = 0
 		sources[t] = 0
@@ -1337,9 +1403,11 @@ function World.step(
 	for i = 1, count do
 		local hit = damage[i]
 		if hit > 0 and not knocked[i] then
-			local reach = (kinds[i].hitRadius or kinds[i].radius) + playerRadius + margin -- Brotato's Hitbox
-			local reachSquared = reach * reach
 			for t = 1, targetCount do
+				local reach = (kinds[i].hitRadius or kinds[i].radius)
+					+ (if targetRadii then targetRadii[t] else playerRadius)
+					+ margin
+				local reachSquared = reach * reach
 				local dx, dz = hitXs[t] - xs[i], hitZs[t] - zs[i]
 				if dx * dx + dz * dz <= reachSquared then
 					if hit > contacts[t] then
@@ -1360,14 +1428,19 @@ function World.step(
 		local i, x, z = paths[k], paths[k + 1], paths[k + 2]
 		local dx, dz = paths[k + 3] - x, paths[k + 4] - z
 		local length = math.sqrt(dx * dx + dz * dz)
-		local reach = (kinds[i].hitRadius or kinds[i].radius) + playerRadius + margin + EPSILON
+
 		if length > EPSILON then
 			for t = 1, targetCount do
+				local reach = (kinds[i].hitRadius or kinds[i].radius)
+					+ (if targetRadii then targetRadii[t] else playerRadius)
+					+ margin
+					+ EPSILON
 				if
 					damage[i] > contacts[t]
 					and circleEntry(x, z, dx / length, dz / length, length, hitXs[t], hitZs[t], reach)
 				then
 					contacts[t] = damage[i]
+					self.contactSources[t] = ids[i]
 				end
 			end
 		end
@@ -1377,11 +1450,12 @@ function World.step(
 		local slash = kinds[i].slash
 		local hit = self.shotDamage[i]
 		if slash and hit > 0 then
-			local reach = slash.radius + playerRadius
 			for t = 1, targetCount do
+				local reach = slash.radius + (if targetRadii then targetRadii[t] else playerRadius)
 				local dx, dz = hitXs[t] - xs[i], hitZs[t] - zs[i]
 				if dx * dx + dz * dz <= reach * reach and hit > contacts[t] then
 					contacts[t] = hit
+					self.contactSources[t] = ids[i]
 				end
 			end
 		end

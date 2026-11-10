@@ -581,6 +581,41 @@
     "text": "Native grounded Sticky Grenade; local preparation only",
     "source": "assets/weapons/character-starts/StickyGrenadeGround.png",
     "trimmed": true
+   },
+   "MolotovThrown": {
+    "text": "Original Brotato world picture: MolotovThrown",
+    "source": "assets/weapons/character-starts/MolotovThrown.png",
+    "trimmed": true
+   },
+   "FirePuddle0": {
+    "text": "Original Brotato world picture: FirePuddle0",
+    "source": "assets/weapons/character-starts/FirePuddle0.png",
+    "trimmed": true
+   },
+   "FirePuddle1": {
+    "text": "Original Brotato world picture: FirePuddle1",
+    "source": "assets/weapons/character-starts/FirePuddle1.png",
+    "trimmed": true
+   },
+   "FirePuddle2": {
+    "text": "Original Brotato world picture: FirePuddle2",
+    "source": "assets/weapons/character-starts/FirePuddle2.png",
+    "trimmed": true
+   },
+   "FirePuddleOutline0": {
+    "text": "Original Brotato world picture: FirePuddleOutline0",
+    "source": "assets/weapons/character-starts/FirePuddleOutline0.png",
+    "trimmed": true
+   },
+   "FirePuddleOutline1": {
+    "text": "Original Brotato world picture: FirePuddleOutline1",
+    "source": "assets/weapons/character-starts/FirePuddleOutline1.png",
+    "trimmed": true
+   },
+   "FirePuddleOutline2": {
+    "text": "Original Brotato world picture: FirePuddleOutline2",
+    "source": "assets/weapons/character-starts/FirePuddleOutline2.png",
+    "trimmed": true
    }
   }
  },
@@ -791,6 +826,16 @@
    "StickyGrenade": {
     "text": "Original Brotato weapon: Sticky Grenade",
     "source": "assets/weapons/character-starts/StickyGrenade.png",
+    "trimmed": true
+   },
+   "Flail": {
+    "text": "Original Brotato weapon: Flail",
+    "source": "assets/weapons/character-starts/Flail.png",
+    "trimmed": true
+   },
+   "Molotov": {
+    "text": "Original Brotato weapon: Molotov",
+    "source": "assets/weapons/character-starts/Molotov.png",
     "trimmed": true
    }
   },

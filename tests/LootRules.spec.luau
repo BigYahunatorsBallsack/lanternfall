@@ -56,6 +56,14 @@ describe("LootRules", function()
 		expect(LootRules.consumable(Types.Tree, 0, 1, 0.99, 0.11)).toBe("Fruit") -- 20 % / 2 after a crate
 	end)
 
+	it("keeps main's crate bonus and endless-consumable rules active after integration", function()
+		-- A guaranteed tree consumable falls to 50% at endless factor one.
+		expect(LootRules.consumable(Types.Tree, 0, 0, 0.75, 0, 0, 1)).toBe(nil)
+		-- Trees have a 20% crate share; +100% crate chance changes a .3 roll from Fruit to Crate.
+		expect(LootRules.consumable(Types.Tree, 0, 0, 0, 0.3, 0, 0)).toBe("Fruit")
+		expect(LootRules.consumable(Types.Tree, 0, 0, 0, 0.3, 100, 0)).toBe("Crate")
+	end)
+
 	it("sells a crate's item for a quarter of its price plus Sell Value", function()
 		expect(LootRules.sellPrice(40, 0.25, 0)).toBe(10)
 		expect(LootRules.sellPrice(41, 0.25, 0)).toBe(10)

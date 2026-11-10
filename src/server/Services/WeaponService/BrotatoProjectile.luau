@@ -6,6 +6,7 @@ local Rules = require(game:GetService("ReplicatedStorage").Shared.Config.Combat)
 local WeaponPose = require(game:GetService("ReplicatedStorage").Shared.Util.WeaponPose)
 local WeaponTarget = require(script.Parent.WeaponTarget)
 local Sticky = require(script.Parent.StickyGrenadeShot)
+local Carbon = require(script.Parent.CarbonArrows)
 
 type Shot = {
 	id: number,
@@ -27,6 +28,7 @@ type Shot = {
 	targetId: number?,
 	offsetX: number?,
 	offsetZ: number?,
+	puddleSpawned: boolean?,
 }
 local Projectile = {}
 local targets: { number } = {}
@@ -34,6 +36,16 @@ local found: { number } = {}
 local ordered: { { id: number, distance: number } } = {}
 local zoneFound: { number } = {}
 local nativeSlow: ((number, number, boolean, number) -> ())? = nil
+local firePuddle: ((Arsenal.Weapon, number, number) -> ())? = nil
+function Projectile.setFirePuddle(callback: (Arsenal.Weapon, number, number) -> ())
+	firePuddle = callback
+end
+local function spawnPuddle(weapon: Arsenal.Weapon, shot: Shot, x: number, z: number)
+	if firePuddle and shot.stats.puddleRadius and not shot.puddleSpawned then
+		shot.puddleSpawned = true
+		firePuddle(weapon, x, z)
+	end
+end
 function Projectile.setNativeSlow(callback: (number, number, boolean, number) -> ())
 	nativeSlow = callback
 end
@@ -72,6 +84,11 @@ local function start(
 	secondary: boolean,
 	skip: number?
 )
+	if stats.carbonBow then
+		stats = Carbon.take(weapon, stats, function()
+			return ctx:random()
+		end)
+	end
 	local critical = if stats.critPierce or stats.critBounce then ctx:random() < stats.critChance else nil
 	local piercing = stats.pierce or 0
 	if critical then
@@ -95,6 +112,17 @@ local function start(
 	})
 end
 
+function Projectile.launch(
+	weapon: Arsenal.Weapon,
+	ctx: Arsenal.Context,
+	x: number,
+	z: number,
+	dx: number,
+	dz: number,
+	stats: { [string]: number }
+)
+	start(weapon, ctx, x, z, dx, dz, stats, false, nil)
+end
 function Projectile.fire(weapon: Arsenal.Weapon, ctx: Arsenal.Context): boolean
 	local stats = weapon.stats
 	if (weapon.state.reloadLeft or 0) > 0 then
@@ -143,7 +171,7 @@ function Projectile.fire(weapon: Arsenal.Weapon, ctx: Arsenal.Context): boolean
 			local c, s = math.cos(angle), math.sin(angle)
 			dx, dz = dx * c - dz * s, dx * s + dz * c
 		end
-		if stats.fan then
+		if stats.fan and stats.nativeSpread == nil then
 			local angle = math.rad(stats.spreadDegrees) * (k - (count + 1) / 2)
 			local c, s = math.cos(angle), math.sin(angle)
 			dx, dz = dx * c - dz * s, dx * s + dz * c
@@ -268,6 +296,8 @@ function Projectile.step(weapon: Arsenal.Weapon, ctx: Arsenal.Context, dt: numbe
 			ctx:setHitDirection(shot.dx, shot.dz) -- Brotato: a projectile knocks along its flight
 			Combat.hit(weapon, ctx, id, shot.share, stats, shot.critical, shot.secondary, shot.bounced)
 			ctx:setHitDirection(nil, nil)
+			spawnPuddle(weapon, shot, shot.x + shot.dx * entry.distance, shot.z + shot.dz * entry.distance)
+
 			local x, z = ctx:enemyPosition(id)
 			local bounce = if x and z and shot.bounces > 0 then ctx:bounceTarget(x, z, shot.hit) else nil
 			if bounce and x and z then
@@ -318,6 +348,7 @@ function Projectile.step(weapon: Arsenal.Weapon, ctx: Arsenal.Context, dt: numbe
 			shot.x, shot.z = x1, z1
 			shot.flown += move
 			if shot.flown >= stats.range - 1e-6 then
+				spawnPuddle(weapon, shot, shot.x, shot.z)
 				table.remove(shots, index)
 			end
 		end

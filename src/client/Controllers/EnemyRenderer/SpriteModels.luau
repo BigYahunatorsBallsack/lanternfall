@@ -76,6 +76,7 @@ export type Visual = {
 	burning: boolean,
 	slowed: boolean,
 	buffed: boolean,
+	charmed: boolean,
 	lowDetail: boolean,
 	poseTick: number,
 	hidden: boolean, -- pooled or not placed yet: pictures invisible (hide/show)
@@ -293,6 +294,7 @@ function SpriteModels.build(typeId: number): Visual
 		burning = false,
 		slowed = false,
 		buffed = false,
+		charmed = false,
 		lowDetail = false,
 		poseTick = 0,
 		hidden = false,
@@ -315,7 +317,9 @@ local function paint(visual: Visual)
 		return
 	end
 	local color = WHITE
-	if visual.windupTint and isCharging(visual.mode) then
+	if visual.charmed then
+		color = WHITE
+	elseif visual.windupTint and isCharging(visual.mode) then
 		color = RUSH_TINT
 	elseif visual.burning then
 		color = WHITE:Lerp(BURN_COLOR, Look.statusTint)
@@ -358,7 +362,17 @@ function SpriteModels.setFlash(visual: Visual, on: boolean)
 	end
 end
 
-function SpriteModels.setStatus(visual: Visual, burning: boolean, slowed: boolean, buffed: boolean?)
+function SpriteModels.setStatus(visual: Visual, burning: boolean, slowed: boolean, buffed: boolean?, charmed: boolean?)
+	if visual.charmed ~= (charmed == true) then
+		visual.charmed = charmed == true
+		local color = Color3.fromRGB(
+			table.unpack(if visual.charmed then require(Shared.Config.Charm).color else Sprites.outline.color)
+		)
+		for _, label in visual.sprite.outline or {} do
+			label.ImageColor3 = color
+		end
+		paint(visual)
+	end
 	local isBuffed = buffed == true
 	if visual.burning ~= burning or visual.slowed ~= slowed or visual.buffed ~= isBuffed then
 		visual.burning, visual.slowed, visual.buffed = burning, slowed, isBuffed
@@ -478,7 +492,7 @@ end
 
 function SpriteModels.reset(visual: Visual)
 	visual.flashing = false
-	visual.burning, visual.slowed, visual.buffed = false, false, false
+	SpriteModels.setStatus(visual, false, false, false, false)
 	SpriteModels.setMode(visual, 0)
 	paint(visual)
 	local trail = visual.trail

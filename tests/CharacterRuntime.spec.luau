@@ -39,8 +39,8 @@ end
 describe("Native character runtime", function()
 	it("updates Golem bonuses at the strict half-HP boundary while blocking healing", function()
 		start("Golem")
-		expect(Combat.getHp(me)).toBe(30)
-		Combat.drainPlayer(me, 15)
+		expect(Combat.getHp(me)).toBe(39) -- floor((10+20)*1.33), including original initial-stat gain scaling
+		Combat.drainPlayer(me, 19)
 		expect(Stats.getStat(me, "attackSpeed")).toBe(0)
 		Combat.drainPlayer(me, 1)
 		expect(Stats.getStat(me, "attackSpeed")).toBe(40)
@@ -107,9 +107,9 @@ describe("Native character runtime", function()
 		start("Vampire")
 		Stats.addStats(me, { maxHp = 2 })
 		Combat.drainPlayer(me, 5)
-		expect(Combat.getHp(me)).toBe(7)
-		expect(Stats.getStat(me, "damage")).toBe(24) -- base -60 plus the native +84 linked gain
-		expect(Stats.getStat(me, "lifeSteal")).toBe(14)
+		expect(Combat.getHp(me)).toBe(4) -- floor((10+2)*0.75)-5
+		expect(Stats.getStat(me, "damage")).toBe(52) -- 56% missing HP: -60 +112
+		expect(Stats.getStat(me, "lifeSteal")).toBe(18)
 	end)
 
 	it("lets Soldier reload while moving and fire as soon as movement stops", function()

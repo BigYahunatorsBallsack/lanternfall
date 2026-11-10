@@ -294,7 +294,8 @@ local function render(dt: number)
 				visual,
 				burning,
 				bit32.btest(status, Snapshot.STATUS_SLOWED),
-				bit32.btest(status, Snapshot.STATUS_BUFFED)
+				bit32.btest(status, Snapshot.STATUS_BUFFED),
+				bit32.btest(status, Snapshot.STATUS_CHARMED)
 			)
 			if burning and visible and embersLeft > 0 and now >= current.emberAt then
 				embersLeft -= 1

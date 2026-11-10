@@ -1,0 +1,67 @@
+{
+  "scope": "Four code-prepared character packages in the unmerged five-package batch; native playtest acceptance remains open",
+  "baseCommit": "da1fc419ddd7ffd3f54a4c26daedd4b16cc88838",
+  "candidate": "bdd26ac merged with da1fc41, including conflict-resolution regression fixes",
+  "seed": 1234,
+  "runner": "One spec per Lune process; absolute seeded runner, cwd set to each actual source root",
+  "baseline": {
+    "specs": 149,
+    "passed": 1262,
+    "failed": 29
+  },
+  "branch": {
+    "specs": 165,
+    "passed": 1313,
+    "failed": 29
+  },
+  "newFailures": [],
+  "baselineFailures": [
+    "FAIL Enemy spawn placement > moves a pooled sprite to its next spawn before reattaching it",
+    "FAIL Enemy spawn placement > positions a newly built sprite before making it visible",
+    "FAIL Tally > writes readable log lines with the level per minute and every build",
+    "FAIL smoke > arms the player with the class weapon and switches weapons off for the enemy tests",
+    "FAIL smoke > chases the player until it touches them",
+    "FAIL smoke > draws the six original weapons, tiers and debug swaps",
+    "FAIL smoke > drops XP orbs that the player picks up for the whole team",
+    "FAIL smoke > ends the wave: enemies fade, the shop opens and the level-up cards come first",
+    "FAIL smoke > gives the evolution from a chest once the build is ready",
+    "FAIL smoke > hits and kills enemies with the debug buttons",
+    "FAIL smoke > keeps level-ups for the end of the wave",
+    "FAIL smoke > lets Spitters shoot visible projectiles that hit the player",
+    "FAIL smoke > lets items change HP, speed and weapon damage, stacking without limit",
+    "FAIL smoke > opens level-up cards on the screen between waves and applies the pick",
+    "FAIL smoke > opens the chest when walked over and shows the reward",
+    "FAIL smoke > pauses spawning and spawns a test wave up to the cap",
+    "FAIL smoke > puts a respawned participant back into the arena",
+    "FAIL smoke > rerolls the cards for Shards and picks the first card when the time runs out",
+    "FAIL smoke > runs Brotato's combat: weapon class bonuses, burning, exploding items and slowed enemies",
+    "FAIL smoke > runs item effects: standing still, per X, timers, crit kills, dodges and chests",
+    "FAIL smoke > runs wave end, shop and next-wave effects and the shop stats",
+    "FAIL smoke > sells weapons and items for Shards in the shop, rerolls and starts the next wave on READY",
+    "FAIL smoke > shoots Spark Bolts that kill enemies once weapons are on",
+    "FAIL smoke > shows a Charger's wind-up, splits Splitters and names elite affixes",
+    "FAIL smoke > shows enemy and performance numbers to admins",
+    "FAIL smoke > skips to the boss wave, and surviving it wins (WP10)",
+    "FAIL smoke > spawns a glowing elite with an HP bar that drops a chest",
+    "FAIL smoke > spawns enemies on a ring around the player and draws them",
+    "FAIL smoke > starts the next run with Play again"
+  ],
+  "checks": {
+    "stylua": "Changed files formatted; check before integration commit",
+    "selene": "src: 0 errors, 17 existing UI warnings; changed character code previously 0 warnings",
+    "rojo": "Built before main integration; rebuilding merged branch",
+    "artPreparation": "24 native weapon icons plus separate projectile/trap pictures, pixel hashes checked; no upload/apply",
+    "runtimeStudio": "Not run; owner scope is code and local image preparation"
+  },
+  "limits": [
+    "Flute Charm runtime and Renegade package remain incomplete; do not count a fifth character",
+    "Original artwork uploads and Studio/co-op/mobile acceptance remain open",
+    "Shared native geometry, placement, pet and healing-projectile differences remain open"
+  ],
+  "integration": [
+    "Use consolidated main native tree/looter group scheduler instead of duplicate Cryptid helper timers",
+    "Retain tree threshold, count, chance, maximum-wave and first-birth regressions through actual SpawnRules",
+    "Cryptid material expectation includes the newly integrated native co-op factor before the averaged penalty",
+    "Remove a duplicate old LootRules module definition that otherwise shadows main's new crate/endless rules; explicit regressions added"
+  ]
+}

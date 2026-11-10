@@ -7,6 +7,7 @@ local StatMath = require(Shared.Util.StatMath)
 local CharacterRules = require(Shared.Util.CharacterRules)
 local NativeTiming = require(Shared.Util.NativeWeaponTiming)
 local NativeDamage = require(Shared.Util.NativeWeaponDamage)
+local NativeBurn = require(Shared.Util.NativeWeaponBurn)
 local UpgradeText = require(Shared.Util.UpgradeText)
 local WeaponClasses = require(Shared.Util.WeaponClasses)
 local Theme = require(script.Parent.Theme)
@@ -54,6 +55,7 @@ function OfferText.stats(id: string, tier: number, sheet: { [string]: number }):
 		result.nativeExplosive = 1
 	end
 	result.damage = NativeDamage.total(damage, NativeDamage.factor(sheet, result.nativeExplosive ~= nil), result)
+	require(Shared.Util.NativeRangedStats).apply(result, sheet, id, tier)
 	if result.cooldown then
 		local minimum = math.max(
 			if weapon.brotato then Config.Combat.originalWeapons.minCooldown else Config.Player.minWeaponCooldown,
@@ -110,6 +112,16 @@ function OfferText.stats(id: string, tier: number, sheet: { [string]: number }):
 	if weapon.brotato and result.noBounce then
 		result.bounce = 0
 	end
+	if result.nativeBurn then
+		result.burnDamage = NativeBurn.damage(result.burnDamage, sheet)
+		result.burnInterval = NativeBurn.interval(sheet.burnSpeed or 0)
+	end
+	if result.puddleRadius then
+		result.puddleRadius *= math.max(
+			Config.Combat.nativeFirePuddles.minimumSizeFactor,
+			1 + (sheet.firePuddleSize or 0) / 100
+		)
+	end
 	return result
 end
 
@@ -148,6 +160,11 @@ function OfferText.weapon(id: string, tier: number, sheet: { [string]: number })
 		line("Life Steal", color(number(stats.lifeSteal * 100) .. "%", Theme.success))
 	end
 	local description = if weapon.tierDescriptions then weapon.tierDescriptions[tier] else weapon.description
+	if stats.puddleRadius and stats.nativeBurn then
+		description = `Creates a pool of fire on impact for {number(stats.puddleSeconds)} seconds, dealing {number(
+			stats.burnTicks
+		)}x{number(stats.burnDamage)} (100% Elemental Damage) burning damage`
+	end
 	if description and description ~= "" then
 		table.insert(lines, "\n" .. description)
 	end

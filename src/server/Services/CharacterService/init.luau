@@ -79,11 +79,8 @@ local function countsOf(player: Player, state: State, hp: number, maxHp: number)
 			counts.livingTrees += 1
 		end
 	end
-	for _, structure in Structures.getSnapshot() do
-		if structure.ownerId == player.UserId then
-			counts.structures += 1
-		end
-	end
+	counts.structures = Structures.sourceCount(player)
+
 	return counts
 end
 
@@ -94,16 +91,18 @@ local function refresh(player: Player)
 	end
 	state.refreshing = true
 	local hp, maxHp = Combat.getHp(player)
+	local counts = countsOf(player, state, hp, maxHp)
 	local dynamic = Rules.dynamic(state.policy, {
 		hp = hp,
 		maxHp = maxHp,
 		moving = if Run.isActive() then Movement.isMoving(player) else nil,
-		counts = countsOf(player, state, hp, maxHp),
+		counts = counts,
 		items = Stats.getItemCounts(player),
 	})
 	StatMath.add(dynamic, state.wave)
 	StatMath.add(dynamic, state.conversion)
 	Stats.setCharacterDynamic(player, dynamic)
+	require(script.Parent.PlayerDataService).observeNativeInventory(player, counts, Stats.getSheet(player))
 	state.refreshing = false
 end
 
@@ -146,6 +145,8 @@ local function clearWave()
 end
 
 function Service.init()
+	require(script.CharmSupport).init()
+	require(script.KillChallenges).init()
 	require(script.RecyclingChallenges).init()
 	Weapons.ExplosionResolved:Connect(require(script.Parent.PlayerDataService).observeNativeExplosion)
 	Experience.OrbsPickedUp:Connect(require(script.Parent.PlayerDataService).observeNativeMaterials)
@@ -172,7 +173,7 @@ function Service.init()
 	Run.WaveStarting:Connect(clearWave)
 	Run.WaveEnding:Connect(function(wave)
 		local ids, enemies, trees = {}, 0, 0
-		Enemy.collectIds(ids)
+		Enemy.collectAllIds(ids)
 		for _, id in ids do
 			if Enemy.getKind(id) == "Tree" then
 				trees += 1
@@ -189,6 +190,7 @@ function Service.init()
 			horde = challenge ~= nil and challenge.kind == "Horde",
 		}
 		for player, state in states do
+			require(script.Parent.PlayerDataService).observeNativeWaveTrees(player, trees)
 			Shop.setCharacterWaveReward(player, Rules.waveReward(state.policy, 0, context))
 			table.clear(state.conversion) -- native wave-end TempStats reset precedes shop/harvesting
 			refresh(player)

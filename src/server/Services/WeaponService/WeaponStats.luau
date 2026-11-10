@@ -23,6 +23,7 @@ local StatMath = require(Shared.Util.StatMath)
 local CharacterRules = require(Shared.Util.CharacterRules)
 local NativeTiming = require(Shared.Util.NativeWeaponTiming)
 local NativeDamage = require(Shared.Util.NativeWeaponDamage)
+local NativeBurn = require(Shared.Util.NativeWeaponBurn)
 
 -- The owner's stats by id (Util/StatMath.Sheet); missing stats count as 0.
 export type Bonuses = { [string]: number }
@@ -63,6 +64,7 @@ function WeaponStats.compute(
 	evolution: Evolutions.Evolution?,
 	minCooldown: number
 ): Stats
+	local ownerBonuses = bonuses
 	bonuses = CharacterRules.weaponBonuses(weapon, bonuses)
 	local stats: Stats = table.clone(weapon.base)
 	local damageBonus = 0
@@ -88,6 +90,7 @@ function WeaponStats.compute(
 	end
 
 	damage = NativeDamage.base(damage, stats, bonuses)
+	local carbonBase = damage
 	for statId, share in (if weapon.tierScaling then weapon.tierScaling[tier] else weapon.scaling) do
 		damage += share * (bonuses[statId] or 0)
 	end
@@ -98,7 +101,29 @@ function WeaponStats.compute(
 	damage += bonuses.baseDamage or 0
 	damage += (stats.levelScaling or 0) * (bonuses.level or 0)
 	stats.damage = NativeDamage.total(damage, NativeDamage.factor(bonuses, stats.nativeExplosive ~= nil), stats)
+	if stats.carbonBow then
+		local coefficient = (weapon.tierScaling and weapon.tierScaling[tier] or weapon.scaling).rangedDamage
+		for suffix, stat in
+			{
+				Melee = "meleeDamage",
+				Ranged = "rangedDamage",
+				Elemental = "elementalDamage",
+				Engineering = "engineering",
+			}
+		do
+			stats["carbonWeight" .. suffix] = math.max(0, ownerBonuses[stat] or 0)
+			stats["carbonDamage" .. suffix] = NativeDamage.total(
+				carbonBase + coefficient * (bonuses[stat] or 0) + (bonuses.baseDamage or 0),
+				NativeDamage.factor(bonuses, false),
+				stats
+			)
+		end
+		stats.carbonBurnDamage = NativeBurn.damage(stats.carbonBurnBase, bonuses)
+		stats.carbonBurnInterval = NativeBurn.interval(bonuses.burnSpeed or 0)
+		stats.carbonBurnSpread += bonuses.burnSpread or 0
+	end
 
+	require(Shared.Util.NativeRangedStats).apply(stats, bonuses, weapon.id, tier)
 	local attackSpeed = bonuses.attackSpeed or 0
 	-- Stable native negative Attack Speed uses the full percentage, including Doctor's -100% penalty.
 	local timing = if weapon.brotato then NativeTiming.factor(attackSpeed) else StatMath.cooldownFactor(attackSpeed)
@@ -177,10 +202,20 @@ function WeaponStats.compute(
 	end
 
 	if stats.burnDamage then
-		stats.burnDamage = math.max(1, (stats.burnDamage + (bonuses.elementalDamage or 0)) * damageFactor)
+		stats.burnDamage = if stats.nativeBurn
+			then NativeBurn.damage(stats.burnDamage, bonuses)
+			else math.max(1, (stats.burnDamage + (bonuses.elementalDamage or 0)) * damageFactor)
 		stats.burnSpread = math.max(0, math.floor((stats.burnSpread or 0) + (bonuses.burnSpread or 0)))
-		stats.burnInterval = StatMath.burnInterval(bonuses.burnSpeed or 0)
+		stats.burnInterval = if stats.nativeBurn
+			then NativeBurn.interval(bonuses.burnSpeed or 0)
+			else StatMath.burnInterval(bonuses.burnSpeed or 0)
 		stats.burnChance = stats.burnChance or 1
+	end
+	if stats.puddleRadius then
+		stats.puddleRadius *= math.max(
+			Combat.nativeFirePuddles.minimumSizeFactor,
+			1 + (bonuses.firePuddleSize or 0) / 100
+		)
 	end
 	if weapon.brotato then
 		if stats.noBounce then

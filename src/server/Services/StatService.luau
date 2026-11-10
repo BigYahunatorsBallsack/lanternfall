@@ -1,5 +1,5 @@
 --!strict
--- B10: fixed starting stats bypass gain multipliers; item/card/level gains are scaled. Character conversions
+-- B10: native initial stats and all gains use original gain multipliers; legacy packages keep their old initial layer. Conversions
 -- read unconverted permanent + dynamic stats once, and weapon-dependent bonuses refresh on every loadout change.
 -- Player stats and items in a run (DESIGN.md sections 4 and 6, Brotato direction since B2). Since B4 in layers like
 -- Brotato's modifier pipeline: the base values, then the permanent gains (items stacking, level-up cards,
@@ -42,6 +42,7 @@ type State = {
 	levels: number, -- individual levels gained in this run, starting at native LV.0 (Max HP each)
 	classBonus: StatMath.Sheet, -- weapon class bonuses of the weapons carried (B5)
 	dynamic: StatMath.Sheet, -- item effect bonuses right now (EffectService)
+	charmBoost: StatMath.Sheet, -- native Buffer TempStats, isolated from character and item effects
 	characterDynamic: StatMath.Sheet, -- native character conditions and wave-only gains
 	permanent: StatMath.Sheet, -- base plus every permanent gain
 	sheet: StatMath.Sheet, -- permanent plus dynamic: what the game uses
@@ -78,6 +79,11 @@ local function computePermanent(player: Player, state: State): StatMath.Sheet
 	StatMath.add(gains, state.upgrades)
 	StatMath.add(gains, state.classBonus)
 	gains.maxHp = (gains.maxHp or 0) + state.levels * Config.Stats.maxHpPerLevel
+	if class and class.nativeStartSelection then
+		-- RunData.get_stat scales the complete raw effect sum, including initial effects and base HP.
+		StatMath.add(gains, class.stats)
+		return StatMath.addGains({}, StatMath.add(StatMath.baseSheet(), gains), multipliersOf(player))
+	end
 	local sheet = StatMath.addGains(StatMath.baseSheet(), gains, multipliersOf(player))
 	if class then
 		StatMath.add(sheet, class.stats)
@@ -85,9 +91,23 @@ local function computePermanent(player: Player, state: State): StatMath.Sheet
 	return sheet
 end
 
-local function push(player: Player, sheet: StatMath.Sheet)
+local function weaponSheetOf(player: Player, sheet: StatMath.Sheet): StatMath.Sheet
 	local weaponSheet = CharacterRules.weaponSheet(RunDirector.getParticipantClassId(player), sheet)
 	weaponSheet.level = if states[player] then states[player].levels else 0
+	local burn = 0
+	for id, count in (if states[player] then states[player].items else {}) do
+		local item = Config.Items.byId[id]
+		for _, effect in (item and item.effects) or {} do
+			if effect.trigger == "Hit" and effect.action == "Burn" then
+				burn += (effect.amount or 0) * count
+			end
+		end
+	end
+	weaponSheet.nativeGlobalBurnDamage = burn
+	return weaponSheet
+end
+local function push(player: Player, sheet: StatMath.Sheet)
+	local weaponSheet = weaponSheetOf(player, sheet)
 	WeaponService.setStats(player, weaponSheet)
 	CombatService.setStats(player, table.clone(sheet))
 	ExperienceService.setStats(player, table.clone(sheet))
@@ -121,6 +141,7 @@ local function update(player: Player, state: State, permanent: boolean)
 	end
 	state.sheet = StatMath.addGains(table.clone(state.rawPermanent), state.dynamic, multipliersOf(player))
 	StatMath.addGains(state.sheet, state.characterDynamic, multipliersOf(player))
+	StatMath.addGains(state.sheet, state.charmBoost, multipliersOf(player))
 	StatMath.add(
 		state.sheet,
 		CharacterRules.bonuses(
@@ -237,6 +258,7 @@ local function onRunStarted(participants: { Player })
 				classBonus = classBonusOf(player),
 				dynamic = {},
 				characterDynamic = {},
+				charmBoost = {},
 				permanent = {},
 				sheet = {},
 			}
@@ -292,10 +314,7 @@ function StatService.init()
 		Net.fireClient(
 			"Stats",
 			requester,
-			CharacterRules.weaponSheet(
-				RunDirector.getParticipantClassId(requester),
-				if state then state.sheet else StatMath.baseSheet()
-			) :: Types.StatSheet
+			weaponSheetOf(requester, if state then state.sheet else StatMath.baseSheet()) :: Types.StatSheet
 		)
 	end)
 end
@@ -370,6 +389,15 @@ function StatService.setDynamic(player: Player, bonuses: StatMath.Sheet)
 	local state = states[player]
 	if state then
 		state.dynamic = table.clone(bonuses)
+		update(player, state, false)
+	end
+end
+
+-- Native allied Buffer gains share TempStats gain multipliers but cannot overwrite other temporary effects.
+function StatService.setCharmBoost(player: Player, gains: StatMath.Sheet)
+	local state = states[player]
+	if state then
+		state.charmBoost = table.clone(gains)
 		update(player, state, false)
 	end
 end

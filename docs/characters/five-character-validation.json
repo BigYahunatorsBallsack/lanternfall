@@ -1,0 +1,74 @@
+{
+  "baseMain": "cba2334",
+  "runner": "Lune 0.11.1 + RobloxMock; math.randomseed(1234), each spec in a separate process",
+  "suite": {
+    "main": {
+      "specFiles": 149,
+      "passed": 1258,
+      "failed": 34,
+      "crashes": []
+    },
+    "branch": {
+      "specFiles": 151,
+      "passed": 1262,
+      "failed": 37,
+      "crashes": []
+    }
+  },
+  "newFailureNames": [
+    "BrotatoWeapons.spec.luau: Brotato original catalog > retains all 62 original records alongside eight stable starting families and no custom evolutions",
+    "HeldWeapons.spec.luau: World weapon sprites > uses approved images for all 62 public weapons and rejects eighteen pending-art families",
+    "Weapons.spec.luau: Arsenal > lists the weapons that have a behavior"
+  ],
+  "existingFailureNames": [
+    "EnemySpawnPlacement25.spec.luau: Enemy spawn placement > moves a pooled sprite to its next spawn before reattaching it",
+    "EnemySpawnPlacement25.spec.luau: Enemy spawn placement > positions a newly built sprite before making it visible",
+    "RunStats.spec.luau: Tally > writes readable log lines with the level per minute and every build",
+    "Smoke.spec.luau: smoke > arms the player with the class weapon and switches weapons off for the enemy tests",
+    "Smoke.spec.luau: smoke > draws the six original weapons, tiers and debug swaps",
+    "Smoke.spec.luau: smoke > drops XP orbs that the player picks up for the whole team",
+    "Smoke.spec.luau: smoke > ends in defeat when the only player is knocked down",
+    "Smoke.spec.luau: smoke > ends the wave: enemies fade, the shop opens and the level-up cards come first",
+    "Smoke.spec.luau: smoke > finished without any runtime error",
+    "Smoke.spec.luau: smoke > gives the evolution from a chest once the build is ready",
+    "Smoke.spec.luau: smoke > hits and kills enemies with the debug buttons",
+    "Smoke.spec.luau: smoke > keeps level-ups for the end of the wave",
+    "Smoke.spec.luau: smoke > keeps running while one of two is down, and enemies go for the one still standing",
+    "Smoke.spec.luau: smoke > keeps walking but suppresses jumping on Space",
+    "Smoke.spec.luau: smoke > lets Spitters shoot visible projectiles that hit the player",
+    "Smoke.spec.luau: smoke > lets items change HP, speed and weapon damage, stacking without limit",
+    "Smoke.spec.luau: smoke > opens the chest when walked over and shows the reward",
+    "Smoke.spec.luau: smoke > rejects locked classes with a message",
+    "Smoke.spec.luau: smoke > returns to the lobby after the results",
+    "Smoke.spec.luau: smoke > runs Brotato's combat: weapon class bonuses, burning, exploding items and slowed enemies",
+    "Smoke.spec.luau: smoke > runs item effects: standing still, per X, timers, crit kills, dodges and chests",
+    "Smoke.spec.luau: smoke > runs wave end, shop and next-wave effects and the shop stats",
+    "Smoke.spec.luau: smoke > runs with two players and keeps late joiners in the lobby",
+    "Smoke.spec.luau: smoke > sells weapons and items for Shards in the shop, rerolls and starts the next wave on READY",
+    "Smoke.spec.luau: smoke > shoots Spark Bolts that kill enemies once weapons are on",
+    "Smoke.spec.luau: smoke > shows a Charger's wind-up, splits Splitters and names elite affixes",
+    "Smoke.spec.luau: smoke > shows enemy and performance numbers to admins",
+    "Smoke.spec.luau: smoke > skips to the boss wave, and surviving it wins (WP10)",
+    "Smoke.spec.luau: smoke > spawns a glowing elite with an HP bar that drops a chest",
+    "Smoke.spec.luau: smoke > spawns enemies on a ring around the player and draws them",
+    "Smoke.spec.luau: smoke > stands a downed player up with full HP when the wave ends",
+    "Smoke.spec.luau: smoke > starts Swarm Rush with a ring of Shadelings and no Gloom Elites",
+    "Smoke.spec.luau: smoke > starts the next run with Play again",
+    "Smoke.spec.luau: smoke > takes debug damage with hit protection and heals"
+  ],
+  "checks": {
+    "stylua": "pass",
+    "selene": "0 errors,0 warnings; cached Roblox API",
+    "rojoBuild": "pass",
+    "sourceGenerators": "pass",
+    "localArtPreparation": "20 weapon icons, no uploads"
+  },
+  "scope": "Unmerged first slice of five-character batch; no new complete character claimed. Wildling has no nativeCodeReady flag.",
+  "open": [
+    "Flail Jungle/Whip unlock route; native zone selection absent",
+    "Original attack animation artwork, image uploads and native physics differences",
+    "Four other character candidates incomplete",
+    "Studio, two-client and mobile acceptance not run"
+  ],
+  "correction": "Previous main result was invalid: the Lune runner ignores a root argument and reads from cwd. Corrected main run uses cwd=build/five-character-main from git archive cba2334. First checkpoint really introduced three stale weapon-count assertion failures; all three are fixed by the Cryptid checkpoint."
+}

@@ -93,7 +93,7 @@ Jeder Strang ändert nur **seine** Zeile (Regeln: `docs/PARALLEL.md`).
 | Strang | KI | Aktuelles Paket | Branch / PR | Stand | Danach |
 | --- | --- | --- | --- | --- | --- |
 | A – Engine und Ablauf | Claude | Paket 24 Launch-Paket (Medium) | `wp-24-launch` | fertig, selbst gemerged | Plan bis zum Launch abgeschlossen; als Nächstes IDs des Owners eintragen (Live-Experience, Badges, Musik), dann Live-Ops |
-| B - Inhalte und Spieler-Regeln | ChatGPT | B10: alle stabilen Brotato-Charaktere | `wp-b10-arms-dealer` | Crazy/Brawler/Ghost/Bull/Doctor/Pacifist/Artificer/ArmsDealer code-vorbereitet; echte Uploads offen | Restliche Ausruestung, native Alt-IDs und weitere Charakter-/Shop-/DLC-Regeln |
+| B - Inhalte und Spieler-Regeln | ChatGPT | B10: Main-Game-Fünferpaket | `wp-b10-five-characters` | Cryptid, Mage, Ranger, Technomage, Renegade code-vorbereitet; Originalbilder weiter gesperrt | Gesamtvergleich/Review und Fünfer-Merge, danach weitere Main-Game-Pakete |
 
 ## Feste Entscheidungen des Owners
 
@@ -819,11 +819,34 @@ Branch `wp-25-2d-presentation`. **Owner-Entscheidungen dieses Pakets:** Das Spie
 - Umsetzung: `Config/Player.luau` `hitInvulnerabilityMin = 0.2` / `hitInvulnerabilityMax = 0.4`, `Vitals.protectionAfterHit` linear nach Anteil der Max-HP. Offen: die genaue Kurve steht nicht im Wiki (Annahme linear).
 - Nächstes Paket: unverändert laut Plan.
 
+- **B10 Fünferpaket, lokaler Baustein (09.11.2026):** Owner verlangt fünf fertige Charakterpakete pro Merge. Branch `wp-b10-five-characters` von GitHub-main cba2334. Wildlings zwölf Starts/Extra-Stick, Primitive-Life-Steal und Tier-II-Grenze sowie Flail-Spitzen-Krit/Trefferfenster geprüft. Schema v11 für persönliche lebenslange Gegnerkills, Migration erhält vorhandene Materialzähler. Wildling bleibt ohne CodeReady: Flail-Dschungelfreischaltung (200 Whip-Kills in zone2) und native Gebietsanbindung fehlen. Gruppe Wildling/Cryptid/Renegade/Diver/Technomage ist unvollständig; keine neue Fertigzählung und kein Merge. Flail-Originalbild lokal vorbereitet; kein Upload/Studio/Publish. Arsenal unverändert.
+
+Vollvergleich des lokalen ersten Fünfer-Bausteins gegen GitHub-main cba2334: 1262 bestanden, dieselben 37 vorhandenen Fehler, 151 Specs; keine neuen Fehlernamen oder Prozessabbrüche. StyLua/Selene/Quellgeneratoren/Rojo geprüft. Nachweis: docs/characters/five-character-validation.json. Kein Merge.
+
+- **Owner-Reihenfolge Charaktere (09.11.2026):** Erst alle50 Main Game, danach alle14 Abyssal Terrors, zuletzt alle10 Primal Dread. Fünf vollständige Charakterpakete pro Merge bleibt verbindlich. Aktuelle Main-Game-Gruppe: Wildling, Cryptid, Renegade, Technomage, Soldier; Diver wird zurückgestellt. Benötigte DLC-Ausrüstung für Main-Game-Charaktere gehört weiterhin zum Charakterpaket.
+
+- **B10 Cryptid (09.11.2026, ungemergter Fünferblock):** Alle28 Starts, Originalregeln, dynamische Baum-Regeneration, persönliche Baum-Material-/XP-Belohnungen, Dodge-Buffs und Forest-Freischaltung bei abgeschlossenem Wellenende geprüft. Molotov mit vier Tiers und einmaliger Feuerfläche beim ersten Einschlag/Reichweitenende; Betreten/Wiedereintritt entzündet, Ablauf stoppt neue Zündungen, Rest-Brennen läuft weiter. Native Brenn-Rundung/Scared-Sausage-Basis und Vorschau verbunden. Originalicon/Flugbild/Feuerbilder nur lokal vorbereitet; Marker/Flug- und Shaderdarstellung sowie echte Uploads/Studio/Koop/Handy offen. Ein neues Codepaket dieses Blocks, kein Merge, Wildling weiter unvollständig. Arsenal unverändert. Neue interne Eingänge: Projectile.setFirePuddle, FirePuddles-Registry, observeNativeWaveTrees; bestehende serverseitige WeaponEffects transportieren Puddle-Kosmetik ohne neue Clientabsichten.
+
+**Korrektur Testvergleich (09.11.2026):** Der frühere main-Vergleich mit37 Fehlern hatte einen falschen Arbeitsordner. Lune ignoriert ein Root-Argument und liest src/tests relativ zum Prozess-cwd. Echter main cba2334:149 Specs,1258 bestanden/34 Fehler. Der Flail-Zwischenstand hatte drei zusätzliche veraltete Waffenanzahl-Erwartungen; diese sind im Cryptid-Zwischenstand auf83 Waffen/21 bildgesperrte Familien korrigiert. Nicht erneut als vorhandene Main-Fehler ausgeben. Für Archivvergleiche subprocess.run(..., cwd=archivedRoot) verwenden.
+
+- **Cryptid Baumproduktion (09.11.2026):** Alter Sechs-Bäume-Deckel verhinderte den Forest-Erfolg. Entfernt; source-gesicherte Zehn-Sekunden-Gruppe (1–2 plus Trees vor33-%-Chance), Wellen1–99 und native Distanzreduktion ergänzt. Echte SpawnDirector-Tests halten zehn Bäume und prüfen den ersten Roll erst ab10s. Native Daten: tree-source.json; gezielte B10-Ergänzung in Config/Loot, LootRules und SpawnDirector, keine fremden Umbauten.
+
+Cryptid-Endprüfung: echter GitHub-main cba2334 (korrektes cwd)1258 bestanden/34 Fehler; finaler Branch1285 bestanden/dieselben34 Fehler in157 Specs, Vollsuite plus betroffene Loot-Spec-Nachprüfung nach deterministischem Testwurf. Keine neuen Fehlernamen/Abbrüche, 4-ms-Budget im finalen Gesamtlauf bestanden. StyLua/geänderte Selene-Dateien sauber; gesamtes src ohne Fehler,17 Warnungen in unveränderten Dateien. Rojo und lokale Bildvorbereitung geprüft. Details: cryptid-validation.json. Kein Merge.
+
+
+### Strang B – laufender Fünferblock (09.11.2026, noch kein Merge)
+
+Cryptid, Mage, Ranger und Technomage als vier Codepakete vorbereitet; Renegade wartet auf Flutes vollständige Charm-Laufzeit. Mage/Ranger übernehmen ihre gespeicherten Alt-IDs erst nach verifiziertem Originalbild; keine Uploads oder Studio-Änderungen. Awl-Fallen/Carbon-Bow-Varianten und quellenbasierte Struktur-Timer/Projektile geprüft. Stat-Gain-Modifikatoren gelten bei nativen Paketen auch für Anfangsrohwerte; Quellenhashes und Beispiele in docs/characters/native-stat-gains-source.json.164 Specs plus betroffene Nachprüfungen:1305 bestanden/dieselben34 Fehler wie Ausgangs-main cba2334. Frisches GitHub-main da1fc41 muss noch in den Branch integriert und erneut verglichen werden. Aktueller Fortsetzungsstand steht oben in docs/characters/HANDOFF.md. Kein vollständiger nativer 1:1-Abnahmeanspruch; Bilder/Studio/Koop/Handy und gemeinsame Physik-/Darstellungslücken bleiben offen.
+
 ## Debug-Schalter „Invincible" (Claude, 09.11.2026)
 
 - Owner-Wunsch zum leichteren Testen: neuer Debug-Knopf „Invincible on/off" (`ToggleInvincible`, direkt nach „Heal me"). Solange an, verliert dieser Spieler keine HP: Gegner-Kontakt, Geschosse, Bosse und Selbstschaden von Items/Charakteren (`CombatService.setInvincible`, geprüft in `damagePlayer` und `drainPlayer`). „Knock me down" wirkt weiterhin. Gilt pro Spieler, bleibt über Runs an, bis man ihn ausschaltet oder das Spiel verlässt.
 - Ein Run, der mit eingeschaltetem Schalter läuft oder in dem er benutzt wird, kommt nicht auf die Ranglisten (wie die anderen Debug-Schalter). Test in `Smoke.spec` (Smoke hat dieselben 26 roten Tests wie main).
 - Nächstes Paket: unverändert laut Plan.
+
+
+
+**B10 Integrationsnachtrag (09.11.2026):** Frisches GitHub-main da1fc41 in den Charakter-Arbeitsstand integriert. Echter Vollvergleich (je eigenes cwd, Seed1234): main149 Specs/1262 bestanden/29 Fehler; Branch165 Specs/1313 bestanden/dieselben29 Fehler, keine neuen Fehlernamen/Abbrüche. Native main-Baum-/Looter-Gruppen ersetzen die doppelte Cryptid-Zeitverwaltung, bestehende Assertions auf tatsächliche SpawnRules und Geburtsmarker portiert. Doppelte alte LootRules-Moduldefinition aus main überschattete neue Kisten-/Endlosregeln: entfernt und regressionsgeprüft. Vier Codepakete vorbereitet; Flute/Renegade weiter unvollständig. Kein Merge nach main. Nachweis: docs/characters/native-four-validation.json.
 
 ## X2-Anzeige und Level-up-Symbol wie Brotato (Claude, 09.11.2026)
 
@@ -834,6 +857,9 @@ Branch `wp-25-2d-presentation`. **Owner-Entscheidungen dieses Pakets:** Das Spie
 - Nächstes Paket: unverändert laut Plan.
 
 
+
+
+**B10 Charm/main-Abgleich (10.11.2026):** Native Charm-Grundlage mit Pre-Hit-Absorption, getrennten freundlichen Akteuren, Schüssen,8s-Lebensdauer und vererbtem Charm beim Schlüpfen lokal geprüft. Native freundliche Kills haben player_index=-1 und damit keinen persönlichen Killer. Aktuelles main ba7e079 in Branch integriert; seine Wander-/Hitbox-/Hurtbox-Logik wird auch freundlich verwendet. Neuer separater Bewegungshelfer wieder entfernt. Nach Abgleich46 Simulator- und zehn weitere gezielte Fälle bestanden. Support-Heiler/Buffer, Trails und Renegade bleiben offen; kein fünftes fertiges Paket, kein Merge nach main.
 ## Gegner über Shards und Kisten (Claude, 10.11.2026)
 
 - Owner: Gegner waren beim Drüberlaufen weiter hinter den Shards. Brotato 1.2.0.1 (`main.tscn` vom Owner-PC, Wiki sagt nichts): die Knoten `Materials` und `Consumables` kommen vor `Entities`, ohne `z_index` – Materialien und Früchte/Kisten liegen also immer unter allen Gegnern und Spielern, auch im Flug zum Spieler; Früchte/Kisten über Materialien.
@@ -841,3 +867,7 @@ Branch `wp-25-2d-presentation`. **Owner-Entscheidungen dieses Pakets:** Das Spie
 - Früchte/Kisten bekommen eigene Tiefe `Config.Sprites.pickupDepth` (0,2; Glow der legendären Kiste 0,15, jetzt auf dem Boden statt 1 Stud hoch) statt 1,5 wie die Figuren. Fliegende Shards und Kisten fliegen am Boden zum Punkt unter dem Spieler statt zur Hüfte hoch. `WorldSprite.glow` hat optional `depth`.
 - StyLua, Selene sauber. Studio-Abnahme offen.
 - Nächstes Paket: unverändert laut Plan.
+
+
+
+**B10 Fünfer-Abschluss (10.11.2026):** Cryptid, native Mage/Ranger-Übernahme, Technomage und Renegade als fünf Codepakete vorbereitet; Starts28/12/14/12/23 über Produktionsdienste geprüft. Flute-Charm einschließlich Heiler/Buffer, Nachkommen, Kontaktbremsung und Pool-Reset; native Fernkampf-Zahl/Genauigkeit/Spread aus installierter1.2.0.1 für vorhandene Waffen. Main48ea1b2 inklusive Angriffsrichtung/Brenngeschwindigkeit integriert; Arsenal-Diff gegen main leer. Echter Vollvergleich (eigenes cwd, Seed1234, je Spec eigener Prozess): main150 Specs/1269 bestanden/37 Fehler; Branch175 Specs/1350 bestanden/dieselben37 Fehler, keine neuen Namen/Abbrüche. StyLua sauber; Selene0 Fehler/18 bestehende UI-Warnungen; Rojo gebaut und169 Bilder lokal vorbereitet,106 Uploads ausstehend.140 gemischte Akteure rund3,2ms unter4ms; aktuelle main-Grenze200 bleibt über dem bewiesenen Budget (Diagnose rund5,9ms). Echte Originalbilder/Studio/Koop/Handy und allgemeine1:1-Lücken bleiben offen; Wildling/Soldier zählen nicht. Nachweis: docs/characters/native-five-validation.json.

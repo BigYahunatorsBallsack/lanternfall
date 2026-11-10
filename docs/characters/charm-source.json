@@ -1,0 +1,103 @@
+{
+  "version": "1.2.0.1",
+  "steamBuild": 26406319,
+  "sources": [
+    {
+      "path": "res://effect_behaviors/enemies/charm_enemy_effect_behavior.tscn",
+      "md5": "510a78e67ad6b40b5c5a307611857651"
+    },
+    {
+      "path": "res://effect_behaviors/enemies/charm_enemy_effect_behavior.gdc",
+      "md5": "a0830c473b5da00b8d278346117f5452"
+    },
+    {
+      "path": "res://singletons/utils.gdc",
+      "md5": "162d494bbe6f25d79f486906a593cfa3"
+    },
+    {
+      "path": "res://entities/units/enemies/enemy.gdc",
+      "md5": "b341670f5ac667dc203f7eb778a2cda8"
+    },
+    {
+      "path": "res://entities/units/unit/unit.gdc",
+      "md5": "aa94391f2d9681ac36b7f8617b82ff13"
+    },
+    {
+      "path": "res://entities/units/player/player.gdc",
+      "md5": "80ac166ba6b5c71fbf220bcd43ddc90e"
+    },
+    {
+      "path": "res://entities/units/enemies/crash_zone/basic/healer/healer.tscn",
+      "md5": "5ec8d17f4232aaf3750ef0ef590c511e"
+    },
+    {
+      "path": "res://entities/units/enemies/crash_zone/basic/healer/healer.gdc",
+      "md5": "c1145c2c7dbfcb4ef0e3f5f9493bc2ae"
+    },
+    {
+      "path": "res://entities/units/enemies/crash_zone/basic/buffer/buffer.tscn",
+      "md5": "bd6811d18195a24b5ab2da97c15d2249"
+    },
+    {
+      "path": "res://entities/units/enemies/crash_zone/basic/buffer/buffer.gdc",
+      "md5": "2fab614731c0f6f9fde96f984449deda"
+    },
+    {
+      "path": "res://entities/units/player/player.tscn",
+      "md5": "58724d77253dd2ff1a91a8409a809193"
+    },
+    {
+      "path": "res://entities/units/movement_behaviors/target_rand_pos_movement_behavior.gdc",
+      "md5": "d5637932f5178c3dcce36f9a236958b8"
+    },
+    {
+      "path": "res://entities/units/movement_behaviors/movement_behavior.gdc",
+      "md5": "545124c6bbc946d5a542876cd568078b"
+    },
+    {
+      "path": "res://entities/units/enemies/crash_zone/basic/fly/fly.tscn",
+      "md5": "8c34a7e6a21f7dc1a3e9d3cd3b0b25fd"
+    }
+  ],
+  "sceneOverrides": {
+    "maximumPerOwner": 999,
+    "damageIncreasePercent": 200,
+    "durationSeconds": 8
+  },
+  "rules": {
+    "hpThreshold": "Strict pre-hit hp/maxHp below the effect threshold",
+    "chance": "Sum eligible effects, divide by max(1,endlessFactor/2); zero chance draws no RNG; otherwise roll <= chance",
+    "conversion": "Triggering hit absorbed, burning removed, hurtbox disabled, pet collision/attack layers, nearest hostile Enemy target",
+    "speed": "Add 100 source speed points only when current speed is positive",
+    "lifetime": "Die at timeout; never return to the hostile faction",
+    "descendants": "Spawned descendants inherit the owner and receive a fresh Charm lifetime",
+    "killAttribution": "Enemy.player_index remains -1. Friendly hits and timeout deaths have no personal player kill credit; normal non-cleanup death/loot signals still run",
+    "healer": "Heal players on entering its area, int(1+(wave-1)*0.5); structures are excluded",
+    "buffer": "One random unboosted player or boostable structure; first timer .25s after spawn (conversion does not reset it), then4s. Player/Turret boosts5s; Mine/Trap marks persist until death.",
+    "playerBoostExpiry": "Derived from native Player.boost and boost_ended: raw maxHp grant floor(maximum*.2), expiry subtracts current maximum minus before-boost maximum as raw stat. Gain multipliers can leave residual HP stats. Production-module arithmetic tested; not compared in a running Brotato process.",
+    "structureBoost": "Turret base damage/range/cooldown change before Engineering/Structure stats; Mine already-scaled damage/explosion scale change; DartTrap only marks boosted with no stat change.",
+    "bodyCollision": "Native PETS_BIT+OBSTACLES_BIT: friendly bodies separate from other pets and obstacles, never from hostile/player bodies; hitboxes still attack hostile hurt circles."
+  },
+  "supportValues": {
+    "healerRadiusPoints": 200.639,
+    "bufferRadiusPoints": 309.04,
+    "playerMaxHpPercent": 20,
+    "playerSpeed": 20,
+    "playerAttackSpeed": 20,
+    "structureDamagePercent": 20,
+    "structureRangePercent": 20,
+    "structureAttackSpeedPercent": 20,
+    "playerBodyRadiusPoints": 24,
+    "playerBodyOffsetZPoints": -12,
+    "structureBodyRadiusPoints": 40,
+    "structureBodyOffsetZPoints": -8
+  },
+  "movement": {
+    "randomTargetPrecisionPoints": 10,
+    "attempts": 8,
+    "ThornbackRangePoints": 150,
+    "ThornbackRandomizationPoints": 50
+  },
+  "state": "Local production-module tests cover rules, transfer, ordinary/ranged/charge-trail combat, native random movement, hatching and ally support. Studio/coop/native visual acceptance remains open. Shared actor hard cap200 from current main is a documented technical limitation vs native Charm maximum999.",
+  "performance": "Existing 4ms contract is tested with140 mixed actors. Current main permits a shared technical cap200; that size remains outside the proven4ms envelope."
+}

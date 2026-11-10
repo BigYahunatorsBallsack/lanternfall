@@ -39,6 +39,8 @@ local StatMath = require(Shared.Util.StatMath)
 local CharacterRules = require(Shared.Util.CharacterRules)
 local BrotatoCombat = require(script.BrotatoCombat)
 local BrotatoRuntime = require(script.BrotatoRuntime)
+local FirePuddles = require(script.FirePuddles)
+local Carbon = require(script.CarbonArrows)
 local EnemyKinds = require(Shared.Util.EnemyKinds)
 local CharacterMovement = require(script.Parent.CharacterService.Movement)
 local waveBonuses: { [Player]: { [string]: number } } = {}
@@ -52,6 +54,7 @@ WeaponService.Changed = Signal.new()
 WeaponService.KillGrowth = Signal.new()
 -- (player, kills): one distinct completed explosion, never a sum across attacks.
 WeaponService.ExplosionResolved = Signal.new()
+WeaponService.NativeMineRequested = Signal.new()
 local growth: { [number]: { [string]: number } } = {}
 
 -- Hit listener: (ownerId, enemyId, dealt, crit, killed, source), set by EffectService. A plain callback, not a
@@ -308,8 +311,45 @@ arsenal = Arsenal.new({
 	end,
 })
 
+local firePuddles = FirePuddles.new({
+	query = function(x, z, radius, out)
+		return EnemySim.queryRadius(Vector3.new(x, floorY, z), radius, out)
+	end,
+	ignite = function(weapon, id, stats)
+		arsenal.afflictions:ignite(
+			id,
+			Afflictions.newBurn(
+				weapon.ownerId,
+				weapon,
+				stats.burnDamage,
+				stats.burnTicks,
+				stats.burnInterval,
+				stats.burnSpread
+			)
+		)
+	end,
+	emit = function(weapon, effect)
+		arsenal:emitShared(weapon.ownerId, effect, "FirePuddle")
+	end,
+})
+require(script.BrotatoProjectile).setFirePuddle(function(weapon, x, z)
+	firePuddles:spawn(weapon, x, z, weapon.stats)
+end)
+
 local function now(): number
 	return workspace:GetServerTimeNow()
+end
+function WeaponService.getStructureStats(player: Player): { [string]: number }
+	return table.clone(ownerStats[player] or {})
+end
+function WeaponService.nextEffectId(): number
+	return arsenal.context:nextId()
+end
+function WeaponService.emitStructureEffect(player: Player, effect: { [string]: any })
+	if effect.kind == "Fire" then
+		effect.kind = "StructureFire"
+	end
+	arsenal:emitShared(player.UserId, effect, "StructureShot")
 end
 
 local function loadoutOf(player: Player): Types.Loadout
@@ -328,6 +368,11 @@ local function loadoutOf(player: Player): Types.Loadout
 end
 
 local function send(player: Player)
+	for _, weapon in arsenal:getWeapons(player.UserId) do
+		Carbon.initialise(weapon, function()
+			return RandomService.number("Combat", player)
+		end)
+	end
 	BrotatoRuntime.recompute(arsenal:getWeapons(player.UserId), ownerStats[player] or {})
 	Net.fireAllClients("Loadout", loadoutOf(player))
 	WeaponService.Changed:Fire(player)
@@ -340,6 +385,7 @@ local function sendAll()
 end
 
 local function onRunStarted(participants: { Player })
+	firePuddles:clear()
 	table.clear(characterHits)
 	table.clear(consumableExplosions)
 	table.clear(characterItemExplosions)
@@ -425,6 +471,10 @@ local function onStepped(dt: number, stepNow: number)
 		end
 	end
 	BrotatoCombat.resetHitContext()
+	-- Existing patches of fire enter the shared burn registry before its next tick.
+	if RunDirector.isActive() then
+		firePuddles:step(dt)
+	end
 	arsenal:step(dt, stepNow)
 	-- Character stat strikes are already scaled in the native order; Arsenal's primary-hit formula differs.
 	local itemExplosions = characterItemExplosions
@@ -531,10 +581,24 @@ end
 -- Lifecycle -------------------------------------------------------------------------
 
 function WeaponService.init()
+	EnemySim.CharmShot:Connect(function(ownerId, event)
+		arsenal:emitShared(ownerId, event, "CharmShot")
+	end)
 	ExperienceService.OrbsPickedUp:Connect(function(player, count)
 		BrotatoRuntime.reloadFromMaterials(arsenal:getWeapons(player.UserId), count, now())
 	end)
 	BrotatoCombat.configure({
+		tryCharm = function(ownerId, id, stats, random)
+			local player = playerOf(ownerId)
+			return player ~= nil and EnemySim.tryCharm(player, id, stats, random)
+		end,
+		nativeSlow = EnemySim.nativeSlow,
+		spawnMine = function(ownerId, x, z)
+			local player = playerOf(ownerId)
+			if player then
+				WeaponService.NativeMineRequested:Fire(player, Vector3.new(x, floorY, z))
+			end
+		end,
 		explosionResolved = function(ownerId, kills)
 			local player = playerOf(ownerId)
 			if player then
@@ -626,6 +690,7 @@ function WeaponService.init()
 	EnemySim.Stepped:Connect(onStepped)
 	RunDirector.PhaseChanged:Connect(function(phase)
 		if phase ~= "Running" then
+			firePuddles:clear()
 			table.clear(characterHits)
 			table.clear(consumableExplosions)
 			table.clear(characterItemExplosions)
@@ -654,6 +719,7 @@ function WeaponService.init()
 		end
 		return saved
 	end, function(saved: { [Player]: { Arsenal.SavedWeapon } })
+		firePuddles:clear()
 		table.clear(characterHits)
 		table.clear(consumableExplosions)
 		table.clear(characterItemExplosions)

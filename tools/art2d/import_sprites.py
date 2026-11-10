@@ -141,6 +141,9 @@ def build():
     if not check():
         sys.exit(1)
     uploaded = json.loads(UPLOADED.read_text("utf-8")) if UPLOADED.exists() else {}
+    native_path = ROOT / "assets/characters/brotato/local-preparation.json"
+    native = json.loads(native_path.read_text("utf-8")) if native_path.exists() else {}
+    original_hashes = {row["id"]: row["sourceSha256"] for row in native.get("characters", [])}
     prepared, urls = {}, []
     for group, name, pixels, plain, _, _ in entries():
         path = source_of(group, name)
@@ -155,6 +158,8 @@ def build():
         if shares:
             shares["color"] = main_color(image)
         prepared[relative] = {"group": group, "name": name, "hash": digest, **shares}
+        if group == "characters" and original_hashes.get(name) == hashlib.sha256(path.read_bytes()).hexdigest():
+            prepared[relative]["nativeVersion"] = "1.2.0.1"
         if digest not in uploaded:
             urls.append(f"http://localhost:{PORT}/{relative}")
     (BUILD / "prepared.json").write_text(json.dumps(prepared, indent=1), "utf-8")
@@ -166,6 +171,8 @@ def luau_entry(asset, record):
     if "pixels" not in record:
         return f'"{asset}"'
     fields = [f'image = "{asset}"', f"pixels = {record['pixels']}"]
+    if record.get("nativeVersion") == "1.2.0.1":
+        fields.append('nativeVersion = "1.2.0.1"')
     for key in ("center", "ground", "width", "height"):
         if key in record:
             fields.append(f"{key} = {record[key]}")

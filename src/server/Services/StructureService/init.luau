@@ -17,7 +17,10 @@ local Loot = require(script.Parent.LootService)
 local Map = require(script.Parent.MapService)
 local RandomService = require(script.Parent.RandomService)
 local Rules = require(script.Rules)
+local Boost = require(script.BoostRules)
 local Weapons = require(script.Parent.WeaponService)
+local Projectiles = require(script.Projectiles)
+local TurretTiming = require(script.TurretTiming)
 local C = Config.Structures
 local Service = {}
 local paused = false
@@ -26,6 +29,8 @@ local generators: { any } = {}
 local serial = 0
 local dirty = true
 local elapsed = 0
+local waveSeconds = 0
+local lastGeneratorSecond = 0
 local beams = {}
 -- Paket 22: the owner's stats are copied once per step, not once per structure (StatService hands out copies)
 local stepSheets: { [Player]: any } = {}
@@ -33,7 +38,7 @@ local stepImproved: { [Player]: boolean } = {}
 local function sheetOf(player: Player): any
 	local sheet = stepSheets[player]
 	if not sheet then
-		sheet = Stats.getSheet(player)
+		sheet = Weapons.getStructureStats(player)
 		stepSheets[player] = sheet
 	end
 	return sheet
@@ -58,6 +63,8 @@ local function sync()
 	dirty = false
 end
 local function reset()
+	Projectiles.clear()
+	waveSeconds, lastGeneratorSecond = 0, 0
 	table.clear(objects)
 	table.clear(generators)
 	table.clear(beams)
@@ -95,7 +102,7 @@ local function position(player)
 	end
 	return root
 end
-local function add(player, kind, definition)
+local function add(player, kind, definition, at)
 	local own = {}
 	for i, o in objects do
 		if o.owner == player then
@@ -115,9 +122,10 @@ local function add(player, kind, definition)
 		owner = player,
 		kind = kind,
 		definition = definition,
-		position = position(player),
+		position = at or position(player),
 		remaining = 0,
 		armed = false,
+		contacts = {},
 	})
 	dirty = true
 end
@@ -137,7 +145,11 @@ local function addGenerator(player, kind, definition)
 		owner = player,
 		kind = kind,
 		definition = def,
-		remaining = Rules.interval(def, Stats.getSheet(player), (Stats.getItemCounts(player).CalibratedTools or 0) > 0),
+		remaining = Rules.spawnInterval(
+			def,
+			Stats.getSheet(player),
+			(Stats.getItemCounts(player).CalibratedTools or 0) > 0
+		),
 	})
 end
 local function addWeaponSources(player)
@@ -153,6 +165,9 @@ local function addWeaponSources(player)
 			if config.structureIntervals and #generators < C.maxActive then
 				local def = table.clone(C.kinds[kind])
 				def.interval = config.structureIntervals[weapon.tier]
+				if def.native then
+					def.spawnCooldown = config.structureIntervals[weapon.tier]
+				end
 				addGenerator(player, kind, def)
 			end
 		end
@@ -191,7 +206,9 @@ local function burst(player, at, def, sheet, factor)
 	local ids = {}
 	local radius = def.radius * math.max(0, 1 + (sheet.explosionSize or 0) / 100)
 	Enemy.queryRadius(at, radius, ids)
-	local damage = Rules.damage(def, sheet) * math.max(0, 1 + (sheet.explosionDamage or 0) / 100) * (factor or 1)
+	local damage = Rules.damage(def, sheet)
+		* (if def.native then 1 else math.max(0, 1 + (sheet.explosionDamage or 0) / 100))
+		* (factor or 1)
 	local kills = 0
 	for _, id in ids do
 		if hit(player, id, damage, "Explosion", def.elemental ~= nil) then
@@ -279,23 +296,32 @@ local function step(dt)
 	table.clear(stepSheets)
 	table.clear(stepImproved)
 	elapsed += dt
+	waveSeconds += dt
 	for _, generator in generators do
 		if Run.getParticipantState(generator.owner) == "Alive" then
-			generator.remaining -= dt
-			if generator.remaining <= 0 then
-				add(generator.owner, generator.kind)
-				generator.remaining = Rules.interval(
-					generator.definition or C.kinds[generator.kind],
-					sheetOf(generator.owner),
-					improvedOf(generator.owner)
-				)
+			local definition = generator.definition or C.kinds[generator.kind]
+			local interval = Rules.spawnInterval(definition, sheetOf(generator.owner), improvedOf(generator.owner))
+			for second = lastGeneratorSecond + 1, math.floor(waveSeconds) do
+				if second % interval == 0 then
+					add(generator.owner, generator.kind, definition)
+				end
 			end
 		end
 	end
+	lastGeneratorSecond = math.floor(waveSeconds)
+	Projectiles.step(dt)
 	for index = #objects, 1, -1 do
 		local o = objects[index]
 		if Run.getParticipantState(o.owner) ~= "Alive" then
 			continue
+		end
+		if o.boostLeft then
+			o.boostLeft -= dt
+			if o.boostLeft <= 0 then
+				o.definition = o.beforeBoost
+				o.beforeBoost = nil
+				o.boostLeft = nil
+			end
 		end
 		local def = o.definition or C.kinds[o.kind]
 		if def.mode == "Orbit" then
@@ -305,6 +331,22 @@ local function step(dt)
 				local angle = workspace:GetServerTimeNow() * C.orbitSpeed + o.id
 				o.position = root + Vector3.new(math.cos(angle) * C.orbitRadius, 0, math.sin(angle) * C.orbitRadius)
 			end
+		end
+		if def.nativeProjectile and def.animationSpeed then
+			local sheet = sheetOf(o.owner)
+			local function target()
+				local id = Enemy.nearest(o.position, Rules.range(def, sheet))
+				return id and Enemy.getPosition(id)
+			end
+			TurretTiming.step(o, dt, def, sheet, improvedOf(o.owner), target() ~= nil, function()
+				return RandomService.number("Combat", o.owner)
+			end, function()
+				local at = target()
+				if at and (at - o.position).Magnitude > 0 then
+					Projectiles.launch(o.owner, o.position, def, sheet, { (at - o.position).Unit })
+				end
+			end)
+			continue
 		end
 		o.remaining -= dt
 		if o.remaining > 0 then
@@ -316,7 +358,7 @@ local function step(dt)
 			Loot.dropPickup(o.position + Vector3.new(C.fruitOffset, 0, 0), "Fruit")
 		elseif def.mode == "Heal" then
 			local root = Map.getRootPosition(o.owner)
-			if root and (root - o.position).Magnitude <= def.range then
+			if root and (root - o.position).Magnitude <= Rules.range(def, sheet) then
 				Combat.healPlayer(o.owner, Rules.heal(def, sheet))
 			end
 		elseif def.mode == "Orbit" then
@@ -325,18 +367,39 @@ local function step(dt)
 			for _, id in ids do
 				Enemy.slow(id, C.slowFactor, C.slowSeconds)
 			end
-		elseif def.mode == "Mine" then
+		elseif def.mode == "Mine" or def.mode == "Trap" then
 			o.remaining = 0
-			local id = Enemy.nearest(o.position, def.range)
-			if id then
-				o.armed = true
-			elseif o.armed then
-				burst(o.owner, o.position, def, sheet)
+			local ids = {}
+			local center = o.position + Vector3.new(0, 0, def.triggerOffsetZ or 0)
+			Enemy.queryRadius(center, def.range, ids)
+			local contacts = {}
+			for _, id in ids do
+				contacts[id] = true
+			end
+			local exited = false
+			for id in o.contacts do
+				if not contacts[id] then
+					exited = true
+					break
+				end
+			end
+			o.contacts = contacts
+			if exited then
+				if def.mode == "Mine" then
+					burst(o.owner, o.position, def, sheet)
+				else
+					local directions = {}
+					for n = 0, def.rays - 1 do
+						local angle = n * math.pi * 2 / def.rays
+						table.insert(directions, Vector3.new(math.cos(angle), 0, math.sin(angle)))
+					end
+					Projectiles.launch(o.owner, o.position, def, sheet, directions)
+				end
 				table.remove(objects, index)
 				dirty = true
 			end
 		else
-			local id = Enemy.nearest(o.position, def.range)
+			local id = Enemy.nearest(o.position, Rules.range(def, sheet))
 			local target = id and Enemy.getPosition(id)
 			if target then
 				if def.mode == "Radial" then
@@ -347,7 +410,11 @@ local function step(dt)
 				else
 					local delta = target - o.position
 					if delta.Magnitude > 0 then
-						ray(o, def, sheet, delta.Unit)
+						if def.nativeProjectile then
+							Projectiles.launch(o.owner, o.position, def, sheet, { delta.Unit })
+						else
+							ray(o, def, sheet, delta.Unit)
+						end
 					end
 				end
 			else
@@ -370,6 +437,9 @@ local function step(dt)
 	end
 end
 function Service.init()
+	Weapons.NativeMineRequested:Connect(function(player, at)
+		add(player, "RuneMine", nil, at)
+	end)
 	Run.RunStarted:Connect(reset)
 	Run.PhaseChanged:Connect(function(phase, previous)
 		if phase == "Running" and previous ~= "Running" then
@@ -395,6 +465,68 @@ function Service.init()
 		end
 		dirty = true
 	end)
+end
+-- The native Buffer's collision area sees only boostable, currently unboosted structure bodies.
+function Service.boostCandidates(at: Vector3, radius: number): { number }
+	local ids = {}
+	for _, object in objects do
+		local definition = object.definition or C.kinds[object.kind]
+		if
+			definition.boostMode
+			and not object.boostLeft
+			and (object.position + Vector3.new(0, 0, C.boostBodyOffsetZ) - at).Magnitude
+				<= radius + C.boostBodyRadius
+		then
+			table.insert(ids, object.id)
+		end
+	end
+	return ids
+end
+function Service.applyBoost(id: number, damage: number, range: number, speed: number, duration: number): boolean
+	for _, object in objects do
+		if object.id ~= id then
+			continue
+		end
+		local definition = object.definition or C.kinds[object.kind]
+		if not definition.boostMode or object.boostLeft then
+			return false
+		end
+		object.beforeBoost = object.definition
+		object.definition = Boost.definition(definition, Weapons.getStructureStats(object.owner), damage, range, speed)
+		object.boostLeft = if definition.boostMode == "Turret" then duration else math.huge
+		if definition.boostMode == "Turret" then
+			object.remaining = math.max(
+				0,
+				object.remaining
+					- Rules.interval(
+							object.definition,
+							Weapons.getStructureStats(object.owner),
+							improvedOf(object.owner)
+						)
+						* speed
+						/ 100
+			)
+		end
+		return true
+	end
+	return false
+end
+
+-- Count equipped native structure effects, including duplicate item copies; deployed mines are not sources.
+function Service.sourceCount(player: Player): number
+	local total = 0
+	for id, count in Stats.getItemCounts(player) do
+		local item = Config.Items.byId[id]
+		if item and item.structure then
+			total += count
+		end
+	end
+	for _, weapon in Weapons.getWeapons(player) do
+		if Config.Weapons[weapon.id].structureKinds then
+			total += 1
+		end
+	end
+	return total
 end
 function Service.getSnapshot()
 	return snapshot()

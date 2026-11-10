@@ -61,14 +61,16 @@ describe("B12 structures", function()
 		expect(Config.Stats.byId.engineering.primary).toBe(true)
 		local def = Config.Structures.kinds.BrassSentry
 		expect(Rules.damage(def, { engineering = 10, damage = 500, rangedDamage = 100 })).toBe(18)
-		expect(Rules.interval(def, { attackSpeed = 200 }, false)).toBe(0.73)
-		expect(Rules.interval(def, { attackSpeed = 200 }, true)).toBeNear(0.365)
+		expect(Rules.interval(def, { attackSpeed = 200 }, false)).toBeNear(32 / 60)
+		expect(Rules.interval(def, { attackSpeed = 200 }, true)).toBeNear(16 / 60)
 		expect(Rules.heal(Config.Structures.kinds.MercySentry, { engineering = 19 })).toBe(3)
 		expect(Rules.heal(Config.Structures.kinds.MercySentry, { engineering = 20 })).toBe(4)
 	end)
 	it("deploys every item at wave start, renders it and creates real fruit", function()
-		for id in Config.Structures.kinds do
-			assert(Stats.addItem(me, id))
+		for id, def in Config.Structures.kinds do
+			if not def.weaponOnly then
+				assert(Stats.addItem(me, id))
+			end
 		end
 		nextWave()
 		expect(#Structures.getSnapshot()).toBe(9)

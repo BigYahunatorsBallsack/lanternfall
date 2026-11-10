@@ -822,7 +822,7 @@ function ConfigCheck.run(): { string }
 			problem(`Invalid structure timing/range {id}`)
 		end
 		local item = Config.Items.byId[id]
-		if not item or item.structure ~= id then
+		if not definition.weaponOnly and (not item or item.structure ~= id) then
 			problem(`Missing structure item {id}`)
 		end
 	end

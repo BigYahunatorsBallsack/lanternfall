@@ -92,6 +92,15 @@ function Combat.hit(
 ): (boolean, boolean)
 	local original = weapon.stats
 	local stats = table.clone(shotStats or original)
+	if
+		stats.charmChance
+		and adapter.tryCharm
+		and adapter.tryCharm(weapon.ownerId, id, stats, function()
+			return ctx:random()
+		end)
+	then
+		return false, false
+	end
 	local crit = if critical ~= nil then critical else ctx:random() < stats.critChance
 	if stats.critBurning and adapter.isBurning and adapter.isBurning(id) then
 		crit = true
@@ -109,6 +118,9 @@ function Combat.hit(
 	hitOwner = weapon.ownerId
 	local scaling = if weapon.config.tierScaling then weapon.config.tierScaling[weapon.tier] else weapon.config.scaling
 	hitElemental = if secondary then stats.secondaryElemental ~= nil else scaling.elementalDamage ~= nil
+	if stats.nativeElemental ~= nil then
+		hitElemental = stats.nativeElemental == 1
+	end
 	weapon.stats = stats
 	weapon.state.secondaryHit = secondary == true
 	if stats.vulnerabilityPercent and adapter.weakness then
@@ -121,6 +133,12 @@ function Combat.hit(
 		)
 	end
 	local killed = ctx:hit(weapon, id, share, if bounced then "Bounce" else nil)
+	if not killed and stats.carbonMeleeSlow and adapter.nativeSlow then
+		adapter.nativeSlow(id, -stats.carbonMeleeSlow, true, stats.carbonSlowSeconds)
+	end
+	if stats.nativeMineChance and adapter.spawnMine and hitX and hitZ and ctx:random() < stats.nativeMineChance then
+		adapter.spawnMine(weapon.ownerId, hitX, hitZ)
+	end
 	if
 		not killed
 		and (not bounced or stats.knockback < 0)

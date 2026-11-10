@@ -7,6 +7,7 @@ local WeaponTarget = require(script.Parent.WeaponTarget)
 local Whip = {}
 local targets: { number } = {}
 local found: { number } = {}
+local tipTargets: { number } = {}
 function Whip.fire(weapon: Arsenal.Weapon, ctx: Arsenal.Context): boolean
 	if weapon.state.swing then
 		return false
@@ -90,12 +91,23 @@ function Whip.step(weapon: Arsenal.Weapon, ctx: Arsenal.Context, dt: number)
 		x += swing.dx * forward + dx * stats.whipHitboxOffset
 		z += swing.dz * forward + dz * stats.whipHitboxOffset
 		local count = ctx:querySegment(x, z, x + dx * stats.range, z + dz * stats.range, stats.width, found)
+		local atTip: { [number]: boolean } = {}
+		if stats.tipCritRadius then
+			local n = ctx:queryCircle(x + dx * stats.range, z + dz * stats.range, stats.tipCritRadius, tipTargets)
+			for i = 1, n do
+				atTip[tipTargets[i]] = true
+			end
+		end
 		for i = 1, count do
 			local id = found[i]
 			if not swing.hit[id] then
 				swing.hit[id] = true
-				ctx:setHitDirection(swing.dx, swing.dz) -- Brotato: the whip knocks along the attack direction
-				Combat.hit(weapon, ctx, id)
+				ctx:setHitDirection(swing.dx, swing.dz)
+				local critical: boolean? = nil
+				if atTip[id] then
+					critical = true
+				end
+				Combat.hit(weapon, ctx, id, nil, nil, critical)
 				ctx:setHitDirection(nil, nil)
 			end
 		end

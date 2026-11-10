@@ -42,6 +42,7 @@ export type Volleys = typeof(setmetatable(
 		-- results of the last step (reused): hits flat as target index, damage; ends flat as shot id, distance flown
 		hits: { number },
 		hitCount: number,
+		hitSources: { number },
 		ended: { number },
 		endedCount: number,
 	},
@@ -55,6 +56,7 @@ function Volleys.new(params: Params): Volleys
 		nextId = 0,
 		hits = {},
 		hitCount = 0,
+		hitSources = {},
 		ended = {},
 		endedCount = 0,
 	}, Volleys)
@@ -97,6 +99,7 @@ end
 function Volleys.clear(self: Volleys)
 	table.clear(self.shots)
 	table.clear(self.hits)
+	table.clear(self.hitSources)
 	table.clear(self.ended)
 	self.hitCount = 0
 	self.endedCount = 0
@@ -111,9 +114,17 @@ local entryDistance = require(game:GetService("ReplicatedStorage").Shared.Util.S
 -- Advances every shot by dt against the targets (x/z of living players). Afterwards self.hits[1 .. 2 * hitCount]
 -- holds the hits (target index, damage) and self.ended[1 .. 2 * endedCount] the shots that ended early or hit
 -- (id, distance flown). Shots that reach their range just vanish (clients fade them out there themselves).
-function Volleys.step(self: Volleys, dt: number, targetXs: { number }, targetZs: { number }, targetCount: number)
+function Volleys.step(
+	self: Volleys,
+	dt: number,
+	targetXs: { number },
+	targetZs: { number },
+	targetCount: number,
+	targetRadii: { number }?
+)
 	local p = self.params
 	local hits, ended = self.hits, self.ended
+	table.clear(self.hitSources)
 	local hitCount, endedCount = 0, 0
 	local shots = self.shots
 	local index = 1
@@ -124,8 +135,16 @@ function Volleys.step(self: Volleys, dt: number, targetXs: { number }, targetZs:
 		local stopAt: number? = nil
 		local target = 0
 		for t = 1, targetCount do
-			local entry =
-				entryDistance(x, z, shot.dx, shot.dz, length, targetXs[t], targetZs[t], p.playerRadius + shot.radius)
+			local entry = entryDistance(
+				x,
+				z,
+				shot.dx,
+				shot.dz,
+				length,
+				targetXs[t],
+				targetZs[t],
+				(if targetRadii then targetRadii[t] else p.playerRadius) + shot.radius
+			)
 			if entry and entry < (stopAt or math.huge) then
 				stopAt, target = entry, t
 			end
@@ -144,6 +163,7 @@ function Volleys.step(self: Volleys, dt: number, targetXs: { number }, targetZs:
 			if target > 0 then
 				hits[hitCount * 2 + 1], hits[hitCount * 2 + 2] = target, shot.damage
 				hitCount += 1
+				self.hitSources[hitCount] = shot.id
 			end
 			ended[endedCount * 2 + 1], ended[endedCount * 2 + 2] = shot.id, shot.flown + stopAt
 			endedCount += 1

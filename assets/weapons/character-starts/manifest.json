@@ -383,6 +383,106 @@
         86,
         89
       ]
+    },
+    {
+      "id": "Flail",
+      "name": "Flail",
+      "source": "res://weapons/melee/flail/flail_icon.png",
+      "textureSource": "res://.import/flail_icon.png-8a383bc2cdfbea94a289c4e9c81bcb3d.stex",
+      "textureMd5": "657275587c4e174a05310be8f2135966",
+      "output": "assets/weapons/character-starts/Flail.png",
+      "pngSha256": "2364c40f0916b4db39461856d7812e725ab4708ca2e901013a183b25b5a9a7cf",
+      "rgbaSha256": "dd0ea10c4f20cad22818e07c4d5eb42832d8d81829f2d811c7660227cc253f46",
+      "size": [
+        96,
+        96
+      ],
+      "alphaBounds": [
+        5,
+        8,
+        90,
+        92
+      ]
+    },
+    {
+      "id": "Molotov",
+      "name": "Molotov",
+      "source": "res://weapons/ranged/molotov/molotov_icon.png",
+      "textureSource": "res://.import/molotov_icon.png-6811ead6493dc02447a2ca04f54e55dd.stex",
+      "textureMd5": "9e84337929d56e035ff795f61d44292a",
+      "output": "assets/weapons/character-starts/Molotov.png",
+      "pngSha256": "03623ffdb778549d5d020769c8c09950a81b317126961c9275c660fe09ca465b",
+      "rgbaSha256": "1250f083690f2fa2392914b934929c9abab880fe492f78e9e943748980193801",
+      "size": [
+        96,
+        96
+      ],
+      "alphaBounds": [
+        12,
+        9,
+        87,
+        87
+      ]
+    },
+    {
+      "id": "Awl",
+      "name": "Awl",
+      "source": "res://weapons/melee/awl/awl_icon.png",
+      "textureSource": "res://.import/awl_icon.png-92deaa6bf1f637524c7f5a075f20216e.stex",
+      "textureMd5": "49d9aaded166178cfb24b70577403c03",
+      "output": "assets/weapons/character-starts/Awl.png",
+      "pngSha256": "729e2faf4f2314cadac13186a4dbf0a66c8534658e4aa545e28b34dcfac7f983",
+      "rgbaSha256": "20872db3a7e47917f764438a085e73a5bd9f118a51ef3cab20e3e9cfde355532",
+      "size": [
+        96,
+        96
+      ],
+      "alphaBounds": [
+        5,
+        9,
+        88,
+        89
+      ]
+    },
+    {
+      "id": "CarbonBow",
+      "name": "Carbon Bow",
+      "source": "res://weapons/ranged/carbon_bow/carbon_bow_icon.png",
+      "textureSource": "res://.import/carbon_bow_icon.png-b64cd6c95b0360d04feac45eaf9a81dd.stex",
+      "textureMd5": "78b071e852b38b1a35c7d39e95afa24c",
+      "output": "assets/weapons/character-starts/CarbonBow.png",
+      "pngSha256": "b2c72844062c0b1638b96e7c81d7647ea1238ad1a441736e026126781b0bc7ed",
+      "rgbaSha256": "74301dcf3cfcbcf4424b33d746d9b7e5d0294c028ddf1bef76d2763b3866bf18",
+      "size": [
+        96,
+        96
+      ],
+      "alphaBounds": [
+        2,
+        2,
+        94,
+        95
+      ]
+    },
+    {
+      "id": "Flute",
+      "name": "Flute",
+      "source": "res://dlcs/dlc_1/weapons/ranged/flute/flute_icon.png",
+      "textureSource": "res://.import/flute_icon.png-d2d2981edbb091e5ff6d4ddb69a0b6b1.stex",
+      "textureMd5": "1520f2459c8e3c5dd42617343227cff2",
+      "output": "assets/weapons/character-starts/Flute.png",
+      "pngSha256": "4401e9508be4e1603551238e5bcec4df97e67afd7710d55c4e91bee31f5cc77f",
+      "rgbaSha256": "f0ca85dc62ef25cbdd4f5404d5a9fe7c5ba035683d69d3d1c76b3f9fc0f39b75",
+      "size": [
+        96,
+        96
+      ],
+      "alphaBounds": [
+        10,
+        10,
+        86,
+        88
+      ]
     }
   ],
   "projectiles": [
@@ -422,6 +522,329 @@
         16,
         75,
         73
+      ]
+    },
+    {
+      "id": "MolotovThrown",
+      "source": "res://projectiles/molotov/molotov.png",
+      "textureSource": "res://.import/molotov.png-c41f07469a1ca6907cc498be23c63f4a.stex",
+      "textureMd5": "10c90b495971b145837a3179428ef151",
+      "output": "assets/weapons/character-starts/MolotovThrown.png",
+      "pngSha256": "6c3ac7d22aa4d4270b2b2dabbc8b1ec71258d7691665db5e268101dcf321f95a",
+      "rgbaSha256": "25251d9a286097df6e6bc6f53d5241f676ced8a4682a6699d75f3a3550cca5c5",
+      "size": [
+        100,
+        100
+      ],
+      "alphaBounds": [
+        9,
+        31,
+        93,
+        82
+      ]
+    },
+    {
+      "id": "FirePuddle0",
+      "source": "res://entities/gpe/puddle/puddle_0.png",
+      "textureSource": "res://.import/puddle_0.png-289c84315512bd9d6697dafb86966ce4.stex",
+      "textureMd5": "726eadd77d6d8e112efc429a2e53ca56",
+      "output": "assets/weapons/character-starts/FirePuddle0.png",
+      "pngSha256": "e5d8fde8a5691d4919898d0729915915a62c333a9f6208a59a4406f954c7ab9c",
+      "rgbaSha256": "622611628d90545aea791bd6762264a69aabb229002fedb4d1e2b2bf2bb0a75d",
+      "size": [
+        120,
+        120
+      ],
+      "alphaBounds": [
+        11,
+        12,
+        110,
+        112
+      ]
+    },
+    {
+      "id": "FirePuddleOutline0",
+      "source": "res://entities/gpe/puddle/puddle_outline_0.png",
+      "textureSource": "res://.import/puddle_outline_0.png-1f5bdb073950e710cfcfab9a647323f4.stex",
+      "textureMd5": "f68a453e46144c4ee063a3bf2be601ef",
+      "output": "assets/weapons/character-starts/FirePuddleOutline0.png",
+      "pngSha256": "6f4badf2c2bcbf2beaad368584e825fb78bf90dc1fb2e57d43b494aaf2811431",
+      "rgbaSha256": "d653f68b24ccf3739442228ad60593f0f8fe91f1618b021b43523c727fc5e8f8",
+      "size": [
+        120,
+        120
+      ],
+      "alphaBounds": [
+        9,
+        11,
+        111,
+        114
+      ]
+    },
+    {
+      "id": "FirePuddle1",
+      "source": "res://entities/gpe/puddle/puddle_1.png",
+      "textureSource": "res://.import/puddle_1.png-cb0600c8836665e8e856e8ad72325355.stex",
+      "textureMd5": "f892e92f211940725c0f48d403581239",
+      "output": "assets/weapons/character-starts/FirePuddle1.png",
+      "pngSha256": "ffd3e99582071f7dbdfb09576c08f93594476ad2675c19c7abc164e2a92ef2fb",
+      "rgbaSha256": "69f55b10ad35d333a521422167fc2a5ae57a8b841768bfc07a265eed93a321a2",
+      "size": [
+        120,
+        120
+      ],
+      "alphaBounds": [
+        11,
+        10,
+        113,
+        112
+      ]
+    },
+    {
+      "id": "FirePuddleOutline1",
+      "source": "res://entities/gpe/puddle/puddle_outline_1.png",
+      "textureSource": "res://.import/puddle_outline_1.png-59c52b948b95d2062343a68f7ac6b07e.stex",
+      "textureMd5": "5a4e1c116820eab1db988f159170c46d",
+      "output": "assets/weapons/character-starts/FirePuddleOutline1.png",
+      "pngSha256": "d0b32a23ac285fa2358677f325464f1fa25d16124e2468f0f3ed395a024994b0",
+      "rgbaSha256": "d8a767a9d3fd5edff110a0faf35b7b25f81a8b934f5de1843990f1202d31f5aa",
+      "size": [
+        120,
+        120
+      ],
+      "alphaBounds": [
+        9,
+        9,
+        114,
+        113
+      ]
+    },
+    {
+      "id": "FirePuddle2",
+      "source": "res://entities/gpe/puddle/puddle_2.png",
+      "textureSource": "res://.import/puddle_2.png-8fdcd9e71094bdb4a6cd1d958687e449.stex",
+      "textureMd5": "4c79dff184000d753e1649e1666dcd99",
+      "output": "assets/weapons/character-starts/FirePuddle2.png",
+      "pngSha256": "d1b968f30ac576e477869498316606fa1fd05a5b21b0657a1b2bf80b30eda057",
+      "rgbaSha256": "a3374346b1408856d32f4d97b1a4be22880da82816fdf04605002f6b3c07ee4b",
+      "size": [
+        120,
+        120
+      ],
+      "alphaBounds": [
+        11,
+        12,
+        108,
+        112
+      ]
+    },
+    {
+      "id": "FirePuddleOutline2",
+      "source": "res://entities/gpe/puddle/puddle_outline_2.png",
+      "textureSource": "res://.import/puddle_outline_2.png-3c34c134812256f6dc9fae60d1af6db9.stex",
+      "textureMd5": "3ab3c624a9f210910c686c73f8945279",
+      "output": "assets/weapons/character-starts/FirePuddleOutline2.png",
+      "pngSha256": "bc924c28c9083be7a673fd9327b80662a79944cee92a2726ef147066279e6d3d",
+      "rgbaSha256": "115b934a31cc6f08f168bd6707c47770c3a8c591ea575875d3fcb78eda3d327e",
+      "size": [
+        120,
+        120
+      ],
+      "alphaBounds": [
+        9,
+        11,
+        109,
+        113
+      ]
+    },
+    {
+      "id": "DartTrap",
+      "source": "res://entities/structures/dart_trap/dart_trap.png",
+      "textureSource": "res://.import/dart_trap.png-5c301bd2875c2b83e43f941ffa549006.stex",
+      "textureMd5": "b7fb4ca11991b873a6528881b1d834be",
+      "output": "assets/weapons/character-starts/DartTrap.png",
+      "pngSha256": "43b3702a43b9782dee0ff0a3246a605076d3694c4ca8231652da0dd300c3ccad",
+      "rgbaSha256": "b94faec03255b871d3f86e68d9d008b283ecc7d685e3d832f4dd1755cd9b948c",
+      "size": [
+        100,
+        100
+      ],
+      "alphaBounds": [
+        9,
+        1,
+        96,
+        98
+      ]
+    },
+    {
+      "id": "DartTrapActivated",
+      "source": "res://entities/structures/dart_trap/dart_trap_activated.png",
+      "textureSource": "res://.import/dart_trap_activated.png-9006320e47d6005597b6470774b82af4.stex",
+      "textureMd5": "8a46ada0ba878a70a6277984910f3af4",
+      "output": "assets/weapons/character-starts/DartTrapActivated.png",
+      "pngSha256": "6c11b5dd97b87f904061849e21cd404b93ddf19c133eb9cbb80da92920617327",
+      "rgbaSha256": "3a8a846643b4175b8fdf1351657fd240cc9013268be2e0e4903883e68947198a",
+      "size": [
+        100,
+        100
+      ],
+      "alphaBounds": [
+        10,
+        1,
+        96,
+        98
+      ]
+    },
+    {
+      "id": "CarbonBowArrowMelee",
+      "source": "res://weapons/ranged/carbon_bow/carbon_bow_arrow_melee.png",
+      "textureSource": "res://.import/carbon_bow_arrow_melee.png-d7b9ec5b477eac060938400e03dc7ff8.stex",
+      "textureMd5": "138e7e3c651934cd09759fc686c8a8b9",
+      "output": "assets/weapons/character-starts/CarbonBowArrowMelee.png",
+      "pngSha256": "59e26c02d4b6a9943a0a133b98684803214316ca16aeaad45d7f00080b9d8439",
+      "rgbaSha256": "96ad6247be970c7bd21312175f792bba2d398211c9743e634f3cb476582e697c",
+      "size": [
+        135,
+        90
+      ],
+      "alphaBounds": [
+        20,
+        1,
+        117,
+        89
+      ]
+    },
+    {
+      "id": "CarbonBowProjectileMelee",
+      "source": "res://weapons/ranged/carbon_bow/carbon_bow_projectile_melee.png",
+      "textureSource": "res://.import/carbon_bow_projectile_melee.png-7d3a57b8386e8ac834e79378fd5b20ca.stex",
+      "textureMd5": "d8061b89579abe32dabe4fe05430f8c4",
+      "output": "assets/weapons/character-starts/CarbonBowProjectileMelee.png",
+      "pngSha256": "7bddef8c0a160527fa4a8c1d6eeefa4360581610ebf47bac57cbcc9c64bbfc44",
+      "rgbaSha256": "4db6d80f8820d4a433785869ffef9f4f3e23cb1052777ca802322cfb48628b3c",
+      "size": [
+        120,
+        120
+      ],
+      "alphaBounds": [
+        9,
+        51,
+        111,
+        70
+      ]
+    },
+    {
+      "id": "CarbonBowArrowRange",
+      "source": "res://weapons/ranged/carbon_bow/carbon_bow_arrow_range.png",
+      "textureSource": "res://.import/carbon_bow_arrow_range.png-220aa15268b81e28452a77716458e28e.stex",
+      "textureMd5": "efeb6e29f1a3e319e1d6772fbeab094d",
+      "output": "assets/weapons/character-starts/CarbonBowArrowRange.png",
+      "pngSha256": "45437354d841a38e5bb6775069ed158db96bc11586e61e0726a7d359d9618fd6",
+      "rgbaSha256": "66fed18c0cc71a23b98ce2d97171267e706bfa988e909da6f4d8da67c9b56393",
+      "size": [
+        135,
+        90
+      ],
+      "alphaBounds": [
+        20,
+        1,
+        124,
+        89
+      ]
+    },
+    {
+      "id": "CarbonBowProjectileRange",
+      "source": "res://weapons/ranged/carbon_bow/carbon_bow_projectile_range.png",
+      "textureSource": "res://.import/carbon_bow_projectile_range.png-ea20532d2fcae73d3d567f5dd9925231.stex",
+      "textureMd5": "9eaaec57dc81c1491166eace5ae033aa",
+      "output": "assets/weapons/character-starts/CarbonBowProjectileRange.png",
+      "pngSha256": "152d8cd826ec9791ac1eca54edf7383bc194d50beaae97a068ad564424f8d712",
+      "rgbaSha256": "c435a46739b864f7888ba071439ade12a73494a53ba36e50b44792a5ea237175",
+      "size": [
+        120,
+        120
+      ],
+      "alphaBounds": [
+        9,
+        51,
+        118,
+        69
+      ]
+    },
+    {
+      "id": "CarbonBowArrowElemental",
+      "source": "res://weapons/ranged/carbon_bow/carbon_bow_arrow_elemental.png",
+      "textureSource": "res://.import/carbon_bow_arrow_elemental.png-8ca2313e79bd0e5ace22cb3aece07421.stex",
+      "textureMd5": "5ef50dc2d78dd889783955171f72709c",
+      "output": "assets/weapons/character-starts/CarbonBowArrowElemental.png",
+      "pngSha256": "2aa44b790ffa8bd9481ae955c30dee7d0510d58ba1b4f38f3771363ee7cf8b13",
+      "rgbaSha256": "5e2dda3cf137935458a8f0d02733742ff2f41e365d390654975c96c324f941b8",
+      "size": [
+        135,
+        90
+      ],
+      "alphaBounds": [
+        20,
+        1,
+        117,
+        89
+      ]
+    },
+    {
+      "id": "CarbonBowProjectileElemental",
+      "source": "res://weapons/ranged/carbon_bow/carbon_bow_projectile_elemental.png",
+      "textureSource": "res://.import/carbon_bow_projectile_elemental.png-d26d99caf9c3c5a3fb9979ed3d9b27d0.stex",
+      "textureMd5": "ca7acf03ea3384ac1a92a03b7abbe7c8",
+      "output": "assets/weapons/character-starts/CarbonBowProjectileElemental.png",
+      "pngSha256": "c0a3cb0c0c082c9112d42269d37842d669db4967ac804a25291c46e25c204c98",
+      "rgbaSha256": "0fc94032a726020c2a94478cd62bb615075507da6192e07f8fadb5b214958d56",
+      "size": [
+        120,
+        120
+      ],
+      "alphaBounds": [
+        4,
+        52,
+        110,
+        70
+      ]
+    },
+    {
+      "id": "CarbonBowArrowEnginering",
+      "source": "res://weapons/ranged/carbon_bow/carbon_bow_arrow_enginering.png",
+      "textureSource": "res://.import/carbon_bow_arrow_enginering.png-36faee25d93d253dca9923417e1df8ca.stex",
+      "textureMd5": "3dc47d2a5aa0334438a7746225e8dd11",
+      "output": "assets/weapons/character-starts/CarbonBowArrowEnginering.png",
+      "pngSha256": "e9f25cccb877185979ed6884dc911dfb1da1f34a0de5912507f9a4c02335c72f",
+      "rgbaSha256": "78cd14767ece0b3139cb149c99e9a54b43a105502631fac8232b370ecc373068",
+      "size": [
+        135,
+        90
+      ],
+      "alphaBounds": [
+        20,
+        1,
+        119,
+        89
+      ]
+    },
+    {
+      "id": "CarbonBowProjectileEnginering",
+      "source": "res://weapons/ranged/carbon_bow/carbon_bow_projectile_enginering.png",
+      "textureSource": "res://.import/carbon_bow_projectile_enginering.png-a32d0053306caf875ce5f5984f8d0ee6.stex",
+      "textureMd5": "1fa4bfa68c2045abc50f3f50955bac59",
+      "output": "assets/weapons/character-starts/CarbonBowProjectileEnginering.png",
+      "pngSha256": "c79ece80cd5fa4e885f1f869368ce38c5a0160e064d7f953d3f67e464a17cbeb",
+      "rgbaSha256": "803f586f7565903137bc52a1d3a2dd864dab55c478229e8e96b93fa9a745d278",
+      "size": [
+        622,
+        622
+      ],
+      "alphaBounds": [
+        46,
+        265,
+        583,
+        359
       ]
     }
   ]

@@ -2,7 +2,8 @@
 -- B10 character packages read by CharacterRules, services and lobby. References: docs/B10-CHARAKTERE.md.
 -- HP uses the original Brotato scale. Legacy ids remain valid; unlock progression belongs to package 13.
 local Catalog = require(script.Parent.CharacterCatalog)
-type CharacterArtwork = { image: string?, height: number?, ground: number?, center: number? }
+local Artwork = require(script.Parent.Parent.Util.CharacterArtwork)
+type CharacterArtwork = { image: string?, height: number?, ground: number?, center: number?, nativeVersion: string? }
 local SpriteImages: { characters: { [string]: CharacterArtwork } } = require(script.Parent.SpriteImages)
 export type Class = {
 	id: string,
@@ -46,6 +47,7 @@ export type Class = {
 	native: Catalog.CatalogCharacter?,
 	nativeStartSelection: boolean?,
 	nativeCodeReady: boolean?,
+	pendingNative: Class?,
 }
 local Classes: { [string]: Class } = {
 	SparkMage = {
@@ -192,8 +194,9 @@ Classes.Trapper = {
 
 -- Source-complete records remain unavailable until their runtime dependencies and selection paths are verified.
 -- Existing profile ids retain the delivered behavior while the complete native packages are integrated.
+local preparedLegacy = { SparkMage = true, NightWatch = true }
 for id, source in Catalog do
-	if Classes[id] then
+	if Classes[id] and not preparedLegacy[id] then
 		Classes[id].native = source
 		continue
 	end
@@ -207,7 +210,7 @@ for id, source in Catalog do
 			table.insert(conversions, conversion)
 		end
 	end
-	Classes[id] = {
+	local package: Class = {
 		id = id,
 		displayName = source.displayName,
 		startWeapon = source.startWeapon,
@@ -247,6 +250,14 @@ for id, source in Catalog do
 		native = source,
 		nativeStartSelection = true,
 	}
+	if Classes[id] then
+		-- Saved ids and existing public art keep their old package until original art can promote atomically.
+		Classes[id].native = source
+		Classes[id].pendingNative = package
+		Artwork.promote(Classes[id], package, SpriteImages.characters[id])
+	else
+		Classes[id] = package
+	end
 end
 -- Native free character with complete existing equipment and no outstanding behavior dependencies.
 -- Text follows the stable English translation keys recorded in docs/characters/README.md.
@@ -290,21 +301,29 @@ Classes.ArmsDealer.nativeCodeReady = true
 Classes.ArmsDealer.description =
 	"-95 % Weapons Price\n+30 Harvesting\nDamage modifications are increased by 33%\nYou start with 1 Dangerous Bunny\nShops always sell at least one weapon\nAll of your weapons are destroyed when entering a shop"
 -- Original art is delivered independently; ready code never bypasses the approved-sprite requirement.
+Classes.Wildling.description =
+	"+30 % Life Steal with Primitive weapons\nYou start with 1 Stick\nYou can’t equip weapons above tier II"
+Classes.Cryptid.description =
+	"+6 Trees\nGain 12 material and XP for every living tree at the end of a wave\n+3 HP Regeneration for every current living tree [0]\nDodge is capped at 70%\n+3 % Attack Speed until the end of the wave when you dodge an attack\n-100 % Life Steal\n-100 Range\n-50 % materials dropped from enemies"
+Classes.Cryptid.nativeCodeReady = true
+Classes.Technomage.nativeCodeReady = true
+Classes.Technomage.description =
+	"+5 % Structure attack speed for every 1 Elemental Damage you have [0]\nYou start with 2 Turrets\n+2 Elemental Damage for every structure you have [0]\n+75% XP required to level up\nMelee Damage modifications are reduced by 100%\nRanged Damage modifications are reduced by 100%"
+local mage = Classes.SparkMage.pendingNative or Classes.SparkMage
+mage.nativeCodeReady = true
+mage.description =
+	"Elemental Damage modifications are increased by 25%\nYou start with 1 Snake\nYou start with 1 Scared Sausage\nMelee Damage modifications are reduced by 100%\nRanged Damage modifications are reduced by 100%\nEngineering modifications are reduced by 50%"
+local ranger = Classes.NightWatch.pendingNative or Classes.NightWatch
+ranger.nativeCodeReady = true
+ranger.description =
+	"+50 Range\nYou start with 1 Pistol\nRanged Damage modifications are increased by 50%\nYou can’t equip melee weapons\nMax HP modifications are reduced by 25%"
+Classes.Renegade.nativeCodeReady = true
+Classes.Renegade.description =
+	"+2 Projectiles\nProjectiles pierce through 1 additional target\n+10 % Damage for every different tier I item you have [0]\n-400 % Damage\n-50 % Accuracy\nDamage modifications are reduced by 80%"
 for id, class in Classes do
 	if not class.nativeCodeReady then
 		continue
 	end
-	local art = SpriteImages.characters[id]
-	local imageId = if art and art.image then tonumber(art.image:match("^rbxassetid://(%d+)$")) else nil
-	class.available = art ~= nil
-		and type(art.image) == "string"
-		and imageId ~= nil
-		and imageId > 0
-		and type(art.height) == "number"
-		and art.height > 0
-		and type(art.ground) == "number"
-		and art.ground >= 0
-		and type(art.center) == "number"
-		and art.center > 0
+	class.available = Artwork.valid(SpriteImages.characters[id], preparedLegacy[id])
 end
 return table.freeze(Classes)

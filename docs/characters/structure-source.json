@@ -1,0 +1,424 @@
+{
+  "version": "1.2.0.1",
+  "steamBuild": 26406319,
+  "structures": [
+    {
+      "id": "BrassSentry",
+      "source": "res://items/all/00_base_game/turret/turret_effect_1.tres",
+      "sourceMd5": "63cd479b25bc1fbbfa9444855513493f",
+      "scene": "res://entities/structures/turret/turret.tscn",
+      "spawnCooldown": -1,
+      "statsSource": "res://entities/structures/turret/turret_stats.tres",
+      "statsMd5": "8b3c07130f184c414d50ee840e2542e7",
+      "stats": {
+        "cooldown": 32,
+        "damage": 10,
+        "accuracy": 1.0,
+        "crit_chance": 0.0,
+        "crit_damage": 2.0,
+        "min_range": 0,
+        "max_range": 300,
+        "knockback": 0,
+        "knockback_piercing": 0.0,
+        "can_have_positive_knockback": true,
+        "can_have_negative_knockback": false,
+        "effect_scale": 1.0,
+        "scaling_stats": [
+          [
+            "stat_engineering",
+            0.8
+          ]
+        ],
+        "lifesteal": 0.0,
+        "sound_db_mod": -5,
+        "is_healing": false,
+        "recoil": 25,
+        "recoil_duration": 0.1,
+        "additional_cooldown_every_x_shots": -1,
+        "additional_cooldown_multiplier": -1.0,
+        "speed_percent_modifier": 0,
+        "can_shoot_without_target": false,
+        "nb_projectiles": 1,
+        "projectile_spread": 0.0,
+        "piercing": 0,
+        "piercing_dmg_reduction": 0.5,
+        "bounce": 0,
+        "bounce_dmg_reduction": 0.5,
+        "can_bounce": true,
+        "projectile_speed": 3000,
+        "increase_projectile_speed_with_range": false
+      },
+      "effects": [],
+      "animationSpeed": 1.0,
+      "boostMode": "Turret"
+    },
+    {
+      "id": "CinderSentry",
+      "source": "res://items/all/00_base_game/turret_flame/turret_flame_effect_1.tres",
+      "sourceMd5": "ea6109775b7f034639a3930f6349163e",
+      "scene": "res://entities/structures/turret/flame/flame_turret.tscn",
+      "spawnCooldown": -1,
+      "statsSource": "res://entities/structures/turret/flame/flame_turret_stats.tres",
+      "statsMd5": "1cbd45992721ff9458972b4e80f3d95a",
+      "stats": {
+        "cooldown": 15,
+        "damage": 1,
+        "accuracy": 0.6,
+        "crit_chance": 0.0,
+        "crit_damage": 2.0,
+        "min_range": 0,
+        "max_range": 300,
+        "knockback": 0,
+        "knockback_piercing": 0.0,
+        "can_have_positive_knockback": true,
+        "can_have_negative_knockback": false,
+        "effect_scale": 0.1,
+        "scaling_stats": [],
+        "lifesteal": 0.0,
+        "sound_db_mod": -5,
+        "is_healing": false,
+        "recoil": 25,
+        "recoil_duration": 0.1,
+        "additional_cooldown_every_x_shots": -1,
+        "additional_cooldown_multiplier": -1.0,
+        "speed_percent_modifier": 0,
+        "can_shoot_without_target": false,
+        "nb_projectiles": 1,
+        "projectile_spread": 0.0,
+        "piercing": 99,
+        "piercing_dmg_reduction": 1.0,
+        "bounce": 0,
+        "bounce_dmg_reduction": 0.5,
+        "can_bounce": true,
+        "projectile_speed": 1000,
+        "increase_projectile_speed_with_range": true
+      },
+      "effects": [
+        {
+          "key": "effect_burning",
+          "source": "res://items/all/00_base_game/turret_flame/turret_flame_burning_effect.tres",
+          "sourceMd5": "a9d28f29e93575c5e4da40017ac6945b",
+          "burn": {
+            "source": "res://items/all/00_base_game/turret_flame/turret_flame_burning_data.tres",
+            "sourceMd5": "6fe270d755fa49eec27a90bcc00b6d2a",
+            "damage": 5,
+            "duration": 8,
+            "spread": 0,
+            "chance": 1.0,
+            "scaling_stats": [
+              [
+                "stat_engineering",
+                0.33
+              ]
+            ]
+          }
+        }
+      ],
+      "animationSpeed": 1.5,
+      "boostMode": "Turret"
+    },
+    {
+      "id": "PrismSentry",
+      "source": "res://items/all/00_base_game/turret_laser/turret_laser_effect_1.tres",
+      "sourceMd5": "c0052306fd115ca74ecc0f7f1e2d2e7b",
+      "scene": "res://entities/structures/turret/laser/laser_turret.tscn",
+      "spawnCooldown": -1,
+      "statsSource": "res://entities/structures/turret/laser/laser_turret_stats.tres",
+      "statsMd5": "36a2fb426918bb55efc2755a399fb65c",
+      "stats": {
+        "cooldown": 40,
+        "damage": 20,
+        "accuracy": 1.0,
+        "crit_chance": 0.0,
+        "crit_damage": 2.0,
+        "min_range": 0,
+        "max_range": 400,
+        "knockback": 0,
+        "knockback_piercing": 0.0,
+        "can_have_positive_knockback": true,
+        "can_have_negative_knockback": false,
+        "effect_scale": 1.0,
+        "scaling_stats": [
+          [
+            "stat_engineering",
+            1.25
+          ]
+        ],
+        "lifesteal": 0.0,
+        "sound_db_mod": -12,
+        "is_healing": false,
+        "recoil": 25,
+        "recoil_duration": 0.1,
+        "additional_cooldown_every_x_shots": -1,
+        "additional_cooldown_multiplier": -1.0,
+        "speed_percent_modifier": 0,
+        "can_shoot_without_target": false,
+        "nb_projectiles": 1,
+        "projectile_spread": 0.0,
+        "piercing": 3,
+        "piercing_dmg_reduction": 0.0,
+        "bounce": 0,
+        "bounce_dmg_reduction": 0.5,
+        "can_bounce": true,
+        "projectile_speed": 3000,
+        "increase_projectile_speed_with_range": false
+      },
+      "effects": [],
+      "animationSpeed": 1.0,
+      "boostMode": "Turret"
+    },
+    {
+      "id": "SiegeSentry",
+      "source": "res://items/all/00_base_game/turret_rocket/turret_rocket_effect_1.tres",
+      "sourceMd5": "c4790d94f1964d452f74a36e0b57e920",
+      "scene": "res://entities/structures/turret/rocket/rocket_turret.tscn",
+      "spawnCooldown": -1,
+      "statsSource": "res://entities/structures/turret/rocket/rocket_turret_stats.tres",
+      "statsMd5": "e7a2508c64ecf6473aa597b1553051a7",
+      "stats": {
+        "cooldown": 40,
+        "damage": 25,
+        "accuracy": 0.6,
+        "crit_chance": 0.0,
+        "crit_damage": 2.0,
+        "min_range": 0,
+        "max_range": 500,
+        "knockback": 0,
+        "knockback_piercing": 0.0,
+        "can_have_positive_knockback": true,
+        "can_have_negative_knockback": false,
+        "effect_scale": 1.0,
+        "scaling_stats": [
+          [
+            "stat_engineering",
+            1.5
+          ]
+        ],
+        "lifesteal": 0.0,
+        "sound_db_mod": -10,
+        "is_healing": false,
+        "recoil": 25,
+        "recoil_duration": 0.1,
+        "additional_cooldown_every_x_shots": -1,
+        "additional_cooldown_multiplier": -1.0,
+        "speed_percent_modifier": 0,
+        "can_shoot_without_target": false,
+        "nb_projectiles": 1,
+        "projectile_spread": 0.0,
+        "piercing": 0,
+        "piercing_dmg_reduction": 0.5,
+        "bounce": 0,
+        "bounce_dmg_reduction": 0.5,
+        "can_bounce": true,
+        "projectile_speed": 2000,
+        "increase_projectile_speed_with_range": false
+      },
+      "effects": [
+        {
+          "key": "effect_explode",
+          "scale": 1.0,
+          "chance": 1.0,
+          "source": "res://items/all/00_base_game/turret_rocket/turret_rocket_exploding_effect.tres",
+          "sourceMd5": "f3fcb74a8b80f4041ec38b7bf7d3b029"
+        }
+      ],
+      "animationSpeed": 1.0,
+      "boostMode": "Turret"
+    },
+    {
+      "id": "MercySentry",
+      "source": "res://items/all/00_base_game/turret_healing/turret_healing_effect_1.tres",
+      "sourceMd5": "eb2f4f5d349dc32c0c503a3adcaa95d7",
+      "scene": "res://entities/structures/turret/healing/healing_turret.tscn",
+      "spawnCooldown": -1,
+      "statsSource": "res://entities/structures/turret/healing/healing_turret_stats.tres",
+      "statsMd5": "5e9b5e0407ac9d0b487799de55b93fbf",
+      "stats": {
+        "cooldown": 120,
+        "damage": 3,
+        "accuracy": 1.0,
+        "crit_chance": 0.0,
+        "crit_damage": 2.0,
+        "min_range": 0,
+        "max_range": 400,
+        "knockback": 0,
+        "knockback_piercing": 0.0,
+        "can_have_positive_knockback": true,
+        "can_have_negative_knockback": false,
+        "effect_scale": 1.0,
+        "scaling_stats": [
+          [
+            "stat_engineering",
+            0.05
+          ]
+        ],
+        "lifesteal": 0.0,
+        "sound_db_mod": -8,
+        "is_healing": true,
+        "recoil": 25,
+        "recoil_duration": 0.1,
+        "additional_cooldown_every_x_shots": -1,
+        "additional_cooldown_multiplier": -1.0,
+        "speed_percent_modifier": 0,
+        "can_shoot_without_target": false,
+        "nb_projectiles": 1,
+        "projectile_spread": 0.0,
+        "piercing": 0,
+        "piercing_dmg_reduction": 0.5,
+        "bounce": 0,
+        "bounce_dmg_reduction": 0.5,
+        "can_bounce": true,
+        "projectile_speed": 3000,
+        "increase_projectile_speed_with_range": false
+      },
+      "effects": [],
+      "animationSpeed": 1.0,
+      "boostMode": "Turret"
+    },
+    {
+      "id": "RuneMine",
+      "source": "res://items/all/00_base_game/landmines/landmines_effect_1.tres",
+      "sourceMd5": "2d84af012ec18a64b166b2a569dc39c5",
+      "scene": "res://entities/structures/landmine/landmine.tscn",
+      "spawnCooldown": 12,
+      "statsSource": "res://items/all/00_base_game/landmines/landmine_stats.tres",
+      "statsMd5": "97cae06511c662e47ebc787703e4041d",
+      "stats": {
+        "cooldown": 2,
+        "damage": 10,
+        "accuracy": 1.0,
+        "crit_chance": 0.0,
+        "crit_damage": 2.0,
+        "min_range": 0,
+        "max_range": 0,
+        "knockback": 0,
+        "knockback_piercing": 0.0,
+        "can_have_positive_knockback": true,
+        "can_have_negative_knockback": false,
+        "effect_scale": 1.0,
+        "scaling_stats": [
+          [
+            "stat_engineering",
+            1.0
+          ]
+        ],
+        "lifesteal": 0.0,
+        "sound_db_mod": -5,
+        "is_healing": false,
+        "recoil": 25,
+        "recoil_duration": 0.1,
+        "additional_cooldown_every_x_shots": -1,
+        "additional_cooldown_multiplier": -1.0,
+        "speed_percent_modifier": 0,
+        "can_shoot_without_target": false,
+        "nb_projectiles": 1,
+        "projectile_spread": 0.0,
+        "piercing": 0,
+        "piercing_dmg_reduction": 0.5,
+        "bounce": 0,
+        "bounce_dmg_reduction": 0.5,
+        "can_bounce": true,
+        "projectile_speed": 3000,
+        "increase_projectile_speed_with_range": false
+      },
+      "effects": [
+        {
+          "key": "",
+          "scale": 1.75,
+          "chance": 1.0,
+          "source": "res://items/all/00_base_game/landmines/landmine_exploding_effect.tres",
+          "sourceMd5": "3a31debc1b4f118fc0a167419cfc1508"
+        }
+      ],
+      "boostMode": "Mine"
+    },
+    {
+      "id": "DartTrap",
+      "source": "res://weapons/melee/awl/1/awl_effect_0.tres",
+      "sourceMd5": "6905fbb4becdda66dcad8e873f092cc1",
+      "scene": "res://entities/structures/dart_trap/dart_trap.tscn",
+      "spawnCooldown": 12,
+      "statsSource": "res://items/all/04_primal_dread/dart_trap/dart_trap_stats.tres",
+      "statsMd5": "b06aad505cf18d5868441dd890450e08",
+      "stats": {
+        "cooldown": 2,
+        "damage": 8,
+        "accuracy": 1.0,
+        "crit_chance": 0.0,
+        "crit_damage": 2.0,
+        "min_range": 0,
+        "max_range": 10000,
+        "knockback": 0,
+        "knockback_piercing": 0.0,
+        "can_have_positive_knockback": true,
+        "can_have_negative_knockback": false,
+        "effect_scale": 1.0,
+        "scaling_stats": [
+          [
+            "stat_engineering",
+            1.0
+          ]
+        ],
+        "lifesteal": 0.0,
+        "sound_db_mod": -5,
+        "is_healing": false,
+        "recoil": 25,
+        "recoil_duration": 0.1,
+        "additional_cooldown_every_x_shots": -1,
+        "additional_cooldown_multiplier": -1.0,
+        "speed_percent_modifier": 0,
+        "can_shoot_without_target": false,
+        "nb_projectiles": 1,
+        "projectile_spread": 0.0,
+        "piercing": 0,
+        "piercing_dmg_reduction": 0.5,
+        "bounce": 0,
+        "bounce_dmg_reduction": 0.5,
+        "can_bounce": true,
+        "projectile_speed": 3000,
+        "increase_projectile_speed_with_range": false
+      },
+      "effects": [],
+      "boostMode": "Trap"
+    }
+  ],
+  "geometry": {
+    "explosionRadiusPoints": 147.34,
+    "mineTriggerRadiusPoints": 23.9999,
+    "trapTriggerRadiusPoints": 16,
+    "triggerOffsetPoints": 16,
+    "dartCount": 6,
+    "structureTimerSeconds": 1,
+    "minimumCooldown": 2
+  },
+  "nativeSources": [
+    {
+      "source": "res://effects/items/structure_effect.gd",
+      "sourceMd5": "060402fedbcf3e22d318597f740d1f42"
+    },
+    {
+      "source": "res://effects/items/stat_gains_modification_effect.gd",
+      "sourceMd5": "f8af456befab854f151d3af0d9899ef8"
+    },
+    {
+      "source": "res://global/entity_spawner.gdc",
+      "sourceMd5": "ba0576c27ac5b889c5688decda3dd838"
+    }
+  ],
+  "turretTiming": {
+    "animationSource": "res://entities/structures/turret/turret_shoot_animation.tres",
+    "animationMd5": "5ebf2dc3847ca7d24671516e17d06625",
+    "animationSeconds": 0.3,
+    "shootAtSeconds": 0.2,
+    "maximumAnimationSpeed": 3,
+    "cooldownRandomMinimum": 0.7,
+    "cooldownRandomMaximum": 1.3,
+    "minimumRandomFrames": 1
+  },
+  "boostGeometry": {
+    "bodyRadiusPoints": 40,
+    "bodyOffsetZPoints": -8,
+    "normalTurretDurationSeconds": 5,
+    "mineAndTrapDuration": "No timer; persist until the structure dies. DartTrap only inherits Entity.boost marking."
+  }
+}

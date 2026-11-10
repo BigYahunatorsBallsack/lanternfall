@@ -1,0 +1,898 @@
+{
+  "version": "1.2.0.1",
+  "steamBuild": 26406319,
+  "weapons": {
+    "ChainGun": [
+      {
+        "tier": 4,
+        "source": "res://weapons/ranged/chain_gun/4/chain_gun_4_data.tres",
+        "sourceMd5": "ca4b97985f3d17a00e70b6efc15e631d",
+        "statsSource": "res://weapons/ranged/chain_gun/4/chain_gun_4_stats.tres",
+        "statsMd5": "b92b20b06a579562ea03c94de40bdade",
+        "accuracy": 0.8,
+        "spread": 0.3,
+        "count": 3
+      }
+    ],
+    "BoomerangAxe": [
+      {
+        "tier": 1,
+        "source": "res://weapons/ranged/crossbow/1/crossbow_data.tres",
+        "sourceMd5": "451ae90e65864ebb65e23c5f2504effc",
+        "statsSource": "res://weapons/ranged/crossbow/1/crossbow_stats.tres",
+        "statsMd5": "a288bbbce4c658ce188c767531758c21",
+        "accuracy": 1.0,
+        "spread": 0.0,
+        "count": 1
+      },
+      {
+        "tier": 2,
+        "source": "res://weapons/ranged/crossbow/2/crossbow_data_2.tres",
+        "sourceMd5": "5e7a78619c74556bd85eba0db43f9266",
+        "statsSource": "res://weapons/ranged/crossbow/2/crossbow_stats_2.tres",
+        "statsMd5": "b38fd572caa4112e985586401d130352",
+        "accuracy": 1.0,
+        "spread": 0.0,
+        "count": 1
+      },
+      {
+        "tier": 3,
+        "source": "res://weapons/ranged/crossbow/3/crossbow_data_3.tres",
+        "sourceMd5": "cb393af01f776e07fba1fbc2b7c0482d",
+        "statsSource": "res://weapons/ranged/crossbow/3/crossbow_stats_3.tres",
+        "statsMd5": "c49963830896bb878d970f7fcb508a6a",
+        "accuracy": 1.0,
+        "spread": 0.0,
+        "count": 1
+      },
+      {
+        "tier": 4,
+        "source": "res://weapons/ranged/crossbow/4/crossbow_data_4.tres",
+        "sourceMd5": "169592f348175ae34f1b1b4a83483ebf",
+        "statsSource": "res://weapons/ranged/crossbow/4/crossbow_stats_4.tres",
+        "statsMd5": "f508a2510ca969315786142c3410a80e",
+        "accuracy": 1.0,
+        "spread": 0.0,
+        "count": 1
+      }
+    ],
+    "ScatterBell": [
+      {
+        "tier": 1,
+        "source": "res://weapons/ranged/double_barrel_shotgun/1/double_barrel_shotgun_data.tres",
+        "sourceMd5": "b499d4ea62770581485b83164e748bd4",
+        "statsSource": "res://weapons/ranged/double_barrel_shotgun/1/double_barrel_shotgun_stats.tres",
+        "statsMd5": "f7f17ad3a51476066876dcac698b2636",
+        "accuracy": 0.9,
+        "spread": 0.5,
+        "count": 4
+      },
+      {
+        "tier": 2,
+        "source": "res://weapons/ranged/double_barrel_shotgun/2/double_barrel_shotgun_2_data.tres",
+        "sourceMd5": "e628645247f7eb42eb84d16b66dfeb79",
+        "statsSource": "res://weapons/ranged/double_barrel_shotgun/2/double_barrel_shotgun_2_stats.tres",
+        "statsMd5": "9688031f67fddfe249c665082e56db40",
+        "accuracy": 0.95,
+        "spread": 0.5,
+        "count": 4
+      },
+      {
+        "tier": 3,
+        "source": "res://weapons/ranged/double_barrel_shotgun/3/double_barrel_shotgun_3_data.tres",
+        "sourceMd5": "81529ba4493dc4afe15fc6b13133f466",
+        "statsSource": "res://weapons/ranged/double_barrel_shotgun/3/double_barrel_shotgun_3_stats.tres",
+        "statsMd5": "e8449e6e55fdbe3a12b7840ed32939e2",
+        "accuracy": 1.0,
+        "spread": 0.5,
+        "count": 4
+      },
+      {
+        "tier": 4,
+        "source": "res://weapons/ranged/double_barrel_shotgun/4/double_barrel_shotgun_4_data.tres",
+        "sourceMd5": "6e315cb6dabf881e34cbccfc52d6f681",
+        "statsSource": "res://weapons/ranged/double_barrel_shotgun/4/double_barrel_shotgun_4_stats.tres",
+        "statsMd5": "10aa4456142c5bf5213b7e21edbb4d37",
+        "accuracy": 1.0,
+        "spread": 0.5,
+        "count": 6
+      }
+    ],
+    "Fireball": [
+      {
+        "tier": 2,
+        "source": "res://weapons/ranged/fireball/2/fireball_2_data.tres",
+        "sourceMd5": "57de44e3daa6e6455f7fa5ce42997209",
+        "statsSource": "res://weapons/ranged/fireball/2/fireball_2_stats.tres",
+        "statsMd5": "c5bbd2f8f0d449c8836930633340cddd",
+        "accuracy": 0.9,
+        "spread": 0.0,
+        "count": 1
+      },
+      {
+        "tier": 3,
+        "source": "res://weapons/ranged/fireball/3/fireball_3_data.tres",
+        "sourceMd5": "d49342a5975a5ec283ed9d4432491a21",
+        "statsSource": "res://weapons/ranged/fireball/3/fireball_3_stats.tres",
+        "statsMd5": "2f993c20625fe4c9a50627002d8b7f71",
+        "accuracy": 0.95,
+        "spread": 0.0,
+        "count": 1
+      },
+      {
+        "tier": 4,
+        "source": "res://weapons/ranged/fireball/4/fireball_4_data.tres",
+        "sourceMd5": "da4aaf11ab2edeae6482b1fce992ac05",
+        "statsSource": "res://weapons/ranged/fireball/4/fireball_4_stats.tres",
+        "statsMd5": "bb2622dfc0ca68b31d99eb1a6112d05b",
+        "accuracy": 1.0,
+        "spread": 0.0,
+        "count": 1
+      }
+    ],
+    "CinderBreath": [
+      {
+        "tier": 2,
+        "source": "res://weapons/ranged/flamethrower/2/flamethrower_2_data.tres",
+        "sourceMd5": "6cb3642832307fd1357af270476ddb85",
+        "statsSource": "res://weapons/ranged/flamethrower/2/flamethrower_2_stats.tres",
+        "statsMd5": "a4966b38ea5625a26345c1b5a9396e0a",
+        "accuracy": 0.6,
+        "spread": 0.0,
+        "count": 1
+      },
+      {
+        "tier": 3,
+        "source": "res://weapons/ranged/flamethrower/3/flamethrower_3_data.tres",
+        "sourceMd5": "3c20421d616bd2c55b735f258fb01f05",
+        "statsSource": "res://weapons/ranged/flamethrower/3/flamethrower_3_stats.tres",
+        "statsMd5": "638b9f8e4c9d42d4871b8c8f39a4038a",
+        "accuracy": 0.6,
+        "spread": 0.0,
+        "count": 1
+      },
+      {
+        "tier": 4,
+        "source": "res://weapons/ranged/flamethrower/4/flamethrower_4_data.tres",
+        "sourceMd5": "03e11fd074997d0a27103f26f8357a88",
+        "statsSource": "res://weapons/ranged/flamethrower/4/flamethrower_4_stats.tres",
+        "statsMd5": "0657212729d8ddb6cd4421123c541f0e",
+        "accuracy": 0.6,
+        "spread": 0.0,
+        "count": 1
+      }
+    ],
+    "CathedralEngine": [
+      {
+        "tier": 4,
+        "source": "res://weapons/ranged/gatling_laser/4/gatling_laser_4_data.tres",
+        "sourceMd5": "2585dc3eb44e9259cd0d1dceefabc4b1",
+        "statsSource": "res://weapons/ranged/gatling_laser/4/gatling_laser_4_stats.tres",
+        "statsMd5": "1fd0b6bb53e479a4c5856cf245143a65",
+        "accuracy": 0.75,
+        "spread": 0.0,
+        "count": 1
+      }
+    ],
+    "GhostScepter": [
+      {
+        "tier": 1,
+        "source": "res://weapons/ranged/ghost_scepter/1/ghost_scepter_data.tres",
+        "sourceMd5": "125cf9e5d39324c5daf6cbe7ba48a6de",
+        "statsSource": "res://weapons/ranged/ghost_scepter/1/ghost_scepter_stats.tres",
+        "statsMd5": "30f53b87a71c07d0d38039c3606f5dea",
+        "accuracy": 1.0,
+        "spread": 0.0,
+        "count": 1
+      },
+      {
+        "tier": 2,
+        "source": "res://weapons/ranged/ghost_scepter/2/ghost_scepter_2_data.tres",
+        "sourceMd5": "9040c24d18091963860925701a34c7bb",
+        "statsSource": "res://weapons/ranged/ghost_scepter/2/ghost_scepter_2_stats.tres",
+        "statsMd5": "ec006e9053e32e3af5a29c06942fb7ec",
+        "accuracy": 1.0,
+        "spread": 0.0,
+        "count": 1
+      },
+      {
+        "tier": 3,
+        "source": "res://weapons/ranged/ghost_scepter/3/ghost_scepter_3_data.tres",
+        "sourceMd5": "b529e963f1060aca19217f2ac6ebf04e",
+        "statsSource": "res://weapons/ranged/ghost_scepter/3/ghost_scepter_3_stats.tres",
+        "statsMd5": "ddfbacb326925a26ba05d8905b9cf6dc",
+        "accuracy": 1.0,
+        "spread": 0.0,
+        "count": 1
+      },
+      {
+        "tier": 4,
+        "source": "res://weapons/ranged/ghost_scepter/4/ghost_scepter_4_data.tres",
+        "sourceMd5": "81c451386ca7740ff59300c1a43bf4f0",
+        "statsSource": "res://weapons/ranged/ghost_scepter/4/ghost_scepter_4_stats.tres",
+        "statsMd5": "3b7ec8c12ab2159091c5a7422d4616b8",
+        "accuracy": 1.0,
+        "spread": 0.0,
+        "count": 1
+      }
+    ],
+    "WinterNeedle": [
+      {
+        "tier": 1,
+        "source": "res://weapons/ranged/icicle/1/icicle_data.tres",
+        "sourceMd5": "4ec3356daf0841c41e677f93220da64a",
+        "statsSource": "res://weapons/ranged/icicle/1/icicle_stats.tres",
+        "statsMd5": "1ff0c2ad1d3faaa18175beb96d1f158b",
+        "accuracy": 0.85,
+        "spread": 0.0,
+        "count": 1
+      },
+      {
+        "tier": 2,
+        "source": "res://weapons/ranged/icicle/2/icicle_2_data.tres",
+        "sourceMd5": "efa6bb830d766bc8e02c89abbd531853",
+        "statsSource": "res://weapons/ranged/icicle/2/icicle_2_stats.tres",
+        "statsMd5": "e230d04f7650623698f0f6649f54f1d0",
+        "accuracy": 0.9,
+        "spread": 0.0,
+        "count": 1
+      },
+      {
+        "tier": 3,
+        "source": "res://weapons/ranged/icicle/3/icicle_3_data.tres",
+        "sourceMd5": "99e56cd1bdcbba8631103fb7da6d1984",
+        "statsSource": "res://weapons/ranged/icicle/3/icicle_3_stats.tres",
+        "statsMd5": "6cf16e5407d75300af09496bd911a19c",
+        "accuracy": 0.95,
+        "spread": 0.0,
+        "count": 1
+      },
+      {
+        "tier": 4,
+        "source": "res://weapons/ranged/icicle/4/icicle_4_data.tres",
+        "sourceMd5": "1ee0869daa5b10c8d2d6992dfe779a54",
+        "statsSource": "res://weapons/ranged/icicle/4/icicle_4_stats.tres",
+        "statsMd5": "7172623e032bf8e23dfea1ee3f74213c",
+        "accuracy": 1.0,
+        "spread": 0.0,
+        "count": 1
+      }
+    ],
+    "LaserGun": [
+      {
+        "tier": 1,
+        "source": "res://weapons/ranged/laser_gun/1/laser_gun_data.tres",
+        "sourceMd5": "5ac92cf8b8095de2a9cc0ee4c186950a",
+        "statsSource": "res://weapons/ranged/laser_gun/1/laser_gun_stats.tres",
+        "statsMd5": "730c9df8b341540a5395d54842a5f2d9",
+        "accuracy": 1.0,
+        "spread": 0.0,
+        "count": 1
+      },
+      {
+        "tier": 2,
+        "source": "res://weapons/ranged/laser_gun/2/laser_gun_2_data.tres",
+        "sourceMd5": "47df5aebc6338a1c02acca0e8d3c34d4",
+        "statsSource": "res://weapons/ranged/laser_gun/2/laser_gun_2_stats.tres",
+        "statsMd5": "8825265e93b004f3e097127061a7abd6",
+        "accuracy": 1.0,
+        "spread": 0.0,
+        "count": 1
+      },
+      {
+        "tier": 3,
+        "source": "res://weapons/ranged/laser_gun/3/laser_gun_3_data.tres",
+        "sourceMd5": "f8c678a2c71fc2d609388ac9301ab340",
+        "statsSource": "res://weapons/ranged/laser_gun/3/laser_gun_3_stats.tres",
+        "statsMd5": "96bdbd3648b38eb187bd64a50f26e26a",
+        "accuracy": 1.0,
+        "spread": 0.0,
+        "count": 1
+      },
+      {
+        "tier": 4,
+        "source": "res://weapons/ranged/laser_gun/4/laser_gun_4_data.tres",
+        "sourceMd5": "9b0d6d6852443972802981e3fc8579db",
+        "statsSource": "res://weapons/ranged/laser_gun/4/laser_gun_4_stats.tres",
+        "statsMd5": "f78e700202896c3238a8253bdf4b2307",
+        "accuracy": 1.0,
+        "spread": 0.0,
+        "count": 1
+      }
+    ],
+    "LeechCarbine": [
+      {
+        "tier": 1,
+        "source": "res://weapons/ranged/medical_gun/1/medical_gun_data.tres",
+        "sourceMd5": "1bd0011cebcf3956287312ee7a6acbb2",
+        "statsSource": "res://weapons/ranged/medical_gun/1/medical_gun_stats.tres",
+        "statsMd5": "477eb611323cf0c18b2a82c69af65d89",
+        "accuracy": 0.9,
+        "spread": 0.0,
+        "count": 1
+      },
+      {
+        "tier": 2,
+        "source": "res://weapons/ranged/medical_gun/2/medical_gun_2_data.tres",
+        "sourceMd5": "5c47e7272d0b585679476d7e0c87c740",
+        "statsSource": "res://weapons/ranged/medical_gun/2/medical_gun_2_stats.tres",
+        "statsMd5": "ffac22801bd9762732064b3a527e2d72",
+        "accuracy": 0.9,
+        "spread": 0.0,
+        "count": 1
+      },
+      {
+        "tier": 3,
+        "source": "res://weapons/ranged/medical_gun/3/medical_gun_3_data.tres",
+        "sourceMd5": "4bd6d51793ab2fc2ab881f64f3cc0701",
+        "statsSource": "res://weapons/ranged/medical_gun/3/medical_gun_3_stats.tres",
+        "statsMd5": "f1c34655464177319e8e3b9b7dfcd1cc",
+        "accuracy": 0.9,
+        "spread": 0.0,
+        "count": 1
+      },
+      {
+        "tier": 4,
+        "source": "res://weapons/ranged/medical_gun/4/medical_gun_4_data.tres",
+        "sourceMd5": "994c335060902dc02907ce6442ce654f",
+        "statsSource": "res://weapons/ranged/medical_gun/4/medical_gun_4_stats.tres",
+        "statsMd5": "88c1b5d9838a357fa4f38264dfe6ae9a",
+        "accuracy": 1.0,
+        "spread": 0.0,
+        "count": 1
+      }
+    ],
+    "Minigun": [
+      {
+        "tier": 3,
+        "source": "res://weapons/ranged/minigun/3/minigun_3_data.tres",
+        "sourceMd5": "898fb858058023f2f3de2197255d5e08",
+        "statsSource": "res://weapons/ranged/minigun/3/minigun_3_stats.tres",
+        "statsMd5": "3e64930de91b6ef60331bb47d9e78eec",
+        "accuracy": 0.85,
+        "spread": 0.0,
+        "count": 1
+      },
+      {
+        "tier": 4,
+        "source": "res://weapons/ranged/minigun/4/minigun_4_data.tres",
+        "sourceMd5": "a524d6cb0b0dc6e4e38c434ea6f217a6",
+        "statsSource": "res://weapons/ranged/minigun/4/minigun_4_stats.tres",
+        "statsMd5": "6ca739942dcde40de998efe67d4ea820",
+        "accuracy": 1.0,
+        "spread": 0.0,
+        "count": 1
+      }
+    ],
+    "NuclearLauncher": [
+      {
+        "tier": 3,
+        "source": "res://weapons/ranged/nuclear_launcher/3/nuclear_launcher_3_data.tres",
+        "sourceMd5": "58b9d223c54d7e264c76f2e8d3e26eb5",
+        "statsSource": "res://weapons/ranged/nuclear_launcher/3/nuclear_launcher_3_stats.tres",
+        "statsMd5": "5f58e22011d6e716fd01862b2cf2fb9b",
+        "accuracy": 1.0,
+        "spread": 0.0,
+        "count": 1
+      },
+      {
+        "tier": 4,
+        "source": "res://weapons/ranged/nuclear_launcher/4/nuclear_launcher_4_data.tres",
+        "sourceMd5": "be63b140bc750c2d2ec774105ab56a62",
+        "statsSource": "res://weapons/ranged/nuclear_launcher/4/nuclear_launcher_4_stats.tres",
+        "statsMd5": "9746c8f67e8b584577224159a9ab139e",
+        "accuracy": 1.0,
+        "spread": 0.0,
+        "count": 1
+      }
+    ],
+    "Obliterator": [
+      {
+        "tier": 3,
+        "source": "res://weapons/ranged/obliterator/3/obliterator_3_data.tres",
+        "sourceMd5": "54b00c1e8f96dad8b4f5a8a396e25577",
+        "statsSource": "res://weapons/ranged/obliterator/3/obliterator_3_stats.tres",
+        "statsMd5": "1a9819d59db81d5a4d55d9176cd5af70",
+        "accuracy": 1.0,
+        "spread": 0.0,
+        "count": 1
+      },
+      {
+        "tier": 4,
+        "source": "res://weapons/ranged/obliterator/4/obliterator_4_data.tres",
+        "sourceMd5": "b1aeb4697aefa72c451b1559038422fc",
+        "statsSource": "res://weapons/ranged/obliterator/4/obliterator_4_stats.tres",
+        "statsMd5": "0ac86c0bd551c487c965621f282ee73a",
+        "accuracy": 1.0,
+        "spread": 0.0,
+        "count": 1
+      }
+    ],
+    "ParticleAccelerator": [
+      {
+        "tier": 3,
+        "source": "res://weapons/ranged/particle_accelerator/3/particle_accelerator_3_data.tres",
+        "sourceMd5": "7dc81fba32df830ce6f8d758d4431b1c",
+        "statsSource": "res://weapons/ranged/particle_accelerator/3/particle_accelerator_3_stats.tres",
+        "statsMd5": "aa55dc6705d4ab8383c22cde66c597ee",
+        "accuracy": 1.0,
+        "spread": 0.0,
+        "count": 1
+      },
+      {
+        "tier": 4,
+        "source": "res://weapons/ranged/particle_accelerator/4/particle_accelerator_4_data.tres",
+        "sourceMd5": "4828c41bc0715f50116635730d9d3d74",
+        "statsSource": "res://weapons/ranged/particle_accelerator/4/particle_accelerator_4_stats.tres",
+        "statsMd5": "76214eaca6781aa06abc5565503b4cd9",
+        "accuracy": 1.0,
+        "spread": 0.0,
+        "count": 1
+      }
+    ],
+    "WatchmanPistol": [
+      {
+        "tier": 1,
+        "source": "res://weapons/ranged/pistol/1/pistol_data.tres",
+        "sourceMd5": "6e46de58873b8744509a98b8cdab9a86",
+        "statsSource": "res://weapons/ranged/pistol/1/pistol_stats.tres",
+        "statsMd5": "66a08e176c2358caad2b32a1ae0082ff",
+        "accuracy": 0.9,
+        "spread": 0.0,
+        "count": 1
+      },
+      {
+        "tier": 2,
+        "source": "res://weapons/ranged/pistol/2/pistol_2_data.tres",
+        "sourceMd5": "6c4452f7873c8be50fc4f62c82006733",
+        "statsSource": "res://weapons/ranged/pistol/2/pistol_2_stats.tres",
+        "statsMd5": "fe8f68f71d559ec846891c14c766400a",
+        "accuracy": 0.9,
+        "spread": 0.0,
+        "count": 1
+      },
+      {
+        "tier": 3,
+        "source": "res://weapons/ranged/pistol/3/pistol_3_data.tres",
+        "sourceMd5": "77535f5a096084b2ebd501bc84b0eb5e",
+        "statsSource": "res://weapons/ranged/pistol/3/pistol_3_stats.tres",
+        "statsMd5": "060a05d8c46b5e7c40329dc70c5f6c65",
+        "accuracy": 0.9,
+        "spread": 0.0,
+        "count": 1
+      },
+      {
+        "tier": 4,
+        "source": "res://weapons/ranged/pistol/4/pistol_4_data.tres",
+        "sourceMd5": "f368d88ce14c3af4c021e0c77b66b413",
+        "statsSource": "res://weapons/ranged/pistol/4/pistol_4_stats.tres",
+        "statsMd5": "78f74252d5d12ef41448ec0e5d0ea570",
+        "accuracy": 1.0,
+        "spread": 0.0,
+        "count": 1
+      }
+    ],
+    "PotatoThrower": [
+      {
+        "tier": 2,
+        "source": "res://weapons/ranged/potato_thrower/2/potato_thrower_2_data.tres",
+        "sourceMd5": "4e52a041ac3d7d3c715c0b85a9da0b44",
+        "statsSource": "res://weapons/ranged/potato_thrower/2/potato_thrower_2_stats.tres",
+        "statsMd5": "a5f5bb334f69892e050701669853ddc5",
+        "accuracy": 0.9,
+        "spread": 0.0,
+        "count": 1
+      },
+      {
+        "tier": 3,
+        "source": "res://weapons/ranged/potato_thrower/3/potato_thrower_3_data.tres",
+        "sourceMd5": "7d5bd130e76dac717fbb4c7b9ab7e407",
+        "statsSource": "res://weapons/ranged/potato_thrower/3/potato_thrower_3_stats.tres",
+        "statsMd5": "a4f328a78544726e9d9db9ea30f8496a",
+        "accuracy": 0.9,
+        "spread": 0.0,
+        "count": 1
+      },
+      {
+        "tier": 4,
+        "source": "res://weapons/ranged/potato_thrower/4/potato_thrower_4_data.tres",
+        "sourceMd5": "017a4d9987b005d0211e7fa9d993b18a",
+        "statsSource": "res://weapons/ranged/potato_thrower/4/potato_thrower_4_stats.tres",
+        "statsMd5": "114b130f86b3b4d158997de5ac238b60",
+        "accuracy": 0.9,
+        "spread": 0.0,
+        "count": 1
+      }
+    ],
+    "Railgun": [
+      {
+        "tier": 1,
+        "source": "res://weapons/ranged/rail_gun/1/rail_gun_1_data.tres",
+        "sourceMd5": "6548551af5112a52277a83fb5068a3e1",
+        "statsSource": "res://weapons/ranged/rail_gun/1/rail_gun_1_stats.tres",
+        "statsMd5": "2ea1436f6c91fd3e54832d4304eba563",
+        "accuracy": 1.0,
+        "spread": 0.0,
+        "count": 1
+      },
+      {
+        "tier": 2,
+        "source": "res://weapons/ranged/rail_gun/2/rail_gun_2_data.tres",
+        "sourceMd5": "9f17cb9ba256a42d9c764d691b191770",
+        "statsSource": "res://weapons/ranged/rail_gun/2/rail_gun_2_stats.tres",
+        "statsMd5": "8d476aa9b02611f1655572ad8c43e5ae",
+        "accuracy": 1.0,
+        "spread": 0.0,
+        "count": 1
+      },
+      {
+        "tier": 3,
+        "source": "res://weapons/ranged/rail_gun/3/rail_gun_3_data.tres",
+        "sourceMd5": "4600268e13eb6cc92af73fe9e0be91d3",
+        "statsSource": "res://weapons/ranged/rail_gun/3/rail_gun_3_stats.tres",
+        "statsMd5": "a040f79a74b3d451f097ea6efbfdef4d",
+        "accuracy": 1.0,
+        "spread": 0.0,
+        "count": 1
+      },
+      {
+        "tier": 4,
+        "source": "res://weapons/ranged/rail_gun/4/rail_gun_4_data.tres",
+        "sourceMd5": "8b7d59ab4e5d1ad615f1e215b1451d7c",
+        "statsSource": "res://weapons/ranged/rail_gun/4/rail_gun_4_stats.tres",
+        "statsMd5": "0d29e7bfe952fd49bcdce89e5dc90c3d",
+        "accuracy": 1.0,
+        "spread": 0.0,
+        "count": 1
+      }
+    ],
+    "Revolver": [
+      {
+        "tier": 1,
+        "source": "res://weapons/ranged/revolver/1/revolver_data.tres",
+        "sourceMd5": "5f5a1ceff09ac7597123a911e4782fa2",
+        "statsSource": "res://weapons/ranged/revolver/1/revolver_stats.tres",
+        "statsMd5": "4dd3a19214e74e4556a55c340fd3e73a",
+        "accuracy": 0.9,
+        "spread": 0.0,
+        "count": 1
+      },
+      {
+        "tier": 2,
+        "source": "res://weapons/ranged/revolver/2/revolver_2_data.tres",
+        "sourceMd5": "614797a691f5161da09c3e28e8be9949",
+        "statsSource": "res://weapons/ranged/revolver/2/revolver_2_stats.tres",
+        "statsMd5": "321f3f428a73629fa82d3bd29b048b52",
+        "accuracy": 0.9,
+        "spread": 0.0,
+        "count": 1
+      },
+      {
+        "tier": 3,
+        "source": "res://weapons/ranged/revolver/3/revolver_3_data.tres",
+        "sourceMd5": "c7ab37e3af40d9b4510b41a39f31704a",
+        "statsSource": "res://weapons/ranged/revolver/3/revolver_3_stats.tres",
+        "statsMd5": "a901bd4939317432abc7cc0b727fbda2",
+        "accuracy": 0.9,
+        "spread": 0.0,
+        "count": 1
+      },
+      {
+        "tier": 4,
+        "source": "res://weapons/ranged/revolver/4/revolver_4_data.tres",
+        "sourceMd5": "eb7b06c2ed0d3bbcb0e014e39bcd1c60",
+        "statsSource": "res://weapons/ranged/revolver/4/revolver_4_stats.tres",
+        "statsMd5": "95fbc072488c6aacb837db2cc16c8c65",
+        "accuracy": 0.9,
+        "spread": 0.0,
+        "count": 1
+      }
+    ],
+    "MortarLantern": [
+      {
+        "tier": 2,
+        "source": "res://weapons/ranged/rocket_launcher/2/rocket_launcher_2_data.tres",
+        "sourceMd5": "896688dca6236c0329ac51908efecdb4",
+        "statsSource": "res://weapons/ranged/rocket_launcher/2/rocket_launcher_2_stats.tres",
+        "statsMd5": "1795be939970b8be471dfa86910262df",
+        "accuracy": 0.8,
+        "spread": 0.0,
+        "count": 1
+      },
+      {
+        "tier": 3,
+        "source": "res://weapons/ranged/rocket_launcher/3/rocket_launcher_3_data.tres",
+        "sourceMd5": "281b9d17491ae07d60b92a733929476f",
+        "statsSource": "res://weapons/ranged/rocket_launcher/3/rocket_launcher_3_stats.tres",
+        "statsMd5": "f8eabca9fb52d2123732b090352c7f20",
+        "accuracy": 0.9,
+        "spread": 0.0,
+        "count": 1
+      },
+      {
+        "tier": 4,
+        "source": "res://weapons/ranged/rocket_launcher/4/rocket_launcher_4_data.tres",
+        "sourceMd5": "c136f9104d8cb396a40c482157079d76",
+        "statsSource": "res://weapons/ranged/rocket_launcher/4/rocket_launcher_4_stats.tres",
+        "statsMd5": "e683bd772bef4159b10482396e04562f",
+        "accuracy": 1.0,
+        "spread": 0.0,
+        "count": 1
+      }
+    ],
+    "ShrapnelOrgan": [
+      {
+        "tier": 1,
+        "source": "res://weapons/ranged/shredder/1/shredder_data.tres",
+        "sourceMd5": "7af88a9f76414b8dc1e0b319922bdee2",
+        "statsSource": "res://weapons/ranged/shredder/1/shredder_stats.tres",
+        "statsMd5": "476635300d014e6663434dc0ce0f505b",
+        "accuracy": 1.0,
+        "spread": 0.0,
+        "count": 1
+      },
+      {
+        "tier": 2,
+        "source": "res://weapons/ranged/shredder/2/shredder_2_data.tres",
+        "sourceMd5": "2d306af572b72cebaf098f74f762a62e",
+        "statsSource": "res://weapons/ranged/shredder/2/shredder_2_stats.tres",
+        "statsMd5": "36069905f59658b66d294e969a6b2dce",
+        "accuracy": 1.0,
+        "spread": 0.0,
+        "count": 1
+      },
+      {
+        "tier": 3,
+        "source": "res://weapons/ranged/shredder/3/shredder_3_data.tres",
+        "sourceMd5": "4962b57fe2206328557165ffc893e6fe",
+        "statsSource": "res://weapons/ranged/shredder/3/shredder_3_stats.tres",
+        "statsMd5": "f00606437728ea1e7da13b944140da7c",
+        "accuracy": 1.0,
+        "spread": 0.0,
+        "count": 1
+      },
+      {
+        "tier": 4,
+        "source": "res://weapons/ranged/shredder/4/shredder_4_data.tres",
+        "sourceMd5": "3b45c02af9c8b02d62051cf558d98bd1",
+        "statsSource": "res://weapons/ranged/shredder/4/shredder_4_stats.tres",
+        "statsMd5": "30157537877c892e4ab30deb7ca5c865",
+        "accuracy": 1.0,
+        "spread": 0.0,
+        "count": 1
+      }
+    ],
+    "Shuriken": [
+      {
+        "tier": 1,
+        "source": "res://weapons/ranged/shuriken/1/shuriken_data.tres",
+        "sourceMd5": "872e71d12d3abc81a0d0e34f522e7a04",
+        "statsSource": "res://weapons/ranged/shuriken/1/shuriken_stats.tres",
+        "statsMd5": "a839924dd1f09fb6ae08eb4856c0428c",
+        "accuracy": 1.0,
+        "spread": 0.0,
+        "count": 1
+      },
+      {
+        "tier": 2,
+        "source": "res://weapons/ranged/shuriken/2/shuriken_2_data.tres",
+        "sourceMd5": "307f168fe80347de174a215d218e7db4",
+        "statsSource": "res://weapons/ranged/shuriken/2/shuriken_2_stats.tres",
+        "statsMd5": "51f60a2994a57ea5c14de4bbc2ea7351",
+        "accuracy": 1.0,
+        "spread": 0.0,
+        "count": 1
+      },
+      {
+        "tier": 3,
+        "source": "res://weapons/ranged/shuriken/3/shuriken_3_data.tres",
+        "sourceMd5": "5298e852544e5b5ef575d5a81cc188fc",
+        "statsSource": "res://weapons/ranged/shuriken/3/shuriken_3_stats.tres",
+        "statsMd5": "3fb348da23b606d9b4a328d542e1dd7c",
+        "accuracy": 1.0,
+        "spread": 0.0,
+        "count": 1
+      },
+      {
+        "tier": 4,
+        "source": "res://weapons/ranged/shuriken/4/shuriken_4_data.tres",
+        "sourceMd5": "73c83d168dadb2ea9c8968c96b6e2cef",
+        "statsSource": "res://weapons/ranged/shuriken/4/shuriken_4_stats.tres",
+        "statsMd5": "efde989b00fb5cd15be3283b50df265f",
+        "accuracy": 1.0,
+        "spread": 0.0,
+        "count": 1
+      }
+    ],
+    "Slingshot": [
+      {
+        "tier": 1,
+        "source": "res://weapons/ranged/slingshot/1/slingshot_data.tres",
+        "sourceMd5": "6254573166ce463adcc20d780b1b4f88",
+        "statsSource": "res://weapons/ranged/slingshot/1/slingshot_stats.tres",
+        "statsMd5": "61da019da7a52ae3f755f39bbf75d1a8",
+        "accuracy": 1.0,
+        "spread": 0.0,
+        "count": 1
+      },
+      {
+        "tier": 2,
+        "source": "res://weapons/ranged/slingshot/2/slingshot_2_data.tres",
+        "sourceMd5": "345297903725c8d1ed4d182a14acf9bf",
+        "statsSource": "res://weapons/ranged/slingshot/2/slingshot_2_stats.tres",
+        "statsMd5": "3c8a4eb50de802fc3088361af6560eca",
+        "accuracy": 1.0,
+        "spread": 0.0,
+        "count": 1
+      },
+      {
+        "tier": 3,
+        "source": "res://weapons/ranged/slingshot/3/slingshot_3_data.tres",
+        "sourceMd5": "f5aeebda839daee2e808c8ee355d51f3",
+        "statsSource": "res://weapons/ranged/slingshot/3/slingshot_3_stats.tres",
+        "statsMd5": "dbc01aa37f32263d3948c32e8ecb12c5",
+        "accuracy": 1.0,
+        "spread": 0.0,
+        "count": 1
+      },
+      {
+        "tier": 4,
+        "source": "res://weapons/ranged/slingshot/4/slingshot_4_data.tres",
+        "sourceMd5": "88e02c31cb1b17074a2694c4523ec2a0",
+        "statsSource": "res://weapons/ranged/slingshot/4/slingshot_4_stats.tres",
+        "statsMd5": "6b577d0a165c0846454b60da15619dd5",
+        "accuracy": 1.0,
+        "spread": 0.0,
+        "count": 1
+      }
+    ],
+    "RattleRepeater": [
+      {
+        "tier": 1,
+        "source": "res://weapons/ranged/smg/1/smg_data.tres",
+        "sourceMd5": "51fa2a55fd7a584800f164a7070fce6b",
+        "statsSource": "res://weapons/ranged/smg/1/smg_stats.tres",
+        "statsMd5": "fe1231294e3ee89e8778aab66e36bce9",
+        "accuracy": 0.7,
+        "spread": 0.0,
+        "count": 1
+      },
+      {
+        "tier": 2,
+        "source": "res://weapons/ranged/smg/2/smg_2_data.tres",
+        "sourceMd5": "ce4c48e36f269cd13d144d06f591ba9c",
+        "statsSource": "res://weapons/ranged/smg/2/smg_2_stats.tres",
+        "statsMd5": "8baa3a2807c99fd14b75993556b4d4e5",
+        "accuracy": 0.75,
+        "spread": 0.0,
+        "count": 1
+      },
+      {
+        "tier": 3,
+        "source": "res://weapons/ranged/smg/3/smg_3_data.tres",
+        "sourceMd5": "1475d8e51bc05a526143552eec885f39",
+        "statsSource": "res://weapons/ranged/smg/3/smg_3_stats.tres",
+        "statsMd5": "f432f5382de12101299d20aefe47ca17",
+        "accuracy": 0.8,
+        "spread": 0.0,
+        "count": 1
+      },
+      {
+        "tier": 4,
+        "source": "res://weapons/ranged/smg/4/smg_4_data.tres",
+        "sourceMd5": "9988b440212a421c7224077da169390d",
+        "statsSource": "res://weapons/ranged/smg/4/smg_4_stats.tres",
+        "statsMd5": "93b67d9c7401b83877728c5e59ee4312",
+        "accuracy": 0.85,
+        "spread": 0.0,
+        "count": 1
+      }
+    ],
+    "SniperGun": [
+      {
+        "tier": 3,
+        "source": "res://weapons/ranged/sniper_gun/3/sniper_gun_3_data.tres",
+        "sourceMd5": "ec5a5c98371dca011351889e5d8b6268",
+        "statsSource": "res://weapons/ranged/sniper_gun/3/sniper_gun_3_stats.tres",
+        "statsMd5": "b9207e3d9e5cc528948f3c9c3e95b69a",
+        "accuracy": 1.0,
+        "spread": 0.0,
+        "count": 1
+      },
+      {
+        "tier": 4,
+        "source": "res://weapons/ranged/sniper_gun/4/sniper_gun_4_data.tres",
+        "sourceMd5": "63470e08b784aefadc456038e85c4bd8",
+        "statsSource": "res://weapons/ranged/sniper_gun/4/sniper_gun_4_stats.tres",
+        "statsMd5": "6165e932bf8f6a137734307c9ed15896",
+        "accuracy": 1.0,
+        "spread": 0.0,
+        "count": 1
+      }
+    ],
+    "GalvanicFork": [
+      {
+        "tier": 1,
+        "source": "res://weapons/ranged/taser/1/taser_data.tres",
+        "sourceMd5": "81b58ed5d281d207c7d40883bbe0f6d1",
+        "statsSource": "res://weapons/ranged/taser/1/taser_stats.tres",
+        "statsMd5": "99a992901c0a9a98edcb5d686db1cb3f",
+        "accuracy": 1.0,
+        "spread": 0.0,
+        "count": 1
+      },
+      {
+        "tier": 2,
+        "source": "res://weapons/ranged/taser/2/taser_2_data.tres",
+        "sourceMd5": "910c3f98e5c421587f1b31be7437797a",
+        "statsSource": "res://weapons/ranged/taser/2/taser_2_stats.tres",
+        "statsMd5": "8938aad8df94261321941b7f683d658a",
+        "accuracy": 1.0,
+        "spread": 0.5,
+        "count": 2
+      },
+      {
+        "tier": 3,
+        "source": "res://weapons/ranged/taser/3/taser_3_data.tres",
+        "sourceMd5": "42a6f33b330a0482beb5189c930ca9ab",
+        "statsSource": "res://weapons/ranged/taser/3/taser_3_stats.tres",
+        "statsMd5": "6d9fe1d46159b3968efc0e9181fc43c1",
+        "accuracy": 1.0,
+        "spread": 0.7,
+        "count": 3
+      },
+      {
+        "tier": 4,
+        "source": "res://weapons/ranged/taser/4/taser_4_data.tres",
+        "sourceMd5": "92209d71bbcdb355f0c731238c9add86",
+        "statsSource": "res://weapons/ranged/taser/4/taser_4_stats.tres",
+        "statsMd5": "0449575451a71e887bab94e43071fdf3",
+        "accuracy": 1.0,
+        "spread": 0.7,
+        "count": 4
+      }
+    ],
+    "SparkBolt": [
+      {
+        "tier": 1,
+        "source": "res://weapons/ranged/wand/1/wand_data.tres",
+        "sourceMd5": "b8dac70ff0c120ba5c152e9209b522ec",
+        "statsSource": "res://weapons/ranged/wand/1/wand_stats.tres",
+        "statsMd5": "c67600f49a1f377f675d415370e338d0",
+        "accuracy": 1.0,
+        "spread": 0.0,
+        "count": 1
+      },
+      {
+        "tier": 2,
+        "source": "res://weapons/ranged/wand/2/wand_2_data.tres",
+        "sourceMd5": "b3d5fba4b332eb6df7e0b2fe008ce05f",
+        "statsSource": "res://weapons/ranged/wand/2/wand_2_stats.tres",
+        "statsMd5": "966b58d75b76584c37f0f2576b2811cb",
+        "accuracy": 1.0,
+        "spread": 0.0,
+        "count": 1
+      },
+      {
+        "tier": 3,
+        "source": "res://weapons/ranged/wand/3/wand_3_data.tres",
+        "sourceMd5": "6c944a6e55787da7135265983310dd05",
+        "statsSource": "res://weapons/ranged/wand/3/wand_3_stats.tres",
+        "statsMd5": "6ce6cf0291009d8268c5f287b659391e",
+        "accuracy": 1.0,
+        "spread": 0.0,
+        "count": 1
+      },
+      {
+        "tier": 4,
+        "source": "res://weapons/ranged/wand/4/wand_4_data.tres",
+        "sourceMd5": "94fbfd00b188632d4fb14aeb74d1aaa8",
+        "statsSource": "res://weapons/ranged/wand/4/wand_4_stats.tres",
+        "statsMd5": "46af33bdd59c9854c9116e6b638a238e",
+        "accuracy": 1.0,
+        "spread": 0.0,
+        "count": 1
+      }
+    ]
+  }
+}
