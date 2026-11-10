@@ -1,5 +1,5 @@
 --!strict
--- High-speed rushes must stop at the first swept collision, even when both tick endpoints miss the target.
+-- High-speed rushes must hit along their swept path, even when both tick endpoints miss the target, and stop at obstacles.
 local Shared = game:GetService("ReplicatedStorage").Shared
 local Config = require(Shared.Config)
 local World = require(game:GetService("ServerScriptService").Server.Services.EnemySim.World)
@@ -33,20 +33,20 @@ local function rushing(obstacles)
 end
 
 describe("Fast rush collisions", function()
-	it("hits a player between the endpoints and recovers on the near side", function()
+	it("hits a player between the endpoints and rushes on through them", function()
 		local world, id = rushing()
 		local contacts = world:step(step, { 0 }, { 0 }, 1)
 		expect(contacts[1]).toBe(kind.contactDamage)
-		expect(world:getMode(id)).toBe(World.MODE_RECOVER)
-		assert(world:getPosition(id) < 0)
+		-- Brotato: enemies do not collide with players, the rush goes on for its whole time
+		expect(world:getMode(id)).toBe(World.MODE_RUSH)
+		assert((world:getPosition(id) :: number) > 0)
 	end)
-	it("stops at the first player and does not hit the player behind them", function()
+	it("hits every player along the path", function()
 		local world, id = rushing()
 		world:setSpeedFactor(id, 3) -- high enemy-speed modifiers still use one continuous collision path
 		local contacts = world:step(step, { 0, 7 }, { 0, 0 }, 2)
 		expect(contacts[1]).toBe(kind.contactDamage)
-		expect(contacts[2]).toBe(0)
-		expect(world:getMode(id)).toBe(World.MODE_RECOVER)
+		expect(contacts[2]).toBe(kind.contactDamage)
 	end)
 	it("stops at a thin obstacle between endpoints without hurting the player behind it", function()
 		local world, id = rushing({ { x = 0, z = 0, radius = 0.1 } })

@@ -35,6 +35,7 @@
 
 local Shared = game:GetService("ReplicatedStorage").Shared
 local Enemies = require(Shared.Config.Enemies)
+local Combat = require(Shared.Config.Combat)
 local PointScale = require(Shared.Config.Stats).range.studsPerPoint
 local DecayingSpeed = require(script.Parent.DecayingSpeed)
 local SpatialHash = require(Shared.Util.SpatialHash)
@@ -69,7 +70,7 @@ local HEAD_ON = 0.05 -- below this share of sideways movement an enemy counts as
 local GOLDEN_ANGLE = 2.399963 -- spreads the push direction of enemies standing exactly on top of each other
 local GOLDEN_RATIO = 0.618034 -- spreads the first shot of ranged enemies so they do not fire in sync
 local PULSE_SHOW_SECONDS = 0.5 -- clients see the ring of a buff or heal this long (mode wind-up; look only)
-local HATCH_WARN_SECONDS = 1.5 -- an egg shakes (mode wind-up) this long before it hatches (look only)
+local HATCH_WARN_SECONDS = 1.6 -- an egg shakes (mode wind-up) this long before it hatches: Brotato's half-speed shoot animation (look only)
 
 local World = {}
 World.__index = World
@@ -108,6 +109,8 @@ export type World = typeof(setmetatable(
 		speedBonuses: { number },
 		speedFactors: { number }, -- multiplier on its kind's speed from spawning (the team's Enemy Speed stat, B9)
 		boosts: { number }, -- multiplier on its speed from accelerating (kind.accelerate), 1 otherwise (B9)
+		boostClocks: { number }, -- seconds towards its next accelerate step
+		zoneMembers: { [number]: { [number]: boolean } }, -- by Mender id: ids of the enemies in its radius (pulse.onEnter)
 		buffed: { boolean }, -- a Herald made it stronger (once per enemy, shown in snapshots; B9)
 		abilityTimers: { number }, -- seconds until it pulses or hatches, or its counter-shot cooldown (B9)
 		goalXs: { number }, -- where it walks instead of the nearest target while hasGoal (World.setGoal, B9)
@@ -119,6 +122,10 @@ export type World = typeof(setmetatable(
 		wanderLeft: { number }, -- seconds until it picks a new spot even if it has not arrived
 		randomState: number, -- xorshift32 state for nextRandom (no Roblox Random, so the spec runs without a mock)
 		slowLeft: { number }, -- seconds the slow lasts
+		knockXs: { number }, -- Brotato's knockback vector in studs-scaled points (Config.Combat.knockback), 0 when none
+		knockZs: { number },
+		knocked: { boolean }, -- the knockback moved it faster than it walks this step: no contact damage
+		contactSources: { number }, -- by target index: id of the enemy behind contacts[t] (0 for none)
 		burning: { boolean }, -- shown in snapshots; the weapons (WeaponService/Afflictions) run the burn itself
 		columns: { { any } }, -- every per-enemy array above, for compacting and clearing
 		indexOf: { [number]: number }, -- id -> array index
@@ -155,6 +162,12 @@ local function nextRandom(self: World): number
 	return x / 4294967296
 end
 
+-- A charger's next cooldown: cooldownSeconds +- cooldownRandomSeconds (Brotato get_cd, rolled each time).
+local function chargeCooldown(self: World, charge: Enemies.Charge): number
+	local spread = charge.cooldownRandomSeconds or 0
+	return math.max(0, charge.cooldownSeconds + (nextRandom(self) * 2 - 1) * spread)
+end
+
 function World.new(params: Params): World
 	assert(params.maxEnemies < MAX_ID, "maxEnemies must leave room for free ids")
 	local self = {
@@ -183,6 +196,8 @@ function World.new(params: Params): World
 		speedFactors = {},
 		speedBonuses = {},
 		boosts = {},
+		boostClocks = {},
+		zoneMembers = {},
 		buffed = {},
 		abilityTimers = {},
 		goalXs = {},
@@ -194,6 +209,10 @@ function World.new(params: Params): World
 		wanderLeft = {},
 		randomState = math.max(1, math.floor(params.seed or 1) % 4294967296),
 		slowLeft = {},
+		knockXs = {},
+		knockZs = {},
+		knocked = {},
+		contactSources = {},
 		burning = {},
 		columns = {},
 		indexOf = {},
@@ -236,6 +255,7 @@ function World.new(params: Params): World
 		self.speedFactors,
 		self.speedBonuses,
 		self.boosts,
+		self.boostClocks,
 		self.buffed,
 		self.abilityTimers,
 		self.goalXs,
@@ -246,6 +266,9 @@ function World.new(params: Params): World
 		self.wanderZs,
 		self.wanderLeft,
 		self.slowLeft,
+		self.knockXs,
+		self.knockZs,
+		self.knocked,
 		self.burning,
 	} :: { { any } }
 	return setmetatable(self, World)
@@ -309,26 +332,52 @@ function World.spawn(
 	self.waves[i] = wave or 1
 	self.shotCooldown[i] = if ranged then ranged.fireInterval * spread else 0
 	self.modes[i] = MODE_WALK
-	local cooldown = if kind.charge
-		then kind.charge.cooldownSeconds
-		elseif kind.slash then kind.slash.cooldownSeconds
+	-- a charger starts with a whole rolled cooldown (Brotato ChargingAttackBehavior._ready)
+	self.modeTimers[i] = if kind.charge
+		then chargeCooldown(self, kind.charge)
+		elseif kind.slash then kind.slash.cooldownSeconds * spread
 		else 0
-	self.modeTimers[i] = cooldown * spread
 	self.rushXs[i], self.rushZs[i], self.rushLeft[i] = 0, 0, 0
 	self.summonTimers[i] = if kind.summon then kind.summon.intervalSeconds * (0.5 + 0.5 * spread) else 0
 	self.slowFactors[i], self.slowLeft[i], self.burning[i] = 1, 0, false
+	self.knockXs[i], self.knockZs[i], self.knocked[i] = 0, 0, false
 	local speed = math.max(0, speedFactor or 1)
 	self.speedFactors[i] = speed
 	self.speedBonuses[i] = 0
 	self.boosts[i], self.buffed[i], self.hasGoal[i] = 1, false, false
+	self.boostClocks[i] = 0
+	self.zoneMembers[id] = nil
 	self.goalXs[i], self.goalZs[i] = 0, 0
 	local wander = kind.wander
-	local jitter = if wander then wander.rangeJitter or 0 elseif ranged then ranged.keepDistanceJitter or 0 else 0
-	local keep = if wander then wander.range or 0 elseif ranged then ranged.keepDistance else 0
+	local stay = kind.stayInRange
+	local jitter = if wander
+		then wander.rangeJitter or 0
+		elseif stay then stay.jitter
+		elseif ranged then ranged.keepDistanceJitter or 0
+		else 0
+	local keep = if wander
+		then wander.range or 0
+		elseif stay then stay.distance
+		elseif ranged then ranged.keepDistance
+		else 0
 	self.keeps[i] = keep + (nextRandom(self) * 2 - 1) * jitter
 	self.wanderXs[i], self.wanderZs[i], self.wanderLeft[i] = x, z, 0
-	self.abilityTimers[i] = if kind.pulse
-		then kind.pulse.intervalSeconds * (0.5 + 0.5 * spread)
+	if wander and wander.around == "Offset" then
+		-- Brotato's FollowRandPosAroundPlayer: one offset from the target for its whole life, anywhere in the square
+		-- (allow_within) or on its edge circle
+		local range = self.keeps[i]
+		local ox, oz = (nextRandom(self) * 2 - 1) * range, (nextRandom(self) * 2 - 1) * range
+		if not wander.within then
+			local length = math.sqrt(ox * ox + oz * oz)
+			if length > EPSILON then
+				ox, oz = ox / length * range, oz / length * range
+			end
+		end
+		self.wanderXs[i], self.wanderZs[i] = ox, oz
+	end
+	self.abilityTimers[i] = if kind.pulse and kind.pulse.firstSeconds
+		then kind.pulse.firstSeconds
+		elseif kind.pulse then kind.pulse.intervalSeconds * (0.5 + 0.5 * spread)
 		elseif kind.hatch then kind.hatch.seconds
 		else 0
 	self.indexOf[id] = i
@@ -734,6 +783,31 @@ function World.push(self: World, id: number, dx: number, dz: number)
 	self.zs[i] = math.clamp(z, p.minZ + radius, p.maxZ - radius)
 end
 
+-- Knockback like Brotato (Unit.take_damage, Config.Combat.knockback): sets the enemy's knockback vector to (dx, dz),
+-- in weapon units (points x studsPerPoint); with `add` it adds to the current vector instead (extra piercing
+-- knockback). The enemy then glides over the next steps (World.step); resistance scales the movement, not the vector.
+function World.knock(self: World, id: number, dx: number, dz: number, add: boolean?)
+	local i = self.indexOf[id]
+	if not i or self.hp[i] <= 0 or self.kinds[i].anchored then
+		return
+	end
+	if add then
+		self.knockXs[i] += dx
+		self.knockZs[i] += dz
+	else
+		self.knockXs[i], self.knockZs[i] = dx, dz
+	end
+end
+
+-- Current knockback vector of a living enemy (weapon units), 0, 0 when none.
+function World.getKnockback(self: World, id: number): (number, number)
+	local i = self.indexOf[id]
+	if not i then
+		return 0, 0
+	end
+	return self.knockXs[i], self.knockZs[i]
+end
+
 -- Stable Unit speed penalties are additive in original points, hold independently, then recover at the source rate.
 local function nativeSpeedFactor(self: World, i: number): number
 	local points = (self.kinds[i].speed * self.speedFactors[i] * self.boosts[i] + self.speedBonuses[i]) / PointScale
@@ -818,16 +892,7 @@ end
 
 -- Sweeps the whole rush segment and stops at its first collision. A fast enemy cannot jump through a player
 -- or a thin obstacle between ticks; step 5 checks the travelled path even if crowd separation moves it afterward.
-local function rushStep(
-	self: World,
-	i: number,
-	charge: Enemies.Charge,
-	dt: number,
-	targetXs: { number },
-	targetZs: { number },
-	targetCount: number,
-	targetRadii: { number }?
-)
+local function rushStep(self: World, i: number, charge: Enemies.Charge, dt: number)
 	local p = self.params
 	local radius = self.kinds[i].radius
 	local move = math.min(
@@ -855,16 +920,8 @@ local function rushStep(
 		local edge = if dz < 0 then p.minZ + radius else p.maxZ - radius
 		stopAt = math.min(stopAt or move, math.max(0, (edge - z) / dz))
 	end
+	-- Players do not stop a rush (Brotato: enemies do not collide with players); step 5 hurts everyone along the path.
 
-	for t = 1, targetCount do
-		local touch = (self.kinds[i].hitRadius or radius)
-			+ (if targetRadii then targetRadii[t] else p.playerRadius)
-			+ p.contactMargin
-		local entry = circleEntry(x, z, dx, dz, move, targetXs[t], targetZs[t], touch)
-		if entry and entry < (stopAt or math.huge) then
-			stopAt = entry
-		end
-	end
 	local travelled = stopAt or move
 	endX, endZ = x + dx * travelled, z + dz * travelled
 	local paths = self.rushes
@@ -889,16 +946,13 @@ local function chargeStep(
 	dt: number,
 	dx: number,
 	dz: number,
-	distance: number,
-	targetXs: { number },
-	targetZs: { number },
-	targetCount: number,
-	targetRadii: { number }?
+	distance: number
 ): boolean
 	local modes, timers = self.modes, self.modeTimers
 	local mode = modes[i]
 	if mode == MODE_RUSH then
-		rushStep(self, i, charge, dt, targetXs, targetZs, targetCount, targetRadii)
+		rushStep(self, i, charge, dt)
+
 		return true
 	end
 	local timer = timers[i] - dt
@@ -910,7 +964,8 @@ local function chargeStep(
 			self.rushLeft[i] = charge.maxDistance
 		else
 			modes[i] = MODE_WALK
-			timers[i] = charge.cooldownSeconds
+			-- Brotato counts the cooldown (plus the rush time) from the rush's start, so the recovery is part of it
+			timers[i] = math.max(0, chargeCooldown(self, charge) - charge.recoverSeconds)
 		end
 		return true
 	end
@@ -958,39 +1013,66 @@ local function slashStep(self: World, i: number, slash: Enemies.Slash, dt: numbe
 	return false
 end
 
--- A Herald's buff or a Mender's heal on the enemies around enemy i (B9). Heralds buff only enemies that are not
--- buffed yet and no other pulsing ones.
-local function pulseAt(self: World, i: number, pulse: Enemies.Pulse)
+-- A Herald's buff or a Mender's heal on the enemies around enemy i (B9). A Herald buffs up to buffCount enemies,
+-- picked at random among those in its radius that are not buffed yet and are no Heralds or bosses (Brotato's Buffer
+-- shuffles its zone). A Mender with onEnter heals each hurt enemy once when it comes into its radius (Brotato's Healer
+-- BoostZone body_entered); returns true if it healed one.
+local function pulseAt(self: World, i: number, pulse: Enemies.Pulse): boolean
 	local xs, zs, hp, maxHp, kinds = self.xs, self.zs, self.hp, self.maxHp, self.kinds
 	local scratch = self.scratch
 	local found = self.hash:query(xs[i], zs[i], pulse.radius + self.maxRadius, scratch)
-	local buffsLeft = pulse.buffCount or 0
+	local candidates = {}
+	local inside: { [number]: boolean }? = if pulse.onEnter then {} else nil
+	local previous = if pulse.onEnter then self.zoneMembers[self.ids[i]] else nil
+	local healed = false
 	for s = 1, found do
 		local j = scratch[s]
 		if j ~= i and hp[j] > 0 then
 			local reach = pulse.radius + kinds[j].radius
 			local dx, dz = xs[j] - xs[i], zs[j] - zs[i]
 			if dx * dx + dz * dz <= reach * reach then
-				if (pulse.heal or pulse.healFlat) and not kinds[j].boss then
+				if inside then
+					inside[self.ids[j]] = true
+				end
+				local entering = not (previous and previous[self.ids[j]])
+				if (pulse.heal or pulse.healFlat) and not kinds[j].boss and (not inside or entering) then
 					local healing = if pulse.healFlat
 						then pulse.healFlat + (pulse.healPerWave or 0) * (self.waves[i] - 1)
 						else maxHp[j] * (pulse.heal or 0)
+					if hp[j] < maxHp[j] then
+						healed = true
+					end
 					hp[j] = math.min(maxHp[j], hp[j] + healing)
 				end
-				if buffsLeft > 0 and not self.buffed[j] and not kinds[j].pulse and not kinds[j].boss then
-					buffsLeft -= 1
-					self.buffed[j] = true
-					self.contactDamage[j] *= pulse.buffDamage or 1
-					self.shotDamage[j] *= pulse.buffDamage or 1
-					self.speedFactors[j] *= pulse.buffSpeed or 1
-					local bonus = maxHp[j] * (pulse.buffHp or 0)
-					maxHp[j] += bonus
-					hp[j] += bonus
-					self.maxSpeed = math.max(self.maxSpeed, kinds[j].speed * self.speedFactors[j] * self.boosts[j])
+				if
+					(pulse.buffCount or 0) > 0
+					and not self.buffed[j]
+					and not (kinds[j].pulse and kinds[j].pulse.buffCount)
+					and not kinds[j].boss
+				then
+					table.insert(candidates, j)
 				end
 			end
 		end
 	end
+	if inside then
+		self.zoneMembers[self.ids[i]] = inside
+	end
+	for _ = 1, math.min(pulse.buffCount or 0, #candidates) do
+		local pick = math.floor(nextRandom(self) * #candidates) + 1
+		local j = candidates[pick]
+		candidates[pick] = candidates[#candidates]
+		candidates[#candidates] = nil
+		self.buffed[j] = true
+		self.contactDamage[j] *= pulse.buffDamage or 1
+		self.shotDamage[j] *= pulse.buffDamage or 1
+		self.speedFactors[j] *= pulse.buffSpeed or 1
+		local bonus = maxHp[j] * (pulse.buffHp or 0)
+		maxHp[j] += bonus
+		hp[j] += bonus
+		self.maxSpeed = math.max(self.maxSpeed, kinds[j].speed * self.speedFactors[j] * self.boosts[j])
+	end
+	return healed
 end
 
 local function rebuildHash(self: World)
@@ -1016,6 +1098,9 @@ local function wanderStep(
 	local p = self.params
 	local x, z = self.xs[i], self.zs[i]
 	local wx, wz = self.wanderXs[i], self.wanderZs[i]
+	if wander.around == "Offset" then
+		return tx + wx - x, tz + wz - z
+	end
 	local left = self.wanderLeft[i] - dt
 	local arrive = wander.arriveStuds
 	if left <= 0 or (wx - x) ^ 2 + (wz - z) ^ 2 <= arrive * arrive then
@@ -1077,6 +1162,37 @@ function World.step(
 	table.clear(self.strikers)
 	table.clear(self.rushes)
 
+	-- 1b. knockback glide (Brotato: each 60 Hz frame the vector shrinks to `decay` of itself, then moves the enemy by
+	-- vector x speedPerPoint x share px/s); frames = dt x frameRate, summed as a geometric series
+	local knock = Combat.knockback
+	local frames = dt * knock.frameRate
+	local decay = knock.decayPerFrame
+	local decayed = decay ^ frames
+	local frameSum = decay * (1 - decayed) / (1 - decay) -- sum of decay^k for k = 1..frames
+	local moveScale = frameSum * knock.speedPerPoint / knock.frameRate
+	local stopBelow = knock.stopBelow * knock.studsPerPoint
+	local knockXs, knockZs, knocked = self.knockXs, self.knockZs, self.knocked
+	for i = 1, count do
+		local kx, kz = knockXs[i], knockZs[i]
+		if kx == 0 and kz == 0 then
+			knocked[i] = false
+			continue
+		end
+		local kind = kinds[i]
+		local share = World.knockbackShare(kind)
+		xs[i] += kx * moveScale * share
+		zs[i] += kz * moveScale * share
+		kx, kz = kx * decayed, kz * decayed
+		local length = math.sqrt(kx * kx + kz * kz)
+		-- the hitbox stays off while the push is faster than the enemy walks (Enemy._physics_process)
+		local walk = kind.speed * self.speedFactors[i] * self.boosts[i] * self.slowFactors[i]
+		knocked[i] = share > 0 and length * knock.speedPerPoint * share > walk
+		if length < stopBelow then
+			kx, kz = 0, 0
+		end
+		knockXs[i], knockZs[i] = kx, kz
+	end
+
 	-- 2. steering
 	if targetCount > 0 or p.goalsWithoutTargets then
 		local tolerance = p.keepDistanceTolerance
@@ -1101,22 +1217,7 @@ function World.step(
 			end
 			local distance = math.sqrt(bestSquared)
 			local charge = kind.charge
-			if
-				charge
-				and chargeStep(
-					self,
-					i,
-					charge,
-					dt,
-					bestDx,
-					bestDz,
-					distance,
-					targetXs,
-					targetZs,
-					targetCount,
-					targetRadii
-				)
-			then
+			if charge and chargeStep(self, i, charge, dt, bestDx, bestDz, distance) then
 				continue
 			end
 			local slash = kind.slash
@@ -1125,9 +1226,19 @@ function World.step(
 			end
 			local accelerate = kind.accelerate
 			if accelerate then
-				local boost = math.min(accelerate.max, self.boosts[i] + accelerate.perSecond * dt)
-				self.boosts[i] = boost
-				self.maxSpeed = math.max(self.maxSpeed, kind.speed * self.speedFactors[i] * boost)
+				-- Brotato's Pursuer: +perStep of its base speed every everySeconds, at most maxSteps times
+				local clock = self.boostClocks[i] + dt
+				local steps = math.floor(clock / accelerate.everySeconds)
+				if steps > 0 then
+					clock -= steps * accelerate.everySeconds
+					local boost = math.min(
+						1 + accelerate.perStep * accelerate.maxSteps,
+						self.boosts[i] + steps * accelerate.perStep
+					)
+					self.boosts[i] = boost
+					self.maxSpeed = math.max(self.maxSpeed, kind.speed * self.speedFactors[i] * boost)
+				end
+				self.boostClocks[i] = clock
 			end
 			local toGoal = self.hasGoal[i]
 			local wander = kind.wander
@@ -1152,6 +1263,9 @@ function World.step(
 			local flee = kind.flee
 			if toGoal or wander then
 				advance = math.min(maxMove, distance)
+			elseif kind.stayInRange then
+				-- Brotato's StayInRangeFromPlayer: walks to the spot at its range on the line from the target
+				advance = math.clamp(distance - self.keeps[i], -maxMove, maxMove)
 			elseif flee and (flee.range == nil or distance < flee.range) then
 				dirX, dirZ = fleeDirection(p, x, z, bestDx, bestDz, distance, flee.edgeMargin)
 				advance = maxMove
@@ -1277,26 +1391,35 @@ function World.step(
 
 	-- 5. contacts and the hash for queries until the next step
 	local contacts = self.contacts
+	local sources = self.contactSources
 	table.clear(contacts)
-	table.clear(self.contactSources)
+	table.clear(sources)
+
 	for t = 1, targetCount do
 		contacts[t] = 0
+		sources[t] = 0
 	end
 	local margin = p.contactMargin
 	local damage = self.contactDamage
 	local hitXs, hitZs = contactXs or targetXs, contactZs or targetZs
 	for i = 1, count do
 		local hit = damage[i]
-		if hit > 0 then
+		if hit > 0 and not knocked[i] then
 			for t = 1, targetCount do
 				local reach = (kinds[i].hitRadius or kinds[i].radius)
 					+ (if targetRadii then targetRadii[t] else playerRadius)
 					+ margin
 				local reachSquared = reach * reach
 				local dx, dz = hitXs[t] - xs[i], hitZs[t] - zs[i]
-				if dx * dx + dz * dz <= reachSquared and hit > contacts[t] then
-					contacts[t] = hit
-					self.contactSources[t] = ids[i]
+				if dx * dx + dz * dz <= reachSquared then
+					if hit > contacts[t] then
+						contacts[t] = hit
+						sources[t] = ids[i]
+					end
+					local accelerate = kinds[i].accelerate
+					if accelerate and accelerate.resetOnHit then
+						self.boosts[i] = 1 -- Brotato's Pursuer loses its boosts when it hits
+					end
 				end
 			end
 		end
@@ -1414,7 +1537,11 @@ function World.step(
 					modes[i] = MODE_WALK
 				end
 			end
-			if targetCount > 0 then
+			if pulse.onEnter then
+				if pulseAt(self, i, pulse) then
+					modes[i], modeTimers[i] = MODE_WINDUP, PULSE_SHOW_SECONDS
+				end
+			elseif targetCount > 0 then
 				local timer = abilityTimers[i] - dt
 				if timer <= 0 then
 					timer += pulse.intervalSeconds

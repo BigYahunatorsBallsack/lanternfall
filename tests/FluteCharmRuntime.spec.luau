@@ -88,7 +88,7 @@ describe("Flute Charm through production services", function()
 		assert(Enemy.tryCharm(me, egg, { charmChance = 1, charmThreshold = 1 }, function()
 			return 0
 		end))
-		world.advance(5.2)
+		world.advance(Config.Enemies.types.BroodEgg.hatch.seconds + 0.2)
 		expect(Enemy.isCharmed(egg)).toBe(false)
 		local ids = {}
 		local count = Enemy.collectAllIds(ids)
@@ -105,6 +105,29 @@ describe("Flute Charm through production services", function()
 		world.advance(5.1)
 		expect(Enemy.isCharmed(child)).toBe(false)
 		expect(#world.errors).toBe(0)
+	end)
+	it("inherits Charm on splitting and uses the configured square placement area", function()
+		Enemy.killAll()
+		local parent = assert(Enemy.spawn("Splitter", 20, 20, 100, 1, nil, nil, 0, 1))
+		Enemy.damage(parent, Enemy.getHealth(parent) * 0.9, nil)
+		assert(Enemy.tryCharm(me, parent, { charmChance = 1, charmThreshold = 1 }, function()
+			return 0
+		end))
+		world.advance(8.1)
+		expect(Enemy.isCharmed(parent)).toBe(false)
+		expect(Enemy.getCharmedCount(me.UserId)).toBe(Config.Enemies.types.Splitter.split.count)
+		local ids = {}
+		local count = Enemy.collectAllIds(ids)
+		for index = 1, count do
+			local id = ids[index]
+			assert(Enemy.isCharmed(id))
+			expect(Enemy.getKind(id)).toBe("Skulker")
+			local at = Enemy.getPosition(id)
+			assert(math.abs(at.X - 20) <= Config.Enemies.types.Splitter.split.area / 2 + 0.1)
+			assert(math.abs(at.Z - 20) <= Config.Enemies.types.Splitter.split.area / 2 + 0.1)
+		end
+		world.advance(8.1)
+		expect(Enemy.getCharmedCount(me.UserId)).toBe(0)
 	end)
 	it("shares the configured actor budget between hostile and charmed actors", function()
 		Enemy.killAll()

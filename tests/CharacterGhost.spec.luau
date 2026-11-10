@@ -112,6 +112,7 @@ describe("Native Ghost package", function()
 			expect(lost > 0).toBe(true)
 			expect(dodged).toBe(false)
 			roll = 0.9
+			world.advance(0.5) -- Brotato: a dodge starts the minimum hit protection too
 			lost, dodged = Combat.damagePlayer(me, 1)
 			expect(lost > 0).toBe(true)
 			expect(dodged).toBe(false)

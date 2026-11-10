@@ -75,7 +75,7 @@ describe("main-game enemy runtime", function()
 		local children = idsOf("Skulker")
 		expect(#children).toBe(3)
 		for _, child in children do
-			expect(EnemySim.getHealth(child)).toBeNear((5 + 13 * 5) * 1.4)
+			expect(EnemySim.getHealth(child)).toBeNear((5 + 13 * 4) * 1.4) -- junkie_stats: 5 + 4 per wave
 		end
 		clear()
 	end)
@@ -100,7 +100,7 @@ describe("main-game enemy runtime", function()
 
 	it("hatches one slasher with its own wave stats instead of four small chasers", function()
 		EnemySim.spawn("BroodEgg", 60, 60, 1, 1, nil, nil, 1, 11)
-		world.advance(5.2)
+		world.advance(5.8) -- slasher_egg: 4 s, then half of its 1 s shoot animation (hatching at 0.8 s of it)
 		expect(#idsOf("BroodEgg")).toBe(0)
 		local children = idsOf("Reaper")
 		expect(#children).toBe(1)

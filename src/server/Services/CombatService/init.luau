@@ -24,6 +24,7 @@ local Net = require(Shared.Net)
 local Signal = require(Shared.Util.Signal)
 local Types = require(Shared.Net.Types)
 local StatMath = require(Shared.Util.StatMath)
+local DangerRules = require(Shared.Util.DangerRules)
 
 local EnemySim = require(script.Parent.EnemySim)
 local MapService = require(script.Parent.MapService)
@@ -37,6 +38,7 @@ local SETTINGS: Vitals.Settings = {
 	minDamagePerHit = PlayerConfig.minDamagePerHit,
 	hitInvulnerabilityMin = PlayerConfig.hitInvulnerabilityMin,
 	hitInvulnerabilityMax = PlayerConfig.hitInvulnerabilityMax,
+	hitInvulnerabilityFullShare = PlayerConfig.hitInvulnerabilityFullShare,
 }
 
 local CombatService = {}
@@ -182,6 +184,8 @@ function CombatService.damagePlayer(player: Player, damage: number): (number, bo
 	local state = getVitals(player)
 	applyCharacterRules(player, state)
 	local wasFull = state.hp >= state.maxHp
+	-- Brotato Player.get_iframes: endless waves shorten the protection (divided by the endless factor, at least 1)
+	state.protectionDivisor = math.max(1, DangerRules.endlessFactor(RunDirector.getWave()))
 	local taken, dodged, blocked = state:hit(damage, now(), RandomService.number("Combat", player))
 	if dodged then
 		CombatService.Dodged:Fire(player)
@@ -355,7 +359,12 @@ function CombatService.init()
 		task.spawn(onPlayerAdded, player)
 	end
 
-	EnemySim.Contact:Connect(CombatService.damagePlayer)
+	EnemySim.Contact:Connect(function(player: Player, damage: number, enemyId: number?)
+		local taken, dodged, blocked = CombatService.damagePlayer(player, damage)
+		if (taken > 0 or dodged or blocked) and enemyId and enemyId > 0 then
+			EnemySim.contactRecoil(enemyId) -- Brotato: the enemy brakes after its touch landed
+		end
+	end)
 	EnemySim.ShotHit:Connect(CombatService.damagePlayer)
 
 	RunDirector.RunStarted:Connect(resetAll)

@@ -61,7 +61,7 @@ describe("Native structure extensions", function()
 		local trap = traps()[1]
 		local offset = Config.Structures.kinds.DartTrap.triggerOffsetZ
 		local first = Enemy.spawn("Brute", trap.x, trap.z + offset, 100, 0, nil, nil, 0)
-		assert(Enemy.spawn("Brute", trap.x, trap.z + offset, 100, 0, nil, nil, 0))
+		assert(Enemy.spawn("Brute", trap.x - 5, trap.z + offset, 100, 0, nil, nil, 0))
 		local victim = Enemy.spawn("Brute", trap.x + 7, trap.z, 100, 0, nil, nil, 0)
 		local before = Enemy.getHealth(victim)
 		world.advance(0.1)

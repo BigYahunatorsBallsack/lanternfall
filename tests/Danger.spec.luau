@@ -140,7 +140,7 @@ describe("danger levels", function()
 			if boss.role == "Boss" then
 				count += 1
 				local kind = Config.Enemies.bosses[boss.bossId]
-				expect(EnemySim.getMaxHealth(boss.id)).toBeNear(kind.hp * 0.75 * 1.4)
+				expect(EnemySim.getMaxHealth(boss.id)).toBeNear((kind.hp + kind.hpPerWave * 19) * 0.75 * 1.4)
 			end
 		end
 		expect(count).toBe(2)

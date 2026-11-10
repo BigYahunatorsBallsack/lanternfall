@@ -145,6 +145,19 @@ describe("loot", function()
 		expect(lyingAfter + flyingAfter).toBe(0)
 	end)
 
+	it("leaves fruits in the pickup radius alone at full HP, unless walked over (Brotato)", function()
+		CombatService.healPlayer(me, 1000)
+		local hp, maxHp = CombatService.getHp(me)
+		expect(hp).toBe(maxHp)
+		local here = position()
+		LootService.dropPickup(here + Vector3.new(8, 0, 0), "Fruit") -- inside the pickup radius, outside a touch
+		world.advance(0.2)
+		expect(pickupsOf("Fruit")).toBe(1)
+		standAt(here.X + 8 - Config.Player.touchPickupRadius / 2, here.Z)
+		world.advance(0.2)
+		expect(pickupsOf("Fruit")).toBe(0) -- walked over
+	end)
+
 	it("keeps a picked-up crate for the end of the wave", function()
 		click("DropCrate")
 		world.advance(0.2)

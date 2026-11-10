@@ -242,6 +242,7 @@ arsenal = Arsenal.new({
 		push = function(id: number, dx: number, dz: number)
 			EnemySim.push(id, Vector3.new(dx, 0, dz))
 		end,
+		knock = EnemySim.knock,
 		isAlive = EnemySim.isAlive,
 		isElite = function(id: number): boolean
 			local _, elite = EnemySim.getKind(id)
@@ -642,7 +643,11 @@ function WeaponService.init()
 			end
 			local share = if amount < 0 then 1 - resistance + resistance * piercing else resistance * piercing
 			local extra = direction.Unit * (amount * share)
-			if resistance < 1 then
+			if resistance < 1 and amount > 0 then
+				-- Brotato get_increased_piercing_knockback_amount: a bigger vector that glides like the hit's own
+				local more = extra / (1 - resistance)
+				EnemySim.knock(id, more.X, more.Z, true)
+			elseif resistance < 1 then
 				EnemySim.push(id, extra / (1 - resistance))
 			else
 				EnemySim.teleport(id, position + extra)

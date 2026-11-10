@@ -39,7 +39,7 @@ describe("StatMath", function()
 
 	it("halves cooldowns at +100 % attack speed and changes move speed by percent", function()
 		expect(StatMath.cooldownFactor(100)).toBeNear(0.5)
-		expect(StatMath.cooldownFactor(-100)).toBeNear(1.5)
+		expect(StatMath.cooldownFactor(-100)).toBeNear(2) -- Brotato: x (1 + |AS|)
 		expect(StatMath.speedFactor(10)).toBeNear(1.1)
 		expect(StatMath.speedFactor(-300)).toBe(Config.Stats.minSpeedFactor)
 	end)

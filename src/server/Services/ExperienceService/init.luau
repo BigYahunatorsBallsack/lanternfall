@@ -40,7 +40,9 @@ ExperienceService.OrbsCollected = Signal.new()
 -- (player: Player, orbs: number): how many orbs this player picked up in one step (not the leftovers)
 ExperienceService.OrbsPickedUp = Signal.new()
 
-local field = OrbField.new(Config.Run.xpOrbs.maxOrbs)
+local field = OrbField.new(Config.Run.xpOrbs.maxOrbs, function()
+	return RandomService.number("Loot")
+end)
 local progress: { [Player]: Progression.Progression } = {}
 local nextMaterialPlayer = 1
 local pickupBonus: { [Player]: number } = {} -- Pickup Range as a fraction

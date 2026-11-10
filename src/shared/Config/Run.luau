@@ -100,7 +100,7 @@ local Run = {
 
 	-- XP orbs dropped by killed enemies; every orb counts for the whole team (DESIGN.md section 8)
 	xpOrbs = table.freeze({
-		maxOrbs = 50, -- orbs on the floor at once; past this a new orb's XP joins the nearest one (Brotato, since B6)
+		maxOrbs = 50, -- orbs on the floor at once; past this a new orb's XP joins a random one (Brotato MAX_GOLDS)
 	}),
 
 	-- Level-up cards (Brotato direction since B2): stat upgrades (Config.Stats), each card its own stat and rarity tier.

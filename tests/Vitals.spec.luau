@@ -26,16 +26,26 @@ describe("Vitals", function()
 		expect(v.hp).toBe(90)
 	end)
 
-	it("protects 0.2-0.4 s after a hit, longer for a bigger share of max HP (Brotato)", function()
-		local settings = { minDamagePerHit = 1, hitInvulnerabilityMin = 0.2, hitInvulnerabilityMax = 0.4 }
-		expect(Vitals.protectionAfterHit(settings, 0, 10)).toBeNear(0.2, 1e-9)
-		expect(Vitals.protectionAfterHit(settings, 5, 10)).toBeNear(0.3, 1e-9)
-		expect(Vitals.protectionAfterHit(settings, 20, 10)).toBeNear(0.4, 1e-9)
-		local v = Vitals.new(10, settings)
-		expect(v:hit(1, 0)).toBe(1) -- 10 % of max HP: 0.22 s
-		expect(v.invulnerableUntil).toBeNear(0.22, 1e-9)
-		expect(v:hit(1, 0.21)).toBe(0)
-		expect(v:hit(1, 0.23)).toBe(1)
+	it("protects 0.2-0.4 s after a hit, the maximum from 15 % of max HP (Brotato Player.get_iframes)", function()
+		local settings = {
+			minDamagePerHit = 1,
+			hitInvulnerabilityMin = 0.2,
+			hitInvulnerabilityMax = 0.4,
+			hitInvulnerabilityFullShare = 0.15,
+		}
+		expect(Vitals.protectionAfterHit(settings, 0, 100)).toBeNear(0.2, 1e-9)
+		expect(Vitals.protectionAfterHit(settings, 6, 100)).toBeNear(0.2, 1e-9) -- 6 % x 0.4 / 0.15 = 0.16 -> min
+		expect(Vitals.protectionAfterHit(settings, 10, 100)).toBeNear(0.4 * 0.1 / 0.15, 1e-9)
+		expect(Vitals.protectionAfterHit(settings, 15, 100)).toBeNear(0.4, 1e-9)
+		expect(Vitals.protectionAfterHit(settings, 50, 100)).toBeNear(0.4, 1e-9)
+		local v = Vitals.new(100, settings)
+		expect(v:hit(10, 0)).toBe(10) -- 10 % of max HP: 0.267 s
+		expect(v.invulnerableUntil).toBeNear(0.4 * 0.1 / 0.15, 1e-9)
+		expect(v:hit(1, 0.26)).toBe(0)
+		expect(v:hit(1, 0.27)).toBe(1)
+		v.protectionDivisor = 2 -- endless factor
+		v:hit(50, 1)
+		expect(v.invulnerableUntil).toBeNear(1.2, 1e-9)
 	end)
 
 	it("takes the armor share of the damage but always at least 1", function()
@@ -46,13 +56,14 @@ describe("Vitals", function()
 		expect(v.hp).toBe(94)
 	end)
 
-	it("dodges a hit when the roll is below the dodge chance, without protection afterwards", function()
+	it("dodges a hit when the roll is below the dodge chance, with the minimum protection afterwards", function()
 		local v = Vitals.new(100, SETTINGS)
 		v:setDefense(1, 0.3)
 		local taken, dodged = v:hit(10, 0, 0.29)
 		expect(taken).toBe(0)
 		expect(dodged).toBe(true)
-		taken, dodged = v:hit(10, 0.1, 0.3) -- no protection window after a dodge
+		expect(v:hit(10, 0.1, 0.3)).toBe(0) -- Brotato: a dodge also starts the protection (min 0.5 s here)
+		taken, dodged = v:hit(10, 0.6, 0.3)
 		expect(taken).toBe(10)
 		expect(dodged).toBe(false)
 		expect(v:hit(10, 10)).toBe(10) -- no roll: never dodged
@@ -124,15 +135,15 @@ describe("Vitals", function()
 		expect(v.hp).toBe(0)
 	end)
 
-	it("lets a hit shield take a whole hit without protection afterwards, after dodging", function()
+	it("lets a hit shield take a whole hit with the minimum protection afterwards, after dodging", function()
 		local v = Vitals.new(100, SETTINGS)
 		v:setHitShields(1)
 		local taken, dodged, blocked = v:hit(30, 0, 0.5)
 		expect(taken).toBe(0)
 		expect(dodged).toBe(false)
 		expect(blocked).toBe(true)
-		expect(v:isInvulnerable(0.01)).toBe(false)
-		taken, dodged, blocked = v:hit(30, 0.01, 0.5)
+		expect(v:isInvulnerable(0.01)).toBe(true) -- Brotato: protected hits start the minimum protection too
+		taken, dodged, blocked = v:hit(30, 0.6, 0.5)
 		expect(taken).toBe(30)
 		expect(blocked).toBe(false)
 		v:setDefense(1, 0.5)

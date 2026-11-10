@@ -77,3 +77,7 @@ Alle Champions: 1 Kontaktschaden +1.5 pro Welle nach Welle 1, 10 Materialien. Di
 6. Auf D2 eine Elite-Welle und auf D5 Welle 20 pruefen: Champions/Bosse greifen an, Phasen wechseln, HP-Leiste sinkt, Kiste erscheint beim Tod. Auf D5 kommen beide Bosse. Anschliessend mit zwei Clients pruefen, dass HP, Gegner, Projektiltreffer und Beute uebereinstimmen; Handy-Lesbarkeit zusammen mit dem Sprite-Paket pruefen.
 
 Automatisierte Ergebnisse und verbleibende Studio-Grenzen stehen im letzten B9c-Eintrag von `STATUS.md`.
+
+## Abgleich mit der Spieldatei 1.2.0.1 (10.11.2026)
+
+Die Tabelle oben folgt dem Wiki vom 06.11.2026. Die `*_stats.tres` der installierten stabilen Version weichen an vier Stellen ab; der Code folgt jetzt der Spieldatei: Junkie (Skulker) 5 + **4** HP pro Welle und Tempo **300**; Horned Bruiser (Abyss Brute) **26 + 18** HP; Slasher Egg Schaden +**0,25** pro Welle; Gobbler (`evil_mob.tres`) Rückstoß-Widerstand **0,5**. Bosse: 15.000 + 750 HP und 1 + 1,5 Kontakt pro Welle (in Welle 20 29.250 HP und 29,5 Kontakt). Verhalten: siehe `DESIGN.md` Abschnitt 7 („Verhalten aus der Spieldatei").
