@@ -94,7 +94,9 @@ function Whip.step(weapon: Arsenal.Weapon, ctx: Arsenal.Context, dt: number)
 			local id = found[i]
 			if not swing.hit[id] then
 				swing.hit[id] = true
+				ctx:setHitDirection(swing.dx, swing.dz) -- Brotato: the whip knocks along the attack direction
 				Combat.hit(weapon, ctx, id)
+				ctx:setHitDirection(nil, nil)
 			end
 		end
 	end

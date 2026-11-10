@@ -29,6 +29,7 @@ function Melee.fire(weapon: Arsenal.Weapon, ctx: Arsenal.Context): boolean
 		then ctx:queryCircle(ctx.x, ctx.z, stats.range, found)
 		else ctx:querySegment(ctx.x, ctx.z, ctx.x + dx * stats.range, ctx.z + dz * stats.range, stats.width, found)
 	local threshold = math.cos(math.rad(stats.sweepDegrees / 2))
+	ctx:setHitDirection(dx, dz) -- Brotato: a melee hitbox knocks along the attack
 	for i = 1, n do
 		local id = found[i]
 		local x, z = ctx:enemyPosition(id)
@@ -40,6 +41,7 @@ function Melee.fire(weapon: Arsenal.Weapon, ctx: Arsenal.Context): boolean
 			end
 		end
 	end
+	ctx:setHitDirection(nil, nil)
 	ctx:emit(weapon, {
 		kind = "Strike",
 		uid = weapon.uid,

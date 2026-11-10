@@ -24,10 +24,10 @@ return table.freeze({
 		maximumAdditionShare = 0.9,
 		recoveryPointsPerSecond = 300,
 	}),
-	-- Knockback in Brotato points (a crossbow has 8, a hammer 30), pushed directly away from the owner. The Knockback
+	-- Knockback in Brotato points (a crossbow has 8, a hammer 30), pushed mostly away from the owner. The Knockback
 	-- stat adds points to every weapon. Enemies keep 1 - knockbackResistance of it (Config.Enemies), elites none.
 	-- Brotato 1.2.0.1 Unit.get_next_knockback_value/get_knockback_value: a hit sets the knockback vector to direction x
-	-- points; every 60 Hz frame the vector shrinks to decayPerFrame of itself and moves the enemy by vector x
+	-- points (direction: hitDirectionShare); every 60 Hz frame the vector shrinks to decayPerFrame of itself and moves the enemy by vector x
 	-- speedPerPoint x (1 - resistance) px/s, so one point pushes about 15 px (1.5 studs) over half a second. While that
 	-- push is faster than the enemy walks, its contact hitbox is off (Enemy._physics_process).
 	knockback = table.freeze({
@@ -36,6 +36,8 @@ return table.freeze({
 		speedPerPoint = 100, -- px/s per point of the current vector
 		frameRate = 60,
 		stopBelow = 0.01, -- points; smaller vectors are dropped
+		-- Unit.take_damage: direction = 0.2 x the attack's direction + 0.8 x away from the owner (Arsenal.knockDirection)
+		hitDirectionShare = 0.2,
 	}),
 	-- Burning (Brotato's burn): `ticks` hits of the burn damage, one every tickSeconds; Burning Speed shortens the
 	-- interval by its percent (+20 % = 0.4 s, -100 % = 1 s), never below minTickSeconds. Burns do not stack: a new one

@@ -309,6 +309,16 @@ describe("Arsenal", function()
 		end
 	end)
 
+	it("blends a fifth of the attack's own direction into the knockback (Brotato Unit.take_damage)", function()
+		local share = Config.Combat.knockback.hitDirectionShare
+		local x, z = Arsenal.knockDirection(1, 0, 0, 1)
+		expect(x).toBeNear(1 - share)
+		expect(z).toBeNear(share)
+		x, z = Arsenal.knockDirection(0.6, 0.8)
+		expect(x).toBeNear(0.6) -- without an attack direction: straight away from the owner
+		expect(z).toBeNear(0.8)
+	end)
+
 	it("bounds attack catch-up per simulation step", function()
 		local scene = setup({ bonuses = { attackSpeed = 100000 } })
 		give(scene, "SparkBolt")
@@ -357,6 +367,17 @@ describe("afflictions", function()
 		expect(scene.arsenal:isBurning(far)).toBe(false)
 		run(scene, 0.6) -- the copy's two ticks (copies spread on, so later it could catch fire again)
 		expect(lost(scene, near, TOUGH)).toBeNear(8)
+	end)
+
+	it("ticks every burn at the whole team's Burning Speed (Brotato sums all players)", function()
+		local scene = setup()
+		scene.arsenal:addOwner(OWNER + 1, { burnSpeed = 50 })
+		expect(scene.arsenal:burnInterval()).toBeNear(Config.Combat.burn.tickSeconds * 0.5)
+		local enemy = spawn(scene, "Brute", 30, 0, TOUGH)
+		scene.arsenal:queueBurn(OWNER, enemy, 4, nil, 2) -- lit by the owner without Burning Speed
+		run(scene, STEP)
+		run(scene, 0.3)
+		expect(lost(scene, enemy, TOUGH)).toBeNear(4)
 	end)
 
 	it("blows up around a point from an item effect, with Explosion Size and Damage", function()

@@ -241,6 +241,11 @@ local Sprites = {
 			{ minValue = 4, size = body(3.8) },
 			{ minValue = 20, size = body(4.6) },
 		}),
+		-- Brotato 1.2.0.1 Main.spawn_gold: at the shard cap a random shard takes the new one's value and grows by
+		-- mergeGrowth of its size per value point (gold.scale + 0.05), at most mergeMaxScale (Gold.MAX_SIZE 2). Its tier
+		-- picture stays the one of its first value (XpOrbRenderer).
+		mergeGrowth = 0.05,
+		mergeMaxScale = 2,
 	}),
 	-- Bolts and shots: picture size against the former halo.
 	glowScale = 1.5,
