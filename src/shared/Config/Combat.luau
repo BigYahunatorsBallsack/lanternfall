@@ -4,6 +4,20 @@
 -- effect shares. Read by WeaponService (WeaponStats, Arsenal, Afflictions), Util/StatMath and the client texts.
 
 return table.freeze({
+	nativeBoomerang = table.freeze({
+		outDurationFactor = 1.6,
+		apexSeconds = 0.15,
+		apexSpeedFactor = 0.25,
+		backMaxSpeedFactor = 1.2,
+		backAccelerationFactor = 2,
+		catchDistance = 3,
+		maximumFlightSeconds = 4,
+		minimumSpeed = 0.1,
+		radius = 4.4,
+		hitOffsetX = 0.1,
+		hitOffsetZ = -0.1,
+		hitRotationDegreesPerSecond = 1500,
+	}),
 	nativeBurn = table.freeze({
 		minimumTickSeconds = 0.1, -- stable Unit.init BurningTimer minimum
 	}),

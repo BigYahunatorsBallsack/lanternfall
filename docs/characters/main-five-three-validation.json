@@ -1,0 +1,217 @@
+{
+  "base": "3a0a2dafa4a02856a78fba3600181f6885a2ce31",
+  "reviewedCodeHead": "ed02aed2e496faa41d857f605a1cb1d494f4c1ec",
+  "runner": "Lune0.11.1; math.randomseed1234; each spec in its own process with actual cwd per checkout",
+  "baseline": {
+    "specs": 187,
+    "passed": 1386,
+    "failed": 36
+  },
+  "reviewedBranch": {
+    "specs": 195,
+    "passed": 1412,
+    "failed": 37
+  },
+  "fullRunFailureNameDifference": [
+    "FAIL new enemies (B9) > lets a Gobbler eat the orbs on the floor and drop them all when killed"
+  ],
+  "newFailuresAgainstBaselineAndConfirmedMainIntermittents": [],
+  "newAborts": 0,
+  "failures": {
+    "tests/EnemiesB9.spec.luau": [
+      "FAIL new enemies (B9) > lets a Gobbler eat the orbs on the floor and drop them all when killed"
+    ],
+    "tests/EnemySpawnPlacement25.spec.luau": [
+      "FAIL Enemy spawn placement > positions a newly built sprite before making it visible",
+      "FAIL Enemy spawn placement > moves a pooled sprite to its next spawn before reattaching it"
+    ],
+    "tests/RunStats.spec.luau": [
+      "FAIL Tally > writes readable log lines with the level per minute and every build"
+    ],
+    "tests/Smoke.spec.luau": [
+      "FAIL smoke > arms the player with the class weapon and switches weapons off for the enemy tests",
+      "FAIL smoke > spawns enemies on a ring around the player and draws them",
+      "FAIL smoke > chases the player until it touches them",
+      "FAIL smoke > hits and kills enemies with the debug buttons",
+      "FAIL smoke > pauses spawning and spawns a test wave up to the cap",
+      "FAIL smoke > shows enemy and performance numbers to admins",
+      "FAIL smoke > shoots Spark Bolts that kill enemies once weapons are on",
+      "FAIL smoke > draws the six original weapons, tiers and debug swaps",
+      "FAIL smoke > drops XP orbs that the player picks up for the whole team",
+      "FAIL smoke > keeps level-ups for the end of the wave",
+      "FAIL smoke > ends the wave: enemies fade, the shop opens and the level-up cards come first",
+      "FAIL smoke > sells weapons and items for Shards in the shop, rerolls and starts the next wave on READY",
+      "FAIL smoke > lets items change HP, speed and weapon damage, stacking without limit",
+      "FAIL smoke > runs item effects: standing still, per X, timers, crit kills, dodges and chests",
+      "FAIL smoke > runs wave end, shop and next-wave effects and the shop stats",
+      "FAIL smoke > spawns a glowing elite with an HP bar that drops a chest",
+      "FAIL smoke > opens the chest when walked over and shows the reward",
+      "FAIL smoke > gives the evolution from a chest once the build is ready",
+      "FAIL smoke > lets Spitters shoot visible projectiles that hit the player",
+      "FAIL smoke > shows a Charger's wind-up, splits Splitters and names elite affixes",
+      "FAIL smoke > runs Brotato's combat: weapon class bonuses, burning, exploding items and slowed enemies",
+      "FAIL smoke > skips to the boss wave, and surviving it wins (WP10)",
+      "FAIL smoke > starts the next run with Play again",
+      "FAIL smoke > keeps walking but suppresses jumping on Space",
+      "FAIL smoke > takes debug damage with hit protection and heals",
+      "FAIL smoke > loses no HP while the debug Invincible switch is on",
+      "FAIL smoke > ends in defeat when the only player is knocked down",
+      "FAIL smoke > returns to the lobby after the results",
+      "FAIL smoke > runs with two players and keeps late joiners in the lobby",
+      "FAIL smoke > keeps running while one of two is down, and enemies go for the one still standing",
+      "FAIL smoke > stands a downed player up with full HP when the wave ends",
+      "FAIL smoke > rejects locked classes with a message",
+      "FAIL smoke > finished without any runtime error"
+    ]
+  },
+  "gobblerRepeats": [
+    {
+      "label": "main",
+      "attempt": 1,
+      "exit": 0,
+      "summary": "7 passed, 0 failed"
+    },
+    {
+      "label": "main",
+      "attempt": 2,
+      "exit": 1,
+      "summary": "6 passed, 1 failed"
+    },
+    {
+      "label": "main",
+      "attempt": 3,
+      "exit": 1,
+      "summary": "6 passed, 1 failed"
+    },
+    {
+      "label": "main",
+      "attempt": 4,
+      "exit": 1,
+      "summary": "6 passed, 1 failed"
+    },
+    {
+      "label": "main",
+      "attempt": 5,
+      "exit": 1,
+      "summary": "6 passed, 1 failed"
+    },
+    {
+      "label": "branch",
+      "attempt": 1,
+      "exit": 0,
+      "summary": "7 passed, 0 failed"
+    },
+    {
+      "label": "branch",
+      "attempt": 2,
+      "exit": 1,
+      "summary": "6 passed, 1 failed"
+    },
+    {
+      "label": "branch",
+      "attempt": 3,
+      "exit": 1,
+      "summary": "6 passed, 1 failed"
+    },
+    {
+      "label": "branch",
+      "attempt": 4,
+      "exit": 1,
+      "summary": "6 passed, 1 failed"
+    },
+    {
+      "label": "branch",
+      "attempt": 5,
+      "exit": 1,
+      "summary": "6 passed, 1 failed"
+    }
+  ],
+  "gobblerFailureNameConfirmation": [
+    {
+      "label": "main",
+      "failures": [
+        "FAIL new enemies (B9) > lets a Gobbler eat the orbs on the floor and drop them all when killed"
+      ]
+    },
+    {
+      "label": "branch",
+      "failures": [
+        "FAIL new enemies (B9) > lets a Gobbler eat the orbs on the floor and drop them all when killed"
+      ]
+    }
+  ],
+  "mutationProof": {
+    "mutated": "Invert AtMost threshold direction",
+    "exit": 1,
+    "failures": [
+      "FAIL Native Sick package > unlocks only on reaching negative five regeneration"
+    ],
+    "restoredExit": 0,
+    "restoredSummary": "3 passed, 0 failed"
+  },
+  "newSpecs": {
+    "tests/Boomerang.spec.luau": {
+      "passed": 6,
+      "failed": 0
+    },
+    "tests/BoomerangRuntime.spec.luau": {
+      "passed": 2,
+      "failed": 0
+    },
+    "tests/CharacterEngineerPackage.spec.luau": {
+      "passed": 3,
+      "failed": 0
+    },
+    "tests/CharacterLichPackage.spec.luau": {
+      "passed": 3,
+      "failed": 0
+    },
+    "tests/CharacterLuckyPackage.spec.luau": {
+      "passed": 4,
+      "failed": 0
+    },
+    "tests/CharacterSickPackage.spec.luau": {
+      "passed": 3,
+      "failed": 0
+    },
+    "tests/CharacterStreamerPackage.spec.luau": {
+      "passed": 3,
+      "failed": 0
+    },
+    "tests/EngineerGrouping.spec.luau": {
+      "passed": 3,
+      "failed": 0
+    }
+  },
+  "checks": {
+    "stylua": "Changed files formatted; check passed after restoring mutation file line endings",
+    "selene": "0 errors/18 existing warnings; cached Roblox API",
+    "rojo": "build passed",
+    "sourceCompilers": "74 characters;27 additional weapon families; native structure metadata",
+    "localArt": "180 images prepared;0 missing/unusable; no uploads/apply",
+    "arsenal": "unchanged against current main"
+  },
+  "review": {
+    "correctness": "All25/24/7/36/29 starts and guaranteed extra Wrench checked. Native negatives, per-player challenges, Engineer wave-start timing, Streamer movement/interest/source counts, Sick self damage/retry, Lucky object strikes and Lich actual-heal strikes checked. Boomerang six focused behavior checks and real Arsenal tier damage/cooldown/wave/retry tests pass.",
+    "architecture": "Config owns source numbers; shared APIs extended narrowly. Grouped placement separated from orchestration. No framework changes.",
+    "security": "No new remotes, profile schema or client-decided progress; server decides all combat/placement/unlocks.",
+    "performance": "Grouping runs only on eligible structure spawn; cached player base per wave-second,5 placement attempts, existing100 structure ceiling. No extra turret-source count per simulation tick. Existing4ms test passes; current200-actor budget still unproven.",
+    "testReview": "Injected reversed negative challenge comparison failed Sick boundary regression; restored production file and regression passed. Existing exact damage assertions retained. Catalog counts updated for actual89weapons/27artgated."
+  },
+  "codePreparedCharacters": [
+    "Lucky",
+    "Sick",
+    "Engineer",
+    "Streamer",
+    "Lich"
+  ],
+  "codePreparedTotal": 23,
+  "nativeAcceptance": false,
+  "limits": [
+    "No real native uploads or Studio/two-client/mobile acceptance.",
+    "Shared15Hz physics differs from native60Hz; graphical/zone/full catalog parity open.",
+    "Boomerang empty held texture and audio remain presentation work.",
+    "Grouping maps native forbidden circles onto current MapService obstacles.",
+    "Known baseline failures and confirmed main Gobbler intermittency remain unresolved."
+  ]
+}

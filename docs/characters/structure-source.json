@@ -50,7 +50,9 @@
       },
       "effects": [],
       "animationSpeed": 1.0,
-      "boostMode": "Turret"
+      "boostMode": "Turret",
+      "canBeGrouped": true,
+      "countsAsTurret": true
     },
     {
       "id": "CinderSentry",
@@ -115,7 +117,9 @@
         }
       ],
       "animationSpeed": 1.5,
-      "boostMode": "Turret"
+      "boostMode": "Turret",
+      "canBeGrouped": true,
+      "countsAsTurret": true
     },
     {
       "id": "PrismSentry",
@@ -165,7 +169,9 @@
       },
       "effects": [],
       "animationSpeed": 1.0,
-      "boostMode": "Turret"
+      "boostMode": "Turret",
+      "canBeGrouped": true,
+      "countsAsTurret": true
     },
     {
       "id": "SiegeSentry",
@@ -223,7 +229,9 @@
         }
       ],
       "animationSpeed": 1.0,
-      "boostMode": "Turret"
+      "boostMode": "Turret",
+      "canBeGrouped": true,
+      "countsAsTurret": true
     },
     {
       "id": "MercySentry",
@@ -273,7 +281,9 @@
       },
       "effects": [],
       "animationSpeed": 1.0,
-      "boostMode": "Turret"
+      "boostMode": "Turret",
+      "canBeGrouped": true,
+      "countsAsTurret": true
     },
     {
       "id": "RuneMine",
@@ -330,7 +340,9 @@
           "sourceMd5": "3a31debc1b4f118fc0a167419cfc1508"
         }
       ],
-      "boostMode": "Mine"
+      "boostMode": "Mine",
+      "canBeGrouped": false,
+      "countsAsTurret": false
     },
     {
       "id": "DartTrap",
@@ -379,7 +391,9 @@
         "increase_projectile_speed_with_range": false
       },
       "effects": [],
-      "boostMode": "Trap"
+      "boostMode": "Trap",
+      "canBeGrouped": false,
+      "countsAsTurret": false
     },
     {
       "id": "BloodTurret",
@@ -440,7 +454,9 @@
         }
       ],
       "animationSpeed": 1.0,
-      "boostMode": "Turret"
+      "boostMode": "Turret",
+      "canBeGrouped": true,
+      "countsAsTurret": true
     },
     {
       "id": "MoonGarden",
@@ -485,7 +501,9 @@
       },
       "effects": [],
       "animationSpeed": 0.5,
-      "boostMode": "Turret"
+      "boostMode": "Turret",
+      "canBeGrouped": true,
+      "countsAsTurret": false
     }
   ],
   "geometry": {

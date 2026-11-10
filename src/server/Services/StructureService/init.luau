@@ -21,6 +21,7 @@ local Boost = require(script.BoostRules)
 local Weapons = require(script.Parent.WeaponService)
 local Projectiles = require(script.Projectiles)
 local TurretTiming = require(script.TurretTiming)
+local GroupedPlacement = require(script.GroupedPlacement)
 local C = Config.Structures
 local Service = {}
 local paused = false
@@ -31,6 +32,7 @@ local dirty = true
 local elapsed = 0
 local waveSeconds = 0
 local lastGeneratorSecond = 0
+local groupBases: { [Player]: { stamp: number, at: Vector3 } } = {}
 local beams = {}
 -- Paket 22: the owner's stats are copied once per step, not once per structure (StatService hands out copies)
 local stepSheets: { [Player]: any } = {}
@@ -64,6 +66,7 @@ local function sync()
 end
 local function reset()
 	Projectiles.clear()
+	table.clear(groupBases)
 	waveSeconds, lastGeneratorSecond = 0, 0
 	table.clear(objects)
 	table.clear(generators)
@@ -102,6 +105,40 @@ local function position(player)
 	end
 	return root
 end
+local function groupedPosition(player, def)
+	if not def.canBeGrouped then
+		return nil
+	end
+	local class = Config.Classes[Run.getParticipantClassId(player)]
+	local enabled = false
+	for _, rule in (class and class.native and class.native.remainingRules) or {} do
+		if rule.sourceKey == "group_structures" and rule.amount > 0 then
+			enabled = true
+			break
+		end
+	end
+	if not enabled then
+		return nil
+	end
+	local bounds, obstacles = Map.getArenaBounds(), Map.getObstacles()
+	local function random()
+		return RandomService.number("Combat", player)
+	end
+	local stamp = math.floor(waveSeconds)
+	local cached = groupBases[player]
+	if not cached or cached.stamp ~= stamp then
+		cached = { stamp = stamp, at = GroupedPlacement.base(bounds, obstacles, random) }
+		groupBases[player] = cached
+	end
+	return GroupedPlacement.inArea(
+		cached.at,
+		GroupedPlacement.area(Service.sourceCount(player)),
+		bounds,
+		obstacles,
+		random
+	)
+end
+
 local function add(player, kind, definition, at)
 	local own = {}
 	for i, o in objects do
@@ -122,7 +159,7 @@ local function add(player, kind, definition, at)
 		owner = player,
 		kind = kind,
 		definition = definition,
-		position = at or position(player),
+		position = at or groupedPosition(player, definition or C.kinds[kind]) or position(player),
 		remaining = 0,
 		armed = false,
 		contacts = {},
@@ -179,6 +216,12 @@ end
 local function deploy()
 	reset()
 	for _, player in Run.getParticipants() do
+		require(script.Parent.PlayerDataService).observeNativeInventory(
+			player,
+			{ turrets = Service.turretSourceCount(player) },
+			Stats.getSheet(player),
+			true
+		)
 		addWeaponSources(player)
 		local counts = Stats.getItemCounts(player)
 		local ids = {}
@@ -547,6 +590,24 @@ function Service.sourceCount(player: Player): number
 	end
 	return total
 end
+-- Native Turrets challenge observes turret-effect sources, not mines, gardens, traps or pets.
+function Service.turretSourceCount(player: Player): number
+	local total = 0
+	for id, count in Stats.getItemCounts(player) do
+		local item = Config.Items.byId[id]
+		if item and item.structure and C.kinds[item.structure].countsAsTurret then
+			total += count
+		end
+	end
+	for _, weapon in Weapons.getWeapons(player) do
+		local kinds = Config.Weapons[weapon.id].structureKinds
+		if kinds and C.kinds[kinds[weapon.tier]].countsAsTurret then
+			total += 1
+		end
+	end
+	return total
+end
+
 function Service.getSnapshot()
 	return snapshot()
 end

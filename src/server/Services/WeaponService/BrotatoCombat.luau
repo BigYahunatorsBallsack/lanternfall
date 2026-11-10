@@ -7,6 +7,10 @@ local adapter: { [string]: any } = {}
 local hitOwner: number? = nil
 local hitElemental: boolean? = nil
 local hitStats: { [string]: number }? = nil
+-- A living carrier can be temporarily unable to attack (Soldier movement); flight must continue.
+function Combat.ownerAlive(ownerId: number, placed: boolean): boolean
+	return if adapter.ownerAlive then adapter.ownerAlive(ownerId) else placed
+end
 function Combat.resetHitContext()
 	hitOwner, hitElemental, hitStats = nil, nil, nil
 end

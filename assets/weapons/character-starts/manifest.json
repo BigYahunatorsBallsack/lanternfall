@@ -523,9 +523,48 @@
         88,
         91
       ]
+    },
+    {
+      "id": "Boomerang",
+      "name": "Boomerang",
+      "source": "res://weapons/ranged/boomerang/boomerang_icon.png",
+      "textureSource": "res://.import/boomerang_icon.png-1d51b16a420ae27e3e55ba2586916ea0.stex",
+      "textureMd5": "ee65d1005022c038fc3ed4d6d6acb314",
+      "output": "assets/weapons/character-starts/Boomerang.png",
+      "pngSha256": "96bb944af8f3210fa52041b2736fb3ce63d10e9d6cfe5eb5f98532408c7ce996",
+      "rgbaSha256": "31b05c1c4776d5b1922619e21b2512b7e98870e8b0a2927c20b9a133d2b55346",
+      "size": [
+        96,
+        96
+      ],
+      "alphaBounds": [
+        8,
+        13,
+        89,
+        84
+      ]
     }
   ],
   "projectiles": [
+    {
+      "id": "BoomerangThrown",
+      "source": "res://projectiles/boomerang/boomerang_projectile.png",
+      "textureSource": "res://.import/boomerang_projectile.png-7d61c6f391b9a07660335063d4ef2e90.stex",
+      "textureMd5": "29008a74b7694884bf402a6938567b7c",
+      "output": "assets/weapons/character-starts/BoomerangThrown.png",
+      "pngSha256": "a509e716e08ed7fed3f27b6afaaaa6f050294277fd963800f0fd09a8242e4764",
+      "rgbaSha256": "c16ca3d2dbf840a078fb0253a933c1acad1326eb334dddd8d79514f6c012260d",
+      "size": [
+        100,
+        100
+      ],
+      "alphaBounds": [
+        29,
+        25,
+        78,
+        83
+      ]
+    },
     {
       "id": "StickyGrenadeThrown",
       "source": "res://projectiles/grenade_mine/grenade.png",

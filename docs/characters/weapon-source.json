@@ -6509,6 +6509,276 @@
           ]
         }
       ]
+    },
+    {
+      "id": "Boomerang",
+      "name": "Boomerang",
+      "tiers": [
+        {
+          "source": "res://weapons/ranged/boomerang/1/boomerang_1_data.tres",
+          "sourceMd5": "ba837ccc30ecac186e9f588e2b18880a",
+          "statsSource": "res://weapons/ranged/boomerang/1/boomerang_1_stats.tres",
+          "statsMd5": "8c031302c3b4c56a64415fc92f3a3470",
+          "tier": 1,
+          "price": 14,
+          "sets": [
+            "set_primitive"
+          ],
+          "kind": "Ranged",
+          "stats": {
+            "cooldown": 30,
+            "damage": 6,
+            "accuracy": 1.0,
+            "crit_chance": 0.05,
+            "crit_damage": 2.0,
+            "min_range": 0,
+            "max_range": 300,
+            "knockback": 0,
+            "knockback_piercing": 0.0,
+            "can_have_positive_knockback": true,
+            "can_have_negative_knockback": false,
+            "effect_scale": 1.0,
+            "scaling_stats": [
+              [
+                "stat_melee_damage",
+                0.5
+              ],
+              [
+                "stat_speed",
+                0.05
+              ]
+            ],
+            "lifesteal": 0.0,
+            "sound_db_mod": -5,
+            "is_healing": false,
+            "recoil": 25,
+            "recoil_duration": 0.1,
+            "additional_cooldown_every_x_shots": -1,
+            "additional_cooldown_multiplier": -1.0,
+            "speed_percent_modifier": 0,
+            "can_shoot_without_target": false,
+            "nb_projectiles": 1,
+            "projectile_spread": 0.0,
+            "piercing": 0,
+            "piercing_dmg_reduction": 0.0,
+            "bounce": 0,
+            "bounce_dmg_reduction": 0.0,
+            "can_bounce": false,
+            "projectile_speed": 900,
+            "increase_projectile_speed_with_range": false
+          },
+          "effects": [
+            {
+              "source": "res://weapons/ranged/boomerang/boomerang_effect.tres",
+              "sourceMd5": "458b49680f2e56a00e5210b1a4e97f84",
+              "effectType": "res://effects/weapons/null_effect.gd",
+              "key": "",
+              "value": 0,
+              "scale": null,
+              "duration": null,
+              "custom_key": ""
+            }
+          ]
+        },
+        {
+          "source": "res://weapons/ranged/boomerang/2/boomerang_2_data.tres",
+          "sourceMd5": "18ead83e03e75071c5dfcde7c84efc77",
+          "statsSource": "res://weapons/ranged/boomerang/2/boomerang_2_stats.tres",
+          "statsMd5": "c958ce5a088d808d38751ca7b8521713",
+          "tier": 2,
+          "price": 30,
+          "sets": [
+            "set_primitive"
+          ],
+          "kind": "Ranged",
+          "stats": {
+            "cooldown": 28,
+            "damage": 9,
+            "accuracy": 1.0,
+            "crit_chance": 0.05,
+            "crit_damage": 2.0,
+            "min_range": 0,
+            "max_range": 325,
+            "knockback": 0,
+            "knockback_piercing": 0.0,
+            "can_have_positive_knockback": true,
+            "can_have_negative_knockback": false,
+            "effect_scale": 1.0,
+            "scaling_stats": [
+              [
+                "stat_melee_damage",
+                0.6
+              ],
+              [
+                "stat_speed",
+                0.1
+              ]
+            ],
+            "lifesteal": 0.0,
+            "sound_db_mod": -5,
+            "is_healing": false,
+            "recoil": 25,
+            "recoil_duration": 0.1,
+            "additional_cooldown_every_x_shots": -1,
+            "additional_cooldown_multiplier": -1.0,
+            "speed_percent_modifier": 0,
+            "can_shoot_without_target": false,
+            "nb_projectiles": 1,
+            "projectile_spread": 0.0,
+            "piercing": 0,
+            "piercing_dmg_reduction": 0.0,
+            "bounce": 0,
+            "bounce_dmg_reduction": 0.0,
+            "can_bounce": false,
+            "projectile_speed": 950,
+            "increase_projectile_speed_with_range": false
+          },
+          "effects": [
+            {
+              "source": "res://weapons/ranged/boomerang/boomerang_effect.tres",
+              "sourceMd5": "458b49680f2e56a00e5210b1a4e97f84",
+              "effectType": "res://effects/weapons/null_effect.gd",
+              "key": "",
+              "value": 0,
+              "scale": null,
+              "duration": null,
+              "custom_key": ""
+            }
+          ]
+        },
+        {
+          "source": "res://weapons/ranged/boomerang/3/boomerang_3_data.tres",
+          "sourceMd5": "ba108a4cd8a09047053a3e1bbed84467",
+          "statsSource": "res://weapons/ranged/boomerang/3/boomerang_3_stats.tres",
+          "statsMd5": "35abc626ce6fc4fbc8841827aad1c609",
+          "tier": 3,
+          "price": 58,
+          "sets": [
+            "set_primitive"
+          ],
+          "kind": "Ranged",
+          "stats": {
+            "cooldown": 26,
+            "damage": 12,
+            "accuracy": 1.0,
+            "crit_chance": 0.05,
+            "crit_damage": 2.0,
+            "min_range": 0,
+            "max_range": 350,
+            "knockback": 0,
+            "knockback_piercing": 0.0,
+            "can_have_positive_knockback": true,
+            "can_have_negative_knockback": false,
+            "effect_scale": 1.0,
+            "scaling_stats": [
+              [
+                "stat_melee_damage",
+                0.7
+              ],
+              [
+                "stat_speed",
+                0.15
+              ]
+            ],
+            "lifesteal": 0.0,
+            "sound_db_mod": -5,
+            "is_healing": false,
+            "recoil": 25,
+            "recoil_duration": 0.1,
+            "additional_cooldown_every_x_shots": -1,
+            "additional_cooldown_multiplier": -1.0,
+            "speed_percent_modifier": 0,
+            "can_shoot_without_target": false,
+            "nb_projectiles": 1,
+            "projectile_spread": 0.0,
+            "piercing": 0,
+            "piercing_dmg_reduction": 0.0,
+            "bounce": 0,
+            "bounce_dmg_reduction": 0.0,
+            "can_bounce": false,
+            "projectile_speed": 1000,
+            "increase_projectile_speed_with_range": false
+          },
+          "effects": [
+            {
+              "source": "res://weapons/ranged/boomerang/boomerang_effect.tres",
+              "sourceMd5": "458b49680f2e56a00e5210b1a4e97f84",
+              "effectType": "res://effects/weapons/null_effect.gd",
+              "key": "",
+              "value": 0,
+              "scale": null,
+              "duration": null,
+              "custom_key": ""
+            }
+          ]
+        },
+        {
+          "source": "res://weapons/ranged/boomerang/4/boomerang_4_data.tres",
+          "sourceMd5": "bdc6591e7678e58dbd7201080e80b8c6",
+          "statsSource": "res://weapons/ranged/boomerang/4/boomerang_4_stats.tres",
+          "statsMd5": "1c67c94d8d1756ff6448420b2c0576e7",
+          "tier": 4,
+          "price": 115,
+          "sets": [
+            "set_primitive"
+          ],
+          "kind": "Ranged",
+          "stats": {
+            "cooldown": 24,
+            "damage": 17,
+            "accuracy": 1.0,
+            "crit_chance": 0.05,
+            "crit_damage": 2.0,
+            "min_range": 0,
+            "max_range": 375,
+            "knockback": 0,
+            "knockback_piercing": 0.0,
+            "can_have_positive_knockback": true,
+            "can_have_negative_knockback": false,
+            "effect_scale": 1.0,
+            "scaling_stats": [
+              [
+                "stat_melee_damage",
+                0.8
+              ],
+              [
+                "stat_speed",
+                0.2
+              ]
+            ],
+            "lifesteal": 0.0,
+            "sound_db_mod": -5,
+            "is_healing": false,
+            "recoil": 25,
+            "recoil_duration": 0.1,
+            "additional_cooldown_every_x_shots": -1,
+            "additional_cooldown_multiplier": -1.0,
+            "speed_percent_modifier": 0,
+            "can_shoot_without_target": false,
+            "nb_projectiles": 1,
+            "projectile_spread": 0.0,
+            "piercing": 0,
+            "piercing_dmg_reduction": 0.0,
+            "bounce": 0,
+            "bounce_dmg_reduction": 0.0,
+            "can_bounce": false,
+            "projectile_speed": 1050,
+            "increase_projectile_speed_with_range": false
+          },
+          "effects": [
+            {
+              "source": "res://weapons/ranged/boomerang/boomerang_effect.tres",
+              "sourceMd5": "458b49680f2e56a00e5210b1a4e97f84",
+              "effectType": "res://effects/weapons/null_effect.gd",
+              "key": "",
+              "value": 0,
+              "scale": null,
+              "duration": null,
+              "custom_key": ""
+            }
+          ]
+        }
+      ]
     }
   ]
 }

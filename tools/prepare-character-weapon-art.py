@@ -40,6 +40,8 @@ for weapon in facts["weapons"]:
     manifest["weapons"].append({"id": weapon["id"], "name": weapon["name"], "source": icon, "textureSource": texture, "textureMd5": pck.entries[texture]["md5"], "output": output.relative_to(ROOT).as_posix(), "pngSha256": hashlib.sha256(output.read_bytes()).hexdigest(), "rgbaSha256": hashlib.sha256(image.tobytes()).hexdigest(), "size": list(image.size), "alphaBounds": list(image.getbbox())})
 # Distinct projectile and world pictures, separate from held weapon identities.
 projectiles = []
+if any(w["id"] == "Boomerang" for w in facts["weapons"]):
+    projectiles.append(("BoomerangThrown", "res://projectiles/boomerang/boomerang_projectile.png"))
 if any(w["id"] == "StickyGrenade" for w in facts["weapons"]):
     projectiles.extend([("StickyGrenadeThrown","res://projectiles/grenade_mine/grenade.png"),("StickyGrenadeGround","res://projectiles/grenade_mine/grenade_on_ground.png")])
 if any(w["id"] == "Molotov" for w in facts["weapons"]):
