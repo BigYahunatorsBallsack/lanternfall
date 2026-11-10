@@ -265,8 +265,8 @@ function WorldSprite.screenAngle(dx: number, dz: number): number
 end
 
 -- A soft glowing dot of `studs` in `color` with a white-hot core: bolts, shots, wisps, blasts.
-function WorldSprite.glow(name: string, studs: number, color: Color3, coreShare: number?): Sprite
-	local sprite = WorldSprite.create({ name = name, image = Look.images.glow, studs = studs })
+function WorldSprite.glow(name: string, studs: number, color: Color3, coreShare: number?, depth: number?): Sprite
+	local sprite = WorldSprite.create({ name = name, image = Look.images.glow, studs = studs, depth = depth })
 	sprite.picture.ImageColor3 = color
 	if coreShare then
 		WorldSprite.addLayer(sprite, Look.images.glow, coreShare)

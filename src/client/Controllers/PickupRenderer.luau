@@ -50,6 +50,7 @@ local function pickupSprite(name: string): WorldSprite.Sprite
 		studs = if art then art.studs else 2,
 		ground = if art then art.ground or 0 else 0,
 		center = if art then art.center else nil,
+		depth = Config.Sprites.pickupDepth.item,
 	})
 	WorldSprite.outline(sprite)
 	return sprite
@@ -64,11 +65,12 @@ local cratePool = VisualKit.objectPool(function(): Visual
 end, partsOf)
 
 local legendaryPool = VisualKit.objectPool(function(): Visual
-	local glow = WorldSprite.glow("LegendaryGlow", LEGENDARY_GLOW_STUDS, LEGENDARY_GLOW)
+	local glow =
+		WorldSprite.glow("LegendaryGlow", LEGENDARY_GLOW_STUDS, LEGENDARY_GLOW, nil, Config.Sprites.pickupDepth.glow)
 	return {
 		parts = { pickupSprite("LegendaryCrate").anchor :: BasePart, glow.anchor :: BasePart },
-		-- a little behind the crate, so it shines around it
-		offsets = { CFrame.identity, CFrame.new(0, 1.034, -0.3) },
+		-- a little north of the crate, so it shines around it; on the floor like the crate, so it stays under figures
+		offsets = { CFrame.identity, CFrame.new(0, 0, -0.3) },
 	}
 end, partsOf)
 
@@ -205,8 +207,10 @@ local function render()
 			poolOf(flight.kind):release(flight.visual)
 			table.remove(flights, i)
 		else
+			-- Along the floor to below the player: Brotato keeps flying consumables under every figure too.
 			local from = flight.from
-			place(flight.visual, from + (target - from) * (t * t), flight.yaw)
+			local floorTarget = Vector3.new(target.X, floorY, target.Z)
+			place(flight.visual, from + (floorTarget - from) * (t * t), flight.yaw)
 		end
 	end
 	flushMoves()

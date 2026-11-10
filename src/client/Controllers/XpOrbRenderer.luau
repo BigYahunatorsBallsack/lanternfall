@@ -24,7 +24,6 @@ local WorldSprite = require(
 
 local FOLDER_NAME = "LanternfallXpOrbs"
 local FLY_SECONDS = 0.25
-local HOVER = Config.Sprites.material.hover
 -- Looks by XP value: the last tier with minValue <= value applies.
 local TIERS = Config.Sprites.material.tiers
 local LOOK = Config.Sprites.material
@@ -301,7 +300,9 @@ local function onEvents(events: Types.XpOrbEvents)
 		WorldSprite.setStuds(sprite, tier.size * Config.Sprites.orbScale * orb.scale * bagScale)
 		sprite.picture.ImageColor3 = Color3.new(1, 1, 1)
 		table.insert(partList, orb.part)
-		table.insert(cframeList, CFrame.new(x, floorY + HOVER + tier.size / 2, z))
+		-- On the floor: the camera looks straight down, so height is nearness to the camera. Lifted by its size, a
+		-- shard came nearer than the enemies walking over it and covered them.
+		table.insert(cframeList, CFrame.new(x, floorY, z))
 	end
 	flushMoves()
 	local now = workspace:GetServerTimeNow()
@@ -347,7 +348,9 @@ local function render()
 			table.remove(flights, i)
 		else
 			table.insert(partList, flight.part)
-			table.insert(cframeList, CFrame.new(flight.from + (target - flight.from) * (t * t)))
+			-- Along the floor to below the player: Brotato keeps flying materials under every figure too.
+			local floorTarget = Vector3.new(target.X, floorY, target.Z)
+			table.insert(cframeList, CFrame.new(flight.from + (floorTarget - flight.from) * (t * t)))
 		end
 	end
 	flushMoves()
