@@ -156,21 +156,21 @@ describe("enemies off the screen", function()
 		world.advance(0.5)
 
 		local root = me.Character.HumanoidRootPart
-		-- the arena is about one screen wide since the playtest after Paket 24: stand at the west wall, so the far
-		-- row at the east wall is well off a 16:9 screen
+		-- Brotato's screen shows almost the whole arena width but only about 2/3 of its depth: stand at the north wall,
+		-- so the far row at the south wall is well off the screen
 		local arena = Config.Map.arena
-		root.Position = Vector3.new(arena.center.X - arena.width / 2 + 8, root.Position.Y, arena.center.Z)
+		root.Position = Vector3.new(arena.center.X, root.Position.Y, arena.center.Z - arena.depth / 2 + 8)
 		world.advance(1)
 		local x, z = root.Position.X, root.Position.Z
 		local far = 0
 		for k = 1, 6 do
-			if EnemySim.spawn("Shadeling", x + arena.width - 16, z + (k - 3.5) * 6, 100, 0) then
+			if EnemySim.spawn("Shadeling", x + (k - 3.5) * 6, z + arena.depth - 16, 100, 0) then
 				far += 1
 			end
 		end
 		local near = 0
 		for k = 1, 3 do
-			if EnemySim.spawn("Shadeling", x + k * 4, z - 10, 100, 0) then
+			if EnemySim.spawn("Shadeling", x + k * 4, z + 10, 100, 0) then
 				near += 1
 			end
 		end

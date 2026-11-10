@@ -441,6 +441,12 @@ end
 -- Lifecycle -------------------------------------------------------------------------
 
 function SpawnDirector.init()
+	MapService.ArenaResized:Connect(function(arena: MapService.Bounds)
+		bounds.minX = arena.center.X - arena.halfX
+		bounds.maxX = arena.center.X + arena.halfX
+		bounds.minZ = arena.center.Z - arena.halfZ
+		bounds.maxZ = arena.center.Z + arena.halfZ
+	end)
 	RunDirector.addCheckpoint("EnemyEncounters", function()
 		return table.clone(luresSeen)
 	end, function(saved: { [number]: number })

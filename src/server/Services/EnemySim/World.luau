@@ -60,6 +60,7 @@ export type Params = {
 	obstacles: { Circle },
 	allocateId: (() -> number)?,
 	goalsWithoutTargets: boolean?,
+	seed: number?, -- for the wander points (kind.wander) and keep-distance jitter; tests pass one
 }
 
 local MAX_ID = 65535 -- ids are u16 in snapshots
@@ -112,6 +113,11 @@ export type World = typeof(setmetatable(
 		goalXs: { number }, -- where it walks instead of the nearest target while hasGoal (World.setGoal, B9)
 		goalZs: { number },
 		hasGoal: { boolean },
+		keeps: { number }, -- its own keepDistance (ranged.keepDistanceJitter) or wander range (wander.rangeJitter)
+		wanderXs: { number }, -- the spot a wandering enemy walks to (kind.wander), valid while wanderLeft > 0
+		wanderZs: { number },
+		wanderLeft: { number }, -- seconds until it picks a new spot even if it has not arrived
+		randomState: number, -- xorshift32 state for nextRandom (no Roblox Random, so the spec runs without a mock)
 		slowLeft: { number }, -- seconds the slow lasts
 		burning: { boolean }, -- shown in snapshots; the weapons (WeaponService/Afflictions) run the burn itself
 		columns: { { any } }, -- every per-enemy array above, for compacting and clearing
@@ -138,6 +144,16 @@ export type World = typeof(setmetatable(
 	},
 	World
 ))
+
+-- A number in [0, 1) from the world's own xorshift32 stream.
+local function nextRandom(self: World): number
+	local x = self.randomState
+	x = bit32.bxor(x, bit32.lshift(x, 13))
+	x = bit32.bxor(x, bit32.rshift(x, 17))
+	x = bit32.bxor(x, bit32.lshift(x, 5))
+	self.randomState = x
+	return x / 4294967296
+end
 
 function World.new(params: Params): World
 	assert(params.maxEnemies < MAX_ID, "maxEnemies must leave room for free ids")
@@ -172,6 +188,11 @@ function World.new(params: Params): World
 		goalXs = {},
 		goalZs = {},
 		hasGoal = {},
+		keeps = {},
+		wanderXs = {},
+		wanderZs = {},
+		wanderLeft = {},
+		randomState = math.max(1, math.floor(params.seed or 1) % 4294967296),
 		slowLeft = {},
 		burning = {},
 		columns = {},
@@ -220,6 +241,10 @@ function World.new(params: Params): World
 		self.goalXs,
 		self.goalZs,
 		self.hasGoal,
+		self.keeps,
+		self.wanderXs,
+		self.wanderZs,
+		self.wanderLeft,
 		self.slowLeft,
 		self.burning,
 	} :: { { any } }
@@ -297,12 +322,17 @@ function World.spawn(
 	self.speedBonuses[i] = 0
 	self.boosts[i], self.buffed[i], self.hasGoal[i] = 1, false, false
 	self.goalXs[i], self.goalZs[i] = 0, 0
+	local wander = kind.wander
+	local jitter = if wander then wander.rangeJitter or 0 elseif ranged then ranged.keepDistanceJitter or 0 else 0
+	local keep = if wander then wander.range or 0 elseif ranged then ranged.keepDistance else 0
+	self.keeps[i] = keep + (nextRandom(self) * 2 - 1) * jitter
+	self.wanderXs[i], self.wanderZs[i], self.wanderLeft[i] = x, z, 0
 	self.abilityTimers[i] = if kind.pulse
 		then kind.pulse.intervalSeconds * (0.5 + 0.5 * spread)
 		elseif kind.hatch then kind.hatch.seconds
 		else 0
 	self.indexOf[id] = i
-	self.maxRadius = math.max(self.maxRadius, kind.radius)
+	self.maxRadius = math.max(self.maxRadius, kind.radius, kind.hurtRadius or 0, kind.hitRadius or 0)
 	self.maxSpeed = math.max(self.maxSpeed, kind.speed * speed)
 	self.hash:insert(i, x, z) -- visible to queries right away
 	return id
@@ -337,6 +367,12 @@ local function compact(self: World): boolean
 end
 
 -- Removes a living enemy without a kill (a Looter escaping, B6). Returns true if it was alive.
+-- The arena's walls moved (map-size effect at run start); enemies are pushed inside on their next step.
+function World.setBounds(self: World, minX: number, maxX: number, minZ: number, maxZ: number)
+	local p = self.params
+	p.minX, p.maxX, p.minZ, p.maxZ = minX, maxX, minZ, maxZ
+end
+
 function World.remove(self: World, id: number): boolean
 	local i = self.indexOf[id]
 	if not i or self.hp[i] <= 0 then
@@ -486,6 +522,19 @@ function World.getMultipliers(self: World, id: number): (number, number, number)
 	return hpMultiplier, damageMultiplier, self.speedFactors[i]
 end
 
+-- Sets a living enemy's mode and rush direction (a boss's attack, WP10: it glows during the wind-up like a charger).
+-- Only for kinds whose mode World.step does not drive (no charge, slash, pulse or hatch).
+function World.setMode(self: World, id: number, mode: number, rushX: number?, rushZ: number?)
+	local i = self.indexOf[id]
+	if not i or self.hp[i] <= 0 then
+		return
+	end
+	self.modes[i] = mode
+	if rushX and rushZ then
+		self.rushXs[i], self.rushZs[i] = rushX, rushZ
+	end
+end
+
 -- The enemy's mode (World.MODE_*) and its rush direction (only meaningful from the wind-up on).
 function World.getMode(self: World, id: number): (number, number, number)
 	local i = self.indexOf[id]
@@ -504,7 +553,7 @@ function World.queryRadius(self: World, x: number, z: number, radius: number, ou
 	for s = 1, found do
 		local i = scratch[s]
 		if hp[i] > 0 then
-			local reach = radius + kinds[i].radius
+			local reach = radius + (kinds[i].hurtRadius or kinds[i].radius) -- Brotato's Hurtbox
 			local dx, dz = xs[i] - x, zs[i] - z
 			if dx * dx + dz * dz <= reach * reach then
 				count += 1
@@ -539,7 +588,7 @@ function World.querySegment(
 			local px, pz = xs[i] - x0, zs[i] - z0
 			local t = if lengthSquared > EPSILON then math.clamp((px * sx + pz * sz) / lengthSquared, 0, 1) else 0
 			local dx, dz = px - sx * t, pz - sz * t
-			local reach = radius + kinds[i].radius
+			local reach = radius + (kinds[i].hurtRadius or kinds[i].radius) -- Brotato's Hurtbox
 			if dx * dx + dz * dz <= reach * reach then
 				count += 1
 				out[count] = ids[i]
@@ -806,8 +855,11 @@ local function rushStep(
 		local edge = if dz < 0 then p.minZ + radius else p.maxZ - radius
 		stopAt = math.min(stopAt or move, math.max(0, (edge - z) / dz))
 	end
+
 	for t = 1, targetCount do
-		local touch = radius + (if targetRadii then targetRadii[t] else p.playerRadius) + p.contactMargin
+		local touch = (self.kinds[i].hitRadius or radius)
+			+ (if targetRadii then targetRadii[t] else p.playerRadius)
+			+ p.contactMargin
 		local entry = circleEntry(x, z, dx, dz, move, targetXs[t], targetZs[t], touch)
 		if entry and entry < (stopAt or math.huge) then
 			stopAt = entry
@@ -949,6 +1001,54 @@ local function rebuildHash(self: World)
 	end
 end
 
+-- Where a wandering enemy (kind.wander, Brotato's random-position movement) walks: the spot it picked, or a new one
+-- once it is within arriveStuds of it or wander.maxSeconds ran out. "Arena" picks anywhere in the arena (Junkie),
+-- "Target" within its range of the nearest target on both axes (Fly). Spots inside an obstacle are re-rolled up to
+-- 8 times like Brotato's forbidden zones. Returns the offset from the enemy to the spot.
+local function wanderStep(
+	self: World,
+	i: number,
+	wander: Enemies.Wander,
+	dt: number,
+	tx: number,
+	tz: number
+): (number, number)
+	local p = self.params
+	local x, z = self.xs[i], self.zs[i]
+	local wx, wz = self.wanderXs[i], self.wanderZs[i]
+	local left = self.wanderLeft[i] - dt
+	local arrive = wander.arriveStuds
+	if left <= 0 or (wx - x) ^ 2 + (wz - z) ^ 2 <= arrive * arrive then
+		local radius = self.kinds[i].radius
+		for _ = 1, 8 do
+			if wander.around == "Target" then
+				local range = self.keeps[i]
+				wx = tx + (nextRandom(self) * 2 - 1) * range
+				wz = tz + (nextRandom(self) * 2 - 1) * range
+			else
+				wx = p.minX + nextRandom(self) * (p.maxX - p.minX)
+				wz = p.minZ + nextRandom(self) * (p.maxZ - p.minZ)
+			end
+			wx = math.clamp(wx, p.minX + radius, p.maxX - radius)
+			wz = math.clamp(wz, p.minZ + radius, p.maxZ - radius)
+			local blocked = false
+			for _, circle in p.obstacles do
+				if (wx - circle.x) ^ 2 + (wz - circle.z) ^ 2 < (circle.radius + radius) ^ 2 then
+					blocked = true
+					break
+				end
+			end
+			if not blocked then
+				break
+			end
+		end
+		self.wanderXs[i], self.wanderZs[i] = wx, wz
+		left = wander.maxSeconds
+	end
+	self.wanderLeft[i] = left
+	return wx - x, wz - z
+end
+
 -- Advances every enemy by dt seconds towards the targets (x/z of living players, targetCount of them).
 -- Returns contacts[t] = the highest contact damage touching target t, 0 if none (reused table).
 -- Contacts are checked against contactXs/contactZs if given (e.g. positions corrected for network lag),
@@ -985,7 +1085,7 @@ function World.step(
 		local queryPadding = maxRadius + self.maxSpeed * dt
 		for i = 1, count do
 			local kind = kinds[i]
-			if targetCount == 0 and not self.hasGoal[i] then
+			if targetCount == 0 and not self.hasGoal[i] and not kind.wander then
 				continue
 			end
 			local x, z = xs[i], zs[i]
@@ -1030,8 +1130,12 @@ function World.step(
 				self.maxSpeed = math.max(self.maxSpeed, kind.speed * self.speedFactors[i] * boost)
 			end
 			local toGoal = self.hasGoal[i]
+			local wander = kind.wander
 			if toGoal then
 				bestDx, bestDz = self.goalXs[i] - x, self.goalZs[i] - z
+				distance = math.sqrt(bestDx * bestDx + bestDz * bestDz)
+			elseif wander then
+				bestDx, bestDz = wanderStep(self, i, wander, dt, x + bestDx, z + bestDz)
 				distance = math.sqrt(bestDx * bestDx + bestDz * bestDz)
 			end
 			if distance <= EPSILON or kind.anchored then
@@ -1046,13 +1150,13 @@ function World.step(
 			local advance
 			local ranged = kind.ranged
 			local flee = kind.flee
-			if toGoal then
+			if toGoal or wander then
 				advance = math.min(maxMove, distance)
 			elseif flee and (flee.range == nil or distance < flee.range) then
 				dirX, dirZ = fleeDirection(p, x, z, bestDx, bestDz, distance, flee.edgeMargin)
 				advance = maxMove
 			elseif ranged then
-				local keep = ranged.keepDistance
+				local keep = self.keeps[i]
 				if distance > keep + tolerance then
 					advance = math.min(maxMove, distance - keep)
 				elseif distance < keep - tolerance then
@@ -1063,7 +1167,12 @@ function World.step(
 			else
 				advance = math.min(
 					maxMove,
-					math.max(0, distance - radius - (if targetRadii then targetRadii[bestTarget] else playerRadius))
+					math.max(
+						0,
+						distance
+							- (kind.hitRadius or radius)
+							- (if targetRadii then targetRadii[bestTarget] else playerRadius)
+					)
 				)
 			end
 			if advance == 0 then
@@ -1158,7 +1267,7 @@ function World.step(
 				z,
 				targetXs[t],
 				targetZs[t],
-				radius + (if targetRadii then targetRadii[t] else playerRadius),
+				(kind.hitRadius or radius) + (if targetRadii then targetRadii[t] else playerRadius),
 				ids[i]
 			)
 		end
@@ -1180,7 +1289,9 @@ function World.step(
 		local hit = damage[i]
 		if hit > 0 then
 			for t = 1, targetCount do
-				local reach = kinds[i].radius + (if targetRadii then targetRadii[t] else playerRadius) + margin
+				local reach = (kinds[i].hitRadius or kinds[i].radius)
+					+ (if targetRadii then targetRadii[t] else playerRadius)
+					+ margin
 				local reachSquared = reach * reach
 				local dx, dz = hitXs[t] - xs[i], hitZs[t] - zs[i]
 				if dx * dx + dz * dz <= reachSquared and hit > contacts[t] then
@@ -1196,9 +1307,10 @@ function World.step(
 		local i, x, z = paths[k], paths[k + 1], paths[k + 2]
 		local dx, dz = paths[k + 3] - x, paths[k + 4] - z
 		local length = math.sqrt(dx * dx + dz * dz)
+
 		if length > EPSILON then
 			for t = 1, targetCount do
-				local reach = kinds[i].radius
+				local reach = (kinds[i].hitRadius or kinds[i].radius)
 					+ (if targetRadii then targetRadii[t] else playerRadius)
 					+ margin
 					+ EPSILON
@@ -1229,7 +1341,8 @@ function World.step(
 	end
 	rebuildHash(self)
 
-	-- 6. ranged enemies count down while a target is in fire range and report a shot at the nearest one
+	-- 6. ranged enemies count down while a target is in fire range and report a shot at the nearest one (not closer
+	-- than minFireRange)
 	local shots, shotCount = self.shots, 0
 	local shotDamage, shotCooldown = self.shotDamage, self.shotCooldown
 	for i = 1, count do
@@ -1246,7 +1359,10 @@ function World.step(
 			end
 			if best > 0 then
 				local cooldown = shotCooldown[i] - dt
-				if cooldown <= 0 then
+				local minRange = ranged.minFireRange or 0
+				if cooldown <= 0 and bestSquared < minRange * minRange then
+					cooldown = 0 -- ready, but the target is too close (Brotato's Junkie min_range)
+				elseif cooldown <= 0 then
 					cooldown += ranged.fireInterval
 					local k = shotCount * 5
 					shots[k + 1], shots[k + 2], shots[k + 3] = ids[i], x, z

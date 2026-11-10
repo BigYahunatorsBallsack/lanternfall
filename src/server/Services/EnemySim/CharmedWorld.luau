@@ -5,7 +5,6 @@ local Config = require(Shared.Config)
 local C = require(Shared.Config.Charm)
 local World = require(script.Parent.World)
 local Volleys = require(script.Parent.Volleys)
-local Motion = require(script.Parent.CharmMotion)
 local Friends = {}
 Friends.__index = Friends
 function Friends.new(params: any, callbacks: any): any
@@ -40,6 +39,18 @@ function Friends.convert(self: any, source: any, id: number, owner: number, now:
 	end
 	local actor = self.world.indexOf[id]
 	local friendly = table.clone(kind)
+	local movement = C.movement[kind.id]
+	if movement then
+		friendly.wander = {
+			around = if movement == "AroundTarget" then "Target" else "Arena",
+			range = C.aroundRange,
+			rangeJitter = C.aroundRandomization,
+			arriveStuds = C.goalPrecision,
+			maxSeconds = math.huge,
+		}
+		self.world.hasGoal[actor] = false
+		self.world.wanderLeft[actor] = if kind.wander and self.world.wanderLeft[actor] > 0 then math.huge else 0
+	end
 	friendly.pulse = nil -- charmed Healer/Buffer target players and structures through the support callback
 	self.world.kinds[actor] = friendly
 	self.world.burning[actor] = false
@@ -134,6 +145,13 @@ local function fireShots(self: any, dt: number)
 		local distance = math.sqrt(dx * dx + dz * dz)
 		if distance > 0 then
 			dx, dz = dx / distance, dz / distance
+			local spread = ranged.spreadRadians or 0
+			if spread > 0 then
+				local random = if self.callbacks.random then self.callbacks.random(member.owner) else math.random()
+				local angle = (random * 2 - 1) * spread
+				local c, s = math.cos(angle), math.sin(angle)
+				dx, dz = dx * c - dz * s, dx * s + dz * c
+			end
 			self:fire(
 				member,
 				x + dx * member.kind.radius,
@@ -171,10 +189,9 @@ function Friends.step(self: any, dt: number, now: number, hostile: any)
 			table.insert(ids, hostile.ids[index])
 			table.insert(xs, hostile.xs[index])
 			table.insert(zs, hostile.zs[index])
-			table.insert(radii, hostile.kinds[index].radius)
+			table.insert(radii, (hostile.kinds[index].hurtRadius or hostile.kinds[index].radius))
 		end
 	end
-	Motion.step(self)
 	local contacts = self.world:step(dt, xs, zs, #ids, nil, nil, radii)
 	stepShots(self, dt)
 	fireShots(self, dt)

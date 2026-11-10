@@ -50,7 +50,8 @@ describe("Enemy faction composition", function()
 	it("collides against each enemy target's radius and reports the attacking actor id", function()
 		local w = World.new(params(nil))
 		local kind = table.clone(Config.Enemies.types.Shadeling)
-		kind.radius = 1
+		kind.radius = 0.25
+		kind.hitRadius = 1 -- attack circle is distinct from the body
 		kind.anchored = true
 		local id = assert(w:spawn(kind, 0, 0, 100, 12))
 		local contacts = w:step(0.1, { 4 }, { 0 }, 1, nil, nil, { 3 })

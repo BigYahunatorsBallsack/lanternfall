@@ -1,14 +1,16 @@
 --!strict
 -- The boss wave (DESIGN.md section 7, WP10, like Brotato's wave 20): when the last wave starts, red crosses show
 -- where its boss comes (Config.Enemies.bossWave), then one boss picked at random appears (bossWave.count). Bosses are
--- enemies in EnemySim with a plan of phases and attacks (Config.Enemies.bosses, kind.boss); BossBrain decides when
--- each attack winds up and strikes, this service carries it out: warnings on the floor (BossTelegraphs), dashes,
--- slams, rings of shots, red circles around the players and shots that close in on them, the embers circling the
--- boss, its phase speed and roaming. Killing every boss of the wave wins the run (RunDirector.endRun("Victory")),
--- as does surviving the wave (RunFlow). Sends BossState (HP bar, phase) to the participants.
+-- enemies in EnemySim with a list of states (Config.Enemies.bosses, kind.boss, after Brotato 1.2.0.1's boss scenes);
+-- BossBrain decides when the state changes and when its attack winds up and strikes, this service carries it out:
+-- the boss's walk (following, roaming, near or away from the player), its speed per state, charges with the shots
+-- fired on the way, bullets, pillars and slashes (warnings on the floor, BossTelegraphs, that strike once while their
+-- hitbox is on), summons and the Predator's turning arm of projectiles. Killing every boss of the wave wins the run
+-- (RunDirector.endRun("Victory")), as does surviving the wave (RunFlow). Sends BossState (HP bar, state) to the
+-- participants.
 -- Since WP10 part 2 also the champions of the elite waves (Config.Enemies.champions, eliteWaves, after Brotato's
--- elites): one comes in wave 11 or 12 the same way, grows with the wave like other enemies, adds slashes, aimed and
--- scattered shots, summons and running away, and drops a legendary crate (LootService) without ending the run.
+-- elites): one comes in wave 11 or 12 the same way, grows with the wave like other enemies and drops a legendary
+-- crate (LootService) without ending the run.
 -- Since B11 the danger level decides (DangerService, Util/DangerRules): elite waves come from its plan (none below
 -- danger 2), wave 20 brings two bosses on danger 5, and in endless mode killing the bosses does not end the run;
 -- every 10th wave after 20 is a boss wave with every boss and extra champions.
@@ -32,6 +34,7 @@ local Types = require(Shared.Net.Types)
 local CombatService = require(script.Parent.CombatService)
 local DangerService = require(script.Parent.DangerService)
 local EnemySim = require(script.Parent.EnemySim)
+local World = require(script.Parent.EnemySim.World)
 local MapService = require(script.Parent.MapService)
 local RandomService = require(script.Parent.RandomService)
 local RunDirector = require(script.Parent.RunDirector)
@@ -42,13 +45,12 @@ local BossBrain = require(script.BossBrain)
 
 local BossWave = Config.Enemies.bossWave
 local EliteWaves = Config.Enemies.eliteWaves
+local Projectiles = Config.Enemies.bossProjectiles
 local PLAYER_RADIUS = Config.Simulation.playerRadius
 local SPAWN_TRIES = 16
-local ROAM_REACHED = 4 -- studs: a roaming boss picks its next spot this close to the last one
-local ROAM_MARGIN = 12 -- studs from the arena edge
-local FLEE_LOOKAHEAD = 20 -- studs: a fleeing champion runs towards a spot this far away from the nearest player
-local POOL_ARM_SECONDS = 0.4 -- a new pool shows this long before it hurts
-local SHOWN_WINDUP = 0.2 -- seconds: shorter wind-ups of shots from its body show no warning (a spray every 0.15 s)
+local AREA_TRIES = 5 -- Brotato ZoneService.get_rand_pos_in_area tries this many spots
+local TARGET_TRIES = 8 -- Brotato's random-spot movements try this many spots
+local REACHED = 1 -- studs (Brotato EQUALITY_PRECISION 10 px): a walk to a spot ends this close to it
 
 type Target = { player: Player, x: number, z: number }
 
@@ -58,25 +60,31 @@ type Boss = {
 	id: number,
 	bossId: string,
 	kind: Enemies.Enemy,
+	plan: Enemies.BossPlan,
 	role: Role,
 	brain: BossBrain.Brain,
 	wave: boolean, -- came with its wave (a boss of the boss wave: its death counts towards the victory)
-	damageMultiplier: number,
-	speedFactor: number, -- from the team's Enemy Speed at spawn; the phase multiplies it
-	orbitStartedAt: number?,
-	-- the attack in progress
-	dirX: number, -- Dash direction
+	forWave: number, -- the wave it grows like: its projectiles add damagePerWave for every wave after the first
+	damageMultiplier: number, -- contact damage
+	attackMultiplier: number, -- projectiles: danger level, Enemy Damage, co-op and the early-wave share
+	speedFactor: number, -- from the team's Enemy Speed at spawn; the state's speedPercent adds to it
+	-- walking
+	goalX: number?, -- the spot it walks to (Roam, AroundPlayer)
+	goalZ: number?,
+	range: number, -- AroundPlayer, KeepDistance: rolled when the state starts
+	moveX: number, -- unit direction of its last walk (aim "Movement")
+	moveZ: number,
+	lastX: number,
+	lastZ: number,
+	-- a charge
+	dirX: number,
 	dirZ: number,
-	dashLeft: number,
-	dashHit: { [Player]: boolean },
-	trailLeft: number, -- Dash: studs until its next pair of side projectiles
-	poolLeft: number, -- Dash: studs until its next pool
-	bouncesLeft: number, -- Dash: walls it may still bounce off
-	leapX: number, -- Leap: where it lands
-	leapZ: number,
-	spots: { number }, -- Rain and Circle: flat x, z of every spot; Cleave: flat dx, dz of every slash
-	roamX: number?,
-	roamZ: number?,
+	chargeHit: { [Player]: boolean },
+	-- the Predator's arm
+	orbitStartedAt: number?,
+	orbitAt: number,
+	orbitAngle: number,
+	orbitRate: number,
 }
 
 local BossService = {}
@@ -96,24 +104,24 @@ local telegraphs: { Types.BossTelegraph } = {}
 local targets: { Target } = {}
 local orbitHits: { [Player]: boolean } = {}
 
--- Floor hazards that strike later than the attack that made them (Cross, March) or stay a while (pools): a circle or
--- a strip from x/z along dx/dz. Lingering ones hurt each player inside at most once per `tick`.
+-- Pillars and slashes: a circle or a strip from x/z along dx/dz that moves at vx/vz from startsAt and hurts each player
+-- inside it once between hitsAt and endsAt.
 type Hazard = {
 	x: number,
 	z: number,
+	vx: number,
+	vz: number,
 	radius: number,
 	dx: number?,
 	dz: number?,
 	length: number?,
+	startsAt: number,
 	hitsAt: number,
-	endsAt: number?,
-	tick: number,
+	endsAt: number,
 	damage: number,
-	lastHit: { [Player]: number },
+	hit: { [Player]: boolean },
 }
 local hazards: { Hazard } = {}
--- Thrown cleavers on their way out: at `at` one flies back from x/z to the champion that threw it (Boomerang).
-local returns: { { id: number, x: number, z: number, at: number, attack: Enemies.BossAttack, damage: number } } = {}
 
 local bounds = (function()
 	local arena = MapService.getArenaBounds()
@@ -129,6 +137,10 @@ local obstacles = MapService.getObstacles()
 
 local function now(): number
 	return workspace:GetServerTimeNow()
+end
+
+local function roll(): number
+	return RandomService.number("Combat")
 end
 
 local function notifyParticipants(text: string)
@@ -167,69 +179,12 @@ local function isFree(x: number, z: number, radius: number): boolean
 	return SpawnRules.isFree(x, z, radius, bounds, obstacles)
 end
 
--- Telegraphs ------------------------------------------------------------------------
-
-local function circle(x: number, z: number, radius: number, seconds: number, lingerSeconds: number?)
-	local at = now()
-	table.insert(telegraphs, {
-		shape = "Circle",
-		x = x,
-		z = z,
-		radius = radius,
-		startsAt = at,
-		hitsAt = at + seconds,
-		endsAt = if lingerSeconds then at + seconds + lingerSeconds else nil,
-	})
+local function clampToArena(x: number, z: number, margin: number): (number, number)
+	return math.clamp(x, bounds.minX + margin, bounds.maxX - margin),
+		math.clamp(z, bounds.minZ + margin, bounds.maxZ - margin)
 end
 
-local function line(x: number, z: number, dx: number, dz: number, length: number, halfWidth: number, seconds: number)
-	local at = now()
-	table.insert(telegraphs, {
-		shape = "Line",
-		x = x,
-		z = z,
-		radius = halfWidth,
-		dx = dx,
-		dz = dz,
-		length = length,
-		startsAt = at,
-		hitsAt = at + seconds,
-	})
-end
-
--- A hazard striking `seconds` from now (lingering `lingerSeconds` after that), with its warning on the floor.
-local function addHazard(
-	x: number,
-	z: number,
-	radius: number,
-	seconds: number,
-	damage: number,
-	lingerSeconds: number?,
-	tick: number?,
-	dx: number?,
-	dz: number?,
-	length: number?
-)
-	local at = now()
-	table.insert(hazards, {
-		x = x,
-		z = z,
-		radius = radius,
-		dx = dx,
-		dz = dz,
-		length = length,
-		hitsAt = at + seconds,
-		endsAt = if lingerSeconds then at + seconds + lingerSeconds else nil,
-		tick = tick or 0.5,
-		damage = damage,
-		lastHit = {},
-	})
-	if dx and dz and length then
-		line(x, z, dx, dz, length, radius, seconds)
-	else
-		circle(x, z, radius, seconds, lingerSeconds)
-	end
-end
+-- Telegraphs and hazards ----------------------------------------------------------------
 
 local function sendTelegraphs()
 	if #telegraphs == 0 then
@@ -239,6 +194,82 @@ local function sendTelegraphs()
 		Net.fireClient("BossTelegraphs", player, telegraphs)
 	end
 	telegraphs = {}
+end
+
+-- A pillar or slash from now on: its warning on the floor and its hit window (Config.Enemies.bossProjectiles).
+local function addHazard(
+	x: number,
+	z: number,
+	vx: number,
+	vz: number,
+	radius: number,
+	hitFrom: number,
+	hitUntil: number,
+	damage: number,
+	dx: number?,
+	dz: number?,
+	length: number?
+)
+	local at = now()
+	table.insert(hazards, {
+		x = x,
+		z = z,
+		vx = vx,
+		vz = vz,
+		radius = radius,
+		dx = dx,
+		dz = dz,
+		length = length,
+		startsAt = at,
+		hitsAt = at + hitFrom,
+		endsAt = at + hitUntil,
+		damage = damage,
+		hit = {},
+	})
+	table.insert(telegraphs, {
+		shape = if length then "Line" else "Circle",
+		x = x,
+		z = z,
+		radius = radius,
+		dx = dx,
+		dz = dz,
+		length = length,
+		startsAt = at,
+		hitsAt = at + hitFrom,
+		vx = if vx ~= 0 then vx else nil,
+		vz = if vz ~= 0 then vz else nil,
+	})
+end
+
+local function insideHazard(hazard: Hazard, at: number, x: number, z: number): boolean
+	local reach = hazard.radius + PLAYER_RADIUS
+	local age = at - hazard.startsAt
+	local hx, hz = hazard.x + hazard.vx * age, hazard.z + hazard.vz * age
+	local dx, dz, length = hazard.dx, hazard.dz, hazard.length
+	if dx and dz and length then
+		local along = math.clamp((x - hx) * dx + (z - hz) * dz, 0, length)
+		return (x - hx - dx * along) ^ 2 + (z - hz - dz * along) ^ 2 <= reach * reach
+	end
+	return (x - hx) ^ 2 + (z - hz) ^ 2 <= reach * reach
+end
+
+-- Hurts the players inside hazards whose hitbox is on (once each) and drops the ones that are over.
+local function stepHazards(at: number)
+	for index = #hazards, 1, -1 do
+		local hazard = hazards[index]
+		if at < hazard.hitsAt then
+			continue
+		end
+		for _, target in targets do
+			if not hazard.hit[target.player] and insideHazard(hazard, at, target.x, target.z) then
+				hazard.hit[target.player] = true
+				hurt(target.player, hazard.damage)
+			end
+		end
+		if at >= hazard.endsAt then
+			table.remove(hazards, index)
+		end
+	end
 end
 
 local function sendState(force: boolean?)
@@ -251,9 +282,12 @@ local function sendState(force: boolean?)
 			id = boss.id,
 			bossId = boss.bossId,
 			hpFraction = EnemySim.getHealthShare(boss.id),
-			phase = boss.brain.phase,
-			phaseCount = #(boss.kind.boss :: Enemies.BossPlan).phases,
+			phase = boss.brain.state,
+			phaseCount = #boss.plan.states,
 			orbitStartedAt = boss.orbitStartedAt,
+			orbitAt = if boss.orbitStartedAt then boss.orbitAt else nil,
+			orbitAngle = if boss.orbitStartedAt then boss.orbitAngle else nil,
+			orbitRate = if boss.orbitStartedAt then boss.orbitRate else nil,
 		})
 	end
 	sentEmpty = #list == 0
@@ -276,21 +310,31 @@ local function spotNear(x: number, z: number, radius: number): (number, number)
 			return px, pz
 		end
 	end
-	return math.clamp(x, bounds.minX + radius, bounds.maxX - radius),
-		math.clamp(z, bounds.minZ + radius, bounds.maxZ - radius)
+	return clampToArena(x, z, radius)
 end
 
-local function phaseOf(boss: Boss): Enemies.BossPhase
-	return (boss.kind.boss :: Enemies.BossPlan).phases[boss.brain.phase]
+local function stateOf(boss: Boss): Enemies.BossState
+	return boss.plan.states[boss.brain.state]
 end
 
-local function applyPhase(boss: Boss)
-	local phase = phaseOf(boss)
-	EnemySim.setSpeedFactor(boss.id, boss.speedFactor * (phase.speedMultiplier or 1))
-	boss.orbitStartedAt = if phase.orbit then now() else nil
-	boss.roamX, boss.roamZ = nil, nil
-	if not phase.roam then
-		EnemySim.setGoal(boss.id, nil)
+-- The angle of the Predator's arm right now.
+local function orbitAngle(boss: Boss, at: number): number
+	return boss.orbitAngle + (at - boss.orbitAt) * boss.orbitRate
+end
+
+-- A new state: its speed, a fresh walk and (Predator) a faster arm.
+local function applyState(boss: Boss)
+	local state = stateOf(boss)
+	EnemySim.setSpeedFactor(boss.id, boss.speedFactor * math.max(0, 1 + (state.speedPercent or 0) / 100))
+	boss.goalX, boss.goalZ = nil, nil
+	boss.range = (state.range or 0) + (roll() * 2 - 1) * (state.rangeRandom or 0)
+	EnemySim.setGoal(boss.id, nil)
+	local multiplier = state.orbitTurnMultiplier
+	if multiplier and boss.orbitStartedAt then
+		local at = now()
+		boss.orbitAngle = orbitAngle(boss, at)
+		boss.orbitAt = at
+		boss.orbitRate *= multiplier
 	end
 end
 
@@ -311,50 +355,58 @@ local function spawnUnit(
 		return nil
 	end
 	local dangerHp, dangerDamage, dangerSpeed = DangerService.multipliers(forWave)
+	local earlyHp, earlyDamage = DangerRules.bossEarlyShares(forWave)
 	local players = #RunDirector.getParticipants()
 	local hpGrowth, damageGrowth = 1, 1
 	if role == "Champion" then
 		hpGrowth, damageGrowth = SpawnRules.growth(bossId, forWave)
 	end
 	local hpMultiplier = share
+		* earlyHp
 		* hpGrowth
 		* dangerHp
 		* StatMath.enemyFactor(StatService.getTeamStat("enemyHp"))
 		* SpawnRules.coopHealth(players)
-	local damageMultiplier = damageGrowth
+	local attackMultiplier = earlyDamage
 		* dangerDamage
 		* StatMath.enemyFactor(StatService.getTeamStat("enemyDamage"))
 		* SpawnRules.coopDamage(players)
+	local damageMultiplier = damageGrowth * attackMultiplier
 	local speedFactor = dangerSpeed * StatMath.enemyFactor(StatService.getTeamStat("enemySpeed"))
 	local id = EnemySim.spawn(bossId, x, z, hpMultiplier, damageMultiplier, nil, nil, speedFactor)
 	if not id then
 		return nil
 	end
+	local at = now()
 	local boss: Boss = {
 		id = id,
 		bossId = bossId,
 		kind = kind,
+		plan = plan,
 		role = role,
-		brain = BossBrain.new(plan),
+		brain = BossBrain.new(plan, roll),
 		wave = wave,
+		forWave = forWave,
 		damageMultiplier = damageMultiplier,
+		attackMultiplier = attackMultiplier,
 		speedFactor = speedFactor,
-		orbitStartedAt = nil,
-		dirX = 0,
+		goalX = nil,
+		goalZ = nil,
+		range = 0,
+		moveX = 1,
+		moveZ = 0,
+		lastX = x,
+		lastZ = z,
+		dirX = 1,
 		dirZ = 0,
-		dashLeft = 0,
-		dashHit = {},
-		trailLeft = 0,
-		poolLeft = 0,
-		bouncesLeft = 0,
-		leapX = x,
-		leapZ = z,
-		spots = {},
-		roamX = nil,
-		roamZ = nil,
+		chargeHit = {},
+		orbitStartedAt = if plan.orbit then at else nil,
+		orbitAt = at,
+		orbitAngle = 0,
+		orbitRate = if plan.orbit then plan.orbit.turnSpeed * (if roll() < 0.5 then -1 else 1) else 0,
 	}
 	table.insert(bosses, boss)
-	applyPhase(boss)
+	applyState(boss)
 	notifyParticipants(if role == "Boss" then `{kind.displayName} awakens!` else `{kind.displayName} arrives!`)
 	sendState(true)
 	return id
@@ -406,7 +458,7 @@ local function startEliteWave(wave: number, ids: { string })
 	local message = if #ids > 1
 		then `An elite wave! {#ids} champions approach.`
 		else "An elite wave! A champion approaches."
-	announceArrival(ids, "Champion", DangerRules.championShare(wave), EliteWaves.introSeconds, message)
+	announceArrival(ids, "Champion", 1, EliteWaves.introSeconds, message)
 end
 
 local function spawnPending()
@@ -422,511 +474,247 @@ end
 
 -- Attacks ---------------------------------------------------------------------------
 
-local function attackOf(boss: Boss, attackId: string): Enemies.BossAttack
-	return (boss.kind.boss :: Enemies.BossPlan).attacks[attackId]
+-- Damage of one projectile of `attack` (Brotato: damage + damagePerWave per wave after the first, then the enemy
+-- damage factors).
+local function projectileDamage(boss: Boss, attack: Enemies.BossAttack): number
+	local base = (attack.damage or 1) + (attack.damagePerWave or 1) * math.max(0, boss.forWave - 1)
+	return base * boss.attackMultiplier
 end
 
-local function shot(attack: Enemies.BossAttack, damage: number, x: number, z: number, dx: number, dz: number)
-	EnemySim.fireShot(
-		x,
-		z,
-		dx,
-		dz,
-		attack.projectileSpeed or 15,
-		attack.projectileRange or 50,
-		attack.projectileRadius or 0.6,
-		damage
-	)
-end
-
--- Unit directions of `count` slashes or shots, flat dx, dz: evenly around (from a random turn), or a fan of `arc`
--- degrees at the nearest player (straight ahead along dirX/dirZ if nobody is alive).
-local function fan(count: number, arc: number, around: boolean, x: number, z: number, out: { number })
-	table.clear(out)
-	local centre: number
-	local step: number
-	if around then
-		centre = RandomService.number("Combat") * 2 * math.pi
-		step = 2 * math.pi / math.max(count, 1)
+-- One projectile at px/pz flying along `angle` (radians on the x/z plane).
+local function spawnProjectile(attack: Enemies.BossAttack, damage: number, px: number, pz: number, angle: number)
+	local dx, dz = math.cos(angle), math.sin(angle)
+	local speed = attack.projectileSpeed or 0
+	local kind = attack.projectile or "Bullet"
+	if kind == "Bullet" then
+		local bullet = Projectiles.bullet
+		EnemySim.fireShot(px, pz, dx, dz, speed, bullet.range, bullet.radius, damage)
+	elseif kind == "Pillar" then
+		local pillar = Projectiles.pillar
+		addHazard(px, pz, dx * speed, dz * speed, pillar.radius, pillar.hitFrom, pillar.hitUntil, damage)
 	else
-		local target = nearestTarget(x, z)
-		centre = if target then math.atan2(target.z - z, target.x - x) else 0
-		step = if count > 1 then math.rad(arc) / (count - 1) else 0
+		local slash = Projectiles.slash
+		local from = slash.from + (if kind == "SlashAhead" then slash.aheadOffset else 0)
+		addHazard(
+			px + dx * from,
+			pz + dz * from,
+			dx * speed,
+			dz * speed,
+			slash.halfWidth,
+			slash.hitFrom,
+			slash.hitUntil,
+			damage,
+			dx,
+			dz,
+			slash.to - slash.from
+		)
 	end
-	local first = if around then centre else centre - step * (count - 1) / 2
-	for k = 1, count do
-		local angle = first + (k - 1) * step
-		table.insert(out, math.cos(angle))
-		table.insert(out, math.sin(angle))
-	end
-	return out
 end
 
-local scratchDirections: { number } = {}
+-- Brotato ShootingAttackBehavior.shoot(): where each projectile appears and where it flies.
+local function shoot(boss: Boss, attack: Enemies.BossAttack, x: number, z: number)
+	local target = nearestTarget(x, z)
+	local tx, tz = if target then target.x else x + boss.moveX, if target then target.z else z + boss.moveZ
+	if attack.aim == "Movement" then
+		tx, tz = x + boss.moveX, z + boss.moveZ
+	end
+	local damage = projectileDamage(boss, attack)
+	local count = attack.count or 1
+	local spawnHalf = (attack.spawnSpread or 0) / 2
+	local spread = attack.spread or 0
+	for index = 0, count - 1 do
+		local px, pz = x, z
+		if attack.onTarget then
+			px, pz = tx, tz
+		end
+		if attack.onBorders then
+			local angle = if attack.constantSpread then index * 2 * math.pi / count else roll() * 2 * math.pi
+			px, pz = px + math.cos(angle) * spawnHalf, pz + math.sin(angle) * spawnHalf
+		elseif not (attack.oneOnTarget and index == 0) then
+			px, pz = px + (roll() * 2 - 1) * spawnHalf, pz + (roll() * 2 - 1) * spawnHalf
+		end
+		local base = math.atan2(tz - pz, tx - px)
+		local angle = base + (roll() * 2 - 1) * spread
+		if attack.constantSpread and count > 1 then
+			angle = base - spread + index * 2 * spread / (count - 1)
+		end
+		if attack.randomDirection then
+			angle = roll() * 2 * math.pi - math.pi
+		end
+		if attack.aim == "Away" then
+			angle = math.atan2(pz - z, px - x)
+		end
+		spawnProjectile(attack, damage, px, pz, angle)
+	end
+end
 
--- The warning of an attack that starts winding up; fixes where it will hit.
-local function windup(boss: Boss, attack: Enemies.BossAttack, x: number, z: number)
-	local seconds = attack.windupSeconds
-	local radius = boss.kind.radius
-	table.clear(boss.spots)
-	if attack.kind == "Dash" then
-		local target = nearestTarget(x, z)
-		local dx, dz = if target then target.x - x else 0, if target then target.z - z else 1
-		local length = math.sqrt(dx * dx + dz * dz)
-		if length < 1e-3 then
-			dx, dz, length = 0, 1, 1
-		end
-		boss.dirX, boss.dirZ = dx / length, dz / length
-		table.clear(boss.dashHit)
-		line(x, z, boss.dirX, boss.dirZ, radius + (attack.distance or 0), radius, seconds)
-	elseif attack.kind == "Slam" then
-		circle(x, z, attack.radius or 0, seconds)
-	elseif
-		attack.kind == "Ring"
-		or attack.kind == "Volley"
-		or attack.kind == "Scatter"
-		or attack.kind == "Summon"
-		or attack.kind == "Boomerang"
-		or attack.kind == "Pools"
-	then
-		if seconds >= SHOWN_WINDUP then
-			circle(x, z, radius + 1.5, seconds)
-		end
-	elseif attack.kind == "Cleave" then
-		-- the slashes start at its edge; their directions are fixed now, so stepping out of a strip dodges it
-		fan(attack.count or 1, attack.arc or 0, attack.around == true, x, z, boss.spots)
-		local spots = boss.spots
-		for k = 1, #spots - 1, 2 do
-			line(x, z, spots[k], spots[k + 1], radius + (attack.distance or 0), attack.radius or 1, seconds)
-		end
-	elseif attack.kind == "Leap" then
-		-- it lands where the nearest player stands now (a shadow on the floor), if there is room
-		local target = nearestTarget(x, z)
-		local lx, lz = if target then target.x else x, if target then target.z else z
-		lx = math.clamp(lx, bounds.minX + radius, bounds.maxX - radius)
-		lz = math.clamp(lz, bounds.minZ + radius, bounds.maxZ - radius)
-		if not isFree(lx, lz, radius) then
-			lx, lz = x, z
-		end
-		boss.leapX, boss.leapZ = lx, lz
-		circle(lx, lz, attack.radius or radius, seconds)
-	elseif attack.kind == "March" then
-		-- a row of circles from it towards the nearest player and beyond, striking one after another
-		local target = nearestTarget(x, z)
-		local dx, dz = if target then target.x - x else 0, if target then target.z - z else 1
-		local length = math.max(math.sqrt(dx * dx + dz * dz), 1e-3)
-		dx, dz = dx / length, dz / length
-		local damage = attack.damage * boss.damageMultiplier
-		local spacing = attack.spacing or 4
-		for k = 1, attack.count or 1 do
-			local cx, cz = x + dx * (radius + spacing * k), z + dz * (radius + spacing * k)
-			if cx < bounds.minX or cx > bounds.maxX or cz < bounds.minZ or cz > bounds.maxZ then
+-- Brotato SpawningAttackBehavior (spawn_in_radius_around_unit): each at a random spot of a square spawnArea wide
+-- around the boss, kept inside the arena.
+local function summon(attack: Enemies.BossAttack, x: number, z: number)
+	local enemyId = attack.enemy
+	local summoned = if enemyId then EnemyKinds.get(enemyId) else nil
+	if not (enemyId and summoned) then
+		return
+	end
+	local half = (attack.spawnArea or 0) / 2
+	local cx, cz = clampToArena(x, z, math.min(half, (bounds.maxX - bounds.minX) / 2))
+	for _ = 1, attack.spawnCount or 1 do
+		for _ = 1, AREA_TRIES do
+			local sx, sz = clampToArena(cx + (roll() * 2 - 1) * half, cz + (roll() * 2 - 1) * half, summoned.radius)
+			if isFree(sx, sz, summoned.radius) then
+				SpawnDirector.spawnAt(enemyId, sx, sz)
 				break
 			end
-			addHazard(cx, cz, attack.radius or 2, seconds + (k - 1) * (attack.stepSeconds or 0.1), damage)
 		end
-	elseif attack.kind == "Cross" then
-		-- an X of two long strips on the nearest player (later ones at random spots around it), one after another
+	end
+end
+
+-- The wind-up of an attack: the boss flashes red; a charge fixes its direction at the nearest player now.
+local function windup(boss: Boss, attack: Enemies.BossAttack, x: number, z: number)
+	if attack.kind == "Charge" then
 		local target = nearestTarget(x, z)
-		local damage = attack.damage * boss.damageMultiplier
-		local random = RandomService.stream("Combat")
-		local length = attack.distance or 20
-		for k = 1, attack.count or 1 do
-			local cx, cz = if target then target.x else x, if target then target.z else z
-			if k > 1 then
-				local angle = random:NextNumber() * 2 * math.pi
-				local distance = random:NextNumber() * (attack.spread or 0)
-				cx, cz = cx + math.cos(angle) * distance, cz + math.sin(angle) * distance
-			end
-			local turn = random:NextNumber() * math.pi
-			for _, extra in { 0, math.pi / 2 } do
-				local dx, dz = math.cos(turn + extra), math.sin(turn + extra)
-				local delay = seconds + (k - 1) * (attack.stepSeconds or 0)
-				addHazard(
-					cx - dx * length / 2,
-					cz - dz * length / 2,
-					attack.radius or 1,
-					delay,
-					damage,
-					nil,
-					nil,
-					dx,
-					dz,
-					length
-				)
-			end
+		local dx, dz = if target then target.x - x else boss.moveX, if target then target.z - z else boss.moveZ
+		local length = math.sqrt(dx * dx + dz * dz)
+		if length < 1e-3 then
+			dx, dz, length = boss.moveX, boss.moveZ, 1
 		end
-	elseif attack.kind == "Rain" then
-		local random = RandomService.stream("Combat")
-		local spread = attack.spread or 0
-		for _, target in targets do
-			for _ = 1, attack.count or 0 do
-				local angle = random:NextNumber() * 2 * math.pi
-				local distance = math.sqrt(random:NextNumber()) * spread
-				local sx, sz = target.x + math.cos(angle) * distance, target.z + math.sin(angle) * distance
-				table.insert(boss.spots, sx)
-				table.insert(boss.spots, sz)
-				circle(sx, sz, attack.radius or 0, seconds)
-			end
-		end
-	elseif attack.kind == "Circle" then
-		local count = attack.count or 0
-		local spread = attack.spread or 0
-		local turn = RandomService.number("Combat") * 2 * math.pi
-		for _, target in targets do
-			for k = 1, count do
-				local angle = turn + (k - 1) / count * 2 * math.pi
-				local sx, sz = target.x + math.cos(angle) * spread, target.z + math.sin(angle) * spread
-				table.insert(boss.spots, sx)
-				table.insert(boss.spots, sz)
-				circle(sx, sz, (attack.projectileRadius or 0.5) * 2, seconds)
-			end
-		end
+		boss.dirX, boss.dirZ = dx / length, dz / length
 	end
+	EnemySim.setMode(boss.id, World.MODE_WINDUP, boss.dirX, boss.dirZ)
 end
 
-local function ring(boss: Boss, attack: Enemies.BossAttack, x: number, z: number, burst: number)
-	local count = attack.count or 0
-	local radius = boss.kind.radius
-	-- every other burst fills the gaps, or with spinPerBurst each burst turns further: a spiral
-	local turn = if attack.spinPerBurst
-		then (burst - 1) * math.rad(attack.spinPerBurst)
-		else (burst - 1) * 0.5 / math.max(count, 1) * 2 * math.pi
-	for k = 1, count do
-		local angle = turn + (k - 1) / count * 2 * math.pi
-		local dx, dz = math.cos(angle), math.sin(angle)
-		shot(attack, attack.damage * boss.damageMultiplier, x + dx * radius, z + dz * radius, dx, dz)
-	end
-end
-
-local function strike(boss: Boss, attack: Enemies.BossAttack, x: number, z: number, burst: number)
-	local damage = attack.damage * boss.damageMultiplier
-	if attack.kind == "Dash" then
-		boss.dashLeft = attack.distance or 0
-		boss.trailLeft = attack.trailEvery or 0
-		boss.poolLeft = attack.poolEvery or 0
-		boss.bouncesLeft = attack.bounces or 0
-		local starting = attack.startShots or 0
-		if starting > 0 then
-			local radius = boss.kind.radius
-			local directions = fan(starting, attack.arc or 0, false, x, z, scratchDirections)
-			for k = 1, #directions - 1, 2 do
-				local dx, dz = directions[k], directions[k + 1]
-				shot(attack, damage, x + dx * radius, z + dz * radius, dx, dz)
-			end
-		end
-	elseif attack.kind == "Slam" then
-		local reach = (attack.radius or 0) + PLAYER_RADIUS
-		for _, target in targets do
-			if (target.x - x) ^ 2 + (target.z - z) ^ 2 <= reach * reach then
-				hurt(target.player, damage)
-			end
-		end
-	elseif attack.kind == "Ring" then
-		ring(boss, attack, x, z, burst)
-	elseif attack.kind == "Cleave" then
-		local spots = boss.spots
-		local length = boss.kind.radius + (attack.distance or 0)
-		local reach = (attack.radius or 1) + PLAYER_RADIUS
-		for _, target in targets do
-			for k = 1, #spots - 1, 2 do
-				-- distance from the player to the strip from (x, z) along (dx, dz)
-				local dx, dz = spots[k], spots[k + 1]
-				local along = math.clamp((target.x - x) * dx + (target.z - z) * dz, 0, length)
-				local px, pz = x + dx * along, z + dz * along
-				if (target.x - px) ^ 2 + (target.z - pz) ^ 2 <= reach * reach then
-					hurt(target.player, damage)
-					break
-				end
-			end
-		end
-	elseif attack.kind == "Volley" or attack.kind == "Scatter" then
-		local radius = boss.kind.radius
-		local count = attack.count or 1
-		local directions: { number }
-		if attack.kind == "Volley" then
-			directions = fan(count, attack.arc or 0, false, x, z, scratchDirections)
-		else
-			table.clear(scratchDirections)
-			local random = RandomService.stream("Combat")
-			for _ = 1, count do
-				local angle = random:NextNumber() * 2 * math.pi
-				table.insert(scratchDirections, math.cos(angle))
-				table.insert(scratchDirections, math.sin(angle))
-			end
-			directions = scratchDirections
-		end
-		for k = 1, #directions - 1, 2 do
-			local dx, dz = directions[k], directions[k + 1]
-			shot(attack, damage, x + dx * radius, z + dz * radius, dx, dz)
-		end
-	elseif attack.kind == "Leap" then
-		local lx, lz = boss.leapX, boss.leapZ
-		EnemySim.teleport(boss.id, Vector3.new(lx, 0, lz))
-		local reach = (attack.radius or boss.kind.radius) + PLAYER_RADIUS
-		for _, target in targets do
-			if (target.x - lx) ^ 2 + (target.z - lz) ^ 2 <= reach * reach then
-				hurt(target.player, damage)
-			end
-		end
-		if (attack.count or 0) > 0 then
-			ring(boss, attack, lx, lz, burst)
-		end
-	elseif attack.kind == "Boomerang" then
-		-- cleavers fly out and, once at their range, back to where the champion is then
-		local radius = boss.kind.radius
-		local range = attack.projectileRange or 20
-		local outSeconds = range / math.max(attack.projectileSpeed or 15, 1e-3)
-		local directions = fan(attack.count or 1, attack.arc or 0, false, x, z, scratchDirections)
-		for k = 1, #directions - 1, 2 do
-			local dx, dz = directions[k], directions[k + 1]
-			local sx, sz = x + dx * radius, z + dz * radius
-			shot(attack, damage, sx, sz, dx, dz)
-			local ex = math.clamp(sx + dx * range, bounds.minX, bounds.maxX)
-			local ez = math.clamp(sz + dz * range, bounds.minZ, bounds.maxZ)
-			table.insert(
-				returns,
-				{ id = boss.id, x = ex, z = ez, at = now() + outSeconds, attack = attack, damage = damage }
-			)
-		end
-	elseif attack.kind == "Pools" then
-		local random = RandomService.stream("Combat")
-		local spread = attack.spread or 6
-		for _ = 1, attack.count or 1 do
-			local angle = random:NextNumber() * 2 * math.pi
-			local distance = boss.kind.radius + random:NextNumber() * spread
-			local px, pz = x + math.cos(angle) * distance, z + math.sin(angle) * distance
-			addHazard(
-				px,
-				pz,
-				attack.poolRadius or 3,
-				POOL_ARM_SECONDS,
-				damage,
-				attack.poolSeconds or 4,
-				attack.poolTick
-			)
-		end
-	elseif attack.kind == "Summon" then
-		local enemyId = attack.enemy
-		local summoned = if enemyId then EnemyKinds.get(enemyId) else nil
-		if enemyId and summoned then
-			local random = RandomService.stream("Spawns")
-			local spread = attack.spread or 4
-			for _ = 1, attack.count or 1 do
-				for _ = 1, SPAWN_TRIES do
-					local angle = random:NextNumber() * 2 * math.pi
-					local distance = boss.kind.radius + summoned.radius + random:NextNumber() * spread
-					local sx, sz = x + math.cos(angle) * distance, z + math.sin(angle) * distance
-					if isFree(sx, sz, summoned.radius) then
-						SpawnDirector.spawnAt(enemyId, sx, sz)
-						break
-					end
-				end
-			end
-		end
-	elseif attack.kind == "Rain" then
-		local reach = (attack.radius or 0) + PLAYER_RADIUS
-		local spots = boss.spots
-		for _, target in targets do
-			for k = 1, #spots - 1, 2 do
-				if (target.x - spots[k]) ^ 2 + (target.z - spots[k + 1]) ^ 2 <= reach * reach then
-					hurt(target.player, damage)
-					break
-				end
-			end
-		end
-	elseif attack.kind == "Circle" then
-		local spots = boss.spots
-		local count = attack.count or 0
-		local spread = attack.spread or 0
-		for k = 1, #spots - 1, 2 do
-			-- the centre of this spot's circle: spots come in groups of `count` around one player
-			local first = math.floor((k - 1) / (2 * count)) * 2 * count + 1
-			local cx, cz = 0, 0
-			for j = first, first + 2 * count - 1, 2 do
-				cx += spots[j]
-				cz += spots[j + 1]
-			end
-			cx, cz = cx / count, cz / count
-			local dx, dz = cx - spots[k], cz - spots[k + 1]
-			local length = math.sqrt(dx * dx + dz * dz)
-			if length > 1e-3 then
-				EnemySim.fireShot(
-					spots[k],
-					spots[k + 1],
-					dx / length,
-					dz / length,
-					attack.projectileSpeed or 14,
-					2 * spread,
-					attack.projectileRadius or 0.6,
-					damage
-				)
-			end
-		end
-	end
-end
-
--- One step of a dash: moves the boss along its line, hurts every player it runs into once and stops at an obstacle,
--- the arena edge or the end of the line.
--- Turns a homing dash towards the nearest player, at most turnRate degrees a second.
-local function steer(boss: Boss, attack: Enemies.BossAttack, x: number, z: number, dt: number)
-	local target = nearestTarget(x, z)
-	if not (target and attack.turnRate) then
+local function strike(boss: Boss, attack: Enemies.BossAttack, x: number, z: number)
+	if attack.kind == "Charge" then
+		table.clear(boss.chargeHit)
+		boss.moveX, boss.moveZ = boss.dirX, boss.dirZ
+		EnemySim.setMode(boss.id, World.MODE_RUSH, boss.dirX, boss.dirZ)
 		return
 	end
-	local current = math.atan2(boss.dirZ, boss.dirX)
-	local wanted = math.atan2(target.z - z, target.x - x)
-	local delta = (wanted - current + math.pi) % (2 * math.pi) - math.pi
-	local maxTurn = math.rad(attack.turnRate) * dt
-	local angle = current + math.clamp(delta, -maxTurn, maxTurn)
-	boss.dirX, boss.dirZ = math.cos(angle), math.sin(angle)
+	EnemySim.setMode(boss.id, World.MODE_WALK)
+	if attack.kind == "Shoot" then
+		shoot(boss, attack, x, z)
+	elseif attack.kind == "Spawn" then
+		summon(attack, x, z)
+	end
+	local extra = stateOf(boss).extraShot
+	if extra then
+		shoot(boss, extra, x, z)
+	end
 end
 
-local function dashStep(boss: Boss, attack: Enemies.BossAttack, x: number, z: number, dt: number)
+-- One step of a charge: along its direction at its walking speed + chargeSpeed, sliding along the arena edge and
+-- stopped by obstacles; hurts every player on its way once with its contact damage.
+local function chargeStep(boss: Boss, attack: Enemies.BossAttack, x: number, z: number, dt: number)
 	local radius = boss.kind.radius
-	local damage = attack.damage * boss.damageMultiplier
-	steer(boss, attack, x, z, dt)
-	local move = math.min((attack.speed or 0) * dt, boss.dashLeft)
-	local nx, nz = x + boss.dirX * move, z + boss.dirZ * move
-	local outX = nx < bounds.minX + radius or nx > bounds.maxX - radius
-	local outZ = nz < bounds.minZ + radius or nz > bounds.maxZ - radius
-	local hitObstacle: typeof(obstacles[1])? = nil
+	local walk = boss.kind.speed * boss.speedFactor * math.max(0, 1 + (stateOf(boss).speedPercent or 0) / 100)
+	local move = (walk + (attack.chargeSpeed or 0)) * dt
+	local nx, nz = clampToArena(x + boss.dirX * move, z + boss.dirZ * move, radius)
 	for _, obstacle in obstacles do
 		if (nx - obstacle.x) ^ 2 + (nz - obstacle.z) ^ 2 < (obstacle.radius + radius) ^ 2 then
-			hitObstacle = obstacle
+			nx, nz = x, z
+			break
 		end
 	end
-	if outX or outZ or hitObstacle then
-		if boss.bouncesLeft <= 0 then
-			boss.dashLeft = 0
-			BossBrain.endAct(boss.brain)
-			return
-		end
-		-- bounces off the wall or pillar (Brass Ram) and bursts a ring of projectiles
-		boss.bouncesLeft -= 1
-		if outX then
-			boss.dirX = -boss.dirX
-		end
-		if outZ then
-			boss.dirZ = -boss.dirZ
-		end
-		if hitObstacle and not (outX or outZ) then
-			local ox, oz = x - hitObstacle.x, z - hitObstacle.z
-			local length = math.max(math.sqrt(ox * ox + oz * oz), 1e-3)
-			ox, oz = ox / length, oz / length
-			local along = boss.dirX * ox + boss.dirZ * oz
-			boss.dirX, boss.dirZ = boss.dirX - 2 * along * ox, boss.dirZ - 2 * along * oz
-		end
-		local count = attack.bounceShots or 0
-		for k = 1, count do
-			local angle = (k - 1) / count * 2 * math.pi
-			local dx, dz = math.cos(angle), math.sin(angle)
-			shot(attack, damage, x + dx * radius, z + dz * radius, dx, dz)
-		end
-		return
-	end
-	boss.dashLeft -= move
-	EnemySim.teleport(boss.id, Vector3.new(nx, 0, nz))
-	local reach = radius + PLAYER_RADIUS
-	local poolEvery = attack.poolEvery
-	if poolEvery and poolEvery > 0 then
-		-- leaves pools behind (Mire Jaw's mud)
-		boss.poolLeft -= move
-		if boss.poolLeft <= 0 then
-			boss.poolLeft += poolEvery
-			addHazard(
-				nx,
-				nz,
-				attack.poolRadius or 3,
-				POOL_ARM_SECONDS,
-				damage,
-				attack.poolSeconds or 4,
-				attack.poolTick
-			)
-		end
-	end
-	local every = attack.trailEvery
-	if every and every > 0 then
-		-- a pair of projectiles to its sides every `every` studs (Brotato's Rhino and Mantis)
-		boss.trailLeft -= move
-		while boss.trailLeft <= 0 do
-			boss.trailLeft += every
-			for _, side in { -1, 1 } do
-				local dx, dz = -boss.dirZ * side, boss.dirX * side
-				shot(attack, damage, nx + dx * radius, nz + dz * radius, dx, dz)
+	local sx, sz = nx - x, nz - z
+	local length = math.sqrt(sx * sx + sz * sz)
+	if length > 1e-3 then
+		EnemySim.teleport(boss.id, Vector3.new(nx, 0, nz))
+		local reach = radius + PLAYER_RADIUS
+		local damage = boss.kind.contactDamage * boss.damageMultiplier
+		for _, target in targets do
+			if
+				not boss.chargeHit[target.player]
+				and SegmentCircle.entry(x, z, sx / length, sz / length, length, target.x, target.z, reach) ~= nil
+			then
+				boss.chargeHit[target.player] = true
+				hurt(target.player, damage)
 			end
 		end
 	end
-	for _, target in targets do
-		if
-			not boss.dashHit[target.player]
-			and SegmentCircle.entry(x, z, boss.dirX, boss.dirZ, move, target.x, target.z, reach) ~= nil
-		then
-			boss.dashHit[target.player] = true
-			hurt(target.player, damage)
+end
+
+-- Walking ---------------------------------------------------------------------------
+
+-- A random free spot from `pick`, or the last one tried (Brotato tries 8 and then pushes it out).
+local function freeSpot(boss: Boss, pick: () -> (number, number)): (number, number)
+	local x, z = pick()
+	for _ = 1, TARGET_TRIES do
+		if isFree(x, z, boss.kind.radius) then
+			return x, z
+		end
+		x, z = pick()
+	end
+	return x, z
+end
+
+-- Where the boss walks in its state (Brotato's movement behaviors); nil goal = straight at the nearest player.
+local function walk(boss: Boss, x: number, z: number)
+	local state = stateOf(boss)
+	local movement = state.movement
+	local target = nearestTarget(x, z)
+	local margin = boss.kind.radius
+	if movement == "Follow" then
+		EnemySim.setGoal(boss.id, nil)
+		return
+	end
+	local gx, gz = boss.goalX, boss.goalZ
+	local reached = gx ~= nil and gz ~= nil and (gx - x) ^ 2 + (gz - z) ^ 2 <= REACHED * REACHED
+	if movement == "Roam" then
+		if not (gx and gz) or reached then
+			gx, gz = freeSpot(boss, function()
+				return bounds.minX + margin + roll() * (bounds.maxX - bounds.minX - 2 * margin),
+					bounds.minZ + margin + roll() * (bounds.maxZ - bounds.minZ - 2 * margin)
+			end)
+		end
+	elseif movement == "AroundPlayer" then
+		if (not (gx and gz) or reached) and target then
+			local range = boss.range
+			gx, gz = freeSpot(boss, function()
+				return clampToArena(target.x + (roll() * 2 - 1) * range, target.z + (roll() * 2 - 1) * range, margin)
+			end)
+		end
+	elseif movement == "KeepDistance" and target then
+		local dx, dz = x - target.x, z - target.z
+		local length = math.sqrt(dx * dx + dz * dz)
+		if length < 1e-3 then
+			dx, dz, length = 1, 0, 1
+		end
+		gx, gz = clampToArena(target.x + dx / length * boss.range, target.z + dz / length * boss.range, margin)
+		if (gx - x) ^ 2 + (gz - z) ^ 2 <= REACHED * REACHED then
+			gx, gz = x, z
 		end
 	end
-	if boss.dashLeft <= 1e-3 then
-		BossBrain.endAct(boss.brain)
+	boss.goalX, boss.goalZ = gx, gz
+	if gx and gz then
+		EnemySim.setGoal(boss.id, Vector3.new(gx, 0, gz))
+	else
+		EnemySim.setGoal(boss.id, nil)
 	end
 end
 
--- The embers circling the boss in this phase hurt the players they touch.
+-- The Predator's arm: each projectile slides out to its distance and hurts the players it touches.
 local function orbitStep(boss: Boss, x: number, z: number, at: number)
-	local orbit = phaseOf(boss).orbit
+	local orbit = boss.plan.orbit
 	local startedAt = boss.orbitStartedAt
 	if not (orbit and startedAt) then
 		return
 	end
 	table.clear(orbitHits)
-	local turn = (at - startedAt) * orbit.turnsPerSecond * 2 * math.pi
+	local angle = orbitAngle(boss, at)
+	local cx, cz = math.cos(angle), math.sin(angle)
+	local grown = (at - startedAt) * orbit.growSpeed
 	local reach = orbit.hitRadius + PLAYER_RADIUS
-	for k = 1, orbit.count do
-		local angle = turn + (k - 1) / orbit.count * 2 * math.pi
-		local ox, oz = x + math.cos(angle) * orbit.radius, z + math.sin(angle) * orbit.radius
+	local damage = (orbit.damage + orbit.damagePerWave * math.max(0, boss.forWave - 1)) * boss.attackMultiplier
+	for _, distance in orbit.distances do
+		local r = math.min(distance, grown)
+		local ox, oz = x + cx * r, z + cz * r
 		for _, target in targets do
 			if not orbitHits[target.player] and (target.x - ox) ^ 2 + (target.z - oz) ^ 2 <= reach * reach then
 				orbitHits[target.player] = true
-				hurt(target.player, orbit.damage * boss.damageMultiplier)
+				hurt(target.player, damage)
 			end
 		end
 	end
-end
-
--- Where a roaming boss runs: a random spot of the arena, a new one once it got there.
-local function roamStep(boss: Boss, x: number, z: number)
-	local rx, rz = boss.roamX, boss.roamZ
-	if rx and rz and (rx - x) ^ 2 + (rz - z) ^ 2 > ROAM_REACHED * ROAM_REACHED then
-		return
-	end
-	local random = RandomService.stream("Spawns")
-	for _ = 1, SPAWN_TRIES do
-		local px = bounds.minX + ROAM_MARGIN + random:NextNumber() * (bounds.maxX - bounds.minX - 2 * ROAM_MARGIN)
-		local pz = bounds.minZ + ROAM_MARGIN + random:NextNumber() * (bounds.maxZ - bounds.minZ - 2 * ROAM_MARGIN)
-		if isFree(px, pz, boss.kind.radius) then
-			boss.roamX, boss.roamZ = px, pz
-			EnemySim.setGoal(boss.id, Vector3.new(px, 0, pz))
-			return
-		end
-	end
-end
-
--- A fleeing champion runs to a spot away from the nearest player, inside the arena.
-local function fleeStep(boss: Boss, x: number, z: number)
-	local target = nearestTarget(x, z)
-	if not target then
-		EnemySim.setGoal(boss.id, nil)
-		return
-	end
-	local dx, dz = x - target.x, z - target.z
-	local length = math.sqrt(dx * dx + dz * dz)
-	if length < 1e-3 then
-		dx, dz, length = 1, 0, 1
-	end
-	local margin = boss.kind.radius + 1
-	local gx = math.clamp(x + dx / length * FLEE_LOOKAHEAD, bounds.minX + margin, bounds.maxX - margin)
-	local gz = math.clamp(z + dz / length * FLEE_LOOKAHEAD, bounds.minZ + margin, bounds.maxZ - margin)
-	EnemySim.setGoal(boss.id, Vector3.new(gx, 0, gz))
 end
 
 local function stepBoss(boss: Boss, dt: number, at: number)
@@ -936,105 +724,51 @@ local function stepBoss(boss: Boss, dt: number, at: number)
 	end
 	local x, z = position.X, position.Z
 	local _, distance = nearestTarget(x, z)
-	local edgeDistance = if distance == math.huge then math.huge else math.max(0, distance - boss.kind.radius)
 	local brain = boss.brain
-	for _, event in BossBrain.step(brain, dt, EnemySim.getHealthShare(boss.id), edgeDistance) do
-		if event.kind == "Phase" then
-			applyPhase(boss)
-			local announce = phaseOf(boss).announce
-			if announce then
-				notifyParticipants(announce)
-			end
+	for _, event in BossBrain.step(brain, dt, EnemySim.getHealthShare(boss.id), distance) do
+		if event.kind == "State" then
+			applyState(boss)
 			sendState(true)
 		elseif event.kind == "Windup" then
-			windup(boss, attackOf(boss, event.attackId), x, z)
+			windup(boss, event.attack, x, z)
 		elseif event.kind == "Strike" then
-			strike(boss, attackOf(boss, event.attackId), x, z, event.burst)
+			strike(boss, event.attack, x, z)
+		elseif event.kind == "ChargeShot" then
+			shoot(boss, event.attack, x, z)
+		elseif event.kind == "ChargeEnd" then
+			EnemySim.setMode(boss.id, World.MODE_RECOVER, boss.dirX, boss.dirZ)
 		end
 	end
-	local attackId = brain.attackId
-	if brain.state == "Act" and attackId then
-		local attack = attackOf(boss, attackId)
-		if attack.kind == "Dash" then
-			dashStep(boss, attack, x, z, dt)
+	local attack = brain.attack
+	if brain.mode == "Charge" and attack then
+		chargeStep(boss, attack, x, z, dt)
+	elseif brain.mode == "Ready" and attack == nil then
+		local mode = EnemySim.getMode(boss.id)
+		if mode ~= World.MODE_WALK and mode ~= World.MODE_WINDUP then
+			EnemySim.setMode(boss.id, World.MODE_WALK)
 		end
 	end
-	if BossBrain.isHolding(brain) then
-		EnemySim.setGoal(boss.id, EnemySim.getPosition(boss.id) or position) -- stands still (after this step's dash)
-	elseif phaseOf(boss).roam then
-		roamStep(boss, x, z)
-	elseif phaseOf(boss).flee then
-		fleeStep(boss, x, z)
+	if brain.mode == "Charge" or BossBrain.isHolding(brain) then
+		EnemySim.setGoal(boss.id, EnemySim.getPosition(boss.id) or position) -- stands still (after this step's charge)
 	else
-		EnemySim.setGoal(boss.id, nil)
+		walk(boss, x, z)
 	end
+	-- the direction it walked since the last step (aim "Movement")
+	local after = EnemySim.getPosition(boss.id) or position
+	local mx, mz = after.X - boss.lastX, after.Z - boss.lastZ
+	local moved = math.sqrt(mx * mx + mz * mz)
+	if moved > 1e-3 then
+		boss.moveX, boss.moveZ = mx / moved, mz / moved
+	end
+	boss.lastX, boss.lastZ = after.X, after.Z
 	orbitStep(boss, x, z, at)
-end
-
-local function insideHazard(hazard: Hazard, x: number, z: number): boolean
-	local reach = hazard.radius + PLAYER_RADIUS
-	local dx, dz, length = hazard.dx, hazard.dz, hazard.length
-	if dx and dz and length then
-		local along = math.clamp((x - hazard.x) * dx + (z - hazard.z) * dz, 0, length)
-		return (x - hazard.x - dx * along) ^ 2 + (z - hazard.z - dz * along) ^ 2 <= reach * reach
-	end
-	return (x - hazard.x) ^ 2 + (z - hazard.z) ^ 2 <= reach * reach
-end
-
--- Strikes the hazards whose time came, hurts players standing in pools, ends pools whose time ran out and sends
--- thrown cleavers back.
-local function stepHazards(at: number)
-	for index = #hazards, 1, -1 do
-		local hazard = hazards[index]
-		if at < hazard.hitsAt then
-			continue
-		end
-		local endsAt = hazard.endsAt
-		if endsAt and at >= endsAt then
-			table.remove(hazards, index)
-			continue
-		end
-		for _, target in targets do
-			local last = hazard.lastHit[target.player]
-			if (not last or at - last >= hazard.tick) and insideHazard(hazard, target.x, target.z) then
-				hazard.lastHit[target.player] = at
-				hurt(target.player, hazard.damage)
-			end
-		end
-		if not endsAt then
-			table.remove(hazards, index)
-		end
-	end
-	for index = #returns, 1, -1 do
-		local entry = returns[index]
-		if at >= entry.at then
-			table.remove(returns, index)
-			local home = EnemySim.getPosition(entry.id)
-			if home then
-				local dx, dz = home.X - entry.x, home.Z - entry.z
-				local length = math.sqrt(dx * dx + dz * dz)
-				if length > 1e-3 then
-					EnemySim.fireShot(
-						entry.x,
-						entry.z,
-						dx / length,
-						dz / length,
-						entry.attack.projectileSpeed or 15,
-						length,
-						entry.attack.projectileRadius or 0.6,
-						entry.damage
-					)
-				end
-			end
-		end
-	end
 end
 
 local function onStepped(dt: number, at: number)
 	if #pendingSpawns > 0 then
 		spawnPending()
 	end
-	if #bosses == 0 and #hazards == 0 and #returns == 0 then
+	if #bosses == 0 and #hazards == 0 then
 		return
 	end
 	collectTargets()
@@ -1100,7 +834,6 @@ local function clear()
 	table.clear(bosses)
 	table.clear(pendingSpawns)
 	table.clear(hazards)
-	table.clear(returns)
 	telegraphs = {}
 	table.clear(bossWavesStarted)
 	table.clear(eliteWavesStarted)
@@ -1110,15 +843,20 @@ end
 -- Lifecycle -------------------------------------------------------------------------
 
 function BossService.init()
+	MapService.ArenaResized:Connect(function(arena: MapService.Bounds)
+		bounds.minX = arena.center.X - arena.halfX
+		bounds.maxX = arena.center.X + arena.halfX
+		bounds.minZ = arena.center.Z - arena.halfZ
+		bounds.maxZ = arena.center.Z + arena.halfZ
+	end)
 	RunDirector.RunStarted:Connect(clear)
 	RunDirector.RunEnded:Connect(clear)
 	RunDirector.PhaseChanged:Connect(function(phase)
 		if phase == "Shop" then
-			-- a wave ends: enemies fade away, so do champions and bosses called for a test, and their pools
+			-- a wave ends: enemies fade away, so do champions and bosses called for a test, and their projectiles
 			table.clear(bosses)
 			table.clear(pendingSpawns)
 			table.clear(hazards)
-			table.clear(returns)
 			sendState(true)
 		end
 	end)
@@ -1203,7 +941,7 @@ end
 
 -- Queries ---------------------------------------------------------------------------
 
--- The living bosses and champions: enemy id, boss or champion id, role, phase and BossBrain state (tests).
+-- The living bosses and champions: enemy id, boss or champion id, role, state (as phase) and BossBrain mode (tests).
 function BossService.getBosses(): {
 	{
 		id: number,
@@ -1220,8 +958,8 @@ function BossService.getBosses(): {
 			id = boss.id,
 			bossId = boss.bossId,
 			role = boss.role,
-			phase = boss.brain.phase,
-			state = boss.brain.state,
+			phase = boss.brain.state,
+			state = boss.brain.mode,
 			wave = boss.wave,
 		})
 	end

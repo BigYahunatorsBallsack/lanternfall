@@ -56,6 +56,55 @@ local function targetPosition(): Vector3?
 	return nil
 end
 
+local arenaFloor: BasePart? = nil
+
+-- The arena floor MapService built (it changes size with the map-size effect).
+local function findArenaFloor(): BasePart?
+	local floor = arenaFloor
+	if floor and floor.Parent then
+		return floor
+	end
+	local map = workspace:FindFirstChild("LanternfallMap")
+	local arena = map and map:FindFirstChild("Arena")
+	local found = arena and arena:FindFirstChild("Floor")
+	arenaFloor = if found and found:IsA("BasePart") then found else nil
+	return arenaFloor
+end
+
+-- One axis of Brotato's camera limit: centered when the view shows the whole range, else kept inside it.
+local function limitAxis(value: number, low: number, high: number, halfView: number): number
+	if high - low <= 2 * halfView then
+		return (low + high) / 2
+	end
+	return math.clamp(value, low + halfView, high - halfView)
+end
+
+-- Brotato's camera stops at the zone's edge (Config.Camera.edgeStuds): only while the target stands in the arena.
+local function limitToArena(target: Vector3, camera: Camera): Vector3
+	local floor = findArenaFloor()
+	if not floor then
+		return target
+	end
+	local center, size = floor.CFrame.Position, floor.Size
+	local edge = CameraConfig.edgeStuds
+	local minX, maxX = center.X - size.X / 2, center.X + size.X / 2
+	local minZ, maxZ = center.Z - size.Z / 2, center.Z + size.Z / 2
+	if target.X < minX - edge.west or target.X > maxX + edge.east then
+		return target
+	end
+	if target.Z < minZ - edge.north or target.Z > maxZ + edge.south then
+		return target
+	end
+	-- the floor area the view shows around its focus (the camera looks almost straight down)
+	local viewport = camera.ViewportSize
+	local aspect = if viewport and viewport.Y > 0 then viewport.X / viewport.Y else 16 / 9
+	local halfDepth = shotDistance * math.tan(math.rad(shotFieldOfView) / 2)
+	local halfWidth = halfDepth * aspect
+	local x = limitAxis(target.X, minX - edge.west, maxX + edge.east, halfWidth)
+	local z = limitAxis(target.Z, minZ - edge.north, maxZ + edge.south, halfDepth)
+	return Vector3.new(x, target.Y, z)
+end
+
 local function update(dt: number)
 	local camera = workspace.CurrentCamera
 	if not camera then
@@ -72,6 +121,7 @@ local function update(dt: number)
 	if not target then
 		return -- keep looking where the character was until the next one loads
 	end
+	target = limitToArena(target, camera)
 	local current = focus
 	if current == nil or (target - current).Magnitude > SNAP_DISTANCE then
 		current = target

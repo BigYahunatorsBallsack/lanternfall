@@ -214,9 +214,15 @@ function DangerRules.bossShare(count: number): number
 	return if count > 1 then Config.Enemies.bossWave.hpShareWhenSeveral else 1
 end
 
--- Champion HP share in `wave` (Brotato: 75 % in waves 11 and 12).
-function DangerRules.championShare(wave: number): number
-	return if table.find(EliteWaves.reducedHpWaves, wave) then EliteWaves.reducedHpShare else 1
+-- HP and damage shares of a boss or champion spawned in `wave` (Brotato boss.gd: half HP up to wave 8, 75 % HP and
+-- damage up to wave 12).
+function DangerRules.bossEarlyShares(wave: number): (number, number)
+	for _, entry in EliteWaves.early do
+		if wave <= entry.untilWave then
+			return entry.hpShare, entry.damageShare
+		end
+	end
+	return 1, 1
 end
 
 -- True if bosses and champions killed in `wave` drop the legendary crate (Brotato: not after wave 20).

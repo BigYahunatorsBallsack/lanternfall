@@ -1,8 +1,8 @@
 --!strict
 -- The boss on screen (DESIGN.md section 7, WP10; since part 2 also the champion of an elite wave): a big HP bar at
 -- the top with its name and phase (BossState from BossService), the warnings of its attacks on the floor
--- (BossTelegraphs: red circles that fill up and red lines that show a dash or slash, until they strike) and the
--- embers circling it in a phase with an orbit (Config.Enemies.bosses). The server decides every hit; this only shows
+-- (BossTelegraphs: red circles and strips for pillars and slashes that fill up until they strike, moving with them)
+-- and the arm of projectiles turning around a boss with an orbit (Config.Enemies.bosses). The server decides every hit; this only shows
 -- it. Uses EnemyRenderer for where the boss stands.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -213,6 +213,9 @@ local function placeTelegraph(entry: Telegraph, now: number): boolean
 		entry.edge.CFrame = upright
 		return true
 	end
+	-- moving pillars and slashes carry their warning along
+	local age = math.max(0, math.min(now, info.hitsAt + FLASH_SECONDS) - info.startsAt)
+	local cx, cz = info.x + (info.vx or 0) * age, info.z + (info.vz or 0) * age
 	local span = math.max(info.hitsAt - info.startsAt, 1e-3)
 	local t = math.clamp((now - info.startsAt) / span, 0, 1)
 	local striking = now >= info.hitsAt
@@ -225,7 +228,7 @@ local function placeTelegraph(entry: Telegraph, now: number): boolean
 		local dx, dz, length = info.dx or 0, info.dz or 1, info.length or 1
 		local yaw = math.atan2(-dx, -dz)
 		local width = info.radius * 2
-		local base = CFrame.new(info.x, y, info.z) * CFrame.Angles(0, yaw, 0)
+		local base = CFrame.new(cx, y, cz) * CFrame.Angles(0, yaw, 0)
 		entry.edge.Size = Vector3.new(width, DISC_HEIGHT, length)
 		entry.edge.CFrame = base * CFrame.new(0, 0, -length / 2)
 		local filled = math.max(length * t, 0.05)
@@ -233,7 +236,7 @@ local function placeTelegraph(entry: Telegraph, now: number): boolean
 		entry.fill.CFrame = base * CFrame.new(0, 0, -filled / 2)
 	else
 		local diameter = info.radius * 2
-		local upright = CFrame.new(info.x, y, info.z) * CFrame.Angles(0, 0, math.pi / 2)
+		local upright = CFrame.new(cx, y, cz) * CFrame.Angles(0, 0, math.pi / 2)
 		entry.edge.Size = Vector3.new(DISC_HEIGHT, diameter, diameter)
 		entry.edge.CFrame = upright
 		local inner = math.max(diameter * t, 0.05)
@@ -250,28 +253,26 @@ local function placeEmbers(now: number)
 	for _, info in bosses do
 		local kind = kindOf(info.bossId)
 		local plan = kind and kind.boss
-		local phase = plan and plan.phases[info.phase]
-		local orbit = phase and phase.orbit
-		local startedAt = info.orbitStartedAt
+		local orbit = plan and plan.orbit
+		local startedAt, at, angle, rate = info.orbitStartedAt, info.orbitAt, info.orbitAngle, info.orbitRate
 		local position = EnemyRenderer.getPosition(info.id)
-		if not (orbit and startedAt and position) then
+		if not (kind and orbit and startedAt and at and angle and rate and position) then
 			continue
 		end
-		local turn = (now - startedAt) * orbit.turnsPerSecond * 2 * math.pi
-		for k = 1, orbit.count do
+		-- one arm turning around the boss; each projectile slides out to its distance (Brotato's Predator)
+		local turn = angle + (now - at) * rate
+		local grown = math.max(0, now - startedAt) * orbit.growSpeed
+		for _, distance in orbit.distances do
 			used += 1
 			local ember = embers[used]
 			if not ember then
 				ember = emberPool:acquire(getFolder())
 				embers[used] = ember
 			end
-			local angle = turn + (k - 1) / orbit.count * 2 * math.pi
+			local r = math.min(distance, grown)
 			WorldSprite.setStuds(emberSprites[ember], EnemyShotRenderer.pictureStuds(orbit.hitRadius))
-			ember.CFrame = CFrame.new(
-				position.X + math.cos(angle) * orbit.radius,
-				floorY + kind.radius * 0.6,
-				position.Z + math.sin(angle) * orbit.radius
-			)
+			ember.CFrame =
+				CFrame.new(position.X + math.cos(turn) * r, floorY + kind.radius * 0.6, position.Z + math.sin(turn) * r)
 		end
 	end
 	for k = #embers, used + 1, -1 do

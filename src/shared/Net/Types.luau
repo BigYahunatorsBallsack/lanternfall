@@ -172,6 +172,11 @@ export type XpOrbEvents = {
 	reset: boolean?, -- drop every orb first (run start and end, full sync)
 	orbs: { number }, -- flat: id, x, z, value for every orb that appeared or grew
 	collected: { number }, -- flat: id, userId for every orb a player picked up
+	-- flat: id, factor for every picked-up orb (in `collected`) that counted more than once (bag x2, Double Orbs x2,
+	-- both x4); the client shows a small "X2" where it reaches the player, like Brotato's on_gold_picked_up
+	boosted: { number }?,
+	-- ids of orbs in `orbs` that took Shards from the bag; drawn bigger like Brotato's boosted gold (scale 1.25)
+	bagOrbs: { number }?,
 }
 
 -- One level-up card (UpgradeService -> LevelUpController): a stat upgrade of one rarity tier (Brotato direction
@@ -338,7 +343,12 @@ export type BossInfo = {
 	hpFraction: number,
 	phase: number,
 	phaseCount: number,
-	orbitStartedAt: number?, -- server time; set while the phase has projectiles circling it (Config orbit)
+	-- a boss with an orbit (Config.Enemies BossOrbit): when it appeared, and the arm's angle (radians) at orbitAt,
+	-- turning orbitRate radians a second (server times)
+	orbitStartedAt: number?,
+	orbitAt: number?,
+	orbitAngle: number?,
+	orbitRate: number?,
 }
 
 export type BossState = {
@@ -359,6 +369,8 @@ export type BossTelegraph = {
 	startsAt: number,
 	hitsAt: number,
 	endsAt: number?, -- WP10 part 2: a pool stays on the floor (and hurts) until then
+	vx: number?, -- studs/s: the warning moves with its projectile from startsAt on (Brotato's moving pillars, slashes)
+	vz: number?,
 }
 
 -- B12 server-only deployments and bounded cosmetic batches.

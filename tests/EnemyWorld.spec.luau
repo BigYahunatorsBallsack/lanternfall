@@ -85,7 +85,7 @@ describe("EnemyWorld", function()
 		run(world, 1, { 0 }, { 0 })
 		expect(distance(world, id, 0, 0)).toBeNear(50 - Types.Shadeling.speed, 0.01)
 		run(world, 50 / Types.Shadeling.speed + 1, { 0 }, { 0 })
-		expect(distance(world, id, 0, 0)).toBeNear(Types.Shadeling.radius + Sim.playerRadius, 0.01)
+		expect(distance(world, id, 0, 0)).toBeNear(Types.Shadeling.hitRadius + Sim.playerRadius, 0.01)
 	end)
 
 	it("walks faster with a speed factor and passes it on (Enemy Speed, B9)", function()
@@ -102,7 +102,7 @@ describe("EnemyWorld", function()
 		local world = newWorld()
 		local id = spawn(world, "Shadeling", 20, 0)
 		run(world, 3, { -40, 40 }, { 0, 0 })
-		expect(distance(world, id, 40, 0)).toBeNear(Types.Shadeling.radius + Sim.playerRadius, 0.01)
+		expect(distance(world, id, 40, 0)).toBeNear(Types.Shadeling.hitRadius + Sim.playerRadius, 0.01)
 	end)
 
 	it("stands still without players", function()
@@ -114,25 +114,38 @@ describe("EnemyWorld", function()
 		expect(z).toBe(10)
 	end)
 
-	it("backs ranged enemies off slowly when a player comes close", function()
+	it("backs ranged enemies off at full speed when a player comes close, like Brotato's Spitter", function()
 		local world = newWorld()
 		local spitter = Types.Spitter
+		expect((spitter.ranged :: any).retreatSpeedFactor).toBe(nil)
 		local id = spawn(world, "Spitter", 0, -8)
-		run(world, 1, { 0 }, { 0 })
+		run(world, 0.25, { 0 }, { 0 }) -- its distance is at least 20 studs, so it is still backing off
 		local backed = distance(world, id, 0, 0) - 8
-		expect(backed > 0).toBe(true)
-		expect(backed).toBeNear(spitter.speed * (spitter.ranged :: any).retreatSpeedFactor, 0.5)
-		expect(backed < spitter.speed * 0.5).toBe(true) -- a player (16 studs/s) catches it
+		expect(backed).toBeNear(spitter.speed * 0.25, 0.5)
+		expect(spitter.speed < Config.Player.moveSpeed).toBe(true) -- a player still catches it
 	end)
 
-	it("keeps ranged enemies at their distance", function()
+	it("keeps ranged enemies at their own distance, rolled within keepDistanceJitter", function()
 		local world = newWorld()
-		local keep = Types.Spitter.ranged.keepDistance
-		local far = spawn(world, "Spitter", 0, 60)
-		local near = spawn(world, "Spitter", 0, -8)
-		run(world, 10, { 0 }, { 0 }) -- it backs off at retreatSpeedFactor of its speed (playtest after Paket 24)
-		expect(math.abs(distance(world, far, 0, 0) - keep) <= Sim.keepDistanceTolerance + 0.01).toBe(true)
-		expect(math.abs(distance(world, near, 0, 0) - keep) <= Sim.keepDistanceTolerance + 0.01).toBe(true)
+		local ranged = Types.Spitter.ranged :: any
+		local far = spawn(world, "Spitter", 0, 60) :: number
+		local near = spawn(world, "Spitter", 0, -8) :: number
+		run(world, 10, { 0 }, { 0 })
+		for _, id in { far, near } do
+			local keep = world.keeps[world.indexOf[id]]
+			expect(math.abs(keep - ranged.keepDistance) <= ranged.keepDistanceJitter).toBe(true)
+			expect(math.abs(distance(world, id, 0, 0) - keep) <= Sim.keepDistanceTolerance + 0.01).toBe(true)
+		end
+		local keeps = {}
+		for k = 1, 20 do
+			local id = spawn(world, "Spitter", 0, 10 + k) :: number
+			keeps[world.keeps[world.indexOf[id]]] = true
+		end
+		local different = 0
+		for _ in keeps do
+			different += 1
+		end
+		expect(different > 10).toBe(true) -- every Spitter rolls its own distance
 	end)
 
 	it("forms a calm crowd of 140 without overlaps or enemies inside the player", function()
@@ -149,7 +162,7 @@ describe("EnemyWorld", function()
 		for i = 1, world.count do
 			moved += math.sqrt((world.xs[i] - before[i][1]) ^ 2 + (world.zs[i] - before[i][2]) ^ 2)
 			local fromPlayer = math.sqrt(world.xs[i] ^ 2 + world.zs[i] ^ 2)
-			if fromPlayer < radius + Sim.playerRadius - 0.01 then
+			if fromPlayer < Types.Shadeling.hitRadius + Sim.playerRadius - 0.01 then
 				insidePlayer += 1
 			end
 			for j = i + 1, world.count do
@@ -188,7 +201,7 @@ describe("EnemyWorld", function()
 			local x, z = world:getPosition(id)
 			closest = math.min(closest, math.sqrt(x * x + (z - 20) ^ 2))
 		end
-		expect(distance(world, id, 0, 0)).toBeNear(Types.Shadeling.radius + Sim.playerRadius, 0.01)
+		expect(distance(world, id, 0, 0)).toBeNear(Types.Shadeling.hitRadius + Sim.playerRadius, 0.01)
 		expect(closest >= 6 + Types.Shadeling.radius - 0.01).toBe(true)
 	end)
 
@@ -248,7 +261,7 @@ describe("EnemyWorld", function()
 			local found = world:queryRadius(x, z, radius, out)
 			local expected = 0
 			for i = 1, world.count do
-				local reach = radius + world.kinds[i].radius
+				local reach = radius + (world.kinds[i].hurtRadius or world.kinds[i].radius)
 				if (world.xs[i] - x) ^ 2 + (world.zs[i] - z) ^ 2 <= reach * reach then
 					expected += 1
 				end
@@ -278,7 +291,7 @@ describe("EnemyWorld", function()
 			local sx, sz = x1 - x0, z1 - z0
 			for i = 1, world.count do
 				local t = math.clamp(((world.xs[i] - x0) * sx + (world.zs[i] - z0) * sz) / (sx * sx + sz * sz), 0, 1)
-				local reach = radius + world.kinds[i].radius
+				local reach = radius + (world.kinds[i].hurtRadius or world.kinds[i].radius)
 				if (world.xs[i] - x0 - sx * t) ^ 2 + (world.zs[i] - z0 - sz * t) ^ 2 <= reach * reach then
 					expected += 1
 				end
@@ -425,7 +438,7 @@ end)
 describe("lag-corrected contacts", function()
 	it("checks contacts at the given contact positions instead of the targets", function()
 		local world = newWorld()
-		local touchAt = Types.Shadeling.radius + Sim.playerRadius
+		local touchAt = Types.Shadeling.hitRadius + Sim.playerRadius
 		spawn(world, "Shadeling", touchAt, 0)
 		-- player standing still: contact
 		local contacts = world:step(STEP, { 0 }, { 0 }, 1, { 0 }, { 0 })
@@ -466,6 +479,20 @@ describe("lag-corrected contacts", function()
 		expect(melee.shotCount).toBe(0)
 	end)
 
+	it("holds a Skulker's shot while the player is closer than its minimum fire range", function()
+		local ranged = Types.Skulker.ranged :: any
+		expect(ranged.minFireRange > 0).toBe(true)
+		local function shotsAt(x: number): number
+			local world = newWorld()
+			spawn(world, "Skulker", x, 0)
+			world.shotCooldown[1] = 0 -- ready to fire
+			world:step(STEP, { 0 }, { 0 }, 1)
+			return world.shotCount
+		end
+		expect(shotsAt(ranged.minFireRange * 0.5)).toBe(0)
+		expect(shotsAt(ranged.minFireRange + 10)).toBe(1)
+	end)
+
 	it("builds bigger, slower and tougher elite kinds with their own typeId", function()
 		local elite = Config.Enemies.elite
 		for id, base in Types do
@@ -477,6 +504,7 @@ describe("lag-corrected contacts", function()
 				expect(kind.hp).toBeNear(base.hp * elite.hpMultiplier)
 				expect(kind.speed).toBeNear(base.speed * elite.speedMultiplier)
 				expect(kind.radius).toBeNear(base.radius * elite.sizeMultiplier)
+				expect(kind.hitRadius).toBeNear((base.hitRadius or base.radius) * elite.sizeMultiplier)
 				expect(kind.contactDamage).toBeNear(base.contactDamage * elite.damageMultiplier)
 				expect(kind.xp).toBe(elite.xp)
 				expect(EnemyKinds.byTypeId(kind.typeId)).toBe(kind)
@@ -574,7 +602,7 @@ describe("lag-corrected contacts", function()
 			hit = math.max(hit, contacts[1])
 		end
 		expect(hit).toBe(Types.Charger.contactDamage)
-		expect(distance(world, id, 0, 0) >= Types.Charger.radius + Sim.playerRadius - 1e-3).toBe(true)
+		expect(distance(world, id, 0, 0) >= Types.Charger.hitRadius + Sim.playerRadius - 1e-3).toBe(true)
 	end)
 
 	it("ends a rush at an obstacle", function()
@@ -653,21 +681,39 @@ describe("B9 behaviours", function()
 		)
 	end)
 
-	it("lets a Skulker back off slowly from a close player and walk up to its shooting distance", function()
-		local skulker = Types.Skulker
-		expect(skulker.flee).toBe(nil) -- playtest after Paket 24: it no longer runs off
+	it("lets a Skulker wander to random spots in the arena instead of following the player", function()
+		local wander = Types.Skulker.wander :: any
+		expect(wander.around).toBe("Arena")
 		local world = newWorld()
-		local near = spawn(world, "Skulker", 16, 0) :: number
-		local far = spawn(world, "Skulker", 0, 70) :: number
-		run(world, 0.5, { 0 }, { 0 })
-		local backed = distance(world, near, 0, 0) - 16
-		expect(backed > 0 and backed < skulker.speed * 0.5 * 0.5).toBe(true)
-		expect(distance(world, far, 0, 0) < 70 - 2).toBe(true)
-		run(world, 6, { 0 }, { 0 })
-		expect(distance(world, far, 0, 0)).toBeNear(
-			(skulker.ranged :: any).keepDistance,
-			Sim.keepDistanceTolerance + 0.5
-		)
+		local id = spawn(world, "Skulker", 0, 0) :: number
+		local spots, lastX = 0, nil
+		for _ = 1, 60 do
+			run(world, 0.5, { 0 }, { 0 })
+			local i = world.indexOf[id]
+			if world.wanderXs[i] ~= lastX then
+				spots += 1
+				lastX = world.wanderXs[i]
+			end
+			local x, z = world:getPosition(id)
+			expect(math.abs(x) <= HALF and math.abs(z) <= HALF_Z).toBe(true)
+		end
+		expect(spots >= 3).toBe(true) -- it reaches a spot and picks the next one
+	end)
+
+	it("lets a Thornback wander around the nearest player within its range", function()
+		local wander = Types.Thornback.wander :: any
+		expect(wander.around).toBe("Target")
+		local world = newWorld()
+		local id = spawn(world, "Thornback", 60, 0) :: number
+		local reach = (wander.range + wander.rangeJitter) * math.sqrt(2)
+		run(world, 8, { 0 }, { 0 })
+		for _ = 1, 20 do
+			run(world, 0.5, { 0 }, { 0 })
+			local i = world.indexOf[id]
+			local spotDistance = math.sqrt(world.wanderXs[i] ^ 2 + world.wanderZs[i] ^ 2)
+			expect(spotDistance <= reach + 0.01).toBe(true)
+		end
+		expect(distance(world, id, 0, 0) < reach + 5).toBe(true)
 	end)
 
 	it("defers ranged-only counter-shots to the weapon hit handler", function()

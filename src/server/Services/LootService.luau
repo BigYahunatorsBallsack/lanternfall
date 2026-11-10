@@ -263,8 +263,10 @@ local function pickUp()
 	for _, player in RunDirector.getParticipants() do
 		local position = EnemySim.getPlayerPosition(player) -- nil unless alive
 		if position then
-			local radius = Config.Player.pickupRadius
-				* math.max(0, 1 + StatService.getStat(player, "pickupRange") / 100)
+			local radius = math.max(
+				Config.Player.pickupRadiusMin,
+				Config.Player.pickupRadius * (1 + StatService.getStat(player, "pickupRange") / 100)
+			)
 			for index = #pickups, 1, -1 do
 				local pickup = pickups[index]
 				if distance(position, pickup.x, pickup.z) <= radius then
