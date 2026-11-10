@@ -215,10 +215,10 @@ describe("EnemyWorld", function()
 
 	it("reports the strongest contact damage per player", function()
 		local world = newWorld()
-		spawn(world, "Shadeling", 3, 0)
-		spawn(world, "Brute", -4, 0)
+		spawn(world, "Shadeling", 1, 0)
+		spawn(world, "Brute", -1, 0) -- Brutes wander (Brotato's Bruiser), so one step on top of the player
 		spawn(world, "Spitter", 0, 30) -- no contact damage
-		local contacts = run(world, 1, { 0, 100 }, { 0, 0 })
+		local contacts = world:step(STEP, { 0, 100 }, { 0, 0 }, 2)
 		expect(contacts[1]).toBe(Types.Brute.contactDamage)
 		expect(contacts[2]).toBe(0)
 	end)
@@ -663,22 +663,23 @@ describe("lag-corrected contacts", function()
 end)
 
 describe("B9 behaviours", function()
-	it("lets a Stalker get faster while it lives, up to its max", function()
+	it("lets a Stalker get faster every second up to its max and lose it when it hits", function()
 		local accelerate = Types.Stalker.accelerate :: any
 		local world = newWorld()
-		local id = spawn(world, "Stalker", 40, 0) :: number
-		run(world, 2, { 0 }, { 0 })
-		expect(world.boosts[world.indexOf[id]]).toBeNear(1 + accelerate.perSecond * 2, 0.02)
-		run(world, (accelerate.max - 1) / accelerate.perSecond, { 0 }, { 0 })
-		expect(world.boosts[world.indexOf[id]]).toBeNear(accelerate.max, 1e-6)
+		local id = spawn(world, "Stalker", 140, 0) :: number
+		run(world, 2 * accelerate.everySeconds + STEP / 2, { 0 }, { 0 })
+		expect(world.boosts[world.indexOf[id]]).toBeNear(1 + accelerate.perStep * 2, 1e-6)
+		run(world, accelerate.everySeconds * (accelerate.maxSteps + 2), { 400 }, { 400 })
+		expect(world.boosts[world.indexOf[id]]).toBeNear(1 + accelerate.perStep * accelerate.maxSteps, 1e-6)
+		-- touching a player takes every boost away (Brotato reset_nb_times_boosted_on_hit)
+		local x, z = world:getPosition(id)
+		world:step(STEP, { x :: number }, { z :: number }, 1)
+		expect(world.boosts[world.indexOf[id]]).toBe(1)
 		-- a fresh one walks at its base speed
 		local fresh = newWorld()
 		local slow = spawn(fresh, "Stalker", 60, 0) :: number
 		fresh:step(STEP, { 0 }, { 0 }, 1)
-		expect(60 - (fresh:getPosition(slow) :: number)).toBeNear(
-			Types.Stalker.speed * STEP * (1 + accelerate.perSecond * STEP),
-			1e-3
-		)
+		expect(60 - (fresh:getPosition(slow) :: number)).toBeNear(Types.Stalker.speed * STEP, 1e-3)
 	end)
 
 	it("lets a Skulker wander to random spots in the arena instead of following the player", function()
@@ -784,8 +785,8 @@ describe("B9 behaviours", function()
 		expect(farBuffed).toBe(false)
 		local _, _, selfBuffed = world:getStatus(herald)
 		expect(selfBuffed).toBe(false)
-		-- the next pulse buffs the rest, and nobody twice
-		run(world, pulse.intervalSeconds, { 140 }, { 0 })
+		-- the next pulses buff the rest, and nobody twice
+		run(world, pulse.intervalSeconds * math.ceil(#brutes / pulse.buffCount), { 140 }, { 0 })
 		for _, id in brutes do
 			local _, _, isBuffed = world:getStatus(id)
 			expect(isBuffed).toBe(true)
@@ -800,17 +801,62 @@ describe("B9 behaviours", function()
 		expect(quietBuffed).toBe(false)
 	end)
 
-	it("lets a Mender heal the others around it, not itself", function()
+	it("lets a Mender heal each hurt enemy once when it comes into its zone, not itself", function()
 		local pulse = Types.Mender.pulse :: any
 		local world = newWorld()
-		local mender = spawn(world, "Mender", 100, 0) :: number
-		local brute = spawn(world, "Brute", 105, 0) :: number
+		local mender = spawn(world, "Mender", 0, 0) :: number
+		world:setGoal(mender, 0, 0)
+		local brute = spawn(world, "Brute", 0, pulse.radius + 20) :: number
+		local function place(z)
+			world:setGoal(brute, 0, z)
+			world.zs[world.indexOf[brute]] = z
+		end
+		place(pulse.radius + 20)
 		world:damage(brute, Types.Brute.hp * 0.8)
 		world:damage(mender, 1)
-		run(world, pulse.intervalSeconds + STEP, { 140 }, { 0 })
-		local hp, maxHp = world:getHealth(brute)
-		expect(hp).toBeNear(math.min(maxHp, maxHp * 0.2 + pulse.healFlat))
+		world:step(STEP, { 90 }, { 0 }, 1)
+		local hp = world:getHealth(brute)
+		expect(hp).toBeNear(Types.Brute.hp * 0.2) -- outside: nothing
+		place(pulse.radius / 2)
+		world:step(STEP, { 90 }, { 0 }, 1)
+		local healed, maxHp = world:getHealth(brute)
+		expect(healed).toBeNear(math.min(maxHp, Types.Brute.hp * 0.2 + pulse.healFlat))
+		-- staying inside heals no more; leaving and coming back heals again
+		world:damage(brute, healed * 0.5)
+		run(world, 1, { 90 }, { 0 })
+		expect(world:getHealth(brute)).toBeNear(healed * 0.5)
+		place(pulse.radius + 20)
+		world:step(STEP, { 90 }, { 0 }, 1)
+		place(pulse.radius / 2)
+		world:step(STEP, { 90 }, { 0 }, 1)
+		expect(world:getHealth(brute)).toBeNear(math.min(maxHp, healed * 0.5 + pulse.healFlat))
 		expect(world:getHealth(mender)).toBeNear(Types.Mender.hp - 1)
+	end)
+
+	it("lets a Herald keep its range, a Spawner its spot and a Charger roll its cooldowns", function()
+		local world = newWorld()
+		local herald = spawn(world, "Herald", 0, 0) :: number
+		local keep = world.keeps[world.indexOf[herald]]
+		local stay = Types.Herald.stayInRange :: any
+		expect(keep >= stay.distance - stay.jitter and keep <= stay.distance + stay.jitter).toBe(true)
+		run(world, 6, { 30 }, { 0 }) -- too close: it backs off to its range
+		expect(distance(world, herald, 30, 0)).toBeNear(keep, 0.05)
+		local spawner = spawn(world, "Splitter", 0, 0) :: number
+		local wander = Types.Splitter.wander :: any
+		local range = world.keeps[world.indexOf[spawner]]
+		expect(range >= wander.range - wander.rangeJitter and range <= wander.range + wander.rangeJitter).toBe(true)
+		run(world, 30, { 0 }, { 10 })
+		-- not within: it holds a spot on the circle of its range around the player
+		expect(distance(world, spawner, 0, 10)).toBeNear(range, 0.5)
+		local charge = Types.Charger.charge :: any
+		for _ = 1, 20 do
+			local id = spawn(world, "Charger", 0, -60) :: number
+			local wait = world.modeTimers[world.indexOf[id]]
+			local low = charge.cooldownSeconds - charge.cooldownRandomSeconds
+			local high = charge.cooldownSeconds + charge.cooldownRandomSeconds
+			expect(wait >= low - 1e-9 and wait <= high + 1e-9).toBe(true)
+			world:remove(id)
+		end
 	end)
 
 	it("lets a Brood Egg stand still, shake before it hatches and report the hatch once", function()

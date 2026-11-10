@@ -80,7 +80,8 @@ end
 
 -- Multipliers before danger: base + increment * (wave - 1), independently for HP, contact and shots.
 function SpawnRules.growth(enemyId: string, wave: number): (number, number, number)
-	local kind = Config.Enemies.types[enemyId] or Config.Enemies.champions[enemyId] -- champions grow too (WP10)
+	-- champions (WP10) and bosses grow too (Brotato: every unit's stats add their per-wave increase)
+	local kind = Config.Enemies.types[enemyId] or Config.Enemies.champions[enemyId] or Config.Enemies.bosses[enemyId]
 	if not kind then
 		return 1, 1, 1
 	end

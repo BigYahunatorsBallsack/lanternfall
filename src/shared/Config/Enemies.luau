@@ -41,7 +41,9 @@ export type Enemy = {
 	loot: Loot?,
 	flee: Flee?,
 	anchored: boolean?, -- never moves, nothing pushes it (Trees); players walk through it
+	removeFirst: boolean?, -- Brotato's to_be_removed_in_priority: goes first when the enemy maximum removes some
 	wander: Wander?, -- walks to random spots instead of the nearest player (also instead of keepDistance)
+	stayInRange: StayInRange?, -- keeps this distance from the nearest player, walking towards or away at full speed
 	-- since B9 part 2 (Brotato's enemy behaviours, DESIGN.md section 7)
 	accelerate: Accelerate?,
 	retaliate: Retaliate?,
@@ -144,9 +146,13 @@ export type BossProjectiles = {
 }
 
 -- Enemies that get faster the longer they live (Stalker, B9).
+-- Brotato's Pursuer: every everySeconds it gains perStep of its base speed (boost_self: +speed_on_boost), at most
+-- maxSteps times; with resetOnHit it loses them all when it touches a player.
 export type Accelerate = {
-	perSecond: number, -- share of its base speed it gains every second
-	max: number, -- at most this many times its base speed
+	everySeconds: number,
+	perStep: number,
+	maxSteps: number,
+	resetOnHit: boolean?,
 }
 
 -- Enemies that shoot a ring of projectiles when hit (Thornback, B9). Shots fly like the Spitter's (EnemySim/Volleys).
@@ -166,6 +172,8 @@ export type Retaliate = {
 export type Pulse = {
 	radius: number, -- studs around it
 	intervalSeconds: number,
+	firstSeconds: number?, -- the first pulse this long after the spawn (default: part of intervalSeconds)
+	onEnter: boolean?, -- heals each hurt enemy once when it comes into the radius instead of every interval
 	-- Herald: up to `buffCount` enemies that are not buffed yet get stronger for good
 	buffCount: number?,
 	buffDamage: number?, -- multiplier on contact and shot damage
@@ -217,12 +225,20 @@ export type Flee = {
 	range: number?, -- B9: flees only from a player closer than this, otherwise acts normally (nil: always)
 }
 
+-- Brotato's StayInRangeFromPlayer movement (Buffer): the spot `distance` (+- jitter, rolled once) px from the nearest
+-- player on the line through it, in studs here.
+export type StayInRange = {
+	distance: number,
+	jitter: number,
+}
+
 -- Enemies that walk to random spots (Brotato's TargetRandPos / TargetRandPosAroundPlayer movement): a new spot once
 -- they are within arriveStuds of the last one (Brotato: 10 px) or after maxSeconds (ours, so nothing gets stuck at an
 -- obstacle). "Arena": anywhere in the arena. "Target": up to `range` (+- rangeJitter, rolled once per enemy) from the
 -- nearest player on each axis.
 export type Wander = {
-	around: "Arena" | "Target",
+	around: "Arena" | "Target" | "Offset",
+	within: boolean?, -- "Offset" (Brotato's FollowRandPosAroundPlayer): anywhere in the square, else on its circle
 	range: number?,
 	rangeJitter: number?,
 	arriveStuds: number,
@@ -262,7 +278,10 @@ export type Charge = {
 	trailAngle: number?, -- radians between the rush direction and each side shot (default a right angle)
 	maxDistance: number, -- studs; the rush ends here, at an obstacle, the arena edge or a player
 	recoverSeconds: number, -- standing still after the rush
-	cooldownSeconds: number, -- walking normally before the next wind-up can start
+	-- Brotato's cooldown, counted from the rush's start after the rush (so it includes the recovery) and as the whole
+	-- first wait after the spawn
+	cooldownSeconds: number,
+	cooldownRandomSeconds: number?, -- each cooldown is rolled in cooldownSeconds +- this
 }
 
 -- Enemies that fall apart into smaller ones when killed (Splitter). The new ones keep the minute and difficulty
@@ -271,6 +290,7 @@ export type Split = {
 	enemy: string, -- key in types
 	count: number,
 	spread: number, -- studs from the parent's centre
+	area: number?, -- instead: each at a random spot in a square this many studs wide around it
 }
 
 -- Elites with the Summoner affix call enemies around themselves every intervalSeconds while a player is around.
@@ -298,17 +318,50 @@ local function speed(value: number): number
 	return value / 450 * Player.moveSpeed
 end
 
--- Existing rush, dash and shot values were authored when the player moved at 16 studs/s.
--- Keep their relative threat when matching the original movement/world-distance scale.
-local function legacySpeed(value: number): number
-	return value * Player.moveSpeed / 16
-end
-
 -- Enemy projectiles (Brotato 1.2.0.1 projectiles/bullet_enemy): hit circle 17 px; they fly until they leave the
 -- zone, here until the arena edge or an obstacle stops them (SHOT_RANGE is longer than the arena is wide).
 local PIXEL = Player.moveSpeed / 450 -- studs per Brotato pixel
 local SHOT_RADIUS = 17 * PIXEL
 local SHOT_RANGE = 300
+
+-- Enemy and boss attacks in Brotato's units: distances and speeds in pixels (PIXEL studs each), times in frames at 60 fps.
+local function px(value: number): number
+	return value * PIXEL
+end
+local function frames(value: number): number
+	return value / 60
+end
+-- every charging enemy, boss and elite plays the 0.4 s "enemy_charge_prep" animation, at attack_anim_speed, before it strikes
+local function windup(animSpeed: number): number
+	return 0.4 / animSpeed
+end
+
+-- Brotato's ChargingAttackBehavior (Charger, Bruiser, Horned Bruiser, Horned Charger): once the nearest player is
+-- within maxRange px and the cooldown is over, it winds up (the 0.4 s prep animation), then rushes at the player's
+-- position of the wind-up start for `duration` s at its own speed + chargeSpeed px/s (through players, they do not
+-- block enemies), stands for 0.05 s (recovery_duration) and walks again. Cooldown and its randomization in frames.
+local function brotatoCharge(
+	walkSpeed: number,
+	f: {
+		maxRange: number,
+		chargeSpeed: number,
+		duration: number,
+		cooldown: number,
+		cooldownRandom: number,
+		animSpeed: number?,
+	}
+): Charge
+	local rushSpeed = walkSpeed + px(f.chargeSpeed)
+	return {
+		triggerRange = px(f.maxRange),
+		windupSeconds = windup(f.animSpeed or 1),
+		speed = rushSpeed,
+		maxDistance = rushSpeed * f.duration,
+		recoverSeconds = 0.05,
+		cooldownSeconds = frames(f.cooldown),
+		cooldownRandomSeconds = frames(f.cooldownRandom),
+	}
+end
 
 local Enemies: { [string]: Enemy } = {
 	Shadeling = {
@@ -345,14 +398,16 @@ local Enemies: { [string]: Enemy } = {
 		loot = { consumableChance = 0.03, crateShare = 0.03 },
 		firstWave = 8,
 		minDanger = 0,
-		charge = {
-			triggerRange = 24,
-			windupSeconds = 0.9,
-			speed = legacySpeed(38),
-			maxDistance = 30,
-			recoverSeconds = 0.2,
-			cooldownSeconds = 3,
-		},
+		-- bruiser/horned_bruiser.tscn: 0-500 px, 0.75 s at +700 px/s, cooldown 60 +- 10 frames
+		-- target_rand_pos_movement_behavior: walks to random spots of the zone instead of at the player
+		wander = { around = "Arena", arriveStuds = 10 * PIXEL, maxSeconds = 8 },
+		charge = brotatoCharge(speed(300), {
+			maxRange = 500,
+			chargeSpeed = 700,
+			duration = 0.75,
+			cooldown = 60,
+			cooldownRandom = 10,
+		}),
 	},
 	Spitter = {
 		id = "Spitter",
@@ -399,14 +454,14 @@ local Enemies: { [string]: Enemy } = {
 		radius = 1.8,
 		mass = 3,
 		knockbackResistance = 0.8, -- B5, like Charger
-		charge = {
-			triggerRange = 24,
-			windupSeconds = 0.9,
-			speed = legacySpeed(38),
-			maxDistance = 30,
-			recoverSeconds = 1.2,
-			cooldownSeconds = 3,
-		},
+		-- charger.tscn: 0-300 px, 0.75 s at +500 px/s, cooldown 40 +- 5 frames
+		charge = brotatoCharge(speed(400), {
+			maxRange = 300,
+			chargeSpeed = 500,
+			duration = 0.75,
+			cooldown = 40,
+			cooldownRandom = 5,
+		}),
 		loot = { consumableChance = 0.01, crateShare = 0.01 },
 		firstWave = 3,
 		minDanger = 0,
@@ -424,7 +479,17 @@ local Enemies: { [string]: Enemy } = {
 		radius = 1.9,
 		mass = 2,
 		knockbackResistance = 0.7, -- B5, like Helmet Alien
-		split = { enemy = "Skulker", count = 3, spread = 1.5 },
+		-- spawner.tscn: holds a spot 450 +- 50 px from the player (on the circle); dies into 3 Junkies at random spots of
+		-- a 200 px square
+		wander = {
+			around = "Offset",
+			within = false,
+			range = px(450),
+			rangeJitter = px(50),
+			arriveStuds = 0,
+			maxSeconds = 0,
+		},
+		split = { enemy = "Skulker", count = 3, spread = 0, area = px(200) },
 		loot = { consumableChance = 0.01, crateShare = 0.01 },
 		firstWave = 14,
 		minDanger = 0,
@@ -442,6 +507,7 @@ local Enemies: { [string]: Enemy } = {
 		xp = 1,
 		radius = 1,
 		mass = 0.6,
+		removeFirst = true, -- fin_alien.tscn
 		knockbackResistance = 0, -- B5, like Baby Alien
 		loot = { consumableChance = 0.02, crateShare = 0.03 },
 		firstWave = 15,
@@ -471,10 +537,10 @@ local Enemies: { [string]: Enemy } = {
 		id = "AbyssBrute",
 		typeId = 9,
 		displayName = "Abyss Brute",
-		hp = 30,
+		hp = 26,
 		speed = speed(300),
 		contactDamage = 1,
-		hpPerWave = 22,
+		hpPerWave = 18,
 		damagePerWave = 1.15,
 		xp = 3,
 		radius = 2.8,
@@ -485,14 +551,14 @@ local Enemies: { [string]: Enemy } = {
 		firstWave = 13,
 		minDanger = 0,
 		firstWaveByDanger = { [1] = 8 },
-		charge = {
-			triggerRange = 24,
-			windupSeconds = 0.9,
-			speed = legacySpeed(38),
-			maxDistance = 30,
-			recoverSeconds = 0.2,
-			cooldownSeconds = 3,
-		},
+		-- bruiser/horned_bruiser.tscn: 0-500 px, 0.75 s at +700 px/s, cooldown 60 +- 10 frames
+		charge = brotatoCharge(speed(300), {
+			maxRange = 500,
+			chargeSpeed = 700,
+			duration = 0.75,
+			cooldown = 60,
+			cooldownRandom = 10,
+		}),
 	},
 	-- B6: Brotato's Loot Alien. Appears now and then (Config.Loot.looter), runs away, escapes after a while; killed
 	-- it drops a guaranteed crate and eight materials. Original Looter HP and wave growth follow the wiki.
@@ -554,7 +620,8 @@ local Enemies: { [string]: Enemy } = {
 		mass = 1,
 		knockbackResistance = 0,
 		look = "Shadeling",
-		accelerate = { perSecond = 0.12, max = 4 },
+		-- pursuer.tscn: +45 px/s every second, at most 10 times, all lost when it hits
+		accelerate = { everySeconds = 1, perStep = 45 / 150, maxSteps = 10, resetOnHit = true },
 		loot = { consumableChance = 0.03, crateShare = 0.03 },
 		firstWave = 11,
 		minDanger = 0,
@@ -566,9 +633,9 @@ local Enemies: { [string]: Enemy } = {
 		typeId = 13,
 		displayName = "Skulker",
 		hp = 5,
-		speed = speed(350),
+		speed = speed(300),
 		contactDamage = 1,
-		hpPerWave = 5,
+		hpPerWave = 4,
 		damagePerWave = 1,
 		xp = 1,
 		radius = 1.5,
@@ -651,10 +718,14 @@ local Enemies: { [string]: Enemy } = {
 		mass = 1.5,
 		knockbackResistance = 0.95,
 		look = "Spitter",
+		-- buffer.tscn: stays 500 +- 100 px from the player; every 4 s (the first after 0.25 s) one enemy in its 309 px
+		-- zone gets +150 % max HP, +25 % damage and +50 % speed
+		stayInRange = { distance = px(500), jitter = px(100) },
 		pulse = {
-			radius = 14,
+			radius = px(309.04),
 			intervalSeconds = 4,
-			buffCount = 5,
+			firstSeconds = 0.25,
+			buffCount = 1,
 			buffDamage = 1.25,
 			buffSpeed = 1.5,
 			buffHp = 1.5,
@@ -662,7 +733,6 @@ local Enemies: { [string]: Enemy } = {
 		loot = { consumableChance = 0.01, crateShare = 0.01 },
 		firstWave = 16,
 		minDanger = 0,
-		flee = { edgeMargin = 12 },
 	},
 	-- Healer: heals the enemies around it every few seconds; kill it first.
 	Mender = {
@@ -679,7 +749,10 @@ local Enemies: { [string]: Enemy } = {
 		mass = 1.5,
 		knockbackResistance = 0,
 		look = "Spitter",
-		pulse = { radius = 14, intervalSeconds = 3, healFlat = 100, healPerWave = 10 },
+		-- target_rand_pos_movement_behavior: walks to random spots of the zone instead of at the player
+		wander = { around = "Arena", arriveStuds = 10 * PIXEL, maxSeconds = 8 },
+		-- healer.tscn: heals 100 + 10 per wave once to each hurt enemy that comes into its 200.6 px zone
+		pulse = { radius = px(200.639), intervalSeconds = 0, onEnter = true, healFlat = 100, healPerWave = 10 },
 		loot = { consumableChance = 0.03, crateShare = 0.03 },
 		firstWave = 7,
 		minDanger = 1,
@@ -693,13 +766,15 @@ local Enemies: { [string]: Enemy } = {
 		speed = speed(0),
 		contactDamage = 1,
 		hpPerWave = 3,
-		damagePerWave = 0.6,
+		damagePerWave = 0.25,
 		xp = 1,
 		radius = 1.4,
 		mass = 1000,
 		knockbackResistance = 1,
 		anchored = true,
-		hatch = { seconds = 5, enemy = "Reaper", count = 1, spread = 2 },
+		-- slasher_egg.tscn: after 240 frames its shoot animation plays at half speed and hatches it at 0.8 s of it
+		-- (4 + 1.6 s); the Slasher appears where the egg was
+		hatch = { seconds = 4 + 0.8 / 0.5, enemy = "Reaper", count = 1, spread = 0 },
 		loot = { consumableChance = 0, crateShare = 0 },
 		firstWave = 7,
 		minDanger = 1,
@@ -746,7 +821,7 @@ local Enemies: { [string]: Enemy } = {
 		xp = 8,
 		radius = 1.6,
 		mass = 1.5,
-		knockbackResistance = 0,
+		knockbackResistance = 0.5, -- evil_mob.tres
 		look = "Looter",
 		eat = { seekRange = 45, reach = 0.8 },
 		loot = { consumableChance = 0, crateShare = 0, alwaysOrbs = true }, -- Brotato evil_mob: no consumables
@@ -768,6 +843,7 @@ local Enemies: { [string]: Enemy } = {
 		radius = 1.7,
 		mass = 2,
 		look = "Shadeling",
+		removeFirst = true, -- helmet_alien.tscn
 		knockbackResistance = 0.5,
 		loot = { consumableChance = 0.01, crateShare = 0.01 },
 		firstWave = 13,
@@ -793,14 +869,14 @@ local Enemies: { [string]: Enemy } = {
 		firstWave = 18,
 		minDanger = 0,
 		firstWaveByDanger = { [4] = 5 },
-		charge = {
-			triggerRange = 24,
-			windupSeconds = 0.9,
-			speed = legacySpeed(38),
-			maxDistance = 30,
-			recoverSeconds = 0.2,
-			cooldownSeconds = 3,
-		},
+		-- horned_charger.tscn: 0-300 px, 0.75 s at +500 px/s, cooldown 40 +- 5 frames
+		charge = brotatoCharge(speed(425), {
+			maxRange = 300,
+			chargeSpeed = 500,
+			duration = 0.75,
+			cooldown = 40,
+			cooldownRandom = 5,
+		}),
 	},
 	DreadTendril = {
 		id = "DreadTendril",
@@ -889,18 +965,6 @@ local Elite = table.freeze({
 	}) :: { Affix },
 })
 
--- Boss attacks in Brotato's units: distances and speeds in pixels (PIXEL studs each), times in frames at 60 fps.
-local function px(value: number): number
-	return value * PIXEL
-end
-local function frames(value: number): number
-	return value / 60
-end
--- every boss and elite plays the 0.4 s "enemy_charge_prep" animation, at attack_anim_speed, before it strikes
-local function windup(animSpeed: number): number
-	return 0.4 / animSpeed
-end
-
 local BossProjectiles: BossProjectiles = table.freeze({
 	bullet = table.freeze({ radius = SHOT_RADIUS, range = SHOT_RANGE }), -- like every enemy bullet
 	-- pillar_projectile: a 23 px circle whose hitbox is on 0.54-0.68 s after it appears
@@ -934,11 +998,11 @@ local Bosses: { [string]: Enemy } = {
 		id = "LanternEater",
 		typeId = 4,
 		displayName = "The Lantern Eater",
-		hp = 29250,
+		hp = 15000, -- predator_stats.tres: 15000 + 750 per wave (29,250 in wave 20)
 		speed = speed(300),
-		contactDamage = 30,
-		hpPerWave = 0,
-		damagePerWave = 0,
+		contactDamage = 1, -- + 1.5 per wave (29.5 in wave 20)
+		hpPerWave = 750,
+		damagePerWave = 1.5,
 		xp = 0, -- the run ends with it
 		radius = 4.5,
 		mass = 60,
@@ -994,11 +1058,11 @@ local Bosses: { [string]: Enemy } = {
 		id = "HollowSeer",
 		typeId = 20,
 		displayName = "The Hollow Seer",
-		hp = 29250,
+		hp = 15000, -- invoker_stats.tres: 15000 + 750 per wave (29,250 in wave 20)
 		speed = speed(200),
-		contactDamage = 30,
-		hpPerWave = 0,
-		damagePerWave = 0,
+		contactDamage = 1, -- + 1.5 per wave (29.5 in wave 20)
+		hpPerWave = 750,
+		damagePerWave = 1.5,
 		xp = 0,
 		radius = 4,
 		mass = 60,

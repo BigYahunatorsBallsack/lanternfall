@@ -330,8 +330,8 @@ function ConfigCheck.run(): { string }
 		end
 		-- B9 behaviours
 		local accelerate = enemy.accelerate
-		if accelerate and not (accelerate.perSecond > 0 and accelerate.max >= 1) then
-			problem(`Enemy {id} needs accelerate.perSecond above 0 and max of at least 1`)
+		if accelerate and not (accelerate.everySeconds > 0 and accelerate.perStep > 0 and accelerate.maxSteps >= 1) then
+			problem(`Enemy {id} needs accelerate.everySeconds and perStep above 0 and maxSteps of at least 1`)
 		end
 		local retaliate = enemy.retaliate
 		if
@@ -349,7 +349,7 @@ function ConfigCheck.run(): { string }
 		end
 		local pulse = enemy.pulse
 		if pulse then
-			if not (pulse.radius > 0 and pulse.intervalSeconds > 0) then
+			if not (pulse.radius > 0 and (pulse.intervalSeconds > 0 or pulse.onEnter)) then
 				problem(`Enemy {id} needs a pulse radius and interval above 0`)
 			end
 			if not (pulse.heal or pulse.healFlat or pulse.buffCount) then

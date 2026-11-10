@@ -228,16 +228,23 @@ local function spawnAround(
 	hpMultiplier: number,
 	damageMultiplier: number,
 	speedMultiplier: number,
-	parentId: number?
+	parentId: number?,
+	area: number?
 )
 	local context = if parentId then spawnContexts[parentId] else nil
 	local turn = RandomService.number("Spawns") * 2 * math.pi
 	for k = 1, count do
 		local angle = turn + (k - 1) / count * 2 * math.pi
+		local sx, sz = x + math.cos(angle) * spread, z + math.sin(angle) * spread
+		if area then
+			-- Brotato ZoneService.get_rand_pos_in_area: anywhere in a square `area` wide around it
+			sx = x + (RandomService.number("Spawns") - 0.5) * area
+			sz = z + (RandomService.number("Spawns") - 0.5) * area
+		end
 		EnemySim.spawn(
 			enemyId,
-			x + math.cos(angle) * spread,
-			z + math.sin(angle) * spread,
+			sx,
+			sz,
 			if context then context.hp else hpMultiplier,
 			if context then context.damage else damageMultiplier,
 			nil,
@@ -655,7 +662,8 @@ function EnemySim.damage(
 				hpMultiplier,
 				damageMultiplier,
 				speedMultiplier,
-				id
+				id,
+				split.area
 			)
 		end
 		EnemySim.EnemyKilled:Fire({

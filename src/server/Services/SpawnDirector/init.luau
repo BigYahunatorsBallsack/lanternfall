@@ -237,22 +237,32 @@ local function isRegular(id: number): boolean
 end
 
 -- Brotato removes random regular enemies (not bosses, champions or trees) without loot while more than the
--- maximum are alive when a group fires.
+-- maximum are alive when a group fires; kinds with removeFirst (to_be_removed_in_priority) go first.
 local function enforceMaximum(wave: number)
 	local ids: { number } = {}
 	local count = EnemySim.collectIds(ids)
 	local regular: { number } = {}
+	local first: { number } = {}
 	for i = 1, count do
 		if isRegular(ids[i]) then
 			table.insert(regular, ids[i])
+			local enemyId = EnemySim.getKind(ids[i])
+			local kind = enemyId and EnemyKinds.get(enemyId)
+			if kind and kind.removeFirst then
+				table.insert(first, ids[i])
+			end
 		end
 	end
 	local excess = #regular - SpawnRules.cap(playerCount(), wave)
 	for _ = 1, excess do
-		local index = pickIndex(#regular)
-		local id = regular[index]
-		regular[index] = regular[#regular]
-		regular[#regular] = nil
+		local from = if #first > 0 then first else regular
+		local index = pickIndex(#from)
+		local id = from[index]
+		from[index] = from[#from]
+		from[#from] = nil
+		if from == first then
+			table.remove(regular, table.find(regular, id) :: number)
+		end
 		looters[id] = nil
 		if EnemySim.remove(id) then
 			removedForPerformance += 1

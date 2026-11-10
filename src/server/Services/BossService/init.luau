@@ -338,7 +338,7 @@ local function applyState(boss: Boss)
 	end
 end
 
--- Puts boss or champion `bossId` at x/z with this run's multipliers: a champion also grows like an enemy of `wave`
+-- Puts boss or champion `bossId` at x/z with this run's multipliers: both grow like an enemy of `wave`
 -- (SpawnRules.growth). `share` of its HP. Returns its enemy id, or nil at the hard cap.
 local function spawnUnit(
 	bossId: string,
@@ -357,10 +357,7 @@ local function spawnUnit(
 	local dangerHp, dangerDamage, dangerSpeed = DangerService.multipliers(forWave)
 	local earlyHp, earlyDamage = DangerRules.bossEarlyShares(forWave)
 	local players = #RunDirector.getParticipants()
-	local hpGrowth, damageGrowth = 1, 1
-	if role == "Champion" then
-		hpGrowth, damageGrowth = SpawnRules.growth(bossId, forWave)
-	end
+	local hpGrowth, damageGrowth = SpawnRules.growth(bossId, forWave)
 	local hpMultiplier = share
 		* earlyHp
 		* hpGrowth
