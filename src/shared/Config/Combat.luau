@@ -4,6 +4,7 @@
 -- effect shares. Read by WeaponService (WeaponStats, Arsenal, Afflictions), Util/StatMath and the client texts.
 
 return table.freeze({
+	nativeBrick = table.freeze({ spread = 30, minimumSpread = 5, baseMaximumSpread = 10 }),
 	nativeBoomerang = table.freeze({
 		outDurationFactor = 1.6,
 		apexSeconds = 0.15,

@@ -97,6 +97,9 @@ function Combat.hit(
 	secondary: boolean?,
 	bounced: boolean?
 ): (boolean, boolean)
+	if weapon.state.broken then
+		return false, false
+	end
 	local original = weapon.stats
 	local stats = table.clone(shotStats or original)
 	if
@@ -174,6 +177,17 @@ function Combat.hit(
 			weapon.state.secondaryShots = pending
 			table.insert(pending, { x = x, z = z, skip = id, stats = shotStats or original })
 		end
+	end
+	if stats.breakChance and stats.breakChance > 0 and adapter.breakWeapon and ctx:random() <= stats.breakChance then
+		weapon.state.broken = true
+		local x, z = require(game:GetService("ReplicatedStorage").Shared.Util.WeaponPose).anchor(
+			ctx.x,
+			ctx.z,
+			ctx.slot,
+			ctx.slotCount,
+			weapon.id
+		)
+		adapter.breakWeapon(weapon, x, z, stats.breakMaterials)
 	end
 	return killed, crit
 end

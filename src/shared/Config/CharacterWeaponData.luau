@@ -3034,6 +3034,108 @@ return {
 				},
 			},
 		},
+		Brick = {
+			id = "Brick",
+			displayName = "Brick",
+			description = "",
+			tierDescriptions = {
+				"Has a 1% chance to break and drop 10 materials on hit",
+				"Has a 1% chance to break and drop 30 materials on hit",
+				"Has a 1% chance to break and drop 75 materials on hit",
+				"Has a 1% chance to break and drop 200 materials on hit",
+			},
+			brotato = true,
+			available = false,
+			kind = "Melee",
+			classes = {
+				"Bludgeon",
+			},
+			minTier = 1,
+			originalScaling = {
+				{
+					meleeDamage = 0.5,
+					engineering = 0.5,
+				},
+				{
+					meleeDamage = 0.65,
+					engineering = 0.65,
+				},
+				{
+					meleeDamage = 0.8,
+					engineering = 0.8,
+				},
+				{
+					meleeDamage = 1,
+					engineering = 1,
+				},
+			},
+			scaling = {
+				meleeDamage = 0.5,
+				engineering = 0.5,
+			},
+			tierScaling = {
+				{
+					meleeDamage = 0.5,
+					engineering = 0.5,
+				},
+				{
+					meleeDamage = 0.65,
+					engineering = 0.65,
+				},
+				{
+					meleeDamage = 0.8,
+					engineering = 0.8,
+				},
+				{
+					meleeDamage = 1,
+					engineering = 1,
+				},
+			},
+			heldStats = {
+				{},
+				{},
+				{},
+				{},
+			},
+			rangeKeys = {
+				"range",
+			},
+			behavior = "Brick",
+			targeting = "Nearest",
+			base = {
+				damage = 30,
+				cooldown = 0.833333333333333,
+				nativeCooldownFrames = 50,
+				nativeTiming = 1,
+				range = 15,
+				critChance = 0.03,
+				critDamage = 1.5,
+				knockback = 5,
+				knockbackPiercing = 0,
+				lifeSteal = 0,
+				width = 1.2,
+				sweepDegrees = 120,
+				attackSeconds = 0.18,
+				meleeMode = 1,
+				breakChance = 0.01,
+				breakMaterials = 10,
+			},
+			tiers = {
+				{},
+				{
+					damage = 1,
+					breakMaterials = 20,
+				},
+				{
+					damage = 1,
+					breakMaterials = 45,
+				},
+				{
+					damage = 1,
+					breakMaterials = 125,
+				},
+			},
+		},
 	},
 	prices = {
 		Anchor = {
@@ -3197,6 +3299,12 @@ return {
 			30,
 			58,
 			115,
+		},
+		Brick = {
+			6,
+			14,
+			22,
+			40,
 		},
 	},
 }

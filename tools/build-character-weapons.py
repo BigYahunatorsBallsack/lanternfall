@@ -16,7 +16,7 @@ def module(name, file):
     return result
 source = module('character_source', 'tools/character-source.py')
 catalog = module('character_catalog', 'tools/build-character-catalog.py')
-FAMILIES = ['anchor', 'mace', 'meat_tenderizer', 'machinegun', 'pan_flute', 'combat_shotgun', 'grenade_launcher', 'whip', 'spoon', 'cestus', 'sickle', 'trident', 'lute', 'blowgun', 'blunderbuss', 'javelin', 'tranq_rifle', 'harpoon_gun', 'sticky_grenade', 'flail', 'molotov', 'awl', 'carbon_bow', 'flute', 'crowbar', 'shovel', 'boomerang']
+FAMILIES = ['anchor', 'mace', 'meat_tenderizer', 'machinegun', 'pan_flute', 'combat_shotgun', 'grenade_launcher', 'whip', 'spoon', 'cestus', 'sickle', 'trident', 'lute', 'blowgun', 'blunderbuss', 'javelin', 'tranq_rifle', 'harpoon_gun', 'sticky_grenade', 'flail', 'molotov', 'awl', 'carbon_bow', 'flute', 'crowbar', 'shovel', 'boomerang', 'brick']
 FACTS = ROOT / 'docs/characters/weapon-source.json'
 OUTPUT = ROOT / 'src/shared/Config/CharacterWeaponData.luau'
 
@@ -165,6 +165,9 @@ def generate():
                     if 'fuse_duration' in effect:
                         value.update(stickyFuse=effect['fuse_duration'], stickyDistance=row['geometry']['stickDistancePoints']*0.1)
                         lines.append(f"Sticks to the targeted enemy and explodes after {effect['fuse_duration']} seconds")
+                elif effect['key'] == 'break_on_hit':
+                    value.update(breakChance=effect['value']/100,breakMaterials=effect['value2'])
+                    lines.append(f"Has a {effect['value']}% chance to break and drop {effect['value2']:g} materials on hit")
                 elif effect['key'] == 'crit_on_hitting_burning_target':
                     value['critBurning'] = 1
                     lines.append('Always crits when hitting burning targets')

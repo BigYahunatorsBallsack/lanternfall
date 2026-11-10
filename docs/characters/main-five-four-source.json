@@ -1,0 +1,65 @@
+{
+  "version": "1.2.0.1",
+  "steamBuild": 26406319,
+  "characters": [
+    {
+      "slug": "old",
+      "source": "res://items/characters/old/old_data.tres",
+      "sourceMd5": "f4ee22a1f2b4a6974cc908fa2139a7b1",
+      "startChoices": 25
+    },
+    {
+      "slug": "mutant",
+      "source": "res://items/characters/mutant/mutant_data.tres",
+      "sourceMd5": "e3242e4ffdacb827ed3e660eba877f8c",
+      "startChoices": 26
+    },
+    {
+      "slug": "masochist",
+      "source": "res://items/characters/masochist/masochist_data.tres",
+      "sourceMd5": "e02065e6b8b45e7d3aa98d7dd14923b6",
+      "startChoices": 22
+    },
+    {
+      "slug": "golem",
+      "source": "res://items/characters/golem/golem_data.tres",
+      "sourceMd5": "d27cd578982009e082935878941cfe55",
+      "startChoices": 24
+    },
+    {
+      "slug": "cyborg",
+      "source": "res://items/characters/cyborg/cyborg_data.tres",
+      "sourceMd5": "b04fda7201bcf5b70afa8f5a46f684cc",
+      "startChoices": 15
+    }
+  ],
+  "resources": {
+    "res://weapons/weapon.gdc": "459365711e583c5182403866b79e7305",
+    "res://entities/units/player/player.gdc": "80ac166ba6b5c71fbf220bcd43ddc90e",
+    "res://main.gdc": "903bd37107ab9c164addda2167477fb1",
+    "res://singletons/challenge_service.gdc": "6d6b42bb03a602222287ec8e7b2a14bf",
+    "res://singletons/run_data.gdc": "a94d8eddd9609f413309ce9237297ad2",
+    "res://dlcs/dlc_1/weapons/melee/brick/brick.tscn": "905076d1df6b2d05562fadb1ee2eafe7"
+  },
+  "wording": {
+    "EFFECT_BREAK_ON_HIT": "Has a {0} chance to break and drop {2} materials on hit",
+    "EFFECT_CONVERT_STAT_TEMP_HALF_WAVE": "{0} of your {1} are temporarily converted into {2} halfway through a wave ({3} {1} = {4} {2})",
+    "EFFECT_NO_HEAL": "You can’t heal in any way",
+    "EFFECT_STAT_BELOW_HALF_HEALTH": "{0} {1} when you have less than 50% health"
+  },
+  "rules": {
+    "brick": "Four melee Blunt tiers:30/60/90/120base damage,50frames,150range points,3%crit x1.5.1%chance on hit (Utils.get_chance_success inclusive<=) to break equipped copy and request10/30/75/200materials at weapon position with300point spread. Personal remove is not recycling; no recycling challenge credit. Drop uses main.get_gold_value(NEUTRAL):coop + averaged gold/neutral modifiers,50%minimum; stochastic fractional count. Individual one-value physical coins, each may pull bag, fifty-orb cap merges extra value into random coin. Run/wave checkpoint restores the weapon and removes uncollected break drops.",
+    "old": "-25EnemySpeed,+10Harvesting,-33MapSize,-10Enemies,-10Speed; original32x24tile map becomes21x16tiles at6.4stud.300personal lifetime enemy kills. Map reset on return to Lobby, not immediately on Results.",
+    "mutant": "-66%next-level XP needed preserves fractional thresholds (first5.44XP),+50%ItemPrices.2000personal lifetime enemy kills.",
+    "masochist": "5Damage per actual Hurt until wave end,+10HP,+20Regen,+8Armor,-100Damage. Hurt gains clear wave end, restore wave-start state on retry. Win Danger3 unlock from saved bestDanger.",
+    "golem": "20HP with33%HP gain multiplier and33%Armor gain multiplier.40AS/20Speed strictly below half actual capped HP; no healing. Reckless observes exactly1HP of a living participant at WaveEnding before healing/rewards. Native Steam profile check is shared; online progress goes to each personally qualifying participant.",
+    "cyborg": "15selectable starts plus guaranteed tierIII Minigun. Ranged gains x3,Engineering x.25,Melee/Elemental x0. At exact wave midpoint convert100%permanentRanged toEngineering at2:1 with native gain compensation. Apply once per wave, reset at wave end/retry. AdvancedTechnology requires10Ranged and3simultaneous equipped structure sources."
+  },
+  "limits": [
+    "No real original uploads or Studio/two-client/mobile acceptance.",
+    "Brick break scatter uses static shared OrbField positions in native5..40stud scatter range; native coin launch/tween/physics is shared outstanding work.",
+    "Weapon damage/hit geometry and timing retain existing15Hz/common native parity limitations.",
+    "Reckless Steam-profile-wide achievement is mapped to personal online completion participants; explicit coop adaptation.",
+    "General graphical, item catalog, zone parity and200actor4ms-budget remain open."
+  ]
+}

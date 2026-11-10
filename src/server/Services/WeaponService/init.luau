@@ -56,6 +56,7 @@ WeaponService.KillGrowth = Signal.new()
 WeaponService.ExplosionResolved = Signal.new()
 WeaponService.NativeMineRequested = Signal.new()
 WeaponService.NativeStructureRequested = Signal.new()
+local pendingBreaks: { any } = {}
 local growth: { [number]: { [string]: number } } = {}
 
 -- Hit listener: (ownerId, enemyId, dealt, crit, killed, source), set by EffectService. A plain callback, not a
@@ -488,6 +489,18 @@ local function onStepped(dt: number, stepNow: number)
 		firePuddles:step(dt)
 	end
 	arsenal:step(dt, stepNow)
+	for _, entry in pendingBreaks do
+		local player = playerOf(entry.weapon.ownerId)
+		if player and arsenal:removeWeapon(player.UserId, entry.weapon.uid) then
+			ExperienceService.dropMaterials(
+				Vector3.new(entry.x, floorY, entry.z),
+				entry.materials,
+				Config.Combat.nativeBrick.spread
+			)
+			send(player)
+		end
+	end
+	table.clear(pendingBreaks)
 	-- Character stat strikes are already scaled in the native order; Arsenal's primary-hit formula differs.
 	local itemExplosions = characterItemExplosions
 	characterItemExplosions = {}
@@ -600,6 +613,9 @@ function WeaponService.init()
 		BrotatoRuntime.reloadFromMaterials(arsenal:getWeapons(player.UserId), count, now())
 	end)
 	BrotatoCombat.configure({
+		breakWeapon = function(weapon, x, z, materials)
+			table.insert(pendingBreaks, { weapon = weapon, x = x, z = z, materials = materials })
+		end,
 		ownerAlive = function(ownerId)
 			local player = playerOf(ownerId)
 			return player ~= nil and RunDirector.getParticipantState(player) == "Alive"

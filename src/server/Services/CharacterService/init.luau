@@ -192,6 +192,9 @@ function Service.init()
 		}
 		for player, state in states do
 			require(script.Parent.PlayerDataService).observeNativeWaveTrees(player, trees)
+			if Run.getParticipantState(player) == "Alive" then
+				require(script.Parent.PlayerDataService).observeNativeWaveHp(player, Combat.getHp(player))
+			end
 			Shop.setCharacterWaveReward(player, Rules.waveReward(state.policy, 0, context))
 			table.clear(state.conversion) -- native wave-end TempStats reset precedes shop/harvesting
 			refresh(player)

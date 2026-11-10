@@ -271,7 +271,7 @@ Classes.Ghost.nativeCodeReady = true
 Classes.Ghost.description = "+10 Damage with Ethereal weapons\n+30 % Dodge\nDodge is capped at 90%\n-100 Armor"
 Classes.Bull.nativeCodeReady = true
 Classes.Bull.description =
-	"+20 Max HP\n+15 HP Regeneration\n+10 Armor\nHP Regeneration modifications are increased by 50%\nYou explode for 30 (300% Melee Damage 300% Ranged Damage 300% Elemental Damage) damage when you take damage\nYou can’t equip weapons"
+	"+20 Max HP\n+15 HP Regeneration\n+10 Armor\nHP Regeneration modifications are increased by 50%\nYou explode for 30 (300% Melee Damage 300% Ranged Damage 300% Elemental Damage) damage when you take damage\nYou canâ€™t equip weapons"
 Classes.Bull.ruleRows = {
 	{ { text = "+20 Max HP" } },
 	{ { text = "+15 HP Regeneration" } },
@@ -286,7 +286,7 @@ Classes.Bull.ruleRows = {
 		{ stat = "elementalDamage", coefficient = 300 },
 		{ text = ") damage when you take damage" },
 	},
-	{ { text = "You can’t equip weapons" } },
+	{ { text = "You canâ€™t equip weapons" } },
 }
 Classes.Doctor.nativeCodeReady = true
 Classes.Doctor.description =
@@ -302,7 +302,7 @@ Classes.ArmsDealer.description =
 	"-95 % Weapons Price\n+30 Harvesting\nDamage modifications are increased by 33%\nYou start with 1 Dangerous Bunny\nShops always sell at least one weapon\nAll of your weapons are destroyed when entering a shop"
 -- Original art is delivered independently; ready code never bypasses the approved-sprite requirement.
 Classes.Wildling.description =
-	"+30 % Life Steal with Primitive weapons\nYou start with 1 Stick\nYou can’t equip weapons above tier II"
+	"+30 % Life Steal with Primitive weapons\nYou start with 1 Stick\nYou canâ€™t equip weapons above tier II"
 Classes.Cryptid.description =
 	"+6 Trees\nGain 12 material and XP for every living tree at the end of a wave\n+3 HP Regeneration for every current living tree [0]\nDodge is capped at 70%\n+3 % Attack Speed until the end of the wave when you dodge an attack\n-100 % Life Steal\n-100 Range\n-50 % materials dropped from enemies"
 Classes.Cryptid.nativeCodeReady = true
@@ -316,7 +316,7 @@ mage.description =
 local ranger = Classes.NightWatch.pendingNative or Classes.NightWatch
 ranger.nativeCodeReady = true
 ranger.description =
-	"+50 Range\nYou start with 1 Pistol\nRanged Damage modifications are increased by 50%\nYou can’t equip melee weapons\nMax HP modifications are reduced by 25%"
+	"+50 Range\nYou start with 1 Pistol\nRanged Damage modifications are increased by 50%\nYou canâ€™t equip melee weapons\nMax HP modifications are reduced by 25%"
 Classes.Renegade.nativeCodeReady = true
 Classes.Renegade.description =
 	"+2 Projectiles\nProjectiles pierce through 1 additional target\n+10 % Damage for every different tier I item you have [0]\n-400 % Damage\n-50 % Accuracy\nDamage modifications are reduced by 80%"
@@ -350,6 +350,20 @@ Classes.Streamer.description =
 Classes.Lich.nativeCodeReady = true
 Classes.Lich.description =
 	"+10 HP Regeneration\n+10 % Life Steal\n100% chance to deal 1 (100% Max HP) damage to a random enemy when you heal\nDamage modifications are reduced by 50%"
+
+Classes.Old.nativeCodeReady = true
+Classes.Old.description = "-25 % Enemy Speed\n+10 Harvesting\n-33 % Map Size\n-10 % Enemies\n-10 % Speed"
+Classes.Mutant.nativeCodeReady = true
+Classes.Mutant.description = "XP required to level up is reduced by 66%\n+50 % Item Prices"
+Classes.Masochist.nativeCodeReady = true
+Classes.Masochist.description =
+	"+5 % Damage when you take damage until the end of the wave\n+10 Max HP\n+20 HP Regeneration\n+8 Armor\n-100 % Damage"
+Classes.Golem.nativeCodeReady = true
+Classes.Golem.description =
+	"+20 Max HP\nMax HP modifications are increased by 33%\nArmor modifications are increased by 33%\n+40 % Attack Speed when you have less than 50% health\n+20 % Speed when you have less than 50% health\nYou can’t heal in any way"
+Classes.Cyborg.nativeCodeReady = true
+Classes.Cyborg.description =
+	"You start with 1 Minigun III\nRanged Damage modifications are increased by 200%\n100% of your Ranged Damage is temporarily converted into Engineering (1 Ranged Damage = 2 Engineering) halfway through a wave\nEngineering modifications are reduced by 75%\nMelee Damage modifications are reduced by 100%\nElemental Damage modifications are reduced by 100%"
 
 for id, class in Classes do
 	if not class.nativeCodeReady then

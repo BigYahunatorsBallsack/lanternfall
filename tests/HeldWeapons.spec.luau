@@ -54,7 +54,7 @@ describe("World weapon sprites", function()
 			sprite.anchor:Destroy()
 		end
 		expect(count).toBe(62)
-		expect(pending).toBe(27)
+		expect(pending).toBe(28)
 		expect(Config.WeaponVisuals.spriteStuds.BrassKnuckles < Config.WeaponVisuals.spriteStuds.LamplighterPike).toBe(
 			true
 		)
