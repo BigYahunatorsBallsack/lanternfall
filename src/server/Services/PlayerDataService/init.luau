@@ -456,6 +456,24 @@ function PlayerDataService.observeNativeEnemyKill(player: Player)
 	end
 end
 
+-- Reckless is an exact alive wave-end HP check, before wave healing/rewards.
+function PlayerDataService.observeNativeWaveHp(player: Player, hp: number)
+	local data = PlayerDataService.get(player)
+	if not data then
+		return
+	end
+	for _, rule in NativeCharacterAccess do
+		if rule.kind == "WaveHp" and hp == rule.threshold then
+			local key = CharacterAccess.challengeKey(rule.challengeId)
+			if not data.achievements[key] then
+				data.achievements[key] = true
+				sendInfo(player)
+				PlayerDataService.Changed:Fire(player)
+			end
+		end
+	end
+end
+
 -- Native Gatherer counts physical pickups once, even when their material value is doubled or shared.
 function PlayerDataService.observeNativeMaterials(player: Player, count: number)
 	local data = PlayerDataService.get(player)

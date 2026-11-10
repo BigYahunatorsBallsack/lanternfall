@@ -15,10 +15,55 @@ export type Challenge = {
 	| { kind: "RunRecycledWeapons", threshold: number }
 	| { kind: "EnemiesKilled", threshold: number }
 	| { kind: "WaveLivingTrees", threshold: number }
+	| { kind: "WaveHp", threshold: number }
 	| { kind: "Inventory", count: string, threshold: number, stat: string?, statThreshold: number?, waveStart: boolean? }
 	| { kind: "RunConsumables", threshold: number }
 )
 local rules: { [string]: Challenge } = {
+	Old = {
+		kind = "EnemiesKilled",
+		threshold = 300,
+		challengeId = "chal_survivor_1",
+		source = "res://challenges/survivor_1_data.tres",
+		sourceMd5 = "707f10617f09eaf34fcf38e1d8df4bcc",
+		requirement = "Kill 300 enemies",
+	},
+	Mutant = {
+		kind = "EnemiesKilled",
+		threshold = 2000,
+		challengeId = "chal_survivor_2",
+		source = "res://challenges/survivor_2_data.tres",
+		sourceMd5 = "58481f77a7cd6aa432e69ef7f7278c0b",
+		requirement = "Kill 2000 enemies",
+	},
+	Masochist = {
+		kind = "WinDanger",
+		danger = 3,
+		challengeId = "chal_difficulty_3",
+		source = "res://challenges/chal_difficulty_3_data.tres",
+		sourceMd5 = "c76b511039b6e3849b1ef54cab6e0585",
+		requirement = "Win a run in Danger 3",
+	},
+	Golem = {
+		kind = "WaveHp",
+		threshold = 1,
+		challengeId = "chal_reckless",
+		source = "res://challenges/reckless_data.tres",
+		sourceMd5 = "be55814db7277511e34e71381a80c5b4",
+		requirement = "Finish a wave with 1 HP",
+	},
+	Cyborg = {
+		kind = "Inventory",
+		count = "structures",
+		threshold = 3,
+		stat = "rangedDamage",
+		statThreshold = 10,
+		challengeId = "chal_advanced_technology",
+		source = "res://challenges/advanced_technology_data.tres",
+		sourceMd5 = "d16403ba8ac47a2f9e1ec09160bb4830",
+		requirement = "Have 10 Ranged Damage and 3 structures at the same time",
+	},
+
 	Lucky = {
 		kind = "MaterialsCollected",
 		threshold = 300,
