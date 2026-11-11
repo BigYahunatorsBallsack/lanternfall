@@ -16,12 +16,14 @@ export type Challenge = {
 	| { kind: "EnemiesKilled", threshold: number }
 	| { kind: "TreesKilled", threshold: number }
 	| { kind: "FastBossKill", seconds: number }
+	| { kind: "PetChallenges" }
 	| { kind: "WaveLivingTrees", threshold: number }
 	| { kind: "WaveHp", threshold: number }
 	| { kind: "Inventory", count: string, threshold: number, stat: string?, statThreshold: number?, waveStart: boolean? }
 	| { kind: "RunConsumables", threshold: number }
 )
 local rules: { [string]: Challenge } = {
+	BeastMaster = require(script.Parent.PetAccess).character,
 	Baby = {
 		kind = "Stat",
 		stat = "level",

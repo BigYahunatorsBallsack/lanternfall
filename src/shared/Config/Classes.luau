@@ -2,6 +2,7 @@
 -- B10 character packages read by CharacterRules, services and lobby. References: docs/B10-CHARAKTERE.md.
 -- HP uses the original Brotato scale. Legacy ids remain valid; unlock progression belongs to package 13.
 local Catalog = require(script.Parent.CharacterCatalog)
+local Items = require(script.Parent.Items)
 local Artwork = require(script.Parent.Parent.Util.CharacterArtwork)
 type CharacterArtwork = { image: string?, height: number?, ground: number?, center: number?, nativeVersion: string? }
 local SpriteImages: { characters: { [string]: CharacterArtwork } } = require(script.Parent.SpriteImages)
@@ -24,6 +25,7 @@ export type Class = {
 	startWeaponTiers: { [string]: number }?,
 	extraWeaponTiers: { [string]: number }?,
 	startItems: { string }?,
+	startPets: { string }?,
 	wantedTags: { string }?,
 	perWeapon: { [string]: number }?,
 	perDistinctWeapon: { [string]: number }?,
@@ -219,6 +221,13 @@ for id, source in Catalog do
 			table.insert(conversions, conversion)
 		end
 	end
+	local startPets = {}
+	for _, choice in source.startItemChoices do
+		local item = Items.byId[choice.id]
+		if item and item.pet then
+			table.insert(startPets, choice.id)
+		end
+	end
 	local package: Class = {
 		id = id,
 		displayName = source.displayName,
@@ -228,6 +237,7 @@ for id, source in Catalog do
 		extraWeapons = source.extraWeapons,
 		extraWeaponTiers = source.extraWeaponTiers,
 		startItems = source.startItems,
+		startPets = if #startPets > 0 then startPets else nil,
 		stats = source.stats,
 		gainMultipliers = source.gainMultipliers,
 		perLevel = source.perLevel,

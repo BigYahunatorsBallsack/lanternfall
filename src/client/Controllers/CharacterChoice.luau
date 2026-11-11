@@ -23,10 +23,12 @@ CharacterChoice.Chosen = Signal.new()
 CharacterChoice.Hovered = Signal.new()
 local hoverClass: string? = nil
 local hoverWeapon: string? = nil
+local hoverPet: string? = nil
 local hoverDanger: number? = nil
 local step = "Character"
 local requestedClass: string? = nil
 local selected: { [string]: string } = {}
+local selectedPets: { [string]: string } = {}
 local details: TextLabel?
 local weaponRow: Frame?
 local renderedClass: string? = nil
@@ -53,6 +55,12 @@ local function hover(kind: string, value: any, entering: boolean)
 			hoverClass = value
 		elseif hoverClass == value then
 			hoverClass = nil
+		end
+	elseif kind == "pet" then
+		if entering then
+			hoverPet = value
+		elseif hoverPet == value then
+			hoverPet = nil
 		end
 	elseif kind == "weapon" then
 		if entering then
@@ -84,7 +92,11 @@ end
 
 -- Weaponless native characters advance directly to difficulty selection.
 function CharacterChoice.startStep(classId: string): string
-	return if Config.Classes[classId].maxWeapons == 0 then "Difficulty" else "Weapon"
+	local class = Config.Classes[classId]
+	return if class.startPets and #class.startPets > 0
+		then "Pet"
+		elseif class.maxWeapons == 0 then "Difficulty"
+		else "Weapon"
 end
 
 local function canChooseWeapon(classId: string, weaponId: string): boolean
@@ -173,34 +185,40 @@ function CharacterChoice.render()
 		renderedClass = me.classId
 		Widgets.clearRows(weaponRow)
 		table.clear(buttons)
-		for index, weaponId in class.startWeapons do
+		local pets = class.startPets ~= nil
+		local choices = class.startPets or class.startWeapons
+		for index, weaponId in choices do
 			buttons[weaponId] = Widgets.button({
 				Name = `Start_{weaponId}`,
 				Text = "",
 				TextSize = 15,
-				Size = UDim2.new(1 / #class.startWeapons, -6, 1, 0),
+				Size = UDim2.new(1 / #choices, -6, 1, 0),
 				LayoutOrder = index,
 				Parent = weaponRow,
 			}, function()
-				if not canChooseWeapon(class.id, weaponId) then
+				if not pets and not canChooseWeapon(class.id, weaponId) then
 					return
 				end
 				if os.clock() - lastPress < 0.3 then
 					return
 				end
 				lastPress = os.clock()
-				Net.fireServer("SelectStartWeapon", class.id, weaponId)
-				CharacterChoice.Chosen:Fire("Difficulty")
+				if pets then
+					Net.fireServer("SelectStartPet", class.id, weaponId)
+				else
+					Net.fireServer("SelectStartWeapon", class.id, weaponId)
+					CharacterChoice.Chosen:Fire("Difficulty")
+				end
 			end)
 			local tile = buttons[weaponId]
-			CharacterChoice.watchHover(tile, "weapon", weaponId)
+			CharacterChoice.watchHover(tile, if pets then "pet" else "weapon", weaponId)
 			local art = Icons.holder(tile, 80)
 			art.AnchorPoint = Vector2.new(0.5, 0)
 			art.Position = UDim2.new(0.5, 0, 0, 2)
-			Icons.draw(art, "weapon", weaponId)
+			Icons.draw(art, if pets then "item" else "weapon", weaponId)
 			Widgets.label({
 				Name = "WeaponName",
-				Text = Config.Weapons[weaponId].displayName,
+				Text = if pets then Config.Items.byId[weaponId].displayName else Config.Weapons[weaponId].displayName,
 				TextSize = 17,
 				Position = UDim2.new(0, 4, 1, -30),
 				Size = UDim2.new(1, -8, 0, 28),
@@ -218,8 +236,10 @@ function CharacterChoice.render()
 		end
 	end
 	for weaponId, button in buttons do
-		local allowed = canChooseWeapon(me.classId, weaponId)
-		local chosen = allowed and weaponId == (selected[me.classId] or class.startWeapon)
+		local pets = class.startPets
+		local allowed = pets ~= nil or canChooseWeapon(me.classId, weaponId)
+		local chosenId = if pets then selectedPets[me.classId] or pets[1] else selected[me.classId] or class.startWeapon
+		local chosen = allowed and weaponId == chosenId
 		button.Active = allowed
 		button.LockLabel.Visible = not allowed
 		button.BackgroundColor3 = if chosen then Theme.accent elseif allowed then TILE else Theme.button
@@ -416,12 +436,20 @@ function CharacterChoice.mount(card: Frame, row: Frame, buttonsByClass: { [strin
 		selected[classId] = weaponId
 		CharacterChoice.render()
 	end)
+	Net.onClient("StartPetChoice", function(classId: string, petId: string, committed: boolean)
+		selectedPets[classId] = petId
+		CharacterChoice.render()
+		local me = RunStateController.getLocalPlayer()
+		if committed and me and me.classId == classId and step == "Pet" then
+			CharacterChoice.Chosen:Fire("Difficulty")
+		end
+	end)
 	CharacterChoice.render()
 end
 
 function CharacterChoice.setStep(value: string)
 	if step ~= value then
-		hoverClass, hoverWeapon, hoverDanger = nil, nil, nil
+		hoverClass, hoverWeapon, hoverPet, hoverDanger = nil, nil, nil, nil
 	end
 	step = value
 end
@@ -488,7 +516,7 @@ function CharacterChoice.resize(width: number, _height: number?)
 		button.LockLabel.TextStrokeTransparency = 0
 	end
 	weaponRow.Parent = stage
-	weaponRow.Visible = step == "Weapon"
+	weaponRow.Visible = step == "Weapon" or step == "Pet"
 	weaponRow.AnchorPoint = Vector2.new(0.5, 0)
 	weaponRow.Position = UDim2.new(0.5, 0, 0, summaryHeight + 26)
 	local weaponCount = 0
@@ -529,7 +557,21 @@ end
 function CharacterChoice.getStartWeapon(): string?
 	local me = RunStateController.getLocalPlayer()
 	local class = me and Config.Classes[me.classId]
-	return if me and class then selected[me.classId] or class.startWeapon else nil
+	return if me and class and not class.startPets then selected[me.classId] or class.startWeapon else nil
+end
+
+function CharacterChoice.getStartPet(): string?
+	local me = RunStateController.getLocalPlayer()
+	local class = me and Config.Classes[me.classId]
+	return if me and class and class.startPets then selectedPets[me.classId] or class.startPets[1] else nil
+end
+function CharacterChoice.getShownPet(): string?
+	local me = RunStateController.getLocalPlayer()
+	local class = me and Config.Classes[me.classId]
+	if step == "Pet" and hoverPet and class and class.startPets and table.find(class.startPets, hoverPet) then
+		return hoverPet
+	end
+	return CharacterChoice.getStartPet()
 end
 
 return CharacterChoice

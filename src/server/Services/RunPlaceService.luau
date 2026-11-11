@@ -22,6 +22,7 @@ local PlaceService = require(script.Parent.PlaceService)
 local PlayerDataService = require(script.Parent.PlayerDataService)
 local RunDirector = require(script.Parent.RunDirector)
 local WeaponService = require(script.Parent.WeaponService)
+local StartPets = require(script.Parent.StartPetService)
 
 local TICK_SECONDS = 0.25
 
@@ -47,6 +48,10 @@ end
 
 local function isWeapon(id: string): boolean
 	return Config.Weapons[id] ~= nil
+end
+local function isPet(id: string): boolean
+	local item = Config.Items.byId[id]
+	return item ~= nil and item.pet ~= nil
 end
 
 -- Members of the group who are in this server.
@@ -80,6 +85,9 @@ local function applyPick(player: Player)
 		local ok = RunDirector.selectClass(player, pick.classId)
 		if ok and pick.weaponId then
 			WeaponService.selectStartWeapon(player, pick.classId, pick.weaponId)
+		end
+		if ok and pick.petId then
+			StartPets.selectStartPet(player, pick.classId, pick.petId)
 		end
 	end
 	if launched then
@@ -194,7 +202,8 @@ local function onPlayerAdded(player: Player)
 		player.UserId,
 		Config.Places.party.maxSize,
 		isClass,
-		isWeapon
+		isWeapon,
+		isPet
 	)
 	if ticket then
 		tickets[player] = ticket

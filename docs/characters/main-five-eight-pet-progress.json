@@ -11,13 +11,151 @@
       "failed": 37
     },
     "branch": {
-      "specs": 239,
-      "passed": 1561,
-      "failed": 37
+      "specs": 246,
+      "passed": 1577,
+      "failed": 38
     },
-    "newFailureNames": [],
+    "newFailureNames": [
+      {
+        "spec": "tests/CharmedWorld.spec.luau",
+        "failure": "FAIL Charmed faction runtime > steps a mixed hostile and friendly crowd within the shared simulation budget"
+      }
+    ],
     "removedFailureNames": [],
-    "aborts": []
+    "aborts": [],
+    "branchResult": "build/native-five-branch-eight-startpet-6bb5174.json",
+    "confirmedBaselineFluctuations": [
+      {
+        "iteration": 1,
+        "label": "main",
+        "exit": 1,
+        "stepMs": [
+          "4.253"
+        ],
+        "result": [
+          "5 passed, 1 failed"
+        ],
+        "failures": [
+          "FAIL Charmed faction runtime > steps a mixed hostile and friendly crowd within the shared simulation budget"
+        ]
+      },
+      {
+        "iteration": 1,
+        "label": "branch",
+        "exit": 0,
+        "stepMs": [
+          "3.830"
+        ],
+        "result": [
+          "6 passed, 0 failed"
+        ],
+        "failures": []
+      },
+      {
+        "iteration": 2,
+        "label": "main",
+        "exit": 0,
+        "stepMs": [
+          "3.908"
+        ],
+        "result": [
+          "6 passed, 0 failed"
+        ],
+        "failures": []
+      },
+      {
+        "iteration": 2,
+        "label": "branch",
+        "exit": 0,
+        "stepMs": [
+          "3.811"
+        ],
+        "result": [
+          "6 passed, 0 failed"
+        ],
+        "failures": []
+      },
+      {
+        "iteration": 3,
+        "label": "main",
+        "exit": 0,
+        "stepMs": [
+          "3.749"
+        ],
+        "result": [
+          "6 passed, 0 failed"
+        ],
+        "failures": []
+      },
+      {
+        "iteration": 3,
+        "label": "branch",
+        "exit": 0,
+        "stepMs": [
+          "3.815"
+        ],
+        "result": [
+          "6 passed, 0 failed"
+        ],
+        "failures": []
+      },
+      {
+        "iteration": 4,
+        "label": "main",
+        "exit": 1,
+        "stepMs": [
+          "4.153"
+        ],
+        "result": [
+          "5 passed, 1 failed"
+        ],
+        "failures": [
+          "FAIL Charmed faction runtime > steps a mixed hostile and friendly crowd within the shared simulation budget"
+        ]
+      },
+      {
+        "iteration": 4,
+        "label": "branch",
+        "exit": 1,
+        "stepMs": [
+          "4.055"
+        ],
+        "result": [
+          "5 passed, 1 failed"
+        ],
+        "failures": [
+          "FAIL Charmed faction runtime > steps a mixed hostile and friendly crowd within the shared simulation budget"
+        ]
+      },
+      {
+        "iteration": 5,
+        "label": "main",
+        "exit": 1,
+        "stepMs": [
+          "4.080"
+        ],
+        "result": [
+          "5 passed, 1 failed"
+        ],
+        "failures": [
+          "FAIL Charmed faction runtime > steps a mixed hostile and friendly crowd within the shared simulation budget"
+        ]
+      },
+      {
+        "iteration": 5,
+        "label": "branch",
+        "exit": 1,
+        "stepMs": [
+          "4.151"
+        ],
+        "result": [
+          "5 passed, 1 failed"
+        ],
+        "failures": [
+          "FAIL Charmed faction runtime > steps a mixed hostile and friendly crowd within the shared simulation budget"
+        ]
+      }
+    ]
   },
   "focused": {
     "tests/CharacterBabyPackage.spec.luau": {
@@ -86,6 +224,34 @@
     },
     "tests/NativePetPickup.spec.luau": {
       "passed": 2,
+      "failed": 0
+    },
+    "tests/NativeStartPet.spec.luau": {
+      "passed": 4,
+      "failed": 0
+    },
+    "tests/NativeStartPetUi.spec.luau": {
+      "passed": 2,
+      "failed": 0
+    },
+    "tests/NativeStartPetTicket.spec.luau": {
+      "passed": 2,
+      "failed": 0
+    },
+    "tests/NativeStartPetRunPlace.spec.luau": {
+      "passed": 2,
+      "failed": 0
+    },
+    "tests/NativePetAccess.spec.luau": {
+      "passed": 3,
+      "failed": 0
+    },
+    "tests/NativePetAccessWave.spec.luau": {
+      "passed": 3,
+      "failed": 0
+    },
+    "tests/NativePetShop.spec.luau": {
+      "passed": 1,
       "failed": 0
     }
   },
@@ -228,5 +394,51 @@
       "failed": 0
     },
     "finalFullSuitePerfPassed": true
+  },
+  "startPetUnlockMutation": {
+    "mutation": "Bypass server pet-item unlock validation",
+    "detected": true,
+    "restoredByteExactly": true,
+    "sha256": "b1eb88dd744a2d66d46e615ec7418545211ffde9ee9e76c0bc18b5c61f6f10b1",
+    "output": "[Lanternfall] Place: lobby and arena in one server (no hub/run place ids for this place in Config.Places)\n[Lanternfall] Server ready: 73 remotes, 37 services, config problems: 0\n[Lanternfall] Saving: memory only (no DataStoreService)\n[Lanternfall] Badge \"Lantern Lit\" earned but not set up (Config/Badges.luau id is 0)\n[Lanternfall] Owner login streak day 1: +25 Embers\n[Lanternfall] Peer login streak day 1: +25 Embers\n[Lanternfall] Launch check: 1 must, 2 should open (debug button \"Launch check\" lists them)\nFAIL Native start pet selection > rejects forged item, weapon, character and in-run selections and isolates players\n     tests/NativeStartPet.spec.luau:28: expected false, got true\n[Lanternfall] Run started with 2 player(s), Danger 0\n[Lanternfall] Run seed 228619419 (Config.Run.seed replays it)\nFAIL Native start pet selection > grants the selected pet plus one Lootworm and Ratzilla for every original start\n     tests/NativeStartPet.spec.luau:52: expected 1, got nil\nFAIL Native start pet selection > counts permanent pet copies and Jellyshield effects without depending on visible deployments\n     tests/NativeStartPet.spec.luau:66: expected 1, got 0\n1 passed, 3 failed\n",
+    "restoredPassed": true
+  },
+  "beastMasterStart": {
+    "fourPetChoices": true,
+    "guarantees": [
+      "Lootworm",
+      "Ratzilla"
+    ],
+    "weapons": 0,
+    "permanentPetSpeed": 2,
+    "wantedTagChance": 0.1,
+    "validatesPersonalItemUnlock": true,
+    "teleportPetFieldValidated": true,
+    "uiSyncDoesNotAdvance": true,
+    "nativeTooltipComplete": false,
+    "completeCharacterCounted": false
+  },
+  "beastMasterUnlockCorrection": {
+    "original": "Unlock all five pet items",
+    "notThreeOwnedPets": true,
+    "sixScalingWeaponsPersonal": true,
+    "lootwormFloorMaterialValue": 20,
+    "onlyCompletedWave": true,
+    "roBloxCoopMapping": "Personal weapon challenges; common floor materials award each wave participant",
+    "facts": "pet-access.json"
+  },
+  "checksStartPet": {
+    "stylua": "passed",
+    "seleneErrors": 0,
+    "existingWarnings": 18,
+    "rojo": "passed",
+    "sourceCompilers": [
+      "pet-access",
+      "pets",
+      "item-rules",
+      "catalog"
+    ],
+    "studioRun": false,
+    "newNativeCodeReadyFlags": 0
   }
 }

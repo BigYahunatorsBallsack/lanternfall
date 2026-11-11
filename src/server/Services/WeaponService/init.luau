@@ -945,6 +945,25 @@ end
 function WeaponService.getWeapons(player: Player): { Types.WeaponInfo }
 	return loadoutOf(player).weapons
 end
+-- Native pet unlocks count six actual weapons containing a scaling entry, including duplicate copies.
+function WeaponService.getPetChallengeCounts(player: Player): { [string]: number }
+	local result = {}
+	for _, rule in require(Shared.Config.PetAccess).items do
+		if rule.stat and rule.count then
+			local count = 0
+			for _, weapon in arsenal:getWeapons(player.UserId) do
+				local scaling = if weapon.config.tierScaling
+					then weapon.config.tierScaling[weapon.tier]
+					else weapon.config.scaling
+				if scaling[rule.stat] ~= nil then
+					count += 1
+				end
+			end
+			result[rule.count] = count
+		end
+	end
+	return result
+end
 
 -- The uid of another copy the weapon `uid` can merge with (same weapon and tier, below the max tier), or nil.
 function WeaponService.findMergePartner(player: Player, uid: number): number?

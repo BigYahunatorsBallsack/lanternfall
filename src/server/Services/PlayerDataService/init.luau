@@ -22,6 +22,7 @@ local Signal = require(Shared.Util.Signal)
 local Types = require(Shared.Net.Types)
 local NativeWeaponAccess = require(Shared.Config.CharacterWeaponAccess)
 local NativeCharacterAccess = require(Shared.Config.CharacterUnlocks)
+local PetAccess = require(Shared.Config.PetAccess)
 local CharacterAccess = require(Shared.Util.CharacterAccess)
 
 local MemoryStore = require(script.MemoryStore)
@@ -235,6 +236,9 @@ end
 -- Paket 13: whether a weapon or item is unlocked for the player (everything lockable is locked until loaded).
 function PlayerDataService.isUnlocked(player: Player, kind: ProgressRules.Kind, id: string): boolean
 	local data = PlayerDataService.get(player)
+	if kind == "items" and PetAccess.items[id] then
+		return CharacterAccess.petUnlocked(data, id)
+	end
 	if kind == "characters" and Config.Classes[id] and Config.Classes[id].nativeStartSelection then
 		return CharacterAccess.characterUnlocked(data, id)
 	end
@@ -265,6 +269,9 @@ function PlayerDataService.lockedSet(player: Player, kind: ProgressRules.Kind): 
 			end
 		end
 	elseif kind == "items" then
+		for id in PetAccess.items do
+			result[id] = if CharacterAccess.petUnlocked(data, id) then nil else true
+		end
 		for _, item in Config.Items.list do
 			if item.nativeWinWith then
 				local record = data and data.characterStats[item.nativeWinWith]
@@ -344,6 +351,26 @@ function PlayerDataService.observeNativeInventory(
 		return
 	end
 	local changed = false
+	for _, rule in PetAccess.items do
+		if
+			rule.kind == "Inventory"
+			and rule.count
+			and rule.threshold
+			and rule.challengeId
+			and (counts[rule.count] or 0) >= rule.threshold
+		then
+			local key = CharacterAccess.challengeKey(rule.challengeId)
+			if not data.achievements[key] then
+				data.achievements[key], changed = true, true
+			end
+		end
+	end
+	if CharacterAccess.petsComplete(data) then
+		local key = CharacterAccess.challengeKey(PetAccess.character.challengeId)
+		if not data.achievements[key] then
+			data.achievements[key], changed = true, true
+		end
+	end
 	for _, rule in NativeCharacterAccess do
 		if
 			rule.kind == "Inventory"
@@ -357,6 +384,26 @@ function PlayerDataService.observeNativeInventory(
 				changed = true
 			end
 		end
+	end
+	if changed then
+		sendInfo(player)
+		PlayerDataService.Changed:Fire(player)
+	end
+end
+
+function PlayerDataService.observeNativeWaveMaterials(player: Player, value: number)
+	local rule = PetAccess.items.Lootworm
+	local data = PlayerDataService.get(player)
+	if not data or value < assert(rule.threshold, "Lootworm requires a sourced material threshold") then
+		return
+	end
+	local key = CharacterAccess.challengeKey(assert(rule.challengeId, "Lootworm requires a sourced challenge id"))
+	local changed = not data.achievements[key]
+	data.achievements[key] = true
+	if CharacterAccess.petsComplete(data) then
+		local aggregate = CharacterAccess.challengeKey(PetAccess.character.challengeId)
+		changed = changed or not data.achievements[aggregate]
+		data.achievements[aggregate] = true
 	end
 	if changed then
 		sendInfo(player)
@@ -661,6 +708,11 @@ function PlayerDataService.unlockAll(player: Player): boolean
 	local data = PlayerDataService.get(player)
 	if not data then
 		return false
+	end
+	for _, rule in PetAccess.items do
+		if rule.challengeId then
+			data.achievements[CharacterAccess.challengeKey(rule.challengeId)] = true
+		end
 	end
 	for _, achievement in Config.Progress.achievements do
 		data.achievements[achievement.id] = true

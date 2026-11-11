@@ -185,6 +185,7 @@ local Shop = {
 }
 
 Shop.wantedTagChance = 0.05 -- B10: dedicated matching-tag draw; empty pools fall back.
+Shop.boostedWantedTagChance = 0.1 -- native boosted_wanted_item_tag replacement effect
 local weaponPrices = table.clone(Shop.weaponPrices)
 for id, prices in require(script.Parent.CharacterWeaponData).prices do
 	weaponPrices[id] = prices[1]

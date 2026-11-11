@@ -489,7 +489,10 @@ function ShopRules.roll(params: Params): { Types.ShopOffer }
 			local class = params.classId and Classes[params.classId]
 			local tags = class and class.wantedTags
 			local itemId: string? = nil
-			if tags and #tags > 0 and params.random() < Shop.wantedTagChance then
+			local tagChance = if CharacterRules.nativeOverride(params.classId, "boosted_wanted_item_tag", 0) > 0
+				then Shop.boostedWantedTagChance
+				else Shop.wantedTagChance
+			if tags and #tags > 0 and params.random() < tagChance then
 				itemId = ShopRules.pickItem(
 					tier,
 					params.ownedItems,

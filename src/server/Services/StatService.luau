@@ -32,6 +32,7 @@ local ExperienceService = require(script.Parent.ExperienceService)
 local RunDirector = require(script.Parent.RunDirector)
 local WeaponService = require(script.Parent.WeaponService)
 local PlayerDataService = require(script.Parent.PlayerDataService)
+local StartPets = require(script.Parent.StartPetService)
 
 type State = {
 	rawPermanent: StatMath.Sheet,
@@ -268,6 +269,10 @@ local function onRunStarted(participants: { Player })
 			local class = classId and Config.Classes[classId]
 			for _, itemId in (class and class.startItems) or {} do
 				StatService.addItem(player, itemId)
+			end
+			local startPet = classId and StartPets.resolve(player, classId)
+			if startPet then
+				StatService.addItem(player, startPet)
 			end
 			Net.fireAllClients("Items", itemLoadout(player))
 		else

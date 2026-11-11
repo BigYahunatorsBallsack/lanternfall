@@ -88,6 +88,10 @@ local function countsOf(player: Player, state: State, hp: number, maxHp: number)
 		end
 	end
 	counts.structures = Structures.sourceCount(player)
+	counts.pets = Structures.petSourceCount(player)
+	for key, count in Weapons.getPetChallengeCounts(player) do
+		counts[key] = count
+	end
 
 	return counts
 end
@@ -200,6 +204,10 @@ function Service.init()
 			horde = challenge ~= nil and challenge.kind == "Horde",
 		}
 		for player, state in states do
+			require(script.Parent.PlayerDataService).observeNativeWaveMaterials(
+				player,
+				Experience.getMaterialsOnFloor()
+			)
 			require(script.Parent.PlayerDataService).observeNativeWaveTrees(player, trees)
 			if Run.getParticipantState(player) == "Alive" then
 				require(script.Parent.PlayerDataService).observeNativeWaveHp(player, Combat.getHp(player))

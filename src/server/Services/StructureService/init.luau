@@ -617,7 +617,7 @@ function Service.sourceCount(player: Player): number
 end
 -- Permanent pet effects, not visible objects or the mines they create, determine Beast Master's bonuses.
 function Service.petSourceCount(player: Player): number
-	local total = 0
+	local total = Stats.getStat(player, "jellyshieldCount")
 	for id, count in Stats.getItemCounts(player) do
 		if Config.Items.byId[id].pet then
 			total += count

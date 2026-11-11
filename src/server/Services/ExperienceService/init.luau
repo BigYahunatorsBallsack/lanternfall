@@ -509,6 +509,9 @@ end
 function ExperienceService.getOrbCount(): number
 	return field:count()
 end
+function ExperienceService.getMaterialsOnFloor(): number
+	return field:total()
+end
 
 -- Trusted server pet adapters query existing material objects; no client can choose a reward or collector.
 function ExperienceService.getMaterialRevision(): number

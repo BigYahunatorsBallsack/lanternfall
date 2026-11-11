@@ -24,6 +24,7 @@ local PlaceService = require(script.Parent.PlaceService)
 local PlayerDataService = require(script.Parent.PlayerDataService)
 local RunDirector = require(script.Parent.RunDirector)
 local WeaponService = require(script.Parent.WeaponService)
+local StartPets = require(script.Parent.StartPetService)
 
 local TICK_SECONDS = 0.25 -- invites, countdowns and the quick join queue are checked this often
 
@@ -156,7 +157,11 @@ local function pickOf(player: Player): PlaceRules.Pick?
 	if not classId then
 		return nil
 	end
-	return { classId = classId, weaponId = WeaponService.getStartWeapon(player, classId) }
+	return {
+		classId = classId,
+		weaponId = WeaponService.getStartWeapon(player, classId),
+		petId = StartPets.getStartPet(player, classId),
+	}
 end
 
 -- Sends a group to its run: a reserved run server, or in Studio a run in this server.
