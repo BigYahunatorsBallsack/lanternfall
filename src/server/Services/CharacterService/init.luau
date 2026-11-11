@@ -50,6 +50,8 @@ local function countsOf(player: Player, state: State, hp: number, maxHp: number)
 		shards = Shop.getShards(player),
 		missingHealthPercent = if maxHp > 0 then math.round((1 - hp / maxHp) * 100) else 0,
 		freeWeaponSlots = math.max(0, Weapons.getMaxWeapons(player) - #weapons),
+		distinctWeapons = 0,
+		tier4Weapons = 0,
 		livingTrees = 0,
 		structures = 0,
 		distinctItems = 0,
@@ -67,6 +69,12 @@ local function countsOf(player: Player, state: State, hp: number, maxHp: number)
 	end
 	local weaponCounts: { [string]: number } = {}
 	for _, weapon in weapons do
+		if not weaponCounts[weapon.id] then
+			counts.distinctWeapons += 1
+		end
+		if weapon.tier >= Config.Player.maxWeaponTier then
+			counts.tier4Weapons += 1
+		end
 		weaponCounts[weapon.id] = (weaponCounts[weapon.id] or 0) + 1
 	end
 	for _, count in weaponCounts do

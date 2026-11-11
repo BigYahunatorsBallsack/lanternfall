@@ -19822,6 +19822,8 @@ local Catalog: { [string]: CatalogCharacter } = {
 		contentSet = "mainGame",
 		free = false,
 		stats = {
+			damage = 50,
+			attackSpeed = 50,
 			speed = 10,
 			pickupRange = 200,
 			knockback = 15,
@@ -19835,10 +19837,7 @@ local Catalog: { [string]: CatalogCharacter } = {
 		perTierWeapon = {},
 		weaponClassStats = {},
 		weaponKindStats = {},
-		stationaryStats = {
-			damage = 50,
-			attackSpeed = 50,
-		},
+		stationaryStats = {},
 		startWeapon = "RitualDirk",
 		startWeapons = {
 			"RitualDirk",
