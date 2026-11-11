@@ -307,9 +307,7 @@ def compile_catalog(source, weapons, items):
             elif kind == "effect.gd" and stat and custom in ("tier_i_weapon_effects", "tier_iv_weapon_effects") and storage == 1:
                 add(row["perTierWeapon"].setdefault(1 if custom == "tier_i_weapon_effects" else 4, {}), stat, amount)
             elif kind == "effect.gd" and stat and not custom and storage == 0:
-                # Soldier can only attack stationary; its combat bonuses are consumed by the stationary policy.
-                target = row["stationaryStats"] if slug == "soldier" and stat in ("damage", "attackSpeed") else row["stats"]
-                add(target, stat, amount)
+                add(row["stats"], stat, amount)
             elif kind == "effect.gd" and key == "dodge_cap" and not custom and storage == 2:
                 row["stats"]["dodgeCap"] = amount
             elif kind == "effect.gd" and key == "can_attack_while_moving" and storage == 2:

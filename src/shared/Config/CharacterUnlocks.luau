@@ -21,6 +21,50 @@ export type Challenge = {
 	| { kind: "RunConsumables", threshold: number }
 )
 local rules: { [string]: Challenge } = {
+	Soldier = {
+		kind = "WinDanger",
+		danger = 2,
+		challengeId = "chal_difficulty_2",
+		source = "res://challenges/chal_difficulty_2_data.tres",
+		sourceMd5 = "e3b16b544fc32bb671c893c9a8c1fcdd",
+		requirement = "Win a run in Danger 2",
+	},
+	Speedy = {
+		kind = "Stat",
+		stat = "speed",
+		threshold = 50,
+		challengeId = "chal_fast",
+		source = "res://challenges/fast_data.tres",
+		sourceMd5 = "d4916975e9e0bfc5b5a2df4d71a4d3ec",
+		requirement = "Reach +50 % Speed",
+	},
+	Vagabond = {
+		kind = "Inventory",
+		count = "distinctWeapons",
+		threshold = 6,
+		challengeId = "chal_experimentation",
+		source = "res://challenges/experimentation_data.tres",
+		sourceMd5 = "14aafb4af1fd9d04a52fd3c20dfc17d8",
+		requirement = "Hold 6 different weapons at once",
+	},
+	King = {
+		kind = "Inventory",
+		count = "tier4Weapons",
+		threshold = 3,
+		challengeId = "chal_bourgeoisie",
+		source = "res://challenges/bourgeoisie_data.tres",
+		sourceMd5 = "95074eaaf396e6f3d6cd1d693130a92a",
+		requirement = "Hold 3 tier IV weapons at once",
+	},
+	Loud = {
+		kind = "EnemiesKilled",
+		threshold = 5000,
+		challengeId = "chal_survivor_3",
+		source = "res://challenges/survivor_3_data.tres",
+		sourceMd5 = "6045501d8c81677d2e2ea8c8f7d5cb5c",
+		requirement = "Kill 5000 enemies",
+	},
+
 	CandleScholar = {
 		kind = "Stat",
 		stat = "level",
