@@ -93,7 +93,7 @@ Jeder Strang ändert nur **seine** Zeile (Regeln: `docs/PARALLEL.md`).
 | Strang | KI | Aktuelles Paket | Branch / PR | Stand | Danach |
 | --- | --- | --- | --- | --- | --- |
 | A – Engine und Ablauf | Claude | Paket 24 Launch-Paket (Medium) | `wp-24-launch` | fertig, selbst gemerged | Plan bis zum Launch abgeschlossen; als Nächstes IDs des Owners eintragen (Live-Experience, Badges, Musik), dann Live-Ops |
-| B - Inhalte und Spieler-Regeln | ChatGPT | B10: siebtes Main-Game-Fünferpaket | `wp-b10-main-five-seven` | Soldier, Speedy, Vagabond, King und Loud code-vorbereitet;43/74, echte Bilder/Studio offen | Restliche7 Main-Game-Pakete (High) |
+| B - Inhalte und Spieler-Regeln | ChatGPT | B10: achtes Main-Game-Fünferpaket läuft | `wp-b10-main-five-eight` | Baby/Jack/Vampire gezielt geprüft; Pets und Nightmare1 für BeastMaster/Wounded offen, weiterhin43/74 auf main | Fünferpaket vervollständigen (High) |
 
 ## Feste Entscheidungen des Owners
 

@@ -174,7 +174,8 @@ function DangerRules.planBlock(
 	block: number,
 	random: (number) -> number,
 	roll: () -> number,
-	pool: { string }
+	pool: { string },
+	hordeChance: number?
 ): { [number]: Challenge }
 	local plan: { [number]: Challenge } = {}
 	local count = DangerRules.championsIn(block)
@@ -195,7 +196,9 @@ function DangerRules.planBlock(
 	for index = 1, math.min(DangerRules.level(danger).challengeSlots, #slots) do
 		local slot = slots[index]
 		local wave = slot[random(#slot)] + offset
-		local horde = block == 0 and index < #slots and roll() < Difficulty.hordeChance
+		local horde = block == 0
+			and index < #slots
+			and roll() < (if hordeChance ~= nil then hordeChance else Difficulty.hordeChance)
 		if horde then
 			plan[wave] = { kind = "Horde", champions = {} }
 		else

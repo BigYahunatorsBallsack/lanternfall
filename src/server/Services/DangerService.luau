@@ -11,6 +11,7 @@ local RunService = game:GetService("RunService")
 local Shared = ReplicatedStorage.Shared
 local Config = require(Shared.Config)
 local DangerRules = require(Shared.Util.DangerRules)
+local HordeOverrides = require(Shared.Config.CharacterMechanics).hordeChanceOverrides
 local Net = require(Shared.Net)
 local Types = require(Shared.Net.Types)
 
@@ -49,12 +50,19 @@ local function planUpTo(wave: number)
 	for k = 0, block do
 		if not plannedBlocks[k] then
 			plannedBlocks[k] = true
+			local hordeChance: number? = nil
+			for _, player in RunDirector.getParticipants() do
+				local id = RunDirector.getParticipantClassId(player)
+				if id and HordeOverrides[id] ~= nil then
+					hordeChance = HordeOverrides[id]
+				end
+			end
 			local random = RandomService.stream("Spawns")
 			local blockPlan = DangerRules.planBlock(RunDirector.getRunOptions().danger, k, function(n: number): number
 				return random:NextInteger(1, n)
 			end, function(): number
 				return random:NextNumber()
-			end, pool)
+			end, pool, hordeChance)
 			for number, challenge in blockPlan do
 				plan[number] = challenge
 			end

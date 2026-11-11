@@ -41,6 +41,7 @@ export type KillInfo = {
 	elite: boolean, -- a Gloom Elite: drops a chest (LootService)
 	boss: boolean, -- a boss (WP10, BossService)
 	killer: Player?,
+	aliveSeconds: number?, -- authoritative age of a credited death; native Giant Slayer boundary
 	digCrateChance: number?, -- Shovel's killing hitbox; LootService rolls before ordinary consumables
 }
 
@@ -815,6 +816,9 @@ function EnemySim.damage(
 			elite = kind.elite == true,
 			boss = kind.boss ~= nil,
 			killer = source,
+			aliveSeconds = if nativeBases[id]
+				then math.max(0, workspace:GetServerTimeNow() - nativeBases[id].spawnedAt)
+				else nil,
 			digCrateChance = if ownerHitbox then digCrateChance else nil,
 		} :: KillInfo)
 	end

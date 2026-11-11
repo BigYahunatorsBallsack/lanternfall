@@ -319,7 +319,10 @@ function PlayerDataService.observeNativeStats(player: Player, sheet: { [string]:
 		observe(rule.stat, rule.threshold, rule.challengeId)
 	end
 	for _, rule in NativeCharacterAccess do
-		if rule.kind == "Stat" then
+		if
+			rule.kind == "Stat"
+			and (not rule.beforeWave or require(script.Parent.RunDirector).getWave() < rule.beforeWave)
+		then
 			observe(rule.stat, rule.threshold, rule.challengeId, rule.comparison)
 		end
 	end
@@ -464,6 +467,24 @@ function PlayerDataService.observeNativeWaveHp(player: Player, hp: number)
 	end
 	for _, rule in NativeCharacterAccess do
 		if rule.kind == "WaveHp" and hp == rule.threshold then
+			local key = CharacterAccess.challengeKey(rule.challengeId)
+			if not data.achievements[key] then
+				data.achievements[key] = true
+				sendInfo(player)
+				PlayerDataService.Changed:Fire(player)
+			end
+		end
+	end
+end
+
+-- A credited original boss/elite kill; cleanup and ordinary Gloom enemies do not qualify.
+function PlayerDataService.observeNativeFastBossKill(player: Player, seconds: number)
+	local data = PlayerDataService.get(player)
+	if not data then
+		return
+	end
+	for _, rule in NativeCharacterAccess do
+		if rule.kind == "FastBossKill" and seconds <= rule.seconds then
 			local key = CharacterAccess.challengeKey(rule.challengeId)
 			if not data.achievements[key] then
 				data.achievements[key] = true

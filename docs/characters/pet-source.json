@@ -1,0 +1,3025 @@
+{
+  "version": "1.2.0.1",
+  "steamBuild": 26406319,
+  "pets": [
+    {
+      "slug": "bonk_dog",
+      "id": "BonkDog",
+      "source": "res://items/all/03_paws_n_claws/bonk_dog/bonk_dog.tres",
+      "sourceMd5": "55b63bb818429af42634426e41236a4a",
+      "nameKey": "ITEM_BONK_DOG",
+      "tier": 2,
+      "price": 40,
+      "limit": -1,
+      "tags": [
+        "stat_melee_damage",
+        "explosive",
+        "pet"
+      ],
+      "iconSource": "res://items/all/03_paws_n_claws/bonk_dog/meleedog_bowl_icon.png",
+      "effectSource": "res://items/all/03_paws_n_claws/bonk_dog/bonk_dog_effect_0.tres",
+      "effectMd5": "6e47c52bd3b9fbba9d8fdb4c55fff647",
+      "effect": {
+        "value": 1,
+        "storage_method": 0,
+        "effect_sign": 3,
+        "custom_args": [
+          {
+            "resource": "res://items/all/03_paws_n_claws/bonk_dog/bonk_dog_effect_0.tres::1",
+            "resourceType": "Resource"
+          }
+        ],
+        "scene": {
+          "resource": "res://entities/units/pet/bonk_dog/bonk_dog.tscn",
+          "resourceType": "PackedScene"
+        },
+        "is_structure": false,
+        "weapon_stats": {
+          "resource": "res://entities/units/pet/bonk_dog/bonk_dog_weapon_stats.tres",
+          "resourceType": "Resource"
+        },
+        "explosion_effect": {
+          "resource": "res://entities/units/pet/bonk_dog/bonk_dog_exploding_effect.tres",
+          "resourceType": "Resource"
+        }
+      }
+    },
+    {
+      "slug": "catling_gun",
+      "id": "CatlingGun",
+      "source": "res://items/all/03_paws_n_claws/catling_gun/catling_gun.tres",
+      "sourceMd5": "6a1f4f9995fc642ffc173e23e97c70fa",
+      "nameKey": "ITEM_CATLING_GUN",
+      "tier": 2,
+      "price": 34,
+      "limit": -1,
+      "tags": [
+        "pet",
+        "stat_ranged_damage"
+      ],
+      "iconSource": "res://items/all/03_paws_n_claws/catling_gun/catling_gun_box_icon.png",
+      "effectSource": "res://items/all/03_paws_n_claws/catling_gun/catling_gun_effect_0.tres",
+      "effectMd5": "a62dd514c221307c98116b4a801e6a30",
+      "effect": {
+        "value": 1,
+        "storage_method": 0,
+        "effect_sign": 3,
+        "custom_args": [
+          {
+            "resource": "res://items/all/03_paws_n_claws/catling_gun/catling_gun_effect_0.tres::1",
+            "resourceType": "Resource"
+          }
+        ],
+        "scene": {
+          "resource": "res://entities/units/pet/catling_gun/catling_gun.tscn",
+          "resourceType": "PackedScene"
+        },
+        "is_structure": false,
+        "weapon_stats": {
+          "resource": "res://entities/units/pet/catling_gun/catling_gun_weapon_stats.tres",
+          "resourceType": "Resource"
+        }
+      }
+    },
+    {
+      "slug": "blazemander",
+      "id": "Blazemander",
+      "source": "res://items/all/03_paws_n_claws/blazemander/blazemander.tres",
+      "sourceMd5": "09870448e535e871cf682e85b4177320",
+      "nameKey": "ITEM_BLAZEMANDER",
+      "tier": 2,
+      "price": 40,
+      "limit": -1,
+      "tags": [
+        "stat_elemental_damage",
+        "pet"
+      ],
+      "iconSource": "res://items/all/03_paws_n_claws/blazemander/blazemander_egg_icon.png",
+      "effectSource": "res://items/all/03_paws_n_claws/blazemander/blazemander_effect_0.tres",
+      "effectMd5": "1c27144a04f0ad0f1dd6b6989695574b",
+      "effect": {
+        "value": 1,
+        "storage_method": 0,
+        "effect_sign": 3,
+        "custom_args": [
+          {
+            "resource": "res://items/all/03_paws_n_claws/blazemander/blazemander_effect_0.tres::1",
+            "resourceType": "Resource"
+          }
+        ],
+        "scene": {
+          "resource": "res://entities/units/pet/blazemander/blazemander.tscn",
+          "resourceType": "PackedScene"
+        },
+        "is_structure": false,
+        "weapon_stats": {
+          "resource": "res://entities/units/pet/blazemander/blazemander_weapon_stats.tres",
+          "resourceType": "Resource"
+        },
+        "ranged_weapon_stats": {
+          "resource": "res://entities/units/pet/blazemander/blazemander_ranged_weapon_stats.tres",
+          "resourceType": "Resource"
+        },
+        "burning_data": {
+          "resource": "res://entities/units/pet/blazemander/blazemander_burning_data.tres",
+          "resourceType": "Resource"
+        }
+      }
+    },
+    {
+      "slug": "bot_o_mine",
+      "id": "BotOMine",
+      "source": "res://items/all/03_paws_n_claws/bot_o_mine/bot_o_mine.tres",
+      "sourceMd5": "471c4b70b39ea3b2d6579004a3436be8",
+      "nameKey": "ITEM_BOT_O_MINE",
+      "tier": 2,
+      "price": 55,
+      "limit": -1,
+      "tags": [
+        "stat_engineering",
+        "pet",
+        "structure"
+      ],
+      "iconSource": "res://items/all/03_paws_n_claws/bot_o_mine/bot_o_mine_remote_icon.png",
+      "effectSource": "res://items/all/03_paws_n_claws/bot_o_mine/bot_o_mine_effect_0.tres",
+      "effectMd5": "c03da115d8504c3287357d0f8487131c",
+      "effect": {
+        "value": 1,
+        "storage_method": 0,
+        "effect_sign": 3,
+        "custom_args": [
+          {
+            "resource": "res://items/all/03_paws_n_claws/bot_o_mine/bot_o_mine_effect_0.tres::1",
+            "resourceType": "Resource"
+          }
+        ],
+        "scene": {
+          "resource": "res://entities/units/pet/bot_o_mine/bot_o_mine.tscn",
+          "resourceType": "PackedScene"
+        },
+        "is_structure": true,
+        "weapon_stats": {
+          "resource": "res://entities/units/pet/bot_o_mine/bot_o_mine_weapon_stats.tres",
+          "resourceType": "Resource"
+        },
+        "landmine_effect_stat": {
+          "resource": "res://entities/units/pet/bot_o_mine/bot_o_mine_landmines_effect.tres",
+          "resourceType": "Resource"
+        }
+      }
+    },
+    {
+      "slug": "lootworm",
+      "id": "Lootworm",
+      "source": "res://items/all/03_paws_n_claws/lootworm/lootworm.tres",
+      "sourceMd5": "d484afe30550318b555db6dd961d2b77",
+      "nameKey": "ITEM_LOOTWORM",
+      "tier": 1,
+      "price": 30,
+      "limit": 1,
+      "tags": [
+        "economy",
+        "pickup",
+        "pet"
+      ],
+      "iconSource": "res://items/all/03_paws_n_claws/lootworm/egg_lootworm_icon.png",
+      "effectSource": "res://items/all/03_paws_n_claws/lootworm/lootworm_effect_0.tres",
+      "effectMd5": "ab8d1e742d6f94a6222c59c806022471",
+      "effect": {
+        "value": 1,
+        "storage_method": 0,
+        "effect_sign": 3,
+        "custom_args": [
+          {
+            "resource": "res://items/all/03_paws_n_claws/lootworm/lootworm_effect_0.tres::1",
+            "resourceType": "Resource"
+          }
+        ],
+        "scene": {
+          "resource": "res://entities/units/pet/lootworm/lootworm.tscn",
+          "resourceType": "PackedScene"
+        },
+        "is_structure": false,
+        "double_chance": 0.1
+      }
+    },
+    {
+      "slug": "ratzilla",
+      "id": "Ratzilla",
+      "source": "res://items/all/03_paws_n_claws/ratzilla/ratzilla.tres",
+      "sourceMd5": "3f66c9f9e8c84d39274d5ca124c3fd11",
+      "nameKey": "ITEM_RATZILLA",
+      "tier": 1,
+      "price": 30,
+      "limit": -1,
+      "tags": [
+        "stat_max_hp",
+        "pet"
+      ],
+      "iconSource": "res://items/all/03_paws_n_claws/ratzilla/ratzilla_icon.png",
+      "effectSource": "res://items/all/03_paws_n_claws/ratzilla/ratzilla_effect_0.tres",
+      "effectMd5": "d9fbebb3dd279f11dd67af2b9235f198",
+      "effect": {
+        "value": 1,
+        "storage_method": 0,
+        "effect_sign": 3,
+        "custom_args": [
+          {
+            "resource": "res://items/all/03_paws_n_claws/ratzilla/ratzilla_effect_0.tres::1",
+            "resourceType": "Resource"
+          }
+        ],
+        "scene": {
+          "resource": "res://entities/units/pet/ratzilla/ratzilla.tscn",
+          "resourceType": "PackedScene"
+        },
+        "is_structure": false,
+        "weapon_stats": {
+          "resource": "res://entities/units/pet/ratzilla/ratzilla_weapon_stats.tres",
+          "resourceType": "Resource"
+        }
+      }
+    }
+  ],
+  "resources": {
+    "res://entities/units/pet/bonk_dog/bonk_dog_stats.tres": {
+      "sourceMd5": "78cad8ed5bcfe45499c3e0c25a545e8a",
+      "properties": {
+        "health": 10,
+        "health_increase_each_wave": 2.0,
+        "speed": 400,
+        "speed_randomization": 0,
+        "damage": 0,
+        "damage_increase_each_wave": 0.6,
+        "attack_cd": 30.0,
+        "value": 1,
+        "knockback_resistance": 0.0,
+        "gold_spread": 0,
+        "can_drop_consumables": true,
+        "always_drop_consumables": false,
+        "base_drop_chance": 0.01,
+        "item_drop_chance": 0.01,
+        "min_consumable_tier": 0,
+        "max_consumable_tier": 0,
+        "armor": 0,
+        "armor_increase_each_wave": 0.0,
+        "generate_blood": true
+      }
+    },
+    "res://entities/units/pet/bonk_dog/bonk_dog_exploding_effect.tres": {
+      "sourceMd5": "04f0013cddeaef25fbb0baabc2cf3858",
+      "properties": {
+        "value": 0,
+        "storage_method": 0,
+        "effect_sign": 3,
+        "custom_args": [],
+        "chance": 1.0,
+        "scale": 1.5,
+        "base_smoke_amount": 40,
+        "stats": {
+          "resource": "res://entities/units/pet/bonk_dog/bonk_dog_explosion_stats.tres",
+          "resourceType": "Resource"
+        },
+        "scale_with_missing_health": false
+      }
+    },
+    "res://entities/units/pet/bonk_dog/bonk_dog_explosion_stats.tres": {
+      "sourceMd5": "a69885ddcb90918e34a93c900b233679",
+      "properties": {
+        "cooldown": 300,
+        "damage": 8,
+        "accuracy": 1.0,
+        "crit_chance": 0.0,
+        "crit_damage": 1.5,
+        "min_range": 0,
+        "max_range": 150,
+        "knockback": 2,
+        "knockback_piercing": 0.0,
+        "can_have_positive_knockback": true,
+        "can_have_negative_knockback": false,
+        "effect_scale": 1.0,
+        "scaling_stats": [
+          [
+            "stat_melee_damage",
+            0.4
+          ]
+        ],
+        "lifesteal": 0.0,
+        "is_healing": false,
+        "recoil": 25,
+        "recoil_duration": 0.1,
+        "additional_cooldown_every_x_shots": -1,
+        "additional_cooldown_multiplier": -1.0,
+        "speed_percent_modifier": 0
+      }
+    },
+    "res://entities/units/pet/bonk_dog/bonk_dog_weapon_stats.tres": {
+      "sourceMd5": "a55b539c4dc39b6061621c70ce8e751e",
+      "properties": {
+        "cooldown": 28,
+        "damage": 10,
+        "accuracy": 1.0,
+        "crit_chance": 0.0,
+        "crit_damage": 1.5,
+        "min_range": 0,
+        "max_range": 150,
+        "knockback": 2,
+        "knockback_piercing": 0.0,
+        "can_have_positive_knockback": true,
+        "can_have_negative_knockback": false,
+        "effect_scale": 1.0,
+        "scaling_stats": [
+          [
+            "stat_melee_damage",
+            0.6
+          ]
+        ],
+        "lifesteal": 0.0,
+        "is_healing": false,
+        "recoil": 25,
+        "recoil_duration": 0.1,
+        "additional_cooldown_every_x_shots": -1,
+        "additional_cooldown_multiplier": -1.0,
+        "speed_percent_modifier": 0,
+        "deal_dmg_on_return": false,
+        "attack_type": 0,
+        "alternate_attack_type": false
+      }
+    },
+    "res://entities/units/pet/catling_gun/catling_gun_stats.tres": {
+      "sourceMd5": "942bd6f78c1539ca793c1cac9345db9b",
+      "properties": {
+        "health": 10,
+        "health_increase_each_wave": 2.0,
+        "speed": 100,
+        "speed_randomization": 0,
+        "damage": 0,
+        "damage_increase_each_wave": 0.6,
+        "attack_cd": 30.0,
+        "value": 1,
+        "knockback_resistance": 0.0,
+        "gold_spread": 0,
+        "can_drop_consumables": true,
+        "always_drop_consumables": false,
+        "base_drop_chance": 0.01,
+        "item_drop_chance": 0.01,
+        "min_consumable_tier": 0,
+        "max_consumable_tier": 0,
+        "armor": 0,
+        "armor_increase_each_wave": 0.0,
+        "generate_blood": true
+      }
+    },
+    "res://entities/units/pet/catling_gun/catling_gun_weapon_stats.tres": {
+      "sourceMd5": "a722d16d977db46c253a15ca4bffb99a",
+      "properties": {
+        "cooldown": 55,
+        "damage": 10,
+        "accuracy": 1.0,
+        "crit_chance": 0.0,
+        "crit_damage": 1.5,
+        "min_range": 0,
+        "max_range": 500,
+        "knockback": 0,
+        "knockback_piercing": 0.0,
+        "can_have_positive_knockback": true,
+        "can_have_negative_knockback": false,
+        "effect_scale": 1.0,
+        "scaling_stats": [
+          [
+            "stat_ranged_damage",
+            0.6
+          ]
+        ],
+        "lifesteal": 0.0,
+        "is_healing": false,
+        "recoil": 10,
+        "recoil_duration": 0.05,
+        "additional_cooldown_every_x_shots": -1,
+        "additional_cooldown_multiplier": -1.0,
+        "speed_percent_modifier": 0,
+        "can_shoot_without_target": false,
+        "nb_projectiles": 1,
+        "projectile_spread": 0.0,
+        "piercing": 0,
+        "piercing_dmg_reduction": 0.5,
+        "bounce": 0,
+        "bounce_dmg_reduction": 0.5,
+        "can_bounce": true,
+        "projectile_speed": 3000,
+        "increase_projectile_speed_with_range": false
+      }
+    },
+    "res://entities/units/pet/blazemander/blazemander_stats.tres": {
+      "sourceMd5": "caaf9e9e23b2cbd46bbdaea501025112",
+      "properties": {
+        "health": 10,
+        "health_increase_each_wave": 2.0,
+        "speed": 400,
+        "speed_randomization": 0,
+        "damage": 0,
+        "damage_increase_each_wave": 0.6,
+        "attack_cd": 30.0,
+        "value": 1,
+        "knockback_resistance": 0.0,
+        "gold_spread": 0,
+        "can_drop_consumables": true,
+        "always_drop_consumables": false,
+        "base_drop_chance": 0.01,
+        "item_drop_chance": 0.01,
+        "min_consumable_tier": 0,
+        "max_consumable_tier": 0,
+        "armor": 0,
+        "armor_increase_each_wave": 0.0,
+        "generate_blood": true
+      }
+    },
+    "res://entities/units/pet/blazemander/blazemander_burning_data.tres": {
+      "sourceMd5": "a598a4c056b5f6fe72eeaf262ba27ab7",
+      "properties": {
+        "chance": 1.0,
+        "damage": 3,
+        "duration": 5,
+        "spread": 0,
+        "scaling_stats": [
+          [
+            "stat_elemental_damage",
+            0.5
+          ]
+        ],
+        "is_global_burn": false
+      }
+    },
+    "res://entities/units/pet/blazemander/blazemander_ranged_weapon_stats.tres": {
+      "sourceMd5": "b3d863dabe0aecc322fc12ada527dfcd",
+      "properties": {
+        "cooldown": 240,
+        "damage": 1,
+        "accuracy": 0.6,
+        "crit_chance": 0.0,
+        "crit_damage": 1.5,
+        "min_range": 0,
+        "max_range": 300,
+        "knockback": 0,
+        "knockback_piercing": 0.0,
+        "can_have_positive_knockback": true,
+        "can_have_negative_knockback": false,
+        "effect_scale": 1.0,
+        "scaling_stats": [
+          [
+            "stat_elemental_damage",
+            0.01
+          ]
+        ],
+        "lifesteal": 0.0,
+        "is_healing": false,
+        "recoil": 5,
+        "recoil_duration": 0.02,
+        "additional_cooldown_every_x_shots": -1,
+        "additional_cooldown_multiplier": -1.0,
+        "speed_percent_modifier": 0,
+        "can_shoot_without_target": false,
+        "nb_projectiles": 1,
+        "projectile_spread": 3.0,
+        "piercing": 99,
+        "piercing_dmg_reduction": 1.0,
+        "bounce": 0,
+        "bounce_dmg_reduction": 0.5,
+        "can_bounce": true,
+        "projectile_speed": 600,
+        "increase_projectile_speed_with_range": false
+      }
+    },
+    "res://entities/units/pet/blazemander/blazemander_weapon_stats.tres": {
+      "sourceMd5": "f65036389166af9d745e7d7ebae9dbf8",
+      "properties": {
+        "cooldown": 22,
+        "damage": 1,
+        "accuracy": 1.0,
+        "crit_chance": 0.0,
+        "crit_damage": 1.5,
+        "min_range": 0,
+        "max_range": 150,
+        "knockback": 2,
+        "knockback_piercing": 0.0,
+        "can_have_positive_knockback": true,
+        "can_have_negative_knockback": false,
+        "effect_scale": 1.0,
+        "scaling_stats": [
+          [
+            "stat_elemental_damage",
+            0.01
+          ]
+        ],
+        "lifesteal": 0.0,
+        "is_healing": false,
+        "recoil": 25,
+        "recoil_duration": 0.1,
+        "additional_cooldown_every_x_shots": -1,
+        "additional_cooldown_multiplier": -1.0,
+        "speed_percent_modifier": 0,
+        "deal_dmg_on_return": false,
+        "attack_type": 0,
+        "alternate_attack_type": false
+      }
+    },
+    "res://entities/units/pet/bot_o_mine/bot_o_mine_stats.tres": {
+      "sourceMd5": "e6de49d5c79ec851e4bac1c66d4c805b",
+      "properties": {
+        "health": 1,
+        "health_increase_each_wave": 1.0,
+        "speed": 200,
+        "speed_randomization": 0,
+        "damage": 0,
+        "damage_increase_each_wave": 0.6,
+        "attack_cd": 30.0,
+        "value": 1,
+        "knockback_resistance": 0.0,
+        "gold_spread": 0,
+        "can_drop_consumables": true,
+        "always_drop_consumables": false,
+        "base_drop_chance": 0.01,
+        "item_drop_chance": 0.01,
+        "min_consumable_tier": 0,
+        "max_consumable_tier": 0,
+        "armor": 0,
+        "armor_increase_each_wave": 0.0,
+        "generate_blood": true
+      }
+    },
+    "res://entities/units/pet/bot_o_mine/bot_o_mine_landmines_effect.tres": {
+      "sourceMd5": "a7b3c991e2d6f945773f507562a0d1ec",
+      "properties": {
+        "value": 1,
+        "storage_method": 0,
+        "effect_sign": 3,
+        "custom_args": [],
+        "spawn_cooldown": 300,
+        "scene": {
+          "resource": "res://entities/structures/landmine/landmine.tscn",
+          "resourceType": "PackedScene"
+        },
+        "stats": {
+          "resource": "res://items/all/00_base_game/landmines/landmine_stats.tres",
+          "resourceType": "Resource"
+        },
+        "effects": [
+          {
+            "resource": "res://items/all/00_base_game/landmines/landmine_exploding_effect.tres",
+            "resourceType": "Resource"
+          }
+        ],
+        "spawn_in_center": -1,
+        "spawn_around_player": -1,
+        "can_be_grouped": false,
+        "is_pet": true
+      }
+    },
+    "res://items/all/00_base_game/landmines/landmine_exploding_effect.tres": {
+      "sourceMd5": "3a31debc1b4f118fc0a167419cfc1508",
+      "properties": {
+        "value": 0,
+        "storage_method": 0,
+        "effect_sign": 3,
+        "custom_args": [],
+        "chance": 1.0,
+        "scale": 1.75,
+        "base_smoke_amount": 40,
+        "scale_with_missing_health": false
+      }
+    },
+    "res://items/all/00_base_game/landmines/landmine_stats.tres": {
+      "sourceMd5": "97cae06511c662e47ebc787703e4041d",
+      "properties": {
+        "cooldown": 2,
+        "damage": 10,
+        "accuracy": 1.0,
+        "crit_chance": 0.0,
+        "crit_damage": 2.0,
+        "min_range": 0,
+        "max_range": 0,
+        "knockback": 0,
+        "knockback_piercing": 0.0,
+        "can_have_positive_knockback": true,
+        "can_have_negative_knockback": false,
+        "effect_scale": 1.0,
+        "scaling_stats": [
+          [
+            "stat_engineering",
+            1.0
+          ]
+        ],
+        "lifesteal": 0.0,
+        "is_healing": false,
+        "recoil": 25,
+        "recoil_duration": 0.1,
+        "additional_cooldown_every_x_shots": -1,
+        "additional_cooldown_multiplier": -1.0,
+        "speed_percent_modifier": 0,
+        "can_shoot_without_target": false,
+        "nb_projectiles": 1,
+        "projectile_spread": 0.0,
+        "piercing": 0,
+        "piercing_dmg_reduction": 0.5,
+        "bounce": 0,
+        "bounce_dmg_reduction": 0.5,
+        "can_bounce": true,
+        "projectile_speed": 3000,
+        "increase_projectile_speed_with_range": false
+      }
+    },
+    "res://entities/units/pet/bot_o_mine/bot_o_mine_weapon_stats.tres": {
+      "sourceMd5": "74bd3e6071e3119eed7ddfd46a2f6372",
+      "properties": {
+        "cooldown": 32,
+        "damage": 10,
+        "accuracy": 1.0,
+        "crit_chance": 0.0,
+        "crit_damage": 1.5,
+        "min_range": 0,
+        "max_range": 300,
+        "knockback": 0,
+        "knockback_piercing": 0.0,
+        "can_have_positive_knockback": true,
+        "can_have_negative_knockback": false,
+        "effect_scale": 1.0,
+        "scaling_stats": [
+          [
+            "stat_engineering",
+            1.0
+          ]
+        ],
+        "lifesteal": 0.0,
+        "is_healing": false,
+        "recoil": 10,
+        "recoil_duration": 0.05,
+        "additional_cooldown_every_x_shots": -1,
+        "additional_cooldown_multiplier": -1.0,
+        "speed_percent_modifier": 0,
+        "can_shoot_without_target": false,
+        "nb_projectiles": 1,
+        "projectile_spread": 0.0,
+        "piercing": 0,
+        "piercing_dmg_reduction": 0.5,
+        "bounce": 0,
+        "bounce_dmg_reduction": 0.5,
+        "can_bounce": true,
+        "projectile_speed": 3000,
+        "increase_projectile_speed_with_range": false
+      }
+    },
+    "res://entities/units/pet/lootworm/lootworm_weapon_stats.tres": {
+      "sourceMd5": "3ec108441248893dad00193d2491e4c3",
+      "properties": {
+        "cooldown": 5,
+        "damage": 1,
+        "accuracy": 1.0,
+        "crit_chance": 0.0,
+        "crit_damage": 1.5,
+        "min_range": 0,
+        "max_range": 150,
+        "knockback": 2,
+        "knockback_piercing": 0.0,
+        "can_have_positive_knockback": true,
+        "can_have_negative_knockback": false,
+        "effect_scale": 1.0,
+        "scaling_stats": [],
+        "lifesteal": 0.0,
+        "is_healing": false,
+        "recoil": 25,
+        "recoil_duration": 0.1,
+        "additional_cooldown_every_x_shots": -1,
+        "additional_cooldown_multiplier": -1.0,
+        "speed_percent_modifier": 0,
+        "deal_dmg_on_return": false,
+        "attack_type": 0,
+        "alternate_attack_type": false
+      }
+    },
+    "res://entities/units/pet/lootworm/lootworm_stats.tres": {
+      "sourceMd5": "00248ac5ffa242b6de95a6a16656de12",
+      "properties": {
+        "health": 10,
+        "health_increase_each_wave": 2.0,
+        "speed": 250,
+        "speed_randomization": 0,
+        "damage": 0,
+        "damage_increase_each_wave": 0.6,
+        "attack_cd": 30.0,
+        "value": 1,
+        "knockback_resistance": 0.0,
+        "gold_spread": 0,
+        "can_drop_consumables": true,
+        "always_drop_consumables": false,
+        "base_drop_chance": 0.01,
+        "item_drop_chance": 0.01,
+        "min_consumable_tier": 0,
+        "max_consumable_tier": 0,
+        "armor": 0,
+        "armor_increase_each_wave": 0.0,
+        "generate_blood": true
+      }
+    },
+    "res://entities/units/pet/ratzilla/ratzilla_stats.tres": {
+      "sourceMd5": "463c58a6a6c39a529881d960e56b5877",
+      "properties": {
+        "health": 10,
+        "health_increase_each_wave": 2.0,
+        "speed": 500,
+        "speed_randomization": 0,
+        "damage": 1,
+        "damage_increase_each_wave": 0.4,
+        "attack_cd": 40.0,
+        "value": 1,
+        "knockback_resistance": 0.0,
+        "gold_spread": 0,
+        "can_drop_consumables": false,
+        "always_drop_consumables": false,
+        "base_drop_chance": 0.01,
+        "item_drop_chance": 0.01,
+        "min_consumable_tier": 0,
+        "max_consumable_tier": 0,
+        "armor": 0,
+        "armor_increase_each_wave": 0.0,
+        "generate_blood": false
+      }
+    },
+    "res://entities/units/pet/ratzilla/ratzilla_weapon_stats.tres": {
+      "sourceMd5": "5f874c8e1f7ee6d201b9d069613c0e77",
+      "properties": {
+        "cooldown": 25,
+        "damage": 4,
+        "accuracy": 1.0,
+        "crit_chance": 0.0,
+        "crit_damage": 1.5,
+        "min_range": 0,
+        "max_range": 150,
+        "knockback": 1,
+        "knockback_piercing": 0.0,
+        "can_have_positive_knockback": true,
+        "can_have_negative_knockback": false,
+        "effect_scale": 1.0,
+        "scaling_stats": [
+          [
+            "stat_max_hp",
+            0.1
+          ]
+        ],
+        "lifesteal": 0.0,
+        "is_healing": false,
+        "recoil": 25,
+        "recoil_duration": 0.1,
+        "additional_cooldown_every_x_shots": -1,
+        "additional_cooldown_multiplier": -1.0,
+        "speed_percent_modifier": 0,
+        "deal_dmg_on_return": false,
+        "attack_type": 0,
+        "alternate_attack_type": false
+      }
+    }
+  },
+  "scenes": {
+    "res://entities/units/pet/bonk_dog/bonk_dog.tscn": {
+      "sourceMd5": "4a9948ca5c7a9d94a4a43251c9dbaf76",
+      "baseScene": "res://entities/units/pet/pet.tscn",
+      "nodes": [
+        {
+          "name": "BonkDog",
+          "parent": null,
+          "type": null,
+          "scriptSource": "res://entities/units/pet/bonk_dog/bonk_dog.gd",
+          "properties": {
+            "stats": {
+              "resource": "res://entities/units/pet/bonk_dog/bonk_dog_stats.tres",
+              "resourceType": "Resource"
+            },
+            "shoot_projectiles": false,
+            "charge_duration": 0.5,
+            "min_squared_distance_for_jump_attack": 2000.0
+          }
+        },
+        {
+          "name": "Animation",
+          "parent": ".",
+          "type": null,
+          "scriptSource": null,
+          "properties": {
+            "position": {
+              "variantType": "Vector2",
+              "values": [
+                0,
+                -24
+              ]
+            }
+          }
+        },
+        {
+          "name": "Viewport",
+          "parent": "Animation",
+          "type": "Viewport",
+          "scriptSource": null,
+          "properties": {
+            "transparent_bg": true,
+            "hdr": false,
+            "disable_3d": true,
+            "render_target_v_flip": true,
+            "render_target_update_mode": 3
+          }
+        },
+        {
+          "name": "offset",
+          "parent": "Animation/Viewport",
+          "type": "Node2D",
+          "scriptSource": null,
+          "properties": {
+            "position": {
+              "variantType": "Vector2",
+              "values": [
+                100,
+                128.987
+              ]
+            }
+          }
+        },
+        {
+          "name": "body",
+          "parent": "Animation/Viewport/offset",
+          "type": "Sprite",
+          "scriptSource": null,
+          "properties": {
+            "position": {
+              "variantType": "Vector2",
+              "values": [
+                0,
+                -33.778
+              ]
+            }
+          }
+        },
+        {
+          "name": "shadow",
+          "parent": "Animation/Viewport/offset",
+          "type": "Sprite",
+          "scriptSource": null,
+          "properties": {
+            "show_behind_parent": true,
+            "position": {
+              "variantType": "Vector2",
+              "values": [
+                0,
+                5
+              ]
+            }
+          }
+        },
+        {
+          "name": "collar",
+          "parent": "Animation/Viewport/offset",
+          "type": "Sprite",
+          "scriptSource": null,
+          "properties": {
+            "position": {
+              "variantType": "Vector2",
+              "values": [
+                2,
+                -27
+              ]
+            }
+          }
+        },
+        {
+          "name": "head_down",
+          "parent": "Animation/Viewport/offset/collar",
+          "type": "Sprite",
+          "scriptSource": null,
+          "properties": {
+            "position": {
+              "variantType": "Vector2",
+              "values": [
+                0,
+                -1.046
+              ]
+            }
+          }
+        },
+        {
+          "name": "tongue",
+          "parent": "Animation/Viewport/offset/collar/head_down",
+          "type": "Sprite",
+          "scriptSource": null,
+          "properties": {
+            "position": {
+              "variantType": "Vector2",
+              "values": [
+                6,
+                -1
+              ]
+            }
+          }
+        },
+        {
+          "name": "head_top",
+          "parent": "Animation/Viewport/offset/collar/head_down",
+          "type": "Sprite",
+          "scriptSource": null,
+          "properties": {
+            "position": {
+              "variantType": "Vector2",
+              "values": [
+                -1,
+                -4
+              ]
+            }
+          }
+        },
+        {
+          "name": "Sprite",
+          "parent": "Animation",
+          "type": null,
+          "scriptSource": null,
+          "properties": {
+            "position": {
+              "variantType": "Vector2",
+              "values": [
+                1,
+                39.046
+              ]
+            }
+          }
+        },
+        {
+          "name": "hand_pet",
+          "parent": "Animation",
+          "type": "Sprite",
+          "scriptSource": null,
+          "properties": {
+            "visible": false,
+            "position": {
+              "variantType": "Vector2",
+              "values": [
+                30,
+                -67.645
+              ]
+            },
+            "rotation": 0.39619
+          }
+        },
+        {
+          "name": "Collision",
+          "parent": ".",
+          "type": null,
+          "scriptSource": null,
+          "properties": {
+            "visible": false
+          }
+        },
+        {
+          "name": "Hurtbox",
+          "parent": ".",
+          "type": null,
+          "scriptSource": null,
+          "properties": {
+            "visible": false
+          }
+        },
+        {
+          "name": "MovementBehavior",
+          "parent": ".",
+          "type": null,
+          "scriptSource": null,
+          "properties": {
+            "stop_close_to_target": true,
+            "distance_to_target": 100.0
+          }
+        },
+        {
+          "name": "TargetBehavior",
+          "parent": ".",
+          "type": null,
+          "scriptSource": "res://entities/units/target_behavior/closest_enemy_target_behavior.gd",
+          "properties": {
+            "target_player_if_no_target": false,
+            "exclude_elite_and_boss_target": false
+          }
+        },
+        {
+          "name": "Range",
+          "parent": "TargetBehavior",
+          "type": "Area2D",
+          "scriptSource": null,
+          "properties": {
+            "collision_layer": 0,
+            "collision_mask": 4
+          }
+        },
+        {
+          "name": "CollisionShape2D",
+          "parent": "TargetBehavior/Range",
+          "type": "CollisionShape2D",
+          "scriptSource": null,
+          "properties": {
+            "shape": {
+              "resource": "res://entities/units/pet/bonk_dog/bonk_dog.tscn::1",
+              "resourceType": "CircleShape2D"
+            }
+          }
+        },
+        {
+          "name": "Hitbox",
+          "parent": ".",
+          "type": "Area2D",
+          "scriptSource": "res://overlap/hitbox.gd",
+          "properties": {
+            "unique_name_in_owner": true,
+            "visible": false,
+            "position": {
+              "variantType": "Vector2",
+              "values": [
+                0,
+                -20
+              ]
+            },
+            "collision_layer": 1024,
+            "collision_mask": 0
+          }
+        },
+        {
+          "name": "Collision",
+          "parent": "Hitbox",
+          "type": "CollisionShape2D",
+          "scriptSource": null,
+          "properties": {
+            "shape": {
+              "resource": "res://entities/units/pet/bonk_dog/bonk_dog.tscn::2",
+              "resourceType": "CircleShape2D"
+            }
+          }
+        },
+        {
+          "name": "Tween",
+          "parent": ".",
+          "type": "Tween",
+          "scriptSource": null,
+          "properties": {
+            "unique_name_in_owner": true
+          }
+        },
+        {
+          "name": "AudioStreamPlayer2D",
+          "parent": ".",
+          "type": "AudioStreamPlayer2D",
+          "scriptSource": null,
+          "properties": {
+            "unique_name_in_owner": true,
+            "volume_db": -5.0,
+            "panning_strength": 1.62
+          }
+        }
+      ],
+      "shapes": {
+        "1": {
+          "resourceType": "CircleShape2D",
+          "properties": {
+            "radius": 600.0
+          }
+        },
+        "2": {
+          "resourceType": "CircleShape2D",
+          "properties": {
+            "radius": 49.8
+          }
+        }
+      }
+    },
+    "res://entities/units/pet/catling_gun/catling_gun.tscn": {
+      "sourceMd5": "4fabecb76f9d377bf2749bcd9995fe5a",
+      "baseScene": "res://entities/units/pet/pet.tscn",
+      "nodes": [
+        {
+          "name": "CatlingGun",
+          "parent": null,
+          "type": null,
+          "scriptSource": "res://entities/units/pet/catling_gun/catling_gun.gd",
+          "properties": {
+            "stats": {
+              "resource": "res://entities/units/pet/catling_gun/catling_gun_stats.tres",
+              "resourceType": "Resource"
+            },
+            "shoot_projectiles": true,
+            "boosted_attack_speed_ratio": 0.5
+          }
+        },
+        {
+          "name": "Animation",
+          "parent": ".",
+          "type": null,
+          "scriptSource": null,
+          "properties": {
+            "position": {
+              "variantType": "Vector2",
+              "values": [
+                0,
+                -22.0945
+              ]
+            }
+          }
+        },
+        {
+          "name": "Viewport",
+          "parent": "Animation",
+          "type": "Viewport",
+          "scriptSource": null,
+          "properties": {
+            "transparent_bg": true,
+            "hdr": false,
+            "disable_3d": true,
+            "render_target_v_flip": true,
+            "render_target_update_mode": 3
+          }
+        },
+        {
+          "name": "offset",
+          "parent": "Animation/Viewport",
+          "type": "Node2D",
+          "scriptSource": null,
+          "properties": {
+            "position": {
+              "variantType": "Vector2",
+              "values": [
+                125,
+                125
+              ]
+            }
+          }
+        },
+        {
+          "name": "sp_shadow",
+          "parent": "Animation/Viewport/offset",
+          "type": "Sprite",
+          "scriptSource": null,
+          "properties": {
+            "position": {
+              "variantType": "Vector2",
+              "values": [
+                0,
+                -22.393
+              ]
+            }
+          }
+        },
+        {
+          "name": "sp_body",
+          "parent": "Animation/Viewport/offset",
+          "type": "Sprite",
+          "scriptSource": null,
+          "properties": {
+            "position": {
+              "variantType": "Vector2",
+              "values": [
+                0,
+                13.9166
+              ]
+            },
+            "rotation": -0.00527788
+          }
+        },
+        {
+          "name": "sp_tail",
+          "parent": "Animation/Viewport/offset/sp_body",
+          "type": "Sprite",
+          "scriptSource": null,
+          "properties": {
+            "show_behind_parent": true,
+            "position": {
+              "variantType": "Vector2",
+              "values": [
+                -24.9101,
+                -3.92106
+              ]
+            },
+            "rotation": -0.103608,
+            "scale": {
+              "variantType": "Vector2",
+              "values": [
+                1.03745,
+                1
+              ]
+            }
+          }
+        },
+        {
+          "name": "sp_head",
+          "parent": "Animation/Viewport/offset/sp_body",
+          "type": "Sprite",
+          "scriptSource": null,
+          "properties": {
+            "position": {
+              "variantType": "Vector2",
+              "values": [
+                0,
+                -29.9301
+              ]
+            },
+            "rotation": 0.0122173,
+            "scale": {
+              "variantType": "Vector2",
+              "values": [
+                1.00873,
+                1.00496
+              ]
+            }
+          }
+        },
+        {
+          "name": "sp_ear_l",
+          "parent": "Animation/Viewport/offset/sp_body/sp_head",
+          "type": "Sprite",
+          "scriptSource": null,
+          "properties": {
+            "show_behind_parent": true,
+            "position": {
+              "variantType": "Vector2",
+              "values": [
+                -13,
+                -26
+              ]
+            }
+          }
+        },
+        {
+          "name": "sp_ear_r",
+          "parent": "Animation/Viewport/offset/sp_body/sp_head",
+          "type": "Sprite",
+          "scriptSource": null,
+          "properties": {
+            "show_behind_parent": true,
+            "position": {
+              "variantType": "Vector2",
+              "values": [
+                11,
+                -25
+              ]
+            }
+          }
+        },
+        {
+          "name": "Gun_pivot_r",
+          "parent": "Animation/Viewport/offset/sp_body",
+          "type": "Node2D",
+          "scriptSource": null,
+          "properties": {
+            "unique_name_in_owner": true,
+            "position": {
+              "variantType": "Vector2",
+              "values": [
+                42.0834,
+                -15.6947
+              ]
+            },
+            "rotation": 6.28319
+          }
+        },
+        {
+          "name": "gun_offset",
+          "parent": "Animation/Viewport/offset/sp_body/Gun_pivot_r",
+          "type": "Node2D",
+          "scriptSource": null,
+          "properties": {
+            "position": {
+              "variantType": "Vector2",
+              "values": [
+                -18.0209,
+                3.90495
+              ]
+            }
+          }
+        },
+        {
+          "name": "sp_gun",
+          "parent": "Animation/Viewport/offset/sp_body/Gun_pivot_r/gun_offset",
+          "type": "Sprite",
+          "scriptSource": null,
+          "properties": {
+            "show_behind_parent": true,
+            "position": {
+              "variantType": "Vector2",
+              "values": [
+                18,
+                -19.3455
+              ]
+            },
+            "rotation": 0.101544
+          }
+        },
+        {
+          "name": "RightMuzzle",
+          "parent": "Animation/Viewport/offset/sp_body/Gun_pivot_r/gun_offset/sp_gun",
+          "type": "Position2D",
+          "scriptSource": null,
+          "properties": {
+            "unique_name_in_owner": true,
+            "position": {
+              "variantType": "Vector2",
+              "values": [
+                35.543,
+                4.401
+              ]
+            },
+            "rotation": -0.0151844
+          }
+        },
+        {
+          "name": "Gun_pivot_l",
+          "parent": "Animation/Viewport/offset/sp_body",
+          "type": "Node2D",
+          "scriptSource": null,
+          "properties": {
+            "unique_name_in_owner": true,
+            "position": {
+              "variantType": "Vector2",
+              "values": [
+                -33.8839,
+                -22.0957
+              ]
+            }
+          }
+        },
+        {
+          "name": "gun_offset",
+          "parent": "Animation/Viewport/offset/sp_body/Gun_pivot_l",
+          "type": "Node2D",
+          "scriptSource": null,
+          "properties": {
+            "position": {
+              "variantType": "Vector2",
+              "values": [
+                -17.0103,
+                1.91024
+              ]
+            }
+          }
+        },
+        {
+          "name": "sp_gun",
+          "parent": "Animation/Viewport/offset/sp_body/Gun_pivot_l/gun_offset",
+          "type": "Sprite",
+          "scriptSource": null,
+          "properties": {
+            "show_behind_parent": true,
+            "position": {
+              "variantType": "Vector2",
+              "values": [
+                18,
+                -18.6021
+              ]
+            },
+            "rotation": -0.0381554
+          }
+        },
+        {
+          "name": "LeftMuzzle",
+          "parent": "Animation/Viewport/offset/sp_body/Gun_pivot_l/gun_offset/sp_gun",
+          "type": "Position2D",
+          "scriptSource": null,
+          "properties": {
+            "unique_name_in_owner": true,
+            "position": {
+              "variantType": "Vector2",
+              "values": [
+                34.028,
+                2.506
+              ]
+            },
+            "rotation": -0.0151844
+          }
+        },
+        {
+          "name": "hand_pet",
+          "parent": "Animation",
+          "type": "Sprite",
+          "scriptSource": null,
+          "properties": {
+            "visible": false,
+            "position": {
+              "variantType": "Vector2",
+              "values": [
+                30,
+                -67.645
+              ]
+            },
+            "rotation": -0.551524,
+            "scale": {
+              "variantType": "Vector2",
+              "values": [
+                1.193,
+                0.676
+              ]
+            }
+          }
+        },
+        {
+          "name": "Collision",
+          "parent": ".",
+          "type": null,
+          "scriptSource": null,
+          "properties": {
+            "visible": false
+          }
+        },
+        {
+          "name": "Hurtbox",
+          "parent": ".",
+          "type": null,
+          "scriptSource": null,
+          "properties": {
+            "visible": false
+          }
+        },
+        {
+          "name": "MovementBehavior",
+          "parent": ".",
+          "type": null,
+          "scriptSource": "res://entities/units/movement_behaviors/target_rand_pos_movement_behavior.gd",
+          "properties": {}
+        },
+        {
+          "name": "PlayerTriggerZone",
+          "parent": ".",
+          "type": "Area2D",
+          "scriptSource": null,
+          "properties": {
+            "visible": false,
+            "collision_layer": 0,
+            "collision_mask": 514
+          }
+        },
+        {
+          "name": "CollisionShape2D",
+          "parent": "PlayerTriggerZone",
+          "type": "CollisionShape2D",
+          "scriptSource": null,
+          "properties": {
+            "shape": {
+              "resource": "res://entities/units/pet/catling_gun/catling_gun.tscn::2",
+              "resourceType": "CircleShape2D"
+            }
+          }
+        },
+        {
+          "name": "TargetTriggerZone",
+          "parent": ".",
+          "type": "Area2D",
+          "scriptSource": null,
+          "properties": {
+            "visible": false,
+            "collision_layer": 0,
+            "collision_mask": 4
+          }
+        },
+        {
+          "name": "CollisionShape2D",
+          "parent": "TargetTriggerZone",
+          "type": "CollisionShape2D",
+          "scriptSource": null,
+          "properties": {
+            "shape": {
+              "resource": "res://entities/units/pet/catling_gun/catling_gun.tscn::3",
+              "resourceType": "CircleShape2D"
+            }
+          }
+        }
+      ],
+      "shapes": {
+        "2": {
+          "resourceType": "CircleShape2D",
+          "properties": {
+            "radius": 150.0
+          }
+        },
+        "3": {
+          "resourceType": "CircleShape2D",
+          "properties": {
+            "radius": 400.0
+          }
+        }
+      }
+    },
+    "res://entities/units/pet/blazemander/blazemander.tscn": {
+      "sourceMd5": "b95bbd7d40dde1ec935fd82b292155fc",
+      "baseScene": "res://entities/units/pet/pet.tscn",
+      "nodes": [
+        {
+          "name": "Blazemander",
+          "parent": null,
+          "type": null,
+          "scriptSource": "res://entities/units/pet/blazemander/blazemander.gd",
+          "properties": {
+            "stats": {
+              "resource": "res://entities/units/pet/blazemander/blazemander_stats.tres",
+              "resourceType": "Resource"
+            },
+            "shoot_projectiles": false
+          }
+        },
+        {
+          "name": "Animation",
+          "parent": ".",
+          "type": null,
+          "scriptSource": null,
+          "properties": {
+            "position": {
+              "variantType": "Vector2",
+              "values": [
+                0,
+                -21.1526
+              ]
+            }
+          }
+        },
+        {
+          "name": "Viewport",
+          "parent": "Animation",
+          "type": "Viewport",
+          "scriptSource": null,
+          "properties": {
+            "transparent_bg": true,
+            "hdr": false,
+            "disable_3d": true,
+            "usage": 0,
+            "render_target_v_flip": true,
+            "render_target_update_mode": 3
+          }
+        },
+        {
+          "name": "offset",
+          "parent": "Animation/Viewport",
+          "type": "Node2D",
+          "scriptSource": null,
+          "properties": {
+            "position": {
+              "variantType": "Vector2",
+              "values": [
+                100,
+                100
+              ]
+            }
+          }
+        },
+        {
+          "name": "sp_body",
+          "parent": "Animation/Viewport/offset",
+          "type": "Sprite",
+          "scriptSource": null,
+          "properties": {
+            "position": {
+              "variantType": "Vector2",
+              "values": [
+                0,
+                42.426
+              ]
+            },
+            "scale": {
+              "variantType": "Vector2",
+              "values": [
+                0.965371,
+                1.03463
+              ]
+            }
+          }
+        },
+        {
+          "name": "sp_head",
+          "parent": "Animation/Viewport/offset/sp_body",
+          "type": "Sprite",
+          "scriptSource": null,
+          "properties": {
+            "position": {
+              "variantType": "Vector2",
+              "values": [
+                8,
+                -45.744
+              ]
+            },
+            "rotation": -0.0592097,
+            "scale": {
+              "variantType": "Vector2",
+              "values": [
+                1.00389,
+                0.996111
+              ]
+            }
+          }
+        },
+        {
+          "name": "sp_tail_0",
+          "parent": "Animation/Viewport/offset/sp_body",
+          "type": "Sprite",
+          "scriptSource": null,
+          "properties": {
+            "show_behind_parent": true,
+            "position": {
+              "variantType": "Vector2",
+              "values": [
+                -10.2943,
+                -11.8013
+              ]
+            },
+            "rotation": 0.130243
+          }
+        },
+        {
+          "name": "sp_tail_1",
+          "parent": "Animation/Viewport/offset/sp_body/sp_tail_0",
+          "type": "Sprite",
+          "scriptSource": null,
+          "properties": {
+            "show_behind_parent": true,
+            "position": {
+              "variantType": "Vector2",
+              "values": [
+                -14,
+                -7
+              ]
+            },
+            "rotation": -0.298134
+          }
+        },
+        {
+          "name": "Sprite",
+          "parent": "Animation/Sprite",
+          "type": "Sprite",
+          "scriptSource": null,
+          "properties": {
+            "position": {
+              "variantType": "Vector2",
+              "values": [
+                27,
+                -61
+              ]
+            },
+            "scale": {
+              "variantType": "Vector2",
+              "values": [
+                0.645,
+                1.652
+              ]
+            }
+          }
+        },
+        {
+          "name": "Collision",
+          "parent": ".",
+          "type": null,
+          "scriptSource": null,
+          "properties": {
+            "visible": false,
+            "shape": {
+              "resource": "res://entities/units/pet/blazemander/blazemander.tscn::2",
+              "resourceType": "CircleShape2D"
+            }
+          }
+        },
+        {
+          "name": "Hurtbox",
+          "parent": ".",
+          "type": null,
+          "scriptSource": null,
+          "properties": {
+            "visible": false
+          }
+        },
+        {
+          "name": "MovementBehavior",
+          "parent": ".",
+          "type": null,
+          "scriptSource": null,
+          "properties": {
+            "stop_close_to_target": true,
+            "distance_to_target": 100.0
+          }
+        },
+        {
+          "name": "TargetBehavior",
+          "parent": ".",
+          "type": null,
+          "scriptSource": "res://entities/units/target_behavior/closest_non_burning_enemy_target_behavior.gd",
+          "properties": {
+            "unique_name_in_owner": true,
+            "target_player_if_no_target": false
+          }
+        },
+        {
+          "name": "Range",
+          "parent": "TargetBehavior",
+          "type": "Area2D",
+          "scriptSource": null,
+          "properties": {
+            "visible": false,
+            "collision_layer": 0,
+            "collision_mask": 4
+          }
+        },
+        {
+          "name": "CollisionShape2D",
+          "parent": "TargetBehavior/Range",
+          "type": "CollisionShape2D",
+          "scriptSource": null,
+          "properties": {
+            "shape": {
+              "resource": "res://entities/units/pet/blazemander/blazemander.tscn::19",
+              "resourceType": "CircleShape2D"
+            }
+          }
+        },
+        {
+          "name": "Enemy_detection",
+          "parent": ".",
+          "type": "Area2D",
+          "scriptSource": "res://overlap/hurtbox.gd",
+          "properties": {
+            "visible": false,
+            "position": {
+              "variantType": "Vector2",
+              "values": [
+                0,
+                -20
+              ]
+            },
+            "collision_layer": 0,
+            "collision_mask": 4,
+            "monitorable": false
+          }
+        },
+        {
+          "name": "Collision",
+          "parent": "Enemy_detection",
+          "type": "CollisionShape2D",
+          "scriptSource": null,
+          "properties": {
+            "shape": {
+              "resource": "res://entities/units/pet/blazemander/blazemander.tscn::21",
+              "resourceType": "CircleShape2D"
+            }
+          }
+        },
+        {
+          "name": "Hitbox",
+          "parent": ".",
+          "type": "Area2D",
+          "scriptSource": "res://overlap/hitbox.gd",
+          "properties": {
+            "unique_name_in_owner": true,
+            "visible": false,
+            "position": {
+              "variantType": "Vector2",
+              "values": [
+                0,
+                -20
+              ]
+            },
+            "collision_layer": 1024,
+            "collision_mask": 0
+          }
+        },
+        {
+          "name": "Collision",
+          "parent": "Hitbox",
+          "type": "CollisionShape2D",
+          "scriptSource": null,
+          "properties": {
+            "shape": {
+              "resource": "res://entities/units/pet/blazemander/blazemander.tscn::20",
+              "resourceType": "CircleShape2D"
+            }
+          }
+        }
+      ],
+      "shapes": {
+        "2": {
+          "resourceType": "CircleShape2D",
+          "properties": {
+            "radius": 40.0
+          }
+        },
+        "19": {
+          "resourceType": "CircleShape2D",
+          "properties": {
+            "radius": 500.0
+          }
+        },
+        "21": {
+          "resourceType": "CircleShape2D",
+          "properties": {
+            "radius": 82.28
+          }
+        },
+        "20": {
+          "resourceType": "CircleShape2D",
+          "properties": {
+            "radius": 49.8
+          }
+        }
+      }
+    },
+    "res://entities/units/pet/bot_o_mine/bot_o_mine.tscn": {
+      "sourceMd5": "c253124698b17ff6ecf79474af6926fc",
+      "baseScene": "res://entities/units/pet/pet.tscn",
+      "nodes": [
+        {
+          "name": "BotOMine",
+          "parent": null,
+          "type": null,
+          "scriptSource": "res://entities/units/pet/bot_o_mine/bot_o_mine.gd",
+          "properties": {
+            "stats": {
+              "resource": "res://entities/units/pet/bot_o_mine/bot_o_mine_stats.tres",
+              "resourceType": "Resource"
+            },
+            "should_collide_with_borders": true,
+            "shoot_projectiles": true
+          }
+        },
+        {
+          "name": "Animation",
+          "parent": ".",
+          "type": null,
+          "scriptSource": null,
+          "properties": {
+            "position": {
+              "variantType": "Vector2",
+              "values": [
+                0,
+                -24
+              ]
+            }
+          }
+        },
+        {
+          "name": "Viewport",
+          "parent": "Animation",
+          "type": "Viewport",
+          "scriptSource": null,
+          "properties": {
+            "transparent_bg": true,
+            "hdr": false,
+            "disable_3d": true,
+            "render_target_v_flip": true,
+            "render_target_update_mode": 3
+          }
+        },
+        {
+          "name": "offset",
+          "parent": "Animation/Viewport",
+          "type": "Node2D",
+          "scriptSource": null,
+          "properties": {
+            "position": {
+              "variantType": "Vector2",
+              "values": [
+                100,
+                100
+              ]
+            }
+          }
+        },
+        {
+          "name": "sp_wheel",
+          "parent": "Animation/Viewport/offset",
+          "type": "Sprite",
+          "scriptSource": null,
+          "properties": {
+            "position": {
+              "variantType": "Vector2",
+              "values": [
+                -0.40435,
+                14.4101
+              ]
+            }
+          }
+        },
+        {
+          "name": "offset_body",
+          "parent": "Animation/Viewport/offset",
+          "type": "Node2D",
+          "scriptSource": null,
+          "properties": {
+            "position": {
+              "variantType": "Vector2",
+              "values": [
+                0,
+                -23.446
+              ]
+            }
+          }
+        },
+        {
+          "name": "sp_body",
+          "parent": "Animation/Viewport/offset/offset_body",
+          "type": "Sprite",
+          "scriptSource": null,
+          "properties": {
+            "position": {
+              "variantType": "Vector2",
+              "values": [
+                0,
+                39.165
+              ]
+            },
+            "scale": {
+              "variantType": "Vector2",
+              "values": [
+                0.95,
+                1.05
+              ]
+            }
+          }
+        },
+        {
+          "name": "sp_neck",
+          "parent": "Animation/Viewport/offset/offset_body/sp_body",
+          "type": "Sprite",
+          "scriptSource": null,
+          "properties": {
+            "position": {
+              "variantType": "Vector2",
+              "values": [
+                0,
+                -23
+              ]
+            },
+            "scale": {
+              "variantType": "Vector2",
+              "values": [
+                1,
+                0.9
+              ]
+            }
+          }
+        },
+        {
+          "name": "sp_head",
+          "parent": "Animation/Viewport/offset/offset_body/sp_body/sp_neck",
+          "type": "Sprite",
+          "scriptSource": null,
+          "properties": {
+            "position": {
+              "variantType": "Vector2",
+              "values": [
+                0,
+                -9.297
+              ]
+            },
+            "scale": {
+              "variantType": "Vector2",
+              "values": [
+                1,
+                1.1
+              ]
+            }
+          }
+        },
+        {
+          "name": "sp_antenna",
+          "parent": "Animation/Viewport/offset/offset_body/sp_body/sp_neck/sp_head",
+          "type": "Sprite",
+          "scriptSource": null,
+          "properties": {
+            "position": {
+              "variantType": "Vector2",
+              "values": [
+                0.827358,
+                -30.2095
+              ]
+            }
+          }
+        },
+        {
+          "name": "Muzzle",
+          "parent": "Animation/Viewport/offset/offset_body/sp_body/sp_neck/sp_head",
+          "type": "Position2D",
+          "scriptSource": null,
+          "properties": {
+            "unique_name_in_owner": true,
+            "position": {
+              "variantType": "Vector2",
+              "values": [
+                -0.00400616,
+                -10.1125
+              ]
+            },
+            "rotation": -9.82507e-05,
+            "scale": {
+              "variantType": "Vector2",
+              "values": [
+                0.907063,
+                0.975611
+              ]
+            }
+          }
+        },
+        {
+          "name": "sp_shadow",
+          "parent": "Animation/Viewport/offset",
+          "type": "Sprite",
+          "scriptSource": null,
+          "properties": {
+            "position": {
+              "variantType": "Vector2",
+              "values": [
+                0,
+                -24
+              ]
+            }
+          }
+        },
+        {
+          "name": "HandPet",
+          "parent": "Animation",
+          "type": "Sprite",
+          "scriptSource": null,
+          "properties": {
+            "visible": false,
+            "position": {
+              "variantType": "Vector2",
+              "values": [
+                24,
+                -100
+              ]
+            },
+            "scale": {
+              "variantType": "Vector2",
+              "values": [
+                0.791,
+                1.847
+              ]
+            }
+          }
+        },
+        {
+          "name": "Collision",
+          "parent": ".",
+          "type": null,
+          "scriptSource": null,
+          "properties": {
+            "visible": false,
+            "shape": {
+              "resource": "res://entities/units/pet/bot_o_mine/bot_o_mine.tscn::2",
+              "resourceType": "CircleShape2D"
+            }
+          }
+        },
+        {
+          "name": "Hurtbox",
+          "parent": ".",
+          "type": null,
+          "scriptSource": null,
+          "properties": {
+            "visible": false
+          }
+        },
+        {
+          "name": "MovementBehavior",
+          "parent": ".",
+          "type": null,
+          "scriptSource": null,
+          "properties": {
+            "stop_close_to_target": true,
+            "distance_to_target": 100.0
+          }
+        },
+        {
+          "name": "TargetBehavior",
+          "parent": ".",
+          "type": null,
+          "scriptSource": "res://entities/units/target_behavior/closest_player_target_behavior.gd",
+          "properties": {}
+        },
+        {
+          "name": "BurningParticles",
+          "parent": ".",
+          "type": null,
+          "scriptSource": null,
+          "properties": {
+            "visible": true
+          }
+        },
+        {
+          "name": "TargetTriggerZone",
+          "parent": ".",
+          "type": "Area2D",
+          "scriptSource": null,
+          "properties": {
+            "collision_layer": 0,
+            "collision_mask": 4
+          }
+        },
+        {
+          "name": "CollisionShape2D",
+          "parent": "TargetTriggerZone",
+          "type": "CollisionShape2D",
+          "scriptSource": null,
+          "properties": {
+            "unique_name_in_owner": true,
+            "shape": {
+              "resource": "res://entities/units/pet/bot_o_mine/bot_o_mine.tscn::10",
+              "resourceType": "CircleShape2D"
+            }
+          }
+        }
+      ],
+      "shapes": {
+        "2": {
+          "resourceType": "CircleShape2D",
+          "properties": {
+            "radius": 40.0
+          }
+        },
+        "10": {
+          "resourceType": "CircleShape2D",
+          "properties": {
+            "radius": 300.0
+          }
+        }
+      }
+    },
+    "res://entities/units/pet/lootworm/lootworm.tscn": {
+      "sourceMd5": "a723836c7d64005608ea5e2d226e8b3b",
+      "baseScene": "res://entities/units/pet/pet.tscn",
+      "nodes": [
+        {
+          "name": "Lootworm",
+          "parent": null,
+          "type": null,
+          "scriptSource": "res://entities/units/pet/lootworm/lootworm.gd",
+          "properties": {
+            "collision_layer": 0,
+            "collision_mask": 128,
+            "get_entity_spawner_ref_on_spawn": true,
+            "stats": {
+              "resource": "res://entities/units/pet/lootworm/lootworm_stats.tres",
+              "resourceType": "Resource"
+            },
+            "shoot_projectiles": false,
+            "double_chance": 0.33,
+            "weapon_stats": {
+              "resource": "res://entities/units/pet/lootworm/lootworm_weapon_stats.tres",
+              "resourceType": "Resource"
+            },
+            "tree_damage_ratio": 5.0
+          }
+        },
+        {
+          "name": "Animation",
+          "parent": ".",
+          "type": null,
+          "scriptSource": null,
+          "properties": {
+            "position": {
+              "variantType": "Vector2",
+              "values": [
+                0,
+                -24
+              ]
+            }
+          }
+        },
+        {
+          "name": "Viewport",
+          "parent": "Animation",
+          "type": "Viewport",
+          "scriptSource": null,
+          "properties": {
+            "transparent_bg": true,
+            "hdr": false,
+            "disable_3d": true,
+            "render_target_v_flip": true,
+            "render_target_update_mode": 3
+          }
+        },
+        {
+          "name": "offset",
+          "parent": "Animation/Viewport",
+          "type": "Node2D",
+          "scriptSource": null,
+          "properties": {
+            "position": {
+              "variantType": "Vector2",
+              "values": [
+                67.535,
+                75
+              ]
+            }
+          }
+        },
+        {
+          "name": "body_0",
+          "parent": "Animation/Viewport/offset",
+          "type": "Sprite",
+          "scriptSource": null,
+          "properties": {
+            "position": {
+              "variantType": "Vector2",
+              "values": [
+                8,
+                37
+              ]
+            }
+          }
+        },
+        {
+          "name": "body_1",
+          "parent": "Animation/Viewport/offset/body_0",
+          "type": "Sprite",
+          "scriptSource": null,
+          "properties": {
+            "show_behind_parent": true,
+            "position": {
+              "variantType": "Vector2",
+              "values": [
+                -21,
+                -6.21474
+              ]
+            }
+          }
+        },
+        {
+          "name": "body_2",
+          "parent": "Animation/Viewport/offset/body_0/body_1",
+          "type": "Sprite",
+          "scriptSource": null,
+          "properties": {
+            "show_behind_parent": true,
+            "position": {
+              "variantType": "Vector2",
+              "values": [
+                -19.1415,
+                -6
+              ]
+            }
+          }
+        },
+        {
+          "name": "body_3",
+          "parent": "Animation/Viewport/offset/body_0/body_1/body_2",
+          "type": "Sprite",
+          "scriptSource": null,
+          "properties": {
+            "show_behind_parent": true,
+            "position": {
+              "variantType": "Vector2",
+              "values": [
+                -5.70244,
+                -5
+              ]
+            }
+          }
+        },
+        {
+          "name": "head",
+          "parent": "Animation/Viewport/offset/body_0",
+          "type": "Sprite",
+          "scriptSource": null,
+          "properties": {
+            "position": {
+              "variantType": "Vector2",
+              "values": [
+                11.881,
+                -24.225
+              ]
+            },
+            "rotation": -0.129154
+          }
+        },
+        {
+          "name": "HandPet",
+          "parent": "Animation",
+          "type": "Sprite",
+          "scriptSource": null,
+          "properties": {
+            "visible": false,
+            "position": {
+              "variantType": "Vector2",
+              "values": [
+                19.8819,
+                15.8595
+              ]
+            },
+            "rotation": -0.1309
+          }
+        },
+        {
+          "name": "Collision",
+          "parent": ".",
+          "type": null,
+          "scriptSource": null,
+          "properties": {
+            "visible": false
+          }
+        },
+        {
+          "name": "Hurtbox",
+          "parent": ".",
+          "type": null,
+          "scriptSource": null,
+          "properties": {
+            "visible": false
+          }
+        },
+        {
+          "name": "MovementBehavior",
+          "parent": ".",
+          "type": null,
+          "scriptSource": null,
+          "properties": {
+            "distance_to_target": 100.0
+          }
+        },
+        {
+          "name": "TargetBehavior",
+          "parent": ".",
+          "type": null,
+          "scriptSource": "res://entities/units/target_behavior/lootworm_target_behavior.gd",
+          "properties": {}
+        },
+        {
+          "name": "ItemAttractArea",
+          "parent": ".",
+          "type": "Area2D",
+          "scriptSource": "res://entities/units/player/item_attract_area.gd",
+          "properties": {
+            "visible": false,
+            "collision_layer": 0,
+            "collision_mask": 96
+          }
+        },
+        {
+          "name": "CollisionShape2D",
+          "parent": "ItemAttractArea",
+          "type": "CollisionShape2D",
+          "scriptSource": null,
+          "properties": {
+            "scale": {
+              "variantType": "Vector2",
+              "values": [
+                10,
+                10
+              ]
+            },
+            "shape": {
+              "resource": "res://entities/units/pet/lootworm/lootworm.tscn::3",
+              "resourceType": "CircleShape2D"
+            }
+          }
+        },
+        {
+          "name": "ItemPickUpArea",
+          "parent": ".",
+          "type": "Area2D",
+          "scriptSource": null,
+          "properties": {
+            "visible": false,
+            "collision_mask": 96
+          }
+        },
+        {
+          "name": "CollisionShape2D",
+          "parent": "ItemPickUpArea",
+          "type": "CollisionShape2D",
+          "scriptSource": null,
+          "properties": {
+            "position": {
+              "variantType": "Vector2",
+              "values": [
+                0,
+                -10
+              ]
+            },
+            "scale": {
+              "variantType": "Vector2",
+              "values": [
+                3,
+                3
+              ]
+            },
+            "shape": {
+              "resource": "res://entities/units/pet/lootworm/lootworm.tscn::2",
+              "resourceType": "CircleShape2D"
+            }
+          }
+        },
+        {
+          "name": "TreeArea2D",
+          "parent": ".",
+          "type": "Area2D",
+          "scriptSource": null,
+          "properties": {
+            "position": {
+              "variantType": "Vector2",
+              "values": [
+                0,
+                -12
+              ]
+            },
+            "collision_layer": 0
+          }
+        },
+        {
+          "name": "CollisionShape2D",
+          "parent": "TreeArea2D",
+          "type": "CollisionShape2D",
+          "scriptSource": null,
+          "properties": {
+            "shape": {
+              "resource": "res://entities/units/pet/lootworm/lootworm.tscn::6",
+              "resourceType": "CircleShape2D"
+            }
+          }
+        },
+        {
+          "name": "Hitbox",
+          "parent": ".",
+          "type": "Area2D",
+          "scriptSource": "res://overlap/hitbox.gd",
+          "properties": {
+            "unique_name_in_owner": true,
+            "position": {
+              "variantType": "Vector2",
+              "values": [
+                0,
+                -12
+              ]
+            },
+            "collision_layer": 1024
+          }
+        },
+        {
+          "name": "Collision",
+          "parent": "Hitbox",
+          "type": "CollisionShape2D",
+          "scriptSource": null,
+          "properties": {
+            "shape": {
+              "resource": "res://entities/units/pet/lootworm/lootworm.tscn::7",
+              "resourceType": "CircleShape2D"
+            }
+          }
+        }
+      ],
+      "shapes": {
+        "3": {
+          "resourceType": "CircleShape2D",
+          "properties": {}
+        },
+        "2": {
+          "resourceType": "CircleShape2D",
+          "properties": {}
+        },
+        "6": {
+          "resourceType": "CircleShape2D",
+          "properties": {
+            "radius": 60.0
+          }
+        },
+        "7": {
+          "resourceType": "CircleShape2D",
+          "properties": {
+            "radius": 49.8
+          }
+        }
+      }
+    },
+    "res://entities/units/pet/ratzilla/ratzilla.tscn": {
+      "sourceMd5": "152678fcaf1a3575d386c3669e719461",
+      "baseScene": "res://entities/units/pet/pet.tscn",
+      "nodes": [
+        {
+          "name": "Ratzilla",
+          "parent": null,
+          "type": null,
+          "scriptSource": "res://entities/units/pet/ratzilla/ratzilla.gd",
+          "properties": {
+            "stats": {
+              "resource": "res://entities/units/pet/ratzilla/ratzilla_stats.tres",
+              "resourceType": "Resource"
+            },
+            "shoot_projectiles": false
+          }
+        },
+        {
+          "name": "Animation",
+          "parent": ".",
+          "type": null,
+          "scriptSource": null,
+          "properties": {
+            "position": {
+              "variantType": "Vector2",
+              "values": [
+                0,
+                -12
+              ]
+            }
+          }
+        },
+        {
+          "name": "Viewport",
+          "parent": "Animation",
+          "type": "Viewport",
+          "scriptSource": null,
+          "properties": {
+            "transparent_bg": true,
+            "hdr": false,
+            "disable_3d": true,
+            "render_target_v_flip": true,
+            "render_target_update_mode": 3
+          }
+        },
+        {
+          "name": "offset",
+          "parent": "Animation/Viewport",
+          "type": "Node2D",
+          "scriptSource": null,
+          "properties": {
+            "position": {
+              "variantType": "Vector2",
+              "values": [
+                100,
+                128.987
+              ]
+            }
+          }
+        },
+        {
+          "name": "shadow",
+          "parent": "Animation/Viewport/offset",
+          "type": "Sprite",
+          "scriptSource": null,
+          "properties": {
+            "position": {
+              "variantType": "Vector2",
+              "values": [
+                0,
+                -33.778
+              ]
+            }
+          }
+        },
+        {
+          "name": "Node2D",
+          "parent": "Animation/Viewport/offset",
+          "type": "Node2D",
+          "scriptSource": null,
+          "properties": {
+            "position": {
+              "variantType": "Vector2",
+              "values": [
+                -10,
+                -1.987
+              ]
+            }
+          }
+        },
+        {
+          "name": "trail",
+          "parent": "Animation/Viewport/offset/Node2D",
+          "type": "Sprite",
+          "scriptSource": null,
+          "properties": {
+            "position": {
+              "variantType": "Vector2",
+              "values": [
+                10,
+                -31.791
+              ]
+            }
+          }
+        },
+        {
+          "name": "body",
+          "parent": "Animation/Viewport/offset",
+          "type": "Sprite",
+          "scriptSource": null,
+          "properties": {
+            "position": {
+              "variantType": "Vector2",
+              "values": [
+                0,
+                -33.778
+              ]
+            }
+          }
+        },
+        {
+          "name": "eyes",
+          "parent": "Animation/Viewport/offset",
+          "type": "Sprite",
+          "scriptSource": null,
+          "properties": {
+            "position": {
+              "variantType": "Vector2",
+              "values": [
+                -1.458,
+                -33.778
+              ]
+            }
+          }
+        },
+        {
+          "name": "Sprite",
+          "parent": "Animation",
+          "type": null,
+          "scriptSource": null,
+          "properties": {
+            "position": {
+              "variantType": "Vector2",
+              "values": [
+                1,
+                39.046
+              ]
+            }
+          }
+        },
+        {
+          "name": "hand_pet",
+          "parent": "Animation",
+          "type": "Sprite",
+          "scriptSource": null,
+          "properties": {
+            "visible": false,
+            "position": {
+              "variantType": "Vector2",
+              "values": [
+                29.9376,
+                -13.1461
+              ]
+            },
+            "rotation": 0.39619
+          }
+        },
+        {
+          "name": "Collision",
+          "parent": ".",
+          "type": null,
+          "scriptSource": null,
+          "properties": {
+            "position": {
+              "variantType": "Vector2",
+              "values": [
+                0,
+                10
+              ]
+            },
+            "shape": {
+              "resource": "res://entities/units/pet/ratzilla/ratzilla.tscn::10",
+              "resourceType": "CircleShape2D"
+            }
+          }
+        },
+        {
+          "name": "Hurtbox",
+          "parent": ".",
+          "type": null,
+          "scriptSource": null,
+          "properties": {
+            "visible": false,
+            "position": {
+              "variantType": "Vector2",
+              "values": [
+                0,
+                -5
+              ]
+            }
+          }
+        },
+        {
+          "name": "Collision",
+          "parent": "Hurtbox",
+          "type": null,
+          "scriptSource": null,
+          "properties": {
+            "shape": {
+              "resource": "res://entities/units/pet/ratzilla/ratzilla.tscn::11",
+              "resourceType": "CircleShape2D"
+            }
+          }
+        },
+        {
+          "name": "MovementBehavior",
+          "parent": ".",
+          "type": null,
+          "scriptSource": null,
+          "properties": {
+            "stop_close_to_target": true,
+            "distance_to_target": 100.0
+          }
+        },
+        {
+          "name": "TargetBehavior",
+          "parent": ".",
+          "type": null,
+          "scriptSource": "res://entities/units/target_behavior/closest_enemy_target_behavior.gd",
+          "properties": {
+            "visible": false,
+            "target_player_if_no_target": false,
+            "exclude_elite_and_boss_target": true
+          }
+        },
+        {
+          "name": "Range",
+          "parent": "TargetBehavior",
+          "type": "Area2D",
+          "scriptSource": null,
+          "properties": {
+            "collision_layer": 0,
+            "collision_mask": 4
+          }
+        },
+        {
+          "name": "CollisionShape2D",
+          "parent": "TargetBehavior/Range",
+          "type": "CollisionShape2D",
+          "scriptSource": null,
+          "properties": {
+            "shape": {
+              "resource": "res://entities/units/pet/ratzilla/ratzilla.tscn::1",
+              "resourceType": "CircleShape2D"
+            }
+          }
+        },
+        {
+          "name": "Hitbox",
+          "parent": ".",
+          "type": "Area2D",
+          "scriptSource": "res://overlap/hitbox.gd",
+          "properties": {
+            "unique_name_in_owner": true,
+            "collision_layer": 1024,
+            "collision_mask": 0
+          }
+        },
+        {
+          "name": "Collision",
+          "parent": "Hitbox",
+          "type": "CollisionShape2D",
+          "scriptSource": null,
+          "properties": {
+            "position": {
+              "variantType": "Vector2",
+              "values": [
+                0,
+                10
+              ]
+            },
+            "shape": {
+              "resource": "res://entities/units/pet/ratzilla/ratzilla.tscn::2",
+              "resourceType": "CircleShape2D"
+            }
+          }
+        },
+        {
+          "name": "Tween",
+          "parent": ".",
+          "type": "Tween",
+          "scriptSource": null,
+          "properties": {
+            "unique_name_in_owner": true
+          }
+        }
+      ],
+      "shapes": {
+        "10": {
+          "resourceType": "CircleShape2D",
+          "properties": {
+            "radius": 20.0
+          }
+        },
+        "11": {
+          "resourceType": "CircleShape2D",
+          "properties": {
+            "radius": 22.0
+          }
+        },
+        "1": {
+          "resourceType": "CircleShape2D",
+          "properties": {
+            "radius": 600.0
+          }
+        },
+        "2": {
+          "resourceType": "CircleShape2D",
+          "properties": {
+            "radius": 33.39
+          }
+        }
+      }
+    },
+    "res://entities/units/pet/pet.tscn": {
+      "sourceMd5": "136a6810591473976a7844cca9d9766f",
+      "baseScene": "res://entities/units/unit/unit.tscn",
+      "nodes": [
+        {
+          "name": "Pet",
+          "parent": null,
+          "type": null,
+          "scriptSource": "res://entities/units/pet/pet.gd",
+          "properties": {
+            "collision_layer": 512,
+            "collision_mask": 640,
+            "can_be_targeted_by_enemies": false
+          }
+        },
+        {
+          "name": "Animation",
+          "parent": ".",
+          "type": null,
+          "scriptSource": null,
+          "properties": {
+            "position": {
+              "variantType": "Vector2",
+              "values": [
+                0,
+                -23.9166
+              ]
+            }
+          }
+        },
+        {
+          "name": "Collision",
+          "parent": ".",
+          "type": null,
+          "scriptSource": null,
+          "properties": {
+            "shape": {
+              "resource": "res://entities/units/pet/pet.tscn::2",
+              "resourceType": "CircleShape2D"
+            }
+          }
+        },
+        {
+          "name": "MovementBehavior",
+          "parent": ".",
+          "type": "Node2D",
+          "scriptSource": "res://entities/units/movement_behaviors/follow_target_movement_behavior.gd",
+          "properties": {}
+        },
+        {
+          "name": "TargetBehavior",
+          "parent": ".",
+          "type": "Node2D",
+          "scriptSource": "res://entities/units/target_behavior/target_behavior.gd",
+          "properties": {}
+        }
+      ],
+      "shapes": {
+        "2": {
+          "resourceType": "CircleShape2D",
+          "properties": {
+            "radius": 40.0
+          }
+        }
+      }
+    },
+    "res://entities/units/unit/unit.tscn": {
+      "sourceMd5": "f003f2b96779960bc06b2d9c7a1557dd",
+      "baseScene": "res://entities/entity.tscn",
+      "nodes": [
+        {
+          "name": "Unit",
+          "parent": null,
+          "type": null,
+          "scriptSource": "res://entities/units/unit/unit.gd",
+          "properties": {
+            "stats": null,
+            "mirror_sprite_with_movement": true
+          }
+        },
+        {
+          "name": "Animation",
+          "parent": ".",
+          "type": null,
+          "scriptSource": null,
+          "properties": {
+            "position": {
+              "variantType": "Vector2",
+              "values": [
+                0,
+                -22.8748
+              ]
+            }
+          }
+        },
+        {
+          "name": "Hurtbox",
+          "parent": ".",
+          "type": null,
+          "scriptSource": null,
+          "properties": {
+            "position": {
+              "variantType": "Vector2",
+              "values": [
+                0,
+                -24
+              ]
+            }
+          }
+        },
+        {
+          "name": "FlashTimer",
+          "parent": ".",
+          "type": "Timer",
+          "scriptSource": null,
+          "properties": {
+            "wait_time": 0.1
+          }
+        },
+        {
+          "name": "BurningTimer",
+          "parent": ".",
+          "type": "Timer",
+          "scriptSource": null,
+          "properties": {
+            "wait_time": 0.5
+          }
+        },
+        {
+          "name": "BurningParticles",
+          "parent": ".",
+          "type": null,
+          "scriptSource": null,
+          "properties": {
+            "visible": false,
+            "position": {
+              "variantType": "Vector2",
+              "values": [
+                0,
+                -24
+              ]
+            },
+            "emitting": false
+          }
+        }
+      ],
+      "shapes": {}
+    },
+    "res://entities/entity.tscn": {
+      "sourceMd5": "6b70440bccd50ac49048d848ff29c669",
+      "baseScene": null,
+      "nodes": [
+        {
+          "name": "Entity",
+          "parent": null,
+          "type": "RigidBody2D",
+          "scriptSource": "res://entities/entity.gd",
+          "properties": {
+            "collision_layer": 0,
+            "collision_mask": 0,
+            "mode": 2,
+            "custom_integrator": true
+          }
+        },
+        {
+          "name": "Animation",
+          "parent": ".",
+          "type": "Node2D",
+          "scriptSource": null,
+          "properties": {
+            "position": {
+              "variantType": "Vector2",
+              "values": [
+                0,
+                -24
+              ]
+            }
+          }
+        },
+        {
+          "name": "Collision",
+          "parent": ".",
+          "type": "CollisionShape2D",
+          "scriptSource": null,
+          "properties": {
+            "position": {
+              "variantType": "Vector2",
+              "values": [
+                0,
+                -24
+              ]
+            },
+            "shape": {
+              "resource": "res://entities/entity.tscn::2",
+              "resourceType": "CircleShape2D"
+            }
+          }
+        }
+      ],
+      "shapes": {
+        "2": {
+          "resourceType": "CircleShape2D",
+          "properties": {
+            "radius": 40.0
+          }
+        }
+      }
+    }
+  },
+  "note": "Neutral pet facts, not a claim of implemented behavior or available original artwork."
+}
