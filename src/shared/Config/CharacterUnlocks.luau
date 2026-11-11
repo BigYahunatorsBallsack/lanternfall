@@ -21,6 +21,49 @@ export type Challenge = {
 	| { kind: "RunConsumables", threshold: number }
 )
 local rules: { [string]: Challenge } = {
+	CandleScholar = {
+		kind = "Stat",
+		stat = "level",
+		threshold = 20,
+		challengeId = "chal_student",
+		source = "res://challenges/student_data.tres",
+		sourceMd5 = "63d742d41ba6f4ad11716f0e3283e65d",
+		requirement = "Reach level 20",
+	},
+	DuelMaestro = {
+		kind = "EnemiesKilled",
+		threshold = 20000,
+		challengeId = "chal_survivor_5",
+		source = "res://challenges/survivor_5_data.tres",
+		sourceMd5 = "111f293b64cdaf22dc3e9923e9367b3a",
+		requirement = "Kill 20000 enemies",
+	},
+	FarSeer = {
+		kind = "Stat",
+		stat = "range",
+		threshold = 300,
+		challengeId = "chal_perfect_vision",
+		source = "res://challenges/perfect_vision_data.tres",
+		sourceMd5 = "8766e0940ee861c44c68344fe22349d8",
+		requirement = "Reach +300 Range",
+	},
+	SoleConductor = {
+		kind = "WinDanger",
+		danger = 0,
+		challengeId = "chal_difficulty_0",
+		source = "res://challenges/chal_difficulty_0_data.tres",
+		sourceMd5 = "60712a87daad89a5d5381399fc2fec1d",
+		requirement = "Win a run in Danger 0",
+	},
+	Knight = {
+		kind = "WinDanger",
+		danger = 4,
+		challengeId = "chal_difficulty_4",
+		source = "res://challenges/chal_difficulty_4_data.tres",
+		sourceMd5 = "d35d97a22fb459ce7dcc9ec3d6a652a0",
+		requirement = "Win a run in Danger 4",
+	},
+
 	Entrepreneur = {
 		kind = "Inventory",
 		count = "shards",

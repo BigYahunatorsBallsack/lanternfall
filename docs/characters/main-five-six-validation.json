@@ -1,0 +1,110 @@
+{
+  "base": "a06f060176e60f75cb89e289d931ccb67c87d26a",
+  "reviewedCodeHead": "3e40ae4603590e223554666b22571aa511708ad6",
+  "runner": "Lune0.11.1 with existing RobloxMock/prelude, math.randomseed(1234), one spec per process; separate actual cwd for main archive and branch",
+  "baseline": {
+    "specs": 212,
+    "passed": 1458,
+    "failed": 36,
+    "aborts": []
+  },
+  "final": {
+    "specs": 217,
+    "passed": 1473,
+    "failed": 36,
+    "aborts": []
+  },
+  "newFailures": [],
+  "failures": {
+    "tests/EnemySpawnPlacement25.spec.luau": [
+      "FAIL Enemy spawn placement > positions a newly built sprite before making it visible",
+      "FAIL Enemy spawn placement > moves a pooled sprite to its next spawn before reattaching it"
+    ],
+    "tests/RunStats.spec.luau": [
+      "FAIL Tally > writes readable log lines with the level per minute and every build"
+    ],
+    "tests/Smoke.spec.luau": [
+      "FAIL smoke > arms the player with the class weapon and switches weapons off for the enemy tests",
+      "FAIL smoke > spawns enemies on a ring around the player and draws them",
+      "FAIL smoke > chases the player until it touches them",
+      "FAIL smoke > hits and kills enemies with the debug buttons",
+      "FAIL smoke > pauses spawning and spawns a test wave up to the cap",
+      "FAIL smoke > shows enemy and performance numbers to admins",
+      "FAIL smoke > shoots Spark Bolts that kill enemies once weapons are on",
+      "FAIL smoke > draws the six original weapons, tiers and debug swaps",
+      "FAIL smoke > drops XP orbs that the player picks up for the whole team",
+      "FAIL smoke > keeps level-ups for the end of the wave",
+      "FAIL smoke > ends the wave: enemies fade, the shop opens and the level-up cards come first",
+      "FAIL smoke > sells weapons and items for Shards in the shop, rerolls and starts the next wave on READY",
+      "FAIL smoke > lets items change HP, speed and weapon damage, stacking without limit",
+      "FAIL smoke > runs item effects: standing still, per X, timers, crit kills, dodges and chests",
+      "FAIL smoke > runs wave end, shop and next-wave effects and the shop stats",
+      "FAIL smoke > spawns a glowing elite with an HP bar that drops a chest",
+      "FAIL smoke > opens the chest when walked over and shows the reward",
+      "FAIL smoke > gives the evolution from a chest once the build is ready",
+      "FAIL smoke > lets Spitters shoot visible projectiles that hit the player",
+      "FAIL smoke > shows a Charger's wind-up, splits Splitters and names elite affixes",
+      "FAIL smoke > runs Brotato's combat: weapon class bonuses, burning, exploding items and slowed enemies",
+      "FAIL smoke > skips to the boss wave, and surviving it wins (WP10)",
+      "FAIL smoke > starts the next run with Play again",
+      "FAIL smoke > keeps walking but suppresses jumping on Space",
+      "FAIL smoke > takes debug damage with hit protection and heals",
+      "FAIL smoke > loses no HP while the debug Invincible switch is on",
+      "FAIL smoke > ends in defeat when the only player is knocked down",
+      "FAIL smoke > returns to the lobby after the results",
+      "FAIL smoke > runs with two players and keeps late joiners in the lobby",
+      "FAIL smoke > keeps running while one of two is down, and enemies go for the one still standing",
+      "FAIL smoke > stands a downed player up with full HP when the wave ends",
+      "FAIL smoke > rejects locked classes with a message",
+      "FAIL smoke > finished without any runtime error"
+    ]
+  },
+  "newSpecs": {
+    "tests/CharacterApprenticePackage.spec.luau": {
+      "passed": 3,
+      "failed": 0
+    },
+    "tests/CharacterGladiatorPackage.spec.luau": {
+      "passed": 3,
+      "failed": 0
+    },
+    "tests/CharacterHunterPackage.spec.luau": {
+      "passed": 3,
+      "failed": 0
+    },
+    "tests/CharacterKnightPackage.spec.luau": {
+      "passed": 3,
+      "failed": 0
+    },
+    "tests/CharacterOneArmedPackage.spec.luau": {
+      "passed": 3,
+      "failed": 0
+    }
+  },
+  "newChecks": 15,
+  "review": {
+    "axes": [
+      "correctness",
+      "readability",
+      "architecture",
+      "security",
+      "performance"
+    ],
+    "result": "No new blocking findings in reviewed diff. Reuses existing production systems; no new runtime loop, service, schema, network intent or weapon. Public legacy packages and saved ids remain until genuine original-art promotion.",
+    "mutation": "Flip preparedLegacy.FarSeer true to false: Hunter0passed/3failed. Restore byte-for-byte SHA256 270ee8d74bbf5f68ea80d43ccad5410e9ef64c2c7bad7804531e80c7d01a1c2d; Hunter3passed/0failed.",
+    "redGreen": "Before adoption/unlocks: Apprentice1/2,Gladiator1/2,Hunter0/3,OneArmed0/3,Knight2/1. Final all five packages3passed/0failed."
+  },
+  "checks": {
+    "stylua": "7changed/new Luau files formatted and --check passed",
+    "selene": "0errors,18existing warnings,0parse errors; cached Roblox API used when API download unavailable",
+    "rojo": "build/main-five-six.rbxlx built",
+    "catalog": "--check passed for74source records; no missing starting weapon family,9open item/pet families",
+    "artwork": "No art, asset IDs, uploads, Studio or publishing changes."
+  },
+  "limits": [
+    "38/74code-prepared packages, all38mainGame;12mainGame plus14AbyssalTerrors plus10PrimalDread remain. This is not38native original-art/Studio accepted characters.",
+    "Known36baseline failures unchanged:Smoke33,RunStats1,EnemySpawnPlacement25 two. Gobbler passed both current runs; prior intermittence not claimed fixed.",
+    "No Studio/two-client/mobile/original-art acceptance. Native common graphics/physics/item/zone parity and200actor4ms budget remain open.",
+    "Flail jungle unlock remains open; Chunky/Wildling are still incomplete. No new weapon or item family counted as a character."
+  ]
+}

@@ -93,7 +93,7 @@ Jeder Strang ändert nur **seine** Zeile (Regeln: `docs/PARALLEL.md`).
 | Strang | KI | Aktuelles Paket | Branch / PR | Stand | Danach |
 | --- | --- | --- | --- | --- | --- |
 | A – Engine und Ablauf | Claude | Paket 24 Launch-Paket (Medium) | `wp-24-launch` | fertig, selbst gemerged | Plan bis zum Launch abgeschlossen; als Nächstes IDs des Owners eintragen (Live-Experience, Badges, Musik), dann Live-Ops |
-| B - Inhalte und Spieler-Regeln | ChatGPT | B10: fünftes Main-Game-Fünferpaket | `wp-b10-main-five-five` | Entrepreneur, Explorer, Multitasker, Demon und Fisherman code-vorbereitet;33/74, echte Bilder/Studio offen | Weitere Main-Game-Pakete (High) |
+| B - Inhalte und Spieler-Regeln | ChatGPT | B10: sechstes Main-Game-Fünferpaket | `wp-b10-main-five-six` | Apprentice, Gladiator, Hunter, One Armed und Knight code-vorbereitet;38/74, echte Bilder/Studio offen | Restliche12 Main-Game-Pakete (High) |
 
 ## Feste Entscheidungen des Owners
 
@@ -913,3 +913,10 @@ Abschlussprüfung des vierten Fünferblocks: echter GitHub-main2df769a195Specs/1
 Entrepreneur, Explorer, Multitasker (ManyHands), Demon und Fisherman mit allen31/28/44/20/30 Starts, Originalregeln und persönlichen Freischaltungen vorbereitet. Hiking Stick mit vier Tiers und echten Weg-Schritten; Explorer-Baumstart, Schema13-Baumzähler, Demon-MaxHP-Shop/Materialumwandlung und Fisherman-Garantiepreis1 samt wiederkehrenden Originalgruppen implementiert. 33/74 Codepakete vorbereitet,41 verbleibend; keine native Grafik-/Studioabnahme. 91 Waffen (62 öffentlich/29 bildgesperrt), keine fehlenden Startwaffenslugs, neun offene Item-/Petfamilien. Keine Uploads/IDs/Studio/Veröffentlichung, Arsenal unverändert.
 
 Vollvergleich gegen GitHub-main d60a7fd:203 Specs/1434 bestanden/36 Fehler; Branch212 Specs/1458 bestanden/dieselben36 Fehler, keine neuen Fehlernamen oder Abbrüche. Alle24 neuen Prüfungen in9 Specs bestanden; Demon-Mutation erkannt und Original bytegenau wiederhergestellt. StyLua, Selene0Fehler/18bestehende Warnungen, Rojo, Quellencompiler und lokale Bildvorbereitung geprüft. Einzelheiten/Quellen/Anleitungen: docs/characters/HANDOFF.md und main-five-five-{source,validation}.json. Geteilte native Physik-/Grafik-/Gebiets-/Kataloglücken, reale Originalbilder, Studio/Zwei-Client/Handy und200Actor4ms-Budget bleiben offen. Reihenfolge Main50, Abyssal14, Primal10; weiterhin fünf Charakter-Codepakete je Merge ohne erneute Freigabe.
+
+
+### B10 – sechstes Main-Game-Fünferpaket (11.11.2026)
+
+Apprentice, Gladiator, Hunter, One Armed und Knight mit allen29/20/20/31/21 Originalstarts, Regeln und persönlichen Freischaltungen angebunden. Die vier historischen IDs bleiben erhalten und wechseln erst mit echter Originalbild-Promotion auf die nativen Pakete. Bestehende Werte-/XP-/Waffen-/Set-/Shop-Systeme wiederverwendet; keine neuen Waffen/Items/Dienste/Remotes/Schemas, keine Bilder/IDs/Uploads/Studio/Veröffentlichung. 38/74 Codepakete vorbereitet (38/50 Hauptspiel), noch12 Hauptspiel und24 DLC; keine vollständige native Abnahme.
+
+Vollvergleich gegen GitHub-main a06f060:212 Specs/1458 bestanden/36 Fehler; Branch217 Specs/1473 bestanden/dieselben36 Fehler, keine neuen Fehlernamen/Abbrüche. Alle15 neuen Prüfungen in5 Specs bestanden, Adoptionsmutation erkannt und Original bytegenau wiederhergestellt. StyLua7 Dateien, Selene0Fehler/18bestehende Warnungen, Rojo und Quellencompiler --check bestanden. Quellen, Grenzen und Fortsetzung: docs/characters/HANDOFF.md und main-five-six-{source,validation}.json. Echte Originalbilder, Studio/Zwei-Client/Handy, gemeinsame native Physik-/Grafik-/Gebiets-/Katalogparität und200Actor4ms-Budget offen; Flails Dschungelfreischaltung sowie neun Item-/Petfamilien weiter offen. Immer fünf Codepakete vor Merge; Main50 vor Abyssal14 vor Primal10.

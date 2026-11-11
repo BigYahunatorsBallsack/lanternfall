@@ -1,0 +1,80 @@
+{
+  "version": "1.2.0.1",
+  "steamBuild": 26406319,
+  "baseMain": "a06f060176e60f75cb89e289d931ccb67c87d26a",
+  "characters": [
+    {
+      "slug": "apprentice",
+      "source": "res://items/characters/apprentice/apprentice_data.tres",
+      "sourceMd5": "96e8f9f6a249a12497907cecf58bab42",
+      "startChoices": 29
+    },
+    {
+      "slug": "gladiator",
+      "source": "res://items/characters/gladiator/gladiator_data.tres",
+      "sourceMd5": "25bfc966d5d293034322a38d28380225",
+      "startChoices": 20
+    },
+    {
+      "slug": "hunter",
+      "source": "res://items/characters/hunter/hunter_data.tres",
+      "sourceMd5": "f2a52c1a530658b4b7956f12c8d3bfb4",
+      "startChoices": 20
+    },
+    {
+      "slug": "knight",
+      "source": "res://items/characters/knight/knight_data.tres",
+      "sourceMd5": "91630f6cbbedcab74d0f6e13f4096f00",
+      "startChoices": 21
+    },
+    {
+      "slug": "one_arm",
+      "source": "res://items/characters/one_arm/one_arm_data.tres",
+      "sourceMd5": "61d846311fffa652bbf355483a866d6a",
+      "startChoices": 31
+    }
+  ],
+  "resources": {
+    "res://singletons/run_data.gdc": "a94d8eddd9609f413309ce9237297ad2",
+    "res://singletons/challenge_service.gdc": "6d6b42bb03a602222287ec8e7b2a14bf",
+    "res://items/characters/character_data.gdc": "7bbf5ccd3e7a0dc63a2dd73df4f3e38b",
+    "res://entities/units/player/player.gdc": "80ac166ba6b5c71fbf220bcd43ddc90e",
+    "res://challenges/student_data.tres": "63d742d41ba6f4ad11716f0e3283e65d",
+    "res://challenges/survivor_5_data.tres": "111f293b64cdaf22dc3e9923e9367b3a",
+    "res://challenges/perfect_vision_data.tres": "8766e0940ee861c44c68344fe22349d8",
+    "res://challenges/chal_difficulty_0_data.tres": "60712a87daad89a5d5381399fc2fec1d",
+    "res://challenges/chal_difficulty_4_data.tres": "d35d97a22fb459ce7dcc9ec3d6a652a0"
+  },
+  "wording": {
+    "EFFECT_STAT_ON_LEVEL_UP": "{0} {1} when you level up",
+    "EFFECT_UNIQUE_WEAPON_BONUS": "{0} {1} for every different weapon you have [{2}]",
+    "EFFECT_NO_RANGED_WEAPONS": "You can't equip ranged weapons",
+    "EFFECT_MIN_WEAPON_TIER": "You can only equip tier {0} weapons or above",
+    "EFFECT_ONE_WEAPON_SLOT_LIMIT": "You can only equip one weapon at a time",
+    "WEAPON_SET_BONUS": "Your weapon has {0} set bonus for its weapon categorie. ",
+    "EFFECT_GAIN_STAT_FOR_EVERY_STAT": "{0} {1} for every {2} {3} you have [{4}]",
+    "EFFECT_INCREASE_STAT_GAINS": "{0} modifications are increased by {1}",
+    "EFFECT_REDUCE_STAT_GAINS": "{0} modifications are reduced by {1}"
+  },
+  "rules": {
+    "apprentice": "Saved CandleScholar id;29native starts. Each personal level +2Melee,+1Ranged,+1Elemental,+1Engineering,-2MaxHP alongside ordinary +1MaxHP/level, net -1MaxHP. No teammate-level gains; level/stats rollback on wave retry. Student requires personalLV.20, recorded via authoritative level metadata in StatService sheet.",
+    "gladiator": "Saved DuelMaestro id;20native melee starts. +20AttackSpeed per distinct weapon family (tier is not a different weapon),+5Melee,-40AttackSpeed,-30Luck, no Ranged. Equipment removal recomputes distinct families. Survivor5 requires20000personal lifetime enemies killed; existing counter and kill event reused.",
+    "hunter": "Saved FarSeer id;20native starts. +100Range,+1Damage per10currentRange with truncation toward zero; includes temporary Range and reverses when bonus leaves. CritChance gains x1.25,Harvesting x0,MaxHP x.67 including baseHP in the source get_stat model. PerfectVision personally requires300Range, challenge remains after stat falls.",
+    "oneArmed": "Saved SoleConductor id;31native starts. +200AttackSpeed; all eight native damage-category gains x2 (Damage,Melee,Ranged,Elemental,Explosion,Piercing,Bounce,Elite). One weapon slot. Additional3set counts for each actually carried weapon category (one physical weapon counts as4); no phantom categories. Saved bestDanger starts-1, Danger0win unlocks.",
+    "knight": "21native melee starts, all tierII. +3Armor;2Melee per1currentArmor including dynamic effects. AttackSpeed gains x.5,Harvesting x.2. Melee only and tierIIminimum enforced for starts, direct grants and shop buys. Saved Danger4win unlocks."
+  },
+  "implementation": "Adopts complete source packages via existing production stat, equipment, set, XP, challenge and shop systems. No new weapons, runtime service, schema or remote; legacy public packages remain until genuine original-art promotion.",
+  "limits": [
+    "38/74 code-prepared packages is not38native graphics/Studio accepted characters.",
+    "No original-art uploads, asset-ID changes, Studio mutation or publication.",
+    "Shared native graphics/physics/item/zone parity and200actor4ms budget remain open.",
+    "Lifetime and stat challenges map original Steam profile-wide progress to personal online profiles.",
+    "Existing Flail jungle unlock and nine item/pet family gaps remain open; code preparation does not close shared dependency parity."
+  ],
+  "wordingSource": {
+    "resource": "res://resources/translations/translations.en.translation",
+    "md5": "701f69b83d82866afc0d55321cceea7c",
+    "formattingResource": "res://singletons/text.gdc",
+    "formattingMd5": "70c974768c77067fc54fa4f6a45736c9"
+  }
+}
