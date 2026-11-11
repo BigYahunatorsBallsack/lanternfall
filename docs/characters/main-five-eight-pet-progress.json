@@ -11,8 +11,8 @@
       "failed": 37
     },
     "branch": {
-      "specs": 236,
-      "passed": 1549,
+      "specs": 239,
+      "passed": 1561,
       "failed": 37
     },
     "newFailureNames": [],
@@ -41,7 +41,7 @@
       "failed": 0
     },
     "tests/NativePetLifecycle.spec.luau": {
-      "passed": 5,
+      "passed": 6,
       "failed": 0
     },
     "tests/NativePetProjectiles.spec.luau": {
@@ -75,6 +75,18 @@
     "tests/NativeCatlingGun.spec.luau": {
       "passed": 7,
       "failed": 0
+    },
+    "tests/NativeLootworm.spec.luau": {
+      "passed": 5,
+      "failed": 0
+    },
+    "tests/NativePetMaterials.spec.luau": {
+      "passed": 4,
+      "failed": 0
+    },
+    "tests/NativePetPickup.spec.luau": {
+      "passed": 2,
+      "failed": 0
     }
   },
   "botMutation": {
@@ -90,7 +102,7 @@
   },
   "rojo": true,
   "sourceCompilers": true,
-  "nativeRuntimeItemIdentities": 132,
+  "nativeRuntimeItemIdentities": 133,
   "nativeItemBanGroups": 13,
   "originalIconsPrepared": 6,
   "actorArtworkPrepared": false,
@@ -98,7 +110,6 @@
   "runtimeAssetIdsChanged": false,
   "arsenalChanged": false,
   "remainingDependencies": [
-    "Lootworm",
     "Native pet start UI/server/teleport selection",
     "Beast Master counts/unlock/tag boost",
     "Nightmare1 route for Wounded"
@@ -106,7 +117,6 @@
   "remainingMissingItemFamilies": [
     "builder_turret",
     "fish_hook",
-    "lootworm",
     "spyglass"
   ],
   "remainingNativeAcceptance": [
@@ -123,8 +133,8 @@
     "restoredPassed": true,
     "restoredByteExactlyBeforeFinalFormatting": true
   },
-  "petSourceScenes": 14,
-  "newPassedComparedWithMain": 61,
+  "petSourceScenes": 16,
+  "newPassedComparedWithMain": 73,
   "catBoostMutation": {
     "mutation": "Ignore Catling Gun boost when resetting both gun cooldowns",
     "detected": true,
@@ -166,5 +176,57 @@
       "gobblerPassed": false
     },
     "fixed": false
+  },
+  "lootwormPickupMutation": {
+    "mutation": "Drop Lootworm value and feedback multiplication before the ordinary material pickup callback",
+    "detected": true,
+    "output": "[Lanternfall] Place: lobby and arena in one server (no hub/run place ids for this place in Config.Places)\n[Lanternfall] Server ready: 71 remotes, 36 services, config problems: 0\n[Lanternfall] Saving: memory only (no DataStoreService)\n[Lanternfall] Badge \"Lantern Lit\" earned but not set up (Config/Badges.luau id is 0)\n[Lanternfall] Owner login streak day 1: +25 Embers\n[Lanternfall] Peer login streak day 1: +25 Embers\n[Lanternfall] Launch check: 1 must, 2 should open (debug button \"Launch check\" lists them)\n[Lanternfall] Run started with 2 player(s), Danger 0\n[Lanternfall] Run seed 228619419 (Config.Run.seed replays it)\nFAIL Native pet material pickup integration > combines bag x2, Lootworm x2 and common pickup x2 with one personal object event\n     tests/NativePetPickup.spec.luau:59: expected 4, got 2\n[Lanternfall] Run ended: Abandoned after 00:00\n[Lanternfall] ===== Run summary (copy this block for your playtest notes) =====\n[Lanternfall] Abandoned after 00:00 \u00b7 Danger 0 \u00b7 2 player(s) \u00b7 team level 0 \u00b7 0 kills\n[Lanternfall] Owner (Ranger): 0 kills, 0 damage, took 0, down 0x\n[Lanternfall]   Weapons: Pistol I 0 dmg/0 kills\n[Lanternfall]   Items: none\n[Lanternfall] Peer (Ranger): 0 kills, 0 damage, took 0, down 0x\n[Lanternfall]   Weapons: Pistol I 0 dmg/0 kills\n[Lanternfall]   Items: none\n[Lanternfall] =====\n[Lanternfall] Run started with 2 player(s), Danger 0\n[Lanternfall] Run seed 1770704722 (Config.Run.seed replays it)\n1 passed, 1 failed\n",
+    "restoredByteExactly": true,
+    "restoredPassed": true
+  },
+  "materialInterfaces": [
+    "ExperienceService.getMaterialRevision",
+    "ExperienceService.getMaterialPosition",
+    "ExperienceService.nearestMaterial",
+    "ExperienceService.releasePetMaterials",
+    "ExperienceService.stepPetMaterials",
+    "OrbField.move",
+    "OrbField.take",
+    "OrbField.collect optional predicate",
+    "OrbField.nearest optional trailing id"
+  ],
+  "lootwormRules": {
+    "doubleChance": 0.1,
+    "itemLimit": 1,
+    "pickupFeedbackCompound": 8,
+    "ownerCanBeDown": true,
+    "noExtraLifeStealCallback": true,
+    "goldHalfExtentsPoints": [
+      16,
+      16
+    ],
+    "nativeGoldRotationAndDropPushbackAccepted": false,
+    "nativeAreaPhaseAccepted": false,
+    "ordinaryPlayerAttractionParityAccepted": false
+  },
+  "networkRegression": {
+    "test": "tests/Perf22.spec.luau",
+    "newFailureDetectedByName": true,
+    "beforeKiBPerSecond": 50.8,
+    "frameOnlyCoalescingKiBPerSecond": 50.4,
+    "fixedFocusedKiBPerSecond": 46.0,
+    "budgetKiBPerSecond": 50,
+    "budgetChanged": false,
+    "materialHudSyncSeconds": 0.2,
+    "balancesAndEffectsStayImmediate": true,
+    "coalescingRegressionBefore": {
+      "passed": 1,
+      "failed": 1
+    },
+    "coalescingRegressionAfter": {
+      "passed": 2,
+      "failed": 0
+    },
+    "finalFullSuitePerfPassed": true
   }
 }

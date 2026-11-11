@@ -46,7 +46,7 @@ def generate(pck):
    seen.add(ref);data=pck.resource(ref)['properties'];resources[ref]={'sourceMd5':pck.entries[ref]['md5'],'properties':facts(data)}
    pending.extend(r['resource'] for r in source.references(data) if r['resource'].endswith('.tres') and '::' not in r['resource'])
   rows.append(row)
- for ref in ['res://projectiles/bullet/bullet_projectile.tscn','res://projectiles/flames/flame_projectile.tscn','res://overlap/hitbox.tscn']:
+ for ref in ['res://projectiles/bullet/bullet_projectile.tscn','res://projectiles/flames/flame_projectile.tscn','res://overlap/hitbox.tscn','res://items/materials/gold.tscn']:
   scenes[ref]=read_scene(pck,ref)
  pending=[v['baseScene'] for v in scenes.values() if v.get('baseScene')]
  while pending:
@@ -86,6 +86,9 @@ def catalog(out):
   speed=next(n['properties']['stats'] for n in out['scenes'][effect['scene']['resource']]['nodes'] if 'stats' in n['properties'])
   weapon_ref=effect.get('weapon_stats') or next(n['properties']['weapon_stats'] for n in out['scenes'][effect['scene']['resource']]['nodes'] if 'weapon_stats' in n['properties'])
   pet={'speedPoints':props(speed)['speed'],'isStructure':structure,'weapon':weapon(props(weapon_ref),structure,ranged)}
+  if slug=='lootworm':
+   nodes=inherited_nodes(effect['scene']['resource']);body=nodes['Collision','.'];hit=nodes['Hitbox','.'];sensor=nodes['TreeArea2D','.'];attract=nodes['CollisionShape2D','ItemAttractArea'];pickup=nodes['CollisionShape2D','ItemPickUpArea']
+   pet.update({'lootworm':True,'doubleChance':effect['double_chance'],'treeDamageRatio':nodes[next(key for key in nodes if key[1] is None and 'tree_damage_ratio' in nodes[key])]['tree_damage_ratio'] if any(key[1] is None and 'tree_damage_ratio' in nodes[key] for key in nodes) else 5,'bodyRadiusPoints':radius(body),'bodyOffsetXPoints':body['position']['values'][0],'bodyOffsetZPoints':body['position']['values'][1],'hitRadiusPoints':radius(nodes['Collision','Hitbox']),'hitOffsetXPoints':hit['position']['values'][0],'hitOffsetZPoints':hit['position']['values'][1],'treeRadiusPoints':radius(nodes['CollisionShape2D','TreeArea2D']),'treeOffsetXPoints':sensor['position']['values'][0],'treeOffsetZPoints':sensor['position']['values'][1],'attractRadiusPoints':radius(attract)*attract['scale']['values'][0],'pickupRadiusPoints':radius(pickup)*pickup['scale']['values'][0],'pickupOffsetXPoints':pickup['position']['values'][0],'pickupOffsetZPoints':pickup['position']['values'][1]})
   if slug=='catling_gun':
    nodes=inherited_nodes(effect['scene']['resource']);body=nodes['Collision','.'];viewport=nodes['Viewport','Animation']['size']['values']
    ax,az=nodes['Animation','.']['position']['values'];vx,vz=nodes['offset','Animation/Viewport']['position']['values'];bx,bz=nodes['sp_body','Animation/Viewport/offset']['position']['values']
@@ -136,7 +139,9 @@ def catalog(out):
   kinds[row['id']]=pet
  bullet=inherited_nodes('res://projectiles/bullet/bullet_projectile.tscn');hit=bullet['Hitbox','.'];collision=bullet['Collision','Hitbox'];shape_path,sub=collision['shape']['resource'].split('::');hx,hz=hit['position']['values'];cx,cz=collision['position']['values']
  projectile={'radiusPoints':out['scenes'][shape_path]['shapes'][sub]['properties']['radius'],'offsetForwardPoints':hx+cx,'offsetSidePoints':hz+cz,'autoRangeBonusPoints':100}
- data={'frameRate':60,'minimumCooldownFrames':2,'minimumRangePoints':25,'projectile':projectile,'playerBody':{k:v for k,v in out['playerBody'].items() if k.endswith('Points')},'beastMasterStats':['meleeDamage','rangedDamage','elementalDamage','engineering'],'kinds':kinds}
+ gold=inherited_nodes('res://items/materials/gold.tscn');shape=gold['CollisionShape2D','.']['shape']['resource'];path,sub=shape.split('::');extents=out['scenes'][path]['shapes'][sub]['properties']['extents']['values']
+ material={'halfXPoints':extents[0],'halfZPoints':extents[1],'attractSpeedPoints':500,'accelerationPointsPerFrame':20,'idleFrames':10,'mergeGrowth':0.05,'maximumScale':2,'bagScale':1.25}
+ data={'frameRate':60,'minimumCooldownFrames':2,'minimumRangePoints':25,'projectile':projectile,'material':material,'playerBody':{k:v for k,v in out['playerBody'].items() if k.endswith('Points')},'beastMasterStats':['meleeDamage','rangedDamage','elementalDamage','engineering'],'kinds':kinds}
  def lua(value,depth=0):
   if isinstance(value,bool):return 'true' if value else 'false'
   if isinstance(value,(int,float)):return str(value)

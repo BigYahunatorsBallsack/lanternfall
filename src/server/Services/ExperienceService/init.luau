@@ -28,6 +28,7 @@ local EnemySim = require(script.Parent.EnemySim)
 local RandomService = require(script.Parent.RandomService)
 local RunDirector = require(script.Parent.RunDirector)
 local OrbField = require(script.OrbField)
+local PetMaterials = require(script.PetMaterials)
 local Progression = require(script.Progression)
 local CharacterRules = require(script.CharacterRules)
 
@@ -43,6 +44,10 @@ ExperienceService.OrbsPickedUp = Signal.new()
 local field = OrbField.new(Config.Run.xpOrbs.maxOrbs, function()
 	return RandomService.number("Loot")
 end)
+local petMaterials = PetMaterials.new(field, function()
+	return workspace:GetServerTimeNow()
+end)
+local petMovedIndexes: { [number]: number } = {}
 local progress: { [Player]: Progression.Progression } = {}
 local nextMaterialPlayer = 1
 local pickupBonus: { [Player]: number } = {} -- Pickup Range as a fraction
@@ -115,6 +120,7 @@ local function flush()
 		Net.fireClient("XpOrbs", player, events)
 	end
 	changedOrbs = {}
+	table.clear(petMovedIndexes)
 	collectedOrbs = {}
 	boostedPickups = {}
 	newBagOrbs = {}
@@ -123,6 +129,8 @@ end
 -- Drops every orb on every client and starts the team at level 1 (run start) or keeps the level (run end).
 local function clearOrbs()
 	field:clear()
+	petMaterials:clear()
+	table.clear(petMovedIndexes)
 	table.clear(bagBoosted)
 	changedOrbs = {}
 	collectedOrbs = {}
@@ -202,13 +210,14 @@ local function onEnemyKilled(info: EnemySim.KillInfo)
 		sendBag()
 	end
 	local x, z = round(info.position.X), round(info.position.Z)
-	local id = field:spawn(x, z, value)
+	local id, merged = field:spawn(x, z, value)
 	if pulled > 0 then
 		if not bagBoosted[id] then
 			table.insert(newBagOrbs, id)
 		end
 		bagBoosted[id] = true
 	end
+	petMaterials:spawned(id, merged, bagBoosted[id] == true, value)
 	local orbX, orbZ, orbValue = field:get(id)
 	table.insert(changedOrbs, id)
 	table.insert(changedOrbs, orbX or x)
@@ -240,13 +249,14 @@ function ExperienceService.dropMaterials(at: Vector3, amount: number, spread: nu
 		local radius = rule.minimumSpread
 			+ RandomService.number("Loot") * (rule.baseMaximumSpread + spread - rule.minimumSpread)
 		local x, z = round(at.X + math.cos(angle) * radius), round(at.Z + math.sin(angle) * radius)
-		local id = field:spawn(x, z, worth)
+		local id, merged = field:spawn(x, z, worth)
 		if pulled > 0 then
 			if not bagBoosted[id] then
 				table.insert(newBagOrbs, id)
 			end
 			bagBoosted[id] = true
 		end
+		petMaterials:spawned(id, merged, bagBoosted[id] == true, worth)
 		local ox, oz, ov = field:get(id)
 		table.insert(changedOrbs, id)
 		table.insert(changedOrbs, ox)
@@ -273,6 +283,7 @@ local function feedEaters()
 				eaten[id] = (eaten[id] or 0) + swallowed
 				for _, orbId in eatenIds do
 					bagBoosted[orbId] = nil
+					petMaterials:forget(orbId)
 					table.insert(collectedOrbs, orbId)
 					table.insert(collectedOrbs, 0) -- no player: the orb just vanishes
 				end
@@ -300,7 +311,10 @@ local function onStepped()
 				)
 				table.clear(collectedIds)
 				table.clear(collectedValues)
-				field:collect(position.X, position.Z, radius, collectedIds, collectedValues)
+				field:collect(position.X, position.Z, radius, collectedIds, collectedValues, function(id)
+					return not petMaterials:isClaimed(id)
+						or petMaterials:touches(id, position, Config.Player.touchPickupRadius)
+				end)
 				local chance = doubleChance[player] or 0
 				if #collectedValues > 0 then
 					ExperienceService.OrbsPickedUp:Fire(player, #collectedValues)
@@ -309,6 +323,7 @@ local function onStepped()
 					local doubled = chance > 0 and RandomService.number("Loot", player) < chance
 					distributeMaterials(value * (if doubled then 2 else 1))
 					local orbId = collectedIds[index]
+					petMaterials:forget(orbId)
 					local factor = (if bagBoosted[orbId] then 2 else 1) * (if doubled then 2 else 1)
 					bagBoosted[orbId] = nil
 					if factor > 1 then
@@ -493,6 +508,50 @@ end
 
 function ExperienceService.getOrbCount(): number
 	return field:count()
+end
+
+-- Trusted server pet adapters query existing material objects; no client can choose a reward or collector.
+function ExperienceService.getMaterialRevision(): number
+	return petMaterials.revision
+end
+function ExperienceService.getMaterialPosition(id: number): Vector3?
+	local x, z = field:get(id)
+	return if x and z then Vector3.new(x, Config.Map.arena.center.Y, z) else nil
+end
+function ExperienceService.nearestMaterial(at: Vector3): number?
+	local _, _, id = field:nearest(at.X, at.Z, math.huge)
+	return id
+end
+function ExperienceService.releasePetMaterials(actorId: number)
+	petMaterials:release(actorId)
+end
+function ExperienceService.stepPetMaterials(player: Player, actorId: number, at: Vector3, dt: number): number
+	local state = RunDirector.getParticipantState(player)
+	if paused or not RunDirector.isActive() or not state or state == "Out" then
+		return 0
+	end
+	return petMaterials:step(actorId, at, dt, function()
+		return RandomService.number("Loot", player)
+	end, function(id, value, petFactor)
+		local doubled = (doubleChance[player] or 0) > 0 and RandomService.number("Loot", player) < doubleChance[player]
+		local factor = petFactor * (if bagBoosted[id] then 2 else 1) * (if doubled then 2 else 1)
+		bagBoosted[id] = nil
+		ExperienceService.OrbsPickedUp:Fire(player, 1)
+		distributeMaterials(value * (if doubled then 2 else 1))
+		if factor > 1 then
+			table.insert(boostedPickups, id)
+			table.insert(boostedPickups, factor)
+		end
+		table.insert(collectedOrbs, id)
+		table.insert(collectedOrbs, player.UserId)
+	end, function(id, x, z, value)
+		local index = petMovedIndexes[id]
+		if not index then
+			index = #changedOrbs + 1
+			petMovedIndexes[id] = index
+		end
+		changedOrbs[index], changedOrbs[index + 1], changedOrbs[index + 2], changedOrbs[index + 3] = id, x, z, value
+	end)
 end
 
 -- XP (and Shards) waiting in the bag for the next waves (B6).

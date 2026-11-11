@@ -1485,6 +1485,18 @@
         "pet",
         "stat_ranged_damage"
       ]
+    },
+    "Lootworm": {
+      "nativeId": "item_lootworm",
+      "nameKey": "ITEM_LOOTWORM",
+      "source": "res://items/all/03_paws_n_claws/lootworm/lootworm.tres",
+      "sourceMd5": "d484afe30550318b555db6dd961d2b77",
+      "displayName": "Lootworm",
+      "tags": [
+        "economy",
+        "pickup",
+        "pet"
+      ]
     }
   },
   "endlessBannedItems": [

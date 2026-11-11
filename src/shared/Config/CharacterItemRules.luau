@@ -218,6 +218,7 @@ local nativeIds: { [string]: string } = {
 	BotOMine = "item_bot_o_mine",
 	Blazemander = "item_blazemander",
 	CatlingGun = "item_catling_gun",
+	Lootworm = "item_lootworm",
 }
 
 local tags: { [string]: { string } } = {
@@ -697,6 +698,11 @@ local tags: { [string]: { string } } = {
 	CatlingGun = {
 		"pet",
 		"stat_ranged_damage",
+	},
+	Lootworm = {
+		"economy",
+		"pickup",
+		"pet",
 	},
 }
 

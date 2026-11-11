@@ -5,6 +5,7 @@
 -- where noted); item and weapon names are our own. Item prices and rarity chances live in Config.Items.
 
 local Shop = {
+	materialSyncSeconds = 0.2, -- transport only: coalesce material HUD updates; balances and pickup effects stay immediate
 	phaseSeconds = 40, -- shop timer between two waves; cut short once every living participant pressed Ready
 	slots = 4, -- offers per shop
 	weaponChance = 0.35, -- share of weapon offers in a freely rolled slot (rest: items)

@@ -15,6 +15,7 @@ local Bot = require(script.Parent.PetBot)
 local BlazeTiming = require(script.Parent.PetBlazeTiming)
 local Projectiles = require(script.Parent.Projectiles)
 local Cat = require(script.Parent.PetCat)
+local Worm = require(script.Parent.PetLoot)
 local Actors = {}
 local bodies: any = nil
 local members: { any } = {}
@@ -53,6 +54,11 @@ local function release(o: any)
 end
 
 function Actors.clear()
+	for _, o in members do
+		if o.pet.lootworm then
+			Worm.clear(o)
+		end
+	end
 	bodies = nil
 	table.clear(members)
 	table.clear(claimed)
@@ -62,6 +68,9 @@ end
 function Actors.remove(o: any)
 	if not o.bodyId then
 		return
+	end
+	if o.pet.lootworm then
+		Worm.clear(o)
 	end
 	release(o)
 	bodies:remove(o.bodyId)
@@ -110,6 +119,9 @@ function Actors.add(o: any)
 		* C.frameRate
 	o.mineFrames = pet.mineIntervalFrames
 	o.attacking = false
+	if pet.lootworm then
+		Worm.init(o, Weapons.getStructureStats(o.owner))
+	end
 	if pet.catling then
 		Cat.init(o, Weapons.getStructureStats(o.owner))
 	end
@@ -289,7 +301,9 @@ function Actors.step(
 		end -- A credited pet kill may have synchronously ended the run.
 		for _, o in members do
 			local target
-			if o.pet.catling then
+			if o.pet.lootworm then
+				target = Worm.goal(o)
+			elseif o.pet.catling then
 				o.catBoosted = Cat.boosted(o, members)
 				o.bodyKind.anchored = o.catBoosted
 				target = if o.catBoosted
@@ -336,6 +350,12 @@ function Actors.step(
 			local previous, landed = o.position, false
 			local x, z = bodies:getPosition(o.bodyId)
 			local at = Vector3.new(x, o.position.Y, z) - o.bodyOffset
+			if o.pet.lootworm then
+				moved = moved or (at - previous).Magnitude > 0
+				o.position = at
+				Worm.step(o, sheetOf(o.owner), 1 / C.frameRate)
+				continue
+			end
 			if o.pet.catling then
 				moved = moved or (at - previous).Magnitude > 0
 				o.position = at

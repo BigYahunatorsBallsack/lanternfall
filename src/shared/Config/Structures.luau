@@ -274,6 +274,22 @@ kinds.CatlingGun = {
 	canBeGrouped = false,
 	countsAsTurret = false,
 }
+local worm = require(script.Parent.Pets).kinds.Lootworm
+kinds.Lootworm = {
+	displayName = "Lootworm",
+	mode = "Pet",
+	petKind = "Lootworm",
+	damage = worm.weapon.damage,
+	engineering = 0,
+	interval = worm.weapon.cooldownFrames / require(script.Parent.Pets).frameRate,
+	range = worm.weapon.rangePoints * require(script.Parent.Stats).range.studsPerPoint,
+	tier = 1,
+	price = 30,
+	color = { 255, 255, 255 },
+	description = "Lootworm",
+	canBeGrouped = false,
+	countsAsTurret = false,
+}
 for id, values in require(script.Parent.CharacterStructureData) do
 	for key, value in values do
 		(kinds[id] :: any)[key] = value

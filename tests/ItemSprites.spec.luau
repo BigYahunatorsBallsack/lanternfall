@@ -21,12 +21,12 @@ describe("Original item sprites", function()
 			assert(string.match(uri, "^rbxassetid://%d+$"))
 			count += 1
 		end
-		expect(count).toBe(#Config.Items.list - 7)
+		expect(count).toBe(#Config.Items.list - 8)
 		expect(Config.Items.byId.DigSite.available).toBe(false)
 		expect(Images.DigSite).toBe(nil)
 		expect(Config.Items.byId.LumberjackShirt.available).toBe(false)
 		expect(Images.LumberjackShirt).toBe(nil)
-		for _, id in { "Ratzilla", "BonkDog", "BotOMine", "Blazemander", "CatlingGun" } do
+		for _, id in { "Ratzilla", "BonkDog", "BotOMine", "Blazemander", "CatlingGun", "Lootworm" } do
 			expect(Config.Items.byId[id].available).toBe(false)
 			expect(Images[id]).toBe(nil)
 		end
@@ -93,7 +93,7 @@ describe("Original item sprites", function()
 		expect(#world.errors).toBe(0)
 	end)
 	it("clears pooled images while Blood Turret and native pet artwork is pending", function()
-		for _, kind in { "BloodTurret", "Ratzilla", "BonkDog", "BotOMine", "Blazemander", "CatlingGun" } do
+		for _, kind in { "BloodTurret", "Ratzilla", "BonkDog", "BotOMine", "Blazemander", "CatlingGun", "Lootworm" } do
 			Net.fireAllClients("Structures", Feed.encodeStructures({}))
 			Net.fireAllClients(
 				"Structures",

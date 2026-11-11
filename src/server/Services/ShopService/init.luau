@@ -64,6 +64,7 @@ ShopService.Sold = Signal.new()
 ShopService.ShardsChanged = Signal.new()
 
 local states: { [Player]: State } = {}
+local pendingMaterialStates: { [Player]: State } = {}
 local offerCounter = 0
 
 local function newState(): State
@@ -182,11 +183,26 @@ local function refresh(player: Player, state: State)
 	end
 end
 
-local function send(player: Player, state: State)
+local function send(player: Player, state: State, materialPickup: boolean?)
 	if state.open then
 		refresh(player, state)
 	end
-	Net.fireClient("ShopState", player, payload(player, state))
+	if materialPickup and not state.open then
+		if pendingMaterialStates[player] ~= state then
+			pendingMaterialStates[player] = state
+			task.delay(Config.Shop.materialSyncSeconds, function()
+				if pendingMaterialStates[player] == state then
+					pendingMaterialStates[player] = nil
+					if states[player] == state then
+						Net.fireClient("ShopState", player, payload(player, state))
+					end
+				end
+			end)
+		end
+	else
+		pendingMaterialStates[player] = nil
+		Net.fireClient("ShopState", player, payload(player, state))
+	end
 	local whole = math.floor(state.shards)
 	if whole ~= state.reportedShards then
 		state.reportedShards = whole
@@ -497,7 +513,7 @@ function ShopService.init()
 			local before = math.floor(state.shards)
 			state.shards += xp * Config.Shop.shardsPerXp
 			if math.floor(state.shards) ~= before then
-				send(player, state)
+				send(player, state, true)
 			end
 		end
 	end)

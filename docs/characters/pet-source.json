@@ -2953,6 +2953,66 @@
         }
       }
     },
+    "res://items/materials/gold.tscn": {
+      "sourceMd5": "702a5ad53fe7daf477b53f7169dd01a7",
+      "baseScene": "res://items/global/item.tscn",
+      "nodes": [
+        {
+          "name": "Gold",
+          "parent": null,
+          "type": null,
+          "scriptSource": "res://items/materials/gold.gd",
+          "properties": {
+            "collision_layer": 64
+          }
+        }
+      ],
+      "shapes": {}
+    },
+    "res://items/global/item.tscn": {
+      "sourceMd5": "555118026c8bf1e1f761d91f4ff910bd",
+      "baseScene": null,
+      "nodes": [
+        {
+          "name": "Item",
+          "parent": null,
+          "type": "Area2D",
+          "scriptSource": "res://items/global/item.gd",
+          "properties": {
+            "collision_layer": 32,
+            "collision_mask": 0,
+            "monitoring": false
+          }
+        },
+        {
+          "name": "CollisionShape2D",
+          "parent": ".",
+          "type": "CollisionShape2D",
+          "scriptSource": null,
+          "properties": {
+            "visible": false,
+            "shape": {
+              "resource": "res://items/global/item.tscn::1",
+              "resourceType": "RectangleShape2D"
+            }
+          }
+        }
+      ],
+      "shapes": {
+        "1": {
+          "resourceType": "RectangleShape2D",
+          "properties": {
+            "extents": {
+              "variantType": "Vector2",
+              "values": [
+                16,
+                16
+              ]
+            }
+          }
+        }
+      }
+    },
     "res://projectiles/player_projectile.tscn": {
       "sourceMd5": "214fcf709438df5d055ca83d41f53788",
       "baseScene": "res://projectiles/projectile.tscn",
@@ -3337,6 +3397,14 @@
     {
       "source": "res://global/entity_spawner.gdc",
       "sourceMd5": "ba0576c27ac5b889c5688decda3dd838"
+    },
+    {
+      "source": "res://items/global/item.gdc",
+      "sourceMd5": "dfb812b0c19455082009f2a7e990ece8"
+    },
+    {
+      "source": "res://items/materials/gold.gdc",
+      "sourceMd5": "16145060e2b47f94857ce8589e11db5c"
     },
     {
       "source": "res://overlap/hitbox.gdc",
