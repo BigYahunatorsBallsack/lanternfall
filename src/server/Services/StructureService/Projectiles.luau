@@ -1,5 +1,5 @@
 --!strict
--- Native structure projectiles reuse the weapon sweep simulator with a structure-only hit context; StructureService steps them.
+-- Structure and pet projectiles share the weapon sweep simulator; StructureService steps and clears both.
 local Shared = game:GetService("ReplicatedStorage").Shared
 local Config = require(Shared.Config)
 local Enemy = require(script.Parent.Parent.EnemySim)
@@ -8,29 +8,42 @@ local Random = require(script.Parent.Parent.RandomService)
 local Projectile = require(script.Parent.Parent.WeaponService.BrotatoProjectile)
 local Arsenal = require(script.Parent.Parent.WeaponService.Arsenal)
 local Rules = require(script.Parent.Rules)
+local PetRules = require(script.Parent.PetRules)
+local Combat = require(script.Parent.Parent.CombatService)
 local Sim = {}
 local volleys: { any } = {}
-function Sim.launch(player: Player, at: Vector3, def: any, sheet: { [string]: number }, directions: { Vector3 })
-	local stats = {
-		damage = Rules.damage(def, sheet),
-		critChance = def.critChance or 0,
-		critDamage = def.critDamage or 2,
-		projectileSpeed = def.projectileSpeed,
-		projectileRadius = Config.Structures.trapShotRadius,
-		range = def.shotRange or Rules.range(def, sheet),
-		pierce = def.pierce or 0,
-		pierceDamage = Rules.pierceFactor(def, sheet),
-		bounce = math.max(0, math.floor(sheet.bounce or 0)),
-		bounceDamage = Config.Structures.bounceFalloff,
-		knockback = math.max(0, sheet.knockback or 0) * Config.Combat.knockback.studsPerPoint,
-		knockbackPiercing = 0,
-		nativeTiming = 1,
-		nativeAccuracy = def.nativeAccuracy,
-		nativeSpread = def.nativeSpread,
-		count = def.count,
-	}
-	require(Shared.Util.NativeRangedStats).apply(stats, sheet)
-	stats.pierce += math.max(0, math.floor(sheet.piercing or 0))
+local function launch(
+	player: Player,
+	at: Vector3,
+	def: any,
+	sheet: { [string]: number },
+	directions: { Vector3 },
+	prepared: any?,
+	petScaling: { [string]: number }?
+)
+	local stats = prepared
+		or {
+			damage = Rules.damage(def, sheet),
+			critChance = def.critChance or 0,
+			critDamage = def.critDamage or 2,
+			projectileSpeed = def.projectileSpeed,
+			projectileRadius = Config.Structures.trapShotRadius,
+			range = def.shotRange or Rules.range(def, sheet),
+			pierce = def.pierce or 0,
+			pierceDamage = Rules.pierceFactor(def, sheet),
+			bounce = math.max(0, math.floor(sheet.bounce or 0)),
+			bounceDamage = Config.Structures.bounceFalloff,
+			knockback = math.max(0, sheet.knockback or 0) * Config.Combat.knockback.studsPerPoint,
+			knockbackPiercing = 0,
+			nativeTiming = 1,
+			nativeAccuracy = def.nativeAccuracy,
+			nativeSpread = def.nativeSpread,
+			count = def.count,
+		}
+	if not prepared then
+		require(Shared.Util.NativeRangedStats).apply(stats, sheet)
+		stats.pierce += math.max(0, math.floor(sheet.piercing or 0))
+	end
 	if def.radius then
 		stats.explosionRadius = def.radius
 			* math.max(Config.Combat.explosion.minimumSizeFactor, 1 + (sheet.explosionSize or 0) / 100)
@@ -43,7 +56,10 @@ function Sim.launch(player: Player, at: Vector3, def: any, sheet: { [string]: nu
 		uid = 0,
 		state = {},
 		stats = stats,
-		config = { kind = "Structure", scaling = { engineering = def.engineering or 0 } },
+		config = {
+			kind = if prepared then "Pet" else "Structure",
+			scaling = petScaling or { engineering = def.engineering or 0 },
+		},
 	}
 	local ctx: any = { x = at.X, z = at.Z, active = false, now = workspace:GetServerTimeNow(), slot = 1, slotCount = 1 }
 	function ctx.setHitDirection(_, dx, dz)
@@ -100,7 +116,7 @@ function Sim.launch(player: Player, at: Vector3, def: any, sheet: { [string]: nu
 			math.round(amount),
 			if mode == "Explosion" then "Explosion" else nil,
 			critical,
-			false
+			petScaling ~= nil and petScaling.elementalDamage ~= nil
 		)
 		if def.burnBase then
 			local base = def.burnBase
@@ -115,7 +131,7 @@ function Sim.launch(player: Player, at: Vector3, def: any, sheet: { [string]: nu
 			)
 			Weapons.structureBurn(player, id, burn, def.ticks, sheet)
 		end
-		if not killed and s.knockback > 0 then
+		if not killed and (s.knockback > 0 or (prepared and s.knockback < 0)) then
 			local pos = Enemy.getPosition(id)
 			if pos and (pos - at).Magnitude > 0 then
 				local away = (pos - at).Unit
@@ -123,11 +139,14 @@ function Sim.launch(player: Player, at: Vector3, def: any, sheet: { [string]: nu
 				Enemy.knock(id, dx * s.knockback, dz * s.knockback)
 			end
 		end
+		if prepared and ctx:random() < s.lifeSteal then
+			Combat.lifeSteal(player)
+		end
 		return killed
 	end
 	for _, direction in directions do
 		local aim = (ctx:random() * 2 - 1) * (1 - stats.nativeAccuracy)
-		for _ = 1, math.max(1, stats.count) do
+		for _ = 1, (if prepared then math.max(0, stats.count) else math.max(1, stats.count)) do
 			local angle = aim + (ctx:random() * 2 - 1) * stats.nativeSpread
 			local c, s = math.cos(angle), math.sin(angle)
 			Projectile.launch(
@@ -142,6 +161,25 @@ function Sim.launch(player: Player, at: Vector3, def: any, sheet: { [string]: nu
 		end
 	end
 	table.insert(volleys, { weapon = fake, context = ctx })
+end
+-- Existing structure callers retain their five-argument contract and their structure-only scaling.
+function Sim.launch(player: Player, at: Vector3, def: any, sheet: { [string]: number }, directions: { Vector3 })
+	launch(player, at, def, sheet, directions)
+end
+-- Trusted server pet actors supply original weapon definitions; ranged modifiers are applied exactly once.
+function Sim.launchPet(
+	player: Player,
+	at: Vector3,
+	weapon: any,
+	sheet: { [string]: number },
+	directions: { Vector3 },
+	beastMaster: boolean
+)
+	local stats = PetRules.compute(weapon, sheet, beastMaster)
+	stats.nativeTiming = 1
+	stats.projectileRadius = Config.Structures.trapShotRadius
+	stats.knockbackPiercing = 0
+	launch(player, at, weapon, sheet, directions, stats, PetRules.scaling(weapon.scaling, beastMaster))
 end
 function Sim.step(dt: number)
 	for i = #volleys, 1, -1 do

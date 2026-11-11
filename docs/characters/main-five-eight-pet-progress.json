@@ -38,6 +38,18 @@
     "ItemSprites": [
       6,
       0
+    ],
+    "NativePetProjectiles": [
+      4,
+      0
+    ],
+    "StructureBoostRules": [
+      2,
+      0
+    ],
+    "CharacterChefStructures": [
+      1,
+      0
     ]
   },
   "fullSuiteRun": true,
@@ -89,5 +101,37 @@
     "fish_hook",
     "lootworm",
     "spyglass"
-  ]
+  ],
+  "postFullSuiteStage": {
+    "change": "Add launchPet adapter to the existing structure projectile simulator; no Bot-O-Mine actor or item yet",
+    "tests": {
+      "NativePetProjectiles": [
+        4,
+        0
+      ],
+      "NativeStructures": [
+        4,
+        0
+      ],
+      "StructuresB12": [
+        8,
+        0
+      ],
+      "StructureBoostRules": [
+        2,
+        0
+      ],
+      "CharacterChefStructures": [
+        1,
+        0
+      ]
+    },
+    "fullSuiteRunAfterAdapter": false,
+    "seleneChangedServices": {
+      "errors": 0,
+      "warnings": 0
+    },
+    "rojo": true,
+    "bonkJumpObservationUsesExplicit60Hz": true
+  }
 }

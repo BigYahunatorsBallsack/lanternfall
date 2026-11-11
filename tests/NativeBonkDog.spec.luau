@@ -53,7 +53,7 @@ describe("Native Bonk Dog", function()
 		local maxWalk = 40 * math.max(1, 1 + f.Stats.getStat(f.me, "speed") / 100) / 15
 		for _ = 1, 85 do
 			local before = dog()
-			f.world.advance(1 / 15)
+			f.world.advance(1 / 15, 1 / 60)
 			local after = dog()
 			if
 				(after.x - before.x) * (highX - before.x) > 0
@@ -69,7 +69,7 @@ describe("Native Bonk Dog", function()
 		-- Outside melee reach but inside the original landing explosion.
 		local landingVictim = Enemy.spawn("Brute", captured.X, captured.Z + 20, 100, 0, nil, nil, 0)
 		local landingHp = Enemy.getHealth(landingVictim)
-		f.world.advance(0.4)
+		f.world.advance(0.4, 1 / 60)
 		local after = dog()
 		expect((Vector3.new(after.x, captured.Y, after.z) - captured).Magnitude < 12).toBe(true)
 		expect(Enemy.getHealth(high)).toBe(hp)
