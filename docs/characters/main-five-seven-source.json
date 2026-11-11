@@ -1,0 +1,84 @@
+{
+  "version": "1.2.0.1",
+  "steamBuild": 26406319,
+  "baseMain": "78b78c001da427711b2372bd8e4edbc04128859c",
+  "characters": [
+    {
+      "slug": "king",
+      "source": "res://items/characters/king/king_data.tres",
+      "sourceMd5": "3c819557a9c8c6aa2dc54d6aa7d17484",
+      "startChoices": 42
+    },
+    {
+      "slug": "loud",
+      "source": "res://items/characters/loud/loud_data.tres",
+      "sourceMd5": "7aa8b36255f62868b71e7aa7e1d19e1a",
+      "startChoices": 38
+    },
+    {
+      "slug": "soldier",
+      "source": "res://items/characters/soldier/soldier_data.tres",
+      "sourceMd5": "932b457831f4b3e24ff66b6aafaacdaa",
+      "startChoices": 24
+    },
+    {
+      "slug": "speedy",
+      "source": "res://items/characters/speedy/speedy_data.tres",
+      "sourceMd5": "8e18adb178cc0a995d7d0e8b85f53699",
+      "startChoices": 21
+    },
+    {
+      "slug": "vagabond",
+      "source": "res://items/characters/vagabond/vagabond_data.tres",
+      "sourceMd5": "ce24e9cb2aaa925cb3526f3e716bd689",
+      "startChoices": 29
+    }
+  ],
+  "resources": {
+    "res://weapons/weapon.gdc": "459365711e583c5182403866b79e7305",
+    "res://singletons/run_data.gdc": "a94d8eddd9609f413309ce9237297ad2",
+    "res://main.gdc": "903bd37107ab9c164addda2167477fb1",
+    "res://singletons/challenge_service.gdc": "6d6b42bb03a602222287ec8e7b2a14bf",
+    "res://challenges/chal_difficulty_2_data.tres": "e3b16b544fc32bb671c893c9a8c1fcdd",
+    "res://challenges/fast_data.tres": "d4916975e9e0bfc5b5a2df4d71a4d3ec",
+    "res://challenges/experimentation_data.tres": "14aafb4af1fd9d04a52fd3c20dfc17d8",
+    "res://challenges/bourgeoisie_data.tres": "95074eaaf396e6f3d6cd1d693130a92a",
+    "res://challenges/survivor_3_data.tres": "6045501d8c81677d2e2ea8c8f7d5cb5c",
+    "res://singletons/item_service.gdc": "2bb86ac67c9576337a664d6c75a66dec",
+    "res://entities/units/unit/unit.gdc": "aa94391f2d9681ac36b7f8617b82ff13",
+    "res://entities/units/movement_behaviors/player_movement_behavior.gdc": "c93557807b275921055c7e6c4bf91f10"
+  },
+  "wording": {
+    "EFFECT_ALL_WEAPONS_COUNT_FOR_SETS": "Equipped weapons always contribute to the class bonuses of other equipped weapons",
+    "EFFECT_NO_DUPLICATE_WEAPONS": "You can't equip two of the same weapon at the same time",
+    "EFFECT_STAT_WHILE_NOT_MOVING": "{0} {1} while standing still",
+    "EFFECT_CANT_ATTACK_WHILE_MOVING": "You can’t attack while moving",
+    "EFFECT_KNOCKBACK": "{0} Knockback",
+    "EFFECT_GAIN_STAT_END_OF_WAVE": "{0} {1} at the end of a wave",
+    "EFFECT_TIER_IV_WEAPON_BONUS": "{0} {1} for every Tier IV weapon you have [{2}]",
+    "EFFECT_TIER_I_WEAPON_BONUS": "{0} {1} for every Tier I weapon you have [{2}]",
+    "EFFECT_GAIN_STAT_FOR_EVERY_DIFFERENT_STAT": "{0} {1} for every different {3} you have [{4}]"
+  },
+  "wordingSource": {
+    "resource": "res://resources/translations/translations.en.translation",
+    "md5": "701f69b83d82866afc0d55321cceea7c",
+    "formatting": "res://singletons/text.gdc",
+    "formattingMd5": "70c974768c77067fc54fa4f6a45736c9",
+    "note": "CSV replacement character in can-t normalized to the intended curly apostrophe."
+  },
+  "rules": {
+    "soldier": "24starting choices. Serialized effects +50Damage,+50AttackSpeed are plain permanent stats, not conditional. +10Speed,+200PickupRange,+15Knockback. Native weapon.should_shoot checks parent.current_movement==ZERO or can_attack_while_moving; no removal of flat stats. Correct previous compiler approximation which moved them into stationaryStats. Existing outgoing projectiles/reload continue while new attacks are blocked; movement intent includes pushing a wall. Saved Danger2win unlock. Unit._physics_process stores get_movement before collision resolution; PlayerMovementBehavior returns analog/button input. Therefore pushing a wall still counts as moving for the attack gate.",
+    "speedy": "21choices. +30Speed,+1Melee per2currentSpeed with truncation toward zero,-3Armor and extra-100Armor while stationary. Temporary Speed counts for conversion and reverses on removal. Personal50Speed unlock, persists when Speed falls.",
+    "vagabond": "29choices. Every physical weapon counts for the set bonuses actually present on carried weapons; no phantom classes. No duplicate equipped families; same-tier shop merge remains allowed. -5Armor,-5Dodge,Luck/Harvesting gains x.5. Native experimentation checks6distinct simultaneous weapon_id hashes, not total6copies. New counts.distinctWeapons uses canonical equipped weapon ids, no new remote. Native ItemService removes lower-than-owned tiers and equal maximum-tier copies from the regular AND backup pool. Same-tier upgradable copies stay eligible for merging; higher tiers stay eligible. Shop pool now applies this native no-duplicate filter.",
+    "king": "42tierII choices. +50Luck; per tierIV weapon +25Damage/+25AttackSpeed, per tierI weapon -15Damage/-15AttackSpeed. Per different tierIV item +5MaxHP; per different tierI item -2MaxHP; duplicate copies of same item count once. Native bourgeoisie counts3simultaneously equipped tierIV+weapon copies, including duplicate family; does not count items. New counts.tier4Weapons uses Config.Player.maxWeaponTier in current4tiermodel.",
+    "loud": "38choices. +30Damage,+50Enemies,per successful wave -3Harvesting before harvesting payout and native growth. Example10Harvesting ->7paid ->8aftergrowth; next wave5paid ->6aftergrowth. Failed-wave retry does not pay/apply another wave-end loss. Personal5000lifetime enemy kills unlock."
+  },
+  "implementation": "Existing source policies, stats, movement, weapon, shop, set and wave systems reused. Added two authoritative inventory counts, corrected Soldier plain-stat compilation and completed the native Vagabond shop/backup tier filter. No new weapons/items/services/schema/remotes or art changes.",
+  "limits": [
+    "43/74code-prepared packages, not43native original-art/Studio accepted characters.",
+    "No uploads, asset-ID changes, Studio mutation or publishing.",
+    "Native common graphics/physics/item/zone parity and200actor4ms budget remain open.",
+    "Flail jungle unlock and9item/pet families remain open; remaining Main7 precede Abyssal14 and Primal10.",
+    "Original Steam profile-wide challenge progress maps to personal online players."
+  ]
+}

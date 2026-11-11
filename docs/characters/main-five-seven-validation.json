@@ -1,0 +1,195 @@
+{
+  "base": "78b78c001da427711b2372bd8e4edbc04128859c",
+  "reviewedCodeHead": "0bd68d1e85c580b1ee11a2c8da4a1ebb463d1988",
+  "runner": "Lune0.11.1, existing RobloxMock/prelude, math.randomseed(1234), one spec per process, separate actual cwd for main archive and branch",
+  "baseline": {
+    "specs": 217,
+    "passed": 1473,
+    "failed": 36,
+    "aborts": []
+  },
+  "initialBranchBeforeFinalVagabondPoolFix": {
+    "specs": 222,
+    "passed": 1487,
+    "failed": 37,
+    "aborts": []
+  },
+  "final": {
+    "specs": 222,
+    "passed": 1488,
+    "failed": 37,
+    "aborts": []
+  },
+  "additionalFailureNamesVersusFullBaseline": [
+    "FAIL new enemies (B9) > lets a Gobbler eat the orbs on the floor and drop them all when killed"
+  ],
+  "newDeterministicFailures": [],
+  "confirmedBaselineIntermittent": {
+    "spec": "tests/EnemiesB9.spec.luau",
+    "runs": {
+      "main": [
+        {
+          "passed": 6,
+          "failed": 1,
+          "failures": [
+            "FAIL new enemies (B9) > lets a Gobbler eat the orbs on the floor and drop them all when killed"
+          ]
+        },
+        {
+          "passed": 6,
+          "failed": 1,
+          "failures": [
+            "FAIL new enemies (B9) > lets a Gobbler eat the orbs on the floor and drop them all when killed"
+          ]
+        },
+        {
+          "passed": 7,
+          "failed": 0,
+          "failures": []
+        },
+        {
+          "passed": 7,
+          "failed": 0,
+          "failures": []
+        },
+        {
+          "passed": 6,
+          "failed": 1,
+          "failures": [
+            "FAIL new enemies (B9) > lets a Gobbler eat the orbs on the floor and drop them all when killed"
+          ]
+        }
+      ],
+      "branch": [
+        {
+          "passed": 7,
+          "failed": 0,
+          "failures": []
+        },
+        {
+          "passed": 7,
+          "failed": 0,
+          "failures": []
+        },
+        {
+          "passed": 6,
+          "failed": 1,
+          "failures": [
+            "FAIL new enemies (B9) > lets a Gobbler eat the orbs on the floor and drop them all when killed"
+          ]
+        },
+        {
+          "passed": 6,
+          "failed": 1,
+          "failures": [
+            "FAIL new enemies (B9) > lets a Gobbler eat the orbs on the floor and drop them all when killed"
+          ]
+        },
+        {
+          "passed": 6,
+          "failed": 1,
+          "failures": [
+            "FAIL new enemies (B9) > lets a Gobbler eat the orbs on the floor and drop them all when killed"
+          ]
+        }
+      ]
+    }
+  },
+  "gobblerNote": "Gobbler failed final full branch while baseline full run passed. Fresh5runs per current checkout: main3failed/2passed; branch3failed/2passed, same failure name only. This is a reproduced baseline intermittence, not claimed fixed.",
+  "failures": {
+    "tests/EnemiesB9.spec.luau": [
+      "FAIL new enemies (B9) > lets a Gobbler eat the orbs on the floor and drop them all when killed"
+    ],
+    "tests/EnemySpawnPlacement25.spec.luau": [
+      "FAIL Enemy spawn placement > positions a newly built sprite before making it visible",
+      "FAIL Enemy spawn placement > moves a pooled sprite to its next spawn before reattaching it"
+    ],
+    "tests/RunStats.spec.luau": [
+      "FAIL Tally > writes readable log lines with the level per minute and every build"
+    ],
+    "tests/Smoke.spec.luau": [
+      "FAIL smoke > arms the player with the class weapon and switches weapons off for the enemy tests",
+      "FAIL smoke > spawns enemies on a ring around the player and draws them",
+      "FAIL smoke > chases the player until it touches them",
+      "FAIL smoke > hits and kills enemies with the debug buttons",
+      "FAIL smoke > pauses spawning and spawns a test wave up to the cap",
+      "FAIL smoke > shows enemy and performance numbers to admins",
+      "FAIL smoke > shoots Spark Bolts that kill enemies once weapons are on",
+      "FAIL smoke > draws the six original weapons, tiers and debug swaps",
+      "FAIL smoke > drops XP orbs that the player picks up for the whole team",
+      "FAIL smoke > keeps level-ups for the end of the wave",
+      "FAIL smoke > ends the wave: enemies fade, the shop opens and the level-up cards come first",
+      "FAIL smoke > sells weapons and items for Shards in the shop, rerolls and starts the next wave on READY",
+      "FAIL smoke > lets items change HP, speed and weapon damage, stacking without limit",
+      "FAIL smoke > runs item effects: standing still, per X, timers, crit kills, dodges and chests",
+      "FAIL smoke > runs wave end, shop and next-wave effects and the shop stats",
+      "FAIL smoke > spawns a glowing elite with an HP bar that drops a chest",
+      "FAIL smoke > opens the chest when walked over and shows the reward",
+      "FAIL smoke > gives the evolution from a chest once the build is ready",
+      "FAIL smoke > lets Spitters shoot visible projectiles that hit the player",
+      "FAIL smoke > shows a Charger's wind-up, splits Splitters and names elite affixes",
+      "FAIL smoke > runs Brotato's combat: weapon class bonuses, burning, exploding items and slowed enemies",
+      "FAIL smoke > skips to the boss wave, and surviving it wins (WP10)",
+      "FAIL smoke > starts the next run with Play again",
+      "FAIL smoke > keeps walking but suppresses jumping on Space",
+      "FAIL smoke > takes debug damage with hit protection and heals",
+      "FAIL smoke > loses no HP while the debug Invincible switch is on",
+      "FAIL smoke > ends in defeat when the only player is knocked down",
+      "FAIL smoke > returns to the lobby after the results",
+      "FAIL smoke > runs with two players and keeps late joiners in the lobby",
+      "FAIL smoke > keeps running while one of two is down, and enemies go for the one still standing",
+      "FAIL smoke > stands a downed player up with full HP when the wave ends",
+      "FAIL smoke > rejects locked classes with a message",
+      "FAIL smoke > finished without any runtime error"
+    ]
+  },
+  "newSpecs": {
+    "tests/CharacterKingPackage.spec.luau": {
+      "passed": 3,
+      "failed": 0
+    },
+    "tests/CharacterLoudPackage.spec.luau": {
+      "passed": 3,
+      "failed": 0
+    },
+    "tests/CharacterSoldierPackage.spec.luau": {
+      "passed": 3,
+      "failed": 0
+    },
+    "tests/CharacterSpeedyPackage.spec.luau": {
+      "passed": 3,
+      "failed": 0
+    },
+    "tests/CharacterVagabondPackage.spec.luau": {
+      "passed": 4,
+      "failed": 0
+    }
+  },
+  "newChecks": 16,
+  "review": {
+    "axes": [
+      "correctness",
+      "readability",
+      "architecture",
+      "security",
+      "performance"
+    ],
+    "result": "No new blocking finding remains. Existing server validation, inventory/stat/weapon/shop/wave systems reused; no new remote/service/schema/weapon. Additional counts reuse bounded existing weapon traversal; shop filter reuses owned tier lookup.",
+    "sourceCorrection": "Soldier plain serialized stats and weapon.should_shoot gate corrected the former compiler approximation. Two old tests replaced their incorrect conditional-stat expectation with original flat-stat and unchanged attack-gate checks; no assertions skipped or weakened.",
+    "mutation": "Invert new Vagabond noDuplicateWeapons shop guard:3passed/1failed. Restore byte-for-byte SHA256 7375c900115962f7d8996e89e8c20da2afe34d8a2abf66f5de28aaab36eb82b2; Vagabond4passed/0failed.",
+    "redGreen": "Initial new packages: Soldier1passed/2failed; Speedy,Vagabond,King,Loud2passed/1failed each. New native shop-pool regression then failed3/1 before fix, passed4/0 afterward."
+  },
+  "checks": {
+    "stylua": "12changed/new Luau files formatted and checked",
+    "selene": "0errors,18existing warnings,0parse errors; cached Roblox API used when API download unavailable",
+    "rojo": "build/main-five-seven.rbxlx built",
+    "catalog": "--check passed;74source records, no missing starting weapon slugs,9open item/pet families",
+    "artwork": "No image preparation changes, asset IDs, uploads, Studio mutation or publishing."
+  },
+  "limits": [
+    "43/74code-prepared packages, all43mainGame;7mainGame,14AbyssalTerrors,10PrimalDread remain. No native original-art/Studio acceptance claim.",
+    "Existing common native graphics/physics/item/zone parity and200actor4ms budget remain open.",
+    "Flail jungle unlock and9item/pet families remain open; Chunky/Wildling incomplete.",
+    "Original Steam-profile-wide challenge progress maps to personal online profiles."
+  ]
+}
