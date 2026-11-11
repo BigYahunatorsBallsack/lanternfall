@@ -9,6 +9,7 @@ local Projectile = require(script.Parent.Parent.WeaponService.BrotatoProjectile)
 local Arsenal = require(script.Parent.Parent.WeaponService.Arsenal)
 local Rules = require(script.Parent.Rules)
 local PetRules = require(script.Parent.PetRules)
+local PetConfig = require(Shared.Config.Pets)
 local Combat = require(script.Parent.Parent.CombatService)
 local Sim = {}
 local volleys: { any } = {}
@@ -76,6 +77,16 @@ local function launch(
 		return if p then p.X else nil, if p then p.Z else nil
 	end
 	function ctx.querySegment(_, x, z, tx, tz, r, out)
+		if prepared then
+			local dx, dz = tx - x, tz - z
+			local length = math.sqrt(dx * dx + dz * dz)
+			if length > 0 then
+				local forward = PetConfig.projectile.offsetForwardPoints * Config.Stats.range.studsPerPoint
+				local side = PetConfig.projectile.offsetSidePoints * Config.Stats.range.studsPerPoint
+				local ox, oz = (dx * forward - dz * side) / length, (dz * forward + dx * side) / length
+				x, z, tx, tz = x + ox, z + oz, tx + ox, tz + oz
+			end
+		end
 		return Enemy.querySegment(Vector3.new(x, at.Y, z), Vector3.new(tx, at.Y, tz), r, out)
 	end
 	function ctx.queryCircle(_, x, z, r, out)
@@ -110,6 +121,12 @@ local function launch(
 		end
 		local critical = s.critChance >= 1
 		local amount = s.damage * (share or 1) * (if critical then s.critDamage else 1)
+		if prepared then
+			local kind = Enemy.getKind(id)
+			local boss = Config.Enemies.bosses[kind] ~= nil or Config.Enemies.champions[kind] ~= nil
+			amount =
+				PetRules.hitDamage(s.damage, share, if critical then s.critDamage else 1, boss, sheet.eliteDamage or 0)
+		end
 		local killed = Weapons.structureHit(
 			player,
 			id,
@@ -177,15 +194,23 @@ function Sim.launchPet(
 )
 	local stats = PetRules.compute(weapon, sheet, beastMaster)
 	stats.nativeTiming = 1
-	stats.projectileRadius = Config.Structures.trapShotRadius
+	stats.nativeIntegerFalloff = 1
+	stats.projectileRadius = PetConfig.projectile.radiusPoints * Config.Stats.range.studsPerPoint
+	stats.range += PetConfig.projectile.autoRangeBonusPoints * Config.Stats.range.studsPerPoint
 	stats.knockbackPiercing = 0
 	launch(player, at, weapon, sheet, directions, stats, PetRules.scaling(weapon.scaling, beastMaster))
 end
 function Sim.step(dt: number)
 	for i = #volleys, 1, -1 do
 		local v = volleys[i]
+		if not v then
+			break
+		end
 		v.context.now = workspace:GetServerTimeNow()
 		Projectile.step(v.weapon, v.context, dt)
+		if volleys[i] ~= v then
+			break
+		end -- Terminal hits clear the queue during Projectile.step.
 		if not v.weapon.state.projectiles or #v.weapon.state.projectiles == 0 then
 			table.remove(volleys, i)
 		end

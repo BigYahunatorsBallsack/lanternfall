@@ -8,6 +8,21 @@ local Ranged = require(Shared.Util.NativeRangedStats)
 local Damage = require(Shared.Util.NativeWeaponDamage)
 local Rules = {}
 
+-- Boss.take_damage applies its positive bonus to integer hitbox damage before Unit.take_damage rolls the critical.
+function Rules.hitDamage(
+	base: number,
+	share: number?,
+	criticalMultiplier: number,
+	boss: boolean,
+	bossBonus: number
+): number
+	local amount = math.max(1, math.floor(base * (share or 1)))
+	if boss and bossBonus > 0 then
+		amount = math.floor(amount * (1 + bossBonus / 100))
+	end
+	return math.max(1, math.round(amount * criticalMultiplier))
+end
+
 function Rules.scaling(base: { { any } }, beastMaster: boolean?, modifiers: { [string]: number }?): { [string]: number }
 	local result = {}
 	for _, row in base do

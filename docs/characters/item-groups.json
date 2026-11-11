@@ -1451,6 +1451,18 @@
         "stat_max_hp",
         "pet"
       ]
+    },
+    "BotOMine": {
+      "nativeId": "item_bot_o_mine",
+      "nameKey": "ITEM_BOT_O_MINE",
+      "source": "res://items/all/03_paws_n_claws/bot_o_mine/bot_o_mine.tres",
+      "sourceMd5": "471c4b70b39ea3b2d6579004a3436be8",
+      "displayName": "Bot-O-Mine",
+      "tags": [
+        "stat_engineering",
+        "pet",
+        "structure"
+      ]
     }
   },
   "endlessBannedItems": [

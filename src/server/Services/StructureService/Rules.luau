@@ -1,12 +1,17 @@
 --!strict
--- Pure engineering formulas; used by StructureService and tests. Primary combat stats do not scale structures.
+-- Structure formulas and the native pet-mine exception; used by StructureService and source-based tests.
 local Config = require(game:GetService("ReplicatedStorage").Shared.Config)
 local StatMath = require(game:GetService("ReplicatedStorage").Shared.Util.StatMath)
 local Timing = require(game:GetService("ReplicatedStorage").Shared.Util.NativeWeaponTiming)
+local PetRules = require(script.Parent.PetRules)
+local Pets = require(game:GetService("ReplicatedStorage").Shared.Config.Pets)
 local Rules = {}
 function Rules.damage(def, sheet)
 	if def.finalDamageOverride then
 		return def.finalDamageOverride
+	end
+	if def.petMine then
+		return PetRules.compute(Pets.kinds.BotOMine.mine, sheet, def.petBeastMaster).damage
 	end
 	local flat = math.floor(
 		def.damage + def.engineering * (sheet.engineering or 0) + (def.elemental or 0) * (sheet.elementalDamage or 0)

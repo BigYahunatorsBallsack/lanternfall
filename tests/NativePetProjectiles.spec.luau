@@ -74,4 +74,40 @@ describe("Native pet projectiles", function()
 		Sim.step(1)
 		expect(Enemy.getHealth(id)).toBe(hp)
 	end)
+	it("uses the original bullet hit circle and the native auto-aim flight extension", function()
+		target()
+		Enemy.killAll()
+		local wide = assert(Enemy.spawn("Brute", 20, 5, 100, 0, nil, nil, 0))
+		local hp = Enemy.getHealth(wide)
+		Sim.launchPet(f.me, at, Pets.kinds.BotOMine.weapon, {}, { Vector3.new(1, 0, 0) }, false)
+		Sim.step(0.1)
+		expect(Enemy.getHealth(wide)).toBe(hp - 10)
+		target()
+		Enemy.killAll()
+		local far = assert(Enemy.spawn("Brute", 37, 0, 100, 0, nil, nil, 0))
+		hp = Enemy.getHealth(far)
+		Sim.launchPet(f.me, at, Pets.kinds.BotOMine.weapon, {}, { Vector3.new(1, 0, 0) }, false)
+		Sim.step(0.2)
+		expect(Enemy.getHealth(far)).toBe(hp - 10)
+	end)
+	it("truncates each native piercing hit and retains one damage at total falloff", function()
+		for _, case in
+			{ { base = 11, falloff = 0.3, damage = { 11, 7, 4 } }, { base = 1, falloff = 1, damage = { 1, 1, 1 } } }
+		do
+			target()
+			Enemy.killAll()
+			local ids, hp = {}, {}
+			for n = 1, 3 do
+				ids[n] = assert(Enemy.spawn("Brute", n * 10, 0, 100, 0, nil, nil, 0))
+				hp[n] = Enemy.getHealth(ids[n])
+			end
+			local weapon = table.clone(Pets.kinds.BotOMine.weapon)
+			weapon.damage, weapon.pierce, weapon.pierceFalloff = case.base, 2, case.falloff
+			Sim.launchPet(f.me, at, weapon, {}, { Vector3.new(1, 0, 0) }, false)
+			Sim.step(0.2)
+			for n, id in ids do
+				expect(Enemy.getHealth(id)).toBe(hp[n] - case.damage[n])
+			end
+		end
+	end)
 end)

@@ -709,6 +709,20 @@ table.insert(
 		tags = table.freeze({ "meleeDamage", "explosive", "pet" }),
 	})
 )
+table.insert(
+	LIST,
+	table.freeze({
+		id = "BotOMine",
+		displayName = "Bot-O-Mine",
+		tier = 2,
+		price = 55,
+		available = false,
+		stats = table.freeze({}),
+		structure = "BotOMine",
+		pet = "BotOMine",
+		tags = table.freeze({ "engineering", "pet", "structure" }),
+	})
+)
 local byId: { [string]: Item } = {}
 for _, entry in LIST do
 	byId[entry.id] = entry

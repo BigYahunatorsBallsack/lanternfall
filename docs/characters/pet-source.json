@@ -2815,6 +2815,179 @@
         }
       }
     },
+    "res://projectiles/bullet/bullet_projectile.tscn": {
+      "sourceMd5": "f7a547846f71d7a6bc85fe7f1bdc34c8",
+      "baseScene": "res://projectiles/player_projectile.tscn",
+      "nodes": [
+        {
+          "name": "Sprite",
+          "parent": ".",
+          "type": null,
+          "scriptSource": null,
+          "properties": {
+            "position": {
+              "variantType": "Vector2",
+              "values": [
+                1,
+                1
+              ]
+            }
+          }
+        },
+        {
+          "name": "Hitbox",
+          "parent": ".",
+          "type": null,
+          "scriptSource": null,
+          "properties": {
+            "position": {
+              "variantType": "Vector2",
+              "values": [
+                -23,
+                1
+              ]
+            }
+          }
+        }
+      ],
+      "shapes": {}
+    },
+    "res://overlap/hitbox.tscn": {
+      "sourceMd5": "6222713c85e3dbf2298abd249a65bb01",
+      "baseScene": null,
+      "nodes": [
+        {
+          "name": "Hitbox",
+          "parent": null,
+          "type": "Area2D",
+          "scriptSource": "res://overlap/hitbox.gd",
+          "properties": {
+            "collision_layer": 0,
+            "collision_mask": 0,
+            "monitoring": false
+          }
+        },
+        {
+          "name": "Collision",
+          "parent": ".",
+          "type": "CollisionShape2D",
+          "scriptSource": null,
+          "properties": {
+            "shape": {
+              "resource": "res://overlap/hitbox.tscn::1",
+              "resourceType": "CircleShape2D"
+            }
+          }
+        }
+      ],
+      "shapes": {
+        "1": {
+          "resourceType": "CircleShape2D",
+          "properties": {
+            "radius": 12.0
+          }
+        }
+      }
+    },
+    "res://projectiles/player_projectile.tscn": {
+      "sourceMd5": "214fcf709438df5d055ca83d41f53788",
+      "baseScene": "res://projectiles/projectile.tscn",
+      "nodes": [
+        {
+          "name": "PlayerProjectile",
+          "parent": null,
+          "type": null,
+          "scriptSource": "res://projectiles/player_projectile.gd",
+          "properties": {
+            "rotation_speed": 0
+          }
+        },
+        {
+          "name": "Hitbox",
+          "parent": ".",
+          "type": null,
+          "scriptSource": null,
+          "properties": {
+            "collision_layer": 8
+          }
+        }
+      ],
+      "shapes": {}
+    },
+    "res://projectiles/projectile.tscn": {
+      "sourceMd5": "812858f38125afcd1b80afb57cffed70",
+      "baseScene": null,
+      "nodes": [
+        {
+          "name": "Projectile",
+          "parent": null,
+          "type": "Node2D",
+          "scriptSource": "res://projectiles/projectile.gd",
+          "properties": {}
+        },
+        {
+          "name": "Sprite",
+          "parent": ".",
+          "type": "Sprite",
+          "scriptSource": null,
+          "properties": {
+            "unique_name_in_owner": true,
+            "position": {
+              "variantType": "Vector2",
+              "values": [
+                24,
+                0
+              ]
+            }
+          }
+        },
+        {
+          "name": "Hitbox",
+          "parent": ".",
+          "type": null,
+          "scriptSource": null,
+          "properties": {
+            "unique_name_in_owner": true
+          }
+        },
+        {
+          "name": "Collision",
+          "parent": "Hitbox",
+          "type": null,
+          "scriptSource": null,
+          "properties": {
+            "position": {
+              "variantType": "Vector2",
+              "values": [
+                23,
+                0
+              ]
+            },
+            "shape": {
+              "resource": "res://projectiles/projectile.tscn::1",
+              "resourceType": "CircleShape2D"
+            }
+          }
+        },
+        {
+          "name": "AnimationPlayer",
+          "parent": ".",
+          "type": "AnimationPlayer",
+          "scriptSource": null,
+          "properties": {
+            "unique_name_in_owner": true
+          }
+        }
+      ],
+      "shapes": {
+        "1": {
+          "resourceType": "CircleShape2D",
+          "properties": {
+            "radius": 44.0
+          }
+        }
+      }
+    },
     "res://entities/units/pet/pet.tscn": {
       "sourceMd5": "136a6810591473976a7844cca9d9766f",
       "baseScene": "res://entities/units/unit/unit.tscn",
@@ -3030,6 +3203,10 @@
       "sourceMd5": "805ebc9f4306c9ec71b786cdc7dd89af"
     },
     {
+      "source": "res://entities/units/enemies/bosses/boss.gdc",
+      "sourceMd5": "a3cc583e1e8521d2899b6b7c56734685"
+    },
+    {
       "source": "res://entities/units/movement_behaviors/follow_target_movement_behavior.gdc",
       "sourceMd5": "f83ff84e33f12eb473d748e68b909d05"
     },
@@ -3094,6 +3271,10 @@
       "sourceMd5": "aa94391f2d9681ac36b7f8617b82ff13"
     },
     {
+      "source": "res://global/entity_spawner.gdc",
+      "sourceMd5": "ba0576c27ac5b889c5688decda3dd838"
+    },
+    {
       "source": "res://overlap/hitbox.gdc",
       "sourceMd5": "c1b09a67ca1618f73c2e89751ab82226"
     },
@@ -3102,12 +3283,24 @@
       "sourceMd5": "efe54415356755be85033559e26a7291"
     },
     {
+      "source": "res://projectiles/player_projectile.gdc",
+      "sourceMd5": "57112e4f63b8516f44096515fc1dd1db"
+    },
+    {
+      "source": "res://projectiles/projectile.gdc",
+      "sourceMd5": "ee5a00901c32fd43a778be4e66a09d8f"
+    },
+    {
       "source": "res://singletons/utils.gdc",
       "sourceMd5": "162d494bbe6f25d79f486906a593cfa3"
     },
     {
       "source": "res://singletons/weapon_service.gdc",
       "sourceMd5": "e165d91ac24a7e0eff33a26bb09006c5"
+    },
+    {
+      "source": "res://singletons/zone_service.gdc",
+      "sourceMd5": "d16899aba618beb55e980f67a0bf10b0"
     }
   ],
   "engineDefaults": {

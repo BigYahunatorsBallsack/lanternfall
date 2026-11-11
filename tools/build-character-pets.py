@@ -2,7 +2,7 @@
 No scripts or full scenes are copied; these facts alone do not implement pets.
 """
 from __future__ import annotations
-import argparse, csv, importlib.util, json, re, sys
+import argparse, csv, importlib.util, json, math, re, sys
 from pathlib import Path
 sys.dont_write_bytecode=True
 ROOT=Path(__file__).resolve().parents[1]
@@ -46,6 +46,8 @@ def generate(pck):
    seen.add(ref);data=pck.resource(ref)['properties'];resources[ref]={'sourceMd5':pck.entries[ref]['md5'],'properties':facts(data)}
    pending.extend(r['resource'] for r in source.references(data) if r['resource'].endswith('.tres') and '::' not in r['resource'])
   rows.append(row)
+ for ref in ['res://projectiles/bullet/bullet_projectile.tscn','res://overlap/hitbox.tscn']:
+  scenes[ref]=read_scene(pck,ref)
  pending=[v['baseScene'] for v in scenes.values() if v.get('baseScene')]
  while pending:
   ref=pending.pop()
@@ -54,7 +56,7 @@ def generate(pck):
   if scenes[ref].get('baseScene'):pending.append(scenes[ref]['baseScene'])
  rule_sources=[]
  scripts={n['scriptSource'] for scene in scenes.values() for n in scene['nodes'] if n.get('scriptSource')}
- scripts.update(['res://singletons/weapon_service.gd','res://singletons/utils.gd','res://global/pet_service.gd'])
+ scripts.update(['res://singletons/weapon_service.gd','res://singletons/utils.gd','res://global/pet_service.gd','res://global/entity_spawner.gd','res://singletons/zone_service.gd','res://entities/units/enemies/bosses/boss.gd'])
  for script in sorted(scripts):
   path=next((candidate for candidate in [script,script.removesuffix('.gd')+'.gdc'] if candidate in pck.entries),None)
   if path:rule_sources.append({'source':path,'sourceMd5':pck.entries[path]['md5']})
@@ -83,6 +85,19 @@ def catalog(out):
   if 'explosion_effect' in effect:pet['explosion']=weapon(props(props(effect['explosion_effect'])['stats']),exploding=True)
   if 'ranged_weapon_stats' in effect:pet['ranged']=weapon(props(effect['ranged_weapon_stats']),ranged=True)
   if 'landmine_effect_stat' in effect:pet['mine']=weapon(props(props(effect['landmine_effect_stat'])['stats']),structure=True,exploding=True)
+  if slug=='bot_o_mine':
+   nodes=inherited_nodes(effect['scene']['resource'])
+   body=nodes['Collision','.'];shape_path,sub=body['shape']['resource'].split('::')
+   pet.update({'followOwner':True,'bodyRadiusPoints':out['scenes'][shape_path]['shapes'][sub]['properties']['radius'],'bodyOffsetXPoints':body['position']['values'][0],'bodyOffsetZPoints':body['position']['values'][1],'stopDistancePoints':nodes['MovementBehavior','.']['distance_to_target'],'mineIntervalFrames':props(effect['landmine_effect_stat'])['spawn_cooldown'],'mineAreaPoints':100})
+   muzzle=next(n for n in out['scenes'][effect['scene']['resource']]['nodes'] if n['name']=='Muzzle')
+   parts=muzzle['parent'].split('/')[2:]+['Muzzle'];parent='Animation/Viewport';a,b,c,d,x,y=1,0,0,1,0,0
+   for name in parts:
+    n=nodes.get((name,parent),{});px,py=n.get('position',{}).get('values',[0,0]);sx,sy=n.get('scale',{}).get('values',[1,1]);angle=n.get('rotation',0);co,si=math.cos(angle),math.sin(angle)
+    x,y=x+a*px+c*py,y+b*px+d*py
+    a,b,c,d=(a*co+c*si)*sx,(b*co+d*si)*sx,(-a*si+c*co)*sy,(-b*si+d*co)*sy
+    parent+='/'+name
+   ax,ay=nodes['Animation','.']['position']['values']
+   pet.update({'muzzleXPoints':ax+x-100,'muzzleZPoints':ay+y-100})
   if slug in ['ratzilla','bonk_dog']:
    scene=out['scenes'][effect['scene']['resource']]
    nodes=inherited_nodes(effect['scene']['resource'])
@@ -96,7 +111,9 @@ def catalog(out):
     root=scene['nodes'][0]['properties'];effect_explosion=props(effect['explosion_effect']);geometry=json.loads((ROOT/'docs/characters/structure-source.json').read_text())['geometry']
     pet.update({'jumpSeconds':root['charge_duration'],'jumpMinimumSquaredPoints':root['min_squared_distance_for_jump_attack'],'jumpInitialMinimumShare':0.25,'jumpRetryShare':0.4,'explosionScale':effect_explosion['scale'],'explosionRadiusPoints':geometry['explosionRadiusPoints']})
   kinds[row['id']]=pet
- data={'frameRate':60,'minimumCooldownFrames':2,'minimumRangePoints':25,'beastMasterStats':['meleeDamage','rangedDamage','elementalDamage','engineering'],'kinds':kinds}
+ bullet=inherited_nodes('res://projectiles/bullet/bullet_projectile.tscn');hit=bullet['Hitbox','.'];collision=bullet['Collision','Hitbox'];shape_path,sub=collision['shape']['resource'].split('::');hx,hz=hit['position']['values'];cx,cz=collision['position']['values']
+ projectile={'radiusPoints':out['scenes'][shape_path]['shapes'][sub]['properties']['radius'],'offsetForwardPoints':hx+cx,'offsetSidePoints':hz+cz,'autoRangeBonusPoints':100}
+ data={'frameRate':60,'minimumCooldownFrames':2,'minimumRangePoints':25,'projectile':projectile,'beastMasterStats':['meleeDamage','rangedDamage','elementalDamage','engineering'],'kinds':kinds}
  def lua(value,depth=0):
   if isinstance(value,bool):return 'true' if value else 'false'
   if isinstance(value,(int,float)):return str(value)

@@ -4,6 +4,12 @@ return {
 	frameRate = 60,
 	minimumCooldownFrames = 2,
 	minimumRangePoints = 25,
+	projectile = {
+		radiusPoints = 44.0,
+		offsetForwardPoints = 0,
+		offsetSidePoints = 1,
+		autoRangeBonusPoints = 100,
+	},
 	beastMasterStats = {
 		"meleeDamage",
 		"rangedDamage",
@@ -215,6 +221,15 @@ return {
 					},
 				},
 			},
+			followOwner = true,
+			bodyRadiusPoints = 40.0,
+			bodyOffsetXPoints = 0,
+			bodyOffsetZPoints = -24,
+			stopDistancePoints = 100.0,
+			mineIntervalFrames = 300,
+			mineAreaPoints = 100,
+			muzzleXPoints = -0.003805851999999277,
+			muzzleZPoints = -51.72860875000001,
 		},
 		Lootworm = {
 			speedPoints = 250,

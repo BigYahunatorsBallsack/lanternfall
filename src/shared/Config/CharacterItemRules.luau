@@ -215,6 +215,7 @@ local nativeIds: { [string]: string } = {
 	DigSite = "item_dig_site",
 	BonkDog = "item_bonk_dog",
 	Ratzilla = "item_ratzilla",
+	BotOMine = "item_bot_o_mine",
 }
 
 local tags: { [string]: { string } } = {
@@ -681,6 +682,11 @@ local tags: { [string]: { string } } = {
 	Ratzilla = {
 		"stat_max_hp",
 		"pet",
+	},
+	BotOMine = {
+		"stat_engineering",
+		"pet",
+		"structure",
 	},
 }
 

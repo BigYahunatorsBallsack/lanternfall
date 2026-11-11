@@ -313,7 +313,11 @@ function Projectile.step(weapon: Arsenal.Weapon, ctx: Arsenal.Context, dt: numbe
 						shot.x, shot.z, shot.dx, shot.dz, shot.flown = x, z, (tx - x) / length, (tz - z) / length, 0
 						shot.bounces -= 1
 						shot.bounced = true
-						shot.share *= stats.bounceDamage or 1
+						if stats.nativeIntegerFalloff then
+							stats.damage = math.max(1, math.floor(stats.damage * (stats.bounceDamage or 1)))
+						else
+							shot.share *= stats.bounceDamage or 1
+						end
 						ctx:emit(weapon, {
 							kind = "Fire",
 							id = shot.id,
@@ -342,7 +346,11 @@ function Projectile.step(weapon: Arsenal.Weapon, ctx: Arsenal.Context, dt: numbe
 				stopped = true
 				break
 			end
-			shot.share *= stats.pierceDamage or 1
+			if stats.nativeIntegerFalloff then
+				stats.damage = math.max(1, math.floor(stats.damage * (stats.pierceDamage or 1)))
+			else
+				shot.share *= stats.pierceDamage or 1
+			end
 		end
 		if not stopped then
 			shot.x, shot.z = x1, z1

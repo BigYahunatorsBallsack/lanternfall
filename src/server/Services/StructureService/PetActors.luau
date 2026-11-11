@@ -11,6 +11,7 @@ local Random = require(script.Parent.Parent.RandomService)
 local Weapons = require(script.Parent.Parent.WeaponService)
 local Combat = require(script.Parent.Parent.CombatService)
 local Rules = require(script.Parent.PetRules)
+local Bot = require(script.Parent.PetBot)
 local Actors = {}
 local bodies: any = nil
 local members: { any } = {}
@@ -41,7 +42,7 @@ local function createWorld()
 end
 
 local function release(o: any)
-	local family = claimed[o.pet.targetFamily]
+	local family = if o.pet.targetFamily then claimed[o.pet.targetFamily] else nil
 	if o.target and family and family[o.target] == o.id then
 		family[o.target] = nil
 	end
@@ -70,6 +71,16 @@ function Actors.remove(o: any)
 	o.bodyId = nil
 end
 
+local function beastMaster(player: Player): boolean
+	local class = Config.Classes[Run.getParticipantClassId(player)]
+	for _, rule in (class and class.native and class.native.remainingRules) or {} do
+		if rule.sourceKey == "beast_master_effect" and rule.amount > 0 then
+			return true
+		end
+	end
+	return false
+end
+
 function Actors.add(o: any)
 	local def = Config.Structures.kinds[o.kind]
 	if not def.petKind then
@@ -78,6 +89,7 @@ function Actors.add(o: any)
 	local pet = C.kinds[def.petKind]
 	bodies = bodies or createWorld()
 	o.pet = pet
+	o.beastMaster = beastMaster(o.owner)
 	o.bodyOffset = Vector3.new(pet.bodyOffsetXPoints * scale, 0, pet.bodyOffsetZPoints * scale)
 	local center = o.position + o.bodyOffset
 	o.bodyId = bodies:spawn({
@@ -90,13 +102,17 @@ function Actors.add(o: any)
 		mass = 1,
 	}, center.X, center.Z, 1, 0)
 	assert(o.bodyId, "Pet body budget must match StructureService's deployment budget")
-	o.cooldownFrames = pet.weapon.cooldownFrames
+	o.cooldownFrames = Rules.compute(pet.weapon, Weapons.getStructureStats(o.owner), o.beastMaster).cooldown
+		* C.frameRate
+	o.mineFrames = pet.mineIntervalFrames
 	o.attacking = false
 	if pet.explosion then
 		o.jumpCooldownFrames = pet.explosion.cooldownFrames
 			* (pet.jumpInitialMinimumShare + (1 - pet.jumpInitialMinimumShare) * Random.number("Combat", o.owner))
 	end
-	claimed[pet.targetFamily] = claimed[pet.targetFamily] or {}
+	if pet.targetFamily then
+		claimed[pet.targetFamily] = claimed[pet.targetFamily] or {}
+	end
 	table.insert(members, o)
 end
 
@@ -133,19 +149,11 @@ local function chooseTarget(o: any)
 	end
 end
 
-local function beastMaster(player: Player): boolean
-	local class = Config.Classes[Run.getParticipantClassId(player)]
-	for _, rule in (class and class.native and class.native.remainingRules) or {} do
-		if rule.sourceKey == "beast_master_effect" and rule.amount > 0 then
-			return true
-		end
-	end
-	return false
-end
-
 local function attack(o: any, sheet: { [string]: number }, exploding: boolean?)
 	local pet = o.pet
-	local stats = Rules.compute(if exploding then pet.explosion else pet.weapon, sheet, beastMaster(o.owner))
+	local weapon = if exploding then pet.explosion else pet.weapon
+	local stats = Rules.compute(weapon, sheet, o.beastMaster)
+	local elemental = Rules.scaling(weapon.scaling, o.beastMaster).elementalDamage ~= nil
 	local ids = {}
 	local center = if exploding
 		then o.position
@@ -161,12 +169,15 @@ local function attack(o: any, sheet: { [string]: number }, exploding: boolean?)
 	for _, id in ids do
 		local critical = stats.critChance ~= 0 and Random.number("Combat", o.owner) <= stats.critChance
 		local at = Enemy.getPosition(id)
+		local kind = Enemy.getKind(id)
+		local boss = Config.Enemies.bosses[kind] ~= nil or Config.Enemies.champions[kind] ~= nil
 		local killed = Weapons.structureHit(
 			o.owner,
 			id,
-			math.round(stats.damage * (if critical then stats.critDamage else 1)),
+			Rules.hitDamage(stats.damage, 1, if critical then stats.critDamage else 1, boss, sheet.eliteDamage or 0),
 			if exploding then "Explosion" else nil,
-			critical
+			critical,
+			elemental
 		)
 		if killed then
 			kills += 1
@@ -213,7 +224,11 @@ local function tryJump(o: any): boolean
 	return enemyCount > 0
 end
 
-function Actors.step(dt: number, sheetOf: (Player) -> any): boolean
+function Actors.step(
+	dt: number,
+	sheetOf: (Player) -> any,
+	spawnStructure: (Player, string, any?, Vector3?) -> ()
+): boolean
 	if not bodies then
 		return false
 	end
@@ -229,13 +244,22 @@ function Actors.step(dt: number, sheetOf: (Player) -> any): boolean
 	local frames = math.floor(stepRemainder)
 	stepRemainder -= frames
 	local moved = false
+	local requests = {}
 	for _ = 1, frames do
+		if not bodies then
+			break
+		end -- A credited pet kill may have synchronously ended the run.
 		for _, o in members do
-			if not o.target or not Enemy.isAlive(o.target) then
-				release(o)
-				chooseTarget(o)
+			local target
+			if o.pet.followOwner then
+				target = Bot.goal(o)
+			else
+				if not o.target or not Enemy.isAlive(o.target) then
+					release(o)
+					chooseTarget(o)
+				end
+				target = o.target and Enemy.getPosition(o.target)
 			end
-			local target = o.target and Enemy.getPosition(o.target)
 			local goal = if target and not o.jump then target + o.bodyOffset else nil
 			bodies:setGoal(o.bodyId, if goal then goal.X else nil, if goal then goal.Z else nil)
 			bodies:setSpeedFactor(o.bodyId, math.max(1, 1 + (sheetOf(o.owner).speed or 0) / 100))
@@ -245,6 +269,15 @@ function Actors.step(dt: number, sheetOf: (Player) -> any): boolean
 			local previous, landed = o.position, false
 			local x, z = bodies:getPosition(o.bodyId)
 			local at = Vector3.new(x, o.position.Y, z) - o.bodyOffset
+			if o.pet.followOwner then
+				moved = moved or (at - previous).Magnitude > 0
+				o.position = at
+				local request = Bot.step(o, sheetOf(o.owner))
+				if request then
+					table.insert(requests, request)
+				end
+				continue
+			end
 			if o.jump then
 				o.jump.frame += 1
 				local t = o.jump.frame / (o.pet.jumpSeconds * C.frameRate)
@@ -282,6 +315,11 @@ function Actors.step(dt: number, sheetOf: (Player) -> any): boolean
 					o.attacking = true
 				end
 			end
+		end
+	end
+	for _, request in requests do
+		if bodies then
+			spawnStructure(request.owner, request.kind, request.definition, request.at)
 		end
 	end
 	return moved

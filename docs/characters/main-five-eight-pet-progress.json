@@ -1,137 +1,103 @@
 {
-  "mutation": "Disable the real Ratzilla hit call, leaving player weapons paused",
-  "detected": true,
-  "mutationOutput": "[Lanternfall] Place: lobby and arena in one server (no hub/run place ids for this place in Config.Places)\n[Lanternfall] Server ready: 71 remotes, 36 services, config problems: 0\n[Lanternfall] Saving: memory only (no DataStoreService)\n[Lanternfall] Badge \"Lantern Lit\" earned but not set up (Config/Badges.luau id is 0)\n[Lanternfall] Owner login streak day 1: +25 Embers\n[Lanternfall] Peer login streak day 1: +25 Embers\n[Lanternfall] Launch check: 1 must, 2 should open (debug button \"Launch check\" lists them)\n[Lanternfall] Run started with 2 player(s), Danger 0\n[Lanternfall] Run seed 228619419 (Config.Run.seed replays it)\nFAIL Native Ratzilla > moves towards ordinary enemies, reserves separate targets and lands native melee damage\n     tests/NativeRatzilla.spec.luau:35: expected true, got false\n[Lanternfall] Run ended: Abandoned after 00:20\n[Lanternfall] ===== Run summary (copy this block for your playtest notes) =====\n[Lanternfall] Abandoned after 00:20 \u00c2\u00b7 Danger 0 \u00c2\u00b7 2 player(s) \u00c2\u00b7 team level 0 \u00c2\u00b7 2 kills (Brute 2)\n[Lanternfall] Owner (Ranger): 0 kills, 0 damage, took 0, down 0x\n[Lanternfall]   Weapons: Pistol I 0 dmg/0 kills\n[Lanternfall]   Items: Ratzilla x2\n[Lanternfall] Peer (Ranger): 0 kills, 0 damage, took 0, down 0x\n[Lanternfall]   Weapons: Pistol I 0 dmg/0 kills\n[Lanternfall]   Items: none\n[Lanternfall] =====\n2 passed, 1 failed\n",
-  "byteExactRestore": true,
-  "restoredOutput": "[Lanternfall] Place: lobby and arena in one server (no hub/run place ids for this place in Config.Places)\n[Lanternfall] Server ready: 71 remotes, 36 services, config problems: 0\n[Lanternfall] Saving: memory only (no DataStoreService)\n[Lanternfall] Badge \"Lantern Lit\" earned but not set up (Config/Badges.luau id is 0)\n[Lanternfall] Owner login streak day 1: +25 Embers\n[Lanternfall] Peer login streak day 1: +25 Embers\n[Lanternfall] Launch check: 1 must, 2 should open (debug button \"Launch check\" lists them)\n[Lanternfall] Run started with 2 player(s), Danger 0\n[Lanternfall] Run seed 228619419 (Config.Run.seed replays it)\n[Lanternfall] Run ended: Abandoned after 00:20\n[Lanternfall] ===== Run summary (copy this block for your playtest notes) =====\n[Lanternfall] Abandoned after 00:20 \u00c2\u00b7 Danger 0 \u00c2\u00b7 2 player(s) \u00c2\u00b7 team level 0 \u00c2\u00b7 2 kills (Brute 2)\n[Lanternfall] Owner (Ranger): 0 kills, 0 damage, took 0, down 0x\n[Lanternfall]   Weapons: Pistol I 0 dmg/0 kills\n[Lanternfall]   Items: Ratzilla x2\n[Lanternfall] Peer (Ranger): 0 kills, 0 damage, took 0, down 0x\n[Lanternfall]   Weapons: Pistol I 0 dmg/0 kills\n[Lanternfall]   Items: none\n[Lanternfall] =====\n3 passed, 0 failed\n",
-  "main": "6bb5174f31bee9b839cc9a04ee406d1f549de051",
-  "scope": "Partial Beast Master prerequisites only; no complete character package added",
-  "focused": {
-    "NativePetStats": [
-      8,
-      0
-    ],
-    "NativeRatzilla": [
-      3,
-      0
-    ],
-    "NativeStructures": [
-      4,
-      0
-    ],
-    "StructuresB12": [
-      8,
-      0
-    ],
-    "NativeBonkDog": [
-      3,
-      0
-    ],
-    "CharacterShopRules": [
-      5,
-      0
-    ],
-    "ItemParity": [
-      136,
-      0
-    ],
-    "ItemSprites": [
-      6,
-      0
-    ],
-    "NativePetProjectiles": [
-      4,
-      0
-    ],
-    "StructureBoostRules": [
-      2,
-      0
-    ],
-    "CharacterChefStructures": [
-      1,
-      0
-    ]
-  },
-  "fullSuiteRun": true,
-  "selene": {
-    "errors": 0,
-    "warnings": 18
-  },
-  "rojo": true,
-  "petCompilerCheck": true,
-  "originalIconsPrepared": 6,
-  "actorArtworkPrepared": false,
-  "uploads": 0,
-  "runtimeAssetIdsChanged": false,
-  "bonkMutation": {
-    "mutation": "Disable Bonk Dog landing explosion; victim is outside melee reach",
-    "detected": true,
-    "mutationOutput": "[Lanternfall] Place: lobby and arena in one server (no hub/run place ids for this place in Config.Places)\n[Lanternfall] Server ready: 71 remotes, 36 services, config problems: 0\n[Lanternfall] Saving: memory only (no DataStoreService)\n[Lanternfall] Badge \"Lantern Lit\" earned but not set up (Config/Badges.luau id is 0)\n[Lanternfall] Owner login streak day 1: +25 Embers\n[Lanternfall] Peer login streak day 1: +25 Embers\n[Lanternfall] Launch check: 1 must, 2 should open (debug button \"Launch check\" lists them)\n[Lanternfall] Run started with 2 player(s), Danger 0\n[Lanternfall] Run seed 228619419 (Config.Run.seed replays it)\n[Lanternfall] Run ended: Abandoned after 00:20\n[Lanternfall] ===== Run summary (copy this block for your playtest notes) =====\n[Lanternfall] Abandoned after 00:20 \u00c2\u00b7 Danger 0 \u00c2\u00b7 2 player(s) \u00c2\u00b7 team level 0 \u00c2\u00b7 0 kills\n[Lanternfall] Owner (Ranger): 0 kills, 0 damage, took 0, down 0x\n[Lanternfall]   Weapons: Pistol I 0 dmg/0 kills\n[Lanternfall]   Items: Bonk Dog x1\n[Lanternfall] Peer (Ranger): 0 kills, 0 damage, took 0, down 0x\n[Lanternfall]   Weapons: Pistol I 0 dmg/0 kills\n[Lanternfall]   Items: none\n[Lanternfall] =====\n[Lanternfall] Run started with 2 player(s), Danger 0\n[Lanternfall] Run seed 1770704722 (Config.Run.seed replays it)\nFAIL Native Bonk Dog > lands at the captured position when the target moves away during the jump\n     tests/NativeBonkDog.spec.luau:76: expected true, got false\n2 passed, 1 failed\n",
-    "byteExactRestore": true,
-    "restoredOutput": "[Lanternfall] Place: lobby and arena in one server (no hub/run place ids for this place in Config.Places)\n[Lanternfall] Server ready: 71 remotes, 36 services, config problems: 0\n[Lanternfall] Saving: memory only (no DataStoreService)\n[Lanternfall] Badge \"Lantern Lit\" earned but not set up (Config/Badges.luau id is 0)\n[Lanternfall] Owner login streak day 1: +25 Embers\n[Lanternfall] Peer login streak day 1: +25 Embers\n[Lanternfall] Launch check: 1 must, 2 should open (debug button \"Launch check\" lists them)\n[Lanternfall] Run started with 2 player(s), Danger 0\n[Lanternfall] Run seed 228619419 (Config.Run.seed replays it)\n[Lanternfall] Run ended: Abandoned after 00:20\n[Lanternfall] ===== Run summary (copy this block for your playtest notes) =====\n[Lanternfall] Abandoned after 00:20 \u00c2\u00b7 Danger 0 \u00c2\u00b7 2 player(s) \u00c2\u00b7 team level 0 \u00c2\u00b7 0 kills\n[Lanternfall] Owner (Ranger): 0 kills, 0 damage, took 0, down 0x\n[Lanternfall]   Weapons: Pistol I 0 dmg/0 kills\n[Lanternfall]   Items: Bonk Dog x1\n[Lanternfall] Peer (Ranger): 0 kills, 0 damage, took 0, down 0x\n[Lanternfall]   Weapons: Pistol I 0 dmg/0 kills\n[Lanternfall]   Items: none\n[Lanternfall] =====\n[Lanternfall] Run started with 2 player(s), Danger 0\n[Lanternfall] Run seed 1770704722 (Config.Run.seed replays it)\n3 passed, 0 failed\n"
-  },
+  "date": "2026-11-11",
+  "mainCommit": "6bb5174f31bee9b839cc9a04ee406d1f549de051",
+  "scope": "Unmerged prerequisites for Baby,Jack,Vampire,Wounded,BeastMaster; no additional complete character package counted",
+  "codePreparedOnMain": 43,
+  "newNativeCodeReadyFlags": 0,
   "fullSuite": {
-    "mainCommit": "6bb5174f31bee9b839cc9a04ee406d1f549de051",
     "baseline": {
       "specs": 222,
       "passed": 1488,
       "failed": 37
     },
-    "branchBeforeMineFixtureFix": {
-      "specs": 228,
-      "passed": 1512,
+    "branch": {
+      "specs": 231,
+      "passed": 1527,
       "failed": 37
     },
-    "newFailureBeforeFixtureFix": [
-      "B12 structures > lays recurring mines, clears them in the shop and rebuilds sources"
-    ],
-    "removedKnownFlakyFailure": [
-      "new enemies (B9) > lets a Gobbler eat the orbs on the floor and drop them all when killed"
-    ],
-    "mineTrace": "At start:0mines, at8s:1mine. Initial mine had been consumed by the previous combat case.",
-    "fixtureCorrection": "Start a fresh wave and assert the initial mine owner; preserve the original >=2 assertion. Entire StructuresB12 then8/0. Only that test file changed after the suite.",
-    "fullSuiteRepeatedAfterTestOnlyCorrection": false
+    "newFailureNames": [],
+    "removedFailureNames": [],
+    "aborts": []
   },
-  "sourceIdentityCount": 129,
+  "focused": {
+    "tests/CharacterBabyPackage.spec.luau": {
+      "passed": 3,
+      "failed": 0
+    },
+    "tests/CharacterJackPackage.spec.luau": {
+      "passed": 4,
+      "failed": 0
+    },
+    "tests/CharacterVampirePackage.spec.luau": {
+      "passed": 3,
+      "failed": 0
+    },
+    "tests/NativeBonkDog.spec.luau": {
+      "passed": 3,
+      "failed": 0
+    },
+    "tests/NativeBotOMine.spec.luau": {
+      "passed": 5,
+      "failed": 0
+    },
+    "tests/NativePetLifecycle.spec.luau": {
+      "passed": 3,
+      "failed": 0
+    },
+    "tests/NativePetProjectiles.spec.luau": {
+      "passed": 6,
+      "failed": 0
+    },
+    "tests/NativePetStats.spec.luau": {
+      "passed": 9,
+      "failed": 0
+    },
+    "tests/NativeRatzilla.spec.luau": {
+      "passed": 3,
+      "failed": 0
+    }
+  },
+  "botMutation": {
+    "mutation": "Lay the first Bot-O-Mine mine immediately instead of after300native frames",
+    "detected": true,
+    "output": "[Lanternfall] Place: lobby and arena in one server (no hub/run place ids for this place in Config.Places)\n[Lanternfall] Server ready: 71 remotes, 36 services, config problems: 0\n[Lanternfall] Saving: memory only (no DataStoreService)\n[Lanternfall] Badge \"Lantern Lit\" earned but not set up (Config/Badges.luau id is 0)\n[Lanternfall] Owner login streak day 1: +25 Embers\n[Lanternfall] Peer login streak day 1: +25 Embers\n[Lanternfall] Launch check: 1 must, 2 should open (debug button \"Launch check\" lists them)\n[Lanternfall] Run started with 2 player(s), Danger 0\n[Lanternfall] Run seed 228619419 (Config.Run.seed replays it)\n[Lanternfall] Run ended: Abandoned after 00:20\n[Lanternfall] ===== Run summary (copy this block for your playtest notes) =====\n[Lanternfall] Abandoned after 00:20 \u00c2\u00b7 Danger 0 \u00c2\u00b7 2 player(s) \u00c2\u00b7 team level 0 \u00c2\u00b7 0 kills\n[Lanternfall] Owner (Ranger): 0 kills, 0 damage, took 0, down 0x\n[Lanternfall]   Weapons: Pistol I 0 dmg/0 kills\n[Lanternfall]   Items: Bot-O-Mine x1\n[Lanternfall] Peer (Ranger): 0 kills, 0 damage, took 0, down 0x\n[Lanternfall]   Weapons: Pistol I 0 dmg/0 kills\n[Lanternfall]   Items: none\n[Lanternfall] =====\n[Lanternfall] Run started with 2 player(s), Danger 0\n[Lanternfall] Run seed 1770704722 (Config.Run.seed replays it)\nFAIL Native Bot-O-Mine > fires after its native initial cooldown and lays mines at five-second intervals\n     tests/NativeBotOMine.spec.luau:57: expected 0, got 1\n[Lanternfall] Run ended: Abandoned after 00:20\n[Lanternfall] ===== Run summary (copy this block for your playtest notes) =====\n[Lanternfall] Abandoned after 00:20 \u00c2\u00b7 Danger 0 \u00c2\u00b7 2 player(s) \u00c2\u00b7 team level 0 \u00c2\u00b7 1 kills (Brute 1)\n[Lanternfall] Owner (Ranger): 0 kills, 0 damage, took 0, down 0x\n[Lanternfall]   Weapons: Pistol I 0 dmg/0 kills\n[Lanternfall]   Items: Bot-O-Mine x1\n[Lanternfall] Peer (Ranger): 0 kills, 0 damage, took 0, down 0x\n[Lanternfall]   Weapons: Pistol I 0 dmg/0 kills\n[Lanternfall]   Items: none\n[Lanternfall] =====\n[Lanternfall] Run started with 2 player(s), Danger 0\n[Lanternfall] Run seed 2131957495 (Config.Run.seed replays it)\nFAIL Native Bot-O-Mine > continues following, shooting and triggering pet mines while the owner is down\n     tests/NativeBotOMine.spec.luau:90: expected 0, got 1\n[Lanternfall] Run ended: Abandoned after 00:20\n[Lanternfall] ===== Run summary (copy this block for your playtest notes) =====\n[Lanternfall] Abandoned after 00:20 \u00c2\u00b7 Danger 0 \u00c2\u00b7 2 player(s) \u00c2\u00b7 team level 0 \u00c2\u00b7 1 kills (Brute 1)\n[Lanternfall] Owner (Ranger): 0 kills, 0 damage, took 7, down 1x, first down at 00:20\n[Lanternfall]   Weapons: Pistol I 0 dmg/0 kills\n[Lanternfall]   Items: Bot-O-Mine x1\n[Lanternfall] Peer (Ranger): 0 kills, 0 damage, took 0, down 0x\n[Lanternfall]   Weapons: Pistol I 0 dmg/0 kills\n[Lanternfall]   Items: none\n[Lanternfall] =====\n3 passed, 2 failed\n",
+    "byteExactRestore": true,
+    "restoredOutput": "[Lanternfall] Place: lobby and arena in one server (no hub/run place ids for this place in Config.Places)\n[Lanternfall] Server ready: 71 remotes, 36 services, config problems: 0\n[Lanternfall] Saving: memory only (no DataStoreService)\n[Lanternfall] Badge \"Lantern Lit\" earned but not set up (Config/Badges.luau id is 0)\n[Lanternfall] Owner login streak day 1: +25 Embers\n[Lanternfall] Peer login streak day 1: +25 Embers\n[Lanternfall] Launch check: 1 must, 2 should open (debug button \"Launch check\" lists them)\n[Lanternfall] Run started with 2 player(s), Danger 0\n[Lanternfall] Run seed 228619419 (Config.Run.seed replays it)\n[Lanternfall] Run ended: Abandoned after 00:20\n[Lanternfall] ===== Run summary (copy this block for your playtest notes) =====\n[Lanternfall] Abandoned after 00:20 \u00c2\u00b7 Danger 0 \u00c2\u00b7 2 player(s) \u00c2\u00b7 team level 0 \u00c2\u00b7 0 kills\n[Lanternfall] Owner (Ranger): 0 kills, 0 damage, took 0, down 0x\n[Lanternfall]   Weapons: Pistol I 0 dmg/0 kills\n[Lanternfall]   Items: Bot-O-Mine x1\n[Lanternfall] Peer (Ranger): 0 kills, 0 damage, took 0, down 0x\n[Lanternfall]   Weapons: Pistol I 0 dmg/0 kills\n[Lanternfall]   Items: none\n[Lanternfall] =====\n[Lanternfall] Run started with 2 player(s), Danger 0\n[Lanternfall] Run seed 1770704722 (Config.Run.seed replays it)\n[Lanternfall] Run ended: Abandoned after 00:20\n[Lanternfall] ===== Run summary (copy this block for your playtest notes) =====\n[Lanternfall] Abandoned after 00:20 \u00c2\u00b7 Danger 0 \u00c2\u00b7 2 player(s) \u00c2\u00b7 team level 0 \u00c2\u00b7 1 kills (Brute 1)\n[Lanternfall] Owner (Ranger): 0 kills, 0 damage, took 0, down 0x\n[Lanternfall]   Weapons: Pistol I 0 dmg/0 kills\n[Lanternfall]   Items: Bot-O-Mine x1\n[Lanternfall] Peer (Ranger): 0 kills, 0 damage, took 0, down 0x\n[Lanternfall]   Weapons: Pistol I 0 dmg/0 kills\n[Lanternfall]   Items: none\n[Lanternfall] =====\n[Lanternfall] Run started with 2 player(s), Danger 0\n[Lanternfall] Run seed 2131957495 (Config.Run.seed replays it)\n[Lanternfall] Run ended: Abandoned after 00:20\n[Lanternfall] ===== Run summary (copy this block for your playtest notes) =====\n[Lanternfall] Abandoned after 00:20 \u00c2\u00b7 Danger 0 \u00c2\u00b7 2 player(s) \u00c2\u00b7 team level 0 \u00c2\u00b7 1 kills (Brute 1)\n[Lanternfall] Owner (Ranger): 0 kills, 0 damage, took 7, down 1x, first down at 00:20\n[Lanternfall]   Weapons: Pistol I 0 dmg/0 kills\n[Lanternfall]   Items: Bot-O-Mine x1\n[Lanternfall] Peer (Ranger): 0 kills, 0 damage, took 0, down 0x\n[Lanternfall]   Weapons: Pistol I 0 dmg/0 kills\n[Lanternfall]   Items: none\n[Lanternfall] =====\n5 passed, 0 failed\n"
+  },
+  "selene": {
+    "errors": 0,
+    "existingWarnings": 18
+  },
+  "rojo": true,
+  "sourceCompilers": true,
+  "nativeRuntimeItemIdentities": 130,
+  "nativeItemBanGroups": 13,
+  "originalIconsPrepared": 6,
+  "actorArtworkPrepared": false,
+  "uploads": 0,
+  "runtimeAssetIdsChanged": false,
+  "arsenalChanged": false,
+  "remainingDependencies": [
+    "Blazemander",
+    "CatlingGun",
+    "Lootworm",
+    "Native pet start UI/server/teleport selection",
+    "Beast Master counts/unlock/tag boost",
+    "Nightmare1 route for Wounded"
+  ],
   "remainingMissingItemFamilies": [
     "blazemander",
-    "bot_o_mine",
     "builder_turret",
     "catling_gun",
     "fish_hook",
     "lootworm",
     "spyglass"
   ],
-  "postFullSuiteStage": {
-    "change": "Add launchPet adapter to the existing structure projectile simulator; no Bot-O-Mine actor or item yet",
-    "tests": {
-      "NativePetProjectiles": [
-        4,
-        0
-      ],
-      "NativeStructures": [
-        4,
-        0
-      ],
-      "StructuresB12": [
-        8,
-        0
-      ],
-      "StructureBoostRules": [
-        2,
-        0
-      ],
-      "CharacterChefStructures": [
-        1,
-        0
-      ]
-    },
-    "fullSuiteRunAfterAdapter": false,
-    "seleneChangedServices": {
-      "errors": 0,
-      "warnings": 0
-    },
-    "rojo": true,
-    "bonkJumpObservationUsesExplicit60Hz": true
-  }
+  "remainingNativeAcceptance": [
+    "Actor animations and dynamic muzzle poses",
+    "Pet stat effects and range-entry targeting",
+    "Shared native physics/catalog/zone parity",
+    "Studio,2clients,mobile",
+    "200actor4msbudget"
+  ]
 }

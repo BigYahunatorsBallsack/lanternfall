@@ -44,6 +44,8 @@ export type Definition = {
 	vulnerabilityStacks: number?,
 	vulnerabilitySource: string?,
 	petKind: string?,
+	petMine: boolean?,
+	petBeastMaster: boolean?,
 }
 local kinds: { [string]: Definition } = {
 	BrassSentry = {
@@ -221,6 +223,22 @@ kinds.BonkDog = {
 	price = 40,
 	color = { 255, 255, 255 },
 	description = "Bonk Dog",
+	canBeGrouped = false,
+	countsAsTurret = false,
+}
+local bot = require(script.Parent.Pets).kinds.BotOMine
+kinds.BotOMine = {
+	displayName = "Bot-O-Mine",
+	mode = "Pet",
+	petKind = "BotOMine",
+	damage = bot.weapon.damage,
+	engineering = 1,
+	interval = bot.weapon.cooldownFrames / require(script.Parent.Pets).frameRate,
+	range = bot.weapon.rangePoints * require(script.Parent.Stats).range.studsPerPoint,
+	tier = 2,
+	price = 55,
+	color = { 255, 255, 255 },
+	description = "Bot-O-Mine",
 	canBeGrouped = false,
 	countsAsTurret = false,
 }

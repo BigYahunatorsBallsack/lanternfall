@@ -23,6 +23,7 @@ local Projectiles = require(script.Projectiles)
 local TurretTiming = require(script.TurretTiming)
 local GroupedPlacement = require(script.GroupedPlacement)
 local PetActors = require(script.PetActors)
+local PetRules = require(script.PetRules)
 local Pets = require(Shared.Config.Pets)
 local C = Config.Structures
 local Service = {}
@@ -264,7 +265,14 @@ local function burst(player, at, def, sheet, factor)
 		* (factor or 1)
 	local kills = 0
 	for _, id in ids do
-		if hit(player, id, damage, "Explosion", def.elemental ~= nil) then
+		local amount = damage
+		if def.petMine then
+			local kind = Enemy.getKind(id)
+			local boss = Config.Enemies.bosses[kind] ~= nil or Config.Enemies.champions[kind] ~= nil
+			amount = PetRules.hitDamage(damage, 1, 1, boss, sheet.eliteDamage or 0)
+		end
+		local elemental = if def.petMine then def.petBeastMaster == true else def.elemental ~= nil
+		if hit(player, id, amount, "Explosion", elemental) then
 			kills += 1
 		end
 	end
@@ -363,13 +371,16 @@ local function step(dt)
 	end
 	lastGeneratorSecond = math.floor(waveSeconds)
 	Projectiles.step(dt)
-	dirty = PetActors.step(dt, sheetOf) or dirty
+	dirty = PetActors.step(dt, sheetOf, add) or dirty
 	for index = #objects, 1, -1 do
 		local o = objects[index]
+		if not o then
+			break
+		end -- A terminal hit clears all deployments synchronously.
 		if C.kinds[o.kind].petKind then
 			continue -- PetActors also steps pets whose owner is currently down.
 		end
-		if Run.getParticipantState(o.owner) ~= "Alive" then
+		if Run.getParticipantState(o.owner) ~= "Alive" and not (o.definition and o.definition.petMine) then
 			continue
 		end
 		if o.boostLeft then
@@ -465,7 +476,9 @@ local function step(dt)
 					end
 					Projectiles.launch(o.owner, o.position, def, sheet, directions)
 				end
-				table.remove(objects, index)
+				if objects[index] == o then
+					table.remove(objects, index)
+				end
 				dirty = true
 			end
 		else
