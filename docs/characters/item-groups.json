@@ -1333,7 +1333,7 @@
       "nameKey": "ITEM_ESTYS_COUCH",
       "source": "res://items/all/00_base_game/estys_couch/estys_couch_data.tres",
       "sourceMd5": "2712fd1f104fa89666db2c981c7a16ad",
-      "displayName": "Esty’s Couch",
+      "displayName": "Esty\u00e2\u20ac\u2122s Couch",
       "tags": [
         "stat_hp_regeneration",
         "stat_max_hp"
@@ -1427,6 +1427,29 @@
       "displayName": "Dig Site",
       "tags": [
         "stat_luck"
+      ]
+    },
+    "BonkDog": {
+      "nativeId": "item_bonk_dog",
+      "nameKey": "ITEM_BONK_DOG",
+      "source": "res://items/all/03_paws_n_claws/bonk_dog/bonk_dog.tres",
+      "sourceMd5": "55b63bb818429af42634426e41236a4a",
+      "displayName": "Bonk Dog",
+      "tags": [
+        "stat_melee_damage",
+        "explosive",
+        "pet"
+      ]
+    },
+    "Ratzilla": {
+      "nativeId": "item_ratzilla",
+      "nameKey": "ITEM_RATZILLA",
+      "source": "res://items/all/03_paws_n_claws/ratzilla/ratzilla.tres",
+      "sourceMd5": "3f66c9f9e8c84d39274d5ca124c3fd11",
+      "displayName": "Ratzilla",
+      "tags": [
+        "stat_max_hp",
+        "pet"
       ]
     }
   },

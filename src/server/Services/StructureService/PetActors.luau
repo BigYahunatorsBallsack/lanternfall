@@ -1,5 +1,5 @@
 --!strict
--- Authoritative Ratzilla bodies and one-frame melee windows; StructureService owns deployments and snapshots.
+-- Authoritative native melee pets, body movement and Bonk Dog jumps; StructureService owns deployments and snapshots.
 local Shared = game:GetService("ReplicatedStorage").Shared
 local Config = require(Shared.Config)
 local C = require(Shared.Config.Pets)
@@ -92,6 +92,10 @@ function Actors.add(o: any)
 	assert(o.bodyId, "Pet body budget must match StructureService's deployment budget")
 	o.cooldownFrames = pet.weapon.cooldownFrames
 	o.attacking = false
+	if pet.explosion then
+		o.jumpCooldownFrames = pet.explosion.cooldownFrames
+			* (pet.jumpInitialMinimumShare + (1 - pet.jumpInitialMinimumShare) * Random.number("Combat", o.owner))
+	end
 	claimed[pet.targetFamily] = claimed[pet.targetFamily] or {}
 	table.insert(members, o)
 end
@@ -139,31 +143,74 @@ local function beastMaster(player: Player): boolean
 	return false
 end
 
-local function attack(o: any, sheet: { [string]: number })
+local function attack(o: any, sheet: { [string]: number }, exploding: boolean?)
 	local pet = o.pet
-	local stats = Rules.compute(pet.weapon, sheet, beastMaster(o.owner))
+	local stats = Rules.compute(if exploding then pet.explosion else pet.weapon, sheet, beastMaster(o.owner))
 	local ids = {}
-	local center = o.position + Vector3.new(pet.hitOffsetXPoints * scale, 0, pet.hitOffsetZPoints * scale)
-	Enemy.queryRadius(center, pet.hitRadiusPoints * scale, ids)
+	local center = if exploding
+		then o.position
+		else o.position + Vector3.new(pet.hitOffsetXPoints * scale, 0, pet.hitOffsetZPoints * scale)
+	local radius = if exploding
+		then pet.explosionRadiusPoints * scale * math.max(
+			Config.Combat.explosion.minimumSizeFactor,
+			pet.explosionScale * (1 + (sheet.explosionSize or 0) / 100)
+		)
+		else pet.hitRadiusPoints * scale
+	Enemy.queryRadius(center, radius, ids)
+	local kills = 0
 	for _, id in ids do
-		local critical = Random.number("Combat", o.owner) < stats.critChance
+		local critical = stats.critChance ~= 0 and Random.number("Combat", o.owner) <= stats.critChance
 		local at = Enemy.getPosition(id)
 		local killed = Weapons.structureHit(
 			o.owner,
 			id,
 			math.round(stats.damage * (if critical then stats.critDamage else 1)),
-			nil,
+			if exploding then "Explosion" else nil,
 			critical
 		)
-		if not killed and at and (at - o.position).Magnitude > 0 and stats.knockback ~= 0 then
+		if killed then
+			kills += 1
+		end
+		if not exploding and not killed and at and (at - o.position).Magnitude > 0 and stats.knockback ~= 0 then
 			local direction = (at - o.position).Unit * stats.knockback
 			Enemy.knock(id, direction.X, direction.Z)
 		end
-		if Random.number("Combat", o.owner) < stats.lifeSteal then
+		if not exploding and Random.number("Combat", o.owner) < stats.lifeSteal then
 			Combat.lifeSteal(o.owner)
 		end
 	end
-	return stats.cooldown * C.frameRate
+	if exploding then
+		Weapons.reportExplosion(o.owner, kills)
+	end
+end
+
+local function tryJump(o: any): boolean
+	if not o.pet.explosion or o.jump or o.attacking or o.jumpCooldownFrames > 0 then
+		return false
+	end
+	local ids = {}
+	Enemy.collectIds(ids)
+	local best, maximumHp = nil, -math.huge
+	local enemyCount = 0
+	for _, id in ids do
+		local kind = Enemy.getKind(id)
+		if kind ~= "Tree" then
+			enemyCount += 1
+		end
+		local at = Enemy.getPosition(id)
+		if kind ~= "Tree" and (at - o.position).Magnitude ^ 2 > o.pet.jumpMinimumSquaredPoints * scale ^ 2 then
+			local hp = Enemy.getMaxHealth(id)
+			if hp > maximumHp then
+				best, maximumHp = at, hp
+			end
+		end
+	end
+	if best then
+		o.jump = { from = o.position, to = best, frame = 0 }
+	elseif enemyCount > 0 then
+		o.jumpCooldownFrames = o.pet.explosion.cooldownFrames * o.pet.jumpRetryShare
+	end
+	return enemyCount > 0
 end
 
 function Actors.step(dt: number, sheetOf: (Player) -> any): boolean
@@ -189,23 +236,48 @@ function Actors.step(dt: number, sheetOf: (Player) -> any): boolean
 				chooseTarget(o)
 			end
 			local target = o.target and Enemy.getPosition(o.target)
-			local goal = if target then target + o.bodyOffset else nil
+			local goal = if target and not o.jump then target + o.bodyOffset else nil
 			bodies:setGoal(o.bodyId, if goal then goal.X else nil, if goal then goal.Z else nil)
 			bodies:setSpeedFactor(o.bodyId, math.max(1, 1 + (sheetOf(o.owner).speed or 0) / 100))
 		end
 		bodies:step(1 / C.frameRate, {}, {}, 0)
 		for _, o in members do
+			local previous, landed = o.position, false
 			local x, z = bodies:getPosition(o.bodyId)
 			local at = Vector3.new(x, o.position.Y, z) - o.bodyOffset
-			moved = moved or (at - o.position).Magnitude > 0
+			if o.jump then
+				o.jump.frame += 1
+				local t = o.jump.frame / (o.pet.jumpSeconds * C.frameRate)
+				at = o.jump.from + (o.jump.to - o.jump.from) * Rules.jumpShare(t)
+				local body = at + o.bodyOffset
+				bodies:teleport(o.bodyId, body.X, body.Z)
+				if t >= 1 then
+					landed = true
+					o.position = at
+					o.jump = nil
+					o.jumpCooldownFrames = o.pet.explosion.cooldownFrames
+					attack(o, sheetOf(o.owner), true)
+					release(o)
+					chooseTarget(o)
+				end
+			end
+			moved = moved or (at - previous).Magnitude > 0
 			o.position = at
+			if landed then
+				o.cooldownFrames = math.max(0, o.cooldownFrames - 1)
+				continue
+			end
 			-- The original hitbox stays enabled for one physics frame, then closes and starts a fresh cooldown.
 			if o.attacking then
 				o.attacking = false
 				o.cooldownFrames = Rules.compute(o.pet.weapon, sheetOf(o.owner)).cooldown * C.frameRate
 			else
 				o.cooldownFrames = math.max(0, o.cooldownFrames - 1)
-				if o.cooldownFrames == 0 then
+				if o.pet.explosion then
+					o.jumpCooldownFrames = math.max(0, o.jumpCooldownFrames - 1)
+				end
+				local jumped = tryJump(o)
+				if not jumped and not o.jump and o.cooldownFrames == 0 then
 					attack(o, sheetOf(o.owner))
 					o.attacking = true
 				end

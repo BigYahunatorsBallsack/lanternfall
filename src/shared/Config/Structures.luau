@@ -208,6 +208,22 @@ kinds.Ratzilla = {
 	canBeGrouped = false,
 	countsAsTurret = false,
 }
+local dog = require(script.Parent.Pets).kinds.BonkDog
+kinds.BonkDog = {
+	displayName = "Bonk Dog",
+	mode = "Pet",
+	petKind = "BonkDog",
+	damage = dog.weapon.damage,
+	engineering = 0,
+	interval = dog.weapon.cooldownFrames / require(script.Parent.Pets).frameRate,
+	range = dog.weapon.rangePoints * require(script.Parent.Stats).range.studsPerPoint,
+	tier = 2,
+	price = 40,
+	color = { 255, 255, 255 },
+	description = "Bonk Dog",
+	canBeGrouped = false,
+	countsAsTurret = false,
+}
 for id, values in require(script.Parent.CharacterStructureData) do
 	for key, value in values do
 		(kinds[id] :: any)[key] = value

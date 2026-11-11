@@ -5,6 +5,13 @@ local Shared = game:GetService("ReplicatedStorage").Shared
 local Pets = require(Shared.Config.Pets)
 local Rules = require(game:GetService("ServerScriptService").Server.Services.StructureService.PetRules)
 describe("Native pet stats", function()
+	it("matches the native exponential Bonk Dog jump, including exact endpoints", function()
+		expect(Rules.jumpShare(0)).toBe(0)
+		expect(Rules.jumpShare(0.25)).toBeNear(0.015125)
+		expect(Rules.jumpShare(0.5)).toBeNear(0.50025)
+		expect(Rules.jumpShare(0.75)).toBeNear(0.9848671875)
+		expect(Rules.jumpShare(1)).toBe(1)
+	end)
 	it("keeps normal attack speed out of pet cooldowns, including structure pets", function()
 		local sheet = { attackSpeed = 1000, structureAttackSpeed = 1000 }
 		expect(Rules.compute(Pets.kinds.BonkDog.weapon, sheet).cooldown).toBe(28 / 60)

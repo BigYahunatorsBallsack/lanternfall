@@ -213,6 +213,8 @@ local nativeIds: { [string]: string } = {
 	WitchMortar = "item_gnome",
 	LumberjackShirt = "item_lumberjack_shirt",
 	DigSite = "item_dig_site",
+	BonkDog = "item_bonk_dog",
+	Ratzilla = "item_ratzilla",
 }
 
 local tags: { [string]: { string } } = {
@@ -670,6 +672,15 @@ local tags: { [string]: { string } } = {
 	},
 	DigSite = {
 		"stat_luck",
+	},
+	BonkDog = {
+		"stat_melee_damage",
+		"explosive",
+		"pet",
+	},
+	Ratzilla = {
+		"stat_max_hp",
+		"pet",
 	},
 }
 

@@ -52,7 +52,13 @@ def generate(pck):
   if ref in scenes:continue
   scenes[ref]=read_scene(pck,ref)
   if scenes[ref].get('baseScene'):pending.append(scenes[ref]['baseScene'])
- return {'version':'1.2.0.1','steamBuild':26406319,'pets':rows,'resources':resources,'scenes':scenes,'note':'Neutral pet facts, not a claim of implemented behavior or available original artwork.'}
+ rule_sources=[]
+ scripts={n['scriptSource'] for scene in scenes.values() for n in scene['nodes'] if n.get('scriptSource')}
+ scripts.update(['res://singletons/weapon_service.gd','res://singletons/utils.gd','res://global/pet_service.gd'])
+ for script in sorted(scripts):
+  path=next((candidate for candidate in [script,script.removesuffix('.gd')+'.gdc'] if candidate in pck.entries),None)
+  if path:rule_sources.append({'source':path,'sourceMd5':pck.entries[path]['md5']})
+ return {'version':'1.2.0.1','steamBuild':26406319,'pets':rows,'resources':resources,'scenes':scenes,'ruleSources':rule_sources,'engineDefaults':{'circleRadiusPoints':10,'circleReference':'https://docs.godotengine.org/en/3.5/classes/class_circleshape2d.html','bonkTweenTransition':5,'bonkTweenEase':2,'tweenReference':'https://docs.godotengine.org/en/3.5/classes/class_tween.html','tweenEquationReference':'https://github.com/godotengine/godot/blob/3.5/scene/animation/easing_equations.h'},'note':'Neutral pet facts, not a claim of implemented behavior or available original artwork.'}
 STAT_IDS={'stat_melee_damage':'meleeDamage','stat_ranged_damage':'rangedDamage','stat_elemental_damage':'elementalDamage','stat_engineering':'engineering','stat_max_hp':'maxHp'}
 
 def weapon(data, structure=False, ranged=False, exploding=False):
@@ -64,6 +70,11 @@ def weapon(data, structure=False, ranged=False, exploding=False):
 def catalog(out):
  resources=out['resources'];kinds={}
  def props(ref):return resources[ref['resource']]['properties']
+ def inherited_nodes(path):
+  scene=out['scenes'][path];nodes=inherited_nodes(scene['baseScene']) if scene.get('baseScene') else {}
+  for n in scene['nodes']:
+   key=(n['name'],n['parent']);nodes[key]={**nodes.get(key,{}),**n['properties']}
+  return nodes
  for row in out['pets']:
   effect=row['effect'];slug=row['slug'];structure=effect['is_structure'];ranged=slug in ['catling_gun','bot_o_mine']
   speed=next(n['properties']['stats'] for n in out['scenes'][effect['scene']['resource']]['nodes'] if 'stats' in n['properties'])
@@ -72,13 +83,18 @@ def catalog(out):
   if 'explosion_effect' in effect:pet['explosion']=weapon(props(props(effect['explosion_effect'])['stats']),exploding=True)
   if 'ranged_weapon_stats' in effect:pet['ranged']=weapon(props(effect['ranged_weapon_stats']),ranged=True)
   if 'landmine_effect_stat' in effect:pet['mine']=weapon(props(props(effect['landmine_effect_stat'])['stats']),structure=True,exploding=True)
-  if slug=='ratzilla':
+  if slug in ['ratzilla','bonk_dog']:
    scene=out['scenes'][effect['scene']['resource']]
-   def node(name,parent):return next(n['properties'] for n in scene['nodes'] if n['name']==name and n['parent']==parent)
+   nodes=inherited_nodes(effect['scene']['resource'])
+   def node(name,parent):return nodes.get((name,parent),{})
    def radius(properties):
     path,sub=properties['shape']['resource'].split('::');return out['scenes'][path]['shapes'][sub]['properties'].get('radius',10)
    body=node('Collision','.');hit=node('Collision','Hitbox');target=node('TargetBehavior','.')
-   pet.update({'bodyRadiusPoints':radius(body),'bodyOffsetXPoints':body['position']['values'][0],'bodyOffsetZPoints':body['position']['values'][1],'hitRadiusPoints':radius(hit),'hitOffsetXPoints':hit['position']['values'][0],'hitOffsetZPoints':hit['position']['values'][1],'targetRadiusPoints':scene['shapes']['1']['properties']['radius'],'targetFamily':target.get('pet_id',''),'excludeBosses':target['exclude_elite_and_boss_target']})
+   hit_pos=node('Hitbox','.').get('position',{}).get('values',[0,0]);hit_collision_pos=hit.get('position',{}).get('values',[0,0])
+   pet.update({'bodyRadiusPoints':radius(body),'bodyOffsetXPoints':body['position']['values'][0],'bodyOffsetZPoints':body['position']['values'][1],'hitRadiusPoints':radius(hit),'hitOffsetXPoints':hit_pos[0]+hit_collision_pos[0],'hitOffsetZPoints':hit_pos[1]+hit_collision_pos[1],'targetRadiusPoints':radius(next(v for (name,parent),v in nodes.items() if parent=='TargetBehavior/Range' and 'shape' in v)),'targetFamily':target.get('pet_id',''),'excludeBosses':target['exclude_elite_and_boss_target']})
+   if slug=='bonk_dog':
+    root=scene['nodes'][0]['properties'];effect_explosion=props(effect['explosion_effect']);geometry=json.loads((ROOT/'docs/characters/structure-source.json').read_text())['geometry']
+    pet.update({'jumpSeconds':root['charge_duration'],'jumpMinimumSquaredPoints':root['min_squared_distance_for_jump_attack'],'jumpInitialMinimumShare':0.25,'jumpRetryShare':0.4,'explosionScale':effect_explosion['scale'],'explosionRadiusPoints':geometry['explosionRadiusPoints']})
   kinds[row['id']]=pet
  data={'frameRate':60,'minimumCooldownFrames':2,'minimumRangePoints':25,'beastMasterStats':['meleeDamage','rangedDamage','elementalDamage','engineering'],'kinds':kinds}
  def lua(value,depth=0):

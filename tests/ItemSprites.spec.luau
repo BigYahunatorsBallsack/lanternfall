@@ -21,11 +21,15 @@ describe("Original item sprites", function()
 			assert(string.match(uri, "^rbxassetid://%d+$"))
 			count += 1
 		end
-		expect(count).toBe(#Config.Items.list - 2)
+		expect(count).toBe(#Config.Items.list - 4)
 		expect(Config.Items.byId.DigSite.available).toBe(false)
 		expect(Images.DigSite).toBe(nil)
 		expect(Config.Items.byId.LumberjackShirt.available).toBe(false)
 		expect(Images.LumberjackShirt).toBe(nil)
+		for _, id in { "Ratzilla", "BonkDog" } do
+			expect(Config.Items.byId[id].available).toBe(false)
+			expect(Images[id]).toBe(nil)
+		end
 	end)
 	it("binds each inventory illustration to its original uploaded sprite", function()
 		local holder = Instance.new("Frame")
@@ -42,7 +46,7 @@ describe("Original item sprites", function()
 	it("uses original sprites for all nine deployed structures and reuses their pooled anchors", function()
 		local rows = {}
 		for id, definition in Config.Structures.kinds do
-			if definition.weaponOnly then
+			if definition.weaponOnly or definition.petKind then
 				continue
 			end
 			table.insert(rows, { id = #rows + 1, ownerId = player.UserId, kind = id, x = #rows * 5, z = 0 })
@@ -62,7 +66,7 @@ describe("Original item sprites", function()
 			end
 		end
 		for id, definition in Config.Structures.kinds do
-			if definition.weaponOnly then
+			if definition.weaponOnly or definition.petKind then
 				continue
 			end
 			assert(seen[Images[id]], id)
@@ -88,16 +92,18 @@ describe("Original item sprites", function()
 	it("has no isolated item-renderer runtime errors", function()
 		expect(#world.errors).toBe(0)
 	end)
-	it("clears a pooled structure image while the Blood Turret's real upload is pending", function()
-		Net.fireAllClients("Structures", Feed.encodeStructures({}))
-		Net.fireAllClients(
-			"Structures",
-			Feed.encodeStructures({ { id = 999, ownerId = player.UserId, kind = "BloodTurret", x = 0, z = 0 } })
-		)
-		local folder = assert(workspace:FindFirstChild("LanternfallStructures"))
-		expect(#folder:GetChildren()).toBe(1)
-		local board = assert(folder:GetChildren()[1]:FindFirstChild("Structure"))
-		expect(board.Picture.Image).toBe("")
-		Net.fireAllClients("Structures", Feed.encodeStructures({}))
+	it("clears pooled images while Blood Turret and native pet artwork is pending", function()
+		for _, kind in { "BloodTurret", "Ratzilla", "BonkDog" } do
+			Net.fireAllClients("Structures", Feed.encodeStructures({}))
+			Net.fireAllClients(
+				"Structures",
+				Feed.encodeStructures({ { id = 999, ownerId = player.UserId, kind = kind, x = 0, z = 0 } })
+			)
+			local folder = assert(workspace:FindFirstChild("LanternfallStructures"))
+			expect(#folder:GetChildren()).toBe(1)
+			local board = assert(folder:GetChildren()[1]:FindFirstChild("Structure"))
+			expect(board.Picture.Image).toBe("")
+			Net.fireAllClients("Structures", Feed.encodeStructures({}))
+		end
 	end)
 end)

@@ -3024,5 +3024,99 @@
       }
     }
   },
+  "ruleSources": [
+    {
+      "source": "res://entities/entity.gdc",
+      "sourceMd5": "805ebc9f4306c9ec71b786cdc7dd89af"
+    },
+    {
+      "source": "res://entities/units/movement_behaviors/follow_target_movement_behavior.gdc",
+      "sourceMd5": "f83ff84e33f12eb473d748e68b909d05"
+    },
+    {
+      "source": "res://entities/units/movement_behaviors/target_rand_pos_movement_behavior.gdc",
+      "sourceMd5": "d5637932f5178c3dcce36f9a236958b8"
+    },
+    {
+      "source": "res://entities/units/pet/blazemander/blazemander.gdc",
+      "sourceMd5": "8f367e19f496307eb9152b116de5b2bc"
+    },
+    {
+      "source": "res://entities/units/pet/bonk_dog/bonk_dog.gdc",
+      "sourceMd5": "6af301612a3a26e5aa0db392337a820a"
+    },
+    {
+      "source": "res://entities/units/pet/bot_o_mine/bot_o_mine.gdc",
+      "sourceMd5": "10724a1007562e0bc2c4ee44f70116c5"
+    },
+    {
+      "source": "res://entities/units/pet/catling_gun/catling_gun.gdc",
+      "sourceMd5": "92da73088df750532c1fc590b8d23428"
+    },
+    {
+      "source": "res://entities/units/pet/lootworm/lootworm.gdc",
+      "sourceMd5": "0845925012d23514effa6516e2a49638"
+    },
+    {
+      "source": "res://entities/units/pet/pet.gdc",
+      "sourceMd5": "eb0eab7f4f97fc5531370023b3416ece"
+    },
+    {
+      "source": "res://entities/units/pet/ratzilla/ratzilla.gdc",
+      "sourceMd5": "8bb4285c1492d8f1ff3b0ef7b0c4cb19"
+    },
+    {
+      "source": "res://entities/units/player/item_attract_area.gdc",
+      "sourceMd5": "b045cdefc5279c86dfcda60c872d8eee"
+    },
+    {
+      "source": "res://entities/units/target_behavior/closest_enemy_target_behavior.gdc",
+      "sourceMd5": "8e22aad6d9b4ab688c613b2b356ab35a"
+    },
+    {
+      "source": "res://entities/units/target_behavior/closest_non_burning_enemy_target_behavior.gdc",
+      "sourceMd5": "01a48aaff4e11dfe60c071c8a1b8b754"
+    },
+    {
+      "source": "res://entities/units/target_behavior/closest_player_target_behavior.gdc",
+      "sourceMd5": "b9d5e51fbbe71da19efd333a44fc4818"
+    },
+    {
+      "source": "res://entities/units/target_behavior/lootworm_target_behavior.gdc",
+      "sourceMd5": "848b772ba35a3676d66235d18b8ee463"
+    },
+    {
+      "source": "res://entities/units/target_behavior/target_behavior.gdc",
+      "sourceMd5": "27934a873f897a80f6b074872d1df8dc"
+    },
+    {
+      "source": "res://entities/units/unit/unit.gdc",
+      "sourceMd5": "aa94391f2d9681ac36b7f8617b82ff13"
+    },
+    {
+      "source": "res://overlap/hitbox.gdc",
+      "sourceMd5": "c1b09a67ca1618f73c2e89751ab82226"
+    },
+    {
+      "source": "res://overlap/hurtbox.gdc",
+      "sourceMd5": "efe54415356755be85033559e26a7291"
+    },
+    {
+      "source": "res://singletons/utils.gdc",
+      "sourceMd5": "162d494bbe6f25d79f486906a593cfa3"
+    },
+    {
+      "source": "res://singletons/weapon_service.gdc",
+      "sourceMd5": "e165d91ac24a7e0eff33a26bb09006c5"
+    }
+  ],
+  "engineDefaults": {
+    "circleRadiusPoints": 10,
+    "circleReference": "https://docs.godotengine.org/en/3.5/classes/class_circleshape2d.html",
+    "bonkTweenTransition": 5,
+    "bonkTweenEase": 2,
+    "tweenReference": "https://docs.godotengine.org/en/3.5/classes/class_tween.html",
+    "tweenEquationReference": "https://github.com/godotengine/godot/blob/3.5/scene/animation/easing_equations.h"
+  },
   "note": "Neutral pet facts, not a claim of implemented behavior or available original artwork."
 }
