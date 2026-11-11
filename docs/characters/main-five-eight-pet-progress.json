@@ -11,8 +11,8 @@
       "failed": 37
     },
     "branch": {
-      "specs": 231,
-      "passed": 1527,
+      "specs": 234,
+      "passed": 1537,
       "failed": 37
     },
     "newFailureNames": [],
@@ -41,11 +41,11 @@
       "failed": 0
     },
     "tests/NativePetLifecycle.spec.luau": {
-      "passed": 3,
+      "passed": 4,
       "failed": 0
     },
     "tests/NativePetProjectiles.spec.luau": {
-      "passed": 6,
+      "passed": 7,
       "failed": 0
     },
     "tests/NativePetStats.spec.luau": {
@@ -54,6 +54,18 @@
     },
     "tests/NativeRatzilla.spec.luau": {
       "passed": 3,
+      "failed": 0
+    },
+    "tests/NativeBlazemander.spec.luau": {
+      "passed": 3,
+      "failed": 0
+    },
+    "tests/NativeBlazemanderTiming.spec.luau": {
+      "passed": 3,
+      "failed": 0
+    },
+    "tests/NativePetBurn.spec.luau": {
+      "passed": 2,
       "failed": 0
     }
   },
@@ -70,7 +82,7 @@
   },
   "rojo": true,
   "sourceCompilers": true,
-  "nativeRuntimeItemIdentities": 130,
+  "nativeRuntimeItemIdentities": 131,
   "nativeItemBanGroups": 13,
   "originalIconsPrepared": 6,
   "actorArtworkPrepared": false,
@@ -78,7 +90,6 @@
   "runtimeAssetIdsChanged": false,
   "arsenalChanged": false,
   "remainingDependencies": [
-    "Blazemander",
     "CatlingGun",
     "Lootworm",
     "Native pet start UI/server/teleport selection",
@@ -86,7 +97,6 @@
     "Nightmare1 route for Wounded"
   ],
   "remainingMissingItemFamilies": [
-    "blazemander",
     "builder_turret",
     "catling_gun",
     "fish_hook",
@@ -99,5 +109,14 @@
     "Shared native physics/catalog/zone parity",
     "Studio,2clients,mobile",
     "200actor4msbudget"
-  ]
+  ],
+  "blazeBurnMutation": {
+    "mutation": "Allow a second independent Sausage burn on an intrinsically burning pet hit",
+    "detected": true,
+    "output": "[Lanternfall] Place: lobby and arena in one server (no hub/run place ids for this place in Config.Places)\n[Lanternfall] Server ready: 71 remotes, 36 services, config problems: 0\n[Lanternfall] Saving: memory only (no DataStoreService)\n[Lanternfall] Badge \"Lantern Lit\" earned but not set up (Config/Badges.luau id is 0)\n[Lanternfall] Owner login streak day 1: +25 Embers\n[Lanternfall] Peer login streak day 1: +25 Embers\n[Lanternfall] Launch check: 1 must, 2 should open (debug button \"Launch check\" lists them)\n[Lanternfall] Run started with 2 player(s), Danger 0\n[Lanternfall] Run seed 228619419 (Config.Run.seed replays it)\nFAIL Native intrinsic pet burn > emits one flame per ring direction even with zero projectile count and merges global burn once\n     tests/NativePetBurn.spec.luau:50: expected 1985, got 1978\n1 passed, 1 failed\n",
+    "restoredPassed": true,
+    "restoredByteExactlyBeforeFinalFormatting": true
+  },
+  "petSourceScenes": 14,
+  "newPassedComparedWithMain": 49
 }

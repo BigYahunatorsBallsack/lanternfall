@@ -36,6 +36,7 @@ local CharacterExplosions = require(Shared.Config.CharacterExplosions)
 local Arsenal = require(script.Arsenal)
 local Afflictions = require(script.Afflictions)
 local StatMath = require(Shared.Util.StatMath)
+local NativeBurn = require(Shared.Util.NativeWeaponBurn)
 local CharacterRules = require(Shared.Util.CharacterRules)
 local BrotatoCombat = require(script.BrotatoCombat)
 local BrotatoRuntime = require(script.BrotatoRuntime)
@@ -67,7 +68,8 @@ export type HitListener = (
 	dealt: number,
 	crit: boolean,
 	killed: boolean,
-	source: Arsenal.HitSource
+	source: Arsenal.HitSource,
+	intrinsicBurnHandled: boolean?
 ) -> ()
 local hitListener: HitListener? = nil
 type CharacterHit = { player: Player, enemyId: number, amount: number }
@@ -995,14 +997,15 @@ function WeaponService.structureHit(
 	amount: number,
 	source: Arsenal.HitSource?,
 	critical: boolean?,
-	elemental: boolean?
+	elemental: boolean?,
+	intrinsicBurnHandled: boolean?
 )
 	local bonus = burningTargetBonus(player.UserId, enemyId, elemental)
 	local killed, dealt, applied =
 		EnemySim.damage(enemyId, amount, player, bonus, source ~= "Burn" and source ~= "Strike")
 	recordHit(player.UserId, enemyId, applied, critical == true, killed, false)
 	if hitListener and dealt > 0 then
-		hitListener(player.UserId, enemyId, dealt, critical == true, killed, source or "Weapon")
+		hitListener(player.UserId, enemyId, dealt, critical == true, killed, source or "Weapon", intrinsicBurnHandled)
 	end
 	return killed
 end
@@ -1106,7 +1109,7 @@ function WeaponService.structureBurn(
 			nil,
 			damage,
 			ticks,
-			arsenal:burnInterval(),
+			NativeBurn.interval(sheet.burnSpeed or 0),
 			math.max(0, math.floor(sheet.burnSpread or 0))
 		)
 	)

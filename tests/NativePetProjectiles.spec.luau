@@ -14,6 +14,47 @@ local function target()
 	return assert(Enemy.spawn("Brute", 20, 0, 100, 0, nil, nil, 0))
 end
 describe("Native pet projectiles", function()
+	it("spawns precisely six flames, ignores accuracy rolls and uses the native flame shape offset", function()
+		local originalEmit, originalQuery = f.Weapons.emitStructureEffect, Enemy.querySegment
+		local random = require(f.S.RandomService)
+		local originalRandom = random.number
+		random.number = function()
+			return 0.75
+		end
+		for _, count in { -1, 2 } do
+			local events = {}
+			f.Weapons.emitStructureEffect = function(_, event)
+				table.insert(events, event)
+			end
+			local directions = {}
+			for n = 0, 5 do
+				table.insert(directions, Vector3.new(math.cos(n * math.pi / 3), 0, math.sin(n * math.pi / 3)))
+			end
+			Sim.launchPet(f.me, at, Pets.kinds.Blazemander.ranged, { projectiles = count }, directions, false)
+			expect(#events).toBe(6)
+			local spread = 3 + count * f.Config.Combat.originalWeapons.spreadPerProjectile
+			expect(events[1].dx).toBeNear(math.cos(spread / 2))
+			expect(events[1].dz).toBeNear(math.sin(spread / 2))
+			Sim.clear()
+		end
+		random.number = originalRandom
+		f.Weapons.emitStructureEffect = originalEmit
+		local weapon = table.clone(Pets.kinds.Blazemander.ranged)
+		weapon.nativeSpread = 0
+		local queried = false
+		Enemy.querySegment = function(from, to, radius, out)
+			queried = true
+			expect(from.X).toBeNear(2.4)
+			expect(from.Z).toBeNear(0.4)
+			expect(radius).toBeNear(4.4)
+			return originalQuery(from, to, radius, out)
+		end
+		Sim.launchPet(f.me, at, weapon, {}, { Vector3.new(1, 0, 0) }, false)
+		Sim.step(0.01)
+		Enemy.querySegment = originalQuery
+		expect(queried).toBe(true)
+		Sim.clear()
+	end)
 	it("flies Bot-O-Mine shots before applying Damage plus Structure Damage and Engineering", function()
 		local id = target()
 		local hp = Enemy.getHealth(id)

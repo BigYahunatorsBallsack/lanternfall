@@ -2852,6 +2852,28 @@
       ],
       "shapes": {}
     },
+    "res://projectiles/flames/flame_projectile.tscn": {
+      "sourceMd5": "0ae4d3e9acda3802d24b1f13e1569039",
+      "baseScene": "res://projectiles/player_projectile.tscn",
+      "nodes": [
+        {
+          "name": "Collision",
+          "parent": "Hitbox",
+          "type": null,
+          "scriptSource": null,
+          "properties": {
+            "position": {
+              "variantType": "Vector2",
+              "values": [
+                24,
+                4
+              ]
+            }
+          }
+        }
+      ],
+      "shapes": {}
+    },
     "res://overlap/hitbox.tscn": {
       "sourceMd5": "6222713c85e3dbf2298abd249a65bb01",
       "baseScene": null,

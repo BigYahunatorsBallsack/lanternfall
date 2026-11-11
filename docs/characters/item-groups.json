@@ -1463,6 +1463,17 @@
         "pet",
         "structure"
       ]
+    },
+    "Blazemander": {
+      "nativeId": "item_blazemander",
+      "nameKey": "ITEM_BLAZEMANDER",
+      "source": "res://items/all/03_paws_n_claws/blazemander/blazemander.tres",
+      "sourceMd5": "09870448e535e871cf682e85b4177320",
+      "displayName": "Blazemander",
+      "tags": [
+        "stat_elemental_damage",
+        "pet"
+      ]
     }
   },
   "endlessBannedItems": [

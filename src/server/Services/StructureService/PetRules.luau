@@ -42,6 +42,15 @@ function Rules.scaling(base: { { any } }, beastMaster: boolean?, modifiers: { [s
 	return result
 end
 
+-- Intrinsic pet burn keeps its own scaling; global burn contributes only its flat base damage.
+function Rules.burnDamage(def: any, sheet: { [string]: number }, beastMaster: boolean?): number
+	local flat = def.damage + (sheet.nativeGlobalBurnDamage or 0)
+	for id, share in Rules.scaling(def.scaling, beastMaster) do
+		flat += share * (sheet[id] or 0)
+	end
+	return Damage.total(flat, Damage.factor(sheet, false), { nativeTiming = 1 })
+end
+
 function Rules.compute(
 	def: any,
 	sheet: { [string]: number },

@@ -39,6 +39,7 @@ export type Event = {
 	enemyId: number?, -- Hit, Crit, Kill (B5: Burn and Explode act on it)
 	fullHp: boolean?, -- Consumable: at max HP before its healing (B8)
 	damageDealt: number?, -- restores pre-hit HP for health-percent bonus damage
+	intrinsicBurnHandled: boolean?, -- pet hit already merged global burn into its intrinsic burn
 }
 
 -- Temporary bonuses of one player.

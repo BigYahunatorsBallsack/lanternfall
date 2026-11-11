@@ -874,6 +874,12 @@ function EnemySim.setBurning(id: number, on: boolean)
 	world:setBurning(id, on)
 end
 
+-- Server pet targeting reads the same authoritative burn flag sent in enemy snapshots.
+function EnemySim.isBurning(id: number): boolean
+	local _, burning = world:getStatus(id)
+	return burning
+end
+
 -- Removes a living enemy without a kill: no EnemyKilled, no loot (a Looter escaping, B6). Returns true if it was alive.
 function EnemySim.remove(id: number): boolean
 	weakness:remove(id)

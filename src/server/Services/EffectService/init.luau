@@ -351,6 +351,9 @@ local function fire(state: State, event: EffectRules.Event, entries: { EffectRul
 	end
 	local changed = false
 	for _, entry in list do
+		if event.intrinsicBurnHandled and event.trigger == "Hit" and entry.effect.action == "Burn" then
+			continue
+		end
 		if EffectRules.matches(entry, event, state.buffs) then
 			local strength = EffectRules.strength(entry, state.roll)
 			if strength > 0 then
@@ -379,7 +382,15 @@ end
 
 -- Events -------------------------------------------------------------------------------------
 
-local function onHit(ownerId: number, enemyId: number, dealt: number, crit: boolean, killed: boolean, source: string)
+local function onHit(
+	ownerId: number,
+	enemyId: number,
+	dealt: number,
+	crit: boolean,
+	killed: boolean,
+	source: string,
+	intrinsicBurnHandled: boolean?
+)
 	local state = byUserId[ownerId]
 	if not (state and state.hitTriggers) then
 		return
@@ -391,7 +402,14 @@ local function onHit(ownerId: number, enemyId: number, dealt: number, crit: bool
 	end
 	local wave = RunDirector.getWave()
 	if source ~= "Burn" and source ~= "Strike" then -- burn ticks and strikes are no hits, but their kills count
-		fire(state, { trigger = "Hit", wave = wave, crit = crit, elite = elite, enemyId = enemyId })
+		fire(state, {
+			trigger = "Hit",
+			wave = wave,
+			crit = crit,
+			elite = elite,
+			enemyId = enemyId,
+			intrinsicBurnHandled = intrinsicBurnHandled,
+		})
 		if crit then
 			fire(
 				state,

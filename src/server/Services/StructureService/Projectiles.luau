@@ -81,8 +81,9 @@ local function launch(
 			local dx, dz = tx - x, tz - z
 			local length = math.sqrt(dx * dx + dz * dz)
 			if length > 0 then
-				local forward = PetConfig.projectile.offsetForwardPoints * Config.Stats.range.studsPerPoint
-				local side = PetConfig.projectile.offsetSidePoints * Config.Stats.range.studsPerPoint
+				local geometry = def.projectile or PetConfig.projectile
+				local forward = geometry.offsetForwardPoints * Config.Stats.range.studsPerPoint
+				local side = geometry.offsetSidePoints * Config.Stats.range.studsPerPoint
 				local ox, oz = (dx * forward - dz * side) / length, (dz * forward + dx * side) / length
 				x, z, tx, tz = x + ox, z + oz, tx + ox, tz + oz
 			end
@@ -133,9 +134,18 @@ local function launch(
 			math.round(amount),
 			if mode == "Explosion" then "Explosion" else nil,
 			critical,
-			petScaling ~= nil and petScaling.elementalDamage ~= nil
+			petScaling ~= nil and petScaling.elementalDamage ~= nil,
+			prepared ~= nil and def.burning ~= nil
 		)
-		if def.burnBase then
+		if prepared and def.burning and not killed then
+			Weapons.structureBurn(
+				player,
+				id,
+				PetRules.burnDamage(def.burning, sheet, def.petBeastMaster),
+				def.burning.ticks,
+				sheet
+			)
+		elseif def.burnBase then
 			local base = def.burnBase
 				+ (def.burnEngineering or 0) * (sheet.engineering or 0)
 				+ (def.burnElemental or 0) * (sheet.elementalDamage or 0)
@@ -152,7 +162,8 @@ local function launch(
 			local pos = Enemy.getPosition(id)
 			if pos and (pos - at).Magnitude > 0 then
 				local away = (pos - at).Unit
-				local dx, dz = Arsenal.knockDirection(away.X, away.Z, ctx.hitDirX, ctx.hitDirZ)
+				local dx, dz =
+					Arsenal.knockDirection(away.X, away.Z, s.petKnockX or ctx.hitDirX, s.petKnockZ or ctx.hitDirZ)
 				Enemy.knock(id, dx * s.knockback, dz * s.knockback)
 			end
 		end
@@ -162,10 +173,13 @@ local function launch(
 		return killed
 	end
 	for _, direction in directions do
-		local aim = (ctx:random() * 2 - 1) * (1 - stats.nativeAccuracy)
-		for _ = 1, (if prepared then math.max(0, stats.count) else math.max(1, stats.count)) do
+		local aim = if def.radial then 0 else (ctx:random() * 2 - 1) * (1 - stats.nativeAccuracy)
+		for _ = 1, (if def.radial then 1 elseif prepared then math.max(0, stats.count) else math.max(1, stats.count)) do
 			local angle = aim + (ctx:random() * 2 - 1) * stats.nativeSpread
 			local c, s = math.cos(angle), math.sin(angle)
+			if def.radial then
+				stats.petKnockX, stats.petKnockZ = direction.X, direction.Z
+			end
 			Projectile.launch(
 				fake,
 				ctx,
@@ -195,10 +209,12 @@ function Sim.launchPet(
 	local stats = PetRules.compute(weapon, sheet, beastMaster)
 	stats.nativeTiming = 1
 	stats.nativeIntegerFalloff = 1
-	stats.projectileRadius = PetConfig.projectile.radiusPoints * Config.Stats.range.studsPerPoint
+	stats.projectileRadius = (weapon.projectile or PetConfig.projectile).radiusPoints * Config.Stats.range.studsPerPoint
 	stats.range += PetConfig.projectile.autoRangeBonusPoints * Config.Stats.range.studsPerPoint
 	stats.knockbackPiercing = 0
-	launch(player, at, weapon, sheet, directions, stats, PetRules.scaling(weapon.scaling, beastMaster))
+	local definition = table.clone(weapon)
+	definition.petBeastMaster = beastMaster
+	launch(player, at, definition, sheet, directions, stats, PetRules.scaling(weapon.scaling, beastMaster))
 end
 function Sim.step(dt: number)
 	for i = #volleys, 1, -1 do

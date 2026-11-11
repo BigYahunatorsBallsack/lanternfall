@@ -242,6 +242,22 @@ kinds.BotOMine = {
 	canBeGrouped = false,
 	countsAsTurret = false,
 }
+local blaze = require(script.Parent.Pets).kinds.Blazemander
+kinds.Blazemander = {
+	displayName = "Blazemander",
+	mode = "Pet",
+	petKind = "Blazemander",
+	damage = blaze.weapon.damage,
+	engineering = 0,
+	interval = blaze.weapon.cooldownFrames / require(script.Parent.Pets).frameRate,
+	range = blaze.weapon.rangePoints * require(script.Parent.Stats).range.studsPerPoint,
+	tier = 2,
+	price = 40,
+	color = { 255, 255, 255 },
+	description = "Blazemander",
+	canBeGrouped = false,
+	countsAsTurret = false,
+}
 for id, values in require(script.Parent.CharacterStructureData) do
 	for key, value in values do
 		(kinds[id] :: any)[key] = value

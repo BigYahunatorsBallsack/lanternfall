@@ -46,7 +46,7 @@ def generate(pck):
    seen.add(ref);data=pck.resource(ref)['properties'];resources[ref]={'sourceMd5':pck.entries[ref]['md5'],'properties':facts(data)}
    pending.extend(r['resource'] for r in source.references(data) if r['resource'].endswith('.tres') and '::' not in r['resource'])
   rows.append(row)
- for ref in ['res://projectiles/bullet/bullet_projectile.tscn','res://overlap/hitbox.tscn']:
+ for ref in ['res://projectiles/bullet/bullet_projectile.tscn','res://projectiles/flames/flame_projectile.tscn','res://overlap/hitbox.tscn']:
   scenes[ref]=read_scene(pck,ref)
  pending=[v['baseScene'] for v in scenes.values() if v.get('baseScene')]
  while pending:
@@ -98,7 +98,7 @@ def catalog(out):
     parent+='/'+name
    ax,ay=nodes['Animation','.']['position']['values']
    pet.update({'muzzleXPoints':ax+x-100,'muzzleZPoints':ay+y-100})
-  if slug in ['ratzilla','bonk_dog']:
+  if slug in ['ratzilla','bonk_dog','blazemander']:
    scene=out['scenes'][effect['scene']['resource']]
    nodes=inherited_nodes(effect['scene']['resource'])
    def node(name,parent):return nodes.get((name,parent),{})
@@ -106,7 +106,14 @@ def catalog(out):
     path,sub=properties['shape']['resource'].split('::');return out['scenes'][path]['shapes'][sub]['properties'].get('radius',10)
    body=node('Collision','.');hit=node('Collision','Hitbox');target=node('TargetBehavior','.')
    hit_pos=node('Hitbox','.').get('position',{}).get('values',[0,0]);hit_collision_pos=hit.get('position',{}).get('values',[0,0])
-   pet.update({'bodyRadiusPoints':radius(body),'bodyOffsetXPoints':body['position']['values'][0],'bodyOffsetZPoints':body['position']['values'][1],'hitRadiusPoints':radius(hit),'hitOffsetXPoints':hit_pos[0]+hit_collision_pos[0],'hitOffsetZPoints':hit_pos[1]+hit_collision_pos[1],'targetRadiusPoints':radius(next(v for (name,parent),v in nodes.items() if parent=='TargetBehavior/Range' and 'shape' in v)),'targetFamily':target.get('pet_id',''),'excludeBosses':target['exclude_elite_and_boss_target']})
+   pet.update({'bodyRadiusPoints':radius(body),'bodyOffsetXPoints':body['position']['values'][0],'bodyOffsetZPoints':body['position']['values'][1],'hitRadiusPoints':radius(hit),'hitOffsetXPoints':hit_pos[0]+hit_collision_pos[0],'hitOffsetZPoints':hit_pos[1]+hit_collision_pos[1],'targetRadiusPoints':radius(next(v for (name,parent),v in nodes.items() if parent=='TargetBehavior/Range' and 'shape' in v)),'targetFamily':target.get('pet_id',''),'excludeBosses':target.get('exclude_elite_and_boss_target',False)})
+   if slug=='blazemander':
+    detect=node('Enemy_detection','.');offset=detect.get('position',{}).get('values',[0,0]);b=props(effect['burning_data'])
+    burn={'damage':b['damage'],'ticks':b['duration'],'chance':b['chance'],'spread':b['spread'],'scaling':[[STAT_IDS[k],v] for k,v in b['scaling_stats']]}
+    pet.update({'preferUnburned':True,'globalFallback':False,'shareEliteOnly':True,'detectionRadiusPoints':radius(node('Collision','Enemy_detection')),'detectionOffsetXPoints':offset[0],'detectionOffsetZPoints':offset[1],'meleeDelaySeconds':0.15,'rangedInitialMinimumShare':0.25,'rays':6})
+    pet['weapon']['burning']=burn;pet['ranged']['burning']=burn;pet['ranged']['radial']=True
+    flame=inherited_nodes('res://projectiles/flames/flame_projectile.tscn');fc=flame['Collision','Hitbox'];fh=flame['Hitbox','.'].get('position',{}).get('values',[0,0]);cp=fc.get('position',{}).get('values',[0,0])
+    pet['ranged']['projectile']={'radiusPoints':radius(fc),'offsetForwardPoints':fh[0]+cp[0],'offsetSidePoints':fh[1]+cp[1]}
    if slug=='bonk_dog':
     root=scene['nodes'][0]['properties'];effect_explosion=props(effect['explosion_effect']);geometry=json.loads((ROOT/'docs/characters/structure-source.json').read_text())['geometry']
     pet.update({'jumpSeconds':root['charge_duration'],'jumpMinimumSquaredPoints':root['min_squared_distance_for_jump_attack'],'jumpInitialMinimumShare':0.25,'jumpRetryShare':0.4,'explosionScale':effect_explosion['scale'],'explosionRadiusPoints':geometry['explosionRadiusPoints']})
@@ -137,6 +144,6 @@ def main():
   if args.check:
    assert path.read_text(encoding='utf-8')==text,f'Stale generated pet data: {path}'
   else:
-   path.parent.mkdir(parents=True,exist_ok=True);path.write_text(text,encoding='utf-8')
+   path.parent.mkdir(parents=True,exist_ok=True);path.write_text(text,encoding='utf-8',newline='\n')
  print(len(out['pets']),'pet families,',len(out['resources']),'resources,',len(out['scenes']),'scenes inspected; generated config checked' if args.check else 'scenes inspected; generated config written')
 if __name__=='__main__':main()

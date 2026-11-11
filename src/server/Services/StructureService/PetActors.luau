@@ -12,6 +12,8 @@ local Weapons = require(script.Parent.Parent.WeaponService)
 local Combat = require(script.Parent.Parent.CombatService)
 local Rules = require(script.Parent.PetRules)
 local Bot = require(script.Parent.PetBot)
+local BlazeTiming = require(script.Parent.PetBlazeTiming)
+local Projectiles = require(script.Parent.Projectiles)
 local Actors = {}
 local bodies: any = nil
 local members: { any } = {}
@@ -106,6 +108,11 @@ function Actors.add(o: any)
 		* C.frameRate
 	o.mineFrames = pet.mineIntervalFrames
 	o.attacking = false
+	if pet.preferUnburned then
+		BlazeTiming.init(o, Weapons.getStructureStats(o.owner), function()
+			return Random.number("Combat", o.owner)
+		end)
+	end
 	if pet.explosion then
 		o.jumpCooldownFrames = pet.explosion.cooldownFrames
 			* (pet.jumpInitialMinimumShare + (1 - pet.jumpInitialMinimumShare) * Random.number("Combat", o.owner))
@@ -122,19 +129,29 @@ local function chooseTarget(o: any)
 	Enemy.collectIds(ids)
 	local function eligible(id)
 		local kind, boss = Enemy.getKind(id)
+		if pet.shareEliteOnly then
+			return kind ~= "Tree" and (family[id] == nil or Config.Enemies.champions[kind] ~= nil)
+		end
 		return kind ~= "Tree" and (if boss then not pet.excludeBosses else family[id] == nil)
 	end
-	local best, distance = nil, math.huge
+	local best, distance, burningBest, burningDistance = nil, math.huge, nil, math.huge
 	local nearby = {}
 	Enemy.queryRadius(o.position, pet.targetRadiusPoints * scale, nearby)
 	for _, id in nearby do
 		local at = Enemy.getPosition(id)
 		local d = (at - o.position).Magnitude
-		if eligible(id) and d < distance then
-			best, distance = id, d
+		if eligible(id) then
+			if pet.preferUnburned and Enemy.isBurning(id) then
+				if d < burningDistance then
+					burningBest, burningDistance = id, d
+				end
+			elseif d < distance then
+				best, distance = id, d
+			end
 		end
 	end
-	if not best then
+	best = best or burningBest
+	if not best and pet.globalFallback ~= false then
 		-- Original ClosestEnemyTargetBehavior falls back to the first eligible global enemy.
 		for _, id in ids do
 			if eligible(id) then
@@ -149,7 +166,7 @@ local function chooseTarget(o: any)
 	end
 end
 
-local function attack(o: any, sheet: { [string]: number }, exploding: boolean?)
+local function attack(o: any, sheet: { [string]: number }, exploding: boolean?, hitIds: { [number]: boolean }?)
 	local pet = o.pet
 	local weapon = if exploding then pet.explosion else pet.weapon
 	local stats = Rules.compute(weapon, sheet, o.beastMaster)
@@ -167,6 +184,12 @@ local function attack(o: any, sheet: { [string]: number }, exploding: boolean?)
 	Enemy.queryRadius(center, radius, ids)
 	local kills = 0
 	for _, id in ids do
+		if hitIds and hitIds[id] then
+			continue
+		end
+		if hitIds then
+			hitIds[id] = true
+		end
 		local critical = stats.critChance ~= 0 and Random.number("Combat", o.owner) <= stats.critChance
 		local at = Enemy.getPosition(id)
 		local kind = Enemy.getKind(id)
@@ -177,8 +200,18 @@ local function attack(o: any, sheet: { [string]: number }, exploding: boolean?)
 			Rules.hitDamage(stats.damage, 1, if critical then stats.critDamage else 1, boss, sheet.eliteDamage or 0),
 			if exploding then "Explosion" else nil,
 			critical,
-			elemental
+			elemental,
+			weapon.burning ~= nil
 		)
+		if weapon.burning and not killed then
+			Weapons.structureBurn(
+				o.owner,
+				id,
+				Rules.burnDamage(weapon.burning, sheet, o.beastMaster),
+				weapon.burning.ticks,
+				sheet
+			)
+		end
 		if killed then
 			kills += 1
 		end
@@ -254,6 +287,24 @@ function Actors.step(
 			if o.pet.followOwner then
 				target = Bot.goal(o)
 			else
+				if o.pet.preferUnburned then
+					local nearby = {}
+					Enemy.queryRadius(o.position, o.pet.targetRadiusPoints * scale, nearby)
+					local count, fresh = 0, false
+					for _, id in nearby do
+						if Enemy.getKind(id) ~= "Tree" then
+							count += 1
+							fresh = fresh or not Enemy.isBurning(id)
+						end
+					end
+					if
+						(count > 0 and (o.targetRangeCount or 0) == 0)
+						or (o.target and Enemy.isBurning(o.target) and fresh)
+					then
+						release(o)
+					end
+					o.targetRangeCount = count
+				end
 				if not o.target or not Enemy.isAlive(o.target) then
 					release(o)
 					chooseTarget(o)
@@ -296,6 +347,29 @@ function Actors.step(
 			end
 			moved = moved or (at - previous).Magnitude > 0
 			o.position = at
+			if o.pet.preferUnburned then
+				local sheet, pet, nearby = sheetOf(o.owner), o.pet, {}
+				local center = at
+					+ Vector3.new(pet.detectionOffsetXPoints * scale, 0, pet.detectionOffsetZPoints * scale)
+				Enemy.queryRadius(center, pet.detectionRadiusPoints * scale, nearby)
+				local detected = false
+				for _, id in nearby do
+					detected = detected or Enemy.getKind(id) ~= "Tree"
+				end
+				local fire, hitbox = BlazeTiming.step(o, sheet, detected)
+				if fire then
+					local directions = {}
+					for ray = 0, pet.rays - 1 do
+						local angle = 2 * math.pi * ray / pet.rays
+						table.insert(directions, Vector3.new(math.cos(angle), 0, math.sin(angle)))
+					end
+					Projectiles.launchPet(o.owner, at, pet.ranged, sheet, directions, o.beastMaster)
+				end
+				if hitbox then
+					attack(o, sheet, false, o.blazeHitIds)
+				end
+				continue
+			end
 			if landed then
 				o.cooldownFrames = math.max(0, o.cooldownFrames - 1)
 				continue
