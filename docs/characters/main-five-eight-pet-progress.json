@@ -11,8 +11,8 @@
       "failed": 37
     },
     "branch": {
-      "specs": 246,
-      "passed": 1577,
+      "specs": 247,
+      "passed": 1579,
       "failed": 38
     },
     "newFailureNames": [
@@ -23,7 +23,7 @@
     ],
     "removedFailureNames": [],
     "aborts": [],
-    "branchResult": "build/native-five-branch-eight-startpet-6bb5174.json",
+    "branchResult": "build/native-five-branch-eight-range-6bb5174.json",
     "confirmedBaselineFluctuations": [
       {
         "iteration": 1,
@@ -155,7 +155,9 @@
           "FAIL Charmed faction runtime > steps a mixed hostile and friendly crowd within the shared simulation budget"
         ]
       }
-    ]
+    ],
+    "newDeterministicFailureNames": [],
+    "additionalChecksPassed": 92
   },
   "focused": {
     "tests/CharacterBabyPackage.spec.luau": {
@@ -252,6 +254,10 @@
     },
     "tests/NativePetShop.spec.luau": {
       "passed": 1,
+      "failed": 0
+    },
+    "tests/NativePetRangeEntry.spec.luau": {
+      "passed": 2,
       "failed": 0
     }
   },
@@ -440,5 +446,22 @@
     ],
     "studioRun": false,
     "newNativeCodeReadyFlags": 0
+  },
+  "petRangeEntry": {
+    "firstEmptyRangeEntryReplacesGlobalTarget": true,
+    "furtherCloserEntriesRetainTarget": true,
+    "targetExitRetainsLivingTarget": true,
+    "nextEntryAfterEmptyRangeRetargets": true,
+    "beforeFix": {
+      "passed": 0,
+      "failed": 2
+    },
+    "afterFix": {
+      "passed": 2,
+      "failed": 0
+    },
+    "usesProductionActors": true,
+    "nativeBodyAreaPhaseParityAccepted": false,
+    "newCompleteCharacterCounted": false
   }
 }

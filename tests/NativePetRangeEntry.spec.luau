@@ -1,0 +1,41 @@
+--!strict
+-- First range entry replaces an existing global pet target; further entries and exits retain it until the range empties.
+local f = loadHelper("tests/helpers/NativeCharacterFixture.luau")("NightWatch")
+local Actors, Enemy = require(f.S.StructureService.PetActors), require(f.S.EnemySim)
+f.start("WatchmanPistol")
+local function step()
+	Actors.step(1 / 60, function(player)
+		return f.Stats.getSheet(player)
+	end, function()
+		error("Melee pets must not spawn structures")
+	end)
+end
+describe("Native melee pet range entry", function()
+	for _, kind in { "Ratzilla", "BonkDog" } do
+		it(`replaces {kind}'s global target only on the first body entering an empty range`, function()
+			Actors.clear()
+			Enemy.killAll()
+			local o = { id = 1, owner = f.me, kind = kind, position = f.Config.Map.arena.center }
+			Actors.add(o)
+			local far = Enemy.spawn("Brute", o.position.X + 90, o.position.Z, 100, 0, nil, nil, 0)
+			step()
+			expect(o.target).toBe(far)
+			local first = Enemy.spawn("Brute", o.position.X - 20, o.position.Z, 100, 0, nil, nil, 0)
+			step()
+			expect(o.target).toBe(first)
+			local closer = Enemy.spawn("Brute", o.position.X + 8, o.position.Z, 100, 0, nil, nil, 0)
+			step()
+			expect(o.target).toBe(first)
+			Enemy.teleport(first, o.position + Vector3.new(90, 0, 0))
+			step()
+			expect(o.target).toBe(first) -- leaving the range alone does not clear a living target
+			Enemy.teleport(closer, o.position + Vector3.new(100, 0, 0))
+			step()
+			expect(o.target).toBe(first)
+			local nextEntry = Enemy.spawn("Brute", o.position.X - 15, o.position.Z, 100, 0, nil, nil, 0)
+			step()
+			expect(o.target).toBe(nextEntry)
+			expect(#f.world.errors).toBe(0)
+		end)
+	end
+end)

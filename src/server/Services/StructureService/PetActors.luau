@@ -317,19 +317,20 @@ function Actors.step(
 			elseif o.pet.followOwner then
 				target = Bot.goal(o)
 			else
-				if o.pet.preferUnburned then
+				if o.pet.targetFamily then
+					-- Native range entry clears a global target only when the area's previous occupant list was empty.
 					local nearby = {}
 					Enemy.queryRadius(o.position, o.pet.targetRadiusPoints * scale, nearby)
 					local count, fresh = 0, false
 					for _, id in nearby do
 						if Enemy.getKind(id) ~= "Tree" then
 							count += 1
-							fresh = fresh or not Enemy.isBurning(id)
+							fresh = fresh or (o.pet.preferUnburned and not Enemy.isBurning(id))
 						end
 					end
 					if
 						(count > 0 and (o.targetRangeCount or 0) == 0)
-						or (o.target and Enemy.isBurning(o.target) and fresh)
+						or (o.pet.preferUnburned and o.target and Enemy.isBurning(o.target) and fresh)
 					then
 						release(o)
 					end
