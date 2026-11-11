@@ -194,7 +194,16 @@ Classes.Trapper = {
 
 -- Source-complete records remain unavailable until their runtime dependencies and selection paths are verified.
 -- Existing profile ids retain the delivered behavior while the complete native packages are integrated.
-local preparedLegacy = { SparkMage = true, NightWatch = true, TwinLedger = true, ManyHands = true }
+local preparedLegacy = {
+	SparkMage = true,
+	NightWatch = true,
+	TwinLedger = true,
+	ManyHands = true,
+	CandleScholar = true,
+	DuelMaestro = true,
+	FarSeer = true,
+	SoleConductor = true,
+}
 for id, source in Catalog do
 	if Classes[id] and not preparedLegacy[id] then
 		Classes[id].native = source
@@ -381,6 +390,26 @@ Classes.Demon.description =
 Classes.Fisherman.nativeCodeReady = true
 Classes.Fisherman.description =
 	"+5 Max HP\n+20 Harvesting\nShops always sell a Bait\n-100% Bait price\n+2 Harvesting for every 1 Bait you have [0]\nBaits make some special enemies spawn throughout all future waves\n-40% materials dropped from enemies"
+
+local apprentice = Classes.CandleScholar.pendingNative or Classes.CandleScholar
+apprentice.nativeCodeReady = true
+apprentice.description =
+	"+2 Melee Damage when you level up\n+1 Ranged Damage when you level up\n+1 Elemental Damage when you level up\n+1 Engineering when you level up\n-2 Max HP when you level up"
+local gladiator = Classes.DuelMaestro.pendingNative or Classes.DuelMaestro
+gladiator.nativeCodeReady = true
+gladiator.description =
+	"+20 % Attack Speed for every different weapon you have [0]\n+5 Melee Damage\nYou can't equip ranged weapons\n-40 % Attack Speed\n-30 Luck"
+local hunter = Classes.FarSeer.pendingNative or Classes.FarSeer
+hunter.nativeCodeReady = true
+hunter.description =
+	"+100 Range\n+1 % Damage for every 10 Range you have [0]\nCrit Chance modifications are increased by 25%\nHarvesting modifications are reduced by 100%\nMax HP modifications are reduced by 33%"
+local oneArmed = Classes.SoleConductor.pendingNative or Classes.SoleConductor
+oneArmed.nativeCodeReady = true
+oneArmed.description =
+	"+200 % Attack Speed\nDamage modifications are increased by 100%\nYou can only equip one weapon at a time\nYour weapon has +3 set bonus for its weapon categorie. "
+Classes.Knight.nativeCodeReady = true
+Classes.Knight.description =
+	"+2 Melee Damage for every 1 Armor you have [0]\n+3 Armor\nYou can't equip ranged weapons\nYou can only equip tier II weapons or above\nAttack Speed modifications are reduced by 50%\nHarvesting modifications are reduced by 80%"
 
 for id, class in Classes do
 	if not class.nativeCodeReady then
