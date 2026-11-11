@@ -1,0 +1,38 @@
+{
+  "mutation": "Disable the real Ratzilla hit call, leaving player weapons paused",
+  "detected": true,
+  "mutationOutput": "[Lanternfall] Place: lobby and arena in one server (no hub/run place ids for this place in Config.Places)\n[Lanternfall] Server ready: 71 remotes, 36 services, config problems: 0\n[Lanternfall] Saving: memory only (no DataStoreService)\n[Lanternfall] Badge \"Lantern Lit\" earned but not set up (Config/Badges.luau id is 0)\n[Lanternfall] Owner login streak day 1: +25 Embers\n[Lanternfall] Peer login streak day 1: +25 Embers\n[Lanternfall] Launch check: 1 must, 2 should open (debug button \"Launch check\" lists them)\n[Lanternfall] Run started with 2 player(s), Danger 0\n[Lanternfall] Run seed 228619419 (Config.Run.seed replays it)\nFAIL Native Ratzilla > moves towards ordinary enemies, reserves separate targets and lands native melee damage\n     tests/NativeRatzilla.spec.luau:35: expected true, got false\n[Lanternfall] Run ended: Abandoned after 00:20\n[Lanternfall] ===== Run summary (copy this block for your playtest notes) =====\n[Lanternfall] Abandoned after 00:20 \u00c2\u00b7 Danger 0 \u00c2\u00b7 2 player(s) \u00c2\u00b7 team level 0 \u00c2\u00b7 2 kills (Brute 2)\n[Lanternfall] Owner (Ranger): 0 kills, 0 damage, took 0, down 0x\n[Lanternfall]   Weapons: Pistol I 0 dmg/0 kills\n[Lanternfall]   Items: Ratzilla x2\n[Lanternfall] Peer (Ranger): 0 kills, 0 damage, took 0, down 0x\n[Lanternfall]   Weapons: Pistol I 0 dmg/0 kills\n[Lanternfall]   Items: none\n[Lanternfall] =====\n2 passed, 1 failed\n",
+  "byteExactRestore": true,
+  "restoredOutput": "[Lanternfall] Place: lobby and arena in one server (no hub/run place ids for this place in Config.Places)\n[Lanternfall] Server ready: 71 remotes, 36 services, config problems: 0\n[Lanternfall] Saving: memory only (no DataStoreService)\n[Lanternfall] Badge \"Lantern Lit\" earned but not set up (Config/Badges.luau id is 0)\n[Lanternfall] Owner login streak day 1: +25 Embers\n[Lanternfall] Peer login streak day 1: +25 Embers\n[Lanternfall] Launch check: 1 must, 2 should open (debug button \"Launch check\" lists them)\n[Lanternfall] Run started with 2 player(s), Danger 0\n[Lanternfall] Run seed 228619419 (Config.Run.seed replays it)\n[Lanternfall] Run ended: Abandoned after 00:20\n[Lanternfall] ===== Run summary (copy this block for your playtest notes) =====\n[Lanternfall] Abandoned after 00:20 \u00c2\u00b7 Danger 0 \u00c2\u00b7 2 player(s) \u00c2\u00b7 team level 0 \u00c2\u00b7 2 kills (Brute 2)\n[Lanternfall] Owner (Ranger): 0 kills, 0 damage, took 0, down 0x\n[Lanternfall]   Weapons: Pistol I 0 dmg/0 kills\n[Lanternfall]   Items: Ratzilla x2\n[Lanternfall] Peer (Ranger): 0 kills, 0 damage, took 0, down 0x\n[Lanternfall]   Weapons: Pistol I 0 dmg/0 kills\n[Lanternfall]   Items: none\n[Lanternfall] =====\n3 passed, 0 failed\n",
+  "main": "6bb5174f31bee9b839cc9a04ee406d1f549de051",
+  "scope": "Partial Beast Master prerequisites only; no complete character package added",
+  "focused": {
+    "NativePetStats": [
+      7,
+      0
+    ],
+    "NativeRatzilla": [
+      3,
+      0
+    ],
+    "NativeStructures": [
+      4,
+      0
+    ],
+    "StructuresB12": [
+      8,
+      0
+    ]
+  },
+  "fullSuiteRun": false,
+  "selene": {
+    "errors": 0,
+    "warnings": 18
+  },
+  "rojo": true,
+  "petCompilerCheck": true,
+  "originalIconsPrepared": 6,
+  "actorArtworkPrepared": false,
+  "uploads": 0,
+  "runtimeAssetIdsChanged": false
+}

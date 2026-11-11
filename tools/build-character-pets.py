@@ -21,7 +21,7 @@ def read_scene(pck,path):
   text=raw[match.end():starts[i+1].start() if i+1<len(starts) else len(raw)]
   text=re.split(r'^\[connection ',text,flags=re.M)[0]
   parsed=source.parse_tres(prefix+'\n[resource]\n'+text,path)
-  values={k:v for k,v in parsed['properties'].items() if k not in VISUAL and (isinstance(v,(int,float,bool)) or k in ['stats','shape','position','scale','target_behavior','movement_behavior','charge_duration','min_squared_distance_for_jump_attack','weapon_stats','tree_damage_ratio'])}
+  values={k:v for k,v in parsed['properties'].items() if k not in VISUAL and (isinstance(v,(int,float,bool)) or k in ['stats','shape','position','scale','pet_id','target_behavior','movement_behavior','charge_duration','min_squared_distance_for_jump_attack','weapon_stats','tree_damage_ratio'])}
   if values or 'script' in parsed['properties']:
    nodes.append({'name':attrs.get('name'),'parent':attrs.get('parent'),'type':attrs.get('type'),'scriptSource':parsed['properties'].get('script',{}).get('resource'),'properties':values})
  parsed=source.parse_tres(prefix+'\n[resource]\n',path)
@@ -53,6 +53,57 @@ def generate(pck):
   scenes[ref]=read_scene(pck,ref)
   if scenes[ref].get('baseScene'):pending.append(scenes[ref]['baseScene'])
  return {'version':'1.2.0.1','steamBuild':26406319,'pets':rows,'resources':resources,'scenes':scenes,'note':'Neutral pet facts, not a claim of implemented behavior or available original artwork.'}
+STAT_IDS={'stat_melee_damage':'meleeDamage','stat_ranged_damage':'rangedDamage','stat_elemental_damage':'elementalDamage','stat_engineering':'engineering','stat_max_hp':'maxHp'}
+
+def weapon(data, structure=False, ranged=False, exploding=False):
+ result={'damage':data['damage'],'cooldownFrames':data['cooldown'],'critChance':data['crit_chance'],'critDamage':data['crit_damage'],'lifeSteal':data['lifesteal'],'rangePoints':data['max_range'],'minRangePoints':data['min_range'],'knockbackPoints':data['knockback'],'positiveKnockback':data['can_have_positive_knockback'],'negativeKnockback':data['can_have_negative_knockback'],'isStructure':structure,'isRanged':ranged,'exploding':exploding,'scaling':[[STAT_IDS[k],v] for k,v in data['scaling_stats']]}
+ if ranged:
+  result.update({'projectileSpeedPoints':data['projectile_speed'],'nativeAccuracy':data['accuracy'],'nativeSpread':data['projectile_spread'],'count':data['nb_projectiles'],'pierce':data['piercing'],'pierceFalloff':data['piercing_dmg_reduction'],'bounce':data['bounce'],'bounceFalloff':data['bounce_dmg_reduction'],'canBounce':data['can_bounce']})
+ return result
+
+def catalog(out):
+ resources=out['resources'];kinds={}
+ def props(ref):return resources[ref['resource']]['properties']
+ for row in out['pets']:
+  effect=row['effect'];slug=row['slug'];structure=effect['is_structure'];ranged=slug in ['catling_gun','bot_o_mine']
+  speed=next(n['properties']['stats'] for n in out['scenes'][effect['scene']['resource']]['nodes'] if 'stats' in n['properties'])
+  weapon_ref=effect.get('weapon_stats') or next(n['properties']['weapon_stats'] for n in out['scenes'][effect['scene']['resource']]['nodes'] if 'weapon_stats' in n['properties'])
+  pet={'speedPoints':props(speed)['speed'],'isStructure':structure,'weapon':weapon(props(weapon_ref),structure,ranged)}
+  if 'explosion_effect' in effect:pet['explosion']=weapon(props(props(effect['explosion_effect'])['stats']),exploding=True)
+  if 'ranged_weapon_stats' in effect:pet['ranged']=weapon(props(effect['ranged_weapon_stats']),ranged=True)
+  if 'landmine_effect_stat' in effect:pet['mine']=weapon(props(props(effect['landmine_effect_stat'])['stats']),structure=True,exploding=True)
+  if slug=='ratzilla':
+   scene=out['scenes'][effect['scene']['resource']]
+   def node(name,parent):return next(n['properties'] for n in scene['nodes'] if n['name']==name and n['parent']==parent)
+   def radius(properties):
+    path,sub=properties['shape']['resource'].split('::');return out['scenes'][path]['shapes'][sub]['properties'].get('radius',10)
+   body=node('Collision','.');hit=node('Collision','Hitbox');target=node('TargetBehavior','.')
+   pet.update({'bodyRadiusPoints':radius(body),'bodyOffsetXPoints':body['position']['values'][0],'bodyOffsetZPoints':body['position']['values'][1],'hitRadiusPoints':radius(hit),'hitOffsetXPoints':hit['position']['values'][0],'hitOffsetZPoints':hit['position']['values'][1],'targetRadiusPoints':scene['shapes']['1']['properties']['radius'],'targetFamily':target.get('pet_id',''),'excludeBosses':target['exclude_elite_and_boss_target']})
+  kinds[row['id']]=pet
+ data={'frameRate':60,'minimumCooldownFrames':2,'minimumRangePoints':25,'beastMasterStats':['meleeDamage','rangedDamage','elementalDamage','engineering'],'kinds':kinds}
+ def lua(value,depth=0):
+  if isinstance(value,bool):return 'true' if value else 'false'
+  if isinstance(value,(int,float)):return str(value)
+  if isinstance(value,str):return json.dumps(value)
+  lines=[]
+  for key,val in (value.items() if isinstance(value,dict) else enumerate(value)):
+   prefix=f'{key} = ' if isinstance(value,dict) else ''
+   lines.append('\t'*(depth+1)+prefix+lua(val,depth+1)+',')
+  return '{\n'+'\n'.join(lines)+'\n'+'\t'*depth+'}'
+ return '--!strict\n-- Generated original pet weapon definitions; consumed by StructureService/PetRules. Regenerate with tools/build-character-pets.py.\nreturn '+lua(data)+'\n'
+
 def main():
- a=argparse.ArgumentParser();a.add_argument('--pck',type=Path,default=source.DEFAULT_PCK);a.add_argument('--output',type=Path,default=ROOT/'docs/characters/pet-source.json');args=a.parse_args();out=generate(source.Pck(args.pck));args.output.parent.mkdir(parents=True,exist_ok=True);args.output.write_text(json.dumps(out,indent=2,ensure_ascii=False)+'\n',encoding='utf-8');print(len(out['pets']),'pet families,',len(out['resources']),'resources,',len(out['scenes']),'scenes inspected')
+ a=argparse.ArgumentParser();a.add_argument('--pck',type=Path,default=source.DEFAULT_PCK);a.add_argument('--output',type=Path,default=ROOT/'docs/characters/pet-source.json');a.add_argument('--check',action='store_true');args=a.parse_args();out=generate(source.Pck(args.pck))
+ files={args.output:json.dumps(out,indent=2,ensure_ascii=False)+'\n',ROOT/'src/shared/Config/Pets.luau':catalog(out)}
+ import subprocess
+ import tempfile
+ for path,text in files.items():
+  if path.suffix=='.luau':
+   with tempfile.TemporaryDirectory(dir=ROOT/'build') as temp:
+    candidate=Path(temp)/path.name;candidate.write_text(text,encoding='utf-8');subprocess.run(['stylua',str(candidate)],check=True);text=candidate.read_text(encoding='utf-8')
+  if args.check:
+   assert path.read_text(encoding='utf-8')==text,f'Stale generated pet data: {path}'
+  else:
+   path.parent.mkdir(parents=True,exist_ok=True);path.write_text(text,encoding='utf-8')
+ print(len(out['pets']),'pet families,',len(out['resources']),'resources,',len(out['scenes']),'scenes inspected; generated config checked' if args.check else 'scenes inspected; generated config written')
 if __name__=='__main__':main()

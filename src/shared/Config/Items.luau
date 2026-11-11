@@ -10,6 +10,7 @@ export type Item = {
 	description: string?,
 	available: boolean?, -- false while original artwork is only prepared locally
 	structure: string?,
+	pet: string?,
 	nativeWinWith: string?,
 	nativeChallenge: string?,
 	id: string,
@@ -677,6 +678,21 @@ table.insert(
 		tags = table.freeze({ "luck" }),
 		description = "1 dig site appears every 3 waves, stay on it for 5 to 6 seconds to dig up a crate",
 		effects = table.freeze({ table.freeze({ trigger = "Always", action = "DigSites", amount = 1, per = 3 }) }),
+	})
+)
+-- Original pet actors stay artwork-gated until actual original uploads are supplied.
+table.insert(
+	LIST,
+	table.freeze({
+		id = "Ratzilla",
+		displayName = "Ratzilla",
+		tier = 1,
+		price = 30,
+		available = false,
+		stats = table.freeze({}),
+		structure = "Ratzilla",
+		pet = "Ratzilla",
+		tags = table.freeze({ "maxHp", "pet" }),
 	})
 )
 local byId: { [string]: Item } = {}

@@ -73,9 +73,10 @@ describe("B12 structures", function()
 			end
 		end
 		nextWave()
-		expect(#Structures.getSnapshot()).toBe(9)
+		expect(#Structures.getSnapshot()).toBe(10)
 		expect(fruitDropped > 0).toBe(true)
-		expect(#workspace:FindFirstChild("LanternfallStructures"):GetChildren() >= 9).toBe(true) -- one sprite each
+		expect(#workspace:FindFirstChild("LanternfallStructures"):GetChildren() >= 10).toBe(true) -- one sprite each, including Ratzilla
+		expect(find("Ratzilla").ownerId).toBe(me.UserId)
 		expect(find("OrbitWisp").ownerId).toBe(me.UserId)
 	end)
 	it("damages enemies through structures and heals only the nearby owner", function()

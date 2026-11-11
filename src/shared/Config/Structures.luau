@@ -43,6 +43,7 @@ export type Definition = {
 	vulnerabilitySeconds: number?,
 	vulnerabilityStacks: number?,
 	vulnerabilitySource: string?,
+	petKind: string?,
 }
 local kinds: { [string]: Definition } = {
 	BrassSentry = {
@@ -191,6 +192,22 @@ kinds.BloodTurret = {
 	description = "Shoots bullets that increase damage taken by 10% for 5 seconds (max 30%).",
 }
 kinds.MoonGarden.boostMode = "Turret" -- Garden inherits native Turret.boost and its five-second timer
+local rat = require(script.Parent.Pets).kinds.Ratzilla
+kinds.Ratzilla = {
+	displayName = "Ratzilla",
+	mode = "Pet",
+	petKind = "Ratzilla",
+	damage = rat.weapon.damage,
+	engineering = 0,
+	interval = rat.weapon.cooldownFrames / require(script.Parent.Pets).frameRate,
+	range = rat.weapon.rangePoints * require(script.Parent.Stats).range.studsPerPoint,
+	tier = 1,
+	price = 30,
+	color = { 255, 255, 255 },
+	description = "Ratzilla",
+	canBeGrouped = false,
+	countsAsTurret = false,
+}
 for id, values in require(script.Parent.CharacterStructureData) do
 	for key, value in values do
 		(kinds[id] :: any)[key] = value

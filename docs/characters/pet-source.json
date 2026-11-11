@@ -999,6 +999,7 @@
           "scriptSource": "res://entities/units/target_behavior/closest_enemy_target_behavior.gd",
           "properties": {
             "target_player_if_no_target": false,
+            "pet_id": "bonk_dog",
             "exclude_elite_and_boss_target": false
           }
         },
@@ -1705,7 +1706,8 @@
           "scriptSource": "res://entities/units/target_behavior/closest_non_burning_enemy_target_behavior.gd",
           "properties": {
             "unique_name_in_owner": true,
-            "target_player_if_no_target": false
+            "target_player_if_no_target": false,
+            "pet_id": "blazemander"
           }
         },
         {
@@ -2720,6 +2722,7 @@
           "properties": {
             "visible": false,
             "target_player_if_no_target": false,
+            "pet_id": "ratzilla",
             "exclude_elite_and_boss_target": true
           }
         },

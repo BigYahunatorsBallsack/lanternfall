@@ -22,6 +22,8 @@ local Weapons = require(script.Parent.WeaponService)
 local Projectiles = require(script.Projectiles)
 local TurretTiming = require(script.TurretTiming)
 local GroupedPlacement = require(script.GroupedPlacement)
+local PetActors = require(script.PetActors)
+local Pets = require(Shared.Config.Pets)
 local C = Config.Structures
 local Service = {}
 local paused = false
@@ -66,6 +68,7 @@ local function sync()
 end
 local function reset()
 	Projectiles.clear()
+	PetActors.clear()
 	table.clear(groupBases)
 	waveSeconds, lastGeneratorSecond = 0, 0
 	table.clear(objects)
@@ -151,10 +154,12 @@ local function add(player, kind, definition, at)
 		if #own == 0 then
 			return
 		end
-		table.remove(objects, own[RandomService.stream("Combat", player):NextInteger(1, #own)])
+		local index = own[RandomService.stream("Combat", player):NextInteger(1, #own)]
+		PetActors.remove(objects[index])
+		table.remove(objects, index)
 	end
 	serial += 1
-	table.insert(objects, {
+	local object = {
 		id = serial,
 		owner = player,
 		kind = kind,
@@ -163,7 +168,9 @@ local function add(player, kind, definition, at)
 		remaining = 0,
 		armed = false,
 		contacts = {},
-	})
+	}
+	PetActors.add(object)
+	table.insert(objects, object)
 	dirty = true
 end
 local function addGenerator(player, kind, definition)
@@ -356,8 +363,12 @@ local function step(dt)
 	end
 	lastGeneratorSecond = math.floor(waveSeconds)
 	Projectiles.step(dt)
+	dirty = PetActors.step(dt, sheetOf) or dirty
 	for index = #objects, 1, -1 do
 		local o = objects[index]
+		if C.kinds[o.kind].petKind then
+			continue -- PetActors also steps pets whose owner is currently down.
+		end
 		if Run.getParticipantState(o.owner) ~= "Alive" then
 			continue
 		end
@@ -517,6 +528,7 @@ function Service.init()
 	Players.PlayerRemoving:Connect(function(player)
 		for i = #objects, 1, -1 do
 			if objects[i].owner == player then
+				PetActors.remove(objects[i])
 				table.remove(objects, i)
 			end
 		end
@@ -579,13 +591,23 @@ function Service.sourceCount(player: Player): number
 	local total = 0
 	for id, count in Stats.getItemCounts(player) do
 		local item = Config.Items.byId[id]
-		if item and item.structure then
+		if item and item.structure and (not item.pet or Pets.kinds[item.pet].isStructure) then
 			total += count
 		end
 	end
 	for _, weapon in Weapons.getWeapons(player) do
 		if Config.Weapons[weapon.id].structureKinds then
 			total += 1
+		end
+	end
+	return total
+end
+-- Permanent pet effects, not visible objects or the mines they create, determine Beast Master's bonuses.
+function Service.petSourceCount(player: Player): number
+	local total = 0
+	for id, count in Stats.getItemCounts(player) do
+		if Config.Items.byId[id].pet then
+			total += count
 		end
 	end
 	return total

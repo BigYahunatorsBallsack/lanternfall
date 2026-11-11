@@ -1,0 +1,123 @@
+{
+  "version": "1.2.0.1",
+  "steamBuild": 26406319,
+  "uploadedCount": 0,
+  "runtimeChanged": false,
+  "icons": [
+    {
+      "id": "BonkDog",
+      "source": "res://items/all/03_paws_n_claws/bonk_dog/meleedog_bowl_icon.png",
+      "textureSource": "res://.import/meleedog_bowl_icon.png-43ac389a3eab241da414e4452c71dbb2.stex",
+      "textureMd5": "0a949fe61d73ea8fcbdac4305902c59e",
+      "output": "assets/items/character-pets/BonkDog.png",
+      "pngSha256": "4fcc3075ec7a7bf99b0077a76488f838094d5e6bd5be371fb6b1e802771e6cf8",
+      "rgbaSha256": "8a9a90bc91453d0ae4dbebd243543c82792175a676c0c1c318a5f8b45558fe2c",
+      "size": [
+        96,
+        96
+      ],
+      "alphaBounds": [
+        5,
+        7,
+        91,
+        89
+      ]
+    },
+    {
+      "id": "CatlingGun",
+      "source": "res://items/all/03_paws_n_claws/catling_gun/catling_gun_box_icon.png",
+      "textureSource": "res://.import/catling_gun_box_icon.png-afa9cbe848cf112dc88c51a229de89e7.stex",
+      "textureMd5": "5f21f2d47634593c82ca713103564f90",
+      "output": "assets/items/character-pets/CatlingGun.png",
+      "pngSha256": "99c8f1d9bf66f09eaa5bece67e9e982a6d58e496c7a40cbc73ffa300323a9827",
+      "rgbaSha256": "18d530d70a1f8229b67ff7905d7d6623ea65142417d6d5074ffc06eb29c189c0",
+      "size": [
+        96,
+        96
+      ],
+      "alphaBounds": [
+        5,
+        13,
+        93,
+        90
+      ]
+    },
+    {
+      "id": "Blazemander",
+      "source": "res://items/all/03_paws_n_claws/blazemander/blazemander_egg_icon.png",
+      "textureSource": "res://.import/blazemander_egg_icon.png-1131916eccb96e1bd16ff87049220a9b.stex",
+      "textureMd5": "3a6be2951a6eaa1293ca45cd3ec4afa4",
+      "output": "assets/items/character-pets/Blazemander.png",
+      "pngSha256": "4cd4a2dd6186989a1281af6cd00886c1fd2bcd7b0886db138670910bcabfe555",
+      "rgbaSha256": "4184c0c80fd5508e07b1e2fac432bc3b608d6f6eb2c7626a2286d08128c7b3e9",
+      "size": [
+        96,
+        96
+      ],
+      "alphaBounds": [
+        14,
+        5,
+        83,
+        91
+      ]
+    },
+    {
+      "id": "BotOMine",
+      "source": "res://items/all/03_paws_n_claws/bot_o_mine/bot_o_mine_remote_icon.png",
+      "textureSource": "res://.import/bot_o_mine_remote_icon.png-d7fc5e33559e153e202a0c959a07afc8.stex",
+      "textureMd5": "ee46eb20aea55fb5777c0dda34c532ad",
+      "output": "assets/items/character-pets/BotOMine.png",
+      "pngSha256": "c5575447cc8fd99ca2ada8f6ea3420d04aa92731d832dadd7dbdfaebf6cdac14",
+      "rgbaSha256": "09120b25c4c1e8d79219b46f9978596340869ae20917291cd989a0c5334d597d",
+      "size": [
+        96,
+        96
+      ],
+      "alphaBounds": [
+        9,
+        6,
+        89,
+        93
+      ]
+    },
+    {
+      "id": "Lootworm",
+      "source": "res://items/all/03_paws_n_claws/lootworm/egg_lootworm_icon.png",
+      "textureSource": "res://.import/egg_lootworm_icon.png-b4c4f4ce03e8c9729eaa9a5a978bb22c.stex",
+      "textureMd5": "a04f9efc902a85d245621bdda89e2159",
+      "output": "assets/items/character-pets/Lootworm.png",
+      "pngSha256": "9e55f2837ab0c4917c52bbdbf8e2c3e50837a71986ead5eca9cbc70307c45dfb",
+      "rgbaSha256": "5edff8efba362c43f53307d6b33e6628db5c1d78220394c85291312a47df2df7",
+      "size": [
+        96,
+        96
+      ],
+      "alphaBounds": [
+        13,
+        6,
+        85,
+        89
+      ]
+    },
+    {
+      "id": "Ratzilla",
+      "source": "res://items/all/03_paws_n_claws/ratzilla/ratzilla_icon.png",
+      "textureSource": "res://.import/ratzilla_icon.png-61a6845cdd36d2664bc8f1c74444bd2d.stex",
+      "textureMd5": "d99ff47492974287bbdfe1513f26d78a",
+      "output": "assets/items/character-pets/Ratzilla.png",
+      "pngSha256": "a1db773e3a3447d8a9a2d40f1f0f33c2c70d02384149898c21c535ed4510ec8b",
+      "rgbaSha256": "a763c32da692789499f444ac60b518fb4b0665a8ad86dd6c1d449c43256e13a9",
+      "size": [
+        96,
+        96
+      ],
+      "alphaBounds": [
+        5,
+        8,
+        91,
+        89
+      ]
+    }
+  ],
+  "actorArtworkPrepared": false
+}
