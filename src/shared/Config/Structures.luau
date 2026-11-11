@@ -258,6 +258,22 @@ kinds.Blazemander = {
 	canBeGrouped = false,
 	countsAsTurret = false,
 }
+local cat = require(script.Parent.Pets).kinds.CatlingGun
+kinds.CatlingGun = {
+	displayName = "Catling Gun",
+	mode = "Pet",
+	petKind = "CatlingGun",
+	damage = cat.weapon.damage,
+	engineering = 0,
+	interval = cat.weapon.cooldownFrames / require(script.Parent.Pets).frameRate,
+	range = cat.weapon.rangePoints * require(script.Parent.Stats).range.studsPerPoint,
+	tier = 2,
+	price = 34,
+	color = { 255, 255, 255 },
+	description = "Catling Gun",
+	canBeGrouped = false,
+	countsAsTurret = false,
+}
 for id, values in require(script.Parent.CharacterStructureData) do
 	for key, value in values do
 		(kinds[id] :: any)[key] = value

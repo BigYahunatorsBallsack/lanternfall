@@ -21,7 +21,7 @@ def read_scene(pck,path):
   text=raw[match.end():starts[i+1].start() if i+1<len(starts) else len(raw)]
   text=re.split(r'^\[connection ',text,flags=re.M)[0]
   parsed=source.parse_tres(prefix+'\n[resource]\n'+text,path)
-  values={k:v for k,v in parsed['properties'].items() if k not in VISUAL and (isinstance(v,(int,float,bool)) or k in ['stats','shape','position','scale','pet_id','target_behavior','movement_behavior','charge_duration','min_squared_distance_for_jump_attack','weapon_stats','tree_damage_ratio'])}
+  values={k:v for k,v in parsed['properties'].items() if k not in VISUAL and (isinstance(v,(int,float,bool)) or k in ['stats','shape','position','scale','size','pet_id','target_behavior','movement_behavior','charge_duration','min_squared_distance_for_jump_attack','weapon_stats','tree_damage_ratio'])}
   if values or 'script' in parsed['properties']:
    nodes.append({'name':attrs.get('name'),'parent':attrs.get('parent'),'type':attrs.get('type'),'scriptSource':parsed['properties'].get('script',{}).get('resource'),'properties':values})
  parsed=source.parse_tres(prefix+'\n[resource]\n',path)
@@ -60,7 +60,9 @@ def generate(pck):
  for script in sorted(scripts):
   path=next((candidate for candidate in [script,script.removesuffix('.gd')+'.gdc'] if candidate in pck.entries),None)
   if path:rule_sources.append({'source':path,'sourceMd5':pck.entries[path]['md5']})
- return {'version':'1.2.0.1','steamBuild':26406319,'pets':rows,'resources':resources,'scenes':scenes,'ruleSources':rule_sources,'engineDefaults':{'circleRadiusPoints':10,'circleReference':'https://docs.godotengine.org/en/3.5/classes/class_circleshape2d.html','bonkTweenTransition':5,'bonkTweenEase':2,'tweenReference':'https://docs.godotengine.org/en/3.5/classes/class_tween.html','tweenEquationReference':'https://github.com/godotengine/godot/blob/3.5/scene/animation/easing_equations.h'},'note':'Neutral pet facts, not a claim of implemented behavior or available original artwork.'}
+ player_scene=read_scene(pck,'res://entities/units/player/player.tscn');body=next(n['properties'] for n in player_scene['nodes'] if n['name']=='Collision' and n['parent']=='.');shape=body['shape']['resource'].split('::')[1]
+ player_body={'source':'res://entities/units/player/player.tscn','sourceMd5':player_scene['sourceMd5'],'radiusPoints':player_scene['shapes'][shape]['properties']['radius'],'offsetXPoints':body['position']['values'][0],'offsetZPoints':body['position']['values'][1]}
+ return {'version':'1.2.0.1','steamBuild':26406319,'pets':rows,'resources':resources,'scenes':scenes,'ruleSources':rule_sources,'playerBody':player_body,'engineDefaults':{'circleRadiusPoints':10,'circleReference':'https://docs.godotengine.org/en/3.5/classes/class_circleshape2d.html','bonkTweenTransition':5,'bonkTweenEase':2,'tweenReference':'https://docs.godotengine.org/en/3.5/classes/class_tween.html','tweenEquationReference':'https://github.com/godotengine/godot/blob/3.5/scene/animation/easing_equations.h'},'note':'Neutral pet facts, not a claim of implemented behavior or available original artwork.'}
 STAT_IDS={'stat_melee_damage':'meleeDamage','stat_ranged_damage':'rangedDamage','stat_elemental_damage':'elementalDamage','stat_engineering':'engineering','stat_max_hp':'maxHp'}
 
 def weapon(data, structure=False, ranged=False, exploding=False):
@@ -77,11 +79,27 @@ def catalog(out):
   for n in scene['nodes']:
    key=(n['name'],n['parent']);nodes[key]={**nodes.get(key,{}),**n['properties']}
   return nodes
+ def radius(properties):
+  path,sub=properties['shape']['resource'].split('::');return out['scenes'][path]['shapes'][sub]['properties'].get('radius',10)
  for row in out['pets']:
   effect=row['effect'];slug=row['slug'];structure=effect['is_structure'];ranged=slug in ['catling_gun','bot_o_mine']
   speed=next(n['properties']['stats'] for n in out['scenes'][effect['scene']['resource']]['nodes'] if 'stats' in n['properties'])
   weapon_ref=effect.get('weapon_stats') or next(n['properties']['weapon_stats'] for n in out['scenes'][effect['scene']['resource']]['nodes'] if 'weapon_stats' in n['properties'])
   pet={'speedPoints':props(speed)['speed'],'isStructure':structure,'weapon':weapon(props(weapon_ref),structure,ranged)}
+  if slug=='catling_gun':
+   nodes=inherited_nodes(effect['scene']['resource']);body=nodes['Collision','.'];viewport=nodes['Viewport','Animation']['size']['values']
+   ax,az=nodes['Animation','.']['position']['values'];vx,vz=nodes['offset','Animation/Viewport']['position']['values'];bx,bz=nodes['sp_body','Animation/Viewport/offset']['position']['values']
+   rigs={}
+   for side in ['Left','Right']:
+    pivot_name='Gun_pivot_'+('l' if side=='Left' else 'r');pivot=nodes[pivot_name,'Animation/Viewport/offset/sp_body'];parent='Animation/Viewport/offset/sp_body/'+pivot_name
+    a,b,c,d,x,z=1,0,0,1,0,0
+    for name in ['gun_offset','sp_gun',side+'Muzzle']:
+     n=nodes[name,parent];px,pz=n.get('position',{}).get('values',[0,0]);sx,sz=n.get('scale',{}).get('values',[1,1]);angle=n.get('rotation',0);co,si=math.cos(angle),math.sin(angle)
+     x,z=x+a*px+c*pz,z+b*px+d*pz
+     a,b,c,d=(a*co+c*si)*sx,(b*co+d*si)*sx,(-a*si+c*co)*sz,(-b*si+d*co)*sz
+     parent+='/'+name
+    rigs[side.lower()]={'pivotXPoints':pivot['position']['values'][0],'pivotZPoints':pivot['position']['values'][1],'restRotation':pivot.get('rotation',0),'muzzleXPoints':x,'muzzleZPoints':z}
+   pet.update({'catling':True,'bodyRadiusPoints':radius(body),'bodyOffsetXPoints':body['position']['values'][0],'bodyOffsetZPoints':body['position']['values'][1],'boostRadiusPoints':radius(nodes['CollisionShape2D','PlayerTriggerZone']),'targetRadiusPoints':radius(nodes['CollisionShape2D','TargetTriggerZone']),'boostAttackRatio':0.5,'muzzleOriginXPoints':ax+vx+bx-100,'muzzleOriginZPoints':az+vz+bz-100,'bodyRotation':nodes['sp_body','Animation/Viewport/offset'].get('rotation',0),'guns':rigs,'wander':{'marginXPoints':viewport[0]/2,'marginZPoints':viewport[1]/2,'arrivalPoints':10,'tries':8,'forbiddenPushPoints':8,'zeroSquaredPoints':0.001}})
   if 'explosion_effect' in effect:pet['explosion']=weapon(props(props(effect['explosion_effect'])['stats']),exploding=True)
   if 'ranged_weapon_stats' in effect:pet['ranged']=weapon(props(effect['ranged_weapon_stats']),ranged=True)
   if 'landmine_effect_stat' in effect:pet['mine']=weapon(props(props(effect['landmine_effect_stat'])['stats']),structure=True,exploding=True)
@@ -102,8 +120,6 @@ def catalog(out):
    scene=out['scenes'][effect['scene']['resource']]
    nodes=inherited_nodes(effect['scene']['resource'])
    def node(name,parent):return nodes.get((name,parent),{})
-   def radius(properties):
-    path,sub=properties['shape']['resource'].split('::');return out['scenes'][path]['shapes'][sub]['properties'].get('radius',10)
    body=node('Collision','.');hit=node('Collision','Hitbox');target=node('TargetBehavior','.')
    hit_pos=node('Hitbox','.').get('position',{}).get('values',[0,0]);hit_collision_pos=hit.get('position',{}).get('values',[0,0])
    pet.update({'bodyRadiusPoints':radius(body),'bodyOffsetXPoints':body['position']['values'][0],'bodyOffsetZPoints':body['position']['values'][1],'hitRadiusPoints':radius(hit),'hitOffsetXPoints':hit_pos[0]+hit_collision_pos[0],'hitOffsetZPoints':hit_pos[1]+hit_collision_pos[1],'targetRadiusPoints':radius(next(v for (name,parent),v in nodes.items() if parent=='TargetBehavior/Range' and 'shape' in v)),'targetFamily':target.get('pet_id',''),'excludeBosses':target.get('exclude_elite_and_boss_target',False)})
@@ -120,7 +136,7 @@ def catalog(out):
   kinds[row['id']]=pet
  bullet=inherited_nodes('res://projectiles/bullet/bullet_projectile.tscn');hit=bullet['Hitbox','.'];collision=bullet['Collision','Hitbox'];shape_path,sub=collision['shape']['resource'].split('::');hx,hz=hit['position']['values'];cx,cz=collision['position']['values']
  projectile={'radiusPoints':out['scenes'][shape_path]['shapes'][sub]['properties']['radius'],'offsetForwardPoints':hx+cx,'offsetSidePoints':hz+cz,'autoRangeBonusPoints':100}
- data={'frameRate':60,'minimumCooldownFrames':2,'minimumRangePoints':25,'projectile':projectile,'beastMasterStats':['meleeDamage','rangedDamage','elementalDamage','engineering'],'kinds':kinds}
+ data={'frameRate':60,'minimumCooldownFrames':2,'minimumRangePoints':25,'projectile':projectile,'playerBody':{k:v for k,v in out['playerBody'].items() if k.endswith('Points')},'beastMasterStats':['meleeDamage','rangedDamage','elementalDamage','engineering'],'kinds':kinds}
  def lua(value,depth=0):
   if isinstance(value,bool):return 'true' if value else 'false'
   if isinstance(value,(int,float)):return str(value)

@@ -11,8 +11,8 @@
       "failed": 37
     },
     "branch": {
-      "specs": 234,
-      "passed": 1537,
+      "specs": 236,
+      "passed": 1549,
       "failed": 37
     },
     "newFailureNames": [],
@@ -41,7 +41,7 @@
       "failed": 0
     },
     "tests/NativePetLifecycle.spec.luau": {
-      "passed": 4,
+      "passed": 5,
       "failed": 0
     },
     "tests/NativePetProjectiles.spec.luau": {
@@ -65,7 +65,15 @@
       "failed": 0
     },
     "tests/NativePetBurn.spec.luau": {
-      "passed": 2,
+      "passed": 3,
+      "failed": 0
+    },
+    "tests/NativeCatlingActors.spec.luau": {
+      "passed": 3,
+      "failed": 0
+    },
+    "tests/NativeCatlingGun.spec.luau": {
+      "passed": 7,
       "failed": 0
     }
   },
@@ -82,7 +90,7 @@
   },
   "rojo": true,
   "sourceCompilers": true,
-  "nativeRuntimeItemIdentities": 131,
+  "nativeRuntimeItemIdentities": 132,
   "nativeItemBanGroups": 13,
   "originalIconsPrepared": 6,
   "actorArtworkPrepared": false,
@@ -90,7 +98,6 @@
   "runtimeAssetIdsChanged": false,
   "arsenalChanged": false,
   "remainingDependencies": [
-    "CatlingGun",
     "Lootworm",
     "Native pet start UI/server/teleport selection",
     "Beast Master counts/unlock/tag boost",
@@ -98,7 +105,6 @@
   ],
   "remainingMissingItemFamilies": [
     "builder_turret",
-    "catling_gun",
     "fish_hook",
     "lootworm",
     "spyglass"
@@ -118,5 +124,47 @@
     "restoredByteExactlyBeforeFinalFormatting": true
   },
   "petSourceScenes": 14,
-  "newPassedComparedWithMain": 49
+  "newPassedComparedWithMain": 61,
+  "catBoostMutation": {
+    "mutation": "Ignore Catling Gun boost when resetting both gun cooldowns",
+    "detected": true,
+    "output": "[Lanternfall] Place: lobby and arena in one server (no hub/run place ids for this place in Config.Places)\n[Lanternfall] Server ready: 71 remotes, 36 services, config problems: 0\n[Lanternfall] Saving: memory only (no DataStoreService)\n[Lanternfall] Badge \"Lantern Lit\" earned but not set up (Config/Badges.luau id is 0)\n[Lanternfall] Owner login streak day 1: +25 Embers\n[Lanternfall] Peer login streak day 1: +25 Embers\n[Lanternfall] Launch check: 1 must, 2 should open (debug button \"Launch check\" lists them)\n[Lanternfall] Run started with 2 player(s), Danger 0\n[Lanternfall] Run seed 228619419 (Config.Run.seed replays it)\nFAIL Native Catling Gun > keeps the initial cooldown and halves subsequent delays while boosted\n     tests/NativeCatlingGun.spec.luau:68: expected 5, got 3\n6 passed, 1 failed\n",
+    "restoredByteExactly": true,
+    "restoredPassed": true
+  },
+  "petBurnPartyRegression": {
+    "source": "res://entities/units/unit/unit.gdc",
+    "sourceMd5": "aa94391f2d9681ac36b7f8617b82ff13",
+    "behavior": "Unit.init sums Burning Speed effects from all players; structureBurn reuses the shared Arsenal interval",
+    "beforeFix": {
+      "passed": 2,
+      "failed": 1,
+      "failure": "expected1997,got2000"
+    },
+    "afterFix": {
+      "passed": 3,
+      "failed": 0
+    },
+    "remainingGap": "Native timer snapshots at enemy spawn versus existing shared runtime updates"
+  },
+  "nativePlayerBoostBodyFacts": {
+    "source": "res://entities/units/player/player.tscn",
+    "sourceMd5": "58724d77253dd2ff1a91a8409a809193",
+    "radiusPoints": 24.0,
+    "offsetXPoints": 0,
+    "offsetZPoints": -12
+  },
+  "gobblerFluctuation": {
+    "firstCatFullRun": {
+      "passed": 1550,
+      "failed": 36,
+      "gobblerPassed": true
+    },
+    "finalCatFullRun": {
+      "passed": 1549,
+      "failed": 37,
+      "gobblerPassed": false
+    },
+    "fixed": false
+  }
 }

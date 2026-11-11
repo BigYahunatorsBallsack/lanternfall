@@ -14,6 +14,7 @@ local Rules = require(script.Parent.PetRules)
 local Bot = require(script.Parent.PetBot)
 local BlazeTiming = require(script.Parent.PetBlazeTiming)
 local Projectiles = require(script.Parent.Projectiles)
+local Cat = require(script.Parent.PetCat)
 local Actors = {}
 local bodies: any = nil
 local members: { any } = {}
@@ -94,7 +95,7 @@ function Actors.add(o: any)
 	o.beastMaster = beastMaster(o.owner)
 	o.bodyOffset = Vector3.new(pet.bodyOffsetXPoints * scale, 0, pet.bodyOffsetZPoints * scale)
 	local center = o.position + o.bodyOffset
-	o.bodyId = bodies:spawn({
+	o.bodyKind = {
 		id = o.kind,
 		typeId = 0,
 		speed = Rules.speed(pet, {}),
@@ -102,12 +103,16 @@ function Actors.add(o: any)
 		hp = 1,
 		contactDamage = 0,
 		mass = 1,
-	}, center.X, center.Z, 1, 0)
+	}
+	o.bodyId = bodies:spawn(o.bodyKind, center.X, center.Z, 1, 0)
 	assert(o.bodyId, "Pet body budget must match StructureService's deployment budget")
 	o.cooldownFrames = Rules.compute(pet.weapon, Weapons.getStructureStats(o.owner), o.beastMaster).cooldown
 		* C.frameRate
 	o.mineFrames = pet.mineIntervalFrames
 	o.attacking = false
+	if pet.catling then
+		Cat.init(o, Weapons.getStructureStats(o.owner))
+	end
 	if pet.preferUnburned then
 		BlazeTiming.init(o, Weapons.getStructureStats(o.owner), function()
 			return Random.number("Combat", o.owner)
@@ -284,7 +289,18 @@ function Actors.step(
 		end -- A credited pet kill may have synchronously ended the run.
 		for _, o in members do
 			local target
-			if o.pet.followOwner then
+			if o.pet.catling then
+				o.catBoosted = Cat.boosted(o, members)
+				o.bodyKind.anchored = o.catBoosted
+				target = if o.catBoosted
+					then nil
+					else Cat.goal(o, bounds, Map.getObstacles(), function()
+						return Random.number("Combat", o.owner)
+					end)
+				if target and target.X ~= o.position.X then
+					o.catFacing = if target.X > o.position.X then 1 else -1
+				end
+			elseif o.pet.followOwner then
 				target = Bot.goal(o)
 			else
 				if o.pet.preferUnburned then
@@ -320,6 +336,12 @@ function Actors.step(
 			local previous, landed = o.position, false
 			local x, z = bodies:getPosition(o.bodyId)
 			local at = Vector3.new(x, o.position.Y, z) - o.bodyOffset
+			if o.pet.catling then
+				moved = moved or (at - previous).Magnitude > 0
+				o.position = at
+				Cat.step(o, sheetOf(o.owner), o.catBoosted)
+				continue
+			end
 			if o.pet.followOwner then
 				moved = moved or (at - previous).Magnitude > 0
 				o.position = at

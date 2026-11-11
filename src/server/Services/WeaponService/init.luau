@@ -36,7 +36,6 @@ local CharacterExplosions = require(Shared.Config.CharacterExplosions)
 local Arsenal = require(script.Arsenal)
 local Afflictions = require(script.Afflictions)
 local StatMath = require(Shared.Util.StatMath)
-local NativeBurn = require(Shared.Util.NativeWeaponBurn)
 local CharacterRules = require(Shared.Util.CharacterRules)
 local BrotatoCombat = require(script.BrotatoCombat)
 local BrotatoRuntime = require(script.BrotatoRuntime)
@@ -1109,7 +1108,7 @@ function WeaponService.structureBurn(
 			nil,
 			damage,
 			ticks,
-			NativeBurn.interval(sheet.burnSpeed or 0),
+			arsenal:burnInterval(),
 			math.max(0, math.floor(sheet.burnSpread or 0))
 		)
 	)

@@ -1474,6 +1474,17 @@
         "stat_elemental_damage",
         "pet"
       ]
+    },
+    "CatlingGun": {
+      "nativeId": "item_catling_gun",
+      "nameKey": "ITEM_CATLING_GUN",
+      "source": "res://items/all/03_paws_n_claws/catling_gun/catling_gun.tres",
+      "sourceMd5": "6a1f4f9995fc642ffc173e23e97c70fa",
+      "displayName": "Catling Gun",
+      "tags": [
+        "pet",
+        "stat_ranged_damage"
+      ]
     }
   },
   "endlessBannedItems": [

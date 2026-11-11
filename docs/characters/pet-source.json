@@ -819,6 +819,13 @@
           "type": "Viewport",
           "scriptSource": null,
           "properties": {
+            "size": {
+              "variantType": "Vector2",
+              "values": [
+                200,
+                200
+              ]
+            },
             "transparent_bg": true,
             "hdr": false,
             "disable_3d": true,
@@ -1131,6 +1138,13 @@
           "type": "Viewport",
           "scriptSource": null,
           "properties": {
+            "size": {
+              "variantType": "Vector2",
+              "values": [
+                250,
+                250
+              ]
+            },
             "transparent_bg": true,
             "hdr": false,
             "disable_3d": true,
@@ -1543,6 +1557,13 @@
           "type": "Viewport",
           "scriptSource": null,
           "properties": {
+            "size": {
+              "variantType": "Vector2",
+              "values": [
+                200,
+                200
+              ]
+            },
             "transparent_bg": true,
             "hdr": false,
             "disable_3d": true,
@@ -1862,6 +1883,13 @@
           "type": "Viewport",
           "scriptSource": null,
           "properties": {
+            "size": {
+              "variantType": "Vector2",
+              "values": [
+                200,
+                200
+              ]
+            },
             "transparent_bg": true,
             "hdr": false,
             "disable_3d": true,
@@ -2191,6 +2219,13 @@
           "type": "Viewport",
           "scriptSource": null,
           "properties": {
+            "size": {
+              "variantType": "Vector2",
+              "values": [
+                150,
+                150
+              ]
+            },
             "transparent_bg": true,
             "hdr": false,
             "disable_3d": true,
@@ -2528,6 +2563,13 @@
           "type": "Viewport",
           "scriptSource": null,
           "properties": {
+            "size": {
+              "variantType": "Vector2",
+              "values": [
+                200,
+                200
+              ]
+            },
             "transparent_bg": true,
             "hdr": false,
             "disable_3d": true,
@@ -3325,6 +3367,13 @@
       "sourceMd5": "d16899aba618beb55e980f67a0bf10b0"
     }
   ],
+  "playerBody": {
+    "source": "res://entities/units/player/player.tscn",
+    "sourceMd5": "58724d77253dd2ff1a91a8409a809193",
+    "radiusPoints": 24.0,
+    "offsetXPoints": 0,
+    "offsetZPoints": -12
+  },
   "engineDefaults": {
     "circleRadiusPoints": 10,
     "circleReference": "https://docs.godotengine.org/en/3.5/classes/class_circleshape2d.html",
