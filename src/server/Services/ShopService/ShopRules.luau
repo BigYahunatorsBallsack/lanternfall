@@ -314,6 +314,7 @@ local function pickWeapon(
 	tier: number
 ): string?
 	local ownedIds: { [string]: boolean } = {}
+	local ownedTiers: { [string]: number } = {}
 	local ownedClasses: { [string]: boolean } = {}
 	local distinct = 0
 	for _, owned in params.ownedWeapons do
@@ -321,6 +322,7 @@ local function pickWeapon(
 			distinct += 1
 		end
 		ownedIds[owned.id] = true
+		ownedTiers[owned.id] = math.max(ownedTiers[owned.id] or 0, owned.tier)
 		local config = Weapons[owned.id]
 		if config then
 			for _, classId in config.classes do
@@ -328,12 +330,22 @@ local function pickWeapon(
 			end
 		end
 	end
+	local class = params.classId and Classes[params.classId]
+	local function allowedDuplicateTier(weaponId: string): boolean
+		local ownedTier = ownedTiers[weaponId]
+		if class and class.noDuplicateWeapons and ownedTier then
+			-- ItemService removes lower tiers and equal copies that no longer upgrade, even from its backup pool.
+			return tier >= ownedTier and (tier > ownedTier or tier < params.maxTier)
+		end
+		return true
+	end
 	local function pool(filter: (string) -> boolean, skip: { [string]: boolean }): { string }
 		local ids = {}
 		for _, weaponId in params.weapons do
 			if
 				not skip[weaponId]
 				and CharacterRules.weaponAllowed(params.classId, weaponId, tier)
+				and allowedDuplicateTier(weaponId)
 				and Shop.weaponPrices[weaponId]
 				and (Weapons[weaponId].minTier or 1) <= tier
 				and filter(weaponId)

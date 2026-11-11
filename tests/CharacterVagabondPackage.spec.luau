@@ -46,4 +46,46 @@ describe("Native Vagabond package", function()
 		expect(A.characterUnlocked(f.Data.get(f.peer), "Vagabond")).toBe(true)
 		expect(#f.world.errors).toBe(0)
 	end)
+	it("filters lower and unupgradable duplicates from fallback shop pools while retaining same-tier merges", function()
+		local Rules = require(f.S.ShopService.ShopRules)
+		local function roll(wave, ownedTier, random)
+			local nextId = 0
+			return Rules.roll({
+				classId = "Vagabond",
+				wave = wave,
+				luck = 0,
+				weapons = { "Claw", "RitualDirk" },
+				ownedWeapons = { { id = "Claw", tier = ownedTier } },
+				maxWeapons = 6,
+				maxTier = 4,
+				ownedItems = {},
+				nextId = function()
+					nextId += 1
+					return tostring(nextId)
+				end,
+				random = function()
+					return random
+				end,
+			})
+		end
+		for _, offers in { roll(1, 2, 0.99), roll(20, 4, 0) } do
+			local weapons = 0
+			for _, offer in offers do
+				if offer.kind == "Weapon" then
+					weapons += 1
+					expect(offer.itemId == "Claw").toBe(false)
+				end
+			end
+			expect(weapons > 0).toBe(true)
+		end
+		local merge = false
+		for _, offer in roll(3, 2, 0) do
+			if offer.itemId == "Claw" then
+				expect(offer.tier).toBe(2)
+				expect(offer.merges).toBe(true)
+				merge = true
+			end
+		end
+		expect(merge).toBe(true)
+	end)
 end)
