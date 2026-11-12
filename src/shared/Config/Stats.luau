@@ -57,6 +57,7 @@ export type StatId =
 	| "accuracy"
 	| "bounceDamage"
 	| "weaponSlots"
+	| "fogVisibility"
 
 export type Stat = {
 	id: string,
@@ -144,6 +145,7 @@ local ORDER: { Stat } = {
 -- Native DLC fields are registered for source validation and server policies. Their UI integration and original
 -- symbols are still dependencies of the unavailable DLC packages; do not substitute invented artwork in ORDER.
 local nativeFields: { Stat } = {
+	extra("fogVisibility", "Fog Visibility", true),
 	extra("weaponScalingEngineering", "Additional Engineering Scaling", true),
 	extra("weaponScalingElemental", "Additional Elemental Scaling", true),
 	extra("structuresCanCrit", "Structures Can Crit", false),

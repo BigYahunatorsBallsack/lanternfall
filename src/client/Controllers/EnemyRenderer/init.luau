@@ -420,6 +420,18 @@ function EnemyRenderer.getPosition(id: number): Vector3?
 	return Vector3.new(entry.x, floorY, entry.z)
 end
 
+-- Existing interpolated burn/charm states also illuminate shared fog, independently of particle/detail culling.
+function EnemyRenderer.visitFogSources(visit: (number, number, number, string) -> ())
+	for id, entry in drawn do
+		if entry.visual.burning then
+			visit(id, entry.x, entry.z, "fire")
+		end
+		if entry.visual.charmed then
+			visit(id, entry.x, entry.z, "structure")
+		end
+	end
+end
+
 function EnemyRenderer.getStats(): Stats
 	local count = 0
 	for _ in drawn do

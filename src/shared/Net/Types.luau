@@ -545,4 +545,10 @@ export type NativeSlashInfo = {
 	at: number,
 }
 export type NativeSlashBatch = { reset: boolean?, fired: { NativeSlashInfo }, ended: { number } }
+-- Fog activation and wave-start visibility are server-owned. Positions use existing replicated actors.
+export type NativeFogState = {
+	wave: number,
+	at: number,
+	players: { { userId: number, visibility: number, alive: boolean } },
+}
 return {}

@@ -1,0 +1,213 @@
+{
+  "detectedDate": "2026-11-12",
+  "targetVersion": "1.2.0.1",
+  "targetSteamBuild": "26406319",
+  "originalPckSha256": "4490fd1b6afe91e18c321bdb9d7a68ebe0246d9e8e87940c2823bd80ce8aa593",
+  "installedVersion": "1.2.0.2",
+  "installedSteamBuild": "26615634",
+  "originalScriptCache": "build/character-source/native/.autoconverted",
+  "originalVersionScriptMd5": "2da3ced0fea7d9f82a41ac55f26082b6",
+  "originalScriptsPreserved": true,
+  "gameInstallationModified": false,
+  "updatedRulesAdopted": false,
+  "rules": "Use hash-verified original 1.2.0.1 bytecode/decompiled cache. Do not regenerate target facts from the updated PCK. New visual scene/texture candidates require original-version identity verification before native acceptance.",
+  "fogCompiler": "Pins original fog script hashes; new scene and texture candidates are explicitly version-unverified. Existing bullet-hell compiler --check correctly fails for changed main.gdc; original output preserved.",
+  "matchingScripts": 558,
+  "changed": [
+    {
+      "source": "res://main.gdc",
+      "originalMd5": "903bd37107ab9c164addda2167477fb1",
+      "installedMd5": "7fe126c48998aaa276685bdfc4746e0a"
+    },
+    {
+      "source": "res://dlcs/dlc_2/dlc_2_data.gdc",
+      "originalMd5": "a42140c147626abc1fdf64adc4c3374b",
+      "installedMd5": "50c219df728866d8c9756074d7dbe9e0"
+    },
+    {
+      "source": "res://effects/items/item_exploding_effect.gdc",
+      "originalMd5": "153faf24f919a1c08b22ef4c9421d8d3",
+      "installedMd5": "7d79843f6d2da31d8473aac0c0ef108d"
+    },
+    {
+      "source": "res://effects/weapons/burning_effect.gdc",
+      "originalMd5": "4c06ed9e91392f66b4984f8a672e9add",
+      "installedMd5": "876d888c5e2dbc56444b29042216d017"
+    },
+    {
+      "source": "res://entities/gpe/dig_site/dig_site.gdc",
+      "originalMd5": "1d5705a5a9f7e725e956741dfce0272c",
+      "installedMd5": "839ecc4a0ef214316c555a48785af987"
+    },
+    {
+      "source": "res://entities/units/enemies/attack_behaviors/jump_attack_behavior.gdc",
+      "originalMd5": "9fbd08c6cb1ecf7b0e6db06c5733ae9c",
+      "installedMd5": "83970734202a9c6ee372a0bbcd6e5413"
+    },
+    {
+      "source": "res://entities/units/enemies/jungle/basic/carnivorous_plant_mother/carnivorus_plant_mother.gdc",
+      "originalMd5": "cf8d5978b30b5e19bfe6e2c87a6432f7",
+      "installedMd5": "5988b61171bcc7b64d602c2c5eb1f6c3"
+    },
+    {
+      "source": "res://entities/units/enemies/jungle/basic/carnivorus_plant/carnivorus_plant.gdc",
+      "originalMd5": "8970d3003639c8eb2bb8c066826bc258",
+      "installedMd5": "c184cdb1fc18d9c7663a24eb60942943"
+    },
+    {
+      "source": "res://entities/units/enemies/jungle/basic/dimetrodon/dimetrodon.gdc",
+      "originalMd5": "2274d3c7d0b37b091342383f22c8fbd3",
+      "installedMd5": "b05e5f176a92fcb828627c0e40223d0b"
+    },
+    {
+      "source": "res://entities/units/enemies/jungle/bosses/brachiosaurus/brachiosaurus_foot/brachiosaurus_foot.gdc",
+      "originalMd5": "9db2c44f99f9943dbd02bc86a797a61a",
+      "installedMd5": "a8d1149ab7d874740b49789a74ca6aa9"
+    },
+    {
+      "source": "res://entities/units/movement_behaviors/follow_target_avoid_forbidden_zones_movement_behavior.gdc",
+      "originalMd5": "d3b036b332f16ab2946a544b1fc0d0c3",
+      "installedMd5": "7c1551b62fd43850e4795482187d4b84"
+    },
+    {
+      "source": "res://entities/units/movement_behaviors/follow_target_movement_behavior.gdc",
+      "originalMd5": "f83ff84e33f12eb473d748e68b909d05",
+      "installedMd5": "e3ed9b3e5d9a75a09699b324caa5e22f"
+    },
+    {
+      "source": "res://entities/units/player/player.gdc",
+      "originalMd5": "80ac166ba6b5c71fbf220bcd43ddc90e",
+      "installedMd5": "c54efc9b5765e1a75fadd05d35e167d2"
+    },
+    {
+      "source": "res://entities/units/target_behavior/lootworm_target_behavior.gdc",
+      "originalMd5": "848b772ba35a3676d66235d18b8ee463",
+      "installedMd5": "a88e18cf5c3be8c5e5c9ddfde4eb278f"
+    },
+    {
+      "source": "res://projectiles/laser_enemy/enemy_laser.gdc",
+      "originalMd5": "318659b3a1d412137a32320285f13675",
+      "installedMd5": "d7910eed6ea19d16fa089013dd4baff1"
+    },
+    {
+      "source": "res://singletons/challenge_service.gdc",
+      "originalMd5": "6d6b42bb03a602222287ec8e7b2a14bf",
+      "installedMd5": "1da9781c9cc8812eb1b26397285ba20a"
+    },
+    {
+      "source": "res://singletons/crash_reporter.gdc",
+      "originalMd5": "e24db8696db1766f891086b6d398324b",
+      "installedMd5": "68eeb3444d0cfa4ae1f3b8a40bd554ba"
+    },
+    {
+      "source": "res://singletons/item_service.gdc",
+      "originalMd5": "2bb86ac67c9576337a664d6c75a66dec",
+      "installedMd5": "3cb15ca45a1f08c5b72ef26eda7af3bb"
+    },
+    {
+      "source": "res://singletons/keys.gdc",
+      "originalMd5": "39601c8b7b874dc96d97204a746bdca9",
+      "installedMd5": "34bbf3cd8553aee2f521318e825f4704"
+    },
+    {
+      "source": "res://singletons/player_run_data.gdc",
+      "originalMd5": "6035fe242258782d60b91073d09d7215",
+      "installedMd5": "203d226d77afffb6ef1c3e2ac9d860c9"
+    },
+    {
+      "source": "res://singletons/progress_data.gdc",
+      "originalMd5": "2da3ced0fea7d9f82a41ac55f26082b6",
+      "installedMd5": "df71b05664adc8dea6977e4ec77dbf51"
+    },
+    {
+      "source": "res://singletons/run_data.gdc",
+      "originalMd5": "a94d8eddd9609f413309ce9237297ad2",
+      "installedMd5": "26ade7289f41b63044a9ef11a4377ea2"
+    },
+    {
+      "source": "res://singletons/text.gdc",
+      "originalMd5": "70c974768c77067fc54fa4f6a45736c9",
+      "installedMd5": "7e88f96b6c7f24def42ae05a51724fe1"
+    },
+    {
+      "source": "res://singletons/utils.gdc",
+      "originalMd5": "162d494bbe6f25d79f486906a593cfa3",
+      "installedMd5": "2c263b6d3c2355dd71d6ad4caf0705bf"
+    },
+    {
+      "source": "res://singletons/weapon_service.gdc",
+      "originalMd5": "e165d91ac24a7e0eff33a26bb09006c5",
+      "installedMd5": "f792b86439056b7c166774acb22902f4"
+    },
+    {
+      "source": "res://ui/menus/global/carousel.gdc",
+      "originalMd5": "f8defd1029c6d9ca4c608167b46d97d6",
+      "installedMd5": "a1bfc891759a5876dc2550a160eb78ab"
+    },
+    {
+      "source": "res://ui/menus/ingame/upgrades_ui_player_container.gdc",
+      "originalMd5": "7047a522e9f9d49c2b3b4095a4b26658",
+      "installedMd5": "0a30ec7d7d661c9c65d5091056d094df"
+    },
+    {
+      "source": "res://ui/menus/pages/menu_codex.gdc",
+      "originalMd5": "b338774ac873a952955129bda6bb2e92",
+      "installedMd5": "4666ed59c21d067d335994b73ecb98cc"
+    },
+    {
+      "source": "res://ui/menus/pages/menu_options.gdc",
+      "originalMd5": "c785eed7d76546f754aa01128ab7d853",
+      "installedMd5": "88a709d0c32f07166582f8509786e5d0"
+    },
+    {
+      "source": "res://ui/menus/pages/sort_inventory_button.gdc",
+      "originalMd5": "bf27abbe9f3c58fe72ad51659998ea5a",
+      "installedMd5": "6f4f3687784920786ccc446fcb0779e3"
+    },
+    {
+      "source": "res://ui/menus/run/character_selection.gdc",
+      "originalMd5": "7e948ee7650fc7eab2bdde7f2227cd17",
+      "installedMd5": "2d0ddbe5cc1c438f3e29019fbbeafe78"
+    },
+    {
+      "source": "res://ui/menus/shop/base_shop.gdc",
+      "originalMd5": "7af5c00b2c5f7e36c8fb62cc5f8864b3",
+      "installedMd5": "bcb31e2e2b6940b4e2436eb0e29989f8"
+    },
+    {
+      "source": "res://ui/menus/shop/coop_shop_player_container.gdc",
+      "originalMd5": "eadf41f3715802b96a160ccc83257ec0",
+      "installedMd5": "6378f0497613a9fac4aa8d82230f5452"
+    },
+    {
+      "source": "res://ui/menus/shop/item_popup.gdc",
+      "originalMd5": "ee63a6a777f4ddefb61cf3f7f6e5b61b",
+      "installedMd5": "07c7d079f4315ba6e890f2c4587fb38f"
+    },
+    {
+      "source": "res://ui/menus/shop/shop.gdc",
+      "originalMd5": "bfdb1a4d8cf7b520307271d7d9e9b98f",
+      "installedMd5": "217391ac491e4951b009137401c9b5ac"
+    },
+    {
+      "source": "res://weapons/weapon.gdc",
+      "originalMd5": "459365711e583c5182403866b79e7305",
+      "installedMd5": "ba9c2d1eaf4b82d91e5aec57c60b5e29"
+    },
+    {
+      "source": "res://weapons/melee/whip/whip.gdc",
+      "originalMd5": "112ce08d05bfd7c5a28dc4ff04bfda19",
+      "installedMd5": "6b8c62a66e6af698906823ad8e843cf3"
+    },
+    {
+      "source": "res://zones/zone_data.gdc",
+      "originalMd5": "6ab4b3a9cb029ffc16e315d81ba3bcf0",
+      "installedMd5": "59390f6cc02105dd4a5764540b2e0fa9"
+    },
+    {
+      "source": "res://zones/backgrounds/background_data.gdc",
+      "originalMd5": "52b5ef5fdec0ffb9a02e0b73f7e76f31",
+      "installedMd5": "77032b9b65ed82e4a4c5e5c8e5f84a89"
+    }
+  ]
+}
