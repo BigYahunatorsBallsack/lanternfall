@@ -136,6 +136,10 @@ local function fireShots(self: any, dt: number)
 		local x, z, target, damage =
 			world.shots[offset + 2], world.shots[offset + 3], world.shots[offset + 4], world.shots[offset + 5]
 		local tx, tz = self.targetXs[target], self.targetZs[target]
+		if ranged.nativeSlash then
+			self.callbacks.emitSlash(member.id, tx, tz, damage, member.owner)
+			continue
+		end
 		local previous = self.previous[self.targetIds[target]]
 		if previous then
 			local flight = math.sqrt((tx - x) ^ 2 + (tz - z) ^ 2) / ranged.projectileSpeed
@@ -263,6 +267,9 @@ function Friends.step(self: any, dt: number, now: number, hostile: any)
 			self.world:remove(id)
 			self.members[id] = nil
 			self.counts[member.owner] -= 1
+			if hatch.nativeDeath then
+				self.callbacks.expired(member, x, z)
+			end
 			self.callbacks.spawn(member, hatch.enemy, x, z, hatch.count, hatch.spread)
 		end
 	end

@@ -532,4 +532,17 @@ export type LeaderboardPage = {
 	sentAt: number,
 }
 
+-- Source Mad Slasher attacks, server-owned; damage remains private to the collision service.
+export type NativeSlashInfo = {
+	id: number,
+	sourceId: number,
+	ownerId: number?,
+	x: number,
+	z: number,
+	dx: number,
+	dz: number,
+	speed: number,
+	at: number,
+}
+export type NativeSlashBatch = { reset: boolean?, fired: { NativeSlashInfo }, ended: { number } }
 return {}

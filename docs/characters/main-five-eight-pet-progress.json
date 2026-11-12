@@ -591,7 +591,7 @@
     "currentDifficultySelectionChanged": false,
     "profileUnlockWired": true,
     "eventsExecutedInGame": false,
-    "nightmareEnemiesImplemented": false,
+    "nightmareEnemiesImplemented": true,
     "woundedReady": false,
     "includedInLatestFullSuite": true,
     "checks": [
@@ -629,22 +629,22 @@
       "Personal isolation and saved MemoryStore rejoin"
     ],
     "latestFullSuite": {
-      "artifact": "build/native-five-branch-eight-nightmare-corrupted-6bb5174.json",
+      "artifact": "build/native-five-branch-eight-nightmare-slashes-6bb5174.json",
       "baselineMain": "6bb5174f31bee9b839cc9a04ee406d1f549de051",
       "baselineSpecs": 222,
       "baselinePassed": 1488,
       "baselineFailed": 37,
-      "branchSpecs": 262,
-      "branchPassed": 1653,
+      "branchSpecs": 265,
+      "branchPassed": 1666,
       "branchFailed": 36,
-      "additionalSpecs": 40,
-      "additionalChecksPassed": 164,
+      "additionalSpecs": 43,
+      "additionalChecksPassed": 177,
       "aborts": 0,
       "newFailures": [],
-      "resolvedKnownFlake": "EnemiesB9 Gobbler eating green in this run; no fix claimed",
-      "remainingFailuresAreBaselineNames": true,
-      "perf22Passed": true,
-      "productionChangedAfterFullSuite": false
+      "resolvedKnownFlake": "Gobbler orb eating green; no fix claimed",
+      "existingPerf22Passed": true,
+      "nightmarePerformanceAccepted": false,
+      "afterFullSuite": "Only moved unchanged450 pixel reference into runtimeCompatibility config, then reran real slash server/client5/0 and geometry4/0; no functional changes or new full suite."
     },
     "runtimeResearch": {
       "activeBulletPatterns": 12,
@@ -716,7 +716,6 @@
       "nightmarePerformanceAccepted": false,
       "remaining": [
         "fog renderer",
-        "Infected Slasher Egg and Mad Slasher",
         "complete difficulty6 modifiers/options/unlock integration",
         "source graphics",
         "global enemy time factor",
@@ -728,12 +727,11 @@
       "DireJunkie",
       "HornedFly",
       "HornedSpitter",
-      "CorruptedBuffer"
-    ],
-    "pendingNightmareEnemyFamilies": [
+      "CorruptedBuffer",
       "InfectedSlasherEgg",
       "MadSlasher"
     ],
+    "pendingNightmareEnemyFamilies": [],
     "bulletFullSuite": {
       "artifact": "build/native-five-branch-eight-nightmare-bullets-6bb5174.json",
       "baselineMain": "6bb5174f31bee9b839cc9a04ee406d1f549de051",
@@ -766,20 +764,21 @@
         "DireJunkie",
         "HornedFly",
         "HornedSpitter",
-        "CorruptedBuffer"
-      ],
-      "pendingSourceOnly": [
+        "CorruptedBuffer",
         "InfectedSlasherEgg",
         "MadSlasher"
       ],
+      "pendingSourceOnly": [],
       "implementedTypeIds": [
         33,
         34,
         35,
         36,
-        37
+        37,
+        38,
+        39
       ],
-      "waveGroupMappingsAdded": 13,
+      "waveGroupMappingsAdded": 16,
       "minimumDanger": 6,
       "publicDifficulty6Exposed": false,
       "originalArtAccepted": false,
@@ -810,6 +809,18 @@
         ],
         "NativeCorruptedBuffer": [
           5,
+          0
+        ],
+        "NativeSlashGeometry": [
+          4,
+          0
+        ],
+        "NativeMadSlasherRuntime": [
+          5,
+          0
+        ],
+        "NativeInfectedEgg": [
+          4,
           0
         ]
       },
@@ -884,6 +895,46 @@
           "two nearby players and temporary stat expiry",
           "mixed player/turret pool, structure20% values and unchanged equipment source count"
         ]
+      },
+      "nativeSlashes": {
+        "geometry": "src/shared/Util/NativeSlashGeometry.luau",
+        "service": "src/server/Services/NativeSlashService.luau",
+        "controller": "src/client/Controllers/NativeSlashController.luau",
+        "remote": "NativeSlashes",
+        "direction": "serverToClientOnly",
+        "clientIntentsAdded": false,
+        "types": [
+          "NativeSlashInfo",
+          "NativeSlashBatch"
+        ],
+        "fireEndResetBatches": true,
+        "nativeRectangleInterpolation": true,
+        "hitboxParentOffsetIncluded": true,
+        "hitWindowSeconds": [
+          0.48,
+          0.6
+        ],
+        "hitEndExclusive": true,
+        "stopSeconds": 0.63,
+        "hitsFirstTargetThenStops": true,
+        "deletedWhenSourceDies": true,
+        "friendlyFactionTargetsHostiles": true,
+        "sourceSpawn": "two random points in100pixel square about the target, heading back toward it",
+        "dormant90and180DegreeValuesNotApplied": true,
+        "nativeSpriteAccepted": false,
+        "globalTimeFactorImplemented": false,
+        "studioAccepted": false
+      },
+      "infectedEgg": {
+        "hatchSeconds": 5.6,
+        "offspring": "MadSlasher",
+        "count": 1,
+        "nativeDeathEvent": true,
+        "materialValue": 1,
+        "personalKillerOnHatch": null,
+        "preservesSpawnContext": true,
+        "keepsCharmOwner": true,
+        "freshOffspringCharmLifetime": true
       }
     },
     "fourEnemyFullSuite": {
@@ -903,6 +954,25 @@
       "remainingFailuresExactlyMatchBaselineNames": true,
       "perf22Passed": true,
       "charmedWorldBudgetPassedInThisRun": true
+    },
+    "nativeNightmareEnemiesAccepted": false,
+    "corruptedFullSuite": {
+      "artifact": "build/native-five-branch-eight-nightmare-corrupted-6bb5174.json",
+      "baselineMain": "6bb5174f31bee9b839cc9a04ee406d1f549de051",
+      "baselineSpecs": 222,
+      "baselinePassed": 1488,
+      "baselineFailed": 37,
+      "branchSpecs": 262,
+      "branchPassed": 1653,
+      "branchFailed": 36,
+      "additionalSpecs": 40,
+      "additionalChecksPassed": 164,
+      "aborts": 0,
+      "newFailures": [],
+      "resolvedKnownFlake": "EnemiesB9 Gobbler eating green in this run; no fix claimed",
+      "remainingFailuresAreBaselineNames": true,
+      "perf22Passed": true,
+      "productionChangedAfterFullSuite": false
     }
   }
 }

@@ -29,6 +29,8 @@ return table.freeze({
 		HornedFly = "AroundTarget",
 		HornedSpitter = "Random",
 		CorruptedBuffer = "Random",
+		InfectedSlasherEgg = "Random",
+		MadSlasher = "Random",
 	},
 	maximumPerOwner = 999,
 	damageMultiplier = 3,

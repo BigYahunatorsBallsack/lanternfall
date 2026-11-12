@@ -265,4 +265,5 @@ Remotes.SetMovementIntent = {
 	args = { Validate.boolean() }, -- intent only; service checks participation and observed movement
 }
 Remotes.DigSites = { direction = "toClient" } -- server snapshot: Net/Types.DigSite rows, no client commands
+Remotes.NativeSlashes = { direction = "toClient" } -- bounded source slash fire/end batches; no client intent
 return table.freeze(Remotes)

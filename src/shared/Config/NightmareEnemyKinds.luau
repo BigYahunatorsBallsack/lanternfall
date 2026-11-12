@@ -8,6 +8,8 @@ local identities = {
 	HornedFly = { typeId = 35, name = "Horned Fly", look = "Brute" },
 	HornedSpitter = { typeId = 36, name = "Horned Spitter", look = "Spitter" },
 	CorruptedBuffer = { typeId = 37, name = "Corrupted Buffer", look = "Spitter" },
+	InfectedSlasherEgg = { typeId = 38, name = "Infected Slasher Egg", look = "BroodEgg" },
+	MadSlasher = { typeId = 39, name = "Mad Slasher", look = "Reaper" },
 }
 function Kinds.build(pixel: number): { [string]: any }
 	local result = {}
@@ -55,6 +57,16 @@ function Kinds.build(pixel: number): { [string]: any }
 				spread = 0,
 				area = C.rules.spawnSquarePixels * pixel,
 			}
+		elseif id == "InfectedSlasherEgg" then
+			kind.anchored = true
+			kind.hatch = {
+				seconds = f.attack.cooldown / C.rules.physicsRate
+					+ C.shootAnimation.fireAt / f.attack.attack_anim_speed,
+				enemy = "MadSlasher",
+				count = f.attack.nb_to_spawn,
+				spread = 0,
+				nativeDeath = true,
+			}
 		elseif id == "CorruptedBuffer" then
 			local root = f.root
 			kind.stayInRange =
@@ -92,7 +104,17 @@ function Kinds.build(pixel: number): { [string]: any }
 			kind.shotDamagePerWave = f.attack.damage_increase_each_wave
 		else
 			local a = f.attack
-			if id == "DireJunkie" then
+			if id == "MadSlasher" then
+				kind.specialSpawn = true
+				kind.wander = {
+					around = "Offset",
+					within = true,
+					range = f.movement.range_around_player * pixel,
+					rangeJitter = f.movement.range_randomization * pixel,
+					arriveStuds = C.rules.arrivePixels * pixel,
+					maxSeconds = C.runtimeCompatibility.wanderTimeoutSeconds,
+				}
+			elseif id == "DireJunkie" then
 				kind.specialSpawn = true
 				kind.wander = {
 					around = "Arena",
@@ -106,6 +128,7 @@ function Kinds.build(pixel: number): { [string]: any }
 				}
 			end
 			kind.ranged = {
+				nativeSlash = if id == "MadSlasher" then true else nil,
 				keepDistance = 0,
 				fireInterval = a.cooldown / C.rules.physicsRate,
 				fireRange = a.max_range * pixel,
@@ -122,8 +145,11 @@ function Kinds.build(pixel: number): { [string]: any }
 					fireInterval = a.cooldown / C.rules.physicsRate,
 					cooldownRandomSeconds = a.max_cd_randomization / C.rules.physicsRate,
 					initialSeconds = a.initial_cooldown / C.rules.physicsRate,
-					fireAt = C.shootAnimation.fireAt / a.attack_anim_speed,
-					animationSeconds = C.shootAnimation.duration / a.attack_anim_speed,
+					fireAt = (if id == "MadSlasher" then C.slash.actorFireAt else C.shootAnimation.fireAt)
+						/ a.attack_anim_speed,
+					animationSeconds = (if id == "MadSlasher"
+						then C.slash.actorAnimationSeconds
+						else C.shootAnimation.duration) / a.attack_anim_speed,
 				},
 			}
 			kind.shotDamagePerWave = a.damage_increase_each_wave

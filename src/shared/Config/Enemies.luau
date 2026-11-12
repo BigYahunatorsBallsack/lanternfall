@@ -191,6 +191,7 @@ export type Pulse = {
 
 -- Enemies that stand still and hatch into others after a while unless killed first (Brood Egg, B9).
 export type Hatch = {
+	nativeDeath: boolean?, -- native egg calls die() after spawning; ordinary legacy eggs keep their existing path
 	seconds: number,
 	enemy: string, -- key in types
 	count: number,
@@ -260,6 +261,7 @@ export type Ranged = {
 	projectileSpeed: number, -- studs/s
 	projectileRange: number, -- studs a shot flies before it fades
 	projectileRadius: number, -- studs, hit circle of a shot (Brotato: 17 px)
+	nativeSlash: boolean?, -- emits source slash requests instead of ordinary bullets
 	projectileCount: number?, -- independent shots per native animation method
 	fromCenter: boolean?,
 	nativeTiming: {

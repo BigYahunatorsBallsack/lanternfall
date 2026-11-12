@@ -72,6 +72,8 @@ EnemySim.ShotHit = Signal.new()
 EnemySim.Stepped = Signal.new()
 -- Server-only cosmetic events for friendly projectiles.
 EnemySim.CharmShot = Signal.new()
+-- Trusted source slash request: source id, target x/z, damage and optional Charm owner.
+EnemySim.NativeSlash = Signal.new()
 EnemySim.CharmSupport = Signal.new()
 
 local world: World.World
@@ -129,6 +131,9 @@ friends = CharmedWorld.new(world.params, {
 	end,
 	damage = function(id, amount)
 		EnemySim.damage(id, amount, nil)
+	end,
+	emitSlash = function(id, tx, tz, damage, owner)
+		EnemySim.NativeSlash:Fire(id, tx, tz, damage, owner)
 	end,
 	emitShot = function(owner, event)
 		EnemySim.CharmShot:Fire(owner, event)
@@ -218,6 +223,10 @@ local function fireShots(stepNow: number)
 		end
 		local x, z, t, damage = shots[k + 2], shots[k + 3], shots[k + 4], shots[k + 5]
 		local aimX, aimZ = contactXs[t], contactZs[t]
+		if ranged.nativeSlash then
+			EnemySim.NativeSlash:Fire(shots[k + 1], aimX, aimZ, damage, nil)
+			continue
+		end
 		local flightSeconds = math.sqrt((aimX - x) ^ 2 + (aimZ - z) ^ 2) / ranged.projectileSpeed
 		aimX += targetVxs[t] * flightSeconds * ranged.aimLead
 		aimZ += targetVzs[t] * flightSeconds * ranged.aimLead
@@ -348,7 +357,11 @@ local function hatchEggs()
 		local x, z = world:getPosition(id)
 		if hatch and x and z then
 			local hpMultiplier, damageMultiplier, speedMultiplier = world:getMultipliers(id)
-			world:remove(id)
+			if hatch.nativeDeath then
+				EnemySim.damage(id, world:getHealth(id), nil)
+			else
+				world:remove(id)
+			end
 			spawnAround(
 				hatch.enemy,
 				x,

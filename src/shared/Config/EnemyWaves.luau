@@ -2319,7 +2319,7 @@ local waves: { Wave } = {
 				minWave = 0,
 				maxWave = 99999,
 				units = {
-					{ enemy = nil, min = 1, max = 2, chance = 1, neutral = false, extraDistance = 0 },
+					{ enemy = "InfectedSlasherEgg", min = 1, max = 2, chance = 1, neutral = false, extraDistance = 0 },
 				},
 			}),
 		}),
@@ -3031,7 +3031,7 @@ local waves: { Wave } = {
 				minWave = 0,
 				maxWave = 99999,
 				units = {
-					{ enemy = nil, min = 2, max = 3, chance = 1, neutral = false, extraDistance = 0 },
+					{ enemy = "InfectedSlasherEgg", min = 2, max = 3, chance = 1, neutral = false, extraDistance = 0 },
 				},
 			}),
 		}),
@@ -3505,7 +3505,7 @@ local waves: { Wave } = {
 				minWave = 0,
 				maxWave = 99999,
 				units = {
-					{ enemy = nil, min = 1, max = 1, chance = 1, neutral = false, extraDistance = 0 },
+					{ enemy = "MadSlasher", min = 1, max = 1, chance = 1, neutral = false, extraDistance = 0 },
 				},
 			}),
 		}),

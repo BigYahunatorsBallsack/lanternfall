@@ -55,6 +55,8 @@ ENEMY_IDS = {
     "horned_fly.tscn": "HornedFly",
     "horned_spitter.tscn": "HornedSpitter",
     "corrupted_buffer.tscn": "CorruptedBuffer",
+    "infected_slasher_egg.tscn":"InfectedSlasherEgg",
+    "mad_slasher.tscn":"MadSlasher",
 }
 
 GROUP_FIELDS = [

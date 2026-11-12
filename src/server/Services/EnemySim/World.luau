@@ -1529,7 +1529,7 @@ function World.step(
 				shotCooldown[i] = cooldown
 			end
 			if fires and best > 0 then
-				for _ = 1, ranged.projectileCount or 1 do
+				for _ = 1, (if ranged.nativeSlash then 1 else ranged.projectileCount or 1) do
 					local k = shotCount * 5
 					shots[k + 1], shots[k + 2], shots[k + 3] = ids[i], x, z
 					shots[k + 4], shots[k + 5] = best, shotDamage[i]

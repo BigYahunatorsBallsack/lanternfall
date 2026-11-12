@@ -2,6 +2,91 @@
   "version": "1.2.0.1",
   "steamBuild": 26406319,
   "minimumDanger": 6,
+  "slash": {
+    "source": "res://projectiles/slash/slash_projectile.tscn",
+    "sourceMd5": "305705c3025fcfe6d2c487c25bb977ca",
+    "hitFrom": 0.48,
+    "hitUntil": 0.6,
+    "stopAt": 0.63,
+    "times": [
+      0.48,
+      0.51,
+      0.54,
+      0.57,
+      0.6,
+      0.63
+    ],
+    "positions": [
+      [
+        -122,
+        18
+      ],
+      [
+        -71,
+        18
+      ],
+      [
+        -6.5,
+        18
+      ],
+      [
+        65.5,
+        19
+      ],
+      [
+        105,
+        15.5
+      ],
+      [
+        143,
+        18
+      ]
+    ],
+    "extents": [
+      [
+        30,
+        17
+      ],
+      [
+        79,
+        15
+      ],
+      [
+        136.5,
+        14
+      ],
+      [
+        88.5,
+        12
+      ],
+      [
+        44,
+        9.5
+      ],
+      [
+        20,
+        7
+      ]
+    ],
+    "hitboxOffset": [
+      0,
+      -15
+    ],
+    "resetPosition": [
+      -112,
+      15
+    ],
+    "resetExtents": [
+      16,
+      9
+    ],
+    "actorFireAt": 0.4,
+    "actorAnimationSeconds": 0.4,
+    "actorAnimationSource": {
+      "source": "res://entities/units/enemies/attack_behaviors/enemy_charge_prep_animation.tres",
+      "sourceMd5": "2ad99e68eb21c31ad3028e65ccb6fa5a"
+    }
+  },
   "sources": [
     {
       "source": "res://entities/units/enemies/enemy.tscn",
@@ -36,6 +121,14 @@
       "sourceMd5": "58724d77253dd2ff1a91a8409a809193"
     },
     {
+      "source": "res://entities/units/enemies/crash_zone/basic/infected_slasher_egg/infected_slasher_egg.gdc",
+      "sourceMd5": "f01696d402b51e177ee02fe0bdce31c8"
+    },
+    {
+      "source": "res://entities/units/enemies/attack_behaviors/spawning_attack_behavior.gdc",
+      "sourceMd5": "cbddd1b76bf3363315729d319a34798d"
+    },
+    {
       "source": "res://entities/units/unit/unit.gdc",
       "sourceMd5": "aa94391f2d9681ac36b7f8617b82ff13"
     },
@@ -61,12 +154,11 @@
     "DireJunkie",
     "HornedFly",
     "HornedSpitter",
-    "CorruptedBuffer"
-  ],
-  "pending": [
+    "CorruptedBuffer",
     "InfectedSlasherEgg",
     "MadSlasher"
   ],
+  "pending": [],
   "rules": {
     "spawnedChildren": 5,
     "allyBoostDuration": 5.0,
@@ -76,6 +168,13 @@
     "projectileRadiusPixels": 17
   },
   "runtimeCompatibility": {
+    "referencePlayerSpeedPixels": 450,
+    "slashVisual": {
+      "floorLift": 0.1,
+      "thickness": 0.04,
+      "activeTransparency": 0.4,
+      "warningTransparency": 0.75
+    },
     "wanderTimeoutSeconds": 8,
     "projectileRangeStuds": 300,
     "mass": 1,
