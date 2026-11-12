@@ -2,7 +2,7 @@
 No scripts or full scenes are copied; these facts alone do not implement pets.
 """
 from __future__ import annotations
-import argparse, csv, importlib.util, json, math, re, sys
+import argparse, csv, hashlib, importlib.util, json, math, re, sys
 from pathlib import Path
 sys.dont_write_bytecode=True
 ROOT=Path(__file__).resolve().parents[1]
@@ -30,11 +30,14 @@ def read_scene(pck,path):
  base=next((v['path'] for v in parsed['externalResources'] if root_instance and str(v['id'])==root_instance[1]),None)
  return {'sourceMd5':pck.entries[path]['md5'],'baseScene':base,'nodes':nodes,'shapes':shapes}
 def generate(pck):
+ translation_path=ROOT/'build/character-source/native/resources/translations/translations.csv'
+ translations={row['key']:row['en'] for row in csv.DictReader(translation_path.read_text(encoding='utf-8-sig').splitlines())}
  rows=[];resources={};scenes={}
  for slug in FAMILIES:
   path=f'res://items/all/03_paws_n_claws/{slug}/{slug}.tres'
   item=pck.resource(path)['properties'];effect_path=item['effects'][0]['resource'];effect=pck.resource(effect_path)['properties'];scene=effect['scene']['resource']
   row={'slug':slug,'id':''.join(w.title() for w in slug.split('_')),'source':path,'sourceMd5':pck.entries[path]['md5'],'nameKey':item['name'],'tier':item['tier']+1,'price':item['value'],'limit':item['max_nb'],'tags':item.get('tags',[]),'iconSource':item['icon']['resource'],'effectSource':effect_path,'effectMd5':pck.entries[effect_path]['md5'],'effect':facts(effect)}
+  row['tooltipKey']=effect['text_key'];row['englishTooltip']=translations[effect['text_key']];row['tooltipCsvSha256']=hashlib.sha256(translation_path.read_bytes()).hexdigest()
   scenes[scene]=read_scene(pck,scene)
   pending=[ref['resource'] for ref in source.references(effect) if ref['resource'].endswith('.tres') and '::' not in ref['resource']]
   for node in scenes[scene]['nodes']:
@@ -142,6 +145,8 @@ def catalog(out):
  gold=inherited_nodes('res://items/materials/gold.tscn');shape=gold['CollisionShape2D','.']['shape']['resource'];path,sub=shape.split('::');extents=out['scenes'][path]['shapes'][sub]['properties']['extents']['values']
  material={'halfXPoints':extents[0],'halfZPoints':extents[1],'attractSpeedPoints':500,'accelerationPointsPerFrame':20,'idleFrames':10,'mergeGrowth':0.05,'maximumScale':2,'bagScale':1.25}
  data={'frameRate':60,'minimumCooldownFrames':2,'minimumRangePoints':25,'projectile':projectile,'material':material,'playerBody':{k:v for k,v in out['playerBody'].items() if k.endswith('Points')},'beastMasterStats':['meleeDamage','rangedDamage','elementalDamage','engineering'],'kinds':kinds}
+ data['tooltips']={row['id']:row['englishTooltip'] for row in out['pets']}
+ data['tooltipTimeStep']=0.1
  def lua(value,depth=0):
   if isinstance(value,bool):return 'true' if value else 'false'
   if isinstance(value,(int,float)):return str(value)

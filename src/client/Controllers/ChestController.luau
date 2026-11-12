@@ -17,6 +17,7 @@ local UpgradeText = require(Shared:WaitForChild("Util"):WaitForChild("UpgradeTex
 
 local CameraController = require(script.Parent.CameraController)
 local RunStateController = require(script.Parent.RunStateController)
+local StatsController = require(script.Parent.StatsController)
 local Theme = require(script.Parent.Parent.UI.Theme)
 local Widgets = require(script.Parent.Parent.UI.Widgets)
 local WorldSprite = require(
@@ -218,7 +219,7 @@ local function onOpened(opened: Types.ChestOpened)
 	for _, entry in opened.rewards do
 		if entry.userId == Players.LocalPlayer.UserId then
 			CameraController.shake(Config.Feedback.shake.chestOpen)
-			showBanner(UpgradeText.chestReward(entry.reward))
+			showBanner(UpgradeText.chestReward(entry.reward, StatsController.get()))
 			return
 		end
 	end

@@ -162,8 +162,16 @@ function UpgradeText.card(card: Types.UpgradeCard): (string, string, string)
 end
 
 -- An item's stat lines (rich text with `colors`) followed by its effect lines, joined by `separator` (a new line).
-function UpgradeText.itemLines(itemId: string, colors: Colors?, separator: string?): string
+function UpgradeText.itemLines(
+	itemId: string,
+	colors: Colors?,
+	separator: string?,
+	sheet: { [string]: number }?
+): string
 	local item = Config.Items.byId[itemId]
+	if item and item.pet then
+		return require(script.Parent.PetText).line(item.pet, sheet)
+	end
 	if item and item.structure then
 		return Config.Structures.kinds[item.structure].description
 	end
@@ -201,7 +209,11 @@ end
 -- Title, effect text and badge of a shop offer. Weapons: name with tier ("Spark Bolt II"), description, its weapon
 -- classes and damage line (B5), what the tier adds and whether buying merges it; badge "Uncommon · NEW" or "Uncommon · own 2". Items: their stat lines (rich text
 -- with `colors`) and effect lines, the rarity and how many the player owns ("Rare · x2").
-function UpgradeText.offer(offer: Types.ShopOffer, colors: Colors?): (string, string, string)
+function UpgradeText.offer(
+	offer: Types.ShopOffer,
+	colors: Colors?,
+	sheet: { [string]: number }?
+): (string, string, string)
 	if offer.kind == "Weapon" then
 		local weapon = Config.Weapons[offer.itemId]
 		local badge = UpgradeText.tierName(offer.tier) .. (if offer.isNew then " · NEW" else ` · own {offer.count}`)
@@ -230,11 +242,11 @@ function UpgradeText.offer(offer: Types.ShopOffer, colors: Colors?): (string, st
 	if not item then
 		return offer.itemId, "", badge
 	end
-	return item.displayName, UpgradeText.itemLines(offer.itemId, colors), badge
+	return item.displayName, UpgradeText.itemLines(offer.itemId, colors, nil, sheet), badge
 end
 
 -- Title and effect line of an elite chest reward (Net/Types.ChestReward).
-function UpgradeText.chestReward(reward: Types.ChestReward): (string, string)
+function UpgradeText.chestReward(reward: Types.ChestReward, sheet: { [string]: number }?): (string, string)
 	if reward.kind == "Evolution" then
 		local evolution = Config.Evolutions[reward.itemId]
 		if not evolution then
@@ -248,7 +260,7 @@ function UpgradeText.chestReward(reward: Types.ChestReward): (string, string)
 			return reward.itemId, ""
 		end
 		local title = if reward.level > 1 then `{item.displayName} x{reward.level}` else item.displayName
-		return title, UpgradeText.itemLines(reward.itemId, nil, ", ")
+		return title, UpgradeText.itemLines(reward.itemId, nil, ", ", sheet)
 	end
 	if reward.itemId == "Heal" then
 		return "Heal", "Full HP"

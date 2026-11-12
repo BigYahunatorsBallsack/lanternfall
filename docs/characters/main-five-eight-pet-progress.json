@@ -1,9 +1,9 @@
 {
   "date": "2026-11-12",
   "mainCommit": "6bb5174f31bee9b839cc9a04ee406d1f549de051",
-  "scope": "Unmerged prerequisites for Baby,Jack,Vampire,Wounded,BeastMaster; no additional complete character package counted",
+  "scope": "Four prepared code packages in an unmerged five-character batch; Wounded still requires complete Nightmare 1; main remains43/74",
   "codePreparedOnMain": 43,
-  "newNativeCodeReadyFlags": 0,
+  "newNativeCodeReadyFlags": 4,
   "fullSuite": {
     "baseline": {
       "specs": 222,
@@ -11,14 +11,19 @@
       "failed": 37
     },
     "branch": {
-      "specs": 249,
-      "passed": 1596,
-      "failed": 37
+      "specs": 251,
+      "passed": 1605,
+      "failed": 36
     },
     "newFailureNames": [],
-    "removedFailureNames": [],
+    "removedFailureNames": [
+      {
+        "spec": "tests/EnemiesB9.spec.luau",
+        "failure": "FAIL new enemies (B9) > lets a Gobbler eat the orbs on the floor and drop them all when killed"
+      }
+    ],
     "aborts": [],
-    "branchResult": "build/native-five-branch-eight-modifiers-final-6bb5174.json",
+    "branchResult": "build/native-five-branch-eight-tooltips-6bb5174.json",
     "confirmedBaselineFluctuations": [
       {
         "iteration": 1,
@@ -152,8 +157,10 @@
       }
     ],
     "newDeterministicFailureNames": [],
-    "additionalChecksPassed": 108,
-    "additionalSpecs": 27
+    "additionalChecksPassed": 116,
+    "additionalSpecs": 29,
+    "readyFlagsAddedAfterSuite": true,
+    "afterReadyFlagsFocused": "Baby3/0,Jack4/0,Vampire3/0,StartPet4/0,StartPetUi2/0,StartPetRunPlace2/0,PetText6/0,PetTooltipUi2/0; artwork gates unchanged"
   },
   "focused": {
     "tests/CharacterBabyPackage.spec.luau": {
@@ -262,6 +269,14 @@
     },
     "tests/NativeStructureCritUnlock.spec.luau": {
       "passed": 6,
+      "failed": 0
+    },
+    "tests/NativePetText.spec.luau": {
+      "passed": 6,
+      "failed": 0
+    },
+    "tests/NativePetTooltipUi.spec.luau": {
+      "passed": 2,
       "failed": 0
     }
   },
@@ -528,5 +543,37 @@
     ],
     "studioRun": false,
     "newNativeCodeReadyFlags": 0
+  },
+  "codePreparedOnBranch": 47,
+  "readyOnBranchNotMerged": [
+    "Baby",
+    "Jack",
+    "Vampire",
+    "BeastMaster"
+  ],
+  "petTooltip": {
+    "originalSixEnglishTemplates": true,
+    "sourceAndTranslationHashes": "pet-source.json",
+    "sharedStatModule": "src/shared/Util/NativePetStats.luau",
+    "serverExistingApiPreserved": true,
+    "statFunctionBodiesPreservedOnExtraction": true,
+    "lobbyShopInventoryHudCrateRewardCallersWired": true,
+    "actualOwnerSheet": true,
+    "serverContextFields": [
+      "nativePetScaling",
+      "nativeImprovedTools"
+    ],
+    "scrollableDetails": true,
+    "scrollResetsOnPreviewChange": true,
+    "beforeUi": {
+      "passed": 0,
+      "failed": 2
+    },
+    "afterUi": {
+      "passed": 2,
+      "failed": 0
+    },
+    "nativeStatIconPresentationAccepted": false,
+    "studioAccepted": false
   }
 }

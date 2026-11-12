@@ -375,7 +375,7 @@ local function renderCards(current: Types.ShopState)
 		local offer = current.offers[index]
 		view.frame.Visible = offer ~= nil
 		if offer then
-			local title, detail, badge = UpgradeText.offer(offer, STAT_COLORS)
+			local title, detail, badge = UpgradeText.offer(offer, STAT_COLORS, StatsController.get())
 			local color = Theme.tiers[offer.tier] or Theme.accent
 			local affordable = current.shards >= offer.price
 			view.badge.Text = if offer.sold then "SOLD" else string.upper(badge)
@@ -451,7 +451,7 @@ local function renderDetails(current: Types.ShopState, shopping: boolean)
 	if shopping and detailOfferId then
 		for _, offer in current.offers do
 			if offer.id == detailOfferId and offer.kind == "Weapon" and not offer.sold then
-				title, body = UpgradeText.offer(offer, STAT_COLORS)
+				title, body = UpgradeText.offer(offer, STAT_COLORS, StatsController.get())
 				break
 			end
 		end
@@ -543,7 +543,8 @@ local function renderItems()
 			local id = entry.id
 			Tooltip.attach(view, function()
 				local item = Config.Items.byId[id]
-				return if item then item.displayName else id, UpgradeText.itemLines(id, STAT_COLORS)
+				return if item then item.displayName else id,
+					UpgradeText.itemLines(id, STAT_COLORS, nil, StatsController.get())
 			end)
 		end
 		view.LayoutOrder = index

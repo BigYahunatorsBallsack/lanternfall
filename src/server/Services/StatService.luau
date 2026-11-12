@@ -105,6 +105,11 @@ local function weaponSheetOf(player: Player, sheet: StatMath.Sheet): StatMath.Sh
 		end
 	end
 	weaponSheet.nativeGlobalBurnDamage = burn
+	weaponSheet.nativePetScaling =
+		CharacterRules.nativeOverride(RunDirector.getParticipantClassId(player), "beast_master_effect", 0)
+	weaponSheet.nativeImprovedTools = if states[player] and (states[player].items.CalibratedTools or 0) > 0
+		then 1
+		else 0
 	return weaponSheet
 end
 local function push(player: Player, sheet: StatMath.Sheet)

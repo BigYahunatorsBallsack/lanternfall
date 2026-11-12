@@ -399,4 +399,13 @@ return {
 			excludeBosses = true,
 		},
 	},
+	tooltips = {
+		BonkDog = "Spawns a Bonk Dog pet that deals {0} ({1}) damage. Every {2} seconds, it performs a dash attack that deals {3} ({4}) explosive damage in an area",
+		CatlingGun = "Spawns a Catling Gun pet that shoots bullets dealing {0} ({1}) damage. Its attack speed increases when the player or pets stay close",
+		Blazemander = "Spawns a Blazemander pet that deals {0} ({1}) damage. Every {5} seconds, it shoots burning projectiles in all directions, each dealing {6} ({7}) damage. Enemies hit by any of these attacks take {2}x{3} ({4}) burning damage",
+		BotOMine = "Spawns a Bot-O-Mine structure that shoots bullets dealing {0} ({1}) damage. It also spawns a landmine every {2} seconds dealing {3} ({4}) damage in an area",
+		Lootworm = "Spawns a Lootworm pet that collects materials and destroys trees for the player. Each time it picks up a material, it has a {0} chance to double it",
+		Ratzilla = "Spawns a Ratzilla pet that deals {0} ({1}) damage",
+	},
+	tooltipTimeStep = 0.1,
 }

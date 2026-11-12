@@ -12,6 +12,8 @@ local Party = require(script.Parent.Parent.Controllers.PartyController)
 local Shared = game:GetService("ReplicatedStorage").Shared
 local Config = require(Shared.Config)
 local StatMath = require(Shared.Util.StatMath)
+local PetText = require(Shared.Util.PetText)
+local CharacterRules = require(Shared.Util.CharacterRules)
 local WeaponClasses = require(Shared.Util.WeaponClasses)
 local RunSchedule = require(Shared.Util.RunSchedule)
 local Layout = {}
@@ -180,6 +182,18 @@ function Layout.mount(screen: ScreenGui, choose: Frame, players: Frame, record: 
 		Size = UDim2.new(1, -100, 0, 40),
 		Parent = weapon,
 	})
+	local weaponDetails = Widgets.create("ScrollingFrame", {
+		Name = "WeaponDetails",
+		BackgroundTransparency = 1,
+		BorderSizePixel = 0,
+		Position = UDim2.fromOffset(12, 96),
+		Size = UDim2.new(1, -24, 1, -108),
+		CanvasSize = UDim2.fromOffset(0, 0),
+		AutomaticCanvasSize = Enum.AutomaticSize.Y,
+		ScrollBarThickness = 4,
+		ScrollingDirection = Enum.ScrollingDirection.Y,
+		Parent = weapon,
+	})
 	local weaponStats = Widgets.label({
 		Name = "WeaponStats",
 		TextSize = 16,
@@ -187,10 +201,11 @@ function Layout.mount(screen: ScreenGui, choose: Frame, players: Frame, record: 
 		TextWrapped = true,
 		TextXAlignment = Enum.TextXAlignment.Left,
 		TextYAlignment = Enum.TextYAlignment.Top,
-		Position = UDim2.fromOffset(12, 96),
-		Size = UDim2.new(1, -24, 1, -108),
-		Parent = weapon,
+		Size = UDim2.new(1, -6, 0, 0),
+		AutomaticSize = Enum.AutomaticSize.Y,
+		Parent = weaponDetails,
 	})
+	local previewId: string? = nil
 	local runOptions = Widgets.create(
 		"Frame",
 		{ Name = "RunOptions", BackgroundColor3 = Theme.button, BorderSizePixel = 0, Parent = content },
@@ -438,11 +453,22 @@ function Layout.mount(screen: ScreenGui, choose: Frame, players: Frame, record: 
 			else Enum.AutomaticSize.None
 		local id, me = CharacterChoice.getShownWeapon(), RunState.getLocalPlayer()
 		local petId = CharacterChoice.getShownPet()
+		local nextPreview = if petId then "Pet:" .. petId elseif id then "Weapon:" .. id else nil
+		if nextPreview ~= previewId then
+			previewId = nextPreview
+			weaponDetails.CanvasPosition = Vector2.new(0, 0)
+		end
 		if petId then
 			local item = Config.Items.byId[petId]
 			Icons.draw(weaponArt, "item", petId)
 			weaponName.Text, weaponClass.Text = item.displayName, "Pet"
-			weaponStats.Text = item.description or ""
+			local sheet = StatMath.baseSheet()
+			local class = me and Config.Classes[me.classId]
+			for key, value in if class then class.stats else {} do
+				sheet[key] = (sheet[key] or 0) + value
+			end
+			sheet.nativePetScaling = CharacterRules.nativeOverride(me and me.classId, "beast_master_effect", 0)
+			weaponStats.Text = PetText.line(petId, sheet)
 		elseif id and Config.Weapons[id] then
 			Icons.draw(weaponArt, "weapon", id)
 			weaponName.Text, weaponClass.Text = Config.Weapons[id].displayName, WeaponClasses.names(id)

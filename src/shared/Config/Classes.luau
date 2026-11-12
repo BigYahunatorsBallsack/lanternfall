@@ -436,6 +436,20 @@ Classes.King.description =
 Classes.Loud.nativeCodeReady = true
 Classes.Loud.description = "+30 % Damage\n+50 % Enemies\n-3 Harvesting at the end of a wave"
 
+-- Eighth batch: complete code packages keep their original-art gates until real uploads exist.
+Classes.Baby.nativeCodeReady = true
+Classes.Baby.description =
+	"+12 Harvesting\n-20 % Items Price\nYou gain a weapon slot when you level up instead of a stat upgrade (max: 24)\nYou start with one weapon slot\nShops always sell at least one weapon\n+130% XP required to level up"
+Classes.Jack.nativeCodeReady = true
+Classes.Jack.description =
+	"+125% damage against bosses and elites\n+200% materials dropped\n-70% Enemies\n+175 % Enemy health\n+35 % Enemy damage"
+Classes.Vampire.nativeCodeReady = true
+Classes.Vampire.description =
+	"+2 % Damage for every 1% of missing health [0]\n+1 % Life Steal for every 3% of missing health [0]\n+1 Armor for every 5% of missing health [0]\nMax HP modifications are reduced by 25%\n-60 % Damage\n-100 HP Regeneration\n-100 HP recovered from consumables"
+Classes.BeastMaster.nativeCodeReady = true
+Classes.BeastMaster.description =
+	"You start with 1 Lootworm\nYou can't equip weapons\n+2 % Speed for every permanent Pet you have [0]\nPet damage also scales with Melee Damage, Ranged Damage, Elemental Damage, and Engineering\n+10 Luck\nYou start with 1 Ratzilla"
+
 for id, class in Classes do
 	if not class.nativeCodeReady then
 		continue
