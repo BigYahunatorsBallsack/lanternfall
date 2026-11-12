@@ -226,6 +226,18 @@ class Pck:
         return result
 
 
+def verify_reference(pck: Pck) -> dict[str, Any]:
+    """Reject unreviewed installed versions before any source compiler writes new facts."""
+    expected = json.loads((Path(__file__).resolve().parents[1] / "docs/characters/reference.json").read_text(encoding="utf-8"))
+    versions = {s.decode() for s in re.findall(rb"[ -~]{4,}", pck.read("res://singletons/progress_data.gdc")) if re.fullmatch(rb"1\.\d+\.\d+\.\d+", s)}
+    version = max(versions, key=lambda value: tuple(map(int, value.split("."))))
+    assert version == expected["version"], f"Installed version {version} differs from approved {expected['version']}"
+    manifest = (pck.path.parent.parent.parent / "appmanifest_1942280.acf").read_text(encoding="utf-8")
+    build = re.search(r'"buildid"\s*"(\d+)"', manifest).group(1)
+    assert build == str(expected["steamBuildId"]), f"Installed Steam build {build} needs a source audit"
+    return expected
+
+
 def references(value):
     if isinstance(value, dict):
         if "resource" in value:
@@ -248,6 +260,7 @@ def factual_properties(props):
 
 
 def generate(pck: Pck) -> dict[str, Any]:
+    verify_reference(pck)
     resources = {}
 
     def include(path: str):

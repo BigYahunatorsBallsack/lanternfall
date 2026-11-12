@@ -2,8 +2,8 @@
 -- Native full starting choices, personal core mechanics and exact unlock boundary through production services.
 local f = loadHelper("tests/helpers/NativeCharacterFixture.luau")("Explorer")
 describe("Native Explorer package", function()
-	it("runs all28choices plus one Lumberjack Shirt", function()
-		f.starts(28, { LumberjackShirt = 1 })
+	it("runs all29choices plus one Lumberjack Shirt", function()
+		f.starts(29, { LumberjackShirt = 1 })
 	end)
 	it("uses native42x31map tiles,12Trees and original personal stat modifiers", function()
 		f.start("FoundryKey")

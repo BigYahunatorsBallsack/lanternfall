@@ -2,10 +2,10 @@
 -- Native starting alternatives, personal production-service rules and original challenge boundary.
 local f = loadHelper("tests/helpers/NativeCharacterFixture.luau")("SoleConductor")
 describe("Native One Armed package", function()
-	it("adopts all31 native starts while retaining SoleConductor", function()
+	it("adopts all30 native starts while retaining SoleConductor", function()
 		expect(f.wasLegacy).toBe(true)
 		expect(f.class.displayName).toBe("One Armed")
-		f.starts(31)
+		f.starts(30)
 	end)
 	it("enforces one weapon, adds three set counts and doubles every listed damage gain", function()
 		f.start("Claw")

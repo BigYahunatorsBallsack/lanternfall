@@ -103,8 +103,12 @@ describe("Native Whip attack", function()
 		local segment = ctx.segments[1]
 		local along = (segment.x0 - hx) * dx + (segment.z0 - hz) * dz
 		local side = -(segment.x0 - hx) * dz + (segment.z0 - hz) * dx
-		expect(along).toBeNear(5.0633125 - 1.2 * math.cos(math.rad(0.0875)))
-		expect(side).toBeNear(-1.2 * math.sin(math.rad(0.0875)))
+		expect(along).toBeNear(5.0633125 - 4.6 * math.cos(math.rad(0.0875)))
+		expect(side).toBeNear(-4.6 * math.sin(math.rad(0.0875)))
 		expect(segment.radius).toBe(1.6)
+		local length = math.sqrt((segment.x1 - segment.x0) ^ 2 + (segment.z1 - segment.z0) ^ 2)
+		expect(length).toBeNear(w.stats.range + 3.4)
+		local endAlong = (segment.x1 - hx) * dx + (segment.z1 - hz) * dz
+		expect(endAlong).toBeNear(5.0633125 + (w.stats.range - 1.2) * math.cos(math.rad(0.0875)))
 	end)
 end)

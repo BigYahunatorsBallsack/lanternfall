@@ -1,8 +1,8 @@
 --!strict
 -- Stable Nightmare enemy facts; NightmareEnemyKinds activates only the explicitly implemented families.
 return {
-	version = "1.2.0.1",
-	steamBuild = 26406319,
+	version = "1.2.0.2",
+	steamBuild = 26615634,
 	minimumDanger = 6,
 	slash = {
 		source = "res://projectiles/slash/slash_projectile.tscn",

@@ -35,6 +35,7 @@ def scalar(value):
 def main():
     parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--check',action='store_true');args=parser.parse_args()
     source=module('bullet_source',ROOT/'tools/character-source.py');compiler=module('bullet_catalog',ROOT/'tools/build-character-catalog.py');pck=source.Pck(source.DEFAULT_PCK)
+    source.verify_reference(pck)
     selector='res://singletons/zone_service.tscn'
     refs,nodes=scene(pck,selector)
     picks=re.findall(r'ExtResource\( (\d+) \)',nodes[0]['properties']['bullets_hell'])
@@ -53,7 +54,7 @@ def main():
             generators.append({'name':node['name'],**values})
         patterns.append({'id':Path(path).stem,'source':path,'sourceMd5':pck.entries[path]['md5'],**root,'generators':generators})
     sources=[selector,'res://main.gdc','res://singletons/zone_service.gdc','res://projectiles/bullet_hells/bullet_hell.gdc','res://projectiles/bullet_hells/bullets_generator.gdc','res://projectiles/bullet_hells/bullet_hell_projectile.gdc','res://projectiles/bullet_hells/bullet_hell_projectile.tscn','res://projectiles/projectile.gdc','res://singletons/entity_service.gdc']
-    facts={'version':'1.2.0.1','steamBuild':26406319,'sources':[{'source':x,'sourceMd5':pck.entries[x]['md5']} for x in sources], 'rules':{'parameterWaveCap':20,'intervalWaveDivisor':20,'speedPerWave':2,'challengeWaveDivisor':2,'baseDamage':1,'enemyDamageModifier':-50,'exitMarginPixels':100,'hitRadiusPixels':17.0294,'motionDivisor':2,'physicsRate':60,'minimumEnemyFactor':0.01,'curseEndlessDivisor':25},'patterns':patterns}
+    facts={'version':'1.2.0.2','steamBuild':26615634,'sources':[{'source':x,'sourceMd5':pck.entries[x]['md5']} for x in sources], 'rules':{'parameterWaveCap':20,'intervalWaveDivisor':20,'speedPerWave':2,'challengeWaveDivisor':2,'baseDamage':1,'enemyDamageModifier':-50,'exitMarginPixels':100,'hitRadiusPixels':17.0294,'motionDivisor':2,'physicsRate':60,'minimumEnemyFactor':0.01,'curseEndlessDivisor':25},'patterns':patterns}
     outputs={ROOT/'docs/characters/bullet-hell-source.json':json.dumps(facts,indent=2)+'\n',ROOT/'src/shared/Config/NativeBulletHell.luau':'--!strict\n-- Active original environmental projectile patterns and source hashes; consumed by NativeBulletMotion and BulletHell runtime.\nreturn '+compiler.luau(facts)+'\n'}
     for path,text in outputs.items():
         if path.suffix=='.luau':

@@ -22,6 +22,7 @@ OUTPUT = ROOT / 'src/shared/Config/CharacterWeaponData.luau'
 
 def refresh():
     pck = source.Pck()
+    source.verify_reference(pck)
     rows = []
     for family in FAMILIES:
         tiers = []
@@ -72,7 +73,7 @@ def refresh():
     molotov = next(row for row in rows if row['id'] == 'Molotov')
     scene = 'res://entities/gpe/fire_puddle/fire_puddle.tscn'
     molotov['geometry'] = {'source': scene, 'sourceMd5': pck.entries[scene]['md5'], 'radiusPoints': 40, 'note': 'Circle collision radius40; tier scale is uniform. Sprite-only y scale0.7 does not squash collision. FirePuddle uses0.2s TRANS_BACK/EASE_OUT spawn, disables collision at lifetime expiry.'}
-    FACTS.write_text(json.dumps({'version': '1.2.0.1', 'steamBuild': 26406319, 'explosionGeometry': {'source':'res://projectiles/explosion.tscn','sourceMd5':pck.entries['res://projectiles/explosion.tscn']['md5'],'radiusPoints':147.34,'offsetZPoints':3}, 'weapons': rows}, indent=2) + '\n', encoding='utf-8')
+    FACTS.write_text(json.dumps({'version': '1.2.0.2', 'steamBuild': 26615634, 'explosionGeometry': {'source':'res://projectiles/explosion.tscn','sourceMd5':pck.entries['res://projectiles/explosion.tscn']['md5'],'radiusPoints':147.34,'offsetZPoints':3}, 'weapons': rows}, indent=2) + '\n', encoding='utf-8')
 
 def generate():
     facts = json.loads(FACTS.read_text(encoding='utf-8'))

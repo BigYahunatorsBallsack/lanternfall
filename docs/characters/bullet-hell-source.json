@@ -1,6 +1,6 @@
 {
-  "version": "1.2.0.1",
-  "steamBuild": 26406319,
+  "version": "1.2.0.2",
+  "steamBuild": 26615634,
   "sources": [
     {
       "source": "res://singletons/zone_service.tscn",
@@ -8,7 +8,7 @@
     },
     {
       "source": "res://main.gdc",
-      "sourceMd5": "903bd37107ab9c164addda2167477fb1"
+      "sourceMd5": "7fe126c48998aaa276685bdfc4746e0a"
     },
     {
       "source": "res://singletons/zone_service.gdc",

@@ -1,4 +1,4 @@
-"""Compile the checked-in neutral Brotato 1.2.0.1 character facts into Luau config.
+"""Compile the checked-in neutral Brotato 1.2.0.2 character facts into Luau config.
 
 No network or game executable is needed. Unhandled source rules stay explicit in
 remainingRules; this compiler does not claim to implement their runtime policies.

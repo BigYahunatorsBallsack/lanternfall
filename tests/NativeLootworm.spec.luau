@@ -15,6 +15,54 @@ local function actor(sheet)
 	return o
 end
 describe("Native Lootworm", function()
+	it("prefers trees not targeted by another owner's Lootworm and falls back when all trees are targeted", function()
+		Enemy.killAll()
+		local close = assert(Enemy.spawn("Tree", 10, 0, 1, 0, nil, nil, 0))
+		local far = assert(Enemy.spawn("Tree", 30, 0, 1, 0, nil, nil, 0))
+		local first, second = actor(), actor()
+		second.owner, second.id = f.peer, 10001
+		Worm.goal(first, { first, second })
+		expect(first.lootTarget.id).toBe(close)
+		Worm.goal(second, { first, second })
+		expect(second.lootTarget.id).toBe(far)
+		local third = actor()
+		Worm.goal(third, { first, second, third })
+		expect(third.lootTarget.id).toBe(close)
+		Enemy.killAll()
+	end)
+	it("spreads material targets across Lootworms without treating tree IDs as material claims", function()
+		-- Fixture start removes opening trees through real deaths, which otherwise leave extra gold.
+		XP.setPaused(true)
+		f.start("WatchmanPistol")
+		f.Weapons.setPaused(true)
+		XP.setPaused(false)
+		local Random = require(f.S.RandomService)
+		local number = Random.number
+		-- Coop material amounts round probabilistically; hold the real Loot stream at its upper bound.
+		Random.number = function(stream, ...)
+			return if stream == "Loot" then 0.999 else number(stream, ...)
+		end
+		XP.dropMaterials(Vector3.new(20, y, 0), 1, 0)
+		XP.dropMaterials(Vector3.new(60, y, 0), 1, 0)
+		Random.number = number
+		expect(XP.getOrbCount()).toBe(2)
+		local first, second = actor(), actor()
+		second.owner, second.id = f.peer, 10001
+		Worm.goal(first, { first, second })
+		Worm.goal(second, { first, second })
+		expect(first.lootTarget.tree).toBe(false)
+		expect(second.lootTarget.tree).toBe(false)
+		expect(first.lootTarget.id ~= second.lootTarget.id).toBe(true)
+		local third = actor()
+		Worm.goal(third, { first, second, third })
+		expect(third.lootTarget.id).toBe(first.lootTarget.id)
+		local fourth = actor()
+		local nonworm = { pet = Pets.kinds.BonkDog, lootTarget = first.lootTarget }
+		local treeTarget = { pet = Pets.kinds.Lootworm, lootTarget = { tree = true, id = first.lootTarget.id } }
+		Worm.goal(fourth, { nonworm, treeTarget, fourth })
+		expect(fourth.lootTarget.id).toBe(first.lootTarget.id)
+		XP.setPaused(true)
+	end)
 	it("always prefers trees and invalidates targets when a new neutral or material appears", function()
 		XP.setPaused(false)
 		XP.dropMaterials(Vector3.new(1, y, 0), 1, 0)

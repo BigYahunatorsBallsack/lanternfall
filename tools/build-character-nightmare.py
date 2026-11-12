@@ -15,13 +15,14 @@ def main():
     source = module('nightmare_source', ROOT/'tools/character-source.py')
     compiler = module('nightmare_catalog', ROOT/'tools/build-character-catalog.py')
     pck = source.Pck(source.DEFAULT_PCK)
+    source.verify_reference(pck)
     path = 'res://items/difficulties/6-Nightmare/difficulty_6.tres'
     difficulty = pck.resource(path)['properties']
     effects = []
     for ref in difficulty['effects']:
         data = pck.resource(ref['resource'])['properties']
         effects.append({'source':ref['resource'],'sourceMd5':pck.entries[ref['resource']]['md5'],'key':data['key'],'value':data['value'],'storageMethod':data['storage_method'],'textKey':data['text_key']})
-    facts = {'version':'1.2.0.1','steamBuild':26406319,'source':path,'sourceMd5':pck.entries[path]['md5'],'level':difficulty['value'],'nameKey':difficulty['name'],'effects':effects,
+    facts = {'version':'1.2.0.2','steamBuild':26615634,'source':path,'sourceMd5':pck.entries[path]['md5'],'level':difficulty['value'],'nameKey':difficulty['name'],'effects':effects,
         'ruleSources':[{'source':path,'sourceMd5':pck.entries[path]['md5']} for path in ['res://singletons/run_data.gdc','res://singletons/progress_data.gdc']],
         'unlock':{'danger':5,'characterZoneWins':10},'events':{'firstBlock':10,'lastOffset':9,'fogPerBlock':2,'bulletsPerBlock':3,'defaultConstantProjectiles':True,'earlyFog':[5,6,7],'earlyBullets':[[1,2],[3,4],[5,6,7],[8,9,10]]}}
     zone_rows = {}

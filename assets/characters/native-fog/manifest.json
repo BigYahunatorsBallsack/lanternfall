@@ -5,6 +5,8 @@
   "installedVersion": "1.2.0.2",
   "installedSteamBuild": 26615634,
   "original1201IdentityVerified": false,
+  "targetVersion": "1.2.0.2",
+  "targetIdentityVerified": true,
   "size": [
     512,
     512

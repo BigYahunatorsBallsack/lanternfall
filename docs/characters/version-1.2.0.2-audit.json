@@ -3,9 +3,9 @@
   "toVersion": "1.2.0.2",
   "ownerDecisionDate": "2026-11-13",
   "baseMain": "4cf1050760002a496856a2b7c0b6024f0987a4f1",
-  "complete": false,
+  "complete": true,
   "existingCodePrepared": 48,
-  "existingPackagesRevalidatedForNewVersion": false,
+  "existingPackagesRevalidatedForNewVersion": true,
   "matchingScripts": 558,
   "changedScripts": [
     {
@@ -24,13 +24,13 @@
       "source": "res://effects/items/item_exploding_effect.gdc",
       "originalMd5": "153faf24f919a1c08b22ef4c9421d8d3",
       "installedMd5": "7d79843f6d2da31d8473aac0c0ef108d",
-      "review": "reviewed; no additional change identified for existing character-specific rules"
+      "review": "reviewed: existing non-mutated chance values use integral percentage descriptions; rounding for future mutated effects remains part of mutation work"
     },
     {
       "source": "res://effects/weapons/burning_effect.gdc",
       "originalMd5": "4c06ed9e91392f66b4984f8a672e9add",
       "installedMd5": "876d888c5e2dbc56444b29042216d017",
-      "review": "reviewed; no additional change identified for existing character-specific rules"
+      "review": "reviewed: pet and weapon tooltip helpers use computed scaling; focused native pet text/UI checks pass"
     },
     {
       "source": "res://entities/gpe/dig_site/dig_site.gdc",
@@ -84,13 +84,13 @@
       "source": "res://entities/units/player/player.gdc",
       "originalMd5": "80ac166ba6b5c71fbf220bcd43ddc90e",
       "installedMd5": "c54efc9b5765e1a75fadd05d35e167d2",
-      "review": "pending: audit capped consumable gains; Jungle acid timer remains future area work"
+      "review": "reviewed: existing Extra Stomach is unique and gains1HP per fruit, capped at8firings, so the new partial-gain clamp cannot change its current non-mutated behavior. Mutated effects and Jungle acid tick remain future work."
     },
     {
       "source": "res://entities/units/target_behavior/lootworm_target_behavior.gdc",
       "originalMd5": "848b772ba35a3676d66235d18b8ee463",
       "installedMd5": "a88e18cf5c3be8c5e5c9ddfde4eb278f",
-      "review": "pending: prefer targets not selected by other Lootworms; fallback to claimed target"
+      "review": "implemented and tested: prefer untargeted trees/materials across all Lootworm owners, fallback to targeted candidates"
     },
     {
       "source": "res://projectiles/laser_enemy/enemy_laser.gdc",
@@ -228,7 +228,7 @@
       "source": "res://weapons/melee/whip/whip.gdc",
       "originalMd5": "112ce08d05bfd7c5a28dc4ff04bfda19",
       "installedMd5": "6b8c62a66e6af698906823ad8e843cf3",
-      "review": "pending: extend collision back to weapon anchor; lifetime Jungle counter unchanged"
+      "review": "implemented and tested: collision extends back by3.4studs at unchanged tip/range; direct Whip Jungle counter unchanged"
     },
     {
       "source": "res://zones/zone_data.gdc",
@@ -257,6 +257,152 @@
     "Variant": "replace Wildfire Mutation with mutate_on_equip; package not ready"
   },
   "originalSourcePreserved": "build/character-source/native; old neutral source copied to build/character-source/source-1.2.0.1.json",
-  "currentSourceCandidate": "build/character-source/source-1.2.0.2.json",
-  "acceptance": "Code and local mock tests only; assets, Studio, native graphics, area/world acceptance remain open. No additional ready character counted."
+  "currentSourceCandidate": "adopted into docs/characters/source.json and Config.CharacterCatalog",
+  "acceptance": "Code and local mock tests only; assets, Studio, native graphics, area/world acceptance remain open. No additional ready character counted.",
+  "auditScope": "Version changes affecting the 48 previously code-prepared character packages. This is not native full-game/Studio acceptance.",
+  "newCharacterReadyFlags": 0,
+  "sourceCompilerGuards": "Approved version and Steam build are checked before source generation.",
+  "resourceProof": {
+    "startingWeaponFacts": {
+      "checked": 360,
+      "changed": 0
+    },
+    "weaponAccess": {
+      "records": 91,
+      "changedResources": 0
+    },
+    "petFacts": {
+      "sourceRowsChecked": 41,
+      "changedRuleScripts": 4,
+      "numericPetConfigUnchanged": true
+    },
+    "nightmareRulesEffectsEventsUnchanged": true,
+    "nightmareEnemyStatsAndAttackFactsUnchanged": true,
+    "bulletHellPatternsAndRulesUnchanged": true,
+    "fogRulesLightsAndRuntimeSettingsUnchanged": true
+  },
+  "translationProof": {
+    "currentCsvSha256": "de1623e3cba939b960c21997d3e80a8d4ae8ea54ff5259773d047937c768a412",
+    "sixPetTooltipsUnchanged": true,
+    "sharedEnglishKeysChanged": 14,
+    "changes": "13 Jungle enemy codex descriptions and FOG_VISIBILITY label; no existing character rule template changed",
+    "exportIncompleteKeys": 89,
+    "completeNewTranslationCatalogClaimed": false
+  },
+  "validation": {
+    "baselineSpecs": 274,
+    "baselinePassed": 1702,
+    "baselineFailed": 36,
+    "specs": 275,
+    "passed": 1709,
+    "failed": 37,
+    "additionalFailureNamesVsLastBaseline": [
+      [
+        "tests/EnemiesB9.spec.luau",
+        "FAIL new enemies (B9) > lets a Gobbler eat the orbs on the floor and drop them all when killed"
+      ]
+    ],
+    "additionalFailureExplanation": "Only the previously documented Gobbler random/performance fluctuation; not claimed fixed. See earlier baseline with the same failure.",
+    "aborts": [],
+    "postSuiteChanges": "Provenance/versions/script hashes/source-compiler guards only; numerical runtime fields compared equal. Pet config unchanged.",
+    "postProvenanceFocused": [
+      {
+        "spec": "NativeFog",
+        "exit": 0,
+        "passed": 5,
+        "failed": 0
+      },
+      {
+        "spec": "NativeFogActors",
+        "exit": 0,
+        "passed": 3,
+        "failed": 0
+      },
+      {
+        "spec": "NativeFogService",
+        "exit": 0,
+        "passed": 6,
+        "failed": 0
+      },
+      {
+        "spec": "NativeFogSurface",
+        "exit": 0,
+        "passed": 3,
+        "failed": 0
+      },
+      {
+        "spec": "NativeNightmarePlan",
+        "exit": 0,
+        "passed": 7,
+        "failed": 0
+      },
+      {
+        "spec": "NativeNightmareSelection",
+        "exit": 0,
+        "passed": 5,
+        "failed": 0
+      },
+      {
+        "spec": "NativeNightmareVictory",
+        "exit": 0,
+        "passed": 2,
+        "failed": 0
+      },
+      {
+        "spec": "NativeNightmareEnemyRuntime",
+        "exit": 0,
+        "passed": 6,
+        "failed": 0
+      },
+      {
+        "spec": "NativeBulletHell",
+        "exit": 0,
+        "passed": 4,
+        "failed": 0
+      },
+      {
+        "spec": "NativeBulletHellService",
+        "exit": 0,
+        "passed": 4,
+        "failed": 0
+      },
+      {
+        "spec": "NativePetText",
+        "exit": 0,
+        "passed": 6,
+        "failed": 0
+      },
+      {
+        "spec": "NativePetTooltipUi",
+        "exit": 0,
+        "passed": 2,
+        "failed": 0
+      },
+      {
+        "spec": "NativeLootworm",
+        "exit": 0,
+        "passed": 7,
+        "failed": 0
+      },
+      {
+        "spec": "NativeWhipProgress",
+        "exit": 0,
+        "passed": 5,
+        "failed": 0
+      },
+      {
+        "spec": "CharacterWhip",
+        "exit": 0,
+        "passed": 4,
+        "failed": 0
+      },
+      {
+        "spec": "CharacterFlail",
+        "exit": 0,
+        "passed": 2,
+        "failed": 0
+      }
+    ],
+    "studio": false
+  }
 }

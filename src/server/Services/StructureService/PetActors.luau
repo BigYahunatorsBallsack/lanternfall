@@ -302,7 +302,7 @@ function Actors.step(
 		for _, o in members do
 			local target
 			if o.pet.lootworm then
-				target = Worm.goal(o)
+				target = Worm.goal(o, members)
 			elseif o.pet.catling then
 				o.catBoosted = Cat.boosted(o, members)
 				o.bodyKind.anchored = o.catBoosted

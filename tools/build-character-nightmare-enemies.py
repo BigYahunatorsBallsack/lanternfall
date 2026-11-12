@@ -9,6 +9,7 @@ def module(name,path):
 def main():
  parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--check',action='store_true');args=parser.parse_args()
  source=module('nightmare_enemy_source',ROOT/'tools/character-source.py');compiler=module('nightmare_enemy_catalog',ROOT/'tools/build-character-catalog.py');scenes=module('nightmare_enemy_scenes',ROOT/'tools/build-character-bullet-hell.py');pck=source.Pck(source.DEFAULT_PCK)
+ source.verify_reference(pck)
  rows={}
  names={'bloated_spawner':'BloatedSpawner','dire_junkie':'DireJunkie','horned_fly':'HornedFly','horned_spitter':'HornedSpitter','corrupted_buffer':'CorruptedBuffer','infected_slasher_egg':'InfectedSlasherEgg','mad_slasher':'MadSlasher'}
  for native,identity in names.items():
@@ -60,7 +61,7 @@ def main():
  slash['actorFireAt']=next(t for t,v in zip(prepare_method['times'],prepare_method['values']) if v['method']=='shoot')
  slash['actorAnimationSeconds']=prepare['length']
  slash['actorAnimationSource']={'source':prepare_path,'sourceMd5':pck.entries[prepare_path]['md5']}
- facts={'version':'1.2.0.1','steamBuild':26406319,'minimumDanger':6,'slash':slash,'sources':[{'source':path,'sourceMd5':pck.entries[path]['md5']} for path in common],'circleDefault':{'radius':10,'source':'https://docs.godotengine.org/en/3.5/classes/class_circleshape2d.html'},'shootAnimation':timing,'implemented':['BloatedSpawner','DireJunkie','HornedFly','HornedSpitter','CorruptedBuffer','InfectedSlasherEgg','MadSlasher'],'pending':[],'rules':{'spawnedChildren':5,'allyBoostDuration':boost_duration,'spawnSquarePixels':200,'physicsRate':60,'arrivePixels':10,'projectileRadiusPixels':17},'runtimeCompatibility':{'referencePlayerSpeedPixels':450,'slashVisual':{'floorLift':0.1,'thickness':0.04,'activeTransparency':0.4,'warningTransparency':0.75},'wanderTimeoutSeconds':8,'projectileRangeStuds':300,'mass':1,'note':'Existing engine fallback values, not native source facts; full Area/physics and projectile lifetime acceptance remains open'},'enemies':rows}
+ facts={'version':'1.2.0.2','steamBuild':26615634,'minimumDanger':6,'slash':slash,'sources':[{'source':path,'sourceMd5':pck.entries[path]['md5']} for path in common],'circleDefault':{'radius':10,'source':'https://docs.godotengine.org/en/3.5/classes/class_circleshape2d.html'},'shootAnimation':timing,'implemented':['BloatedSpawner','DireJunkie','HornedFly','HornedSpitter','CorruptedBuffer','InfectedSlasherEgg','MadSlasher'],'pending':[],'rules':{'spawnedChildren':5,'allyBoostDuration':boost_duration,'spawnSquarePixels':200,'physicsRate':60,'arrivePixels':10,'projectileRadiusPixels':17},'runtimeCompatibility':{'referencePlayerSpeedPixels':450,'slashVisual':{'floorLift':0.1,'thickness':0.04,'activeTransparency':0.4,'warningTransparency':0.75},'wanderTimeoutSeconds':8,'projectileRangeStuds':300,'mass':1,'note':'Existing engine fallback values, not native source facts; full Area/physics and projectile lifetime acceptance remains open'},'enemies':rows}
  outputs={ROOT/'docs/characters/nightmare-enemies-source.json':json.dumps(facts,indent=2)+'\n',ROOT/'src/shared/Config/NightmareEnemies.luau':'--!strict\n-- Stable Nightmare enemy facts; NightmareEnemyKinds activates only the explicitly implemented families.\nreturn '+compiler.luau(facts)+'\n'}
  for path,text in outputs.items():
   if path.suffix=='.luau':

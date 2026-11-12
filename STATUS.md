@@ -1006,3 +1006,8 @@ Wounded ergänzt Baby/Jack/Vampire/BeastMaster:48/74 code-vorbereitet aufBranch,
 ### B10 Fortsetzung 13.11.2026: stabile1.2.0.2 und Whip-Zähler
 
 PR149 gemerged (main4cf1050),48/74 bisher code-vorbereitet. Owner wechselt auf stabile1.2.0.2/Build26615634; Prüfung der vorhandenen Pakete noch offen. Whip/Jungle-Lebenszähler mit Profilmigrationv15 und sicherer Kill-Zurechnung ergänzt; Flail nach200 persönlichen direkten Gegnerkills, Bäume/andere Quellen ausgeschlossen. Jungle2 noch nicht spielbar, kein zusätzlicher Charakter gezählt. Vollvergleich275Specs1707/36 gegen Main274Specs1702/36, identische Fehlernamen ohne Abbrüche. Details: docs/characters/HANDOFF.md und whip-progress-validation.json. Branchwp-b10-main-five-nine; nächste Schritte:1.2.0.2-Startauswahlen, Whip-Kollision, Lootworm-Zielwahl, danach echte Jungle-Abhängigkeit für Chunky/Wildling. Keine Uploads/Studioänderung.
+
+
+### B10 Versionsprüfung1.2.0.2 (13.11.2026)
+
+Vorhandene48 code-vorbereitete Pakete gegen relevante Versionsänderungen geprüft; fünf geänderte Start-/Itemverbotsregeln übernommen. Whip/Flail-Kollision und Lootworm-Zielpräferenz auf1.2.0.2 gebracht. Vollsuite1709/37; einziger zusätzlicherFehler gegenüber letztemMainvergleich ist bekannteGobbler-Fluktuation; keineanderenneuenFehler/Abbrüche.16betroffeneSpecs nach reinerProvenanzregeneration grün. KeinezusätzlichenfertigenCharaktere, keineStudio-/Grafik-Gesamtabnahme. Ziel/buildGuard inQuellwerkzeugen, alteQuellenbewahrt. NächsterSchritt: echterJungle2-Pfad fürFlail/Chunky/Wildling; erst danachAbyssal. Details HANDOFF/version-1.2.0.2-audit.json.

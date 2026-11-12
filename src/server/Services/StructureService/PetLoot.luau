@@ -20,7 +20,7 @@ end
 function Worm.clear(o: any)
 	XP.releasePetMaterials(o.id)
 end
-function Worm.goal(o: any): Vector3?
+function Worm.goal(o: any, members: { any }?): Vector3?
 	local ids, trees, spawned = {}, {}, false
 	Enemy.collectIds(ids)
 	for _, id in ids do
@@ -43,17 +43,33 @@ function Worm.goal(o: any): Vector3?
 	if position then
 		return position
 	end
-	local nearest = math.huge
+	local claimedTrees, claimedMaterials = {}, {}
+	for _, other in members or {} do
+		local chosen = other.lootTarget
+		if other ~= o and other.pet.lootworm and chosen then
+			local claimed = if chosen.tree then claimedTrees else claimedMaterials
+			claimed[chosen.id] = true
+		end
+	end
+	local nearest, fallbackDistance = math.huge, math.huge
+	local fallbackId, fallbackPosition
 	o.lootTarget = nil
 	for id in trees do
 		local at = Enemy.getPosition(id)
 		local distance = (at - o.position).Magnitude
-		if distance < nearest then
+		if claimedTrees[id] then
+			if distance < fallbackDistance then
+				fallbackDistance, fallbackId, fallbackPosition = distance, id, at
+			end
+		elseif distance < nearest then
 			nearest, position, o.lootTarget = distance, at, { tree = true, id = id }
 		end
 	end
+	if not position and fallbackId then
+		position, o.lootTarget = fallbackPosition, { tree = true, id = fallbackId }
+	end
 	if not position then
-		local id = XP.nearestMaterial(o.position)
+		local id = XP.nearestMaterial(o.position, claimedMaterials)
 		if id then
 			o.lootTarget = { tree = false, id = id }
 			position = XP.getMaterialPosition(id)

@@ -1,8 +1,8 @@
 --!strict
 -- Stable Nightmare 1 source facts for NightmareRules; difficulty selection stays gated until its full runtime exists.
 return {
-	version = "1.2.0.1",
-	steamBuild = 26406319,
+	version = "1.2.0.2",
+	steamBuild = 26615634,
 	source = "res://items/difficulties/6-Nightmare/difficulty_6.tres",
 	sourceMd5 = "a35824f1341e4493c92ef21dbb6ae22f",
 	level = 6,
@@ -92,11 +92,11 @@ return {
 	ruleSources = {
 		{
 			source = "res://singletons/run_data.gdc",
-			sourceMd5 = "a94d8eddd9609f413309ce9237297ad2",
+			sourceMd5 = "26ade7289f41b63044a9ef11a4377ea2",
 		},
 		{
 			source = "res://singletons/progress_data.gdc",
-			sourceMd5 = "2da3ced0fea7d9f82a41ac55f26082b6",
+			sourceMd5 = "df71b05664adc8dea6977e4ec77dbf51",
 		},
 	},
 	unlock = {
@@ -142,19 +142,19 @@ return {
 				id = 0,
 				nameKey = "ZONE_CRASH_ZONE",
 				source = "res://zones/zone_1_crash/zone_crash_data.tres",
-				sourceMd5 = "27638737e318507d5ed70403a197fe32",
+				sourceMd5 = "3cca83d407e64c22d0bb6b3c87cf0b4b",
 			},
 			["1"] = {
 				id = 1,
 				nameKey = "ZONE_ABYSS",
 				source = "res://zones/zone_2_abyss/zone_abyss_data.tres",
-				sourceMd5 = "c6f079ec012237b69ebf6546c46f5d0b",
+				sourceMd5 = "ee3adf946764e5c5e96a29648a99b8ca",
 			},
 			["2"] = {
 				id = 2,
 				nameKey = "ZONE_JUNGLE",
 				source = "res://zones/zone_3_jungle/zone_jungle_data.tres",
-				sourceMd5 = "2abc1e7863e79efadbd4a3649bf8ffb1",
+				sourceMd5 = "29e0ae83a9a366f58c54d6201e6b04e4",
 			},
 		},
 	},

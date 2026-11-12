@@ -91,7 +91,16 @@ function Whip.step(weapon: Arsenal.Weapon, ctx: Arsenal.Context, dt: number)
 		local dx, dz = swing.dx * c - swing.dz * s, swing.dx * s + swing.dz * c
 		x += swing.dx * forward + dx * stats.whipHitboxOffset
 		z += swing.dz * forward + dz * stats.whipHitboxOffset
-		local count = ctx:querySegment(x, z, x + dx * stats.range, z + dz * stats.range, stats.width, found)
+		-- Stable 1.2.0.2 extends the rectangle back by the initial sprite/hitbox offset.
+		-- The far endpoint and Flail's tip stay unchanged, including range upgrades.
+		local count = ctx:querySegment(
+			x - dx * stats.hitStartOffset,
+			z - dz * stats.hitStartOffset,
+			x + dx * stats.range,
+			z + dz * stats.range,
+			stats.width,
+			found
+		)
 		local atTip: { [number]: boolean } = {}
 		if stats.tipCritRadius then
 			local n = ctx:queryCircle(x + dx * stats.range, z + dz * stats.range, stats.tipCritRadius, tipTargets)

@@ -521,7 +521,26 @@ function ExperienceService.getMaterialPosition(id: number): Vector3?
 	local x, z = field:get(id)
 	return if x and z then Vector3.new(x, Config.Map.arena.center.Y, z) else nil
 end
-function ExperienceService.nearestMaterial(at: Vector3): number?
+function ExperienceService.nearestMaterial(at: Vector3, targeted: { [number]: boolean }?): number?
+	-- Lootworm targets are preferences, separate from actual attraction/pickup ownership.
+	if targeted and next(targeted) ~= nil then
+		local freeId, fallbackId
+		local freeDistance, fallbackDistance = math.huge, math.huge
+		for _, id in field.ids do
+			local x, z = field:get(id)
+			if x and z then
+				local distance = (x - at.X) ^ 2 + (z - at.Z) ^ 2
+				if targeted[id] then
+					if distance < fallbackDistance then
+						fallbackId, fallbackDistance = id, distance
+					end
+				elseif distance < freeDistance then
+					freeId, freeDistance = id, distance
+				end
+			end
+		end
+		return freeId or fallbackId
+	end
 	local _, _, id = field:nearest(at.X, at.Z, math.huge)
 	return id
 end
