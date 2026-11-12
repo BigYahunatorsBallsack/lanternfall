@@ -1221,6 +1221,8 @@ tests/               Unit-Tests für reine Module (Runner in tools/luau-test-run
 
 ## 16. Datenspeicherung & Sicherheit
 
+**B10, Schema v14 (12.11.2026):** `nativeZoneBest[characterId][zoneIdAlsText]` speichert die höchste gewonnene Original-Gefahrenstufe pro Charakter/Gebiet. RunDirector erfasst das Gebiet serverseitig beim Runstart; RunStatsService übergibt es beim abgeschlossenen Ergebnis. Nur Siege ab Welle 20 außerhalb des Tutorials mit bekannten Original-IDs zählen. Die Migration ergänzt eine leere Tabelle und ordnet alte, gebietslose Charakterrekorde keinem Gebiet zu. `ProfileRecords.nightmareUnlocked` / `PlayerDataService.hasNativeNightmareAccess` prüfen zehn unterschiedliche Paare mit Danger ≥ 5; `ProfileInfo.nativeNightmareUnlocked` meldet nur diesen Speicherfortschritt. Die spielbare Auswahl bleibt bis zur vollständigen Nightmare-Laufzeit auf Danger 5 begrenzt. Die bestehende Arena verwendet Crash-Zone-ID 0; ursprüngliche IDs 1/2 machen Abyss/Jungle noch nicht spielbar. Das folgende ältere Schema-Beispiel ist nicht der vollständige aktuelle ProfileTemplate-Vertrag.
+
 **Datenschema v8** (seit Paket 12; v1 → v2 ergänzt Siege, beste Welle, höchste gewonnene Gefahrenstufe und den Rekord pro Charakter; v2 → v3 (Paket 13) Champion-Kills, Wiederbelebungen, verdiente Embers gesamt und die erledigten Erfolge; v3 → v4 (Paket 14) Einstellungen; v4 → v5 (Paket 16) Käufe; v5 → v6 (Paket 18) Quests, Login-Serie, Badges, Wochenbestwerte; v6 → v7 (Paket 19) `tutorial`, First Night erledigt = schon Runs gespielt; v7 → v8 (Paket 22) `settings.graphics` = „Auto")
 
 ```lua

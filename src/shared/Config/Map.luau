@@ -13,6 +13,8 @@ local BROTATO_TILE_PIXELS = 64
 local BROTATO_ZONE_TILES = { width = 32, height = 24 }
 
 return table.freeze({
+	-- The only implemented combat area is the original Crash Zone; future areas must supply their own id.
+	nativeZoneId = require(script.Parent.NativeZones).default,
 	arena = table.freeze({
 		center = Vector3.new(0, 100, 0), -- center of the floor surface
 		-- Brotato's zone (since 09.11.2026; 160 x 160 from the playtest after Paket 24, 300 before): x is Brotato's

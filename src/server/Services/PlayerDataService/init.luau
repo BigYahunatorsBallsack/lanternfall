@@ -606,6 +606,12 @@ function PlayerDataService.maxDanger(player: Player, classId: string?): number
 	return ProgressRules.maxDanger(data :: any, classId)
 end
 
+-- Saved-progress prerequisite only; it does not expose Nightmare before the remaining runtime is implemented.
+function PlayerDataService.hasNativeNightmareAccess(player: Player): boolean
+	local data = PlayerDataService.get(player)
+	return data ~= nil and ProfileRecords.nightmareUnlocked(data)
+end
+
 -- Adds a finished run to the player's record (since Paket 13 with Embers and achievements), saves it and sends the
 -- rewards to the player (RunRewards, a Notify per achievement). False if the data is not loaded; true plus the
 -- rewards otherwise.

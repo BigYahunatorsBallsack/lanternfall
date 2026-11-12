@@ -416,6 +416,7 @@ export type ProfileInfo = {
 	ownedClasses: { string }?, -- characters bought with Embers (unlocked without the achievement)
 	nativeWeaponUnlocks: { [string]: boolean }?, -- native family access for starting weapon choices
 	nativeCharacterUnlocks: { [string]: boolean }?, -- native source access; available new packages consume this mask
+	nativeNightmareUnlocked: boolean?, -- original saved-progress prerequisite; the game mode still requires its runtime gate
 	settings: Settings?, -- Paket 14
 	cosmetics: { owned: { string }, equipped: { [string]: string } }?, -- Paket 17: bought and picked cosmetics
 }

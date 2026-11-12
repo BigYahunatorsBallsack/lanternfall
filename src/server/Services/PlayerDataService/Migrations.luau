@@ -131,6 +131,12 @@ local steps: { [number]: (data: any) -> () } = {
 	[12] = function(data)
 		data.nativeCounts.treesKilled = 0
 	end,
+	-- v13 -> v14: old aggregate character records have no reliable zone provenance.
+	[13] = function(data)
+		if type(data.nativeZoneBest) ~= "table" then
+			data.nativeZoneBest = {}
+		end
+	end,
 }
 
 Migrations.steps = steps
