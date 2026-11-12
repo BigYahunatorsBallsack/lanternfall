@@ -116,7 +116,10 @@ local function artOf(enemy: any): SpritesConfig.EnemyArt?
 	if cached then
 		return cached
 	end
+	-- Pending original art uses the declared existing look instead of creating an invisible actor.
+	-- Image IDs stay in the existing catalog; this fallback is never original-art acceptance.
 	local image = Sprites.enemyImages[enemy.id]
+		or (if enemy.nativeArtPending and enemy.look then Sprites.enemyImages[enemy.look] else nil)
 	if not image then
 		return nil
 	end

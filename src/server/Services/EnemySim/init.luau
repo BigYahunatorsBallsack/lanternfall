@@ -233,7 +233,8 @@ local function fireShots(stepNow: number)
 			local c, s = math.cos(turn), math.sin(turn)
 			dx, dz = dx * c - dz * s, dx * s + dz * c
 		end
-		local startX, startZ = x + dx * kind.radius, z + dz * kind.radius
+		local startX, startZ =
+			if ranged.fromCenter then x else x + dx * kind.radius, if ranged.fromCenter then z else z + dz * kind.radius
 		local id = volleys:fire(
 			startX,
 			startZ,
@@ -305,11 +306,15 @@ local function fireRing(id: number)
 	end
 	local damage = world:getShotDamage(id)
 	local now = workspace:GetServerTimeNow()
-	local turn = RandomService.number("Combat") * 2 * math.pi
+	local turn = if retaliate.randomDirections then 0 else RandomService.number("Combat") * 2 * math.pi
 	for k = 1, retaliate.count do
-		local angle = turn + (k - 1) / retaliate.count * 2 * math.pi
+		local angle = if retaliate.randomDirections
+			then RandomService.number("Combat") * 2 * math.pi
+			else turn + (k - 1) / retaliate.count * 2 * math.pi
 		local dx, dz = math.cos(angle), math.sin(angle)
-		local startX, startZ = x + dx * kind.radius, z + dz * kind.radius
+		local startX, startZ =
+			if retaliate.fromCenter then x else x + dx * kind.radius,
+			if retaliate.fromCenter then z else z + dz * kind.radius
 		local shotId = volleys:fire(
 			startX,
 			startZ,
@@ -834,7 +839,8 @@ function EnemySim.retaliate(id: number, weaponKind: string)
 		and ability
 		and ability.rangedOnly
 		and weaponKind == "Ranged"
-		and RandomService.number("Combat") < (ability.chance or 1)
+		and (ability.chance or 1) ~= 0
+		and RandomService.number("Combat") <= (ability.chance or 1)
 	then
 		fireRing(id)
 	end

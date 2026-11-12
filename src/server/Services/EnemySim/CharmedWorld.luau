@@ -155,8 +155,8 @@ local function fireShots(self: any, dt: number)
 			end
 			self:fire(
 				member,
-				x + dx * member.kind.radius,
-				z + dz * member.kind.radius,
+				if ranged.fromCenter then x else x + dx * member.kind.radius,
+				if ranged.fromCenter then z else z + dz * member.kind.radius,
 				dx,
 				dz,
 				ranged.projectileSpeed,

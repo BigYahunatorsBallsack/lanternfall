@@ -138,6 +138,9 @@ local function launch(
 			petScaling ~= nil and petScaling.elementalDamage ~= nil,
 			prepared ~= nil and def.burning ~= nil
 		)
+		if prepared and not def.isStructure and not killed then
+			Enemy.retaliate(id, "Ranged") -- native Fly variants also react to projectile-shooting pets
+		end
 		if prepared and def.burning and not killed then
 			Weapons.structureBurn(
 				player,

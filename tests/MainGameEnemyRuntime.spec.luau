@@ -124,13 +124,18 @@ describe("main-game enemy runtime", function()
 			return 0.25
 		end
 		EnemySim.retaliate(id, "Ranged")
-		expect(EnemySim.getShotCount()).toBe(before + Config.Enemies.types.Thornback.retaliate.count)
+		expect(EnemySim.getShotCount()).toBe(before + 2 * Config.Enemies.types.Thornback.retaliate.count)
+		RandomService.number = function()
+			return 0.2501
+		end
+		EnemySim.retaliate(id, "Ranged")
+		expect(EnemySim.getShotCount()).toBe(before + 2 * Config.Enemies.types.Thornback.retaliate.count)
 		EnemySim.damage(id, 1e6)
 		RandomService.number = function()
 			return 0
 		end
 		EnemySim.retaliate(id, "Ranged")
-		expect(EnemySim.getShotCount()).toBe(before + Config.Enemies.types.Thornback.retaliate.count)
+		expect(EnemySim.getShotCount()).toBe(before + 2 * Config.Enemies.types.Thornback.retaliate.count)
 		RandomService.number = original
 		clear()
 	end)

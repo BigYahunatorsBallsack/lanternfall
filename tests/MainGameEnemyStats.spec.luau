@@ -71,7 +71,7 @@ describe("main-game wiki enemy stats", function()
 				count += 1
 			end
 		end
-		expect(count).toBe(32)
+		expect(count).toBe(36) -- original 32 plus the four explicitly implemented Nightmare identities
 		for _, kind in Config.Enemies.types do
 			expect(seen[kind.typeId + 128]).toBe(nil)
 		end

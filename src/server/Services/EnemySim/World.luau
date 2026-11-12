@@ -35,6 +35,7 @@
 
 local Shared = game:GetService("ReplicatedStorage").Shared
 local Enemies = require(Shared.Config.Enemies)
+local ShootingClock = require(Shared.Util.NativeEnemyShootingClock)
 local Combat = require(Shared.Config.Combat)
 local PointScale = require(Shared.Config.Stats).range.studsPerPoint
 local DecayingSpeed = require(script.Parent.DecayingSpeed)
@@ -98,6 +99,7 @@ export type World = typeof(setmetatable(
 		contactDamage: { number }, -- damage per touch
 		shotDamage: { number }, -- damage per projectile, 0 for enemies that do not shoot
 		waves: { number }, -- wave at spawn, for flat enemy healing
+		shootingClocks: { ShootingClock.State? },
 		shotCooldown: { number }, -- seconds in fire range until the next shot
 		modes: { number }, -- MODE_*
 		modeTimers: { number }, -- seconds left in the wind-up or recovery; while walking: until a wind-up may start
@@ -186,6 +188,7 @@ function World.new(params: Params): World
 		shotDamage = {},
 		waves = {},
 		shotCooldown = {},
+		shootingClocks = {},
 		modes = {},
 		modeTimers = {},
 		rushXs = {},
@@ -244,6 +247,7 @@ function World.new(params: Params): World
 		self.shotDamage,
 		self.waves,
 		self.shotCooldown,
+		self.shootingClocks,
 		self.modes,
 		self.modeTimers,
 		self.rushXs,
@@ -330,6 +334,11 @@ function World.spawn(
 	self.shotDamage[i] = shotDamage or World.baseShotDamage(kind)
 	self.waves[i] = wave or 1
 	self.shotCooldown[i] = if ranged then ranged.fireInterval * spread else 0
+	self.shootingClocks[i] = if ranged and ranged.nativeTiming
+		then ShootingClock.new(ranged.nativeTiming, function()
+			return nextRandom(self)
+		end)
+		else nil
 	self.modes[i] = MODE_WALK
 	-- a charger starts with a whole rolled cooldown (Brotato ChargingAttackBehavior._ready)
 	self.modeTimers[i] = if kind.charge
@@ -1470,7 +1479,7 @@ function World.step(
 		local ranged = kinds[i].ranged
 		if ranged and shotDamage[i] > 0 and targetCount > 0 then
 			local x, z = xs[i], zs[i]
-			local best, bestSquared = 0, ranged.fireRange * ranged.fireRange
+			local best, bestSquared = 0, if ranged.nativeTiming then math.huge else ranged.fireRange * ranged.fireRange
 			for t = 1, targetCount do
 				local dx, dz = hitXs[t] - x, hitZs[t] - z
 				local squared = dx * dx + dz * dz
@@ -1478,19 +1487,38 @@ function World.step(
 					best, bestSquared = t, squared
 				end
 			end
-			if best > 0 then
+			local fires = false
+			if ranged.nativeTiming then
+				local minRange = ranged.minFireRange or 0
+				fires = ShootingClock.step(
+					self.shootingClocks[i] :: ShootingClock.State,
+					ranged.nativeTiming,
+					dt,
+					best > 0
+						and bestSquared <= ranged.fireRange * ranged.fireRange
+						and bestSquared >= minRange * minRange,
+					function()
+						return nextRandom(self)
+					end
+				)
+			elseif best > 0 then
 				local cooldown = shotCooldown[i] - dt
 				local minRange = ranged.minFireRange or 0
 				if cooldown <= 0 and bestSquared < minRange * minRange then
-					cooldown = 0 -- ready, but the target is too close (Brotato's Junkie min_range)
+					cooldown = 0
 				elseif cooldown <= 0 then
 					cooldown += ranged.fireInterval
+					fires = true
+				end
+				shotCooldown[i] = cooldown
+			end
+			if fires and best > 0 then
+				for _ = 1, ranged.projectileCount or 1 do
 					local k = shotCount * 5
 					shots[k + 1], shots[k + 2], shots[k + 3] = ids[i], x, z
 					shots[k + 4], shots[k + 5] = best, shotDamage[i]
 					shotCount += 1
 				end
-				shotCooldown[i] = cooldown
 			end
 		end
 	end

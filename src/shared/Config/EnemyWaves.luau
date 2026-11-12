@@ -387,7 +387,7 @@ local waves: { Wave } = {
 				minWave = 0,
 				maxWave = 99999,
 				units = {
-					{ enemy = nil, min = 2, max = 2, chance = 1, neutral = false, extraDistance = 0 },
+					{ enemy = "HornedFly", min = 2, max = 2, chance = 1, neutral = false, extraDistance = 0 },
 				},
 			}),
 		}),
@@ -934,7 +934,7 @@ local waves: { Wave } = {
 				minWave = 0,
 				maxWave = 99999,
 				units = {
-					{ enemy = nil, min = 1, max = 1, chance = 1, neutral = false, extraDistance = 0 },
+					{ enemy = "HornedSpitter", min = 1, max = 1, chance = 1, neutral = false, extraDistance = 0 },
 				},
 			}),
 		}),
@@ -1556,7 +1556,7 @@ local waves: { Wave } = {
 				minWave = 0,
 				maxWave = 99999,
 				units = {
-					{ enemy = nil, min = 1, max = 2, chance = 1, neutral = false, extraDistance = 0 },
+					{ enemy = "HornedSpitter", min = 1, max = 2, chance = 1, neutral = false, extraDistance = 0 },
 				},
 			}),
 		}),
@@ -2082,7 +2082,7 @@ local waves: { Wave } = {
 				minWave = 0,
 				maxWave = 99999,
 				units = {
-					{ enemy = nil, min = 1, max = 2, chance = 1, neutral = false, extraDistance = 0 },
+					{ enemy = "BloatedSpawner", min = 1, max = 2, chance = 1, neutral = false, extraDistance = 0 },
 				},
 			}),
 		}),
@@ -2296,7 +2296,7 @@ local waves: { Wave } = {
 				minWave = 0,
 				maxWave = 99999,
 				units = {
-					{ enemy = nil, min = 1, max = 2, chance = 1, neutral = false, extraDistance = 0 },
+					{ enemy = "BloatedSpawner", min = 1, max = 2, chance = 1, neutral = false, extraDistance = 0 },
 				},
 			}),
 			group({ -- 015/d6_group_2.tres
@@ -2488,7 +2488,7 @@ local waves: { Wave } = {
 				minWave = 0,
 				maxWave = 99999,
 				units = {
-					{ enemy = nil, min = 3, max = 4, chance = 1, neutral = false, extraDistance = 0 },
+					{ enemy = "HornedFly", min = 3, max = 4, chance = 1, neutral = false, extraDistance = 0 },
 				},
 			}),
 			group({ -- 016/d6_group_2.tres
@@ -2725,7 +2725,7 @@ local waves: { Wave } = {
 				minWave = 0,
 				maxWave = 99999,
 				units = {
-					{ enemy = nil, min = 1, max = 1, chance = 1, neutral = false, extraDistance = 0 },
+					{ enemy = "BloatedSpawner", min = 1, max = 1, chance = 1, neutral = false, extraDistance = 0 },
 				},
 			}),
 			group({ -- 017/d6_group_corrupted_buffer.tres
@@ -2985,7 +2985,7 @@ local waves: { Wave } = {
 				minWave = 0,
 				maxWave = 99999,
 				units = {
-					{ enemy = nil, min = 1, max = 1, chance = 1, neutral = false, extraDistance = 0 },
+					{ enemy = "BloatedSpawner", min = 1, max = 1, chance = 1, neutral = false, extraDistance = 0 },
 				},
 			}),
 			group({ -- 018/d6_group_2.tres
@@ -3482,7 +3482,7 @@ local waves: { Wave } = {
 				minWave = 0,
 				maxWave = 99999,
 				units = {
-					{ enemy = nil, min = 1, max = 1, chance = 1, neutral = false, extraDistance = 0 },
+					{ enemy = "BloatedSpawner", min = 1, max = 1, chance = 1, neutral = false, extraDistance = 0 },
 				},
 			}),
 			group({ -- 020/d6_group_2.tres

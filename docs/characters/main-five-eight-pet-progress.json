@@ -629,27 +629,22 @@
       "Personal isolation and saved MemoryStore rejoin"
     ],
     "latestFullSuite": {
-      "artifact": "build/native-five-branch-eight-nightmare-bullets-6bb5174.json",
+      "artifact": "build/native-five-branch-eight-nightmare-enemies-final-6bb5174.json",
       "baselineMain": "6bb5174f31bee9b839cc9a04ee406d1f549de051",
       "baselineSpecs": 222,
       "baselinePassed": 1488,
       "baselineFailed": 37,
-      "branchSpecs": 257,
-      "branchPassed": 1631,
-      "branchFailed": 37,
-      "additionalSpecs": 35,
-      "additionalChecksPassed": 143,
+      "branchSpecs": 261,
+      "branchPassed": 1646,
+      "branchFailed": 38,
+      "additionalSpecs": 39,
+      "additionalChecksPassed": 159,
       "aborts": 0,
-      "newDeterministicFailures": [],
-      "knownCpuBoundaryFailure": {
-        "spec": "CharmedWorld.spec.luau",
-        "milliseconds": 4.158,
-        "limitMilliseconds": 4,
-        "previouslyConfirmedOnUnchangedMain": true
-      },
-      "resolvedKnownFlake": "EnemiesB9 Gobbler orb eating green in this run",
+      "newFailure": "MainGameEnemyRuntime assumed that native chance .25 excludes a roll exactly .25",
+      "followup": "Corrected the source expectation to include equality and reject .2501, preserving corpse/melee checks; focused9/0. No functional production change after full suite. Full suite not repeated after test-only correction.",
+      "remainingFailuresExactlyMatchBaselineNames": true,
       "perf22Passed": true,
-      "afterFullSuite": "No production changes. Strengthened two focused specs to check a real truncated extended packet and actual client positions; both4/0. Full suite not repeated after assertion-only additions."
+      "charmedWorldBudgetPassedInThisRun": true
     },
     "runtimeResearch": {
       "activeBulletPatterns": 12,
@@ -721,11 +716,141 @@
       "nightmarePerformanceAccepted": false,
       "remaining": [
         "fog renderer",
-        "six Nightmare enemies",
+        "Corrupted Buffer, Infected Slasher Egg and Mad Slasher",
         "complete difficulty6 modifiers/options/unlock integration",
         "source graphics",
         "global enemy time factor",
         "native physics and Studio/mobile acceptance"
+      ]
+    },
+    "implementedNightmareEnemyFamilies": [
+      "BloatedSpawner",
+      "DireJunkie",
+      "HornedFly",
+      "HornedSpitter"
+    ],
+    "pendingNightmareEnemyFamilies": [
+      "CorruptedBuffer",
+      "InfectedSlasherEgg",
+      "MadSlasher"
+    ],
+    "bulletFullSuite": {
+      "artifact": "build/native-five-branch-eight-nightmare-bullets-6bb5174.json",
+      "baselineMain": "6bb5174f31bee9b839cc9a04ee406d1f549de051",
+      "baselineSpecs": 222,
+      "baselinePassed": 1488,
+      "baselineFailed": 37,
+      "branchSpecs": 257,
+      "branchPassed": 1631,
+      "branchFailed": 37,
+      "additionalSpecs": 35,
+      "additionalChecksPassed": 143,
+      "aborts": 0,
+      "newDeterministicFailures": [],
+      "knownCpuBoundaryFailure": {
+        "spec": "CharmedWorld.spec.luau",
+        "milliseconds": 4.158,
+        "limitMilliseconds": 4,
+        "previouslyConfirmedOnUnchangedMain": true
+      },
+      "resolvedKnownFlake": "EnemiesB9 Gobbler orb eating green in this run",
+      "perf22Passed": true,
+      "afterFullSuite": "No production changes. Strengthened two focused specs to check a real truncated extended packet and actual client positions; both4/0. Full suite not repeated after assertion-only additions."
+    },
+    "nightmareEnemies": {
+      "source": "nightmare-enemies-source.json",
+      "compiler": "tools/build-character-nightmare-enemies.py",
+      "sourceIdentities": 7,
+      "activeFamilies": [
+        "BloatedSpawner",
+        "DireJunkie",
+        "HornedFly",
+        "HornedSpitter"
+      ],
+      "pendingSourceOnly": [
+        "CorruptedBuffer",
+        "InfectedSlasherEgg",
+        "MadSlasher"
+      ],
+      "implementedTypeIds": [
+        33,
+        34,
+        35,
+        36
+      ],
+      "waveGroupMappingsAdded": 9,
+      "minimumDanger": 6,
+      "publicDifficulty6Exposed": false,
+      "originalArtAccepted": false,
+      "declaredExistingArtFallback": true,
+      "imageIdsChanged": false,
+      "clock": "src/shared/Util/NativeEnemyShootingClock.luau",
+      "clockRetainedByCompactionAndCharm": true,
+      "originalChanceIncludesEquality": true,
+      "petProjectileCountersExcludeBotOMine": true,
+      "nativePhysicsAccepted": false,
+      "studioAccepted": false,
+      "tests": {
+        "NativeEnemyShootingClock": [
+          3,
+          0
+        ],
+        "NativeNightmareEnemies": [
+          6,
+          0
+        ],
+        "NativeNightmareEnemyRuntime": [
+          6,
+          0
+        ],
+        "NativeNightmareEnemyArt": [
+          1,
+          0
+        ]
+      },
+      "regressionsFocused": {
+        "EnemyWorld": [
+          48,
+          0
+        ],
+        "NativeBulletHellService": [
+          4,
+          0
+        ],
+        "WorldSprites": [
+          12,
+          0
+        ],
+        "MainGameEnemyStats": [
+          29,
+          0
+        ],
+        "MainGameEnemyRuntime": [
+          9,
+          0
+        ]
+      },
+      "intermediateFullSuite": {
+        "artifact": "build/native-five-branch-eight-nightmare-enemies-6bb5174.json",
+        "specs": 260,
+        "passed": 1644,
+        "failed": 39,
+        "newFailureNames": [
+          "MainGameEnemyStats fixed32 count",
+          "WorldSprites missing new family art",
+          "WorldSprites missing new family Gloom art"
+        ],
+        "resolvedBy": "Count36 keeps all uniqueness assertions; explicit nativeArtPending look fallback keeps current IDs and all sprite coverage, no fabricated native art acceptance"
+      },
+      "fixtureCorrections": [
+        "World.getMultipliers includes wave growth; inherited maxHP assertion already passed",
+        "Native Charm requires HP strictly below threshold; damage1 before conversion"
+      ],
+      "remainingRuntimeCompatibility": [
+        "Existing engine wandering timeout8 seconds",
+        "Existing projectile bound/range convention300 studs",
+        "Existing collision mass convention1",
+        "Native Area/physics/deferred hit semantics and source art not accepted"
       ]
     }
   }
