@@ -43,6 +43,10 @@ function Rules.scaling(base: { { any } }, beastMaster: boolean?, modifiers: { [s
 end
 
 -- Intrinsic pet burn keeps its own scaling; global burn contributes only its flat base damage.
+function Rules.weaponScaling(def: any, sheet: { [string]: number }, beastMaster: boolean?): { [string]: number }
+	return Damage.scaling(Rules.scaling(def.scaling, beastMaster), sheet)
+end
+
 function Rules.burnDamage(def: any, sheet: { [string]: number }, beastMaster: boolean?): number
 	local flat = def.damage + (sheet.nativeGlobalBurnDamage or 0)
 	for id, share in Rules.scaling(def.scaling, beastMaster) do
@@ -59,7 +63,7 @@ function Rules.compute(
 	scalingModifiers: { [string]: number }?
 ): any
 	local flat = def.damage
-	for id, share in Rules.scaling(def.scaling, beastMaster, scalingModifiers) do
+	for id, share in Damage.scaling(Rules.scaling(def.scaling, beastMaster, scalingModifiers), sheet) do
 		flat += share * (sheet[id] or 0)
 	end
 	local percent = (sheet.damage or 0)
@@ -68,7 +72,7 @@ function Rules.compute(
 	local rangeBonus = if def.isStructure
 		then sheet.structureRange or 0
 		else (sheet.range or 0) * (if def.isRanged then 1 else Stats.range.meleeFactor)
-	local critical = not def.isStructure or structuresCanCrit == true
+	local critical = not def.isStructure or structuresCanCrit == true or (sheet.structuresCanCrit or 0) > 0
 	local knockback = sheet.knockback or 0
 	if def.negativeKnockback and not def.positiveKnockback then
 		knockback = -knockback

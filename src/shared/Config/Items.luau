@@ -5,6 +5,7 @@
 -- HP and healing use original Brotato units (current main). Source facts: docs/item-parity/catalog.json.
 
 local Effects = require(script.Parent.Effects)
+local ModifierItems = require(script.Parent.WeaponModifiers).items
 
 export type Item = {
 	description: string?,
@@ -681,6 +682,24 @@ table.insert(
 	})
 )
 -- Original pet actors stay artwork-gated until actual original uploads are supplied.
+for id, source in ModifierItems do
+	table.insert(
+		LIST,
+		table.freeze({
+			id = id,
+			displayName = source.displayName,
+			tier = source.tier,
+			price = source.price,
+			limit = source.limit,
+			available = false,
+			stats = table.freeze(source.stats),
+			tags = table.freeze(source.tags),
+			effects = table.freeze({
+				table.freeze({ trigger = "Always", action = "Stats", stats = table.freeze(source.modifiers) }),
+			}),
+		})
+	)
+end
 table.insert(
 	LIST,
 	table.freeze({

@@ -46,7 +46,9 @@ function OfferText.stats(id: string, tier: number, sheet: { [string]: number }):
 	end
 	local damage = (result.damage or 0) * (1 + damageBonus)
 	damage = NativeDamage.base(damage, result, sheet)
-	for stat, share in (if weapon.tierScaling then weapon.tierScaling[tier] else weapon.scaling) do
+	for stat, share in
+		NativeDamage.scaling(if weapon.tierScaling then weapon.tierScaling[tier] else weapon.scaling, sheet)
+	do
 		damage += share * (sheet[stat] or 0)
 	end
 	damage += (result.levelScaling or 0) * (sheet.level or 0)

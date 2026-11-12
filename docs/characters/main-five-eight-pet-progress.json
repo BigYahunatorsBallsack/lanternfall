@@ -1,5 +1,5 @@
 {
-  "date": "2026-11-11",
+  "date": "2026-11-12",
   "mainCommit": "6bb5174f31bee9b839cc9a04ee406d1f549de051",
   "scope": "Unmerged prerequisites for Baby,Jack,Vampire,Wounded,BeastMaster; no additional complete character package counted",
   "codePreparedOnMain": 43,
@@ -11,19 +11,14 @@
       "failed": 37
     },
     "branch": {
-      "specs": 247,
-      "passed": 1579,
-      "failed": 38
+      "specs": 249,
+      "passed": 1596,
+      "failed": 37
     },
-    "newFailureNames": [
-      {
-        "spec": "tests/CharmedWorld.spec.luau",
-        "failure": "FAIL Charmed faction runtime > steps a mixed hostile and friendly crowd within the shared simulation budget"
-      }
-    ],
+    "newFailureNames": [],
     "removedFailureNames": [],
     "aborts": [],
-    "branchResult": "build/native-five-branch-eight-range-6bb5174.json",
+    "branchResult": "build/native-five-branch-eight-modifiers-final-6bb5174.json",
     "confirmedBaselineFluctuations": [
       {
         "iteration": 1,
@@ -157,7 +152,8 @@
       }
     ],
     "newDeterministicFailureNames": [],
-    "additionalChecksPassed": 92
+    "additionalChecksPassed": 108,
+    "additionalSpecs": 27
   },
   "focused": {
     "tests/CharacterBabyPackage.spec.luau": {
@@ -258,6 +254,14 @@
     },
     "tests/NativePetRangeEntry.spec.luau": {
       "passed": 2,
+      "failed": 0
+    },
+    "tests/NativePetModifiers.spec.luau": {
+      "passed": 10,
+      "failed": 0
+    },
+    "tests/NativeStructureCritUnlock.spec.luau": {
+      "passed": 6,
       "failed": 0
     }
   },
@@ -463,5 +467,66 @@
     "usesProductionActors": true,
     "nativeBodyAreaPhaseParityAccepted": false,
     "newCompleteCharacterCounted": false
+  },
+  "petSupportingModifiers": {
+    "items": [
+      "Nail",
+      "FrozenHeart",
+      "PileOfBooks"
+    ],
+    "facts": "pet-modifiers.json",
+    "publicArtworkCount": 125,
+    "pendingArtworkCount": 11,
+    "runtimeItems": 136,
+    "localOriginalIconsPrepared": 3,
+    "uploadedCount": 0,
+    "newNativeCodeReadyFlags": 0,
+    "intrinsicBurnAdditionalScaling": false,
+    "additionalScalingAfterBeastMaster": true,
+    "ordinaryStructuresExcludeWeaponScaling": true,
+    "normalAndBotMineCritsTested": true,
+    "normalWeaponAndOfferParityTested": true,
+    "carbonVariantsTested": true,
+    "sixScalingWeaponUnlockIncludesAddedEntries": true,
+    "nativeItemAndCharacterExplosionFlatTruncation": true,
+    "originalSourceScriptsCommitted": false
+  },
+  "modifierRegressionCorrection": {
+    "firstFullSuite": {
+      "specs": 249,
+      "passed": 1590,
+      "failed": 39
+    },
+    "newFailuresDetected": [
+      "tests/EffectRules.spec.luau: blank hidden-modifier effect text",
+      "tests/Perf22.spec.luau: missing fallback critical multiplier on a legacy structure, causing 39 runtime errors"
+    ],
+    "fixed": true,
+    "finalPerf22Passed": true,
+    "networkBudgetChanged": false,
+    "newLegacyCritBoundaryTest": true,
+    "effectTextSourceTemplateAdded": true
+  },
+  "additionalScalingMutation": {
+    "mutation": "Remove additional weapon and pet scaling coefficients",
+    "detected": true,
+    "restoredByteExactly": true,
+    "sha256": "cc36cb8c5a1351eb9e5ed50fd78d33dd5ea93f71289502fa1d5217b18fc0e2a6",
+    "output": "[Lanternfall] Place: lobby and arena in one server (no hub/run place ids for this place in Config.Places)\n[Lanternfall] Server ready: 73 remotes, 37 services, config problems: 0\n[Lanternfall] Saving: memory only (no DataStoreService)\n[Lanternfall] Badge \"Lantern Lit\" earned but not set up (Config/Badges.luau id is 0)\n[Lanternfall] Owner login streak day 1: +25 Embers\n[Lanternfall] Peer login streak day 1: +25 Embers\n[Lanternfall] Launch check: 1 must, 2 should open (debug button \"Launch check\" lists them)\nFAIL Native pet supporting modifiers > applies additional scaling after Beast Master, including originally empty Lootworm scaling\n     tests/NativePetModifiers.spec.luau:30: expected 81, got 70\n[Lanternfall] Run started with 2 player(s), Danger 0\n[Lanternfall] Run seed 228619419 (Config.Run.seed replays it)\nFAIL Native pet supporting modifiers > grants real item modifiers to one owner and keeps normal weapon damage and shop previews aligned\n     tests/NativePetModifiers.spec.luau:56: expected 0.2, got 0\nFAIL Native pet supporting modifiers > also applies the real item scaling to an ordinary item explosion exactly once\n     tests/NativePetModifiers.spec.luau:92: expected 1988, got 1990\nFAIL Native pet supporting modifiers > applies the same item scaling to native on-hurt and consumable character explosions\n     tests/NativePetModifiers.spec.luau:113: expected 12, got 10\nFAIL Native pet supporting modifiers > includes the modifiers once in every Carbon Bow variant and its elemental hit identity\n     tests/NativePetModifiers.spec.luau:125: expected 29, got 25\n5 passed, 5 failed\n",
+    "restoredPassed": true
+  },
+  "modifierChecks": {
+    "stylua": "passed",
+    "seleneErrors": 0,
+    "existingWarnings": 18,
+    "rojo": "passed",
+    "sourceCompilers": [
+      "pet-modifiers",
+      "item-rules",
+      "pets",
+      "catalog"
+    ],
+    "studioRun": false,
+    "newNativeCodeReadyFlags": 0
   }
 }

@@ -91,8 +91,13 @@ function WeaponStats.compute(
 
 	damage = NativeDamage.base(damage, stats, bonuses)
 	local carbonBase = damage
-	for statId, share in (if weapon.tierScaling then weapon.tierScaling[tier] else weapon.scaling) do
+	local scaling =
+		NativeDamage.scaling(if weapon.tierScaling then weapon.tierScaling[tier] else weapon.scaling, bonuses)
+	for statId, share in scaling do
 		damage += share * (bonuses[statId] or 0)
+	end
+	if (bonuses.weaponScalingElemental or 0) ~= 0 then
+		stats.nativeElemental = 1
 	end
 	local damageFactor = WeaponStats.damageFactor(bonuses)
 	if weapon.brotato and stats.explosionRadius then
@@ -112,11 +117,12 @@ function WeaponStats.compute(
 			}
 		do
 			stats["carbonWeight" .. suffix] = math.max(0, ownerBonuses[stat] or 0)
-			stats["carbonDamage" .. suffix] = NativeDamage.total(
-				carbonBase + coefficient * (bonuses[stat] or 0) + (bonuses.baseDamage or 0),
-				NativeDamage.factor(bonuses, false),
-				stats
-			)
+			local variantFlat = carbonBase
+			for scalingStat, share in NativeDamage.scaling({ [stat] = coefficient }, bonuses) do
+				variantFlat += share * (bonuses[scalingStat] or 0)
+			end
+			stats["carbonDamage" .. suffix] =
+				NativeDamage.total(variantFlat + (bonuses.baseDamage or 0), NativeDamage.factor(bonuses, false), stats)
 		end
 		stats.carbonBurnDamage = NativeBurn.damage(stats.carbonBurnBase, bonuses)
 		stats.carbonBurnInterval = NativeBurn.interval(bonuses.burnSpeed or 0)

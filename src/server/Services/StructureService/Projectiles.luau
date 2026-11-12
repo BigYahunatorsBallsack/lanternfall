@@ -42,6 +42,7 @@ local function launch(
 			count = def.count,
 		}
 	if not prepared then
+		stats.critChance, stats.critDamage = Rules.critical(def, sheet)
 		require(Shared.Util.NativeRangedStats).apply(stats, sheet)
 		stats.pierce += math.max(0, math.floor(sheet.piercing or 0))
 	end
@@ -214,7 +215,7 @@ function Sim.launchPet(
 	stats.knockbackPiercing = 0
 	local definition = table.clone(weapon)
 	definition.petBeastMaster = beastMaster
-	launch(player, at, definition, sheet, directions, stats, PetRules.scaling(weapon.scaling, beastMaster))
+	launch(player, at, definition, sheet, directions, stats, PetRules.weaponScaling(weapon, sheet, beastMaster))
 end
 function Sim.step(dt: number)
 	for i = #volleys, 1, -1 do

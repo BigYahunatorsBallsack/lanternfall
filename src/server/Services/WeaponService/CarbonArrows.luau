@@ -31,7 +31,7 @@ function Carbon.take(weapon: any, stats: { [string]: number }, random: () -> num
 	weapon.state.nextCarbon = Carbon.pick(stats, random)
 	local result = table.clone(stats)
 	result.damage = stats["carbonDamage" .. suffixes[index]]
-	result.nativeElemental = if index == 3 then 1 else 0
+	result.nativeElemental = if index == 3 or stats.nativeElemental == 1 then 1 else 0
 	if index == 1 then
 		result.carbonMeleeSlow = stats.carbonSlow
 	elseif index == 2 then

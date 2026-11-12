@@ -37,6 +37,7 @@ local Arsenal = require(script.Arsenal)
 local Afflictions = require(script.Afflictions)
 local StatMath = require(Shared.Util.StatMath)
 local CharacterRules = require(Shared.Util.CharacterRules)
+local NativeDamage = require(Shared.Util.NativeWeaponDamage)
 local BrotatoCombat = require(script.BrotatoCombat)
 local BrotatoRuntime = require(script.BrotatoRuntime)
 local FirePuddles = require(script.FirePuddles)
@@ -526,14 +527,7 @@ local function onStepped(dt: number, stepNow: number)
 			if crit then
 				amount *= stats.critDamage
 			end
-			local killed = WeaponService.structureHit(
-				entry.player,
-				id,
-				amount,
-				"Explosion",
-				crit,
-				entry.scaling ~= nil and entry.scaling.elementalDamage ~= nil
-			)
+			local killed = WeaponService.structureHit(entry.player, id, amount, "Explosion", crit, stats.elemental)
 			if killed then
 				kills += 1
 			end
@@ -892,18 +886,14 @@ function WeaponService.explodeAt(
 	scaling: { [string]: number }?,
 	size: number
 )
-	if (ownerStats[player] and ownerStats[player].nativeBurningTargetBonus or 0) > 0 then
-		if arsenal:hasOwner(player.UserId) then
-			table.insert(characterItemExplosions, {
-				player = player,
-				position = position,
-				damage = damage,
-				scaling = if scaling then table.clone(scaling) else nil,
-				size = size,
-			})
-		end
-	else
-		arsenal:queueExplosion(player.UserId, position.X, position.Z, damage, scaling, size)
+	if arsenal:hasOwner(player.UserId) and (damage > 0 or scaling ~= nil) then
+		table.insert(characterItemExplosions, {
+			player = player,
+			position = position,
+			damage = damage,
+			scaling = if scaling then table.clone(scaling) else nil,
+			size = size,
+		})
 	end
 end
 
@@ -955,6 +945,7 @@ function WeaponService.getPetChallengeCounts(player: Player): { [string]: number
 				local scaling = if weapon.config.tierScaling
 					then weapon.config.tierScaling[weapon.tier]
 					else weapon.config.scaling
+				scaling = NativeDamage.scaling(scaling, ownerStats[player] or {})
 				if scaling[rule.stat] ~= nil then
 					count += 1
 				end
@@ -1092,14 +1083,7 @@ function WeaponService.explodeCharacter(
 			local _, elite = EnemySim.getKind(id)
 			local critical = RandomService.number("Combat", player) < stats.critChance
 			local damage = CharacterExplosion.hitDamage(stats, critical, if elite then sheet.eliteDamage or 0 else 0)
-			local killed = WeaponService.structureHit(
-				player,
-				id,
-				damage,
-				"Explosion",
-				critical,
-				definition.scaling.elementalDamage ~= nil
-			)
+			local killed = WeaponService.structureHit(player, id, damage, "Explosion", critical, stats.elemental)
 			if killed then
 				kills += 1
 			end

@@ -40,7 +40,7 @@ Enemy.killAll()
 
 describe("Main-game item catalog", function()
 	it("replaces every old entry with one unique original", function()
-		expect(#Config.Items.list).toBe(#Source + 8)
+		expect(#Config.Items.list).toBe(#Source + 11)
 		expect(Config.Items.byId.DigSite.available).toBe(false)
 		expect(Config.Items.byId.LumberjackShirt.available).toBe(false)
 		expect(Config.Items.byId.Ratzilla.available).toBe(false)
@@ -49,6 +49,9 @@ describe("Main-game item catalog", function()
 		expect(Config.Items.byId.Blazemander.available).toBe(false)
 		expect(Config.Items.byId.CatlingGun.available).toBe(false)
 		expect(Config.Items.byId.Lootworm.available).toBe(false)
+		for _, id in { "Nail", "FrozenHeart", "PileOfBooks" } do
+			expect(Config.Items.byId[id].available).toBe(false)
+		end
 		local seen = {}
 		for _, item in Config.Items.list do
 			assert(not seen[item.displayName], item.displayName)

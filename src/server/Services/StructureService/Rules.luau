@@ -6,6 +6,17 @@ local Timing = require(game:GetService("ReplicatedStorage").Shared.Util.NativeWe
 local PetRules = require(script.Parent.PetRules)
 local Pets = require(game:GetService("ReplicatedStorage").Shared.Config.Pets)
 local Rules = {}
+function Rules.critical(def, sheet): (number, number)
+	if def.petMine then
+		local stats = PetRules.compute(Pets.kinds.BotOMine.mine, sheet, def.petBeastMaster)
+		return stats.critChance, stats.critDamage
+	end
+	local enabled = (sheet.structuresCanCrit or 0) > 0
+	return (def.critChance or 0) + (if enabled
+		then math.min(Config.Stats.critChanceMax, sheet.critChance or 0) / 100
+		else 0),
+		(def.critDamage or Config.Player.critMultiplier) + (if enabled then (sheet.critDamage or 0) / 100 else 0)
+end
 function Rules.damage(def, sheet)
 	if def.finalDamageOverride then
 		return def.finalDamageOverride

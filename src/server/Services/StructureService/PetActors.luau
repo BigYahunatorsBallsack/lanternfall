@@ -187,7 +187,7 @@ local function attack(o: any, sheet: { [string]: number }, exploding: boolean?, 
 	local pet = o.pet
 	local weapon = if exploding then pet.explosion else pet.weapon
 	local stats = Rules.compute(weapon, sheet, o.beastMaster)
-	local elemental = Rules.scaling(weapon.scaling, o.beastMaster).elementalDamage ~= nil
+	local elemental = Rules.weaponScaling(weapon, sheet, o.beastMaster).elementalDamage ~= nil
 	local ids = {}
 	local center = if exploding
 		then o.position

@@ -1,0 +1,175 @@
+{
+  "version": "1.2.0.1",
+  "steamBuild": 26406319,
+  "scalingFields": {
+    "elementalDamage": "weaponScalingElemental",
+    "engineering": "weaponScalingEngineering"
+  },
+  "structureCritField": "structuresCanCrit",
+  "scalingText": "Weapon and pet damage additionally scales with {amount}% {stat}",
+  "structureCritText": "Your structures can crit",
+  "items": {
+    "Nail": {
+      "id": "Nail",
+      "displayName": "Nail",
+      "nameKey": "ITEM_NAIL",
+      "description": "Weapon and pet damage additionally scales with 20% Engineering",
+      "tier": 3,
+      "price": 65,
+      "limit": 1,
+      "stats": {
+        "engineering": 5,
+        "rangedDamage": -2
+      },
+      "modifiers": {
+        "weaponScalingEngineering": 20
+      },
+      "free": true,
+      "source": "res://items/all/00_base_game/nail/nail_data.tres",
+      "sourceMd5": "ac07502ac1c165ee85b081d0726ac455",
+      "nativeId": "item_nail",
+      "iconSource": "res://items/all/00_base_game/nail/nail_icon.png",
+      "tags": [
+        "engineering"
+      ],
+      "sourceTags": [
+        "stat_engineering"
+      ],
+      "effects": [
+        {
+          "source": "res://items/all/00_base_game/nail/effects/nail_effect_0.tres",
+          "sourceMd5": "64cdfce8b64fec1667b414022d38d467",
+          "key": "stat_engineering",
+          "customKey": "",
+          "amount": 5
+        },
+        {
+          "source": "res://items/all/00_base_game/nail/effects/nail_effect_0b.tres",
+          "sourceMd5": "15eb9da57d01a44dfab97ebde9964d81",
+          "key": "stat_engineering",
+          "customKey": "weapon_scaling_stats",
+          "amount": 20
+        },
+        {
+          "source": "res://items/all/00_base_game/nail/effects/nail_effect_2.tres",
+          "sourceMd5": "4c8aeb818351506b403cb1240d9536c6",
+          "key": "stat_ranged_damage",
+          "customKey": "",
+          "amount": -2
+        }
+      ]
+    },
+    "FrozenHeart": {
+      "id": "FrozenHeart",
+      "displayName": "Frozen Heart",
+      "nameKey": "ITEM_FROZEN_HEART",
+      "description": "Weapon and pet damage additionally scales with 10% Elemental Damage",
+      "tier": 3,
+      "price": 90,
+      "limit": 1,
+      "stats": {
+        "elementalDamage": 8,
+        "critChance": 5,
+        "burnSpeed": -100
+      },
+      "modifiers": {
+        "weaponScalingElemental": 10
+      },
+      "free": true,
+      "source": "res://items/all/00_base_game/frozen_heart/frozen_heart_data.tres",
+      "sourceMd5": "6c3d918adc756f7f48155b8642145875",
+      "nativeId": "item_frozen_heart",
+      "iconSource": "res://items/all/00_base_game/frozen_heart/frozen_heart_icon.png",
+      "tags": [
+        "elementalDamage",
+        "critChance"
+      ],
+      "sourceTags": [
+        "stat_elemental_damage",
+        "stat_crit_chance"
+      ],
+      "effects": [
+        {
+          "source": "res://items/all/00_base_game/frozen_heart/effects/frozen_heart_effect_1.tres",
+          "sourceMd5": "06bdc8a5eb59139a095387d60e726685",
+          "key": "stat_elemental_damage",
+          "customKey": "",
+          "amount": 8
+        },
+        {
+          "source": "res://items/all/00_base_game/frozen_heart/effects/frozen_heart_effect_2.tres",
+          "sourceMd5": "67a6f0e9bc932ed15a4a3b23d1ac3f6b",
+          "key": "stat_crit_chance",
+          "customKey": "",
+          "amount": 5
+        },
+        {
+          "source": "res://items/all/00_base_game/frozen_heart/effects/frozen_heart_effect_0.tres",
+          "sourceMd5": "b07accc3f8c13b61a63d7a0d8f8fc479",
+          "key": "stat_elemental_damage",
+          "customKey": "weapon_scaling_stats",
+          "amount": 10
+        },
+        {
+          "source": "res://items/all/00_base_game/frozen_heart/effects/frozen_heart_effect_3.tres",
+          "sourceMd5": "211a1cacb62cada46aa3afd023095f5f",
+          "key": "burning_cooldown_reduction",
+          "customKey": "",
+          "amount": -100
+        }
+      ]
+    },
+    "PileOfBooks": {
+      "id": "PileOfBooks",
+      "displayName": "Pile of Books",
+      "nameKey": "ITEM_PILE_OF_BOOKS",
+      "description": "Your structures can crit",
+      "tier": 2,
+      "price": 60,
+      "limit": 1,
+      "stats": {
+        "critChance": 5,
+        "engineering": 3
+      },
+      "modifiers": {
+        "structuresCanCrit": 1
+      },
+      "free": true,
+      "source": "res://items/all/00_base_game/pile_of_books/pile_of_books_data.tres",
+      "sourceMd5": "312d3d0b107caf3b53c81d71590e8963",
+      "nativeId": "item_pile_of_books",
+      "iconSource": "res://items/all/00_base_game/pile_of_books/pile_of_books_icon.png",
+      "tags": [
+        "critChance",
+        "engineering"
+      ],
+      "sourceTags": [
+        "stat_crit_chance",
+        "stat_engineering"
+      ],
+      "effects": [
+        {
+          "source": "res://items/all/00_base_game/pile_of_books/effects/pile_of_books_effect_0.tres",
+          "sourceMd5": "afe58c48cfeca627b771fec910c105f1",
+          "key": "structures_can_crit",
+          "customKey": "",
+          "amount": 1
+        },
+        {
+          "source": "res://items/all/00_base_game/pile_of_books/effects/pile_of_books_effect_1.tres",
+          "sourceMd5": "67a6f0e9bc932ed15a4a3b23d1ac3f6b",
+          "key": "stat_crit_chance",
+          "customKey": "",
+          "amount": 5
+        },
+        {
+          "source": "res://items/all/00_base_game/pile_of_books/effects/pile_of_books_effect_2.tres",
+          "sourceMd5": "16702ec04e1d7fc4b8550306c384f6ac",
+          "key": "stat_engineering",
+          "customKey": "",
+          "amount": 3
+        }
+      ]
+    }
+  }
+}

@@ -252,9 +252,9 @@ local function deploy()
 	end
 	sync()
 end
-local function hit(player, id, amount, source, elemental)
+local function hit(player, id, amount, source, elemental, critical)
 	-- EnemySim credits owner kills/loot. Structure damage deliberately bypasses primary weapon stats.
-	return Weapons.structureHit(player, id, amount, source, nil, elemental == true)
+	return Weapons.structureHit(player, id, amount, source, critical, elemental == true)
 end
 local function burst(player, at, def, sheet, factor)
 	local ids = {}
@@ -264,15 +264,22 @@ local function burst(player, at, def, sheet, factor)
 		* (if def.native then 1 else math.max(0, 1 + (sheet.explosionDamage or 0) / 100))
 		* (factor or 1)
 	local kills = 0
+	local chance, multiplier = Rules.critical(def, sheet)
 	for _, id in ids do
 		local amount = damage
+		local critical = chance ~= 0 and RandomService.number("Combat", player) <= chance
 		if def.petMine then
 			local kind = Enemy.getKind(id)
 			local boss = Config.Enemies.bosses[kind] ~= nil or Config.Enemies.champions[kind] ~= nil
-			amount = PetRules.hitDamage(damage, 1, 1, boss, sheet.eliteDamage or 0)
+			amount = PetRules.hitDamage(damage, 1, if critical then multiplier else 1, boss, sheet.eliteDamage or 0)
+		elseif critical then
+			amount = math.round(amount * multiplier)
 		end
-		local elemental = if def.petMine then def.petBeastMaster == true else def.elemental ~= nil
-		if hit(player, id, amount, "Explosion", elemental) then
+		local elemental = if def.petMine
+			then PetRules.weaponScaling(require(Shared.Config.Pets).kinds.BotOMine.mine, sheet, def.petBeastMaster).elementalDamage
+				~= nil
+			else def.elemental ~= nil
+		if hit(player, id, amount, "Explosion", elemental, critical) then
 			kills += 1
 		end
 	end
@@ -285,7 +292,16 @@ local function impact(o, def, sheet, id, at, factor)
 	elseif def.mode == "Explosion" then
 		burst(o.owner, at, def, sheet, factor)
 	else
-		hit(o.owner, id, Rules.damage(def, sheet) * factor, nil, def.elemental ~= nil)
+		local chance, multiplier = Rules.critical(def, sheet)
+		local critical = chance ~= 0 and RandomService.number("Combat", o.owner) <= chance
+		hit(
+			o.owner,
+			id,
+			Rules.damage(def, sheet) * factor * (if critical then multiplier else 1),
+			nil,
+			def.elemental ~= nil,
+			critical
+		)
 	end
 end
 local function ray(o, def, sheet, direction)

@@ -5,20 +5,22 @@ local Definitions = require(Shared.Config.CharacterExplosions)
 local Stats = require(Shared.Config.Stats)
 local Combat = require(Shared.Config.Combat)
 local PlayerConfig = require(Shared.Config.Player)
-local WeaponStats = require(script.Parent.WeaponStats)
 local StatMath = require(Shared.Util.StatMath)
+local NativeDamage = require(Shared.Util.NativeWeaponDamage)
 export type Computed = {
 	damage: number,
 	critChance: number,
 	critDamage: number,
 	radius: number,
 	offsetZ: number,
+	elemental: boolean,
 }
 local Explosion = {}
 
 function Explosion.compute(definition: Definitions.Definition, sheet: { [string]: number }): Computed
 	local damage = definition.damage
-	for stat, multiplier in definition.scaling do
+	local scaling = NativeDamage.scaling(definition.scaling, sheet)
+	for stat, multiplier in scaling do
 		damage += (sheet[stat] or 0) * multiplier
 	end
 	-- Native init_base_stats truncates flat scaling, then rounds the sum of Damage and Explosion Damage bonuses.
@@ -27,6 +29,7 @@ function Explosion.compute(definition: Definitions.Definition, sheet: { [string]
 	local scale =
 		math.max(Definitions.minimumAreaScale, (definition.areaScale or 1) * (1 + (sheet.explosionSize or 0) / 100))
 	return {
+		elemental = scaling.elementalDamage ~= nil,
 		damage = damage,
 		critChance = math.clamp(definition.critChance + (sheet.critChance or 0) / 100, 0, 1),
 		critDamage = definition.critDamage
@@ -41,15 +44,21 @@ function Explosion.hitDamage(stats: Computed, critical: boolean, eliteDamage: nu
 	return math.max(1, math.round(damage * math.max(0, 1 + eliteDamage / 100)))
 end
 
--- Preserve the existing item-effect formula while retaining hitbox scaling for per-target character bonuses.
+-- Original item explosions truncate flat scaling, then round additive Damage and Explosion Damage bonuses.
 function Explosion.computeItemEffect(
 	base: number,
 	scaling: { [string]: number }?,
 	size: number,
 	sheet: { [string]: number }
 ): Computed
+	local flat = base
+	local modified = NativeDamage.scaling(scaling or {}, sheet)
+	for stat, share in modified do
+		flat += share * (sheet[stat] or 0)
+	end
 	return {
-		damage = WeaponStats.ownerDamage(base, scaling, sheet) * math.max(0, 1 + (sheet.explosionDamage or 0) / 100),
+		elemental = modified.elementalDamage ~= nil,
+		damage = NativeDamage.total(flat, NativeDamage.factor(sheet, true), { nativeTiming = 1 }),
 		critChance = StatMath.critChance(PlayerConfig.critChance, sheet.critChance or 0),
 		critDamage = PlayerConfig.critMultiplier,
 		radius = Combat.explosion.baseRadius * size * math.max(0, 1 + (sheet.explosionSize or 0) / 100),

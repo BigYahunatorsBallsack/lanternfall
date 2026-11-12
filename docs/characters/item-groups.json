@@ -1333,7 +1333,7 @@
       "nameKey": "ITEM_ESTYS_COUCH",
       "source": "res://items/all/00_base_game/estys_couch/estys_couch_data.tres",
       "sourceMd5": "2712fd1f104fa89666db2c981c7a16ad",
-      "displayName": "Esty\u00e2\u20ac\u2122s Couch",
+      "displayName": "Estyâ€™s Couch",
       "tags": [
         "stat_hp_regeneration",
         "stat_max_hp"
@@ -1496,6 +1496,38 @@
         "economy",
         "pickup",
         "pet"
+      ]
+    },
+    "Nail": {
+      "nativeId": "item_nail",
+      "nameKey": "ITEM_NAIL",
+      "source": "res://items/all/00_base_game/nail/nail_data.tres",
+      "sourceMd5": "ac07502ac1c165ee85b081d0726ac455",
+      "displayName": "Nail",
+      "tags": [
+        "stat_engineering"
+      ]
+    },
+    "FrozenHeart": {
+      "nativeId": "item_frozen_heart",
+      "nameKey": "ITEM_FROZEN_HEART",
+      "source": "res://items/all/00_base_game/frozen_heart/frozen_heart_data.tres",
+      "sourceMd5": "6c3d918adc756f7f48155b8642145875",
+      "displayName": "Frozen Heart",
+      "tags": [
+        "stat_elemental_damage",
+        "stat_crit_chance"
+      ]
+    },
+    "PileOfBooks": {
+      "nativeId": "item_pile_of_books",
+      "nameKey": "ITEM_PILE_OF_BOOKS",
+      "source": "res://items/all/00_base_game/pile_of_books/pile_of_books_data.tres",
+      "sourceMd5": "312d3d0b107caf3b53c81d71590e8963",
+      "displayName": "Pile of Books",
+      "tags": [
+        "stat_crit_chance",
+        "stat_engineering"
       ]
     }
   },

@@ -1,0 +1,66 @@
+{
+  "version": "1.2.0.1",
+  "steamBuild": 26406319,
+  "uploadedCount": 0,
+  "runtimeChanged": false,
+  "icons": [
+    {
+      "id": "Nail",
+      "source": "res://items/all/00_base_game/nail/nail_icon.png",
+      "textureSource": "res://.import/nail_icon.png-1eba657e60c170d7591abfbe7327dde2.stex",
+      "textureMd5": "f4dd8c391d4996387393063fae254218",
+      "output": "assets/items/pet-modifiers/Nail.png",
+      "pngSha256": "5c332dbae34dbc399a586049430aa684c6dc6210b5966bdc18c46d4e2bf7854b",
+      "rgbaSha256": "2dfb8b7920b8a853473adba6e9eeba3e6899289624b1b98203fb2e6a66db1dc6",
+      "size": [
+        96,
+        96
+      ],
+      "alphaBounds": [
+        6,
+        7,
+        87,
+        90
+      ]
+    },
+    {
+      "id": "FrozenHeart",
+      "source": "res://items/all/00_base_game/frozen_heart/frozen_heart_icon.png",
+      "textureSource": "res://.import/frozen_heart_icon.png-63feb6736e1390eadce3e88b19f39a93.stex",
+      "textureMd5": "7f62ecf3b11346b2e91eb4ab978802a3",
+      "output": "assets/items/pet-modifiers/FrozenHeart.png",
+      "pngSha256": "5b89b44bf133649632d477dfab3b6e3c451d6ce335cc72f1742042e0e5c7c977",
+      "rgbaSha256": "9019d578a8788592ac7516ba503f5c041330c8706853eeb85d6cafa604fcef5b",
+      "size": [
+        96,
+        96
+      ],
+      "alphaBounds": [
+        7,
+        10,
+        87,
+        92
+      ]
+    },
+    {
+      "id": "PileOfBooks",
+      "source": "res://items/all/00_base_game/pile_of_books/pile_of_books_icon.png",
+      "textureSource": "res://.import/pile_of_books_icon.png-5f31996e2b20eca735ab3f48e7be8597.stex",
+      "textureMd5": "bf352cc595e14869167c4f0477314c06",
+      "output": "assets/items/pet-modifiers/PileOfBooks.png",
+      "pngSha256": "27da1a695f17f29c96a874640f056e64a84dde266e28d1366b33395a6d0b2ac6",
+      "rgbaSha256": "ca7995440d2a4a3c26a7d396e90c74c5ec06dd470d1695504bc1797dfaddd108",
+      "size": [
+        96,
+        96
+      ],
+      "alphaBounds": [
+        4,
+        6,
+        90,
+        90
+      ]
+    }
+  ],
+  "actorArtworkPrepared": false
+}
