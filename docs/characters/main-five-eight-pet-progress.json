@@ -575,5 +575,30 @@
     },
     "nativeStatIconPresentationAccepted": false,
     "studioAccepted": false
+  },
+  "nightmarePrerequisite": {
+    "facts": "nightmare-source.json",
+    "level": 6,
+    "sourceDifficultyEffects": 10,
+    "sourceEnemyHealthPercent": 60,
+    "sourceEnemyDamagePercent": 60,
+    "sourceEnemySpeedPercent": 10,
+    "sourceInflationModifier": 10,
+    "eventPlanner": "src/shared/Util/NightmareRules.luau",
+    "focusedSpec": "tests/NativeNightmarePlan.spec.luau",
+    "passed": 7,
+    "failed": 0,
+    "currentDifficultySelectionChanged": false,
+    "profileUnlockWired": false,
+    "eventsExecutedInGame": false,
+    "nightmareEnemiesImplemented": false,
+    "woundedReady": false,
+    "includedInLatestFullSuite": false,
+    "checks": [
+      "StyLua",
+      "Selene0errors18existingwarnings",
+      "Rojo",
+      "nightmareCompiler--check"
+    ]
   }
 }

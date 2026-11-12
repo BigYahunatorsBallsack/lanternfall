@@ -1,0 +1,138 @@
+--!strict
+-- Stable Nightmare 1 source facts for NightmareRules; difficulty selection stays gated until its full runtime exists.
+return {
+	version = "1.2.0.1",
+	steamBuild = 26406319,
+	source = "res://items/difficulties/6-Nightmare/difficulty_6.tres",
+	sourceMd5 = "a35824f1341e4493c92ef21dbb6ae22f",
+	level = 6,
+	nameKey = "DIFFICULTY_NIGHTMARE_1",
+	effects = {
+		{
+			source = "res://items/difficulties/6-Nightmare/difficulty_6_effect_5.tres",
+			sourceMd5 = "4ab3b9c909e0c3845d8719d414375f77",
+			key = "danger_enemy_damage",
+			value = 60,
+			storageMethod = 0,
+			textKey = "ENEMY_DAMAGE_HP_INCREASE",
+		},
+		{
+			source = "res://items/difficulties/6-Nightmare/difficulty_6_effect_2.tres",
+			sourceMd5 = "eab92f9afd18bd278f8c68ba784050af",
+			key = "danger_enemy_health",
+			value = 60,
+			storageMethod = 0,
+			textKey = "EFFECT_ENEMY_HEALTH",
+		},
+		{
+			source = "res://items/difficulties/6-Nightmare/difficulty_6_effect_6.tres",
+			sourceMd5 = "20c4d16edeaa89385b55dfb0dece82d8",
+			key = "danger_enemy_speed",
+			value = 10,
+			storageMethod = 0,
+			textKey = "EFFECT_ENEMY_SPEED",
+		},
+		{
+			source = "res://items/difficulties/6-Nightmare/difficulty_6_effect_9.tres",
+			sourceMd5 = "1f61f9d401e95a3c9ad3b409658afb37",
+			key = "inflation_modifier",
+			value = 10,
+			storageMethod = 2,
+			textKey = "[EMPTY]",
+		},
+		{
+			source = "res://items/difficulties/6-Nightmare/difficulty_6_effect_0.tres",
+			sourceMd5 = "727ed3682e79005df64dcd1405623777",
+			key = "EFFECT_NEW_ENEMIES",
+			value = 0,
+			storageMethod = 0,
+			textKey = "EVERYTHING_FROM_D5",
+		},
+		{
+			source = "res://items/difficulties/6-Nightmare/difficulty_6_effect_1.tres",
+			sourceMd5 = "ec9dfeb665c0fbf0975437e6af73475a",
+			key = "effect_elites",
+			value = 0,
+			storageMethod = 0,
+			textKey = "[EMPTY]",
+		},
+		{
+			source = "res://items/difficulties/6-Nightmare/difficulty_6_effect_3.tres",
+			sourceMd5 = "99987ea23e86219e903fa5270e4b0d7e",
+			key = "effect_more_elites",
+			value = 0,
+			storageMethod = 0,
+			textKey = "[EMPTY]",
+		},
+		{
+			source = "res://items/difficulties/6-Nightmare/difficulty_6_effect_4.tres",
+			sourceMd5 = "0fe649f1a4479a8aade9a12b9315af54",
+			key = "double_boss",
+			value = 1,
+			storageMethod = 2,
+			textKey = "[EMPTY]",
+		},
+		{
+			source = "res://items/difficulties/6-Nightmare/difficulty_6_effect_7.tres",
+			sourceMd5 = "23be7049872a97ff8457146ebf55e0dd",
+			key = "bullet_hell_event",
+			value = 1,
+			storageMethod = 2,
+			textKey = "EVENT_BULLET_HELL",
+		},
+		{
+			source = "res://items/difficulties/6-Nightmare/difficulty_6_effect_8.tres",
+			sourceMd5 = "1d1b3f719324a59b171748d857e68f69",
+			key = "fog_of_war_event",
+			value = 1,
+			storageMethod = 2,
+			textKey = "EVENT_FOG_OF_WAR",
+		},
+	},
+	ruleSources = {
+		{
+			source = "res://singletons/run_data.gdc",
+			sourceMd5 = "a94d8eddd9609f413309ce9237297ad2",
+		},
+		{
+			source = "res://singletons/progress_data.gdc",
+			sourceMd5 = "2da3ced0fea7d9f82a41ac55f26082b6",
+		},
+	},
+	unlock = {
+		danger = 5,
+		characterZoneWins = 10,
+	},
+	events = {
+		firstBlock = 10,
+		lastOffset = 9,
+		fogPerBlock = 2,
+		bulletsPerBlock = 3,
+		defaultConstantProjectiles = true,
+		earlyFog = {
+			5,
+			6,
+			7,
+		},
+		earlyBullets = {
+			{
+				1,
+				2,
+			},
+			{
+				3,
+				4,
+			},
+			{
+				5,
+				6,
+				7,
+			},
+			{
+				8,
+				9,
+				10,
+			},
+		},
+	},
+}
