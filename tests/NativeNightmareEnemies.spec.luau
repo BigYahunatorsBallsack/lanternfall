@@ -49,7 +49,7 @@ local function shoot(id)
 	return world, actor, first, count
 end
 describe("Native Nightmare enemy families", function()
-	it("activates exactly four source families with distinct type ids and keeps three pending", function()
+	it("activates exactly five source families with distinct type ids and keeps two pending", function()
 		local seen = {}
 		for _, id in C.implemented do
 			local kind = Kinds.get(id)

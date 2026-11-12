@@ -629,22 +629,22 @@
       "Personal isolation and saved MemoryStore rejoin"
     ],
     "latestFullSuite": {
-      "artifact": "build/native-five-branch-eight-nightmare-enemies-final-6bb5174.json",
+      "artifact": "build/native-five-branch-eight-nightmare-corrupted-6bb5174.json",
       "baselineMain": "6bb5174f31bee9b839cc9a04ee406d1f549de051",
       "baselineSpecs": 222,
       "baselinePassed": 1488,
       "baselineFailed": 37,
-      "branchSpecs": 261,
-      "branchPassed": 1646,
-      "branchFailed": 38,
-      "additionalSpecs": 39,
-      "additionalChecksPassed": 159,
+      "branchSpecs": 262,
+      "branchPassed": 1653,
+      "branchFailed": 36,
+      "additionalSpecs": 40,
+      "additionalChecksPassed": 164,
       "aborts": 0,
-      "newFailure": "MainGameEnemyRuntime assumed that native chance .25 excludes a roll exactly .25",
-      "followup": "Corrected the source expectation to include equality and reject .2501, preserving corpse/melee checks; focused9/0. No functional production change after full suite. Full suite not repeated after test-only correction.",
-      "remainingFailuresExactlyMatchBaselineNames": true,
+      "newFailures": [],
+      "resolvedKnownFlake": "EnemiesB9 Gobbler eating green in this run; no fix claimed",
+      "remainingFailuresAreBaselineNames": true,
       "perf22Passed": true,
-      "charmedWorldBudgetPassedInThisRun": true
+      "productionChangedAfterFullSuite": false
     },
     "runtimeResearch": {
       "activeBulletPatterns": 12,
@@ -716,7 +716,7 @@
       "nightmarePerformanceAccepted": false,
       "remaining": [
         "fog renderer",
-        "Corrupted Buffer, Infected Slasher Egg and Mad Slasher",
+        "Infected Slasher Egg and Mad Slasher",
         "complete difficulty6 modifiers/options/unlock integration",
         "source graphics",
         "global enemy time factor",
@@ -727,10 +727,10 @@
       "BloatedSpawner",
       "DireJunkie",
       "HornedFly",
-      "HornedSpitter"
+      "HornedSpitter",
+      "CorruptedBuffer"
     ],
     "pendingNightmareEnemyFamilies": [
-      "CorruptedBuffer",
       "InfectedSlasherEgg",
       "MadSlasher"
     ],
@@ -765,10 +765,10 @@
         "BloatedSpawner",
         "DireJunkie",
         "HornedFly",
-        "HornedSpitter"
+        "HornedSpitter",
+        "CorruptedBuffer"
       ],
       "pendingSourceOnly": [
-        "CorruptedBuffer",
         "InfectedSlasherEgg",
         "MadSlasher"
       ],
@@ -776,9 +776,10 @@
         33,
         34,
         35,
-        36
+        36,
+        37
       ],
-      "waveGroupMappingsAdded": 9,
+      "waveGroupMappingsAdded": 13,
       "minimumDanger": 6,
       "publicDifficulty6Exposed": false,
       "originalArtAccepted": false,
@@ -806,6 +807,10 @@
         "NativeNightmareEnemyArt": [
           1,
           0
+        ],
+        "NativeCorruptedBuffer": [
+          5,
+          0
         ]
       },
       "regressionsFocused": {
@@ -827,6 +832,10 @@
         ],
         "MainGameEnemyRuntime": [
           9,
+          0
+        ],
+        "CharmSupportRuntime": [
+          4,
           0
         ]
       },
@@ -851,7 +860,49 @@
         "Existing projectile bound/range convention300 studs",
         "Existing collision mass convention1",
         "Native Area/physics/deferred hit semantics and source art not accepted"
-      ]
+      ],
+      "corruptedBuffer": {
+        "initialPulseSeconds": 0.25,
+        "intervalSeconds": 4,
+        "targets": 2,
+        "hpBoostPercent": 150,
+        "damageBoostPercent": 30,
+        "speedBoostPercent": 50,
+        "nativeResetHpContactIntegerBaseBeforeFactors": true,
+        "fullyRestoresEnemyHp": true,
+        "alliedSelection": "two distinct unboosted players/structures in one pool",
+        "playerAndStructureBoostPercent": 20,
+        "playerDurationSeconds": 5,
+        "nativePhysicalAcceptance": false,
+        "fixtureFailuresExplained": [
+          "automatic weapons killed the three targets before the pulse; diagnostic output Running,count0,allHp0",
+          "after weapons paused, unprotected7HP legacy fixture players died and ended the run; added test-only protection before hostile test"
+        ],
+        "tests": [
+          "exactly two targets at first pulse and third at next without stacking",
+          "integer base HP/contact rounding before original factors and complete heal",
+          "two nearby players and temporary stat expiry",
+          "mixed player/turret pool, structure20% values and unchanged equipment source count"
+        ]
+      }
+    },
+    "fourEnemyFullSuite": {
+      "artifact": "build/native-five-branch-eight-nightmare-enemies-final-6bb5174.json",
+      "baselineMain": "6bb5174f31bee9b839cc9a04ee406d1f549de051",
+      "baselineSpecs": 222,
+      "baselinePassed": 1488,
+      "baselineFailed": 37,
+      "branchSpecs": 261,
+      "branchPassed": 1646,
+      "branchFailed": 38,
+      "additionalSpecs": 39,
+      "additionalChecksPassed": 159,
+      "aborts": 0,
+      "newFailure": "MainGameEnemyRuntime assumed that native chance .25 excludes a roll exactly .25",
+      "followup": "Corrected the source expectation to include equality and reject .2501, preserving corpse/melee checks; focused9/0. No functional production change after full suite. Full suite not repeated after test-only correction.",
+      "remainingFailuresExactlyMatchBaselineNames": true,
+      "perf22Passed": true,
+      "charmedWorldBudgetPassedInThisRun": true
     }
   }
 }

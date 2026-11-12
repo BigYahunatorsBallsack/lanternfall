@@ -179,6 +179,7 @@ export type Pulse = {
 	onEnter: boolean?, -- heals each hurt enemy once when it comes into the radius instead of every interval
 	-- Herald: up to `buffCount` enemies that are not buffed yet get stronger for good
 	buffCount: number?,
+	nativeResetStats: boolean?, -- Corrupted Buffer recalculates source stats and fully restores HP
 	buffDamage: number?, -- multiplier on contact and shot damage
 	buffSpeed: number?, -- multiplier on speed
 	buffHp: number?, -- share of max HP added (to HP and max HP)

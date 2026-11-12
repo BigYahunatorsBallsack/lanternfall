@@ -29,6 +29,26 @@ return {
 			source = "res://entities/units/enemies/crash_zone/basic/horned_fly/horned_fly.gdc",
 			sourceMd5 = "2f23c313fafcb030e31118f0d9926786",
 		},
+		{
+			source = "res://entities/units/enemies/crash_zone/basic/corrupted_buffer/corrupted_buffer.gdc",
+			sourceMd5 = "b1179993ba138c350e8f537d7f99bd8a",
+		},
+		{
+			source = "res://entities/units/player/player.tscn",
+			sourceMd5 = "58724d77253dd2ff1a91a8409a809193",
+		},
+		{
+			source = "res://entities/units/unit/unit.gdc",
+			sourceMd5 = "aa94391f2d9681ac36b7f8617b82ff13",
+		},
+		{
+			source = "res://entities/units/unit/stats.gdc",
+			sourceMd5 = "32a0cc4d6ed92f53aafcc9f36d158f95",
+		},
+		{
+			source = "res://singletons/entity_service.gdc",
+			sourceMd5 = "f1a861f576858bbaa3e913d83c7b1807",
+		},
 	},
 	circleDefault = {
 		radius = 10,
@@ -43,14 +63,15 @@ return {
 		"DireJunkie",
 		"HornedFly",
 		"HornedSpitter",
+		"CorruptedBuffer",
 	},
 	pending = {
-		"CorruptedBuffer",
 		"InfectedSlasherEgg",
 		"MadSlasher",
 	},
 	rules = {
 		spawnedChildren = 5,
+		allyBoostDuration = 5,
 		spawnSquarePixels = 200,
 		physicsRate = 60,
 		arrivePixels = 10,
@@ -105,6 +126,7 @@ return {
 				allow_within = false,
 			},
 			attack = {},
+			boostTimer = {},
 		},
 		DireJunkie = {
 			nativeId = "dire_junkie",
@@ -176,6 +198,7 @@ return {
 				rotate_projectile = true,
 				delete_projectile_on_death = false,
 			},
+			boostTimer = {},
 		},
 		HornedFly = {
 			nativeId = "horned_fly",
@@ -267,6 +290,7 @@ return {
 				move_locked = false,
 				recovery_cooldown = 0,
 			},
+			boostTimer = {},
 		},
 		HornedSpitter = {
 			nativeId = "horned_spitter",
@@ -356,6 +380,7 @@ return {
 				move_locked = false,
 				recovery_cooldown = 0,
 			},
+			boostTimer = {},
 		},
 		CorruptedBuffer = {
 			nativeId = "corrupted_buffer",
@@ -388,6 +413,7 @@ return {
 				body = 8.544,
 				hurt = 32,
 				hit = 22,
+				boost = 309.04,
 			},
 			root = {
 				can_be_boosted = false,
@@ -409,6 +435,11 @@ return {
 				target_range_randomization = 100,
 			},
 			attack = {},
+			boostTimer = {
+				unique_name_in_owner = true,
+				wait_time = 0.25,
+				autostart = true,
+			},
 		},
 		InfectedSlasherEgg = {
 			nativeId = "infected_slasher_egg",
@@ -459,6 +490,7 @@ return {
 				spawn_in_radius_around_unit = -1,
 				max_nb_of_spawns = -1,
 			},
+			boostTimer = {},
 		},
 		MadSlasher = {
 			nativeId = "mad_slasher",
@@ -534,6 +566,7 @@ return {
 				rotate_projectile = true,
 				delete_projectile_on_death = true,
 			},
+			boostTimer = {},
 		},
 	},
 }

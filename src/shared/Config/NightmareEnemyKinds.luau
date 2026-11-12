@@ -7,6 +7,7 @@ local identities = {
 	DireJunkie = { typeId = 34, name = "Dire Junkie", look = "Spitter" },
 	HornedFly = { typeId = 35, name = "Horned Fly", look = "Brute" },
 	HornedSpitter = { typeId = 36, name = "Horned Spitter", look = "Spitter" },
+	CorruptedBuffer = { typeId = 37, name = "Corrupted Buffer", look = "Spitter" },
 }
 function Kinds.build(pixel: number): { [string]: any }
 	local result = {}
@@ -53,6 +54,20 @@ function Kinds.build(pixel: number): { [string]: any }
 				count = C.rules.spawnedChildren,
 				spread = 0,
 				area = C.rules.spawnSquarePixels * pixel,
+			}
+		elseif id == "CorruptedBuffer" then
+			local root = f.root
+			kind.stayInRange =
+				{ distance = f.movement.target_range * pixel, jitter = f.movement.target_range_randomization * pixel }
+			kind.pulse = {
+				radius = f.circles.boost * pixel,
+				intervalSeconds = root.boost_cooldown,
+				firstSeconds = f.boostTimer.wait_time,
+				buffCount = root.nb_entities_boosted_at_once,
+				nativeResetStats = true,
+				buffHp = root.hp_boost / 100,
+				buffDamage = 1 + root.damage_boost / 100,
+				buffSpeed = 1 + root.speed_boost / 100,
 			}
 		elseif id == "HornedFly" then
 			kind.wander = {

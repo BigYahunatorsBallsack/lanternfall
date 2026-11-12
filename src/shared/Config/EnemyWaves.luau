@@ -2511,7 +2511,7 @@ local waves: { Wave } = {
 				minWave = 0,
 				maxWave = 99999,
 				units = {
-					{ enemy = nil, min = 3, max = 4, chance = 1, neutral = false, extraDistance = 0 },
+					{ enemy = "CorruptedBuffer", min = 3, max = 4, chance = 1, neutral = false, extraDistance = 0 },
 				},
 			}),
 		}),
@@ -2748,7 +2748,7 @@ local waves: { Wave } = {
 				minWave = 0,
 				maxWave = 99999,
 				units = {
-					{ enemy = nil, min = 1, max = 1, chance = 1, neutral = false, extraDistance = 0 },
+					{ enemy = "CorruptedBuffer", min = 1, max = 1, chance = 1, neutral = false, extraDistance = 0 },
 				},
 			}),
 		}),
@@ -3008,7 +3008,7 @@ local waves: { Wave } = {
 				minWave = 0,
 				maxWave = 99999,
 				units = {
-					{ enemy = nil, min = 3, max = 4, chance = 1, neutral = false, extraDistance = 0 },
+					{ enemy = "CorruptedBuffer", min = 3, max = 4, chance = 1, neutral = false, extraDistance = 0 },
 				},
 			}),
 			group({ -- 018/d6_group_3.tres
@@ -3291,7 +3291,7 @@ local waves: { Wave } = {
 				minWave = 0,
 				maxWave = 99999,
 				units = {
-					{ enemy = nil, min = 3, max = 4, chance = 1, neutral = false, extraDistance = 0 },
+					{ enemy = "CorruptedBuffer", min = 3, max = 4, chance = 1, neutral = false, extraDistance = 0 },
 				},
 			}),
 		}),

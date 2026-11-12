@@ -1072,12 +1072,28 @@ local function pulseAt(self: World, i: number, pulse: Enemies.Pulse): boolean
 		candidates[pick] = candidates[#candidates]
 		candidates[#candidates] = nil
 		self.buffed[j] = true
-		self.contactDamage[j] *= pulse.buffDamage or 1
-		self.shotDamage[j] *= pulse.buffDamage or 1
+		if pulse.nativeResetStats then
+			-- Unit.reset_* takes integer base health/contact damage, then EntityService rounds the final boosted stat.
+			local kind = kinds[j]
+			local steps = self.waves[j] - 1
+			local baseHp = kind.hp + kind.hpPerWave * steps
+			local baseContact = kind.contactDamage + kind.damagePerWave * steps
+			maxHp[j] = math.round(math.floor(baseHp) * (maxHp[j] / baseHp) * (1 + (pulse.buffHp or 0)))
+			hp[j] = maxHp[j]
+			self.contactDamage[j] = if baseContact > 0
+				then math.round(
+					math.floor(baseContact) * (self.contactDamage[j] / baseContact) * (pulse.buffDamage or 1)
+				)
+				else 0
+			self.shotDamage[j] = math.round(self.shotDamage[j] * (pulse.buffDamage or 1))
+		else
+			self.contactDamage[j] *= pulse.buffDamage or 1
+			self.shotDamage[j] *= pulse.buffDamage or 1
+			local bonus = maxHp[j] * (pulse.buffHp or 0)
+			maxHp[j] += bonus
+			hp[j] += bonus
+		end
 		self.speedFactors[j] *= pulse.buffSpeed or 1
-		local bonus = maxHp[j] * (pulse.buffHp or 0)
-		maxHp[j] += bonus
-		hp[j] += bonus
 		self.maxSpeed = math.max(self.maxSpeed, kinds[j].speed * self.speedFactors[j] * self.boosts[j])
 	end
 	return healed
