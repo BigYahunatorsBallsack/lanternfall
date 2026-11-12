@@ -22,6 +22,9 @@ local Weapons = require(script.Parent.WeaponService)
 local Projectiles = require(script.Projectiles)
 local TurretTiming = require(script.TurretTiming)
 local GroupedPlacement = require(script.GroupedPlacement)
+local PetActors = require(script.PetActors)
+local PetRules = require(script.PetRules)
+local Pets = require(Shared.Config.Pets)
 local C = Config.Structures
 local Service = {}
 local paused = false
@@ -66,6 +69,7 @@ local function sync()
 end
 local function reset()
 	Projectiles.clear()
+	PetActors.clear()
 	table.clear(groupBases)
 	waveSeconds, lastGeneratorSecond = 0, 0
 	table.clear(objects)
@@ -151,10 +155,12 @@ local function add(player, kind, definition, at)
 		if #own == 0 then
 			return
 		end
-		table.remove(objects, own[RandomService.stream("Combat", player):NextInteger(1, #own)])
+		local index = own[RandomService.stream("Combat", player):NextInteger(1, #own)]
+		PetActors.remove(objects[index])
+		table.remove(objects, index)
 	end
 	serial += 1
-	table.insert(objects, {
+	local object = {
 		id = serial,
 		owner = player,
 		kind = kind,
@@ -163,7 +169,9 @@ local function add(player, kind, definition, at)
 		remaining = 0,
 		armed = false,
 		contacts = {},
-	})
+	}
+	PetActors.add(object)
+	table.insert(objects, object)
 	dirty = true
 end
 local function addGenerator(player, kind, definition)
@@ -244,9 +252,9 @@ local function deploy()
 	end
 	sync()
 end
-local function hit(player, id, amount, source, elemental)
+local function hit(player, id, amount, source, elemental, critical)
 	-- EnemySim credits owner kills/loot. Structure damage deliberately bypasses primary weapon stats.
-	return Weapons.structureHit(player, id, amount, source, nil, elemental == true)
+	return Weapons.structureHit(player, id, amount, source, critical, elemental == true)
 end
 local function burst(player, at, def, sheet, factor)
 	local ids = {}
@@ -256,8 +264,22 @@ local function burst(player, at, def, sheet, factor)
 		* (if def.native then 1 else math.max(0, 1 + (sheet.explosionDamage or 0) / 100))
 		* (factor or 1)
 	local kills = 0
+	local chance, multiplier = Rules.critical(def, sheet)
 	for _, id in ids do
-		if hit(player, id, damage, "Explosion", def.elemental ~= nil) then
+		local amount = damage
+		local critical = chance ~= 0 and RandomService.number("Combat", player) <= chance
+		if def.petMine then
+			local kind = Enemy.getKind(id)
+			local boss = Config.Enemies.bosses[kind] ~= nil or Config.Enemies.champions[kind] ~= nil
+			amount = PetRules.hitDamage(damage, 1, if critical then multiplier else 1, boss, sheet.eliteDamage or 0)
+		elseif critical then
+			amount = math.round(amount * multiplier)
+		end
+		local elemental = if def.petMine
+			then PetRules.weaponScaling(require(Shared.Config.Pets).kinds.BotOMine.mine, sheet, def.petBeastMaster).elementalDamage
+				~= nil
+			else def.elemental ~= nil
+		if hit(player, id, amount, "Explosion", elemental, critical) then
 			kills += 1
 		end
 	end
@@ -270,7 +292,16 @@ local function impact(o, def, sheet, id, at, factor)
 	elseif def.mode == "Explosion" then
 		burst(o.owner, at, def, sheet, factor)
 	else
-		hit(o.owner, id, Rules.damage(def, sheet) * factor, nil, def.elemental ~= nil)
+		local chance, multiplier = Rules.critical(def, sheet)
+		local critical = chance ~= 0 and RandomService.number("Combat", o.owner) <= chance
+		hit(
+			o.owner,
+			id,
+			Rules.damage(def, sheet) * factor * (if critical then multiplier else 1),
+			nil,
+			def.elemental ~= nil,
+			critical
+		)
 	end
 end
 local function ray(o, def, sheet, direction)
@@ -356,9 +387,16 @@ local function step(dt)
 	end
 	lastGeneratorSecond = math.floor(waveSeconds)
 	Projectiles.step(dt)
+	dirty = PetActors.step(dt, sheetOf, add) or dirty
 	for index = #objects, 1, -1 do
 		local o = objects[index]
-		if Run.getParticipantState(o.owner) ~= "Alive" then
+		if not o then
+			break
+		end -- A terminal hit clears all deployments synchronously.
+		if C.kinds[o.kind].petKind then
+			continue -- PetActors also steps pets whose owner is currently down.
+		end
+		if Run.getParticipantState(o.owner) ~= "Alive" and not (o.definition and o.definition.petMine) then
 			continue
 		end
 		if o.boostLeft then
@@ -454,7 +492,9 @@ local function step(dt)
 					end
 					Projectiles.launch(o.owner, o.position, def, sheet, directions)
 				end
-				table.remove(objects, index)
+				if objects[index] == o then
+					table.remove(objects, index)
+				end
 				dirty = true
 			end
 		else
@@ -517,6 +557,7 @@ function Service.init()
 	Players.PlayerRemoving:Connect(function(player)
 		for i = #objects, 1, -1 do
 			if objects[i].owner == player then
+				PetActors.remove(objects[i])
 				table.remove(objects, i)
 			end
 		end
@@ -579,13 +620,23 @@ function Service.sourceCount(player: Player): number
 	local total = 0
 	for id, count in Stats.getItemCounts(player) do
 		local item = Config.Items.byId[id]
-		if item and item.structure then
+		if item and item.structure and (not item.pet or Pets.kinds[item.pet].isStructure) then
 			total += count
 		end
 	end
 	for _, weapon in Weapons.getWeapons(player) do
 		if Config.Weapons[weapon.id].structureKinds then
 			total += 1
+		end
+	end
+	return total
+end
+-- Permanent pet effects, not visible objects or the mines they create, determine Beast Master's bonuses.
+function Service.petSourceCount(player: Player): number
+	local total = Stats.getStat(player, "jellyshieldCount")
+	for id, count in Stats.getItemCounts(player) do
+		if Config.Items.byId[id].pet then
+			total += count
 		end
 	end
 	return total

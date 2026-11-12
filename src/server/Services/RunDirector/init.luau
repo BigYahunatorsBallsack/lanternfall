@@ -25,6 +25,8 @@ local Shared = ReplicatedStorage.Shared
 local Config = require(Shared.Config)
 local CharacterRules = require(Shared.Util.CharacterRules)
 local DangerRules = require(Shared.Util.DangerRules)
+local Nightmare = require(Shared.Config.Nightmare)
+local NightmareText = require(Shared.Config.NightmarePresentation)
 local Format = require(Shared.Util.Format)
 local Net = require(Shared.Net)
 local RunSchedule = require(Shared.Util.RunSchedule)
@@ -184,6 +186,7 @@ local function restoreCheckpoints()
 end
 
 local completedWave = 0
+local nativeZoneId: number? = nil
 
 local function completeWave(wave: number)
 	if wave <= completedWave then
@@ -197,6 +200,7 @@ end
 local function handle(event: RunFlow.Event)
 	if event.kind == "RunStarted" then
 		completedWave = 0
+		nativeZoneId = Config.Map.nativeZoneId
 		local players = toPlayers(event.userIds)
 		print(`[Lanternfall] Run started with {#players} player(s), {DangerRules.label(flow:getRunOptions())}`)
 		MapService.setArenaMapSize(mapSizePercent(players))
@@ -375,7 +379,9 @@ function RunDirector.init()
 			Net.fireClient(
 				"Notify",
 				player,
-				`Danger {danger} is locked. Win danger {danger - 1} with your character to open it.`
+				if danger == Nightmare.level
+					then NightmareText.unlockRequirement
+					else `Danger {danger} is locked. Win danger {danger - 1} with your character to open it.`
 			)
 			danger = cap
 		end
@@ -481,6 +487,11 @@ end
 -- B11: the options (danger level, endless, enemy sliders) the current run started with.
 function RunDirector.getRunOptions(): Types.RunOptions
 	return table.clone(flow:getRunOptions())
+end
+
+-- Captured by the server at run start; result observers never infer an area from a client's ticket.
+function RunDirector.getNativeZoneId(): number?
+	return nativeZoneId
 end
 
 -- B11: sets the lobby's options for the next run (tests and admin; players use the remote SetRunOptions).

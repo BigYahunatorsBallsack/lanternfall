@@ -64,6 +64,7 @@ ShopService.Sold = Signal.new()
 ShopService.ShardsChanged = Signal.new()
 
 local states: { [Player]: State } = {}
+local pendingMaterialStates: { [Player]: State } = {}
 local offerCounter = 0
 
 local function newState(): State
@@ -93,7 +94,8 @@ local function sellPrice(player: Player, weaponId: string, tier: number, wave: n
 		wave,
 		StatService.getStat(player, "sellValue") + native,
 		priceFactor(player),
-		RunDirector.getParticipantClassId(player)
+		RunDirector.getParticipantClassId(player),
+		RunDirector.getRunOptions().danger
 	)
 end
 
@@ -150,7 +152,12 @@ local function refresh(player: Player, state: State)
 	for index = #state.offers, 1, -1 do
 		local offer = state.offers[index]
 		if not offer.sold then
-			offer.price = ShopRules.offerPrice(offer, factor, RunDirector.getParticipantClassId(player))
+			offer.price = ShopRules.offerPrice(
+				offer,
+				factor,
+				RunDirector.getParticipantClassId(player),
+				RunDirector.getRunOptions().danger
+			)
 			if offer.kind == "Weapon" then
 				local copies = 0
 				for _, weapon in weapons do
@@ -182,11 +189,26 @@ local function refresh(player: Player, state: State)
 	end
 end
 
-local function send(player: Player, state: State)
+local function send(player: Player, state: State, materialPickup: boolean?)
 	if state.open then
 		refresh(player, state)
 	end
-	Net.fireClient("ShopState", player, payload(player, state))
+	if materialPickup and not state.open then
+		if pendingMaterialStates[player] ~= state then
+			pendingMaterialStates[player] = state
+			task.delay(Config.Shop.materialSyncSeconds, function()
+				if pendingMaterialStates[player] == state then
+					pendingMaterialStates[player] = nil
+					if states[player] == state then
+						Net.fireClient("ShopState", player, payload(player, state))
+					end
+				end
+			end)
+		end
+	else
+		pendingMaterialStates[player] = nil
+		Net.fireClient("ShopState", player, payload(player, state))
+	end
 	local whole = math.floor(state.shards)
 	if whole ~= state.reportedShards then
 		state.reportedShards = whole
@@ -208,6 +230,7 @@ local function roll(player: Player, state: State, keep: { Types.ShopOffer }, pre
 	local classId = RunDirector.getParticipantClassId(player)
 	local class = classId and Config.Classes[classId]
 	state.offers = ShopRules.roll({
+		danger = RunDirector.getRunOptions().danger,
 		classId = classId,
 		weaponSlots = StatService.getStat(player, "weaponSlots"),
 		wave = state.wave,
@@ -497,7 +520,7 @@ function ShopService.init()
 			local before = math.floor(state.shards)
 			state.shards += xp * Config.Shop.shardsPerXp
 			if math.floor(state.shards) ~= before then
-				send(player, state)
+				send(player, state, true)
 			end
 		end
 	end)

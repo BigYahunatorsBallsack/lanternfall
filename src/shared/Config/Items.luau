@@ -5,11 +5,13 @@
 -- HP and healing use original Brotato units (current main). Source facts: docs/item-parity/catalog.json.
 
 local Effects = require(script.Parent.Effects)
+local ModifierItems = require(script.Parent.WeaponModifiers).items
 
 export type Item = {
 	description: string?,
 	available: boolean?, -- false while original artwork is only prepared locally
 	structure: string?,
+	pet: string?,
 	nativeWinWith: string?,
 	nativeChallenge: string?,
 	id: string,
@@ -677,6 +679,110 @@ table.insert(
 		tags = table.freeze({ "luck" }),
 		description = "1 dig site appears every 3 waves, stay on it for 5 to 6 seconds to dig up a crate",
 		effects = table.freeze({ table.freeze({ trigger = "Always", action = "DigSites", amount = 1, per = 3 }) }),
+	})
+)
+-- Original pet actors stay artwork-gated until actual original uploads are supplied.
+for id, source in ModifierItems do
+	table.insert(
+		LIST,
+		table.freeze({
+			id = id,
+			displayName = source.displayName,
+			tier = source.tier,
+			price = source.price,
+			limit = source.limit,
+			available = false,
+			stats = table.freeze(source.stats),
+			tags = table.freeze(source.tags),
+			effects = table.freeze({
+				table.freeze({ trigger = "Always", action = "Stats", stats = table.freeze(source.modifiers) }),
+			}),
+		})
+	)
+end
+table.insert(
+	LIST,
+	table.freeze({
+		id = "Ratzilla",
+		displayName = "Ratzilla",
+		tier = 1,
+		price = 30,
+		available = false,
+		stats = table.freeze({}),
+		structure = "Ratzilla",
+		pet = "Ratzilla",
+		tags = table.freeze({ "maxHp", "pet" }),
+	})
+)
+table.insert(
+	LIST,
+	table.freeze({
+		id = "BonkDog",
+		displayName = "Bonk Dog",
+		tier = 2,
+		price = 40,
+		available = false,
+		stats = table.freeze({}),
+		structure = "BonkDog",
+		pet = "BonkDog",
+		tags = table.freeze({ "meleeDamage", "explosive", "pet" }),
+	})
+)
+table.insert(
+	LIST,
+	table.freeze({
+		id = "BotOMine",
+		displayName = "Bot-O-Mine",
+		tier = 2,
+		price = 55,
+		available = false,
+		stats = table.freeze({}),
+		structure = "BotOMine",
+		pet = "BotOMine",
+		tags = table.freeze({ "engineering", "pet", "structure" }),
+	})
+)
+table.insert(
+	LIST,
+	table.freeze({
+		id = "Blazemander",
+		displayName = "Blazemander",
+		tier = 2,
+		price = 40,
+		available = false,
+		stats = table.freeze({}),
+		structure = "Blazemander",
+		pet = "Blazemander",
+		tags = table.freeze({ "elementalDamage", "pet" }),
+	})
+)
+table.insert(
+	LIST,
+	table.freeze({
+		id = "CatlingGun",
+		displayName = "Catling Gun",
+		tier = 2,
+		price = 34,
+		available = false,
+		stats = table.freeze({}),
+		structure = "CatlingGun",
+		pet = "CatlingGun",
+		tags = table.freeze({ "pet", "rangedDamage" }),
+	})
+)
+table.insert(
+	LIST,
+	table.freeze({
+		id = "Lootworm",
+		displayName = "Lootworm",
+		tier = 1,
+		price = 30,
+		limit = 1,
+		available = false,
+		stats = table.freeze({}),
+		structure = "Lootworm",
+		pet = "Lootworm",
+		tags = table.freeze({ "economy", "pickup", "pet" }),
 	})
 )
 local byId: { [string]: Item } = {}

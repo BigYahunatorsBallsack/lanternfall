@@ -1333,7 +1333,7 @@
       "nameKey": "ITEM_ESTYS_COUCH",
       "source": "res://items/all/00_base_game/estys_couch/estys_couch_data.tres",
       "sourceMd5": "2712fd1f104fa89666db2c981c7a16ad",
-      "displayName": "Esty’s Couch",
+      "displayName": "Estyâ€™s Couch",
       "tags": [
         "stat_hp_regeneration",
         "stat_max_hp"
@@ -1427,6 +1427,107 @@
       "displayName": "Dig Site",
       "tags": [
         "stat_luck"
+      ]
+    },
+    "BonkDog": {
+      "nativeId": "item_bonk_dog",
+      "nameKey": "ITEM_BONK_DOG",
+      "source": "res://items/all/03_paws_n_claws/bonk_dog/bonk_dog.tres",
+      "sourceMd5": "55b63bb818429af42634426e41236a4a",
+      "displayName": "Bonk Dog",
+      "tags": [
+        "stat_melee_damage",
+        "explosive",
+        "pet"
+      ]
+    },
+    "Ratzilla": {
+      "nativeId": "item_ratzilla",
+      "nameKey": "ITEM_RATZILLA",
+      "source": "res://items/all/03_paws_n_claws/ratzilla/ratzilla.tres",
+      "sourceMd5": "3f66c9f9e8c84d39274d5ca124c3fd11",
+      "displayName": "Ratzilla",
+      "tags": [
+        "stat_max_hp",
+        "pet"
+      ]
+    },
+    "BotOMine": {
+      "nativeId": "item_bot_o_mine",
+      "nameKey": "ITEM_BOT_O_MINE",
+      "source": "res://items/all/03_paws_n_claws/bot_o_mine/bot_o_mine.tres",
+      "sourceMd5": "471c4b70b39ea3b2d6579004a3436be8",
+      "displayName": "Bot-O-Mine",
+      "tags": [
+        "stat_engineering",
+        "pet",
+        "structure"
+      ]
+    },
+    "Blazemander": {
+      "nativeId": "item_blazemander",
+      "nameKey": "ITEM_BLAZEMANDER",
+      "source": "res://items/all/03_paws_n_claws/blazemander/blazemander.tres",
+      "sourceMd5": "09870448e535e871cf682e85b4177320",
+      "displayName": "Blazemander",
+      "tags": [
+        "stat_elemental_damage",
+        "pet"
+      ]
+    },
+    "CatlingGun": {
+      "nativeId": "item_catling_gun",
+      "nameKey": "ITEM_CATLING_GUN",
+      "source": "res://items/all/03_paws_n_claws/catling_gun/catling_gun.tres",
+      "sourceMd5": "6a1f4f9995fc642ffc173e23e97c70fa",
+      "displayName": "Catling Gun",
+      "tags": [
+        "pet",
+        "stat_ranged_damage"
+      ]
+    },
+    "Lootworm": {
+      "nativeId": "item_lootworm",
+      "nameKey": "ITEM_LOOTWORM",
+      "source": "res://items/all/03_paws_n_claws/lootworm/lootworm.tres",
+      "sourceMd5": "d484afe30550318b555db6dd961d2b77",
+      "displayName": "Lootworm",
+      "tags": [
+        "economy",
+        "pickup",
+        "pet"
+      ]
+    },
+    "Nail": {
+      "nativeId": "item_nail",
+      "nameKey": "ITEM_NAIL",
+      "source": "res://items/all/00_base_game/nail/nail_data.tres",
+      "sourceMd5": "ac07502ac1c165ee85b081d0726ac455",
+      "displayName": "Nail",
+      "tags": [
+        "stat_engineering"
+      ]
+    },
+    "FrozenHeart": {
+      "nativeId": "item_frozen_heart",
+      "nameKey": "ITEM_FROZEN_HEART",
+      "source": "res://items/all/00_base_game/frozen_heart/frozen_heart_data.tres",
+      "sourceMd5": "6c3d918adc756f7f48155b8642145875",
+      "displayName": "Frozen Heart",
+      "tags": [
+        "stat_elemental_damage",
+        "stat_crit_chance"
+      ]
+    },
+    "PileOfBooks": {
+      "nativeId": "item_pile_of_books",
+      "nameKey": "ITEM_PILE_OF_BOOKS",
+      "source": "res://items/all/00_base_game/pile_of_books/pile_of_books_data.tres",
+      "sourceMd5": "312d3d0b107caf3b53c81d71590e8963",
+      "displayName": "Pile of Books",
+      "tags": [
+        "stat_crit_chance",
+        "stat_engineering"
       ]
     }
   },

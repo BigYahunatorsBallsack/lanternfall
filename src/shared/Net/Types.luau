@@ -34,7 +34,7 @@ export type Results = {
 	retriesLeft: number?, -- B11 part 2: "Retry wave" can still be used this often (defeats only)
 }
 
--- B11: what the lobby chose for a run (Config.Difficulty): danger level 0-5, endless mode and the enemy sliders in
+-- B11: what the lobby chose for a run (Config.Difficulty): danger level 0-6, endless mode and the enemy sliders in
 -- percent.
 export type RunOptions = {
 	danger: number,
@@ -118,6 +118,14 @@ export type WeaponEffect = {
 
 -- One enemy projectile (EnemySim -> EnemyShotRenderer). It flies straight from x/z at `speed` from server time `at`
 -- and fades at `range`, unless an "ended" entry stops it earlier.
+-- Native environmental shots add sinusoidal velocity; ordinary shots keep their legacy packet size.
+export type EnemyShotMotion = {
+	amplitudeX: number,
+	amplitudeZ: number,
+	frequencyX: number,
+	frequencyZ: number,
+}
+
 export type EnemyShot = {
 	id: number, -- unique within the run
 	x: number,
@@ -127,6 +135,7 @@ export type EnemyShot = {
 	speed: number, -- studs/s
 	range: number, -- studs
 	at: number, -- server time it was fired
+	motion: EnemyShotMotion?, -- environmental shot; source directional lifetime replaces ordinary arena clipping
 }
 
 -- Enemy projectile changes since the last snapshot, sent to the participants.
@@ -416,6 +425,7 @@ export type ProfileInfo = {
 	ownedClasses: { string }?, -- characters bought with Embers (unlocked without the achievement)
 	nativeWeaponUnlocks: { [string]: boolean }?, -- native family access for starting weapon choices
 	nativeCharacterUnlocks: { [string]: boolean }?, -- native source access; available new packages consume this mask
+	nativeNightmareUnlocked: boolean?, -- original saved-progress prerequisite, enforced by the server for mode6
 	settings: Settings?, -- Paket 14
 	cosmetics: { owned: { string }, equipped: { [string]: string } }?, -- Paket 17: bought and picked cosmetics
 }
@@ -522,4 +532,23 @@ export type LeaderboardPage = {
 	sentAt: number,
 }
 
+-- Source Mad Slasher attacks, server-owned; damage remains private to the collision service.
+export type NativeSlashInfo = {
+	id: number,
+	sourceId: number,
+	ownerId: number?,
+	x: number,
+	z: number,
+	dx: number,
+	dz: number,
+	speed: number,
+	at: number,
+}
+export type NativeSlashBatch = { reset: boolean?, fired: { NativeSlashInfo }, ended: { number } }
+-- Fog activation and wave-start visibility are server-owned. Positions use existing replicated actors.
+export type NativeFogState = {
+	wave: number,
+	at: number,
+	players: { { userId: number, visibility: number, alive: boolean } },
+}
 return {}

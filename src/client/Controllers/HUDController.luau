@@ -32,6 +32,7 @@ local LoadoutController = require(script.Parent.LoadoutController)
 local PlayerStateController = require(script.Parent.PlayerStateController)
 local ProgressController = require(script.Parent.ProgressController)
 local RunStateController = require(script.Parent.RunStateController)
+local StatsController = require(script.Parent.StatsController)
 local SettingsController = require(script.Parent.SettingsController)
 local Theme = require(script.Parent.Parent.UI.Theme)
 local Tooltip = require(script.Parent.Parent.UI.Tooltip)
@@ -289,7 +290,7 @@ local function renderItems()
 		})
 		local itemId, count = info.id, info.count
 		Tooltip.attach(row, function()
-			return TooltipText.item(itemId, count)
+			return TooltipText.item(itemId, count, StatsController.get())
 		end)
 	end
 end

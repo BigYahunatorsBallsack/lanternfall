@@ -73,9 +73,15 @@ describe("B12 structures", function()
 			end
 		end
 		nextWave()
-		expect(#Structures.getSnapshot()).toBe(9)
+		expect(#Structures.getSnapshot()).toBe(15)
 		expect(fruitDropped > 0).toBe(true)
-		expect(#workspace:FindFirstChild("LanternfallStructures"):GetChildren() >= 9).toBe(true) -- one sprite each
+		expect(#workspace:FindFirstChild("LanternfallStructures"):GetChildren() >= 15).toBe(true) -- one pooled visual each; native pet artwork stays gated
+		expect(find("Ratzilla").ownerId).toBe(me.UserId)
+		expect(find("BonkDog").ownerId).toBe(me.UserId)
+		expect(find("BotOMine").ownerId).toBe(me.UserId)
+		expect(find("Blazemander").ownerId).toBe(me.UserId)
+		expect(find("CatlingGun").ownerId).toBe(me.UserId)
+		expect(find("Lootworm").ownerId).toBe(me.UserId)
 		expect(find("OrbitWisp").ownerId).toBe(me.UserId)
 	end)
 	it("damages enemies through structures and heals only the nearby owner", function()
@@ -94,6 +100,9 @@ describe("B12 structures", function()
 	end)
 	it("lays recurring mines, clears them in the shop and rebuilds sources", function()
 		Enemy.killAll() -- the Brute of the last test would set mines off (Paket 22: flaky)
+		-- A pet may already have killed that Brute and consumed the initial mine; start with a fresh unarmed deployment.
+		nextWave()
+		expect(find("RuneMine").ownerId).toBe(me.UserId)
 		world.advance(12.1)
 		local mines = 0
 		for _, o in Structures.getSnapshot() do

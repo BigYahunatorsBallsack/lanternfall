@@ -2,6 +2,7 @@
 -- B10 character packages read by CharacterRules, services and lobby. References: docs/B10-CHARAKTERE.md.
 -- HP uses the original Brotato scale. Legacy ids remain valid; unlock progression belongs to package 13.
 local Catalog = require(script.Parent.CharacterCatalog)
+local Items = require(script.Parent.Items)
 local Artwork = require(script.Parent.Parent.Util.CharacterArtwork)
 type CharacterArtwork = { image: string?, height: number?, ground: number?, center: number?, nativeVersion: string? }
 local SpriteImages: { characters: { [string]: CharacterArtwork } } = require(script.Parent.SpriteImages)
@@ -24,6 +25,7 @@ export type Class = {
 	startWeaponTiers: { [string]: number }?,
 	extraWeaponTiers: { [string]: number }?,
 	startItems: { string }?,
+	startPets: { string }?,
 	wantedTags: { string }?,
 	perWeapon: { [string]: number }?,
 	perDistinctWeapon: { [string]: number }?,
@@ -219,6 +221,13 @@ for id, source in Catalog do
 			table.insert(conversions, conversion)
 		end
 	end
+	local startPets = {}
+	for _, choice in source.startItemChoices do
+		local item = Items.byId[choice.id]
+		if item and item.pet then
+			table.insert(startPets, choice.id)
+		end
+	end
 	local package: Class = {
 		id = id,
 		displayName = source.displayName,
@@ -228,6 +237,7 @@ for id, source in Catalog do
 		extraWeapons = source.extraWeapons,
 		extraWeaponTiers = source.extraWeaponTiers,
 		startItems = source.startItems,
+		startPets = if #startPets > 0 then startPets else nil,
 		stats = source.stats,
 		gainMultipliers = source.gainMultipliers,
 		perLevel = source.perLevel,
@@ -425,6 +435,23 @@ Classes.King.description =
 	"+50 Luck\n+25 % Damage for every Tier IV weapon you have [0]\n+25 % Attack Speed for every Tier IV weapon you have [0]\n+5 Max HP for every different Tier IV item you have [0]\n-15 % Damage for every Tier I weapon you have [0]\n-15 % Attack Speed for every Tier I weapon you have [0]\n-2 Max HP for every different Tier I item you have [0]"
 Classes.Loud.nativeCodeReady = true
 Classes.Loud.description = "+30 % Damage\n+50 % Enemies\n-3 Harvesting at the end of a wave"
+
+-- Eighth batch: complete code packages keep their original-art gates until real uploads exist.
+Classes.Baby.nativeCodeReady = true
+Classes.Baby.description =
+	"+12 Harvesting\n-20 % Items Price\nYou gain a weapon slot when you level up instead of a stat upgrade (max: 24)\nYou start with one weapon slot\nShops always sell at least one weapon\n+130% XP required to level up"
+Classes.Jack.nativeCodeReady = true
+Classes.Jack.description =
+	"+125% damage against bosses and elites\n+200% materials dropped\n-70% Enemies\n+175 % Enemy health\n+35 % Enemy damage"
+Classes.Vampire.nativeCodeReady = true
+Classes.Vampire.description =
+	"+2 % Damage for every 1% of missing health [0]\n+1 % Life Steal for every 3% of missing health [0]\n+1 Armor for every 5% of missing health [0]\nMax HP modifications are reduced by 25%\n-60 % Damage\n-100 HP Regeneration\n-100 HP recovered from consumables"
+Classes.BeastMaster.nativeCodeReady = true
+Classes.BeastMaster.description =
+	"You start with 1 Lootworm\nYou can't equip weapons\n+2 % Speed for every permanent Pet you have [0]\nPet damage also scales with Melee Damage, Ranged Damage, Elemental Damage, and Engineering\n+10 Luck\nYou start with 1 Ratzilla"
+Classes.Wounded.description =
+	"This character dies in One Hit\nYou start with 1 Tardigrade\n+5 % Speed\n+8 Harvesting\nShop items and crates are cleared of items focusing on Max HP, HP Regeneration, % Life Steal and Armor"
+Classes.Wounded.nativeCodeReady = true
 
 for id, class in Classes do
 	if not class.nativeCodeReady then

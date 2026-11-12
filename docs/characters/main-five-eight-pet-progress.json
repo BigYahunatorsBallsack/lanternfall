@@ -1,0 +1,1071 @@
+{
+  "date": "2026-11-13",
+  "mainCommit": "6bb5174f31bee9b839cc9a04ee406d1f549de051",
+  "scope": "Four prepared code packages in an unmerged five-character batch; Wounded still requires complete Nightmare 1; main remains43/74",
+  "codePreparedOnMain": 43,
+  "newNativeCodeReadyFlags": 5,
+  "fullSuite": {
+    "baseline": {
+      "specs": 222,
+      "passed": 1488,
+      "failed": 37
+    },
+    "branch": {
+      "specs": 251,
+      "passed": 1605,
+      "failed": 36
+    },
+    "newFailureNames": [],
+    "removedFailureNames": [
+      {
+        "spec": "tests/EnemiesB9.spec.luau",
+        "failure": "FAIL new enemies (B9) > lets a Gobbler eat the orbs on the floor and drop them all when killed"
+      }
+    ],
+    "aborts": [],
+    "branchResult": "build/native-five-branch-eight-tooltips-6bb5174.json",
+    "confirmedBaselineFluctuations": [
+      {
+        "iteration": 1,
+        "label": "main",
+        "exit": 1,
+        "stepMs": [
+          "4.253"
+        ],
+        "result": [
+          "5 passed, 1 failed"
+        ],
+        "failures": [
+          "FAIL Charmed faction runtime > steps a mixed hostile and friendly crowd within the shared simulation budget"
+        ]
+      },
+      {
+        "iteration": 1,
+        "label": "branch",
+        "exit": 0,
+        "stepMs": [
+          "3.830"
+        ],
+        "result": [
+          "6 passed, 0 failed"
+        ],
+        "failures": []
+      },
+      {
+        "iteration": 2,
+        "label": "main",
+        "exit": 0,
+        "stepMs": [
+          "3.908"
+        ],
+        "result": [
+          "6 passed, 0 failed"
+        ],
+        "failures": []
+      },
+      {
+        "iteration": 2,
+        "label": "branch",
+        "exit": 0,
+        "stepMs": [
+          "3.811"
+        ],
+        "result": [
+          "6 passed, 0 failed"
+        ],
+        "failures": []
+      },
+      {
+        "iteration": 3,
+        "label": "main",
+        "exit": 0,
+        "stepMs": [
+          "3.749"
+        ],
+        "result": [
+          "6 passed, 0 failed"
+        ],
+        "failures": []
+      },
+      {
+        "iteration": 3,
+        "label": "branch",
+        "exit": 0,
+        "stepMs": [
+          "3.815"
+        ],
+        "result": [
+          "6 passed, 0 failed"
+        ],
+        "failures": []
+      },
+      {
+        "iteration": 4,
+        "label": "main",
+        "exit": 1,
+        "stepMs": [
+          "4.153"
+        ],
+        "result": [
+          "5 passed, 1 failed"
+        ],
+        "failures": [
+          "FAIL Charmed faction runtime > steps a mixed hostile and friendly crowd within the shared simulation budget"
+        ]
+      },
+      {
+        "iteration": 4,
+        "label": "branch",
+        "exit": 1,
+        "stepMs": [
+          "4.055"
+        ],
+        "result": [
+          "5 passed, 1 failed"
+        ],
+        "failures": [
+          "FAIL Charmed faction runtime > steps a mixed hostile and friendly crowd within the shared simulation budget"
+        ]
+      },
+      {
+        "iteration": 5,
+        "label": "main",
+        "exit": 1,
+        "stepMs": [
+          "4.080"
+        ],
+        "result": [
+          "5 passed, 1 failed"
+        ],
+        "failures": [
+          "FAIL Charmed faction runtime > steps a mixed hostile and friendly crowd within the shared simulation budget"
+        ]
+      },
+      {
+        "iteration": 5,
+        "label": "branch",
+        "exit": 1,
+        "stepMs": [
+          "4.151"
+        ],
+        "result": [
+          "5 passed, 1 failed"
+        ],
+        "failures": [
+          "FAIL Charmed faction runtime > steps a mixed hostile and friendly crowd within the shared simulation budget"
+        ]
+      }
+    ],
+    "newDeterministicFailureNames": [],
+    "additionalChecksPassed": 116,
+    "additionalSpecs": 29,
+    "readyFlagsAddedAfterSuite": true,
+    "afterReadyFlagsFocused": "Baby3/0,Jack4/0,Vampire3/0,StartPet4/0,StartPetUi2/0,StartPetRunPlace2/0,PetText6/0,PetTooltipUi2/0; artwork gates unchanged"
+  },
+  "focused": {
+    "tests/CharacterBabyPackage.spec.luau": {
+      "passed": 3,
+      "failed": 0
+    },
+    "tests/CharacterJackPackage.spec.luau": {
+      "passed": 4,
+      "failed": 0
+    },
+    "tests/CharacterVampirePackage.spec.luau": {
+      "passed": 3,
+      "failed": 0
+    },
+    "tests/NativeBonkDog.spec.luau": {
+      "passed": 3,
+      "failed": 0
+    },
+    "tests/NativeBotOMine.spec.luau": {
+      "passed": 5,
+      "failed": 0
+    },
+    "tests/NativePetLifecycle.spec.luau": {
+      "passed": 6,
+      "failed": 0
+    },
+    "tests/NativePetProjectiles.spec.luau": {
+      "passed": 7,
+      "failed": 0
+    },
+    "tests/NativePetStats.spec.luau": {
+      "passed": 9,
+      "failed": 0
+    },
+    "tests/NativeRatzilla.spec.luau": {
+      "passed": 3,
+      "failed": 0
+    },
+    "tests/NativeBlazemander.spec.luau": {
+      "passed": 3,
+      "failed": 0
+    },
+    "tests/NativeBlazemanderTiming.spec.luau": {
+      "passed": 3,
+      "failed": 0
+    },
+    "tests/NativePetBurn.spec.luau": {
+      "passed": 3,
+      "failed": 0
+    },
+    "tests/NativeCatlingActors.spec.luau": {
+      "passed": 3,
+      "failed": 0
+    },
+    "tests/NativeCatlingGun.spec.luau": {
+      "passed": 7,
+      "failed": 0
+    },
+    "tests/NativeLootworm.spec.luau": {
+      "passed": 5,
+      "failed": 0
+    },
+    "tests/NativePetMaterials.spec.luau": {
+      "passed": 4,
+      "failed": 0
+    },
+    "tests/NativePetPickup.spec.luau": {
+      "passed": 2,
+      "failed": 0
+    },
+    "tests/NativeStartPet.spec.luau": {
+      "passed": 4,
+      "failed": 0
+    },
+    "tests/NativeStartPetUi.spec.luau": {
+      "passed": 2,
+      "failed": 0
+    },
+    "tests/NativeStartPetTicket.spec.luau": {
+      "passed": 2,
+      "failed": 0
+    },
+    "tests/NativeStartPetRunPlace.spec.luau": {
+      "passed": 2,
+      "failed": 0
+    },
+    "tests/NativePetAccess.spec.luau": {
+      "passed": 3,
+      "failed": 0
+    },
+    "tests/NativePetAccessWave.spec.luau": {
+      "passed": 3,
+      "failed": 0
+    },
+    "tests/NativePetShop.spec.luau": {
+      "passed": 1,
+      "failed": 0
+    },
+    "tests/NativePetRangeEntry.spec.luau": {
+      "passed": 2,
+      "failed": 0
+    },
+    "tests/NativePetModifiers.spec.luau": {
+      "passed": 10,
+      "failed": 0
+    },
+    "tests/NativeStructureCritUnlock.spec.luau": {
+      "passed": 6,
+      "failed": 0
+    },
+    "tests/NativePetText.spec.luau": {
+      "passed": 6,
+      "failed": 0
+    },
+    "tests/NativePetTooltipUi.spec.luau": {
+      "passed": 2,
+      "failed": 0
+    }
+  },
+  "botMutation": {
+    "mutation": "Lay the first Bot-O-Mine mine immediately instead of after300native frames",
+    "detected": true,
+    "output": "[Lanternfall] Place: lobby and arena in one server (no hub/run place ids for this place in Config.Places)\n[Lanternfall] Server ready: 71 remotes, 36 services, config problems: 0\n[Lanternfall] Saving: memory only (no DataStoreService)\n[Lanternfall] Badge \"Lantern Lit\" earned but not set up (Config/Badges.luau id is 0)\n[Lanternfall] Owner login streak day 1: +25 Embers\n[Lanternfall] Peer login streak day 1: +25 Embers\n[Lanternfall] Launch check: 1 must, 2 should open (debug button \"Launch check\" lists them)\n[Lanternfall] Run started with 2 player(s), Danger 0\n[Lanternfall] Run seed 228619419 (Config.Run.seed replays it)\n[Lanternfall] Run ended: Abandoned after 00:20\n[Lanternfall] ===== Run summary (copy this block for your playtest notes) =====\n[Lanternfall] Abandoned after 00:20 \u00c2\u00b7 Danger 0 \u00c2\u00b7 2 player(s) \u00c2\u00b7 team level 0 \u00c2\u00b7 0 kills\n[Lanternfall] Owner (Ranger): 0 kills, 0 damage, took 0, down 0x\n[Lanternfall]   Weapons: Pistol I 0 dmg/0 kills\n[Lanternfall]   Items: Bot-O-Mine x1\n[Lanternfall] Peer (Ranger): 0 kills, 0 damage, took 0, down 0x\n[Lanternfall]   Weapons: Pistol I 0 dmg/0 kills\n[Lanternfall]   Items: none\n[Lanternfall] =====\n[Lanternfall] Run started with 2 player(s), Danger 0\n[Lanternfall] Run seed 1770704722 (Config.Run.seed replays it)\nFAIL Native Bot-O-Mine > fires after its native initial cooldown and lays mines at five-second intervals\n     tests/NativeBotOMine.spec.luau:57: expected 0, got 1\n[Lanternfall] Run ended: Abandoned after 00:20\n[Lanternfall] ===== Run summary (copy this block for your playtest notes) =====\n[Lanternfall] Abandoned after 00:20 \u00c2\u00b7 Danger 0 \u00c2\u00b7 2 player(s) \u00c2\u00b7 team level 0 \u00c2\u00b7 1 kills (Brute 1)\n[Lanternfall] Owner (Ranger): 0 kills, 0 damage, took 0, down 0x\n[Lanternfall]   Weapons: Pistol I 0 dmg/0 kills\n[Lanternfall]   Items: Bot-O-Mine x1\n[Lanternfall] Peer (Ranger): 0 kills, 0 damage, took 0, down 0x\n[Lanternfall]   Weapons: Pistol I 0 dmg/0 kills\n[Lanternfall]   Items: none\n[Lanternfall] =====\n[Lanternfall] Run started with 2 player(s), Danger 0\n[Lanternfall] Run seed 2131957495 (Config.Run.seed replays it)\nFAIL Native Bot-O-Mine > continues following, shooting and triggering pet mines while the owner is down\n     tests/NativeBotOMine.spec.luau:90: expected 0, got 1\n[Lanternfall] Run ended: Abandoned after 00:20\n[Lanternfall] ===== Run summary (copy this block for your playtest notes) =====\n[Lanternfall] Abandoned after 00:20 \u00c2\u00b7 Danger 0 \u00c2\u00b7 2 player(s) \u00c2\u00b7 team level 0 \u00c2\u00b7 1 kills (Brute 1)\n[Lanternfall] Owner (Ranger): 0 kills, 0 damage, took 7, down 1x, first down at 00:20\n[Lanternfall]   Weapons: Pistol I 0 dmg/0 kills\n[Lanternfall]   Items: Bot-O-Mine x1\n[Lanternfall] Peer (Ranger): 0 kills, 0 damage, took 0, down 0x\n[Lanternfall]   Weapons: Pistol I 0 dmg/0 kills\n[Lanternfall]   Items: none\n[Lanternfall] =====\n3 passed, 2 failed\n",
+    "byteExactRestore": true,
+    "restoredOutput": "[Lanternfall] Place: lobby and arena in one server (no hub/run place ids for this place in Config.Places)\n[Lanternfall] Server ready: 71 remotes, 36 services, config problems: 0\n[Lanternfall] Saving: memory only (no DataStoreService)\n[Lanternfall] Badge \"Lantern Lit\" earned but not set up (Config/Badges.luau id is 0)\n[Lanternfall] Owner login streak day 1: +25 Embers\n[Lanternfall] Peer login streak day 1: +25 Embers\n[Lanternfall] Launch check: 1 must, 2 should open (debug button \"Launch check\" lists them)\n[Lanternfall] Run started with 2 player(s), Danger 0\n[Lanternfall] Run seed 228619419 (Config.Run.seed replays it)\n[Lanternfall] Run ended: Abandoned after 00:20\n[Lanternfall] ===== Run summary (copy this block for your playtest notes) =====\n[Lanternfall] Abandoned after 00:20 \u00c2\u00b7 Danger 0 \u00c2\u00b7 2 player(s) \u00c2\u00b7 team level 0 \u00c2\u00b7 0 kills\n[Lanternfall] Owner (Ranger): 0 kills, 0 damage, took 0, down 0x\n[Lanternfall]   Weapons: Pistol I 0 dmg/0 kills\n[Lanternfall]   Items: Bot-O-Mine x1\n[Lanternfall] Peer (Ranger): 0 kills, 0 damage, took 0, down 0x\n[Lanternfall]   Weapons: Pistol I 0 dmg/0 kills\n[Lanternfall]   Items: none\n[Lanternfall] =====\n[Lanternfall] Run started with 2 player(s), Danger 0\n[Lanternfall] Run seed 1770704722 (Config.Run.seed replays it)\n[Lanternfall] Run ended: Abandoned after 00:20\n[Lanternfall] ===== Run summary (copy this block for your playtest notes) =====\n[Lanternfall] Abandoned after 00:20 \u00c2\u00b7 Danger 0 \u00c2\u00b7 2 player(s) \u00c2\u00b7 team level 0 \u00c2\u00b7 1 kills (Brute 1)\n[Lanternfall] Owner (Ranger): 0 kills, 0 damage, took 0, down 0x\n[Lanternfall]   Weapons: Pistol I 0 dmg/0 kills\n[Lanternfall]   Items: Bot-O-Mine x1\n[Lanternfall] Peer (Ranger): 0 kills, 0 damage, took 0, down 0x\n[Lanternfall]   Weapons: Pistol I 0 dmg/0 kills\n[Lanternfall]   Items: none\n[Lanternfall] =====\n[Lanternfall] Run started with 2 player(s), Danger 0\n[Lanternfall] Run seed 2131957495 (Config.Run.seed replays it)\n[Lanternfall] Run ended: Abandoned after 00:20\n[Lanternfall] ===== Run summary (copy this block for your playtest notes) =====\n[Lanternfall] Abandoned after 00:20 \u00c2\u00b7 Danger 0 \u00c2\u00b7 2 player(s) \u00c2\u00b7 team level 0 \u00c2\u00b7 1 kills (Brute 1)\n[Lanternfall] Owner (Ranger): 0 kills, 0 damage, took 7, down 1x, first down at 00:20\n[Lanternfall]   Weapons: Pistol I 0 dmg/0 kills\n[Lanternfall]   Items: Bot-O-Mine x1\n[Lanternfall] Peer (Ranger): 0 kills, 0 damage, took 0, down 0x\n[Lanternfall]   Weapons: Pistol I 0 dmg/0 kills\n[Lanternfall]   Items: none\n[Lanternfall] =====\n5 passed, 0 failed\n"
+  },
+  "selene": {
+    "errors": 0,
+    "existingWarnings": 18
+  },
+  "rojo": true,
+  "sourceCompilers": true,
+  "nativeRuntimeItemIdentities": 133,
+  "nativeItemBanGroups": 13,
+  "originalIconsPrepared": 6,
+  "actorArtworkPrepared": false,
+  "uploads": 0,
+  "runtimeAssetIdsChanged": false,
+  "arsenalChanged": false,
+  "remainingDependencies": [],
+  "remainingMissingItemFamilies": [
+    "builder_turret",
+    "fish_hook",
+    "spyglass"
+  ],
+  "remainingNativeAcceptance": [
+    "Actor animations and dynamic muzzle poses",
+    "Pet stat effects and range-entry targeting",
+    "Shared native physics/catalog/zone parity",
+    "Studio,2clients,mobile",
+    "200actor4msbudget"
+  ],
+  "blazeBurnMutation": {
+    "mutation": "Allow a second independent Sausage burn on an intrinsically burning pet hit",
+    "detected": true,
+    "output": "[Lanternfall] Place: lobby and arena in one server (no hub/run place ids for this place in Config.Places)\n[Lanternfall] Server ready: 71 remotes, 36 services, config problems: 0\n[Lanternfall] Saving: memory only (no DataStoreService)\n[Lanternfall] Badge \"Lantern Lit\" earned but not set up (Config/Badges.luau id is 0)\n[Lanternfall] Owner login streak day 1: +25 Embers\n[Lanternfall] Peer login streak day 1: +25 Embers\n[Lanternfall] Launch check: 1 must, 2 should open (debug button \"Launch check\" lists them)\n[Lanternfall] Run started with 2 player(s), Danger 0\n[Lanternfall] Run seed 228619419 (Config.Run.seed replays it)\nFAIL Native intrinsic pet burn > emits one flame per ring direction even with zero projectile count and merges global burn once\n     tests/NativePetBurn.spec.luau:50: expected 1985, got 1978\n1 passed, 1 failed\n",
+    "restoredPassed": true,
+    "restoredByteExactlyBeforeFinalFormatting": true
+  },
+  "petSourceScenes": 16,
+  "newPassedComparedWithMain": 73,
+  "catBoostMutation": {
+    "mutation": "Ignore Catling Gun boost when resetting both gun cooldowns",
+    "detected": true,
+    "output": "[Lanternfall] Place: lobby and arena in one server (no hub/run place ids for this place in Config.Places)\n[Lanternfall] Server ready: 71 remotes, 36 services, config problems: 0\n[Lanternfall] Saving: memory only (no DataStoreService)\n[Lanternfall] Badge \"Lantern Lit\" earned but not set up (Config/Badges.luau id is 0)\n[Lanternfall] Owner login streak day 1: +25 Embers\n[Lanternfall] Peer login streak day 1: +25 Embers\n[Lanternfall] Launch check: 1 must, 2 should open (debug button \"Launch check\" lists them)\n[Lanternfall] Run started with 2 player(s), Danger 0\n[Lanternfall] Run seed 228619419 (Config.Run.seed replays it)\nFAIL Native Catling Gun > keeps the initial cooldown and halves subsequent delays while boosted\n     tests/NativeCatlingGun.spec.luau:68: expected 5, got 3\n6 passed, 1 failed\n",
+    "restoredByteExactly": true,
+    "restoredPassed": true
+  },
+  "petBurnPartyRegression": {
+    "source": "res://entities/units/unit/unit.gdc",
+    "sourceMd5": "aa94391f2d9681ac36b7f8617b82ff13",
+    "behavior": "Unit.init sums Burning Speed effects from all players; structureBurn reuses the shared Arsenal interval",
+    "beforeFix": {
+      "passed": 2,
+      "failed": 1,
+      "failure": "expected1997,got2000"
+    },
+    "afterFix": {
+      "passed": 3,
+      "failed": 0
+    },
+    "remainingGap": "Native timer snapshots at enemy spawn versus existing shared runtime updates"
+  },
+  "nativePlayerBoostBodyFacts": {
+    "source": "res://entities/units/player/player.tscn",
+    "sourceMd5": "58724d77253dd2ff1a91a8409a809193",
+    "radiusPoints": 24.0,
+    "offsetXPoints": 0,
+    "offsetZPoints": -12
+  },
+  "gobblerFluctuation": {
+    "firstCatFullRun": {
+      "passed": 1550,
+      "failed": 36,
+      "gobblerPassed": true
+    },
+    "finalCatFullRun": {
+      "passed": 1549,
+      "failed": 37,
+      "gobblerPassed": false
+    },
+    "fixed": false
+  },
+  "lootwormPickupMutation": {
+    "mutation": "Drop Lootworm value and feedback multiplication before the ordinary material pickup callback",
+    "detected": true,
+    "output": "[Lanternfall] Place: lobby and arena in one server (no hub/run place ids for this place in Config.Places)\n[Lanternfall] Server ready: 71 remotes, 36 services, config problems: 0\n[Lanternfall] Saving: memory only (no DataStoreService)\n[Lanternfall] Badge \"Lantern Lit\" earned but not set up (Config/Badges.luau id is 0)\n[Lanternfall] Owner login streak day 1: +25 Embers\n[Lanternfall] Peer login streak day 1: +25 Embers\n[Lanternfall] Launch check: 1 must, 2 should open (debug button \"Launch check\" lists them)\n[Lanternfall] Run started with 2 player(s), Danger 0\n[Lanternfall] Run seed 228619419 (Config.Run.seed replays it)\nFAIL Native pet material pickup integration > combines bag x2, Lootworm x2 and common pickup x2 with one personal object event\n     tests/NativePetPickup.spec.luau:59: expected 4, got 2\n[Lanternfall] Run ended: Abandoned after 00:00\n[Lanternfall] ===== Run summary (copy this block for your playtest notes) =====\n[Lanternfall] Abandoned after 00:00 \u00b7 Danger 0 \u00b7 2 player(s) \u00b7 team level 0 \u00b7 0 kills\n[Lanternfall] Owner (Ranger): 0 kills, 0 damage, took 0, down 0x\n[Lanternfall]   Weapons: Pistol I 0 dmg/0 kills\n[Lanternfall]   Items: none\n[Lanternfall] Peer (Ranger): 0 kills, 0 damage, took 0, down 0x\n[Lanternfall]   Weapons: Pistol I 0 dmg/0 kills\n[Lanternfall]   Items: none\n[Lanternfall] =====\n[Lanternfall] Run started with 2 player(s), Danger 0\n[Lanternfall] Run seed 1770704722 (Config.Run.seed replays it)\n1 passed, 1 failed\n",
+    "restoredByteExactly": true,
+    "restoredPassed": true
+  },
+  "materialInterfaces": [
+    "ExperienceService.getMaterialRevision",
+    "ExperienceService.getMaterialPosition",
+    "ExperienceService.nearestMaterial",
+    "ExperienceService.releasePetMaterials",
+    "ExperienceService.stepPetMaterials",
+    "OrbField.move",
+    "OrbField.take",
+    "OrbField.collect optional predicate",
+    "OrbField.nearest optional trailing id"
+  ],
+  "lootwormRules": {
+    "doubleChance": 0.1,
+    "itemLimit": 1,
+    "pickupFeedbackCompound": 8,
+    "ownerCanBeDown": true,
+    "noExtraLifeStealCallback": true,
+    "goldHalfExtentsPoints": [
+      16,
+      16
+    ],
+    "nativeGoldRotationAndDropPushbackAccepted": false,
+    "nativeAreaPhaseAccepted": false,
+    "ordinaryPlayerAttractionParityAccepted": false
+  },
+  "networkRegression": {
+    "test": "tests/Perf22.spec.luau",
+    "newFailureDetectedByName": true,
+    "beforeKiBPerSecond": 50.8,
+    "frameOnlyCoalescingKiBPerSecond": 50.4,
+    "fixedFocusedKiBPerSecond": 46.0,
+    "budgetKiBPerSecond": 50,
+    "budgetChanged": false,
+    "materialHudSyncSeconds": 0.2,
+    "balancesAndEffectsStayImmediate": true,
+    "coalescingRegressionBefore": {
+      "passed": 1,
+      "failed": 1
+    },
+    "coalescingRegressionAfter": {
+      "passed": 2,
+      "failed": 0
+    },
+    "finalFullSuitePerfPassed": true
+  },
+  "startPetUnlockMutation": {
+    "mutation": "Bypass server pet-item unlock validation",
+    "detected": true,
+    "restoredByteExactly": true,
+    "sha256": "b1eb88dd744a2d66d46e615ec7418545211ffde9ee9e76c0bc18b5c61f6f10b1",
+    "output": "[Lanternfall] Place: lobby and arena in one server (no hub/run place ids for this place in Config.Places)\n[Lanternfall] Server ready: 73 remotes, 37 services, config problems: 0\n[Lanternfall] Saving: memory only (no DataStoreService)\n[Lanternfall] Badge \"Lantern Lit\" earned but not set up (Config/Badges.luau id is 0)\n[Lanternfall] Owner login streak day 1: +25 Embers\n[Lanternfall] Peer login streak day 1: +25 Embers\n[Lanternfall] Launch check: 1 must, 2 should open (debug button \"Launch check\" lists them)\nFAIL Native start pet selection > rejects forged item, weapon, character and in-run selections and isolates players\n     tests/NativeStartPet.spec.luau:28: expected false, got true\n[Lanternfall] Run started with 2 player(s), Danger 0\n[Lanternfall] Run seed 228619419 (Config.Run.seed replays it)\nFAIL Native start pet selection > grants the selected pet plus one Lootworm and Ratzilla for every original start\n     tests/NativeStartPet.spec.luau:52: expected 1, got nil\nFAIL Native start pet selection > counts permanent pet copies and Jellyshield effects without depending on visible deployments\n     tests/NativeStartPet.spec.luau:66: expected 1, got 0\n1 passed, 3 failed\n",
+    "restoredPassed": true
+  },
+  "beastMasterStart": {
+    "fourPetChoices": true,
+    "guarantees": [
+      "Lootworm",
+      "Ratzilla"
+    ],
+    "weapons": 0,
+    "permanentPetSpeed": 2,
+    "wantedTagChance": 0.1,
+    "validatesPersonalItemUnlock": true,
+    "teleportPetFieldValidated": true,
+    "uiSyncDoesNotAdvance": true,
+    "nativeTooltipComplete": false,
+    "completeCharacterCounted": false
+  },
+  "beastMasterUnlockCorrection": {
+    "original": "Unlock all five pet items",
+    "notThreeOwnedPets": true,
+    "sixScalingWeaponsPersonal": true,
+    "lootwormFloorMaterialValue": 20,
+    "onlyCompletedWave": true,
+    "roBloxCoopMapping": "Personal weapon challenges; common floor materials award each wave participant",
+    "facts": "pet-access.json"
+  },
+  "checksStartPet": {
+    "stylua": "passed",
+    "seleneErrors": 0,
+    "existingWarnings": 18,
+    "rojo": "passed",
+    "sourceCompilers": [
+      "pet-access",
+      "pets",
+      "item-rules",
+      "catalog"
+    ],
+    "studioRun": false,
+    "newNativeCodeReadyFlags": 0
+  },
+  "petRangeEntry": {
+    "firstEmptyRangeEntryReplacesGlobalTarget": true,
+    "furtherCloserEntriesRetainTarget": true,
+    "targetExitRetainsLivingTarget": true,
+    "nextEntryAfterEmptyRangeRetargets": true,
+    "beforeFix": {
+      "passed": 0,
+      "failed": 2
+    },
+    "afterFix": {
+      "passed": 2,
+      "failed": 0
+    },
+    "usesProductionActors": true,
+    "nativeBodyAreaPhaseParityAccepted": false,
+    "newCompleteCharacterCounted": false
+  },
+  "petSupportingModifiers": {
+    "items": [
+      "Nail",
+      "FrozenHeart",
+      "PileOfBooks"
+    ],
+    "facts": "pet-modifiers.json",
+    "publicArtworkCount": 125,
+    "pendingArtworkCount": 11,
+    "runtimeItems": 136,
+    "localOriginalIconsPrepared": 3,
+    "uploadedCount": 0,
+    "newNativeCodeReadyFlags": 0,
+    "intrinsicBurnAdditionalScaling": false,
+    "additionalScalingAfterBeastMaster": true,
+    "ordinaryStructuresExcludeWeaponScaling": true,
+    "normalAndBotMineCritsTested": true,
+    "normalWeaponAndOfferParityTested": true,
+    "carbonVariantsTested": true,
+    "sixScalingWeaponUnlockIncludesAddedEntries": true,
+    "nativeItemAndCharacterExplosionFlatTruncation": true,
+    "originalSourceScriptsCommitted": false
+  },
+  "modifierRegressionCorrection": {
+    "firstFullSuite": {
+      "specs": 249,
+      "passed": 1590,
+      "failed": 39
+    },
+    "newFailuresDetected": [
+      "tests/EffectRules.spec.luau: blank hidden-modifier effect text",
+      "tests/Perf22.spec.luau: missing fallback critical multiplier on a legacy structure, causing 39 runtime errors"
+    ],
+    "fixed": true,
+    "finalPerf22Passed": true,
+    "networkBudgetChanged": false,
+    "newLegacyCritBoundaryTest": true,
+    "effectTextSourceTemplateAdded": true
+  },
+  "additionalScalingMutation": {
+    "mutation": "Remove additional weapon and pet scaling coefficients",
+    "detected": true,
+    "restoredByteExactly": true,
+    "sha256": "cc36cb8c5a1351eb9e5ed50fd78d33dd5ea93f71289502fa1d5217b18fc0e2a6",
+    "output": "[Lanternfall] Place: lobby and arena in one server (no hub/run place ids for this place in Config.Places)\n[Lanternfall] Server ready: 73 remotes, 37 services, config problems: 0\n[Lanternfall] Saving: memory only (no DataStoreService)\n[Lanternfall] Badge \"Lantern Lit\" earned but not set up (Config/Badges.luau id is 0)\n[Lanternfall] Owner login streak day 1: +25 Embers\n[Lanternfall] Peer login streak day 1: +25 Embers\n[Lanternfall] Launch check: 1 must, 2 should open (debug button \"Launch check\" lists them)\nFAIL Native pet supporting modifiers > applies additional scaling after Beast Master, including originally empty Lootworm scaling\n     tests/NativePetModifiers.spec.luau:30: expected 81, got 70\n[Lanternfall] Run started with 2 player(s), Danger 0\n[Lanternfall] Run seed 228619419 (Config.Run.seed replays it)\nFAIL Native pet supporting modifiers > grants real item modifiers to one owner and keeps normal weapon damage and shop previews aligned\n     tests/NativePetModifiers.spec.luau:56: expected 0.2, got 0\nFAIL Native pet supporting modifiers > also applies the real item scaling to an ordinary item explosion exactly once\n     tests/NativePetModifiers.spec.luau:92: expected 1988, got 1990\nFAIL Native pet supporting modifiers > applies the same item scaling to native on-hurt and consumable character explosions\n     tests/NativePetModifiers.spec.luau:113: expected 12, got 10\nFAIL Native pet supporting modifiers > includes the modifiers once in every Carbon Bow variant and its elemental hit identity\n     tests/NativePetModifiers.spec.luau:125: expected 29, got 25\n5 passed, 5 failed\n",
+    "restoredPassed": true
+  },
+  "modifierChecks": {
+    "stylua": "passed",
+    "seleneErrors": 0,
+    "existingWarnings": 18,
+    "rojo": "passed",
+    "sourceCompilers": [
+      "pet-modifiers",
+      "item-rules",
+      "pets",
+      "catalog"
+    ],
+    "studioRun": false,
+    "newNativeCodeReadyFlags": 0
+  },
+  "codePreparedOnBranch": 48,
+  "readyOnBranchNotMerged": [
+    "Baby",
+    "Jack",
+    "Vampire",
+    "BeastMaster",
+    "Wounded"
+  ],
+  "petTooltip": {
+    "originalSixEnglishTemplates": true,
+    "sourceAndTranslationHashes": "pet-source.json",
+    "sharedStatModule": "src/shared/Util/NativePetStats.luau",
+    "serverExistingApiPreserved": true,
+    "statFunctionBodiesPreservedOnExtraction": true,
+    "lobbyShopInventoryHudCrateRewardCallersWired": true,
+    "actualOwnerSheet": true,
+    "serverContextFields": [
+      "nativePetScaling",
+      "nativeImprovedTools"
+    ],
+    "scrollableDetails": true,
+    "scrollResetsOnPreviewChange": true,
+    "beforeUi": {
+      "passed": 0,
+      "failed": 2
+    },
+    "afterUi": {
+      "passed": 2,
+      "failed": 0
+    },
+    "nativeStatIconPresentationAccepted": false,
+    "studioAccepted": false
+  },
+  "nightmarePrerequisite": {
+    "facts": "nightmare-source.json",
+    "level": 6,
+    "sourceDifficultyEffects": 10,
+    "sourceEnemyHealthPercent": 60,
+    "sourceEnemyDamagePercent": 60,
+    "sourceEnemySpeedPercent": 10,
+    "sourceInflationModifier": 10,
+    "eventPlanner": "src/shared/Util/NightmareRules.luau",
+    "focusedSpec": "tests/NativeNightmarePlan.spec.luau",
+    "passed": 7,
+    "failed": 0,
+    "currentDifficultySelectionChanged": true,
+    "profileUnlockWired": true,
+    "eventsExecutedInGame": true,
+    "nightmareEnemiesImplemented": true,
+    "woundedReady": true,
+    "includedInLatestFullSuite": true,
+    "checks": [
+      "StyLua",
+      "Selene0errors18existingwarnings",
+      "Rojo",
+      "nightmareCompiler--check"
+    ],
+    "schemaVersion": 14,
+    "savedField": "nativeZoneBest[characterId][canonicalOriginalZoneIdString]",
+    "sourceZoneIds": [
+      0,
+      1,
+      2
+    ],
+    "currentServerZoneId": 0,
+    "legacyAggregateWinsBackfilled": false,
+    "serverZoneCapturedAtRunStart": true,
+    "modeExposed": true,
+    "profileSpecs": {
+      "NativeNightmareProfiles": {
+        "passed": 5,
+        "failed": 0
+      },
+      "NativeNightmareRecording": {
+        "passed": 3,
+        "failed": 0
+      }
+    },
+    "recordingCoverage": [
+      "Production RunStats observer after controlled20wave Danger5 service result and endless-vote completion",
+      "Distinct character/zone pairs; repeated wins do not add progress",
+      "Incomplete/tutorial/defeat/missing-or-unknown identities ignored",
+      "Optional corrupt records ignored and replaced by genuine wins",
+      "Personal isolation and saved MemoryStore rejoin"
+    ],
+    "latestFullSuite": {
+      "artifact": "build/native-five-branch-eight-nightmare-slashes-6bb5174.json",
+      "baselineMain": "6bb5174f31bee9b839cc9a04ee406d1f549de051",
+      "baselineSpecs": 222,
+      "baselinePassed": 1488,
+      "baselineFailed": 37,
+      "branchSpecs": 265,
+      "branchPassed": 1666,
+      "branchFailed": 36,
+      "additionalSpecs": 43,
+      "additionalChecksPassed": 177,
+      "aborts": 0,
+      "newFailures": [],
+      "resolvedKnownFlake": "Gobbler orb eating green; no fix claimed",
+      "existingPerf22Passed": true,
+      "nightmarePerformanceAccepted": false,
+      "afterFullSuite": "Only moved unchanged450 pixel reference into runtimeCompatibility config, then reran real slash server/client5/0 and geometry4/0; no functional changes or new full suite."
+    },
+    "runtimeResearch": {
+      "activeBulletPatterns": 12,
+      "sourceSelector": "res://singletons/zone_service.tscn",
+      "unusedScenesExcludedFromSelector": true,
+      "projectileNeeds": "Offscreen ingress/margin, sinusoidal velocity on server and client, source timing and source damage with generator contribution",
+      "fogSuppressesBullets": true,
+      "eventsExecutedInGame": false,
+      "projectileExecutorImplemented": true
+    },
+    "projectileWavesExecutedInGame": true,
+    "profileFullSuite": {
+      "artifact": "build/native-five-branch-eight-nightmare-profiles-6bb5174.json",
+      "baselineMain": "6bb5174f31bee9b839cc9a04ee406d1f549de051",
+      "baselineSpecs": 222,
+      "baselinePassed": 1488,
+      "baselineFailed": 37,
+      "branchSpecs": 254,
+      "branchPassed": 1619,
+      "branchFailed": 37,
+      "additionalSpecs": 32,
+      "additionalChecksPassed": 131,
+      "aborts": 0,
+      "newFailure": "TreeCounterMigration expected fixed13 instead of new schema14",
+      "resolvedKnownFlake": "EnemiesB9 Gobbler orb eating",
+      "followup": "TreeCounterMigration expects current Template.SCHEMA_VERSION; focused1/0 after correction. No production change after full suite. Full suite was not rerun after test-only correction.",
+      "remainingRuntimeFailuresAreBaselineNames": true
+    },
+    "bulletHell": {
+      "source": "bullet-hell-source.json",
+      "compiler": "tools/build-character-bullet-hell.py",
+      "activePatterns": 12,
+      "sourceSelectedOrderPreserved": true,
+      "sceneOrScriptExecutablesCommitted": false,
+      "service": "src/server/Services/BulletHellService.luau",
+      "sharedEmitter": "src/shared/Util/NativeBulletHell.luau",
+      "sharedTrajectory": "src/shared/Util/NativeBulletMotion.luau",
+      "serverCollision": "src/server/Services/EnemySim/EnvironmentShot.luau",
+      "eventQuery": "DangerService.getNightmareEvent(wave)",
+      "tests": {
+        "NativeBulletHell": {
+          "passed": 4,
+          "failed": 0
+        },
+        "NativeEnvironmentShots": {
+          "passed": 4,
+          "failed": 0
+        },
+        "NativeBulletHellService": {
+          "passed": 4,
+          "failed": 0
+        }
+      },
+      "redBeforeImplementation": [
+        "NativeEnvironmentShots0/1 missing NativeBulletMotion",
+        "NativeBulletHell0/1 missing NativeBulletHell"
+      ],
+      "ordinaryFiredRecordBytes": 32,
+      "extendedFiredRecordBytes": 49,
+      "extensionHeaderMask": 2,
+      "newRemote": false,
+      "newClientIntent": false,
+      "sourceDamageSecondWaveContributionPreserved": true,
+      "publicDifficulty6Exposed": false,
+      "nativeAreaPhysicsAccepted": false,
+      "nativeEnvironmentalArtAccepted": false,
+      "globalEnemyTimeScalingImplemented": false,
+      "studioAccepted": false,
+      "nightmarePerformanceAccepted": false,
+      "remaining": [
+        "fog renderer",
+        "complete difficulty6 modifiers/options/unlock integration",
+        "source graphics",
+        "global enemy time factor",
+        "native physics and Studio/mobile acceptance"
+      ]
+    },
+    "implementedNightmareEnemyFamilies": [
+      "BloatedSpawner",
+      "DireJunkie",
+      "HornedFly",
+      "HornedSpitter",
+      "CorruptedBuffer",
+      "InfectedSlasherEgg",
+      "MadSlasher"
+    ],
+    "pendingNightmareEnemyFamilies": [],
+    "bulletFullSuite": {
+      "artifact": "build/native-five-branch-eight-nightmare-bullets-6bb5174.json",
+      "baselineMain": "6bb5174f31bee9b839cc9a04ee406d1f549de051",
+      "baselineSpecs": 222,
+      "baselinePassed": 1488,
+      "baselineFailed": 37,
+      "branchSpecs": 257,
+      "branchPassed": 1631,
+      "branchFailed": 37,
+      "additionalSpecs": 35,
+      "additionalChecksPassed": 143,
+      "aborts": 0,
+      "newDeterministicFailures": [],
+      "knownCpuBoundaryFailure": {
+        "spec": "CharmedWorld.spec.luau",
+        "milliseconds": 4.158,
+        "limitMilliseconds": 4,
+        "previouslyConfirmedOnUnchangedMain": true
+      },
+      "resolvedKnownFlake": "EnemiesB9 Gobbler orb eating green in this run",
+      "perf22Passed": true,
+      "afterFullSuite": "No production changes. Strengthened two focused specs to check a real truncated extended packet and actual client positions; both4/0. Full suite not repeated after assertion-only additions."
+    },
+    "nightmareEnemies": {
+      "source": "nightmare-enemies-source.json",
+      "compiler": "tools/build-character-nightmare-enemies.py",
+      "sourceIdentities": 7,
+      "activeFamilies": [
+        "BloatedSpawner",
+        "DireJunkie",
+        "HornedFly",
+        "HornedSpitter",
+        "CorruptedBuffer",
+        "InfectedSlasherEgg",
+        "MadSlasher"
+      ],
+      "pendingSourceOnly": [],
+      "implementedTypeIds": [
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39
+      ],
+      "waveGroupMappingsAdded": 16,
+      "minimumDanger": 6,
+      "publicDifficulty6Exposed": false,
+      "originalArtAccepted": false,
+      "declaredExistingArtFallback": true,
+      "imageIdsChanged": false,
+      "clock": "src/shared/Util/NativeEnemyShootingClock.luau",
+      "clockRetainedByCompactionAndCharm": true,
+      "originalChanceIncludesEquality": true,
+      "petProjectileCountersExcludeBotOMine": true,
+      "nativePhysicsAccepted": false,
+      "studioAccepted": false,
+      "tests": {
+        "NativeEnemyShootingClock": [
+          3,
+          0
+        ],
+        "NativeNightmareEnemies": [
+          6,
+          0
+        ],
+        "NativeNightmareEnemyRuntime": [
+          6,
+          0
+        ],
+        "NativeNightmareEnemyArt": [
+          1,
+          0
+        ],
+        "NativeCorruptedBuffer": [
+          5,
+          0
+        ],
+        "NativeSlashGeometry": [
+          4,
+          0
+        ],
+        "NativeMadSlasherRuntime": [
+          5,
+          0
+        ],
+        "NativeInfectedEgg": [
+          4,
+          0
+        ]
+      },
+      "regressionsFocused": {
+        "EnemyWorld": [
+          48,
+          0
+        ],
+        "NativeBulletHellService": [
+          4,
+          0
+        ],
+        "WorldSprites": [
+          12,
+          0
+        ],
+        "MainGameEnemyStats": [
+          29,
+          0
+        ],
+        "MainGameEnemyRuntime": [
+          9,
+          0
+        ],
+        "CharmSupportRuntime": [
+          4,
+          0
+        ]
+      },
+      "intermediateFullSuite": {
+        "artifact": "build/native-five-branch-eight-nightmare-enemies-6bb5174.json",
+        "specs": 260,
+        "passed": 1644,
+        "failed": 39,
+        "newFailureNames": [
+          "MainGameEnemyStats fixed32 count",
+          "WorldSprites missing new family art",
+          "WorldSprites missing new family Gloom art"
+        ],
+        "resolvedBy": "Count36 keeps all uniqueness assertions; explicit nativeArtPending look fallback keeps current IDs and all sprite coverage, no fabricated native art acceptance"
+      },
+      "fixtureCorrections": [
+        "World.getMultipliers includes wave growth; inherited maxHP assertion already passed",
+        "Native Charm requires HP strictly below threshold; damage1 before conversion"
+      ],
+      "remainingRuntimeCompatibility": [
+        "Existing engine wandering timeout8 seconds",
+        "Existing projectile bound/range convention300 studs",
+        "Existing collision mass convention1",
+        "Native Area/physics/deferred hit semantics and source art not accepted"
+      ],
+      "corruptedBuffer": {
+        "initialPulseSeconds": 0.25,
+        "intervalSeconds": 4,
+        "targets": 2,
+        "hpBoostPercent": 150,
+        "damageBoostPercent": 30,
+        "speedBoostPercent": 50,
+        "nativeResetHpContactIntegerBaseBeforeFactors": true,
+        "fullyRestoresEnemyHp": true,
+        "alliedSelection": "two distinct unboosted players/structures in one pool",
+        "playerAndStructureBoostPercent": 20,
+        "playerDurationSeconds": 5,
+        "nativePhysicalAcceptance": false,
+        "fixtureFailuresExplained": [
+          "automatic weapons killed the three targets before the pulse; diagnostic output Running,count0,allHp0",
+          "after weapons paused, unprotected7HP legacy fixture players died and ended the run; added test-only protection before hostile test"
+        ],
+        "tests": [
+          "exactly two targets at first pulse and third at next without stacking",
+          "integer base HP/contact rounding before original factors and complete heal",
+          "two nearby players and temporary stat expiry",
+          "mixed player/turret pool, structure20% values and unchanged equipment source count"
+        ]
+      },
+      "nativeSlashes": {
+        "geometry": "src/shared/Util/NativeSlashGeometry.luau",
+        "service": "src/server/Services/NativeSlashService.luau",
+        "controller": "src/client/Controllers/NativeSlashController.luau",
+        "remote": "NativeSlashes",
+        "direction": "serverToClientOnly",
+        "clientIntentsAdded": false,
+        "types": [
+          "NativeSlashInfo",
+          "NativeSlashBatch"
+        ],
+        "fireEndResetBatches": true,
+        "nativeRectangleInterpolation": true,
+        "hitboxParentOffsetIncluded": true,
+        "hitWindowSeconds": [
+          0.48,
+          0.6
+        ],
+        "hitEndExclusive": true,
+        "stopSeconds": 0.63,
+        "hitsFirstTargetThenStops": true,
+        "deletedWhenSourceDies": true,
+        "friendlyFactionTargetsHostiles": true,
+        "sourceSpawn": "two random points in100pixel square about the target, heading back toward it",
+        "dormant90and180DegreeValuesNotApplied": true,
+        "nativeSpriteAccepted": false,
+        "globalTimeFactorImplemented": false,
+        "studioAccepted": false
+      },
+      "infectedEgg": {
+        "hatchSeconds": 5.6,
+        "offspring": "MadSlasher",
+        "count": 1,
+        "nativeDeathEvent": true,
+        "materialValue": 1,
+        "personalKillerOnHatch": null,
+        "preservesSpawnContext": true,
+        "keepsCharmOwner": true,
+        "freshOffspringCharmLifetime": true
+      }
+    },
+    "fourEnemyFullSuite": {
+      "artifact": "build/native-five-branch-eight-nightmare-enemies-final-6bb5174.json",
+      "baselineMain": "6bb5174f31bee9b839cc9a04ee406d1f549de051",
+      "baselineSpecs": 222,
+      "baselinePassed": 1488,
+      "baselineFailed": 37,
+      "branchSpecs": 261,
+      "branchPassed": 1646,
+      "branchFailed": 38,
+      "additionalSpecs": 39,
+      "additionalChecksPassed": 159,
+      "aborts": 0,
+      "newFailure": "MainGameEnemyRuntime assumed that native chance .25 excludes a roll exactly .25",
+      "followup": "Corrected the source expectation to include equality and reject .2501, preserving corpse/melee checks; focused9/0. No functional production change after full suite. Full suite not repeated after test-only correction.",
+      "remainingFailuresExactlyMatchBaselineNames": true,
+      "perf22Passed": true,
+      "charmedWorldBudgetPassedInThisRun": true
+    },
+    "nativeNightmareEnemiesAccepted": false,
+    "corruptedFullSuite": {
+      "artifact": "build/native-five-branch-eight-nightmare-corrupted-6bb5174.json",
+      "baselineMain": "6bb5174f31bee9b839cc9a04ee406d1f549de051",
+      "baselineSpecs": 222,
+      "baselinePassed": 1488,
+      "baselineFailed": 37,
+      "branchSpecs": 262,
+      "branchPassed": 1653,
+      "branchFailed": 36,
+      "additionalSpecs": 40,
+      "additionalChecksPassed": 164,
+      "aborts": 0,
+      "newFailures": [],
+      "resolvedKnownFlake": "EnemiesB9 Gobbler eating green in this run; no fix claimed",
+      "remainingFailuresAreBaselineNames": true,
+      "perf22Passed": true,
+      "productionChangedAfterFullSuite": false
+    },
+    "fog": {
+      "facts": "docs/characters/fog-source.json",
+      "localTexture": "assets/characters/native-fog/native-light.png",
+      "sourceVersionDrift": "docs/characters/source-version-drift.json",
+      "serverActivation": true,
+      "waveStartVisibilitySnapshot": true,
+      "visibilityBounds": [
+        -100,
+        9999
+      ],
+      "waveScale": "2.75 - 1.75 * min(wave,20)/20",
+      "sharedCoopMask": true,
+      "livingPlayerLights": true,
+      "structureAndPetLights": true,
+      "charmedEnemyLights": true,
+      "burningEmitterActorLights": true,
+      "firePuddlesIndependentlyLightFog": false,
+      "explosionHoldSeconds": 0.25,
+      "fadeSeconds": 0.25,
+      "downReviveLightLifecycle": true,
+      "syncReplay": true,
+      "imageUploads": 0,
+      "runtimeAssetIdsChanged": false,
+      "bitmapBackend": "CreateEditableImage + Content.fromObject + WritePixelsBuffer; only mocked API boundary tested",
+      "fallback": "36-high GUI cells with same additive grayscale mask",
+      "rendererHz": 10,
+      "bitmapHeight": 108,
+      "nativeGraphicsAccepted": false,
+      "nativeVisual1201IdentitiesVerified": false,
+      "installedVersion": "1.2.0.2",
+      "installedSteamBuild": 26615634,
+      "originalRulesSource": "hash-verified 1.2.0.1 bytecode/decompiled cache",
+      "publicDifficultyStillMax": 6,
+      "woundedCodeReady": true,
+      "focused": {
+        "NativeFog": 5,
+        "NativeFogActors": 3,
+        "NativeFogService": 6,
+        "NativeFogSurface": 3
+      },
+      "focusedFailed": 0
+    },
+    "fogFullSuite": {
+      "artifact": "build/native-five-branch-eight-nightmare-fog-6bb5174.json",
+      "baselineMain": "6bb5174f31bee9b839cc9a04ee406d1f549de051",
+      "baselineSpecs": 222,
+      "baselinePassed": 1488,
+      "baselineFailed": 37,
+      "branchSpecs": 269,
+      "branchPassed": 1682,
+      "branchFailed": 37,
+      "additionalSpecs": 47,
+      "additionalChecksPassed": 194,
+      "newFailures": [],
+      "missingBaselineFailures": [],
+      "aborts": 0,
+      "perf22Passed": true,
+      "afterFullSuite": "Only provenance fields/comments regenerated to distinguish target1.2.0.1 from installed1.2.0.2 visual candidates; numerical runtime data unchanged. Focused checks repeated."
+    },
+    "publicRuntime": {
+      "facts": "nightmare-runtime-validation.json",
+      "gate": "ten distinct completed native danger5 character/zone results",
+      "enemyHp": 1.6,
+      "enemyDamage": 1.6,
+      "enemySpeed": 1.1,
+      "inflationBaseWaveFactor": 0.11,
+      "lobbyPartyCaps": true,
+      "nativeWinUnlockWounded": true,
+      "legacyAggregateWinDoesNotUnlockWounded": true,
+      "defaultHelpersRemainDanger5": true,
+      "nativeGraphicsAccepted": false,
+      "studioAccepted": false
+    }
+  },
+  "nextMainGameDependencies": [
+    "Chunky and Wildling: native Flail unlock after200Whip kills in original Jungle zone2; keep original weapon access gates"
+  ],
+  "latestFullSuite": {
+    "artifact": "build/native-five-branch-eight-nightmare-final-6bb5174.json",
+    "baselineMain": "6bb5174f31bee9b839cc9a04ee406d1f549de051",
+    "baselineSpecs": 222,
+    "baselinePassed": 1488,
+    "baselineFailed": 37,
+    "branchSpecs": 274,
+    "branchPassed": 1702,
+    "branchFailed": 36,
+    "additionalSpecs": 52,
+    "additionalChecksPassed": 213,
+    "newFailures": [],
+    "missingBaselineFailures": [
+      "FAIL new enemies (B9) > lets a Gobbler eat the orbs on the floor and drop them all when killed"
+    ],
+    "aborts": 0,
+    "perf22Passed": true,
+    "noRuntimeChangesAfterFullSuite": true,
+    "afterFullSuite": "Only StyLua --verify AST-equivalent formatting of three existing new utility modules and line endings; no semantic changes. Clock3/0, emitter4/0, slashGeometry4/0, real slash runtime5/0 and projectile runtime4/0 repeated. Whole branch StyLua --check now clean."
+  }
+}

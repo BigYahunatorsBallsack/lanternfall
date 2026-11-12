@@ -11,6 +11,7 @@ local Effects = require(script.Parent.Parent.Config.Effects)
 local Types = require(script.Parent.Parent.Net.Types)
 local Format = require(script.Parent.Format)
 local StatMath = require(script.Parent.StatMath)
+local Modifiers = require(script.Parent.Parent.Config.WeaponModifiers)
 
 local EffectText = {}
 
@@ -60,6 +61,17 @@ function EffectText.stats(stats: { [string]: number }?): string
 		if value and value ~= 0 then
 			table.insert(parts, StatMath.format(stat.id, value))
 		end
+	end
+	for statId, field in Modifiers.scalingFields do
+		local value = stats and stats[field]
+		if value and value ~= 0 then
+			local text = string.gsub(Modifiers.scalingText, "{amount}", number(value))
+			text = string.gsub(text, "{stat}", Config.Stats.byId[statId].displayName)
+			table.insert(parts, text)
+		end
+	end
+	if stats and (stats[Modifiers.structureCritField] or 0) > 0 then
+		table.insert(parts, Modifiers.structureCritText)
 	end
 	return table.concat(parts, ", ")
 end

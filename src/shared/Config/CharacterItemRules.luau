@@ -213,6 +213,15 @@ local nativeIds: { [string]: string } = {
 	WitchMortar = "item_gnome",
 	LumberjackShirt = "item_lumberjack_shirt",
 	DigSite = "item_dig_site",
+	BonkDog = "item_bonk_dog",
+	Ratzilla = "item_ratzilla",
+	BotOMine = "item_bot_o_mine",
+	Blazemander = "item_blazemander",
+	CatlingGun = "item_catling_gun",
+	Lootworm = "item_lootworm",
+	Nail = "item_nail",
+	FrozenHeart = "item_frozen_heart",
+	PileOfBooks = "item_pile_of_books",
 }
 
 local tags: { [string]: { string } } = {
@@ -670,6 +679,44 @@ local tags: { [string]: { string } } = {
 	},
 	DigSite = {
 		"stat_luck",
+	},
+	BonkDog = {
+		"stat_melee_damage",
+		"explosive",
+		"pet",
+	},
+	Ratzilla = {
+		"stat_max_hp",
+		"pet",
+	},
+	BotOMine = {
+		"stat_engineering",
+		"pet",
+		"structure",
+	},
+	Blazemander = {
+		"stat_elemental_damage",
+		"pet",
+	},
+	CatlingGun = {
+		"pet",
+		"stat_ranged_damage",
+	},
+	Lootworm = {
+		"economy",
+		"pickup",
+		"pet",
+	},
+	Nail = {
+		"stat_engineering",
+	},
+	FrozenHeart = {
+		"stat_elemental_damage",
+		"stat_crit_chance",
+	},
+	PileOfBooks = {
+		"stat_crit_chance",
+		"stat_engineering",
 	},
 }
 

@@ -162,6 +162,7 @@ describe("SpawnRules", function()
 		expect(table.concat(RunSchedule.eventsOf(6, 0), "|")).toBe("New: Charger") -- wave 3 only from danger 1
 		expect(table.concat(RunSchedule.eventsOf(11, 0), "|")).toBe("New: Stalker")
 		expect(table.concat(RunSchedule.eventsOf(20), "|")).toBe("Final wave")
+		expect(table.concat(RunSchedule.eventsOf(20, 6), "|")).toBe("New: Mad Slasher|Final wave")
 		expect(table.concat(RunSchedule.eventsOf(30), "|")).toBe("Boss wave")
 	end)
 

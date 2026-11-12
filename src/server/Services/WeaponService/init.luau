@@ -37,6 +37,7 @@ local Arsenal = require(script.Arsenal)
 local Afflictions = require(script.Afflictions)
 local StatMath = require(Shared.Util.StatMath)
 local CharacterRules = require(Shared.Util.CharacterRules)
+local NativeDamage = require(Shared.Util.NativeWeaponDamage)
 local BrotatoCombat = require(script.BrotatoCombat)
 local BrotatoRuntime = require(script.BrotatoRuntime)
 local FirePuddles = require(script.FirePuddles)
@@ -67,7 +68,8 @@ export type HitListener = (
 	dealt: number,
 	crit: boolean,
 	killed: boolean,
-	source: Arsenal.HitSource
+	source: Arsenal.HitSource,
+	intrinsicBurnHandled: boolean?
 ) -> ()
 local hitListener: HitListener? = nil
 type CharacterHit = { player: Player, enemyId: number, amount: number }
@@ -525,14 +527,7 @@ local function onStepped(dt: number, stepNow: number)
 			if crit then
 				amount *= stats.critDamage
 			end
-			local killed = WeaponService.structureHit(
-				entry.player,
-				id,
-				amount,
-				"Explosion",
-				crit,
-				entry.scaling ~= nil and entry.scaling.elementalDamage ~= nil
-			)
+			local killed = WeaponService.structureHit(entry.player, id, amount, "Explosion", crit, stats.elemental)
 			if killed then
 				kills += 1
 			end
@@ -891,18 +886,14 @@ function WeaponService.explodeAt(
 	scaling: { [string]: number }?,
 	size: number
 )
-	if (ownerStats[player] and ownerStats[player].nativeBurningTargetBonus or 0) > 0 then
-		if arsenal:hasOwner(player.UserId) then
-			table.insert(characterItemExplosions, {
-				player = player,
-				position = position,
-				damage = damage,
-				scaling = if scaling then table.clone(scaling) else nil,
-				size = size,
-			})
-		end
-	else
-		arsenal:queueExplosion(player.UserId, position.X, position.Z, damage, scaling, size)
+	if arsenal:hasOwner(player.UserId) and (damage > 0 or scaling ~= nil) then
+		table.insert(characterItemExplosions, {
+			player = player,
+			position = position,
+			damage = damage,
+			scaling = if scaling then table.clone(scaling) else nil,
+			size = size,
+		})
 	end
 end
 
@@ -943,6 +934,26 @@ end
 -- The player's weapons as sent to clients (copies).
 function WeaponService.getWeapons(player: Player): { Types.WeaponInfo }
 	return loadoutOf(player).weapons
+end
+-- Native pet unlocks count six actual weapons containing a scaling entry, including duplicate copies.
+function WeaponService.getPetChallengeCounts(player: Player): { [string]: number }
+	local result = {}
+	for _, rule in require(Shared.Config.PetAccess).items do
+		if rule.stat and rule.count then
+			local count = 0
+			for _, weapon in arsenal:getWeapons(player.UserId) do
+				local scaling = if weapon.config.tierScaling
+					then weapon.config.tierScaling[weapon.tier]
+					else weapon.config.scaling
+				scaling = NativeDamage.scaling(scaling, ownerStats[player] or {})
+				if scaling[rule.stat] ~= nil then
+					count += 1
+				end
+			end
+			result[rule.count] = count
+		end
+	end
+	return result
 end
 
 -- The uid of another copy the weapon `uid` can merge with (same weapon and tier, below the max tier), or nil.
@@ -995,14 +1006,15 @@ function WeaponService.structureHit(
 	amount: number,
 	source: Arsenal.HitSource?,
 	critical: boolean?,
-	elemental: boolean?
+	elemental: boolean?,
+	intrinsicBurnHandled: boolean?
 )
 	local bonus = burningTargetBonus(player.UserId, enemyId, elemental)
 	local killed, dealt, applied =
 		EnemySim.damage(enemyId, amount, player, bonus, source ~= "Burn" and source ~= "Strike")
 	recordHit(player.UserId, enemyId, applied, critical == true, killed, false)
 	if hitListener and dealt > 0 then
-		hitListener(player.UserId, enemyId, dealt, critical == true, killed, source or "Weapon")
+		hitListener(player.UserId, enemyId, dealt, critical == true, killed, source or "Weapon", intrinsicBurnHandled)
 	end
 	return killed
 end
@@ -1071,14 +1083,7 @@ function WeaponService.explodeCharacter(
 			local _, elite = EnemySim.getKind(id)
 			local critical = RandomService.number("Combat", player) < stats.critChance
 			local damage = CharacterExplosion.hitDamage(stats, critical, if elite then sheet.eliteDamage or 0 else 0)
-			local killed = WeaponService.structureHit(
-				player,
-				id,
-				damage,
-				"Explosion",
-				critical,
-				definition.scaling.elementalDamage ~= nil
-			)
+			local killed = WeaponService.structureHit(player, id, damage, "Explosion", critical, stats.elemental)
 			if killed then
 				kills += 1
 			end

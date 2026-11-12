@@ -7,6 +7,7 @@ local Run = require(script.Parent.Parent.Config.Run)
 local Difficulty = require(script.Parent.Parent.Config.Difficulty)
 local Enemies = require(script.Parent.Parent.Config.Enemies)
 local EnemyWaves = require(script.Parent.Parent.Config.EnemyWaves)
+local Nightmare = require(script.Parent.Parent.Config.Nightmare)
 
 local Spawn = Run.spawn
 local Waves = Spawn.waves
@@ -185,7 +186,7 @@ end
 function RunSchedule.eventsOf(number: number, danger: number?): { string }
 	local minute = number - 1
 	local events = {}
-	local level = Difficulty.levels[math.clamp(danger or #Difficulty.levels - 1, 0, #Difficulty.levels - 1) + 1]
+	local level = Difficulty.levels[math.clamp(danger or Nightmare.level - 1, 0, #Difficulty.levels - 1) + 1]
 	local names = {}
 	for _, enemyId in RunSchedule.newEnemies(number, level.level) do
 		local kind = Enemies.types[enemyId]

@@ -8,11 +8,16 @@ local Config = require(ReplicatedStorage.Shared.Config)
 local ProgressRules = require(ReplicatedStorage.Shared.Util.ProgressRules)
 local Types = require(ReplicatedStorage.Shared.Net.Types)
 local ProfileTemplate = require(script.Parent.ProfileTemplate)
+local Zones = require(ReplicatedStorage.Shared.Config.NativeZones)
+local Characters = require(ReplicatedStorage.Shared.Config.CharacterCatalog)
+local Nightmare = require(ReplicatedStorage.Shared.Config.Nightmare)
+local NightmareRules = require(ReplicatedStorage.Shared.Util.NightmareRules)
 
 export type RunRecord = {
 	won: boolean,
 	wave: number, -- the wave the run ended in
-	danger: number, -- danger level 0-5 (B11)
+	danger: number, -- original danger level; the playable selection is gated independently
+	zoneId: number?, -- original server-captured area; absent on legacy/unscoped records
 	classId: string, -- the character played
 	kills: number, -- team kills of the run
 	bossKills: number,
@@ -26,6 +31,29 @@ export type RunRecord = {
 }
 
 local ProfileRecords = {}
+
+function ProfileRecords.nightmareUnlocked(data: ProfileTemplate.Data): boolean
+	local canonical: { [string]: { [number]: number } } = {}
+	for classId, zones in data.nativeZoneBest do
+		if Characters[classId] and type(zones) == "table" then
+			local best = {}
+			for zoneId, danger in zones do
+				local zone = Zones.byId[zoneId]
+				if
+					zone
+					and type(danger) == "number"
+					and danger >= 0
+					and danger <= Nightmare.level
+					and danger == math.floor(danger)
+				then
+					best[zone.id] = danger
+				end
+			end
+			canonical[classId] = best
+		end
+	end
+	return NightmareRules.unlocked(canonical)
+end
 
 -- Marks every achievement the data completes as done and pays its Embers (in place). Returns the new ids and the
 -- names of what they unlocked.
@@ -75,6 +103,35 @@ function ProfileRecords.applyRun(data: ProfileTemplate.Data, run: RunRecord): Ty
 		end
 		data.characterStats[run.classId] = character
 	end
+	-- Only complete, area-identified native results can establish this distinct-character/zone prerequisite.
+	if
+		run.won
+		and not run.firstNight
+		and run.wave >= #Config.Run.spawn.waves.lengthsSeconds
+		and type(run.zoneId) == "number"
+		and Zones.byId[tostring(run.zoneId)]
+		and Characters[run.classId]
+		and run.danger >= 0
+		and run.danger <= Nightmare.level
+		and run.danger == math.floor(run.danger)
+	then
+		local zones = data.nativeZoneBest[run.classId]
+		if type(zones) ~= "table" then
+			zones = {}
+		end
+		local key = tostring(run.zoneId)
+		local previous = zones[key]
+		if
+			type(previous) ~= "number"
+			or previous < 0
+			or previous > Nightmare.level
+			or previous ~= math.floor(previous)
+		then
+			previous = -1
+		end
+		zones[key] = math.max(previous, run.danger)
+		data.nativeZoneBest[run.classId] = zones
+	end
 
 	local embers, lines = ProgressRules.runEmbers({
 		seconds = run.seconds,
@@ -104,13 +161,15 @@ function ProfileRecords.info(data: ProfileTemplate.Data, saveMode: Types.SaveMod
 		progress[achievement.id] = (ProgressRules.progress(achievement, data :: any))
 	end
 	local characterDanger = {}
+	local nightmareUnlocked = ProfileRecords.nightmareUnlocked(data)
 	for classId, class in Config.Classes do
 		if class.available then
-			characterDanger[classId] = ProgressRules.maxDanger(data :: any, classId)
+			characterDanger[classId] = ProgressRules.maxDanger(data :: any, classId, nightmareUnlocked)
 		end
 	end
 	return {
 		saveMode = saveMode,
+		nativeNightmareUnlocked = nightmareUnlocked,
 		schemaVersion = data.schemaVersion,
 		runs = stats.runs,
 		wins = stats.wins,

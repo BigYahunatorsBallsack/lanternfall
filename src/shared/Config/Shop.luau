@@ -5,6 +5,7 @@
 -- where noted); item and weapon names are our own. Item prices and rarity chances live in Config.Items.
 
 local Shop = {
+	materialSyncSeconds = 0.2, -- transport only: coalesce material HUD updates; balances and pickup effects stay immediate
 	phaseSeconds = 40, -- shop timer between two waves; cut short once every living participant pressed Ready
 	slots = 4, -- offers per shop
 	weaponChance = 0.35, -- share of weapon offers in a freely rolled slot (rest: items)
@@ -184,6 +185,7 @@ local Shop = {
 }
 
 Shop.wantedTagChance = 0.05 -- B10: dedicated matching-tag draw; empty pools fall back.
+Shop.boostedWantedTagChance = 0.1 -- native boosted_wanted_item_tag replacement effect
 local weaponPrices = table.clone(Shop.weaponPrices)
 for id, prices in require(script.Parent.CharacterWeaponData).prices do
 	weaponPrices[id] = prices[1]

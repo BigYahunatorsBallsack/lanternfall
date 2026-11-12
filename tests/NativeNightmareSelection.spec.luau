@@ -1,0 +1,83 @@
+--!strict
+-- Public Nightmare selection requires ten distinct completed native character/zone wins; legacy aggregate progression cannot unlock it.
+local f = loadHelper("tests/helpers/NativeCharacterFixture.luau")("NightWatch")
+runScript(folderProxy("src/client", "Client"), "init.client.luau")
+local Records = require(f.S.PlayerDataService.ProfileRecords)
+local Template = require(f.S.PlayerDataService.ProfileTemplate)
+local Progress = require(f.Shared.Util.ProgressRules)
+local data = assert(f.Data.get(f.me))
+local lobbyOptions = require(f.Shared.Util.DangerRules).defaultOptions()
+f.world.getRemote("RunState").OnClientEvent:Connect(function(state)
+	lobbyOptions = state.options
+end)
+local characters = { "Baby", "Jack", "Vampire", "BeastMaster", "Soldier", "Speedy", "Vagabond", "King", "Loud", "Old" }
+local function win(classId)
+	Records.applyRun(
+		data,
+		{ won = true, wave = 20, danger = 5, zoneId = 0, classId = classId, kills = 0, bossKills = 2, seconds = 1200 }
+	)
+end
+local function choose()
+	f.world.fireServerAs(f.me, "SetRunOptions", 6, false, 100, 100, 100, 100)
+end
+describe("Native Nightmare public selection", function()
+	it("keeps legacy Danger5 progression capped without the native prerequisite", function()
+		local legacy = Template.new()
+		legacy.characterStats.NightWatch = { wins = 100, bestDanger = 5 }
+		expect(Progress.maxDanger(legacy, "NightWatch")).toBe(5)
+		assert(f.Run.selectClass(f.me, "NightWatch"))
+		choose()
+		expect(lobbyOptions.danger < 6).toBe(true)
+	end)
+	it("shows the original Nightmare prerequisite even while the selected character is at Danger0", function()
+		local button = f.world.gui("Lobby", "Danger6")
+		local panel = button.Parent.Parent
+		button.MouseEnter:Fire()
+		local text = panel:FindFirstChild("Description", true).Text
+		local requirement = require(f.Shared.Config.NightmarePresentation).unlockRequirement
+		expect(string.find(text, requirement, 1, true) ~= nil).toBe(true)
+		button.MouseLeave:Fire()
+	end)
+	it("rejects nine distinct wins and repeats, then unlocks globally with the tenth", function()
+		for i = 1, 9 do
+			win(characters[i])
+		end
+		win(characters[1])
+		expect(f.Data.hasNativeNightmareAccess(f.me)).toBe(false)
+		choose()
+		expect(lobbyOptions.danger < 6).toBe(true)
+		win(characters[10])
+		expect(f.Data.hasNativeNightmareAccess(f.me)).toBe(true)
+		expect(f.Data.maxDanger(f.me, "NightWatch")).toBe(6)
+		local info = Records.info(data, "Memory")
+		expect(info.characterDanger.NightWatch).toBe(6)
+		f.world.advance(1.1)
+		choose()
+		expect(lobbyOptions.danger).toBe(6)
+		expect(require(f.Shared.Util.DangerRules).label(lobbyOptions)).toBe("Nightmare")
+	end)
+	it("shows the saved global unlock on the real lobby control", function()
+		f.world.fireServerAs(f.me, "RequestSync")
+		f.world.advance(0.3)
+		local Profile = require(folderProxy("src/client", "Client").Controllers.ProfileCard)
+		expect(Profile.get().nativeNightmareUnlocked).toBe(true)
+		expect(Profile.get().characterDanger.NightWatch).toBe(6)
+		local button = f.world.gui("Lobby", "Danger6")
+		expect(button ~= nil).toBe(true)
+		f.world.click(button)
+		expect(lobbyOptions.danger).toBe(6)
+	end)
+	it("launches the selected server-gated mode through the production run flow", function()
+		assert(f.Run.launch({ f.me, f.peer }, lobbyOptions, true))
+		f.world.advance(f.Config.Run.flow.allReadyCountdownSeconds + 0.5)
+		require(f.S.SpawnDirector).setPaused(true)
+		f.Weapons.setPaused(true)
+		expect(f.Run.getPhase()).toBe("Running")
+		expect(f.Run.getRunOptions().danger).toBe(6)
+		local hp, damage, speed = require(f.S.DangerService).multipliers(1)
+		expect(hp).toBe(1.6)
+		expect(damage).toBe(1.6)
+		expect(speed).toBe(1.1)
+		expect(#f.world.errors).toBe(0)
+	end)
+end)

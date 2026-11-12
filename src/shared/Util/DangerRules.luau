@@ -6,6 +6,8 @@
 
 local Config = require(script.Parent.Parent.Config)
 local Types = require(script.Parent.Parent.Net.Types)
+local Nightmare = require(script.Parent.Parent.Config.Nightmare)
+local NightmareRules = require(script.Parent.NightmareRules)
 
 local Difficulty = Config.Difficulty
 local Endless = Difficulty.endless
@@ -23,7 +25,7 @@ for _, enemyId in Difficulty.newEnemies do
 	NEW_ENEMIES[enemyId] = true
 end
 
--- The level's config (clamped to 0..5).
+-- The level's config; player access is checked separately by the server's lobby/party caps.
 function DangerRules.level(danger: number): Level
 	local levels = Difficulty.levels
 	return levels[math.clamp(math.floor(danger), 0, #levels - 1) + 1]
@@ -113,10 +115,23 @@ end
 function DangerRules.multipliers(options: Types.RunOptions, wave: number): (number, number, number)
 	local level = DangerRules.level(options.danger)
 	local factor = DangerRules.endlessFactor(wave)
-	local hp = Difficulty.base.enemyHp * level.enemyHp * options.enemyHp / 100 * (1 + factor * Endless.hpFactor)
-	local damage = level.enemyDamage * options.enemyDamage / 100 * (1 + factor)
-	local speed = options.enemySpeed / 100 * (1 + math.min(Endless.speedCap, factor / Endless.speedDivisor))
+	local hpFactor, damageFactor, speedFactor = level.enemyHp, level.enemyDamage, 1
+	if options.danger >= Nightmare.level then
+		hpFactor = 1 + NightmareRules.value("danger_enemy_health") / 100
+		damageFactor = 1 + NightmareRules.value("danger_enemy_damage") / 100
+		speedFactor = 1 + NightmareRules.value("danger_enemy_speed") / 100
+	end
+	local hp = Difficulty.base.enemyHp * hpFactor * options.enemyHp / 100 * (1 + factor * Endless.hpFactor)
+	local damage = damageFactor * options.enemyDamage / 100 * (1 + factor)
+	local speed = speedFactor
+		* options.enemySpeed
+		/ 100
+		* (1 + math.min(Endless.speedCap, factor / Endless.speedDivisor))
 	return hp, damage, speed
+end
+
+function DangerRules.inflationModifier(danger: number?): number
+	return if danger and danger >= Nightmare.level then NightmareRules.value("inflation_modifier") else 0
 end
 
 -- Multiplier on the enemies the spawn groups bring: our base tuning and the Enemy count slider.
@@ -174,7 +189,8 @@ function DangerRules.planBlock(
 	block: number,
 	random: (number) -> number,
 	roll: () -> number,
-	pool: { string }
+	pool: { string },
+	hordeChance: number?
 ): { [number]: Challenge }
 	local plan: { [number]: Challenge } = {}
 	local count = DangerRules.championsIn(block)
@@ -195,7 +211,9 @@ function DangerRules.planBlock(
 	for index = 1, math.min(DangerRules.level(danger).challengeSlots, #slots) do
 		local slot = slots[index]
 		local wave = slot[random(#slot)] + offset
-		local horde = block == 0 and index < #slots and roll() < Difficulty.hordeChance
+		local horde = block == 0
+			and index < #slots
+			and roll() < (if hordeChance ~= nil then hordeChance else Difficulty.hordeChance)
 		if horde then
 			plan[wave] = { kind = "Horde", champions = {} }
 		else

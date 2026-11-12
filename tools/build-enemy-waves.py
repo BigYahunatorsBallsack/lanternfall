@@ -25,8 +25,8 @@ SOURCE = ROOT / "docs" / "enemy-waves" / "source.json"
 OUTPUT = ROOT / "src" / "shared" / "Config" / "EnemyWaves.luau"
 ZONE = "res://zones/zone_1_crash/zone_crash_data.tres"
 
-# Brotato scene file -> Lanternfall enemy id (docs/B9C-GEGNERWERTE.md). Nightmare-only kinds have no counterpart;
-# their groups need difficulty 6, which Lanternfall does not have, so they are kept with `enemy = nil`.
+# Brotato scene file -> Lanternfall enemy id (docs/B9C-GEGNERWERTE.md).
+# Implemented Nightmare families retain their difficulty-6 gates; unimplemented families stay nil.
 ENEMY_IDS = {
     "baby_alien.tscn": "Shadeling",
     "chaser.tscn": "AbyssShadeling",
@@ -50,6 +50,13 @@ ENEMY_IDS = {
     "lamprey.tscn": "Hookfang",
     "evil_mob.tscn": "Gobbler",
     "tree.tscn": "Tree",
+    "bloated_spawner.tscn": "BloatedSpawner",
+    "dire_junkie.tscn": "DireJunkie",
+    "horned_fly.tscn": "HornedFly",
+    "horned_spitter.tscn": "HornedSpitter",
+    "corrupted_buffer.tscn": "CorruptedBuffer",
+    "infected_slasher_egg.tscn":"InfectedSlasherEgg",
+    "mad_slasher.tscn":"MadSlasher",
 }
 
 GROUP_FIELDS = [

@@ -46,7 +46,7 @@ describe("DangerRules", function()
 
 	it("cleans options onto the levels and slider steps", function()
 		local clean = DangerRules.clean(options(9, { enemyHp = 137, enemySpeed = 400 }))
-		expect(clean.danger).toBe(5)
+		expect(clean.danger).toBe(6) -- highest configured mode; NativeNightmareSelection checks its independent access gate
 		expect(clean.enemyHp).toBe(125)
 		expect(clean.enemySpeed).toBe(150)
 		expect(DangerRules.clean(options(-2)).danger).toBe(0)

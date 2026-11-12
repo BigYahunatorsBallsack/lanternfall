@@ -123,6 +123,12 @@ Remotes.SelectStartWeapon = {
 	args = { Validate.keyOf(Config.Classes), Validate.keyOf(Config.Weapons) },
 }
 Remotes.StartWeaponChoice = { direction = "toClient" }
+Remotes.SelectStartPet = {
+	direction = "toServer",
+	rateLimit = { count = 4, perSeconds = 1 },
+	args = { Validate.keyOf(Config.Classes), Validate.keyOf(Config.Items.byId) },
+}
+Remotes.StartPetChoice = { direction = "toClient" }
 Remotes.Structures = { direction = "toClient" } -- B12 authoritative full snapshot; also on RequestSync
 Remotes.StructureBeams = { direction = "toClient" } -- B12 cosmetic attacks
 -- B11: the lobby's run options for the next run: danger level, endless mode, enemy HP/damage/speed sliders in percent
@@ -259,4 +265,6 @@ Remotes.SetMovementIntent = {
 	args = { Validate.boolean() }, -- intent only; service checks participation and observed movement
 }
 Remotes.DigSites = { direction = "toClient" } -- server snapshot: Net/Types.DigSite rows, no client commands
+Remotes.NativeSlashes = { direction = "toClient" } -- bounded source slash fire/end batches; no client intent
+Remotes.NativeFog = { direction = "toClient" } -- immutable wave visibility and alive state; no client can enable fog
 return table.freeze(Remotes)

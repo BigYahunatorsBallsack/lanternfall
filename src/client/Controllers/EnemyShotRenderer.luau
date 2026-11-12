@@ -12,6 +12,8 @@ local RunService = game:GetService("RunService")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared:WaitForChild("Config"))
 local Net = require(Shared:WaitForChild("Net"))
+local Motion = require(Shared.Util.NativeBulletMotion)
+local Types = require(Shared.Net.Types)
 local ShotFeed = require(Shared:WaitForChild("Net"):WaitForChild("ShotFeed"))
 
 local RunStateController = require(script.Parent.RunStateController)
@@ -53,6 +55,7 @@ type Shot = {
 	speed: number,
 	range: number,
 	at: number,
+	motion: Types.EnemyShotMotion?,
 	stopAt: number?, -- studs; set by an "ended" entry
 }
 
@@ -161,6 +164,7 @@ local function onEvents(packet: any)
 			range = fired.range,
 			at = fired.at,
 			stopAt = nil,
+			motion = fired.motion,
 		}
 	end
 	local ended = events.ended
@@ -194,7 +198,11 @@ local function render()
 		local current = parts :: ShotParts
 		local fade = math.clamp(1 - (shot.range - distance) / FADE_STUDS, 0, 1)
 		EnemyShotRenderer.fadeBullet(current.bullet, fade)
-		local cframe = CFrame.new(shot.x + shot.dx * distance, floorY + HEIGHT, shot.z + shot.dz * distance)
+		local ox, oz = shot.dx * distance, shot.dz * distance
+		if shot.motion then
+			ox, oz = Motion.offset(math.max(0, now - shot.at), shot.dx, shot.dz, shot.speed, shot.motion)
+		end
+		local cframe = CFrame.new(shot.x + ox, floorY + HEIGHT, shot.z + oz)
 		count += 1
 		partList[count] = current.core
 		cframeList[count] = cframe

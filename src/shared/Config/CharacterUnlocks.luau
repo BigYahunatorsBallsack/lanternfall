@@ -6,21 +6,66 @@ export type Challenge = {
 	source: string,
 	sourceMd5: string,
 	requirement: string,
+	sourceVersion: string?,
+	originalIdentityVerified: boolean?,
 } & (
-	{ kind: "Stat", stat: string, threshold: number, comparison: string? }
+	{ kind: "Stat", stat: string, threshold: number, comparison: string?, beforeWave: number? }
 	| { kind: "WinDanger", danger: number }
+	| { kind: "WinNativeDanger", danger: number }
 	| { kind: "WaveHealing", threshold: number }
 	| { kind: "MaterialsCollected", threshold: number }
 	| { kind: "ExplosionKills", threshold: number }
 	| { kind: "RunRecycledWeapons", threshold: number }
 	| { kind: "EnemiesKilled", threshold: number }
 	| { kind: "TreesKilled", threshold: number }
+	| { kind: "FastBossKill", seconds: number }
+	| { kind: "PetChallenges" }
 	| { kind: "WaveLivingTrees", threshold: number }
 	| { kind: "WaveHp", threshold: number }
 	| { kind: "Inventory", count: string, threshold: number, stat: string?, statThreshold: number?, waveStart: boolean? }
 	| { kind: "RunConsumables", threshold: number }
 )
 local rules: { [string]: Challenge } = {
+	Wounded = {
+		kind = "WinNativeDanger",
+		danger = 6,
+		challengeId = "chal_difficulty_6",
+		source = "res://challenges/chal_difficulty_6_data.tres",
+		sourceMd5 = "b6727418f92112ba6c346fbcaa82d99f",
+		-- The original handoff/translation establishes the rule. Steam updated before this resource identity was captured.
+		sourceVersion = "1.2.0.2",
+		originalIdentityVerified = false,
+		requirement = "Win a run in difficulty Nightmare",
+	},
+	BeastMaster = require(script.Parent.PetAccess).character,
+	Baby = {
+		kind = "Stat",
+		stat = "level",
+		threshold = 10,
+		beforeWave = 6,
+		challengeId = "chal_fast_learner",
+		source = "res://challenges/fast_learner_data.tres",
+		sourceMd5 = "74a29ef69d21c728fdd7d9fe5c4ae125",
+		requirement = "Reach level 10 before wave 6",
+	},
+	Vampire = {
+		kind = "Stat",
+		stat = "lifeSteal",
+		threshold = 40,
+		challengeId = "chal_blood_drinker",
+		source = "res://challenges/blood_drinker_data.tres",
+		sourceMd5 = "a8276b3db2dc9c981a29a0bf42549934",
+		requirement = "Reach +40 % Life Steal",
+	},
+	Jack = {
+		kind = "FastBossKill",
+		seconds = 15,
+		challengeId = "chal_giant_slayer",
+		source = "res://challenges/giant_slayer_data.tres",
+		sourceMd5 = "9cfe8f4a8bee2929523e7fad1998f8b1",
+		requirement = "Kill an elite or a boss in 15 seconds or less",
+	},
+
 	Soldier = {
 		kind = "WinDanger",
 		danger = 2,

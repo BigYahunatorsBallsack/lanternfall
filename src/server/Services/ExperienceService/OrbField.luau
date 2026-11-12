@@ -104,13 +104,14 @@ function OrbField.collect(
 	z: number,
 	radius: number,
 	out: { number },
-	values: { number }?
+	values: { number }?,
+	include: ((number, number, number) -> boolean)?
 ): number
 	local total = 0
 	local radiusSquared = radius * radius
 	for i = #self.ids, 1, -1 do
 		local dx, dz = self.xs[i] - x, self.zs[i] - z
-		if dx * dx + dz * dz <= radiusSquared then
+		if dx * dx + dz * dz <= radiusSquared and (not include or include(self.ids[i], self.xs[i], self.zs[i])) then
 			table.insert(out, self.ids[i])
 			if values then
 				table.insert(values, self.values[i])
@@ -123,7 +124,7 @@ function OrbField.collect(
 end
 
 -- Position of the orb nearest to x/z within `range`, nil if there is none (the Gobbler's goal, B9).
-function OrbField.nearest(self: OrbField, x: number, z: number, range: number): (number?, number?)
+function OrbField.nearest(self: OrbField, x: number, z: number, range: number): (number?, number?, number?)
 	local best, bestSquared = nil, range * range
 	for i = 1, #self.ids do
 		local dx, dz = self.xs[i] - x, self.zs[i] - z
@@ -135,7 +136,26 @@ function OrbField.nearest(self: OrbField, x: number, z: number, range: number): 
 	if not best then
 		return nil, nil
 	end
-	return self.xs[best], self.zs[best]
+	return self.xs[best], self.zs[best], self.ids[best]
+end
+
+-- Trusted server collectors move/take the existing object; ids and merged values remain authoritative.
+function OrbField.move(self: OrbField, id: number, x: number, z: number): boolean
+	local index = self.indexOf[id]
+	if not index then
+		return false
+	end
+	self.xs[index], self.zs[index] = x, z
+	return true
+end
+function OrbField.take(self: OrbField, id: number): number?
+	local index = self.indexOf[id]
+	if not index then
+		return nil
+	end
+	local value = self.values[index]
+	removeAt(self, index)
+	return value
 end
 
 -- XP of every orb on the floor together.

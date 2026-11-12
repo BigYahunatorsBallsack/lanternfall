@@ -1,6 +1,9 @@
 --!strict
 -- Stable Charm scene overrides and allied support values; server Charm rules and client feedback read these facts.
 -- Source: docs/characters/charm-source.json, installed stable PC 1.2.0.1.
+local Nightmare = require(script.Parent.NightmareEnemies)
+local Corrupted = Nightmare.enemies.CorruptedBuffer
+local POINT = require(script.Parent.Stats).range.studsPerPoint
 return table.freeze({
 	duration = 8,
 	playerBodyRadius = 2.4, -- native Player Collision circle24 points
@@ -21,6 +24,13 @@ return table.freeze({
 		Spitter = "Random",
 		DreadTendril = "Random",
 		Thornback = "AroundTarget",
+		BloatedSpawner = "Random",
+		DireJunkie = "Random",
+		HornedFly = "AroundTarget",
+		HornedSpitter = "Random",
+		CorruptedBuffer = "Random",
+		InfectedSlasherEgg = "Random",
+		MadSlasher = "Random",
 	},
 	maximumPerOwner = 999,
 	damageMultiplier = 3,
@@ -41,5 +51,18 @@ return table.freeze({
 		structureDamage = 20,
 		structureRange = 20,
 		structureAttackSpeed = 20,
+	}),
+	corruptedBuffer = table.freeze({
+		radius = Corrupted.circles.boost * POINT,
+		firstSeconds = Corrupted.boostTimer.wait_time,
+		interval = Corrupted.root.boost_cooldown,
+		count = Corrupted.root.nb_entities_boosted_at_once,
+		duration = Nightmare.rules.allyBoostDuration,
+		playerMaxHp = Corrupted.root.player_hp_boost,
+		playerSpeed = Corrupted.root.player_speed_boost,
+		playerAttackSpeed = Corrupted.root.player_attack_speed_boost,
+		structureDamage = Corrupted.root.structure_damage_boost,
+		structureRange = Corrupted.root.structure_range_boost,
+		structureAttackSpeed = Corrupted.root.structure_attack_speed_boost,
 	}),
 })

@@ -1,0 +1,75 @@
+--!strict
+-- Original active generator selection, map-relative duplication, source timing and native two-stage projectile damage.
+loadHelper("tests/helpers/RobloxMock.luau")
+local Shared = game:GetService("ReplicatedStorage").Shared
+local C = require(Shared.Config.NativeBulletHell)
+local Hell = require(Shared.Util.NativeBulletHell)
+local function first(wave, challenge)
+	return Hell.new(C.patterns[4], 2048, 1536, wave, challenge, 1, 1.6)
+end
+describe("Native bullet hell generators", function()
+	it("contains the twelve selected native scenes in original order", function()
+		expect(#C.patterns).toBe(12)
+		expect(C.patterns[1].id).toBe("BulletHell_Bottom")
+		expect(C.patterns[4].id).toBe("BulletHell_Left")
+		expect(C.patterns[12].id).toBe("BulletHell_Top_3")
+		expect(#C.patterns[12].generators).toBe(6)
+	end)
+	it("tiles the real map span and uses positive cooldown as phase advance", function()
+		local h = first(1, false)
+		expect(#h.emitters).toBe(5)
+		expect(h.emitters[1].x).toBe(-64)
+		expect(h.emitters[1].z).toBe(0)
+		expect(h.emitters[3].z).toBe(1280)
+		local fired = {}
+		local function fire(shot)
+			table.insert(fired, shot)
+		end
+		Hell.step(h, 2.15, function()
+			return 0.5
+		end, fire)
+		expect(#fired).toBe(0)
+		Hell.step(h, 0.001, function()
+			return 0.5
+		end, fire)
+		expect(#fired).toBe(2)
+		expect(fired[1].z).toBe(320)
+		Hell.step(h, 2.15, function()
+			return 0.5
+		end, fire)
+		expect(#fired).toBe(5)
+	end)
+	it("caps parameter growth at wave20 but keeps actual-wave damage and challenge reduction", function()
+		local h = first(20, false)
+		expect(h.speed).toBe(240)
+		expect(h.interval).toBeNear(1.2, 0.000001)
+		expect(h.damage).toBe(35)
+		local endless = first(40, false)
+		expect(endless.speed).toBe(240)
+		expect(endless.damage).toBe(71)
+		local elite = first(20, true)
+		expect(elite.speed).toBe(220)
+		expect(elite.interval).toBeNear(1.7, 0.000001)
+		expect(elite.damage).toBe(35)
+	end)
+	it("keeps source direction, motion and accessibility speed and truncates the final hitbox damage", function()
+		local pattern = C.patterns[1]
+		local copy = table.clone(pattern)
+		copy.generators = { table.clone(pattern.generators[1]) }
+		copy.generators[1].damage_factor = 0.5
+		local h = Hell.new(copy, 2048, 1536, 20, false, 0.5, 1.6)
+		local fired = {}
+		Hell.step(h, 3, function()
+			return 0.5
+		end, function(shot)
+			table.insert(fired, shot)
+		end)
+		expect(#fired).toBe(4)
+		expect(fired[1].speed).toBe(120)
+		expect(fired[1].dx).toBe(0)
+		expect(fired[1].dz).toBe(-1)
+		expect(fired[1].damage).toBe(17)
+		expect(fired[1].motion.amplitudeX).toBe(100)
+		expect(fired[1].motion.frequencyX).toBe(3)
+	end)
+end)

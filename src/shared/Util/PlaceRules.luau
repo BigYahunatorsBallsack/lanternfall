@@ -14,7 +14,7 @@ export type Role = "Hub" | "Run" | "Single"
 export type Experience = { name: string, hub: number, run: number }
 
 -- What a player's character choice was in the hub.
-export type Pick = { classId: string, weaponId: string? }
+export type Pick = { classId: string, weaponId: string?, petId: string? }
 
 -- Hub -> run place: the group, its options and everyone's picks.
 export type RunTicket = {
@@ -118,7 +118,7 @@ end
 function PlaceRules.runTicket(ticket: RunTicket): { [string]: any }
 	local picks = {}
 	for userId, pick in ticket.picks do
-		picks[tostring(userId)] = { classId = pick.classId, weaponId = pick.weaponId }
+		picks[tostring(userId)] = { classId = pick.classId, weaponId = pick.weaponId, petId = pick.petId }
 	end
 	return {
 		lf = TICKET_VERSION,
@@ -139,7 +139,8 @@ function PlaceRules.parseRunTicket(
 	userId: number,
 	maxSize: number,
 	isClass: (string) -> boolean,
-	isWeapon: (string) -> boolean
+	isWeapon: (string) -> boolean,
+	isPet: ((string) -> boolean)?
 ): RunTicket?
 	if typeof(data) ~= "table" or data.lf ~= TICKET_VERSION or data.kind ~= "Run" then
 		return nil
@@ -155,9 +156,11 @@ function PlaceRules.parseRunTicket(
 			local pick = data.picks[tostring(member)]
 			if typeof(pick) == "table" and typeof(pick.classId) == "string" and isClass(pick.classId) then
 				local weaponId = pick.weaponId
+				local petId = pick.petId
 				picks[member] = {
 					classId = pick.classId,
 					weaponId = if typeof(weaponId) == "string" and isWeapon(weaponId) then weaponId else nil,
+					petId = if typeof(petId) == "string" and isPet and isPet(petId) then petId else nil,
 				}
 			end
 		end

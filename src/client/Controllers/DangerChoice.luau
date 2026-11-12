@@ -21,6 +21,8 @@ local Widgets = require(script.Parent.Parent.UI.Widgets)
 local BUTTON_COOLDOWN = 0.2 -- seconds; keeps taps below the server rate limit
 
 local Difficulty = Config.Difficulty
+local Nightmare = require(Shared.Config.Nightmare)
+local NightmareText = require(Shared.Config.NightmarePresentation)
 
 local DangerChoice = {}
 
@@ -72,7 +74,10 @@ function DangerChoice.render()
 		button.BackgroundColor3 = if chosen then Theme.danger else Theme.button
 		button.TextColor3 = if chosen then Theme.accentText elseif level > open then Theme.textDim else Theme.text
 	end
-	local note = if open < #Difficulty.levels - 1
+	local note = if open == Nightmare.level - 1 or (shownLevel == Nightmare.level and open < Nightmare.level)
+		then "\n" .. NightmareText.unlockRequirement
+		elseif
+			open < Nightmare.level - 1
 		then `\nOpen for your character: 0-{open}. Win danger {open} with it to open {open + 1}.`
 		else ""
 	description.Text = DangerRules.level(shownLevel).description .. note

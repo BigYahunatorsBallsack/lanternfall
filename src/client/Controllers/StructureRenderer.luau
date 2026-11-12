@@ -114,6 +114,14 @@ local function onBeams(packet: any)
 	end
 end
 
+-- Read-only positions for fog; pets use this same authoritative/interpolated structure feed.
+function Renderer.visitPositions(visit: (number, number, number) -> ())
+	for id, parts in live do
+		local position = parts.anchor.CFrame.Position
+		visit(id, position.X, position.Z)
+	end
+end
+
 function Renderer.init()
 	folder = Instance.new("Folder")
 	folder.Name = "LanternfallStructures"

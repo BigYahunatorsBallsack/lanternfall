@@ -1,6 +1,7 @@
 --!strict
 -- Shared native character rule constants and source stat names; read by CharacterService rules and runtime.
 return table.freeze({
+	hordeChanceOverrides = table.freeze({ Jack = 0 }),
 	fisherman = table.freeze({
 		groupEvery = 10,
 		baseCount = 1,

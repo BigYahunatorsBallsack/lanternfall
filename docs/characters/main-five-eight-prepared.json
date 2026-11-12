@@ -1,0 +1,44 @@
+{
+  "date": "2026-11-12",
+  "baseMain": "6bb5174f31bee9b839cc9a04ee406d1f549de051",
+  "codePreparedOnMain": 43,
+  "codePreparedOnBranch": 47,
+  "mergeBatchTarget": 5,
+  "prepared": [
+    {
+      "id": "Baby",
+      "source": "res://items/characters/baby/baby_data.tres",
+      "sourceMd5": "f6093f965edfd81c0ab16963f7f08f83",
+      "startChoices": 34,
+      "petChoices": false,
+      "originalArtworkGateRetained": true
+    },
+    {
+      "id": "Jack",
+      "source": "res://items/characters/jack/jack_data.tres",
+      "sourceMd5": "48711da893281b595edf90f2b74d4ca0",
+      "startChoices": 32,
+      "petChoices": false,
+      "originalArtworkGateRetained": true
+    },
+    {
+      "id": "Vampire",
+      "source": "res://items/characters/vampire/vampire_data.tres",
+      "sourceMd5": "b84e595ff0ebc472ecc9012828a6763d",
+      "startChoices": 32,
+      "petChoices": false,
+      "originalArtworkGateRetained": true
+    },
+    {
+      "id": "BeastMaster",
+      "source": "res://items/characters/beast_master/beast_master_data.tres",
+      "sourceMd5": "98513c5c5aa3072d9b505662d635037d",
+      "startChoices": 4,
+      "petChoices": true,
+      "originalArtworkGateRetained": true
+    }
+  ],
+  "remainingBatchPackage": "Wounded",
+  "completeNativeAcceptance": false,
+  "studioAccepted": false
+}

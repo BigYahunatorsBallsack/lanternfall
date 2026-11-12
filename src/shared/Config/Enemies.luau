@@ -28,6 +28,7 @@ export type Enemy = {
 	mass: number, -- crowd weight: heavier enemies push lighter ones aside (assumption)
 	-- share of a knockback the enemy ignores (0..1, Brotato's knockback resistance, B5); default 1 - 1 / mass above 1
 	knockbackResistance: number?,
+	nativeArtPending: boolean?, -- explicit fallback presentation; no original art acceptance
 	look: string?, -- reuses the model of this enemy id in another color (EnemyRenderer/Models); default: its own id
 	ranged: Ranged?,
 	charge: Charge?,
@@ -161,6 +162,8 @@ export type Retaliate = {
 	cooldownSeconds: number, -- at most one ring this often
 	projectileDamage: number, -- independent projectile damage growth
 	rangedOnly: boolean?,
+	randomDirections: boolean?, -- Horned Fly: independent random directions instead of an evenly spaced ring
+	fromCenter: boolean?,
 	chance: number?,
 	projectileSpeed: number,
 	projectileRange: number,
@@ -176,6 +179,7 @@ export type Pulse = {
 	onEnter: boolean?, -- heals each hurt enemy once when it comes into the radius instead of every interval
 	-- Herald: up to `buffCount` enemies that are not buffed yet get stronger for good
 	buffCount: number?,
+	nativeResetStats: boolean?, -- Corrupted Buffer recalculates source stats and fully restores HP
 	buffDamage: number?, -- multiplier on contact and shot damage
 	buffSpeed: number?, -- multiplier on speed
 	buffHp: number?, -- share of max HP added (to HP and max HP)
@@ -187,6 +191,7 @@ export type Pulse = {
 
 -- Enemies that stand still and hatch into others after a while unless killed first (Brood Egg, B9).
 export type Hatch = {
+	nativeDeath: boolean?, -- native egg calls die() after spawning; ordinary legacy eggs keep their existing path
 	seconds: number,
 	enemy: string, -- key in types
 	count: number,
@@ -256,6 +261,16 @@ export type Ranged = {
 	projectileSpeed: number, -- studs/s
 	projectileRange: number, -- studs a shot flies before it fades
 	projectileRadius: number, -- studs, hit circle of a shot (Brotato: 17 px)
+	nativeSlash: boolean?, -- emits source slash requests instead of ordinary bullets
+	projectileCount: number?, -- independent shots per native animation method
+	fromCenter: boolean?,
+	nativeTiming: {
+		fireInterval: number,
+		cooldownRandomSeconds: number,
+		initialSeconds: number,
+		fireAt: number,
+		animationSeconds: number,
+	}?,
 	aimLead: number, -- 0 = aims where the player is, 1 = where a player walking straight on will be (Brotato: 0)
 	minFireRange: number?, -- studs; holds its shot while the target is closer (Brotato's Junkie: 200 px)
 	spreadRadians: number?, -- each shot turns by a random angle within +- this (Brotato's projectile_spread)
@@ -1194,6 +1209,10 @@ local function scaleBodies(list: { [string]: Enemy })
 	end
 end
 scaleBodies(Enemies)
+-- These source-backed bodies/circles are already expressed in the enemy engine's world units.
+for id, kind in require(script.Parent.NightmareEnemyKinds).build(PIXEL) do
+	Enemies[id] = kind
+end
 scaleBodies(Bosses)
 
 for _, boss in Bosses do

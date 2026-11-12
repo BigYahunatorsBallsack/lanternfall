@@ -41,6 +41,7 @@ export type KillInfo = {
 	elite: boolean, -- a Gloom Elite: drops a chest (LootService)
 	boss: boolean, -- a boss (WP10, BossService)
 	killer: Player?,
+	aliveSeconds: number?, -- authoritative age of a credited death; native Giant Slayer boundary
 	digCrateChance: number?, -- Shovel's killing hitbox; LootService rolls before ordinary consumables
 }
 
@@ -71,6 +72,8 @@ EnemySim.ShotHit = Signal.new()
 EnemySim.Stepped = Signal.new()
 -- Server-only cosmetic events for friendly projectiles.
 EnemySim.CharmShot = Signal.new()
+-- Trusted source slash request: source id, target x/z, damage and optional Charm owner.
+EnemySim.NativeSlash = Signal.new()
 EnemySim.CharmSupport = Signal.new()
 
 local world: World.World
@@ -128,6 +131,9 @@ friends = CharmedWorld.new(world.params, {
 	end,
 	damage = function(id, amount)
 		EnemySim.damage(id, amount, nil)
+	end,
+	emitSlash = function(id, tx, tz, damage, owner)
+		EnemySim.NativeSlash:Fire(id, tx, tz, damage, owner)
 	end,
 	emitShot = function(owner, event)
 		EnemySim.CharmShot:Fire(owner, event)
@@ -217,6 +223,10 @@ local function fireShots(stepNow: number)
 		end
 		local x, z, t, damage = shots[k + 2], shots[k + 3], shots[k + 4], shots[k + 5]
 		local aimX, aimZ = contactXs[t], contactZs[t]
+		if ranged.nativeSlash then
+			EnemySim.NativeSlash:Fire(shots[k + 1], aimX, aimZ, damage, nil)
+			continue
+		end
 		local flightSeconds = math.sqrt((aimX - x) ^ 2 + (aimZ - z) ^ 2) / ranged.projectileSpeed
 		aimX += targetVxs[t] * flightSeconds * ranged.aimLead
 		aimZ += targetVzs[t] * flightSeconds * ranged.aimLead
@@ -232,7 +242,8 @@ local function fireShots(stepNow: number)
 			local c, s = math.cos(turn), math.sin(turn)
 			dx, dz = dx * c - dz * s, dx * s + dz * c
 		end
-		local startX, startZ = x + dx * kind.radius, z + dz * kind.radius
+		local startX, startZ =
+			if ranged.fromCenter then x else x + dx * kind.radius, if ranged.fromCenter then z else z + dz * kind.radius
 		local id = volleys:fire(
 			startX,
 			startZ,
@@ -304,11 +315,15 @@ local function fireRing(id: number)
 	end
 	local damage = world:getShotDamage(id)
 	local now = workspace:GetServerTimeNow()
-	local turn = RandomService.number("Combat") * 2 * math.pi
+	local turn = if retaliate.randomDirections then 0 else RandomService.number("Combat") * 2 * math.pi
 	for k = 1, retaliate.count do
-		local angle = turn + (k - 1) / retaliate.count * 2 * math.pi
+		local angle = if retaliate.randomDirections
+			then RandomService.number("Combat") * 2 * math.pi
+			else turn + (k - 1) / retaliate.count * 2 * math.pi
 		local dx, dz = math.cos(angle), math.sin(angle)
-		local startX, startZ = x + dx * kind.radius, z + dz * kind.radius
+		local startX, startZ =
+			if retaliate.fromCenter then x else x + dx * kind.radius,
+			if retaliate.fromCenter then z else z + dz * kind.radius
 		local shotId = volleys:fire(
 			startX,
 			startZ,
@@ -342,7 +357,11 @@ local function hatchEggs()
 		local x, z = world:getPosition(id)
 		if hatch and x and z then
 			local hpMultiplier, damageMultiplier, speedMultiplier = world:getMultipliers(id)
-			world:remove(id)
+			if hatch.nativeDeath then
+				EnemySim.damage(id, world:getHealth(id), nil)
+			else
+				world:remove(id)
+			end
 			spawnAround(
 				hatch.enemy,
 				x,
@@ -815,6 +834,9 @@ function EnemySim.damage(
 			elite = kind.elite == true,
 			boss = kind.boss ~= nil,
 			killer = source,
+			aliveSeconds = if nativeBases[id]
+				then math.max(0, workspace:GetServerTimeNow() - nativeBases[id].spawnedAt)
+				else nil,
 			digCrateChance = if ownerHitbox then digCrateChance else nil,
 		} :: KillInfo)
 	end
@@ -830,7 +852,8 @@ function EnemySim.retaliate(id: number, weaponKind: string)
 		and ability
 		and ability.rangedOnly
 		and weaponKind == "Ranged"
-		and RandomService.number("Combat") < (ability.chance or 1)
+		and (ability.chance or 1) ~= 0
+		and RandomService.number("Combat") <= (ability.chance or 1)
 	then
 		fireRing(id)
 	end
@@ -870,6 +893,12 @@ function EnemySim.setBurning(id: number, on: boolean)
 	world:setBurning(id, on)
 end
 
+-- Server pet targeting reads the same authoritative burn flag sent in enemy snapshots.
+function EnemySim.isBurning(id: number): boolean
+	local _, burning = world:getStatus(id)
+	return burning
+end
+
 -- Removes a living enemy without a kill: no EnemyKilled, no loot (a Looter escaping, B6). Returns true if it was alive.
 function EnemySim.remove(id: number): boolean
 	weakness:remove(id)
@@ -891,9 +920,10 @@ function EnemySim.fireShot(
 	speed: number,
 	range: number,
 	radius: number,
-	damage: number
+	damage: number,
+	motion: Types.EnemyShotMotion?
 )
-	local id = volleys:fire(x, z, dx, dz, speed, range, radius, damage)
+	local id = volleys:fire(x, z, dx, dz, speed, range, radius, damage, motion)
 	table.insert(firedShots, {
 		id = id,
 		x = x,
@@ -903,6 +933,7 @@ function EnemySim.fireShot(
 		speed = speed,
 		range = range,
 		at = workspace:GetServerTimeNow(),
+		motion = motion,
 	})
 end
 

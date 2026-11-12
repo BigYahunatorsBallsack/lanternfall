@@ -12,20 +12,25 @@ local Structures = require(script.Parent.Parent.StructureService)
 local Random = require(script.Parent.Parent.RandomService)
 local Support = {}
 local gains: { [Player]: { [string]: number } } = {}
-local buffs: { [Player]: { expires: number, beforeMax: number } } = {}
+local buffs: { [Player]: { expires: number, beforeMax: number, speed: number, attackSpeed: number } } = {}
 local function body(player: Player): Vector3?
 	local at = Map.getRootPosition(player)
 	return if at then Vector3.new(at.X, require(Shared.Config.Map).arena.center.Y, at.Z + C.playerBodyOffsetZ) else nil
 end
-local function boostPlayer(player: Player, now: number)
+local function boostPlayer(player: Player, now: number, rule: any)
 	local hp, maximum = Combat.getHp(player)
 	local sheet = gains[player] or {}
 	gains[player] = sheet
-	local added = math.floor(maximum * C.buffer.playerMaxHp / 100)
+	local added = math.floor(maximum * rule.playerMaxHp / 100)
 	sheet.maxHp = (sheet.maxHp or 0) + added
-	sheet.speed = (sheet.speed or 0) + C.buffer.playerSpeed
-	sheet.attackSpeed = (sheet.attackSpeed or 0) + C.buffer.playerAttackSpeed
-	buffs[player] = { expires = now + C.buffer.duration, beforeMax = maximum }
+	sheet.speed = (sheet.speed or 0) + rule.playerSpeed
+	sheet.attackSpeed = (sheet.attackSpeed or 0) + rule.playerAttackSpeed
+	buffs[player] = {
+		expires = now + rule.duration,
+		beforeMax = maximum,
+		speed = rule.playerSpeed,
+		attackSpeed = rule.playerAttackSpeed,
+	}
 	Stats.setCharmBoost(player, sheet)
 	Combat.setBoostHealth(player, hp + added)
 end
@@ -38,8 +43,8 @@ local function expire(now: number)
 		local sheet = gains[player]
 		-- Stable Player.boost_ended removes the current maximum difference, not the original raw HP grant.
 		sheet.maxHp -= (maximum - buff.beforeMax)
-		sheet.speed -= C.buffer.playerSpeed
-		sheet.attackSpeed -= C.buffer.playerAttackSpeed
+		sheet.speed -= buff.speed
+		sheet.attackSpeed -= buff.attackSpeed
 		buffs[player] = nil
 		Stats.setCharmBoost(player, sheet)
 		Combat.setBoostHealth(player, hp)
@@ -47,9 +52,10 @@ local function expire(now: number)
 end
 local function tick(member: any, x: number, z: number)
 	local kind = member.kind.id
-	if kind ~= "Mender" and kind ~= "Herald" then
+	if kind ~= "Mender" and kind ~= "Herald" and kind ~= "CorruptedBuffer" then
 		return
 	end
+	local buffer = if kind == "CorruptedBuffer" then C.corruptedBuffer else C.buffer
 	local now = workspace:GetServerTimeNow()
 	local at = Vector3.new(x, require(Shared.Config.Map).arena.center.Y, z)
 	if kind == "Mender" then
@@ -74,16 +80,16 @@ local function tick(member: any, x: number, z: number)
 		return
 	end
 	if not member.nextBoostAt then
-		local first = (member.base.spawnedAt or now) + C.buffer.firstSeconds
+		local first = (member.base.spawnedAt or now) + buffer.firstSeconds
 		local convertedAt = member.expires - C.duration
 		member.nextBoostAt = if first > convertedAt
 			then first
-			else first + (math.floor((convertedAt - first) / C.buffer.interval) + 1) * C.buffer.interval
+			else first + (math.floor((convertedAt - first) / buffer.interval) + 1) * buffer.interval
 	end
 	if now < member.nextBoostAt then
 		return
 	end
-	member.nextBoostAt = now + C.buffer.interval
+	member.nextBoostAt = now + buffer.interval
 	local candidates = {}
 	for _, player in Run.getParticipants() do
 		local position = body(player)
@@ -91,27 +97,27 @@ local function tick(member: any, x: number, z: number)
 			not buffs[player]
 			and Run.getParticipantState(player) == "Alive"
 			and position
-			and (position - at).Magnitude <= C.buffer.radius + C.playerBodyRadius
+			and (position - at).Magnitude <= buffer.radius + C.playerBodyRadius
 		then
 			table.insert(candidates, { player = player })
 		end
 	end
-	for _, id in Structures.boostCandidates(at, C.buffer.radius) do
+	for _, id in Structures.boostCandidates(at, buffer.radius) do
 		table.insert(candidates, { structure = id })
 	end
 	local owner = Players:GetPlayerByUserId(member.owner)
-	for _ = 1, math.min(C.buffer.count, #candidates) do
+	for _ = 1, math.min(buffer.count, #candidates) do
 		local index = math.min(#candidates, math.floor(Random.number("Combat", owner) * #candidates) + 1)
 		local chosen = table.remove(candidates, index)
 		if chosen.player then
-			boostPlayer(chosen.player, now)
+			boostPlayer(chosen.player, now, buffer)
 		else
 			Structures.applyBoost(
 				chosen.structure,
-				C.buffer.structureDamage,
-				C.buffer.structureRange,
-				C.buffer.structureAttackSpeed,
-				C.buffer.duration
+				buffer.structureDamage,
+				buffer.structureRange,
+				buffer.structureAttackSpeed,
+				buffer.duration
 			)
 		end
 	end

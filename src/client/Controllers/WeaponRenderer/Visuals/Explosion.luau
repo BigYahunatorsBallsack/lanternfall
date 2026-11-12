@@ -7,6 +7,7 @@ local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
 local Types = require(Shared:WaitForChild("Net"):WaitForChild("Types"))
 
 local Bursts = require(script.Parent.Parent.Parent.Parent.Vfx.Bursts)
+local FogSources = require(script.Parent.Parent.Parent.NativeFogController.Sources)
 local VisualKit = require(script.Parent.Parent.VisualKit)
 local WorldSprite = require(
 	game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Util"):WaitForChild("WorldSprite")
@@ -57,6 +58,7 @@ end
 local Explosion = {}
 
 function Explosion.effect(effect: Types.WeaponEffect)
+	FogSources.effect(effect)
 	if effect.kind == "Blast" and #blasts < MAX_BLASTS then
 		table.insert(
 			blasts,

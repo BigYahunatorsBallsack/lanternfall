@@ -1,0 +1,77 @@
+--!strict
+-- Native Paws & Claws unlock chain; CharacterAccess and PlayerDataService consume these source-hashed rules.
+export type Rule = {
+	free: boolean,
+	challengeId: string?,
+	source: string?,
+	sourceMd5: string?,
+	kind: string?,
+	count: string?,
+	stat: string?,
+	threshold: number?,
+}
+local items: { [string]: Rule } = {
+	BonkDog = {
+		free = false,
+		challengeId = "chal_bonk_dog",
+		source = "res://challenges/chal_bonk_dog.tres",
+		sourceMd5 = "64c5834eb62bde5ca83b9e6a62a7a6ce",
+		kind = "Inventory",
+		count = "weaponsScaling:meleeDamage",
+		stat = "meleeDamage",
+		threshold = 6,
+	},
+	CatlingGun = {
+		free = false,
+		challengeId = "chal_catling_gun",
+		source = "res://challenges/chal_catling_gun.tres",
+		sourceMd5 = "5bea71adbca3e64642efaa1c00a45b1b",
+		kind = "Inventory",
+		count = "weaponsScaling:rangedDamage",
+		stat = "rangedDamage",
+		threshold = 6,
+	},
+	BotOMine = {
+		free = false,
+		challengeId = "chal_bot_o_mine",
+		source = "res://challenges/chal_bot_o_mine.tres",
+		sourceMd5 = "51296b9d0926bc73af499c76eed187cb",
+		kind = "Inventory",
+		count = "weaponsScaling:engineering",
+		stat = "engineering",
+		threshold = 6,
+	},
+	Blazemander = {
+		free = false,
+		challengeId = "chal_blazemander",
+		source = "res://challenges/chal_blazemander.tres",
+		sourceMd5 = "d16d48a1a7ca77806f68024ff63ad725",
+		kind = "Inventory",
+		count = "weaponsScaling:elementalDamage",
+		stat = "elementalDamage",
+		threshold = 6,
+	},
+	Lootworm = {
+		free = false,
+		challengeId = "chal_lootworm",
+		source = "res://challenges/chal_lootworm.tres",
+		sourceMd5 = "8464cd8a2f90f073f0a99721aa5dcf0a",
+		kind = "WaveMaterials",
+		count = "materialsOnFloor",
+		threshold = 20,
+	},
+	Ratzilla = {
+		free = true,
+		source = "res://items/all/03_paws_n_claws/ratzilla/ratzilla.tres",
+		sourceMd5 = "3f66c9f9e8c84d39274d5ca124c3fd11",
+	},
+}
+local character: { kind: "PetChallenges", challengeId: string, source: string, sourceMd5: string, requirement: string } =
+	{
+		kind = "PetChallenges",
+		challengeId = "chal_paws_n_claws",
+		source = "res://challenges/chal_paws_n_claws.tres",
+		sourceMd5 = "8d35d11930657b178a9be538279b5c9a",
+		requirement = "Unlock the Catling Gun, Bonk Dog, Bot-O-Mine, Blazemander and Lootworm items",
+	}
+return { items = items, character = character }

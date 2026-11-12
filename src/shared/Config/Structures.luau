@@ -43,6 +43,9 @@ export type Definition = {
 	vulnerabilitySeconds: number?,
 	vulnerabilityStacks: number?,
 	vulnerabilitySource: string?,
+	petKind: string?,
+	petMine: boolean?,
+	petBeastMaster: boolean?,
 }
 local kinds: { [string]: Definition } = {
 	BrassSentry = {
@@ -191,6 +194,102 @@ kinds.BloodTurret = {
 	description = "Shoots bullets that increase damage taken by 10% for 5 seconds (max 30%).",
 }
 kinds.MoonGarden.boostMode = "Turret" -- Garden inherits native Turret.boost and its five-second timer
+local rat = require(script.Parent.Pets).kinds.Ratzilla
+kinds.Ratzilla = {
+	displayName = "Ratzilla",
+	mode = "Pet",
+	petKind = "Ratzilla",
+	damage = rat.weapon.damage,
+	engineering = 0,
+	interval = rat.weapon.cooldownFrames / require(script.Parent.Pets).frameRate,
+	range = rat.weapon.rangePoints * require(script.Parent.Stats).range.studsPerPoint,
+	tier = 1,
+	price = 30,
+	color = { 255, 255, 255 },
+	description = "Ratzilla",
+	canBeGrouped = false,
+	countsAsTurret = false,
+}
+local dog = require(script.Parent.Pets).kinds.BonkDog
+kinds.BonkDog = {
+	displayName = "Bonk Dog",
+	mode = "Pet",
+	petKind = "BonkDog",
+	damage = dog.weapon.damage,
+	engineering = 0,
+	interval = dog.weapon.cooldownFrames / require(script.Parent.Pets).frameRate,
+	range = dog.weapon.rangePoints * require(script.Parent.Stats).range.studsPerPoint,
+	tier = 2,
+	price = 40,
+	color = { 255, 255, 255 },
+	description = "Bonk Dog",
+	canBeGrouped = false,
+	countsAsTurret = false,
+}
+local bot = require(script.Parent.Pets).kinds.BotOMine
+kinds.BotOMine = {
+	displayName = "Bot-O-Mine",
+	mode = "Pet",
+	petKind = "BotOMine",
+	damage = bot.weapon.damage,
+	engineering = 1,
+	interval = bot.weapon.cooldownFrames / require(script.Parent.Pets).frameRate,
+	range = bot.weapon.rangePoints * require(script.Parent.Stats).range.studsPerPoint,
+	tier = 2,
+	price = 55,
+	color = { 255, 255, 255 },
+	description = "Bot-O-Mine",
+	canBeGrouped = false,
+	countsAsTurret = false,
+}
+local blaze = require(script.Parent.Pets).kinds.Blazemander
+kinds.Blazemander = {
+	displayName = "Blazemander",
+	mode = "Pet",
+	petKind = "Blazemander",
+	damage = blaze.weapon.damage,
+	engineering = 0,
+	interval = blaze.weapon.cooldownFrames / require(script.Parent.Pets).frameRate,
+	range = blaze.weapon.rangePoints * require(script.Parent.Stats).range.studsPerPoint,
+	tier = 2,
+	price = 40,
+	color = { 255, 255, 255 },
+	description = "Blazemander",
+	canBeGrouped = false,
+	countsAsTurret = false,
+}
+local cat = require(script.Parent.Pets).kinds.CatlingGun
+kinds.CatlingGun = {
+	displayName = "Catling Gun",
+	mode = "Pet",
+	petKind = "CatlingGun",
+	damage = cat.weapon.damage,
+	engineering = 0,
+	interval = cat.weapon.cooldownFrames / require(script.Parent.Pets).frameRate,
+	range = cat.weapon.rangePoints * require(script.Parent.Stats).range.studsPerPoint,
+	tier = 2,
+	price = 34,
+	color = { 255, 255, 255 },
+	description = "Catling Gun",
+	canBeGrouped = false,
+	countsAsTurret = false,
+}
+local worm = require(script.Parent.Pets).kinds.Lootworm
+kinds.Lootworm = {
+	displayName = "Lootworm",
+	mode = "Pet",
+	petKind = "Lootworm",
+	damage = worm.weapon.damage,
+	engineering = 0,
+	interval = worm.weapon.cooldownFrames / require(script.Parent.Pets).frameRate,
+	range = worm.weapon.rangePoints * require(script.Parent.Stats).range.studsPerPoint,
+	tier = 1,
+	price = 30,
+	color = { 255, 255, 255 },
+	description = "Lootworm",
+	canBeGrouped = false,
+	countsAsTurret = false,
+}
 for id, values in require(script.Parent.CharacterStructureData) do
 	for key, value in values do
 		(kinds[id] :: any)[key] = value

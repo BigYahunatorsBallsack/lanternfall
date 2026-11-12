@@ -7,7 +7,7 @@ describe("Native tree counter migration", function()
 		local data =
 			{ schemaVersion = 12, nativeCounts = { materialsCollected = 123, enemiesKilled = 456, digSitesDug = 7 } }
 		M.run(data, T.SCHEMA_VERSION)
-		expect(data.schemaVersion).toBe(13)
+		expect(data.schemaVersion).toBe(T.SCHEMA_VERSION)
 		expect(data.nativeCounts.treesKilled).toBe(0)
 		expect(data.nativeCounts.materialsCollected).toBe(123)
 		expect(data.nativeCounts.enemiesKilled).toBe(456)

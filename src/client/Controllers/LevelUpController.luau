@@ -19,6 +19,7 @@ local Types = require(Shared:WaitForChild("Net"):WaitForChild("Types"))
 local UpgradeText = require(Shared:WaitForChild("Util"):WaitForChild("UpgradeText"))
 
 local RunStateController = require(script.Parent.RunStateController)
+local StatsController = require(script.Parent.StatsController)
 local Theme = require(script.Parent.Parent.UI.Theme)
 local Widgets = require(script.Parent.Parent.UI.Widgets)
 local Icons = require(script.Parent.Parent.UI.Icons)
@@ -220,7 +221,7 @@ local function renderCrate(current: Types.CrateOffer)
 	crateCard.badge.Text = string.upper(`{UpgradeText.tierName(current.tier)} · x{current.count}`)
 	crateCard.badge.TextColor3 = color
 	crateCard.name.Text = title
-	crateCard.detail.Text = UpgradeText.itemLines(current.itemId, STAT_COLORS)
+	crateCard.detail.Text = UpgradeText.itemLines(current.itemId, STAT_COLORS, nil, StatsController.get())
 	crateCard.icon.BackgroundColor3 = Theme.surface
 	crateCard.letters.Text = ""
 	Icons.draw(crateCard.icon, "item", current.itemId)

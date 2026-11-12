@@ -12,12 +12,14 @@ local Party = require(script.Parent.Parent.Controllers.PartyController)
 local Shared = game:GetService("ReplicatedStorage").Shared
 local Config = require(Shared.Config)
 local StatMath = require(Shared.Util.StatMath)
+local PetText = require(Shared.Util.PetText)
+local CharacterRules = require(Shared.Util.CharacterRules)
 local WeaponClasses = require(Shared.Util.WeaponClasses)
 local RunSchedule = require(Shared.Util.RunSchedule)
 local Layout = {}
 -- Desktop selection pages: where the page starts and how tall it is (summary panels, tiles, enemy settings button).
 local PAGE_TOP = 116
-local PAGE_HEIGHT = { Character = 460, Weapon = 460, Difficulty = 460 }
+local PAGE_HEIGHT = { Character = 460, Weapon = 460, Pet = 460, Difficulty = 460 }
 local refresh: (() -> ())? = nil
 
 local function place(object: GuiObject, x: number, y: number, width: number, height: number)
@@ -102,11 +104,11 @@ function Layout.mount(screen: ScreenGui, choose: Frame, players: Frame, record: 
 		Parent = root,
 	}, function()
 		local me = RunState.getLocalPlayer()
-		local weaponless = me and Config.Classes[me.classId].maxWeapons == 0
+		local startStep = if me then CharacterChoice.startStep(me.classId) else "Weapon"
 		show(
-			if step == "Difficulty" and weaponless
-				then "Character"
-				else ({ Weapon = "Character", Difficulty = "Weapon" })[step] or "Main"
+			if step == "Difficulty"
+				then (if startStep == "Difficulty" then "Character" else startStep)
+				else ({ Weapon = "Character", Pet = "Character" })[step] or "Main"
 		)
 	end)
 	local scroll = Widgets.create("ScrollingFrame", {
@@ -180,6 +182,18 @@ function Layout.mount(screen: ScreenGui, choose: Frame, players: Frame, record: 
 		Size = UDim2.new(1, -100, 0, 40),
 		Parent = weapon,
 	})
+	local weaponDetails = Widgets.create("ScrollingFrame", {
+		Name = "WeaponDetails",
+		BackgroundTransparency = 1,
+		BorderSizePixel = 0,
+		Position = UDim2.fromOffset(12, 96),
+		Size = UDim2.new(1, -24, 1, -108),
+		CanvasSize = UDim2.fromOffset(0, 0),
+		AutomaticCanvasSize = Enum.AutomaticSize.Y,
+		ScrollBarThickness = 4,
+		ScrollingDirection = Enum.ScrollingDirection.Y,
+		Parent = weapon,
+	})
 	local weaponStats = Widgets.label({
 		Name = "WeaponStats",
 		TextSize = 16,
@@ -187,10 +201,11 @@ function Layout.mount(screen: ScreenGui, choose: Frame, players: Frame, record: 
 		TextWrapped = true,
 		TextXAlignment = Enum.TextXAlignment.Left,
 		TextYAlignment = Enum.TextYAlignment.Top,
-		Position = UDim2.fromOffset(12, 96),
-		Size = UDim2.new(1, -24, 1, -108),
-		Parent = weapon,
+		Size = UDim2.new(1, -6, 0, 0),
+		AutomaticSize = Enum.AutomaticSize.Y,
+		Parent = weaponDetails,
 	})
+	local previewId: string? = nil
 	local runOptions = Widgets.create(
 		"Frame",
 		{ Name = "RunOptions", BackgroundColor3 = Theme.button, BorderSizePixel = 0, Parent = content },
@@ -278,7 +293,7 @@ function Layout.mount(screen: ScreenGui, choose: Frame, players: Frame, record: 
 		local factor = if compact then 1 else math.min(area.X / 1280, area.Y / 720)
 		-- The selection pages fill more of the screen (owner: text read too small next to the reference game),
 		-- as long as the widest page (difficulty, 1000 px plus margins) still fits.
-		if not compact and (step == "Character" or step == "Weapon" or step == "Difficulty") then
+		if not compact and (step == "Character" or step == "Weapon" or step == "Pet" or step == "Difficulty") then
 			factor = math.min(factor * 1.15, area.X / 1040)
 			-- ...and the whole page, with the play buttons below it, fits without scrolling (owner).
 			local footerHeight = 0
@@ -302,6 +317,7 @@ function Layout.mount(screen: ScreenGui, choose: Frame, players: Frame, record: 
 		title.Text = ({
 			Character = "Character Selection",
 			Weapon = "Weapon Selection",
+			Pet = "Pet Selection",
 			Difficulty = "Difficulty Selection",
 			Party = "Co-op",
 			Collection = "Collection",
@@ -330,10 +346,10 @@ function Layout.mount(screen: ScreenGui, choose: Frame, players: Frame, record: 
 		for index, button in menuButtons do
 			place(button, centerX - buttonWidth / 2, buttonTop + (index - 1) * 50, buttonWidth, 44)
 		end
-		choose.Visible = step == "Character" or step == "Weapon" or step == "Difficulty"
+		choose.Visible = step == "Character" or step == "Weapon" or step == "Pet" or step == "Difficulty"
 		danger.Visible, players.Visible, record.Visible = step == "Difficulty", step == "Party", step == "Collection"
 		runOptions.Visible = step == "Character"
-		weapon.Visible = step == "Weapon" or step == "Difficulty"
+		weapon.Visible = step == "Weapon" or step == "Pet" or step == "Difficulty"
 		levels.Visible, adjustments.Visible = step == "Difficulty", step == "Difficulty"
 		if not screen.Enabled then
 			advanced.Visible = false
@@ -436,7 +452,24 @@ function Layout.mount(screen: ScreenGui, choose: Frame, players: Frame, record: 
 			then Enum.AutomaticSize.Y
 			else Enum.AutomaticSize.None
 		local id, me = CharacterChoice.getShownWeapon(), RunState.getLocalPlayer()
-		if id and Config.Weapons[id] then
+		local petId = CharacterChoice.getShownPet()
+		local nextPreview = if petId then "Pet:" .. petId elseif id then "Weapon:" .. id else nil
+		if nextPreview ~= previewId then
+			previewId = nextPreview
+			weaponDetails.CanvasPosition = Vector2.new(0, 0)
+		end
+		if petId then
+			local item = Config.Items.byId[petId]
+			Icons.draw(weaponArt, "item", petId)
+			weaponName.Text, weaponClass.Text = item.displayName, "Pet"
+			local sheet = StatMath.baseSheet()
+			local class = me and Config.Classes[me.classId]
+			for key, value in if class then class.stats else {} do
+				sheet[key] = (sheet[key] or 0) + value
+			end
+			sheet.nativePetScaling = CharacterRules.nativeOverride(me and me.classId, "beast_master_effect", 0)
+			weaponStats.Text = PetText.line(petId, sheet)
+		elseif id and Config.Weapons[id] then
 			Icons.draw(weaponArt, "weapon", id)
 			weaponName.Text, weaponClass.Text = Config.Weapons[id].displayName, WeaponClasses.names(id)
 			local sheet = StatMath.baseSheet()

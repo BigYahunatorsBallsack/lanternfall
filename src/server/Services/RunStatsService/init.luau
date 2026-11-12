@@ -117,6 +117,7 @@ local function onRunEnded(results: Types.Results)
 				won = results.outcome == "Victory" and not firstNight,
 				wave = results.wave or RunDirector.getWave(),
 				danger = danger,
+				zoneId = RunDirector.getNativeZoneId(),
 				classId = RunDirector.getParticipantClassId(player) or "",
 				kills = tally.kills,
 				bossKills = bossKills,

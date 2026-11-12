@@ -137,7 +137,7 @@ function TooltipText.weapon(info: Types.WeaponInfo): (string, string)
 end
 
 -- An item the player owns `count` of.
-function TooltipText.item(itemId: string, count: number): (string, string)
+function TooltipText.item(itemId: string, count: number, sheet: { [string]: number }?): (string, string)
 	local item = Config.Items.byId[itemId]
 	if not item then
 		return itemId, ""
@@ -147,7 +147,7 @@ function TooltipText.item(itemId: string, count: number): (string, string)
 		head ..= ` / max {item.limit}`
 	end
 	local colors = { plus = Color3.fromRGB(126, 214, 136), minus = Color3.fromRGB(236, 96, 96) } -- Theme success/danger
-	local body = UpgradeText.itemLines(itemId, colors)
+	local body = UpgradeText.itemLines(itemId, colors, nil, sheet)
 	return item.displayName, dim(head) .. (if body ~= "" then "\n" .. body else "")
 end
 
