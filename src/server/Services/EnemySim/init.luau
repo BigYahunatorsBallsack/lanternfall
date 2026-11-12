@@ -901,9 +901,10 @@ function EnemySim.fireShot(
 	speed: number,
 	range: number,
 	radius: number,
-	damage: number
+	damage: number,
+	motion: Types.EnemyShotMotion?
 )
-	local id = volleys:fire(x, z, dx, dz, speed, range, radius, damage)
+	local id = volleys:fire(x, z, dx, dz, speed, range, radius, damage, motion)
 	table.insert(firedShots, {
 		id = id,
 		x = x,
@@ -913,6 +914,7 @@ function EnemySim.fireShot(
 		speed = speed,
 		range = range,
 		at = workspace:GetServerTimeNow(),
+		motion = motion,
 	})
 end
 

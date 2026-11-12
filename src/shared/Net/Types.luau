@@ -118,6 +118,14 @@ export type WeaponEffect = {
 
 -- One enemy projectile (EnemySim -> EnemyShotRenderer). It flies straight from x/z at `speed` from server time `at`
 -- and fades at `range`, unless an "ended" entry stops it earlier.
+-- Native environmental shots add sinusoidal velocity; ordinary shots keep their legacy packet size.
+export type EnemyShotMotion = {
+	amplitudeX: number,
+	amplitudeZ: number,
+	frequencyX: number,
+	frequencyZ: number,
+}
+
 export type EnemyShot = {
 	id: number, -- unique within the run
 	x: number,
@@ -127,6 +135,7 @@ export type EnemyShot = {
 	speed: number, -- studs/s
 	range: number, -- studs
 	at: number, -- server time it was fired
+	motion: EnemyShotMotion?, -- environmental shot; source directional lifetime replaces ordinary arena clipping
 }
 
 -- Enemy projectile changes since the last snapshot, sent to the participants.

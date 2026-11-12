@@ -6,6 +6,8 @@
 -- player damage (EnemySim.ShotHit) and ends into EnemyShots effects for the clients.
 
 local EPSILON = 1e-6
+local Types = require(game:GetService("ReplicatedStorage").Shared.Net.Types)
+local EnvironmentShot = require(script.Parent.EnvironmentShot)
 
 export type Circle = { x: number, z: number, radius: number }
 
@@ -29,6 +31,7 @@ type Shot = {
 	radius: number,
 	damage: number,
 	flown: number, -- studs so far
+	motion: Types.EnemyShotMotion?,
 }
 
 local Volleys = {}
@@ -72,7 +75,8 @@ function Volleys.fire(
 	speed: number,
 	range: number,
 	radius: number,
-	damage: number
+	damage: number,
+	motion: Types.EnemyShotMotion?
 ): number
 	self.nextId += 1
 	table.insert(self.shots, {
@@ -86,6 +90,7 @@ function Volleys.fire(
 		radius = radius,
 		damage = damage,
 		flown = 0,
+		motion = motion,
 	})
 	return self.nextId
 end
@@ -130,6 +135,27 @@ function Volleys.step(
 	local index = 1
 	while index <= #shots do
 		local shot = shots[index]
+		if shot.motion then
+			local target, distance = EnvironmentShot.step(shot, dt, p, targetXs, targetZs, targetCount, targetRadii)
+			if target ~= nil then
+				if target > 0 then
+					hits[hitCount * 2 + 1], hits[hitCount * 2 + 2] = target, shot.damage
+					hitCount += 1
+					self.hitSources[hitCount] = shot.id
+				end
+				ended[endedCount * 2 + 1], ended[endedCount * 2 + 2] = shot.id, distance :: number
+				endedCount += 1
+				table.remove(shots, index)
+			else
+				shot.flown += shot.speed * dt
+				if shot.flown >= shot.range - EPSILON then
+					table.remove(shots, index)
+				else
+					index += 1
+				end
+			end
+			continue
+		end
 		local x, z = shot.x + shot.dx * shot.flown, shot.z + shot.dz * shot.flown
 		local length = math.min(shot.speed * dt, shot.range - shot.flown)
 		local stopAt: number? = nil

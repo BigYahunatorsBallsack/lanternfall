@@ -629,6 +629,39 @@
       "Personal isolation and saved MemoryStore rejoin"
     ],
     "latestFullSuite": {
+      "artifact": "build/native-five-branch-eight-nightmare-bullets-6bb5174.json",
+      "baselineMain": "6bb5174f31bee9b839cc9a04ee406d1f549de051",
+      "baselineSpecs": 222,
+      "baselinePassed": 1488,
+      "baselineFailed": 37,
+      "branchSpecs": 257,
+      "branchPassed": 1631,
+      "branchFailed": 37,
+      "additionalSpecs": 35,
+      "additionalChecksPassed": 143,
+      "aborts": 0,
+      "newDeterministicFailures": [],
+      "knownCpuBoundaryFailure": {
+        "spec": "CharmedWorld.spec.luau",
+        "milliseconds": 4.158,
+        "limitMilliseconds": 4,
+        "previouslyConfirmedOnUnchangedMain": true
+      },
+      "resolvedKnownFlake": "EnemiesB9 Gobbler orb eating green in this run",
+      "perf22Passed": true,
+      "afterFullSuite": "No production changes. Strengthened two focused specs to check a real truncated extended packet and actual client positions; both4/0. Full suite not repeated after assertion-only additions."
+    },
+    "runtimeResearch": {
+      "activeBulletPatterns": 12,
+      "sourceSelector": "res://singletons/zone_service.tscn",
+      "unusedScenesExcludedFromSelector": true,
+      "projectileNeeds": "Offscreen ingress/margin, sinusoidal velocity on server and client, source timing and source damage with generator contribution",
+      "fogSuppressesBullets": true,
+      "eventsExecutedInGame": false,
+      "projectileExecutorImplemented": true
+    },
+    "projectileWavesExecutedInGame": true,
+    "profileFullSuite": {
       "artifact": "build/native-five-branch-eight-nightmare-profiles-6bb5174.json",
       "baselineMain": "6bb5174f31bee9b839cc9a04ee406d1f549de051",
       "baselineSpecs": 222,
@@ -645,13 +678,55 @@
       "followup": "TreeCounterMigration expects current Template.SCHEMA_VERSION; focused1/0 after correction. No production change after full suite. Full suite was not rerun after test-only correction.",
       "remainingRuntimeFailuresAreBaselineNames": true
     },
-    "runtimeResearch": {
-      "activeBulletPatterns": 12,
-      "sourceSelector": "res://singletons/zone_service.tscn",
-      "unusedScenesExcludedFromSelector": true,
-      "projectileNeeds": "Offscreen ingress/margin, sinusoidal velocity on server and client, source timing and source damage with generator contribution",
-      "fogSuppressesBullets": true,
-      "eventsExecutedInGame": false
+    "bulletHell": {
+      "source": "bullet-hell-source.json",
+      "compiler": "tools/build-character-bullet-hell.py",
+      "activePatterns": 12,
+      "sourceSelectedOrderPreserved": true,
+      "sceneOrScriptExecutablesCommitted": false,
+      "service": "src/server/Services/BulletHellService.luau",
+      "sharedEmitter": "src/shared/Util/NativeBulletHell.luau",
+      "sharedTrajectory": "src/shared/Util/NativeBulletMotion.luau",
+      "serverCollision": "src/server/Services/EnemySim/EnvironmentShot.luau",
+      "eventQuery": "DangerService.getNightmareEvent(wave)",
+      "tests": {
+        "NativeBulletHell": {
+          "passed": 4,
+          "failed": 0
+        },
+        "NativeEnvironmentShots": {
+          "passed": 4,
+          "failed": 0
+        },
+        "NativeBulletHellService": {
+          "passed": 4,
+          "failed": 0
+        }
+      },
+      "redBeforeImplementation": [
+        "NativeEnvironmentShots0/1 missing NativeBulletMotion",
+        "NativeBulletHell0/1 missing NativeBulletHell"
+      ],
+      "ordinaryFiredRecordBytes": 32,
+      "extendedFiredRecordBytes": 49,
+      "extensionHeaderMask": 2,
+      "newRemote": false,
+      "newClientIntent": false,
+      "sourceDamageSecondWaveContributionPreserved": true,
+      "publicDifficulty6Exposed": false,
+      "nativeAreaPhysicsAccepted": false,
+      "nativeEnvironmentalArtAccepted": false,
+      "globalEnemyTimeScalingImplemented": false,
+      "studioAccepted": false,
+      "nightmarePerformanceAccepted": false,
+      "remaining": [
+        "fog renderer",
+        "six Nightmare enemies",
+        "complete difficulty6 modifiers/options/unlock integration",
+        "source graphics",
+        "global enemy time factor",
+        "native physics and Studio/mobile acceptance"
+      ]
     }
   }
 }

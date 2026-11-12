@@ -11,6 +11,8 @@ local RunService = game:GetService("RunService")
 local Shared = ReplicatedStorage.Shared
 local Config = require(Shared.Config)
 local DangerRules = require(Shared.Util.DangerRules)
+local NightmareRules = require(Shared.Util.NightmareRules)
+local Nightmare = require(Shared.Config.Nightmare)
 local HordeOverrides = require(Shared.Config.CharacterMechanics).hordeChanceOverrides
 local Net = require(Shared.Net)
 local Types = require(Shared.Net.Types)
@@ -21,6 +23,7 @@ local RunDirector = require(script.Parent.RunDirector)
 local DangerService = {}
 
 local plan: { [number]: DangerRules.Challenge } = {}
+local nightmarePlan = NightmareRules.new()
 local plannedBlocks: { [number]: boolean } = {}
 local pool: { string } = {}
 local announcedWave = 0
@@ -71,6 +74,7 @@ local function planUpTo(wave: number)
 end
 
 local function clear()
+	nightmarePlan = NightmareRules.new()
 	table.clear(plan)
 	table.clear(plannedBlocks)
 	table.clear(pool)
@@ -158,6 +162,45 @@ end
 -- The planned elite and horde waves so far (tests, debug).
 function DangerService.getPlan(): { [number]: DangerRules.Challenge }
 	return table.clone(plan)
+end
+
+-- Original default Nightmare events, planned once against the real frozen elite/horde occupancy.
+-- Difficulty 6 remains unavailable in RunOptions until all of its runtime prerequisites are implemented.
+function DangerService.getNightmareEvent(wave: number): string?
+	local danger = RunDirector.getRunOptions().danger
+	if danger < Nightmare.level or not RunDirector.isOngoing() then
+		return nil
+	end
+	planUpTo(wave)
+	local base = if wave <= Nightmare.events.firstBlock * 2
+		then Nightmare.events.firstBlock
+		else math.floor((wave - 1) / Nightmare.events.firstBlock) * Nightmare.events.firstBlock
+	local occupied = {}
+	for number in plan do
+		occupied[number] = true
+	end
+	local random = RandomService.stream("Spawns")
+	NightmareRules.generate(
+		nightmarePlan,
+		danger,
+		base,
+		occupied,
+		Nightmare.events.defaultConstantProjectiles,
+		function(minimum, maximum)
+			return random:NextInteger(minimum, maximum)
+		end
+	)
+	for _, number in nightmarePlan.fog do
+		if number == wave then
+			return "fog_of_war"
+		end
+	end
+	for _, number in nightmarePlan.bullets do
+		if number == wave then
+			return "bullet_hell"
+		end
+	end
+	return nil
 end
 
 return DangerService

@@ -7,11 +7,14 @@
 --   header  u8 reset, u16 fired, u16 ended, f64 at (server time the first shot was fired)   13 bytes
 --   fired   u32 id, f32 x, z, dx, dz, speed, range, f32 at offset                         32 bytes each
 --   ended   u32 id, f32 distance flown                                                     8 bytes each
+-- Header bit 1 marks extended fired records: 32 legacy bytes + u8 environmental + 4*f32 motion (49 bytes).
+-- Ordinary-only packets retain the original layout and size. Both server and renderer consume this version.
 
 local Types = require(script.Parent.Types)
 
 local HEADER_SIZE = 13
 local FIRED_SIZE = 32
+local EXTENDED_FIRED_SIZE = 49
 local ENDED_SIZE = 8
 local MAX_COUNT = 65535
 local U32 = 4294967296
@@ -23,8 +26,16 @@ function ShotFeed.encode(events: Types.EnemyShotEvents): buffer
 	local firedCount = math.min(#fired, MAX_COUNT)
 	local endedCount = math.min(#ended // 2, MAX_COUNT)
 	local baseAt = if firedCount > 0 then fired[1].at else 0
-	local b = buffer.create(HEADER_SIZE + firedCount * FIRED_SIZE + endedCount * ENDED_SIZE)
-	buffer.writeu8(b, 0, if events.reset then 1 else 0)
+	local extended = false
+	for i = 1, firedCount do
+		if fired[i].motion then
+			extended = true
+			break
+		end
+	end
+	local recordSize = if extended then EXTENDED_FIRED_SIZE else FIRED_SIZE
+	local b = buffer.create(HEADER_SIZE + firedCount * recordSize + endedCount * ENDED_SIZE)
+	buffer.writeu8(b, 0, (if events.reset then 1 else 0) + (if extended then 2 else 0))
 	buffer.writeu16(b, 1, firedCount)
 	buffer.writeu16(b, 3, endedCount)
 	buffer.writef64(b, 5, baseAt)
@@ -39,7 +50,17 @@ function ShotFeed.encode(events: Types.EnemyShotEvents): buffer
 		buffer.writef32(b, offset + 20, shot.speed)
 		buffer.writef32(b, offset + 24, shot.range)
 		buffer.writef32(b, offset + 28, shot.at - baseAt)
-		offset += FIRED_SIZE
+		if extended then
+			local motion = shot.motion
+			buffer.writeu8(b, offset + 32, if motion then 1 else 0)
+			if motion then
+				buffer.writef32(b, offset + 33, motion.amplitudeX)
+				buffer.writef32(b, offset + 37, motion.amplitudeZ)
+				buffer.writef32(b, offset + 41, motion.frequencyX)
+				buffer.writef32(b, offset + 45, motion.frequencyZ)
+			end
+		end
+		offset += recordSize
 	end
 	for k = 1, endedCount do
 		buffer.writeu32(b, offset, ended[2 * k - 1] % U32)
@@ -57,8 +78,14 @@ function ShotFeed.decode(b: buffer): Types.EnemyShotEvents
 	if length < HEADER_SIZE then
 		return EMPTY
 	end
+	local flags = buffer.readu8(b, 0)
+	if flags > 3 then
+		return EMPTY
+	end
+	local extended = flags >= 2
+	local recordSize = if extended then EXTENDED_FIRED_SIZE else FIRED_SIZE
 	local firedCount, endedCount = buffer.readu16(b, 1), buffer.readu16(b, 3)
-	if length ~= HEADER_SIZE + firedCount * FIRED_SIZE + endedCount * ENDED_SIZE then
+	if length ~= HEADER_SIZE + firedCount * recordSize + endedCount * ENDED_SIZE then
 		return EMPTY
 	end
 	local baseAt = buffer.readf64(b, 5)
@@ -75,7 +102,21 @@ function ShotFeed.decode(b: buffer): Types.EnemyShotEvents
 			range = buffer.readf32(b, offset + 24),
 			at = baseAt + buffer.readf32(b, offset + 28),
 		}
-		offset += FIRED_SIZE
+		if extended then
+			local environmental = buffer.readu8(b, offset + 32)
+			if environmental > 1 then
+				return EMPTY
+			end
+			if environmental == 1 then
+				fired[i].motion = {
+					amplitudeX = buffer.readf32(b, offset + 33),
+					amplitudeZ = buffer.readf32(b, offset + 37),
+					frequencyX = buffer.readf32(b, offset + 41),
+					frequencyZ = buffer.readf32(b, offset + 45),
+				}
+			end
+		end
+		offset += recordSize
 	end
 	local ended = table.create(endedCount * 2)
 	for k = 1, endedCount do
@@ -83,7 +124,7 @@ function ShotFeed.decode(b: buffer): Types.EnemyShotEvents
 		ended[2 * k] = buffer.readf32(b, offset + 4)
 		offset += ENDED_SIZE
 	end
-	return { reset = buffer.readu8(b, 0) == 1, fired = fired, ended = ended }
+	return { reset = flags % 2 == 1, fired = fired, ended = ended }
 end
 
 return ShotFeed
