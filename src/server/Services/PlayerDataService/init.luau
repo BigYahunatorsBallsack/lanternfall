@@ -487,6 +487,24 @@ function PlayerDataService.observeNativeWaveTrees(player: Player, trees: number)
 	end
 end
 
+-- Called only with a trusted pre-hit receipt from WhipProgress, including kills which just ended the run.
+function PlayerDataService.observeNativeWhipKill(player: Player, zoneId: number)
+	local rule = NativeWeaponAccess.Flail
+	local data = PlayerDataService.get(player)
+	if not data or zoneId ~= rule.zoneId then
+		return
+	end
+	data.nativeCounts.whipJungleKills += 1
+	if data.nativeCounts.whipJungleKills >= assert(rule.threshold, "Flail kill threshold is required") then
+		local key = CharacterAccess.challengeKey(assert(rule.challengeId, "Flail challenge is required"))
+		if not data.achievements[key] then
+			data.achievements[key] = true
+			sendInfo(player)
+			PlayerDataService.Changed:Fire(player)
+		end
+	end
+end
+
 -- Native Survivor counts personally credited enemies, excluding trees and despawn/cleanup.
 function PlayerDataService.observeNativeEnemyKill(player: Player)
 	local data = PlayerDataService.get(player)

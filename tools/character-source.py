@@ -349,7 +349,7 @@ def generate(pck: Pck) -> dict[str, Any]:
     version_path = "res://singletons/progress_data.gdc"
     versions = sorted({s.decode() for s in re.findall(rb"[ -~]{4,}", pck.read(version_path)) if re.fullmatch(rb"1\.\d+\.\d+\.\d+", s)})
     version = max(versions, key=lambda s: tuple(int(n) for n in s.split(".")))
-    assert version == "1.2.0.1", f"Installed version changed: {versions}"
+    assert version == "1.2.0.2", f"Installed version changed: {versions}"
     steam_manifest = pck.path.parent.parent.parent / "appmanifest_1942280.acf"
     manifest = steam_manifest.read_text(encoding="utf-8")
     build_id = re.search(r'"buildid"\s*"(\d+)"', manifest).group(1)

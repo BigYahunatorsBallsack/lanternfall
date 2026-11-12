@@ -4,6 +4,7 @@ local Arsenal = require(script.Parent.Arsenal)
 local Combat = require(script.Parent.BrotatoCombat)
 local Pose = require(game:GetService("ReplicatedStorage").Shared.Util.WeaponPose)
 local WeaponTarget = require(script.Parent.WeaponTarget)
+local WhipProgress = require(script.Parent.WhipProgress)
 local Whip = {}
 local targets: { number } = {}
 local found: { number } = {}
@@ -107,7 +108,9 @@ function Whip.step(weapon: Arsenal.Weapon, ctx: Arsenal.Context, dt: number)
 				if atTip[id] then
 					critical = true
 				end
-				Combat.hit(weapon, ctx, id, nil, nil, critical)
+				local receipt = WhipProgress.capture(weapon.id, weapon.ownerId, id)
+				local killed = Combat.hit(weapon, ctx, id, nil, nil, critical)
+				WhipProgress.credit(receipt, killed)
 				ctx:setHitDirection(nil, nil)
 			end
 		end

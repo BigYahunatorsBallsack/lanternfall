@@ -42,6 +42,8 @@ local BrotatoCombat = require(script.BrotatoCombat)
 local BrotatoRuntime = require(script.BrotatoRuntime)
 local FirePuddles = require(script.FirePuddles)
 local Carbon = require(script.CarbonArrows)
+local WhipProgress = require(script.WhipProgress)
+local FlailAccess = require(Shared.Config.CharacterWeaponAccess).Flail
 local EnemyKinds = require(Shared.Util.EnemyKinds)
 local CharacterMovement = require(script.Parent.CharacterService.Movement)
 local waveBonuses: { [Player]: { [string]: number } } = {}
@@ -601,6 +603,22 @@ end
 -- Lifecycle -------------------------------------------------------------------------
 
 function WeaponService.init()
+	WhipProgress.configure(function(ownerId, targetId)
+		local player = playerOf(ownerId)
+		if not player or not RunDirector.isActive() or not EnemySim.isAlive(targetId) then
+			return nil
+		end
+		local zoneId = RunDirector.getNativeZoneId()
+		if zoneId == nil or zoneId ~= FlailAccess.zoneId then
+			return nil
+		end
+		local kind = EnemySim.getKind(targetId)
+		-- Original Whip requires an Enemy's enemy_id; current neutral targets use Tree.
+		if not kind or kind == "Tree" then
+			return nil
+		end
+		return { player = player, zoneId = zoneId }
+	end, PlayerDataService.observeNativeWhipKill)
 	EnemySim.CharmShot:Connect(function(ownerId, event)
 		arsenal:emitShared(ownerId, event, "CharmShot")
 	end)

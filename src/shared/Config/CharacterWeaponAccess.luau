@@ -12,6 +12,10 @@ export type Access = {
 	stat: string?,
 	threshold: number?,
 	eventChallenge: boolean?,
+	sourceWeaponId: string?,
+	zoneId: number?,
+	ruleSource: string?,
+	ruleSourceMd5: string?,
 }
 local records: { [string]: Access } = {
 	Anchor = {
@@ -167,6 +171,10 @@ local records: { [string]: Access } = {
 		eventChallenge = true,
 		challengeSourceMd5 = "beeae0a9c1b06923f6aee36d551c05bc",
 		threshold = 200,
+		sourceWeaponId = "Whip",
+		zoneId = 2,
+		ruleSource = "res://weapons/melee/whip/whip.gdc",
+		ruleSourceMd5 = "6b8c62a66e6af698906823ad8e843cf3",
 	},
 	FlamingBrassKnuckles = {
 		free = true,

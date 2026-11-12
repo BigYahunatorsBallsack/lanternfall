@@ -20,7 +20,7 @@ describe("Native Nightmare saved progress", function()
 		data.schemaVersion, data.nativeZoneBest, data.embers = 13, nil, 42
 		data.characterStats.Baby = { runs = 20, wins = 20, bestWave = 20, bestDanger = 5 }
 		Migrations.run(data, Template.SCHEMA_VERSION)
-		expect(data.schemaVersion).toBe(14)
+		expect(data.schemaVersion).toBe(15)
 		expect(next(data.nativeZoneBest)).toBe(nil)
 		expect(data.characterStats.Baby.wins).toBe(20)
 		expect(data.embers).toBe(42)

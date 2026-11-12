@@ -137,6 +137,13 @@ local steps: { [number]: (data: any) -> () } = {
 			data.nativeZoneBest = {}
 		end
 	end,
+	-- v14 -> v15: old kill totals and zone victories do not identify direct Whip kills.
+	[14] = function(data)
+		if type(data.nativeCounts) ~= "table" then
+			data.nativeCounts = {}
+		end
+		data.nativeCounts.whipJungleKills = 0
+	end,
 }
 
 Migrations.steps = steps
