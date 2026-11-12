@@ -34,7 +34,7 @@ export type Results = {
 	retriesLeft: number?, -- B11 part 2: "Retry wave" can still be used this often (defeats only)
 }
 
--- B11: what the lobby chose for a run (Config.Difficulty): danger level 0-5, endless mode and the enemy sliders in
+-- B11: what the lobby chose for a run (Config.Difficulty): danger level 0-6, endless mode and the enemy sliders in
 -- percent.
 export type RunOptions = {
 	danger: number,
@@ -425,7 +425,7 @@ export type ProfileInfo = {
 	ownedClasses: { string }?, -- characters bought with Embers (unlocked without the achievement)
 	nativeWeaponUnlocks: { [string]: boolean }?, -- native family access for starting weapon choices
 	nativeCharacterUnlocks: { [string]: boolean }?, -- native source access; available new packages consume this mask
-	nativeNightmareUnlocked: boolean?, -- original saved-progress prerequisite; the game mode still requires its runtime gate
+	nativeNightmareUnlocked: boolean?, -- original saved-progress prerequisite, enforced by the server for mode6
 	settings: Settings?, -- Paket 14
 	cosmetics: { owned: { string }, equipped: { [string]: string } }?, -- Paket 17: bought and picked cosmetics
 }

@@ -94,7 +94,8 @@ local function sellPrice(player: Player, weaponId: string, tier: number, wave: n
 		wave,
 		StatService.getStat(player, "sellValue") + native,
 		priceFactor(player),
-		RunDirector.getParticipantClassId(player)
+		RunDirector.getParticipantClassId(player),
+		RunDirector.getRunOptions().danger
 	)
 end
 
@@ -151,7 +152,12 @@ local function refresh(player: Player, state: State)
 	for index = #state.offers, 1, -1 do
 		local offer = state.offers[index]
 		if not offer.sold then
-			offer.price = ShopRules.offerPrice(offer, factor, RunDirector.getParticipantClassId(player))
+			offer.price = ShopRules.offerPrice(
+				offer,
+				factor,
+				RunDirector.getParticipantClassId(player),
+				RunDirector.getRunOptions().danger
+			)
 			if offer.kind == "Weapon" then
 				local copies = 0
 				for _, weapon in weapons do
@@ -224,6 +230,7 @@ local function roll(player: Player, state: State, keep: { Types.ShopOffer }, pre
 	local classId = RunDirector.getParticipantClassId(player)
 	local class = classId and Config.Classes[classId]
 	state.offers = ShopRules.roll({
+		danger = RunDirector.getRunOptions().danger,
 		classId = classId,
 		weaponSlots = StatService.getStat(player, "weaponSlots"),
 		wave = state.wave,

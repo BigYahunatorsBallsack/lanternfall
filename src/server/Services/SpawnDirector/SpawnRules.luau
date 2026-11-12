@@ -12,6 +12,7 @@ local Shared = game:GetService("ReplicatedStorage").Shared
 local Config = require(Shared.Config)
 local EnemyStats = require(Shared.Util.EnemyStats)
 local RunSchedule = require(Shared.Util.RunSchedule)
+local Nightmare = require(Shared.Config.Nightmare)
 
 export type Rect = { minX: number, maxX: number, minZ: number, maxZ: number }
 export type Circle = { x: number, z: number, radius: number }
@@ -122,7 +123,7 @@ end
 
 -- The groups at schedule minute `minutes` on danger level `danger` (nil = 5) outside horde and elite waves.
 function SpawnRules.groupsAt(minutes: number, danger: number?): { Group }
-	return SpawnRules.groupsFor(SpawnRules.waveAt(minutes), danger or #Config.Difficulty.levels - 1)
+	return SpawnRules.groupsFor(SpawnRules.waveAt(minutes), danger or Nightmare.level - 1)
 end
 
 -- A fresh timer for every group of a wave.

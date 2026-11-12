@@ -109,7 +109,7 @@ describe("run ticket", function()
 		data.leader = 12345
 		local parsed = PlaceRules.parseRunTicket(data, 7, 4, isClass, isWeapon)
 		local defaults = DangerRules.defaultOptions()
-		expect(parsed.options.danger).toBe(5) -- clamped to the highest level; the run place caps it per player
+		expect(parsed.options.danger).toBe(6) -- highest configured mode; the run place independently caps it by saved native access
 		expect(parsed.options.endless).toBe(false)
 		expect(parsed.options.enemyHp).toBe(defaults.enemyHp)
 		expect(parsed.options.enemyDamage).toBe(defaults.enemyDamage)

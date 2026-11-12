@@ -449,6 +449,9 @@ Classes.Vampire.description =
 Classes.BeastMaster.nativeCodeReady = true
 Classes.BeastMaster.description =
 	"You start with 1 Lootworm\nYou can't equip weapons\n+2 % Speed for every permanent Pet you have [0]\nPet damage also scales with Melee Damage, Ranged Damage, Elemental Damage, and Engineering\n+10 Luck\nYou start with 1 Ratzilla"
+Classes.Wounded.description =
+	"This character dies in One Hit\nYou start with 1 Tardigrade\n+5 % Speed\n+8 Harvesting\nShop items and crates are cleared of items focusing on Max HP, HP Regeneration, % Life Steal and Armor"
+Classes.Wounded.nativeCodeReady = true
 
 for id, class in Classes do
 	if not class.nativeCodeReady then

@@ -1,0 +1,110 @@
+{
+  "targetVersion": "1.2.0.1",
+  "originalRules": [
+    {
+      "source": "res://main.gdc",
+      "original1201Md5": "903bd37107ab9c164addda2167477fb1",
+      "origin": "preserved original bytecode cache"
+    },
+    {
+      "source": "res://singletons/run_data.gdc",
+      "original1201Md5": "a94d8eddd9609f413309ce9237297ad2",
+      "origin": "preserved original bytecode cache"
+    },
+    {
+      "source": "res://singletons/item_service.gdc",
+      "original1201Md5": "2bb86ac67c9576337a664d6c75a66dec",
+      "origin": "preserved original bytecode cache"
+    }
+  ],
+  "translationCsvSha256": "d13b8d00c334af5ba35c7cb7b9d348a5f1f41b2cd2b0cd4e965a81269c80fd9d",
+  "enemyModifiers": {
+    "hp": 1.6,
+    "damage": 1.6,
+    "speed": 1.1,
+    "replacesDanger5": true
+  },
+  "inflation": {
+    "setModifier": 10,
+    "baseWaveFactor": 0.11,
+    "notGlobalPriceMarkup": true,
+    "retainedForUnaffectedRecyclingBasis": true,
+    "wiredInto": "shop rolls, locked refreshes, weapon sale, crate recycling"
+  },
+  "selection": {
+    "savedDistinctDanger5CharacterZoneWins": 10,
+    "legacyAggregateProgressCannotOpenNightmare": true,
+    "lobbyAndPartyServerCaps": true,
+    "realClientControl": true
+  },
+  "wounded": {
+    "originalCharacterResourceMd5": "a169fd8e8d3c3c3fc80fa4396a868a43",
+    "originalStartingAlternatives": 33,
+    "guaranteedItem": "MossWard (Tardigrade)",
+    "oneHitDamageAndLethalSelfDamage": true,
+    "shieldsBeforeLethalRule": true,
+    "resetsShieldEachWave": true,
+    "nativeBanPoolsAndEndlessBoundary": true,
+    "unlock": "completed native Nightmare win",
+    "characterChallengeResourceHashObservedOnlyIn1202": "b6727418f92112ba6c346fbcaa82d99f",
+    "originalChallengeResourceIdentityVerified": false,
+    "unlockRuleEvidence": "original HANDOFF plus preserved CHAL_DIFFICULTY_NIGHTMARE_1_DESC translation; current resource confirms same rule but original resource hash remains open"
+  },
+  "artifactsUploaded": 0,
+  "runtimeSpriteIdsChanged": false,
+  "nativeGraphicsAccepted": false,
+  "studioAccepted": false,
+  "fullyNativeAcceptanceClaimed": false,
+  "codePreparedOnMain": 43,
+  "codePreparedOnBranch": 48,
+  "batch": [
+    "Baby",
+    "Jack",
+    "Vampire",
+    "BeastMaster",
+    "Wounded"
+  ],
+  "mainGameRemaining": [
+    "Chunky",
+    "Wildling"
+  ],
+  "focused": {
+    "NativeNightmareModifiers": 3,
+    "NativeNightmareEconomy": 4,
+    "NativeNightmareSelection": 5,
+    "NativeNightmareVictory": 2,
+    "CharacterWoundedPackage": 5
+  },
+  "sourceChecks": {
+    "fogCompiler": "passed, original rules pinned and visual candidates flagged",
+    "nightmareEnemyCompiler": "passed",
+    "bulletHellCompiler": "expected version-drift rejection for main.gdc; original target facts retained",
+    "originalCharacterCatalogRegenerated": false
+  },
+  "review": {
+    "correctness": "native arithmetic, selected-mode gate, completed-win unlock, shield precedence and ban boundaries checked",
+    "architecture": "existing data/flow/weapon systems reused; Arsenal unchanged",
+    "security": "client mode validated and capped by server-saved native wins; no new client intent",
+    "performance": "normal-mode budgets tested; real fog/device acceptance still open"
+  },
+  "latestFullSuite": {
+    "artifact": "build/native-five-branch-eight-nightmare-final-6bb5174.json",
+    "baselineMain": "6bb5174f31bee9b839cc9a04ee406d1f549de051",
+    "baselineSpecs": 222,
+    "baselinePassed": 1488,
+    "baselineFailed": 37,
+    "branchSpecs": 274,
+    "branchPassed": 1702,
+    "branchFailed": 36,
+    "additionalSpecs": 52,
+    "additionalChecksPassed": 213,
+    "newFailures": [],
+    "missingBaselineFailures": [
+      "FAIL new enemies (B9) > lets a Gobbler eat the orbs on the floor and drop them all when killed"
+    ],
+    "aborts": 0,
+    "perf22Passed": true,
+    "noRuntimeChangesAfterFullSuite": true,
+    "afterFullSuite": "Only StyLua --verify AST-equivalent formatting of three existing new utility modules and line endings; no semantic changes. Clock3/0, emitter4/0, slashGeometry4/0, real slash runtime5/0 and projectile runtime4/0 repeated. Whole branch StyLua --check now clean."
+  }
+}

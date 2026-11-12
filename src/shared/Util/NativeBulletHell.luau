@@ -50,15 +50,12 @@ function Hell.new(
 			end
 		end
 		for index = 0, count - 1 do
-			table.insert(
-				state.emitters,
-				{
-					x = x + index * g.duplication_offset_position[1],
-					z = z + index * g.duplication_offset_position[2],
-					tick = interval * g.spawn_rate_factor * (g.start_cool_down + index * g.duplication_offset_start_cd),
-					generator = g,
-				}
-			)
+			table.insert(state.emitters, {
+				x = x + index * g.duplication_offset_position[1],
+				z = z + index * g.duplication_offset_position[2],
+				tick = interval * g.spawn_rate_factor * (g.start_cool_down + index * g.duplication_offset_start_cd),
+				generator = g,
+			})
 		end
 	end
 	return state

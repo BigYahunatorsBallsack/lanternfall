@@ -56,10 +56,13 @@ function Geometry.volley(
 		local x, z = tx + (random() - 0.5) * spreadPixels * pixel, tz + (random() - 0.5) * spreadPixels * pixel
 		local dx, dz = tx - x, tz - z
 		local length = math.sqrt(dx * dx + dz * dz)
-		table.insert(
-			result,
-			{ x = x, z = z, dx = if length > 0 then dx / length else 1, dz = if length > 0 then dz / length else 0, speed = speed }
-		)
+		table.insert(result, {
+			x = x,
+			z = z,
+			dx = if length > 0 then dx / length else 1,
+			dz = if length > 0 then dz / length else 0,
+			speed = speed,
+		})
 	end
 	return result
 end

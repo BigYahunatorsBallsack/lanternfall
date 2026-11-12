@@ -13,7 +13,13 @@ local function cooldown(rule: Rule, random: () -> number): number
 	return rule.fireInterval + (random() * 2 - 1) * rule.cooldownRandomSeconds
 end
 function Clock.new(rule: Rule, random: () -> number): State
-	return { initial = rule.initialSeconds, remaining = cooldown(rule, random), stage = "Cooldown", age = 0, fired = false }
+	return {
+		initial = rule.initialSeconds,
+		remaining = cooldown(rule, random),
+		stage = "Cooldown",
+		age = 0,
+		fired = false,
+	}
 end
 function Clock.step(state: State, rule: Rule, dt: number, inRange: boolean, random: () -> number): boolean
 	if state.initial > 0 then

@@ -14,6 +14,8 @@ local RunService = game:GetService("RunService")
 local Shared = ReplicatedStorage.Shared
 local Config = require(Shared.Config)
 local DangerRules = require(Shared.Util.DangerRules)
+local Nightmare = require(Shared.Config.Nightmare)
+local NightmareText = require(Shared.Config.NightmarePresentation)
 local Net = require(Shared.Net)
 local PlaceRules = require(Shared.Util.PlaceRules)
 local Types = require(Shared.Net.Types)
@@ -624,7 +626,9 @@ function PartyService.init()
 			Net.fireClient(
 				"Notify",
 				player,
-				`Danger {options.danger} is locked. Win danger {options.danger - 1} with your character to open it.`
+				if options.danger == Nightmare.level
+					then NightmareText.unlockRequirement
+					else `Danger {options.danger} is locked. Win danger {options.danger - 1} with your character to open it.`
 			)
 		end
 		optionsOf[player.UserId] = options

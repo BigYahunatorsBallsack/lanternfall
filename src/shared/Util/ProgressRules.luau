@@ -6,6 +6,7 @@
 
 local Config = require(script.Parent.Parent.Config)
 local ProgressConfig = require(script.Parent.Parent.Config.Progress)
+local Nightmare = require(script.Parent.Parent.Config.Nightmare)
 
 local Progress = Config.Progress
 
@@ -137,10 +138,13 @@ function ProgressRules.unlockNames(achievement: ProgressConfig.Achievement): { s
 end
 
 -- Highest danger level open for a character: startDanger, or one above the highest danger won with it.
-function ProgressRules.maxDanger(record: Record, classId: string?): number
+function ProgressRules.maxDanger(record: Record, classId: string?, nativeNightmareUnlocked: boolean?): number
+	if nativeNightmareUnlocked then
+		return Nightmare.level
+	end
 	local character = classId and record.characterStats[classId]
 	local won = if character then character.bestDanger else -1
-	return math.clamp(math.max(Progress.startDanger, won + 1), 0, #Config.Difficulty.levels - 1)
+	return math.clamp(math.max(Progress.startDanger, won + 1), 0, Nightmare.level - 1)
 end
 
 -- Embers of a finished run as lines for the results screen and their total. Since Paket 16 with the bonuses of

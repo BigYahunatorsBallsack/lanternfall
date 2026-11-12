@@ -120,8 +120,10 @@ local function rollCrate(player: Player, minTier: number): Crate?
 		return nil
 	end
 	local factor = StatMath.priceFactor(StatService.getStat(player, "itemPrice"))
-	local shopPrice = ShopRules.price(item.price, wave, factor)
-	local recycleBasis = ShopRules.price(item.price, wave, factor, wave <= #Config.Run.spawn.waves.lengthsSeconds)
+	local danger = RunDirector.getRunOptions().danger
+	local shopPrice = ShopRules.price(item.price, wave, factor, nil, danger)
+	local recycleBasis =
+		ShopRules.price(item.price, wave, factor, wave <= #Config.Run.spawn.waves.lengthsSeconds, danger)
 	local native = CharacterRules.nativeAmount(RunDirector.getParticipantClassId(player), "recycling_gains")
 	return {
 		itemId = itemId,

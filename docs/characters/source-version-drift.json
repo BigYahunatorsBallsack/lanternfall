@@ -209,5 +209,62 @@
       "originalMd5": "52b5ef5fdec0ffb9a02e0b73f7e76f31",
       "installedMd5": "77032b9b65ed82e4a4c5e5c8e5f84a89"
     }
+  ],
+  "characterResourceChanges": [
+    {
+      "source": "res://items/characters/arsonist/arsonist_data.tres",
+      "originalMd5": "fd1f55cd0f9c6bd6543f9d6fbdaf634e",
+      "installedMd5": "b226a8f8358a0ff26cfce024b2c80eeb"
+    },
+    {
+      "source": "res://items/characters/caveman/caveman_data.tres",
+      "originalMd5": "1ac1d46229a5fb98f06849326c522cb6",
+      "installedMd5": "6ddaecfb3f6f5eab04d90dc7bd61b375"
+    },
+    {
+      "source": "res://items/characters/explorer/explorer_data.tres",
+      "originalMd5": "d22e9dd9b9cee5d2146fba6060ee915b",
+      "installedMd5": "610ad566b680d50d4b481bec0c39dd70"
+    },
+    {
+      "source": "res://items/characters/generalist/generalist_data.tres",
+      "originalMd5": "d62f7d6bf00e85ac50c6ef78b152e2fd",
+      "installedMd5": "8f6ebf07d7a2980ab72876b7c6e2c74e"
+    },
+    {
+      "source": "res://items/characters/mad_scientist/mad_scientist_data.tres",
+      "originalMd5": "cb280f6d417a69a770ab519dc7a64453",
+      "installedMd5": "01200cae1772dc4a6103fd2638445dca"
+    },
+    {
+      "source": "res://items/characters/one_arm/one_arm_data.tres",
+      "originalMd5": "61d846311fffa652bbf355483a866d6a",
+      "installedMd5": "20179a2ed165ccf35387013eec1f6281"
+    },
+    {
+      "source": "res://items/characters/time_shifter/time_shifter_data.tres",
+      "originalMd5": "e2e6af4464794d0aa21e6f2ec3bf3e78",
+      "installedMd5": "7557c99f9c9f56b574556c0ab11c55d2"
+    },
+    {
+      "source": "res://items/characters/vagabond/vagabond_data.tres",
+      "originalMd5": "ce24e9cb2aaa925cb3526f3e716bd689",
+      "installedMd5": "f3669c35ba8790d4408e6361f156c724"
+    },
+    {
+      "source": "res://items/characters/variant/variant_data.tres",
+      "originalMd5": "455e734cf021fd68ce5e2241202374ec",
+      "installedMd5": "ad64ca881cf2216eaec3afe7c49c4ceb"
+    },
+    {
+      "source": "res://items/characters/wildling/wildling_data.tres",
+      "originalMd5": "8e057c9db45535489ac157edbef55c74",
+      "installedMd5": "b3e9362cb48b0a3994f89040b2bbc7c4"
+    },
+    {
+      "source": "res://items/characters/wounded/wounded_data.tres",
+      "originalMd5": "a169fd8e8d3c3c3fc80fa4396a868a43",
+      "installedMd5": "142065691069909398dcc711bb257467"
+    }
   ]
 }

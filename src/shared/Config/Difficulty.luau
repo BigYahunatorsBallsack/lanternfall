@@ -1,10 +1,13 @@
 --!strict
--- Danger levels 0-5, enemy sliders and endless mode (B11, Brotato's "Danger levels" and "Endless Mode", DESIGN.md
+-- Danger levels 0-5 and server-gated Nightmare, enemy sliders and endless mode (B11, Brotato's "Danger levels" and "Endless Mode", DESIGN.md
 -- section 10). Read by Util/DangerRules, Util/RunSchedule, RunDirector (lobby choice), DangerService, SpawnDirector,
--- BossService and the lobby UI (DangerChoice). Until WP13 every level is open to everyone.
+-- BossService and the lobby UI (DangerChoice). PlayerDataService enforces the distinct native-win prerequisite for Nightmare.
+local Nightmare = require(script.Parent.Nightmare)
+local NightmareRules = require(script.Parent.Parent.Util.NightmareRules)
+local NightmareText = require(script.Parent.NightmarePresentation)
 
 export type Level = {
-	level: number, -- 0..5
+	level: number, -- 0..6; the saved-progress gate is separate from this data
 	displayName: string,
 	description: string, -- lobby text
 	enemyHp: number, -- multiplier on every enemy's HP (Brotato: total, not stacked per level)
@@ -21,11 +24,12 @@ local function level(
 	scale: number,
 	newEnemies: boolean,
 	challengeSlots: number,
-	bossCount: number
+	bossCount: number,
+	displayName: string?
 ): Level
 	return table.freeze({
 		level = n,
-		displayName = `Danger {n}`,
+		displayName = displayName or `Danger {n}`,
 		description = description,
 		enemyHp = scale,
 		enemyDamage = scale,
@@ -53,6 +57,15 @@ local Difficulty = {
 			true,
 			3,
 			2
+		),
+		level(
+			Nightmare.level,
+			NightmareText.description,
+			1 + NightmareRules.value("danger_enemy_health") / 100,
+			true,
+			3,
+			1 + NightmareRules.value("double_boss"),
+			NightmareText.displayName
 		),
 	}),
 	defaultLevel = 0,

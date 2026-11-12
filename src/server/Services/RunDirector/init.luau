@@ -25,6 +25,8 @@ local Shared = ReplicatedStorage.Shared
 local Config = require(Shared.Config)
 local CharacterRules = require(Shared.Util.CharacterRules)
 local DangerRules = require(Shared.Util.DangerRules)
+local Nightmare = require(Shared.Config.Nightmare)
+local NightmareText = require(Shared.Config.NightmarePresentation)
 local Format = require(Shared.Util.Format)
 local Net = require(Shared.Net)
 local RunSchedule = require(Shared.Util.RunSchedule)
@@ -377,7 +379,9 @@ function RunDirector.init()
 			Net.fireClient(
 				"Notify",
 				player,
-				`Danger {danger} is locked. Win danger {danger - 1} with your character to open it.`
+				if danger == Nightmare.level
+					then NightmareText.unlockRequirement
+					else `Danger {danger} is locked. Win danger {danger - 1} with your character to open it.`
 			)
 			danger = cap
 		end

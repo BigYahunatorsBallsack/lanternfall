@@ -603,10 +603,10 @@ function PlayerDataService.maxDanger(player: Player, classId: string?): number
 	if not data then
 		return ProgressRules.maxDanger({ stats = {}, characterStats = {} }, nil)
 	end
-	return ProgressRules.maxDanger(data :: any, classId)
+	return ProgressRules.maxDanger(data :: any, classId, ProfileRecords.nightmareUnlocked(data))
 end
 
--- Saved-progress prerequisite only; it does not expose Nightmare before the remaining runtime is implemented.
+-- Native mode access comes from completed distinct character/zone wins, independently of legacy per-character caps.
 function PlayerDataService.hasNativeNightmareAccess(player: Player): boolean
 	local data = PlayerDataService.get(player)
 	return data ~= nil and ProfileRecords.nightmareUnlocked(data)

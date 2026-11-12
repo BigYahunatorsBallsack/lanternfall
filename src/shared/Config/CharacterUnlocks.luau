@@ -6,9 +6,12 @@ export type Challenge = {
 	source: string,
 	sourceMd5: string,
 	requirement: string,
+	sourceVersion: string?,
+	originalIdentityVerified: boolean?,
 } & (
 	{ kind: "Stat", stat: string, threshold: number, comparison: string?, beforeWave: number? }
 	| { kind: "WinDanger", danger: number }
+	| { kind: "WinNativeDanger", danger: number }
 	| { kind: "WaveHealing", threshold: number }
 	| { kind: "MaterialsCollected", threshold: number }
 	| { kind: "ExplosionKills", threshold: number }
@@ -23,6 +26,17 @@ export type Challenge = {
 	| { kind: "RunConsumables", threshold: number }
 )
 local rules: { [string]: Challenge } = {
+	Wounded = {
+		kind = "WinNativeDanger",
+		danger = 6,
+		challengeId = "chal_difficulty_6",
+		source = "res://challenges/chal_difficulty_6_data.tres",
+		sourceMd5 = "b6727418f92112ba6c346fbcaa82d99f",
+		-- The original handoff/translation establishes the rule. Steam updated before this resource identity was captured.
+		sourceVersion = "1.2.0.2",
+		originalIdentityVerified = false,
+		requirement = "Win a run in difficulty Nightmare",
+	},
 	BeastMaster = require(script.Parent.PetAccess).character,
 	Baby = {
 		kind = "Stat",

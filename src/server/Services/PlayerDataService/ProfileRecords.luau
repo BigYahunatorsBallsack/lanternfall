@@ -161,14 +161,15 @@ function ProfileRecords.info(data: ProfileTemplate.Data, saveMode: Types.SaveMod
 		progress[achievement.id] = (ProgressRules.progress(achievement, data :: any))
 	end
 	local characterDanger = {}
+	local nightmareUnlocked = ProfileRecords.nightmareUnlocked(data)
 	for classId, class in Config.Classes do
 		if class.available then
-			characterDanger[classId] = ProgressRules.maxDanger(data :: any, classId)
+			characterDanger[classId] = ProgressRules.maxDanger(data :: any, classId, nightmareUnlocked)
 		end
 	end
 	return {
 		saveMode = saveMode,
-		nativeNightmareUnlocked = ProfileRecords.nightmareUnlocked(data),
+		nativeNightmareUnlocked = nightmareUnlocked,
 		schemaVersion = data.schemaVersion,
 		runs = stats.runs,
 		wins = stats.wins,

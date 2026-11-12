@@ -2,6 +2,14 @@
 -- Source-derived Nightmare fog/projectile scheduling; the future danger runtime supplies its frozen challenge waves and RNG.
 local C = require(script.Parent.Parent.Config.Nightmare)
 local Rules = {}
+local values: { [string]: number } = {}
+for _, effect in C.effects do
+	values[effect.key] = effect.value
+end
+-- Difficulty resources contain final values, including SET inflation10; never add Danger5's previous bonuses.
+function Rules.value(key: string): number
+	return values[key] or 0
+end
 -- Native ProgressData stores one best result per character/zone pair, rather than counting repeat wins.
 function Rules.unlocked(bestByCharacterZone: { [string]: { [number]: number } }): boolean
 	local count = 0

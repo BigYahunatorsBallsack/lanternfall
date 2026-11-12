@@ -16,6 +16,6 @@ describe("Pending Nightmare enemy art", function()
 			expect(art.image ~= "").toBe(true)
 			expect(Models.build(kind.typeId).sprite.picture.Image).toBe(art.image)
 		end
-		expect(#Config.Difficulty.levels).toBe(6)
+		expect(#Config.Difficulty.levels).toBe(7)
 	end)
 end)

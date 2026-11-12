@@ -24,6 +24,7 @@ local Run = require(Shared.Config.Run)
 export type OwnedWeapon = { id: string, tier: number, evolution: string? }
 
 export type Params = {
+	danger: number?, -- server-frozen mode, including native base inflation; default ordinary mode
 	classId: string?, -- B10 frozen participant character
 	weaponSlots: number?,
 	wave: number, -- the wave that just ended
@@ -57,10 +58,12 @@ end
 
 -- Price of something with base price `base` after wave `wave`: floor((base + wave * waveAdd + base * waveFactor *
 -- wave) * multiplier * factor), at least 1; `factor` from the Item Prices stat (Brotato's items_price_mult).
-function ShopRules.price(base: number, wave: number, factor: number?, affected: boolean?): number
+function ShopRules.price(base: number, wave: number, factor: number?, affected: boolean?, danger: number?): number
 	local rule = Shop.price
 	local modifiers = if affected == false then 1 else (factor or 1) * CharacterEconomy.priceInflation(wave)
-	local raw = (base + wave * rule.waveAdd + base * rule.waveFactor * wave) * rule.multiplier * modifiers
+	local inflation = DangerRules.inflationModifier(danger)
+	local waveFactor = rule.waveFactor * (if inflation > 0 then 1 + inflation / 100 else 1)
+	local raw = (base + wave * rule.waveAdd + base * waveFactor * wave) * rule.multiplier * modifiers
 	return math.max(1, math.floor(raw + 1e-9))
 end
 
@@ -71,29 +74,30 @@ function ShopRules.weaponPrice(
 	wave: number,
 	factor: number?,
 	classId: string?,
-	affected: boolean?
+	affected: boolean?,
+	danger: number?
 ): number
 	local exact = Shop.weaponTierPrices[weaponId]
 	local base = if exact then exact[tier] else (Shop.weaponPrices[weaponId] or 0) * (Shop.tierPriceFactors[tier] or 1)
 	if affected ~= false then
 		base *= 1 + CharacterRules.nativeAmount(classId, "weapons_price") / 100
 	end
-	return ShopRules.price(base, wave, factor, affected)
+	return ShopRules.price(base, wave, factor, affected, danger)
 end
 
 -- Price of an offer with the Item Prices factor: weapons by tier, items by their base price, both from the wave the
 -- offer's price is based on (a locked offer keeps its wave).
-function ShopRules.offerPrice(offer: Types.ShopOffer, factor: number?, classId: string?): number
+function ShopRules.offerPrice(offer: Types.ShopOffer, factor: number?, classId: string?, danger: number?): number
 	local value
 	if offer.kind == "Weapon" then
-		value = ShopRules.weaponPrice(offer.itemId, offer.tier, offer.priceWave, factor, classId)
+		value = ShopRules.weaponPrice(offer.itemId, offer.tier, offer.priceWave, factor, classId, nil, danger)
 	else
 		local item = Items.byId[offer.itemId]
 		local specific = if CharacterRules.nativeOverride(classId, "upgraded_baits", 0) > 0
 				and offer.itemId == "BloodLure"
 			then -1
 			else 0
-		value = ShopRules.price(if item then item.price else 0, offer.priceWave, (factor or 1) + specific)
+		value = ShopRules.price(if item then item.price else 0, offer.priceWave, (factor or 1) + specific, nil, danger)
 	end
 	return if CharacterRules.nativeOverride(classId, "hp_shop", 0) > 0 then CharacterEconomy.hpPrice(value) else value
 end
@@ -106,11 +110,12 @@ function ShopRules.sellPrice(
 	wave: number,
 	sellValue: number?,
 	factor: number?,
-	classId: string?
+	classId: string?,
+	danger: number?
 ): number
-	local shopPrice = ShopRules.weaponPrice(weaponId, tier, wave, factor, classId)
+	local shopPrice = ShopRules.weaponPrice(weaponId, tier, wave, factor, classId, nil, danger)
 	local recycleBasis =
-		ShopRules.weaponPrice(weaponId, tier, wave, factor, classId, wave <= #Run.spawn.waves.lengthsSeconds)
+		ShopRules.weaponPrice(weaponId, tier, wave, factor, classId, wave <= #Run.spawn.waves.lengthsSeconds, danger)
 	return CharacterEconomy.recyclingPrice(recycleBasis, shopPrice, sellValue or 0)
 end
 
@@ -415,7 +420,15 @@ local function weaponOffer(weaponId: string, params: Params, tier: number): Type
 		tier = tier,
 		count = copies,
 		isNew = copies == 0,
-		price = ShopRules.weaponPrice(weaponId, tier, params.wave, params.priceFactor, params.classId),
+		price = ShopRules.weaponPrice(
+			weaponId,
+			tier,
+			params.wave,
+			params.priceFactor,
+			params.classId,
+			nil,
+			params.danger
+		),
 		priceWave = params.wave,
 		sold = false,
 		locked = false,
@@ -434,7 +447,7 @@ local function itemOffer(itemId: string, params: Params): Types.ShopOffer
 		tier = item.tier,
 		count = owned + 1,
 		isNew = owned == 0,
-		price = ShopRules.price(item.price, params.wave, params.priceFactor),
+		price = ShopRules.price(item.price, params.wave, params.priceFactor, nil, params.danger),
 		priceWave = params.wave,
 		sold = false,
 		locked = false,
@@ -546,7 +559,7 @@ function ShopRules.roll(params: Params): { Types.ShopOffer }
 		end
 		taken[offer.itemId] = true
 		avoid[offer.itemId] = true
-		offer.price = ShopRules.offerPrice(offer, params.priceFactor, params.classId)
+		offer.price = ShopRules.offerPrice(offer, params.priceFactor, params.classId, params.danger)
 		offer.id = `{params.nextId()}:{offer.kind}:{offer.itemId}`
 		table.insert(offers, offer)
 	end

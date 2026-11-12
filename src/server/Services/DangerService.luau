@@ -165,7 +165,7 @@ function DangerService.getPlan(): { [number]: DangerRules.Challenge }
 end
 
 -- Original default Nightmare events, planned once against the real frozen elite/horde occupancy.
--- Difficulty 6 remains unavailable in RunOptions until all of its runtime prerequisites are implemented.
+-- PlayerDataService and the lobby/party caps enforce the saved-progress prerequisite for difficulty6.
 function DangerService.getNightmareEvent(wave: number): string?
 	local danger = RunDirector.getRunOptions().danger
 	if danger < Nightmare.level or not RunDirector.isOngoing() then

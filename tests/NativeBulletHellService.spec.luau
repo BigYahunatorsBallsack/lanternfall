@@ -1,5 +1,5 @@
 --!strict
--- Hidden Nightmare event execution through production services and the real projectile renderer; public difficulty availability stays unchanged.
+-- Nightmare event execution through production services and the real projectile renderer; NativeNightmareSelection tests the public access gate.
 local f = loadHelper("tests/helpers/NativeCharacterFixture.luau")("NightWatch")
 runScript(folderProxy("src/client", "Client"), "init.client.luau")
 local Hell = require(f.S.BulletHellService)
@@ -17,16 +17,16 @@ f.world.getRemote("EnemyShots").OnClientEvent:Connect(function(packet)
 	end
 end)
 describe("Native bullet hell service", function()
-	it("does not change ordinary runs or expose difficulty6", function()
+	it("does not activate environmental projectiles in ordinary runs", function()
 		f.start(f.class.startWeapons[1])
 		f.world.advance(5)
 		expect(Hell.isActive()).toBe(false)
 		expect(#fired).toBe(0)
-		expect(#f.Config.Difficulty.levels).toBe(6)
+		expect(#f.Config.Difficulty.levels).toBe(7)
 		expect(#f.world.errors).toBe(0)
 	end)
 	it("executes one of the actual early projectile waves and sends renderable curved shots", function()
-		-- Only the test supplies an inaccessible internal mode; the production client still cannot select it.
+		-- Isolate projectile execution from saved progression; the public access gate has its own real-flow tests.
 		f.Run.getRunOptions = function()
 			local options = originalOptions()
 			options.danger = 6

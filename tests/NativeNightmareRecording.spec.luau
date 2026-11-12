@@ -37,33 +37,25 @@ describe("Native Nightmare result recording", function()
 		expect(f.Run.getNativeZoneId()).toBe(0)
 		expect(#f.world.errors).toBe(0)
 	end)
-	it(
-		"updates and saves the actual player's prerequisite at ten distinct records without changing the danger cap",
-		function()
-			local ids = { "Baby", "Jack", "Vampire", "BeastMaster", "Soldier", "Speedy", "Vagabond", "King", "Loud" }
-			for index, classId in ids do
-				assert(
-					f.Data.recordRun(
-						f.me,
-						{
-							won = true,
-							wave = 20,
-							danger = 5,
-							zoneId = 0,
-							classId = classId,
-							kills = 0,
-							bossKills = 2,
-							seconds = 1200,
-						}
-					)
-				)
-				expect(f.Data.hasNativeNightmareAccess(f.me)).toBe(index == #ids)
-			end
-			expect(f.Data.hasNativeNightmareAccess(f.peer)).toBe(false)
-			expect(store.saved["Player_1"].nativeZoneBest.Loud["0"]).toBe(5)
-			expect(f.Data.maxDanger(f.me, "NightWatch")).toBe(5) -- mode still gated until its real runtime exists
+	it("updates and saves the actual player's prerequisite and opens Nightmare at ten distinct records", function()
+		local ids = { "Baby", "Jack", "Vampire", "BeastMaster", "Soldier", "Speedy", "Vagabond", "King", "Loud" }
+		for index, classId in ids do
+			assert(f.Data.recordRun(f.me, {
+				won = true,
+				wave = 20,
+				danger = 5,
+				zoneId = 0,
+				classId = classId,
+				kills = 0,
+				bossKills = 2,
+				seconds = 1200,
+			}))
+			expect(f.Data.hasNativeNightmareAccess(f.me)).toBe(index == #ids)
 		end
-	)
+		expect(f.Data.hasNativeNightmareAccess(f.peer)).toBe(false)
+		expect(store.saved["Player_1"].nativeZoneBest.Loud["0"]).toBe(5)
+		expect(f.Data.maxDanger(f.me, "NightWatch")).toBe(6)
+	end)
 	it("restores the same distinct records on a new profile session", function()
 		f.world.removePlayer(f.me)
 		local again = f.world.addPlayer("OwnerAgain", 1, true)

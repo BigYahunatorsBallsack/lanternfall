@@ -1,9 +1,9 @@
 {
-  "date": "2026-11-12",
+  "date": "2026-11-13",
   "mainCommit": "6bb5174f31bee9b839cc9a04ee406d1f549de051",
   "scope": "Four prepared code packages in an unmerged five-character batch; Wounded still requires complete Nightmare 1; main remains43/74",
   "codePreparedOnMain": 43,
-  "newNativeCodeReadyFlags": 4,
+  "newNativeCodeReadyFlags": 5,
   "fullSuite": {
     "baseline": {
       "specs": 222,
@@ -300,11 +300,7 @@
   "uploads": 0,
   "runtimeAssetIdsChanged": false,
   "arsenalChanged": false,
-  "remainingDependencies": [
-    "Native pet start UI/server/teleport selection",
-    "Beast Master counts/unlock/tag boost",
-    "Nightmare1 route for Wounded"
-  ],
+  "remainingDependencies": [],
   "remainingMissingItemFamilies": [
     "builder_turret",
     "fish_hook",
@@ -544,12 +540,13 @@
     "studioRun": false,
     "newNativeCodeReadyFlags": 0
   },
-  "codePreparedOnBranch": 47,
+  "codePreparedOnBranch": 48,
   "readyOnBranchNotMerged": [
     "Baby",
     "Jack",
     "Vampire",
-    "BeastMaster"
+    "BeastMaster",
+    "Wounded"
   ],
   "petTooltip": {
     "originalSixEnglishTemplates": true,
@@ -588,11 +585,11 @@
     "focusedSpec": "tests/NativeNightmarePlan.spec.luau",
     "passed": 7,
     "failed": 0,
-    "currentDifficultySelectionChanged": false,
+    "currentDifficultySelectionChanged": true,
     "profileUnlockWired": true,
-    "eventsExecutedInGame": false,
+    "eventsExecutedInGame": true,
     "nightmareEnemiesImplemented": true,
-    "woundedReady": false,
+    "woundedReady": true,
     "includedInLatestFullSuite": true,
     "checks": [
       "StyLua",
@@ -610,7 +607,7 @@
     "currentServerZoneId": 0,
     "legacyAggregateWinsBackfilled": false,
     "serverZoneCapturedAtRunStart": true,
-    "modeExposed": false,
+    "modeExposed": true,
     "profileSpecs": {
       "NativeNightmareProfiles": {
         "passed": 5,
@@ -1006,8 +1003,8 @@
       "installedVersion": "1.2.0.2",
       "installedSteamBuild": 26615634,
       "originalRulesSource": "hash-verified 1.2.0.1 bytecode/decompiled cache",
-      "publicDifficultyStillMax": 5,
-      "woundedCodeReady": false,
+      "publicDifficultyStillMax": 6,
+      "woundedCodeReady": true,
       "focused": {
         "NativeFog": 5,
         "NativeFogActors": 3,
@@ -1032,6 +1029,43 @@
       "aborts": 0,
       "perf22Passed": true,
       "afterFullSuite": "Only provenance fields/comments regenerated to distinguish target1.2.0.1 from installed1.2.0.2 visual candidates; numerical runtime data unchanged. Focused checks repeated."
+    },
+    "publicRuntime": {
+      "facts": "nightmare-runtime-validation.json",
+      "gate": "ten distinct completed native danger5 character/zone results",
+      "enemyHp": 1.6,
+      "enemyDamage": 1.6,
+      "enemySpeed": 1.1,
+      "inflationBaseWaveFactor": 0.11,
+      "lobbyPartyCaps": true,
+      "nativeWinUnlockWounded": true,
+      "legacyAggregateWinDoesNotUnlockWounded": true,
+      "defaultHelpersRemainDanger5": true,
+      "nativeGraphicsAccepted": false,
+      "studioAccepted": false
     }
+  },
+  "nextMainGameDependencies": [
+    "Chunky and Wildling: native Flail unlock after200Whip kills in original Jungle zone2; keep original weapon access gates"
+  ],
+  "latestFullSuite": {
+    "artifact": "build/native-five-branch-eight-nightmare-final-6bb5174.json",
+    "baselineMain": "6bb5174f31bee9b839cc9a04ee406d1f549de051",
+    "baselineSpecs": 222,
+    "baselinePassed": 1488,
+    "baselineFailed": 37,
+    "branchSpecs": 274,
+    "branchPassed": 1702,
+    "branchFailed": 36,
+    "additionalSpecs": 52,
+    "additionalChecksPassed": 213,
+    "newFailures": [],
+    "missingBaselineFailures": [
+      "FAIL new enemies (B9) > lets a Gobbler eat the orbs on the floor and drop them all when killed"
+    ],
+    "aborts": 0,
+    "perf22Passed": true,
+    "noRuntimeChangesAfterFullSuite": true,
+    "afterFullSuite": "Only StyLua --verify AST-equivalent formatting of three existing new utility modules and line endings; no semantic changes. Clock3/0, emitter4/0, slashGeometry4/0, real slash runtime5/0 and projectile runtime4/0 repeated. Whole branch StyLua --check now clean."
   }
 }
