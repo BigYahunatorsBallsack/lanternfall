@@ -1300,7 +1300,9 @@ function World.step(
 	contactZs: { number }?,
 	targetRadii: { number }?,
 	targetInputXs: { number }?,
-	targetInputZs: { number }?
+	targetInputZs: { number }?,
+	targetDirectionXs: { number }?,
+	targetDirectionZs: { number }?
 ): { number }
 	if compact(self) then
 		rebuildHash(self)
@@ -1385,17 +1387,29 @@ function World.step(
 		if not rule or not state then
 			continue
 		end
-		local dx, dz, best = 0, 0, math.huge
+		local dx, dz, best, nearest = 0, 0, math.huge, 0
 		for t = 1, targetCount do
 			local x, z = targetXs[t] - xs[i], targetZs[t] - zs[i]
 			local squared = x * x + z * z
 			if squared < best then
-				dx, dz, best = x, z, squared
+				dx, dz, best, nearest = x, z, squared, t
 			end
 		end
-		local changed = NativeCharge.step(state, rule, dt, dx, dz, targetCount > 0, function()
-			return nextRandom(self)
-		end, if p.nativeChargeAccessibility then p.nativeChargeAccessibility() else 1)
+		local movementXs, movementZs = targetDirectionXs or targetInputXs, targetDirectionZs or targetInputZs
+		local changed = NativeCharge.step(
+			state,
+			rule,
+			dt,
+			dx,
+			dz,
+			targetCount > 0,
+			function()
+				return nextRandom(self)
+			end,
+			if p.nativeChargeAccessibility then p.nativeChargeAccessibility() else 1,
+			if movementXs and nearest > 0 then movementXs[nearest] else 0,
+			if movementZs and nearest > 0 then movementZs[nearest] else 0
+		)
 		if changed then
 			self.speedBonuses[i] = if state.stage == "Rush" then state.bonus else 0
 		end
@@ -1412,7 +1426,7 @@ function World.step(
 			elseif state.stage == "Recover" then MODE_RECOVER
 			else MODE_WALK
 		if state.rushDt > 0 then
-			self.rushXs[i], self.rushZs[i], self.rushLeft[i] = state.direction, 0, math.huge
+			self.rushXs[i], self.rushZs[i], self.rushLeft[i] = state.direction, state.directionZ, math.huge
 			rushStep(self, i, nil, state.rushDt)
 		end
 		self.maxSpeed = math.max(self.maxSpeed, kind.speed * self.speedFactors[i] * self.boosts[i] + state.bonus)

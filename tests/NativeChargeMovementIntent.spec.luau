@@ -1,0 +1,21 @@
+--!strict
+-- Source charge targeting observes normalized movement intent even at zero stat speed; anticipation retains its separately scaled input contract.
+local f = loadHelper("tests/helpers/NativeCharacterFixture.luau")("WellRounded")
+local Movement = require(f.S.CharacterService.Movement)
+f.start("WatchmanPistol")
+Movement.init(function()
+	return 0
+end)
+describe("Native charge movement intent", function()
+	it("retains the validated direction independently of zero movement speed", function()
+		f.world.fireServerAs(f.me, "SetMovementIntent", true, Vector3.new(0, 0, 1))
+		expect(Movement.getDirection(f.me).Z).toBeNear(1)
+		expect(Movement.getInput(f.me).Magnitude).toBe(0)
+	end)
+	it("rejects vertical intent and clears direction outside a running wave", function()
+		f.world.fireServerAs(f.me, "SetMovementIntent", true, Vector3.new(0, 1, 0))
+		expect(Movement.getDirection(f.me).Z).toBeNear(1)
+		f.Run.endRun("Abandoned")
+		expect(Movement.getDirection(f.me).Magnitude).toBe(0)
+	end)
+end)

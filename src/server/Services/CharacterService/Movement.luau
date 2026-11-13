@@ -71,20 +71,24 @@ function Movement.getSpeed(player: Player): number
 	return math.max(0, speedOf(player))
 end
 
--- Native Unit.get_move_input is normalized input times server-computed stat speed, including against a wall.
-function Movement.getInput(player: Player): Vector3
-	if not Run.isActive() or Run.getParticipantState(player) ~= "Alive" or not speedOf then
+-- Player.get_movement direction remains meaningful at zero stat speed (native around-player charge targeting).
+function Movement.getDirection(player: Player): Vector3
+	if not Run.isActive() or Run.getParticipantState(player) ~= "Alive" then
 		return Vector3.zero
 	end
 	local intent = intents[player]
-	local speed = Movement.getSpeed(player)
 	if intent and intent.direction and workspace:GetServerTimeNow() - intent.at <= C.lifetimeSeconds then
-		return intent.direction * speed
+		return intent.direction
 	end
 	-- Older boolean-only clients remain supported; new clients always send direction with the existing intent.
 	local velocity = Map.getRootVelocity(player)
 	local horizontal = Vector3.new(velocity.X, 0, velocity.Z)
-	return if horizontal.Magnitude > 0 then horizontal.Unit * speed else Vector3.zero
+	return if horizontal.Magnitude > 0 then horizontal.Unit else Vector3.zero
+end
+
+-- Native Unit.get_move_input is normalized input times server-computed stat speed, including against a wall.
+function Movement.getInput(player: Player): Vector3
+	return Movement.getDirection(player) * Movement.getSpeed(player)
 end
 
 return Movement

@@ -227,6 +227,8 @@ local targetVxs: { number } = {}
 local targetVzs: { number } = {}
 local targetInputXs: { number } = {}
 local targetInputZs: { number } = {}
+local targetDirectionXs: { number } = {}
+local targetDirectionZs: { number } = {}
 
 -- Shot events since the last send (EnemyShots).
 local firedShots: { Types.EnemyShot } = {}
@@ -257,8 +259,10 @@ local function collectTargets()
 				local velocity = MapService.getRootVelocity(player)
 				targetVxs[targetCount] = velocity.X
 				targetVzs[targetCount] = velocity.Z
-				local input = MovementInput.getInput(player)
+				local direction = MovementInput.getDirection(player)
+				local input = direction * MovementInput.getSpeed(player)
 				targetInputXs[targetCount], targetInputZs[targetCount] = input.X, input.Z
+				targetDirectionXs[targetCount], targetDirectionZs[targetCount] = direction.X, direction.Z
 				local lead = velocity * (Sim.contactLeadSeconds + pingOf(player))
 				lead = Vector3.new(lead.X, 0, lead.Z)
 				if lead.Magnitude > Sim.contactLeadMaxStuds then
@@ -494,8 +498,19 @@ local function stepOnce()
 	local startedAt = os.clock()
 	weakness:step(STEP_SECONDS)
 	collectTargets()
-	local contacts =
-		world:step(STEP_SECONDS, targetXs, targetZs, targetCount, hurtXs, hurtZs, nil, targetInputXs, targetInputZs)
+	local contacts = world:step(
+		STEP_SECONDS,
+		targetXs,
+		targetZs,
+		targetCount,
+		hurtXs,
+		hurtZs,
+		nil,
+		targetInputXs,
+		targetInputZs,
+		targetDirectionXs,
+		targetDirectionZs
+	)
 	currentTick += 1
 	local stepNow = workspace:GetServerTimeNow()
 	volleys:step(STEP_SECONDS, hurtXs, hurtZs, targetCount)

@@ -1,12 +1,14 @@
 --!strict
--- Native neutral horizontal charge timers and cached direction; World owns motion, collision and faction transfer.
+-- Native neutral charge timers and sampled directions; World owns motion, collision and faction transfer.
 local Enemies = require(game:GetService("ReplicatedStorage").Shared.Config.Enemies)
+local Target = require(script.Parent.NativeChargeTarget)
 local Charge = {}
 export type State = {
 	stage: string,
 	remaining: number,
 	left: number,
 	direction: number,
+	directionZ: number,
 	originalMass: number,
 	bonus: number,
 	walkDt: number,
@@ -23,6 +25,7 @@ function Charge.new(rule: Enemies.NativeCharge, mass: number, random: () -> numb
 		remaining = cooldown(rule, random),
 		left = 0,
 		direction = 1,
+		directionZ = 0,
 		originalMass = math.floor(mass),
 		bonus = 0,
 		walkDt = 0,
@@ -38,13 +41,15 @@ function Charge.step(
 	dz: number,
 	hasTarget: boolean,
 	random: () -> number,
-	accessibility: number
+	accessibility: number,
+	inputX: number?,
+	inputZ: number?
 ): boolean
 	state.walkDt, state.rushDt = 0, 0
 	local bonusChanged = false
 	while true do
 		if state.stage == "Walk" then
-			if not hasTarget or math.abs(dz) >= rule.rangeZ then
+			if not hasTarget or not Target.inRange(rule, dx, dz) then
 				state.remaining = math.max(0, state.remaining - dt)
 				state.walkDt += dt
 				return bonusChanged
@@ -57,7 +62,9 @@ function Charge.step(
 				return bonusChanged
 			end
 			state.stage, state.left = "Windup", rule.fireAt
-			state.direction = if dx < 0 then -1 else 1
+			if not rule.target or not rule.target.atShoot then
+				state.direction, state.directionZ = Target.direction(rule, dx, dz, inputX or 0, inputZ or 0, random)
+			end
 		else
 			local used = math.min(dt, state.left)
 			state.left = math.max(0, state.left - used)
@@ -70,6 +77,9 @@ function Charge.step(
 				return bonusChanged
 			end
 			if state.stage == "Windup" then
+				if rule.target and rule.target.atShoot and hasTarget then
+					state.direction, state.directionZ = Target.direction(rule, dx, dz, inputX or 0, inputZ or 0, random)
+				end
 				state.stage, state.left = "Rush", rule.duration
 				state.remaining = cooldown(rule, random) + rule.duration
 				state.bonus = rule.speed * accessibility

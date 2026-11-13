@@ -1,0 +1,119 @@
+{
+  "referenceVersion": "1.2.0.2",
+  "steamBuild": 26615634,
+  "scope": "Normal Ankylosaurus around-player charge targeting connected to the existing charge clock and World using probe bodies. Full Ankylosaurus family is not registered or activated.",
+  "source": {
+    "snapshot": "docs/characters/jungle-around-charge-source.json",
+    "chargeScriptMd5": "fcf2901832ca42a4e69e98c60629397e",
+    "utilsScriptMd5": "2c263b6d3c2355dd71d6ad4caf0705bf",
+    "proof": "Saved approved1.2.0.2 charging scan and archived original GDC bytes/decompiled2 scripts. No installed1.2.0.3 rules adopted.",
+    "compiler": "tools/build-character-charge-targets.py reproduces version/build-bound saved facts, checks shared charge script and animation identity, emits authoritative point-scaled runtime rules, and rejects family activation.",
+    "guard": "Snapshot changed to1.2.0.3 rejected before output modification; bytes restored, --check passed. Global PCK guard remains unchanged."
+  },
+  "rules": [
+    "SHOOT timing samples the latest target relative position and movement; historical straight-to-player cases retain START_SHOOT caching.",
+    "Around-player target consumes two initial square draws, even when overwritten by a movement-cone sample. Moving cone consumes signed angle then distance, followed by shoot cooldown randomization.",
+    "Adds one radius behind the target along actor-to-target direction. Moving cone spans180degrees and distance radius/4..radius. Stationary target uses the square. Coincident selected points retain zero normalized direction.",
+    "Source default radius truncates min(600,max_range/5) in pixel units before point scaling. Normal max_range600 produces120px radius.",
+    "X axis overrides Y; enabled axis uses strict comparison and bypasses radial min/max. Radial Utils.is_between receives integer pixel distance: truncate distance before inclusive comparison. Integer bounds recover correctly after floating stud conversion.",
+    "World preserves two-dimensional rush direction through motion and actor transfer; source normal .75s duration,45stud/s additive bonus and .8/1.5s windup are retained.",
+    "Movement.getDirection is separate from stat-scaled getInput, so a zero-speed player can still supply a direction for charge targeting. EnemySim passes separate raw direction arrays; existing anticipation consumes scaled inputs."
+  ],
+  "interfaces": [
+    "Enemies.NativeCharge optional rangeX/minRange/maxRange and target policy; existing rangeZ straight cases remain valid.",
+    "NativeStraightCharge.State.directionZ; step accepts optional movementX/Z after accessibility.",
+    "World.step optional targetDirectionXs/Zs after targetInputXs/Zs, with scaled-input fallback for existing callers.",
+    "CharacterService.Movement.getDirection(player)->Vector3; existing getInput contract preserved."
+  ],
+  "focused": {
+    "NativeAroundCharge": {
+      "passed": 8,
+      "failed": 0
+    },
+    "NativeChargeMovementIntent": {
+      "passed": 2,
+      "failed": 0
+    },
+    "NativeJungleCharge": {
+      "passed": 10,
+      "failed": 0
+    },
+    "NativeJungleAnticipation": {
+      "passed": 6,
+      "failed": 0
+    },
+    "NativePlayerHurt": {
+      "passed": 5,
+      "failed": 0
+    },
+    "NativeAccessibilitySpeed": {
+      "passed": 3,
+      "failed": 0
+    },
+    "CharacterMovement": {
+      "passed": 4,
+      "failed": 0
+    },
+    "MainGameEnemyRuntime": {
+      "passed": 9,
+      "failed": 0
+    },
+    "red": "Initial targeting1passed5failed; raw intent0passed2failed; raw/scaled World isolation7passed1failed. Pixel truncation and53px floating round-trip each reproduced independently before correction.",
+    "mutation": "Omitting the initial square random draws fails3 targeting cases; helper restored byte-for-byte.",
+    "postFull": "After the full run only two missing assertion diagnostic messages were added to satisfy Selene; valid execution unchanged. Both new specs and existing MainGameEnemyRuntime passed with the tracked Lune runner, and Rojo rebuilt."
+  },
+  "fullSuite": {
+    "specs": 300,
+    "passed": 1852,
+    "failed": 37,
+    "previousSingleRun": {
+      "specs": 298,
+      "passed": 1844,
+      "failed": 35
+    },
+    "newFailureNamesAfterPairedBaseline": [],
+    "aborts": [],
+    "artifact": "build/native-five-branch-nine-around-charge-4cf1050.json"
+  },
+  "pairedBaseline": {
+    "baselineCommit": "9517e67",
+    "trialsPerSpecPerSide": 3,
+    "specs": [
+      "Smoke",
+      "EnemiesB9"
+    ],
+    "artifact": "build/around-charge-paired-results.json",
+    "baselineContactFailures": 3,
+    "currentContactFailures": 1,
+    "baselineGobblerFailures": 3,
+    "currentGobblerFailures": 0,
+    "interpretation": "Both extra failure identities reproduce on unchanged previous code. Smoke retains an obsolete fixed actor-root separation assertion; its prior single-run pass was not a stable test repair. No assertions were weakened or removed."
+  },
+  "localPerformance": {
+    "mixedNativeStraightChargers140MeanMs": 3.853674999991199,
+    "warmupSteps": 20,
+    "measuredSteps": 100,
+    "clock": "Actual realClock",
+    "acceptance": false,
+    "note": "Synthetic existing straight-charge workload, not a full Ankylosaurus/Studio/device performance acceptance."
+  },
+  "checks": {
+    "stylua": true,
+    "seleneErrors": 0,
+    "existingWarnings": 18,
+    "rojo": true,
+    "snapshotCompiler": true,
+    "studio": false
+  },
+  "codePreparedCharacters": 48,
+  "newCharacterReadyFlags": 0,
+  "nativeJungleFamiliesActivated": 13,
+  "ankylosaurusFamilyActivated": false,
+  "zonePlayable": false,
+  "remaining": [
+    "Full Ankylosaurus body/stats/wander sprite-inset geometry, scene animation/deflection audit and original art; no new actor type registered.",
+    "Raw behavior direction for zero-speed NPC targets in the Charm path still needs verification before full around-charge family activation. World currently falls back to its existing stat-scaled target input when no raw direction arrays are supplied.",
+    "Additional Jungle families/evolution/bosses/waves/area and exact player terrain/native physics ordering remain open.",
+    "Installed1.2.0.3 reference decision pending separately; this runtime step remains1.2.0.2."
+  ]
+}

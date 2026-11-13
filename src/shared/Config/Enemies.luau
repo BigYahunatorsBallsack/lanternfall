@@ -1853,6 +1853,16 @@ export type NativeCharge = {
 	recovery: number,
 	speed: number,
 	rangeZ: number,
+	rangeX: number?,
+	minRange: number?,
+	maxRange: number?,
+	target: {
+		atShoot: boolean,
+		radius: number,
+		coneHalfAngle: number,
+		minimumRadiusShare: number,
+		inMovementDirection: boolean,
+	}?, -- absent retains the original straight-to-player START_SHOOT branch
 	massMultiplier: number,
 }
 
