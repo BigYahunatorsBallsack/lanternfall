@@ -16,6 +16,8 @@ return {
 		"BabyPterosaur",
 		"Graciliceratops",
 		"BabyTrex",
+		"Alamosaurus",
+		"DinoEgg",
 	},
 	enemies = {
 		BabyTriceratops = {
@@ -75,6 +77,7 @@ return {
 				sourceMd5 = "38e442588073219bb217a4b484a6d8a7",
 			},
 			removeFirst = true,
+			mass = 1,
 		},
 		Gallimimus = {
 			typeId = 41,
@@ -133,6 +136,7 @@ return {
 				sourceMd5 = "38e442588073219bb217a4b484a6d8a7",
 			},
 			removeFirst = true,
+			mass = 1,
 		},
 		Lystrosaurus = {
 			typeId = 42,
@@ -191,6 +195,7 @@ return {
 				sourceMd5 = "38e442588073219bb217a4b484a6d8a7",
 			},
 			removeFirst = true,
+			mass = 1,
 		},
 		Pyroraptor = {
 			typeId = 43,
@@ -249,6 +254,7 @@ return {
 				sourceMd5 = "38e442588073219bb217a4b484a6d8a7",
 			},
 			removeFirst = true,
+			mass = 1,
 		},
 		Enigmacursor = {
 			typeId = 44,
@@ -307,6 +313,7 @@ return {
 				sourceMd5 = "8c814a90bf1f2a1fa89d38616f4998fe",
 			},
 			removeFirst = false,
+			mass = 1,
 			movement = {
 				target_range = 300,
 				target_range_randomization = 50,
@@ -456,6 +463,7 @@ return {
 				sourceMd5 = "09bebddbecb61796cef4301568dbb03d",
 			},
 			removeFirst = false,
+			mass = 1,
 			anticipate = {
 				seconds = 0.3,
 				horizontalOnly = false,
@@ -518,6 +526,7 @@ return {
 				sourceMd5 = "38e442588073219bb217a4b484a6d8a7",
 			},
 			removeFirst = true,
+			mass = 1,
 			anticipate = {
 				seconds = 0.3,
 				horizontalOnly = true,
@@ -580,6 +589,7 @@ return {
 				sourceMd5 = "38e442588073219bb217a4b484a6d8a7",
 			},
 			removeFirst = false,
+			mass = 1,
 			pursuer = {
 				boost_cooldown = 1,
 				max_boosts = 2,
@@ -594,6 +604,185 @@ return {
 				spriteRisePoints = 40,
 			},
 		},
+		Alamosaurus = {
+			typeId = 48,
+			displayName = "Alamosaurus",
+			fallbackLook = "Shadeling",
+			source = "res://entities/units/enemies/jungle/basic/alamosaurus/alamosaurus.tscn",
+			sourceMd5 = "7ba3068381b716d8ba790ae9b01b9359",
+			statsSource = "res://entities/units/enemies/jungle/basic/alamosaurus/alamosaurus_stats.tres",
+			statsMd5 = "23b839bb7c17d844241fd1dd317e1226",
+			stats = {
+				health = 20,
+				health_increase_each_wave = 30,
+				speed = 200,
+				speed_randomization = 0,
+				damage = 1,
+				damage_increase_each_wave = 0.85,
+				attack_cd = 30,
+				value = 5,
+				knockback_resistance = 1,
+				gold_spread = 100,
+				can_drop_consumables = true,
+				always_drop_consumables = false,
+				base_drop_chance = 0.05,
+				item_drop_chance = 0.05,
+				min_consumable_tier = 0,
+				max_consumable_tier = 0,
+				armor = 0,
+				armor_increase_each_wave = 0,
+				generate_blood = true,
+			},
+			body = {
+				radiusPoints = 35,
+				offsetPoints = {
+					-1,
+					-9,
+				},
+				source = "res://entities/units/enemies/jungle/basic/alamosaurus/alamosaurus.tscn",
+				sourceMd5 = "7ba3068381b716d8ba790ae9b01b9359",
+			},
+			hurt = {
+				radiusPoints = 50,
+				offsetPoints = {
+					0,
+					-8,
+				},
+				source = "res://entities/units/enemies/jungle/basic/alamosaurus/alamosaurus.tscn",
+				sourceMd5 = "7ba3068381b716d8ba790ae9b01b9359",
+			},
+			hit = {
+				radiusPoints = 37.0135,
+				offsetPoints = {
+					0,
+					-11,
+				},
+				source = "res://entities/units/enemies/jungle/basic/alamosaurus/alamosaurus.tscn",
+				sourceMd5 = "7ba3068381b716d8ba790ae9b01b9359",
+			},
+			removeFirst = false,
+			mass = 50,
+			spawning = {
+				properties = {
+					cooldown = 180,
+					max_cd_randomization = 10,
+					attack_anim_speed = 1,
+					nb_to_spawn = 3,
+					spawn_random_pos_area = 100,
+					spawn_at_random_pos = false,
+					spawn_at_player_range = false,
+					spawn_at_player_radius = -1,
+					spawn_in_radius_around_unit = 100,
+					max_nb_of_spawns = 999,
+				},
+				child = "DinoEgg",
+				childSource = "res://entities/units/enemies/jungle/basic/dino_egg/dino_egg.tscn",
+				childSourceMd5 = "f4ae9f35dfc0b07bfab74f2793302a52",
+				diesOnRequest = false,
+				movement = {},
+			},
+		},
+		DinoEgg = {
+			typeId = 49,
+			displayName = "Dino Egg",
+			fallbackLook = "Shadeling",
+			source = "res://entities/units/enemies/jungle/basic/dino_egg/dino_egg.tscn",
+			sourceMd5 = "f4ae9f35dfc0b07bfab74f2793302a52",
+			statsSource = "res://entities/units/enemies/jungle/basic/dino_egg/dino_egg_stats.tres",
+			statsMd5 = "a8c2a153066e114aa99448dbaf2c76ac",
+			stats = {
+				health = 6,
+				health_increase_each_wave = 4,
+				speed = 0,
+				speed_randomization = 0,
+				damage = 1,
+				damage_increase_each_wave = 0.25,
+				attack_cd = 30,
+				value = 1,
+				knockback_resistance = 1,
+				gold_spread = 0,
+				can_drop_consumables = false,
+				always_drop_consumables = false,
+				base_drop_chance = 0,
+				item_drop_chance = 0,
+				min_consumable_tier = 0,
+				max_consumable_tier = 0,
+				armor = 0,
+				armor_increase_each_wave = 0,
+				generate_blood = true,
+			},
+			body = {
+				radiusPoints = 22,
+				offsetPoints = {
+					0,
+					-8,
+				},
+				source = "res://entities/units/enemies/jungle/basic/dino_egg/dino_egg.tscn",
+				sourceMd5 = "f4ae9f35dfc0b07bfab74f2793302a52",
+			},
+			hurt = {
+				radiusPoints = 32,
+				offsetPoints = {
+					0,
+					5,
+				},
+				source = "res://entities/units/enemies/enemy.tscn",
+				sourceMd5 = "38e442588073219bb217a4b484a6d8a7",
+			},
+			hit = {
+				radiusPoints = 31,
+				offsetPoints = {
+					0,
+					-6,
+				},
+				source = "res://entities/units/enemies/jungle/basic/dino_egg/dino_egg.tscn",
+				sourceMd5 = "f4ae9f35dfc0b07bfab74f2793302a52",
+			},
+			removeFirst = false,
+			mass = 1,
+			spawning = {
+				properties = {
+					cooldown = 160,
+					max_cd_randomization = 0,
+					attack_anim_speed = 0.5,
+					nb_to_spawn = 1,
+					spawn_random_pos_area = -1,
+					spawn_at_random_pos = false,
+					spawn_at_player_range = false,
+					spawn_at_player_radius = -1,
+					spawn_in_radius_around_unit = 50,
+					max_nb_of_spawns = -1,
+				},
+				child = "BabyTrex",
+				childSource = "res://entities/units/enemies/jungle/basic/baby_trex/baby_trex.tscn",
+				childSourceMd5 = "66e87f432f2cc1a287c0296e24bea5fc",
+				diesOnRequest = true,
+				movement = {
+					target_range = 400,
+					target_range_randomization = 50,
+					should_turn_to_player_side = false,
+				},
+			},
+		},
+	},
+	spawningRules = {
+		animations = {
+			{
+				source = "res://entities/units/enemies/attack_behaviors/shoot.tres",
+				sourceMd5 = "2cb1eabb59abc712266d8e6cb496ab3f",
+				fireAt = 0.8,
+				seconds = 1,
+			},
+			{
+				source = "res://entities/units/enemies/attack_behaviors/shoot_charmed.tres",
+				sourceMd5 = "9559f5748dbbfbf70a8e3e803002fd47",
+				fireAt = 0.8,
+				seconds = 1,
+			},
+		},
+		frameRate = 60,
+		minimumCooldownFrames = 1,
+		goalPrecisionPoints = 10,
 	},
 	shootingRules = {
 		frameRate = 60,
@@ -628,6 +817,10 @@ return {
 			sourceMd5 = "43d5ebd849396509ff38632915c988a2",
 		},
 		{
+			source = "res://entities/units/enemies/attack_behaviors/spawning_attack_behavior.gdc",
+			sourceMd5 = "cbddd1b76bf3363315729d319a34798d",
+		},
+		{
 			source = "res://entities/units/enemies/crash_zone/basic/pursuer/pursuer.gdc",
 			sourceMd5 = "9ec3187fe3a68de4c9c35e9bd3d20488",
 		},
@@ -638,6 +831,10 @@ return {
 		{
 			source = "res://entities/units/enemies/jungle/basic/baby_trex/baby_trex.gdc",
 			sourceMd5 = "8d0eb87d46ac189537c97885f23c918d",
+		},
+		{
+			source = "res://entities/units/enemies/jungle/basic/dino_egg/dino_egg.gdc",
+			sourceMd5 = "f01696d402b51e177ee02fe0bdce31c8",
 		},
 		{
 			source = "res://entities/units/movement_behaviors/anticipate_target_movement_behavior.gdc",
@@ -656,12 +853,24 @@ return {
 			sourceMd5 = "73e3ea5fbfa3506197f0ec0fc6da22c3",
 		},
 		{
+			source = "res://entities/units/movement_behaviors/target_rand_pos_movement_behavior.gdc",
+			sourceMd5 = "d5637932f5178c3dcce36f9a236958b8",
+		},
+		{
 			source = "res://entities/units/unit/unit.gdc",
 			sourceMd5 = "aa94391f2d9681ac36b7f8617b82ff13",
 		},
 		{
+			source = "res://global/entity_spawner.gdc",
+			sourceMd5 = "ba0576c27ac5b889c5688decda3dd838",
+		},
+		{
 			source = "res://singletons/entity_service.gdc",
 			sourceMd5 = "f1a861f576858bbaa3e913d83c7b1807",
+		},
+		{
+			source = "res://singletons/zone_service.gdc",
+			sourceMd5 = "d16899aba618beb55e980f67a0bf10b0",
 		},
 	},
 	runtimeCompatibility = {
@@ -671,6 +880,7 @@ return {
 		open = {
 			"Existing global body/collision center approximation; source offsets retained explicitly",
 			"Native physics ordering and sprite acceptance",
+			"Spawning reuses existing square/edge clamp; native forbidden-zone retries/push-out remain part of the pending area/physics port",
 			"Enigmacursor Meca/Mutant branches are source facts only; no native evolution-system acceptance",
 			"Fallback circle telegraphs instead of original animated pillar sprites",
 			"Remaining Jungle families, waves, bosses and area route",

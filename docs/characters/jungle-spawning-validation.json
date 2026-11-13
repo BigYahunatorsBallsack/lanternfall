@@ -1,0 +1,53 @@
+{
+  "referenceVersion": "1.2.0.2",
+  "families": [
+    "Alamosaurus",
+    "DinoEgg"
+  ],
+  "typeIds": [
+    48,
+    49
+  ],
+  "sourceChain": "Alamosaurus -> DinoEgg -> BabyTrex",
+  "spawning": "Native animation-method clock reused; Alamosaurus cooldown180+-10frames, method0.8s, animation1s, 3 eggs/burst,999 total child requests. Egg160frames, method1.6s, animation2s, one child and natural uncredited death.",
+  "births": "Independent LIFO summon queue, one request per existing queue tick, normal60frame warning, source72px overlap circle, relocate/restart on any participant body overlap. Captured optional Charm owner survives source deletion.",
+  "interfaces": [
+    "EnemySim.NativeSummon trusted internal signal(childId,x,z,owner?)",
+    "EnemySim.charmSummoned trusted completion after birth",
+    "Enemy.nativeSpawn source-backed timing/quota/area/death rule",
+    "World.nativeSpawnClocks aligned AI state retained on Charm transfer",
+    "GroupBirth.normal checked source timing/geometry"
+  ],
+  "neutralBodiesImplemented": 10,
+  "zonePlayable": false,
+  "newCharacterReadyFlags": 0,
+  "codePreparedCharacters": 48,
+  "localFramesPrepared": 14,
+  "uploads": 0,
+  "focused": "NativeSummonBirth5/0; NativeJungleSpawning4/0; eight additional affected suites passed.",
+  "mutation": "Inverting unlimited quota check fails chain, friendly inheritance and total-quota tests; World restored byte-for-byte.",
+  "fullSuite": {
+    "specs": 284,
+    "passed": 1758,
+    "failed": 36,
+    "previousSpecs": 282,
+    "previousPassed": 1749,
+    "previousFailed": 36,
+    "newFailureNames": [],
+    "aborts": [],
+    "artifact": "build/native-five-branch-nine-jungle-spawning-4cf1050.json"
+  },
+  "checks": {
+    "stylua": true,
+    "seleneErrors": 0,
+    "existingWarnings": 18,
+    "rojo": true,
+    "sourceAndArtCompilers": true,
+    "studio": false
+  },
+  "remaining": [
+    "Native forbidden-zone retries and push-out: existing square/edge clamp is reused; actual Jungle hole layouts/forbidden circles are not implemented.",
+    "Native capsule/body-circle center physics, sprites/animations/sound and Studio acceptance.",
+    "Other Jungle families/evolution branches/bosses/waves/area route; no partial area activated."
+  ]
+}

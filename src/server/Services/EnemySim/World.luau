@@ -117,6 +117,7 @@ export type World = typeof(setmetatable(
 		speedFactors: { number }, -- multiplier on its kind's speed from spawning (the team's Enemy Speed stat, B9)
 		boosts: { number }, -- multiplier on its speed from accelerating (kind.accelerate), 1 otherwise (B9)
 		pursuers: { NativePursuer.State? },
+		nativeSpawnClocks: { ShootingClock.State? },
 		boostClocks: { number }, -- seconds towards its next accelerate step
 		zoneMembers: { [number]: { [number]: boolean } }, -- by Mender id: ids of the enemies in its radius (pulse.onEnter)
 		buffed: { boolean }, -- a Herald made it stronger (once per enemy, shown in snapshots; B9)
@@ -207,6 +208,7 @@ function World.new(params: Params): World
 		speedBonuses = {},
 		boosts = {},
 		pursuers = {},
+		nativeSpawnClocks = {},
 		boostClocks = {},
 		zoneMembers = {},
 		buffed = {},
@@ -269,6 +271,7 @@ function World.new(params: Params): World
 		self.speedBonuses,
 		self.boosts,
 		self.pursuers,
+		self.nativeSpawnClocks,
 		self.boostClocks,
 		self.buffed,
 		self.abilityTimers,
@@ -347,6 +350,11 @@ function World.spawn(
 	self.shotCooldown[i] = if ranged then ranged.fireInterval * spread else 0
 	self.shootingClocks[i] = if ranged and ranged.nativeTiming
 		then ShootingClock.new(ranged.nativeTiming, function()
+			return nextRandom(self)
+		end)
+		else nil
+	self.nativeSpawnClocks[i] = if kind.nativeSpawn
+		then ShootingClock.new(kind.nativeSpawn.timing, function()
 			return nextRandom(self)
 		end)
 		else nil
@@ -1617,9 +1625,24 @@ function World.step(
 
 	-- 7. summoners count down while there is a target and report themselves when they call
 	local summons, summonCount = self.summons, 0
-	if targetCount > 0 then
-		local summonTimers = self.summonTimers
-		for i = 1, count do
+	local summonTimers = self.summonTimers
+	for i = 1, count do
+		local rule = kinds[i].nativeSpawn
+		local state = self.nativeSpawnClocks[i]
+		if rule and state then
+			if rule.maxCount == -1 or state.shots * rule.count < rule.maxCount then
+				local fired = ShootingClock.step(state, rule.timing, dt, true, function()
+					return nextRandom(self)
+				end)
+				self.modes[i] = if state.stage == "Animation" then MODE_WINDUP else MODE_WALK
+				if fired then
+					summonCount += 1
+					summons[summonCount] = ids[i]
+				end
+			else
+				self.modes[i] = MODE_WALK
+			end
+		elseif targetCount > 0 then
 			local summon = kinds[i].summon
 			if summon then
 				local timer = summonTimers[i] - dt

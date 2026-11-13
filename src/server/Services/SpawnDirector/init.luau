@@ -37,7 +37,16 @@ local SPAWN_TRIES = 12 -- random ring points tried per debug enemy before giving
 local SpawnDirector = {}
 
 -- One enemy waiting in a spawn queue, and later behind its red cross.
-type Request = { enemyId: string, x: number, z: number, at: number, looter: boolean, groupCount: number? }
+type Request = {
+	enemyId: string,
+	x: number,
+	z: number,
+	at: number,
+	looter: boolean,
+	groupCount: number?,
+	summoned: boolean?,
+	owner: number?,
+}
 
 local paused = false
 local timers: { SpawnRules.Timer } = {} -- the groups of the running wave
@@ -46,6 +55,7 @@ local nextSecond = 0 -- the next whole second of the wave its groups are checked
 local waveSeconds = 0 -- the groups' clock: the wave timer, but it keeps running while the debug button holds waves
 local enemyQueue: { Request } = {} -- Brotato's queue_to_spawn (taken from the end)
 local treeQueue: { Request } = {}
+local summonQueue: { Request } = {} -- source queue_to_spawn_summons: one LIFO request per global queue tick
 local queueClock = 0
 local births: { Request } = {} -- enemies whose red cross is showing, in order of spawn time
 local function addBirth(request: Request)
@@ -465,6 +475,12 @@ local function updateQueues(dt: number)
 			tree.at = at
 			addBirth(tree)
 		end
+		local summoned = table.remove(summonQueue)
+		if summoned then
+			summoned.at = workspace:GetServerTimeNow() + GroupBirth.normal.markerSeconds
+			addBirth(summoned)
+			announceMarkers({ summoned.x, summoned.z }, summoned.at)
+		end
 		for _ = 1, SpawnRules.queueBurst(#enemyQueue) do
 			local request = table.remove(enemyQueue)
 			if not request then
@@ -486,16 +502,25 @@ local function updateBirths(atMinutes: number)
 	local now = workspace:GetServerTimeNow()
 	while births[1] and births[1].at <= now do
 		local request = table.remove(births, 1) :: Request
-		if request.groupCount then
+		if request.groupCount or request.summoned then
 			if SpawnRules.groupBirthBlocked(request.x, request.z, birthPlayers()) then
 				request.x, request.z = SpawnRules.anywhere(roll, bounds)
-				request.at = now + GroupBirth.markerSeconds
+				request.at = now
+					+ (if request.groupCount then GroupBirth.markerSeconds else GroupBirth.normal.markerSeconds)
 				addBirth(request)
 				announceMarkers({ request.x, request.z }, request.at)
-			else
+				continue
+			elseif request.groupCount then
 				for _ = 1, request.groupCount do
 					spawnAt(request.enemyId, request.x, request.z, atMinutes)
 				end
+				continue
+			end
+		end
+		if request.summoned then
+			local id = spawnAt(request.enemyId, request.x, request.z, atMinutes)
+			if id and request.owner then
+				EnemySim.charmSummoned(id, request.owner)
 			end
 			continue
 		end
@@ -512,6 +537,7 @@ end
 local function clearQueues()
 	table.clear(enemyQueue)
 	table.clear(treeQueue)
+	table.clear(summonQueue)
 	table.clear(births)
 	queueClock = 0
 end
@@ -528,6 +554,16 @@ end
 -- Lifecycle -------------------------------------------------------------------------
 
 function SpawnDirector.init()
+	EnemySim.NativeSummon:Connect(function(enemyId: string, x: number, z: number, owner: number?)
+		if RunDirector.getPhase() ~= "Running" or paused or not EnemyKinds.get(enemyId) then
+			return
+		end
+		table.insert(
+			summonQueue,
+			{ enemyId = enemyId, x = x, z = z, at = 0, looter = false, summoned = true, owner = owner }
+		)
+	end)
+
 	MapService.ArenaResized:Connect(function(arena: MapService.Bounds)
 		bounds.minX = arena.center.X - arena.halfX
 		bounds.maxX = arena.center.X + arena.halfX
@@ -669,7 +705,7 @@ end
 
 -- Enemies waiting in the spawn queues or behind their red crosses.
 function SpawnDirector.getQueued(): number
-	return #enemyQueue + #treeQueue + #births
+	return #enemyQueue + #treeQueue + #summonQueue + #births
 end
 
 return SpawnDirector

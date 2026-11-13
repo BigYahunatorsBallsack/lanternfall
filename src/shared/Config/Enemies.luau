@@ -40,6 +40,7 @@ export type Enemy = {
 	affix: number?, -- index into elite.affixes, 1 or more
 	damageTaken: number?, -- multiplier on every hit it takes (1 if nil)
 	summon: Summon?,
+	nativeSpawn: NativeSpawn?,
 	-- since B6 (Config.Loot)
 	loot: Loot?,
 	flee: Flee?,
@@ -339,6 +340,22 @@ export type Split = {
 }
 
 -- Elites with the Summoner affix call enemies around themselves every intervalSeconds while a player is around.
+-- Native spawning attacks have animation-method timing and delayed births, unlike legacy immediate summoners.
+export type NativeSpawn = {
+	enemy: string,
+	count: number,
+	area: number,
+	maxCount: number,
+	dieOnRequest: boolean,
+	timing: {
+		fireInterval: number,
+		cooldownRandomSeconds: number,
+		minimumCooldownSeconds: number,
+		initialSeconds: number,
+		fireAt: number,
+		animationSeconds: number,
+	},
+}
 export type Summon = {
 	enemy: string, -- key in types
 	count: number,

@@ -158,6 +158,44 @@
       "pngSha256": "35656d0c3bf334532e8926725b522305ca6836a732c87ae0218686bcd1740d7f"
     },
     {
+      "id": "Alamosaurus",
+      "source": "res://entities/units/enemies/jungle/basic/alamosaurus/alamosaurus.png",
+      "textureSource": "res://.import/alamosaurus.png-f37ebb8cfe91a6c5e0b86138462218e9.stex",
+      "textureMd5": "b8256e3bcd711adb7a820ff996025097",
+      "output": "assets/enemies/native-jungle/Alamosaurus.png",
+      "size": [
+        180,
+        180
+      ],
+      "alphaBounds": [
+        23,
+        10,
+        155,
+        176
+      ],
+      "rgbaSha256": "f1ecc58e1d4936f3981ebbb89e535dc3a61f70f62c01fb63664c89015e51f73f",
+      "pngSha256": "a2e356b64b2dc8919c5015001aba7a20e737ba68fe831b4323ab4bcfc3204a74"
+    },
+    {
+      "id": "DinoEgg",
+      "source": "res://entities/units/enemies/jungle/basic/dino_egg/dino_egg.png",
+      "textureSource": "res://.import/dino_egg.png-6ddb1fc5c383fe2f6ee7fd677712427f.stex",
+      "textureMd5": "7cf7b0c3102842fa2fe7ef93a9521c41",
+      "output": "assets/enemies/native-jungle/DinoEgg.png",
+      "size": [
+        100,
+        100
+      ],
+      "alphaBounds": [
+        13,
+        5,
+        84,
+        96
+      ],
+      "rgbaSha256": "135d688d94dc700484b5e3056e411eb85a93b11f826cefaa2ac9cbc6001fa729",
+      "pngSha256": "fef8a402c0a1d3b5f97e14123f8a1701bbe7a4c86ed17552e1b6edc5e53f5e48"
+    },
+    {
       "id": "Pillar_bullet_pillar_0002",
       "source": "res://projectiles/pillar_enemy/sprites/bullet_pillar_0002.png",
       "textureSource": "res://.import/bullet_pillar_0002.png-b64813647bb259fcd087f6245a3b4bd8.stex",

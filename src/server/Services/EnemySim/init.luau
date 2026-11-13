@@ -19,6 +19,7 @@ local Net = require(Shared.Net)
 local Signal = require(Shared.Util.Signal)
 local EnemyKinds = require(Shared.Util.EnemyKinds)
 local EnemyStats = require(Shared.Util.EnemyStats)
+local NativeSummons = require(script.NativeSummons)
 local MovementInput = require(script.Parent.CharacterService.Movement)
 local NativeVolley = require(Shared.Util.NativeEnemyVolley)
 local ShotFeed = require(Shared.Net.ShotFeed)
@@ -77,6 +78,8 @@ EnemySim.CharmShot = Signal.new()
 -- Trusted source slash request: source id, target x/z, damage and optional Charm owner.
 EnemySim.NativeSlash = Signal.new()
 EnemySim.NativePillar = Signal.new()
+-- Trusted native spawning attack: child kind, exact position and captured optional Charm owner; SpawnDirector owns births.
+EnemySim.NativeSummon = Signal.new()
 EnemySim.CharmSupport = Signal.new()
 
 local world: World.World
@@ -153,6 +156,14 @@ local volleys = (function()
 end)()
 local floorY = Config.Map.arena.center.Y
 friends = CharmedWorld.new(world.params, {
+	nativeSpawn = function(member, actors, id)
+		NativeSummons.emit(actors, id, member.kind.nativeSpawn, member.owner, function()
+			return RandomService.number("Spawns")
+		end, function(...)
+			EnemySim.NativeSummon:Fire(...)
+		end)
+	end,
+
 	support = function(member, x, z)
 		EnemySim.CharmSupport:Fire(member, x, z)
 	end,
@@ -429,7 +440,16 @@ local function callSummons()
 		local kind = world:getKind(id)
 		local summon = kind and kind.summon
 		local x, z = world:getPosition(id)
-		if kind and summon and x and z then
+		if kind and kind.nativeSpawn and x and z then
+			NativeSummons.emit(world, id, kind.nativeSpawn, nil, function()
+				return RandomService.number("Spawns")
+			end, function(...)
+				EnemySim.NativeSummon:Fire(...)
+			end)
+			if kind.nativeSpawn.dieOnRequest then
+				EnemySim.damage(id, world:getHealth(id), nil)
+			end
+		elseif kind and summon and x and z then
 			local hpMultiplier, damageMultiplier, speedMultiplier = world:getMultipliers(id)
 			spawnAround(
 				summon.enemy,
@@ -802,6 +822,11 @@ function EnemySim.tryCharm(player: Player, id: number, stats: { [string]: number
 		return false
 	end
 	return friends:convert(world, id, player.UserId, workspace:GetServerTimeNow(), nativeBases[id])
+end
+-- Trusted server-only completion after a native summon birth; no random on-hit Charm roll.
+function EnemySim.charmSummoned(id: number, owner: number): boolean
+	local base = nativeBases[id]
+	return base ~= nil and friends:convert(world, id, owner, workspace:GetServerTimeNow(), base)
 end
 function EnemySim.isCharmed(id: number): boolean
 	return friends.world:isAlive(id)

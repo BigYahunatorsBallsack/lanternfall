@@ -279,7 +279,16 @@ function Friends.step(self: any, dt: number, now: number, hostile: any)
 	for index = 1, self.world.summonCount do
 		local id = self.world.summons[index]
 		local member = self.members[id]
-		if member and member.kind.summon and self.callbacks.spawn then
+		if member and member.kind.nativeSpawn and self.callbacks.nativeSpawn then
+			self.callbacks.nativeSpawn(member, self.world, id)
+			if member.kind.nativeSpawn.dieOnRequest then
+				local x, z = self.world:getPosition(id)
+				self.world:remove(id)
+				self.members[id] = nil
+				self.counts[member.owner] -= 1
+				self.callbacks.expired(member, x, z)
+			end
+		elseif member and member.kind.summon and self.callbacks.spawn then
 			local x, z = self.world:getPosition(id)
 			local summon = member.kind.summon
 			self.callbacks.spawn(member, summon.enemy, x, z, summon.count, member.kind.radius + C.summonPadding)

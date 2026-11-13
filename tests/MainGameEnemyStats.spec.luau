@@ -71,7 +71,7 @@ describe("main-game wiki enemy stats", function()
 				count += 1
 			end
 		end
-		expect(count).toBe(47) -- original32, sevenNightmare and seven explicitly activated Jungle branches
+		expect(count).toBe(49) -- original32, sevenNightmare and seven explicitly activated Jungle branches
 		for _, kind in Config.Enemies.types do
 			expect(seen[kind.typeId + 128]).toBe(nil)
 		end

@@ -20,6 +20,7 @@ return table.freeze({
 		Skulker = "Random",
 		Reaper = "Random",
 		BroodEgg = "Random",
+		DinoEgg = "Random",
 		Splitter = "Random",
 		Spitter = "Random",
 		DreadTendril = "Random",

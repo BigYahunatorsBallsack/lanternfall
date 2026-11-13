@@ -34,4 +34,10 @@ return {
 		},
 	},
 	areaPlayable = false,
+	normal = {
+		source = "res://entities/birth/entity_birth.tscn",
+		sourceMd5 = "5d51f77c75b5b04e0893174697d0d40f",
+		markerSeconds = 1,
+		radiusPoints = 72,
+	},
 }

@@ -25,7 +25,7 @@ function Kinds.build(pixel: number): { [string]: any }
 			radius = f.body.radiusPoints * pixel,
 			hurtRadius = f.hurt.radiusPoints * pixel,
 			hitRadius = f.hit.radiusPoints * pixel,
-			mass = C.runtimeCompatibility.mass,
+			mass = f.mass or C.runtimeCompatibility.mass,
 			knockbackResistance = s.knockback_resistance,
 			removeFirst = f.removeFirst,
 			loot = {
@@ -35,6 +35,41 @@ function Kinds.build(pixel: number): { [string]: any }
 		}
 		if f.anticipate then
 			result[id].anticipate = f.anticipate
+		end
+
+		if f.spawning then
+			local a = f.spawning.properties
+			local rules = C.spawningRules
+			result[id].nativeSpawn = {
+				enemy = f.spawning.child,
+				count = a.nb_to_spawn,
+				area = (if a.spawn_random_pos_area ~= -1
+					then a.spawn_random_pos_area
+					else a.spawn_in_radius_around_unit) * pixel,
+				maxCount = a.max_nb_of_spawns,
+				dieOnRequest = f.spawning.diesOnRequest,
+				timing = {
+					fireInterval = a.cooldown / rules.frameRate,
+					cooldownRandomSeconds = a.max_cd_randomization / rules.frameRate,
+					minimumCooldownSeconds = rules.minimumCooldownFrames / rules.frameRate,
+					initialSeconds = 0,
+					fireAt = rules.animations[1].fireAt / a.attack_anim_speed,
+					animationSeconds = rules.animations[1].seconds / a.attack_anim_speed,
+				},
+			}
+			if id == "Alamosaurus" then
+				result[id].wander = {
+					around = "Arena",
+					range = 0,
+					rangeJitter = 0,
+					arriveStuds = rules.goalPrecisionPoints * pixel,
+					maxSeconds = math.huge,
+				}
+			else
+				local move = f.spawning.movement
+				result[id].stayInRange =
+					{ distance = move.target_range * pixel, jitter = move.target_range_randomization * pixel }
+			end
 		end
 		if f.pursuer then
 			local a = f.pursuer
