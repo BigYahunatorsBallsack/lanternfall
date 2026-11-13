@@ -29,9 +29,9 @@ local function make(obstacles)
 	})
 end
 describe("Native physical body offsets", function()
-	it("restores the public origin-based hit-query hash after internal body-center separation", function()
+	it("restores origin-hash queries for legacy hurt geometry after body-center separation", function()
 		local w = make({})
-		local k = table.clone(assert(Kinds.get("BabyTriceratops")))
+		local k = table.clone(assert(Kinds.get("Shadeling")))
 		k.radius, k.hurtRadius, k.hitRadius, k.nativeBodyOffsetZ = 1, 20, 0, -10
 		local id = assert(w:spawn(k, 0, 0, 1000, 0, nil, 0))
 		w:step(0, {}, {}, 0)

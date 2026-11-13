@@ -37,6 +37,14 @@ export type Enemy = {
 		collidePlayers: boolean,
 		precision: number,
 	}?, -- native goal rectangle differs from physical origin bounds
+	nativeHitOffsetX: number?,
+	nativeHitOffsetZ: number?,
+	nativeHitChildX: number?,
+	nativeHitChildZ: number?, -- unscaled Collision position inside Hitbox, for native parent growth
+	nativeHurtOffsetX: number?,
+	nativeHurtOffsetZ: number?,
+	nativeHurtChildX: number?,
+	nativeHurtChildZ: number?, -- unscaled Collision position inside Hurtbox, for native parent growth
 	nativeBodyOffsetX: number?,
 	nativeBodyOffsetZ: number?, -- Collision.position in the original actor-local coordinate system
 	nativeObstacleCollision: boolean?, -- original OBSTACLES_BIT in the body mask, independent of is_flying

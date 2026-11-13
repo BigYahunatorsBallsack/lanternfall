@@ -30,6 +30,8 @@ function Friends.new(params: any, callbacks: any, projectileObstacles: { Volleys
 		targetXs = {},
 		targetZs = {},
 		targetRadii = {},
+		targetHurtXs = {},
+		targetHurtZs = {},
 		targetInputXs = {},
 		targetInputZs = {},
 		shots = Volleys.new(shotOptions),
@@ -116,7 +118,7 @@ function Friends.fire(
 	)
 end
 local function stepShots(self: any, dt: number)
-	self.shots:step(dt, self.targetXs, self.targetZs, #self.targetIds, self.targetRadii)
+	self.shots:step(dt, self.targetHurtXs, self.targetHurtZs, #self.targetIds, self.targetRadii)
 	for index = 1, self.shots.hitCount do
 		local offset = (index - 1) * 2
 		local target = self.targetIds[self.shots.hits[offset + 1]]
@@ -249,6 +251,8 @@ function Friends.step(self: any, dt: number, now: number, hostile: any)
 	table.clear(xs)
 	table.clear(zs)
 	table.clear(radii)
+	table.clear(self.targetHurtXs)
+	table.clear(self.targetHurtZs)
 	table.clear(inputXs)
 	table.clear(inputZs)
 	for index = 1, hostile.count do
@@ -256,13 +260,16 @@ function Friends.step(self: any, dt: number, now: number, hostile: any)
 			table.insert(ids, hostile.ids[index])
 			table.insert(xs, hostile.xs[index])
 			table.insert(zs, hostile.zs[index])
-			table.insert(radii, (hostile.kinds[index].hurtRadius or hostile.kinds[index].radius))
+			local hx, hz, radius = hostile:getHurtGeometry(hostile.ids[index])
+			table.insert(self.targetHurtXs, hx)
+			table.insert(self.targetHurtZs, hz)
+			table.insert(radii, radius)
 			local vx, vz = hostile:getMoveInput(hostile.ids[index])
 			table.insert(inputXs, vx)
 			table.insert(inputZs, vz)
 		end
 	end
-	local contacts = self.world:step(dt, xs, zs, #ids, nil, nil, radii, inputXs, inputZs)
+	local contacts = self.world:step(dt, xs, zs, #ids, self.targetHurtXs, self.targetHurtZs, radii, inputXs, inputZs)
 	stepShots(self, dt)
 	fireShots(self, dt)
 	fireChargeTrails(self)

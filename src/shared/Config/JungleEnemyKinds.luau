@@ -1,12 +1,15 @@
 --!strict
 -- Adapts explicitly ported neutral Jungle behaviors to the enemy engine; Config.Enemies owns pixel conversion.
 local C = require(script.Parent.JungleWalkers)
+local Colliders = require(script.Parent.JungleColliderOffsets)
 local Kinds = {}
 function Kinds.build(pixel: number): { [string]: any }
 	local result = {}
 	for _, id in C.implemented do
 		local f = C.enemies[id]
 		local s = f.stats
+		local hurt = assert(Colliders.actors[id], "Missing approved Jungle collider transforms").hurt
+		local hit = Colliders.actors[id].hit
 		result[id] = {
 			id = id,
 			typeId = f.typeId,
@@ -15,6 +18,14 @@ function Kinds.build(pixel: number): { [string]: any }
 			nativeArtPending = true,
 			nativeZoneId = C.zoneId,
 			nativeObstacleCollision = f.obstacleCollision,
+			nativeHitOffsetX = hit.totalPoints[1] * pixel,
+			nativeHitOffsetZ = hit.totalPoints[2] * pixel,
+			nativeHitChildX = hit.childPoints[1] * pixel,
+			nativeHitChildZ = hit.childPoints[2] * pixel,
+			nativeHurtOffsetX = hurt.totalPoints[1] * pixel,
+			nativeHurtOffsetZ = hurt.totalPoints[2] * pixel,
+			nativeHurtChildX = hurt.childPoints[1] * pixel,
+			nativeHurtChildZ = hurt.childPoints[2] * pixel,
 			nativeBodyOffsetX = f.body.offsetPoints[1] * pixel,
 			nativeBodyOffsetZ = f.body.offsetPoints[2] * pixel,
 			nativeMovement = {

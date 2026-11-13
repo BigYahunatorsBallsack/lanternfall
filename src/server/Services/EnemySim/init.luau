@@ -1104,6 +1104,16 @@ function EnemySim.getPosition(id: number): Vector3?
 	return Vector3.new(x, floorY, z)
 end
 
+-- Exact live hurt-circle center/radius, separate from the actor origin used by snapshots and drops.
+function EnemySim.getHurtGeometry(id: number): (Vector3?, number?)
+	local actors = if friends.world.indexOf[id] then friends.world else world
+	local x, z, radius = actors:getHurtGeometry(id)
+	if not (x and z and radius) then
+		return nil, nil
+	end
+	return Vector3.new(x, floorY, z), radius
+end
+
 -- Where the last step saw a living participant: moved ahead along their velocity like for contacts (see
 -- Config.Simulation), so about where they see themselves. nil for players who are not a living participant.
 function EnemySim.getPlayerPosition(player: Player): Vector3?

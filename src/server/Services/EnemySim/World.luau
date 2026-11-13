@@ -47,6 +47,8 @@ local SpatialHash = require(Shared.Util.SpatialHash)
 local SegmentCircle = require(Shared.Util.SegmentCircle)
 local StaticShapes = require(Shared.Util.StaticShapes)
 local Body = require(Shared.Util.NativeBodyGeometry)
+local Hurt = require(Shared.Util.NativeHurtGeometry)
+local Hit = require(Shared.Util.NativeHitGeometry)
 local circleEntry = SegmentCircle.entry
 
 export type Kind = Enemies.Enemy
@@ -439,7 +441,7 @@ function World.spawn(
 		else 0
 	self.indexOf[id] = i
 	self.maxColliderRadius = math.max(self.maxColliderRadius, kind.radius, kind.hurtRadius or 0, kind.hitRadius or 0)
-	self.maxRadius = math.max(self.maxRadius, Body.extent(kind), kind.hurtRadius or 0, kind.hitRadius or 0)
+	self.maxRadius = math.max(self.maxRadius, Body.extent(kind), Hurt.extent(kind), Hit.extent(kind))
 	self.maxSpeed = math.max(self.maxSpeed, kind.speed * speed)
 	self.hash:insert(i, x, z) -- visible to queries right away
 	return id
@@ -662,6 +664,17 @@ function World.getMode(self: World, id: number): (number, number, number)
 	return self.modes[i], self.rushXs[i], self.rushZs[i]
 end
 
+-- Live hurt geometry also remains readable for enemies killed since the last compact, like getPosition.
+function World.getHurtGeometry(self: World, id: number): (number?, number?, number?)
+	local i = self.indexOf[id]
+	if not i then
+		return nil, nil, nil
+	end
+	local kind = self.kinds[i]
+	local x, z = Hurt.center(kind, self.xs[i], self.zs[i])
+	return x, z, kind.hurtRadius or kind.radius
+end
+
 -- Ids of living enemies whose circle overlaps the circle (x, z, radius), written to out[1 .. n]; returns n.
 function World.queryRadius(self: World, x: number, z: number, radius: number, out: { number }): number
 	local scratch = self.queryScratch
@@ -672,7 +685,8 @@ function World.queryRadius(self: World, x: number, z: number, radius: number, ou
 		local i = scratch[s]
 		if hp[i] > 0 then
 			local reach = radius + (kinds[i].hurtRadius or kinds[i].radius) -- Brotato's Hurtbox
-			local dx, dz = xs[i] - x, zs[i] - z
+			local hx, hz = Hurt.center(kinds[i], xs[i], zs[i])
+			local dx, dz = hx - x, hz - z
 			if dx * dx + dz * dz <= reach * reach then
 				count += 1
 				out[count] = ids[i]
@@ -703,7 +717,8 @@ function World.querySegment(
 	for s = 1, found do
 		local i = scratch[s]
 		if hp[i] > 0 then
-			local px, pz = xs[i] - x0, zs[i] - z0
+			local hx, hz = Hurt.center(kinds[i], xs[i], zs[i])
+			local px, pz = hx - x0, hz - z0
 			local t = if lengthSquared > EPSILON then math.clamp((px * sx + pz * sz) / lengthSquared, 0, 1) else 0
 			local dx, dz = px - sx * t, pz - sz * t
 			local reach = radius + (kinds[i].hurtRadius or kinds[i].radius) -- Brotato's Hurtbox
@@ -1313,8 +1328,7 @@ function World.step(
 				self.contactDamage[i] = damage or self.contactDamage[i]
 				self.maxColliderRadius =
 					math.max(self.maxColliderRadius, grown.radius, grown.hurtRadius or 0, grown.hitRadius or 0)
-				self.maxRadius =
-					math.max(self.maxRadius, Body.extent(grown), grown.hurtRadius or 0, grown.hitRadius or 0)
+				self.maxRadius = math.max(self.maxRadius, Body.extent(grown), Hurt.extent(grown), Hit.extent(grown))
 				self.maxSpeed = math.max(self.maxSpeed, grown.speed * self.speedFactors[i] + self.speedBonuses[i])
 			end
 			local bestTarget: number? = nil
@@ -1651,12 +1665,13 @@ function World.step(
 	for i = 1, count do
 		local hit = damage[i]
 		if hit > 0 and not knocked[i] then
+			local hx, hz = Hit.center(kinds[i], xs[i], zs[i])
 			for t = 1, targetCount do
 				local reach = (kinds[i].hitRadius or kinds[i].radius)
 					+ (if targetRadii then targetRadii[t] else playerRadius)
 					+ margin
 				local reachSquared = reach * reach
-				local dx, dz = hitXs[t] - xs[i], hitZs[t] - zs[i]
+				local dx, dz = hitXs[t] - hx, hitZs[t] - hz
 				if dx * dx + dz * dz <= reachSquared then
 					if hit > contacts[t] then
 						contacts[t] = hit
@@ -1675,6 +1690,7 @@ function World.step(
 		local paths = self.rushes
 		local i, x, z = paths[k], paths[k + 1], paths[k + 2]
 		local dx, dz = paths[k + 3] - x, paths[k + 4] - z
+		local hx, hz = Hit.center(kinds[i], x, z)
 		local length = math.sqrt(dx * dx + dz * dz)
 
 		if length > EPSILON then
@@ -1685,7 +1701,7 @@ function World.step(
 					+ EPSILON
 				if
 					damage[i] > contacts[t]
-					and circleEntry(x, z, dx / length, dz / length, length, hitXs[t], hitZs[t], reach)
+					and circleEntry(hx, hz, dx / length, dz / length, length, hitXs[t], hitZs[t], reach)
 				then
 					contacts[t] = damage[i]
 					self.contactSources[t] = ids[i]

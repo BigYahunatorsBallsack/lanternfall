@@ -1,0 +1,84 @@
+{
+  "referenceVersion": "1.2.0.2",
+  "steamBuild": 26615634,
+  "scope": "Separate incoming hurt and outgoing hit circles for13 prepared neutral Jungle bodies. No ready-character flag, playable Jungle or full native player/physics/render acceptance.",
+  "source": {
+    "snapshot": "docs/characters/jungle-collider-offsets-source.json",
+    "actors": 13,
+    "sceneChainRecords": 16,
+    "proof": "Saved approved1.2.0.2 scene chains, hashes and parent/child transforms. Actor roots, parents and children initially unscaled/unrotated; old child positions match approved JungleWalkers facts.",
+    "compiler": "tools/build-character-jungle-colliders.py compiles tracked neutral snapshots without reading the installed PCK; --check validates reference version/build, scene chains, identity sets and child positions.",
+    "guards": "Version changed to1.2.0.3 is rejected before compiled output changes; snapshot restored byte-for-byte and --check passed. Existing installed-PCK guard and reference.json unchanged."
+  },
+  "rules": [
+    "Hurt and Hit centers add parent plus child positions. Enigmacursor hit(0,9)+(1,-9)=(1,0)px; DinoEgg hit(0,-8)+(0,-6)=(0,-14)px.",
+    "QueryRadius/querySegment use incoming hurt circles with conservative root-hash extents. Actor origins, nearest-target selection, snapshots, drops and Arsenal framework remain unchanged.",
+    "Outgoing ordinary and swept rush contacts use hit centers against existing compensated target contact positions.",
+    "Baby T-Rex parent growth scales circle radii and child translations, retaining parent translations and physical Collision.position.",
+    "Charmed AI/aim origins remain separate from target hurt centers used by friendly projectiles and contact geometry.",
+    "Friendly native pillars and animated slashes use live hurt centers/radii, including grown actors, instead of static kind lookups."
+  ],
+  "interfaces": [
+    "Enemy.nativeHurtOffsetX/Z, nativeHurtChildX/Z, nativeHitOffsetX/Z, nativeHitChildX/Z.",
+    "World.getHurtGeometry(id)->x?,z?,radius?; EnemySim.getHurtGeometry(id)->Vector3?,radius?. Readable for killed actors until compaction, nil for unknown/compacted ids.",
+    "CharmedWorld.targetHurtXs/Zs separate collision arrays; targetXs/Zs continue to represent AI origins.",
+    "Config.JungleColliderOffsets is generated from the approved neutral snapshot; source refresh remains separate."
+  ],
+  "focused": {
+    "NativeHurtOffsets": {
+      "passed": 6,
+      "failed": 0
+    },
+    "NativeHitOffsets": {
+      "passed": 5,
+      "failed": 0
+    },
+    "NativeHurtCollisionRuntime": {
+      "passed": 3,
+      "failed": 0
+    },
+    "red": "Hurt6/0 after initial0/6; Hit5/0 after controlled0/5. Friendly Hit fixture removes unrelated contact margin so old origin circles cannot satisfy the intended offset case.",
+    "runtime": "Actual mock-server services: live grown geometry, killed/compacted/unknown IDs, friendly pillar edge and two real animated slash hits with origin-circle counterfactual excluded. Not Roblox Studio.",
+    "fixtureCorrections": "Root-hash restoration test explicitly uses legacy hurt geometry; Baby T-Rex retains original4%-beyond-base growth probe measured from the new hurt center. Pillar fixture uses an actual valid Enigmacursor source and compensates original projectile-local offset."
+  },
+  "mutations": [
+    "Removing translated hurt extent fails3 hurt tests; restored byte-for-byte,6/0.",
+    "Reversing hit translation fails3 outgoing contact cases, including swept and charmed contacts; restored byte-for-byte,5/0."
+  ],
+  "fullSuite": {
+    "specs": 295,
+    "passed": 1833,
+    "failed": 36,
+    "baselineSpecs": 292,
+    "baselinePassed": 1819,
+    "baselineFailed": 36,
+    "newFailureNames": [],
+    "failureIdentitiesUnchanged": true,
+    "aborts": [],
+    "artifact": "build/native-five-branch-nine-hurt-hit-4cf1050.json"
+  },
+  "localPerformance": {
+    "mixedNativeChargers140MeanMs": 3.8782519999949727,
+    "stationaryNativeHealers140MeanMs": 3.2401129999925615,
+    "warmupSteps": 20,
+    "measuredSteps": 100,
+    "clock": "Actual realClock; separate synthetic runs, not Studio/device acceptance",
+    "acceptance": false
+  },
+  "checks": {
+    "stylua": true,
+    "seleneErrors": 0,
+    "existingWarnings": 18,
+    "rojo": true,
+    "snapshotCompiler": true,
+    "studio": false
+  },
+  "codePreparedCharacters": 48,
+  "newCharacterReadyFlags": 0,
+  "zonePlayable": false,
+  "remaining": [
+    "Exact native player hurt/body geometry, movement/physics ordering, per-weapon aim-shape and exact impact/pose semantics.",
+    "Remaining Jungle families/evolution/bosses/waves/area route, original graphics and full Studio/device acceptance.",
+    "Target remains approved1.2.0.2; installed1.2.0.3 not adopted."
+  ]
+}

@@ -72,14 +72,13 @@ local function collision(shot: Shot, age: number): boolean
 		local ids = {}
 		Enemy.collectIds(ids)
 		for _, id in ids do
-			local name, elite = Enemy.getKind(id)
-			local kind = name and Kinds.get(name, elite)
-			local at = Enemy.getPosition(id)
+			local name = Enemy.getKind(id)
+			local at, hurtRadius = Enemy.getHurtGeometry(id)
 			if
-				kind
+				hurtRadius
 				and name ~= "Tree"
 				and at
-				and (at.X - x) ^ 2 + (at.Z - z) ^ 2 <= (radius + (kind.hurtRadius or kind.radius)) ^ 2
+				and (at.X - x) ^ 2 + (at.Z - z) ^ 2 <= (radius + hurtRadius) ^ 2
 			then
 				Enemy.damage(id, shot.damage, nil)
 				return true

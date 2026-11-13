@@ -33,6 +33,14 @@ function Pursuer.step(
 	grown.radius = kind.radius * after / before
 	grown.hurtRadius = (kind.hurtRadius or kind.radius) * after / before
 	grown.hitRadius = (kind.hitRadius or kind.radius) * after / before
+	if kind.nativeHurtOffsetX ~= nil or kind.nativeHurtOffsetZ ~= nil then
+		grown.nativeHurtOffsetX = (kind.nativeHurtOffsetX or 0) + (kind.nativeHurtChildX or 0) * (after - before)
+		grown.nativeHurtOffsetZ = (kind.nativeHurtOffsetZ or 0) + (kind.nativeHurtChildZ or 0) * (after - before)
+	end
+	if kind.nativeHitOffsetX ~= nil or kind.nativeHitOffsetZ ~= nil then
+		grown.nativeHitOffsetX = (kind.nativeHitOffsetX or 0) + (kind.nativeHitChildX or 0) * (after - before)
+		grown.nativeHitOffsetZ = (kind.nativeHitOffsetZ or 0) + (kind.nativeHitChildZ or 0) * (after - before)
+	end
 	return grown, speed, math.round(state.baseDamage * (1 + rule.damagePercentPerStep * state.stage / 100))
 end
 function Pursuer.cap(rule: Enemies.Pursuer, state: State, speed: number): number
