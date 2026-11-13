@@ -1,0 +1,70 @@
+{
+  "scope": "Read-only inventory comparison of saved approved1.2.0.2 character resources and archived scripts against installed1.2.0.3. Not an approved target change or complete rule audit.",
+  "approvedVersion": "1.2.0.2",
+  "candidateVersion": "1.2.0.3",
+  "candidateSteamBuild": "26642464",
+  "candidateApproved": false,
+  "referenceChanged": false,
+  "runtimeChanged": false,
+  "resourceReferencesCompared": 1620,
+  "matchingResourceReferences": 1619,
+  "uniqueResourceFilesCompared": 1474,
+  "changedResourceFiles": [
+    "res://items/characters/caveman/caveman_data.tres"
+  ],
+  "characterResourcesCompared": 74,
+  "changedCharacterResources": [
+    "character_caveman"
+  ],
+  "caveman": {
+    "source": "res://items/characters/caveman/caveman_data.tres",
+    "approved1202Md5": "6ddaecfb3f6f5eab04d90dc7bd61b375",
+    "candidate1203Md5": "1ac1d46229a5fb98f06849326c522cb6",
+    "removedStartingWeapons": [
+      "res://weapons/ranged/boomerang/1/boomerang_1_data.tres"
+    ],
+    "addedStartingWeapons": [],
+    "otherSavedNeutralPropertiesUnchanged": true
+  },
+  "matchingArchivedScriptFiles": 590,
+  "changedArchivedScriptFiles": [
+    {
+      "source": "res://main.gdc",
+      "approved1202Md5": "7fe126c48998aaa276685bdfc4746e0a",
+      "candidate1203Md5": "e42c7c4356e6cb9d2da8190067ebf7e5"
+    },
+    {
+      "source": "res://entities/units/enemies/jungle/bosses/brachiosaurus/brachiosaurus_foot/brachiosaurus_foot.gdc",
+      "approved1202Md5": "a8d1149ab7d874740b49789a74ca6aa9",
+      "candidate1203Md5": "728532c7ce24ed9428ec2bb888601122"
+    },
+    {
+      "source": "res://singletons/crash_reporter.gdc",
+      "approved1202Md5": "68eeb3444d0cfa4ae1f3b8a40bd554ba",
+      "candidate1203Md5": "fdd1721298f759f183a7a43ae7389204"
+    },
+    {
+      "source": "res://singletons/progress_data.gdc",
+      "approved1202Md5": "df71b05664adc8dea6977e4ec77dbf51",
+      "candidate1203Md5": "08a9204bbf9c6b6c303d52702a2ed7ac"
+    },
+    {
+      "source": "res://singletons/run_data.gdc",
+      "approved1202Md5": "26ade7289f41b63044a9ef11a4377ea2",
+      "candidate1203Md5": "7d07b59d882378a0799fb0187b416047"
+    },
+    {
+      "source": "res://ui/menus/shop/base_shop.gdc",
+      "approved1202Md5": "bcb31e2e2b6940b4e2436eb0e29989f8",
+      "candidate1203Md5": "e537f7a8e4c57efb141e4a2ca21e59a7"
+    },
+    {
+      "source": "res://weapons/weapon.gdc",
+      "approved1202Md5": "ba9c2d1eaf4b82d91e5aec57c60b5e29",
+      "candidate1203Md5": "53dc8baff0f97d60770061e06c4ef261"
+    }
+  ],
+  "globalReferenceGuardResult": "Installed version 1.2.0.3 differs from approved 1.2.0.2",
+  "comparisonCorrection": "Resolve every embedded ::subresource reference to its containing PCK file before comparing hashes. Initial147 changed-reference count incorrectly counted146 embedded references as missing standalone files; correct result is1 changed file. Owner informed of correction.",
+  "remaining": "Changed scripts need content-level audit and existing prepared packages need affected-runtime checks before any approved reference upgrade is declared complete. The unapproved candidate is never consumed by source compilers."
+}
