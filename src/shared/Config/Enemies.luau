@@ -29,6 +29,7 @@ export type Enemy = {
 	-- share of a knockback the enemy ignores (0..1, Brotato's knockback resistance, B5); default 1 - 1 / mass above 1
 	knockbackResistance: number?,
 	nativeArtPending: boolean?, -- explicit fallback presentation; no original art acceptance
+	nativeZoneId: number?, -- an area-specific body never joins another area's ordinary random mix
 	look: string?, -- reuses the model of this enemy id in another color (EnemyRenderer/Models); default: its own id
 	ranged: Ranged?,
 	charge: Charge?,
@@ -1211,6 +1212,9 @@ end
 scaleBodies(Enemies)
 -- These source-backed bodies/circles are already expressed in the enemy engine's world units.
 for id, kind in require(script.Parent.NightmareEnemyKinds).build(PIXEL) do
+	Enemies[id] = kind
+end
+for id, kind in require(script.Parent.JungleEnemyKinds).build(PIXEL) do
 	Enemies[id] = kind
 end
 scaleBodies(Bosses)

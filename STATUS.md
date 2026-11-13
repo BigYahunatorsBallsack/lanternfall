@@ -1011,3 +1011,8 @@ PR149 gemerged (main4cf1050),48/74 bisher code-vorbereitet. Owner wechselt auf s
 ### B10 Versionsprüfung1.2.0.2 (13.11.2026)
 
 Vorhandene48 code-vorbereitete Pakete gegen relevante Versionsänderungen geprüft; fünf geänderte Start-/Itemverbotsregeln übernommen. Whip/Flail-Kollision und Lootworm-Zielpräferenz auf1.2.0.2 gebracht. Vollsuite1709/37; einziger zusätzlicherFehler gegenüber letztemMainvergleich ist bekannteGobbler-Fluktuation; keineanderenneuenFehler/Abbrüche.16betroffeneSpecs nach reinerProvenanzregeneration grün. KeinezusätzlichenfertigenCharaktere, keineStudio-/Grafik-Gesamtabnahme. Ziel/buildGuard inQuellwerkzeugen, alteQuellenbewahrt. NächsterSchritt: echterJungle2-Pfad fürFlail/Chunky/Wildling; erst danachAbyssal. Details HANDOFF/version-1.2.0.2-audit.json.
+
+
+### B10 Jungle-Laufzeitbaustein (13.11.2026)
+
+Vier nativeJungle-Verfolger in vorhandeneSimulation integriert: BabyTriceratops,Gallimimus,Lystrosaurus,Pyroraptor. NativeZoneId verhindertCrash-Zufallsspawns; echteBewegung/Kills/Snapshot/Grafikfallback4/0. KeinJungle-Gebietfreigegeben, keinzusätzlicherCharakter. Voll276Specs1712/38 mit einemveraltetenTypanzahltest39statt43; nachKorrekturgesamteMainGameEnemyStats29/0, Laufzeitcode danachunverändert. Selene0Fehler18Warnungen,Rojo/Compilergeprüft. NächsterSchrittJungle-Burstschützen, dannweitereSpezialfamilien/Bosse/Wellen. SieheJungle-Walkers-Source/Validation undHANDOFF.

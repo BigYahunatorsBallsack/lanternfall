@@ -1,6 +1,7 @@
 --!strict
 -- Pure enemy growth and appearance rules, read by EnemySim, SpawnRules and RunSchedule.
 local Enemies = require(script.Parent.Parent.Config.Enemies)
+local DefaultZone = require(script.Parent.Parent.Config.NativeZones).default
 
 local EnemyStats = {}
 
@@ -15,8 +16,11 @@ function EnemyStats.firstWave(kind: Enemies.Enemy, danger: number): number
 	return first
 end
 
-function EnemyStats.canSpawn(kind: Enemies.Enemy, wave: number, danger: number): boolean
-	return not kind.specialSpawn and danger >= (kind.minDanger or 0) and wave >= EnemyStats.firstWave(kind, danger)
+function EnemyStats.canSpawn(kind: Enemies.Enemy, wave: number, danger: number, zoneId: number?): boolean
+	return (kind.nativeZoneId == nil or kind.nativeZoneId == (zoneId or DefaultZone))
+		and not kind.specialSpawn
+		and danger >= (kind.minDanger or 0)
+		and wave >= EnemyStats.firstWave(kind, danger)
 end
 
 function EnemyStats.baseShot(kind: Enemies.Enemy): number

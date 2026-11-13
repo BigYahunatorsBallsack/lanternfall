@@ -1,0 +1,35 @@
+{
+  "reference": "1.2.0.2",
+  "families": [
+    "BabyTriceratops",
+    "Gallimimus",
+    "Lystrosaurus",
+    "Pyroraptor"
+  ],
+  "zonePlayable": false,
+  "newCharacterReadyFlags": 0,
+  "fullSuite": {
+    "specs": 276,
+    "passed": 1712,
+    "failed": 38,
+    "artifact": "build/native-five-branch-nine-jungle-walkers-4cf1050.json",
+    "additionalFailure": "MainGameEnemyStats expected39 identities but now43; uniqueness checks themselves passed. Updated fixed count to43 and reran the full spec29/0. No production runtime changed after the full suite.",
+    "aborts": []
+  },
+  "focused": {
+    "NativeJungleWalkers": "4/0",
+    "MainGameEnemyStatsAfterCountUpdate": "29/0"
+  },
+  "checks": {
+    "sourceCompiler": true,
+    "seleneErrors": 0,
+    "existingWarnings": 18,
+    "rojo": true
+  },
+  "nativeAcceptance": {
+    "art": false,
+    "physics": false,
+    "studio": false
+  },
+  "remaining": "Other Jungle behavior families, area groups, bosses and genuine route. Existing collider-center approximation remains explicit in source facts."
+}
