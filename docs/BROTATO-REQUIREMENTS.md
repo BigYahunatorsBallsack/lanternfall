@@ -82,3 +82,7 @@ Fuer DLC-Charaktere fehlen ausserdem gemeinsame Systeme wie Curse, verfluchte Ge
 ## Aktuelles Versionsziel (Owner, 13.11.2026)
 
 Der Owner hat den Wechsel auf die installierte stabile PC-Version **1.2.0.2**, Steam-Build26615634, einschließlich aller DLCs freigegeben. Frühere Versionsbindungen an1.2.0.1 sind historische Nachweise. Vorhandene48 code-vorbereitete Pakete müssen gegen die Änderungen geprüft werden; die Prüfung ist noch nicht abgeschlossen. Referenzidentität steht in `docs/characters/reference.json`, Änderungsprüfung in `docs/characters/version-1.2.0.2-audit.json`. Alte Quellen bleiben erhalten; keine pauschale Umbenennung historischer Nachweise.
+
+## Fortsetzung unter eingefrorener1.2.0.2-Referenz (13.11.2026)
+
+Die Versionsänderungen an den48 zuvor code-vorbereiteten Paketen sind inzwischen geprüft (reference.json und version-1.2.0.2-audit.json); dies ist keine native Komplettabnahme. Steam hat danach1.2.0.3 installiert, die nicht freigegeben wurde. Allgemeine Quellcompiler bleiben auf1.2.0.2 geschützt. Einzelne Ressourcen wurden nur nach nachgewiesener Bytegleichheit mit bereits gesicherten1.2.0.2-Hashes gelesen; neue Regeln aus1.2.0.3 wurden nicht übernommen. Weitere Charakter-Ready-Markierungen gab es durch die Jungle-/Trefferflächen-Grundmechaniken nicht. Aktueller Stand und konkrete Restarbeit: docs/characters/HANDOFF.md.

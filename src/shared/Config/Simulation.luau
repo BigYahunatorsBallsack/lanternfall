@@ -18,9 +18,10 @@ return table.freeze({
 	spatialHashCellSize = 8, -- studs
 	interpolationDelay = 0.1, -- seconds the client renders behind the newest snapshot
 
-	-- studs; enemies stop at their own radius + this. Brotato's player hurtbox: 21 px (1.2 until 09.11.2026)
+	-- Native player hurt radius for damage overlap; physical body geometry is stored separately in PlayerColliders.
 	playerRadius = PlayerColliders.hurt.radiusPoints * Stats.range.studsPerPoint,
-	contactMargin = 0.3, -- studs; enemies this close to a player's circle touch them
+	contactMargin = 0, -- native Area2D overlap uses the actual circles, without additional gameplay padding
+	enemyPlayerBodyCollision = false, -- native enemy layer4/mask132 and player layer2/mask130 exclude each other; see player-enemy-body-filter-source.json
 	-- Brotato 1.2.0.1 Enemy._on_hit_something: after its touch lands, an enemy loses max(200, 0.8 x its speed) speed
 	-- points (px/s) as a decaying slow (EnemySim.contactRecoil), so it stops for a moment
 	contactRecoil = table.freeze({ minPoints = 200, speedShare = 0.8 }),

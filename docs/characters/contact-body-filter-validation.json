@@ -1,0 +1,69 @@
+{
+  "referenceVersion": "1.2.0.2",
+  "steamBuild": 26615634,
+  "scope": "Remove invented contact padding and correct actual EnemySim common body filtering; physical player terrain motion and exact Godot simulation ordering remain open.",
+  "source": {
+    "nativePlayerEnemyBody": "docs/characters/player-enemy-body-filter-source.json",
+    "maskRule": "Enemy layer4/mask132 and player layer2/mask130 have zero intersections in both directions. Ordinary enemy body collision cannot push the player or be pushed away from the player. Existing native13 branches already excluded player bodies.",
+    "engineAreaPair": {
+      "url": "https://github.com/godotengine/godot/blob/3.x/servers/physics_2d/area_pair_2d_sw.cpp",
+      "blobSha": "aa3e3a5556916f0c75da419b8a59717184d11b6a",
+      "rule": "Area2Pair calls shape overlap solver using complete parent*child transforms and omits optional margins."
+    },
+    "engineSolver": {
+      "url": "https://github.com/godotengine/godot/blob/3.x/servers/physics_2d/collision_solver_2d_sw.h",
+      "blobSha": "0ee3591a6194d5fd6bb916ec2aec8408f907b1b4",
+      "rule": "Both optional solver margins default to0; same blob returned for3.5."
+    },
+    "inference": "Together these engine definitions imply no added gameplay padding for the native Area2D damage overlap. Removing the earlier0.3Stud addition follows this rule, not new balancing.",
+    "guard": "Common enemy scene actual bytes and PCK MD5 entry match the approved1.2.0.2 hash already saved in Jungle collider ancestry. Installed1.2.0.3 not adopted."
+  },
+  "changes": [
+    "Config.Simulation.contactMargin0 applies exact summed circle radii to ordinary and swept contacts; numerical sweep epsilon retained.",
+    "Config.Simulation.enemyPlayerBodyCollision=false is passed by actual EnemySim newWorldParams. Isolated World default remains unchanged for callers that explicitly use its older target-body policy.",
+    "No damage/radius expectations weakened; existing MainGameEnemyRuntime test retained exactly. No Arsenal or Remote changes."
+  ],
+  "focused": {
+    "NativeContactBoundary": "3passed0failed after0passed3failed: ordinary circle gap/inside, supplied faction hurt radius, fast swept path gap/inside",
+    "NativePlayerBodyMask": "2passed0failed after0passed2failed: coincident stationary origins and actual wave11 Spitter contact7",
+    "MainGameEnemyRuntime": "Existing9passed0failed; original contact7 and projectile8.5 assertions unchanged",
+    "NativePlayerHurt": "5passed0failed after contact-padding correction"
+  },
+  "diagnosis": {
+    "intermediateFull": "297Specs1840passed37failed: one additional failure MainGameEnemyRuntime contact7 got0. Log preserved locally.",
+    "cause": "Historical World player push-out operated around actor origins using damage radii. After correcting hurt translation and removing invented padding, the artificial separation could prevent a real overlap. Correcting original body masks removes that barrier.",
+    "mutation": "Forcing actual EnemySim collideTargets=true restores both new body-mask failures; file restored byte-for-byte before final checks."
+  },
+  "checks": {
+    "stylua": true,
+    "seleneErrors": 0,
+    "existingWarnings": 18,
+    "rojo": true,
+    "studio": false
+  },
+  "codePreparedCharacters": 48,
+  "newCharacterReadyFlags": 0,
+  "zonePlayable": false,
+  "remaining": [
+    "Native physical player circle vs terrain/other players and exact original motion/physics ordering",
+    "Installed1.2.0.3 not approved; retained1.2.0.2 source guards remain",
+    "Additional Jungle families/evolution/bosses/waves/area and original presentation/Studio acceptance"
+  ],
+  "fullSuite": {
+    "specs": 298,
+    "passed": 1844,
+    "failed": 35,
+    "baselineSpecs": 296,
+    "baselinePassed": 1838,
+    "baselineFailed": 36,
+    "newFailureNames": [],
+    "resolvedFailureNames": [
+      [
+        "tests/Smoke.spec.luau",
+        "FAIL smoke > chases the player until it touches them"
+      ]
+    ],
+    "aborts": [],
+    "artifact": "build/native-five-branch-nine-body-mask-4cf1050.json"
+  }
+}

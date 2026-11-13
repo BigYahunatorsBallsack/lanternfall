@@ -137,6 +137,7 @@ local function newWorldParams(): World.Params
 		maxEnemies = Config.Run.spawn.cap.max,
 		playerRadius = Sim.playerRadius,
 		contactMargin = Sim.contactMargin,
+		collideTargets = Sim.enemyPlayerBodyCollision,
 		separationStiffness = Sim.separationStiffness,
 		separationPasses = Sim.separationPasses,
 		obstacleSteerMargin = Sim.obstacleSteerMargin,
