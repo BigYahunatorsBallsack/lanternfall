@@ -14,6 +14,7 @@ local EnemyStats = require(Shared.Util.EnemyStats)
 local RunSchedule = require(Shared.Util.RunSchedule)
 local Nightmare = require(Shared.Config.Nightmare)
 local GroupBirth = require(Shared.Config.GroupBirth)
+local NativeSampling = require(Shared.Util.NativeZoneSampling)
 
 export type Rect = { minX: number, maxX: number, minZ: number, maxZ: number }
 export type Circle = { x: number, z: number, radius: number }
@@ -274,11 +275,15 @@ end
 
 -- A random point in the square of side `area` studs around (x, z), the square pushed inside the arena first
 -- (edgeDistance from the walls; Brotato's random position in an area).
-function SpawnRules.inArea(random: () -> number, bounds: Rect, x: number, z: number, area: number): (number, number)
-	local inset = SpawnRules.studs(Layout.edgeDistance) + area / 2
-	local cx = math.clamp(x, bounds.minX + inset, math.max(bounds.minX + inset, bounds.maxX - inset))
-	local cz = math.clamp(z, bounds.minZ + inset, math.max(bounds.minZ + inset, bounds.maxZ - inset))
-	return cx + (random() - 0.5) * area, cz + (random() - 0.5) * area
+function SpawnRules.inArea(
+	random: () -> number,
+	bounds: Rect,
+	x: number,
+	z: number,
+	area: number,
+	forbiddenCircles: { NativeSampling.Circle }?
+): (number, number)
+	return NativeSampling.inArea(random, bounds, x, z, area, forbiddenCircles)
 end
 
 -- Where one enemy of `group` lands around the group's spot (gx, gz): at an edge, in its area or anywhere.
@@ -287,14 +292,15 @@ function SpawnRules.unitPoint(
 	bounds: Rect,
 	group: Group,
 	gx: number,
-	gz: number
+	gz: number,
+	forbiddenCircles: { NativeSampling.Circle }?
 ): (number, number)
 	if group.edge then
 		return SpawnRules.edgePoint(random, bounds)
 	elseif group.area < 0 then
 		return SpawnRules.anywhere(random, bounds, SpawnRules.studs(group.edgeMargin))
 	end
-	return SpawnRules.inArea(random, bounds, gx, gz, SpawnRules.studs(group.area))
+	return SpawnRules.inArea(random, bounds, gx, gz, SpawnRules.studs(group.area), forbiddenCircles)
 end
 
 -- Brotato's "away from players" loop: draws new points while the closest player is nearer than the required
@@ -342,10 +348,11 @@ function SpawnRules.enemyPoint(
 	unit: Unit,
 	gx: number,
 	gz: number,
-	players: { Vector3 }
+	players: { Vector3 },
+	forbiddenCircles: { NativeSampling.Circle }?
 ): (number, number)
 	local function draw()
-		return SpawnRules.unitPoint(random, bounds, group, gx, gz)
+		return SpawnRules.unitPoint(random, bounds, group, gx, gz, forbiddenCircles)
 	end
 	local x, z = draw()
 	return awayFromPlayers(players, x, z, math.floor(Layout.minPlayerDistance + unit.extraDistance), draw)

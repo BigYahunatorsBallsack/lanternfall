@@ -331,7 +331,8 @@ local function fireGroup(group: SpawnRules.Group, wave: number, anchors: { Ancho
 			return
 		end
 		for _ = 1, number do
-			local x, z = SpawnRules.enemyPoint(roll, bounds, group, unit, gx, gz, players)
+			local x, z =
+				SpawnRules.enemyPoint(roll, bounds, group, unit, gx, gz, players, MapService.getForbiddenCircles())
 			x, z = SpawnRules.settle(x, z, kind.radius, bounds, obstacles)
 			local request = { enemyId = enemyId, x = x, z = z, at = 0, looter = group.loot }
 			table.insert(if unit.neutral then treeQueue else enemyQueue, request)
@@ -504,7 +505,7 @@ local function updateBirths(atMinutes: number)
 		local request = table.remove(births, 1) :: Request
 		if request.groupCount or request.summoned then
 			if SpawnRules.groupBirthBlocked(request.x, request.z, birthPlayers()) then
-				request.x, request.z = SpawnRules.anywhere(roll, bounds)
+				request.x, request.z = MapService.sampleNativePoint(roll, pickIndex)
 				request.at = now
 					+ (if request.groupCount then GroupBirth.markerSeconds else GroupBirth.normal.markerSeconds)
 				addBirth(request)

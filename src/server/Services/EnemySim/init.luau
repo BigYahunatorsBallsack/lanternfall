@@ -116,6 +116,13 @@ local function referencePlayerSpeed(index: number?, x: number?, z: number?): num
 	end
 	return nearest or fastest
 end
+local function actorObstacles(): { World.Circle }
+	local obstacles: { World.Circle } = MapService.getObstacles()
+	for _, shape in MapService.getNativeObstacleShapes() do
+		table.insert(obstacles, shape)
+	end
+	return obstacles
+end
 local function newWorldParams(): World.Params
 	local bounds = MapService.getArenaBounds()
 	local center, halfX, halfZ = bounds.center, bounds.halfX, bounds.halfZ
@@ -134,7 +141,8 @@ local function newWorldParams(): World.Params
 		maxX = center.X + halfX,
 		minZ = center.Z - halfZ,
 		maxZ = center.Z + halfZ,
-		obstacles = MapService.getObstacles(),
+		obstacles = actorObstacles(),
+		forbiddenCircles = MapService.getForbiddenCircles(),
 		seed = math.floor(RandomService.number("Combat") * 2147483646) + 1,
 	}
 end
@@ -195,7 +203,7 @@ friends = CharmedWorld.new(world.params, {
 	random = function(owner)
 		return RandomService.number("Combat", game:GetService("Players"):GetPlayerByUserId(owner))
 	end,
-})
+}, MapService.getObstacles())
 
 local currentTick = 0
 local accumulator = 0
@@ -667,6 +675,14 @@ end
 -- Lifecycle -------------------------------------------------------------------------
 
 function EnemySim.init()
+	MapService.NativeTerrainChanged:Connect(function()
+		local bodies = actorObstacles()
+		local circles = MapService.getForbiddenCircles()
+		world.params.obstacles = bodies
+		friends.world.params.obstacles = bodies
+		world.params.forbiddenCircles = circles
+		friends.world.params.forbiddenCircles = circles
+	end)
 	MapService.ArenaResized:Connect(function(bounds: MapService.Bounds)
 		local center = bounds.center
 		local minX, maxX = center.X - bounds.halfX, center.X + bounds.halfX

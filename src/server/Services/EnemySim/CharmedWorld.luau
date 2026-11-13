@@ -8,7 +8,7 @@ local Volleys = require(script.Parent.Volleys)
 local NativeVolley = require(Shared.Util.NativeEnemyVolley)
 local Friends = {}
 Friends.__index = Friends
-function Friends.new(params: any, callbacks: any): any
+function Friends.new(params: any, callbacks: any, projectileObstacles: { Volleys.Circle }?): any
 	local options = table.clone(params)
 	options.goalsWithoutTargets = true
 	options.referencePlayerSpeed = if params.referencePlayerSpeed
@@ -17,6 +17,10 @@ function Friends.new(params: any, callbacks: any): any
 		end
 		else nil
 	options.collideTargets = false -- native PETS_BIT + OBSTACLES_BIT mask excludes enemy/player bodies
+	local shotOptions = table.clone(options)
+	if projectileObstacles then
+		shotOptions.obstacles = projectileObstacles
+	end
 	return setmetatable({
 		world = World.new(options),
 		members = {},
@@ -28,7 +32,7 @@ function Friends.new(params: any, callbacks: any): any
 		targetRadii = {},
 		targetInputXs = {},
 		targetInputZs = {},
-		shots = Volleys.new(options),
+		shots = Volleys.new(shotOptions),
 		shotSources = {},
 		shotOwners = {},
 		previous = {},
