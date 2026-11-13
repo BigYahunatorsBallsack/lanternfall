@@ -7,7 +7,6 @@ local Kinds = require(Shared.Util.EnemyKinds)
 local Net = require(Shared.Net)
 local Enemy = require(script.Parent.EnemySim)
 local Run = require(script.Parent.RunDirector)
-local Map = require(script.Parent.MapService)
 local Service = {}
 local pixel = Config.Stats.range.studsPerPoint
 type Shot = {
@@ -86,11 +85,12 @@ local function collision(shot: Shot, age: number): boolean
 		end
 	else
 		for _, player in Run.getParticipants() do
-			local at = Map.getRootPosition(player)
+			local at, hurtRadius = Enemy.getPlayerHurtGeometry(player, false)
 			if
 				Run.getParticipantState(player) == "Alive"
 				and at
-				and (at.X - x) ^ 2 + (at.Z - z) ^ 2 <= (radius + Config.Simulation.playerRadius) ^ 2
+				and hurtRadius
+				and (at.X - x) ^ 2 + (at.Z - z) ^ 2 <= (radius + hurtRadius) ^ 2
 			then
 				Enemy.ShotHit:Fire(player, shot.damage)
 				return true

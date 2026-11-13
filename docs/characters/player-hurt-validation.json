@@ -1,0 +1,66 @@
+{
+  "referenceVersion": "1.2.0.2",
+  "steamBuild": 26615634,
+  "scope": "Incoming native player hurt circle, distinct from aiming roots and physical player body; no character-ready or full physics claim.",
+  "source": {
+    "snapshot": "docs/characters/player-colliders-source.json",
+    "installedVersion": "1.2.0.3",
+    "proof": "Player scene and both inherited scene bytes independently match previously saved approved1.2.0.2 MD5s. MD5 table entries and actual extracted bytes both checked. Newer installed rules were not adopted.",
+    "hashes": {
+      "res://entities/units/player/player.tscn": "58724d77253dd2ff1a91a8409a809193",
+      "res://entities/units/unit/unit.tscn": "f003f2b96779960bc06b2d9c7a1557dd",
+      "res://entities/entity.tscn": "6b70440bccd50ac49048d848ff29c669"
+    },
+    "compiler": "tools/build-character-player-colliders.py validates target version/build, inherited hashes and chain, parent+child translations, initial transforms and existing approved pet player-body facts; --check reproduces tracked Luau without reading installed PCK.",
+    "guard": "Unapproved1.2.0.3 snapshot rejected before output mutation; snapshot restored byte-for-byte; --check passed."
+  },
+  "rules": [
+    "Original physical body radius24px; hurt radius21px. Both center at(0,-12)px; hurt parent(0,-25)+child(0,13). Stored separately; physical body motion not activated by this slice.",
+    "AI/root and compensated aim APIs retain origins. Separate compensated hurt arrays drive World contacts and ordinary enemy projectile collisions.",
+    "Hostile pillar reads current authoritative hurt circle, hostile slash uses compensated last-step hurt circle, preserving each existing timing policy.",
+    "New trusted EnemySim.getPlayerHurtGeometry(player,compensated?)->Vector3?,number?; default compensated, false current; no geometry for non-alive participants. No new Remote."
+  ],
+  "tests": {
+    "focusedPassed": 5,
+    "focusedFailed": 0,
+    "red": "Initial missing API and ordinary shot edge reproduced0passed2failed.",
+    "fixtureCorrection": "Shared fixture now protects player HP; sequential shot damage otherwise killed the player before later cases. Real ShotHit/Contact signals remain tested.",
+    "mutation": "Reversing player hurt translation fails all5 tests; helper restored byte-for-byte before full run.",
+    "cases": [
+      "Compensated/current positions distinct from aim roots and unknown spectator excluded",
+      "Ordinary shot native-edge hit and opposite old-origin-edge miss",
+      "Actual hostile pillar after source removal",
+      "Two actual animated hostile slash hits with old-circle counterfactual excluded",
+      "Actual native enemy contact hit/miss edges"
+    ]
+  },
+  "checks": {
+    "stylua": true,
+    "seleneErrors": 0,
+    "existingWarnings": 18,
+    "seleneApi": "Cached Roblox API used after network refresh failed",
+    "rojo": true,
+    "snapshotCompiler": true,
+    "studio": false
+  },
+  "codePreparedCharacters": 48,
+  "newCharacterReadyFlags": 0,
+  "zonePlayable": false,
+  "remaining": [
+    "Physical player circle movement/terrain and native physics ordering remain open.",
+    "Legacy extra contact padding and lag compensation remain existing technical differences, not native1:1 acceptance.",
+    "Remaining Jungle families/evolution/bosses/waves/area route, native graphics and Studio/device tests remain open."
+  ],
+  "fullSuite": {
+    "specs": 296,
+    "passed": 1838,
+    "failed": 36,
+    "baselineSpecs": 295,
+    "baselinePassed": 1833,
+    "baselineFailed": 36,
+    "failureIdentitiesUnchanged": true,
+    "newFailureNames": [],
+    "aborts": [],
+    "artifact": "build/native-five-branch-nine-player-hurt-4cf1050.json"
+  }
+}

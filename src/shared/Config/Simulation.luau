@@ -3,6 +3,7 @@
 -- WeaponService, EnemyRenderer and the debug stats panel. Values marked "assumption" get tuned in playtests (WP7, WP9).
 
 local Stats = require(script.Parent.Stats)
+local PlayerColliders = require(script.Parent.PlayerColliders)
 
 -- Brotato 1.2.0.1 measured at 0.1 studs per pixel: the potato is 75 px tall (body 69 px with its feet,
 -- entities/units/player), our figures were drawn 5.4 studs tall. Bodies (figures, hit circles, drops) grow by this so they
@@ -18,7 +19,7 @@ return table.freeze({
 	interpolationDelay = 0.1, -- seconds the client renders behind the newest snapshot
 
 	-- studs; enemies stop at their own radius + this. Brotato's player hurtbox: 21 px (1.2 until 09.11.2026)
-	playerRadius = 21 * Stats.range.studsPerPoint,
+	playerRadius = PlayerColliders.hurt.radiusPoints * Stats.range.studsPerPoint,
 	contactMargin = 0.3, -- studs; enemies this close to a player's circle touch them
 	-- Brotato 1.2.0.1 Enemy._on_hit_something: after its touch lands, an enemy loses max(200, 0.8 x its speed) speed
 	-- points (px/s) as a decaying slow (EnemySim.contactRecoil), so it stops for a moment

@@ -96,11 +96,12 @@ local function collision(shot: Shot, age: number): boolean
 		end
 	else
 		for _, player in Run.getParticipants() do
-			local at = Enemy.getPlayerPosition(player)
+			local at, hurtRadius = Enemy.getPlayerHurtGeometry(player)
 			if
 				Run.getParticipantState(player) == "Alive"
 				and at
-				and Geometry.contains(info, age, at.X, at.Z, Config.Simulation.playerRadius, PIXEL)
+				and hurtRadius
+				and Geometry.contains(info, age, at.X, at.Z, hurtRadius, PIXEL)
 			then
 				Enemy.ShotHit:Fire(player, shot.damage)
 				return true

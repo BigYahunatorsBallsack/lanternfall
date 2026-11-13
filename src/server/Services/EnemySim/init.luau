@@ -23,6 +23,7 @@ local NativeSummons = require(script.NativeSummons)
 local EntryHealing = require(script.NativeEntryHealing)
 local MovementInput = require(script.Parent.CharacterService.Movement)
 local NativeVolley = require(Shared.Util.NativeEnemyVolley)
+local PlayerHurt = require(Shared.Util.PlayerHurtGeometry)
 local ShotFeed = require(Shared.Net.ShotFeed)
 local Snapshot = require(Shared.Net.Snapshot)
 local Types = require(Shared.Net.Types)
@@ -215,9 +216,11 @@ local targetIndexOf: { [Player]: number } = {}
 local targetXs: { number } = {}
 local targetZs: { number } = {}
 local targetCount = 0
--- Where contacts are checked: the target moved ahead along its velocity (see Config.Simulation).
+-- Compensated actor roots, also used by aiming. Damage circles are translated separately.
 local contactXs: { number } = {}
 local contactZs: { number } = {}
+local hurtXs: { number } = {}
+local hurtZs: { number } = {}
 -- Floor velocity of each target, for aiming shots ahead of them.
 local targetVxs: { number } = {}
 local targetVzs: { number } = {}
@@ -262,6 +265,8 @@ local function collectTargets()
 				end
 				contactXs[targetCount] = position.X + lead.X
 				contactZs[targetCount] = position.Z + lead.Z
+				hurtXs[targetCount], hurtZs[targetCount] =
+					PlayerHurt.center(contactXs[targetCount], contactZs[targetCount])
 			end
 		end
 	end
@@ -488,20 +493,11 @@ local function stepOnce()
 	local startedAt = os.clock()
 	weakness:step(STEP_SECONDS)
 	collectTargets()
-	local contacts = world:step(
-		STEP_SECONDS,
-		targetXs,
-		targetZs,
-		targetCount,
-		contactXs,
-		contactZs,
-		nil,
-		targetInputXs,
-		targetInputZs
-	)
+	local contacts =
+		world:step(STEP_SECONDS, targetXs, targetZs, targetCount, hurtXs, hurtZs, nil, targetInputXs, targetInputZs)
 	currentTick += 1
 	local stepNow = workspace:GetServerTimeNow()
-	volleys:step(STEP_SECONDS, contactXs, contactZs, targetCount)
+	volleys:step(STEP_SECONDS, hurtXs, hurtZs, targetCount)
 	local ended = volleys.ended
 	for k = 1, volleys.endedCount * 2 do
 		table.insert(endedShots, ended[k])
@@ -1122,6 +1118,26 @@ function EnemySim.getPlayerPosition(player: Player): Vector3?
 		return nil
 	end
 	return Vector3.new(contactXs[index], floorY, contactZs[index])
+end
+
+-- Native damage geometry. Default uses the last compensated step; false reads the current authoritative root.
+function EnemySim.getPlayerHurtGeometry(player: Player, compensated: boolean?): (Vector3?, number?)
+	if RunDirector.getParticipantState(player) ~= "Alive" then
+		return nil, nil
+	end
+	if compensated == false then
+		local origin = MapService.getRootPosition(player)
+		if not origin then
+			return nil, nil
+		end
+		local x, z = PlayerHurt.center(origin.X, origin.Z)
+		return Vector3.new(x, floorY, z), PlayerHurt.radius
+	end
+	local index = targetIndexOf[player]
+	if not index then
+		return nil, nil
+	end
+	return Vector3.new(hurtXs[index], floorY, hurtZs[index]), PlayerHurt.radius
 end
 
 -- Enemy id (key in Config.Enemies.types or .bosses) and whether it is an elite, nil for unknown ids. Bosses count as
