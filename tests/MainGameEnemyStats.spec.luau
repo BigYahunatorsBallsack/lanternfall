@@ -71,7 +71,7 @@ describe("main-game wiki enemy stats", function()
 				count += 1
 			end
 		end
-		expect(count).toBe(44) -- original32, sevenNightmare, fourJungle pursuit bodies and neutralEnigmacursor
+		expect(count).toBe(46) -- original32, sevenNightmare and seven explicitly activated Jungle branches
 		for _, kind in Config.Enemies.types do
 			expect(seen[kind.typeId + 128]).toBe(nil)
 		end

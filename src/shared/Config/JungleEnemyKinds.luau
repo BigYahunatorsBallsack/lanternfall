@@ -32,6 +32,9 @@ function Kinds.build(pixel: number): { [string]: any }
 				crateShare = if s.can_drop_consumables then s.item_drop_chance else 0,
 			},
 		}
+		if f.anticipate then
+			result[id].anticipate = f.anticipate
+		end
 		if f.activeVariant then
 			local a = f.shootingVariants[f.activeVariant]
 			local rules = C.shootingRules

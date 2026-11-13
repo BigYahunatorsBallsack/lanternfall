@@ -19,6 +19,7 @@ local Net = require(Shared.Net)
 local Signal = require(Shared.Util.Signal)
 local EnemyKinds = require(Shared.Util.EnemyKinds)
 local EnemyStats = require(Shared.Util.EnemyStats)
+local MovementInput = require(script.Parent.CharacterService.Movement)
 local NativeVolley = require(Shared.Util.NativeEnemyVolley)
 local ShotFeed = require(Shared.Net.ShotFeed)
 local Snapshot = require(Shared.Net.Snapshot)
@@ -169,6 +170,8 @@ local contactZs: { number } = {}
 -- Floor velocity of each target, for aiming shots ahead of them.
 local targetVxs: { number } = {}
 local targetVzs: { number } = {}
+local targetInputXs: { number } = {}
+local targetInputZs: { number } = {}
 
 -- Shot events since the last send (EnemyShots).
 local firedShots: { Types.EnemyShot } = {}
@@ -199,6 +202,8 @@ local function collectTargets()
 				local velocity = MapService.getRootVelocity(player)
 				targetVxs[targetCount] = velocity.X
 				targetVzs[targetCount] = velocity.Z
+				local input = MovementInput.getInput(player)
+				targetInputXs[targetCount], targetInputZs[targetCount] = input.X, input.Z
 				local lead = velocity * (Sim.contactLeadSeconds + pingOf(player))
 				lead = Vector3.new(lead.X, 0, lead.Z)
 				if lead.Magnitude > Sim.contactLeadMaxStuds then
@@ -423,7 +428,17 @@ local function stepOnce()
 	local startedAt = os.clock()
 	weakness:step(STEP_SECONDS)
 	collectTargets()
-	local contacts = world:step(STEP_SECONDS, targetXs, targetZs, targetCount, contactXs, contactZs)
+	local contacts = world:step(
+		STEP_SECONDS,
+		targetXs,
+		targetZs,
+		targetCount,
+		contactXs,
+		contactZs,
+		nil,
+		targetInputXs,
+		targetInputZs
+	)
 	currentTick += 1
 	local stepNow = workspace:GetServerTimeNow()
 	volleys:step(STEP_SECONDS, contactXs, contactZs, targetCount)

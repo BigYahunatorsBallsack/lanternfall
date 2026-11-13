@@ -1031,3 +1031,10 @@ GemeinsameRand-/Spielerhöhe-Spawns mit85FramesWarnung,einMarkerundgleichzeitige
 ### B10 ChunkysErsttod-Freischaltung (13.11.2026)
 
 Nativechal_rookie/„Die for the first time“ anechtenTeam-Wipe angebunden,nichtanAbbruch/einzelnenDown/mehrdeutigealteRunzählungen. EndlostodbehältResults.defeated,auchwenndieAnzeigeVictorylautet. Profil-Rejoin/Zuschauerisolation/echter21-Wellen-Endlos-Tod5/0. Voll280Specs1733/36vs279/1728/36,keineneuenFehler/Abbrüche. Weiter48Pakete,Chunky/WildlingJungle-/Flail-abhängigundnichtCodeReady. NächsterSchrittJungle-Anticipation/Dino-Spezialfamilien. KeinMerge/keineAssetsIDs/Studioänderungen.
+
+
+## Jungle: zwei Gegner mit echter Bewegungsvorhersage (13.11.2026)
+
+BabyPterosaur45 undGraciliceratops46 verwendenAnticipateTargetMovementBehavior mit0.3s; Gracili sagt nurXvorher. NächsterroherTargetwirdvorVorhersagegewählt. BestehendesSetMovementIntentüberträgtoptionalvalidiertehorizontaleRichtung, ServerleitetTempoausStatSheetab; keineClientgeschwindigkeit, gleicheRate-/Teilnehmersperren. SoistInputauchgegenWändebekannt. BooleanAltclientsbleibenkompatibel. EnemyWorldhältseparateausgerichteteSteuerinputspaltenvorKnockback/Kollisionskorrektur; CharmTransferundfreundlicheZielvorhersagenutzen dieselbenWerte. PhysischeVelocityfürKontakt-/Schussführungbleibtseparat. KeineAreaaktivierung.
+
+NativeJungleAnticipation6/0,CharacterMovement4/0,CharmedWorld6/0. InvertiertehorizontalOnly-BedingunglässtzweiVorhersagetestsgezieltfehlschlagen; Originaldateibytegenauwiederhergestellt. Voll281Specs1739bestanden36Fehlergegen280/1733/36:identischeFehlernamen,keineAbbrüche. Selene0Fehler18bestehendeWarnungen,Rojo,Quell-/Bildcompilerbestanden. ElfOriginalPNGslokalvorbereitet,keineUploads/IDs. Weiter48/74codevorbereitet,Chunky/Wildlingoffen. NächsterBausteinBabyTrexbenötigtgeprüfteBoost-/Schaden-/Größen-/95%-Speedcap-Regeln; keinbloßerVerfolger. Detailsjungle-anticipation-validation.json. KeinMergegemäßaktuellerAGENTS-Vorgabe.

@@ -101,6 +101,44 @@
       "pngSha256": "35557971b76dfa26ecd869a5b0c9af2b4eeaabdddc2dac90c213c27f30747c86"
     },
     {
+      "id": "BabyPterosaur",
+      "source": "res://entities/units/enemies/jungle/basic/baby_pterosaur/baby_pterosaur.png",
+      "textureSource": "res://.import/baby_pterosaur.png-034afd28b24aff1312b3dd4562aa04ab.stex",
+      "textureMd5": "c0a272a701c373467075a0e95e52bd54",
+      "output": "assets/enemies/native-jungle/BabyPterosaur.png",
+      "size": [
+        110,
+        110
+      ],
+      "alphaBounds": [
+        1,
+        2,
+        106,
+        110
+      ],
+      "rgbaSha256": "0ec03af98503adf3113f7fee171896dae6f3a8abc0a0283af2424f7ff445c00f",
+      "pngSha256": "8e91e9433d066fb1906289e42ed7a030e4a26208ce1721622be612397e2b2c3b"
+    },
+    {
+      "id": "Graciliceratops",
+      "source": "res://entities/units/enemies/jungle/basic/graciliceratops/graciliceratops.png",
+      "textureSource": "res://.import/graciliceratops.png-8d50765f871bd96ce800a760709ebcae.stex",
+      "textureMd5": "ddc5fa7890474aaa18090c7097972220",
+      "output": "assets/enemies/native-jungle/Graciliceratops.png",
+      "size": [
+        100,
+        100
+      ],
+      "alphaBounds": [
+        13,
+        3,
+        87,
+        94
+      ],
+      "rgbaSha256": "24d0aedb47b01954441b115459355aff7dd07bb5089d99868de4b73abfdf1c8a",
+      "pngSha256": "a4f458bd780d51d60ee15425d82517de55d6cc993fdee818df9efd5fe1051b71"
+    },
+    {
       "id": "Pillar_bullet_pillar_0002",
       "source": "res://projectiles/pillar_enemy/sprites/bullet_pillar_0002.png",
       "textureSource": "res://.import/bullet_pillar_0002.png-b64813647bb259fcd087f6245a3b4bd8.stex",

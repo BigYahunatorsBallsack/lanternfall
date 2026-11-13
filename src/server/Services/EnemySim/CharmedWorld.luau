@@ -21,6 +21,8 @@ function Friends.new(params: any, callbacks: any): any
 		targetXs = {},
 		targetZs = {},
 		targetRadii = {},
+		targetInputXs = {},
+		targetInputZs = {},
 		shots = Volleys.new(options),
 		shotSources = {},
 		shotOwners = {},
@@ -232,19 +234,25 @@ function Friends.step(self: any, dt: number, now: number, hostile: any)
 		end
 	end
 	local ids, xs, zs, radii = self.targetIds, self.targetXs, self.targetZs, self.targetRadii
+	local inputXs, inputZs = self.targetInputXs, self.targetInputZs
 	table.clear(ids)
 	table.clear(xs)
 	table.clear(zs)
 	table.clear(radii)
+	table.clear(inputXs)
+	table.clear(inputZs)
 	for index = 1, hostile.count do
 		if hostile.hp[index] > 0 and hostile.kinds[index].id ~= "Tree" then
 			table.insert(ids, hostile.ids[index])
 			table.insert(xs, hostile.xs[index])
 			table.insert(zs, hostile.zs[index])
 			table.insert(radii, (hostile.kinds[index].hurtRadius or hostile.kinds[index].radius))
+			local vx, vz = hostile:getMoveInput(hostile.ids[index])
+			table.insert(inputXs, vx)
+			table.insert(inputZs, vz)
 		end
 	end
-	local contacts = self.world:step(dt, xs, zs, #ids, nil, nil, radii)
+	local contacts = self.world:step(dt, xs, zs, #ids, nil, nil, radii, inputXs, inputZs)
 	stepShots(self, dt)
 	fireShots(self, dt)
 	fireChargeTrails(self)

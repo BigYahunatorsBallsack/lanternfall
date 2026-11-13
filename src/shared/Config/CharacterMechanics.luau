@@ -41,6 +41,7 @@ return table.freeze({
 		source = "res://items/upgrades/weapon_slot/weapon_slot_effect.tres",
 	}),
 	movementIntent = table.freeze({
+		maxDirectionMagnitude = 1.001, -- unit-vector floating-point tolerance, never a client-selected speed
 		minSendSeconds = 0.05,
 		heartbeatSeconds = 0.5,
 		lifetimeSeconds = 1.5,

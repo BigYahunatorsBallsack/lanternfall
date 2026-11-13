@@ -10,7 +10,9 @@
     "Gallimimus",
     "Lystrosaurus",
     "Pyroraptor",
-    "Enigmacursor"
+    "Enigmacursor",
+    "BabyPterosaur",
+    "Graciliceratops"
   ],
   "enemies": {
     "BabyTriceratops": {
@@ -393,6 +395,130 @@
       "activeVariant": "Normal",
       "evolutionVariantsImplemented": false,
       "projectileSource": "res://projectiles/pillar_enemy/pillar_projectile.tscn"
+    },
+    "BabyPterosaur": {
+      "typeId": 45,
+      "displayName": "Baby Pterosaur",
+      "fallbackLook": "Shadeling",
+      "source": "res://entities/units/enemies/jungle/basic/baby_pterosaur/baby_pterosaur.tscn",
+      "sourceMd5": "09bebddbecb61796cef4301568dbb03d",
+      "statsSource": "res://entities/units/enemies/jungle/basic/baby_pterosaur/baby_pterosaur_stats.tres",
+      "statsMd5": "0a4137c192544ebf316489ed0cee2a6c",
+      "stats": {
+        "health": 4,
+        "health_increase_each_wave": 1.0,
+        "speed": 225,
+        "speed_randomization": 50,
+        "damage": 1,
+        "damage_increase_each_wave": 0.85,
+        "attack_cd": 30.0,
+        "value": 1,
+        "knockback_resistance": 0.0,
+        "gold_spread": 0,
+        "can_drop_consumables": true,
+        "always_drop_consumables": false,
+        "base_drop_chance": 0.01,
+        "item_drop_chance": 0.01,
+        "min_consumable_tier": 0,
+        "max_consumable_tier": 0,
+        "armor": 0,
+        "armor_increase_each_wave": 0.0,
+        "generate_blood": true
+      },
+      "body": {
+        "radiusPoints": 29.0689,
+        "offsetPoints": [
+          0,
+          -27
+        ],
+        "source": "res://entities/units/enemies/jungle/basic/baby_pterosaur/baby_pterosaur.tscn",
+        "sourceMd5": "09bebddbecb61796cef4301568dbb03d"
+      },
+      "hurt": {
+        "radiusPoints": 35.0,
+        "offsetPoints": [
+          0,
+          -18
+        ],
+        "source": "res://entities/units/enemies/jungle/basic/baby_pterosaur/baby_pterosaur.tscn",
+        "sourceMd5": "09bebddbecb61796cef4301568dbb03d"
+      },
+      "hit": {
+        "radiusPoints": 29.0172,
+        "offsetPoints": [
+          0,
+          -27
+        ],
+        "source": "res://entities/units/enemies/jungle/basic/baby_pterosaur/baby_pterosaur.tscn",
+        "sourceMd5": "09bebddbecb61796cef4301568dbb03d"
+      },
+      "removeFirst": false,
+      "anticipate": {
+        "seconds": 0.3,
+        "horizontalOnly": false
+      }
+    },
+    "Graciliceratops": {
+      "typeId": 46,
+      "displayName": "Graciliceratops",
+      "fallbackLook": "Shadeling",
+      "source": "res://entities/units/enemies/jungle/basic/graciliceratops/graciliceratops.tscn",
+      "sourceMd5": "8bcde133e9a8cfdeead587eec3380bf0",
+      "statsSource": "res://entities/units/enemies/jungle/basic/graciliceratops/graciliceratops_stats.tres",
+      "statsMd5": "155167c2411d8dfcd472742b63dda35f",
+      "stats": {
+        "health": 2,
+        "health_increase_each_wave": 2.0,
+        "speed": 300,
+        "speed_randomization": 75,
+        "damage": 1,
+        "damage_increase_each_wave": 0.6,
+        "attack_cd": 30.0,
+        "value": 1,
+        "knockback_resistance": 0.0,
+        "gold_spread": 0,
+        "can_drop_consumables": true,
+        "always_drop_consumables": false,
+        "base_drop_chance": 0.01,
+        "item_drop_chance": 0.01,
+        "min_consumable_tier": 0,
+        "max_consumable_tier": 0,
+        "armor": 0,
+        "armor_increase_each_wave": 0.0,
+        "generate_blood": true
+      },
+      "body": {
+        "radiusPoints": 22.0,
+        "offsetPoints": [
+          0,
+          -3
+        ],
+        "source": "res://entities/units/enemies/jungle/basic/graciliceratops/graciliceratops.tscn",
+        "sourceMd5": "8bcde133e9a8cfdeead587eec3380bf0"
+      },
+      "hurt": {
+        "radiusPoints": 32.0,
+        "offsetPoints": [
+          0,
+          7
+        ],
+        "source": "res://entities/units/enemies/enemy.tscn",
+        "sourceMd5": "38e442588073219bb217a4b484a6d8a7"
+      },
+      "hit": {
+        "radiusPoints": 16.0312,
+        "offsetPoints": [
+          0,
+          0
+        ],
+        "source": "res://entities/units/enemies/enemy.tscn",
+        "sourceMd5": "38e442588073219bb217a4b484a6d8a7"
+      },
+      "removeFirst": true,
+      "anticipate": {
+        "seconds": 0.3,
+        "horizontalOnly": true
+      }
     }
   },
   "shootingRules": {
@@ -430,6 +556,10 @@
     {
       "source": "res://entities/units/enemies/enemy.gdc",
       "sourceMd5": "b341670f5ac667dc203f7eb778a2cda8"
+    },
+    {
+      "source": "res://entities/units/movement_behaviors/anticipate_target_movement_behavior.gdc",
+      "sourceMd5": "7e15d0a748305c8b55e8598e179cf5d9"
     },
     {
       "source": "res://entities/units/movement_behaviors/detect_evolution_attack_behavior.gdc",

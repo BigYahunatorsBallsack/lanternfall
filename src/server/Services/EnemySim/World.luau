@@ -94,6 +94,8 @@ export type World = typeof(setmetatable(
 		typeIds: { number },
 		xs: { number },
 		zs: { number },
+		moveInputXs: { number },
+		moveInputZs: { number },
 		hp: { number },
 		maxHp: { number },
 		contactDamage: { number }, -- damage per touch
@@ -182,6 +184,8 @@ function World.new(params: Params): World
 		typeIds = {},
 		xs = {},
 		zs = {},
+		moveInputXs = {},
+		moveInputZs = {},
 		hp = {},
 		maxHp = {},
 		contactDamage = {},
@@ -241,6 +245,8 @@ function World.new(params: Params): World
 		self.typeIds,
 		self.xs,
 		self.zs,
+		self.moveInputXs,
+		self.moveInputZs,
 		self.hp,
 		self.maxHp,
 		self.contactDamage,
@@ -352,6 +358,7 @@ function World.spawn(
 	local speed = math.max(0, speedFactor or 1)
 	self.speedFactors[i] = speed
 	self.speedBonuses[i] = 0
+	self.moveInputXs[i], self.moveInputZs[i] = 0, 0
 	self.boosts[i], self.buffed[i], self.hasGoal[i] = 1, false, false
 	self.boostClocks[i] = 0
 	self.zoneMembers[id] = nil
@@ -550,6 +557,15 @@ function World.getPosition(self: World, id: number): (number?, number?)
 		return nil, nil
 	end
 	return self.xs[i], self.zs[i]
+end
+
+-- Steering intent before obstacle/crowd corrections and knockback, for native anticipated targets.
+function World.getMoveInput(self: World, id: number): (number, number)
+	local i = self.indexOf[id]
+	if not i or self.hp[i] <= 0 then
+		return 0, 0
+	end
+	return self.moveInputXs[i], self.moveInputZs[i]
 end
 
 -- Returns hp and max hp.
@@ -903,15 +919,13 @@ end
 local function rushStep(self: World, i: number, charge: Enemies.Charge, dt: number)
 	local p = self.params
 	local radius = self.kinds[i].radius
-	local move = math.min(
-		(charge.speed * self.speedFactors[i] + self.speedBonuses[i])
-			* self.slowFactors[i]
-			* nativeSpeedFactor(self, i)
-			* dt,
-		self.rushLeft[i]
-	)
+	local speed = (charge.speed * self.speedFactors[i] + self.speedBonuses[i])
+		* self.slowFactors[i]
+		* nativeSpeedFactor(self, i)
+	local move = math.min(speed * dt, self.rushLeft[i])
 	local x, z = self.xs[i], self.zs[i]
 	local dx, dz = self.rushXs[i], self.rushZs[i]
+	self.moveInputXs[i], self.moveInputZs[i] = dx * speed, dz * speed
 	local stopAt: number? = nil
 	for _, obstacle in p.obstacles do
 		local entry = circleEntry(x, z, dx, dz, move, obstacle.x, obstacle.z, obstacle.radius + radius)
@@ -1170,7 +1184,9 @@ function World.step(
 	targetCount: number,
 	contactXs: { number }?,
 	contactZs: { number }?,
-	targetRadii: { number }?
+	targetRadii: { number }?,
+	targetInputXs: { number }?,
+	targetInputZs: { number }?
 ): { number }
 	if compact(self) then
 		rebuildHash(self)
@@ -1198,6 +1214,7 @@ function World.step(
 	local knockXs, knockZs, knocked = self.knockXs, self.knockZs, self.knocked
 	for i = 1, count do
 		local kx, kz = knockXs[i], knockZs[i]
+		self.moveInputXs[i], self.moveInputZs[i] = 0, 0
 		if kx == 0 and kz == 0 then
 			knocked[i] = false
 			continue
@@ -1272,6 +1289,13 @@ function World.step(
 			elseif wander then
 				bestDx, bestDz = wanderStep(self, i, wander, dt, x + bestDx, z + bestDz)
 				distance = math.sqrt(bestDx * bestDx + bestDz * bestDz)
+			elseif kind.anticipate then
+				local rule = kind.anticipate
+				bestDx += (if targetInputXs then targetInputXs[bestTarget] or 0 else 0) * rule.seconds
+				if not rule.horizontalOnly then
+					bestDz += (if targetInputZs then targetInputZs[bestTarget] or 0 else 0) * rule.seconds
+				end
+				distance = math.sqrt(bestDx * bestDx + bestDz * bestDz)
 			end
 			if distance <= EPSILON or kind.anchored then
 				continue
@@ -1310,6 +1334,9 @@ function World.step(
 						else playerRadius)
 				advance = math.min(maxMove, math.max(0, distance - stopAt))
 			end
+			local inputSpeed = if dt > 0 then maxMove / dt else 0
+			local sign = if advance < 0 then -1 elseif advance > 0 or not (ranged or kind.stayInRange) then 1 else 0
+			self.moveInputXs[i], self.moveInputZs[i] = dirX * inputSpeed * sign, dirZ * inputSpeed * sign
 			if advance == 0 then
 				continue
 			end

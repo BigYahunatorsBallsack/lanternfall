@@ -46,6 +46,7 @@ export type Enemy = {
 	removeFirst: boolean?, -- Brotato's to_be_removed_in_priority: goes first when the enemy maximum removes some
 	wander: Wander?, -- walks to random spots instead of the nearest player (also instead of keepDistance)
 	stayInRange: StayInRange?, -- keeps this distance from the nearest player, walking towards or away at full speed
+	anticipate: { seconds: number, horizontalOnly: boolean }?, -- native anticipation uses target input; vertical-targeting keeps its current z
 	-- since B9 part 2 (Brotato's enemy behaviours, DESIGN.md section 7)
 	accelerate: Accelerate?,
 	retaliate: Retaliate?,
