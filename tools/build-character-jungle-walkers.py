@@ -57,7 +57,7 @@ def generate():
   for node in [root,move,attack]:used_scripts.add(node['scriptSource'].removesuffix('.gd')+'.gdc')
   stats_path = root['properties']['stats']['resource'];stats = {k:v for k,v in pck.resource(stats_path)['properties'].items() if isinstance(v,(int,float,bool))}
   assert stats['armor'] == 0 and stats['armor_increase_each_wave'] == 0, 'Armor requires its own runtime policy'
-  enemies[identity] = {'typeId':type_id,'displayName':name,'fallbackLook':'Shadeling','source':path,'sourceMd5':pck.entries[path]['md5'],'statsSource':stats_path,'statsMd5':pck.entries[stats_path]['md5'],'stats':stats,'body':circle(nodes[('.','Collision')]),'hurt':circle(nodes[('Hurtbox','Collision')]),'hit':circle(nodes[('Hitbox','Collision')]),'removeFirst':root['properties'].get('to_be_removed_in_priority',False),'mass':root['properties'].get('mass',1)}
+  enemies[identity] = {'typeId':type_id,'displayName':name,'fallbackLook':'Shadeling','source':path,'sourceMd5':pck.entries[path]['md5'],'statsSource':stats_path,'statsMd5':pck.entries[stats_path]['md5'],'stats':stats,'body':circle(nodes[('.','Collision')]),'hurt':circle(nodes[('Hurtbox','Collision')]),'hit':circle(nodes[('Hitbox','Collision')]),'removeFirst':root['properties'].get('to_be_removed_in_priority',False),'mass':root['properties'].get('mass',1),'obstacleCollision':bool(root['properties']['collision_mask'] & 128)}
   if slug=='stintaosaurus':
    assert nodes[('.','BoostZone')]['properties']['collision_mask']==4
    enemies[identity]['healing']={k:root['properties'][k] for k in ['heal','heal_increase_each_wave','player_heal','player_heal_increase_each_wave']}

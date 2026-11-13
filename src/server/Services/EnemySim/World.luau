@@ -43,10 +43,11 @@ local NativePursuer = require(script.Parent.NativePursuer)
 local EntryHealing = require(script.Parent.NativeEntryHealing)
 local SpatialHash = require(Shared.Util.SpatialHash)
 local SegmentCircle = require(Shared.Util.SegmentCircle)
+local StaticShapes = require(Shared.Util.StaticShapes)
 local circleEntry = SegmentCircle.entry
 
 export type Kind = Enemies.Enemy
-export type Circle = { x: number, z: number, radius: number }
+export type Circle = StaticShapes.Shape
 
 export type Params = {
 	cellSize: number,
@@ -750,7 +751,11 @@ local function slideAroundObstacles(
 	side: number
 ): (number, number)
 	for _, obstacle in obstacles do
-		local nx, nz = x - obstacle.x, z - obstacle.z
+		local cx, cz = obstacle.x, obstacle.z
+		if obstacle.halfLength then
+			cx, cz = StaticShapes.closest(x, z, obstacle)
+		end
+		local nx, nz = x - cx, z - cz
 		local distance = math.sqrt(nx * nx + nz * nz)
 		if distance < obstacle.radius + reach and distance > EPSILON then
 			nx, nz = nx / distance, nz / distance
@@ -797,6 +802,13 @@ local function pushOut(
 	return cx + math.cos(angle) * minDistance, cz + math.sin(angle) * minDistance
 end
 
+local function pushOutObstacle(x: number, z: number, obstacle: Circle, radius: number, seed: number): (number, number)
+	if obstacle.halfLength then
+		return StaticShapes.pushOut(x, z, obstacle, radius, seed)
+	end
+	return pushOut(x, z, obstacle.x, obstacle.z, obstacle.radius + radius, seed)
+end
+
 -- How much of a knockback reaches the enemy (since B5 Brotato's knockback resistance): 1 - knockbackResistance if
 -- the kind sets it, else 1 / mass above 1, so heavy enemies barely budge.
 function World.knockbackShare(kind: Kind): number
@@ -819,8 +831,10 @@ function World.push(self: World, id: number, dx: number, dz: number)
 	local scale = World.knockbackShare(kind)
 	local radius = kind.radius
 	local x, z = self.xs[i] + dx * scale, self.zs[i] + dz * scale
-	for _, obstacle in p.obstacles do
-		x, z = pushOut(x, z, obstacle.x, obstacle.z, obstacle.radius + radius, id)
+	if kind.nativeObstacleCollision ~= false then
+		for _, obstacle in p.obstacles do
+			x, z = pushOutObstacle(x, z, obstacle, radius, id)
+		end
 	end
 	self.xs[i] = math.clamp(x, p.minX + radius, p.maxX - radius)
 	self.zs[i] = math.clamp(z, p.minZ + radius, p.maxZ - radius)
@@ -956,10 +970,14 @@ local function rushStep(self: World, i: number, charge: Enemies.Charge, dt: numb
 	local dx, dz = self.rushXs[i], self.rushZs[i]
 	self.moveInputXs[i], self.moveInputZs[i] = dx * speed, dz * speed
 	local stopAt: number? = nil
-	for _, obstacle in p.obstacles do
-		local entry = circleEntry(x, z, dx, dz, move, obstacle.x, obstacle.z, obstacle.radius + radius)
-		if entry and entry < (stopAt or math.huge) then
-			stopAt = entry
+	if self.kinds[i].nativeObstacleCollision ~= false then
+		for _, obstacle in p.obstacles do
+			local entry = if obstacle.halfLength
+				then StaticShapes.entry(x, z, dx, dz, move, obstacle, radius)
+				else circleEntry(x, z, dx, dz, move, obstacle.x, obstacle.z, obstacle.radius + radius)
+			if entry and entry < (stopAt or math.huge) then
+				stopAt = entry
+			end
 		end
 	end
 	local endX, endZ = x + dx * move, z + dz * move
@@ -1193,7 +1211,11 @@ local function wanderStep(
 			wz = math.clamp(wz, p.minZ + radius, p.maxZ - radius)
 			local blocked = false
 			for _, circle in p.obstacles do
-				if (wx - circle.x) ^ 2 + (wz - circle.z) ^ 2 < (circle.radius + radius) ^ 2 then
+				local cx, cz = circle.x, circle.z
+				if circle.halfLength then
+					cx, cz = StaticShapes.closest(wx, wz, circle)
+				end
+				if (wx - cx) ^ 2 + (wz - cz) ^ 2 < (circle.radius + radius) ^ 2 then
 					blocked = true
 					break
 				end
@@ -1403,7 +1425,9 @@ function World.step(
 				continue
 			end
 			local vx, vz = dirX * advance, dirZ * advance
-			vx, vz = slideAroundObstacles(obstacles, x, z, vx, vz, radius + steerMargin, ids[i])
+			if kind.nativeObstacleCollision ~= false then
+				vx, vz = slideAroundObstacles(obstacles, x, z, vx, vz, radius + steerMargin, ids[i])
+			end
 
 			-- give way: move towards a neighbour at most until touching it
 			local mass = kind.mass
@@ -1482,8 +1506,10 @@ function World.step(
 		end
 		local radius = kind.radius
 		local x, z = xs[i], zs[i]
-		for _, obstacle in obstacles do
-			x, z = pushOut(x, z, obstacle.x, obstacle.z, obstacle.radius + radius, ids[i])
+		if kind.nativeObstacleCollision ~= false then
+			for _, obstacle in obstacles do
+				x, z = pushOutObstacle(x, z, obstacle, radius, ids[i])
+			end
 		end
 		if p.collideTargets ~= false then
 			for t = 1, targetCount do

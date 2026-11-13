@@ -14,6 +14,7 @@ function Kinds.build(pixel: number): { [string]: any }
 			look = f.fallbackLook,
 			nativeArtPending = true,
 			nativeZoneId = C.zoneId,
+			nativeObstacleCollision = f.obstacleCollision,
 			hp = s.health,
 			hpPerWave = s.health_increase_each_wave,
 			contactDamage = s.damage,

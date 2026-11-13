@@ -79,6 +79,7 @@ return {
 			},
 			removeFirst = true,
 			mass = 1,
+			obstacleCollision = true,
 		},
 		Gallimimus = {
 			typeId = 41,
@@ -138,6 +139,7 @@ return {
 			},
 			removeFirst = true,
 			mass = 1,
+			obstacleCollision = true,
 		},
 		Lystrosaurus = {
 			typeId = 42,
@@ -197,6 +199,7 @@ return {
 			},
 			removeFirst = true,
 			mass = 1,
+			obstacleCollision = true,
 		},
 		Pyroraptor = {
 			typeId = 43,
@@ -256,6 +259,7 @@ return {
 			},
 			removeFirst = true,
 			mass = 1,
+			obstacleCollision = true,
 		},
 		Enigmacursor = {
 			typeId = 44,
@@ -315,6 +319,7 @@ return {
 			},
 			removeFirst = false,
 			mass = 1,
+			obstacleCollision = true,
 			movement = {
 				target_range = 300,
 				target_range_randomization = 50,
@@ -465,6 +470,7 @@ return {
 			},
 			removeFirst = false,
 			mass = 1,
+			obstacleCollision = false,
 			anticipate = {
 				seconds = 0.3,
 				horizontalOnly = false,
@@ -528,6 +534,7 @@ return {
 			},
 			removeFirst = true,
 			mass = 1,
+			obstacleCollision = true,
 			anticipate = {
 				seconds = 0.3,
 				horizontalOnly = true,
@@ -591,6 +598,7 @@ return {
 			},
 			removeFirst = false,
 			mass = 1,
+			obstacleCollision = true,
 			pursuer = {
 				boost_cooldown = 1,
 				max_boosts = 2,
@@ -663,6 +671,7 @@ return {
 			},
 			removeFirst = false,
 			mass = 50,
+			obstacleCollision = true,
 			spawning = {
 				properties = {
 					cooldown = 180,
@@ -741,6 +750,7 @@ return {
 			},
 			removeFirst = false,
 			mass = 1,
+			obstacleCollision = true,
 			spawning = {
 				properties = {
 					cooldown = 160,
@@ -823,6 +833,7 @@ return {
 			},
 			removeFirst = false,
 			mass = 1,
+			obstacleCollision = true,
 			healing = {
 				heal = 100,
 				heal_increase_each_wave = 10,

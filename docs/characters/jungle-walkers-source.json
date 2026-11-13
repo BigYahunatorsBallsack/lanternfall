@@ -76,7 +76,8 @@
         "sourceMd5": "38e442588073219bb217a4b484a6d8a7"
       },
       "removeFirst": true,
-      "mass": 1
+      "mass": 1,
+      "obstacleCollision": true
     },
     "Gallimimus": {
       "typeId": 41,
@@ -135,7 +136,8 @@
         "sourceMd5": "38e442588073219bb217a4b484a6d8a7"
       },
       "removeFirst": true,
-      "mass": 1
+      "mass": 1,
+      "obstacleCollision": true
     },
     "Lystrosaurus": {
       "typeId": 42,
@@ -194,7 +196,8 @@
         "sourceMd5": "38e442588073219bb217a4b484a6d8a7"
       },
       "removeFirst": true,
-      "mass": 1
+      "mass": 1,
+      "obstacleCollision": true
     },
     "Pyroraptor": {
       "typeId": 43,
@@ -253,7 +256,8 @@
         "sourceMd5": "38e442588073219bb217a4b484a6d8a7"
       },
       "removeFirst": true,
-      "mass": 1
+      "mass": 1,
+      "obstacleCollision": true
     },
     "Enigmacursor": {
       "typeId": 44,
@@ -313,6 +317,7 @@
       },
       "removeFirst": false,
       "mass": 1,
+      "obstacleCollision": true,
       "movement": {
         "target_range": 300,
         "target_range_randomization": 50,
@@ -463,6 +468,7 @@
       },
       "removeFirst": false,
       "mass": 1,
+      "obstacleCollision": false,
       "anticipate": {
         "seconds": 0.3,
         "horizontalOnly": false
@@ -526,6 +532,7 @@
       },
       "removeFirst": true,
       "mass": 1,
+      "obstacleCollision": true,
       "anticipate": {
         "seconds": 0.3,
         "horizontalOnly": true
@@ -589,6 +596,7 @@
       },
       "removeFirst": false,
       "mass": 1,
+      "obstacleCollision": true,
       "pursuer": {
         "boost_cooldown": 1.0,
         "max_boosts": 2,
@@ -661,6 +669,7 @@
       },
       "removeFirst": false,
       "mass": 50.0,
+      "obstacleCollision": true,
       "spawning": {
         "properties": {
           "cooldown": 180.0,
@@ -739,6 +748,7 @@
       },
       "removeFirst": false,
       "mass": 1,
+      "obstacleCollision": true,
       "spawning": {
         "properties": {
           "cooldown": 160.0,
@@ -821,6 +831,7 @@
       },
       "removeFirst": false,
       "mass": 1,
+      "obstacleCollision": true,
       "healing": {
         "heal": 100.0,
         "heal_increase_each_wave": 10.0,
