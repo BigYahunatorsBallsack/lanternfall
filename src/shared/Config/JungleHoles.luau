@@ -445,6 +445,7 @@ return {
 		pushOutPaddingPoints = 8,
 		cellSizePoints = 64,
 		cellRetries = 3,
+		goalTries = 8,
 	},
 	layoutOffsetPoints = {
 		1,
@@ -466,6 +467,14 @@ return {
 		{
 			source = "res://singletons/zone_service.gdc",
 			sourceMd5 = "d16899aba618beb55e980f67a0bf10b0",
+		},
+		{
+			source = "res://entities/units/movement_behaviors/target_rand_pos_movement_behavior.gdc",
+			sourceMd5 = "d5637932f5178c3dcce36f9a236958b8",
+		},
+		{
+			source = "res://entities/units/movement_behaviors/target_rand_pos_around_player_movement_behavior.gdc",
+			sourceMd5 = "faa12faf0ccf2d3d86cc56d8dee2f21f",
 		},
 	},
 }

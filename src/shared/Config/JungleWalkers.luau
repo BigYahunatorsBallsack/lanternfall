@@ -80,6 +80,15 @@ return {
 			removeFirst = true,
 			mass = 1,
 			obstacleCollision = true,
+			sprite = {
+				source = "res://entities/units/enemies/jungle/basic/baby_triceratops/baby_triceratops.png",
+				textureSource = "res://.import/baby_triceratops.png-b810e11094206aae96a4b2ceffb6259e.stex",
+				textureMd5 = "67d2ecf20850ddbac6ef79e040107896",
+				widthPoints = 100,
+				heightPoints = 100,
+			},
+			bodyBorders = true,
+			playerCollision = false,
 		},
 		Gallimimus = {
 			typeId = 41,
@@ -140,6 +149,15 @@ return {
 			removeFirst = true,
 			mass = 1,
 			obstacleCollision = true,
+			sprite = {
+				source = "res://entities/units/enemies/jungle/basic/gallimimus/gallimimus.png",
+				textureSource = "res://.import/gallimimus.png-fc44c12788121e03a75bebf07dd1f2d3.stex",
+				textureMd5 = "aa3fe37e83cfd529a8645556ddf5a15c",
+				widthPoints = 130,
+				heightPoints = 130,
+			},
+			bodyBorders = true,
+			playerCollision = false,
 		},
 		Lystrosaurus = {
 			typeId = 42,
@@ -200,6 +218,15 @@ return {
 			removeFirst = true,
 			mass = 1,
 			obstacleCollision = true,
+			sprite = {
+				source = "res://entities/units/enemies/jungle/basic/lystrosaurus/lystrosaurus.png",
+				textureSource = "res://.import/lystrosaurus.png-47f60ecc11f4fb5db8d38c92a7448913.stex",
+				textureMd5 = "d36aac4e239bbb05d4a804a74122bd68",
+				widthPoints = 100,
+				heightPoints = 100,
+			},
+			bodyBorders = true,
+			playerCollision = false,
 		},
 		Pyroraptor = {
 			typeId = 43,
@@ -260,6 +287,15 @@ return {
 			removeFirst = true,
 			mass = 1,
 			obstacleCollision = true,
+			sprite = {
+				source = "res://entities/units/enemies/jungle/basic/pyroraptor/pyroraptor.png",
+				textureSource = "res://.import/pyroraptor.png-dee8357f79cb5519785998a7e9e24e4f.stex",
+				textureMd5 = "251d41aad99b31da94949b0a882c01bf",
+				widthPoints = 135,
+				heightPoints = 135,
+			},
+			bodyBorders = true,
+			playerCollision = false,
 		},
 		Enigmacursor = {
 			typeId = 44,
@@ -320,6 +356,15 @@ return {
 			removeFirst = false,
 			mass = 1,
 			obstacleCollision = true,
+			sprite = {
+				source = "res://entities/units/enemies/jungle/basic/enigmacursor/enigmacursor.png",
+				textureSource = "res://.import/enigmacursor.png-7b895800b0ca49c2262236ea075decd5.stex",
+				textureMd5 = "2217c18517cdc68056bb1e9bbe5f2a12",
+				widthPoints = 150,
+				heightPoints = 150,
+			},
+			bodyBorders = true,
+			playerCollision = false,
 			movement = {
 				target_range = 300,
 				target_range_randomization = 50,
@@ -471,6 +516,15 @@ return {
 			removeFirst = false,
 			mass = 1,
 			obstacleCollision = false,
+			sprite = {
+				source = "res://entities/units/enemies/jungle/basic/baby_pterosaur/baby_pterosaur.png",
+				textureSource = "res://.import/baby_pterosaur.png-034afd28b24aff1312b3dd4562aa04ab.stex",
+				textureMd5 = "c0a272a701c373467075a0e95e52bd54",
+				widthPoints = 110,
+				heightPoints = 110,
+			},
+			bodyBorders = true,
+			playerCollision = false,
 			anticipate = {
 				seconds = 0.3,
 				horizontalOnly = false,
@@ -535,6 +589,15 @@ return {
 			removeFirst = true,
 			mass = 1,
 			obstacleCollision = true,
+			sprite = {
+				source = "res://entities/units/enemies/jungle/basic/graciliceratops/graciliceratops.png",
+				textureSource = "res://.import/graciliceratops.png-8d50765f871bd96ce800a760709ebcae.stex",
+				textureMd5 = "ddc5fa7890474aaa18090c7097972220",
+				widthPoints = 100,
+				heightPoints = 100,
+			},
+			bodyBorders = true,
+			playerCollision = false,
 			anticipate = {
 				seconds = 0.3,
 				horizontalOnly = true,
@@ -599,6 +662,15 @@ return {
 			removeFirst = false,
 			mass = 1,
 			obstacleCollision = true,
+			sprite = {
+				source = "res://entities/units/enemies/jungle/basic/baby_trex/baby_trex.png",
+				textureSource = "res://.import/baby_trex.png-95eb877f172c9c4c3fc70b004af0fe56.stex",
+				textureMd5 = "b8d455872eab85268962b12ceb776e63",
+				widthPoints = 120,
+				heightPoints = 120,
+			},
+			bodyBorders = true,
+			playerCollision = false,
 			pursuer = {
 				boost_cooldown = 1,
 				max_boosts = 2,
@@ -672,6 +744,15 @@ return {
 			removeFirst = false,
 			mass = 50,
 			obstacleCollision = true,
+			sprite = {
+				source = "res://entities/units/enemies/jungle/basic/alamosaurus/alamosaurus.png",
+				textureSource = "res://.import/alamosaurus.png-f37ebb8cfe91a6c5e0b86138462218e9.stex",
+				textureMd5 = "b8256e3bcd711adb7a820ff996025097",
+				widthPoints = 180,
+				heightPoints = 180,
+			},
+			bodyBorders = true,
+			playerCollision = false,
 			spawning = {
 				properties = {
 					cooldown = 180,
@@ -751,6 +832,15 @@ return {
 			removeFirst = false,
 			mass = 1,
 			obstacleCollision = true,
+			sprite = {
+				source = "res://entities/units/enemies/jungle/basic/dino_egg/dino_egg.png",
+				textureSource = "res://.import/dino_egg.png-6ddb1fc5c383fe2f6ee7fd677712427f.stex",
+				textureMd5 = "7cf7b0c3102842fa2fe7ef93a9521c41",
+				widthPoints = 100,
+				heightPoints = 100,
+			},
+			bodyBorders = true,
+			playerCollision = false,
 			spawning = {
 				properties = {
 					cooldown = 160,
@@ -834,6 +924,15 @@ return {
 			removeFirst = false,
 			mass = 1,
 			obstacleCollision = true,
+			sprite = {
+				source = "res://entities/units/enemies/jungle/basic/stintaosaurus/stintaosaurus.png",
+				textureSource = "res://.import/stintaosaurus.png-ac30bd3dbfe01e5637c5fcdab98e5ed4.stex",
+				textureMd5 = "fd7a77b860465d00ad1b68afe45e7cfa",
+				widthPoints = 150,
+				heightPoints = 150,
+			},
+			bodyBorders = true,
+			playerCollision = false,
 			healing = {
 				heal = 100,
 				heal_increase_each_wave = 10,
@@ -900,6 +999,10 @@ return {
 			sourceMd5 = "a0830c473b5da00b8d278346117f5452",
 		},
 		{
+			source = "res://entities/entity.gdc",
+			sourceMd5 = "805ebc9f4306c9ec71b786cdc7dd89af",
+		},
+		{
 			source = "res://entities/units/enemies/attack_behaviors/attack_behavior.gdc",
 			sourceMd5 = "3f7f7c4411aa4d3b27e55e9ac3d4ab27",
 		},
@@ -942,6 +1045,10 @@ return {
 		{
 			source = "res://entities/units/movement_behaviors/follow_target_movement_behavior.gdc",
 			sourceMd5 = "e3ed9b3e5d9a75a09699b324caa5e22f",
+		},
+		{
+			source = "res://entities/units/movement_behaviors/movement_behavior.gdc",
+			sourceMd5 = "545124c6bbc946d5a542876cd568078b",
 		},
 		{
 			source = "res://entities/units/movement_behaviors/stay_in_range_from_player_movement_behavior.gdc",

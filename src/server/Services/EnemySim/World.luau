@@ -41,6 +41,7 @@ local PointScale = require(Shared.Config.Stats).range.studsPerPoint
 local DecayingSpeed = require(script.Parent.DecayingSpeed)
 local NativePursuer = require(script.Parent.NativePursuer)
 local EntryHealing = require(script.Parent.NativeEntryHealing)
+local NativeMovement = require(script.Parent.NativeMovement)
 local SpatialHash = require(Shared.Util.SpatialHash)
 local SegmentCircle = require(Shared.Util.SegmentCircle)
 local StaticShapes = require(Shared.Util.StaticShapes)
@@ -397,6 +398,9 @@ function World.spawn(
 		elseif ranged then ranged.keepDistance
 		else 0
 	self.keeps[i] = keep + (nextRandom(self) * 2 - 1) * jitter
+	if kind.nativeMovement and wander and (wander.around == "Target" or wander.around == "Offset") then
+		self.keeps[i] = math.modf(self.keeps[i] / PointScale) * PointScale
+	end
 	self.wanderXs[i], self.wanderZs[i], self.wanderLeft[i] = x, z, 0
 	if wander and wander.around == "Offset" then
 		-- Brotato's FollowRandPosAroundPlayer: one offset from the target for its whole life, anywhere in the square
@@ -837,8 +841,7 @@ function World.push(self: World, id: number, dx: number, dz: number)
 			x, z = pushOutObstacle(x, z, obstacle, radius, id)
 		end
 	end
-	self.xs[i] = math.clamp(x, p.minX + radius, p.maxX - radius)
-	self.zs[i] = math.clamp(z, p.minZ + radius, p.maxZ - radius)
+	self.xs[i], self.zs[i] = NativeMovement.clampPosition(p, kind, x, z)
 end
 
 -- Knockback like Brotato (Unit.take_damage, Config.Combat.knockback): sets the enemy's knockback vector to (dx, dz),
@@ -982,13 +985,16 @@ local function rushStep(self: World, i: number, charge: Enemies.Charge, dt: numb
 		end
 	end
 	local endX, endZ = x + dx * move, z + dz * move
-	if math.abs(dx) > EPSILON and (endX < p.minX + radius or endX > p.maxX - radius) then
-		local edge = if dx < 0 then p.minX + radius else p.maxX - radius
-		stopAt = math.min(stopAt or move, math.max(0, (edge - x) / dx))
-	end
-	if math.abs(dz) > EPSILON and (endZ < p.minZ + radius or endZ > p.maxZ - radius) then
-		local edge = if dz < 0 then p.minZ + radius else p.maxZ - radius
-		stopAt = math.min(stopAt or move, math.max(0, (edge - z) / dz))
+	local margin = NativeMovement.borderMargin(self.kinds[i])
+	if margin then
+		if math.abs(dx) > EPSILON and (endX < p.minX + margin or endX > p.maxX - margin) then
+			local edge = if dx < 0 then p.minX + margin else p.maxX - margin
+			stopAt = math.min(stopAt or move, math.max(0, (edge - x) / dx))
+		end
+		if math.abs(dz) > EPSILON and (endZ < p.minZ + margin or endZ > p.maxZ - margin) then
+			local edge = if dz < 0 then p.minZ + margin else p.maxZ - margin
+			stopAt = math.min(stopAt or move, math.max(0, (edge - z) / dz))
+		end
 	end
 	-- Players do not stop a rush (Brotato: enemies do not collide with players); step 5 hurts everyone along the path.
 
@@ -1198,31 +1204,38 @@ local function wanderStep(
 	local left = self.wanderLeft[i] - dt
 	local arrive = wander.arriveStuds
 	if left <= 0 or (wx - x) ^ 2 + (wz - z) ^ 2 <= arrive * arrive then
-		local radius = self.kinds[i].radius
-		for _ = 1, 8 do
-			if wander.around == "Target" then
-				local range = self.keeps[i]
-				wx = tx + (nextRandom(self) * 2 - 1) * range
-				wz = tz + (nextRandom(self) * 2 - 1) * range
-			else
-				wx = p.minX + nextRandom(self) * (p.maxX - p.minX)
-				wz = p.minZ + nextRandom(self) * (p.maxZ - p.minZ)
-			end
-			wx = math.clamp(wx, p.minX + radius, p.maxX - radius)
-			wz = math.clamp(wz, p.minZ + radius, p.maxZ - radius)
-			local blocked = false
-			for _, circle in p.obstacles do
-				local cx, cz = circle.x, circle.z
-				if circle.halfLength then
-					cx, cz = StaticShapes.closest(wx, wz, circle)
+		local kind = self.kinds[i]
+		if kind.nativeMovement then
+			wx, wz = NativeMovement.goal(p, kind, wander, self.keeps[i], tx, tz, p.forbiddenCircles, function()
+				return nextRandom(self)
+			end)
+		else
+			local radius = self.kinds[i].radius
+			for _ = 1, 8 do
+				if wander.around == "Target" then
+					local range = self.keeps[i]
+					wx = tx + (nextRandom(self) * 2 - 1) * range
+					wz = tz + (nextRandom(self) * 2 - 1) * range
+				else
+					wx = p.minX + nextRandom(self) * (p.maxX - p.minX)
+					wz = p.minZ + nextRandom(self) * (p.maxZ - p.minZ)
 				end
-				if (wx - cx) ^ 2 + (wz - cz) ^ 2 < (circle.radius + radius) ^ 2 then
-					blocked = true
+				wx = math.clamp(wx, p.minX + radius, p.maxX - radius)
+				wz = math.clamp(wz, p.minZ + radius, p.maxZ - radius)
+				local blocked = false
+				for _, circle in p.obstacles do
+					local cx, cz = circle.x, circle.z
+					if circle.halfLength then
+						cx, cz = StaticShapes.closest(wx, wz, circle)
+					end
+					if (wx - cx) ^ 2 + (wz - cz) ^ 2 < (circle.radius + radius) ^ 2 then
+						blocked = true
+						break
+					end
+				end
+				if not blocked then
 					break
 				end
-			end
-			if not blocked then
-				break
 			end
 		end
 		self.wanderXs[i], self.wanderZs[i] = wx, wz
@@ -1398,7 +1411,10 @@ function World.step(
 				advance = math.min(maxMove, distance)
 			elseif kind.stayInRange then
 				-- Brotato's StayInRangeFromPlayer: walks to the spot at its range on the line from the target
-				advance = math.clamp(distance - self.keeps[i], -maxMove, maxMove)
+				advance = if kind.nativeMovement
+						and math.abs(distance - self.keeps[i]) <= kind.nativeMovement.precision
+					then 0
+					else math.clamp(distance - self.keeps[i], -maxMove, maxMove)
 			elseif flee and (flee.range == nil or distance < flee.range) then
 				dirX, dirZ = fleeDirection(p, x, z, bestDx, bestDz, distance, flee.edgeMargin)
 				advance = maxMove
@@ -1412,7 +1428,7 @@ function World.step(
 					advance = 0
 				end
 			else
-				local stopAt = if p.collideTargets == false
+				local stopAt = if not NativeMovement.collidesTargets(p.collideTargets, kind)
 					then 0
 					else (kind.hitRadius or radius) + (if targetRadii
 						then targetRadii[bestTarget]
@@ -1499,7 +1515,6 @@ function World.step(
 	end
 
 	-- 4. constraints
-	local minX, maxX, minZ, maxZ = p.minX, p.maxX, p.minZ, p.maxZ
 	for i = 1, count do
 		local kind = kinds[i]
 		if kind.anchored then
@@ -1512,7 +1527,7 @@ function World.step(
 				x, z = pushOutObstacle(x, z, obstacle, radius, ids[i])
 			end
 		end
-		if p.collideTargets ~= false then
+		if NativeMovement.collidesTargets(p.collideTargets, kind) then
 			for t = 1, targetCount do
 				x, z = pushOut(
 					x,
@@ -1524,8 +1539,7 @@ function World.step(
 				)
 			end
 		end
-		xs[i] = math.clamp(x, minX + radius, maxX - radius)
-		zs[i] = math.clamp(z, minZ + radius, maxZ - radius)
+		xs[i], zs[i] = NativeMovement.clampPosition(p, kind, x, z)
 	end
 
 	-- 5. contacts and the hash for queries until the next step

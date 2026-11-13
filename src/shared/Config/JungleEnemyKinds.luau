@@ -15,6 +15,13 @@ function Kinds.build(pixel: number): { [string]: any }
 			nativeArtPending = true,
 			nativeZoneId = C.zoneId,
 			nativeObstacleCollision = f.obstacleCollision,
+			nativeMovement = {
+				goalInsetX = f.sprite.widthPoints * pixel / 2,
+				goalInsetZ = f.sprite.heightPoints * pixel / 2,
+				borderClamp = f.bodyBorders,
+				collidePlayers = f.playerCollision,
+				precision = C.spawningRules.goalPrecisionPoints * pixel,
+			},
 			hp = s.health,
 			hpPerWave = s.health_increase_each_wave,
 			contactDamage = s.damage,

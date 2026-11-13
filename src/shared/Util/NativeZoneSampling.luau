@@ -32,6 +32,17 @@ function Zone.pushOut(x: number, z: number, circles: { Circle }?): (number, numb
 	end
 	return x, z
 end
+-- TargetRandPos checks eight candidates, draws after each failure, then pushes out the final ninth candidate.
+function Zone.goal(draw: () -> (number, number), circles: { Circle }?): (number, number)
+	local x, z = draw()
+	for _ = 1, C.goalTries do
+		if not Zone.inForbidden(x, z, circles) then
+			return x, z
+		end
+		x, z = draw()
+	end
+	return Zone.pushOut(x, z, circles)
+end
 local function clamp(value: number, low: number, high: number): number
 	-- Godot CLAMP checks the lower limit first, including reversed limits.
 	return if value < low then low elseif value > high then high else value

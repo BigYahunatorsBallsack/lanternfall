@@ -15,8 +15,9 @@ def module(name, file):
 def generate():
  source = module('jungle_source', 'tools/character-source.py')
  scenes = module('jungle_scenes', 'tools/build-character-pets.py')
+ images = module('jungle_images', 'tools/prepare-character-jungle-art.py')
  pck = source.Pck();reference = source.verify_reference(pck)
- cache = {};used_scripts = set()
+ cache = {};used_scripts = {'res://entities/entity.gdc','res://entities/units/unit/unit.gdc','res://entities/units/movement_behaviors/movement_behavior.gdc'}
  def resolve(path):
   scene = scenes.read_scene(pck,path);cache[path] = scene
   nodes = resolve(scene['baseScene']) if scene.get('baseScene') else {}
@@ -58,6 +59,9 @@ def generate():
   stats_path = root['properties']['stats']['resource'];stats = {k:v for k,v in pck.resource(stats_path)['properties'].items() if isinstance(v,(int,float,bool))}
   assert stats['armor'] == 0 and stats['armor_increase_each_wave'] == 0, 'Armor requires its own runtime policy'
   enemies[identity] = {'typeId':type_id,'displayName':name,'fallbackLook':'Shadeling','source':path,'sourceMd5':pck.entries[path]['md5'],'statsSource':stats_path,'statsMd5':pck.entries[stats_path]['md5'],'stats':stats,'body':circle(nodes[('.','Collision')]),'hurt':circle(nodes[('Hurtbox','Collision')]),'hit':circle(nodes[('Hitbox','Collision')]),'removeFirst':root['properties'].get('to_be_removed_in_priority',False),'mass':root['properties'].get('mass',1),'obstacleCollision':bool(root['properties']['collision_mask'] & 128)}
+  enemies[identity]['sprite']=images.texture_metadata(pck,images.body_texture(pck,path))
+  enemies[identity]['bodyBorders']=root['properties'].get('should_collide_with_borders',True)
+  enemies[identity]['playerCollision']=bool(root['properties']['collision_mask'] & 2)
   if slug=='stintaosaurus':
    assert nodes[('.','BoostZone')]['properties']['collision_mask']==4
    enemies[identity]['healing']={k:root['properties'][k] for k in ['heal','heal_increase_each_wave','player_heal','player_heal_increase_each_wave']}

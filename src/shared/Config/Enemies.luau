@@ -30,6 +30,13 @@ export type Enemy = {
 	-- share of a knockback the enemy ignores (0..1, Brotato's knockback resistance, B5); default 1 - 1 / mass above 1
 	knockbackResistance: number?,
 	nativeArtPending: boolean?, -- explicit fallback presentation; no original art acceptance
+	nativeMovement: {
+		goalInsetX: number,
+		goalInsetZ: number,
+		borderClamp: boolean,
+		collidePlayers: boolean,
+		precision: number,
+	}?, -- native goal rectangle differs from physical origin bounds
 	nativeObstacleCollision: boolean?, -- original OBSTACLES_BIT in the body mask, independent of is_flying
 	nativeZoneId: number?, -- an area-specific body never joins another area's ordinary random mix
 	look: string?, -- reuses the model of this enemy id in another color (EnemyRenderer/Models); default: its own id
