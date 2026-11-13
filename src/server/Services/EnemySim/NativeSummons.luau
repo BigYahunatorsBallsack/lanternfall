@@ -1,7 +1,7 @@
 --!strict
 -- Native spawning attacks queue exact square-area child births; EnemySim and CharmedWorld retain faction/death policy.
-local Rules = require(script.Parent.Parent.SpawnDirector.SpawnRules)
 local Shared = game:GetService("ReplicatedStorage").Shared
+local Rules = require(Shared.Util.NativeZoneSampling)
 local Enemies = require(Shared.Config.Enemies)
 local NativeSummons = {}
 function NativeSummons.emit(
@@ -17,7 +17,7 @@ function NativeSummons.emit(
 		return
 	end
 	for _ = 1, rule.count do
-		local sx, sz = Rules.inArea(random, world.params, x, z, rule.area)
+		local sx, sz = Rules.inArea(random, world.params, x, z, rule.area, world.params.forbiddenCircles)
 		emit(rule.enemy, sx, sz, owner)
 	end
 end

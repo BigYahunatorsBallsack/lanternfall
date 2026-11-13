@@ -437,6 +437,15 @@ return {
 		engineSource = "https://github.com/godotengine/godot/blob/3.x/scene/resources/capsule_shape_2d.cpp",
 	},
 	forbiddenRadiusPoints = 130,
+	sampling = {
+		edgePoints = 64,
+		maxEdgeShare = 0.2,
+		areaTries = 5,
+		pushOutEpsilonSquaredPoints = 0.001,
+		pushOutPaddingPoints = 8,
+		cellSizePoints = 64,
+		cellRetries = 3,
+	},
 	layoutOffsetPoints = {
 		1,
 		1,

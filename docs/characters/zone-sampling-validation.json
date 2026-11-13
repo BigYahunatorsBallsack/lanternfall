@@ -1,0 +1,41 @@
+{
+  "referenceVersion": "1.2.0.2",
+  "rules": "Original ZoneService forbidden-circle area and cell-grid sampling; constants in Config.JungleHoles.sampling with current script provenance.",
+  "runtimeCaller": "NativeSummons.emit now uses native area retry/push-out and optional World.Params.forbiddenCircles; no physical capsule radius is substituted for the point exclusion circle.",
+  "area": "Source64px edge limited to truncated20% of smaller side; five square candidates; then sequential center push-out by radius+8px, without final bounds clamp.",
+  "grid": "64px cells accepted by center; uniform cell-index callback, two random offsets; invalid point gets three additional tries then cell center. Empty valid grid returns map center without random draws. setCircles invalidates cached cells.",
+  "engineClampSource": "https://github.com/godotengine/godot/blob/3.x/core/typedefs.h",
+  "precisionFix": "Translated stud rectangles originally produced800 instead of768 cells through floating ceil. Recover original integer pixel sides before counting; normal32x24/Old21x16/Explorer42x31/minimum12x12 cases now preserve tile counts.",
+  "focused": "NativeZoneSampling8/0; NativeJungleSpawning4/0; NativeSummonBirth5/0; NativeHoleCollision7/0; EnemyWorld48/0; CharmedWorld6/0.",
+  "mutation": "Accepting forbidden candidates fails direct area and actual native request tests; source restored byte-for-byte.",
+  "fullSuite": {
+    "specs": 287,
+    "passed": 1775,
+    "failed": 37,
+    "previousSpecs": 286,
+    "previousPassed": 1767,
+    "previousFailed": 37,
+    "newFailureNames": [],
+    "knownGobblerFluctuationIncluded": true,
+    "aborts": [],
+    "artifact": "build/native-five-branch-nine-zone-sampling-4cf1050.json"
+  },
+  "postFull": "NativeSummons formatting/line endings normalized with StyLua --verify(AST equivalence); sampling8/0 and spawning4/0 rerun, no semantic changes.",
+  "checks": {
+    "stylua": true,
+    "seleneErrors": 0,
+    "existingWarnings": 18,
+    "rojo": true,
+    "sourceCompiler": true,
+    "studio": false
+  },
+  "terrainActivated": false,
+  "zonePlayable": false,
+  "newCharacterReadyFlags": 0,
+  "codePreparedCharacters": 48,
+  "remaining": [
+    "MapService must build/provide native physical capsules and separate forbidden circles per wave/layout; no terrain or Jungle route activated.",
+    "Birth relocation and native movement goal selection must consume cached grid/exclusion state.",
+    "Audit projectile masks and capsule/player collision/rendering before terrain acceptance; remaining Jungle families/evolution/bosses/waves and all original Studio/device acceptance still pending."
+  ]
+}

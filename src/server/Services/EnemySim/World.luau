@@ -63,6 +63,7 @@ export type Params = {
 	minZ: number,
 	maxZ: number,
 	obstacles: { Circle },
+	forbiddenCircles: { { x: number, z: number, radius: number } }?, -- native spawn exclusion zones, independent of physical capsule obstacles
 	allocateId: (() -> number)?,
 	referencePlayerSpeed: ((number?, number?, number?) -> number?)?, -- target player index, or fastest living player when nil
 	goalsWithoutTargets: boolean?,
