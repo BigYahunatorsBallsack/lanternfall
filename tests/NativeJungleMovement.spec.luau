@@ -29,6 +29,23 @@ local function make(name, forbidden)
 	return w, id, k
 end
 describe("Native Jungle movement", function()
+	it("replaces the native zero-vector goal sentinel even when the actor is far from the origin", function()
+		local w, id = make("Alamosaurus")
+		local i = w.indexOf[id]
+		w.xs[i], w.zs[i] = 50, 50
+		w.wanderXs[i], w.wanderZs[i], w.wanderLeft[i] = 0, 0, math.huge
+		w.randomState = 1
+		w:step(0, { 80 }, { 80 }, 1)
+		expect(w.wanderXs[i] ~= 0 or w.wanderZs[i] ~= 0).toBe(true)
+	end)
+	it("truncates native Target and Offset initial random ranges in original pixels", function()
+		for _, around in { "Target", "Offset" } do
+			local w, _, k = make("Enigmacursor")
+			k.wander = { around = around, range = 12.34, rangeJitter = 0, arriveStuds = 1, maxSeconds = math.huge }
+			local id = assert(w:spawn(k, 0, 0, 1000, 1, nil, 0))
+			expect(w.keeps[w.indexOf[id]]).toBeNear(12.3)
+		end
+	end)
 	it("uses half the original texture dimensions for random goal bounds", function()
 		local w, id, k = make("Alamosaurus")
 		expect(k.nativeMovement.goalInsetX).toBeNear(9)

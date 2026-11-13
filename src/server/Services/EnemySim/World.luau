@@ -1203,8 +1203,8 @@ local function wanderStep(
 	end
 	local left = self.wanderLeft[i] - dt
 	local arrive = wander.arriveStuds
-	if left <= 0 or (wx - x) ^ 2 + (wz - z) ^ 2 <= arrive * arrive then
-		local kind = self.kinds[i]
+	local kind = self.kinds[i]
+	if left <= 0 or (kind.nativeMovement and wx == 0 and wz == 0) or (wx - x) ^ 2 + (wz - z) ^ 2 <= arrive * arrive then
 		if kind.nativeMovement then
 			wx, wz = NativeMovement.goal(p, kind, wander, self.keeps[i], tx, tz, p.forbiddenCircles, function()
 				return nextRandom(self)
