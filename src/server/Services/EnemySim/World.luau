@@ -1138,7 +1138,8 @@ local function pulseAt(self: World, i: number, pulse: Enemies.Pulse): boolean
 		local j = scratch[s]
 		if j ~= i and hp[j] > 0 then
 			local reach = pulse.radius + kinds[j].radius
-			local dx, dz = xs[j] - xs[i], zs[j] - zs[i]
+			local bx, bz = Body.center(kinds[j], xs[j], zs[j])
+			local dx, dz = bx - xs[i], bz - zs[i]
 			if dx * dx + dz * dz <= reach * reach then
 				if inside then
 					inside[self.ids[j]] = true

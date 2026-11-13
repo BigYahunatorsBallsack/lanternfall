@@ -1,6 +1,7 @@
 --!strict
 -- Source enemy-mask entry healing for hostile or charmed Stintaosaurus; World and EnemySim supply the hostile body world.
 local Enemies = require(game:GetService("ReplicatedStorage").Shared.Config.Enemies)
+local Body = require(game:GetService("ReplicatedStorage").Shared.Util.NativeBodyGeometry)
 local Healing = {}
 function Healing.step(
 	world: any,
@@ -22,7 +23,8 @@ function Healing.step(
 			continue
 		end
 		local reach = rule.radius + kind.radius
-		if (world.xs[i] - x) ^ 2 + (world.zs[i] - z) ^ 2 > reach * reach then
+		local bx, bz = Body.center(kind, world.xs[i], world.zs[i])
+		if (bx - x) ^ 2 + (bz - z) ^ 2 > reach * reach then
 			continue
 		end
 		inside[id] = true

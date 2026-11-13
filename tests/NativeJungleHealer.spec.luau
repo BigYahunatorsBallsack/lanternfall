@@ -23,6 +23,51 @@ local function make()
 	})
 end
 describe("Native Jungle healer", function()
+	for _, sourceName in { "Mender", "Stintaosaurus" } do
+		it("heals a shifted body entering " .. sourceName .. " while its origin stays outside", function()
+			local w = make()
+			local source = assert(Kinds.get(sourceName))
+			local targetKind = assert(Kinds.get("BabyTriceratops"))
+			assert(w:spawn(source, 0, 0, 100, 0, nil, 0, 1))
+			local reach = source.pulse.radius + targetKind.radius
+			local target = assert(w:spawn(targetKind, 0, reach + 0.15, 1000, 0, nil, 0, 1))
+			w:damage(target, 500)
+			w:step(0, {}, {}, 0)
+			local healed = w:getHealth(target)
+			expect(healed > 500).toBe(true)
+			w:damage(target, 10)
+			w:step(0, {}, {}, 0)
+			expect(w:getHealth(target)).toBeNear(healed - 10)
+		end)
+		it("excludes a shifted body outside " .. sourceName .. " even when its origin is inside", function()
+			local w = make()
+			local source = assert(Kinds.get(sourceName))
+			local targetKind = assert(Kinds.get("BabyTriceratops"))
+			assert(w:spawn(source, 0, 0, 100, 0, nil, 0, 1))
+			local reach = source.pulse.radius + targetKind.radius
+			local target = assert(w:spawn(targetKind, 0, -(reach - 0.15), 1000, 0, nil, 0, 1))
+			w:damage(target, 500)
+			w:step(0, {}, {}, 0)
+			expect(w:getHealth(target)).toBe(500)
+			w.zs[w.indexOf[target]] = reach + 0.15
+			w:step(0, {}, {}, 0)
+			expect(w:getHealth(target) > 500).toBe(true)
+		end)
+	end
+	for _, inside in { true, false } do
+		it("checks physical target centers for Herald support: inside=" .. tostring(inside), function()
+			local w = make()
+			local source = assert(Kinds.get("Herald"))
+			local targetKind = assert(Kinds.get("BabyTriceratops"))
+			local herald = assert(w:spawn(source, 0, 0, 100, 0, nil, 0, 1))
+			local reach = source.pulse.radius + targetKind.radius
+			local z = if inside then reach + 0.15 else -(reach - 0.15)
+			local target = assert(w:spawn(targetKind, 0, z, 1000, 0, nil, 0, 1))
+			w.abilityTimers[w.indexOf[herald]] = 0
+			w:step(0, { 90 }, { 90 }, 1)
+			expect(w.buffed[w.indexOf[target]]).toBe(inside)
+		end)
+	end
 	it("heals once per entry with source wave scaling and allows a second heal after reentry", function()
 		local w = make()
 		local healer = assert(w:spawn(assert(Kinds.get("Stintaosaurus")), 0, 0, 100, 0, nil, 0, 3))
