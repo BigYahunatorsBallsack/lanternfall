@@ -9,7 +9,8 @@
     "BabyTriceratops",
     "Gallimimus",
     "Lystrosaurus",
-    "Pyroraptor"
+    "Pyroraptor",
+    "Enigmacursor"
   ],
   "enemies": {
     "BabyTriceratops": {
@@ -243,7 +244,179 @@
         "sourceMd5": "38e442588073219bb217a4b484a6d8a7"
       },
       "removeFirst": true
+    },
+    "Enigmacursor": {
+      "typeId": 44,
+      "displayName": "Enigmacursor",
+      "fallbackLook": "Shadeling",
+      "source": "res://entities/units/enemies/jungle/basic/enigmacursor/enigmacursor.tscn",
+      "sourceMd5": "8c814a90bf1f2a1fa89d38616f4998fe",
+      "statsSource": "res://entities/units/enemies/jungle/basic/enigmacursor/enigmacursor_stats.tres",
+      "statsMd5": "0370c50263c0aceb96f4828dba448001",
+      "stats": {
+        "health": 3,
+        "health_increase_each_wave": 4.0,
+        "speed": 130,
+        "speed_randomization": 0,
+        "damage": 1,
+        "damage_increase_each_wave": 0.75,
+        "attack_cd": 30.0,
+        "value": 1,
+        "knockback_resistance": 0.25,
+        "gold_spread": 0,
+        "can_drop_consumables": true,
+        "always_drop_consumables": false,
+        "base_drop_chance": 0.01,
+        "item_drop_chance": 0.01,
+        "min_consumable_tier": 0,
+        "max_consumable_tier": 0,
+        "armor": 0,
+        "armor_increase_each_wave": 0.0,
+        "generate_blood": true
+      },
+      "body": {
+        "radiusPoints": 19.0263,
+        "offsetPoints": [
+          0,
+          10
+        ],
+        "source": "res://entities/units/enemies/jungle/basic/enigmacursor/enigmacursor.tscn",
+        "sourceMd5": "8c814a90bf1f2a1fa89d38616f4998fe"
+      },
+      "hurt": {
+        "radiusPoints": 48.0104,
+        "offsetPoints": [
+          0,
+          7
+        ],
+        "source": "res://entities/units/enemies/jungle/basic/enigmacursor/enigmacursor.tscn",
+        "sourceMd5": "8c814a90bf1f2a1fa89d38616f4998fe"
+      },
+      "hit": {
+        "radiusPoints": 29.0172,
+        "offsetPoints": [
+          1,
+          -9
+        ],
+        "source": "res://entities/units/enemies/jungle/basic/enigmacursor/enigmacursor.tscn",
+        "sourceMd5": "8c814a90bf1f2a1fa89d38616f4998fe"
+      },
+      "removeFirst": false,
+      "movement": {
+        "target_range": 300,
+        "target_range_randomization": 50,
+        "should_turn_to_player_side": true
+      },
+      "shootingVariants": {
+        "Normal": {
+          "damage": 1,
+          "damage_increase_each_wave": 1.0,
+          "max_range": 500,
+          "min_range": 50,
+          "cooldown": 0.0,
+          "initial_cooldown": 15,
+          "max_cd_randomization": 0,
+          "attack_anim_speed": 3.0,
+          "number_projectiles": 2,
+          "projectile_spread": 0.1,
+          "constant_spread": true,
+          "speed_change_after_each_projectile": -20,
+          "projectile_speed": 600,
+          "position": {
+            "variantType": "Vector2",
+            "values": [
+              20,
+              -30
+            ]
+          },
+          "long_cooldown_every_x_shoots": 2,
+          "long_cooldown": 200,
+          "min_projectile_scale": 0.7,
+          "forward_spawn_offset": 10.0,
+          "use_transform_offset": true
+        },
+        "Meca": {
+          "damage": 1,
+          "damage_increase_each_wave": 1.0,
+          "max_range": 500,
+          "min_range": 50,
+          "cooldown": 0.0,
+          "initial_cooldown": 15,
+          "max_cd_randomization": 0,
+          "attack_anim_speed": 3.0,
+          "number_projectiles": 3,
+          "projectile_spread": 0.1,
+          "constant_spread": true,
+          "speed_change_after_each_projectile": -20,
+          "projectile_speed": 600,
+          "position": {
+            "variantType": "Vector2",
+            "values": [
+              20,
+              -30
+            ]
+          },
+          "long_cooldown_every_x_shoots": 2,
+          "long_cooldown": 250,
+          "min_projectile_scale": 0.7,
+          "forward_spawn_offset": 10.0,
+          "use_transform_offset": true
+        },
+        "Mutant": {
+          "damage": 2,
+          "damage_increase_each_wave": 1.0,
+          "max_range": 500,
+          "min_range": 50,
+          "cooldown": 0.0,
+          "initial_cooldown": 15,
+          "max_cd_randomization": 0,
+          "attack_anim_speed": 3.0,
+          "number_projectiles": 1,
+          "projectile_spread": 0.1,
+          "constant_spread": true,
+          "speed_change_after_each_projectile": -20,
+          "projectile_speed": 600,
+          "position": {
+            "variantType": "Vector2",
+            "values": [
+              20,
+              -30
+            ]
+          },
+          "long_cooldown_every_x_shoots": 2,
+          "long_cooldown": 150,
+          "min_projectile_scale": 0.7,
+          "forward_spawn_offset": 10.0,
+          "use_transform_offset": true
+        }
+      },
+      "activeVariant": "Normal",
+      "evolutionVariantsImplemented": false,
+      "projectileSource": "res://projectiles/pillar_enemy/pillar_projectile.tscn"
     }
+  },
+  "shootingRules": {
+    "frameRate": 60,
+    "minimumCooldownFrames": 1,
+    "animationFireAt": 0.4,
+    "animationSeconds": 0.4,
+    "animationSource": "res://entities/units/enemies/attack_behaviors/enemy_charge_prep_animation.tres",
+    "animationSourceMd5": "2ad99e68eb21c31ad3028e65ccb6fa5a",
+    "pillar": {
+      "source": "res://projectiles/pillar_enemy/pillar_projectile.tscn",
+      "sourceMd5": "3c47b5dacd9846ce1bc21c4b9ad630f5",
+      "radiusPoints": 23.0,
+      "offsetPoints": [
+        0,
+        -4
+      ],
+      "hitFrom": 0.54,
+      "hitUntil": 0.68,
+      "stopAt": 1.04
+    },
+    "projectileRadiusPoints": 23.0,
+    "projectileRangeStuds": 300,
+    "projectileRangeNote": "Existing engine lifetime/area compatibility limit, not a native range stat"
   },
   "ruleSources": [
     {
@@ -251,12 +424,24 @@
       "sourceMd5": "3f7f7c4411aa4d3b27e55e9ac3d4ab27"
     },
     {
+      "source": "res://entities/units/enemies/attack_behaviors/shooting_attack_behavior.gdc",
+      "sourceMd5": "43d5ebd849396509ff38632915c988a2"
+    },
+    {
       "source": "res://entities/units/enemies/enemy.gdc",
       "sourceMd5": "b341670f5ac667dc203f7eb778a2cda8"
     },
     {
+      "source": "res://entities/units/movement_behaviors/detect_evolution_attack_behavior.gdc",
+      "sourceMd5": "42d8ab27f5046516ce118b723072f328"
+    },
+    {
       "source": "res://entities/units/movement_behaviors/follow_target_movement_behavior.gdc",
       "sourceMd5": "e3ed9b3e5d9a75a09699b324caa5e22f"
+    },
+    {
+      "source": "res://entities/units/movement_behaviors/stay_in_range_from_player_movement_behavior.gdc",
+      "sourceMd5": "73e3ea5fbfa3506197f0ec0fc6da22c3"
     }
   ],
   "runtimeCompatibility": {
@@ -266,6 +451,8 @@
     "open": [
       "Existing global body/collision center approximation; source offsets retained explicitly",
       "Native physics ordering and sprite acceptance",
+      "Enigmacursor Meca/Mutant branches are source facts only; no native evolution-system acceptance",
+      "Fallback circle telegraphs instead of original animated pillar sprites",
       "Remaining Jungle families, waves, bosses and area route"
     ]
   }

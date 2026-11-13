@@ -165,6 +165,14 @@ export type Retaliate = {
 	rangedOnly: boolean?,
 	randomDirections: boolean?, -- Horned Fly: independent random directions instead of an evenly spaced ring
 	fromCenter: boolean?,
+	nativeVolley: {
+		count: number,
+		spread: number,
+		constantSpread: boolean,
+		offsetX: number,
+		offsetZ: number,
+		speedStep: number,
+	}?,
 	chance: number?,
 	projectileSpeed: number,
 	projectileRange: number,
@@ -263,6 +271,7 @@ export type Ranged = {
 	projectileRange: number, -- studs a shot flies before it fades
 	projectileRadius: number, -- studs, hit circle of a shot (Brotato: 17 px)
 	nativeSlash: boolean?, -- emits source slash requests instead of ordinary bullets
+	nativePillar: boolean?, -- delayed native circle projectile, distinct from an always-active bullet
 	projectileCount: number?, -- independent shots per native animation method
 	fromCenter: boolean?,
 	nativeTiming: {
@@ -271,6 +280,9 @@ export type Ranged = {
 		initialSeconds: number,
 		fireAt: number,
 		animationSeconds: number,
+		longEvery: number?,
+		longSeconds: number?,
+		minimumCooldownSeconds: number?,
 	}?,
 	aimLead: number, -- 0 = aims where the player is, 1 = where a player walking straight on will be (Brotato: 0)
 	minFireRange: number?, -- studs; holds its shot while the target is closer (Brotato's Junkie: 200 px)

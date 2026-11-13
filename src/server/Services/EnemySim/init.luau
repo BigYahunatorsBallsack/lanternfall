@@ -19,6 +19,7 @@ local Net = require(Shared.Net)
 local Signal = require(Shared.Util.Signal)
 local EnemyKinds = require(Shared.Util.EnemyKinds)
 local EnemyStats = require(Shared.Util.EnemyStats)
+local NativeVolley = require(Shared.Util.NativeEnemyVolley)
 local ShotFeed = require(Shared.Net.ShotFeed)
 local Snapshot = require(Shared.Net.Snapshot)
 local Types = require(Shared.Net.Types)
@@ -74,6 +75,7 @@ EnemySim.Stepped = Signal.new()
 EnemySim.CharmShot = Signal.new()
 -- Trusted source slash request: source id, target x/z, damage and optional Charm owner.
 EnemySim.NativeSlash = Signal.new()
+EnemySim.NativePillar = Signal.new()
 EnemySim.CharmSupport = Signal.new()
 
 local world: World.World
@@ -134,6 +136,9 @@ friends = CharmedWorld.new(world.params, {
 	end,
 	emitSlash = function(id, tx, tz, damage, owner)
 		EnemySim.NativeSlash:Fire(id, tx, tz, damage, owner)
+	end,
+	emitPillar = function(id, x, z, dx, dz, speed, damage, owner)
+		EnemySim.NativePillar:Fire(id, x, z, dx, dz, speed, damage, owner)
 	end,
 	emitShot = function(owner, event)
 		EnemySim.CharmShot:Fire(owner, event)
@@ -222,6 +227,18 @@ local function fireShots(stepNow: number)
 			continue
 		end
 		local x, z, t, damage = shots[k + 2], shots[k + 3], shots[k + 4], shots[k + 5]
+		if ranged.nativeVolley then
+			NativeVolley.emit(ranged.nativeVolley, x, z, targetXs[t], targetZs[t], ranged.projectileSpeed, function()
+				return RandomService.number("Combat")
+			end, function(px, pz, dx, dz, speed)
+				if ranged.nativePillar then
+					EnemySim.NativePillar:Fire(shots[k + 1], px, pz, dx, dz, speed, damage, nil)
+				else
+					EnemySim.fireShot(px, pz, dx, dz, speed, ranged.projectileRange, ranged.projectileRadius, damage)
+				end
+			end)
+			continue
+		end
 		local aimX, aimZ = contactXs[t], contactZs[t]
 		if ranged.nativeSlash then
 			EnemySim.NativeSlash:Fire(shots[k + 1], aimX, aimZ, damage, nil)

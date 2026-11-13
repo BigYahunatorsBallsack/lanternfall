@@ -1016,3 +1016,8 @@ Vorhandene48 code-vorbereitete Pakete gegen relevante Versionsänderungen geprü
 ### B10 Jungle-Laufzeitbaustein (13.11.2026)
 
 Vier nativeJungle-Verfolger in vorhandeneSimulation integriert: BabyTriceratops,Gallimimus,Lystrosaurus,Pyroraptor. NativeZoneId verhindertCrash-Zufallsspawns; echteBewegung/Kills/Snapshot/Grafikfallback4/0. KeinJungle-Gebietfreigegeben, keinzusätzlicherCharakter. Voll276Specs1712/38 mit einemveraltetenTypanzahltest39statt43; nachKorrekturgesamteMainGameEnemyStats29/0, Laufzeitcode danachunverändert. Selene0Fehler18Warnungen,Rojo/Compilergeprüft. NächsterSchrittJungle-Burstschützen, dannweitereSpezialfamilien/Bosse/Wellen. SieheJungle-Walkers-Source/Validation undHANDOFF.
+
+
+### B10 Jungle-Salven und neutraleSäulen (13.11.2026)
+
+NeutralerEnigmacursor mitoriginalerSchussfolge undechtenverzögertenPillar-Projektilen angebunden; gemeinsameSalvengeometriefürfeindliche/verzauberteAI. Mecha/MutantnochkeinRuntime, JunglekeinfreigegebenesGebiet. Voll278Specs1723/36 vsMain274/1702/36, identischeFehlernamenohneAbbrüche; Clock5/0,Volley3/0,Shooter4/0. NeunnativePNGs lokalpixelgleichvorbereitet, keineUploads/IDs. Weiter48Charaktere, Chunky/WildlingwartenJungle. NächsterBaustein: gemeinsameGruppenspawns/Spielerhöhe; OriginalspawntnachgemeinsamerBirthalleexaktamgleichenPunkt. DetailsHANDOFF/jungle-shooter-validation.json.

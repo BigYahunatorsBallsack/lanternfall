@@ -7,6 +7,32 @@ local function random()
 	return 0.5
 end
 describe("Native enemy shooting clock", function()
+	it("retains the source's reversed zero-cooldown bounds instead of replacing them with a fixed delay", function()
+		local zero = table.clone(rule)
+		zero.fireInterval, zero.minimumCooldownSeconds = 0, 1 / 60
+		expect(Clock.new(zero, function()
+			return 0
+		end).remaining).toBeNear(1 / 60)
+		expect(Clock.new(zero, function()
+			return 1
+		end).remaining).toBeNear(0)
+		expect(Clock.new(zero, function()
+			return 0.5
+		end).remaining).toBeNear(1 / 120)
+	end)
+	it("uses the long cooldown only after the configured number of complete volleys", function()
+		local burst = table.clone(rule)
+		burst.fireInterval, burst.longEvery, burst.longSeconds = 0, 2, 3
+		local clock = Clock.new(burst, random)
+		expect(Clock.step(clock, burst, 0.4, true, random)).toBe(true)
+		expect(Clock.step(clock, burst, 0.1, true, random)).toBe(false)
+		expect(Clock.step(clock, burst, 0.4, true, random)).toBe(true)
+		expect(Clock.step(clock, burst, 0.1, true, random)).toBe(false)
+		expect(clock.remaining).toBe(3)
+		local transferred = table.clone(clock)
+		expect(Clock.step(transferred, burst, 3.39, true, random)).toBe(false)
+		expect(Clock.step(transferred, burst, 0.01, true, random)).toBe(true)
+	end)
 	it("waits a full first cooldown and fires only at the animation method", function()
 		local clock = Clock.new(rule, random)
 		expect(Clock.step(clock, rule, 1.9, true, random)).toBe(false)

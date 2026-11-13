@@ -5,6 +5,7 @@ local Config = require(Shared.Config)
 local C = require(Shared.Config.Charm)
 local World = require(script.Parent.World)
 local Volleys = require(script.Parent.Volleys)
+local NativeVolley = require(Shared.Util.NativeEnemyVolley)
 local Friends = {}
 Friends.__index = Friends
 function Friends.new(params: any, callbacks: any): any
@@ -136,6 +137,18 @@ local function fireShots(self: any, dt: number)
 		local x, z, target, damage =
 			world.shots[offset + 2], world.shots[offset + 3], world.shots[offset + 4], world.shots[offset + 5]
 		local tx, tz = self.targetXs[target], self.targetZs[target]
+		if ranged.nativeVolley then
+			NativeVolley.emit(ranged.nativeVolley, x, z, tx, tz, ranged.projectileSpeed, function()
+				return if self.callbacks.random then self.callbacks.random(member.owner) else math.random()
+			end, function(px, pz, dx, dz, speed)
+				if ranged.nativePillar then
+					self.callbacks.emitPillar(member.id, px, pz, dx, dz, speed, damage, member.owner)
+				else
+					self:fire(member, px, pz, dx, dz, speed, ranged.projectileRange, ranged.projectileRadius, damage)
+				end
+			end)
+			continue
+		end
 		if ranged.nativeSlash then
 			self.callbacks.emitSlash(member.id, tx, tz, damage, member.owner)
 			continue

@@ -1,0 +1,45 @@
+{
+  "referenceVersion": "1.2.0.2",
+  "implementedBranch": "Neutral Enigmacursor only; Meca/Mutant branches remain source facts and are not activated",
+  "newCharacterReadyFlags": 0,
+  "junglePlayable": false,
+  "fullSuite": {
+    "baseMain": "4cf1050760002a496856a2b7c0b6024f0987a4f1",
+    "baseSpecs": 274,
+    "basePassed": 1702,
+    "baseFailed": 36,
+    "specs": 278,
+    "passed": 1723,
+    "failed": 36,
+    "newFailureNames": [],
+    "aborts": [],
+    "artifact": "build/native-five-branch-nine-jungle-shooter-4cf1050.json"
+  },
+  "focused": {
+    "NativeEnemyShootingClock": "5/0",
+    "NativeEnemyVolley": "3/0",
+    "NativeJungleShooter": "4/0"
+  },
+  "pillar": {
+    "radiusPoints": 23,
+    "hitFrom": 0.54,
+    "hitUntil": 0.68,
+    "stopAt": 1.04,
+    "persistsAfterSourceDeath": true,
+    "stopsAtFirstHit": true,
+    "rotatedLocalHitboxOffsetPoints": [
+      0,
+      -4
+    ],
+    "graphics": "Existing circle telegraphs; native sprite rendering not accepted"
+  },
+  "checks": {
+    "seleneErrors": 0,
+    "existingWarnings": 18,
+    "sourceCompiler": true,
+    "localArtPixelCheck": true,
+    "uploadedCount": 0,
+    "runtimeAssetIdsChanged": false,
+    "studio": false
+  }
+}
