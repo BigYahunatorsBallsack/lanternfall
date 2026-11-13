@@ -1,4 +1,4 @@
-"""Compile native Jungle pursuit bodies and the neutral Enigmacursor into the enemy engine.
+"""Compile explicitly ported neutral Jungle body families into the enemy engine.
 Evolution variants remain explicit pending work. No zone is exposed.
 """
 from __future__ import annotations
@@ -6,7 +6,7 @@ import argparse, importlib.util, json, re, subprocess, sys, tempfile
 from pathlib import Path
 sys.dont_write_bytecode = True
 ROOT = Path(__file__).resolve().parents[1]
-FAMILIES = {'baby_triceratops': ('BabyTriceratops', 40, 'Baby Triceratops'), 'gallimimus': ('Gallimimus', 41, 'Gallimimus'), 'lystrosaurus': ('Lystrosaurus', 42, 'Lystrosaurus'), 'pyroraptor': ('Pyroraptor', 43, 'Pyroraptor'), 'enigmacursor': ('Enigmacursor', 44, 'Enigmacursor'), 'baby_pterosaur': ('BabyPterosaur',45,'Baby Pterosaur'), 'graciliceratops': ('Graciliceratops',46,'Graciliceratops'), 'baby_trex': ('BabyTrex',47,'Baby T-Rex'), 'alamosaurus': ('Alamosaurus',48,'Alamosaurus'), 'dino_egg': ('DinoEgg',49,'Dino Egg')}
+FAMILIES = {'baby_triceratops': ('BabyTriceratops', 40, 'Baby Triceratops'), 'gallimimus': ('Gallimimus', 41, 'Gallimimus'), 'lystrosaurus': ('Lystrosaurus', 42, 'Lystrosaurus'), 'pyroraptor': ('Pyroraptor', 43, 'Pyroraptor'), 'enigmacursor': ('Enigmacursor', 44, 'Enigmacursor'), 'baby_pterosaur': ('BabyPterosaur',45,'Baby Pterosaur'), 'graciliceratops': ('Graciliceratops',46,'Graciliceratops'), 'baby_trex': ('BabyTrex',47,'Baby T-Rex'), 'alamosaurus': ('Alamosaurus',48,'Alamosaurus'), 'dino_egg': ('DinoEgg',49,'Dino Egg'), 'stintaosaurus': ('Stintaosaurus',50,'Tsintaosaurus')}
 
 def module(name, file):
  spec = importlib.util.spec_from_file_location(name, ROOT/file)
@@ -36,10 +36,13 @@ def generate():
  for slug,(identity,type_id,name) in FAMILIES.items():
   path = f'res://entities/units/enemies/jungle/basic/{slug}/{slug}.tscn'
   nodes = resolve(path);root = nodes[('@','@')];move = nodes[('.','MovementBehavior')];attack = nodes[('.','AttackBehavior')]
-  assert root['scriptSource'] == (f'res://entities/units/enemies/jungle/basic/{slug}/{slug}.gd' if slug in ['baby_trex','dino_egg'] else 'res://entities/units/enemies/enemy.gd')
+  assert root['scriptSource'] == (f'res://entities/units/enemies/jungle/basic/{slug}/{slug}.gd' if slug in ['baby_trex','dino_egg','stintaosaurus'] else 'res://entities/units/enemies/enemy.gd')
   if slug == 'enigmacursor':
    assert move['scriptSource'] == 'res://entities/units/movement_behaviors/stay_in_range_from_player_movement_behavior.gd'
    assert attack['scriptSource'] == 'res://entities/units/movement_behaviors/detect_evolution_attack_behavior.gd'
+  elif slug=='stintaosaurus':
+   assert move['scriptSource']=='res://entities/units/movement_behaviors/target_rand_pos_movement_behavior.gd'
+   assert attack['scriptSource']=='res://entities/units/enemies/attack_behaviors/attack_behavior.gd'
   elif slug in ['alamosaurus','dino_egg']:
    expected='target_rand_pos_movement_behavior.gd' if slug=='alamosaurus' else 'stay_in_range_from_player_movement_behavior.gd'
    assert move['scriptSource']=='res://entities/units/movement_behaviors/'+expected
@@ -55,6 +58,11 @@ def generate():
   stats_path = root['properties']['stats']['resource'];stats = {k:v for k,v in pck.resource(stats_path)['properties'].items() if isinstance(v,(int,float,bool))}
   assert stats['armor'] == 0 and stats['armor_increase_each_wave'] == 0, 'Armor requires its own runtime policy'
   enemies[identity] = {'typeId':type_id,'displayName':name,'fallbackLook':'Shadeling','source':path,'sourceMd5':pck.entries[path]['md5'],'statsSource':stats_path,'statsMd5':pck.entries[stats_path]['md5'],'stats':stats,'body':circle(nodes[('.','Collision')]),'hurt':circle(nodes[('Hurtbox','Collision')]),'hit':circle(nodes[('Hitbox','Collision')]),'removeFirst':root['properties'].get('to_be_removed_in_priority',False),'mass':root['properties'].get('mass',1)}
+  if slug=='stintaosaurus':
+   assert nodes[('.','BoostZone')]['properties']['collision_mask']==4
+   enemies[identity]['healing']={k:root['properties'][k] for k in ['heal','heal_increase_each_wave','player_heal','player_heal_increase_each_wave']}
+   enemies[identity]['healing'].update(zone=circle(nodes[('BoostZone','BoostCollision')]),charmRetainsEnemyMask=True)
+   used_scripts.add('res://effect_behaviors/enemies/charm_enemy_effect_behavior.gdc')
   if slug in ['alamosaurus','dino_egg']:
    props=attack['properties']
    assert not props['spawn_at_random_pos'] and not props['spawn_at_player_range']
@@ -121,12 +129,12 @@ def generate():
 def main():
  args=argparse.ArgumentParser(description=__doc__);args.add_argument('--check',action='store_true');args=args.parse_args()
  compiler=module('jungle_catalog','tools/build-character-catalog.py');data=generate()
- files={ROOT/'docs/characters/jungle-walkers-source.json':json.dumps(data,indent=2)+'\n',ROOT/'src/shared/Config/JungleWalkers.luau':'--!strict\n-- Source-backed Jungle pursuit and neutral shooting facts; JungleEnemyKinds activates explicitly implemented branches. No playable zone is claimed.\nreturn '+compiler.luau(data)+'\n'}
+ files={ROOT/'docs/characters/jungle-walkers-source.json':json.dumps(data,indent=2)+'\n',ROOT/'src/shared/Config/JungleWalkers.luau':'--!strict\n-- Source-backed neutral Jungle families; JungleEnemyKinds activates explicitly ported branches. No playable zone is claimed.\nreturn '+compiler.luau(data)+'\n'}
  for path,text in files.items():
   if path.suffix=='.luau':
    with tempfile.TemporaryDirectory(dir=ROOT/'build') as folder:
     temp=Path(folder)/path.name;temp.write_text(text,encoding='utf-8');subprocess.run(['stylua',str(temp)],check=True);text=temp.read_text(encoding='utf-8')
   if args.check:assert path.read_text(encoding='utf-8')==text,f'Stale Jungle pursuit facts: {path}'
   else:path.write_text(text,encoding='utf-8',newline='\n')
- print('Four pursuit bodies, two anticipation bodies, Baby T-Rex, native spawning families and neutral Enigmacursor compiled; evolution and playable Jungle remain open')
+ print(str(len(data['implemented']))+' neutral Jungle body families compiled; evolution and playable Jungle remain open')
 if __name__=='__main__':main()

@@ -196,6 +196,25 @@
       "pngSha256": "fef8a402c0a1d3b5f97e14123f8a1701bbe7a4c86ed17552e1b6edc5e53f5e48"
     },
     {
+      "id": "Stintaosaurus",
+      "source": "res://entities/units/enemies/jungle/basic/stintaosaurus/stintaosaurus.png",
+      "textureSource": "res://.import/stintaosaurus.png-ac30bd3dbfe01e5637c5fcdab98e5ed4.stex",
+      "textureMd5": "fd7a77b860465d00ad1b68afe45e7cfa",
+      "output": "assets/enemies/native-jungle/Stintaosaurus.png",
+      "size": [
+        150,
+        150
+      ],
+      "alphaBounds": [
+        28,
+        13,
+        121,
+        136
+      ],
+      "rgbaSha256": "8aa4b58b6f476eb577c0aa578063eeb96b0cbb0211bf4c8a7850f14b0cdadd33",
+      "pngSha256": "d1eaca05f545ba9019d2d132f24e05d5324982d29dfe18d63adcfe00acfa3537"
+    },
+    {
       "id": "Pillar_bullet_pillar_0002",
       "source": "res://projectiles/pillar_enemy/sprites/bullet_pillar_0002.png",
       "textureSource": "res://.import/bullet_pillar_0002.png-b64813647bb259fcd087f6245a3b4bd8.stex",

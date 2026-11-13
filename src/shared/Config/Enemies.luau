@@ -214,6 +214,7 @@ export type Pulse = {
 	heal: number?,
 	healFlat: number?, -- base healing plus healPerWave * (wave - 1)
 	healPerWave: number?,
+	nativeEnemyEntry: boolean?, -- original enemy-mask entry healing, including bosses; retained hostile mask after Charm
 }
 
 -- Enemies that stand still and hatch into others after a while unless killed first (Brood Egg, B9).

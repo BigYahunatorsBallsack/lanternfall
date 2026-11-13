@@ -37,6 +37,24 @@ function Kinds.build(pixel: number): { [string]: any }
 			result[id].anticipate = f.anticipate
 		end
 
+		if f.healing then
+			local h = f.healing
+			result[id].pulse = {
+				radius = h.zone.radiusPoints * pixel,
+				intervalSeconds = 0,
+				onEnter = true,
+				healFlat = h.heal,
+				healPerWave = h.heal_increase_each_wave,
+				nativeEnemyEntry = true,
+			}
+			result[id].wander = {
+				around = "Arena",
+				range = 0,
+				rangeJitter = 0,
+				arriveStuds = C.spawningRules.goalPrecisionPoints * pixel,
+				maxSeconds = math.huge,
+			}
+		end
 		if f.spawning then
 			local a = f.spawning.properties
 			local rules = C.spawningRules

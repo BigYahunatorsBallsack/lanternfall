@@ -40,6 +40,7 @@ local Combat = require(Shared.Config.Combat)
 local PointScale = require(Shared.Config.Stats).range.studsPerPoint
 local DecayingSpeed = require(script.Parent.DecayingSpeed)
 local NativePursuer = require(script.Parent.NativePursuer)
+local EntryHealing = require(script.Parent.NativeEntryHealing)
 local SpatialHash = require(Shared.Util.SpatialHash)
 local SegmentCircle = require(Shared.Util.SegmentCircle)
 local circleEntry = SegmentCircle.entry
@@ -1068,6 +1069,14 @@ end
 -- shuffles its zone). A Mender with onEnter heals each hurt enemy once when it comes into its radius (Brotato's Healer
 -- BoostZone body_entered); returns true if it healed one.
 local function pulseAt(self: World, i: number, pulse: Enemies.Pulse): boolean
+	if pulse.nativeEnemyEntry then
+		local id = self.ids[i]
+		local inside, healed =
+			EntryHealing.step(self, id, self.waves[i], self.xs[i], self.zs[i], pulse, self.zoneMembers[id])
+		self.zoneMembers[id] = inside
+		return healed
+	end
+
 	local xs, zs, hp, maxHp, kinds = self.xs, self.zs, self.hp, self.maxHp, self.kinds
 	local scratch = self.scratch
 	local found = self.hash:query(xs[i], zs[i], pulse.radius + self.maxRadius, scratch)
@@ -1675,7 +1684,7 @@ function World.step(
 				end
 			end
 			if pulse.onEnter then
-				if pulseAt(self, i, pulse) then
+				if pulseAt(self, i, pulse) and not pulse.nativeEnemyEntry then
 					modes[i], modeTimers[i] = MODE_WINDUP, PULSE_SHOW_SECONDS
 				end
 			elseif targetCount > 0 then

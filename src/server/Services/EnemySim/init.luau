@@ -20,6 +20,7 @@ local Signal = require(Shared.Util.Signal)
 local EnemyKinds = require(Shared.Util.EnemyKinds)
 local EnemyStats = require(Shared.Util.EnemyStats)
 local NativeSummons = require(script.NativeSummons)
+local EntryHealing = require(script.NativeEntryHealing)
 local MovementInput = require(script.Parent.CharacterService.Movement)
 local NativeVolley = require(Shared.Util.NativeEnemyVolley)
 local ShotFeed = require(Shared.Net.ShotFeed)
@@ -165,6 +166,12 @@ friends = CharmedWorld.new(world.params, {
 	end,
 
 	support = function(member, x, z)
+		local pulse = member.kind.pulse
+		if pulse and pulse.nativeEnemyEntry then
+			member.enemiesInside =
+				EntryHealing.step(world, member.id, RunDirector.getWave(), x, z, pulse, member.enemiesInside)
+			return
+		end
 		EnemySim.CharmSupport:Fire(member, x, z)
 	end,
 	damage = function(id, amount)

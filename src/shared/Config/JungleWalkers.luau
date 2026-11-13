@@ -1,5 +1,5 @@
 --!strict
--- Source-backed Jungle pursuit and neutral shooting facts; JungleEnemyKinds activates explicitly implemented branches. No playable zone is claimed.
+-- Source-backed neutral Jungle families; JungleEnemyKinds activates explicitly ported branches. No playable zone is claimed.
 return {
 	version = "1.2.0.2",
 	steamBuild = 26615634,
@@ -18,6 +18,7 @@ return {
 		"BabyTrex",
 		"Alamosaurus",
 		"DinoEgg",
+		"Stintaosaurus",
 	},
 	enemies = {
 		BabyTriceratops = {
@@ -764,6 +765,81 @@ return {
 				},
 			},
 		},
+		Stintaosaurus = {
+			typeId = 50,
+			displayName = "Tsintaosaurus",
+			fallbackLook = "Shadeling",
+			source = "res://entities/units/enemies/jungle/basic/stintaosaurus/stintaosaurus.tscn",
+			sourceMd5 = "c1df4a85dce03fb7736348a2022077af",
+			statsSource = "res://entities/units/enemies/jungle/basic/stintaosaurus/stintaosaurus_stats.tres",
+			statsMd5 = "047f599cc13f6a9e803af1a9ee878221",
+			stats = {
+				health = 20,
+				health_increase_each_wave = 15,
+				speed = 400,
+				speed_randomization = 0,
+				damage = 1,
+				damage_increase_each_wave = 0.85,
+				attack_cd = 30,
+				value = 2,
+				knockback_resistance = 0,
+				gold_spread = 0,
+				can_drop_consumables = true,
+				always_drop_consumables = false,
+				base_drop_chance = 0.03,
+				item_drop_chance = 0.03,
+				min_consumable_tier = 0,
+				max_consumable_tier = 0,
+				armor = 0,
+				armor_increase_each_wave = 0,
+				generate_blood = true,
+			},
+			body = {
+				radiusPoints = 16.2788,
+				offsetPoints = {
+					0,
+					17,
+				},
+				source = "res://entities/units/enemies/jungle/basic/stintaosaurus/stintaosaurus.tscn",
+				sourceMd5 = "c1df4a85dce03fb7736348a2022077af",
+			},
+			hurt = {
+				radiusPoints = 32,
+				offsetPoints = {
+					0,
+					7,
+				},
+				source = "res://entities/units/enemies/enemy.tscn",
+				sourceMd5 = "38e442588073219bb217a4b484a6d8a7",
+			},
+			hit = {
+				radiusPoints = 26.0192,
+				offsetPoints = {
+					-1,
+					8,
+				},
+				source = "res://entities/units/enemies/jungle/basic/stintaosaurus/stintaosaurus.tscn",
+				sourceMd5 = "c1df4a85dce03fb7736348a2022077af",
+			},
+			removeFirst = false,
+			mass = 1,
+			healing = {
+				heal = 100,
+				heal_increase_each_wave = 10,
+				player_heal = 1,
+				player_heal_increase_each_wave = 0.5,
+				zone = {
+					radiusPoints = 200.639,
+					offsetPoints = {
+						0,
+						0,
+					},
+					source = "res://entities/units/enemies/jungle/basic/stintaosaurus/stintaosaurus.tscn",
+					sourceMd5 = "c1df4a85dce03fb7736348a2022077af",
+				},
+				charmRetainsEnemyMask = true,
+			},
+		},
 	},
 	spawningRules = {
 		animations = {
@@ -809,6 +885,10 @@ return {
 	},
 	ruleSources = {
 		{
+			source = "res://effect_behaviors/enemies/charm_enemy_effect_behavior.gdc",
+			sourceMd5 = "a0830c473b5da00b8d278346117f5452",
+		},
+		{
 			source = "res://entities/units/enemies/attack_behaviors/attack_behavior.gdc",
 			sourceMd5 = "3f7f7c4411aa4d3b27e55e9ac3d4ab27",
 		},
@@ -835,6 +915,10 @@ return {
 		{
 			source = "res://entities/units/enemies/jungle/basic/dino_egg/dino_egg.gdc",
 			sourceMd5 = "f01696d402b51e177ee02fe0bdce31c8",
+		},
+		{
+			source = "res://entities/units/enemies/jungle/basic/stintaosaurus/stintaosaurus.gdc",
+			sourceMd5 = "7ba3c455bdd6bc6b8272200ebb30040e",
 		},
 		{
 			source = "res://entities/units/movement_behaviors/anticipate_target_movement_behavior.gdc",
