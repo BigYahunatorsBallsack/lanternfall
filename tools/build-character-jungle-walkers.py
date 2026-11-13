@@ -6,7 +6,7 @@ import argparse, importlib.util, json, re, subprocess, sys, tempfile
 from pathlib import Path
 sys.dont_write_bytecode = True
 ROOT = Path(__file__).resolve().parents[1]
-FAMILIES = {'baby_triceratops': ('BabyTriceratops', 40, 'Baby Triceratops'), 'gallimimus': ('Gallimimus', 41, 'Gallimimus'), 'lystrosaurus': ('Lystrosaurus', 42, 'Lystrosaurus'), 'pyroraptor': ('Pyroraptor', 43, 'Pyroraptor'), 'enigmacursor': ('Enigmacursor', 44, 'Enigmacursor'), 'baby_pterosaur': ('BabyPterosaur',45,'Baby Pterosaur'), 'graciliceratops': ('Graciliceratops',46,'Graciliceratops'), 'baby_trex': ('BabyTrex',47,'Baby T-Rex'), 'alamosaurus': ('Alamosaurus',48,'Alamosaurus'), 'dino_egg': ('DinoEgg',49,'Dino Egg'), 'stintaosaurus': ('Stintaosaurus',50,'Tsintaosaurus')}
+FAMILIES = {'baby_triceratops': ('BabyTriceratops', 40, 'Baby Triceratops'), 'gallimimus': ('Gallimimus', 41, 'Gallimimus'), 'lystrosaurus': ('Lystrosaurus', 42, 'Lystrosaurus'), 'pyroraptor': ('Pyroraptor', 43, 'Pyroraptor'), 'enigmacursor': ('Enigmacursor', 44, 'Enigmacursor'), 'baby_pterosaur': ('BabyPterosaur',45,'Baby Pterosaur'), 'graciliceratops': ('Graciliceratops',46,'Graciliceratops'), 'baby_trex': ('BabyTrex',47,'Baby T-Rex'), 'alamosaurus': ('Alamosaurus',48,'Alamosaurus'), 'dino_egg': ('DinoEgg',49,'Dino Egg'), 'stintaosaurus': ('Stintaosaurus',50,'Tsintaosaurus'), 'triceratops': ('Triceratops',51,'Triceratops'), 'parasaurolorus': ('Parasaurolorus',52,'Parasaurolophus')}
 
 def module(name, file):
  spec = importlib.util.spec_from_file_location(name, ROOT/file)
@@ -35,10 +35,15 @@ def generate():
   return {'radiusPoints':shape['properties'].get('radius',10), 'offsetPoints':offset, 'source':path, 'sourceMd5':pck.entries[path]['md5']}
  enemies = {}
  for slug,(identity,type_id,name) in FAMILIES.items():
-  path = f'res://entities/units/enemies/jungle/basic/{slug}/{slug}.tscn'
+  folder = 'parasaurolus' if slug=='parasaurolorus' else slug
+  path = f'res://entities/units/enemies/jungle/basic/{folder}/{slug}.tscn'
   nodes = resolve(path);root = nodes[('@','@')];move = nodes[('.','MovementBehavior')];attack = nodes[('.','AttackBehavior')]
   assert root['scriptSource'] == (f'res://entities/units/enemies/jungle/basic/{slug}/{slug}.gd' if slug in ['baby_trex','dino_egg','stintaosaurus'] else 'res://entities/units/enemies/enemy.gd')
-  if slug == 'enigmacursor':
+  if slug in ['triceratops','parasaurolorus']:
+   assert move['scriptSource']=='res://entities/units/movement_behaviors/follow_target_movement_behavior.gd'
+   assert move['properties']['should_target_vertically'] and not move['properties'].get('stop_close_to_target',False)
+   assert attack['scriptSource']=='res://entities/units/movement_behaviors/detect_evolution_attack_behavior.gd'
+  elif slug == 'enigmacursor':
    assert move['scriptSource'] == 'res://entities/units/movement_behaviors/stay_in_range_from_player_movement_behavior.gd'
    assert attack['scriptSource'] == 'res://entities/units/movement_behaviors/detect_evolution_attack_behavior.gd'
   elif slug=='stintaosaurus':
@@ -62,6 +67,16 @@ def generate():
   enemies[identity]['sprite']=images.texture_metadata(pck,images.body_texture(pck,path))
   enemies[identity]['bodyBorders']=root['properties'].get('should_collide_with_borders',True)
   enemies[identity]['playerCollision']=bool(root['properties']['collision_mask'] & 2)
+  if slug in ['triceratops','parasaurolorus']:
+   defaults={'cooldown':60.0,'long_cooldown_every_x_shoots':0,'long_cooldown':0.0,'max_cd_randomization':10,'min_range':0,'max_range':300,'range_X':-1,'range_Y':-1,'attack_anim_speed':1.0,'charge_duration':1.0,'charge_speed':500.0,'target_calculation_timing':0,'target':0,'rand_target_size':-1,'only_positions_in_target_direction':False,'scale_charge_duration_with_range':False,'recovery_duration':0.05}
+   variants={}
+   for variant in ['Normal','Mutant','Meca']:
+    node=nodes[('AttackBehavior','AttackBehavior'+variant)]
+    assert node['scriptSource']=='res://entities/units/enemies/attack_behaviors/charging_attack_behavior.gd'
+    variants[variant]={**defaults,**{k:v for k,v in node['properties'].items() if isinstance(v,(int,float,bool))}}
+   normal=variants['Normal'];assert normal['target']==3 and normal['target_calculation_timing']==0 and normal['long_cooldown_every_x_shoots']==0 and normal['range_X']==-1 and normal['range_Y']>0 and normal['charge_duration']>0 and normal['recovery_duration']>0 and not normal['scale_charge_duration_with_range']
+   enemies[identity].update(chargingVariants=variants,activeChargeVariant='Normal',evolutionVariantsImplemented=False,followXShare=0.5)
+   used_scripts.add('res://entities/units/enemies/attack_behaviors/charging_attack_behavior.gdc')
   if slug=='stintaosaurus':
    assert nodes[('.','BoostZone')]['properties']['collision_mask']==4
    enemies[identity]['healing']={k:root['properties'][k] for k in ['heal','heal_increase_each_wave','player_heal','player_heal_increase_each_wave']}
@@ -128,7 +143,7 @@ def generate():
   spawn_animations.append({'source':anim_path,'sourceMd5':pck.entries[anim_path]['md5'],'fireAt':fire,'seconds':props.get('length',1)})
  assert spawn_animations[0]['fireAt']==spawn_animations[1]['fireAt'] and spawn_animations[0]['seconds']==spawn_animations[1]['seconds']
  zone = 'res://zones/zone_3_jungle/zone_jungle_data.tres'
- return {'version':reference['version'],'steamBuild':int(reference['steamBuildId']),'zoneId':pck.resource(zone)['properties']['my_id'],'zoneSource':zone,'zoneSourceMd5':pck.entries[zone]['md5'],'zonePlayable':False,'implemented':list(enemies),'enemies':enemies,'spawningRules':{'animations':spawn_animations,'frameRate':60,'minimumCooldownFrames':1,'goalPrecisionPoints':10},'shootingRules':{'frameRate':60,'minimumCooldownFrames':1,'animationFireAt':fire_at,'animationSeconds':animation.get('length',1),'animationSource':animation_path,'animationSourceMd5':pck.entries[animation_path]['md5'],'pillar':pillar,'projectileRadiusPoints':pillar['radiusPoints'],'projectileRangeStuds':300,'projectileRangeNote':'Existing engine lifetime/area compatibility limit, not a native range stat'},'ruleSources':[{'source':path,'sourceMd5':pck.entries[path]['md5']} for path in sorted(used_scripts)],'runtimeCompatibility':{'mass':1,'nativeArtAccepted':False,'physicsAccepted':False,'open':['Existing global body/collision center approximation; source offsets retained explicitly','Native physics ordering and sprite acceptance','Spawning reuses existing square/edge clamp; native forbidden-zone retries/push-out remain part of the pending area/physics port','Enigmacursor Meca/Mutant branches are source facts only; no native evolution-system acceptance','Fallback circle telegraphs instead of original animated pillar sprites','Remaining Jungle families, waves, bosses and area route']}}
+ return {'version':reference['version'],'steamBuild':int(reference['steamBuildId']),'zoneId':pck.resource(zone)['properties']['my_id'],'zoneSource':zone,'zoneSourceMd5':pck.entries[zone]['md5'],'zonePlayable':False,'implemented':list(enemies),'enemies':enemies,'spawningRules':{'animations':spawn_animations,'frameRate':60,'minimumCooldownFrames':1,'goalPrecisionPoints':10,'chargeMassMultiplier':5},'shootingRules':{'frameRate':60,'minimumCooldownFrames':1,'animationFireAt':fire_at,'animationSeconds':animation.get('length',1),'animationSource':animation_path,'animationSourceMd5':pck.entries[animation_path]['md5'],'pillar':pillar,'projectileRadiusPoints':pillar['radiusPoints'],'projectileRangeStuds':300,'projectileRangeNote':'Existing engine lifetime/area compatibility limit, not a native range stat'},'ruleSources':[{'source':path,'sourceMd5':pck.entries[path]['md5']} for path in sorted(used_scripts)],'runtimeCompatibility':{'mass':1,'nativeArtAccepted':False,'physicsAccepted':False,'open':['Existing global body/collision center approximation; source offsets retained explicitly','Native physics ordering and sprite acceptance','Spawning reuses existing square/edge clamp; native forbidden-zone retries/push-out remain part of the pending area/physics port','Enigmacursor Meca/Mutant branches are source facts only; no native evolution-system acceptance','Fallback circle telegraphs instead of original animated pillar sprites','Remaining Jungle families, waves, bosses and area route']}}
 
 def main():
  args=argparse.ArgumentParser(description=__doc__);args.add_argument('--check',action='store_true');args=args.parse_args()

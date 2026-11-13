@@ -51,9 +51,14 @@ function EnemyStats.speedFactor(kind: Enemies.Enemy, roll: number): number
 	return if kind.speed > 0 and kind.speedMax then 1 + (kind.speedMax / kind.speed - 1) * math.clamp(roll, 0, 1) else 1
 end
 
--- Unit.reset_speed_stat: truncate the signed random offset before applying modifiers, then round final pixels/s.
+-- Unit.init/respawn scales random offsets by accessibility before integer truncation; reset_speed_stat rounds final pixels/s.
 -- Historical kinds retain their existing sampler until their source policy is opted in explicitly.
-function EnemyStats.spawnSpeedFactor(kind: Enemies.Enemy, roll: number, multiplier: number): number
+function EnemyStats.spawnSpeedFactor(
+	kind: Enemies.Enemy,
+	roll: number,
+	multiplier: number,
+	accessibility: number?
+): number
 	local rule = kind.nativeSpeedPoints
 	if not rule then
 		return multiplier * EnemyStats.speedFactor(kind, roll)
@@ -61,7 +66,7 @@ function EnemyStats.spawnSpeedFactor(kind: Enemies.Enemy, roll: number, multipli
 	if kind.speed == 0 then
 		return 0
 	end
-	local offset = math.modf((math.clamp(roll, 0, 1) * 2 - 1) * rule.randomization)
+	local offset = math.modf((math.clamp(roll, 0, 1) * 2 - 1) * rule.randomization * (accessibility or 1))
 	return math.round((rule.base + offset) * multiplier) * Pixel / kind.speed
 end
 

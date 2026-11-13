@@ -1,5 +1,5 @@
 --!strict
--- Adapts verified Jungle pursuit/contact families to the existing enemy engine; Config.Enemies owns pixel conversion.
+-- Adapts explicitly ported neutral Jungle behaviors to the enemy engine; Config.Enemies owns pixel conversion.
 local C = require(script.Parent.JungleWalkers)
 local Kinds = {}
 function Kinds.build(pixel: number): { [string]: any }
@@ -41,6 +41,22 @@ function Kinds.build(pixel: number): { [string]: any }
 				crateShare = if s.can_drop_consumables then s.item_drop_chance else 0,
 			},
 		}
+		if f.activeChargeVariant then
+			local a = f.chargingVariants[f.activeChargeVariant]
+			local rules = C.spawningRules
+			result[id].nativeFollowXShare = f.followXShare
+			result[id].nativeCharge = {
+				cooldown = a.cooldown / rules.frameRate,
+				jitter = a.max_cd_randomization / rules.frameRate,
+				minimumCooldown = rules.minimumCooldownFrames / rules.frameRate,
+				fireAt = rules.animations[1].fireAt / a.attack_anim_speed,
+				duration = a.charge_duration,
+				recovery = a.recovery_duration,
+				speed = a.charge_speed * pixel,
+				rangeZ = a.range_Y * pixel,
+				massMultiplier = rules.chargeMassMultiplier,
+			}
+		end
 		if f.anticipate then
 			result[id].anticipate = f.anticipate
 		end

@@ -42,6 +42,7 @@ local DecayingSpeed = require(script.Parent.DecayingSpeed)
 local NativePursuer = require(script.Parent.NativePursuer)
 local EntryHealing = require(script.Parent.NativeEntryHealing)
 local NativeMovement = require(script.Parent.NativeMovement)
+local NativeCharge = require(script.Parent.NativeStraightCharge)
 local SpatialHash = require(Shared.Util.SpatialHash)
 local SegmentCircle = require(Shared.Util.SegmentCircle)
 local StaticShapes = require(Shared.Util.StaticShapes)
@@ -67,6 +68,7 @@ export type Params = {
 	forbiddenCircles: { { x: number, z: number, radius: number } }?, -- native spawn exclusion zones, independent of physical capsule obstacles
 	allocateId: (() -> number)?,
 	referencePlayerSpeed: ((number?, number?, number?) -> number?)?, -- target player index, or fastest living player when nil
+	nativeChargeAccessibility: (() -> number)?, -- source charge bonus uses only the current run accessibility speed slider
 	goalsWithoutTargets: boolean?,
 	collideTargets: boolean?, -- false for native pet bodies, which collide only with pets and obstacles
 	seed: number?, -- for the wander points (kind.wander) and keep-distance jitter; tests pass one
@@ -121,6 +123,7 @@ export type World = typeof(setmetatable(
 		speedFactors: { number }, -- multiplier on its kind's speed from spawning (the team's Enemy Speed stat, B9)
 		boosts: { number }, -- multiplier on its speed from accelerating (kind.accelerate), 1 otherwise (B9)
 		pursuers: { NativePursuer.State? },
+		nativeCharges: { NativeCharge.State? },
 		nativeSpawnClocks: { ShootingClock.State? },
 		boostClocks: { number }, -- seconds towards its next accelerate step
 		zoneMembers: { [number]: { [number]: boolean } }, -- by Mender id: ids of the enemies in its radius (pulse.onEnter)
@@ -212,6 +215,7 @@ function World.new(params: Params): World
 		speedBonuses = {},
 		boosts = {},
 		pursuers = {},
+		nativeCharges = {},
 		nativeSpawnClocks = {},
 		boostClocks = {},
 		zoneMembers = {},
@@ -275,6 +279,7 @@ function World.new(params: Params): World
 		self.speedBonuses,
 		self.boosts,
 		self.pursuers,
+		self.nativeCharges,
 		self.nativeSpawnClocks,
 		self.boostClocks,
 		self.buffed,
@@ -359,6 +364,11 @@ function World.spawn(
 		else nil
 	self.nativeSpawnClocks[i] = if kind.nativeSpawn
 		then ShootingClock.new(kind.nativeSpawn.timing, function()
+			return nextRandom(self)
+		end)
+		else nil
+	self.nativeCharges[i] = if kind.nativeCharge
+		then NativeCharge.new(kind.nativeCharge, kind.mass, function()
 			return nextRandom(self)
 		end)
 		else nil
@@ -963,13 +973,16 @@ end
 
 -- Sweeps the whole rush segment and stops at its first collision. A fast enemy cannot jump through a player
 -- or a thin obstacle between ticks; step 5 checks the travelled path even if crowd separation moves it afterward.
-local function rushStep(self: World, i: number, charge: Enemies.Charge, dt: number)
+local function rushStep(self: World, i: number, charge: Enemies.Charge?, dt: number)
 	local p = self.params
 	local radius = self.kinds[i].radius
-	local speed = (charge.speed * self.speedFactors[i] + self.speedBonuses[i])
-		* self.slowFactors[i]
-		* nativeSpeedFactor(self, i)
-	local move = math.min(speed * dt, self.rushLeft[i])
+	local native = self.kinds[i].nativeCharge
+	local speed = if native
+		then (self.kinds[i].speed * self.speedFactors[i] * self.boosts[i] + assert(self.nativeCharges[i]).bonus)
+			* self.slowFactors[i]
+		else (assert(charge).speed * self.speedFactors[i] + self.speedBonuses[i]) * self.slowFactors[i]
+	speed *= if native then self.nativeSlows:factor(self.ids[i], speed / PointScale) else nativeSpeedFactor(self, i)
+	local move = if native then speed * dt else math.min(speed * dt, self.rushLeft[i])
 	local x, z = self.xs[i], self.zs[i]
 	local dx, dz = self.rushXs[i], self.rushZs[i]
 	self.moveInputXs[i], self.moveInputZs[i] = dx * speed, dz * speed
@@ -1007,9 +1020,9 @@ local function rushStep(self: World, i: number, charge: Enemies.Charge, dt: numb
 	self.xs[i], self.zs[i] = endX, endZ
 	local left = self.rushLeft[i] - travelled
 	self.rushLeft[i] = left
-	if stopAt or left <= EPSILON then
+	if not native and (stopAt or left <= EPSILON) then
 		self.modes[i] = MODE_RECOVER
-		self.modeTimers[i] = charge.recoverSeconds
+		self.modeTimers[i] = assert(charge).recoverSeconds
 	end
 end
 
@@ -1335,6 +1348,46 @@ function World.step(
 		knockXs[i], knockZs[i] = kx, kz
 	end
 
+	-- Native charge clocks run even after the last target disappears; mass/bonus changes survive column transfers.
+	for i = 1, count do
+		local kind = kinds[i]
+		local rule, state = kind.nativeCharge, self.nativeCharges[i]
+		if not rule or not state then
+			continue
+		end
+		local dx, dz, best = 0, 0, math.huge
+		for t = 1, targetCount do
+			local x, z = targetXs[t] - xs[i], targetZs[t] - zs[i]
+			local squared = x * x + z * z
+			if squared < best then
+				dx, dz, best = x, z, squared
+			end
+		end
+		local changed = NativeCharge.step(state, rule, dt, dx, dz, targetCount > 0, function()
+			return nextRandom(self)
+		end, if p.nativeChargeAccessibility then p.nativeChargeAccessibility() else 1)
+		if changed then
+			self.speedBonuses[i] = if state.stage == "Rush" then state.bonus else 0
+		end
+		local mass = state.originalMass
+			* (if state.stage == "Windup" or state.stage == "Rush" then rule.massMultiplier else 1)
+		if kind.mass ~= mass then
+			local adjusted = table.clone(kind)
+			adjusted.mass = mass
+			kinds[i] = adjusted
+		end
+		self.modes[i] = if state.stage == "Windup"
+			then MODE_WINDUP
+			elseif state.stage == "Rush" then MODE_RUSH
+			elseif state.stage == "Recover" then MODE_RECOVER
+			else MODE_WALK
+		if state.rushDt > 0 then
+			self.rushXs[i], self.rushZs[i], self.rushLeft[i] = state.direction, 0, math.huge
+			rushStep(self, i, nil, state.rushDt)
+		end
+		self.maxSpeed = math.max(self.maxSpeed, kind.speed * self.speedFactors[i] * self.boosts[i] + state.bonus)
+	end
+
 	-- 2. steering
 	if targetCount > 0 or p.goalsWithoutTargets then
 		local tolerance = p.keepDistanceTolerance
@@ -1344,6 +1397,10 @@ function World.step(
 		for i = 1, count do
 			local kind = kinds[i]
 			if targetCount == 0 and not self.hasGoal[i] and not kind.wander then
+				continue
+			end
+			local nativeChargeState = self.nativeCharges[i]
+			if nativeChargeState and nativeChargeState.walkDt <= 0 then
 				continue
 			end
 			local x, z = xs[i], zs[i]
@@ -1398,11 +1455,16 @@ function World.step(
 				end
 				distance = math.sqrt(bestDx * bestDx + bestDz * bestDz)
 			end
+			if kind.nativeFollowXShare then
+				bestDx *= kind.nativeFollowXShare
+				distance = math.sqrt(bestDx * bestDx + bestDz * bestDz)
+			end
 			if distance <= EPSILON or kind.anchored then
 				continue
 			end
 			local radius = kind.radius
-			local maxMove = baseMoveSpeed(self, i) * self.slowFactors[i] * nativeSpeedFactor(self, i) * dt
+			local moveDt = if nativeChargeState then nativeChargeState.walkDt else dt
+			local maxMove = baseMoveSpeed(self, i) * self.slowFactors[i] * nativeSpeedFactor(self, i) * moveDt
 			local dirX, dirZ = bestDx / distance, bestDz / distance
 			local advance
 			local ranged = kind.ranged
@@ -1435,7 +1497,7 @@ function World.step(
 						else playerRadius)
 				advance = math.min(maxMove, math.max(0, distance - stopAt))
 			end
-			local inputSpeed = if dt > 0 then maxMove / dt else 0
+			local inputSpeed = if moveDt > 0 then maxMove / moveDt else 0
 			local sign = if advance < 0 then -1 elseif advance > 0 or not (ranged or kind.stayInRange) then 1 else 0
 			self.moveInputXs[i], self.moveInputZs[i] = dirX * inputSpeed * sign, dirZ * inputSpeed * sign
 			if advance == 0 then

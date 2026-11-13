@@ -215,6 +215,44 @@
       "pngSha256": "d1eaca05f545ba9019d2d132f24e05d5324982d29dfe18d63adcfe00acfa3537"
     },
     {
+      "id": "Triceratops",
+      "source": "res://entities/units/enemies/jungle/basic/triceratops/triceratops.png",
+      "textureSource": "res://.import/triceratops.png-e36355e1b35512e382814b56c1f7b7af.stex",
+      "textureMd5": "b8d525f09d0b0dae3996202bc3c0f6b3",
+      "output": "assets/enemies/native-jungle/Triceratops.png",
+      "size": [
+        165,
+        165
+      ],
+      "alphaBounds": [
+        7,
+        5,
+        163,
+        162
+      ],
+      "rgbaSha256": "cdc2398c2d60929d76553bc0255ee7b79e4919efd95d06cc9559a254e797d2b7",
+      "pngSha256": "11748e0d9070d1b46242b48ad24c1ee6a81929f5391b7c078d4f5ad8064d17c1"
+    },
+    {
+      "id": "Parasaurolorus",
+      "source": "res://entities/units/enemies/jungle/basic/parasaurolus/parasaurolorus.png",
+      "textureSource": "res://.import/parasaurolorus.png-489ba52f74bfa2533a67d605ea0f005d.stex",
+      "textureMd5": "516f99523e83658fc6516a5f4eed6f12",
+      "output": "assets/enemies/native-jungle/Parasaurolorus.png",
+      "size": [
+        210,
+        210
+      ],
+      "alphaBounds": [
+        31,
+        26,
+        182,
+        188
+      ],
+      "rgbaSha256": "124df0458e47e2ce748d9ce941eaa6c9eae5437b8de1de4e56b63ddba4e5c135",
+      "pngSha256": "c1c700fe4ef3a3bbf4b4c11ad19cb3cc1931cce0e97657fb2f245954c60ed540"
+    },
+    {
       "id": "Pillar_bullet_pillar_0002",
       "source": "res://projectiles/pillar_enemy/sprites/bullet_pillar_0002.png",
       "textureSource": "res://.import/bullet_pillar_0002.png-b64813647bb259fcd087f6245a3b4bd8.stex",

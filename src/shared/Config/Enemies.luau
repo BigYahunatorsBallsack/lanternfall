@@ -42,6 +42,8 @@ export type Enemy = {
 	look: string?, -- reuses the model of this enemy id in another color (EnemyRenderer/Models); default: its own id
 	ranged: Ranged?,
 	charge: Charge?,
+	nativeCharge: NativeCharge?,
+	nativeFollowXShare: number?,
 	split: Split?,
 	-- set only on the variants built by Util/EnemyKinds
 	elite: boolean?,
@@ -1831,6 +1833,18 @@ scaleBodies(Champions)
 for _, champion in Champions do
 	table.freeze(champion)
 end
+
+export type NativeCharge = {
+	cooldown: number,
+	jitter: number,
+	minimumCooldown: number,
+	fireAt: number,
+	duration: number,
+	recovery: number,
+	speed: number,
+	rangeZ: number,
+	massMultiplier: number,
+}
 
 return table.freeze({
 	types = table.freeze(Enemies),

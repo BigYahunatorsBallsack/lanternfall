@@ -1,0 +1,89 @@
+--!strict
+-- Native neutral horizontal charge timers and cached direction; World owns motion, collision and faction transfer.
+local Enemies = require(game:GetService("ReplicatedStorage").Shared.Config.Enemies)
+local Charge = {}
+export type State = {
+	stage: string,
+	remaining: number,
+	left: number,
+	direction: number,
+	originalMass: number,
+	bonus: number,
+	walkDt: number,
+	rushDt: number,
+}
+local EPSILON = 1e-9
+local function cooldown(rule: Enemies.NativeCharge, random: () -> number): number
+	local low = math.max(rule.minimumCooldown, rule.cooldown - rule.jitter)
+	return low + random() * (rule.cooldown + rule.jitter - low)
+end
+function Charge.new(rule: Enemies.NativeCharge, mass: number, random: () -> number): State
+	return {
+		stage = "Walk",
+		remaining = cooldown(rule, random),
+		left = 0,
+		direction = 1,
+		originalMass = math.floor(mass),
+		bonus = 0,
+		walkDt = 0,
+		rushDt = 0,
+	}
+end
+-- Timers continue without a target. Leftover time crosses phase boundaries rather than lengthening each phase by a server tick.
+function Charge.step(
+	state: State,
+	rule: Enemies.NativeCharge,
+	dt: number,
+	dx: number,
+	dz: number,
+	hasTarget: boolean,
+	random: () -> number,
+	accessibility: number
+): boolean
+	state.walkDt, state.rushDt = 0, 0
+	local bonusChanged = false
+	while true do
+		if state.stage == "Walk" then
+			if not hasTarget or math.abs(dz) >= rule.rangeZ then
+				state.remaining = math.max(0, state.remaining - dt)
+				state.walkDt += dt
+				return bonusChanged
+			end
+			local used = math.min(dt, state.remaining)
+			state.walkDt += used
+			state.remaining = math.max(0, state.remaining - used)
+			dt -= used
+			if state.remaining > EPSILON then
+				return bonusChanged
+			end
+			state.stage, state.left = "Windup", rule.fireAt
+			state.direction = if dx < 0 then -1 else 1
+		else
+			local used = math.min(dt, state.left)
+			state.left = math.max(0, state.left - used)
+			state.remaining = math.max(0, state.remaining - used)
+			dt -= used
+			if state.stage == "Rush" then
+				state.rushDt += used
+			end
+			if state.left > EPSILON then
+				return bonusChanged
+			end
+			if state.stage == "Windup" then
+				state.stage, state.left = "Rush", rule.duration
+				state.remaining = cooldown(rule, random) + rule.duration
+				state.bonus = rule.speed * accessibility
+				bonusChanged = true
+			elseif state.stage == "Rush" then
+				state.stage, state.left = "Recover", rule.recovery
+				bonusChanged = true
+			else
+				state.stage = "Walk"
+			end
+		end
+		if dt <= EPSILON then
+			return bonusChanged
+		end
+	end
+end
+return Charge

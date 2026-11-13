@@ -129,6 +129,9 @@ local function newWorldParams(): World.Params
 	return {
 		allocateId = allocateActorId,
 		referencePlayerSpeed = referencePlayerSpeed,
+		nativeChargeAccessibility = function()
+			return RunDirector.getRunOptions().enemySpeed / 100
+		end,
 		cellSize = Sim.spatialHashCellSize,
 		maxEnemies = Config.Run.spawn.cap.max,
 		playerRadius = Sim.playerRadius,
@@ -755,7 +758,12 @@ function EnemySim.spawn(
 		hpGrowth, contactGrowth, shotGrowth = EnemyStats.growth(kind, wave)
 	end
 	local shotDamage = if baseShot > 0 then baseShot * damageMultiplier * shotGrowth else nil
-	local speed = EnemyStats.spawnSpeedFactor(kind, RandomService.number("Spawns"), speedMultiplier or 1)
+	local speed = EnemyStats.spawnSpeedFactor(
+		kind,
+		RandomService.number("Spawns"),
+		speedMultiplier or 1,
+		RunDirector.getRunOptions().enemySpeed / 100
+	)
 	local id = world:spawn(
 		kind,
 		x,
