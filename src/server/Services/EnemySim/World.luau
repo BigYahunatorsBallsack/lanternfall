@@ -46,6 +46,7 @@ local NativeCharge = require(script.Parent.NativeStraightCharge)
 local SpatialHash = require(Shared.Util.SpatialHash)
 local SegmentCircle = require(Shared.Util.SegmentCircle)
 local StaticShapes = require(Shared.Util.StaticShapes)
+local Body = require(Shared.Util.NativeBodyGeometry)
 local circleEntry = SegmentCircle.entry
 
 export type Kind = Enemies.Enemy
@@ -146,11 +147,14 @@ export type World = typeof(setmetatable(
 		columns: { { any } }, -- every per-enemy array above, for compacting and clearing
 		indexOf: { [number]: number }, -- id -> array index
 		nextId: number,
-		maxRadius: number, -- largest enemy radius seen, widens neighbour queries
+		maxRadius: number, -- conservative root-based collider extent, including physical body offsets
+		maxColliderRadius: number, -- original circle-radius bound for the internal body-center hash
 		maxSpeed: number, -- fastest enemy speed seen, widens neighbour queries while enemies move
 		hash: SpatialHash.SpatialHash,
 		scratch: { number }, -- query results inside step()
 		queryScratch: { number }, -- query results for callers between steps
+		bodyXs: { number }, -- transient physical-center scratch, rebuilt for separation (not persistent actor columns)
+		bodyZs: { number },
 		contacts: { number },
 		-- shots of the last step, flat: enemy id, x, z, target index, damage per shot
 		shots: { number },
@@ -239,10 +243,13 @@ function World.new(params: Params): World
 		indexOf = {},
 		nextId = 0,
 		maxRadius = 0,
+		maxColliderRadius = 0,
 		maxSpeed = 0,
 		hash = SpatialHash.new(params.cellSize),
 		scratch = {},
 		queryScratch = {},
+		bodyXs = {},
+		bodyZs = {},
 		contacts = {},
 		shots = {},
 		shotCount = 0,
@@ -431,7 +438,8 @@ function World.spawn(
 		elseif kind.hatch then kind.hatch.seconds
 		else 0
 	self.indexOf[id] = i
-	self.maxRadius = math.max(self.maxRadius, kind.radius, kind.hurtRadius or 0, kind.hitRadius or 0)
+	self.maxColliderRadius = math.max(self.maxColliderRadius, kind.radius, kind.hurtRadius or 0, kind.hitRadius or 0)
+	self.maxRadius = math.max(self.maxRadius, Body.extent(kind), kind.hurtRadius or 0, kind.hitRadius or 0)
 	self.maxSpeed = math.max(self.maxSpeed, kind.speed * speed)
 	self.hash:insert(i, x, z) -- visible to queries right away
 	return id
@@ -529,6 +537,8 @@ function World.clear(self: World)
 	table.clear(self.indexOf)
 	table.clear(self.shots)
 	table.clear(self.summons)
+	table.clear(self.bodyXs)
+	table.clear(self.bodyZs)
 	self.shotCount = 0
 	self.summonCount = 0
 	self.count = 0
@@ -845,12 +855,13 @@ function World.push(self: World, id: number, dx: number, dz: number)
 	local kind = self.kinds[i]
 	local scale = World.knockbackShare(kind)
 	local radius = kind.radius
-	local x, z = self.xs[i] + dx * scale, self.zs[i] + dz * scale
+	local x, z = Body.center(kind, self.xs[i] + dx * scale, self.zs[i] + dz * scale)
 	if kind.nativeObstacleCollision ~= false then
 		for _, obstacle in p.obstacles do
 			x, z = pushOutObstacle(x, z, obstacle, radius, id)
 		end
 	end
+	x, z = Body.origin(kind, x, z)
 	self.xs[i], self.zs[i] = NativeMovement.clampPosition(p, kind, x, z)
 end
 
@@ -984,14 +995,15 @@ local function rushStep(self: World, i: number, charge: Enemies.Charge?, dt: num
 	speed *= if native then self.nativeSlows:factor(self.ids[i], speed / PointScale) else nativeSpeedFactor(self, i)
 	local move = if native then speed * dt else math.min(speed * dt, self.rushLeft[i])
 	local x, z = self.xs[i], self.zs[i]
+	local bx, bz = Body.center(self.kinds[i], x, z)
 	local dx, dz = self.rushXs[i], self.rushZs[i]
 	self.moveInputXs[i], self.moveInputZs[i] = dx * speed, dz * speed
 	local stopAt: number? = nil
 	if self.kinds[i].nativeObstacleCollision ~= false then
 		for _, obstacle in p.obstacles do
 			local entry = if obstacle.halfLength
-				then StaticShapes.entry(x, z, dx, dz, move, obstacle, radius)
-				else circleEntry(x, z, dx, dz, move, obstacle.x, obstacle.z, obstacle.radius + radius)
+				then StaticShapes.entry(bx, bz, dx, dz, move, obstacle, radius)
+				else circleEntry(bx, bz, dx, dz, move, obstacle.x, obstacle.z, obstacle.radius + radius)
 			if entry and entry < (stopAt or math.huge) then
 				stopAt = entry
 			end
@@ -1188,8 +1200,8 @@ local function pulseAt(self: World, i: number, pulse: Enemies.Pulse): boolean
 	return healed
 end
 
-local function rebuildHash(self: World)
-	local hash, xs, zs = self.hash, self.xs, self.zs
+local function rebuildHash(self: World, positionsX: { number }?, positionsZ: { number }?)
+	local hash, xs, zs = self.hash, positionsX or self.xs, positionsZ or self.zs
 	hash:clear()
 	for i = 1, self.count do
 		hash:insert(i, xs[i], zs[i])
@@ -1298,7 +1310,10 @@ function World.step(
 				kinds[i] = grown
 				self.speedBonuses[i] += speed
 				self.contactDamage[i] = damage or self.contactDamage[i]
-				self.maxRadius = math.max(self.maxRadius, grown.radius, grown.hurtRadius or 0, grown.hitRadius or 0)
+				self.maxColliderRadius =
+					math.max(self.maxColliderRadius, grown.radius, grown.hurtRadius or 0, grown.hitRadius or 0)
+				self.maxRadius =
+					math.max(self.maxRadius, Body.extent(grown), grown.hurtRadius or 0, grown.hitRadius or 0)
 				self.maxSpeed = math.max(self.maxSpeed, grown.speed * self.speedFactors[i] + self.speedBonuses[i])
 			end
 			local bestTarget: number? = nil
@@ -1504,18 +1519,20 @@ function World.step(
 				continue
 			end
 			local vx, vz = dirX * advance, dirZ * advance
+			local bx, bz = Body.center(kind, x, z)
 			if kind.nativeObstacleCollision ~= false then
-				vx, vz = slideAroundObstacles(obstacles, x, z, vx, vz, radius + steerMargin, ids[i])
+				vx, vz = slideAroundObstacles(obstacles, bx, bz, vx, vz, radius + steerMargin, ids[i])
 			end
 
 			-- give way: move towards a neighbour at most until touching it
 			local mass = kind.mass
-			local found = hash:query(x, z, radius + queryPadding, scratch)
+			local found = hash:query(bx, bz, radius + queryPadding, scratch)
 			for s = 1, found do
 				local j = scratch[s]
 				local other = kinds[j]
 				if j ~= i and other.mass >= mass then
-					local nx, nz = x - xs[j], z - zs[j]
+					local nx = bx - xs[j] - (other.nativeBodyOffsetX or 0)
+					local nz = bz - zs[j] - (other.nativeBodyOffsetZ or 0)
 					local gap = math.sqrt(nx * nx + nz * nz)
 					local minDistance = radius + other.radius
 					if gap > EPSILON and gap < minDistance + maxMove then
@@ -1534,13 +1551,20 @@ function World.step(
 	end
 
 	-- 3. separation (each pass resolves `stiffness` of every overlap; passes after the first catch chains)
+	-- Cache physical centers once. The hot pair loop then retains its original two-subtraction distance calculation.
+	-- Only this internal collision pass hashes centers; actor origins and the public hash are restored below/at step5.
+	local originsX, originsZ = xs, zs
+	xs, zs = self.bodyXs, self.bodyZs
+	for i = 1, count do
+		xs[i], zs[i] = Body.center(kinds[i], originsX[i], originsZ[i])
+	end
 	local stiffness = p.separationStiffness
 	for _ = 1, p.separationPasses do
-		rebuildHash(self)
+		rebuildHash(self, xs, zs)
 		for i = 1, count do
 			local kindI = kinds[i]
 			local radiusI, massI = kindI.radius, kindI.mass
-			local found = hash:query(xs[i], zs[i], radiusI + maxRadius, scratch)
+			local found = hash:query(xs[i], zs[i], radiusI + self.maxColliderRadius, scratch)
 			for s = 1, found do
 				local j = scratch[s]
 				if j > i then
@@ -1576,6 +1600,11 @@ function World.step(
 		end
 	end
 
+	for i = 1, count do
+		originsX[i], originsZ[i] = Body.origin(kinds[i], xs[i], zs[i])
+	end
+	xs, zs = originsX, originsZ
+
 	-- 4. constraints
 	for i = 1, count do
 		local kind = kinds[i]
@@ -1583,12 +1612,13 @@ function World.step(
 			continue
 		end
 		local radius = kind.radius
-		local x, z = xs[i], zs[i]
+		local x, z = Body.center(kind, xs[i], zs[i])
 		if kind.nativeObstacleCollision ~= false then
 			for _, obstacle in obstacles do
 				x, z = pushOutObstacle(x, z, obstacle, radius, ids[i])
 			end
 		end
+		x, z = Body.origin(kind, x, z)
 		if NativeMovement.collidesTargets(p.collideTargets, kind) then
 			for t = 1, targetCount do
 				x, z = pushOut(

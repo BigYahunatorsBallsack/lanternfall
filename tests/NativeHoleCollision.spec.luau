@@ -2,6 +2,7 @@
 -- Native hole capsules retain their center segment; exact circle/capsule collision is exercised through production World movement.
 local Shared = game:GetService("ReplicatedStorage").Shared
 local Shapes = require(Shared.Util.StaticShapes)
+local Body = require(Shared.Util.NativeBodyGeometry)
 local C = require(Shared.Config)
 local Source = require(Shared.Config.JungleHoles)
 local World = require(game:GetService("ServerScriptService").Server.Services.EnemySim.World)
@@ -124,15 +125,17 @@ describe("Native capsule obstacles", function()
 				w:step(0.1, { 25 }, { 0 }, 1)
 			end
 			local x, z = w:getPosition(id)
-			expect(Shapes.contains(x, z, hole, 1)).toBe(true)
+			local bx, bz = Body.center(kind, x, z)
+			expect(Shapes.contains(bx, bz, hole, 1)).toBe(true)
 			local Friends = require(game:GetService("ServerScriptService").Server.Services.EnemySim.CharmedWorld)
 			local friends = Friends.new(w.params, {})
 			expect(friends:convert(w, id, 1, 0, { contact = 0, shot = 0 })).toBe(true)
 			expect(friends.world:getKind(id).nativeObstacleCollision).toBe(true)
 			friends.world:step(0, { 25 }, { 0 }, 1)
 			x, z = friends.world:getPosition(id)
-			local cx, cz = Shapes.closest(x, z, hole)
-			expect(math.sqrt((x - cx) ^ 2 + (z - cz) ^ 2) >= 8 - 1e-6).toBe(true)
+			bx, bz = Body.center(friends.world:getKind(id), x, z)
+			local cx, cz = Shapes.closest(bx, bz, hole)
+			expect(math.sqrt((bx - cx) ^ 2 + (bz - cz) ^ 2) >= 8 - 1e-6).toBe(true)
 		end
 	)
 	it("preserves existing circle geometry through the shared entry helper", function()

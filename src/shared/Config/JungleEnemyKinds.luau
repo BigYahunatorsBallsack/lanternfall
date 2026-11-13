@@ -15,6 +15,8 @@ function Kinds.build(pixel: number): { [string]: any }
 			nativeArtPending = true,
 			nativeZoneId = C.zoneId,
 			nativeObstacleCollision = f.obstacleCollision,
+			nativeBodyOffsetX = f.body.offsetPoints[1] * pixel,
+			nativeBodyOffsetZ = f.body.offsetPoints[2] * pixel,
 			nativeMovement = {
 				goalInsetX = f.sprite.widthPoints * pixel / 2,
 				goalInsetZ = f.sprite.heightPoints * pixel / 2,

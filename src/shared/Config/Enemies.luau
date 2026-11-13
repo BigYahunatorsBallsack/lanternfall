@@ -37,6 +37,8 @@ export type Enemy = {
 		collidePlayers: boolean,
 		precision: number,
 	}?, -- native goal rectangle differs from physical origin bounds
+	nativeBodyOffsetX: number?,
+	nativeBodyOffsetZ: number?, -- Collision.position in the original actor-local coordinate system
 	nativeObstacleCollision: boolean?, -- original OBSTACLES_BIT in the body mask, independent of is_flying
 	nativeZoneId: number?, -- an area-specific body never joins another area's ordinary random mix
 	look: string?, -- reuses the model of this enemy id in another color (EnemyRenderer/Models); default: its own id
