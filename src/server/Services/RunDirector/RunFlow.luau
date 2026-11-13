@@ -301,11 +301,13 @@ local function finishRun(self: RunFlow, outcome: Outcome, now: number)
 		return a.name < b.name
 	end)
 
-	if outcome == "Defeat" and self.runOptions.endless and pastLastWave(self) then
+	local defeated = outcome == "Defeat"
+	if defeated and self.runOptions.endless and pastLastWave(self) then
 		outcome = "Victory" -- endless mode: reaching the end of the last wave wins (Brotato)
 	end
 	local results: Types.Results = {
 		outcome = outcome,
+		defeated = if defeated then true else nil,
 		survivedSeconds = self:getElapsed(now), -- fighting time, without the shops
 		difficulty = DangerRules.label(self.runOptions),
 		players = entries,

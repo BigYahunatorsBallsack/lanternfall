@@ -560,6 +560,28 @@ function PlayerDataService.observeNativeFastBossKill(player: Player, seconds: nu
 	end
 end
 
+-- Native Rookie completes when the last living participant dies, independently of deferred retry bookkeeping.
+function PlayerDataService.observeNativeDefeat(player: Player)
+	local data = PlayerDataService.get(player)
+	if not data then
+		return
+	end
+	local changed = false
+	for _, rule in NativeCharacterAccess do
+		if rule.kind == "RunDefeat" then
+			local key = CharacterAccess.challengeKey(rule.challengeId)
+			if not data.achievements[key] then
+				data.achievements[key] = true
+				changed = true
+			end
+		end
+	end
+	if changed then
+		sendInfo(player)
+		PlayerDataService.Changed:Fire(player)
+	end
+end
+
 function PlayerDataService.observeNativeTreeKill(player: Player)
 	local data = PlayerDataService.get(player)
 	if not data then

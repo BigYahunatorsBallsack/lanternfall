@@ -1026,3 +1026,8 @@ NeutralerEnigmacursor mitoriginalerSchussfolge undechtenverzögertenPillar-Proje
 ### B10 gemeinsameJungle-Randgeburten (13.11.2026)
 
 GemeinsameRand-/Spielerhöhe-Spawns mit85FramesWarnung,einMarkerundgleichzeitigerGruppe,korrekterDeadline-ReihenfolgeundSpielerüberlappungsrestart integriert. NativeGroupSpawn5/0,Voll279Specs1728/36:keineneuenFehler/Abbrüchevs278/1723/36. KeinGebiet/zusätzlicherCharakterfreigegeben. NächsterMainGame-Schritt: Chunkysnachgewiesenechal_rookie-FreischaltungbeimTeam-Defeat ergänzen; danebenJungle-Spezialfamilienfortsetzen. AktuelleerneuerteAGENTS-Vorgabe„Nichtselbstmergen“beachten. DetailsHANDOFF/group-birth-validation.json.
+
+
+### B10 ChunkysErsttod-Freischaltung (13.11.2026)
+
+Nativechal_rookie/„Die for the first time“ anechtenTeam-Wipe angebunden,nichtanAbbruch/einzelnenDown/mehrdeutigealteRunzählungen. EndlostodbehältResults.defeated,auchwenndieAnzeigeVictorylautet. Profil-Rejoin/Zuschauerisolation/echter21-Wellen-Endlos-Tod5/0. Voll280Specs1733/36vs279/1728/36,keineneuenFehler/Abbrüche. Weiter48Pakete,Chunky/WildlingJungle-/Flail-abhängigundnichtCodeReady. NächsterSchrittJungle-Anticipation/Dino-Spezialfamilien. KeinMerge/keineAssetsIDs/Studioänderungen.
