@@ -7,6 +7,7 @@
 
 local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
 local Config = require(Shared:WaitForChild("Config"))
+local EnemyConfig = require(Shared.Config.Enemies)
 local EnemyKinds = require(Shared:WaitForChild("Util"):WaitForChild("EnemyKinds"))
 local Theme = require(script.Parent.Parent.Parent.UI.Theme)
 
@@ -79,6 +80,10 @@ export type Visual = {
 	charmed: boolean,
 	lowDetail: boolean,
 	poseTick: number,
+	pursuerStage: number,
+	pursuer: EnemyConfig.Pursuer?,
+	baseRadius: number,
+	baseStuds: number,
 	hidden: boolean, -- pooled or not placed yet: pictures invisible (hide/show)
 }
 
@@ -300,6 +305,10 @@ function SpriteModels.build(typeId: number): Visual
 		charmed = false,
 		lowDetail = false,
 		poseTick = 0,
+		pursuerStage = 0,
+		pursuer = enemy and enemy.pursuer,
+		baseRadius = r,
+		baseStuds = art.studs,
 		hidden = false,
 	}
 	if enemy and enemy.elite then
@@ -493,7 +502,24 @@ function SpriteModels.setDetail(visual: Visual, on: boolean)
 	visual.lowDetail = on
 end
 
+-- Native sprite growth is separate from the much smaller collision/shadow growth; reset on pool reuse.
+function SpriteModels.setPursuerStage(visual: Visual, stage: number)
+	local rule = visual.pursuer
+	if not rule then
+		return
+	end
+	stage = math.clamp(stage, 0, rule.maxSteps)
+	if stage == visual.pursuerStage then
+		return
+	end
+	visual.pursuerStage = stage
+	visual.radius = visual.baseRadius * (1 + rule.sizePerStep * rule.collisionScalingShare * stage)
+	WorldSprite.setStuds(visual.sprite, visual.baseStuds * (1 + rule.sizePerStep * stage))
+	visual.shadow.Size = Vector3.new(SHADOW_THICKNESS, SHADOW_DIAMETER * visual.radius, SHADOW_DIAMETER * visual.radius)
+end
+
 function SpriteModels.reset(visual: Visual)
+	SpriteModels.setPursuerStage(visual, 0)
 	visual.flashing = false
 	SpriteModels.setStatus(visual, false, false, false, false)
 	SpriteModels.setMode(visual, 0)
@@ -520,6 +546,9 @@ function SpriteModels.pose(
 	local gait, r, mode = visual.gait, visual.radius, visual.mode
 	local s = math.sin(phase)
 	local hop = gait.bob * r * move * math.abs(s)
+	local rise = if visual.pursuer
+		then visual.pursuer.sizePerStep * visual.pursuer.spriteRise * visual.pursuerStage
+		else 0
 	local shift = 0
 	local rotation = math.deg(gait.roll * move * s)
 	local scaleX, scaleY = 1, 1
@@ -551,7 +580,7 @@ function SpriteModels.pose(
 
 	count += 1
 	parts[count] = visual.body
-	cframes[count] = CFrame.new(x + shift, y, z - hop) -- north is up on the screen; height would not show
+	cframes[count] = CFrame.new(x + shift, y, z - hop - rise) -- north is up on the screen; height would not show
 	count += 1
 	parts[count] = visual.shadow
 	cframes[count] = CFrame.new(x, y + SHADOW_THICKNESS, z) * UPRIGHT

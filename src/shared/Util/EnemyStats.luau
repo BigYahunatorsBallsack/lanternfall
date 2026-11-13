@@ -1,6 +1,7 @@
 --!strict
 -- Pure enemy growth and appearance rules, read by EnemySim, SpawnRules and RunSchedule.
 local Enemies = require(script.Parent.Parent.Config.Enemies)
+local Pixel = require(script.Parent.Parent.Config.Stats).range.studsPerPoint
 local DefaultZone = require(script.Parent.Parent.Config.NativeZones).default
 
 local EnemyStats = {}
@@ -48,6 +49,20 @@ end
 -- One sample per spawn; speed does not grow with the wave or danger level.
 function EnemyStats.speedFactor(kind: Enemies.Enemy, roll: number): number
 	return if kind.speed > 0 and kind.speedMax then 1 + (kind.speedMax / kind.speed - 1) * math.clamp(roll, 0, 1) else 1
+end
+
+-- Unit.reset_speed_stat: truncate the signed random offset before applying modifiers, then round final pixels/s.
+-- Historical kinds retain their existing sampler until their source policy is opted in explicitly.
+function EnemyStats.spawnSpeedFactor(kind: Enemies.Enemy, roll: number, multiplier: number): number
+	local rule = kind.nativeSpeedPoints
+	if not rule then
+		return multiplier * EnemyStats.speedFactor(kind, roll)
+	end
+	if kind.speed == 0 then
+		return 0
+	end
+	local offset = math.modf((math.clamp(roll, 0, 1) * 2 - 1) * rule.randomization)
+	return math.round((rule.base + offset) * multiplier) * Pixel / kind.speed
 end
 
 return EnemyStats

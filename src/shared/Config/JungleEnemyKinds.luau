@@ -20,6 +20,7 @@ function Kinds.build(pixel: number): { [string]: any }
 			damagePerWave = s.damage_increase_each_wave,
 			speed = (s.speed - s.speed_randomization) * pixel,
 			speedMax = (s.speed + s.speed_randomization) * pixel,
+			nativeSpeedPoints = { base = s.speed, randomization = s.speed_randomization },
 			xp = s.value,
 			radius = f.body.radiusPoints * pixel,
 			hurtRadius = f.hurt.radiusPoints * pixel,
@@ -34,6 +35,21 @@ function Kinds.build(pixel: number): { [string]: any }
 		}
 		if f.anticipate then
 			result[id].anticipate = f.anticipate
+		end
+		if f.pursuer then
+			local a = f.pursuer
+			result[id].pursuer = {
+				everySeconds = a.boost_cooldown,
+				maxSteps = a.max_boosts,
+				speedPerStep = a.speed_on_boost * pixel,
+				damagePercentPerStep = a.damage_on_boost,
+				sizePerStep = a.size_on_boost,
+				collisionScalingShare = a.collisionScalingShare,
+				spriteRise = a.spriteRisePoints * pixel,
+				changeAt = a.change_movement_behavior_after_x_boosts,
+				changeSpeed = a.bonus_speed_on_change_movement_behavior * pixel,
+				playerSpeedShare = a.max_player_speed_multiplier,
+			}
 		end
 		if f.activeVariant then
 			local a = f.shootingVariants[f.activeVariant]

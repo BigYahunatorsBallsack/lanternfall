@@ -11,6 +11,11 @@ Friends.__index = Friends
 function Friends.new(params: any, callbacks: any): any
 	local options = table.clone(params)
 	options.goalsWithoutTargets = true
+	options.referencePlayerSpeed = if params.referencePlayerSpeed
+		then function()
+			return params.referencePlayerSpeed(nil)
+		end
+		else nil
 	options.collideTargets = false -- native PETS_BIT + OBSTACLES_BIT mask excludes enemy/player bodies
 	return setmetatable({
 		world = World.new(options),
@@ -263,8 +268,9 @@ function Friends.step(self: any, dt: number, now: number, hostile: any)
 			local actor = self.world.indexOf[source]
 			if actor then
 				local rule = Config.Simulation.contactRecoil
-				local speed = self.world.kinds[actor].speed * self.world.speedFactors[actor] * self.world.boosts[actor]
-					+ self.world.speedBonuses[actor]
+				local kind = self.world.kinds[actor]
+				local speed = kind.speed * self.world.speedFactors[actor] * self.world.boosts[actor]
+					+ (if kind.pursuer then 0 else self.world.speedBonuses[actor])
 				local points = speed / Config.Stats.range.studsPerPoint
 				self.world:nativeSlow(source, -math.floor(math.max(rule.minPoints, points * rule.speedShare)), false, 0)
 			end

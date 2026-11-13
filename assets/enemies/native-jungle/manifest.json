@@ -139,6 +139,25 @@
       "pngSha256": "a4f458bd780d51d60ee15425d82517de55d6cc993fdee818df9efd5fe1051b71"
     },
     {
+      "id": "BabyTrex",
+      "source": "res://entities/units/enemies/jungle/basic/baby_trex/baby_trex.png",
+      "textureSource": "res://.import/baby_trex.png-95eb877f172c9c4c3fc70b004af0fe56.stex",
+      "textureMd5": "b8d455872eab85268962b12ceb776e63",
+      "output": "assets/enemies/native-jungle/BabyTrex.png",
+      "size": [
+        120,
+        120
+      ],
+      "alphaBounds": [
+        13,
+        8,
+        109,
+        115
+      ],
+      "rgbaSha256": "7db6c3114ee0c4c683484d49b3c4dbb92dd0735124929c2ea0192012ad13adc2",
+      "pngSha256": "35656d0c3bf334532e8926725b522305ca6836a732c87ae0218686bcd1740d7f"
+    },
+    {
       "id": "Pillar_bullet_pillar_0002",
       "source": "res://projectiles/pillar_enemy/sprites/bullet_pillar_0002.png",
       "textureSource": "res://.import/bullet_pillar_0002.png-b64813647bb259fcd087f6245a3b4bd8.stex",

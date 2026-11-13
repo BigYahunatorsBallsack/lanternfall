@@ -9,7 +9,8 @@ export type Enemy = {
 	displayName: string,
 	hp: number,
 	speed: number, -- minimum studs/s; wiki speed / 450 * player base speed
-	speedMax: number?, -- sampled once at spawn
+	speedMax: number?,
+	nativeSpeedPoints: { base: number, randomization: number }?, -- native integer random offset then final rounding -- sampled once at spawn
 	firstWave: number?,
 	firstWaveByDanger: { [number]: number }?,
 	minDanger: number?,
@@ -49,6 +50,7 @@ export type Enemy = {
 	anticipate: { seconds: number, horizontalOnly: boolean }?, -- native anticipation uses target input; vertical-targeting keeps its current z
 	-- since B9 part 2 (Brotato's enemy behaviours, DESIGN.md section 7)
 	accelerate: Accelerate?,
+	pursuer: Pursuer?,
 	retaliate: Retaliate?,
 	pulse: Pulse?,
 	hatch: Hatch?,
@@ -156,6 +158,20 @@ export type Accelerate = {
 	perStep: number,
 	maxSteps: number,
 	resetOnHit: boolean?,
+}
+
+-- Native flat Pursuer boosts plus Baby T-Rex's live-player speed cap; no reset on contact.
+export type Pursuer = {
+	everySeconds: number,
+	maxSteps: number,
+	speedPerStep: number,
+	damagePercentPerStep: number,
+	sizePerStep: number,
+	collisionScalingShare: number,
+	spriteRise: number,
+	changeAt: number,
+	changeSpeed: number,
+	playerSpeedShare: number,
 }
 
 -- Enemies that shoot a ring of projectiles when hit (Thornback, B9). Shots fly like the Spitter's (EnemySim/Volleys).

@@ -39,6 +39,7 @@ local ShootingClock = require(Shared.Util.NativeEnemyShootingClock)
 local Combat = require(Shared.Config.Combat)
 local PointScale = require(Shared.Config.Stats).range.studsPerPoint
 local DecayingSpeed = require(script.Parent.DecayingSpeed)
+local NativePursuer = require(script.Parent.NativePursuer)
 local SpatialHash = require(Shared.Util.SpatialHash)
 local SegmentCircle = require(Shared.Util.SegmentCircle)
 local circleEntry = SegmentCircle.entry
@@ -61,6 +62,7 @@ export type Params = {
 	maxZ: number,
 	obstacles: { Circle },
 	allocateId: (() -> number)?,
+	referencePlayerSpeed: ((number?, number?, number?) -> number?)?, -- target player index, or fastest living player when nil
 	goalsWithoutTargets: boolean?,
 	collideTargets: boolean?, -- false for native pet bodies, which collide only with pets and obstacles
 	seed: number?, -- for the wander points (kind.wander) and keep-distance jitter; tests pass one
@@ -114,6 +116,7 @@ export type World = typeof(setmetatable(
 		speedBonuses: { number },
 		speedFactors: { number }, -- multiplier on its kind's speed from spawning (the team's Enemy Speed stat, B9)
 		boosts: { number }, -- multiplier on its speed from accelerating (kind.accelerate), 1 otherwise (B9)
+		pursuers: { NativePursuer.State? },
 		boostClocks: { number }, -- seconds towards its next accelerate step
 		zoneMembers: { [number]: { [number]: boolean } }, -- by Mender id: ids of the enemies in its radius (pulse.onEnter)
 		buffed: { boolean }, -- a Herald made it stronger (once per enemy, shown in snapshots; B9)
@@ -203,6 +206,7 @@ function World.new(params: Params): World
 		speedFactors = {},
 		speedBonuses = {},
 		boosts = {},
+		pursuers = {},
 		boostClocks = {},
 		zoneMembers = {},
 		buffed = {},
@@ -264,6 +268,7 @@ function World.new(params: Params): World
 		self.speedFactors,
 		self.speedBonuses,
 		self.boosts,
+		self.pursuers,
 		self.boostClocks,
 		self.buffed,
 		self.abilityTimers,
@@ -334,7 +339,7 @@ function World.spawn(
 	self.zs[i] = z
 	self.hp[i] = hp
 	self.maxHp[i] = hp
-	self.contactDamage[i] = contactDamage
+	self.contactDamage[i] = if kind.pursuer then math.round(contactDamage) else contactDamage
 	local ranged = kind.ranged
 	local spread = (id * GOLDEN_RATIO) % 1 -- so a group spawned together does not act in sync
 	self.shotDamage[i] = shotDamage or World.baseShotDamage(kind)
@@ -361,6 +366,11 @@ function World.spawn(
 	self.moveInputXs[i], self.moveInputZs[i] = 0, 0
 	self.boosts[i], self.buffed[i], self.hasGoal[i] = 1, false, false
 	self.boostClocks[i] = 0
+	self.pursuers[i] = if kind.pursuer then NativePursuer.new(contactDamage) else nil
+	local pursuer = self.pursuers[i]
+	if pursuer and self.params.referencePlayerSpeed then
+		pursuer.referenceSpeed = self.params.referencePlayerSpeed(nil, x, z)
+	end
 	self.zoneMembers[id] = nil
 	self.goalXs[i], self.goalZs[i] = 0, 0
 	local wander = kind.wander
@@ -832,9 +842,17 @@ function World.getKnockback(self: World, id: number): (number, number)
 	return self.knockXs[i], self.knockZs[i]
 end
 
+-- Cap the base before additive native penalties; a stationary player still has a stat move speed.
+local function baseMoveSpeed(self: World, i: number): number
+	local speed = self.kinds[i].speed * self.speedFactors[i] * self.boosts[i] + self.speedBonuses[i]
+	local rule = self.kinds[i].pursuer
+	local state = self.pursuers[i]
+	return if rule and state then NativePursuer.cap(rule, state, speed) else speed
+end
+
 -- Stable Unit speed penalties are additive in original points, hold independently, then recover at the source rate.
 local function nativeSpeedFactor(self: World, i: number): number
-	local points = (self.kinds[i].speed * self.speedFactors[i] * self.boosts[i] + self.speedBonuses[i]) / PointScale
+	local points = baseMoveSpeed(self, i) / PointScale
 	return self.nativeSlows:factor(self.ids[i], points)
 end
 function World.nativeSlow(self: World, id: number, amount: number, percent: boolean, hold: number)
@@ -843,7 +861,9 @@ function World.nativeSlow(self: World, id: number, amount: number, percent: bool
 		return
 	end
 	local points = self.kinds[i].speed * self.speedFactors[i] * self.boosts[i] / PointScale
-	self.nativeSlows:add(id, points, if percent then points * amount / 100 else amount, hold)
+	-- Unit.add_decaying_speed clamps and diminishes against current_stats.speed, even when Baby T-Rex caps movement.
+	local percentBase = if self.pursuers[i] then math.floor(baseMoveSpeed(self, i) / PointScale) else points
+	self.nativeSlows:add(id, points, if percent then percentBase * amount / 100 else amount, hold)
 end
 
 -- Slows a living enemy to `factor` (0..1) of its speed for `seconds` (B5). Slows do not stack: the stronger one wins,
@@ -1202,6 +1222,32 @@ function World.step(
 	table.clear(self.strikers)
 	table.clear(self.rushes)
 
+	-- Native Timer runs independently of target availability. Only two boosts can allocate a grown kind.
+	for i = 1, count do
+		local rule = kinds[i].pursuer
+		local state = self.pursuers[i]
+		if rule and state then
+			local grown, speed, damage = NativePursuer.step(rule, state, kinds[i], dt)
+			if grown then
+				kinds[i] = grown
+				self.speedBonuses[i] += speed
+				self.contactDamage[i] = damage or self.contactDamage[i]
+				self.maxRadius = math.max(self.maxRadius, grown.radius, grown.hurtRadius or 0, grown.hitRadius or 0)
+				self.maxSpeed = math.max(self.maxSpeed, grown.speed * self.speedFactors[i] + self.speedBonuses[i])
+			end
+			local bestTarget: number? = nil
+			local bestSquared = math.huge
+			for t = 1, targetCount do
+				local squared = (targetXs[t] - xs[i]) ^ 2 + (targetZs[t] - zs[i]) ^ 2
+				if squared < bestSquared then
+					bestSquared, bestTarget = squared, t
+				end
+			end
+			state.referenceSpeed = if p.referencePlayerSpeed then p.referencePlayerSpeed(bestTarget) else nil
+		end
+	end
+	maxRadius = self.maxRadius
+
 	-- 1b. knockback glide (Brotato: each 60 Hz frame the vector shrinks to `decay` of itself, then moves the enemy by
 	-- vector x speedPerPoint x share px/s); frames = dt x frameRate, summed as a geometric series
 	local knock = Combat.knockback
@@ -1226,7 +1272,9 @@ function World.step(
 		kx, kz = kx * decayed, kz * decayed
 		local length = math.sqrt(kx * kx + kz * kz)
 		-- the hitbox stays off while the push is faster than the enemy walks (Enemy._physics_process)
-		local walk = kind.speed * self.speedFactors[i] * self.boosts[i] * self.slowFactors[i]
+		local walk = (
+			if kind.pursuer then baseMoveSpeed(self, i) else kind.speed * self.speedFactors[i] * self.boosts[i]
+		) * self.slowFactors[i]
 		knocked[i] = share > 0 and length * knock.speedPerPoint * share > walk
 		if length < stopBelow then
 			kx, kz = 0, 0
@@ -1301,10 +1349,7 @@ function World.step(
 				continue
 			end
 			local radius = kind.radius
-			local maxMove = (kind.speed * self.speedFactors[i] * self.boosts[i] + self.speedBonuses[i])
-				* self.slowFactors[i]
-				* nativeSpeedFactor(self, i)
-				* dt
+			local maxMove = baseMoveSpeed(self, i) * self.slowFactors[i] * nativeSpeedFactor(self, i) * dt
 			local dirX, dirZ = bestDx / distance, bestDz / distance
 			local advance
 			local ranged = kind.ranged

@@ -63,13 +63,21 @@ function Movement.isMoving(player: Player): boolean
 	return velocity.X ~= 0 or velocity.Z ~= 0
 end
 
+-- Stat speed is independent of current input and wall collisions; native Baby T-Rex uses this reference.
+function Movement.getSpeed(player: Player): number
+	if not Run.isActive() or Run.getParticipantState(player) ~= "Alive" or not speedOf then
+		return 0
+	end
+	return math.max(0, speedOf(player))
+end
+
 -- Native Unit.get_move_input is normalized input times server-computed stat speed, including against a wall.
 function Movement.getInput(player: Player): Vector3
 	if not Run.isActive() or Run.getParticipantState(player) ~= "Alive" or not speedOf then
 		return Vector3.zero
 	end
 	local intent = intents[player]
-	local speed = math.max(0, speedOf(player))
+	local speed = Movement.getSpeed(player)
 	if intent and intent.direction and workspace:GetServerTimeNow() - intent.at <= C.lifetimeSeconds then
 		return intent.direction * speed
 	end

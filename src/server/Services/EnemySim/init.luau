@@ -89,11 +89,35 @@ local function allocateActorId(): number
 	until (not world or not world.indexOf[sharedSerial]) and (not friends or not friends.world.indexOf[sharedSerial])
 	return sharedSerial
 end
+-- Living participants with a character, refreshed every step (reused arrays).
+local targetPlayers: { Player } = {}
+local function referencePlayerSpeed(index: number?, x: number?, z: number?): number?
+	if index and targetPlayers[index] then
+		return MovementInput.getSpeed(targetPlayers[index])
+	end
+	local fastest: number? = nil
+	local nearest: number? = nil
+	local bestSquared = math.huge
+	for _, player in RunDirector.getParticipants() do
+		if RunDirector.getParticipantState(player) == "Alive" then
+			fastest = math.max(fastest or 0, MovementInput.getSpeed(player))
+			local at = if x and z then MapService.getRootPosition(player) else nil
+			if at and x and z then
+				local squared = (at.X - x) ^ 2 + (at.Z - z) ^ 2
+				if squared < bestSquared then
+					bestSquared, nearest = squared, MovementInput.getSpeed(player)
+				end
+			end
+		end
+	end
+	return nearest or fastest
+end
 local function newWorldParams(): World.Params
 	local bounds = MapService.getArenaBounds()
 	local center, halfX, halfZ = bounds.center, bounds.halfX, bounds.halfZ
 	return {
 		allocateId = allocateActorId,
+		referencePlayerSpeed = referencePlayerSpeed,
 		cellSize = Sim.spatialHashCellSize,
 		maxEnemies = Config.Run.spawn.cap.max,
 		playerRadius = Sim.playerRadius,
@@ -158,8 +182,6 @@ friends = CharmedWorld.new(world.params, {
 local currentTick = 0
 local accumulator = 0
 
--- Living participants with a character, refreshed every step (reused arrays).
-local targetPlayers: { Player } = {}
 local targetIndexOf: { [Player]: number } = {}
 local targetXs: { number } = {}
 local targetZs: { number } = {}
@@ -557,6 +579,7 @@ local function sendSnapshot()
 					+ (if burning[i] then Snapshot.STATUS_BURNING else 0)
 					+ (if slowFactors[i] < 1 or actors.nativeSlows:active(ids[i]) then Snapshot.STATUS_SLOWED else 0)
 					+ (if buffed[i] then Snapshot.STATUS_BUFFED else 0)
+					+ Snapshot.packPursuerStage(if actors.pursuers[i] then actors.pursuers[i].stage else 0)
 			end
 		end
 	end
@@ -689,7 +712,7 @@ function EnemySim.spawn(
 		hpGrowth, contactGrowth, shotGrowth = EnemyStats.growth(kind, wave)
 	end
 	local shotDamage = if baseShot > 0 then baseShot * damageMultiplier * shotGrowth else nil
-	local speed = (speedMultiplier or 1) * EnemyStats.speedFactor(kind, RandomService.number("Spawns"))
+	local speed = EnemyStats.spawnSpeedFactor(kind, RandomService.number("Spawns"), speedMultiplier or 1)
 	local id = world:spawn(
 		kind,
 		x,
@@ -704,7 +727,9 @@ function EnemySim.spawn(
 		local index = world.indexOf[id]
 		nativeBases[id] = {
 			spawnedAt = workspace:GetServerTimeNow(),
-			contact = world.contactDamage[index],
+			contact = if kind.pursuer
+				then kind.contactDamage * damageMultiplier * contactGrowth
+				else world.contactDamage[index],
 			shot = world.shotDamage[index],
 			spawn = { hp = hpMultiplier, damage = damageMultiplier, speed = speedMultiplier or 1, wave = wave },
 		}

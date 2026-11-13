@@ -6,7 +6,7 @@ import argparse, importlib.util, json, re, subprocess, sys, tempfile
 from pathlib import Path
 sys.dont_write_bytecode = True
 ROOT = Path(__file__).resolve().parents[1]
-FAMILIES = {'baby_triceratops': ('BabyTriceratops', 40, 'Baby Triceratops'), 'gallimimus': ('Gallimimus', 41, 'Gallimimus'), 'lystrosaurus': ('Lystrosaurus', 42, 'Lystrosaurus'), 'pyroraptor': ('Pyroraptor', 43, 'Pyroraptor'), 'enigmacursor': ('Enigmacursor', 44, 'Enigmacursor'), 'baby_pterosaur': ('BabyPterosaur',45,'Baby Pterosaur'), 'graciliceratops': ('Graciliceratops',46,'Graciliceratops')}
+FAMILIES = {'baby_triceratops': ('BabyTriceratops', 40, 'Baby Triceratops'), 'gallimimus': ('Gallimimus', 41, 'Gallimimus'), 'lystrosaurus': ('Lystrosaurus', 42, 'Lystrosaurus'), 'pyroraptor': ('Pyroraptor', 43, 'Pyroraptor'), 'enigmacursor': ('Enigmacursor', 44, 'Enigmacursor'), 'baby_pterosaur': ('BabyPterosaur',45,'Baby Pterosaur'), 'graciliceratops': ('Graciliceratops',46,'Graciliceratops'), 'baby_trex': ('BabyTrex',47,'Baby T-Rex')}
 
 def module(name, file):
  spec = importlib.util.spec_from_file_location(name, ROOT/file)
@@ -36,7 +36,7 @@ def generate():
  for slug,(identity,type_id,name) in FAMILIES.items():
   path = f'res://entities/units/enemies/jungle/basic/{slug}/{slug}.tscn'
   nodes = resolve(path);root = nodes[('@','@')];move = nodes[('.','MovementBehavior')];attack = nodes[('.','AttackBehavior')]
-  assert root['scriptSource'] == 'res://entities/units/enemies/enemy.gd'
+  assert root['scriptSource'] == ('res://entities/units/enemies/jungle/basic/baby_trex/baby_trex.gd' if slug == 'baby_trex' else 'res://entities/units/enemies/enemy.gd')
   if slug == 'enigmacursor':
    assert move['scriptSource'] == 'res://entities/units/movement_behaviors/stay_in_range_from_player_movement_behavior.gd'
    assert attack['scriptSource'] == 'res://entities/units/movement_behaviors/detect_evolution_attack_behavior.gd'
@@ -51,6 +51,15 @@ def generate():
   stats_path = root['properties']['stats']['resource'];stats = {k:v for k,v in pck.resource(stats_path)['properties'].items() if isinstance(v,(int,float,bool))}
   assert stats['armor'] == 0 and stats['armor_increase_each_wave'] == 0, 'Armor requires its own runtime policy'
   enemies[identity] = {'typeId':type_id,'displayName':name,'fallbackLook':'Shadeling','source':path,'sourceMd5':pck.entries[path]['md5'],'statsSource':stats_path,'statsMd5':pck.entries[stats_path]['md5'],'stats':stats,'body':circle(nodes[('.','Collision')]),'hurt':circle(nodes[('Hurtbox','Collision')]),'hit':circle(nodes[('Hitbox','Collision')]),'removeFirst':root['properties'].get('to_be_removed_in_priority',False)}
+  if slug == 'baby_trex':
+   properties=root['properties']
+   alternate=nodes[('.','MovementBehaviorOnBoost')]
+   assert alternate['scriptSource']==move['scriptSource'] and not alternate['properties'].get('stop_close_to_target',False)
+   assert not properties['reset_nb_times_boosted_on_hit']
+   assert nodes[('.','BoostTimer')]['properties']['autostart']
+   enemies[identity]['pursuer']={k:properties[k] for k in ['boost_cooldown','max_boosts','speed_on_boost','damage_on_boost','size_on_boost','change_movement_behavior_after_x_boosts','bonus_speed_on_change_movement_behavior','reset_nb_times_boosted_on_hit','max_player_speed_multiplier']}
+   enemies[identity]['pursuer'].update(collisionScalingShare=0.25,spriteRisePoints=40)
+   used_scripts.update(['res://entities/units/enemies/crash_zone/basic/pursuer/pursuer.gdc','res://entities/units/unit/unit.gdc','res://singletons/entity_service.gdc'])
   if slug in ['baby_pterosaur','graciliceratops']:
    enemies[identity]['anticipate'] = {'seconds':move['properties']['anticipation_time'],'horizontalOnly':move['properties'].get('should_target_vertically',False)}
   if slug == 'enigmacursor':
@@ -98,5 +107,5 @@ def main():
     temp=Path(folder)/path.name;temp.write_text(text,encoding='utf-8');subprocess.run(['stylua',str(temp)],check=True);text=temp.read_text(encoding='utf-8')
   if args.check:assert path.read_text(encoding='utf-8')==text,f'Stale Jungle pursuit facts: {path}'
   else:path.write_text(text,encoding='utf-8',newline='\n')
- print('Four pursuit bodies, two anticipation bodies and neutral Enigmacursor compiled; evolution and playable Jungle remain open')
+ print('Four pursuit bodies, two anticipation bodies, Baby T-Rex and neutral Enigmacursor compiled; evolution and playable Jungle remain open')
 if __name__=='__main__':main()
