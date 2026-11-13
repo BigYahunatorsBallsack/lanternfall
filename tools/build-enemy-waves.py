@@ -1,6 +1,6 @@
 """Extract Brotato's Crash Zone wave spawn data and compile Config/EnemyWaves.luau.
 
-Reads the owner's installed, unencrypted Brotato PCK (stable 1.2.0.1) through tools/character-source.py's
+Reads the owner's installed, unencrypted Brotato PCK (approved stable reference) through tools/character-source.py's
 non-evaluating parser. Only numeric spawn facts are kept (timings, repeats, areas, counts, chances, danger and wave
 limits); no scripts, scenes, art or audio are copied. Enemy scenes map to Lanternfall's internal enemy ids.
 
@@ -81,7 +81,9 @@ def load_pck(path: str | None):
     spec = importlib.util.spec_from_file_location("character_source", ROOT / "tools" / "character-source.py")
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
-    return module.Pck(path) if path else module.Pck()
+    pck = module.Pck(path) if path else module.Pck()
+    module.verify_reference(pck)
+    return pck
 
 
 def refresh(pck_path: str | None) -> dict:
@@ -138,7 +140,7 @@ def refresh(pck_path: str | None) -> dict:
         for chunk in iter(lambda: stream.read(1 << 20), b""):
             pck_sha.update(chunk)
     return {
-        "version": "1.2.0.1",
+        "version": json.loads((ROOT / "docs/characters/reference.json").read_text(encoding="utf-8"))["version"],
         "pckSha256": pck_sha.hexdigest(),
         "zone": ZONE,
         "zoneSizeTiles": [zone["width"], zone["height"]],
@@ -182,6 +184,10 @@ def lua_group(data: dict, indent: str) -> str:
         f"minDanger = {data['min_difficulty']}", f"maxDanger = {data['max_difficulty']}",
         f"minWave = {data['min_wave']}", f"maxWave = {data['max_wave']}",
     ]
+    if data.get("spawn_edge_of_map_together"):
+        fields.append("edgeTogether = true")
+    if data.get("spawn_at_player_vertically"):
+        fields.append("atPlayerVertically = true")
     source = data["source"].replace("res://zones/zone_1_crash/", "")
     inner = indent + "\t"
     return (
@@ -191,9 +197,6 @@ def lua_group(data: dict, indent: str) -> str:
 
 
 def compile_luau(source: dict) -> str:
-    for data in [g for w in source["waves"] for g in w["groups"]] + source["groupsInAllWaves"] + source["hordeGroups"]:
-        if data["spawn_edge_of_map_together"] or data["spawn_at_player_vertically"]:
-            raise ValueError(f"{data['source']}: edge-together spawns are not implemented")
     if any(w["conditional_groups"] for w in source["waves"]):
         raise ValueError("conditional groups are not implemented")
     width, height = source["zoneSizeTiles"]
@@ -224,6 +227,8 @@ def compile_luau(source: dict) -> str:
         "\tarea: number,",
         "\tedgeMargin: number,",
         "\tedge: boolean,",
+        "\tedgeTogether: boolean?,",
+        "\tatPlayerVertically: boolean?,",
         "\tchance: number,",
         "\tloot: boolean,",
         "\tneutral: boolean,",

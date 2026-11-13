@@ -1,0 +1,44 @@
+{
+  "referenceVersion": "1.2.0.2",
+  "playableAreaAdded": false,
+  "newCharacterReadyFlags": 0,
+  "sourceFields": [
+    "spawn_edge_of_map_together",
+    "spawn_at_player_vertically"
+  ],
+  "sourceGroupBirthFrames": 85,
+  "sourceJitterPoints": [
+    25,
+    50
+  ],
+  "sourceBodyRadiusPoints": 72,
+  "sourcePlayerBodyRadiusPoints": 24,
+  "sourcePlayerBodyOffsetPoints": [
+    0,
+    -12
+  ],
+  "simultaneousBirth": true,
+  "singleMarker": true,
+  "playerOverlapRelocationAndRestart": true,
+  "mixedDeadlineOrdering": true,
+  "fullSuite": {
+    "specs": 279,
+    "passed": 1728,
+    "failed": 36,
+    "previousSpecs": 278,
+    "previousPassed": 1723,
+    "previousFailed": 36,
+    "newFailureNames": [],
+    "aborts": [],
+    "artifact": "build/native-five-branch-nine-group-birth-4cf1050.json"
+  },
+  "focused": "NativeGroupSpawn5/0",
+  "checks": {
+    "seleneErrors": 0,
+    "existingWarnings": 18,
+    "sourceCompiler": true,
+    "waveCompiler": true,
+    "studio": false
+  },
+  "graphics": "Existing single red-cross warning; native group-birth sprite/animation remains unaccepted."
+}

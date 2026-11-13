@@ -30,13 +30,14 @@ local RandomService = require(script.Parent.RandomService)
 local RunDirector = require(script.Parent.RunDirector)
 local StatService = require(script.Parent.StatService)
 local SpawnRules = require(script.SpawnRules)
+local GroupBirth = require(ReplicatedStorage.Shared.Config.GroupBirth)
 
 local SPAWN_TRIES = 12 -- random ring points tried per debug enemy before giving up
 
 local SpawnDirector = {}
 
 -- One enemy waiting in a spawn queue, and later behind its red cross.
-type Request = { enemyId: string, x: number, z: number, at: number, looter: boolean }
+type Request = { enemyId: string, x: number, z: number, at: number, looter: boolean, groupCount: number? }
 
 local paused = false
 local timers: { SpawnRules.Timer } = {} -- the groups of the running wave
@@ -47,6 +48,13 @@ local enemyQueue: { Request } = {} -- Brotato's queue_to_spawn (taken from the e
 local treeQueue: { Request } = {}
 local queueClock = 0
 local births: { Request } = {} -- enemies whose red cross is showing, in order of spawn time
+local function addBirth(request: Request)
+	local index = #births + 1
+	while index > 1 and births[index - 1].at > request.at do
+		index -= 1
+	end
+	table.insert(births, index, request)
+end
 local removedForPerformance = 0 -- regular enemies removed at the maximum this wave (Pacifist counts them)
 local lastMinutes = 0 -- run time of the last update, to notice elite times passing
 local looters: { [number]: number } = {} -- enemy id -> server time at which it escapes
@@ -271,9 +279,20 @@ local function enforceMaximum(wave: number)
 end
 
 -- A firing group: the maximum, the group's spot, then every enemy of its units into the queues.
+local function birthPlayers(): { Vector3 }
+	local list = {}
+	for _, player in RunDirector.getParticipants() do
+		local at = MapService.getRootPosition(player)
+		if at then
+			table.insert(list, at)
+		end
+	end
+	return list
+end
+
 local function fireGroup(group: SpawnRules.Group, wave: number, anchors: { Anchor })
 	enforceMaximum(wave)
-	local players = positions(anchors)
+	local players = if group.edgeTogether then birthPlayers() else positions(anchors)
 	local gx, gz = SpawnRules.groupPoint(roll, bounds, group, players)
 	local count = playerCount()
 	local enemiesStat = StatService.getTeamStat("enemyCount")
@@ -289,6 +308,18 @@ local function fireGroup(group: SpawnRules.Group, wave: number, anchors: { Ancho
 			continue
 		end
 		local number = SpawnRules.unitCount(unit, group, count, enemiesStat, treesStat, countShare, roll(), roll())
+		if group.edgeTogether then
+			if number > 0 then
+				local x, z = SpawnRules.groupEdgePoint(roll, bounds, gx, players, group.atPlayerVertically)
+				x, z = SpawnRules.settle(x, z, kind.radius, bounds, obstacles)
+				table.insert(
+					enemyQueue,
+					{ enemyId = enemyId, x = x, z = z, at = 0, looter = group.loot, groupCount = number }
+				)
+			end
+			-- Native grouped requests return after the first unit entry, before individual spawn retries.
+			return
+		end
 		for _ = 1, number do
 			local x, z = SpawnRules.enemyPoint(roll, bounds, group, unit, gx, gz, players)
 			x, z = SpawnRules.settle(x, z, kind.radius, bounds, obstacles)
@@ -410,35 +441,44 @@ end
 
 -- Lets queued enemies out (Brotato: one every few frames, more while the queue is long; trees one per step too) and
 -- shows their red crosses in one message per update.
+local function announceMarkers(points: { number }, at: number)
+	if #points == 0 then
+		return
+	end
+	local markers: Types.SpawnMarkers = { points = points, spawnsAt = at }
+	for _, player in RunDirector.getParticipants() do
+		Net.fireClient("SpawnMarkers", player, markers)
+	end
+end
+
 local function updateQueues(dt: number)
 	local settings = Config.Run.spawn
 	queueClock += dt
 	local points: { number } = {}
+	local groupPoints: { number } = {}
 	local at = workspace:GetServerTimeNow() + settings.markerSeconds
+	local groupAt = workspace:GetServerTimeNow() + GroupBirth.markerSeconds
 	while queueClock >= settings.queue.secondsPerSpawn do
 		queueClock -= settings.queue.secondsPerSpawn
 		local tree = table.remove(treeQueue)
 		if tree then
 			tree.at = at
-			table.insert(births, tree)
+			addBirth(tree)
 		end
 		for _ = 1, SpawnRules.queueBurst(#enemyQueue) do
 			local request = table.remove(enemyQueue)
 			if not request then
 				break
 			end
-			request.at = at
-			table.insert(births, request)
-			table.insert(points, request.x)
-			table.insert(points, request.z)
+			request.at = if request.groupCount then groupAt else at
+			addBirth(request)
+			local markers = if request.groupCount then groupPoints else points
+			table.insert(markers, request.x)
+			table.insert(markers, request.z)
 		end
 	end
-	if #points > 0 then
-		local markers: Types.SpawnMarkers = { points = points, spawnsAt = at }
-		for _, player in RunDirector.getParticipants() do
-			Net.fireClient("SpawnMarkers", player, markers)
-		end
-	end
+	announceMarkers(points, at)
+	announceMarkers(groupPoints, groupAt)
 end
 
 -- Spawns the enemies whose red crosses ran out.
@@ -446,6 +486,19 @@ local function updateBirths(atMinutes: number)
 	local now = workspace:GetServerTimeNow()
 	while births[1] and births[1].at <= now do
 		local request = table.remove(births, 1) :: Request
+		if request.groupCount then
+			if SpawnRules.groupBirthBlocked(request.x, request.z, birthPlayers()) then
+				request.x, request.z = SpawnRules.anywhere(roll, bounds)
+				request.at = now + GroupBirth.markerSeconds
+				addBirth(request)
+				announceMarkers({ request.x, request.z }, request.at)
+			else
+				for _ = 1, request.groupCount do
+					spawnAt(request.enemyId, request.x, request.z, atMinutes)
+				end
+			end
+			continue
+		end
 		if request.enemyId == Config.Loot.trees.enemy then
 			spawnTreeAt(request.x, request.z, atMinutes)
 		elseif request.looter then

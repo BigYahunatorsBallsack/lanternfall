@@ -13,6 +13,7 @@ local Config = require(Shared.Config)
 local EnemyStats = require(Shared.Util.EnemyStats)
 local RunSchedule = require(Shared.Util.RunSchedule)
 local Nightmare = require(Shared.Config.Nightmare)
+local GroupBirth = require(Shared.Config.GroupBirth)
 
 export type Rect = { minX: number, maxX: number, minZ: number, maxZ: number }
 export type Circle = { x: number, z: number, radius: number }
@@ -237,6 +238,38 @@ function SpawnRules.edgePoint(random: () -> number, bounds: Rect): (number, numb
 		return bounds.minX + inset + along * (bounds.maxX - bounds.minX - 2 * inset), bounds.maxZ - inset
 	end
 	return bounds.maxX - inset, bounds.minZ + inset + along * (bounds.maxZ - bounds.minZ - 2 * inset) -- right
+end
+
+-- Native grouped births choose the left/right edge once, optionally level with a random participant.
+function SpawnRules.groupEdgePoint(
+	random: () -> number,
+	bounds: Rect,
+	groupX: number,
+	players: { Vector3 },
+	vertical: boolean?
+): (number, number)
+	local x = if groupX < (bounds.minX + bounds.maxX) / 2
+		then bounds.minX + SpawnRules.studs(Layout.edgeDistance)
+		else bounds.maxX - SpawnRules.studs(Layout.edgeDistance)
+	local z = bounds.minZ + random() * (bounds.maxZ - bounds.minZ)
+	if vertical and #players > 0 then
+		z = players[math.min(math.floor(random() * #players) + 1, #players)].Z
+	end
+	return x + (random() * 2 - 1) * SpawnRules.studs(GroupBirth.jitterXPoints),
+		z + (random() * 2 - 1) * SpawnRules.studs(GroupBirth.jitterZPoints)
+end
+
+function SpawnRules.groupBirthBlocked(x: number, z: number, players: { Vector3 }): boolean
+	local body = GroupBirth.playerBody
+	local reach = SpawnRules.studs(GroupBirth.radiusPoints + body.radiusPoints)
+	for _, player in players do
+		local dx = player.X + SpawnRules.studs(body.offsetPoints[1]) - x
+		local dz = player.Z + SpawnRules.studs(body.offsetPoints[2]) - z
+		if dx * dx + dz * dz <= reach * reach then
+			return true
+		end
+	end
+	return false
 end
 
 -- A random point in the square of side `area` studs around (x, z), the square pushed inside the arena first

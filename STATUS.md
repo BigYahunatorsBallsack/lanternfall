@@ -1021,3 +1021,8 @@ Vier nativeJungle-Verfolger in vorhandeneSimulation integriert: BabyTriceratops,
 ### B10 Jungle-Salven und neutraleSäulen (13.11.2026)
 
 NeutralerEnigmacursor mitoriginalerSchussfolge undechtenverzögertenPillar-Projektilen angebunden; gemeinsameSalvengeometriefürfeindliche/verzauberteAI. Mecha/MutantnochkeinRuntime, JunglekeinfreigegebenesGebiet. Voll278Specs1723/36 vsMain274/1702/36, identischeFehlernamenohneAbbrüche; Clock5/0,Volley3/0,Shooter4/0. NeunnativePNGs lokalpixelgleichvorbereitet, keineUploads/IDs. Weiter48Charaktere, Chunky/WildlingwartenJungle. NächsterBaustein: gemeinsameGruppenspawns/Spielerhöhe; OriginalspawntnachgemeinsamerBirthalleexaktamgleichenPunkt. DetailsHANDOFF/jungle-shooter-validation.json.
+
+
+### B10 gemeinsameJungle-Randgeburten (13.11.2026)
+
+GemeinsameRand-/Spielerhöhe-Spawns mit85FramesWarnung,einMarkerundgleichzeitigerGruppe,korrekterDeadline-ReihenfolgeundSpielerüberlappungsrestart integriert. NativeGroupSpawn5/0,Voll279Specs1728/36:keineneuenFehler/Abbrüchevs278/1723/36. KeinGebiet/zusätzlicherCharakterfreigegeben. NächsterMainGame-Schritt: Chunkysnachgewiesenechal_rookie-FreischaltungbeimTeam-Defeat ergänzen; danebenJungle-Spezialfamilienfortsetzen. AktuelleerneuerteAGENTS-Vorgabe„Nichtselbstmergen“beachten. DetailsHANDOFF/group-birth-validation.json.
