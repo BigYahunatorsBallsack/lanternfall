@@ -1,0 +1,18 @@
+{
+  "version": "1.2.0.3",
+  "steamBuild": 26642464,
+  "enemyBase": {
+    "source": "res://entities/units/enemies/enemy.tscn",
+    "sourceMd5": "38e442588073219bb217a4b484a6d8a7",
+    "collisionLayer": 4,
+    "collisionMask": 132
+  },
+  "playerSource": "res://entities/units/player/player.tscn",
+  "playerSourceMd5": "58724d77253dd2ff1a91a8409a809193",
+  "playerBodyLayer": 2,
+  "playerBodyMask": 130,
+  "bodyCollision": false,
+  "proof": "Common enemy scene actual bytes and PCK MD5 entry match previously saved approved1.2.0.2 scene hash. Both mask/layer intersections with approved player scene are zero. Native per-kind source body masks already exclude players; this corrects historical EnemySim world default, not Godot solver ordering.",
+  "previousSourceVersion": "1.2.0.2",
+  "previousResourcesRevalidatedIdentical": true
+}

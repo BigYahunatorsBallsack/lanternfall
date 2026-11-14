@@ -7,18 +7,30 @@ export type Rule = {
 	initialSeconds: number,
 	fireAt: number,
 	animationSeconds: number,
+	longEvery: number?,
+	longSeconds: number?,
+	minimumCooldownSeconds: number?,
 }
-export type State = { initial: number, remaining: number, stage: string, age: number, fired: boolean }
-local function cooldown(rule: Rule, random: () -> number): number
-	return rule.fireInterval + (random() * 2 - 1) * rule.cooldownRandomSeconds
+export type State = { initial: number, remaining: number, stage: string, age: number, fired: boolean, shots: number }
+local function cooldown(state: State?, rule: Rule, random: () -> number): number
+	if state and rule.longEvery and rule.longEvery > 0 and state.shots >= rule.longEvery then
+		state.shots = 0
+		return rule.longSeconds or 0
+	end
+	local low = rule.fireInterval - rule.cooldownRandomSeconds
+	if rule.minimumCooldownSeconds then
+		low = math.max(rule.minimumCooldownSeconds, low)
+	end
+	return low + random() * (rule.fireInterval + rule.cooldownRandomSeconds - low)
 end
 function Clock.new(rule: Rule, random: () -> number): State
 	return {
 		initial = rule.initialSeconds,
-		remaining = cooldown(rule, random),
+		remaining = cooldown(nil, rule, random),
 		stage = "Cooldown",
 		age = 0,
 		fired = false,
+		shots = 0,
 	}
 end
 function Clock.step(state: State, rule: Rule, dt: number, inRange: boolean, random: () -> number): boolean
@@ -48,13 +60,14 @@ function Clock.step(state: State, rule: Rule, dt: number, inRange: boolean, rand
 		dt -= used
 		if not state.fired and state.age >= rule.fireAt - 1e-9 then
 			state.fired = true
+			state.shots += 1
 			fired = true
 		end
 		if state.age < rule.animationSeconds - 1e-9 then
 			return fired
 		end
 		state.stage = "Cooldown"
-		state.remaining = cooldown(rule, random)
+		state.remaining = cooldown(state, rule, random)
 		if dt <= 1e-9 then
 			return fired
 		end

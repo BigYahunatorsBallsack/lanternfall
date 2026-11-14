@@ -1,0 +1,20 @@
+{
+  "version": "1.2.0.3",
+  "steamBuildId": "26642464",
+  "pckSha256": "ab83e762b1deb358265ecb841d738f58d5b1511757746540ad59c39630c66159",
+  "steamUpdatedUtc": "2026-11-13T17:52:45+00:00",
+  "ownerChangedTargetOn": "2026-11-14",
+  "stable": true,
+  "includeAllDlcs": true,
+  "characterCount": 74,
+  "previousVersion": "1.2.0.2",
+  "previousMainCommit": "4cf1050760002a496856a2b7c0b6024f0987a4f1",
+  "previousCodePrepared": 48,
+  "currentVersionAuditComplete": true,
+  "originalCachePreserved": "build/character-source/native",
+  "currentCache": "build/character-source/native-1.2.0.3",
+  "assetsPolicy": "code and local image preparation only; no uploads, runtime asset ID replacements or Studio changes",
+  "auditScope": "Version changes affecting the 48 previously code-prepared character packages. This is not native full-game/Studio acceptance.",
+  "codePreparedAfterVersionAudit": 48,
+  "previousCachePreserved": "build/character-source/native-1.2.0.2"
+}

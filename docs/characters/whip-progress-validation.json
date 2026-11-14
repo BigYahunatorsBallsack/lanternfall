@@ -1,0 +1,21 @@
+{
+  "baseMain": "4cf1050760002a496856a2b7c0b6024f0987a4f1",
+  "referenceVersion": "1.2.0.2",
+  "baseline": {
+    "specs": 274,
+    "passed": 1702,
+    "failed": 36
+  },
+  "whipCounter": {
+    "specs": 275,
+    "passed": 1707,
+    "failed": 36
+  },
+  "newFailures": [],
+  "newAborts": [],
+  "newCharacterReadyFlags": 0,
+  "jungleAreaPlayable": false,
+  "testZoneOverrideOnly": true,
+  "studioTested": false,
+  "notes": "Whip progress requires a genuine Jungle2 route before Chunky/Wildling completion. Post-suite only assertion messages changed; focused tests repeated."
+}

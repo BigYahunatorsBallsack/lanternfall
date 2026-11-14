@@ -1,0 +1,60 @@
+{
+  "referenceVersion": "1.2.0.2",
+  "steamBuild": 26615634,
+  "scope": "Body-entry healing and Herald support use existing physical body offsets; no new characters, evolution, area or original physics/render acceptance.",
+  "changes": [
+    "NativeEntryHealing uses target physical body centers for hostile and charmed Tsintaosaurus enemy-mask healing.",
+    "World.pulseAt uses target physical body centers for existing Mender healing and Herald support.",
+    "Zone origins, radii, amounts, wave scaling, one-heal-per-entry membership, boss filters and faction masks are unchanged."
+  ],
+  "sourceProof": "Same approved13 Collision positions as body-offset-validation.json. Saved1.2.0.2 Tsintaosaurus BoostZone and BoostCollision have zero local position (root-centered area); no installed1.2.0.3 data refresh or reference change.",
+  "focused": {
+    "NativeJungleHealer": {
+      "passed": 9,
+      "failed": 0
+    },
+    "before": "Existing3 checks passed, all6 new inside/outside physical-body cases failed before wiring centers.",
+    "coverage": [
+      "Mender and Tsintaosaurus heal body-inside/origin-outside, reject body-outside/origin-inside and retain once-per-entry/reentry rules.",
+      "Herald buffs only bodies actually inside its area.",
+      "Existing real Charm enemy-mask healing and player exclusion still pass."
+    ]
+  },
+  "mutation": "Replacing Body.center by Body.origin in NativeEntryHealing fails both new native-healer boundary cases. Restored byte-for-byte;9/0 afterward.",
+  "localPerformance": {
+    "nativeHealers": 140,
+    "warmupSteps": 20,
+    "measuredSteps": 100,
+    "meanMilliseconds": 2.902357999992091,
+    "clock": "actual realClock",
+    "studioOrStableDeviceAcceptance": false
+  },
+  "fullSuite": {
+    "specs": 292,
+    "passed": 1819,
+    "failed": 36,
+    "previousSpecs": 292,
+    "previousPassed": 1813,
+    "previousFailed": 36,
+    "newFailureNames": [],
+    "failureIdentitiesUnchanged": true,
+    "aborts": [],
+    "artifact": "build/native-five-branch-nine-body-healing-4cf1050.json"
+  },
+  "checks": {
+    "stylua": true,
+    "seleneErrors": 0,
+    "existingWarnings": 18,
+    "rojo": true,
+    "finalBuildAfterMutationRestored": true,
+    "studio": false
+  },
+  "codePreparedCharacters": 48,
+  "newCharacterReadyFlags": 0,
+  "zonePlayable": false,
+  "remaining": [
+    "Native Hurtbox/Hitbox parent plus child offsets and scaling, player geometry and original physics ordering.",
+    "Remaining Jungle families/evolution/bosses/waves/area route, native graphics and full Studio/device acceptance.",
+    "Target stays approved1.2.0.2; installed1.2.0.3 has not been adopted."
+  ]
+}

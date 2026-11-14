@@ -262,7 +262,7 @@ local movementIntent = require(script.Parent.Parent.Config.CharacterMechanics).m
 Remotes.SetMovementIntent = {
 	direction = "toServer",
 	rateLimit = { count = movementIntent.rateCount, perSeconds = movementIntent.rateSeconds },
-	args = { Validate.boolean() }, -- intent only; service checks participation and observed movement
+	args = { Validate.boolean(), Validate.optional(Validate.vector3(movementIntent.maxDirectionMagnitude)) }, -- legacy boolean or normalized direction; server derives speed
 }
 Remotes.DigSites = { direction = "toClient" } -- server snapshot: Net/Types.DigSite rows, no client commands
 Remotes.NativeSlashes = { direction = "toClient" } -- bounded source slash fire/end batches; no client intent

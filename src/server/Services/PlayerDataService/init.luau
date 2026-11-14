@@ -487,6 +487,24 @@ function PlayerDataService.observeNativeWaveTrees(player: Player, trees: number)
 	end
 end
 
+-- Called only with a trusted pre-hit receipt from WhipProgress, including kills which just ended the run.
+function PlayerDataService.observeNativeWhipKill(player: Player, zoneId: number)
+	local rule = NativeWeaponAccess.Flail
+	local data = PlayerDataService.get(player)
+	if not data or zoneId ~= rule.zoneId then
+		return
+	end
+	data.nativeCounts.whipJungleKills += 1
+	if data.nativeCounts.whipJungleKills >= assert(rule.threshold, "Flail kill threshold is required") then
+		local key = CharacterAccess.challengeKey(assert(rule.challengeId, "Flail challenge is required"))
+		if not data.achievements[key] then
+			data.achievements[key] = true
+			sendInfo(player)
+			PlayerDataService.Changed:Fire(player)
+		end
+	end
+end
+
 -- Native Survivor counts personally credited enemies, excluding trees and despawn/cleanup.
 function PlayerDataService.observeNativeEnemyKill(player: Player)
 	local data = PlayerDataService.get(player)
@@ -539,6 +557,28 @@ function PlayerDataService.observeNativeFastBossKill(player: Player, seconds: nu
 				PlayerDataService.Changed:Fire(player)
 			end
 		end
+	end
+end
+
+-- Native Rookie completes when the last living participant dies, independently of deferred retry bookkeeping.
+function PlayerDataService.observeNativeDefeat(player: Player)
+	local data = PlayerDataService.get(player)
+	if not data then
+		return
+	end
+	local changed = false
+	for _, rule in NativeCharacterAccess do
+		if rule.kind == "RunDefeat" then
+			local key = CharacterAccess.challengeKey(rule.challengeId)
+			if not data.achievements[key] then
+				data.achievements[key] = true
+				changed = true
+			end
+		end
+	end
+	if changed then
+		sendInfo(player)
+		PlayerDataService.Changed:Fire(player)
 	end
 end
 

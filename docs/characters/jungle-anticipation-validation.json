@@ -1,0 +1,36 @@
+{
+  "referenceVersion": "1.2.0.2",
+  "enemies": [
+    "BabyPterosaur",
+    "Graciliceratops"
+  ],
+  "nativeTargetInput": "Normalized validated direction times server-computed speed, even against walls; nearest raw target selected before prediction. BabyPterosaur predicts both axes 0.3s, Graciliceratops only X.",
+  "remote": "Existing SetMovementIntent adds optional bounded horizontal direction; participation, server stat speed and rate limit remain authoritative. Legacy boolean clients supported.",
+  "enemyTargetInput": "Separate aligned World columns retain steering before obstacle/crowd correction and knockback, including charm transfer.",
+  "zonePlayable": false,
+  "newCharacterReadyFlags": 0,
+  "codePreparedCharacters": 48,
+  "focused": "NativeJungleAnticipation6/0; CharacterMovement4/0; CharmedWorld6/0",
+  "mutation": "Inverting horizontalOnly correctly fails both-axis prediction and nearest-target tests; original source restored byte-for-byte.",
+  "fullSuite": {
+    "specs": 281,
+    "passed": 1739,
+    "failed": 36,
+    "previousSpecs": 280,
+    "previousPassed": 1733,
+    "previousFailed": 36,
+    "newFailureNames": [],
+    "aborts": [],
+    "artifact": "build/native-five-branch-nine-jungle-anticipation-4cf1050.json"
+  },
+  "checks": {
+    "seleneErrors": 0,
+    "existingWarnings": 18,
+    "rojo": true,
+    "sourceCompiler": true,
+    "localArtCheck": true,
+    "studio": false
+  },
+  "localArt": "Eleven original PNGs prepared; no uploads or asset IDs.",
+  "remaining": "Jungle remaining families/evolution/bosses/waves/area route, native art/physics and Studio acceptance remain open; Chunky/Wildling not ready."
+}

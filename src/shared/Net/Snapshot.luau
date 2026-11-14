@@ -10,8 +10,8 @@
 -- flags: bits 0-1 the mode of a charger (EnemySim/World.MODE_*: walk, wind-up, rush, recover), bits 2-3 the
 -- elite affix (0 = none, else index into Config.Enemies.elite.affixes), bits 4-7 the rush direction of a charger
 -- in 16 steps (0 = +X, growing towards +Z), see packFlags.
--- status (since B5): bit 0 burning, bit 1 slowed, since B9 bit 2 buffed by a Herald (STATUS_*), the other bits
--- stay 0.
+-- status: bit 0 burning, bit 1 slowed, bit 2 buffed by a Herald, bit 3 charmed (STATUS_*);
+-- bits 4-5 carry native Pursuer boost stage (0..3); bits 6-7 stay 0.
 -- UnreliableRemoteEvent payloads must stay below ~900 bytes, so one tick is split evenly into `partCount`
 -- packets of at most MAX_PER_PACKET enemies (`part` counts from 0). The client uses a tick only once all
 -- of its parts have arrived, so a lost packet skips that tick instead of making enemies vanish.
@@ -37,6 +37,14 @@ Snapshot.STATUS_SLOWED = 2
 Snapshot.STATUS_BUFFED = 4
 Snapshot.STATUS_CHARMED = 8 -- native friendly actor; remaining byte layout is unchanged
 Snapshot.MAX_COORDINATE = INT16_MAX / POSITION_SCALE -- largest |x| or |z| that survives encoding
+
+-- Two spare status bits carry native visual growth without enlarging snapshot packets.
+function Snapshot.packPursuerStage(stage: number): number
+	return math.clamp(math.floor(stage), 0, 3) * 16
+end
+function Snapshot.unpackPursuerStage(status: number): number
+	return bit32.extract(status, 4, 2)
+end
 
 -- One entry per enemy at the same index in every array.
 export type Columns = {

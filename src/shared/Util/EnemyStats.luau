@@ -1,6 +1,8 @@
 --!strict
 -- Pure enemy growth and appearance rules, read by EnemySim, SpawnRules and RunSchedule.
 local Enemies = require(script.Parent.Parent.Config.Enemies)
+local Pixel = require(script.Parent.Parent.Config.Stats).range.studsPerPoint
+local DefaultZone = require(script.Parent.Parent.Config.NativeZones).default
 
 local EnemyStats = {}
 
@@ -15,8 +17,11 @@ function EnemyStats.firstWave(kind: Enemies.Enemy, danger: number): number
 	return first
 end
 
-function EnemyStats.canSpawn(kind: Enemies.Enemy, wave: number, danger: number): boolean
-	return not kind.specialSpawn and danger >= (kind.minDanger or 0) and wave >= EnemyStats.firstWave(kind, danger)
+function EnemyStats.canSpawn(kind: Enemies.Enemy, wave: number, danger: number, zoneId: number?): boolean
+	return (kind.nativeZoneId == nil or kind.nativeZoneId == (zoneId or DefaultZone))
+		and not kind.specialSpawn
+		and danger >= (kind.minDanger or 0)
+		and wave >= EnemyStats.firstWave(kind, danger)
 end
 
 function EnemyStats.baseShot(kind: Enemies.Enemy): number
@@ -44,6 +49,25 @@ end
 -- One sample per spawn; speed does not grow with the wave or danger level.
 function EnemyStats.speedFactor(kind: Enemies.Enemy, roll: number): number
 	return if kind.speed > 0 and kind.speedMax then 1 + (kind.speedMax / kind.speed - 1) * math.clamp(roll, 0, 1) else 1
+end
+
+-- Unit.init/respawn scales random offsets by accessibility before integer truncation; reset_speed_stat rounds final pixels/s.
+-- Historical kinds retain their existing sampler until their source policy is opted in explicitly.
+function EnemyStats.spawnSpeedFactor(
+	kind: Enemies.Enemy,
+	roll: number,
+	multiplier: number,
+	accessibility: number?
+): number
+	local rule = kind.nativeSpeedPoints
+	if not rule then
+		return multiplier * EnemyStats.speedFactor(kind, roll)
+	end
+	if kind.speed == 0 then
+		return 0
+	end
+	local offset = math.modf((math.clamp(roll, 0, 1) * 2 - 1) * rule.randomization * (accessibility or 1))
+	return math.round((rule.base + offset) * multiplier) * Pixel / kind.speed
 end
 
 return EnemyStats

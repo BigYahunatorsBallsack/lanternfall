@@ -1,0 +1,70 @@
+{
+  "referenceVersion": "1.2.0.2",
+  "steamBuild": 26615634,
+  "scope": "Physical Collision centers for13 already prepared neutral Jungle bodies. Actor origins, public hurt queries, contact hitboxes and snapshots retain their existing contracts; not full native physics acceptance.",
+  "interfaces": [
+    "Enemy.nativeBodyOffsetX/Z derive from existing approved body.offsetPoints.",
+    "NativeBodyGeometry.center/origin/extent; root hash uses conservative body extent.",
+    "World.bodyXs/bodyZs transient separation scratch (not transfer columns); maxColliderRadius preserves original circle-radius padding while maxRadius includes translated body extents. Internal separation hashes body centers, then roots and public root hash are restored."
+  ],
+  "sourceProof": "All13 source scene MD5s and Collision positions match the saved1.2.0.2 scan; initial Collision scale1/1 and rotation0 asserted. No installed1.2.0.3 source refresh or version-guard change.",
+  "functional": [
+    "Shifted body push-out and final constraints against circles/capsules.",
+    "Native/legacy fast-rush obstacle sweeps use body centers; timed native rushes remain timed.",
+    "Ordinary obstacle steering, give-way and mass-weighted separation use physical centers, including origins outside a normal coarse query radius.",
+    "Baby T-Rex grows its Collision shape while retaining original local Collision.position.",
+    "Player-body policy, hurt/hit offsets and origin-based external hit query behavior remain separate."
+  ],
+  "focused": {
+    "NativeBodyOffsets": {
+      "passed": 10,
+      "failed": 0
+    },
+    "initial": "0/7 before implementation; two added steering cases and public-hash restoration case verified.",
+    "NativeHoleCollision": {
+      "passed": 7,
+      "failed": 0
+    },
+    "oldCharmTest": "Still requires8stud minimum body-center distance after Charm; only old origin-based measuring point replaced with actual body center.",
+    "affected": "TerrainBridge6/0, NativeMovement8/0, NativeCharge10/0, Accessibility3/0, BabyTrex10/0, Walkers4/0; EnemyWorld48/0 and CharmedWorld6/0 after optimization."
+  },
+  "mutation": "Removing translated root extent makes heavier-body give-way test fail (5stud instead of1); restored byte-for-byte,10/0 again.",
+  "performance": {
+    "firstFull": "292specs1811passed37failed; additional CharmedWorld shared-budget failure investigated rather than dismissed.",
+    "pairedBeforeFix": "Previous World: Charm3.422/3.293ms, native1403.495/3.439ms. First offset World: Charm3.880/3.584ms, native1404.429/4.789ms.",
+    "optimization": "Cached centers remove repeated inner-pair offset work. Body-center hash uses original unshifted collider-radius bound rather than double-counting translated root extents; no budget/assertion reduction.",
+    "finalFocused": {
+      "EnemyWorldMs": 3.439,
+      "CharmedWorldMs": 3.399,
+      "native140MeanMs": 3.6892079999961425
+    },
+    "nativeScenario": "Mixed140 Triceratops/Parasaurolorus, four targets,20warmup/100measured steps, actual realClock.",
+    "studioOrStableDeviceAcceptance": false
+  },
+  "fullSuite": {
+    "specs": 292,
+    "passed": 1813,
+    "failed": 36,
+    "baselineSpecs": 291,
+    "baselinePassed": 1803,
+    "baselineFailed": 36,
+    "newFailureNames": [],
+    "aborts": [],
+    "artifact": "build/native-five-branch-nine-body-offsets-final-4cf1050.json"
+  },
+  "checks": {
+    "stylua": true,
+    "seleneErrors": 0,
+    "existingWarnings": 18,
+    "rojo": true,
+    "studio": false
+  },
+  "codePreparedCharacters": 48,
+  "newCharacterReadyFlags": 0,
+  "zonePlayable": false,
+  "remaining": [
+    "Native body-entry healing/support areas still need translated body centers.",
+    "Hurtbox/Hitbox parent plus child offsets, growth and player geometry; original physics ordering and graphics.",
+    "Remaining Jungle families/evolution/bosses/waves/area route and full native/Studio/device acceptance."
+  ]
+}

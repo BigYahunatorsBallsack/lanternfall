@@ -1,0 +1,403 @@
+{
+  "approvedVersion": "1.2.0.2",
+  "savedSnapshotMatches": true,
+  "bodyCount": 13,
+  "localPngCount": 17,
+  "ruleHashes": [
+    {
+      "source": "res://effect_behaviors/enemies/charm_enemy_effect_behavior.gdc",
+      "oldMd5": "a0830c473b5da00b8d278346117f5452",
+      "installedMd5": "a0830c473b5da00b8d278346117f5452",
+      "unchanged": true
+    },
+    {
+      "source": "res://entities/entity.gdc",
+      "oldMd5": "805ebc9f4306c9ec71b786cdc7dd89af",
+      "installedMd5": "805ebc9f4306c9ec71b786cdc7dd89af",
+      "unchanged": true
+    },
+    {
+      "source": "res://entities/units/enemies/attack_behaviors/attack_behavior.gdc",
+      "oldMd5": "3f7f7c4411aa4d3b27e55e9ac3d4ab27",
+      "installedMd5": "3f7f7c4411aa4d3b27e55e9ac3d4ab27",
+      "unchanged": true
+    },
+    {
+      "source": "res://entities/units/enemies/attack_behaviors/charging_attack_behavior.gdc",
+      "oldMd5": "fcf2901832ca42a4e69e98c60629397e",
+      "installedMd5": "fcf2901832ca42a4e69e98c60629397e",
+      "unchanged": true
+    },
+    {
+      "source": "res://entities/units/enemies/attack_behaviors/shooting_attack_behavior.gdc",
+      "oldMd5": "43d5ebd849396509ff38632915c988a2",
+      "installedMd5": "43d5ebd849396509ff38632915c988a2",
+      "unchanged": true
+    },
+    {
+      "source": "res://entities/units/enemies/attack_behaviors/spawning_attack_behavior.gdc",
+      "oldMd5": "cbddd1b76bf3363315729d319a34798d",
+      "installedMd5": "cbddd1b76bf3363315729d319a34798d",
+      "unchanged": true
+    },
+    {
+      "source": "res://entities/units/enemies/crash_zone/basic/pursuer/pursuer.gdc",
+      "oldMd5": "9ec3187fe3a68de4c9c35e9bd3d20488",
+      "installedMd5": "9ec3187fe3a68de4c9c35e9bd3d20488",
+      "unchanged": true
+    },
+    {
+      "source": "res://entities/units/enemies/enemy.gdc",
+      "oldMd5": "b341670f5ac667dc203f7eb778a2cda8",
+      "installedMd5": "b341670f5ac667dc203f7eb778a2cda8",
+      "unchanged": true
+    },
+    {
+      "source": "res://entities/units/enemies/jungle/basic/baby_trex/baby_trex.gdc",
+      "oldMd5": "8d0eb87d46ac189537c97885f23c918d",
+      "installedMd5": "8d0eb87d46ac189537c97885f23c918d",
+      "unchanged": true
+    },
+    {
+      "source": "res://entities/units/enemies/jungle/basic/dino_egg/dino_egg.gdc",
+      "oldMd5": "f01696d402b51e177ee02fe0bdce31c8",
+      "installedMd5": "f01696d402b51e177ee02fe0bdce31c8",
+      "unchanged": true
+    },
+    {
+      "source": "res://entities/units/enemies/jungle/basic/stintaosaurus/stintaosaurus.gdc",
+      "oldMd5": "7ba3c455bdd6bc6b8272200ebb30040e",
+      "installedMd5": "7ba3c455bdd6bc6b8272200ebb30040e",
+      "unchanged": true
+    },
+    {
+      "source": "res://entities/units/movement_behaviors/anticipate_target_movement_behavior.gdc",
+      "oldMd5": "7e15d0a748305c8b55e8598e179cf5d9",
+      "installedMd5": "7e15d0a748305c8b55e8598e179cf5d9",
+      "unchanged": true
+    },
+    {
+      "source": "res://entities/units/movement_behaviors/detect_evolution_attack_behavior.gdc",
+      "oldMd5": "42d8ab27f5046516ce118b723072f328",
+      "installedMd5": "42d8ab27f5046516ce118b723072f328",
+      "unchanged": true
+    },
+    {
+      "source": "res://entities/units/movement_behaviors/follow_target_movement_behavior.gdc",
+      "oldMd5": "e3ed9b3e5d9a75a09699b324caa5e22f",
+      "installedMd5": "e3ed9b3e5d9a75a09699b324caa5e22f",
+      "unchanged": true
+    },
+    {
+      "source": "res://entities/units/movement_behaviors/movement_behavior.gdc",
+      "oldMd5": "545124c6bbc946d5a542876cd568078b",
+      "installedMd5": "545124c6bbc946d5a542876cd568078b",
+      "unchanged": true
+    },
+    {
+      "source": "res://entities/units/movement_behaviors/stay_in_range_from_player_movement_behavior.gdc",
+      "oldMd5": "73e3ea5fbfa3506197f0ec0fc6da22c3",
+      "installedMd5": "73e3ea5fbfa3506197f0ec0fc6da22c3",
+      "unchanged": true
+    },
+    {
+      "source": "res://entities/units/movement_behaviors/target_rand_pos_movement_behavior.gdc",
+      "oldMd5": "d5637932f5178c3dcce36f9a236958b8",
+      "installedMd5": "d5637932f5178c3dcce36f9a236958b8",
+      "unchanged": true
+    },
+    {
+      "source": "res://entities/units/unit/unit.gdc",
+      "oldMd5": "aa94391f2d9681ac36b7f8617b82ff13",
+      "installedMd5": "aa94391f2d9681ac36b7f8617b82ff13",
+      "unchanged": true
+    },
+    {
+      "source": "res://global/entity_spawner.gdc",
+      "oldMd5": "ba0576c27ac5b889c5688decda3dd838",
+      "installedMd5": "ba0576c27ac5b889c5688decda3dd838",
+      "unchanged": true
+    },
+    {
+      "source": "res://singletons/entity_service.gdc",
+      "oldMd5": "f1a861f576858bbaa3e913d83c7b1807",
+      "installedMd5": "f1a861f576858bbaa3e913d83c7b1807",
+      "unchanged": true
+    },
+    {
+      "source": "res://singletons/zone_service.gdc",
+      "oldMd5": "d16899aba618beb55e980f67a0bf10b0",
+      "installedMd5": "d16899aba618beb55e980f67a0bf10b0",
+      "unchanged": true
+    }
+  ],
+  "installedVersionApproved": false,
+  "installedVersion": "1.2.0.3",
+  "installedSteamBuild": "26642464",
+  "resourceHashes": [
+    {
+      "source": "res://entities/units/enemies/jungle/basic/baby_triceratops/baby_triceratops.tscn",
+      "approvedMd5": "e71587f7d66132129f999902d9cea069",
+      "installedMd5": "e71587f7d66132129f999902d9cea069",
+      "unchanged": true
+    },
+    {
+      "source": "res://entities/units/enemies/jungle/basic/baby_triceratops/baby_triceratops_stats.tres",
+      "approvedMd5": "c69fadb9a0d9f4efc11b2e34e0690e6f",
+      "installedMd5": "c69fadb9a0d9f4efc11b2e34e0690e6f",
+      "unchanged": true
+    },
+    {
+      "source": "res://entities/units/enemies/enemy.tscn",
+      "approvedMd5": "38e442588073219bb217a4b484a6d8a7",
+      "installedMd5": "38e442588073219bb217a4b484a6d8a7",
+      "unchanged": true
+    },
+    {
+      "source": "res://entities/units/enemies/jungle/basic/gallimimus/gallimimus.tscn",
+      "approvedMd5": "9febe8189eade190908a0bff930e341f",
+      "installedMd5": "9febe8189eade190908a0bff930e341f",
+      "unchanged": true
+    },
+    {
+      "source": "res://entities/units/enemies/jungle/basic/gallimimus/gallimimus_stats.tres",
+      "approvedMd5": "c7fe60e0d75780d5c3ff44d5a8dc131b",
+      "installedMd5": "c7fe60e0d75780d5c3ff44d5a8dc131b",
+      "unchanged": true
+    },
+    {
+      "source": "res://entities/units/enemies/jungle/basic/lystrosaurus/lystrosaurus.tscn",
+      "approvedMd5": "09a4bfc5444cdeb6d90f752bf186ed8b",
+      "installedMd5": "09a4bfc5444cdeb6d90f752bf186ed8b",
+      "unchanged": true
+    },
+    {
+      "source": "res://entities/units/enemies/jungle/basic/lystrosaurus/lystrosaurus_stats.tres",
+      "approvedMd5": "a0e9fc3806fc6e451c6ccc2952252835",
+      "installedMd5": "a0e9fc3806fc6e451c6ccc2952252835",
+      "unchanged": true
+    },
+    {
+      "source": "res://entities/units/enemies/jungle/basic/pyroraptor/pyroraptor.tscn",
+      "approvedMd5": "578c22bb9796e7bdb0110d5cb86d6f98",
+      "installedMd5": "578c22bb9796e7bdb0110d5cb86d6f98",
+      "unchanged": true
+    },
+    {
+      "source": "res://entities/units/enemies/jungle/basic/pyroraptor/pyroraptor_stats.tres",
+      "approvedMd5": "e86c830ea4592acbd494107bc0c6d540",
+      "installedMd5": "e86c830ea4592acbd494107bc0c6d540",
+      "unchanged": true
+    },
+    {
+      "source": "res://entities/units/enemies/jungle/basic/enigmacursor/enigmacursor.tscn",
+      "approvedMd5": "8c814a90bf1f2a1fa89d38616f4998fe",
+      "installedMd5": "8c814a90bf1f2a1fa89d38616f4998fe",
+      "unchanged": true
+    },
+    {
+      "source": "res://entities/units/enemies/jungle/basic/enigmacursor/enigmacursor_stats.tres",
+      "approvedMd5": "0370c50263c0aceb96f4828dba448001",
+      "installedMd5": "0370c50263c0aceb96f4828dba448001",
+      "unchanged": true
+    },
+    {
+      "source": "res://entities/units/enemies/jungle/basic/baby_pterosaur/baby_pterosaur.tscn",
+      "approvedMd5": "09bebddbecb61796cef4301568dbb03d",
+      "installedMd5": "09bebddbecb61796cef4301568dbb03d",
+      "unchanged": true
+    },
+    {
+      "source": "res://entities/units/enemies/jungle/basic/baby_pterosaur/baby_pterosaur_stats.tres",
+      "approvedMd5": "0a4137c192544ebf316489ed0cee2a6c",
+      "installedMd5": "0a4137c192544ebf316489ed0cee2a6c",
+      "unchanged": true
+    },
+    {
+      "source": "res://entities/units/enemies/jungle/basic/graciliceratops/graciliceratops.tscn",
+      "approvedMd5": "8bcde133e9a8cfdeead587eec3380bf0",
+      "installedMd5": "8bcde133e9a8cfdeead587eec3380bf0",
+      "unchanged": true
+    },
+    {
+      "source": "res://entities/units/enemies/jungle/basic/graciliceratops/graciliceratops_stats.tres",
+      "approvedMd5": "155167c2411d8dfcd472742b63dda35f",
+      "installedMd5": "155167c2411d8dfcd472742b63dda35f",
+      "unchanged": true
+    },
+    {
+      "source": "res://entities/units/enemies/jungle/basic/baby_trex/baby_trex.tscn",
+      "approvedMd5": "66e87f432f2cc1a287c0296e24bea5fc",
+      "installedMd5": "66e87f432f2cc1a287c0296e24bea5fc",
+      "unchanged": true
+    },
+    {
+      "source": "res://entities/units/enemies/jungle/basic/baby_trex/baby_trex_stats.tres",
+      "approvedMd5": "30732480fa9b1772bb773e5d6d664ed7",
+      "installedMd5": "30732480fa9b1772bb773e5d6d664ed7",
+      "unchanged": true
+    },
+    {
+      "source": "res://entities/units/enemies/jungle/basic/alamosaurus/alamosaurus.tscn",
+      "approvedMd5": "7ba3068381b716d8ba790ae9b01b9359",
+      "installedMd5": "7ba3068381b716d8ba790ae9b01b9359",
+      "unchanged": true
+    },
+    {
+      "source": "res://entities/units/enemies/jungle/basic/alamosaurus/alamosaurus_stats.tres",
+      "approvedMd5": "23b839bb7c17d844241fd1dd317e1226",
+      "installedMd5": "23b839bb7c17d844241fd1dd317e1226",
+      "unchanged": true
+    },
+    {
+      "source": "res://entities/units/enemies/jungle/basic/dino_egg/dino_egg.tscn",
+      "approvedMd5": "f4ae9f35dfc0b07bfab74f2793302a52",
+      "installedMd5": "f4ae9f35dfc0b07bfab74f2793302a52",
+      "unchanged": true
+    },
+    {
+      "source": "res://entities/units/enemies/jungle/basic/dino_egg/dino_egg_stats.tres",
+      "approvedMd5": "a8c2a153066e114aa99448dbaf2c76ac",
+      "installedMd5": "a8c2a153066e114aa99448dbaf2c76ac",
+      "unchanged": true
+    },
+    {
+      "source": "res://entities/units/enemies/jungle/basic/stintaosaurus/stintaosaurus.tscn",
+      "approvedMd5": "c1df4a85dce03fb7736348a2022077af",
+      "installedMd5": "c1df4a85dce03fb7736348a2022077af",
+      "unchanged": true
+    },
+    {
+      "source": "res://entities/units/enemies/jungle/basic/stintaosaurus/stintaosaurus_stats.tres",
+      "approvedMd5": "047f599cc13f6a9e803af1a9ee878221",
+      "installedMd5": "047f599cc13f6a9e803af1a9ee878221",
+      "unchanged": true
+    },
+    {
+      "source": "res://entities/units/enemies/jungle/basic/triceratops/triceratops.tscn",
+      "approvedMd5": "6dc0fcc1efaf86142c9467b8d0604f88",
+      "installedMd5": "6dc0fcc1efaf86142c9467b8d0604f88",
+      "unchanged": true
+    },
+    {
+      "source": "res://entities/units/enemies/jungle/basic/triceratops/triceratops_stats.tres",
+      "approvedMd5": "13cd5c75c91f355e11b5a57e4144a740",
+      "installedMd5": "13cd5c75c91f355e11b5a57e4144a740",
+      "unchanged": true
+    },
+    {
+      "source": "res://entities/units/enemies/jungle/basic/parasaurolus/parasaurolorus.tscn",
+      "approvedMd5": "2c702c7aa16bbd1b42b8e20249289f9a",
+      "installedMd5": "2c702c7aa16bbd1b42b8e20249289f9a",
+      "unchanged": true
+    },
+    {
+      "source": "res://entities/units/enemies/jungle/basic/parasaurolus/parasaurolorus_stats.tres",
+      "approvedMd5": "8008084408467eb04c9283477199a375",
+      "installedMd5": "8008084408467eb04c9283477199a375",
+      "unchanged": true
+    },
+    {
+      "source": "res://.import/baby_triceratops.png-b810e11094206aae96a4b2ceffb6259e.stex",
+      "approvedMd5": "67d2ecf20850ddbac6ef79e040107896",
+      "installedMd5": "67d2ecf20850ddbac6ef79e040107896",
+      "unchanged": true
+    },
+    {
+      "source": "res://.import/gallimimus.png-fc44c12788121e03a75bebf07dd1f2d3.stex",
+      "approvedMd5": "aa3fe37e83cfd529a8645556ddf5a15c",
+      "installedMd5": "aa3fe37e83cfd529a8645556ddf5a15c",
+      "unchanged": true
+    },
+    {
+      "source": "res://.import/lystrosaurus.png-47f60ecc11f4fb5db8d38c92a7448913.stex",
+      "approvedMd5": "d36aac4e239bbb05d4a804a74122bd68",
+      "installedMd5": "d36aac4e239bbb05d4a804a74122bd68",
+      "unchanged": true
+    },
+    {
+      "source": "res://.import/pyroraptor.png-dee8357f79cb5519785998a7e9e24e4f.stex",
+      "approvedMd5": "251d41aad99b31da94949b0a882c01bf",
+      "installedMd5": "251d41aad99b31da94949b0a882c01bf",
+      "unchanged": true
+    },
+    {
+      "source": "res://.import/enigmacursor.png-7b895800b0ca49c2262236ea075decd5.stex",
+      "approvedMd5": "2217c18517cdc68056bb1e9bbe5f2a12",
+      "installedMd5": "2217c18517cdc68056bb1e9bbe5f2a12",
+      "unchanged": true
+    },
+    {
+      "source": "res://.import/baby_pterosaur.png-034afd28b24aff1312b3dd4562aa04ab.stex",
+      "approvedMd5": "c0a272a701c373467075a0e95e52bd54",
+      "installedMd5": "c0a272a701c373467075a0e95e52bd54",
+      "unchanged": true
+    },
+    {
+      "source": "res://.import/graciliceratops.png-8d50765f871bd96ce800a760709ebcae.stex",
+      "approvedMd5": "ddc5fa7890474aaa18090c7097972220",
+      "installedMd5": "ddc5fa7890474aaa18090c7097972220",
+      "unchanged": true
+    },
+    {
+      "source": "res://.import/baby_trex.png-95eb877f172c9c4c3fc70b004af0fe56.stex",
+      "approvedMd5": "b8d455872eab85268962b12ceb776e63",
+      "installedMd5": "b8d455872eab85268962b12ceb776e63",
+      "unchanged": true
+    },
+    {
+      "source": "res://.import/alamosaurus.png-f37ebb8cfe91a6c5e0b86138462218e9.stex",
+      "approvedMd5": "b8256e3bcd711adb7a820ff996025097",
+      "installedMd5": "b8256e3bcd711adb7a820ff996025097",
+      "unchanged": true
+    },
+    {
+      "source": "res://.import/dino_egg.png-6ddb1fc5c383fe2f6ee7fd677712427f.stex",
+      "approvedMd5": "7cf7b0c3102842fa2fe7ef93a9521c41",
+      "installedMd5": "7cf7b0c3102842fa2fe7ef93a9521c41",
+      "unchanged": true
+    },
+    {
+      "source": "res://.import/stintaosaurus.png-ac30bd3dbfe01e5637c5fcdab98e5ed4.stex",
+      "approvedMd5": "fd7a77b860465d00ad1b68afe45e7cfa",
+      "installedMd5": "fd7a77b860465d00ad1b68afe45e7cfa",
+      "unchanged": true
+    },
+    {
+      "source": "res://.import/triceratops.png-e36355e1b35512e382814b56c1f7b7af.stex",
+      "approvedMd5": "b8d525f09d0b0dae3996202bc3c0f6b3",
+      "installedMd5": "b8d525f09d0b0dae3996202bc3c0f6b3",
+      "unchanged": true
+    },
+    {
+      "source": "res://.import/parasaurolorus.png-489ba52f74bfa2533a67d605ea0f005d.stex",
+      "approvedMd5": "516f99523e83658fc6516a5f4eed6f12",
+      "installedMd5": "516f99523e83658fc6516a5f4eed6f12",
+      "unchanged": true
+    },
+    {
+      "source": "res://.import/bullet_pillar_0002.png-b64813647bb259fcd087f6245a3b4bd8.stex",
+      "approvedMd5": "13e12683d9393e5a21de5ecf884885cb",
+      "installedMd5": "13e12683d9393e5a21de5ecf884885cb",
+      "unchanged": true
+    },
+    {
+      "source": "res://.import/bullet_pillar_0001.png-acfdf3d4113456c482d2ab4a2a92d1fc.stex",
+      "approvedMd5": "954eb0744a3f5fc6c887ed5f24013557",
+      "installedMd5": "954eb0744a3f5fc6c887ed5f24013557",
+      "unchanged": true
+    },
+    {
+      "source": "res://.import/bullet_pillar_0000.png-07e5b9a0aefcb3b4cf5abbf34a5cf0a3.stex",
+      "approvedMd5": "0ee3592131b28725f359a599b41afeea",
+      "installedMd5": "0ee3592131b28725f359a599b41afeea",
+      "unchanged": true
+    },
+    {
+      "source": "res://.import/bullet_pillar_0003.png-f4962433548e783f1ff7064bd3f4f0cf.stex",
+      "approvedMd5": "a68ebb96ab97d7a6d10697a1de494ca9",
+      "installedMd5": "a68ebb96ab97d7a6d10697a1de494ca9",
+      "unchanged": true
+    }
+  ]
+}

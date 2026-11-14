@@ -19,6 +19,11 @@ local Net = require(Shared.Net)
 local Signal = require(Shared.Util.Signal)
 local EnemyKinds = require(Shared.Util.EnemyKinds)
 local EnemyStats = require(Shared.Util.EnemyStats)
+local NativeSummons = require(script.NativeSummons)
+local EntryHealing = require(script.NativeEntryHealing)
+local MovementInput = require(script.Parent.CharacterService.Movement)
+local NativeVolley = require(Shared.Util.NativeEnemyVolley)
+local PlayerHurt = require(Shared.Util.PlayerHurtGeometry)
 local ShotFeed = require(Shared.Net.ShotFeed)
 local Snapshot = require(Shared.Net.Snapshot)
 local Types = require(Shared.Net.Types)
@@ -74,6 +79,9 @@ EnemySim.Stepped = Signal.new()
 EnemySim.CharmShot = Signal.new()
 -- Trusted source slash request: source id, target x/z, damage and optional Charm owner.
 EnemySim.NativeSlash = Signal.new()
+EnemySim.NativePillar = Signal.new()
+-- Trusted native spawning attack: child kind, exact position and captured optional Charm owner; SpawnDirector owns births.
+EnemySim.NativeSummon = Signal.new()
 EnemySim.CharmSupport = Signal.new()
 
 local world: World.World
@@ -86,15 +94,50 @@ local function allocateActorId(): number
 	until (not world or not world.indexOf[sharedSerial]) and (not friends or not friends.world.indexOf[sharedSerial])
 	return sharedSerial
 end
+-- Living participants with a character, refreshed every step (reused arrays).
+local targetPlayers: { Player } = {}
+local function referencePlayerSpeed(index: number?, x: number?, z: number?): number?
+	if index and targetPlayers[index] then
+		return MovementInput.getSpeed(targetPlayers[index])
+	end
+	local fastest: number? = nil
+	local nearest: number? = nil
+	local bestSquared = math.huge
+	for _, player in RunDirector.getParticipants() do
+		if RunDirector.getParticipantState(player) == "Alive" then
+			fastest = math.max(fastest or 0, MovementInput.getSpeed(player))
+			local at = if x and z then MapService.getRootPosition(player) else nil
+			if at and x and z then
+				local squared = (at.X - x) ^ 2 + (at.Z - z) ^ 2
+				if squared < bestSquared then
+					bestSquared, nearest = squared, MovementInput.getSpeed(player)
+				end
+			end
+		end
+	end
+	return nearest or fastest
+end
+local function actorObstacles(): { World.Circle }
+	local obstacles: { World.Circle } = MapService.getObstacles()
+	for _, shape in MapService.getNativeObstacleShapes() do
+		table.insert(obstacles, shape)
+	end
+	return obstacles
+end
 local function newWorldParams(): World.Params
 	local bounds = MapService.getArenaBounds()
 	local center, halfX, halfZ = bounds.center, bounds.halfX, bounds.halfZ
 	return {
 		allocateId = allocateActorId,
+		referencePlayerSpeed = referencePlayerSpeed,
+		nativeChargeAccessibility = function()
+			return RunDirector.getRunOptions().enemySpeed / 100
+		end,
 		cellSize = Sim.spatialHashCellSize,
 		maxEnemies = Config.Run.spawn.cap.max,
 		playerRadius = Sim.playerRadius,
 		contactMargin = Sim.contactMargin,
+		collideTargets = Sim.enemyPlayerBodyCollision,
 		separationStiffness = Sim.separationStiffness,
 		separationPasses = Sim.separationPasses,
 		obstacleSteerMargin = Sim.obstacleSteerMargin,
@@ -103,7 +146,8 @@ local function newWorldParams(): World.Params
 		maxX = center.X + halfX,
 		minZ = center.Z - halfZ,
 		maxZ = center.Z + halfZ,
-		obstacles = MapService.getObstacles(),
+		obstacles = actorObstacles(),
+		forbiddenCircles = MapService.getForbiddenCircles(),
 		seed = math.floor(RandomService.number("Combat") * 2147483646) + 1,
 	}
 end
@@ -126,7 +170,21 @@ local volleys = (function()
 end)()
 local floorY = Config.Map.arena.center.Y
 friends = CharmedWorld.new(world.params, {
+	nativeSpawn = function(member, actors, id)
+		NativeSummons.emit(actors, id, member.kind.nativeSpawn, member.owner, function()
+			return RandomService.number("Spawns")
+		end, function(...)
+			EnemySim.NativeSummon:Fire(...)
+		end)
+	end,
+
 	support = function(member, x, z)
+		local pulse = member.kind.pulse
+		if pulse and pulse.nativeEnemyEntry then
+			member.enemiesInside =
+				EntryHealing.step(world, member.id, RunDirector.getWave(), x, z, pulse, member.enemiesInside)
+			return
+		end
 		EnemySim.CharmSupport:Fire(member, x, z)
 	end,
 	damage = function(id, amount)
@@ -134,6 +192,9 @@ friends = CharmedWorld.new(world.params, {
 	end,
 	emitSlash = function(id, tx, tz, damage, owner)
 		EnemySim.NativeSlash:Fire(id, tx, tz, damage, owner)
+	end,
+	emitPillar = function(id, x, z, dx, dz, speed, damage, owner)
+		EnemySim.NativePillar:Fire(id, x, z, dx, dz, speed, damage, owner)
 	end,
 	emitShot = function(owner, event)
 		EnemySim.CharmShot:Fire(owner, event)
@@ -147,23 +208,27 @@ friends = CharmedWorld.new(world.params, {
 	random = function(owner)
 		return RandomService.number("Combat", game:GetService("Players"):GetPlayerByUserId(owner))
 	end,
-})
+}, MapService.getObstacles())
 
 local currentTick = 0
 local accumulator = 0
 
--- Living participants with a character, refreshed every step (reused arrays).
-local targetPlayers: { Player } = {}
 local targetIndexOf: { [Player]: number } = {}
 local targetXs: { number } = {}
 local targetZs: { number } = {}
 local targetCount = 0
--- Where contacts are checked: the target moved ahead along its velocity (see Config.Simulation).
+-- Compensated actor roots, also used by aiming. Damage circles are translated separately.
 local contactXs: { number } = {}
 local contactZs: { number } = {}
+local hurtXs: { number } = {}
+local hurtZs: { number } = {}
 -- Floor velocity of each target, for aiming shots ahead of them.
 local targetVxs: { number } = {}
 local targetVzs: { number } = {}
+local targetInputXs: { number } = {}
+local targetInputZs: { number } = {}
+local targetDirectionXs: { number } = {}
+local targetDirectionZs: { number } = {}
 
 -- Shot events since the last send (EnemyShots).
 local firedShots: { Types.EnemyShot } = {}
@@ -194,6 +259,10 @@ local function collectTargets()
 				local velocity = MapService.getRootVelocity(player)
 				targetVxs[targetCount] = velocity.X
 				targetVzs[targetCount] = velocity.Z
+				local direction = MovementInput.getDirection(player)
+				local input = direction * MovementInput.getSpeed(player)
+				targetInputXs[targetCount], targetInputZs[targetCount] = input.X, input.Z
+				targetDirectionXs[targetCount], targetDirectionZs[targetCount] = direction.X, direction.Z
 				local lead = velocity * (Sim.contactLeadSeconds + pingOf(player))
 				lead = Vector3.new(lead.X, 0, lead.Z)
 				if lead.Magnitude > Sim.contactLeadMaxStuds then
@@ -201,6 +270,8 @@ local function collectTargets()
 				end
 				contactXs[targetCount] = position.X + lead.X
 				contactZs[targetCount] = position.Z + lead.Z
+				hurtXs[targetCount], hurtZs[targetCount] =
+					PlayerHurt.center(contactXs[targetCount], contactZs[targetCount])
 			end
 		end
 	end
@@ -222,6 +293,18 @@ local function fireShots(stepNow: number)
 			continue
 		end
 		local x, z, t, damage = shots[k + 2], shots[k + 3], shots[k + 4], shots[k + 5]
+		if ranged.nativeVolley then
+			NativeVolley.emit(ranged.nativeVolley, x, z, targetXs[t], targetZs[t], ranged.projectileSpeed, function()
+				return RandomService.number("Combat")
+			end, function(px, pz, dx, dz, speed)
+				if ranged.nativePillar then
+					EnemySim.NativePillar:Fire(shots[k + 1], px, pz, dx, dz, speed, damage, nil)
+				else
+					EnemySim.fireShot(px, pz, dx, dz, speed, ranged.projectileRange, ranged.projectileRadius, damage)
+				end
+			end)
+			continue
+		end
 		local aimX, aimZ = contactXs[t], contactZs[t]
 		if ranged.nativeSlash then
 			EnemySim.NativeSlash:Fire(shots[k + 1], aimX, aimZ, damage, nil)
@@ -385,7 +468,16 @@ local function callSummons()
 		local kind = world:getKind(id)
 		local summon = kind and kind.summon
 		local x, z = world:getPosition(id)
-		if kind and summon and x and z then
+		if kind and kind.nativeSpawn and x and z then
+			NativeSummons.emit(world, id, kind.nativeSpawn, nil, function()
+				return RandomService.number("Spawns")
+			end, function(...)
+				EnemySim.NativeSummon:Fire(...)
+			end)
+			if kind.nativeSpawn.dieOnRequest then
+				EnemySim.damage(id, world:getHealth(id), nil)
+			end
+		elseif kind and summon and x and z then
 			local hpMultiplier, damageMultiplier, speedMultiplier = world:getMultipliers(id)
 			spawnAround(
 				summon.enemy,
@@ -406,10 +498,22 @@ local function stepOnce()
 	local startedAt = os.clock()
 	weakness:step(STEP_SECONDS)
 	collectTargets()
-	local contacts = world:step(STEP_SECONDS, targetXs, targetZs, targetCount, contactXs, contactZs)
+	local contacts = world:step(
+		STEP_SECONDS,
+		targetXs,
+		targetZs,
+		targetCount,
+		hurtXs,
+		hurtZs,
+		nil,
+		targetInputXs,
+		targetInputZs,
+		targetDirectionXs,
+		targetDirectionZs
+	)
 	currentTick += 1
 	local stepNow = workspace:GetServerTimeNow()
-	volleys:step(STEP_SECONDS, contactXs, contactZs, targetCount)
+	volleys:step(STEP_SECONDS, hurtXs, hurtZs, targetCount)
 	local ended = volleys.ended
 	for k = 1, volleys.endedCount * 2 do
 		table.insert(endedShots, ended[k])
@@ -525,6 +629,7 @@ local function sendSnapshot()
 					+ (if burning[i] then Snapshot.STATUS_BURNING else 0)
 					+ (if slowFactors[i] < 1 or actors.nativeSlows:active(ids[i]) then Snapshot.STATUS_SLOWED else 0)
 					+ (if buffed[i] then Snapshot.STATUS_BUFFED else 0)
+					+ Snapshot.packPursuerStage(if actors.pursuers[i] then actors.pursuers[i].stage else 0)
 			end
 		end
 	end
@@ -585,6 +690,14 @@ end
 -- Lifecycle -------------------------------------------------------------------------
 
 function EnemySim.init()
+	MapService.NativeTerrainChanged:Connect(function()
+		local bodies = actorObstacles()
+		local circles = MapService.getForbiddenCircles()
+		world.params.obstacles = bodies
+		friends.world.params.obstacles = bodies
+		world.params.forbiddenCircles = circles
+		friends.world.params.forbiddenCircles = circles
+	end)
 	MapService.ArenaResized:Connect(function(bounds: MapService.Bounds)
 		local center = bounds.center
 		local minX, maxX = center.X - bounds.halfX, center.X + bounds.halfX
@@ -657,7 +770,12 @@ function EnemySim.spawn(
 		hpGrowth, contactGrowth, shotGrowth = EnemyStats.growth(kind, wave)
 	end
 	local shotDamage = if baseShot > 0 then baseShot * damageMultiplier * shotGrowth else nil
-	local speed = (speedMultiplier or 1) * EnemyStats.speedFactor(kind, RandomService.number("Spawns"))
+	local speed = EnemyStats.spawnSpeedFactor(
+		kind,
+		RandomService.number("Spawns"),
+		speedMultiplier or 1,
+		RunDirector.getRunOptions().enemySpeed / 100
+	)
 	local id = world:spawn(
 		kind,
 		x,
@@ -672,7 +790,9 @@ function EnemySim.spawn(
 		local index = world.indexOf[id]
 		nativeBases[id] = {
 			spawnedAt = workspace:GetServerTimeNow(),
-			contact = world.contactDamage[index],
+			contact = if kind.pursuer
+				then kind.contactDamage * damageMultiplier * contactGrowth
+				else world.contactDamage[index],
 			shot = world.shotDamage[index],
 			spawn = { hp = hpMultiplier, damage = damageMultiplier, speed = speedMultiplier or 1, wave = wave },
 		}
@@ -745,6 +865,11 @@ function EnemySim.tryCharm(player: Player, id: number, stats: { [string]: number
 		return false
 	end
 	return friends:convert(world, id, player.UserId, workspace:GetServerTimeNow(), nativeBases[id])
+end
+-- Trusted server-only completion after a native summon birth; no random on-hit Charm roll.
+function EnemySim.charmSummoned(id: number, owner: number): boolean
+	local base = nativeBases[id]
+	return base ~= nil and friends:convert(world, id, owner, workspace:GetServerTimeNow(), base)
 end
 function EnemySim.isCharmed(id: number): boolean
 	return friends.world:isAlive(id)
@@ -991,6 +1116,16 @@ function EnemySim.getPosition(id: number): Vector3?
 	return Vector3.new(x, floorY, z)
 end
 
+-- Exact live hurt-circle center/radius, separate from the actor origin used by snapshots and drops.
+function EnemySim.getHurtGeometry(id: number): (Vector3?, number?)
+	local actors = if friends.world.indexOf[id] then friends.world else world
+	local x, z, radius = actors:getHurtGeometry(id)
+	if not (x and z and radius) then
+		return nil, nil
+	end
+	return Vector3.new(x, floorY, z), radius
+end
+
 -- Where the last step saw a living participant: moved ahead along their velocity like for contacts (see
 -- Config.Simulation), so about where they see themselves. nil for players who are not a living participant.
 function EnemySim.getPlayerPosition(player: Player): Vector3?
@@ -999,6 +1134,26 @@ function EnemySim.getPlayerPosition(player: Player): Vector3?
 		return nil
 	end
 	return Vector3.new(contactXs[index], floorY, contactZs[index])
+end
+
+-- Native damage geometry. Default uses the last compensated step; false reads the current authoritative root.
+function EnemySim.getPlayerHurtGeometry(player: Player, compensated: boolean?): (Vector3?, number?)
+	if RunDirector.getParticipantState(player) ~= "Alive" then
+		return nil, nil
+	end
+	if compensated == false then
+		local origin = MapService.getRootPosition(player)
+		if not origin then
+			return nil, nil
+		end
+		local x, z = PlayerHurt.center(origin.X, origin.Z)
+		return Vector3.new(x, floorY, z), PlayerHurt.radius
+	end
+	local index = targetIndexOf[player]
+	if not index then
+		return nil, nil
+	end
+	return Vector3.new(hurtXs[index], floorY, hurtZs[index]), PlayerHurt.radius
 end
 
 -- Enemy id (key in Config.Enemies.types or .bosses) and whether it is an elite, nil for unknown ids. Bosses count as
@@ -1015,6 +1170,47 @@ end
 -- which the snapshots carry to the clients (BossService, WP10).
 function EnemySim.setMode(id: number, mode: number, rushX: number?, rushZ: number?)
 	world:setMode(id, mode, rushX, rushZ)
+end
+
+-- Enemy._on_hurt slow hooks can be overridden independently of damage, knockback and direct Unit speed effects.
+function EnemySim.allowsHurtSlowEffects(id: number): boolean
+	local actors = if friends.world.indexOf[id] then friends.world else world
+	local index = actors.indexOf[id]
+	return index ~= nil and actors.kinds[index].nativeHurtSlowEffects ~= false
+end
+
+function EnemySim.isProjectileDeflecting(id: number): (boolean, boolean)
+	local actors = if friends.world:isAlive(id) then friends.world else world
+	local index = actors.indexOf[id]
+	if not index or actors.hp[index] <= 0 then
+		return false, false
+	end
+	local rule = actors.kinds[index].nativeCharge
+	local capable = rule ~= nil and rule.deflectStopBeforeCooldown ~= nil
+	return capable and actors:isProjectileDeflecting(id), capable
+end
+
+-- Native get_rand_enemy includes charmed ordinary enemies and excludes bosses; it has no radius or previous-hit filter.
+local nativeBounceIds: { number } = {}
+function EnemySim.nativeBounceTarget(ignore: number, random: () -> number): (number?, number?)
+	table.clear(nativeBounceIds)
+	for _, actors in { world, friends.world } do
+		for index = 1, actors.count do
+			if actors.hp[index] > 0 and not actors.kinds[index].boss then
+				table.insert(nativeBounceIds, actors.ids[index])
+			end
+		end
+	end
+	local count = #nativeBounceIds
+	if count == 0 or (count == 1 and nativeBounceIds[1] == ignore) then
+		return nil, nil
+	end
+	local id: number
+	repeat
+		id = nativeBounceIds[math.min(count, math.floor(random() * count) + 1)]
+	until id ~= ignore
+	local actors = if friends.world:isAlive(id) then friends.world else world
+	return actors:getPosition(id)
 end
 
 -- Mode of a living enemy (EnemySim/World.MODE_*: walk, wind-up, rush, recover) and its rush direction x/z.

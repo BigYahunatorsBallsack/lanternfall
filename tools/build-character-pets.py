@@ -30,7 +30,8 @@ def read_scene(pck,path):
  base=next((v['path'] for v in parsed['externalResources'] if root_instance and str(v['id'])==root_instance[1]),None)
  return {'sourceMd5':pck.entries[path]['md5'],'baseScene':base,'nodes':nodes,'shapes':shapes}
 def generate(pck):
- translation_path=ROOT/'build/character-source/native/resources/translations/translations.csv'
+ reference=source.verify_reference(pck)
+ translation_path=ROOT/f'build/character-source/translations-{reference["version"]}/resources/translations/translations.csv'
  translations={row['key']:row['en'] for row in csv.DictReader(translation_path.read_text(encoding='utf-8-sig').splitlines())}
  rows=[];resources={};scenes={}
  for slug in FAMILIES:
@@ -65,7 +66,7 @@ def generate(pck):
   if path:rule_sources.append({'source':path,'sourceMd5':pck.entries[path]['md5']})
  player_scene=read_scene(pck,'res://entities/units/player/player.tscn');body=next(n['properties'] for n in player_scene['nodes'] if n['name']=='Collision' and n['parent']=='.');shape=body['shape']['resource'].split('::')[1]
  player_body={'source':'res://entities/units/player/player.tscn','sourceMd5':player_scene['sourceMd5'],'radiusPoints':player_scene['shapes'][shape]['properties']['radius'],'offsetXPoints':body['position']['values'][0],'offsetZPoints':body['position']['values'][1]}
- return {'version':'1.2.0.1','steamBuild':26406319,'pets':rows,'resources':resources,'scenes':scenes,'ruleSources':rule_sources,'playerBody':player_body,'engineDefaults':{'circleRadiusPoints':10,'circleReference':'https://docs.godotengine.org/en/3.5/classes/class_circleshape2d.html','bonkTweenTransition':5,'bonkTweenEase':2,'tweenReference':'https://docs.godotengine.org/en/3.5/classes/class_tween.html','tweenEquationReference':'https://github.com/godotengine/godot/blob/3.5/scene/animation/easing_equations.h'},'note':'Neutral pet facts, not a claim of implemented behavior or available original artwork.'}
+ return {'version':reference['version'],'steamBuild':int(reference['steamBuildId']),'pets':rows,'resources':resources,'scenes':scenes,'ruleSources':rule_sources,'playerBody':player_body,'engineDefaults':{'circleRadiusPoints':10,'circleReference':'https://docs.godotengine.org/en/3.5/classes/class_circleshape2d.html','bonkTweenTransition':5,'bonkTweenEase':2,'tweenReference':'https://docs.godotengine.org/en/3.5/classes/class_tween.html','tweenEquationReference':'https://github.com/godotengine/godot/blob/3.5/scene/animation/easing_equations.h'},'note':'Neutral pet facts, not a claim of implemented behavior or available original artwork.'}
 STAT_IDS={'stat_melee_damage':'meleeDamage','stat_ranged_damage':'rangedDamage','stat_elemental_damage':'elementalDamage','stat_engineering':'engineering','stat_max_hp':'maxHp'}
 
 def weapon(data, structure=False, ranged=False, exploding=False):

@@ -9,7 +9,7 @@ Koop-Survivors für Roblox (1–4 Spieler, 12-Min-Runs, Boss bei 12:00). Das vol
 - Diese Entscheidung ersetzt aeltere Vorgaben zu eigenen Namen/Inhalten und bloss angenaeherten Brotato-Werten in allen Projektdateien. Historische Beschreibungen belegen keine weiterhin erlaubte Abweichung.
 - Noch vorhandene Abweichungen sind offene Arbeit. Ungeklaerte Quellenwerte und technische Grenzen ausdruecklich dokumentieren; keine ungepruefte 1:1-Behauptung. Der Auftrag aendert nicht automatisch alle bestehenden Systeme in einem Paket.
 - Architektur, Server-Autoritaet, Dateibesitz, getrennte Sprites-/Code-Arbeit und Merge-Freigabe bleiben verbindlich.
-- Referenz ist die stabile PC-Version **1.2.0.1 einschliesslich aller DLCs**, keine Beta. Fuer B10 sind die gezielten Charakter-Ergaenzungen in Strang A ausdruecklich freigegeben (Umfang in `docs/BROTATO-REQUIREMENTS.md`); andere parallele Aenderungen bleiben geschuetzt.
+- Referenz ist die stabile PC-Version **1.2.0.3 einschliesslich aller DLCs**, keine Beta (Owner-Aktualisierung 14.11.2026; ersetzt das vorherige Ziel 1.2.0.2). Fuer B10 sind die gezielten Charakter-Ergaenzungen in Strang A ausdruecklich freigegeben (Umfang in `docs/BROTATO-REQUIREMENTS.md`); andere parallele Aenderungen bleiben geschuetzt.
 
 ## Owner & Kommunikation
 

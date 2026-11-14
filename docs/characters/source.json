@@ -11,19 +11,19 @@
   "provenance": {
     "source": "Owner-installed Steam copy of Brotato",
     "steamAppId": 1942280,
-    "steamBuildId": "26406319",
-    "steamLastUpdatedUtc": "2026-11-03T18:18:23+00:00",
-    "version": "1.2.0.1",
+    "steamBuildId": "26642464",
+    "steamLastUpdatedUtc": "2026-11-13T17:52:45+00:00",
+    "version": "1.2.0.3",
     "versionEvidence": {
       "resource": "res://singletons/progress_data.gdc",
       "literals": [
         "1.1.13.2",
-        "1.2.0.1"
+        "1.2.0.3"
       ],
       "method": "Highest semantic-version ASCII literal plus Steam build/update metadata; no decompilation"
     },
     "pckFile": "Brotato.pck",
-    "pckSha256": "4490fd1b6afe91e18c321bdb9d7a68ebe0246d9e8e87940c2823bd80ce8aa593",
+    "pckSha256": "ab83e762b1deb358265ecb841d738f58d5b1511757746540ad59c39630c66159",
     "pckVersion": 1,
     "godotVersion": [
       3,
@@ -497,7 +497,7 @@
       "nameKey": "CHARACTER_ARSONIST",
       "contentSet": "primalDread",
       "source": "res://items/characters/arsonist/arsonist_data.tres",
-      "sourceMd5": "fd1f55cd0f9c6bd6543f9d6fbdaf634e",
+      "sourceMd5": "b226a8f8358a0ff26cfce024b2c80eeb",
       "effects": [
         {
           "resource": "res://items/characters/arsonist/arsonist_effect_explosion_fire.tres",
@@ -588,7 +588,8 @@
         "banned_items": [],
         "banned_upgrades": [
           "upgrade_melee_damage",
-          "upgrade_ranged_damage"
+          "upgrade_ranged_damage",
+          "upgrade_engineering"
         ],
         "banned_meca_stats": [
           "stat_melee_damage",
@@ -4470,7 +4471,7 @@
       "nameKey": "CHARACTER_EXPLORER",
       "contentSet": "mainGame",
       "source": "res://items/characters/explorer/explorer_data.tres",
-      "sourceMd5": "d22e9dd9b9cee5d2146fba6060ee915b",
+      "sourceMd5": "610ad566b680d50d4b481bec0c39dd70",
       "effects": [
         {
           "resource": "res://items/characters/explorer/explorer_effect_1.tres",
@@ -4680,6 +4681,12 @@
           "source": "res://weapons/ranged/pan_flute/1/pan_flute_data.tres",
           "id": "weapon_pan_flute_1",
           "nameKey": "WEAPON_PAN_FLUTE",
+          "tier": 0
+        },
+        {
+          "source": "res://weapons/ranged/boomerang/1/boomerang_1_data.tres",
+          "id": "weapon_boomerang_1",
+          "nameKey": "WEAPON_BOOMERANG",
           "tier": 0
         }
       ],
@@ -5299,7 +5306,7 @@
       "nameKey": "CHARACTER_GENERALIST",
       "contentSet": "mainGame",
       "source": "res://items/characters/generalist/generalist_data.tres",
-      "sourceMd5": "d62f7d6bf00e85ac50c6ef78b152e2fd",
+      "sourceMd5": "8f6ebf07d7a2980ab72876b7c6e2c74e",
       "effects": [
         {
           "resource": "res://items/characters/generalist/generalist_effect_1.tres",
@@ -5467,12 +5474,6 @@
           "source": "res://weapons/ranged/sticky_grenade/1/sticky_grenade_data.tres",
           "id": "weapon_sticky_grenade_1",
           "nameKey": "WEAPON_STICKY_GRENADE",
-          "tier": 0
-        },
-        {
-          "source": "res://weapons/ranged/molotov/1/molotov_data.tres",
-          "id": "weapon_molotov_1",
-          "nameKey": "WEAPON_MOLOTOV",
           "tier": 0
         },
         {
@@ -7894,7 +7895,7 @@
       "nameKey": "CHARACTER_MAD_SCIENTIST",
       "contentSet": "primalDread",
       "source": "res://items/characters/mad_scientist/mad_scientist_data.tres",
-      "sourceMd5": "cb280f6d417a69a770ab519dc7a64453",
+      "sourceMd5": "01200cae1772dc4a6103fd2638445dca",
       "effects": [
         {
           "resource": "res://items/characters/mad_scientist/mad_scientist_effect_dual_evolution.tres",
@@ -7969,9 +7970,9 @@
           "tier": 0
         },
         {
-          "source": "res://weapons/melee/awl/1/awl_data.tres",
-          "id": "weapon_awl_1",
-          "nameKey": "WEAPON_AWL",
+          "source": "res://weapons/ranged/carbon_bow/1/carbon_bow_1_data.tres",
+          "id": "weapon_carbon_bow_1",
+          "nameKey": "WEAPON_CARBON_BOW",
           "tier": 0
         },
         {
@@ -7987,9 +7988,9 @@
           "tier": 0
         },
         {
-          "source": "res://weapons/ranged/blowgun/1/blowgun_data.tres",
-          "id": "weapon_blowgun_1",
-          "nameKey": "WEAPON_BLOWGUN",
+          "source": "res://weapons/ranged/laser_gun/1/laser_gun_data.tres",
+          "id": "weapon_laser_gun_1",
+          "nameKey": "WEAPON_LASER_GUN",
           "tier": 0
         },
         {
@@ -9188,7 +9189,7 @@
       "nameKey": "CHARACTER_ONE_ARM",
       "contentSet": "mainGame",
       "source": "res://items/characters/one_arm/one_arm_data.tres",
-      "sourceMd5": "61d846311fffa652bbf355483a866d6a",
+      "sourceMd5": "20179a2ed165ccf35387013eec1f6281",
       "effects": [
         {
           "resource": "res://items/characters/one_arm/one_arm_effect_1.tres",
@@ -9314,12 +9315,6 @@
           "source": "res://weapons/ranged/shuriken/1/shuriken_data.tres",
           "id": "weapon_shuriken_1",
           "nameKey": "WEAPON_SHURIKEN",
-          "tier": 0
-        },
-        {
-          "source": "res://weapons/ranged/boomerang/1/boomerang_1_data.tres",
-          "id": "weapon_boomerang_1",
-          "nameKey": "WEAPON_BOOMERANG",
           "tier": 0
         },
         {
@@ -11706,7 +11701,7 @@
       "nameKey": "CHARACTER_TIME_SHIFTER",
       "contentSet": "primalDread",
       "source": "res://items/characters/time_shifter/time_shifter_data.tres",
-      "sourceMd5": "e2e6af4464794d0aa21e6f2ec3bf3e78",
+      "sourceMd5": "7557c99f9c9f56b574556c0ab11c55d2",
       "effects": [
         {
           "resource": "res://items/characters/time_shifter/time_shifter_effect_5.tres",
@@ -11887,7 +11882,9 @@
         ],
         "banned_item_groups": [],
         "banned_items": [],
-        "banned_upgrades": [],
+        "banned_upgrades": [
+          "upgrade_dodge"
+        ],
         "banned_meca_stats": [
           "stat_dodge"
         ],
@@ -11901,7 +11898,7 @@
       "nameKey": "CHARACTER_VAGABOND",
       "contentSet": "mainGame",
       "source": "res://items/characters/vagabond/vagabond_data.tres",
-      "sourceMd5": "ce24e9cb2aaa925cb3526f3e716bd689",
+      "sourceMd5": "f3669c35ba8790d4408e6361f156c724",
       "effects": [
         {
           "resource": "res://items/characters/vagabond/effects/vagabond_effect_0.tres",
@@ -12101,6 +12098,12 @@
           "source": "res://weapons/melee/meat_tenderizer/1/meat_tenderizer_1_data.tres",
           "id": "weapon_meat_tenderizer_1",
           "nameKey": "WEAPON_MEAT_TENDERIZER",
+          "tier": 0
+        },
+        {
+          "source": "res://weapons/ranged/boomerang/1/boomerang_1_data.tres",
+          "id": "weapon_boomerang_1",
+          "nameKey": "WEAPON_BOOMERANG",
           "tier": 0
         }
       ],
@@ -12376,7 +12379,7 @@
       "nameKey": "CHARACTER_VARIANT",
       "contentSet": "primalDread",
       "source": "res://items/characters/variant/variant_data.tres",
-      "sourceMd5": "455e734cf021fd68ce5e2241202374ec",
+      "sourceMd5": "ad64ca881cf2216eaec3afe7c49c4ceb",
       "effects": [
         {
           "resource": "res://items/characters/variant/variant_effect_less_xp.tres",
@@ -12391,7 +12394,7 @@
           "resourceType": "Resource"
         },
         {
-          "resource": "res://items/characters/variant/variant_effect_wildfire_mutation.tres",
+          "resource": "res://items/characters/variant/variant_effect_mutate_on_equip.tres",
           "resourceType": "Resource"
         }
       ],
@@ -12840,7 +12843,7 @@
       "nameKey": "CHARACTER_WILDLING",
       "contentSet": "mainGame",
       "source": "res://items/characters/wildling/wildling_data.tres",
-      "sourceMd5": "8e057c9db45535489ac157edbef55c74",
+      "sourceMd5": "b3e9362cb48b0a3994f89040b2bbc7c4",
       "effects": [
         {
           "resource": "res://items/characters/wildling/wildling_effect_1.tres",
@@ -12927,6 +12930,12 @@
           "id": "weapon_flail_1",
           "nameKey": "WEAPON_FLAIL",
           "tier": 0
+        },
+        {
+          "source": "res://weapons/ranged/blowgun/1/blowgun_data.tres",
+          "id": "weapon_blowgun_1",
+          "nameKey": "WEAPON_BLOWGUN",
+          "tier": 0
         }
       ],
       "startingItems": [],
@@ -12960,7 +12969,7 @@
       "nameKey": "CHARACTER_WOUNDED",
       "contentSet": "mainGame",
       "source": "res://items/characters/wounded/wounded_data.tres",
-      "sourceMd5": "a169fd8e8d3c3c3fc80fa4396a868a43",
+      "sourceMd5": "142065691069909398dcc711bb257467",
       "effects": [
         {
           "resource": "res://items/characters/wounded/wounded_effect_1.tres",
@@ -13240,7 +13249,8 @@
           "item_garden",
           "item_doc_moth",
           "item_fruit_basket",
-          "item_turret_healing"
+          "item_turret_healing",
+          "item_pocket_watch"
         ],
         "banned_upgrades": [
           "upgrade_armor",
@@ -24985,8 +24995,8 @@
       }
     },
     "res://items/characters/arsonist/arsonist_data.tres": {
-      "md5": "fd1f55cd0f9c6bd6543f9d6fbdaf634e",
-      "sha256": "e138150619cb090968305a8e0abf1b570da0d1649c1bdceae333190a84ef2be9",
+      "md5": "b226a8f8358a0ff26cfce024b2c80eeb",
+      "sha256": "01a1ed7f7149982e47112d9c2fd78e4ea59f138ad053be484d0599bb2284af24",
       "resourceType": "Resource",
       "effectType": "res://items/characters/character_data.gd",
       "properties": {
@@ -25041,7 +25051,8 @@
         "banned_items": [],
         "banned_upgrades": [
           "upgrade_melee_damage",
-          "upgrade_ranged_damage"
+          "upgrade_ranged_damage",
+          "upgrade_engineering"
         ],
         "banned_meca_stats": [
           "stat_melee_damage",
@@ -28537,8 +28548,8 @@
       }
     },
     "res://items/characters/explorer/explorer_data.tres": {
-      "md5": "d22e9dd9b9cee5d2146fba6060ee915b",
-      "sha256": "81777cefd1cdcee36a99a7d4c94489ab25b015c1907200088ebddafb1a47970c",
+      "md5": "610ad566b680d50d4b481bec0c39dd70",
+      "sha256": "e9f5c274010b9011cef37ff301f2cd4eb16b31c8dc4d76ea7adac9687d3968ad",
       "resourceType": "Resource",
       "effectType": "res://items/characters/character_data.gd",
       "properties": {
@@ -28720,6 +28731,10 @@
           },
           {
             "resource": "res://weapons/ranged/pan_flute/1/pan_flute_data.tres",
+            "resourceType": "Resource"
+          },
+          {
+            "resource": "res://weapons/ranged/boomerang/1/boomerang_1_data.tres",
             "resourceType": "Resource"
           }
         ],
@@ -29426,8 +29441,8 @@
       }
     },
     "res://items/characters/generalist/generalist_data.tres": {
-      "md5": "d62f7d6bf00e85ac50c6ef78b152e2fd",
-      "sha256": "54e0def9bb51a1808a4000a424039329a777c1906989a69a9696b6bbfaa26247",
+      "md5": "8f6ebf07d7a2980ab72876b7c6e2c74e",
+      "sha256": "93a6cc41a63d6db99a4eca19c77078cf80aff154dcfd648dc3af6513764a6b95",
       "resourceType": "Resource",
       "effectType": "res://items/characters/character_data.gd",
       "properties": {
@@ -29574,10 +29589,6 @@
           },
           {
             "resource": "res://weapons/ranged/sticky_grenade/1/sticky_grenade_data.tres",
-            "resourceType": "Resource"
-          },
-          {
-            "resource": "res://weapons/ranged/molotov/1/molotov_data.tres",
             "resourceType": "Resource"
           },
           {
@@ -32587,8 +32598,8 @@
       }
     },
     "res://items/characters/mad_scientist/mad_scientist_data.tres": {
-      "md5": "cb280f6d417a69a770ab519dc7a64453",
-      "sha256": "25a55fbb2ea6d498360c9695b52c1761c63853ab676250cfa6131e5518fa8366",
+      "md5": "01200cae1772dc4a6103fd2638445dca",
+      "sha256": "f7a0926379b1280d60adc0104dee59bbfd23a0509c771adb605f410f86b83af3",
       "resourceType": "Resource",
       "effectType": "res://items/characters/character_data.gd",
       "properties": {
@@ -32669,7 +32680,7 @@
             "resourceType": "Resource"
           },
           {
-            "resource": "res://weapons/melee/awl/1/awl_data.tres",
+            "resource": "res://weapons/ranged/carbon_bow/1/carbon_bow_1_data.tres",
             "resourceType": "Resource"
           },
           {
@@ -32681,7 +32692,7 @@
             "resourceType": "Resource"
           },
           {
-            "resource": "res://weapons/ranged/blowgun/1/blowgun_data.tres",
+            "resource": "res://weapons/ranged/laser_gun/1/laser_gun_data.tres",
             "resourceType": "Resource"
           },
           {
@@ -33920,8 +33931,8 @@
       }
     },
     "res://items/characters/one_arm/one_arm_data.tres": {
-      "md5": "61d846311fffa652bbf355483a866d6a",
-      "sha256": "133f334f98cd54057f374f715c5f5507c215f8dff06267f390cde60d53a05784",
+      "md5": "20179a2ed165ccf35387013eec1f6281",
+      "sha256": "7d9d13b9149cb05ae2aa4f33637af6af8dd9e25e0446cbcb5c891f0aab766545",
       "resourceType": "Resource",
       "effectType": "res://items/characters/character_data.gd",
       "properties": {
@@ -34039,10 +34050,6 @@
           },
           {
             "resource": "res://weapons/ranged/shuriken/1/shuriken_data.tres",
-            "resourceType": "Resource"
-          },
-          {
-            "resource": "res://weapons/ranged/boomerang/1/boomerang_1_data.tres",
             "resourceType": "Resource"
           },
           {
@@ -36920,8 +36927,8 @@
       }
     },
     "res://items/characters/time_shifter/time_shifter_data.tres": {
-      "md5": "e2e6af4464794d0aa21e6f2ec3bf3e78",
-      "sha256": "75c655c302e9f383a2cac396c5b3d7f706c8f807f5f15a7820c4278f376ac6d6",
+      "md5": "7557c99f9c9f56b574556c0ab11c55d2",
+      "sha256": "4d2637816a02d6ddcee3be646fdd7dc368a2167374d53f62de109ec8224314a2",
       "resourceType": "Resource",
       "effectType": "res://items/characters/character_data.gd",
       "properties": {
@@ -36964,7 +36971,9 @@
         ],
         "banned_item_groups": [],
         "banned_items": [],
-        "banned_upgrades": [],
+        "banned_upgrades": [
+          "upgrade_dodge"
+        ],
         "banned_meca_stats": [
           "stat_dodge"
         ],
@@ -37237,8 +37246,8 @@
       }
     },
     "res://items/characters/vagabond/vagabond_data.tres": {
-      "md5": "ce24e9cb2aaa925cb3526f3e716bd689",
-      "sha256": "c20b5976c0a8a680832e3477e62698f0e5a2ca0f6246b370b21ecb4e2aaa01b5",
+      "md5": "f3669c35ba8790d4408e6361f156c724",
+      "sha256": "2ba4d44d648b30fda9b214d48691fba256059e951ffffe8adf0d9ffa70b10487",
       "resourceType": "Resource",
       "effectType": "res://items/characters/character_data.gd",
       "properties": {
@@ -37404,6 +37413,10 @@
           },
           {
             "resource": "res://weapons/melee/meat_tenderizer/1/meat_tenderizer_1_data.tres",
+            "resourceType": "Resource"
+          },
+          {
+            "resource": "res://weapons/ranged/boomerang/1/boomerang_1_data.tres",
             "resourceType": "Resource"
           }
         ],
@@ -37782,8 +37795,8 @@
       }
     },
     "res://items/characters/variant/variant_data.tres": {
-      "md5": "455e734cf021fd68ce5e2241202374ec",
-      "sha256": "253bc7f3f957563c32b0b498508b347c0fe3d94bdbeb81330a73f9b6e8e96cb9",
+      "md5": "ad64ca881cf2216eaec3afe7c49c4ceb",
+      "sha256": "6e709376e5ef1714b022d79a4d642563cf385a3c228ba542ddaf4953945f7e11",
       "resourceType": "Resource",
       "effectType": "res://items/characters/character_data.gd",
       "properties": {
@@ -37807,7 +37820,7 @@
             "resourceType": "Resource"
           },
           {
-            "resource": "res://items/characters/variant/variant_effect_wildfire_mutation.tres",
+            "resource": "res://items/characters/variant/variant_effect_mutate_on_equip.tres",
             "resourceType": "Resource"
           }
         ],
@@ -37961,15 +37974,15 @@
         "custom_args": []
       }
     },
-    "res://items/characters/variant/variant_effect_wildfire_mutation.tres": {
-      "md5": "5a8871ddd89610453843c0bea68465f0",
-      "sha256": "f4d1208420b33ffc94dc8579db2fd41b817049c6cad2013307a5f6ba6da58480",
+    "res://items/characters/variant/variant_effect_mutate_on_equip.tres": {
+      "md5": "8894a1d705317715fcb0c6685480b7b3",
+      "sha256": "b695fb3687bcabe456147acffc5e13378f32faafce7c1ef192653b6cd6adc026",
       "resourceType": "Resource",
       "effectType": "res://items/global/effect.gd",
       "properties": {
-        "key": "mutate_into_better_tier_chance",
-        "text_key": "EFFECT_MUTATE_INTO_BETTER_TIER_CHANCE",
-        "value": 50,
+        "key": "mutate_item_on_equip_chance",
+        "text_key": "EFFECT_MUTATE_ITEM_ON_EQUIP_CHANCE",
+        "value": 25,
         "custom_key": "",
         "storage_method": 0,
         "effect_sign": 3,
@@ -38382,8 +38395,8 @@
       }
     },
     "res://items/characters/wildling/wildling_data.tres": {
-      "md5": "8e057c9db45535489ac157edbef55c74",
-      "sha256": "ca5034221b8d1f337e69625716a8401a1fa086843f4a78330fa2df8f73769d2a",
+      "md5": "b3e9362cb48b0a3994f89040b2bbc7c4",
+      "sha256": "6de854b1efa3788c9fd8bf279cfed035cec01d9d0092efc39da3ab395f99991f",
       "resourceType": "Resource",
       "effectType": "res://items/characters/character_data.gd",
       "properties": {
@@ -38470,6 +38483,10 @@
           {
             "resource": "res://weapons/melee/flail/1/flail_1_data.tres",
             "resourceType": "Resource"
+          },
+          {
+            "resource": "res://weapons/ranged/blowgun/1/blowgun_data.tres",
+            "resourceType": "Resource"
           }
         ],
         "starting_items": [],
@@ -38543,8 +38560,8 @@
       }
     },
     "res://items/characters/wounded/wounded_data.tres": {
-      "md5": "a169fd8e8d3c3c3fc80fa4396a868a43",
-      "sha256": "ad0f6097068fcf01855da73b70f9a97a495489c3f9364d12366755b666badbda",
+      "md5": "142065691069909398dcc711bb257467",
+      "sha256": "0e680104adc0f766980822bac19eab3f5d959720096d4b96dccc31476518c800",
       "resourceType": "Resource",
       "effectType": "res://items/characters/character_data.gd",
       "properties": {
@@ -38638,7 +38655,8 @@
           "item_garden",
           "item_doc_moth",
           "item_fruit_basket",
-          "item_turret_healing"
+          "item_turret_healing",
+          "item_pocket_watch"
         ],
         "banned_upgrades": [
           "upgrade_armor",

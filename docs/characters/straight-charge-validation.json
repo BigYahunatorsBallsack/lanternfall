@@ -1,0 +1,91 @@
+{
+  "referenceVersion": "1.2.0.2",
+  "steamBuild": 26615634,
+  "scope": "Neutral Triceratops and Parasaurolorus (display Parasaurolophus) runtime bodies with original straight timed charge semantics. No Meca/Mutant evolution, playable Jungle or original physics/graphics acceptance.",
+  "rules": [
+    "Inherited shoot/shoot_charmed method at0.8 seconds, attack animation speed1.5, so launch at0.8/1.5. Initial and recurring cooldown60+/-10 frames with lower bound1 frame.",
+    "Strict vertical trigger abs(dz)<15 pixels bypasses radial min/max. FollowTarget vertically-biased movement uses half horizontal distance and full vertical distance.",
+    "Direction captured at animation start, horizontal sign fallback+1 at equalX. One-second rush remains active when blocked, then0.05-second recovery. Cooldown resets at shoot to rolled cooldown plus charge duration, independent of obstacles.",
+    "Integer original mass multiplied by5 while preparing/rushing and restored at timer end. Timers and cached direction survive faction transfer and advance with no targets.",
+    "Charge replaces bonus_speed with750px/s times accessibility only, independent of randomized/danger/endless/team base-speed factors; timeout clears this bonus, including previous Charm bonus. Source-backed base speed remains additive.",
+    "Native initial random offset is truncated after multiplying its amplitude by accessibility; full base/effect/danger/endless multiplier applies afterward with final pixel rounding. Historical samplers preserved."
+  ],
+  "interfaces": [
+    "Enemy.nativeCharge (restricted neutral straight/START_SHOOT policy) and nativeFollowXShare; World.nativeCharges column with NativeStraightCharge.State.",
+    "World.Params.nativeChargeAccessibility optional trusted server callback; EnemySim supplies current run enemySpeed percentage, CharmedWorld retains callback.",
+    "EnemyStats.spawnSpeedFactor optional fourth accessibility argument defaults1; EnemySim passes run slider separately from full base-speed multiplier."
+  ],
+  "focused": {
+    "NativeJungleCharge": {
+      "passed": 10,
+      "failed": 0
+    },
+    "NativeAccessibilitySpeed": {
+      "passed": 3,
+      "failed": 0
+    },
+    "initialChargeTests": "0/6 before implementation. Accessibility bonus9/1 before separation,10/0 after. Random offset1/2 before correction,3/0 after including actual server spawn and movement at75% slider.",
+    "affectedSuites": "EnemyWorld48/0, CharmedWorld6/0, MainGameEnemyStats29/0, NativeMovement8/0, NativeHoleCollision7/0, NativeTerrainBridge6/0, NativeBabyTrex10/0, NativeShooter4/0."
+  },
+  "mutation": "Forcing actual EnemySim charge accessibility callback to1 makes real75%-slider movement test fail (6.3 versus5.05stud/tick). Restored byte-for-byte;3/0 again.",
+  "fullSuite": {
+    "specs": 291,
+    "passed": 1803,
+    "failed": 36,
+    "previousSpecs": 289,
+    "previousPassed": 1790,
+    "previousFailed": 36,
+    "newFailureNames": [],
+    "failureIdentitiesUnchanged": true,
+    "aborts": [],
+    "artifact": "build/native-five-branch-nine-straight-charge-4cf1050.json"
+  },
+  "checks": {
+    "stylua": true,
+    "postSuiteFormatting": "JungleEnemyKinds line endings normalized with StyLua--verify (AST equivalence), then Charge10/0, Accessibility3/0 and BabyTrex10/0 passed; no semantic runtime change after full suite.",
+    "seleneErrors": 0,
+    "existingWarnings": 18,
+    "rojo": true,
+    "sourceCompilersBeforeSteamUpdate": true,
+    "finalSourceCompiler": "Correctly rejected installed1.2.0.3/build26642464; approved reference unchanged. Saved approved snapshot/config and17 local PNG hashes checked independently.",
+    "savedSnapshotVerified": true,
+    "oldApprovedBodyScanMatches": 13,
+    "unchangedInstalledRuleScripts": 21,
+    "unchangedInstalledBodyStatTextureResources": 44,
+    "installedUpdateAudit": "docs/characters/native-charge-installed-update-audit.json",
+    "studio": false
+  },
+  "localPerformance": {
+    "actors": 140,
+    "kinds": [
+      "Triceratops",
+      "Parasaurolorus"
+    ],
+    "targets": 4,
+    "warmupSteps": 20,
+    "measuredSteps": 100,
+    "meanMilliseconds": 3.988454999998794,
+    "clock": "RobloxMock realClock (actual monotonic time, not simulated os.clock)",
+    "acceptance": false,
+    "note": "Narrow margin at local4ms target; one synthetic run is not Studio/device or stable performance acceptance."
+  },
+  "assets": {
+    "localPngCount": 17,
+    "addedOriginalBodies": [
+      "Triceratops",
+      "Parasaurolorus"
+    ],
+    "uploads": 0,
+    "runtimeAssetIdsChanged": false,
+    "originalArtAccepted": false
+  },
+  "codePreparedCharacters": 48,
+  "newCharacterReadyFlags": 0,
+  "zonePlayable": false,
+  "remaining": [
+    "Other charge target modes, warning-line subclass and native evolution branches.",
+    "Native collision offsets and physics ordering, player/terrain rendering, original sprite acceptance.",
+    "Remaining Jungle enemies/bosses/waves/area route; native full-game, Studio and device performance acceptance.",
+    "Installed1.2.0.3 is detected but not adopted as the target; source refresh remains guarded."
+  ]
+}

@@ -7,6 +7,7 @@ local Net = require(Shared.Net)
 local C = require(Shared.Config.CharacterMechanics).movementIntent
 local Controller = {}
 local previous: boolean? = nil
+local previousDirection = Vector3.zero
 local lastSent = -math.huge
 
 function Controller.init()
@@ -15,10 +16,15 @@ function Controller.init()
 		local humanoid = character and character:FindFirstChildOfClass("Humanoid")
 		local direction = humanoid and humanoid.MoveDirection
 		local moving = direction ~= nil and (direction.X ~= 0 or direction.Z ~= 0)
+		local horizontal = if direction then Vector3.new(direction.X, 0, direction.Z) else Vector3.zero
 		local now = workspace:GetServerTimeNow()
-		if now - lastSent >= C.minSendSeconds and (moving ~= previous or now - lastSent >= C.heartbeatSeconds) then
+		if
+			now - lastSent >= C.minSendSeconds
+			and (moving ~= previous or horizontal ~= previousDirection or now - lastSent >= C.heartbeatSeconds)
+		then
 			lastSent, previous = now, moving
-			Net.fireServer("SetMovementIntent", moving)
+			previousDirection = horizontal
+			Net.fireServer("SetMovementIntent", moving, horizontal)
 		end
 	end)
 end

@@ -77,3 +77,16 @@ Fuer DLC-Charaktere fehlen ausserdem gemeinsame Systeme wie Curse, verfluchte Ge
 - Kartenregeln integriert: Captain-Wertmodifikation mit ganzzahligem Abschneiden vor Stat-Gewinnfaktoren, Charakter-Ausschluesse vor Welle 20 und Babys echte Waffenplatz-Karte bis 24 Plaetzen. Native `item_service.get_upgrades` bietet Baby genau eine Platz-Karte an, solange das Platzlimit nicht erreicht ist; der Platz wird erst bei der Auswahl gewaehrt und bei Wiederholung korrekt wiederhergestellt. Danach folgen normale Werte-Karten. Droid unterdrueckt Werte-Karten mit `no_level_upgrades`. Die Originalabbildung der Platz-Karte bleibt eine Grafik-Abhaengigkeit.
 - Direkt gepruefte UI-/XP-Referenz: Native `PlayerRunData.current_level` startet bei 0; `player_ui_elements.update_level_label` zeigt diesen Wert unveraendert als `LV.0`. Progression, HUD, Kartenstufen, Max-HP-Ereignisse und waffenbezogene Level-Skalierung sind auf diesen Zaehler ausgerichtet. Die erste Schwelle bleibt 16 XP bzw. 5,44 fuer Mutant; Stufe 5 ist die erste garantierte ungewoehnliche Karte.
 - Studio-, Zwei-Client- und Handy-Abnahme bleiben offen. Es wurden keine Sprites erstellt oder veraendert und nichts gemerged.
+
+
+## Aktuelles Versionsziel (Owner, 13.11.2026)
+
+Der Owner hat den Wechsel auf die installierte stabile PC-Version **1.2.0.2**, Steam-Build26615634, einschließlich aller DLCs freigegeben. Frühere Versionsbindungen an1.2.0.1 sind historische Nachweise. Vorhandene48 code-vorbereitete Pakete müssen gegen die Änderungen geprüft werden; die Prüfung ist noch nicht abgeschlossen. Referenzidentität steht in `docs/characters/reference.json`, Änderungsprüfung in `docs/characters/version-1.2.0.2-audit.json`. Alte Quellen bleiben erhalten; keine pauschale Umbenennung historischer Nachweise.
+
+## Fortsetzung unter eingefrorener1.2.0.2-Referenz (13.11.2026)
+
+Die Versionsänderungen an den48 zuvor code-vorbereiteten Paketen sind inzwischen geprüft (reference.json und version-1.2.0.2-audit.json); dies ist keine native Komplettabnahme. Steam hat danach1.2.0.3 installiert, die nicht freigegeben wurde. Allgemeine Quellcompiler bleiben auf1.2.0.2 geschützt. Einzelne Ressourcen wurden nur nach nachgewiesener Bytegleichheit mit bereits gesicherten1.2.0.2-Hashes gelesen; neue Regeln aus1.2.0.3 wurden nicht übernommen. Weitere Charakter-Ready-Markierungen gab es durch die Jungle-/Trefferflächen-Grundmechaniken nicht. Aktueller Stand und konkrete Restarbeit: docs/characters/HANDOFF.md.
+
+## Aktuelles Versionsziel und Audit (Owner,14.11.2026)
+
+StabilePC-Version1.2.0.3/Build26642464 mit allenDLCs ist ausdrücklich freigegeben und ersetzt1.2.0.2. AlteQuellen bleiben erhalten. Sieben geänderte Skriptdateien geprüft; der Katalog ändert nur Cavemans Startauswahl (Boomerang entfällt). Audit der48bereitscodevorbereitetenPakete abgeschlossen, keine zusätzlichenfertigenCharaktere und keine nativeGesamtabnahme. VerbindlicheIdentität: reference.json; Einzelbewertung/Tests: version-1.2.0.3-audit.json. Jungle-Boss-/Snowball-/UI-/Physik-/Grafik-/Studio-Lücken bleiben offeneArbeit.

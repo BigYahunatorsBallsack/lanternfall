@@ -2,9 +2,11 @@
   "source": "res://visual_effects/player_light_in_shadow.png",
   "textureSource": "res://.import/player_light_in_shadow.png-b4645d64e245546609656a3096f8a1f8.stex",
   "textureMd5": "4f89c58b3739ff3ca3fc8e4716fe5aea",
-  "installedVersion": "1.2.0.2",
-  "installedSteamBuild": 26615634,
+  "installedVersion": "1.2.0.3",
+  "installedSteamBuild": 26642464,
   "original1201IdentityVerified": false,
+  "targetVersion": "1.2.0.3",
+  "targetIdentityVerified": true,
   "size": [
     512,
     512

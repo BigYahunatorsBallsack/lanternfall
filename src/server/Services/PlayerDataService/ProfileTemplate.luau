@@ -1,5 +1,5 @@
 --!strict
--- Default player data, schema v14 (DESIGN.md section 16). Used by PlayerDataService (ProfileStore template) and
+-- Default player data, schema v15 (DESIGN.md section 16). Used by PlayerDataService (ProfileStore template) and
 -- Migrations. Schema change = SCHEMA_VERSION + 1 and a step in Migrations; never drop a field without a step.
 
 -- One character's record (Paket 12; since Paket 13 it opens the danger levels per character, Util/ProgressRules).
@@ -31,7 +31,13 @@ export type Data = {
 		embersBought: number, -- v5: Embers from Robux packs (not in embersEarned)
 		purchases: number, -- v5: developer products granted
 	},
-	nativeCounts: { materialsCollected: number, enemiesKilled: number, digSitesDug: number, treesKilled: number }, -- v13 adds personally killed trees
+	nativeCounts: {
+		materialsCollected: number,
+		enemiesKilled: number,
+		digSitesDug: number,
+		treesKilled: number,
+		whipJungleKills: number,
+	}, -- v15 adds direct Whip kills in original Jungle
 	achievements: { [string]: boolean }, -- v3: Config.Progress achievement ids that are done
 	characterStats: { [string]: CharacterStats }, -- v2, by Config.Classes id
 	nativeZoneBest: { [string]: { [string]: number } }, -- v14, character -> canonical original zone id -> best completed danger
@@ -57,7 +63,7 @@ local Config = require(game:GetService("ReplicatedStorage").Shared.Config)
 
 local ProfileTemplate = {}
 
-ProfileTemplate.SCHEMA_VERSION = 14
+ProfileTemplate.SCHEMA_VERSION = 15
 
 -- Default settings (Config.Settings.defaults) as a new table (v4, graphics since v8).
 function ProfileTemplate.newSettings(): {
@@ -100,7 +106,13 @@ function ProfileTemplate.new(): Data
 			embersBought = 0,
 			purchases = 0,
 		},
-		nativeCounts = { materialsCollected = 0, enemiesKilled = 0, digSitesDug = 0, treesKilled = 0 },
+		nativeCounts = {
+			materialsCollected = 0,
+			enemiesKilled = 0,
+			digSitesDug = 0,
+			treesKilled = 0,
+			whipJungleKills = 0,
+		},
 		achievements = {},
 		characterStats = {},
 		nativeZoneBest = {},

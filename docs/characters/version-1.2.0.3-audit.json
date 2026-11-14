@@ -1,0 +1,128 @@
+{
+  "fromVersion": "1.2.0.2",
+  "toVersion": "1.2.0.3",
+  "steamBuild": 26642464,
+  "ownerDecisionDate": "2026-11-14",
+  "baseMain": "4cf1050760002a496856a2b7c0b6024f0987a4f1",
+  "complete": true,
+  "existingCodePrepared": 48,
+  "existingPackagesRevalidatedForNewVersion": true,
+  "matchingArchivedScriptFiles": 590,
+  "changedScripts": [
+    {
+      "source": "res://main.gdc",
+      "approved1202Md5": "7fe126c48998aaa276685bdfc4746e0a",
+      "candidate1203Md5": "e42c7c4356e6cb9d2da8190067ebf7e5",
+      "review": "Item-box item acquisition now explicitly enables equipped-item stat-gain effects. Other main paths including fog and holes unchanged.",
+      "runtimeImpact": "Shared Snowball-like gain-for-equipped-stat system is not implemented; preserve as pending common item work, not a new ready-package claim."
+    },
+    {
+      "source": "res://entities/units/enemies/jungle/bosses/brachiosaurus/brachiosaurus_foot/brachiosaurus_foot.gdc",
+      "approved1202Md5": "a8d1149ab7d874740b49789a74ca6aa9",
+      "candidate1203Md5": "728532c7ce24ed9428ec2bb888601122",
+      "review": "Stops physics on cleanup/death, returns immediately after death, and no longer enables physical collision shortly before stomp.",
+      "runtimeImpact": "Jungle boss/foot not activated. Mandatory source rule for its future implementation."
+    },
+    {
+      "source": "res://singletons/crash_reporter.gdc",
+      "approved1202Md5": "68eeb3444d0cfa4ae1f3b8a40bd554ba",
+      "candidate1203Md5": "fdd1721298f759f183a7a43ae7389204",
+      "review": "Version literal only.",
+      "runtimeImpact": "No gameplay change."
+    },
+    {
+      "source": "res://singletons/progress_data.gdc",
+      "approved1202Md5": "df71b05664adc8dea6977e4ec77dbf51",
+      "candidate1203Md5": "08a9204bbf9c6b6c303d52702a2ed7ac",
+      "review": "Version literal only; stable BETA=false remains.",
+      "runtimeImpact": "No gameplay change."
+    },
+    {
+      "source": "res://singletons/run_data.gdc",
+      "approved1202Md5": "26ade7289f41b63044a9ef11a4377ea2",
+      "candidate1203Md5": "7d07b59d882378a0799fb0187b416047",
+      "review": "Adds scoped stat-gain-effect acquisition flag. Positive item/effect stat changes trigger gain-for-equipped-item-with-stat only inside the explicit acquisition wrapper.",
+      "runtimeImpact": "Future Snowball/equipped-stat system must distinguish purchase/crate acquisition from initial grants/reapplication. No existing48 character policy uses this unsupported effect."
+    },
+    {
+      "source": "res://ui/menus/shop/base_shop.gdc",
+      "approved1202Md5": "bcb31e2e2b6940b4e2436eb0e29989f8",
+      "candidate1203Md5": "e537f7a8e4c57efb141e4a2ca21e59a7",
+      "review": "Purchase and duplicate-purchase paths enable stat-gain-effect acquisition. Focus fallback also handles focused descendant loss.",
+      "runtimeImpact": "Item acquisition change belongs to pending common stat-gain system; Roblox shop/controller focus is still part of native UI/device acceptance, not a claimed1:1 fix."
+    },
+    {
+      "source": "res://weapons/weapon.gdc",
+      "approved1202Md5": "ba9c2d1eaf4b82d91e5aec57c60b5e29",
+      "candidate1203Md5": "53dc8baff0f97d60770061e06c4ef261",
+      "review": "Non-player slot weapon_pos<0 bypasses owner movement attack restriction; player weapons keep the restriction.",
+      "runtimeImpact": "Existing independent pet/structure projectile services already bypass the player WeaponService gate. Real Catling Gun projectiles while Soldier moves verified by new regression; existing Soldier attack-block test retained."
+    }
+  ],
+  "characterResourceChanges": {
+    "Caveman": {
+      "removedStart": "Boomerang",
+      "beforeStarts": 9,
+      "afterStarts": 8,
+      "existingCodePreparedCharacter": false
+    }
+  },
+  "compiledCatalogComparison": {
+    "rows": 74,
+    "unchangedRows": 73,
+    "changedRows": {
+      "Caveman": [
+        "sourceMd5",
+        "startChoices",
+        "startWeapons"
+      ]
+    },
+    "artifact": "build/1203-catalog-comparison.json"
+  },
+  "preservedSources": [
+    "build/character-source/native-1.2.0.2",
+    "build/character-source/source-1.2.0.2.json",
+    "build/reference-1.2.0.2"
+  ],
+  "currentSources": [
+    "build/character-source/native-1.2.0.3",
+    "build/character-source/source-1.2.0.3.json",
+    "build/character-source/translations-1.2.0.3"
+  ],
+  "tooling": [
+    "Generators emit approved reference version/build instead of hardcoded older labels. Catalog secondary version check remains and uses a non-shadowed approved_reference variable.",
+    "Fog main-script identity explicitly updated after diff review; fog code itself unchanged.",
+    "Whip/Flail script-version/back-extension provenance now retained by fresh weapon-source generation.",
+    "Stored collider/player/around-charge facts revalidated against actual installed resource hashes before moving their provenance to the approved new reference.",
+    "Guards reject fake1.2.0.4 and fake Steam build999."
+  ],
+  "checks": {
+    "newRegression": "Stable1203Reference2passed0failed after expected Caveman9-vs8 failure; pet case already correct. Initial fixture getter corrected from nonexistent getStats to existing getSheet.",
+    "compilerChecks": 13,
+    "jungleImages": 17,
+    "imageUploads": 0,
+    "stylua": true,
+    "seleneErrors": 0,
+    "existingWarnings": 18,
+    "rojo": true,
+    "studio": false
+  },
+  "newCodePreparedCharacters": 0,
+  "remainingCommonAcceptance": [
+    "Snowball/equipped-stat acquisition trigger system remains unsupported, not claimed1:1.",
+    "Jungle Brachiosaurus foot/boss, native shop-focus/device behavior and other existing full-game physics/visual gaps remain open."
+  ],
+  "existingCodePreparedAfterAudit": 48,
+  "fullSuite": {
+    "specs": 301,
+    "passed": 1854,
+    "failed": 37,
+    "previousSpecs": 300,
+    "previousPassed": 1852,
+    "previousFailed": 37,
+    "failureIdentitiesUnchanged": true,
+    "newFailures": [],
+    "aborts": [],
+    "artifact": "build/native-five-branch-nine-1203-4cf1050.json"
+  }
+}

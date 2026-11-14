@@ -277,6 +277,7 @@ local function render(dt: number)
 			end
 
 			local visual = current.visual
+			Models.setPursuerStage(visual, Snapshot.unpackPursuerStage(after.statuses[i] or 0))
 			-- off the screen (now and where the model stands) a plain enemy keeps its model where it is; new ones,
 			-- elites, bosses and enemies in a wind-up, rush or pulse (their telegraph reaches far) are always placed
 			local visible = current.revealIn > 0

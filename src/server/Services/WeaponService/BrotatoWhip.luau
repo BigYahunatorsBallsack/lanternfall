@@ -4,6 +4,7 @@ local Arsenal = require(script.Parent.Arsenal)
 local Combat = require(script.Parent.BrotatoCombat)
 local Pose = require(game:GetService("ReplicatedStorage").Shared.Util.WeaponPose)
 local WeaponTarget = require(script.Parent.WeaponTarget)
+local WhipProgress = require(script.Parent.WhipProgress)
 local Whip = {}
 local targets: { number } = {}
 local found: { number } = {}
@@ -90,7 +91,16 @@ function Whip.step(weapon: Arsenal.Weapon, ctx: Arsenal.Context, dt: number)
 		local dx, dz = swing.dx * c - swing.dz * s, swing.dx * s + swing.dz * c
 		x += swing.dx * forward + dx * stats.whipHitboxOffset
 		z += swing.dz * forward + dz * stats.whipHitboxOffset
-		local count = ctx:querySegment(x, z, x + dx * stats.range, z + dz * stats.range, stats.width, found)
+		-- Stable 1.2.0.2 extends the rectangle back by the initial sprite/hitbox offset.
+		-- The far endpoint and Flail's tip stay unchanged, including range upgrades.
+		local count = ctx:querySegment(
+			x - dx * stats.hitStartOffset,
+			z - dz * stats.hitStartOffset,
+			x + dx * stats.range,
+			z + dz * stats.range,
+			stats.width,
+			found
+		)
 		local atTip: { [number]: boolean } = {}
 		if stats.tipCritRadius then
 			local n = ctx:queryCircle(x + dx * stats.range, z + dz * stats.range, stats.tipCritRadius, tipTargets)
@@ -107,7 +117,9 @@ function Whip.step(weapon: Arsenal.Weapon, ctx: Arsenal.Context, dt: number)
 				if atTip[id] then
 					critical = true
 				end
-				Combat.hit(weapon, ctx, id, nil, nil, critical)
+				local receipt = WhipProgress.capture(weapon.id, weapon.ownerId, id)
+				local killed = Combat.hit(weapon, ctx, id, nil, nil, critical)
+				WhipProgress.credit(receipt, killed)
 				ctx:setHitDirection(nil, nil)
 			end
 		end

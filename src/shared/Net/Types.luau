@@ -26,6 +26,7 @@ export type ResultEntry = {
 
 export type Results = {
 	outcome: Outcome,
+	defeated: boolean?, -- authoritative death cause, retained when an endless defeat is displayed as Victory
 	survivedSeconds: number,
 	difficulty: string, -- e.g. "Danger 3 · Endless" (B11)
 	players: { ResultEntry },

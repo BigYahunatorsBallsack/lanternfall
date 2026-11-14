@@ -9,7 +9,8 @@ export type Enemy = {
 	displayName: string,
 	hp: number,
 	speed: number, -- minimum studs/s; wiki speed / 450 * player base speed
-	speedMax: number?, -- sampled once at spawn
+	speedMax: number?,
+	nativeSpeedPoints: { base: number, randomization: number }?, -- native integer random offset then final rounding -- sampled once at spawn
 	firstWave: number?,
 	firstWaveByDanger: { [number]: number }?,
 	minDanger: number?,
@@ -29,15 +30,38 @@ export type Enemy = {
 	-- share of a knockback the enemy ignores (0..1, Brotato's knockback resistance, B5); default 1 - 1 / mass above 1
 	knockbackResistance: number?,
 	nativeArtPending: boolean?, -- explicit fallback presentation; no original art acceptance
+	nativeMovement: {
+		goalInsetX: number,
+		goalInsetZ: number,
+		borderClamp: boolean,
+		collidePlayers: boolean,
+		precision: number,
+	}?, -- native goal rectangle differs from physical origin bounds
+	nativeHitOffsetX: number?,
+	nativeHitOffsetZ: number?,
+	nativeHitChildX: number?,
+	nativeHitChildZ: number?, -- unscaled Collision position inside Hitbox, for native parent growth
+	nativeHurtOffsetX: number?,
+	nativeHurtOffsetZ: number?,
+	nativeHurtChildX: number?,
+	nativeHurtChildZ: number?, -- unscaled Collision position inside Hurtbox, for native parent growth
+	nativeBodyOffsetX: number?,
+	nativeBodyOffsetZ: number?, -- Collision.position in the original actor-local coordinate system
+	nativeObstacleCollision: boolean?, -- original OBSTACLES_BIT in the body mask, independent of is_flying
+	nativeZoneId: number?, -- an area-specific body never joins another area's ordinary random mix
+	nativeHurtSlowEffects: boolean?, -- false when the source overrides Enemy._on_hurt without invoking its generic slow effects
 	look: string?, -- reuses the model of this enemy id in another color (EnemyRenderer/Models); default: its own id
 	ranged: Ranged?,
 	charge: Charge?,
+	nativeCharge: NativeCharge?,
+	nativeFollowXShare: number?,
 	split: Split?,
 	-- set only on the variants built by Util/EnemyKinds
 	elite: boolean?,
 	affix: number?, -- index into elite.affixes, 1 or more
 	damageTaken: number?, -- multiplier on every hit it takes (1 if nil)
 	summon: Summon?,
+	nativeSpawn: NativeSpawn?,
 	-- since B6 (Config.Loot)
 	loot: Loot?,
 	flee: Flee?,
@@ -45,8 +69,10 @@ export type Enemy = {
 	removeFirst: boolean?, -- Brotato's to_be_removed_in_priority: goes first when the enemy maximum removes some
 	wander: Wander?, -- walks to random spots instead of the nearest player (also instead of keepDistance)
 	stayInRange: StayInRange?, -- keeps this distance from the nearest player, walking towards or away at full speed
+	anticipate: { seconds: number, horizontalOnly: boolean }?, -- native anticipation uses target input; vertical-targeting keeps its current z
 	-- since B9 part 2 (Brotato's enemy behaviours, DESIGN.md section 7)
 	accelerate: Accelerate?,
+	pursuer: Pursuer?,
 	retaliate: Retaliate?,
 	pulse: Pulse?,
 	hatch: Hatch?,
@@ -156,6 +182,20 @@ export type Accelerate = {
 	resetOnHit: boolean?,
 }
 
+-- Native flat Pursuer boosts plus Baby T-Rex's live-player speed cap; no reset on contact.
+export type Pursuer = {
+	everySeconds: number,
+	maxSteps: number,
+	speedPerStep: number,
+	damagePercentPerStep: number,
+	sizePerStep: number,
+	collisionScalingShare: number,
+	spriteRise: number,
+	changeAt: number,
+	changeSpeed: number,
+	playerSpeedShare: number,
+}
+
 -- Enemies that shoot a ring of projectiles when hit (Thornback, B9). Shots fly like the Spitter's (EnemySim/Volleys).
 export type Retaliate = {
 	count: number, -- shots in the ring
@@ -164,6 +204,14 @@ export type Retaliate = {
 	rangedOnly: boolean?,
 	randomDirections: boolean?, -- Horned Fly: independent random directions instead of an evenly spaced ring
 	fromCenter: boolean?,
+	nativeVolley: {
+		count: number,
+		spread: number,
+		constantSpread: boolean,
+		offsetX: number,
+		offsetZ: number,
+		speedStep: number,
+	}?,
 	chance: number?,
 	projectileSpeed: number,
 	projectileRange: number,
@@ -187,6 +235,7 @@ export type Pulse = {
 	heal: number?,
 	healFlat: number?, -- base healing plus healPerWave * (wave - 1)
 	healPerWave: number?,
+	nativeEnemyEntry: boolean?, -- original enemy-mask entry healing, including bosses; retained hostile mask after Charm
 }
 
 -- Enemies that stand still and hatch into others after a while unless killed first (Brood Egg, B9).
@@ -262,6 +311,7 @@ export type Ranged = {
 	projectileRange: number, -- studs a shot flies before it fades
 	projectileRadius: number, -- studs, hit circle of a shot (Brotato: 17 px)
 	nativeSlash: boolean?, -- emits source slash requests instead of ordinary bullets
+	nativePillar: boolean?, -- delayed native circle projectile, distinct from an always-active bullet
 	projectileCount: number?, -- independent shots per native animation method
 	fromCenter: boolean?,
 	nativeTiming: {
@@ -270,6 +320,9 @@ export type Ranged = {
 		initialSeconds: number,
 		fireAt: number,
 		animationSeconds: number,
+		longEvery: number?,
+		longSeconds: number?,
+		minimumCooldownSeconds: number?,
 	}?,
 	aimLead: number, -- 0 = aims where the player is, 1 = where a player walking straight on will be (Brotato: 0)
 	minFireRange: number?, -- studs; holds its shot while the target is closer (Brotato's Junkie: 200 px)
@@ -309,6 +362,22 @@ export type Split = {
 }
 
 -- Elites with the Summoner affix call enemies around themselves every intervalSeconds while a player is around.
+-- Native spawning attacks have animation-method timing and delayed births, unlike legacy immediate summoners.
+export type NativeSpawn = {
+	enemy: string,
+	count: number,
+	area: number,
+	maxCount: number,
+	dieOnRequest: boolean,
+	timing: {
+		fireInterval: number,
+		cooldownRandomSeconds: number,
+		minimumCooldownSeconds: number,
+		initialSeconds: number,
+		fireAt: number,
+		animationSeconds: number,
+	},
+}
 export type Summon = {
 	enemy: string, -- key in types
 	count: number,
@@ -1213,6 +1282,9 @@ scaleBodies(Enemies)
 for id, kind in require(script.Parent.NightmareEnemyKinds).build(PIXEL) do
 	Enemies[id] = kind
 end
+for id, kind in require(script.Parent.JungleEnemyKinds).build(PIXEL) do
+	Enemies[id] = kind
+end
 scaleBodies(Bosses)
 
 for _, boss in Bosses do
@@ -1772,6 +1844,29 @@ scaleBodies(Champions)
 for _, champion in Champions do
 	table.freeze(champion)
 end
+
+export type NativeCharge = {
+	cooldown: number,
+	deflectStopBeforeCooldown: number?, -- charging_attack_deflect_bullet_behavior: stop when remaining cooldown <= this duration
+	jitter: number,
+	minimumCooldown: number,
+	fireAt: number,
+	duration: number,
+	recovery: number,
+	speed: number,
+	rangeZ: number,
+	rangeX: number?,
+	minRange: number?,
+	maxRange: number?,
+	target: {
+		atShoot: boolean,
+		radius: number,
+		coneHalfAngle: number,
+		minimumRadiusShare: number,
+		inMovementDirection: boolean,
+	}?, -- absent retains the original straight-to-player START_SHOOT branch
+	massMultiplier: number,
+}
 
 return table.freeze({
 	types = table.freeze(Enemies),

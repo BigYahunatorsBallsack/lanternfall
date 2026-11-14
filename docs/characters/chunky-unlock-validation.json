@@ -1,0 +1,35 @@
+{
+  "referenceVersion": "1.2.0.2",
+  "source": "res://challenges/rookie_data.tres",
+  "sourceMd5": "28cfa4e79c4a36b66224b4f2ec1738c1",
+  "challengeId": "chal_rookie",
+  "requirement": "Die for the first time",
+  "ruleSource": "res://main.gdc",
+  "ruleSourceMd5": "7fe126c48998aaa276685bdfc4746e0a",
+  "trigger": "Last living participant dies; authoritative run defeat, not a single Down or Abandoned/Victory result.",
+  "endless": "Raw death cause retained as optional Results.defeated when the displayed outcome becomes Victory after wave20.",
+  "schemaMigrationRequired": false,
+  "historicalRunsMinusWinsInferredAsDeaths": false,
+  "grantedBeforeRetryBookkeeping": true,
+  "personalProfilesOnly": true,
+  "newCharacterReadyFlags": 0,
+  "chunkyReady": false,
+  "remaining": "Genuine Jungle2 and Flail starting-equipment unlock route; native art/physics/Studio acceptance remain open.",
+  "focused": "CharacterChunkyUnlock5/0",
+  "fullSuite": {
+    "specs": 280,
+    "passed": 1733,
+    "failed": 36,
+    "previousSpecs": 279,
+    "previousPassed": 1728,
+    "previousFailed": 36,
+    "newFailureNames": [],
+    "aborts": [],
+    "artifact": "build/native-five-branch-nine-chunky-unlock-4cf1050.json"
+  },
+  "checks": {
+    "seleneErrors": 0,
+    "existingWarnings": 18,
+    "studio": false
+  }
+}

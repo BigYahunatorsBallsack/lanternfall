@@ -113,6 +113,9 @@ local function onRunEnded(results: Types.Results)
 		local firstNight = runOptions.firstNight == true -- Paket 19: counts as a finished run, not as a win
 		local hold = results.outcome == "Defeat" and (results.retriesLeft or 0) > 0
 		for _, player in participants do
+			if results.defeated or results.outcome == "Defeat" then
+				PlayerDataService.observeNativeDefeat(player)
+			end
 			local record = {
 				won = results.outcome == "Victory" and not firstNight,
 				wave = results.wave or RunDirector.getWave(),

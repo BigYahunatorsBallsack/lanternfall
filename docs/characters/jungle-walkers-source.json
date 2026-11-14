@@ -1,0 +1,1497 @@
+{
+  "version": "1.2.0.3",
+  "steamBuild": 26642464,
+  "zoneId": 2,
+  "zoneSource": "res://zones/zone_3_jungle/zone_jungle_data.tres",
+  "zoneSourceMd5": "29e0ae83a9a366f58c54d6201e6b04e4",
+  "zonePlayable": false,
+  "implemented": [
+    "BabyTriceratops",
+    "Gallimimus",
+    "Lystrosaurus",
+    "Pyroraptor",
+    "Enigmacursor",
+    "BabyPterosaur",
+    "Graciliceratops",
+    "BabyTrex",
+    "Alamosaurus",
+    "DinoEgg",
+    "Stintaosaurus",
+    "Triceratops",
+    "Parasaurolorus",
+    "Ankylosaurus"
+  ],
+  "enemies": {
+    "BabyTriceratops": {
+      "typeId": 40,
+      "displayName": "Baby Triceratops",
+      "fallbackLook": "Shadeling",
+      "source": "res://entities/units/enemies/jungle/basic/baby_triceratops/baby_triceratops.tscn",
+      "sourceMd5": "e71587f7d66132129f999902d9cea069",
+      "statsSource": "res://entities/units/enemies/jungle/basic/baby_triceratops/baby_triceratops_stats.tres",
+      "statsMd5": "c69fadb9a0d9f4efc11b2e34e0690e6f",
+      "stats": {
+        "health": 2,
+        "health_increase_each_wave": 2.0,
+        "speed": 200,
+        "speed_randomization": 25,
+        "damage": 1,
+        "damage_increase_each_wave": 0.6,
+        "attack_cd": 30.0,
+        "value": 1,
+        "knockback_resistance": 0.0,
+        "gold_spread": 0,
+        "can_drop_consumables": true,
+        "always_drop_consumables": false,
+        "base_drop_chance": 0.01,
+        "item_drop_chance": 0.01,
+        "min_consumable_tier": 0,
+        "max_consumable_tier": 0,
+        "armor": 0,
+        "armor_increase_each_wave": 0.0,
+        "generate_blood": true
+      },
+      "body": {
+        "radiusPoints": 22.0,
+        "offsetPoints": [
+          0,
+          -3
+        ],
+        "source": "res://entities/units/enemies/jungle/basic/baby_triceratops/baby_triceratops.tscn",
+        "sourceMd5": "e71587f7d66132129f999902d9cea069"
+      },
+      "hurt": {
+        "radiusPoints": 32.0,
+        "offsetPoints": [
+          0,
+          7
+        ],
+        "source": "res://entities/units/enemies/enemy.tscn",
+        "sourceMd5": "38e442588073219bb217a4b484a6d8a7"
+      },
+      "hit": {
+        "radiusPoints": 16.0312,
+        "offsetPoints": [
+          0,
+          0
+        ],
+        "source": "res://entities/units/enemies/enemy.tscn",
+        "sourceMd5": "38e442588073219bb217a4b484a6d8a7"
+      },
+      "removeFirst": true,
+      "mass": 1,
+      "obstacleCollision": true,
+      "sprite": {
+        "source": "res://entities/units/enemies/jungle/basic/baby_triceratops/baby_triceratops.png",
+        "textureSource": "res://.import/baby_triceratops.png-b810e11094206aae96a4b2ceffb6259e.stex",
+        "textureMd5": "67d2ecf20850ddbac6ef79e040107896",
+        "widthPoints": 100,
+        "heightPoints": 100
+      },
+      "bodyBorders": true,
+      "playerCollision": false
+    },
+    "Gallimimus": {
+      "typeId": 41,
+      "displayName": "Gallimimus",
+      "fallbackLook": "Shadeling",
+      "source": "res://entities/units/enemies/jungle/basic/gallimimus/gallimimus.tscn",
+      "sourceMd5": "9febe8189eade190908a0bff930e341f",
+      "statsSource": "res://entities/units/enemies/jungle/basic/gallimimus/gallimimus_stats.tres",
+      "statsMd5": "c7fe60e0d75780d5c3ff44d5a8dc131b",
+      "stats": {
+        "health": 4,
+        "health_increase_each_wave": 2.5,
+        "speed": 250,
+        "speed_randomization": 50,
+        "damage": 1,
+        "damage_increase_each_wave": 0.6,
+        "attack_cd": 30.0,
+        "value": 1,
+        "knockback_resistance": 0.0,
+        "gold_spread": 0,
+        "can_drop_consumables": true,
+        "always_drop_consumables": false,
+        "base_drop_chance": 0.01,
+        "item_drop_chance": 0.01,
+        "min_consumable_tier": 0,
+        "max_consumable_tier": 0,
+        "armor": 0,
+        "armor_increase_each_wave": 0.0,
+        "generate_blood": true
+      },
+      "body": {
+        "radiusPoints": 22.0,
+        "offsetPoints": [
+          0,
+          -3
+        ],
+        "source": "res://entities/units/enemies/jungle/basic/gallimimus/gallimimus.tscn",
+        "sourceMd5": "9febe8189eade190908a0bff930e341f"
+      },
+      "hurt": {
+        "radiusPoints": 32.0,
+        "offsetPoints": [
+          0,
+          7
+        ],
+        "source": "res://entities/units/enemies/enemy.tscn",
+        "sourceMd5": "38e442588073219bb217a4b484a6d8a7"
+      },
+      "hit": {
+        "radiusPoints": 16.0312,
+        "offsetPoints": [
+          0,
+          0
+        ],
+        "source": "res://entities/units/enemies/enemy.tscn",
+        "sourceMd5": "38e442588073219bb217a4b484a6d8a7"
+      },
+      "removeFirst": true,
+      "mass": 1,
+      "obstacleCollision": true,
+      "sprite": {
+        "source": "res://entities/units/enemies/jungle/basic/gallimimus/gallimimus.png",
+        "textureSource": "res://.import/gallimimus.png-fc44c12788121e03a75bebf07dd1f2d3.stex",
+        "textureMd5": "aa3fe37e83cfd529a8645556ddf5a15c",
+        "widthPoints": 130,
+        "heightPoints": 130
+      },
+      "bodyBorders": true,
+      "playerCollision": false
+    },
+    "Lystrosaurus": {
+      "typeId": 42,
+      "displayName": "Lystrosaurus",
+      "fallbackLook": "Shadeling",
+      "source": "res://entities/units/enemies/jungle/basic/lystrosaurus/lystrosaurus.tscn",
+      "sourceMd5": "09a4bfc5444cdeb6d90f752bf186ed8b",
+      "statsSource": "res://entities/units/enemies/jungle/basic/lystrosaurus/lystrosaurus_stats.tres",
+      "statsMd5": "a0e9fc3806fc6e451c6ccc2952252835",
+      "stats": {
+        "health": 3,
+        "health_increase_each_wave": 3.0,
+        "speed": 175,
+        "speed_randomization": 25,
+        "damage": 1,
+        "damage_increase_each_wave": 0.6,
+        "attack_cd": 30.0,
+        "value": 1,
+        "knockback_resistance": 0.0,
+        "gold_spread": 0,
+        "can_drop_consumables": true,
+        "always_drop_consumables": false,
+        "base_drop_chance": 0.01,
+        "item_drop_chance": 0.01,
+        "min_consumable_tier": 0,
+        "max_consumable_tier": 0,
+        "armor": 0,
+        "armor_increase_each_wave": 0.0,
+        "generate_blood": true
+      },
+      "body": {
+        "radiusPoints": 22.0,
+        "offsetPoints": [
+          0,
+          -3
+        ],
+        "source": "res://entities/units/enemies/jungle/basic/lystrosaurus/lystrosaurus.tscn",
+        "sourceMd5": "09a4bfc5444cdeb6d90f752bf186ed8b"
+      },
+      "hurt": {
+        "radiusPoints": 32.0,
+        "offsetPoints": [
+          0,
+          7
+        ],
+        "source": "res://entities/units/enemies/enemy.tscn",
+        "sourceMd5": "38e442588073219bb217a4b484a6d8a7"
+      },
+      "hit": {
+        "radiusPoints": 16.0312,
+        "offsetPoints": [
+          0,
+          0
+        ],
+        "source": "res://entities/units/enemies/enemy.tscn",
+        "sourceMd5": "38e442588073219bb217a4b484a6d8a7"
+      },
+      "removeFirst": true,
+      "mass": 1,
+      "obstacleCollision": true,
+      "sprite": {
+        "source": "res://entities/units/enemies/jungle/basic/lystrosaurus/lystrosaurus.png",
+        "textureSource": "res://.import/lystrosaurus.png-47f60ecc11f4fb5db8d38c92a7448913.stex",
+        "textureMd5": "d36aac4e239bbb05d4a804a74122bd68",
+        "widthPoints": 100,
+        "heightPoints": 100
+      },
+      "bodyBorders": true,
+      "playerCollision": false
+    },
+    "Pyroraptor": {
+      "typeId": 43,
+      "displayName": "Pyroraptor",
+      "fallbackLook": "Shadeling",
+      "source": "res://entities/units/enemies/jungle/basic/pyroraptor/pyroraptor.tscn",
+      "sourceMd5": "578c22bb9796e7bdb0110d5cb86d6f98",
+      "statsSource": "res://entities/units/enemies/jungle/basic/pyroraptor/pyroraptor_stats.tres",
+      "statsMd5": "e86c830ea4592acbd494107bc0c6d540",
+      "stats": {
+        "health": 4,
+        "health_increase_each_wave": 5.0,
+        "speed": 350,
+        "speed_randomization": 100,
+        "damage": 1,
+        "damage_increase_each_wave": 0.6,
+        "attack_cd": 30.0,
+        "value": 2,
+        "knockback_resistance": 0.0,
+        "gold_spread": 0,
+        "can_drop_consumables": true,
+        "always_drop_consumables": false,
+        "base_drop_chance": 0.01,
+        "item_drop_chance": 0.01,
+        "min_consumable_tier": 0,
+        "max_consumable_tier": 0,
+        "armor": 0,
+        "armor_increase_each_wave": 0.0,
+        "generate_blood": true
+      },
+      "body": {
+        "radiusPoints": 15.0,
+        "offsetPoints": [
+          0,
+          -3
+        ],
+        "source": "res://entities/units/enemies/jungle/basic/pyroraptor/pyroraptor.tscn",
+        "sourceMd5": "578c22bb9796e7bdb0110d5cb86d6f98"
+      },
+      "hurt": {
+        "radiusPoints": 32.0,
+        "offsetPoints": [
+          0,
+          7
+        ],
+        "source": "res://entities/units/enemies/enemy.tscn",
+        "sourceMd5": "38e442588073219bb217a4b484a6d8a7"
+      },
+      "hit": {
+        "radiusPoints": 16.0312,
+        "offsetPoints": [
+          0,
+          0
+        ],
+        "source": "res://entities/units/enemies/enemy.tscn",
+        "sourceMd5": "38e442588073219bb217a4b484a6d8a7"
+      },
+      "removeFirst": true,
+      "mass": 1,
+      "obstacleCollision": true,
+      "sprite": {
+        "source": "res://entities/units/enemies/jungle/basic/pyroraptor/pyroraptor.png",
+        "textureSource": "res://.import/pyroraptor.png-dee8357f79cb5519785998a7e9e24e4f.stex",
+        "textureMd5": "251d41aad99b31da94949b0a882c01bf",
+        "widthPoints": 135,
+        "heightPoints": 135
+      },
+      "bodyBorders": true,
+      "playerCollision": false
+    },
+    "Enigmacursor": {
+      "typeId": 44,
+      "displayName": "Enigmacursor",
+      "fallbackLook": "Shadeling",
+      "source": "res://entities/units/enemies/jungle/basic/enigmacursor/enigmacursor.tscn",
+      "sourceMd5": "8c814a90bf1f2a1fa89d38616f4998fe",
+      "statsSource": "res://entities/units/enemies/jungle/basic/enigmacursor/enigmacursor_stats.tres",
+      "statsMd5": "0370c50263c0aceb96f4828dba448001",
+      "stats": {
+        "health": 3,
+        "health_increase_each_wave": 4.0,
+        "speed": 130,
+        "speed_randomization": 0,
+        "damage": 1,
+        "damage_increase_each_wave": 0.75,
+        "attack_cd": 30.0,
+        "value": 1,
+        "knockback_resistance": 0.25,
+        "gold_spread": 0,
+        "can_drop_consumables": true,
+        "always_drop_consumables": false,
+        "base_drop_chance": 0.01,
+        "item_drop_chance": 0.01,
+        "min_consumable_tier": 0,
+        "max_consumable_tier": 0,
+        "armor": 0,
+        "armor_increase_each_wave": 0.0,
+        "generate_blood": true
+      },
+      "body": {
+        "radiusPoints": 19.0263,
+        "offsetPoints": [
+          0,
+          10
+        ],
+        "source": "res://entities/units/enemies/jungle/basic/enigmacursor/enigmacursor.tscn",
+        "sourceMd5": "8c814a90bf1f2a1fa89d38616f4998fe"
+      },
+      "hurt": {
+        "radiusPoints": 48.0104,
+        "offsetPoints": [
+          0,
+          7
+        ],
+        "source": "res://entities/units/enemies/jungle/basic/enigmacursor/enigmacursor.tscn",
+        "sourceMd5": "8c814a90bf1f2a1fa89d38616f4998fe"
+      },
+      "hit": {
+        "radiusPoints": 29.0172,
+        "offsetPoints": [
+          1,
+          -9
+        ],
+        "source": "res://entities/units/enemies/jungle/basic/enigmacursor/enigmacursor.tscn",
+        "sourceMd5": "8c814a90bf1f2a1fa89d38616f4998fe"
+      },
+      "removeFirst": false,
+      "mass": 1,
+      "obstacleCollision": true,
+      "sprite": {
+        "source": "res://entities/units/enemies/jungle/basic/enigmacursor/enigmacursor.png",
+        "textureSource": "res://.import/enigmacursor.png-7b895800b0ca49c2262236ea075decd5.stex",
+        "textureMd5": "2217c18517cdc68056bb1e9bbe5f2a12",
+        "widthPoints": 150,
+        "heightPoints": 150
+      },
+      "bodyBorders": true,
+      "playerCollision": false,
+      "movement": {
+        "target_range": 300,
+        "target_range_randomization": 50,
+        "should_turn_to_player_side": true
+      },
+      "shootingVariants": {
+        "Normal": {
+          "damage": 1,
+          "damage_increase_each_wave": 1.0,
+          "max_range": 500,
+          "min_range": 50,
+          "cooldown": 0.0,
+          "initial_cooldown": 15,
+          "max_cd_randomization": 0,
+          "attack_anim_speed": 3.0,
+          "number_projectiles": 2,
+          "projectile_spread": 0.1,
+          "constant_spread": true,
+          "speed_change_after_each_projectile": -20,
+          "projectile_speed": 600,
+          "position": {
+            "variantType": "Vector2",
+            "values": [
+              20,
+              -30
+            ]
+          },
+          "long_cooldown_every_x_shoots": 2,
+          "long_cooldown": 200,
+          "min_projectile_scale": 0.7,
+          "forward_spawn_offset": 10.0,
+          "use_transform_offset": true
+        },
+        "Meca": {
+          "damage": 1,
+          "damage_increase_each_wave": 1.0,
+          "max_range": 500,
+          "min_range": 50,
+          "cooldown": 0.0,
+          "initial_cooldown": 15,
+          "max_cd_randomization": 0,
+          "attack_anim_speed": 3.0,
+          "number_projectiles": 3,
+          "projectile_spread": 0.1,
+          "constant_spread": true,
+          "speed_change_after_each_projectile": -20,
+          "projectile_speed": 600,
+          "position": {
+            "variantType": "Vector2",
+            "values": [
+              20,
+              -30
+            ]
+          },
+          "long_cooldown_every_x_shoots": 2,
+          "long_cooldown": 250,
+          "min_projectile_scale": 0.7,
+          "forward_spawn_offset": 10.0,
+          "use_transform_offset": true
+        },
+        "Mutant": {
+          "damage": 2,
+          "damage_increase_each_wave": 1.0,
+          "max_range": 500,
+          "min_range": 50,
+          "cooldown": 0.0,
+          "initial_cooldown": 15,
+          "max_cd_randomization": 0,
+          "attack_anim_speed": 3.0,
+          "number_projectiles": 1,
+          "projectile_spread": 0.1,
+          "constant_spread": true,
+          "speed_change_after_each_projectile": -20,
+          "projectile_speed": 600,
+          "position": {
+            "variantType": "Vector2",
+            "values": [
+              20,
+              -30
+            ]
+          },
+          "long_cooldown_every_x_shoots": 2,
+          "long_cooldown": 150,
+          "min_projectile_scale": 0.7,
+          "forward_spawn_offset": 10.0,
+          "use_transform_offset": true
+        }
+      },
+      "activeVariant": "Normal",
+      "evolutionVariantsImplemented": false,
+      "projectileSource": "res://projectiles/pillar_enemy/pillar_projectile.tscn"
+    },
+    "BabyPterosaur": {
+      "typeId": 45,
+      "displayName": "Baby Pterosaur",
+      "fallbackLook": "Shadeling",
+      "source": "res://entities/units/enemies/jungle/basic/baby_pterosaur/baby_pterosaur.tscn",
+      "sourceMd5": "09bebddbecb61796cef4301568dbb03d",
+      "statsSource": "res://entities/units/enemies/jungle/basic/baby_pterosaur/baby_pterosaur_stats.tres",
+      "statsMd5": "0a4137c192544ebf316489ed0cee2a6c",
+      "stats": {
+        "health": 4,
+        "health_increase_each_wave": 1.0,
+        "speed": 225,
+        "speed_randomization": 50,
+        "damage": 1,
+        "damage_increase_each_wave": 0.85,
+        "attack_cd": 30.0,
+        "value": 1,
+        "knockback_resistance": 0.0,
+        "gold_spread": 0,
+        "can_drop_consumables": true,
+        "always_drop_consumables": false,
+        "base_drop_chance": 0.01,
+        "item_drop_chance": 0.01,
+        "min_consumable_tier": 0,
+        "max_consumable_tier": 0,
+        "armor": 0,
+        "armor_increase_each_wave": 0.0,
+        "generate_blood": true
+      },
+      "body": {
+        "radiusPoints": 29.0689,
+        "offsetPoints": [
+          0,
+          -27
+        ],
+        "source": "res://entities/units/enemies/jungle/basic/baby_pterosaur/baby_pterosaur.tscn",
+        "sourceMd5": "09bebddbecb61796cef4301568dbb03d"
+      },
+      "hurt": {
+        "radiusPoints": 35.0,
+        "offsetPoints": [
+          0,
+          -18
+        ],
+        "source": "res://entities/units/enemies/jungle/basic/baby_pterosaur/baby_pterosaur.tscn",
+        "sourceMd5": "09bebddbecb61796cef4301568dbb03d"
+      },
+      "hit": {
+        "radiusPoints": 29.0172,
+        "offsetPoints": [
+          0,
+          -27
+        ],
+        "source": "res://entities/units/enemies/jungle/basic/baby_pterosaur/baby_pterosaur.tscn",
+        "sourceMd5": "09bebddbecb61796cef4301568dbb03d"
+      },
+      "removeFirst": false,
+      "mass": 1,
+      "obstacleCollision": false,
+      "sprite": {
+        "source": "res://entities/units/enemies/jungle/basic/baby_pterosaur/baby_pterosaur.png",
+        "textureSource": "res://.import/baby_pterosaur.png-034afd28b24aff1312b3dd4562aa04ab.stex",
+        "textureMd5": "c0a272a701c373467075a0e95e52bd54",
+        "widthPoints": 110,
+        "heightPoints": 110
+      },
+      "bodyBorders": true,
+      "playerCollision": false,
+      "anticipate": {
+        "seconds": 0.3,
+        "horizontalOnly": false
+      }
+    },
+    "Graciliceratops": {
+      "typeId": 46,
+      "displayName": "Graciliceratops",
+      "fallbackLook": "Shadeling",
+      "source": "res://entities/units/enemies/jungle/basic/graciliceratops/graciliceratops.tscn",
+      "sourceMd5": "8bcde133e9a8cfdeead587eec3380bf0",
+      "statsSource": "res://entities/units/enemies/jungle/basic/graciliceratops/graciliceratops_stats.tres",
+      "statsMd5": "155167c2411d8dfcd472742b63dda35f",
+      "stats": {
+        "health": 2,
+        "health_increase_each_wave": 2.0,
+        "speed": 300,
+        "speed_randomization": 75,
+        "damage": 1,
+        "damage_increase_each_wave": 0.6,
+        "attack_cd": 30.0,
+        "value": 1,
+        "knockback_resistance": 0.0,
+        "gold_spread": 0,
+        "can_drop_consumables": true,
+        "always_drop_consumables": false,
+        "base_drop_chance": 0.01,
+        "item_drop_chance": 0.01,
+        "min_consumable_tier": 0,
+        "max_consumable_tier": 0,
+        "armor": 0,
+        "armor_increase_each_wave": 0.0,
+        "generate_blood": true
+      },
+      "body": {
+        "radiusPoints": 22.0,
+        "offsetPoints": [
+          0,
+          -3
+        ],
+        "source": "res://entities/units/enemies/jungle/basic/graciliceratops/graciliceratops.tscn",
+        "sourceMd5": "8bcde133e9a8cfdeead587eec3380bf0"
+      },
+      "hurt": {
+        "radiusPoints": 32.0,
+        "offsetPoints": [
+          0,
+          7
+        ],
+        "source": "res://entities/units/enemies/enemy.tscn",
+        "sourceMd5": "38e442588073219bb217a4b484a6d8a7"
+      },
+      "hit": {
+        "radiusPoints": 16.0312,
+        "offsetPoints": [
+          0,
+          0
+        ],
+        "source": "res://entities/units/enemies/enemy.tscn",
+        "sourceMd5": "38e442588073219bb217a4b484a6d8a7"
+      },
+      "removeFirst": true,
+      "mass": 1,
+      "obstacleCollision": true,
+      "sprite": {
+        "source": "res://entities/units/enemies/jungle/basic/graciliceratops/graciliceratops.png",
+        "textureSource": "res://.import/graciliceratops.png-8d50765f871bd96ce800a760709ebcae.stex",
+        "textureMd5": "ddc5fa7890474aaa18090c7097972220",
+        "widthPoints": 100,
+        "heightPoints": 100
+      },
+      "bodyBorders": true,
+      "playerCollision": false,
+      "anticipate": {
+        "seconds": 0.3,
+        "horizontalOnly": true
+      }
+    },
+    "BabyTrex": {
+      "typeId": 47,
+      "displayName": "Baby T-Rex",
+      "fallbackLook": "Shadeling",
+      "source": "res://entities/units/enemies/jungle/basic/baby_trex/baby_trex.tscn",
+      "sourceMd5": "66e87f432f2cc1a287c0296e24bea5fc",
+      "statsSource": "res://entities/units/enemies/jungle/basic/baby_trex/baby_trex_stats.tres",
+      "statsMd5": "30732480fa9b1772bb773e5d6d664ed7",
+      "stats": {
+        "health": 8,
+        "health_increase_each_wave": 5.0,
+        "speed": 250,
+        "speed_randomization": 50,
+        "damage": 1,
+        "damage_increase_each_wave": 0.6,
+        "attack_cd": 30.0,
+        "value": 1,
+        "knockback_resistance": 0.0,
+        "gold_spread": 0,
+        "can_drop_consumables": true,
+        "always_drop_consumables": false,
+        "base_drop_chance": 0.01,
+        "item_drop_chance": 0.01,
+        "min_consumable_tier": 0,
+        "max_consumable_tier": 0,
+        "armor": 0,
+        "armor_increase_each_wave": 0.0,
+        "generate_blood": true
+      },
+      "body": {
+        "radiusPoints": 25.0,
+        "offsetPoints": [
+          0,
+          -3
+        ],
+        "source": "res://entities/units/enemies/jungle/basic/baby_trex/baby_trex.tscn",
+        "sourceMd5": "66e87f432f2cc1a287c0296e24bea5fc"
+      },
+      "hurt": {
+        "radiusPoints": 32.0,
+        "offsetPoints": [
+          0,
+          7
+        ],
+        "source": "res://entities/units/enemies/enemy.tscn",
+        "sourceMd5": "38e442588073219bb217a4b484a6d8a7"
+      },
+      "hit": {
+        "radiusPoints": 16.0312,
+        "offsetPoints": [
+          0,
+          0
+        ],
+        "source": "res://entities/units/enemies/enemy.tscn",
+        "sourceMd5": "38e442588073219bb217a4b484a6d8a7"
+      },
+      "removeFirst": false,
+      "mass": 1,
+      "obstacleCollision": true,
+      "sprite": {
+        "source": "res://entities/units/enemies/jungle/basic/baby_trex/baby_trex.png",
+        "textureSource": "res://.import/baby_trex.png-95eb877f172c9c4c3fc70b004af0fe56.stex",
+        "textureMd5": "b8d455872eab85268962b12ceb776e63",
+        "widthPoints": 120,
+        "heightPoints": 120
+      },
+      "bodyBorders": true,
+      "playerCollision": false,
+      "pursuer": {
+        "boost_cooldown": 1.0,
+        "max_boosts": 2,
+        "speed_on_boost": 20,
+        "damage_on_boost": 10,
+        "size_on_boost": 0.1,
+        "change_movement_behavior_after_x_boosts": 2,
+        "bonus_speed_on_change_movement_behavior": 200,
+        "reset_nb_times_boosted_on_hit": false,
+        "max_player_speed_multiplier": 0.95,
+        "collisionScalingShare": 0.25,
+        "spriteRisePoints": 40
+      }
+    },
+    "Alamosaurus": {
+      "typeId": 48,
+      "displayName": "Alamosaurus",
+      "fallbackLook": "Shadeling",
+      "source": "res://entities/units/enemies/jungle/basic/alamosaurus/alamosaurus.tscn",
+      "sourceMd5": "7ba3068381b716d8ba790ae9b01b9359",
+      "statsSource": "res://entities/units/enemies/jungle/basic/alamosaurus/alamosaurus_stats.tres",
+      "statsMd5": "23b839bb7c17d844241fd1dd317e1226",
+      "stats": {
+        "health": 20,
+        "health_increase_each_wave": 30.0,
+        "speed": 200,
+        "speed_randomization": 0,
+        "damage": 1,
+        "damage_increase_each_wave": 0.85,
+        "attack_cd": 30.0,
+        "value": 5,
+        "knockback_resistance": 1.0,
+        "gold_spread": 100,
+        "can_drop_consumables": true,
+        "always_drop_consumables": false,
+        "base_drop_chance": 0.05,
+        "item_drop_chance": 0.05,
+        "min_consumable_tier": 0,
+        "max_consumable_tier": 0,
+        "armor": 0,
+        "armor_increase_each_wave": 0.0,
+        "generate_blood": true
+      },
+      "body": {
+        "radiusPoints": 35.0,
+        "offsetPoints": [
+          -1,
+          -9
+        ],
+        "source": "res://entities/units/enemies/jungle/basic/alamosaurus/alamosaurus.tscn",
+        "sourceMd5": "7ba3068381b716d8ba790ae9b01b9359"
+      },
+      "hurt": {
+        "radiusPoints": 50.0,
+        "offsetPoints": [
+          0,
+          -8
+        ],
+        "source": "res://entities/units/enemies/jungle/basic/alamosaurus/alamosaurus.tscn",
+        "sourceMd5": "7ba3068381b716d8ba790ae9b01b9359"
+      },
+      "hit": {
+        "radiusPoints": 37.0135,
+        "offsetPoints": [
+          0,
+          -11
+        ],
+        "source": "res://entities/units/enemies/jungle/basic/alamosaurus/alamosaurus.tscn",
+        "sourceMd5": "7ba3068381b716d8ba790ae9b01b9359"
+      },
+      "removeFirst": false,
+      "mass": 50.0,
+      "obstacleCollision": true,
+      "sprite": {
+        "source": "res://entities/units/enemies/jungle/basic/alamosaurus/alamosaurus.png",
+        "textureSource": "res://.import/alamosaurus.png-f37ebb8cfe91a6c5e0b86138462218e9.stex",
+        "textureMd5": "b8256e3bcd711adb7a820ff996025097",
+        "widthPoints": 180,
+        "heightPoints": 180
+      },
+      "bodyBorders": true,
+      "playerCollision": false,
+      "spawning": {
+        "properties": {
+          "cooldown": 180.0,
+          "max_cd_randomization": 10,
+          "attack_anim_speed": 1.0,
+          "nb_to_spawn": 3,
+          "spawn_random_pos_area": 100,
+          "spawn_at_random_pos": false,
+          "spawn_at_player_range": false,
+          "spawn_at_player_radius": -1,
+          "spawn_in_radius_around_unit": 100,
+          "max_nb_of_spawns": 999
+        },
+        "child": "DinoEgg",
+        "childSource": "res://entities/units/enemies/jungle/basic/dino_egg/dino_egg.tscn",
+        "childSourceMd5": "f4ae9f35dfc0b07bfab74f2793302a52",
+        "diesOnRequest": false,
+        "movement": {}
+      }
+    },
+    "DinoEgg": {
+      "typeId": 49,
+      "displayName": "Dino Egg",
+      "fallbackLook": "Shadeling",
+      "source": "res://entities/units/enemies/jungle/basic/dino_egg/dino_egg.tscn",
+      "sourceMd5": "f4ae9f35dfc0b07bfab74f2793302a52",
+      "statsSource": "res://entities/units/enemies/jungle/basic/dino_egg/dino_egg_stats.tres",
+      "statsMd5": "a8c2a153066e114aa99448dbaf2c76ac",
+      "stats": {
+        "health": 6,
+        "health_increase_each_wave": 4.0,
+        "speed": 0,
+        "speed_randomization": 0,
+        "damage": 1,
+        "damage_increase_each_wave": 0.25,
+        "attack_cd": 30.0,
+        "value": 1,
+        "knockback_resistance": 1.0,
+        "gold_spread": 0,
+        "can_drop_consumables": false,
+        "always_drop_consumables": false,
+        "base_drop_chance": 0.0,
+        "item_drop_chance": 0.0,
+        "min_consumable_tier": 0,
+        "max_consumable_tier": 0,
+        "armor": 0,
+        "armor_increase_each_wave": 0.0,
+        "generate_blood": true
+      },
+      "body": {
+        "radiusPoints": 22.0,
+        "offsetPoints": [
+          0,
+          -8
+        ],
+        "source": "res://entities/units/enemies/jungle/basic/dino_egg/dino_egg.tscn",
+        "sourceMd5": "f4ae9f35dfc0b07bfab74f2793302a52"
+      },
+      "hurt": {
+        "radiusPoints": 32.0,
+        "offsetPoints": [
+          0,
+          5
+        ],
+        "source": "res://entities/units/enemies/enemy.tscn",
+        "sourceMd5": "38e442588073219bb217a4b484a6d8a7"
+      },
+      "hit": {
+        "radiusPoints": 31.0,
+        "offsetPoints": [
+          0,
+          -6
+        ],
+        "source": "res://entities/units/enemies/jungle/basic/dino_egg/dino_egg.tscn",
+        "sourceMd5": "f4ae9f35dfc0b07bfab74f2793302a52"
+      },
+      "removeFirst": false,
+      "mass": 1,
+      "obstacleCollision": true,
+      "sprite": {
+        "source": "res://entities/units/enemies/jungle/basic/dino_egg/dino_egg.png",
+        "textureSource": "res://.import/dino_egg.png-6ddb1fc5c383fe2f6ee7fd677712427f.stex",
+        "textureMd5": "7cf7b0c3102842fa2fe7ef93a9521c41",
+        "widthPoints": 100,
+        "heightPoints": 100
+      },
+      "bodyBorders": true,
+      "playerCollision": false,
+      "spawning": {
+        "properties": {
+          "cooldown": 160.0,
+          "max_cd_randomization": 0,
+          "attack_anim_speed": 0.5,
+          "nb_to_spawn": 1,
+          "spawn_random_pos_area": -1,
+          "spawn_at_random_pos": false,
+          "spawn_at_player_range": false,
+          "spawn_at_player_radius": -1,
+          "spawn_in_radius_around_unit": 50,
+          "max_nb_of_spawns": -1
+        },
+        "child": "BabyTrex",
+        "childSource": "res://entities/units/enemies/jungle/basic/baby_trex/baby_trex.tscn",
+        "childSourceMd5": "66e87f432f2cc1a287c0296e24bea5fc",
+        "diesOnRequest": true,
+        "movement": {
+          "target_range": 400,
+          "target_range_randomization": 50,
+          "should_turn_to_player_side": false
+        }
+      }
+    },
+    "Stintaosaurus": {
+      "typeId": 50,
+      "displayName": "Tsintaosaurus",
+      "fallbackLook": "Shadeling",
+      "source": "res://entities/units/enemies/jungle/basic/stintaosaurus/stintaosaurus.tscn",
+      "sourceMd5": "c1df4a85dce03fb7736348a2022077af",
+      "statsSource": "res://entities/units/enemies/jungle/basic/stintaosaurus/stintaosaurus_stats.tres",
+      "statsMd5": "047f599cc13f6a9e803af1a9ee878221",
+      "stats": {
+        "health": 20,
+        "health_increase_each_wave": 15.0,
+        "speed": 400,
+        "speed_randomization": 0,
+        "damage": 1,
+        "damage_increase_each_wave": 0.85,
+        "attack_cd": 30.0,
+        "value": 2,
+        "knockback_resistance": 0.0,
+        "gold_spread": 0,
+        "can_drop_consumables": true,
+        "always_drop_consumables": false,
+        "base_drop_chance": 0.03,
+        "item_drop_chance": 0.03,
+        "min_consumable_tier": 0,
+        "max_consumable_tier": 0,
+        "armor": 0,
+        "armor_increase_each_wave": 0.0,
+        "generate_blood": true
+      },
+      "body": {
+        "radiusPoints": 16.2788,
+        "offsetPoints": [
+          0,
+          17
+        ],
+        "source": "res://entities/units/enemies/jungle/basic/stintaosaurus/stintaosaurus.tscn",
+        "sourceMd5": "c1df4a85dce03fb7736348a2022077af"
+      },
+      "hurt": {
+        "radiusPoints": 32.0,
+        "offsetPoints": [
+          0,
+          7
+        ],
+        "source": "res://entities/units/enemies/enemy.tscn",
+        "sourceMd5": "38e442588073219bb217a4b484a6d8a7"
+      },
+      "hit": {
+        "radiusPoints": 26.0192,
+        "offsetPoints": [
+          -1,
+          8
+        ],
+        "source": "res://entities/units/enemies/jungle/basic/stintaosaurus/stintaosaurus.tscn",
+        "sourceMd5": "c1df4a85dce03fb7736348a2022077af"
+      },
+      "removeFirst": false,
+      "mass": 1,
+      "obstacleCollision": true,
+      "sprite": {
+        "source": "res://entities/units/enemies/jungle/basic/stintaosaurus/stintaosaurus.png",
+        "textureSource": "res://.import/stintaosaurus.png-ac30bd3dbfe01e5637c5fcdab98e5ed4.stex",
+        "textureMd5": "fd7a77b860465d00ad1b68afe45e7cfa",
+        "widthPoints": 150,
+        "heightPoints": 150
+      },
+      "bodyBorders": true,
+      "playerCollision": false,
+      "healing": {
+        "heal": 100.0,
+        "heal_increase_each_wave": 10.0,
+        "player_heal": 1.0,
+        "player_heal_increase_each_wave": 0.5,
+        "zone": {
+          "radiusPoints": 200.639,
+          "offsetPoints": [
+            0,
+            0
+          ],
+          "source": "res://entities/units/enemies/jungle/basic/stintaosaurus/stintaosaurus.tscn",
+          "sourceMd5": "c1df4a85dce03fb7736348a2022077af"
+        },
+        "charmRetainsEnemyMask": true
+      }
+    },
+    "Triceratops": {
+      "typeId": 51,
+      "displayName": "Triceratops",
+      "fallbackLook": "Shadeling",
+      "source": "res://entities/units/enemies/jungle/basic/triceratops/triceratops.tscn",
+      "sourceMd5": "6dc0fcc1efaf86142c9467b8d0604f88",
+      "statsSource": "res://entities/units/enemies/jungle/basic/triceratops/triceratops_stats.tres",
+      "statsMd5": "13cd5c75c91f355e11b5a57e4144a740",
+      "stats": {
+        "health": 70,
+        "health_increase_each_wave": 30.0,
+        "speed": 275,
+        "speed_randomization": 25,
+        "damage": 1,
+        "damage_increase_each_wave": 1.1,
+        "attack_cd": 30.0,
+        "value": 3,
+        "knockback_resistance": 0.7,
+        "gold_spread": 0,
+        "can_drop_consumables": true,
+        "always_drop_consumables": false,
+        "base_drop_chance": 0.01,
+        "item_drop_chance": 0.01,
+        "min_consumable_tier": 0,
+        "max_consumable_tier": 0,
+        "armor": 0,
+        "armor_increase_each_wave": 0.0,
+        "generate_blood": true
+      },
+      "body": {
+        "radiusPoints": 55.0,
+        "offsetPoints": [
+          0,
+          -36
+        ],
+        "source": "res://entities/units/enemies/jungle/basic/triceratops/triceratops.tscn",
+        "sourceMd5": "6dc0fcc1efaf86142c9467b8d0604f88"
+      },
+      "hurt": {
+        "radiusPoints": 47.0106,
+        "offsetPoints": [
+          0,
+          -13
+        ],
+        "source": "res://entities/units/enemies/jungle/basic/triceratops/triceratops.tscn",
+        "sourceMd5": "6dc0fcc1efaf86142c9467b8d0604f88"
+      },
+      "hit": {
+        "radiusPoints": 40.0,
+        "offsetPoints": [
+          0,
+          -20
+        ],
+        "source": "res://entities/units/enemies/jungle/basic/triceratops/triceratops.tscn",
+        "sourceMd5": "6dc0fcc1efaf86142c9467b8d0604f88"
+      },
+      "removeFirst": false,
+      "mass": 1,
+      "obstacleCollision": true,
+      "sprite": {
+        "source": "res://entities/units/enemies/jungle/basic/triceratops/triceratops.png",
+        "textureSource": "res://.import/triceratops.png-e36355e1b35512e382814b56c1f7b7af.stex",
+        "textureMd5": "b8d525f09d0b0dae3996202bc3c0f6b3",
+        "widthPoints": 165,
+        "heightPoints": 165
+      },
+      "bodyBorders": true,
+      "playerCollision": false,
+      "chargingVariants": {
+        "Normal": {
+          "cooldown": 60.0,
+          "long_cooldown_every_x_shoots": 0,
+          "long_cooldown": 0.0,
+          "max_cd_randomization": 10,
+          "min_range": 0,
+          "max_range": 100,
+          "range_X": -1,
+          "range_Y": 15,
+          "attack_anim_speed": 1.5,
+          "charge_duration": 1.0,
+          "charge_speed": 750.0,
+          "target_calculation_timing": 0,
+          "target": 3,
+          "rand_target_size": -1,
+          "only_positions_in_target_direction": false,
+          "scale_charge_duration_with_range": false,
+          "recovery_duration": 0.05
+        },
+        "Mutant": {
+          "cooldown": 60.0,
+          "long_cooldown_every_x_shoots": 0,
+          "long_cooldown": 0.0,
+          "max_cd_randomization": 10,
+          "min_range": 0,
+          "max_range": 100,
+          "range_X": -1,
+          "range_Y": 15,
+          "attack_anim_speed": 1.5,
+          "charge_duration": 0.7,
+          "charge_speed": 850.0,
+          "target_calculation_timing": 0,
+          "target": 3,
+          "rand_target_size": -1,
+          "only_positions_in_target_direction": false,
+          "scale_charge_duration_with_range": false,
+          "recovery_duration": 0.05
+        },
+        "Meca": {
+          "cooldown": 60.0,
+          "long_cooldown_every_x_shoots": 0,
+          "long_cooldown": 0.0,
+          "max_cd_randomization": 10,
+          "min_range": 0,
+          "max_range": 100,
+          "range_X": -1,
+          "range_Y": 15,
+          "attack_anim_speed": 1.5,
+          "charge_duration": 1.2,
+          "charge_speed": 600.0,
+          "target_calculation_timing": 0,
+          "target": 3,
+          "rand_target_size": -1,
+          "only_positions_in_target_direction": false,
+          "scale_charge_duration_with_range": false,
+          "recovery_duration": 0.05
+        }
+      },
+      "activeChargeVariant": "Normal",
+      "evolutionVariantsImplemented": false,
+      "followXShare": 0.5
+    },
+    "Parasaurolorus": {
+      "typeId": 52,
+      "displayName": "Parasaurolophus",
+      "fallbackLook": "Shadeling",
+      "source": "res://entities/units/enemies/jungle/basic/parasaurolus/parasaurolorus.tscn",
+      "sourceMd5": "2c702c7aa16bbd1b42b8e20249289f9a",
+      "statsSource": "res://entities/units/enemies/jungle/basic/parasaurolus/parasaurolorus_stats.tres",
+      "statsMd5": "8008084408467eb04c9283477199a375",
+      "stats": {
+        "health": 20,
+        "health_increase_each_wave": 10.0,
+        "speed": 275,
+        "speed_randomization": 25,
+        "damage": 1,
+        "damage_increase_each_wave": 1.1,
+        "attack_cd": 30.0,
+        "value": 2,
+        "knockback_resistance": 0.5,
+        "gold_spread": 0,
+        "can_drop_consumables": true,
+        "always_drop_consumables": false,
+        "base_drop_chance": 0.01,
+        "item_drop_chance": 0.01,
+        "min_consumable_tier": 0,
+        "max_consumable_tier": 0,
+        "armor": 0,
+        "armor_increase_each_wave": 0.0,
+        "generate_blood": true
+      },
+      "body": {
+        "radiusPoints": 40.0,
+        "offsetPoints": [
+          0,
+          -36
+        ],
+        "source": "res://entities/units/enemies/jungle/basic/parasaurolus/parasaurolorus.tscn",
+        "sourceMd5": "2c702c7aa16bbd1b42b8e20249289f9a"
+      },
+      "hurt": {
+        "radiusPoints": 35.0,
+        "offsetPoints": [
+          0,
+          -13
+        ],
+        "source": "res://entities/units/enemies/jungle/basic/parasaurolus/parasaurolorus.tscn",
+        "sourceMd5": "2c702c7aa16bbd1b42b8e20249289f9a"
+      },
+      "hit": {
+        "radiusPoints": 30.0,
+        "offsetPoints": [
+          0,
+          -29
+        ],
+        "source": "res://entities/units/enemies/jungle/basic/parasaurolus/parasaurolorus.tscn",
+        "sourceMd5": "2c702c7aa16bbd1b42b8e20249289f9a"
+      },
+      "removeFirst": false,
+      "mass": 1,
+      "obstacleCollision": true,
+      "sprite": {
+        "source": "res://entities/units/enemies/jungle/basic/parasaurolus/parasaurolorus.png",
+        "textureSource": "res://.import/parasaurolorus.png-489ba52f74bfa2533a67d605ea0f005d.stex",
+        "textureMd5": "516f99523e83658fc6516a5f4eed6f12",
+        "widthPoints": 210,
+        "heightPoints": 210
+      },
+      "bodyBorders": true,
+      "playerCollision": false,
+      "chargingVariants": {
+        "Normal": {
+          "cooldown": 60.0,
+          "long_cooldown_every_x_shoots": 0,
+          "long_cooldown": 0.0,
+          "max_cd_randomization": 10,
+          "min_range": 0,
+          "max_range": 100,
+          "range_X": -1,
+          "range_Y": 15,
+          "attack_anim_speed": 1.5,
+          "charge_duration": 1.0,
+          "charge_speed": 750.0,
+          "target_calculation_timing": 0,
+          "target": 3,
+          "rand_target_size": -1,
+          "only_positions_in_target_direction": false,
+          "scale_charge_duration_with_range": false,
+          "recovery_duration": 0.05
+        },
+        "Mutant": {
+          "cooldown": 60.0,
+          "long_cooldown_every_x_shoots": 0,
+          "long_cooldown": 0.0,
+          "max_cd_randomization": 10,
+          "min_range": 0,
+          "max_range": 100,
+          "range_X": -1,
+          "range_Y": 15,
+          "attack_anim_speed": 2.0,
+          "charge_duration": 1.5,
+          "charge_speed": 850.0,
+          "target_calculation_timing": 0,
+          "target": 3,
+          "rand_target_size": -1,
+          "only_positions_in_target_direction": false,
+          "scale_charge_duration_with_range": false,
+          "recovery_duration": 0.05
+        },
+        "Meca": {
+          "cooldown": 60.0,
+          "long_cooldown_every_x_shoots": 0,
+          "long_cooldown": 0.0,
+          "max_cd_randomization": 10,
+          "min_range": 0,
+          "max_range": 100,
+          "range_X": -1,
+          "range_Y": 15,
+          "attack_anim_speed": 2.0,
+          "charge_duration": 1.5,
+          "charge_speed": 600.0,
+          "target_calculation_timing": 0,
+          "target": 3,
+          "rand_target_size": -1,
+          "only_positions_in_target_direction": false,
+          "scale_charge_duration_with_range": false,
+          "recovery_duration": 0.05
+        }
+      },
+      "activeChargeVariant": "Normal",
+      "evolutionVariantsImplemented": false,
+      "followXShare": 0.5
+    },
+    "Ankylosaurus": {
+      "typeId": 53,
+      "displayName": "Ankylosaurus",
+      "fallbackLook": "Shadeling",
+      "source": "res://entities/units/enemies/jungle/basic/ankylosaurus/ankylosaurus.tscn",
+      "sourceMd5": "326c86b0680d2e079dc475a96564e7bd",
+      "statsSource": "res://entities/units/enemies/jungle/basic/ankylosaurus/ankylosaurus_stats.tres",
+      "statsMd5": "714077ce721723337d1f99b64674fa2e",
+      "stats": {
+        "health": 25,
+        "health_increase_each_wave": 12.0,
+        "speed": 275,
+        "speed_randomization": 25,
+        "damage": 1,
+        "damage_increase_each_wave": 1.1,
+        "attack_cd": 30.0,
+        "value": 3,
+        "knockback_resistance": 0.7,
+        "gold_spread": 0,
+        "can_drop_consumables": true,
+        "always_drop_consumables": false,
+        "base_drop_chance": 0.01,
+        "item_drop_chance": 0.01,
+        "min_consumable_tier": 0,
+        "max_consumable_tier": 0,
+        "armor": 0,
+        "armor_increase_each_wave": 0.0,
+        "generate_blood": true
+      },
+      "body": {
+        "radiusPoints": 45.0,
+        "offsetPoints": [
+          0,
+          -36
+        ],
+        "source": "res://entities/units/enemies/jungle/basic/ankylosaurus/ankylosaurus.tscn",
+        "sourceMd5": "326c86b0680d2e079dc475a96564e7bd"
+      },
+      "hurt": {
+        "radiusPoints": 40.0,
+        "offsetPoints": [
+          0,
+          -13
+        ],
+        "source": "res://entities/units/enemies/jungle/basic/ankylosaurus/ankylosaurus.tscn",
+        "sourceMd5": "326c86b0680d2e079dc475a96564e7bd"
+      },
+      "hit": {
+        "radiusPoints": 35.0571,
+        "offsetPoints": [
+          0,
+          -17
+        ],
+        "source": "res://entities/units/enemies/jungle/basic/ankylosaurus/ankylosaurus.tscn",
+        "sourceMd5": "326c86b0680d2e079dc475a96564e7bd"
+      },
+      "removeFirst": false,
+      "mass": 1,
+      "obstacleCollision": true,
+      "sprite": {
+        "source": "res://entities/units/enemies/jungle/basic/ankylosaurus/ankylosaurus.png",
+        "textureSource": "res://.import/ankylosaurus.png-6c2e648fc01696f4a0e88a690a12f2f2.stex",
+        "textureMd5": "419228db5234a56e48d30f5784110849",
+        "widthPoints": 200,
+        "heightPoints": 200
+      },
+      "bodyBorders": true,
+      "playerCollision": false,
+      "chargingVariants": {
+        "Normal": {
+          "cooldown": 40.0,
+          "long_cooldown_every_x_shoots": 0,
+          "long_cooldown": 0.0,
+          "max_cd_randomization": 20,
+          "min_range": 0,
+          "max_range": 600,
+          "range_X": -1,
+          "range_Y": -1,
+          "attack_anim_speed": 1.5,
+          "charge_duration": 0.75,
+          "charge_speed": 450.0,
+          "target_calculation_timing": 1,
+          "target": 1,
+          "rand_target_size": -1,
+          "only_positions_in_target_direction": true,
+          "scale_charge_duration_with_range": false,
+          "recovery_duration": 0.05
+        },
+        "Mutant": {
+          "cooldown": 30.0,
+          "long_cooldown_every_x_shoots": 0,
+          "long_cooldown": 0.0,
+          "max_cd_randomization": 20,
+          "min_range": 0,
+          "max_range": 600,
+          "range_X": -1,
+          "range_Y": -1,
+          "attack_anim_speed": 1.5,
+          "charge_duration": 0.75,
+          "charge_speed": 450.0,
+          "target_calculation_timing": 1,
+          "target": 1,
+          "rand_target_size": -1,
+          "only_positions_in_target_direction": true,
+          "scale_charge_duration_with_range": false,
+          "recovery_duration": 0.05
+        },
+        "Meca": {
+          "cooldown": 40.0,
+          "long_cooldown_every_x_shoots": 0,
+          "long_cooldown": 0.0,
+          "max_cd_randomization": 20,
+          "min_range": 0,
+          "max_range": 600,
+          "range_X": -1,
+          "range_Y": -1,
+          "attack_anim_speed": 1.5,
+          "charge_duration": 1.5,
+          "charge_speed": 350.0,
+          "target_calculation_timing": 1,
+          "target": 1,
+          "rand_target_size": -1,
+          "only_positions_in_target_direction": true,
+          "scale_charge_duration_with_range": false,
+          "recovery_duration": 0.05
+        }
+      },
+      "activeChargeVariant": "Normal",
+      "evolutionVariantsImplemented": false,
+      "aroundPlayerCharge": true,
+      "wanderArena": true,
+      "nativeHurtSlowEffects": false,
+      "normalDeflectCharge": false
+    }
+  },
+  "spawningRules": {
+    "animations": [
+      {
+        "source": "res://entities/units/enemies/attack_behaviors/shoot.tres",
+        "sourceMd5": "2cb1eabb59abc712266d8e6cb496ab3f",
+        "fireAt": 0.8,
+        "seconds": 1
+      },
+      {
+        "source": "res://entities/units/enemies/attack_behaviors/shoot_charmed.tres",
+        "sourceMd5": "9559f5748dbbfbf70a8e3e803002fd47",
+        "fireAt": 0.8,
+        "seconds": 1
+      }
+    ],
+    "frameRate": 60,
+    "minimumCooldownFrames": 1,
+    "goalPrecisionPoints": 10,
+    "chargeMassMultiplier": 5
+  },
+  "shootingRules": {
+    "frameRate": 60,
+    "minimumCooldownFrames": 1,
+    "animationFireAt": 0.4,
+    "animationSeconds": 0.4,
+    "animationSource": "res://entities/units/enemies/attack_behaviors/enemy_charge_prep_animation.tres",
+    "animationSourceMd5": "2ad99e68eb21c31ad3028e65ccb6fa5a",
+    "pillar": {
+      "source": "res://projectiles/pillar_enemy/pillar_projectile.tscn",
+      "sourceMd5": "3c47b5dacd9846ce1bc21c4b9ad630f5",
+      "radiusPoints": 23.0,
+      "offsetPoints": [
+        0,
+        -4
+      ],
+      "hitFrom": 0.54,
+      "hitUntil": 0.68,
+      "stopAt": 1.04
+    },
+    "projectileRadiusPoints": 23.0,
+    "projectileRangeStuds": 300,
+    "projectileRangeNote": "Existing engine lifetime/area compatibility limit, not a native range stat"
+  },
+  "ruleSources": [
+    {
+      "source": "res://effect_behaviors/enemies/charm_enemy_effect_behavior.gdc",
+      "sourceMd5": "a0830c473b5da00b8d278346117f5452"
+    },
+    {
+      "source": "res://entities/entity.gdc",
+      "sourceMd5": "805ebc9f4306c9ec71b786cdc7dd89af"
+    },
+    {
+      "source": "res://entities/units/enemies/attack_behaviors/attack_behavior.gdc",
+      "sourceMd5": "3f7f7c4411aa4d3b27e55e9ac3d4ab27"
+    },
+    {
+      "source": "res://entities/units/enemies/attack_behaviors/charging_attack_behavior.gdc",
+      "sourceMd5": "fcf2901832ca42a4e69e98c60629397e"
+    },
+    {
+      "source": "res://entities/units/enemies/attack_behaviors/shooting_attack_behavior.gdc",
+      "sourceMd5": "43d5ebd849396509ff38632915c988a2"
+    },
+    {
+      "source": "res://entities/units/enemies/attack_behaviors/spawning_attack_behavior.gdc",
+      "sourceMd5": "cbddd1b76bf3363315729d319a34798d"
+    },
+    {
+      "source": "res://entities/units/enemies/crash_zone/basic/pursuer/pursuer.gdc",
+      "sourceMd5": "9ec3187fe3a68de4c9c35e9bd3d20488"
+    },
+    {
+      "source": "res://entities/units/enemies/enemy.gdc",
+      "sourceMd5": "b341670f5ac667dc203f7eb778a2cda8"
+    },
+    {
+      "source": "res://entities/units/enemies/jungle/basic/ankylosaurus/ankylosaurus.gdc",
+      "sourceMd5": "00cac12edcc97f4b31a46615565f3802"
+    },
+    {
+      "source": "res://entities/units/enemies/jungle/basic/baby_trex/baby_trex.gdc",
+      "sourceMd5": "8d0eb87d46ac189537c97885f23c918d"
+    },
+    {
+      "source": "res://entities/units/enemies/jungle/basic/dino_egg/dino_egg.gdc",
+      "sourceMd5": "f01696d402b51e177ee02fe0bdce31c8"
+    },
+    {
+      "source": "res://entities/units/enemies/jungle/basic/stintaosaurus/stintaosaurus.gdc",
+      "sourceMd5": "7ba3c455bdd6bc6b8272200ebb30040e"
+    },
+    {
+      "source": "res://entities/units/movement_behaviors/anticipate_target_movement_behavior.gdc",
+      "sourceMd5": "7e15d0a748305c8b55e8598e179cf5d9"
+    },
+    {
+      "source": "res://entities/units/movement_behaviors/detect_evolution_attack_behavior.gdc",
+      "sourceMd5": "42d8ab27f5046516ce118b723072f328"
+    },
+    {
+      "source": "res://entities/units/movement_behaviors/follow_target_movement_behavior.gdc",
+      "sourceMd5": "e3ed9b3e5d9a75a09699b324caa5e22f"
+    },
+    {
+      "source": "res://entities/units/movement_behaviors/movement_behavior.gdc",
+      "sourceMd5": "545124c6bbc946d5a542876cd568078b"
+    },
+    {
+      "source": "res://entities/units/movement_behaviors/stay_in_range_from_player_movement_behavior.gdc",
+      "sourceMd5": "73e3ea5fbfa3506197f0ec0fc6da22c3"
+    },
+    {
+      "source": "res://entities/units/movement_behaviors/target_rand_pos_movement_behavior.gdc",
+      "sourceMd5": "d5637932f5178c3dcce36f9a236958b8"
+    },
+    {
+      "source": "res://entities/units/unit/unit.gdc",
+      "sourceMd5": "aa94391f2d9681ac36b7f8617b82ff13"
+    },
+    {
+      "source": "res://global/entity_spawner.gdc",
+      "sourceMd5": "ba0576c27ac5b889c5688decda3dd838"
+    },
+    {
+      "source": "res://singletons/entity_service.gdc",
+      "sourceMd5": "f1a861f576858bbaa3e913d83c7b1807"
+    },
+    {
+      "source": "res://singletons/zone_service.gdc",
+      "sourceMd5": "d16899aba618beb55e980f67a0bf10b0"
+    }
+  ],
+  "runtimeCompatibility": {
+    "mass": 1,
+    "nativeArtAccepted": false,
+    "physicsAccepted": false,
+    "open": [
+      "Existing global body/collision center approximation; source offsets retained explicitly",
+      "Native physics ordering and sprite acceptance",
+      "Spawning reuses existing square/edge clamp; native forbidden-zone retries/push-out remain part of the pending area/physics port",
+      "Enigmacursor Meca/Mutant branches are source facts only; no native evolution-system acceptance",
+      "Fallback circle telegraphs instead of original animated pillar sprites",
+      "Remaining Jungle families, waves, bosses and area route"
+    ]
+  }
+}

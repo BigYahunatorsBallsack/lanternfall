@@ -42,6 +42,8 @@ local BrotatoCombat = require(script.BrotatoCombat)
 local BrotatoRuntime = require(script.BrotatoRuntime)
 local FirePuddles = require(script.FirePuddles)
 local Carbon = require(script.CarbonArrows)
+local WhipProgress = require(script.WhipProgress)
+local FlailAccess = require(Shared.Config.CharacterWeaponAccess).Flail
 local EnemyKinds = require(Shared.Util.EnemyKinds)
 local CharacterMovement = require(script.Parent.CharacterService.Movement)
 local waveBonuses: { [Player]: { [string]: number } } = {}
@@ -601,6 +603,22 @@ end
 -- Lifecycle -------------------------------------------------------------------------
 
 function WeaponService.init()
+	WhipProgress.configure(function(ownerId, targetId)
+		local player = playerOf(ownerId)
+		if not player or not RunDirector.isActive() or not EnemySim.isAlive(targetId) then
+			return nil
+		end
+		local zoneId = RunDirector.getNativeZoneId()
+		if zoneId == nil or zoneId ~= FlailAccess.zoneId then
+			return nil
+		end
+		local kind = EnemySim.getKind(targetId)
+		-- Original Whip requires an Enemy's enemy_id; current neutral targets use Tree.
+		if not kind or kind == "Tree" then
+			return nil
+		end
+		return { player = player, zoneId = zoneId }
+	end, PlayerDataService.observeNativeWhipKill)
 	EnemySim.CharmShot:Connect(function(ownerId, event)
 		arsenal:emitShared(ownerId, event, "CharmShot")
 	end)
@@ -620,6 +638,7 @@ function WeaponService.init()
 			return player ~= nil and EnemySim.tryCharm(player, id, stats, random)
 		end,
 		nativeSlow = EnemySim.nativeSlow,
+		hurtSlowEffectsAllowed = EnemySim.allowsHurtSlowEffects,
 		spawnMine = function(ownerId, x, z)
 			local player = playerOf(ownerId)
 			if player then
@@ -691,6 +710,19 @@ function WeaponService.init()
 		BrotatoRuntime.hurt(arsenal:getWeapons(player.UserId))
 	end)
 	require(script.BrotatoProjectile).setNativeSlow(EnemySim.nativeSlow)
+	require(script.BrotatoProjectile).setDefense({
+		active = EnemySim.isProjectileDeflecting,
+		target = EnemySim.nativeBounceTarget,
+		overlaps = function(id, x, z, radius)
+			if not EnemySim.isAlive(id) and not EnemySim.isCharmed(id) then
+				return false
+			end
+			local center, hurtRadius = EnemySim.getHurtGeometry(id)
+			return center ~= nil
+				and hurtRadius ~= nil
+				and (x - center.X) ^ 2 + (z - center.Z) ^ 2 <= (hurtRadius + radius) ^ 2
+		end,
+	})
 	require(script.BrotatoProjectile).setSlowAura(function(x, z, radius, factor, seconds)
 		local ids = {}
 		local count = EnemySim.queryRadius(Vector3.new(x, floorY, z), radius, ids)

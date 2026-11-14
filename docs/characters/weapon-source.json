@@ -1,6 +1,6 @@
 {
-  "version": "1.2.0.1",
-  "steamBuild": 26406319,
+  "version": "1.2.0.3",
+  "steamBuild": 26642464,
   "explosionGeometry": {
     "source": "res://projectiles/explosion.tscn",
     "sourceMd5": "d81ff40d7795be91af539a3dc847e22f",
@@ -1632,7 +1632,11 @@
           15
         ],
         "hitboxOffsetPoints": -12,
-        "note": "Lash animation method keys open/close at 0.24/0.32, length 0.48; Sprite x46 plus Hitbox x-12, Rectangle extents.y16, world scale0.1. Whip.init_stats replaces Hitbox y scale with1."
+        "note": "Lash animation method keys open/close at 0.24/0.32, length 0.48; Sprite x46 plus Hitbox x-12, Rectangle extents.y16, world scale0.1. Whip.init_stats replaces Hitbox y scale with1.",
+        "runtimeRuleVersion": "1.2.0.3",
+        "runtimeRuleSource": "res://weapons/melee/whip/whip.gdc",
+        "runtimeRuleSourceMd5": "6b8c62a66e6af698906823ad8e843cf3",
+        "collisionBackExtension": "hitStartOffset; leaves original tip endpoint unchanged"
       }
     },
     {
@@ -4541,7 +4545,11 @@
         ],
         "hitboxOffsetPoints": -12,
         "note": "Same lash animation keys as Whip. Collision center136.564/extents.x136.564; init_stats sets x scale to range/273.128 and y scale1. Tip crit uses native closest aim-shape position within40 points.",
-        "hitLengthPoints": 273.128
+        "hitLengthPoints": 273.128,
+        "runtimeRuleVersion": "1.2.0.3",
+        "runtimeRuleSource": "res://weapons/melee/whip/whip.gdc",
+        "runtimeRuleSourceMd5": "6b8c62a66e6af698906823ad8e843cf3",
+        "collisionBackExtension": "hitStartOffset; leaves original tip endpoint unchanged"
       }
     },
     {

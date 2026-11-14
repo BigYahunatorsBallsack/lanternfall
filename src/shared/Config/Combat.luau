@@ -4,6 +4,8 @@
 -- effect shares. Read by WeaponService (WeaponStats, Arsenal, Afflictions), Util/StatMath and the client texts.
 
 return table.freeze({
+	-- Stable PlayerProjectile.bounce/_set_time_until_max_range: original pixels, automatic aim.
+	nativeProjectileBounce = table.freeze({ rangePoints = 10000, additionalDistancePoints = 100 }),
 	nativeBrick = table.freeze({ spread = 30, minimumSpread = 5, baseMaximumSpread = 10 }),
 	nativeBoomerang = table.freeze({
 		outDurationFactor = 1.6,

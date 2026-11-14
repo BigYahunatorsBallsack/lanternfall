@@ -22,6 +22,8 @@ export type Group = {
 	area: number,
 	edgeMargin: number,
 	edge: boolean,
+	edgeTogether: boolean?,
+	atPlayerVertically: boolean?,
 	chance: number,
 	loot: boolean,
 	neutral: boolean,

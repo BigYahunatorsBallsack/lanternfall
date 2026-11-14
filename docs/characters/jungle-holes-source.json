@@ -1,0 +1,478 @@
+{
+  "version": "1.2.0.3",
+  "steamBuild": 26642464,
+  "zoneId": 2,
+  "areaPlayable": false,
+  "terrainActivated": false,
+  "mainSource": "res://main.tscn",
+  "mainSourceMd5": "efcb4d44256907d4ca88d41d0dad0311",
+  "groups": {
+    "holes_scene": [
+      "res://entities/gpe/hole/holes_scene_01.tscn",
+      "res://entities/gpe/hole/holes_scene_02.tscn",
+      "res://entities/gpe/hole/holes_scene_03.tscn",
+      "res://entities/gpe/hole/holes_scene_04.tscn",
+      "res://entities/gpe/hole/holes_scene_05.tscn"
+    ],
+    "holes_old_scene": [
+      "res://entities/gpe/hole/holes_old_scene_01.tscn",
+      "res://entities/gpe/hole/holes_old_scene_02.tscn"
+    ],
+    "holes_explorer_scene": [
+      "res://entities/gpe/hole/holes_explorer_scene_01.tscn",
+      "res://entities/gpe/hole/holes_explorer_scene_02.tscn"
+    ]
+  },
+  "layouts": {
+    "res://entities/gpe/hole/holes_scene_01.tscn": {
+      "sourceMd5": "178ebd9ad59c3ebd3eabbea430f31732",
+      "positionsPoints": [
+        [
+          909.0,
+          534.0
+        ],
+        [
+          1096.0,
+          850.0
+        ],
+        [
+          584.0,
+          1200.0
+        ],
+        [
+          456.0,
+          359.0
+        ],
+        [
+          1225.0,
+          281.0
+        ],
+        [
+          897.0,
+          141.0
+        ],
+        [
+          242.0,
+          923.0
+        ],
+        [
+          1719.0,
+          1071.0
+        ],
+        [
+          1651.0,
+          734.0
+        ]
+      ]
+    },
+    "res://entities/gpe/hole/holes_scene_02.tscn": {
+      "sourceMd5": "172363c0d0454ffdc4d7ebb4ac362023",
+      "positionsPoints": [
+        [
+          909.0,
+          534.0
+        ],
+        [
+          664.0,
+          1060.0
+        ],
+        [
+          1096.0,
+          850.0
+        ],
+        [
+          1421.0,
+          1280.0
+        ],
+        [
+          310.0,
+          283.0
+        ],
+        [
+          897.0,
+          141.0
+        ],
+        [
+          242.0,
+          923.0
+        ],
+        [
+          1719.0,
+          423.0
+        ],
+        [
+          1651.0,
+          734.0
+        ]
+      ]
+    },
+    "res://entities/gpe/hole/holes_scene_03.tscn": {
+      "sourceMd5": "79353a63b9facb7b6af8e5963b15d3d0",
+      "positionsPoints": [
+        [
+          927.0,
+          717.0
+        ],
+        [
+          1271.0,
+          1132.0
+        ],
+        [
+          741.0,
+          1081.0
+        ],
+        [
+          505.0,
+          1330.0
+        ],
+        [
+          1584.0,
+          576.0
+        ],
+        [
+          188.0,
+          317.0
+        ],
+        [
+          130.0,
+          816.0
+        ],
+        [
+          1724.0,
+          260.0
+        ],
+        [
+          1669.0,
+          917.0
+        ]
+      ]
+    },
+    "res://entities/gpe/hole/holes_scene_04.tscn": {
+      "sourceMd5": "5a1e6dbcaabc11e6a878295ca513612e",
+      "positionsPoints": [
+        [
+          909.0,
+          534.0
+        ],
+        [
+          1353.0,
+          704.0
+        ],
+        [
+          818.0,
+          967.0
+        ],
+        [
+          294.0,
+          1053.0
+        ],
+        [
+          1333.0,
+          321.0
+        ],
+        [
+          1036.0,
+          166.0
+        ],
+        [
+          377.0,
+          337.0
+        ],
+        [
+          1360.0,
+          1215.0
+        ],
+        [
+          1703.0,
+          932.0
+        ]
+      ]
+    },
+    "res://entities/gpe/hole/holes_scene_05.tscn": {
+      "sourceMd5": "67c934a23252e0b68ce1c758ec092d89",
+      "positionsPoints": [
+        [
+          1627.0,
+          186.0
+        ],
+        [
+          1413.0,
+          1245.0
+        ],
+        [
+          856.0,
+          787.0
+        ],
+        [
+          220.0,
+          896.0
+        ],
+        [
+          321.0,
+          505.0
+        ],
+        [
+          1227.0,
+          314.0
+        ],
+        [
+          845.0,
+          119.0
+        ],
+        [
+          395.0,
+          1208.0
+        ],
+        [
+          1697.0,
+          506.0
+        ],
+        [
+          1770.0,
+          808.0
+        ]
+      ]
+    },
+    "res://entities/gpe/hole/holes_old_scene_01.tscn": {
+      "sourceMd5": "e104ddaff35216c7f4ca28e67ce93b32",
+      "positionsPoints": [
+        [
+          909.0,
+          534.0
+        ],
+        [
+          1096.0,
+          850.0
+        ],
+        [
+          584.0,
+          721.0
+        ],
+        [
+          456.0,
+          359.0
+        ],
+        [
+          1225.0,
+          281.0
+        ],
+        [
+          897.0,
+          141.0
+        ]
+      ]
+    },
+    "res://entities/gpe/hole/holes_old_scene_02.tscn": {
+      "sourceMd5": "5af62ccc9f5110745c8a6301cdb3dd6e",
+      "positionsPoints": [
+        [
+          909.0,
+          534.0
+        ],
+        [
+          1096.0,
+          850.0
+        ],
+        [
+          310.0,
+          283.0
+        ],
+        [
+          443.0,
+          620.0
+        ],
+        [
+          897.0,
+          141.0
+        ],
+        [
+          242.0,
+          923.0
+        ]
+      ]
+    },
+    "res://entities/gpe/hole/holes_explorer_scene_01.tscn": {
+      "sourceMd5": "9efe23c266a91e68d4b02cb9b9a51edc",
+      "positionsPoints": [
+        [
+          909.0,
+          534.0
+        ],
+        [
+          1337.0,
+          616.0
+        ],
+        [
+          1096.0,
+          850.0
+        ],
+        [
+          584.0,
+          721.0
+        ],
+        [
+          456.0,
+          359.0
+        ],
+        [
+          1225.0,
+          281.0
+        ],
+        [
+          897.0,
+          141.0
+        ],
+        [
+          242.0,
+          923.0
+        ],
+        [
+          1719.0,
+          423.0
+        ],
+        [
+          1651.0,
+          734.0
+        ],
+        [
+          700.0,
+          1160.0
+        ],
+        [
+          1498.0,
+          1126.0
+        ],
+        [
+          2111.0,
+          851.0
+        ],
+        [
+          2145.0,
+          272.0
+        ]
+      ]
+    },
+    "res://entities/gpe/hole/holes_explorer_scene_02.tscn": {
+      "sourceMd5": "e18807049667cbbedad253e4b288b000",
+      "positionsPoints": [
+        [
+          860.0,
+          428.0
+        ],
+        [
+          1418.0,
+          709.0
+        ],
+        [
+          597.0,
+          787.0
+        ],
+        [
+          276.0,
+          257.0
+        ],
+        [
+          1354.0,
+          237.0
+        ],
+        [
+          732.0,
+          177.0
+        ],
+        [
+          278.0,
+          599.0
+        ],
+        [
+          1719.0,
+          423.0
+        ],
+        [
+          2117.0,
+          278.0
+        ],
+        [
+          691.0,
+          1196.0
+        ],
+        [
+          1439.0,
+          1122.0
+        ],
+        [
+          2043.0,
+          1029.0
+        ]
+      ]
+    }
+  },
+  "waves": [
+    {
+      "wave": 4,
+      "source": "res://zones/zone_3_jungle/004/wave_4.tres",
+      "sourceMd5": "adb662de446fcc5d05f44e3db36e2fc9"
+    },
+    {
+      "wave": 10,
+      "source": "res://zones/zone_3_jungle/010/wave_10.tres",
+      "sourceMd5": "371b8afc439f7b0884778aa6cf79eb2c"
+    },
+    {
+      "wave": 16,
+      "source": "res://zones/zone_3_jungle/016/wave_16.tres",
+      "sourceMd5": "e27a160ddb017b1a5f5ed474efc9c34b"
+    }
+  ],
+  "physical": {
+    "source": "res://entities/gpe/hole/hole.tscn",
+    "sourceMd5": "d93afbbc87e7b6844e6b03c4d1c3ed27",
+    "radiusPoints": 70.0,
+    "halfLengthPoints": 35.0,
+    "rotation": 1.5708,
+    "axisX": -0.9999999999932537,
+    "axisZ": -3.673205103346574e-06,
+    "capsuleHeightMeaning": "Godot3 height is the center segment length; total length is height+2*radius",
+    "engineSource": "https://github.com/godotengine/godot/blob/3.x/scene/resources/capsule_shape_2d.cpp"
+  },
+  "forbiddenRadiusPoints": 130,
+  "sampling": {
+    "edgePoints": 64,
+    "maxEdgeShare": 0.2,
+    "areaTries": 5,
+    "pushOutEpsilonSquaredPoints": 0.001,
+    "pushOutPaddingPoints": 8,
+    "cellSizePoints": 64,
+    "cellRetries": 3,
+    "goalTries": 8
+  },
+  "layoutOffsetPoints": [
+    1,
+    1
+  ],
+  "selection": {
+    "explorerWhenMapSizeEquals": 33,
+    "oldForOtherNonzero": true
+  },
+  "ruleSources": [
+    {
+      "source": "res://entities/gpe/hole/hole.gdc",
+      "sourceMd5": "ff814f9e77634353757a03e67437ca8a"
+    },
+    {
+      "source": "res://global/gpe_spawner.gdc",
+      "sourceMd5": "b4d11702b43f7b36063d248d88914cb4"
+    },
+    {
+      "source": "res://singletons/zone_service.gdc",
+      "sourceMd5": "d16899aba618beb55e980f67a0bf10b0"
+    },
+    {
+      "source": "res://entities/units/movement_behaviors/target_rand_pos_movement_behavior.gdc",
+      "sourceMd5": "d5637932f5178c3dcce36f9a236958b8"
+    },
+    {
+      "source": "res://entities/units/movement_behaviors/target_rand_pos_around_player_movement_behavior.gdc",
+      "sourceMd5": "faa12faf0ccf2d3d86cc56d8dee2f21f"
+    }
+  ]
+}

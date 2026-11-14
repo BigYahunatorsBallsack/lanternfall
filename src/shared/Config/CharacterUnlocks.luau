@@ -12,6 +12,7 @@ export type Challenge = {
 	{ kind: "Stat", stat: string, threshold: number, comparison: string?, beforeWave: number? }
 	| { kind: "WinDanger", danger: number }
 	| { kind: "WinNativeDanger", danger: number }
+	| { kind: "RunDefeat" }
 	| { kind: "WaveHealing", threshold: number }
 	| { kind: "MaterialsCollected", threshold: number }
 	| { kind: "ExplosionKills", threshold: number }
@@ -26,6 +27,15 @@ export type Challenge = {
 	| { kind: "RunConsumables", threshold: number }
 )
 local rules: { [string]: Challenge } = {
+	MarbleHost = {
+		kind = "RunDefeat",
+		challengeId = "chal_rookie",
+		source = "res://challenges/rookie_data.tres",
+		sourceMd5 = "28cfa4e79c4a36b66224b4f2ec1738c1",
+		sourceVersion = "1.2.0.2",
+		originalIdentityVerified = true,
+		requirement = "Die for the first time",
+	},
 	Wounded = {
 		kind = "WinNativeDanger",
 		danger = 6,

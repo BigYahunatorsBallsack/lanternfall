@@ -979,7 +979,7 @@ local Catalog: { [string]: CatalogCharacter } = {
 		originalId = "character_arsonist",
 		displayName = "Arsonist",
 		source = "res://items/characters/arsonist/arsonist_data.tres",
-		sourceMd5 = "fd1f55cd0f9c6bd6543f9d6fbdaf634e",
+		sourceMd5 = "b226a8f8358a0ff26cfce024b2c80eeb",
 		contentSet = "primalDread",
 		free = false,
 		stats = {
@@ -1078,6 +1078,7 @@ local Catalog: { [string]: CatalogCharacter } = {
 		bannedUpgrades = {
 			"upgrade_melee_damage",
 			"upgrade_ranged_damage",
+			"upgrade_engineering",
 		},
 		bannedMechaStats = {
 			"stat_melee_damage",
@@ -9025,7 +9026,7 @@ local Catalog: { [string]: CatalogCharacter } = {
 		originalId = "character_explorer",
 		displayName = "Explorer",
 		source = "res://items/characters/explorer/explorer_data.tres",
-		sourceMd5 = "d22e9dd9b9cee5d2146fba6060ee915b",
+		sourceMd5 = "610ad566b680d50d4b481bec0c39dd70",
 		contentSet = "mainGame",
 		free = false,
 		stats = {
@@ -9076,6 +9077,7 @@ local Catalog: { [string]: CatalogCharacter } = {
 			"Molotov",
 			"CarbonBow",
 			"PanFlute",
+			"Boomerang",
 		},
 		startChoices = {
 			{
@@ -9245,6 +9247,12 @@ local Catalog: { [string]: CatalogCharacter } = {
 				tier = 1,
 				originalId = "weapon_pan_flute_1",
 				source = "res://weapons/ranged/pan_flute/1/pan_flute_data.tres",
+			},
+			{
+				id = "Boomerang",
+				tier = 1,
+				originalId = "weapon_boomerang_1",
+				source = "res://weapons/ranged/boomerang/1/boomerang_1_data.tres",
 			},
 		},
 		extraWeapons = {},
@@ -10591,7 +10599,7 @@ local Catalog: { [string]: CatalogCharacter } = {
 		originalId = "character_generalist",
 		displayName = "Generalist",
 		source = "res://items/characters/generalist/generalist_data.tres",
-		sourceMd5 = "d62f7d6bf00e85ac50c6ef78b152e2fd",
+		sourceMd5 = "8f6ebf07d7a2980ab72876b7c6e2c74e",
 		contentSet = "mainGame",
 		free = false,
 		stats = {},
@@ -10649,7 +10657,6 @@ local Catalog: { [string]: CatalogCharacter } = {
 			"Blowgun",
 			"TranqRifle",
 			"StickyGrenade",
-			"Molotov",
 			"CarbonBow",
 			"Machinegun",
 		},
@@ -10803,12 +10810,6 @@ local Catalog: { [string]: CatalogCharacter } = {
 				tier = 1,
 				originalId = "weapon_sticky_grenade_1",
 				source = "res://weapons/ranged/sticky_grenade/1/sticky_grenade_data.tres",
-			},
-			{
-				id = "Molotov",
-				tier = 1,
-				originalId = "weapon_molotov_1",
-				source = "res://weapons/ranged/molotov/1/molotov_data.tres",
 			},
 			{
 				id = "CarbonBow",
@@ -15046,7 +15047,7 @@ local Catalog: { [string]: CatalogCharacter } = {
 		originalId = "character_mad_scientist",
 		displayName = "Mad Scientist",
 		source = "res://items/characters/mad_scientist/mad_scientist_data.tres",
-		sourceMd5 = "cb280f6d417a69a770ab519dc7a64453",
+		sourceMd5 = "01200cae1772dc4a6103fd2638445dca",
 		contentSet = "primalDread",
 		free = false,
 		stats = {},
@@ -15074,10 +15075,10 @@ local Catalog: { [string]: CatalogCharacter } = {
 			"SparkBolt",
 			"WinterNeedle",
 			"Railgun",
-			"Awl",
+			"CarbonBow",
 			"Crowbar",
 			"MeatTenderizer",
-			"Blowgun",
+			"LaserGun",
 			"TranqRifle",
 			"StickyGrenade",
 			"Machinegun",
@@ -15141,10 +15142,10 @@ local Catalog: { [string]: CatalogCharacter } = {
 				source = "res://weapons/ranged/rail_gun/1/rail_gun_1_data.tres",
 			},
 			{
-				id = "Awl",
+				id = "CarbonBow",
 				tier = 1,
-				originalId = "weapon_awl_1",
-				source = "res://weapons/melee/awl/1/awl_data.tres",
+				originalId = "weapon_carbon_bow_1",
+				source = "res://weapons/ranged/carbon_bow/1/carbon_bow_1_data.tres",
 			},
 			{
 				id = "Crowbar",
@@ -15159,10 +15160,10 @@ local Catalog: { [string]: CatalogCharacter } = {
 				source = "res://weapons/melee/meat_tenderizer/1/meat_tenderizer_1_data.tres",
 			},
 			{
-				id = "Blowgun",
+				id = "LaserGun",
 				tier = 1,
-				originalId = "weapon_blowgun_1",
-				source = "res://weapons/ranged/blowgun/1/blowgun_data.tres",
+				originalId = "weapon_laser_gun_1",
+				source = "res://weapons/ranged/laser_gun/1/laser_gun_data.tres",
 			},
 			{
 				id = "TranqRifle",
@@ -17143,7 +17144,7 @@ local Catalog: { [string]: CatalogCharacter } = {
 		originalId = "character_one_arm",
 		displayName = "One Armed",
 		source = "res://items/characters/one_arm/one_arm_data.tres",
-		sourceMd5 = "61d846311fffa652bbf355483a866d6a",
+		sourceMd5 = "20179a2ed165ccf35387013eec1f6281",
 		contentSet = "mainGame",
 		free = false,
 		stats = {
@@ -17188,7 +17189,6 @@ local Catalog: { [string]: CatalogCharacter } = {
 			"Revolver",
 			"WinterNeedle",
 			"Shuriken",
-			"Boomerang",
 			"Javelin",
 			"Crowbar",
 			"Shovel",
@@ -17310,12 +17310,6 @@ local Catalog: { [string]: CatalogCharacter } = {
 				tier = 1,
 				originalId = "weapon_shuriken_1",
 				source = "res://weapons/ranged/shuriken/1/shuriken_data.tres",
-			},
-			{
-				id = "Boomerang",
-				tier = 1,
-				originalId = "weapon_boomerang_1",
-				source = "res://weapons/ranged/boomerang/1/boomerang_1_data.tres",
 			},
 			{
 				id = "Javelin",
@@ -21722,7 +21716,7 @@ local Catalog: { [string]: CatalogCharacter } = {
 		originalId = "character_time_shifter",
 		displayName = "Time Shifter",
 		source = "res://items/characters/time_shifter/time_shifter_data.tres",
-		sourceMd5 = "e2e6af4464794d0aa21e6f2ec3bf3e78",
+		sourceMd5 = "7557c99f9c9f56b574556c0ab11c55d2",
 		contentSet = "primalDread",
 		free = true,
 		stats = {
@@ -21935,7 +21929,9 @@ local Catalog: { [string]: CatalogCharacter } = {
 		tags = {},
 		bannedItemGroups = {},
 		bannedItems = {},
-		bannedUpgrades = {},
+		bannedUpgrades = {
+			"upgrade_dodge",
+		},
 		bannedMechaStats = {
 			"stat_dodge",
 		},
@@ -22051,7 +22047,7 @@ local Catalog: { [string]: CatalogCharacter } = {
 		originalId = "character_vagabond",
 		displayName = "Vagabond",
 		source = "res://items/characters/vagabond/vagabond_data.tres",
-		sourceMd5 = "ce24e9cb2aaa925cb3526f3e716bd689",
+		sourceMd5 = "f3669c35ba8790d4408e6361f156c724",
 		contentSet = "mainGame",
 		free = false,
 		stats = {
@@ -22102,6 +22098,7 @@ local Catalog: { [string]: CatalogCharacter } = {
 			"PanFlute",
 			"Flail",
 			"MeatTenderizer",
+			"Boomerang",
 		},
 		startChoices = {
 			{
@@ -22277,6 +22274,12 @@ local Catalog: { [string]: CatalogCharacter } = {
 				tier = 1,
 				originalId = "weapon_meat_tenderizer_1",
 				source = "res://weapons/melee/meat_tenderizer/1/meat_tenderizer_1_data.tres",
+			},
+			{
+				id = "Boomerang",
+				tier = 1,
+				originalId = "weapon_boomerang_1",
+				source = "res://weapons/ranged/boomerang/1/boomerang_1_data.tres",
 			},
 		},
 		extraWeapons = {},
@@ -22879,7 +22882,7 @@ local Catalog: { [string]: CatalogCharacter } = {
 		originalId = "character_variant",
 		displayName = "Variant",
 		source = "res://items/characters/variant/variant_data.tres",
-		sourceMd5 = "455e734cf021fd68ce5e2241202374ec",
+		sourceMd5 = "ad64ca881cf2216eaec3afe7c49c4ceb",
 		contentSet = "primalDread",
 		free = true,
 		stats = {
@@ -23109,13 +23112,13 @@ local Catalog: { [string]: CatalogCharacter } = {
 				},
 			},
 			{
-				sourceKey = "mutate_into_better_tier_chance",
+				sourceKey = "mutate_item_on_equip_chance",
 				customKey = "",
-				amount = 50,
-				source = "res://items/characters/variant/variant_effect_wildfire_mutation.tres",
+				amount = 25,
+				source = "res://items/characters/variant/variant_effect_mutate_on_equip.tres",
 				effectType = "res://items/global/effect.gd",
 				storageMethod = 0,
-				textKey = "EFFECT_MUTATE_INTO_BETTER_TIER_CHANCE",
+				textKey = "EFFECT_MUTATE_ITEM_ON_EQUIP_CHANCE",
 				parameters = {
 					{
 						name = "custom_args",
@@ -23156,13 +23159,13 @@ local Catalog: { [string]: CatalogCharacter } = {
 				},
 			},
 			{
-				sourceKey = "mutate_into_better_tier_chance",
+				sourceKey = "mutate_item_on_equip_chance",
 				customKey = "",
-				amount = 50,
-				source = "res://items/characters/variant/variant_effect_wildfire_mutation.tres",
+				amount = 25,
+				source = "res://items/characters/variant/variant_effect_mutate_on_equip.tres",
 				effectType = "res://items/global/effect.gd",
 				storageMethod = 0,
-				textKey = "EFFECT_MUTATE_INTO_BETTER_TIER_CHANCE",
+				textKey = "EFFECT_MUTATE_ITEM_ON_EQUIP_CHANCE",
 				parameters = {
 					{
 						name = "custom_args",
@@ -23705,7 +23708,7 @@ local Catalog: { [string]: CatalogCharacter } = {
 		originalId = "character_wildling",
 		displayName = "Wildling",
 		source = "res://items/characters/wildling/wildling_data.tres",
-		sourceMd5 = "8e057c9db45535489ac157edbef55c74",
+		sourceMd5 = "b3e9362cb48b0a3994f89040b2bbc7c4",
 		contentSet = "mainGame",
 		free = false,
 		stats = {},
@@ -23737,6 +23740,7 @@ local Catalog: { [string]: CatalogCharacter } = {
 			"Javelin",
 			"Whip",
 			"Flail",
+			"Blowgun",
 		},
 		startChoices = {
 			{
@@ -23810,6 +23814,12 @@ local Catalog: { [string]: CatalogCharacter } = {
 				tier = 1,
 				originalId = "weapon_flail_1",
 				source = "res://weapons/melee/flail/1/flail_1_data.tres",
+			},
+			{
+				id = "Blowgun",
+				tier = 1,
+				originalId = "weapon_blowgun_1",
+				source = "res://weapons/ranged/blowgun/1/blowgun_data.tres",
 			},
 		},
 		extraWeapons = {
@@ -23907,7 +23917,7 @@ local Catalog: { [string]: CatalogCharacter } = {
 		originalId = "character_wounded",
 		displayName = "Wounded",
 		source = "res://items/characters/wounded/wounded_data.tres",
-		sourceMd5 = "a169fd8e8d3c3c3fc80fa4396a868a43",
+		sourceMd5 = "142065691069909398dcc711bb257467",
 		contentSet = "mainGame",
 		free = false,
 		stats = {
@@ -24223,6 +24233,7 @@ local Catalog: { [string]: CatalogCharacter } = {
 			"item_doc_moth",
 			"item_fruit_basket",
 			"item_turret_healing",
+			"item_pocket_watch",
 		},
 		bannedUpgrades = {
 			"upgrade_armor",

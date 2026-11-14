@@ -199,6 +199,7 @@ end
 
 local function handle(event: RunFlow.Event)
 	if event.kind == "RunStarted" then
+		MapService.clearNativeTerrain()
 		completedWave = 0
 		nativeZoneId = Config.Map.nativeZoneId
 		local players = toPlayers(event.userIds)
@@ -212,6 +213,7 @@ local function handle(event: RunFlow.Event)
 		lobbyOptions = nil
 		RunDirector.RunStarted:Fire(players)
 	elseif event.kind == "RunEnded" then
+		MapService.clearNativeTerrain()
 		local results = event.results
 		-- Endless defeat can be recorded as Victory after wave 20; only a surviving team cleared this wave.
 		if results.outcome == "Victory" then
@@ -229,6 +231,7 @@ local function handle(event: RunFlow.Event)
 			completeWave(flow.wave)
 		end
 		if event.phase == "Running" and (event.previous == "Shop" or event.previous == "Countdown") then
+			MapService.clearNativeTerrain()
 			RunDirector.WaveStarting:Fire(flow.wave)
 			saveCheckpoints()
 		end

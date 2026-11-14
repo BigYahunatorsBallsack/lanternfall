@@ -1,0 +1,53 @@
+{
+  "referenceVersion": "1.2.0.2",
+  "scope": "Explicit server staging of native terrain descriptors; no area selection, automatic Jungle wave selection, original terrain graphics or Roblox player capsule collision enabled.",
+  "layout": "Original hole resource waves4/10/16, normal5/Old2/Explorer2 choices; exact map-size33 versus other nonzero rule, pixel positions plus(1,1), translated from arena minimum without rescaling.",
+  "interfaces": [
+    "JungleTerrain.build(zoneId,nativeWaveResource,mapSizePercent,bounds,pickIndex) returns frozen body shapes and separate forbidden circles.",
+    "MapService.setNativeTerrain/clearNativeTerrain/getNativeTerrain/getNativeObstacleShapes/getForbiddenCircles/sampleNativePoint and server NativeTerrainChanged signal.",
+    "EnemySim actor worlds refresh body/exclusion lists; native summon and area-group placement use exclusions; blocked births relocate through cached native grid.",
+    "CharmedWorld.new optional third projectile-obstacle list and separate copied shot parameters prevent actor capsules from affecting shots."
+  ],
+  "lifecycle": "Clear on real run start, next wave, run end and actual map-size changes; grid cache invalidated. Legacy circle getter preserved separately.",
+  "projectileSourceAudit": {
+    "enemyProjectileScene": "res://projectiles/bullet_enemy/enemy_projectile.tscn",
+    "enemyProjectileMd5": "936fb8e19c1a3dbccb65ad6f21725002",
+    "enemyHitboxLayer": 16,
+    "baseHitboxMask": 0,
+    "baseHitboxSource": "res://overlap/hitbox.tscn",
+    "baseHitboxMd5": "6222713c85e3dbf2298abd249a65bb01",
+    "holeLayer": 192,
+    "holeMask": 2754,
+    "note": "Hole excludes enemy projectile16 and friendly projectile1024 from its mask; their hitboxes do not detect hole body layers. Native body capsules are not injected into current enemy/friendly shot obstacle lists."
+  },
+  "focused": "NativeTerrainBridge6/0; seven other affected suites passed. Actual RunDirector/MapService/EnemySim lifecycle, ground/flying actors, valid sampled points and friendly shots checked.",
+  "mutation": "Reusing actor parameters for friendly shots fails the cross-capsule projectile test; original restored byte-for-byte.",
+  "fullSuite": {
+    "specs": 288,
+    "passed": 1782,
+    "failed": 36,
+    "previousSpecs": 287,
+    "previousPassed": 1775,
+    "previousFailed": 37,
+    "newFailureNames": [],
+    "knownGobblerPassedThisTime": true,
+    "gobblerFixClaimed": false,
+    "aborts": [],
+    "artifact": "build/native-five-branch-nine-terrain-bridge-4cf1050.json"
+  },
+  "checks": {
+    "stylua": true,
+    "seleneErrors": 0,
+    "existingWarnings": 18,
+    "rojo": true,
+    "studio": false
+  },
+  "zonePlayable": false,
+  "newCharacterReadyFlags": 0,
+  "codePreparedCharacters": 48,
+  "remaining": [
+    "Source-driven random movement goals over forbidden circles and original texture-half-size goal bounds.",
+    "Physical player/terrain rendering and native physics ordering; no automatic terrain activation while Jungle area remains incomplete.",
+    "Other Jungle families/evolution/bosses/waves/area route, full stable-game/Studio/device acceptance."
+  ]
+}

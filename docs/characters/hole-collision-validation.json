@@ -1,0 +1,49 @@
+{
+  "referenceVersion": "1.2.0.2",
+  "pckEngineVersion": [
+    3,
+    7,
+    0
+  ],
+  "sourceFacts": "Nine original hole layouts; native waves4/10/16; physical CapsuleShape2D(radius70,height70,rotation1.5708) separate from forbidden circle radius130. Godot3 capsule height is the center segment length.",
+  "engineSource": "https://github.com/godotengine/godot/blob/3.x/scene/resources/capsule_shape_2d.cpp",
+  "interfaces": [
+    "StaticShapes.Shape optionally adds unit axisX/axisZ and halfLength; existing circles retain their original World fast paths.",
+    "World obstacle steering, final push-out, explicit push and rush sweeps accept capsules.",
+    "Enemy.nativeObstacleCollision follows actual OBSTACLES_BIT, independently of is_flying; Charm resets it true for PETS_BIT + OBSTACLES_BIT."
+  ],
+  "layoutDataOnly": true,
+  "terrainActivated": false,
+  "zonePlayable": false,
+  "newCharacterReadyFlags": 0,
+  "codePreparedCharacters": 48,
+  "focused": "NativeHoleCollision7/0; six affected suites passed.",
+  "mutation": "Removing capsule center segments fails four focused tests; original module restored byte-for-byte.",
+  "fixedIntermediateRegression": "A rush endX/endZ declaration was inadvertently scoped inside the new mask guard during cleanup; focused tests exposed it, declaration restored outside guard before the full suite.",
+  "fullSuite": {
+    "specs": 286,
+    "passed": 1767,
+    "failed": 37,
+    "previousSpecs": 285,
+    "previousPassed": 1760,
+    "previousFailed": 37,
+    "newFailureNames": [],
+    "knownGobblerFluctuationIncluded": true,
+    "aborts": [],
+    "artifact": "build/native-five-branch-nine-hole-collision-4cf1050.json"
+  },
+  "checks": {
+    "stylua": true,
+    "seleneErrors": 0,
+    "existingWarnings": 18,
+    "rojo": true,
+    "sourceCompiler": true,
+    "studio": false
+  },
+  "remaining": [
+    "Native forbidden-circle point/grid sampling, five area retries and sequential push-out; separate from physical obstacles.",
+    "Actual MapService terrain lifecycle, original hole graphics/local asset prep and player collision; no holes or new area selected.",
+    "Audit projectile obstacle masks before passing capsule terrain to projectiles; native flying flag alone is not the collision policy.",
+    "Native body-center offsets/physics ordering, remaining Jungle families/evolution/bosses/waves/area route, full Studio/device acceptance."
+  ]
+}

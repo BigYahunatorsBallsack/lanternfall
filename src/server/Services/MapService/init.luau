@@ -15,6 +15,8 @@ local Config = require(ReplicatedStorage.Shared.Config)
 local Signal = require(ReplicatedStorage.Shared.Util.Signal)
 
 local MapRules = require(ReplicatedStorage.Shared.Util.MapRules)
+local JungleTerrain = require(ReplicatedStorage.Shared.Util.JungleTerrain)
+local NativeSampling = require(ReplicatedStorage.Shared.Util.NativeZoneSampling)
 
 local Decor = require(script.Decor)
 local MovementGuard = require(script.MovementGuard)
@@ -61,6 +63,10 @@ MapService.PortalTriggered = Signal.new()
 MapService.MovementCorrected = MovementGuard.Corrected
 -- (bounds: Bounds): the arena got a new size for a run (setArenaMapSize)
 MapService.ArenaResized = Signal.new()
+-- Server-only native body/exclusion changes; actor worlds refresh separately from projectile obstacles.
+MapService.NativeTerrainChanged = Signal.new()
+local nativeTerrain = JungleTerrain.empty()
+local nativeSampler: NativeSampling.Sampler? = nil
 -- Explicit placements are teleports, not physical walking; step effects discard their displacement.
 MapService.CharacterPlaced = Signal.new()
 
@@ -340,6 +346,48 @@ function MapService.getArenaBounds(): Bounds
 	return { center = Config.Map.arena.center, halfX = arenaWidth / 2, halfZ = arenaDepth / 2 }
 end
 
+local function nativeBounds(): NativeSampling.Rect
+	local bounds = MapService.getArenaBounds()
+	return {
+		minX = bounds.center.X - bounds.halfX,
+		maxX = bounds.center.X + bounds.halfX,
+		minZ = bounds.center.Z - bounds.halfZ,
+		maxZ = bounds.center.Z + bounds.halfZ,
+	}
+end
+
+-- Explicit server staging only. Area selection, original player collision and terrain graphics remain pending.
+function MapService.setNativeTerrain(
+	zoneId: number,
+	nativeWave: number,
+	mapSizePercent: number,
+	pickIndex: (number) -> number
+)
+	nativeTerrain = JungleTerrain.build(zoneId, nativeWave, mapSizePercent, nativeBounds(), pickIndex)
+	nativeSampler = nil
+	MapService.NativeTerrainChanged:Fire(nativeTerrain)
+end
+function MapService.clearNativeTerrain()
+	nativeTerrain = JungleTerrain.empty()
+	nativeSampler = nil
+	MapService.NativeTerrainChanged:Fire(nativeTerrain)
+end
+function MapService.getNativeTerrain(): JungleTerrain.Terrain
+	return nativeTerrain
+end
+function MapService.getNativeObstacleShapes()
+	return nativeTerrain.bodyShapes
+end
+function MapService.getForbiddenCircles(): { NativeSampling.Circle }
+	return nativeTerrain.forbiddenCircles
+end
+function MapService.sampleNativePoint(random: () -> number, pickIndex: (number) -> number): (number, number)
+	if not nativeSampler then
+		nativeSampler = NativeSampling.new(nativeBounds(), nativeTerrain.forbiddenCircles)
+	end
+	return nativeSampler:sample(random, pickIndex)
+end
+
 -- Resizes the arena for a run like Brotato's map-size effect (Util/MapRules): `percent` is the sum of every player's
 -- map_size effect (0 = the normal zone). Walls, floor, the dark ground around it and the movement check follow;
 -- ArenaResized tells EnemySim, SpawnDirector and BossService. Call it while no enemies are alive (run start/end).
@@ -348,6 +396,7 @@ function MapService.setArenaMapSize(percent: number)
 	if width == arenaWidth and depth == arenaDepth then
 		return
 	end
+	MapService.clearNativeTerrain()
 	arenaWidth, arenaDepth = width, depth
 	local arena = Config.Map.arena
 	local model = arenaModel

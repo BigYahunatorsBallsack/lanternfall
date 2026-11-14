@@ -13,6 +13,8 @@ local Config = require(Shared.Config)
 local EnemyStats = require(Shared.Util.EnemyStats)
 local RunSchedule = require(Shared.Util.RunSchedule)
 local Nightmare = require(Shared.Config.Nightmare)
+local GroupBirth = require(Shared.Config.GroupBirth)
+local NativeSampling = require(Shared.Util.NativeZoneSampling)
 
 export type Rect = { minX: number, maxX: number, minZ: number, maxZ: number }
 export type Circle = { x: number, z: number, radius: number }
@@ -239,13 +241,49 @@ function SpawnRules.edgePoint(random: () -> number, bounds: Rect): (number, numb
 	return bounds.maxX - inset, bounds.minZ + inset + along * (bounds.maxZ - bounds.minZ - 2 * inset) -- right
 end
 
+-- Native grouped births choose the left/right edge once, optionally level with a random participant.
+function SpawnRules.groupEdgePoint(
+	random: () -> number,
+	bounds: Rect,
+	groupX: number,
+	players: { Vector3 },
+	vertical: boolean?
+): (number, number)
+	local x = if groupX < (bounds.minX + bounds.maxX) / 2
+		then bounds.minX + SpawnRules.studs(Layout.edgeDistance)
+		else bounds.maxX - SpawnRules.studs(Layout.edgeDistance)
+	local z = bounds.minZ + random() * (bounds.maxZ - bounds.minZ)
+	if vertical and #players > 0 then
+		z = players[math.min(math.floor(random() * #players) + 1, #players)].Z
+	end
+	return x + (random() * 2 - 1) * SpawnRules.studs(GroupBirth.jitterXPoints),
+		z + (random() * 2 - 1) * SpawnRules.studs(GroupBirth.jitterZPoints)
+end
+
+function SpawnRules.groupBirthBlocked(x: number, z: number, players: { Vector3 }): boolean
+	local body = GroupBirth.playerBody
+	local reach = SpawnRules.studs(GroupBirth.radiusPoints + body.radiusPoints)
+	for _, player in players do
+		local dx = player.X + SpawnRules.studs(body.offsetPoints[1]) - x
+		local dz = player.Z + SpawnRules.studs(body.offsetPoints[2]) - z
+		if dx * dx + dz * dz <= reach * reach then
+			return true
+		end
+	end
+	return false
+end
+
 -- A random point in the square of side `area` studs around (x, z), the square pushed inside the arena first
 -- (edgeDistance from the walls; Brotato's random position in an area).
-function SpawnRules.inArea(random: () -> number, bounds: Rect, x: number, z: number, area: number): (number, number)
-	local inset = SpawnRules.studs(Layout.edgeDistance) + area / 2
-	local cx = math.clamp(x, bounds.minX + inset, math.max(bounds.minX + inset, bounds.maxX - inset))
-	local cz = math.clamp(z, bounds.minZ + inset, math.max(bounds.minZ + inset, bounds.maxZ - inset))
-	return cx + (random() - 0.5) * area, cz + (random() - 0.5) * area
+function SpawnRules.inArea(
+	random: () -> number,
+	bounds: Rect,
+	x: number,
+	z: number,
+	area: number,
+	forbiddenCircles: { NativeSampling.Circle }?
+): (number, number)
+	return NativeSampling.inArea(random, bounds, x, z, area, forbiddenCircles)
 end
 
 -- Where one enemy of `group` lands around the group's spot (gx, gz): at an edge, in its area or anywhere.
@@ -254,14 +292,15 @@ function SpawnRules.unitPoint(
 	bounds: Rect,
 	group: Group,
 	gx: number,
-	gz: number
+	gz: number,
+	forbiddenCircles: { NativeSampling.Circle }?
 ): (number, number)
 	if group.edge then
 		return SpawnRules.edgePoint(random, bounds)
 	elseif group.area < 0 then
 		return SpawnRules.anywhere(random, bounds, SpawnRules.studs(group.edgeMargin))
 	end
-	return SpawnRules.inArea(random, bounds, gx, gz, SpawnRules.studs(group.area))
+	return SpawnRules.inArea(random, bounds, gx, gz, SpawnRules.studs(group.area), forbiddenCircles)
 end
 
 -- Brotato's "away from players" loop: draws new points while the closest player is nearer than the required
@@ -309,10 +348,11 @@ function SpawnRules.enemyPoint(
 	unit: Unit,
 	gx: number,
 	gz: number,
-	players: { Vector3 }
+	players: { Vector3 },
+	forbiddenCircles: { NativeSampling.Circle }?
 ): (number, number)
 	local function draw()
-		return SpawnRules.unitPoint(random, bounds, group, gx, gz)
+		return SpawnRules.unitPoint(random, bounds, group, gx, gz, forbiddenCircles)
 	end
 	local x, z = draw()
 	return awayFromPlayers(players, x, z, math.floor(Layout.minPlayerDistance + unit.extraDistance), draw)

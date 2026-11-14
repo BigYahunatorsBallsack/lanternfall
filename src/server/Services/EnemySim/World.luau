@@ -39,12 +39,20 @@ local ShootingClock = require(Shared.Util.NativeEnemyShootingClock)
 local Combat = require(Shared.Config.Combat)
 local PointScale = require(Shared.Config.Stats).range.studsPerPoint
 local DecayingSpeed = require(script.Parent.DecayingSpeed)
+local NativePursuer = require(script.Parent.NativePursuer)
+local EntryHealing = require(script.Parent.NativeEntryHealing)
+local NativeMovement = require(script.Parent.NativeMovement)
+local NativeCharge = require(script.Parent.NativeStraightCharge)
 local SpatialHash = require(Shared.Util.SpatialHash)
 local SegmentCircle = require(Shared.Util.SegmentCircle)
+local StaticShapes = require(Shared.Util.StaticShapes)
+local Body = require(Shared.Util.NativeBodyGeometry)
+local Hurt = require(Shared.Util.NativeHurtGeometry)
+local Hit = require(Shared.Util.NativeHitGeometry)
 local circleEntry = SegmentCircle.entry
 
 export type Kind = Enemies.Enemy
-export type Circle = { x: number, z: number, radius: number }
+export type Circle = StaticShapes.Shape
 
 export type Params = {
 	cellSize: number,
@@ -60,7 +68,10 @@ export type Params = {
 	minZ: number,
 	maxZ: number,
 	obstacles: { Circle },
+	forbiddenCircles: { { x: number, z: number, radius: number } }?, -- native spawn exclusion zones, independent of physical capsule obstacles
 	allocateId: (() -> number)?,
+	referencePlayerSpeed: ((number?, number?, number?) -> number?)?, -- target player index, or fastest living player when nil
+	nativeChargeAccessibility: (() -> number)?, -- source charge bonus uses only the current run accessibility speed slider
 	goalsWithoutTargets: boolean?,
 	collideTargets: boolean?, -- false for native pet bodies, which collide only with pets and obstacles
 	seed: number?, -- for the wander points (kind.wander) and keep-distance jitter; tests pass one
@@ -94,6 +105,8 @@ export type World = typeof(setmetatable(
 		typeIds: { number },
 		xs: { number },
 		zs: { number },
+		moveInputXs: { number },
+		moveInputZs: { number },
 		hp: { number },
 		maxHp: { number },
 		contactDamage: { number }, -- damage per touch
@@ -112,6 +125,9 @@ export type World = typeof(setmetatable(
 		speedBonuses: { number },
 		speedFactors: { number }, -- multiplier on its kind's speed from spawning (the team's Enemy Speed stat, B9)
 		boosts: { number }, -- multiplier on its speed from accelerating (kind.accelerate), 1 otherwise (B9)
+		pursuers: { NativePursuer.State? },
+		nativeCharges: { NativeCharge.State? },
+		nativeSpawnClocks: { ShootingClock.State? },
 		boostClocks: { number }, -- seconds towards its next accelerate step
 		zoneMembers: { [number]: { [number]: boolean } }, -- by Mender id: ids of the enemies in its radius (pulse.onEnter)
 		buffed: { boolean }, -- a Herald made it stronger (once per enemy, shown in snapshots; B9)
@@ -133,11 +149,14 @@ export type World = typeof(setmetatable(
 		columns: { { any } }, -- every per-enemy array above, for compacting and clearing
 		indexOf: { [number]: number }, -- id -> array index
 		nextId: number,
-		maxRadius: number, -- largest enemy radius seen, widens neighbour queries
+		maxRadius: number, -- conservative root-based collider extent, including physical body offsets
+		maxColliderRadius: number, -- original circle-radius bound for the internal body-center hash
 		maxSpeed: number, -- fastest enemy speed seen, widens neighbour queries while enemies move
 		hash: SpatialHash.SpatialHash,
 		scratch: { number }, -- query results inside step()
 		queryScratch: { number }, -- query results for callers between steps
+		bodyXs: { number }, -- transient physical-center scratch, rebuilt for separation (not persistent actor columns)
+		bodyZs: { number },
 		contacts: { number },
 		-- shots of the last step, flat: enemy id, x, z, target index, damage per shot
 		shots: { number },
@@ -182,6 +201,8 @@ function World.new(params: Params): World
 		typeIds = {},
 		xs = {},
 		zs = {},
+		moveInputXs = {},
+		moveInputZs = {},
 		hp = {},
 		maxHp = {},
 		contactDamage = {},
@@ -199,6 +220,9 @@ function World.new(params: Params): World
 		speedFactors = {},
 		speedBonuses = {},
 		boosts = {},
+		pursuers = {},
+		nativeCharges = {},
+		nativeSpawnClocks = {},
 		boostClocks = {},
 		zoneMembers = {},
 		buffed = {},
@@ -221,10 +245,13 @@ function World.new(params: Params): World
 		indexOf = {},
 		nextId = 0,
 		maxRadius = 0,
+		maxColliderRadius = 0,
 		maxSpeed = 0,
 		hash = SpatialHash.new(params.cellSize),
 		scratch = {},
 		queryScratch = {},
+		bodyXs = {},
+		bodyZs = {},
 		contacts = {},
 		shots = {},
 		shotCount = 0,
@@ -241,6 +268,8 @@ function World.new(params: Params): World
 		self.typeIds,
 		self.xs,
 		self.zs,
+		self.moveInputXs,
+		self.moveInputZs,
 		self.hp,
 		self.maxHp,
 		self.contactDamage,
@@ -258,6 +287,9 @@ function World.new(params: Params): World
 		self.speedFactors,
 		self.speedBonuses,
 		self.boosts,
+		self.pursuers,
+		self.nativeCharges,
+		self.nativeSpawnClocks,
 		self.boostClocks,
 		self.buffed,
 		self.abilityTimers,
@@ -328,7 +360,7 @@ function World.spawn(
 	self.zs[i] = z
 	self.hp[i] = hp
 	self.maxHp[i] = hp
-	self.contactDamage[i] = contactDamage
+	self.contactDamage[i] = if kind.pursuer then math.round(contactDamage) else contactDamage
 	local ranged = kind.ranged
 	local spread = (id * GOLDEN_RATIO) % 1 -- so a group spawned together does not act in sync
 	self.shotDamage[i] = shotDamage or World.baseShotDamage(kind)
@@ -336,6 +368,16 @@ function World.spawn(
 	self.shotCooldown[i] = if ranged then ranged.fireInterval * spread else 0
 	self.shootingClocks[i] = if ranged and ranged.nativeTiming
 		then ShootingClock.new(ranged.nativeTiming, function()
+			return nextRandom(self)
+		end)
+		else nil
+	self.nativeSpawnClocks[i] = if kind.nativeSpawn
+		then ShootingClock.new(kind.nativeSpawn.timing, function()
+			return nextRandom(self)
+		end)
+		else nil
+	self.nativeCharges[i] = if kind.nativeCharge
+		then NativeCharge.new(kind.nativeCharge, kind.mass, function()
 			return nextRandom(self)
 		end)
 		else nil
@@ -352,8 +394,14 @@ function World.spawn(
 	local speed = math.max(0, speedFactor or 1)
 	self.speedFactors[i] = speed
 	self.speedBonuses[i] = 0
+	self.moveInputXs[i], self.moveInputZs[i] = 0, 0
 	self.boosts[i], self.buffed[i], self.hasGoal[i] = 1, false, false
 	self.boostClocks[i] = 0
+	self.pursuers[i] = if kind.pursuer then NativePursuer.new(contactDamage) else nil
+	local pursuer = self.pursuers[i]
+	if pursuer and self.params.referencePlayerSpeed then
+		pursuer.referenceSpeed = self.params.referencePlayerSpeed(nil, x, z)
+	end
 	self.zoneMembers[id] = nil
 	self.goalXs[i], self.goalZs[i] = 0, 0
 	local wander = kind.wander
@@ -369,6 +417,9 @@ function World.spawn(
 		elseif ranged then ranged.keepDistance
 		else 0
 	self.keeps[i] = keep + (nextRandom(self) * 2 - 1) * jitter
+	if kind.nativeMovement and wander and (wander.around == "Target" or wander.around == "Offset") then
+		self.keeps[i] = math.modf(self.keeps[i] / PointScale) * PointScale
+	end
 	self.wanderXs[i], self.wanderZs[i], self.wanderLeft[i] = x, z, 0
 	if wander and wander.around == "Offset" then
 		-- Brotato's FollowRandPosAroundPlayer: one offset from the target for its whole life, anywhere in the square
@@ -389,7 +440,8 @@ function World.spawn(
 		elseif kind.hatch then kind.hatch.seconds
 		else 0
 	self.indexOf[id] = i
-	self.maxRadius = math.max(self.maxRadius, kind.radius, kind.hurtRadius or 0, kind.hitRadius or 0)
+	self.maxColliderRadius = math.max(self.maxColliderRadius, kind.radius, kind.hurtRadius or 0, kind.hitRadius or 0)
+	self.maxRadius = math.max(self.maxRadius, Body.extent(kind), Hurt.extent(kind), Hit.extent(kind))
 	self.maxSpeed = math.max(self.maxSpeed, kind.speed * speed)
 	self.hash:insert(i, x, z) -- visible to queries right away
 	return id
@@ -487,6 +539,8 @@ function World.clear(self: World)
 	table.clear(self.indexOf)
 	table.clear(self.shots)
 	table.clear(self.summons)
+	table.clear(self.bodyXs)
+	table.clear(self.bodyZs)
 	self.shotCount = 0
 	self.summonCount = 0
 	self.count = 0
@@ -552,6 +606,15 @@ function World.getPosition(self: World, id: number): (number?, number?)
 	return self.xs[i], self.zs[i]
 end
 
+-- Steering intent before obstacle/crowd corrections and knockback, for native anticipated targets.
+function World.getMoveInput(self: World, id: number): (number, number)
+	local i = self.indexOf[id]
+	if not i or self.hp[i] <= 0 then
+		return 0, 0
+	end
+	return self.moveInputXs[i], self.moveInputZs[i]
+end
+
 -- Returns hp and max hp.
 function World.getHealth(self: World, id: number): (number, number)
 	local i = self.indexOf[id]
@@ -592,6 +655,13 @@ function World.setMode(self: World, id: number, mode: number, rushX: number?, ru
 	end
 end
 
+-- The original deflection window follows its own cooldown; rush/recovery mode alone does not determine it.
+function World.isProjectileDeflecting(self: World, id: number): boolean
+	local index = self.indexOf[id]
+	local state = if index and self.hp[index] > 0 then self.nativeCharges[index] else nil
+	return state ~= nil and state.deflecting == true
+end
+
 -- The enemy's mode (World.MODE_*) and its rush direction (only meaningful from the wind-up on).
 function World.getMode(self: World, id: number): (number, number, number)
 	local i = self.indexOf[id]
@@ -599,6 +669,17 @@ function World.getMode(self: World, id: number): (number, number, number)
 		return MODE_WALK, 0, 0
 	end
 	return self.modes[i], self.rushXs[i], self.rushZs[i]
+end
+
+-- Live hurt geometry also remains readable for enemies killed since the last compact, like getPosition.
+function World.getHurtGeometry(self: World, id: number): (number?, number?, number?)
+	local i = self.indexOf[id]
+	if not i then
+		return nil, nil, nil
+	end
+	local kind = self.kinds[i]
+	local x, z = Hurt.center(kind, self.xs[i], self.zs[i])
+	return x, z, kind.hurtRadius or kind.radius
 end
 
 -- Ids of living enemies whose circle overlaps the circle (x, z, radius), written to out[1 .. n]; returns n.
@@ -611,7 +692,8 @@ function World.queryRadius(self: World, x: number, z: number, radius: number, ou
 		local i = scratch[s]
 		if hp[i] > 0 then
 			local reach = radius + (kinds[i].hurtRadius or kinds[i].radius) -- Brotato's Hurtbox
-			local dx, dz = xs[i] - x, zs[i] - z
+			local hx, hz = Hurt.center(kinds[i], xs[i], zs[i])
+			local dx, dz = hx - x, hz - z
 			if dx * dx + dz * dz <= reach * reach then
 				count += 1
 				out[count] = ids[i]
@@ -642,7 +724,8 @@ function World.querySegment(
 	for s = 1, found do
 		local i = scratch[s]
 		if hp[i] > 0 then
-			local px, pz = xs[i] - x0, zs[i] - z0
+			local hx, hz = Hurt.center(kinds[i], xs[i], zs[i])
+			local px, pz = hx - x0, hz - z0
 			local t = if lengthSquared > EPSILON then math.clamp((px * sx + pz * sz) / lengthSquared, 0, 1) else 0
 			local dx, dz = px - sx * t, pz - sz * t
 			local reach = radius + (kinds[i].hurtRadius or kinds[i].radius) -- Brotato's Hurtbox
@@ -715,7 +798,11 @@ local function slideAroundObstacles(
 	side: number
 ): (number, number)
 	for _, obstacle in obstacles do
-		local nx, nz = x - obstacle.x, z - obstacle.z
+		local cx, cz = obstacle.x, obstacle.z
+		if obstacle.halfLength then
+			cx, cz = StaticShapes.closest(x, z, obstacle)
+		end
+		local nx, nz = x - cx, z - cz
 		local distance = math.sqrt(nx * nx + nz * nz)
 		if distance < obstacle.radius + reach and distance > EPSILON then
 			nx, nz = nx / distance, nz / distance
@@ -762,6 +849,13 @@ local function pushOut(
 	return cx + math.cos(angle) * minDistance, cz + math.sin(angle) * minDistance
 end
 
+local function pushOutObstacle(x: number, z: number, obstacle: Circle, radius: number, seed: number): (number, number)
+	if obstacle.halfLength then
+		return StaticShapes.pushOut(x, z, obstacle, radius, seed)
+	end
+	return pushOut(x, z, obstacle.x, obstacle.z, obstacle.radius + radius, seed)
+end
+
 -- How much of a knockback reaches the enemy (since B5 Brotato's knockback resistance): 1 - knockbackResistance if
 -- the kind sets it, else 1 / mass above 1, so heavy enemies barely budge.
 function World.knockbackShare(kind: Kind): number
@@ -783,12 +877,14 @@ function World.push(self: World, id: number, dx: number, dz: number)
 	local kind = self.kinds[i]
 	local scale = World.knockbackShare(kind)
 	local radius = kind.radius
-	local x, z = self.xs[i] + dx * scale, self.zs[i] + dz * scale
-	for _, obstacle in p.obstacles do
-		x, z = pushOut(x, z, obstacle.x, obstacle.z, obstacle.radius + radius, id)
+	local x, z = Body.center(kind, self.xs[i] + dx * scale, self.zs[i] + dz * scale)
+	if kind.nativeObstacleCollision ~= false then
+		for _, obstacle in p.obstacles do
+			x, z = pushOutObstacle(x, z, obstacle, radius, id)
+		end
 	end
-	self.xs[i] = math.clamp(x, p.minX + radius, p.maxX - radius)
-	self.zs[i] = math.clamp(z, p.minZ + radius, p.maxZ - radius)
+	x, z = Body.origin(kind, x, z)
+	self.xs[i], self.zs[i] = NativeMovement.clampPosition(p, kind, x, z)
 end
 
 -- Knockback like Brotato (Unit.take_damage, Config.Combat.knockback): sets the enemy's knockback vector to (dx, dz),
@@ -816,9 +912,17 @@ function World.getKnockback(self: World, id: number): (number, number)
 	return self.knockXs[i], self.knockZs[i]
 end
 
+-- Cap the base before additive native penalties; a stationary player still has a stat move speed.
+local function baseMoveSpeed(self: World, i: number): number
+	local speed = self.kinds[i].speed * self.speedFactors[i] * self.boosts[i] + self.speedBonuses[i]
+	local rule = self.kinds[i].pursuer
+	local state = self.pursuers[i]
+	return if rule and state then NativePursuer.cap(rule, state, speed) else speed
+end
+
 -- Stable Unit speed penalties are additive in original points, hold independently, then recover at the source rate.
 local function nativeSpeedFactor(self: World, i: number): number
-	local points = (self.kinds[i].speed * self.speedFactors[i] * self.boosts[i] + self.speedBonuses[i]) / PointScale
+	local points = baseMoveSpeed(self, i) / PointScale
 	return self.nativeSlows:factor(self.ids[i], points)
 end
 function World.nativeSlow(self: World, id: number, amount: number, percent: boolean, hold: number)
@@ -827,7 +931,9 @@ function World.nativeSlow(self: World, id: number, amount: number, percent: bool
 		return
 	end
 	local points = self.kinds[i].speed * self.speedFactors[i] * self.boosts[i] / PointScale
-	self.nativeSlows:add(id, points, if percent then points * amount / 100 else amount, hold)
+	-- Unit.add_decaying_speed clamps and diminishes against current_stats.speed, even when Baby T-Rex caps movement.
+	local percentBase = if self.pursuers[i] then math.floor(baseMoveSpeed(self, i) / PointScale) else points
+	self.nativeSlows:add(id, points, if percent then percentBase * amount / 100 else amount, hold)
 end
 
 -- Slows a living enemy to `factor` (0..1) of its speed for `seconds` (B5). Slows do not stack: the stronger one wins,
@@ -900,33 +1006,42 @@ end
 
 -- Sweeps the whole rush segment and stops at its first collision. A fast enemy cannot jump through a player
 -- or a thin obstacle between ticks; step 5 checks the travelled path even if crowd separation moves it afterward.
-local function rushStep(self: World, i: number, charge: Enemies.Charge, dt: number)
+local function rushStep(self: World, i: number, charge: Enemies.Charge?, dt: number)
 	local p = self.params
 	local radius = self.kinds[i].radius
-	local move = math.min(
-		(charge.speed * self.speedFactors[i] + self.speedBonuses[i])
+	local native = self.kinds[i].nativeCharge
+	local speed = if native
+		then (self.kinds[i].speed * self.speedFactors[i] * self.boosts[i] + assert(self.nativeCharges[i]).bonus)
 			* self.slowFactors[i]
-			* nativeSpeedFactor(self, i)
-			* dt,
-		self.rushLeft[i]
-	)
+		else (assert(charge).speed * self.speedFactors[i] + self.speedBonuses[i]) * self.slowFactors[i]
+	speed *= if native then self.nativeSlows:factor(self.ids[i], speed / PointScale) else nativeSpeedFactor(self, i)
+	local move = if native then speed * dt else math.min(speed * dt, self.rushLeft[i])
 	local x, z = self.xs[i], self.zs[i]
+	local bx, bz = Body.center(self.kinds[i], x, z)
 	local dx, dz = self.rushXs[i], self.rushZs[i]
+	self.moveInputXs[i], self.moveInputZs[i] = dx * speed, dz * speed
 	local stopAt: number? = nil
-	for _, obstacle in p.obstacles do
-		local entry = circleEntry(x, z, dx, dz, move, obstacle.x, obstacle.z, obstacle.radius + radius)
-		if entry and entry < (stopAt or math.huge) then
-			stopAt = entry
+	if self.kinds[i].nativeObstacleCollision ~= false then
+		for _, obstacle in p.obstacles do
+			local entry = if obstacle.halfLength
+				then StaticShapes.entry(bx, bz, dx, dz, move, obstacle, radius)
+				else circleEntry(bx, bz, dx, dz, move, obstacle.x, obstacle.z, obstacle.radius + radius)
+			if entry and entry < (stopAt or math.huge) then
+				stopAt = entry
+			end
 		end
 	end
 	local endX, endZ = x + dx * move, z + dz * move
-	if math.abs(dx) > EPSILON and (endX < p.minX + radius or endX > p.maxX - radius) then
-		local edge = if dx < 0 then p.minX + radius else p.maxX - radius
-		stopAt = math.min(stopAt or move, math.max(0, (edge - x) / dx))
-	end
-	if math.abs(dz) > EPSILON and (endZ < p.minZ + radius or endZ > p.maxZ - radius) then
-		local edge = if dz < 0 then p.minZ + radius else p.maxZ - radius
-		stopAt = math.min(stopAt or move, math.max(0, (edge - z) / dz))
+	local margin = NativeMovement.borderMargin(self.kinds[i])
+	if margin then
+		if math.abs(dx) > EPSILON and (endX < p.minX + margin or endX > p.maxX - margin) then
+			local edge = if dx < 0 then p.minX + margin else p.maxX - margin
+			stopAt = math.min(stopAt or move, math.max(0, (edge - x) / dx))
+		end
+		if math.abs(dz) > EPSILON and (endZ < p.minZ + margin or endZ > p.maxZ - margin) then
+			local edge = if dz < 0 then p.minZ + margin else p.maxZ - margin
+			stopAt = math.min(stopAt or move, math.max(0, (edge - z) / dz))
+		end
 	end
 	-- Players do not stop a rush (Brotato: enemies do not collide with players); step 5 hurts everyone along the path.
 
@@ -939,9 +1054,9 @@ local function rushStep(self: World, i: number, charge: Enemies.Charge, dt: numb
 	self.xs[i], self.zs[i] = endX, endZ
 	local left = self.rushLeft[i] - travelled
 	self.rushLeft[i] = left
-	if stopAt or left <= EPSILON then
+	if not native and (stopAt or left <= EPSILON) then
 		self.modes[i] = MODE_RECOVER
-		self.modeTimers[i] = charge.recoverSeconds
+		self.modeTimers[i] = assert(charge).recoverSeconds
 	end
 end
 
@@ -1026,6 +1141,14 @@ end
 -- shuffles its zone). A Mender with onEnter heals each hurt enemy once when it comes into its radius (Brotato's Healer
 -- BoostZone body_entered); returns true if it healed one.
 local function pulseAt(self: World, i: number, pulse: Enemies.Pulse): boolean
+	if pulse.nativeEnemyEntry then
+		local id = self.ids[i]
+		local inside, healed =
+			EntryHealing.step(self, id, self.waves[i], self.xs[i], self.zs[i], pulse, self.zoneMembers[id])
+		self.zoneMembers[id] = inside
+		return healed
+	end
+
 	local xs, zs, hp, maxHp, kinds = self.xs, self.zs, self.hp, self.maxHp, self.kinds
 	local scratch = self.scratch
 	local found = self.hash:query(xs[i], zs[i], pulse.radius + self.maxRadius, scratch)
@@ -1037,7 +1160,8 @@ local function pulseAt(self: World, i: number, pulse: Enemies.Pulse): boolean
 		local j = scratch[s]
 		if j ~= i and hp[j] > 0 then
 			local reach = pulse.radius + kinds[j].radius
-			local dx, dz = xs[j] - xs[i], zs[j] - zs[i]
+			local bx, bz = Body.center(kinds[j], xs[j], zs[j])
+			local dx, dz = bx - xs[i], bz - zs[i]
 			if dx * dx + dz * dz <= reach * reach then
 				if inside then
 					inside[self.ids[j]] = true
@@ -1099,8 +1223,8 @@ local function pulseAt(self: World, i: number, pulse: Enemies.Pulse): boolean
 	return healed
 end
 
-local function rebuildHash(self: World)
-	local hash, xs, zs = self.hash, self.xs, self.zs
+local function rebuildHash(self: World, positionsX: { number }?, positionsZ: { number }?)
+	local hash, xs, zs = self.hash, positionsX or self.xs, positionsZ or self.zs
 	hash:clear()
 	for i = 1, self.count do
 		hash:insert(i, xs[i], zs[i])
@@ -1127,28 +1251,39 @@ local function wanderStep(
 	end
 	local left = self.wanderLeft[i] - dt
 	local arrive = wander.arriveStuds
-	if left <= 0 or (wx - x) ^ 2 + (wz - z) ^ 2 <= arrive * arrive then
-		local radius = self.kinds[i].radius
-		for _ = 1, 8 do
-			if wander.around == "Target" then
-				local range = self.keeps[i]
-				wx = tx + (nextRandom(self) * 2 - 1) * range
-				wz = tz + (nextRandom(self) * 2 - 1) * range
-			else
-				wx = p.minX + nextRandom(self) * (p.maxX - p.minX)
-				wz = p.minZ + nextRandom(self) * (p.maxZ - p.minZ)
-			end
-			wx = math.clamp(wx, p.minX + radius, p.maxX - radius)
-			wz = math.clamp(wz, p.minZ + radius, p.maxZ - radius)
-			local blocked = false
-			for _, circle in p.obstacles do
-				if (wx - circle.x) ^ 2 + (wz - circle.z) ^ 2 < (circle.radius + radius) ^ 2 then
-					blocked = true
+	local kind = self.kinds[i]
+	if left <= 0 or (kind.nativeMovement and wx == 0 and wz == 0) or (wx - x) ^ 2 + (wz - z) ^ 2 <= arrive * arrive then
+		if kind.nativeMovement then
+			wx, wz = NativeMovement.goal(p, kind, wander, self.keeps[i], tx, tz, p.forbiddenCircles, function()
+				return nextRandom(self)
+			end)
+		else
+			local radius = self.kinds[i].radius
+			for _ = 1, 8 do
+				if wander.around == "Target" then
+					local range = self.keeps[i]
+					wx = tx + (nextRandom(self) * 2 - 1) * range
+					wz = tz + (nextRandom(self) * 2 - 1) * range
+				else
+					wx = p.minX + nextRandom(self) * (p.maxX - p.minX)
+					wz = p.minZ + nextRandom(self) * (p.maxZ - p.minZ)
+				end
+				wx = math.clamp(wx, p.minX + radius, p.maxX - radius)
+				wz = math.clamp(wz, p.minZ + radius, p.maxZ - radius)
+				local blocked = false
+				for _, circle in p.obstacles do
+					local cx, cz = circle.x, circle.z
+					if circle.halfLength then
+						cx, cz = StaticShapes.closest(wx, wz, circle)
+					end
+					if (wx - cx) ^ 2 + (wz - cz) ^ 2 < (circle.radius + radius) ^ 2 then
+						blocked = true
+						break
+					end
+				end
+				if not blocked then
 					break
 				end
-			end
-			if not blocked then
-				break
 			end
 		end
 		self.wanderXs[i], self.wanderZs[i] = wx, wz
@@ -1170,7 +1305,11 @@ function World.step(
 	targetCount: number,
 	contactXs: { number }?,
 	contactZs: { number }?,
-	targetRadii: { number }?
+	targetRadii: { number }?,
+	targetInputXs: { number }?,
+	targetInputZs: { number }?,
+	targetDirectionXs: { number }?,
+	targetDirectionZs: { number }?
 ): { number }
 	if compact(self) then
 		rebuildHash(self)
@@ -1186,6 +1325,34 @@ function World.step(
 	table.clear(self.strikers)
 	table.clear(self.rushes)
 
+	-- Native Timer runs independently of target availability. Only two boosts can allocate a grown kind.
+	for i = 1, count do
+		local rule = kinds[i].pursuer
+		local state = self.pursuers[i]
+		if rule and state then
+			local grown, speed, damage = NativePursuer.step(rule, state, kinds[i], dt)
+			if grown then
+				kinds[i] = grown
+				self.speedBonuses[i] += speed
+				self.contactDamage[i] = damage or self.contactDamage[i]
+				self.maxColliderRadius =
+					math.max(self.maxColliderRadius, grown.radius, grown.hurtRadius or 0, grown.hitRadius or 0)
+				self.maxRadius = math.max(self.maxRadius, Body.extent(grown), Hurt.extent(grown), Hit.extent(grown))
+				self.maxSpeed = math.max(self.maxSpeed, grown.speed * self.speedFactors[i] + self.speedBonuses[i])
+			end
+			local bestTarget: number? = nil
+			local bestSquared = math.huge
+			for t = 1, targetCount do
+				local squared = (targetXs[t] - xs[i]) ^ 2 + (targetZs[t] - zs[i]) ^ 2
+				if squared < bestSquared then
+					bestSquared, bestTarget = squared, t
+				end
+			end
+			state.referenceSpeed = if p.referencePlayerSpeed then p.referencePlayerSpeed(bestTarget) else nil
+		end
+	end
+	maxRadius = self.maxRadius
+
 	-- 1b. knockback glide (Brotato: each 60 Hz frame the vector shrinks to `decay` of itself, then moves the enemy by
 	-- vector x speedPerPoint x share px/s); frames = dt x frameRate, summed as a geometric series
 	local knock = Combat.knockback
@@ -1198,6 +1365,7 @@ function World.step(
 	local knockXs, knockZs, knocked = self.knockXs, self.knockZs, self.knocked
 	for i = 1, count do
 		local kx, kz = knockXs[i], knockZs[i]
+		self.moveInputXs[i], self.moveInputZs[i] = 0, 0
 		if kx == 0 and kz == 0 then
 			knocked[i] = false
 			continue
@@ -1209,12 +1377,66 @@ function World.step(
 		kx, kz = kx * decayed, kz * decayed
 		local length = math.sqrt(kx * kx + kz * kz)
 		-- the hitbox stays off while the push is faster than the enemy walks (Enemy._physics_process)
-		local walk = kind.speed * self.speedFactors[i] * self.boosts[i] * self.slowFactors[i]
+		local walk = (
+			if kind.pursuer then baseMoveSpeed(self, i) else kind.speed * self.speedFactors[i] * self.boosts[i]
+		) * self.slowFactors[i]
 		knocked[i] = share > 0 and length * knock.speedPerPoint * share > walk
 		if length < stopBelow then
 			kx, kz = 0, 0
 		end
 		knockXs[i], knockZs[i] = kx, kz
+	end
+
+	-- Native charge clocks run even after the last target disappears; mass/bonus changes survive column transfers.
+	for i = 1, count do
+		local kind = kinds[i]
+		local rule, state = kind.nativeCharge, self.nativeCharges[i]
+		if not rule or not state then
+			continue
+		end
+		local dx, dz, best, nearest = 0, 0, math.huge, 0
+		for t = 1, targetCount do
+			local x, z = targetXs[t] - xs[i], targetZs[t] - zs[i]
+			local squared = x * x + z * z
+			if squared < best then
+				dx, dz, best, nearest = x, z, squared, t
+			end
+		end
+		local movementXs, movementZs = targetDirectionXs or targetInputXs, targetDirectionZs or targetInputZs
+		local changed = NativeCharge.step(
+			state,
+			rule,
+			dt,
+			dx,
+			dz,
+			targetCount > 0,
+			function()
+				return nextRandom(self)
+			end,
+			if p.nativeChargeAccessibility then p.nativeChargeAccessibility() else 1,
+			if movementXs and nearest > 0 then movementXs[nearest] else 0,
+			if movementZs and nearest > 0 then movementZs[nearest] else 0
+		)
+		if changed then
+			self.speedBonuses[i] = if state.stage == "Rush" then state.bonus else 0
+		end
+		local mass = state.originalMass
+			* (if state.stage == "Windup" or state.stage == "Rush" then rule.massMultiplier else 1)
+		if kind.mass ~= mass then
+			local adjusted = table.clone(kind)
+			adjusted.mass = mass
+			kinds[i] = adjusted
+		end
+		self.modes[i] = if state.stage == "Windup"
+			then MODE_WINDUP
+			elseif state.stage == "Rush" then MODE_RUSH
+			elseif state.stage == "Recover" then MODE_RECOVER
+			else MODE_WALK
+		if state.rushDt > 0 then
+			self.rushXs[i], self.rushZs[i], self.rushLeft[i] = state.direction, state.directionZ, math.huge
+			rushStep(self, i, nil, state.rushDt)
+		end
+		self.maxSpeed = math.max(self.maxSpeed, kind.speed * self.speedFactors[i] * self.boosts[i] + state.bonus)
 	end
 
 	-- 2. steering
@@ -1226,6 +1448,10 @@ function World.step(
 		for i = 1, count do
 			local kind = kinds[i]
 			if targetCount == 0 and not self.hasGoal[i] and not kind.wander then
+				continue
+			end
+			local nativeChargeState = self.nativeCharges[i]
+			if nativeChargeState and nativeChargeState.walkDt <= 0 then
 				continue
 			end
 			local x, z = xs[i], zs[i]
@@ -1272,15 +1498,24 @@ function World.step(
 			elseif wander then
 				bestDx, bestDz = wanderStep(self, i, wander, dt, x + bestDx, z + bestDz)
 				distance = math.sqrt(bestDx * bestDx + bestDz * bestDz)
+			elseif kind.anticipate then
+				local rule = kind.anticipate
+				bestDx += (if targetInputXs then targetInputXs[bestTarget] or 0 else 0) * rule.seconds
+				if not rule.horizontalOnly then
+					bestDz += (if targetInputZs then targetInputZs[bestTarget] or 0 else 0) * rule.seconds
+				end
+				distance = math.sqrt(bestDx * bestDx + bestDz * bestDz)
+			end
+			if kind.nativeFollowXShare then
+				bestDx *= kind.nativeFollowXShare
+				distance = math.sqrt(bestDx * bestDx + bestDz * bestDz)
 			end
 			if distance <= EPSILON or kind.anchored then
 				continue
 			end
 			local radius = kind.radius
-			local maxMove = (kind.speed * self.speedFactors[i] * self.boosts[i] + self.speedBonuses[i])
-				* self.slowFactors[i]
-				* nativeSpeedFactor(self, i)
-				* dt
+			local moveDt = if nativeChargeState then nativeChargeState.walkDt else dt
+			local maxMove = baseMoveSpeed(self, i) * self.slowFactors[i] * nativeSpeedFactor(self, i) * moveDt
 			local dirX, dirZ = bestDx / distance, bestDz / distance
 			local advance
 			local ranged = kind.ranged
@@ -1289,7 +1524,10 @@ function World.step(
 				advance = math.min(maxMove, distance)
 			elseif kind.stayInRange then
 				-- Brotato's StayInRangeFromPlayer: walks to the spot at its range on the line from the target
-				advance = math.clamp(distance - self.keeps[i], -maxMove, maxMove)
+				advance = if kind.nativeMovement
+						and math.abs(distance - self.keeps[i]) <= kind.nativeMovement.precision
+					then 0
+					else math.clamp(distance - self.keeps[i], -maxMove, maxMove)
 			elseif flee and (flee.range == nil or distance < flee.range) then
 				dirX, dirZ = fleeDirection(p, x, z, bestDx, bestDz, distance, flee.edgeMargin)
 				advance = maxMove
@@ -1303,27 +1541,34 @@ function World.step(
 					advance = 0
 				end
 			else
-				local stopAt = if p.collideTargets == false
+				local stopAt = if not NativeMovement.collidesTargets(p.collideTargets, kind)
 					then 0
 					else (kind.hitRadius or radius) + (if targetRadii
 						then targetRadii[bestTarget]
 						else playerRadius)
 				advance = math.min(maxMove, math.max(0, distance - stopAt))
 			end
+			local inputSpeed = if moveDt > 0 then maxMove / moveDt else 0
+			local sign = if advance < 0 then -1 elseif advance > 0 or not (ranged or kind.stayInRange) then 1 else 0
+			self.moveInputXs[i], self.moveInputZs[i] = dirX * inputSpeed * sign, dirZ * inputSpeed * sign
 			if advance == 0 then
 				continue
 			end
 			local vx, vz = dirX * advance, dirZ * advance
-			vx, vz = slideAroundObstacles(obstacles, x, z, vx, vz, radius + steerMargin, ids[i])
+			local bx, bz = Body.center(kind, x, z)
+			if kind.nativeObstacleCollision ~= false then
+				vx, vz = slideAroundObstacles(obstacles, bx, bz, vx, vz, radius + steerMargin, ids[i])
+			end
 
 			-- give way: move towards a neighbour at most until touching it
 			local mass = kind.mass
-			local found = hash:query(x, z, radius + queryPadding, scratch)
+			local found = hash:query(bx, bz, radius + queryPadding, scratch)
 			for s = 1, found do
 				local j = scratch[s]
 				local other = kinds[j]
 				if j ~= i and other.mass >= mass then
-					local nx, nz = x - xs[j], z - zs[j]
+					local nx = bx - xs[j] - (other.nativeBodyOffsetX or 0)
+					local nz = bz - zs[j] - (other.nativeBodyOffsetZ or 0)
 					local gap = math.sqrt(nx * nx + nz * nz)
 					local minDistance = radius + other.radius
 					if gap > EPSILON and gap < minDistance + maxMove then
@@ -1342,13 +1587,20 @@ function World.step(
 	end
 
 	-- 3. separation (each pass resolves `stiffness` of every overlap; passes after the first catch chains)
+	-- Cache physical centers once. The hot pair loop then retains its original two-subtraction distance calculation.
+	-- Only this internal collision pass hashes centers; actor origins and the public hash are restored below/at step5.
+	local originsX, originsZ = xs, zs
+	xs, zs = self.bodyXs, self.bodyZs
+	for i = 1, count do
+		xs[i], zs[i] = Body.center(kinds[i], originsX[i], originsZ[i])
+	end
 	local stiffness = p.separationStiffness
 	for _ = 1, p.separationPasses do
-		rebuildHash(self)
+		rebuildHash(self, xs, zs)
 		for i = 1, count do
 			local kindI = kinds[i]
 			local radiusI, massI = kindI.radius, kindI.mass
-			local found = hash:query(xs[i], zs[i], radiusI + maxRadius, scratch)
+			local found = hash:query(xs[i], zs[i], radiusI + self.maxColliderRadius, scratch)
 			for s = 1, found do
 				local j = scratch[s]
 				if j > i then
@@ -1384,19 +1636,26 @@ function World.step(
 		end
 	end
 
+	for i = 1, count do
+		originsX[i], originsZ[i] = Body.origin(kinds[i], xs[i], zs[i])
+	end
+	xs, zs = originsX, originsZ
+
 	-- 4. constraints
-	local minX, maxX, minZ, maxZ = p.minX, p.maxX, p.minZ, p.maxZ
 	for i = 1, count do
 		local kind = kinds[i]
 		if kind.anchored then
 			continue
 		end
 		local radius = kind.radius
-		local x, z = xs[i], zs[i]
-		for _, obstacle in obstacles do
-			x, z = pushOut(x, z, obstacle.x, obstacle.z, obstacle.radius + radius, ids[i])
+		local x, z = Body.center(kind, xs[i], zs[i])
+		if kind.nativeObstacleCollision ~= false then
+			for _, obstacle in obstacles do
+				x, z = pushOutObstacle(x, z, obstacle, radius, ids[i])
+			end
 		end
-		if p.collideTargets ~= false then
+		x, z = Body.origin(kind, x, z)
+		if NativeMovement.collidesTargets(p.collideTargets, kind) then
 			for t = 1, targetCount do
 				x, z = pushOut(
 					x,
@@ -1408,8 +1667,7 @@ function World.step(
 				)
 			end
 		end
-		xs[i] = math.clamp(x, minX + radius, maxX - radius)
-		zs[i] = math.clamp(z, minZ + radius, maxZ - radius)
+		xs[i], zs[i] = NativeMovement.clampPosition(p, kind, x, z)
 	end
 
 	-- 5. contacts and the hash for queries until the next step
@@ -1428,12 +1686,13 @@ function World.step(
 	for i = 1, count do
 		local hit = damage[i]
 		if hit > 0 and not knocked[i] then
+			local hx, hz = Hit.center(kinds[i], xs[i], zs[i])
 			for t = 1, targetCount do
 				local reach = (kinds[i].hitRadius or kinds[i].radius)
 					+ (if targetRadii then targetRadii[t] else playerRadius)
 					+ margin
 				local reachSquared = reach * reach
-				local dx, dz = hitXs[t] - xs[i], hitZs[t] - zs[i]
+				local dx, dz = hitXs[t] - hx, hitZs[t] - hz
 				if dx * dx + dz * dz <= reachSquared then
 					if hit > contacts[t] then
 						contacts[t] = hit
@@ -1452,6 +1711,7 @@ function World.step(
 		local paths = self.rushes
 		local i, x, z = paths[k], paths[k + 1], paths[k + 2]
 		local dx, dz = paths[k + 3] - x, paths[k + 4] - z
+		local hx, hz = Hit.center(kinds[i], x, z)
 		local length = math.sqrt(dx * dx + dz * dz)
 
 		if length > EPSILON then
@@ -1462,7 +1722,7 @@ function World.step(
 					+ EPSILON
 				if
 					damage[i] > contacts[t]
-					and circleEntry(x, z, dx / length, dz / length, length, hitXs[t], hitZs[t], reach)
+					and circleEntry(hx, hz, dx / length, dz / length, length, hitXs[t], hitZs[t], reach)
 				then
 					contacts[t] = damage[i]
 					self.contactSources[t] = ids[i]
@@ -1529,7 +1789,7 @@ function World.step(
 				shotCooldown[i] = cooldown
 			end
 			if fires and best > 0 then
-				for _ = 1, (if ranged.nativeSlash then 1 else ranged.projectileCount or 1) do
+				for _ = 1, (if ranged.nativeSlash or ranged.nativeVolley then 1 else ranged.projectileCount or 1) do
 					local k = shotCount * 5
 					shots[k + 1], shots[k + 2], shots[k + 3] = ids[i], x, z
 					shots[k + 4], shots[k + 5] = best, shotDamage[i]
@@ -1545,9 +1805,24 @@ function World.step(
 
 	-- 7. summoners count down while there is a target and report themselves when they call
 	local summons, summonCount = self.summons, 0
-	if targetCount > 0 then
-		local summonTimers = self.summonTimers
-		for i = 1, count do
+	local summonTimers = self.summonTimers
+	for i = 1, count do
+		local rule = kinds[i].nativeSpawn
+		local state = self.nativeSpawnClocks[i]
+		if rule and state then
+			if rule.maxCount == -1 or state.shots * rule.count < rule.maxCount then
+				local fired = ShootingClock.step(state, rule.timing, dt, true, function()
+					return nextRandom(self)
+				end)
+				self.modes[i] = if state.stage == "Animation" then MODE_WINDUP else MODE_WALK
+				if fired then
+					summonCount += 1
+					summons[summonCount] = ids[i]
+				end
+			else
+				self.modes[i] = MODE_WALK
+			end
+		elseif targetCount > 0 then
 			local summon = kinds[i].summon
 			if summon then
 				local timer = summonTimers[i] - dt
@@ -1580,7 +1855,7 @@ function World.step(
 				end
 			end
 			if pulse.onEnter then
-				if pulseAt(self, i, pulse) then
+				if pulseAt(self, i, pulse) and not pulse.nativeEnemyEntry then
 					modes[i], modeTimers[i] = MODE_WINDUP, PULSE_SHOW_SECONDS
 				end
 			elseif targetCount > 0 then

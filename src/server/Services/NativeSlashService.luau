@@ -5,7 +5,6 @@ local Shared = game:GetService("ReplicatedStorage").Shared
 local Config = require(Shared.Config)
 local C = require(Shared.Config.NightmareEnemies)
 local Geometry = require(Shared.Util.NativeSlashGeometry)
-local Kinds = require(Shared.Util.EnemyKinds)
 local Types = require(Shared.Net.Types)
 local Net = require(Shared.Net)
 local Enemy = require(script.Parent.EnemySim)
@@ -85,24 +84,24 @@ local function collision(shot: Shot, age: number): boolean
 		local ids = {}
 		Enemy.collectIds(ids)
 		for _, id in ids do
-			local name, elite = Enemy.getKind(id)
+			local name = Enemy.getKind(id)
 			if not name or name == "Tree" then
 				continue
 			end
-			local kind = Kinds.get(name, elite)
-			local at = Enemy.getPosition(id)
-			if at and kind and Geometry.contains(info, age, at.X, at.Z, kind.hurtRadius or kind.radius, PIXEL) then
+			local at, hurtRadius = Enemy.getHurtGeometry(id)
+			if at and hurtRadius and Geometry.contains(info, age, at.X, at.Z, hurtRadius, PIXEL) then
 				Enemy.damage(id, shot.damage, nil)
 				return true
 			end
 		end
 	else
 		for _, player in Run.getParticipants() do
-			local at = Enemy.getPlayerPosition(player)
+			local at, hurtRadius = Enemy.getPlayerHurtGeometry(player)
 			if
 				Run.getParticipantState(player) == "Alive"
 				and at
-				and Geometry.contains(info, age, at.X, at.Z, Config.Simulation.playerRadius, PIXEL)
+				and hurtRadius
+				and Geometry.contains(info, age, at.X, at.Z, hurtRadius, PIXEL)
 			then
 				Enemy.ShotHit:Fire(player, shot.damage)
 				return true

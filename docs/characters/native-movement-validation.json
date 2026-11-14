@@ -1,0 +1,52 @@
+{
+  "referenceVersion": "1.2.0.2",
+  "steamBuild": 26615634,
+  "scope": "Source-backed movement policies for the eleven prepared neutral Jungle bodies; no new ready characters or playable area.",
+  "rules": [
+    "Entity random-goal rectangle uses half the original Sprite texture dimensions, with logical GDST custom dimensions respected. Physical Unit borders clamp actor origins to the zone rectangle without this inset.",
+    "TargetRandPos draws once, checks eight candidates and redraws after each failed check, then pushes the ninth candidate out of forbidden circles without reclamping to goal bounds. Physical holes and exclusion circles remain separate.",
+    "Only native Jungle records opt in to original player-body masks; they overlap player bodies and still generate contact damage. Legacy body margins and target collision remain unchanged.",
+    "StayInRange preserves floating randomized range and Euclidean ten-pixel precision. Integer-pixel initial range truncation applies only to native Target/Offset random movement policies.",
+    "Charm changes native Enigmacursor StayInRange movement to random arena goals, retaining source geometry.",
+    "Native random goals at Vector2.ZERO are unset sentinels and are reselected even when the actor is far from the origin. Legacy goal policy remains unchanged."
+  ],
+  "focused": {
+    "NativeJungleMovement": {
+      "passed": 8,
+      "failed": 0
+    }
+  },
+  "mutation": "Inverting native player-body collision causes the actual follower overlap test to fail; helper restored byte-for-byte, six tests pass again.",
+  "fullSuite": {
+    "specs": 289,
+    "passed": 1790,
+    "failed": 36,
+    "previousSpecs": 289,
+    "previousPassed": 1787,
+    "previousFailed": 37,
+    "newFailureNames": [],
+    "knownGobblerPassedThisTime": true,
+    "gobblerFixClaimed": false,
+    "aborts": [],
+    "artifact": "build/native-five-branch-nine-native-movement-final-4cf1050.json",
+    "failureIdentityMatchesTerrainBridge": true
+  },
+  "checks": {
+    "sourceCompilers": true,
+    "localImageCheck": true,
+    "stylua": true,
+    "seleneErrors": 0,
+    "existingWarnings": 18,
+    "rojo": true,
+    "studio": false
+  },
+  "zonePlayable": false,
+  "newCharacterReadyFlags": 0,
+  "codePreparedCharacters": 48,
+  "remaining": [
+    "Original body/hurt/hit offsets and native physics ordering, original graphics and player terrain collision.",
+    "Other Jungle families, evolution, bosses, native waves and area selection route.",
+    "Full native-game, Studio and device acceptance."
+  ],
+  "zeroSentinelRegression": "New test failed before the source-backed fix (7 passed,1 failed), then all8 passed. Added separate original-pixel integer range initialization check for both Target/Offset modes."
+}

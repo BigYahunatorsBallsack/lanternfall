@@ -5,12 +5,22 @@ local Config = require(Shared.Config)
 local C = require(Shared.Config.Charm)
 local World = require(script.Parent.World)
 local Volleys = require(script.Parent.Volleys)
+local NativeVolley = require(Shared.Util.NativeEnemyVolley)
 local Friends = {}
 Friends.__index = Friends
-function Friends.new(params: any, callbacks: any): any
+function Friends.new(params: any, callbacks: any, projectileObstacles: { Volleys.Circle }?): any
 	local options = table.clone(params)
 	options.goalsWithoutTargets = true
+	options.referencePlayerSpeed = if params.referencePlayerSpeed
+		then function()
+			return params.referencePlayerSpeed(nil)
+		end
+		else nil
 	options.collideTargets = false -- native PETS_BIT + OBSTACLES_BIT mask excludes enemy/player bodies
+	local shotOptions = table.clone(options)
+	if projectileObstacles then
+		shotOptions.obstacles = projectileObstacles
+	end
 	return setmetatable({
 		world = World.new(options),
 		members = {},
@@ -20,7 +30,11 @@ function Friends.new(params: any, callbacks: any): any
 		targetXs = {},
 		targetZs = {},
 		targetRadii = {},
-		shots = Volleys.new(options),
+		targetHurtXs = {},
+		targetHurtZs = {},
+		targetInputXs = {},
+		targetInputZs = {},
+		shots = Volleys.new(shotOptions),
 		shotSources = {},
 		shotOwners = {},
 		previous = {},
@@ -40,6 +54,7 @@ function Friends.convert(self: any, source: any, id: number, owner: number, now:
 	end
 	local actor = self.world.indexOf[id]
 	local friendly = table.clone(kind)
+	friendly.nativeObstacleCollision = true -- Charm sets PETS_BIT + OBSTACLES_BIT, including previously flying bodies
 	local movement = C.movement[kind.id]
 	if movement then
 		friendly.wander = {
@@ -103,7 +118,7 @@ function Friends.fire(
 	)
 end
 local function stepShots(self: any, dt: number)
-	self.shots:step(dt, self.targetXs, self.targetZs, #self.targetIds, self.targetRadii)
+	self.shots:step(dt, self.targetHurtXs, self.targetHurtZs, #self.targetIds, self.targetRadii)
 	for index = 1, self.shots.hitCount do
 		local offset = (index - 1) * 2
 		local target = self.targetIds[self.shots.hits[offset + 1]]
@@ -136,6 +151,18 @@ local function fireShots(self: any, dt: number)
 		local x, z, target, damage =
 			world.shots[offset + 2], world.shots[offset + 3], world.shots[offset + 4], world.shots[offset + 5]
 		local tx, tz = self.targetXs[target], self.targetZs[target]
+		if ranged.nativeVolley then
+			NativeVolley.emit(ranged.nativeVolley, x, z, tx, tz, ranged.projectileSpeed, function()
+				return if self.callbacks.random then self.callbacks.random(member.owner) else math.random()
+			end, function(px, pz, dx, dz, speed)
+				if ranged.nativePillar then
+					self.callbacks.emitPillar(member.id, px, pz, dx, dz, speed, damage, member.owner)
+				else
+					self:fire(member, px, pz, dx, dz, speed, ranged.projectileRange, ranged.projectileRadius, damage)
+				end
+			end)
+			continue
+		end
 		if ranged.nativeSlash then
 			self.callbacks.emitSlash(member.id, tx, tz, damage, member.owner)
 			continue
@@ -219,19 +246,30 @@ function Friends.step(self: any, dt: number, now: number, hostile: any)
 		end
 	end
 	local ids, xs, zs, radii = self.targetIds, self.targetXs, self.targetZs, self.targetRadii
+	local inputXs, inputZs = self.targetInputXs, self.targetInputZs
 	table.clear(ids)
 	table.clear(xs)
 	table.clear(zs)
 	table.clear(radii)
+	table.clear(self.targetHurtXs)
+	table.clear(self.targetHurtZs)
+	table.clear(inputXs)
+	table.clear(inputZs)
 	for index = 1, hostile.count do
 		if hostile.hp[index] > 0 and hostile.kinds[index].id ~= "Tree" then
 			table.insert(ids, hostile.ids[index])
 			table.insert(xs, hostile.xs[index])
 			table.insert(zs, hostile.zs[index])
-			table.insert(radii, (hostile.kinds[index].hurtRadius or hostile.kinds[index].radius))
+			local hx, hz, radius = hostile:getHurtGeometry(hostile.ids[index])
+			table.insert(self.targetHurtXs, hx)
+			table.insert(self.targetHurtZs, hz)
+			table.insert(radii, radius)
+			local vx, vz = hostile:getMoveInput(hostile.ids[index])
+			table.insert(inputXs, vx)
+			table.insert(inputZs, vz)
 		end
 	end
-	local contacts = self.world:step(dt, xs, zs, #ids, nil, nil, radii)
+	local contacts = self.world:step(dt, xs, zs, #ids, self.targetHurtXs, self.targetHurtZs, radii, inputXs, inputZs)
 	stepShots(self, dt)
 	fireShots(self, dt)
 	fireChargeTrails(self)
@@ -242,8 +280,9 @@ function Friends.step(self: any, dt: number, now: number, hostile: any)
 			local actor = self.world.indexOf[source]
 			if actor then
 				local rule = Config.Simulation.contactRecoil
-				local speed = self.world.kinds[actor].speed * self.world.speedFactors[actor] * self.world.boosts[actor]
-					+ self.world.speedBonuses[actor]
+				local kind = self.world.kinds[actor]
+				local speed = kind.speed * self.world.speedFactors[actor] * self.world.boosts[actor]
+					+ (if kind.pursuer then 0 else self.world.speedBonuses[actor])
 				local points = speed / Config.Stats.range.studsPerPoint
 				self.world:nativeSlow(source, -math.floor(math.max(rule.minPoints, points * rule.speedShare)), false, 0)
 			end
@@ -252,7 +291,16 @@ function Friends.step(self: any, dt: number, now: number, hostile: any)
 	for index = 1, self.world.summonCount do
 		local id = self.world.summons[index]
 		local member = self.members[id]
-		if member and member.kind.summon and self.callbacks.spawn then
+		if member and member.kind.nativeSpawn and self.callbacks.nativeSpawn then
+			self.callbacks.nativeSpawn(member, self.world, id)
+			if member.kind.nativeSpawn.dieOnRequest then
+				local x, z = self.world:getPosition(id)
+				self.world:remove(id)
+				self.members[id] = nil
+				self.counts[member.owner] -= 1
+				self.callbacks.expired(member, x, z)
+			end
+		elseif member and member.kind.summon and self.callbacks.spawn then
 			local x, z = self.world:getPosition(id)
 			local summon = member.kind.summon
 			self.callbacks.spawn(member, summon.enemy, x, z, summon.count, member.kind.radius + C.summonPadding)

@@ -2,8 +2,8 @@
 -- Full native starts, source mechanics and personal challenge boundaries through production services.
 local f = loadHelper("tests/helpers/NativeCharacterFixture.luau")("Vagabond")
 describe("Native Vagabond package", function()
-	it("runs all29 original starts", function()
-		f.starts(29)
+	it("runs all30 original starts", function()
+		f.starts(30)
 	end)
 	it("counts every equipped weapon for present sets and prevents duplicate families", function()
 		f.start("Claw")

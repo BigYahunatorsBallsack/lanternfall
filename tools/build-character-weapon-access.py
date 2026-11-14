@@ -23,6 +23,7 @@ def main():
         "\tfree: boolean,\n\tsource: string,\n\tsourceMd5: string,\n\tchallengeId: string?,\n"
         "\tchallengeSource: string?,\n\tchallengeSourceMd5: string?,\n\twinWith: string?,\n"
         "\tstat: string?,\n\tthreshold: number?,\n\teventChallenge: boolean?,\n"
+        "\tsourceWeaponId: string?,\n\tzoneId: number?,\n\truleSource: string?,\n\truleSourceMd5: string?,\n"
         "}\n"
         "local records: { [string]: Access } = " + compiler.luau(facts["weapons"]) + "\n\n"
         "return table.freeze(records)\n"
