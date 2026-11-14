@@ -71,7 +71,7 @@ describe("main-game wiki enemy stats", function()
 				count += 1
 			end
 		end
-		expect(count).toBe(53) -- Original32, seven Nightmare and fourteen neutral Jungle bodies.
+		expect(count).toBe(54) -- Original32, seven Nightmare and fifteen neutral Jungle bodies.
 		for _, kind in Config.Enemies.types do
 			expect(seen[kind.typeId + 128]).toBe(nil)
 		end

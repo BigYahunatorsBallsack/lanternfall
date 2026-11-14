@@ -676,8 +676,56 @@ return {
 				initialParentRotation = 0,
 			},
 		},
+		Pachycephalosaurus = {
+			source = "res://entities/units/enemies/jungle/basic/pachycephalosaurus/pachycephalosaurus.tscn",
+			sourceMd5 = "a03085289992494611235136195a9ace",
+			sceneChain = {
+				"res://entities/units/enemies/jungle/basic/pachycephalosaurus/pachycephalosaurus.tscn",
+				"res://entities/units/enemies/enemy.tscn",
+				"res://entities/units/unit/unit.tscn",
+				"res://entities/entity.tscn",
+			},
+			hurt = {
+				parentPoints = {
+					0,
+					-16,
+				},
+				childPoints = {
+					0,
+					-13,
+				},
+				totalPoints = {
+					0,
+					-29,
+				},
+				initialParentScale = {
+					1,
+					1,
+				},
+				initialParentRotation = 0,
+			},
+			hit = {
+				parentPoints = {
+					0,
+					0,
+				},
+				childPoints = {
+					0,
+					-17,
+				},
+				totalPoints = {
+					0,
+					-17,
+				},
+				initialParentScale = {
+					1,
+					1,
+				},
+				initialParentRotation = 0,
+			},
+		},
 	},
-	scope = "Neutral saved1.2.0.2 scene transforms only; collision branches must be activated separately.",
+	scope = "Previously saved neutral transforms revalidated for1.2.0.3 plus source-checked normal Pachycephalosaurus; collision branches activate separately.",
 	provenance = "Derived from saved1.2.0.2 neutral Jungle scene scan; each scene hash and child position checked against approved JungleWalkers facts.",
 	scenes = {
 		["res://entities/units/enemies/jungle/basic/baby_triceratops/baby_triceratops.tscn"] = {
@@ -747,7 +795,12 @@ return {
 			sourceMd5 = "326c86b0680d2e079dc475a96564e7bd",
 			baseScene = "res://entities/units/enemies/enemy.tscn",
 		},
+		["res://entities/units/enemies/jungle/basic/pachycephalosaurus/pachycephalosaurus.tscn"] = {
+			sourceMd5 = "a03085289992494611235136195a9ace",
+			baseScene = "res://entities/units/enemies/enemy.tscn",
+		},
 	},
 	previousSourceVersion = "1.2.0.2",
 	previousResourcesRevalidatedIdentical = true,
+	pachycephalosaurusProvenance = "Stable1.2.0.3 scene has no Hurtbox/Hitbox parent overrides; entire inherited chain matches the approved Ankylosaurus chain byte-for-byte. Child offsets independently match the new JungleWalkers source record.",
 }

@@ -1,5 +1,5 @@
 --!strict
--- Original Pachycephalosaurus clock and native projectile-defense facts; full actor integration remains pending.
+-- Original normal Pachycephalosaurus clock and native projectile-defense facts; evolution and full area acceptance remain pending.
 local source = {
 	version = "1.2.0.3",
 	steamBuild = 26642464,
@@ -116,6 +116,26 @@ local source = {
 			sourceMd5 = "de240ac1e8b9d154e8a601e207678ef7",
 		},
 		{
+			source = "res://weapons/ranged/ranged_weapon.gdc",
+			sourceMd5 = "f631a09be3890d45582c2f02fd0f525c",
+		},
+		{
+			source = "res://weapons/melee/melee_weapon.gdc",
+			sourceMd5 = "e385abdcc0da4070c3e639fc73ee8b75",
+		},
+		{
+			source = "res://entities/structures/structure.gdc",
+			sourceMd5 = "3a2bec3fc761c71cbe9167c05cadba62",
+		},
+		{
+			source = "res://entities/structures/turret/turret.gdc",
+			sourceMd5 = "104c2eb26fa76d2d2f84e91e06ce2ba3",
+		},
+		{
+			source = "res://entities/structures/dart_trap/dart_trap.gdc",
+			sourceMd5 = "33e921e49e261fdf37b8662c7a746a1f",
+		},
+		{
 			source = "res://global/entity_spawner.gdc",
 			sourceMd5 = "ba0576c27ac5b889c5688decda3dd838",
 		},
@@ -164,7 +184,9 @@ local source = {
 			sourceMd5 = "2f23c313fafcb030e31118f0d9926786",
 		},
 	},
-	actorRegistered = false,
+	actorRegistered = true,
+	normalActorRegistered = true,
+	normalProjectileDefenseConnected = true,
 	projectileDefenseConnected = false,
 	evolutionVariantsImplemented = false,
 	nativeProjectileInterceptionConnected = true,
@@ -176,6 +198,9 @@ local source = {
 	priorHitDefenseReentryImplemented = true,
 	nativePetProjectileInterceptionConnected = true,
 	boomerangProjectileInterceptionConnected = true,
+	ordinaryStructureIsPet = false,
+	ordinaryStructureIsRangedWeapon = false,
+	meleeSecondaryOriginIsMeleeWeapon = true,
 	boomerangDefense = {
 		phasePathUnchanged = true,
 		velocityRemainsZero = true,
@@ -200,7 +225,7 @@ local source = {
 			shootProjectiles = true,
 		},
 	},
-	scope = "Native ranged weapon and source-flagged pet projectile defense with rotated collision offsets; Blazemander flames, Sticky flight and explosion exceptions audited. Boomerang inherited bounce keeps its phase path and own deadline. Full actor, legacy/other custom/area paths remain pending.",
+	scope = "Native ranged weapon and source-flagged pet projectile defense with rotated collision offsets; Blazemander flames, Sticky flight and explosion exceptions audited. Boomerang inherited bounce keeps its phase path and own deadline. Normal actor connected. Evolution, remaining producer/event-order parity and playable area remain pending.",
 }
 local target = table.clone(require(script.Parent.JungleChargeTargets).rule.target)
 local pixel = require(script.Parent.Stats).range.studsPerPoint

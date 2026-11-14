@@ -146,6 +146,33 @@ describe("Native pet projectile defense", function()
 		expect(Enemy.getHealth(second) < hp).toBe(true)
 		expect(Enemy.getShotCount() - before).toBe(f.Config.Enemies.types.Thornback.retaliate.count)
 	end)
+	for structureId, def in f.Config.Structures.kinds do
+		if def.nativeProjectile and not def.petKind then
+			it(
+				"allows real " .. structureId .. " structure shots through the shield without a ranged-pet origin",
+				function()
+					local id, center = defender()
+					local hp = Enemy.getHealth(id)
+					Sim.launch(f.me, center, def, {}, { Vector3.new(1, 0, 0) })
+					Sim.step(0.001)
+					assert(Enemy.getHealth(id) < hp, structureId .. " must really damage the defender")
+					expect(#fires).toBe(1)
+				end
+			)
+		end
+	end
+	it("does not provoke a Fly ranged counter from an ordinary turret projectile", function()
+		Sim.clear()
+		Enemy.killAll()
+		counterRolls()
+		local id = assert(Enemy.spawn("Thornback", 20, 0, 1000, 0, nil, nil, 0))
+		local center = assert(Enemy.getHurtGeometry(id))
+		local hp, before = Enemy.getHealth(id), Enemy.getShotCount()
+		Sim.launch(f.me, center, f.Config.Structures.kinds.BrassSentry, {}, { Vector3.new(1, 0, 0) })
+		Sim.step(0.001)
+		expect(Enemy.getHealth(id) < hp).toBe(true)
+		expect(Enemy.getShotCount()).toBe(before)
+	end)
 end)
 Sim.clear()
 k.nativeCharge, f.Weapons.emitStructureEffect, Random.number = originalCharge, originalEmit, originalRandom

@@ -272,6 +272,25 @@
       "pngSha256": "612cac6a1e96f2182a65ab883586638773ffeea92d3aeba2cc8b10309c32e6db"
     },
     {
+      "id": "Pachycephalosaurus",
+      "source": "res://entities/units/enemies/jungle/basic/pachycephalosaurus/pachycephalosaurus.png",
+      "textureSource": "res://.import/pachycephalosaurus.png-0796d6406660a5ac3f559230f05a86d8.stex",
+      "textureMd5": "a3c488c2a1482350f0bfbbddc1ba5475",
+      "output": "assets/enemies/native-jungle/Pachycephalosaurus.png",
+      "size": [
+        150,
+        150
+      ],
+      "alphaBounds": [
+        9,
+        17,
+        144,
+        131
+      ],
+      "rgbaSha256": "53c01adc03fe07102c7ac97237a4b7657ad76e605c36de6feeb0923396843128",
+      "pngSha256": "e619910fa67ee9069c4fce279255e1a19f31e3d6fc486d8db585ca588c028b30"
+    },
+    {
       "id": "Pillar_bullet_pillar_0002",
       "source": "res://projectiles/pillar_enemy/sprites/bullet_pillar_0002.png",
       "textureSource": "res://.import/bullet_pillar_0002.png-b64813647bb259fcd087f6245a3b4bd8.stex",

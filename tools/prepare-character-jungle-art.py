@@ -23,7 +23,7 @@ def main():
  parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--check',action='store_true');args=parser.parse_args()
  spec=importlib.util.spec_from_file_location('jungle_art_source',ROOT/'tools/character-source.py');source=importlib.util.module_from_spec(spec);spec.loader.exec_module(source)
  pck=source.Pck();reference=source.verify_reference(pck)
- data=json.loads((ROOT/'docs/characters/jungle-walkers-source.json').read_text())
+ data=json.loads((ROOT/'docs/characters/jungle-walkers-source.json').read_text(encoding='utf-8'))
  folder=ROOT/'assets/enemies/native-jungle';folder.mkdir(parents=True,exist_ok=True)
  selected=[]
  for identity,row in data['enemies'].items():

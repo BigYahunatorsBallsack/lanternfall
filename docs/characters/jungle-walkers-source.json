@@ -19,7 +19,8 @@
     "Stintaosaurus",
     "Triceratops",
     "Parasaurolorus",
-    "Ankylosaurus"
+    "Ankylosaurus",
+    "Pachycephalosaurus"
   ],
   "enemies": {
     "BabyTriceratops": {
@@ -1346,6 +1347,141 @@
       "wanderArena": true,
       "nativeHurtSlowEffects": false,
       "normalDeflectCharge": false
+    },
+    "Pachycephalosaurus": {
+      "typeId": 54,
+      "displayName": "Pachycephalosaurus",
+      "fallbackLook": "Shadeling",
+      "source": "res://entities/units/enemies/jungle/basic/pachycephalosaurus/pachycephalosaurus.tscn",
+      "sourceMd5": "a03085289992494611235136195a9ace",
+      "statsSource": "res://entities/units/enemies/jungle/basic/pachycephalosaurus/pachycephalosaurus_stats.tres",
+      "statsMd5": "df570b6e3711a9f4beeb81c76a7d952f",
+      "stats": {
+        "health": 12,
+        "health_increase_each_wave": 12.0,
+        "speed": 275,
+        "speed_randomization": 25,
+        "damage": 1,
+        "damage_increase_each_wave": 1.0,
+        "attack_cd": 30.0,
+        "value": 4,
+        "knockback_resistance": 0.7,
+        "gold_spread": 0,
+        "can_drop_consumables": true,
+        "always_drop_consumables": false,
+        "base_drop_chance": 0.01,
+        "item_drop_chance": 0.01,
+        "min_consumable_tier": 0,
+        "max_consumable_tier": 0,
+        "armor": 0,
+        "armor_increase_each_wave": 0.0,
+        "generate_blood": true
+      },
+      "body": {
+        "radiusPoints": 53.0,
+        "offsetPoints": [
+          0,
+          -36
+        ],
+        "source": "res://entities/units/enemies/jungle/basic/pachycephalosaurus/pachycephalosaurus.tscn",
+        "sourceMd5": "a03085289992494611235136195a9ace"
+      },
+      "hurt": {
+        "radiusPoints": 47.0106,
+        "offsetPoints": [
+          0,
+          -13
+        ],
+        "source": "res://entities/units/enemies/jungle/basic/pachycephalosaurus/pachycephalosaurus.tscn",
+        "sourceMd5": "a03085289992494611235136195a9ace"
+      },
+      "hit": {
+        "radiusPoints": 35.0571,
+        "offsetPoints": [
+          0,
+          -17
+        ],
+        "source": "res://entities/units/enemies/jungle/basic/pachycephalosaurus/pachycephalosaurus.tscn",
+        "sourceMd5": "a03085289992494611235136195a9ace"
+      },
+      "removeFirst": false,
+      "mass": 1,
+      "obstacleCollision": true,
+      "sprite": {
+        "source": "res://entities/units/enemies/jungle/basic/pachycephalosaurus/pachycephalosaurus.png",
+        "textureSource": "res://.import/pachycephalosaurus.png-0796d6406660a5ac3f559230f05a86d8.stex",
+        "textureMd5": "a3c488c2a1482350f0bfbbddc1ba5475",
+        "widthPoints": 150,
+        "heightPoints": 150
+      },
+      "bodyBorders": true,
+      "playerCollision": false,
+      "chargingVariants": {
+        "Normal": {
+          "cooldown": 70.0,
+          "long_cooldown_every_x_shoots": 0,
+          "long_cooldown": 0.0,
+          "max_cd_randomization": 20,
+          "min_range": 0,
+          "max_range": 500,
+          "range_X": -1,
+          "range_Y": -1,
+          "attack_anim_speed": 1.0,
+          "charge_duration": 1.0,
+          "charge_speed": 400.0,
+          "target_calculation_timing": 1,
+          "target": 1,
+          "rand_target_size": -1,
+          "only_positions_in_target_direction": true,
+          "scale_charge_duration_with_range": false,
+          "recovery_duration": 2.0,
+          "deflect_stop_before_CD": 80.0
+        },
+        "Mutant": {
+          "cooldown": 60.0,
+          "long_cooldown_every_x_shoots": 0,
+          "long_cooldown": 0.0,
+          "max_cd_randomization": 20,
+          "min_range": 0,
+          "max_range": 500,
+          "range_X": -1,
+          "range_Y": -1,
+          "attack_anim_speed": 1.25,
+          "charge_duration": 1.25,
+          "charge_speed": 500.0,
+          "target_calculation_timing": 1,
+          "target": 1,
+          "rand_target_size": -1,
+          "only_positions_in_target_direction": true,
+          "scale_charge_duration_with_range": false,
+          "recovery_duration": 1.5,
+          "deflect_stop_before_CD": 70.0
+        },
+        "Meca": {
+          "cooldown": 70.0,
+          "long_cooldown_every_x_shoots": 0,
+          "long_cooldown": 0.0,
+          "max_cd_randomization": 20,
+          "min_range": 0,
+          "max_range": 500,
+          "range_X": -1,
+          "range_Y": -1,
+          "attack_anim_speed": 0.7,
+          "charge_duration": 0.7,
+          "charge_speed": 350.0,
+          "target_calculation_timing": 1,
+          "target": 1,
+          "rand_target_size": -1,
+          "only_positions_in_target_direction": true,
+          "scale_charge_duration_with_range": false,
+          "recovery_duration": 2.5,
+          "deflect_stop_before_CD": 80.0
+        }
+      },
+      "activeChargeVariant": "Normal",
+      "evolutionVariantsImplemented": false,
+      "normalDeflectCharge": true,
+      "nativeHurtSlowEffects": false
     }
   },
   "spawningRules": {
@@ -1409,6 +1545,10 @@
       "sourceMd5": "fcf2901832ca42a4e69e98c60629397e"
     },
     {
+      "source": "res://entities/units/enemies/attack_behaviors/charging_attack_deflect_bullet_behavior.gdc",
+      "sourceMd5": "daba5d3d739bba386c511fdbc2b18c92"
+    },
+    {
       "source": "res://entities/units/enemies/attack_behaviors/shooting_attack_behavior.gdc",
       "sourceMd5": "43d5ebd849396509ff38632915c988a2"
     },
@@ -1435,6 +1575,10 @@
     {
       "source": "res://entities/units/enemies/jungle/basic/dino_egg/dino_egg.gdc",
       "sourceMd5": "f01696d402b51e177ee02fe0bdce31c8"
+    },
+    {
+      "source": "res://entities/units/enemies/jungle/basic/pachycephalosaurus/pachycephalosaurus.gdc",
+      "sourceMd5": "8bc1d902906d2c92a141b6b122740e8c"
     },
     {
       "source": "res://entities/units/enemies/jungle/basic/stintaosaurus/stintaosaurus.gdc",

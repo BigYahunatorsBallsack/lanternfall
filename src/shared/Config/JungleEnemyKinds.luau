@@ -3,6 +3,7 @@
 local C = require(script.Parent.JungleWalkers)
 local Colliders = require(script.Parent.JungleColliderOffsets)
 local ChargeTargets = require(script.Parent.JungleChargeTargets)
+local Deflect = require(script.Parent.JungleDeflectCharges)
 local Kinds = {}
 function Kinds.build(pixel: number): { [string]: any }
 	local result = {}
@@ -71,6 +72,10 @@ function Kinds.build(pixel: number): { [string]: any }
 				rangeZ = a.range_Y * pixel,
 				massMultiplier = rules.chargeMassMultiplier,
 			}
+			if f.normalDeflectCharge then
+				assert(Deflect.source.sourceMd5 == f.sourceMd5, "Deflect charge source mismatch")
+				result[id].nativeCharge = Deflect.rule
+			end
 			if f.aroundPlayerCharge then
 				assert(ChargeTargets.source.variant.sourceMd5 == f.sourceMd5, "Charge targeting source mismatch")
 				result[id].nativeCharge = ChargeTargets.rule
