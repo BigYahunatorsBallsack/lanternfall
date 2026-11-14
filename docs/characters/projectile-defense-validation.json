@@ -1,0 +1,67 @@
+{
+  "referenceVersion": "1.2.0.3",
+  "steamBuild": 26642464,
+  "scope": "Ordinary BrotatoProjectile ranged interception plus real EnemySim target/clock adapter; no full Pachycephalosaurus actor or area.",
+  "sourceSnapshot": "docs/characters/jungle-deflect-charge-source.json",
+  "rules": [
+    "Intercept before Combat.hit: no damage, life steal, on-hit mine, secondary shot, explosion or pierce consumption; no permanent hit-ignore entry for the reflector.",
+    "Forced bounce decrements zero/negative bounce budgets, applies integer damage falloff once and clears all knockback. No other target uses random angle -PI..PI; coincident target angle is0.",
+    "Separate travelRange preserves the original weapon-stat range for later effects and Fire/End events use the correct flight cap. Native automatic-aim lifetime resets to (INFINITE_RANGE10000+additional100) pixels; manual aim is not connected.",
+    "Global source enemy pool includes living charmed ordinary actors, excludes bosses and the reflector, and does not filter earlier damaged targets. Rejected reflector draws consume random samples.",
+    "Temporary overlap state emulates area-enter behavior: no repeated interception until leaving the current hurt circle. Native geometry is read through the real Vector3/radius service API.",
+    "Melee-origin on-hit projectiles are not rejected merely because they are projectiles."
+  ],
+  "focused": {
+    "NativeProjectileDeflection": {
+      "passed": 4,
+      "failed": 0
+    },
+    "NativeBounceTarget": {
+      "passed": 3,
+      "failed": 0
+    },
+    "red": "Native projectile tests0/4 before implementation. Real service probe caught the Vector3/radius getter contract; adapter and fixture corrected. Lethal probe damage now uses actual current health rather than assuming spawn health multiplier is an absolute HP value.",
+    "trackedRunner": "Both new specs passed4/0 and3/0 with the tracked runner after the final full suite.",
+    "mutation": "Reversing the forced bounce-budget decrement yields2passed2failed; original file restored byte-for-byte.",
+    "rangeRed": "Separating flight lifetime from the weapon snapshot first reproduced3passed1failed on original range, then3passed1failed on initial Fire range; both fixed before the final full run."
+  },
+  "interfaces": [
+    "Projectile.setDefense({active,target,overlaps}) server-only adapter.",
+    "EnemySim.isProjectileDeflecting(id) and nativeBounceTarget(ignore,random)->x?,z?.",
+    "Shot.deflectFrom is transient overlap state; new Fire/End events use the existing protocol.",
+    "Combat.nativeProjectileBounce stores original automatic-aim range constants."
+  ],
+  "fullSuite": {
+    "specs": 305,
+    "passed": 1874,
+    "failed": 36,
+    "newFailureNames": [],
+    "aborts": [],
+    "artifact": "build/native-five-branch-nine-projectile-defense-final-4cf1050.json",
+    "supersededArtifact": "build/native-five-branch-nine-projectile-defense-4cf1050.json is preliminary; flight-range correction was not frozen throughout that run.",
+    "charmedWorld": "6passed0failed this run; previous performance concern remains open."
+  },
+  "checks": {
+    "stylua": "passed",
+    "selene": "0errors/18existingWarnings",
+    "rojo": "passed",
+    "compiler": "deflect-charges --check passed"
+  },
+  "counts": {
+    "codePrepared": 48,
+    "codeOpen": 26,
+    "neutralJungleBodiesPrepared": 14,
+    "newCompleteCharacters": 0
+  },
+  "open": [
+    "Prior-hit reflector reentry: source Pachycephalosaurus overrides area_entered before the deferred Unit ignored_objects guard; current ordered hit filtering still excludes previously damaged actors",
+    "StickyGrenadeShot, B7/legacy projectiles, pets, Boomerang/custom projectile routes and ranged-origin explosions",
+    "Manual-aim additional distance, native screen culling/physics entry ordering and original presentation",
+    "Full Pachycephalosaurus body/art/registration, evolution, remaining Jungle families/bosses/waves/area",
+    "Previous CharmedWorld performance concern remains open even if one full run passes; no device/Studio acceptance"
+  ],
+  "arsenalChanged": false,
+  "uploads": 0,
+  "runtimeAssetIdsChanged": 0,
+  "merged": false
+}

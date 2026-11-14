@@ -1179,6 +1179,33 @@ function EnemySim.allowsHurtSlowEffects(id: number): boolean
 	return index ~= nil and actors.kinds[index].nativeHurtSlowEffects ~= false
 end
 
+function EnemySim.isProjectileDeflecting(id: number): boolean
+	return (if friends.world:isAlive(id) then friends.world else world):isProjectileDeflecting(id)
+end
+
+-- Native get_rand_enemy includes charmed ordinary enemies and excludes bosses; it has no radius or previous-hit filter.
+local nativeBounceIds: { number } = {}
+function EnemySim.nativeBounceTarget(ignore: number, random: () -> number): (number?, number?)
+	table.clear(nativeBounceIds)
+	for _, actors in { world, friends.world } do
+		for index = 1, actors.count do
+			if actors.hp[index] > 0 and not actors.kinds[index].boss then
+				table.insert(nativeBounceIds, actors.ids[index])
+			end
+		end
+	end
+	local count = #nativeBounceIds
+	if count == 0 or (count == 1 and nativeBounceIds[1] == ignore) then
+		return nil, nil
+	end
+	local id: number
+	repeat
+		id = nativeBounceIds[math.min(count, math.floor(random() * count) + 1)]
+	until id ~= ignore
+	local actors = if friends.world:isAlive(id) then friends.world else world
+	return actors:getPosition(id)
+end
+
 -- Mode of a living enemy (EnemySim/World.MODE_*: walk, wind-up, rush, recover) and its rush direction x/z.
 function EnemySim.getMode(id: number): (number, number, number)
 	return (if friends.world:isAlive(id) then friends.world else world):getMode(id)

@@ -7,6 +7,8 @@ local WeaponPose = require(game:GetService("ReplicatedStorage").Shared.Util.Weap
 local WeaponTarget = require(script.Parent.WeaponTarget)
 local Sticky = require(script.Parent.StickyGrenadeShot)
 local Carbon = require(script.Parent.CarbonArrows)
+local BounceRules = require(game:GetService("ReplicatedStorage").Shared.Config.Combat).nativeProjectileBounce
+local pixel = require(game:GetService("ReplicatedStorage").Shared.Config.Stats).range.studsPerPoint
 
 type Shot = {
 	id: number,
@@ -15,6 +17,7 @@ type Shot = {
 	dx: number,
 	dz: number,
 	flown: number,
+	travelRange: number?, -- source _max_range/lifetime override, independent of the original weapon-stat snapshot
 	stats: { [string]: number },
 	left: number,
 	bounces: number,
@@ -29,8 +32,46 @@ type Shot = {
 	offsetX: number?,
 	offsetZ: number?,
 	puddleSpawned: boolean?,
+	deflectFrom: number?,
 }
 local Projectile = {}
+type Defense = {
+	active: (number) -> boolean,
+	target: (number, () -> number) -> (number?, number?),
+	overlaps: (number, number, number, number) -> boolean,
+}
+local defense: Defense? = nil
+function Projectile.setDefense(callbacks: Defense)
+	defense = callbacks
+end
+
+local function deflect(weapon: Arsenal.Weapon, ctx: Arsenal.Context, shot: Shot, id: number, distance: number)
+	local x, z = shot.x + shot.dx * distance, shot.z + shot.dz * distance
+	local tx, tz = assert(defense, "Projectile defense adapter required").target(id, function()
+		return ctx:random()
+	end)
+	local angle = if tx and tz then math.atan2(tz - z, tx - x) else (ctx:random() * 2 - 1) * math.pi
+	ctx:emit(weapon, { kind = "End", id = shot.id, x = x, z = z, distance = shot.flown + distance })
+	shot.id, shot.x, shot.z, shot.dx, shot.dz = ctx:nextId(), x, z, math.cos(angle), math.sin(angle)
+	shot.flown, shot.deflectFrom, shot.bounced = 0, id, true
+	shot.bounces -= 1 -- forced source bounce also consumes zero/negative budgets
+	shot.travelRange = (BounceRules.rangePoints + BounceRules.additionalDistancePoints) * pixel
+	if shot.stats.damage > 0 then
+		shot.stats.damage = math.max(1, math.floor(shot.stats.damage * shot.share * (shot.stats.bounceDamage or 1)))
+		shot.share = 1
+	end
+	shot.stats.knockback, shot.stats.knockbackPiercing = 0, nil
+	ctx:emit(weapon, {
+		kind = "Fire",
+		id = shot.id,
+		x = x,
+		z = z,
+		dx = shot.dx,
+		dz = shot.dz,
+		speed = shot.stats.projectileSpeed,
+		range = shot.travelRange,
+	})
+end
 local targets: { number } = {}
 local found: { number } = {}
 local ordered: { { id: number, distance: number } } = {}
@@ -69,7 +110,7 @@ local function launch(weapon: Arsenal.Weapon, ctx: Arsenal.Context, shot: Shot)
 		dx = shot.dx,
 		dz = shot.dz,
 		speed = shot.stats.projectileSpeed,
-		range = shot.stats.range,
+		range = shot.travelRange or shot.stats.range,
 	})
 end
 
@@ -255,7 +296,8 @@ function Projectile.step(weapon: Arsenal.Weapon, ctx: Arsenal.Context, dt: numbe
 			end
 			continue
 		end
-		local move = math.min(stats.projectileSpeed * dt, stats.range - shot.flown)
+		local travelRange = shot.travelRange or stats.range
+		local move = math.min(stats.projectileSpeed * dt, travelRange - shot.flown)
 		local x1, z1 = shot.x + shot.dx * move, shot.z + shot.dz * move
 		if slowAura and stats.slowRadius then
 			slowAura(x1, z1, stats.slowRadius, 1 - stats.slow, stats.slowSeconds)
@@ -273,10 +315,17 @@ function Projectile.step(weapon: Arsenal.Weapon, ctx: Arsenal.Context, dt: numbe
 			end
 		end
 		local n = ctx:querySegment(shot.x, shot.z, x1, z1, stats.projectileRadius, found)
+		if
+			shot.deflectFrom
+			and defense
+			and not defense.overlaps(shot.deflectFrom, shot.x, shot.z, stats.projectileRadius)
+		then
+			shot.deflectFrom = nil
+		end
 		table.clear(ordered)
 		for i = 1, n do
 			local id = found[i]
-			if not shot.hit[id] then
+			if not shot.hit[id] and id ~= shot.deflectFrom then
 				local x, z = ctx:enemyPosition(id)
 				if x and z then
 					table.insert(
@@ -292,6 +341,11 @@ function Projectile.step(weapon: Arsenal.Weapon, ctx: Arsenal.Context, dt: numbe
 		local stopped = false
 		for _, entry in ordered do
 			local id = entry.id
+			if defense and weapon.config.kind == "Ranged" and defense.active(id) then
+				deflect(weapon, ctx, shot, id, entry.distance)
+				stopped = true
+				break
+			end
 			shot.hit[id] = true
 			ctx:setHitDirection(shot.dx, shot.dz) -- Brotato: a projectile knocks along its flight
 			Combat.hit(weapon, ctx, id, shot.share, stats, shot.critical, shot.secondary, shot.bounced)
@@ -326,7 +380,7 @@ function Projectile.step(weapon: Arsenal.Weapon, ctx: Arsenal.Context, dt: numbe
 							dx = shot.dx,
 							dz = shot.dz,
 							speed = stats.projectileSpeed,
-							range = stats.range,
+							range = shot.travelRange or stats.range,
 						})
 						stopped = true
 						break
@@ -355,7 +409,7 @@ function Projectile.step(weapon: Arsenal.Weapon, ctx: Arsenal.Context, dt: numbe
 		if not stopped then
 			shot.x, shot.z = x1, z1
 			shot.flown += move
-			if shot.flown >= stats.range - 1e-6 then
+			if shot.flown >= travelRange - 1e-6 then
 				spawnPuddle(weapon, shot, shot.x, shot.z)
 				table.remove(shots, index)
 			end

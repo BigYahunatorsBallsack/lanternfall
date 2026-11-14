@@ -1,5 +1,5 @@
 --!strict
--- Original normal Pachycephalosaurus charge clock facts; actor and projectile-defense integration remain pending.
+-- Original Pachycephalosaurus clock and native projectile-defense facts; full actor integration remains pending.
 local source = {
 	version = "1.2.0.3",
 	steamBuild = 26642464,
@@ -76,6 +76,14 @@ local source = {
 		fireAt = 0.8,
 		seconds = 1,
 	},
+	projectileBounce = {
+		rangePoints = 10000,
+		additionalDistancePoints = 100,
+		manualAimAdditionalDistancePoints = 50,
+		globalTargets = true,
+		includesCharmed = true,
+		includesBosses = false,
+	},
 	around = {
 		maximumDefaultRadiusPoints = 600,
 		rangeDivisor = 5,
@@ -99,11 +107,20 @@ local source = {
 			source = "res://entities/units/enemies/jungle/basic/pachycephalosaurus/pachycephalosaurus.gdc",
 			sourceMd5 = "8bc1d902906d2c92a141b6b122740e8c",
 		},
+		{
+			source = "res://projectiles/player_projectile.gdc",
+			sourceMd5 = "57112e4f63b8516f44096515fc1dd1db",
+		},
+		{
+			source = "res://global/entity_spawner.gdc",
+			sourceMd5 = "ba0576c27ac5b889c5688decda3dd838",
+		},
 	},
 	actorRegistered = false,
 	projectileDefenseConnected = false,
 	evolutionVariantsImplemented = false,
-	scope = "Charge clock and deflection-state integration only; no full actor, projectile defense or area activation.",
+	nativeProjectileInterceptionConnected = true,
+	scope = "Charge clock and ordinary native ranged projectile interception; full actor, sticky/legacy/pet/area paths remain pending.",
 }
 local target = table.clone(require(script.Parent.JungleChargeTargets).rule.target)
 local pixel = require(script.Parent.Stats).range.studsPerPoint

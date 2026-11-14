@@ -710,6 +710,16 @@ function WeaponService.init()
 		BrotatoRuntime.hurt(arsenal:getWeapons(player.UserId))
 	end)
 	require(script.BrotatoProjectile).setNativeSlow(EnemySim.nativeSlow)
+	require(script.BrotatoProjectile).setDefense({
+		active = EnemySim.isProjectileDeflecting,
+		target = EnemySim.nativeBounceTarget,
+		overlaps = function(id, x, z, radius)
+			local center, hurtRadius = EnemySim.getHurtGeometry(id)
+			return center ~= nil
+				and hurtRadius ~= nil
+				and (x - center.X) ^ 2 + (z - center.Z) ^ 2 <= (hurtRadius + radius) ^ 2
+		end,
+	})
 	require(script.BrotatoProjectile).setSlowAura(function(x, z, radius, factor, seconds)
 		local ids = {}
 		local count = EnemySim.queryRadius(Vector3.new(x, floorY, z), radius, ids)
