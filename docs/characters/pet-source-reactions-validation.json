@@ -1,0 +1,95 @@
+{
+  "referenceVersion": "1.2.0.3",
+  "steamBuild": 26642464,
+  "baseMain": "de4e155e97855cc18ffb52b1e81e53d1af8532fc",
+  "priorMerge": {
+    "pr": 150,
+    "merged": true,
+    "mergeSha": "de4e155e97855cc18ffb52b1e81e53d1af8532fc",
+    "authorization": "Owner explicitly requested merge and continuation; this does not complete additional characters."
+  },
+  "scope": "Source pet shoot_projectiles classification for native projectile defense and direct Fly/HornedFly counters; correct rotated overlap geometry and separate explosion origin.",
+  "origins": {
+    "catling_gun": {
+      "source": "res://entities/units/pet/catling_gun/catling_gun.tscn",
+      "sourceMd5": "4fabecb76f9d377bf2749bcd9995fe5a",
+      "shootProjectiles": true
+    },
+    "blazemander": {
+      "source": "res://entities/units/pet/blazemander/blazemander.tscn",
+      "sourceMd5": "b95bbd7d40dde1ec935fd82b292155fc",
+      "shootProjectiles": false
+    },
+    "bot_o_mine": {
+      "source": "res://entities/units/pet/bot_o_mine/bot_o_mine.tscn",
+      "sourceMd5": "c253124698b17ff6ecf79474af6926fc",
+      "shootProjectiles": true
+    }
+  },
+  "rules": [
+    "Pet shoots_projectiles is a source actor flag, not an inference from visual projectile flight or isStructure. Catling/Bot-O-Mine true; Blazemander false.",
+    "Compile inherited source root flags into weapon/ranged definitions. Runtime nativePetRangedOrigin1/0 controls shield eligibility and direct Fly retaliation. Structure restrictions on pet damage/crit/life steal remain independent.",
+    "Eligible pet projectile overlap uses the rotated child-hitbox offset. The real Catling side-offset boundary is tested with root outside and hitbox inside.",
+    "Separate PlayerExplosion hits retain self origin and cannot trigger the direct ranged-pet Fly response. Direct Bot-O-Mine contact remains eligible despite structure scaling."
+  ],
+  "interfaces": [
+    "Pets weapon/ranged petSourceShootsProjectiles:boolean retains the original parent actor flag.",
+    "Server snapshot fields nativePetRangedOrigin, nativeProjectileOffsetForward/Side (studs); no UI stat, remote or schema change."
+  ],
+  "focused": {
+    "NativePetDefense": {
+      "passed": 7,
+      "failed": 0
+    },
+    "NativePetProjectiles": {
+      "passed": 7,
+      "failed": 0
+    },
+    "NativeNightmareEnemyRuntime": {
+      "passed": 6,
+      "failed": 0
+    },
+    "sourceCorrection": "Initial uncommitted blanket-Pet classification was wrong for Blazemander. Direct stable PCK scenes show false and no runtime/animation property writes; corrected before committing.",
+    "red": "Canonical Blazemander exception3/1 before source flag integration; Fly reaction tests4/2 before source predicate correction; separate explosion6/1 before mode guard.",
+    "mutations": "Removing the source-origin condition and removing side-offset overlap each give6passed1failed. Original runtime file restored byte-for-byte.",
+    "legacyTestCorrection": "Existing Nightmare test incorrectly excluded Bot-O-Mine. Source HornedFly has no isStructure exclusion, and Bot scene flag is true. Expected second callback changed1->2 and an independent Blazemander no-third-callback check was added.",
+    "invocationOrder": "The corrected Nightmare expectation was saved before its invocation in the final full suite (spec209, progress90 at edit); all production files were unchanged throughout that run.",
+    "trackedRunner": "NativePetDefense7/0 and NativeNightmareEnemyRuntime6/0 passed with the tracked runner after the final suite."
+  },
+  "fullSuite": {
+    "specs": 307,
+    "passed": 1887,
+    "failed": 37,
+    "newFailureNames": [],
+    "aborts": [],
+    "artifact": "build/native-five-branch-ten-pet-source-reactions-de4e155.json",
+    "comparison": "Known Smoke/Gobbler/CharmedWorld failure identities retained as comparison set; no stable performance fix claimed.",
+    "superseded": [
+      "build/native-five-branch-ten-pet-defense-de4e155.json",
+      "build/native-five-branch-ten-pet-origin-final-de4e155.json"
+    ]
+  },
+  "checks": {
+    "stylua": "passed",
+    "selene": "0errors/18existingWarnings",
+    "rojo": "passed",
+    "compilers": "pets and deflect-charges --check passed"
+  },
+  "counts": {
+    "codePrepared": 48,
+    "codeOpen": 26,
+    "neutralJungleBodiesPrepared": 14,
+    "newCompleteCharacters": 0
+  },
+  "open": [
+    "Legacy/B7 and Boomerang/custom projectile defense; actual Pachycephalosaurus body/art/registration and evolution",
+    "Fly area-entry reactions for already damage-ignored projectiles are a separate unported ordering issue; origin classification alone is not full native Fly parity",
+    "Remaining Jungle families/bosses/waves/area and native physics/presentation/Studio/device acceptance",
+    "Previously observed CharmedWorld budget fluctuation remains open"
+  ],
+  "newStepMerged": false,
+  "arsenalChanged": false,
+  "uploads": 0,
+  "runtimeAssetIdsChanged": 0,
+  "draftPr": 151
+}

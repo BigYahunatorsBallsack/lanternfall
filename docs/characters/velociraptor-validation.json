@@ -1,0 +1,300 @@
+{
+  "referenceVersion": "1.2.0.3",
+  "steamBuild": 26642464,
+  "baseMain": "de4e155e97855cc18ffb52b1e81e53d1af8532fc",
+  "draftPr": 151,
+  "scope": "Normal fresh Velociraptor/type55 with source detection, wander-to-follow transition, flat Pursuer boosts and per-target contact entry reset. No ++/evolution/complete area or new character completion.",
+  "source": {
+    "typeId": 55,
+    "displayName": "Velociraptor",
+    "fallbackLook": "Shadeling",
+    "source": "res://entities/units/enemies/jungle/basic/velociraptor/velociraptor.tscn",
+    "sourceMd5": "0991656b37d4670393f527dc91009d90",
+    "statsSource": "res://entities/units/enemies/jungle/basic/velociraptor/velociraptor_stats.tres",
+    "statsMd5": "29eeb6632f7d68a891d093d0eddfa836",
+    "stats": {
+      "health": 6,
+      "health_increase_each_wave": 8.0,
+      "speed": 250,
+      "speed_randomization": 25,
+      "damage": 1,
+      "damage_increase_each_wave": 0.6,
+      "attack_cd": 30.0,
+      "value": 2,
+      "knockback_resistance": 0.0,
+      "gold_spread": 0,
+      "can_drop_consumables": true,
+      "always_drop_consumables": false,
+      "base_drop_chance": 0.01,
+      "item_drop_chance": 0.01,
+      "min_consumable_tier": 0,
+      "max_consumable_tier": 0,
+      "armor": 0,
+      "armor_increase_each_wave": 0.0,
+      "generate_blood": true
+    },
+    "body": {
+      "radiusPoints": 29.0172,
+      "offsetPoints": [
+        0,
+        10
+      ],
+      "source": "res://entities/units/enemies/jungle/basic/velociraptor/velociraptor.tscn",
+      "sourceMd5": "0991656b37d4670393f527dc91009d90"
+    },
+    "hurt": {
+      "radiusPoints": 32.0,
+      "offsetPoints": [
+        0,
+        20
+      ],
+      "source": "res://entities/units/enemies/enemy.tscn",
+      "sourceMd5": "38e442588073219bb217a4b484a6d8a7"
+    },
+    "hit": {
+      "radiusPoints": 16.0312,
+      "offsetPoints": [
+        0,
+        5
+      ],
+      "source": "res://entities/units/enemies/enemy.tscn",
+      "sourceMd5": "38e442588073219bb217a4b484a6d8a7"
+    },
+    "removeFirst": true,
+    "mass": 1,
+    "obstacleCollision": true,
+    "sprite": {
+      "source": "res://entities/units/enemies/jungle/basic/velociraptor/velociraptor.png",
+      "textureSource": "res://.import/velociraptor.png-d114b38276a9a66d91d357a8e5af98a3.stex",
+      "textureMd5": "869a7016d374ed8f861a429c964697eb",
+      "widthPoints": 150,
+      "heightPoints": 150
+    },
+    "bodyBorders": false,
+    "playerCollision": false,
+    "detection": {
+      "radiusPoints": 650,
+      "speedBonusPoints": 90,
+      "wanderRangePoints": 500,
+      "wanderJitterPoints": 100
+    },
+    "pursuer": {
+      "boost_cooldown": 1.0,
+      "max_boosts": 10,
+      "speed_on_boost": 45,
+      "damage_on_boost": 0,
+      "size_on_boost": 0.0,
+      "change_movement_behavior_after_x_boosts": -1,
+      "bonus_speed_on_change_movement_behavior": 0,
+      "reset_nb_times_boosted_on_hit": true,
+      "collisionScalingShare": 0.25,
+      "spriteRisePoints": 40
+    }
+  },
+  "ruleSources": [
+    {
+      "source": "res://effect_behaviors/enemies/charm_enemy_effect_behavior.gdc",
+      "sourceMd5": "a0830c473b5da00b8d278346117f5452"
+    },
+    {
+      "source": "res://entities/entity.gdc",
+      "sourceMd5": "805ebc9f4306c9ec71b786cdc7dd89af"
+    },
+    {
+      "source": "res://entities/units/enemies/attack_behaviors/attack_behavior.gdc",
+      "sourceMd5": "3f7f7c4411aa4d3b27e55e9ac3d4ab27"
+    },
+    {
+      "source": "res://entities/units/enemies/attack_behaviors/charging_attack_behavior.gdc",
+      "sourceMd5": "fcf2901832ca42a4e69e98c60629397e"
+    },
+    {
+      "source": "res://entities/units/enemies/attack_behaviors/charging_attack_deflect_bullet_behavior.gdc",
+      "sourceMd5": "daba5d3d739bba386c511fdbc2b18c92"
+    },
+    {
+      "source": "res://entities/units/enemies/attack_behaviors/shooting_attack_behavior.gdc",
+      "sourceMd5": "43d5ebd849396509ff38632915c988a2"
+    },
+    {
+      "source": "res://entities/units/enemies/attack_behaviors/spawning_attack_behavior.gdc",
+      "sourceMd5": "cbddd1b76bf3363315729d319a34798d"
+    },
+    {
+      "source": "res://entities/units/enemies/crash_zone/basic/pursuer/pursuer.gdc",
+      "sourceMd5": "9ec3187fe3a68de4c9c35e9bd3d20488"
+    },
+    {
+      "source": "res://entities/units/enemies/enemy.gdc",
+      "sourceMd5": "b341670f5ac667dc203f7eb778a2cda8"
+    },
+    {
+      "source": "res://entities/units/enemies/jungle/basic/ankylosaurus/ankylosaurus.gdc",
+      "sourceMd5": "00cac12edcc97f4b31a46615565f3802"
+    },
+    {
+      "source": "res://entities/units/enemies/jungle/basic/baby_trex/baby_trex.gdc",
+      "sourceMd5": "8d0eb87d46ac189537c97885f23c918d"
+    },
+    {
+      "source": "res://entities/units/enemies/jungle/basic/dino_egg/dino_egg.gdc",
+      "sourceMd5": "f01696d402b51e177ee02fe0bdce31c8"
+    },
+    {
+      "source": "res://entities/units/enemies/jungle/basic/pachycephalosaurus/pachycephalosaurus.gdc",
+      "sourceMd5": "8bc1d902906d2c92a141b6b122740e8c"
+    },
+    {
+      "source": "res://entities/units/enemies/jungle/basic/stintaosaurus/stintaosaurus.gdc",
+      "sourceMd5": "7ba3c455bdd6bc6b8272200ebb30040e"
+    },
+    {
+      "source": "res://entities/units/movement_behaviors/anticipate_target_movement_behavior.gdc",
+      "sourceMd5": "7e15d0a748305c8b55e8598e179cf5d9"
+    },
+    {
+      "source": "res://entities/units/movement_behaviors/detect_evolution_attack_behavior.gdc",
+      "sourceMd5": "42d8ab27f5046516ce118b723072f328"
+    },
+    {
+      "source": "res://entities/units/movement_behaviors/detect_target_movement_behavior.gdc",
+      "sourceMd5": "0e5e3fdc02f952196a6a0008bc191e99"
+    },
+    {
+      "source": "res://entities/units/movement_behaviors/follow_target_movement_behavior.gdc",
+      "sourceMd5": "e3ed9b3e5d9a75a09699b324caa5e22f"
+    },
+    {
+      "source": "res://entities/units/movement_behaviors/movement_behavior.gdc",
+      "sourceMd5": "545124c6bbc946d5a542876cd568078b"
+    },
+    {
+      "source": "res://entities/units/movement_behaviors/stay_in_range_from_player_movement_behavior.gdc",
+      "sourceMd5": "73e3ea5fbfa3506197f0ec0fc6da22c3"
+    },
+    {
+      "source": "res://entities/units/movement_behaviors/target_rand_pos_around_player_movement_behavior.gdc",
+      "sourceMd5": "faa12faf0ccf2d3d86cc56d8dee2f21f"
+    },
+    {
+      "source": "res://entities/units/movement_behaviors/target_rand_pos_movement_behavior.gdc",
+      "sourceMd5": "d5637932f5178c3dcce36f9a236958b8"
+    },
+    {
+      "source": "res://entities/units/unit/unit.gdc",
+      "sourceMd5": "aa94391f2d9681ac36b7f8617b82ff13"
+    },
+    {
+      "source": "res://global/entity_spawner.gdc",
+      "sourceMd5": "ba0576c27ac5b889c5688decda3dd838"
+    },
+    {
+      "source": "res://singletons/entity_service.gdc",
+      "sourceMd5": "f1a861f576858bbaa3e913d83c7b1807"
+    },
+    {
+      "source": "res://singletons/zone_service.gdc",
+      "sourceMd5": "d16899aba618beb55e980f67a0bf10b0"
+    }
+  ],
+  "rules": [
+    "HP6+8/wave, contact1+0.6/wave, speed250+/-25px/s; HP factor1. Body29.0172px at0/10, hurt32px at total0/4, contact16.0312px at0/5.",
+    "Before detection choose random goals in the source500+/-100px square around the target. Inclusive650px detection latches once, adds90px/s times accessibility and switches to direct two-axis following.",
+    "Independent repeating1s Timer adds45px/s times accessibility, max10 boosts. The Timer keeps its phase while capped and through contact resets.",
+    "New contact entry sets boost count and all native speed bonus to0; detection remains latched. Continuous overlap is not another entry. Contact maps use stable namespaced player identities/native enemy IDs so slot changes or faction transfer do not alias identities.",
+    "Baby T-Rex alone retains its optional live-player speed cap. Normal Velociraptor has no such cap, no size/damage boost, no border clamp/player body mask, and no ++ warning charge."
+  ],
+  "interfaces": [
+    "Enemies.NativeDetection={radius,speedBonus}; NativeTargetDetection owns the one-time latch, World.detections is a persistent transfer/compaction column.",
+    "Pursuer.playerSpeedShare now optional; resetOnContact is source-driven. beginContacts/contact/endContacts reuse two per-actor maps without per-frame map allocation.",
+    "World.step adds optional final targetKeys:{number|string}; ordinary EnemySim passes Player:UserId strings and CharmedWorld passes native enemy IDs. Existing callers retain slot fallback.",
+    "Existing nativeChargeAccessibility callback also scales source flat detection/Pursuer bonuses; no new remote/schema/Arsenal interface."
+  ],
+  "focused": {
+    "NativeTargetDetection": {
+      "passed": 3,
+      "failed": 0
+    },
+    "NativeVelociraptor": {
+      "passed": 6,
+      "failed": 0
+    },
+    "NativeBabyTrex": {
+      "passed": 10,
+      "failed": 0
+    },
+    "NativePachycephalosaurus": {
+      "passed": 5,
+      "failed": 0
+    },
+    "MainGameEnemyStats": {
+      "passed": 29,
+      "failed": 0
+    },
+    "WorldSprites": {
+      "passed": 12,
+      "failed": 0
+    },
+    "CharmedWorld": {
+      "passed": 6,
+      "failed": 0
+    },
+    "red": "Detection/timer/cap tests initially0/3; missing normal actor0/4. Final3/0 and6/0.",
+    "fixtureCorrection": "Initial contact-reset fixture placed the detection target inside the contact circle and correctly reset bonus immediately; moved it to40studs to test detection separately. No production workaround.",
+    "mutation": "Always resetting continuous overlap produces5/1; NativePursuer restored byte-for-byte before final checks/full run.",
+    "trackedRunner": "Velociraptor6/0 and NativeTargetDetection3/0 passed after full suite; no runtime changes."
+  },
+  "fullSuite": {
+    "specs": 311,
+    "passed": 1954,
+    "failed": 36,
+    "artifact": "build/native-five-branch-ten-velociraptor-de4e155.json",
+    "comparisonArtifacts": [
+      "build/native-five-branch-ten-pachycephalosaurus-de4e155.json",
+      "build/native-five-branch-ten-pet-source-reactions-de4e155.json",
+      "build/native-five-branch-nine-deflect-4cf1050.json",
+      "build/native-five-branch-nine-1203-4cf1050.json",
+      "build/native-five-branch-nine-defense-reentry-final-4cf1050.json"
+    ],
+    "newFailureNames": [],
+    "aborts": [],
+    "runtimeUnchangedDuringRun": true,
+    "returnedVsPrevious": [
+      [
+        "tests/EnemiesB9.spec.luau",
+        "FAIL new enemies (B9) > lets a Gobbler eat the orbs on the floor and drop them all when killed"
+      ]
+    ],
+    "absentVsPrevious": [
+      [
+        "tests/Smoke.spec.luau",
+        "FAIL smoke > chases the player until it touches them"
+      ]
+    ]
+  },
+  "checks": {
+    "stylua": "passed",
+    "selene": "0errors/18existingWarnings",
+    "rojo": "passed",
+    "compilers": "jungle-walkers and jungle-colliders --check passed",
+    "art": "20 local images; prepare-character-jungle-art --check passed; new PNG visually inspected"
+  },
+  "counts": {
+    "codePrepared": 48,
+    "codeOpen": 26,
+    "newCompleteCharacters": 0,
+    "neutralJungleBodiesPrepared": 16,
+    "localJungleImages": 20
+  },
+  "open": [
+    "Velociraptor++ warning charge, global Meca/Mutant evolution, remaining Jungle families/bosses/waves/area.",
+    "Native Physics/Area callback ordering and invulnerability/hitbox-enable interactions remain part of the incomplete original physics acceptance.",
+    "Native Godot pooled-instance detection reuse needs separate audit: DetectTargetMovementBehavior.init sets current movement to the pre-detection child but does not explicitly reset _detected_player. Current engine models fresh actor spawn and preserves actual live state through faction transfer, not a full Godot pool port.",
+    "Target selection cadence, original renderer/animations, global time factors and Studio/coop/mobile acceptance remain pending.",
+    "Known failures including CharmedWorld CPU fluctuation remain unresolved; a green sample is not a stable performance fix."
+  ],
+  "merged": false,
+  "uploads": 0,
+  "runtimeAssetIdsChanged": 0,
+  "arsenalChanged": false
+}

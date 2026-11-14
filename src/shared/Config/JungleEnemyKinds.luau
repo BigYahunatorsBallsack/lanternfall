@@ -3,6 +3,7 @@
 local C = require(script.Parent.JungleWalkers)
 local Colliders = require(script.Parent.JungleColliderOffsets)
 local ChargeTargets = require(script.Parent.JungleChargeTargets)
+local Deflect = require(script.Parent.JungleDeflectCharges)
 local Kinds = {}
 function Kinds.build(pixel: number): { [string]: any }
 	local result = {}
@@ -71,6 +72,17 @@ function Kinds.build(pixel: number): { [string]: any }
 				rangeZ = a.range_Y * pixel,
 				massMultiplier = rules.chargeMassMultiplier,
 			}
+			if f.directPlayerCharge then
+				local rule = result[id].nativeCharge
+				rule.rangeX, rule.minRange, rule.maxRange = a.range_X * pixel, a.min_range * pixel, a.max_range * pixel
+				rule.target = { player = true, atShoot = a.target_calculation_timing == 1 }
+				rule.longEvery, rule.longCooldown = a.long_cooldown_every_x_shoots, a.long_cooldown / rules.frameRate
+			end
+
+			if f.normalDeflectCharge then
+				assert(Deflect.source.sourceMd5 == f.sourceMd5, "Deflect charge source mismatch")
+				result[id].nativeCharge = Deflect.rule
+			end
 			if f.aroundPlayerCharge then
 				assert(ChargeTargets.source.variant.sourceMd5 == f.sourceMd5, "Charge targeting source mismatch")
 				result[id].nativeCharge = ChargeTargets.rule
@@ -154,8 +166,24 @@ function Kinds.build(pixel: number): { [string]: any }
 				changeAt = a.change_movement_behavior_after_x_boosts,
 				changeSpeed = a.bonus_speed_on_change_movement_behavior * pixel,
 				playerSpeedShare = a.max_player_speed_multiplier,
+				resetOnContact = a.reset_nb_times_boosted_on_hit,
 			}
 		end
+		if f.detection then
+			local a = f.detection
+			result[id].nativeDetection = { radius = a.radiusPoints * pixel, speedBonus = a.speedBonusPoints * pixel }
+			if a.wanderRangePoints then
+				result[id].wander = {
+					around = "Target",
+					range = a.wanderRangePoints * pixel,
+					rangeJitter = a.wanderJitterPoints * pixel,
+					arriveStuds = C.spawningRules.goalPrecisionPoints * pixel,
+					maxSeconds = math.huge,
+				}
+			end
+			result[id].anticipate = a.anticipateAfter
+		end
+
 		if f.activeVariant then
 			local a = f.shootingVariants[f.activeVariant]
 			local rules = C.shootingRules

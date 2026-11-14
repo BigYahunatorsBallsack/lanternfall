@@ -96,6 +96,7 @@ local function allocateActorId(): number
 end
 -- Living participants with a character, refreshed every step (reused arrays).
 local targetPlayers: { Player } = {}
+local targetKeys: { number | string } = {}
 local function referencePlayerSpeed(index: number?, x: number?, z: number?): number?
 	if index and targetPlayers[index] then
 		return MovementInput.getSpeed(targetPlayers[index])
@@ -253,6 +254,7 @@ local function collectTargets()
 			if position then
 				targetCount += 1
 				targetPlayers[targetCount] = player
+				targetKeys[targetCount] = "Player:" .. tostring(player.UserId)
 				targetIndexOf[player] = targetCount
 				targetXs[targetCount] = position.X
 				targetZs[targetCount] = position.Z
@@ -509,7 +511,8 @@ local function stepOnce()
 		targetInputXs,
 		targetInputZs,
 		targetDirectionXs,
-		targetDirectionZs
+		targetDirectionZs,
+		targetKeys
 	)
 	currentTick += 1
 	local stepNow = workspace:GetServerTimeNow()

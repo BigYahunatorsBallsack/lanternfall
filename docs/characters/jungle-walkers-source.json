@@ -19,7 +19,10 @@
     "Stintaosaurus",
     "Triceratops",
     "Parasaurolorus",
-    "Ankylosaurus"
+    "Ankylosaurus",
+    "Pachycephalosaurus",
+    "Velociraptor",
+    "Jeholopterus"
   ],
   "enemies": {
     "BabyTriceratops": {
@@ -1346,6 +1349,329 @@
       "wanderArena": true,
       "nativeHurtSlowEffects": false,
       "normalDeflectCharge": false
+    },
+    "Pachycephalosaurus": {
+      "typeId": 54,
+      "displayName": "Pachycephalosaurus",
+      "fallbackLook": "Shadeling",
+      "source": "res://entities/units/enemies/jungle/basic/pachycephalosaurus/pachycephalosaurus.tscn",
+      "sourceMd5": "a03085289992494611235136195a9ace",
+      "statsSource": "res://entities/units/enemies/jungle/basic/pachycephalosaurus/pachycephalosaurus_stats.tres",
+      "statsMd5": "df570b6e3711a9f4beeb81c76a7d952f",
+      "stats": {
+        "health": 12,
+        "health_increase_each_wave": 12.0,
+        "speed": 275,
+        "speed_randomization": 25,
+        "damage": 1,
+        "damage_increase_each_wave": 1.0,
+        "attack_cd": 30.0,
+        "value": 4,
+        "knockback_resistance": 0.7,
+        "gold_spread": 0,
+        "can_drop_consumables": true,
+        "always_drop_consumables": false,
+        "base_drop_chance": 0.01,
+        "item_drop_chance": 0.01,
+        "min_consumable_tier": 0,
+        "max_consumable_tier": 0,
+        "armor": 0,
+        "armor_increase_each_wave": 0.0,
+        "generate_blood": true
+      },
+      "body": {
+        "radiusPoints": 53.0,
+        "offsetPoints": [
+          0,
+          -36
+        ],
+        "source": "res://entities/units/enemies/jungle/basic/pachycephalosaurus/pachycephalosaurus.tscn",
+        "sourceMd5": "a03085289992494611235136195a9ace"
+      },
+      "hurt": {
+        "radiusPoints": 47.0106,
+        "offsetPoints": [
+          0,
+          -13
+        ],
+        "source": "res://entities/units/enemies/jungle/basic/pachycephalosaurus/pachycephalosaurus.tscn",
+        "sourceMd5": "a03085289992494611235136195a9ace"
+      },
+      "hit": {
+        "radiusPoints": 35.0571,
+        "offsetPoints": [
+          0,
+          -17
+        ],
+        "source": "res://entities/units/enemies/jungle/basic/pachycephalosaurus/pachycephalosaurus.tscn",
+        "sourceMd5": "a03085289992494611235136195a9ace"
+      },
+      "removeFirst": false,
+      "mass": 1,
+      "obstacleCollision": true,
+      "sprite": {
+        "source": "res://entities/units/enemies/jungle/basic/pachycephalosaurus/pachycephalosaurus.png",
+        "textureSource": "res://.import/pachycephalosaurus.png-0796d6406660a5ac3f559230f05a86d8.stex",
+        "textureMd5": "a3c488c2a1482350f0bfbbddc1ba5475",
+        "widthPoints": 150,
+        "heightPoints": 150
+      },
+      "bodyBorders": true,
+      "playerCollision": false,
+      "chargingVariants": {
+        "Normal": {
+          "cooldown": 70.0,
+          "long_cooldown_every_x_shoots": 0,
+          "long_cooldown": 0.0,
+          "max_cd_randomization": 20,
+          "min_range": 0,
+          "max_range": 500,
+          "range_X": -1,
+          "range_Y": -1,
+          "attack_anim_speed": 1.0,
+          "charge_duration": 1.0,
+          "charge_speed": 400.0,
+          "target_calculation_timing": 1,
+          "target": 1,
+          "rand_target_size": -1,
+          "only_positions_in_target_direction": true,
+          "scale_charge_duration_with_range": false,
+          "recovery_duration": 2.0,
+          "deflect_stop_before_CD": 80.0
+        },
+        "Mutant": {
+          "cooldown": 60.0,
+          "long_cooldown_every_x_shoots": 0,
+          "long_cooldown": 0.0,
+          "max_cd_randomization": 20,
+          "min_range": 0,
+          "max_range": 500,
+          "range_X": -1,
+          "range_Y": -1,
+          "attack_anim_speed": 1.25,
+          "charge_duration": 1.25,
+          "charge_speed": 500.0,
+          "target_calculation_timing": 1,
+          "target": 1,
+          "rand_target_size": -1,
+          "only_positions_in_target_direction": true,
+          "scale_charge_duration_with_range": false,
+          "recovery_duration": 1.5,
+          "deflect_stop_before_CD": 70.0
+        },
+        "Meca": {
+          "cooldown": 70.0,
+          "long_cooldown_every_x_shoots": 0,
+          "long_cooldown": 0.0,
+          "max_cd_randomization": 20,
+          "min_range": 0,
+          "max_range": 500,
+          "range_X": -1,
+          "range_Y": -1,
+          "attack_anim_speed": 0.7,
+          "charge_duration": 0.7,
+          "charge_speed": 350.0,
+          "target_calculation_timing": 1,
+          "target": 1,
+          "rand_target_size": -1,
+          "only_positions_in_target_direction": true,
+          "scale_charge_duration_with_range": false,
+          "recovery_duration": 2.5,
+          "deflect_stop_before_CD": 80.0
+        }
+      },
+      "activeChargeVariant": "Normal",
+      "evolutionVariantsImplemented": false,
+      "normalDeflectCharge": true,
+      "nativeHurtSlowEffects": false
+    },
+    "Velociraptor": {
+      "typeId": 55,
+      "displayName": "Velociraptor",
+      "fallbackLook": "Shadeling",
+      "source": "res://entities/units/enemies/jungle/basic/velociraptor/velociraptor.tscn",
+      "sourceMd5": "0991656b37d4670393f527dc91009d90",
+      "statsSource": "res://entities/units/enemies/jungle/basic/velociraptor/velociraptor_stats.tres",
+      "statsMd5": "29eeb6632f7d68a891d093d0eddfa836",
+      "stats": {
+        "health": 6,
+        "health_increase_each_wave": 8.0,
+        "speed": 250,
+        "speed_randomization": 25,
+        "damage": 1,
+        "damage_increase_each_wave": 0.6,
+        "attack_cd": 30.0,
+        "value": 2,
+        "knockback_resistance": 0.0,
+        "gold_spread": 0,
+        "can_drop_consumables": true,
+        "always_drop_consumables": false,
+        "base_drop_chance": 0.01,
+        "item_drop_chance": 0.01,
+        "min_consumable_tier": 0,
+        "max_consumable_tier": 0,
+        "armor": 0,
+        "armor_increase_each_wave": 0.0,
+        "generate_blood": true
+      },
+      "body": {
+        "radiusPoints": 29.0172,
+        "offsetPoints": [
+          0,
+          10
+        ],
+        "source": "res://entities/units/enemies/jungle/basic/velociraptor/velociraptor.tscn",
+        "sourceMd5": "0991656b37d4670393f527dc91009d90"
+      },
+      "hurt": {
+        "radiusPoints": 32.0,
+        "offsetPoints": [
+          0,
+          20
+        ],
+        "source": "res://entities/units/enemies/enemy.tscn",
+        "sourceMd5": "38e442588073219bb217a4b484a6d8a7"
+      },
+      "hit": {
+        "radiusPoints": 16.0312,
+        "offsetPoints": [
+          0,
+          5
+        ],
+        "source": "res://entities/units/enemies/enemy.tscn",
+        "sourceMd5": "38e442588073219bb217a4b484a6d8a7"
+      },
+      "removeFirst": true,
+      "mass": 1,
+      "obstacleCollision": true,
+      "sprite": {
+        "source": "res://entities/units/enemies/jungle/basic/velociraptor/velociraptor.png",
+        "textureSource": "res://.import/velociraptor.png-d114b38276a9a66d91d357a8e5af98a3.stex",
+        "textureMd5": "869a7016d374ed8f861a429c964697eb",
+        "widthPoints": 150,
+        "heightPoints": 150
+      },
+      "bodyBorders": false,
+      "playerCollision": false,
+      "detection": {
+        "radiusPoints": 650,
+        "speedBonusPoints": 90,
+        "wanderRangePoints": 500,
+        "wanderJitterPoints": 100
+      },
+      "pursuer": {
+        "boost_cooldown": 1.0,
+        "max_boosts": 10,
+        "speed_on_boost": 45,
+        "damage_on_boost": 0,
+        "size_on_boost": 0.0,
+        "change_movement_behavior_after_x_boosts": -1,
+        "bonus_speed_on_change_movement_behavior": 0,
+        "reset_nb_times_boosted_on_hit": true,
+        "collisionScalingShare": 0.25,
+        "spriteRisePoints": 40
+      }
+    },
+    "Jeholopterus": {
+      "typeId": 56,
+      "displayName": "Jeholopterus",
+      "fallbackLook": "Shadeling",
+      "source": "res://entities/units/enemies/jungle/basic/jeholopterus/jeholopterus.tscn",
+      "sourceMd5": "fe21989669d74261e3f07c2f0b17051e",
+      "statsSource": "res://entities/units/enemies/jungle/basic/jeholopterus/jeholopterus_stats.tres",
+      "statsMd5": "ab89fe11d0b163cf712041e13cd86424",
+      "stats": {
+        "health": 3,
+        "health_increase_each_wave": 2.0,
+        "speed": 150,
+        "speed_randomization": 20,
+        "damage": 1,
+        "damage_increase_each_wave": 0.85,
+        "attack_cd": 30.0,
+        "value": 1,
+        "knockback_resistance": 0.0,
+        "gold_spread": 0,
+        "can_drop_consumables": true,
+        "always_drop_consumables": false,
+        "base_drop_chance": 0.01,
+        "item_drop_chance": 0.01,
+        "min_consumable_tier": 0,
+        "max_consumable_tier": 0,
+        "armor": 0,
+        "armor_increase_each_wave": 0.0,
+        "generate_blood": true
+      },
+      "body": {
+        "radiusPoints": 20.0,
+        "offsetPoints": [
+          0,
+          -27
+        ],
+        "source": "res://entities/units/enemies/jungle/basic/jeholopterus/jeholopterus.tscn",
+        "sourceMd5": "fe21989669d74261e3f07c2f0b17051e"
+      },
+      "hurt": {
+        "radiusPoints": 25.0,
+        "offsetPoints": [
+          0,
+          -18
+        ],
+        "source": "res://entities/units/enemies/jungle/basic/jeholopterus/jeholopterus.tscn",
+        "sourceMd5": "fe21989669d74261e3f07c2f0b17051e"
+      },
+      "hit": {
+        "radiusPoints": 20.0,
+        "offsetPoints": [
+          0,
+          -27
+        ],
+        "source": "res://entities/units/enemies/jungle/basic/jeholopterus/jeholopterus.tscn",
+        "sourceMd5": "fe21989669d74261e3f07c2f0b17051e"
+      },
+      "removeFirst": false,
+      "mass": 1,
+      "obstacleCollision": false,
+      "sprite": {
+        "source": "res://entities/units/enemies/jungle/basic/jeholopterus/jeholopterus.png",
+        "textureSource": "res://.import/jeholopterus.png-23f36eea19655cea1b9a589feb48fca5.stex",
+        "textureMd5": "c452e51ba978243ef8014c25df919c3c",
+        "widthPoints": 110,
+        "heightPoints": 110
+      },
+      "bodyBorders": true,
+      "playerCollision": false,
+      "chargingVariants": {
+        "Normal": {
+          "cooldown": 15.0,
+          "long_cooldown_every_x_shoots": 2,
+          "long_cooldown": 45.0,
+          "max_cd_randomization": 0,
+          "min_range": 0,
+          "max_range": 350,
+          "range_X": -1,
+          "range_Y": -1,
+          "attack_anim_speed": 4.0,
+          "charge_duration": 0.3,
+          "charge_speed": 400.0,
+          "target_calculation_timing": 0,
+          "target": 0,
+          "rand_target_size": -1,
+          "only_positions_in_target_direction": false,
+          "scale_charge_duration_with_range": false,
+          "recovery_duration": 0.05
+        }
+      },
+      "activeChargeVariant": "Normal",
+      "directPlayerCharge": true,
+      "evolutionVariantsImplemented": false,
+      "detection": {
+        "radiusPoints": 450,
+        "speedBonusPoints": 150,
+        "anticipateAfter": {
+          "seconds": 0.2,
+          "horizontalOnly": false
+        }
+      }
     }
   },
   "spawningRules": {
@@ -1409,6 +1735,10 @@
       "sourceMd5": "fcf2901832ca42a4e69e98c60629397e"
     },
     {
+      "source": "res://entities/units/enemies/attack_behaviors/charging_attack_deflect_bullet_behavior.gdc",
+      "sourceMd5": "daba5d3d739bba386c511fdbc2b18c92"
+    },
+    {
       "source": "res://entities/units/enemies/attack_behaviors/shooting_attack_behavior.gdc",
       "sourceMd5": "43d5ebd849396509ff38632915c988a2"
     },
@@ -1437,6 +1767,10 @@
       "sourceMd5": "f01696d402b51e177ee02fe0bdce31c8"
     },
     {
+      "source": "res://entities/units/enemies/jungle/basic/pachycephalosaurus/pachycephalosaurus.gdc",
+      "sourceMd5": "8bc1d902906d2c92a141b6b122740e8c"
+    },
+    {
       "source": "res://entities/units/enemies/jungle/basic/stintaosaurus/stintaosaurus.gdc",
       "sourceMd5": "7ba3c455bdd6bc6b8272200ebb30040e"
     },
@@ -1449,6 +1783,10 @@
       "sourceMd5": "42d8ab27f5046516ce118b723072f328"
     },
     {
+      "source": "res://entities/units/movement_behaviors/detect_target_movement_behavior.gdc",
+      "sourceMd5": "0e5e3fdc02f952196a6a0008bc191e99"
+    },
+    {
       "source": "res://entities/units/movement_behaviors/follow_target_movement_behavior.gdc",
       "sourceMd5": "e3ed9b3e5d9a75a09699b324caa5e22f"
     },
@@ -1459,6 +1797,10 @@
     {
       "source": "res://entities/units/movement_behaviors/stay_in_range_from_player_movement_behavior.gdc",
       "sourceMd5": "73e3ea5fbfa3506197f0ec0fc6da22c3"
+    },
+    {
+      "source": "res://entities/units/movement_behaviors/target_rand_pos_around_player_movement_behavior.gdc",
+      "sourceMd5": "faa12faf0ccf2d3d86cc56d8dee2f21f"
     },
     {
       "source": "res://entities/units/movement_behaviors/target_rand_pos_movement_behavior.gdc",

@@ -1,0 +1,324 @@
+{
+  "referenceVersion": "1.2.0.3",
+  "steamBuild": 26642464,
+  "baseMain": "de4e155e97855cc18ffb52b1e81e53d1af8532fc",
+  "draftPr": 151,
+  "scope": "Normal Jeholopterus/type56, direct-player radial charge with every-second long cooldown, and detection-gated anticipation. Normal branch only; no completed character or playable Jungle.",
+  "source": {
+    "typeId": 56,
+    "displayName": "Jeholopterus",
+    "fallbackLook": "Shadeling",
+    "source": "res://entities/units/enemies/jungle/basic/jeholopterus/jeholopterus.tscn",
+    "sourceMd5": "fe21989669d74261e3f07c2f0b17051e",
+    "statsSource": "res://entities/units/enemies/jungle/basic/jeholopterus/jeholopterus_stats.tres",
+    "statsMd5": "ab89fe11d0b163cf712041e13cd86424",
+    "stats": {
+      "health": 3,
+      "health_increase_each_wave": 2.0,
+      "speed": 150,
+      "speed_randomization": 20,
+      "damage": 1,
+      "damage_increase_each_wave": 0.85,
+      "attack_cd": 30.0,
+      "value": 1,
+      "knockback_resistance": 0.0,
+      "gold_spread": 0,
+      "can_drop_consumables": true,
+      "always_drop_consumables": false,
+      "base_drop_chance": 0.01,
+      "item_drop_chance": 0.01,
+      "min_consumable_tier": 0,
+      "max_consumable_tier": 0,
+      "armor": 0,
+      "armor_increase_each_wave": 0.0,
+      "generate_blood": true
+    },
+    "body": {
+      "radiusPoints": 20.0,
+      "offsetPoints": [
+        0,
+        -27
+      ],
+      "source": "res://entities/units/enemies/jungle/basic/jeholopterus/jeholopterus.tscn",
+      "sourceMd5": "fe21989669d74261e3f07c2f0b17051e"
+    },
+    "hurt": {
+      "radiusPoints": 25.0,
+      "offsetPoints": [
+        0,
+        -18
+      ],
+      "source": "res://entities/units/enemies/jungle/basic/jeholopterus/jeholopterus.tscn",
+      "sourceMd5": "fe21989669d74261e3f07c2f0b17051e"
+    },
+    "hit": {
+      "radiusPoints": 20.0,
+      "offsetPoints": [
+        0,
+        -27
+      ],
+      "source": "res://entities/units/enemies/jungle/basic/jeholopterus/jeholopterus.tscn",
+      "sourceMd5": "fe21989669d74261e3f07c2f0b17051e"
+    },
+    "removeFirst": false,
+    "mass": 1,
+    "obstacleCollision": false,
+    "sprite": {
+      "source": "res://entities/units/enemies/jungle/basic/jeholopterus/jeholopterus.png",
+      "textureSource": "res://.import/jeholopterus.png-23f36eea19655cea1b9a589feb48fca5.stex",
+      "textureMd5": "c452e51ba978243ef8014c25df919c3c",
+      "widthPoints": 110,
+      "heightPoints": 110
+    },
+    "bodyBorders": true,
+    "playerCollision": false,
+    "chargingVariants": {
+      "Normal": {
+        "cooldown": 15.0,
+        "long_cooldown_every_x_shoots": 2,
+        "long_cooldown": 45.0,
+        "max_cd_randomization": 0,
+        "min_range": 0,
+        "max_range": 350,
+        "range_X": -1,
+        "range_Y": -1,
+        "attack_anim_speed": 4.0,
+        "charge_duration": 0.3,
+        "charge_speed": 400.0,
+        "target_calculation_timing": 0,
+        "target": 0,
+        "rand_target_size": -1,
+        "only_positions_in_target_direction": false,
+        "scale_charge_duration_with_range": false,
+        "recovery_duration": 0.05
+      }
+    },
+    "activeChargeVariant": "Normal",
+    "directPlayerCharge": true,
+    "evolutionVariantsImplemented": false,
+    "detection": {
+      "radiusPoints": 450,
+      "speedBonusPoints": 150,
+      "anticipateAfter": {
+        "seconds": 0.2,
+        "horizontalOnly": false
+      }
+    }
+  },
+  "ruleSources": [
+    {
+      "source": "res://effect_behaviors/enemies/charm_enemy_effect_behavior.gdc",
+      "sourceMd5": "a0830c473b5da00b8d278346117f5452"
+    },
+    {
+      "source": "res://entities/entity.gdc",
+      "sourceMd5": "805ebc9f4306c9ec71b786cdc7dd89af"
+    },
+    {
+      "source": "res://entities/units/enemies/attack_behaviors/attack_behavior.gdc",
+      "sourceMd5": "3f7f7c4411aa4d3b27e55e9ac3d4ab27"
+    },
+    {
+      "source": "res://entities/units/enemies/attack_behaviors/charging_attack_behavior.gdc",
+      "sourceMd5": "fcf2901832ca42a4e69e98c60629397e"
+    },
+    {
+      "source": "res://entities/units/enemies/attack_behaviors/charging_attack_deflect_bullet_behavior.gdc",
+      "sourceMd5": "daba5d3d739bba386c511fdbc2b18c92"
+    },
+    {
+      "source": "res://entities/units/enemies/attack_behaviors/shooting_attack_behavior.gdc",
+      "sourceMd5": "43d5ebd849396509ff38632915c988a2"
+    },
+    {
+      "source": "res://entities/units/enemies/attack_behaviors/spawning_attack_behavior.gdc",
+      "sourceMd5": "cbddd1b76bf3363315729d319a34798d"
+    },
+    {
+      "source": "res://entities/units/enemies/crash_zone/basic/pursuer/pursuer.gdc",
+      "sourceMd5": "9ec3187fe3a68de4c9c35e9bd3d20488"
+    },
+    {
+      "source": "res://entities/units/enemies/enemy.gdc",
+      "sourceMd5": "b341670f5ac667dc203f7eb778a2cda8"
+    },
+    {
+      "source": "res://entities/units/enemies/jungle/basic/ankylosaurus/ankylosaurus.gdc",
+      "sourceMd5": "00cac12edcc97f4b31a46615565f3802"
+    },
+    {
+      "source": "res://entities/units/enemies/jungle/basic/baby_trex/baby_trex.gdc",
+      "sourceMd5": "8d0eb87d46ac189537c97885f23c918d"
+    },
+    {
+      "source": "res://entities/units/enemies/jungle/basic/dino_egg/dino_egg.gdc",
+      "sourceMd5": "f01696d402b51e177ee02fe0bdce31c8"
+    },
+    {
+      "source": "res://entities/units/enemies/jungle/basic/pachycephalosaurus/pachycephalosaurus.gdc",
+      "sourceMd5": "8bc1d902906d2c92a141b6b122740e8c"
+    },
+    {
+      "source": "res://entities/units/enemies/jungle/basic/stintaosaurus/stintaosaurus.gdc",
+      "sourceMd5": "7ba3c455bdd6bc6b8272200ebb30040e"
+    },
+    {
+      "source": "res://entities/units/movement_behaviors/anticipate_target_movement_behavior.gdc",
+      "sourceMd5": "7e15d0a748305c8b55e8598e179cf5d9"
+    },
+    {
+      "source": "res://entities/units/movement_behaviors/detect_evolution_attack_behavior.gdc",
+      "sourceMd5": "42d8ab27f5046516ce118b723072f328"
+    },
+    {
+      "source": "res://entities/units/movement_behaviors/detect_target_movement_behavior.gdc",
+      "sourceMd5": "0e5e3fdc02f952196a6a0008bc191e99"
+    },
+    {
+      "source": "res://entities/units/movement_behaviors/follow_target_movement_behavior.gdc",
+      "sourceMd5": "e3ed9b3e5d9a75a09699b324caa5e22f"
+    },
+    {
+      "source": "res://entities/units/movement_behaviors/movement_behavior.gdc",
+      "sourceMd5": "545124c6bbc946d5a542876cd568078b"
+    },
+    {
+      "source": "res://entities/units/movement_behaviors/stay_in_range_from_player_movement_behavior.gdc",
+      "sourceMd5": "73e3ea5fbfa3506197f0ec0fc6da22c3"
+    },
+    {
+      "source": "res://entities/units/movement_behaviors/target_rand_pos_around_player_movement_behavior.gdc",
+      "sourceMd5": "faa12faf0ccf2d3d86cc56d8dee2f21f"
+    },
+    {
+      "source": "res://entities/units/movement_behaviors/target_rand_pos_movement_behavior.gdc",
+      "sourceMd5": "d5637932f5178c3dcce36f9a236958b8"
+    },
+    {
+      "source": "res://entities/units/unit/unit.gdc",
+      "sourceMd5": "aa94391f2d9681ac36b7f8617b82ff13"
+    },
+    {
+      "source": "res://global/entity_spawner.gdc",
+      "sourceMd5": "ba0576c27ac5b889c5688decda3dd838"
+    },
+    {
+      "source": "res://singletons/entity_service.gdc",
+      "sourceMd5": "f1a861f576858bbaa3e913d83c7b1807"
+    },
+    {
+      "source": "res://singletons/zone_service.gdc",
+      "sourceMd5": "d16899aba618beb55e980f67a0bf10b0"
+    }
+  ],
+  "engineSource": "https://github.com/godotengine/godot/blob/3.5/core/math/random_pcg.cpp",
+  "rules": [
+    "HP3+2 per wave, contact1+0.85 per wave, speed150+/-20px/s; HP factor1. Scene chain parent/child hurt offsets retained separately.",
+    "Before450px inclusive detection: plain following. Detection adds150px/s times accessibility once and enables0.2s target-input anticipation for normal movement.",
+    "Charge targets the actual current target position at START_SHOOT in both axes, without movement prediction or target RNG. The sampled vector stays locked through windup even if the target moves.",
+    "Normal cooldown15frames with0jitter, windup native charge-prep fire time divided by animation speed4, rush0.3s at400px/s added to base speed, recovery0.05s, radial range0..350px.",
+    "Every second SHOOT resets the shot counter and uses exact45frames long cooldown plus rush duration without a cooldown random draw. Normal rand_range still samples even for equal endpoints; engine source checked.",
+    "Detection bonus is overwritten by charge_speed at SHOOT and cleared at unlock, as in original ChargingAttackBehavior; it must not be restored on every frame. Shot counter and detection latch survive live World/Charm transfer."
+  ],
+  "interfaces": [
+    "NativeCharge.longEvery/longCooldown optional; NativeStraightCharge.State.shotsTaken persists with the existing actor state.",
+    "NativeCharge.target.player distinguishes TargetType.PLAYER from absent horizontal STRAIGHT_TO_PLAYER and existing around-player targets. Around-player fields are optional in the type but asserted in that branch.",
+    "detection.anticipateAfter is compiled into kind.anticipate; World applies anticipation only after detection when a latch exists. Existing actors without detection retain their anticipation.",
+    "JungleWalkers/EnemyKinds activate Jeholopterus/type56. Shared source charge defaults reused by compiler. No remote/schema/Arsenal changes."
+  ],
+  "focused": {
+    "NativeChargeCadence": {
+      "passed": 3,
+      "failed": 0
+    },
+    "NativeJeholopterus": {
+      "passed": 4,
+      "failed": 0
+    },
+    "NativeJeholopterusServer": {
+      "passed": 2,
+      "failed": 0
+    },
+    "NativeJungleCharge": {
+      "passed": 10,
+      "failed": 0
+    },
+    "NativeDeflectCharge": {
+      "passed": 8,
+      "failed": 0
+    },
+    "NativeAroundCharge": {
+      "passed": 8,
+      "failed": 0
+    },
+    "NativeVelociraptor": {
+      "passed": 6,
+      "failed": 0
+    },
+    "MainGameEnemyStats": {
+      "passed": 29,
+      "failed": 0
+    },
+    "WorldSprites": {
+      "passed": 12,
+      "failed": 0
+    },
+    "CharmedWorld": {
+      "passed": 6,
+      "failed": 0
+    },
+    "red": "Direct-target/cadence spec0/3 before implementation; absent actor0/4. Final3/0 and4/0 plus real server2/0.",
+    "mutation": "Suppressing shot-counter increments gives2/1 in NativeChargeCadence. NativeStraightCharge restored byte-for-byte before final full run.",
+    "lintCorrection": "Initial new contract assertions lacked mandatory error messages; added messages, final Selene0errors/18existingWarnings. No lint suppression.",
+    "existingExpectations": "Snapshot-kind count55->56, all uniqueness assertions retained.",
+    "trackedRunner": "NativeJeholopterusServer2/0 and NativeChargeCadence3/0 after final full suite; runtime unchanged."
+  },
+  "fullSuite": {
+    "specs": 314,
+    "passed": 1964,
+    "failed": 35,
+    "artifact": "build/native-five-branch-ten-jeholopterus-de4e155.json",
+    "comparisonArtifacts": [
+      "build/native-five-branch-ten-velociraptor-de4e155.json",
+      "build/native-five-branch-ten-pachycephalosaurus-de4e155.json",
+      "build/native-five-branch-ten-pet-source-reactions-de4e155.json",
+      "build/native-five-branch-nine-deflect-4cf1050.json",
+      "build/native-five-branch-nine-1203-4cf1050.json",
+      "build/native-five-branch-nine-defense-reentry-final-4cf1050.json"
+    ],
+    "newFailureNames": [],
+    "aborts": [],
+    "runtimeUnchangedDuringRun": true,
+    "returnedVsPrevious": [],
+    "absentVsPrevious": [
+      [
+        "tests/EnemiesB9.spec.luau",
+        "FAIL new enemies (B9) > lets a Gobbler eat the orbs on the floor and drop them all when killed"
+      ]
+    ]
+  },
+  "checks": {
+    "stylua": "passed",
+    "selene": "0errors/18existingWarnings",
+    "rojo": "passed",
+    "compilers": "jungle-walkers and jungle-colliders --check passed",
+    "art": "21 local PNGs; prepare-character-jungle-art --check passed; new image visually inspected"
+  },
+  "counts": {
+    "codePrepared": 48,
+    "codeOpen": 26,
+    "newCompleteCharacters": 0,
+    "neutralJungleBodiesPrepared": 17,
+    "localJungleImages": 21
+  },
+  "open": [
+    "Giant Dragonfly state machine and other remaining Jungle families, bosses, waves and area route; global evolution remains unaccepted.",
+    "Original renderer/animations/audio, complete fixed physics/Area ordering, target-selection cadence, time factors and native pooling reuse remain pending.",
+    "Studio/two-client/mobile and stable native performance acceptance; known CharmedWorld CPU fluctuation is not claimed fixed.",
+    "Fly damage-ignore reentry remains a separate open source-event-order issue."
+  ],
+  "merged": false,
+  "uploads": 0,
+  "runtimeAssetIdsChanged": 0,
+  "arsenalChanged": false
+}

@@ -272,6 +272,63 @@
       "pngSha256": "612cac6a1e96f2182a65ab883586638773ffeea92d3aeba2cc8b10309c32e6db"
     },
     {
+      "id": "Pachycephalosaurus",
+      "source": "res://entities/units/enemies/jungle/basic/pachycephalosaurus/pachycephalosaurus.png",
+      "textureSource": "res://.import/pachycephalosaurus.png-0796d6406660a5ac3f559230f05a86d8.stex",
+      "textureMd5": "a3c488c2a1482350f0bfbbddc1ba5475",
+      "output": "assets/enemies/native-jungle/Pachycephalosaurus.png",
+      "size": [
+        150,
+        150
+      ],
+      "alphaBounds": [
+        9,
+        17,
+        144,
+        131
+      ],
+      "rgbaSha256": "53c01adc03fe07102c7ac97237a4b7657ad76e605c36de6feeb0923396843128",
+      "pngSha256": "e619910fa67ee9069c4fce279255e1a19f31e3d6fc486d8db585ca588c028b30"
+    },
+    {
+      "id": "Velociraptor",
+      "source": "res://entities/units/enemies/jungle/basic/velociraptor/velociraptor.png",
+      "textureSource": "res://.import/velociraptor.png-d114b38276a9a66d91d357a8e5af98a3.stex",
+      "textureMd5": "869a7016d374ed8f861a429c964697eb",
+      "output": "assets/enemies/native-jungle/Velociraptor.png",
+      "size": [
+        150,
+        150
+      ],
+      "alphaBounds": [
+        10,
+        12,
+        146,
+        141
+      ],
+      "rgbaSha256": "0cc8ea2e7238ad6fd7ecf797fea08ace2a937f2c3a7b01b8a307cf5f686cf283",
+      "pngSha256": "4f3d0d50f12dbc3e6270225c6ef3967e8f3cf187a1b3ff36bcc28e0a0ad6a491"
+    },
+    {
+      "id": "Jeholopterus",
+      "source": "res://entities/units/enemies/jungle/basic/jeholopterus/jeholopterus.png",
+      "textureSource": "res://.import/jeholopterus.png-23f36eea19655cea1b9a589feb48fca5.stex",
+      "textureMd5": "c452e51ba978243ef8014c25df919c3c",
+      "output": "assets/enemies/native-jungle/Jeholopterus.png",
+      "size": [
+        110,
+        110
+      ],
+      "alphaBounds": [
+        3,
+        2,
+        105,
+        110
+      ],
+      "rgbaSha256": "9b265cf86503ae3a34411c753358aca607d2942f37b880a9f575e7fafa013f75",
+      "pngSha256": "7e75c8a0e7353a97b3808477cb1d5a68de46074f06873af821dd8833a9701789"
+    },
+    {
       "id": "Pillar_bullet_pillar_0002",
       "source": "res://projectiles/pillar_enemy/sprites/bullet_pillar_0002.png",
       "textureSource": "res://.import/bullet_pillar_0002.png-b64813647bb259fcd087f6245a3b4bd8.stex",

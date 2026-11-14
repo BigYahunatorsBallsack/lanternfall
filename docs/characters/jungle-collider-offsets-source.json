@@ -673,9 +673,153 @@
         ],
         "initialParentRotation": 0
       }
+    },
+    "Pachycephalosaurus": {
+      "source": "res://entities/units/enemies/jungle/basic/pachycephalosaurus/pachycephalosaurus.tscn",
+      "sourceMd5": "a03085289992494611235136195a9ace",
+      "sceneChain": [
+        "res://entities/units/enemies/jungle/basic/pachycephalosaurus/pachycephalosaurus.tscn",
+        "res://entities/units/enemies/enemy.tscn",
+        "res://entities/units/unit/unit.tscn",
+        "res://entities/entity.tscn"
+      ],
+      "hurt": {
+        "parentPoints": [
+          0,
+          -16
+        ],
+        "childPoints": [
+          0,
+          -13
+        ],
+        "totalPoints": [
+          0,
+          -29
+        ],
+        "initialParentScale": [
+          1,
+          1
+        ],
+        "initialParentRotation": 0
+      },
+      "hit": {
+        "parentPoints": [
+          0,
+          0
+        ],
+        "childPoints": [
+          0,
+          -17
+        ],
+        "totalPoints": [
+          0,
+          -17
+        ],
+        "initialParentScale": [
+          1,
+          1
+        ],
+        "initialParentRotation": 0
+      }
+    },
+    "Velociraptor": {
+      "source": "res://entities/units/enemies/jungle/basic/velociraptor/velociraptor.tscn",
+      "sourceMd5": "0991656b37d4670393f527dc91009d90",
+      "sceneChain": [
+        "res://entities/units/enemies/jungle/basic/velociraptor/velociraptor.tscn",
+        "res://entities/units/enemies/enemy.tscn",
+        "res://entities/units/unit/unit.tscn",
+        "res://entities/entity.tscn"
+      ],
+      "hurt": {
+        "parentPoints": [
+          0,
+          -16
+        ],
+        "childPoints": [
+          0,
+          20
+        ],
+        "totalPoints": [
+          0,
+          4
+        ],
+        "initialParentScale": [
+          1,
+          1
+        ],
+        "initialParentRotation": 0
+      },
+      "hit": {
+        "parentPoints": [
+          0,
+          0
+        ],
+        "childPoints": [
+          0,
+          5
+        ],
+        "totalPoints": [
+          0,
+          5
+        ],
+        "initialParentScale": [
+          1,
+          1
+        ],
+        "initialParentRotation": 0
+      }
+    },
+    "Jeholopterus": {
+      "source": "res://entities/units/enemies/jungle/basic/jeholopterus/jeholopterus.tscn",
+      "sourceMd5": "fe21989669d74261e3f07c2f0b17051e",
+      "sceneChain": [
+        "res://entities/units/enemies/jungle/basic/jeholopterus/jeholopterus.tscn",
+        "res://entities/units/enemies/enemy.tscn",
+        "res://entities/units/unit/unit.tscn",
+        "res://entities/entity.tscn"
+      ],
+      "hurt": {
+        "parentPoints": [
+          0,
+          -16
+        ],
+        "childPoints": [
+          0,
+          -18
+        ],
+        "totalPoints": [
+          0,
+          -34
+        ],
+        "initialParentScale": [
+          1,
+          1
+        ],
+        "initialParentRotation": 0
+      },
+      "hit": {
+        "parentPoints": [
+          0,
+          0
+        ],
+        "childPoints": [
+          0,
+          -27
+        ],
+        "totalPoints": [
+          0,
+          -27
+        ],
+        "initialParentScale": [
+          1,
+          1
+        ],
+        "initialParentRotation": 0
+      }
     }
   },
-  "scope": "Neutral saved1.2.0.2 scene transforms only; collision branches must be activated separately.",
+  "scope": "Previously saved neutral transforms revalidated for1.2.0.3 plus source-checked normal Pachycephalosaurus; collision branches activate separately.",
   "provenance": "Derived from saved1.2.0.2 neutral Jungle scene scan; each scene hash and child position checked against approved JungleWalkers facts.",
   "scenes": {
     "res://entities/units/enemies/jungle/basic/baby_triceratops/baby_triceratops.tscn": {
@@ -744,8 +888,23 @@
     "res://entities/units/enemies/jungle/basic/ankylosaurus/ankylosaurus.tscn": {
       "sourceMd5": "326c86b0680d2e079dc475a96564e7bd",
       "baseScene": "res://entities/units/enemies/enemy.tscn"
+    },
+    "res://entities/units/enemies/jungle/basic/pachycephalosaurus/pachycephalosaurus.tscn": {
+      "sourceMd5": "a03085289992494611235136195a9ace",
+      "baseScene": "res://entities/units/enemies/enemy.tscn"
+    },
+    "res://entities/units/enemies/jungle/basic/velociraptor/velociraptor.tscn": {
+      "sourceMd5": "0991656b37d4670393f527dc91009d90",
+      "baseScene": "res://entities/units/enemies/enemy.tscn"
+    },
+    "res://entities/units/enemies/jungle/basic/jeholopterus/jeholopterus.tscn": {
+      "sourceMd5": "fe21989669d74261e3f07c2f0b17051e",
+      "baseScene": "res://entities/units/enemies/enemy.tscn"
     }
   },
   "previousSourceVersion": "1.2.0.2",
-  "previousResourcesRevalidatedIdentical": true
+  "previousResourcesRevalidatedIdentical": true,
+  "pachycephalosaurusProvenance": "Stable1.2.0.3 scene has no Hurtbox/Hitbox parent overrides; entire inherited chain matches the approved Ankylosaurus chain byte-for-byte. Child offsets independently match the new JungleWalkers source record.",
+  "velociraptorProvenance": "Effective Hurtbox/Hitbox parent transforms merged from the full current stable1.2.0.3 scene chain; each scene MD5 checked or recorded, child offsets checked against JungleWalkers.",
+  "jeholopterusProvenance": "Stable1.2.0.3 complete scene chain revalidated; effective parent transforms merged and child positions checked against JungleWalkers."
 }

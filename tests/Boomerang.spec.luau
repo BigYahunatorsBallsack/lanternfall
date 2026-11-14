@@ -7,6 +7,7 @@ local S = game:GetService("ServerScriptService").Server.Services.WeaponService
 local Behavior = require(S.Behaviors.Boomerang)
 local Compute = require(S.WeaponStats).compute
 local Combat = require(S.BrotatoCombat)
+local Projectile = require(S.BrotatoProjectile)
 Combat.configure({})
 local function fixture(tier, sheet)
 	local w = {
@@ -147,5 +148,195 @@ describe("Native Boomerang", function()
 		assert(Behavior.fire(w, ctx))
 		expect(#w.state.boomerangs).toBe(0)
 		expect(#effects).toBe(0)
+	end)
+	it("absorbs a shield entry without changing phase flight or permanently ignoring its target", function()
+		local w, ctx, step, hits, effects = fixture(1)
+		local active, inside, draws = true, true, 0
+		Projectile.setDefense({
+			active = function()
+				return active, true
+			end,
+			target = function(_, random)
+				draws += 1
+				random()
+				return 0, 40
+			end,
+			overlaps = function()
+				return inside
+			end,
+		})
+		w.stats.damage, w.stats.bounceDamage, w.stats.knockback = 11, 0.7, 3
+		assert(Behavior.fire(w, ctx))
+		local shot = w.state.boomerangs[1]
+		step(0.1)
+		expect(hits()).toBe(0)
+		expect(shot.stats.damage).toBe(7)
+		expect(shot.stats.knockback).toBe(0)
+		expect(shot.hit[1]).toBe(nil)
+		expect(shot.bounces).toBe(-1)
+		expect(draws).toBe(1)
+		expect(shot.x - shot.startX).toBeNear(30 * (1 - (1 - 0.1 / shot.outSeconds) ^ 2))
+		expect(shot.phase).toBe("Out")
+		expect(effects[#effects].kind).toBe("Drop")
+		active = false
+		step(0.1)
+		expect(hits()).toBe(0) -- still the same physical overlap
+		inside = false
+		step(0.1)
+		expect(hits()).toBe(1)
+		active = true
+		step(0.05)
+		expect(draws).toBe(2) -- shield override precedes the previous-damage guard
+		expect(hits()).toBe(1)
+		expect(shot.stats.damage).toBe(4)
+		expect(w.stats.damage).toBe(11)
+	end)
+	it("retains independent shield overlaps across the per-leg ignore reset", function()
+		local w, ctx, step, hits = fixture(1)
+		local active, inside = false, true
+		Projectile.setDefense({
+			active = function()
+				return active, true
+			end,
+			target = function()
+				error("continuous overlap must not bounce")
+			end,
+			overlaps = function()
+				return inside
+			end,
+		})
+		assert(Behavior.fire(w, ctx))
+		step(0.6)
+		expect(hits()).toBe(1)
+		active = true
+		step(0.2)
+		expect(w.state.boomerangs[1].phase).toBe("Back")
+		expect(hits()).toBe(1)
+		active, inside = false, false
+		step(0.01)
+		expect(hits()).toBe(2)
+	end)
+	it("rechecks live defense after an earlier hit and keeps the four-second deadline", function()
+		local w, ctx, step, hits = fixture(1)
+		local live = true
+		Projectile.setDefense({
+			active = function(id)
+				return id == 2 and live, id == 2
+			end,
+			target = function()
+				error("dead reflector")
+			end,
+			overlaps = function()
+				return false
+			end,
+		})
+		function ctx.querySegment(_, _, _, _, _, _, out)
+			out[1], out[2] = 1, 2
+			return 2
+		end
+		local hit = ctx.hit
+		function ctx.hit(...)
+			live = false
+			return hit(...)
+		end
+		assert(Behavior.fire(w, ctx))
+		step(0.1)
+		expect(hits()).toBe(2)
+		ctx.x = 10000
+		step(3.9)
+		expect(#w.state.boomerangs).toBe(0)
+	end)
+
+	it("resets collider rotation while preserving the forward path, then resumes spin", function()
+		local w, ctx, step = fixture(1)
+		function ctx.enemyPosition()
+			return 0, 20
+		end
+		local inside = true
+		Projectile.setDefense({
+			active = function()
+				return true, true
+			end,
+			target = function()
+				return -40, -40
+			end,
+			overlaps = function()
+				return inside
+			end,
+		})
+		assert(Behavior.fire(w, ctx))
+		local shot = w.state.boomerangs[1]
+		local dx, dz = shot.dx, shot.dz
+		step(1 / 60)
+		expect(shot.rotation).toBeNear(-math.pi)
+		expect(shot.dx).toBe(dx)
+		expect(shot.dz).toBe(dz)
+		step(1 / 60)
+		expect(shot.rotation).toBeNear(-math.pi + math.rad(25))
+		expect(shot.dx).toBe(dx)
+		expect(shot.dz).toBe(dz)
+	end)
+	it("applies each distinct shield entry, clamps damage at one and preserves overlap per defender", function()
+		local w, ctx, step, hits = fixture(1)
+		local active, count = true, 0
+		Projectile.setDefense({
+			active = function()
+				return active, true
+			end,
+			target = function()
+				count += 1
+				return nil, nil
+			end,
+			overlaps = function()
+				return true
+			end,
+		})
+		function ctx.querySegment(_, _, _, _, _, _, out)
+			out[1], out[2] = 1, 2
+			return 2
+		end
+		w.stats.damage, w.stats.bounceDamage = 2, 0
+		assert(Behavior.fire(w, ctx))
+		local shot = w.state.boomerangs[1]
+		step(0.1)
+		expect(count).toBe(2)
+		expect(hits()).toBe(0)
+		expect(shot.stats.damage).toBe(1)
+		expect(shot.bounces).toBe(-2)
+		step(0.1)
+		expect(count).toBe(2)
+		active = false
+		step(0.1)
+		expect(hits()).toBe(0)
+	end)
+	it("uses the reduced snapshot for a later real hit and never mutates another projectile", function()
+		local w, ctx, step = fixture(1, { projectiles = 1 })
+		local active = true
+		Projectile.setDefense({
+			active = function()
+				return active, true
+			end,
+			target = function()
+				active = false
+				return 0, 0
+			end,
+			overlaps = function()
+				return false
+			end,
+		})
+		w.stats.damage, w.stats.bounceDamage = 11, 0.7
+		local damage = {}
+		function ctx.hit(_, weapon)
+			table.insert(damage, weapon.stats.damage)
+			return false
+		end
+		assert(Behavior.fire(w, ctx))
+		step(0.1)
+		expect(#damage).toBe(1)
+		expect(damage[1]).toBe(11)
+		step(0.1)
+		expect(#damage).toBe(2)
+		expect(damage[2]).toBe(7)
+		expect(w.stats.damage).toBe(11)
 	end)
 end)

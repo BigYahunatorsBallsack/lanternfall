@@ -73,6 +73,7 @@ export type Enemy = {
 	-- since B9 part 2 (Brotato's enemy behaviours, DESIGN.md section 7)
 	accelerate: Accelerate?,
 	pursuer: Pursuer?,
+	nativeDetection: NativeDetection?,
 	retaliate: Retaliate?,
 	pulse: Pulse?,
 	hatch: Hatch?,
@@ -182,7 +183,9 @@ export type Accelerate = {
 	resetOnHit: boolean?,
 }
 
--- Native flat Pursuer boosts plus Baby T-Rex's live-player speed cap; no reset on contact.
+export type NativeDetection = { radius: number, speedBonus: number }
+
+-- Native flat Pursuer boosts with optional player-speed cap and source contact reset.
 export type Pursuer = {
 	everySeconds: number,
 	maxSteps: number,
@@ -193,7 +196,8 @@ export type Pursuer = {
 	spriteRise: number,
 	changeAt: number,
 	changeSpeed: number,
-	playerSpeedShare: number,
+	playerSpeedShare: number?,
+	resetOnContact: boolean?,
 }
 
 -- Enemies that shoot a ring of projectiles when hit (Thornback, B9). Shots fly like the Spitter's (EnemySim/Volleys).
@@ -1847,6 +1851,8 @@ end
 
 export type NativeCharge = {
 	cooldown: number,
+	longEvery: number?,
+	longCooldown: number?,
 	deflectStopBeforeCooldown: number?, -- charging_attack_deflect_bullet_behavior: stop when remaining cooldown <= this duration
 	jitter: number,
 	minimumCooldown: number,
@@ -1860,10 +1866,11 @@ export type NativeCharge = {
 	maxRange: number?,
 	target: {
 		atShoot: boolean,
-		radius: number,
-		coneHalfAngle: number,
-		minimumRadiusShare: number,
-		inMovementDirection: boolean,
+		player: boolean?, -- direct TargetType.PLAYER, distinct from absent horizontal STRAIGHT_TO_PLAYER
+		radius: number?,
+		coneHalfAngle: number?,
+		minimumRadiusShare: number?,
+		inMovementDirection: boolean?,
 	}?, -- absent retains the original straight-to-player START_SHOOT branch
 	massMultiplier: number,
 }

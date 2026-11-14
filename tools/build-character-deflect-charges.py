@@ -51,13 +51,31 @@ def main():
     assert base['version'] == reference['version'] and int(base['steamBuild']) == int(reference['steamBuildId'])
     scripts = [behavior.removesuffix('.gd')+'.gdc', base['source'], base['rangeHelper']['source'],
                'res://entities/units/enemies/jungle/basic/pachycephalosaurus/pachycephalosaurus.gdc',
-               'res://projectiles/player_projectile.gdc', 'res://global/entity_spawner.gdc',
+               'res://projectiles/player_projectile.gdc', 'res://projectiles/boomerang/boomerang_projectile.gdc',
+               'res://weapons/ranged/ranged_weapon.gdc', 'res://weapons/melee/melee_weapon.gdc',
+               'res://entities/structures/structure.gdc', 'res://entities/structures/turret/turret.gdc',
+               'res://entities/structures/dart_trap/dart_trap.gdc',
+               'res://global/entity_spawner.gdc',
                'res://projectiles/grenade_mine/grenade_mine_projectile.gdc',
                'res://projectiles/player_explosion.gdc', 'res://overlap/hitbox.gdc',
-               'res://singletons/weapon_service.gdc', 'res://entities/units/unit/unit.gdc']
+               'res://singletons/weapon_service.gdc', 'res://entities/units/unit/unit.gdc',
+               'res://entities/units/pet/pet.gdc',
+               'res://entities/units/pet/catling_gun/catling_gun.gdc',
+               'res://entities/units/pet/blazemander/blazemander.gdc',
+               'res://entities/units/pet/bot_o_mine/bot_o_mine.gdc',
+               'res://entities/units/enemies/crash_zone/basic/fly/fly.gdc',
+               'res://entities/units/enemies/crash_zone/basic/horned_fly/horned_fly.gdc']
     assert pck.entries[base['source']]['md5'] == base['sourceMd5']
     animation = base['animation']
     assert pck.entries[animation['source']]['md5'] == animation['sourceMd5']
+    pet_origins = {}
+    for slug in ['catling_gun', 'blazemander', 'bot_o_mine']:
+        pet_path = f'res://entities/units/pet/{slug}/{slug}.tscn'
+        pet_scene = scenes.read_scene(pck, pet_path)
+        root = next(n['properties'] for n in pet_scene['nodes'] if n['parent'] is None)
+        assert isinstance(root['shoot_projectiles'], bool), pet_path
+        pet_origins[slug] = dict(source=pet_path, sourceMd5=pck.entries[pet_path]['md5'],
+                                 shootProjectiles=root['shoot_projectiles'])
     facts = dict(version=reference['version'], steamBuild=int(reference['steamBuildId']),
                  source=path, sourceMd5=pck.entries[path]['md5'], variants=variants,
                  frameRate=base['frameRate'], minimumCooldownFrames=base['minimumCooldownFrames'],
@@ -66,13 +84,20 @@ def main():
                                        manualAimAdditionalDistancePoints=50, globalTargets=True,
                                        includesCharmed=True, includesBosses=False),
                  around=base['around'], ruleSources=[dict(source=s, sourceMd5=pck.entries[s]['md5']) for s in scripts],
-                 actorRegistered=False, projectileDefenseConnected=False, evolutionVariantsImplemented=False,
+                 actorRegistered=True, normalActorRegistered=True, normalProjectileDefenseConnected=True, projectileDefenseConnected=False, evolutionVariantsImplemented=False,
                  nativeProjectileInterceptionConnected=True,
                  defenseExceptions=dict(stickyFlightHitboxEnabled=False, explosionOriginIsSelf=True,
                                         explosionFactorySetsOriginBeforeStart=True),
                  priorHitDefenseReentryImplemented=True,
-                 scope='Native ranged projectile entry and cooldown defense; Sticky flight and explosion exceptions audited. Full actor, legacy/pet/area paths remain pending.')
-    text = '--!strict\n-- Original Pachycephalosaurus clock and native projectile-defense facts; full actor integration remains pending.\n'
+                 nativePetProjectileInterceptionConnected=True,
+                 boomerangProjectileInterceptionConnected=True,
+                 ordinaryStructureIsPet=False, ordinaryStructureIsRangedWeapon=False, meleeSecondaryOriginIsMeleeWeapon=True,
+                 boomerangDefense=dict(phasePathUnchanged=True, velocityRemainsZero=True,
+                                       rotationUsesZeroVelocityAngle=True, ownFlightDeadlineUnchanged=True,
+                                       damageAndKnockbackUseInheritedBounce=True),
+                 petProjectileOrigins=pet_origins,
+                 scope='Native ranged weapon and source-flagged pet projectile defense with rotated collision offsets; Blazemander flames, Sticky flight and explosion exceptions audited. Boomerang inherited bounce keeps its phase path and own deadline. Normal actor connected. Evolution, remaining producer/event-order parity and playable area remain pending.')
+    text = '--!strict\n-- Original normal Pachycephalosaurus clock and native projectile-defense facts; evolution and full area acceptance remain pending.\n'
     text += 'local source = ' + catalog.luau(facts) + '\n'
     text += '''local target = table.clone(require(script.Parent.JungleChargeTargets).rule.target)
 local pixel = require(script.Parent.Stats).range.studsPerPoint
@@ -109,7 +134,7 @@ return { source = source, rule = rule }
             assert output.read_text(encoding='utf-8') == value, name
         else:
             output.write_text(value, encoding='utf-8', newline='\n')
-    print('Normal deflect-charge clock compiled; full Pachycephalosaurus and projectile defense remain pending')
+    print('Normal Pachycephalosaurus and native defense connected; evolution and full area acceptance remain pending')
 
 
 if __name__ == '__main__':
