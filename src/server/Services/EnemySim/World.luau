@@ -1521,7 +1521,7 @@ function World.step(
 			elseif wander then
 				bestDx, bestDz = wanderStep(self, i, wander, dt, x + bestDx, z + bestDz)
 				distance = math.sqrt(bestDx * bestDx + bestDz * bestDz)
-			elseif kind.anticipate then
+			elseif kind.anticipate and (not detection or detection.detected) then
 				local rule = kind.anticipate
 				bestDx += (if targetInputXs then targetInputXs[bestTarget] or 0 else 0) * rule.seconds
 				if not rule.horizontalOnly then

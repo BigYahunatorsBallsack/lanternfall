@@ -72,6 +72,13 @@ function Kinds.build(pixel: number): { [string]: any }
 				rangeZ = a.range_Y * pixel,
 				massMultiplier = rules.chargeMassMultiplier,
 			}
+			if f.directPlayerCharge then
+				local rule = result[id].nativeCharge
+				rule.rangeX, rule.minRange, rule.maxRange = a.range_X * pixel, a.min_range * pixel, a.max_range * pixel
+				rule.target = { player = true, atShoot = a.target_calculation_timing == 1 }
+				rule.longEvery, rule.longCooldown = a.long_cooldown_every_x_shoots, a.long_cooldown / rules.frameRate
+			end
+
 			if f.normalDeflectCharge then
 				assert(Deflect.source.sourceMd5 == f.sourceMd5, "Deflect charge source mismatch")
 				result[id].nativeCharge = Deflect.rule
@@ -165,13 +172,16 @@ function Kinds.build(pixel: number): { [string]: any }
 		if f.detection then
 			local a = f.detection
 			result[id].nativeDetection = { radius = a.radiusPoints * pixel, speedBonus = a.speedBonusPoints * pixel }
-			result[id].wander = {
-				around = "Target",
-				range = a.wanderRangePoints * pixel,
-				rangeJitter = a.wanderJitterPoints * pixel,
-				arriveStuds = C.spawningRules.goalPrecisionPoints * pixel,
-				maxSeconds = math.huge,
-			}
+			if a.wanderRangePoints then
+				result[id].wander = {
+					around = "Target",
+					range = a.wanderRangePoints * pixel,
+					rangeJitter = a.wanderJitterPoints * pixel,
+					arriveStuds = C.spawningRules.goalPrecisionPoints * pixel,
+					maxSeconds = math.huge,
+				}
+			end
+			result[id].anticipate = a.anticipateAfter
 		end
 
 		if f.activeVariant then

@@ -1851,6 +1851,8 @@ end
 
 export type NativeCharge = {
 	cooldown: number,
+	longEvery: number?,
+	longCooldown: number?,
 	deflectStopBeforeCooldown: number?, -- charging_attack_deflect_bullet_behavior: stop when remaining cooldown <= this duration
 	jitter: number,
 	minimumCooldown: number,
@@ -1864,10 +1866,11 @@ export type NativeCharge = {
 	maxRange: number?,
 	target: {
 		atShoot: boolean,
-		radius: number,
-		coneHalfAngle: number,
-		minimumRadiusShare: number,
-		inMovementDirection: boolean,
+		player: boolean?, -- direct TargetType.PLAYER, distinct from absent horizontal STRAIGHT_TO_PLAYER
+		radius: number?,
+		coneHalfAngle: number?,
+		minimumRadiusShare: number?,
+		inMovementDirection: boolean?,
 	}?, -- absent retains the original straight-to-player START_SHOOT branch
 	massMultiplier: number,
 }

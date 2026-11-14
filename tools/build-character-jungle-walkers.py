@@ -6,7 +6,9 @@ import argparse, importlib.util, json, re, subprocess, sys, tempfile
 from pathlib import Path
 sys.dont_write_bytecode = True
 ROOT = Path(__file__).resolve().parents[1]
-FAMILIES = {'baby_triceratops': ('BabyTriceratops', 40, 'Baby Triceratops'), 'gallimimus': ('Gallimimus', 41, 'Gallimimus'), 'lystrosaurus': ('Lystrosaurus', 42, 'Lystrosaurus'), 'pyroraptor': ('Pyroraptor', 43, 'Pyroraptor'), 'enigmacursor': ('Enigmacursor', 44, 'Enigmacursor'), 'baby_pterosaur': ('BabyPterosaur',45,'Baby Pterosaur'), 'graciliceratops': ('Graciliceratops',46,'Graciliceratops'), 'baby_trex': ('BabyTrex',47,'Baby T-Rex'), 'alamosaurus': ('Alamosaurus',48,'Alamosaurus'), 'dino_egg': ('DinoEgg',49,'Dino Egg'), 'stintaosaurus': ('Stintaosaurus',50,'Tsintaosaurus'), 'triceratops': ('Triceratops',51,'Triceratops'), 'parasaurolorus': ('Parasaurolorus',52,'Parasaurolophus'), 'ankylosaurus': ('Ankylosaurus',53,'Ankylosaurus'), 'pachycephalosaurus': ('Pachycephalosaurus',54,'Pachycephalosaurus'), 'velociraptor': ('Velociraptor',55,'Velociraptor')}
+FAMILIES = {'baby_triceratops': ('BabyTriceratops', 40, 'Baby Triceratops'), 'gallimimus': ('Gallimimus', 41, 'Gallimimus'), 'lystrosaurus': ('Lystrosaurus', 42, 'Lystrosaurus'), 'pyroraptor': ('Pyroraptor', 43, 'Pyroraptor'), 'enigmacursor': ('Enigmacursor', 44, 'Enigmacursor'), 'baby_pterosaur': ('BabyPterosaur',45,'Baby Pterosaur'), 'graciliceratops': ('Graciliceratops',46,'Graciliceratops'), 'baby_trex': ('BabyTrex',47,'Baby T-Rex'), 'alamosaurus': ('Alamosaurus',48,'Alamosaurus'), 'dino_egg': ('DinoEgg',49,'Dino Egg'), 'stintaosaurus': ('Stintaosaurus',50,'Tsintaosaurus'), 'triceratops': ('Triceratops',51,'Triceratops'), 'parasaurolorus': ('Parasaurolorus',52,'Parasaurolophus'), 'ankylosaurus': ('Ankylosaurus',53,'Ankylosaurus'), 'pachycephalosaurus': ('Pachycephalosaurus',54,'Pachycephalosaurus'), 'velociraptor': ('Velociraptor',55,'Velociraptor'), 'jeholopterus': ('Jeholopterus',56,'Jeholopterus')}
+
+CHARGE_DEFAULTS = {'cooldown':60.0,'long_cooldown_every_x_shoots':0,'long_cooldown':0.0,'max_cd_randomization':10,'min_range':0,'max_range':300,'range_X':-1,'range_Y':-1,'attack_anim_speed':1.0,'charge_duration':1.0,'charge_speed':500.0,'target_calculation_timing':0,'target':0,'rand_target_size':-1,'only_positions_in_target_direction':False,'scale_charge_duration_with_range':False,'recovery_duration':0.05}
 
 def module(name, file):
  spec = importlib.util.spec_from_file_location(name, ROOT/file)
@@ -45,13 +47,13 @@ def generate():
    if slug not in ['ankylosaurus','pachycephalosaurus']:assert move['properties']['should_target_vertically'] and not move['properties'].get('stop_close_to_target',False)
    assert attack['scriptSource']=='res://entities/units/movement_behaviors/detect_evolution_attack_behavior.gd'
    if slug=='pachycephalosaurus':assert not move['properties'].get('should_target_vertically',False) and not move['properties'].get('stop_close_to_target',False)
-  elif slug=='velociraptor':
+  elif slug in ['velociraptor','jeholopterus']:
    assert move['scriptSource']=='res://entities/units/movement_behaviors/detect_target_movement_behavior.gd'
-   assert attack['scriptSource']=='res://entities/units/enemies/attack_behaviors/attack_behavior.gd'
+   assert attack['scriptSource']=='res://entities/units/enemies/attack_behaviors/'+('charging_attack_behavior.gd' if slug=='jeholopterus' else 'attack_behavior.gd')
    before=nodes[('MovementBehavior','MovementBehaviorBeforeTargetDetection')]
    after=nodes[('MovementBehavior','MovementBehaviorAfterTargetDetection')]
-   assert before['scriptSource']=='res://entities/units/movement_behaviors/target_rand_pos_around_player_movement_behavior.gd'
-   assert after['scriptSource']=='res://entities/units/movement_behaviors/follow_target_movement_behavior.gd'
+   assert before['scriptSource']=='res://entities/units/movement_behaviors/'+('follow_target_movement_behavior.gd' if slug=='jeholopterus' else 'target_rand_pos_around_player_movement_behavior.gd')
+   assert after['scriptSource']=='res://entities/units/movement_behaviors/'+('anticipate_target_movement_behavior.gd' if slug=='jeholopterus' else 'follow_target_movement_behavior.gd')
    assert not after['properties'].get('should_target_vertically',False) and not after['properties'].get('stop_close_to_target',False)
    assert before['properties'].get('update_every_x_frames',-1)==-1
    for n in [before,after]:used_scripts.add(n['scriptSource'].removesuffix('.gd')+'.gdc')
@@ -79,8 +81,16 @@ def generate():
   enemies[identity]['sprite']=images.texture_metadata(pck,images.body_texture(pck,path))
   enemies[identity]['bodyBorders']=root['properties'].get('should_collide_with_borders',True)
   enemies[identity]['playerCollision']=bool(root['properties']['collision_mask'] & 2)
+  if slug=='jeholopterus':
+   normal={**CHARGE_DEFAULTS,**{k:v for k,v in attack['properties'].items() if isinstance(v,(int,float,bool))}}
+   assert normal['target']==0 and normal['target_calculation_timing']==0 and normal['range_X']==-1 and normal['range_Y']==-1
+   assert normal['long_cooldown_every_x_shoots']==2 and not normal['scale_charge_duration_with_range']
+   assert not before['properties'].get('stop_close_to_target',False)
+   props=move['properties'];ap=after['properties']
+   enemies[identity].update(chargingVariants={'Normal':normal},activeChargeVariant='Normal',directPlayerCharge=True,evolutionVariantsImplemented=False,
+    detection={'radiusPoints':props.get('detection_range',300),'speedBonusPoints':props.get('speed_bonus_on_target_detection',300),'anticipateAfter':{'seconds':ap.get('anticipation_time',0.3),'horizontalOnly':ap.get('should_target_vertically',False)}})
   if slug in ['triceratops','parasaurolorus','ankylosaurus','pachycephalosaurus']:
-   defaults={'cooldown':60.0,'long_cooldown_every_x_shoots':0,'long_cooldown':0.0,'max_cd_randomization':10,'min_range':0,'max_range':300,'range_X':-1,'range_Y':-1,'attack_anim_speed':1.0,'charge_duration':1.0,'charge_speed':500.0,'target_calculation_timing':0,'target':0,'rand_target_size':-1,'only_positions_in_target_direction':False,'scale_charge_duration_with_range':False,'recovery_duration':0.05}
+   defaults=dict(CHARGE_DEFAULTS)
    if slug=='pachycephalosaurus':defaults['deflect_stop_before_CD']=20.0
    variants={}
    for variant in ['Normal','Mutant','Meca']:

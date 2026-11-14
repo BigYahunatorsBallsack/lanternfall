@@ -26,14 +26,19 @@ function Target.direction(
 	if not target then
 		return if dx < 0 then -1 else 1, 0
 	end
-	local radius = target.radius
+	if target.player then
+		local length = math.sqrt(dx * dx + dz * dz)
+		return if length > 0 then dx / length else 0, if length > 0 then dz / length else 0
+	end
+	local radius = assert(target.radius, "Around-player charge requires radius")
 	-- The source consumes both square draws even when the movement-cone branch replaces their result.
 	local rx, rz = (random() * 2 - 1) * radius, (random() * 2 - 1) * radius
 	local moving = math.sqrt(mx * mx + mz * mz)
 	if target.inMovementDirection and moving > 0 then
-		local angle = (random() * 2 - 1) * target.coneHalfAngle
+		local angle = (random() * 2 - 1) * assert(target.coneHalfAngle, "Around-player charge requires cone angle")
 		local c, s = math.cos(angle), math.sin(angle)
-		local distance = radius * (target.minimumRadiusShare + random() * (1 - target.minimumRadiusShare))
+		local minimumShare = assert(target.minimumRadiusShare, "Around-player charge requires minimum radius share")
+		local distance = radius * (minimumShare + random() * (1 - minimumShare))
 		rx, rz = (mx * c - mz * s) / moving * distance, (mx * s + mz * c) / moving * distance
 	end
 	local behind = math.sqrt(dx * dx + dz * dz)

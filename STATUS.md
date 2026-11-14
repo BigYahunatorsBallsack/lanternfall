@@ -1314,3 +1314,25 @@ Owner-Test lokal, jede Datei eigener Aufruf:
 3. Mit StyLua im PATH jungle-walkers-/jungle-colliders-Compiler sowie prepare-character-jungle-art.py jeweils per python -B mit --check gegen installierte stabile1.2.0.3 prüfen.
 
 Endvergleich zum Pachy-Schritt: weiterhin36Fehler, aber Gobbler-Orb-Fehler wieder rot und alter Smoke-Verfolgungsfehler diesmal grün; beide Identitäten bereits dokumentiert. Neun zusätzliche Prüfungen bestanden, keine stabile Reparatur behauptet. Velociraptor6/0 und Detection3/0 anschließend auch mit eingechecktem Runner; nach Gesamtlauf nur Dokumentation geändert.
+
+
+## Normaler Jeholopterus: Zielvorhersage und Ansturm-Takt (14.11.2026)
+
+GitHub-main vor Beginn wieder de4e155 geprüft; Fortsetzung auf wp-b10-main-five-ten in Entwurfs-PR151. Normaler Jeholopterus/Typ56 ist17.neutralerJungle-Körper. HP3+2/Welle, Kontakt1+0,85/Welle, Tempo150±20Pixel/s; HP-Faktor1. Alle drei Quellkreise und getrennten Parent-/Child-Offsets kompiliert, gesamte Szenenkette mit installierter stabiler1.2.0.3 revalidiert. Original-PNG verlustfrei lokal vorbereitet/angesehen, nun21Jungle-/Pillar-Bilder,0Uploads/IDs; im Spiel weiter Pending-Art-Fallback.
+
+Vor Zielerkennung normales Folgen; bei Distanz≤450Pixel einmalig+150Pixel/s und danach0,2s-Vorhersage anhand tatsächlichen Zielbewegungsinputs. Ansturm dagegen verwendet die aktuelle, nicht vorausberechnete Zielposition bei START_SHOOT und hält beide Richtungskomponenten bis SHOOT fest. CD15Frames, Ansturm0,3s/+400Pixel/s, Erholung0,05s und Radialbereich0..350Pixel aus Quellen. Nach jedem zweiten SHOOT: Zähler0, exakt45Frames längere Abklingzeit plus Ansturmdauer, kein Zufallsaufruf für diesen festen Zweig. Normaler rand_range-Aufruf verbraucht auch bei gleichen Endpunkten einen Zufallswert, anhand Godot3.5 random_pcg.cpp geprüft. Erkennungsbonus wird bei SHOOT vom Ansturmbonus überschrieben und beim Entsperren gelöscht, nicht stillschweigend dauerhaft wiedergewährt.
+
+Neue interne Regeln NativeCharge.longEvery/longCooldown und target.player, dazu persistentes shotsTaken. Bestehende horizontale und AroundPlayer-Zielarten bleiben erhalten. detection.anticipateAfter aktiviert die Vorhersage nur hinter der Erkennungsmarkierung; andere bisherige Antizipationsgegner ohne Erkennung bleiben unverändert. Quelle-Charge-Defaults im Compiler für den zweiten Verbraucher gemeinsam verwendet. Keine neue Remote, Schema- oder Arsenaländerung.
+
+Cadence3/0 nach0/3, Jeholopterus-World4/0 nach0/4, tatsächlicher Server2/0 mit Originalwachstum, Hurtversatz, diagonalem Ansturm und echtem Charm-Wechsel. Zähler-/Erkennungszustand bleibt beim World-Transfer erhalten; zweite Attacke nach Transfer verwendet die lange Pause. Mutation ohne Zählerinkrement ergibt2/1, Datei bytegenau restauriert. JungleCharge10/0, Deflect8/0, AroundCharge8/0, Velociraptor6/0, MainGameEnemyStats29/0, WorldSprites12/0 und CharmedWorld6/0 gezielt bestanden. Snapshot-Kindzahl55→56, Eindeutigkeitsprüfungen erhalten. Zwei neue Assertions hatten zunächst keine vom Linter geforderten Fehlermeldungen; Meldungen ergänzt, keine Unterdrückung.
+
+Maßgeblicher Endlauf314/1964/35, keine neue Fehleridentität gegen die dokumentierte Vergleichsmenge und keine Abbrüche. Produktionscode währenddessen unverändert. StyLua, Selene0Fehler/18bestehendeWarnungen, Rojo, zwei Compiler und lokale Bildprüfung --check bestanden. Schwankende alte Fehler/CharmedWorld-Budget nicht als repariert ausgeben. Nachweis jeholopterus-validation.json und build/native-five-branch-ten-jeholopterus-de4e155.json.
+
+Weiter48/74codevorbereitet,26offen; kein weiterer fertiger Charakter. Jungle bleibt nicht auswählbar. Giant Dragonfly braucht ihren eigenen Zustandsablauf und wird nicht aus dem generischen Charge-Modul als fertig abgeleitet. Weitere Familien/Bosse/Wellen/Area, Evolution, originale Darstellung/Audio/Animationen, vollständige Physik-/Zeit-/Zielwahl-/Poolingparität sowie Studio/Koop/Handy bleiben offen. Nächster Schritt: verbleibende Jungle-Sonderabläufe portieren; kein Merge.
+
+Owner-Test lokal, jede Datei eigener Aufruf:
+1. `lune run tools/luau-test-runner/lune-runner.luau -- tests/NativeJeholopterusServer.spec.luau` erwartet2/0.
+2. Ebenso NativeJeholopterus.spec.luau4/0 und NativeChargeCadence.spec.luau3/0.
+3. Mit StyLua im PATH jungle-walkers-/jungle-colliders-Compiler und prepare-character-jungle-art.py jeweils per python -B mit --check gegen installierte stabile1.2.0.3 prüfen.
+
+Endvergleich zum Velociraptor-Schritt: keine neue Fehleridentität; bekannter Gobbler-Orb-Fehler diesmal grün, kein stabiler Fix behauptet. Alle neun zusätzlichen Prüfungen bestanden. Server2/0 und Cadence3/0 nach dem Endlauf zusätzlich mit eingechecktem Runner; danach nur Dokumentation geändert.

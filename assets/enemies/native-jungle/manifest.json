@@ -310,6 +310,25 @@
       "pngSha256": "4f3d0d50f12dbc3e6270225c6ef3967e8f3cf187a1b3ff36bcc28e0a0ad6a491"
     },
     {
+      "id": "Jeholopterus",
+      "source": "res://entities/units/enemies/jungle/basic/jeholopterus/jeholopterus.png",
+      "textureSource": "res://.import/jeholopterus.png-23f36eea19655cea1b9a589feb48fca5.stex",
+      "textureMd5": "c452e51ba978243ef8014c25df919c3c",
+      "output": "assets/enemies/native-jungle/Jeholopterus.png",
+      "size": [
+        110,
+        110
+      ],
+      "alphaBounds": [
+        3,
+        2,
+        105,
+        110
+      ],
+      "rgbaSha256": "9b265cf86503ae3a34411c753358aca607d2942f37b880a9f575e7fafa013f75",
+      "pngSha256": "7e75c8a0e7353a97b3808477cb1d5a68de46074f06873af821dd8833a9701789"
+    },
+    {
       "id": "Pillar_bullet_pillar_0002",
       "source": "res://projectiles/pillar_enemy/sprites/bullet_pillar_0002.png",
       "textureSource": "res://.import/bullet_pillar_0002.png-b64813647bb259fcd087f6245a3b4bd8.stex",
