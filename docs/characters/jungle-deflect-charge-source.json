@@ -132,6 +132,30 @@
     {
       "source": "res://entities/units/unit/unit.gdc",
       "sourceMd5": "aa94391f2d9681ac36b7f8617b82ff13"
+    },
+    {
+      "source": "res://entities/units/pet/pet.gdc",
+      "sourceMd5": "eb0eab7f4f97fc5531370023b3416ece"
+    },
+    {
+      "source": "res://entities/units/pet/catling_gun/catling_gun.gdc",
+      "sourceMd5": "92da73088df750532c1fc590b8d23428"
+    },
+    {
+      "source": "res://entities/units/pet/blazemander/blazemander.gdc",
+      "sourceMd5": "8f367e19f496307eb9152b116de5b2bc"
+    },
+    {
+      "source": "res://entities/units/pet/bot_o_mine/bot_o_mine.gdc",
+      "sourceMd5": "10724a1007562e0bc2c4ee44f70116c5"
+    },
+    {
+      "source": "res://entities/units/enemies/crash_zone/basic/fly/fly.gdc",
+      "sourceMd5": "7e1682c7fcdfa7e1f4de55d4225f7a19"
+    },
+    {
+      "source": "res://entities/units/enemies/crash_zone/basic/horned_fly/horned_fly.gdc",
+      "sourceMd5": "2f23c313fafcb030e31118f0d9926786"
     }
   ],
   "actorRegistered": false,
@@ -144,5 +168,23 @@
     "explosionFactorySetsOriginBeforeStart": true
   },
   "priorHitDefenseReentryImplemented": true,
-  "scope": "Native ranged projectile entry and cooldown defense; Sticky flight and explosion exceptions audited. Full actor, legacy/pet/area paths remain pending."
+  "nativePetProjectileInterceptionConnected": true,
+  "petProjectileOrigins": {
+    "catling_gun": {
+      "source": "res://entities/units/pet/catling_gun/catling_gun.tscn",
+      "sourceMd5": "4fabecb76f9d377bf2749bcd9995fe5a",
+      "shootProjectiles": true
+    },
+    "blazemander": {
+      "source": "res://entities/units/pet/blazemander/blazemander.tscn",
+      "sourceMd5": "b95bbd7d40dde1ec935fd82b292155fc",
+      "shootProjectiles": false
+    },
+    "bot_o_mine": {
+      "source": "res://entities/units/pet/bot_o_mine/bot_o_mine.tscn",
+      "sourceMd5": "c253124698b17ff6ecf79474af6926fc",
+      "shootProjectiles": true
+    }
+  },
+  "scope": "Native ranged weapon and source-flagged pet projectile defense with rotated collision offsets; Blazemander flames, Sticky flight and explosion exceptions audited. Full actor, legacy/custom/area paths remain pending."
 }

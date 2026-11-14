@@ -54,10 +54,24 @@ def main():
                'res://projectiles/player_projectile.gdc', 'res://global/entity_spawner.gdc',
                'res://projectiles/grenade_mine/grenade_mine_projectile.gdc',
                'res://projectiles/player_explosion.gdc', 'res://overlap/hitbox.gdc',
-               'res://singletons/weapon_service.gdc', 'res://entities/units/unit/unit.gdc']
+               'res://singletons/weapon_service.gdc', 'res://entities/units/unit/unit.gdc',
+               'res://entities/units/pet/pet.gdc',
+               'res://entities/units/pet/catling_gun/catling_gun.gdc',
+               'res://entities/units/pet/blazemander/blazemander.gdc',
+               'res://entities/units/pet/bot_o_mine/bot_o_mine.gdc',
+               'res://entities/units/enemies/crash_zone/basic/fly/fly.gdc',
+               'res://entities/units/enemies/crash_zone/basic/horned_fly/horned_fly.gdc']
     assert pck.entries[base['source']]['md5'] == base['sourceMd5']
     animation = base['animation']
     assert pck.entries[animation['source']]['md5'] == animation['sourceMd5']
+    pet_origins = {}
+    for slug in ['catling_gun', 'blazemander', 'bot_o_mine']:
+        pet_path = f'res://entities/units/pet/{slug}/{slug}.tscn'
+        pet_scene = scenes.read_scene(pck, pet_path)
+        root = next(n['properties'] for n in pet_scene['nodes'] if n['parent'] is None)
+        assert isinstance(root['shoot_projectiles'], bool), pet_path
+        pet_origins[slug] = dict(source=pet_path, sourceMd5=pck.entries[pet_path]['md5'],
+                                 shootProjectiles=root['shoot_projectiles'])
     facts = dict(version=reference['version'], steamBuild=int(reference['steamBuildId']),
                  source=path, sourceMd5=pck.entries[path]['md5'], variants=variants,
                  frameRate=base['frameRate'], minimumCooldownFrames=base['minimumCooldownFrames'],
@@ -71,7 +85,9 @@ def main():
                  defenseExceptions=dict(stickyFlightHitboxEnabled=False, explosionOriginIsSelf=True,
                                         explosionFactorySetsOriginBeforeStart=True),
                  priorHitDefenseReentryImplemented=True,
-                 scope='Native ranged projectile entry and cooldown defense; Sticky flight and explosion exceptions audited. Full actor, legacy/pet/area paths remain pending.')
+                 nativePetProjectileInterceptionConnected=True,
+                 petProjectileOrigins=pet_origins,
+                 scope='Native ranged weapon and source-flagged pet projectile defense with rotated collision offsets; Blazemander flames, Sticky flight and explosion exceptions audited. Full actor, legacy/custom/area paths remain pending.')
     text = '--!strict\n-- Original Pachycephalosaurus clock and native projectile-defense facts; full actor integration remains pending.\n'
     text += 'local source = ' + catalog.luau(facts) + '\n'
     text += '''local target = table.clone(require(script.Parent.JungleChargeTargets).rule.target)

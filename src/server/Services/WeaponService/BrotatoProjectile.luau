@@ -316,8 +316,11 @@ function Projectile.step(weapon: Arsenal.Weapon, ctx: Arsenal.Context, dt: numbe
 		end
 		local n = ctx:querySegment(shot.x, shot.z, x1, z1, stats.projectileRadius, found)
 		if shot.defenseOverlaps and defense then
+			local forward, side = stats.nativeProjectileOffsetForward or 0, stats.nativeProjectileOffsetSide or 0
+			local overlapX = shot.x + shot.dx * forward - shot.dz * side
+			local overlapZ = shot.z + shot.dz * forward + shot.dx * side
 			for id in shot.defenseOverlaps do
-				if not defense.overlaps(id, shot.x, shot.z, stats.projectileRadius) then
+				if not defense.overlaps(id, overlapX, overlapZ, stats.projectileRadius) then
 					shot.defenseOverlaps[id] = nil
 				end
 			end
@@ -326,7 +329,12 @@ function Projectile.step(weapon: Arsenal.Weapon, ctx: Arsenal.Context, dt: numbe
 		for i = 1, n do
 			local id = found[i]
 			local capable = false
-			if defense and weapon.config.kind == "Ranged" then
+			if
+				defense
+				and (
+					weapon.config.kind == "Ranged" or (weapon.config.kind == "Pet" and stats.nativePetRangedOrigin == 1)
+				)
+			then
 				local active, potential = defense.active(id)
 				capable = active or potential == true
 			end
