@@ -57,8 +57,14 @@ describe("Native server bounce target selection", function()
 			critDamage = 2,
 			knockback = 0,
 		}
-		local weapon =
-			{ id = "Probe", ownerId = f.me.UserId, tier = 1, config = { kind = "Ranged", scaling = {} }, stats = stats, state = {} }
+		local weapon = {
+			id = "Probe",
+			ownerId = f.me.UserId,
+			tier = 1,
+			config = { kind = "Ranged", scaling = {} },
+			stats = stats,
+			state = {},
+		}
 		local serial = 0
 		local ctx = {
 			x = hx - 10,
