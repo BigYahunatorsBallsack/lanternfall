@@ -86,3 +86,7 @@ Der Owner hat den Wechsel auf die installierte stabile PC-Version **1.2.0.2**, S
 ## Fortsetzung unter eingefrorener1.2.0.2-Referenz (13.11.2026)
 
 Die Versionsänderungen an den48 zuvor code-vorbereiteten Paketen sind inzwischen geprüft (reference.json und version-1.2.0.2-audit.json); dies ist keine native Komplettabnahme. Steam hat danach1.2.0.3 installiert, die nicht freigegeben wurde. Allgemeine Quellcompiler bleiben auf1.2.0.2 geschützt. Einzelne Ressourcen wurden nur nach nachgewiesener Bytegleichheit mit bereits gesicherten1.2.0.2-Hashes gelesen; neue Regeln aus1.2.0.3 wurden nicht übernommen. Weitere Charakter-Ready-Markierungen gab es durch die Jungle-/Trefferflächen-Grundmechaniken nicht. Aktueller Stand und konkrete Restarbeit: docs/characters/HANDOFF.md.
+
+## Aktuelles Versionsziel und Audit (Owner,14.11.2026)
+
+StabilePC-Version1.2.0.3/Build26642464 mit allenDLCs ist ausdrücklich freigegeben und ersetzt1.2.0.2. AlteQuellen bleiben erhalten. Sieben geänderte Skriptdateien geprüft; der Katalog ändert nur Cavemans Startauswahl (Boomerang entfällt). Audit der48bereitscodevorbereitetenPakete abgeschlossen, keine zusätzlichenfertigenCharaktere und keine nativeGesamtabnahme. VerbindlicheIdentität: reference.json; Einzelbewertung/Tests: version-1.2.0.3-audit.json. Jungle-Boss-/Snowball-/UI-/Physik-/Grafik-/Studio-Lücken bleiben offeneArbeit.

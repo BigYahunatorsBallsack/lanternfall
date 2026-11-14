@@ -11,19 +11,19 @@
   "provenance": {
     "source": "Owner-installed Steam copy of Brotato",
     "steamAppId": 1942280,
-    "steamBuildId": "26615634",
-    "steamLastUpdatedUtc": "2026-11-12T18:24:48+00:00",
-    "version": "1.2.0.2",
+    "steamBuildId": "26642464",
+    "steamLastUpdatedUtc": "2026-11-13T17:52:45+00:00",
+    "version": "1.2.0.3",
     "versionEvidence": {
       "resource": "res://singletons/progress_data.gdc",
       "literals": [
         "1.1.13.2",
-        "1.2.0.2"
+        "1.2.0.3"
       ],
       "method": "Highest semantic-version ASCII literal plus Steam build/update metadata; no decompilation"
     },
     "pckFile": "Brotato.pck",
-    "pckSha256": "2d4d55b4e57d07bd75e03c3516f9ed1f9f2dec347d75fd2eb7574ebd0591ba98",
+    "pckSha256": "ab83e762b1deb358265ecb841d738f58d5b1511757746540ad59c39630c66159",
     "pckVersion": 1,
     "godotVersion": [
       3,
@@ -1800,7 +1800,7 @@
       "nameKey": "CHARACTER_CAVEMAN",
       "contentSet": "primalDread",
       "source": "res://items/characters/caveman/caveman_data.tres",
-      "sourceMd5": "6ddaecfb3f6f5eab04d90dc7bd61b375",
+      "sourceMd5": "1ac1d46229a5fb98f06849326c522cb6",
       "effects": [
         {
           "resource": "res://items/characters/caveman/caveman_effect_1.tres",
@@ -1866,12 +1866,6 @@
           "source": "res://weapons/melee/torch/1/torch_data.tres",
           "id": "weapon_torch_1",
           "nameKey": "WEAPON_TORCH",
-          "tier": 0
-        },
-        {
-          "source": "res://weapons/ranged/boomerang/1/boomerang_1_data.tres",
-          "id": "weapon_boomerang_1",
-          "nameKey": "WEAPON_BOOMERANG",
           "tier": 0
         }
       ],
@@ -26300,8 +26294,8 @@
       }
     },
     "res://items/characters/caveman/caveman_data.tres": {
-      "md5": "6ddaecfb3f6f5eab04d90dc7bd61b375",
-      "sha256": "2a0c7fad85d73f0b63c126095e6a6b4d2920067cda9cd70728d99e7e01419293",
+      "md5": "1ac1d46229a5fb98f06849326c522cb6",
+      "sha256": "02ec31dd616b7946f33142e1b5f716fb9cb62587dabfdf5685c34bba15c3b9ab",
       "resourceType": "Resource",
       "effectType": "res://items/characters/character_data.gd",
       "properties": {
@@ -26377,10 +26371,6 @@
           },
           {
             "resource": "res://weapons/melee/torch/1/torch_data.tres",
-            "resourceType": "Resource"
-          },
-          {
-            "resource": "res://weapons/ranged/boomerang/1/boomerang_1_data.tres",
             "resourceType": "Resource"
           }
         ],

@@ -1,8 +1,8 @@
 --!strict
 -- Stable Nightmare 1 source facts for NightmareRules; difficulty selection stays gated until its full runtime exists.
 return {
-	version = "1.2.0.2",
-	steamBuild = 26615634,
+	version = "1.2.0.3",
+	steamBuild = 26642464,
 	source = "res://items/difficulties/6-Nightmare/difficulty_6.tres",
 	sourceMd5 = "a35824f1341e4493c92ef21dbb6ae22f",
 	level = 6,
@@ -92,11 +92,11 @@ return {
 	ruleSources = {
 		{
 			source = "res://singletons/run_data.gdc",
-			sourceMd5 = "26ade7289f41b63044a9ef11a4377ea2",
+			sourceMd5 = "7d07b59d882378a0799fb0187b416047",
 		},
 		{
 			source = "res://singletons/progress_data.gdc",
-			sourceMd5 = "df71b05664adc8dea6977e4ec77dbf51",
+			sourceMd5 = "08a9204bbf9c6b6c303d52702a2ed7ac",
 		},
 	},
 	unlock = {

@@ -1,8 +1,8 @@
 --!strict
 -- Native Jungle hole shapes/layouts for geometry tests and the pending terrain port; no area or terrain is activated.
 return {
-	version = "1.2.0.2",
-	steamBuild = 26615634,
+	version = "1.2.0.3",
+	steamBuild = 26642464,
 	zoneId = 2,
 	areaPlayable = false,
 	terrainActivated = false,

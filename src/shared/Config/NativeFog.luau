@@ -1,62 +1,62 @@
 --!strict
--- Verified stable1.2.0.2 fog rules and visual-source identities; graphics/runtime acceptance remains open.
+-- Verified approved stable fog rules and visual-source identities; graphics/runtime acceptance remains open.
 return {
-	targetVersion = "1.2.0.2",
-	targetSteamBuild = 26615634,
-	installedVisualCandidateVersion = "1.2.0.2",
-	installedSteamBuild = 26615634,
+	targetVersion = "1.2.0.3",
+	targetSteamBuild = 26642464,
+	installedVisualCandidateVersion = "1.2.0.3",
+	installedSteamBuild = 26642464,
 	originalRulesVerified = true,
 	originalVisualIdentitiesVerified = true,
 	sources = {
 		{
 			source = "res://visual_effects/fog_viewport.gdc",
 			sourceMd5 = "92b0c65d331d391bf44ef76c0d990d0e",
-			origin = "approved installed stable1.2.0.2 reference",
+			origin = "approved installed stable1.2.0.3 reference",
 		},
 		{
 			source = "res://visual_effects/shader_noise_displacement_add.tres",
 			sourceMd5 = "b4e06e0e64658af64eff321cffb60366",
-			origin = "approved installed stable1.2.0.2 reference",
+			origin = "approved installed stable1.2.0.3 reference",
 		},
 		{
 			source = "res://main.tscn",
 			sourceMd5 = "efcb4d44256907d4ca88d41d0dad0311",
-			origin = "approved installed stable1.2.0.2 reference",
+			origin = "approved installed stable1.2.0.3 reference",
 		},
 		{
 			source = "res://main.gdc",
-			sourceMd5 = "7fe126c48998aaa276685bdfc4746e0a",
-			origin = "approved installed stable1.2.0.2 reference",
+			sourceMd5 = "e42c7c4356e6cb9d2da8190067ebf7e5",
+			origin = "approved installed stable1.2.0.3 reference",
 		},
 		{
 			source = "res://particles/burning/burning_particles.gdc",
 			sourceMd5 = "022970f9405dc39c1bdd570e58a40555",
-			origin = "approved installed stable1.2.0.2 reference",
+			origin = "approved installed stable1.2.0.3 reference",
 		},
 		{
 			source = "res://entities/units/unit/unit.gdc",
 			sourceMd5 = "aa94391f2d9681ac36b7f8617b82ff13",
-			origin = "approved installed stable1.2.0.2 reference",
+			origin = "approved installed stable1.2.0.3 reference",
 		},
 		{
 			source = "res://entities/gpe/fire_puddle/fire_puddle.gdc",
 			sourceMd5 = "a31c18617860b08b845c0c5d82430604",
-			origin = "approved installed stable1.2.0.2 reference",
+			origin = "approved installed stable1.2.0.3 reference",
 		},
 		{
 			source = "res://visual_effects/player_light_in_shadow.tscn",
 			sourceMd5 = "6a44504778ff5a4673adb17678ac8941",
-			origin = "approved installed stable1.2.0.2 reference",
+			origin = "approved installed stable1.2.0.3 reference",
 		},
 		{
 			source = "res://visual_effects/elemental_light_in_shadow.tscn",
 			sourceMd5 = "cb2252c0ad963800780381aa7f5eed6f",
-			origin = "approved installed stable1.2.0.2 reference",
+			origin = "approved installed stable1.2.0.3 reference",
 		},
 		{
 			source = "res://visual_effects/structure_and_pet_light_in_shadow.tscn",
 			sourceMd5 = "867f7fd2bca66f91b39d8a1cb02e4cb7",
-			origin = "approved installed stable1.2.0.2 reference",
+			origin = "approved installed stable1.2.0.3 reference",
 		},
 	},
 	rules = {

@@ -13,10 +13,10 @@ from PIL import Image
 
 sys.dont_write_bytecode = True
 ROOT = Path(__file__).resolve().parents[1]
-# Approved stable1.2.0.2 identities; fog numerical rules were compared against the preserved1.2.0.1 scripts.
+# Reviewed stable1.2.0.3 identities; main's item-acquisition change leaves the previously checked fog rules unchanged.
 REFERENCE_SCRIPTS = {
     'res://visual_effects/fog_viewport.gdc': '92b0c65d331d391bf44ef76c0d990d0e',
-    'res://main.gdc': '7fe126c48998aaa276685bdfc4746e0a',
+    'res://main.gdc': 'e42c7c4356e6cb9d2da8190067ebf7e5',
     'res://particles/burning/burning_particles.gdc': '022970f9405dc39c1bdd570e58a40555',
     'res://entities/units/unit/unit.gdc': 'aa94391f2d9681ac36b7f8617b82ff13',
     'res://entities/gpe/fire_puddle/fire_puddle.gdc': 'a31c18617860b08b845c0c5d82430604',
@@ -93,7 +93,7 @@ def main():
         row = {'source': path, 'sourceMd5': installed_md5}
         if expected:
             assert installed_md5 == expected, f'Unreviewed stable fog rule script: {path}'
-        row['origin'] = 'approved installed stable1.2.0.2 reference'
+        row['origin'] = 'approved installed stable' + reference['version'] + ' reference'
         provenance.append(row)
     facts = {'targetVersion': reference['version'], 'targetSteamBuild': int(reference['steamBuildId']),
              'installedVisualCandidateVersion': installed_version, 'installedSteamBuild': installed_build,
@@ -105,8 +105,8 @@ def main():
                                       'nativeGraphicsAccepted': False, 'openGraphics': ['OpenSimplex UV displacement', 'per-channel colored multiply', 'native animation/process ordering', 'native resolution and device performance', 'burning-emitter native position offsets and snapshot latency']}}
     manifest = {'source': icon, 'textureSource': texture, 'textureMd5': pck.entries[texture]['md5'], 'installedVersion': installed_version, 'installedSteamBuild': installed_build, 'original1201IdentityVerified': False, 'targetVersion': reference['version'], 'targetIdentityVerified': True, 'size': list(image.size), 'rgbaSha256': hashlib.sha256(image.tobytes()).hexdigest(), 'pngSha256': hashlib.sha256(output.getvalue()).hexdigest(), 'uploadedCount': 0, 'runtimeAssetIdsChanged': False}
     outputs = {ROOT / 'docs/characters/fog-source.json': json.dumps(facts, indent=2) + '\n', local / 'manifest.json': json.dumps(manifest, indent=2) + '\n',
-               ROOT / 'src/shared/Config/NativeFog.luau': '--!strict\n-- Verified stable1.2.0.2 fog rules and visual-source identities; graphics/runtime acceptance remains open.\nreturn ' + compiler.luau(facts) + '\n',
-               ROOT / 'src/shared/Config/NativeFogMask.luau': '--!strict\n-- Local stable1.2.0.2 light texture reduced to128 square; consumed by NativeFogRaster, never uploaded. Native rendering acceptance remains open.\nreturn "' + mask.tobytes().hex() + '"\n'}
+               ROOT / 'src/shared/Config/NativeFog.luau': '--!strict\n-- Verified approved stable fog rules and visual-source identities; graphics/runtime acceptance remains open.\nreturn ' + compiler.luau(facts) + '\n',
+               ROOT / 'src/shared/Config/NativeFogMask.luau': '--!strict\n-- Local approved stable light texture reduced to128 square; consumed by NativeFogRaster, never uploaded. Native rendering acceptance remains open.\nreturn "' + mask.tobytes().hex() + '"\n'}
     for path, text in outputs.items():
         if path.suffix == '.luau':
             with tempfile.TemporaryDirectory(dir=ROOT / 'build') as temp:

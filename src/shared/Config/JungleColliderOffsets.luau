@@ -1,8 +1,8 @@
 --!strict
 -- Approved saved Jungle collider parent/child transforms; JungleEnemyKinds activates supported branches.
 return {
-	version = "1.2.0.2",
-	steamBuild = 26615634,
+	version = "1.2.0.3",
+	steamBuild = 26642464,
 	actors = {
 		BabyTriceratops = {
 			source = "res://entities/units/enemies/jungle/basic/baby_triceratops/baby_triceratops.tscn",
@@ -696,4 +696,6 @@ return {
 			baseScene = "res://entities/units/enemies/enemy.tscn",
 		},
 	},
+	previousSourceVersion = "1.2.0.2",
+	previousResourcesRevalidatedIdentical = true,
 }

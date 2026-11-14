@@ -22,7 +22,7 @@ OUTPUT = ROOT / 'src/shared/Config/CharacterWeaponData.luau'
 
 def refresh():
     pck = source.Pck()
-    source.verify_reference(pck)
+    reference = source.verify_reference(pck)
     rows = []
     for family in FAMILIES:
         tiers = []
@@ -64,6 +64,11 @@ def refresh():
     flail = next(row for row in rows if row['id'] == 'Flail')
     scene = 'res://weapons/melee/flail/flail.tscn'
     flail['geometry'] = {**whip['geometry'], 'source': scene, 'sourceMd5': pck.entries[scene]['md5'], 'hitLengthPoints': 273.128, 'note': 'Same lash animation keys as Whip. Collision center136.564/extents.x136.564; init_stats sets x scale to range/273.128 and y scale1. Tip crit uses native closest aim-shape position within40 points.'}
+    for row in [whip, flail]:
+        row['geometry'].update(runtimeRuleVersion=reference['version'],
+                               runtimeRuleSource='res://weapons/melee/whip/whip.gdc',
+                               runtimeRuleSourceMd5=pck.entries['res://weapons/melee/whip/whip.gdc']['md5'],
+                               collisionBackExtension='hitStartOffset; leaves original tip endpoint unchanged')
     harpoon = next(row for row in rows if row['id'] == 'HarpoonGun')
     harpoon_scene = 'res://projectiles/bullet_harpoon/bullet_harpoon.tscn'
     harpoon['geometry'] = {'source': harpoon_scene, 'sourceMd5': pck.entries[harpoon_scene]['md5'], 'slowRadiusPoints': 63.0714, 'slowOffsetPoints': [1,4], 'slowAmountPoints': -400, 'note': 'SlowHitbox x-24/y4 plus Circle collision x25, fixed native additive -400 speed, each target once per projectile.'}
@@ -73,7 +78,7 @@ def refresh():
     molotov = next(row for row in rows if row['id'] == 'Molotov')
     scene = 'res://entities/gpe/fire_puddle/fire_puddle.tscn'
     molotov['geometry'] = {'source': scene, 'sourceMd5': pck.entries[scene]['md5'], 'radiusPoints': 40, 'note': 'Circle collision radius40; tier scale is uniform. Sprite-only y scale0.7 does not squash collision. FirePuddle uses0.2s TRANS_BACK/EASE_OUT spawn, disables collision at lifetime expiry.'}
-    FACTS.write_text(json.dumps({'version': '1.2.0.2', 'steamBuild': 26615634, 'explosionGeometry': {'source':'res://projectiles/explosion.tscn','sourceMd5':pck.entries['res://projectiles/explosion.tscn']['md5'],'radiusPoints':147.34,'offsetZPoints':3}, 'weapons': rows}, indent=2) + '\n', encoding='utf-8')
+    FACTS.write_text(json.dumps({'version': reference['version'], 'steamBuild': int(reference['steamBuildId']), 'explosionGeometry': {'source':'res://projectiles/explosion.tscn','sourceMd5':pck.entries['res://projectiles/explosion.tscn']['md5'],'radiusPoints':147.34,'offsetZPoints':3}, 'weapons': rows}, indent=2) + '\n', encoding='utf-8')
 
 def generate():
     facts = json.loads(FACTS.read_text(encoding='utf-8'))

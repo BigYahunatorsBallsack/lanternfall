@@ -1,8 +1,8 @@
 --!strict
 -- Native grouped edge births: source geometry and timing consumed by SpawnRules and SpawnDirector; no area availability changes.
 return {
-	version = "1.2.0.2",
-	steamBuild = 26615634,
+	version = "1.2.0.3",
+	steamBuild = 26642464,
 	source = "res://entities/birth/entity_group_birth.tscn",
 	sourceMd5 = "c6bb7837b8bff002a2e13d5ff3317183",
 	frameRate = 60,

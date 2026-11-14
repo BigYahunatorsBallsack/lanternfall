@@ -3688,7 +3688,7 @@ local Catalog: { [string]: CatalogCharacter } = {
 		originalId = "character_caveman",
 		displayName = "Caveman",
 		source = "res://items/characters/caveman/caveman_data.tres",
-		sourceMd5 = "6ddaecfb3f6f5eab04d90dc7bd61b375",
+		sourceMd5 = "1ac1d46229a5fb98f06849326c522cb6",
 		contentSet = "primalDread",
 		free = false,
 		stats = {},
@@ -3712,7 +3712,6 @@ local Catalog: { [string]: CatalogCharacter } = {
 			"Quarterstaff",
 			"Stick",
 			"Torch",
-			"Boomerang",
 		},
 		startChoices = {
 			{
@@ -3762,12 +3761,6 @@ local Catalog: { [string]: CatalogCharacter } = {
 				tier = 1,
 				originalId = "weapon_torch_1",
 				source = "res://weapons/melee/torch/1/torch_data.tres",
-			},
-			{
-				id = "Boomerang",
-				tier = 1,
-				originalId = "weapon_boomerang_1",
-				source = "res://weapons/ranged/boomerang/1/boomerang_1_data.tres",
 			},
 		},
 		extraWeapons = {},

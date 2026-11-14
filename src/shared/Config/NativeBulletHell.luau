@@ -1,8 +1,8 @@
 --!strict
 -- Active original environmental projectile patterns and source hashes; consumed by NativeBulletMotion and BulletHell runtime.
 return {
-	version = "1.2.0.2",
-	steamBuild = 26615634,
+	version = "1.2.0.3",
+	steamBuild = 26642464,
 	sources = {
 		{
 			source = "res://singletons/zone_service.tscn",
@@ -10,7 +10,7 @@ return {
 		},
 		{
 			source = "res://main.gdc",
-			sourceMd5 = "7fe126c48998aaa276685bdfc4746e0a",
+			sourceMd5 = "e42c7c4356e6cb9d2da8190067ebf7e5",
 		},
 		{
 			source = "res://singletons/zone_service.gdc",

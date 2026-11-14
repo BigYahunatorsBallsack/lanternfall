@@ -2,8 +2,8 @@
 -- Approved saved normal Ankylosaurus charge rules for NativeStraightCharge; full actor family remains pending.
 local pixel = require(script.Parent.Stats).range.studsPerPoint
 local source = {
-	version = "1.2.0.2",
-	steamBuild = 26615634,
+	version = "1.2.0.3",
+	steamBuild = 26642464,
 	source = "res://entities/units/enemies/attack_behaviors/charging_attack_behavior.gdc",
 	sourceMd5 = "fcf2901832ca42a4e69e98c60629397e",
 	variant = {
@@ -55,6 +55,8 @@ local source = {
 		inclusive = true,
 		distanceConversion = "truncate nonnegative distance in original pixel units before inclusive comparison",
 	},
+	previousSourceVersion = "1.2.0.2",
+	previousResourcesRevalidatedIdentical = true,
 }
 local rule = {
 	cooldown = 0.666666666666667,

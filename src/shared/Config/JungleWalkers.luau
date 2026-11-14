@@ -1,8 +1,8 @@
 --!strict
 -- Source-backed neutral Jungle families; JungleEnemyKinds activates explicitly ported branches. No playable zone is claimed.
 return {
-	version = "1.2.0.2",
-	steamBuild = 26615634,
+	version = "1.2.0.3",
+	steamBuild = 26642464,
 	zoneId = 2,
 	zoneSource = "res://zones/zone_3_jungle/zone_jungle_data.tres",
 	zoneSourceMd5 = "29e0ae83a9a366f58c54d6201e6b04e4",

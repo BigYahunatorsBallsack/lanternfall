@@ -1,8 +1,8 @@
 --!strict
 -- Approved native player body and hurt-circle facts; PlayerHurtGeometry and Simulation read these independently.
 return {
-	version = "1.2.0.2",
-	steamBuild = 26615634,
+	version = "1.2.0.3",
+	steamBuild = 26642464,
 	source = "res://entities/units/player/player.tscn",
 	sourceMd5 = "58724d77253dd2ff1a91a8409a809193",
 	sceneChain = {
@@ -76,4 +76,6 @@ return {
 		initialChildRotation = 0,
 		collisionMask = 20,
 	},
+	previousSourceVersion = "1.2.0.2",
+	previousResourcesRevalidatedIdentical = true,
 }

@@ -1,6 +1,6 @@
 {
-  "version": "1.2.0.2",
-  "steamBuild": 26615634,
+  "version": "1.2.0.3",
+  "steamBuild": 26642464,
   "actors": {
     "BabyTriceratops": {
       "source": "res://entities/units/enemies/jungle/basic/baby_triceratops/baby_triceratops.tscn",
@@ -693,5 +693,7 @@
       "sourceMd5": "2c702c7aa16bbd1b42b8e20249289f9a",
       "baseScene": "res://entities/units/enemies/enemy.tscn"
     }
-  }
+  },
+  "previousSourceVersion": "1.2.0.2",
+  "previousResourcesRevalidatedIdentical": true
 }
