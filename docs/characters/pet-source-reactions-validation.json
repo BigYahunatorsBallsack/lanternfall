@@ -53,7 +53,8 @@
     "red": "Canonical Blazemander exception3/1 before source flag integration; Fly reaction tests4/2 before source predicate correction; separate explosion6/1 before mode guard.",
     "mutations": "Removing the source-origin condition and removing side-offset overlap each give6passed1failed. Original runtime file restored byte-for-byte.",
     "legacyTestCorrection": "Existing Nightmare test incorrectly excluded Bot-O-Mine. Source HornedFly has no isStructure exclusion, and Bot scene flag is true. Expected second callback changed1->2 and an independent Blazemander no-third-callback check was added.",
-    "invocationOrder": "The corrected Nightmare expectation was saved before its invocation in the final full suite (spec209, progress90 at edit); all production files were unchanged throughout that run."
+    "invocationOrder": "The corrected Nightmare expectation was saved before its invocation in the final full suite (spec209, progress90 at edit); all production files were unchanged throughout that run.",
+    "trackedRunner": "NativePetDefense7/0 and NativeNightmareEnemyRuntime6/0 passed with the tracked runner after the final suite."
   },
   "fullSuite": {
     "specs": 307,
@@ -89,5 +90,6 @@
   "newStepMerged": false,
   "arsenalChanged": false,
   "uploads": 0,
-  "runtimeAssetIdsChanged": 0
+  "runtimeAssetIdsChanged": 0,
+  "draftPr": 151
 }
