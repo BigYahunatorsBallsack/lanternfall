@@ -34,23 +34,17 @@ type Shot = {
 	puddleSpawned: boolean?,
 	defenseOverlaps: { [number]: boolean }?, -- area entry is independent of the permanent damage-ignore list
 }
+local Defense = require(script.Parent.NativeProjectileDefense)
 local Projectile = {}
-type Defense = {
-	active: (number) -> (boolean, boolean?), -- active now, capable of reflecting on a later entry
-	target: (number, () -> number) -> (number?, number?),
-	overlaps: (number, number, number, number) -> boolean,
-}
-local defense: Defense? = nil
-function Projectile.setDefense(callbacks: Defense)
-	defense = callbacks
+function Projectile.setDefense(callbacks: Defense.Adapter)
+	Defense.configure(callbacks)
 end
 
 local function deflect(weapon: Arsenal.Weapon, ctx: Arsenal.Context, shot: Shot, id: number, distance: number)
 	local x, z = shot.x + shot.dx * distance, shot.z + shot.dz * distance
-	local tx, tz = assert(defense, "Projectile defense adapter required").target(id, function()
+	local angle = Defense.direction(id, x, z, function()
 		return ctx:random()
 	end)
-	local angle = if tx and tz then math.atan2(tz - z, tx - x) else (ctx:random() * 2 - 1) * math.pi
 	ctx:emit(weapon, { kind = "End", id = shot.id, x = x, z = z, distance = shot.flown + distance })
 	shot.id, shot.x, shot.z, shot.dx, shot.dz = ctx:nextId(), x, z, math.cos(angle), math.sin(angle)
 	shot.flown, shot.bounced = 0, true
@@ -315,30 +309,18 @@ function Projectile.step(weapon: Arsenal.Weapon, ctx: Arsenal.Context, dt: numbe
 			end
 		end
 		local n = ctx:querySegment(shot.x, shot.z, x1, z1, stats.projectileRadius, found)
-		if shot.defenseOverlaps and defense then
-			local forward, side = stats.nativeProjectileOffsetForward or 0, stats.nativeProjectileOffsetSide or 0
-			local overlapX = shot.x + shot.dx * forward - shot.dz * side
-			local overlapZ = shot.z + shot.dz * forward + shot.dx * side
-			for id in shot.defenseOverlaps do
-				if not defense.overlaps(id, overlapX, overlapZ, stats.projectileRadius) then
-					shot.defenseOverlaps[id] = nil
-				end
-			end
-		end
+		local forward, side = stats.nativeProjectileOffsetForward or 0, stats.nativeProjectileOffsetSide or 0
+		Defense.refresh(
+			shot,
+			shot.x + shot.dx * forward - shot.dz * side,
+			shot.z + shot.dz * forward + shot.dx * side,
+			stats.projectileRadius
+		)
 		table.clear(ordered)
 		for i = 1, n do
 			local id = found[i]
-			local capable = false
-			if
-				defense
-				and (
-					weapon.config.kind == "Ranged" or (weapon.config.kind == "Pet" and stats.nativePetRangedOrigin == 1)
-				)
-			then
-				local active, potential = defense.active(id)
-				capable = active or potential == true
-			end
-			if (not shot.hit[id] or capable) and not (shot.defenseOverlaps and shot.defenseOverlaps[id]) then
+			local candidate, capable = Defense.candidate(shot, id, weapon.config.kind, stats.nativePetRangedOrigin)
+			if candidate then
 				local x, z = ctx:enemyPosition(id)
 				if x and z then
 					table.insert(ordered, {
@@ -355,11 +337,7 @@ function Projectile.step(weapon: Arsenal.Weapon, ctx: Arsenal.Context, dt: numbe
 		local stopped = false
 		for _, entry in ordered do
 			local id = entry.id
-			if entry.capable then
-				shot.defenseOverlaps = shot.defenseOverlaps or {}
-				shot.defenseOverlaps[id] = true
-			end
-			if entry.capable and defense and defense.active(id) then
+			if Defense.enter(shot, id, entry.capable) then
 				deflect(weapon, ctx, shot, id, entry.distance)
 				stopped = true
 				break

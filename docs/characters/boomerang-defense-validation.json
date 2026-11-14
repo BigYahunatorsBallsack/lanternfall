@@ -1,0 +1,112 @@
+{
+  "referenceVersion": "1.2.0.3",
+  "steamBuild": 26642464,
+  "baseMain": "de4e155e97855cc18ffb52b1e81e53d1af8532fc",
+  "draftPr": 151,
+  "scope": "Boomerang inherited native shield bounce; shared area-entry defense guards with existing native ranged and source-flagged pet projectiles.",
+  "ruleSources": [
+    {
+      "source": "res://projectiles/player_projectile.gdc",
+      "sourceMd5": "57112e4f63b8516f44096515fc1dd1db"
+    },
+    {
+      "source": "res://projectiles/boomerang/boomerang_projectile.gdc",
+      "sourceMd5": "de240ac1e8b9d154e8a601e207678ef7"
+    }
+  ],
+  "engineSources": [
+    "https://github.com/godotengine/godot/blob/3.5/scene/main/node.cpp",
+    "https://github.com/godotengine/godot/blob/3.5/core/math/vector2.cpp",
+    "https://github.com/godotengine/godot/blob/3.5/core/math/math_funcs.h"
+  ],
+  "rules": [
+    "No damage, on-hit or life steal on an active shield entry; no permanent damage-ignore insertion for an absorbed hit.",
+    "Inherited bounce consumes target RNG and decrements even a zero/negative budget; positive damage is truncated with minimum1 and knockback removed.",
+    "Independent Out/Apex/Back trajectory, carrier tracking, cooldown lock and maximum4s lifetime survive reflection. No ordinary projectile range extension is applied to the phase path.",
+    "Zero-speed bounce retains signed-zero components: atan2 can yield0 or +/-pi. Collider rotation follows this inherited velocity angle, then resumes existing spin.",
+    "Separate defender overlap state survives damage-ignore clearing between flight legs. A previous damage hit does not prevent a later shield entry. Multiple defenders retain independent overlap entries."
+  ],
+  "interfaces": [
+    "NativeProjectileDefense.Adapter: active->active/capable, target->optional world X/Z, overlaps->live circle overlap. Existing BrotatoProjectile.setDefense remains the installation entry point.",
+    "Defense.refresh/candidate/enter share area-entry guards; enter checks live activity immediately before resolution. Defense.direction shares global target/random fallback semantics.",
+    "Boomerang per-shot rotation and bounce counter stay server-internal. No remote, profile schema or Arsenal change."
+  ],
+  "focused": {
+    "Boomerang": {
+      "passed": 12,
+      "failed": 0
+    },
+    "NativeProjectileDeflection": {
+      "passed": 9,
+      "failed": 0
+    },
+    "NativePetDefense": {
+      "passed": 7,
+      "failed": 0
+    },
+    "NativeDefenseExceptions": {
+      "passed": 2,
+      "failed": 0
+    },
+    "NativeDeflectCharge": {
+      "passed": 8,
+      "failed": 0
+    },
+    "NativeNightmareEnemyRuntime": {
+      "passed": 6,
+      "failed": 0
+    },
+    "red": "Before interception integration, expanded Boomerang spec7/2; final12/0, original six cases retained.",
+    "mutation": "Forcing collider rotation to0 gives11/1. Original file restored byte-for-byte; final12/0.",
+    "sourceCorrection": "Initial zero-velocity implies zero-angle assumption was incorrect for signed zeros; corrected before final full run. Earlier in-progress suite stopped and superseded.",
+    "trackedRunner": "Boomerang12/0 after final suite; production unchanged."
+  },
+  "fullSuite": {
+    "specs": 307,
+    "passed": 1894,
+    "failed": 36,
+    "artifact": "build/native-five-branch-ten-boomerang-defense-de4e155.json",
+    "newFailureNames": [],
+    "aborts": [],
+    "runtimeUnchangedDuringRun": true,
+    "comparison": "Known Smoke/Gobbler/CharmedWorld identities from documented comparison union; no stable performance fix claimed.",
+    "comparisonArtifacts": [
+      "build/native-five-branch-ten-pet-source-reactions-de4e155.json",
+      "build/native-five-branch-nine-defense-reentry-final-4cf1050.json",
+      "build/native-five-branch-nine-projectile-defense-final-4cf1050.json",
+      "build/native-five-branch-nine-deflect-4cf1050.json",
+      "build/native-five-branch-nine-1203-4cf1050.json"
+    ],
+    "immediatePreviousDelta": {
+      "returnedKnownFailure": "Smoke > chases the player until it touches them",
+      "absentKnownFluctuations": [
+        "CharmedWorld shared simulation budget",
+        "EnemiesB9 Gobbler orb eating/drop"
+      ],
+      "interpretation": "Neither a new regression identity nor a stable repair claimed. Compare identities, not just totals."
+    }
+  },
+  "checks": {
+    "stylua": "passed",
+    "selene": "0errors/18existingWarnings",
+    "rojo": "passed",
+    "deflectCompiler": "--check passed"
+  },
+  "counts": {
+    "codePrepared": 48,
+    "codeOpen": 26,
+    "newCompleteCharacters": 0,
+    "neutralJungleBodiesPrepared": 14
+  },
+  "open": [
+    "Production routing and source-origin acceptance for legacy/B7 and other projectile producers; Pachycephalosaurus body/art/registration/evolution remain pending.",
+    "Fly reactions on reentry of a damage-ignored projectile are a separate missing event-order rule.",
+    "Native fixed physics event ordering, time factors, manual aim, screen culling and original visual rotation/presentation still need end-to-end acceptance.",
+    "Complete Jungle families/bosses/waves/area, remaining characters and Studio/two-client/device acceptance.",
+    "Previously observed CharmedWorld CPU budget fluctuation remains unresolved."
+  ],
+  "merged": false,
+  "uploads": 0,
+  "runtimeAssetIdsChanged": 0,
+  "arsenalChanged": false
+}

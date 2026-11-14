@@ -1,6 +1,6 @@
 ## Aktuell nach Merge150 und Pet-Fortsetzung (14.11.2026)
 
-GitHub-main de4e155, PR150 nach ausdrücklichem Owner-Auftrag gemergt. Neuer Branch wp-b10-main-five-ten, Referenz1.2.0.3. Weiter48/74codevorbereitet und26offen; kein zusätzlicher fertiger Charakter. Aktueller Endlauf307/1887/37; Nachweis pet-source-reactions-validation.json. Neuester Fortsetzungshinweis am Ende; ältere main-/Merge-Angaben darunter sind historische Stände.
+GitHub-main de4e155, PR150 nach ausdrücklichem Owner-Auftrag gemergt. Neuer Branch wp-b10-main-five-ten, Referenz1.2.0.3. Weiter48/74codevorbereitet und26offen; kein zusätzlicher fertiger Charakter. Aktueller Endlauf307/1894/36; Nachweis boomerang-defense-validation.json. PR151 umfasst nun Pet-Ursprünge und Boomerang-Abwehr und bleibt Entwurf. Neuester Fortsetzungshinweis am Ende; ältere main-/Merge-Angaben darunter sind historische Stände.
 
 ## Aktueller Stand nach freigegebenem Versionswechsel (14.11.2026)
 
@@ -704,3 +704,21 @@ Weiter48/74codevorbereitet,26offen,14neutraleJungle-Körperzweige, keine neue Re
 
 
 Entwurfs-PR für diese Fortsetzung: [#151](https://github.com/BigYahunatorsBallsack/lanternfall/pull/151), Branch wp-b10-main-five-ten von main de4e155. PR150 ist bereits gemergt; PR151 enthält nur die neue Pet-Ursprungs-/Abwehr-/Konterkorrektur und bleibt ungemergt. Weiter48/74codevorbereitet,26offen.
+
+
+## Boomerang: native Geschossabwehr verbunden (14.11.2026)
+
+Fortsetzung auf wp-b10-main-five-ten von GitHub-main de4e155, Entwurfs-PR151. Der vorhandene Boomerang verwendet jetzt dieselbe Area-Enter-Abwehr wie native Fernkampf-/Pet-Geschosse. Aktive Abwehr verhindert Schaden und Trefferfolgen, verbraucht den geerbten Abprall einschließlich negativer Budgets und reduziert positiven Schaden ganzzahlig mit Minimum1; Rückstoß entfällt. Die eigene Hin-/Scheitel-/Rückflugsteuerung und Vier-Sekunden-Grenze laufen weiter. Fortdauernde Überlappung erzeugt keine neuen Abwehrereignisse, auch beim Leeren der Schadens-Ignore-Liste vor dem Rückflug. Verschiedene Abwehrkörper werden unabhängig verfolgt; ein früher beschädigter Körper kann bei erneutem Eintritt abwehren.
+
+Quellenkorrektur: Geschwindigkeit null bedeutet hier nicht immer Winkel null. Godot Vector2.angle verwendet atan2; die beim geerbten Bounce entstehenden vorzeichenbehafteten Nullkomponenten können auch ±pi ergeben. Collider-Rotation entsprechend portiert und Drehung danach fortgesetzt. Originale Boomerang-/PlayerProjectile-Scripthashes im Quellcompiler, Godot3.5-Enginebelege im Nachweis. Keine Rohskripte eingecheckt. NativeProjectileDefense bündelt die bestehenden Guards; BrotatoProjectile.setDefense bleibt unverändert nutzbar. Arsenal, Remotes, Schema und Balancingzahlen unverändert.
+
+Boomerang12/0 mit sechs erhaltenen und sechs zusätzlichen Fällen; vor Anbindung7/2. Erzwungener Nullwinkel ergibt11/1, Original bytegenau restauriert. NativeProjectileDeflection9/0, NativePetDefense7/0, NativeDefenseExceptions2/0, NativeDeflectCharge8/0, NightmareRuntime6/0. Maßgeblicher Endlauf: 307Specs, 1894bestanden, 36fehlgeschlagen; keine zusätzliche Fehleridentität gegen die dokumentierte Vergleichsmenge und keine Abbrüche. Der vor der Winkelkorrektur gestartete Zwischenlauf wurde gestoppt und zählt nicht als Endabnahme. StyLua, Selene0Fehler/18bestehendeWarnungen, Rojo und deflect-charges --check bestanden. Produktionscode während des Endlaufs unverändert; bestehende Fehler und CharmedWorld-Leistungsschwankung nicht als repariert behauptet. Nachweis: boomerang-defense-validation.json.
+
+Weiter48/74codevorbereitet,26offen,14neutraleJungle-Körperzweige und kein zusätzlicher fertiger Charakter. Pachycephalosaurus bleibt unregistriert; Legacy/B7-/weitere Spezialpfade, Fly-Wiedereintritt, übrige Jungle-Gegner/Bosse/Wellen/Area sowie originale Physik-/Zeit-/Darstellungsabnahme bleiben offen. Rotationsprüfung betrifft den Server-Collider, keine abgeschlossene Originalgrafik. Keine Uploads, Asset-IDs, Studioänderung oder Merge. Statische Vorprüfung:39Verhaltensmodule verweisen bereits auf BrotatoProjectile,49auf BrotatoMelee,2auf BrotatoWhip; Boomerang ist der einzige eigene Verhaltenspfad. Dies ist nur ein Routingbefund, keine zusätzliche Laufzeit-/Quellenabnahme. Nächster Schritt: tatsächliche Legacy/B7-Geschossproduzenten und ihre Herkunft vor vollständiger Pachy-Körperanbindung nachweisen.
+
+Owner-Test lokal, je Datei ein eigener Aufruf:
+1. `lune run tools/luau-test-runner/lune-runner.luau -- tests/Boomerang.spec.luau` erwartet12/0.
+2. Ebenso NativeProjectileDeflection.spec.luau9/0 und NativePetDefense.spec.luau7/0.
+3. Mit StyLua im PATH `python -B tools/build-character-deflect-charges.py --check` gegen die installierte stabile1.2.0.3. Studio/Koop/Handy nicht geprüft.
+
+Vergleich zum unmittelbar vorherigen Pet-Endlauf: alter Smoke-Verfolgungsfehler wieder rot, CharmedWorld-Budget und Gobbler-Orb-Test diesmal grün. Alle drei Identitäten sind in den früher dokumentierten Läufen enthalten; weder neue Regression allein aus dieser Rückkehr noch stabile Reparatur aus dem grünen Einzelbefund ableiten. Boomerang12/0 auch nach dem Endlauf mit eingechecktem Runner bestätigt.

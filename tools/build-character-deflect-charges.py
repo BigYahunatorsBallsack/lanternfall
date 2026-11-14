@@ -51,7 +51,8 @@ def main():
     assert base['version'] == reference['version'] and int(base['steamBuild']) == int(reference['steamBuildId'])
     scripts = [behavior.removesuffix('.gd')+'.gdc', base['source'], base['rangeHelper']['source'],
                'res://entities/units/enemies/jungle/basic/pachycephalosaurus/pachycephalosaurus.gdc',
-               'res://projectiles/player_projectile.gdc', 'res://global/entity_spawner.gdc',
+               'res://projectiles/player_projectile.gdc', 'res://projectiles/boomerang/boomerang_projectile.gdc',
+               'res://global/entity_spawner.gdc',
                'res://projectiles/grenade_mine/grenade_mine_projectile.gdc',
                'res://projectiles/player_explosion.gdc', 'res://overlap/hitbox.gdc',
                'res://singletons/weapon_service.gdc', 'res://entities/units/unit/unit.gdc',
@@ -86,8 +87,12 @@ def main():
                                         explosionFactorySetsOriginBeforeStart=True),
                  priorHitDefenseReentryImplemented=True,
                  nativePetProjectileInterceptionConnected=True,
+                 boomerangProjectileInterceptionConnected=True,
+                 boomerangDefense=dict(phasePathUnchanged=True, velocityRemainsZero=True,
+                                       rotationUsesZeroVelocityAngle=True, ownFlightDeadlineUnchanged=True,
+                                       damageAndKnockbackUseInheritedBounce=True),
                  petProjectileOrigins=pet_origins,
-                 scope='Native ranged weapon and source-flagged pet projectile defense with rotated collision offsets; Blazemander flames, Sticky flight and explosion exceptions audited. Full actor, legacy/custom/area paths remain pending.')
+                 scope='Native ranged weapon and source-flagged pet projectile defense with rotated collision offsets; Blazemander flames, Sticky flight and explosion exceptions audited. Boomerang inherited bounce keeps its phase path and own deadline. Full actor, legacy/other custom/area paths remain pending.')
     text = '--!strict\n-- Original Pachycephalosaurus clock and native projectile-defense facts; full actor integration remains pending.\n'
     text += 'local source = ' + catalog.luau(facts) + '\n'
     text += '''local target = table.clone(require(script.Parent.JungleChargeTargets).rule.target)

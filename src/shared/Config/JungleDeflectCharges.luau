@@ -112,6 +112,10 @@ local source = {
 			sourceMd5 = "57112e4f63b8516f44096515fc1dd1db",
 		},
 		{
+			source = "res://projectiles/boomerang/boomerang_projectile.gdc",
+			sourceMd5 = "de240ac1e8b9d154e8a601e207678ef7",
+		},
+		{
 			source = "res://global/entity_spawner.gdc",
 			sourceMd5 = "ba0576c27ac5b889c5688decda3dd838",
 		},
@@ -171,6 +175,14 @@ local source = {
 	},
 	priorHitDefenseReentryImplemented = true,
 	nativePetProjectileInterceptionConnected = true,
+	boomerangProjectileInterceptionConnected = true,
+	boomerangDefense = {
+		phasePathUnchanged = true,
+		velocityRemainsZero = true,
+		rotationUsesZeroVelocityAngle = true,
+		ownFlightDeadlineUnchanged = true,
+		damageAndKnockbackUseInheritedBounce = true,
+	},
 	petProjectileOrigins = {
 		catling_gun = {
 			source = "res://entities/units/pet/catling_gun/catling_gun.tscn",
@@ -188,7 +200,7 @@ local source = {
 			shootProjectiles = true,
 		},
 	},
-	scope = "Native ranged weapon and source-flagged pet projectile defense with rotated collision offsets; Blazemander flames, Sticky flight and explosion exceptions audited. Full actor, legacy/custom/area paths remain pending.",
+	scope = "Native ranged weapon and source-flagged pet projectile defense with rotated collision offsets; Blazemander flames, Sticky flight and explosion exceptions audited. Boomerang inherited bounce keeps its phase path and own deadline. Full actor, legacy/other custom/area paths remain pending.",
 }
 local target = table.clone(require(script.Parent.JungleChargeTargets).rule.target)
 local pixel = require(script.Parent.Stats).range.studsPerPoint
