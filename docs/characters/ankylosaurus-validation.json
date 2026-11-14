@@ -1,0 +1,77 @@
+{
+  "referenceVersion": "1.2.0.3",
+  "steamBuild": 26642464,
+  "scope": "Normal Ankylosaurus/type53 neutral server actor; evolution variants, runtime art and playable Jungle remain pending.",
+  "source": {
+    "scene": "res://entities/units/enemies/jungle/basic/ankylosaurus/ankylosaurus.tscn",
+    "sceneMd5": "326c86b0680d2e079dc475a96564e7bd",
+    "readOnlyLocalScan": "build/ankylosaurus-1203-readonly.json",
+    "snapshots": [
+      "docs/characters/jungle-walkers-source.json",
+      "docs/characters/jungle-collider-offsets-source.json",
+      "docs/characters/jungle-around-charge-source.json"
+    ],
+    "scriptReview": "Normal leaf scene has no animation/connection overrides and _is_during_deflect_charge=false. Its _on_hurt override never calls the generic Enemy hook, even in the normal state. Unit damage and direct speed effects remain independent."
+  },
+  "rules": [
+    "HP25+12/wave, damage1+1.1/wave, speed275+/-25 original pixels/s, knockback resistance0.7; native point conversion and factor1 health.",
+    "Body45px at(0,-36), Hurt40px at(0,-29), Hit35.0571px at(0,-17). Original200x200px texture gives100px goal insets; physical bounds remain separate.",
+    "Arena random wandering and existing SHOOT-time around-player charge policy are connected to the actual EnemySim actor. Raw validated player direction remains available at zero stat speed.",
+    "Native hurt-hook slow effects are gated before impact-slow-area creation and carbon melee slow. Direct Unit/nativeSlow penalties remain effective; Arsenal is unchanged.",
+    "No ordinary Crash spawn eligibility. No evolution activation or public Jungle area."
+  ],
+  "interfaces": [
+    "Enemies.nativeHurtSlowEffects?:boolean; false suppresses generic Enemy._on_hurt slow hooks.",
+    "EnemySim.allowsHurtSlowEffects(id):boolean checks hostile/friendly worlds; missing actors return false.",
+    "WeaponService passes this policy to BrotatoCombat without changing direct Unit speed effects."
+  ],
+  "focused": {
+    "NativeAnkylosaurus": {
+      "passed": 4,
+      "failed": 0
+    },
+    "mutation": "Forcing the actual hurt-hook policy to allow effects reproduces3passed1failed. EnemySim file restored byte-for-byte.",
+    "fixtureCorrection": "RobloxMock.world.advance defaults to0.1s, exceeding a15Hz simulation tick. Exact world.step durations now verify one tick without altering movement expectations.",
+    "trackedRunner": "NativeAnkylosaurus passed4/0 with the tracked runner after the full suite."
+  },
+  "fullSuite": {
+    "specs": 302,
+    "passed": 1859,
+    "failed": 36,
+    "baseline": "build/native-five-branch-nine-1203-4cf1050.json",
+    "newFailureNames": [],
+    "aborts": [],
+    "artifact": "build/native-five-branch-nine-ankylosaurus-4cf1050.json",
+    "fluctuation": "Existing Smoke chase-distance failure passed this single run; no stable repair claimed."
+  },
+  "checks": {
+    "stylua": "passed",
+    "selene": "0errors/18existingWarnings",
+    "rojo": "passed",
+    "sourceCompilers": "charge-targets, jungle-walkers, jungle-colliders and jungle-art --check passed"
+  },
+  "localImages": {
+    "count": 18,
+    "new": "assets/enemies/native-jungle/Ankylosaurus.png",
+    "size": [
+      200,
+      200
+    ],
+    "uploads": 0,
+    "runtimeAssetIdsChanged": 0
+  },
+  "counts": {
+    "charactersCodePrepared": 48,
+    "charactersCodeOpen": 26,
+    "newCompleteCharacters": 0,
+    "neutralJungleBodiesPrepared": 14
+  },
+  "open": [
+    "Meca/Mutant evolution and deflection/acid puddles",
+    "Raw direction for zero-speed charmed NPC targets",
+    "Native graphics/animation and full Godot physics ordering/player-terrain parity",
+    "Remaining Jungle families, bosses, waves and playable area",
+    "Roblox Studio/two clients/mobile acceptance; existing full-suite failures"
+  ],
+  "merged": false
+}

@@ -47,7 +47,7 @@ local source = {
 		minimumDistanceDivisor = 4,
 	},
 	familyActivated = false,
-	scope = "Normal Ankylosaurus charge target selection and timer integration only; no full actor family, image/goal geometry or area activation.",
+	scope = "Normal Ankylosaurus targeting is connected to the neutral body, arena wandering and local sprite geometry; evolution variants, runtime art and playable Jungle remain pending.",
 	rangeHelper = {
 		source = "res://singletons/utils.gdc",
 		sourceMd5 = "2c263b6d3c2355dd71d6ad4caf0705bf",
@@ -57,6 +57,7 @@ local source = {
 	},
 	previousSourceVersion = "1.2.0.2",
 	previousResourcesRevalidatedIdentical = true,
+	normalActorRegistered = true,
 }
 local rule = {
 	cooldown = 0.666666666666667,

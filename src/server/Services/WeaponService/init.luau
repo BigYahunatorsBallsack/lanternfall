@@ -638,6 +638,7 @@ function WeaponService.init()
 			return player ~= nil and EnemySim.tryCharm(player, id, stats, random)
 		end,
 		nativeSlow = EnemySim.nativeSlow,
+		hurtSlowEffectsAllowed = EnemySim.allowsHurtSlowEffects,
 		spawnMine = function(ownerId, x, z)
 			local player = playerOf(ownerId)
 			if player then

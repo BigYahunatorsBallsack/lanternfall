@@ -1172,6 +1172,13 @@ function EnemySim.setMode(id: number, mode: number, rushX: number?, rushZ: numbe
 	world:setMode(id, mode, rushX, rushZ)
 end
 
+-- Enemy._on_hurt slow hooks can be overridden independently of damage, knockback and direct Unit speed effects.
+function EnemySim.allowsHurtSlowEffects(id: number): boolean
+	local actors = if friends.world.indexOf[id] then friends.world else world
+	local index = actors.indexOf[id]
+	return index ~= nil and actors.kinds[index].nativeHurtSlowEffects ~= false
+end
+
 -- Mode of a living enemy (EnemySim/World.MODE_*: walk, wind-up, rush, recover) and its rush direction x/z.
 function EnemySim.getMode(id: number): (number, number, number)
 	return (if friends.world:isAlive(id) then friends.world else world):getMode(id)

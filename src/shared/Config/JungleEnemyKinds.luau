@@ -2,6 +2,7 @@
 -- Adapts explicitly ported neutral Jungle behaviors to the enemy engine; Config.Enemies owns pixel conversion.
 local C = require(script.Parent.JungleWalkers)
 local Colliders = require(script.Parent.JungleColliderOffsets)
+local ChargeTargets = require(script.Parent.JungleChargeTargets)
 local Kinds = {}
 function Kinds.build(pixel: number): { [string]: any }
 	local result = {}
@@ -48,6 +49,7 @@ function Kinds.build(pixel: number): { [string]: any }
 			hitRadius = f.hit.radiusPoints * pixel,
 			mass = f.mass or C.runtimeCompatibility.mass,
 			knockbackResistance = s.knockback_resistance,
+			nativeHurtSlowEffects = f.nativeHurtSlowEffects,
 			removeFirst = f.removeFirst,
 			loot = {
 				consumableChance = if s.can_drop_consumables then s.base_drop_chance else 0,
@@ -68,6 +70,19 @@ function Kinds.build(pixel: number): { [string]: any }
 				speed = a.charge_speed * pixel,
 				rangeZ = a.range_Y * pixel,
 				massMultiplier = rules.chargeMassMultiplier,
+			}
+			if f.aroundPlayerCharge then
+				assert(ChargeTargets.source.variant.sourceMd5 == f.sourceMd5, "Charge targeting source mismatch")
+				result[id].nativeCharge = ChargeTargets.rule
+			end
+		end
+		if f.wanderArena then
+			result[id].wander = {
+				around = "Arena",
+				range = 0,
+				rangeJitter = 0,
+				arriveStuds = C.spawningRules.goalPrecisionPoints * pixel,
+				maxSeconds = math.huge,
 			}
 		end
 		if f.anticipate then

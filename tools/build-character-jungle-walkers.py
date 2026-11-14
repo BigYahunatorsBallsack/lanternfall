@@ -6,7 +6,7 @@ import argparse, importlib.util, json, re, subprocess, sys, tempfile
 from pathlib import Path
 sys.dont_write_bytecode = True
 ROOT = Path(__file__).resolve().parents[1]
-FAMILIES = {'baby_triceratops': ('BabyTriceratops', 40, 'Baby Triceratops'), 'gallimimus': ('Gallimimus', 41, 'Gallimimus'), 'lystrosaurus': ('Lystrosaurus', 42, 'Lystrosaurus'), 'pyroraptor': ('Pyroraptor', 43, 'Pyroraptor'), 'enigmacursor': ('Enigmacursor', 44, 'Enigmacursor'), 'baby_pterosaur': ('BabyPterosaur',45,'Baby Pterosaur'), 'graciliceratops': ('Graciliceratops',46,'Graciliceratops'), 'baby_trex': ('BabyTrex',47,'Baby T-Rex'), 'alamosaurus': ('Alamosaurus',48,'Alamosaurus'), 'dino_egg': ('DinoEgg',49,'Dino Egg'), 'stintaosaurus': ('Stintaosaurus',50,'Tsintaosaurus'), 'triceratops': ('Triceratops',51,'Triceratops'), 'parasaurolorus': ('Parasaurolorus',52,'Parasaurolophus')}
+FAMILIES = {'baby_triceratops': ('BabyTriceratops', 40, 'Baby Triceratops'), 'gallimimus': ('Gallimimus', 41, 'Gallimimus'), 'lystrosaurus': ('Lystrosaurus', 42, 'Lystrosaurus'), 'pyroraptor': ('Pyroraptor', 43, 'Pyroraptor'), 'enigmacursor': ('Enigmacursor', 44, 'Enigmacursor'), 'baby_pterosaur': ('BabyPterosaur',45,'Baby Pterosaur'), 'graciliceratops': ('Graciliceratops',46,'Graciliceratops'), 'baby_trex': ('BabyTrex',47,'Baby T-Rex'), 'alamosaurus': ('Alamosaurus',48,'Alamosaurus'), 'dino_egg': ('DinoEgg',49,'Dino Egg'), 'stintaosaurus': ('Stintaosaurus',50,'Tsintaosaurus'), 'triceratops': ('Triceratops',51,'Triceratops'), 'parasaurolorus': ('Parasaurolorus',52,'Parasaurolophus'), 'ankylosaurus': ('Ankylosaurus',53,'Ankylosaurus')}
 
 def module(name, file):
  spec = importlib.util.spec_from_file_location(name, ROOT/file)
@@ -38,10 +38,11 @@ def generate():
   folder = 'parasaurolus' if slug=='parasaurolorus' else slug
   path = f'res://entities/units/enemies/jungle/basic/{folder}/{slug}.tscn'
   nodes = resolve(path);root = nodes[('@','@')];move = nodes[('.','MovementBehavior')];attack = nodes[('.','AttackBehavior')]
-  assert root['scriptSource'] == (f'res://entities/units/enemies/jungle/basic/{slug}/{slug}.gd' if slug in ['baby_trex','dino_egg','stintaosaurus'] else 'res://entities/units/enemies/enemy.gd')
-  if slug in ['triceratops','parasaurolorus']:
-   assert move['scriptSource']=='res://entities/units/movement_behaviors/follow_target_movement_behavior.gd'
-   assert move['properties']['should_target_vertically'] and not move['properties'].get('stop_close_to_target',False)
+  assert root['scriptSource'] == (f'res://entities/units/enemies/jungle/basic/{slug}/{slug}.gd' if slug in ['baby_trex','dino_egg','stintaosaurus','ankylosaurus'] else 'res://entities/units/enemies/enemy.gd')
+  if slug in ['triceratops','parasaurolorus','ankylosaurus']:
+   expected='target_rand_pos_movement_behavior.gd' if slug=='ankylosaurus' else 'follow_target_movement_behavior.gd'
+   assert move['scriptSource']=='res://entities/units/movement_behaviors/'+expected
+   if slug!='ankylosaurus':assert move['properties']['should_target_vertically'] and not move['properties'].get('stop_close_to_target',False)
    assert attack['scriptSource']=='res://entities/units/movement_behaviors/detect_evolution_attack_behavior.gd'
   elif slug == 'enigmacursor':
    assert move['scriptSource'] == 'res://entities/units/movement_behaviors/stay_in_range_from_player_movement_behavior.gd'
@@ -67,15 +68,23 @@ def generate():
   enemies[identity]['sprite']=images.texture_metadata(pck,images.body_texture(pck,path))
   enemies[identity]['bodyBorders']=root['properties'].get('should_collide_with_borders',True)
   enemies[identity]['playerCollision']=bool(root['properties']['collision_mask'] & 2)
-  if slug in ['triceratops','parasaurolorus']:
+  if slug in ['triceratops','parasaurolorus','ankylosaurus']:
    defaults={'cooldown':60.0,'long_cooldown_every_x_shoots':0,'long_cooldown':0.0,'max_cd_randomization':10,'min_range':0,'max_range':300,'range_X':-1,'range_Y':-1,'attack_anim_speed':1.0,'charge_duration':1.0,'charge_speed':500.0,'target_calculation_timing':0,'target':0,'rand_target_size':-1,'only_positions_in_target_direction':False,'scale_charge_duration_with_range':False,'recovery_duration':0.05}
    variants={}
    for variant in ['Normal','Mutant','Meca']:
     node=nodes[('AttackBehavior','AttackBehavior'+variant)]
     assert node['scriptSource']=='res://entities/units/enemies/attack_behaviors/charging_attack_behavior.gd'
     variants[variant]={**defaults,**{k:v for k,v in node['properties'].items() if isinstance(v,(int,float,bool))}}
-   normal=variants['Normal'];assert normal['target']==3 and normal['target_calculation_timing']==0 and normal['long_cooldown_every_x_shoots']==0 and normal['range_X']==-1 and normal['range_Y']>0 and normal['charge_duration']>0 and normal['recovery_duration']>0 and not normal['scale_charge_duration_with_range']
-   enemies[identity].update(chargingVariants=variants,activeChargeVariant='Normal',evolutionVariantsImplemented=False,followXShare=0.5)
+   normal=variants['Normal'];assert normal['long_cooldown_every_x_shoots']==0 and normal['charge_duration']>0 and normal['recovery_duration']>0 and not normal['scale_charge_duration_with_range']
+   enemies[identity].update(chargingVariants=variants,activeChargeVariant='Normal',evolutionVariantsImplemented=False)
+   if slug=='ankylosaurus':
+    targeting=json.loads((ROOT/'docs/characters/jungle-around-charge-source.json').read_text(encoding='utf-8'))
+    assert targeting['version']==reference['version'] and targeting['variant']['sourceMd5']==pck.entries[path]['md5'] and targeting['variant']['effective']==normal
+    assert root['properties']['_is_during_deflect_charge']==False
+    enemies[identity].update(aroundPlayerCharge=True,wanderArena=True,nativeHurtSlowEffects=False,normalDeflectCharge=False)
+   else:
+    assert normal['target']==3 and normal['target_calculation_timing']==0 and normal['range_X']==-1 and normal['range_Y']>0
+    enemies[identity]['followXShare']=0.5
    used_scripts.add('res://entities/units/enemies/attack_behaviors/charging_attack_behavior.gdc')
   if slug=='stintaosaurus':
    assert nodes[('.','BoostZone')]['properties']['collision_mask']==4

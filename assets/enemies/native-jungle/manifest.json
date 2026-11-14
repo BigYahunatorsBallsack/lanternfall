@@ -253,6 +253,25 @@
       "pngSha256": "c1c700fe4ef3a3bbf4b4c11ad19cb3cc1931cce0e97657fb2f245954c60ed540"
     },
     {
+      "id": "Ankylosaurus",
+      "source": "res://entities/units/enemies/jungle/basic/ankylosaurus/ankylosaurus.png",
+      "textureSource": "res://.import/ankylosaurus.png-6c2e648fc01696f4a0e88a690a12f2f2.stex",
+      "textureMd5": "419228db5234a56e48d30f5784110849",
+      "output": "assets/enemies/native-jungle/Ankylosaurus.png",
+      "size": [
+        200,
+        200
+      ],
+      "alphaBounds": [
+        36,
+        28,
+        165,
+        184
+      ],
+      "rgbaSha256": "33393286cd1383abe744c9d8287e31db05ef6c906dc15a8d472e4d972c42012c",
+      "pngSha256": "612cac6a1e96f2182a65ab883586638773ffeea92d3aeba2cc8b10309c32e6db"
+    },
+    {
       "id": "Pillar_bullet_pillar_0002",
       "source": "res://projectiles/pillar_enemy/sprites/bullet_pillar_0002.png",
       "textureSource": "res://.import/bullet_pillar_0002.png-b64813647bb259fcd087f6245a3b4bd8.stex",

@@ -116,7 +116,8 @@ function Combat.hit(
 		crit = true
 	end
 	local hitX, hitZ = ctx:enemyPosition(id)
-	if stats.impactSlowRadius and adapter.slowArea and hitX and hitZ then
+	local hurtSlowEffects = not adapter.hurtSlowEffectsAllowed or adapter.hurtSlowEffectsAllowed(id)
+	if hurtSlowEffects and stats.impactSlowRadius and adapter.slowArea and hitX and hitZ then
 		adapter.slowArea(id, hitX, hitZ, stats.impactSlowRadius, stats.impactSlowPercent, stats.impactSlowHold)
 	end
 	stats.critChance = if crit then 1 else 0
@@ -143,7 +144,7 @@ function Combat.hit(
 		)
 	end
 	local killed = ctx:hit(weapon, id, share, if bounced then "Bounce" else nil)
-	if not killed and stats.carbonMeleeSlow and adapter.nativeSlow then
+	if hurtSlowEffects and not killed and stats.carbonMeleeSlow and adapter.nativeSlow then
 		adapter.nativeSlow(id, -stats.carbonMeleeSlow, true, stats.carbonSlowSeconds)
 	end
 	if stats.nativeMineChance and adapter.spawnMine and hitX and hitZ and ctx:random() < stats.nativeMineChance then

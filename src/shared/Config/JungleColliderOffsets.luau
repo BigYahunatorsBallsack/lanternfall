@@ -628,6 +628,54 @@ return {
 				"res://entities/entity.tscn",
 			},
 		},
+		Ankylosaurus = {
+			source = "res://entities/units/enemies/jungle/basic/ankylosaurus/ankylosaurus.tscn",
+			sourceMd5 = "326c86b0680d2e079dc475a96564e7bd",
+			sceneChain = {
+				"res://entities/units/enemies/jungle/basic/ankylosaurus/ankylosaurus.tscn",
+				"res://entities/units/enemies/enemy.tscn",
+				"res://entities/units/unit/unit.tscn",
+				"res://entities/entity.tscn",
+			},
+			hurt = {
+				parentPoints = {
+					0,
+					-16,
+				},
+				childPoints = {
+					0,
+					-13,
+				},
+				totalPoints = {
+					0,
+					-29,
+				},
+				initialParentScale = {
+					1,
+					1,
+				},
+				initialParentRotation = 0,
+			},
+			hit = {
+				parentPoints = {
+					0,
+					0,
+				},
+				childPoints = {
+					0,
+					-17,
+				},
+				totalPoints = {
+					0,
+					-17,
+				},
+				initialParentScale = {
+					1,
+					1,
+				},
+				initialParentRotation = 0,
+			},
+		},
 	},
 	scope = "Neutral saved1.2.0.2 scene transforms only; collision branches must be activated separately.",
 	provenance = "Derived from saved1.2.0.2 neutral Jungle scene scan; each scene hash and child position checked against approved JungleWalkers facts.",
@@ -693,6 +741,10 @@ return {
 		},
 		["res://entities/units/enemies/jungle/basic/parasaurolus/parasaurolorus.tscn"] = {
 			sourceMd5 = "2c702c7aa16bbd1b42b8e20249289f9a",
+			baseScene = "res://entities/units/enemies/enemy.tscn",
+		},
+		["res://entities/units/enemies/jungle/basic/ankylosaurus/ankylosaurus.tscn"] = {
+			sourceMd5 = "326c86b0680d2e079dc475a96564e7bd",
 			baseScene = "res://entities/units/enemies/enemy.tscn",
 		},
 	},
