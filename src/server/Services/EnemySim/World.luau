@@ -655,6 +655,13 @@ function World.setMode(self: World, id: number, mode: number, rushX: number?, ru
 	end
 end
 
+-- The original deflection window follows its own cooldown; rush/recovery mode alone does not determine it.
+function World.isProjectileDeflecting(self: World, id: number): boolean
+	local index = self.indexOf[id]
+	local state = if index and self.hp[index] > 0 then self.nativeCharges[index] else nil
+	return state ~= nil and state.deflecting == true
+end
+
 -- The enemy's mode (World.MODE_*) and its rush direction (only meaningful from the wind-up on).
 function World.getMode(self: World, id: number): (number, number, number)
 	local i = self.indexOf[id]

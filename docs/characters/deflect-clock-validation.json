@@ -1,0 +1,99 @@
+{
+  "referenceVersion": "1.2.0.3",
+  "steamBuild": 26642464,
+  "scope": "Cooldown-driven defense clock and actual World transfer only; no full Pachycephalosaurus actor or projectile interception.",
+  "sourceSnapshot": "docs/characters/jungle-deflect-charge-source.json",
+  "rules": [
+    "Normal cooldown70+/-20frames, charge1s, recovery2s, speed400px/s, SHOOT targeting, max_range500px, target radius100px, deflect_stop_before_CD80frames.",
+    "Reset starts inactive; SHOOT activates after resetting cooldown to randomized cooldown plus charge duration. The flag clears at remaining cooldown <=80frames, independently of rush/recovery mode and target availability.",
+    "Low randomized cooldown can end defense during rush; high cooldown can retain defense into recovery. State survives faction-world transfer, while missing/dead source bodies never expose it.",
+    "Existing ordinary charge rules have no defense field and never activate this flag."
+  ],
+  "interfaces": [
+    "Enemies.NativeCharge.deflectStopBeforeCooldown?:number in seconds.",
+    "NativeStraightCharge.State.deflecting:boolean.",
+    "World.isProjectileDeflecting(id):boolean; excludes dead/uncompacted/transferred-out actors."
+  ],
+  "focused": {
+    "NativeDeflectCharge": {
+      "passed": 8,
+      "failed": 0
+    },
+    "initialRed": "1passed6failed before implementation; World transfer then exposed a retained tombstone until the health guard was added.",
+    "mutation": "Replacing <= with < fails the exact-boundary case:6passed1failed before the final eighth death test was added; original file restored byte-for-byte."
+  },
+  "fullSuite": {
+    "specs": 303,
+    "passed": 1867,
+    "failed": 36,
+    "newFailureNames": [
+      [
+        "tests/CharmedWorld.spec.luau",
+        "FAIL Charmed faction runtime > steps a mixed hostile and friendly crowd within the shared simulation budget"
+      ]
+    ],
+    "aborts": [],
+    "artifact": "build/native-five-branch-nine-deflect-4cf1050.json",
+    "comparison": "Failure identities compared with both preceding302/1859/36 and301/1854/37 runs; known Smoke/Gobbler fluctuations are not stable fixes."
+  },
+  "checks": {
+    "stylua": "passed",
+    "selene": "0errors/18existingWarnings",
+    "rojo": "passed",
+    "compiler": "build-character-deflect-charges.py --check passed"
+  },
+  "counts": {
+    "codePrepared": 48,
+    "codeOpen": 26,
+    "newCompleteCharacters": 0,
+    "neutralJungleBodiesPrepared": 14
+  },
+  "open": [
+    "Pachycephalosaurus native body/geometry/art and actual registration",
+    "Projectile interception, source bounce with negative bounce budget, no damage/on-hit/life-steal on interception, original global random enemy target and INFINITE_RANGE=10000px plus additional-distance lifetime",
+    "All projectile families/pets and ranged explosion-vs-melee source classification",
+    "Evolution variants, remaining Jungle families/bosses/waves/area, graphics/physics/Studio acceptance",
+    "CharmedWorld performance acceptance remains open; no stable causal explanation of new budget exceedance."
+  ],
+  "uploads": 0,
+  "runtimeAssetIdsChanged": 0,
+  "merged": false,
+  "performance": {
+    "current": {
+      "samplesMs": [
+        3.545,
+        4.127,
+        4.027,
+        3.559,
+        3.632,
+        3.514,
+        3.586,
+        3.426,
+        3.57
+      ],
+      "medianMs": 3.57,
+      "failed": 2
+    },
+    "baseline": {
+      "samplesMs": [
+        3.689,
+        3.626,
+        3.809,
+        3.713,
+        3.59,
+        3.799,
+        3.675,
+        3.624,
+        3.556
+      ],
+      "medianMs": 3.675,
+      "failed": 0
+    },
+    "baselineCommit": "2df7ed1",
+    "fullRunMs": 4.057,
+    "budgetMs": 4,
+    "nativeCharge140AverageMs": 3.801302,
+    "acceptance": "Open: new full-run performance failure and two current-only paired failures remain unexplained; no threshold changes or stable parity claim. Final six pairs passed on both sides.",
+    "restoration": "Three runtime files restored byte-for-byte after every paired experiment."
+  }
+}

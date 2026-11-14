@@ -13,6 +13,7 @@ export type State = {
 	bonus: number,
 	walkDt: number,
 	rushDt: number,
+	deflecting: boolean,
 }
 local EPSILON = 1e-9
 local function cooldown(rule: Enemies.NativeCharge, random: () -> number): number
@@ -30,7 +31,14 @@ function Charge.new(rule: Enemies.NativeCharge, mass: number, random: () -> numb
 		bonus = 0,
 		walkDt = 0,
 		rushDt = 0,
+		deflecting = false,
 	}
+end
+local function advanceCooldown(state: State, rule: Enemies.NativeCharge, dt: number)
+	state.remaining = math.max(0, state.remaining - dt)
+	if rule.deflectStopBeforeCooldown and state.remaining <= rule.deflectStopBeforeCooldown then
+		state.deflecting = false
+	end
 end
 -- Timers continue without a target. Leftover time crosses phase boundaries rather than lengthening each phase by a server tick.
 function Charge.step(
@@ -50,13 +58,13 @@ function Charge.step(
 	while true do
 		if state.stage == "Walk" then
 			if not hasTarget or not Target.inRange(rule, dx, dz) then
-				state.remaining = math.max(0, state.remaining - dt)
+				advanceCooldown(state, rule, dt)
 				state.walkDt += dt
 				return bonusChanged
 			end
 			local used = math.min(dt, state.remaining)
 			state.walkDt += used
-			state.remaining = math.max(0, state.remaining - used)
+			advanceCooldown(state, rule, used)
 			dt -= used
 			if state.remaining > EPSILON then
 				return bonusChanged
@@ -68,7 +76,7 @@ function Charge.step(
 		else
 			local used = math.min(dt, state.left)
 			state.left = math.max(0, state.left - used)
-			state.remaining = math.max(0, state.remaining - used)
+			advanceCooldown(state, rule, used)
 			dt -= used
 			if state.stage == "Rush" then
 				state.rushDt += used
@@ -82,6 +90,7 @@ function Charge.step(
 				end
 				state.stage, state.left = "Rush", rule.duration
 				state.remaining = cooldown(rule, random) + rule.duration
+				state.deflecting = rule.deflectStopBeforeCooldown ~= nil
 				state.bonus = rule.speed * accessibility
 				bonusChanged = true
 			elseif state.stage == "Rush" then

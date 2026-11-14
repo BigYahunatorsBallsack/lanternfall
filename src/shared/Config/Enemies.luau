@@ -1847,6 +1847,7 @@ end
 
 export type NativeCharge = {
 	cooldown: number,
+	deflectStopBeforeCooldown: number?, -- charging_attack_deflect_bullet_behavior: stop when remaining cooldown <= this duration
 	jitter: number,
 	minimumCooldown: number,
 	fireAt: number,

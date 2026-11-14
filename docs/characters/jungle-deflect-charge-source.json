@@ -1,0 +1,105 @@
+{
+  "version": "1.2.0.3",
+  "steamBuild": 26642464,
+  "source": "res://entities/units/enemies/jungle/basic/pachycephalosaurus/pachycephalosaurus.tscn",
+  "sourceMd5": "a03085289992494611235136195a9ace",
+  "variants": {
+    "Normal": {
+      "cooldown": 70.0,
+      "max_cd_randomization": 20,
+      "min_range": 0,
+      "max_range": 500,
+      "range_X": -1,
+      "range_Y": -1,
+      "attack_anim_speed": 1.0,
+      "charge_duration": 1.0,
+      "charge_speed": 400.0,
+      "target_calculation_timing": 1,
+      "target": 1,
+      "rand_target_size": -1,
+      "only_positions_in_target_direction": true,
+      "scale_charge_duration_with_range": false,
+      "recovery_duration": 2.0,
+      "long_cooldown_every_x_shoots": 0,
+      "long_cooldown": 0.0,
+      "deflect_stop_before_CD": 80.0
+    },
+    "Mutant": {
+      "cooldown": 60.0,
+      "max_cd_randomization": 20,
+      "min_range": 0,
+      "max_range": 500,
+      "range_X": -1,
+      "range_Y": -1,
+      "attack_anim_speed": 1.25,
+      "charge_duration": 1.25,
+      "charge_speed": 500.0,
+      "target_calculation_timing": 1,
+      "target": 1,
+      "rand_target_size": -1,
+      "only_positions_in_target_direction": true,
+      "scale_charge_duration_with_range": false,
+      "recovery_duration": 1.5,
+      "long_cooldown_every_x_shoots": 0,
+      "long_cooldown": 0.0,
+      "deflect_stop_before_CD": 70.0
+    },
+    "Meca": {
+      "cooldown": 70.0,
+      "max_cd_randomization": 20,
+      "min_range": 0,
+      "max_range": 500,
+      "range_X": -1,
+      "range_Y": -1,
+      "attack_anim_speed": 0.7,
+      "charge_duration": 0.7,
+      "charge_speed": 350.0,
+      "target_calculation_timing": 1,
+      "target": 1,
+      "rand_target_size": -1,
+      "only_positions_in_target_direction": true,
+      "scale_charge_duration_with_range": false,
+      "recovery_duration": 2.5,
+      "long_cooldown_every_x_shoots": 0,
+      "long_cooldown": 0.0,
+      "deflect_stop_before_CD": 80.0
+    }
+  },
+  "frameRate": 60,
+  "minimumCooldownFrames": 1,
+  "massMultiplier": 5,
+  "animation": {
+    "source": "res://entities/units/enemies/attack_behaviors/shoot.tres",
+    "sourceMd5": "2cb1eabb59abc712266d8e6cb496ab3f",
+    "fireAt": 0.8,
+    "seconds": 1
+  },
+  "around": {
+    "maximumDefaultRadiusPoints": 600,
+    "rangeDivisor": 5,
+    "coneDegrees": 180,
+    "minimumDistanceDivisor": 4
+  },
+  "ruleSources": [
+    {
+      "source": "res://entities/units/enemies/attack_behaviors/charging_attack_deflect_bullet_behavior.gdc",
+      "sourceMd5": "daba5d3d739bba386c511fdbc2b18c92"
+    },
+    {
+      "source": "res://entities/units/enemies/attack_behaviors/charging_attack_behavior.gdc",
+      "sourceMd5": "fcf2901832ca42a4e69e98c60629397e"
+    },
+    {
+      "source": "res://singletons/utils.gdc",
+      "sourceMd5": "2c263b6d3c2355dd71d6ad4caf0705bf"
+    },
+    {
+      "source": "res://entities/units/enemies/jungle/basic/pachycephalosaurus/pachycephalosaurus.gdc",
+      "sourceMd5": "8bc1d902906d2c92a141b6b122740e8c"
+    }
+  ],
+  "actorRegistered": false,
+  "projectileDefenseConnected": false,
+  "evolutionVariantsImplemented": false,
+  "scope": "Charge clock and deflection-state integration only; no full actor, projectile defense or area activation."
+}
