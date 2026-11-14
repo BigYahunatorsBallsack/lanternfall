@@ -159,8 +159,21 @@ function Kinds.build(pixel: number): { [string]: any }
 				changeAt = a.change_movement_behavior_after_x_boosts,
 				changeSpeed = a.bonus_speed_on_change_movement_behavior * pixel,
 				playerSpeedShare = a.max_player_speed_multiplier,
+				resetOnContact = a.reset_nb_times_boosted_on_hit,
 			}
 		end
+		if f.detection then
+			local a = f.detection
+			result[id].nativeDetection = { radius = a.radiusPoints * pixel, speedBonus = a.speedBonusPoints * pixel }
+			result[id].wander = {
+				around = "Target",
+				range = a.wanderRangePoints * pixel,
+				rangeJitter = a.wanderJitterPoints * pixel,
+				arriveStuds = C.spawningRules.goalPrecisionPoints * pixel,
+				maxSeconds = math.huge,
+			}
+		end
+
 		if f.activeVariant then
 			local a = f.shootingVariants[f.activeVariant]
 			local rules = C.shootingRules

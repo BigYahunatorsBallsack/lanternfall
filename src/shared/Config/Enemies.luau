@@ -73,6 +73,7 @@ export type Enemy = {
 	-- since B9 part 2 (Brotato's enemy behaviours, DESIGN.md section 7)
 	accelerate: Accelerate?,
 	pursuer: Pursuer?,
+	nativeDetection: NativeDetection?,
 	retaliate: Retaliate?,
 	pulse: Pulse?,
 	hatch: Hatch?,
@@ -182,7 +183,9 @@ export type Accelerate = {
 	resetOnHit: boolean?,
 }
 
--- Native flat Pursuer boosts plus Baby T-Rex's live-player speed cap; no reset on contact.
+export type NativeDetection = { radius: number, speedBonus: number }
+
+-- Native flat Pursuer boosts with optional player-speed cap and source contact reset.
 export type Pursuer = {
 	everySeconds: number,
 	maxSteps: number,
@@ -193,7 +196,8 @@ export type Pursuer = {
 	spriteRise: number,
 	changeAt: number,
 	changeSpeed: number,
-	playerSpeedShare: number,
+	playerSpeedShare: number?,
+	resetOnContact: boolean?,
 }
 
 -- Enemies that shoot a ring of projectiles when hit (Thornback, B9). Shots fly like the Spitter's (EnemySim/Volleys).

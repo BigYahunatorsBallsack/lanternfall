@@ -1294,3 +1294,23 @@ Owner-Test lokal, jede Datei einzeln:
 3. Mit StyLua im PATH jungle-walkers-, jungle-colliders- und deflect-charges-Compiler jeweils mit --check ausführen, danach prepare-character-jungle-art.py --check. Installierte stabile1.2.0.3 erforderlich; keine Studioänderung.
 
 Direkter Endlaufvergleich zum Boomerang-Schritt: identische36Fehlernamen,51zusätzliche Prüfungen bestanden, keine Abbrüche. Pachycephalosaurus5/0 anschließend auch mit dem eingecheckten Runner; nach dem Endlauf nur Dokumentation geändert.
+
+
+## Normaler Velociraptor: Erkennung und native Geschwindigkeitsboni (14.11.2026)
+
+GitHub-main vor Beginn erneut de4e155 geprüft; Fortsetzung auf wp-b10-main-five-ten in Entwurfs-PR151. Normaler Velociraptor/Typ55 als16.neutralerJungle-Körper angebunden. Original HP6+8/Welle, Kontakt1+0,6/Welle, Tempo250±25Pixel/s; Körper29,0172Pixel/0,10, Hurt32/gesamt0,4, Kontakt16,0312/0,5. Quelle ist ausdrücklich velociraptor.tscn, keine unvollständige ++-Warnansturm-Variante. Vor Erkennung Zufallsziele im500±100Pixel-Quadrat um das Ziel; bei Distanz≤650Pixel einmalig+90Pixel/s und direkte Verfolgung auf beiden Achsen. NativeTargetDetection hält diesen Zustand in einer echten World-Spalte über Kompaktierung/Charm-Transfer.
+
+Nativer Pursuer-Timer addiert unabhängig vom Ziel jede Sekunde45Pixel/s, maximal10Stufen. Beide flachen Boni erhalten den originalen Accessibility-Speedfaktor; Baby T-Rex behält seinen separaten optionalen Spielertempodeckel, Velociraptor erhält keinen. Timerphase läuft auch am Stufenlimit weiter. Kontakt-Neueintritt setzt Zähler und alle Bonusgeschwindigkeit zurück, lässt Timerphase und Erkennungsmarkierung bestehen. Fortdauerndes Überlappen setzt nicht wiederholt zurück: zwei wiederverwendete Maps je betreffendem Actor, stabile Zielidentitäten statt wechselnder Arrayplätze. World.step hat dafür einen optionalen letzten targetKeys-Parameter; EnemySim übergibt Player:UserId, CharmedWorld native Gegner-IDs. Keine neue Remote, Schema- oder Arsenaländerung.
+
+NativeTargetDetection3/0 nach0/3, Velociraptor6/0 nach0/4 ohne Körper. Erste Testplatzierung lag direkt im Kontaktkreis und setzte den gerade gewährten Erkennungsbonus korrekt sofort zurück; auf40Stud-Abstand zur getrennten Erkennungsprüfung korrigiert. Mutation mit ständigem Kontaktreset ergibt5/1, Datei bytegenau restauriert. BabyTrex10/0, Pachy5/0, MainGameEnemyStats29/0, WorldSprites12/0 und CharmedWorld6/0 gezielt bestanden. Snapshot-Kindzahl54→55 bei erhaltenen Eindeutigkeitsprüfungen. Neues Originalbild verlustfrei lokal vorbereitet/angesehen, nun20Jungle-/Pillar-PNGs,0Uploads/IDs; Pending-Art-Fallback im Spiel bleibt bestehen.
+
+Endlauf311/1954/36, keine zusätzliche Fehleridentität gegen die dokumentierte Vergleichsmenge, keine Abbrüche. Laufzeitcode währenddessen unverändert. StyLua, Selene0Fehler/18bestehendeWarnungen, Rojo, zwei Quellcompiler und lokale Bildprüfung --check bestanden. Bekannte Fehler und CharmedWorld-Leistungsauffälligkeit nicht als repariert ausgeben. Nachweis velociraptor-validation.json und build/native-five-branch-ten-velociraptor-de4e155.json.
+
+Weiter48/74codevorbereitet,26offen; kein neuer fertiger Charakter. Jungle weiter nicht auswählbar; ++-Warnansturm/Evolution, weitere Familien/Bosse/Wellen/Area, originale Spielgrafik, vollständige Physik-/Zeit-/Zielwahlparität und Studio/Koop/Handy offen. Separater Quellbefund: DetectTargetMovementBehavior.init setzt den Vor-Erkennungszweig, aber nicht explizit _detected_player zurück. Native Godot-Pool-Wiedernutzung deshalb separat auditieren; World-Neuspawn und laufender Charm-Transfer sind keine vollständige Godot-Pooling-Abnahme. Nächster Schritt: weitere Jungle-Familien mit diesen Bewegungsbausteinen verbinden und deren Sonderangriffe portieren. Kein Merge.
+
+Owner-Test lokal, jede Datei eigener Aufruf:
+1. `lune run tools/luau-test-runner/lune-runner.luau -- tests/NativeVelociraptor.spec.luau` erwartet6/0.
+2. Ebenso NativeTargetDetection.spec.luau3/0 und NativeBabyTrex.spec.luau10/0.
+3. Mit StyLua im PATH jungle-walkers-/jungle-colliders-Compiler sowie prepare-character-jungle-art.py jeweils per python -B mit --check gegen installierte stabile1.2.0.3 prüfen.
+
+Endvergleich zum Pachy-Schritt: weiterhin36Fehler, aber Gobbler-Orb-Fehler wieder rot und alter Smoke-Verfolgungsfehler diesmal grün; beide Identitäten bereits dokumentiert. Neun zusätzliche Prüfungen bestanden, keine stabile Reparatur behauptet. Velociraptor6/0 und Detection3/0 anschließend auch mit eingechecktem Runner; nach Gesamtlauf nur Dokumentation geändert.

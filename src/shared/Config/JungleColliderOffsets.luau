@@ -724,6 +724,54 @@ return {
 				initialParentRotation = 0,
 			},
 		},
+		Velociraptor = {
+			source = "res://entities/units/enemies/jungle/basic/velociraptor/velociraptor.tscn",
+			sourceMd5 = "0991656b37d4670393f527dc91009d90",
+			sceneChain = {
+				"res://entities/units/enemies/jungle/basic/velociraptor/velociraptor.tscn",
+				"res://entities/units/enemies/enemy.tscn",
+				"res://entities/units/unit/unit.tscn",
+				"res://entities/entity.tscn",
+			},
+			hurt = {
+				parentPoints = {
+					0,
+					-16,
+				},
+				childPoints = {
+					0,
+					20,
+				},
+				totalPoints = {
+					0,
+					4,
+				},
+				initialParentScale = {
+					1,
+					1,
+				},
+				initialParentRotation = 0,
+			},
+			hit = {
+				parentPoints = {
+					0,
+					0,
+				},
+				childPoints = {
+					0,
+					5,
+				},
+				totalPoints = {
+					0,
+					5,
+				},
+				initialParentScale = {
+					1,
+					1,
+				},
+				initialParentRotation = 0,
+			},
+		},
 	},
 	scope = "Previously saved neutral transforms revalidated for1.2.0.3 plus source-checked normal Pachycephalosaurus; collision branches activate separately.",
 	provenance = "Derived from saved1.2.0.2 neutral Jungle scene scan; each scene hash and child position checked against approved JungleWalkers facts.",
@@ -799,8 +847,13 @@ return {
 			sourceMd5 = "a03085289992494611235136195a9ace",
 			baseScene = "res://entities/units/enemies/enemy.tscn",
 		},
+		["res://entities/units/enemies/jungle/basic/velociraptor/velociraptor.tscn"] = {
+			sourceMd5 = "0991656b37d4670393f527dc91009d90",
+			baseScene = "res://entities/units/enemies/enemy.tscn",
+		},
 	},
 	previousSourceVersion = "1.2.0.2",
 	previousResourcesRevalidatedIdentical = true,
 	pachycephalosaurusProvenance = "Stable1.2.0.3 scene has no Hurtbox/Hitbox parent overrides; entire inherited chain matches the approved Ankylosaurus chain byte-for-byte. Child offsets independently match the new JungleWalkers source record.",
+	velociraptorProvenance = "Effective Hurtbox/Hitbox parent transforms merged from the full current stable1.2.0.3 scene chain; each scene MD5 checked or recorded, child offsets checked against JungleWalkers.",
 }

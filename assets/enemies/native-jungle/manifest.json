@@ -291,6 +291,25 @@
       "pngSha256": "e619910fa67ee9069c4fce279255e1a19f31e3d6fc486d8db585ca588c028b30"
     },
     {
+      "id": "Velociraptor",
+      "source": "res://entities/units/enemies/jungle/basic/velociraptor/velociraptor.png",
+      "textureSource": "res://.import/velociraptor.png-d114b38276a9a66d91d357a8e5af98a3.stex",
+      "textureMd5": "869a7016d374ed8f861a429c964697eb",
+      "output": "assets/enemies/native-jungle/Velociraptor.png",
+      "size": [
+        150,
+        150
+      ],
+      "alphaBounds": [
+        10,
+        12,
+        146,
+        141
+      ],
+      "rgbaSha256": "0cc8ea2e7238ad6fd7ecf797fea08ace2a937f2c3a7b01b8a307cf5f686cf283",
+      "pngSha256": "4f3d0d50f12dbc3e6270225c6ef3967e8f3cf187a1b3ff36bcc28e0a0ad6a491"
+    },
+    {
       "id": "Pillar_bullet_pillar_0002",
       "source": "res://projectiles/pillar_enemy/sprites/bullet_pillar_0002.png",
       "textureSource": "res://.import/bullet_pillar_0002.png-b64813647bb259fcd087f6245a3b4bd8.stex",

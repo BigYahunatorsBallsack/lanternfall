@@ -6,7 +6,7 @@ import argparse, importlib.util, json, re, subprocess, sys, tempfile
 from pathlib import Path
 sys.dont_write_bytecode = True
 ROOT = Path(__file__).resolve().parents[1]
-FAMILIES = {'baby_triceratops': ('BabyTriceratops', 40, 'Baby Triceratops'), 'gallimimus': ('Gallimimus', 41, 'Gallimimus'), 'lystrosaurus': ('Lystrosaurus', 42, 'Lystrosaurus'), 'pyroraptor': ('Pyroraptor', 43, 'Pyroraptor'), 'enigmacursor': ('Enigmacursor', 44, 'Enigmacursor'), 'baby_pterosaur': ('BabyPterosaur',45,'Baby Pterosaur'), 'graciliceratops': ('Graciliceratops',46,'Graciliceratops'), 'baby_trex': ('BabyTrex',47,'Baby T-Rex'), 'alamosaurus': ('Alamosaurus',48,'Alamosaurus'), 'dino_egg': ('DinoEgg',49,'Dino Egg'), 'stintaosaurus': ('Stintaosaurus',50,'Tsintaosaurus'), 'triceratops': ('Triceratops',51,'Triceratops'), 'parasaurolorus': ('Parasaurolorus',52,'Parasaurolophus'), 'ankylosaurus': ('Ankylosaurus',53,'Ankylosaurus'), 'pachycephalosaurus': ('Pachycephalosaurus',54,'Pachycephalosaurus')}
+FAMILIES = {'baby_triceratops': ('BabyTriceratops', 40, 'Baby Triceratops'), 'gallimimus': ('Gallimimus', 41, 'Gallimimus'), 'lystrosaurus': ('Lystrosaurus', 42, 'Lystrosaurus'), 'pyroraptor': ('Pyroraptor', 43, 'Pyroraptor'), 'enigmacursor': ('Enigmacursor', 44, 'Enigmacursor'), 'baby_pterosaur': ('BabyPterosaur',45,'Baby Pterosaur'), 'graciliceratops': ('Graciliceratops',46,'Graciliceratops'), 'baby_trex': ('BabyTrex',47,'Baby T-Rex'), 'alamosaurus': ('Alamosaurus',48,'Alamosaurus'), 'dino_egg': ('DinoEgg',49,'Dino Egg'), 'stintaosaurus': ('Stintaosaurus',50,'Tsintaosaurus'), 'triceratops': ('Triceratops',51,'Triceratops'), 'parasaurolorus': ('Parasaurolorus',52,'Parasaurolophus'), 'ankylosaurus': ('Ankylosaurus',53,'Ankylosaurus'), 'pachycephalosaurus': ('Pachycephalosaurus',54,'Pachycephalosaurus'), 'velociraptor': ('Velociraptor',55,'Velociraptor')}
 
 def module(name, file):
  spec = importlib.util.spec_from_file_location(name, ROOT/file)
@@ -38,13 +38,23 @@ def generate():
   folder = 'parasaurolus' if slug=='parasaurolorus' else slug
   path = f'res://entities/units/enemies/jungle/basic/{folder}/{slug}.tscn'
   nodes = resolve(path);root = nodes[('@','@')];move = nodes[('.','MovementBehavior')];attack = nodes[('.','AttackBehavior')]
-  assert root['scriptSource'] == (f'res://entities/units/enemies/jungle/basic/{slug}/{slug}.gd' if slug in ['baby_trex','dino_egg','stintaosaurus','ankylosaurus','pachycephalosaurus'] else 'res://entities/units/enemies/enemy.gd')
+  assert root['scriptSource'] == ('res://entities/units/enemies/crash_zone/basic/pursuer/pursuer.gd' if slug=='velociraptor' else f'res://entities/units/enemies/jungle/basic/{slug}/{slug}.gd' if slug in ['baby_trex','dino_egg','stintaosaurus','ankylosaurus','pachycephalosaurus'] else 'res://entities/units/enemies/enemy.gd')
   if slug in ['triceratops','parasaurolorus','ankylosaurus','pachycephalosaurus']:
    expected='target_rand_pos_movement_behavior.gd' if slug=='ankylosaurus' else 'follow_target_movement_behavior.gd'
    assert move['scriptSource']=='res://entities/units/movement_behaviors/'+expected
    if slug not in ['ankylosaurus','pachycephalosaurus']:assert move['properties']['should_target_vertically'] and not move['properties'].get('stop_close_to_target',False)
    assert attack['scriptSource']=='res://entities/units/movement_behaviors/detect_evolution_attack_behavior.gd'
    if slug=='pachycephalosaurus':assert not move['properties'].get('should_target_vertically',False) and not move['properties'].get('stop_close_to_target',False)
+  elif slug=='velociraptor':
+   assert move['scriptSource']=='res://entities/units/movement_behaviors/detect_target_movement_behavior.gd'
+   assert attack['scriptSource']=='res://entities/units/enemies/attack_behaviors/attack_behavior.gd'
+   before=nodes[('MovementBehavior','MovementBehaviorBeforeTargetDetection')]
+   after=nodes[('MovementBehavior','MovementBehaviorAfterTargetDetection')]
+   assert before['scriptSource']=='res://entities/units/movement_behaviors/target_rand_pos_around_player_movement_behavior.gd'
+   assert after['scriptSource']=='res://entities/units/movement_behaviors/follow_target_movement_behavior.gd'
+   assert not after['properties'].get('should_target_vertically',False) and not after['properties'].get('stop_close_to_target',False)
+   assert before['properties'].get('update_every_x_frames',-1)==-1
+   for n in [before,after]:used_scripts.add(n['scriptSource'].removesuffix('.gd')+'.gdc')
   elif slug == 'enigmacursor':
    assert move['scriptSource'] == 'res://entities/units/movement_behaviors/stay_in_range_from_player_movement_behavior.gd'
    assert attack['scriptSource'] == 'res://entities/units/movement_behaviors/detect_evolution_attack_behavior.gd'
@@ -111,13 +121,20 @@ def generate():
    assert child==f'res://entities/units/enemies/jungle/basic/{expected}/{expected}.tscn'
    enemies[identity]['spawning']={'properties':props,'child':'DinoEgg' if slug=='alamosaurus' else 'BabyTrex','childSource':child,'childSourceMd5':pck.entries[child]['md5'],'diesOnRequest':slug=='dino_egg','movement':move['properties']}
    used_scripts.update(['res://global/entity_spawner.gdc','res://singletons/zone_service.gdc'])
-  if slug == 'baby_trex':
+  if slug in ['baby_trex','velociraptor']:
    properties=root['properties']
-   alternate=nodes[('.','MovementBehaviorOnBoost')]
-   assert alternate['scriptSource']==move['scriptSource'] and not alternate['properties'].get('stop_close_to_target',False)
-   assert not properties['reset_nb_times_boosted_on_hit']
+   if slug=='baby_trex':
+    alternate=nodes[('.','MovementBehaviorOnBoost')]
+    assert alternate['scriptSource']==move['scriptSource'] and not alternate['properties'].get('stop_close_to_target',False)
+    assert not properties['reset_nb_times_boosted_on_hit']
+   else:
+    assert properties['reset_nb_times_boosted_on_hit'] and properties['damage_on_boost']==0 and properties['size_on_boost']==0 and properties['change_movement_behavior_after_x_boosts']==-1
+    props=move['properties'];bp=before['properties']
+    enemies[identity]['detection']={'radiusPoints':props.get('detection_range',300),'speedBonusPoints':props.get('speed_bonus_on_target_detection',300),'wanderRangePoints':bp.get('range_around_player',300),'wanderJitterPoints':bp.get('range_randomization',100)}
    assert nodes[('.','BoostTimer')]['properties']['autostart']
-   enemies[identity]['pursuer']={k:properties[k] for k in ['boost_cooldown','max_boosts','speed_on_boost','damage_on_boost','size_on_boost','change_movement_behavior_after_x_boosts','bonus_speed_on_change_movement_behavior','reset_nb_times_boosted_on_hit','max_player_speed_multiplier']}
+   fields=['boost_cooldown','max_boosts','speed_on_boost','damage_on_boost','size_on_boost','change_movement_behavior_after_x_boosts','bonus_speed_on_change_movement_behavior','reset_nb_times_boosted_on_hit']
+   if slug=='baby_trex':fields.append('max_player_speed_multiplier')
+   enemies[identity]['pursuer']={k:properties[k] for k in fields}
    enemies[identity]['pursuer'].update(collisionScalingShare=0.25,spriteRisePoints=40)
    used_scripts.update(['res://entities/units/enemies/crash_zone/basic/pursuer/pursuer.gdc','res://entities/units/unit/unit.gdc','res://singletons/entity_service.gdc'])
   if slug in ['baby_pterosaur','graciliceratops']:

@@ -269,7 +269,8 @@ function Friends.step(self: any, dt: number, now: number, hostile: any)
 			table.insert(inputZs, vz)
 		end
 	end
-	local contacts = self.world:step(dt, xs, zs, #ids, self.targetHurtXs, self.targetHurtZs, radii, inputXs, inputZs)
+	local contacts =
+		self.world:step(dt, xs, zs, #ids, self.targetHurtXs, self.targetHurtZs, radii, inputXs, inputZs, nil, nil, ids)
 	stepShots(self, dt)
 	fireShots(self, dt)
 	fireChargeTrails(self)

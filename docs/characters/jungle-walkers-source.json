@@ -20,7 +20,8 @@
     "Triceratops",
     "Parasaurolorus",
     "Ankylosaurus",
-    "Pachycephalosaurus"
+    "Pachycephalosaurus",
+    "Velociraptor"
   ],
   "enemies": {
     "BabyTriceratops": {
@@ -1482,6 +1483,93 @@
       "evolutionVariantsImplemented": false,
       "normalDeflectCharge": true,
       "nativeHurtSlowEffects": false
+    },
+    "Velociraptor": {
+      "typeId": 55,
+      "displayName": "Velociraptor",
+      "fallbackLook": "Shadeling",
+      "source": "res://entities/units/enemies/jungle/basic/velociraptor/velociraptor.tscn",
+      "sourceMd5": "0991656b37d4670393f527dc91009d90",
+      "statsSource": "res://entities/units/enemies/jungle/basic/velociraptor/velociraptor_stats.tres",
+      "statsMd5": "29eeb6632f7d68a891d093d0eddfa836",
+      "stats": {
+        "health": 6,
+        "health_increase_each_wave": 8.0,
+        "speed": 250,
+        "speed_randomization": 25,
+        "damage": 1,
+        "damage_increase_each_wave": 0.6,
+        "attack_cd": 30.0,
+        "value": 2,
+        "knockback_resistance": 0.0,
+        "gold_spread": 0,
+        "can_drop_consumables": true,
+        "always_drop_consumables": false,
+        "base_drop_chance": 0.01,
+        "item_drop_chance": 0.01,
+        "min_consumable_tier": 0,
+        "max_consumable_tier": 0,
+        "armor": 0,
+        "armor_increase_each_wave": 0.0,
+        "generate_blood": true
+      },
+      "body": {
+        "radiusPoints": 29.0172,
+        "offsetPoints": [
+          0,
+          10
+        ],
+        "source": "res://entities/units/enemies/jungle/basic/velociraptor/velociraptor.tscn",
+        "sourceMd5": "0991656b37d4670393f527dc91009d90"
+      },
+      "hurt": {
+        "radiusPoints": 32.0,
+        "offsetPoints": [
+          0,
+          20
+        ],
+        "source": "res://entities/units/enemies/enemy.tscn",
+        "sourceMd5": "38e442588073219bb217a4b484a6d8a7"
+      },
+      "hit": {
+        "radiusPoints": 16.0312,
+        "offsetPoints": [
+          0,
+          5
+        ],
+        "source": "res://entities/units/enemies/enemy.tscn",
+        "sourceMd5": "38e442588073219bb217a4b484a6d8a7"
+      },
+      "removeFirst": true,
+      "mass": 1,
+      "obstacleCollision": true,
+      "sprite": {
+        "source": "res://entities/units/enemies/jungle/basic/velociraptor/velociraptor.png",
+        "textureSource": "res://.import/velociraptor.png-d114b38276a9a66d91d357a8e5af98a3.stex",
+        "textureMd5": "869a7016d374ed8f861a429c964697eb",
+        "widthPoints": 150,
+        "heightPoints": 150
+      },
+      "bodyBorders": false,
+      "playerCollision": false,
+      "detection": {
+        "radiusPoints": 650,
+        "speedBonusPoints": 90,
+        "wanderRangePoints": 500,
+        "wanderJitterPoints": 100
+      },
+      "pursuer": {
+        "boost_cooldown": 1.0,
+        "max_boosts": 10,
+        "speed_on_boost": 45,
+        "damage_on_boost": 0,
+        "size_on_boost": 0.0,
+        "change_movement_behavior_after_x_boosts": -1,
+        "bonus_speed_on_change_movement_behavior": 0,
+        "reset_nb_times_boosted_on_hit": true,
+        "collisionScalingShare": 0.25,
+        "spriteRisePoints": 40
+      }
     }
   },
   "spawningRules": {
@@ -1593,6 +1681,10 @@
       "sourceMd5": "42d8ab27f5046516ce118b723072f328"
     },
     {
+      "source": "res://entities/units/movement_behaviors/detect_target_movement_behavior.gdc",
+      "sourceMd5": "0e5e3fdc02f952196a6a0008bc191e99"
+    },
+    {
       "source": "res://entities/units/movement_behaviors/follow_target_movement_behavior.gdc",
       "sourceMd5": "e3ed9b3e5d9a75a09699b324caa5e22f"
     },
@@ -1603,6 +1695,10 @@
     {
       "source": "res://entities/units/movement_behaviors/stay_in_range_from_player_movement_behavior.gdc",
       "sourceMd5": "73e3ea5fbfa3506197f0ec0fc6da22c3"
+    },
+    {
+      "source": "res://entities/units/movement_behaviors/target_rand_pos_around_player_movement_behavior.gdc",
+      "sourceMd5": "faa12faf0ccf2d3d86cc56d8dee2f21f"
     },
     {
       "source": "res://entities/units/movement_behaviors/target_rand_pos_movement_behavior.gdc",

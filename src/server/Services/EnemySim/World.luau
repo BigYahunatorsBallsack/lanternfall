@@ -40,6 +40,7 @@ local Combat = require(Shared.Config.Combat)
 local PointScale = require(Shared.Config.Stats).range.studsPerPoint
 local DecayingSpeed = require(script.Parent.DecayingSpeed)
 local NativePursuer = require(script.Parent.NativePursuer)
+local NativeDetection = require(script.Parent.NativeTargetDetection)
 local EntryHealing = require(script.Parent.NativeEntryHealing)
 local NativeMovement = require(script.Parent.NativeMovement)
 local NativeCharge = require(script.Parent.NativeStraightCharge)
@@ -126,6 +127,7 @@ export type World = typeof(setmetatable(
 		speedFactors: { number }, -- multiplier on its kind's speed from spawning (the team's Enemy Speed stat, B9)
 		boosts: { number }, -- multiplier on its speed from accelerating (kind.accelerate), 1 otherwise (B9)
 		pursuers: { NativePursuer.State? },
+		detections: { NativeDetection.State? },
 		nativeCharges: { NativeCharge.State? },
 		nativeSpawnClocks: { ShootingClock.State? },
 		boostClocks: { number }, -- seconds towards its next accelerate step
@@ -221,6 +223,7 @@ function World.new(params: Params): World
 		speedBonuses = {},
 		boosts = {},
 		pursuers = {},
+		detections = {},
 		nativeCharges = {},
 		nativeSpawnClocks = {},
 		boostClocks = {},
@@ -288,6 +291,7 @@ function World.new(params: Params): World
 		self.speedBonuses,
 		self.boosts,
 		self.pursuers,
+		self.detections,
 		self.nativeCharges,
 		self.nativeSpawnClocks,
 		self.boostClocks,
@@ -398,6 +402,7 @@ function World.spawn(
 	self.boosts[i], self.buffed[i], self.hasGoal[i] = 1, false, false
 	self.boostClocks[i] = 0
 	self.pursuers[i] = if kind.pursuer then NativePursuer.new(contactDamage) else nil
+	self.detections[i] = if kind.nativeDetection then NativeDetection.new() else nil
 	local pursuer = self.pursuers[i]
 	if pursuer and self.params.referencePlayerSpeed then
 		pursuer.referenceSpeed = self.params.referencePlayerSpeed(nil, x, z)
@@ -1309,7 +1314,8 @@ function World.step(
 	targetInputXs: { number }?,
 	targetInputZs: { number }?,
 	targetDirectionXs: { number }?,
-	targetDirectionZs: { number }?
+	targetDirectionZs: { number }?,
+	targetKeys: { number | string }? -- stable player/enemy identities for native contact entry; tests may default to target slots
 ): { number }
 	if compact(self) then
 		rebuildHash(self)
@@ -1325,7 +1331,7 @@ function World.step(
 	table.clear(self.strikers)
 	table.clear(self.rushes)
 
-	-- Native Timer runs independently of target availability. Only two boosts can allocate a grown kind.
+	-- Native Timer runs independently of targets; movement detection latches once against the nearest live target.
 	for i = 1, count do
 		local rule = kinds[i].pursuer
 		local state = self.pursuers[i]
@@ -1333,13 +1339,18 @@ function World.step(
 			local grown, speed, damage = NativePursuer.step(rule, state, kinds[i], dt)
 			if grown then
 				kinds[i] = grown
-				self.speedBonuses[i] += speed
+				self.speedBonuses[i] += speed * (if p.nativeChargeAccessibility
+					then p.nativeChargeAccessibility()
+					else 1)
 				self.contactDamage[i] = damage or self.contactDamage[i]
 				self.maxColliderRadius =
 					math.max(self.maxColliderRadius, grown.radius, grown.hurtRadius or 0, grown.hitRadius or 0)
 				self.maxRadius = math.max(self.maxRadius, Body.extent(grown), Hurt.extent(grown), Hit.extent(grown))
 				self.maxSpeed = math.max(self.maxSpeed, grown.speed * self.speedFactors[i] + self.speedBonuses[i])
 			end
+		end
+		local detection = self.detections[i]
+		if state or detection then
 			local bestTarget: number? = nil
 			local bestSquared = math.huge
 			for t = 1, targetCount do
@@ -1348,7 +1359,18 @@ function World.step(
 					bestSquared, bestTarget = squared, t
 				end
 			end
-			state.referenceSpeed = if p.referencePlayerSpeed then p.referencePlayerSpeed(bestTarget) else nil
+			if state then
+				state.referenceSpeed = if p.referencePlayerSpeed then p.referencePlayerSpeed(bestTarget) else nil
+			end
+			if detection and kinds[i].nativeDetection then
+				self.speedBonuses[i] += NativeDetection.step(
+					detection,
+					kinds[i].nativeDetection,
+					bestSquared,
+					if p.nativeChargeAccessibility then p.nativeChargeAccessibility() else 1
+				)
+				self.maxSpeed = math.max(self.maxSpeed, kinds[i].speed * self.speedFactors[i] + self.speedBonuses[i])
+			end
 		end
 	end
 	maxRadius = self.maxRadius
@@ -1491,7 +1513,8 @@ function World.step(
 				self.boostClocks[i] = clock
 			end
 			local toGoal = self.hasGoal[i]
-			local wander = kind.wander
+			local detection = self.detections[i]
+			local wander = if detection and detection.detected then nil else kind.wander
 			if toGoal then
 				bestDx, bestDz = self.goalXs[i] - x, self.goalZs[i] - z
 				distance = math.sqrt(bestDx * bestDx + bestDz * bestDz)
@@ -1684,6 +1707,11 @@ function World.step(
 	local damage = self.contactDamage
 	local hitXs, hitZs = contactXs or targetXs, contactZs or targetZs
 	for i = 1, count do
+		local pursuerRule, pursuerState = kinds[i].pursuer, self.pursuers[i]
+		local trackContact = pursuerRule and pursuerRule.resetOnContact and pursuerState
+		if trackContact then
+			NativePursuer.beginContacts(pursuerState)
+		end
 		local hit = damage[i]
 		if hit > 0 and not knocked[i] then
 			local hx, hz = Hit.center(kinds[i], xs[i], zs[i])
@@ -1698,12 +1726,20 @@ function World.step(
 						contacts[t] = hit
 						sources[t] = ids[i]
 					end
+					if
+						trackContact and NativePursuer.contact(pursuerState, if targetKeys then targetKeys[t] else t)
+					then
+						self.speedBonuses[i] = 0 -- timer phase and one-time detection latch survive the native entry reset
+					end
 					local accelerate = kinds[i].accelerate
 					if accelerate and accelerate.resetOnHit then
 						self.boosts[i] = 1 -- Brotato's Pursuer loses its boosts when it hits
 					end
 				end
 			end
+		end
+		if trackContact then
+			NativePursuer.endContacts(pursuerState)
 		end
 	end
 	-- Contacts along fast rushes use the same lag-corrected target positions as ordinary contact damage.
