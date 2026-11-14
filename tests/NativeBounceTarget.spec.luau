@@ -34,6 +34,9 @@ describe("Native server bounce target selection", function()
 		local original = k.nativeCharge
 		k.nativeCharge = require(f.Shared.Config.JungleDeflectCharges).rule
 		local id = assert(Enemy.spawn("Ankylosaurus", 10, 0, 1000, 0))
+		local active, capable = Enemy.isProjectileDeflecting(id)
+		expect(active).toBe(false)
+		expect(capable).toBe(true)
 		for _ = 1, 240 do
 			f.world.step(1 / 60)
 			if Enemy.isProjectileDeflecting(id) then
@@ -99,6 +102,8 @@ describe("Native server bounce target selection", function()
 		expect(Enemy.getHealth(id)).toBe(hp)
 		Enemy.damage(id, hp + 1)
 		expect(Enemy.isProjectileDeflecting(id)).toBe(false)
+		active, capable = Enemy.isProjectileDeflecting(id)
+		expect(capable).toBe(false)
 		k.nativeCharge = original
 	end)
 	it("includes a charmed ordinary enemy while excluding the separate boss pool", function()

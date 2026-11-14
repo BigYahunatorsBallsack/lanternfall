@@ -112,11 +112,37 @@
     {
       "source": "res://global/entity_spawner.gdc",
       "sourceMd5": "ba0576c27ac5b889c5688decda3dd838"
+    },
+    {
+      "source": "res://projectiles/grenade_mine/grenade_mine_projectile.gdc",
+      "sourceMd5": "9a693ce0a3c8d00930ba7ada07c6d638"
+    },
+    {
+      "source": "res://projectiles/player_explosion.gdc",
+      "sourceMd5": "751c6b7984ae3f1e435da8cb0ad34a34"
+    },
+    {
+      "source": "res://overlap/hitbox.gdc",
+      "sourceMd5": "c1b09a67ca1618f73c2e89751ab82226"
+    },
+    {
+      "source": "res://singletons/weapon_service.gdc",
+      "sourceMd5": "f792b86439056b7c166774acb22902f4"
+    },
+    {
+      "source": "res://entities/units/unit/unit.gdc",
+      "sourceMd5": "aa94391f2d9681ac36b7f8617b82ff13"
     }
   ],
   "actorRegistered": false,
   "projectileDefenseConnected": false,
   "evolutionVariantsImplemented": false,
   "nativeProjectileInterceptionConnected": true,
-  "scope": "Charge clock and ordinary native ranged projectile interception; full actor, sticky/legacy/pet/area paths remain pending."
+  "defenseExceptions": {
+    "stickyFlightHitboxEnabled": false,
+    "explosionOriginIsSelf": true,
+    "explosionFactorySetsOriginBeforeStart": true
+  },
+  "priorHitDefenseReentryImplemented": true,
+  "scope": "Native ranged projectile entry and cooldown defense; Sticky flight and explosion exceptions audited. Full actor, legacy/pet/area paths remain pending."
 }

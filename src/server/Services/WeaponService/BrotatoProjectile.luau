@@ -32,11 +32,11 @@ type Shot = {
 	offsetX: number?,
 	offsetZ: number?,
 	puddleSpawned: boolean?,
-	deflectFrom: number?,
+	defenseOverlaps: { [number]: boolean }?, -- area entry is independent of the permanent damage-ignore list
 }
 local Projectile = {}
 type Defense = {
-	active: (number) -> boolean,
+	active: (number) -> (boolean, boolean?), -- active now, capable of reflecting on a later entry
 	target: (number, () -> number) -> (number?, number?),
 	overlaps: (number, number, number, number) -> boolean,
 }
@@ -53,7 +53,7 @@ local function deflect(weapon: Arsenal.Weapon, ctx: Arsenal.Context, shot: Shot,
 	local angle = if tx and tz then math.atan2(tz - z, tx - x) else (ctx:random() * 2 - 1) * math.pi
 	ctx:emit(weapon, { kind = "End", id = shot.id, x = x, z = z, distance = shot.flown + distance })
 	shot.id, shot.x, shot.z, shot.dx, shot.dz = ctx:nextId(), x, z, math.cos(angle), math.sin(angle)
-	shot.flown, shot.deflectFrom, shot.bounced = 0, id, true
+	shot.flown, shot.bounced = 0, true
 	shot.bounces -= 1 -- forced source bounce also consumes zero/negative budgets
 	shot.travelRange = (BounceRules.rangePoints + BounceRules.additionalDistancePoints) * pixel
 	if shot.stats.damage > 0 then
@@ -74,7 +74,7 @@ local function deflect(weapon: Arsenal.Weapon, ctx: Arsenal.Context, shot: Shot,
 end
 local targets: { number } = {}
 local found: { number } = {}
-local ordered: { { id: number, distance: number } } = {}
+local ordered: { { id: number, distance: number, capable: boolean } } = {}
 local zoneFound: { number } = {}
 local nativeSlow: ((number, number, boolean, number) -> ())? = nil
 local firePuddle: ((Arsenal.Weapon, number, number) -> ())? = nil
@@ -315,23 +315,29 @@ function Projectile.step(weapon: Arsenal.Weapon, ctx: Arsenal.Context, dt: numbe
 			end
 		end
 		local n = ctx:querySegment(shot.x, shot.z, x1, z1, stats.projectileRadius, found)
-		if
-			shot.deflectFrom
-			and defense
-			and not defense.overlaps(shot.deflectFrom, shot.x, shot.z, stats.projectileRadius)
-		then
-			shot.deflectFrom = nil
+		if shot.defenseOverlaps and defense then
+			for id in shot.defenseOverlaps do
+				if not defense.overlaps(id, shot.x, shot.z, stats.projectileRadius) then
+					shot.defenseOverlaps[id] = nil
+				end
+			end
 		end
 		table.clear(ordered)
 		for i = 1, n do
 			local id = found[i]
-			if not shot.hit[id] and id ~= shot.deflectFrom then
+			local capable = false
+			if defense and weapon.config.kind == "Ranged" then
+				local active, potential = defense.active(id)
+				capable = active or potential == true
+			end
+			if (not shot.hit[id] or capable) and not (shot.defenseOverlaps and shot.defenseOverlaps[id]) then
 				local x, z = ctx:enemyPosition(id)
 				if x and z then
-					table.insert(
-						ordered,
-						{ id = id, distance = math.clamp((x - shot.x) * shot.dx + (z - shot.z) * shot.dz, 0, move) }
-					)
+					table.insert(ordered, {
+						id = id,
+						distance = math.clamp((x - shot.x) * shot.dx + (z - shot.z) * shot.dz, 0, move),
+						capable = capable,
+					})
 				end
 			end
 		end
@@ -341,10 +347,17 @@ function Projectile.step(weapon: Arsenal.Weapon, ctx: Arsenal.Context, dt: numbe
 		local stopped = false
 		for _, entry in ordered do
 			local id = entry.id
-			if defense and weapon.config.kind == "Ranged" and defense.active(id) then
+			if entry.capable then
+				shot.defenseOverlaps = shot.defenseOverlaps or {}
+				shot.defenseOverlaps[id] = true
+			end
+			if entry.capable and defense and defense.active(id) then
 				deflect(weapon, ctx, shot, id, entry.distance)
 				stopped = true
 				break
+			end
+			if shot.hit[id] then
+				continue -- Unit's deferred ignored_objects guard runs after the native shield override.
 			end
 			shot.hit[id] = true
 			ctx:setHitDirection(shot.dx, shot.dz) -- Brotato: a projectile knocks along its flight

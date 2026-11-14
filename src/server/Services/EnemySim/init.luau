@@ -1179,8 +1179,15 @@ function EnemySim.allowsHurtSlowEffects(id: number): boolean
 	return index ~= nil and actors.kinds[index].nativeHurtSlowEffects ~= false
 end
 
-function EnemySim.isProjectileDeflecting(id: number): boolean
-	return (if friends.world:isAlive(id) then friends.world else world):isProjectileDeflecting(id)
+function EnemySim.isProjectileDeflecting(id: number): (boolean, boolean)
+	local actors = if friends.world:isAlive(id) then friends.world else world
+	local index = actors.indexOf[id]
+	if not index or actors.hp[index] <= 0 then
+		return false, false
+	end
+	local rule = actors.kinds[index].nativeCharge
+	local capable = rule ~= nil and rule.deflectStopBeforeCooldown ~= nil
+	return capable and actors:isProjectileDeflecting(id), capable
 end
 
 -- Native get_rand_enemy includes charmed ordinary enemies and excludes bosses; it has no radius or previous-hit filter.

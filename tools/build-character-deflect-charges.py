@@ -51,7 +51,10 @@ def main():
     assert base['version'] == reference['version'] and int(base['steamBuild']) == int(reference['steamBuildId'])
     scripts = [behavior.removesuffix('.gd')+'.gdc', base['source'], base['rangeHelper']['source'],
                'res://entities/units/enemies/jungle/basic/pachycephalosaurus/pachycephalosaurus.gdc',
-               'res://projectiles/player_projectile.gdc', 'res://global/entity_spawner.gdc']
+               'res://projectiles/player_projectile.gdc', 'res://global/entity_spawner.gdc',
+               'res://projectiles/grenade_mine/grenade_mine_projectile.gdc',
+               'res://projectiles/player_explosion.gdc', 'res://overlap/hitbox.gdc',
+               'res://singletons/weapon_service.gdc', 'res://entities/units/unit/unit.gdc']
     assert pck.entries[base['source']]['md5'] == base['sourceMd5']
     animation = base['animation']
     assert pck.entries[animation['source']]['md5'] == animation['sourceMd5']
@@ -65,7 +68,10 @@ def main():
                  around=base['around'], ruleSources=[dict(source=s, sourceMd5=pck.entries[s]['md5']) for s in scripts],
                  actorRegistered=False, projectileDefenseConnected=False, evolutionVariantsImplemented=False,
                  nativeProjectileInterceptionConnected=True,
-                 scope='Charge clock and ordinary native ranged projectile interception; full actor, sticky/legacy/pet/area paths remain pending.')
+                 defenseExceptions=dict(stickyFlightHitboxEnabled=False, explosionOriginIsSelf=True,
+                                        explosionFactorySetsOriginBeforeStart=True),
+                 priorHitDefenseReentryImplemented=True,
+                 scope='Native ranged projectile entry and cooldown defense; Sticky flight and explosion exceptions audited. Full actor, legacy/pet/area paths remain pending.')
     text = '--!strict\n-- Original Pachycephalosaurus clock and native projectile-defense facts; full actor integration remains pending.\n'
     text += 'local source = ' + catalog.luau(facts) + '\n'
     text += '''local target = table.clone(require(script.Parent.JungleChargeTargets).rule.target)

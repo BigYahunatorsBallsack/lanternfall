@@ -1,0 +1,68 @@
+{
+  "referenceVersion": "1.2.0.3",
+  "steamBuild": 26642464,
+  "scope": "Native projectile shield reentry independent of damage history; original Sticky flight and PlayerExplosion defense exceptions.",
+  "sourceSnapshot": "docs/characters/jungle-deflect-charge-source.json",
+  "rules": [
+    "Pachycephalosaurus._on_Hurtbox_area_entered intercepts before Unit.hurt_area_entered_deferred checks ignored_objects.",
+    "Track current overlaps for all entered reflection-capable actors, including inactive shields and damage-ignored entries. Reentry can reflect an earlier damaged target, but switching a shield on while still inside cannot.",
+    "Independent overlap entries support multiple simultaneous reflectors; ordinary nonreflecting actors allocate no overlap map and retain permanent damage-ignore behavior.",
+    "Recheck live shield state during ordered resolution: an earlier collision can kill a later queried candidate.",
+    "GrenadeMineProjectile.shoot disables its flight hitbox; it still attaches beside a shield. PlayerExplosion.start_explosion sets hitbox.from=self after WeaponService.explode calls set_from, so the explosion is not a RangedWeapon/Pet-origin interception."
+  ],
+  "interfaces": [
+    "EnemySim.isProjectileDeflecting(id)->active:boolean,capable:boolean; first return preserves existing boolean callers; dead/missing actors return false,false.",
+    "Projectile defense.active optionally returns second capability boolean. Production always supplies both; boolean-only active adapters remain valid for active shields.",
+    "Shot.defenseOverlaps replaces the single deflectFrom marker; damage-ignore data remains separate. No remote/schema/Arsenal change."
+  ],
+  "focused": {
+    "NativeProjectileDeflection": {
+      "passed": 9,
+      "failed": 0
+    },
+    "NativeBounceTarget": {
+      "passed": 3,
+      "failed": 0
+    },
+    "NativeDefenseExceptions": {
+      "passed": 2,
+      "failed": 0
+    },
+    "initialRed": "5passed3failed reproduced prior-hit reentry and lost state across two overlapping reflectors.",
+    "reviewRed": "8passed1failed reproduced cached active state reflecting after an earlier hit killed the candidate; live recheck corrected it.",
+    "mutation": "Restoring the permanent hit-only filter gives6passed2failed before the ninth live-state case; original bytes restored.",
+    "trackedRunner": "NativeProjectileDeflection9/0 and NativeDefenseExceptions2/0 passed with the tracked runner after the final full suite."
+  },
+  "fullSuite": {
+    "specs": 306,
+    "passed": 1881,
+    "failed": 36,
+    "newFailureNames": [],
+    "aborts": [],
+    "artifact": "build/native-five-branch-nine-defense-reentry-final-4cf1050.json",
+    "superseded": "build/native-five-branch-nine-defense-reentry-4cf1050.json predates the frozen live-state correction and is not the final acceptance run.",
+    "charmedWorld": "6passed0failed this run; prior performance concern remains open."
+  },
+  "checks": {
+    "stylua": "passed",
+    "selene": "0errors/18existingWarnings",
+    "rojo": "passed",
+    "compiler": "build-character-deflect-charges.py --check passed"
+  },
+  "counts": {
+    "codePrepared": 48,
+    "codeOpen": 26,
+    "neutralJungleBodiesPrepared": 14,
+    "newCompleteCharacters": 0
+  },
+  "open": [
+    "Legacy/B7, pets and Boomerang/custom projectile defense paths",
+    "Full Pachycephalosaurus body/art/registration and evolution, remaining Jungle families/bosses/waves/area",
+    "Manual aiming, native screen culling and full physics ordering/presentation/Studio acceptance",
+    "Prior CharmedWorld budget concern remains open; a single green full run is not stable acceptance"
+  ],
+  "arsenalChanged": false,
+  "uploads": 0,
+  "runtimeAssetIdsChanged": 0,
+  "merged": false
+}

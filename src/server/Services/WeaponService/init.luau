@@ -714,6 +714,9 @@ function WeaponService.init()
 		active = EnemySim.isProjectileDeflecting,
 		target = EnemySim.nativeBounceTarget,
 		overlaps = function(id, x, z, radius)
+			if not EnemySim.isAlive(id) and not EnemySim.isCharmed(id) then
+				return false
+			end
 			local center, hurtRadius = EnemySim.getHurtGeometry(id)
 			return center ~= nil
 				and hurtRadius ~= nil

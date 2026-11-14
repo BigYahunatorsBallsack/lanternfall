@@ -7,6 +7,7 @@ local Projectile = require(W.BrotatoProjectile)
 local Combat = require(W.BrotatoCombat)
 local function fixture(kind, targetX, targetZ)
 	local hits, events, effects, overlap = {}, {}, {}, true
+	local shield, capable = true, true
 	local serial = 0
 	local stats = {
 		damage = 10,
@@ -74,7 +75,7 @@ local function fixture(kind, targetX, targetZ)
 	})
 	Projectile.setDefense({
 		active = function()
-			return true
+			return shield, capable
 		end,
 		target = function()
 			return targetX, targetZ
@@ -84,9 +85,34 @@ local function fixture(kind, targetX, targetZ)
 		end,
 	})
 	Projectile.launch(weapon, ctx, 0, 0, 1, 0, stats)
-	return weapon, ctx, hits, events, effects, function(value)
-		overlap = value
+	return weapon,
+		ctx,
+		hits,
+		events,
+		effects,
+		function(value)
+			overlap = value
+		end,
+		function(value)
+			shield = value
+		end,
+		function(value)
+			capable = value
+		end
+end
+local function reentryFixture()
+	local w, ctx, hits, events, effects, overlap, shield, capable = fixture("Ranged", 5, 50)
+	w.state.projectiles[1].stats.secondaryCount = 0
+	w.state.projectiles[1].stats.range = 200
+	ctx.present = 1
+	ctx.querySegment = function(_, _, _, _, _, _, out)
+		if ctx.present then
+			out[1] = ctx.present
+			return 1
+		end
+		return 0
 	end
+	return w, ctx, hits, overlap, shield, capable
 end
 describe("Native projectile deflection", function()
 	it("intercepts before damage, secondary shots, explosions and mine effects without spending pierce", function()
@@ -139,5 +165,97 @@ describe("Native projectile deflection", function()
 		local w, ctx, hits = fixture("Melee", 5, 50)
 		Projectile.step(w, ctx, 0.1)
 		expect(#hits).toBe(1)
+	end)
+	it(
+		"does not turn shield activation into a new entry while a previously damaging projectile remains inside",
+		function()
+			local w, ctx, hits, overlap, shield = reentryFixture()
+			shield(false)
+			Projectile.step(w, ctx, 0.01)
+			expect(#hits).toBe(1)
+			shield(true)
+			Projectile.step(w, ctx, 0.01)
+			expect(w.state.projectiles[1].bounces).toBe(0)
+			overlap(false)
+			ctx.present = nil
+			Projectile.step(w, ctx, 0.01)
+			overlap(true)
+			ctx.present = 1
+			Projectile.step(w, ctx, 0.01)
+			expect(w.state.projectiles[1].bounces).toBe(-1)
+			expect(#hits).toBe(1)
+		end
+	)
+	it("records an ignored reentry before the shield activates without dealing a second hit", function()
+		local w, ctx, hits, overlap, shield = reentryFixture()
+		shield(false)
+		Projectile.step(w, ctx, 0.01)
+		overlap(false)
+		ctx.present = nil
+		Projectile.step(w, ctx, 0.01)
+		overlap(true)
+		ctx.present = 1
+		Projectile.step(w, ctx, 0.01)
+		shield(true)
+		Projectile.step(w, ctx, 0.01)
+		expect(w.state.projectiles[1].bounces).toBe(0)
+		expect(#hits).toBe(1)
+		overlap(false)
+		ctx.present = nil
+		Projectile.step(w, ctx, 0.01)
+		overlap(true)
+		ctx.present = 1
+		Projectile.step(w, ctx, 0.01)
+		expect(w.state.projectiles[1].bounces).toBe(-1)
+	end)
+	it("keeps separate entry state for two simultaneously overlapping reflectors", function()
+		local w, ctx = reentryFixture()
+		Projectile.step(w, ctx, 0.01)
+		ctx.present = 2
+		Projectile.step(w, ctx, 0.01)
+		expect(w.state.projectiles[1].bounces).toBe(-2)
+		ctx.present = 1
+		Projectile.step(w, ctx, 0.01)
+		expect(w.state.projectiles[1].bounces).toBe(-2)
+	end)
+	it("preserves ordinary ignored-hit behavior without allocating reflection-overlap state", function()
+		local w, ctx, hits, _, shield, capable = reentryFixture()
+		shield(false)
+		capable(false)
+		Projectile.step(w, ctx, 0.01)
+		Projectile.step(w, ctx, 0.01)
+		expect(#hits).toBe(1)
+		expect(w.state.projectiles[1].defenseOverlaps).toBe(nil)
+	end)
+	it("rechecks live defense when an earlier hit kills a later collision candidate", function()
+		local w, ctx = reentryFixture()
+		local alive = true
+		ctx.querySegment = function(_, _, _, _, _, _, out)
+			out[1], out[2] = 1, 2
+			return 2
+		end
+		ctx.enemyPosition = function(_, id)
+			return id * 2, 0
+		end
+		ctx.hit = function(_, _, id)
+			if id == 1 then
+				alive = false
+			end
+			return false
+		end
+		Projectile.setDefense({
+			active = function(id)
+				return id == 2 and alive, id == 2 and alive
+			end,
+			target = function()
+				error("A dead candidate cannot reflect")
+			end,
+			overlaps = function()
+				return alive
+			end,
+		})
+		Projectile.step(w, ctx, 0.1)
+		expect(w.state.projectiles[1].bounces).toBe(0)
+		expect(w.state.projectiles[1].travelRange).toBe(nil)
 	end)
 end)
