@@ -1,0 +1,71 @@
+{
+  "referenceVersion": "1.2.0.3",
+  "steamBuild": 26642464,
+  "baseMain": "de4e155e97855cc18ffb52b1e81e53d1af8532fc",
+  "draftPr": 151,
+  "scope": "Pure source-backed crossing movement lifecycle only; neither actor is registered or playable. Existing 19 neutral Jungle bodies unchanged.",
+  "sourceFacts": "crossing-paths-source.json",
+  "focused": {
+    "beforeImplementation": {
+      "passed": 0,
+      "failed": 5
+    },
+    "trackedRunner": {
+      "passed": 5,
+      "failed": 0
+    },
+    "mutation": {
+      "change": "Despawn uses inclusive boundary instead of strict source inequality",
+      "passed": 4,
+      "failed": 1,
+      "restoredByteForByte": true
+    }
+  },
+  "sourceReview": [
+    "Both scene roots bind Oviraptor.gd, including Iguanodon. max_Y_diff=3; warning times 0.35/1.5 seconds.",
+    "Warning timeout enables visibility, Hurtbox, Hitbox AND physical Collision. No separate body-disabled Ready phase.",
+    "First get_movement starts warning, rustling sound and shake, then returns zero; unused arrow/line functions are not calls.",
+    "First moving call draws 100-pixel signed Y jitter, then target Y from map height/(2*max_Y_diff); target X is start X plus/minus map width.",
+    "Original map origin is zero. Adapter supports translated bounds by using width, height and midpoint.",
+    "Direction remains fixed; leftward root angle adds pi. Exit test uses current X strictly beyond target X plus/minus150pixels, before movement.",
+    "Exit calls despawn, not a kill; helper returns Removed for the future adapter and emits no rewards itself.",
+    "Inherited Enemy._physics_process can re-enable a disabled Hitbox while warning remains hidden: _prevent_contact_damage defaults false and zero knockback is not being knocked back. Hitbox enable/disable uses set_deferred. Global phase/contact acceptance remains explicitly open; active() is the movement component reveal state only."
+  ],
+  "checks": {
+    "stylua": true,
+    "selene": {
+      "errors": 0,
+      "existingWarnings": 18,
+      "cachedApi": true
+    },
+    "rojo": true,
+    "sourceCompilerCheck": true
+  },
+  "notComplete": [
+    "World movement adapter, persistent actor state, no-target stepping and no-kill removal are not connected.",
+    "Hidden hurt/query/contact/body filters and snapshot/client visibility still need integration.",
+    "Rotated body/hurt/hit offsets, collision masks/one-way behavior and native physics ordering remain open.",
+    "Source family registration, original art preparation, spawn groups, area route, warning audio/shake and original animations are not accepted.",
+    "Charm transfer, pooling and full actor lifecycle require real server tests; pure helper tests do not prove them.",
+    "No Studio, two-client, mobile or full native parity acceptance."
+  ],
+  "characterStatus": {
+    "codePrepared": 48,
+    "open": 26,
+    "newCompleted": 0,
+    "junglePlayable": false,
+    "registeredNeutralJungleBodies": 19,
+    "localJungleImages": 23
+  },
+  "fullSuite": {
+    "specs": 318,
+    "passed": 1979,
+    "failed": 36,
+    "aborts": 0,
+    "newFailureIdentities": [],
+    "sameFailureIdentitiesAsHarpy": true,
+    "artifact": "build/native-five-branch-ten-crossing-path-de4e155.json",
+    "runtimeFrozenDuringRun": true,
+    "afterRunChanges": "Only explanatory comment and unused source-fact boolean/additional script hashes; tracked 5/0 and compiler --check repeated."
+  }
+}
