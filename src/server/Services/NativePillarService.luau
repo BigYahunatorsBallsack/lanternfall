@@ -19,6 +19,7 @@ type Shot = {
 	owner: number?,
 	at: number,
 	age: number,
+	radius: number,
 }
 local shots: { Shot } = {}
 local pending = {}
@@ -34,7 +35,8 @@ local function start(
 	dz: number,
 	speed: number,
 	damage: number,
-	owner: number?
+	owner: number?,
+	scale: number?
 )
 	local name = Enemy.getKind(source)
 	local kind = name and Kinds.get(name)
@@ -42,19 +44,29 @@ local function start(
 		return
 	end
 	local at = workspace:GetServerTimeNow()
+	local size = scale or 1
+	local radius = C.pillar.radiusPoints * pixel * size
 	-- The source pillar rotates its Hitbox local offset with its travel direction.
 	local offset = C.pillar.offsetPoints
-	x += (dx * offset[1] - dz * offset[2]) * pixel
-	z += (dz * offset[1] + dx * offset[2]) * pixel
-	table.insert(
-		shots,
-		{ x = x, z = z, dx = dx, dz = dz, speed = speed, damage = math.round(damage), owner = owner, at = at, age = 0 }
-	)
+	x += (dx * offset[1] - dz * offset[2]) * pixel * size
+	z += (dz * offset[1] + dx * offset[2]) * pixel * size
+	table.insert(shots, {
+		x = x,
+		z = z,
+		dx = dx,
+		dz = dz,
+		speed = speed,
+		damage = math.round(damage),
+		owner = owner,
+		at = at,
+		age = 0,
+		radius = radius,
+	})
 	table.insert(pending, {
 		shape = "Circle",
 		x = x,
 		z = z,
-		radius = C.pillar.radiusPoints * pixel,
+		radius = radius,
 		startsAt = at,
 		hitsAt = at + C.pillar.hitFrom,
 		vx = dx * speed,
@@ -66,7 +78,7 @@ local function collision(shot: Shot, age: number): boolean
 		return false
 	end
 	local x, z = shot.x + shot.dx * shot.speed * age, shot.z + shot.dz * shot.speed * age
-	local radius = C.pillar.radiusPoints * pixel
+	local radius = shot.radius
 	if shot.owner then
 		local ids = {}
 		Enemy.collectIds(ids)

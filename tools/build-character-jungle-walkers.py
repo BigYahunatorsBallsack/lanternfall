@@ -12,6 +12,7 @@ FAMILIES = {'baby_triceratops': ('BabyTriceratops', 40, 'Baby Triceratops'), 'ga
 CROSSERS = {'oviraptor': ('Oviraptor',59,'Oviraptor'), 'iguanodon': ('Iguanodon',60,'Iguanodon')}
 FAMILIES.update(CROSSERS)
 FAMILIES['pterosaur']=('Pterosaur',61,'Pterosaur')
+FAMILIES['dilophosaurus']=('Dilophosaurus',64,'Dilophosaurus')
 FAMILIES.update({'hesperosaurus':('Hesperosaurus',62,'Hesperosaurus'),'stegosaurus':('Stegosaurus',63,'Stegosaurus')})
 
 CHARGE_DEFAULTS = {'cooldown':60.0,'long_cooldown_every_x_shoots':0,'long_cooldown':0.0,'max_cd_randomization':10,'min_range':0,'max_range':300,'range_X':-1,'range_Y':-1,'attack_anim_speed':1.0,'charge_duration':1.0,'charge_speed':500.0,'target_calculation_timing':0,'target':0,'rand_target_size':-1,'only_positions_in_target_direction':False,'scale_charge_duration_with_range':False,'recovery_duration':0.05}
@@ -64,6 +65,10 @@ def generate():
    assert not after['properties'].get('should_target_vertically',False) and not after['properties'].get('stop_close_to_target',False)
    assert before['properties'].get('update_every_x_frames',-1)==-1
    for n in [before,after]:used_scripts.add(n['scriptSource'].removesuffix('.gd')+'.gdc')
+  elif slug=='dilophosaurus':
+   assert move['scriptSource']=='res://entities/units/movement_behaviors/follow_target_movement_behavior.gd'
+   assert attack['scriptSource']=='res://entities/units/movement_behaviors/detect_evolution_attack_behavior.gd'
+   assert not move['properties'].get('should_target_vertically',False) and not move['properties'].get('stop_close_to_target',False)
   elif slug in ['hesperosaurus','stegosaurus']:
    assert move['scriptSource']=='res://entities/units/movement_behaviors/target_rand_pos_around_player_movement_behavior.gd'
    assert attack['scriptSource']=='res://entities/units/movement_behaviors/detect_evolution_attack_behavior.gd'
@@ -223,7 +228,7 @@ def generate():
    used_scripts.update(['res://entities/units/enemies/crash_zone/basic/pursuer/pursuer.gdc','res://entities/units/unit/unit.gdc','res://singletons/entity_service.gdc'])
   if slug in ['baby_pterosaur','graciliceratops']:
    enemies[identity]['anticipate'] = {'seconds':move['properties']['anticipation_time'],'horizontalOnly':move['properties'].get('should_target_vertically',False)}
-  if slug in ['enigmacursor','hesperosaurus','stegosaurus']:
+  if slug in ['enigmacursor','hesperosaurus','stegosaurus','dilophosaurus']:
    variants = {}
    for variant in ['Normal','Meca','Mutant']:
     node = nodes[('AttackBehavior','AttackBehavior'+variant)]
@@ -252,8 +257,13 @@ def generate():
     assert projectile_variants['Normal']['source']=='res://projectiles/pillar_enemy/pillar_projectile.tscn'
     assert projectile_variants['Meca']['source']=='res://projectiles/slash/slash_projectile_2.tscn'
     assert projectile_variants['Mutant']['source']=='res://projectiles/acid_projectile/acid_projectile.tscn'
-    enemies[identity].update(genericShootAnimation=True,projectileVariants=projectile_variants,
-     wanderAroundTarget={'rangePoints':move['properties']['range_around_player'],'jitterPoints':move['properties']['range_randomization']})
+    enemies[identity].update(genericShootAnimation=True,projectileVariants=projectile_variants)
+    if slug=='dilophosaurus':
+     assert variants['Normal']['scale_projectiles_with_count'] and variants['Normal']['min_projectile_scale']==0.7
+     assert not variants['Normal'].get('parallel_slashes',False) and variants['Normal']['use_transform_offset']
+     enemies[identity]['followTargetShoot']=True
+    else:
+     enemies[identity]['wanderAroundTarget']={'rangePoints':move['properties']['range_around_player'],'jitterPoints':move['properties']['range_randomization']}
 
  animation_path = 'res://entities/units/enemies/attack_behaviors/enemy_charge_prep_animation.tres'
  animation = pck.resource(animation_path)['properties']

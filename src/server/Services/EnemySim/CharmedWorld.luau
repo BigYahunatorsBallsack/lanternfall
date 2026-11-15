@@ -169,9 +169,9 @@ local function fireShots(self: any, dt: number)
 		if ranged.nativeVolley then
 			NativeVolley.emit(ranged.nativeVolley, x, z, tx, tz, ranged.projectileSpeed, function()
 				return if self.callbacks.random then self.callbacks.random(member.owner) else math.random()
-			end, function(px, pz, dx, dz, speed)
+			end, function(px, pz, dx, dz, speed, scale)
 				if ranged.nativePillar then
-					self.callbacks.emitPillar(member.id, px, pz, dx, dz, speed, damage, member.owner)
+					self.callbacks.emitPillar(member.id, px, pz, dx, dz, speed, damage, member.owner, scale)
 				else
 					self:fire(member, px, pz, dx, dz, speed, ranged.projectileRange, ranged.projectileRadius, damage)
 				end

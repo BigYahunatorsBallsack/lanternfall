@@ -1156,6 +1156,54 @@ return {
 				initialParentRotation = 0,
 			},
 		},
+		Dilophosaurus = {
+			source = "res://entities/units/enemies/jungle/basic/dilophosaurus/dilophosaurus.tscn",
+			sourceMd5 = "6ec2908e2954e9427209c82ae1530d77",
+			sceneChain = {
+				"res://entities/units/enemies/jungle/basic/dilophosaurus/dilophosaurus.tscn",
+				"res://entities/units/enemies/enemy.tscn",
+				"res://entities/units/unit/unit.tscn",
+				"res://entities/entity.tscn",
+			},
+			hurt = {
+				parentPoints = {
+					0,
+					-16,
+				},
+				childPoints = {
+					0,
+					-15,
+				},
+				totalPoints = {
+					0,
+					-31,
+				},
+				initialParentScale = {
+					1,
+					1,
+				},
+				initialParentRotation = 0,
+			},
+			hit = {
+				parentPoints = {
+					0,
+					0,
+				},
+				childPoints = {
+					0,
+					-8,
+				},
+				totalPoints = {
+					0,
+					-8,
+				},
+				initialParentScale = {
+					1,
+					1,
+				},
+				initialParentRotation = 0,
+			},
+		},
 	},
 	scope = "Approved saved transforms plus source-checked stable1.2.0.3 additions; collision branches activate separately.",
 	provenance = "Derived from saved1.2.0.2 neutral Jungle scene scan; each scene hash and child position checked against approved JungleWalkers facts.",
@@ -1267,6 +1315,10 @@ return {
 			sourceMd5 = "6e97f25d4906345fc80bdeff81d19913",
 			baseScene = "res://entities/units/enemies/enemy.tscn",
 		},
+		["res://entities/units/enemies/jungle/basic/dilophosaurus/dilophosaurus.tscn"] = {
+			sourceMd5 = "6ec2908e2954e9427209c82ae1530d77",
+			baseScene = "res://entities/units/enemies/enemy.tscn",
+		},
 	},
 	previousSourceVersion = "1.2.0.2",
 	previousResourcesRevalidatedIdentical = true,
@@ -1281,5 +1333,6 @@ return {
 		Pterosaur = "Entire stable1.2.0.3 scene chain revalidated; parent transforms merged and child offsets checked against JungleWalkers.",
 		Hesperosaurus = "Entire stable1.2.0.3 scene chain revalidated; parent transforms merged and child offsets checked against JungleWalkers.",
 		Stegosaurus = "Entire stable1.2.0.3 scene chain revalidated; parent transforms merged and child offsets checked against JungleWalkers.",
+		Dilophosaurus = "Entire stable1.2.0.3 scene chain revalidated; parent transforms merged and child offsets checked against JungleWalkers.",
 	},
 }

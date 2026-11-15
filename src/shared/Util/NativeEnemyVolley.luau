@@ -8,6 +8,8 @@ export type Rule = {
 	offsetX: number,
 	offsetZ: number,
 	speedStep: number,
+	scaleWithCount: boolean?,
+	minimumScale: number?,
 }
 function Volley.emit(
 	rule: Rule,
@@ -17,7 +19,7 @@ function Volley.emit(
 	tz: number,
 	speed: number,
 	random: () -> number,
-	emit: (number, number, number, number, number) -> ()
+	emit: (number, number, number, number, number, number) -> ()
 )
 	local px = x + (if tx < x then -rule.offsetX else rule.offsetX)
 	local pz = z + rule.offsetZ
@@ -28,7 +30,18 @@ function Volley.emit(
 			spread = -rule.spread + index * (2 * rule.spread / (rule.count - 1))
 		end
 		local angle = base + spread
-		emit(px, pz, math.cos(angle), math.sin(angle), speed + rule.speedStep * index)
+		local scale = 1
+		if rule.scaleWithCount then
+			local minimum = assert(rule.minimumScale, "Scaled native volley requires its source minimum scale")
+			if rule.count > 1 then
+				local centerDistance = math.abs(index / (rule.count - 1) - 0.5) * 2
+				scale = 1 + (minimum - 1) * centerDistance
+			end
+			if minimum > 1 then
+				scale = minimum
+			end
+		end
+		emit(px, pz, math.cos(angle), math.sin(angle), speed + rule.speedStep * index, scale)
 	end
 end
 return Volley

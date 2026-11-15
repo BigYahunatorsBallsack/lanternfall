@@ -195,8 +195,8 @@ friends = CharmedWorld.new(world.params, {
 	emitSlash = function(id, tx, tz, damage, owner)
 		EnemySim.NativeSlash:Fire(id, tx, tz, damage, owner)
 	end,
-	emitPillar = function(id, x, z, dx, dz, speed, damage, owner)
-		EnemySim.NativePillar:Fire(id, x, z, dx, dz, speed, damage, owner)
+	emitPillar = function(id, x, z, dx, dz, speed, damage, owner, scale)
+		EnemySim.NativePillar:Fire(id, x, z, dx, dz, speed, damage, owner, scale)
 	end,
 	emitShot = function(owner, event)
 		EnemySim.CharmShot:Fire(owner, event)
@@ -299,9 +299,9 @@ local function fireShots(stepNow: number)
 		if ranged.nativeVolley then
 			NativeVolley.emit(ranged.nativeVolley, x, z, targetXs[t], targetZs[t], ranged.projectileSpeed, function()
 				return RandomService.number("Combat")
-			end, function(px, pz, dx, dz, speed)
+			end, function(px, pz, dx, dz, speed, scale)
 				if ranged.nativePillar then
-					EnemySim.NativePillar:Fire(shots[k + 1], px, pz, dx, dz, speed, damage, nil)
+					EnemySim.NativePillar:Fire(shots[k + 1], px, pz, dx, dz, speed, damage, nil, scale)
 				else
 					EnemySim.fireShot(px, pz, dx, dz, speed, ranged.projectileRange, ranged.projectileRadius, damage)
 				end

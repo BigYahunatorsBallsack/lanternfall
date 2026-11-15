@@ -424,6 +424,25 @@
       "pngSha256": "cc47d6aced6b55ce7d14d4e26fceddc7a6c2381cc65ba08e4e1820b03101521e"
     },
     {
+      "id": "Dilophosaurus",
+      "source": "res://entities/units/enemies/jungle/basic/dilophosaurus/dilophosaurus.png",
+      "textureSource": "res://.import/dilophosaurus.png-b15aa7b6a4434e089fb2600f7143bf26.stex",
+      "textureMd5": "da3cdc56e5c7fc36737cf30a5140322b",
+      "output": "assets/enemies/native-jungle/Dilophosaurus.png",
+      "size": [
+        150,
+        150
+      ],
+      "alphaBounds": [
+        14,
+        5,
+        135,
+        143
+      ],
+      "rgbaSha256": "124e05183e3bb0e4339a3d0d91ebf3d99963ac5ee51985fb0f409544a65e06e0",
+      "pngSha256": "42ae32a9538a5d40db1aa93c8c8a53b4319aa08c942c43f1bc94807ceea3d6f8"
+    },
+    {
       "id": "Hesperosaurus",
       "source": "res://entities/units/enemies/jungle/basic/hesperosaurus/hesperosaurus.png",
       "textureSource": "res://.import/hesperosaurus.png-bd89b1e3e32ca2365dd794d031f5c8e4.stex",

@@ -213,7 +213,7 @@ function Kinds.build(pixel: number): { [string]: any }
 			local rules = C.shootingRules
 			local position = a.position.values
 			local kind = result[id]
-			if not f.wanderAroundTarget then
+			if not f.wanderAroundTarget and not f.followTargetShoot then
 				kind.stayInRange = {
 					distance = f.movement.target_range * pixel,
 					jitter = f.movement.target_range_randomization * pixel,
@@ -238,6 +238,8 @@ function Kinds.build(pixel: number): { [string]: any }
 					offsetX = position[1] * pixel,
 					offsetZ = position[2] * pixel,
 					speedStep = a.speed_change_after_each_projectile * pixel,
+					scaleWithCount = a.scale_projectiles_with_count,
+					minimumScale = a.min_projectile_scale,
 				},
 				nativeTiming = {
 					fireInterval = a.cooldown / rules.frameRate,

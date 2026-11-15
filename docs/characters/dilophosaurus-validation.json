@@ -1,0 +1,304 @@
+{
+  "referenceVersion": "1.2.0.3",
+  "steamBuild": 26642464,
+  "baseMain": "de4e155e97855cc18ffb52b1e81e53d1af8532fc",
+  "draftPr": 151,
+  "scope": "Register normal Dilophosaurus/type64, count-scaled pillar geometry and telegraphs, actual triple cadence and hostile/Charm producer routing. No additional complete character or playable Jungle.",
+  "source": {
+    "typeId": 64,
+    "displayName": "Dilophosaurus",
+    "fallbackLook": "Shadeling",
+    "source": "res://entities/units/enemies/jungle/basic/dilophosaurus/dilophosaurus.tscn",
+    "sourceMd5": "6ec2908e2954e9427209c82ae1530d77",
+    "statsSource": "res://entities/units/enemies/jungle/basic/dilophosaurus/dilophosaurus_stats.tres",
+    "statsMd5": "622abc69d3d7293d9c1f2564083e59cd",
+    "stats": {
+      "health": 5,
+      "health_increase_each_wave": 7.0,
+      "speed": 250,
+      "speed_randomization": 0,
+      "damage": 1,
+      "damage_increase_each_wave": 1.1,
+      "attack_cd": 30.0,
+      "value": 3,
+      "knockback_resistance": 0.2,
+      "gold_spread": 0,
+      "can_drop_consumables": true,
+      "always_drop_consumables": false,
+      "base_drop_chance": 0.03,
+      "item_drop_chance": 0.03,
+      "min_consumable_tier": 0,
+      "max_consumable_tier": 0,
+      "armor": 0,
+      "armor_increase_each_wave": 0.0,
+      "generate_blood": true
+    },
+    "body": {
+      "radiusPoints": 36.0,
+      "offsetPoints": [
+        0,
+        -12
+      ],
+      "source": "res://entities/units/enemies/jungle/basic/dilophosaurus/dilophosaurus.tscn",
+      "sourceMd5": "6ec2908e2954e9427209c82ae1530d77"
+    },
+    "hurt": {
+      "radiusPoints": 57.0,
+      "offsetPoints": [
+        0,
+        -15
+      ],
+      "source": "res://entities/units/enemies/jungle/basic/dilophosaurus/dilophosaurus.tscn",
+      "sourceMd5": "6ec2908e2954e9427209c82ae1530d77"
+    },
+    "hit": {
+      "radiusPoints": 32.0156,
+      "offsetPoints": [
+        0,
+        -8
+      ],
+      "source": "res://entities/units/enemies/jungle/basic/dilophosaurus/dilophosaurus.tscn",
+      "sourceMd5": "6ec2908e2954e9427209c82ae1530d77"
+    },
+    "removeFirst": false,
+    "mass": 1,
+    "obstacleCollision": true,
+    "sprite": {
+      "source": "res://entities/units/enemies/jungle/basic/dilophosaurus/dilophosaurus.png",
+      "textureSource": "res://.import/dilophosaurus.png-b15aa7b6a4434e089fb2600f7143bf26.stex",
+      "textureMd5": "da3cdc56e5c7fc36737cf30a5140322b",
+      "widthPoints": 150,
+      "heightPoints": 150
+    },
+    "bodyLayer": 4,
+    "bodyMask": 132,
+    "bodyBorders": true,
+    "playerCollision": false,
+    "movement": {},
+    "shootingVariants": {
+      "Normal": {
+        "damage": 1,
+        "damage_increase_each_wave": 1.0,
+        "max_range": 500,
+        "min_range": 50,
+        "cooldown": 0.0,
+        "initial_cooldown": 5,
+        "max_cd_randomization": 0,
+        "attack_anim_speed": 5.0,
+        "number_projectiles": 3,
+        "projectile_spread": 0.1,
+        "constant_spread": true,
+        "speed_change_after_each_projectile": -20,
+        "projectile_speed": 600,
+        "long_cooldown_every_x_shoots": 3,
+        "long_cooldown": 150,
+        "position": {
+          "variantType": "Vector2",
+          "values": [
+            20,
+            -30
+          ]
+        },
+        "unique_name_in_owner": true,
+        "scale_projectiles_with_count": true,
+        "min_projectile_scale": 0.7,
+        "forward_spawn_offset": 10.0,
+        "use_transform_offset": true
+      },
+      "Meca": {
+        "damage": 1,
+        "damage_increase_each_wave": 1.15,
+        "max_range": 500,
+        "min_range": 50,
+        "cooldown": 0.0,
+        "initial_cooldown": 5,
+        "max_cd_randomization": 0,
+        "attack_anim_speed": 5.0,
+        "number_projectiles": 3,
+        "projectile_spread": 0.1,
+        "constant_spread": true,
+        "speed_change_after_each_projectile": -20,
+        "projectile_speed": 600,
+        "long_cooldown_every_x_shoots": 3,
+        "long_cooldown": 150,
+        "position": {
+          "variantType": "Vector2",
+          "values": [
+            20,
+            -30
+          ]
+        },
+        "unique_name_in_owner": true,
+        "scale_projectiles_with_count": true,
+        "min_projectile_scale": 0.7,
+        "forward_spawn_offset": 10.0,
+        "use_transform_offset": true
+      },
+      "Mutant": {
+        "damage": 1,
+        "damage_increase_each_wave": 1.0,
+        "max_range": 500,
+        "min_range": 50,
+        "cooldown": 0.0,
+        "initial_cooldown": 5,
+        "max_cd_randomization": 0,
+        "attack_anim_speed": 5.0,
+        "number_projectiles": 3,
+        "projectile_spread": 0.1,
+        "constant_spread": true,
+        "speed_change_after_each_projectile": -20,
+        "projectile_speed": 600,
+        "long_cooldown_every_x_shoots": 3,
+        "long_cooldown": 150,
+        "position": {
+          "variantType": "Vector2",
+          "values": [
+            20,
+            -30
+          ]
+        },
+        "unique_name_in_owner": true,
+        "scale_projectiles_with_count": true,
+        "min_projectile_scale": 0.7,
+        "forward_spawn_offset": 10.0,
+        "use_transform_offset": true
+      }
+    },
+    "activeVariant": "Normal",
+    "evolutionVariantsImplemented": false,
+    "projectileSource": "res://projectiles/pillar_enemy/pillar_projectile.tscn",
+    "genericShootAnimation": true,
+    "projectileVariants": {
+      "Normal": {
+        "source": "res://projectiles/pillar_enemy/pillar_projectile.tscn",
+        "sourceMd5": "3c47b5dacd9846ce1bc21c4b9ad630f5"
+      },
+      "Mutant": {
+        "source": "res://projectiles/acid_projectile/acid_projectile.tscn",
+        "sourceMd5": "37ece31cb1d8493d42acf9ca7a53eacd"
+      },
+      "Meca": {
+        "source": "res://projectiles/slash/slash_projectile_2.tscn",
+        "sourceMd5": "79788f9f831a974c571e1a36907ad5de"
+      }
+    },
+    "followTargetShoot": true
+  },
+  "sourceBasis": [
+    "Stable ShootingAttackBehavior count scaling interpolates1->min_projectile_scale by abs(i/(count-1)-.5)*2.",
+    "Single fresh projectile remains1 when minimum<=1; minimum>1 overrides all scales. Pool reuse remains separate acceptance.",
+    "Normal Dilophosaurus uses transform offset20/-30points, not the10point forward_spawn_offset belonging to inactive parallel_slashes.",
+    "Normal=pillar_enemy, Mutant=acid_projectile, Meca=slash_projectile_2; actual scene reference hashes are retained."
+  ],
+  "changes": [
+    "NativeEnemyVolley.Rule adds optional scaleWithCount/minimumScale and emits scale as trailing sixth callback argument; absent rule emits1.",
+    "EnemySim/CharmedWorld forward scale as optional trailing ninth NativePillar request argument.",
+    "NativePillarService caches each radius and applies root scale to local hitbox offset and outgoing fallback telegraph; damage unchanged.",
+    "Normal Dilophosaurus uses ordinary follow-target movement, no invented stayInRange/wander."
+  ],
+  "focused": {
+    "scaleBefore": {
+      "passed": 0,
+      "failed": 3
+    },
+    "scaleAfter": {
+      "passed": 3,
+      "failed": 0
+    },
+    "pillarGeometryBefore": {
+      "passed": 1,
+      "failed": 1
+    },
+    "pillarGeometryAfter": {
+      "passed": 2,
+      "failed": 0
+    },
+    "dilophosaurusBefore": {
+      "passed": 0,
+      "failed": 3
+    },
+    "dilophosaurusRules": {
+      "passed": 3,
+      "failed": 0
+    },
+    "actualServer": {
+      "passed": 2,
+      "failed": 0
+    },
+    "NativeEnemyVolley": 3,
+    "NativeJunglePillarShootersServer": 3,
+    "NativeHiddenAreaHits": 4,
+    "MainGameEnemyStats": {
+      "passed": 29,
+      "failed": 0,
+      "count63To64": true,
+      "allUniquenessChecksRetained": true
+    },
+    "WorldSprites": 12
+  },
+  "actualServerProof": [
+    "HP5+7/wave/contact1+1.1/wave/projectiondamage1+1/wave remain independent with multipliers.",
+    "Actual three triple volleys before the2.5second long pause; next group resumes afterward.",
+    "Actual muzzle offsets ±2/-3stud,60/58/56stud/s and0.7/1/0.7scales; no parallel-only extra forward offset.",
+    "Actual Charm-converted Dilophosaurus retains9owned shots, mirrored source offset, original per-projectile scales and30damage atwave10.",
+    "A real target outside smaller pillar survives and its telegraph radius shrinks; full-size control deals7damage."
+  ],
+  "mutation": {
+    "mutation": "Ignore projectile root scale for pillar radius and telegraph",
+    "output": "[Lanternfall] Place: lobby and arena in one server (no hub/run place ids for this place in Config.Places)\n[Lanternfall] Server ready: 75 remotes, 41 services, config problems: 0\n[Lanternfall] Saving: memory only (no DataStoreService)\n[Lanternfall] Badge \"Lantern Lit\" earned but not set up (Config/Badges.luau id is 0)\n[Lanternfall] Owner login streak day 1: +25 Embers\n[Lanternfall] Peer login streak day 1: +25 Embers\n[Lanternfall] Launch check: 1 must, 2 should open (debug button \"Launch check\" lists them)\n[Lanternfall] Run started with 2 player(s), Danger 0\n[Lanternfall] Run seed 347939798 (Config.Run.seed replays it)\nFAIL Native pillar root scale > lets a target outside a small pillar survive and keeps its smaller telegraph\n     tests/NativePillarScale.spec.luau:56: expected 119000, got 118993\n1 passed, 1 failed\n",
+    "exit": 1,
+    "restoredByteForByte": true
+  },
+  "art": {
+    "newOriginalImage": "assets/enemies/native-jungle/Dilophosaurus.png",
+    "losslessRgbaVerified": true,
+    "visuallyInspected": true,
+    "totalJungleAndPillarImages": 29,
+    "uploads": 0,
+    "runtimeIdsChanged": false
+  },
+  "checks": {
+    "stylua": true,
+    "selene": {
+      "errors": 0,
+      "existingWarnings": 18,
+      "cachedApi": true
+    },
+    "rojo": true,
+    "sourceAndImageChecks": 4
+  },
+  "interfaces": [
+    "NativeEnemyVolley emit callback receives trailing scale:number; existing callbacks may ignore it.",
+    "NativePillar request appends optional scale:number default1; no Remote or schema change.",
+    "NativePillar Shot stores radius; existing BossTelegraphs circle radius carries the correct scale.",
+    "Jungle source followTargetShoot flag uses existing World steering without stayInRange replacement."
+  ],
+  "open": [
+    "Full native physics/idle/deferred/global time and RNG draw ordering remain pending.",
+    "Native projectile scale on pool reuse is not accepted; tests establish fresh-shot behavior.",
+    "Meca/Mutant and full evolution remain source-only.",
+    "Original graphic/animation/audio and client departure feedback remain pending; explicit fallback presentation.",
+    "Remaining Jungle families/bosses/waves/area incomplete; no Studio/two-client/mobile acceptance."
+  ],
+  "characterStatus": {
+    "codePrepared": 48,
+    "open": 26,
+    "newCompleted": 0,
+    "registeredNeutralJungleBodies": 25,
+    "sourceRows": 25,
+    "localJungleImages": 29,
+    "junglePlayable": false
+  },
+  "fullSuite": {
+    "specs": 333,
+    "passed": 2040,
+    "failed": 35,
+    "aborts": 0,
+    "newFailureIdentities": [],
+    "returnedVsPrevious": [],
+    "absentVsPrevious": [],
+    "artifact": "build/native-five-branch-ten-dilophosaurus-de4e155.json",
+    "runtimeFrozenDuringRun": true,
+    "afterRunChanges": "Documentation only; source3/0, actual server2/0, volley scaling3/0 and pillar geometry2/0 repeated."
+  }
+}
