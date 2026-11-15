@@ -33,6 +33,7 @@ local RandomService = require(script.Parent.RandomService)
 local RunDirector = require(script.Parent.RunDirector)
 local Volleys = require(script.Volleys)
 local World = require(script.World)
+local NativeCrossing = require(script.NativeCrossing)
 local CharmedWorld = require(script.CharmedWorld)
 local CharmRules = require(script.CharmRules)
 local weakness = require(script.Weakness).new()
@@ -633,6 +634,11 @@ local function sendSnapshot()
 					+ (if slowFactors[i] < 1 or actors.nativeSlows:active(ids[i]) then Snapshot.STATUS_SLOWED else 0)
 					+ (if buffed[i] then Snapshot.STATUS_BUFFED else 0)
 					+ Snapshot.packPursuerStage(if actors.pursuers[i] then actors.pursuers[i].stage else 0)
+					+ (
+						if actors.crossings[i] and not NativeCrossing.active(actors.crossings[i])
+							then Snapshot.STATUS_HIDDEN
+							else 0
+					)
 			end
 		end
 	end

@@ -285,7 +285,7 @@ function Friends.step(self: any, dt: number, now: number, hostile: any)
 	fireShots(self, dt)
 	fireChargeTrails(self)
 	for index, id in ids do
-		if contacts[index] > 0 then
+		if contacts[index] > 0 and hostile:isHurtEnabled(id) then
 			local source = self.world.contactSources[index]
 			self.callbacks.damage(id, contacts[index], source)
 			local actor = self.world.indexOf[source]

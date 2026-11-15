@@ -4,6 +4,7 @@ local C = require(script.Parent.JungleWalkers)
 local Colliders = require(script.Parent.JungleColliderOffsets)
 local ChargeTargets = require(script.Parent.JungleChargeTargets)
 local Deflect = require(script.Parent.JungleDeflectCharges)
+local Crossing = require(script.Parent.NativeCrossingPaths)
 local Kinds = {}
 function Kinds.build(pixel: number): { [string]: any }
 	local result = {}
@@ -62,6 +63,11 @@ function Kinds.build(pixel: number): { [string]: any }
 				alwaysOrbs = if s.always_drop_consumables then true else nil,
 			},
 		}
+		if f.crossingPath then
+			local rule = assert(Crossing.families[id], "Missing approved crossing path")
+			assert(rule.sourceMd5 == f.sourceMd5, "Crossing path scene mismatch")
+			result[id].nativeCrossing = rule
+		end
 		if f.activeChargeVariant then
 			local a = f.chargingVariants[f.activeChargeVariant]
 			local rules = C.spawningRules

@@ -402,7 +402,9 @@ function SpriteModels.setMode(visual: Visual, mode: number)
 	paint(visual)
 	local telegraph = visual.telegraph
 	if telegraph then
-		telegraph.Transparency = if mode == SpriteModels.MODE_WINDUP then TELEGRAPH_TRANSPARENCY else 1
+		telegraph.Transparency = if not visual.hidden and mode == SpriteModels.MODE_WINDUP
+			then TELEGRAPH_TRANSPARENCY
+			else 1
 	end
 end
 
@@ -442,6 +444,9 @@ end
 -- workspace with their billboards on and only their pictures hidden (EnemyRenderer, REVEAL_FRAMES).
 function SpriteModels.hide(visual: Visual)
 	visual.hidden = true
+	if visual.telegraph then
+		visual.telegraph.Transparency = 1
+	end
 	-- pooled models stay in the workspace; held weapons (WeaponRenderer/HeldModels) must not aim at them
 	visual.model:SetAttribute("Hidden", true)
 	visual.sprite.picture.Visible = false
@@ -471,6 +476,9 @@ end
 -- Shows the pictures again (call once pose has placed the model where it stands).
 function SpriteModels.show(visual: Visual)
 	visual.hidden = false
+	if visual.telegraph then
+		visual.telegraph.Transparency = if visual.mode == SpriteModels.MODE_WINDUP then TELEGRAPH_TRANSPARENCY else 1
+	end
 	visual.model:SetAttribute("Hidden", false)
 	visual.sprite.picture.Visible = true
 	visual.shadow.Transparency = SHADOW_TRANSPARENCY

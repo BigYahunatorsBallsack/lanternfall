@@ -60,7 +60,8 @@ def generate():
         'ruleSources': [{'source': p.removesuffix('.gd') + '.gdc',
                          'sourceMd5': pck.entries[p.removesuffix('.gd') + '.gdc']['md5']} for p in paths],
         'worldConnected': False, 'worldAdapterConnected': True,
-        'worldAdapterScope': 'World movement, shape filtering, rotated offsets and quiet removal; no registered actors or snapshot/client acceptance.',
+        'snapshotVisibilityConnected': True, 'rendererVisibilityConnected': True,
+        'worldAdapterScope': 'World movement, shape filtering, rotated offsets, quiet removal and snapshot/renderer visibility; no registered actors or original-art acceptance.',
         'nativePresentationAccepted': False,
     }
 

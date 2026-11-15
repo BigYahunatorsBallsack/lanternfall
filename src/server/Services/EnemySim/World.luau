@@ -698,6 +698,12 @@ local function shapeEnabled(self: World, index: number): boolean
 	return not state or NativeCrossing.active(state)
 end
 
+-- AI can retain a hidden target; physical hits must still respect its disabled Hurtbox.
+function World.isHurtEnabled(self: World, id: number): boolean
+	local index = self.indexOf[id]
+	return index ~= nil and self.hp[index] > 0 and shapeEnabled(self, index)
+end
+
 -- Ids of living enemies whose circle overlaps the circle (x, z, radius), written to out[1 .. n]; returns n.
 function World.queryRadius(self: World, x: number, z: number, radius: number, out: { number }): number
 	local scratch = self.queryScratch
