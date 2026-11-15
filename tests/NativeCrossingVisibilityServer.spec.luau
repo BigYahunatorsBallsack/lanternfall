@@ -1,16 +1,6 @@
 --!strict
--- Test-only source-family promotion exercises EnemySim snapshot production; production registration remains gated.
-local f = loadHelper("tests/helpers/NativeCharacterFixture.luau")("WellRounded", function()
-	local Shared = game:GetService("ReplicatedStorage").Shared
-	local data = require(Shared.Config.JungleWalkers)
-	table.remove(data.implemented)
-	table.remove(data.implemented)
-end, function(Shared)
-	-- Add source rows before frozen production configuration is built; only this test process changes the list.
-	local data = require(Shared.Config.JungleWalkers)
-	table.insert(data.implemented, "Oviraptor")
-	table.insert(data.implemented, "Iguanodon")
-end)
+-- Registered source crossing families exercise actual EnemySim warning snapshots and no-kill exits.
+local f = loadHelper("tests/helpers/NativeCharacterFixture.luau")("WellRounded")
 local Enemy = require(f.S.EnemySim)
 local Snapshot = require(f.Shared.Net.Snapshot)
 local Kinds = require(f.Shared.Util.EnemyKinds)
@@ -77,6 +67,39 @@ describe("Source crossing snapshot producer", function()
 		expect(XP.getMaterialsOnFloor()).toBe(materials)
 		expect(#f.world.errors).toBe(0)
 		expect(f.Run.getNativeZoneId()).toBe(0)
-		f.world.netWatch = previousWatch
 	end)
+	it(
+		"retains a registered Iguanodon's hidden warning through real Charm conversion and escapes without Charm death",
+		function()
+			Enemy.killAll()
+			local id = assert(Enemy.spawn("Iguanodon", 60, 0, 1000, 0, nil, nil, 1, 10))
+			f.world.advance(0.2)
+			expect(bit32.btest(seen[id], Snapshot.STATUS_HIDDEN)).toBe(true)
+			assert(Enemy.charmSummoned(id, f.me.UserId))
+			expect(Enemy.isCharmed(id)).toBe(true)
+			f.world.advance(0.2)
+			expect(bit32.btest(seen[id], Snapshot.STATUS_HIDDEN)).toBe(true)
+			expect(bit32.btest(seen[id], Snapshot.STATUS_CHARMED)).toBe(true)
+			f.world.advance(1.5)
+			expect(bit32.btest(seen[id], Snapshot.STATUS_HIDDEN)).toBe(false)
+			local before = assert(Enemy.getPosition(id))
+			local hurt = assert(Enemy.getHurtGeometry(id))
+			expect((hurt - before).Magnitude).toBeNear(0.4)
+			local kills = 0
+			local connection = Enemy.EnemyKilled:Connect(function(info)
+				if info.id == id then
+					kills += 1
+				end
+			end)
+			local materials = XP.getMaterialsOnFloor()
+			f.world.advance(5)
+			connection:Disconnect()
+			expect(Enemy.isCharmed(id)).toBe(false)
+			expect(Enemy.getCharmedCount(f.me.UserId)).toBe(0)
+			expect(kills).toBe(0)
+			expect(XP.getMaterialsOnFloor()).toBe(materials)
+			expect(#f.world.errors).toBe(0)
+			f.world.netWatch = previousWatch
+		end
+	)
 end)

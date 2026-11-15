@@ -24,12 +24,11 @@
     "Velociraptor",
     "Jeholopterus",
     "GiantDragonfly",
-    "HarpymimusLooter"
-  ],
-  "sourceOnly": [
+    "HarpymimusLooter",
     "Oviraptor",
     "Iguanodon"
   ],
+  "sourceOnly": [],
   "enemies": {
     "BabyTriceratops": {
       "typeId": 40,
@@ -2023,13 +2022,14 @@
       "bodyMask": 0,
       "bodyBorders": false,
       "playerCollision": false,
-      "sourceOnly": true,
-      "actorRegistered": false,
+      "sourceOnly": false,
+      "actorRegistered": true,
       "crossingPath": {
         "warningSeconds": 0.35,
         "maxYDiff": 3.0
       },
       "bodyOneWay": true,
+      "bodyOneWayMarginPoints": 1.0,
       "collisionMask": 0
     },
     "Iguanodon": {
@@ -2102,13 +2102,14 @@
       "bodyMask": 0,
       "bodyBorders": false,
       "playerCollision": false,
-      "sourceOnly": true,
-      "actorRegistered": false,
+      "sourceOnly": false,
+      "actorRegistered": true,
       "crossingPath": {
         "warningSeconds": 1.5,
         "maxYDiff": 3.0
       },
       "bodyOneWay": true,
+      "bodyOneWayMarginPoints": 1.0,
       "collisionMask": 0
     }
   },

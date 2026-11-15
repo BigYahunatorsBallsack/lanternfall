@@ -81,6 +81,7 @@ describe("Native crossing World adapter", function()
 		k.nativeBodyOffsetX, k.nativeBodyOffsetZ = 0, 2
 		k.nativeHurtOffsetX, k.nativeHurtOffsetZ = 0, 3
 		k.nativeHitOffsetX, k.nativeHitOffsetZ = 0, 4
+		k.nativeBodyOneWay = { axisX = 0, axisZ = 1, margin = 0.1 }
 		local id = assert(w:spawn(k, -80, 0, 100, 3))
 		w:step(0, {}, {}, 0)
 		w:step(0.35, {}, {}, 0)
@@ -88,6 +89,9 @@ describe("Native crossing World adapter", function()
 		local theta = w.crossings[i].rotation
 		expect(w.kinds[i].nativeBodyOffsetX).toBeNear(-2 * math.sin(theta))
 		expect(w.kinds[i].nativeHitOffsetX).toBeNear(-4 * math.sin(theta))
+		expect(w.kinds[i].nativeBodyOneWay.axisX).toBeNear(-math.sin(theta))
+		expect(w.kinds[i].nativeBodyOneWay.axisZ).toBeNear(math.cos(theta))
+		expect(k.nativeBodyOneWay.axisZ).toBe(1)
 		local hx, hz = w:getHurtGeometry(id)
 		expect(hx).toBeNear(w.xs[i] - 3 * math.sin(theta))
 		expect(hz).toBeNear(w.zs[i] + 3 * math.cos(theta))
@@ -186,5 +190,31 @@ describe("Native crossing World adapter", function()
 		friends:step(0, 0.35, hostile)
 		expect(hits).toBe(1)
 		expect(hostile:getHealth(target)).toBe(97)
+	end)
+	it("lets friendly projectiles pass a hidden hurtbox without consuming them", function()
+		local Friends = require(S.CharmedWorld)
+		local hostile = world()
+		local target = start(hostile, 20)
+		local ally = assert(hostile:spawn(C.Enemies.types.Shadeling, -50, 0, 100, 0))
+		local hits = 0
+		local friends = Friends.new(hostile.params, {
+			damage = function(id, amount)
+				hits += 1
+				hostile:damage(id, amount)
+			end,
+		})
+		assert(friends:convert(hostile, ally, 17, 0, { contact = 0, shot = 1 }))
+		local member = friends.members[ally]
+		friends:fire(member, 10, 0, 1, 0, 100, 100, 0.1, 7)
+		friends:step(0.2, 0.2, hostile)
+		expect(hits).toBe(0)
+		expect(friends.shots:getCount()).toBe(1)
+		expect(friends.targetIds[1]).toBe(target)
+		hostile:step(0.35, {}, {}, 0)
+		local x, z = hostile:getHurtGeometry(target)
+		friends:fire(member, x - 10, z, 1, 0, 100, 100, 0.1, 7)
+		friends:step(0.2, 0.4, hostile)
+		expect(hits).toBe(1)
+		expect(hostile:getHealth(target)).toBe(93)
 	end)
 end)

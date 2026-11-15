@@ -31,22 +31,19 @@ local function world()
 	})
 end
 describe("Native enemy body masks", function()
-	it(
-		"connects approved source masks for active Jungle bodies without registering the two pending crossers",
-		function()
-			local facts = require(Shared.Config.JungleWalkers)
-			for _, name in facts.implemented do
-				local kind = assert(Config.Enemies.types[name])
-				expect(kind.nativeBodyLayer).toBe(facts.enemies[name].bodyLayer)
-				expect(kind.nativeBodyMask).toBe(facts.enemies[name].bodyMask)
-			end
-			for _, name in facts.sourceOnly do
-				expect(facts.enemies[name].bodyLayer).toBe(4)
-				expect(facts.enemies[name].bodyMask).toBe(0)
-				expect(Config.Enemies.types[name]).toBe(nil)
-			end
+	it("connects approved source masks for every active Jungle body", function()
+		local facts = require(Shared.Config.JungleWalkers)
+		for _, name in facts.implemented do
+			local kind = assert(Config.Enemies.types[name])
+			expect(kind.nativeBodyLayer).toBe(facts.enemies[name].bodyLayer)
+			expect(kind.nativeBodyMask).toBe(facts.enemies[name].bodyMask)
 		end
-	)
+		for _, name in facts.sourceOnly do
+			expect(facts.enemies[name].bodyLayer).toBe(4)
+			expect(facts.enemies[name].bodyMask).toBe(0)
+			expect(Config.Enemies.types[name]).toBe(nil)
+		end
+	end)
 	it("uses either mask/layer intersection, including a zero-mask body seen by its neighbor", function()
 		local passive, normal = actor(0), actor(132)
 		expect(Body.collides(passive, normal)).toBe(true)

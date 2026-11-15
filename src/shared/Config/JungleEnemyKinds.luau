@@ -67,6 +67,9 @@ function Kinds.build(pixel: number): { [string]: any }
 			local rule = assert(Crossing.families[id], "Missing approved crossing path")
 			assert(rule.sourceMd5 == f.sourceMd5, "Crossing path scene mismatch")
 			result[id].nativeCrossing = rule
+			if f.bodyOneWay then
+				result[id].nativeBodyOneWay = { axisX = 0, axisZ = 1, margin = f.bodyOneWayMarginPoints * pixel }
+			end
 		end
 		if f.activeChargeVariant then
 			local a = f.chargingVariants[f.activeChargeVariant]

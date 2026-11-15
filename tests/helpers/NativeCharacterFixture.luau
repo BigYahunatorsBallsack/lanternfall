@@ -1,11 +1,8 @@
 --!strict
 -- Shared production-service fixture for native character package tests; artwork/unlock overrides exist only here.
-return function(classId: string, beforeServer: ((any) -> ())?, beforeConfig: ((any) -> ())?)
+return function(classId: string, beforeServer: ((any) -> ())?)
 	local world = loadHelper("tests/helpers/RobloxMock.luau")
 	local Shared = game:GetService("ReplicatedStorage").Shared
-	if beforeConfig then
-		beforeConfig(Shared)
-	end
 	local Config = require(Shared.Config)
 	local Server = game:GetService("ServerScriptService").Server
 	if beforeServer then

@@ -27,11 +27,10 @@ return {
 		"Jeholopterus",
 		"GiantDragonfly",
 		"HarpymimusLooter",
-	},
-	sourceOnly = {
 		"Oviraptor",
 		"Iguanodon",
 	},
+	sourceOnly = {},
 	enemies = {
 		BabyTriceratops = {
 			typeId = 40,
@@ -2025,13 +2024,14 @@ return {
 			bodyMask = 0,
 			bodyBorders = false,
 			playerCollision = false,
-			sourceOnly = true,
-			actorRegistered = false,
+			sourceOnly = false,
+			actorRegistered = true,
 			crossingPath = {
 				warningSeconds = 0.35,
 				maxYDiff = 3,
 			},
 			bodyOneWay = true,
+			bodyOneWayMarginPoints = 1,
 			collisionMask = 0,
 		},
 		Iguanodon = {
@@ -2104,13 +2104,14 @@ return {
 			bodyMask = 0,
 			bodyBorders = false,
 			playerCollision = false,
-			sourceOnly = true,
-			actorRegistered = false,
+			sourceOnly = false,
+			actorRegistered = true,
 			crossingPath = {
 				warningSeconds = 1.5,
 				maxYDiff = 3,
 			},
 			bodyOneWay = true,
+			bodyOneWayMarginPoints = 1,
 			collisionMask = 0,
 		},
 	},

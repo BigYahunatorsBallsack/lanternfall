@@ -1,0 +1,303 @@
+{
+  "referenceVersion": "1.2.0.3",
+  "steamBuild": 26642464,
+  "baseMain": "de4e155e97855cc18ffb52b1e81e53d1af8532fc",
+  "draftPr": 151,
+  "scope": "Register normal Oviraptor/type59 and Iguanodon/type60, including existing crossing/visibility/quiet-removal path, directed circle-contact adapter and friendly projectile hidden-hurt filtering. No new completed character or playable Jungle.",
+  "families": {
+    "Oviraptor": {
+      "typeId": 59,
+      "displayName": "Oviraptor",
+      "fallbackLook": "Shadeling",
+      "source": "res://entities/units/enemies/jungle/basic/oviraptor/oviraptor.tscn",
+      "sourceMd5": "37070a438aa1f6a6d9d7fc460bdfa695",
+      "statsSource": "res://entities/units/enemies/jungle/basic/oviraptor/oviraptor_stats.tres",
+      "statsMd5": "341299daae324550a60ede9fc7269909",
+      "stats": {
+        "health": 4,
+        "health_increase_each_wave": 5.0,
+        "speed": 650,
+        "speed_randomization": 175,
+        "damage": 1,
+        "damage_increase_each_wave": 0.6,
+        "attack_cd": 30.0,
+        "value": 1,
+        "knockback_resistance": 0.25,
+        "gold_spread": 0,
+        "can_drop_consumables": true,
+        "always_drop_consumables": false,
+        "base_drop_chance": 0.01,
+        "item_drop_chance": 0.01,
+        "min_consumable_tier": 0,
+        "max_consumable_tier": 0,
+        "armor": 0,
+        "armor_increase_each_wave": 0.0,
+        "generate_blood": true
+      },
+      "body": {
+        "radiusPoints": 35.0,
+        "offsetPoints": [
+          0,
+          -8
+        ],
+        "source": "res://entities/units/enemies/jungle/basic/oviraptor/oviraptor.tscn",
+        "sourceMd5": "37070a438aa1f6a6d9d7fc460bdfa695"
+      },
+      "hurt": {
+        "radiusPoints": 32.0,
+        "offsetPoints": [
+          0,
+          7
+        ],
+        "source": "res://entities/units/enemies/enemy.tscn",
+        "sourceMd5": "38e442588073219bb217a4b484a6d8a7"
+      },
+      "hit": {
+        "radiusPoints": 16.0312,
+        "offsetPoints": [
+          0,
+          -10
+        ],
+        "source": "res://entities/units/enemies/enemy.tscn",
+        "sourceMd5": "38e442588073219bb217a4b484a6d8a7"
+      },
+      "removeFirst": true,
+      "mass": 1,
+      "obstacleCollision": false,
+      "sprite": {
+        "source": "res://entities/units/enemies/jungle/basic/oviraptor/oviraptor.png",
+        "textureSource": "res://.import/oviraptor.png-8f0350e494f6168f2f8c77b5f484b860.stex",
+        "textureMd5": "d7d6274c60d8ad2addd50639f8ff6d51",
+        "widthPoints": 200,
+        "heightPoints": 200
+      },
+      "bodyLayer": 4,
+      "bodyMask": 0,
+      "bodyBorders": false,
+      "playerCollision": false,
+      "sourceOnly": false,
+      "actorRegistered": true,
+      "crossingPath": {
+        "warningSeconds": 0.35,
+        "maxYDiff": 3.0
+      },
+      "bodyOneWay": true,
+      "bodyOneWayMarginPoints": 1.0,
+      "collisionMask": 0
+    },
+    "Iguanodon": {
+      "typeId": 60,
+      "displayName": "Iguanodon",
+      "fallbackLook": "Shadeling",
+      "source": "res://entities/units/enemies/jungle/basic/iguanodon/iguanodon.tscn",
+      "sourceMd5": "2ef45c86848db34cf87bb386d52ea499",
+      "statsSource": "res://entities/units/enemies/jungle/basic/iguanodon/iguanodon_stats.tres",
+      "statsMd5": "b654136d77b0ea778592b6333c0943db",
+      "stats": {
+        "health": 16,
+        "health_increase_each_wave": 8.0,
+        "speed": 800,
+        "speed_randomization": 50,
+        "damage": 1,
+        "damage_increase_each_wave": 1.0,
+        "attack_cd": 30.0,
+        "value": 2,
+        "knockback_resistance": 0.35,
+        "gold_spread": 0,
+        "can_drop_consumables": true,
+        "always_drop_consumables": false,
+        "base_drop_chance": 0.01,
+        "item_drop_chance": 0.01,
+        "min_consumable_tier": 0,
+        "max_consumable_tier": 0,
+        "armor": 0,
+        "armor_increase_each_wave": 0.0,
+        "generate_blood": true
+      },
+      "body": {
+        "radiusPoints": 35.0,
+        "offsetPoints": [
+          0,
+          10
+        ],
+        "source": "res://entities/units/enemies/jungle/basic/iguanodon/iguanodon.tscn",
+        "sourceMd5": "2ef45c86848db34cf87bb386d52ea499"
+      },
+      "hurt": {
+        "radiusPoints": 32.0,
+        "offsetPoints": [
+          0,
+          20
+        ],
+        "source": "res://entities/units/enemies/enemy.tscn",
+        "sourceMd5": "38e442588073219bb217a4b484a6d8a7"
+      },
+      "hit": {
+        "radiusPoints": 16.0312,
+        "offsetPoints": [
+          0,
+          10
+        ],
+        "source": "res://entities/units/enemies/enemy.tscn",
+        "sourceMd5": "38e442588073219bb217a4b484a6d8a7"
+      },
+      "removeFirst": true,
+      "mass": 1,
+      "obstacleCollision": false,
+      "sprite": {
+        "source": "res://entities/units/enemies/jungle/basic/iguanodon/iguanodon.png",
+        "textureSource": "res://.import/iguanodon.png-a8dfe09826eb8a5c43c2ad41c14d18df.stex",
+        "textureMd5": "4c4d050919de22a12d887d14e1c69a1a",
+        "widthPoints": 200,
+        "heightPoints": 200
+      },
+      "bodyLayer": 4,
+      "bodyMask": 0,
+      "bodyBorders": false,
+      "playerCollision": false,
+      "sourceOnly": false,
+      "actorRegistered": true,
+      "crossingPath": {
+        "warningSeconds": 1.5,
+        "maxYDiff": 3.0
+      },
+      "bodyOneWay": true,
+      "bodyOneWayMarginPoints": 1.0,
+      "collisionMask": 0
+    }
+  },
+  "primaryEngineSources": [
+    {
+      "url": "https://github.com/godotengine/godot/blob/3.5.3-stable/servers/physics_2d/physics_2d_server_sw.cpp#L140",
+      "sha256": "a52bc7c8b26a9566a4857a4e0dbec0c4eba52727277b326ab32587f6ce0a2137"
+    },
+    {
+      "url": "https://github.com/godotengine/godot/blob/3.5.3-stable/servers/physics_2d/space_2d_sw.cpp#L834",
+      "sha256": "5ac9dd77ea4020a773466d6eff23d1f504db28f87a83e6d2a2a4aaed8512284e"
+    },
+    {
+      "url": "https://github.com/godotengine/godot/blob/3.5.3-stable/core/math/math_defs.h#L34",
+      "sha256": "e5a6d4d80da1503950b05a468598c8a6fa1e5a3e15e05c0b024c0206b76b6a98"
+    }
+  ],
+  "oneWayPolicy": {
+    "sourceAxis": "Other shape transformed local +Y",
+    "direction": "normal from other body to approaching body; -(normal dot axis)>=sourceCMP_EPSILON",
+    "sourceCMP_EPSILON": 1e-05,
+    "shapeMarginPoints": 1,
+    "unitTestMotionMarginPoints": 0.08,
+    "recovery": "Reject deeper overlap than max(shape margin, Unit test_motion margin) plus owner movement opposite the axis *dt.",
+    "adapter": "Existing circular yielding/separation uses direction/depth filters independently for each moving body. Rotation clones the owner axis once alongside offsets.",
+    "notFullSolver": "Contact-point geometry, swept solver, recovery passes, body velocities/time cadence and initial-overlap special paths still differ from Godot. Source-directed filter acceptance is not full Godot solver parity."
+  },
+  "focused": {
+    "oneWayPureBefore": {
+      "passed": 0,
+      "failed": 4
+    },
+    "oneWayWorldBefore": {
+      "passed": 4,
+      "failed": 2
+    },
+    "oneWayFinal": {
+      "passed": 7,
+      "failed": 0
+    },
+    "familiesBefore": {
+      "passed": 0,
+      "failed": 2
+    },
+    "familiesFinal": {
+      "passed": 2,
+      "failed": 0
+    },
+    "actualServer": {
+      "passed": 5,
+      "failed": 0
+    },
+    "worldFinal": {
+      "passed": 9,
+      "failed": 0
+    },
+    "friendlyShotRegressionBeforeFix": {
+      "passed": 8,
+      "failed": 1
+    },
+    "mainGameEnemyStats": {
+      "passed": 29,
+      "failed": 0,
+      "oldCount58ReplacedWith60": true,
+      "allUniquenessChecksRetained": true
+    },
+    "WorldSprites": 12,
+    "NativeEnemyVisibility": 5,
+    "NativeEnemyBodyMask": 8,
+    "CharmedWorld": {
+      "passed": 6,
+      "failed": 0,
+      "mixed140ActorMilliseconds": 3.581,
+      "performanceFluctuationStillOpen": true
+    }
+  },
+  "oneWayMutation": {
+    "mutation": "Reverse source blocking direction",
+    "output": "FAIL Native one-way body contacts > retains ordinary contacts and accepts only the blocking side of a one-way circle\n     tests/NativeOneWayBody.spec.luau:40: expected true, got false\nFAIL Native one-way body contacts > rotates the blocking axis with the owner instead of the approaching body\n     tests/NativeOneWayBody.spec.luau:46: expected true, got false\nFAIL Native one-way body contacts > rejects deep recovery contacts and grows the margin only by owner movement against the axis\n     tests/NativeOneWayBody.spec.luau:51: expected true, got false\nFAIL Native one-way body contacts > uses the source epsilon for nearly tangent normalized contacts\n     tests/NativeOneWayBody.spec.luau:59: expected true, got false\nFAIL Native one-way body contacts > keeps the Unit.test_motion minimum margin when the shape has a smaller one\n     tests/NativeOneWayBody.spec.luau:63: expected true, got false\nFAIL Native one-way body contacts > separates only the blocking side of an anchored one-way body in either spawn order\n     tests/NativeOneWayBody.spec.luau:83: expected true, got false\nFAIL Native one-way body contacts > lets a mover pass from the back but yields approaching the front\n     tests/NativeOneWayBody.spec.luau:100: expected true, got false\n0 passed, 7 failed\n",
+    "exit": 1,
+    "restoredByteForByte": true
+  },
+  "actualServerProof": [
+    "Registered normal families, no fixture catalog promotion or freeze override. Removed now-unneeded beforeConfig fixture hook.",
+    "Original Oviraptor health growth, .35-second warning and disabled hurt area; Iguanodon health growth and1.5-second warning.",
+    "Actual exit produces no EnemyKilled event or material drop. Player weapons and structures explicitly paused.",
+    "Actual Iguanodon Charm conversion retains warning/hidden+charmed flags; reveal clears hidden flag; rotated hurt-offset length .4stud; quiet exit removes membership before8-second Charm expiration, no death event/materials."
+  ],
+  "projectileFix": "Charm AI keeps all source-eligible living targets. A separate four-column reusable projectile candidate list contains only enabled hurtboxes. Hidden targets neither take damage nor consume friendly projectiles; revealed targets do. No new per-shot target allocation.",
+  "checks": {
+    "stylua": true,
+    "selene": {
+      "errors": 0,
+      "existingWarnings": 18,
+      "cachedApi": true
+    },
+    "rojo": true,
+    "sourceAndImageChecks": 4
+  },
+  "interfaces": [
+    "Enemies.Enemy.nativeBodyOneWay optional {axisX,axisZ,margin}; NativeBodyGeometry.blocks() directed contact predicate.",
+    "CharmedWorld has separate reusable projectile candidate columns; existing Volleys API unchanged.",
+    "JungleWalkers.implemented now includes both families, sourceOnly empty; reserved IDs59/60 now registered.",
+    "Removed test-only beforeConfig hook introduced in previous slice; no remaining caller depends on it."
+  ],
+  "open": [
+    "Full native rigid/kinematic solver and swept one-way collision, exact Physics/Idle/Deferred frame ordering and motion recovery remain open.",
+    "Renderer still uses declared fallback art; native angle/pose animation/audio/shake and no-death visual departure are unaccepted.",
+    "Native pooling, evolution variants and source global AI/area behavior remain pending.",
+    "Jungle spawn groups/waves/bosses and playable area route still missing.",
+    "No Studio/two-client/mobile acceptance."
+  ],
+  "characterStatus": {
+    "codePrepared": 48,
+    "open": 26,
+    "newCompleted": 0,
+    "registeredNeutralJungleBodies": 21,
+    "sourceRows": 21,
+    "localJungleImages": 25,
+    "junglePlayable": false
+  },
+  "fullSuite": {
+    "specs": 324,
+    "passed": 2015,
+    "failed": 36,
+    "aborts": 0,
+    "newFailureIdentities": [],
+    "returnedVsPrevious": [
+      "FAIL new enemies (B9) > lets a Gobbler eat the orbs on the floor and drop them all when killed"
+    ],
+    "absentVsPrevious": [
+      "FAIL smoke > chases the player until it touches them"
+    ],
+    "artifact": "build/native-five-branch-ten-crossing-families-de4e155.json",
+    "runtimeFrozenDuringRun": true,
+    "afterRunChanges": "Documentation only."
+  }
+}

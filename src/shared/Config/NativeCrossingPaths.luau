@@ -11,7 +11,7 @@ return {
 			movementScript = "res://entities/units/movement_behaviors/go_towards_border_opposite_movement_behavior.gd",
 			warningSeconds = 0.35,
 			maxYDiff = 3,
-			actorRegistered = false,
+			actorRegistered = true,
 		},
 		Iguanodon = {
 			source = "res://entities/units/enemies/jungle/basic/iguanodon/iguanodon.tscn",
@@ -20,7 +20,7 @@ return {
 			movementScript = "res://entities/units/movement_behaviors/go_towards_border_opposite_movement_behavior.gd",
 			warningSeconds = 1.5,
 			maxYDiff = 3,
-			actorRegistered = false,
+			actorRegistered = true,
 		},
 	},
 	rules = {
@@ -31,6 +31,8 @@ return {
 		warningArrowCalled = false,
 		warningLineCalled = false,
 		genericEnemyMayEnableHiddenContact = true,
+		oneWayContactEpsilon = 1e-05,
+		bodyMotionMarginStuds = 0.008,
 		exitUsesDespawnNotKill = true,
 	},
 	ruleSources = {
@@ -59,10 +61,10 @@ return {
 			sourceMd5 = "c1b09a67ca1618f73c2e89751ab82226",
 		},
 	},
-	worldConnected = false,
+	worldConnected = true,
 	worldAdapterConnected = true,
 	snapshotVisibilityConnected = true,
 	rendererVisibilityConnected = true,
-	worldAdapterScope = "World movement, shape filtering, rotated offsets, quiet removal and snapshot/renderer visibility; no registered actors or original-art acceptance.",
+	worldAdapterScope = "World movement, shape filtering, rotated offsets, quiet removal and snapshot/renderer visibility; registered normal actors, no original-art acceptance.",
 	nativePresentationAccepted = false,
 }

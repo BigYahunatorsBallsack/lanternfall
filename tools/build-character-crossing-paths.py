@@ -43,13 +43,15 @@ def generate():
             'source': path, 'sourceMd5': pck.entries[path]['md5'],
             'rootScript': root_script, 'movementScript': movement,
             'warningSeconds': warning, 'maxYDiff': move['properties']['max_Y_diff'],
-            'actorRegistered': False,
+            'actorRegistered': True,
         }
     # Reviewed script literals; hashes below bind these semantics to the stable source.
     rules = {'initialJitterStuds': 100 / 10, 'exitOvershootStuds': 150 / 10,
              'warningShake': 1.2, 'timeoutEnablesBody': True,
              'warningArrowCalled': False, 'warningLineCalled': False,
              'genericEnemyMayEnableHiddenContact': True,
+             'oneWayContactEpsilon': 0.00001,
+             'bodyMotionMarginStuds': 0.08 / 10,
              'exitUsesDespawnNotKill': True}
     paths = [movement, root_script, 'res://singletons/zone_service.gd',
              'res://entities/units/enemies/enemy.gd',
@@ -59,9 +61,9 @@ def generate():
         'families': families, 'rules': rules,
         'ruleSources': [{'source': p.removesuffix('.gd') + '.gdc',
                          'sourceMd5': pck.entries[p.removesuffix('.gd') + '.gdc']['md5']} for p in paths],
-        'worldConnected': False, 'worldAdapterConnected': True,
+        'worldConnected': True, 'worldAdapterConnected': True,
         'snapshotVisibilityConnected': True, 'rendererVisibilityConnected': True,
-        'worldAdapterScope': 'World movement, shape filtering, rotated offsets, quiet removal and snapshot/renderer visibility; no registered actors or original-art acceptance.',
+        'worldAdapterScope': 'World movement, shape filtering, rotated offsets, quiet removal and snapshot/renderer visibility; registered normal actors, no original-art acceptance.',
         'nativePresentationAccepted': False,
     }
 
@@ -89,7 +91,7 @@ def main():
             assert path.read_text(encoding='utf-8') == text, f'Stale crossing facts: {path}'
         else:
             path.write_text(text, encoding='utf-8', newline='\n')
-    print('2 crossing movement rules compiled; neither actor is registered by this compiler')
+    print('2 crossing movement rules compiled; normal actor registration is owned by JungleWalkers')
 
 
 if __name__ == '__main__':

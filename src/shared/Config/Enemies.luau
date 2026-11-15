@@ -49,6 +49,7 @@ export type Enemy = {
 	nativeBodyOffsetZ: number?, -- Collision.position in the original actor-local coordinate system
 	nativeBodyLayer: number?,
 	nativeBodyMask: number?, -- source body-pair filtering; either mask may see the other layer
+	nativeBodyOneWay: { axisX: number, axisZ: number, margin: number }?, -- transformed source local +Y axis
 	nativeObstacleCollision: boolean?, -- original OBSTACLES_BIT in the body mask, independent of is_flying
 	nativeZoneId: number?, -- an area-specific body never joins another area's ordinary random mix
 	nativeHurtSlowEffects: boolean?, -- false when the source overrides Enemy._on_hurt without invoking its generic slow effects

@@ -34,6 +34,10 @@ function Friends.new(params: any, callbacks: any, projectileObstacles: { Volleys
 		targetHurtZs = {},
 		targetInputXs = {},
 		targetInputZs = {},
+		projectileTargetIds = {},
+		projectileTargetXs = {},
+		projectileTargetZs = {},
+		projectileTargetRadii = {},
 		shots = Volleys.new(shotOptions),
 		shotSources = {},
 		shotOwners = {},
@@ -90,6 +94,10 @@ function Friends.clear(self: any)
 	table.clear(self.shotSources)
 	table.clear(self.shotOwners)
 	table.clear(self.previous)
+	table.clear(self.projectileTargetIds)
+	table.clear(self.projectileTargetXs)
+	table.clear(self.projectileTargetZs)
+	table.clear(self.projectileTargetRadii)
 	table.clear(self.members)
 	table.clear(self.counts)
 end
@@ -119,10 +127,16 @@ function Friends.fire(
 	)
 end
 local function stepShots(self: any, dt: number)
-	self.shots:step(dt, self.targetHurtXs, self.targetHurtZs, #self.targetIds, self.targetRadii)
+	self.shots:step(
+		dt,
+		self.projectileTargetXs,
+		self.projectileTargetZs,
+		#self.projectileTargetIds,
+		self.projectileTargetRadii
+	)
 	for index = 1, self.shots.hitCount do
 		local offset = (index - 1) * 2
-		local target = self.targetIds[self.shots.hits[offset + 1]]
+		local target = self.projectileTargetIds[self.shots.hits[offset + 1]]
 		self.callbacks.damage(target, self.shots.hits[offset + 2], self.shotSources[self.shots.hitSources[index]])
 	end
 	for index = 0, self.shots.endedCount - 1 do
@@ -248,6 +262,12 @@ function Friends.step(self: any, dt: number, now: number, hostile: any)
 	end
 	local ids, xs, zs, radii = self.targetIds, self.targetXs, self.targetZs, self.targetRadii
 	local inputXs, inputZs = self.targetInputXs, self.targetInputZs
+	local projectileIds, projectileXs, projectileZs, projectileRadii =
+		self.projectileTargetIds, self.projectileTargetXs, self.projectileTargetZs, self.projectileTargetRadii
+	table.clear(projectileIds)
+	table.clear(projectileXs)
+	table.clear(projectileZs)
+	table.clear(projectileRadii)
 	table.clear(ids)
 	table.clear(xs)
 	table.clear(zs)
@@ -265,6 +285,12 @@ function Friends.step(self: any, dt: number, now: number, hostile: any)
 			table.insert(self.targetHurtXs, hx)
 			table.insert(self.targetHurtZs, hz)
 			table.insert(radii, radius)
+			if hostile:isHurtEnabled(hostile.ids[index]) then
+				table.insert(projectileIds, hostile.ids[index])
+				table.insert(projectileXs, hx)
+				table.insert(projectileZs, hz)
+				table.insert(projectileRadii, radius)
+			end
 			local vx, vz = hostile:getMoveInput(hostile.ids[index])
 			table.insert(inputXs, vx)
 			table.insert(inputZs, vz)

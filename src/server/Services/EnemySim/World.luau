@@ -1578,6 +1578,14 @@ function World.step(
 						rotate(kind.nativeHurtChildX, kind.nativeHurtChildZ)
 					rotated.nativeHitChildX, rotated.nativeHitChildZ =
 						rotate(kind.nativeHitChildX, kind.nativeHitChildZ)
+					if kind.nativeBodyOneWay then
+						local axisX, axisZ = rotate(kind.nativeBodyOneWay.axisX, kind.nativeBodyOneWay.axisZ)
+						rotated.nativeBodyOneWay = {
+							axisX = axisX,
+							axisZ = axisZ,
+							margin = kind.nativeBodyOneWay.margin,
+						}
+					end
 					kind = rotated
 					kinds[i] = rotated
 				end
@@ -1671,6 +1679,12 @@ function World.step(
 					local minDistance = radius + other.radius
 					if gap > EPSILON and gap < minDistance + maxMove then
 						nx, nz = nx / gap, nz / gap
+						if
+							other.nativeBodyOneWay
+							and not Body.blocks(other, nx, nz, 0, self.moveInputXs[j], self.moveInputZs[j], dt)
+						then
+							continue
+						end
 						local towards = vx * nx + vz * nz -- negative when moving towards the neighbour
 						local allowed = -math.max(gap - minDistance, 0)
 						if towards < allowed then
@@ -1734,6 +1748,34 @@ function World.step(
 							pushI, pushJ = 0, if kindJ.anchored then 0 else push
 						elseif kindJ.anchored then
 							pushI, pushJ = push, 0
+						end
+						if
+							kindJ.nativeBodyOneWay
+							and not Body.blocks(
+								kindJ,
+								-nx,
+								-nz,
+								minDistance - distance,
+								self.moveInputXs[j],
+								self.moveInputZs[j],
+								dt
+							)
+						then
+							pushI = 0
+						end
+						if
+							kindI.nativeBodyOneWay
+							and not Body.blocks(
+								kindI,
+								nx,
+								nz,
+								minDistance - distance,
+								self.moveInputXs[i],
+								self.moveInputZs[i],
+								dt
+							)
+						then
+							pushJ = 0
 						end
 						xs[i] -= nx * pushI
 						zs[i] -= nz * pushI
