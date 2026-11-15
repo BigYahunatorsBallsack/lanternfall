@@ -85,7 +85,7 @@ local function collision(shot: Shot, age: number): boolean
 		Enemy.collectIds(ids)
 		for _, id in ids do
 			local name = Enemy.getKind(id)
-			if not name or name == "Tree" then
+			if not name or name == "Tree" or not Enemy.isHurtEnabled(id) then
 				continue
 			end
 			local at, hurtRadius = Enemy.getHurtGeometry(id)

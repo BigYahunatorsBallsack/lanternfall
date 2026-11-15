@@ -71,6 +71,9 @@ local function collision(shot: Shot, age: number): boolean
 		local ids = {}
 		Enemy.collectIds(ids)
 		for _, id in ids do
+			if not Enemy.isHurtEnabled(id) then
+				continue
+			end
 			local name = Enemy.getKind(id)
 			local at, hurtRadius = Enemy.getHurtGeometry(id)
 			if

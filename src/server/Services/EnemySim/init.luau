@@ -1125,6 +1125,11 @@ function EnemySim.getPosition(id: number): Vector3?
 	return Vector3.new(x, floorY, z)
 end
 
+-- Physical attack areas must respect disabled hostile Hurtboxes; direct stat damage keeps its own contract.
+function EnemySim.isHurtEnabled(id: number): boolean
+	return world:isHurtEnabled(id)
+end
+
 -- Exact live hurt-circle center/radius, separate from the actor origin used by snapshots and drops.
 function EnemySim.getHurtGeometry(id: number): (Vector3?, number?)
 	local actors = if friends.world.indexOf[id] then friends.world else world
