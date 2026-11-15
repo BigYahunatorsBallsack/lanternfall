@@ -15,6 +15,9 @@ FAMILIES['pterosaur']=('Pterosaur',61,'Pterosaur')
 FAMILIES['dilophosaurus']=('Dilophosaurus',64,'Dilophosaurus')
 FAMILIES.update({'hesperosaurus':('Hesperosaurus',62,'Hesperosaurus'),'stegosaurus':('Stegosaurus',63,'Stegosaurus')})
 
+PLANTS = {'carnivorus_plant': ('CarnivorousPlant',65,'Carnivorous Plant'), 'carnivorus_plant_mother': ('CarnivorousPlantMother',66,'Carnivorous Plant Mother')}
+FAMILIES.update(PLANTS)
+
 CHARGE_DEFAULTS = {'cooldown':60.0,'long_cooldown_every_x_shoots':0,'long_cooldown':0.0,'max_cd_randomization':10,'min_range':0,'max_range':300,'range_X':-1,'range_Y':-1,'attack_anim_speed':1.0,'charge_duration':1.0,'charge_speed':500.0,'target_calculation_timing':0,'target':0,'rand_target_size':-1,'only_positions_in_target_direction':False,'scale_charge_duration_with_range':False,'recovery_duration':0.05}
 
 def module(name, file):
@@ -41,13 +44,14 @@ def generate():
   shape = cache[path]['shapes'][ident]
   assert shape['resourceType'] == 'CircleShape2D'
   offset = node['properties'].get('position',{}).get('values',[0,0])
-  return {'radiusPoints':shape['properties'].get('radius',10), 'offsetPoints':offset, 'source':path, 'sourceMd5':pck.entries[path]['md5']}
+  scale=node['properties'].get('scale',{}).get('values',[1,1]);assert scale[0]==scale[1] and scale[0]>0, 'Nonuniform native circle needs another geometry'
+  return {'radiusPoints':shape['properties'].get('radius',10)*scale[0], 'offsetPoints':offset, 'source':path, 'sourceMd5':pck.entries[path]['md5']}
  enemies = {}
  for slug,(identity,type_id,name) in FAMILIES.items():
-  folder = 'parasaurolus' if slug=='parasaurolorus' else slug
+  folder = 'carnivorous_plant_mother' if slug=='carnivorus_plant_mother' else 'parasaurolus' if slug=='parasaurolorus' else slug
   path = f'res://entities/units/enemies/jungle/basic/{folder}/{slug}.tscn'
   nodes = resolve(path);root = nodes[('@','@')];move = nodes[('.','MovementBehavior')];attack = nodes[('.','AttackBehavior')]
-  assert root['scriptSource'] == ('res://entities/units/enemies/jungle/basic/oviraptor/oviraptor.gd' if slug in CROSSERS else 'res://entities/units/enemies/crash_zone/basic/looter/looter.gd' if slug=='harpymimus_looter' else 'res://entities/units/enemies/crash_zone/basic/pursuer/pursuer.gd' if slug=='velociraptor' else f'res://entities/units/enemies/jungle/basic/{slug}/{slug}.gd' if slug in ['baby_trex','dino_egg','stintaosaurus','ankylosaurus','pachycephalosaurus','pterosaur'] else 'res://entities/units/enemies/enemy.gd')
+  assert root['scriptSource'] == ('res://entities/units/enemies/jungle/basic/oviraptor/oviraptor.gd' if slug in CROSSERS else 'res://entities/units/enemies/crash_zone/basic/looter/looter.gd' if slug=='harpymimus_looter' else 'res://entities/units/enemies/crash_zone/basic/pursuer/pursuer.gd' if slug=='velociraptor' else f'res://entities/units/enemies/jungle/basic/{folder}/{slug}.gd' if slug in ['baby_trex','dino_egg','stintaosaurus','ankylosaurus','pachycephalosaurus','pterosaur'] or slug in PLANTS else 'res://entities/units/enemies/enemy.gd')
   if slug in ['triceratops','parasaurolorus','ankylosaurus','pachycephalosaurus']:
    expected='target_rand_pos_movement_behavior.gd' if slug=='ankylosaurus' else 'follow_target_movement_behavior.gd'
    assert move['scriptSource']=='res://entities/units/movement_behaviors/'+expected
@@ -84,7 +88,7 @@ def generate():
   elif slug=='harpymimus_looter':
    assert move['scriptSource']=='res://entities/units/movement_behaviors/target_rand_pos_movement_behavior.gd'
    assert attack['scriptSource']=='res://entities/units/enemies/attack_behaviors/attack_behavior.gd'
-  elif slug == 'enigmacursor':
+  elif slug == 'enigmacursor' or slug in PLANTS:
    assert move['scriptSource'] == 'res://entities/units/movement_behaviors/stay_in_range_from_player_movement_behavior.gd'
    assert attack['scriptSource'] == 'res://entities/units/movement_behaviors/detect_evolution_attack_behavior.gd'
   elif slug=='stintaosaurus':
@@ -103,13 +107,20 @@ def generate():
    assert attack['scriptSource'] == 'res://entities/units/enemies/attack_behaviors/attack_behavior.gd'
   for node in [root,move,attack]:used_scripts.add(node['scriptSource'].removesuffix('.gd')+'.gdc')
   stats_path = root['properties']['stats']['resource'];stats = {k:v for k,v in pck.resource(stats_path)['properties'].items() if isinstance(v,(int,float,bool))}
-  assert stats['armor'] == 0 and stats['armor_increase_each_wave'] == 0, 'Armor requires its own runtime policy'
+  assert slug in PLANTS or (stats['armor'] == 0 and stats['armor_increase_each_wave'] == 0), 'Armor requires its own runtime policy'
   enemies[identity] = {'typeId':type_id,'displayName':name,'fallbackLook':'Shadeling','source':path,'sourceMd5':pck.entries[path]['md5'],'statsSource':stats_path,'statsMd5':pck.entries[stats_path]['md5'],'stats':stats,'body':circle(nodes[('.','Collision')]),'hurt':circle(nodes[('Hurtbox','Collision')]),'hit':circle(nodes[('Hitbox','Collision')]),'removeFirst':root['properties'].get('to_be_removed_in_priority',False),'mass':root['properties'].get('mass',1),'obstacleCollision':bool(root['properties']['collision_mask'] & 128)}
   enemies[identity]['sprite']=images.texture_metadata(pck,images.body_texture(pck,path))
   enemies[identity]['bodyLayer']=root['properties']['collision_layer']
   enemies[identity]['bodyMask']=root['properties']['collision_mask']
   enemies[identity]['bodyBorders']=root['properties'].get('should_collide_with_borders',True)
   enemies[identity]['playerCollision']=bool(root['properties']['collision_mask'] & 2)
+  if slug in PLANTS:
+   assert stats['armor']==0 and stats['armor_increase_each_wave']==(0.25 if slug=='carnivorus_plant' else 0.5)
+   assert stats['speed']==0 and stats['speed_randomization']==0 and stats['knockback_resistance']==1
+   assert move['properties']['target_range']==9999 and move['properties']['target_range_randomization']==0
+   assert 'became_full' not in pck.read(path).decode('utf-8') and '[connection' not in pck.read(path).decode('utf-8')
+   enemies[identity].update(canBeBoosted=root['properties']['can_be_boosted'],nativeArmor={'base':stats['armor'],'perWave':stats['armor_increase_each_wave']},
+    bindingAudit={'rootScript':root['scriptSource'],'rootScriptMd5':pck.entries[root['scriptSource'].removesuffix('.gd')+'.gdc']['md5'],'detectionZoneHasEatingConnection':False,'initialChildScale':nodes[('Hurtbox','Collision')]['properties'].get('scale',{}).get('values',[1,1])})
   if slug=='pterosaur':
    variants={}
    for variant in ['Normal','Meca','Mutant']:
@@ -228,7 +239,7 @@ def generate():
    used_scripts.update(['res://entities/units/enemies/crash_zone/basic/pursuer/pursuer.gdc','res://entities/units/unit/unit.gdc','res://singletons/entity_service.gdc'])
   if slug in ['baby_pterosaur','graciliceratops']:
    enemies[identity]['anticipate'] = {'seconds':move['properties']['anticipation_time'],'horizontalOnly':move['properties'].get('should_target_vertically',False)}
-  if slug in ['enigmacursor','hesperosaurus','stegosaurus','dilophosaurus']:
+  if slug in ['enigmacursor','hesperosaurus','stegosaurus','dilophosaurus'] or slug in PLANTS:
    variants = {}
    for variant in ['Normal','Meca','Mutant']:
     node = nodes[('AttackBehavior','AttackBehavior'+variant)]
@@ -238,27 +249,43 @@ def generate():
     defaults = {'damage':1,'damage_increase_each_wave':1.0,'max_range':500,'min_range':0,'cooldown':60.0,'initial_cooldown':0,'max_cd_randomization':10,'attack_anim_speed':1.0,'number_projectiles':1,'projectile_spread':0.0,'constant_spread':False,'speed_change_after_each_projectile':0,'projectile_speed':3000}
     if slug!='enigmacursor':defaults.update(long_cooldown_every_x_shoots=0,long_cooldown=0,position={'variantType':'Vector2','values':[0,0]})
     values = {**defaults,**node['properties']}
-    variants[variant] = {k:v for k,v in values.items() if isinstance(v,(int,float,bool)) or k == 'position'}
+    if slug in PLANTS:
+     plant_raw=pck.read(path).decode('utf-8')
+     prefix=plant_raw.split('\n[node ')[0].replace('[gd_scene','[gd_resource type="PackedScene"',1)+'\n[resource]\n'
+     block=plant_raw.split('[node name="AttackBehavior'+variant+'"',1)[1].split('\n[node ',1)[0].split(']\n',1)[1]
+     angles=source.parse_tres(prefix+block,path)['properties']['specific_degrees_spawns']
+     assert len(angles)==values['number_projectiles'] and all(isinstance(v,(int,float)) for v in angles)
+     values['specific_degrees_spawns']=angles
+    variants[variant] = {k:v for k,v in values.items() if isinstance(v,(int,float,bool)) or k == 'position' or k=='specific_degrees_spawns'}
    raw = pck.read(path).decode('utf-8')
    prefix = raw.split('\n[node ')[0].replace('[gd_scene','[gd_resource type="PackedScene"',1)+'\n[resource]\n'
    external = {str(r['id']):r['path'] for r in source.parse_tres(prefix,path)['externalResources']}
    normal_block = raw.split('[node name="AttackBehaviorNormal"',1)[1].split('\n[node ',1)[0]
    projectile_ref = re.search(r'^projectile_scene = ExtResource\( (\d+) \)',normal_block,re.M)
-   assert projectile_ref and external[projectile_ref[1]] == 'res://projectiles/pillar_enemy/pillar_projectile.tscn', 'Different native projectile needs its own behavior'
-   enemies[identity].update(movement=move['properties'],shootingVariants=variants,activeVariant='Normal',evolutionVariantsImplemented=False,projectileSource=external[projectile_ref[1]])
+   projectile_source = external[projectile_ref[1]] if projectile_ref else 'res://projectiles/bullet_enemy/enemy_projectile.tscn'
+   assert projectile_source == ('res://projectiles/bullet_enemy/enemy_projectile.tscn' if slug in PLANTS else 'res://projectiles/pillar_enemy/pillar_projectile.tscn'), 'Different native projectile needs its own behavior'
+   enemies[identity].update(movement=move['properties'],shootingVariants=variants,activeVariant='Normal',evolutionVariantsImplemented=False,projectileSource=projectile_source)
    if slug!='enigmacursor':
     assert 'anims/shoot' not in raw
     projectile_variants={}
     for variant in ['Normal','Mutant','Meca']:
      block=raw.split('[node name="AttackBehavior'+variant+'"',1)[1].split('\n[node ',1)[0]
-     ref=re.search(r'^projectile_scene = ExtResource\( (\d+) \)',block,re.M);assert ref
-     proj=external[ref[1]]
+     ref=re.search(r'^projectile_scene = ExtResource\( (\d+) \)',block,re.M)
+     assert ref or slug in PLANTS
+     proj=external[ref[1]] if ref else 'res://projectiles/bullet_enemy/enemy_projectile.tscn'
      projectile_variants[variant]={'source':proj,'sourceMd5':pck.entries[proj]['md5']}
-    assert projectile_variants['Normal']['source']=='res://projectiles/pillar_enemy/pillar_projectile.tscn'
-    assert projectile_variants['Meca']['source']=='res://projectiles/slash/slash_projectile_2.tscn'
+    assert projectile_variants['Normal']['source']==projectile_source
+    assert projectile_variants['Meca']['source']==('res://projectiles/laser_enemy/enemy_laser.tscn' if slug in PLANTS else 'res://projectiles/slash/slash_projectile_2.tscn')
     assert projectile_variants['Mutant']['source']=='res://projectiles/acid_projectile/acid_projectile.tscn'
     enemies[identity].update(genericShootAnimation=True,projectileVariants=projectile_variants)
-    if slug=='dilophosaurus':
+    if slug in PLANTS:
+     assert variants['Normal']['use_specific_angle'] and variants['Normal']['use_transform_offset']
+     assert not variants['Normal']['constant_spread']
+     resolve(projectile_source);bullet=cache[projectile_source]
+     collision=next(n for n in bullet['nodes'] if n['parent']=='Hitbox' and n['name']=='Collision')
+     enemies[identity].update(bulletProjectile=True,nativeDamageRounding=True,projectileRadiusPoints=circle(collision)['radiusPoints'])
+     used_scripts.add('res://projectiles/bullet_enemy/enemy_projectile.gdc')
+    elif slug=='dilophosaurus':
      assert variants['Normal']['scale_projectiles_with_count'] and variants['Normal']['min_projectile_scale']==0.7
      assert not variants['Normal'].get('parallel_slashes',False) and variants['Normal']['use_transform_offset']
      enemies[identity]['followTargetShoot']=True

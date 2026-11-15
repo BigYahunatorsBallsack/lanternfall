@@ -1204,6 +1204,102 @@ return {
 				initialParentRotation = 0,
 			},
 		},
+		CarnivorousPlant = {
+			source = "res://entities/units/enemies/jungle/basic/carnivorus_plant/carnivorus_plant.tscn",
+			sourceMd5 = "6b048dbbdeeb7744a9aca29f401120bf",
+			sceneChain = {
+				"res://entities/units/enemies/jungle/basic/carnivorus_plant/carnivorus_plant.tscn",
+				"res://entities/units/enemies/enemy.tscn",
+				"res://entities/units/unit/unit.tscn",
+				"res://entities/entity.tscn",
+			},
+			hurt = {
+				parentPoints = {
+					0,
+					-24,
+				},
+				childPoints = {
+					1,
+					25,
+				},
+				totalPoints = {
+					1,
+					1,
+				},
+				initialParentScale = {
+					1,
+					1,
+				},
+				initialParentRotation = 0,
+			},
+			hit = {
+				parentPoints = {
+					0,
+					-8,
+				},
+				childPoints = {
+					0,
+					5,
+				},
+				totalPoints = {
+					0,
+					-3,
+				},
+				initialParentScale = {
+					1,
+					1,
+				},
+				initialParentRotation = 0,
+			},
+		},
+		CarnivorousPlantMother = {
+			source = "res://entities/units/enemies/jungle/basic/carnivorous_plant_mother/carnivorus_plant_mother.tscn",
+			sourceMd5 = "aa397e879dafd5bf59e2dd07a2a24f6a",
+			sceneChain = {
+				"res://entities/units/enemies/jungle/basic/carnivorous_plant_mother/carnivorus_plant_mother.tscn",
+				"res://entities/units/enemies/enemy.tscn",
+				"res://entities/units/unit/unit.tscn",
+				"res://entities/entity.tscn",
+			},
+			hurt = {
+				parentPoints = {
+					0,
+					-24,
+				},
+				childPoints = {
+					1,
+					-3,
+				},
+				totalPoints = {
+					1,
+					-27,
+				},
+				initialParentScale = {
+					1,
+					1,
+				},
+				initialParentRotation = 0,
+			},
+			hit = {
+				parentPoints = {
+					0,
+					-8,
+				},
+				childPoints = {
+					0,
+					-2,
+				},
+				totalPoints = {
+					0,
+					-10,
+				},
+				initialParentScale = {
+					1,
+					1,
+				},
+				initialParentRotation = 0,
+			},
+		},
 	},
 	scope = "Approved saved transforms plus source-checked stable1.2.0.3 additions; collision branches activate separately.",
 	provenance = "Derived from saved1.2.0.2 neutral Jungle scene scan; each scene hash and child position checked against approved JungleWalkers facts.",
@@ -1319,6 +1415,14 @@ return {
 			sourceMd5 = "6ec2908e2954e9427209c82ae1530d77",
 			baseScene = "res://entities/units/enemies/enemy.tscn",
 		},
+		["res://entities/units/enemies/jungle/basic/carnivorus_plant/carnivorus_plant.tscn"] = {
+			sourceMd5 = "6b048dbbdeeb7744a9aca29f401120bf",
+			baseScene = "res://entities/units/enemies/enemy.tscn",
+		},
+		["res://entities/units/enemies/jungle/basic/carnivorous_plant_mother/carnivorus_plant_mother.tscn"] = {
+			sourceMd5 = "aa397e879dafd5bf59e2dd07a2a24f6a",
+			baseScene = "res://entities/units/enemies/enemy.tscn",
+		},
 	},
 	previousSourceVersion = "1.2.0.2",
 	previousResourcesRevalidatedIdentical = true,
@@ -1334,5 +1438,7 @@ return {
 		Hesperosaurus = "Entire stable1.2.0.3 scene chain revalidated; parent transforms merged and child offsets checked against JungleWalkers.",
 		Stegosaurus = "Entire stable1.2.0.3 scene chain revalidated; parent transforms merged and child offsets checked against JungleWalkers.",
 		Dilophosaurus = "Entire stable1.2.0.3 scene chain revalidated; parent transforms merged and child offsets checked against JungleWalkers.",
+		CarnivorousPlant = "Entire stable1.2.0.3 scene chain revalidated; parent transforms merged and child offsets checked against JungleWalkers.",
+		CarnivorousPlantMother = "Entire stable1.2.0.3 scene chain revalidated; parent transforms merged and child offsets checked against JungleWalkers.",
 	},
 }

@@ -799,10 +799,11 @@ function EnemySim.spawn(
 		local index = world.indexOf[id]
 		nativeBases[id] = {
 			spawnedAt = workspace:GetServerTimeNow(),
-			contact = if kind.pursuer
+			-- Charm resets source damage with its own modifier before final rounding.
+			contact = if kind.pursuer or kind.nativeDamageRounding
 				then kind.contactDamage * damageMultiplier * contactGrowth
 				else world.contactDamage[index],
-			shot = world.shotDamage[index],
+			shot = if kind.nativeDamageRounding then shotDamage or 0 else world.shotDamage[index],
 			spawn = { hp = hpMultiplier, damage = damageMultiplier, speed = speedMultiplier or 1, wave = wave },
 		}
 	end
@@ -914,13 +915,14 @@ function EnemySim.damage(
 	source: Player?,
 	bonusPercent: number?,
 	ownerHitbox: boolean?,
-	digCrateChance: number?
+	digCrateChance: number?,
+	armorApplied: boolean?
 ): (boolean, number, number)
 	local totalBonus = (bonusPercent or 0) + weakness:bonus(id)
 	if totalBonus ~= 0 then
 		amount = math.round(amount * (1 + totalBonus / 100))
 	end
-	local killed, dealt, applied, retaliates = world:damage(id, amount)
+	local killed, dealt, applied, retaliates = world:damage(id, amount, armorApplied)
 	local hitKind = world:getKind(id)
 	if
 		not killed

@@ -481,6 +481,44 @@
       "pngSha256": "6ec445f54f15396b4fd29f5dfe46c09d366b0b5337a42ad06965861e9f4c221a"
     },
     {
+      "id": "CarnivorousPlant",
+      "source": "res://entities/units/enemies/jungle/basic/carnivorus_plant/carnivorus_plant.png",
+      "textureSource": "res://.import/carnivorus_plant.png-1ae2abd24ec07041094b986b5b3b54d1.stex",
+      "textureMd5": "3602794e26301b129fde65d5af870d64",
+      "output": "assets/enemies/native-jungle/CarnivorousPlant.png",
+      "size": [
+        210,
+        210
+      ],
+      "alphaBounds": [
+        37,
+        8,
+        182,
+        194
+      ],
+      "rgbaSha256": "8f7c5e57dcced710f4ad714cbc522e57d18eea3309e4a4bb81f92cf759f5c7d9",
+      "pngSha256": "3edb0d4763a390734252981c47bd0877f7cea3346b492636b3ecdeb55a50d2a9"
+    },
+    {
+      "id": "CarnivorousPlantMother",
+      "source": "res://entities/units/enemies/jungle/basic/carnivorous_plant_mother/carnivorous_plant_mother.png",
+      "textureSource": "res://.import/carnivorous_plant_mother.png-4574708fcbdcb186e4c1b66ff9dc106e.stex",
+      "textureMd5": "c452e4ac04fd5e7e8644a93d704ca7e6",
+      "output": "assets/enemies/native-jungle/CarnivorousPlantMother.png",
+      "size": [
+        250,
+        250
+      ],
+      "alphaBounds": [
+        27,
+        19,
+        225,
+        247
+      ],
+      "rgbaSha256": "476a530b9e3bc5cd4cff986d10d489773f5d0d0034d4c9ffa92d5a9b71f16f77",
+      "pngSha256": "c38fe03bf7ea81618d52be9e1331cca721aa103a850b7648801df423731a5a2d"
+    },
+    {
       "id": "Pillar_bullet_pillar_0002",
       "source": "res://projectiles/pillar_enemy/sprites/bullet_pillar_0002.png",
       "textureSource": "res://.import/bullet_pillar_0002.png-b64813647bb259fcd087f6245a3b4bd8.stex",

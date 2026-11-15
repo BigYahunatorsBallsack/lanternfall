@@ -22,6 +22,9 @@ export type Enemy = {
 	-- Growth is exactly base + per-wave increment * (wave - 1), before danger and accessibility modifiers.
 	hpPerWave: number,
 	damagePerWave: number,
+	nativeArmor: { base: number, perWave: number }?, -- Unit rounds wave growth and subtracts this flat amount per hit
+	nativeDamageRounding: boolean?, -- EntityService rounds the final contact and projectile values
+	nativeCanBeBoosted: boolean?, -- false when the source scene excludes this body from Buffer boosts
 	xp: number,
 	radius: number, -- body circle, studs (assumption; walls, crowding and the picture's size)
 	hurtRadius: number?, -- studs; the player's weapons hit within it (Brotato's Hurtbox; filled in below)

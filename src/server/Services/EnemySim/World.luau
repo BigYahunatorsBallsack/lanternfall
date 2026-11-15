@@ -368,10 +368,15 @@ function World.spawn(
 	self.zs[i] = z
 	self.hp[i] = hp
 	self.maxHp[i] = hp
-	self.contactDamage[i] = if kind.pursuer then math.round(contactDamage) else contactDamage
+	self.contactDamage[i] = if kind.pursuer or kind.nativeDamageRounding
+		then math.round(contactDamage)
+		else contactDamage
 	local ranged = kind.ranged
 	local spread = (id * GOLDEN_RATIO) % 1 -- so a group spawned together does not act in sync
 	self.shotDamage[i] = shotDamage or World.baseShotDamage(kind)
+	if kind.nativeDamageRounding then
+		self.shotDamage[i] = math.round(self.shotDamage[i])
+	end
 	self.waves[i] = wave or 1
 	self.shotCooldown[i] = if ranged then ranged.fireInterval * spread else 0
 	self.shootingClocks[i] = if ranged and ranged.nativeTiming
@@ -563,13 +568,22 @@ end
 -- Returns true when this hit killed the enemy, the HP it actually took (at most what was left) and the damage after
 -- the enemy's damageTaken multiplier (Armored elites take less), and since B9 whether a counter-shooter that
 -- survived fires its ring now (its cooldown starts). Hits on unknown or dead enemies do nothing.
-function World.damage(self: World, id: number, amount: number): (boolean, number, number, boolean)
+function World.damage(
+	self: World,
+	id: number,
+	amount: number,
+	armorApplied: boolean?
+): (boolean, number, number, boolean)
 	local i = self.indexOf[id]
 	if not i or self.hp[i] <= 0 or not (amount > 0) then
 		return false, 0, 0, false
 	end
 	local kind = self.kinds[i]
 	local applied = amount * (kind.damageTaken or 1)
+	if kind.nativeArmor and armorApplied ~= false then
+		local armor = math.round(kind.nativeArmor.base + kind.nativeArmor.perWave * (self.waves[i] - 1))
+		applied = math.max(1, math.round(applied) - armor)
+	end
 	local hp = self.hp[i]
 	local left = hp - applied
 	if left > 0 then
@@ -1203,6 +1217,7 @@ local function pulseAt(self: World, i: number, pulse: Enemies.Pulse): boolean
 					and not self.buffed[j]
 					and not (kinds[j].pulse and kinds[j].pulse.buffCount)
 					and not kinds[j].boss
+					and kinds[j].nativeCanBeBoosted ~= false
 				then
 					table.insert(candidates, j)
 				end

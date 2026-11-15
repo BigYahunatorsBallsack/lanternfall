@@ -241,7 +241,8 @@ arsenal = Arsenal.new({
 				playerOf(ownerId),
 				bonus,
 				not burn and BrotatoCombat.elementalHit(ownerId) ~= nil,
-				if burn then 0 else BrotatoCombat.digChance(ownerId)
+				if burn then 0 else BrotatoCombat.digChance(ownerId),
+				not burn
 			)
 			recordHit(ownerId, id, applied, crit, killed, burn)
 			return killed, dealt
@@ -1043,7 +1044,7 @@ function WeaponService.structureHit(
 )
 	local bonus = burningTargetBonus(player.UserId, enemyId, elemental)
 	local killed, dealt, applied =
-		EnemySim.damage(enemyId, amount, player, bonus, source ~= "Burn" and source ~= "Strike")
+		EnemySim.damage(enemyId, amount, player, bonus, source ~= "Burn" and source ~= "Strike", nil, source ~= "Burn")
 	recordHit(player.UserId, enemyId, applied, critical == true, killed, false)
 	if hitListener and dealt > 0 then
 		hitListener(player.UserId, enemyId, dealt, critical == true, killed, source or "Weapon", intrinsicBurnHandled)

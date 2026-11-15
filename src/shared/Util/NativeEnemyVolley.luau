@@ -10,6 +10,7 @@ export type Rule = {
 	speedStep: number,
 	scaleWithCount: boolean?,
 	minimumScale: number?,
+	specificDegrees: { number }?,
 }
 function Volley.emit(
 	rule: Rule,
@@ -30,6 +31,10 @@ function Volley.emit(
 			spread = -rule.spread + index * (2 * rule.spread / (rule.count - 1))
 		end
 		local angle = base + spread
+		-- Source specific angles replace the aim, but a constant-spread fan overrides them again.
+		if rule.specificDegrees and not (rule.constantSpread and rule.count > 1) then
+			angle = math.rad(assert(rule.specificDegrees[index + 1], "Missing source volley angle"))
+		end
 		local scale = 1
 		if rule.scaleWithCount then
 			local minimum = assert(rule.minimumScale, "Scaled native volley requires its source minimum scale")
