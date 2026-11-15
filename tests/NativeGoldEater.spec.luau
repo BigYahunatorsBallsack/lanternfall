@@ -1,0 +1,100 @@
+--!strict
+-- Native EvilMob gold thresholds advance once per pickup, truncate growth and retain a randomly chosen material position.
+loadHelper("tests/helpers/RobloxMock.luau")
+local Eater = require(game:GetService("ServerScriptService").Server.Services.EnemySim.NativeGoldEater)
+local rule = {
+	thresholds = { 0, 10, 20 },
+	healthPerStage = 0.5,
+	resistanceBase = 0.5,
+	resistancePerStage = 0.25,
+	speedDecrease = 12.5,
+}
+local bounds = { minX = -10, maxX = 30, minZ = -20, maxZ = 40 }
+describe("Native gold eater", function()
+	it("does not evolve before the first exact threshold", function()
+		local state = Eater.new()
+		local factor, changed = Eater.pickup(rule, state, 9)
+		expect(changed).toBe(false)
+		expect(factor).toBe(1)
+		expect(state.stage).toBe(0)
+		expect(Eater.value(state)).toBe(9)
+	end)
+	it("truncates first-stage health growth to one and first-stage resistance to zero", function()
+		local state = Eater.new()
+		local factor, changed = Eater.pickup(rule, state, 10)
+		expect(changed).toBe(true)
+		expect(factor).toBe(1)
+		expect(Eater.resistance(rule, state)).toBe(0)
+		expect(Eater.bonus(rule, state)).toBe(-12.5)
+		expect(Eater.value(state)).toBe(20)
+	end)
+	it("doubles health only on the second stage and uses the entire eaten value for loot", function()
+		local state = Eater.new()
+		Eater.pickup(rule, state, 10)
+		local factor, changed = Eater.pickup(rule, state, 10)
+		expect(changed).toBe(true)
+		expect(factor).toBe(2)
+		expect(state.stage).toBe(2)
+		expect(Eater.resistance(rule, state)).toBe(1)
+		expect(Eater.bonus(rule, state)).toBe(-25)
+		expect(Eater.value(state)).toBe(60)
+		local again, evolved = Eater.pickup(rule, state, 5)
+		expect(evolved).toBe(false)
+		expect(again).toBe(1)
+		expect(Eater.value(state)).toBe(75)
+	end)
+	it("advances only once for a large pickup and needs another pickup for the second stage", function()
+		local state = Eater.new()
+		Eater.pickup(rule, state, 25)
+		expect(state.stage).toBe(1)
+		expect(Eater.value(state)).toBe(50)
+		Eater.pickup(rule, state, 1)
+		expect(state.stage).toBe(2)
+		expect(Eater.value(state)).toBe(78)
+	end)
+	it("chooses a random material, not the nearest one, and keeps its captured position after removal", function()
+		local state = Eater.new()
+		local draws = 0
+		local function roll()
+			draws += 1
+			return 0.9
+		end
+		local x, z = Eater.goal(state, 0, 0, 1, bounds, { 2, 20 }, { 0, 10 }, roll)
+		expect(x).toBe(20)
+		expect(z).toBe(10)
+		local retainedX, retainedZ = Eater.goal(state, 2, 0, 1, bounds, {}, {}, roll)
+		expect(retainedX).toBe(20)
+		expect(retainedZ).toBe(10)
+		expect(draws).toBe(1)
+	end)
+	it("chooses an arena position when no material exists, including without a player", function()
+		local state = Eater.new()
+		local x, z = Eater.goal(state, 0, 0, 1, bounds, {}, {}, function()
+			return 0.25
+		end)
+		expect(x).toBe(0)
+		expect(z).toBe(-5)
+	end)
+	it("rerolls at the inclusive radial arrival boundary", function()
+		local state = Eater.new()
+		Eater.goal(state, 0, 0, 1, bounds, { 4 }, { 5 }, function()
+			return 0
+		end)
+		local x, z = Eater.goal(state, 4, 4, 1, bounds, { 9 }, { 8 }, function()
+			return 0
+		end)
+		expect(x).toBe(9)
+		expect(z).toBe(8)
+	end)
+	it("retains the native zero-vector sentinel instead of inventing a separate valid-goal flag", function()
+		local state = Eater.new()
+		Eater.goal(state, 10, 10, 1, bounds, { 0 }, { 0 }, function()
+			return 0
+		end)
+		local x, z = Eater.goal(state, 10, 10, 1, bounds, { 7 }, { 9 }, function()
+			return 0
+		end)
+		expect(x).toBe(7)
+		expect(z).toBe(9)
+	end)
+end)

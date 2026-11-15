@@ -24,6 +24,17 @@ export type Enemy = {
 	damagePerWave: number,
 	nativeArmor: { base: number, perWave: number }?, -- Unit rounds wave growth and subtracts this flat amount per hit
 	nativeDamageRounding: boolean?, -- EntityService rounds the final contact and projectile values
+	nativeFixedSpeed: boolean?, -- EvilMob copies base speed without randomization or percent/accessibility modifiers
+	nativeLootActor: boolean?, -- original is_loot excludes ordinary on-hit Charm
+	nativeEater: {
+		thresholds: { number },
+		healthPerStage: number,
+		resistanceBase: number,
+		resistancePerStage: number,
+		speedDecrease: number,
+		material: { [string]: number },
+		dropSpreadPoints: { perValue: number, minimum: number, maximum: number },
+	}?,
 	nativeCanBeBoosted: boolean?, -- false when the source scene excludes this body from Buffer boosts
 	xp: number,
 	radius: number, -- body circle, studs (assumption; walls, crowding and the picture's size)

@@ -54,9 +54,12 @@ function Pets.step(
 	dt: number,
 	roll: () -> number,
 	onPickup: (number, number, number) -> (),
-	onMove: (number, number, number, number) -> ()
+	onMove: (number, number, number, number) -> (),
+	materialRule: { [string]: number }?
 ): number
-	local rule = C.kinds.Lootworm
+	local rule = materialRule or C.kinds.Lootworm
+	local attract = at
+		+ Vector3.new((rule.attractOffsetXPoints or 0) * scale, 0, (rule.attractOffsetZPoints or 0) * scale)
 	local pickup = at + Vector3.new(rule.pickupOffsetXPoints * scale, 0, rule.pickupOffsetZPoints * scale)
 	local bonus = 0
 	for _, id in table.clone(self.field.ids) do
@@ -65,7 +68,7 @@ function Pets.step(
 			continue
 		end
 		local claim = self.claims[id]
-		if not claim and self:touches(id, at, rule.attractRadiusPoints * scale) then
+		if not claim and self:touches(id, attract, rule.attractRadiusPoints * scale) then
 			claim = { actor = actorId, speed = C.material.attractSpeedPoints * scale }
 			self.claims[id] = claim
 		end

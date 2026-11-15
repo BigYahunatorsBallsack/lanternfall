@@ -1348,6 +1348,54 @@ return {
 				initialParentRotation = 0,
 			},
 		},
+		JungleGobbler = {
+			source = "res://entities/units/enemies/jungle/basic/evil_mob_jungle/evil_mob_jungle.tscn",
+			sourceMd5 = "21d75638a8e9d39ba1d3cfae570cda13",
+			sceneChain = {
+				"res://entities/units/enemies/jungle/basic/evil_mob_jungle/evil_mob_jungle.tscn",
+				"res://entities/units/enemies/enemy.tscn",
+				"res://entities/units/unit/unit.tscn",
+				"res://entities/entity.tscn",
+			},
+			hurt = {
+				parentPoints = {
+					0,
+					-16,
+				},
+				childPoints = {
+					0,
+					7,
+				},
+				totalPoints = {
+					0,
+					-9,
+				},
+				initialParentScale = {
+					1,
+					1,
+				},
+				initialParentRotation = 0,
+			},
+			hit = {
+				parentPoints = {
+					0,
+					0,
+				},
+				childPoints = {
+					0,
+					-1,
+				},
+				totalPoints = {
+					0,
+					-1,
+				},
+				initialParentScale = {
+					1,
+					1,
+				},
+				initialParentRotation = 0,
+			},
+		},
 	},
 	scope = "Approved saved transforms plus source-checked stable1.2.0.3 additions; collision branches activate separately.",
 	provenance = "Derived from saved1.2.0.2 neutral Jungle scene scan; each scene hash and child position checked against approved JungleWalkers facts.",
@@ -1475,6 +1523,10 @@ return {
 			sourceMd5 = "e8dcda88bdd74d8f2acb11d750b4545e",
 			baseScene = "res://entities/units/enemies/enemy.tscn",
 		},
+		["res://entities/units/enemies/jungle/basic/evil_mob_jungle/evil_mob_jungle.tscn"] = {
+			sourceMd5 = "21d75638a8e9d39ba1d3cfae570cda13",
+			baseScene = "res://entities/units/enemies/enemy.tscn",
+		},
 	},
 	previousSourceVersion = "1.2.0.2",
 	previousResourcesRevalidatedIdentical = true,
@@ -1493,5 +1545,6 @@ return {
 		CarnivorousPlant = "Entire stable1.2.0.3 scene chain revalidated; parent transforms merged and child offsets checked against JungleWalkers.",
 		CarnivorousPlantMother = "Entire stable1.2.0.3 scene chain revalidated; parent transforms merged and child offsets checked against JungleWalkers.",
 		Pachyrhinosaurus = "Entire stable1.2.0.3 scene chain revalidated; parent transforms merged and child offsets checked against JungleWalkers.",
+		JungleGobbler = "Entire stable1.2.0.3 scene chain revalidated; parent transforms merged and child offsets checked against JungleWalkers.",
 	},
 }

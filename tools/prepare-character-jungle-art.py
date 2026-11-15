@@ -28,6 +28,8 @@ def main():
  selected=[]
  for identity,row in data['enemies'].items():
   selected.append((identity,body_texture(pck,row['source'])))
+  for index,frame in enumerate(row.get('stageSprites',[])[1:],start=1):
+   selected.append((identity+'_stage_'+str(index),frame['source']))
  pillar='res://projectiles/pillar_enemy/pillar_projectile.tscn'
  for path in re.findall(r'\[ext_resource path="([^"]+\.png)" type="Texture"',pck.read(pillar).decode('utf-8')):
   selected.append(('Pillar_'+Path(path).stem,path))

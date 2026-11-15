@@ -40,6 +40,7 @@ local Combat = require(Shared.Config.Combat)
 local PointScale = require(Shared.Config.Stats).range.studsPerPoint
 local DecayingSpeed = require(script.Parent.DecayingSpeed)
 local NativePursuer = require(script.Parent.NativePursuer)
+local GoldEater = require(script.Parent.NativeGoldEater)
 local NativeDetection = require(script.Parent.NativeTargetDetection)
 local NativeCrossing = require(script.Parent.NativeCrossing)
 local EntryHealing = require(script.Parent.NativeEntryHealing)
@@ -75,6 +76,7 @@ export type Params = {
 	referencePlayerSpeed: ((number?, number?, number?) -> number?)?, -- target player index, or fastest living player when nil
 	nativeChargeAccessibility: (() -> number)?, -- source charge bonus uses only the current run accessibility speed slider
 	goalsWithoutTargets: boolean?,
+	nativeGoldPositions: (() -> ({ number }, { number }))?,
 	collideTargets: boolean?, -- false for native pet bodies, which collide only with pets and obstacles
 	seed: number?, -- for the wander points (kind.wander) and keep-distance jitter; tests pass one
 }
@@ -88,6 +90,7 @@ local PULSE_SHOW_SECONDS = 0.5 -- clients see the ring of a buff or heal this lo
 local HATCH_WARN_SECONDS = 1.6 -- an egg shakes (mode wind-up) this long before it hatches: Brotato's half-speed shoot animation (look only)
 
 local World = {}
+local NO_GOLD: { number } = {}
 World.__index = World
 
 -- What an enemy with a `charge` is doing (World.modes; clients see it in the snapshot flags, Net/Snapshot).
@@ -128,6 +131,7 @@ export type World = typeof(setmetatable(
 		speedFactors: { number }, -- multiplier on its kind's speed from spawning (the team's Enemy Speed stat, B9)
 		boosts: { number }, -- multiplier on its speed from accelerating (kind.accelerate), 1 otherwise (B9)
 		pursuers: { NativePursuer.State? },
+		nativeEaters: { GoldEater.State? },
 		detections: { NativeDetection.State? },
 		crossings: { NativeCrossing.State? },
 		nativeCharges: { NativeCharge.State? },
@@ -225,6 +229,7 @@ function World.new(params: Params): World
 		speedBonuses = {},
 		boosts = {},
 		pursuers = {},
+		nativeEaters = {},
 		detections = {},
 		crossings = {},
 		nativeCharges = {},
@@ -294,6 +299,7 @@ function World.new(params: Params): World
 		self.speedBonuses,
 		self.boosts,
 		self.pursuers,
+		self.nativeEaters,
 		self.detections,
 		self.crossings,
 		self.nativeCharges,
@@ -411,6 +417,7 @@ function World.spawn(
 	self.boosts[i], self.buffed[i], self.hasGoal[i] = 1, false, false
 	self.boostClocks[i] = 0
 	self.pursuers[i] = if kind.pursuer then NativePursuer.new(contactDamage) else nil
+	self.nativeEaters[i] = if kind.nativeEater then GoldEater.new() else nil
 	self.detections[i] = if kind.nativeDetection then NativeDetection.new() else nil
 	self.crossings[i] = if kind.nativeCrossing then NativeCrossing.new() else nil
 	local pursuer = self.pursuers[i]
@@ -561,6 +568,33 @@ function World.clear(self: World)
 	self.count = 0
 	self.alive = 0
 	self.hash:clear()
+end
+
+-- Source EvilMob advances once per consumed material object; state lives in transferable World columns.
+function World.feedGold(self: World, id: number, value: number)
+	local i = self.indexOf[id]
+	if not i or self.hp[i] <= 0 or value <= 0 then
+		return
+	end
+	local state = self.nativeEaters[i]
+	local rule = self.kinds[i].nativeEater
+	if not state or not rule then
+		return
+	end
+	local factor, changed = GoldEater.pickup(rule, state, value)
+	if changed then
+		self.hp[i] *= factor
+		self.maxHp[i] *= factor
+		local kind = table.clone(self.kinds[i])
+		kind.knockbackResistance = GoldEater.resistance(rule, state)
+		self.kinds[i] = kind
+		self.speedBonuses[i] = GoldEater.bonus(rule, state)
+	end
+end
+function World.goldValue(self: World, id: number): number
+	local i = self.indexOf[id]
+	local state = i and self.nativeEaters[i]
+	return if state then GoldEater.value(state) else 0
 end
 
 -- Damage ------------------------------------------------------------------------------
@@ -1502,7 +1536,7 @@ function World.step(
 	end
 
 	-- 2. steering
-	if targetCount > 0 or p.goalsWithoutTargets or hasCrossings then
+	if targetCount > 0 or p.goalsWithoutTargets or hasCrossings or next(self.nativeEaters) ~= nil then
 		local tolerance = p.keepDistanceTolerance
 		local steerMargin = p.obstacleSteerMargin
 		-- neighbours may have moved up to one step since the hash was built
@@ -1510,7 +1544,13 @@ function World.step(
 		for i = 1, count do
 			local kind = kinds[i]
 			local crossing = if hasCrossings then self.crossings[i] else nil
-			if targetCount == 0 and not crossing and not self.hasGoal[i] and not kind.wander then
+			if
+				targetCount == 0
+				and not crossing
+				and not self.nativeEaters[i]
+				and not self.hasGoal[i]
+				and not kind.wander
+			then
 				continue
 			end
 			local nativeChargeState = self.nativeCharges[i]
@@ -1606,6 +1646,32 @@ function World.step(
 				end
 				toGoal, wander = false, nil
 				distance = math.sqrt(bestDx * bestDx + bestDz * bestDz)
+			elseif self.nativeEaters[i] then
+				local native = assert(kind.nativeMovement, "Native gold targeting requires source goal bounds")
+				local goldXs, goldZs = NO_GOLD, NO_GOLD
+				if p.nativeGoldPositions then
+					goldXs, goldZs = p.nativeGoldPositions()
+				end
+				local gx, gz = GoldEater.goal(
+					self.nativeEaters[i],
+					x,
+					z,
+					native.precision,
+					{
+						minX = p.minX + native.goalInsetX,
+						maxX = p.maxX - native.goalInsetX,
+						minZ = p.minZ + native.goalInsetZ,
+						maxZ = p.maxZ - native.goalInsetZ,
+					},
+					goldXs,
+					goldZs,
+					function()
+						return nextRandom(self)
+					end
+				)
+				bestDx, bestDz = gx - x, gz - z
+				distance = math.sqrt(bestDx * bestDx + bestDz * bestDz)
+				toGoal, wander = true, nil
 			elseif toGoal then
 				bestDx, bestDz = self.goalXs[i] - x, self.goalZs[i] - z
 				distance = math.sqrt(bestDx * bestDx + bestDz * bestDz)

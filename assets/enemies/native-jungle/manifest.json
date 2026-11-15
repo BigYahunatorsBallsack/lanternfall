@@ -538,6 +538,63 @@
       "pngSha256": "2c71944e004f7ac58779e7259c8a0c41cde6e3df37b9c8c189dc2f862a474ad3"
     },
     {
+      "id": "JungleGobbler",
+      "source": "res://entities/units/enemies/jungle/basic/evil_mob_jungle/evil_mob_jungle_0.png",
+      "textureSource": "res://.import/evil_mob_jungle_0.png-3da4442bfea7798527e85ffa10d89018.stex",
+      "textureMd5": "ebb421fbaa7724b805850d7e0380e56e",
+      "output": "assets/enemies/native-jungle/JungleGobbler.png",
+      "size": [
+        250,
+        250
+      ],
+      "alphaBounds": [
+        63,
+        76,
+        190,
+        197
+      ],
+      "rgbaSha256": "fe91d8d8479a56b0e1863feba1079c0222d2608522504a99f175dc7938a42974",
+      "pngSha256": "2e6322561cff22e8c6e3b874177077112dfb3d5aaefe1364da2edf3f743e7f83"
+    },
+    {
+      "id": "JungleGobbler_stage_1",
+      "source": "res://entities/units/enemies/jungle/basic/evil_mob_jungle/evil_mob_jungle_1.png",
+      "textureSource": "res://.import/evil_mob_jungle_1.png-e29931e534edc3be499b3daff8097c71.stex",
+      "textureMd5": "08365c58bb25f7806e01d04e1ddbf495",
+      "output": "assets/enemies/native-jungle/JungleGobbler_stage_1.png",
+      "size": [
+        250,
+        250
+      ],
+      "alphaBounds": [
+        32,
+        63,
+        208,
+        207
+      ],
+      "rgbaSha256": "ee4dc94013a5238e3e49350c787649e4298ca6614320712117f22dff9ab20336",
+      "pngSha256": "7d2a35a91219da21c4d2a81e0ebede6e0e73fc75e51ba083c7dd075585c518d2"
+    },
+    {
+      "id": "JungleGobbler_stage_2",
+      "source": "res://entities/units/enemies/jungle/basic/evil_mob_jungle/evil_mob_jungle_2.png",
+      "textureSource": "res://.import/evil_mob_jungle_2.png-5e2394cfc54bf5af72bf5717cdf5221a.stex",
+      "textureMd5": "15e0e99a9a0a2fc5d29e56a25e5d77d7",
+      "output": "assets/enemies/native-jungle/JungleGobbler_stage_2.png",
+      "size": [
+        250,
+        250
+      ],
+      "alphaBounds": [
+        20,
+        43,
+        246,
+        219
+      ],
+      "rgbaSha256": "51a331b80f5c7a2e8d4c2e93cc90da0c1749258f5bbd53ecf5a3923df77a72f9",
+      "pngSha256": "e9882148988d21b8dd8487d69be8ce396dcc75734dfc5aaffe1c0d12b0c64fb4"
+    },
+    {
       "id": "Pillar_bullet_pillar_0002",
       "source": "res://projectiles/pillar_enemy/sprites/bullet_pillar_0002.png",
       "textureSource": "res://.import/bullet_pillar_0002.png-b64813647bb259fcd087f6245a3b4bd8.stex",

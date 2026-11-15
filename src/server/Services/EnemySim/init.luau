@@ -126,11 +126,22 @@ local function actorObstacles(): { World.Circle }
 	end
 	return obstacles
 end
+local emptyGoldPositions: { number } = {}
+local nativeGoldPositions: () -> ({ number }, { number }) = function()
+	return emptyGoldPositions, emptyGoldPositions
+end
+-- Internal live material view; installed by ExperienceService and never accepted from a client.
+function EnemySim.setNativeGoldPositions(provider: () -> ({ number }, { number }))
+	nativeGoldPositions = provider
+end
 local function newWorldParams(): World.Params
 	local bounds = MapService.getArenaBounds()
 	local center, halfX, halfZ = bounds.center, bounds.halfX, bounds.halfZ
 	return {
 		allocateId = allocateActorId,
+		nativeGoldPositions = function()
+			return nativeGoldPositions()
+		end,
 		referencePlayerSpeed = referencePlayerSpeed,
 		nativeChargeAccessibility = function()
 			return RunDirector.getRunOptions().enemySpeed / 100
@@ -635,7 +646,12 @@ local function sendSnapshot()
 					+ (if burning[i] then Snapshot.STATUS_BURNING else 0)
 					+ (if slowFactors[i] < 1 or actors.nativeSlows:active(ids[i]) then Snapshot.STATUS_SLOWED else 0)
 					+ (if buffed[i] then Snapshot.STATUS_BUFFED else 0)
-					+ Snapshot.packPursuerStage(if actors.pursuers[i] then actors.pursuers[i].stage else 0)
+					+ Snapshot.packPursuerStage(
+						if actors.nativeEaters[i]
+							then actors.nativeEaters[i].stage
+							elseif actors.pursuers[i] then actors.pursuers[i].stage
+							else 0
+					)
 					+ (
 						if actors.crossings[i] and not NativeCrossing.active(actors.crossings[i])
 							then Snapshot.STATUS_HIDDEN
@@ -867,12 +883,14 @@ function EnemySim.tryCharm(player: Player, id: number, stats: { [string]: number
 		return false
 	end
 	local hp, maxHp = world:getHealth(id)
-	local chance = CharmRules.chance(
-		stats,
-		{ kind = kind.id, hp = hp, maxHp = maxHp, elite = kind.elite, boss = kind.boss ~= nil },
-		friends:count(player.UserId),
-		require(Shared.Util.DangerRules).endlessFactor(RunDirector.getWave())
-	)
+	local chance = CharmRules.chance(stats, {
+		kind = kind.id,
+		hp = hp,
+		maxHp = maxHp,
+		elite = kind.elite,
+		boss = kind.boss ~= nil,
+		canBeCharmed = kind.nativeLootActor ~= true,
+	}, friends:count(player.UserId), require(Shared.Util.DangerRules).endlessFactor(RunDirector.getWave()))
 	if not CharmRules.success(chance, random) then
 		return false
 	end
@@ -968,7 +986,7 @@ function EnemySim.damage(
 			enemyId = kind.id,
 			typeId = kind.typeId,
 			position = Vector3.new(x, floorY, z),
-			xp = kind.xp,
+			xp = if kind.nativeEater then world:goldValue(id) else kind.xp,
 			elite = kind.elite == true,
 			boss = kind.boss ~= nil,
 			killer = source,
@@ -1270,13 +1288,15 @@ function EnemySim.collectEaters(out: { number }): number
 	local count = 0
 	local ids, hp, kinds = world.ids, world.hp, world.kinds
 	for i = 1, world.count do
-		if hp[i] > 0 and kinds[i].eat then
+		if hp[i] > 0 and (kinds[i].eat or kinds[i].nativeEater) then
 			count += 1
 			out[count] = ids[i]
 		end
 	end
 	for index = 1, friends.world.count do
-		if friends.world.hp[index] > 0 and friends.world.kinds[index].eat then
+		if
+			friends.world.hp[index] > 0 and (friends.world.kinds[index].eat or friends.world.kinds[index].nativeEater)
+		then
 			count += 1
 			out[count] = friends.world.ids[index]
 		end
@@ -1284,6 +1304,17 @@ function EnemySim.collectEaters(out: { number }): number
 	return count
 end
 
+-- One authoritative gold-object pickup; every callback represents one Area entry, not its numeric gold value.
+function EnemySim.feedNativeEater(id: number, value: number)
+	local actors = if friends.world:isAlive(id) then friends.world else world
+	actors:feedGold(id, value)
+end
+function EnemySim.getNativeEater(id: number): (number, number)
+	local actors = if friends.world:isAlive(id) then friends.world else world
+	local i = actors.indexOf[id]
+	local state = i and actors.nativeEaters[i]
+	return if state then state.gold else 0, if state then state.stage else 0
+end
 -- Makes an enemy walk to `position` instead of the nearest player, or back to the players with nil (B9).
 function EnemySim.setGoal(id: number, position: Vector3?)
 	local actors = if friends.world:isAlive(id) then friends.world else world

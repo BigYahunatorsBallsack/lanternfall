@@ -59,6 +59,9 @@ function EnemyStats.spawnSpeedFactor(
 	multiplier: number,
 	accessibility: number?
 ): number
+	if kind.nativeFixedSpeed then
+		return 1
+	end
 	local rule = kind.nativeSpeedPoints
 	if not rule then
 		return multiplier * EnemyStats.speedFactor(kind, roll)

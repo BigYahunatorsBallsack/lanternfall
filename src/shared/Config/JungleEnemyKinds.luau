@@ -46,6 +46,8 @@ function Kinds.build(pixel: number): { [string]: any }
 			contactDamage = s.damage,
 			nativeArmor = f.nativeArmor,
 			nativeDamageRounding = f.nativeDamageRounding,
+			nativeFixedSpeed = f.nativeFixedSpeed,
+			nativeLootActor = f.isLoot,
 			nativeCanBeBoosted = f.canBeBoosted,
 			nativeFollowXShare = f.followXShare,
 			damagePerWave = s.damage_increase_each_wave,
@@ -67,6 +69,30 @@ function Kinds.build(pixel: number): { [string]: any }
 				alwaysOrbs = if s.always_drop_consumables then true else nil,
 			},
 		}
+		if f.goldEater then
+			local a = f.goldEater
+			local kind = result[id]
+			kind.speed, kind.speedMax = s.speed * pixel, s.speed * pixel
+			kind.nativeEater = {
+				thresholds = a.thresholds,
+				healthPerStage = a.healthPerStage,
+				resistanceBase = a.resistanceBase,
+				resistancePerStage = a.resistancePerStage,
+				speedDecrease = a.speedDecreasePoints * pixel,
+				dropSpreadPoints = a.dropSpreadPoints,
+				material = {
+					attractRadiusPoints = a.attractRadiusPoints,
+					attractOffsetXPoints = a.attractOffsetXPoints,
+					attractOffsetZPoints = a.attractOffsetZPoints,
+					pickupRadiusPoints = a.pickupRadiusPoints,
+					pickupOffsetXPoints = a.pickupOffsetXPoints,
+					pickupOffsetZPoints = a.pickupOffsetZPoints,
+					doubleChance = a.doubleChance,
+				},
+			}
+			kind.loot.alwaysOrbs = true
+			kind.loot.crate = nil -- Main.spawn_loot gates consumables separately from guaranteed gold.
+		end
 		if f.crossingPath then
 			local rule = assert(Crossing.families[id], "Missing approved crossing path")
 			assert(rule.sourceMd5 == f.sourceMd5, "Crossing path scene mismatch")

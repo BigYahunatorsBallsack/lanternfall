@@ -172,12 +172,17 @@ local function distributeMaterials(value: number)
 end
 
 local function onEnemyKilled(info: EnemySim.KillInfo)
+	petMaterials:release(info.id)
 	local swallowed = eaten[info.id] or 0 -- a Gobbler drops all it ate (B9)
 	eaten[info.id] = nil
 	if paused or not RunDirector.isActive() or info.xp + swallowed <= 0 then
 		return
 	end
 	local kind = EnemyKinds.get(info.enemyId, info.elite)
+	if kind and kind.nativeEater then
+		ExperienceService.dropMaterials(info.position, info.xp, 0, info.enemyId)
+		return
+	end
 	if
 		swallowed <= 0
 		and kind
@@ -226,7 +231,7 @@ local function onEnemyKilled(info: EnemySim.KillInfo)
 end
 
 -- Native weapon-break gold follows neutral/team material modifiers and remains physical loot, never direct currency.
-function ExperienceService.dropMaterials(at: Vector3, amount: number, spread: number)
+function ExperienceService.dropMaterials(at: Vector3, amount: number, spread: number, sourceEnemyId: string?)
 	if not RunDirector.isActive() or paused then
 		return
 	end
@@ -234,7 +239,12 @@ function ExperienceService.dropMaterials(at: Vector3, amount: number, spread: nu
 	for _, player in RunDirector.getParticipants() do
 		table.insert(classIds, RunDirector.getParticipantClassId(player) or "")
 	end
-	local raw = CharacterEconomy.materialValue(amount, classIds, false)
+	local sourceKind = sourceEnemyId and EnemyKinds.get(sourceEnemyId)
+	local raw = CharacterEconomy.materialValue(amount, classIds, sourceKind ~= nil)
+	if sourceKind and sourceKind.nativeEater then
+		local d = sourceKind.nativeEater.dropSpreadPoints
+		spread = math.floor(math.clamp((raw - 1) * d.perValue, d.minimum, d.maximum)) * Config.Stats.range.studsPerPoint
+	end
 	local value = math.floor(raw)
 	if raw > value and RandomService.number("Loot") <= raw - value then
 		value += 1
@@ -269,11 +279,33 @@ function ExperienceService.dropMaterials(at: Vector3, amount: number, spread: nu
 end
 
 -- Gobblers (kind.eat, B9) swallow the orbs they touch and walk to the nearest orb within their seek range.
-local function feedEaters()
+local function feedEaters(dt: number)
 	for e = 1, EnemySim.collectEaters(eaterIds) do
 		local id = eaterIds[e]
 		local enemyId, elite = EnemySim.getKind(id)
 		local kind = enemyId and EnemyKinds.get(enemyId, elite)
+		if kind and kind.nativeEater then
+			local position = EnemySim.getPosition(id)
+			if position then
+				petMaterials:step(id, position, dt, function()
+					return RandomService.number("Loot")
+				end, function(orbId, value)
+					EnemySim.feedNativeEater(id, value)
+					bagBoosted[orbId] = nil
+					table.insert(collectedOrbs, orbId)
+					table.insert(collectedOrbs, 0)
+				end, function(orbId, x, z, value)
+					local index = petMovedIndexes[orbId]
+					if not index then
+						index = #changedOrbs + 1
+						petMovedIndexes[orbId] = index
+					end
+					changedOrbs[index], changedOrbs[index + 1], changedOrbs[index + 2], changedOrbs[index + 3] =
+						orbId, x, z, value
+				end, kind.nativeEater.material)
+			end
+			continue
+		end
 		local eat = kind and kind.eat
 		local position = EnemySim.getPosition(id)
 		if kind and eat and position then
@@ -294,12 +326,12 @@ local function feedEaters()
 	end
 end
 
-local function onStepped()
+local function onStepped(dt: number)
 	if not RunDirector.isActive() then
 		return
 	end
 	if not paused then
-		feedEaters()
+		feedEaters(dt)
 	end
 	if not paused and field:count() > 0 then
 		for _, player in RunDirector.getParticipants() do
@@ -355,6 +387,9 @@ end
 
 function ExperienceService.init()
 	EnemySim.EnemyKilled:Connect(onEnemyKilled)
+	EnemySim.setNativeGoldPositions(function()
+		return field.xs, field.zs
+	end)
 	EnemySim.Stepped:Connect(onStepped)
 	RunDirector.RunStarted:Connect(function(participants)
 		table.clear(progress)
