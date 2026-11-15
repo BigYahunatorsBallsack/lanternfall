@@ -29,7 +29,7 @@ def generate():
   attacks[name]={'properties':{k:v for k,v in props.items() if isinstance(v,(int,float,bool))},'projectile':props.get('projectile_scene',{'resource':'res://projectiles/bullet_enemy/enemy_projectile.tscn'})['resource']}
  assert attacks['AttackBehaviorNormal']['projectile']=='res://projectiles/bullet_enemy/enemy_projectile.tscn'
  scripts=[root['scriptSource'],move['scriptSource'],jump['scriptSource'],node('Land_shoot_behavior','.')['scriptSource'],'res://global/entity_spawner.gd','res://singletons/utils.gd']
- return {'version':reference['version'],'steamBuild':int(reference['steamBuildId']),'source':path,'sourceMd5':pck.entries[path]['md5'],'actorRegistered':False,'worldAdapterImplemented':False,
+ return {'version':reference['version'],'steamBuild':int(reference['steamBuildId']),'source':path,'sourceMd5':pck.entries[path]['md5'],'actorRegistered':False,'worldAdapterImplemented':False,'worldComponentAdapterImplemented':True,
   'movement':move['properties'],'jump':jump['properties'],'stats':{k:v for k,v in pck.resource(stats)['properties'].items() if isinstance(v,(int,float,bool))},'statsSource':stats,'statsMd5':pck.entries[stats]['md5'],'attacks':attacks,
   'scriptSources':[{'source':p.removesuffix('.gd')+'.gdc','sourceMd5':pck.entries[p.removesuffix('.gd')+'.gdc']['md5']} for p in scripts],
   'bindingAudit':{'directLandingDamageImplementedByBoundMethod':False,'exportedJumpDamageUnused':True,'exportedLandingRadiusUnused':True,'patrolMaxTargetDistanceOverwritten':True,'freshJumpTimer':0,'freshLandingTimer':0,'poolRespawnCallsReset':True,'coldSpawnerCallsInitWithoutRespawn':True},

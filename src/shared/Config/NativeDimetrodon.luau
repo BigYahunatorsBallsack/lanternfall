@@ -8,6 +8,7 @@ local data = {
 	sourceMd5 = "8ed3603be4b656e5547746c4db25b19f",
 	actorRegistered = false,
 	worldAdapterImplemented = false,
+	worldComponentAdapterImplemented = true,
 	movement = {
 		edge_distance = 300,
 		edge_randomization = 100,

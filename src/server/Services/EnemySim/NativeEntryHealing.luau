@@ -22,6 +22,9 @@ function Healing.step(
 		if id == sourceId or world.hp[i] <= 0 or kind.id == "Tree" then
 			continue
 		end
+		if world.isBodyEnabled and not world:isBodyEnabled(id) then
+			continue
+		end
 		local reach = rule.radius + kind.radius
 		local bx, bz = Body.center(kind, world.xs[i], world.zs[i])
 		if (bx - x) ^ 2 + (bz - z) ^ 2 > reach * reach then

@@ -1,0 +1,70 @@
+{
+  "referenceVersion": "1.2.0.3",
+  "steamBuild": 26642464,
+  "baseMain": "de4e155e97855cc18ffb52b1e81e53d1af8532fc",
+  "scope": "World movement/body/contact adapter over an explicitly unregistered probe; Dimetrodon attacks/client binding and actual actor remain pending.",
+  "sourceFacts": "docs/characters/dimetrodon-source.json",
+  "previousProof": "docs/characters/dimetrodon-components-validation.json",
+  "focused": {
+    "NativeJumpWorld": "6/0 (initially0/4)",
+    "NativeJump": "8/0",
+    "NativeEdgePatrol": "5/0",
+    "EnemyWorld": "48/0",
+    "NativeGoldEaterWorld": "3/0",
+    "NativeJungleGobblerServer": "3/0",
+    "NativeJungleHealer": "9/0",
+    "NativeCorruptedBuffer": "5/0",
+    "NativeCrossingVisibilityServer": "5/0",
+    "NativeHiddenAreaHits": "4/0"
+  },
+  "proof": [
+    "World nativeJumps/nativePatrols columns persist through compaction/faction transfer. Jump captures target, locks steering and applies original screen-plane movement; patrol works without living targets.",
+    "Body collision/contact disabled through preparation/air, but source Hurtbox stays queryable. Body/normal touch restored on landing; no invented landing50AOE.",
+    "Disabled body does not separate a neighbour or enter a physical heal/buffer area; grounded control is still boosted and landing permits a new healing entry.",
+    "World.nativeJumpStarts/nativeLandings report one-time transitions and reset every step. No automatic attack or new network/client behavior attached yet.",
+    "Physical body constraints use isBodyEnabled; hurt geometry has its separate original reveal gate. Entry healing now also respects disabled crossing bodies."
+  ],
+  "mutations": {
+    "wrongHurtGate": "4passed/2failed;byte-exactrestore",
+    "missingJumpColumn": "5passed/1failed;byte-exactrestore",
+    "healingDisabledBody": "5passed/1failed;byte-exactrestore"
+  },
+  "interfaces": [
+    "Enemy.nativeJump/nativeEdgePatrol optional rule records",
+    "World.nativeJumps/nativePatrols state columns and nativeJumpStarts/nativeLandings transient ids",
+    "World.isBodyEnabled independent from isHurtEnabled; native healing and pulses use body eligibility"
+  ],
+  "checks": {
+    "stylua": true,
+    "selene": "0errors/18existingwarnings,cachedAPI",
+    "rojo": true,
+    "sourceAndImageChecks": 5
+  },
+  "fullSuite": {
+    "specs": 349,
+    "passed": 2098,
+    "failed": 35,
+    "aborts": 0,
+    "addedVsGobbler": [],
+    "absentVsGobbler": [],
+    "artifact": "build/native-five-branch-ten-dimetrodon-world-de4e155.json",
+    "runtimeFrozenDuringRun": true,
+    "afterRunChanges": "Documentation only; new World6/0 repeated."
+  },
+  "status": {
+    "codePreparedCharacters": 48,
+    "open": 26,
+    "registeredJungleBodies": 29,
+    "actorRegistered": false,
+    "worldAdapterImplemented": false,
+    "worldComponentAdapterImplemented": true,
+    "clientAdapterImplemented": false,
+    "attackAdapterImplemented": false,
+    "junglePlayable": false
+  },
+  "limits": [
+    "Adapter currently runs at existing World cadence; no full native60Hzphysics/idle/deferred/sweep/pooling acceptance.",
+    "No registered production Dimetrodon, native art/animations/audio/client shadow/landing warning or landing/death volley yet.",
+    "No new Remote/schema/Arsenal/upload/asset-id/Studio changes."
+  ]
+}

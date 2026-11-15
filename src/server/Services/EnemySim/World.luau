@@ -41,6 +41,8 @@ local PointScale = require(Shared.Config.Stats).range.studsPerPoint
 local DecayingSpeed = require(script.Parent.DecayingSpeed)
 local NativePursuer = require(script.Parent.NativePursuer)
 local GoldEater = require(script.Parent.NativeGoldEater)
+local NativeJump = require(script.Parent.NativeJump)
+local EdgePatrol = require(script.Parent.NativeEdgePatrol)
 local NativeDetection = require(script.Parent.NativeTargetDetection)
 local NativeCrossing = require(script.Parent.NativeCrossing)
 local EntryHealing = require(script.Parent.NativeEntryHealing)
@@ -132,6 +134,10 @@ export type World = typeof(setmetatable(
 		boosts: { number }, -- multiplier on its speed from accelerating (kind.accelerate), 1 otherwise (B9)
 		pursuers: { NativePursuer.State? },
 		nativeEaters: { GoldEater.State? },
+		nativeJumps: { NativeJump.State? },
+		nativePatrols: { EdgePatrol.State? },
+		nativeJumpStarts: { number },
+		nativeLandings: { number },
 		detections: { NativeDetection.State? },
 		crossings: { NativeCrossing.State? },
 		nativeCharges: { NativeCharge.State? },
@@ -230,6 +236,10 @@ function World.new(params: Params): World
 		boosts = {},
 		pursuers = {},
 		nativeEaters = {},
+		nativeJumps = {},
+		nativePatrols = {},
+		nativeJumpStarts = {},
+		nativeLandings = {},
 		detections = {},
 		crossings = {},
 		nativeCharges = {},
@@ -300,6 +310,8 @@ function World.new(params: Params): World
 		self.boosts,
 		self.pursuers,
 		self.nativeEaters,
+		self.nativeJumps,
+		self.nativePatrols,
 		self.detections,
 		self.crossings,
 		self.nativeCharges,
@@ -418,6 +430,12 @@ function World.spawn(
 	self.boostClocks[i] = 0
 	self.pursuers[i] = if kind.pursuer then NativePursuer.new(contactDamage) else nil
 	self.nativeEaters[i] = if kind.nativeEater then GoldEater.new() else nil
+	self.nativeJumps[i] = if kind.nativeJump then NativeJump.new(kind.nativeJump) else nil
+	self.nativePatrols[i] = if kind.nativeEdgePatrol
+		then EdgePatrol.new(kind.nativeEdgePatrol, function()
+			return nextRandom(self)
+		end)
+		else nil
 	self.detections[i] = if kind.nativeDetection then NativeDetection.new() else nil
 	self.crossings[i] = if kind.nativeCrossing then NativeCrossing.new() else nil
 	local pursuer = self.pursuers[i]
@@ -558,6 +576,8 @@ function World.clear(self: World)
 	for _, column in self.columns do
 		table.clear(column)
 	end
+	table.clear(self.nativeJumpStarts)
+	table.clear(self.nativeLandings)
 	table.clear(self.indexOf)
 	table.clear(self.shots)
 	table.clear(self.summons)
@@ -744,6 +764,16 @@ end
 local function shapeEnabled(self: World, index: number): boolean
 	local state = self.crossings[index]
 	return not state or NativeCrossing.active(state)
+end
+
+-- Body areas can be disabled independently of Hurtbox; Jump keeps its source hurt area active.
+local function bodyEnabled(self: World, index: number): boolean
+	local jump = self.nativeJumps[index]
+	return shapeEnabled(self, index) and (not jump or not jump.jumping)
+end
+function World.isBodyEnabled(self: World, id: number): boolean
+	local i = self.indexOf[id]
+	return i ~= nil and self.hp[i] > 0 and bodyEnabled(self, i)
 end
 
 -- AI can retain a hidden target; physical hits must still respect its disabled Hurtbox.
@@ -948,7 +978,7 @@ function World.push(self: World, id: number, dx: number, dz: number)
 	local scale = World.knockbackShare(kind)
 	local radius = kind.radius
 	local x, z = Body.center(kind, self.xs[i] + dx * scale, self.zs[i] + dz * scale)
-	if kind.nativeObstacleCollision ~= false then
+	if self:isBodyEnabled(id) and kind.nativeObstacleCollision ~= false then
 		for _, obstacle in p.obstacles do
 			x, z = pushOutObstacle(x, z, obstacle, radius, id)
 		end
@@ -1228,7 +1258,7 @@ local function pulseAt(self: World, i: number, pulse: Enemies.Pulse): boolean
 	local healed = false
 	for s = 1, found do
 		local j = scratch[s]
-		if j ~= i and hp[j] > 0 then
+		if j ~= i and hp[j] > 0 and self:isBodyEnabled(self.ids[j]) then
 			local reach = pulse.radius + kinds[j].radius
 			local bx, bz = Body.center(kinds[j], xs[j], zs[j])
 			local dx, dz = bx - xs[i], bz - zs[i]
@@ -1389,12 +1419,16 @@ function World.step(
 	local p = self.params
 	local count = self.count
 	local hasCrossings = next(self.crossings) ~= nil
+	local hasJumps = next(self.nativeJumps) ~= nil
+	local hasBodyFlags = hasCrossings or hasJumps
 	local ids, kinds, xs, zs = self.ids, self.kinds, self.xs, self.zs
 	local hash, scratch = self.hash, self.scratch
 	local playerRadius = p.playerRadius
 	local obstacles = p.obstacles
 	local maxRadius = self.maxRadius
 
+	table.clear(self.nativeJumpStarts)
+	table.clear(self.nativeLandings)
 	table.clear(self.strikers)
 	table.clear(self.rushes)
 
@@ -1473,7 +1507,7 @@ function World.step(
 		local walk = (
 			if kind.pursuer then baseMoveSpeed(self, i) else kind.speed * self.speedFactors[i] * self.boosts[i]
 		) * self.slowFactors[i]
-		if not (not hasCrossings or shapeEnabled(self, i)) then
+		if not (not hasBodyFlags or bodyEnabled(self, i)) then
 			walk = 0 -- hidden crossing get_move_input is ZERO, independent of its configured walk speed
 		end
 		knocked[i] = share > 0 and length * knock.speedPerPoint * share > walk
@@ -1535,8 +1569,45 @@ function World.step(
 		self.maxSpeed = math.max(self.maxSpeed, kind.speed * self.speedFactors[i] * self.boosts[i] + state.bonus)
 	end
 
+	-- Source jump movement locks steering but not hurt geometry. Source landing events carry no invented area damage.
+	if hasJumps then
+		for i = 1, count do
+			local state = self.nativeJumps[i]
+			local rule = kinds[i].nativeJump
+			if not state or not rule then
+				continue
+			end
+			local tx, tz = nil, nil
+			local nearest = math.huge
+			for t = 1, targetCount do
+				local squared = (targetXs[t] - xs[i]) ^ 2 + (targetZs[t] - zs[i]) ^ 2
+				if squared < nearest then
+					nearest = squared
+					tx, tz = targetXs[t], targetZs[t]
+				end
+			end
+			local airborne = state.jumping
+			local started, landed = NativeJump.step(rule, state, dt, xs[i], zs[i], tx, tz)
+			if airborne then
+				xs[i], zs[i] = state.x, state.z
+			end
+			if started then
+				table.insert(self.nativeJumpStarts, ids[i])
+			end
+			if landed then
+				table.insert(self.nativeLandings, ids[i])
+			end
+		end
+	end
+
 	-- 2. steering
-	if targetCount > 0 or p.goalsWithoutTargets or hasCrossings or next(self.nativeEaters) ~= nil then
+	if
+		targetCount > 0
+		or p.goalsWithoutTargets
+		or hasCrossings
+		or next(self.nativeEaters) ~= nil
+		or next(self.nativePatrols) ~= nil
+	then
 		local tolerance = p.keepDistanceTolerance
 		local steerMargin = p.obstacleSteerMargin
 		-- neighbours may have moved up to one step since the hash was built
@@ -1548,9 +1619,14 @@ function World.step(
 				targetCount == 0
 				and not crossing
 				and not self.nativeEaters[i]
+				and not self.nativePatrols[i]
 				and not self.hasGoal[i]
 				and not kind.wander
 			then
+				continue
+			end
+			local jumping = self.nativeJumps[i]
+			if jumping and jumping.locked then
 				continue
 			end
 			local nativeChargeState = self.nativeCharges[i]
@@ -1646,6 +1722,27 @@ function World.step(
 				end
 				toGoal, wander = false, nil
 				distance = math.sqrt(bestDx * bestDx + bestDz * bestDz)
+			elseif self.nativePatrols[i] then
+				local native = assert(kind.nativeMovement, "Native patrol requires source goal bounds")
+				local gx, gz = EdgePatrol.goal(
+					assert(kind.nativeEdgePatrol, "Native patrol requires its rule"),
+					self.nativePatrols[i],
+					x,
+					z,
+					native.precision,
+					{
+						minX = p.minX + native.goalInsetX,
+						maxX = p.maxX - native.goalInsetX,
+						minZ = p.minZ + native.goalInsetZ,
+						maxZ = p.maxZ - native.goalInsetZ,
+					},
+					function()
+						return nextRandom(self)
+					end
+				)
+				bestDx, bestDz = gx - x, gz - z
+				distance = math.sqrt(bestDx * bestDx + bestDz * bestDz)
+				toGoal, wander = true, nil
 			elseif self.nativeEaters[i] then
 				local native = assert(kind.nativeMovement, "Native gold targeting requires source goal bounds")
 				local goldXs, goldZs = NO_GOLD, NO_GOLD
@@ -1751,7 +1848,7 @@ function World.step(
 				if
 					j ~= i
 					and other.mass >= mass
-					and (not hasCrossings or shapeEnabled(self, j))
+					and (not hasBodyFlags or bodyEnabled(self, j))
 					and (kind.nativeBodyMask == nil or other.nativeBodyMask == nil or Body.collides(kind, other))
 				then
 					local nx = bx - xs[j] - (other.nativeBodyOffsetX or 0)
@@ -1791,7 +1888,7 @@ function World.step(
 	for _ = 1, p.separationPasses do
 		rebuildHash(self, xs, zs)
 		for i = 1, count do
-			if not (not hasCrossings or shapeEnabled(self, i)) then
+			if not (not hasBodyFlags or bodyEnabled(self, i)) then
 				continue
 			end
 			local kindI = kinds[i]
@@ -1801,7 +1898,7 @@ function World.step(
 				local j = scratch[s]
 				if
 					j > i
-					and (not hasCrossings or shapeEnabled(self, j))
+					and (not hasBodyFlags or bodyEnabled(self, j))
 					and (
 						kindI.nativeBodyMask == nil
 						or kinds[j].nativeBodyMask == nil
@@ -1876,7 +1973,11 @@ function World.step(
 	-- 4. constraints
 	for i = 1, count do
 		local kind = kinds[i]
-		if kind.anchored or not (not hasCrossings or shapeEnabled(self, i)) then
+		if kind.anchored then
+			continue
+		end
+		if hasBodyFlags and not bodyEnabled(self, i) then
+			xs[i], zs[i] = NativeMovement.clampPosition(p, kind, xs[i], zs[i])
 			continue
 		end
 		local radius = kind.radius
@@ -1922,7 +2023,12 @@ function World.step(
 			NativePursuer.beginContacts(pursuerState)
 		end
 		local hit = damage[i]
-		if hit > 0 and not knocked[i] and self.hp[i] > 0 then
+		if
+			hit > 0
+			and not knocked[i]
+			and self.hp[i] > 0
+			and (not self.nativeJumps[i] or not self.nativeJumps[i].jumping)
+		then
 			local hx, hz = Hit.center(kinds[i], xs[i], zs[i])
 			for t = 1, targetCount do
 				local reach = (kinds[i].hitRadius or kinds[i].radius)
