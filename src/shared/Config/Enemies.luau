@@ -2,6 +2,7 @@
 -- Enemy, elite, champion and boss records (DESIGN.md section 7). Read by EnemySim, SpawnDirector, BossService and
 -- EnemyRenderer.
 -- `typeId` is the 1-byte id sent in enemy snapshots; it must be unique and stay stable.
+local NativeVolley = require(script.Parent.Parent.Util.NativeEnemyVolley)
 
 export type Enemy = {
 	id: string,
@@ -26,6 +27,15 @@ export type Enemy = {
 	nativeDamageRounding: boolean?, -- EntityService rounds the final contact and projectile values
 	nativeFixedSpeed: boolean?, -- EvilMob copies base speed without randomization or percent/accessibility modifiers
 	nativeLootActor: boolean?, -- original is_loot excludes ordinary on-hit Charm
+	nativeRadialShots: {
+		projectileDamage: number,
+		landSpeed: number,
+		deathSpeed: number,
+		projectileRadius: number,
+		projectileRange: number,
+		deathWaveCutoffSeconds: number,
+		volley: NativeVolley.Rule,
+	}?,
 	nativeJump: {
 		cooldown: number,
 		duration: number,

@@ -6,6 +6,11 @@
   "actorRegistered": false,
   "worldAdapterImplemented": false,
   "worldComponentAdapterImplemented": true,
+  "projectileCollider": {
+    "source": "res://projectiles/bullet_enemy/enemy_projectile.tscn",
+    "sourceMd5": "936fb8e19c1a3dbccb65ad6f21725002",
+    "radiusPoints": 17.0294
+  },
   "movement": {
     "edge_distance": 300,
     "edge_randomization": 100,
@@ -166,6 +171,8 @@
     "line": 97
   },
   "sourceConstants": {
+    "defaultProjectileDamage": 1,
+    "deathWaveCutoffSeconds": 0.5,
     "edgeMapDistancePoints": 64,
     "cornerRandomThreshold": 0.5,
     "fallEasePower": 3,

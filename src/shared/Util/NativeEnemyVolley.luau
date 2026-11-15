@@ -12,6 +12,7 @@ export type Rule = {
 	minimumScale: number?,
 	specificDegrees: { number }?,
 	parallel: { spacing: number, angleOffset: number, forwardOffset: number }?,
+	spawnRing: { radius: number, away: boolean }?,
 }
 function Volley.emit(
 	rule: Rule,
@@ -28,6 +29,14 @@ function Volley.emit(
 	local base = math.atan2(tz - pz, tx - px)
 	for index = 0, rule.count - 1 do
 		local sx, sz = px, pz
+		if rule.spawnRing then
+			local ringAngle = random() * 2 * math.pi
+			if rule.constantSpread then
+				ringAngle = index * 2 * math.pi / rule.count
+			end
+			sx += math.cos(ringAngle) * rule.spawnRing.radius
+			sz += math.sin(ringAngle) * rule.spawnRing.radius
+		end
 		local spread = if rule.parallel then 0 else (random() * 2 - 1) * rule.spread
 		if rule.constantSpread and rule.count > 1 then
 			spread = -rule.spread + index * (2 * rule.spread / (rule.count - 1))
@@ -45,6 +54,9 @@ function Volley.emit(
 			sx += dx * p.forwardOffset + dz * side
 			sz += dz * p.forwardOffset - dx * side
 			angle = base - p.angleOffset + 2 * p.angleOffset * index / math.max(1, rule.count - 1)
+		end
+		if rule.spawnRing and rule.spawnRing.away then
+			angle = math.atan2(sz - z, sx - x)
 		end
 		local scale = 1
 		if rule.scaleWithCount then

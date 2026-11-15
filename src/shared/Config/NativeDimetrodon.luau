@@ -1,5 +1,5 @@
 --!strict
--- Source Dimetrodon bindings for jump/edge-patrol components; actor and World integration remain pending.
+-- Source Dimetrodon bindings for jump/edge-patrol components; actor registration and full client integration remain pending.
 local POINT = require(script.Parent.Stats).range.studsPerPoint
 local data = {
 	version = "1.2.0.3",
@@ -9,6 +9,11 @@ local data = {
 	actorRegistered = false,
 	worldAdapterImplemented = false,
 	worldComponentAdapterImplemented = true,
+	projectileCollider = {
+		source = "res://projectiles/bullet_enemy/enemy_projectile.tscn",
+		sourceMd5 = "936fb8e19c1a3dbccb65ad6f21725002",
+		radiusPoints = 17.0294,
+	},
 	movement = {
 		edge_distance = 300,
 		edge_randomization = 100,
@@ -169,6 +174,8 @@ local data = {
 		line = 97,
 	},
 	sourceConstants = {
+		defaultProjectileDamage = 1,
+		deathWaveCutoffSeconds = 0.5,
 		edgeMapDistancePoints = 64,
 		cornerRandomThreshold = 0.5,
 		fallEasePower = 3,
@@ -199,5 +206,24 @@ data.patrolRule = {
 	cornerThreshold = data.sourceConstants.cornerRandomThreshold,
 	noneDirectionOrder = data.sourceConstants.noneDirectionOrder,
 	pixel = POINT,
+}
+local land = data.attacks.Land_shoot_behavior.properties
+local death = data.attacks.AttackBehaviorNormal.properties
+data.radialRule = {
+	projectileDamage = data.sourceConstants.defaultProjectileDamage,
+	landSpeed = land.projectile_speed * POINT,
+	deathSpeed = death.projectile_speed * POINT,
+	projectileRadius = data.projectileCollider.radiusPoints * POINT,
+	projectileRange = require(script.Parent.JungleWalkers).shootingRules.projectileRangeStuds,
+	deathWaveCutoffSeconds = data.sourceConstants.deathWaveCutoffSeconds,
+	volley = {
+		count = land.number_projectiles,
+		spread = 0,
+		constantSpread = land.constant_spread,
+		offsetX = 0,
+		offsetZ = 0,
+		speedStep = 0,
+		spawnRing = { radius = land.projectile_spawn_spread / 2 * POINT, away = land.shoot_away_from_unit },
+	},
 }
 return data

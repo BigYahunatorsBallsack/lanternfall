@@ -1,0 +1,82 @@
+{
+  "referenceVersion": "1.2.0.3",
+  "steamBuild": 26642464,
+  "baseMain": "de4e155e97855cc18ffb52b1e81e53d1af8532fc",
+  "scope": "Actual radial landing/death and pre-damage origin adapters over a test-only actor; production Dimetrodon remains unregistered.",
+  "sourceFacts": "docs/characters/dimetrodon-source.json",
+  "focused": {
+    "NativeRadialVolley": "2/0 (initially0/2)",
+    "NativeDeathShots": "5/0 (initial missing module0/1)",
+    "NativeJumpWorld": "7/0",
+    "NativeDimetrodonAttacksServer": "8/0"
+  },
+  "proof": [
+    "Eight fixed world directions on a12.5px ring, outward aim, land400px/s/death300px/s, actual bullet radius17.0294px.",
+    "Hostile wave10/factor2 hits23; actual Charm hits34 with owner identity, land volley and later expiry death volley.",
+    "BrotatoCombat.hurtContact executes before Charm or damage and receives captured Pet shoot-projectiles flag. Ranged=true,Melee=false,Pet=flag; Explosion/Structure/Burn/stat paths preserve previous state.",
+    "False origin flag survives actual World compaction/faction transfer and suppresses the actual Charm expiry death volley.",
+    "Strict wave remaining>0.5 and cleanup guard suppress death shots; no invented50damage/radius180area.",
+    "Source die resets projectile percent_modifier=0; actual CorruptedBuffer regression initially6/1 (30 instead of23), then8/0 after correction. Land retains normal current projectile damage.",
+    "Three original bound PNGs prepared losslessly and visually inspected in assets/enemies/native-dimetrodon; no uploads or runtime asset IDs."
+  ],
+  "mutations": [
+    {
+      "mutation": "radialAim",
+      "passed": 0,
+      "failed": 2
+    },
+    {
+      "mutation": "preDamageOrigin",
+      "passed": 4,
+      "failed": 1
+    },
+    {
+      "mutation": "originColumn",
+      "passed": 6,
+      "failed": 1
+    }
+  ],
+  "checks": {
+    "sourceCompiler": true,
+    "localArtCheck": true,
+    "stylua": true,
+    "selene": {
+      "errors": 0,
+      "existingWarnings": 18,
+      "parseErrors": 0,
+      "api": "cached Roblox API; exit1 from warnings"
+    },
+    "rojo": true
+  },
+  "status": {
+    "codePreparedCharacters": 48,
+    "open": 26,
+    "registeredJungleBodies": 29,
+    "registeredJungleImages": 42,
+    "separateUnregisteredDimetrodonImages": 3,
+    "actorRegistered": false,
+    "clientAdapterImplemented": false,
+    "junglePlayable": false
+  },
+  "limits": [
+    "No registered production Dimetrodon yet, landing warning/shadow network-render binding/animations/audio remain pending.",
+    "Existing15HzWorld and300studprojectile compatibility lifetime, no full original60Hzphysics/Area/deferred/pooling/globalRNG ordering acceptance.",
+    "Enemy damage factors are captured by existing nativeBases at spawn, not a new full global EntityService recomputation at death.",
+    "No new Remote/snapshot/Arsenal/upload/asset-id/Studio changes."
+  ],
+  "fullSuite": {
+    "specs": 352,
+    "passed": 2113,
+    "failed": 36,
+    "aborts": 0,
+    "all16AdditionalChecksPassed": true,
+    "returnedVsWorld": [
+      "FAIL smoke > chases the player until it touches them"
+    ],
+    "absentVsWorld": [],
+    "newFailureIdentitiesVsDocumentedHistory": [],
+    "artifact": "build/native-five-branch-ten-dimetrodon-attacks-de4e155.json",
+    "runtimeFrozenDuringRun": true,
+    "afterRunChanges": "Documentation and source compiler equality assertion only; no runtime change.22 focused tests repeated green."
+  }
+}

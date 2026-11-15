@@ -23,6 +23,8 @@ local NativeSummons = require(script.NativeSummons)
 local EntryHealing = require(script.NativeEntryHealing)
 local MovementInput = require(script.Parent.CharacterService.Movement)
 local NativeVolley = require(Shared.Util.NativeEnemyVolley)
+local RunSchedule = require(Shared.Util.RunSchedule)
+local DeathShots = require(script.NativeDeathShots)
 local PlayerHurt = require(Shared.Util.PlayerHurtGeometry)
 local ShotFeed = require(Shared.Net.ShotFeed)
 local Snapshot = require(Shared.Net.Snapshot)
@@ -88,6 +90,7 @@ EnemySim.CharmSupport = Signal.new()
 local world: World.World
 local friends: any
 local nativeBases: { [number]: any } = {}
+local cleanupDepth = 0
 local sharedSerial = 0
 local function allocateActorId(): number
 	repeat
@@ -446,6 +449,31 @@ local function fireRing(id: number)
 	end
 end
 
+local function radialDeathAllowed(actors: World.World, id: number, rule: any): boolean
+	local index = actors.indexOf[id]
+	local state = index and actors.nativeDeathShots[index]
+	local remaining = RunSchedule.wave(RunDirector.getWave()).endsAt - RunDirector.getElapsed()
+	return state ~= nil
+		and DeathShots.allowed(
+			state,
+			remaining,
+			cleanupDepth > 0 or RunDirector.getPhase() ~= "Running",
+			rule.deathWaveCutoffSeconds
+		)
+end
+local function fireNativeRadial(id: number, rule: any, speed: number, damageOverride: number?)
+	local x, z = world:getPosition(id)
+	if not x or not z then
+		return
+	end
+	local damage = damageOverride or world:getShotDamage(id)
+	NativeVolley.emit(rule.volley, x, z, x, z, speed, function()
+		return RandomService.number("Combat")
+	end, function(px, pz, dx, dz, projectileSpeed)
+		EnemySim.fireShot(px, pz, dx, dz, projectileSpeed, rule.projectileRange, rule.projectileRadius, damage)
+	end)
+end
+
 -- Eggs the last step reported hatch: their enemies appear around them and the egg is gone (no kill, B9).
 local function hatchEggs()
 	local hatches = world.hatches
@@ -536,6 +564,12 @@ local function stepOnce()
 		table.insert(endedShots, ended[k])
 	end
 	fireShots(stepNow)
+	for _, id in world.nativeLandings do
+		local kind = world:getKind(id)
+		if kind and kind.nativeRadialShots then
+			fireNativeRadial(id, kind.nativeRadialShots, kind.nativeRadialShots.landSpeed)
+		end
+	end
 	for i = 1, world.count do
 		local id = world.ids[i]
 		local charge = world.kinds[i].charge
@@ -857,6 +891,10 @@ function EnemySim.spawnCharmChildren(
 	end
 end
 function EnemySim.resolveCharmDeath(member: any, x: number, z: number)
+	local radial = member.kind.nativeRadialShots
+	if radial and radialDeathAllowed(friends.world, member.id, radial) then
+		friends:fireNativeRadial(member, x, z, radial.deathSpeed)
+	end
 	local split = member.kind.split
 	if split then
 		EnemySim.spawnCharmChildren(member, split.enemy, x, z, split.count, split.spread, split.area)
@@ -925,6 +963,14 @@ end
 -- counter-shooter that survives sprays its ring (B9).
 -- The effect service owns item policy; valid player-owned hitboxes share neutral tree execution here.
 local treeHitRule: ((Player) -> boolean)? = nil
+-- The source Hurtbox classifies the actual hitbox before applying damage or a Charm conversion.
+function EnemySim.noteHurtContact(id: number, weaponKind: string, petShoots: number?)
+	local index = world.indexOf[id]
+	local state = index and world.nativeDeathShots[index]
+	if state and world:isHurtEnabled(id) then
+		DeathShots.hurt(state, weaponKind, petShoots)
+	end
+end
 function EnemySim.setTreeHitRule(rule: (Player) -> boolean)
 	treeHitRule = rule
 end
@@ -965,6 +1011,11 @@ function EnemySim.damage(
 	local kind = world:getKind(id)
 	local x, z = world:getPosition(id)
 	if kind and x and z then
+		if kind.nativeRadialShots and radialDeathAllowed(world, id, kind.nativeRadialShots) then
+			-- die() resets the selected shooting behavior with percent_modifier=0, discarding a Buffer bonus.
+			local base = nativeBases[id]
+			fireNativeRadial(id, kind.nativeRadialShots, kind.nativeRadialShots.deathSpeed, math.round(base.shot))
+		end
 		local split = kind.split
 		if split then
 			local hpMultiplier, damageMultiplier, speedMultiplier = world:getMultipliers(id)
@@ -1100,6 +1151,7 @@ end
 
 -- Kills every enemy (fires EnemyKilled for each), also what Splitters fall apart into. Returns how many died.
 function EnemySim.killAll(source: Player?): number
+	cleanupDepth += 1
 	local killed = 0
 	local ids: { number } = {}
 	for _ = 1, KILL_ALL_PASSES do
@@ -1113,6 +1165,7 @@ function EnemySim.killAll(source: Player?): number
 			end
 		end
 	end
+	cleanupDepth -= 1
 	return killed
 end
 

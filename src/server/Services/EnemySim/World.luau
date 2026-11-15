@@ -42,6 +42,7 @@ local DecayingSpeed = require(script.Parent.DecayingSpeed)
 local NativePursuer = require(script.Parent.NativePursuer)
 local GoldEater = require(script.Parent.NativeGoldEater)
 local NativeJump = require(script.Parent.NativeJump)
+local DeathShots = require(script.Parent.NativeDeathShots)
 local EdgePatrol = require(script.Parent.NativeEdgePatrol)
 local NativeDetection = require(script.Parent.NativeTargetDetection)
 local NativeCrossing = require(script.Parent.NativeCrossing)
@@ -135,6 +136,7 @@ export type World = typeof(setmetatable(
 		pursuers: { NativePursuer.State? },
 		nativeEaters: { GoldEater.State? },
 		nativeJumps: { NativeJump.State? },
+		nativeDeathShots: { DeathShots.State? },
 		nativePatrols: { EdgePatrol.State? },
 		nativeJumpStarts: { number },
 		nativeLandings: { number },
@@ -237,6 +239,7 @@ function World.new(params: Params): World
 		pursuers = {},
 		nativeEaters = {},
 		nativeJumps = {},
+		nativeDeathShots = {},
 		nativePatrols = {},
 		nativeJumpStarts = {},
 		nativeLandings = {},
@@ -311,6 +314,7 @@ function World.new(params: Params): World
 		self.pursuers,
 		self.nativeEaters,
 		self.nativeJumps,
+		self.nativeDeathShots,
 		self.nativePatrols,
 		self.detections,
 		self.crossings,
@@ -339,7 +343,9 @@ end
 
 -- The config damage behind a kind's shotDamage column: its projectile, its slash or its counter-shots (0 for none).
 function World.baseShotDamage(kind: Kind): number
-	if kind.ranged then
+	if kind.nativeRadialShots then
+		return kind.nativeRadialShots.projectileDamage
+	elseif kind.ranged then
 		return kind.ranged.projectileDamage
 	elseif kind.slash then
 		return kind.slash.damage
@@ -431,6 +437,7 @@ function World.spawn(
 	self.pursuers[i] = if kind.pursuer then NativePursuer.new(contactDamage) else nil
 	self.nativeEaters[i] = if kind.nativeEater then GoldEater.new() else nil
 	self.nativeJumps[i] = if kind.nativeJump then NativeJump.new(kind.nativeJump) else nil
+	self.nativeDeathShots[i] = if kind.nativeRadialShots then DeathShots.new() else nil
 	self.nativePatrols[i] = if kind.nativeEdgePatrol
 		then EdgePatrol.new(kind.nativeEdgePatrol, function()
 			return nextRandom(self)

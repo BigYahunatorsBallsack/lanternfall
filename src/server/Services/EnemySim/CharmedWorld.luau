@@ -126,6 +126,15 @@ function Friends.fire(
 		{ kind = "CharmFire", id = id, x = x, z = z, dx = dx, dz = dz, speed = speed, range = range }
 	)
 end
+function Friends.fireNativeRadial(self: any, member: any, x: number, z: number, speed: number)
+	local rule = member.kind.nativeRadialShots
+	local damage = math.round(member.base.shot * C.damageMultiplier)
+	NativeVolley.emit(rule.volley, x, z, x, z, speed, function()
+		return if self.callbacks.random then self.callbacks.random(member.owner) else math.random()
+	end, function(px, pz, dx, dz, projectileSpeed)
+		self:fire(member, px, pz, dx, dz, projectileSpeed, rule.projectileRange, rule.projectileRadius, damage)
+	end)
+end
 local function stepShots(self: any, dt: number)
 	self.shots:step(
 		dt,
@@ -317,6 +326,14 @@ function Friends.step(self: any, dt: number, now: number, hostile: any)
 		end
 	end
 	stepShots(self, dt)
+	for _, id in self.world.nativeLandings do
+		local member = self.members[id]
+		local rule = member and member.kind.nativeRadialShots
+		if rule then
+			local x, z = self.world:getPosition(id)
+			self:fireNativeRadial(member, x, z, rule.landSpeed)
+		end
+	end
 	fireShots(self, dt)
 	fireChargeTrails(self)
 	for index, id in ids do

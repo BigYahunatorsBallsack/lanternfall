@@ -627,6 +627,7 @@ function WeaponService.init()
 		BrotatoRuntime.reloadFromMaterials(arsenal:getWeapons(player.UserId), count, now())
 	end)
 	BrotatoCombat.configure({
+		hurtContact = EnemySim.noteHurtContact,
 		breakWeapon = function(weapon, x, z, materials)
 			table.insert(pendingBreaks, { weapon = weapon, x = x, z = z, materials = materials })
 		end,

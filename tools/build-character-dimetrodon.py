@@ -1,6 +1,6 @@
 """Compile stable Dimetrodon bindings for tested movement components; no actor registration or playable area."""
 from __future__ import annotations
-import argparse, importlib.util, json, subprocess, sys, tempfile
+import argparse, importlib.util, json, re, subprocess, sys, tempfile
 from pathlib import Path
 sys.dont_write_bytecode = True
 ROOT = Path(__file__).resolve().parents[1]
@@ -21,6 +21,9 @@ def generate():
  assert jump['scriptSource']=='res://entities/units/enemies/attack_behaviors/jump_attack_behavior.gd'
  assert node('Land_shoot_behavior','.')['scriptSource']=='res://entities/units/enemies/attack_behaviors/shooting_attack_behavior.gd'
  stats=root['properties']['stats']['resource']
+ bulletPath='res://projectiles/bullet_enemy/enemy_projectile.tscn'
+ bullet=pck.read(bulletPath).decode('utf-8')
+ bulletRadius=float(re.search(r'radius = ([0-9.]+)',bullet)[1])
  raw=pck.read(path).decode('utf-8');prefix=raw.split('\n[node ')[0].replace('[gd_scene','[gd_resource type="PackedScene"',1)+'\n[resource]\n'
  attacks={}
  for name,parent in [('Land_shoot_behavior','.'),('AttackBehaviorNormal','DeathShootProjectilesBehavior'),('AttackBehaviorMeca','DeathShootProjectilesBehavior'),('AttackBehaviorMutant','DeathShootProjectilesBehavior')]:
@@ -28,18 +31,21 @@ def generate():
   props=source.parse_tres(prefix+block,path)['properties']
   attacks[name]={'properties':{k:v for k,v in props.items() if isinstance(v,(int,float,bool))},'projectile':props.get('projectile_scene',{'resource':'res://projectiles/bullet_enemy/enemy_projectile.tscn'})['resource']}
  assert attacks['AttackBehaviorNormal']['projectile']=='res://projectiles/bullet_enemy/enemy_projectile.tscn'
+ for key in ['number_projectiles','projectile_spawn_spread','projectile_spawn_only_on_borders','constant_spread','shoot_away_from_unit']:
+  assert attacks['Land_shoot_behavior']['properties'][key]==attacks['AttackBehaviorNormal']['properties'][key], 'Separate land/death geometry required: '+key
  scripts=[root['scriptSource'],move['scriptSource'],jump['scriptSource'],node('Land_shoot_behavior','.')['scriptSource'],'res://global/entity_spawner.gd','res://singletons/utils.gd']
  return {'version':reference['version'],'steamBuild':int(reference['steamBuildId']),'source':path,'sourceMd5':pck.entries[path]['md5'],'actorRegistered':False,'worldAdapterImplemented':False,'worldComponentAdapterImplemented':True,
+  'projectileCollider':{'source':bulletPath,'sourceMd5':pck.entries[bulletPath]['md5'],'radiusPoints':bulletRadius},
   'movement':move['properties'],'jump':jump['properties'],'stats':{k:v for k,v in pck.resource(stats)['properties'].items() if isinstance(v,(int,float,bool))},'statsSource':stats,'statsMd5':pck.entries[stats]['md5'],'attacks':attacks,
   'scriptSources':[{'source':p.removesuffix('.gd')+'.gdc','sourceMd5':pck.entries[p.removesuffix('.gd')+'.gdc']['md5']} for p in scripts],
   'bindingAudit':{'directLandingDamageImplementedByBoundMethod':False,'exportedJumpDamageUnused':True,'exportedLandingRadiusUnused':True,'patrolMaxTargetDistanceOverwritten':True,'freshJumpTimer':0,'freshLandingTimer':0,'poolRespawnCallsReset':True,'coldSpawnerCallsInitWithoutRespawn':True},
   'engineSource':{'url':'https://raw.githubusercontent.com/godotengine/godot/3.5.3-stable/core/math/math_funcs.cpp','symbol':'Math::ease','line':97},
-  'sourceConstants':{'edgeMapDistancePoints':64,'cornerRandomThreshold':0.5,'fallEasePower':3,'riseShare':0.5,'noneDirectionOrder':['Bottom','Right','Left','Top']}}
+  'sourceConstants':{'defaultProjectileDamage':1,'deathWaveCutoffSeconds':0.5,'edgeMapDistancePoints':64,'cornerRandomThreshold':0.5,'fallEasePower':3,'riseShare':0.5,'noneDirectionOrder':['Bottom','Right','Left','Top']}}
 
 def main():
  parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--check',action='store_true');args=parser.parse_args()
  compiler=module('dimetrodon_catalog','tools/build-character-catalog.py');data=generate()
- text='--!strict\n-- Source Dimetrodon bindings for jump/edge-patrol components; actor and World integration remain pending.\nlocal POINT = require(script.Parent.Stats).range.studsPerPoint\nlocal data = '+compiler.luau(data)+'''
+ text='--!strict\n-- Source Dimetrodon bindings for jump/edge-patrol components; actor registration and full client integration remain pending.\nlocal POINT = require(script.Parent.Stats).range.studsPerPoint\nlocal data = '+compiler.luau(data)+'''
 data.jumpRule = {
  cooldown = data.jump.cooldown, duration = data.jump.jump_duration,
  height = data.jump.jump_height * POINT, delay = data.jump.jump_delay,
@@ -53,6 +59,18 @@ data.patrolRule = {
  cornerThreshold = data.sourceConstants.cornerRandomThreshold,
  noneDirectionOrder = data.sourceConstants.noneDirectionOrder,
  pixel = POINT,
+}
+local land = data.attacks.Land_shoot_behavior.properties
+local death = data.attacks.AttackBehaviorNormal.properties
+data.radialRule = {
+ projectileDamage = data.sourceConstants.defaultProjectileDamage,
+ landSpeed = land.projectile_speed * POINT, deathSpeed = death.projectile_speed * POINT,
+ projectileRadius = data.projectileCollider.radiusPoints * POINT,
+ projectileRange = require(script.Parent.JungleWalkers).shootingRules.projectileRangeStuds,
+ deathWaveCutoffSeconds = data.sourceConstants.deathWaveCutoffSeconds,
+ volley = { count = land.number_projectiles, spread = 0, constantSpread = land.constant_spread,
+ offsetX = 0, offsetZ = 0, speedStep = 0,
+ spawnRing = { radius = land.projectile_spawn_spread / 2 * POINT, away = land.shoot_away_from_unit } },
 }
 return data
 '''

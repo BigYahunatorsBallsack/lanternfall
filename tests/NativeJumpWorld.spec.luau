@@ -123,3 +123,23 @@ describe("Native jump World adapter", function()
 		expect(select(2, w:getHealth(control))).toBe(250)
 	end)
 end)
+
+describe("Native death origin World storage", function()
+	it("keeps the false origin flag through compaction and faction transfer", function()
+		local w, target = newWorld(), newWorld()
+		local kind = actor()
+		kind.nativeRadialShots = C.radialRule
+		local first = assert(w:spawn(kind, -40, 0, 100, 0))
+		local id = assert(w:spawn(kind, 0, 0, 100, 0))
+		local state = w.nativeDeathShots[w.indexOf[id]]
+		expect(state.enabled).toBe(true)
+		state.enabled = false
+		w:remove(first)
+		w:step(0, {}, {}, 0)
+		expect(w.indexOf[id]).toBe(1)
+		expect(w.nativeDeathShots[1]).toBe(state)
+		assert(w:transferTo(target, id))
+		expect(target.nativeDeathShots[target.indexOf[id]]).toBe(state)
+		expect(state.enabled).toBe(false)
+	end)
+end)
