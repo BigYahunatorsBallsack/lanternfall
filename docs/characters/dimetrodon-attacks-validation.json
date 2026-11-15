@@ -12,7 +12,7 @@
   },
   "proof": [
     "Eight fixed world directions on a12.5px ring, outward aim, land400px/s/death300px/s, actual bullet radius17.0294px.",
-    "Hostile wave10/factor2 hits23; actual Charm hits34 with owner identity, land volley and later expiry death volley.",
+    "Historical probe measured aggregate HP loss >=272, not individual34-damage projectiles. Registration follow-up measures eight actual68-damage hits at wave10/factor2 (round(11.35*2*3)); see dimetrodon-registration-validation.json.",
     "BrotatoCombat.hurtContact executes before Charm or damage and receives captured Pet shoot-projectiles flag. Ranged=true,Melee=false,Pet=flag; Explosion/Structure/Burn/stat paths preserve previous state.",
     "False origin flag survives actual World compaction/faction transfer and suppresses the actual Charm expiry death volley.",
     "Strict wave remaining>0.5 and cleanup guard suppress death shots; no invented50damage/radius180area.",
@@ -78,5 +78,6 @@
     "artifact": "build/native-five-branch-ten-dimetrodon-attacks-de4e155.json",
     "runtimeFrozenDuringRun": true,
     "afterRunChanges": "Documentation and source compiler equality assertion only; no runtime change.22 focused tests repeated green."
-  }
+  },
+  "correction": "Earlier34-damage prose assumed factor1; actual shared spawn helper uses factor2. Corrected documentation and strengthened per-hit assertion after normal registration; no production damage change."
 }

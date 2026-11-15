@@ -69,6 +69,16 @@ function Kinds.build(pixel: number): { [string]: any }
 				alwaysOrbs = if s.always_drop_consumables then true else nil,
 			},
 		}
+		if f.nativeJumpFamily then
+			local source = require(script.Parent.NativeDimetrodon)
+			assert(source.sourceMd5 == f.sourceMd5, "Dimetrodon source mismatch")
+			local kind = result[id]
+			kind.nativeJump = source.jumpRule
+			kind.nativeEdgePatrol = source.patrolRule
+			kind.nativeRadialShots = source.radialRule
+			kind.nativeJumpPresentation = source.presentationRule
+			kind.shotDamagePerWave = source.attacks.Land_shoot_behavior.properties.damage_increase_each_wave
+		end
 		if f.goldEater then
 			local a = f.goldEater
 			local kind = result[id]

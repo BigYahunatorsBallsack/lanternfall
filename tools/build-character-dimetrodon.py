@@ -36,7 +36,7 @@ def generate():
  for key in ['number_projectiles','projectile_spawn_spread','projectile_spawn_only_on_borders','constant_spread','shoot_away_from_unit']:
   assert attacks['Land_shoot_behavior']['properties'][key]==attacks['AttackBehaviorNormal']['properties'][key], 'Separate land/death geometry required: '+key
  scripts=[root['scriptSource'],move['scriptSource'],jump['scriptSource'],node('Land_shoot_behavior','.')['scriptSource'],'res://global/entity_spawner.gd','res://singletons/utils.gd']
- return {'version':reference['version'],'steamBuild':int(reference['steamBuildId']),'source':path,'sourceMd5':pck.entries[path]['md5'],'actorRegistered':False,'worldAdapterImplemented':False,'worldComponentAdapterImplemented':True,
+ return {'version':reference['version'],'steamBuild':int(reference['steamBuildId']),'source':path,'sourceMd5':pck.entries[path]['md5'],'actorRegistered':True,'worldAdapterImplemented':True,'attackAdapterImplemented':True,'clientComponentAdapterImplemented':True,'nativeFullParityAccepted':False,'worldComponentAdapterImplemented':True,
   'projectileCollider':{'source':bulletPath,'sourceMd5':pck.entries[bulletPath]['md5'],'radiusPoints':bulletRadius},
   'presentation':presentation,'movement':move['properties'],'jump':jump['properties'],'stats':{k:v for k,v in pck.resource(stats)['properties'].items() if isinstance(v,(int,float,bool))},'statsSource':stats,'statsMd5':pck.entries[stats]['md5'],'attacks':attacks,
   'scriptSources':[{'source':p.removesuffix('.gd')+'.gdc','sourceMd5':pck.entries[p.removesuffix('.gd')+'.gdc']['md5']} for p in scripts],
@@ -47,7 +47,7 @@ def generate():
 def main():
  parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--check',action='store_true');args=parser.parse_args()
  compiler=module('dimetrodon_catalog','tools/build-character-catalog.py');data=generate()
- text='--!strict\n-- Source Dimetrodon bindings for jump/edge-patrol components; actor registration and full client integration remain pending.\nlocal POINT = require(script.Parent.Stats).range.studsPerPoint\nlocal data = '+compiler.luau(data)+'''
+ text='--!strict\n-- Source Dimetrodon bindings for jump/edge-patrol components; normal actor adapters; full native presentation and physics acceptance remain pending.\nlocal POINT = require(script.Parent.Stats).range.studsPerPoint\nlocal data = '+compiler.luau(data)+'''
 data.jumpRule = {
  cooldown = data.jump.cooldown, duration = data.jump.jump_duration,
  height = data.jump.jump_height * POINT, delay = data.jump.jump_delay,
@@ -93,5 +93,5 @@ return data
  for path,value in outputs.items():
   if args.check:assert path.read_text(encoding='utf-8')==value,'Stale Dimetrodon component facts: '+str(path)
   else:path.write_text(value,encoding='utf-8',newline='\n')
- print('Dimetrodon bindings compiled; actorRegistered=false, World adapter pending')
+ print('Dimetrodon bindings compiled; normal actor registered; full native parity remains open')
 if __name__=='__main__':main()

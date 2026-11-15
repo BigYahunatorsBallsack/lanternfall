@@ -1396,6 +1396,54 @@ return {
 				initialParentRotation = 0,
 			},
 		},
+		Dimetrodon = {
+			source = "res://entities/units/enemies/jungle/basic/dimetrodon/dimetrodon.tscn",
+			sourceMd5 = "8ed3603be4b656e5547746c4db25b19f",
+			sceneChain = {
+				"res://entities/units/enemies/jungle/basic/dimetrodon/dimetrodon.tscn",
+				"res://entities/units/enemies/enemy.tscn",
+				"res://entities/units/unit/unit.tscn",
+				"res://entities/entity.tscn",
+			},
+			hurt = {
+				parentPoints = {
+					0,
+					-16,
+				},
+				childPoints = {
+					0,
+					-8,
+				},
+				totalPoints = {
+					0,
+					-24,
+				},
+				initialParentScale = {
+					1,
+					1,
+				},
+				initialParentRotation = 0,
+			},
+			hit = {
+				parentPoints = {
+					0,
+					0,
+				},
+				childPoints = {
+					0,
+					-8,
+				},
+				totalPoints = {
+					0,
+					-8,
+				},
+				initialParentScale = {
+					1,
+					1,
+				},
+				initialParentRotation = 0,
+			},
+		},
 	},
 	scope = "Approved saved transforms plus source-checked stable1.2.0.3 additions; collision branches activate separately.",
 	provenance = "Derived from saved1.2.0.2 neutral Jungle scene scan; each scene hash and child position checked against approved JungleWalkers facts.",
@@ -1527,6 +1575,10 @@ return {
 			sourceMd5 = "21d75638a8e9d39ba1d3cfae570cda13",
 			baseScene = "res://entities/units/enemies/enemy.tscn",
 		},
+		["res://entities/units/enemies/jungle/basic/dimetrodon/dimetrodon.tscn"] = {
+			sourceMd5 = "8ed3603be4b656e5547746c4db25b19f",
+			baseScene = "res://entities/units/enemies/enemy.tscn",
+		},
 	},
 	previousSourceVersion = "1.2.0.2",
 	previousResourcesRevalidatedIdentical = true,
@@ -1546,5 +1598,6 @@ return {
 		CarnivorousPlantMother = "Entire stable1.2.0.3 scene chain revalidated; parent transforms merged and child offsets checked against JungleWalkers.",
 		Pachyrhinosaurus = "Entire stable1.2.0.3 scene chain revalidated; parent transforms merged and child offsets checked against JungleWalkers.",
 		JungleGobbler = "Entire stable1.2.0.3 scene chain revalidated; parent transforms merged and child offsets checked against JungleWalkers.",
+		Dimetrodon = "Entire stable1.2.0.3 scene chain revalidated; parent transforms merged and child offsets checked against JungleWalkers.",
 	},
 }

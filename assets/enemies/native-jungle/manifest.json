@@ -595,6 +595,25 @@
       "pngSha256": "e9882148988d21b8dd8487d69be8ce396dcc75734dfc5aaffe1c0d12b0c64fb4"
     },
     {
+      "id": "Dimetrodon",
+      "source": "res://entities/units/enemies/jungle/basic/dimetrodon/dimetrodon.png",
+      "textureSource": "res://.import/dimetrodon.png-7165eae791b791b21d3a6d6144701028.stex",
+      "textureMd5": "99797fff05f1d6788ce11c3a4ae00112",
+      "output": "assets/enemies/native-jungle/Dimetrodon.png",
+      "size": [
+        150,
+        150
+      ],
+      "alphaBounds": [
+        19,
+        14,
+        135,
+        135
+      ],
+      "rgbaSha256": "9507d17b8654ff7f76ebf803f0f9f68a86ba78828b17f1a7f22f2f8cc1de6e7d",
+      "pngSha256": "b2e3c1329ca9b7b1e82709a32d7b0fd231d868ed4daea5088b8f26febf730b61"
+    },
+    {
       "id": "Pillar_bullet_pillar_0002",
       "source": "res://projectiles/pillar_enemy/sprites/bullet_pillar_0002.png",
       "textureSource": "res://.import/bullet_pillar_0002.png-b64813647bb259fcd087f6245a3b4bd8.stex",

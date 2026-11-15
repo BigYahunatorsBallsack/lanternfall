@@ -34,7 +34,8 @@
     "CarnivorousPlant",
     "CarnivorousPlantMother",
     "Pachyrhinosaurus",
-    "JungleGobbler"
+    "JungleGobbler",
+    "Dimetrodon"
   ],
   "sourceOnly": [],
   "enemies": {
@@ -3538,6 +3539,80 @@
         }
       ],
       "speedBindingAudit": "EvilMob.reset_speed_stat copies stats.speed directly; sampled offset, accessibility and percent modifiers are unused"
+    },
+    "Dimetrodon": {
+      "typeId": 69,
+      "displayName": "Dimetrodon",
+      "fallbackLook": "Shadeling",
+      "source": "res://entities/units/enemies/jungle/basic/dimetrodon/dimetrodon.tscn",
+      "sourceMd5": "8ed3603be4b656e5547746c4db25b19f",
+      "statsSource": "res://entities/units/enemies/jungle/basic/dimetrodon/dimetrodon_stats.tres",
+      "statsMd5": "23f198b2582d8ee693360738ca18c403",
+      "stats": {
+        "health": 5,
+        "health_increase_each_wave": 2.0,
+        "speed": 175,
+        "speed_randomization": 0,
+        "damage": 1,
+        "damage_increase_each_wave": 0.85,
+        "attack_cd": 30.0,
+        "value": 2,
+        "knockback_resistance": 0.7,
+        "gold_spread": 0,
+        "can_drop_consumables": true,
+        "always_drop_consumables": false,
+        "base_drop_chance": 0.03,
+        "item_drop_chance": 0.01,
+        "min_consumable_tier": 0,
+        "max_consumable_tier": 0,
+        "armor": 0,
+        "armor_increase_each_wave": 0.0,
+        "generate_blood": true
+      },
+      "body": {
+        "radiusPoints": 22.0,
+        "offsetPoints": [
+          0,
+          -8
+        ],
+        "source": "res://entities/units/enemies/jungle/basic/dimetrodon/dimetrodon.tscn",
+        "sourceMd5": "8ed3603be4b656e5547746c4db25b19f"
+      },
+      "hurt": {
+        "radiusPoints": 40.0,
+        "offsetPoints": [
+          0,
+          -8
+        ],
+        "source": "res://entities/units/enemies/jungle/basic/dimetrodon/dimetrodon.tscn",
+        "sourceMd5": "8ed3603be4b656e5547746c4db25b19f"
+      },
+      "hit": {
+        "radiusPoints": 24.0,
+        "offsetPoints": [
+          0,
+          -8
+        ],
+        "source": "res://entities/units/enemies/jungle/basic/dimetrodon/dimetrodon.tscn",
+        "sourceMd5": "8ed3603be4b656e5547746c4db25b19f"
+      },
+      "removeFirst": false,
+      "mass": 1,
+      "obstacleCollision": true,
+      "sprite": {
+        "source": "res://entities/units/enemies/jungle/basic/dimetrodon/dimetrodon.png",
+        "textureSource": "res://.import/dimetrodon.png-7165eae791b791b21d3a6d6144701028.stex",
+        "textureMd5": "99797fff05f1d6788ce11c3a4ae00112",
+        "widthPoints": 150,
+        "heightPoints": 150
+      },
+      "bodyLayer": 4,
+      "bodyMask": 132,
+      "bodyBorders": true,
+      "playerCollision": false,
+      "nativeJumpFamily": true,
+      "nativeDamageRounding": true,
+      "evolutionVariantsImplemented": false
     }
   },
   "spawningRules": {
@@ -3684,6 +3759,10 @@
       "sourceMd5": "daba5d3d739bba386c511fdbc2b18c92"
     },
     {
+      "source": "res://entities/units/enemies/attack_behaviors/jump_attack_behavior.gdc",
+      "sourceMd5": "83970734202a9c6ee372a0bbcd6e5413"
+    },
+    {
       "source": "res://entities/units/enemies/attack_behaviors/shooting_attack_behavior.gdc",
       "sourceMd5": "43d5ebd849396509ff38632915c988a2"
     },
@@ -3722,6 +3801,10 @@
     {
       "source": "res://entities/units/enemies/jungle/basic/carnivorus_plant/carnivorus_plant.gdc",
       "sourceMd5": "c184cdb1fc18d9c7663a24eb60942943"
+    },
+    {
+      "source": "res://entities/units/enemies/jungle/basic/dimetrodon/dimetrodon.gdc",
+      "sourceMd5": "b05e5f176a92fcb828627c0e40223d0b"
     },
     {
       "source": "res://entities/units/enemies/jungle/basic/dino_egg/dino_egg.gdc",
@@ -3770,6 +3853,10 @@
     {
       "source": "res://entities/units/movement_behaviors/movement_behavior.gdc",
       "sourceMd5": "545124c6bbc946d5a542876cd568078b"
+    },
+    {
+      "source": "res://entities/units/movement_behaviors/patrol_edges_of_map_movement_behavior.gdc",
+      "sourceMd5": "c076511525c47f9d29d037af992f4d51"
     },
     {
       "source": "res://entities/units/movement_behaviors/stay_in_range_from_player_movement_behavior.gdc",

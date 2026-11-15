@@ -1,13 +1,16 @@
 --!strict
--- Source Dimetrodon bindings for jump/edge-patrol components; actor registration and full client integration remain pending.
+-- Source Dimetrodon bindings for jump/edge-patrol components; normal actor adapters; full native presentation and physics acceptance remain pending.
 local POINT = require(script.Parent.Stats).range.studsPerPoint
 local data = {
 	version = "1.2.0.3",
 	steamBuild = 26642464,
 	source = "res://entities/units/enemies/jungle/basic/dimetrodon/dimetrodon.tscn",
 	sourceMd5 = "8ed3603be4b656e5547746c4db25b19f",
-	actorRegistered = false,
-	worldAdapterImplemented = false,
+	actorRegistered = true,
+	worldAdapterImplemented = true,
+	attackAdapterImplemented = true,
+	clientComponentAdapterImplemented = true,
+	nativeFullParityAccepted = false,
 	worldComponentAdapterImplemented = true,
 	projectileCollider = {
 		source = "res://projectiles/bullet_enemy/enemy_projectile.tscn",

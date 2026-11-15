@@ -1,15 +1,6 @@
 --!strict
--- Actual radial/death services exercised through a test-only source-rule actor; production Dimetrodon stays unregistered.
-local f = loadHelper("tests/helpers/NativeCharacterFixture.luau")("WellRounded", function()
-	local C = require(game:GetService("ReplicatedStorage").Shared.Config)
-	local native = require(game:GetService("ReplicatedStorage").Shared.Config.NativeDimetrodon)
-	local probe = C.Enemies.types.Shadeling
-	probe.nativeJump = native.jumpRule
-	probe.nativeRadialShots = native.radialRule
-	probe.nativeDamageRounding = true
-	probe.shotDamagePerWave = 1.15
-	probe.speed = 0
-end)
+-- Actual radial/death services exercised through a registered source-backed normal Dimetrodon; original art and full physics acceptance remain open.
+local f = loadHelper("tests/helpers/NativeCharacterFixture.luau")("WellRounded")
 local Enemy = require(f.S.EnemySim)
 local Combat = require(f.S.WeaponService.BrotatoCombat)
 local C = require(f.Shared.Config.NativeDimetrodon)
@@ -24,7 +15,7 @@ local function start()
 	f.peer.Character.HumanoidRootPart.Position = Vector3.new(80, 100, 80)
 end
 local function spawn()
-	return assert(Enemy.spawn("Shadeling", -40, 0, 1000, 2, nil, nil, 0, 10))
+	return assert(Enemy.spawn("Dimetrodon", -40, 0, 1000, 2, nil, nil, 0, 10))
 end
 local function hit(id, kind, pet)
 	local w = {
@@ -48,9 +39,9 @@ local function hit(id, kind, pet)
 	}
 	return Combat.hit(w, ctx, id)
 end
-describe("Dimetrodon attacks through real services, actor inactive", function()
+describe("Dimetrodon attacks through real services, registered normal actor", function()
 	it("keeps source rule geometry and independent native projectile growth", function()
-		expect(C.actorRegistered).toBe(false)
+		expect(C.actorRegistered).toBe(true)
 		expect(C.radialRule.projectileRadius).toBeNear(1.70294)
 		expect(C.radialRule.volley.spawnRing.radius).toBeNear(1.25)
 		start()
@@ -125,12 +116,23 @@ describe("Dimetrodon attacks through real services, actor inactive", function()
 			end
 		end)
 		local before = Enemy.getHealth(target)
+		local damage = Enemy.damage
+		local projectileHits = 0
+		Enemy.damage = function(targetId, amount, ...)
+			if targetId == target and amount == 68 then
+				projectileHits += 1
+			end
+			return damage(targetId, amount, ...)
+		end
 		f.world.advance(2.3, 1 / 60)
+		Enemy.damage = damage
 		expect(#shots).toBe(8)
 		for _, shot in shots do
 			expect(shot.speed).toBe(40)
 		end
-		expect(before - Enemy.getHealth(target) >= 272).toBe(true)
+		-- Same global factor2 as the hostile case: round(11.35 * 2 * 3)=68, not round(22.7)*3=69.
+		expect(projectileHits).toBe(8)
+		expect(before - Enemy.getHealth(target) >= 544).toBe(true)
 		-- Expiration uses the actual member's retained origin flag and the friendly projectile system.
 		f.world.advance(require(f.Shared.Config.Charm).duration, 1 / 60)
 		c:Disconnect()
@@ -171,14 +173,15 @@ describe("Dimetrodon attacks through real services, actor inactive", function()
 	end)
 	it("recalculates death-shot damage without a temporary buffer bonus", function()
 		start()
-		local probe = f.Config.Enemies.types.Shadeling
+		local probe = f.Config.Enemies.types.Dimetrodon
 		local jump = probe.nativeJump
 		probe.nativeJump = nil
 		local id = spawn()
+		local originalHp = Enemy.getMaxHealth(id)
 		probe.nativeJump = jump
 		assert(Enemy.spawn("CorruptedBuffer", -40, -10, 1000, 0, nil, nil, 0, 10))
 		f.world.advance(1.1, 1 / 60)
-		expect(Enemy.getMaxHealth(id) > 10000).toBe(true)
+		expect(Enemy.getMaxHealth(id) > originalHp).toBe(true)
 		local hits = {}
 		local c = Enemy.ShotHit:Connect(function(player, damage)
 			if player == f.me then

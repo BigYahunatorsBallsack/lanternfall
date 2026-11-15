@@ -1,13 +1,6 @@
 --!strict
--- Actual server jump starts/cancellations drive client warnings and source shadow offsets; actor remains a test-only probe.
-local f = loadHelper("tests/helpers/NativeCharacterFixture.luau")("WellRounded", function()
-	local Shared = game:GetService("ReplicatedStorage").Shared
-	local C = require(Shared.Config)
-	local native = require(Shared.Config.NativeDimetrodon)
-	C.Enemies.types.Shadeling.nativeJump = native.jumpRule
-	C.Enemies.types.Shadeling.nativeJumpPresentation = native.presentationRule
-	C.Enemies.types.Shadeling.speed = 0
-end)
+-- Actual server jump starts/cancellations drive client warnings and source shadow offsets; registered normal Dimetrodon.
+local f = loadHelper("tests/helpers/NativeCharacterFixture.luau")("WellRounded")
 runScript(folderProxy("src/client", "Client"), "init.client.luau")
 local Enemy = require(f.S.EnemySim)
 local Client = require(folderProxy("src/client", "Client").Controllers.NativeJumpController)
@@ -24,7 +17,7 @@ end
 describe("Native jump server/client binding", function()
 	it("captures one landing warning with source texture dimensions and removes it on death", function()
 		start()
-		local id = assert(Enemy.spawn("Shadeling", -40, 0, 1000, 0, nil, nil, 0, 10))
+		local id = assert(Enemy.spawn("Dimetrodon", -40, 0, 1000, 0, nil, nil, 0, 10))
 		f.world.advance(0.2, 1 / 60)
 		expect(Client.getCount()).toBe(1)
 		local part = workspace:FindFirstChild("LanternfallNativeJumps"):FindFirstChild("LandingWarning")
@@ -42,7 +35,7 @@ describe("Native jump server/client binding", function()
 	end)
 	it("keeps an airborne warning across Charm and removes it at landing", function()
 		start()
-		local id = assert(Enemy.spawn("Shadeling", -40, 0, 1000, 0, nil, nil, 0, 10))
+		local id = assert(Enemy.spawn("Dimetrodon", -40, 0, 1000, 0, nil, nil, 0, 10))
 		f.world.advance(0.8, 1 / 60)
 		assert(Enemy.charmSummoned(id, f.me.UserId))
 		expect(Client.getCount()).toBe(1)
@@ -50,7 +43,7 @@ describe("Native jump server/client binding", function()
 		expect(shadow.offsetZ > 0).toBe(true)
 		local rendered = assert(require(folderProxy("src/client", "Client").Controllers.EnemyRenderer).getPosition(id))
 		local actual =
-			workspace:FindFirstChild("LanternfallEnemies"):FindFirstChild("Shadeling"):FindFirstChild("Shadow")
+			workspace:FindFirstChild("LanternfallEnemies"):FindFirstChild("Dimetrodon"):FindFirstChild("Shadow")
 		expect(actual.CFrame.Position.Z - rendered.Z).toBeNear(shadow.offsetZ)
 		expect(actual.Size.Y).toBeNear(shadow.width)
 		expect(actual.Size.Z).toBeNear(shadow.height)
@@ -60,7 +53,7 @@ describe("Native jump server/client binding", function()
 	end)
 	it("emits a new friendly jump warning and clears it when the run ends", function()
 		start()
-		local id = assert(Enemy.spawn("Shadeling", -40, 0, 1000, 0, nil, nil, 0, 10))
+		local id = assert(Enemy.spawn("Dimetrodon", -40, 0, 1000, 0, nil, nil, 0, 10))
 		assert(Enemy.spawn("Brute", 0, 0, 1000, 0, nil, nil, 0, 10))
 		assert(Enemy.charmSummoned(id, f.me.UserId))
 		f.world.advance(0.2, 1 / 60)
