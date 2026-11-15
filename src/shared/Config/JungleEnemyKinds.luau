@@ -213,8 +213,12 @@ function Kinds.build(pixel: number): { [string]: any }
 			local rules = C.shootingRules
 			local position = a.position.values
 			local kind = result[id]
-			kind.stayInRange =
-				{ distance = f.movement.target_range * pixel, jitter = f.movement.target_range_randomization * pixel }
+			if not f.wanderAroundTarget then
+				kind.stayInRange = {
+					distance = f.movement.target_range * pixel,
+					jitter = f.movement.target_range_randomization * pixel,
+				}
+			end
 			kind.shotDamagePerWave = a.damage_increase_each_wave
 			kind.ranged = {
 				keepDistance = 0,
@@ -240,8 +244,12 @@ function Kinds.build(pixel: number): { [string]: any }
 					cooldownRandomSeconds = a.max_cd_randomization / rules.frameRate,
 					minimumCooldownSeconds = rules.minimumCooldownFrames / rules.frameRate,
 					initialSeconds = a.initial_cooldown / rules.frameRate,
-					fireAt = rules.animationFireAt / a.attack_anim_speed,
-					animationSeconds = rules.animationSeconds / a.attack_anim_speed,
+					fireAt = (if f.genericShootAnimation
+						then C.spawningRules.animations[1].fireAt
+						else rules.animationFireAt) / a.attack_anim_speed,
+					animationSeconds = (if f.genericShootAnimation
+						then C.spawningRules.animations[1].seconds
+						else rules.animationSeconds) / a.attack_anim_speed,
 					longEvery = a.long_cooldown_every_x_shoots,
 					longSeconds = a.long_cooldown / rules.frameRate,
 				},

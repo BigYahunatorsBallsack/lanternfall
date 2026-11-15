@@ -424,6 +424,44 @@
       "pngSha256": "cc47d6aced6b55ce7d14d4e26fceddc7a6c2381cc65ba08e4e1820b03101521e"
     },
     {
+      "id": "Hesperosaurus",
+      "source": "res://entities/units/enemies/jungle/basic/hesperosaurus/hesperosaurus.png",
+      "textureSource": "res://.import/hesperosaurus.png-bd89b1e3e32ca2365dd794d031f5c8e4.stex",
+      "textureMd5": "d3cb3c30abd0969519a9605cb5f9a9d5",
+      "output": "assets/enemies/native-jungle/Hesperosaurus.png",
+      "size": [
+        170,
+        170
+      ],
+      "alphaBounds": [
+        0,
+        35,
+        168,
+        144
+      ],
+      "rgbaSha256": "949f25db1805a6fd3b40cc1faac8eb981bb52ab2e0c37fed797cb317c32d72c5",
+      "pngSha256": "28a76713d4430ef762fc7eb90bd272ea7045712b84f06444850a4e28d1f2c89c"
+    },
+    {
+      "id": "Stegosaurus",
+      "source": "res://entities/units/enemies/jungle/basic/stegosaurus/stegosaurus.png",
+      "textureSource": "res://.import/stegosaurus.png-0a1375d362f4ff01c594573bbf6ee9d1.stex",
+      "textureMd5": "0fae500ae799df356a561119141f8642",
+      "output": "assets/enemies/native-jungle/Stegosaurus.png",
+      "size": [
+        200,
+        200
+      ],
+      "alphaBounds": [
+        13,
+        37,
+        194,
+        167
+      ],
+      "rgbaSha256": "acaaf8343cae5bc82eee57cedb320fbf394c8dd40018bff459e7924d1b82131b",
+      "pngSha256": "6ec445f54f15396b4fd29f5dfe46c09d366b0b5337a42ad06965861e9f4c221a"
+    },
+    {
       "id": "Pillar_bullet_pillar_0002",
       "source": "res://projectiles/pillar_enemy/sprites/bullet_pillar_0002.png",
       "textureSource": "res://.import/bullet_pillar_0002.png-b64813647bb259fcd087f6245a3b4bd8.stex",

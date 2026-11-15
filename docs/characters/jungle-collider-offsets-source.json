@@ -1057,6 +1057,102 @@
         ],
         "initialParentRotation": 0
       }
+    },
+    "Hesperosaurus": {
+      "source": "res://entities/units/enemies/jungle/basic/hesperosaurus/hesperosaurus.tscn",
+      "sourceMd5": "fdd88f937e318579cad54e34275a40d8",
+      "sceneChain": [
+        "res://entities/units/enemies/jungle/basic/hesperosaurus/hesperosaurus.tscn",
+        "res://entities/units/enemies/enemy.tscn",
+        "res://entities/units/unit/unit.tscn",
+        "res://entities/entity.tscn"
+      ],
+      "hurt": {
+        "parentPoints": [
+          0,
+          -16
+        ],
+        "childPoints": [
+          0,
+          -13
+        ],
+        "totalPoints": [
+          0,
+          -29
+        ],
+        "initialParentScale": [
+          1,
+          1
+        ],
+        "initialParentRotation": 0
+      },
+      "hit": {
+        "parentPoints": [
+          0,
+          0
+        ],
+        "childPoints": [
+          0,
+          -17
+        ],
+        "totalPoints": [
+          0,
+          -17
+        ],
+        "initialParentScale": [
+          1,
+          1
+        ],
+        "initialParentRotation": 0
+      }
+    },
+    "Stegosaurus": {
+      "source": "res://entities/units/enemies/jungle/basic/stegosaurus/stegosaurus.tscn",
+      "sourceMd5": "6e97f25d4906345fc80bdeff81d19913",
+      "sceneChain": [
+        "res://entities/units/enemies/jungle/basic/stegosaurus/stegosaurus.tscn",
+        "res://entities/units/enemies/enemy.tscn",
+        "res://entities/units/unit/unit.tscn",
+        "res://entities/entity.tscn"
+      ],
+      "hurt": {
+        "parentPoints": [
+          0,
+          -16
+        ],
+        "childPoints": [
+          0,
+          -13
+        ],
+        "totalPoints": [
+          0,
+          -29
+        ],
+        "initialParentScale": [
+          1,
+          1
+        ],
+        "initialParentRotation": 0
+      },
+      "hit": {
+        "parentPoints": [
+          0,
+          0
+        ],
+        "childPoints": [
+          0,
+          -17
+        ],
+        "totalPoints": [
+          0,
+          -17
+        ],
+        "initialParentScale": [
+          1,
+          1
+        ],
+        "initialParentRotation": 0
+      }
     }
   },
   "scope": "Approved saved transforms plus source-checked stable1.2.0.3 additions; collision branches activate separately.",
@@ -1160,6 +1256,14 @@
     "res://entities/units/enemies/jungle/basic/pterosaur/pterosaur.tscn": {
       "sourceMd5": "a7f783ea21c5273ff41307e56996f5d0",
       "baseScene": "res://entities/units/enemies/enemy.tscn"
+    },
+    "res://entities/units/enemies/jungle/basic/hesperosaurus/hesperosaurus.tscn": {
+      "sourceMd5": "fdd88f937e318579cad54e34275a40d8",
+      "baseScene": "res://entities/units/enemies/enemy.tscn"
+    },
+    "res://entities/units/enemies/jungle/basic/stegosaurus/stegosaurus.tscn": {
+      "sourceMd5": "6e97f25d4906345fc80bdeff81d19913",
+      "baseScene": "res://entities/units/enemies/enemy.tscn"
     }
   },
   "previousSourceVersion": "1.2.0.2",
@@ -1172,6 +1276,8 @@
     "HarpymimusLooter": "Entire stable1.2.0.3 scene chain revalidated; parent transforms merged and child offsets checked against JungleWalkers.",
     "Oviraptor": "Entire stable1.2.0.3 scene chain revalidated; parent transforms merged and child offsets checked against JungleWalkers.",
     "Iguanodon": "Entire stable1.2.0.3 scene chain revalidated; parent transforms merged and child offsets checked against JungleWalkers.",
-    "Pterosaur": "Entire stable1.2.0.3 scene chain revalidated; parent transforms merged and child offsets checked against JungleWalkers."
+    "Pterosaur": "Entire stable1.2.0.3 scene chain revalidated; parent transforms merged and child offsets checked against JungleWalkers.",
+    "Hesperosaurus": "Entire stable1.2.0.3 scene chain revalidated; parent transforms merged and child offsets checked against JungleWalkers.",
+    "Stegosaurus": "Entire stable1.2.0.3 scene chain revalidated; parent transforms merged and child offsets checked against JungleWalkers."
   }
 }
