@@ -1,5 +1,6 @@
 --!strict
--- Source JumpAttackBehavior timers and screen-plane trajectory; tested component, awaiting World collision/attack/render integration.
+-- Source JumpAttackBehavior timers and screen-plane trajectory; called by World; motion math is shared with client presentation.
+local Motion = require(game:GetService("ReplicatedStorage").Shared.Util.NativeJumpMotion)
 local Jump = {}
 export type Rule = {
 	cooldown: number,
@@ -53,10 +54,6 @@ function Jump.reset(rule: Rule, state: State)
 	state.jumping, state.landed, state.locked = false, false, false
 	state.height = 0
 end
--- Godot3.5 Math.ease(t,-power): its negative-curve branch is an in/out power curve.
-local function easeInOut(t: number, power: number): number
-	return if t < 0.5 then (t * 2) ^ power * 0.5 else (1 - (1 - (t - 0.5) * 2) ^ power) * 0.5 + 0.5
-end
 function Jump.step(
 	rule: Rule,
 	state: State,
@@ -79,15 +76,9 @@ function Jump.step(
 			state.timer = rule.cooldown
 			return false, true
 		end
-		local vertical = if progress < rule.riseShare
-			then progress
-			else rule.riseShare
-				+ easeInOut((progress - rule.riseShare) / (1 - rule.riseShare), rule.fallEasePower)
-					* (1 - rule.riseShare)
-		state.height = math.sin(vertical * math.pi) * rule.height
-		state.groundX = state.startX + (state.targetX - state.startX) * progress
-		state.groundZ = state.startZ + (state.targetZ - state.startZ) * progress
-		state.x, state.z = state.groundX, state.groundZ - state.height
+		state.x, state.z, state.height =
+			Motion.sample(rule, state.startX, state.startZ, state.targetX, state.targetZ, state.jumpAge)
+		state.groundX, state.groundZ = state.x, state.z + state.height
 		return false, false
 	end
 	state.x, state.z, state.groundX, state.groundZ, state.height = x, z, x, z, 0

@@ -27,6 +27,17 @@ export type Enemy = {
 	nativeDamageRounding: boolean?, -- EntityService rounds the final contact and projectile values
 	nativeFixedSpeed: boolean?, -- EvilMob copies base speed without randomization or percent/accessibility modifiers
 	nativeLootActor: boolean?, -- original is_loot excludes ordinary on-hit Charm
+	nativeJumpPresentation: {
+		parentScale: number,
+		groundOffsetZ: number,
+		initialScale: number,
+		airScale: number,
+		heightShrinkShare: number,
+		shadowWidth: number,
+		shadowHeight: number,
+		warningWidth: number,
+		warningHeight: number,
+	}?,
 	nativeRadialShots: {
 		projectileDamage: number,
 		landSpeed: number,

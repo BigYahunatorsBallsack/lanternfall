@@ -59,6 +59,7 @@ export type Visual = {
 	body: BasePart, -- invisible anchor of the sprite; other modules read its position
 	sprite: WorldSprite.Sprite,
 	shadow: BasePart,
+	nativeJumpShadow: boolean?,
 	gait: Gait,
 	radius: number,
 	speed: number,
@@ -549,7 +550,8 @@ function SpriteModels.pose(
 	seed: number,
 	parts: { BasePart },
 	cframes: { CFrame },
-	count: number
+	count: number,
+	nativeShadow: { offsetZ: number, width: number, height: number }?
 ): number
 	local gait, r, mode = visual.gait, visual.radius, visual.mode
 	local s = math.sin(phase)
@@ -591,7 +593,15 @@ function SpriteModels.pose(
 	cframes[count] = CFrame.new(x + shift, y, z - hop - rise) -- north is up on the screen; height would not show
 	count += 1
 	parts[count] = visual.shadow
-	cframes[count] = CFrame.new(x, y + SHADOW_THICKNESS, z) * UPRIGHT
+	if nativeShadow then
+		visual.shadow.Size = Vector3.new(SHADOW_THICKNESS, nativeShadow.width, nativeShadow.height)
+		visual.nativeJumpShadow = true
+	elseif visual.nativeJumpShadow then
+		visual.shadow.Size = Vector3.new(SHADOW_THICKNESS, SHADOW_DIAMETER * r, SHADOW_DIAMETER * r)
+		visual.nativeJumpShadow = nil
+	end
+	cframes[count] = CFrame.new(x, y + SHADOW_THICKNESS, z + (if nativeShadow then nativeShadow.offsetZ else 0))
+		* UPRIGHT
 	local telegraph = visual.telegraph
 	if telegraph and telegraph.Transparency < 1 then
 		count += 1

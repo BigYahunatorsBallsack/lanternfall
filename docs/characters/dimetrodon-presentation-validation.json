@@ -1,0 +1,81 @@
+{
+  "referenceVersion": "1.2.0.3",
+  "steamBuild": 26642464,
+  "baseMain": "de4e155e97855cc18ffb52b1e81e53d1af8532fc",
+  "sourceFacts": "docs/characters/dimetrodon-source.json",
+  "scope": "Actual server/client jump presentation over a test-only actor. Production Dimetrodon is not registered.",
+  "focused": {
+    "NativeJumpMotion": "3/0 (initial missing module0/1)",
+    "NativeJump": "8/0",
+    "NativeJumpWorld": "7/0",
+    "NativeJumpPresentationServer": "3/0 (initial missing controller0/1)",
+    "NativeDimetrodonAttacksServer": "8/0",
+    "WorldSprites": "12/0",
+    "NativeCrossingVisibilityServer": "5/0"
+  },
+  "proof": [
+    "Shared NativeJumpMotion uses original cubic in/out descent; server component and client shadow read the same height formula.",
+    "Source Shadow_parent0.75 and shadow local-10px are retained in global offset=0.75*(-1stud+height); source shadow does not cancel full actor screen-plane height.",
+    "Warning13.5x4.5stud derives from bound120x40px texture and1.5*0.75scale; no exported180radius area or damage.",
+    "Actual NativeJumpService/NativeJumps reaches the real client. Warning captures target once, cancels on death/landing/run end, survives airborne Charm and supports jumps started after Charm.",
+    "Actual EnemyRenderer -> SpriteModels.pose receives shadow offset and source dimensions; checked against rendered part CFrame and Size. SpriteModels.pose adds only optional final nativeShadow argument.",
+    "Test fixture corrected its Position lookup to CFrame.Position because RobloxMock does not mirror part properties; production behavior was not changed for that fixture issue."
+  ],
+  "mutations": [
+    {
+      "mutation": "rendererBinding",
+      "passed": 2,
+      "failed": 1
+    },
+    {
+      "mutation": "deathCancellation",
+      "passed": 2,
+      "failed": 1
+    },
+    {
+      "mutation": "sharedDescent",
+      "passed": 2,
+      "failed": 1
+    }
+  ],
+  "checks": {
+    "sourceCompiler": true,
+    "stylua": true,
+    "selene": {
+      "errors": 0,
+      "existingWarnings": 18,
+      "parseErrors": 0,
+      "api": "cached Roblox API; exit1 from existing warnings"
+    },
+    "rojo": true
+  },
+  "status": {
+    "codePreparedCharacters": 48,
+    "open": 26,
+    "registeredJungleBodies": 29,
+    "registeredJungleImages": 42,
+    "separateUnregisteredDimetrodonImages": 3,
+    "actorRegistered": false,
+    "clientComponentAdapterImplemented": true,
+    "junglePlayable": false
+  },
+  "limits": [
+    "Procedural warning ellipse and existing shadow part, no uploaded original PNGs, native animation, shader, sound or complete art acceptance.",
+    "Idle/post-landing shadow reverts to existing generic presentation; source persistent last flight scale and original silhouette/alpha remain open.",
+    "Client age uses existing interpolation-delay approximation, not exact source60Hz/World snapshot render-clock parity.",
+    "Original global RNG/Area/deferred/pooling/solver cadence and Studio/real2clients/mobile acceptance remain open.",
+    "No snapshot/Arsenal/upload/runtime asset ID changes. NativeJumps is server-to-client only and carries no damage or client intention."
+  ],
+  "fullSuite": {
+    "specs": 354,
+    "passed": 2119,
+    "failed": 36,
+    "aborts": 0,
+    "all6AdditionalChecksPassed": true,
+    "newFailureIdentitiesVsAttacks": [],
+    "missingFailureIdentitiesVsAttacks": [],
+    "artifact": "build/native-five-branch-ten-dimetrodon-presentation-de4e155.json",
+    "runtimeFrozenDuringRun": true,
+    "afterRunChanges": "Documentation only; final focused confirmation recorded separately."
+  }
+}

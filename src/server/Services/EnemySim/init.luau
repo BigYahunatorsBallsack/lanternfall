@@ -83,6 +83,7 @@ EnemySim.CharmShot = Signal.new()
 -- Trusted slash request: source id, target/origin x/z, damage, optional Charm owner and optional direct slash2 direction/speed.
 EnemySim.NativeSlash = Signal.new()
 EnemySim.NativePillar = Signal.new()
+EnemySim.NativeJumpStarted = Signal.new() -- trusted id, kind, captured source Jump state
 -- Trusted native spawning attack: child kind, exact position and captured optional Charm owner; SpawnDirector owns births.
 EnemySim.NativeSummon = Signal.new()
 EnemySim.CharmSupport = Signal.new()
@@ -217,6 +218,9 @@ friends = CharmedWorld.new(world.params, {
 	end,
 	expired = function(member, x, z)
 		EnemySim.resolveCharmDeath(member, x, z)
+	end,
+	jumpStarted = function(id, kind, state)
+		EnemySim.NativeJumpStarted:Fire(id, kind, state)
 	end,
 	spawn = function(member, kind, x, z, count, spread)
 		EnemySim.spawnCharmChildren(member, kind, x, z, count, spread)
@@ -557,6 +561,10 @@ local function stepOnce()
 		targetKeys
 	)
 	currentTick += 1
+	for _, id in world.nativeJumpStarts do
+		local index = world.indexOf[id]
+		EnemySim.NativeJumpStarted:Fire(id, world.kinds[index], world.nativeJumps[index])
+	end
 	local stepNow = workspace:GetServerTimeNow()
 	volleys:step(STEP_SECONDS, hurtXs, hurtZs, targetCount)
 	local ended = volleys.ended

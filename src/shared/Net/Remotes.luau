@@ -267,4 +267,5 @@ Remotes.SetMovementIntent = {
 Remotes.DigSites = { direction = "toClient" } -- server snapshot: Net/Types.DigSite rows, no client commands
 Remotes.NativeSlashes = { direction = "toClient" } -- bounded source slash fire/end batches; no client intent
 Remotes.NativeFog = { direction = "toClient" } -- immutable wave visibility and alive state; no client can enable fog
+Remotes.NativeJumps = { direction = "toClient" } -- bounded server-owned jump start/end batches, no client intent
 return table.freeze(Remotes)

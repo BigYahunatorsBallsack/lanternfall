@@ -316,6 +316,12 @@ function Friends.step(self: any, dt: number, now: number, hostile: any)
 	end
 	local contacts =
 		self.world:step(dt, xs, zs, #ids, self.targetHurtXs, self.targetHurtZs, radii, inputXs, inputZs, nil, nil, ids)
+	if self.callbacks.jumpStarted then
+		for _, id in self.world.nativeJumpStarts do
+			local index = self.world.indexOf[id]
+			self.callbacks.jumpStarted(id, self.world.kinds[index], self.world.nativeJumps[index])
+		end
+	end
 	-- A native crossing can leave the map during World.step. Despawn is cleanup, not a Charm death.
 	if self.world.alive < self.world.count then
 		for id, member in self.members do

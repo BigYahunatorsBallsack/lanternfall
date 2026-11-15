@@ -14,6 +14,68 @@ local data = {
 		sourceMd5 = "936fb8e19c1a3dbccb65ad6f21725002",
 		radiusPoints = 17.0294,
 	},
+	presentation = {
+		parent = {
+			scale = {
+				variantType = "Vector2",
+				values = {
+					0.75,
+					0.75,
+				},
+			},
+		},
+		shadow = {
+			unique_name_in_owner = true,
+			show_behind_parent = true,
+			position = {
+				variantType = "Vector2",
+				values = {
+					0,
+					-10,
+				},
+			},
+			scale = {
+				variantType = "Vector2",
+				values = {
+					1.5,
+					1.5,
+				},
+			},
+		},
+		warning = {
+			unique_name_in_owner = true,
+			visible = false,
+			show_behind_parent = true,
+			position = {
+				variantType = "Vector2",
+				values = {
+					0,
+					2,
+				},
+			},
+			scale = {
+				variantType = "Vector2",
+				values = {
+					1.5,
+					1.5,
+				},
+			},
+		},
+		shadowTexture = {
+			source = "res://entities/units/enemies/jungle/elites/carnotaurus/shadow.png",
+			textureSource = "res://.import/shadow.png-194ff94970b86819410c921565ad7291.stex",
+			textureMd5 = "66b67fa7d4c44583715055a064695880",
+			widthPoints = 120,
+			heightPoints = 56,
+		},
+		warningTexture = {
+			source = "res://entities/units/enemies/jungle/elites/carnotaurus/land_shadow_warning.png",
+			textureSource = "res://.import/land_shadow_warning.png-6f8d7ca9c904e4d5b351ebac95a72c0b.stex",
+			textureMd5 = "0786f8ecf652ede73cd1769ac76d4a05",
+			widthPoints = 120,
+			heightPoints = 40,
+		},
+	},
 	movement = {
 		edge_distance = 300,
 		edge_randomization = 100,
@@ -174,6 +236,8 @@ local data = {
 		line = 97,
 	},
 	sourceConstants = {
+		shadowAirScale = 2,
+		shadowHeightShrinkShare = 0.5,
 		defaultProjectileDamage = 1,
 		deathWaveCutoffSeconds = 0.5,
 		edgeMapDistancePoints = 64,
@@ -206,6 +270,23 @@ data.patrolRule = {
 	cornerThreshold = data.sourceConstants.cornerRandomThreshold,
 	noneDirectionOrder = data.sourceConstants.noneDirectionOrder,
 	pixel = POINT,
+}
+data.presentationRule = {
+	parentScale = data.presentation.parent.scale.values[2],
+	groundOffsetZ = data.presentation.shadow.position.values[2] * POINT,
+	initialScale = data.presentation.shadow.scale.values[2],
+	airScale = data.sourceConstants.shadowAirScale,
+	heightShrinkShare = data.sourceConstants.shadowHeightShrinkShare,
+	shadowWidth = data.presentation.shadowTexture.widthPoints * POINT,
+	shadowHeight = data.presentation.shadowTexture.heightPoints * POINT,
+	warningWidth = data.presentation.warningTexture.widthPoints
+		* data.presentation.warning.scale.values[1]
+		* data.presentation.parent.scale.values[1]
+		* POINT,
+	warningHeight = data.presentation.warningTexture.heightPoints
+		* data.presentation.warning.scale.values[2]
+		* data.presentation.parent.scale.values[2]
+		* POINT,
 }
 local land = data.attacks.Land_shoot_behavior.properties
 local death = data.attacks.AttackBehaviorNormal.properties

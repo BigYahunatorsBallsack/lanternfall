@@ -21,6 +21,8 @@ def generate():
  assert jump['scriptSource']=='res://entities/units/enemies/attack_behaviors/jump_attack_behavior.gd'
  assert node('Land_shoot_behavior','.')['scriptSource']=='res://entities/units/enemies/attack_behaviors/shooting_attack_behavior.gd'
  stats=root['properties']['stats']['resource']
+ art=module('dimetrodon_texture','tools/prepare-character-jungle-art.py')
+ presentation={'parent':node('Shadow_parent','.')['properties'],'shadow':node('Shadow','Shadow_parent')['properties'],'warning':node('Land_shadow_warning','Shadow_parent')['properties'], 'shadowTexture':art.texture_metadata(pck,'res://entities/units/enemies/jungle/elites/carnotaurus/shadow.png'),'warningTexture':art.texture_metadata(pck,'res://entities/units/enemies/jungle/elites/carnotaurus/land_shadow_warning.png')}
  bulletPath='res://projectiles/bullet_enemy/enemy_projectile.tscn'
  bullet=pck.read(bulletPath).decode('utf-8')
  bulletRadius=float(re.search(r'radius = ([0-9.]+)',bullet)[1])
@@ -36,11 +38,11 @@ def generate():
  scripts=[root['scriptSource'],move['scriptSource'],jump['scriptSource'],node('Land_shoot_behavior','.')['scriptSource'],'res://global/entity_spawner.gd','res://singletons/utils.gd']
  return {'version':reference['version'],'steamBuild':int(reference['steamBuildId']),'source':path,'sourceMd5':pck.entries[path]['md5'],'actorRegistered':False,'worldAdapterImplemented':False,'worldComponentAdapterImplemented':True,
   'projectileCollider':{'source':bulletPath,'sourceMd5':pck.entries[bulletPath]['md5'],'radiusPoints':bulletRadius},
-  'movement':move['properties'],'jump':jump['properties'],'stats':{k:v for k,v in pck.resource(stats)['properties'].items() if isinstance(v,(int,float,bool))},'statsSource':stats,'statsMd5':pck.entries[stats]['md5'],'attacks':attacks,
+  'presentation':presentation,'movement':move['properties'],'jump':jump['properties'],'stats':{k:v for k,v in pck.resource(stats)['properties'].items() if isinstance(v,(int,float,bool))},'statsSource':stats,'statsMd5':pck.entries[stats]['md5'],'attacks':attacks,
   'scriptSources':[{'source':p.removesuffix('.gd')+'.gdc','sourceMd5':pck.entries[p.removesuffix('.gd')+'.gdc']['md5']} for p in scripts],
   'bindingAudit':{'directLandingDamageImplementedByBoundMethod':False,'exportedJumpDamageUnused':True,'exportedLandingRadiusUnused':True,'patrolMaxTargetDistanceOverwritten':True,'freshJumpTimer':0,'freshLandingTimer':0,'poolRespawnCallsReset':True,'coldSpawnerCallsInitWithoutRespawn':True},
   'engineSource':{'url':'https://raw.githubusercontent.com/godotengine/godot/3.5.3-stable/core/math/math_funcs.cpp','symbol':'Math::ease','line':97},
-  'sourceConstants':{'defaultProjectileDamage':1,'deathWaveCutoffSeconds':0.5,'edgeMapDistancePoints':64,'cornerRandomThreshold':0.5,'fallEasePower':3,'riseShare':0.5,'noneDirectionOrder':['Bottom','Right','Left','Top']}}
+  'sourceConstants':{'shadowAirScale':2,'shadowHeightShrinkShare':0.5,'defaultProjectileDamage':1,'deathWaveCutoffSeconds':0.5,'edgeMapDistancePoints':64,'cornerRandomThreshold':0.5,'fallEasePower':3,'riseShare':0.5,'noneDirectionOrder':['Bottom','Right','Left','Top']}}
 
 def main():
  parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--check',action='store_true');args=parser.parse_args()
@@ -59,6 +61,17 @@ data.patrolRule = {
  cornerThreshold = data.sourceConstants.cornerRandomThreshold,
  noneDirectionOrder = data.sourceConstants.noneDirectionOrder,
  pixel = POINT,
+}
+data.presentationRule = {
+ parentScale = data.presentation.parent.scale.values[2],
+ groundOffsetZ = data.presentation.shadow.position.values[2] * POINT,
+ initialScale = data.presentation.shadow.scale.values[2],
+ airScale = data.sourceConstants.shadowAirScale,
+ heightShrinkShare = data.sourceConstants.shadowHeightShrinkShare,
+ shadowWidth = data.presentation.shadowTexture.widthPoints * POINT,
+ shadowHeight = data.presentation.shadowTexture.heightPoints * POINT,
+ warningWidth = data.presentation.warningTexture.widthPoints * data.presentation.warning.scale.values[1] * data.presentation.parent.scale.values[1] * POINT,
+ warningHeight = data.presentation.warningTexture.heightPoints * data.presentation.warning.scale.values[2] * data.presentation.parent.scale.values[2] * POINT,
 }
 local land = data.attacks.Land_shoot_behavior.properties
 local death = data.attacks.AttackBehaviorNormal.properties

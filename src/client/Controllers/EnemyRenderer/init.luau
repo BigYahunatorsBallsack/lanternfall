@@ -31,6 +31,7 @@ local DeathBursts = require(script.DeathBursts)
 local GraphicsController = require(script.Parent.GraphicsController)
 local HitBursts = require(script.HitBursts)
 local Models = require(script.SpriteModels)
+local JumpPresentation = require(script.Parent.NativeJumpController)
 local RunStateController = require(script.Parent.RunStateController)
 local SnapshotBuffer = require(script.SnapshotBuffer)
 
@@ -358,7 +359,8 @@ local function render(dt: number)
 					current.seed,
 					partList,
 					cframeList,
-					count
+					count,
+					JumpPresentation.getShadow(id)
 				)
 				if current.revealIn > 0 then
 					current.revealIn -= 1
