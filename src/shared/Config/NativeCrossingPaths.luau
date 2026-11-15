@@ -60,5 +60,7 @@ return {
 		},
 	},
 	worldConnected = false,
+	worldAdapterConnected = true,
+	worldAdapterScope = "World movement, shape filtering, rotated offsets and quiet removal; no registered actors or snapshot/client acceptance.",
 	nativePresentationAccepted = false,
 }

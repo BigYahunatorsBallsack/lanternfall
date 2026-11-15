@@ -59,7 +59,9 @@ def generate():
         'families': families, 'rules': rules,
         'ruleSources': [{'source': p.removesuffix('.gd') + '.gdc',
                          'sourceMd5': pck.entries[p.removesuffix('.gd') + '.gdc']['md5']} for p in paths],
-        'worldConnected': False, 'nativePresentationAccepted': False,
+        'worldConnected': False, 'worldAdapterConnected': True,
+        'worldAdapterScope': 'World movement, shape filtering, rotated offsets and quiet removal; no registered actors or snapshot/client acceptance.',
+        'nativePresentationAccepted': False,
     }
 
 

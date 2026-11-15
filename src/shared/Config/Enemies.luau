@@ -76,6 +76,7 @@ export type Enemy = {
 	accelerate: Accelerate?,
 	pursuer: Pursuer?,
 	nativeDetection: NativeDetection?,
+	nativeCrossing: { warningSeconds: number, maxYDiff: number }?, -- source-only crossing adapter until actor registration
 	retaliate: Retaliate?,
 	pulse: Pulse?,
 	hatch: Hatch?,

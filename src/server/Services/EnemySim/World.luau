@@ -41,6 +41,7 @@ local PointScale = require(Shared.Config.Stats).range.studsPerPoint
 local DecayingSpeed = require(script.Parent.DecayingSpeed)
 local NativePursuer = require(script.Parent.NativePursuer)
 local NativeDetection = require(script.Parent.NativeTargetDetection)
+local NativeCrossing = require(script.Parent.NativeCrossing)
 local EntryHealing = require(script.Parent.NativeEntryHealing)
 local NativeMovement = require(script.Parent.NativeMovement)
 local NativeCharge = require(script.Parent.NativeStraightCharge)
@@ -128,6 +129,7 @@ export type World = typeof(setmetatable(
 		boosts: { number }, -- multiplier on its speed from accelerating (kind.accelerate), 1 otherwise (B9)
 		pursuers: { NativePursuer.State? },
 		detections: { NativeDetection.State? },
+		crossings: { NativeCrossing.State? },
 		nativeCharges: { NativeCharge.State? },
 		nativeSpawnClocks: { ShootingClock.State? },
 		boostClocks: { number }, -- seconds towards its next accelerate step
@@ -224,6 +226,7 @@ function World.new(params: Params): World
 		boosts = {},
 		pursuers = {},
 		detections = {},
+		crossings = {},
 		nativeCharges = {},
 		nativeSpawnClocks = {},
 		boostClocks = {},
@@ -292,6 +295,7 @@ function World.new(params: Params): World
 		self.boosts,
 		self.pursuers,
 		self.detections,
+		self.crossings,
 		self.nativeCharges,
 		self.nativeSpawnClocks,
 		self.boostClocks,
@@ -403,6 +407,7 @@ function World.spawn(
 	self.boostClocks[i] = 0
 	self.pursuers[i] = if kind.pursuer then NativePursuer.new(contactDamage) else nil
 	self.detections[i] = if kind.nativeDetection then NativeDetection.new() else nil
+	self.crossings[i] = if kind.nativeCrossing then NativeCrossing.new() else nil
 	local pursuer = self.pursuers[i]
 	if pursuer and self.params.referencePlayerSpeed then
 		pursuer.referenceSpeed = self.params.referencePlayerSpeed(nil, x, z)
@@ -687,6 +692,12 @@ function World.getHurtGeometry(self: World, id: number): (number?, number?, numb
 	return x, z, kind.hurtRadius or kind.radius
 end
 
+-- Crossing's body and hurt areas share the local reveal state; contact is governed separately by Enemy physics.
+local function shapeEnabled(self: World, index: number): boolean
+	local state = self.crossings[index]
+	return not state or NativeCrossing.active(state)
+end
+
 -- Ids of living enemies whose circle overlaps the circle (x, z, radius), written to out[1 .. n]; returns n.
 function World.queryRadius(self: World, x: number, z: number, radius: number, out: { number }): number
 	local scratch = self.queryScratch
@@ -695,7 +706,7 @@ function World.queryRadius(self: World, x: number, z: number, radius: number, ou
 	local count = 0
 	for s = 1, found do
 		local i = scratch[s]
-		if hp[i] > 0 then
+		if hp[i] > 0 and (self.crossings[i] == nil or shapeEnabled(self, i)) then
 			local reach = radius + (kinds[i].hurtRadius or kinds[i].radius) -- Brotato's Hurtbox
 			local hx, hz = Hurt.center(kinds[i], xs[i], zs[i])
 			local dx, dz = hx - x, hz - z
@@ -728,7 +739,7 @@ function World.querySegment(
 	local count = 0
 	for s = 1, found do
 		local i = scratch[s]
-		if hp[i] > 0 then
+		if hp[i] > 0 and (self.crossings[i] == nil or shapeEnabled(self, i)) then
 			local hx, hz = Hurt.center(kinds[i], xs[i], zs[i])
 			local px, pz = hx - x0, hz - z0
 			local t = if lengthSquared > EPSILON then math.clamp((px * sx + pz * sz) / lengthSquared, 0, 1) else 0
@@ -1322,6 +1333,7 @@ function World.step(
 	end
 	local p = self.params
 	local count = self.count
+	local hasCrossings = next(self.crossings) ~= nil
 	local ids, kinds, xs, zs = self.ids, self.kinds, self.xs, self.zs
 	local hash, scratch = self.hash, self.scratch
 	local playerRadius = p.playerRadius
@@ -1333,6 +1345,10 @@ function World.step(
 
 	-- Native Timer runs independently of targets; movement detection latches once against the nearest live target.
 	for i = 1, count do
+		local crossing = if hasCrossings then self.crossings[i] else nil
+		if crossing and kinds[i].nativeCrossing then
+			NativeCrossing.advanceWarning(crossing, kinds[i].nativeCrossing, dt)
+		end
 		local rule = kinds[i].pursuer
 		local state = self.pursuers[i]
 		if rule and state then
@@ -1402,6 +1418,9 @@ function World.step(
 		local walk = (
 			if kind.pursuer then baseMoveSpeed(self, i) else kind.speed * self.speedFactors[i] * self.boosts[i]
 		) * self.slowFactors[i]
+		if not (not hasCrossings or shapeEnabled(self, i)) then
+			walk = 0 -- hidden crossing get_move_input is ZERO, independent of its configured walk speed
+		end
 		knocked[i] = share > 0 and length * knock.speedPerPoint * share > walk
 		if length < stopBelow then
 			kx, kz = 0, 0
@@ -1462,14 +1481,15 @@ function World.step(
 	end
 
 	-- 2. steering
-	if targetCount > 0 or p.goalsWithoutTargets then
+	if targetCount > 0 or p.goalsWithoutTargets or hasCrossings then
 		local tolerance = p.keepDistanceTolerance
 		local steerMargin = p.obstacleSteerMargin
 		-- neighbours may have moved up to one step since the hash was built
 		local queryPadding = maxRadius + self.maxSpeed * dt
 		for i = 1, count do
 			local kind = kinds[i]
-			if targetCount == 0 and not self.hasGoal[i] and not kind.wander then
+			local crossing = if hasCrossings then self.crossings[i] else nil
+			if targetCount == 0 and not crossing and not self.hasGoal[i] and not kind.wander then
 				continue
 			end
 			local nativeChargeState = self.nativeCharges[i]
@@ -1515,7 +1535,49 @@ function World.step(
 			local toGoal = self.hasGoal[i]
 			local detection = self.detections[i]
 			local wander = if detection and detection.detected then nil else kind.wander
-			if toGoal then
+			if crossing then
+				local initializing = crossing.phase == "Ready"
+				x, z, bestDx, bestDz = NativeCrossing.movement(
+					crossing,
+					assert(kind.nativeCrossing, "Crossing state requires its source movement rule"),
+					p,
+					x,
+					z,
+					function()
+						return nextRandom(self)
+					end
+				)
+				xs[i], zs[i] = x, z
+				if crossing.phase == "Removed" then
+					self:remove(ids[i])
+					continue
+				end
+				if not NativeCrossing.active(crossing) then
+					continue
+				end
+				if initializing then
+					local rotated = table.clone(kind)
+					local c, sine = math.cos(crossing.rotation), math.sin(crossing.rotation)
+					local function rotate(ox: number?, oz: number?): (number, number)
+						local px, pz = ox or 0, oz or 0
+						return px * c - pz * sine, px * sine + pz * c
+					end
+					rotated.nativeBodyOffsetX, rotated.nativeBodyOffsetZ =
+						rotate(kind.nativeBodyOffsetX, kind.nativeBodyOffsetZ)
+					rotated.nativeHurtOffsetX, rotated.nativeHurtOffsetZ =
+						rotate(kind.nativeHurtOffsetX, kind.nativeHurtOffsetZ)
+					rotated.nativeHitOffsetX, rotated.nativeHitOffsetZ =
+						rotate(kind.nativeHitOffsetX, kind.nativeHitOffsetZ)
+					rotated.nativeHurtChildX, rotated.nativeHurtChildZ =
+						rotate(kind.nativeHurtChildX, kind.nativeHurtChildZ)
+					rotated.nativeHitChildX, rotated.nativeHitChildZ =
+						rotate(kind.nativeHitChildX, kind.nativeHitChildZ)
+					kind = rotated
+					kinds[i] = rotated
+				end
+				toGoal, wander = false, nil
+				distance = math.sqrt(bestDx * bestDx + bestDz * bestDz)
+			elseif toGoal then
 				bestDx, bestDz = self.goalXs[i] - x, self.goalZs[i] - z
 				distance = math.sqrt(bestDx * bestDx + bestDz * bestDz)
 			elseif wander then
@@ -1543,7 +1605,9 @@ function World.step(
 			local advance
 			local ranged = kind.ranged
 			local flee = kind.flee
-			if toGoal or wander then
+			if crossing then
+				advance = maxMove
+			elseif toGoal or wander then
 				advance = math.min(maxMove, distance)
 			elseif kind.stayInRange then
 				-- Brotato's StayInRangeFromPlayer: walks to the spot at its range on the line from the target
@@ -1592,6 +1656,7 @@ function World.step(
 				if
 					j ~= i
 					and other.mass >= mass
+					and (not hasCrossings or shapeEnabled(self, j))
 					and (kind.nativeBodyMask == nil or other.nativeBodyMask == nil or Body.collides(kind, other))
 				then
 					local nx = bx - xs[j] - (other.nativeBodyOffsetX or 0)
@@ -1625,6 +1690,9 @@ function World.step(
 	for _ = 1, p.separationPasses do
 		rebuildHash(self, xs, zs)
 		for i = 1, count do
+			if not (not hasCrossings or shapeEnabled(self, i)) then
+				continue
+			end
 			local kindI = kinds[i]
 			local radiusI, massI = kindI.radius, kindI.mass
 			local found = hash:query(xs[i], zs[i], radiusI + self.maxColliderRadius, scratch)
@@ -1632,6 +1700,7 @@ function World.step(
 				local j = scratch[s]
 				if
 					j > i
+					and (not hasCrossings or shapeEnabled(self, j))
 					and (
 						kindI.nativeBodyMask == nil
 						or kinds[j].nativeBodyMask == nil
@@ -1678,7 +1747,7 @@ function World.step(
 	-- 4. constraints
 	for i = 1, count do
 		local kind = kinds[i]
-		if kind.anchored then
+		if kind.anchored or not (not hasCrossings or shapeEnabled(self, i)) then
 			continue
 		end
 		local radius = kind.radius
@@ -1724,7 +1793,7 @@ function World.step(
 			NativePursuer.beginContacts(pursuerState)
 		end
 		local hit = damage[i]
-		if hit > 0 and not knocked[i] then
+		if hit > 0 and not knocked[i] and self.hp[i] > 0 then
 			local hx, hz = Hit.center(kinds[i], xs[i], zs[i])
 			for t = 1, targetCount do
 				local reach = (kinds[i].hitRadius or kinds[i].radius)
