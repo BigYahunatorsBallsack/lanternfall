@@ -19,6 +19,7 @@ function Kinds.build(pixel: number): { [string]: any }
 			look = f.fallbackLook,
 			nativeArtPending = true,
 			nativeZoneId = C.zoneId,
+			specialSpawn = f.lootEncounter,
 			nativeObstacleCollision = f.obstacleCollision,
 			nativeHitOffsetX = hit.totalPoints[1] * pixel,
 			nativeHitOffsetZ = hit.totalPoints[2] * pixel,
@@ -55,6 +56,8 @@ function Kinds.build(pixel: number): { [string]: any }
 			loot = {
 				consumableChance = if s.can_drop_consumables then s.base_drop_chance else 0,
 				crateShare = if s.can_drop_consumables then s.item_drop_chance else 0,
+				crate = if s.always_drop_consumables then true else nil,
+				alwaysOrbs = if s.always_drop_consumables then true else nil,
 			},
 		}
 		if f.activeChargeVariant then

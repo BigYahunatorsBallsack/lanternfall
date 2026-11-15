@@ -348,6 +348,25 @@
       "pngSha256": "051aeabebb51d24e586bdd9b2c9ab9e48801152d37567d2df4afcc00f6177220"
     },
     {
+      "id": "HarpymimusLooter",
+      "source": "res://entities/units/enemies/jungle/basic/harpymimus_looter/harpymimus_looter.png",
+      "textureSource": "res://.import/harpymimus_looter.png-a2eb49b2cd951e707ee44084e6f3944f.stex",
+      "textureMd5": "8b8f27b32b81808c61b6770fff8cb369",
+      "output": "assets/enemies/native-jungle/HarpymimusLooter.png",
+      "size": [
+        120,
+        120
+      ],
+      "alphaBounds": [
+        5,
+        7,
+        115,
+        114
+      ],
+      "rgbaSha256": "85572e03c98665ec7ac5ad20deb194af710cebba300ee7666d0579e74c068891",
+      "pngSha256": "44ea4404d3a5c749d1119908ccf148d6d2c6af615be220f46649796d308cad0c"
+    },
+    {
       "id": "Pillar_bullet_pillar_0002",
       "source": "res://projectiles/pillar_enemy/sprites/bullet_pillar_0002.png",
       "textureSource": "res://.import/bullet_pillar_0002.png-b64813647bb259fcd087f6245a3b4bd8.stex",

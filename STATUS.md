@@ -1356,3 +1356,22 @@ Owner-Test lokal, je Datei eigener Aufruf:
 3. Mit StyLua im PATH jungle-walkers-/jungle-colliders-Compiler und prepare-character-jungle-art.py jeweils per python -B mit --check gegen installierte stabile1.2.0.3 prüfen.
 
 Endvergleich zum Jeholopterus-Schritt: bekannter Gobbler-Orb-Fehler wieder rot, sonst gleiche Fehleridentitäten; kein neuer Fehler und kein stabiler Fix behauptet. Alle sechs zusätzlichen Prüfungen bestanden. Nach Endlauf Server2/0 und World4/0 mit eingechecktem Runner; danach nur Dokumentation geändert.
+
+
+## Harpymimus-Looter: Originalbewegung und garantierte Beute (15.11.2026)
+
+Fortsetzung auf wp-b10-main-five-ten von erneut geprüftem GitHub-main de4e155, Entwurfs-PR151. HarpymimusLooter/Typ58 als19.neutralerJungle-Körper angebunden. Szene verwendet echtes Looter-Skript und gemeinsame Originalstats: HP5+30/Welle, Kontakt1+0,85/Welle, Tempo350±50Pixel/s,8Basismaterialien. Bewegung ist zufälliges Arena-Wandern, kein Übernehmen der alten Looter-Fluchtnäherung. Vollständige Szenenkette, Körper-/Hurt-/Kontaktkreise und Parent-/Child-Offsets geprüft; Original-PNG verlustfrei lokal vorbereitet/angesehen,23Jungle-/Pillar-Bilder,0Uploads/IDs.
+
+Source main.spawn_loot setzt bei always_drop_consumables die Materialchance auf1, unabhängig von später Welle/Horde; spawn_consumables garantiert bei item_drop_chance≥1 in den ersten20Wellen eine Kiste auch bei negativer Luck und vorherigen Kisten. JungleEnemyKinds übergibt dafür die vorhandenen loot.alwaysOrbs/crate-Flags. Jungle-AllWave-Gruppe2/Unit2 belegt Timing25s,3Wiederholungen,15sIntervall und je1Actor mit10%-Chance; Spawnanbindung bleibt bis zur vollständigen Area offen, specialSpawn verhindert gewöhnliche Zufallsmischung. Keine neue Engine-/Remote-/Schema-/Arsenal-Schnittstelle und keine Änderung des vorhandenen Economy-Balancings.
+
+NativeHarpymimusLooter5/0 nach0/4 ohne Körper: tatsächlicher Kill liefert XP-Basis8, elf Materialien im Zwei-Spieler-Fall bei festem0,999-Rundungswurf, eine wirkliche Kiste bei Welle20; außerdem Originalwachstum, Arena-Bewegung und keine neue Jungle-Auswahl. Erste Materialerwartung10 war falsch: originale CoopService-Formel verwendet0,8 und ergibt8*(1+(2/1,3-1)*0,8)=11,446..., bei diesem Wurf11. Nur Testannahme korrigiert. Mutation ohne beide Garantien2/3, Original bytegenau restauriert. GiantWorld4/0, GiantServer2/0, JungleMovement8/0, MainGameEnemyStats29/0, WorldSprites12/0, LootRules7/0 gezielt grün. Snapshot-Anzahl57→58, Eindeutigkeitsprüfungen erhalten.
+
+Endlauf317/1974/36, keine neue Fehleridentität gegen die dokumentierte Vergleichsmenge, keine Abbrüche und alle fünf zusätzlichen Prüfungen bestanden. Produktionscode währenddessen unverändert. StyLua, Selene0Fehler/18bestehendeWarnungen, Rojo, zwei Quellcompiler und Bildprüfung --check bestanden. Vorige schwankende Fehler/CharmedWorld-Leistungsauffälligkeit nicht als repariert ausgeben. Nachweis harpymimus-looter-validation.json und build/native-five-branch-ten-harpymimus-de4e155.json.
+
+Weiter48/74codevorbereitet,26offen, kein weiterer fertiger Charakter; Jungle weiterhin nicht auswählbar. Whistle-Itemdarstellung/-effekt, allgemeine Loot-Alien-Modifikatoren für spätere Captain-Inhalte, vollständiges natives Beute-Scatter/Pooling sowie weitere Familien/Bosse/Wellen/Area, Evolution, Originalgrafik/Animation/Audio/Physik/Zeit und Studio/Koop/Handy bleiben offen. Nächster Schritt: Oviraptor-/Iguanodon-Kartenquerung und versteckte Vorwarnphase portieren. Kein Merge.
+
+Owner-Test lokal:
+1. `lune run tools/luau-test-runner/lune-runner.luau -- tests/NativeHarpymimusLooter.spec.luau` erwartet5/0.
+2. Jungle-walkers-/jungle-colliders-Compiler und prepare-character-jungle-art.py jeweils mit python -B/--check und StyLua im PATH gegen installierte stabile1.2.0.3 prüfen.
+
+Endvergleich: alter Smoke-Verfolgungsfehler wieder rot, Gobbler-Orb-Fehler diesmal grün; beide Identitäten vorher dokumentiert. Keine neue Fehleridentität und kein stabiler Fix behauptet. Harpymimus5/0 nach Gesamtlauf auch mit eingechecktem Runner; nach Endlauf nur Dokumentation geändert.

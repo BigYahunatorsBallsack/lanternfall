@@ -1,0 +1,297 @@
+{
+  "referenceVersion": "1.2.0.3",
+  "steamBuild": 26642464,
+  "baseMain": "de4e155e97855cc18ffb52b1e81e53d1af8532fc",
+  "draftPr": 151,
+  "scope": "Harpymimus Looter/type58 neutral Jungle loot-encounter body, arena wandering and guaranteed base material/crate drops using existing real services; no playable area or additional character completion.",
+  "source": {
+    "typeId": 58,
+    "displayName": "Harpymimus Looter",
+    "fallbackLook": "Shadeling",
+    "source": "res://entities/units/enemies/jungle/basic/harpymimus_looter/harpymimus_looter.tscn",
+    "sourceMd5": "e0ac4e69c2a21f8fe8af3800e5588c10",
+    "statsSource": "res://entities/units/enemies/crash_zone/basic/looter/looter_stats.tres",
+    "statsMd5": "31c9c729dc7bc368cd7d85cbdcd45022",
+    "stats": {
+      "health": 5,
+      "health_increase_each_wave": 30.0,
+      "speed": 350,
+      "speed_randomization": 50,
+      "damage": 1,
+      "damage_increase_each_wave": 0.85,
+      "attack_cd": 30.0,
+      "value": 8,
+      "knockback_resistance": 0.0,
+      "gold_spread": 75,
+      "can_drop_consumables": true,
+      "always_drop_consumables": true,
+      "base_drop_chance": 1.0,
+      "item_drop_chance": 1.0,
+      "min_consumable_tier": 0,
+      "max_consumable_tier": 0,
+      "armor": 0,
+      "armor_increase_each_wave": 0.0,
+      "generate_blood": true
+    },
+    "body": {
+      "radiusPoints": 16.2788,
+      "offsetPoints": [
+        0,
+        0
+      ],
+      "source": "res://entities/units/enemies/jungle/basic/harpymimus_looter/harpymimus_looter.tscn",
+      "sourceMd5": "e0ac4e69c2a21f8fe8af3800e5588c10"
+    },
+    "hurt": {
+      "radiusPoints": 32.0,
+      "offsetPoints": [
+        0,
+        7
+      ],
+      "source": "res://entities/units/enemies/enemy.tscn",
+      "sourceMd5": "38e442588073219bb217a4b484a6d8a7"
+    },
+    "hit": {
+      "radiusPoints": 21.0238,
+      "offsetPoints": [
+        0,
+        -1
+      ],
+      "source": "res://entities/units/enemies/jungle/basic/harpymimus_looter/harpymimus_looter.tscn",
+      "sourceMd5": "e0ac4e69c2a21f8fe8af3800e5588c10"
+    },
+    "removeFirst": false,
+    "mass": 1,
+    "obstacleCollision": true,
+    "sprite": {
+      "source": "res://entities/units/enemies/jungle/basic/harpymimus_looter/harpymimus_looter.png",
+      "textureSource": "res://.import/harpymimus_looter.png-a2eb49b2cd951e707ee44084e6f3944f.stex",
+      "textureMd5": "8b8f27b32b81808c61b6770fff8cb369",
+      "widthPoints": 120,
+      "heightPoints": 120
+    },
+    "bodyBorders": true,
+    "playerCollision": false,
+    "wanderArena": true,
+    "lootEncounter": true,
+    "isLoot": true,
+    "canBeCursed": false,
+    "spawnGroup": {
+      "source": "res://zones/zone_3_jungle/0000_all/group_2.tres",
+      "sourceMd5": "ee379ace9a0eab69cfba87d42fac909c",
+      "unitSource": "res://zones/zone_3_jungle/0000_all/unit_2.tres",
+      "unitSourceMd5": "8030143bfd49f61531bbd455828490f3",
+      "timing": 25,
+      "repeats": 3,
+      "interval": 15,
+      "chance": 0.1,
+      "areaConnected": false
+    }
+  },
+  "ruleSources": [
+    {
+      "source": "res://effect_behaviors/enemies/charm_enemy_effect_behavior.gdc",
+      "sourceMd5": "a0830c473b5da00b8d278346117f5452"
+    },
+    {
+      "source": "res://entities/entity.gdc",
+      "sourceMd5": "805ebc9f4306c9ec71b786cdc7dd89af"
+    },
+    {
+      "source": "res://entities/units/enemies/attack_behaviors/attack_behavior.gdc",
+      "sourceMd5": "3f7f7c4411aa4d3b27e55e9ac3d4ab27"
+    },
+    {
+      "source": "res://entities/units/enemies/attack_behaviors/charging_attack_behavior.gdc",
+      "sourceMd5": "fcf2901832ca42a4e69e98c60629397e"
+    },
+    {
+      "source": "res://entities/units/enemies/attack_behaviors/charging_attack_deflect_bullet_behavior.gdc",
+      "sourceMd5": "daba5d3d739bba386c511fdbc2b18c92"
+    },
+    {
+      "source": "res://entities/units/enemies/attack_behaviors/shooting_attack_behavior.gdc",
+      "sourceMd5": "43d5ebd849396509ff38632915c988a2"
+    },
+    {
+      "source": "res://entities/units/enemies/attack_behaviors/spawning_attack_behavior.gdc",
+      "sourceMd5": "cbddd1b76bf3363315729d319a34798d"
+    },
+    {
+      "source": "res://entities/units/enemies/crash_zone/basic/looter/looter.gdc",
+      "sourceMd5": "c1abc6bb88c09388c062c4b97654d6d4"
+    },
+    {
+      "source": "res://entities/units/enemies/crash_zone/basic/pursuer/pursuer.gdc",
+      "sourceMd5": "9ec3187fe3a68de4c9c35e9bd3d20488"
+    },
+    {
+      "source": "res://entities/units/enemies/enemy.gdc",
+      "sourceMd5": "b341670f5ac667dc203f7eb778a2cda8"
+    },
+    {
+      "source": "res://entities/units/enemies/jungle/basic/ankylosaurus/ankylosaurus.gdc",
+      "sourceMd5": "00cac12edcc97f4b31a46615565f3802"
+    },
+    {
+      "source": "res://entities/units/enemies/jungle/basic/baby_trex/baby_trex.gdc",
+      "sourceMd5": "8d0eb87d46ac189537c97885f23c918d"
+    },
+    {
+      "source": "res://entities/units/enemies/jungle/basic/dino_egg/dino_egg.gdc",
+      "sourceMd5": "f01696d402b51e177ee02fe0bdce31c8"
+    },
+    {
+      "source": "res://entities/units/enemies/jungle/basic/pachycephalosaurus/pachycephalosaurus.gdc",
+      "sourceMd5": "8bc1d902906d2c92a141b6b122740e8c"
+    },
+    {
+      "source": "res://entities/units/enemies/jungle/basic/stintaosaurus/stintaosaurus.gdc",
+      "sourceMd5": "7ba3c455bdd6bc6b8272200ebb30040e"
+    },
+    {
+      "source": "res://entities/units/movement_behaviors/anticipate_target_movement_behavior.gdc",
+      "sourceMd5": "7e15d0a748305c8b55e8598e179cf5d9"
+    },
+    {
+      "source": "res://entities/units/movement_behaviors/detect_evolution_attack_behavior.gdc",
+      "sourceMd5": "42d8ab27f5046516ce118b723072f328"
+    },
+    {
+      "source": "res://entities/units/movement_behaviors/detect_target_movement_behavior.gdc",
+      "sourceMd5": "0e5e3fdc02f952196a6a0008bc191e99"
+    },
+    {
+      "source": "res://entities/units/movement_behaviors/follow_rand_pos_around_player_movement_behavior.gdc",
+      "sourceMd5": "b7f34c9dafc697a9c514d0238811f48a"
+    },
+    {
+      "source": "res://entities/units/movement_behaviors/follow_target_movement_behavior.gdc",
+      "sourceMd5": "e3ed9b3e5d9a75a09699b324caa5e22f"
+    },
+    {
+      "source": "res://entities/units/movement_behaviors/movement_behavior.gdc",
+      "sourceMd5": "545124c6bbc946d5a542876cd568078b"
+    },
+    {
+      "source": "res://entities/units/movement_behaviors/stay_in_range_from_player_movement_behavior.gdc",
+      "sourceMd5": "73e3ea5fbfa3506197f0ec0fc6da22c3"
+    },
+    {
+      "source": "res://entities/units/movement_behaviors/target_rand_pos_around_player_movement_behavior.gdc",
+      "sourceMd5": "faa12faf0ccf2d3d86cc56d8dee2f21f"
+    },
+    {
+      "source": "res://entities/units/movement_behaviors/target_rand_pos_movement_behavior.gdc",
+      "sourceMd5": "d5637932f5178c3dcce36f9a236958b8"
+    },
+    {
+      "source": "res://entities/units/unit/unit.gdc",
+      "sourceMd5": "aa94391f2d9681ac36b7f8617b82ff13"
+    },
+    {
+      "source": "res://global/entity_spawner.gdc",
+      "sourceMd5": "ba0576c27ac5b889c5688decda3dd838"
+    },
+    {
+      "source": "res://main.gdc",
+      "sourceMd5": "e42c7c4356e6cb9d2da8190067ebf7e5"
+    },
+    {
+      "source": "res://singletons/entity_service.gdc",
+      "sourceMd5": "f1a861f576858bbaa3e913d83c7b1807"
+    },
+    {
+      "source": "res://singletons/zone_service.gdc",
+      "sourceMd5": "d16899aba618beb55e980f67a0bf10b0"
+    }
+  ],
+  "rules": [
+    "Original Looter script/stats:HP5+30 per wave, contact1+0.85 per wave, speed350+/-50px/s, base material value8. Random arena movement, no legacy fleeing behavior.",
+    "Source always_drop_consumables guarantees the ordinary material drop despite late-wave/horde drop chance and guarantees first20-wave crate output despite negative Luck or previous crates. Source main.spawn_loot/spawn_consumables checked.",
+    "Jungle every-wave group2/unit2 binds the actor: timing25s,3repeats,15s interval, one actor with10% chance. Group remains source-only until Jungle area integration; actor marked specialSpawn to avoid ordinary random mixtures.",
+    "Existing two-player source materials formula with enemiesPerPlayer0.3 and factor0.8 gives8*(1+(2/1.3-1)*0.8)=11.446..., forced0.999 rounding roll yields11. Raw kill event remains8."
+  ],
+  "interfaces": [
+    "JungleEnemyKinds maps native always_drop_consumables to existing loot.crate/alwaysOrbs flags and lootEncounter to existing specialSpawn. No new engine/remote/profile/Arsenal interface."
+  ],
+  "focused": {
+    "NativeHarpymimusLooter": {
+      "passed": 5,
+      "failed": 0
+    },
+    "NativeGiantDragonfly": {
+      "passed": 4,
+      "failed": 0
+    },
+    "NativeGiantDragonflyServer": {
+      "passed": 2,
+      "failed": 0
+    },
+    "NativeJungleMovement": {
+      "passed": 8,
+      "failed": 0
+    },
+    "MainGameEnemyStats": {
+      "passed": 29,
+      "failed": 0
+    },
+    "WorldSprites": {
+      "passed": 12,
+      "failed": 0
+    },
+    "LootRules": {
+      "passed": 7,
+      "failed": 0
+    },
+    "red": "Absent actor0/4; final5/0 including actual EnemyKilled payload, real material field, crate pickup, stat growth and live movement.",
+    "fixtureCorrection": "Initial two-player material expectation10 was wrong; source CoopService uses0.8 factor, giving floor11 with forced0.999 roll. Corrected expectation, production economy unchanged.",
+    "mutation": "Removing crate/alwaysOrbs guarantees gives2/3; original JungleEnemyKinds restored byte-for-byte before full run.",
+    "trackedRunner": "NativeHarpymimusLooter5/0 after full suite; runtime unchanged."
+  },
+  "fullSuite": {
+    "specs": 317,
+    "passed": 1974,
+    "failed": 36,
+    "artifact": "build/native-five-branch-ten-harpymimus-de4e155.json",
+    "comparisonArtifact": "build/native-five-branch-ten-giant-dragonfly-de4e155.json",
+    "newFailureNames": [],
+    "returnedVsPrevious": [
+      [
+        "tests/Smoke.spec.luau",
+        "FAIL smoke > chases the player until it touches them"
+      ]
+    ],
+    "absentFailureNames": [
+      [
+        "tests/EnemiesB9.spec.luau",
+        "FAIL new enemies (B9) > lets a Gobbler eat the orbs on the floor and drop them all when killed"
+      ]
+    ],
+    "aborts": [],
+    "runtimeUnchangedDuringRun": true
+  },
+  "checks": {
+    "stylua": "passed",
+    "selene": "0errors/18existingWarnings",
+    "rojo": "passed",
+    "compilers": "jungle-walkers/jungle-colliders --check passed",
+    "art": "23 local images, lossless RGBA, new image previewed; prepare-character-jungle-art --check passed"
+  },
+  "counts": {
+    "codePrepared": 48,
+    "codeOpen": 26,
+    "newCompleteCharacters": 0,
+    "neutralJungleBodiesPrepared": 19,
+    "localJungleImages": 23
+  },
+  "open": [
+    "Original whistle inventory effect/presentation, generic loot-alien modifiers for later Captain-related content and complete native loot scatter/pooling are not accepted by this body step.",
+    "Remaining Jungle families, bosses, waves and area; global evolution, original graphics/animation/audio and complete physics/time/targeting parity.",
+    "Studio/coop/mobile and stable native performance acceptance; previous known failures/CharmedWorld CPU fluctuation remain open."
+  ],
+  "merged": false,
+  "uploads": 0,
+  "runtimeAssetIdsChanged": 0,
+  "arsenalChanged": false
+}
