@@ -5,6 +5,7 @@ local Shared = game:GetService("ReplicatedStorage").Shared
 local Config = require(Shared.Config)
 local C = require(Shared.Config.NightmareEnemies)
 local Geometry = require(Shared.Util.NativeSlashGeometry)
+local Kinds = require(Shared.Util.EnemyKinds)
 local Types = require(Shared.Net.Types)
 local Net = require(Shared.Net)
 local Enemy = require(script.Parent.EnemySim)
@@ -37,30 +38,46 @@ end
 local function sourceAlive(id: number): boolean
 	return Enemy.isAlive(id) or Enemy.isCharmed(id)
 end
-local function start(id: number, tx: number, tz: number, damage: number, owner: number?)
+local function start(
+	id: number,
+	tx: number,
+	tz: number,
+	damage: number,
+	owner: number?,
+	direct: { dx: number, dz: number, speed: number }?
+)
 	if Run.getPhase() ~= "Running" or not sourceAlive(id) then
 		return
 	end
 	local name = Enemy.getKind(id)
-	if name ~= "MadSlasher" then
+	local volley
+	if direct then
+		local kind = name and Kinds.get(name)
+		if not kind or not kind.ranged or not kind.ranged.nativeForwardSlash then
+			return
+		end
+		volley = { { x = tx, z = tz, dx = direct.dx, dz = direct.dz, speed = direct.speed } }
+	elseif name == "MadSlasher" then
+		local a = C.enemies.MadSlasher.attack
+		local player = if owner then Players:GetPlayerByUserId(owner) else nil
+		volley = Geometry.volley(
+			tx,
+			tz,
+			a.projectile_spawn_spread,
+			a.projectile_speed * PIXEL,
+			a.number_projectiles,
+			PIXEL,
+			function()
+				return Random.number("Combat", player)
+			end
+		)
+	else
 		return
 	end
-	local a = C.enemies.MadSlasher.attack
-	local player = if owner then Players:GetPlayerByUserId(owner) else nil
-	local volley = Geometry.volley(
-		tx,
-		tz,
-		a.projectile_spawn_spread,
-		a.projectile_speed * PIXEL,
-		a.number_projectiles,
-		PIXEL,
-		function()
-			return Random.number("Combat", player)
-		end
-	)
 	for _, shot in volley do
 		nextId += 1
-		local info = {
+		local info: Types.NativeSlashInfo = {
+			variant = if direct then "Forward" else nil,
 			id = nextId,
 			sourceId = id,
 			ownerId = owner,
@@ -77,7 +94,7 @@ local function start(id: number, tx: number, tz: number, damage: number, owner: 
 end
 local function collision(shot: Shot, age: number): boolean
 	local info = shot.info
-	if not Geometry.active(age) then
+	if not Geometry.active(age, info) then
 		return false
 	end
 	if info.ownerId then
@@ -117,14 +134,16 @@ local function step()
 	local now = workspace:GetServerTimeNow()
 	for index = #shots, 1, -1 do
 		local shot = shots[index]
-		local age = math.min(C.slash.stopAt, math.max(0, now - shot.info.at))
-		local stop = not sourceAlive(shot.info.sourceId)
+		local stopAt = Geometry.stopAt(shot.info)
+		local age = math.min(stopAt, math.max(0, now - shot.info.at))
+		-- Normal slash2 leaves delete_projectile_on_death=false; MadSlasher explicitly enables it.
+		local stop = shot.info.variant ~= "Forward" and not sourceAlive(shot.info.sourceId)
 		while not stop and shot.age < age - 1e-9 do
 			local nextFrame = (math.floor(shot.age * C.rules.physicsRate + 1e-7) + 1) / C.rules.physicsRate
 			shot.age = math.min(age, nextFrame)
 			stop = collision(shot, shot.age)
 		end
-		if stop or age >= C.slash.stopAt then
+		if stop or age >= stopAt then
 			table.insert(ended, shot.info.id)
 			table.remove(shots, index)
 		end

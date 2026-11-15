@@ -78,7 +78,7 @@ EnemySim.ShotHit = Signal.new()
 EnemySim.Stepped = Signal.new()
 -- Server-only cosmetic events for friendly projectiles.
 EnemySim.CharmShot = Signal.new()
--- Trusted source slash request: source id, target x/z, damage and optional Charm owner.
+-- Trusted slash request: source id, target/origin x/z, damage, optional Charm owner and optional direct slash2 direction/speed.
 EnemySim.NativeSlash = Signal.new()
 EnemySim.NativePillar = Signal.new()
 -- Trusted native spawning attack: child kind, exact position and captured optional Charm owner; SpawnDirector owns births.
@@ -192,8 +192,8 @@ friends = CharmedWorld.new(world.params, {
 	damage = function(id, amount)
 		EnemySim.damage(id, amount, nil)
 	end,
-	emitSlash = function(id, tx, tz, damage, owner)
-		EnemySim.NativeSlash:Fire(id, tx, tz, damage, owner)
+	emitSlash = function(id, tx, tz, damage, owner, direct)
+		EnemySim.NativeSlash:Fire(id, tx, tz, damage, owner, direct)
 	end,
 	emitPillar = function(id, x, z, dx, dz, speed, damage, owner, scale)
 		EnemySim.NativePillar:Fire(id, x, z, dx, dz, speed, damage, owner, scale)
@@ -300,7 +300,9 @@ local function fireShots(stepNow: number)
 			NativeVolley.emit(ranged.nativeVolley, x, z, targetXs[t], targetZs[t], ranged.projectileSpeed, function()
 				return RandomService.number("Combat")
 			end, function(px, pz, dx, dz, speed, scale)
-				if ranged.nativePillar then
+				if ranged.nativeForwardSlash then
+					EnemySim.NativeSlash:Fire(shots[k + 1], px, pz, damage, nil, { dx = dx, dz = dz, speed = speed })
+				elseif ranged.nativePillar then
 					EnemySim.NativePillar:Fire(shots[k + 1], px, pz, dx, dz, speed, damage, nil, scale)
 				else
 					EnemySim.fireShot(px, pz, dx, dz, speed, ranged.projectileRange, ranged.projectileRadius, damage)

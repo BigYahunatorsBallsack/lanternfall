@@ -323,6 +323,7 @@ export type Ranged = {
 	projectileRadius: number, -- studs, hit circle of a shot (Brotato: 17 px)
 	nativeSlash: boolean?, -- emits source slash requests instead of ordinary bullets
 	nativePillar: boolean?, -- delayed native circle projectile, distinct from an always-active bullet
+	nativeForwardSlash: boolean?, -- source slash2 with parallel spawns and forward Hitbox parent
 	projectileCount: number?, -- independent shots per native animation method
 	fromCenter: boolean?,
 	nativeTiming: {

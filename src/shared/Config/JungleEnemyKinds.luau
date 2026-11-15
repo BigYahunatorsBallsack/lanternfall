@@ -47,6 +47,7 @@ function Kinds.build(pixel: number): { [string]: any }
 			nativeArmor = f.nativeArmor,
 			nativeDamageRounding = f.nativeDamageRounding,
 			nativeCanBeBoosted = f.canBeBoosted,
+			nativeFollowXShare = f.followXShare,
 			damagePerWave = s.damage_increase_each_wave,
 			speed = (s.speed - s.speed_randomization) * pixel,
 			speedMax = (s.speed + s.speed_randomization) * pixel,
@@ -77,7 +78,6 @@ function Kinds.build(pixel: number): { [string]: any }
 		if f.activeChargeVariant then
 			local a = f.chargingVariants[f.activeChargeVariant]
 			local rules = C.spawningRules
-			result[id].nativeFollowXShare = f.followXShare
 			result[id].nativeCharge = {
 				cooldown = a.cooldown / rules.frameRate,
 				jitter = a.max_cd_randomization / rules.frameRate,
@@ -233,7 +233,8 @@ function Kinds.build(pixel: number): { [string]: any }
 				projectileRange = rules.projectileRangeStuds,
 				projectileRadius = (f.projectileRadiusPoints or rules.pillar.radiusPoints) * pixel,
 				aimLead = 0,
-				nativePillar = not f.bulletProjectile,
+				nativePillar = not f.bulletProjectile and not f.forwardSlashProjectile,
+				nativeForwardSlash = f.forwardSlashProjectile,
 				nativeVolley = {
 					count = a.number_projectiles,
 					spread = a.projectile_spread,
@@ -244,6 +245,13 @@ function Kinds.build(pixel: number): { [string]: any }
 					scaleWithCount = a.scale_projectiles_with_count,
 					minimumScale = a.min_projectile_scale,
 					specificDegrees = if a.use_specific_angle then a.specific_degrees_spawns else nil,
+					parallel = if a.parallel_slashes
+						then {
+							spacing = a.parallel_spacing * pixel,
+							angleOffset = a.parallel_angle_offset,
+							forwardOffset = (a.forward_spawn_offset or 0) * pixel,
+						}
+						else nil,
 				},
 				nativeTiming = {
 					fireInterval = a.cooldown / rules.frameRate,

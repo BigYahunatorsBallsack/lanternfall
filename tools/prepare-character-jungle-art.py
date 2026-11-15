@@ -1,4 +1,4 @@
-"""Prepare verified Jungle body/pillar PNGs locally; no uploads or runtime asset identifiers."""
+"""Prepare verified Jungle body/pillar/slash PNGs locally; no uploads or runtime asset identifiers."""
 from __future__ import annotations
 import argparse, hashlib, importlib.util, io, json, re, struct, sys
 from pathlib import Path
@@ -31,6 +31,10 @@ def main():
  pillar='res://projectiles/pillar_enemy/pillar_projectile.tscn'
  for path in re.findall(r'\[ext_resource path="([^"]+\.png)" type="Texture"',pck.read(pillar).decode('utf-8')):
   selected.append(('Pillar_'+Path(path).stem,path))
+ if any(row.get('forwardSlashProjectile') for row in data['enemies'].values()):
+  slash=data['shootingRules']['forwardSlash']['source']
+  for path in re.findall(r'\[ext_resource path="([^"]+\.png)" type="Texture"',pck.read(slash).decode('utf-8')):
+   selected.append(('Slash_'+Path(path).stem,path))
  manifest={'version':reference['version'],'steamBuild':reference['steamBuildId'],'uploadedCount':0,'runtimeAssetIdsChanged':False,'originalArtAcceptedInGame':False,'frames':[]}
  for identity,path in selected:
   metadata=texture_metadata(pck,path);texture=metadata['textureSource']
@@ -44,5 +48,5 @@ def main():
  text=json.dumps(manifest,indent=2)+'\n';path=folder/'manifest.json'
  if args.check:assert path.read_text(encoding='utf-8')==text,'Stale Jungle image manifest'
  else:path.write_text(text,encoding='utf-8')
- print(str(len(selected))+' native Jungle body/pillar frames prepared locally; no uploads or runtime identifiers changed')
+ print(str(len(selected))+' native Jungle body/pillar/slash frames prepared locally; no uploads or runtime identifiers changed')
 if __name__=='__main__':main()

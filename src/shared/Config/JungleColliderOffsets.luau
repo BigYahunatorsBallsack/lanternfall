@@ -1300,6 +1300,54 @@ return {
 				initialParentRotation = 0,
 			},
 		},
+		Pachyrhinosaurus = {
+			source = "res://entities/units/enemies/jungle/basic/pachyrhinosaurus/pachyrhinosaurus.tscn",
+			sourceMd5 = "e8dcda88bdd74d8f2acb11d750b4545e",
+			sceneChain = {
+				"res://entities/units/enemies/jungle/basic/pachyrhinosaurus/pachyrhinosaurus.tscn",
+				"res://entities/units/enemies/enemy.tscn",
+				"res://entities/units/unit/unit.tscn",
+				"res://entities/entity.tscn",
+			},
+			hurt = {
+				parentPoints = {
+					0,
+					-16,
+				},
+				childPoints = {
+					0,
+					-13,
+				},
+				totalPoints = {
+					0,
+					-29,
+				},
+				initialParentScale = {
+					1,
+					1,
+				},
+				initialParentRotation = 0,
+			},
+			hit = {
+				parentPoints = {
+					0,
+					0,
+				},
+				childPoints = {
+					0,
+					-23,
+				},
+				totalPoints = {
+					0,
+					-23,
+				},
+				initialParentScale = {
+					1,
+					1,
+				},
+				initialParentRotation = 0,
+			},
+		},
 	},
 	scope = "Approved saved transforms plus source-checked stable1.2.0.3 additions; collision branches activate separately.",
 	provenance = "Derived from saved1.2.0.2 neutral Jungle scene scan; each scene hash and child position checked against approved JungleWalkers facts.",
@@ -1423,6 +1471,10 @@ return {
 			sourceMd5 = "aa397e879dafd5bf59e2dd07a2a24f6a",
 			baseScene = "res://entities/units/enemies/enemy.tscn",
 		},
+		["res://entities/units/enemies/jungle/basic/pachyrhinosaurus/pachyrhinosaurus.tscn"] = {
+			sourceMd5 = "e8dcda88bdd74d8f2acb11d750b4545e",
+			baseScene = "res://entities/units/enemies/enemy.tscn",
+		},
 	},
 	previousSourceVersion = "1.2.0.2",
 	previousResourcesRevalidatedIdentical = true,
@@ -1440,5 +1492,6 @@ return {
 		Dilophosaurus = "Entire stable1.2.0.3 scene chain revalidated; parent transforms merged and child offsets checked against JungleWalkers.",
 		CarnivorousPlant = "Entire stable1.2.0.3 scene chain revalidated; parent transforms merged and child offsets checked against JungleWalkers.",
 		CarnivorousPlantMother = "Entire stable1.2.0.3 scene chain revalidated; parent transforms merged and child offsets checked against JungleWalkers.",
+		Pachyrhinosaurus = "Entire stable1.2.0.3 scene chain revalidated; parent transforms merged and child offsets checked against JungleWalkers.",
 	},
 }

@@ -11,6 +11,7 @@ export type Rule = {
 	scaleWithCount: boolean?,
 	minimumScale: number?,
 	specificDegrees: { number }?,
+	parallel: { spacing: number, angleOffset: number, forwardOffset: number }?,
 }
 function Volley.emit(
 	rule: Rule,
@@ -26,7 +27,8 @@ function Volley.emit(
 	local pz = z + rule.offsetZ
 	local base = math.atan2(tz - pz, tx - px)
 	for index = 0, rule.count - 1 do
-		local spread = (random() * 2 - 1) * rule.spread
+		local sx, sz = px, pz
+		local spread = if rule.parallel then 0 else (random() * 2 - 1) * rule.spread
 		if rule.constantSpread and rule.count > 1 then
 			spread = -rule.spread + index * (2 * rule.spread / (rule.count - 1))
 		end
@@ -34,6 +36,15 @@ function Volley.emit(
 		-- Source specific angles replace the aim, but a constant-spread fan overrides them again.
 		if rule.specificDegrees and not (rule.constantSpread and rule.count > 1) then
 			angle = math.rad(assert(rule.specificDegrees[index + 1], "Missing source volley angle"))
+		end
+		if rule.parallel then
+			local p = rule.parallel
+			local dx, dz = math.cos(base), math.sin(base)
+			local side = (index - (rule.count - 1) * 0.5) * p.spacing
+			-- Godot Vector2.tangent is (y,-x), including the lone-projectile negative-angle endpoint.
+			sx += dx * p.forwardOffset + dz * side
+			sz += dz * p.forwardOffset - dx * side
+			angle = base - p.angleOffset + 2 * p.angleOffset * index / math.max(1, rule.count - 1)
 		end
 		local scale = 1
 		if rule.scaleWithCount then
@@ -46,7 +57,7 @@ function Volley.emit(
 				scale = minimum
 			end
 		end
-		emit(px, pz, math.cos(angle), math.sin(angle), speed + rule.speedStep * index, scale)
+		emit(sx, sz, math.cos(angle), math.sin(angle), speed + rule.speedStep * index, scale)
 	end
 end
 return Volley

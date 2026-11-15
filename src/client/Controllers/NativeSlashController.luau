@@ -71,7 +71,7 @@ local function render()
 	local now = workspace:GetServerTimeNow()
 	for id, shot in shots do
 		local age = math.max(0, now - shot.info.at)
-		if age >= C.slash.stopAt then
+		if age >= Geometry.stopAt(shot.info) then
 			remove(id)
 			continue
 		end
@@ -81,7 +81,9 @@ local function render()
 		part.Size = Vector3.new(hx * 2, Visual.thickness, hz * 2)
 		part.Color =
 			Color3.fromRGB(table.unpack(if shot.info.ownerId then Charm.color else Config.Sprites.enemy.flashTint))
-		part.Transparency = if Geometry.active(age) then Visual.activeTransparency else Visual.warningTransparency
+		part.Transparency = if Geometry.active(age, shot.info)
+			then Visual.activeTransparency
+			else Visual.warningTransparency
 		part.CFrame = CFrame.new(x, Config.Map.arena.center.Y + Visual.floorLift, z)
 			* CFrame.Angles(0, -math.atan2(shot.info.dz, shot.info.dx), 0)
 	end

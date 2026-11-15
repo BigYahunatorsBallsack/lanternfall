@@ -1,0 +1,370 @@
+{
+  "referenceVersion": "1.2.0.3",
+  "steamBuild": 26642464,
+  "baseMain": "de4e155e97855cc18ffb52b1e81e53d1af8532fc",
+  "scope": "Register normal Pachyrhinosaurus/type67 and actual parallel slash2 execution through hostile, Charm and real client. No full character or selectable Jungle.",
+  "family": {
+    "typeId": 67,
+    "displayName": "Pachyrhinosaurus",
+    "fallbackLook": "Shadeling",
+    "source": "res://entities/units/enemies/jungle/basic/pachyrhinosaurus/pachyrhinosaurus.tscn",
+    "sourceMd5": "e8dcda88bdd74d8f2acb11d750b4545e",
+    "statsSource": "res://entities/units/enemies/jungle/basic/pachyrhinosaurus/pachyrhinosaurus_stats.tres",
+    "statsMd5": "601f96904fb0900cbce69a066321177c",
+    "stats": {
+      "health": 15,
+      "health_increase_each_wave": 10.0,
+      "speed": 275,
+      "speed_randomization": 25,
+      "damage": 1,
+      "damage_increase_each_wave": 1.1,
+      "attack_cd": 30.0,
+      "value": 4,
+      "knockback_resistance": 0.7,
+      "gold_spread": 0,
+      "can_drop_consumables": true,
+      "always_drop_consumables": false,
+      "base_drop_chance": 0.01,
+      "item_drop_chance": 0.01,
+      "min_consumable_tier": 0,
+      "max_consumable_tier": 0,
+      "armor": 0,
+      "armor_increase_each_wave": 0.0,
+      "generate_blood": true
+    },
+    "body": {
+      "radiusPoints": 40.0,
+      "offsetPoints": [
+        0,
+        -36
+      ],
+      "source": "res://entities/units/enemies/jungle/basic/pachyrhinosaurus/pachyrhinosaurus.tscn",
+      "sourceMd5": "e8dcda88bdd74d8f2acb11d750b4545e"
+    },
+    "hurt": {
+      "radiusPoints": 35.0,
+      "offsetPoints": [
+        0,
+        -13
+      ],
+      "source": "res://entities/units/enemies/jungle/basic/pachyrhinosaurus/pachyrhinosaurus.tscn",
+      "sourceMd5": "e8dcda88bdd74d8f2acb11d750b4545e"
+    },
+    "hit": {
+      "radiusPoints": 30.0,
+      "offsetPoints": [
+        0,
+        -23
+      ],
+      "source": "res://entities/units/enemies/jungle/basic/pachyrhinosaurus/pachyrhinosaurus.tscn",
+      "sourceMd5": "e8dcda88bdd74d8f2acb11d750b4545e"
+    },
+    "removeFirst": false,
+    "mass": 1,
+    "obstacleCollision": true,
+    "sprite": {
+      "source": "res://entities/units/enemies/jungle/basic/pachyrhinosaurus/pachyrhinosaurus.png",
+      "textureSource": "res://.import/pachyrhinosaurus.png-d75284f6c064495fe4560a318aac0b0f.stex",
+      "textureMd5": "0736207a2d8503790c2d6801f1478c4b",
+      "widthPoints": 120,
+      "heightPoints": 120
+    },
+    "bodyLayer": 4,
+    "bodyMask": 132,
+    "bodyBorders": true,
+    "playerCollision": false,
+    "movement": {
+      "should_target_vertically": true
+    },
+    "shootingVariants": {
+      "Normal": {
+        "damage": 1,
+        "damage_increase_each_wave": 1.0,
+        "max_range": 500,
+        "min_range": 0,
+        "cooldown": 60.0,
+        "initial_cooldown": 0,
+        "max_cd_randomization": 10,
+        "attack_anim_speed": 1.0,
+        "number_projectiles": 2,
+        "projectile_spread": 0.8,
+        "constant_spread": true,
+        "speed_change_after_each_projectile": 50,
+        "projectile_speed": 300,
+        "long_cooldown_every_x_shoots": 0,
+        "long_cooldown": 0,
+        "position": {
+          "variantType": "Vector2",
+          "values": [
+            0,
+            0
+          ]
+        },
+        "constant_spread_rand_base_pos": 1.0,
+        "parallel_slashes": true,
+        "parallel_spacing": 60.0,
+        "parallel_angle_offset": 0.05
+      },
+      "Meca": {
+        "damage": 2,
+        "damage_increase_each_wave": 1.0,
+        "max_range": 500,
+        "min_range": 0,
+        "cooldown": 100.0,
+        "initial_cooldown": 0,
+        "max_cd_randomization": 10,
+        "attack_anim_speed": 1.0,
+        "number_projectiles": 3,
+        "projectile_spread": 0.8,
+        "constant_spread": true,
+        "speed_change_after_each_projectile": 50,
+        "projectile_speed": 300,
+        "long_cooldown_every_x_shoots": 0,
+        "long_cooldown": 0,
+        "position": {
+          "variantType": "Vector2",
+          "values": [
+            0,
+            0
+          ]
+        },
+        "constant_spread_rand_base_pos": 1.0,
+        "parallel_slashes": true,
+        "parallel_spacing": 60.0,
+        "parallel_angle_offset": 0.05
+      },
+      "Mutant": {
+        "damage": 1,
+        "damage_increase_each_wave": 1.0,
+        "max_range": 500,
+        "min_range": 0,
+        "cooldown": 40.0,
+        "initial_cooldown": 0,
+        "max_cd_randomization": 10,
+        "attack_anim_speed": 1.0,
+        "number_projectiles": 2,
+        "projectile_spread": 0.8,
+        "constant_spread": true,
+        "speed_change_after_each_projectile": 50,
+        "projectile_speed": 750,
+        "long_cooldown_every_x_shoots": 0,
+        "long_cooldown": 0,
+        "position": {
+          "variantType": "Vector2",
+          "values": [
+            0,
+            0
+          ]
+        },
+        "constant_spread_rand_base_pos": 1.0,
+        "parallel_slashes": true,
+        "parallel_spacing": 60.0,
+        "parallel_angle_offset": 0.05
+      }
+    },
+    "activeVariant": "Normal",
+    "evolutionVariantsImplemented": false,
+    "projectileSource": "res://projectiles/slash/slash_projectile_2.tscn",
+    "genericShootAnimation": true,
+    "projectileVariants": {
+      "Normal": {
+        "source": "res://projectiles/slash/slash_projectile_2.tscn",
+        "sourceMd5": "79788f9f831a974c571e1a36907ad5de"
+      },
+      "Mutant": {
+        "source": "res://projectiles/acid_projectile/acid_projectile.tscn",
+        "sourceMd5": "37ece31cb1d8493d42acf9ca7a53eacd"
+      },
+      "Meca": {
+        "source": "res://projectiles/slash/slash_projectile_2.tscn",
+        "sourceMd5": "79788f9f831a974c571e1a36907ad5de"
+      }
+    },
+    "forwardSlashProjectile": true,
+    "followTargetShoot": true,
+    "followXShare": 0.5,
+    "nativeDamageRounding": true
+  },
+  "forwardSlash": {
+    "source": "res://projectiles/slash/slash_projectile_2.tscn",
+    "sourceMd5": "79788f9f831a974c571e1a36907ad5de",
+    "hitFrom": 0.48,
+    "hitUntil": 0.6,
+    "stopAt": 0.63,
+    "times": [
+      0.48,
+      0.51,
+      0.54,
+      0.57,
+      0.6,
+      0.63
+    ],
+    "positions": [
+      [
+        -122,
+        18
+      ],
+      [
+        -71,
+        18
+      ],
+      [
+        -6.5,
+        18
+      ],
+      [
+        65.5,
+        19
+      ],
+      [
+        105,
+        15.5
+      ],
+      [
+        143,
+        18
+      ]
+    ],
+    "extents": [
+      [
+        30,
+        17
+      ],
+      [
+        79,
+        15
+      ],
+      [
+        136.5,
+        14
+      ],
+      [
+        88.5,
+        12
+      ],
+      [
+        44,
+        9.5
+      ],
+      [
+        20,
+        7
+      ]
+    ],
+    "hitboxOffset": [
+      165,
+      -15
+    ],
+    "resetPosition": [
+      -112,
+      15
+    ],
+    "resetExtents": [
+      16,
+      9
+    ]
+  },
+  "sources": [
+    {
+      "source": "res://entities/units/enemies/attack_behaviors/shooting_attack_behavior.gdc",
+      "sourceMd5": "43d5ebd849396509ff38632915c988a2"
+    },
+    {
+      "source": "res://entities/units/movement_behaviors/follow_target_movement_behavior.gdc",
+      "sourceMd5": "e3ed9b3e5d9a75a09699b324caa5e22f"
+    },
+    {
+      "source": "res://projectiles/bullet_enemy/enemy_projectile.gdc",
+      "sourceMd5": "5d884d042b3829d05cfad074117dc6ca"
+    },
+    {
+      "source": "res://projectiles/projectile.gdc",
+      "sourceMd5": "ee5a00901c32fd43a778be4e66a09d8f"
+    }
+  ],
+  "engineSource": {
+    "url": "https://raw.githubusercontent.com/godotengine/godot/3.5.3-stable/core/math/vector2.h",
+    "symbol": "Vector2::tangent",
+    "line": 147,
+    "fact": "Returns(y,-x); do not reverse parallel shot sides."
+  },
+  "proof": [
+    "Normal scene binds slash_projectile_2, not pillar; Mutant acid and Meca slash2 remain source-only. Slash2 actually binds bullet_enemy/enemy_projectile.gd, not an invented slash-specific script.",
+    "Parallel branch bypasses ordinary fan/specific-angle logic. Native tangent places rightward index0 at+30pxZ and index1 at-30pxZ; angles\u00b10.05rad and300/350px/s.",
+    "Single parallel projectile retains negative-angle endpoint.",
+    "Slash2 numeric keyframes match slash1, but original Hitbox parent165/-15px is distinct. Hit window0.48<=age<0.60,stop0.63.",
+    "Actual hostile AI emits2shots; parent death leaves both server/client shots alive until hit/expiry. Real hostile hits20each atwave10/multiplier2. Actual leftward Charm emitsownedshots and deals2*30damage through rectangle collision.",
+    "MadSlasher target-square requests, parent-death deletion and old slash1 geometry retain their previous real-server5/0. HiddenArea4/0 remains green."
+  ],
+  "focused": {
+    "NativeParallelVolley": "3/0",
+    "NativeForwardSlashGeometry": "3/0",
+    "NativePachyrhinosaurus": "1/0",
+    "NativePachyrhinosaurusServer": "3/0",
+    "NativeMadSlasherRuntime": "5/0",
+    "NativeHiddenAreaHits": "4/0",
+    "NativeJunglePlantsServer": "5/0",
+    "NativeEnemyVolleyAngles": "3/0",
+    "NativeEnemyVolleyScale": "3/0",
+    "MainGameEnemyStats": "29/0;67types and all uniqueness checks",
+    "WorldSprites": "12/0"
+  },
+  "initialRepros": {
+    "parallelGeometry": "0/3",
+    "forwardProfile": "0/3"
+  },
+  "mutations": {
+    "ignoreForwardProfile": "0passed/3failed;byte-exactrestore",
+    "deleteOnParentDeath": "2passed/1failed;byte-exactrestore",
+    "reverseTangent": "1passed/2failed;byte-exactrestore"
+  },
+  "interfaces": [
+    "NativeEnemyVolley.Rule.parallel optional spacing/angleOffset/forwardOffset, values converted from source by Config.",
+    "Enemy.ranged.nativeForwardSlash optional; trusted NativeSlash request appends optional direct {dx,dz,speed}. Existing5args preserve MadSlasher.",
+    "NativeSlashInfo.variant optional Forward on existing server-to-client table Remote. No new Remote/client intent.",
+    "Geometry.active optionalshot and Geometry.stopAt select actual profile; server/client share rectangle geometry."
+  ],
+  "art": {
+    "newBody": "assets/enemies/native-jungle/Pachyrhinosaurus.png",
+    "newSlashFrames": 7,
+    "visuallyInspected": true,
+    "losslessRgbaVerified": true,
+    "localJungleImages": 39,
+    "uploads": 0,
+    "runtimeAssetIdsChanged": false
+  },
+  "checks": {
+    "stylua": true,
+    "selene": "0errors/18existingwarnings,cachedAPI",
+    "rojo": true,
+    "sourceAndImageGates": 4,
+    "previous27FamilyFacts": "unchanged"
+  },
+  "characterStatus": {
+    "codePrepared": 48,
+    "open": 26,
+    "newCompleted": 0,
+    "registeredNormalJungleBodies": 28,
+    "junglePlayable": false
+  },
+  "open": [
+    "Full native physics/Area/idle/deferred/globaltime/RNG/pooling parity and original visual/audio/animation acceptance remain open.",
+    "Meca/Mutant/evolution and remaining Jungle families/bosses/waves/area incomplete.",
+    "No Studio,real2clients or mobile acceptance.",
+    "Procedural slash rectangles remain explicit fallback graphics; savedPNGframes do not imply native art in game."
+  ],
+  "fullSuite": {
+    "specs": 342,
+    "passed": 2062,
+    "failed": 36,
+    "aborts": 0,
+    "newFailureIdentities": [],
+    "returnedVsPlants": [],
+    "absentVsPlants": [
+      "FAIL new enemies (B9) > lets a Gobbler eat the orbs on the floor and drop them all when killed"
+    ],
+    "artifact": "build/native-five-branch-ten-pachyrhinosaurus-de4e155.json",
+    "runtimeFrozenDuringRun": true,
+    "afterRunChanges": "Documentation only; all10newchecks repeated with checked-in runner."
+  }
+}

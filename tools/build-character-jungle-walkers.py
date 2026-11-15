@@ -17,6 +17,7 @@ FAMILIES.update({'hesperosaurus':('Hesperosaurus',62,'Hesperosaurus'),'stegosaur
 
 PLANTS = {'carnivorus_plant': ('CarnivorousPlant',65,'Carnivorous Plant'), 'carnivorus_plant_mother': ('CarnivorousPlantMother',66,'Carnivorous Plant Mother')}
 FAMILIES.update(PLANTS)
+FAMILIES['pachyrhinosaurus']=('Pachyrhinosaurus',67,'Pachyrhinosaurus')
 
 CHARGE_DEFAULTS = {'cooldown':60.0,'long_cooldown_every_x_shoots':0,'long_cooldown':0.0,'max_cd_randomization':10,'min_range':0,'max_range':300,'range_X':-1,'range_Y':-1,'attack_anim_speed':1.0,'charge_duration':1.0,'charge_speed':500.0,'target_calculation_timing':0,'target':0,'rand_target_size':-1,'only_positions_in_target_direction':False,'scale_charge_duration_with_range':False,'recovery_duration':0.05}
 
@@ -69,6 +70,10 @@ def generate():
    assert not after['properties'].get('should_target_vertically',False) and not after['properties'].get('stop_close_to_target',False)
    assert before['properties'].get('update_every_x_frames',-1)==-1
    for n in [before,after]:used_scripts.add(n['scriptSource'].removesuffix('.gd')+'.gdc')
+  elif slug=='pachyrhinosaurus':
+   assert move['scriptSource']=='res://entities/units/movement_behaviors/follow_target_movement_behavior.gd'
+   assert move['properties']['should_target_vertically'] and not move['properties'].get('stop_close_to_target',False)
+   assert attack['scriptSource']=='res://entities/units/movement_behaviors/detect_evolution_attack_behavior.gd'
   elif slug=='dilophosaurus':
    assert move['scriptSource']=='res://entities/units/movement_behaviors/follow_target_movement_behavior.gd'
    assert attack['scriptSource']=='res://entities/units/movement_behaviors/detect_evolution_attack_behavior.gd'
@@ -239,7 +244,7 @@ def generate():
    used_scripts.update(['res://entities/units/enemies/crash_zone/basic/pursuer/pursuer.gdc','res://entities/units/unit/unit.gdc','res://singletons/entity_service.gdc'])
   if slug in ['baby_pterosaur','graciliceratops']:
    enemies[identity]['anticipate'] = {'seconds':move['properties']['anticipation_time'],'horizontalOnly':move['properties'].get('should_target_vertically',False)}
-  if slug in ['enigmacursor','hesperosaurus','stegosaurus','dilophosaurus'] or slug in PLANTS:
+  if slug in ['enigmacursor','hesperosaurus','stegosaurus','dilophosaurus','pachyrhinosaurus'] or slug in PLANTS:
    variants = {}
    for variant in ['Normal','Meca','Mutant']:
     node = nodes[('AttackBehavior','AttackBehavior'+variant)]
@@ -263,7 +268,7 @@ def generate():
    normal_block = raw.split('[node name="AttackBehaviorNormal"',1)[1].split('\n[node ',1)[0]
    projectile_ref = re.search(r'^projectile_scene = ExtResource\( (\d+) \)',normal_block,re.M)
    projectile_source = external[projectile_ref[1]] if projectile_ref else 'res://projectiles/bullet_enemy/enemy_projectile.tscn'
-   assert projectile_source == ('res://projectiles/bullet_enemy/enemy_projectile.tscn' if slug in PLANTS else 'res://projectiles/pillar_enemy/pillar_projectile.tscn'), 'Different native projectile needs its own behavior'
+   assert projectile_source == ('res://projectiles/bullet_enemy/enemy_projectile.tscn' if slug in PLANTS else 'res://projectiles/slash/slash_projectile_2.tscn' if slug=='pachyrhinosaurus' else 'res://projectiles/pillar_enemy/pillar_projectile.tscn'), 'Different native projectile needs its own behavior'
    enemies[identity].update(movement=move['properties'],shootingVariants=variants,activeVariant='Normal',evolutionVariantsImplemented=False,projectileSource=projectile_source)
    if slug!='enigmacursor':
     assert 'anims/shoot' not in raw
@@ -285,6 +290,11 @@ def generate():
      collision=next(n for n in bullet['nodes'] if n['parent']=='Hitbox' and n['name']=='Collision')
      enemies[identity].update(bulletProjectile=True,nativeDamageRounding=True,projectileRadiusPoints=circle(collision)['radiusPoints'])
      used_scripts.add('res://projectiles/bullet_enemy/enemy_projectile.gdc')
+    elif slug=='pachyrhinosaurus':
+     assert variants['Normal']['parallel_slashes'] and variants['Normal']['parallel_spacing']==60
+     assert variants['Normal']['constant_spread'] and not variants['Normal'].get('use_transform_offset',False)
+     assert not variants['Normal'].get('delete_projectile_on_death',False)
+     enemies[identity].update(forwardSlashProjectile=True,followTargetShoot=True,followXShare=0.5,nativeDamageRounding=True)
     elif slug=='dilophosaurus':
      assert variants['Normal']['scale_projectiles_with_count'] and variants['Normal']['min_projectile_scale']==0.7
      assert not variants['Normal'].get('parallel_slashes',False) and variants['Normal']['use_transform_offset']
@@ -307,6 +317,19 @@ def generate():
  collision = next(n['properties'] for n in pillar_scene['nodes'] if n['name']=='Collision')
  shape_id = collision['shape']['resource'].split('::')[1]
  pillar = {'source':pillar_path,'sourceMd5':pck.entries[pillar_path]['md5'],'radiusPoints':pillar_scene['shapes'][shape_id]['properties']['radius'],'offsetPoints':[a+b for a,b in zip(hitbox['position']['values'],collision['position']['values'])],'hitFrom':method_times['enable_hitbox'],'hitUntil':method_times['disable_hitbox'],'stopAt':method_times['stop']}
+ forward_path='res://projectiles/slash/slash_projectile_2.tscn'
+ forward_raw=pck.read(forward_path).decode('utf-8')
+ resource=source.parse_tres(forward_raw.split('\n[node ')[0].replace('[gd_scene','[gd_resource type="PackedScene"',1)+'\n[resource]\n',forward_path)
+ anim=next(r['properties'] for r in resource['subresources'].values() if r['resourceType']=='Animation' and r['properties'].get('resource_name')=='shoot')
+ def track(animation,path):return next(animation[k.replace('/path','/keys')] for k,v in animation.items() if k.endswith('/path') and v.get('values')==[path])
+ pos=track(anim,'Hitbox/Collision:position');ext=track(anim,'Hitbox/Collision:shape:extents')
+ reset=next(r['properties'] for r in resource['subresources'].values() if r['resourceType']=='Animation' and r['properties'].get('resource_name')=='RESET')
+ methods=next(anim[k.replace('/type','/keys')] for k,v in anim.items() if k.endswith('/type') and v=='method')
+ times={v['method']:t for t,v in zip(methods['times'],methods['values']) if t>0}
+ fscene=scenes.read_scene(pck,forward_path)
+ parent=next(n['properties']['position']['values'] for n in fscene['nodes'] if n['name']=='Hitbox' and n['parent']=='.')
+ forward={'source':forward_path,'sourceMd5':pck.entries[forward_path]['md5'],'hitFrom':times['enable_hitbox'],'hitUntil':times['disable_hitbox'],'stopAt':times['stop'],'times':pos['times'],'positions':[v['values'] for v in pos['values']],'extents':[v['values'] for v in ext['values']],'hitboxOffset':parent,'resetPosition':track(reset,'Hitbox/Collision:position')['values'][0]['values'],'resetExtents':track(reset,'Hitbox/Collision:shape:extents')['values'][0]['values']}
+ assert parent==[165,-15]
  spawn_animations=[]
  for anim_path in ['res://entities/units/enemies/attack_behaviors/shoot.tres','res://entities/units/enemies/attack_behaviors/shoot_charmed.tres']:
   props=pck.resource(anim_path)['properties']
@@ -315,7 +338,7 @@ def generate():
   spawn_animations.append({'source':anim_path,'sourceMd5':pck.entries[anim_path]['md5'],'fireAt':fire,'seconds':props.get('length',1)})
  assert spawn_animations[0]['fireAt']==spawn_animations[1]['fireAt'] and spawn_animations[0]['seconds']==spawn_animations[1]['seconds']
  zone = 'res://zones/zone_3_jungle/zone_jungle_data.tres'
- return {'version':reference['version'],'steamBuild':int(reference['steamBuildId']),'zoneId':pck.resource(zone)['properties']['my_id'],'zoneSource':zone,'zoneSourceMd5':pck.entries[zone]['md5'],'zonePlayable':False,'implemented':list(enemies),'sourceOnly':[],'enemies':enemies,'spawningRules':{'animations':spawn_animations,'frameRate':60,'minimumCooldownFrames':1,'goalPrecisionPoints':10,'chargeMassMultiplier':5},'shootingRules':{'frameRate':60,'minimumCooldownFrames':1,'animationFireAt':fire_at,'animationSeconds':animation.get('length',1),'animationSource':animation_path,'animationSourceMd5':pck.entries[animation_path]['md5'],'pillar':pillar,'projectileRadiusPoints':pillar['radiusPoints'],'projectileRangeStuds':300,'projectileRangeNote':'Existing engine lifetime/area compatibility limit, not a native range stat'},'ruleSources':[{'source':path,'sourceMd5':pck.entries[path]['md5']} for path in sorted(used_scripts)],'runtimeCompatibility':{'mass':1,'nativeArtAccepted':False,'physicsAccepted':False,'open':['Existing global body/collision center approximation; source offsets retained explicitly','Native physics ordering and sprite acceptance','Spawning reuses existing square/edge clamp; native forbidden-zone retries/push-out remain part of the pending area/physics port','Enigmacursor Meca/Mutant branches are source facts only; no native evolution-system acceptance','Fallback circle telegraphs instead of original animated pillar sprites','Remaining Jungle families, waves, bosses and area route']}}
+ return {'version':reference['version'],'steamBuild':int(reference['steamBuildId']),'zoneId':pck.resource(zone)['properties']['my_id'],'zoneSource':zone,'zoneSourceMd5':pck.entries[zone]['md5'],'zonePlayable':False,'implemented':list(enemies),'sourceOnly':[],'enemies':enemies,'spawningRules':{'animations':spawn_animations,'frameRate':60,'minimumCooldownFrames':1,'goalPrecisionPoints':10,'chargeMassMultiplier':5},'shootingRules':{'frameRate':60,'minimumCooldownFrames':1,'animationFireAt':fire_at,'animationSeconds':animation.get('length',1),'animationSource':animation_path,'animationSourceMd5':pck.entries[animation_path]['md5'],'pillar':pillar,'forwardSlash':forward,'projectileRadiusPoints':pillar['radiusPoints'],'projectileRangeStuds':300,'projectileRangeNote':'Existing engine lifetime/area compatibility limit, not a native range stat'},'ruleSources':[{'source':path,'sourceMd5':pck.entries[path]['md5']} for path in sorted(used_scripts)],'runtimeCompatibility':{'mass':1,'nativeArtAccepted':False,'physicsAccepted':False,'open':['Existing global body/collision center approximation; source offsets retained explicitly','Native physics ordering and sprite acceptance','Spawning reuses existing square/edge clamp; native forbidden-zone retries/push-out remain part of the pending area/physics port','Enigmacursor Meca/Mutant branches are source facts only; no native evolution-system acceptance','Fallback circle telegraphs instead of original animated pillar sprites','Remaining Jungle families, waves, bosses and area route']}}
 
 def main():
  args=argparse.ArgumentParser(description=__doc__);args.add_argument('--check',action='store_true');args=args.parse_args()

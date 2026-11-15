@@ -1,15 +1,22 @@
 --!strict
 -- Original slash rectangle animation and target-square volley geometry; server collision and client rendering share these functions.
 local C = require(script.Parent.Parent.Config.NightmareEnemies).slash
+local F = require(script.Parent.Parent.Config.JungleWalkers).shootingRules.forwardSlash
 local Geometry = {}
-local function interpolate(values: { { number } }, age: number): (number, number)
-	if age < C.times[1] then
-		local reset = if values == C.positions then C.resetPosition else C.resetExtents
+local function profile(shot: any): any
+	return if shot and shot.variant == "Forward" then F else C
+end
+function Geometry.stopAt(shot: any): number
+	return profile(shot).stopAt
+end
+local function interpolate(c: any, values: { { number } }, age: number): (number, number)
+	if age < c.times[1] then
+		local reset = if values == c.positions then c.resetPosition else c.resetExtents
 		return reset[1], reset[2]
 	end
-	for index = 1, #C.times - 1 do
-		if age < C.times[index + 1] then
-			local alpha = (age - C.times[index]) / (C.times[index + 1] - C.times[index])
+	for index = 1, #c.times - 1 do
+		if age < c.times[index + 1] then
+			local alpha = (age - c.times[index]) / (c.times[index + 1] - c.times[index])
 			return values[index][1] + (values[index + 1][1] - values[index][1]) * alpha,
 				values[index][2] + (values[index + 1][2] - values[index][2]) * alpha
 		end
@@ -17,21 +24,23 @@ local function interpolate(values: { { number } }, age: number): (number, number
 	local value = values[#values]
 	return value[1], value[2]
 end
-function Geometry.active(age: number): boolean
-	return age >= C.hitFrom and age < C.hitUntil
+function Geometry.active(age: number, shot: any?): boolean
+	local c = profile(shot)
+	return age >= c.hitFrom and age < c.hitUntil
 end
 function Geometry.rectangle(shot: any, age: number, pixel: number): (number, number, number, number)
-	local ox, oz = interpolate(C.positions, age)
-	local hx, hz = interpolate(C.extents, age)
-	ox = (ox + C.hitboxOffset[1]) * pixel
-	oz = (oz + C.hitboxOffset[2]) * pixel
+	local c = profile(shot)
+	local ox, oz = interpolate(c, c.positions, age)
+	local hx, hz = interpolate(c, c.extents, age)
+	ox = (ox + c.hitboxOffset[1]) * pixel
+	oz = (oz + c.hitboxOffset[2]) * pixel
 	return shot.x + shot.dx * shot.speed * age + shot.dx * ox - shot.dz * oz,
 		shot.z + shot.dz * shot.speed * age + shot.dz * ox + shot.dx * oz,
 		hx * pixel,
 		hz * pixel
 end
 function Geometry.contains(shot: any, age: number, x: number, z: number, radius: number, pixel: number): boolean
-	if not Geometry.active(age) then
+	if not Geometry.active(age, shot) then
 		return false
 	end
 	local cx, cz, hx, hz = Geometry.rectangle(shot, age, pixel)
