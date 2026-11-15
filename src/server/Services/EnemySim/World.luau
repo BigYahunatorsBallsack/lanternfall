@@ -1589,7 +1589,11 @@ function World.step(
 			for s = 1, found do
 				local j = scratch[s]
 				local other = kinds[j]
-				if j ~= i and other.mass >= mass then
+				if
+					j ~= i
+					and other.mass >= mass
+					and (kind.nativeBodyMask == nil or other.nativeBodyMask == nil or Body.collides(kind, other))
+				then
 					local nx = bx - xs[j] - (other.nativeBodyOffsetX or 0)
 					local nz = bz - zs[j] - (other.nativeBodyOffsetZ or 0)
 					local gap = math.sqrt(nx * nx + nz * nz)
@@ -1626,7 +1630,14 @@ function World.step(
 			local found = hash:query(xs[i], zs[i], radiusI + self.maxColliderRadius, scratch)
 			for s = 1, found do
 				local j = scratch[s]
-				if j > i then
+				if
+					j > i
+					and (
+						kindI.nativeBodyMask == nil
+						or kinds[j].nativeBodyMask == nil
+						or Body.collides(kindI, kinds[j])
+					)
+				then
 					local kindJ = kinds[j]
 					local dx, dz = xs[j] - xs[i], zs[j] - zs[i]
 					local minDistance = radiusI + kindJ.radius

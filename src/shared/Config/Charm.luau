@@ -37,6 +37,8 @@ return table.freeze({
 	maximumPerOwner = 999,
 	damageMultiplier = 3,
 	bonusSpeedPoints = 100,
+	bodyLayer = 512, -- Utils.PETS_BIT; stable1.2.0.3 charm_enemy_effect_behavior override
+	bodyMask = 640, -- Utils.PETS_BIT + Utils.OBSTACLES_BIT
 	endlessDivisor = 2,
 	color = { 155, 198, 221 },
 	excludedKinds = { Tree = true, Looter = true },

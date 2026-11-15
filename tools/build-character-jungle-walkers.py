@@ -91,6 +91,8 @@ def generate():
   assert stats['armor'] == 0 and stats['armor_increase_each_wave'] == 0, 'Armor requires its own runtime policy'
   enemies[identity] = {'typeId':type_id,'displayName':name,'fallbackLook':'Shadeling','source':path,'sourceMd5':pck.entries[path]['md5'],'statsSource':stats_path,'statsMd5':pck.entries[stats_path]['md5'],'stats':stats,'body':circle(nodes[('.','Collision')]),'hurt':circle(nodes[('Hurtbox','Collision')]),'hit':circle(nodes[('Hitbox','Collision')]),'removeFirst':root['properties'].get('to_be_removed_in_priority',False),'mass':root['properties'].get('mass',1),'obstacleCollision':bool(root['properties']['collision_mask'] & 128)}
   enemies[identity]['sprite']=images.texture_metadata(pck,images.body_texture(pck,path))
+  enemies[identity]['bodyLayer']=root['properties']['collision_layer']
+  enemies[identity]['bodyMask']=root['properties']['collision_mask']
   enemies[identity]['bodyBorders']=root['properties'].get('should_collide_with_borders',True)
   enemies[identity]['playerCollision']=bool(root['properties']['collision_mask'] & 2)
   if slug in PENDING_CROSSERS:

@@ -1,7 +1,21 @@
 --!strict
 -- Physical enemy body centers and conservative origin-based hash extents; EnemySim.World keeps actor origins unchanged.
 local Body = {}
-export type Kind = { radius: number, nativeBodyOffsetX: number?, nativeBodyOffsetZ: number? }
+export type Kind = {
+	radius: number,
+	nativeBodyOffsetX: number?,
+	nativeBodyOffsetZ: number?,
+	nativeBodyLayer: number?,
+	nativeBodyMask: number?,
+}
+-- Godot 3.5 CollisionObject2DSW::test_collision_mask uses OR, not mutual consent.
+-- Unreviewed legacy records retain their existing collision policy until source masks are supplied.
+function Body.collides(a: Kind, b: Kind): boolean
+	if a.nativeBodyLayer == nil or a.nativeBodyMask == nil or b.nativeBodyLayer == nil or b.nativeBodyMask == nil then
+		return true
+	end
+	return bit32.btest(a.nativeBodyLayer, b.nativeBodyMask) or bit32.btest(b.nativeBodyLayer, a.nativeBodyMask)
+end
 function Body.center(kind: Kind, x: number, z: number): (number, number)
 	return x + (kind.nativeBodyOffsetX or 0), z + (kind.nativeBodyOffsetZ or 0)
 end

@@ -55,6 +55,7 @@ function Friends.convert(self: any, source: any, id: number, owner: number, now:
 	local actor = self.world.indexOf[id]
 	local friendly = table.clone(kind)
 	friendly.nativeObstacleCollision = true -- Charm sets PETS_BIT + OBSTACLES_BIT, including previously flying bodies
+	friendly.nativeBodyLayer, friendly.nativeBodyMask = C.bodyLayer, C.bodyMask
 	local movement = C.movement[kind.id]
 	if movement then
 		friendly.wander = {

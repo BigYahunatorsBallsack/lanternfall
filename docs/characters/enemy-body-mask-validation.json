@@ -1,0 +1,256 @@
+{
+  "referenceVersion": "1.2.0.3",
+  "steamBuild": 26642464,
+  "baseMain": "de4e155e97855cc18ffb52b1e81e53d1af8532fc",
+  "draftPr": 151,
+  "scope": "Native body-pair mask filter in World steering and separation; actual Velociraptor pairs now ignore each other. No additional actor/character/area completion.",
+  "primaryEngineSources": [
+    {
+      "url": "https://github.com/godotengine/godot/blob/3.5.3-stable/servers/physics_2d/collision_object_2d_sw.h#L192",
+      "rawSha256": "d13620a8658ba4debfdeabc03743f38fb45a7353e9984ac27cef2568ca7287d6",
+      "scope": "Reference Godot3.5 source rule; no original-runtime/physics acceptance claimed."
+    },
+    {
+      "url": "https://github.com/godotengine/godot/blob/3.5.3-stable/servers/physics_2d/space_2d_sw.cpp#L509",
+      "rawSha256": "5ac9dd77ea4020a773466d6eff23d1f504db28f87a83e6d2a2a4aaed8512284e",
+      "scope": "Reference Godot3.5 source rule; no original-runtime/physics acceptance claimed."
+    }
+  ],
+  "rule": "Either body layer intersects the other mask: (a.layer & b.mask)!=0 OR (b.layer & a.mask)!=0. Godot motion culling invokes the same test.",
+  "sourceBodies": {
+    "BabyTriceratops": {
+      "layer": 4,
+      "mask": 132,
+      "sourceMd5": "e71587f7d66132129f999902d9cea069",
+      "active": true
+    },
+    "Gallimimus": {
+      "layer": 4,
+      "mask": 132,
+      "sourceMd5": "9febe8189eade190908a0bff930e341f",
+      "active": true
+    },
+    "Lystrosaurus": {
+      "layer": 4,
+      "mask": 132,
+      "sourceMd5": "09a4bfc5444cdeb6d90f752bf186ed8b",
+      "active": true
+    },
+    "Pyroraptor": {
+      "layer": 4,
+      "mask": 132,
+      "sourceMd5": "578c22bb9796e7bdb0110d5cb86d6f98",
+      "active": true
+    },
+    "Enigmacursor": {
+      "layer": 4,
+      "mask": 132,
+      "sourceMd5": "8c814a90bf1f2a1fa89d38616f4998fe",
+      "active": true
+    },
+    "BabyPterosaur": {
+      "layer": 4,
+      "mask": 4,
+      "sourceMd5": "09bebddbecb61796cef4301568dbb03d",
+      "active": true
+    },
+    "Graciliceratops": {
+      "layer": 4,
+      "mask": 132,
+      "sourceMd5": "8bcde133e9a8cfdeead587eec3380bf0",
+      "active": true
+    },
+    "BabyTrex": {
+      "layer": 4,
+      "mask": 132,
+      "sourceMd5": "66e87f432f2cc1a287c0296e24bea5fc",
+      "active": true
+    },
+    "Alamosaurus": {
+      "layer": 4,
+      "mask": 132,
+      "sourceMd5": "7ba3068381b716d8ba790ae9b01b9359",
+      "active": true
+    },
+    "DinoEgg": {
+      "layer": 4,
+      "mask": 132,
+      "sourceMd5": "f4ae9f35dfc0b07bfab74f2793302a52",
+      "active": true
+    },
+    "Stintaosaurus": {
+      "layer": 4,
+      "mask": 132,
+      "sourceMd5": "c1df4a85dce03fb7736348a2022077af",
+      "active": true
+    },
+    "Triceratops": {
+      "layer": 4,
+      "mask": 132,
+      "sourceMd5": "6dc0fcc1efaf86142c9467b8d0604f88",
+      "active": true
+    },
+    "Parasaurolorus": {
+      "layer": 4,
+      "mask": 132,
+      "sourceMd5": "2c702c7aa16bbd1b42b8e20249289f9a",
+      "active": true
+    },
+    "Ankylosaurus": {
+      "layer": 4,
+      "mask": 132,
+      "sourceMd5": "326c86b0680d2e079dc475a96564e7bd",
+      "active": true
+    },
+    "Pachycephalosaurus": {
+      "layer": 4,
+      "mask": 132,
+      "sourceMd5": "a03085289992494611235136195a9ace",
+      "active": true
+    },
+    "Velociraptor": {
+      "layer": 4,
+      "mask": 128,
+      "sourceMd5": "0991656b37d4670393f527dc91009d90",
+      "active": true
+    },
+    "Jeholopterus": {
+      "layer": 4,
+      "mask": 4,
+      "sourceMd5": "fe21989669d74261e3f07c2f0b17051e",
+      "active": true
+    },
+    "GiantDragonfly": {
+      "layer": 4,
+      "mask": 4,
+      "sourceMd5": "f2fbc5a6c55e9d3a80fb90590383f1f5",
+      "active": true
+    },
+    "HarpymimusLooter": {
+      "layer": 4,
+      "mask": 132,
+      "sourceMd5": "e0ac4e69c2a21f8fe8af3800e5588c10",
+      "active": true
+    },
+    "Oviraptor": {
+      "layer": 4,
+      "mask": 0,
+      "sourceMd5": "37070a438aa1f6a6d9d7fc460bdfa695",
+      "active": false
+    },
+    "Iguanodon": {
+      "layer": 4,
+      "mask": 0,
+      "sourceMd5": "2ef45c86848db34cf87bb386d52ea499",
+      "active": false
+    }
+  },
+  "focused": {
+    "initial": {
+      "passed": 1,
+      "failed": 4,
+      "tests": 5
+    },
+    "trackedRunner": {
+      "passed": 8,
+      "failed": 0
+    },
+    "mutation": {
+      "change": "OR to AND in body pair predicate",
+      "passed": 5,
+      "failed": 2,
+      "restoredByteForByte": true
+    },
+    "charmRegressionBeforeFix": {
+      "passed": 7,
+      "failed": 1,
+      "expected": "Charm changes body layer to512/mask640; initially retained hostile4/128."
+    },
+    "charmMutation": {
+      "change": "Remove Charm mask override",
+      "passed": 7,
+      "failed": 1,
+      "restoredByteForByte": true
+    },
+    "CharmedWorld": {
+      "passed": 6,
+      "failed": 0,
+      "mixed140ActorStepMilliseconds": 3.575,
+      "performanceFluctuationStillOpen": true
+    }
+  },
+  "runtimeChanges": [
+    "Optional Enemies.Enemy nativeBodyLayer/nativeBodyMask fields from effective original scene properties.",
+    "NativeBodyGeometry.collides centralizes the source predicate.",
+    "World forward yielding and pair separation consult the predicate; no RNG/packet/schema changes.",
+    "Legacy records without reviewed masks preserve the current physical behavior and do not constitute source-mask parity acceptance.",
+    "CharmedWorld.convert replaces the old hostile body metadata with Config.Charm bodyLayer512/bodyMask640; two converted Velociraptors now collide as native pets."
+  ],
+  "checks": {
+    "stylua": true,
+    "selene": {
+      "errors": 0,
+      "existingWarnings": 18,
+      "cachedApi": true
+    },
+    "rojo": true,
+    "sourceCompilerChecks": 4
+  },
+  "open": [
+    "Oviraptor/Iguanodon remain source-only/inactive.",
+    "One-way response, rotated colliders and hidden warning/contact phase integration remain pending.",
+    "Mass response and full native physics/area ordering remain open.",
+    "Legacy body masks are not inferred; their compatibility fallback is not an approved native exception.",
+    "No Studio/two-client/mobile/original-art acceptance."
+  ],
+  "characterStatus": {
+    "codePrepared": 48,
+    "open": 26,
+    "newCompleted": 0,
+    "registeredNeutralJungleBodies": 19,
+    "sourceRows": 21,
+    "localJungleImages": 25,
+    "junglePlayable": false
+  },
+  "nativeCharmSources": [
+    {
+      "source": "res://effect_behaviors/enemies/charm_enemy_effect_behavior.gdc",
+      "sourceMd5": "a0830c473b5da00b8d278346117f5452"
+    },
+    {
+      "source": "res://singletons/utils.gdc",
+      "sourceMd5": "2c263b6d3c2355dd71d6ad4caf0705bf"
+    }
+  ],
+  "charmBodyRule": {
+    "layer": 512,
+    "mask": 640,
+    "originalKindUnchanged": true,
+    "allConvertedActorsUseNativePetMask": true
+  },
+  "review": {
+    "correctness": "Native OR source confirmed in both object-pair test and body-motion culling; isolated Charm mask override regression fixed.",
+    "architecture": "Single existing Body geometry module owns predicate; values stay Config/source data. Arsenal/Remotes/schema unchanged.",
+    "performance": "No per-pair allocation; legacy World hot path avoids helper calls when either mask is absent. Existing 4ms budget unchanged.",
+    "security": "No client-controlled collision metadata or new inputs.",
+    "limits": "This filters candidates only; full one-way collision response/solver/physics cadence remain open."
+  },
+  "fullSuite": {
+    "specs": 319,
+    "passed": 1987,
+    "failed": 36,
+    "aborts": 0,
+    "newFailureIdentities": [],
+    "returnedVsCrossing": [],
+    "absentVsCrossing": [],
+    "artifact": "build/native-five-branch-ten-body-mask-charm-de4e155.json",
+    "runtimeFrozenDuringRun": true,
+    "afterRunChanges": "Documentation only."
+  },
+  "priorDiagnosticFull": {
+    "specs": 319,
+    "passed": 1985,
+    "failed": 37,
+    "scope": "Before Charm mask override; known Gobbler failure returned. Charm regression subsequently reproduced and fixed."
+  }
+}

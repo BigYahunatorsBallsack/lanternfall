@@ -97,6 +97,8 @@
         "widthPoints": 100,
         "heightPoints": 100
       },
+      "bodyLayer": 4,
+      "bodyMask": 132,
       "bodyBorders": true,
       "playerCollision": false
     },
@@ -166,6 +168,8 @@
         "widthPoints": 130,
         "heightPoints": 130
       },
+      "bodyLayer": 4,
+      "bodyMask": 132,
       "bodyBorders": true,
       "playerCollision": false
     },
@@ -235,6 +239,8 @@
         "widthPoints": 100,
         "heightPoints": 100
       },
+      "bodyLayer": 4,
+      "bodyMask": 132,
       "bodyBorders": true,
       "playerCollision": false
     },
@@ -304,6 +310,8 @@
         "widthPoints": 135,
         "heightPoints": 135
       },
+      "bodyLayer": 4,
+      "bodyMask": 132,
       "bodyBorders": true,
       "playerCollision": false
     },
@@ -373,6 +381,8 @@
         "widthPoints": 150,
         "heightPoints": 150
       },
+      "bodyLayer": 4,
+      "bodyMask": 132,
       "bodyBorders": true,
       "playerCollision": false,
       "movement": {
@@ -533,6 +543,8 @@
         "widthPoints": 110,
         "heightPoints": 110
       },
+      "bodyLayer": 4,
+      "bodyMask": 4,
       "bodyBorders": true,
       "playerCollision": false,
       "anticipate": {
@@ -606,6 +618,8 @@
         "widthPoints": 100,
         "heightPoints": 100
       },
+      "bodyLayer": 4,
+      "bodyMask": 132,
       "bodyBorders": true,
       "playerCollision": false,
       "anticipate": {
@@ -679,6 +693,8 @@
         "widthPoints": 120,
         "heightPoints": 120
       },
+      "bodyLayer": 4,
+      "bodyMask": 132,
       "bodyBorders": true,
       "playerCollision": false,
       "pursuer": {
@@ -761,6 +777,8 @@
         "widthPoints": 180,
         "heightPoints": 180
       },
+      "bodyLayer": 4,
+      "bodyMask": 132,
       "bodyBorders": true,
       "playerCollision": false,
       "spawning": {
@@ -849,6 +867,8 @@
         "widthPoints": 100,
         "heightPoints": 100
       },
+      "bodyLayer": 4,
+      "bodyMask": 132,
       "bodyBorders": true,
       "playerCollision": false,
       "spawning": {
@@ -941,6 +961,8 @@
         "widthPoints": 150,
         "heightPoints": 150
       },
+      "bodyLayer": 4,
+      "bodyMask": 132,
       "bodyBorders": true,
       "playerCollision": false,
       "healing": {
@@ -1026,6 +1048,8 @@
         "widthPoints": 165,
         "heightPoints": 165
       },
+      "bodyLayer": 4,
+      "bodyMask": 132,
       "bodyBorders": true,
       "playerCollision": false,
       "chargingVariants": {
@@ -1157,6 +1181,8 @@
         "widthPoints": 210,
         "heightPoints": 210
       },
+      "bodyLayer": 4,
+      "bodyMask": 132,
       "bodyBorders": true,
       "playerCollision": false,
       "chargingVariants": {
@@ -1288,6 +1314,8 @@
         "widthPoints": 200,
         "heightPoints": 200
       },
+      "bodyLayer": 4,
+      "bodyMask": 132,
       "bodyBorders": true,
       "playerCollision": false,
       "chargingVariants": {
@@ -1422,6 +1450,8 @@
         "widthPoints": 150,
         "heightPoints": 150
       },
+      "bodyLayer": 4,
+      "bodyMask": 132,
       "bodyBorders": true,
       "playerCollision": false,
       "chargingVariants": {
@@ -1557,6 +1587,8 @@
         "widthPoints": 150,
         "heightPoints": 150
       },
+      "bodyLayer": 4,
+      "bodyMask": 128,
       "bodyBorders": false,
       "playerCollision": false,
       "detection": {
@@ -1644,6 +1676,8 @@
         "widthPoints": 110,
         "heightPoints": 110
       },
+      "bodyLayer": 4,
+      "bodyMask": 4,
       "bodyBorders": true,
       "playerCollision": false,
       "chargingVariants": {
@@ -1745,6 +1779,8 @@
         "widthPoints": 150,
         "heightPoints": 150
       },
+      "bodyLayer": 4,
+      "bodyMask": 4,
       "bodyBorders": true,
       "playerCollision": false,
       "chargingVariants": {
@@ -1897,6 +1933,8 @@
         "widthPoints": 120,
         "heightPoints": 120
       },
+      "bodyLayer": 4,
+      "bodyMask": 132,
       "bodyBorders": true,
       "playerCollision": false,
       "wanderArena": true,
@@ -1981,6 +2019,8 @@
         "widthPoints": 200,
         "heightPoints": 200
       },
+      "bodyLayer": 4,
+      "bodyMask": 0,
       "bodyBorders": false,
       "playerCollision": false,
       "sourceOnly": true,
@@ -2058,6 +2098,8 @@
         "widthPoints": 200,
         "heightPoints": 200
       },
+      "bodyLayer": 4,
+      "bodyMask": 0,
       "bodyBorders": false,
       "playerCollision": false,
       "sourceOnly": true,

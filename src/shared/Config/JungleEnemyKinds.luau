@@ -31,6 +31,8 @@ function Kinds.build(pixel: number): { [string]: any }
 			nativeHurtChildZ = hurt.childPoints[2] * pixel,
 			nativeBodyOffsetX = f.body.offsetPoints[1] * pixel,
 			nativeBodyOffsetZ = f.body.offsetPoints[2] * pixel,
+			nativeBodyLayer = f.bodyLayer,
+			nativeBodyMask = f.bodyMask,
 			nativeMovement = {
 				goalInsetX = f.sprite.widthPoints * pixel / 2,
 				goalInsetZ = f.sprite.heightPoints * pixel / 2,
