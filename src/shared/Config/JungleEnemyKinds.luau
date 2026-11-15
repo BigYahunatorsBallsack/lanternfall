@@ -174,7 +174,8 @@ function Kinds.build(pixel: number): { [string]: any }
 			result[id].nativeDetection = { radius = a.radiusPoints * pixel, speedBonus = a.speedBonusPoints * pixel }
 			if a.wanderRangePoints then
 				result[id].wander = {
-					around = "Target",
+					around = a.wanderMode or "Target",
+					within = a.wanderWithin,
 					range = a.wanderRangePoints * pixel,
 					rangeJitter = a.wanderJitterPoints * pixel,
 					arriveStuds = C.spawningRules.goalPrecisionPoints * pixel,

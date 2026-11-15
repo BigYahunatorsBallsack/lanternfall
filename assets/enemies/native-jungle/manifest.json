@@ -329,6 +329,25 @@
       "pngSha256": "7e75c8a0e7353a97b3808477cb1d5a68de46074f06873af821dd8833a9701789"
     },
     {
+      "id": "GiantDragonfly",
+      "source": "res://entities/units/enemies/jungle/basic/giant_dragonfly/giant_dragonfly.png",
+      "textureSource": "res://.import/giant_dragonfly.png-4cb6ad45a4405de5d16db1194c520491.stex",
+      "textureMd5": "b033848e3019930579c51b89efe07ef0",
+      "output": "assets/enemies/native-jungle/GiantDragonfly.png",
+      "size": [
+        150,
+        150
+      ],
+      "alphaBounds": [
+        3,
+        7,
+        148,
+        143
+      ],
+      "rgbaSha256": "819098792454977d9b40419a0545565a43a2dabe03a3893cb53c9c9dc6a61373",
+      "pngSha256": "051aeabebb51d24e586bdd9b2c9ab9e48801152d37567d2df4afcc00f6177220"
+    },
+    {
       "id": "Pillar_bullet_pillar_0002",
       "source": "res://projectiles/pillar_enemy/sprites/bullet_pillar_0002.png",
       "textureSource": "res://.import/bullet_pillar_0002.png-b64813647bb259fcd087f6245a3b4bd8.stex",

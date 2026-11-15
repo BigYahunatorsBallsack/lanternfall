@@ -22,7 +22,8 @@
     "Ankylosaurus",
     "Pachycephalosaurus",
     "Velociraptor",
-    "Jeholopterus"
+    "Jeholopterus",
+    "GiantDragonfly"
   ],
   "enemies": {
     "BabyTriceratops": {
@@ -1672,6 +1673,158 @@
           "horizontalOnly": false
         }
       }
+    },
+    "GiantDragonfly": {
+      "typeId": 57,
+      "displayName": "Giant Dragonfly",
+      "fallbackLook": "Shadeling",
+      "source": "res://entities/units/enemies/jungle/basic/giant_dragonfly/giant_dragonfly.tscn",
+      "sourceMd5": "f2fbc5a6c55e9d3a80fb90590383f1f5",
+      "statsSource": "res://entities/units/enemies/jungle/basic/giant_dragonfly/giant_dragonfly_stats.tres",
+      "statsMd5": "43dd2896814bbce2e41bbca444fd4f8d",
+      "stats": {
+        "health": 4,
+        "health_increase_each_wave": 2.0,
+        "speed": 200,
+        "speed_randomization": 100,
+        "damage": 1,
+        "damage_increase_each_wave": 0.85,
+        "attack_cd": 30.0,
+        "value": 1,
+        "knockback_resistance": 0.0,
+        "gold_spread": 0,
+        "can_drop_consumables": true,
+        "always_drop_consumables": false,
+        "base_drop_chance": 0.01,
+        "item_drop_chance": 0.01,
+        "min_consumable_tier": 0,
+        "max_consumable_tier": 0,
+        "armor": 0,
+        "armor_increase_each_wave": 0.0,
+        "generate_blood": true
+      },
+      "body": {
+        "radiusPoints": 29.0689,
+        "offsetPoints": [
+          0,
+          -27
+        ],
+        "source": "res://entities/units/enemies/jungle/basic/giant_dragonfly/giant_dragonfly.tscn",
+        "sourceMd5": "f2fbc5a6c55e9d3a80fb90590383f1f5"
+      },
+      "hurt": {
+        "radiusPoints": 35.0,
+        "offsetPoints": [
+          0,
+          -18
+        ],
+        "source": "res://entities/units/enemies/jungle/basic/giant_dragonfly/giant_dragonfly.tscn",
+        "sourceMd5": "f2fbc5a6c55e9d3a80fb90590383f1f5"
+      },
+      "hit": {
+        "radiusPoints": 29.0172,
+        "offsetPoints": [
+          0,
+          -27
+        ],
+        "source": "res://entities/units/enemies/jungle/basic/giant_dragonfly/giant_dragonfly.tscn",
+        "sourceMd5": "f2fbc5a6c55e9d3a80fb90590383f1f5"
+      },
+      "removeFirst": false,
+      "mass": 1,
+      "obstacleCollision": false,
+      "sprite": {
+        "source": "res://entities/units/enemies/jungle/basic/giant_dragonfly/giant_dragonfly.png",
+        "textureSource": "res://.import/giant_dragonfly.png-4cb6ad45a4405de5d16db1194c520491.stex",
+        "textureMd5": "b033848e3019930579c51b89efe07ef0",
+        "widthPoints": 150,
+        "heightPoints": 150
+      },
+      "bodyBorders": true,
+      "playerCollision": false,
+      "chargingVariants": {
+        "Normal": {
+          "cooldown": 20.0,
+          "long_cooldown_every_x_shoots": 3,
+          "long_cooldown": 55.0,
+          "max_cd_randomization": 0,
+          "min_range": 0,
+          "max_range": 250,
+          "range_X": -1,
+          "range_Y": -1,
+          "attack_anim_speed": 3.0,
+          "charge_duration": 0.35,
+          "charge_speed": 700.0,
+          "target_calculation_timing": 0,
+          "target": 0,
+          "rand_target_size": -1,
+          "only_positions_in_target_direction": false,
+          "scale_charge_duration_with_range": false,
+          "recovery_duration": 0.3
+        },
+        "Meca": {
+          "cooldown": 25.0,
+          "long_cooldown_every_x_shoots": 3,
+          "long_cooldown": 55.0,
+          "max_cd_randomization": 0,
+          "min_range": 0,
+          "max_range": 350,
+          "range_X": -1,
+          "range_Y": -1,
+          "attack_anim_speed": 2.0,
+          "charge_duration": 0.5,
+          "charge_speed": 700.0,
+          "target_calculation_timing": 0,
+          "target": 0,
+          "rand_target_size": -1,
+          "only_positions_in_target_direction": false,
+          "scale_charge_duration_with_range": false,
+          "recovery_duration": 0.3
+        },
+        "Mutant": {
+          "cooldown": 15.0,
+          "long_cooldown_every_x_shoots": 3,
+          "long_cooldown": 55.0,
+          "max_cd_randomization": 0,
+          "min_range": 0,
+          "max_range": 300,
+          "range_X": -1,
+          "range_Y": -1,
+          "attack_anim_speed": 4.0,
+          "charge_duration": 0.25,
+          "charge_speed": 700.0,
+          "target_calculation_timing": 0,
+          "target": 0,
+          "rand_target_size": -1,
+          "only_positions_in_target_direction": false,
+          "scale_charge_duration_with_range": false,
+          "recovery_duration": 0.3
+        }
+      },
+      "activeChargeVariant": "Normal",
+      "directPlayerCharge": true,
+      "evolutionVariantsImplemented": false,
+      "detection": {
+        "radiusPoints": 600,
+        "speedBonusPoints": 20,
+        "anticipateAfter": {
+          "seconds": 0.3,
+          "horizontalOnly": false
+        },
+        "wanderRangePoints": 200,
+        "wanderJitterPoints": 0,
+        "wanderMode": "Offset",
+        "wanderWithin": true
+      },
+      "bindingAudit": {
+        "effectiveScript": "res://entities/units/enemies/enemy.gd",
+        "effectiveScriptMd5": "b341670f5ac667dc203f7eb778a2cda8",
+        "specialScriptBound": false,
+        "unboundScript": "res://entities/units/enemies/jungle/basic/giant_dragonfly/giant_dragonfly.gdc",
+        "unboundScriptMd5": "58f7d6d858676f049af65ad60e7b8172",
+        "boostTimerConnected": false,
+        "boostTimerAutostart": true
+      }
     }
   },
   "spawningRules": {
@@ -1785,6 +1938,10 @@
     {
       "source": "res://entities/units/movement_behaviors/detect_target_movement_behavior.gdc",
       "sourceMd5": "0e5e3fdc02f952196a6a0008bc191e99"
+    },
+    {
+      "source": "res://entities/units/movement_behaviors/follow_rand_pos_around_player_movement_behavior.gdc",
+      "sourceMd5": "b7f34c9dafc697a9c514d0238811f48a"
     },
     {
       "source": "res://entities/units/movement_behaviors/follow_target_movement_behavior.gdc",

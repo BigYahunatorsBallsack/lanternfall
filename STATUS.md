@@ -1336,3 +1336,23 @@ Owner-Test lokal, jede Datei eigener Aufruf:
 3. Mit StyLua im PATH jungle-walkers-/jungle-colliders-Compiler und prepare-character-jungle-art.py jeweils per python -B mit --check gegen installierte stabile1.2.0.3 prüfen.
 
 Endvergleich zum Velociraptor-Schritt: keine neue Fehleridentität; bekannter Gobbler-Orb-Fehler diesmal grün, kein stabiler Fix behauptet. Alle neun zusätzlichen Prüfungen bestanden. Server2/0 und Cadence3/0 nach dem Endlauf zusätzlich mit eingechecktem Runner; danach nur Dokumentation geändert.
+
+
+## Giant Dragonfly: tatsächliche Szenenbindung statt unbenutztem Spezialskript (15.11.2026)
+
+GitHub-main zu Beginn erneut de4e155 geprüft; Fortsetzung auf wp-b10-main-five-ten/Entwurfs-PR151. Wichtige Korrektur früherer Übergaben: Die stabile Giant-Dragonfly-Szene bindet das gleichnamige Fünf-Zustands-/Pursuer-Skript NICHT. Sie erbt unverändert Enemy; DetectEvolution wählt normale ChargingAttackBehavior-Blätter. BoostTimer ist zwar autostart, hat aber keine Szenenverbindung, und das generische Enemy-Skript enthält keinen BoostTimer-Verweis. Die Suche im gelesenen Skriptcache fand GiantDragonfly nur in seiner eigenen Deklaration. Keine angebliche Speziallogik aus einem bloß vorhandenen Skript ergänzen. Compiler sichert Root-Skript, Szenenhash, ungebundenen Skripthash und Timerbefund reproduzierbar ab. Die ältere Aussage „braucht eigenen Spezialzustandsablauf“ war für diese tatsächlich geladene Szene falsch.
+
+Normaler GiantDragonfly/Typ57 jetzt als18.neutralerJungle-Körper verbunden: HP4+2/Welle, Kontakt1+0,85/Welle, Tempo200±100Pixel/s, originale Kreis-/Offsetdaten und HP-Faktor1. Vor Erkennung ein fester Versatz im200Pixel-Quadrat um das Ziel, keine erneute Zielpunktziehung bei Zielbewegung. Bei Distanz≤600Pixel einmalig+20Pixel/s und danach0,3s-Vorhersage. Direkter Ansturm zur tatsächlichen Zielposition bei START_SHOOT: CD20Frames, Reichweite250Pixel, Animationsfaktor3,0,35s/+700Pixel/s,0,3sErholung. Jeder dritte SHOOT verwendet55Frames lange Pause plus Ansturmdauer, Zähler bleibt beim Transfer erhalten. Keine erfundenen Pursuer-Boosts, Kontaktreset- oder Deciding-Zustände. Meca/Mutant nur Quellenfakten.
+
+World4/0 nach0/4 ohne Körper; echter Server2/0 mit Wachstum, Hurtversatz, diagonalem Ansturm und tatsächlichem Charm-Wechsel. Erste Serverprobe stoppte genau beim Wechsel nach Rush ohne bereits verbrauchte Rush-Zeit: Diagnose dx0/dz0. Sie wartet jetzt wie der bestehende Ankylosaurus-Test auf die erste tatsächliche Bewegung; keine Produktionsregel geändert. Mutation Offset→Target ergibt2/2, Original bytegenau restauriert. Jeholopterus4/0, Cadence3/0, Velociraptor6/0, MainGameEnemyStats29/0 und WorldSprites12/0 gezielt grün. Snapshot-Anzahl56→57, alle Eindeutigkeitsprüfungen erhalten. Original-PNG lokal verlustfrei vorbereitet/angesehen, jetzt22Jungle-/Pillar-Bilder,0Uploads/IDs.
+
+Endlauf316/1969/36, keine zusätzliche Fehleridentität gegen dokumentierte Vergleichsläufe und keine Abbrüche. Produktionscode währenddessen unverändert. Bekannte Fehler und CharmedWorld-Leistungsbefund bleiben offen. StyLua, Selene0Fehler/18bestehendeWarnungen, Rojo, zwei Quellcompiler und lokale Bildprüfung --check bestanden. Nachweis giant-dragonfly-validation.json und build/native-five-branch-ten-giant-dragonfly-de4e155.json.
+
+Weiter48/74codevorbereitet,26offen; kein weiterer fertiger Charakter. Jungle bleibt nicht auswählbar. Weitere Familien/Bosse/Wellen/Area, Evolution, originale Spielgrafik/Animation/Audio, gesamte Physik-/Zeit-/Zielwahl-/Poolingparität und Studio/Koop/Handy weiter offen. Nur neue interne Datenfelder detection.wanderMode/wanderWithin für vorhandene Bewegungsrichtlinien; keine neue World-/Remote-/Schema-/Arsenal-Schnittstelle. Nächster Schritt: verbleibende tatsächlich gebundene Jungle-Familien und deren Regeln; kein Merge.
+
+Owner-Test lokal, je Datei eigener Aufruf:
+1. `lune run tools/luau-test-runner/lune-runner.luau -- tests/NativeGiantDragonflyServer.spec.luau` erwartet2/0.
+2. Ebenso NativeGiantDragonfly.spec.luau4/0 und NativeChargeCadence.spec.luau3/0.
+3. Mit StyLua im PATH jungle-walkers-/jungle-colliders-Compiler und prepare-character-jungle-art.py jeweils per python -B mit --check gegen installierte stabile1.2.0.3 prüfen.
+
+Endvergleich zum Jeholopterus-Schritt: bekannter Gobbler-Orb-Fehler wieder rot, sonst gleiche Fehleridentitäten; kein neuer Fehler und kein stabiler Fix behauptet. Alle sechs zusätzlichen Prüfungen bestanden. Nach Endlauf Server2/0 und World4/0 mit eingechecktem Runner; danach nur Dokumentation geändert.
