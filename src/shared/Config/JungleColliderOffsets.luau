@@ -916,6 +916,102 @@ return {
 				initialParentRotation = 0,
 			},
 		},
+		Oviraptor = {
+			source = "res://entities/units/enemies/jungle/basic/oviraptor/oviraptor.tscn",
+			sourceMd5 = "37070a438aa1f6a6d9d7fc460bdfa695",
+			sceneChain = {
+				"res://entities/units/enemies/jungle/basic/oviraptor/oviraptor.tscn",
+				"res://entities/units/enemies/enemy.tscn",
+				"res://entities/units/unit/unit.tscn",
+				"res://entities/entity.tscn",
+			},
+			hurt = {
+				parentPoints = {
+					0,
+					-16,
+				},
+				childPoints = {
+					0,
+					7,
+				},
+				totalPoints = {
+					0,
+					-9,
+				},
+				initialParentScale = {
+					1,
+					1,
+				},
+				initialParentRotation = 0,
+			},
+			hit = {
+				parentPoints = {
+					0,
+					0,
+				},
+				childPoints = {
+					0,
+					-10,
+				},
+				totalPoints = {
+					0,
+					-10,
+				},
+				initialParentScale = {
+					1,
+					1,
+				},
+				initialParentRotation = 0,
+			},
+		},
+		Iguanodon = {
+			source = "res://entities/units/enemies/jungle/basic/iguanodon/iguanodon.tscn",
+			sourceMd5 = "2ef45c86848db34cf87bb386d52ea499",
+			sceneChain = {
+				"res://entities/units/enemies/jungle/basic/iguanodon/iguanodon.tscn",
+				"res://entities/units/enemies/enemy.tscn",
+				"res://entities/units/unit/unit.tscn",
+				"res://entities/entity.tscn",
+			},
+			hurt = {
+				parentPoints = {
+					0,
+					-16,
+				},
+				childPoints = {
+					0,
+					20,
+				},
+				totalPoints = {
+					0,
+					4,
+				},
+				initialParentScale = {
+					1,
+					1,
+				},
+				initialParentRotation = 0,
+			},
+			hit = {
+				parentPoints = {
+					0,
+					0,
+				},
+				childPoints = {
+					0,
+					10,
+				},
+				totalPoints = {
+					0,
+					10,
+				},
+				initialParentScale = {
+					1,
+					1,
+				},
+				initialParentRotation = 0,
+			},
+		},
 	},
 	scope = "Approved saved transforms plus source-checked stable1.2.0.3 additions; collision branches activate separately.",
 	provenance = "Derived from saved1.2.0.2 neutral Jungle scene scan; each scene hash and child position checked against approved JungleWalkers facts.",
@@ -1007,6 +1103,14 @@ return {
 			sourceMd5 = "e0ac4e69c2a21f8fe8af3800e5588c10",
 			baseScene = "res://entities/units/enemies/enemy.tscn",
 		},
+		["res://entities/units/enemies/jungle/basic/oviraptor/oviraptor.tscn"] = {
+			sourceMd5 = "37070a438aa1f6a6d9d7fc460bdfa695",
+			baseScene = "res://entities/units/enemies/enemy.tscn",
+		},
+		["res://entities/units/enemies/jungle/basic/iguanodon/iguanodon.tscn"] = {
+			sourceMd5 = "2ef45c86848db34cf87bb386d52ea499",
+			baseScene = "res://entities/units/enemies/enemy.tscn",
+		},
 	},
 	previousSourceVersion = "1.2.0.2",
 	previousResourcesRevalidatedIdentical = true,
@@ -1016,5 +1120,7 @@ return {
 	giantDragonflyProvenance = "Stable1.2.0.3 complete inherited scene chain revalidated; parent transforms merged, child points checked independently. Root uses generic Enemy, not the unbound GiantDragonfly script.",
 	currentStableAdditions = {
 		HarpymimusLooter = "Entire stable1.2.0.3 scene chain revalidated; parent transforms merged and child offsets checked against JungleWalkers.",
+		Oviraptor = "Entire stable1.2.0.3 scene chain revalidated; parent transforms merged and child offsets checked against JungleWalkers.",
+		Iguanodon = "Entire stable1.2.0.3 scene chain revalidated; parent transforms merged and child offsets checked against JungleWalkers.",
 	},
 }

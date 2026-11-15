@@ -19,6 +19,16 @@
       "passed": 4,
       "failed": 1,
       "restoredByteForByte": true
+    },
+    "afterSourcePreparation": {
+      "NativeCrossing": 5,
+      "MainGameEnemyStats": 29,
+      "WorldSprites": 12,
+      "NativeHarpymimusLooter": 5,
+      "NativeGiantDragonfly": 4,
+      "NativeGiantDragonflyServer": 2,
+      "NativeJungleMovement": 8,
+      "failed": 0
     }
   },
   "sourceReview": [
@@ -55,7 +65,7 @@
     "newCompleted": 0,
     "junglePlayable": false,
     "registeredNeutralJungleBodies": 19,
-    "localJungleImages": 23
+    "localJungleImages": 25
   },
   "fullSuite": {
     "specs": 318,
@@ -67,5 +77,21 @@
     "artifact": "build/native-five-branch-ten-crossing-path-de4e155.json",
     "runtimeFrozenDuringRun": true,
     "afterRunChanges": "Only explanatory comment and unused source-fact boolean/additional script hashes; tracked 5/0 and compiler --check repeated."
+  },
+  "sourcePreparation": {
+    "actorRows": "JungleWalkers.sourceOnly={Oviraptor,Iguanodon}; excluded from implemented and EnemyKinds",
+    "sourceRows": 21,
+    "activeJungleBodies": 19,
+    "reservedTypeIds": [
+      59,
+      60
+    ],
+    "colliderSceneChainsRevalidated": true,
+    "localImages": 25,
+    "imagePixelsLossless": true,
+    "imagesVisuallyInspected": true,
+    "uploads": 0,
+    "runtimeIdsChanged": false,
+    "afterFullSuite": "Source-only rows, collider facts and local art only; no World/renderer/activation changes. Seven focused specs then passed with tracked runner."
   }
 }

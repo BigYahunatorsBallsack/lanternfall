@@ -367,6 +367,44 @@
       "pngSha256": "44ea4404d3a5c749d1119908ccf148d6d2c6af615be220f46649796d308cad0c"
     },
     {
+      "id": "Oviraptor",
+      "source": "res://entities/units/enemies/jungle/basic/oviraptor/oviraptor.png",
+      "textureSource": "res://.import/oviraptor.png-8f0350e494f6168f2f8c77b5f484b860.stex",
+      "textureMd5": "d7d6274c60d8ad2addd50639f8ff6d51",
+      "output": "assets/enemies/native-jungle/Oviraptor.png",
+      "size": [
+        200,
+        200
+      ],
+      "alphaBounds": [
+        8,
+        63,
+        191,
+        140
+      ],
+      "rgbaSha256": "728f714a52c26d9e714ec5f4e855bdbf11ce0cef10b201815b979af617c89ffb",
+      "pngSha256": "85060246641c03e9b89caa69985380b80162981a6f769710ac10bc69c8ce5d48"
+    },
+    {
+      "id": "Iguanodon",
+      "source": "res://entities/units/enemies/jungle/basic/iguanodon/iguanodon.png",
+      "textureSource": "res://.import/iguanodon.png-a8dfe09826eb8a5c43c2ad41c14d18df.stex",
+      "textureMd5": "4c4d050919de22a12d887d14e1c69a1a",
+      "output": "assets/enemies/native-jungle/Iguanodon.png",
+      "size": [
+        200,
+        200
+      ],
+      "alphaBounds": [
+        8,
+        61,
+        193,
+        144
+      ],
+      "rgbaSha256": "796606bda11c2ac1164dc42126ddc2935eef0269ca43f6a1dac1797248f60d57",
+      "pngSha256": "e9804385f3a0bea77b80e8b784eddc0b60e079efd9f0331e0ab17311a4db150e"
+    },
+    {
       "id": "Pillar_bullet_pillar_0002",
       "source": "res://projectiles/pillar_enemy/sprites/bullet_pillar_0002.png",
       "textureSource": "res://.import/bullet_pillar_0002.png-b64813647bb259fcd087f6245a3b4bd8.stex",

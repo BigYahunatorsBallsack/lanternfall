@@ -1,6 +1,6 @@
 ## Aktuell: Kartenquerungs-Komponente geprüft, Actors noch offen (15.11.2026)
 
-GitHub-main de4e155, Branch wp-b10-main-five-ten, Entwurfs-PR151, stabile1.2.0.3. Weiter48/74codevorbereitet,26offen,19neutraleJungle-Körper und23lokaleOriginalbilder. Voll318/1979/36 mit exakt Harpymimus-Fehleridentitäten. Oviraptor/Iguanodon noch nicht registriert; NativeCrossing5/0 und source/validation separat. Besonderen versteckten Hitbox-/Deferred-Befund im neuesten Abschnitt beachten.
+GitHub-main de4e155, Branch wp-b10-main-five-ten, Entwurfs-PR151, stabile1.2.0.3. Weiter48/74codevorbereitet,26offen,19neutraleJungle-Körper und25lokaleOriginalbilder; zwei zusätzliche sourceOnly-Zeilen bleiben inaktiv. Voll318/1979/36 mit exakt Harpymimus-Fehleridentitäten. Oviraptor/Iguanodon noch nicht registriert; NativeCrossing5/0 und source/validation separat. Besonderen versteckten Hitbox-/Deferred-Befund im neuesten Abschnitt beachten.
 
 ## Aktuell: Harpymimus-Looter verbunden (15.11.2026)
 
@@ -840,3 +840,10 @@ Tests NativeCrossing vor Implementierung0/5, danach5/0 mit eingechecktem Runner.
 Weiter48/74codevorbereitet,26offen,19neutraleJungle-Körper und23lokaleBilder; kein neuer vollständiger Charakter, Jungle nicht spielbar, PR151 bleibt Entwurf. Offen: World-/Query-/Körper-/Kontaktanschluss, persistente Zustände und No-Kill-Entfernung, Snapshot-/Renderer-Sichtbarkeit, gedrehte Collider, Masken/One-way-Physik, echte Server-/Charm-/Poolingtests, Spawn/Area, Originalaudio/Animation und Studio/Koop/Handy. Nächster Schritt: Originaldaten/Bilder für die beiden Querläufer vorbereiten, dann World-Anbindung unter Erhalt dieser Grenzen.
 
 Owner-Test lokal: `lune run tools/luau-test-runner/lune-runner.luau -- tests/NativeCrossing.spec.luau` erwartet5/0; anschließend mit StyLua im PATH `python -B tools/build-character-crossing-paths.py --check`. Das ist noch kein im Spiel auswählbarer Gegner-/Gebietstest.
+
+
+### Querläufer: Originaldaten und lokale Bilder vorbereitet (15.11.2026)
+
+Oviraptor und Iguanodon als ausdrücklich sourceOnly/actorRegistered=false in den vorhandenen Jungle-Quellcompiler aufgenommen, reservierte Typen59/60 bleiben außerhalb implemented und EnemyKinds. Daher weiterhin19aktive neutrale Jungle-Körper, jetzt21Quellen-/Colliderdatensätze; nicht als zwei fertige Gegner zählen. Oviraptor HP4+5/Welle,650±175Pixel/s,Kontakt1+0,6/Welle,Material1; Iguanodon HP16+8/Welle,800±50Pixel/s,Kontakt1+1/Welle,Material2. Originale Masken0, keine Rand-/Hindernis-/Spielerkörperkollision, one_way_collision=true. Ganze aktuelle Szenenketten geprüft; Hurt-Gesamtversätze0/-9 bzw0/4Pixel, Hit0/-10 bzw0/10Pixel; für die spätere Anbindung noch um Rootwinkel drehen.
+
+Beide200×200Original-PNGs lokal verlustfrei extrahiert und angesehen; jetzt25Jungle-/Pillar-Bilder,0Uploads/IDs. Compiler --check für Walker, Collider und Bilder bestanden. Gezielte Prüfungen danach mit eingechecktem Runner: Crossing5/0, MainGameEnemyStats29/0 (weiter58registrierte Typen), WorldSprites12/0, Harpy5/0, GiantWorld4/0, GiantServer2/0, JungleMovement8/0. StyLua/Selene0Fehler18bestehendeWarnungen/Rojo erneut bestanden. Letzter Volltest318/1979/36 liegt vor diesem reinen Quellen-/Bildschritt; keine Produktionsaktivierung oder World-/Rendereränderung danach. Charakterstand48/74codevorbereitet,26offen unverändert. Nachweis crossing-path-validation.json aktualisiert.
