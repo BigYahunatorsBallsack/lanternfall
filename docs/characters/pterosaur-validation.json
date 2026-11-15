@@ -1,0 +1,263 @@
+{
+  "referenceVersion": "1.2.0.3",
+  "steamBuild": 26642464,
+  "baseMain": "de4e155e97855cc18ffb52b1e81e53d1af8532fc",
+  "draftPr": 151,
+  "scope": "Registered normal Pterosaur/type61 using actual random-around-target movement and direct every-third long charge; no new completed character or playable Jungle.",
+  "source": {
+    "typeId": 61,
+    "displayName": "Pterosaur",
+    "fallbackLook": "Shadeling",
+    "source": "res://entities/units/enemies/jungle/basic/pterosaur/pterosaur.tscn",
+    "sourceMd5": "a7f783ea21c5273ff41307e56996f5d0",
+    "statsSource": "res://entities/units/enemies/jungle/basic/pterosaur/pterosaur_stats.tres",
+    "statsMd5": "043031941a6ed2bef1aaee430ba57abc",
+    "stats": {
+      "health": 8,
+      "health_increase_each_wave": 6.0,
+      "speed": 300,
+      "speed_randomization": 50,
+      "damage": 1,
+      "damage_increase_each_wave": 0.85,
+      "attack_cd": 30.0,
+      "value": 2,
+      "knockback_resistance": 0.0,
+      "gold_spread": 30,
+      "can_drop_consumables": true,
+      "always_drop_consumables": false,
+      "base_drop_chance": 0.01,
+      "item_drop_chance": 0.01,
+      "min_consumable_tier": 0,
+      "max_consumable_tier": 0,
+      "armor": 0,
+      "armor_increase_each_wave": 0.0,
+      "generate_blood": true
+    },
+    "body": {
+      "radiusPoints": 25.0,
+      "offsetPoints": [
+        0,
+        -27
+      ],
+      "source": "res://entities/units/enemies/jungle/basic/pterosaur/pterosaur.tscn",
+      "sourceMd5": "a7f783ea21c5273ff41307e56996f5d0"
+    },
+    "hurt": {
+      "radiusPoints": 30.0,
+      "offsetPoints": [
+        0,
+        -18
+      ],
+      "source": "res://entities/units/enemies/jungle/basic/pterosaur/pterosaur.tscn",
+      "sourceMd5": "a7f783ea21c5273ff41307e56996f5d0"
+    },
+    "hit": {
+      "radiusPoints": 24.0,
+      "offsetPoints": [
+        0,
+        -27
+      ],
+      "source": "res://entities/units/enemies/jungle/basic/pterosaur/pterosaur.tscn",
+      "sourceMd5": "a7f783ea21c5273ff41307e56996f5d0"
+    },
+    "removeFirst": false,
+    "mass": 1,
+    "obstacleCollision": false,
+    "sprite": {
+      "source": "res://entities/units/enemies/jungle/basic/pterosaur/pterosaur.png",
+      "textureSource": "res://.import/pterosaur.png-d1e5caff91a65e3c086abe1f9d6614f3.stex",
+      "textureMd5": "17a226835498b16877596d5c8b78d326",
+      "widthPoints": 180,
+      "heightPoints": 180
+    },
+    "bodyLayer": 4,
+    "bodyMask": 4,
+    "bodyBorders": true,
+    "playerCollision": false,
+    "chargingVariants": {
+      "Normal": {
+        "cooldown": 0.0,
+        "long_cooldown_every_x_shoots": 3,
+        "long_cooldown": 45.0,
+        "max_cd_randomization": 0,
+        "min_range": 0,
+        "max_range": 450,
+        "range_X": -1,
+        "range_Y": -1,
+        "attack_anim_speed": 1.5,
+        "charge_duration": 1.5,
+        "charge_speed": 400.0,
+        "target_calculation_timing": 0,
+        "target": 0,
+        "rand_target_size": -1,
+        "only_positions_in_target_direction": false,
+        "scale_charge_duration_with_range": false,
+        "recovery_duration": 0.05
+      },
+      "Meca": {
+        "cooldown": 0.0,
+        "long_cooldown_every_x_shoots": 3,
+        "long_cooldown": 45.0,
+        "max_cd_randomization": 0,
+        "min_range": 0,
+        "max_range": 450,
+        "range_X": -1,
+        "range_Y": -1,
+        "attack_anim_speed": 1.0,
+        "charge_duration": 1.5,
+        "charge_speed": 350.0,
+        "target_calculation_timing": 0,
+        "target": 0,
+        "rand_target_size": -1,
+        "only_positions_in_target_direction": false,
+        "scale_charge_duration_with_range": false,
+        "recovery_duration": 0.05
+      },
+      "Mutant": {
+        "cooldown": 0.0,
+        "long_cooldown_every_x_shoots": 3,
+        "long_cooldown": 45.0,
+        "max_cd_randomization": 0,
+        "min_range": 0,
+        "max_range": 450,
+        "range_X": -1,
+        "range_Y": -1,
+        "attack_anim_speed": 1.5,
+        "charge_duration": 1.5,
+        "charge_speed": 450.0,
+        "target_calculation_timing": 0,
+        "target": 0,
+        "rand_target_size": -1,
+        "only_positions_in_target_direction": false,
+        "scale_charge_duration_with_range": false,
+        "recovery_duration": 0.05
+      }
+    },
+    "activeChargeVariant": "Normal",
+    "directPlayerCharge": true,
+    "evolutionVariantsImplemented": false,
+    "wanderAroundTarget": {
+      "rangePoints": 500,
+      "jitterPoints": 100
+    },
+    "bindingAudit": {
+      "effectiveMovement": "res://entities/units/movement_behaviors/target_rand_pos_around_player_movement_behavior.gd",
+      "anticipationChildrenActive": false,
+      "rootScript": "res://entities/units/enemies/jungle/basic/pterosaur/pterosaur.gd",
+      "rootScriptMd5": "97660d66ff5e5729936b8bb38f4952d9",
+      "exportedProjectileChance": 0.25,
+      "projectileChanceUsedByBoundOverride": false
+    }
+  },
+  "sourceAnimations": [
+    {
+      "source": "res://entities/units/enemies/attack_behaviors/shoot.tres",
+      "sourceMd5": "2cb1eabb59abc712266d8e6cb496ab3f",
+      "fireAt": 0.8,
+      "seconds": 1
+    },
+    {
+      "source": "res://entities/units/enemies/attack_behaviors/shoot_charmed.tres",
+      "sourceMd5": "9559f5748dbbfbf70a8e3e803002fd47",
+      "fireAt": 0.8,
+      "seconds": 1
+    }
+  ],
+  "bindingReview": [
+    "Root binds pterosaur.gd, whose Hurtbox override only delegates to Enemy; exported proj_chance=.25 is not consumed by that bound override. No invented counterprojectile mechanic.",
+    "Movement root binds TargetRandPosAroundPlayer, not DetectTarget. Child anticipation nodes exist but are not invoked by that behavior. No detection/anticipation bonus was added.",
+    "Normal charge target=PLAYER at START_SHOOT. Native source get_cd uses rand_range(max(1,cooldown-randomization),cooldown+randomization); for0/0 the endpoints are1 and0 frames. Existing reversed-endpoint interpolation was retained, no invented one-frame clamp.",
+    "Normal shoot.tres and shoot_charmed.tres invoke shoot at .8s. At attack_anim_speed1.5 fireAt is .8/1.5, not charge-prep-animation .533333/1.5."
+  ],
+  "focused": {
+    "beforeRegistration": {
+      "passed": 0,
+      "failed": 3
+    },
+    "world": {
+      "passed": 3,
+      "failed": 0
+    },
+    "actualServer": {
+      "passed": 2,
+      "failed": 0
+    },
+    "cadence": 3,
+    "crossingWorld": 9,
+    "crossingServer": 5,
+    "MainGameEnemyStats": {
+      "passed": 29,
+      "failed": 0,
+      "registeredCount61": true,
+      "allUniquenessChecksRetained": true
+    },
+    "WorldSprites": 12
+  },
+  "fixtureCorrection": "Initial expected fireAt was .533333/1.5 from a different source animation; production uses the verified .8/1.5 shoot animation. Only test expectation corrected.",
+  "mutation": {
+    "mutation": "Pterosaur long cooldown every second instead of every third shot",
+    "output": "FAIL Normal Pterosaur > registers original source stats and actual bound behaviors\n     tests/NativePterosaur.spec.luau:57: expected 3, got 2\nFAIL Normal Pterosaur > uses three long diagonal charges and retains cadence through transfer\n     tests/NativePterosaur.spec.luau:86: expected about 1.5083333333333333, got 2.25\n1 passed, 2 failed\n",
+    "exit": 1,
+    "restoredByteForByte": true
+  },
+  "actualServerProof": [
+    "Original HP8+6/wave and contact1+.85/wave with independent multipliers.",
+    "Full source collider inheritance validated; hurt offset0/-34pixels, outgoing hit0/-27pixels.",
+    "Real direct diagonal charge starts and actor continues moving after actual Charm conversion.",
+    "Weapons/structures paused; native Jungle area still unavailable and no mock runtime errors."
+  ],
+  "art": {
+    "localOriginalImage": "assets/enemies/native-jungle/Pterosaur.png",
+    "losslessRgbaVerified": true,
+    "visuallyInspected": true,
+    "totalJungleAndPillarImages": 26,
+    "uploads": 0,
+    "runtimeIdsChanged": false
+  },
+  "checks": {
+    "stylua": true,
+    "selene": {
+      "errors": 0,
+      "existingWarnings": 18,
+      "cachedApi": true
+    },
+    "rojo": true,
+    "sourceAndImageChecks": 4
+  },
+  "interfaces": [
+    "JungleEnemyKinds reads optional source wanderAroundTarget data using the existing World.wander policy.",
+    "Existing direct NativeCharge target/cadence and persistent columns reused unchanged; no new World API/Remotes/schema/Arsenal change."
+  ],
+  "open": [
+    "Meca/Mutant variants source-only; no evolution-system completion.",
+    "Existing native charge phase cadence, cooldown/audio/global time/pooling/physics and source goal forbidden-zone ordering remain open.",
+    "Original art/pose/animation/audio acceptance in game remains pending; explicit existing art fallback.",
+    "Other Jungle families, bosses, waves and area route remain incomplete.",
+    "No Studio/two-client/mobile acceptance."
+  ],
+  "characterStatus": {
+    "codePrepared": 48,
+    "open": 26,
+    "newCompleted": 0,
+    "registeredNeutralJungleBodies": 22,
+    "sourceRows": 22,
+    "localJungleImages": 26,
+    "junglePlayable": false
+  },
+  "fullSuite": {
+    "specs": 326,
+    "passed": 2020,
+    "failed": 36,
+    "aborts": 0,
+    "newFailureIdentities": [],
+    "returnedVsPrevious": [
+      "FAIL smoke > chases the player until it touches them"
+    ],
+    "absentVsPrevious": [
+      "FAIL new enemies (B9) > lets a Gobbler eat the orbs on the floor and drop them all when killed"
+    ],
+    "artifact": "build/native-five-branch-ten-pterosaur-de4e155.json",
+    "runtimeFrozenDuringRun": true,
+    "afterRunChanges": "Documentation only."
+  }
+}

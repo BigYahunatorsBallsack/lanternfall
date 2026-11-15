@@ -1,3 +1,7 @@
+## Aktuell: normaler Pterosaur verbunden,22Jungle-Körper (15.11.2026)
+
+GitHub-main de4e155,Branch wp-b10-main-five-ten,Entwurfs-PR151,stabile1.2.0.3. Weiter48/74codevorbereitet,26offen;22registrierteJungle-Körper,26lokaleBilder,Jungle nichtspielbar. Voll326/2020/36, identischeFehlernamenwieQuerläufer-Endlauf,keineAbbrüche. PterosaurWorld3/0/realerServer2/0. NächsterSchritt: freundliche Säulen-/Schlitzangriffe gegen Hidden-Hurtboxen,danachweitereFamilien. NeuesteFortsetzungunten;ältereAbschnittehistorisch.
+
 ## Aktuell: Oviraptor/Iguanodon registriert,21Jungle-Körper (15.11.2026)
 
 GitHub-main de4e155, Branch wp-b10-main-five-ten, Entwurfs-PR151, stabile1.2.0.3. Weiter48/74codevorbereitet,26offen;21registrierteJungle-Körper/25lokaleBilder, Jungle nicht spielbar. Voll324/2015/36, keine neuen Fehleridentitäten/Abbrüche; bekannter Gobbler wieder rot, Smoke-Verfolgung diesmal grün. Family2/0, realerServer5/0, OneWay7/0, World9/0. Gerichteter Kreisadapter ist keine volle Solverabnahme. Nächster Schritt normaler Pterosaur. Neueste Fortsetzung unten; ältere Abschnitte historisch.
@@ -927,3 +931,18 @@ Endlauf324/2015/36, keine Abbrüche/neuenFehleridentitäten gegen dokumentierte 
 Offen bleiben vollständige Physics-/Idle-/Deferred-/Poolingparität, evolutionäre Zweige, originale Ingame-Grafik/-Animation/-Audio/Warnshake/-Rootwinkel, visuelle Unterscheidung von Despawn/Tod, weitere Area-/Kandidatenwege, übrige Jungle-Familien/Bosse/Wellen/Gebiet und Studio/Koop/Handy. Kein Merge/Upload/ID-/Arsenal-/Remote-/Schemawechsel. Nächster Schritt: normaler Pterosaur; seine Szene bindet TargetRandPosAroundPlayer und normale Charge-Blätter, nicht die darunter unbenutzt vorhandenen Anticipate-Childknoten.
 
 Owner-Test lokal je Datei: lune run tools/luau-test-runner/lune-runner.luau -- tests/NativeCrossingFamilies.spec.luau erwartet2/0; ebenso NativeCrossingVisibilityServer.spec.luau5/0, NativeOneWayBody.spec.luau7/0 und NativeCrossingWorld.spec.luau9/0. Kein zusätzlicher Eingriff durch anderen Strang nötig.
+
+
+## Normaler Pterosaur: tatsächliche Zielbewegung und dritter langer Ansturm (15.11.2026)
+
+Fortsetzung auf wp-b10-main-five-ten/Entwurfs-PR151 von unverändertem GitHub-main de4e155. Pterosaur/Typ61 als22.neutraleJungle-Familie verbunden. HP8+6/Welle,Kontakt1+0,85/Welle,300±50Pixel/s,Material2,HP-Faktor1. Tatsächliche Bewegung TargetRandPosAroundPlayer:500±100Pixel-Zufallszielbereich, Ziel bleibt bis Ankunft. Untergeordnete Anticipate-Childknoten sind bei diesem gebundenen Verhalten inaktiv; keine erfundene Erkennung/Vorhersage. Root-Pterosaur-Hurtboxoverride delegiert nur an Enemy; proj_chance0,25 ist in diesem Override nicht verwendet, kein erfundener Konter. Compiler sichert effektive Szenen-/Skripthashes und den manuellen Bindungsbefund.
+
+Normale direkte PLAYER-Anstürme mit Ziel bei START_SHOOT: CD0Frames/Random0,450Pixel-Bereich,400Pixel/sBonus,1,5sDauer,0,05sErholung, jeder dritteSHOOT45Frames langePause plusAnsturmdauer. Vorhandenes get_cd-Modell entspricht der Quellenform rand_range(max(1,cooldown-random),cooldown+random); bei0/0 sind die Endpunkte1und0Frames, nicht stillschweigend auf feste1Frame ändern. Auslösung über tatsächlich verwendetes shoot.tres bei0,8s/Animationsfaktor1,5. Erste Testannahme0,533333/1,5 stammte aus anderer Charge-Prep-Animation; ausschließlich Test auf belegten Wert korrigiert. Kein Produktionsworkaround.
+
+World3/0 nach0/3 ohneFamilie: Originaldaten, festesZufallsziel ohne ungenutztePrediction, diagonaleRichtung, jederdrittePause und persistenter World-Transfer. Tatsächlicher Server2/0 mit unabhängigen Wachstumsfaktoren, Hurtversatz0/-34Pixel, wirklichem diagonalenAnsturm und tatsächlichemCharm mit Weiterbewegung. Mutation Pausejederzweite statt dritte1/2 erkannt, bytegenau restauriert. Collider-Szenenkette undOriginal-PNG lokalverlustfrei geprüft/angesehen:26Jungle-/Pillar-Bilder,0Uploads/IDs. SnapshotTypzahl60→61, alle Eindeutigkeitsprüfungen erhalten.
+
+Endlauf326/2020/36, keine Abbrüche/neuenFehleridentitäten; gegen Querläufer-Endlauf identische Fehlernamen. AllefünfzusätzlichenPrüfungen bestanden, Produktionscode im Endlauf unverändert, danach nurDokumentation. StyLua/Selene0Fehler18bestehendeWarnungen/Rojo/vierQuell-/Bildprüfungen --check bestanden. Gezielte MainGameEnemyStats29/0,WorldSprites12/0,Cadence3/0,CrossingWorld9/0 undCrossingServer5/0 grün. Nachweis pterosaur-validation.json und build/native-five-branch-ten-pterosaur-de4e155.json.
+
+Weiter48/74codevorbereitetePakete,26offen;keinweitererfertigerCharakter.22neutraleJungle-Körper,26lokaleBilder, Jungleweiterhinnichtspielbar. Meca/MutantnurQuellenfakten; gesamte nativePhysics-/Timer-/Area-/Zielwahl-/Pooling- und Originaldarstellung/Audio/Studio/Koop/Handyabnahme offen. Nur neues optionales Quellenfeld wanderAroundTarget für vorhandene World-Bewegung; keine neue World-/Remote-/Schema-/Arsenal-Schnittstelle. KeinMerge. NächsterSchritt: verbleibende direkte Hurtbox-Kandidatenwege (freundliche Säulen-/Schlitzangriffe) für die jetzt aktiven verborgenen Querläufer prüfen, dann weitere Jungle-Familien.
+
+Owner-TestlokaljeDatei: lune run tools/luau-test-runner/lune-runner.luau -- tests/NativePterosaur.spec.luau erwartet3/0; ebenso NativePterosaurServer.spec.luau2/0.

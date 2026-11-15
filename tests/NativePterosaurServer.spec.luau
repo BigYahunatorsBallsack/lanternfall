@@ -1,0 +1,48 @@
+--!strict
+-- Registered normal Pterosaur exercises native growth, actual movement/charge and real Charm transfer.
+local f = loadHelper("tests/helpers/NativeCharacterFixture.luau")("WellRounded")
+local Enemy = require(f.S.EnemySim)
+f.start("WatchmanPistol")
+f.Weapons.setPaused(true)
+require(f.S.StructureService).setPaused(true)
+require(f.S.MapService).setMovementCheck(false)
+require(f.S.CombatService).protect(f.me, 10000)
+require(f.S.CombatService).protect(f.peer, 10000)
+f.peer.Character.HumanoidRootPart.Position = Vector3.new(-80, 100, 80)
+describe("Registered normal Pterosaur server", function()
+	it("uses original wave growth and inherited collider offsets", function()
+		Enemy.killAll()
+		local id = assert(Enemy.spawn("Pterosaur", 40, 0, 2, 3, nil, nil, 0, 10))
+		expect(Enemy.getMaxHealth(id)).toBeNear((8 + 6 * 9) * 2)
+		local _, damage = Enemy.getMultipliers(id)
+		expect(damage).toBeNear((1 + 0.85 * 9) * 3)
+		local position = assert(Enemy.getPosition(id))
+		local hurt = assert(Enemy.getHurtGeometry(id))
+		expect(hurt.X - position.X).toBeNear(0)
+		expect(hurt.Z - position.Z).toBeNear(-3.4)
+	end)
+	it("starts a direct diagonal charge, retains actor on Charm and keeps the Jungle route unavailable", function()
+		Enemy.killAll()
+		local root = f.me.Character.HumanoidRootPart
+		local id = assert(Enemy.spawn("Pterosaur", root.Position.X - 20, root.Position.Z - 10, 1000, 0, nil, nil, 0))
+		for _ = 1, 180 do
+			f.world.step(1 / 60)
+			local mode, dx, dz = Enemy.getMode(id)
+			if mode == 2 and dx * dx + dz * dz > 0 then
+				break
+			end
+		end
+		local mode, dx, dz = Enemy.getMode(id)
+		expect(mode).toBe(2)
+		expect(dx > 0 and dz > 0).toBe(true)
+		expect(Enemy.isProjectileDeflecting(id)).toBe(false)
+		expect(Enemy.charmSummoned(id, f.me.UserId)).toBe(true)
+		expect(Enemy.isCharmed(id)).toBe(true)
+		local before = assert(Enemy.getPosition(id))
+		f.world.step(0.1)
+		local after = assert(Enemy.getPosition(id))
+		expect((after - before).Magnitude > 0).toBe(true)
+		expect(f.Run.getNativeZoneId()).toBe(0)
+		expect(#f.world.errors).toBe(0)
+	end)
+end)

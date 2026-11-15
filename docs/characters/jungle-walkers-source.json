@@ -26,7 +26,8 @@
     "GiantDragonfly",
     "HarpymimusLooter",
     "Oviraptor",
-    "Iguanodon"
+    "Iguanodon",
+    "Pterosaur"
   ],
   "sourceOnly": [],
   "enemies": {
@@ -2111,6 +2112,151 @@
       "bodyOneWay": true,
       "bodyOneWayMarginPoints": 1.0,
       "collisionMask": 0
+    },
+    "Pterosaur": {
+      "typeId": 61,
+      "displayName": "Pterosaur",
+      "fallbackLook": "Shadeling",
+      "source": "res://entities/units/enemies/jungle/basic/pterosaur/pterosaur.tscn",
+      "sourceMd5": "a7f783ea21c5273ff41307e56996f5d0",
+      "statsSource": "res://entities/units/enemies/jungle/basic/pterosaur/pterosaur_stats.tres",
+      "statsMd5": "043031941a6ed2bef1aaee430ba57abc",
+      "stats": {
+        "health": 8,
+        "health_increase_each_wave": 6.0,
+        "speed": 300,
+        "speed_randomization": 50,
+        "damage": 1,
+        "damage_increase_each_wave": 0.85,
+        "attack_cd": 30.0,
+        "value": 2,
+        "knockback_resistance": 0.0,
+        "gold_spread": 30,
+        "can_drop_consumables": true,
+        "always_drop_consumables": false,
+        "base_drop_chance": 0.01,
+        "item_drop_chance": 0.01,
+        "min_consumable_tier": 0,
+        "max_consumable_tier": 0,
+        "armor": 0,
+        "armor_increase_each_wave": 0.0,
+        "generate_blood": true
+      },
+      "body": {
+        "radiusPoints": 25.0,
+        "offsetPoints": [
+          0,
+          -27
+        ],
+        "source": "res://entities/units/enemies/jungle/basic/pterosaur/pterosaur.tscn",
+        "sourceMd5": "a7f783ea21c5273ff41307e56996f5d0"
+      },
+      "hurt": {
+        "radiusPoints": 30.0,
+        "offsetPoints": [
+          0,
+          -18
+        ],
+        "source": "res://entities/units/enemies/jungle/basic/pterosaur/pterosaur.tscn",
+        "sourceMd5": "a7f783ea21c5273ff41307e56996f5d0"
+      },
+      "hit": {
+        "radiusPoints": 24.0,
+        "offsetPoints": [
+          0,
+          -27
+        ],
+        "source": "res://entities/units/enemies/jungle/basic/pterosaur/pterosaur.tscn",
+        "sourceMd5": "a7f783ea21c5273ff41307e56996f5d0"
+      },
+      "removeFirst": false,
+      "mass": 1,
+      "obstacleCollision": false,
+      "sprite": {
+        "source": "res://entities/units/enemies/jungle/basic/pterosaur/pterosaur.png",
+        "textureSource": "res://.import/pterosaur.png-d1e5caff91a65e3c086abe1f9d6614f3.stex",
+        "textureMd5": "17a226835498b16877596d5c8b78d326",
+        "widthPoints": 180,
+        "heightPoints": 180
+      },
+      "bodyLayer": 4,
+      "bodyMask": 4,
+      "bodyBorders": true,
+      "playerCollision": false,
+      "chargingVariants": {
+        "Normal": {
+          "cooldown": 0.0,
+          "long_cooldown_every_x_shoots": 3,
+          "long_cooldown": 45.0,
+          "max_cd_randomization": 0,
+          "min_range": 0,
+          "max_range": 450,
+          "range_X": -1,
+          "range_Y": -1,
+          "attack_anim_speed": 1.5,
+          "charge_duration": 1.5,
+          "charge_speed": 400.0,
+          "target_calculation_timing": 0,
+          "target": 0,
+          "rand_target_size": -1,
+          "only_positions_in_target_direction": false,
+          "scale_charge_duration_with_range": false,
+          "recovery_duration": 0.05
+        },
+        "Meca": {
+          "cooldown": 0.0,
+          "long_cooldown_every_x_shoots": 3,
+          "long_cooldown": 45.0,
+          "max_cd_randomization": 0,
+          "min_range": 0,
+          "max_range": 450,
+          "range_X": -1,
+          "range_Y": -1,
+          "attack_anim_speed": 1.0,
+          "charge_duration": 1.5,
+          "charge_speed": 350.0,
+          "target_calculation_timing": 0,
+          "target": 0,
+          "rand_target_size": -1,
+          "only_positions_in_target_direction": false,
+          "scale_charge_duration_with_range": false,
+          "recovery_duration": 0.05
+        },
+        "Mutant": {
+          "cooldown": 0.0,
+          "long_cooldown_every_x_shoots": 3,
+          "long_cooldown": 45.0,
+          "max_cd_randomization": 0,
+          "min_range": 0,
+          "max_range": 450,
+          "range_X": -1,
+          "range_Y": -1,
+          "attack_anim_speed": 1.5,
+          "charge_duration": 1.5,
+          "charge_speed": 450.0,
+          "target_calculation_timing": 0,
+          "target": 0,
+          "rand_target_size": -1,
+          "only_positions_in_target_direction": false,
+          "scale_charge_duration_with_range": false,
+          "recovery_duration": 0.05
+        }
+      },
+      "activeChargeVariant": "Normal",
+      "directPlayerCharge": true,
+      "evolutionVariantsImplemented": false,
+      "wanderAroundTarget": {
+        "rangePoints": 500,
+        "jitterPoints": 100
+      },
+      "bindingAudit": {
+        "effectiveMovement": "res://entities/units/movement_behaviors/target_rand_pos_around_player_movement_behavior.gd",
+        "anticipationChildrenActive": false,
+        "rootScript": "res://entities/units/enemies/jungle/basic/pterosaur/pterosaur.gd",
+        "rootScriptMd5": "97660d66ff5e5729936b8bb38f4952d9",
+        "exportedProjectileChance": 0.25,
+        "projectileChanceUsedByBoundOverride": false
+      }
     }
   },
   "spawningRules": {
@@ -2216,6 +2362,10 @@
     {
       "source": "res://entities/units/enemies/jungle/basic/pachycephalosaurus/pachycephalosaurus.gdc",
       "sourceMd5": "8bc1d902906d2c92a141b6b122740e8c"
+    },
+    {
+      "source": "res://entities/units/enemies/jungle/basic/pterosaur/pterosaur.gdc",
+      "sourceMd5": "97660d66ff5e5729936b8bb38f4952d9"
     },
     {
       "source": "res://entities/units/enemies/jungle/basic/stintaosaurus/stintaosaurus.gdc",

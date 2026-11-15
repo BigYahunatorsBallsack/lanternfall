@@ -1009,6 +1009,54 @@
         ],
         "initialParentRotation": 0
       }
+    },
+    "Pterosaur": {
+      "source": "res://entities/units/enemies/jungle/basic/pterosaur/pterosaur.tscn",
+      "sourceMd5": "a7f783ea21c5273ff41307e56996f5d0",
+      "sceneChain": [
+        "res://entities/units/enemies/jungle/basic/pterosaur/pterosaur.tscn",
+        "res://entities/units/enemies/enemy.tscn",
+        "res://entities/units/unit/unit.tscn",
+        "res://entities/entity.tscn"
+      ],
+      "hurt": {
+        "parentPoints": [
+          0,
+          -16
+        ],
+        "childPoints": [
+          0,
+          -18
+        ],
+        "totalPoints": [
+          0,
+          -34
+        ],
+        "initialParentScale": [
+          1,
+          1
+        ],
+        "initialParentRotation": 0
+      },
+      "hit": {
+        "parentPoints": [
+          0,
+          0
+        ],
+        "childPoints": [
+          0,
+          -27
+        ],
+        "totalPoints": [
+          0,
+          -27
+        ],
+        "initialParentScale": [
+          1,
+          1
+        ],
+        "initialParentRotation": 0
+      }
     }
   },
   "scope": "Approved saved transforms plus source-checked stable1.2.0.3 additions; collision branches activate separately.",
@@ -1108,6 +1156,10 @@
     "res://entities/units/enemies/jungle/basic/iguanodon/iguanodon.tscn": {
       "sourceMd5": "2ef45c86848db34cf87bb386d52ea499",
       "baseScene": "res://entities/units/enemies/enemy.tscn"
+    },
+    "res://entities/units/enemies/jungle/basic/pterosaur/pterosaur.tscn": {
+      "sourceMd5": "a7f783ea21c5273ff41307e56996f5d0",
+      "baseScene": "res://entities/units/enemies/enemy.tscn"
     }
   },
   "previousSourceVersion": "1.2.0.2",
@@ -1119,6 +1171,7 @@
   "currentStableAdditions": {
     "HarpymimusLooter": "Entire stable1.2.0.3 scene chain revalidated; parent transforms merged and child offsets checked against JungleWalkers.",
     "Oviraptor": "Entire stable1.2.0.3 scene chain revalidated; parent transforms merged and child offsets checked against JungleWalkers.",
-    "Iguanodon": "Entire stable1.2.0.3 scene chain revalidated; parent transforms merged and child offsets checked against JungleWalkers."
+    "Iguanodon": "Entire stable1.2.0.3 scene chain revalidated; parent transforms merged and child offsets checked against JungleWalkers.",
+    "Pterosaur": "Entire stable1.2.0.3 scene chain revalidated; parent transforms merged and child offsets checked against JungleWalkers."
   }
 }

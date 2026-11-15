@@ -405,6 +405,25 @@
       "pngSha256": "e9804385f3a0bea77b80e8b784eddc0b60e079efd9f0331e0ab17311a4db150e"
     },
     {
+      "id": "Pterosaur",
+      "source": "res://entities/units/enemies/jungle/basic/pterosaur/pterosaur.png",
+      "textureSource": "res://.import/pterosaur.png-d1e5caff91a65e3c086abe1f9d6614f3.stex",
+      "textureMd5": "17a226835498b16877596d5c8b78d326",
+      "output": "assets/enemies/native-jungle/Pterosaur.png",
+      "size": [
+        180,
+        180
+      ],
+      "alphaBounds": [
+        5,
+        21,
+        170,
+        161
+      ],
+      "rgbaSha256": "e18016f61d8e1fb4aa3af3c19570e7326155978e03399b1a7a35e11142a93896",
+      "pngSha256": "cc47d6aced6b55ce7d14d4e26fceddc7a6c2381cc65ba08e4e1820b03101521e"
+    },
+    {
       "id": "Pillar_bullet_pillar_0002",
       "source": "res://projectiles/pillar_enemy/sprites/bullet_pillar_0002.png",
       "textureSource": "res://.import/bullet_pillar_0002.png-b64813647bb259fcd087f6245a3b4bd8.stex",

@@ -11,6 +11,7 @@ FAMILIES = {'baby_triceratops': ('BabyTriceratops', 40, 'Baby Triceratops'), 'ga
 # Crossing families share one scene-bound movement policy; original presentation remains pending.
 CROSSERS = {'oviraptor': ('Oviraptor',59,'Oviraptor'), 'iguanodon': ('Iguanodon',60,'Iguanodon')}
 FAMILIES.update(CROSSERS)
+FAMILIES['pterosaur']=('Pterosaur',61,'Pterosaur')
 
 CHARGE_DEFAULTS = {'cooldown':60.0,'long_cooldown_every_x_shoots':0,'long_cooldown':0.0,'max_cd_randomization':10,'min_range':0,'max_range':300,'range_X':-1,'range_Y':-1,'attack_anim_speed':1.0,'charge_duration':1.0,'charge_speed':500.0,'target_calculation_timing':0,'target':0,'rand_target_size':-1,'only_positions_in_target_direction':False,'scale_charge_duration_with_range':False,'recovery_duration':0.05}
 
@@ -44,7 +45,7 @@ def generate():
   folder = 'parasaurolus' if slug=='parasaurolorus' else slug
   path = f'res://entities/units/enemies/jungle/basic/{folder}/{slug}.tscn'
   nodes = resolve(path);root = nodes[('@','@')];move = nodes[('.','MovementBehavior')];attack = nodes[('.','AttackBehavior')]
-  assert root['scriptSource'] == ('res://entities/units/enemies/jungle/basic/oviraptor/oviraptor.gd' if slug in CROSSERS else 'res://entities/units/enemies/crash_zone/basic/looter/looter.gd' if slug=='harpymimus_looter' else 'res://entities/units/enemies/crash_zone/basic/pursuer/pursuer.gd' if slug=='velociraptor' else f'res://entities/units/enemies/jungle/basic/{slug}/{slug}.gd' if slug in ['baby_trex','dino_egg','stintaosaurus','ankylosaurus','pachycephalosaurus'] else 'res://entities/units/enemies/enemy.gd')
+  assert root['scriptSource'] == ('res://entities/units/enemies/jungle/basic/oviraptor/oviraptor.gd' if slug in CROSSERS else 'res://entities/units/enemies/crash_zone/basic/looter/looter.gd' if slug=='harpymimus_looter' else 'res://entities/units/enemies/crash_zone/basic/pursuer/pursuer.gd' if slug=='velociraptor' else f'res://entities/units/enemies/jungle/basic/{slug}/{slug}.gd' if slug in ['baby_trex','dino_egg','stintaosaurus','ankylosaurus','pachycephalosaurus','pterosaur'] else 'res://entities/units/enemies/enemy.gd')
   if slug in ['triceratops','parasaurolorus','ankylosaurus','pachycephalosaurus']:
    expected='target_rand_pos_movement_behavior.gd' if slug=='ankylosaurus' else 'follow_target_movement_behavior.gd'
    assert move['scriptSource']=='res://entities/units/movement_behaviors/'+expected
@@ -62,6 +63,10 @@ def generate():
    assert not after['properties'].get('should_target_vertically',False) and not after['properties'].get('stop_close_to_target',False)
    assert before['properties'].get('update_every_x_frames',-1)==-1
    for n in [before,after]:used_scripts.add(n['scriptSource'].removesuffix('.gd')+'.gdc')
+  elif slug=='pterosaur':
+   assert move['scriptSource']=='res://entities/units/movement_behaviors/target_rand_pos_around_player_movement_behavior.gd'
+   assert attack['scriptSource']=='res://entities/units/movement_behaviors/detect_evolution_attack_behavior.gd'
+   assert move['properties']['update_every_x_frames']==-1
   elif slug in CROSSERS:
    assert move['scriptSource']=='res://entities/units/movement_behaviors/go_towards_border_opposite_movement_behavior.gd'
    assert attack['scriptSource']=='res://entities/units/enemies/attack_behaviors/attack_behavior.gd'
@@ -95,6 +100,19 @@ def generate():
   enemies[identity]['bodyMask']=root['properties']['collision_mask']
   enemies[identity]['bodyBorders']=root['properties'].get('should_collide_with_borders',True)
   enemies[identity]['playerCollision']=bool(root['properties']['collision_mask'] & 2)
+  if slug=='pterosaur':
+   variants={}
+   for variant in ['Normal','Meca','Mutant']:
+    node=nodes[('AttackBehavior','AttackBehavior'+variant)]
+    assert node['scriptSource']=='res://entities/units/enemies/attack_behaviors/charging_attack_behavior.gd'
+    used_scripts.add(node['scriptSource'].removesuffix('.gd')+'.gdc')
+    variants[variant]={**CHARGE_DEFAULTS,**{k:v for k,v in node['properties'].items() if isinstance(v,(int,float,bool))}}
+   normal=variants['Normal']
+   assert normal['target']==0 and normal['target_calculation_timing']==0 and normal['range_X']==-1 and normal['range_Y']==-1
+   assert normal['long_cooldown_every_x_shoots']==3 and not normal['scale_charge_duration_with_range']
+   enemies[identity].update(chargingVariants=variants,activeChargeVariant='Normal',directPlayerCharge=True,evolutionVariantsImplemented=False,
+    wanderAroundTarget={'rangePoints':move['properties']['range_around_player'],'jitterPoints':move['properties']['range_randomization']},
+    bindingAudit={'effectiveMovement':move['scriptSource'],'anticipationChildrenActive':False,'rootScript':root['scriptSource'],'rootScriptMd5':pck.entries[root['scriptSource'].removesuffix('.gd')+'.gdc']['md5'],'exportedProjectileChance':root['properties']['proj_chance'],'projectileChanceUsedByBoundOverride':False})
   if slug in CROSSERS:
    crossing=json.loads((ROOT/'docs/characters/crossing-paths-source.json').read_text(encoding='utf-8'))
    approved=crossing['families'][identity]

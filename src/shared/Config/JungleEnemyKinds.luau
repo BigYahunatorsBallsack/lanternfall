@@ -111,6 +111,15 @@ function Kinds.build(pixel: number): { [string]: any }
 				maxSeconds = math.huge,
 			}
 		end
+		if f.wanderAroundTarget then
+			result[id].wander = {
+				around = "Target",
+				range = f.wanderAroundTarget.rangePoints * pixel,
+				rangeJitter = f.wanderAroundTarget.jitterPoints * pixel,
+				arriveStuds = C.spawningRules.goalPrecisionPoints * pixel,
+				maxSeconds = math.huge,
+			}
+		end
 		if f.anticipate then
 			result[id].anticipate = f.anticipate
 		end
