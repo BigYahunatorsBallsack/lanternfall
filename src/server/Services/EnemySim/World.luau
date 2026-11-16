@@ -119,6 +119,8 @@ export type World = typeof(setmetatable(
 		maxHp: { number },
 		contactDamage: { number }, -- damage per touch
 		shotDamage: { number }, -- damage per projectile, 0 for enemies that do not shoot
+		spawnContactDamage: { number }, -- raw source input before final rounding, for native stat resets
+		spawnShotDamage: { number },
 		waves: { number }, -- wave at spawn, for flat enemy healing
 		shootingClocks: { ShootingClock.State? },
 		shotCooldown: { number }, -- seconds in fire range until the next shot
@@ -223,6 +225,8 @@ function World.new(params: Params): World
 		maxHp = {},
 		contactDamage = {},
 		shotDamage = {},
+		spawnContactDamage = {},
+		spawnShotDamage = {},
 		waves = {},
 		shotCooldown = {},
 		shootingClocks = {},
@@ -298,6 +302,8 @@ function World.new(params: Params): World
 		self.maxHp,
 		self.contactDamage,
 		self.shotDamage,
+		self.spawnContactDamage,
+		self.spawnShotDamage,
 		self.waves,
 		self.shotCooldown,
 		self.shootingClocks,
@@ -392,12 +398,14 @@ function World.spawn(
 	self.zs[i] = z
 	self.hp[i] = hp
 	self.maxHp[i] = hp
+	self.spawnContactDamage[i] = contactDamage
 	self.contactDamage[i] = if kind.pursuer or kind.nativeDamageRounding
 		then math.round(contactDamage)
 		else contactDamage
 	local ranged = kind.ranged
 	local spread = (id * GOLDEN_RATIO) % 1 -- so a group spawned together does not act in sync
 	self.shotDamage[i] = shotDamage or World.baseShotDamage(kind)
+	self.spawnShotDamage[i] = self.shotDamage[i]
 	if kind.nativeDamageRounding then
 		self.shotDamage[i] = math.round(self.shotDamage[i])
 	end
@@ -1305,19 +1313,14 @@ local function pulseAt(self: World, i: number, pulse: Enemies.Pulse): boolean
 		candidates[#candidates] = nil
 		self.buffed[j] = true
 		if pulse.nativeResetStats then
-			-- Unit.reset_* takes integer base health/contact damage, then EntityService rounds the final boosted stat.
+			-- Stats.get_base_health returns int, but get_base_damage and projectile bases retain floats until final rounding.
 			local kind = kinds[j]
 			local steps = self.waves[j] - 1
 			local baseHp = kind.hp + kind.hpPerWave * steps
-			local baseContact = kind.contactDamage + kind.damagePerWave * steps
 			maxHp[j] = math.round(math.floor(baseHp) * (maxHp[j] / baseHp) * (1 + (pulse.buffHp or 0)))
 			hp[j] = maxHp[j]
-			self.contactDamage[j] = if baseContact > 0
-				then math.round(
-					math.floor(baseContact) * (self.contactDamage[j] / baseContact) * (pulse.buffDamage or 1)
-				)
-				else 0
-			self.shotDamage[j] = math.round(self.shotDamage[j] * (pulse.buffDamage or 1))
+			self.contactDamage[j] = math.round(self.spawnContactDamage[j] * (pulse.buffDamage or 1))
+			self.shotDamage[j] = math.round(self.spawnShotDamage[j] * (pulse.buffDamage or 1))
 		else
 			self.contactDamage[j] *= pulse.buffDamage or 1
 			self.shotDamage[j] *= pulse.buffDamage or 1

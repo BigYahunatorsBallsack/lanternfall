@@ -104,5 +104,13 @@
         "failed": 2
       }
     ]
+  },
+  "coveredByLaterFullSuite": {
+    "specs": 360,
+    "passed": 2154,
+    "failed": 36,
+    "evolutionSpec": "16/0",
+    "artifact": "build/native-five-branch-ten-native-buff-rounding-de4e155.json",
+    "reason": "Subsequent production Buffer precision correction required this full run."
   }
 }

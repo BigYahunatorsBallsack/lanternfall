@@ -45,7 +45,7 @@ describe("Native Corrupted Buffer", function()
 			expect(Enemy.getMaxHealth(id)).toBe(8)
 		end
 	end)
-	it("recalculates source integer bases before multipliers and fully heals the selected enemy", function()
+	it("truncates source base HP but preserves float contact damage and fully heals the selected enemy", function()
 		clear()
 		Enemy.spawn("CorruptedBuffer", 0, 0, 1, 1, nil, nil, 0, 1)
 		local id = assert(Enemy.spawn("Charger", 2, 0, 2, 3, nil, nil, 0, 2))
@@ -54,7 +54,7 @@ describe("Native Corrupted Buffer", function()
 		expect(Enemy.getMaxHealth(id)).toBe(30) -- int(4+2.5) *2 *2.5
 		expect(Enemy.getHealth(id)).toBe(30)
 		local _, damage = Enemy.getMultipliers(id)
-		expect(damage).toBe(4) -- round(int(1+.85)*3*1.3)
+		expect(damage).toBe(7) -- round((1+.85)*3*1.3); get_base_damage returns float.
 	end)
 
 	it("boosts both nearby players after Charm and expires their temporary stats", function()
