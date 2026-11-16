@@ -68,6 +68,11 @@ for id, base in Enemies.types do
 	byTypeId[elite.typeId] = elite
 end
 
+for _, tree in Enemies.zoneTrees do
+	assert(not byTypeId[tree.typeId], "Duplicate zone tree snapshot type")
+	byTypeId[tree.typeId] = tree
+end
+
 local bosses: { [string]: Enemies.Enemy } = {} -- bosses and champions: every kind with a boss plan
 for id, boss in Enemies.bosses do
 	bosses[id] = boss
@@ -97,6 +102,11 @@ end
 -- The kind behind a snapshot typeId (normal or plain elite), nil for unknown ids.
 function EnemyKinds.byTypeId(typeId: number): Enemies.Enemy?
 	return byTypeId[typeId]
+end
+
+-- Zone neutrals share the Tree family; consumers needing geometry use their distinct snapshot type.
+function EnemyKinds.treeForZone(zoneId: number): Enemies.Enemy
+	return Enemies.zoneTrees[zoneId] or normal.Tree
 end
 
 -- The look (model) of a kind: its `look` or its own id.

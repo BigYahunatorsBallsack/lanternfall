@@ -856,10 +856,12 @@ function EnemySim.spawn(
 	elite: boolean?,
 	affix: number?,
 	speedMultiplier: number?,
-	wave: number?
+	wave: number?,
+	typeId: number?
 ): number?
-	local kind = EnemyKinds.get(enemyId, elite, affix)
+	local kind = if typeId then EnemyKinds.byTypeId(typeId) else EnemyKinds.get(enemyId, elite, affix)
 	assert(kind, `Unknown enemy {enemyId}`)
+	assert(kind.id == enemyId and (not typeId or not elite and not affix), "Enemy type must match its canonical family")
 	if EnemySim.getCount() >= Config.Run.spawn.cap.max then
 		return nil
 	end
@@ -918,8 +920,12 @@ function EnemySim.spawn(
 end
 
 -- Source production birth; explicit spawn(...) retains its caller-supplied debug/context multipliers.
-function EnemySim.spawnNative(enemyId: string, x: number, z: number): number?
-	local kind = EnemyKinds.get(enemyId)
+function EnemySim.spawnNative(enemyId: string, x: number, z: number, zoneId: number?): number?
+	local kind = if enemyId == "Tree"
+		then EnemyKinds.treeForZone(
+			zoneId or RunDirector.getNativeZoneId() or require(Shared.Config.NativeZones).default
+		)
+		else EnemyKinds.get(enemyId)
 	if not RunDirector.isActive() or not kind or not kind.nativeHealthRounding then
 		return nil
 	end
@@ -934,7 +940,8 @@ function EnemySim.spawnNative(enemyId: string, x: number, z: number): number?
 		nil,
 		nil,
 		cache:rawSpeed(1, false, context),
-		wave
+		wave,
+		kind.typeId
 	)
 	if id then
 		local base = nativeBases[id]
@@ -1121,8 +1128,20 @@ function EnemySim.damage(
 	if totalBonus ~= 0 then
 		amount = math.round(amount * (1 + totalBonus / 100))
 	end
+	local wasAlive = world:isAlive(id)
 	local killed, dealt, applied, retaliates = world:damage(id, amount, armorApplied)
 	local hitKind = world:getKind(id)
+	local hitLimit = hitKind and hitKind.nativeNeutralHitLimit
+	local base = nativeBases[id]
+	if wasAlive and hitLimit and base then
+		-- Neutral.take_damage counts even ineligible hitboxes, then checks the current hit's owner.
+		-- nil means no hitbox (for example burning); false means a non-player hitbox owner.
+		base.neutralHits = (base.neutralHits or 0) + 1
+		local eligible = ownerHitbox == nil or (ownerHitbox == true and source ~= nil)
+		if not killed and eligible and base.neutralHits >= hitLimit then
+			killed = world:remove(id)
+		end
+	end
 	if
 		not killed
 		and ownerHitbox

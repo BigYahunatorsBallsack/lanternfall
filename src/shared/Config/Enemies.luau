@@ -79,6 +79,7 @@ export type Enemy = {
 	nativeCanBeBoosted: boolean?, -- false when the source scene excludes this body from Buffer boosts
 	nativeCanBeCharmed: boolean?,
 	nativeCanBeCursed: boolean?,
+	nativeNeutralHitLimit: number?, -- Neutral counts every damage call; only eligible hitbox owners trigger execution
 	nativePlayerKillStats: { [string]: number }?,
 	xp: number,
 	radius: number, -- body circle, studs (assumption; walls, crowding and the picture's size)
@@ -1941,6 +1942,9 @@ export type NativeCharge = {
 
 return table.freeze({
 	types = table.freeze(Enemies),
+	zoneTrees = table.freeze({
+		[require(script.Parent.NativeJungleTree).zoneId] = table.freeze(require(script.Parent.NativeJungleTree).kind),
+	}),
 	elite = Elite,
 	bosses = table.freeze(Bosses),
 	bossWave = BossWave,

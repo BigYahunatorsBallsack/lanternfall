@@ -135,7 +135,11 @@ local function spawnAt(
 	affix: number?
 ): number?
 	local wave = SpawnRules.runWave(atMinutes)
-	local kind = EnemyKinds.get(enemyId)
+	local kind = if enemyId == "Tree"
+		then EnemyKinds.treeForZone(
+			RunDirector.getNativeZoneId() or require(ReplicatedStorage.Shared.Config.NativeZones).default
+		)
+		else EnemyKinds.get(enemyId)
 	if
 		kind
 		and kind.nativeHealthRounding
