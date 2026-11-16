@@ -5,7 +5,7 @@
   "scope": "New source-bound TeamEvolution probability/camp and scene boost math component; no production enemy evolution selection/application/variant renderer.",
   "sourceFacts": "docs/characters/enemy-evolution-source.json",
   "focused": {
-    "NativeEnemyEvolution": "9/0 (initial missing module0/1)"
+    "NativeEnemyEvolution": "16/0; math initially missing0/1, selection initially9/7"
   },
   "proof": [
     "Actual EvolutionSceneEffectBehaviorData.scene binding and scene script verified; numeric script defaults with scene overrides compiled against pinned three-source hashes.",
@@ -50,7 +50,7 @@
   },
   "fullSuite": {
     "rerun": false,
-    "reason": "Only new unreferenced math/config/compiler/test modules after the last runtime end run, no existing gameplay module changed.9focusedchecks green.",
+    "reason": "Only the still unreferenced source component/config/compiler/tests changed since runtime baseline.16focusedchecks green; no existing production caller changed.",
     "latestRuntimeBaseline": "build/native-five-branch-ten-sea-pig-final-de4e155.json",
     "baselineSpecs": 358,
     "baselinePassed": 2135,
@@ -75,5 +75,34 @@
     "No live stat provider, spawn selector, native boost application, variant attack profile selection or reliable variant renderer-state bridge.",
     "Additional evolved loot33percent/items/curse/puddles and source Area/deferred/pooling/RNG acceptance remain open.",
     "No new Remote/snapshot/Arsenal/upload/runtime asset IDs/Studio/real2clients/mobile acceptance."
-  ]
+  ],
+  "selectionFollowup": {
+    "cases": 7,
+    "initial": "9passed/7failed before selector existed",
+    "final": "16/0",
+    "proof": [
+      "Current-zone loot Stats identity excludes before role/inheritance. No broad canBeBoosted=false exclusion.",
+      "BrachiosaurusFoot inherits mother, Meca priority, no camp/chance reroll.",
+      "Ordinary bosses use primary chance before existing flags. Evolved-zone elites use preselected flags and do not reroll normal elites.",
+      "Existing ordinary flags precede has_any_camp; elites outside evolved zones use ordinary primary chance.",
+      "Selector intentionally has no liveness input; apply-stage validity/dead guard must occur after these source rolls. Caller must recompute team from fresh player state per source enemy_respawned event."
+    ],
+    "mutations": [
+      {
+        "mutation": "bossWrongEliteChance",
+        "passed": 15,
+        "failed": 1
+      },
+      {
+        "mutation": "wrongBoostFilter",
+        "passed": 15,
+        "failed": 1
+      },
+      {
+        "mutation": "wrongEliteZoneBranch",
+        "passed": 14,
+        "failed": 2
+      }
+    ]
+  }
 }

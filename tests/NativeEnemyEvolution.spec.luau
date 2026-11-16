@@ -69,6 +69,78 @@ describe("Native enemy team evolution", function()
 		expect(calls).toBe(1)
 	end)
 end)
+
+describe("Source scene evolution selection", function()
+	local function actor(role, changes)
+		local a = {
+			role = role or "Ordinary",
+			lootStatsMatched = false,
+			zoneEvolvedElites = false,
+			meca = false,
+			mutant = false,
+			motherMeca = false,
+			motherMutant = false,
+		}
+		for k, v in changes or {} do
+			a[k] = v
+		end
+		return a
+	end
+	local positive = E.team({ player(50) }, 0)
+	local empty = E.team({}, 0)
+	local function noRoll()
+		error("Source must not ask for a decision/roll on this branch")
+	end
+	it("excludes current-zone loot stats before any role or inherited flags", function()
+		expect(E.select(positive, actor("Boss", { lootStatsMatched = true, meca = true }), noRoll, noRoll)).toBe(nil)
+	end)
+	it("makes a foot inherit its mother without rerolling or requiring a player camp", function()
+		expect(E.select(empty, actor("Foot", { motherMeca = true, motherMutant = true }), noRoll, noRoll)).toBe("Meca")
+		expect(E.select(empty, actor("Foot", { motherMutant = true }), noRoll, noRoll)).toBe("Mutant")
+		expect(E.select(positive, actor("Foot"), noRoll, noRoll)).toBe(nil)
+	end)
+	it("uses primary team chance for ordinary bosses before inspecting existing flags", function()
+		local called = 0
+		local choice = E.select(positive, actor("Boss", { meca = true }), function(chance)
+			expect(chance).toBeNear(0.25)
+			called += 1
+			return false
+		end, noRoll)
+		expect(choice).toBe(nil)
+		expect(called).toBe(1)
+	end)
+	it("uses preselected evolved-zone elite flags and never rerolls an unevolved elite", function()
+		expect(E.select(positive, actor("Elite", { zoneEvolvedElites = true }), noRoll, noRoll)).toBe(nil)
+		expect(E.select(empty, actor("Elite", { zoneEvolvedElites = true, mutant = true }), noRoll, noRoll)).toBe(
+			"Mutant"
+		)
+		expect(
+			E.select(empty, actor("Elite", { zoneEvolvedElites = true, meca = true, mutant = true }), noRoll, noRoll)
+		).toBe("Meca")
+	end)
+	it("honors inherited ordinary flags before checking for any current player camp", function()
+		expect(E.select(empty, actor(nil, { meca = true }), noRoll, noRoll)).toBe("Meca")
+		expect(E.select(empty, actor(nil, { mutant = true }), noRoll, noRoll)).toBe("Mutant")
+		expect(E.select(empty, actor(), noRoll, noRoll)).toBe(nil)
+	end)
+	it("does not confuse a boost refusal with the source loot-stat exclusion", function()
+		local a = actor(nil, { canBeBoosted = false })
+		expect(E.select(positive, a, function(chance)
+			expect(chance).toBeNear(0.25)
+			return true
+		end, function()
+			return 0
+		end)).toBe("Meca")
+	end)
+	it("lets an elite outside evolved zones follow the ordinary primary-chance branch", function()
+		expect(E.select(positive, actor("Elite"), function(chance)
+			expect(chance).toBeNear(0.25)
+			return true
+		end, function()
+			return 0
+		end)).toBe("Meca")
+	end)
+end)
 describe("Source evolution boost percentages", function()
 	it("caps Meca magnitude rather than the final HP percentage", function()
 		local low = E.boost(true, 0)

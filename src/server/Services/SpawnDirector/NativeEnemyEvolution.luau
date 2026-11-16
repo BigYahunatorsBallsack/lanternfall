@@ -3,6 +3,17 @@
 local C = require(game:GetService("ReplicatedStorage").Shared.Config.NativeEnemyEvolution)
 local R, S = C.rules, C.settings
 local Evolution = {}
+export type Variant = "Meca" | "Mutant"
+-- Foot means the source BrachiosaurusFoot class only. The caller resolves loot Stats resource identity.
+export type Actor = {
+	role: "Ordinary" | "Boss" | "Elite" | "Foot",
+	lootStatsMatched: boolean,
+	zoneEvolvedElites: boolean,
+	meca: boolean,
+	mutant: boolean,
+	motherMeca: boolean,
+	motherMutant: boolean,
+}
 export type PlayerData = { evolution: number, chanceStat: number, dual: boolean }
 export type Team = {
 	chance: number,
@@ -59,6 +70,31 @@ end
 function Evolution.drawMeca(team: Team, random: () -> number): boolean
 	local total = team.mecaWeight + team.mutantWeight
 	return total > 0 and random() * total < team.mecaWeight
+end
+local function inherited(meca: boolean, mutant: boolean): Variant?
+	return if meca then "Meca" elseif mutant then "Mutant" else nil
+end
+-- Selection precedes the source apply-stage dead/validity guard; no liveness filter belongs before these rolls.
+function Evolution.select(team: Team, actor: Actor, chance: (number) -> boolean, random: () -> number): Variant?
+	if actor.lootStatsMatched then
+		return nil
+	end
+	if actor.role == "Foot" then
+		return inherited(actor.motherMeca, actor.motherMutant)
+	end
+	if actor.role == "Boss" then
+		return if chance(team.chance) then (if Evolution.drawMeca(team, random) then "Meca" else "Mutant") else nil
+	end
+	if actor.role == "Elite" and actor.zoneEvolvedElites then
+		return inherited(actor.meca, actor.mutant)
+	end
+	if actor.meca or actor.mutant then
+		return inherited(actor.meca, actor.mutant)
+	end
+	if not Evolution.hasCamp(team) then
+		return nil
+	end
+	return if chance(team.chance) then (if Evolution.drawMeca(team, random) then "Meca" else "Mutant") else nil
 end
 local function scaled(minimum: number, maximum: number, magnitude: number, limit: number, squareRoot: boolean): number
 	local depth = math.clamp(math.abs(magnitude), R.minimumMagnitude, limit)
