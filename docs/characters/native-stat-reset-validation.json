@@ -126,5 +126,17 @@
     "Full evolution flags/effect execution/attack profile selection/reliable renderer state remain open; imported effect metadata is not a functioning evolution package.",
     "Spawn-time HP rounding itself is a separate next step; the reset change does not claim to correct every existing spawn.",
     "Native frame/Area/deferred/pooling, graphics, Studio, real two-client and mobile acceptance remain open. No uploads/runtime asset IDs/Arsenal changes."
-  ]
+  ],
+  "coveredByLaterFullSuite": {
+    "specs": 365,
+    "passed": 2179,
+    "failed": 36,
+    "aborts": 0,
+    "newFailureIdentitiesVsKnown": [],
+    "returnedKnownFailureIdentitiesVsHealth": [],
+    "missingFailureIdentitiesVsHealth": [],
+    "artifact": "build/native-five-branch-ten-native-damage-rounding-final-de4e155.json",
+    "runtimeFrozenDuringRun": true,
+    "initialRun": "365/2170/45: nine outdated fractional-contact expectations; corrected to source end rounding with explicit damagePerWave assertions. Focused Nightmare counter then exposed automatic pistol reactions; pause player weapons in that test. No gameplay runtime change after initial run."
+  }
 }

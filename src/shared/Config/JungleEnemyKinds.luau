@@ -46,7 +46,7 @@ function Kinds.build(pixel: number): { [string]: any }
 			nativeHealthRounding = true,
 			contactDamage = s.damage,
 			nativeArmor = f.nativeArmor,
-			nativeDamageRounding = f.nativeDamageRounding,
+			nativeDamageRounding = true,
 			nativeFixedSpeed = f.nativeFixedSpeed,
 			nativeLootActor = f.isLoot,
 			nativeCanBeBoosted = f.canBeBoosted,

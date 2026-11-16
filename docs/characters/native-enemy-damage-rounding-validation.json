@@ -1,0 +1,71 @@
+{
+  "referenceVersion": "1.2.0.3",
+  "steamBuild": 26642464,
+  "baseMain": "de4e155e97855cc18ffb52b1e81e53d1af8532fc",
+  "scope": "Use existing native final contact/projectile rounding consistently across all38 audited Jungle/Nightmare/global SeaPig bodies.",
+  "ruleSources": [
+    {
+      "source": "res://entities/units/unit/stats.gdc",
+      "sourceMd5": "32a0cc4d6ed92f53aafcc9f36d158f95"
+    },
+    {
+      "source": "res://entities/units/unit/unit.gdc",
+      "sourceMd5": "aa94391f2d9681ac36b7f8617b82ff13"
+    },
+    {
+      "source": "res://entities/units/enemies/enemy.gdc",
+      "sourceMd5": "b341670f5ac667dc203f7eb778a2cda8"
+    },
+    {
+      "source": "res://singletons/entity_service.gdc",
+      "sourceMd5": "f1a861f576858bbaa3e913d83c7b1807"
+    }
+  ],
+  "focused": {
+    "NativeEnemyDamageRounding": "4/0, initially0/4 after replacing an invalid readonly Config.Run.seed test assignment with the real RandomService.setNextSeed hook",
+    "NativeJungleWalkers": "source contact expectation19 replaces outdated unrounded19.2; source HP/source-growth assertions retained",
+    "NativeEnemyStatCache": "all8previously separate new component checks included in this runtime end run"
+  },
+  "proof": [
+    "JungleEnemyKinds always selects the existing nativeDamageRounding policy; NightmareEnemyKinds opts in too. SeaPig already used it. All38 source-bound HP policies now have native damage rounding. Legacy policies unchanged.",
+    "Actual Gallimimus wave10/damageFactor3 contact is round((1+.6*9)*3)=19 instead of19.2.",
+    "Actual HornedSpitter wave3/factor1.4 has4contact damage and deals5 per hostile projectile through real server Volley/ShotHit; deterministic run seed1234, owner protected. No forced hits or mocked shot damage.",
+    "World preserves contact/shot21.2 before initial21 rounding; later native reset produces28 from21.2*1.3, not27 from21*1.3. Existing raw nativeBases path preserves pre-rounding inputs for Charm.",
+    "Production changes are two config-policy lines. Tests replace fractional contact expectations with source-rounded integers, retain explicit damagePerWave assertions and pause automatic weapons in the counter fixture; no gameplay framework or new numerical balancing values."
+  ],
+  "checks": {
+    "stylua": true,
+    "rojo": true,
+    "selene": {
+      "errors": 0,
+      "existingWarnings": 18,
+      "parseErrors": 0,
+      "api": "cached Roblox API; warnings-only exit1"
+    }
+  },
+  "fullSuite": {
+    "specs": 365,
+    "passed": 2179,
+    "failed": 36,
+    "aborts": 0,
+    "newFailureIdentitiesVsKnown": [],
+    "returnedKnownFailureIdentitiesVsHealth": [],
+    "missingFailureIdentitiesVsHealth": [],
+    "artifact": "build/native-five-branch-ten-native-damage-rounding-final-de4e155.json",
+    "runtimeFrozenDuringRun": true,
+    "initialRun": "365/2170/45: nine outdated fractional-contact expectations; corrected to source end rounding with explicit damagePerWave assertions. Focused Nightmare counter then exposed automatic pistol reactions; pause player weapons in that test. No gameplay runtime change after initial run."
+  },
+  "status": {
+    "nativeRoundedSourceBodies": 38,
+    "codePreparedCharacters": 48,
+    "open": 26,
+    "newCompletedCharacters": 0,
+    "junglePlayable": false,
+    "productionEvolutionProviderImplemented": false
+  },
+  "limits": [
+    "Existing caller-provided global factors are not replaced by the new unreferenced source factor cache. Production provider/wave lifecycle remain open.",
+    "No completion claim for evolved profiles/effects/renderer, Jungle groups/bosses/area/Whip-Flail route, legacy rounding policies or source frame/physics/pooling/render acceptance.",
+    "No new Remote/snapshot/Arsenal/upload/runtime asset IDs/Studio/real two-client/mobile acceptance."
+  ]
+}

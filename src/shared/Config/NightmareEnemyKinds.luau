@@ -26,6 +26,7 @@ function Kinds.build(pixel: number): { [string]: any }
 			hp = s.health,
 			hpPerWave = s.health_increase_each_wave,
 			nativeHealthRounding = true,
+			nativeDamageRounding = true,
 			contactDamage = s.damage,
 			damagePerWave = s.damage_increase_each_wave,
 			speed = (s.speed - s.speed_randomization) * pixel,

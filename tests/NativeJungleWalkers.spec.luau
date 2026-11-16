@@ -49,7 +49,7 @@ describe("Native Jungle pursuit enemies", function()
 			local id = assert(Enemy.spawn(name, 40, 0, 2, 3, nil, nil, 0, 10))
 			expect(Enemy.getMaxHealth(id)).toBe(wave10Health[index])
 			local _, damage = Enemy.getMultipliers(id)
-			expect(damage).toBeNear((1 + 0.6 * 9) * 3)
+			expect(damage).toBe(19) -- round((1+.6*9)*3), with the source float base retained until final rounding.
 		end
 	end)
 	it("moves every family towards a real player and credits only actual personal kills", function()
