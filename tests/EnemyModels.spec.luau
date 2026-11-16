@@ -47,7 +47,7 @@ describe("EnemyModels", function()
 		for _, kind in Config.Enemies.champions do
 			table.insert(kinds, kind)
 		end
-		expect(#kinds).toBe(10)
+		expect(#kinds).toBe(11) -- main-game2bosses/8champions plus the explicitly ported Jungle elite
 		for _, kind in kinds do
 			local visual = Models.build(kind.typeId)
 			expect(visual.model.Name).toBe(kind.id)

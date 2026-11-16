@@ -1,0 +1,24 @@
+{
+  "version": "1.2.0.3",
+  "steamBuild": "26642464",
+  "source": "res://entities/units/enemies/jungle/elites/therizinosaurus/therizinosaurus.tscn",
+  "sourceMd5": "526ab1bac95d7acc87a9fa5f701de07f",
+  "textureSource": "res://.import/therizinosaurus.png-97e3160eafe80fa0b6b26c17cc20a28d.stex",
+  "textureMd5": "8170cf29589294e4e3e7868de7228370",
+  "output": "assets/enemies/native-therizinosaurus/Therizinosaurus.png",
+  "size": [
+    270,
+    270
+  ],
+  "alphaBounds": [
+    27,
+    8,
+    244,
+    241
+  ],
+  "rgbaSha256": "fa410d7bf8baeed49de723a59fe3d744eb984e549ce00f68b1d2b2787908718a",
+  "pngSha256": "4f49aa91c1479f7e93afc635d2b6f8075fe65df3383e099151468b5efca09665",
+  "uploadedCount": 0,
+  "runtimeAssetIdsChanged": false,
+  "originalArtAcceptedInGame": false
+}

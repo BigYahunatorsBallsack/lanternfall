@@ -671,6 +671,38 @@ function ConfigCheck.run(): { string }
 			problem(`Boss {id} needs hp, radius and mass above 0 and a speed of at least 0`)
 		end
 		local plan = boss.boss
+		local native = boss.nativeBoss
+		if native then
+			if
+				native.family ~= "Therizinosaurus"
+				or not native.phases.usesBasePhaseTimer
+				or #native.shooting.profiles ~= #native.phases.states + 1
+				or #native.shooting.profiles < 2
+				or not boss.nativeHealthRounding
+				or not boss.nativeDamageRounding
+			then
+				problem(`Native boss {id} needs its implemented family, phase/profile bindings and source rounding`)
+			end
+			if
+				native.shooting.frameRate <= 0
+				or native.shooting.fireAt < 0
+				or native.shooting.animationSeconds <= native.shooting.fireAt
+			then
+				problem(`Native boss {id} needs valid shared shoot animation timing`)
+			end
+			for index, profile in native.shooting.profiles do
+				if
+					profile.animationSpeed <= 0
+					or profile.cooldown < 0
+					or profile.initial < 0
+					or profile.minRange < 0
+					or profile.maxRange < profile.minRange
+				then
+					problem(`Native boss {id} profile {index} needs valid speed, cooldown and range`)
+				end
+			end
+			continue -- validated source controller, independently of legacy BossBrain plans
+		end
 		if not (plan and #plan.states >= 1) then
 			problem(`Boss {id} needs a boss plan with at least one state`)
 			continue

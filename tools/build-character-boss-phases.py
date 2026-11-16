@@ -52,6 +52,7 @@ def generate():
         'res://entities/units/enemies/jungle/elites/therizinosaurus/therizinosaurus.gdc':'53e588213796a45ee4727f7a9205ea07',
         'res://entities/units/enemies/jungle/elites/diplodocus/diplodocus.gdc':'af84fabc22f46610936179144ddf33bf',
         'res://entities/units/enemies/attack_behaviors/shooting_attack_behavior.gdc':'43d5ebd849396509ff38632915c988a2',
+        'res://entities/units/enemies/enemy.gdc':'b341670f5ac667dc203f7eb778a2cda8',
     }
     for path,digest in hashes.items():assert pck.entries[path]['md5']==digest,'Re-audit changed boss phase script: '+path
     wave=json.loads((ROOT/'docs/characters/jungle-wave-bindings-source.json').read_text(encoding='utf-8'))
@@ -77,14 +78,17 @@ def generate():
     props={**defaults,**{k:v for k,v in phaseAttack.items() if isinstance(v,(int,float,bool))}}
     assert props['shoot_from_proj_pos_towards_player'] and props['projectile_spawn_only_on_borders'] and not props['spawn_projectiles_on_target']
     actors['Therizinosaurus']['shooting']={
-        'root':{'projectileSource':rootAttack['projectile_scene']['resource'],'scriptSource':shootingScript},
+        'root':{'projectileSource':rootAttack['projectile_scene']['resource'],'scriptSource':shootingScript,'properties':{k:v for k,v in rootAttack.items() if isinstance(v,(int,float,bool))}},
         'phaseOne':{'projectileSource':'res://projectiles/bullet_enemy/enemy_projectile.tscn','scriptSource':shootingScript,
                     'baseScene':baseScene,'baseSceneMd5':pck.entries[baseScene]['md5'],'projectileBinding':'Default of the independently instanced boss_state AttackBehavior; no root-attack inheritance.','properties':props}}
     timerScene='res://entities/units/enemies/bosses/boss.tscn'
+    animations=json.loads((ROOT/'docs/characters/jungle-walkers-source.json').read_text(encoding='utf-8'))['spawningRules']
+    for animation in animations['animations']:
+        assert pck.entries[animation['source']]['md5']==animation['sourceMd5'],'Re-audit shared shoot animation'
     return {'version':reference['version'],'steamBuild':int(reference['steamBuildId']),
         'elapsedPerTimeout':1,'initialState':-1,'timerScene':timerScene,'timerSceneMd5':pck.entries[timerScene]['md5'],
         'ruleSources':[{'source':p,'sourceMd5':h} for p,h in hashes.items()],
-        'actors':actors,'productionAdapterImplemented':False,'nativeFullParityAccepted':False,
+        'actors':actors,'shootingClockRules':{'frameRate':animations['frameRate'],'minimumCooldownFrames':animations['minimumCooldownFrames'],'animationFireAt':animations['animations'][0]['fireAt'],'animationSeconds':animations['animations'][0]['seconds'],'animations':animations['animations']},'productionAdapterImplemented':False,'nativeFullParityAccepted':False,
         'audit':{'elapsedBeforeSelection':True,'hpInclusive':True,'timeInclusive':True,'everyEligibleLaterChildInOrder':True,
                  'synchronousCallbackBeforeNextChild':True,'sourceIndicesStartAtZero':True,
                  'Carnotaurus':'Timer requests a deferred phase switch after the current jump has landed; not the base HP/time loop.',
@@ -101,6 +105,16 @@ data.therizinosaurusPhaseOneVolley={
  offsetX=0,offsetZ=0,speedStep=a.speed_change_after_each_projectile*POINT,
  spawnRing={radius=a.projectile_spawn_spread/2*POINT,away=false,baseRandomization=a.constant_spread_rand_base_pos},
  aimFromSpawn={targetRotation=a.random_rotation},
+}
+local function profile(a)
+ return {cooldown=a.cooldown,randomization=a.max_cd_randomization,initial=a.initial_cooldown,
+ longEvery=a.long_cooldown_every_x_shoots,longFrames=a.long_cooldown,animationSpeed=a.attack_anim_speed,
+ minRange=(a.min_range or 0)*POINT,maxRange=a.max_range*POINT}
+end
+data.therizinosaurusShooting={
+ frameRate=data.shootingClockRules.frameRate,minimumCooldownFrames=data.shootingClockRules.minimumCooldownFrames,
+ fireAt=data.shootingClockRules.animationFireAt,animationSeconds=data.shootingClockRules.animationSeconds,
+ profiles={profile(data.actors.Therizinosaurus.shooting.root.properties),profile(a)}
 }
 return data
 '''

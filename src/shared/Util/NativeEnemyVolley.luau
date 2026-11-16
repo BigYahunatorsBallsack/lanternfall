@@ -13,6 +13,7 @@ export type Rule = {
 	specificDegrees: { number }?,
 	parallel: { spacing: number, angleOffset: number, forwardOffset: number }?,
 	spawnRing: { radius: number, away: boolean, baseRandomization: number? }?,
+	spawnSquare: number?, -- source projectile_spawn_spread around the actor, only when border spawning is off
 	aimFromSpawn: { targetRotation: number }?, -- one source random rotation of the player target per batch
 }
 function Volley.emit(
@@ -48,6 +49,9 @@ function Volley.emit(
 			end
 			sx += math.cos(ringAngle) * rule.spawnRing.radius
 			sz += math.sin(ringAngle) * rule.spawnRing.radius
+		elseif rule.spawnSquare then
+			sx += (random() - 0.5) * rule.spawnSquare
+			sz += (random() - 0.5) * rule.spawnSquare
 		end
 		local spread = if rule.parallel then 0 else (random() * 2 - 1) * rule.spread
 		if rule.constantSpread and rule.count > 1 then

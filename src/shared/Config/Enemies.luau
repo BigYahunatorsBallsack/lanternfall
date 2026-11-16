@@ -3,6 +3,30 @@
 -- EnemyRenderer.
 -- `typeId` is the 1-byte id sent in enemy snapshots; it must be unique and stay stable.
 local NativeVolley = require(script.Parent.Parent.Util.NativeEnemyVolley)
+local BossShooting = require(script.Parent.Parent.Util.NativeBossShooting)
+
+export type NativeBoss = {
+	family: "Therizinosaurus",
+	shooting: BossShooting.Rules,
+	phases: { usesBasePhaseTimer: boolean, states: { { hpStart: number, timerStart: number } } },
+	init: {
+		earlyWave: number,
+		middleWave: number,
+		endWave: number,
+		firstHpShare: number,
+		middleHpShare: number,
+		middleDamageShare: number,
+		easyZoneHpShare: number,
+		timerSeconds: number,
+	},
+	projectileDamage: number,
+	rootSpeed: number,
+	phaseSpeed: number,
+	projectileRange: number,
+	projectileRadius: number,
+	rootVolley: NativeVolley.Rule,
+	phaseVolley: NativeVolley.Rule,
+}
 
 export type Enemy = {
 	id: string,
@@ -81,6 +105,7 @@ export type Enemy = {
 	nativeCanBeCursed: boolean?,
 	nativeNeutralHitLimit: number?, -- Neutral counts every damage call; only eligible hitbox owners trigger execution
 	nativeScene: string?, -- exact registered source PackedScene; wave requests never infer a family from filenames
+	nativeBoss: NativeBoss?, -- own source controller; not a legacy BossBrain plan
 	nativePlayerKillStats: { [string]: number }?,
 	xp: number,
 	radius: number, -- body circle, studs (assumption; walls, crowding and the picture's size)
@@ -1911,6 +1936,7 @@ local EliteWaves = table.freeze({
 })
 
 scaleBodies(Champions)
+Champions.Therizinosaurus = require(script.Parent.NativeTherizinosaurus).kind
 for _, champion in Champions do
 	table.freeze(champion)
 end

@@ -1,0 +1,259 @@
+{
+  "referenceVersion": "1.2.0.3",
+  "steamBuild": 26642464,
+  "baseMain": "de4e155e97855cc18ffb52b1e81e53d1af8532fc",
+  "scope": "Normal source Therizinosaurus elite registered with actual source-scene birth, shared shoot animation, source HP/damage, normal slash and circle-bullet paths; not a complete evolved/visual/area port.",
+  "focused": {
+    "NativeBossShooting": "8/0; first0/8 before implementation",
+    "NativeBossActor": "2/0; first1/1, one-batch physics lost shots before fixed source-frame stepping",
+    "NativeBossConfig": "3/0; native descriptor validated independently of legacy BossBrain plans",
+    "NativeTherizinosaurusServer": "8/0; first0/6; first actor passed6/0 but startup reported legacy-plan config warning, then concrete native validation added; two additional collision/accessibility cases passed",
+    "preservedTargeted": "95/0 across15specs including the21newchecks",
+    "pythonBindings": "4/0"
+  },
+  "sourceFacts": {
+    "typeId": 72,
+    "health": 1,
+    "healthPerWave": 550,
+    "speedPoints": 250,
+    "contactDamage": 1,
+    "contactDamagePerWave": 1.5,
+    "shotDamagePerWave": 1.15,
+    "materials": 10,
+    "phaseHp": 0.45,
+    "phaseSeconds": 30,
+    "body": {
+      "radiusPoints": 56.5685,
+      "offsetPoints": [
+        0,
+        -32
+      ]
+    },
+    "hurt": {
+      "radiusPoints": 45.0,
+      "offsetPoints": [
+        0,
+        -16
+      ]
+    },
+    "hit": {
+      "radiusPoints": 40.7922,
+      "offsetPoints": [
+        0,
+        -16
+      ]
+    },
+    "rootProjectile": "Normal animated slash from source square positions, aimed at the current FollowTarget player target.",
+    "childProjectile": "Independent boss_state standard bullet scene, twelve-shot100pxring with source batch rotations.",
+    "sourceMovementReason": "FollowTarget.get_movement returns target-parent, not a normalized direction; shoot_in_unit_direction therefore targets the current player in this unlocked FollowTarget profile."
+  },
+  "interfaces": [
+    "Enemy.nativeBoss explicitly identifies the implemented Therizinosaurus controller family; native champion has no fabricated legacy BossBrain plan. ConfigCheck validates source phase/profile counts, rounding and ranges.",
+    "NativeBossShooting stores independent cold behavior clocks and one shared animation; each method/finish dereferences the then-current behavior. select preserves clocks/animation speed; resetCurrent resets only timing, with projectile damage owned separately.",
+    "NativeBossActor composes phase callbacks and shooting at the configured source60Hz within server batches. Constant-health/target batching invariant checked; this is not a full original frame/solver equivalence claim.",
+    "EnemySim owns per-id native controller state, creates it on birth, prunes on death and clears on run/wave cleanup. It emits real NativeSlash/EnemyShots through existing services.",
+    "NativeEnemyVolley.spawnSquare optional source spread; NativeSlash direct.profile=Normal remains trusted server-only and does not change the cosmetic network schema. Private deleteWithSource flag preserves normal boss slashes after death while MadSlasher still deletes them.",
+    "Native boss contact/shot bases use original damage growth; early damage modifiers precede final rounding, early HP share applies after Unit HP rounding. Actual source factor provider remains shared.",
+    "nativeBounceTarget now excludes native bosses; canonical champion registration preserves existing loot/structure/boss-kill policies."
+  ],
+  "checks": {
+    "sourceCompilers": "passed",
+    "localArtCompiler": "passed; original PNG prepared/viewed, no uploads or IDs",
+    "stylua": "passed after formatting two final additions",
+    "selene": {
+      "errors": 0,
+      "existingWarnings": 18,
+      "parseErrors": 0
+    },
+    "rojo": "passed"
+  },
+  "mutations": [
+    {
+      "mutation": "methodUsesOldProfile",
+      "spec": "NativeBossShooting",
+      "passed": 5,
+      "failed": 3,
+      "detected": true
+    },
+    {
+      "mutation": "finishUsesOldProfile",
+      "spec": "NativeBossShooting",
+      "passed": 6,
+      "failed": 2,
+      "detected": true
+    },
+    {
+      "mutation": "refireMethod",
+      "spec": "NativeBossShooting",
+      "passed": 7,
+      "failed": 1,
+      "detected": true
+    },
+    {
+      "mutation": "noInitialFrameReturn",
+      "spec": "NativeBossShooting",
+      "passed": 7,
+      "failed": 1,
+      "detected": true
+    },
+    {
+      "mutation": "phaseTimerDisabled",
+      "spec": "NativeTherizinosaurusServer",
+      "passed": 7,
+      "failed": 1,
+      "detected": true
+    },
+    {
+      "mutation": "singleHealthRounding",
+      "spec": "NativeTherizinosaurusServer",
+      "passed": 7,
+      "failed": 1,
+      "detected": true
+    },
+    {
+      "mutation": "ignoreEarlyShotDamage",
+      "spec": "NativeTherizinosaurusServer",
+      "passed": 7,
+      "failed": 1,
+      "detected": true
+    },
+    {
+      "mutation": "deletePersistentSlash",
+      "spec": "NativeTherizinosaurusServer",
+      "passed": 7,
+      "failed": 1,
+      "detected": true
+    },
+    {
+      "mutation": "ignoreAccessibility",
+      "spec": "NativeTherizinosaurusServer",
+      "passed": 7,
+      "failed": 1,
+      "detected": true
+    },
+    {
+      "mutation": "coupleProjectileToBodySpeed",
+      "spec": "NativeTherizinosaurusServer",
+      "passed": 7,
+      "failed": 1,
+      "detected": true
+    }
+  ],
+  "coverage": {
+    "registeredSourceScenes": 33,
+    "directGraphScenes": 38,
+    "resolvedDirectScenes": 32,
+    "unresolvedDirectScenes": [
+      "res://entities/units/enemies/jungle/bosses/brachiosaurus/brachiosaurus.tscn",
+      "res://entities/units/enemies/jungle/bosses/tyrannosaurus/tyranosaurus.tscn",
+      "res://entities/units/enemies/jungle/elites/baryonyx/baryonyx_neutral.tscn",
+      "res://entities/units/enemies/jungle/elites/carnotaurus/carnotaurus_neutral.tscn",
+      "res://entities/units/enemies/jungle/elites/diplodocus/diplodocus.tscn",
+      "res://entities/units/enemies/jungle/elites/silesaurus/silesaurus.tscn"
+    ]
+  },
+  "fullComparison": {
+    "status": "finished",
+    "artifact": "build/native-five-branch-ten-therizinosaurus-final-de4e155.json",
+    "baseline": "build/native-five-branch-ten-native-boss-ring-de4e155.json",
+    "specs": 375,
+    "passed": 2243,
+    "failed": 40,
+    "aborts": 0,
+    "newFunctionalFailureIdentities": [],
+    "returnedKnownFailure": "EnemiesB9 Gobbler",
+    "newTimingFailure": "Weapons > steps4playerswithsixmax-tierweaponsamong140enemieswithin4ms",
+    "runtimeFrozenDuringComparison": true,
+    "firstRun": {
+      "artifact": "build/native-five-branch-ten-therizinosaurus-de4e155.json",
+      "specs": 375,
+      "passed": 2243,
+      "failed": 40,
+      "newFunctionalCases": [
+        "EnemyModels assumes10boss/champion kinds",
+        "MainGameEnemyStats assumes70snapshot kinds and excludes zone tree",
+        "MainGameEnemyStats applies main-game750HP/wave to new DLC elite"
+      ],
+      "resolution": "Scope the eight main-game stats by their explicit reference ids; include the neutral tree and native elite in72unique ids; count11boss/champion kinds, native boss glow and semantic champion/Gloom flag separation. All prior assertions/budgets preserved."
+    }
+  },
+  "counts": {
+    "charactersCodePrepared": 48,
+    "charactersRemaining": 26,
+    "additionalCompleteCharacters": 0,
+    "normalJungleBodies": 30,
+    "registeredNativeJungleElites": 1,
+    "zoneNeutralTrees": 1
+  },
+  "limitations": [
+    "No selectable Jungle; remaining direct scenes are2bosses and4elites, plus actual source area/wave/evolution/content/conditional bindings.",
+    "Normal actor only; Meca/Mutant effects/flags, full curse and stronger_elites_on_kill from gated Primal rules remain open.",
+    "Existing living-player target sampling, retarget/pet-target behavior, body15Hzphysics, projectile positions/timestamps/bounds/lifetimes and source global enemy-time/RNG order are not fully original.",
+    "Internal attack60Hz substeps do not prove native Godot callback/deferred/pooling/movement/animation/render parity.",
+    "Source PNG local only; client uses the existing Brute fallback, native boss bar/phase pose/audio/shaders/original art not accepted.",
+    "No Studio, actual two clients or mobile acceptance; unchanged 4msbudget has prior timing failures, no full performance acceptance claimed.",
+    "No new character-ready flags, Remote/snapshot/Arsenal/uploads/runtime Asset-ID/save-schema changes.",
+    "Native boss controller currently owns only hostile actors; forced friendly-boss conversion is not implemented or accepted."
+  ],
+  "startupRole": {
+    "nativeBossSemantic": true,
+    "gloomEliteFlag": false,
+    "fakeLegacyPlan": false,
+    "nativeValidationNegatives": "Missing profile and invalid range rejected.",
+    "legacyRenderer": "Native semantic boss gets the same existing restrained glow; no Gloom crown."
+  },
+  "projectileSpeedProof": "Fresh actual provider captures body-speed factor0.6 from75%accessibility and-20%team effect; real root slash remains37.5studs/s from accessibility alone. Wrong body-factor coupling is detected.",
+  "budgetControl": {
+    "control": "All changed tracked runtime files restored to5896236; new unused modules remain on disk.",
+    "rows": [
+      {
+        "trial": 1,
+        "variant": "current",
+        "passed": 18,
+        "failed": 0,
+        "measurements": [
+          "enemies + 24 max-tier weapons: 3.973 ms, weapons alone 0.404 ms"
+        ],
+        "failures": []
+      },
+      {
+        "trial": 1,
+        "variant": "before-therizinosaurus",
+        "passed": 17,
+        "failed": 1,
+        "measurements": [
+          "enemies + 24 max-tier weapons: 4.265 ms, weapons alone 0.455 ms"
+        ],
+        "failures": [
+          "FAIL weapon budget > steps 4 players with six max-tier weapons each among 140 enemies within the 4 ms step budget"
+        ]
+      },
+      {
+        "trial": 2,
+        "variant": "before-therizinosaurus",
+        "passed": 17,
+        "failed": 1,
+        "measurements": [
+          "enemies + 24 max-tier weapons: 4.561 ms, weapons alone 0.472 ms"
+        ],
+        "failures": [
+          "FAIL weapon budget > steps 4 players with six max-tier weapons each among 140 enemies within the 4 ms step budget"
+        ]
+      },
+      {
+        "trial": 2,
+        "variant": "current",
+        "passed": 17,
+        "failed": 1,
+        "measurements": [
+          "enemies + 24 max-tier weapons: 4.489 ms, weapons alone 0.458 ms"
+        ],
+        "failures": [
+          "FAIL weapon budget > steps 4 players with six max-tier weapons each among 140 enemies within the 4 ms step budget"
+        ]
+      }
+    ],
+    "stage": "Controlled changed tracked runtime files versus5896236; new files remained in the tree and the old configuration does not import the new native controller.",
+    "interpretation": "4msremains unchanged; pre-step tracked-runtime control also fails. No stable performance acceptance or definitive regression exclusion claimed."
+  }
+}

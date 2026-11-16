@@ -38,6 +38,8 @@ local RandomService = require(script.Parent.RandomService)
 local RunDirector = require(script.Parent.RunDirector)
 local Volleys = require(script.Volleys)
 local World = require(script.World)
+local NativeBossActor = require(script.NativeBossActor)
+local nativeBossActors: { [number]: NativeBossActor.State } = {}
 local NativeCrossing = require(script.NativeCrossing)
 local CharmedWorld = require(script.CharmedWorld)
 local CharmRules = require(script.CharmRules)
@@ -320,6 +322,73 @@ end
 -- Turns the shots World reported this step into projectiles aimed ahead of their target: at the point a target
 -- walking straight on would reach while the shot flies there, times the kind's aimLead, then turned by a random
 -- angle within the kind's spreadRadians.
+local function stepNativeBosses()
+	for id, state in nativeBossActors do
+		if not world:isAlive(id) then
+			nativeBossActors[id] = nil
+			continue
+		end
+		local x, z = world:getPosition(id)
+		if not x or not z then
+			continue
+		end
+		local target, squared = 0, math.huge
+		for index = 1, targetCount do
+			local distance = (targetXs[index] - x) ^ 2 + (targetZs[index] - z) ^ 2
+			if distance < squared then
+				target, squared = index, distance
+			end
+		end
+		NativeBossActor.step(
+			state,
+			STEP_SECONDS,
+			function()
+				local hp, maximum = world:getHealth(id)
+				return if maximum > 0 then hp / maximum else 0
+			end,
+			math.sqrt(squared),
+			function()
+				return RandomService.number("Spawns")
+			end,
+			function(profile)
+				if target == 0 then
+					return
+				end
+				local rules = state.rules
+				local rule = if profile == 1 then rules.rootVolley else rules.phaseVolley
+				local speed = if profile == 1 then rules.rootSpeed else rules.phaseSpeed
+				speed *= RunDirector.getRunOptions().enemySpeed / NativeStatRules.percent
+				local damage = world:getShotDamage(id)
+				NativeVolley.emit(rule, x, z, targetXs[target], targetZs[target], speed, function()
+					return RandomService.number("Combat")
+				end, function(px, pz, dx, dz, shotSpeed)
+					if profile == 1 then
+						EnemySim.NativeSlash:Fire(
+							id,
+							px,
+							pz,
+							damage,
+							nil,
+							{ dx = dx, dz = dz, speed = shotSpeed, profile = "Normal" }
+						)
+					else
+						EnemySim.fireShot(
+							px,
+							pz,
+							dx,
+							dz,
+							shotSpeed,
+							rules.projectileRange,
+							rules.projectileRadius,
+							damage
+						)
+					end
+				end)
+			end
+		)
+	end
+end
+
 local function fireShots(stepNow: number)
 	local shots = world.shots
 	for s = 0, world.shotCount - 1 do
@@ -597,6 +666,7 @@ local function stepOnce()
 		table.insert(endedShots, ended[k])
 	end
 	fireShots(stepNow)
+	stepNativeBosses()
 	for _, id in world.nativeLandings do
 		local kind = world:getKind(id)
 		if kind and kind.nativeRadialShots then
@@ -808,6 +878,7 @@ function EnemySim.init()
 		world:clear()
 		friends:clear()
 		table.clear(nativeBases)
+		table.clear(nativeBossActors)
 		weakness:clear()
 		volleys:clear()
 		accumulator = 0
@@ -821,6 +892,7 @@ function EnemySim.init()
 		world:clear()
 		friends:clear()
 		table.clear(nativeBases)
+		table.clear(nativeBossActors)
 		weakness:clear()
 		volleys:clear()
 		currentTick += 1
@@ -862,6 +934,9 @@ function EnemySim.spawn(
 	local kind = if typeId then EnemyKinds.byTypeId(typeId) else EnemyKinds.get(enemyId, elite, affix)
 	assert(kind, `Unknown enemy {enemyId}`)
 	assert(kind.id == enemyId and (not typeId or not elite and not affix), "Enemy type must match its canonical family")
+	if kind.nativeBoss then
+		wave = wave or RunDirector.getWave()
+	end
 	if EnemySim.getCount() >= Config.Run.spawn.cap.max then
 		return nil
 	end
@@ -882,36 +957,45 @@ function EnemySim.spawn(
 		rawResetHealth = math.modf(kind.hp + kind.hpPerWave * steps) * hpMultiplier
 		hp = math.round(rawResetHealth)
 	end
+	local contactDamage = kind.contactDamage * damageMultiplier * contactGrowth
+	if kind.nativeBoss then
+		local options = RunDirector.getRunOptions()
+		local danger = require(Shared.Util.DangerRules)
+		local hpShare, damageShare = NativeBossActor.initialShares(
+			kind.nativeBoss,
+			wave or 1,
+			RunDirector.getNativeZoneId() or require(Shared.Config.NativeZones).default,
+			options.danger,
+			danger.level(options.danger).bossCount > 1
+		)
+		hp = math.round(hp * hpShare)
+		contactDamage *= damageShare
+		if shotDamage then
+			shotDamage *= damageShare
+		end
+	end
 	local speed, rawSpeedPoints, sourceSpeedPoints = EnemyStats.spawnSpeedFactor(
 		kind,
 		RandomService.number("Spawns"),
 		speedMultiplier or 1,
 		RunDirector.getRunOptions().enemySpeed / 100
 	)
-	local id = world:spawn(
-		kind,
-		x,
-		z,
-		hp,
-		kind.contactDamage * damageMultiplier * contactGrowth,
-		shotDamage,
-		speed,
-		wave,
-		rawSpeedPoints,
-		rawResetHealth
-	)
+	local id = world:spawn(kind, x, z, hp, contactDamage, shotDamage, speed, wave, rawSpeedPoints, rawResetHealth)
 	if id then
 		local index = world.indexOf[id]
 		nativeBases[id] = {
 			spawnedAt = workspace:GetServerTimeNow(),
 			sourceSpeedPoints = sourceSpeedPoints, -- original integer argument, never inferred from rounded final speed
 			-- Charm resets source damage with its own modifier before final rounding.
-			contact = if kind.pursuer or kind.nativeDamageRounding
-				then kind.contactDamage * damageMultiplier * contactGrowth
-				else world.contactDamage[index],
+			contact = if kind.pursuer or kind.nativeDamageRounding then contactDamage else world.contactDamage[index],
 			shot = if kind.nativeDamageRounding then shotDamage or 0 else world.shotDamage[index],
 			spawn = { hp = hpMultiplier, damage = damageMultiplier, speed = speedMultiplier or 1, wave = wave },
 		}
+	end
+	if id and kind.nativeBoss then
+		nativeBossActors[id] = NativeBossActor.new(kind.nativeBoss, function()
+			return RandomService.number("Spawns")
+		end)
 	end
 	if id and wave then
 		spawnContexts[id] = { hp = hpMultiplier, damage = damageMultiplier, speed = speedMultiplier or 1, wave = wave }
@@ -1075,7 +1159,7 @@ function EnemySim.tryCharm(player: Player, id: number, stats: { [string]: number
 		hp = hp,
 		maxHp = maxHp,
 		elite = kind.elite,
-		boss = kind.boss ~= nil,
+		boss = kind.boss ~= nil or kind.nativeBoss ~= nil,
 		canBeCharmed = kind.nativeLootActor ~= true and kind.nativeCanBeCharmed ~= false,
 	}, friends:count(player.UserId), require(Shared.Util.DangerRules).endlessFactor(RunDirector.getWave()))
 	if not CharmRules.success(chance, random) then
@@ -1200,7 +1284,7 @@ function EnemySim.damage(
 			position = Vector3.new(x, floorY, z),
 			xp = if kind.nativeEater then world:goldValue(id) else kind.xp,
 			elite = kind.elite == true,
-			boss = kind.boss ~= nil,
+			boss = kind.boss ~= nil or kind.nativeBoss ~= nil,
 			killer = source,
 			aliveSeconds = if nativeBases[id]
 				then math.max(0, workspace:GetServerTimeNow() - nativeBases[id].spawnedAt)
@@ -1416,7 +1500,7 @@ function EnemySim.getKind(id: number): (string?, boolean)
 	if not kind then
 		return nil, false
 	end
-	return kind.id, kind.elite == true or kind.boss ~= nil
+	return kind.id, kind.elite == true or kind.boss ~= nil or kind.nativeBoss ~= nil
 end
 
 -- Sets the mode of a living boss or champion (World.MODE_*: walk, wind-up, rush, recover) and its rush direction x/z,
@@ -1449,7 +1533,7 @@ function EnemySim.nativeBounceTarget(ignore: number, random: () -> number): (num
 	table.clear(nativeBounceIds)
 	for _, actors in { world, friends.world } do
 		for index = 1, actors.count do
-			if actors.hp[index] > 0 and not actors.kinds[index].boss then
+			if actors.hp[index] > 0 and not actors.kinds[index].boss and not actors.kinds[index].nativeBoss then
 				table.insert(nativeBounceIds, actors.ids[index])
 			end
 		end

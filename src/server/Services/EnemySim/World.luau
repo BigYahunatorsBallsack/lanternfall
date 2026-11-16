@@ -359,7 +359,9 @@ end
 
 -- The config damage behind a kind's shotDamage column: its projectile, its slash or its counter-shots (0 for none).
 function World.baseShotDamage(kind: Kind): number
-	if kind.nativeRadialShots then
+	if kind.nativeBoss then
+		return kind.nativeBoss.projectileDamage
+	elseif kind.nativeRadialShots then
 		return kind.nativeRadialShots.projectileDamage
 	elseif kind.ranged then
 		return kind.ranged.projectileDamage

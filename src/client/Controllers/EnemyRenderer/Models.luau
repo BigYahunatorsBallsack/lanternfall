@@ -2075,7 +2075,7 @@ function Models.build(typeId: number): Visual
 	end
 	local elite = if enemy and enemy.elite then makeElite(rig) else nil
 	local body = rig.flash[1] or rig.parts[1]
-	if enemy and enemy.boss then
+	if enemy and (enemy.boss or enemy.nativeBoss) then
 		local light = Instance.new("PointLight")
 		light.Color = BOSS_GLOW_COLOR
 		light.Brightness = BOSS_GLOW_BRIGHTNESS

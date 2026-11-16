@@ -13,7 +13,7 @@ local Run = require(script.Parent.RunDirector)
 local Random = require(script.Parent.RandomService)
 local PIXEL = Config.Player.moveSpeed / C.runtimeCompatibility.referencePlayerSpeedPixels
 local Service = {}
-type Shot = { info: Types.NativeSlashInfo, damage: number, age: number }
+type Shot = { info: Types.NativeSlashInfo, damage: number, age: number, deleteWithSource: boolean }
 local shots: { Shot } = {}
 local fired: { Types.NativeSlashInfo } = {}
 local ended: { number } = {}
@@ -44,7 +44,7 @@ local function start(
 	tz: number,
 	damage: number,
 	owner: number?,
-	direct: { dx: number, dz: number, speed: number }?
+	direct: { dx: number, dz: number, speed: number, profile: string? }?
 )
 	if Run.getPhase() ~= "Running" or not sourceAlive(id) then
 		return
@@ -53,7 +53,8 @@ local function start(
 	local volley
 	if direct then
 		local kind = name and Kinds.get(name)
-		if not kind or not kind.ranged or not kind.ranged.nativeForwardSlash then
+		local normalBoss = kind and kind.nativeBoss and direct.profile == "Normal"
+		if not normalBoss and (not kind or not kind.ranged or not kind.ranged.nativeForwardSlash) then
 			return
 		end
 		volley = { { x = tx, z = tz, dx = direct.dx, dz = direct.dz, speed = direct.speed } }
@@ -77,7 +78,7 @@ local function start(
 	for _, shot in volley do
 		nextId += 1
 		local info: Types.NativeSlashInfo = {
-			variant = if direct then "Forward" else nil,
+			variant = if direct and direct.profile ~= "Normal" then "Forward" else nil,
 			id = nextId,
 			sourceId = id,
 			ownerId = owner,
@@ -88,7 +89,10 @@ local function start(
 			speed = shot.speed,
 			at = workspace:GetServerTimeNow(),
 		}
-		table.insert(shots, { info = info, damage = math.round(damage), age = 0 })
+		table.insert(
+			shots,
+			{ info = info, damage = math.round(damage), age = 0, deleteWithSource = name == "MadSlasher" }
+		)
 		table.insert(fired, info)
 	end
 end
@@ -137,7 +141,7 @@ local function step()
 		local stopAt = Geometry.stopAt(shot.info)
 		local age = math.min(stopAt, math.max(0, now - shot.info.at))
 		-- Normal slash2 leaves delete_projectile_on_death=false; MadSlasher explicitly enables it.
-		local stop = shot.info.variant ~= "Forward" and not sourceAlive(shot.info.sourceId)
+		local stop = shot.deleteWithSource and not sourceAlive(shot.info.sourceId)
 		while not stop and shot.age < age - 1e-9 do
 			local nextFrame = (math.floor(shot.age * C.rules.physicsRate + 1e-7) + 1) / C.rules.physicsRate
 			shot.age = math.min(age, nextFrame)

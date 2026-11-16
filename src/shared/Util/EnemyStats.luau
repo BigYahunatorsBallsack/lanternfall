@@ -25,7 +25,9 @@ function EnemyStats.canSpawn(kind: Enemies.Enemy, wave: number, danger: number, 
 end
 
 function EnemyStats.baseShot(kind: Enemies.Enemy): number
-	if kind.nativeRadialShots then
+	if kind.nativeBoss then
+		return kind.nativeBoss.projectileDamage
+	elseif kind.nativeRadialShots then
 		return kind.nativeRadialShots.projectileDamage
 	elseif kind.ranged then
 		return kind.ranged.projectileDamage
