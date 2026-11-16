@@ -113,4 +113,22 @@ describe("Native World stat reset", function()
 		assert(other:resetNativeStats(id, b, boost))
 		expect(other:getHealth(id)).toBe(17)
 	end)
+	it("preserves an actual Pursuer's additive speed and bounds its boosted movement conservatively", function()
+		local w = world()
+		local id = assert(w:spawn(C.Enemies.types.BabyTrex, 0, 0, 1000, 1, nil, 1, 1))
+		w:step(1.01, { 80 }, { 0 }, 1)
+		local i = w.indexOf[id]
+		local bonus = w.speedBonuses[i]
+		expect(bonus > 0).toBe(true)
+		assert(
+			w:resetNativeStats(
+				id,
+				{ health = 1000, contact = 1, shot = 0, speedPoints = 200 },
+				{ hp = 1, damage = 1, speed = 1.5 }
+			)
+		)
+		expect(w.speedBonuses[i]).toBe(bonus) -- source bonus_speed is separate from current_stats.speed
+		local combined = w.kinds[i].speed * w.speedFactors[i] * w.boosts[i] + bonus
+		expect(w.maxSpeed >= combined).toBe(true)
+	end)
 end)

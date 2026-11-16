@@ -1297,7 +1297,7 @@ function World.resetNativeStats(self: World, id: number, bases: NativeStatBases,
 	end
 	self.speedFactors[i] = if kind.speed ~= 0 then speed * PointScale / kind.speed else 0
 	self.buffed[i] = true
-	self.maxSpeed = math.max(self.maxSpeed, kind.speed * self.speedFactors[i] * self.boosts[i])
+	self.maxSpeed = math.max(self.maxSpeed, kind.speed * self.speedFactors[i] * self.boosts[i] + self.speedBonuses[i])
 	return true
 end
 

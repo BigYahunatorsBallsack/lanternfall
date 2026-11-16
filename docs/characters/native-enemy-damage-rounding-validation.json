@@ -67,5 +67,17 @@
     "Existing caller-provided global factors are not replaced by the new unreferenced source factor cache. Production provider/wave lifecycle remain open.",
     "No completion claim for evolved profiles/effects/renderer, Jungle groups/bosses/area/Whip-Flail route, legacy rounding policies or source frame/physics/pooling/render acceptance.",
     "No new Remote/snapshot/Arsenal/upload/runtime asset IDs/Studio/real two-client/mobile acceptance."
-  ]
+  ],
+  "coveredByLaterFullSuite": {
+    "specs": 365,
+    "passed": 2181,
+    "failed": 35,
+    "aborts": 0,
+    "newFailureIdentitiesVsDamageRounding": [],
+    "missingFailureIdentitiesVsDamageRounding": [
+      "FAIL smoke > chases the player until it touches them"
+    ],
+    "artifact": "build/native-five-branch-ten-native-stat-reset-speed-bound-de4e155.json",
+    "runtimeFrozenDuringRun": true
+  }
 }

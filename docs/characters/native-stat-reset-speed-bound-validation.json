@@ -1,0 +1,61 @@
+{
+  "referenceVersion": "1.2.0.3",
+  "steamBuild": 26642464,
+  "baseMain": "de4e155e97855cc18ffb52b1e81e53d1af8532fc",
+  "scope": "Keep the existing conservative neighbour-query speed bound valid when a native stat reset increases base speed on an actor with an independent additive bonus.",
+  "ruleSources": [
+    {
+      "source": "res://entities/units/unit/unit.gdc",
+      "sourceMd5": "aa94391f2d9681ac36b7f8617b82ff13"
+    },
+    {
+      "source": "res://entities/units/enemies/crash_zone/basic/pursuer/pursuer.gdc",
+      "sourceMd5": "9ec3187fe3a68de4c9c35e9bd3d20488"
+    }
+  ],
+  "sourceFacts": [
+    "Unit.current_stats.speed and bonus_speed are separate; reset_speed_stat changes the former and preserves the latter. Pursuer.boost_self adds to bonus_speed and its movement uses current_stats.speed+bonus_speed.",
+    "World uses maxRadius+maxSpeed*dt as the conservative hash-query padding because neighbours may already have moved since the hash was built. Native reset must include the preserved positive bonus in maxSpeed."
+  ],
+  "focused": {
+    "NativeStatReset": "8/0; new actual BabyTrex growth/reset regression initially7/1"
+  },
+  "proof": [
+    "Actual registered BabyTrex advances its native Pursuer timer and gains a positive source speed bonus; the test does not fabricate that bonus.",
+    "Native stat reset preserves that independent bonus, then the cached maxSpeed must bound combined base*factor*boost+bonus. Old reset left a too-small bound; one expression now includes speedBonuses.",
+    "This proves the speed-bound invariant and source bonus preservation, not an entire native collision solver or observed on-screen collision fix."
+  ],
+  "fullSuite": {
+    "specs": 365,
+    "passed": 2181,
+    "failed": 35,
+    "aborts": 0,
+    "newFailureIdentitiesVsDamageRounding": [],
+    "missingFailureIdentitiesVsDamageRounding": [
+      "FAIL smoke > chases the player until it touches them"
+    ],
+    "artifact": "build/native-five-branch-ten-native-stat-reset-speed-bound-de4e155.json",
+    "runtimeFrozenDuringRun": true
+  },
+  "checks": {
+    "stylua": true,
+    "rojo": true,
+    "selene": {
+      "errors": 0,
+      "existingWarnings": 18,
+      "parseErrors": 0,
+      "api": "cached Roblox API; warnings-only exit1"
+    }
+  },
+  "status": {
+    "codePreparedCharacters": 48,
+    "open": 26,
+    "newCompletedCharacters": 0,
+    "junglePlayable": false,
+    "productionEvolutionProviderImplemented": false
+  },
+  "limits": [
+    "No native full frame/solver/Area/pooling/render acceptance; other world speed-bound mutation paths are outside this focused reset patch.",
+    "No new Remote/snapshot/Arsenal/upload/runtime IDs/Studio/two-client/mobile checks."
+  ]
+}

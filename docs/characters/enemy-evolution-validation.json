@@ -107,15 +107,15 @@
   },
   "coveredByLaterFullSuite": {
     "specs": 365,
-    "passed": 2179,
-    "failed": 36,
+    "passed": 2181,
+    "failed": 35,
     "aborts": 0,
-    "newFailureIdentitiesVsKnown": [],
-    "returnedKnownFailureIdentitiesVsHealth": [],
-    "missingFailureIdentitiesVsHealth": [],
-    "artifact": "build/native-five-branch-ten-native-damage-rounding-final-de4e155.json",
-    "runtimeFrozenDuringRun": true,
-    "initialRun": "365/2170/45: nine outdated fractional-contact expectations; corrected to source end rounding with explicit damagePerWave assertions. Focused Nightmare counter then exposed automatic pistol reactions; pause player weapons in that test. No gameplay runtime change after initial run."
+    "newFailureIdentitiesVsDamageRounding": [],
+    "missingFailureIdentitiesVsDamageRounding": [
+      "FAIL smoke > chases the player until it touches them"
+    ],
+    "artifact": "build/native-five-branch-ten-native-stat-reset-speed-bound-de4e155.json",
+    "runtimeFrozenDuringRun": true
   },
   "effectBindingsFollowup": {
     "sourceTests": "3/0; initially1failure/2errors",
