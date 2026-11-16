@@ -20,6 +20,7 @@ function Kinds.build(pixel: number): { [string]: any }
 			look = f.fallbackLook,
 			nativeArtPending = true,
 			nativeZoneId = C.zoneId,
+			nativeScene = f.source,
 			specialSpawn = f.lootEncounter,
 			nativeObstacleCollision = f.obstacleCollision,
 			nativeHitOffsetX = hit.totalPoints[1] * pixel,

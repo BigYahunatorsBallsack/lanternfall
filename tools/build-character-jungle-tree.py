@@ -61,7 +61,7 @@ def main():
 local s=data.stats
 data.kind={
  id='Tree', typeId=data.typeId, displayName='Tree', look='Tree', nativeArtPending=true,
- nativeZoneId=data.zoneId, specialSpawn=true, anchored=true,
+ nativeZoneId=data.zoneId, nativeScene=data.source, specialSpawn=true, anchored=true,
  hp=s.health,hpPerWave=s.health_increase_each_wave,contactDamage=s.damage,damagePerWave=s.damage_increase_each_wave,
  speed=s.speed*POINT,nativeSpeedPoints={base=s.speed,randomization=s.speed_randomization},xp=s.value,
  radius=data.body.radiusPoints*POINT,hurtRadius=data.hurt.radiusPoints*POINT,hitRadius=0,

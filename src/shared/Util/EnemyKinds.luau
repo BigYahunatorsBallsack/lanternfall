@@ -15,6 +15,16 @@ local EnemyKinds = {}
 local normal: { [string]: Enemies.Enemy } = {}
 local elites: { [string]: { [number]: Enemies.Enemy } } = {} -- by enemy id, then affix index (0 = none)
 local byTypeId: { [number]: Enemies.Enemy } = {}
+local byNativeScene: { [string]: Enemies.Enemy } = {}
+
+local function registerNativeScene(kind: Enemies.Enemy)
+	local source = kind.nativeScene
+	if source then
+		assert(kind.nativeHealthRounding, "Source scene requires an implemented native birth policy")
+		assert(not byNativeScene[source], `Duplicate native scene {source}`)
+		byNativeScene[source] = kind
+	end
+end
 
 local function withAffix(elite: Enemies.Enemy, index: number): Enemies.Enemy
 	local affix = Elite.affixes[index]
@@ -66,21 +76,25 @@ for id, base in Enemies.types do
 	elites[id] = variants
 	byTypeId[base.typeId] = base
 	byTypeId[elite.typeId] = elite
+	registerNativeScene(base) -- generated Gloom variants must never replace the bound source scene
 end
 
 for _, tree in Enemies.zoneTrees do
 	assert(not byTypeId[tree.typeId], "Duplicate zone tree snapshot type")
 	byTypeId[tree.typeId] = tree
+	registerNativeScene(tree)
 end
 
 local bosses: { [string]: Enemies.Enemy } = {} -- bosses and champions: every kind with a boss plan
 for id, boss in Enemies.bosses do
 	bosses[id] = boss
 	byTypeId[boss.typeId] = boss
+	registerNativeScene(boss)
 end
 for id, champion in Enemies.champions do
 	bosses[id] = champion
 	byTypeId[champion.typeId] = champion
+	registerNativeScene(champion)
 end
 
 -- The kind for an enemy id from Config.Enemies.types; with `elite` its elite variant, with `affix` (index into
@@ -107,6 +121,11 @@ end
 -- Zone neutrals share the Tree family; consumers needing geometry use their distinct snapshot type.
 function EnemyKinds.treeForZone(zoneId: number): Enemies.Enemy
 	return Enemies.zoneTrees[zoneId] or normal.Tree
+end
+
+-- Only concrete, explicitly ported source scenes resolve. Missing bosses/variants return nil.
+function EnemyKinds.byNativeScene(source: string): Enemies.Enemy?
+	return byNativeScene[source]
 end
 
 -- The look (model) of a kind: its `look` or its own id.

@@ -138,6 +138,7 @@ data.kind = {
 	look = "Shadeling",
 	nativeArtPending = true,
 	specialSpawn = true,
+	nativeScene = data.source,
 	hp = s.health,
 	hpPerWave = s.health_increase_each_wave,
 	contactDamage = s.damage,

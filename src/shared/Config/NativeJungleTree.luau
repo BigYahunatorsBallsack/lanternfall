@@ -98,6 +98,7 @@ data.kind = {
 	look = "Tree",
 	nativeArtPending = true,
 	nativeZoneId = data.zoneId,
+	nativeScene = data.source,
 	specialSpawn = true,
 	anchored = true,
 	hp = s.health,

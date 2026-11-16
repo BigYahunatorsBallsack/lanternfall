@@ -80,6 +80,7 @@ export type Enemy = {
 	nativeCanBeCharmed: boolean?,
 	nativeCanBeCursed: boolean?,
 	nativeNeutralHitLimit: number?, -- Neutral counts every damage call; only eligible hitbox owners trigger execution
+	nativeScene: string?, -- exact registered source PackedScene; wave requests never infer a family from filenames
 	nativePlayerKillStats: { [string]: number }?,
 	xp: number,
 	radius: number, -- body circle, studs (assumption; walls, crowding and the picture's size)

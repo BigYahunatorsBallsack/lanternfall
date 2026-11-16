@@ -952,6 +952,15 @@ function EnemySim.spawnNative(enemyId: string, x: number, z: number, zoneId: num
 	return id
 end
 
+-- Exact source PackedScene birth for wave requests; no basename guessing or substitute actors.
+function EnemySim.spawnNativeScene(source: string, x: number, z: number): number?
+	local kind = EnemyKinds.byNativeScene(source)
+	if not kind then
+		return nil
+	end
+	return EnemySim.spawnNative(kind.id, x, z, kind.nativeZoneId)
+end
+
 -- Source Enemy.boost stat stage only. The scene adapter supplies its shared factor cache/context; flags/effects/profile reset are separate.
 function EnemySim.applyNativeBoost(
 	id: number,

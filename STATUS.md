@@ -1769,3 +1769,9 @@ Nächste Gebietsvoraussetzung für die letzten Main-Pakete: tatsächlicher Jungl
 
 
 - **B10 Jungle-Baum Endlauf (16.11.2026, Strang B):**368Specs/2206bestanden/36Fehler/0Abbrüche; alle zwölf neuen Baumchecks grün. Gegenüber367/2195/35 nur die historisch bekannte Smoke-Verfolgung zurück, keine unbekannten Fehlerfälle. Code im Lauf eingefroren. Entwurfs-PR151, weiterhin48/74codevorbereitet/26offen; kein zusätzlicher fertiger Charakter. Nächster Schritt tatsächliche Jungle-Elites/Bosse; Nachweis jungle-tree-validation.json.
+
+
+- **B10 Source-Szenen/Birth-Brücke (16.11.2026, Strang B):**Enemy.nativeScene/EnemyKinds.byNativeScene/EnemySim.spawnNativeScene verbinden konkrete Original-Szenen mit tatsächlichem Source-Statprovider und Körper.32Szenen registriert,31/38im direktenJungle-Wavegraphen; genau2Bosse/5Elites offen, kein Familienersatz für unportierteSzenen. Tatsächliche ersteWavegruppe/BabyTriceratops,Tree/type71,SeaPig,unbekannteRNGfreieVerweigerung und inaktiverRun6/0; fünfMutationen erkannt/restauriert. StyLua/Quellencompiler/Rojo bestanden;Selene0Fehler/18bestehendeWarnungen. Gesamtvergleich läuft, letzter abgeschlossener368/2206/36. Weiter48/74codevorbereitet/26offen, kein automatischerJungle-Wellenablauf/spielbaresGebiet/neuerfertigerCharakter. Nächster Schritt siebenBoss-/Elite-Szenen mit ihrenSource-Angriffs-/Animationsprofilen; EffortHigh/EngineExtraHigh. HANDOFF/native-scene-birth-validation.json.
+
+
+- **B10 Source-Szenen/Birth-Endlauf (16.11.2026, Strang B):**369Specs/2212bestanden/36bekannteFehler/0Abbrüche; keine neue/verschwundeneFehleridentität gegenüber368/2206/36. Sämtliche6neuenTests grün, Lauf bei eingefrorenemCode. Nächster SchrittSource-Bossphasentakt mit expliziten Timer-Overrides; danach echteBossangriffe. Weiter48/74codevorbereitet,26offen,keinJungle/keinweitererfertigerCharakter. HANDOFF/native-scene-birth-validation.json.
