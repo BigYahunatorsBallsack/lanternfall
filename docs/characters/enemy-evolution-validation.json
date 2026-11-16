@@ -1,0 +1,79 @@
+{
+  "referenceVersion": "1.2.0.3",
+  "steamBuild": 26642464,
+  "baseMain": "de4e155e97855cc18ffb52b1e81e53d1af8532fc",
+  "scope": "New source-bound TeamEvolution probability/camp and scene boost math component; no production enemy evolution selection/application/variant renderer.",
+  "sourceFacts": "docs/characters/enemy-evolution-source.json",
+  "focused": {
+    "NativeEnemyEvolution": "9/0 (initial missing module0/1)"
+  },
+  "proof": [
+    "Actual EvolutionSceneEffectBehaviorData.scene binding and scene script verified; numeric script defaults with scene overrides compiled against pinned three-source hashes.",
+    "Evolution chance saturates through Utils.get_evolution_factor, applies absolute chance-weighted evolution and endless modifier, clamps per player then averages all players. Elite chance is separately clamped per player with multiplier4.",
+    "Camp weights and mean magnitudes use raw evolution separately from chance modifiers, ignore zero members in each camp mean, and include nonzero dual players in both camps regardless of sign.",
+    "Source weighted camp draw is strict< and consumes RNG for any nonempty camp distribution; no shortcut for100percentonecamp. Empty camps consume none.",
+    "Source HP cap applies to magnitude300: Meca finalHPbonus650, Mutant745. Source Meca truncates fractional HP magnitude; Mutant rounds product.",
+    "Meca damage/speed use square-root interpolation through magnitude100; Mutant damage uses linear interpolation through150 while speed uses square-root through100."
+  ],
+  "mutations": [
+    {
+      "mutation": "wrongCampMean",
+      "passed": 6,
+      "failed": 3
+    },
+    {
+      "mutation": "lateEliteClamp",
+      "passed": 7,
+      "failed": 2
+    },
+    {
+      "mutation": "inclusiveCampBoundary",
+      "passed": 8,
+      "failed": 1
+    },
+    {
+      "mutation": "wrongHpMagnitudeCap",
+      "passed": 7,
+      "failed": 2
+    }
+  ],
+  "checks": {
+    "sourceCompiler": true,
+    "stylua": true,
+    "selene": {
+      "errors": 0,
+      "existingWarnings": 18,
+      "parseErrors": 0,
+      "api": "cached Roblox API; exit1 from warnings"
+    },
+    "rojo": true
+  },
+  "fullSuite": {
+    "rerun": false,
+    "reason": "Only new unreferenced math/config/compiler/test modules after the last runtime end run, no existing gameplay module changed.9focusedchecks green.",
+    "latestRuntimeBaseline": "build/native-five-branch-ten-sea-pig-final-de4e155.json",
+    "baselineSpecs": 358,
+    "baselinePassed": 2135,
+    "baselineFailed": 37
+  },
+  "status": {
+    "productionAdapterImplemented": false,
+    "nativeFullParityAccepted": false,
+    "junglePlayable": false,
+    "codePreparedCharacters": 48,
+    "open": 26,
+    "newCompletedCharacters": 0
+  },
+  "nextBindingFacts": [
+    "Scene handler excludes current-zone loot Stats resource identities before calculating team; not a universal isLoot/canBeBoosted filter. Cross-zone Sea Pig may get flags/effects despite boost refusing stat changes.",
+    "Normal bosses use team.chance, not eliteChance, in this scene handler. Evolved-zone elite flags are preselected elsewhere; they must not be rerolled here.",
+    "Brachiosaurus foot inherits mother flags; existing Meca/Mutant flags precede has_any_camp check. Apply-stage dead/invalid guard occurs after planning in source, so do not silently reorder RNG.",
+    "Evolution sets Meca and Mutant mutually exclusively, adds effect, disables future boosts and resets bound attack behavior. Actual world/stat/attack/puddle application still pending.",
+    "Snapshot.packFlags affix field is only2bits and already has3legacyaffixes; no free enum slot may be assumed for Meca/Mutant. Representation/state bridge remains to be designed without sacrificing existing heading precision."
+  ],
+  "limits": [
+    "No live stat provider, spawn selector, native boost application, variant attack profile selection or reliable variant renderer-state bridge.",
+    "Additional evolved loot33percent/items/curse/puddles and source Area/deferred/pooling/RNG acceptance remain open.",
+    "No new Remote/snapshot/Arsenal/upload/runtime asset IDs/Studio/real2clients/mobile acceptance."
+  ]
+}
