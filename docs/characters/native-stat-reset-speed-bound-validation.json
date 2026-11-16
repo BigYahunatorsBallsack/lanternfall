@@ -57,5 +57,18 @@
   "limits": [
     "No native full frame/solver/Area/pooling/render acceptance; other world speed-bound mutation paths are outside this focused reset patch.",
     "No new Remote/snapshot/Arsenal/upload/runtime IDs/Studio/two-client/mobile checks."
-  ]
+  ],
+  "coveredByLaterFullSuite": {
+    "specs": 366,
+    "passed": 2185,
+    "failed": 37,
+    "aborts": 0,
+    "newFailureIdentitiesVsKnown": [],
+    "returnedKnownFailureIdentitiesVsSpeedBound": [
+      "FAIL new enemies (B9) > lets a Gobbler eat the orbs on the floor and drop them all when killed",
+      "FAIL smoke > chases the player until it touches them"
+    ],
+    "artifact": "build/native-five-branch-ten-native-boost-actor-de4e155.json",
+    "runtimeFrozenDuringRun": true
+  }
 }

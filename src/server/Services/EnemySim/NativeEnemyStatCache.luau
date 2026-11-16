@@ -45,23 +45,29 @@ local function factor(ctx: Context, key: "health" | "damage"): number
 		* boundedPercent(total(ctx.players, key))
 		* math.max(R.minimumFactor, endless)
 end
-function Cache.health(self: State, base: number, boostPercent: number, ctx: Context): number
+function Cache.rawHealth(self: State, base: number, ctx: Context): number
 	local value = self.factors.health
 	if value == nil then
 		value = factor(ctx, "health")
 		self.factors.health = value
 	end
-	return math.round(math.modf(base) * value * boundedPercent(boostPercent))
+	return math.modf(base) * value
 end
-function Cache.damage(self: State, base: number, boostPercent: number, ctx: Context): number
+function Cache.health(self: State, base: number, boostPercent: number, ctx: Context): number
+	return math.round(self:rawHealth(base, ctx) * boundedPercent(boostPercent))
+end
+function Cache.rawDamage(self: State, base: number, ctx: Context): number
 	local value = self.factors.damage
 	if value == nil then
 		value = factor(ctx, "damage")
 		self.factors.damage = value
 	end
-	return math.round(base * value * boundedPercent(boostPercent))
+	return base * value
 end
-function Cache.speed(self: State, base: number, boostPercent: number, burning: boolean, ctx: Context): number
+function Cache.damage(self: State, base: number, boostPercent: number, ctx: Context): number
+	return math.round(self:rawDamage(base, ctx) * boundedPercent(boostPercent))
+end
+function Cache.rawSpeed(self: State, base: number, burning: boolean, ctx: Context): number
 	local value = self.factors.speed
 	if value == nil then
 		local effects = 1
@@ -76,6 +82,9 @@ function Cache.speed(self: State, base: number, boostPercent: number, burning: b
 			* boundedPercent(ctx.danger.speed)
 		self.factors.speed = value
 	end
-	return math.round(math.modf(base) * value * percent(boostPercent))
+	return math.modf(base) * value
+end
+function Cache.speed(self: State, base: number, boostPercent: number, burning: boolean, ctx: Context): number
+	return math.round(self:rawSpeed(base, burning, ctx) * percent(boostPercent))
 end
 return Cache

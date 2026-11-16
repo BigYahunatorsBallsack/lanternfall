@@ -31,6 +31,7 @@ function Kinds.build(pixel: number): { [string]: any }
 			damagePerWave = s.damage_increase_each_wave,
 			speed = (s.speed - s.speed_randomization) * pixel,
 			speedMax = (s.speed + s.speed_randomization) * pixel,
+			nativeSpeedPoints = { base = s.speed, randomization = s.speed_randomization },
 			xp = s.value,
 			radius = f.circles.body * pixel,
 			hurtRadius = f.circles.hurt * pixel,

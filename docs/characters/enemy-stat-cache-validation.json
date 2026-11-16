@@ -110,15 +110,16 @@
     "No evolved attack/effect/renderer bindings, native pooling/Area/deferred/render/Studio/two-client/mobile acceptance. No new Remote/Arsenal/upload/runtime IDs."
   ],
   "coveredByLaterFullSuite": {
-    "specs": 365,
-    "passed": 2181,
-    "failed": 35,
+    "specs": 366,
+    "passed": 2185,
+    "failed": 37,
     "aborts": 0,
-    "newFailureIdentitiesVsDamageRounding": [],
-    "missingFailureIdentitiesVsDamageRounding": [
+    "newFailureIdentitiesVsKnown": [],
+    "returnedKnownFailureIdentitiesVsSpeedBound": [
+      "FAIL new enemies (B9) > lets a Gobbler eat the orbs on the floor and drop them all when killed",
       "FAIL smoke > chases the player until it touches them"
     ],
-    "artifact": "build/native-five-branch-ten-native-stat-reset-speed-bound-de4e155.json",
+    "artifact": "build/native-five-branch-ten-native-boost-actor-de4e155.json",
     "runtimeFrozenDuringRun": true
   }
 }

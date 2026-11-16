@@ -25,6 +25,8 @@ local MovementInput = require(script.Parent.CharacterService.Movement)
 local NativeVolley = require(Shared.Util.NativeEnemyVolley)
 local RunSchedule = require(Shared.Util.RunSchedule)
 local DeathShots = require(script.NativeDeathShots)
+local NativeStatCache = require(script.NativeEnemyStatCache)
+local NativeStatRules = require(Shared.Config.NativeEnemyStatCache).rules
 local PlayerHurt = require(Shared.Util.PlayerHurtGeometry)
 local ShotFeed = require(Shared.Net.ShotFeed)
 local Snapshot = require(Shared.Net.Snapshot)
@@ -848,7 +850,7 @@ function EnemySim.spawn(
 		rawResetHealth = math.modf(kind.hp + kind.hpPerWave * steps) * hpMultiplier
 		hp = math.round(rawResetHealth)
 	end
-	local speed, rawSpeedPoints = EnemyStats.spawnSpeedFactor(
+	local speed, rawSpeedPoints, sourceSpeedPoints = EnemyStats.spawnSpeedFactor(
 		kind,
 		RandomService.number("Spawns"),
 		speedMultiplier or 1,
@@ -870,6 +872,7 @@ function EnemySim.spawn(
 		local index = world.indexOf[id]
 		nativeBases[id] = {
 			spawnedAt = workspace:GetServerTimeNow(),
+			sourceSpeedPoints = sourceSpeedPoints, -- original integer argument, never inferred from rounded final speed
 			-- Charm resets source damage with its own modifier before final rounding.
 			contact = if kind.pursuer or kind.nativeDamageRounding
 				then kind.contactDamage * damageMultiplier * contactGrowth
@@ -882,6 +885,54 @@ function EnemySim.spawn(
 		spawnContexts[id] = { hp = hpMultiplier, damage = damageMultiplier, speed = speedMultiplier or 1, wave = wave }
 	end
 	return id
+end
+
+-- Source Enemy.boost stat stage only. The scene adapter supplies its shared factor cache/context; flags/effects/profile reset are separate.
+function EnemySim.applyNativeBoost(
+	id: number,
+	cache: NativeStatCache.State,
+	context: NativeStatCache.Context,
+	boost: { hp: number, damage: number, speed: number }
+): boolean
+	local actors = if friends.world:isAlive(id) then friends.world else world
+	local index = actors.indexOf[id]
+	local base = nativeBases[id]
+	if not index or not actors:isAlive(id) or not base then
+		return false
+	end
+	local kind = actors.kinds[index]
+	if not kind.nativeHealthRounding or kind.nativeCanBeBoosted == false or base.sourceSpeedPoints == nil then
+		return false
+	end
+	local wave = RunDirector.getWave()
+	local steps = math.max(0, wave - 1)
+	local shot = World.baseShotDamage(kind)
+	local raw = {
+		health = cache:rawHealth(kind.hp + kind.hpPerWave * steps, context),
+		contact = cache:rawDamage(kind.contactDamage + kind.damagePerWave * steps, context),
+		shot = if shot > 0
+			then cache:rawDamage(shot + (kind.shotDamagePerWave or kind.damagePerWave) * steps, context)
+			else 0,
+		speedPoints = cache:rawSpeed(base.sourceSpeedPoints, actors.burning[index], context),
+	}
+	local applied = actors:resetNativeStats(id, raw, {
+		hp = math.max(NativeStatRules.minimumFactor, 1 + boost.hp / NativeStatRules.percent),
+		damage = math.max(NativeStatRules.minimumFactor, 1 + boost.damage / NativeStatRules.percent),
+		speed = 1 + boost.speed / NativeStatRules.percent,
+	})
+	if not applied then
+		return false
+	end
+	-- Subsequent Charm and descendants reset from unboosted global bases, not the parent's rounded boost results.
+	base.contact, base.shot = raw.contact, raw.shot
+	base.spawn = {
+		hp = cache:rawHealth(1, context),
+		damage = cache:rawDamage(1, context),
+		speed = cache:rawSpeed(1, false, context),
+		wave = wave,
+	}
+	spawnContexts[id] = base.spawn
+	return true
 end
 
 -- Descendants of charmed summoners/splitters/eggs inherit Charm and a fresh native lifetime.
