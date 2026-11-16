@@ -1775,3 +1775,9 @@ Nächste Gebietsvoraussetzung für die letzten Main-Pakete: tatsächlicher Jungl
 
 
 - **B10 Source-Szenen/Birth-Endlauf (16.11.2026, Strang B):**369Specs/2212bestanden/36bekannteFehler/0Abbrüche; keine neue/verschwundeneFehleridentität gegenüber368/2206/36. Sämtliche6neuenTests grün, Lauf bei eingefrorenemCode. Nächster SchrittSource-Bossphasentakt mit expliziten Timer-Overrides; danach echteBossangriffe. Weiter48/74codevorbereitet,26offen,keinJungle/keinweitererfertigerCharakter. HANDOFF/native-scene-birth-validation.json.
+
+
+- **B10 Source-Bossphasenkomponente (16.11.2026, Strang B):**Neue nochunreferenzierteNativeBossPhases/Configmit7konkretenSource-Szenen,8gepinntenScript-Hashes,fünfBasistimern/zweiOverrides. AllefälligenChildphaseninklusiveundsyncimselbenCallback,HPnachvorigemCallbackneulesbar;Carnotaurus/Brachiosaurusverweigert.9/0Luau,4/0Python,sechsMutationen erkannt/restauriert,Compiler--check/StyLua/Rojo bestanden,Selene0Fehler/18bestehendeWarnungen. Vollvergleichläuft;vorheriger369/2212/36bleibtbisEndegültig. KeinproduktiverBoss-/Attackcontroller/neuerBoss/Charakter/Jungle. Weiter48/74codevorbereitet,26offen. NächsterSchrittkonkreteJungle-Elite-Angriffs-/Animationsprofile;EffortExtraHigh. HANDOFF/boss-phases-validation.json.
+
+
+- **B10 Bossphasen Endlauf (16.11.2026, Strang B):**370Specs/2220bestanden/37bekannteFehler/0Abbrüche,9neuePhasenchecksgrün. Gegenüber369/2212/36nurderhistorischeEnemiesB9-Gobblerfallzurück,keineunbekannteFehleridentität. CodeimLaufeingefroren,keinebestehendeProduktions-AnbindungdesneuenPhasencontrollers. Weiter48/74codevorbereitet/26offen,keinweitererfertigerCharakter/spielbarerJungle/Merge. NächsterSchrittTherizinosaurusSource-Kind/RootSlash+State1Bullet/AnimationsclockundnativePhasenbindung,danachweitereElites/Bosse/Evolution/Gruppen/Gebiet;EffortExtraHigh. Nachweisboss-phases-validation.json/HANDOFF.

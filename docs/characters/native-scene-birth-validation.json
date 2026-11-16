@@ -94,5 +94,12 @@
     "No automatic wave loop, unit-count/placement/birth-delay/entity-limit/evolution/DLC-content-selection/boss/elite/area adapter claimed.",
     "velociraptor++ remains unresolved; no base-family alias or filename fallback. Jeholopterus is registered but outside this limited direct wave graph; not claimed unused.",
     "No source visual/physics/frame/solver/deferred/Studio/two-client/mobile acceptance; no uploads, Asset-ID, Remote, snapshot or Arsenal changes."
-  ]
+  ],
+  "coveredByLaterFull": {
+    "artifact": "build/native-five-branch-ten-native-boss-phases-de4e155.json",
+    "specs": 370,
+    "passed": 2220,
+    "failed": 37,
+    "unknownFailureIdentities": []
+  }
 }
