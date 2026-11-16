@@ -12,7 +12,8 @@ export type Rule = {
 	minimumScale: number?,
 	specificDegrees: { number }?,
 	parallel: { spacing: number, angleOffset: number, forwardOffset: number }?,
-	spawnRing: { radius: number, away: boolean }?,
+	spawnRing: { radius: number, away: boolean, baseRandomization: number? }?,
+	aimFromSpawn: { targetRotation: number }?, -- one source random rotation of the player target per batch
 }
 function Volley.emit(
 	rule: Rule,
@@ -27,12 +28,23 @@ function Volley.emit(
 	local px = x + (if tx < x then -rule.offsetX else rule.offsetX)
 	local pz = z + rule.offsetZ
 	local base = math.atan2(tz - pz, tx - px)
+	local ringStart = 0
+	if rule.spawnRing and (rule.spawnRing.baseRandomization or 0) > 0 then
+		ringStart = random() * (rule.spawnRing.baseRandomization :: number)
+	end
+	local aimX, aimZ = tx, tz
+	if rule.aimFromSpawn then
+		local rotation = (random() * 2 - 1) * rule.aimFromSpawn.targetRotation
+		local dx, dz = tx - x, tz - z
+		aimX = x + dx * math.cos(rotation) - dz * math.sin(rotation)
+		aimZ = z + dx * math.sin(rotation) + dz * math.cos(rotation)
+	end
 	for index = 0, rule.count - 1 do
 		local sx, sz = px, pz
 		if rule.spawnRing then
 			local ringAngle = random() * 2 * math.pi
 			if rule.constantSpread then
-				ringAngle = index * 2 * math.pi / rule.count
+				ringAngle = ringStart + index * 2 * math.pi / rule.count
 			end
 			sx += math.cos(ringAngle) * rule.spawnRing.radius
 			sz += math.sin(ringAngle) * rule.spawnRing.radius
@@ -57,6 +69,9 @@ function Volley.emit(
 		end
 		if rule.spawnRing and rule.spawnRing.away then
 			angle = math.atan2(sz - z, sx - x)
+		end
+		if rule.aimFromSpawn then
+			angle = math.atan2(aimZ - sz, aimX - sx)
 		end
 		local scale = 1
 		if rule.scaleWithCount then

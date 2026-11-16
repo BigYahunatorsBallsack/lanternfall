@@ -29,6 +29,17 @@ def phase_nodes(raw, path, source):
     assert phases,'No bound child phases: '+path
     return phases
 
+def node_properties(raw, path, source, name, parent):
+    heads=list(re.finditer(r'^\[node .*\]\s*$',raw,re.M));assert heads,path
+    prefix=raw[:heads[0].start()].replace('[gd_scene','[gd_resource type="PackedScene"',1)
+    for i,head in enumerate(heads):
+        attrs=dict(re.findall(r'(name|parent)="([^"]*)"',head.group()))
+        if attrs.get('name')!=name or attrs.get('parent')!=parent:continue
+        body=raw[head.end():heads[i+1].start() if i+1<len(heads) else len(raw)]
+        body=re.split(r'^\[(?:connection|editable) ',body,flags=re.M)[0]
+        return source.parse_tres(prefix+'\n[resource]\n'+body,path)['properties']
+    raise AssertionError('Missing concrete node: '+path+' '+str(parent)+'/'+name)
+
 def generate():
     source=module('boss_phase_source','tools/character-source.py');pck=source.Pck();reference=source.verify_reference(pck)
     hashes={
@@ -40,6 +51,7 @@ def generate():
         'res://entities/units/enemies/jungle/elites/silesaurus/silesaurus.gdc':'3dc7ae8b914cefbc9cc1c0174cbda70c',
         'res://entities/units/enemies/jungle/elites/therizinosaurus/therizinosaurus.gdc':'53e588213796a45ee4727f7a9205ea07',
         'res://entities/units/enemies/jungle/elites/diplodocus/diplodocus.gdc':'af84fabc22f46610936179144ddf33bf',
+        'res://entities/units/enemies/attack_behaviors/shooting_attack_behavior.gdc':'43d5ebd849396509ff38632915c988a2',
     }
     for path,digest in hashes.items():assert pck.entries[path]['md5']==digest,'Re-audit changed boss phase script: '+path
     wave=json.loads((ROOT/'docs/characters/jungle-wave-bindings-source.json').read_text(encoding='utf-8'))
@@ -53,6 +65,21 @@ def generate():
         name=names[slug]
         actors[name]={'source':path,'sourceMd5':binding['sourceMd5'],'usesBasePhaseTimer':name not in ['Brachiosaurus','Carnotaurus'],'states':phase_nodes(pck.read(path).decode('utf-8'),path,source)}
     assert set(actors)==set(names.values()),'Missing Jungle boss phase source'
+    path=actors['Therizinosaurus']['source'];raw=pck.read(path).decode('utf-8')
+    rootAttack=node_properties(raw,path,source,'AttackBehavior','.')
+    phaseAttack=node_properties(raw,path,source,'AttackBehavior','States/State1')
+    baseScene='res://entities/units/enemies/bosses/boss_state.tscn'
+    baseAttack=node_properties(pck.read(baseScene).decode('utf-8'),baseScene,source,'AttackBehavior','.')
+    shootingScript='res://entities/units/enemies/attack_behaviors/shooting_attack_behavior.gd'
+    assert rootAttack['script']['resource']==baseAttack['script']['resource']==shootingScript
+    assert 'projectile_scene' not in phaseAttack and 'script' not in phaseAttack and 'projectile_scene' not in baseAttack,'Re-audit independent phase projectile inheritance'
+    defaults={'number_projectiles':1,'projectile_spread':0.0,'spawn_projectiles_on_target':False,'projectile_spawn_spread':0,'projectile_spawn_only_on_borders':False,'constant_spread':False,'constant_spread_rand_base_pos':0.0,'shoot_from_proj_pos_towards_player':False,'random_rotation':0.0,'speed_change_after_each_projectile':0}
+    props={**defaults,**{k:v for k,v in phaseAttack.items() if isinstance(v,(int,float,bool))}}
+    assert props['shoot_from_proj_pos_towards_player'] and props['projectile_spawn_only_on_borders'] and not props['spawn_projectiles_on_target']
+    actors['Therizinosaurus']['shooting']={
+        'root':{'projectileSource':rootAttack['projectile_scene']['resource'],'scriptSource':shootingScript},
+        'phaseOne':{'projectileSource':'res://projectiles/bullet_enemy/enemy_projectile.tscn','scriptSource':shootingScript,
+                    'baseScene':baseScene,'baseSceneMd5':pck.entries[baseScene]['md5'],'projectileBinding':'Default of the independently instanced boss_state AttackBehavior; no root-attack inheritance.','properties':props}}
     timerScene='res://entities/units/enemies/bosses/boss.tscn'
     return {'version':reference['version'],'steamBuild':int(reference['steamBuildId']),
         'elapsedPerTimeout':1,'initialState':-1,'timerScene':timerScene,'timerSceneMd5':pck.entries[timerScene]['md5'],
@@ -66,7 +93,17 @@ def generate():
 def main():
     parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--check',action='store_true');args=parser.parse_args()
     data=generate();catalog=module('boss_phase_catalog','tools/build-character-catalog.py')
-    text='--!strict\n-- Source Jungle boss phase thresholds; NativeBossPhases handles base Timer callbacks only, custom timers and production controllers remain pending.\nreturn '+catalog.luau(data)+'\n'
+    text='--!strict\n-- Source Jungle boss phase thresholds and explicit Therizinosaurus phase projectile binding; production boss controllers remain pending.\nlocal data='+catalog.luau(data)+'''
+local POINT=require(script.Parent.Stats).range.studsPerPoint
+local a=data.actors.Therizinosaurus.shooting.phaseOne.properties
+data.therizinosaurusPhaseOneVolley={
+ count=a.number_projectiles, spread=a.projectile_spread,constantSpread=a.constant_spread,
+ offsetX=0,offsetZ=0,speedStep=a.speed_change_after_each_projectile*POINT,
+ spawnRing={radius=a.projectile_spawn_spread/2*POINT,away=false,baseRandomization=a.constant_spread_rand_base_pos},
+ aimFromSpawn={targetRotation=a.random_rotation},
+}
+return data
+'''
     with tempfile.TemporaryDirectory(dir=ROOT/'build') as folder:
         path=Path(folder)/'NativeBossPhases.luau';path.write_text(text,encoding='utf-8')
         subprocess.run(['stylua',str(path)],check=True);text=path.read_text(encoding='utf-8')

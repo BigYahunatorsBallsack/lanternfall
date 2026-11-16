@@ -37,6 +37,10 @@
     {
       "source": "res://entities/units/enemies/jungle/elites/diplodocus/diplodocus.gdc",
       "sourceMd5": "af84fabc22f46610936179144ddf33bf"
+    },
+    {
+      "source": "res://entities/units/enemies/attack_behaviors/shooting_attack_behavior.gdc",
+      "sourceMd5": "43d5ebd849396509ff38632915c988a2"
     }
   ],
   "actors": {
@@ -132,7 +136,41 @@
           "hpStart": 0.45,
           "timerStart": 30.0
         }
-      ]
+      ],
+      "shooting": {
+        "root": {
+          "projectileSource": "res://projectiles/slash/slash_projectile.tscn",
+          "scriptSource": "res://entities/units/enemies/attack_behaviors/shooting_attack_behavior.gd"
+        },
+        "phaseOne": {
+          "projectileSource": "res://projectiles/bullet_enemy/enemy_projectile.tscn",
+          "scriptSource": "res://entities/units/enemies/attack_behaviors/shooting_attack_behavior.gd",
+          "baseScene": "res://entities/units/enemies/bosses/boss_state.tscn",
+          "baseSceneMd5": "7886b7a4624fecebf13d2a4c15caad93",
+          "projectileBinding": "Default of the independently instanced boss_state AttackBehavior; no root-attack inheritance.",
+          "properties": {
+            "number_projectiles": 12,
+            "projectile_spread": 0.0,
+            "spawn_projectiles_on_target": false,
+            "projectile_spawn_spread": 200,
+            "projectile_spawn_only_on_borders": true,
+            "constant_spread": true,
+            "constant_spread_rand_base_pos": 3.14,
+            "shoot_from_proj_pos_towards_player": true,
+            "random_rotation": 1.2,
+            "speed_change_after_each_projectile": 0,
+            "projectile_speed": 600,
+            "cooldown": 12.0,
+            "initial_cooldown": 30,
+            "max_cd_randomization": 0,
+            "long_cooldown_every_x_shoots": 3,
+            "long_cooldown": 150,
+            "damage_increase_each_wave": 1.15,
+            "max_range": 1000,
+            "attack_anim_speed": 1.5
+          }
+        }
+      }
     }
   },
   "productionAdapterImplemented": false,

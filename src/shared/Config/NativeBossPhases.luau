@@ -1,6 +1,6 @@
 --!strict
--- Source Jungle boss phase thresholds; NativeBossPhases handles base Timer callbacks only, custom timers and production controllers remain pending.
-return {
+-- Source Jungle boss phase thresholds and explicit Therizinosaurus phase projectile binding; production boss controllers remain pending.
+local data = {
 	version = "1.2.0.3",
 	steamBuild = 26642464,
 	elapsedPerTimeout = 1,
@@ -39,6 +39,10 @@ return {
 		{
 			source = "res://entities/units/enemies/jungle/elites/diplodocus/diplodocus.gdc",
 			sourceMd5 = "af84fabc22f46610936179144ddf33bf",
+		},
+		{
+			source = "res://entities/units/enemies/attack_behaviors/shooting_attack_behavior.gdc",
+			sourceMd5 = "43d5ebd849396509ff38632915c988a2",
 		},
 	},
 	actors = {
@@ -135,6 +139,40 @@ return {
 					timerStart = 30,
 				},
 			},
+			shooting = {
+				root = {
+					projectileSource = "res://projectiles/slash/slash_projectile.tscn",
+					scriptSource = "res://entities/units/enemies/attack_behaviors/shooting_attack_behavior.gd",
+				},
+				phaseOne = {
+					projectileSource = "res://projectiles/bullet_enemy/enemy_projectile.tscn",
+					scriptSource = "res://entities/units/enemies/attack_behaviors/shooting_attack_behavior.gd",
+					baseScene = "res://entities/units/enemies/bosses/boss_state.tscn",
+					baseSceneMd5 = "7886b7a4624fecebf13d2a4c15caad93",
+					projectileBinding = "Default of the independently instanced boss_state AttackBehavior; no root-attack inheritance.",
+					properties = {
+						number_projectiles = 12,
+						projectile_spread = 0,
+						spawn_projectiles_on_target = false,
+						projectile_spawn_spread = 200,
+						projectile_spawn_only_on_borders = true,
+						constant_spread = true,
+						constant_spread_rand_base_pos = 3.14,
+						shoot_from_proj_pos_towards_player = true,
+						random_rotation = 1.2,
+						speed_change_after_each_projectile = 0,
+						projectile_speed = 600,
+						cooldown = 12,
+						initial_cooldown = 30,
+						max_cd_randomization = 0,
+						long_cooldown_every_x_shoots = 3,
+						long_cooldown = 150,
+						damage_increase_each_wave = 1.15,
+						max_range = 1000,
+						attack_anim_speed = 1.5,
+					},
+				},
+			},
 		},
 	},
 	productionAdapterImplemented = false,
@@ -150,3 +188,20 @@ return {
 		Brachiosaurus = "Timer directly calls on_state_changed(current_state) and increments that custom index; not the base HP/time loop.",
 	},
 }
+local POINT = require(script.Parent.Stats).range.studsPerPoint
+local a = data.actors.Therizinosaurus.shooting.phaseOne.properties
+data.therizinosaurusPhaseOneVolley = {
+	count = a.number_projectiles,
+	spread = a.projectile_spread,
+	constantSpread = a.constant_spread,
+	offsetX = 0,
+	offsetZ = 0,
+	speedStep = a.speed_change_after_each_projectile * POINT,
+	spawnRing = {
+		radius = a.projectile_spawn_spread / 2 * POINT,
+		away = false,
+		baseRandomization = a.constant_spread_rand_base_pos,
+	},
+	aimFromSpawn = { targetRotation = a.random_rotation },
+}
+return data

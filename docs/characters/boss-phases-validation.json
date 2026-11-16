@@ -91,5 +91,13 @@
     "Only a source phase component, not BossService/BossBrain replacement or an automatically running Jungle boss.",
     "Actual boss attack profiles, attack animations, spawning attacks, lasers/pivots/feet/jumps and Meca/Mutant profiles remain open.",
     "No new ready flags, playable Jungle, uploads, runtime Asset IDs, Remote/snapshot/Arsenal or Studio acceptance."
-  ]
+  ],
+  "coveredByLaterFull": {
+    "artifact": "build/native-five-branch-ten-native-boss-ring-de4e155.json",
+    "specs": 371,
+    "passed": 2224,
+    "failed": 38,
+    "newFunctionalFailureIdentities": [],
+    "timingBudgetsAccepted": false
+  }
 }
