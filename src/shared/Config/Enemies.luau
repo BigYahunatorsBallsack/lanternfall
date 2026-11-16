@@ -76,6 +76,9 @@ export type Enemy = {
 		dropSpreadPoints: { perValue: number, minimum: number, maximum: number },
 	}?,
 	nativeCanBeBoosted: boolean?, -- false when the source scene excludes this body from Buffer boosts
+	nativeCanBeCharmed: boolean?,
+	nativeCanBeCursed: boolean?,
+	nativePlayerKillStats: { [string]: number }?,
 	xp: number,
 	radius: number, -- body circle, studs (assumption; walls, crowding and the picture's size)
 	hurtRadius: number?, -- studs; the player's weapons hit within it (Brotato's Hurtbox; filled in below)
@@ -1348,6 +1351,7 @@ end
 for id, kind in require(script.Parent.JungleEnemyKinds).build(PIXEL) do
 	Enemies[id] = kind
 end
+Enemies.SeaPig = require(script.Parent.NativeSeaPig).kind
 scaleBodies(Bosses)
 
 for _, boss in Bosses do

@@ -1,5 +1,5 @@
 --!strict
--- Source PatrolEdgesOfMap target selection with retained goals; tested component, no actor registration or World adapter yet.
+-- Source PatrolEdgesOfMap target selection with retained goals; called by World for source-bound Dimetrodon and Sea Pig actors.
 local Patrol = {}
 export type Rule = {
 	edgeDistancePoints: number,

@@ -84,6 +84,7 @@ EnemySim.CharmShot = Signal.new()
 EnemySim.NativeSlash = Signal.new()
 EnemySim.NativePillar = Signal.new()
 EnemySim.NativeJumpStarted = Signal.new() -- trusted id, kind, captured source Jump state
+EnemySim.PlayerKillStats = Signal.new() -- trusted credited player and source stat gains, after normal death listeners
 -- Trusted native spawning attack: child kind, exact position and captured optional Charm owner; SpawnDirector owns births.
 EnemySim.NativeSummon = Signal.new()
 EnemySim.CharmSupport = Signal.new()
@@ -935,7 +936,7 @@ function EnemySim.tryCharm(player: Player, id: number, stats: { [string]: number
 		maxHp = maxHp,
 		elite = kind.elite,
 		boss = kind.boss ~= nil,
-		canBeCharmed = kind.nativeLootActor ~= true,
+		canBeCharmed = kind.nativeLootActor ~= true and kind.nativeCanBeCharmed ~= false,
 	}, friends:count(player.UserId), require(Shared.Util.DangerRules).endlessFactor(RunDirector.getWave()))
 	if not CharmRules.success(chance, random) then
 		return false
@@ -1054,6 +1055,9 @@ function EnemySim.damage(
 				else nil,
 			digCrateChance = if ownerHitbox then digCrateChance else nil,
 		} :: KillInfo)
+		if source and cleanupDepth == 0 and kind.nativePlayerKillStats then
+			EnemySim.PlayerKillStats:Fire(source, kind.nativePlayerKillStats)
+		end
 	end
 	return true, dealt, applied
 end

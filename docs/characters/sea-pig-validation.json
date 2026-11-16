@@ -1,0 +1,98 @@
+{
+  "referenceVersion": "1.2.0.3",
+  "steamBuild": 26642464,
+  "baseMain": "de4e155e97855cc18ffb52b1e81e53d1af8532fc",
+  "sourceFacts": "docs/characters/sea-pig-source.json",
+  "scope": "Actual normal Sea Pig70, a possible global Abyssal-Terrors DLC group dependency in Jungle; production native wave adapter still pending.",
+  "focused": {
+    "NativeSeaPigServer": "4/0 (initial missing actor0/3)",
+    "NativeSeaPigWorld": "2/0",
+    "MainGameEnemyStats": "29/0 with70unique normal kinds",
+    "WorldSprites": "12/0 after source fallback-art flag correction"
+  },
+  "proof": [
+    "Source HP30+15/wave,150px/s,contact1+0.85/wave,5materials,kb0.6; body28/hurt46/hit28px, source body/hit-5px and composed Hurtbox-24px offset.",
+    "Actual edge patrol150pxband,randomization0,source32pxsamplinginset/retainedgoals/max_target_distance overwritten; works without live targets.",
+    "Source can_be_boosted=false and can_be_charmed=false connected to actual World/ordinary pre-hit Charm, including no buff while a control body grows. can_be_cursed=false is recorded for the pending curse enemy system, not claimed as a complete cursing adapter.",
+    "Trusted EnemySim.PlayerKillStats fires after ordinary EnemyKilled listeners, only on a credited non-cleanup death; NativeEnemyRewardService passes original gains to existing StatService.addStats with its gain pipeline.",
+    "Actual killer gets Curse+1, peer does not; nil killer and cleanup do not gain Curse. Real charmed enemy killing Sea Pig grants no owner Curse: source Enemy retains player_index=-1 and Unit uses DUMMY_PLAYER_INDEX123, outside SeaPig players_ref range. No retroactive Charm-owner kill credit invented.",
+    "One source-bound original body PNG prepared losslessly and visually inspected, no uploads or runtime asset ID changes.",
+    "First full run caught two new WorldSprites failures because the source kind lacked existing nativeArtPending fallback flag. Flag corrected through compiler; WorldSprites12/0 and actual server4/0 green before final full run.",
+    "Buff test fixture first used no living targets; existing periodic Buffer branch only ticks with a target. Fixture supplies a living control target; this change does not fix or certify the wider no-target Buffer cadence."
+  ],
+  "mutations": [
+    {
+      "mutation": "earlyStatReward",
+      "passed": 3,
+      "failed": 1,
+      "restoredByteExactly": true
+    },
+    {
+      "mutation": "ignoredCharmFlag",
+      "passed": 3,
+      "failed": 1,
+      "restoredByteExactly": true
+    },
+    {
+      "mutation": "ignoredBoostFlag",
+      "passed": 1,
+      "failed": 1,
+      "restoredByteExactly": true
+    }
+  ],
+  "checks": {
+    "sourceCompiler": true,
+    "localArtCheck": true,
+    "stylua": true,
+    "selene": {
+      "errors": 0,
+      "existingWarnings": 18,
+      "parseErrors": 0,
+      "api": "cached Roblox API; exit1 from warnings"
+    },
+    "rojo": true
+  },
+  "firstFullSuite": {
+    "specs": 358,
+    "passed": 2133,
+    "failed": 39,
+    "aborts": 0,
+    "newFailures": [
+      "FAIL Enemy sprites > has a sprite for every enemy kind",
+      "FAIL Enemy sprites > draws a Gloom Elite with its kind's picture, larger"
+    ],
+    "artifact": "build/native-five-branch-ten-sea-pig-de4e155.json",
+    "fixedBeforeFinalFullRun": true
+  },
+  "status": {
+    "codePreparedCharacters": 48,
+    "open": 26,
+    "registeredJungleBodies": 30,
+    "globalDlcSeaPigRegistered": true,
+    "normalKinds": 70,
+    "junglePlayable": false,
+    "newCompletedCharacters": 0,
+    "nativeFullParityAccepted": false
+  },
+  "limits": [
+    "Native Meca/Mutant/Curse enemy mechanics, content activation, production group spawning, bosses and area remain pending.",
+    "Source EvolutionSceneBehavior excludes current-zone loot stats, not every global loot actor; a cross-zone SeaPig may acquire evolution flags/effects despite its boost refusal. Future evolution adapter must preserve this distinction.",
+    "Existing generic material/consumable drop placement/physics,15HzWorld,sourceRNG/Area/deferred/pooling and full native sprite/animation/audio acceptance remain open.",
+    "No native full1:1/Studio/real2clients/mobile acceptance or extra completed character claimed.",
+    "No new Remote/snapshot/Arsenal/upload/runtime asset IDs."
+  ],
+  "fullSuite": {
+    "specs": 358,
+    "passed": 2135,
+    "failed": 37,
+    "aborts": 0,
+    "artifact": "build/native-five-branch-ten-sea-pig-final-de4e155.json",
+    "newFailureIdentitiesVsRegistration": [],
+    "missingFailureIdentitiesVsRegistration": [
+      "FAIL Charmed faction runtime > steps a mixed hostile and friendly crowd within the shared simulation budget"
+    ],
+    "all16AdditionalChecksPassed": true,
+    "runtimeFrozenDuringRun": true,
+    "afterRunChanges": "Documentation only;65targetedchecks repeated green. Earlier two sprite failures fixed before this final run."
+  }
+}
