@@ -1,0 +1,127 @@
+{
+  "referenceVersion": "1.2.0.3",
+  "steamBuild": 26642464,
+  "baseMain": "de4e155e97855cc18ffb52b1e81e53d1af8532fc",
+  "scope": "Automatic live numeric factor provider for supported native enemy births, source Buffer resets and descendants; not a complete EntityService/evolution/area port.",
+  "ruleSources": [
+    {
+      "source": "res://singletons/entity_service.gdc",
+      "sourceMd5": "f1a861f576858bbaa3e913d83c7b1807"
+    },
+    {
+      "source": "res://entities/units/unit/unit.gdc",
+      "sourceMd5": "aa94391f2d9681ac36b7f8617b82ff13"
+    },
+    {
+      "source": "res://singletons/utils.gdc",
+      "sourceMd5": "2c263b6d3c2355dd71d6ad4caf0705bf"
+    },
+    {
+      "source": "res://singletons/coop_service.gdc",
+      "sourceMd5": "c7acffec9f3ec81159811794fd343149"
+    },
+    {
+      "source": "res://main.gdc",
+      "sourceMd5": "e42c7c4356e6cb9d2da8190067ebf7e5"
+    }
+  ],
+  "sourceFacts": [
+    "Source Enemy.init_current_stats reads health, damage and speed in order before init_effect_behaviors; source births are not burning at this first stat read.",
+    "NativeEnemyStats captures actual RunDirector participants/options and StatService enemyHp/enemyDamage/enemySpeed/Curse. Danger/endless use existing audited source rules; all-DLC target has the Curse key.",
+    "Speed is primed on the unburned birth before enemy effects, so burningSpeed is explicitly neutral in that initial context and never substituted as a dynamic per-burn modifier. Raw numeric cache still preserves first-caller burning semantics for explicit callers.",
+    "Numeric contexts are invalidated on run start/end, Shop cleanup, Running entry (including same-wave restart signal), and authoritative wave-id change. Original reset_cache enemy-time side effect is not implemented by this stat provider."
+  ],
+  "focused": {
+    "NativeEnemyStatsProvider": "8/0; first6cases initially0/6, first implementation5/1 due uncontrolled test speed randomization; controlled source roll corrected fixture, not runtime math",
+    "NativeEnemyBoostActor": "6/0",
+    "NativeEnemyStatCache": "8/0",
+    "NativeCorruptedBuffer": "5/0",
+    "NativeNightmareEnemyRuntime": "6/0"
+  },
+  "proof": [
+    "Single shared cache/context serves hostile and friendly actors. Legacy births establish global first-use factors too, without replacing their caller-supplied multipliers.",
+    "Actual danger3 launch with HP75%/damage125%/speed75% gives global factors1.092/1.512/.75; source Triceratops actually spawns76HP/2contact/195px/s with a controlled original speed draw.",
+    "Two actual players with speed+10/-20 multiply to.88, not legacy sum.9; native Gallimimus has8HP/220px/s. Native -95% enemy HP uses.05 before co-op, creating Triceratops5HP rather than the legacy.1 floor. Explicit debug99 multipliers remain396HP on Gallimimus.",
+    "Existing SpawnDirector.spawnAt dispatches supported normal/native/current-wave births to EnemySim.spawnNative. Gloom/affix/custom-time requests retain their old explicit path.",
+    "Real Corrupted Buffer pulse invokes actual applyNativeBoost through World.Params.nativeStatBoost and the shared run cache; later+100% team enemyHp does not change cached target20HP/2contact in that wave. Custom/unported actors retain saved-input fallback.",
+    "Actual next-wave and new-run flows refresh context, including restarting at wave1; a separate same-wave Running signal verifies invalidation without wave-id change.",
+    "Real boosted source BloatedSpawner produces5 native-policy DireJunkies with20HP and no parental boost; inherited sourceFactors policy reaches the existing child factory. Hostile and Charm child factories share the supported native path."
+  ],
+  "mutations": [
+    {
+      "mutation": "refreshContextEveryCall",
+      "passed": 6,
+      "failed": 2
+    },
+    {
+      "mutation": "sumInsteadOfIndividualSpeedStats",
+      "passed": 6,
+      "failed": 2
+    },
+    {
+      "mutation": "skipProductionNativeBirth",
+      "passed": 7,
+      "failed": 1
+    },
+    {
+      "mutation": "skipLiveBufferAdapter",
+      "passed": 7,
+      "failed": 1
+    },
+    {
+      "mutation": "loseSourceChildPolicy",
+      "passed": 7,
+      "failed": 1
+    },
+    {
+      "mutation": "skipRepeatedWaveReset",
+      "passed": 7,
+      "failed": 1
+    }
+  ],
+  "fullSuite": {
+    "specs": 367,
+    "passed": 2195,
+    "failed": 35,
+    "aborts": 0,
+    "newFailureIdentitiesVsActor": [],
+    "missingFailureIdentitiesVsActor": [
+      "FAIL new enemies (B9) > lets a Gobbler eat the orbs on the floor and drop them all when killed",
+      "FAIL smoke > chases the player until it touches them"
+    ],
+    "artifact": "build/native-five-branch-ten-native-stats-provider-de4e155.json",
+    "runtimeFrozenDuringRun": true
+  },
+  "checks": {
+    "stylua": true,
+    "rojo": true,
+    "compilerCheck": true,
+    "selene": {
+      "errors": 0,
+      "existingWarnings": 18,
+      "parseErrors": 0,
+      "api": "cached Roblox API; warnings-only exit1"
+    }
+  },
+  "interfaces": [
+    "EnemySim.NativeEnemyStats.get(wave)->shared cache/context, clear()->numeric lifecycle invalidation; lazy StatService/RunDirector reads avoid service require cycles.",
+    "EnemySim.spawnNative(enemyId,x,z)->id? uses cached source global factors/current wave for explicitly supported source kinds in active runs.",
+    "World.Params.nativeStatBoost(id,factors)->handled? lets the source run provider own a native pulse; saved-input fallback remains for explicit/custom actors.",
+    "SpawnContext.sourceFactors optional internal inherited policy; no Remote/snapshot/schema changes."
+  ],
+  "status": {
+    "productionNumericProviderImplemented": true,
+    "originalEnemyTimeResetImplemented": false,
+    "evolutionImplemented": false,
+    "codePreparedCharacters": 48,
+    "open": 26,
+    "newCompletedCharacters": 0,
+    "junglePlayable": false
+  },
+  "limits": [
+    "This is the supported native actor stat path, not all legacy actor/global environmental producers or a complete EntityService port. Explicit custom multipliers remain explicit.",
+    "Original reset_cache also stops enemy time; source global time effects, extra registered projectile/profile reset and other effect systems remain separate open work.",
+    "No evolved selector/flags/effect execution/attack profiles/reliable variant renderer state enabled, and Jungle groups/bosses/area/Whip-Flail route remain incomplete.",
+    "No native frame/solver/Area/pooling/render/Studio/two-client/mobile acceptance; no new Remote/Arsenal/uploads/runtime IDs."
+  ]
+}

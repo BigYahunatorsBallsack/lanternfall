@@ -113,5 +113,23 @@
     "A single source cache shared by hostile/friendly actors, exact Main._ready/reset timing, context reads and original enemy-time reset side effect remain pending.",
     "Other original global effect mechanics, legacy actor policies, additional registered projectiles/profile switching and native Area/frame/solver/pooling/render/Studio/two-client/mobile acceptance remain open.",
     "No new Remote/snapshot/Arsenal/upload/runtime asset IDs."
-  ]
+  ],
+  "coveredByLaterFullSuite": {
+    "specs": 367,
+    "passed": 2195,
+    "failed": 35,
+    "aborts": 0,
+    "newFailureIdentitiesVsActor": [],
+    "missingFailureIdentitiesVsActor": [
+      "FAIL new enemies (B9) > lets a Gobbler eat the orbs on the floor and drop them all when killed",
+      "FAIL smoke > chases the player until it touches them"
+    ],
+    "artifact": "build/native-five-branch-ten-native-stats-provider-de4e155.json",
+    "runtimeFrozenDuringRun": true
+  },
+  "liveNumericProviderFollowup": {
+    "implemented": true,
+    "proof": "docs/characters/native-stats-provider-validation.json",
+    "scope": "Supported native actor births/Buffer/descendants; enemy-time reset/evolution/legacy global producers remain open."
+  }
 }

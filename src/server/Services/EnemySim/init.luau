@@ -26,6 +26,7 @@ local NativeVolley = require(Shared.Util.NativeEnemyVolley)
 local RunSchedule = require(Shared.Util.RunSchedule)
 local DeathShots = require(script.NativeDeathShots)
 local NativeStatCache = require(script.NativeEnemyStatCache)
+local NativeStats = require(script.NativeEnemyStats)
 local NativeStatRules = require(Shared.Config.NativeEnemyStatCache).rules
 local PlayerHurt = require(Shared.Util.PlayerHurtGeometry)
 local ShotFeed = require(Shared.Net.ShotFeed)
@@ -153,6 +154,18 @@ local function newWorldParams(): World.Params
 		nativeChargeAccessibility = function()
 			return RunDirector.getRunOptions().enemySpeed / 100
 		end,
+		nativeStatBoost = function(id, boost)
+			local base = nativeBases[id]
+			if not base or not base.sourceFactors then
+				return false
+			end
+			local cache, context = NativeStats.get(RunDirector.getWave())
+			return EnemySim.applyNativeBoost(id, cache, context, {
+				hp = (boost.hp - 1) * NativeStatRules.percent,
+				damage = (boost.damage - 1) * NativeStatRules.percent,
+				speed = (boost.speed - 1) * NativeStatRules.percent,
+			})
+		end,
 		cellSize = Sim.spatialHashCellSize,
 		maxEnemies = Config.Run.spawn.cap.max,
 		playerRadius = Sim.playerRadius,
@@ -173,7 +186,7 @@ local function newWorldParams(): World.Params
 end
 
 world = World.new(newWorldParams())
-type SpawnContext = { hp: number, damage: number, speed: number, wave: number }
+type SpawnContext = { hp: number, damage: number, speed: number, wave: number, sourceFactors: boolean? }
 local spawnContexts: { [number]: SpawnContext } = {}
 local chargeTrails: { [number]: { x: number, z: number, distance: number } } = {}
 local volleys = (function()
@@ -391,6 +404,11 @@ local function spawnAround(
 	area: number?
 )
 	local context = if parentId then spawnContexts[parentId] else nil
+	local child = EnemyKinds.get(enemyId)
+	local native = context ~= nil
+		and context.sourceFactors == true
+		and child ~= nil
+		and child.nativeHealthRounding == true
 	local turn = RandomService.number("Spawns") * 2 * math.pi
 	for k = 1, count do
 		local angle = turn + (k - 1) / count * 2 * math.pi
@@ -400,17 +418,21 @@ local function spawnAround(
 			sx = x + (RandomService.number("Spawns") - 0.5) * area
 			sz = z + (RandomService.number("Spawns") - 0.5) * area
 		end
-		EnemySim.spawn(
-			enemyId,
-			sx,
-			sz,
-			if context then context.hp else hpMultiplier,
-			if context then context.damage else damageMultiplier,
-			nil,
-			nil,
-			if context then context.speed else speedMultiplier,
-			if context then context.wave else nil
-		)
+		if native then
+			EnemySim.spawnNative(enemyId, sx, sz)
+		else
+			EnemySim.spawn(
+				enemyId,
+				sx,
+				sz,
+				if context then context.hp else hpMultiplier,
+				if context then context.damage else damageMultiplier,
+				nil,
+				nil,
+				if context then context.speed else speedMultiplier,
+				if context then context.wave else nil
+			)
+		end
 	end
 end
 
@@ -780,6 +802,7 @@ function EnemySim.init()
 		friends.shots:setBounds(minX, maxX, minZ, maxZ)
 	end)
 	RunDirector.RunStarted:Connect(function()
+		NativeStats.clear()
 		table.clear(spawnContexts)
 		table.clear(chargeTrails)
 		world:clear()
@@ -792,6 +815,7 @@ function EnemySim.init()
 		sendShots(true)
 	end)
 	local function clearAll()
+		NativeStats.clear()
 		table.clear(spawnContexts)
 		table.clear(chargeTrails)
 		world:clear()
@@ -806,6 +830,9 @@ function EnemySim.init()
 	end
 	RunDirector.RunEnded:Connect(clearAll)
 	RunDirector.PhaseChanged:Connect(function(phase)
+		if phase == "Running" then
+			NativeStats.clear() -- new or repeated wave, including the same wave number
+		end
 		if phase == "Shop" then
 			clearAll() -- a wave ends: the enemies left fade away (Brotato direction, B1)
 		end
@@ -835,6 +862,9 @@ function EnemySim.spawn(
 	assert(kind, `Unknown enemy {enemyId}`)
 	if EnemySim.getCount() >= Config.Run.spawn.cap.max then
 		return nil
+	end
+	if RunDirector.isActive() then
+		NativeStats.get(RunDirector.getWave()) -- legacy births also establish the source global first-use factors
 	end
 	local baseShot = World.baseShotDamage(kind)
 	local hpGrowth, contactGrowth, shotGrowth = 1, 1, 1
@@ -887,6 +917,34 @@ function EnemySim.spawn(
 	return id
 end
 
+-- Source production birth; explicit spawn(...) retains its caller-supplied debug/context multipliers.
+function EnemySim.spawnNative(enemyId: string, x: number, z: number): number?
+	local kind = EnemyKinds.get(enemyId)
+	if not RunDirector.isActive() or not kind or not kind.nativeHealthRounding then
+		return nil
+	end
+	local wave = RunDirector.getWave()
+	local cache, context = NativeStats.get(wave)
+	local id = EnemySim.spawn(
+		enemyId,
+		x,
+		z,
+		cache:rawHealth(1, context),
+		cache:rawDamage(1, context),
+		nil,
+		nil,
+		cache:rawSpeed(1, false, context),
+		wave
+	)
+	if id then
+		local base = nativeBases[id]
+		base.sourceFactors = true
+		base.spawn.sourceFactors = true
+		spawnContexts[id].sourceFactors = true
+	end
+	return id
+end
+
 -- Source Enemy.boost stat stage only. The scene adapter supplies its shared factor cache/context; flags/effects/profile reset are separate.
 function EnemySim.applyNativeBoost(
 	id: number,
@@ -930,6 +988,7 @@ function EnemySim.applyNativeBoost(
 		damage = cache:rawDamage(1, context),
 		speed = cache:rawSpeed(1, false, context),
 		wave = wave,
+		sourceFactors = base.sourceFactors,
 	}
 	spawnContexts[id] = base.spawn
 	return true
@@ -946,6 +1005,8 @@ function EnemySim.spawnCharmChildren(
 	area: number?
 )
 	local context = member.base.spawn
+	local child = EnemyKinds.get(kind)
+	local native = context.sourceFactors == true and child ~= nil and child.nativeHealthRounding == true
 	local turn = RandomService.number("Spawns") * math.pi * 2
 	for index = 1, count do
 		local angle = turn + (index - 1) / count * math.pi * 2
@@ -954,7 +1015,9 @@ function EnemySim.spawnCharmChildren(
 			sx = x + (RandomService.number("Spawns") - 0.5) * area
 			sz = z + (RandomService.number("Spawns") - 0.5) * area
 		end
-		local id = EnemySim.spawn(kind, sx, sz, context.hp, context.damage, nil, nil, context.speed, context.wave)
+		local id = if native
+			then EnemySim.spawnNative(kind, sx, sz)
+			else EnemySim.spawn(kind, sx, sz, context.hp, context.damage, nil, nil, context.speed, context.wave)
 		if id then
 			friends:convert(world, id, member.owner, workspace:GetServerTimeNow(), nativeBases[id])
 		end

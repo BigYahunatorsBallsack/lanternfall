@@ -1,4 +1,4 @@
-"""Bind audited EntityService factor-cache constants and the actual co-op scene; no production provider is enabled."""
+"""Bind audited EntityService factor-cache constants and co-op scene for the live native enemy stat provider."""
 from __future__ import annotations
 import argparse, importlib.util, json, subprocess, sys, tempfile
 from pathlib import Path
@@ -15,14 +15,14 @@ def generate():
  assert props['script']['resource']=='res://singletons/coop_service.gd'
  coop={key:props['additional_enemy_'+key+'_per_coop_player'] for key in ['health','damage']}
  assert all(isinstance(value,(int,float)) for value in coop.values())
- return {'version':reference['version'],'steamBuild':int(reference['steamBuildId']),'sourceScene':scene,'sourceSceneMd5':pck.entries[scene]['md5'],'coopPerAdditionalPlayer':coop,'rules':{'percent':100,'minimumFactor':0.01,'minimumPlayerSpeedPercent':-75,'curseHealthDivisor':10,'curseDamageDivisor':25,'endlessHealthMultiplier':2.25,'endlessSpeedDivisor':13.33,'endlessSpeedCap':1.75},'ruleSources':[{'source':p,'sourceMd5':digest} for p,digest in hashes.items()],'productionProviderImplemented':False,'nativeFullParityAccepted':False}
+ return {'version':reference['version'],'steamBuild':int(reference['steamBuildId']),'sourceScene':scene,'sourceSceneMd5':pck.entries[scene]['md5'],'coopPerAdditionalPlayer':coop,'rules':{'percent':100,'minimumFactor':0.01,'minimumPlayerSpeedPercent':-75,'curseHealthDivisor':10,'curseDamageDivisor':25,'endlessHealthMultiplier':2.25,'endlessSpeedDivisor':13.33,'endlessSpeedCap':1.75},'ruleSources':[{'source':p,'sourceMd5':digest} for p,digest in hashes.items()],'productionProviderImplemented':True,'enemyTimeResetImplemented':False,'nativeFullParityAccepted':False}
 def main():
  parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--check',action='store_true');args=parser.parse_args();data=generate();catalog=module('stat_cache_catalog','tools/build-character-catalog.py')
  with tempfile.TemporaryDirectory(dir=ROOT/'build') as folder:
-  path=Path(folder)/'NativeEnemyStatCache.luau';path.write_text('--!strict\n-- Audited source enemy factor-cache rules for EnemySim.NativeEnemyStatCache; the production provider remains pending.\nreturn '+catalog.luau(data)+'\n',encoding='utf-8');subprocess.run(['stylua',str(path)],check=True);text=path.read_text(encoding='utf-8')
+  path=Path(folder)/'NativeEnemyStatCache.luau';path.write_text('--!strict\n-- Audited source enemy factor-cache rules; EnemySim.NativeEnemyStats supplies live contexts for supported actor births and boosts.\nreturn '+catalog.luau(data)+'\n',encoding='utf-8');subprocess.run(['stylua',str(path)],check=True);text=path.read_text(encoding='utf-8')
  outputs={ROOT/'src/shared/Config/NativeEnemyStatCache.luau':text,ROOT/'docs/characters/enemy-stat-cache-source.json':json.dumps(data,indent=2)+'\n'}
  for path,value in outputs.items():
   if args.check:assert path.read_text(encoding='utf-8')==value,'Stale native stat cache binding: '+str(path)
   else:path.write_text(value,encoding='utf-8',newline='\n')
- print('Source stat cache rules and actual co-op factors compiled; production provider remains pending')
+ print('Source stat cache rules and actual co-op factors compiled for the live native actor provider; full parity remains open')
 if __name__=='__main__':main()

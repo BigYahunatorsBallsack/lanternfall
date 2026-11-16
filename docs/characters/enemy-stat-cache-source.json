@@ -39,6 +39,7 @@
       "sourceMd5": "e42c7c4356e6cb9d2da8190067ebf7e5"
     }
   ],
-  "productionProviderImplemented": false,
+  "productionProviderImplemented": true,
+  "enemyTimeResetImplemented": false,
   "nativeFullParityAccepted": false
 }

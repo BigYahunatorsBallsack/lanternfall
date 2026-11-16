@@ -81,6 +81,7 @@ export type Params = {
 	allocateId: (() -> number)?,
 	referencePlayerSpeed: ((number?, number?, number?) -> number?)?, -- target player index, or fastest living player when nil
 	nativeChargeAccessibility: (() -> number)?, -- source charge bonus uses only the current run accessibility speed slider
+	nativeStatBoost: ((number, NativeBoost) -> boolean)?, -- true when the source run provider handled this actor's native reset
 	goalsWithoutTargets: boolean?,
 	nativeGoldPositions: (() -> ({ number }, { number }))?,
 	collideTargets: boolean?, -- false for native pet bodies, which collide only with pets and obstacles
@@ -1359,11 +1360,14 @@ local function pulseAt(self: World, i: number, pulse: Enemies.Pulse): boolean
 		candidates[pick] = candidates[#candidates]
 		candidates[#candidates] = nil
 		if pulse.nativeResetStats then
-			self:resetNativeStats(self.ids[j], self:getSpawnStatBases(self.ids[j]) :: NativeStatBases, {
+			local boost = {
 				hp = 1 + (pulse.buffHp or 0),
 				damage = pulse.buffDamage or 1,
 				speed = pulse.buffSpeed or 1,
-			})
+			}
+			if not (self.params.nativeStatBoost and self.params.nativeStatBoost(self.ids[j], boost)) then
+				self:resetNativeStats(self.ids[j], self:getSpawnStatBases(self.ids[j]) :: NativeStatBases, boost)
+			end
 		else
 			self.buffed[j] = true
 			self.contactDamage[j] *= pulse.buffDamage or 1

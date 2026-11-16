@@ -1,5 +1,5 @@
 --!strict
--- Audited source enemy factor-cache rules for EnemySim.NativeEnemyStatCache; the production provider remains pending.
+-- Audited source enemy factor-cache rules; EnemySim.NativeEnemyStats supplies live contexts for supported actor births and boosts.
 return {
 	version = "1.2.0.3",
 	steamBuild = 26642464,
@@ -41,6 +41,7 @@ return {
 			sourceMd5 = "e42c7c4356e6cb9d2da8190067ebf7e5",
 		},
 	},
-	productionProviderImplemented = false,
+	productionProviderImplemented = true,
+	enemyTimeResetImplemented = false,
 	nativeFullParityAccepted = false,
 }
