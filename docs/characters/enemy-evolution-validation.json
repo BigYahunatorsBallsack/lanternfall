@@ -106,16 +106,18 @@
     ]
   },
   "coveredByLaterFullSuite": {
-    "specs": 362,
-    "passed": 2162,
-    "failed": 35,
+    "specs": 363,
+    "passed": 2167,
+    "failed": 36,
     "aborts": 0,
-    "newFailureIdentitiesVsPrevious": [],
-    "missingFailureIdentitiesVsPrevious": [
+    "returnedKnownFailureIdentitiesVsStatReset": [
       "FAIL smoke > chases the player until it touches them"
     ],
-    "artifact": "build/native-five-branch-ten-native-stat-reset-final-de4e155.json",
-    "runtimeFrozenDuringRun": true
+    "newFailureIdentitiesVsKnown": [],
+    "missingFailureIdentitiesVsStatReset": [],
+    "artifact": "build/native-five-branch-ten-native-enemy-health-final-de4e155.json",
+    "runtimeFrozenDuringRun": true,
+    "initialRun": "363/2166/37; one outdated source HP expectation53 instead52, corrected with source integer conversion and explicit per-wave config assertion; targeted4/0 then repeated full run. No runtime change after initial run."
   },
   "effectBindingsFollowup": {
     "sourceTests": "3/0; initially1failure/2errors",
@@ -133,5 +135,31 @@
       "artifact": "build/native-five-branch-ten-native-stat-reset-final-de4e155.json",
       "runtimeFrozenDuringRun": true
     }
+  },
+  "globalFactorCacheAudit": {
+    "scope": "Direct cached source inspection, not a new production factor provider. Distinguish fresh TeamEvolution from cached EntityService factors.",
+    "sources": [
+      {
+        "source": "res://main.gdc",
+        "sourceMd5": "e42c7c4356e6cb9d2da8190067ebf7e5"
+      },
+      {
+        "source": "res://singletons/entity_service.gdc",
+        "sourceMd5": "f1a861f576858bbaa3e913d83c7b1807"
+      },
+      {
+        "source": "res://entities/units/unit/unit.gdc",
+        "sourceMd5": "aa94391f2d9681ac36b7f8617b82ff13"
+      }
+    ],
+    "facts": [
+      "TeamEvolution is reconstructed for each enemy_respawned selection; do not cache its chance/camps per wave.",
+      "EntityService.factor_cache stores health, damage and speed factors by stat key on their first use. get_final_enemy_* reuses that factor until reset_cache clears it.",
+      "Verified direct reset_cache caller: Main._ready, after entity_spawner.init/stats_manager.init (main.gd272). Do not substitute unconditional fresh global-stat reads on every enemy reset.",
+      "Speed cache stores the effects_factor supplied by its first caller; Unit computes a product of per-player speed effects (each enemy_speed floored at-75, plus burning-specific effect when burning). Subsequent calls reuse the cached factor.",
+      "Unit.set_burning calls reset_speed_stat with the stored per-actor _speed_percent_modifier; source cache order and burn/reset timing still need acceptance.",
+      "Health/damage source factor/boost minimum0.01 differs from the existing shared StatMath enemyFactor minimum0.1; do not silently call that helper as an exact native provider."
+    ],
+    "implemented": false
   }
 }

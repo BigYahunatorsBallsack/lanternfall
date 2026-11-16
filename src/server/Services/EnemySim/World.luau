@@ -392,7 +392,8 @@ function World.spawn(
 	shotDamage: number?,
 	speedFactor: number?,
 	wave: number?,
-	rawSpeedPoints: number?
+	rawSpeedPoints: number?,
+	rawResetHealth: number?
 ): number?
 	if self.alive >= self.params.maxEnemies then
 		return nil
@@ -421,7 +422,7 @@ function World.spawn(
 	end
 	self.waves[i] = wave or 1
 	local baseHp = kind.hp + (kind.hpPerWave or 0) * (self.waves[i] - 1)
-	self.spawnResetHealth[i] = if baseHp ~= 0 then math.modf(baseHp) * (hp / baseHp) else hp
+	self.spawnResetHealth[i] = rawResetHealth or (if baseHp ~= 0 then math.modf(baseHp) * (hp / baseHp) else hp)
 	self.spawnSpeedPoints[i] = rawSpeedPoints or kind.speed * math.max(0, speedFactor or 1) / PointScale
 	self.shotCooldown[i] = if ranged then ranged.fireInterval * spread else 0
 	self.shootingClocks[i] = if ranged and ranged.nativeTiming

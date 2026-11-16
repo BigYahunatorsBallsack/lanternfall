@@ -75,7 +75,7 @@ data.kind = {
  nativeHitOffsetX=data.hit.offsetPoints[1]*POINT, nativeHitOffsetZ=data.hit.offsetPoints[2]*POINT,
  nativeBodyLayer=data.bodyLayer, nativeBodyMask=data.bodyMask, nativeObstacleCollision=bit32.band(data.bodyMask,128)~=0,
  nativeMovement={goalInsetX=data.sprite.widthPoints*POINT/2,goalInsetZ=data.sprite.heightPoints*POINT/2,borderClamp=data.bodyBorders,collidePlayers=bit32.band(data.bodyMask,2)~=0,precision=data.sourceConstants.goalPrecisionPoints*POINT},
- nativeEdgePatrol=data.patrolRule, nativeDamageRounding=true,
+ nativeEdgePatrol=data.patrolRule, nativeDamageRounding=true, nativeHealthRounding=true,
  nativeCanBeBoosted=false, nativeCanBeCharmed=false, nativeCanBeCursed=false,
  nativePlayerKillStats={curse=data.sourceConstants.curseOnCreditedPlayerKill}, mass=data.mass, knockbackResistance=s.knockback_resistance,
  loot={consumableChance=s.base_drop_chance,crateShare=s.item_drop_chance},

@@ -840,6 +840,14 @@ function EnemySim.spawn(
 		hpGrowth, contactGrowth, shotGrowth = EnemyStats.growth(kind, wave)
 	end
 	local shotDamage = if baseShot > 0 then baseShot * damageMultiplier * shotGrowth else nil
+	local hp = kind.hp * hpMultiplier * hpGrowth
+	local rawResetHealth: number? = nil
+	if kind.nativeHealthRounding then
+		-- Stats.get_base_health returns int before EntityService applies factors and final rounding.
+		local steps = math.max(0, math.floor(wave or 1) - 1)
+		rawResetHealth = math.modf(kind.hp + kind.hpPerWave * steps) * hpMultiplier
+		hp = math.round(rawResetHealth)
+	end
 	local speed, rawSpeedPoints = EnemyStats.spawnSpeedFactor(
 		kind,
 		RandomService.number("Spawns"),
@@ -850,12 +858,13 @@ function EnemySim.spawn(
 		kind,
 		x,
 		z,
-		kind.hp * hpMultiplier * hpGrowth,
+		hp,
 		kind.contactDamage * damageMultiplier * contactGrowth,
 		shotDamage,
 		speed,
 		wave,
-		rawSpeedPoints
+		rawSpeedPoints,
+		rawResetHealth
 	)
 	if id then
 		local index = world.indexOf[id]

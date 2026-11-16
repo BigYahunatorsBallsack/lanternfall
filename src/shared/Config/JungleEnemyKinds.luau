@@ -43,6 +43,7 @@ function Kinds.build(pixel: number): { [string]: any }
 			},
 			hp = s.health,
 			hpPerWave = s.health_increase_each_wave,
+			nativeHealthRounding = true,
 			contactDamage = s.damage,
 			nativeArmor = f.nativeArmor,
 			nativeDamageRounding = f.nativeDamageRounding,

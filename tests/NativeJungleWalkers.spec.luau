@@ -36,16 +36,18 @@ describe("Native Jungle pursuit enemies", function()
 	it("uses original units, independent per-wave growth and native collision radii", function()
 		local health = { 2, 4, 3, 4 }
 		local gain = { 2, 2.5, 3, 5 }
+		local wave10Health = { 40, 52, 60, 98 } -- Gallimimus: int(4+2.5*9)*2 =52, not53.
 		local speed = { 20, 25, 17.5, 35 }
 		for index, name in names do
 			Enemy.killAll()
 			local kind = assert(Kinds.get(name))
 			expect(kind.hp).toBe(health[index])
+			expect(kind.hpPerWave).toBe(gain[index])
 			expect((kind.speed + kind.speedMax) / 2).toBeNear(speed[index])
 			expect(kind.hurtRadius).toBeNear(3.2)
 			expect(kind.hitRadius).toBeNear(1.60312)
 			local id = assert(Enemy.spawn(name, 40, 0, 2, 3, nil, nil, 0, 10))
-			expect(Enemy.getMaxHealth(id)).toBeNear((health[index] + gain[index] * 9) * 2)
+			expect(Enemy.getMaxHealth(id)).toBe(wave10Health[index])
 			local _, damage = Enemy.getMultipliers(id)
 			expect(damage).toBeNear((1 + 0.6 * 9) * 3)
 		end

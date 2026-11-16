@@ -167,6 +167,7 @@ data.kind = {
 	},
 	nativeEdgePatrol = data.patrolRule,
 	nativeDamageRounding = true,
+	nativeHealthRounding = true,
 	nativeCanBeBoosted = false,
 	nativeCanBeCharmed = false,
 	nativeCanBeCursed = false,
