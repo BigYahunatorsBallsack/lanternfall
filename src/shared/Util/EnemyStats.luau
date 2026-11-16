@@ -60,7 +60,7 @@ function EnemyStats.spawnSpeedFactor(
 	roll: number,
 	multiplier: number,
 	accessibility: number?
-): number
+): (number, number?)
 	if kind.nativeFixedSpeed then
 		return 1
 	end
@@ -72,7 +72,8 @@ function EnemyStats.spawnSpeedFactor(
 		return 0
 	end
 	local offset = math.modf((math.clamp(roll, 0, 1) * 2 - 1) * rule.randomization * (accessibility or 1))
-	return math.round((rule.base + offset) * multiplier) * Pixel / kind.speed
+	local rawPoints = (rule.base + offset) * multiplier
+	return math.round(rawPoints) * Pixel / kind.speed, rawPoints
 end
 
 return EnemyStats

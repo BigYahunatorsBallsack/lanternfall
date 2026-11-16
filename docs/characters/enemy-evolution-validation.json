@@ -106,11 +106,32 @@
     ]
   },
   "coveredByLaterFullSuite": {
-    "specs": 360,
-    "passed": 2154,
-    "failed": 36,
-    "evolutionSpec": "16/0",
-    "artifact": "build/native-five-branch-ten-native-buff-rounding-de4e155.json",
-    "reason": "Subsequent production Buffer precision correction required this full run."
+    "specs": 362,
+    "passed": 2162,
+    "failed": 35,
+    "aborts": 0,
+    "newFailureIdentitiesVsPrevious": [],
+    "missingFailureIdentitiesVsPrevious": [
+      "FAIL smoke > chases the player until it touches them"
+    ],
+    "artifact": "build/native-five-branch-ten-native-stat-reset-final-de4e155.json",
+    "runtimeFrozenDuringRun": true
+  },
+  "effectBindingsFollowup": {
+    "sourceTests": "3/0; initially1failure/2errors",
+    "facts": "Root resource bindings preserved; both concrete Data/Scene/Script chains hashed; Meca/Mutant bonusGold0.33, gated Mutant healing amount1. Metadata only, no live effect application.",
+    "compilerCheck": true,
+    "fullSuite": {
+      "specs": 362,
+      "passed": 2162,
+      "failed": 35,
+      "aborts": 0,
+      "newFailureIdentitiesVsPrevious": [],
+      "missingFailureIdentitiesVsPrevious": [
+        "FAIL smoke > chases the player until it touches them"
+      ],
+      "artifact": "build/native-five-branch-ten-native-stat-reset-final-de4e155.json",
+      "runtimeFrozenDuringRun": true
+    }
   }
 }

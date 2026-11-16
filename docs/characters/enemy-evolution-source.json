@@ -32,7 +32,38 @@
     "mutantDamageMagnitude": 150,
     "hpMagnitude": 300
   },
-  "behaviorData": {},
+  "behaviorData": {
+    "mutant_enemy_effect_behavior_data": {
+      "resource": "res://effect_behaviors/enemies/mutant_enemy_effect_behavior_data.tres",
+      "resourceType": "Resource"
+    },
+    "meca_enemy_effect_behavior_data": {
+      "resource": "res://effect_behaviors/enemies/meca_enemy_effect_behavior_data.tres",
+      "resourceType": "Resource"
+    }
+  },
+  "effects": {
+    "Meca": {
+      "source": "res://effect_behaviors/enemies/meca_enemy_effect_behavior_data.tres",
+      "sourceMd5": "393a8b6db1515b6af7ffef6f09c848f8",
+      "scene": "res://effect_behaviors/enemies/meca_enemy_effect_behavior.tscn",
+      "sceneMd5": "31ff420d377aa5f6b76518857dab5bf8",
+      "script": "res://effect_behaviors/enemies/meca_enemy_effect_behavior.gd",
+      "scriptMd5": "60ab0578879a5cb8ec12c1ad365d1815",
+      "bonusGold": 0.33,
+      "healOnKill": 0
+    },
+    "Mutant": {
+      "source": "res://effect_behaviors/enemies/mutant_enemy_effect_behavior_data.tres",
+      "sourceMd5": "8a73b71adc76967130953f7e9c53ced7",
+      "scene": "res://effect_behaviors/enemies/mutant_enemy_effect_behavior.tscn",
+      "sceneMd5": "f3221d08da671c2338a611c694812c72",
+      "script": "res://effect_behaviors/enemies/mutant_enemy_effect_behavior.gd",
+      "scriptMd5": "5bec52f6fc3c57bf37cc7329a404af93",
+      "bonusGold": 0.33,
+      "healOnKill": 1
+    }
+  },
   "ruleSources": [
     {
       "source": "res://global/team_evolution.gdc",
@@ -45,6 +76,14 @@
     {
       "source": "res://effect_behaviors/scenes/evolution_scene_effect_behavior.gdc",
       "sourceMd5": "dc45c24ca1f29085674835e1d64879ad"
+    },
+    {
+      "source": "res://effect_behaviors/enemies/meca_enemy_effect_behavior.gdc",
+      "sourceMd5": "60ab0578879a5cb8ec12c1ad365d1815"
+    },
+    {
+      "source": "res://effect_behaviors/enemies/mutant_enemy_effect_behavior.gdc",
+      "sourceMd5": "5bec52f6fc3c57bf37cc7329a404af93"
     }
   ],
   "productionAdapterImplemented": false,

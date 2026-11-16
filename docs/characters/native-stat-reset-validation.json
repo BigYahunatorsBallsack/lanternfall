@@ -1,0 +1,130 @@
+{
+  "referenceVersion": "1.2.0.3",
+  "steamBuild": 26642464,
+  "baseMain": "de4e155e97855cc18ffb52b1e81e53d1af8532fc",
+  "scope": "Shared native stat replacement used by the real Corrupted Buffer, plus source-bound evolution effect metadata. No production evolution selector enabled.",
+  "ruleSources": [
+    {
+      "source": "res://entities/units/unit/stats.gdc",
+      "sourceMd5": "32a0cc4d6ed92f53aafcc9f36d158f95"
+    },
+    {
+      "source": "res://entities/units/unit/unit.gdc",
+      "sourceMd5": "aa94391f2d9681ac36b7f8617b82ff13"
+    },
+    {
+      "source": "res://entities/units/enemies/enemy.gdc",
+      "sourceMd5": "b341670f5ac667dc203f7eb778a2cda8"
+    },
+    {
+      "source": "res://singletons/entity_service.gdc",
+      "sourceMd5": "f1a861f576858bbaa3e913d83c7b1807"
+    }
+  ],
+  "sourceFacts": [
+    "Unit.reset_health_stat fully replaces current/max HP. Stats.get_base_health converts to int before EntityService factors. Damage bases retain floats. Unit.reset_speed_stat rounds final pixel speed after applying the stored integer spawn offset and factors.",
+    "Enemy.boost refuses can_be_boosted=false; otherwise calls each source reset. A later reset replaces current values instead of compounding them.",
+    "Evolution effect data resources are explicit root properties in the scene; the pet scene parser intentionally whitelists other properties and previously omitted these bindings."
+  ],
+  "focused": {
+    "NativeStatReset": "6/0; initially0/6",
+    "NativeStatResetServer": "1/0; missing raw-speed propagation mutation0/1",
+    "NativeEnemyEvolution": "16/0",
+    "EvolutionSourceBindings": "3/0 Python checks; initially1failure/2errors",
+    "NativeCorruptedBuffer": "5/0",
+    "NativeBuffRounding": "2/0",
+    "EnemyWorld": "48/0",
+    "NativeBonkDog": "3/0 after correcting shared pet-body spawn",
+    "StructuresB12": "8/0 after correcting shared pet-body spawn"
+  },
+  "proof": [
+    "World.resetNativeStats accepts explicit unrounded, factor-adjusted bases and positive caller-provided boost factors; replaces HP/contact/shot/speed, heals fully and preserves source boost refusal/dead guard.",
+    "SpawnResetHealth and spawnSpeedPoints join existing column compaction/transfer/clear paths. EnemyStats.spawnSpeedFactor second return retains the actual once-sampled unrounded speed; EnemySim forwards it without another roll.",
+    "Real Triceratops starts round((275-20)*1.014)=259px/s; the real Buffer resets round(258.57*1.5)=388, not round(259*1.5)=389.",
+    "Shared PetActors body kinds omit hpPerWave; missing increments mean zero. Actual pet/structure tests and the second full run prove the regression was corrected.",
+    "Evolution compiler reads only concrete root properties, resolves both Data->Scene->Script chains and pins both audited effect script hashes. Numeric root overrides survive, child overrides cannot replace root bindings.",
+    "Gold0.33 and Mutant heal amount1 are metadata; healing is still gated by the source heal_on_mutant_kill item probability. No effect behavior was activated by importing those facts."
+  ],
+  "mutations": [
+    {
+      "mutation": "dropRawSpawnSpeed",
+      "passed": 0,
+      "failed": 1
+    },
+    {
+      "mutation": "roundSpeedBeforeBoost",
+      "passed": 4,
+      "failed": 2
+    },
+    {
+      "mutation": "compoundHealth",
+      "passed": 4,
+      "failed": 2
+    },
+    {
+      "mutation": "loseHealthTransferColumn",
+      "passed": 5,
+      "failed": 1
+    },
+    {
+      "mutation": "loseSpeedTransferColumn",
+      "passed": 5,
+      "failed": 1
+    },
+    {
+      "mutation": "ignoreBoostRefusal",
+      "passed": 5,
+      "failed": 1
+    }
+  ],
+  "initialFullSuite": {
+    "specs": 362,
+    "passed": 2122,
+    "failed": 75,
+    "newFailureIdentities": 39,
+    "cause": "Shared PetActors bodies omit hpPerWave; new spawn baseline calculation incorrectly assumed every body had enemy growth.",
+    "fix": "Treat absent wave growth as zero, keeping the minimal pet-body contract intact.",
+    "artifact": "build/native-five-branch-ten-native-stat-reset-de4e155.json"
+  },
+  "fullSuite": {
+    "specs": 362,
+    "passed": 2162,
+    "failed": 35,
+    "aborts": 0,
+    "newFailureIdentitiesVsPrevious": [],
+    "missingFailureIdentitiesVsPrevious": [
+      "FAIL smoke > chases the player until it touches them"
+    ],
+    "artifact": "build/native-five-branch-ten-native-stat-reset-final-de4e155.json",
+    "runtimeFrozenDuringRun": true
+  },
+  "checks": {
+    "stylua": true,
+    "rojo": true,
+    "selene": {
+      "errors": 0,
+      "existingWarnings": 18,
+      "parseErrors": 0,
+      "api": "cached Roblox API; warnings-only exit1"
+    },
+    "evolutionCompilerCheck": true
+  },
+  "interfaces": [
+    "EnemyStats.spawnSpeedFactor retains first return and adds optional raw pixel-speed second return.",
+    "World.spawn appends optional rawSpeedPoints after wave.",
+    "World.getSpawnStatBases and World.resetNativeStats provide explicit server-only reset inputs; no Remote or snapshot changes."
+  ],
+  "status": {
+    "codePreparedCharacters": 48,
+    "open": 26,
+    "newCompletedCharacters": 0,
+    "junglePlayable": false,
+    "productionEvolutionAdapterImplemented": false
+  },
+  "limits": [
+    "Saved spawn bases do not replace a current source global-factor/cache provider. Buffer still uses these captured inputs; fully fresh source recomputation remains open.",
+    "Full evolution flags/effect execution/attack profile selection/reliable renderer state remain open; imported effect metadata is not a functioning evolution package.",
+    "Spawn-time HP rounding itself is a separate next step; the reset change does not claim to correct every existing spawn.",
+    "Native frame/Area/deferred/pooling, graphics, Studio, real two-client and mobile acceptance remain open. No uploads/runtime asset IDs/Arsenal changes."
+  ]
+}

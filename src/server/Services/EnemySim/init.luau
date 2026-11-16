@@ -840,7 +840,7 @@ function EnemySim.spawn(
 		hpGrowth, contactGrowth, shotGrowth = EnemyStats.growth(kind, wave)
 	end
 	local shotDamage = if baseShot > 0 then baseShot * damageMultiplier * shotGrowth else nil
-	local speed = EnemyStats.spawnSpeedFactor(
+	local speed, rawSpeedPoints = EnemyStats.spawnSpeedFactor(
 		kind,
 		RandomService.number("Spawns"),
 		speedMultiplier or 1,
@@ -854,7 +854,8 @@ function EnemySim.spawn(
 		kind.contactDamage * damageMultiplier * contactGrowth,
 		shotDamage,
 		speed,
-		wave
+		wave,
+		rawSpeedPoints
 	)
 	if id then
 		local index = world.indexOf[id]

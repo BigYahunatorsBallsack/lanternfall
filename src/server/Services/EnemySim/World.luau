@@ -59,6 +59,9 @@ local circleEntry = SegmentCircle.entry
 
 export type Kind = Enemies.Enemy
 export type Circle = StaticShapes.Shape
+-- Unrounded values after global factors; health's source integer conversion precedes those factors.
+export type NativeStatBases = { health: number, contact: number, shot: number, speedPoints: number }
+export type NativeBoost = { hp: number, damage: number, speed: number }
 
 export type Params = {
 	cellSize: number,
@@ -121,6 +124,8 @@ export type World = typeof(setmetatable(
 		shotDamage: { number }, -- damage per projectile, 0 for enemies that do not shoot
 		spawnContactDamage: { number }, -- raw source input before final rounding, for native stat resets
 		spawnShotDamage: { number },
+		spawnResetHealth: { number },
+		spawnSpeedPoints: { number },
 		waves: { number }, -- wave at spawn, for flat enemy healing
 		shootingClocks: { ShootingClock.State? },
 		shotCooldown: { number }, -- seconds in fire range until the next shot
@@ -227,6 +232,8 @@ function World.new(params: Params): World
 		shotDamage = {},
 		spawnContactDamage = {},
 		spawnShotDamage = {},
+		spawnResetHealth = {},
+		spawnSpeedPoints = {},
 		waves = {},
 		shotCooldown = {},
 		shootingClocks = {},
@@ -304,6 +311,8 @@ function World.new(params: Params): World
 		self.shotDamage,
 		self.spawnContactDamage,
 		self.spawnShotDamage,
+		self.spawnResetHealth,
+		self.spawnSpeedPoints,
 		self.waves,
 		self.shotCooldown,
 		self.shootingClocks,
@@ -382,7 +391,8 @@ function World.spawn(
 	contactDamage: number,
 	shotDamage: number?,
 	speedFactor: number?,
-	wave: number?
+	wave: number?,
+	rawSpeedPoints: number?
 ): number?
 	if self.alive >= self.params.maxEnemies then
 		return nil
@@ -410,6 +420,9 @@ function World.spawn(
 		self.shotDamage[i] = math.round(self.shotDamage[i])
 	end
 	self.waves[i] = wave or 1
+	local baseHp = kind.hp + (kind.hpPerWave or 0) * (self.waves[i] - 1)
+	self.spawnResetHealth[i] = if baseHp ~= 0 then math.modf(baseHp) * (hp / baseHp) else hp
+	self.spawnSpeedPoints[i] = rawSpeedPoints or kind.speed * math.max(0, speedFactor or 1) / PointScale
 	self.shotCooldown[i] = if ranged then ranged.fireInterval * spread else 0
 	self.shootingClocks[i] = if ranged and ranged.nativeTiming
 		then ShootingClock.new(ranged.nativeTiming, function()
@@ -1251,10 +1264,43 @@ local function slashStep(self: World, i: number, slash: Enemies.Slash, dt: numbe
 	return false
 end
 
--- A Herald's buff or a Mender's heal on the enemies around enemy i (B9). A Herald buffs up to buffCount enemies,
--- picked at random among those in its radius that are not buffed yet and are no Heralds or bosses (Brotato's Buffer
--- shuffles its zone). A Mender with onEnter heals each hurt enemy once when it comes into its radius (Brotato's Healer
--- BoostZone body_entered); returns true if it healed one.
+-- Saved inputs are a compatibility fallback, not a provider of current global modifiers or wave data.
+function World.getSpawnStatBases(self: World, id: number): NativeStatBases?
+	local i = self.indexOf[id]
+	if not i then
+		return nil
+	end
+	return {
+		health = self.spawnResetHealth[i],
+		contact = self.spawnContactDamage[i],
+		shot = self.spawnShotDamage[i],
+		speedPoints = self.spawnSpeedPoints[i],
+	}
+end
+
+-- Enemy.boost replaces stats and heals from supplied bases, independently of current damage/HP/boost state.
+-- Callers that mirror current EntityService values supply fresh bases; Buffer currently uses saved spawn inputs.
+function World.resetNativeStats(self: World, id: number, bases: NativeStatBases, boost: NativeBoost): boolean
+	local i = self.indexOf[id]
+	if not i or self.hp[i] <= 0 or self.kinds[i].nativeCanBeBoosted == false then
+		return false
+	end
+	local kind = self.kinds[i]
+	self.maxHp[i] = math.round(bases.health * boost.hp)
+	self.hp[i] = self.maxHp[i]
+	self.contactDamage[i] = math.round(bases.contact * boost.damage)
+	self.shotDamage[i] = math.round(bases.shot * boost.damage)
+	local speed = bases.speedPoints * boost.speed
+	if kind.nativeSpeedPoints then
+		speed = math.round(speed)
+	end
+	self.speedFactors[i] = if kind.speed ~= 0 then speed * PointScale / kind.speed else 0
+	self.buffed[i] = true
+	self.maxSpeed = math.max(self.maxSpeed, kind.speed * self.speedFactors[i] * self.boosts[i])
+	return true
+end
+
+-- Buffer shuffles eligible neighbours; entry-healers keep their independent body-entry history.
 local function pulseAt(self: World, i: number, pulse: Enemies.Pulse): boolean
 	if pulse.nativeEnemyEntry then
 		local id = self.ids[i]
@@ -1311,24 +1357,21 @@ local function pulseAt(self: World, i: number, pulse: Enemies.Pulse): boolean
 		local j = candidates[pick]
 		candidates[pick] = candidates[#candidates]
 		candidates[#candidates] = nil
-		self.buffed[j] = true
 		if pulse.nativeResetStats then
-			-- Stats.get_base_health returns int, but get_base_damage and projectile bases retain floats until final rounding.
-			local kind = kinds[j]
-			local steps = self.waves[j] - 1
-			local baseHp = kind.hp + kind.hpPerWave * steps
-			maxHp[j] = math.round(math.floor(baseHp) * (maxHp[j] / baseHp) * (1 + (pulse.buffHp or 0)))
-			hp[j] = maxHp[j]
-			self.contactDamage[j] = math.round(self.spawnContactDamage[j] * (pulse.buffDamage or 1))
-			self.shotDamage[j] = math.round(self.spawnShotDamage[j] * (pulse.buffDamage or 1))
+			self:resetNativeStats(self.ids[j], self:getSpawnStatBases(self.ids[j]) :: NativeStatBases, {
+				hp = 1 + (pulse.buffHp or 0),
+				damage = pulse.buffDamage or 1,
+				speed = pulse.buffSpeed or 1,
+			})
 		else
+			self.buffed[j] = true
 			self.contactDamage[j] *= pulse.buffDamage or 1
 			self.shotDamage[j] *= pulse.buffDamage or 1
 			local bonus = maxHp[j] * (pulse.buffHp or 0)
 			maxHp[j] += bonus
 			hp[j] += bonus
+			self.speedFactors[j] *= pulse.buffSpeed or 1
 		end
-		self.speedFactors[j] *= pulse.buffSpeed or 1
 		self.maxSpeed = math.max(self.maxSpeed, kinds[j].speed * self.speedFactors[j] * self.boosts[j])
 	end
 	return healed
