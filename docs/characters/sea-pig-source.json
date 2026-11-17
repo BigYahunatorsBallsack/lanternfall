@@ -1,0 +1,121 @@
+{
+  "version": "1.2.0.3",
+  "steamBuild": 26642464,
+  "source": "res://entities/units/enemies/abyss/basic/sea_pig/sea_pig.tscn",
+  "sourceMd5": "f9adea28c4fa2be57b5e50134dd78d0f",
+  "sceneChain": [
+    {
+      "source": "res://entities/units/enemies/abyss/basic/sea_pig/sea_pig.tscn",
+      "sourceMd5": "f9adea28c4fa2be57b5e50134dd78d0f"
+    },
+    {
+      "source": "res://entities/units/enemies/enemy.tscn",
+      "sourceMd5": "38e442588073219bb217a4b484a6d8a7"
+    },
+    {
+      "source": "res://entities/units/unit/unit.tscn",
+      "sourceMd5": "f003f2b96779960bc06b2d9c7a1557dd"
+    },
+    {
+      "source": "res://entities/entity.tscn",
+      "sourceMd5": "6b70440bccd50ac49048d848ff29c669"
+    }
+  ],
+  "statsSource": "res://entities/units/enemies/abyss/basic/sea_pig/sea_pig_stats.tres",
+  "statsMd5": "01fbd4a84b3c578300340a4aefc2903c",
+  "stats": {
+    "health": 30,
+    "health_increase_each_wave": 15.0,
+    "speed": 150,
+    "speed_randomization": 0,
+    "damage": 1,
+    "damage_increase_each_wave": 0.85,
+    "attack_cd": 30.0,
+    "value": 5,
+    "knockback_resistance": 0.6,
+    "gold_spread": 0,
+    "can_drop_consumables": true,
+    "always_drop_consumables": false,
+    "base_drop_chance": 0.01,
+    "item_drop_chance": 0.01,
+    "min_consumable_tier": 0,
+    "max_consumable_tier": 0,
+    "armor": 0,
+    "armor_increase_each_wave": 0.0,
+    "generate_blood": true
+  },
+  "movement": {
+    "edge_distance": 150,
+    "edge_randomization": 0,
+    "max_target_distance": 100
+  },
+  "body": {
+    "radiusPoints": 28.0,
+    "offsetPoints": [
+      0,
+      -5
+    ]
+  },
+  "hurt": {
+    "radiusPoints": 46.0,
+    "offsetPoints": [
+      0,
+      -24
+    ]
+  },
+  "hit": {
+    "radiusPoints": 28.0,
+    "offsetPoints": [
+      0,
+      -5
+    ]
+  },
+  "mass": 1,
+  "bodyLayer": 4,
+  "bodyMask": 132,
+  "bodyBorders": true,
+  "sprite": {
+    "source": "res://entities/units/enemies/abyss/basic/sea_pig/sea_pig.png",
+    "textureSource": "res://.import/sea_pig.png-69950e98655e60f0fe9d66d7478a6457.stex",
+    "textureMd5": "ce365cc0c65132aff733dd13b9922542",
+    "widthPoints": 160,
+    "heightPoints": 160
+  },
+  "ruleSources": [
+    {
+      "source": "res://entities/units/enemies/abyss/basic/sea_pig/sea_pig.gdc",
+      "sourceMd5": "81f3c2a1fb85ebd6be471eada88d0f7d"
+    },
+    {
+      "source": "res://entities/units/movement_behaviors/patrol_edges_of_map_movement_behavior.gdc",
+      "sourceMd5": "c076511525c47f9d29d037af992f4d51"
+    },
+    {
+      "source": "res://singletons/utils.gdc",
+      "sourceMd5": "2c263b6d3c2355dd71d6ad4caf0705bf"
+    }
+  ],
+  "sourceConstants": {
+    "edgeMapDistancePoints": 64,
+    "cornerThreshold": 0.5,
+    "noneDirectionOrder": [
+      "Bottom",
+      "Right",
+      "Left",
+      "Top"
+    ],
+    "curseOnCreditedPlayerKill": 1,
+    "goalPrecisionPoints": 10
+  },
+  "actorRegistered": true,
+  "nativeFullParityAccepted": false,
+  "specialSpawnNote": "Explicit native global-DLC group only; exclude this actor from the legacy ambient chooser.",
+  "bindingAudit": {
+    "canBeBoosted": false,
+    "canBeCursed": false,
+    "canBeCharmed": false,
+    "goldEatingImplementedByBoundScript": false,
+    "patrolMaxTargetDistanceOverwritten": true,
+    "rewardAfterSuperDie": true
+  }
+}

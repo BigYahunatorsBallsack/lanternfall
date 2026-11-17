@@ -1,0 +1,74 @@
+{
+  "version": "1.2.0.3",
+  "steamBuild": "26642464",
+  "sceneSource": "res://entities/units/enemies/jungle/basic/dimetrodon/dimetrodon.tscn",
+  "sceneMd5": "8ed3603be4b656e5547746c4db25b19f",
+  "uploadedCount": 0,
+  "runtimeAssetIdsChanged": false,
+  "originalArtAcceptedInGame": false,
+  "frames": [
+    {
+      "id": "Dimetrodon",
+      "source": "res://entities/units/enemies/jungle/basic/dimetrodon/dimetrodon.png",
+      "textureSource": "res://.import/dimetrodon.png-7165eae791b791b21d3a6d6144701028.stex",
+      "textureMd5": "99797fff05f1d6788ce11c3a4ae00112",
+      "widthPoints": 150,
+      "heightPoints": 150,
+      "output": "assets/enemies/native-dimetrodon/Dimetrodon.png",
+      "size": [
+        150,
+        150
+      ],
+      "alphaBounds": [
+        19,
+        14,
+        135,
+        135
+      ],
+      "rgbaSha256": "9507d17b8654ff7f76ebf803f0f9f68a86ba78828b17f1a7f22f2f8cc1de6e7d",
+      "pngSha256": "b2e3c1329ca9b7b1e82709a32d7b0fd231d868ed4daea5088b8f26febf730b61"
+    },
+    {
+      "id": "DimetrodonShadow",
+      "source": "res://entities/units/enemies/jungle/elites/carnotaurus/shadow.png",
+      "textureSource": "res://.import/shadow.png-194ff94970b86819410c921565ad7291.stex",
+      "textureMd5": "66b67fa7d4c44583715055a064695880",
+      "widthPoints": 120,
+      "heightPoints": 56,
+      "output": "assets/enemies/native-dimetrodon/DimetrodonShadow.png",
+      "size": [
+        120,
+        56
+      ],
+      "alphaBounds": [
+        21,
+        24,
+        97,
+        55
+      ],
+      "rgbaSha256": "762285271ccba4e75e2aca6dcef73886259cc9cd536466dda7750ca8e05f9ecd",
+      "pngSha256": "f537cfa475fa240b05b854ba931d85eec810ee362f5ec442d6556705c97ed672"
+    },
+    {
+      "id": "DimetrodonLandingWarning",
+      "source": "res://entities/units/enemies/jungle/elites/carnotaurus/land_shadow_warning.png",
+      "textureSource": "res://.import/land_shadow_warning.png-6f8d7ca9c904e4d5b351ebac95a72c0b.stex",
+      "textureMd5": "0786f8ecf652ede73cd1769ac76d4a05",
+      "widthPoints": 120,
+      "heightPoints": 40,
+      "output": "assets/enemies/native-dimetrodon/DimetrodonLandingWarning.png",
+      "size": [
+        120,
+        40
+      ],
+      "alphaBounds": [
+        21,
+        8,
+        97,
+        39
+      ],
+      "rgbaSha256": "b3d3409e068f5868337870ad17d037ef8391d2507d8d5e57d2885279153d2181",
+      "pngSha256": "812d1cdd6be032d0b95cd083895228e2e9274e132d895f8807fb458084ce147f"
+    }
+  ]
+}

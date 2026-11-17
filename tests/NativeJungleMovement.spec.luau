@@ -29,6 +29,41 @@ local function make(name, forbidden)
 	return w, id, k
 end
 describe("Native Jungle movement", function()
+	it("honors the native boss movement lock without changing the stored speed or ordinary actors", function()
+		local w, id = make("Therizinosaurus")
+		w:setSpeedFactor(id, 1)
+		local locked = true
+		w.params.nativeBossLocked = function()
+			return locked
+		end
+		w:step(0.5, { 80 }, { 0 }, 1)
+		expect(w:getPosition(id)).toBe(0)
+		locked = false
+		w:step(0.5, { 80 }, { 0 }, 1)
+		assert(w:getPosition(id) > 0)
+	end)
+	it("keeps Silesaurus root goals until arrival but refreshes its independent two/one-second child goals", function()
+		local w, id, k = make("Silesaurus")
+		local i = w.indexOf[id]
+		w:step(0, { 80 }, { 80 }, 1)
+		local rootX, rootZ = w.wanderXs[i], w.wanderZs[i]
+		w:step(100, { -80 }, { -80 }, 1)
+		expect(w.wanderXs[i]).toBe(rootX)
+		expect(w.wanderZs[i]).toBe(rootZ)
+		for profile = 2, 3 do
+			k.wander = k.nativeBoss.movements[profile]
+			w.wanderXs[i], w.wanderZs[i], w.wanderLeft[i] = 0, 0, 0
+			w:step(0, { 80 }, { 80 }, 1)
+			local seconds = if profile == 2 then 2 else 1
+			expect(w.wanderLeft[i]).toBe(seconds)
+			local x, z = w.wanderXs[i], w.wanderZs[i]
+			w:step(seconds - 0.01, { -80 }, { -80 }, 1)
+			expect(w.wanderXs[i]).toBe(x)
+			expect(w.wanderZs[i]).toBe(z)
+			w:step(0.02, { -80 }, { -80 }, 1)
+			assert(w.wanderXs[i] < 0 and w.wanderZs[i] < 0)
+		end
+	end)
 	it("replaces the native zero-vector goal sentinel even when the actor is far from the origin", function()
 		local w, id = make("Alamosaurus")
 		local i = w.indexOf[id]

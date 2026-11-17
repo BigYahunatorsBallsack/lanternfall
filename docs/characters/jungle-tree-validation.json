@@ -1,0 +1,108 @@
+{
+  "referenceVersion": "1.2.0.3",
+  "steamBuild": 26642464,
+  "baseMain": "de4e155e97855cc18ffb52b1e81e53d1af8532fc",
+  "scope": "Registered Jungle neutral tree, canonical Tree identity, source numeric birth, eighth-hit execution and actual server/client integration; not a playable area or complete native physics port.",
+  "focused": {
+    "NativeJungleTree": "12/0; initial0/7; first implementation6/1 from incorrect test arithmetic20+10*3 expected80; corrected expectation50, runtime unchanged"
+  },
+  "sourceFacts": {
+    "health": "10+5*(wave-1), int base then source factor then final round",
+    "materials": 3,
+    "bodyRadiusPoints": 24.0,
+    "hurtRadiusPoints": 48.6621,
+    "hurtOffsetPoints": [
+      0,
+      -38
+    ],
+    "hitLimit": 8,
+    "countsIneligibleHits": true,
+    "noHitboxCanExecute": true,
+    "nonPlayerHitboxCannotExecute": true,
+    "oneShotTreesIndependent": true,
+    "lootSourceIdenticalToLegacyTree": true
+  },
+  "interfaces": [
+    "Config.Enemies.zoneTrees[2] retains id=Tree and typeId71; EnemyKinds.treeForZone selects zone neutral and byTypeId resolves its actual geometry.",
+    "EnemySim.spawn optional final typeId requires matching canonical id and rejects explicit elite/affix; existing signatures retained.",
+    "EnemySim.spawnNative optional final zoneId selects the Tree variant; SpawnDirector uses authoritative run zone.",
+    "Enemy.nativeNeutralHitLimit stored as per-id nativeBases.neutralHits; existing compaction/clear rules remove state.",
+    "EnemySim.damage ownerHitbox true=player hitbox, false=ineligible hitbox owner, nil=no hitbox. WeaponService no-hitbox burn/strike paths now pass nil; ordinary Lumberjack execution still requires true and a player."
+  ],
+  "checks": {
+    "sourceCompiler": "passed",
+    "localArtCompiler": "passed",
+    "stylua": "passed",
+    "selene": {
+      "errors": 0,
+      "warnings": 18,
+      "parseErrors": 0
+    },
+    "rojo": "passed"
+  },
+  "mutations": [
+    {
+      "mutation": "disableLimit",
+      "passed": 8,
+      "failed": 4,
+      "detected": true
+    },
+    {
+      "mutation": "rejectNoHitbox",
+      "passed": 9,
+      "failed": 3,
+      "detected": true
+    },
+    {
+      "mutation": "forgetIneligibleCounts",
+      "passed": 11,
+      "failed": 1,
+      "detected": true
+    },
+    {
+      "mutation": "ignoreTypeOverride",
+      "passed": 5,
+      "failed": 7,
+      "detected": true
+    },
+    {
+      "mutation": "legacyTreeDispatch",
+      "passed": 11,
+      "failed": 1,
+      "detected": true
+    },
+    {
+      "mutation": "rejectBurnNoHitbox",
+      "passed": 10,
+      "failed": 2,
+      "detected": true
+    }
+  ],
+  "fullComparison": {
+    "status": "finished",
+    "artifact": "build/native-five-branch-ten-jungle-tree-de4e155.json",
+    "baseline": "build/native-five-branch-ten-native-stats-provider-de4e155.json",
+    "specs": 368,
+    "passed": 2206,
+    "failed": 36,
+    "aborts": 0,
+    "unknownFailureIdentities": [],
+    "returnedKnownFailure": "Smoke > chases the player until it touches them; known in earlier Actor full366/2185/37",
+    "runtimeFrozenDuringComparison": true
+  },
+  "counts": {
+    "charactersCodePrepared": 48,
+    "charactersRemaining": 26,
+    "additionalCompleteCharacters": 0,
+    "normalJungleBodies": 30,
+    "zoneNeutralTrees": 1
+  },
+  "limitations": [
+    "Jungle remains unselectable; bosses/elites/evolution/live wave binding and area setup remain open.",
+    "Legacy Crash tree HP unchanged20+10/wave; this historical deviation remains open under the current1:1 requirement.",
+    "LootService resolves canonical Tree; source Jungle and Crash tree drop fields are currently identical.",
+    "Source no-hitbox execution mapped through existing trusted server paths; full original deferred hitbox lifetimes/60Hz physics/overlap acceptance remains open.",
+    "Local original PNG prepared/viewed only; client uses existing fallback art, no uploads or runtime asset IDs changed.",
+    "No Studio, two real clients, mobile or complete native parity acceptance."
+  ]
+}

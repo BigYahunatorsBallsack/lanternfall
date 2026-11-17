@@ -1,0 +1,24 @@
+{
+  "version": "1.2.0.3",
+  "steamBuild": "26642464",
+  "source": "res://entities/units/enemies/abyss/basic/sea_pig/sea_pig.tscn",
+  "sourceMd5": "f9adea28c4fa2be57b5e50134dd78d0f",
+  "textureSource": "res://.import/sea_pig.png-69950e98655e60f0fe9d66d7478a6457.stex",
+  "textureMd5": "ce365cc0c65132aff733dd13b9922542",
+  "output": "assets/enemies/native-sea-pig/SeaPig.png",
+  "size": [
+    160,
+    160
+  ],
+  "alphaBounds": [
+    0,
+    25,
+    137,
+    157
+  ],
+  "rgbaSha256": "660955f150f7823a28b0ff740d7c279597acc94a14bb3b954095fd7cdac7bfa6",
+  "pngSha256": "4b73a2d26e76211c8767abbb709831f9436c3dc521bef7bce92653f4a846f408",
+  "uploadedCount": 0,
+  "runtimeAssetIdsChanged": false,
+  "originalArtAcceptedInGame": false
+}

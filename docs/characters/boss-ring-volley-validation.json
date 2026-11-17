@@ -1,0 +1,291 @@
+{
+  "referenceVersion": "1.2.0.3",
+  "steamBuild": 26642464,
+  "baseMain": "de4e155e97855cc18ffb52b1e81e53d1af8532fc",
+  "scope": "Optional source ring-start rotation and projectile-origin target aim in existing NativeEnemyVolley; actual Therizinosaurus actor/controller still unregistered.",
+  "focused": {
+    "NativeBossRingVolley": "5/0; initial1/4",
+    "preservedRegressions": {
+      "NativeRadialVolley": "2/0",
+      "NativeEnemyVolley": "3/0",
+      "NativeEnemyVolleyAngles": "3/0",
+      "NativeEnemyVolleyScale": "3/0",
+      "NativeParallelVolley": "3/0",
+      "NativePachyrhinosaurusServer": "3/0",
+      "NativeDimetrodonAttacksServer": "8/0",
+      "NativeBossPhases": "9/0"
+    },
+    "pythonBindingChecks": "4/0"
+  },
+  "sourceFacts": [
+    "Therizinosaurus root AttackBehavior explicitly uses slash_projectile.tscn. State1 is independently instanced boss_state.tscn with default ShootingAttackBehavior enemy_projectile.tscn; no root-projectile inheritance.",
+    "State1 bullets:12projectiles,200pxspawn spread means100pxring radius,constant spread with one0..3.14batch ring-origin angle, one-1.2..1.2batch target rotation.",
+    "Target rotation is around the actor origin; each projectile aims from its own ring position at that common rotated target. This source aim overrides earlier fan/specific/outward-angle choices.",
+    "Existing policies without either new optional field retain their old fixed-ring origin and random-call behavior. No full global source RNG-order equivalence claimed."
+  ],
+  "binding": {
+    "root": {
+      "projectileSource": "res://projectiles/slash/slash_projectile.tscn",
+      "scriptSource": "res://entities/units/enemies/attack_behaviors/shooting_attack_behavior.gd"
+    },
+    "phaseOne": {
+      "projectileSource": "res://projectiles/bullet_enemy/enemy_projectile.tscn",
+      "scriptSource": "res://entities/units/enemies/attack_behaviors/shooting_attack_behavior.gd",
+      "baseScene": "res://entities/units/enemies/bosses/boss_state.tscn",
+      "baseSceneMd5": "7886b7a4624fecebf13d2a4c15caad93",
+      "projectileBinding": "Default of the independently instanced boss_state AttackBehavior; no root-attack inheritance.",
+      "properties": {
+        "number_projectiles": 12,
+        "projectile_spread": 0.0,
+        "spawn_projectiles_on_target": false,
+        "projectile_spawn_spread": 200,
+        "projectile_spawn_only_on_borders": true,
+        "constant_spread": true,
+        "constant_spread_rand_base_pos": 3.14,
+        "shoot_from_proj_pos_towards_player": true,
+        "random_rotation": 1.2,
+        "speed_change_after_each_projectile": 0,
+        "projectile_speed": 600,
+        "cooldown": 12.0,
+        "initial_cooldown": 30,
+        "max_cd_randomization": 0,
+        "long_cooldown_every_x_shoots": 3,
+        "long_cooldown": 150,
+        "damage_increase_each_wave": 1.15,
+        "max_range": 1000,
+        "attack_anim_speed": 1.5
+      }
+    }
+  },
+  "interfaces": [
+    "NativeEnemyVolley.Rule.spawnRing.baseRandomization? selects a single batch ring-start angle.",
+    "NativeEnemyVolley.Rule.aimFromSpawn?={targetRotation:number} rotates the target once per batch and applies per-origin final aim.",
+    "Config.NativeBossPhases.therizinosaurusPhaseOneVolley derives numeric fields from actual phase properties and original pixel conversion; productionAdapterImplemented remains false."
+  ],
+  "checks": {
+    "sourceCompiler": "passed; now9pinned script hashes",
+    "stylua": "passed",
+    "selene": {
+      "errors": 0,
+      "warnings": 18,
+      "parseErrors": 0
+    },
+    "rojo": "passed"
+  },
+  "mutations": [
+    {
+      "mutation": "fixedRingOrigin",
+      "passed": 4,
+      "failed": 1,
+      "detected": true
+    },
+    {
+      "mutation": "aimFromParent",
+      "passed": 3,
+      "failed": 2,
+      "detected": true
+    },
+    {
+      "mutation": "ignoreTargetRotation",
+      "passed": 4,
+      "failed": 1,
+      "detected": true
+    },
+    {
+      "mutation": "wrongAimPrecedence",
+      "passed": 4,
+      "failed": 1,
+      "detected": true
+    },
+    {
+      "mutation": "rotateLegacyDefault",
+      "passed": 4,
+      "failed": 1,
+      "detected": true
+    }
+  ],
+  "fullComparison": {
+    "status": "finished",
+    "artifact": "build/native-five-branch-ten-native-boss-ring-de4e155.json",
+    "baseline": "build/native-five-branch-ten-native-boss-phases-de4e155.json",
+    "specs": 371,
+    "passed": 2224,
+    "failed": 38,
+    "aborts": 0,
+    "newFailureIdentities": [
+      "EnemyWorld > steps140enemieswith4playersinsidethe4msbudget",
+      "CharmedWorld > stepsamixedhostileandfriendlycrowdwithinthesharedsimulationbudget"
+    ],
+    "absentKnownFailure": "EnemiesB9 Gobbler",
+    "runtimeFrozenDuringComparison": true
+  },
+  "counts": {
+    "charactersCodePrepared": 48,
+    "charactersRemaining": 26,
+    "additionalCompleteCharacters": 0,
+    "additionalRegisteredBosses": 0
+  },
+  "limits": [
+    "No automatic native boss actor, phase clock, animation event dispatcher, attack profile switch or live Therizinosaurus spawn.",
+    "Source Enemy.shoot and animation_finished dispatch to the current attack behavior; a phase switch during an existing shoot animation must not be modelled as finishing the old attack profile.",
+    "Source shoot_in_unit_direction targets parent.position+parent.get_movement(), not merely horizontal sprite facing. forward_spawn_offset applies only inside parallel_slashes in this script.",
+    "No complete source RNG/60Hz/render/physics/Studio/real-client acceptance; no Remote/snapshot/Arsenal/uploads/runtime Asset-ID changes.",
+    "Full run has two timing-budget failures; one EnemyWorld case first appeared in this full comparison, and both reproduce in the pre-ring-helper control. Performance remains open."
+  ],
+  "budgetInvestigation": {
+    "artifact": "build/native-boss-ring-budget-ab.json",
+    "trials": [
+      {
+        "trial": 1,
+        "variant": "current",
+        "spec": "EnemyWorld",
+        "passed": 47,
+        "failed": 1,
+        "milliseconds": [
+          "4.057"
+        ],
+        "failures": [
+          "FAIL EnemyWorld > steps 140 enemies with 4 players inside the 4 ms budget"
+        ]
+      },
+      {
+        "trial": 1,
+        "variant": "current",
+        "spec": "CharmedWorld",
+        "passed": 5,
+        "failed": 1,
+        "milliseconds": [
+          "4.602"
+        ],
+        "failures": [
+          "FAIL Charmed faction runtime > steps a mixed hostile and friendly crowd within the shared simulation budget"
+        ]
+      },
+      {
+        "trial": 1,
+        "variant": "before-ring",
+        "spec": "EnemyWorld",
+        "passed": 47,
+        "failed": 1,
+        "milliseconds": [
+          "4.119"
+        ],
+        "failures": [
+          "FAIL EnemyWorld > steps 140 enemies with 4 players inside the 4 ms budget"
+        ]
+      },
+      {
+        "trial": 1,
+        "variant": "before-ring",
+        "spec": "CharmedWorld",
+        "passed": 5,
+        "failed": 1,
+        "milliseconds": [
+          "4.598"
+        ],
+        "failures": [
+          "FAIL Charmed faction runtime > steps a mixed hostile and friendly crowd within the shared simulation budget"
+        ]
+      },
+      {
+        "trial": 2,
+        "variant": "before-ring",
+        "spec": "EnemyWorld",
+        "passed": 48,
+        "failed": 0,
+        "milliseconds": [
+          "3.921"
+        ],
+        "failures": []
+      },
+      {
+        "trial": 2,
+        "variant": "before-ring",
+        "spec": "CharmedWorld",
+        "passed": 5,
+        "failed": 1,
+        "milliseconds": [
+          "4.470"
+        ],
+        "failures": [
+          "FAIL Charmed faction runtime > steps a mixed hostile and friendly crowd within the shared simulation budget"
+        ]
+      },
+      {
+        "trial": 2,
+        "variant": "current",
+        "spec": "EnemyWorld",
+        "passed": 48,
+        "failed": 0,
+        "milliseconds": [
+          "3.849"
+        ],
+        "failures": []
+      },
+      {
+        "trial": 2,
+        "variant": "current",
+        "spec": "CharmedWorld",
+        "passed": 5,
+        "failed": 1,
+        "milliseconds": [
+          "4.312"
+        ],
+        "failures": [
+          "FAIL Charmed faction runtime > steps a mixed hostile and friendly crowd within the shared simulation budget"
+        ]
+      },
+      {
+        "trial": 3,
+        "variant": "current",
+        "spec": "EnemyWorld",
+        "passed": 47,
+        "failed": 1,
+        "milliseconds": [
+          "4.029"
+        ],
+        "failures": [
+          "FAIL EnemyWorld > steps 140 enemies with 4 players inside the 4 ms budget"
+        ]
+      },
+      {
+        "trial": 3,
+        "variant": "current",
+        "spec": "CharmedWorld",
+        "passed": 5,
+        "failed": 1,
+        "milliseconds": [
+          "4.806"
+        ],
+        "failures": [
+          "FAIL Charmed faction runtime > steps a mixed hostile and friendly crowd within the shared simulation budget"
+        ]
+      },
+      {
+        "trial": 3,
+        "variant": "before-ring",
+        "spec": "EnemyWorld",
+        "passed": 48,
+        "failed": 0,
+        "milliseconds": [
+          "3.948"
+        ],
+        "failures": []
+      },
+      {
+        "trial": 3,
+        "variant": "before-ring",
+        "spec": "CharmedWorld",
+        "passed": 5,
+        "failed": 1,
+        "milliseconds": [
+          "4.482"
+        ],
+        "failures": [
+          "FAIL Charmed faction runtime > steps a mixed hostile and friendly crowd within the shared simulation budget"
+        ]
+      }
+    ],
+    "interpretation": "Both timing failures reproduce with the pre-ring helper b7da15f. Mixed crowd exceeds4ms in all current/pre-ring trials; EnemyWorld crosses the boundary in both versions. No stable performance acceptance, no performance fix or definitive regression exclusion claimed. Runtime file restored byte-exactly; budgets/assertions unchanged."
+  }
+}

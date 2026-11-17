@@ -1,0 +1,130 @@
+{
+  "referenceVersion": "1.2.0.3",
+  "steamBuild": 26642464,
+  "baseMain": "de4e155e97855cc18ffb52b1e81e53d1af8532fc",
+  "scope": "Exact source numeric global factor-cache component; not a production stat provider or completed evolution package.",
+  "ruleSources": [
+    {
+      "source": "res://singletons/entity_service.gdc",
+      "sourceMd5": "f1a861f576858bbaa3e913d83c7b1807"
+    },
+    {
+      "source": "res://entities/units/unit/unit.gdc",
+      "sourceMd5": "aa94391f2d9681ac36b7f8617b82ff13"
+    },
+    {
+      "source": "res://singletons/utils.gdc",
+      "sourceMd5": "2c263b6d3c2355dd71d6ad4caf0705bf"
+    },
+    {
+      "source": "res://singletons/coop_service.gdc",
+      "sourceMd5": "c7acffec9f3ec81159811794fd343149"
+    },
+    {
+      "source": "res://main.gdc",
+      "sourceMd5": "e42c7c4356e6cb9d2da8190067ebf7e5"
+    }
+  ],
+  "sourceScene": "res://singletons/coop_service.tscn",
+  "sourceSceneMd5": "6a52c7c72e9ca9c582f9069a30ac282d",
+  "sourceFacts": [
+    "Health/damage/speed factor keys are populated independently on first call and reused until clear. Base and boost are not cached.",
+    "Stats integer arguments are converted before factors; damage retains float input. HP/damage boost/effects/danger/coop/endless have source minimum0.01; speed boost has no final minimum clamp.",
+    "Curse uses average across all players, sqrt only on nonnegative average; distinct10/25divisors in health/damage endless curves.",
+    "Per-player speed stat is floored at-75 before adding a burning-specific effect, then all player factors multiply. The first speed caller establishes the cached factor, including its burning-specific effects.",
+    "Co-op health/damage default0.3/0.08 are read from the actual bound CoopService scene, not exported script defaults0.0.",
+    "Main._ready timing, shared singleton lifecycle and source reset_cache stopping enemy time remain responsibilities of the pending production provider. Cache.clear only clears the numeric component."
+  ],
+  "focused": {
+    "NativeEnemyStatCache": "8/0; initially0/8 missing module",
+    "mutations": [
+      {
+        "mutation": "recomputeCachedHealth",
+        "passed": 7,
+        "failed": 1
+      },
+      {
+        "mutation": "recomputeCachedSpeed",
+        "passed": 6,
+        "failed": 2
+      },
+      {
+        "mutation": "sumSpeedEffects",
+        "passed": 3,
+        "failed": 5
+      },
+      {
+        "mutation": "curseSumInsteadOfAverage",
+        "passed": 7,
+        "failed": 1
+      },
+      {
+        "mutation": "prematureDamageRounding",
+        "passed": 7,
+        "failed": 1
+      },
+      {
+        "mutation": "legacyMinimumInsteadOfSource",
+        "passed": 7,
+        "failed": 1
+      }
+    ]
+  },
+  "proof": [
+    "Independent health/damage cache slots retain first factors while later bases/boosts vary; explicit clear refreshes all slots.",
+    "Two-player average Curse100/endless2 gives health130 and damage41 from base10 with actual coop factors; zero-Curse player remains in the average.",
+    "Two-player speed factors1.1*.8, accessibility.75,danger10%,endless2 give167px/s from200.",
+    "First burning caller with speed-100 clamped-75 plus burningSpeed-50 stores-.25; later non-burning calls retain-25 until clear. This source quirk is preserved, not normalized to nonnegative speed.",
+    "HP/damage negative modifiers with base10000 produce1 through two .01 factors; speed modifier-150 yields-50 instead of a positive clamp.",
+    "Independent cache instances and endless speed cap1.75 are verified; six mutations detected and byte-restored."
+  ],
+  "checks": {
+    "compilerCheck": true,
+    "stylua": true,
+    "rojo": true,
+    "selene": {
+      "errors": 0,
+      "existingWarnings": 18,
+      "parseErrors": 0,
+      "api": "cached Roblox API; warnings-only exit1"
+    }
+  },
+  "fullSuite": {
+    "rerun": false,
+    "reason": "Only new unreferenced numeric module/config/compiler/source/test added after the runtime end run. No existing gameplay caller changed.8newfocusedchecks passed.",
+    "latestRuntimeEndRun": "363/2167/36",
+    "artifact": "build/native-five-branch-ten-native-enemy-health-final-de4e155.json",
+    "newComponentNotIncludedInThatRun": true
+  },
+  "status": {
+    "productionProviderImplemented": false,
+    "productionEvolutionImplemented": false,
+    "newCompletedCharacters": 0,
+    "codePreparedCharacters": 48,
+    "open": 26,
+    "junglePlayable": false
+  },
+  "limits": [
+    "No StatService/RunDirector/EnemySim/SpawnDirector live context caller, source wave-reset bridge or production singleton shared by hostile/friendly worlds yet.",
+    "No enemy-time reset implementation is claimed by this numeric cache.",
+    "No evolved attack/effect/renderer bindings, native pooling/Area/deferred/render/Studio/two-client/mobile acceptance. No new Remote/Arsenal/upload/runtime IDs."
+  ],
+  "coveredByLaterFullSuite": {
+    "specs": 367,
+    "passed": 2195,
+    "failed": 35,
+    "aborts": 0,
+    "newFailureIdentitiesVsActor": [],
+    "missingFailureIdentitiesVsActor": [
+      "FAIL new enemies (B9) > lets a Gobbler eat the orbs on the floor and drop them all when killed",
+      "FAIL smoke > chases the player until it touches them"
+    ],
+    "artifact": "build/native-five-branch-ten-native-stats-provider-de4e155.json",
+    "runtimeFrozenDuringRun": true
+  },
+  "liveNumericProviderFollowup": {
+    "implemented": true,
+    "proof": "docs/characters/native-stats-provider-validation.json",
+    "scope": "Supported native actor births/Buffer/descendants; enemy-time reset/evolution/legacy global producers remain open."
+  }
+}

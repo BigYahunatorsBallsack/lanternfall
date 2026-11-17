@@ -1,4 +1,4 @@
-"""Prepare verified Jungle body/pillar PNGs locally; no uploads or runtime asset identifiers."""
+"""Prepare verified Jungle body/pillar/slash PNGs locally; no uploads or runtime asset identifiers."""
 from __future__ import annotations
 import argparse, hashlib, importlib.util, io, json, re, struct, sys
 from pathlib import Path
@@ -23,14 +23,20 @@ def main():
  parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--check',action='store_true');args=parser.parse_args()
  spec=importlib.util.spec_from_file_location('jungle_art_source',ROOT/'tools/character-source.py');source=importlib.util.module_from_spec(spec);spec.loader.exec_module(source)
  pck=source.Pck();reference=source.verify_reference(pck)
- data=json.loads((ROOT/'docs/characters/jungle-walkers-source.json').read_text())
+ data=json.loads((ROOT/'docs/characters/jungle-walkers-source.json').read_text(encoding='utf-8'))
  folder=ROOT/'assets/enemies/native-jungle';folder.mkdir(parents=True,exist_ok=True)
  selected=[]
  for identity,row in data['enemies'].items():
   selected.append((identity,body_texture(pck,row['source'])))
+  for index,frame in enumerate(row.get('stageSprites',[])[1:],start=1):
+   selected.append((identity+'_stage_'+str(index),frame['source']))
  pillar='res://projectiles/pillar_enemy/pillar_projectile.tscn'
  for path in re.findall(r'\[ext_resource path="([^"]+\.png)" type="Texture"',pck.read(pillar).decode('utf-8')):
   selected.append(('Pillar_'+Path(path).stem,path))
+ if any(row.get('forwardSlashProjectile') for row in data['enemies'].values()):
+  slash=data['shootingRules']['forwardSlash']['source']
+  for path in re.findall(r'\[ext_resource path="([^"]+\.png)" type="Texture"',pck.read(slash).decode('utf-8')):
+   selected.append(('Slash_'+Path(path).stem,path))
  manifest={'version':reference['version'],'steamBuild':reference['steamBuildId'],'uploadedCount':0,'runtimeAssetIdsChanged':False,'originalArtAcceptedInGame':False,'frames':[]}
  for identity,path in selected:
   metadata=texture_metadata(pck,path);texture=metadata['textureSource']
@@ -44,5 +50,5 @@ def main():
  text=json.dumps(manifest,indent=2)+'\n';path=folder/'manifest.json'
  if args.check:assert path.read_text(encoding='utf-8')==text,'Stale Jungle image manifest'
  else:path.write_text(text,encoding='utf-8')
- print(str(len(selected))+' native Jungle body/pillar frames prepared locally; no uploads or runtime identifiers changed')
+ print(str(len(selected))+' native Jungle body/pillar/slash frames prepared locally; no uploads or runtime identifiers changed')
 if __name__=='__main__':main()

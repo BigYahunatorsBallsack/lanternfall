@@ -2,6 +2,44 @@
 -- Enemy, elite, champion and boss records (DESIGN.md section 7). Read by EnemySim, SpawnDirector, BossService and
 -- EnemyRenderer.
 -- `typeId` is the 1-byte id sent in enemy snapshots; it must be unique and stay stable.
+local NativeVolley = require(script.Parent.Parent.Util.NativeEnemyVolley)
+local BossShooting = require(script.Parent.Parent.Util.NativeBossShooting)
+
+export type NativeBoss = {
+	family: "Therizinosaurus" | "Silesaurus" | "Diplodocus" | "Baryonyx" | "Carnotaurus",
+	customJump: {
+		landing: { speed: number, projectileRange: number, projectileRadius: number, volley: NativeVolley.Rule },
+	}?,
+	initialWrapperFrames: number?,
+	shooting: BossShooting.Rules,
+	phases: { usesBasePhaseTimer: boolean, states: { { hpStart: number, timerStart: number } } },
+	init: {
+		earlyWave: number,
+		middleWave: number,
+		endWave: number,
+		firstHpShare: number,
+		middleHpShare: number,
+		middleDamageShare: number,
+		easyZoneHpShare: number,
+		timerSeconds: number,
+	},
+	projectileDamage: number,
+	projectileRange: number?,
+	projectileRadius: number?,
+	attacks: {
+		{
+			kind: "NormalSlash" | "Bullet" | "Spawn" | "InfiniteLaser",
+			speed: number?,
+			volley: NativeVolley.Rule?,
+			summon: NativeSpawn?,
+			minimumCount: number?,
+			damage: { base: number, perWave: number, registeredAfterBossInit: boolean? }?,
+			deleteWithSource: boolean?,
+		}
+	},
+	movements: { Wander | false }?,
+	speedReset: { profile: number, percent: number }?,
+}
 
 export type Enemy = {
 	id: string,
@@ -22,6 +60,66 @@ export type Enemy = {
 	-- Growth is exactly base + per-wave increment * (wave - 1), before danger and accessibility modifiers.
 	hpPerWave: number,
 	damagePerWave: number,
+	nativeArmor: { base: number, perWave: number }?, -- Unit rounds wave growth and subtracts this flat amount per hit
+	nativeDamageRounding: boolean?, -- EntityService rounds the final contact and projectile values
+	nativeHealthRounding: boolean?, -- EnemySim truncates source wave HP before global factors, then rounds final HP
+	nativeFixedSpeed: boolean?, -- EvilMob copies base speed without randomization or percent/accessibility modifiers
+	nativeLootActor: boolean?, -- original is_loot excludes ordinary on-hit Charm
+	nativeJumpPresentation: {
+		parentScale: number,
+		groundOffsetZ: number,
+		initialScale: number,
+		airScale: number,
+		heightShrinkShare: number,
+		shadowWidth: number,
+		shadowHeight: number,
+		warningWidth: number,
+		warningHeight: number,
+	}?,
+	nativeRadialShots: {
+		projectileDamage: number,
+		landSpeed: number,
+		deathSpeed: number,
+		projectileRadius: number,
+		projectileRange: number,
+		deathWaveCutoffSeconds: number,
+		volley: NativeVolley.Rule,
+	}?,
+	nativeJump: {
+		cooldown: number,
+		duration: number,
+		height: number,
+		delay: number,
+		landingCooldown: number,
+		freshCooldown: number,
+		freshLandingCooldown: number,
+		riseShare: number,
+		fallEasePower: number,
+	}?,
+	nativeEdgePatrol: {
+		edgeDistancePoints: number,
+		edgeRandomizationPoints: number,
+		minimumInsetPoints: number,
+		cornerThreshold: number,
+		noneDirectionOrder: { string },
+		pixel: number,
+	}?,
+	nativeEater: {
+		thresholds: { number },
+		healthPerStage: number,
+		resistanceBase: number,
+		resistancePerStage: number,
+		speedDecrease: number,
+		material: { [string]: number },
+		dropSpreadPoints: { perValue: number, minimum: number, maximum: number },
+	}?,
+	nativeCanBeBoosted: boolean?, -- false when the source scene excludes this body from Buffer boosts
+	nativeCanBeCharmed: boolean?,
+	nativeCanBeCursed: boolean?,
+	nativeNeutralHitLimit: number?, -- Neutral counts every damage call; only eligible hitbox owners trigger execution
+	nativeScene: string?, -- exact registered source PackedScene; wave requests never infer a family from filenames
+	nativeBoss: NativeBoss?, -- own source controller; not a legacy BossBrain plan
+	nativePlayerKillStats: { [string]: number }?,
 	xp: number,
 	radius: number, -- body circle, studs (assumption; walls, crowding and the picture's size)
 	hurtRadius: number?, -- studs; the player's weapons hit within it (Brotato's Hurtbox; filled in below)
@@ -47,6 +145,9 @@ export type Enemy = {
 	nativeHurtChildZ: number?, -- unscaled Collision position inside Hurtbox, for native parent growth
 	nativeBodyOffsetX: number?,
 	nativeBodyOffsetZ: number?, -- Collision.position in the original actor-local coordinate system
+	nativeBodyLayer: number?,
+	nativeBodyMask: number?, -- source body-pair filtering; either mask may see the other layer
+	nativeBodyOneWay: { axisX: number, axisZ: number, margin: number }?, -- transformed source local +Y axis
 	nativeObstacleCollision: boolean?, -- original OBSTACLES_BIT in the body mask, independent of is_flying
 	nativeZoneId: number?, -- an area-specific body never joins another area's ordinary random mix
 	nativeHurtSlowEffects: boolean?, -- false when the source overrides Enemy._on_hurt without invoking its generic slow effects
@@ -73,6 +174,8 @@ export type Enemy = {
 	-- since B9 part 2 (Brotato's enemy behaviours, DESIGN.md section 7)
 	accelerate: Accelerate?,
 	pursuer: Pursuer?,
+	nativeDetection: NativeDetection?,
+	nativeCrossing: { warningSeconds: number, maxYDiff: number }?, -- source-only crossing adapter until actor registration
 	retaliate: Retaliate?,
 	pulse: Pulse?,
 	hatch: Hatch?,
@@ -182,7 +285,9 @@ export type Accelerate = {
 	resetOnHit: boolean?,
 }
 
--- Native flat Pursuer boosts plus Baby T-Rex's live-player speed cap; no reset on contact.
+export type NativeDetection = { radius: number, speedBonus: number }
+
+-- Native flat Pursuer boosts with optional player-speed cap and source contact reset.
 export type Pursuer = {
 	everySeconds: number,
 	maxSteps: number,
@@ -193,7 +298,8 @@ export type Pursuer = {
 	spriteRise: number,
 	changeAt: number,
 	changeSpeed: number,
-	playerSpeedShare: number,
+	playerSpeedShare: number?,
+	resetOnContact: boolean?,
 }
 
 -- Enemies that shoot a ring of projectiles when hit (Thornback, B9). Shots fly like the Spitter's (EnemySim/Volleys).
@@ -312,6 +418,7 @@ export type Ranged = {
 	projectileRadius: number, -- studs, hit circle of a shot (Brotato: 17 px)
 	nativeSlash: boolean?, -- emits source slash requests instead of ordinary bullets
 	nativePillar: boolean?, -- delayed native circle projectile, distinct from an always-active bullet
+	nativeForwardSlash: boolean?, -- source slash2 with parallel spawns and forward Hitbox parent
 	projectileCount: number?, -- independent shots per native animation method
 	fromCenter: boolean?,
 	nativeTiming: {
@@ -1285,6 +1392,7 @@ end
 for id, kind in require(script.Parent.JungleEnemyKinds).build(PIXEL) do
 	Enemies[id] = kind
 end
+Enemies.SeaPig = require(script.Parent.NativeSeaPig).kind
 scaleBodies(Bosses)
 
 for _, boss in Bosses do
@@ -1841,12 +1949,19 @@ local EliteWaves = table.freeze({
 })
 
 scaleBodies(Champions)
+Champions.Therizinosaurus = require(script.Parent.NativeTherizinosaurus).kind
+Champions.Silesaurus = require(script.Parent.NativeSilesaurus).kind
+Champions.Diplodocus = require(script.Parent.NativeDiplodocus).kind
+Champions.Baryonyx = require(script.Parent.NativeBaryonyx).kind
+Champions.Carnotaurus = require(script.Parent.NativeCarnotaurus).kind
 for _, champion in Champions do
 	table.freeze(champion)
 end
 
 export type NativeCharge = {
 	cooldown: number,
+	longEvery: number?,
+	longCooldown: number?,
 	deflectStopBeforeCooldown: number?, -- charging_attack_deflect_bullet_behavior: stop when remaining cooldown <= this duration
 	jitter: number,
 	minimumCooldown: number,
@@ -1860,16 +1975,20 @@ export type NativeCharge = {
 	maxRange: number?,
 	target: {
 		atShoot: boolean,
-		radius: number,
-		coneHalfAngle: number,
-		minimumRadiusShare: number,
-		inMovementDirection: boolean,
+		player: boolean?, -- direct TargetType.PLAYER, distinct from absent horizontal STRAIGHT_TO_PLAYER
+		radius: number?,
+		coneHalfAngle: number?,
+		minimumRadiusShare: number?,
+		inMovementDirection: boolean?,
 	}?, -- absent retains the original straight-to-player START_SHOOT branch
 	massMultiplier: number,
 }
 
 return table.freeze({
 	types = table.freeze(Enemies),
+	zoneTrees = table.freeze({
+		[require(script.Parent.NativeJungleTree).zoneId] = table.freeze(require(script.Parent.NativeJungleTree).kind),
+	}),
 	elite = Elite,
 	bosses = table.freeze(Bosses),
 	bossWave = BossWave,

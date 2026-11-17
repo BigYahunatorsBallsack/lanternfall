@@ -240,8 +240,9 @@ arsenal = Arsenal.new({
 				amount,
 				playerOf(ownerId),
 				bonus,
-				not burn and BrotatoCombat.elementalHit(ownerId) ~= nil,
-				if burn then 0 else BrotatoCombat.digChance(ownerId)
+				if not burn and BrotatoCombat.elementalHit(ownerId) ~= nil then true else nil,
+				if burn then 0 else BrotatoCombat.digChance(ownerId),
+				not burn
 			)
 			recordHit(ownerId, id, applied, crit, killed, burn)
 			return killed, dealt
@@ -626,6 +627,7 @@ function WeaponService.init()
 		BrotatoRuntime.reloadFromMaterials(arsenal:getWeapons(player.UserId), count, now())
 	end)
 	BrotatoCombat.configure({
+		hurtContact = EnemySim.noteHurtContact,
 		breakWeapon = function(weapon, x, z, materials)
 			table.insert(pendingBreaks, { weapon = weapon, x = x, z = z, materials = materials })
 		end,
@@ -1042,8 +1044,15 @@ function WeaponService.structureHit(
 	intrinsicBurnHandled: boolean?
 )
 	local bonus = burningTargetBonus(player.UserId, enemyId, elemental)
-	local killed, dealt, applied =
-		EnemySim.damage(enemyId, amount, player, bonus, source ~= "Burn" and source ~= "Strike")
+	local killed, dealt, applied = EnemySim.damage(
+		enemyId,
+		amount,
+		player,
+		bonus,
+		if source ~= "Burn" and source ~= "Strike" then true else nil,
+		nil,
+		source ~= "Burn"
+	)
 	recordHit(player.UserId, enemyId, applied, critical == true, killed, false)
 	if hitListener and dealt > 0 then
 		hitListener(player.UserId, enemyId, dealt, critical == true, killed, source or "Weapon", intrinsicBurnHandled)

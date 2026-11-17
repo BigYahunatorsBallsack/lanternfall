@@ -152,7 +152,39 @@ describe("BossBrain", function()
 			table.insert(plans, kind.boss)
 		end
 		for _, kind in Config.Enemies.champions do
-			table.insert(plans, kind.boss)
+			if kind.nativeBoss then
+				local NativeActor =
+					require(game:GetService("ServerScriptService").Server.Services.EnemySim.NativeBossActor)
+				local actor = NativeActor.new(kind.nativeBoss, math.random)
+				local Jump = require(game:GetService("ServerScriptService").Server.Services.EnemySim.NativeJump)
+				local jump = if kind.nativeJump then Jump.new(kind.nativeJump) else nil
+				local shots = 0
+				for _ = 1, math.round(90 / DT) do
+					if jump then
+						if NativeActor.beforeJump(actor, jump) then
+							jump = nil
+						else
+							Jump.step(kind.nativeJump, jump, DT, jump.x, jump.z, 10, 0)
+						end
+					end
+					NativeActor.step(
+						actor,
+						DT,
+						function()
+							return 1
+						end,
+						10,
+						math.random,
+						function()
+							shots += 1
+						end
+					)
+				end
+				expect(actor.phase.current).toBe(#kind.nativeBoss.phases.states - 1)
+				expect(shots > 0).toBe(true)
+			else
+				table.insert(plans, kind.boss)
+			end
 		end
 		for _, plan in plans do
 			local brain = BossBrain.new(plan, math.random)

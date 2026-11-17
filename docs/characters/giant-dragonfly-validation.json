@@ -1,0 +1,363 @@
+{
+  "referenceVersion": "1.2.0.3",
+  "steamBuild": 26642464,
+  "baseMain": "de4e155e97855cc18ffb52b1e81e53d1af8532fc",
+  "draftPr": 151,
+  "scope": "Scene-bound normal Giant Dragonfly/type57 uses generic Enemy, fixed offset before detection, anticipation after detection and every-third long charge cooldown. No unbound custom five-state Pursuer behavior.",
+  "source": {
+    "typeId": 57,
+    "displayName": "Giant Dragonfly",
+    "fallbackLook": "Shadeling",
+    "source": "res://entities/units/enemies/jungle/basic/giant_dragonfly/giant_dragonfly.tscn",
+    "sourceMd5": "f2fbc5a6c55e9d3a80fb90590383f1f5",
+    "statsSource": "res://entities/units/enemies/jungle/basic/giant_dragonfly/giant_dragonfly_stats.tres",
+    "statsMd5": "43dd2896814bbce2e41bbca444fd4f8d",
+    "stats": {
+      "health": 4,
+      "health_increase_each_wave": 2.0,
+      "speed": 200,
+      "speed_randomization": 100,
+      "damage": 1,
+      "damage_increase_each_wave": 0.85,
+      "attack_cd": 30.0,
+      "value": 1,
+      "knockback_resistance": 0.0,
+      "gold_spread": 0,
+      "can_drop_consumables": true,
+      "always_drop_consumables": false,
+      "base_drop_chance": 0.01,
+      "item_drop_chance": 0.01,
+      "min_consumable_tier": 0,
+      "max_consumable_tier": 0,
+      "armor": 0,
+      "armor_increase_each_wave": 0.0,
+      "generate_blood": true
+    },
+    "body": {
+      "radiusPoints": 29.0689,
+      "offsetPoints": [
+        0,
+        -27
+      ],
+      "source": "res://entities/units/enemies/jungle/basic/giant_dragonfly/giant_dragonfly.tscn",
+      "sourceMd5": "f2fbc5a6c55e9d3a80fb90590383f1f5"
+    },
+    "hurt": {
+      "radiusPoints": 35.0,
+      "offsetPoints": [
+        0,
+        -18
+      ],
+      "source": "res://entities/units/enemies/jungle/basic/giant_dragonfly/giant_dragonfly.tscn",
+      "sourceMd5": "f2fbc5a6c55e9d3a80fb90590383f1f5"
+    },
+    "hit": {
+      "radiusPoints": 29.0172,
+      "offsetPoints": [
+        0,
+        -27
+      ],
+      "source": "res://entities/units/enemies/jungle/basic/giant_dragonfly/giant_dragonfly.tscn",
+      "sourceMd5": "f2fbc5a6c55e9d3a80fb90590383f1f5"
+    },
+    "removeFirst": false,
+    "mass": 1,
+    "obstacleCollision": false,
+    "sprite": {
+      "source": "res://entities/units/enemies/jungle/basic/giant_dragonfly/giant_dragonfly.png",
+      "textureSource": "res://.import/giant_dragonfly.png-4cb6ad45a4405de5d16db1194c520491.stex",
+      "textureMd5": "b033848e3019930579c51b89efe07ef0",
+      "widthPoints": 150,
+      "heightPoints": 150
+    },
+    "bodyBorders": true,
+    "playerCollision": false,
+    "chargingVariants": {
+      "Normal": {
+        "cooldown": 20.0,
+        "long_cooldown_every_x_shoots": 3,
+        "long_cooldown": 55.0,
+        "max_cd_randomization": 0,
+        "min_range": 0,
+        "max_range": 250,
+        "range_X": -1,
+        "range_Y": -1,
+        "attack_anim_speed": 3.0,
+        "charge_duration": 0.35,
+        "charge_speed": 700.0,
+        "target_calculation_timing": 0,
+        "target": 0,
+        "rand_target_size": -1,
+        "only_positions_in_target_direction": false,
+        "scale_charge_duration_with_range": false,
+        "recovery_duration": 0.3
+      },
+      "Meca": {
+        "cooldown": 25.0,
+        "long_cooldown_every_x_shoots": 3,
+        "long_cooldown": 55.0,
+        "max_cd_randomization": 0,
+        "min_range": 0,
+        "max_range": 350,
+        "range_X": -1,
+        "range_Y": -1,
+        "attack_anim_speed": 2.0,
+        "charge_duration": 0.5,
+        "charge_speed": 700.0,
+        "target_calculation_timing": 0,
+        "target": 0,
+        "rand_target_size": -1,
+        "only_positions_in_target_direction": false,
+        "scale_charge_duration_with_range": false,
+        "recovery_duration": 0.3
+      },
+      "Mutant": {
+        "cooldown": 15.0,
+        "long_cooldown_every_x_shoots": 3,
+        "long_cooldown": 55.0,
+        "max_cd_randomization": 0,
+        "min_range": 0,
+        "max_range": 300,
+        "range_X": -1,
+        "range_Y": -1,
+        "attack_anim_speed": 4.0,
+        "charge_duration": 0.25,
+        "charge_speed": 700.0,
+        "target_calculation_timing": 0,
+        "target": 0,
+        "rand_target_size": -1,
+        "only_positions_in_target_direction": false,
+        "scale_charge_duration_with_range": false,
+        "recovery_duration": 0.3
+      }
+    },
+    "activeChargeVariant": "Normal",
+    "directPlayerCharge": true,
+    "evolutionVariantsImplemented": false,
+    "detection": {
+      "radiusPoints": 600,
+      "speedBonusPoints": 20,
+      "anticipateAfter": {
+        "seconds": 0.3,
+        "horizontalOnly": false
+      },
+      "wanderRangePoints": 200,
+      "wanderJitterPoints": 0,
+      "wanderMode": "Offset",
+      "wanderWithin": true
+    },
+    "bindingAudit": {
+      "effectiveScript": "res://entities/units/enemies/enemy.gd",
+      "effectiveScriptMd5": "b341670f5ac667dc203f7eb778a2cda8",
+      "specialScriptBound": false,
+      "unboundScript": "res://entities/units/enemies/jungle/basic/giant_dragonfly/giant_dragonfly.gdc",
+      "unboundScriptMd5": "58f7d6d858676f049af65ad60e7b8172",
+      "boostTimerConnected": false,
+      "boostTimerAutostart": true
+    }
+  },
+  "ruleSources": [
+    {
+      "source": "res://effect_behaviors/enemies/charm_enemy_effect_behavior.gdc",
+      "sourceMd5": "a0830c473b5da00b8d278346117f5452"
+    },
+    {
+      "source": "res://entities/entity.gdc",
+      "sourceMd5": "805ebc9f4306c9ec71b786cdc7dd89af"
+    },
+    {
+      "source": "res://entities/units/enemies/attack_behaviors/attack_behavior.gdc",
+      "sourceMd5": "3f7f7c4411aa4d3b27e55e9ac3d4ab27"
+    },
+    {
+      "source": "res://entities/units/enemies/attack_behaviors/charging_attack_behavior.gdc",
+      "sourceMd5": "fcf2901832ca42a4e69e98c60629397e"
+    },
+    {
+      "source": "res://entities/units/enemies/attack_behaviors/charging_attack_deflect_bullet_behavior.gdc",
+      "sourceMd5": "daba5d3d739bba386c511fdbc2b18c92"
+    },
+    {
+      "source": "res://entities/units/enemies/attack_behaviors/shooting_attack_behavior.gdc",
+      "sourceMd5": "43d5ebd849396509ff38632915c988a2"
+    },
+    {
+      "source": "res://entities/units/enemies/attack_behaviors/spawning_attack_behavior.gdc",
+      "sourceMd5": "cbddd1b76bf3363315729d319a34798d"
+    },
+    {
+      "source": "res://entities/units/enemies/crash_zone/basic/pursuer/pursuer.gdc",
+      "sourceMd5": "9ec3187fe3a68de4c9c35e9bd3d20488"
+    },
+    {
+      "source": "res://entities/units/enemies/enemy.gdc",
+      "sourceMd5": "b341670f5ac667dc203f7eb778a2cda8"
+    },
+    {
+      "source": "res://entities/units/enemies/jungle/basic/ankylosaurus/ankylosaurus.gdc",
+      "sourceMd5": "00cac12edcc97f4b31a46615565f3802"
+    },
+    {
+      "source": "res://entities/units/enemies/jungle/basic/baby_trex/baby_trex.gdc",
+      "sourceMd5": "8d0eb87d46ac189537c97885f23c918d"
+    },
+    {
+      "source": "res://entities/units/enemies/jungle/basic/dino_egg/dino_egg.gdc",
+      "sourceMd5": "f01696d402b51e177ee02fe0bdce31c8"
+    },
+    {
+      "source": "res://entities/units/enemies/jungle/basic/pachycephalosaurus/pachycephalosaurus.gdc",
+      "sourceMd5": "8bc1d902906d2c92a141b6b122740e8c"
+    },
+    {
+      "source": "res://entities/units/enemies/jungle/basic/stintaosaurus/stintaosaurus.gdc",
+      "sourceMd5": "7ba3c455bdd6bc6b8272200ebb30040e"
+    },
+    {
+      "source": "res://entities/units/movement_behaviors/anticipate_target_movement_behavior.gdc",
+      "sourceMd5": "7e15d0a748305c8b55e8598e179cf5d9"
+    },
+    {
+      "source": "res://entities/units/movement_behaviors/detect_evolution_attack_behavior.gdc",
+      "sourceMd5": "42d8ab27f5046516ce118b723072f328"
+    },
+    {
+      "source": "res://entities/units/movement_behaviors/detect_target_movement_behavior.gdc",
+      "sourceMd5": "0e5e3fdc02f952196a6a0008bc191e99"
+    },
+    {
+      "source": "res://entities/units/movement_behaviors/follow_rand_pos_around_player_movement_behavior.gdc",
+      "sourceMd5": "b7f34c9dafc697a9c514d0238811f48a"
+    },
+    {
+      "source": "res://entities/units/movement_behaviors/follow_target_movement_behavior.gdc",
+      "sourceMd5": "e3ed9b3e5d9a75a09699b324caa5e22f"
+    },
+    {
+      "source": "res://entities/units/movement_behaviors/movement_behavior.gdc",
+      "sourceMd5": "545124c6bbc946d5a542876cd568078b"
+    },
+    {
+      "source": "res://entities/units/movement_behaviors/stay_in_range_from_player_movement_behavior.gdc",
+      "sourceMd5": "73e3ea5fbfa3506197f0ec0fc6da22c3"
+    },
+    {
+      "source": "res://entities/units/movement_behaviors/target_rand_pos_around_player_movement_behavior.gdc",
+      "sourceMd5": "faa12faf0ccf2d3d86cc56d8dee2f21f"
+    },
+    {
+      "source": "res://entities/units/movement_behaviors/target_rand_pos_movement_behavior.gdc",
+      "sourceMd5": "d5637932f5178c3dcce36f9a236958b8"
+    },
+    {
+      "source": "res://entities/units/unit/unit.gdc",
+      "sourceMd5": "aa94391f2d9681ac36b7f8617b82ff13"
+    },
+    {
+      "source": "res://global/entity_spawner.gdc",
+      "sourceMd5": "ba0576c27ac5b889c5688decda3dd838"
+    },
+    {
+      "source": "res://singletons/entity_service.gdc",
+      "sourceMd5": "f1a861f576858bbaa3e913d83c7b1807"
+    },
+    {
+      "source": "res://singletons/zone_service.gdc",
+      "sourceMd5": "d16899aba618beb55e980f67a0bf10b0"
+    }
+  ],
+  "sourceCorrection": "Earlier handoff claimed Giant Dragonfly required its same-named five-state script. The stable scene has no root-script override and inherits Enemy; DetectEvolution only selects ordinary ChargingAttackBehavior nodes. The special script is not bound in this scene. The autostart BoostTimer has no scene connection, and generic Enemy has no BoostTimer reference. Root/scene/script hashes and these guards are in the compiler.",
+  "rules": [
+    "HP4+2/wave, contact1+0.85/wave, speed200+/-100px/s; HP factor1 and original translated body/hurt/contact circles.",
+    "Before detection: one fixed target-relative offset inside the default200px square, zero range jitter, follows the moving target without redrawing that offset. Inclusive600px detection adds20px/s once and enables default0.3s anticipation.",
+    "Normal charge: direct target position at START_SHOOT,20frame cooldown,0jitter,250px maximum range, animation speed3,0.35s rush/+700px/s,0.3s recovery. Every third shot uses55frames long cooldown plus rush duration, counter preserved across transfer.",
+    "No Pursuer state, recurring self-boosts, recovery/deciding state machine or contact-reset behavior is invented from the unbound special script. Meca/Mutant attacks remain source-only."
+  ],
+  "interfaces": [
+    "Compiled detection.wanderMode/wanderWithin select existing native Offset vs Target policy; no new World/EnemySim interface.",
+    "GiantDragonfly.bindingAudit records effective Enemy script, unbound special-script hash and absent BoostTimer connection. Compiler fails if the reviewed binding changes.",
+    "No Arsenal/remote/profile schema or balancing changes."
+  ],
+  "focused": {
+    "NativeGiantDragonfly": {
+      "passed": 4,
+      "failed": 0
+    },
+    "NativeGiantDragonflyServer": {
+      "passed": 2,
+      "failed": 0
+    },
+    "NativeJeholopterus": {
+      "passed": 4,
+      "failed": 0
+    },
+    "NativeChargeCadence": {
+      "passed": 3,
+      "failed": 0
+    },
+    "NativeVelociraptor": {
+      "passed": 6,
+      "failed": 0
+    },
+    "MainGameEnemyStats": {
+      "passed": 29,
+      "failed": 0
+    },
+    "WorldSprites": {
+      "passed": 12,
+      "failed": 0
+    },
+    "red": "Missing actor0/4; finalWorld4/0 and actual server2/0.",
+    "fixtureCorrection": "Initial service probe stopped at modeRush on a zero-rush-dt transition, before the first movement vector was populated. Diagnostic outputdx0/dz0 identified that boundary; probe now waits for actual nonzero rush movement, as existing Ankylosaurus tests do. No production workaround.",
+    "mutation": "Replacing fixed Offset with Target gives2/2, original JungleEnemyKinds restored byte-for-byte before full run.",
+    "existingExpectations": "Snapshot count56->57, all uniqueness checks retained.",
+    "trackedRunner": "Actual server2/0 and World4/0 passed after full suite; runtime unchanged."
+  },
+  "fullSuite": {
+    "specs": 316,
+    "passed": 1969,
+    "failed": 36,
+    "artifact": "build/native-five-branch-ten-giant-dragonfly-de4e155.json",
+    "comparisonArtifacts": [
+      "build/native-five-branch-ten-jeholopterus-de4e155.json",
+      "build/native-five-branch-ten-velociraptor-de4e155.json",
+      "build/native-five-branch-ten-pet-source-reactions-de4e155.json",
+      "build/native-five-branch-nine-deflect-4cf1050.json",
+      "build/native-five-branch-nine-1203-4cf1050.json",
+      "build/native-five-branch-nine-defense-reentry-final-4cf1050.json"
+    ],
+    "newFailureNames": [],
+    "aborts": [],
+    "runtimeUnchangedDuringRun": true,
+    "returnedVsPrevious": [
+      [
+        "tests/EnemiesB9.spec.luau",
+        "FAIL new enemies (B9) > lets a Gobbler eat the orbs on the floor and drop them all when killed"
+      ]
+    ],
+    "absentVsPrevious": []
+  },
+  "checks": {
+    "stylua": "passed",
+    "selene": "0errors/18existingWarnings",
+    "rojo": "passed",
+    "compilers": "jungle-walkers and jungle-colliders --check passed",
+    "art": "22 local PNGs; prepare-character-jungle-art --check passed; new image visually inspected"
+  },
+  "counts": {
+    "codePrepared": 48,
+    "codeOpen": 26,
+    "newCompleteCharacters": 0,
+    "neutralJungleBodiesPrepared": 18,
+    "localJungleImages": 22
+  },
+  "open": [
+    "Other Jungle families/bosses/waves/area and global evolution. Current scene normal branch is connected, not the unbound same-named special script.",
+    "Original rendering/animation/audio, complete physics/Area ordering, target selection cadence, time factors and native pooling remain unaccepted.",
+    "Studio/two-client/mobile, stable native performance acceptance and Fly damage-ignore reentry remain open; known CharmedWorld CPU fluctuation is not claimed fixed."
+  ],
+  "merged": false,
+  "uploads": 0,
+  "runtimeAssetIdsChanged": 0,
+  "arsenalChanged": false
+}

@@ -63,7 +63,9 @@ describe("main-game wiki enemy stats", function()
 	it("keeps all normal, champion, boss and Gloom snapshot IDs unique", function()
 		local seen = {}
 		local count = 0
-		for _, list in { Config.Enemies.types, Config.Enemies.champions, Config.Enemies.bosses } do
+		for _, list in
+			{ Config.Enemies.types, Config.Enemies.champions, Config.Enemies.bosses, Config.Enemies.zoneTrees }
+		do
 			for _, kind in list do
 				expect(seen[kind.typeId]).toBe(nil)
 				seen[kind.typeId] = true
@@ -71,7 +73,7 @@ describe("main-game wiki enemy stats", function()
 				count += 1
 			end
 		end
-		expect(count).toBe(53) -- Original32, seven Nightmare and fourteen neutral Jungle bodies.
+		expect(count).toBe(76) -- Original32, Nightmare7, Jungle30, SeaPig1, neutralTree1 and five native Jungle elites.
 		for _, kind in Config.Enemies.types do
 			expect(seen[kind.typeId + 128]).toBe(nil)
 		end
@@ -189,7 +191,8 @@ describe("main-game wiki enemy stats", function()
 			BroodMatron = 250,
 			StoneSeraph = 350,
 		}
-		for id, kind in Config.Enemies.champions do
+		for id in speeds do -- these eight are the main-game references; native DLC elites have their own source stats
+			local kind = assert(Config.Enemies.champions[id])
 			expect(kind.hp).toBe(1)
 			expect(kind.hpPerWave).toBe(if id == "Abbot" then 700 else 750)
 			expect(kind.contactDamage).toBe(1)

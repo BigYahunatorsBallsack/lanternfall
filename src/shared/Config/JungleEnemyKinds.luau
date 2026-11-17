@@ -3,6 +3,8 @@
 local C = require(script.Parent.JungleWalkers)
 local Colliders = require(script.Parent.JungleColliderOffsets)
 local ChargeTargets = require(script.Parent.JungleChargeTargets)
+local Deflect = require(script.Parent.JungleDeflectCharges)
+local Crossing = require(script.Parent.NativeCrossingPaths)
 local Kinds = {}
 function Kinds.build(pixel: number): { [string]: any }
 	local result = {}
@@ -18,6 +20,8 @@ function Kinds.build(pixel: number): { [string]: any }
 			look = f.fallbackLook,
 			nativeArtPending = true,
 			nativeZoneId = C.zoneId,
+			nativeScene = f.source,
+			specialSpawn = f.lootEncounter,
 			nativeObstacleCollision = f.obstacleCollision,
 			nativeHitOffsetX = hit.totalPoints[1] * pixel,
 			nativeHitOffsetZ = hit.totalPoints[2] * pixel,
@@ -29,6 +33,8 @@ function Kinds.build(pixel: number): { [string]: any }
 			nativeHurtChildZ = hurt.childPoints[2] * pixel,
 			nativeBodyOffsetX = f.body.offsetPoints[1] * pixel,
 			nativeBodyOffsetZ = f.body.offsetPoints[2] * pixel,
+			nativeBodyLayer = f.bodyLayer,
+			nativeBodyMask = f.bodyMask,
 			nativeMovement = {
 				goalInsetX = f.sprite.widthPoints * pixel / 2,
 				goalInsetZ = f.sprite.heightPoints * pixel / 2,
@@ -38,7 +44,14 @@ function Kinds.build(pixel: number): { [string]: any }
 			},
 			hp = s.health,
 			hpPerWave = s.health_increase_each_wave,
+			nativeHealthRounding = true,
 			contactDamage = s.damage,
+			nativeArmor = f.nativeArmor,
+			nativeDamageRounding = true,
+			nativeFixedSpeed = f.nativeFixedSpeed,
+			nativeLootActor = f.isLoot,
+			nativeCanBeBoosted = f.canBeBoosted,
+			nativeFollowXShare = f.followXShare,
 			damagePerWave = s.damage_increase_each_wave,
 			speed = (s.speed - s.speed_randomization) * pixel,
 			speedMax = (s.speed + s.speed_randomization) * pixel,
@@ -54,12 +67,55 @@ function Kinds.build(pixel: number): { [string]: any }
 			loot = {
 				consumableChance = if s.can_drop_consumables then s.base_drop_chance else 0,
 				crateShare = if s.can_drop_consumables then s.item_drop_chance else 0,
+				crate = if s.always_drop_consumables then true else nil,
+				alwaysOrbs = if s.always_drop_consumables then true else nil,
 			},
 		}
+		if f.nativeJumpFamily then
+			local source = require(script.Parent.NativeDimetrodon)
+			assert(source.sourceMd5 == f.sourceMd5, "Dimetrodon source mismatch")
+			local kind = result[id]
+			kind.nativeJump = source.jumpRule
+			kind.nativeEdgePatrol = source.patrolRule
+			kind.nativeRadialShots = source.radialRule
+			kind.nativeJumpPresentation = source.presentationRule
+			kind.shotDamagePerWave = source.attacks.Land_shoot_behavior.properties.damage_increase_each_wave
+		end
+		if f.goldEater then
+			local a = f.goldEater
+			local kind = result[id]
+			kind.speed, kind.speedMax = s.speed * pixel, s.speed * pixel
+			kind.nativeEater = {
+				thresholds = a.thresholds,
+				healthPerStage = a.healthPerStage,
+				resistanceBase = a.resistanceBase,
+				resistancePerStage = a.resistancePerStage,
+				speedDecrease = a.speedDecreasePoints * pixel,
+				dropSpreadPoints = a.dropSpreadPoints,
+				material = {
+					attractRadiusPoints = a.attractRadiusPoints,
+					attractOffsetXPoints = a.attractOffsetXPoints,
+					attractOffsetZPoints = a.attractOffsetZPoints,
+					pickupRadiusPoints = a.pickupRadiusPoints,
+					pickupOffsetXPoints = a.pickupOffsetXPoints,
+					pickupOffsetZPoints = a.pickupOffsetZPoints,
+					doubleChance = a.doubleChance,
+				},
+			}
+			kind.loot.alwaysOrbs = true
+			kind.loot.crate = nil -- Main.spawn_loot gates consumables separately from guaranteed gold.
+		end
+		if f.crossingPath then
+			local rule = assert(Crossing.families[id], "Missing approved crossing path")
+			assert(rule.sourceMd5 == f.sourceMd5, "Crossing path scene mismatch")
+			result[id].nativeCrossing = rule
+			if f.bodyOneWay then
+				result[id].nativeBodyOneWay = { axisX = 0, axisZ = 1, margin = f.bodyOneWayMarginPoints * pixel }
+			end
+		end
 		if f.activeChargeVariant then
 			local a = f.chargingVariants[f.activeChargeVariant]
 			local rules = C.spawningRules
-			result[id].nativeFollowXShare = f.followXShare
 			result[id].nativeCharge = {
 				cooldown = a.cooldown / rules.frameRate,
 				jitter = a.max_cd_randomization / rules.frameRate,
@@ -71,6 +127,17 @@ function Kinds.build(pixel: number): { [string]: any }
 				rangeZ = a.range_Y * pixel,
 				massMultiplier = rules.chargeMassMultiplier,
 			}
+			if f.directPlayerCharge then
+				local rule = result[id].nativeCharge
+				rule.rangeX, rule.minRange, rule.maxRange = a.range_X * pixel, a.min_range * pixel, a.max_range * pixel
+				rule.target = { player = true, atShoot = a.target_calculation_timing == 1 }
+				rule.longEvery, rule.longCooldown = a.long_cooldown_every_x_shoots, a.long_cooldown / rules.frameRate
+			end
+
+			if f.normalDeflectCharge then
+				assert(Deflect.source.sourceMd5 == f.sourceMd5, "Deflect charge source mismatch")
+				result[id].nativeCharge = Deflect.rule
+			end
 			if f.aroundPlayerCharge then
 				assert(ChargeTargets.source.variant.sourceMd5 == f.sourceMd5, "Charge targeting source mismatch")
 				result[id].nativeCharge = ChargeTargets.rule
@@ -81,6 +148,15 @@ function Kinds.build(pixel: number): { [string]: any }
 				around = "Arena",
 				range = 0,
 				rangeJitter = 0,
+				arriveStuds = C.spawningRules.goalPrecisionPoints * pixel,
+				maxSeconds = math.huge,
+			}
+		end
+		if f.wanderAroundTarget then
+			result[id].wander = {
+				around = "Target",
+				range = f.wanderAroundTarget.rangePoints * pixel,
+				rangeJitter = f.wanderAroundTarget.jitterPoints * pixel,
 				arriveStuds = C.spawningRules.goalPrecisionPoints * pixel,
 				maxSeconds = math.huge,
 			}
@@ -154,15 +230,36 @@ function Kinds.build(pixel: number): { [string]: any }
 				changeAt = a.change_movement_behavior_after_x_boosts,
 				changeSpeed = a.bonus_speed_on_change_movement_behavior * pixel,
 				playerSpeedShare = a.max_player_speed_multiplier,
+				resetOnContact = a.reset_nb_times_boosted_on_hit,
 			}
 		end
+		if f.detection then
+			local a = f.detection
+			result[id].nativeDetection = { radius = a.radiusPoints * pixel, speedBonus = a.speedBonusPoints * pixel }
+			if a.wanderRangePoints then
+				result[id].wander = {
+					around = a.wanderMode or "Target",
+					within = a.wanderWithin,
+					range = a.wanderRangePoints * pixel,
+					rangeJitter = a.wanderJitterPoints * pixel,
+					arriveStuds = C.spawningRules.goalPrecisionPoints * pixel,
+					maxSeconds = math.huge,
+				}
+			end
+			result[id].anticipate = a.anticipateAfter
+		end
+
 		if f.activeVariant then
 			local a = f.shootingVariants[f.activeVariant]
 			local rules = C.shootingRules
 			local position = a.position.values
 			local kind = result[id]
-			kind.stayInRange =
-				{ distance = f.movement.target_range * pixel, jitter = f.movement.target_range_randomization * pixel }
+			if not f.wanderAroundTarget and not f.followTargetShoot then
+				kind.stayInRange = {
+					distance = f.movement.target_range * pixel,
+					jitter = f.movement.target_range_randomization * pixel,
+				}
+			end
 			kind.shotDamagePerWave = a.damage_increase_each_wave
 			kind.ranged = {
 				keepDistance = 0,
@@ -172,9 +269,10 @@ function Kinds.build(pixel: number): { [string]: any }
 				projectileDamage = a.damage,
 				projectileSpeed = a.projectile_speed * pixel,
 				projectileRange = rules.projectileRangeStuds,
-				projectileRadius = rules.pillar.radiusPoints * pixel,
+				projectileRadius = (f.projectileRadiusPoints or rules.pillar.radiusPoints) * pixel,
 				aimLead = 0,
-				nativePillar = true,
+				nativePillar = not f.bulletProjectile and not f.forwardSlashProjectile,
+				nativeForwardSlash = f.forwardSlashProjectile,
 				nativeVolley = {
 					count = a.number_projectiles,
 					spread = a.projectile_spread,
@@ -182,14 +280,28 @@ function Kinds.build(pixel: number): { [string]: any }
 					offsetX = position[1] * pixel,
 					offsetZ = position[2] * pixel,
 					speedStep = a.speed_change_after_each_projectile * pixel,
+					scaleWithCount = a.scale_projectiles_with_count,
+					minimumScale = a.min_projectile_scale,
+					specificDegrees = if a.use_specific_angle then a.specific_degrees_spawns else nil,
+					parallel = if a.parallel_slashes
+						then {
+							spacing = a.parallel_spacing * pixel,
+							angleOffset = a.parallel_angle_offset,
+							forwardOffset = (a.forward_spawn_offset or 0) * pixel,
+						}
+						else nil,
 				},
 				nativeTiming = {
 					fireInterval = a.cooldown / rules.frameRate,
 					cooldownRandomSeconds = a.max_cd_randomization / rules.frameRate,
 					minimumCooldownSeconds = rules.minimumCooldownFrames / rules.frameRate,
 					initialSeconds = a.initial_cooldown / rules.frameRate,
-					fireAt = rules.animationFireAt / a.attack_anim_speed,
-					animationSeconds = rules.animationSeconds / a.attack_anim_speed,
+					fireAt = (if f.genericShootAnimation
+						then C.spawningRules.animations[1].fireAt
+						else rules.animationFireAt) / a.attack_anim_speed,
+					animationSeconds = (if f.genericShootAnimation
+						then C.spawningRules.animations[1].seconds
+						else rules.animationSeconds) / a.attack_anim_speed,
 					longEvery = a.long_cooldown_every_x_shoots,
 					longSeconds = a.long_cooldown / rules.frameRate,
 				},

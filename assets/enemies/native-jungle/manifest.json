@@ -272,6 +272,348 @@
       "pngSha256": "612cac6a1e96f2182a65ab883586638773ffeea92d3aeba2cc8b10309c32e6db"
     },
     {
+      "id": "Pachycephalosaurus",
+      "source": "res://entities/units/enemies/jungle/basic/pachycephalosaurus/pachycephalosaurus.png",
+      "textureSource": "res://.import/pachycephalosaurus.png-0796d6406660a5ac3f559230f05a86d8.stex",
+      "textureMd5": "a3c488c2a1482350f0bfbbddc1ba5475",
+      "output": "assets/enemies/native-jungle/Pachycephalosaurus.png",
+      "size": [
+        150,
+        150
+      ],
+      "alphaBounds": [
+        9,
+        17,
+        144,
+        131
+      ],
+      "rgbaSha256": "53c01adc03fe07102c7ac97237a4b7657ad76e605c36de6feeb0923396843128",
+      "pngSha256": "e619910fa67ee9069c4fce279255e1a19f31e3d6fc486d8db585ca588c028b30"
+    },
+    {
+      "id": "Velociraptor",
+      "source": "res://entities/units/enemies/jungle/basic/velociraptor/velociraptor.png",
+      "textureSource": "res://.import/velociraptor.png-d114b38276a9a66d91d357a8e5af98a3.stex",
+      "textureMd5": "869a7016d374ed8f861a429c964697eb",
+      "output": "assets/enemies/native-jungle/Velociraptor.png",
+      "size": [
+        150,
+        150
+      ],
+      "alphaBounds": [
+        10,
+        12,
+        146,
+        141
+      ],
+      "rgbaSha256": "0cc8ea2e7238ad6fd7ecf797fea08ace2a937f2c3a7b01b8a307cf5f686cf283",
+      "pngSha256": "4f3d0d50f12dbc3e6270225c6ef3967e8f3cf187a1b3ff36bcc28e0a0ad6a491"
+    },
+    {
+      "id": "Jeholopterus",
+      "source": "res://entities/units/enemies/jungle/basic/jeholopterus/jeholopterus.png",
+      "textureSource": "res://.import/jeholopterus.png-23f36eea19655cea1b9a589feb48fca5.stex",
+      "textureMd5": "c452e51ba978243ef8014c25df919c3c",
+      "output": "assets/enemies/native-jungle/Jeholopterus.png",
+      "size": [
+        110,
+        110
+      ],
+      "alphaBounds": [
+        3,
+        2,
+        105,
+        110
+      ],
+      "rgbaSha256": "9b265cf86503ae3a34411c753358aca607d2942f37b880a9f575e7fafa013f75",
+      "pngSha256": "7e75c8a0e7353a97b3808477cb1d5a68de46074f06873af821dd8833a9701789"
+    },
+    {
+      "id": "GiantDragonfly",
+      "source": "res://entities/units/enemies/jungle/basic/giant_dragonfly/giant_dragonfly.png",
+      "textureSource": "res://.import/giant_dragonfly.png-4cb6ad45a4405de5d16db1194c520491.stex",
+      "textureMd5": "b033848e3019930579c51b89efe07ef0",
+      "output": "assets/enemies/native-jungle/GiantDragonfly.png",
+      "size": [
+        150,
+        150
+      ],
+      "alphaBounds": [
+        3,
+        7,
+        148,
+        143
+      ],
+      "rgbaSha256": "819098792454977d9b40419a0545565a43a2dabe03a3893cb53c9c9dc6a61373",
+      "pngSha256": "051aeabebb51d24e586bdd9b2c9ab9e48801152d37567d2df4afcc00f6177220"
+    },
+    {
+      "id": "HarpymimusLooter",
+      "source": "res://entities/units/enemies/jungle/basic/harpymimus_looter/harpymimus_looter.png",
+      "textureSource": "res://.import/harpymimus_looter.png-a2eb49b2cd951e707ee44084e6f3944f.stex",
+      "textureMd5": "8b8f27b32b81808c61b6770fff8cb369",
+      "output": "assets/enemies/native-jungle/HarpymimusLooter.png",
+      "size": [
+        120,
+        120
+      ],
+      "alphaBounds": [
+        5,
+        7,
+        115,
+        114
+      ],
+      "rgbaSha256": "85572e03c98665ec7ac5ad20deb194af710cebba300ee7666d0579e74c068891",
+      "pngSha256": "44ea4404d3a5c749d1119908ccf148d6d2c6af615be220f46649796d308cad0c"
+    },
+    {
+      "id": "Oviraptor",
+      "source": "res://entities/units/enemies/jungle/basic/oviraptor/oviraptor.png",
+      "textureSource": "res://.import/oviraptor.png-8f0350e494f6168f2f8c77b5f484b860.stex",
+      "textureMd5": "d7d6274c60d8ad2addd50639f8ff6d51",
+      "output": "assets/enemies/native-jungle/Oviraptor.png",
+      "size": [
+        200,
+        200
+      ],
+      "alphaBounds": [
+        8,
+        63,
+        191,
+        140
+      ],
+      "rgbaSha256": "728f714a52c26d9e714ec5f4e855bdbf11ce0cef10b201815b979af617c89ffb",
+      "pngSha256": "85060246641c03e9b89caa69985380b80162981a6f769710ac10bc69c8ce5d48"
+    },
+    {
+      "id": "Iguanodon",
+      "source": "res://entities/units/enemies/jungle/basic/iguanodon/iguanodon.png",
+      "textureSource": "res://.import/iguanodon.png-a8dfe09826eb8a5c43c2ad41c14d18df.stex",
+      "textureMd5": "4c4d050919de22a12d887d14e1c69a1a",
+      "output": "assets/enemies/native-jungle/Iguanodon.png",
+      "size": [
+        200,
+        200
+      ],
+      "alphaBounds": [
+        8,
+        61,
+        193,
+        144
+      ],
+      "rgbaSha256": "796606bda11c2ac1164dc42126ddc2935eef0269ca43f6a1dac1797248f60d57",
+      "pngSha256": "e9804385f3a0bea77b80e8b784eddc0b60e079efd9f0331e0ab17311a4db150e"
+    },
+    {
+      "id": "Pterosaur",
+      "source": "res://entities/units/enemies/jungle/basic/pterosaur/pterosaur.png",
+      "textureSource": "res://.import/pterosaur.png-d1e5caff91a65e3c086abe1f9d6614f3.stex",
+      "textureMd5": "17a226835498b16877596d5c8b78d326",
+      "output": "assets/enemies/native-jungle/Pterosaur.png",
+      "size": [
+        180,
+        180
+      ],
+      "alphaBounds": [
+        5,
+        21,
+        170,
+        161
+      ],
+      "rgbaSha256": "e18016f61d8e1fb4aa3af3c19570e7326155978e03399b1a7a35e11142a93896",
+      "pngSha256": "cc47d6aced6b55ce7d14d4e26fceddc7a6c2381cc65ba08e4e1820b03101521e"
+    },
+    {
+      "id": "Dilophosaurus",
+      "source": "res://entities/units/enemies/jungle/basic/dilophosaurus/dilophosaurus.png",
+      "textureSource": "res://.import/dilophosaurus.png-b15aa7b6a4434e089fb2600f7143bf26.stex",
+      "textureMd5": "da3cdc56e5c7fc36737cf30a5140322b",
+      "output": "assets/enemies/native-jungle/Dilophosaurus.png",
+      "size": [
+        150,
+        150
+      ],
+      "alphaBounds": [
+        14,
+        5,
+        135,
+        143
+      ],
+      "rgbaSha256": "124e05183e3bb0e4339a3d0d91ebf3d99963ac5ee51985fb0f409544a65e06e0",
+      "pngSha256": "42ae32a9538a5d40db1aa93c8c8a53b4319aa08c942c43f1bc94807ceea3d6f8"
+    },
+    {
+      "id": "Hesperosaurus",
+      "source": "res://entities/units/enemies/jungle/basic/hesperosaurus/hesperosaurus.png",
+      "textureSource": "res://.import/hesperosaurus.png-bd89b1e3e32ca2365dd794d031f5c8e4.stex",
+      "textureMd5": "d3cb3c30abd0969519a9605cb5f9a9d5",
+      "output": "assets/enemies/native-jungle/Hesperosaurus.png",
+      "size": [
+        170,
+        170
+      ],
+      "alphaBounds": [
+        0,
+        35,
+        168,
+        144
+      ],
+      "rgbaSha256": "949f25db1805a6fd3b40cc1faac8eb981bb52ab2e0c37fed797cb317c32d72c5",
+      "pngSha256": "28a76713d4430ef762fc7eb90bd272ea7045712b84f06444850a4e28d1f2c89c"
+    },
+    {
+      "id": "Stegosaurus",
+      "source": "res://entities/units/enemies/jungle/basic/stegosaurus/stegosaurus.png",
+      "textureSource": "res://.import/stegosaurus.png-0a1375d362f4ff01c594573bbf6ee9d1.stex",
+      "textureMd5": "0fae500ae799df356a561119141f8642",
+      "output": "assets/enemies/native-jungle/Stegosaurus.png",
+      "size": [
+        200,
+        200
+      ],
+      "alphaBounds": [
+        13,
+        37,
+        194,
+        167
+      ],
+      "rgbaSha256": "acaaf8343cae5bc82eee57cedb320fbf394c8dd40018bff459e7924d1b82131b",
+      "pngSha256": "6ec445f54f15396b4fd29f5dfe46c09d366b0b5337a42ad06965861e9f4c221a"
+    },
+    {
+      "id": "CarnivorousPlant",
+      "source": "res://entities/units/enemies/jungle/basic/carnivorus_plant/carnivorus_plant.png",
+      "textureSource": "res://.import/carnivorus_plant.png-1ae2abd24ec07041094b986b5b3b54d1.stex",
+      "textureMd5": "3602794e26301b129fde65d5af870d64",
+      "output": "assets/enemies/native-jungle/CarnivorousPlant.png",
+      "size": [
+        210,
+        210
+      ],
+      "alphaBounds": [
+        37,
+        8,
+        182,
+        194
+      ],
+      "rgbaSha256": "8f7c5e57dcced710f4ad714cbc522e57d18eea3309e4a4bb81f92cf759f5c7d9",
+      "pngSha256": "3edb0d4763a390734252981c47bd0877f7cea3346b492636b3ecdeb55a50d2a9"
+    },
+    {
+      "id": "CarnivorousPlantMother",
+      "source": "res://entities/units/enemies/jungle/basic/carnivorous_plant_mother/carnivorous_plant_mother.png",
+      "textureSource": "res://.import/carnivorous_plant_mother.png-4574708fcbdcb186e4c1b66ff9dc106e.stex",
+      "textureMd5": "c452e4ac04fd5e7e8644a93d704ca7e6",
+      "output": "assets/enemies/native-jungle/CarnivorousPlantMother.png",
+      "size": [
+        250,
+        250
+      ],
+      "alphaBounds": [
+        27,
+        19,
+        225,
+        247
+      ],
+      "rgbaSha256": "476a530b9e3bc5cd4cff986d10d489773f5d0d0034d4c9ffa92d5a9b71f16f77",
+      "pngSha256": "c38fe03bf7ea81618d52be9e1331cca721aa103a850b7648801df423731a5a2d"
+    },
+    {
+      "id": "Pachyrhinosaurus",
+      "source": "res://entities/units/enemies/jungle/basic/pachyrhinosaurus/pachyrhinosaurus.png",
+      "textureSource": "res://.import/pachyrhinosaurus.png-d75284f6c064495fe4560a318aac0b0f.stex",
+      "textureMd5": "0736207a2d8503790c2d6801f1478c4b",
+      "output": "assets/enemies/native-jungle/Pachyrhinosaurus.png",
+      "size": [
+        120,
+        120
+      ],
+      "alphaBounds": [
+        9,
+        2,
+        117,
+        115
+      ],
+      "rgbaSha256": "a632a249ff2770ed35ed3f1674beb2570e8dde8a8fce7ba12f2d45cbe981c131",
+      "pngSha256": "2c71944e004f7ac58779e7259c8a0c41cde6e3df37b9c8c189dc2f862a474ad3"
+    },
+    {
+      "id": "JungleGobbler",
+      "source": "res://entities/units/enemies/jungle/basic/evil_mob_jungle/evil_mob_jungle_0.png",
+      "textureSource": "res://.import/evil_mob_jungle_0.png-3da4442bfea7798527e85ffa10d89018.stex",
+      "textureMd5": "ebb421fbaa7724b805850d7e0380e56e",
+      "output": "assets/enemies/native-jungle/JungleGobbler.png",
+      "size": [
+        250,
+        250
+      ],
+      "alphaBounds": [
+        63,
+        76,
+        190,
+        197
+      ],
+      "rgbaSha256": "fe91d8d8479a56b0e1863feba1079c0222d2608522504a99f175dc7938a42974",
+      "pngSha256": "2e6322561cff22e8c6e3b874177077112dfb3d5aaefe1364da2edf3f743e7f83"
+    },
+    {
+      "id": "JungleGobbler_stage_1",
+      "source": "res://entities/units/enemies/jungle/basic/evil_mob_jungle/evil_mob_jungle_1.png",
+      "textureSource": "res://.import/evil_mob_jungle_1.png-e29931e534edc3be499b3daff8097c71.stex",
+      "textureMd5": "08365c58bb25f7806e01d04e1ddbf495",
+      "output": "assets/enemies/native-jungle/JungleGobbler_stage_1.png",
+      "size": [
+        250,
+        250
+      ],
+      "alphaBounds": [
+        32,
+        63,
+        208,
+        207
+      ],
+      "rgbaSha256": "ee4dc94013a5238e3e49350c787649e4298ca6614320712117f22dff9ab20336",
+      "pngSha256": "7d2a35a91219da21c4d2a81e0ebede6e0e73fc75e51ba083c7dd075585c518d2"
+    },
+    {
+      "id": "JungleGobbler_stage_2",
+      "source": "res://entities/units/enemies/jungle/basic/evil_mob_jungle/evil_mob_jungle_2.png",
+      "textureSource": "res://.import/evil_mob_jungle_2.png-5e2394cfc54bf5af72bf5717cdf5221a.stex",
+      "textureMd5": "15e0e99a9a0a2fc5d29e56a25e5d77d7",
+      "output": "assets/enemies/native-jungle/JungleGobbler_stage_2.png",
+      "size": [
+        250,
+        250
+      ],
+      "alphaBounds": [
+        20,
+        43,
+        246,
+        219
+      ],
+      "rgbaSha256": "51a331b80f5c7a2e8d4c2e93cc90da0c1749258f5bbd53ecf5a3923df77a72f9",
+      "pngSha256": "e9882148988d21b8dd8487d69be8ce396dcc75734dfc5aaffe1c0d12b0c64fb4"
+    },
+    {
+      "id": "Dimetrodon",
+      "source": "res://entities/units/enemies/jungle/basic/dimetrodon/dimetrodon.png",
+      "textureSource": "res://.import/dimetrodon.png-7165eae791b791b21d3a6d6144701028.stex",
+      "textureMd5": "99797fff05f1d6788ce11c3a4ae00112",
+      "output": "assets/enemies/native-jungle/Dimetrodon.png",
+      "size": [
+        150,
+        150
+      ],
+      "alphaBounds": [
+        19,
+        14,
+        135,
+        135
+      ],
+      "rgbaSha256": "9507d17b8654ff7f76ebf803f0f9f68a86ba78828b17f1a7f22f2f8cc1de6e7d",
+      "pngSha256": "b2e3c1329ca9b7b1e82709a32d7b0fd231d868ed4daea5088b8f26febf730b61"
+    },
+    {
       "id": "Pillar_bullet_pillar_0002",
       "source": "res://projectiles/pillar_enemy/sprites/bullet_pillar_0002.png",
       "textureSource": "res://.import/bullet_pillar_0002.png-b64813647bb259fcd087f6245a3b4bd8.stex",
@@ -346,6 +688,139 @@
       ],
       "rgbaSha256": "7b63c98c3cb2b407c35b383ff3146bd50c02cba02b6602e58bf83fdee5a53796",
       "pngSha256": "27f5c23efda8ad352e7920969cbce8efa125a9a61486134da9d4ad58be16e9fd"
+    },
+    {
+      "id": "Slash_slash_0002",
+      "source": "res://projectiles/slash/sprites/slash_0002.png",
+      "textureSource": "res://.import/slash_0002.png-7cd6a891c83347abbcc2e7ea646934ce.stex",
+      "textureMd5": "c2130610bc6acda2483ed0ec002631e1",
+      "output": "assets/enemies/native-jungle/Slash_slash_0002.png",
+      "size": [
+        360,
+        90
+      ],
+      "alphaBounds": [
+        0,
+        12,
+        243,
+        81
+      ],
+      "rgbaSha256": "9b4a0a46c78ada44f7b85e5388dce780c41742bd2107cd15054d7359d60aad4a",
+      "pngSha256": "2f635a89b8481613653e18bc6b7ae17977b40595afc4257e63757c7ae52bc935"
+    },
+    {
+      "id": "Slash_slash_0003",
+      "source": "res://projectiles/slash/sprites/slash_0003.png",
+      "textureSource": "res://.import/slash_0003.png-bbdd5f0ffc1c0c7ddccb5dc13a27eaca.stex",
+      "textureMd5": "27591932f77f6bd7c45d8c56220f0599",
+      "output": "assets/enemies/native-jungle/Slash_slash_0003.png",
+      "size": [
+        360,
+        90
+      ],
+      "alphaBounds": [
+        0,
+        21,
+        360,
+        80
+      ],
+      "rgbaSha256": "fbb71cc223c226690c5e8b6e1cb17fb8d3254e061bb276193bc1c69d7b2cf1d6",
+      "pngSha256": "3f14dc3120ee5c58f324fa595f6b130b02f87754742a6da9b375f1c1e5b771fa"
+    },
+    {
+      "id": "Slash_slash_0001",
+      "source": "res://projectiles/slash/sprites/slash_0001.png",
+      "textureSource": "res://.import/slash_0001.png-26442c8b2071ca6615abfd9d74c4b45d.stex",
+      "textureMd5": "a502b17af6471f09418e38c15a856946",
+      "output": "assets/enemies/native-jungle/Slash_slash_0001.png",
+      "size": [
+        360,
+        90
+      ],
+      "alphaBounds": [
+        0,
+        15,
+        146,
+        79
+      ],
+      "rgbaSha256": "98633df163daaf60a0df4108eb81fe1fea54a7626cd4f4f3a15223410a036575",
+      "pngSha256": "f1a9597fdcc8cd6c6f76a2c77e197a25150852d1f22c3e94105892b84c019027"
+    },
+    {
+      "id": "Slash_slash_0006",
+      "source": "res://projectiles/slash/sprites/slash_0006.png",
+      "textureSource": "res://.import/slash_0006.png-b3a184ee3053abac8f85e58d92ad8eff.stex",
+      "textureMd5": "d171d1365402558f28695e131980319d",
+      "output": "assets/enemies/native-jungle/Slash_slash_0006.png",
+      "size": [
+        360,
+        90
+      ],
+      "alphaBounds": [
+        279,
+        27,
+        360,
+        70
+      ],
+      "rgbaSha256": "e7b28a506b21766c5c5bb8a1ef5746ba68eb05b8906ae0893f81385dd7f06e6f",
+      "pngSha256": "2907df741e27374a3a5fc93a54acfc1ac1aaee649bbb97d54f985614b361999a"
+    },
+    {
+      "id": "Slash_slash_0000",
+      "source": "res://projectiles/slash/sprites/slash_0000.png",
+      "textureSource": "res://.import/slash_0000.png-728a3380645af38ddf43b1bcf7cc7cb0.stex",
+      "textureMd5": "45b4750b860c158d8d68a8aa5b495a6b",
+      "output": "assets/enemies/native-jungle/Slash_slash_0000.png",
+      "size": [
+        360,
+        90
+      ],
+      "alphaBounds": [
+        17,
+        28,
+        355,
+        63
+      ],
+      "rgbaSha256": "de4b3ede6558e657430c866ef654bd0e851f4b20ea8aa85d7b589b97065f498e",
+      "pngSha256": "c180e403ca666180dfa513a99181f38e2933babdaadbc0eabb8fa35318a9d220"
+    },
+    {
+      "id": "Slash_slash_0004",
+      "source": "res://projectiles/slash/sprites/slash_0004.png",
+      "textureSource": "res://.import/slash_0004.png-6778793e89a312794c902999d7cb7cbe.stex",
+      "textureMd5": "4fbd21c81f5ec1bc62d5eea18f0e0de6",
+      "output": "assets/enemies/native-jungle/Slash_slash_0004.png",
+      "size": [
+        360,
+        90
+      ],
+      "alphaBounds": [
+        94,
+        14,
+        360,
+        80
+      ],
+      "rgbaSha256": "75fb0a3fe16d6e7f52b18fec652d905082ff3612477093c255ab083822d20c6b",
+      "pngSha256": "7721307bc12cc9ac5505427e5e72fe3eb3035fc5cd3700d59332c1ffdbbfd2d6"
+    },
+    {
+      "id": "Slash_slash_0005",
+      "source": "res://projectiles/slash/sprites/slash_0005.png",
+      "textureSource": "res://.import/slash_0005.png-799fd06ec96f2219ec7b77fa4b65c1d0.stex",
+      "textureMd5": "017ae88730bdf93d395efabe27fa5281",
+      "output": "assets/enemies/native-jungle/Slash_slash_0005.png",
+      "size": [
+        360,
+        90
+      ],
+      "alphaBounds": [
+        187,
+        18,
+        357,
+        77
+      ],
+      "rgbaSha256": "1f1464cc96f5a8da1f901e3f5f0bee76cd6a51b37eeaf27631def8401882c072",
+      "pngSha256": "0315852c5e8b7f3cedccd21118c2ce972a87c46f5459ce938278c9aafc1820ac"
     }
   ]
 }

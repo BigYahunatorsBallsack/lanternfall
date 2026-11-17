@@ -1,0 +1,24 @@
+{
+  "version": "1.2.0.3",
+  "steamBuild": "26642464",
+  "source": "res://entities/units/enemies/jungle/elites/silesaurus/silesaurus.tscn",
+  "sourceMd5": "7c0b1ed5c7b0596267d328dde443ac4b",
+  "textureSource": "res://.import/silesaurus.png-4faa98aba3aa57165f268431a1fc15fc.stex",
+  "textureMd5": "d2ab5cdd8c7a49d3de19282ce9d79b27",
+  "output": "assets/enemies/native-silesaurus/Silesaurus.png",
+  "size": [
+    200,
+    200
+  ],
+  "alphaBounds": [
+    13,
+    9,
+    189,
+    191
+  ],
+  "rgbaSha256": "67ace06295fb68a2d3ee427d3b90bebea1bbb9fff4c91a3fabbbc41f1e8b2ddc",
+  "pngSha256": "9d264ab6a35257bb690d214b99f6f7d546d39d288ccfb811b3ca400445695616",
+  "uploadedCount": 0,
+  "runtimeAssetIdsChanged": false,
+  "originalArtAcceptedInGame": false
+}

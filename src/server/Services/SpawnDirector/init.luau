@@ -135,6 +135,21 @@ local function spawnAt(
 	affix: number?
 ): number?
 	local wave = SpawnRules.runWave(atMinutes)
+	local kind = if enemyId == "Tree"
+		then EnemyKinds.treeForZone(
+			RunDirector.getNativeZoneId() or require(ReplicatedStorage.Shared.Config.NativeZones).default
+		)
+		else EnemyKinds.get(enemyId)
+	if
+		kind
+		and kind.nativeHealthRounding
+		and not elite
+		and not affix
+		and wave == RunDirector.getWave()
+		and RunDirector.isActive()
+	then
+		return EnemySim.spawnNative(enemyId, x, z)
+	end
 	local dangerHp, dangerDamage, dangerSpeed = DangerService.multipliers(wave)
 	local players = playerCount()
 	local hpMultiplier = dangerHp

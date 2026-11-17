@@ -31,6 +31,7 @@ local DeathBursts = require(script.DeathBursts)
 local GraphicsController = require(script.Parent.GraphicsController)
 local HitBursts = require(script.HitBursts)
 local Models = require(script.SpriteModels)
+local JumpPresentation = require(script.Parent.NativeJumpController)
 local RunStateController = require(script.Parent.RunStateController)
 local SnapshotBuffer = require(script.SnapshotBuffer)
 
@@ -48,6 +49,7 @@ type Drawn = {
 	flashUntil: number, -- 0 when not flashing
 	seenFrame: number, -- 0 until it was drawn once
 	revealIn: number, -- frames until its pictures show (a new enemy stays hidden for its first frames)
+	nativeHidden: boolean, -- authoritative visibility, independent of pool placement and screen culling
 	seed: number, -- spreads idle motions of neighbouring ids
 	phase: number, -- step cycle in radians
 	move: number, -- 0 standing to 1 walking at its own speed, smoothed
@@ -129,6 +131,7 @@ local function acquire(id: number, typeId: number, hp: number): Drawn
 		flashUntil = 0,
 		seenFrame = 0,
 		revealIn = REVEAL_FRAMES,
+		nativeHidden = false,
 		seed = (id * GOLDEN_RATIO) % 1 * 2 * math.pi,
 		phase = (id * GOLDEN_RATIO) % 1 * 2 * math.pi,
 		move = 0,
@@ -277,6 +280,16 @@ local function render(dt: number)
 			end
 
 			local visual = current.visual
+			local status = after.statuses[i] or 0
+			local nativeHidden = bit32.btest(status, Snapshot.STATUS_HIDDEN)
+			if nativeHidden ~= current.nativeHidden then
+				current.nativeHidden = nativeHidden
+				if nativeHidden then
+					Models.hide(visual)
+				elseif current.revealIn == 0 then
+					Models.show(visual)
+				end
+			end
 			Models.setPursuerStage(visual, Snapshot.unpackPursuerStage(after.statuses[i] or 0))
 			-- off the screen (now and where the model stands) a plain enemy keeps its model where it is; new ones,
 			-- elites, bosses and enemies in a wind-up, rush or pulse (their telegraph reaches far) are always placed
@@ -289,7 +302,6 @@ local function render(dt: number)
 			Models.setAffix(visual, affix)
 			Models.setMode(visual, mode)
 			Models.setDetail(visual, lowDetail and visual.hpBar == nil) -- elites keep every detail
-			local status = after.statuses[i] or 0
 			local burning = bit32.btest(status, Snapshot.STATUS_BURNING)
 			Models.setStatus(
 				visual,
@@ -298,7 +310,7 @@ local function render(dt: number)
 				bit32.btest(status, Snapshot.STATUS_BUFFED),
 				bit32.btest(status, Snapshot.STATUS_CHARMED)
 			)
-			if burning and visible and embersLeft > 0 and now >= current.emberAt then
+			if burning and visible and not nativeHidden and embersLeft > 0 and now >= current.emberAt then
 				embersLeft -= 1
 				current.emberAt = now + embers.interval
 				local position = Vector3.new(x, floorY + visual.radius * EMBER_HEIGHT, z)
@@ -307,7 +319,7 @@ local function render(dt: number)
 			if hp < current.lastHp then
 				current.flashUntil = now + FLASH_SECONDS
 				Models.setFlash(visual, true)
-				if visible then
+				if visible and not nativeHidden then
 					HitBursts.hit(x, floorY, z, visual.radius)
 				end
 				if visual.hpBar then
@@ -347,11 +359,12 @@ local function render(dt: number)
 					current.seed,
 					partList,
 					cframeList,
-					count
+					count,
+					JumpPresentation.getShadow(id)
 				)
 				if current.revealIn > 0 then
 					current.revealIn -= 1
-					if current.revealIn == 0 then
+					if current.revealIn == 0 and not nativeHidden then
 						Models.show(visual)
 					end
 				end
@@ -424,10 +437,10 @@ end
 -- Existing interpolated burn/charm states also illuminate shared fog, independently of particle/detail culling.
 function EnemyRenderer.visitFogSources(visit: (number, number, number, string) -> ())
 	for id, entry in drawn do
-		if entry.visual.burning then
+		if entry.visual.burning and not entry.nativeHidden then
 			visit(id, entry.x, entry.z, "fire")
 		end
-		if entry.visual.charmed then
+		if entry.visual.charmed and not entry.nativeHidden then
 			visit(id, entry.x, entry.z, "structure")
 		end
 	end

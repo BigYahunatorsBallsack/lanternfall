@@ -1,0 +1,84 @@
+{
+  "referenceVersion": "1.2.0.3",
+  "steamBuild": 26642464,
+  "baseMain": "de4e155e97855cc18ffb52b1e81e53d1af8532fc",
+  "scope": "New tested WaveManager group-clock component and source graph; no production scheduler or playable area binding.",
+  "sourceFacts": "docs/characters/jungle-wave-bindings-source.json",
+  "sourceScript": "res://zones/wave_manager.gdc",
+  "sourceMd5": "37639a8d7aeffdc7e9990dcdd6acb3b2",
+  "sourceGraph": {
+    "waves": 20,
+    "groups": 136,
+    "units": 125,
+    "packedScenes": 38,
+    "scope": "Direct Jungle zone and its wave/group/unit/boss/elite/endless roots, plus union of possible active DLC global groups. Actual content selection and dynamic effects are not implemented.",
+    "abyssGlobalScene": "res://entities/units/enemies/abyss/basic/sea_pig/sea_pig.tscn",
+    "velociraptorPlusFoundInThisClosure": false,
+    "registeredJeholopterusFoundInThisClosure": false,
+    "unusedClaimedForEither": false
+  },
+  "focused": {
+    "NativeWaveGroups": "10/0 (initial missing module0/1; cached-repeat mutation regression initially9/1 before fix)"
+  },
+  "proof": [
+    "Integer time-left transition guard matches source truncation and initial zero sentinel; no per-frame or invented final-zero check.",
+    "Initial chance only; failed initial roll still schedules repeats and repeats do not reroll.",
+    "Repeat next time is based on nominal spawn timing. At most one overdue repeat per integer check; all initial groups precede repeats.",
+    "Interval reduction happens after firing and before next-time decrement, source minimum retained.",
+    "Original repeat-array copies reduction/minimum/count/interval; later rule-table edits do not change captured repeat values. TDD regression fixed that exact missed copy.",
+    "Inclusive difficulty, elite/horde prevention, boss early start and neutral first-five-second rule; caller supplies trusted condition/chance decisions.",
+    "Actual source first-wave group is consumed from compiled binding graph and produces seven group events over selected original remaining-time checks. Group event is not a unit spawn or a completed character.",
+    "Compiler verifies stable version, all resource hashes/references, unit references,20waves and pinned WaveManager hash. Config constants are generated from audited source facts."
+  ],
+  "mutations": [
+    {
+      "mutation": "rerollInitialChanceForRepeats",
+      "passed": 9,
+      "failed": 1
+    },
+    {
+      "mutation": "lateRepeatRuleRead",
+      "passed": 9,
+      "failed": 1
+    },
+    {
+      "mutation": "skipIntegerGuard",
+      "passed": 7,
+      "failed": 3
+    }
+  ],
+  "checks": {
+    "sourceCompiler": true,
+    "stylua": true,
+    "selene": {
+      "errors": 0,
+      "existingWarnings": 18,
+      "parseErrors": 0,
+      "api": "cached Roblox API; exit1 from warnings"
+    },
+    "rojo": true
+  },
+  "fullSuite": {
+    "rerun": false,
+    "reason": "Only new unreferenced component/config/source compiler/test files after previous full run; no existing gameplay module changed.10focusedchecks green.",
+    "latestUnchangedRuntimeBaseline": "build/native-five-branch-ten-dimetrodon-registration-de4e155.json",
+    "baselineSpecs": 355,
+    "baselinePassed": 2118,
+    "baselineFailed": 38
+  },
+  "status": {
+    "productionAdapterImplemented": false,
+    "junglePlayable": false,
+    "codePreparedCharacters": 48,
+    "open": 26,
+    "registeredJungleBodies": 30,
+    "registeredJungleImages": 43,
+    "newCompletedCharacters": 0
+  },
+  "limits": [
+    "Not connected to SpawnDirector production loop; actual group placement/unit creation and original condition selection remain pending.",
+    "Active DLC selection, dynamic item/effect groups, elite/horde/boss composition and endless additions are not implemented by this scheduler component.",
+    "Enemy Meca/Mutant/boss/SeaPig dependencies, area and actual200Whip/Flail route remain pending.",
+    "No new Remote/Arsenal/snapshot/upload/runtime asset IDs/Studio/real2clients/mobile acceptance."
+  ]
+}

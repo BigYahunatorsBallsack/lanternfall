@@ -85,11 +85,18 @@ def catalog(out):
   return nodes
  def radius(properties):
   path,sub=properties['shape']['resource'].split('::');return out['scenes'][path]['shapes'][sub]['properties'].get('radius',10)
+ def inherited_root(path):
+  scene=out['scenes'][path]
+  root=next((n['properties'] for n in scene['nodes'] if n['parent'] is None),{})
+  return {**(inherited_root(scene['baseScene']) if scene.get('baseScene') else {}),**root}
  for row in out['pets']:
   effect=row['effect'];slug=row['slug'];structure=effect['is_structure'];ranged=slug in ['catling_gun','bot_o_mine']
   speed=next(n['properties']['stats'] for n in out['scenes'][effect['scene']['resource']]['nodes'] if 'stats' in n['properties'])
   weapon_ref=effect.get('weapon_stats') or next(n['properties']['weapon_stats'] for n in out['scenes'][effect['scene']['resource']]['nodes'] if 'weapon_stats' in n['properties'])
   pet={'speedPoints':props(speed)['speed'],'isStructure':structure,'weapon':weapon(props(weapon_ref),structure,ranged)}
+  origin=inherited_root(effect['scene']['resource']).get('shoot_projectiles',False)
+  assert isinstance(origin,bool),slug
+  pet['weapon']['petSourceShootsProjectiles']=origin
   if slug=='lootworm':
    nodes=inherited_nodes(effect['scene']['resource']);body=nodes['Collision','.'];hit=nodes['Hitbox','.'];sensor=nodes['TreeArea2D','.'];attract=nodes['CollisionShape2D','ItemAttractArea'];pickup=nodes['CollisionShape2D','ItemPickUpArea']
    pet.update({'lootworm':True,'doubleChance':effect['double_chance'],'treeDamageRatio':nodes[next(key for key in nodes if key[1] is None and 'tree_damage_ratio' in nodes[key])]['tree_damage_ratio'] if any(key[1] is None and 'tree_damage_ratio' in nodes[key] for key in nodes) else 5,'bodyRadiusPoints':radius(body),'bodyOffsetXPoints':body['position']['values'][0],'bodyOffsetZPoints':body['position']['values'][1],'hitRadiusPoints':radius(nodes['Collision','Hitbox']),'hitOffsetXPoints':hit['position']['values'][0],'hitOffsetZPoints':hit['position']['values'][1],'treeRadiusPoints':radius(nodes['CollisionShape2D','TreeArea2D']),'treeOffsetXPoints':sensor['position']['values'][0],'treeOffsetZPoints':sensor['position']['values'][1],'attractRadiusPoints':radius(attract)*attract['scale']['values'][0],'pickupRadiusPoints':radius(pickup)*pickup['scale']['values'][0],'pickupOffsetXPoints':pickup['position']['values'][0],'pickupOffsetZPoints':pickup['position']['values'][1]})
@@ -108,7 +115,9 @@ def catalog(out):
     rigs[side.lower()]={'pivotXPoints':pivot['position']['values'][0],'pivotZPoints':pivot['position']['values'][1],'restRotation':pivot.get('rotation',0),'muzzleXPoints':x,'muzzleZPoints':z}
    pet.update({'catling':True,'bodyRadiusPoints':radius(body),'bodyOffsetXPoints':body['position']['values'][0],'bodyOffsetZPoints':body['position']['values'][1],'boostRadiusPoints':radius(nodes['CollisionShape2D','PlayerTriggerZone']),'targetRadiusPoints':radius(nodes['CollisionShape2D','TargetTriggerZone']),'boostAttackRatio':0.5,'muzzleOriginXPoints':ax+vx+bx-100,'muzzleOriginZPoints':az+vz+bz-100,'bodyRotation':nodes['sp_body','Animation/Viewport/offset'].get('rotation',0),'guns':rigs,'wander':{'marginXPoints':viewport[0]/2,'marginZPoints':viewport[1]/2,'arrivalPoints':10,'tries':8,'forbiddenPushPoints':8,'zeroSquaredPoints':0.001}})
   if 'explosion_effect' in effect:pet['explosion']=weapon(props(props(effect['explosion_effect'])['stats']),exploding=True)
-  if 'ranged_weapon_stats' in effect:pet['ranged']=weapon(props(effect['ranged_weapon_stats']),ranged=True)
+  if 'ranged_weapon_stats' in effect:
+   pet['ranged']=weapon(props(effect['ranged_weapon_stats']),ranged=True)
+   pet['ranged']['petSourceShootsProjectiles']=origin
   if 'landmine_effect_stat' in effect:pet['mine']=weapon(props(props(effect['landmine_effect_stat'])['stats']),structure=True,exploding=True)
   if slug=='bot_o_mine':
    nodes=inherited_nodes(effect['scene']['resource'])

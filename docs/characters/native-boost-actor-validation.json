@@ -1,0 +1,135 @@
+{
+  "referenceVersion": "1.2.0.3",
+  "steamBuild": 26642464,
+  "baseMain": "de4e155e97855cc18ffb52b1e81e53d1af8532fc",
+  "scope": "Executable server-side Enemy.boost stat stage with caller-supplied source cache/context; no automatic run context/wave provider or evolution effects/attack-profile activation.",
+  "ruleSources": [
+    {
+      "source": "res://singletons/entity_service.gdc",
+      "sourceMd5": "f1a861f576858bbaa3e913d83c7b1807"
+    },
+    {
+      "source": "res://entities/units/unit/unit.gdc",
+      "sourceMd5": "aa94391f2d9681ac36b7f8617b82ff13"
+    },
+    {
+      "source": "res://singletons/utils.gdc",
+      "sourceMd5": "2c263b6d3c2355dd71d6ad4caf0705bf"
+    },
+    {
+      "source": "res://singletons/coop_service.gdc",
+      "sourceMd5": "c7acffec9f3ec81159811794fd343149"
+    },
+    {
+      "source": "res://main.gdc",
+      "sourceMd5": "e42c7c4356e6cb9d2da8190067ebf7e5"
+    }
+  ],
+  "focused": {
+    "NativeEnemyBoostActor": "6/0; initial4cases0/4 after correcting a test syntax typo, two additional source sampling/descendant cases passed",
+    "NativeEnemyStatCache": "8/0 unchanged after factoring raw pre-rounding accessors",
+    "NativeNightmareEnemyRuntime": "6/0"
+  },
+  "proof": [
+    "EnemyStats.spawnSpeedFactor retains its existing first two results and appends the original integer speed argument before global factors. EnemySim retains it by actor id across actual Charm conversion; no inverse reconstruction from rounded speed.",
+    "Nightmare kinds now explicitly use their source integer randomized speed sampler, including accessibility before offset truncation. HornedFly sample337 -> raw277.351 ->277; Triceratops255 -> raw258.315 ->258. Fixed JungleGobbler350/stationary DinoEgg0 and unchanged legacy sampling verified.",
+    "EnemySim.applyNativeBoost resolves hostile or friendly World by the actual id, checks source policy/alive/canBeBoosted before touching cache, reads the current source run wave and applies cached raw HP/contact/shot/speed bases via World.resetNativeStats.",
+    "Actual Triceratops with source-matching two-player factors starts102HP and resets/heals to256; raw contact yields2, not double-rounded3; original speed argument255 yields387px/s. A later zero modifier resets to102HP from the retained cache, not fresh changed player stats or a compounded boost.",
+    "Actual Charm conversion retains id, position, owner and source speed sample; cached boost heals the real friendly actor to256 without respawn or new lifetime.",
+    "Real boosted BloatedSpawner death creates five DireJunkies with updated unboosted global factors:22HP/2contact, not the boosted parent values or old debug99 multipliers. Shared nativeBases.spawn and spawnContexts are updated without inheriting boost percentages.",
+    "SeaPig boost refusal, dead/unknown actors and unported legacy kinds are rejected; refused boost does not warm an empty cache. Future evolution scene adapter must still apply flags/effects/attack reset after a valid live actor refuses its stat boost."
+  ],
+  "mutations": [
+    {
+      "mutation": "storeRoundedSpeedInsteadOfIntegerSample",
+      "passed": 5,
+      "failed": 1
+    },
+    {
+      "mutation": "roundHealthBeforeBoost",
+      "passed": 4,
+      "failed": 2
+    },
+    {
+      "mutation": "roundContactBeforeBoost",
+      "passed": 5,
+      "failed": 1
+    },
+    {
+      "mutation": "ignoreFriendlyWorld",
+      "passed": 5,
+      "failed": 1
+    },
+    {
+      "mutation": "computeBeforeBoostRefusal",
+      "passed": 5,
+      "failed": 1
+    },
+    {
+      "mutation": "loseUpdatedDescendantContext",
+      "passed": 5,
+      "failed": 1
+    }
+  ],
+  "fullSuite": {
+    "specs": 366,
+    "passed": 2185,
+    "failed": 37,
+    "aborts": 0,
+    "newFailureIdentitiesVsKnown": [],
+    "returnedKnownFailureIdentitiesVsSpeedBound": [
+      "FAIL new enemies (B9) > lets a Gobbler eat the orbs on the floor and drop them all when killed",
+      "FAIL smoke > chases the player until it touches them"
+    ],
+    "artifact": "build/native-five-branch-ten-native-boost-actor-de4e155.json",
+    "runtimeFrozenDuringRun": true
+  },
+  "checks": {
+    "stylua": true,
+    "rojo": true,
+    "selene": {
+      "errors": 0,
+      "existingWarnings": 18,
+      "parseErrors": 0,
+      "api": "cached Roblox API; warnings-only exit1"
+    }
+  },
+  "interfaces": [
+    "EnemyStats.spawnSpeedFactor appends optional third original-integer-speed result; first two contracts retained.",
+    "EnemySim.applyNativeBoost(id, NativeEnemyStatCache.State, Context, {hp,damage,speed percentages})->boolean is server-only.",
+    "NativeEnemyStatCache.rawHealth/rawDamage/rawSpeed expose unrounded cached-factor results for one final actor reset."
+  ],
+  "status": {
+    "explicitActorStatCommandImplemented": true,
+    "automaticRunContextProviderImplemented": false,
+    "evolutionEffectsAndProfilesImplemented": false,
+    "codePreparedCharacters": 48,
+    "open": 26,
+    "newCompletedCharacters": 0,
+    "junglePlayable": false
+  },
+  "limits": [
+    "The command needs a caller-owned source cache/context and currently has no gameplay producer. It is not an installed run-wide context provider or a complete evolution scene effect.",
+    "A single source cache shared by hostile/friendly actors, exact Main._ready/reset timing, context reads and original enemy-time reset side effect remain pending.",
+    "Other original global effect mechanics, legacy actor policies, additional registered projectiles/profile switching and native Area/frame/solver/pooling/render/Studio/two-client/mobile acceptance remain open.",
+    "No new Remote/snapshot/Arsenal/upload/runtime asset IDs."
+  ],
+  "coveredByLaterFullSuite": {
+    "specs": 367,
+    "passed": 2195,
+    "failed": 35,
+    "aborts": 0,
+    "newFailureIdentitiesVsActor": [],
+    "missingFailureIdentitiesVsActor": [
+      "FAIL new enemies (B9) > lets a Gobbler eat the orbs on the floor and drop them all when killed",
+      "FAIL smoke > chases the player until it touches them"
+    ],
+    "artifact": "build/native-five-branch-ten-native-stats-provider-de4e155.json",
+    "runtimeFrozenDuringRun": true
+  },
+  "liveNumericProviderFollowup": {
+    "implemented": true,
+    "proof": "docs/characters/native-stats-provider-validation.json",
+    "scope": "Supported native actor births/Buffer/descendants; enemy-time reset/evolution/legacy global producers remain open."
+  }
+}

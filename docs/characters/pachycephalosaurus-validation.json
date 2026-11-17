@@ -1,0 +1,159 @@
+{
+  "referenceVersion": "1.2.0.3",
+  "steamBuild": 26642464,
+  "baseMain": "de4e155e97855cc18ffb52b1e81e53d1af8532fc",
+  "draftPr": 151,
+  "scope": "Register normal Pachycephalosaurus/type54 as a real neutral Jungle server actor with native charge/shield and source-aware projectile producer acceptance. No evolution/playable Jungle or new character completion claimed.",
+  "source": {
+    "source": "res://entities/units/enemies/jungle/basic/pachycephalosaurus/pachycephalosaurus.tscn",
+    "sourceMd5": "a03085289992494611235136195a9ace",
+    "statsSource": "res://entities/units/enemies/jungle/basic/pachycephalosaurus/pachycephalosaurus_stats.tres",
+    "statsMd5": "df570b6e3711a9f4beeb81c76a7d952f",
+    "body": {
+      "radiusPoints": 53.0,
+      "offsetPoints": [
+        0,
+        -36
+      ],
+      "source": "res://entities/units/enemies/jungle/basic/pachycephalosaurus/pachycephalosaurus.tscn",
+      "sourceMd5": "a03085289992494611235136195a9ace"
+    },
+    "hurt": {
+      "radiusPoints": 47.0106,
+      "offsetPoints": [
+        0,
+        -13
+      ],
+      "source": "res://entities/units/enemies/jungle/basic/pachycephalosaurus/pachycephalosaurus.tscn",
+      "sourceMd5": "a03085289992494611235136195a9ace"
+    },
+    "hit": {
+      "radiusPoints": 35.0571,
+      "offsetPoints": [
+        0,
+        -17
+      ],
+      "source": "res://entities/units/enemies/jungle/basic/pachycephalosaurus/pachycephalosaurus.tscn",
+      "sourceMd5": "a03085289992494611235136195a9ace"
+    },
+    "sprite": {
+      "source": "res://entities/units/enemies/jungle/basic/pachycephalosaurus/pachycephalosaurus.png",
+      "textureSource": "res://.import/pachycephalosaurus.png-0796d6406660a5ac3f559230f05a86d8.stex",
+      "textureMd5": "a3c488c2a1482350f0bfbbddc1ba5475",
+      "widthPoints": 150,
+      "heightPoints": 150
+    }
+  },
+  "rules": [
+    "HP12+12 per wave, contact damage1+1 per wave, native speed275+/-25px/s, knockback resistance0.7; health factor1.",
+    "Body radius53px offset0/-36, hurt47.0106px with total0/-29, contact35.0571px offset0/-17. Collision transforms preserve inherited parent position with independently verified child offsets.",
+    "Ordinary two-axis follower outside charge; no Ankylosaurus arena-wander policy or Triceratops horizontal halving. Shoot-time around-player direction uses the existing approved rule with radius100px and movement-direction cone.",
+    "Existing native charge timer/speed400px/s and source defense clock are connected to the actor. Reflection state is live before damage and remains through charm faction transfer; death clears capability.",
+    "Pachy source _on_hurt never calls generic Enemy._on_hurt, even outside shield; generic hurt slows are suppressed while direct damage/Unit effects remain independent.",
+    "Original Structure derives from Entity, not Pet/RangedWeapon. Turret and DartTrap projectile factories pass self. Six ordinary native projectile-producing structure definitions therefore bypass the shield. Ordinary Turret does not trigger Fly ranged counter.",
+    "Real configured behavior fire/step calls prove38 ordinary ranged weapon routes; Sticky and Boomerang retain their separately verified source exceptions. Actual melee on-hit volley retains its MeleeWeapon origin and bypasses the ranged predicate."
+  ],
+  "interfaces": [
+    "JungleWalkers adds Pachycephalosaurus/type54 with normalDeflectCharge=true; JungleEnemyKinds connects the existing JungleDeflectCharges.rule after scene-MD5 validation.",
+    "Source actorRegistered/normalActorRegistered/normalProjectileDefenseConnected now true; legacy aggregate projectileDefenseConnected stays false because full physics/evolution/area parity is not accepted.",
+    "No new EnemySim/WeaponService interface, remote, schema or Arsenal change."
+  ],
+  "focused": {
+    "NativePachycephalosaurus": {
+      "passed": 5,
+      "failed": 0
+    },
+    "NativeWeaponDefenseRoutes": {
+      "passed": 39,
+      "failed": 0
+    },
+    "NativePetDefense": {
+      "passed": 14,
+      "failed": 0
+    },
+    "NativeDeflectCharge": {
+      "passed": 8,
+      "failed": 0
+    },
+    "MainGameEnemyStats": {
+      "passed": 29,
+      "failed": 0
+    },
+    "WorldSprites": {
+      "passed": 12,
+      "failed": 0
+    },
+    "red": "Before actor registration0/4; final5/0. No tests skipped or budgets relaxed.",
+    "mutation": "Removing the normal deflect-rule connection gives2/3 with missing charge-target contract/absent defense. Original JungleEnemyKinds restored byte-for-byte before checks and full run.",
+    "fixtureCorrections": "Initial routing fixture used a target below Harpoon minimum range, assumed all initial bounce counts were0, and reused the ignored primary victim for melee secondary shots. Corrected fixture to source contracts; no production behavior changed for routing acceptance.",
+    "existingExpectations": "Snapshot-kind count53->54 with all uniqueness assertions retained; actorRegistered false->true plus explicit normal registration/defense checks.",
+    "trackedRunner": "NativePachycephalosaurus5/0 after final suite, using checked-in runner; production unchanged."
+  },
+  "fullSuite": {
+    "specs": 309,
+    "passed": 1945,
+    "failed": 36,
+    "artifact": "build/native-five-branch-ten-pachycephalosaurus-de4e155.json",
+    "comparisonArtifacts": [
+      "build/native-five-branch-ten-boomerang-defense-de4e155.json",
+      "build/native-five-branch-ten-pet-source-reactions-de4e155.json",
+      "build/native-five-branch-nine-defense-reentry-final-4cf1050.json",
+      "build/native-five-branch-nine-projectile-defense-final-4cf1050.json",
+      "build/native-five-branch-nine-deflect-4cf1050.json",
+      "build/native-five-branch-nine-1203-4cf1050.json"
+    ],
+    "newFailureNames": [],
+    "aborts": [],
+    "runtimeUnchangedDuringRun": true,
+    "deltaFromImmediatePrevious": {
+      "returned": [],
+      "absent": []
+    },
+    "interpretation": "Compare failure identities. Known Smoke/Gobbler and CharmedWorld budget fluctuation are not claimed repaired by a green single run.",
+    "additionalPassedComparedWithPrevious": 51
+  },
+  "checks": {
+    "stylua": "passed",
+    "selene": "0errors/18existingWarnings",
+    "rojo": "passed",
+    "compilers": "jungle-walkers, jungle-colliders, deflect-charges --check passed",
+    "localImages": "prepare-character-jungle-art --check passed; lossless RGBA and local preview checked"
+  },
+  "counts": {
+    "codePrepared": 48,
+    "codeOpen": 26,
+    "newCompleteCharacters": 0,
+    "neutralJungleBodiesPrepared": 15,
+    "localJungleImages": 19
+  },
+  "localImage": {
+    "id": "Pachycephalosaurus",
+    "source": "res://entities/units/enemies/jungle/basic/pachycephalosaurus/pachycephalosaurus.png",
+    "textureSource": "res://.import/pachycephalosaurus.png-0796d6406660a5ac3f559230f05a86d8.stex",
+    "textureMd5": "a3c488c2a1482350f0bfbbddc1ba5475",
+    "output": "assets/enemies/native-jungle/Pachycephalosaurus.png",
+    "size": [
+      150,
+      150
+    ],
+    "alphaBounds": [
+      9,
+      17,
+      144,
+      131
+    ],
+    "rgbaSha256": "53c01adc03fe07102c7ac97237a4b7657ad76e605c36de6feeb0923396843128",
+    "pngSha256": "e619910fa67ee9069c4fce279255e1a19f31e3d6fc486d8db585ca588c028b30"
+  },
+  "open": [
+    "Pachycephalosaurus Meca/Mutant evolution variants are source facts only. No native original shader/animation/runtime art acceptance.",
+    "Remaining Jungle families, bosses, waves and complete area route; Jungle remains unselectable and no new character is complete.",
+    "Native physics-event ordering, fixed step/time-factor/manual-aim/screen-culling and complete weapon-family parity still require acceptance.",
+    "Fly reentry responses for an already damage-ignored projectile remain a separate missing rule.",
+    "Studio/two-client/mobile and stable native performance acceptance, including unresolved CharmedWorld CPU fluctuation."
+  ],
+  "merged": false,
+  "uploads": 0,
+  "runtimeAssetIdsChanged": 0,
+  "arsenalChanged": false
+}

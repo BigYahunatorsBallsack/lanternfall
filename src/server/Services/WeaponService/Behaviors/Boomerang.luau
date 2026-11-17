@@ -5,6 +5,7 @@ local C = require(Shared.Config.Combat).nativeBoomerang
 local Combat = require(script.Parent.Parent.BrotatoCombat)
 local Target = require(script.Parent.Parent.WeaponTarget)
 local Pose = require(Shared.Util.WeaponPose)
+local Defense = require(script.Parent.Parent.NativeProjectileDefense)
 local Boomerang = {}
 local targets, found = {}, {}
 local function emit(weapon, ctx, shot, kind)
@@ -56,6 +57,8 @@ function Boomerang.fire(weapon, ctx): boolean
 			phase = "Out",
 			phaseTime = 0,
 			age = 0,
+			rotation = math.atan2(vz, vx),
+			bounces = stats.bounce or 0,
 			hit = {},
 			stats = table.clone(stats),
 		}
@@ -76,6 +79,7 @@ function Boomerang.step(weapon, ctx, dt)
 	end
 	for i = #shots, 1, -1 do
 		local shot = shots[i]
+		shot.rotation += math.rad(C.hitRotationDegreesPerSecond * dt)
 		shot.age += dt
 		shot.phaseTime += dt
 		local stop = not alive or shot.age >= C.maximumFlightSeconds
@@ -115,13 +119,31 @@ function Boomerang.step(weapon, ctx, dt)
 			emit(weapon, ctx, shot, "End")
 			table.remove(shots, i)
 		else
-			local angle = math.atan2(shot.dz, shot.dx) + math.rad(C.hitRotationDegreesPerSecond * shot.age)
+			local angle = shot.rotation
 			local ox = C.hitOffsetX * math.cos(angle) - C.hitOffsetZ * math.sin(angle)
 			local oz = C.hitOffsetX * math.sin(angle) + C.hitOffsetZ * math.cos(angle)
+			Defense.refresh(shot, oldX + ox, oldZ + oz, C.radius)
 			local n = ctx:querySegment(oldX + ox, oldZ + oz, shot.x + ox, shot.z + oz, C.radius, found)
 			for k = 1, n do
 				local id = found[k]
-				if not shot.hit[id] then
+				local candidate, capable =
+					Defense.candidate(shot, id, weapon.config.kind, shot.stats.nativePetRangedOrigin)
+				if not candidate then
+					continue
+				end
+				if Defense.enter(shot, id, capable) then
+					-- Inherited bounce consumes target RNG, but zero velocity leaves the independent phase path intact.
+					local angle = Defense.direction(id, shot.x, shot.z, function()
+						return ctx:random()
+					end)
+					shot.bounces -= 1
+					-- Source atan2 retains signed zero: a zero-speed bounce can still face +/-pi.
+					shot.rotation = math.atan2(math.sin(angle) * 0, math.cos(angle) * 0)
+					if shot.stats.damage > 0 then
+						shot.stats.damage = math.max(1, math.floor(shot.stats.damage * (shot.stats.bounceDamage or 1)))
+					end
+					shot.stats.knockback, shot.stats.knockbackPiercing = 0, nil
+				elseif not shot.hit[id] then
 					shot.hit[id] = true
 					ctx:setHitDirection(shot.dx, shot.dz)
 					Combat.hit(weapon, ctx, id, 1, shot.stats)

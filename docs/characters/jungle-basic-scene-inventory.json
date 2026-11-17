@@ -1,0 +1,184 @@
+{
+  "version": "1.2.0.3",
+  "steamBuild": "26642464",
+  "scope": "Installed top-level Jungle basic scene inventory; registration is not a full native mechanics/area acceptance.",
+  "registeredCount": 30,
+  "sceneCount": 31,
+  "scenes": [
+    {
+      "source": "res://entities/units/enemies/jungle/basic/alamosaurus/alamosaurus.tscn",
+      "sourceMd5": "7ba3068381b716d8ba790ae9b01b9359",
+      "registeredId": "Alamosaurus"
+    },
+    {
+      "source": "res://entities/units/enemies/jungle/basic/ankylosaurus/ankylosaurus.tscn",
+      "sourceMd5": "326c86b0680d2e079dc475a96564e7bd",
+      "registeredId": "Ankylosaurus"
+    },
+    {
+      "source": "res://entities/units/enemies/jungle/basic/baby_pterosaur/baby_pterosaur.tscn",
+      "sourceMd5": "09bebddbecb61796cef4301568dbb03d",
+      "registeredId": "BabyPterosaur"
+    },
+    {
+      "source": "res://entities/units/enemies/jungle/basic/baby_trex/baby_trex.tscn",
+      "sourceMd5": "66e87f432f2cc1a287c0296e24bea5fc",
+      "registeredId": "BabyTrex"
+    },
+    {
+      "source": "res://entities/units/enemies/jungle/basic/baby_triceratops/baby_triceratops.tscn",
+      "sourceMd5": "e71587f7d66132129f999902d9cea069",
+      "registeredId": "BabyTriceratops"
+    },
+    {
+      "source": "res://entities/units/enemies/jungle/basic/carnivorous_plant_mother/carnivorus_plant_mother.tscn",
+      "sourceMd5": "aa397e879dafd5bf59e2dd07a2a24f6a",
+      "registeredId": "CarnivorousPlantMother"
+    },
+    {
+      "source": "res://entities/units/enemies/jungle/basic/carnivorus_plant/carnivorus_plant.tscn",
+      "sourceMd5": "6b048dbbdeeb7744a9aca29f401120bf",
+      "registeredId": "CarnivorousPlant"
+    },
+    {
+      "source": "res://entities/units/enemies/jungle/basic/dilophosaurus/dilophosaurus.tscn",
+      "sourceMd5": "6ec2908e2954e9427209c82ae1530d77",
+      "registeredId": "Dilophosaurus"
+    },
+    {
+      "source": "res://entities/units/enemies/jungle/basic/dimetrodon/dimetrodon.tscn",
+      "sourceMd5": "8ed3603be4b656e5547746c4db25b19f",
+      "registeredId": "Dimetrodon"
+    },
+    {
+      "source": "res://entities/units/enemies/jungle/basic/dino_egg/dino_egg.tscn",
+      "sourceMd5": "f4ae9f35dfc0b07bfab74f2793302a52",
+      "registeredId": "DinoEgg"
+    },
+    {
+      "source": "res://entities/units/enemies/jungle/basic/enigmacursor/enigmacursor.tscn",
+      "sourceMd5": "8c814a90bf1f2a1fa89d38616f4998fe",
+      "registeredId": "Enigmacursor"
+    },
+    {
+      "source": "res://entities/units/enemies/jungle/basic/evil_mob_jungle/evil_mob_jungle.tscn",
+      "sourceMd5": "21d75638a8e9d39ba1d3cfae570cda13",
+      "registeredId": "JungleGobbler"
+    },
+    {
+      "source": "res://entities/units/enemies/jungle/basic/gallimimus/gallimimus.tscn",
+      "sourceMd5": "9febe8189eade190908a0bff930e341f",
+      "registeredId": "Gallimimus"
+    },
+    {
+      "source": "res://entities/units/enemies/jungle/basic/giant_dragonfly/giant_dragonfly.tscn",
+      "sourceMd5": "f2fbc5a6c55e9d3a80fb90590383f1f5",
+      "registeredId": "GiantDragonfly"
+    },
+    {
+      "source": "res://entities/units/enemies/jungle/basic/graciliceratops/graciliceratops.tscn",
+      "sourceMd5": "8bcde133e9a8cfdeead587eec3380bf0",
+      "registeredId": "Graciliceratops"
+    },
+    {
+      "source": "res://entities/units/enemies/jungle/basic/harpymimus_looter/harpymimus_looter.tscn",
+      "sourceMd5": "e0ac4e69c2a21f8fe8af3800e5588c10",
+      "registeredId": "HarpymimusLooter"
+    },
+    {
+      "source": "res://entities/units/enemies/jungle/basic/hesperosaurus/hesperosaurus.tscn",
+      "sourceMd5": "fdd88f937e318579cad54e34275a40d8",
+      "registeredId": "Hesperosaurus"
+    },
+    {
+      "source": "res://entities/units/enemies/jungle/basic/iguanodon/iguanodon.tscn",
+      "sourceMd5": "2ef45c86848db34cf87bb386d52ea499",
+      "registeredId": "Iguanodon"
+    },
+    {
+      "source": "res://entities/units/enemies/jungle/basic/jeholopterus/jeholopterus.tscn",
+      "sourceMd5": "fe21989669d74261e3f07c2f0b17051e",
+      "registeredId": "Jeholopterus"
+    },
+    {
+      "source": "res://entities/units/enemies/jungle/basic/lystrosaurus/lystrosaurus.tscn",
+      "sourceMd5": "09a4bfc5444cdeb6d90f752bf186ed8b",
+      "registeredId": "Lystrosaurus"
+    },
+    {
+      "source": "res://entities/units/enemies/jungle/basic/oviraptor/oviraptor.tscn",
+      "sourceMd5": "37070a438aa1f6a6d9d7fc460bdfa695",
+      "registeredId": "Oviraptor"
+    },
+    {
+      "source": "res://entities/units/enemies/jungle/basic/pachycephalosaurus/pachycephalosaurus.tscn",
+      "sourceMd5": "a03085289992494611235136195a9ace",
+      "registeredId": "Pachycephalosaurus"
+    },
+    {
+      "source": "res://entities/units/enemies/jungle/basic/pachyrhinosaurus/pachyrhinosaurus.tscn",
+      "sourceMd5": "e8dcda88bdd74d8f2acb11d750b4545e",
+      "registeredId": "Pachyrhinosaurus"
+    },
+    {
+      "source": "res://entities/units/enemies/jungle/basic/parasaurolus/parasaurolorus.tscn",
+      "sourceMd5": "2c702c7aa16bbd1b42b8e20249289f9a",
+      "registeredId": "Parasaurolorus"
+    },
+    {
+      "source": "res://entities/units/enemies/jungle/basic/pterosaur/pterosaur.tscn",
+      "sourceMd5": "a7f783ea21c5273ff41307e56996f5d0",
+      "registeredId": "Pterosaur"
+    },
+    {
+      "source": "res://entities/units/enemies/jungle/basic/pyroraptor/pyroraptor.tscn",
+      "sourceMd5": "578c22bb9796e7bdb0110d5cb86d6f98",
+      "registeredId": "Pyroraptor"
+    },
+    {
+      "source": "res://entities/units/enemies/jungle/basic/stegosaurus/stegosaurus.tscn",
+      "sourceMd5": "6e97f25d4906345fc80bdeff81d19913",
+      "registeredId": "Stegosaurus"
+    },
+    {
+      "source": "res://entities/units/enemies/jungle/basic/stintaosaurus/stintaosaurus.tscn",
+      "sourceMd5": "c1df4a85dce03fb7736348a2022077af",
+      "registeredId": "Stintaosaurus"
+    },
+    {
+      "source": "res://entities/units/enemies/jungle/basic/triceratops/triceratops.tscn",
+      "sourceMd5": "6dc0fcc1efaf86142c9467b8d0604f88",
+      "registeredId": "Triceratops"
+    },
+    {
+      "source": "res://entities/units/enemies/jungle/basic/velociraptor/velociraptor++.tscn",
+      "sourceMd5": "17dd429ba117f038f69ef786320cd9c4",
+      "registeredId": null
+    },
+    {
+      "source": "res://entities/units/enemies/jungle/basic/velociraptor/velociraptor.tscn",
+      "sourceMd5": "0991656b37d4670393f527dc91009d90",
+      "registeredId": "Velociraptor"
+    }
+  ],
+  "unregistered": [
+    "res://entities/units/enemies/jungle/basic/velociraptor/velociraptor++.tscn"
+  ],
+  "velociraptorPlusAudit": {
+    "textResourceReferences": [
+      "res://dlcs/dlc_2/challenges/clever_girl_data.tres",
+      "res://entities/units/enemies/jungle/basic/velociraptor/velociraptor++.tscn",
+      "res://entities/units/enemies/jungle/basic/velociraptor/velociraptor++_item.tres"
+    ],
+    "challenge": "res://dlcs/dlc_2/challenges/clever_girl_data.tres",
+    "reward": "res://items/all/04_primal_dread/raptor_eye/raptor_eye.tres",
+    "challengeMentionsEnemyId": true,
+    "waveSpawnBindingVerified": false,
+    "unusedClaimed": false,
+    "implementedClaimed": false,
+    "note": "Text/gdc literal byte scan is not a proof of absent runtime/dynamic bindings. Audit decoded spawner and wave sources before deciding whether/where to add this scene."
+  },
+  "evolutionVariantsImplemented": false,
+  "zonePlayable": false,
+  "completeCharactersAdded": 0
+}

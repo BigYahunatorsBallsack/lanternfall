@@ -25,7 +25,11 @@ function EnemyStats.canSpawn(kind: Enemies.Enemy, wave: number, danger: number, 
 end
 
 function EnemyStats.baseShot(kind: Enemies.Enemy): number
-	if kind.ranged then
+	if kind.nativeBoss then
+		return kind.nativeBoss.projectileDamage
+	elseif kind.nativeRadialShots then
+		return kind.nativeRadialShots.projectileDamage
+	elseif kind.ranged then
 		return kind.ranged.projectileDamage
 	elseif kind.slash then
 		return kind.slash.damage
@@ -58,16 +62,21 @@ function EnemyStats.spawnSpeedFactor(
 	roll: number,
 	multiplier: number,
 	accessibility: number?
-): number
+): (number, number?, number?)
 	local rule = kind.nativeSpeedPoints
+	if kind.nativeFixedSpeed then
+		return 1, nil, if rule then rule.base else nil
+	end
 	if not rule then
 		return multiplier * EnemyStats.speedFactor(kind, roll)
 	end
 	if kind.speed == 0 then
-		return 0
+		return 0, nil, rule.base
 	end
 	local offset = math.modf((math.clamp(roll, 0, 1) * 2 - 1) * rule.randomization * (accessibility or 1))
-	return math.round((rule.base + offset) * multiplier) * Pixel / kind.speed
+	local originalPoints = rule.base + offset
+	local rawPoints = originalPoints * multiplier
+	return math.round(rawPoints) * Pixel / kind.speed, rawPoints, originalPoints
 end
 
 return EnemyStats

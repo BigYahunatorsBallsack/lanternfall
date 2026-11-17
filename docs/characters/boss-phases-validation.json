@@ -1,0 +1,103 @@
+{
+  "referenceVersion": "1.2.0.3",
+  "steamBuild": 26642464,
+  "baseMain": "de4e155e97855cc18ffb52b1e81e53d1af8532fc",
+  "scope": "Executable source Boss Timer.timeout phase-selection component and actual seven-scene threshold bindings; not registered bosses or a production controller.",
+  "focused": {
+    "NativeBossPhases": "9/0; initial8cases0/8; added health-reader case8/1 before reread implementation",
+    "compilerBindings": "4/0; child properties cannot overwrite phase root, unresolved defaults/order/scene binding rejected"
+  },
+  "sourceFacts": [
+    "Boss starts at source state-1 and elapsed0. Each actual timeout increments elapsed by1 before examining later child phases.",
+    "Source child order and inclusive HP/time thresholds are preserved; every eligible later child calls on_state_changed synchronously before the next child.",
+    "The health getter can reread actual HP/maxHP after a prior callback; already passed phases never re-enter after healing.",
+    "Actual generic bindings: Tyranosaurus0.7/15, Baryonyx0.5/30, Diplodocus0.5/25, Silesaurus0.85/10 then0.5/35, Therizinosaurus0.45/30.",
+    "Carnotaurus overrides the timer and requests a phase switch after its current jump has landed. Brachiosaurus invokes its own increasing phase index directly. Both are rejected by the base-phase constructor.",
+    "The component consumes actual timeout events; it does not claim source Timer scheduling, pause semantics, frame catch-up or boss attack-clock integration."
+  ],
+  "interfaces": [
+    "EnemySim.NativeBossPhases.new(binding)->state; binding explicitly requires usesBasePhaseTimer=true.",
+    "onTimeout(state,hpFractionOrGetter,changedCallback?)->ordered source phase indices; changed callback observes state.current already updated and source phase binding.",
+    "Config.NativeBossPhases keeps audited numeric/source metadata, explicitly productionAdapterImplemented=false."
+  ],
+  "checks": {
+    "sourceCompiler": "passed",
+    "pythonBindingChecks": "4/0",
+    "stylua": "passed",
+    "selene": {
+      "errors": 0,
+      "warnings": 18,
+      "parseErrors": 0
+    },
+    "rojo": "passed"
+  },
+  "mutations": [
+    {
+      "mutation": "skipIntermediateCallbacks",
+      "passed": 8,
+      "failed": 1,
+      "detected": true
+    },
+    {
+      "mutation": "strictHealth",
+      "passed": 7,
+      "failed": 2,
+      "detected": true
+    },
+    {
+      "mutation": "strictTimer",
+      "passed": 7,
+      "failed": 2,
+      "detected": true
+    },
+    {
+      "mutation": "repeatOldPhase",
+      "passed": 7,
+      "failed": 2,
+      "detected": true
+    },
+    {
+      "mutation": "allowCustomTimer",
+      "passed": 8,
+      "failed": 1,
+      "detected": true
+    },
+    {
+      "mutation": "ignoreHealthReread",
+      "passed": 8,
+      "failed": 1,
+      "detected": true
+    }
+  ],
+  "fullComparison": {
+    "status": "finished",
+    "artifact": "build/native-five-branch-ten-native-boss-phases-de4e155.json",
+    "baseline": "build/native-five-branch-ten-native-scene-birth-de4e155.json",
+    "specs": 370,
+    "passed": 2220,
+    "failed": 37,
+    "aborts": 0,
+    "unknownFailureIdentities": [],
+    "returnedKnownFailure": "EnemiesB9 > lets a Gobbler eat the orbs on the floor and drop them all when killed; known in historical Actor/full runs",
+    "runtimeFrozenDuringComparison": true
+  },
+  "counts": {
+    "charactersCodePrepared": 48,
+    "charactersRemaining": 26,
+    "additionalCompleteCharacters": 0,
+    "registeredJungleBossesAdded": 0
+  },
+  "limits": [
+    "Only a source phase component, not BossService/BossBrain replacement or an automatically running Jungle boss.",
+    "Actual boss attack profiles, attack animations, spawning attacks, lasers/pivots/feet/jumps and Meca/Mutant profiles remain open.",
+    "No new ready flags, playable Jungle, uploads, runtime Asset IDs, Remote/snapshot/Arsenal or Studio acceptance."
+  ],
+  "coveredByLaterFull": {
+    "artifact": "build/native-five-branch-ten-native-boss-ring-de4e155.json",
+    "specs": 371,
+    "passed": 2224,
+    "failed": 38,
+    "newFunctionalFailureIdentities": [],
+    "timingBudgetsAccepted": false
+  }
+}

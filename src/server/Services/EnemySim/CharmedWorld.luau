@@ -34,6 +34,10 @@ function Friends.new(params: any, callbacks: any, projectileObstacles: { Volleys
 		targetHurtZs = {},
 		targetInputXs = {},
 		targetInputZs = {},
+		projectileTargetIds = {},
+		projectileTargetXs = {},
+		projectileTargetZs = {},
+		projectileTargetRadii = {},
 		shots = Volleys.new(shotOptions),
 		shotSources = {},
 		shotOwners = {},
@@ -55,6 +59,7 @@ function Friends.convert(self: any, source: any, id: number, owner: number, now:
 	local actor = self.world.indexOf[id]
 	local friendly = table.clone(kind)
 	friendly.nativeObstacleCollision = true -- Charm sets PETS_BIT + OBSTACLES_BIT, including previously flying bodies
+	friendly.nativeBodyLayer, friendly.nativeBodyMask = C.bodyLayer, C.bodyMask
 	local movement = C.movement[kind.id]
 	if movement then
 		friendly.wander = {
@@ -89,6 +94,10 @@ function Friends.clear(self: any)
 	table.clear(self.shotSources)
 	table.clear(self.shotOwners)
 	table.clear(self.previous)
+	table.clear(self.projectileTargetIds)
+	table.clear(self.projectileTargetXs)
+	table.clear(self.projectileTargetZs)
+	table.clear(self.projectileTargetRadii)
 	table.clear(self.members)
 	table.clear(self.counts)
 end
@@ -117,11 +126,26 @@ function Friends.fire(
 		{ kind = "CharmFire", id = id, x = x, z = z, dx = dx, dz = dz, speed = speed, range = range }
 	)
 end
+function Friends.fireNativeRadial(self: any, member: any, x: number, z: number, speed: number)
+	local rule = member.kind.nativeRadialShots
+	local damage = math.round(member.base.shot * C.damageMultiplier)
+	NativeVolley.emit(rule.volley, x, z, x, z, speed, function()
+		return if self.callbacks.random then self.callbacks.random(member.owner) else math.random()
+	end, function(px, pz, dx, dz, projectileSpeed)
+		self:fire(member, px, pz, dx, dz, projectileSpeed, rule.projectileRange, rule.projectileRadius, damage)
+	end)
+end
 local function stepShots(self: any, dt: number)
-	self.shots:step(dt, self.targetHurtXs, self.targetHurtZs, #self.targetIds, self.targetRadii)
+	self.shots:step(
+		dt,
+		self.projectileTargetXs,
+		self.projectileTargetZs,
+		#self.projectileTargetIds,
+		self.projectileTargetRadii
+	)
 	for index = 1, self.shots.hitCount do
 		local offset = (index - 1) * 2
-		local target = self.targetIds[self.shots.hits[offset + 1]]
+		local target = self.projectileTargetIds[self.shots.hits[offset + 1]]
 		self.callbacks.damage(target, self.shots.hits[offset + 2], self.shotSources[self.shots.hitSources[index]])
 	end
 	for index = 0, self.shots.endedCount - 1 do
@@ -154,9 +178,18 @@ local function fireShots(self: any, dt: number)
 		if ranged.nativeVolley then
 			NativeVolley.emit(ranged.nativeVolley, x, z, tx, tz, ranged.projectileSpeed, function()
 				return if self.callbacks.random then self.callbacks.random(member.owner) else math.random()
-			end, function(px, pz, dx, dz, speed)
-				if ranged.nativePillar then
-					self.callbacks.emitPillar(member.id, px, pz, dx, dz, speed, damage, member.owner)
+			end, function(px, pz, dx, dz, speed, scale)
+				if ranged.nativeForwardSlash then
+					self.callbacks.emitSlash(
+						member.id,
+						px,
+						pz,
+						damage,
+						member.owner,
+						{ dx = dx, dz = dz, speed = speed }
+					)
+				elseif ranged.nativePillar then
+					self.callbacks.emitPillar(member.id, px, pz, dx, dz, speed, damage, member.owner, scale)
 				else
 					self:fire(member, px, pz, dx, dz, speed, ranged.projectileRange, ranged.projectileRadius, damage)
 				end
@@ -247,6 +280,12 @@ function Friends.step(self: any, dt: number, now: number, hostile: any)
 	end
 	local ids, xs, zs, radii = self.targetIds, self.targetXs, self.targetZs, self.targetRadii
 	local inputXs, inputZs = self.targetInputXs, self.targetInputZs
+	local projectileIds, projectileXs, projectileZs, projectileRadii =
+		self.projectileTargetIds, self.projectileTargetXs, self.projectileTargetZs, self.projectileTargetRadii
+	table.clear(projectileIds)
+	table.clear(projectileXs)
+	table.clear(projectileZs)
+	table.clear(projectileRadii)
 	table.clear(ids)
 	table.clear(xs)
 	table.clear(zs)
@@ -264,17 +303,47 @@ function Friends.step(self: any, dt: number, now: number, hostile: any)
 			table.insert(self.targetHurtXs, hx)
 			table.insert(self.targetHurtZs, hz)
 			table.insert(radii, radius)
+			if hostile:isHurtEnabled(hostile.ids[index]) then
+				table.insert(projectileIds, hostile.ids[index])
+				table.insert(projectileXs, hx)
+				table.insert(projectileZs, hz)
+				table.insert(projectileRadii, radius)
+			end
 			local vx, vz = hostile:getMoveInput(hostile.ids[index])
 			table.insert(inputXs, vx)
 			table.insert(inputZs, vz)
 		end
 	end
-	local contacts = self.world:step(dt, xs, zs, #ids, self.targetHurtXs, self.targetHurtZs, radii, inputXs, inputZs)
+	local contacts =
+		self.world:step(dt, xs, zs, #ids, self.targetHurtXs, self.targetHurtZs, radii, inputXs, inputZs, nil, nil, ids)
+	if self.callbacks.jumpStarted then
+		for _, id in self.world.nativeJumpStarts do
+			local index = self.world.indexOf[id]
+			self.callbacks.jumpStarted(id, self.world.kinds[index], self.world.nativeJumps[index])
+		end
+	end
+	-- A native crossing can leave the map during World.step. Despawn is cleanup, not a Charm death.
+	if self.world.alive < self.world.count then
+		for id, member in self.members do
+			if not self.world:isAlive(id) then
+				self.members[id] = nil
+				self.counts[member.owner] -= 1
+			end
+		end
+	end
 	stepShots(self, dt)
+	for _, id in self.world.nativeLandings do
+		local member = self.members[id]
+		local rule = member and member.kind.nativeRadialShots
+		if rule then
+			local x, z = self.world:getPosition(id)
+			self:fireNativeRadial(member, x, z, rule.landSpeed)
+		end
+	end
 	fireShots(self, dt)
 	fireChargeTrails(self)
 	for index, id in ids do
-		if contacts[index] > 0 then
+		if contacts[index] > 0 and hostile:isHurtEnabled(id) then
 			local source = self.world.contactSources[index]
 			self.callbacks.damage(id, contacts[index], source)
 			local actor = self.world.indexOf[source]

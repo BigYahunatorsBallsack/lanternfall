@@ -1,0 +1,89 @@
+{
+  "version": "1.2.0.3",
+  "steamBuild": 26642464,
+  "source": "res://entities/units/neutral/tree_jungle.tscn",
+  "sourceMd5": "847e8fefe77dd28a3f60896168dbd10c",
+  "sceneChain": [
+    {
+      "source": "res://entities/units/neutral/tree_jungle.tscn",
+      "sourceMd5": "847e8fefe77dd28a3f60896168dbd10c"
+    },
+    {
+      "source": "res://entities/units/neutral/neutral.tscn",
+      "sourceMd5": "aacfa3e3686c240a15d71a38cf3df5a0"
+    },
+    {
+      "source": "res://entities/units/unit/unit.tscn",
+      "sourceMd5": "f003f2b96779960bc06b2d9c7a1557dd"
+    },
+    {
+      "source": "res://entities/entity.tscn",
+      "sourceMd5": "6b70440bccd50ac49048d848ff29c669"
+    }
+  ],
+  "statsSource": "res://entities/units/neutral/tree_jungle_stats.tres",
+  "statsMd5": "9e205859f76140c043c87f4fd507c51e",
+  "stats": {
+    "health": 10,
+    "health_increase_each_wave": 5.0,
+    "speed": 0,
+    "speed_randomization": 0,
+    "damage": 0,
+    "damage_increase_each_wave": 1.0,
+    "attack_cd": 999.0,
+    "value": 3,
+    "knockback_resistance": 1.0,
+    "gold_spread": 75,
+    "can_drop_consumables": true,
+    "always_drop_consumables": false,
+    "base_drop_chance": 1.0,
+    "item_drop_chance": 0.2,
+    "min_consumable_tier": 0,
+    "max_consumable_tier": 0,
+    "armor": 0,
+    "armor_increase_each_wave": 0.0,
+    "generate_blood": false
+  },
+  "body": {
+    "radiusPoints": 24.0,
+    "offsetPoints": [
+      0,
+      -16
+    ]
+  },
+  "hurt": {
+    "radiusPoints": 48.6621,
+    "offsetPoints": [
+      0,
+      -38
+    ]
+  },
+  "bodyLayer": 1,
+  "bodyMask": 2177,
+  "hitLimit": 8,
+  "mass": 1,
+  "ruleSource": {
+    "source": "res://entities/units/neutral/neutral.gdc",
+    "sourceMd5": "1e38d4f03af56046f66c85dbb304692f"
+  },
+  "sprite": {
+    "source": "res://entities/units/neutral/tree_jungle.png",
+    "textureSource": "res://.import/tree_jungle.png-289361d7c683c3fb08931c4804dc3aad.stex",
+    "textureMd5": "83ba29f61cfe5fca8dd252eed57d7699",
+    "widthPoints": 225,
+    "heightPoints": 225
+  },
+  "zoneId": 2,
+  "typeId": 71,
+  "actorRegistered": true,
+  "zonePlayable": false,
+  "nativeFullParityAccepted": false,
+  "audit": {
+    "neutralClassNotEnemy": true,
+    "countAllTakeDamageCalls": true,
+    "executionRejectsNonPlayerHitboxOwner": true,
+    "noHitboxCanExecute": true,
+    "oneShotTreesIndependentOfHitLimit": true,
+    "incrementsTreesKilledAfterSuperDie": true
+  }
+}

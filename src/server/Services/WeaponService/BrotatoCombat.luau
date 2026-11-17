@@ -102,6 +102,10 @@ function Combat.hit(
 	end
 	local original = weapon.stats
 	local stats = table.clone(shotStats or original)
+	-- Native Hurtbox handlers run before Enemy takes damage, including a lethal hit or Charm conversion.
+	if adapter.hurtContact then
+		adapter.hurtContact(id, weapon.config.kind, stats.petSourceShootsProjectiles)
+	end
 	if
 		stats.charmChance
 		and adapter.tryCharm

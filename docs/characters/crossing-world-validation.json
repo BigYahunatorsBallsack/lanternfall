@@ -1,0 +1,103 @@
+{
+  "referenceVersion": "1.2.0.3",
+  "steamBuild": 26642464,
+  "baseMain": "de4e155e97855cc18ffb52b1e81e53d1af8532fc",
+  "draftPr": 151,
+  "scope": "World adapter for the existing crossing movement policy, exercised through explicit test-only kinds. Neither source family is registered; no new character completion.",
+  "sourceFacts": "crossing-paths-source.json",
+  "implemented": [
+    "Persistent World.crossings column survives compaction and faction transfer.",
+    "Warning clock advances independently of live targets; movement uses saved direction, ignoring later goals.",
+    "World radius/segment hurt queries and body interactions skip unrevealed crossing shapes.",
+    "Fixed root rotation applied once to cloned body/hurt/hit offsets and child offsets.",
+    "Strict saved exit invokes World.remove, not damage; no residual contact or living count.",
+    "Actual Charm conversion preserves the state; quietly removed members are released without the expiration/death callback.",
+    "Inherited post-physics contact is retained during warning and suppressed against zero movement input when knocked back."
+  ],
+  "focused": {
+    "initial": {
+      "passed": 0,
+      "failed": 6
+    },
+    "trackedRunner": {
+      "passed": 7,
+      "failed": 0
+    },
+    "newCharmCleanupRegressionBeforeFix": {
+      "passed": 6,
+      "failed": 1
+    },
+    "columnMutation": {
+      "passed": 5,
+      "failed": 2,
+      "restoredByteForByte": true
+    }
+  },
+  "fixtureCorrection": "Ordinary body was initially coincident with a target/player and got pushed by the player constraint. It is now anchored to isolate body-pair separation; production rules were not changed for this test.",
+  "performance": {
+    "initialFocusedFailureMilliseconds": 4.193,
+    "unchangedBudgetMilliseconds": 4,
+    "diagnosis": "Avoided per-pair function calls and crossing-state lookups in worlds without crossing actors; quiet-member cleanup runs only when World.alive<count.",
+    "pairedPreviousMilliseconds": [
+      3.551,
+      3.623,
+      3.598
+    ],
+    "pairedCurrentMilliseconds": [
+      3.661,
+      3.757,
+      3.854
+    ],
+    "pairedEachPassedSpecs": 6,
+    "eachPairRepeats": 3,
+    "originalFilesRestoredByteForByte": true,
+    "overallPhysicsPerformanceAccepted": false,
+    "artifact": "build/crossing-world-charm-performance-final.json"
+  },
+  "checks": {
+    "stylua": true,
+    "selene": {
+      "errors": 0,
+      "existingWarnings": 18,
+      "cachedApi": true
+    },
+    "rojo": true,
+    "crossingCompilerCheck": true
+  },
+  "interfaces": [
+    "Enemies.Enemy.nativeCrossing optional {warningSeconds,maxYDiff}.",
+    "World.crossings is a persistent internal actor column; existing World.step call contract is unchanged.",
+    "Quiet dead CharmedWorld members are discarded after World.step without resolveCharmDeath/expired callback."
+  ],
+  "open": [
+    "No snapshot or renderer visibility connection yet.",
+    "No original Oviraptor/Iguanodon family registration; tests use controlled synthetic kinds.",
+    "Nearest and other direct AI/area enumeration keep existing contracts; they need source review before full actor acceptance.",
+    "One-way collision response, native solver/physics/idle/deferred ordering and global timing remain open.",
+    "Warning audio/shake, original sprites in game, animations, spawn groups and playable Jungle area remain open.",
+    "No Studio/two-client/mobile acceptance or complete native1:1 character claim."
+  ],
+  "characterStatus": {
+    "codePrepared": 48,
+    "open": 26,
+    "newCompleted": 0,
+    "registeredNeutralJungleBodies": 19,
+    "sourceRows": 21,
+    "localJungleImages": 25,
+    "junglePlayable": false
+  },
+  "fullSuite": {
+    "specs": 320,
+    "passed": 1993,
+    "failed": 37,
+    "aborts": 0,
+    "newFailureIdentities": [],
+    "returnedVsPrevious": [
+      "FAIL new enemies (B9) > lets a Gobbler eat the orbs on the floor and drop them all when killed"
+    ],
+    "absentVsPrevious": [],
+    "artifact": "build/native-five-branch-ten-crossing-world-de4e155.json",
+    "runtimeFrozenDuringRun": true,
+    "afterRunChanges": "Documentation only; tracked World adapter7/0 repeated."
+  }
+}

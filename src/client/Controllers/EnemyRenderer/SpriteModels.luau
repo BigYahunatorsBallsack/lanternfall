@@ -59,6 +59,7 @@ export type Visual = {
 	body: BasePart, -- invisible anchor of the sprite; other modules read its position
 	sprite: WorldSprite.Sprite,
 	shadow: BasePart,
+	nativeJumpShadow: boolean?,
 	gait: Gait,
 	radius: number,
 	speed: number,
@@ -402,7 +403,9 @@ function SpriteModels.setMode(visual: Visual, mode: number)
 	paint(visual)
 	local telegraph = visual.telegraph
 	if telegraph then
-		telegraph.Transparency = if mode == SpriteModels.MODE_WINDUP then TELEGRAPH_TRANSPARENCY else 1
+		telegraph.Transparency = if not visual.hidden and mode == SpriteModels.MODE_WINDUP
+			then TELEGRAPH_TRANSPARENCY
+			else 1
 	end
 end
 
@@ -442,6 +445,9 @@ end
 -- workspace with their billboards on and only their pictures hidden (EnemyRenderer, REVEAL_FRAMES).
 function SpriteModels.hide(visual: Visual)
 	visual.hidden = true
+	if visual.telegraph then
+		visual.telegraph.Transparency = 1
+	end
 	-- pooled models stay in the workspace; held weapons (WeaponRenderer/HeldModels) must not aim at them
 	visual.model:SetAttribute("Hidden", true)
 	visual.sprite.picture.Visible = false
@@ -471,6 +477,9 @@ end
 -- Shows the pictures again (call once pose has placed the model where it stands).
 function SpriteModels.show(visual: Visual)
 	visual.hidden = false
+	if visual.telegraph then
+		visual.telegraph.Transparency = if visual.mode == SpriteModels.MODE_WINDUP then TELEGRAPH_TRANSPARENCY else 1
+	end
 	visual.model:SetAttribute("Hidden", false)
 	visual.sprite.picture.Visible = true
 	visual.shadow.Transparency = SHADOW_TRANSPARENCY
@@ -541,7 +550,8 @@ function SpriteModels.pose(
 	seed: number,
 	parts: { BasePart },
 	cframes: { CFrame },
-	count: number
+	count: number,
+	nativeShadow: { offsetZ: number, width: number, height: number }?
 ): number
 	local gait, r, mode = visual.gait, visual.radius, visual.mode
 	local s = math.sin(phase)
@@ -583,7 +593,15 @@ function SpriteModels.pose(
 	cframes[count] = CFrame.new(x + shift, y, z - hop - rise) -- north is up on the screen; height would not show
 	count += 1
 	parts[count] = visual.shadow
-	cframes[count] = CFrame.new(x, y + SHADOW_THICKNESS, z) * UPRIGHT
+	if nativeShadow then
+		visual.shadow.Size = Vector3.new(SHADOW_THICKNESS, nativeShadow.width, nativeShadow.height)
+		visual.nativeJumpShadow = true
+	elseif visual.nativeJumpShadow then
+		visual.shadow.Size = Vector3.new(SHADOW_THICKNESS, SHADOW_DIAMETER * r, SHADOW_DIAMETER * r)
+		visual.nativeJumpShadow = nil
+	end
+	cframes[count] = CFrame.new(x, y + SHADOW_THICKNESS, z + (if nativeShadow then nativeShadow.offsetZ else 0))
+		* UPRIGHT
 	local telegraph = visual.telegraph
 	if telegraph and telegraph.Transparency < 1 then
 		count += 1

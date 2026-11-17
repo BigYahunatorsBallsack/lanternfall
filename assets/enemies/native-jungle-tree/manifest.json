@@ -1,0 +1,24 @@
+{
+  "version": "1.2.0.3",
+  "steamBuild": "26642464",
+  "source": "res://entities/units/neutral/tree_jungle.tscn",
+  "sourceMd5": "847e8fefe77dd28a3f60896168dbd10c",
+  "textureSource": "res://.import/tree_jungle.png-289361d7c683c3fb08931c4804dc3aad.stex",
+  "textureMd5": "83ba29f61cfe5fca8dd252eed57d7699",
+  "output": "assets/enemies/native-jungle-tree/JungleTree.png",
+  "size": [
+    225,
+    225
+  ],
+  "alphaBounds": [
+    31,
+    25,
+    191,
+    190
+  ],
+  "rgbaSha256": "de8355e0e0747b0ff1705b13ab16db355f84320b00e455cf8e19e358b4f7b1c0",
+  "pngSha256": "90202cb62b3c40038dc924ba46433426665953e1082d5e912522e7aad5273614",
+  "uploadedCount": 0,
+  "runtimeAssetIdsChanged": false,
+  "originalArtAcceptedInGame": false
+}

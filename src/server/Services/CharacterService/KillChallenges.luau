@@ -7,8 +7,9 @@ local Challenges = {}
 function Challenges.init()
 	Enemy.EnemyKilled:Connect(function(info)
 		if Run.isActive() and info.killer then
-			if info.boss and info.aliveSeconds then
-				Data.observeNativeFastBossKill(info.killer, info.aliveSeconds)
+			local bossSeconds = info.bossElapsedSeconds or info.aliveSeconds
+			if info.boss and bossSeconds then
+				Data.observeNativeFastBossKill(info.killer, bossSeconds)
 			end
 			if info.enemyId == "Tree" then
 				Data.observeNativeTreeKill(info.killer)

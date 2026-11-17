@@ -1,0 +1,207 @@
+{
+  "referenceVersion": "1.2.0.3",
+  "steamBuild": 26642464,
+  "baseMain": "de4e155e97855cc18ffb52b1e81e53d1af8532fc",
+  "parentCommit": "828d6268c558e0d8a58dfb1d56dce8ebd7130f84",
+  "scope": "Concrete normal hostile Baryonyx, original wrapper selection/registration, separate attack damage, shoot/recovery movement lock and centered infinite-laser collision/lifecycle; not full evolved/visual/Jungle acceptance.",
+  "sourceFacts": {
+    "source": "res://entities/units/enemies/jungle/elites/baryonyx/baryonyx_neutral.tscn",
+    "sourceMd5": "7b3be98c6ad6ad9dc390073f6dcba71b",
+    "stats": {
+      "health": 1,
+      "health_increase_each_wave": 500.0,
+      "speed": 275,
+      "speed_randomization": 25,
+      "damage": 1,
+      "damage_increase_each_wave": 1.1,
+      "attack_cd": 30.0,
+      "value": 20,
+      "knockback_resistance": 1.0,
+      "gold_spread": 0,
+      "can_drop_consumables": true,
+      "always_drop_consumables": true,
+      "base_drop_chance": 1.0,
+      "item_drop_chance": 1.0,
+      "min_consumable_tier": 0,
+      "max_consumable_tier": 0,
+      "armor": 0,
+      "armor_increase_each_wave": 0.0,
+      "generate_blood": true
+    },
+    "body": {
+      "radiusPoints": 60.0,
+      "offsetPoints": [
+        0,
+        -36
+      ]
+    },
+    "hurt": {
+      "radiusPoints": 50.0,
+      "offsetPoints": [
+        0,
+        -29
+      ]
+    },
+    "hit": {
+      "radiusPoints": 35.0571,
+      "offsetPoints": [
+        0,
+        -17
+      ]
+    },
+    "mass": 200.0,
+    "canBeBoosted": true,
+    "root": "First physics callback selects/registers normal shooting through DetectEvolution.13bullets,350px/s, inclusive750pxrange, mirrored0/-110pxtransform, constant fan+-3.14rad. CD10, animation speed4, every3methods200framepause, movement locked with35framerecovery.",
+    "child": "At50%HP or30s, independent boss_state FollowTarget and two parallel infinite lasers;source max_range850px.135frameCD with default+-10randomness, animation speed1, recovery75frames,150pxspacing and0/-110pxtransform.",
+    "damage": "Root2+1/wave registers after Boss.init and bypasses its earlier-25%damage reset. Child3+1/wave is already registered and receives that reduction. Explicit wave11/globalfactor1 yields12root and10child. A later boost resets both before final rounding; a reset before first physics does not survive the later normal registration.",
+    "laser": "Source rectangle half-extents2000x15px centered at0/0, both directions. Translation follows the source with captured offset; rotation fixed at birth.0.75swarning;0.4sactive countdown starts decrementing on the enabling frame. Stops on first hit and persists after source death. Godot3 automatically calls Projectile._physics_process after EnemyLaser; the prior audit note was incorrect. Full inherited border/time-factor behavior remains open.",
+    "laserParentAudit": "Read source projectile.tscn MD5812858f38125afcd1b80afb57cffed70: no root/Hitbox transform override. Infinite scene supplies centered Collision position and RectangleShape2D."
+  },
+  "focused": {
+    "newChecks": 26,
+    "NativeBossMovementLock": "4/0; first0/4",
+    "NativeBossProfileDamage": "2/0; missing module initially crashed",
+    "NativeEnemyLaser": "4/0; missing module initially crashed; source compiler targeted node parsing avoids quoted animation-key limitation in older broad pet scene reader",
+    "NativeBaryonyxActor": "3/0",
+    "NativeBaryonyxServer": "9/0; initially missing service/config bindings; initial laser fixture3swait corrected to source135frames+windup. Birth-time regression reproduced actual0.733333shit before0.75s and fixed elapsed-time accounting. Includes native pre-registration boost, later boost, live translation/death and first-hit stop.",
+    "NativeLaserWarning": "1/0; lasts as a line past the ordinary flash interval",
+    "NativeBossConfig": "9/0 including2new initially failing negatives",
+    "NativeJungleMovement": "10/0 including1new initially failing movement-lock case",
+    "preservedServers": "Therizinosaurus8/0, Silesaurus8/0, Diplodocus6/0"
+  },
+  "mutations": [
+    {
+      "mutation": "ignoreWorldMovementLock",
+      "spec": "NativeJungleMovement",
+      "passed": 9,
+      "failed": 1,
+      "detected": true
+    },
+    {
+      "mutation": "skipRecovery",
+      "spec": "NativeBossMovementLock",
+      "passed": 3,
+      "failed": 1,
+      "detected": true
+    },
+    {
+      "mutation": "reduceLateRootDamage",
+      "spec": "NativeBossProfileDamage",
+      "passed": 1,
+      "failed": 1,
+      "detected": true
+    },
+    {
+      "mutation": "retainPreRegistrationModifier",
+      "spec": "NativeBaryonyxActor",
+      "passed": 2,
+      "failed": 1,
+      "detected": true
+    },
+    {
+      "mutation": "creditTimeBeforeBirth",
+      "spec": "NativeBaryonyxServer",
+      "passed": 8,
+      "failed": 1,
+      "detected": true
+    },
+    {
+      "mutation": "stopFollowingLivingSource",
+      "spec": "NativeBaryonyxServer",
+      "passed": 8,
+      "failed": 1,
+      "detected": true
+    },
+    {
+      "mutation": "ignoreFirstCollisionStop",
+      "spec": "NativeEnemyLaser",
+      "passed": 2,
+      "failed": 2,
+      "detected": true
+    },
+    {
+      "mutation": "useForwardOnlyLaser",
+      "spec": "NativeEnemyLaser",
+      "passed": 3,
+      "failed": 1,
+      "detected": true
+    },
+    {
+      "mutation": "renderLaserAsPool",
+      "spec": "NativeLaserWarning",
+      "passed": 0,
+      "failed": 1,
+      "detected": true
+    }
+  ],
+  "fullSuite": {
+    "artifact": "build/native-five-branch-ten-baryonyx-final-de4e155.json",
+    "specs": 388,
+    "passed": 2308,
+    "failed": 36,
+    "aborted": 0,
+    "returningVsImmediatePrevious": [
+      [
+        "tests/Smoke.spec.luau",
+        "FAIL smoke > chases the player until it touches them"
+      ]
+    ],
+    "nowPassingWithoutFixClaim": [
+      [
+        "tests/EnemiesB9.spec.luau",
+        "FAIL new enemies (B9) > lets a Gobbler eat the orbs on the floor and drop them all when killed"
+      ]
+    ],
+    "unknownFailureIdentities": [],
+    "comparison": "Previous382/2282/36; current388/2308/36. All26newchecks pass. Known Smoke chase returns; Gobbler passes. Failure count equal but identities not identical. No unknown failure against the historical comparison union.",
+    "frozenRuntimeAndTests": true,
+    "seconds": 289.4,
+    "budgetInterpretation": "Three historical timing budgets pass again; no stable performance acceptance claimed. No assertions, budgets or failing tests weakened/skipped."
+  },
+  "checks": {
+    "sourceCompilers": "Baryonyx and infinite laser --check passed",
+    "localArtCompiler": "passed; original200x200PNG viewed, no uploads/runtime IDs",
+    "stylua": "23changedLuaufiles checked",
+    "selene": "0errors/18existingWarnings/0parse; cached Roblox API",
+    "rojo": "passed"
+  },
+  "interfaces": [
+    "NativeBossShooting.Profile.moveLocked/recoveryFrames and per-state movement flags preserve the source physics/finish/recovery order, including next-callback locking and phase callback leaving locked flag intact.",
+    "World.Params.nativeBossLocked is optional and checked only for native bosses; EnemySim supplies private actor state. Steering stops without replacing original speed factors or shared kinds.",
+    "NativeBoss.initialWrapperFrames and ordered per-attack damage records support late first registration and subsequent source stat resets. EnemySim refreshes all registered profile values through the actual boost provider.",
+    "NativeBoss.movements permits false for source FollowTarget; current Silesaurus entries retain their original Wander records. Baryonyx root wander changes to FollowTarget in the child.",
+    "EnemySim.NativeLaser is a trusted server-only id/origin/direction/damage signal. NativeLaserService uses existing BossTelegraphs Line fields and ShotHit; no new Remote or binary layout.",
+    "BossController preserves Line shape for explicit active lifetimes instead of converting it to a pool disc. Existing Circle pool branch retained.",
+    "No Arsenal, storage schema, runtime asset ID or uploads changed."
+  ],
+  "status": {
+    "codePreparedCharacters": 48,
+    "openCharacters": 26,
+    "newCompletedCharacters": 0,
+    "registeredSourceScenes": 36,
+    "resolvedDirectScenes": 35,
+    "totalDirectScenes": 38,
+    "remainingBosses": 2,
+    "remainingElites": 1,
+    "junglePlayable": false
+  },
+  "limits": [
+    "Only normal hostile Baryonyx. Meca/Mutant wrapper branches, full Curse/stronger_elites_on_kill and forced friendly-boss conversion remain open.",
+    "Body/target positions remain15Hz, while attack/laser clocks are substepped60Hz. Full Godot physics/Area/deferred/callback order/pooling/global RNG/time-factor acceptance remains open. Laser boundary model uses existing1e-9clock tolerance; no original-engine float/deferred boundary equivalence claim.",
+    "Standard bullets retain the existing native300studcompatibility range; full source screen-border/projectile-lifetime equivalence remains open.",
+    "Original in-game body sprite, attack poses, HPbar, audio, laser textures/auras/charge animation are not accepted; local body PNG only. Existing red strip is an explicit fallback. Its warning remains at birth position and nominal expiry rather than following/canceling with every authoritative beam update.",
+    "Native actor birth uses source-scene adapter; legacy BossService debug spawn and actual Jungle area/wave orchestration remain gated.35/38is only the direct scene closure; evolved/conditional scenes and complete area rules remain open.",
+    "No Studio, real two-client or mobile test. No additional character counted complete."
+  ],
+  "sourceAuditCorrection": {
+    "reason": "Godot3 notification callbacks execute at every script inheritance level, derived first for physics. Lack of an explicit parent call does not suppress Projectile physics.",
+    "source": "https://raw.githubusercontent.com/godotengine/godot/3.5.3-stable/modules/gdscript/gdscript.cpp#L1124-L1134",
+    "runtimeChanged": false,
+    "enginePackVersion": [
+      3,
+      7,
+      0
+    ],
+    "scope": "Godot3-family callback semantics, not an exact installed executable build match"
+  }
+}

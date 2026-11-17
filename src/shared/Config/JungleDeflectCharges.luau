@@ -1,5 +1,5 @@
 --!strict
--- Original Pachycephalosaurus clock and native projectile-defense facts; full actor integration remains pending.
+-- Original normal Pachycephalosaurus clock and native projectile-defense facts; evolution and full area acceptance remain pending.
 local source = {
 	version = "1.2.0.3",
 	steamBuild = 26642464,
@@ -112,6 +112,30 @@ local source = {
 			sourceMd5 = "57112e4f63b8516f44096515fc1dd1db",
 		},
 		{
+			source = "res://projectiles/boomerang/boomerang_projectile.gdc",
+			sourceMd5 = "de240ac1e8b9d154e8a601e207678ef7",
+		},
+		{
+			source = "res://weapons/ranged/ranged_weapon.gdc",
+			sourceMd5 = "f631a09be3890d45582c2f02fd0f525c",
+		},
+		{
+			source = "res://weapons/melee/melee_weapon.gdc",
+			sourceMd5 = "e385abdcc0da4070c3e639fc73ee8b75",
+		},
+		{
+			source = "res://entities/structures/structure.gdc",
+			sourceMd5 = "3a2bec3fc761c71cbe9167c05cadba62",
+		},
+		{
+			source = "res://entities/structures/turret/turret.gdc",
+			sourceMd5 = "104c2eb26fa76d2d2f84e91e06ce2ba3",
+		},
+		{
+			source = "res://entities/structures/dart_trap/dart_trap.gdc",
+			sourceMd5 = "33e921e49e261fdf37b8662c7a746a1f",
+		},
+		{
 			source = "res://global/entity_spawner.gdc",
 			sourceMd5 = "ba0576c27ac5b889c5688decda3dd838",
 		},
@@ -135,8 +159,34 @@ local source = {
 			source = "res://entities/units/unit/unit.gdc",
 			sourceMd5 = "aa94391f2d9681ac36b7f8617b82ff13",
 		},
+		{
+			source = "res://entities/units/pet/pet.gdc",
+			sourceMd5 = "eb0eab7f4f97fc5531370023b3416ece",
+		},
+		{
+			source = "res://entities/units/pet/catling_gun/catling_gun.gdc",
+			sourceMd5 = "92da73088df750532c1fc590b8d23428",
+		},
+		{
+			source = "res://entities/units/pet/blazemander/blazemander.gdc",
+			sourceMd5 = "8f367e19f496307eb9152b116de5b2bc",
+		},
+		{
+			source = "res://entities/units/pet/bot_o_mine/bot_o_mine.gdc",
+			sourceMd5 = "10724a1007562e0bc2c4ee44f70116c5",
+		},
+		{
+			source = "res://entities/units/enemies/crash_zone/basic/fly/fly.gdc",
+			sourceMd5 = "7e1682c7fcdfa7e1f4de55d4225f7a19",
+		},
+		{
+			source = "res://entities/units/enemies/crash_zone/basic/horned_fly/horned_fly.gdc",
+			sourceMd5 = "2f23c313fafcb030e31118f0d9926786",
+		},
 	},
-	actorRegistered = false,
+	actorRegistered = true,
+	normalActorRegistered = true,
+	normalProjectileDefenseConnected = true,
 	projectileDefenseConnected = false,
 	evolutionVariantsImplemented = false,
 	nativeProjectileInterceptionConnected = true,
@@ -146,7 +196,36 @@ local source = {
 		explosionFactorySetsOriginBeforeStart = true,
 	},
 	priorHitDefenseReentryImplemented = true,
-	scope = "Native ranged projectile entry and cooldown defense; Sticky flight and explosion exceptions audited. Full actor, legacy/pet/area paths remain pending.",
+	nativePetProjectileInterceptionConnected = true,
+	boomerangProjectileInterceptionConnected = true,
+	ordinaryStructureIsPet = false,
+	ordinaryStructureIsRangedWeapon = false,
+	meleeSecondaryOriginIsMeleeWeapon = true,
+	boomerangDefense = {
+		phasePathUnchanged = true,
+		velocityRemainsZero = true,
+		rotationUsesZeroVelocityAngle = true,
+		ownFlightDeadlineUnchanged = true,
+		damageAndKnockbackUseInheritedBounce = true,
+	},
+	petProjectileOrigins = {
+		catling_gun = {
+			source = "res://entities/units/pet/catling_gun/catling_gun.tscn",
+			sourceMd5 = "4fabecb76f9d377bf2749bcd9995fe5a",
+			shootProjectiles = true,
+		},
+		blazemander = {
+			source = "res://entities/units/pet/blazemander/blazemander.tscn",
+			sourceMd5 = "b95bbd7d40dde1ec935fd82b292155fc",
+			shootProjectiles = false,
+		},
+		bot_o_mine = {
+			source = "res://entities/units/pet/bot_o_mine/bot_o_mine.tscn",
+			sourceMd5 = "c253124698b17ff6ecf79474af6926fc",
+			shootProjectiles = true,
+		},
+	},
+	scope = "Native ranged weapon and source-flagged pet projectile defense with rotated collision offsets; Blazemander flames, Sticky flight and explosion exceptions audited. Boomerang inherited bounce keeps its phase path and own deadline. Normal actor connected. Evolution, remaining producer/event-order parity and playable area remain pending.",
 }
 local target = table.clone(require(script.Parent.JungleChargeTargets).rule.target)
 local pixel = require(script.Parent.Stats).range.studsPerPoint

@@ -40,6 +40,12 @@ local Combat = require(Shared.Config.Combat)
 local PointScale = require(Shared.Config.Stats).range.studsPerPoint
 local DecayingSpeed = require(script.Parent.DecayingSpeed)
 local NativePursuer = require(script.Parent.NativePursuer)
+local GoldEater = require(script.Parent.NativeGoldEater)
+local NativeJump = require(script.Parent.NativeJump)
+local DeathShots = require(script.Parent.NativeDeathShots)
+local EdgePatrol = require(script.Parent.NativeEdgePatrol)
+local NativeDetection = require(script.Parent.NativeTargetDetection)
+local NativeCrossing = require(script.Parent.NativeCrossing)
 local EntryHealing = require(script.Parent.NativeEntryHealing)
 local NativeMovement = require(script.Parent.NativeMovement)
 local NativeCharge = require(script.Parent.NativeStraightCharge)
@@ -53,6 +59,9 @@ local circleEntry = SegmentCircle.entry
 
 export type Kind = Enemies.Enemy
 export type Circle = StaticShapes.Shape
+-- Unrounded values after global factors; health's source integer conversion precedes those factors.
+export type NativeStatBases = { health: number, contact: number, shot: number, speedPoints: number }
+export type NativeBoost = { hp: number, damage: number, speed: number }
 
 export type Params = {
 	cellSize: number,
@@ -72,7 +81,11 @@ export type Params = {
 	allocateId: (() -> number)?,
 	referencePlayerSpeed: ((number?, number?, number?) -> number?)?, -- target player index, or fastest living player when nil
 	nativeChargeAccessibility: (() -> number)?, -- source charge bonus uses only the current run accessibility speed slider
+	nativeStatBoost: ((number, NativeBoost) -> boolean)?, -- true when the source run provider handled this actor's native reset
+	nativeBossLocked: ((number) -> boolean)?, -- private source attack/recovery movement flags; no speed mutation
+	nativeJumpPhase: ((number, NativeJump.State) -> boolean)?, -- derived source callback before inherited jump physics
 	goalsWithoutTargets: boolean?,
+	nativeGoldPositions: (() -> ({ number }, { number }))?,
 	collideTargets: boolean?, -- false for native pet bodies, which collide only with pets and obstacles
 	seed: number?, -- for the wander points (kind.wander) and keep-distance jitter; tests pass one
 }
@@ -86,6 +99,7 @@ local PULSE_SHOW_SECONDS = 0.5 -- clients see the ring of a buff or heal this lo
 local HATCH_WARN_SECONDS = 1.6 -- an egg shakes (mode wind-up) this long before it hatches: Brotato's half-speed shoot animation (look only)
 
 local World = {}
+local NO_GOLD: { number } = {}
 World.__index = World
 
 -- What an enemy with a `charge` is doing (World.modes; clients see it in the snapshot flags, Net/Snapshot).
@@ -111,6 +125,10 @@ export type World = typeof(setmetatable(
 		maxHp: { number },
 		contactDamage: { number }, -- damage per touch
 		shotDamage: { number }, -- damage per projectile, 0 for enemies that do not shoot
+		spawnContactDamage: { number }, -- raw source input before final rounding, for native stat resets
+		spawnShotDamage: { number },
+		spawnResetHealth: { number },
+		spawnSpeedPoints: { number },
 		waves: { number }, -- wave at spawn, for flat enemy healing
 		shootingClocks: { ShootingClock.State? },
 		shotCooldown: { number }, -- seconds in fire range until the next shot
@@ -126,6 +144,14 @@ export type World = typeof(setmetatable(
 		speedFactors: { number }, -- multiplier on its kind's speed from spawning (the team's Enemy Speed stat, B9)
 		boosts: { number }, -- multiplier on its speed from accelerating (kind.accelerate), 1 otherwise (B9)
 		pursuers: { NativePursuer.State? },
+		nativeEaters: { GoldEater.State? },
+		nativeJumps: { NativeJump.State? },
+		nativeDeathShots: { DeathShots.State? },
+		nativePatrols: { EdgePatrol.State? },
+		nativeJumpStarts: { number },
+		nativeLandings: { number },
+		detections: { NativeDetection.State? },
+		crossings: { NativeCrossing.State? },
 		nativeCharges: { NativeCharge.State? },
 		nativeSpawnClocks: { ShootingClock.State? },
 		boostClocks: { number }, -- seconds towards its next accelerate step
@@ -207,6 +233,10 @@ function World.new(params: Params): World
 		maxHp = {},
 		contactDamage = {},
 		shotDamage = {},
+		spawnContactDamage = {},
+		spawnShotDamage = {},
+		spawnResetHealth = {},
+		spawnSpeedPoints = {},
 		waves = {},
 		shotCooldown = {},
 		shootingClocks = {},
@@ -221,6 +251,14 @@ function World.new(params: Params): World
 		speedBonuses = {},
 		boosts = {},
 		pursuers = {},
+		nativeEaters = {},
+		nativeJumps = {},
+		nativeDeathShots = {},
+		nativePatrols = {},
+		nativeJumpStarts = {},
+		nativeLandings = {},
+		detections = {},
+		crossings = {},
 		nativeCharges = {},
 		nativeSpawnClocks = {},
 		boostClocks = {},
@@ -274,6 +312,10 @@ function World.new(params: Params): World
 		self.maxHp,
 		self.contactDamage,
 		self.shotDamage,
+		self.spawnContactDamage,
+		self.spawnShotDamage,
+		self.spawnResetHealth,
+		self.spawnSpeedPoints,
 		self.waves,
 		self.shotCooldown,
 		self.shootingClocks,
@@ -288,6 +330,12 @@ function World.new(params: Params): World
 		self.speedBonuses,
 		self.boosts,
 		self.pursuers,
+		self.nativeEaters,
+		self.nativeJumps,
+		self.nativeDeathShots,
+		self.nativePatrols,
+		self.detections,
+		self.crossings,
 		self.nativeCharges,
 		self.nativeSpawnClocks,
 		self.boostClocks,
@@ -313,7 +361,11 @@ end
 
 -- The config damage behind a kind's shotDamage column: its projectile, its slash or its counter-shots (0 for none).
 function World.baseShotDamage(kind: Kind): number
-	if kind.ranged then
+	if kind.nativeBoss then
+		return kind.nativeBoss.projectileDamage
+	elseif kind.nativeRadialShots then
+		return kind.nativeRadialShots.projectileDamage
+	elseif kind.ranged then
 		return kind.ranged.projectileDamage
 	elseif kind.slash then
 		return kind.slash.damage
@@ -344,7 +396,9 @@ function World.spawn(
 	contactDamage: number,
 	shotDamage: number?,
 	speedFactor: number?,
-	wave: number?
+	wave: number?,
+	rawSpeedPoints: number?,
+	rawResetHealth: number?
 ): number?
 	if self.alive >= self.params.maxEnemies then
 		return nil
@@ -360,11 +414,21 @@ function World.spawn(
 	self.zs[i] = z
 	self.hp[i] = hp
 	self.maxHp[i] = hp
-	self.contactDamage[i] = if kind.pursuer then math.round(contactDamage) else contactDamage
+	self.spawnContactDamage[i] = contactDamage
+	self.contactDamage[i] = if kind.pursuer or kind.nativeDamageRounding
+		then math.round(contactDamage)
+		else contactDamage
 	local ranged = kind.ranged
 	local spread = (id * GOLDEN_RATIO) % 1 -- so a group spawned together does not act in sync
 	self.shotDamage[i] = shotDamage or World.baseShotDamage(kind)
+	self.spawnShotDamage[i] = self.shotDamage[i]
+	if kind.nativeDamageRounding then
+		self.shotDamage[i] = math.round(self.shotDamage[i])
+	end
 	self.waves[i] = wave or 1
+	local baseHp = kind.hp + (kind.hpPerWave or 0) * (self.waves[i] - 1)
+	self.spawnResetHealth[i] = rawResetHealth or (if baseHp ~= 0 then math.modf(baseHp) * (hp / baseHp) else hp)
+	self.spawnSpeedPoints[i] = rawSpeedPoints or kind.speed * math.max(0, speedFactor or 1) / PointScale
 	self.shotCooldown[i] = if ranged then ranged.fireInterval * spread else 0
 	self.shootingClocks[i] = if ranged and ranged.nativeTiming
 		then ShootingClock.new(ranged.nativeTiming, function()
@@ -398,6 +462,16 @@ function World.spawn(
 	self.boosts[i], self.buffed[i], self.hasGoal[i] = 1, false, false
 	self.boostClocks[i] = 0
 	self.pursuers[i] = if kind.pursuer then NativePursuer.new(contactDamage) else nil
+	self.nativeEaters[i] = if kind.nativeEater then GoldEater.new() else nil
+	self.nativeJumps[i] = if kind.nativeJump then NativeJump.new(kind.nativeJump) else nil
+	self.nativeDeathShots[i] = if kind.nativeRadialShots then DeathShots.new() else nil
+	self.nativePatrols[i] = if kind.nativeEdgePatrol
+		then EdgePatrol.new(kind.nativeEdgePatrol, function()
+			return nextRandom(self)
+		end)
+		else nil
+	self.detections[i] = if kind.nativeDetection then NativeDetection.new() else nil
+	self.crossings[i] = if kind.nativeCrossing then NativeCrossing.new() else nil
 	local pursuer = self.pursuers[i]
 	if pursuer and self.params.referencePlayerSpeed then
 		pursuer.referenceSpeed = self.params.referencePlayerSpeed(nil, x, z)
@@ -536,6 +610,8 @@ function World.clear(self: World)
 	for _, column in self.columns do
 		table.clear(column)
 	end
+	table.clear(self.nativeJumpStarts)
+	table.clear(self.nativeLandings)
 	table.clear(self.indexOf)
 	table.clear(self.shots)
 	table.clear(self.summons)
@@ -548,18 +624,54 @@ function World.clear(self: World)
 	self.hash:clear()
 end
 
+-- Source EvilMob advances once per consumed material object; state lives in transferable World columns.
+function World.feedGold(self: World, id: number, value: number)
+	local i = self.indexOf[id]
+	if not i or self.hp[i] <= 0 or value <= 0 then
+		return
+	end
+	local state = self.nativeEaters[i]
+	local rule = self.kinds[i].nativeEater
+	if not state or not rule then
+		return
+	end
+	local factor, changed = GoldEater.pickup(rule, state, value)
+	if changed then
+		self.hp[i] *= factor
+		self.maxHp[i] *= factor
+		local kind = table.clone(self.kinds[i])
+		kind.knockbackResistance = GoldEater.resistance(rule, state)
+		self.kinds[i] = kind
+		self.speedBonuses[i] = GoldEater.bonus(rule, state)
+	end
+end
+function World.goldValue(self: World, id: number): number
+	local i = self.indexOf[id]
+	local state = i and self.nativeEaters[i]
+	return if state then GoldEater.value(state) else 0
+end
+
 -- Damage ------------------------------------------------------------------------------
 
 -- Returns true when this hit killed the enemy, the HP it actually took (at most what was left) and the damage after
 -- the enemy's damageTaken multiplier (Armored elites take less), and since B9 whether a counter-shooter that
 -- survived fires its ring now (its cooldown starts). Hits on unknown or dead enemies do nothing.
-function World.damage(self: World, id: number, amount: number): (boolean, number, number, boolean)
+function World.damage(
+	self: World,
+	id: number,
+	amount: number,
+	armorApplied: boolean?
+): (boolean, number, number, boolean)
 	local i = self.indexOf[id]
 	if not i or self.hp[i] <= 0 or not (amount > 0) then
 		return false, 0, 0, false
 	end
 	local kind = self.kinds[i]
 	local applied = amount * (kind.damageTaken or 1)
+	if kind.nativeArmor and armorApplied ~= false then
+		local armor = math.round(kind.nativeArmor.base + kind.nativeArmor.perWave * (self.waves[i] - 1))
+		applied = math.max(1, math.round(applied) - armor)
+	end
 	local hp = self.hp[i]
 	local left = hp - applied
 	if left > 0 then
@@ -682,6 +794,28 @@ function World.getHurtGeometry(self: World, id: number): (number?, number?, numb
 	return x, z, kind.hurtRadius or kind.radius
 end
 
+-- Crossing's body and hurt areas share the local reveal state; contact is governed separately by Enemy physics.
+local function shapeEnabled(self: World, index: number): boolean
+	local state = self.crossings[index]
+	return not state or NativeCrossing.active(state)
+end
+
+-- Body areas can be disabled independently of Hurtbox; Jump keeps its source hurt area active.
+local function bodyEnabled(self: World, index: number): boolean
+	local jump = self.nativeJumps[index]
+	return shapeEnabled(self, index) and (not jump or not jump.jumping)
+end
+function World.isBodyEnabled(self: World, id: number): boolean
+	local i = self.indexOf[id]
+	return i ~= nil and self.hp[i] > 0 and bodyEnabled(self, i)
+end
+
+-- AI can retain a hidden target; physical hits must still respect its disabled Hurtbox.
+function World.isHurtEnabled(self: World, id: number): boolean
+	local index = self.indexOf[id]
+	return index ~= nil and self.hp[index] > 0 and shapeEnabled(self, index)
+end
+
 -- Ids of living enemies whose circle overlaps the circle (x, z, radius), written to out[1 .. n]; returns n.
 function World.queryRadius(self: World, x: number, z: number, radius: number, out: { number }): number
 	local scratch = self.queryScratch
@@ -690,7 +824,7 @@ function World.queryRadius(self: World, x: number, z: number, radius: number, ou
 	local count = 0
 	for s = 1, found do
 		local i = scratch[s]
-		if hp[i] > 0 then
+		if hp[i] > 0 and (self.crossings[i] == nil or shapeEnabled(self, i)) then
 			local reach = radius + (kinds[i].hurtRadius or kinds[i].radius) -- Brotato's Hurtbox
 			local hx, hz = Hurt.center(kinds[i], xs[i], zs[i])
 			local dx, dz = hx - x, hz - z
@@ -723,7 +857,7 @@ function World.querySegment(
 	local count = 0
 	for s = 1, found do
 		local i = scratch[s]
-		if hp[i] > 0 then
+		if hp[i] > 0 and (self.crossings[i] == nil or shapeEnabled(self, i)) then
 			local hx, hz = Hurt.center(kinds[i], xs[i], zs[i])
 			local px, pz = hx - x0, hz - z0
 			local t = if lengthSquared > EPSILON then math.clamp((px * sx + pz * sz) / lengthSquared, 0, 1) else 0
@@ -878,7 +1012,7 @@ function World.push(self: World, id: number, dx: number, dz: number)
 	local scale = World.knockbackShare(kind)
 	local radius = kind.radius
 	local x, z = Body.center(kind, self.xs[i] + dx * scale, self.zs[i] + dz * scale)
-	if kind.nativeObstacleCollision ~= false then
+	if self:isBodyEnabled(id) and kind.nativeObstacleCollision ~= false then
 		for _, obstacle in p.obstacles do
 			x, z = pushOutObstacle(x, z, obstacle, radius, id)
 		end
@@ -1136,10 +1270,43 @@ local function slashStep(self: World, i: number, slash: Enemies.Slash, dt: numbe
 	return false
 end
 
--- A Herald's buff or a Mender's heal on the enemies around enemy i (B9). A Herald buffs up to buffCount enemies,
--- picked at random among those in its radius that are not buffed yet and are no Heralds or bosses (Brotato's Buffer
--- shuffles its zone). A Mender with onEnter heals each hurt enemy once when it comes into its radius (Brotato's Healer
--- BoostZone body_entered); returns true if it healed one.
+-- Saved inputs are a compatibility fallback, not a provider of current global modifiers or wave data.
+function World.getSpawnStatBases(self: World, id: number): NativeStatBases?
+	local i = self.indexOf[id]
+	if not i then
+		return nil
+	end
+	return {
+		health = self.spawnResetHealth[i],
+		contact = self.spawnContactDamage[i],
+		shot = self.spawnShotDamage[i],
+		speedPoints = self.spawnSpeedPoints[i],
+	}
+end
+
+-- Enemy.boost replaces stats and heals from supplied bases, independently of current damage/HP/boost state.
+-- Callers that mirror current EntityService values supply fresh bases; Buffer currently uses saved spawn inputs.
+function World.resetNativeStats(self: World, id: number, bases: NativeStatBases, boost: NativeBoost): boolean
+	local i = self.indexOf[id]
+	if not i or self.hp[i] <= 0 or self.kinds[i].nativeCanBeBoosted == false then
+		return false
+	end
+	local kind = self.kinds[i]
+	self.maxHp[i] = math.round(bases.health * boost.hp)
+	self.hp[i] = self.maxHp[i]
+	self.contactDamage[i] = math.round(bases.contact * boost.damage)
+	self.shotDamage[i] = math.round(bases.shot * boost.damage)
+	local speed = bases.speedPoints * boost.speed
+	if kind.nativeSpeedPoints then
+		speed = math.round(speed)
+	end
+	self.speedFactors[i] = if kind.speed ~= 0 then speed * PointScale / kind.speed else 0
+	self.buffed[i] = true
+	self.maxSpeed = math.max(self.maxSpeed, kind.speed * self.speedFactors[i] * self.boosts[i] + self.speedBonuses[i])
+	return true
+end
+
+-- Buffer shuffles eligible neighbours; entry-healers keep their independent body-entry history.
 local function pulseAt(self: World, i: number, pulse: Enemies.Pulse): boolean
 	if pulse.nativeEnemyEntry then
 		local id = self.ids[i]
@@ -1158,7 +1325,7 @@ local function pulseAt(self: World, i: number, pulse: Enemies.Pulse): boolean
 	local healed = false
 	for s = 1, found do
 		local j = scratch[s]
-		if j ~= i and hp[j] > 0 then
+		if j ~= i and hp[j] > 0 and self:isBodyEnabled(self.ids[j]) then
 			local reach = pulse.radius + kinds[j].radius
 			local bx, bz = Body.center(kinds[j], xs[j], zs[j])
 			local dx, dz = bx - xs[i], bz - zs[i]
@@ -1181,6 +1348,7 @@ local function pulseAt(self: World, i: number, pulse: Enemies.Pulse): boolean
 					and not self.buffed[j]
 					and not (kinds[j].pulse and kinds[j].pulse.buffCount)
 					and not kinds[j].boss
+					and kinds[j].nativeCanBeBoosted ~= false
 				then
 					table.insert(candidates, j)
 				end
@@ -1195,29 +1363,24 @@ local function pulseAt(self: World, i: number, pulse: Enemies.Pulse): boolean
 		local j = candidates[pick]
 		candidates[pick] = candidates[#candidates]
 		candidates[#candidates] = nil
-		self.buffed[j] = true
 		if pulse.nativeResetStats then
-			-- Unit.reset_* takes integer base health/contact damage, then EntityService rounds the final boosted stat.
-			local kind = kinds[j]
-			local steps = self.waves[j] - 1
-			local baseHp = kind.hp + kind.hpPerWave * steps
-			local baseContact = kind.contactDamage + kind.damagePerWave * steps
-			maxHp[j] = math.round(math.floor(baseHp) * (maxHp[j] / baseHp) * (1 + (pulse.buffHp or 0)))
-			hp[j] = maxHp[j]
-			self.contactDamage[j] = if baseContact > 0
-				then math.round(
-					math.floor(baseContact) * (self.contactDamage[j] / baseContact) * (pulse.buffDamage or 1)
-				)
-				else 0
-			self.shotDamage[j] = math.round(self.shotDamage[j] * (pulse.buffDamage or 1))
+			local boost = {
+				hp = 1 + (pulse.buffHp or 0),
+				damage = pulse.buffDamage or 1,
+				speed = pulse.buffSpeed or 1,
+			}
+			if not (self.params.nativeStatBoost and self.params.nativeStatBoost(self.ids[j], boost)) then
+				self:resetNativeStats(self.ids[j], self:getSpawnStatBases(self.ids[j]) :: NativeStatBases, boost)
+			end
 		else
+			self.buffed[j] = true
 			self.contactDamage[j] *= pulse.buffDamage or 1
 			self.shotDamage[j] *= pulse.buffDamage or 1
 			local bonus = maxHp[j] * (pulse.buffHp or 0)
 			maxHp[j] += bonus
 			hp[j] += bonus
+			self.speedFactors[j] *= pulse.buffSpeed or 1
 		end
-		self.speedFactors[j] *= pulse.buffSpeed or 1
 		self.maxSpeed = math.max(self.maxSpeed, kinds[j].speed * self.speedFactors[j] * self.boosts[j])
 	end
 	return healed
@@ -1309,37 +1472,52 @@ function World.step(
 	targetInputXs: { number }?,
 	targetInputZs: { number }?,
 	targetDirectionXs: { number }?,
-	targetDirectionZs: { number }?
+	targetDirectionZs: { number }?,
+	targetKeys: { number | string }? -- stable player/enemy identities for native contact entry; tests may default to target slots
 ): { number }
 	if compact(self) then
 		rebuildHash(self)
 	end
 	local p = self.params
 	local count = self.count
+	local hasCrossings = next(self.crossings) ~= nil
+	local hasJumps = next(self.nativeJumps) ~= nil
+	local hasBodyFlags = hasCrossings or hasJumps
 	local ids, kinds, xs, zs = self.ids, self.kinds, self.xs, self.zs
 	local hash, scratch = self.hash, self.scratch
 	local playerRadius = p.playerRadius
 	local obstacles = p.obstacles
 	local maxRadius = self.maxRadius
 
+	table.clear(self.nativeJumpStarts)
+	table.clear(self.nativeLandings)
 	table.clear(self.strikers)
 	table.clear(self.rushes)
 
-	-- Native Timer runs independently of target availability. Only two boosts can allocate a grown kind.
+	-- Native Timer runs independently of targets; movement detection latches once against the nearest live target.
 	for i = 1, count do
+		local crossing = if hasCrossings then self.crossings[i] else nil
+		if crossing and kinds[i].nativeCrossing then
+			NativeCrossing.advanceWarning(crossing, kinds[i].nativeCrossing, dt)
+		end
 		local rule = kinds[i].pursuer
 		local state = self.pursuers[i]
 		if rule and state then
 			local grown, speed, damage = NativePursuer.step(rule, state, kinds[i], dt)
 			if grown then
 				kinds[i] = grown
-				self.speedBonuses[i] += speed
+				self.speedBonuses[i] += speed * (if p.nativeChargeAccessibility
+					then p.nativeChargeAccessibility()
+					else 1)
 				self.contactDamage[i] = damage or self.contactDamage[i]
 				self.maxColliderRadius =
 					math.max(self.maxColliderRadius, grown.radius, grown.hurtRadius or 0, grown.hitRadius or 0)
 				self.maxRadius = math.max(self.maxRadius, Body.extent(grown), Hurt.extent(grown), Hit.extent(grown))
 				self.maxSpeed = math.max(self.maxSpeed, grown.speed * self.speedFactors[i] + self.speedBonuses[i])
 			end
+		end
+		local detection = self.detections[i]
+		if state or detection then
 			local bestTarget: number? = nil
 			local bestSquared = math.huge
 			for t = 1, targetCount do
@@ -1348,7 +1526,18 @@ function World.step(
 					bestSquared, bestTarget = squared, t
 				end
 			end
-			state.referenceSpeed = if p.referencePlayerSpeed then p.referencePlayerSpeed(bestTarget) else nil
+			if state then
+				state.referenceSpeed = if p.referencePlayerSpeed then p.referencePlayerSpeed(bestTarget) else nil
+			end
+			if detection and kinds[i].nativeDetection then
+				self.speedBonuses[i] += NativeDetection.step(
+					detection,
+					kinds[i].nativeDetection,
+					bestSquared,
+					if p.nativeChargeAccessibility then p.nativeChargeAccessibility() else 1
+				)
+				self.maxSpeed = math.max(self.maxSpeed, kinds[i].speed * self.speedFactors[i] + self.speedBonuses[i])
+			end
 		end
 	end
 	maxRadius = self.maxRadius
@@ -1380,6 +1569,9 @@ function World.step(
 		local walk = (
 			if kind.pursuer then baseMoveSpeed(self, i) else kind.speed * self.speedFactors[i] * self.boosts[i]
 		) * self.slowFactors[i]
+		if not (not hasBodyFlags or bodyEnabled(self, i)) then
+			walk = 0 -- hidden crossing get_move_input is ZERO, independent of its configured walk speed
+		end
 		knocked[i] = share > 0 and length * knock.speedPerPoint * share > walk
 		if length < stopBelow then
 			kx, kz = 0, 0
@@ -1439,15 +1631,78 @@ function World.step(
 		self.maxSpeed = math.max(self.maxSpeed, kind.speed * self.speedFactors[i] * self.boosts[i] + state.bonus)
 	end
 
+	-- Source jump movement locks steering but not hurt geometry. Source landing events carry no invented area damage.
+	if hasJumps then
+		for i = 1, count do
+			local state = self.nativeJumps[i]
+			local rule = kinds[i].nativeJump
+			if not state or not rule then
+				continue
+			end
+			if
+				kinds[i].nativeBoss
+				and kinds[i].nativeBoss.customJump
+				and p.nativeJumpPhase
+				and p.nativeJumpPhase(ids[i], state)
+			then
+				local adjusted = table.clone(kinds[i])
+				adjusted.nativeJump = nil
+				kinds[i], self.nativeJumps[i] = adjusted, nil
+				continue
+			end
+			local tx, tz = nil, nil
+			local nearest = math.huge
+			for t = 1, targetCount do
+				local squared = (targetXs[t] - xs[i]) ^ 2 + (targetZs[t] - zs[i]) ^ 2
+				if squared < nearest then
+					nearest = squared
+					tx, tz = targetXs[t], targetZs[t]
+				end
+			end
+			local airborne = state.jumping
+			local started, landed = NativeJump.step(rule, state, dt, xs[i], zs[i], tx, tz)
+			if airborne then
+				xs[i], zs[i] = state.x, state.z
+			end
+			if started then
+				table.insert(self.nativeJumpStarts, ids[i])
+			end
+			if landed then
+				table.insert(self.nativeLandings, ids[i])
+			end
+		end
+	end
+
 	-- 2. steering
-	if targetCount > 0 or p.goalsWithoutTargets then
+	if
+		targetCount > 0
+		or p.goalsWithoutTargets
+		or hasCrossings
+		or next(self.nativeEaters) ~= nil
+		or next(self.nativePatrols) ~= nil
+	then
 		local tolerance = p.keepDistanceTolerance
 		local steerMargin = p.obstacleSteerMargin
 		-- neighbours may have moved up to one step since the hash was built
 		local queryPadding = maxRadius + self.maxSpeed * dt
 		for i = 1, count do
 			local kind = kinds[i]
-			if targetCount == 0 and not self.hasGoal[i] and not kind.wander then
+			local crossing = if hasCrossings then self.crossings[i] else nil
+			if
+				targetCount == 0
+				and not crossing
+				and not self.nativeEaters[i]
+				and not self.nativePatrols[i]
+				and not self.hasGoal[i]
+				and not kind.wander
+			then
+				continue
+			end
+			local jumping = self.nativeJumps[i]
+			if kind.nativeBoss and p.nativeBossLocked and p.nativeBossLocked(self.ids[i]) then
+				continue
+			end
+			if jumping and jumping.locked then
 				continue
 			end
 			local nativeChargeState = self.nativeCharges[i]
@@ -1491,14 +1746,112 @@ function World.step(
 				self.boostClocks[i] = clock
 			end
 			local toGoal = self.hasGoal[i]
-			local wander = kind.wander
-			if toGoal then
+			local detection = self.detections[i]
+			local wander = if detection and detection.detected then nil else kind.wander
+			if crossing then
+				local initializing = crossing.phase == "Ready"
+				x, z, bestDx, bestDz = NativeCrossing.movement(
+					crossing,
+					assert(kind.nativeCrossing, "Crossing state requires its source movement rule"),
+					p,
+					x,
+					z,
+					function()
+						return nextRandom(self)
+					end
+				)
+				xs[i], zs[i] = x, z
+				if crossing.phase == "Removed" then
+					self:remove(ids[i])
+					continue
+				end
+				if not NativeCrossing.active(crossing) then
+					continue
+				end
+				if initializing then
+					local rotated = table.clone(kind)
+					local c, sine = math.cos(crossing.rotation), math.sin(crossing.rotation)
+					local function rotate(ox: number?, oz: number?): (number, number)
+						local px, pz = ox or 0, oz or 0
+						return px * c - pz * sine, px * sine + pz * c
+					end
+					rotated.nativeBodyOffsetX, rotated.nativeBodyOffsetZ =
+						rotate(kind.nativeBodyOffsetX, kind.nativeBodyOffsetZ)
+					rotated.nativeHurtOffsetX, rotated.nativeHurtOffsetZ =
+						rotate(kind.nativeHurtOffsetX, kind.nativeHurtOffsetZ)
+					rotated.nativeHitOffsetX, rotated.nativeHitOffsetZ =
+						rotate(kind.nativeHitOffsetX, kind.nativeHitOffsetZ)
+					rotated.nativeHurtChildX, rotated.nativeHurtChildZ =
+						rotate(kind.nativeHurtChildX, kind.nativeHurtChildZ)
+					rotated.nativeHitChildX, rotated.nativeHitChildZ =
+						rotate(kind.nativeHitChildX, kind.nativeHitChildZ)
+					if kind.nativeBodyOneWay then
+						local axisX, axisZ = rotate(kind.nativeBodyOneWay.axisX, kind.nativeBodyOneWay.axisZ)
+						rotated.nativeBodyOneWay = {
+							axisX = axisX,
+							axisZ = axisZ,
+							margin = kind.nativeBodyOneWay.margin,
+						}
+					end
+					kind = rotated
+					kinds[i] = rotated
+				end
+				toGoal, wander = false, nil
+				distance = math.sqrt(bestDx * bestDx + bestDz * bestDz)
+			elseif self.nativePatrols[i] then
+				local native = assert(kind.nativeMovement, "Native patrol requires source goal bounds")
+				local gx, gz = EdgePatrol.goal(
+					assert(kind.nativeEdgePatrol, "Native patrol requires its rule"),
+					self.nativePatrols[i],
+					x,
+					z,
+					native.precision,
+					{
+						minX = p.minX + native.goalInsetX,
+						maxX = p.maxX - native.goalInsetX,
+						minZ = p.minZ + native.goalInsetZ,
+						maxZ = p.maxZ - native.goalInsetZ,
+					},
+					function()
+						return nextRandom(self)
+					end
+				)
+				bestDx, bestDz = gx - x, gz - z
+				distance = math.sqrt(bestDx * bestDx + bestDz * bestDz)
+				toGoal, wander = true, nil
+			elseif self.nativeEaters[i] then
+				local native = assert(kind.nativeMovement, "Native gold targeting requires source goal bounds")
+				local goldXs, goldZs = NO_GOLD, NO_GOLD
+				if p.nativeGoldPositions then
+					goldXs, goldZs = p.nativeGoldPositions()
+				end
+				local gx, gz = GoldEater.goal(
+					self.nativeEaters[i],
+					x,
+					z,
+					native.precision,
+					{
+						minX = p.minX + native.goalInsetX,
+						maxX = p.maxX - native.goalInsetX,
+						minZ = p.minZ + native.goalInsetZ,
+						maxZ = p.maxZ - native.goalInsetZ,
+					},
+					goldXs,
+					goldZs,
+					function()
+						return nextRandom(self)
+					end
+				)
+				bestDx, bestDz = gx - x, gz - z
+				distance = math.sqrt(bestDx * bestDx + bestDz * bestDz)
+				toGoal, wander = true, nil
+			elseif toGoal then
 				bestDx, bestDz = self.goalXs[i] - x, self.goalZs[i] - z
 				distance = math.sqrt(bestDx * bestDx + bestDz * bestDz)
 			elseif wander then
 				bestDx, bestDz = wanderStep(self, i, wander, dt, x + bestDx, z + bestDz)
 				distance = math.sqrt(bestDx * bestDx + bestDz * bestDz)
-			elseif kind.anticipate then
+			elseif kind.anticipate and (not detection or detection.detected) then
 				local rule = kind.anticipate
 				bestDx += (if targetInputXs then targetInputXs[bestTarget] or 0 else 0) * rule.seconds
 				if not rule.horizontalOnly then
@@ -1520,7 +1873,9 @@ function World.step(
 			local advance
 			local ranged = kind.ranged
 			local flee = kind.flee
-			if toGoal or wander then
+			if crossing then
+				advance = maxMove
+			elseif toGoal or wander then
 				advance = math.min(maxMove, distance)
 			elseif kind.stayInRange then
 				-- Brotato's StayInRangeFromPlayer: walks to the spot at its range on the line from the target
@@ -1566,13 +1921,24 @@ function World.step(
 			for s = 1, found do
 				local j = scratch[s]
 				local other = kinds[j]
-				if j ~= i and other.mass >= mass then
+				if
+					j ~= i
+					and other.mass >= mass
+					and (not hasBodyFlags or bodyEnabled(self, j))
+					and (kind.nativeBodyMask == nil or other.nativeBodyMask == nil or Body.collides(kind, other))
+				then
 					local nx = bx - xs[j] - (other.nativeBodyOffsetX or 0)
 					local nz = bz - zs[j] - (other.nativeBodyOffsetZ or 0)
 					local gap = math.sqrt(nx * nx + nz * nz)
 					local minDistance = radius + other.radius
 					if gap > EPSILON and gap < minDistance + maxMove then
 						nx, nz = nx / gap, nz / gap
+						if
+							other.nativeBodyOneWay
+							and not Body.blocks(other, nx, nz, 0, self.moveInputXs[j], self.moveInputZs[j], dt)
+						then
+							continue
+						end
 						local towards = vx * nx + vz * nz -- negative when moving towards the neighbour
 						local allowed = -math.max(gap - minDistance, 0)
 						if towards < allowed then
@@ -1598,12 +1964,23 @@ function World.step(
 	for _ = 1, p.separationPasses do
 		rebuildHash(self, xs, zs)
 		for i = 1, count do
+			if not (not hasBodyFlags or bodyEnabled(self, i)) then
+				continue
+			end
 			local kindI = kinds[i]
 			local radiusI, massI = kindI.radius, kindI.mass
 			local found = hash:query(xs[i], zs[i], radiusI + self.maxColliderRadius, scratch)
 			for s = 1, found do
 				local j = scratch[s]
-				if j > i then
+				if
+					j > i
+					and (not hasBodyFlags or bodyEnabled(self, j))
+					and (
+						kindI.nativeBodyMask == nil
+						or kinds[j].nativeBodyMask == nil
+						or Body.collides(kindI, kinds[j])
+					)
+				then
 					local kindJ = kinds[j]
 					local dx, dz = xs[j] - xs[i], zs[j] - zs[i]
 					local minDistance = radiusI + kindJ.radius
@@ -1626,6 +2003,34 @@ function World.step(
 						elseif kindJ.anchored then
 							pushI, pushJ = push, 0
 						end
+						if
+							kindJ.nativeBodyOneWay
+							and not Body.blocks(
+								kindJ,
+								-nx,
+								-nz,
+								minDistance - distance,
+								self.moveInputXs[j],
+								self.moveInputZs[j],
+								dt
+							)
+						then
+							pushI = 0
+						end
+						if
+							kindI.nativeBodyOneWay
+							and not Body.blocks(
+								kindI,
+								nx,
+								nz,
+								minDistance - distance,
+								self.moveInputXs[i],
+								self.moveInputZs[i],
+								dt
+							)
+						then
+							pushJ = 0
+						end
 						xs[i] -= nx * pushI
 						zs[i] -= nz * pushI
 						xs[j] += nx * pushJ
@@ -1645,6 +2050,10 @@ function World.step(
 	for i = 1, count do
 		local kind = kinds[i]
 		if kind.anchored then
+			continue
+		end
+		if hasBodyFlags and not bodyEnabled(self, i) then
+			xs[i], zs[i] = NativeMovement.clampPosition(p, kind, xs[i], zs[i])
 			continue
 		end
 		local radius = kind.radius
@@ -1684,8 +2093,18 @@ function World.step(
 	local damage = self.contactDamage
 	local hitXs, hitZs = contactXs or targetXs, contactZs or targetZs
 	for i = 1, count do
+		local pursuerRule, pursuerState = kinds[i].pursuer, self.pursuers[i]
+		local trackContact = pursuerRule and pursuerRule.resetOnContact and pursuerState
+		if trackContact then
+			NativePursuer.beginContacts(pursuerState)
+		end
 		local hit = damage[i]
-		if hit > 0 and not knocked[i] then
+		if
+			hit > 0
+			and not knocked[i]
+			and self.hp[i] > 0
+			and (not self.nativeJumps[i] or not self.nativeJumps[i].jumping)
+		then
 			local hx, hz = Hit.center(kinds[i], xs[i], zs[i])
 			for t = 1, targetCount do
 				local reach = (kinds[i].hitRadius or kinds[i].radius)
@@ -1698,12 +2117,20 @@ function World.step(
 						contacts[t] = hit
 						sources[t] = ids[i]
 					end
+					if
+						trackContact and NativePursuer.contact(pursuerState, if targetKeys then targetKeys[t] else t)
+					then
+						self.speedBonuses[i] = 0 -- timer phase and one-time detection latch survive the native entry reset
+					end
 					local accelerate = kinds[i].accelerate
 					if accelerate and accelerate.resetOnHit then
 						self.boosts[i] = 1 -- Brotato's Pursuer loses its boosts when it hits
 					end
 				end
 			end
+		end
+		if trackContact then
+			NativePursuer.endContacts(pursuerState)
 		end
 	end
 	-- Contacts along fast rushes use the same lag-corrected target positions as ordinary contact damage.

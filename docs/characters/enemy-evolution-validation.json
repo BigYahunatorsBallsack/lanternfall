@@ -1,0 +1,169 @@
+{
+  "referenceVersion": "1.2.0.3",
+  "steamBuild": 26642464,
+  "baseMain": "de4e155e97855cc18ffb52b1e81e53d1af8532fc",
+  "scope": "New source-bound TeamEvolution probability/camp and scene boost math component; no production enemy evolution selection/application/variant renderer.",
+  "sourceFacts": "docs/characters/enemy-evolution-source.json",
+  "focused": {
+    "NativeEnemyEvolution": "16/0; math initially missing0/1, selection initially9/7"
+  },
+  "proof": [
+    "Actual EvolutionSceneEffectBehaviorData.scene binding and scene script verified; numeric script defaults with scene overrides compiled against pinned three-source hashes.",
+    "Evolution chance saturates through Utils.get_evolution_factor, applies absolute chance-weighted evolution and endless modifier, clamps per player then averages all players. Elite chance is separately clamped per player with multiplier4.",
+    "Camp weights and mean magnitudes use raw evolution separately from chance modifiers, ignore zero members in each camp mean, and include nonzero dual players in both camps regardless of sign.",
+    "Source weighted camp draw is strict< and consumes RNG for any nonempty camp distribution; no shortcut for100percentonecamp. Empty camps consume none.",
+    "Source HP cap applies to magnitude300: Meca finalHPbonus650, Mutant745. Source Meca truncates fractional HP magnitude; Mutant rounds product.",
+    "Meca damage/speed use square-root interpolation through magnitude100; Mutant damage uses linear interpolation through150 while speed uses square-root through100."
+  ],
+  "mutations": [
+    {
+      "mutation": "wrongCampMean",
+      "passed": 6,
+      "failed": 3
+    },
+    {
+      "mutation": "lateEliteClamp",
+      "passed": 7,
+      "failed": 2
+    },
+    {
+      "mutation": "inclusiveCampBoundary",
+      "passed": 8,
+      "failed": 1
+    },
+    {
+      "mutation": "wrongHpMagnitudeCap",
+      "passed": 7,
+      "failed": 2
+    }
+  ],
+  "checks": {
+    "sourceCompiler": true,
+    "stylua": true,
+    "selene": {
+      "errors": 0,
+      "existingWarnings": 18,
+      "parseErrors": 0,
+      "api": "cached Roblox API; exit1 from warnings"
+    },
+    "rojo": true
+  },
+  "fullSuite": {
+    "rerun": false,
+    "reason": "Only the still unreferenced source component/config/compiler/tests changed since runtime baseline.16focusedchecks green; no existing production caller changed.",
+    "latestRuntimeBaseline": "build/native-five-branch-ten-sea-pig-final-de4e155.json",
+    "baselineSpecs": 358,
+    "baselinePassed": 2135,
+    "baselineFailed": 37
+  },
+  "status": {
+    "productionAdapterImplemented": false,
+    "nativeFullParityAccepted": false,
+    "junglePlayable": false,
+    "codePreparedCharacters": 48,
+    "open": 26,
+    "newCompletedCharacters": 0
+  },
+  "nextBindingFacts": [
+    "Scene handler excludes current-zone loot Stats resource identities before calculating team; not a universal isLoot/canBeBoosted filter. Cross-zone Sea Pig may get flags/effects despite boost refusing stat changes.",
+    "Normal bosses use team.chance, not eliteChance, in this scene handler. Evolved-zone elite flags are preselected elsewhere; they must not be rerolled here.",
+    "Brachiosaurus foot inherits mother flags; existing Meca/Mutant flags precede has_any_camp check. Apply-stage dead/invalid guard occurs after planning in source, so do not silently reorder RNG.",
+    "Evolution sets Meca and Mutant mutually exclusively, adds effect, disables future boosts and resets bound attack behavior. Actual world/stat/attack/puddle application still pending.",
+    "Snapshot.packFlags affix field is only2bits and already has3legacyaffixes; no free enum slot may be assumed for Meca/Mutant. Representation/state bridge remains to be designed without sacrificing existing heading precision."
+  ],
+  "limits": [
+    "No live stat provider, spawn selector, native boost application, variant attack profile selection or reliable variant renderer-state bridge.",
+    "Additional evolved loot33percent/items/curse/puddles and source Area/deferred/pooling/RNG acceptance remain open.",
+    "No new Remote/snapshot/Arsenal/upload/runtime asset IDs/Studio/real2clients/mobile acceptance."
+  ],
+  "selectionFollowup": {
+    "cases": 7,
+    "initial": "9passed/7failed before selector existed",
+    "final": "16/0",
+    "proof": [
+      "Current-zone loot Stats identity excludes before role/inheritance. No broad canBeBoosted=false exclusion.",
+      "BrachiosaurusFoot inherits mother, Meca priority, no camp/chance reroll.",
+      "Ordinary bosses use primary chance before existing flags. Evolved-zone elites use preselected flags and do not reroll normal elites.",
+      "Existing ordinary flags precede has_any_camp; elites outside evolved zones use ordinary primary chance.",
+      "Selector intentionally has no liveness input; apply-stage validity/dead guard must occur after these source rolls. Caller must recompute team from fresh player state per source enemy_respawned event."
+    ],
+    "mutations": [
+      {
+        "mutation": "bossWrongEliteChance",
+        "passed": 15,
+        "failed": 1
+      },
+      {
+        "mutation": "wrongBoostFilter",
+        "passed": 15,
+        "failed": 1
+      },
+      {
+        "mutation": "wrongEliteZoneBranch",
+        "passed": 14,
+        "failed": 2
+      }
+    ]
+  },
+  "coveredByLaterFullSuite": {
+    "specs": 367,
+    "passed": 2195,
+    "failed": 35,
+    "aborts": 0,
+    "newFailureIdentitiesVsActor": [],
+    "missingFailureIdentitiesVsActor": [
+      "FAIL new enemies (B9) > lets a Gobbler eat the orbs on the floor and drop them all when killed",
+      "FAIL smoke > chases the player until it touches them"
+    ],
+    "artifact": "build/native-five-branch-ten-native-stats-provider-de4e155.json",
+    "runtimeFrozenDuringRun": true
+  },
+  "effectBindingsFollowup": {
+    "sourceTests": "3/0; initially1failure/2errors",
+    "facts": "Root resource bindings preserved; both concrete Data/Scene/Script chains hashed; Meca/Mutant bonusGold0.33, gated Mutant healing amount1. Metadata only, no live effect application.",
+    "compilerCheck": true,
+    "fullSuite": {
+      "specs": 362,
+      "passed": 2162,
+      "failed": 35,
+      "aborts": 0,
+      "newFailureIdentitiesVsPrevious": [],
+      "missingFailureIdentitiesVsPrevious": [
+        "FAIL smoke > chases the player until it touches them"
+      ],
+      "artifact": "build/native-five-branch-ten-native-stat-reset-final-de4e155.json",
+      "runtimeFrozenDuringRun": true
+    }
+  },
+  "globalFactorCacheAudit": {
+    "scope": "Direct cached source inspection, not a new production factor provider. Distinguish fresh TeamEvolution from cached EntityService factors.",
+    "sources": [
+      {
+        "source": "res://main.gdc",
+        "sourceMd5": "e42c7c4356e6cb9d2da8190067ebf7e5"
+      },
+      {
+        "source": "res://singletons/entity_service.gdc",
+        "sourceMd5": "f1a861f576858bbaa3e913d83c7b1807"
+      },
+      {
+        "source": "res://entities/units/unit/unit.gdc",
+        "sourceMd5": "aa94391f2d9681ac36b7f8617b82ff13"
+      }
+    ],
+    "facts": [
+      "TeamEvolution is reconstructed for each enemy_respawned selection; do not cache its chance/camps per wave.",
+      "EntityService.factor_cache stores health, damage and speed factors by stat key on their first use. get_final_enemy_* reuses that factor until reset_cache clears it.",
+      "Verified direct reset_cache caller: Main._ready, after entity_spawner.init/stats_manager.init (main.gd272). Do not substitute unconditional fresh global-stat reads on every enemy reset.",
+      "Speed cache stores the effects_factor supplied by its first caller; Unit computes a product of per-player speed effects (each enemy_speed floored at-75, plus burning-specific effect when burning). Subsequent calls reuse the cached factor.",
+      "Unit.set_burning calls reset_speed_stat with the stored per-actor _speed_percent_modifier; source cache order and burn/reset timing still need acceptance.",
+      "Health/damage source factor/boost minimum0.01 differs from the existing shared StatMath enemyFactor minimum0.1; do not silently call that helper as an exact native provider."
+    ],
+    "implemented": false
+  },
+  "liveNumericProviderFollowup": {
+    "implemented": true,
+    "proof": "docs/characters/native-stats-provider-validation.json",
+    "scope": "Supported native actor births/Buffer/descendants; enemy-time reset/evolution/legacy global producers remain open."
+  }
+}

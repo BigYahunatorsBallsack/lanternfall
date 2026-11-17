@@ -1,0 +1,45 @@
+{
+  "version": "1.2.0.3",
+  "steamBuild": 26642464,
+  "sourceScene": "res://singletons/coop_service.tscn",
+  "sourceSceneMd5": "6a52c7c72e9ca9c582f9069a30ac282d",
+  "coopPerAdditionalPlayer": {
+    "health": 0.3,
+    "damage": 0.08
+  },
+  "rules": {
+    "percent": 100,
+    "minimumFactor": 0.01,
+    "minimumPlayerSpeedPercent": -75,
+    "curseHealthDivisor": 10,
+    "curseDamageDivisor": 25,
+    "endlessHealthMultiplier": 2.25,
+    "endlessSpeedDivisor": 13.33,
+    "endlessSpeedCap": 1.75
+  },
+  "ruleSources": [
+    {
+      "source": "res://singletons/entity_service.gdc",
+      "sourceMd5": "f1a861f576858bbaa3e913d83c7b1807"
+    },
+    {
+      "source": "res://entities/units/unit/unit.gdc",
+      "sourceMd5": "aa94391f2d9681ac36b7f8617b82ff13"
+    },
+    {
+      "source": "res://singletons/utils.gdc",
+      "sourceMd5": "2c263b6d3c2355dd71d6ad4caf0705bf"
+    },
+    {
+      "source": "res://singletons/coop_service.gdc",
+      "sourceMd5": "c7acffec9f3ec81159811794fd343149"
+    },
+    {
+      "source": "res://main.gdc",
+      "sourceMd5": "e42c7c4356e6cb9d2da8190067ebf7e5"
+    }
+  ],
+  "productionProviderImplemented": true,
+  "enemyTimeResetImplemented": false,
+  "nativeFullParityAccepted": false
+}

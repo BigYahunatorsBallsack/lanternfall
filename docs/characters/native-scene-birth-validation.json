@@ -1,0 +1,105 @@
+{
+  "referenceVersion": "1.2.0.3",
+  "steamBuild": 26642464,
+  "baseMain": "de4e155e97855cc18ffb52b1e81e53d1af8532fc",
+  "scope": "Exact source-scene lookup and actual native birth API for supported actors; source scheduler integration tested explicitly, automatic Jungle run adapter remains absent.",
+  "focused": {
+    "NativeSceneBirth": "6/0; initial5cases0/5 before implementation"
+  },
+  "coverage": {
+    "registeredSourceScenes": 32,
+    "directWaveGraphScenes": 38,
+    "resolvedWaveGraphScenes": 31,
+    "unresolvedWaveGraphScenes": [
+      "res://entities/units/enemies/jungle/bosses/brachiosaurus/brachiosaurus.tscn",
+      "res://entities/units/enemies/jungle/bosses/tyrannosaurus/tyranosaurus.tscn",
+      "res://entities/units/enemies/jungle/elites/baryonyx/baryonyx_neutral.tscn",
+      "res://entities/units/enemies/jungle/elites/carnotaurus/carnotaurus_neutral.tscn",
+      "res://entities/units/enemies/jungle/elites/diplodocus/diplodocus.tscn",
+      "res://entities/units/enemies/jungle/elites/silesaurus/silesaurus.tscn",
+      "res://entities/units/enemies/jungle/elites/therizinosaurus/therizinosaurus.tscn"
+    ],
+    "registeredOutsideWaveGraph": [
+      "res://entities/units/enemies/jungle/basic/jeholopterus/jeholopterus.tscn"
+    ]
+  },
+  "interfaces": [
+    "Enemy.nativeScene contains the concrete pinned source PackedScene string from existing compiled facts.",
+    "EnemyKinds.byNativeScene(source)->actual normal/zone-neutral kind?; duplicates or missing native policy assert at registration. Generated Gloom copies never register over the source actor.",
+    "EnemySim.spawnNativeScene(source,x,z)->id? delegates to the real native provider/constructor with the actor zone; unknown/unported source paths return nil before RNG or actor creation."
+  ],
+  "checks": {
+    "sourceCompilers": [
+      "Jungle tree --check passed",
+      "Sea Pig --check passed"
+    ],
+    "stylua": "passed",
+    "selene": {
+      "errors": 0,
+      "warnings": 18,
+      "parseErrors": 0
+    },
+    "rojo": "passed"
+  },
+  "mutations": [
+    {
+      "mutation": "loseNormalBindings",
+      "passed": 3,
+      "failed": 3,
+      "detected": true
+    },
+    {
+      "mutation": "bindGloomInstead",
+      "passed": 5,
+      "failed": 1,
+      "detected": true
+    },
+    {
+      "mutation": "loseTreeZone",
+      "passed": 5,
+      "failed": 1,
+      "detected": true
+    },
+    {
+      "mutation": "substituteUnknownScene",
+      "passed": 5,
+      "failed": 1,
+      "detected": true
+    },
+    {
+      "mutation": "ignoreRunGuard",
+      "passed": 5,
+      "failed": 1,
+      "detected": true
+    }
+  ],
+  "fullComparison": {
+    "status": "finished",
+    "artifact": "build/native-five-branch-ten-native-scene-birth-de4e155.json",
+    "baseline": "build/native-five-branch-ten-jungle-tree-de4e155.json",
+    "specs": 369,
+    "passed": 2212,
+    "failed": 36,
+    "aborts": 0,
+    "newFailureIdentities": [],
+    "runtimeFrozenDuringComparison": true
+  },
+  "counts": {
+    "charactersCodePrepared": 48,
+    "charactersRemaining": 26,
+    "additionalCompleteCharacters": 0
+  },
+  "limits": [
+    "31/38 resolved scene references are not31complete enemies,31characters or a playable Jungle area.",
+    "No automatic wave loop, unit-count/placement/birth-delay/entity-limit/evolution/DLC-content-selection/boss/elite/area adapter claimed.",
+    "velociraptor++ remains unresolved; no base-family alias or filename fallback. Jeholopterus is registered but outside this limited direct wave graph; not claimed unused.",
+    "No source visual/physics/frame/solver/deferred/Studio/two-client/mobile acceptance; no uploads, Asset-ID, Remote, snapshot or Arsenal changes."
+  ],
+  "coveredByLaterFull": {
+    "artifact": "build/native-five-branch-ten-native-boss-phases-de4e155.json",
+    "specs": 370,
+    "passed": 2220,
+    "failed": 37,
+    "unknownFailureIdentities": []
+  }
+}

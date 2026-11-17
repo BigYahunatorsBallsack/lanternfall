@@ -14,6 +14,7 @@ export type State = {
 	walkDt: number,
 	rushDt: number,
 	deflecting: boolean,
+	shotsTaken: number,
 }
 local EPSILON = 1e-9
 local function cooldown(rule: Enemies.NativeCharge, random: () -> number): number
@@ -32,6 +33,7 @@ function Charge.new(rule: Enemies.NativeCharge, mass: number, random: () -> numb
 		walkDt = 0,
 		rushDt = 0,
 		deflecting = false,
+		shotsTaken = 0,
 	}
 end
 local function advanceCooldown(state: State, rule: Enemies.NativeCharge, dt: number)
@@ -89,7 +91,13 @@ function Charge.step(
 					state.direction, state.directionZ = Target.direction(rule, dx, dz, inputX or 0, inputZ or 0, random)
 				end
 				state.stage, state.left = "Rush", rule.duration
-				state.remaining = cooldown(rule, random) + rule.duration
+				state.shotsTaken += 1
+				if rule.longEvery and rule.longEvery > 0 and state.shotsTaken >= rule.longEvery then
+					state.shotsTaken = 0
+					state.remaining = assert(rule.longCooldown, "Long charge cooldown required") + rule.duration
+				else
+					state.remaining = cooldown(rule, random) + rule.duration
+				end
 				state.deflecting = rule.deflectStopBeforeCooldown ~= nil
 				state.bonus = rule.speed * accessibility
 				bonusChanged = true

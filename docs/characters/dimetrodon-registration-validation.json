@@ -1,0 +1,79 @@
+{
+  "referenceVersion": "1.2.0.3",
+  "steamBuild": 26642464,
+  "baseMain": "de4e155e97855cc18ffb52b1e81e53d1af8532fc",
+  "scope": "Normal Dimetrodon registered as type69 through source compiler, checked parent collider chain and JungleEnemyKinds. Existing attack/client tests now use this actual NPC.",
+  "sourceFacts": "docs/characters/dimetrodon-source.json",
+  "focused": {
+    "NativeDimetrodonSource": "1/0 (initial missing registration0/1)",
+    "NativeDimetrodonAttacksServer": "8/0; strengthened eight actual68-damage Charm hits after full run",
+    "NativeJumpPresentationServer": "3/0 with actual registered Dimetrodon",
+    "NativeJump": "8/0",
+    "NativeJumpWorld": "7/0",
+    "MainGameEnemyStats": "29/0 with69kinds; previous68count updated to match actual addition, uniqueness checks retained",
+    "WorldSprites": "12/0"
+  },
+  "proof": [
+    "Source HP5+2/wave,speed175px/s,contact1+0.85/wave,material2,kb0.7; body22/hurt40/hit24px, body and hit offsets0/-8px, Hurtbox parent0/-16 plus child0/-8 yields0/-24px.",
+    "Factory binds checked NativeJump/NativeEdgePatrol/radial/presentation rules by source hash, independent shot growth1.15. Normal-only, no invented generic timed shooting/slash.",
+    "Existing attack and presentation tests no longer modify Shadeling into a test-only jump actor. They instantiate real EnemySim.spawn(Dimetrodon), test actual hostile/Charm/death/cleanup/warnings and rendered shadows.",
+    "All29previousfamily records,29previouscollider actors and42previousart frame records semantically unchanged. One Dimetrodon body added to normal art manifest43; separate3PNGpackage remains local.",
+    "Registration flags updated to true while nativeFullParityAccepted explicitlyfalse. Historical unused50damage/180radius assertions retained; no AoE added.",
+    "Inventory found31top-level basic scenes,30registered. Remaining velociraptor++ has its own scene/stats and CleverGirl/RaptorEye challenge mentions; actual wave/spawn binding not verified, no unused or implemented claim."
+  ],
+  "mutation": {
+    "mutation": "Premature Charm base rounding69instead68",
+    "passed": 7,
+    "failed": 1,
+    "restoredByteExactly": true
+  },
+  "correction": "Earlier attack proof/STATUS/PR prose claimed34Charmdamage for this helper. Helper uses factor2; strengthened actual per-hit trace verifies eight68 hits, not a minimum aggregate272. Premature base rounding69 is rejected7/1; production file byte-restored. Existing production damage was already correct.",
+  "fullSuite": {
+    "specs": 355,
+    "passed": 2118,
+    "failed": 38,
+    "aborts": 0,
+    "additionalSourceCheckPassed": true,
+    "returnedVsPresentation": [
+      "FAIL Charmed faction runtime > steps a mixed hostile and friendly crowd within the shared simulation budget",
+      "FAIL new enemies (B9) > lets a Gobbler eat the orbs on the floor and drop them all when killed"
+    ],
+    "absentVsPresentation": [],
+    "newFailureIdentitiesVsDocumentedHistory": [],
+    "knownHistoryEvidence": [
+      "build/native-five-branch-ten-pet-source-reactions-de4e155.json",
+      "build/native-five-branch-ten-crossing-families-de4e155.json"
+    ],
+    "artifact": "build/native-five-branch-ten-dimetrodon-registration-de4e155.json",
+    "runtimeFrozenDuringRun": true,
+    "afterRunChanges": "Only test assertion strengthened, docs, and one byte-restored mutation. Production unchanged.56focusedchecks repeated green;4msbudget not weakened."
+  },
+  "checks": {
+    "sourceCompilers": true,
+    "localImages": true,
+    "stylua": true,
+    "selene": {
+      "errors": 0,
+      "existingWarnings": 18,
+      "parseErrors": 0,
+      "api": "cached Roblox API; exit1 from warnings"
+    },
+    "rojo": true
+  },
+  "status": {
+    "codePreparedCharacters": 48,
+    "open": 26,
+    "registeredJungleBodies": 30,
+    "registeredJungleImages": 43,
+    "separateDimetrodonImageFiles": 3,
+    "actorRegistered": true,
+    "nativeFullParityAccepted": false,
+    "junglePlayable": false
+  },
+  "limits": [
+    "Procedural art/shadow/warning; original image uploads/asset IDs unchanged. Idle/postlanding shadow,animation/shader/audio/renderclock parity remain open.",
+    "Source Meca/Mutant branches,other variants/bosses/waves/evolution/area and actual200Whip/Flail route remain pending.",
+    "Existing15HzWorld,300studprojectile lifetime, global factors/RNG/solver/Area/deferred/pooling acceptance remain open.",
+    "No native full1:1/Studio/real2clients/mobile acceptance or extra completed character claimed."
+  ]
+}

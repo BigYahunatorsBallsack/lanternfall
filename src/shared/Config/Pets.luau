@@ -55,6 +55,7 @@ return {
 						0.6,
 					},
 				},
+				petSourceShootsProjectiles = false,
 			},
 			explosion = {
 				damage = 8,
@@ -125,6 +126,7 @@ return {
 				bounce = 0,
 				bounceFalloff = 0.5,
 				canBounce = true,
+				petSourceShootsProjectiles = true,
 			},
 			catling = true,
 			bodyRadiusPoints = 40.0,
@@ -184,6 +186,7 @@ return {
 						0.01,
 					},
 				},
+				petSourceShootsProjectiles = false,
 				burning = {
 					damage = 3,
 					ticks = 5,
@@ -226,6 +229,7 @@ return {
 				bounce = 0,
 				bounceFalloff = 0.5,
 				canBounce = true,
+				petSourceShootsProjectiles = false,
 				burning = {
 					damage = 3,
 					ticks = 5,
@@ -296,6 +300,7 @@ return {
 				bounce = 0,
 				bounceFalloff = 0.5,
 				canBounce = true,
+				petSourceShootsProjectiles = true,
 			},
 			mine = {
 				damage = 10,
@@ -346,6 +351,7 @@ return {
 				isRanged = false,
 				exploding = false,
 				scaling = {},
+				petSourceShootsProjectiles = false,
 			},
 			lootworm = true,
 			doubleChance = 0.1,
@@ -387,6 +393,7 @@ return {
 						0.1,
 					},
 				},
+				petSourceShootsProjectiles = false,
 			},
 			bodyRadiusPoints = 20.0,
 			bodyOffsetXPoints = 0,

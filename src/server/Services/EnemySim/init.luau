@@ -23,6 +23,13 @@ local NativeSummons = require(script.NativeSummons)
 local EntryHealing = require(script.NativeEntryHealing)
 local MovementInput = require(script.Parent.CharacterService.Movement)
 local NativeVolley = require(Shared.Util.NativeEnemyVolley)
+local NativeBossShooting = require(Shared.Util.NativeBossShooting)
+local NativeBossDamage = require(Shared.Util.NativeBossProfileDamage)
+local RunSchedule = require(Shared.Util.RunSchedule)
+local DeathShots = require(script.NativeDeathShots)
+local NativeStatCache = require(script.NativeEnemyStatCache)
+local NativeStats = require(script.NativeEnemyStats)
+local NativeStatRules = require(Shared.Config.NativeEnemyStatCache).rules
 local PlayerHurt = require(Shared.Util.PlayerHurtGeometry)
 local ShotFeed = require(Shared.Net.ShotFeed)
 local Snapshot = require(Shared.Net.Snapshot)
@@ -33,6 +40,9 @@ local RandomService = require(script.Parent.RandomService)
 local RunDirector = require(script.Parent.RunDirector)
 local Volleys = require(script.Volleys)
 local World = require(script.World)
+local NativeBossActor = require(script.NativeBossActor)
+local nativeBossActors: { [number]: NativeBossActor.State } = {}
+local NativeCrossing = require(script.NativeCrossing)
 local CharmedWorld = require(script.CharmedWorld)
 local CharmRules = require(script.CharmRules)
 local weakness = require(script.Weakness).new()
@@ -46,7 +56,8 @@ export type KillInfo = {
 	elite: boolean, -- a Gloom Elite: drops a chest (LootService)
 	boss: boolean, -- a boss (WP10, BossService)
 	killer: Player?,
-	aliveSeconds: number?, -- authoritative age of a credited death; native Giant Slayer boundary
+	aliveSeconds: number?, -- authoritative age of a credited death
+	bossElapsedSeconds: number?, -- source Boss elapsed counter; custom timer overrides can leave this at zero
 	digCrateChance: number?, -- Shovel's killing hitbox; LootService rolls before ordinary consumables
 }
 
@@ -77,9 +88,12 @@ EnemySim.ShotHit = Signal.new()
 EnemySim.Stepped = Signal.new()
 -- Server-only cosmetic events for friendly projectiles.
 EnemySim.CharmShot = Signal.new()
--- Trusted source slash request: source id, target x/z, damage and optional Charm owner.
+-- Trusted slash request: source id, target/origin x/z, damage, optional Charm owner and optional direct slash2 direction/speed.
 EnemySim.NativeSlash = Signal.new()
 EnemySim.NativePillar = Signal.new()
+EnemySim.NativeLaser = Signal.new() -- trusted source id, origin, fixed direction and independent profile damage
+EnemySim.NativeJumpStarted = Signal.new() -- trusted id, kind, captured source Jump state
+EnemySim.PlayerKillStats = Signal.new() -- trusted credited player and source stat gains, after normal death listeners
 -- Trusted native spawning attack: child kind, exact position and captured optional Charm owner; SpawnDirector owns births.
 EnemySim.NativeSummon = Signal.new()
 EnemySim.CharmSupport = Signal.new()
@@ -87,6 +101,7 @@ EnemySim.CharmSupport = Signal.new()
 local world: World.World
 local friends: any
 local nativeBases: { [number]: any } = {}
+local cleanupDepth = 0
 local sharedSerial = 0
 local function allocateActorId(): number
 	repeat
@@ -96,6 +111,7 @@ local function allocateActorId(): number
 end
 -- Living participants with a character, refreshed every step (reused arrays).
 local targetPlayers: { Player } = {}
+local targetKeys: { number | string } = {}
 local function referencePlayerSpeed(index: number?, x: number?, z: number?): number?
 	if index and targetPlayers[index] then
 		return MovementInput.getSpeed(targetPlayers[index])
@@ -124,14 +140,45 @@ local function actorObstacles(): { World.Circle }
 	end
 	return obstacles
 end
+local emptyGoldPositions: { number } = {}
+local nativeGoldPositions: () -> ({ number }, { number }) = function()
+	return emptyGoldPositions, emptyGoldPositions
+end
+-- Internal live material view; installed by ExperienceService and never accepted from a client.
+function EnemySim.setNativeGoldPositions(provider: () -> ({ number }, { number }))
+	nativeGoldPositions = provider
+end
 local function newWorldParams(): World.Params
 	local bounds = MapService.getArenaBounds()
 	local center, halfX, halfZ = bounds.center, bounds.halfX, bounds.halfZ
 	return {
 		allocateId = allocateActorId,
+		nativeGoldPositions = function()
+			return nativeGoldPositions()
+		end,
 		referencePlayerSpeed = referencePlayerSpeed,
 		nativeChargeAccessibility = function()
 			return RunDirector.getRunOptions().enemySpeed / 100
+		end,
+		nativeStatBoost = function(id, boost)
+			local base = nativeBases[id]
+			if not base or not base.sourceFactors then
+				return false
+			end
+			local cache, context = NativeStats.get(RunDirector.getWave())
+			return EnemySim.applyNativeBoost(id, cache, context, {
+				hp = (boost.hp - 1) * NativeStatRules.percent,
+				damage = (boost.damage - 1) * NativeStatRules.percent,
+				speed = (boost.speed - 1) * NativeStatRules.percent,
+			})
+		end,
+		nativeBossLocked = function(id)
+			local state = nativeBossActors[id]
+			return state ~= nil and NativeBossShooting.isMovementLocked(state.shooting)
+		end,
+		nativeJumpPhase = function(id, jump)
+			local state = nativeBossActors[id]
+			return state ~= nil and NativeBossActor.beforeJump(state, jump)
 		end,
 		cellSize = Sim.spatialHashCellSize,
 		maxEnemies = Config.Run.spawn.cap.max,
@@ -153,7 +200,7 @@ local function newWorldParams(): World.Params
 end
 
 world = World.new(newWorldParams())
-type SpawnContext = { hp: number, damage: number, speed: number, wave: number }
+type SpawnContext = { hp: number, damage: number, speed: number, wave: number, sourceFactors: boolean? }
 local spawnContexts: { [number]: SpawnContext } = {}
 local chargeTrails: { [number]: { x: number, z: number, distance: number } } = {}
 local volleys = (function()
@@ -190,17 +237,20 @@ friends = CharmedWorld.new(world.params, {
 	damage = function(id, amount)
 		EnemySim.damage(id, amount, nil)
 	end,
-	emitSlash = function(id, tx, tz, damage, owner)
-		EnemySim.NativeSlash:Fire(id, tx, tz, damage, owner)
+	emitSlash = function(id, tx, tz, damage, owner, direct)
+		EnemySim.NativeSlash:Fire(id, tx, tz, damage, owner, direct)
 	end,
-	emitPillar = function(id, x, z, dx, dz, speed, damage, owner)
-		EnemySim.NativePillar:Fire(id, x, z, dx, dz, speed, damage, owner)
+	emitPillar = function(id, x, z, dx, dz, speed, damage, owner, scale)
+		EnemySim.NativePillar:Fire(id, x, z, dx, dz, speed, damage, owner, scale)
 	end,
 	emitShot = function(owner, event)
 		EnemySim.CharmShot:Fire(owner, event)
 	end,
 	expired = function(member, x, z)
 		EnemySim.resolveCharmDeath(member, x, z)
+	end,
+	jumpStarted = function(id, kind, state)
+		EnemySim.NativeJumpStarted:Fire(id, kind, state)
 	end,
 	spawn = function(member, kind, x, z, count, spread)
 		EnemySim.spawnCharmChildren(member, kind, x, z, count, spread)
@@ -253,6 +303,7 @@ local function collectTargets()
 			if position then
 				targetCount += 1
 				targetPlayers[targetCount] = player
+				targetKeys[targetCount] = "Player:" .. tostring(player.UserId)
 				targetIndexOf[player] = targetCount
 				targetXs[targetCount] = position.X
 				targetZs[targetCount] = position.Z
@@ -283,6 +334,115 @@ end
 -- Turns the shots World reported this step into projectiles aimed ahead of their target: at the point a target
 -- walking straight on would reach while the shot flies there, times the kind's aimLead, then turned by a random
 -- angle within the kind's spreadRadians.
+local function stepNativeBosses()
+	for id, state in nativeBossActors do
+		if not world:isAlive(id) then
+			nativeBossActors[id] = nil
+			continue
+		end
+		local x, z = world:getPosition(id)
+		if not x or not z then
+			continue
+		end
+		local target, squared = 0, math.huge
+		for index = 1, targetCount do
+			local distance = (targetXs[index] - x) ^ 2 + (targetZs[index] - z) ^ 2
+			if distance < squared then
+				target, squared = index, distance
+			end
+		end
+		NativeBossActor.step(
+			state,
+			STEP_SECONDS,
+			function()
+				local hp, maximum = world:getHealth(id)
+				return if maximum > 0 then hp / maximum else 0
+			end,
+			math.sqrt(squared),
+			function()
+				return RandomService.number("Spawns")
+			end,
+			function(profile)
+				local rules = state.rules
+				local attack = rules.attacks[profile]
+				if attack.kind == "Spawn" then
+					local summon = table.clone(assert(attack.summon, "Native boss spawn attack needs summon rules"))
+					local team = require(script.Parent.StatService).getTeamStat("enemyCount")
+					summon.count = math.max(
+						assert(attack.minimumCount, "Native boss spawn attack needs its source minimum count"),
+						math.round(summon.count * (1 + team / NativeStatRules.percent))
+					)
+					NativeSummons.emit(world, id, summon, nil, function()
+						return RandomService.number("Spawns")
+					end, function(...)
+						EnemySim.NativeSummon:Fire(...)
+					end)
+					-- The source counts requests rather than successful bodies; a whole final batch may exceed its cap.
+					NativeBossShooting.recordSpawns(state.shooting, profile, summon.count)
+					return
+				end
+				if target == 0 then
+					return
+				end
+				local rule = assert(attack.volley, "Native boss projectile attack needs volley rules")
+				local speed = assert(attack.speed, "Native boss projectile attack needs source speed")
+				speed *= RunDirector.getRunOptions().enemySpeed / NativeStatRules.percent
+				local damage = if state.damages then state.damages[profile] else world:getShotDamage(id)
+				NativeVolley.emit(rule, x, z, targetXs[target], targetZs[target], speed, function()
+					return RandomService.number("Combat")
+				end, function(px, pz, dx, dz, shotSpeed)
+					if attack.kind == "NormalSlash" then
+						EnemySim.NativeSlash:Fire(
+							id,
+							px,
+							pz,
+							damage,
+							nil,
+							{ dx = dx, dz = dz, speed = shotSpeed, profile = "Normal" }
+						)
+					elseif attack.kind == "InfiniteLaser" then
+						EnemySim.NativeLaser:Fire(id, px, pz, dx, dz, damage)
+					else
+						EnemySim.fireShot(
+							px,
+							pz,
+							dx,
+							dz,
+							shotSpeed,
+							assert(rules.projectileRange, "Native bullet needs its source range"),
+							assert(rules.projectileRadius, "Native bullet needs its source radius"),
+							damage,
+							nil,
+							if attack.deleteWithSource then id else nil
+						)
+					end
+				end)
+			end,
+			function(profile)
+				local rules = state.rules
+				local index = world.indexOf[id]
+				if rules.movements then
+					-- Per-actor copy: selecting a source movement never mutates shared/frozen enemy config.
+					local kind = table.clone(world.kinds[index])
+					local movement = rules.movements[profile]
+					kind.wander = if movement == false then nil else movement
+					world.kinds[index] = kind
+					world.keeps[index] = if kind.wander then kind.wander.range or 0 else 0
+					world.wanderXs[index], world.wanderZs[index], world.wanderLeft[index] = 0, 0, 0
+				end
+				if rules.speedReset and profile == rules.speedReset.profile then
+					local base = nativeBases[id]
+					local kind = world.kinds[index]
+					local points = base.sourceSpeedPoints
+						* base.spawn.speed
+						* (1 + rules.speedReset.percent / NativeStatRules.percent)
+					world:setSpeedFactor(id, math.round(points) * Config.Stats.range.studsPerPoint / kind.speed)
+				end
+			end
+		)
+	end
+end
+
 local function fireShots(stepNow: number)
 	local shots = world.shots
 	for s = 0, world.shotCount - 1 do
@@ -296,9 +456,11 @@ local function fireShots(stepNow: number)
 		if ranged.nativeVolley then
 			NativeVolley.emit(ranged.nativeVolley, x, z, targetXs[t], targetZs[t], ranged.projectileSpeed, function()
 				return RandomService.number("Combat")
-			end, function(px, pz, dx, dz, speed)
-				if ranged.nativePillar then
-					EnemySim.NativePillar:Fire(shots[k + 1], px, pz, dx, dz, speed, damage, nil)
+			end, function(px, pz, dx, dz, speed, scale)
+				if ranged.nativeForwardSlash then
+					EnemySim.NativeSlash:Fire(shots[k + 1], px, pz, damage, nil, { dx = dx, dz = dz, speed = speed })
+				elseif ranged.nativePillar then
+					EnemySim.NativePillar:Fire(shots[k + 1], px, pz, dx, dz, speed, damage, nil, scale)
 				else
 					EnemySim.fireShot(px, pz, dx, dz, speed, ranged.projectileRange, ranged.projectileRadius, damage)
 				end
@@ -365,6 +527,11 @@ local function spawnAround(
 	area: number?
 )
 	local context = if parentId then spawnContexts[parentId] else nil
+	local child = EnemyKinds.get(enemyId)
+	local native = context ~= nil
+		and context.sourceFactors == true
+		and child ~= nil
+		and child.nativeHealthRounding == true
 	local turn = RandomService.number("Spawns") * 2 * math.pi
 	for k = 1, count do
 		local angle = turn + (k - 1) / count * 2 * math.pi
@@ -374,17 +541,21 @@ local function spawnAround(
 			sx = x + (RandomService.number("Spawns") - 0.5) * area
 			sz = z + (RandomService.number("Spawns") - 0.5) * area
 		end
-		EnemySim.spawn(
-			enemyId,
-			sx,
-			sz,
-			if context then context.hp else hpMultiplier,
-			if context then context.damage else damageMultiplier,
-			nil,
-			nil,
-			if context then context.speed else speedMultiplier,
-			if context then context.wave else nil
-		)
+		if native then
+			EnemySim.spawnNative(enemyId, sx, sz)
+		else
+			EnemySim.spawn(
+				enemyId,
+				sx,
+				sz,
+				if context then context.hp else hpMultiplier,
+				if context then context.damage else damageMultiplier,
+				nil,
+				nil,
+				if context then context.speed else speedMultiplier,
+				if context then context.wave else nil
+			)
+		end
 	end
 end
 
@@ -428,6 +599,31 @@ local function fireRing(id: number)
 			at = now,
 		})
 	end
+end
+
+local function radialDeathAllowed(actors: World.World, id: number, rule: any): boolean
+	local index = actors.indexOf[id]
+	local state = index and actors.nativeDeathShots[index]
+	local remaining = RunSchedule.wave(RunDirector.getWave()).endsAt - RunDirector.getElapsed()
+	return state ~= nil
+		and DeathShots.allowed(
+			state,
+			remaining,
+			cleanupDepth > 0 or RunDirector.getPhase() ~= "Running",
+			rule.deathWaveCutoffSeconds
+		)
+end
+local function fireNativeRadial(id: number, rule: any, speed: number, damageOverride: number?)
+	local x, z = world:getPosition(id)
+	if not x or not z then
+		return
+	end
+	local damage = damageOverride or world:getShotDamage(id)
+	NativeVolley.emit(rule.volley, x, z, x, z, speed, function()
+		return RandomService.number("Combat")
+	end, function(px, pz, dx, dz, projectileSpeed)
+		EnemySim.fireShot(px, pz, dx, dz, projectileSpeed, rule.projectileRange, rule.projectileRadius, damage)
+	end)
 end
 
 -- Eggs the last step reported hatch: their enemies appear around them and the egg is gone (no kill, B9).
@@ -509,9 +705,14 @@ local function stepOnce()
 		targetInputXs,
 		targetInputZs,
 		targetDirectionXs,
-		targetDirectionZs
+		targetDirectionZs,
+		targetKeys
 	)
 	currentTick += 1
+	for _, id in world.nativeJumpStarts do
+		local index = world.indexOf[id]
+		EnemySim.NativeJumpStarted:Fire(id, world.kinds[index], world.nativeJumps[index])
+	end
 	local stepNow = workspace:GetServerTimeNow()
 	volleys:step(STEP_SECONDS, hurtXs, hurtZs, targetCount)
 	local ended = volleys.ended
@@ -519,6 +720,20 @@ local function stepOnce()
 		table.insert(endedShots, ended[k])
 	end
 	fireShots(stepNow)
+	stepNativeBosses()
+	for _, id in world.nativeLandings do
+		local kind = world:getKind(id)
+		if kind and kind.nativeRadialShots then
+			fireNativeRadial(id, kind.nativeRadialShots, kind.nativeRadialShots.landSpeed)
+		elseif kind and kind.nativeBoss and kind.nativeBoss.customJump then
+			local landing = kind.nativeBoss.customJump.landing
+			fireNativeRadial(
+				id,
+				landing,
+				landing.speed * RunDirector.getRunOptions().enemySpeed / NativeStatRules.percent
+			)
+		end
+	end
 	for i = 1, world.count do
 		local id = world.ids[i]
 		local charge = world.kinds[i].charge
@@ -629,7 +844,17 @@ local function sendSnapshot()
 					+ (if burning[i] then Snapshot.STATUS_BURNING else 0)
 					+ (if slowFactors[i] < 1 or actors.nativeSlows:active(ids[i]) then Snapshot.STATUS_SLOWED else 0)
 					+ (if buffed[i] then Snapshot.STATUS_BUFFED else 0)
-					+ Snapshot.packPursuerStage(if actors.pursuers[i] then actors.pursuers[i].stage else 0)
+					+ Snapshot.packPursuerStage(
+						if actors.nativeEaters[i]
+							then actors.nativeEaters[i].stage
+							elseif actors.pursuers[i] then actors.pursuers[i].stage
+							else 0
+					)
+					+ (
+						if actors.crossings[i] and not NativeCrossing.active(actors.crossings[i])
+							then Snapshot.STATUS_HIDDEN
+							else 0
+					)
 			end
 		end
 	end
@@ -708,11 +933,13 @@ function EnemySim.init()
 		friends.shots:setBounds(minX, maxX, minZ, maxZ)
 	end)
 	RunDirector.RunStarted:Connect(function()
+		NativeStats.clear()
 		table.clear(spawnContexts)
 		table.clear(chargeTrails)
 		world:clear()
 		friends:clear()
 		table.clear(nativeBases)
+		table.clear(nativeBossActors)
 		weakness:clear()
 		volleys:clear()
 		accumulator = 0
@@ -720,11 +947,13 @@ function EnemySim.init()
 		sendShots(true)
 	end)
 	local function clearAll()
+		NativeStats.clear()
 		table.clear(spawnContexts)
 		table.clear(chargeTrails)
 		world:clear()
 		friends:clear()
 		table.clear(nativeBases)
+		table.clear(nativeBossActors)
 		weakness:clear()
 		volleys:clear()
 		currentTick += 1
@@ -734,6 +963,9 @@ function EnemySim.init()
 	end
 	RunDirector.RunEnded:Connect(clearAll)
 	RunDirector.PhaseChanged:Connect(function(phase)
+		if phase == "Running" then
+			NativeStats.clear() -- new or repeated wave, including the same wave number
+		end
 		if phase == "Shop" then
 			clearAll() -- a wave ends: the enemies left fade away (Brotato direction, B1)
 		end
@@ -757,12 +989,20 @@ function EnemySim.spawn(
 	elite: boolean?,
 	affix: number?,
 	speedMultiplier: number?,
-	wave: number?
+	wave: number?,
+	typeId: number?
 ): number?
-	local kind = EnemyKinds.get(enemyId, elite, affix)
+	local kind = if typeId then EnemyKinds.byTypeId(typeId) else EnemyKinds.get(enemyId, elite, affix)
 	assert(kind, `Unknown enemy {enemyId}`)
+	assert(kind.id == enemyId and (not typeId or not elite and not affix), "Enemy type must match its canonical family")
+	if kind.nativeBoss then
+		wave = wave or RunDirector.getWave()
+	end
 	if EnemySim.getCount() >= Config.Run.spawn.cap.max then
 		return nil
+	end
+	if RunDirector.isActive() then
+		NativeStats.get(RunDirector.getWave()) -- legacy births also establish the source global first-use factors
 	end
 	local baseShot = World.baseShotDamage(kind)
 	local hpGrowth, contactGrowth, shotGrowth = 1, 1, 1
@@ -770,37 +1010,165 @@ function EnemySim.spawn(
 		hpGrowth, contactGrowth, shotGrowth = EnemyStats.growth(kind, wave)
 	end
 	local shotDamage = if baseShot > 0 then baseShot * damageMultiplier * shotGrowth else nil
-	local speed = EnemyStats.spawnSpeedFactor(
+	local hp = kind.hp * hpMultiplier * hpGrowth
+	local rawResetHealth: number? = nil
+	if kind.nativeHealthRounding then
+		-- Stats.get_base_health returns int before EntityService applies factors and final rounding.
+		local steps = math.max(0, math.floor(wave or 1) - 1)
+		rawResetHealth = math.modf(kind.hp + kind.hpPerWave * steps) * hpMultiplier
+		hp = math.round(rawResetHealth)
+	end
+	local contactDamage = kind.contactDamage * damageMultiplier * contactGrowth
+	local nativeDamageShare = 1
+	if kind.nativeBoss then
+		local options = RunDirector.getRunOptions()
+		local danger = require(Shared.Util.DangerRules)
+		local hpShare, damageShare = NativeBossActor.initialShares(
+			kind.nativeBoss,
+			wave or 1,
+			RunDirector.getNativeZoneId() or require(Shared.Config.NativeZones).default,
+			options.danger,
+			danger.level(options.danger).bossCount > 1
+		)
+		nativeDamageShare = damageShare
+		hp = math.round(hp * hpShare)
+		contactDamage *= damageShare
+		if shotDamage then
+			shotDamage *= damageShare
+		end
+	end
+	local speed, rawSpeedPoints, sourceSpeedPoints = EnemyStats.spawnSpeedFactor(
 		kind,
 		RandomService.number("Spawns"),
 		speedMultiplier or 1,
 		RunDirector.getRunOptions().enemySpeed / 100
 	)
-	local id = world:spawn(
-		kind,
-		x,
-		z,
-		kind.hp * hpMultiplier * hpGrowth,
-		kind.contactDamage * damageMultiplier * contactGrowth,
-		shotDamage,
-		speed,
-		wave
-	)
+	local id = world:spawn(kind, x, z, hp, contactDamage, shotDamage, speed, wave, rawSpeedPoints, rawResetHealth)
 	if id then
 		local index = world.indexOf[id]
 		nativeBases[id] = {
 			spawnedAt = workspace:GetServerTimeNow(),
-			contact = if kind.pursuer
-				then kind.contactDamage * damageMultiplier * contactGrowth
-				else world.contactDamage[index],
-			shot = world.shotDamage[index],
+			sourceSpeedPoints = sourceSpeedPoints, -- original integer argument, never inferred from rounded final speed
+			-- Charm resets source damage with its own modifier before final rounding.
+			contact = if kind.pursuer or kind.nativeDamageRounding then contactDamage else world.contactDamage[index],
+			shot = if kind.nativeDamageRounding then shotDamage or 0 else world.shotDamage[index],
 			spawn = { hp = hpMultiplier, damage = damageMultiplier, speed = speedMultiplier or 1, wave = wave },
 		}
+	end
+	if id and kind.nativeBoss then
+		nativeBossActors[id] = NativeBossActor.new(kind.nativeBoss, function()
+			return RandomService.number("Spawns")
+		end)
+		if kind.nativeBoss.attacks[1].damage then
+			nativeBossActors[id].damages = NativeBossDamage.compute(kind.nativeBoss.attacks, wave or 1, function(base)
+				return base * damageMultiplier
+			end, nativeDamageShare)
+			if kind.nativeBoss.attacks[1].damage.registeredAfterBossInit and nativeBossActors[id].wrapperFrames > 0 then
+				nativeBossActors[id].lateRootDamage = nativeBossActors[id].damages[1]
+			end
+		end
 	end
 	if id and wave then
 		spawnContexts[id] = { hp = hpMultiplier, damage = damageMultiplier, speed = speedMultiplier or 1, wave = wave }
 	end
 	return id
+end
+
+-- Source production birth; explicit spawn(...) retains its caller-supplied debug/context multipliers.
+function EnemySim.spawnNative(enemyId: string, x: number, z: number, zoneId: number?): number?
+	local kind = if enemyId == "Tree"
+		then EnemyKinds.treeForZone(
+			zoneId or RunDirector.getNativeZoneId() or require(Shared.Config.NativeZones).default
+		)
+		else EnemyKinds.get(enemyId)
+	if not RunDirector.isActive() or not kind or not kind.nativeHealthRounding then
+		return nil
+	end
+	local wave = RunDirector.getWave()
+	local cache, context = NativeStats.get(wave)
+	local id = EnemySim.spawn(
+		enemyId,
+		x,
+		z,
+		cache:rawHealth(1, context),
+		cache:rawDamage(1, context),
+		nil,
+		nil,
+		cache:rawSpeed(1, false, context),
+		wave,
+		kind.typeId
+	)
+	if id then
+		local base = nativeBases[id]
+		base.sourceFactors = true
+		base.spawn.sourceFactors = true
+		spawnContexts[id].sourceFactors = true
+	end
+	return id
+end
+
+-- Exact source PackedScene birth for wave requests; no basename guessing or substitute actors.
+function EnemySim.spawnNativeScene(source: string, x: number, z: number): number?
+	local kind = EnemyKinds.byNativeScene(source)
+	if not kind then
+		return nil
+	end
+	return EnemySim.spawnNative(kind.id, x, z, kind.nativeZoneId)
+end
+
+-- Source Enemy.boost stat stage only. The scene adapter supplies its shared factor cache/context; flags/effects/profile reset are separate.
+function EnemySim.applyNativeBoost(
+	id: number,
+	cache: NativeStatCache.State,
+	context: NativeStatCache.Context,
+	boost: { hp: number, damage: number, speed: number }
+): boolean
+	local actors = if friends.world:isAlive(id) then friends.world else world
+	local index = actors.indexOf[id]
+	local base = nativeBases[id]
+	if not index or not actors:isAlive(id) or not base then
+		return false
+	end
+	local kind = actors.kinds[index]
+	if not kind.nativeHealthRounding or kind.nativeCanBeBoosted == false or base.sourceSpeedPoints == nil then
+		return false
+	end
+	local wave = RunDirector.getWave()
+	local steps = math.max(0, wave - 1)
+	local shot = World.baseShotDamage(kind)
+	local raw = {
+		health = cache:rawHealth(kind.hp + kind.hpPerWave * steps, context),
+		contact = cache:rawDamage(kind.contactDamage + kind.damagePerWave * steps, context),
+		shot = if shot > 0
+			then cache:rawDamage(shot + (kind.shotDamagePerWave or kind.damagePerWave) * steps, context)
+			else 0,
+		speedPoints = cache:rawSpeed(base.sourceSpeedPoints, actors.burning[index], context),
+	}
+	local applied = actors:resetNativeStats(id, raw, {
+		hp = math.max(NativeStatRules.minimumFactor, 1 + boost.hp / NativeStatRules.percent),
+		damage = math.max(NativeStatRules.minimumFactor, 1 + boost.damage / NativeStatRules.percent),
+		speed = 1 + boost.speed / NativeStatRules.percent,
+	})
+	if not applied then
+		return false
+	end
+	local boss = nativeBossActors[id]
+	if boss and boss.damages then
+		boss.damages = NativeBossDamage.compute(boss.rules.attacks, wave, function(baseDamage)
+			return cache:rawDamage(baseDamage, context)
+		end, 1, boost.damage)
+	end
+	-- Subsequent Charm and descendants reset from unboosted global bases, not the parent's rounded boost results.
+	base.contact, base.shot = raw.contact, raw.shot
+	base.spawn = {
+		hp = cache:rawHealth(1, context),
+		damage = cache:rawDamage(1, context),
+		speed = cache:rawSpeed(1, false, context),
+		wave = wave,
+		sourceFactors = base.sourceFactors,
+	}
+	spawnContexts[id] = base.spawn
+	return true
 end
 
 -- Descendants of charmed summoners/splitters/eggs inherit Charm and a fresh native lifetime.
@@ -814,6 +1182,8 @@ function EnemySim.spawnCharmChildren(
 	area: number?
 )
 	local context = member.base.spawn
+	local child = EnemyKinds.get(kind)
+	local native = context.sourceFactors == true and child ~= nil and child.nativeHealthRounding == true
 	local turn = RandomService.number("Spawns") * math.pi * 2
 	for index = 1, count do
 		local angle = turn + (index - 1) / count * math.pi * 2
@@ -822,13 +1192,19 @@ function EnemySim.spawnCharmChildren(
 			sx = x + (RandomService.number("Spawns") - 0.5) * area
 			sz = z + (RandomService.number("Spawns") - 0.5) * area
 		end
-		local id = EnemySim.spawn(kind, sx, sz, context.hp, context.damage, nil, nil, context.speed, context.wave)
+		local id = if native
+			then EnemySim.spawnNative(kind, sx, sz)
+			else EnemySim.spawn(kind, sx, sz, context.hp, context.damage, nil, nil, context.speed, context.wave)
 		if id then
 			friends:convert(world, id, member.owner, workspace:GetServerTimeNow(), nativeBases[id])
 		end
 	end
 end
 function EnemySim.resolveCharmDeath(member: any, x: number, z: number)
+	local radial = member.kind.nativeRadialShots
+	if radial and radialDeathAllowed(friends.world, member.id, radial) then
+		friends:fireNativeRadial(member, x, z, radial.deathSpeed)
+	end
 	local split = member.kind.split
 	if split then
 		EnemySim.spawnCharmChildren(member, split.enemy, x, z, split.count, split.spread, split.area)
@@ -855,12 +1231,14 @@ function EnemySim.tryCharm(player: Player, id: number, stats: { [string]: number
 		return false
 	end
 	local hp, maxHp = world:getHealth(id)
-	local chance = CharmRules.chance(
-		stats,
-		{ kind = kind.id, hp = hp, maxHp = maxHp, elite = kind.elite, boss = kind.boss ~= nil },
-		friends:count(player.UserId),
-		require(Shared.Util.DangerRules).endlessFactor(RunDirector.getWave())
-	)
+	local chance = CharmRules.chance(stats, {
+		kind = kind.id,
+		hp = hp,
+		maxHp = maxHp,
+		elite = kind.elite,
+		boss = kind.boss ~= nil or kind.nativeBoss ~= nil,
+		canBeCharmed = kind.nativeLootActor ~= true and kind.nativeCanBeCharmed ~= false,
+	}, friends:count(player.UserId), require(Shared.Util.DangerRules).endlessFactor(RunDirector.getWave()))
 	if not CharmRules.success(chance, random) then
 		return false
 	end
@@ -895,6 +1273,14 @@ end
 -- counter-shooter that survives sprays its ring (B9).
 -- The effect service owns item policy; valid player-owned hitboxes share neutral tree execution here.
 local treeHitRule: ((Player) -> boolean)? = nil
+-- The source Hurtbox classifies the actual hitbox before applying damage or a Charm conversion.
+function EnemySim.noteHurtContact(id: number, weaponKind: string, petShoots: number?)
+	local index = world.indexOf[id]
+	local state = index and world.nativeDeathShots[index]
+	if state and world:isHurtEnabled(id) then
+		DeathShots.hurt(state, weaponKind, petShoots)
+	end
+end
 function EnemySim.setTreeHitRule(rule: (Player) -> boolean)
 	treeHitRule = rule
 end
@@ -905,14 +1291,27 @@ function EnemySim.damage(
 	source: Player?,
 	bonusPercent: number?,
 	ownerHitbox: boolean?,
-	digCrateChance: number?
+	digCrateChance: number?,
+	armorApplied: boolean?
 ): (boolean, number, number)
 	local totalBonus = (bonusPercent or 0) + weakness:bonus(id)
 	if totalBonus ~= 0 then
 		amount = math.round(amount * (1 + totalBonus / 100))
 	end
-	local killed, dealt, applied, retaliates = world:damage(id, amount)
+	local wasAlive = world:isAlive(id)
+	local killed, dealt, applied, retaliates = world:damage(id, amount, armorApplied)
 	local hitKind = world:getKind(id)
+	local hitLimit = hitKind and hitKind.nativeNeutralHitLimit
+	local base = nativeBases[id]
+	if wasAlive and hitLimit and base then
+		-- Neutral.take_damage counts even ineligible hitboxes, then checks the current hit's owner.
+		-- nil means no hitbox (for example burning); false means a non-player hitbox owner.
+		base.neutralHits = (base.neutralHits or 0) + 1
+		local eligible = ownerHitbox == nil or (ownerHitbox == true and source ~= nil)
+		if not killed and eligible and base.neutralHits >= hitLimit then
+			killed = world:remove(id)
+		end
+	end
 	if
 		not killed
 		and ownerHitbox
@@ -934,6 +1333,11 @@ function EnemySim.damage(
 	local kind = world:getKind(id)
 	local x, z = world:getPosition(id)
 	if kind and x and z then
+		if kind.nativeRadialShots and radialDeathAllowed(world, id, kind.nativeRadialShots) then
+			-- die() resets the selected shooting behavior with percent_modifier=0, discarding a Buffer bonus.
+			local base = nativeBases[id]
+			fireNativeRadial(id, kind.nativeRadialShots, kind.nativeRadialShots.deathSpeed, math.round(base.shot))
+		end
 		local split = kind.split
 		if split then
 			local hpMultiplier, damageMultiplier, speedMultiplier = world:getMultipliers(id)
@@ -950,20 +1354,29 @@ function EnemySim.damage(
 				split.area
 			)
 		end
+		if kind.nativeBoss then
+			for _, value in volleys:removeSource(id) do
+				table.insert(endedShots, value)
+			end
+		end
 		EnemySim.EnemyKilled:Fire({
 			id = id,
 			enemyId = kind.id,
 			typeId = kind.typeId,
 			position = Vector3.new(x, floorY, z),
-			xp = kind.xp,
+			xp = if kind.nativeEater then world:goldValue(id) else kind.xp,
 			elite = kind.elite == true,
-			boss = kind.boss ~= nil,
+			boss = kind.boss ~= nil or kind.nativeBoss ~= nil,
 			killer = source,
 			aliveSeconds = if nativeBases[id]
 				then math.max(0, workspace:GetServerTimeNow() - nativeBases[id].spawnedAt)
 				else nil,
+			bossElapsedSeconds = if nativeBossActors[id] then nativeBossActors[id].phase.elapsed else nil,
 			digCrateChance = if ownerHitbox then digCrateChance else nil,
 		} :: KillInfo)
+		if source and cleanupDepth == 0 and kind.nativePlayerKillStats then
+			EnemySim.PlayerKillStats:Fire(source, kind.nativePlayerKillStats)
+		end
 	end
 	return true, dealt, applied
 end
@@ -1046,9 +1459,10 @@ function EnemySim.fireShot(
 	range: number,
 	radius: number,
 	damage: number,
-	motion: Types.EnemyShotMotion?
+	motion: Types.EnemyShotMotion?,
+	source: number?
 )
-	local id = volleys:fire(x, z, dx, dz, speed, range, radius, damage, motion)
+	local id = volleys:fire(x, z, dx, dz, speed, range, radius, damage, motion, source)
 	table.insert(firedShots, {
 		id = id,
 		x = x,
@@ -1069,6 +1483,7 @@ end
 
 -- Kills every enemy (fires EnemyKilled for each), also what Splitters fall apart into. Returns how many died.
 function EnemySim.killAll(source: Player?): number
+	cleanupDepth += 1
 	local killed = 0
 	local ids: { number } = {}
 	for _ = 1, KILL_ALL_PASSES do
@@ -1082,6 +1497,7 @@ function EnemySim.killAll(source: Player?): number
 			end
 		end
 	end
+	cleanupDepth -= 1
 	return killed
 end
 
@@ -1114,6 +1530,11 @@ function EnemySim.getPosition(id: number): Vector3?
 		return nil
 	end
 	return Vector3.new(x, floorY, z)
+end
+
+-- Physical attack areas must respect disabled hostile Hurtboxes; direct stat damage keeps its own contract.
+function EnemySim.isHurtEnabled(id: number): boolean
+	return world:isHurtEnabled(id)
 end
 
 -- Exact live hurt-circle center/radius, separate from the actor origin used by snapshots and drops.
@@ -1163,7 +1584,7 @@ function EnemySim.getKind(id: number): (string?, boolean)
 	if not kind then
 		return nil, false
 	end
-	return kind.id, kind.elite == true or kind.boss ~= nil
+	return kind.id, kind.elite == true or kind.boss ~= nil or kind.nativeBoss ~= nil
 end
 
 -- Sets the mode of a living boss or champion (World.MODE_*: walk, wind-up, rush, recover) and its rush direction x/z,
@@ -1196,7 +1617,7 @@ function EnemySim.nativeBounceTarget(ignore: number, random: () -> number): (num
 	table.clear(nativeBounceIds)
 	for _, actors in { world, friends.world } do
 		for index = 1, actors.count do
-			if actors.hp[index] > 0 and not actors.kinds[index].boss then
+			if actors.hp[index] > 0 and not actors.kinds[index].boss and not actors.kinds[index].nativeBoss then
 				table.insert(nativeBounceIds, actors.ids[index])
 			end
 		end
@@ -1252,13 +1673,15 @@ function EnemySim.collectEaters(out: { number }): number
 	local count = 0
 	local ids, hp, kinds = world.ids, world.hp, world.kinds
 	for i = 1, world.count do
-		if hp[i] > 0 and kinds[i].eat then
+		if hp[i] > 0 and (kinds[i].eat or kinds[i].nativeEater) then
 			count += 1
 			out[count] = ids[i]
 		end
 	end
 	for index = 1, friends.world.count do
-		if friends.world.hp[index] > 0 and friends.world.kinds[index].eat then
+		if
+			friends.world.hp[index] > 0 and (friends.world.kinds[index].eat or friends.world.kinds[index].nativeEater)
+		then
 			count += 1
 			out[count] = friends.world.ids[index]
 		end
@@ -1266,6 +1689,17 @@ function EnemySim.collectEaters(out: { number }): number
 	return count
 end
 
+-- One authoritative gold-object pickup; every callback represents one Area entry, not its numeric gold value.
+function EnemySim.feedNativeEater(id: number, value: number)
+	local actors = if friends.world:isAlive(id) then friends.world else world
+	actors:feedGold(id, value)
+end
+function EnemySim.getNativeEater(id: number): (number, number)
+	local actors = if friends.world:isAlive(id) then friends.world else world
+	local i = actors.indexOf[id]
+	local state = i and actors.nativeEaters[i]
+	return if state then state.gold else 0, if state then state.stage else 0
+end
 -- Makes an enemy walk to `position` instead of the nearest player, or back to the players with nil (B9).
 function EnemySim.setGoal(id: number, position: Vector3?)
 	local actors = if friends.world:isAlive(id) then friends.world else world

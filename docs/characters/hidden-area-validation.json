@@ -1,0 +1,86 @@
+{
+  "referenceVersion": "1.2.0.3",
+  "steamBuild": 26642464,
+  "baseMain": "de4e155e97855cc18ffb52b1e81e53d1af8532fc",
+  "draftPr": 151,
+  "scope": "Actual friendly native pillar/slash collision respects disabled hostile Hurtboxes; registered actor and character counts unchanged.",
+  "sourceBasis": [
+    "Crossing init disables Hurtbox until warning timeout. Existing source hurtbox.gd toggles its CollisionShape via deferred enabled state.",
+    "Owned native area attacks must use the same physical hit eligibility; direct ID/stat damage is not globally blocked."
+  ],
+  "changes": [
+    "EnemySim.isHurtEnabled(id) delegates to the existing hostile World enabled-hurt query.",
+    "NativePillarService skips hidden hurtboxes before collision, leaving attack alive.",
+    "NativeSlashService skips hidden hurtboxes before animated rectangle collision, leaving slash alive.",
+    "Raw getHurtGeometry remains readable independently of hit eligibility; no targeting or direct damage API behavior changed."
+  ],
+  "focused": {
+    "beforeFix": {
+      "passed": 2,
+      "failed": 2
+    },
+    "afterFix": {
+      "passed": 4,
+      "failed": 0
+    },
+    "cases": [
+      "Hidden Iguanodon takes no pillar damage and pillar remains active.",
+      "Revealed Iguanodon loses7HP from same real owned pillar path.",
+      "Hidden Iguanodon takes no slash damage and both real owned slashes remain active.",
+      "Revealed Iguanodon loses14HP from both real owned slashes."
+    ],
+    "NativeMadSlasherRuntime": 5,
+    "NativeCrossingVisibilityServer": 5,
+    "NativeJungleShooter": 4,
+    "NativeHurtCollisionRuntime": 3,
+    "NativePterosaurServer": 2
+  },
+  "fixture": "Production services, registered Iguanodon, actual Charm-converted Enigmacursor/MadSlasher sources, explicitly paused weapons/structures. Static victims isolate the animated area collision; source/runtime state is unchanged.",
+  "mutation": {
+    "mutation": "Ignore hostile Hurtbox enable state for area attacks",
+    "output": "[Lanternfall] Place: lobby and arena in one server (no hub/run place ids for this place in Config.Places)\n[Lanternfall] Server ready: 75 remotes, 41 services, config problems: 0\n[Lanternfall] Saving: memory only (no DataStoreService)\n[Lanternfall] Badge \"Lantern Lit\" earned but not set up (Config/Badges.luau id is 0)\n[Lanternfall] Owner login streak day 1: +25 Embers\n[Lanternfall] Peer login streak day 1: +25 Embers\n[Lanternfall] Launch check: 1 must, 2 should open (debug button \"Launch check\" lists them)\n[Lanternfall] Run started with 2 player(s), Danger 0\n[Lanternfall] Run seed 314887373 (Config.Run.seed replays it)\nFAIL Hidden native hurt areas > does not damage or consume a friendly pillar at a hidden Iguanodon\n     tests/NativeHiddenAreaHits.spec.luau:58: expected 88000, got 87993\nFAIL Hidden native hurt areas > does not damage or consume friendly slashes at a hidden Iguanodon\n     tests/NativeHiddenAreaHits.spec.luau:81: expected 88000, got 87986\n2 passed, 2 failed\n",
+    "exit": 1,
+    "restoredByteForByte": true
+  },
+  "checks": {
+    "stylua": true,
+    "selene": {
+      "errors": 0,
+      "existingWarnings": 18,
+      "cachedApi": true
+    },
+    "rojo": true
+  },
+  "documentationCorrection": "Pterosaur validation correctly recorded returned Smoke and absent Gobbler versus the crossing-family run. The prose initially said identical identities; corrected to the actual two known-test changes. Neither was a stable repair.",
+  "interfaces": [
+    "EnemySim.isHurtEnabled(id):boolean is a server-internal hostile physical-area eligibility query; no new Remote or schema."
+  ],
+  "open": [
+    "Full native area/deferred/physics ordering, solver, global time and pooling remain pending.",
+    "No original game art/animation/audio or Studio/two-client/mobile acceptance.",
+    "Remaining Jungle families/evolution/bosses/waves/area route and full character parity remain open."
+  ],
+  "characterStatus": {
+    "codePrepared": 48,
+    "open": 26,
+    "newCompleted": 0,
+    "registeredNeutralJungleBodies": 22,
+    "sourceRows": 22,
+    "localJungleImages": 26,
+    "junglePlayable": false
+  },
+  "fullSuite": {
+    "specs": 327,
+    "passed": 2023,
+    "failed": 37,
+    "aborts": 0,
+    "newFailureIdentities": [],
+    "returnedVsPrevious": [
+      "FAIL new enemies (B9) > lets a Gobbler eat the orbs on the floor and drop them all when killed"
+    ],
+    "absentVsPrevious": [],
+    "artifact": "build/native-five-branch-ten-hidden-areas-de4e155.json",
+    "runtimeFrozenDuringRun": true,
+    "afterRunChanges": "Documentation only."
+  }
+}

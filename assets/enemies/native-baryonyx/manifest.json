@@ -1,0 +1,24 @@
+{
+  "version": "1.2.0.3",
+  "steamBuild": "26642464",
+  "source": "res://entities/units/enemies/jungle/elites/baryonyx/baryonyx_neutral.tscn",
+  "sourceMd5": "7b3be98c6ad6ad9dc390073f6dcba71b",
+  "textureSource": "res://.import/baryonyx.png-8bc67157e2b7f319ebe776f5f291e22e.stex",
+  "textureMd5": "0ff0661ad58d754f085ebab927a07fc0",
+  "output": "assets/enemies/native-baryonyx/Baryonyx.png",
+  "size": [
+    200,
+    200
+  ],
+  "alphaBounds": [
+    14,
+    7,
+    176,
+    195
+  ],
+  "rgbaSha256": "d305da6edfb5f824e7ac971643d57e46a79eaad108f7518328c8549b0a66685a",
+  "pngSha256": "bdb599fcfbb1f481796106498a3bec0466fd2ad75d45e813362c7ec3f831112a",
+  "uploadedCount": 0,
+  "runtimeAssetIdsChanged": false,
+  "originalArtAcceptedInGame": false
+}

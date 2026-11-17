@@ -1,0 +1,142 @@
+{
+  "referenceVersion": "1.2.0.3",
+  "steamBuild": 26642464,
+  "baseMain": "de4e155e97855cc18ffb52b1e81e53d1af8532fc",
+  "draftPr": 151,
+  "scope": "Server visibility status through existing snapshot byte and actual renderer; real EnemySim uses source-family promotion only in test process. No production family or character completion.",
+  "sourceEntries": [
+    {
+      "source": "res://weapons/weapon.gdc",
+      "sourceMd5": "53dc8baff0f97d60770061e06c4ef261"
+    },
+    {
+      "source": "res://effect_behaviors/enemies/charm_enemy_effect_behavior.gdc",
+      "sourceMd5": "a0830c473b5da00b8d278346117f5452"
+    },
+    {
+      "source": "res://overlap/hurtbox.gdc",
+      "sourceMd5": "efe54415356755be85033559e26a7291"
+    },
+    {
+      "source": "res://entities/units/enemies/jungle/basic/oviraptor/oviraptor.gdc",
+      "sourceMd5": "d30e4a138b6937a199d967b06ab65fe0"
+    },
+    {
+      "source": "res://entities/units/movement_behaviors/go_towards_border_opposite_movement_behavior.gdc",
+      "sourceMd5": "3dba897e0c1b550635a785bbc8c6654e"
+    }
+  ],
+  "implemented": [
+    "Snapshot.STATUS_HIDDEN64 in status bit6; same10-byte actor/8-byte header and unchanged multipart sizes.",
+    "EnemySim includes local crossing reveal state in ordinary and Charmed snapshots.",
+    "Renderer retains live hidden actor position/pool identity while suppressing picture/shadow/telegraph/embers/hit bursts and fog sources.",
+    "Pool-placement reveal delay remains independent; clearing server bit restores visibility after placement.",
+    "SpriteModels respects hidden state when changing or restoring windup telegraphs.",
+    "JungleEnemyKinds connects a source-matched crossing rule when a family is activated. Both production source rows remain inactive.",
+    "World.isHurtEnabled gates actual Charm contact damage while preserving source AI target eligibility for a hidden actor."
+  ],
+  "focused": {
+    "clientInitial": {
+      "passed": 0,
+      "failed": 5
+    },
+    "clientFinal": {
+      "passed": 5,
+      "failed": 0
+    },
+    "serverAfterFixtureRepairBeforeFactoryConnection": {
+      "passed": 0,
+      "failed": 4
+    },
+    "serverFinal": {
+      "passed": 4,
+      "failed": 0
+    },
+    "newCharmHurtRegressionBeforeFix": {
+      "passed": 7,
+      "failed": 1
+    },
+    "worldFinal": {
+      "passed": 8,
+      "failed": 0
+    },
+    "Snapshot": 7,
+    "SnapshotBuffer": 7,
+    "WorldSprites": 12,
+    "NativeEnemyBodyMask": 8,
+    "MainGameEnemyStats": 29,
+    "CharmedWorld": {
+      "passed": 6,
+      "failed": 0,
+      "mixed140ActorMilliseconds": 3.638
+    }
+  },
+  "mutations": [
+    {
+      "mutation": "Ignore server visibility flag in renderer",
+      "spec": "NativeEnemyVisibility",
+      "output": "FAIL Native server visibility > keeps a living server-hidden enemy hidden beyond the normal pool reveal delay\n     tests/NativeEnemyVisibility.spec.luau:70: expected true, got false\nFAIL Native server visibility > reveals after timeout and hides again without releasing the live actor\n     tests/NativeEnemyVisibility.spec.luau:80: expected true, got false\nFAIL Native server visibility > keeps a reused model hidden for the next actor and then reveals normally\n     tests/NativeEnemyVisibility.spec.luau:94: expected true, got false\n2 passed, 3 failed\n",
+      "exit": 1,
+      "restoredByteForByte": true
+    },
+    {
+      "mutation": "Omit server hidden status flag",
+      "spec": "NativeCrossingVisibilityServer",
+      "output": "[Lanternfall] Place: lobby and arena in one server (no hub/run place ids for this place in Config.Places)\n[Lanternfall] Server ready: 75 remotes, 41 services, config problems: 0\n[Lanternfall] Saving: memory only (no DataStoreService)\n[Lanternfall] Badge \"Lantern Lit\" earned but not set up (Config/Badges.luau id is 0)\n[Lanternfall] Owner login streak day 1: +25 Embers\n[Lanternfall] Peer login streak day 1: +25 Embers\n[Lanternfall] Launch check: 1 must, 2 should open (debug button \"Launch check\" lists them)\n[Lanternfall] Run started with 2 player(s), Danger 0\n[Lanternfall] Run seed 48421400 (Config.Run.seed replays it)\nFAIL Source crossing snapshot producer > sends a living hidden Oviraptor with original growth and disabled hurt area\n     tests/NativeCrossingVisibilityServer.spec.luau:48: expected true, got false\nFAIL Source crossing snapshot producer > uses Iguanodon's longer warning in the actual service\n     tests/NativeCrossingVisibilityServer.spec.luau:61: expected true, got false\n2 passed, 2 failed\n",
+      "exit": 1,
+      "restoredByteForByte": true
+    }
+  ],
+  "fixtureNotes": [
+    "Initial attempt to mutate frozen Config.Enemies.types failed; no production freeze was weakened.",
+    "Optional test-fixture beforeConfig hook promotes source rows before config construction, then removes temporary implemented-list additions. Other fixture callers unchanged.",
+    "Actual service tests explicitly pause weapons and structures after launch so a natural exit is not attributed to player attacks."
+  ],
+  "sourceTargetingDistinction": "Weapon Range tracks body entry/exit. Charm update_target scans all living ENEMIES_BIT bodies without a visibility/hurt-disabled condition. AI can retain hidden target, but a disabled Hurtbox cannot take physical contact damage.",
+  "interfaces": [
+    "Snapshot status bit6=server-hidden; bit7 still unused. Packet byte layout/Remotes unchanged.",
+    "Internal Drawn.nativeHidden is separate from pool revealIn and screen culling.",
+    "World.isHurtEnabled(id) is a server-internal contact eligibility query; World.nearest target selection remains unchanged.",
+    "Optional third test fixture beforeConfig callback exists only in tests."
+  ],
+  "checks": {
+    "stylua": true,
+    "selene": {
+      "errors": 0,
+      "existingWarnings": 18,
+      "cachedApi": true
+    },
+    "rojo": true,
+    "crossingCompilerCheck": true
+  },
+  "open": [
+    "Production Oviraptor/Iguanodon registration, One-way response and remaining direct area/candidate selection still pending.",
+    "Full Godot physics/idle/deferred ordering and original renderer frame timing not accepted.",
+    "Removal reason is not sent to renderer; existing departure/death feedback remains common presentation work.",
+    "Original art/audio/animation in game, spawn groups/area/waves and playable Jungle remain open.",
+    "No Studio/two-client/mobile acceptance."
+  ],
+  "characterStatus": {
+    "codePrepared": 48,
+    "open": 26,
+    "newCompleted": 0,
+    "registeredNeutralJungleBodies": 19,
+    "sourceRows": 21,
+    "localJungleImages": 25,
+    "junglePlayable": false
+  },
+  "fullSuite": {
+    "specs": 322,
+    "passed": 2004,
+    "failed": 36,
+    "aborts": 0,
+    "newFailureIdentities": [],
+    "returnedVsPrevious": [],
+    "absentVsPrevious": [
+      "FAIL new enemies (B9) > lets a Gobbler eat the orbs on the floor and drop them all when killed"
+    ],
+    "artifact": "build/native-five-branch-ten-crossing-visibility-de4e155.json",
+    "runtimeFrozenDuringRun": true,
+    "afterRunChanges": "Documentation only; client5/0, source-server4/0 and World8/0 repeated with tracked runner."
+  }
+}

@@ -138,7 +138,7 @@ local function launch(
 			petScaling ~= nil and petScaling.elementalDamage ~= nil,
 			prepared ~= nil and def.burning ~= nil
 		)
-		if prepared and not def.isStructure and not killed then
+		if prepared and s.nativePetRangedOrigin == 1 and mode ~= "Explosion" and not killed then
 			Enemy.retaliate(id, "Ranged") -- native Fly variants also react to projectile-shooting pets
 		end
 		if prepared and def.burning and not killed then
@@ -213,7 +213,12 @@ function Sim.launchPet(
 	local stats = PetRules.compute(weapon, sheet, beastMaster)
 	stats.nativeTiming = 1
 	stats.nativeIntegerFalloff = 1
-	stats.projectileRadius = (weapon.projectile or PetConfig.projectile).radiusPoints * Config.Stats.range.studsPerPoint
+	stats.nativePetRangedOrigin = if weapon.petSourceShootsProjectiles then 1 else 0
+	local geometry = weapon.projectile or PetConfig.projectile
+	local pixel = Config.Stats.range.studsPerPoint
+	stats.projectileRadius = geometry.radiusPoints * pixel
+	stats.nativeProjectileOffsetForward = geometry.offsetForwardPoints * pixel
+	stats.nativeProjectileOffsetSide = geometry.offsetSidePoints * pixel
 	stats.range += PetConfig.projectile.autoRangeBonusPoints * Config.Stats.range.studsPerPoint
 	stats.knockbackPiercing = 0
 	local definition = table.clone(weapon)

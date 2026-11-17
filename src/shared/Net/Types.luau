@@ -535,6 +535,7 @@ export type LeaderboardPage = {
 
 -- Source Mad Slasher attacks, server-owned; damage remains private to the collision service.
 export type NativeSlashInfo = {
+	variant: "Forward"?, -- absent preserves the MadSlasher target-square slash
 	id: number,
 	sourceId: number,
 	ownerId: number?,
@@ -552,4 +553,15 @@ export type NativeFogState = {
 	at: number,
 	players: { { userId: number, visibility: number, alive: boolean } },
 }
+-- Server-owned captured jump target; cosmetic motion only, no client intent or damage payload.
+export type NativeJumpInfo = {
+	id: number,
+	typeId: number,
+	startX: number,
+	startZ: number,
+	targetX: number,
+	targetZ: number,
+	at: number,
+}
+export type NativeJumpBatch = { reset: boolean?, started: { NativeJumpInfo }, ended: { number } }
 return {}

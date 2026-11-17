@@ -671,6 +671,122 @@ function ConfigCheck.run(): { string }
 			problem(`Boss {id} needs hp, radius and mass above 0 and a speed of at least 0`)
 		end
 		local plan = boss.boss
+		local native = boss.nativeBoss
+		if native then
+			local jump = native.customJump
+			local customJump = native.family == "Carnotaurus" and jump ~= nil
+			if
+				(
+					native.family ~= "Therizinosaurus"
+					and native.family ~= "Silesaurus"
+					and native.family ~= "Diplodocus"
+					and native.family ~= "Baryonyx"
+					and not customJump
+				)
+				or native.phases.usesBasePhaseTimer == customJump
+				or #native.shooting.profiles ~= #native.phases.states + (if customJump then 0 else 1)
+				or #native.shooting.profiles < (if customJump then 1 else 2)
+				or #native.attacks ~= #native.shooting.profiles
+				or not boss.nativeHealthRounding
+				or not boss.nativeDamageRounding
+			then
+				problem(`Native boss {id} needs its implemented family, phase/profile bindings and source rounding`)
+			end
+			if customJump and jump then
+				local landing = jump.landing
+				if
+					not boss.nativeJump
+					or #native.phases.states ~= 1
+					or landing.speed <= 0
+					or landing.projectileRange <= 0
+					or landing.projectileRadius <= 0
+					or landing.volley.count < 1
+				then
+					problem(`Native boss {id} needs its source root jump and independent landing volley`)
+				end
+			elseif native.customJump then
+				problem(`Native boss {id} does not implement a custom jump controller`)
+			end
+			for index, attack in native.attacks do
+				if native.attacks[1].damage and not attack.damage then
+					problem(`Native boss {id} attack {index} needs independent source damage`)
+				end
+				if attack.kind == "Spawn" then
+					local clock = native.shooting.profiles[index]
+					if
+						not attack.summon
+						or not attack.minimumCount
+						or attack.minimumCount < 1
+						or not clock
+						or not clock.unrestricted
+					then
+						problem(`Native boss {id} spawn {index} needs source summon rules and an unrestricted clock`)
+					end
+				elseif
+					not attack.volley
+					or attack.speed == nil
+					or (if attack.kind == "InfiniteLaser" then attack.speed ~= 0 else attack.speed <= 0)
+				then
+					problem(`Native boss {id} attack {index} needs its source volley and projectile speed`)
+				end
+				if
+					attack.kind == "Bullet"
+					and (
+						not native.projectileRange
+						or native.projectileRange <= 0
+						or not native.projectileRadius
+						or native.projectileRadius <= 0
+					)
+				then
+					problem(`Native boss {id} bullet {index} needs range and radius`)
+				end
+			end
+			if native.family == "Silesaurus" then
+				if
+					not native.movements
+					or #native.movements ~= 3
+					or not native.speedReset
+					or native.speedReset.profile ~= 3
+				then
+					problem(`Native boss Silesaurus needs all three source movements and its second-child speed reset`)
+				end
+			end
+			if
+				native.shooting.frameRate <= 0
+				or native.shooting.fireAt < 0
+				or native.shooting.animationSeconds <= native.shooting.fireAt
+			then
+				problem(`Native boss {id} needs valid shared shoot animation timing`)
+			end
+			for index, profile in native.shooting.profiles do
+				if profile.recoveryFrames and profile.recoveryFrames < 0 then
+					problem(`Native boss {id} profile {index} needs nonnegative recovery`)
+				end
+				if
+					profile.spawnLimit ~= nil
+					and (
+						profile.spawnLimit < 0
+						or profile.spawnLimit % 1 ~= 0
+						or not profile.exhaustedFrames
+						or profile.exhaustedFrames <= 0
+					)
+				then
+					problem(
+						`Native boss {id} finite spawn {index} needs a nonnegative integer cap and exhausted cooldown`
+					)
+				end
+				if
+					profile.animationSpeed <= 0
+					or profile.cooldown < 0
+					or profile.initial < 0
+					or profile.minRange < 0
+					or profile.maxRange < profile.minRange
+				then
+					problem(`Native boss {id} profile {index} needs valid speed, cooldown and range`)
+				end
+			end
+			continue -- validated source controller, independently of legacy BossBrain plans
+		end
 		if not (plan and #plan.states >= 1) then
 			problem(`Boss {id} needs a boss plan with at least one state`)
 			continue

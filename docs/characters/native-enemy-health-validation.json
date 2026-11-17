@@ -1,0 +1,140 @@
+{
+  "referenceVersion": "1.2.0.3",
+  "steamBuild": 26642464,
+  "baseMain": "de4e155e97855cc18ffb52b1e81e53d1af8532fc",
+  "scope": "Correct initial HP conversion for38 audited source-based Jungle/Nightmare/SeaPig actors and preserve unrounded HP reset inputs.",
+  "ruleSources": [
+    {
+      "source": "res://entities/units/unit/stats.gdc",
+      "sourceMd5": "32a0cc4d6ed92f53aafcc9f36d158f95"
+    },
+    {
+      "source": "res://entities/units/unit/unit.gdc",
+      "sourceMd5": "aa94391f2d9681ac36b7f8617b82ff13"
+    },
+    {
+      "source": "res://entities/units/enemies/enemy.gdc",
+      "sourceMd5": "b341670f5ac667dc203f7eb778a2cda8"
+    },
+    {
+      "source": "res://singletons/entity_service.gdc",
+      "sourceMd5": "f1a861f576858bbaa3e913d83c7b1807"
+    }
+  ],
+  "focused": {
+    "NativeEnemyHealth": "5/0; initial first4checks0/4. Added legacy precision control uses approximate equality for pre-existing floating arithmetic.",
+    "NativeStatReset": "7/0; includes explicit6.75 raw-health transfer after initial rounded7HP",
+    "NativeSeaPigServer": "4/0",
+    "NativeCorruptedBuffer": "5/0"
+  },
+  "proof": [
+    "NativeHealthRounding opts in30 Jungle,7 Nightmare and global SeaPig. Source Stats health converts the wave base to int before global multipliers, then EntityService rounds the final health.",
+    "Gallimimus source4+2.5/wave: wave2/factor1.125 gives7HP, wave4/factor1.4 gives15HP, wave20/factor1.125 gives57HP.",
+    "Actual Gallimimus wave2 retains6.75 unrounded reset health after its initial7HP; Corrupted Buffer later fully heals to round(6.75*2.5)=17, instead of inferring an incorrect factor from rounded7.",
+    "SeaPig wave2/factor1.125 gives round(45*1.125)=51HP.",
+    "World.spawn continues accepting final HP as supplied, with an optional final rawResetHealth argument. Existing minimal PetActors and legacy source policies keep their contracts.",
+    "Explicit unrounded health survives compaction/faction transfer. Legacy Shadeling still has its existing unrounded5.625HP in the preservation control; broader legacy source rounding remains open."
+  ],
+  "mutations": [
+    {
+      "mutation": "dropRawResetHealth",
+      "passed": 4,
+      "failed": 1
+    },
+    {
+      "mutation": "omitSourceIntegerConversion",
+      "passed": 3,
+      "failed": 2
+    },
+    {
+      "mutation": "omitFinalHealthRound",
+      "passed": 2,
+      "failed": 3
+    },
+    {
+      "mutation": "roundLegacyActorsToo",
+      "passed": 4,
+      "failed": 1
+    }
+  ],
+  "checks": {
+    "stylua": true,
+    "rojo": true,
+    "seaPigCompilerCheck": true,
+    "evolutionCompilerCheck": true,
+    "selene": {
+      "errors": 0,
+      "existingWarnings": 18,
+      "parseErrors": 0,
+      "api": "cached Roblox API; warnings-only exit1"
+    }
+  },
+  "fullSuite": {
+    "specs": 363,
+    "passed": 2167,
+    "failed": 36,
+    "aborts": 0,
+    "returnedKnownFailureIdentitiesVsStatReset": [
+      "FAIL smoke > chases the player until it touches them"
+    ],
+    "newFailureIdentitiesVsKnown": [],
+    "missingFailureIdentitiesVsStatReset": [],
+    "artifact": "build/native-five-branch-ten-native-enemy-health-final-de4e155.json",
+    "runtimeFrozenDuringRun": true,
+    "initialRun": "363/2166/37; one outdated source HP expectation53 instead52, corrected with source integer conversion and explicit per-wave config assertion; targeted4/0 then repeated full run. No runtime change after initial run."
+  },
+  "nextGlobalFactorAudit": {
+    "scope": "Direct cached source inspection, not a new production factor provider. Distinguish fresh TeamEvolution from cached EntityService factors.",
+    "sources": [
+      {
+        "source": "res://main.gdc",
+        "sourceMd5": "e42c7c4356e6cb9d2da8190067ebf7e5"
+      },
+      {
+        "source": "res://singletons/entity_service.gdc",
+        "sourceMd5": "f1a861f576858bbaa3e913d83c7b1807"
+      },
+      {
+        "source": "res://entities/units/unit/unit.gdc",
+        "sourceMd5": "aa94391f2d9681ac36b7f8617b82ff13"
+      }
+    ],
+    "facts": [
+      "TeamEvolution is reconstructed for each enemy_respawned selection; do not cache its chance/camps per wave.",
+      "EntityService.factor_cache stores health, damage and speed factors by stat key on their first use. get_final_enemy_* reuses that factor until reset_cache clears it.",
+      "Verified direct reset_cache caller: Main._ready, after entity_spawner.init/stats_manager.init (main.gd272). Do not substitute unconditional fresh global-stat reads on every enemy reset.",
+      "Speed cache stores the effects_factor supplied by its first caller; Unit computes a product of per-player speed effects (each enemy_speed floored at-75, plus burning-specific effect when burning). Subsequent calls reuse the cached factor.",
+      "Unit.set_burning calls reset_speed_stat with the stored per-actor _speed_percent_modifier; source cache order and burn/reset timing still need acceptance.",
+      "Health/damage source factor/boost minimum0.01 differs from the existing shared StatMath enemyFactor minimum0.1; do not silently call that helper as an exact native provider."
+    ],
+    "implemented": false
+  },
+  "interfaces": [
+    "Config.Enemies.Enemy.nativeHealthRounding is an explicit source-HP policy.",
+    "World.spawn appends rawResetHealth after rawSpeedPoints; EnemySim supplies the pre-rounding health baseline. No Remote/snapshot changes."
+  ],
+  "status": {
+    "codePreparedCharacters": 48,
+    "open": 26,
+    "newCompletedCharacters": 0,
+    "junglePlayable": false,
+    "productionEvolutionAdapterImplemented": false
+  },
+  "limits": [
+    "This corrects base conversion/final rounding with the factors supplied by the existing caller, not every global source modifier/cache policy.",
+    "Existing legacy HP policies, native global factor-cache adapter, evolved effects/attack variants/renderer state, full area/group/boss route remain open.",
+    "No Studio, real two-client, mobile, native physics/render/pooling acceptance; no uploads/runtime IDs/Arsenal changes."
+  ],
+  "coveredByLaterFullSuite": {
+    "specs": 365,
+    "passed": 2179,
+    "failed": 36,
+    "aborts": 0,
+    "newFailureIdentitiesVsKnown": [],
+    "returnedKnownFailureIdentitiesVsHealth": [],
+    "missingFailureIdentitiesVsHealth": [],
+    "artifact": "build/native-five-branch-ten-native-damage-rounding-final-de4e155.json",
+    "runtimeFrozenDuringRun": true,
+    "initialRun": "365/2170/45: nine outdated fractional-contact expectations; corrected to source end rounding with explicit damagePerWave assertions. Focused Nightmare counter then exposed automatic pistol reactions; pause player weapons in that test. No gameplay runtime change after initial run."
+  }
+}

@@ -1,0 +1,313 @@
+--!strict
+-- Source Dimetrodon bindings for jump/edge-patrol components; normal actor adapters; full native presentation and physics acceptance remain pending.
+local POINT = require(script.Parent.Stats).range.studsPerPoint
+local data = {
+	version = "1.2.0.3",
+	steamBuild = 26642464,
+	source = "res://entities/units/enemies/jungle/basic/dimetrodon/dimetrodon.tscn",
+	sourceMd5 = "8ed3603be4b656e5547746c4db25b19f",
+	actorRegistered = true,
+	worldAdapterImplemented = true,
+	attackAdapterImplemented = true,
+	clientComponentAdapterImplemented = true,
+	nativeFullParityAccepted = false,
+	worldComponentAdapterImplemented = true,
+	projectileCollider = {
+		source = "res://projectiles/bullet_enemy/enemy_projectile.tscn",
+		sourceMd5 = "936fb8e19c1a3dbccb65ad6f21725002",
+		radiusPoints = 17.0294,
+	},
+	presentation = {
+		parent = {
+			scale = {
+				variantType = "Vector2",
+				values = {
+					0.75,
+					0.75,
+				},
+			},
+		},
+		shadow = {
+			unique_name_in_owner = true,
+			show_behind_parent = true,
+			position = {
+				variantType = "Vector2",
+				values = {
+					0,
+					-10,
+				},
+			},
+			scale = {
+				variantType = "Vector2",
+				values = {
+					1.5,
+					1.5,
+				},
+			},
+		},
+		warning = {
+			unique_name_in_owner = true,
+			visible = false,
+			show_behind_parent = true,
+			position = {
+				variantType = "Vector2",
+				values = {
+					0,
+					2,
+				},
+			},
+			scale = {
+				variantType = "Vector2",
+				values = {
+					1.5,
+					1.5,
+				},
+			},
+		},
+		shadowTexture = {
+			source = "res://entities/units/enemies/jungle/elites/carnotaurus/shadow.png",
+			textureSource = "res://.import/shadow.png-194ff94970b86819410c921565ad7291.stex",
+			textureMd5 = "66b67fa7d4c44583715055a064695880",
+			widthPoints = 120,
+			heightPoints = 56,
+		},
+		warningTexture = {
+			source = "res://entities/units/enemies/jungle/elites/carnotaurus/land_shadow_warning.png",
+			textureSource = "res://.import/land_shadow_warning.png-6f8d7ca9c904e4d5b351ebac95a72c0b.stex",
+			textureMd5 = "0786f8ecf652ede73cd1769ac76d4a05",
+			widthPoints = 120,
+			heightPoints = 40,
+		},
+	},
+	movement = {
+		edge_distance = 300,
+		edge_randomization = 100,
+		max_target_distance = 300,
+	},
+	jump = {
+		scale = {
+			variantType = "Vector2",
+			values = {
+				0.75,
+				0.75,
+			},
+		},
+		cooldown = 2,
+		jump_duration = 1.5,
+		jump_height = 250,
+		jump_delay = 0.5,
+		landing_radius = 180,
+		landing_cooldown = 1,
+		damage = 50,
+	},
+	stats = {
+		health = 5,
+		health_increase_each_wave = 2,
+		speed = 175,
+		speed_randomization = 0,
+		damage = 1,
+		damage_increase_each_wave = 0.85,
+		attack_cd = 30,
+		value = 2,
+		knockback_resistance = 0.7,
+		gold_spread = 0,
+		can_drop_consumables = true,
+		always_drop_consumables = false,
+		base_drop_chance = 0.03,
+		item_drop_chance = 0.01,
+		min_consumable_tier = 0,
+		max_consumable_tier = 0,
+		armor = 0,
+		armor_increase_each_wave = 0,
+		generate_blood = true,
+	},
+	statsSource = "res://entities/units/enemies/jungle/basic/dimetrodon/dimetrodon_stats.tres",
+	statsMd5 = "23f198b2582d8ee693360738ca18c403",
+	attacks = {
+		Land_shoot_behavior = {
+			properties = {
+				unique_name_in_owner = true,
+				projectile_speed = 400,
+				cooldown = 45,
+				max_cd_randomization = 0,
+				long_cooldown_every_x_shoots = 1,
+				long_cooldown = 45,
+				damage_increase_each_wave = 1.15,
+				max_range = 99999,
+				number_projectiles = 8,
+				projectile_spawn_spread = 25,
+				projectile_spawn_only_on_borders = true,
+				constant_spread = true,
+				shoot_away_from_unit = true,
+				rotate_projectile = false,
+			},
+			projectile = "res://projectiles/bullet_enemy/enemy_projectile.tscn",
+		},
+		AttackBehaviorNormal = {
+			properties = {
+				projectile_speed = 300,
+				cooldown = 999999,
+				max_cd_randomization = 0,
+				long_cooldown_every_x_shoots = 1,
+				long_cooldown = 99999,
+				damage_increase_each_wave = 1.15,
+				max_range = 99999,
+				number_projectiles = 8,
+				projectile_spawn_spread = 25,
+				projectile_spawn_only_on_borders = true,
+				constant_spread = true,
+				shoot_away_from_unit = true,
+				rotate_projectile = false,
+			},
+			projectile = "res://projectiles/bullet_enemy/enemy_projectile.tscn",
+		},
+		AttackBehaviorMeca = {
+			properties = {
+				projectile_speed = 300,
+				cooldown = 999999,
+				max_cd_randomization = 0,
+				long_cooldown_every_x_shoots = 1,
+				long_cooldown = 99999,
+				damage_increase_each_wave = 1.15,
+				max_range = 99999,
+				number_projectiles = 8,
+				projectile_spawn_spread = 25,
+				projectile_spawn_only_on_borders = true,
+				constant_spread = true,
+				shoot_away_from_unit = true,
+			},
+			projectile = "res://projectiles/slash/slash_projectile_2.tscn",
+		},
+		AttackBehaviorMutant = {
+			properties = {
+				projectile_speed = 600,
+				cooldown = 999999,
+				max_cd_randomization = 0,
+				long_cooldown_every_x_shoots = 1,
+				long_cooldown = 99999,
+				damage_increase_each_wave = 1.15,
+				max_range = 99999,
+				number_projectiles = 8,
+				projectile_spawn_spread = 25,
+				projectile_spawn_only_on_borders = true,
+				constant_spread = true,
+				shoot_away_from_unit = true,
+				rotate_projectile = false,
+			},
+			projectile = "res://projectiles/acid_projectile/acid_projectile.tscn",
+		},
+	},
+	scriptSources = {
+		{
+			source = "res://entities/units/enemies/jungle/basic/dimetrodon/dimetrodon.gdc",
+			sourceMd5 = "b05e5f176a92fcb828627c0e40223d0b",
+		},
+		{
+			source = "res://entities/units/movement_behaviors/patrol_edges_of_map_movement_behavior.gdc",
+			sourceMd5 = "c076511525c47f9d29d037af992f4d51",
+		},
+		{
+			source = "res://entities/units/enemies/attack_behaviors/jump_attack_behavior.gdc",
+			sourceMd5 = "83970734202a9c6ee372a0bbcd6e5413",
+		},
+		{
+			source = "res://entities/units/enemies/attack_behaviors/shooting_attack_behavior.gdc",
+			sourceMd5 = "43d5ebd849396509ff38632915c988a2",
+		},
+		{
+			source = "res://global/entity_spawner.gdc",
+			sourceMd5 = "ba0576c27ac5b889c5688decda3dd838",
+		},
+		{
+			source = "res://singletons/utils.gdc",
+			sourceMd5 = "2c263b6d3c2355dd71d6ad4caf0705bf",
+		},
+	},
+	bindingAudit = {
+		directLandingDamageImplementedByBoundMethod = false,
+		exportedJumpDamageUnused = true,
+		exportedLandingRadiusUnused = true,
+		patrolMaxTargetDistanceOverwritten = true,
+		freshJumpTimer = 0,
+		freshLandingTimer = 0,
+		poolRespawnCallsReset = true,
+		coldSpawnerCallsInitWithoutRespawn = true,
+	},
+	engineSource = {
+		url = "https://raw.githubusercontent.com/godotengine/godot/3.5.3-stable/core/math/math_funcs.cpp",
+		symbol = "Math::ease",
+		line = 97,
+	},
+	sourceConstants = {
+		shadowAirScale = 2,
+		shadowHeightShrinkShare = 0.5,
+		defaultProjectileDamage = 1,
+		deathWaveCutoffSeconds = 0.5,
+		edgeMapDistancePoints = 64,
+		cornerRandomThreshold = 0.5,
+		fallEasePower = 3,
+		riseShare = 0.5,
+		noneDirectionOrder = {
+			"Bottom",
+			"Right",
+			"Left",
+			"Top",
+		},
+	},
+}
+data.jumpRule = {
+	cooldown = data.jump.cooldown,
+	duration = data.jump.jump_duration,
+	height = data.jump.jump_height * POINT,
+	delay = data.jump.jump_delay,
+	landingCooldown = data.jump.landing_cooldown,
+	freshCooldown = data.bindingAudit.freshJumpTimer,
+	freshLandingCooldown = data.bindingAudit.freshLandingTimer,
+	fallEasePower = data.sourceConstants.fallEasePower,
+	riseShare = data.sourceConstants.riseShare,
+}
+data.patrolRule = {
+	edgeDistancePoints = data.movement.edge_distance,
+	edgeRandomizationPoints = data.movement.edge_randomization,
+	minimumInsetPoints = data.sourceConstants.edgeMapDistancePoints / 2,
+	cornerThreshold = data.sourceConstants.cornerRandomThreshold,
+	noneDirectionOrder = data.sourceConstants.noneDirectionOrder,
+	pixel = POINT,
+}
+data.presentationRule = {
+	parentScale = data.presentation.parent.scale.values[2],
+	groundOffsetZ = data.presentation.shadow.position.values[2] * POINT,
+	initialScale = data.presentation.shadow.scale.values[2],
+	airScale = data.sourceConstants.shadowAirScale,
+	heightShrinkShare = data.sourceConstants.shadowHeightShrinkShare,
+	shadowWidth = data.presentation.shadowTexture.widthPoints * POINT,
+	shadowHeight = data.presentation.shadowTexture.heightPoints * POINT,
+	warningWidth = data.presentation.warningTexture.widthPoints
+		* data.presentation.warning.scale.values[1]
+		* data.presentation.parent.scale.values[1]
+		* POINT,
+	warningHeight = data.presentation.warningTexture.heightPoints
+		* data.presentation.warning.scale.values[2]
+		* data.presentation.parent.scale.values[2]
+		* POINT,
+}
+local land = data.attacks.Land_shoot_behavior.properties
+local death = data.attacks.AttackBehaviorNormal.properties
+data.radialRule = {
+	projectileDamage = data.sourceConstants.defaultProjectileDamage,
+	landSpeed = land.projectile_speed * POINT,
+	deathSpeed = death.projectile_speed * POINT,
+	projectileRadius = data.projectileCollider.radiusPoints * POINT,
+	projectileRange = require(script.Parent.JungleWalkers).shootingRules.projectileRangeStuds,
+	deathWaveCutoffSeconds = data.sourceConstants.deathWaveCutoffSeconds,
+	volley = {
+		count = land.number_projectiles,
+		spread = 0,
+		constantSpread = land.constant_spread,
+		offsetX = 0,
+		offsetZ = 0,
+		speedStep = 0,
+		spawnRing = { radius = land.projectile_spawn_spread / 2 * POINT, away = land.shoot_away_from_unit },
+	},
+}
+return data

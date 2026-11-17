@@ -11,7 +11,7 @@
 -- elite affix (0 = none, else index into Config.Enemies.elite.affixes), bits 4-7 the rush direction of a charger
 -- in 16 steps (0 = +X, growing towards +Z), see packFlags.
 -- status: bit 0 burning, bit 1 slowed, bit 2 buffed by a Herald, bit 3 charmed (STATUS_*);
--- bits 4-5 carry native Pursuer boost stage (0..3); bits 6-7 stay 0.
+-- bits 4-5 carry native Pursuer boost stage (0..3); bit 6 server-hidden; bit 7 stays 0.
 -- UnreliableRemoteEvent payloads must stay below ~900 bytes, so one tick is split evenly into `partCount`
 -- packets of at most MAX_PER_PACKET enemies (`part` counts from 0). The client uses a tick only once all
 -- of its parts have arrived, so a lost packet skips that tick instead of making enemies vanish.
@@ -36,6 +36,7 @@ Snapshot.STATUS_BURNING = 1
 Snapshot.STATUS_SLOWED = 2
 Snapshot.STATUS_BUFFED = 4
 Snapshot.STATUS_CHARMED = 8 -- native friendly actor; remaining byte layout is unchanged
+Snapshot.STATUS_HIDDEN = 64 -- living actor's server visibility; it remains present in the snapshot
 Snapshot.MAX_COORDINATE = INT16_MAX / POSITION_SCALE -- largest |x| or |z| that survives encoding
 
 -- Two spare status bits carry native visual growth without enlarging snapshot packets.
