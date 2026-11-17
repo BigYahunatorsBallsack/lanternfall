@@ -11,10 +11,16 @@ export type State = {
 	shooting: Shooting.State,
 	untilCheck: number,
 	pending: number,
+	wrapperFrames: number,
+	damages: { number }?,
+	lateRootDamage: number?,
 }
 function Actor.new(rules: Enemies.NativeBoss, random: () -> number): State
 	assert(
-		rules.family == "Therizinosaurus" or rules.family == "Silesaurus" or rules.family == "Diplodocus",
+		rules.family == "Therizinosaurus"
+			or rules.family == "Silesaurus"
+			or rules.family == "Diplodocus"
+			or rules.family == "Baryonyx",
 		"Native boss family requires its own implemented controller"
 	)
 	return {
@@ -23,6 +29,7 @@ function Actor.new(rules: Enemies.NativeBoss, random: () -> number): State
 		shooting = Shooting.new(rules.shooting, random),
 		untilCheck = rules.init.timerSeconds,
 		pending = 0,
+		wrapperFrames = rules.initialWrapperFrames or 0,
 	}
 end
 local function frame(
@@ -39,10 +46,19 @@ local function frame(
 		state.untilCheck += state.rules.init.timerSeconds
 		Phases.onTimeout(state.phase, health, function(index)
 			Shooting.select(state.shooting, index + 2) -- root is profile1; source child0 is profile2
+			Shooting.phaseChanged(state.shooting)
 			if changed then
 				changed(index + 2)
 			end
 		end)
+	end
+	if state.wrapperFrames > 0 then
+		state.wrapperFrames -= 1
+		if state.wrapperFrames == 0 and state.lateRootDamage ~= nil and state.damages then
+			state.damages[1] = state.lateRootDamage -- first registration uses no earlier reset modifier
+			state.lateRootDamage = nil
+		end
+		return -- source DetectEvolution selects/registers normal here; its clock first advances on the following callback
 	end
 	Shooting.physics(state.shooting, dt, distance)
 	Shooting.advanceAnimation(state.shooting, dt, random, emit)

@@ -82,6 +82,7 @@ export type Params = {
 	referencePlayerSpeed: ((number?, number?, number?) -> number?)?, -- target player index, or fastest living player when nil
 	nativeChargeAccessibility: (() -> number)?, -- source charge bonus uses only the current run accessibility speed slider
 	nativeStatBoost: ((number, NativeBoost) -> boolean)?, -- true when the source run provider handled this actor's native reset
+	nativeBossLocked: ((number) -> boolean)?, -- private source attack/recovery movement flags; no speed mutation
 	goalsWithoutTargets: boolean?,
 	nativeGoldPositions: (() -> ({ number }, { number }))?,
 	collideTargets: boolean?, -- false for native pet bodies, which collide only with pets and obstacles
@@ -1686,6 +1687,9 @@ function World.step(
 				continue
 			end
 			local jumping = self.nativeJumps[i]
+			if kind.nativeBoss and p.nativeBossLocked and p.nativeBossLocked(self.ids[i]) then
+				continue
+			end
 			if jumping and jumping.locked then
 				continue
 			end

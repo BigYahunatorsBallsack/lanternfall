@@ -13,6 +13,8 @@ export type Profile = {
 	unrestricted: boolean?, -- an unlimited source spawning attack does not test the parent's target distance
 	spawnLimit: number?, -- explicit finite SpawningAttackBehavior cap; counts children, not shoot animations
 	exhaustedFrames: number?,
+	moveLocked: boolean?,
+	recoveryFrames: number?,
 }
 export type Rules = {
 	frameRate: number,
@@ -27,6 +29,7 @@ export type State = {
 	current: number,
 	clocks: { Clock },
 	animation: { playing: boolean, cursor: number, speed: number, fired: boolean },
+	movement: { canMove: boolean, locked: boolean },
 }
 local function cooldown(clock: Clock, profile: Profile, rules: Rules, random: () -> number): number
 	if profile.longEvery ~= 0 and clock.shots >= profile.longEvery then
@@ -54,6 +57,7 @@ function Shooting.new(rules: Rules, random: () -> number): State
 		current = 1,
 		clocks = clocks,
 		animation = { playing = false, cursor = 0, speed = 1, fired = false },
+		movement = { canMove = true, locked = false },
 	}
 end
 function Shooting.select(state: State, index: number)
@@ -69,6 +73,12 @@ end
 function Shooting.recordSpawns(state: State, index: number, count: number)
 	state.clocks[index].spawns += count
 end
+function Shooting.isMovementLocked(state: State): boolean
+	return not state.movement.canMove or state.movement.locked
+end
+function Shooting.phaseChanged(state: State)
+	state.movement.canMove = true -- source Boss.on_state_changed leaves _move_locked untouched
+end
 function Shooting.physics(state: State, dt: number, distance: number): boolean
 	local clock = state.clocks[state.current]
 	local profile = state.rules.profiles[state.current]
@@ -78,7 +88,15 @@ function Shooting.physics(state: State, dt: number, distance: number): boolean
 		return false -- source returns even when this frame consumes the last initial-cooldown fraction
 	end
 	clock.remaining = math.max(0, clock.remaining - frames)
-	clock.recovery = math.max(0, clock.recovery - frames)
+	if state.animation.playing and profile.moveLocked then
+		state.movement.canMove, state.movement.locked = false, true
+	end
+	if clock.recovery > 0 then
+		clock.recovery = math.max(0, clock.recovery - frames)
+		if clock.recovery <= 0 and profile.moveLocked then
+			state.movement.canMove, state.movement.locked = true, false
+		end
+	end
 	if
 		not state.animation.playing
 		and clock.remaining <= 0
@@ -115,6 +133,10 @@ function Shooting.advanceAnimation(state: State, dt: number, random: () -> numbe
 		clock.remaining = if profile.spawnLimit ~= nil and clock.spawns >= profile.spawnLimit
 			then assert(profile.exhaustedFrames, "Finite spawning needs its source exhausted cooldown")
 			else cooldown(clock, profile, state.rules, random)
+		clock.recovery = profile.recoveryFrames or 0
+		if profile.moveLocked and clock.recovery == 0 then
+			state.movement.canMove, state.movement.locked = true, false
+		end
 	end
 	return fired
 end

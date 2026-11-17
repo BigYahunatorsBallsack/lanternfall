@@ -674,7 +674,12 @@ function ConfigCheck.run(): { string }
 		local native = boss.nativeBoss
 		if native then
 			if
-				(native.family ~= "Therizinosaurus" and native.family ~= "Silesaurus" and native.family ~= "Diplodocus")
+				(
+					native.family ~= "Therizinosaurus"
+					and native.family ~= "Silesaurus"
+					and native.family ~= "Diplodocus"
+					and native.family ~= "Baryonyx"
+				)
 				or not native.phases.usesBasePhaseTimer
 				or #native.shooting.profiles ~= #native.phases.states + 1
 				or #native.shooting.profiles < 2
@@ -685,6 +690,9 @@ function ConfigCheck.run(): { string }
 				problem(`Native boss {id} needs its implemented family, phase/profile bindings and source rounding`)
 			end
 			for index, attack in native.attacks do
+				if native.attacks[1].damage and not attack.damage then
+					problem(`Native boss {id} attack {index} needs independent source damage`)
+				end
 				if attack.kind == "Spawn" then
 					local clock = native.shooting.profiles[index]
 					if
@@ -696,7 +704,11 @@ function ConfigCheck.run(): { string }
 					then
 						problem(`Native boss {id} spawn {index} needs source summon rules and an unrestricted clock`)
 					end
-				elseif not attack.volley or not attack.speed or attack.speed <= 0 then
+				elseif
+					not attack.volley
+					or attack.speed == nil
+					or (if attack.kind == "InfiniteLaser" then attack.speed ~= 0 else attack.speed <= 0)
+				then
 					problem(`Native boss {id} attack {index} needs its source volley and projectile speed`)
 				end
 				if
@@ -729,6 +741,9 @@ function ConfigCheck.run(): { string }
 				problem(`Native boss {id} needs valid shared shoot animation timing`)
 			end
 			for index, profile in native.shooting.profiles do
+				if profile.recoveryFrames and profile.recoveryFrames < 0 then
+					problem(`Native boss {id} profile {index} needs nonnegative recovery`)
+				end
 				if
 					profile.spawnLimit ~= nil
 					and (

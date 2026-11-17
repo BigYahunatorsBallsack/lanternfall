@@ -203,7 +203,7 @@ local function placeTelegraph(entry: Telegraph, now: number): boolean
 	if now >= (if endsAt then math.max(endsAt, info.hitsAt + FLASH_SECONDS) else info.hitsAt + FLASH_SECONDS) then
 		return false
 	end
-	if endsAt and now >= info.hitsAt + FLASH_SECONDS then
+	if endsAt and info.shape ~= "Line" and now >= info.hitsAt + FLASH_SECONDS then
 		-- a pool: stays at full size in its own color until it dries up
 		local diameter = info.radius * 2
 		local upright = CFrame.new(info.x, floorY + DISC_HEIGHT, info.z) * CFrame.Angles(0, 0, math.pi / 2)

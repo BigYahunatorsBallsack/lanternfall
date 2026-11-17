@@ -24,6 +24,7 @@ local EntryHealing = require(script.NativeEntryHealing)
 local MovementInput = require(script.Parent.CharacterService.Movement)
 local NativeVolley = require(Shared.Util.NativeEnemyVolley)
 local NativeBossShooting = require(Shared.Util.NativeBossShooting)
+local NativeBossDamage = require(Shared.Util.NativeBossProfileDamage)
 local RunSchedule = require(Shared.Util.RunSchedule)
 local DeathShots = require(script.NativeDeathShots)
 local NativeStatCache = require(script.NativeEnemyStatCache)
@@ -89,6 +90,7 @@ EnemySim.CharmShot = Signal.new()
 -- Trusted slash request: source id, target/origin x/z, damage, optional Charm owner and optional direct slash2 direction/speed.
 EnemySim.NativeSlash = Signal.new()
 EnemySim.NativePillar = Signal.new()
+EnemySim.NativeLaser = Signal.new() -- trusted source id, origin, fixed direction and independent profile damage
 EnemySim.NativeJumpStarted = Signal.new() -- trusted id, kind, captured source Jump state
 EnemySim.PlayerKillStats = Signal.new() -- trusted credited player and source stat gains, after normal death listeners
 -- Trusted native spawning attack: child kind, exact position and captured optional Charm owner; SpawnDirector owns births.
@@ -168,6 +170,10 @@ local function newWorldParams(): World.Params
 				damage = (boost.damage - 1) * NativeStatRules.percent,
 				speed = (boost.speed - 1) * NativeStatRules.percent,
 			})
+		end,
+		nativeBossLocked = function(id)
+			local state = nativeBossActors[id]
+			return state ~= nil and NativeBossShooting.isMovementLocked(state.shooting)
 		end,
 		cellSize = Sim.spatialHashCellSize,
 		maxEnemies = Config.Run.spawn.cap.max,
@@ -376,7 +382,7 @@ local function stepNativeBosses()
 				local rule = assert(attack.volley, "Native boss projectile attack needs volley rules")
 				local speed = assert(attack.speed, "Native boss projectile attack needs source speed")
 				speed *= RunDirector.getRunOptions().enemySpeed / NativeStatRules.percent
-				local damage = world:getShotDamage(id)
+				local damage = if state.damages then state.damages[profile] else world:getShotDamage(id)
 				NativeVolley.emit(rule, x, z, targetXs[target], targetZs[target], speed, function()
 					return RandomService.number("Combat")
 				end, function(px, pz, dx, dz, shotSpeed)
@@ -389,6 +395,8 @@ local function stepNativeBosses()
 							nil,
 							{ dx = dx, dz = dz, speed = shotSpeed, profile = "Normal" }
 						)
+					elseif attack.kind == "InfiniteLaser" then
+						EnemySim.NativeLaser:Fire(id, px, pz, dx, dz, damage)
 					else
 						EnemySim.fireShot(
 							px,
@@ -409,9 +417,10 @@ local function stepNativeBosses()
 				if rules.movements then
 					-- Per-actor copy: selecting a source movement never mutates shared/frozen enemy config.
 					local kind = table.clone(world.kinds[index])
-					kind.wander = rules.movements[profile]
+					local movement = rules.movements[profile]
+					kind.wander = if movement == false then nil else movement
 					world.kinds[index] = kind
-					world.keeps[index] = assert(kind.wander, "Native boss phase needs its source movement").range
+					world.keeps[index] = if kind.wander then kind.wander.range or 0 else 0
 					world.wanderXs[index], world.wanderZs[index], world.wanderLeft[index] = 0, 0, 0
 				end
 				if rules.speedReset and profile == rules.speedReset.profile then
@@ -996,6 +1005,7 @@ function EnemySim.spawn(
 		hp = math.round(rawResetHealth)
 	end
 	local contactDamage = kind.contactDamage * damageMultiplier * contactGrowth
+	local nativeDamageShare = 1
 	if kind.nativeBoss then
 		local options = RunDirector.getRunOptions()
 		local danger = require(Shared.Util.DangerRules)
@@ -1006,6 +1016,7 @@ function EnemySim.spawn(
 			options.danger,
 			danger.level(options.danger).bossCount > 1
 		)
+		nativeDamageShare = damageShare
 		hp = math.round(hp * hpShare)
 		contactDamage *= damageShare
 		if shotDamage then
@@ -1034,6 +1045,14 @@ function EnemySim.spawn(
 		nativeBossActors[id] = NativeBossActor.new(kind.nativeBoss, function()
 			return RandomService.number("Spawns")
 		end)
+		if kind.nativeBoss.attacks[1].damage then
+			nativeBossActors[id].damages = NativeBossDamage.compute(kind.nativeBoss.attacks, wave or 1, function(base)
+				return base * damageMultiplier
+			end, nativeDamageShare)
+			if kind.nativeBoss.attacks[1].damage.registeredAfterBossInit and nativeBossActors[id].wrapperFrames > 0 then
+				nativeBossActors[id].lateRootDamage = nativeBossActors[id].damages[1]
+			end
+		end
 	end
 	if id and wave then
 		spawnContexts[id] = { hp = hpMultiplier, damage = damageMultiplier, speed = speedMultiplier or 1, wave = wave }
@@ -1118,6 +1137,12 @@ function EnemySim.applyNativeBoost(
 	})
 	if not applied then
 		return false
+	end
+	local boss = nativeBossActors[id]
+	if boss and boss.damages then
+		boss.damages = NativeBossDamage.compute(boss.rules.attacks, wave, function(baseDamage)
+			return cache:rawDamage(baseDamage, context)
+		end, 1, boost.damage)
 	end
 	-- Subsequent Charm and descendants reset from unboosted global bases, not the parent's rounded boost results.
 	base.contact, base.shot = raw.contact, raw.shot

@@ -29,6 +29,19 @@ local function make(name, forbidden)
 	return w, id, k
 end
 describe("Native Jungle movement", function()
+	it("honors the native boss movement lock without changing the stored speed or ordinary actors", function()
+		local w, id = make("Therizinosaurus")
+		w:setSpeedFactor(id, 1)
+		local locked = true
+		w.params.nativeBossLocked = function()
+			return locked
+		end
+		w:step(0.5, { 80 }, { 0 }, 1)
+		expect(w:getPosition(id)).toBe(0)
+		locked = false
+		w:step(0.5, { 80 }, { 0 }, 1)
+		assert(w:getPosition(id) > 0)
+	end)
 	it("keeps Silesaurus root goals until arrival but refreshes its independent two/one-second child goals", function()
 		local w, id, k = make("Silesaurus")
 		local i = w.indexOf[id]
