@@ -1,0 +1,24 @@
+{
+  "version": "1.2.0.3",
+  "steamBuild": "26642464",
+  "source": "res://entities/units/enemies/jungle/elites/carnotaurus/carnotaurus_neutral.tscn",
+  "sourceMd5": "e2baaa04dabeb191234049ac1bd32681",
+  "textureSource": "res://.import/carnotaurus.png-cfe7f2bd9b3bffa97973f238393c2d82.stex",
+  "textureMd5": "0442ab05a0f3de420ff417819d407503",
+  "output": "assets/enemies/native-carnotaurus/Carnotaurus.png",
+  "size": [
+    200,
+    200
+  ],
+  "alphaBounds": [
+    21,
+    9,
+    184,
+    181
+  ],
+  "rgbaSha256": "0b605df99185dc5bb1aed17ac10c85c477305672fbfa076e2cee2e3b35e9d4fd",
+  "pngSha256": "b92efcbd55756731aa7501b2e5c54bc9d7e2dc1cc330305509d9bcca5d3b8e3e",
+  "uploadedCount": 0,
+  "runtimeAssetIdsChanged": false,
+  "originalArtAcceptedInGame": false
+}

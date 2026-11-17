@@ -83,6 +83,7 @@ export type Params = {
 	nativeChargeAccessibility: (() -> number)?, -- source charge bonus uses only the current run accessibility speed slider
 	nativeStatBoost: ((number, NativeBoost) -> boolean)?, -- true when the source run provider handled this actor's native reset
 	nativeBossLocked: ((number) -> boolean)?, -- private source attack/recovery movement flags; no speed mutation
+	nativeJumpPhase: ((number, NativeJump.State) -> boolean)?, -- derived source callback before inherited jump physics
 	goalsWithoutTargets: boolean?,
 	nativeGoldPositions: (() -> ({ number }, { number }))?,
 	collideTargets: boolean?, -- false for native pet bodies, which collide only with pets and obstacles
@@ -1636,6 +1637,17 @@ function World.step(
 			local state = self.nativeJumps[i]
 			local rule = kinds[i].nativeJump
 			if not state or not rule then
+				continue
+			end
+			if
+				kinds[i].nativeBoss
+				and kinds[i].nativeBoss.customJump
+				and p.nativeJumpPhase
+				and p.nativeJumpPhase(ids[i], state)
+			then
+				local adjusted = table.clone(kinds[i])
+				adjusted.nativeJump = nil
+				kinds[i], self.nativeJumps[i] = adjusted, nil
 				continue
 			end
 			local tx, tz = nil, nil

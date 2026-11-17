@@ -1,0 +1,51 @@
+--!strict
+-- Carnotaurus timer requests a landed-only switch before the next inherited jump callback; source HP/time thresholds and elapsed counter are not used.
+loadHelper("tests/helpers/RobloxMock.luau")
+local Shared = game:GetService("ReplicatedStorage").Shared
+local Actor = require(game:GetService("ServerScriptService").Server.Services.EnemySim.NativeBossActor)
+local Shooting = require(Shared.Util.NativeBossShooting)
+local C = require(Shared.Config.NativeCarnotaurus).controller
+local function fixed()
+	return 0.5
+end
+local function unusedHealth()
+	error("Carnotaurus must not evaluate standard boss HP thresholds")
+end
+describe("Native Carnotaurus timer composition", function()
+	it("leaves the independent child clock cold and ignores standard thresholds before the20second request", function()
+		local state = Actor.new(C, fixed)
+		Actor.step(state, 19.9, unusedHealth, 10, fixed, function()
+			error("Root jump is not a shooting profile")
+		end)
+		expect(state.customRequested).toBe(false)
+		expect(Actor.beforeJump(state, { landed = true, jumping = false, locked = true })).toBe(false)
+		expect(state.phase.current).toBe(-1)
+		expect(state.phase.elapsed).toBe(0)
+		expect(state.shooting.clocks[1].initial).toBe(45)
+	end)
+	it("waits for a landed previous callback rather than switching mid-air or during ordinary walking", function()
+		local state = Actor.new(C, fixed)
+		Actor.step(state, 20, unusedHealth, 10, fixed, function() end)
+		expect(state.customRequested).toBe(true)
+		expect(Actor.beforeJump(state, { landed = false, jumping = true, locked = true })).toBe(false)
+		expect(Actor.beforeJump(state, { landed = false, jumping = false, locked = false })).toBe(false)
+		expect(Actor.beforeJump(state, { landed = true, jumping = false, locked = true })).toBe(true)
+		expect(state.phase.current).toBe(0)
+		expect(state.phase.elapsed).toBe(0)
+		expect(Shooting.isMovementLocked(state.shooting)).toBe(true)
+	end)
+	it("switches before a cold zero-landing timer could erase the landed flag", function()
+		local Jump = require(game:GetService("ServerScriptService").Server.Services.EnemySim.NativeJump)
+		local rule = require(Shared.Config.NativeCarnotaurus).jumpRule
+		local jump = Jump.new(rule)
+		Jump.step(rule, jump, 0, 0, 0, 20, 0)
+		Jump.step(rule, jump, 1.8, 0, 0, 20, 0)
+		assert(jump.landed)
+		local state = Actor.new(C, fixed)
+		state.customRequested = true
+		assert(Actor.beforeJump(state, jump))
+		expect(state.shooting.clocks[1].initial).toBe(45)
+		Actor.step(state, 1 / 60, unusedHealth, 10, fixed, function() end)
+		expect(state.shooting.clocks[1].initial).toBeNear(44)
+	end)
+end)

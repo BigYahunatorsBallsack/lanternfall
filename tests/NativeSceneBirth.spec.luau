@@ -72,7 +72,7 @@ describe("Source scene-native actor births", function()
 				{
 					"res://unknown.tscn",
 					"res://entities/units/enemies/jungle/basic/velociraptor/velociraptor++.tscn",
-					"res://entities/units/enemies/jungle/elites/carnotaurus/carnotaurus_neutral.tscn",
+					"res://entities/units/enemies/jungle/bosses/tyrannosaurus/tyranosaurus.tscn",
 					"res://entities/units/enemies/jungle/bosses/brachiosaurus/brachiosaurus.tscn",
 				}
 			do

@@ -156,8 +156,17 @@ describe("BossBrain", function()
 				local NativeActor =
 					require(game:GetService("ServerScriptService").Server.Services.EnemySim.NativeBossActor)
 				local actor = NativeActor.new(kind.nativeBoss, math.random)
+				local Jump = require(game:GetService("ServerScriptService").Server.Services.EnemySim.NativeJump)
+				local jump = if kind.nativeJump then Jump.new(kind.nativeJump) else nil
 				local shots = 0
 				for _ = 1, math.round(90 / DT) do
+					if jump then
+						if NativeActor.beforeJump(actor, jump) then
+							jump = nil
+						else
+							Jump.step(kind.nativeJump, jump, DT, jump.x, jump.z, 10, 0)
+						end
+					end
 					NativeActor.step(
 						actor,
 						DT,

@@ -1,0 +1,167 @@
+{
+  "referenceVersion": "1.2.0.3",
+  "steamBuild": 26642464,
+  "baseMain": "de4e155e97855cc18ffb52b1e81e53d1af8532fc",
+  "parentCommit": "2ed2f91b6d14b533f2f935872eb15248637b678a",
+  "scope": "Concrete normal hostile Carnotaurus cold jump, landing shots, landed-only custom phase switch and source-linked child projectile lifetime. Not full engine, evolved or area acceptance.",
+  "sourceFacts": {
+    "source": "res://entities/units/enemies/jungle/elites/carnotaurus/carnotaurus_neutral.tscn",
+    "sourceMd5": "e2baaa04dabeb191234049ac1bd32681",
+    "jump": "Cold timers both zero. CD3s, delay0.6s, duration1.2s, height150px, landing cooldown1s. Body/contact disabled airborne, hurtbox enabled. Exported damage50/radius250 do not implement a landing AoE.",
+    "land": "Direct LandShoot.shoot call, fourteen400px/s standard bullets, constant radial directions from a12.5px spawn ring, shoot away from center. No artificial death ring or source death link.",
+    "phase": "CheckStateTimer20s requests change. Ignore inherited HP50%/40s metadata. Derived callback checks previous landed/not-jumping before inherited Enemy jump callback can clear it. Child clock remains cold until selected.",
+    "child": "Twelve600px/s standard bullets, random fan0.3rad, square150px and mirrored50/-100px transform. CD30frames, initial45, every3methods120frames, animation speed2, locked movement with45frame recovery. Delete only these source-linked bullets on actor death.",
+    "damage": "Both attacks use1+1.15/wave and are registered before Boss.init. Explicit wave11/factor1 gives9 after the early-25% reset. Contact1+1.5/wave becomes12.",
+    "killTime": "Custom timer signal override never calls Boss timeout, so source Boss.elapsed_time remains0. Preserve real aliveSeconds separately and use optional bossElapsedSeconds for native Giant Slayer evaluation.",
+    "engine": "PCK header reports3.7.0. Official Godot3 documentation and call_multilevel implementation establish inherited derived-first callbacks; this is family evidence, not an exact installed EXE build match."
+  },
+  "focused": {
+    "newChecks": 13,
+    "NativeCarnotaurusActor": "3/0; initially0/3",
+    "NativeCarnotaurusServer": "5/0",
+    "NativeOwnedProjectiles": "2/0; initially0/2",
+    "NativeJumpWorld": "8/0 including one new derived-before-base integration check initially failing",
+    "NativeBossConfig": "11/0 including two new custom-controller negatives",
+    "mutationGap": "A landed-before20s condition was initially untested; explicit assertion added, then the corresponding mutation was detected.",
+    "preservedServers": {
+      "tests/NativeBaryonyxServer.spec.luau": "9/0",
+      "tests/NativeDiplodocusServer.spec.luau": "6/0",
+      "tests/NativeSilesaurusServer.spec.luau": "8/0",
+      "tests/NativeTherizinosaurusServer.spec.luau": "8/0"
+    }
+  },
+  "mutations": [
+    {
+      "mutation": "useBasePhaseOnCarnotaurus",
+      "spec": "NativeCarnotaurusServer",
+      "passed": 4,
+      "failed": 1,
+      "detected": true
+    },
+    {
+      "mutation": "switchWithoutLanded",
+      "spec": "NativeCarnotaurusActor",
+      "passed": 2,
+      "failed": 1,
+      "detected": true
+    },
+    {
+      "mutation": "switchBeforeTimer",
+      "spec": "NativeCarnotaurusActor",
+      "passed": 2,
+      "failed": 1,
+      "detected": true
+    },
+    {
+      "mutation": "omitDerivedBeforeJump",
+      "spec": "NativeJumpWorld",
+      "passed": 7,
+      "failed": 1,
+      "detected": true
+    },
+    {
+      "mutation": "omitLandingRing",
+      "spec": "NativeCarnotaurusServer",
+      "passed": 4,
+      "failed": 1,
+      "detected": true
+    },
+    {
+      "mutation": "omitSourceDeathLinks",
+      "spec": "NativeCarnotaurusServer",
+      "passed": 4,
+      "failed": 1,
+      "detected": true
+    },
+    {
+      "mutation": "deleteUnlinkedBullets",
+      "spec": "NativeOwnedProjectiles",
+      "passed": 0,
+      "failed": 2,
+      "detected": true
+    },
+    {
+      "mutation": "useWallAgeForChallenge",
+      "spec": "NativeCarnotaurusServer",
+      "passed": 4,
+      "failed": 1,
+      "detected": true
+    }
+  ],
+  "fullSuite": {
+    "artifact": "build/native-five-branch-ten-carnotaurus-final-de4e155.json",
+    "specs": 391,
+    "passed": 2321,
+    "failed": 36,
+    "aborted": 0,
+    "returningVsImmediatePrevious": [
+      [
+        "tests/EnemiesB9.spec.luau",
+        "FAIL new enemies (B9) > lets a Gobbler eat the orbs on the floor and drop them all when killed"
+      ]
+    ],
+    "nowPassingWithoutFixClaim": [
+      [
+        "tests/Smoke.spec.luau",
+        "FAIL smoke > chases the player until it touches them"
+      ]
+    ],
+    "unknownFailureIdentities": [],
+    "frozenRuntimeAndTests": true,
+    "seconds": 287.9,
+    "comparison": "Previous388/2308/36, current391/2321/36. All13 additional checks pass. Known Gobbler returns; Smoke chase passes, no fix claimed. No unknown failure identity against documented historical comparison stands.",
+    "postSuiteFixtureCorrection": "Corrected the refused Tyranosaurus scene directory from tyranosaurus to the actual tyrannosaurus; NativeSceneBirth rerun6/0. No production code change after the full suite.",
+    "budgets": "Historical timing-budget tests pass in this run; no stable performance acceptance. No assertions, budgets or failing tests weakened/skipped."
+  },
+  "checks": {
+    "stylua": "18 changed Luau files",
+    "selene": "0 errors/18 existing warnings/0 parse errors; cached API",
+    "rojo": "passed",
+    "sourceCompilers": "Carnotaurus and laser --check passed",
+    "localArt": "Carnotaurus200x200 PNG and alpha viewed, exact RGBA checked; Dimetrodon shared shadow/warning --check passed; no uploads/IDs"
+  },
+  "interfaces": [
+    "NativeBoss.customJump and NativeBossActor.beforeJump model the custom controller without a fabricated root shooting profile.",
+    "World.Params.nativeJumpPhase runs before the inherited jump step and removes only the selected actor root jump.",
+    "EnemySim.fireShot accepts optional source as tenth argument; Volleys.removeSource returns existing flat ended-id/distance pairs. Only native boss death scans linked shots.",
+    "KillInfo.bossElapsedSeconds is optional and preferred for native fast-boss challenges; existing non-native deaths retain aliveSeconds fallback.",
+    "No new Remote, wire shape, save schema or Arsenal change."
+  ],
+  "sourceAuditCorrection": {
+    "previousLaserAuditIncorrect": true,
+    "basePhysicsAutomaticallyCalled": true,
+    "callbackOrder": [
+      "EnemyLaser",
+      "Projectile"
+    ],
+    "enginePackVersion": [
+      3,
+      7,
+      0
+    ],
+    "sources": [
+      "https://docs.godotengine.org/en/3.5/tutorials/scripting/gdscript/gdscript_basics.html#inheritance",
+      "https://raw.githubusercontent.com/godotengine/godot/3.5.3-stable/modules/gdscript/gdscript.cpp#L1124-L1134"
+    ],
+    "laserRuntimeChanged": false,
+    "inheritedBorderAndTimeFactorParityOpen": true
+  },
+  "status": {
+    "codePreparedCharacters": 48,
+    "openCharacters": 26,
+    "newCompletedCharacters": 0,
+    "registeredSourceScenes": 37,
+    "resolvedDirectScenes": 36,
+    "totalDirectScenes": 38,
+    "remainingBosses": 2,
+    "remainingElites": 0,
+    "junglePlayable": false
+  },
+  "limits": [
+    "Normal hostile Carnotaurus only; evolved/conditional variants, complete Curse/stronger_elites_on_kill and forced friendly boss conversion remain open.",
+    "15Hz body/target positions and60Hz attack clocks do not establish Godot physics/callback/deferred/Area/pooling/global RNG/time-factor parity. Standard bullets retain300stud compatibility lifetime/range.",
+    "Original body/pose/HPbar/audio/shadow/warning in-game art acceptance is pending; existing procedural jump warnings and fallback body remain.",
+    "Brachiosaurus and Tyranosaurus remain unresolved direct scenes. Complete area selection, wave orchestration, evolved/conditional scene closure and Main Chunky/Wildling Jungle/200Whip/Flail unlock path remain open.",
+    "No Studio, real two-client or mobile acceptance. No additional character completed."
+  ]
+}

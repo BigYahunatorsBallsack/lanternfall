@@ -33,6 +33,30 @@ local function actor()
 	return kind
 end
 describe("Native jump World adapter", function()
+	it("checks the custom Carnotaurus phase before advancing its cold landed flag", function()
+		local w = newWorld()
+		local data = require(Shared.Config.NativeCarnotaurus)
+		local Actor = require(game:GetService("ServerScriptService").Server.Services.EnemySim.NativeBossActor)
+		local state = Actor.new(data.controller, function()
+			return 0.5
+		end)
+		state.customRequested = true
+		local id = assert(w:spawn(data.kind, 0, 0, 100, 1))
+		w.params.nativeJumpPhase = function(_, jump)
+			return Actor.beforeJump(state, jump)
+		end
+		w.params.nativeBossLocked = function()
+			return true
+		end
+		w:step(0, { 20 }, { 0 }, 1)
+		w:step(1.8, { 20 }, { 0 }, 1)
+		assert(w.nativeJumps[w.indexOf[id]].landed)
+		w:step(1 / 60, { 20 }, { 0 }, 1)
+		expect(state.phase.current).toBe(0)
+		expect(w.nativeJumps[w.indexOf[id]]).toBe(nil)
+		expect(w:getKind(id).nativeJump).toBe(nil)
+		expect(w:isBodyEnabled(id)).toBe(true)
+	end)
 	it("disables body and touch during windup while leaving the actual hurt queries enabled", function()
 		local w = newWorld()
 		local id = assert(w:spawn(actor(), 0, 0, 100, 3))

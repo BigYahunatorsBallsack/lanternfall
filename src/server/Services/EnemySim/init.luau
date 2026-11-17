@@ -56,7 +56,8 @@ export type KillInfo = {
 	elite: boolean, -- a Gloom Elite: drops a chest (LootService)
 	boss: boolean, -- a boss (WP10, BossService)
 	killer: Player?,
-	aliveSeconds: number?, -- authoritative age of a credited death; native Giant Slayer boundary
+	aliveSeconds: number?, -- authoritative age of a credited death
+	bossElapsedSeconds: number?, -- source Boss elapsed counter; custom timer overrides can leave this at zero
 	digCrateChance: number?, -- Shovel's killing hitbox; LootService rolls before ordinary consumables
 }
 
@@ -174,6 +175,10 @@ local function newWorldParams(): World.Params
 		nativeBossLocked = function(id)
 			local state = nativeBossActors[id]
 			return state ~= nil and NativeBossShooting.isMovementLocked(state.shooting)
+		end,
+		nativeJumpPhase = function(id, jump)
+			local state = nativeBossActors[id]
+			return state ~= nil and NativeBossActor.beforeJump(state, jump)
 		end,
 		cellSize = Sim.spatialHashCellSize,
 		maxEnemies = Config.Run.spawn.cap.max,
@@ -406,7 +411,9 @@ local function stepNativeBosses()
 							shotSpeed,
 							assert(rules.projectileRange, "Native bullet needs its source range"),
 							assert(rules.projectileRadius, "Native bullet needs its source radius"),
-							damage
+							damage,
+							nil,
+							if attack.deleteWithSource then id else nil
 						)
 					end
 				end)
@@ -718,6 +725,13 @@ local function stepOnce()
 		local kind = world:getKind(id)
 		if kind and kind.nativeRadialShots then
 			fireNativeRadial(id, kind.nativeRadialShots, kind.nativeRadialShots.landSpeed)
+		elseif kind and kind.nativeBoss and kind.nativeBoss.customJump then
+			local landing = kind.nativeBoss.customJump.landing
+			fireNativeRadial(
+				id,
+				landing,
+				landing.speed * RunDirector.getRunOptions().enemySpeed / NativeStatRules.percent
+			)
 		end
 	end
 	for i = 1, world.count do
@@ -1340,6 +1354,11 @@ function EnemySim.damage(
 				split.area
 			)
 		end
+		if kind.nativeBoss then
+			for _, value in volleys:removeSource(id) do
+				table.insert(endedShots, value)
+			end
+		end
 		EnemySim.EnemyKilled:Fire({
 			id = id,
 			enemyId = kind.id,
@@ -1352,6 +1371,7 @@ function EnemySim.damage(
 			aliveSeconds = if nativeBases[id]
 				then math.max(0, workspace:GetServerTimeNow() - nativeBases[id].spawnedAt)
 				else nil,
+			bossElapsedSeconds = if nativeBossActors[id] then nativeBossActors[id].phase.elapsed else nil,
 			digCrateChance = if ownerHitbox then digCrateChance else nil,
 		} :: KillInfo)
 		if source and cleanupDepth == 0 and kind.nativePlayerKillStats then
@@ -1439,9 +1459,10 @@ function EnemySim.fireShot(
 	range: number,
 	radius: number,
 	damage: number,
-	motion: Types.EnemyShotMotion?
+	motion: Types.EnemyShotMotion?,
+	source: number?
 )
-	local id = volleys:fire(x, z, dx, dz, speed, range, radius, damage, motion)
+	local id = volleys:fire(x, z, dx, dz, speed, range, radius, damage, motion, source)
 	table.insert(firedShots, {
 		id = id,
 		x = x,

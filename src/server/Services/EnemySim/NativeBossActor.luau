@@ -14,23 +14,44 @@ export type State = {
 	wrapperFrames: number,
 	damages: { number }?,
 	lateRootDamage: number?,
+	customRequested: boolean,
 }
 function Actor.new(rules: Enemies.NativeBoss, random: () -> number): State
 	assert(
 		rules.family == "Therizinosaurus"
 			or rules.family == "Silesaurus"
 			or rules.family == "Diplodocus"
-			or rules.family == "Baryonyx",
+			or rules.family == "Baryonyx"
+			or rules.family == "Carnotaurus",
 		"Native boss family requires its own implemented controller"
 	)
 	return {
 		rules = rules,
-		phase = Phases.new(rules.phases),
+		phase = if rules.customJump
+			then { current = -1, elapsed = 0, binding = rules.phases }
+			else Phases.new(rules.phases),
 		shooting = Shooting.new(rules.shooting, random),
 		untilCheck = rules.init.timerSeconds,
 		pending = 0,
 		wrapperFrames = rules.initialWrapperFrames or 0,
+		customRequested = false,
 	}
+end
+-- Godot3 invokes derived physics before inherited Enemy jump physics. Check the previous landed flag first.
+function Actor.beforeJump(state: State, jump: { landed: boolean, jumping: boolean, locked: boolean }): boolean
+	if
+		not state.rules.customJump
+		or state.phase.current >= 0
+		or not state.customRequested
+		or not jump.landed
+		or jump.jumping
+	then
+		return false
+	end
+	state.phase.current, state.customRequested = 0, false
+	Shooting.phaseChanged(state.shooting)
+	state.shooting.movement.locked = jump.locked
+	return true
 end
 local function frame(
 	state: State,
@@ -44,13 +65,20 @@ local function frame(
 	state.untilCheck -= dt
 	if state.untilCheck <= 1e-9 then
 		state.untilCheck += state.rules.init.timerSeconds
-		Phases.onTimeout(state.phase, health, function(index)
-			Shooting.select(state.shooting, index + 2) -- root is profile1; source child0 is profile2
-			Shooting.phaseChanged(state.shooting)
-			if changed then
-				changed(index + 2)
-			end
-		end)
+		if state.rules.customJump then
+			state.customRequested = true -- source override does not increment Boss.elapsed_time
+		else
+			Phases.onTimeout(state.phase, health, function(index)
+				Shooting.select(state.shooting, index + 2) -- root is profile1; source child0 is profile2
+				Shooting.phaseChanged(state.shooting)
+				if changed then
+					changed(index + 2)
+				end
+			end)
+		end
+	end
+	if state.rules.customJump and state.phase.current < 0 then
+		return
 	end
 	if state.wrapperFrames > 0 then
 		state.wrapperFrames -= 1

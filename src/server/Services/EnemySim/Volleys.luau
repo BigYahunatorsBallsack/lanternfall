@@ -32,6 +32,7 @@ type Shot = {
 	damage: number,
 	flown: number, -- studs so far
 	motion: Types.EnemyShotMotion?,
+	source: number?, -- explicit source death link; unlinked projectiles keep their normal lifetime
 }
 
 local Volleys = {}
@@ -76,7 +77,8 @@ function Volleys.fire(
 	range: number,
 	radius: number,
 	damage: number,
-	motion: Types.EnemyShotMotion?
+	motion: Types.EnemyShotMotion?,
+	source: number?
 ): number
 	self.nextId += 1
 	table.insert(self.shots, {
@@ -91,8 +93,21 @@ function Volleys.fire(
 		damage = damage,
 		flown = 0,
 		motion = motion,
+		source = source,
 	})
 	return self.nextId
+end
+function Volleys.removeSource(self: Volleys, source: number): { number }
+	local ended = {}
+	for index = #self.shots, 1, -1 do
+		local shot = self.shots[index]
+		if shot.source == source then
+			table.insert(ended, shot.id)
+			table.insert(ended, shot.flown)
+			table.remove(self.shots, index)
+		end
+	end
+	return ended
 end
 
 -- The arena's walls moved (map-size effect at run start).

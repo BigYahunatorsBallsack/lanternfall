@@ -54,7 +54,7 @@
     "root": "First physics callback selects/registers normal shooting through DetectEvolution.13bullets,350px/s, inclusive750pxrange, mirrored0/-110pxtransform, constant fan+-3.14rad. CD10, animation speed4, every3methods200framepause, movement locked with35framerecovery.",
     "child": "At50%HP or30s, independent boss_state FollowTarget and two parallel infinite lasers;source max_range850px.135frameCD with default+-10randomness, animation speed1, recovery75frames,150pxspacing and0/-110pxtransform.",
     "damage": "Root2+1/wave registers after Boss.init and bypasses its earlier-25%damage reset. Child3+1/wave is already registered and receives that reduction. Explicit wave11/globalfactor1 yields12root and10child. A later boost resets both before final rounding; a reset before first physics does not survive the later normal registration.",
-    "laser": "Source rectangle half-extents2000x15px centered at0/0, both directions. Translation follows the source with captured offset; rotation fixed at birth.0.75swarning;0.4sactive countdown starts decrementing on the enabling frame. Stops on first hit and persists after source death. Source EnemyLaser does not invoke Projectile._physics_process.",
+    "laser": "Source rectangle half-extents2000x15px centered at0/0, both directions. Translation follows the source with captured offset; rotation fixed at birth.0.75swarning;0.4sactive countdown starts decrementing on the enabling frame. Stops on first hit and persists after source death. Godot3 automatically calls Projectile._physics_process after EnemyLaser; the prior audit note was incorrect. Full inherited border/time-factor behavior remains open.",
     "laserParentAudit": "Read source projectile.tscn MD5812858f38125afcd1b80afb57cffed70: no root/Hitbox transform override. Infinite scene supplies centered Collision position and RectangleShape2D."
   },
   "focused": {
@@ -192,5 +192,16 @@
     "Original in-game body sprite, attack poses, HPbar, audio, laser textures/auras/charge animation are not accepted; local body PNG only. Existing red strip is an explicit fallback. Its warning remains at birth position and nominal expiry rather than following/canceling with every authoritative beam update.",
     "Native actor birth uses source-scene adapter; legacy BossService debug spawn and actual Jungle area/wave orchestration remain gated.35/38is only the direct scene closure; evolved/conditional scenes and complete area rules remain open.",
     "No Studio, real two-client or mobile test. No additional character counted complete."
-  ]
+  ],
+  "sourceAuditCorrection": {
+    "reason": "Godot3 notification callbacks execute at every script inheritance level, derived first for physics. Lack of an explicit parent call does not suppress Projectile physics.",
+    "source": "https://raw.githubusercontent.com/godotengine/godot/3.5.3-stable/modules/gdscript/gdscript.cpp#L1124-L1134",
+    "runtimeChanged": false,
+    "enginePackVersion": [
+      3,
+      7,
+      0
+    ],
+    "scope": "Godot3-family callback semantics, not an exact installed executable build match"
+  }
 }

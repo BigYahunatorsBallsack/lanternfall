@@ -18,7 +18,8 @@ def generate():
  return {'version':ref['version'],'steamBuild':int(ref['steamBuildId']),'source':path,'sourceMd5':p.entries[path]['md5'],'scriptSource':script,'scriptMd5':p.entries[script]['md5'],
  'halfExtentsPoints':shape['properties']['extents']['values'],'offsetPoints':collision['position']['values'],
  'frameRate':60,'delaySeconds':0.75,'afterSeconds':0.4,
- 'audit':{'sourceFollowsTranslation':True,'rotationFixedAtBirth':True,'stopAfterFirstHit':True,'deleteWithSource':False,'basePhysicsNotCalled':True,'afterDecrementsOnEnablingFrame':True},'originalVisualAccepted':False}
+ 'audit':{'sourceFollowsTranslation':True,'rotationFixedAtBirth':True,'stopAfterFirstHit':True,'deleteWithSource':False,'basePhysicsAutomaticallyCalled':True,'callbackOrder':['EnemyLaser','Projectile'],'afterDecrementsOnEnablingFrame':True},
+ 'enginePackVersion':p.engine,'engineSource':{'scope':'Godot3-family callback semantics, not an exact installed executable build match','url':'https://raw.githubusercontent.com/godotengine/godot/3.5.3-stable/modules/gdscript/gdscript.cpp','symbol':'GDScriptInstance::call_multilevel','lines':[1124,1134]},'originalVisualAccepted':False}
 def main():
  a=argparse.ArgumentParser(description=__doc__);a.add_argument('--check',action='store_true');args=a.parse_args();data=generate();cat=module('laser_catalog','tools/build-character-catalog.py')
  text='--!strict\n-- Source centered infinite enemy laser geometry and clocks; NativeLaserService owns hostile instances.\nlocal data='+cat.luau(data)+'\nreturn data\n'

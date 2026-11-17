@@ -23,8 +23,26 @@ local data = {
 		rotationFixedAtBirth = true,
 		stopAfterFirstHit = true,
 		deleteWithSource = false,
-		basePhysicsNotCalled = true,
+		basePhysicsAutomaticallyCalled = true,
+		callbackOrder = {
+			"EnemyLaser",
+			"Projectile",
+		},
 		afterDecrementsOnEnablingFrame = true,
+	},
+	enginePackVersion = {
+		3,
+		7,
+		0,
+	},
+	engineSource = {
+		scope = "Godot3-family callback semantics, not an exact installed executable build match",
+		url = "https://raw.githubusercontent.com/godotengine/godot/3.5.3-stable/modules/gdscript/gdscript.cpp",
+		symbol = "GDScriptInstance::call_multilevel",
+		lines = {
+			1124,
+			1134,
+		},
 	},
 	originalVisualAccepted = false,
 }

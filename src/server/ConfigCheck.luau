@@ -673,21 +673,39 @@ function ConfigCheck.run(): { string }
 		local plan = boss.boss
 		local native = boss.nativeBoss
 		if native then
+			local jump = native.customJump
+			local customJump = native.family == "Carnotaurus" and jump ~= nil
 			if
 				(
 					native.family ~= "Therizinosaurus"
 					and native.family ~= "Silesaurus"
 					and native.family ~= "Diplodocus"
 					and native.family ~= "Baryonyx"
+					and not customJump
 				)
-				or not native.phases.usesBasePhaseTimer
-				or #native.shooting.profiles ~= #native.phases.states + 1
-				or #native.shooting.profiles < 2
+				or native.phases.usesBasePhaseTimer == customJump
+				or #native.shooting.profiles ~= #native.phases.states + (if customJump then 0 else 1)
+				or #native.shooting.profiles < (if customJump then 1 else 2)
 				or #native.attacks ~= #native.shooting.profiles
 				or not boss.nativeHealthRounding
 				or not boss.nativeDamageRounding
 			then
 				problem(`Native boss {id} needs its implemented family, phase/profile bindings and source rounding`)
+			end
+			if customJump and jump then
+				local landing = jump.landing
+				if
+					not boss.nativeJump
+					or #native.phases.states ~= 1
+					or landing.speed <= 0
+					or landing.projectileRange <= 0
+					or landing.projectileRadius <= 0
+					or landing.volley.count < 1
+				then
+					problem(`Native boss {id} needs its source root jump and independent landing volley`)
+				end
+			elseif native.customJump then
+				problem(`Native boss {id} does not implement a custom jump controller`)
 			end
 			for index, attack in native.attacks do
 				if native.attacks[1].damage and not attack.damage then
