@@ -1,0 +1,24 @@
+{
+  "version": "1.2.0.3",
+  "steamBuild": "26642464",
+  "source": "res://entities/units/enemies/jungle/elites/diplodocus/diplodocus.tscn",
+  "sourceMd5": "d0805671ab5fe90cb3359c9fa9f56843",
+  "textureSource": "res://.import/diplodocus.png-ac44abfd60dd348000761f5e97ca8a63.stex",
+  "textureMd5": "f1d86926b9bbfb3df56147dfef9f2330",
+  "output": "assets/enemies/native-diplodocus/Diplodocus.png",
+  "size": [
+    300,
+    300
+  ],
+  "alphaBounds": [
+    63,
+    6,
+    242,
+    297
+  ],
+  "rgbaSha256": "f895b34563f6104997008fbffd881f20642b514e2b7bc2551f3d6e66cc78c17f",
+  "pngSha256": "438a2ede8c3944c5567e829cdc0e0efe5d9b526f461b1cdc35cbd817ef5ced5e",
+  "uploadedCount": 0,
+  "runtimeAssetIdsChanged": false,
+  "originalArtAcceptedInGame": false
+}

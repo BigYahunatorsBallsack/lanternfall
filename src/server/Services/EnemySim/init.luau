@@ -23,6 +23,7 @@ local NativeSummons = require(script.NativeSummons)
 local EntryHealing = require(script.NativeEntryHealing)
 local MovementInput = require(script.Parent.CharacterService.Movement)
 local NativeVolley = require(Shared.Util.NativeEnemyVolley)
+local NativeBossShooting = require(Shared.Util.NativeBossShooting)
 local RunSchedule = require(Shared.Util.RunSchedule)
 local DeathShots = require(script.NativeDeathShots)
 local NativeStatCache = require(script.NativeEnemyStatCache)
@@ -365,6 +366,8 @@ local function stepNativeBosses()
 					end, function(...)
 						EnemySim.NativeSummon:Fire(...)
 					end)
+					-- The source counts requests rather than successful bodies; a whole final batch may exceed its cap.
+					NativeBossShooting.recordSpawns(state.shooting, profile, summon.count)
 					return
 				end
 				if target == 0 then
@@ -393,8 +396,8 @@ local function stepNativeBosses()
 							dx,
 							dz,
 							shotSpeed,
-							rules.projectileRange,
-							rules.projectileRadius,
+							assert(rules.projectileRange, "Native bullet needs its source range"),
+							assert(rules.projectileRadius, "Native bullet needs its source radius"),
 							damage
 						)
 					end

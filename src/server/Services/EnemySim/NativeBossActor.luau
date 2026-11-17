@@ -14,7 +14,7 @@ export type State = {
 }
 function Actor.new(rules: Enemies.NativeBoss, random: () -> number): State
 	assert(
-		rules.family == "Therizinosaurus" or rules.family == "Silesaurus",
+		rules.family == "Therizinosaurus" or rules.family == "Silesaurus" or rules.family == "Diplodocus",
 		"Native boss family requires its own implemented controller"
 	)
 	return {

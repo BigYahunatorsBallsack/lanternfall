@@ -1,0 +1,159 @@
+{
+  "referenceVersion": "1.2.0.3",
+  "steamBuild": 26642464,
+  "baseMain": "de4e155e97855cc18ffb52b1e81e53d1af8532fc",
+  "parentCommit": "9ceadcb41b650072cb1a4e30d05a320cef1c051d",
+  "scope": "Concrete normal Diplodocus native hostile scene, finite source Alamosaurus spawning and independent eight-normal-slash phase; not a complete evolved/visual/Jungle port.",
+  "sourceFacts": {
+    "source": "res://entities/units/enemies/jungle/elites/diplodocus/diplodocus.tscn",
+    "sourceMd5": "d0805671ab5fe90cb3359c9fa9f56843",
+    "stats": {
+      "health": 1,
+      "health_increase_each_wave": 750.0,
+      "speed": 250,
+      "speed_randomization": 0,
+      "damage": 1,
+      "damage_increase_each_wave": 1.5,
+      "attack_cd": 30.0,
+      "value": 10,
+      "knockback_resistance": 1.0,
+      "gold_spread": 0,
+      "can_drop_consumables": true,
+      "always_drop_consumables": true,
+      "base_drop_chance": 1.0,
+      "item_drop_chance": 1.0,
+      "min_consumable_tier": 0,
+      "max_consumable_tier": 0,
+      "armor": 0,
+      "armor_increase_each_wave": 0.0,
+      "generate_blood": true
+    },
+    "body": {
+      "radiusPoints": 56.5685,
+      "offsetPoints": [
+        0,
+        -32
+      ]
+    },
+    "hurt": {
+      "radiusPoints": 32.0,
+      "offsetPoints": [
+        0,
+        -16
+      ]
+    },
+    "hit": {
+      "radiusPoints": 40.7922,
+      "offsetPoints": [
+        0,
+        -16
+      ]
+    },
+    "mass": 100.0,
+    "root": "Alamosaurus child,165framecooldown, animation speed1,200pxsquare, finite999childrequestcap; live enemyCount scaling with minimum1 and no co-op count share.",
+    "child": "Independent boss_state shooting behavior at50%HP or25s: eight normal slashes,800px/s,100pxsquare, random spread+-0.3rad about each actual origin bearing; CD10, initial45, animation speed2, two-method long cooldown120frames.",
+    "movement": "Root and child inherit FollowTarget; raw movement is target-parent, so shoot_in_unit_direction targets the player point. No movement lock/recovery in these profiles.",
+    "finiteSemantics": "Cap checked only before starting a spawn animation. A whole final batch may exceed999. Count attempted child requests even if later births are refused. On animation finish the current finite behavior uses source LARGE_NUMBER99999999 when exhausted. Zero-limit ready skips get_cd; reset uses get_cd and resets only the selected counter."
+  },
+  "focused": {
+    "newChecks": 15,
+    "NativeBossSpawnLimit": "4/0; first0/4 before implementation",
+    "NativeDiplodocusActor": "3/0; source root method frame212 and25s phase boundary/45frame child initial timer/two-shot long pause",
+    "NativeDiplodocusServer": "6/0; first0/4 before registration; initial actor2/4 exposed overly tight batched-time fixture and child warning restart wait, corrected fixture boundaries without changing production logic. Actual cap1000requests then no second batch, queued native child body and canonical death verified.",
+    "NativeBossConfig": "7/0 including2new negatives; initially5/2 before finite/bullet validation",
+    "preservedServers": "Silesaurus8/0 and Therizinosaurus8/0"
+  },
+  "mutations": [
+    {
+      "mutation": "ignoreFinitePhysicsGuard",
+      "spec": "NativeBossSpawnLimit",
+      "passed": 2,
+      "failed": 2,
+      "detected": true
+    },
+    {
+      "mutation": "countSalvosInsteadOfChildren",
+      "spec": "NativeBossSpawnLimit",
+      "passed": 3,
+      "failed": 1,
+      "detected": true
+    },
+    {
+      "mutation": "omitActualRequestCounting",
+      "spec": "NativeDiplodocusServer",
+      "passed": 5,
+      "failed": 1,
+      "detected": true
+    },
+    {
+      "mutation": "discardReadyZeroCap",
+      "spec": "NativeBossSpawnLimit",
+      "passed": 3,
+      "failed": 1,
+      "detected": true
+    },
+    {
+      "mutation": "omitTimerPhaseSwitch",
+      "spec": "NativeDiplodocusActor",
+      "passed": 2,
+      "failed": 1,
+      "detected": true
+    }
+  ],
+  "fullSuite": {
+    "artifact": "build/native-five-branch-ten-diplodocus-final-de4e155.json",
+    "specs": 382,
+    "passed": 2282,
+    "failed": 36,
+    "aborted": 0,
+    "returningVsImmediatePrevious": [
+      [
+        "tests/EnemiesB9.spec.luau",
+        "FAIL new enemies (B9) > lets a Gobbler eat the orbs on the floor and drop them all when killed"
+      ]
+    ],
+    "nowPassingWithoutFixClaim": [
+      [
+        "tests/Smoke.spec.luau",
+        "FAIL smoke > chases the player until it touches them"
+      ]
+    ],
+    "unknownFailureIdentities": [],
+    "comparison": "Previous379/2267/36; current382/2282/36. All15newchecks pass. Known Gobbler returns, Smoke chase passes; failure count equal but identities not identical. No unknown failure identity against immediate and historical comparison union.",
+    "frozenRuntimeAndTests": true,
+    "seconds": 280.1,
+    "budgetInterpretation": "Three previously flaky timing budgets passed again; stable performance acceptance remains open. No assertions or budgets weakened."
+  },
+  "checks": {
+    "sourceCompiler": "Diplodocus --check passed",
+    "localArtCompiler": "passed; original300x300PNG viewed, no uploads/runtime IDs",
+    "stylua": "passed",
+    "selene": "0errors/18existingWarnings/0parse; cached Roblox API",
+    "rojo": "passed"
+  },
+  "interfaces": [
+    "NativeBossShooting.Profile adds optional spawnLimit/exhaustedFrames; Clock stores child request count. recordSpawns is server-owned accounting after trusted source summon emission. Unlimited callers retain their existing clock behavior.",
+    "NativeBossShooting.new distinguishes ready from reset for zero-cap source behavior. Method/finish still dereference current profiles; inactive clocks and shared animation preserved.",
+    "NativeBoss family union explicitly adds Diplodocus; projectileRange/projectileRadius are optional for slash-only controllers and required/validated for actual bullet dispatch. No invented unused bullet geometry for Diplodocus.",
+    "Config.Enemies.champions appends type74 after body scaling; original source circles are not rescaled twice.",
+    "EnemySim NativeSummon/NativeSlash signals keep argument shapes. No Remote, snapshot, storage, Arsenal, runtime asset ID changes."
+  ],
+  "status": {
+    "codePreparedCharacters": 48,
+    "openCharacters": 26,
+    "newCompletedCharacters": 0,
+    "registeredSourceScenes": 35,
+    "resolvedDirectScenes": 34,
+    "totalDirectScenes": 38,
+    "remainingBosses": 2,
+    "remainingElites": 2,
+    "junglePlayable": false
+  },
+  "limits": [
+    "Normal hostile source controller only. Meca/Mutant evolution, full Curse/stronger_elites_on_kill and forced friendly-boss conversion remain open.",
+    "Positions/targets/World remain15Hz;60Hzattack clocks do not establish full Godot frame/solver/Area/deferred/pooling/global RNG/retarget/projectile lifetime parity.",
+    "Children use the actual-run source factor provider and birth queue, not synthetic debug-parent wave overrides. Overlapping markers restart at new arena positions.",
+    "Original in-game sprite/HPbar/pose/audio/shader and legacy BossService debug-spawn support remain open. Native scene birth is the implemented route; no area selection/wave orchestration acceptance.",
+    "No Studio, real two-client or mobile test. No extra character counted complete."
+  ]
+}

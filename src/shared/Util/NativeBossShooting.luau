@@ -11,6 +11,8 @@ export type Profile = {
 	minRange: number,
 	maxRange: number,
 	unrestricted: boolean?, -- an unlimited source spawning attack does not test the parent's target distance
+	spawnLimit: number?, -- explicit finite SpawningAttackBehavior cap; counts children, not shoot animations
+	exhaustedFrames: number?,
 }
 export type Rules = {
 	frameRate: number,
@@ -19,7 +21,7 @@ export type Rules = {
 	animationSeconds: number,
 	profiles: { Profile },
 }
-export type Clock = { initial: number, remaining: number, recovery: number, shots: number }
+export type Clock = { initial: number, remaining: number, recovery: number, shots: number, spawns: number }
 export type State = {
 	rules: Rules,
 	current: number,
@@ -34,15 +36,17 @@ local function cooldown(clock: Clock, profile: Profile, rules: Rules, random: ()
 	local low = math.max(rules.minimumCooldownFrames, profile.cooldown - profile.randomization)
 	return low + random() * (profile.cooldown + profile.randomization - low)
 end
-local function newClock(profile: Profile, rules: Rules, random: () -> number): Clock
-	local clock = { initial = profile.initial, remaining = 0, recovery = 0, shots = 0 }
-	clock.remaining = cooldown(clock, profile, rules, random)
+local function newClock(profile: Profile, rules: Rules, random: () -> number, ready: boolean?): Clock
+	local clock = { initial = profile.initial, remaining = 0, recovery = 0, shots = 0, spawns = 0 }
+	clock.remaining = if ready and profile.spawnLimit == 0
+		then assert(profile.exhaustedFrames, "Finite spawning needs its source exhausted cooldown")
+		else cooldown(clock, profile, rules, random)
 	return clock
 end
 function Shooting.new(rules: Rules, random: () -> number): State
 	local clocks = {}
 	for index, profile in rules.profiles do
-		clocks[index] = newClock(profile, rules, random)
+		clocks[index] = newClock(profile, rules, random, true)
 	end
 	assert(#clocks > 0, "Native boss requires a root shooting profile")
 	return {
@@ -61,6 +65,10 @@ function Shooting.resetCurrent(state: State, random: () -> number): number
 	state.clocks[index] = newClock(state.rules.profiles[index], state.rules, random)
 	return index -- source projectile-damage reset is the owning controller's separate responsibility
 end
+-- Source increments per emitted child request, including requests whose eventual body is refused by the world cap.
+function Shooting.recordSpawns(state: State, index: number, count: number)
+	state.clocks[index].spawns += count
+end
 function Shooting.physics(state: State, dt: number, distance: number): boolean
 	local clock = state.clocks[state.current]
 	local profile = state.rules.profiles[state.current]
@@ -75,6 +83,7 @@ function Shooting.physics(state: State, dt: number, distance: number): boolean
 		not state.animation.playing
 		and clock.remaining <= 0
 		and clock.recovery <= 0
+		and (profile.spawnLimit == nil or clock.spawns < profile.spawnLimit)
 		and (profile.unrestricted or (distance >= profile.minRange and distance <= profile.maxRange))
 	then
 		state.animation.playing, state.animation.fired = true, false
@@ -102,7 +111,10 @@ function Shooting.advanceAnimation(state: State, dt: number, random: () -> numbe
 	if animation.playing and animation.cursor >= state.rules.animationSeconds - 1e-9 then
 		animation.playing = false
 		local index = state.current
-		state.clocks[index].remaining = cooldown(state.clocks[index], state.rules.profiles[index], state.rules, random)
+		local clock, profile = state.clocks[index], state.rules.profiles[index]
+		clock.remaining = if profile.spawnLimit ~= nil and clock.spawns >= profile.spawnLimit
+			then assert(profile.exhaustedFrames, "Finite spawning needs its source exhausted cooldown")
+			else cooldown(clock, profile, state.rules, random)
 	end
 	return fired
 end

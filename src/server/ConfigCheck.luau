@@ -674,7 +674,7 @@ function ConfigCheck.run(): { string }
 		local native = boss.nativeBoss
 		if native then
 			if
-				(native.family ~= "Therizinosaurus" and native.family ~= "Silesaurus")
+				(native.family ~= "Therizinosaurus" and native.family ~= "Silesaurus" and native.family ~= "Diplodocus")
 				or not native.phases.usesBasePhaseTimer
 				or #native.shooting.profiles ~= #native.phases.states + 1
 				or #native.shooting.profiles < 2
@@ -699,6 +699,17 @@ function ConfigCheck.run(): { string }
 				elseif not attack.volley or not attack.speed or attack.speed <= 0 then
 					problem(`Native boss {id} attack {index} needs its source volley and projectile speed`)
 				end
+				if
+					attack.kind == "Bullet"
+					and (
+						not native.projectileRange
+						or native.projectileRange <= 0
+						or not native.projectileRadius
+						or native.projectileRadius <= 0
+					)
+				then
+					problem(`Native boss {id} bullet {index} needs range and radius`)
+				end
 			end
 			if native.family == "Silesaurus" then
 				if
@@ -718,6 +729,19 @@ function ConfigCheck.run(): { string }
 				problem(`Native boss {id} needs valid shared shoot animation timing`)
 			end
 			for index, profile in native.shooting.profiles do
+				if
+					profile.spawnLimit ~= nil
+					and (
+						profile.spawnLimit < 0
+						or profile.spawnLimit % 1 ~= 0
+						or not profile.exhaustedFrames
+						or profile.exhaustedFrames <= 0
+					)
+				then
+					problem(
+						`Native boss {id} finite spawn {index} needs a nonnegative integer cap and exhausted cooldown`
+					)
+				end
 				if
 					profile.animationSpeed <= 0
 					or profile.cooldown < 0

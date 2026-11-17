@@ -6,7 +6,7 @@ local NativeVolley = require(script.Parent.Parent.Util.NativeEnemyVolley)
 local BossShooting = require(script.Parent.Parent.Util.NativeBossShooting)
 
 export type NativeBoss = {
-	family: "Therizinosaurus" | "Silesaurus",
+	family: "Therizinosaurus" | "Silesaurus" | "Diplodocus",
 	shooting: BossShooting.Rules,
 	phases: { usesBasePhaseTimer: boolean, states: { { hpStart: number, timerStart: number } } },
 	init: {
@@ -20,8 +20,8 @@ export type NativeBoss = {
 		timerSeconds: number,
 	},
 	projectileDamage: number,
-	projectileRange: number,
-	projectileRadius: number,
+	projectileRange: number?,
+	projectileRadius: number?,
 	attacks: {
 		{
 			kind: "NormalSlash" | "Bullet" | "Spawn",
@@ -1945,6 +1945,7 @@ local EliteWaves = table.freeze({
 scaleBodies(Champions)
 Champions.Therizinosaurus = require(script.Parent.NativeTherizinosaurus).kind
 Champions.Silesaurus = require(script.Parent.NativeSilesaurus).kind
+Champions.Diplodocus = require(script.Parent.NativeDiplodocus).kind
 for _, champion in Champions do
 	table.freeze(champion)
 end
