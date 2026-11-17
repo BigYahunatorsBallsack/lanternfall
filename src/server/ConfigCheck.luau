@@ -674,14 +674,41 @@ function ConfigCheck.run(): { string }
 		local native = boss.nativeBoss
 		if native then
 			if
-				native.family ~= "Therizinosaurus"
+				(native.family ~= "Therizinosaurus" and native.family ~= "Silesaurus")
 				or not native.phases.usesBasePhaseTimer
 				or #native.shooting.profiles ~= #native.phases.states + 1
 				or #native.shooting.profiles < 2
+				or #native.attacks ~= #native.shooting.profiles
 				or not boss.nativeHealthRounding
 				or not boss.nativeDamageRounding
 			then
 				problem(`Native boss {id} needs its implemented family, phase/profile bindings and source rounding`)
+			end
+			for index, attack in native.attacks do
+				if attack.kind == "Spawn" then
+					local clock = native.shooting.profiles[index]
+					if
+						not attack.summon
+						or not attack.minimumCount
+						or attack.minimumCount < 1
+						or not clock
+						or not clock.unrestricted
+					then
+						problem(`Native boss {id} spawn {index} needs source summon rules and an unrestricted clock`)
+					end
+				elseif not attack.volley or not attack.speed or attack.speed <= 0 then
+					problem(`Native boss {id} attack {index} needs its source volley and projectile speed`)
+				end
+			end
+			if native.family == "Silesaurus" then
+				if
+					not native.movements
+					or #native.movements ~= 3
+					or not native.speedReset
+					or native.speedReset.profile ~= 3
+				then
+					problem(`Native boss Silesaurus needs all three source movements and its second-child speed reset`)
+				end
 			end
 			if
 				native.shooting.frameRate <= 0

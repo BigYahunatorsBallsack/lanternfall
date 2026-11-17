@@ -13,7 +13,10 @@ export type State = {
 	pending: number,
 }
 function Actor.new(rules: Enemies.NativeBoss, random: () -> number): State
-	assert(rules.family == "Therizinosaurus", "Native boss family requires its own implemented controller")
+	assert(
+		rules.family == "Therizinosaurus" or rules.family == "Silesaurus",
+		"Native boss family requires its own implemented controller"
+	)
 	return {
 		rules = rules,
 		phase = Phases.new(rules.phases),
@@ -28,13 +31,17 @@ local function frame(
 	health: () -> number,
 	distance: number,
 	random: () -> number,
-	emit: (number) -> ()
+	emit: (number) -> (),
+	changed: ((number) -> ())?
 )
 	state.untilCheck -= dt
 	if state.untilCheck <= 1e-9 then
 		state.untilCheck += state.rules.init.timerSeconds
 		Phases.onTimeout(state.phase, health, function(index)
 			Shooting.select(state.shooting, index + 2) -- root is profile1; source child0 is profile2
+			if changed then
+				changed(index + 2)
+			end
 		end)
 	end
 	Shooting.physics(state.shooting, dt, distance)
@@ -47,13 +54,14 @@ function Actor.step(
 	health: () -> number,
 	distance: number,
 	random: () -> number,
-	emit: (number) -> ()
+	emit: (number) -> (),
+	changed: ((number) -> ())?
 )
 	local seconds = 1 / state.rules.shooting.frameRate
 	state.pending += dt
 	while state.pending >= seconds - 1e-9 do
 		state.pending = math.max(0, state.pending - seconds)
-		frame(state, seconds, health, distance, random, emit)
+		frame(state, seconds, health, distance, random, emit, changed)
 	end
 end
 -- Source Boss.init rounds the already rounded Unit HP a second time; damage modifiers still precede final rounding.

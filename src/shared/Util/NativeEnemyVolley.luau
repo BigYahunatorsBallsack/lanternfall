@@ -14,6 +14,7 @@ export type Rule = {
 	parallel: { spacing: number, angleOffset: number, forwardOffset: number }?,
 	spawnRing: { radius: number, away: boolean, baseRandomization: number? }?,
 	spawnSquare: number?, -- source projectile_spawn_spread around the actor, only when border spawning is off
+	baseAimFromSpawn: boolean?, -- source base_rot is measured after spawn position/transform, before fan overrides
 	aimFromSpawn: { targetRotation: number }?, -- one source random rotation of the player target per batch
 }
 function Volley.emit(
@@ -57,19 +58,20 @@ function Volley.emit(
 		if rule.constantSpread and rule.count > 1 then
 			spread = -rule.spread + index * (2 * rule.spread / (rule.count - 1))
 		end
-		local angle = base + spread
+		local shotBase = if rule.baseAimFromSpawn then math.atan2(tz - sz, tx - sx) else base
+		local angle = shotBase + spread
 		-- Source specific angles replace the aim, but a constant-spread fan overrides them again.
 		if rule.specificDegrees and not (rule.constantSpread and rule.count > 1) then
 			angle = math.rad(assert(rule.specificDegrees[index + 1], "Missing source volley angle"))
 		end
 		if rule.parallel then
 			local p = rule.parallel
-			local dx, dz = math.cos(base), math.sin(base)
+			local dx, dz = math.cos(shotBase), math.sin(shotBase)
 			local side = (index - (rule.count - 1) * 0.5) * p.spacing
 			-- Godot Vector2.tangent is (y,-x), including the lone-projectile negative-angle endpoint.
 			sx += dx * p.forwardOffset + dz * side
 			sz += dz * p.forwardOffset - dx * side
-			angle = base - p.angleOffset + 2 * p.angleOffset * index / math.max(1, rule.count - 1)
+			angle = shotBase - p.angleOffset + 2 * p.angleOffset * index / math.max(1, rule.count - 1)
 		end
 		if rule.spawnRing and rule.spawnRing.away then
 			angle = math.atan2(sz - z, sx - x)

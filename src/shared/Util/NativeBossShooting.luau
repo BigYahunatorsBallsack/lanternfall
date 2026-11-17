@@ -10,6 +10,7 @@ export type Profile = {
 	animationSpeed: number,
 	minRange: number,
 	maxRange: number,
+	unrestricted: boolean?, -- an unlimited source spawning attack does not test the parent's target distance
 }
 export type Rules = {
 	frameRate: number,
@@ -74,8 +75,7 @@ function Shooting.physics(state: State, dt: number, distance: number): boolean
 		not state.animation.playing
 		and clock.remaining <= 0
 		and clock.recovery <= 0
-		and distance >= profile.minRange
-		and distance <= profile.maxRange
+		and (profile.unrestricted or (distance >= profile.minRange and distance <= profile.maxRange))
 	then
 		state.animation.playing, state.animation.fired = true, false
 		state.animation.cursor, state.animation.speed = 0, profile.animationSpeed

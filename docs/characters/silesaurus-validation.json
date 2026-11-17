@@ -1,0 +1,157 @@
+{
+  "referenceVersion": "1.2.0.3",
+  "steamBuild": 26642464,
+  "baseMain": "de4e155e97855cc18ffb52b1e81e53d1af8532fc",
+  "parentCommit": "8ee0c1f1a18b0d84ea4caf01a01033f830e7cc43",
+  "scope": "Concrete normal Silesaurus native hostile controller, source summon queue, original two bullet phases and speed reset; not an evolved/visual/complete Jungle port.",
+  "sourceFacts": {
+    "source": "res://entities/units/enemies/jungle/elites/silesaurus/silesaurus.tscn",
+    "sourceMd5": "7c0b1ed5c7b0596267d328dde443ac4b",
+    "stats": {
+      "health": 1,
+      "health_increase_each_wave": 750.0,
+      "speed": 200,
+      "speed_randomization": 0,
+      "damage": 1,
+      "damage_increase_each_wave": 1.5,
+      "attack_cd": 30.0,
+      "value": 10,
+      "knockback_resistance": 1.0,
+      "gold_spread": 0,
+      "can_drop_consumables": true,
+      "always_drop_consumables": true,
+      "base_drop_chance": 1.0,
+      "item_drop_chance": 1.0,
+      "min_consumable_tier": 0,
+      "max_consumable_tier": 0,
+      "armor": 0,
+      "armor_increase_each_wave": 0.0,
+      "generate_blood": true
+    },
+    "root": "Unlimited two-Enigmacursor spawning behavior; no distance gate; square area600px; minimum1 after live team number_of_enemies scaling, no co-op count share.",
+    "firstChild": "85%HP or10s, three bullets850px/s, mirrored(45,-100) transform and55pxsquare, final aim from each actual origin; ten-shot long cooldown120frames.",
+    "secondChild": "50%HP or35s, four bullets650px/s, mirrored(45,-100) transform and75pxsquare, fan+-0.1rad from each origin, initial60frames, two-shot long cooldown60frames.",
+    "speedReset": "Source child index1 only: reset_speed_stat(75); round original integer spawn argument times captured unrounded global speed factor times1.75.",
+    "movement": "Target-centered square300pxrange, root until arrival, child update120/60frames; existing native World goal/forbidden-zone adapter.",
+    "independentInheritance": "Each child inherits boss_state.tscn/ShootingAttackBehavior defaults independently. State1 final aim flag is false in State2; unused State2 random_rotation does not rotate its fan."
+  },
+  "focused": {
+    "newChecks": 20,
+    "NativeVolleyOrigin": "3/0; first1/2",
+    "NativeSilesaurusClock": "3/0; first1/2; then corrected test to distinguish0.8s method and1s finish",
+    "NativeSilesaurusActor": "3/0",
+    "NativeSilesaurusServer": "8/0; first0/5 before actor registration; includes real queued births and speed double-rounding negative",
+    "NativeBossConfig": "5/0 including2new validation negatives; missing movement case initially failed",
+    "NativeJungleMovement": "9/0 including1new root/child target cadence case",
+    "NativeTherizinosaurusServer": "8/0 preserved; ordered attack descriptors replace root/phase aliases"
+  },
+  "mutations": [
+    {
+      "mutation": "discardPerOriginBearing",
+      "spec": "NativeVolleyOrigin",
+      "passed": 1,
+      "failed": 2,
+      "detected": true
+    },
+    {
+      "mutation": "rangeGateSpawning",
+      "spec": "NativeSilesaurusClock",
+      "passed": 1,
+      "failed": 2,
+      "detected": true
+    },
+    {
+      "mutation": "ignoreTeamEnemyCount",
+      "spec": "NativeSilesaurusServer",
+      "passed": 6,
+      "failed": 2,
+      "detected": true
+    },
+    {
+      "mutation": "dropSummonMinimum",
+      "spec": "NativeSilesaurusServer",
+      "passed": 7,
+      "failed": 1,
+      "detected": true
+    },
+    {
+      "mutation": "roundSpeedBeforeReset",
+      "spec": "NativeSilesaurusServer",
+      "passed": 7,
+      "failed": 1,
+      "detected": true
+    },
+    {
+      "mutation": "ignorePhaseCallback",
+      "spec": "NativeSilesaurusActor",
+      "passed": 1,
+      "failed": 2,
+      "detected": true
+    }
+  ],
+  "fullSuite": {
+    "artifact": "build/native-five-branch-ten-silesaurus-final-de4e155.json",
+    "specs": 379,
+    "passed": 2267,
+    "failed": 36,
+    "aborted": 0,
+    "newFailureIdentities": [],
+    "nowPassingWithoutFixClaim": [
+      [
+        "tests/CharmedWorld.spec.luau",
+        "FAIL Charmed faction runtime > steps a mixed hostile and friendly crowd within the shared simulation budget"
+      ],
+      [
+        "tests/EnemiesB9.spec.luau",
+        "FAIL new enemies (B9) > lets a Gobbler eat the orbs on the floor and drop them all when killed"
+      ],
+      [
+        "tests/EnemyWorld.spec.luau",
+        "FAIL EnemyWorld > steps 140 enemies with 4 players inside the 4 ms budget"
+      ],
+      [
+        "tests/Weapons.spec.luau",
+        "FAIL weapon budget > steps 4 players with six max-tier weapons each among 140 enemies within the 4 ms step budget"
+      ]
+    ],
+    "comparison": "Previous375/2243/40; final379/2267/36. All20newchecks pass; no new failing identity. Runtime/tests frozen during274.8s full run. Afterwards only generated table.insert whitespace canonicalized; Silesaurus server8/0 and clocks3/0 rechecked.",
+    "budgetInterpretation": "EnemyWorld, CharmedWorld, Weapons budgets and Gobbler happened to pass this run. Previous failures remain open/flaky; no stable performance acceptance or fix claimed."
+  },
+  "checks": {
+    "sourceCompilers": "Silesaurus and Therizinosaurus --check passed",
+    "localArtCompiler": "passed; viewed original200x200PNG; no uploads/runtime IDs",
+    "stylua": "passed after second-pass canonicalization of generated Silesaurus table.insert; compiler now applies two passes",
+    "selene": "0errors/18existingWarnings/0parse; cached Roblox API",
+    "rojo": "passed"
+  },
+  "interfaces": [
+    "NativeBoss has ordered attacks instead of rootSpeed/phaseSpeed/rootVolley/phaseVolley aliases; both current native families emit from matching descriptors. No other callers found.",
+    "NativeBossActor.step appends an optional synchronous phase-selected callback; old callers retain behavior.",
+    "NativeBossShooting.Profile.unrestricted opts the explicit source unlimited spawning profile out of the shooting range test.",
+    "NativeEnemyVolley.Rule.baseAimFromSpawn computes pre-fan bearing after source square placement and mirrored transform; final aim override remains later. Existing callers without the opt-in keep their previous behavior.",
+    "EnemySim dispatches trusted Spawn/NormalSlash/Bullet actions. Spawn uses existing NativeSummons and SpawnDirector NativeSummon queue without new signal arguments.",
+    "Per-actor movement kind copies preserve shared frozen config; speed reset uses stored original source argument and unrounded birth factor. No Remote, snapshot, storage, Arsenal or asset ID changes."
+  ],
+  "status": {
+    "codePreparedCharacters": 48,
+    "openCharacters": 26,
+    "newCompletedCharacters": 0,
+    "registeredSourceScenes": 34,
+    "resolvedDirectScenes": 33,
+    "totalDirectScenes": 38,
+    "remainingBosses": 2,
+    "remainingElites": 3,
+    "junglePlayable": false,
+    "normalJungleElitesBound": [
+      "Therizinosaurus",
+      "Silesaurus"
+    ]
+  },
+  "limits": [
+    "No complete native parity acceptance: positions, nearest-player target sampling and World movement remain15Hz; source attack clocks alone are processed60Hz. Goal-arrival/phase movement sequencing, full Godot solver/Area/deferred/pooling/global RNG/retarget and projectile lifetime equivalence remain open.",
+    "No Meca/Mutant evolution, full Curse/stronger_elites_on_kill path, forced friendly-boss conversion, original in-game sprite/HPbar/pose/audio/shader acceptance.",
+    "Silesaurus child births use the existing actual-run source factor provider/queue, not synthetic debug-parent wave overrides. Canonical hostile birth tested.",
+    "Legacy BossService SpawnChampion still requires its own BossBrain plan. Native actors use the exact source-scene birth adapter; area selection/wave orchestration remain gated.",
+    "No Studio, real two-client, mobile or original visual acceptance; no additional character completion claimed."
+  ]
+}

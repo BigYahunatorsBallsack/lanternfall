@@ -351,18 +351,33 @@ local function stepNativeBosses()
 				return RandomService.number("Spawns")
 			end,
 			function(profile)
+				local rules = state.rules
+				local attack = rules.attacks[profile]
+				if attack.kind == "Spawn" then
+					local summon = table.clone(assert(attack.summon, "Native boss spawn attack needs summon rules"))
+					local team = require(script.Parent.StatService).getTeamStat("enemyCount")
+					summon.count = math.max(
+						assert(attack.minimumCount, "Native boss spawn attack needs its source minimum count"),
+						math.round(summon.count * (1 + team / NativeStatRules.percent))
+					)
+					NativeSummons.emit(world, id, summon, nil, function()
+						return RandomService.number("Spawns")
+					end, function(...)
+						EnemySim.NativeSummon:Fire(...)
+					end)
+					return
+				end
 				if target == 0 then
 					return
 				end
-				local rules = state.rules
-				local rule = if profile == 1 then rules.rootVolley else rules.phaseVolley
-				local speed = if profile == 1 then rules.rootSpeed else rules.phaseSpeed
+				local rule = assert(attack.volley, "Native boss projectile attack needs volley rules")
+				local speed = assert(attack.speed, "Native boss projectile attack needs source speed")
 				speed *= RunDirector.getRunOptions().enemySpeed / NativeStatRules.percent
 				local damage = world:getShotDamage(id)
 				NativeVolley.emit(rule, x, z, targetXs[target], targetZs[target], speed, function()
 					return RandomService.number("Combat")
 				end, function(px, pz, dx, dz, shotSpeed)
-					if profile == 1 then
+					if attack.kind == "NormalSlash" then
 						EnemySim.NativeSlash:Fire(
 							id,
 							px,
@@ -384,6 +399,26 @@ local function stepNativeBosses()
 						)
 					end
 				end)
+			end,
+			function(profile)
+				local rules = state.rules
+				local index = world.indexOf[id]
+				if rules.movements then
+					-- Per-actor copy: selecting a source movement never mutates shared/frozen enemy config.
+					local kind = table.clone(world.kinds[index])
+					kind.wander = rules.movements[profile]
+					world.kinds[index] = kind
+					world.keeps[index] = assert(kind.wander, "Native boss phase needs its source movement").range
+					world.wanderXs[index], world.wanderZs[index], world.wanderLeft[index] = 0, 0, 0
+				end
+				if rules.speedReset and profile == rules.speedReset.profile then
+					local base = nativeBases[id]
+					local kind = world.kinds[index]
+					local points = base.sourceSpeedPoints
+						* base.spawn.speed
+						* (1 + rules.speedReset.percent / NativeStatRules.percent)
+					world:setSpeedFactor(id, math.round(points) * Config.Stats.range.studsPerPoint / kind.speed)
+				end
 			end
 		)
 	end

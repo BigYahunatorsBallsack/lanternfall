@@ -73,7 +73,7 @@ describe("main-game wiki enemy stats", function()
 				count += 1
 			end
 		end
-		expect(count).toBe(72) -- Original32, Nightmare7, Jungle30, SeaPig1, neutralTree1 and nativeTherizinosaurus1.
+		expect(count).toBe(73) -- Original32, Nightmare7, Jungle30, SeaPig1, neutralTree1 and two native Jungle elites.
 		for _, kind in Config.Enemies.types do
 			expect(seen[kind.typeId + 128]).toBe(nil)
 		end

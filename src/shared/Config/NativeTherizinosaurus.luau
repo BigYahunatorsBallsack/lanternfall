@@ -124,21 +124,29 @@ data.controller = {
 	phases = C.actors.Therizinosaurus,
 	init = data.bossInit,
 	projectileDamage = root.damage,
-	rootSpeed = root.projectile_speed * POINT,
-	phaseSpeed = C.actors.Therizinosaurus.shooting.phaseOne.properties.projectile_speed * POINT,
 	projectileRange = J.shootingRules.projectileRangeStuds,
 	projectileRadius = data.bullet.radiusPoints * POINT,
-	rootVolley = {
-		count = root.number_projectiles,
-		spread = root.projectile_spread,
-		constantSpread = root.constant_spread,
-		offsetX = 0,
-		offsetZ = 0,
-		speedStep = root.speed_change_after_each_projectile * POINT,
-		spawnSquare = root.projectile_spawn_spread * POINT,
-		aimFromSpawn = { targetRotation = 0 },
+	attacks = {
+		{
+			kind = "NormalSlash",
+			speed = root.projectile_speed * POINT,
+			volley = {
+				count = root.number_projectiles,
+				spread = root.projectile_spread,
+				constantSpread = root.constant_spread,
+				offsetX = 0,
+				offsetZ = 0,
+				speedStep = root.speed_change_after_each_projectile * POINT,
+				spawnSquare = root.projectile_spawn_spread * POINT,
+				aimFromSpawn = { targetRotation = 0 },
+			},
+		},
+		{
+			kind = "Bullet",
+			speed = C.actors.Therizinosaurus.shooting.phaseOne.properties.projectile_speed * POINT,
+			volley = C.therizinosaurusPhaseOneVolley,
+		},
 	},
-	phaseVolley = C.therizinosaurusPhaseOneVolley,
 }
 data.kind = {
 	id = "Therizinosaurus",
